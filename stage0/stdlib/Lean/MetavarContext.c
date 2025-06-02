@@ -793,7 +793,6 @@ LEAN_EXPORT lean_object* l_Lean_MetavarContext_getExprAssignmentCore_x3f(lean_ob
 LEAN_EXPORT uint8_t l_Lean_MetavarContext_isAnonymousMVar(lean_object*, lean_object*);
 static lean_object* l_Lean_DependsOn_instMonadMCtxM___closed__2;
 uint8_t l_Lean_LocalContext_contains(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedMetavarDecl___closed__3;
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_MetavarContext_MkBinding_collectForwardDeps___spec__40(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Lean_simpLevelIMax_x27(lean_object*, lean_object*, lean_object*);
@@ -1227,6 +1226,7 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_modifyLCtx___rarg___lambda__1(lean_object
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l___private_Lean_MetavarContext_0__Lean_reprMetavarKind____x40_Lean_MetavarContext___hyg_113____closed__15;
 static lean_object* l_Lean_instantiateLCtxMVars___rarg___closed__2;
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MetavarContext_findLevelDepth_x3f(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_localDeclDependsOn_x27___spec__58(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit___at_Lean_exprDependsOn_x27___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -4205,7 +4205,7 @@ x_2 = l_Lean_isLevelMVarAssignable___rarg___lambda__1___closed__2;
 x_3 = lean_unsigned_to_nat(425u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_isLevelMVarAssignable___rarg___lambda__1___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -4540,7 +4540,7 @@ x_2 = l_Lean_MetavarContext_getDecl___closed__1;
 x_3 = lean_unsigned_to_nat(430u);
 x_4 = lean_unsigned_to_nat(17u);
 x_5 = l_Lean_MetavarContext_getDecl___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -8951,7 +8951,7 @@ x_15 = l_Lean_isLevelMVarAssignable___rarg___lambda__1___closed__1;
 x_16 = l_Array_foldlMUnsafe_fold___at_Lean_instantiateLCtxMVars___spec__8___rarg___lambda__4___closed__4;
 x_17 = lean_unsigned_to_nat(597u);
 x_18 = lean_unsigned_to_nat(12u);
-x_19 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_15, x_16, x_17, x_18, x_14);
+x_19 = l_mkPanicMessageWithDecl(x_15, x_16, x_17, x_18, x_14);
 lean_dec(x_14);
 x_20 = l_panic___at_Lean_instantiateLCtxMVars___spec__2___rarg(x_4, x_19);
 return x_20;
@@ -35493,7 +35493,7 @@ x_2 = l_Lean_MetavarContext_getLevelDepth___closed__1;
 x_3 = lean_unsigned_to_nat(874u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_MetavarContext_getDecl___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

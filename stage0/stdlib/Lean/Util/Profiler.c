@@ -266,6 +266,7 @@ static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonSampl
 LEAN_EXPORT lean_object* l_Lean_Firefox_instToJsonMicroseconds(double);
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonProfileMeta____x40_Lean_Util_Profiler___hyg_807____closed__25;
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonFrameTable____x40_Lean_Util_Profiler___hyg_2936____closed__16;
+lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonFrameTable____x40_Lean_Util_Profiler___hyg_2936____closed__12;
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonSamplesTable____x40_Lean_Util_Profiler___hyg_1725____closed__19;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
@@ -825,7 +826,6 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___private_Lean_Util_Pro
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonFrameTable____x40_Lean_Util_Profiler___hyg_2936____closed__21;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonProfile____x40_Lean_Util_Profiler___hyg_4818____closed__17;
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___spec__11___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lean_Firefox_instToJsonProfile;
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___lambda__2___closed__2;
@@ -47272,7 +47272,7 @@ uint64_t x_133; lean_object* x_134; lean_object* x_135;
 x_133 = lean_unbox_uint64(x_14);
 lean_dec(x_14);
 x_134 = lean_uint64_to_nat(x_133);
-x_135 = l___private_Init_Data_Repr_0__Nat_reprFast(x_134);
+x_135 = l_Nat_reprFast(x_134);
 x_27 = x_135;
 goto block_132;
 }

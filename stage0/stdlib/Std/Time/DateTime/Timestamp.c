@@ -55,6 +55,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Timestamp_instHSubDuration__1___boxed(lean_o
 static lean_object* l_Std_Time_instOrdTimestamp___closed__1;
 static lean_object* l_Std_Time_Timestamp_addHours___closed__1;
 LEAN_EXPORT uint8_t l___private_Std_Time_DateTime_Timestamp_0__Std_Time_decEqTimestamp____x40_Std_Time_DateTime_Timestamp___hyg_228_(lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l___private_Std_Time_DateTime_Timestamp_0__Std_Time_reprTimestamp____x40_Std_Time_DateTime_Timestamp___hyg_190____closed__6;
 LEAN_EXPORT uint8_t l_Std_Time_instDecidableLeTimestamp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_toSecondsSinceUnixEpoch___boxed(lean_object*);
@@ -168,7 +169,6 @@ LEAN_EXPORT lean_object* l_Std_Time_Timestamp_toMinutes(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_instHSubOffset__4;
 static lean_object* l_Std_Time_Timestamp_instHSubOffset__6___closed__1;
 static lean_object* l_Std_Time_instReprTimestamp___closed__1;
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_subHours(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_instHSubOffset__5;
 static lean_object* l_Std_Time_Timestamp_subSeconds___closed__1;
@@ -457,7 +457,7 @@ if (x_28 == 0)
 lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 x_29 = lean_nat_abs(x_24);
 lean_dec(x_24);
-x_30 = l___private_Init_Data_Repr_0__Nat_reprFast(x_29);
+x_30 = l_Nat_reprFast(x_29);
 x_31 = lean_string_append(x_22, x_30);
 lean_dec(x_30);
 if (x_27 == 0)
@@ -469,7 +469,7 @@ if (x_32 == 0)
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 x_33 = lean_nat_abs(x_25);
 lean_dec(x_25);
-x_34 = l___private_Init_Data_Repr_0__Nat_reprFast(x_33);
+x_34 = l_Nat_reprFast(x_33);
 x_35 = lean_unsigned_to_nat(9u);
 x_36 = l_Std_Time_instToStringDuration_leftPad(x_35, x_34);
 lean_dec(x_34);
@@ -497,7 +497,7 @@ x_46 = lean_nat_sub(x_44, x_45);
 lean_dec(x_44);
 x_47 = lean_nat_add(x_46, x_45);
 lean_dec(x_46);
-x_48 = l___private_Init_Data_Repr_0__Nat_reprFast(x_47);
+x_48 = l_Nat_reprFast(x_47);
 x_49 = l___private_Std_Time_DateTime_Timestamp_0__Std_Time_reprTimestamp____x40_Std_Time_DateTime_Timestamp___hyg_190____closed__17;
 x_50 = lean_string_append(x_49, x_48);
 lean_dec(x_48);
@@ -545,7 +545,7 @@ x_68 = lean_nat_sub(x_66, x_67);
 lean_dec(x_66);
 x_69 = lean_nat_add(x_68, x_67);
 lean_dec(x_68);
-x_70 = l___private_Init_Data_Repr_0__Nat_reprFast(x_69);
+x_70 = l_Nat_reprFast(x_69);
 x_71 = l___private_Std_Time_DateTime_Timestamp_0__Std_Time_reprTimestamp____x40_Std_Time_DateTime_Timestamp___hyg_190____closed__17;
 x_72 = lean_string_append(x_71, x_70);
 lean_dec(x_70);
@@ -560,7 +560,7 @@ if (x_74 == 0)
 lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; 
 x_75 = lean_nat_abs(x_25);
 lean_dec(x_25);
-x_76 = l___private_Init_Data_Repr_0__Nat_reprFast(x_75);
+x_76 = l_Nat_reprFast(x_75);
 x_77 = lean_unsigned_to_nat(9u);
 x_78 = l_Std_Time_instToStringDuration_leftPad(x_77, x_76);
 lean_dec(x_76);
@@ -587,7 +587,7 @@ x_87 = lean_nat_sub(x_86, x_67);
 lean_dec(x_86);
 x_88 = lean_nat_add(x_87, x_67);
 lean_dec(x_87);
-x_89 = l___private_Init_Data_Repr_0__Nat_reprFast(x_88);
+x_89 = l_Nat_reprFast(x_88);
 x_90 = lean_string_append(x_71, x_89);
 lean_dec(x_89);
 x_91 = lean_unsigned_to_nat(9u);
@@ -787,7 +787,7 @@ if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_nat_abs(x_2);
-x_6 = l___private_Init_Data_Repr_0__Nat_reprFast(x_5);
+x_6 = l_Nat_reprFast(x_5);
 return x_6;
 }
 else
@@ -799,7 +799,7 @@ x_9 = lean_nat_sub(x_7, x_8);
 lean_dec(x_7);
 x_10 = lean_nat_add(x_9, x_8);
 lean_dec(x_9);
-x_11 = l___private_Init_Data_Repr_0__Nat_reprFast(x_10);
+x_11 = l_Nat_reprFast(x_10);
 x_12 = l___private_Std_Time_DateTime_Timestamp_0__Std_Time_reprTimestamp____x40_Std_Time_DateTime_Timestamp___hyg_190____closed__17;
 x_13 = lean_string_append(x_12, x_11);
 lean_dec(x_11);

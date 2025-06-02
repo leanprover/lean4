@@ -204,7 +204,6 @@ static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_partialFixpoint___spec__13(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_mkMonoPProd___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_Lean_Elab_partialFixpoint___spec__17___lambda__3(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_instInhabitedPartialFixpoint;
 static lean_object* l_Array_mapFinIdxM_map___at_Lean_Elab_partialFixpoint___spec__17___closed__3;
 static lean_object* l_Array_mapFinIdxM_map___at_Lean_Elab_partialFixpoint___spec__17___closed__6;
@@ -326,6 +325,7 @@ static lean_object* l_Lean_Elab_partialFixpoint___closed__6;
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_Meta_getMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_Lean_Elab_partialFixpoint___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_filterMapM___at_Lean_Elab_partialFixpoint___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapFinIdxM_map___at_Lean_Elab_partialFixpoint___spec__4___lambda__2___closed__7;
 static lean_object* l_Array_mapFinIdxM_map___at_Lean_Elab_partialFixpoint___spec__4___lambda__2___closed__11;
@@ -591,7 +591,7 @@ x_2 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_repl
 x_3 = lean_unsigned_to_nat(23u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_replaceRecApps___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -4744,7 +4744,7 @@ x_2 = l_Array_mapFinIdxM_map___at_Lean_Elab_partialFixpoint___spec__17___lambda_
 x_3 = lean_unsigned_to_nat(141u);
 x_4 = lean_unsigned_to_nat(52u);
 x_5 = l_Array_mapFinIdxM_map___at_Lean_Elab_partialFixpoint___spec__17___lambda__1___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -8391,7 +8391,7 @@ x_2 = l_Array_mapFinIdxM_map___at_Lean_Elab_partialFixpoint___spec__17___lambda_
 x_3 = lean_unsigned_to_nat(75u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Elab_partialFixpoint___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -8422,7 +8422,7 @@ x_2 = l_Array_mapFinIdxM_map___at_Lean_Elab_partialFixpoint___spec__17___lambda_
 x_3 = lean_unsigned_to_nat(79u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Lean_Elab_partialFixpoint___closed__5;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

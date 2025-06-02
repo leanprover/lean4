@@ -115,6 +115,7 @@ static lean_object* l_Lean_Compiler_boolFoldFns___closed__10;
 static lean_object* l_Lean_Compiler_natFoldFns___closed__47;
 LEAN_EXPORT uint8_t l_Lean_Compiler_isToNat(lean_object*);
 static lean_object* l_Lean_Compiler_natFoldFns___closed__32;
+lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Compiler_foldNatMod___rarg___closed__1;
 static lean_object* l_Lean_Compiler_numScalarTypes___closed__22;
 LEAN_EXPORT lean_object* l_Lean_Compiler_isToNat___boxed(lean_object*);
@@ -340,7 +341,6 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_foldCharOfNat___boxed(lean_object*, lea
 static lean_object* l_Lean_Compiler_mkNatLt___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldUIntMul___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_mod___boxed(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Compiler_foldUIntMul___closed__1;
 static lean_object* l_Lean_Compiler_numScalarTypes___closed__14;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldUIntDiv___boxed(lean_object*, lean_object*, lean_object*);
@@ -398,7 +398,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_mkUIntTypeName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_2 = l_Nat_reprFast(x_1);
 x_3 = l_Lean_Compiler_mkUIntTypeName___closed__1;
 x_4 = lean_string_append(x_3, x_2);
 lean_dec(x_2);

@@ -56,7 +56,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_ToIR_lowerLet_mkErased(lean_object*, lean_obj
 static lean_object* l_Lean_IR_ToIR_lowerLet___closed__30;
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_ToIR_lowerLet___closed__16;
-lean_object* l___private_Init_GetElem_0__List_get_x21Internal___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ToIR_lowerLet_tryIrDecl_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ToIR_bindErased(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
@@ -158,7 +157,6 @@ static lean_object* l_Lean_IR_ToIR_lowerArg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_IR_toIR___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_ToIR_lowerLet___closed__35;
 extern lean_object* l_Lean_Compiler_LCNF_instInhabitedArg;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ToIR_bindVarToVarId___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_IR_ToIR_lowerLet___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_IR_ToIR_lowerLet___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -181,6 +179,7 @@ static lean_object* l_Lean_IR_ToIR_lowerLet___closed__24;
 static lean_object* l_Lean_IR_ToIR_lowerLet___closed__37;
 LEAN_EXPORT lean_object* l_Lean_IR_ToIR_lowerEnumToScalarType___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ToIR_findDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_get_x21Internal___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_ir_get_ctor_layout(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_ToIR_instInhabitedTranslatedProj___closed__2;
@@ -236,6 +235,7 @@ static lean_object* l_Lean_IR_ToIR_lowerType___closed__1;
 static lean_object* l_Lean_IR_ToIR_lowerLet___closed__34;
 lean_object* lean_uint8_to_nat(uint8_t);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_ToIR_lowerCode___closed__4;
 LEAN_EXPORT lean_object* l_Lean_IR_toIR(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ToIR_lowerLet_lowerNonObjectFields(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2867,7 +2867,7 @@ x_2 = l_List_forIn_x27_loop___at_Lean_IR_ToIR_lowerEnumToScalarType___spec__2___
 x_3 = lean_unsigned_to_nat(82u);
 x_4 = lean_unsigned_to_nat(57u);
 x_5 = l_List_forIn_x27_loop___at_Lean_IR_ToIR_lowerEnumToScalarType___spec__2___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -3821,7 +3821,7 @@ x_2 = l_Lean_IR_ToIR_lowerType___closed__1;
 x_3 = lean_unsigned_to_nat(121u);
 x_4 = lean_unsigned_to_nat(9u);
 x_5 = l_Lean_IR_ToIR_lowerType___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -4567,7 +4567,7 @@ x_2 = l_Lean_IR_ToIR_getCtorInfo___closed__1;
 x_3 = lean_unsigned_to_nat(134u);
 x_4 = lean_unsigned_to_nat(17u);
 x_5 = l_Lean_IR_ToIR_getCtorInfo___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -4801,7 +4801,7 @@ x_2 = l_Lean_IR_ToIR_lowerArg___closed__1;
 x_3 = lean_unsigned_to_nat(142u);
 x_4 = lean_unsigned_to_nat(37u);
 x_5 = l_Lean_IR_ToIR_lowerArg___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -5354,7 +5354,7 @@ x_2 = l_Lean_IR_ToIR_lowerAlt_loop___closed__1;
 x_3 = lean_unsigned_to_nat(372u);
 x_4 = lean_unsigned_to_nat(18u);
 x_5 = l_Lean_IR_ToIR_lowerAlt_loop___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -5789,7 +5789,7 @@ x_2 = l_Lean_IR_ToIR_lowerCode___closed__1;
 x_3 = lean_unsigned_to_nat(192u);
 x_4 = lean_unsigned_to_nat(15u);
 x_5 = l_Lean_IR_ToIR_lowerCode___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -5802,7 +5802,7 @@ x_2 = l_Lean_IR_ToIR_lowerCode___closed__1;
 x_3 = lean_unsigned_to_nat(176u);
 x_4 = lean_unsigned_to_nat(46u);
 x_5 = l_Lean_IR_ToIR_lowerArg___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -5815,7 +5815,7 @@ x_2 = l_Lean_IR_ToIR_lowerCode___closed__1;
 x_3 = lean_unsigned_to_nat(184u);
 x_4 = lean_unsigned_to_nat(52u);
 x_5 = l_Lean_IR_ToIR_lowerArg___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -5828,7 +5828,7 @@ x_2 = l_Lean_IR_ToIR_lowerCode___closed__1;
 x_3 = lean_unsigned_to_nat(189u);
 x_4 = lean_unsigned_to_nat(37u);
 x_5 = l_Lean_IR_ToIR_lowerArg___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -14125,7 +14125,7 @@ x_2 = l_Lean_IR_ToIR_lowerLet___closed__1;
 x_3 = lean_unsigned_to_nat(252u);
 x_4 = lean_unsigned_to_nat(37u);
 x_5 = l_Lean_IR_ToIR_lowerArg___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -14146,7 +14146,7 @@ x_2 = l_Lean_IR_ToIR_lowerLet___closed__1;
 x_3 = lean_unsigned_to_nat(238u);
 x_4 = lean_unsigned_to_nat(10u);
 x_5 = l_Lean_IR_ToIR_lowerLet___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -14167,7 +14167,7 @@ x_2 = l_Lean_IR_ToIR_lowerLet___closed__1;
 x_3 = lean_unsigned_to_nat(343u);
 x_4 = lean_unsigned_to_nat(16u);
 x_5 = l_Lean_IR_ToIR_lowerLet___closed__5;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -14276,7 +14276,7 @@ x_2 = l_Lean_IR_ToIR_lowerLet___closed__1;
 x_3 = lean_unsigned_to_nat(342u);
 x_4 = lean_unsigned_to_nat(30u);
 x_5 = l_Lean_IR_ToIR_lowerLet___closed__17;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -14351,7 +14351,7 @@ x_2 = l_Lean_IR_ToIR_lowerLet___closed__1;
 x_3 = lean_unsigned_to_nat(341u);
 x_4 = lean_unsigned_to_nat(33u);
 x_5 = l_Lean_IR_ToIR_lowerLet___closed__25;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -14463,7 +14463,7 @@ x_2 = l_Lean_IR_ToIR_lowerLet___closed__1;
 x_3 = lean_unsigned_to_nat(350u);
 x_4 = lean_unsigned_to_nat(37u);
 x_5 = l_Lean_IR_ToIR_lowerArg___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -14612,7 +14612,7 @@ lean_inc(x_55);
 lean_dec(x_54);
 x_56 = l_Lean_instInhabitedName;
 x_57 = lean_unsigned_to_nat(0u);
-x_58 = l___private_Init_GetElem_0__List_get_x21Internal___rarg(x_56, x_55, x_57);
+x_58 = l_List_get_x21Internal___rarg(x_56, x_55, x_57);
 lean_dec(x_55);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -37935,7 +37935,7 @@ x_2 = l_Lean_IR_ToIR_lowerResultType_resultTypeForArity___closed__1;
 x_3 = lean_unsigned_to_nat(389u);
 x_4 = lean_unsigned_to_nat(11u);
 x_5 = l_Lean_IR_ToIR_lowerResultType_resultTypeForArity___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

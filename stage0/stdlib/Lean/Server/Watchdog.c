@@ -612,7 +612,6 @@ lean_object* l_Lean_Server_Ilean_load(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Watchdog_RequestQueueMap_enqueue___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_setWorkerState___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls___spec__1(size_t, size_t, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Server_Watchdog_ImportData_update___spec__2(lean_object*);
 static lean_object* l_Lean_Server_Watchdog_instFromJsonCallHierarchyItemData___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_instInhabitedRequestData;
@@ -956,6 +955,7 @@ LEAN_EXPORT lean_object* l_IO_FS_Stream_readLspRequestAs___at_Lean_Server_Watchd
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_shutdown(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_Mutex_atomically___at_Lean_Server_Watchdog_errorPendingRequests___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_Watchdog_handleRequest___spec__14(size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_forwardMessages_handleMessage___lambda__2___closed__3;
 static lean_object* l_Lean_Server_Watchdog_handleRequest___closed__14;
@@ -7569,7 +7569,7 @@ x_2 = l_Lean_Server_Watchdog_RequestQueueMap_enqueue___closed__2;
 x_3 = lean_unsigned_to_nat(120u);
 x_4 = lean_unsigned_to_nat(10u);
 x_5 = l_Lean_Server_Watchdog_RequestQueueMap_enqueue___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -46341,7 +46341,7 @@ x_2 = l_Lean_Server_Watchdog_RequestData_enqueue___closed__1;
 x_3 = lean_unsigned_to_nat(169u);
 x_4 = lean_unsigned_to_nat(10u);
 x_5 = l_Lean_Server_Watchdog_RequestData_enqueue___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -53674,7 +53674,7 @@ x_2 = l_Lean_RBNode_forIn_visit___at_Lean_Server_Watchdog_ImportData_update___sp
 x_3 = lean_unsigned_to_nat(389u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_RBNode_forIn_visit___at_Lean_Server_Watchdog_ImportData_update___spec__11___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

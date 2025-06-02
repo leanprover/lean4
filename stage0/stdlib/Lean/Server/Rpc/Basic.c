@@ -59,6 +59,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_instRpcEncodabl
 lean_object* l_USize_fromJson_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodableProd___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_instRpcEncodableArray___spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_isUnaryNode___rarg(lean_object*);
 static lean_object* l_Lean_Lsp_instBEqRpcRef___closed__1;
@@ -179,7 +180,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodableStateMRpcObjectStore(lean
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodableOfFromJsonOfToJson___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_fromJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_110____closed__4;
 static lean_object* l___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_fromJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_110____closed__14;
 size_t lean_usize_land(size_t, size_t);
@@ -586,7 +586,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_usize_to_nat(x_1);
-x_3 = l___private_Init_Data_Repr_0__Nat_reprFast(x_2);
+x_3 = l_Nat_reprFast(x_2);
 return x_3;
 }
 }
@@ -3712,7 +3712,7 @@ lean_dec(x_1);
 x_12 = lean_unbox_usize(x_9);
 lean_dec(x_9);
 x_13 = lean_usize_to_nat(x_12);
-x_14 = l___private_Init_Data_Repr_0__Nat_reprFast(x_13);
+x_14 = l_Nat_reprFast(x_13);
 x_15 = l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpcDecode___rarg___closed__1;
 x_16 = lean_string_append(x_15, x_14);
 lean_dec(x_14);
@@ -3735,7 +3735,7 @@ size_t x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_objec
 x_21 = lean_unbox_usize(x_9);
 lean_dec(x_9);
 x_22 = lean_usize_to_nat(x_21);
-x_23 = l___private_Init_Data_Repr_0__Nat_reprFast(x_22);
+x_23 = l_Nat_reprFast(x_22);
 x_24 = l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpcDecode___rarg___closed__3;
 x_25 = lean_string_append(x_24, x_23);
 lean_dec(x_23);
@@ -3789,7 +3789,7 @@ lean_dec(x_1);
 x_43 = lean_unbox_usize(x_40);
 lean_dec(x_40);
 x_44 = lean_usize_to_nat(x_43);
-x_45 = l___private_Init_Data_Repr_0__Nat_reprFast(x_44);
+x_45 = l_Nat_reprFast(x_44);
 x_46 = l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpcDecode___rarg___closed__1;
 x_47 = lean_string_append(x_46, x_45);
 lean_dec(x_45);
@@ -3812,7 +3812,7 @@ size_t x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_objec
 x_53 = lean_unbox_usize(x_40);
 lean_dec(x_40);
 x_54 = lean_usize_to_nat(x_53);
-x_55 = l___private_Init_Data_Repr_0__Nat_reprFast(x_54);
+x_55 = l_Nat_reprFast(x_54);
 x_56 = l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpcDecode___rarg___closed__3;
 x_57 = lean_string_append(x_56, x_55);
 lean_dec(x_55);

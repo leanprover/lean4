@@ -92,7 +92,6 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_StructProjCases_M_run___rarg___closed__3;
 static lean_object* l_Lean_Compiler_LCNF_StructProjCases_visitCode___closed__8;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_StructProjCases_visitLetValue___spec__2(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedFVarId;
 static lean_object* l_Lean_Compiler_LCNF_StructProjCases_M_run___rarg___closed__2;
@@ -139,6 +138,7 @@ size_t lean_usize_sub(size_t, size_t);
 lean_object* lean_array_mk(lean_object*);
 lean_object* l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_updateAltCodeImp(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Pass_mkPerDeclaration(lean_object*, lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_StructProjCases___hyg_1845____closed__11;
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_StructProjCases___hyg_1845____closed__1;
@@ -1027,7 +1027,7 @@ x_2 = l_Lean_Compiler_LCNF_StructProjCases_visitLetValue___closed__2;
 x_3 = lean_unsigned_to_nat(110u);
 x_4 = lean_unsigned_to_nat(16u);
 x_5 = l_Lean_Compiler_LCNF_StructProjCases_visitLetValue___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -2481,7 +2481,7 @@ x_1 = l_Lean_Compiler_LCNF_StructProjCases_visitLetValue___closed__1;
 x_2 = l_Lean_Compiler_LCNF_StructProjCases_visitCode___closed__1;
 x_3 = lean_unsigned_to_nat(59u);
 x_4 = l_Lean_Compiler_LCNF_StructProjCases_visitCode___closed__2;
-x_5 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_3, x_4);
+x_5 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_3, x_4);
 return x_5;
 }
 }
@@ -2520,7 +2520,7 @@ x_2 = l_Lean_Compiler_LCNF_StructProjCases_visitCode___closed__1;
 x_3 = lean_unsigned_to_nat(61u);
 x_4 = lean_unsigned_to_nat(8u);
 x_5 = l_Lean_Compiler_LCNF_StructProjCases_visitCode___closed__6;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -2551,7 +2551,7 @@ x_2 = l_Lean_Compiler_LCNF_StructProjCases_visitCode___closed__1;
 x_3 = lean_unsigned_to_nat(83u);
 x_4 = lean_unsigned_to_nat(8u);
 x_5 = l_Lean_Compiler_LCNF_StructProjCases_visitCode___closed__9;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

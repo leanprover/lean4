@@ -164,7 +164,6 @@ static lean_object* l_Lake_createLeanActionWorkflow___closed__1;
 static lean_object* l_Lake_stdLeanConfigFileContents___closed__2;
 static lean_object* l___private_Lake_CLI_Init_0__Lake_reprInitTemplate____x40_Lake_CLI_Init___hyg_412____closed__5;
 LEAN_EXPORT lean_object* l_Lake_initPkg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_prim_handle_mk(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lake_libRootFileContents___closed__4;
 LEAN_EXPORT lean_object* l_String_anyAux___at_Lake_validatePkgName___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -256,6 +255,7 @@ LEAN_EXPORT lean_object* l_String_mapAux___at_Lake_dotlessName___spec__1(lean_ob
 LEAN_EXPORT lean_object* l_Lake_escapeName_x21(lean_object*);
 static lean_object* l___private_Lake_CLI_Init_0__Lake_reprInitTemplate____x40_Lake_CLI_Init___hyg_412____closed__9;
 LEAN_EXPORT lean_object* l_Lake_libLeanConfigFileContents(lean_object*, lean_object*);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_libTomlConfigFileContents(lean_object*, lean_object*);
 lean_object* l_Lake_Env_toolchain(lean_object*);
 static lean_object* l_Lake_libRootFileContents___closed__2;
@@ -1881,7 +1881,7 @@ x_2 = l_Lake_escapeName_x21___closed__2;
 x_3 = lean_unsigned_to_nat(203u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lake_escapeName_x21___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1902,7 +1902,7 @@ x_2 = l_Lake_escapeName_x21___closed__2;
 x_3 = lean_unsigned_to_nat(206u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lake_escapeName_x21___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

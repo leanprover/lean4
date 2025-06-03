@@ -537,6 +537,7 @@ macro_rules
       -- For the latter, the elaborator produces `TermInfo` where the missing argument has already
       -- been applied as `sorry`, which inhibits some language server functionality that relies
       -- on this `TermInfo` (e.g. signature help).
+      -- The parser will still produce an error for `$f $args* <|` in this case.
       `($f $args*)
     else
       `($f $args* $a)
@@ -571,6 +572,7 @@ macro_rules
       -- For the latter, the elaborator produces `TermInfo` where the missing argument has already
       -- been applied as `sorry`, which inhibits some language server functionality that relies
       -- on this `TermInfo` (e.g. signature help).
+      -- The parser will still produce an error for `$f $args* <|` in this case.
       `($f $args*)
     else
       `($f $args* $a)

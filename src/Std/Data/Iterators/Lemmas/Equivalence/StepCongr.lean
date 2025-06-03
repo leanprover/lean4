@@ -44,8 +44,8 @@ def IterM.QuotStep.bundledQuotient [Iterator α m β] [Monad m] [LawfulMonad m]
     {it : IterM (α := α) m β} : it.QuotStep → IterStep (Quot (BundledIterM.Equiv m β)) β :=
   Quot.lift (fun s => s.1.bundledQuotient) (by intro s t; exact id)
 
-private theorem bind_comp_eq_map_bind {m} [Monad m] [LawfulMonad m] {f : α → β} {g : β → m γ}
-    {x : m α} :
+private theorem bind_comp_eq_map_bind {m} [Monad m] [LawfulMonad m] {f : α → β}
+    {g : β → m γ} {x : m α} :
     x >>= (g ∘ f) = (f <$> x) >>= g := by
   simp only [bind_map_left]; rfl
 
@@ -65,8 +65,8 @@ theorem IterM.Equiv.exists_step_of_step [Iterator α₁ m β] [Iterator α₂ m 
   · rfl
 
 open Classical in
-noncomputable def IterM.QuotStep.transportAlongEquiv [Iterator α₁ m β] [Iterator α₂ m β] [Monad m]
-    [LawfulMonad m] {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
+noncomputable def IterM.QuotStep.transportAlongEquiv [Iterator α₁ m β] [Iterator α₂ m β]
+    [Monad m] [LawfulMonad m] {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
     (h : IterM.Equiv ita itb) : ita.QuotStep → itb.QuotStep := by
   refine Quot.lift ?_ ?_
   · intro s₁
@@ -128,11 +128,15 @@ theorem IterM.Equiv.step_eq {α₁ α₂ : Type w} {m : Type w → Type w'} [Mon
     (Quot.mk _ : _ → ita.QuotStep) <$> ita.step =
       IterM.QuotStep.transportAlongEquiv h.symm <$> (Quot.mk _ : _ → itb.QuotStep) <$> itb.step := by
   have he := h
-  simp only [IterM.Equiv, BundledIterM.ofIterM, BundledIterM.Equiv, BundledIterM.step, Functor.map] at h
+  simp only [IterM.Equiv, BundledIterM.ofIterM, BundledIterM.Equiv, BundledIterM.step,
+    Functor.map] at h
   simp only [← HetT.comp_map, ← IterStep.mapIterator_comp] at h
-  replace h : (IterM.stepAsHetT ita).map IterStep.bundledQuotient = (IterM.stepAsHetT itb).map IterStep.bundledQuotient := h
-  have h' : ((IterM.stepAsHetT ita).map IterStep.bundledQuotient).pmap (fun s hs => Subtype.mk s (step_eq.aux (.refl _) hs)) =
-      ((IterM.stepAsHetT itb).map IterStep.bundledQuotient).pmap (fun s hs => Subtype.mk s (step_eq.aux he.symm hs)) := by
+  replace h : (IterM.stepAsHetT ita).map IterStep.bundledQuotient =
+      (IterM.stepAsHetT itb).map IterStep.bundledQuotient := h
+  have h' : ((IterM.stepAsHetT ita).map IterStep.bundledQuotient).pmap
+        (fun s hs => Subtype.mk s (step_eq.aux (.refl _) hs)) =
+      ((IterM.stepAsHetT itb).map IterStep.bundledQuotient).pmap
+        (fun s hs => Subtype.mk s (step_eq.aux he.symm hs)) := by
     congr
     apply step_eq.aux_subtypeMk_congr
     rw [h]
@@ -205,11 +209,12 @@ theorem IterM.Equiv.liftInner_stepAsHetT_pbind_congr [Monad m] [LawfulMonad m]
     intro s₁ s₂ h
     simp only [hfg s₁.1 s₁.2 s₂.1 s₂.2 h]
 
-theorem IterM.Equiv.liftInner_stepAsHetT_bind_congr [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
-    [MonadLiftT m n] [LawfulMonadLiftT m n] [Iterator α₁ m β] [Iterator α₂ m β]
-    {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
+theorem IterM.Equiv.liftInner_stepAsHetT_bind_congr [Monad m] [LawfulMonad m]
+    [Monad n] [LawfulMonad n] [MonadLiftT m n] [LawfulMonadLiftT m n] [Iterator α₁ m β]
+    [Iterator α₂ m β] {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
     {f : (_ : _) → HetT n γ} {g : (_ : _) → HetT n γ} (h : IterM.Equiv ita itb)
-    (hfg : ∀ sa (_ : (IterM.stepAsHetT ita).Property sa) sb (_ : (IterM.stepAsHetT itb).Property sb), sa.bundledQuotient = sb.bundledQuotient → f sa = g sb) :
+    (hfg : ∀ sa (_ : (IterM.stepAsHetT ita).Property sa) sb (_ : (IterM.stepAsHetT itb).Property sb),
+        sa.bundledQuotient = sb.bundledQuotient → f sa = g sb) :
     ((IterM.stepAsHetT ita).liftInner n).bind f = ((IterM.stepAsHetT itb).liftInner n).bind g := by
   simp only [HetT.bind_eq_pbind, HetT.property_liftInner, Equivalence.property_step]
   apply liftInner_stepAsHetT_pbind_congr h

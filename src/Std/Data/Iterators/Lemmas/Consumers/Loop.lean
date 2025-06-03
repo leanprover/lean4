@@ -177,10 +177,9 @@ theorem Iter.Equiv.forIn_eq {α₁ α₂ β γ : Type w} {m : Type w → Type w'
     [IteratorLoop α₂ Id m] [LawfulIteratorLoop α₂ Id m] {init : γ} {f : β → γ → m (ForInStep γ)}
     {ita : Iter (α := α₁) β} {itb : Iter (α := α₂) β} (h : Iter.Equiv ita itb) :
     ForIn.forIn (m := m) ita init f = ForIn.forIn (m := m) itb init f := by
-  simp [Iter.forIn_eq_forIn_toIterM]
   letI : MonadLift Id m := ⟨Std.Internal.idToMonad (α := _)⟩
   letI := Std.Internal.LawfulMonadLiftFunction.idToMonad (m := m)
-  rw [h.toIterM.forIn_eq]
+  simp [Iter.forIn_eq_forIn_toIterM, h.toIterM.forIn_eq]
 
 theorem Iter.Equiv.foldM_eq {α₁ α₂ β γ : Type w} {m : Type w → Type w'}
     [Iterator α₁ Id β] [Iterator α₂ Id β][Iterator α₁ Id β] [Iterator α₂ Id β]

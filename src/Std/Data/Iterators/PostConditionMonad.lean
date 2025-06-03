@@ -129,19 +129,6 @@ theorem PostconditionT.property_pure {m : Type w → Type w'} [Monad m] {α : Ty
     (pure x : PostconditionT m α).Property = (x = ·) :=
   rfl
 
-private theorem congrArg₂ {α : Sort u} {β : α → Sort v} {γ : (a : α) → (b : β a) → Sort w}
-    (f : (a : α) → (b : β a) → γ a b)
-    {a a' b b'} (h : a = a') (h' : HEq b b') : HEq (f a b) (f a' b') := by
-  cases h; cases h'; rfl
-
-private theorem congrArg₄ {α : Sort u} {β : (a : α) → Sort v} {γ : (a : α) → (b : β a) → Sort w}
-    {δ : (a : α) → (b : β a) → (c : γ a b) → Sort x} {ε : (a : α) → (b : β a) → (c : γ a b) →
-      (d : δ a b c) → Sort y}
-    (f : (a : α) → (b : β a) → (c : γ a b) → (d : δ a b c) → ε a b c d)
-    {a a' b b' c c' d d'} (h₁ : a = a') (h₂ : HEq b b') (h₃ : HEq c c') (h₄ : HEq d d') :
-    HEq (f a b c d) (f a' b' c' d') := by
-  cases h₁; cases h₂; cases h₃; cases h₄; rfl
-
 theorem PostconditionT.ext {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {α : Type w} {x y : PostconditionT m α}
     (h : x.Property = y.Property) (h' : (fun p => ⟨p.1, h ▸ p.2⟩) <$> x.operation = y.operation) :

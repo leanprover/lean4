@@ -11,7 +11,7 @@ import Init.Classical
 import Std.Data.Internal.LawfulMonadLiftFunction
 import Std.Data.Iterators.PostConditionMonad
 
-namespace Std.Iterators
+namespace Std.Internal
 
 section Small
 
@@ -113,7 +113,10 @@ theorem Small.map {α : Type v} {β : Type w} (P : α → Prop) (f : (a : α) �
     [Small.{u} { a // P a }] :
     Small.{u} { b // ∃ a h, f a h = b } := .of_surjective { a // P a }
         (fun x => ⟨f x.1 x.2, x.1, x.2, rfl⟩)
-        (fun y => ⟨⟨y.2.choose, y.2.choose_spec.choose⟩, by simp; ext; exact y.2.choose_spec.choose_spec⟩)
+        (fun y => ⟨⟨y.2.choose, y.2.choose_spec.choose⟩, (by
+            simp only
+            ext
+            exact y.2.choose_spec.choose_spec)⟩)
 
 instance {α : Type v} {β : α → Type w} [Small.{u} α] [∀ a, Small.{u} (β a)] :
     Small.{u} ((a : α) × β a) := .of_surjective
@@ -138,7 +141,32 @@ theorem Small.bind {α : Type v} {β : Type w} (P : α → Prop) (Q : α → β 
 
 end Small
 
+end Std.Internal
+
+namespace Std.Iterators
+open Std.Internal
+
+/--
+If `m` is a monad, then `HetT m` is a monad that has two features:
+
+* It generalizes `m` to arbitrary universes.
+* It tracks a postcondition property that holds for the monadic return value, similarly to
+  `PostconditionT`.
+
+This monad is noncomputable and is merely a vehicle for more convenient proofs, especially proofs
+about the equivalence of iterators, because it avoids universe issues and spares users the work
+to handle the postconditions manually.
+
+Caution: Just like `PostconditionT`, this is not a lawful monad transformer.
+To lift from `m` to `HetT m`, use `HetT.lift`.
+
+Because this monad is fundamentally universe-polymorphic, It is recommended for consistency to
+always use the methods `HetT.pure`, `HetT.map` and `HetT.bind` instead of the homogeneous versions
+`Pure.pure`, `Functor.map` and `Bind.bind`.
+-/
 structure HetT (m : Type w → Type w') (α : Type v) where
+  /--
+  -/
   Property : α → Prop
   small : Small.{w} (Subtype Property)
   operation : m (USquash (Subtype Property))
@@ -146,30 +174,51 @@ structure HetT (m : Type w → Type w') (α : Type v) where
 -- `injEq` is the shortest path to DTT hell. We use `ext_iff` instead (see below).
 attribute [-simp] HetT.mk.injEq
 
+/--
+Converts `PostconditionT m α` to `HetT m α`, preserving the postcondition property.
+-/
 noncomputable def HetT.ofPostconditionT [Monad m] (x : PostconditionT m α) : HetT m α :=
   ⟨x.Property, inferInstance, USquash.deflate <$> x.operation⟩
 
 noncomputable instance (m : Type w → Type w') [Monad m] : MonadLift m (HetT m) where
   monadLift x := ⟨fun _ => True, inferInstance, (USquash.deflate ⟨·, .intro⟩) <$> x⟩
 
+/--
+Lifts `x : m α` into `HetT m α` with the trivial postcondition.
+
+Caution: This is not a lawful monad lifting function
+-/
 noncomputable def HetT.lift {α : Type w} {m : Type w → Type w'} [Monad m] (x : m α) :
     HetT m α :=
   x
 
+/--
+A universe-heterogeneous version of `Pure.pure`. Given `a : α`, it returns an element of `HetT m α`
+with the postcondition `(a = ·)`.
+-/
 protected noncomputable def HetT.pure {m : Type w → Type w'} [Pure m] {α : Type v}
     (a : α) : HetT m α :=
   ⟨(a = ·), inferInstance, pure (.deflate ⟨a, rfl⟩)⟩
 
+/--
+A generalization of `HetT.map` that provides the postcondition property to the mapping function.
+-/
 protected noncomputable def HetT.pmap {m : Type w → Type w'} [Functor m] {α : Type u} {β : Type v}
     (x : HetT m α) (f : (a : α) → x.Property a → β) : HetT m β :=
   have : Small.{w} (Subtype x.Property) := x.small
   have := Small.map x.Property f
   ⟨fun b => ∃ a h, f a h = b, inferInstance, (fun a => .deflate ⟨f a.inflate.1 a.inflate.2, a.inflate.1, by simp [a.inflate.property]⟩) <$> x.operation⟩
 
+/--
+A universe-heterogeneous version of `Functor.map`.
+-/
 protected noncomputable def HetT.map {m : Type w → Type w'} [Functor m] {α : Type u} {β : Type v}
     (f : α → β) (x : HetT m α) : HetT m β :=
   x.pmap (fun a _ => f a)
 
+/--
+A generalization of `HetT.bind` that provides the postcondition property to the mapping function.
+-/
 protected noncomputable def HetT.pbind {m : Type w → Type w'} [Monad m] {α : Type u} {β : Type v}
     (x : HetT m α) (f : (a : α) → x.Property a → HetT m β) : HetT m β :=
   have := x.small
@@ -179,6 +228,9 @@ protected noncomputable def HetT.pbind {m : Type w → Type w'} [Monad m] {α : 
     inferInstance,
     x.operation >>= fun a => ((fun b => .deflate ⟨b.inflate.1, a.inflate.1, a.inflate.2, b.inflate.2⟩) <$> (f a.inflate.1 a.inflate.2).operation)⟩
 
+/--
+A universe-heterogeneous version of `Bind.bind`.
+-/
 protected noncomputable def HetT.bind {m : Type w → Type w'} [Monad m] {α : Type u} {β : Type v}
     (x : HetT m α) (f : α → HetT m β) : HetT m β :=
   have := x.small
@@ -195,6 +247,10 @@ noncomputable instance {m : Type w → Type w'} [Monad m] : Monad (HetT m) where
   pure := HetT.pure
   bind := HetT.bind
 
+/--
+Applies the given function to the result of the contained `m`-monadic operation with a
+proof that the postcondition property holds, returning another operation in `m`.
+-/
 noncomputable def HetT.prun [Monad m] (x : HetT m α) (f : (a : α) → x.Property a → m β) :
     m β :=
   x.operation >>= (fun a => letI a' := a.inflate (small := HetT.small _); f a'.1 a'.2)
@@ -221,6 +277,9 @@ theorem HetT.prun_ofPostconditionT [Monad m] [LawfulMonad m] {x : PostconditionT
     (HetT.ofPostconditionT x).prun f = x.operation >>= (fun a => f a.1 a.2) := by
   simp [ofPostconditionT, prun]
 
+/--
+If the monad `m` is liftable to `n`, lifts `HetT m α` to `HetT n α`.
+-/
 noncomputable def HetT.liftInner {m : Type w → Type w'} (n : Type w → Type w'') [MonadLiftT m n]
     (x : HetT m α) : HetT n α :=
   ⟨x.Property, x.small, x.operation⟩
@@ -243,9 +302,9 @@ theorem HetT.ext {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     x = y := by
   specialize h' (USquash { a // x.Property a } (small := HetT.small _)) (fun a ha => pure <| .deflate (small := _) <| Subtype.mk a ha)
   cases x; cases y; cases h
-  simp [HetT.prun] at h'
+  simp only [prun, bind_pure_comp] at h'
   let h'' : (USquash.deflate <| USquash.inflate ·) <$> _ = (USquash.deflate <| USquash.inflate ·) <$> _ := h'
-  simp [USquash.deflate_inflate] at h''
+  simp only [USquash.deflate_inflate, id_map'] at h''
   simp [HetT.mk.injEq, h'']
 
 theorem HetT.ext_iff {m : Type w → Type w'} [Monad m] [LawfulMonad m]
@@ -258,32 +317,6 @@ theorem HetT.ext_iff {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     rfl
   · intro h
     exact HetT.ext h.1 h.2
-
--- theorem HetT.ext {m : Type w → Type w'} [Monad m] [LawfulMonad m]
---     {α : Type v} {x y : HetT m α}
---     (h : x.Property = y.Property)
---     (h' : x.operation = (fun x => .deflate (small := HetT.small _) ⟨(x.inflate (small := y.small)).1, (funext_iff.mp h _) ▸ (x.inflate (small := HetT.small _)).property⟩) <$> y.operation) :
---     x = y := by
---   cases x; rcases y with ⟨_, _, yo⟩; cases h
---   simp at h'
---   simp [HetT.mk.injEq, h']
---   conv => rhs; rw [← id_map (x := yo)]
---   congr
---   ext a
---   exact USquash.deflate_inflate
-
--- theorem HetT.ext_iff {m : Type w → Type w'} [Monad m] [LawfulMonad m]
---     {α : Type v} {x y : HetT m α} :
---     x = y ↔ ∃ h : x.Property = y.Property, x.operation = (fun x => .deflate (small := HetT.small _) ⟨(x.inflate (small := y.small)).1, (funext_iff.mp h _) ▸ (x.inflate (small := HetT.small _)).property⟩) <$> y.operation := by
---   constructor
---   · rintro rfl
---     exact ⟨rfl, by
---       conv => lhs; rw [← id_map (x := x.operation)]
---       congr
---       ext a
---       exact USquash.deflate_inflate.symm⟩
---   · rintro ⟨h, h'⟩
---     exact HetT.ext h h'
 
 @[simp]
 protected theorem HetT.map_eq_pure_bind {m : Type w → Type w'} [Monad m] [LawfulMonad m]
@@ -397,7 +430,8 @@ protected theorem HetT.pmap_map {m : Type w → Type w'} [Monad m] [LawfulMonad 
     {α : Type u} {β : Type v} {γ : Type x}
     {x : HetT m α} {f : α → β} {g : (b : β) → (x.map f).Property b → γ} :
     (x.map f).pmap g = x.pmap (fun a ha => g (f a) ⟨a, ha, rfl⟩) := by
-  simp [ext_iff]
+  simp only [HetT.map_eq_pure_bind, ext_iff, prun_pmap, prun_bind, Function.comp_apply, prun_pure,
+    implies_true, property_pmap, property_bind, property_pure, exists_prop, and_true]
   ext c
   constructor
   · rintro ⟨_, ⟨a, ha, rfl⟩, rfl⟩
@@ -409,7 +443,8 @@ protected theorem HetT.map_pmap {m : Type w → Type w'} [Monad m] [LawfulMonad 
     {α : Type u} {β : Type v} {γ : Type x}
     {x : HetT m α} {f : (a : α) → (ha : x.Property a) → β} {g : β → γ} :
     (x.pmap f).map g = x.pmap (fun a ha => g (f a ha)) := by
-  simp [ext_iff]
+  simp only [HetT.map_eq_pure_bind, ext_iff, prun_bind, Function.comp_apply, prun_pure, prun_pmap,
+    implies_true, property_bind, property_pmap, property_pure, exists_prop, and_true]
   ext c
   constructor
   · rintro ⟨_, ⟨a, ha, rfl⟩, rfl⟩
@@ -445,7 +480,7 @@ theorem HetT.liftInner_bind {m : Type w → Type w'} {n : Type w → Type w''} {
     {β : Type v} [Monad m] [Monad n] [MonadLiftT m n] [LawfulMonadLiftT m n]
     [LawfulMonad m] [LawfulMonad n] {x : HetT m α} {f : α → HetT m β} :
     (x.bind f).liftInner n = (x.liftInner n).bind (fun a => (f a).liftInner n) := by
-  simp [HetT.ext_iff]
+  simp only [ext_iff, property_liftInner, prun_bind, property_bind, exists_true_left]
   intro β g
   simp [liftInner, prun, HetT.bind]
 

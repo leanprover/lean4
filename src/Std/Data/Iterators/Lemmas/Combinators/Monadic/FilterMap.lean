@@ -412,16 +412,18 @@ end ToArray
 
 section Equivalence
 
-theorem stepAsHetT_filterMapWithPostcondition [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Iterator α m β]
-    [MonadLiftT m n] [LawfulMonadLiftT m n]
+theorem stepAsHetT_filterMapWithPostcondition [Monad m] [LawfulMonad m] [Monad n]
+    [LawfulMonad n] [Iterator α m β] [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → PostconditionT n (Option γ)} {it : IterM (α := α) m β} :
-    (IterM.stepAsHetT (it.filterMapWithPostcondition f)) = (((IterM.stepAsHetT it).liftInner n : HetT n _)).bind (match · with
-      | .yield it' out => do match ← HetT.ofPostconditionT (f out) with
-        | some out' => return .yield (it'.filterMapWithPostcondition f) out'
-        | none => return .skip (it'.filterMapWithPostcondition f)
-      | .skip it' => return .skip (it'.filterMapWithPostcondition f)
-      | .done => return .done) := by
-  simp [HetT.ext_iff]
+    (IterM.stepAsHetT (it.filterMapWithPostcondition f)) =
+      (((IterM.stepAsHetT it).liftInner n : HetT n _)).bind (match · with
+        | .yield it' out => do match ← HetT.ofPostconditionT (f out) with
+          | some out' => return .yield (it'.filterMapWithPostcondition f) out'
+          | none => return .skip (it'.filterMapWithPostcondition f)
+        | .skip it' => return .skip (it'.filterMapWithPostcondition f)
+        | .done => return .done) := by
+  simp only [HetT.ext_iff, Equivalence.property_step, Equivalence.prun_step, HetT.prun_bind,
+    HetT.property_liftInner, Equivalence.prun_liftInner_step, HetT.property_bind]
   refine ⟨?_, ?_⟩
   · ext step
     constructor
@@ -429,11 +431,11 @@ theorem stepAsHetT_filterMapWithPostcondition [Monad m] [LawfulMonad m] [Monad n
       cases h
       case yieldNone it' out h h' =>
         refine ⟨_, h, ?_⟩
-        simp [Bind.bind]
+        simp only [bind, HetT.property_bind, HetT.property_ofPostconditionT]
         exact ⟨none, by simp [Pure.pure]; exact ⟨h', rfl⟩⟩
       case yieldSome it' out out' h h' =>
         refine ⟨_, h, ?_⟩
-        simp [Bind.bind]
+        simp only [bind, HetT.property_bind, HetT.property_ofPostconditionT]
         exact ⟨some out', by simp [Pure.pure]; exact ⟨h', rfl⟩⟩
       case skip it' h =>
         exact ⟨_, h, by simp [Pure.pure]; rfl⟩
@@ -442,29 +444,31 @@ theorem stepAsHetT_filterMapWithPostcondition [Monad m] [LawfulMonad m] [Monad n
     · rintro ⟨step', h, h'⟩
       cases step'
       case yield it' out =>
-        simp [Bind.bind] at h'
+        simp only [bind, HetT.property_bind, HetT.property_ofPostconditionT] at h'
         rcases h' with ⟨out', h'⟩
         cases out'
-        · simp [Pure.pure] at h'
+        · simp only [pure, HetT.property_pure] at h'
           cases h'.2
           exact .yieldNone h h'.1
-        · simp [Pure.pure] at h'
+        · simp only [pure, HetT.property_pure] at h'
           cases h'.2
           exact .yieldSome h h'.1
       case skip it' =>
-        simp [Bind.bind, Pure.pure] at h'
+        simp only [pure, HetT.property_pure] at h'
         cases h'
         exact .skip h
       case done =>
-        simp [Bind.bind, Pure.pure] at h'
+        simp only [pure, HetT.property_pure] at h'
         cases h'
         exact .done h
   · intro β f
-    simp [IterM.step_filterMapWithPostcondition]
+    simp only [IterM.step_filterMapWithPostcondition, PlausibleIterStep.skip,
+      PlausibleIterStep.yield, PlausibleIterStep.done, bind_assoc]
     apply bind_congr
     intro step
     cases step using PlausibleIterStep.casesOn
-    · simp [Bind.bind, HetT.prun_bind]
+    · simp only [bind_assoc, bind, HetT.prun_bind, HetT.property_ofPostconditionT,
+        HetT.prun_ofPostconditionT]
       apply bind_congr
       rintro ⟨out, _⟩
       cases out <;> simp [pure]

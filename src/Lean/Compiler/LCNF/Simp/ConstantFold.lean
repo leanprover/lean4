@@ -316,6 +316,13 @@ def Folder.ofNat (f : Nat → LitValue) (args : Array Arg): FolderM (Option LetV
   let some value ← getNatLit fvarId | return none
   return some (.lit (f value))
 
+def Folder.toNat (args : Array Arg): FolderM (Option LetValue) := do
+  let #[.fvar fvarId] := args | return none
+  let some (.lit lit) ← findLetValue? fvarId | return none
+  match lit with
+  | .uint8 v | .uint16 v | .uint32 v | .uint64 v | .usize v => return some (.lit (.nat v.toNat))
+  | .nat _ | .str _ => return none
+
 /--
 All arithmetic folders.
 -/
@@ -370,6 +377,11 @@ def conversionFolders : List (Name × Folder) := [
   (``UInt32.ofNat, Folder.ofNat (fun v => .uint32 (UInt32.ofNat v))),
   (``UInt64.ofNat, Folder.ofNat (fun v => .uint64 (UInt64.ofNat v))),
   (``USize.ofNat, Folder.ofNat (fun v => .usize (UInt64.ofNat v))),
+  (``UInt8.toNat, Folder.toNat),
+  (``UInt16.toNat, Folder.toNat),
+  (``UInt32.toNat, Folder.toNat),
+  (``UInt64.toNat, Folder.toNat),
+  (``USize.toNat, Folder.toNat),
 ]
 
 /--

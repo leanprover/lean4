@@ -3001,6 +3001,10 @@ theorem extract_empty_of_size_le_start {xs : Array α} {start stop : Nat} (h : x
   apply ext'
   simp
 
+theorem _root_.List.toArray_drop {l : List α} {k : Nat} :
+    (l.drop k).toArray = l.toArray.extract k := by
+  rw [List.drop_eq_extract, List.extract_toArray, List.size_toArray]
+
 @[deprecated extract_size (since := "2025-02-27")]
 theorem take_size {xs : Array α} : xs.take xs.size = xs := by
   cases xs
@@ -4336,42 +4340,44 @@ theorem getElem?_ofFn {f : Fin n → α} {i : Nat} :
 
 /-! ### Preliminaries about `range` and `range'` -/
 
-@[simp] theorem size_range' {start size step} : (range' start size step).size = size := by
+@[simp, grind =] theorem size_range' {start size step} : (range' start size step).size = size := by
   simp [range']
 
-@[simp] theorem toList_range' {start size step} :
+@[simp, grind =] theorem toList_range' {start size step} :
      (range' start size step).toList = List.range' start size step := by
   apply List.ext_getElem <;> simp [range']
 
-@[simp]
+@[simp, grind =]
 theorem getElem_range' {start size step : Nat} {i : Nat}
     (h : i < (Array.range' start size step).size) :
     (Array.range' start size step)[i] = start + step * i := by
   simp [← getElem_toList]
 
+@[grind =]
 theorem getElem?_range' {start size step : Nat} {i : Nat} :
     (Array.range' start size step)[i]? = if i < size then some (start + step * i) else none := by
   simp [getElem?_def, getElem_range']
 
-@[simp] theorem _root_.List.toArray_range' {start size step : Nat} :
+@[simp, grind =] theorem _root_.List.toArray_range' {start size step : Nat} :
     (List.range' start size step).toArray = Array.range' start size step := by
   apply ext'
   simp
 
-@[simp] theorem size_range {n : Nat} : (range n).size = n := by
+@[simp, grind =] theorem size_range {n : Nat} : (range n).size = n := by
   simp [range]
 
-@[simp] theorem toList_range {n : Nat} : (range n).toList = List.range n := by
+@[simp, grind =] theorem toList_range {n : Nat} : (range n).toList = List.range n := by
   apply List.ext_getElem <;> simp [range]
 
-@[simp]
+@[simp, grind =]
 theorem getElem_range {n : Nat} {i : Nat} (h : i < (Array.range n).size) : (Array.range n)[i] = i := by
   simp [← getElem_toList]
 
+@[grind =]
 theorem getElem?_range {n : Nat} {i : Nat} : (Array.range n)[i]? = if i < n then some i else none := by
   simp [getElem?_def, getElem_range]
 
-@[simp] theorem _root_.List.toArray_range {n : Nat} : (List.range n).toArray = Array.range n := by
+@[simp, grind =] theorem _root_.List.toArray_range {n : Nat} : (List.range n).toArray = Array.range n := by
   apply ext'
   simp
 

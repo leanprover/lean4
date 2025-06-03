@@ -840,6 +840,10 @@ Otherwise, it pushes `HEq lhs rhs`.
 -/
 def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   if grind.debug.get (← getOptions) then
+    unless (← alreadyInternalized lhs) do
+      throwError "`grind` internal error, lhs of new equality has not been internalized{indentExpr lhs}"
+    unless (← alreadyInternalized rhs) do
+      throwError "`grind` internal error, rhs of new equality has not been internalized{indentExpr rhs}"
     unless proof == congrPlaceholderProof do
       let expectedType ← if isHEq then mkHEq lhs rhs else mkEq lhs rhs
       unless (← withReducible <| isDefEq (← inferType proof) expectedType) do

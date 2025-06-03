@@ -7,7 +7,7 @@ prelude
 import Std.Data.Internal.LawfulMonadLiftFunction
 import Std.Data.Iterators.Combinators.Monadic.FilterMap
 import Std.Data.Iterators.Lemmas.Consumers.Monadic
-import Std.Data.Iterators.Lemmas.Equivalence.Advanced
+import Std.Data.Iterators.Lemmas.Equivalence.StepCongr
 
 namespace Std.Iterators
 open Std.Internal

@@ -8,7 +8,7 @@ import Init.Data.Array.Lemmas
 import Std.Data.Iterators.Consumers.Monadic.Collect
 import Std.Data.Iterators.Lemmas.Monadic.Basic
 import Std.Data.Iterators.Producers
-import Std.Data.Iterators.Lemmas.Equivalence.Advanced
+import Std.Data.Iterators.Lemmas.Equivalence.StepCongr
 
 namespace Std.Iterators
 

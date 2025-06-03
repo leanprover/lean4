@@ -31,6 +31,12 @@ theorem _root_.List.step_iterM_cons {x : β} {xs : List β} :
     ((x :: xs).iterM m).step = pure ⟨.yield (xs.iterM m) x, rfl⟩ := by
   simp only [List.iterM, IterM.step, Iterator.step]; rfl
 
+theorem _root_.List.step_iterM {l : List β} :
+    (l.iterM m).step = match l with
+      | [] => pure ⟨.done, rfl⟩
+      | x :: xs => pure ⟨.yield (xs.iterM m) x, rfl⟩ := by
+  cases l <;> simp [List.step_iterM_cons, List.step_iterM_nil]
+
 theorem ListIterator.toArrayMapped_iterM [Monad n] [LawfulMonad n]
     {β : Type w} {γ : Type w} {lift : ⦃δ : Type w⦄ → m δ → n δ}
     [LawfulMonadLiftFunction lift] {f : β → n γ} {l : List β} :
@@ -59,5 +65,29 @@ theorem _root_.List.toList_iterM [LawfulMonad m] {l : List β} :
 theorem _root_.List.toListRev_iterM [LawfulMonad m] {l : List β} :
     (l.iterM m).toListRev = pure l.reverse := by
   simp [IterM.toListRev_eq, List.toList_iterM]
+
+section Equivalence
+
+theorem List.stepAsHetT_iterM [LawfulMonad m] {l : List β} :
+    (l.iterM m).stepAsHetT = (match l with
+      | [] => pure .done
+      | x :: xs => pure (.yield (xs.iterM m) x)) := by
+  simp only [List.iterM, toIterM, HetT.ext_iff, Equivalence.property_step, IterM.IsPlausibleStep,
+    Iterator.IsPlausibleStep, Equivalence.prun_step]
+  refine ⟨?_, ?_⟩
+  · ext step
+    cases step
+    · cases l
+      · simp [Pure.pure, IterM.ext_iff, ListIterator.ext_iff]
+      · simp only [List.cons.injEq, pure, HetT.property_pure, IterStep.yield.injEq, IterM.ext_iff,
+        ListIterator.ext_iff]
+        exact And.comm
+    · cases l <;> simp [Pure.pure, IterM.ext_iff, ListIterator.ext_iff]
+    · cases l <;> simp [Pure.pure, IterM.ext_iff, ListIterator.ext_iff]
+  · intro β f
+    simp only [IterM.step, Iterator.step, pure_bind]
+    cases l <;> simp [Pure.pure, toIterM]
+
+end Equivalence
 
 end Std.Iterators

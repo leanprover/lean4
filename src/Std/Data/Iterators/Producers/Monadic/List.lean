@@ -23,6 +23,7 @@ variable {α : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
 The underlying state of a list iterator. Its contents are internal and should
 not be used by downstream users of the library.
 -/
+@[ext]
 structure ListIterator (α : Type w) where
   list : List α
 

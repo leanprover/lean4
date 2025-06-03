@@ -6,4 +6,4 @@ Authors: Paul Reichert
 prelude
 import Std.Data.Iterators.Lemmas.Equivalence.HetT
 import Std.Data.Iterators.Lemmas.Equivalence.Basic
-import Std.Data.Iterators.Lemmas.Equivalence.Advanced
+import Std.Data.Iterators.Lemmas.Equivalence.StepCongr

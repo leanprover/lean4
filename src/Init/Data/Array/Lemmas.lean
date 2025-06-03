@@ -763,6 +763,7 @@ theorem all_eq_false' {p : α → Bool} {as : Array α} :
   rw [Bool.eq_false_iff, Ne, all_eq_true']
   simp
 
+@[grind =]
 theorem any_eq {xs : Array α} {p : α → Bool} : xs.any p = decide (∃ i : Nat, ∃ h, p (xs[i]'h)) := by
   by_cases h : xs.any p
   · simp_all [any_eq_true]
@@ -777,6 +778,7 @@ theorem any_eq' {xs : Array α} {p : α → Bool} : xs.any p = decide (∃ x, x 
     simp only [any_eq_false'] at h
     simpa using h
 
+@[grind =]
 theorem all_eq {xs : Array α} {p : α → Bool} : xs.all p = decide (∀ i, (_ : i < xs.size) → p xs[i]) := by
   by_cases h : xs.all p
   · simp_all [all_eq_true]
@@ -4078,11 +4080,11 @@ abbrev all_mkArray := @all_replicate
 
 /-! ### modify -/
 
-@[simp] theorem size_modify {xs : Array α} {i : Nat} {f : α → α} : (xs.modify i f).size = xs.size := by
+@[simp, grind =] theorem size_modify {xs : Array α} {i : Nat} {f : α → α} : (xs.modify i f).size = xs.size := by
   unfold modify modifyM
   split <;> simp
 
-theorem getElem_modify {xs : Array α} {j i} (h : i < (xs.modify j f).size) :
+@[grind =] theorem getElem_modify {xs : Array α} {j i} (h : i < (xs.modify j f).size) :
     (xs.modify j f)[i] = if j = i then f (xs[i]'(by simpa using h)) else xs[i]'(by simpa using h) := by
   simp only [modify, modifyM]
   split
@@ -4090,7 +4092,7 @@ theorem getElem_modify {xs : Array α} {j i} (h : i < (xs.modify j f).size) :
   · simp only [Id.run_pure]
     rw [if_neg (mt (by rintro rfl; exact h) (by simp_all))]
 
-@[simp] theorem toList_modify {xs : Array α} {f : α → α} {i : Nat} :
+@[simp, grind =] theorem toList_modify {xs : Array α} {f : α → α} {i : Nat} :
     (xs.modify i f).toList = xs.toList.modify i f := by
   apply List.ext_getElem
   · simp
@@ -4105,7 +4107,7 @@ theorem getElem_modify_of_ne {xs : Array α} {i : Nat} (h : i ≠ j)
     (xs.modify i f)[j] = xs[j]'(by simpa using hj) := by
   simp [getElem_modify hj, h]
 
-theorem getElem?_modify {xs : Array α} {i : Nat} {f : α → α} {j : Nat} :
+@[grind =] theorem getElem?_modify {xs : Array α} {i : Nat} {f : α → α} {j : Nat} :
     (xs.modify i f)[j]? = if i = j then xs[j]?.map f else xs[j]? := by
   simp only [getElem?_def, size_modify, getElem_modify, Option.map_dif]
   split <;> split <;> rfl
@@ -4154,18 +4156,18 @@ theorem swap_comm {xs : Array α} {i j : Nat} (hi hj) : xs.swap i j hi hj = xs.s
     · split <;> simp_all
     · split <;> simp_all
 
-@[simp] theorem size_swapIfInBounds {xs : Array α} {i j : Nat} :
+@[simp, grind =] theorem size_swapIfInBounds {xs : Array α} {i j : Nat} :
     (xs.swapIfInBounds i j).size = xs.size := by unfold swapIfInBounds; split <;> (try split) <;> simp [size_swap]
 
 /-! ### swapAt -/
 
-@[simp] theorem swapAt_def {xs : Array α} {i : Nat} {v : α} (hi) :
+@[simp, grind =] theorem swapAt_def {xs : Array α} {i : Nat} {v : α} (hi) :
     xs.swapAt i v hi = (xs[i], xs.set i v) := rfl
 
 theorem size_swapAt {xs : Array α} {i : Nat} {v : α} (hi) :
     (xs.swapAt i v hi).2.size = xs.size := by simp
 
-@[simp]
+@[simp, grind =]
 theorem swapAt!_def {xs : Array α} {i : Nat} {v : α} (h : i < xs.size) :
     xs.swapAt! i v = (xs[i], xs.set i v) := by simp [swapAt!, h]
 

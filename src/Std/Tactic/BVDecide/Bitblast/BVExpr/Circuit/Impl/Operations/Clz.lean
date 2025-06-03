@@ -50,14 +50,16 @@ where
       let aig := res.aig
       let cond := res.ref
       have := AIG.LawfulOperator.le_size (f := BVPred.blastGetLsbD) ..
+      let x := x.cast this
       -- lhs = BitVec.ofNat w (w - 1 - curr)
       let res := blastConst aig (w - 1 - curr)
       let aig := res.aig
       let lhs := res.vec
       have := AIG.LawfulVecOperator.le_size (f := blastConst) ..
       let cond := cond.cast this
+      let x := x.cast this
       -- rhs = clzAuxRec x (curr - 1)
-      let res := go x (curr - 1)
+      let res := go aig x (curr - 1)
       let aig := res.aig
       let rhs := res.ref
       -- return ite cond lhs rhs

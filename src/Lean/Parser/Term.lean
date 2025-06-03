@@ -1091,13 +1091,6 @@ def matchExprAlts (rhsParser : Parser) :=
 @[builtin_term_parser] def letExpr := leading_parser:leadPrec
   withPosition ("let_expr " >> matchExprPat >> " := " >> termParser >> checkColGt >> " | " >> termParser) >> optSemicolon termParser
 
--- /--
--- Like `identWithPartialTrailingDot`, but enforces that a space appears at the end of the partial identifier.
-
--- This ensures that the trailing dot is not parsed as part of the subsequent term.
--- -/
--- def identWithPartialTrailingDotSpace :=
---   ident >> optional (checkNoWsBefore >> "." >> checkNoWsBefore >> ident >> checkWsBefore)
 @[term_parser] def throwNamedErrorParser := leading_parser
   "throwNamedError " >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
 @[term_parser] def throwNamedErrorAtParser := leading_parser

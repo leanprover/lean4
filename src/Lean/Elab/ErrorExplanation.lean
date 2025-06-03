@@ -47,7 +47,7 @@ def elabCheckedNamedError : TermElab := fun stx expType? => do
     stx
   addCompletionInfo <| CompletionInfo.errorName span
   let name := id.getId.eraseMacroScopes
-  pushInfoLeaf <| .ofErrorNameInfo { stx := id, errorName := name}
+  pushInfoLeaf <| .ofErrorNameInfo { stx := id, errorName := name }
   let some explan := getErrorExplanationRaw? (← getEnv) name
     | throwError m!"There is no explanation associated with the name `{name}`. \
       Add an explanation of this error to the `Lean.ErrorExplanation` module."
@@ -89,5 +89,15 @@ open Parser Elab Meta Term Command in
       let synth := Syntax.ofRange { start := fileMap.ofPosition ⟨errLine, 0⟩,
                                     stop  := fileMap.ofPosition ⟨errLine + 1, 0⟩ }
       throwErrorAt synth msg
-  modifyEnv (errorExplanationExt.addEntry · (name, { metadata, doc, codeBlocks }))
+  let (declLoc? : Option ErrorExplanation.Location) ← do
+    let some uri ← Server.documentUriFromModule? (← getMainModule) | pure none
+    let map ← getFileMap
+    let start := map.utf8PosToLspPos <| nm.raw.getPos?.getD 0
+    let fin := nm.raw.getTailPos?.map map.utf8PosToLspPos |>.getD start
+    pure <| some {
+      uri := (uri : String)
+      rangeStart := (start.line, start.character)
+      rangeEnd := (fin.line, fin.character)
+    }
+  modifyEnv (errorExplanationExt.addEntry · (name, { metadata, doc, codeBlocks, declLoc? }))
 | _ => throwUnsupportedSyntax

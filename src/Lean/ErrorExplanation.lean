@@ -27,6 +27,18 @@ structure ErrorExplanation.CodeBlockSet where
   deriving Repr
 
 /--
+Describes the location where (the identifier for) an error explanation is declared.
+
+We want to avoid polluting the environment with dummy declarations for error explanations (since,
+outside of the manual, we care only about their names), but we still want jump-to-location
+functionality to work; we use these location values to facilitate that.
+-/
+structure ErrorExplanation.Location where
+  uri        : String
+  rangeStart : Nat × Nat
+  rangeEnd   : Nat × Nat
+
+/--
 An explanation of a named error message.
 
 Error explanations are rendered in the manual; a link to the resulting manual page is displayed at
@@ -36,12 +48,13 @@ structure ErrorExplanation where
   doc : String
   codeBlocks : Array ErrorExplanation.CodeBlockSet
   metadata : ErrorExplanation.Metadata
+  declLoc? : Option ErrorExplanation.Location
 
 namespace ErrorExplanation
 
 inductive CodeInfo.Kind
   | broken | fixed
-deriving Repr, Inhabited, BEq
+  deriving Repr, Inhabited, BEq
 
 instance : ToString CodeInfo.Kind where
   toString

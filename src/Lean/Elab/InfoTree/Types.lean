@@ -108,6 +108,13 @@ structure OptionInfo where
   optionName : Name
   declName : Name
 
+/--
+Info for an error name provided as an identifier to one of the named-error macros (`throwNamedError`
+or similar).
+
+Note that this is *not* added for `Name` terms passed to the underlying functions (e.g.,
+`Lean.throwNamedError`), though these functions generally should not be invoked directly anyway.
+-/
 structure ErrorNameInfo where
   stx : Syntax
   errorName : Name

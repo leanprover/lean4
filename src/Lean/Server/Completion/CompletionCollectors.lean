@@ -535,9 +535,6 @@ private def trailingDotCompletion [ForIn Id Coll (Name × α)]
       items := items.push (mkItem name value textEdit?)
   return items
 
-deriving instance Repr for TextDocumentIdentifier
-deriving instance Repr for TextDocumentPositionParams
-deriving instance Repr for CompletionParams
 def optionCompletion
     (params            : CompletionParams)
     (completionInfoPos : Nat)

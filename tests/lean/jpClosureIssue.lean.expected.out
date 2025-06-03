@@ -1,6 +1,6 @@
 [Compiler.saveMono] size: 7
     def foo b a.1 : EStateM.Result IO.Error PUnit PUnit :=
-      cases b : EStateM.Result IO.Error PUnit PUnit
+      cases b : EStateM.Result IO.Error lcAny PUnit
       | Bool.false =>
         let _x.2 := 1;
         let _x.3 := print _x.2 a.1;

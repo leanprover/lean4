@@ -14,20 +14,9 @@ import Init.Grind
 
 set_option grind.warning false
 
-attribute [grind] getElem?_pos getElem?_neg getElem!_pos getElem!_neg
-
-attribute [grind =] List.sublist_map_iff
-attribute [grind _=_] Std.HashMap.map_fst_toList_eq_keys
-attribute [grind =] List.pairwise_iff_forall_sublist
-attribute [grind] List.nodup_nil
-attribute [grind →] List.mem_of_mem_erase
-attribute [grind] List.Nodup.erase
-attribute [grind] List.mem_erase_of_ne
-
--- Only activate `not_mem_erase` when `l.Nodup` is already available.
-grind_pattern List.Nodup.not_mem_erase => a ∈ l.erase a, l.Nodup
-
-@[grind =] theorem List.nodup_iff_pairwise_ne : List.Nodup l ↔ List.Pairwise (· ≠ ·) l := Iff.rfl
+-- These are potentially expensive as global `@[grind]` attributtes, so we just set them locally here.
+-- See https://github.com/leanprover/lean4/pull/8590.
+attribute [local grind] getElem?_pos getElem?_neg getElem!_pos getElem!_neg
 
 namespace Std.Tactic.BVDecide
 namespace LRAT
@@ -117,9 +106,7 @@ namespace DefaultClause
 
 abbrev toList (c : DefaultClause n) : CNF.Clause (PosFin n) := c.clause
 
-attribute [local grind] Literal.negate
-attribute [local grind] DefaultClause.nodup
-attribute [local grind] DefaultClause.nodupkey
+attribute [local grind] Literal.negate DefaultClause.nodup DefaultClause.nodupkey
 
 theorem not_tautology (c : DefaultClause n) (l : Literal (PosFin n)) :
     l ∉ toList c ∨ ¬Literal.negate l ∈ toList c := by

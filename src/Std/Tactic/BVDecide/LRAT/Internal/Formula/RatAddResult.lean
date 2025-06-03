@@ -94,8 +94,8 @@ theorem clear_insertRat {n : Nat} (f : DefaultFormula n)
       specialize h ⟨i, i_lt_n⟩
       rcases h with h | h | h
       · exact h.1
-      · omega -- TODO why can't `grind` do this?
-      · omega -- TODO why can't `grind` do this?
+      · omega -- FIXME why can't `grind` do this?
+      · omega -- FIXME why can't `grind` do this?
 
 theorem formula_performRatCheck {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ f.assignments.size = n) (p : Literal (PosFin n))

@@ -627,7 +627,7 @@ theorem size_assignments_performRupCheck {n : Nat} (f : DefaultFormula n) (rupHi
     rw [h, hsize]
   exact List.foldlRecOn rupHints.toList (confirmRupHint f.clauses) hb hl
 
-def DerivedLitsInvariant {n : Nat} (f : DefaultFormula n)
+@[local grind] def DerivedLitsInvariant {n : Nat} (f : DefaultFormula n)
     (fassignments_size : f.assignments.size = n) (assignments : Array Assignment)
     (assignments_size : assignments.size = n) (derivedLits : CNF.Clause (PosFin n)) :
     Prop :=
@@ -904,10 +904,7 @@ theorem derivedLitsInvariant_performRupCheck {n : Nat} (f : DefaultFormula n) (f
     DerivedLitsInvariant f f_assignments_size rupCheckRes.1.assignments f'_assignments_size rupCheckRes.2.1 := by
   let motive := fun (_ : Nat) (acc : Array Assignment × CNF.Clause (PosFin n) × Bool × Bool) =>
     ∃ hsize : acc.1.size = n, DerivedLitsInvariant f f_assignments_size acc.1 hsize acc.2.1
-  have h_base : motive 0 (f.assignments, [], false, false) := by
-    apply Exists.intro f_assignments_size
-    intro i
-    grind -- FIXME: this `grind`  fails without the `intro i` as the previous step
+  have h_base : motive 0 (f.assignments, [], false, false) := by grind
   have h_inductive (i : Fin rupHints.size) (acc : Array Assignment × CNF.Clause (PosFin n) × Bool × Bool)
     (ih : motive i.1 acc) := derivedLitsInvariant_confirmRupHint f f_assignments_size rupHints i acc ih
   rcases Array.foldl_induction motive h_base h_inductive with ⟨_, h⟩

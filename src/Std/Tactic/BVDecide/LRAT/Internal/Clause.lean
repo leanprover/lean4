@@ -55,11 +55,9 @@ class Clause (α : outParam (Type u)) (β : Type v) where
   /-- Reduces the clause with respect to the given assignment -/
   reduce : β → Array Assignment → ReduceResult α
 
-
 namespace Clause
 
 attribute [grind] empty_eq unit_eq isUnit_iff negate_eq delete_iff contains_iff
-
 
 instance : Entails α (Literal α) where
   eval := fun p l => p l.1 = l.2
@@ -104,7 +102,7 @@ instance : ToString (DefaultClause n) where
 
 namespace DefaultClause
 
-abbrev toList (c : DefaultClause n) : CNF.Clause (PosFin n) := c.clause
+@[grind] def toList (c : DefaultClause n) : CNF.Clause (PosFin n) := c.clause
 
 attribute [local grind] DefaultClause.nodup DefaultClause.nodupkey
 

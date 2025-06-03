@@ -121,7 +121,7 @@ theorem _root_.Array.toListRev_toIterM [LawfulMonad m] {array : Array β} :
 
 section Equivalence
 
-theorem Array.stepAsHetT_iterFromIdxM [LawfulMonad m] {array : Array β} {pos : Nat} :
+theorem ArrayIterator.stepAsHetT_iterFromIdxM [LawfulMonad m] {array : Array β} {pos : Nat} :
   (array.iterFromIdxM m pos).stepAsHetT = (if _ : pos < array.size then
       pure (.yield (array.iterFromIdxM m (pos + 1)) array[pos])
     else
@@ -163,7 +163,7 @@ theorem Array.iterFromIdxM_equiv_iterM_drop_toList {α : Type w} {array : Array 
   intro it
   match it with
   | Array.iterFromIdxM array _ pos =>
-    rw [stepAsHetT_iterFromIdxM, List.stepAsHetT_iterM]
+    rw [ArrayIterator.stepAsHetT_iterFromIdxM, ListIterator.stepAsHetT_iterM]
     simp [Array.iterFromIdxM, toIterM]
     rw [show array = array.toList.toArray from Array.toArray_toList]
     generalize array.toList = l

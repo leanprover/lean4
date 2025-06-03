@@ -68,7 +68,8 @@ theorem _root_.List.toListRev_iterM [LawfulMonad m] {l : List β} :
 
 section Equivalence
 
-theorem List.stepAsHetT_iterM [LawfulMonad m] {l : List β} :
+-- We don't want to pollute `List` with this rarely used lemma.
+theorem ListIterator.stepAsHetT_iterM [LawfulMonad m] {l : List β} :
     (l.iterM m).stepAsHetT = (match l with
       | [] => pure .done
       | x :: xs => pure (.yield (xs.iterM m) x)) := by

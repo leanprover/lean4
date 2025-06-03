@@ -172,7 +172,8 @@ def ofArray (ls : Array (Literal (PosFin n))) : Option (DefaultClause n) :=
 theorem ofArray.foldl_folder_none_eq_none : List.foldl ofArray.folder none ls = none := by
   apply List.foldlRecOn (motive := (· = none)) <;> grind
 
--- FIXME: Adding the `local grind` attribute directly on the theorem does not work!
+-- Recall `@[local grind]` doesn't work for theorems in namespaces,
+-- so we add the attribute after the fact.
 attribute [local grind] ofArray.foldl_folder_none_eq_none
 
 theorem ofArray.mem_of_mem_of_foldl_folder_eq_some

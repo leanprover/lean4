@@ -35,7 +35,7 @@ namespace Clause
 
 theorem sat_iff_exists [Clause α β] (p : α → Bool) (c : β) : p ⊨ c ↔ ∃ l ∈ toList c, p ⊨ l := by
   simp only [(· ⊨ ·), eval]
-  grind [List.any_eq_true]
+  grind
 
 theorem limplies_iff_mem [DecidableEq α] [Clause α β] (l : Literal α) (c : β) :
     Limplies α l c ↔ l ∈ toList c := by
@@ -53,7 +53,7 @@ theorem entails_of_entails_delete [DecidableEq α] [Clause α β] {p : α → Bo
     {l : Literal α} :
     p ⊨ delete c l → p ⊨ c := by
   simp only [(· ⊨ ·), eval] at ⊢
-  grind [List.any_eq_true]
+  grind
 
 end Clause
 
@@ -62,17 +62,17 @@ namespace Formula
 theorem sat_iff_forall [Clause α β] [Entails α σ] [Formula α β σ] (p : α → Bool) (f : σ) :
     p ⊨ f ↔ ∀ c : β, c ∈ toList f → p ⊨ c := by
   simp only [formulaEntails_def]
-  grind [List.all_eq_true]
+  grind
 
 theorem limplies_insert [Clause α β] [Entails α σ] [Formula α β σ] {c : β} {f : σ} :
     Limplies α (insert f c) f := by
   simp only [Limplies, formulaEntails_def]
-  grind [List.all_eq_true]
+  grind
 
 theorem limplies_delete [Clause α β] [Entails α σ] [Formula α β σ] {f : σ} {arr : Array Nat} :
     Limplies α f (delete f arr) := by
   simp only [Limplies, formulaEntails_def]
-  grind [List.all_eq_true]
+  grind
 
 end Formula
 

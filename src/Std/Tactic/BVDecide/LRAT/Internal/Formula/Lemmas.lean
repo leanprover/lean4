@@ -6,11 +6,10 @@ Authors: Josh Clune
 prelude
 import Std.Tactic.BVDecide.LRAT.Internal.Formula.Implementation
 import Std.Tactic.BVDecide.LRAT.Internal.CNF
-import Init.Data.Int.OfNat
-set_option grind.warning false -- I've only made a minimal effort to use grind here so far.
+
+set_option grind.warning false -- I've only made a partial effort to use grind here so far.
 
 -- FIXME: move these to the library.
-attribute [local grind] Array.size_modify Array.getElem_modify
 attribute [local grind] List.mem_map
 
 /-!

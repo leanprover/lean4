@@ -60,6 +60,14 @@ theorem LawfulMonadLiftFunction.lift_seqRight [LawfulMonad m] [LawfulMonad n]
     lift (x *> y) = (lift x : n α) *> (lift y : n β) := by
   simp only [seqRight_eq, lift_map, lift_seq]
 
+abbrev idToMonad [Monad m] ⦃α : Type u⦄ (x : Id α) : m α :=
+    pure x.run
+
+def LawfulMonadLiftFunction.idToMonad [Monad m] [LawfulMonad m] :
+    LawfulMonadLiftFunction (m := Id) (n := m) idToMonad where
+  lift_pure := by simp [Internal.idToMonad]
+  lift_bind := by simp [Internal.idToMonad]
+
 instance [LawfulMonadLiftFunction lift] :
     letI : MonadLift m n := ⟨lift (α := _)⟩
     LawfulMonadLift m n :=

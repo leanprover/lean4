@@ -415,7 +415,7 @@ section Equivalence
 theorem step'_filterMapWithPostcondition [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Iterator α m β]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → PostconditionT n (Option γ)} {it : IterM (α := α) m β} :
-    (Equivalence.step (it.filterMapWithPostcondition f)) = (((Equivalence.step it).liftInner n : HetT n _)).bind (match · with
+    (IterM.stepAsHetT (it.filterMapWithPostcondition f)) = (((IterM.stepAsHetT it).liftInner n : HetT n _)).bind (match · with
       | .yield it' out => do match ← HetT.ofPostconditionT (f out) with
         | some out' => return .yield (it'.filterMapWithPostcondition f) out'
         | none => return .skip (it'.filterMapWithPostcondition f)
@@ -494,9 +494,9 @@ theorem IterM.Equiv.filterMapWithPostcondition [Monad m] [LawfulMonad m]
     rw [step'_filterMapWithPostcondition, step'_filterMapWithPostcondition]
     simp [Functor.map]
     simp [IterM.Equiv, BundledIterM.Equiv, BundledIterM.step] at h'
-    apply liftInner_step'_bind_congr h
+    apply liftInner_stepAsHetT_bind_congr h
     intro sa hsa sb hsb hs
-    simp [IterStep.bundle] at hs
+    simp [IterStep.bundledQuotient] at hs
     cases sa <;> cases sb <;> (try exfalso; simp_all; done)
     case yield =>
       simp [BundledIterM.Equiv.quotMk_eq_iff] at hs

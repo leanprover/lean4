@@ -48,7 +48,7 @@ private theorem quotMk_eq_quotOfQuot_comp {R S : α → α → Prop} (h : ∀ a 
     Quot.mk S = (quotOfQuot h) ∘ Quot.mk R :=
   rfl
 
-def quotMk_quot_eq_quot_eq_quotOfQuot_comp (R : α → α → Prop) :
+private theorem quotMk_quot_eq_quot_eq_quotOfQuot_comp (R : α → α → Prop) :
     Quot.mk (Quot.mk R · = Quot.mk R ·) =
     (quotOfQuot fun _ _ => Quot.sound) ∘ Quot.mk R := by
   apply quotMk_eq_quotOfQuot_comp

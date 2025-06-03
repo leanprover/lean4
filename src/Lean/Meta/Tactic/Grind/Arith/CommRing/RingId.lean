@@ -58,19 +58,17 @@ private def getPowFn (type : Expr) (u : Level) (semiringInst : Expr) : GoalM Exp
   internalizeFn <| mkApp4 (mkConst ``HPow.hPow [u, 0, u]) type Nat.mkType type inst
 
 private def getIntCastFn (type : Expr) (u : Level) (ringInst : Expr) : GoalM Expr := do
-  let instType := mkApp (mkConst ``IntCast [u]) type
-  let .some inst ← trySynthInstance instType |
-    throwError "failed to find instance for ring intCast{indentExpr instType}"
   let inst' := mkApp2 (mkConst ``Grind.Ring.intCast [u]) type ringInst
+  let instType := mkApp (mkConst ``IntCast [u]) type
+  let inst := (← trySynthInstance instType).toOption.getD inst'
   unless (← withDefault <| isDefEq inst inst') do
     throwError "instance for intCast{indentExpr inst}\nis not definitionally equal to the `Grind.Ring` one{indentExpr inst'}"
   internalizeFn <| mkApp2 (mkConst ``IntCast.intCast [u]) type inst
 
 private def getNatCastFn (type : Expr) (u : Level) (semiringInst : Expr) : GoalM Expr := do
-  let instType := mkApp (mkConst ``NatCast [u]) type
-  let .some inst ← trySynthInstance instType |
-    throwError "failed to find instance for ring natCast{indentExpr instType}"
   let inst' := mkApp2 (mkConst ``Grind.Semiring.natCast [u]) type semiringInst
+  let instType := mkApp (mkConst ``NatCast [u]) type
+  let inst := (← trySynthInstance instType).toOption.getD inst'
   unless (← withDefault <| isDefEq inst inst') do
     throwError "instance for natCast{indentExpr inst}\nis not definitionally equal to the `Grind.Semiring` one{indentExpr inst'}"
   internalizeFn <| mkApp2 (mkConst ``NatCast.natCast [u]) type inst

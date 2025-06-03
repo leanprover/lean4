@@ -681,7 +681,7 @@ theorem confirmRupHint_preserves_motive {n : Nat} (f : DefaultFormula n) (rupHin
               by_cases hb : b
               · simp [(· ⊨ ·), hb, Subtype.ext l_eq_i, pi] at plb
               · grind [hasAssignment, addAssignment, hasPos_addNeg]
-          · next l_ne_i => grind [getElem!_pos]
+          · next l_ne_i => grind
       · apply And.intro hsize ∘ And.intro h1
         simp
     · apply And.intro hsize ∘ And.intro h1

@@ -382,7 +382,7 @@ theorem assignmentsInvariant_performRupCheck_of_assignmentsInvariant {n : Nat} (
     rw [Array.foldl_induction in_bounds_motive in_bounds_base in_bounds_inductive]
     exact i.2.2
   simp only [( · ⊨ ·)]
-  grind [cases Bool, getElem!_pos]
+  grind [cases Bool]
 
 theorem c_without_negPivot_of_performRatCheck_success {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ AssignmentsInvariant f) (negPivot : Literal (PosFin n))
@@ -433,7 +433,7 @@ theorem existsRatHint_of_ratHintsExhaustive {n : Nat} (f : DefaultFormula n)
     have j_property := j.2
     grind
   exists ⟨j.1, j_in_bounds⟩
-  grind [getElem!_pos]
+  grind
 
 theorem performRatCheck_success_of_performRatCheck_fold_success {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ f.assignments.size = n) (p : Literal (PosFin n))

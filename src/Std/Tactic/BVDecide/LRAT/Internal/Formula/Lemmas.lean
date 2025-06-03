@@ -9,9 +9,6 @@ import Std.Tactic.BVDecide.LRAT.Internal.CNF
 
 set_option grind.warning false -- I've only made a partial effort to use grind here so far.
 
--- FIXME: move these to the library.
-attribute [local grind] List.mem_map
-
 /-!
 This module contains basic statements about the invariants that are satisfied by the LRAT checker
 implementation in `Implementation`.
@@ -396,7 +393,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
             have idx_in_bounds : idx < List.length (List.set f.clauses.toList id none) := by grind
             rw [List.mem_iff_get]
             apply Exists.intro ⟨idx, idx_in_bounds⟩
-            grind [getElem!_pos, unit]
+            grind [unit]
           · exact hf
         · exact Or.inr hf
       · next l_ne_i =>
@@ -414,7 +411,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
             rw [List.mem_iff_get]
             have idx_in_bounds : idx < List.length (List.set f.clauses.toList id none) := by grind
             apply Exists.intro ⟨idx, idx_in_bounds⟩
-            grind [getElem!_pos, unit]
+            grind [unit]
           · exact hf
         · exact Or.inr hf
     · simp only [Prod.exists, Bool.exists_bool, not_exists, not_or, unit] at hl
@@ -439,7 +436,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
             have idx_in_bounds : idx < List.length (List.set f.clauses.toList id none) := by
               grind
             apply Exists.intro ⟨idx, idx_in_bounds⟩
-            grind [getElem!_pos, unit]
+            grind [unit]
           · exact hf
         · exact Or.inr hf
 

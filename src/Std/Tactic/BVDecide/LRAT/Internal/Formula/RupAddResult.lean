@@ -110,7 +110,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
         · constructor
           · grind
           · constructor
-            · grind [getElem!_pos]
+            · grind
             · intro k hk
               have k_in_bounds : k.1 < units.size := by
                 apply Nat.lt_of_le_of_ne
@@ -331,7 +331,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
                   have k_property := k.2
                   grind
                 simp only [k_eq_units_size, Array.getElem_push_eq]
-                grind [getElem!_pos, has_both]
+                grind [has_both]
 
 theorem insertUnitInvariant_insertUnit_fold {n : Nat} (assignments0 : Array Assignment)
     (assignments0_size : assignments0.size = n) (rupUnits : Array (Literal (PosFin n)))
@@ -671,7 +671,7 @@ theorem confirmRupHint_preserves_invariant_helper {n : Nat} (f : DefaultFormula 
       · constructor
         · simp only [l_eq_i, Array.getElem_modify_self, List.get, h1]
         · constructor
-          · grind [getElem!_pos]
+          · grind
           · intro k k_ne_zero
             have k_eq_succ : ∃ k' : Nat, ∃ k'_succ_in_bounds : k' + 1 < (l :: acc.2.1).length, k = ⟨k' + 1, k'_succ_in_bounds⟩ := by
               have k_val_ne_zero : k.1 ≠ 0 := by
@@ -699,7 +699,7 @@ theorem confirmRupHint_preserves_invariant_helper {n : Nat} (f : DefaultFormula 
     by_cases l.1.1 = i.1
     · next l_eq_i =>
       apply Or.inr ∘ Or.inr
-      have l_ne_l' : l.2 ≠ l'.2 := by grind [getElem!_pos, has_add]
+      have l_ne_l' : l.2 ≠ l'.2 := by grind [has_add]
       by_cases l.2
       · next l_eq_true =>
         rw [l_eq_true] at l_ne_l'

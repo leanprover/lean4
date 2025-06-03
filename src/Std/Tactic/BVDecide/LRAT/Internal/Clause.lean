@@ -14,10 +14,6 @@ import Init.Grind
 
 set_option grind.warning false
 
--- These are potentially expensive as global `@[grind]` attributtes, so we just set them locally here.
--- See https://github.com/leanprover/lean4/pull/8590.
-attribute [local grind] getElem?_pos getElem?_neg getElem!_pos getElem!_neg
-
 namespace Std.Tactic.BVDecide
 namespace LRAT
 namespace Internal
@@ -165,6 +161,7 @@ def ofArray (ls : Array (Literal (PosFin n))) : Option (DefaultClause n) :=
   | none => none
   | some map =>
     -- FIXME: Commenting this out gives an unknown metavariable error in `grind`!
+    -- reported as https://github.com/leanprover/lean4/pull/8607
     have mapnodup := map.distinct_keys
     some ⟨map.toList, by grind, by grind⟩
 

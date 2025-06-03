@@ -5,3 +5,4 @@ import Lean.ErrorExplanations.InferBinderTypeFailed
 import Lean.ErrorExplanations.InferDefTypeFailed
 import Lean.ErrorExplanations.RedundantMatchAlt
 import Lean.ErrorExplanations.CtorResultingTypeMismatch
+import Lean.ErrorExplanations.InvalidDottedIdent

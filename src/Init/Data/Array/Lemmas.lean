@@ -176,7 +176,7 @@ theorem getElem_push_lt {xs : Array α} {x : α} {i : Nat} (h : i < xs.size) :
   simp only [push, ← getElem_toList, List.concat_eq_append]
   rw [List.getElem_append_right] <;> simp [← getElem_toList, Nat.zero_lt_one]
 
-theorem getElem_push {xs : Array α} {x : α} {i : Nat} (h : i < (xs.push x).size) :
+@[grind =] theorem getElem_push {xs : Array α} {x : α} {i : Nat} (h : i < (xs.push x).size) :
     (xs.push x)[i] = if h : i < xs.size then xs[i] else x := by
   by_cases h' : i < xs.size
   · simp [getElem_push_lt, h']
@@ -953,6 +953,13 @@ theorem set_push {xs : Array α} {x y : α} {h} :
         · rfl
         · simp at h
           omega
+
+@[grind _=_]
+theorem set_pop {xs : Array α} {x : α} {i : Nat} (h : i < xs.pop.size) :
+    xs.pop.set i x h = (xs.set i x (by simp at h; omega)).pop := by
+  ext i h₁ h₂
+  · simp
+  · simp [getElem_set]
 
 @[simp] theorem set_eq_empty_iff {xs : Array α} {i : Nat} {a : α} {h : i < xs.size} :
     xs.set i a = #[] ↔ xs = #[] := by

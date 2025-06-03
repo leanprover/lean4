@@ -1,15 +1,14 @@
+-- See also the companion file `grind_indexmap_pre.lean`,
+-- showing this file might have looked like before any proofs are written.
+-- This file fills them all in with `grind`!
+
 import Std.Data.HashMap
 
 set_option grind.warning false
 
--- TODO
-attribute [grind =] Array.getElem_push
-
-@[grind _=_] theorem Array.set_pop {xs : Array α} {x : α} {i : Nat} (h : i < xs.pop.size) :
-    xs.pop.set i x h = (xs.set i x (by simp at h; omega)).pop := by
-  ext i h₁ h₂
-  · simp
-  · simp [getElem_set]
+-- These are not good `grind` lemmas at present; they really slow things down.
+-- TODO: remove globally, or work out how to make them usable.
+attribute [-grind] getElem?_pos getElem?_neg getElem!_pos getElem!_neg
 
 macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| grind)
 
@@ -53,7 +52,16 @@ instance : Membership α (IndexMap α β) where
 instance {m : IndexMap α β} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs (Decidable (a ∈ m.indices))
 
-private theorem getElem_indices_lt {h : a ∈ m} : m.indices[a] < m.size := by sorry
+@[local grind] private theorem mem_indices_of_mem {m : IndexMap α β} {a : α} :
+    a ∈ m ↔ a ∈ m.indices := Iff.rfl
+
+variable [LawfulBEq α] [LawfulHashable α]
+
+attribute [local grind _=_] IndexMap.WF
+
+private theorem getElem_indices_lt {h : a ∈ m} : m.indices[a] < m.size := by
+  have : m.indices[a]? = some m.indices[a] := by grind [getElem?_pos]
+  grind
 
 grind_pattern getElem_indices_lt => m.indices[a]
 
@@ -70,12 +78,14 @@ instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
 @[local grind] private theorem getElem!_def [Inhabited β] (m : IndexMap α β) (a : α) :
     m[a]! = (m.indices[a]?.bind (fun i => (m.values[i]?)) |>.getD default) := rfl
 
+@[local grind] private theorem WF' (i : Nat) (a : α) (h₁ : i < m.keys.size) (h₂ : a ∈ m) :
+    m.keys[i] = a ↔ m.indices[a] = i := by
+  have := m.WF i a
+  grind [getElem?_pos]
+
 @[local grind] private theorem getElem_keys_getElem_indices
     {m : IndexMap α β} {a : α} {h : a ∈ m} :
-  m.keys[m.indices[a]'h] = a := sorry
-
-@[local grind] private theorem mem_indices_of_mem {m : IndexMap α β} {a : α} :
-    a ∈ m ↔ a ∈ m.indices := Iff.rfl
+  m.keys[m.indices[a]'h] = a := by grind
 
 @[inline] def findIdx? (m : IndexMap α β) (a : α) : Option Nat := m.indices[a]?
 
@@ -86,11 +96,9 @@ instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
 @[inline] def getIdx (m : IndexMap α β) (i : Nat) (h : i < m.size := by get_elem_tactic) : β :=
   m.values[i]
 
-instance [LawfulBEq α] [LawfulHashable α] : LawfulGetElem (IndexMap α β) α β (fun m a => a ∈ m) where
+instance : LawfulGetElem (IndexMap α β) α β (fun m a => a ∈ m) where
   getElem?_def := by grind [getElem?_pos]
   getElem!_def := by grind [getElem!_pos]
-
-attribute [local grind _=_] IndexMap.WF
 
 @[inline] def insert [LawfulBEq α] (m : IndexMap α β) (a : α) (b : β) :
     IndexMap α β :=
@@ -113,18 +121,11 @@ instance [LawfulBEq α] : Insert (α × β) (IndexMap α β) :=
 instance [LawfulBEq α] : LawfulSingleton (α × β) (IndexMap α β) :=
     ⟨fun _ => rfl⟩
 
-@[local grind] theorem WF' [LawfulBEq α] [LawfulHashable α] (i : Nat) (a : α) (h₁ : i < m.keys.size) (h₂ : a ∈ m) :
-    m.keys[i] = a ↔ m.indices[a] = i := by
-  have := m.WF i a
-  grind
-
-#time
-set_option maxHeartbeats 1600000 in
 /--
 Erase the key-value pair with the given key, moving the last pair into its place in the order.
 If the key is not present, the map is unchanged.
 -/
-@[inline] def eraseSwap [LawfulBEq α] [LawfulHashable α] (m : IndexMap α β) (a : α) : IndexMap α β :=
+@[inline] def eraseSwap (m : IndexMap α β) (a : α) : IndexMap α β :=
   match h : m.indices[a]? with
   | some i =>
     if w : i = m.size - 1 then
@@ -145,8 +146,6 @@ attribute [local grind] getIdx findIdx insert
 
 @[grind] theorem getIdx_findIdx (m : IndexMap α β) (a : α) (h : a ∈ m) :
     m.getIdx (m.findIdx a h) = m[a] := by grind
-
-variable [LawfulBEq α]
 
 @[grind] theorem mem_insert (m : IndexMap α β) (a a' : α) (b : β) :
     a' ∈ m.insert a b ↔ a' = a ∨ a' ∈ m := by

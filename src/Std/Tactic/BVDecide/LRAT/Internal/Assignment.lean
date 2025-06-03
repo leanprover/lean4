@@ -67,8 +67,6 @@ def hasNegAssignment (assignment : Assignment) : Bool :=
   | both => true
   | unassigned => false
 
-attribute [local grind] hasPosAssignment hasNegAssignment
-
 /--
 Updates the old assignment of `l` to reflect the fact that `(l, true)` is now part of the formula.
 -/
@@ -115,86 +113,56 @@ def removeNegAssignment (oldAssignment : Assignment) : Assignment :=
   | both => pos
   | unassigned => unassigned -- Note: This case should not occur
 
-attribute [local grind] addNegAssignment addPosAssignment
+attribute [local grind] hasPosAssignment hasNegAssignment addNegAssignment addPosAssignment
+  removePosAssignment removeNegAssignment
 
-example : (if false = true then hasPosAssignment else hasNegAssignment)
-      ((if (!false) = true then removePosAssignment else removeNegAssignment) pos) =
-    true →
-  (if false = true then hasPosAssignment else hasNegAssignment) pos = true := by
-  grind [removePosAssignment, removeNegAssignment, hasPosAssignment, hasNegAssignment]
-
-def addAssignment (b : Bool) : Assignment → Assignment :=
+def addAssignment (b : Bool) (a : Assignment) : Assignment :=
   if b then
-    addPosAssignment
+    addPosAssignment a
   else
-    addNegAssignment
+    addNegAssignment a
 
-def removeAssignment (b : Bool) : Assignment → Assignment :=
+def removeAssignment (b : Bool) (a : Assignment) : Assignment :=
   if b then
-    removePosAssignment
+    removePosAssignment a
   else
-    removeNegAssignment
+    removeNegAssignment a
 
-def hasAssignment (b : Bool) : Assignment → Bool :=
+def hasAssignment (b : Bool) (a : Assignment) : Bool :=
   if b then
-    hasPosAssignment
+    hasPosAssignment a
   else
-    hasNegAssignment
+    hasNegAssignment a
 
-attribute [local grind] addAssignment hasAssignment
+attribute [local grind] addAssignment removeAssignment hasAssignment
 
 theorem removePos_addPos_cancel {assignment : Assignment} (h : ¬(hasPosAssignment assignment)) :
-  removePosAssignment (addPosAssignment assignment) = assignment := by
-  cases assignment <;> simp_all [removePosAssignment, addPosAssignment, hasPosAssignment]
+  removePosAssignment (addPosAssignment assignment) = assignment := by grind
 
 theorem removeNeg_addNeg_cancel {assignment : Assignment} (h : ¬(hasNegAssignment assignment)) :
-  removeNegAssignment (addNegAssignment assignment) = assignment := by
-  cases assignment <;> simp_all [removeNegAssignment, addNegAssignment, hasNegAssignment]
+  removeNegAssignment (addNegAssignment assignment) = assignment := by grind
 
 theorem remove_add_cancel {assignment : Assignment} {b : Bool} (h : ¬(hasAssignment b assignment)) :
-  removeAssignment b (addAssignment b assignment) = assignment := by
-  by_cases hb : b
-  · simp only [removeAssignment, hb, addAssignment, ite_true]
-    simp only [hasAssignment, hb, ite_true] at h
-    exact removePos_addPos_cancel h
-  · simp only [removeAssignment, hb, addAssignment, ite_true]
-    simp only [hasAssignment, hb, ite_false] at h
-    exact removeNeg_addNeg_cancel h
+  removeAssignment b (addAssignment b assignment) = assignment := by grind
 
-theorem add_both_eq_both (b : Bool) : addAssignment b both = both := by
-  rw [addAssignment]
-  split <;> decide
+theorem add_both_eq_both (b : Bool) : addAssignment b both = both := by grind
 
-theorem has_both (b : Bool) : hasAssignment b both = true := by
-  rw [hasAssignment]
-  split <;> decide
+theorem has_both (b : Bool) : hasAssignment b both = true := by grind
 
 theorem has_add (assignment : Assignment) (b : Bool) :
-    hasAssignment b (addAssignment b assignment) := by
-  by_cases b <;> cases assignment <;> simp_all [hasAssignment, hasPosAssignment, addAssignment,
-    addPosAssignment, addNegAssignment, hasNegAssignment]
+    hasAssignment b (addAssignment b assignment) := by grind
 
 theorem not_hasPos_removePos (assignment : Assignment) :
-    ¬hasPosAssignment (removePosAssignment assignment) := by
-  cases assignment <;> simp [removePosAssignment, hasPosAssignment]
+    ¬hasPosAssignment (removePosAssignment assignment) := by grind
 
 theorem not_hasNeg_removeNeg (assignment : Assignment) :
-    ¬hasNegAssignment (removeNegAssignment assignment) := by
-  cases assignment <;> simp [removeNegAssignment, hasNegAssignment]
+    ¬hasNegAssignment (removeNegAssignment assignment) := by grind
 
 theorem not_has_remove (assignment : Assignment) (b : Bool) :
-    ¬hasAssignment b (removeAssignment b assignment) := by
-  by_cases b <;> cases assignment <;> simp_all [hasAssignment, removeAssignment,
-    removePosAssignment, hasPosAssignment, removeNegAssignment, hasNegAssignment]
+    ¬hasAssignment b (removeAssignment b assignment) := by grind
 
 theorem has_remove_irrelevant (assignment : Assignment) (b : Bool) :
-    hasAssignment b (removeAssignment (!b) assignment) → hasAssignment b assignment := by
-  by_cases hb : b
-  · simp only [hb, removeAssignment, Bool.not_true, ite_false, hasAssignment, ite_true]
-    cases assignment <;> decide
-  · simp only [Bool.not_eq_true] at hb
-    simp only [hb, removeAssignment, Bool.not_true, ite_false, hasAssignment, ite_true]
-    cases assignment <;> decide
+    hasAssignment b (removeAssignment (!b) assignment) → hasAssignment b assignment := by grind
 
 theorem unassigned_of_has_neither (assignment : Assignment) (lacks_pos : ¬(hasPosAssignment assignment))
   (lacks_neg : ¬(hasNegAssignment assignment)) :
@@ -209,8 +177,7 @@ theorem hasNeg_addPos (assignment : Assignment) :
     hasNegAssignment (addPosAssignment assignment) = hasNegAssignment assignment := by grind
 
 theorem has_iff_has_add_complement (assignment : Assignment) (b : Bool) :
-    hasAssignment b assignment ↔ hasAssignment b (addAssignment (¬b) assignment) := by
-  by_cases hb : b <;> simp [hb, hasAssignment, addAssignment, hasPos_addNeg, hasNeg_addPos]
+    hasAssignment b assignment ↔ hasAssignment b (addAssignment (¬b) assignment) := by grind
 
 theorem addPos_addNeg_eq_both (assignment : Assignment) :
     addPosAssignment (addNegAssignment assignment) = both := by grind

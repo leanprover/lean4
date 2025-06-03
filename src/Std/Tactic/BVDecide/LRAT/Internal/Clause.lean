@@ -59,7 +59,11 @@ class Clause (α : outParam (Type u)) (β : Type v) where
   /-- Reduces the clause with respect to the given assignment -/
   reduce : β → Array Assignment → ReduceResult α
 
+
 namespace Clause
+
+attribute [grind] empty_eq unit_eq
+
 
 instance : Entails α (Literal α) where
   eval := fun p l => p l.1 = l.2

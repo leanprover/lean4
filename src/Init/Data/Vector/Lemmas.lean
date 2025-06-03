@@ -1138,6 +1138,7 @@ theorem all_eq_false' {p : α → Bool} {xs : Vector α n} :
   simp only [all_mk, Array.all_eq_false']
   simp
 
+@[grind =]
 theorem any_eq {xs : Vector α n} {p : α → Bool} : xs.any p = decide (∃ i : Nat, ∃ h, p (xs[i]'h)) := by
   by_cases h : xs.any p
   · simp_all [any_eq_true]
@@ -1152,6 +1153,7 @@ theorem any_eq' {xs : Vector α n} {p : α → Bool} : xs.any p = decide (∃ x,
     simp only [any_eq_false'] at h
     simpa using h
 
+@[grind =]
 theorem all_eq {xs : Vector α n} {p : α → Bool} : xs.all p = decide (∀ i, (_ : i < n) → p xs[i]) := by
   by_cases h : xs.all p
   · simp_all [all_eq_true]

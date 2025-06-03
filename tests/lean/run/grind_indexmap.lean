@@ -116,9 +116,10 @@ instance [LawfulBEq α] : LawfulSingleton (α × β) (IndexMap α β) :=
 @[local grind] theorem WF' [LawfulBEq α] [LawfulHashable α] (i : Nat) (a : α) (h₁ : i < m.keys.size) (h₂ : a ∈ m) :
     m.keys[i] = a ↔ m.indices[a] = i := by
   have := m.WF i a
-  rw [Array.getElem_eq_getElem?_get]
   grind
 
+#time
+set_option maxHeartbeats 1600000 in
 /--
 Erase the key-value pair with the given key, moving the last pair into its place in the order.
 If the key is not present, the map is unchanged.

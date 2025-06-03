@@ -28,26 +28,9 @@ namespace bitblast
 
 variable [Hashable α] [DecidableEq α]
 
-/--
-  Count the number of leading zeroes downward from the 'n'th bit to the '0'th bit.
--/
--- def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
---   match n with
---   | 0 => if x.getLsbD 0 then 0#w else 1#w
---   | n' + 1 =>
---     if x.getLsbD n then 0#w
---       else 1#w + clzAuxRec x n'
-
--- def blastGetLsbD (aig : AIG α) (target : GetLsbDTarget aig) : AIG.Entrypoint α :=
---   if h : target.idx < target.w then
---     ⟨aig, target.vec.get target.idx h⟩
---   else
---     AIG.mkConstCached aig false
-
 def blastClz (aig : AIG α) (target : AIG.RefVec aig w) :
-    AIG.RefVecEntry α w := sorry
-  -- let ⟨input, distance⟩ := target
-  -- aig (.emptyWithCapacity w)
+    AIG.RefVecEntry α w :=
+  go aig target (w - 1)
 where
   go (aig : AIG α) (x : AIG.RefVec aig w) (curr : Nat) :
     AIG.ExtendingRefVecEntry aig w :=
@@ -79,9 +62,6 @@ where
 
     ⟨res, by sorry⟩
   else
-    let curr' := curr - 1
-    have : curr' < curr := by omega
-    have : curr = curr' + 1 := by omega
     -- getLsbD curr
     let res := (BVPred.blastGetLsbD aig ⟨x, curr⟩)
     let aig := res.aig
@@ -104,7 +84,7 @@ where
     let x := x.cast this
     let zero := zero.cast this
     -- node clzAuxRec x curr'
-    let ⟨res,proof⟩ := go aig x curr'
+    let ⟨res,proof⟩ := go aig x (curr - 1)
     let aig := res.aig
     let clzRec := res.vec
     let lsb : aig.Ref := lsb.cast proof
@@ -124,38 +104,7 @@ where
     let ite := AIG.RefVec.ite aig ⟨lsb, zero, add⟩
 
     ⟨ite, by sorry⟩
-
-  -- 0 => if x.getLsbD 0 then 0 else 1
-
-  --   | n' + 1 =>
-  --     if x.getLsbD n then 0
-  --       else 1 + clzAux x n'
---   if hidx : curr < w then
---     if hdist : (distance + curr) < w then
---       let s := s.push (input.get (distance + curr) (by omega))
---       go aig input distance (curr + 1) (by omega) s
---     else
---       let res := aig.mkConstCached false
---       let aig := res.aig
---       let zeroRef := res.ref
---       have hfinal := AIG.LawfulOperator.le_size (f := AIG.mkConstCached) ..
---       let s := s.cast hfinal
---       let input := input.cast hfinal
---       let s := s.push zeroRef
---       go aig input distance (curr + 1) (by omega) s
---   else
---     have hcurr : curr = w := by omega
---     ⟨aig, hcurr ▸ s⟩
--- termination_by w - curr
-
--- def blastClz (aig : AIG α) (s : AIG.RefVec aig w) : AIG.RefVecEntry α w :=
---   let clz := (1 : Nat)
---   let ⟨refs, hrefs⟩ := s
---   ⟨aig, ⟨sorry, by sorry⟩⟩
-
--- instance : AIG.LawfulVecOperator α AIG.RefVec blastClz where
---   le_size := by simp [blastClz]; sorry
---   decl_eq := by simp [blastClz]; sorry
+  termination_by curr
 
 end bitblast
 end BVExpr

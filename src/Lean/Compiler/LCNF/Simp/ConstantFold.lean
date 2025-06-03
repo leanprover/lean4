@@ -362,6 +362,7 @@ def arithmeticFolders : List (Name × Folder) := [
   (``UInt32.div,  Folder.first #[Folder.mkBinary UInt32.div, Folder.rightNeutral (1 : UInt32), Folder.divShift ``UInt32.shiftRight (UInt32.shiftLeft 1 ·) UInt32.log2]),
   (``UInt64.div,  Folder.first #[Folder.mkBinary UInt64.div, Folder.rightNeutral (1 : UInt64), Folder.divShift ``UInt64.shiftRight (UInt64.shiftLeft 1 ·) UInt64.log2]),
   (``Nat.pow, foldNatPow),
+  (``Nat.nextPowerOfTwo, Folder.mkUnary Nat.nextPowerOfTwo),
 ]
 
 def relationFolders : List (Name × Folder) := [

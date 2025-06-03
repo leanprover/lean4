@@ -161,6 +161,44 @@ example : ([1, 2, 3].iter.take 2).toListRev = [2, 1] := by
 
 end Take
 
+section Drop
+
+def sumDropRec (l : List Nat) : Nat :=
+  go (l.iter.drop 1) 0
+where
+  go it acc :=
+    match it.step with
+    | .yield it' out _ => go it' (acc + out)
+    | .skip it' _ => go it' acc
+    | .done _ => acc
+  termination_by it.finitelyManySteps
+
+def sumDropFold (l : List Nat) : Nat :=
+  l.iter.drop 1 |>.fold (init := 0) (· + ·)
+
+/-- info: [2, 3] -/
+#guard_msgs in
+#eval [1, 2, 3].iter.drop 1 |>.toList
+
+/-- info: 5 -/
+#guard_msgs in
+#eval sumDropRec [1, 2, 3]
+
+/-- info: 5 -/
+#guard_msgs in
+#eval sumDropFold [1, 2, 3]
+
+example : ([1, 2, 3].iter.drop 1).toList = [2, 3] := by
+  simp
+
+example : ([1, 2, 3].iter.drop 1).toArray = #[2, 3] := by
+  simp
+
+example : ([1, 2, 3].iter.drop 1).toListRev = [3, 2] := by
+  simp
+
+end Drop
+
 section FilterMap
 
 example : ([1, 2, 3].iter.filterMap (fun x => if x % 2 = 0 then some (x / 2) else none)).toList =

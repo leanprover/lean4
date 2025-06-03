@@ -156,7 +156,7 @@ theorem modifyHead_eq_modify_zero (f : α → α) (l : List α) :
 @[simp] theorem modify_eq_nil_iff {f : α → α} {i} {l : List α} :
     l.modify i f = [] ↔ l = [] := by cases l <;> cases i <;> simp
 
-theorem getElem?_modify (f : α → α) :
+@[grind =] theorem getElem?_modify (f : α → α) :
     ∀ i (l : List α) j, (l.modify i f)[j]? = (fun a => if i = j then f a else a) <$> l[j]?
   | n, l, 0 => by cases l <;> cases n <;> simp
   | n, [], _+1 => by cases n <;> rfl
@@ -167,7 +167,7 @@ theorem getElem?_modify (f : α → α) :
     cases h' : l[j]? <;> by_cases h : i = j <;>
       simp [h, if_pos, if_neg, Option.map, mt Nat.succ.inj, not_false_iff, h']
 
-@[simp] theorem length_modify (f : α → α) : ∀ (l : List α) i, (l.modify i f).length = l.length :=
+@[simp, grind =] theorem length_modify (f : α → α) : ∀ (l : List α) i, (l.modify i f).length = l.length :=
   length_modifyTailIdx _ fun l => by cases l <;> rfl
 
 @[simp] theorem getElem?_modify_eq (f : α → α) (i) (l : List α) :
@@ -178,7 +178,7 @@ theorem getElem?_modify (f : α → α) :
     (l.modify i f)[j]? = l[j]? := by
   simp only [getElem?_modify, if_neg h, id_map']
 
-theorem getElem_modify (f : α → α) (i) (l : List α) (j) (h : j < (l.modify i f).length) :
+@[grind =] theorem getElem_modify (f : α → α) (i) (l : List α) (j) (h : j < (l.modify i f).length) :
     (l.modify i f)[j] =
       if i = j then f (l[j]'(by simp at h; omega)) else l[j]'(by simp at h; omega) := by
   rw [getElem_eq_iff, getElem?_modify]
@@ -245,6 +245,7 @@ theorem exists_of_modify (f : α → α) {i} {l : List α} (h : i < l.length) :
 @[simp] theorem modify_id (i) (l : List α) : l.modify i id = l := by
   simp [modify]
 
+@[grind =]
 theorem take_modify (f : α → α) (i j) (l : List α) :
     (l.modify i f).take j = (l.take j).modify i f := by
   induction j generalizing l i with
@@ -257,6 +258,7 @@ theorem take_modify (f : α → α) (i j) (l : List α) :
       | zero => simp
       | succ i => simp [ih]
 
+@[grind =]
 theorem drop_modify_of_lt (f : α → α) (i j) (l : List α) (h : i < j) :
     (l.modify i f).drop j = l.drop j := by
   apply ext_getElem
@@ -266,6 +268,7 @@ theorem drop_modify_of_lt (f : α → α) (i j) (l : List α) (h : i < j) :
     intro h'
     omega
 
+@[grind =]
 theorem drop_modify_of_ge (f : α → α) (i j) (l : List α) (h : i ≥ j) :
     (l.modify i f).drop j = (l.drop j).modify (i - j) f  := by
   apply ext_getElem

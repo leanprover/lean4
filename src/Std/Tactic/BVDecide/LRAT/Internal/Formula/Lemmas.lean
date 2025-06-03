@@ -6,11 +6,12 @@ Authors: Josh Clune
 prelude
 import Std.Tactic.BVDecide.LRAT.Internal.Formula.Implementation
 import Std.Tactic.BVDecide.LRAT.Internal.CNF
-
+import Init.Data.Int.OfNat
 set_option grind.warning false -- I've only made a minimal effort to use grind here so far.
 
 -- FIXME: move these to the library.
 attribute [local grind] Array.size_modify Array.getElem_modify
+attribute [local grind] List.mem_map
 
 /-!
 This module contains basic statements about the invariants that are satisfied by the LRAT checker
@@ -153,8 +154,7 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
               simp only [unit, b_eq_true, i_eq_l]
               have c_def : c = ⟨c.clause, c.nodupkey, c.nodup⟩ := rfl
               simp only [heq] at c_def
-              rw [c_def] at cOpt_in_arr
-              exact cOpt_in_arr
+              grind
             · next b_eq_false =>
               simp only [Bool.not_eq_true] at b_eq_false
               simp only [hasAssignment, b_eq_false, ite_false, hasNeg_addPos, reduceCtorEq] at h
@@ -162,9 +162,7 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
               simp only [hasAssignment, ite_false] at ih
               rw [b_eq_false, Subtype.ext i_eq_l]
               exact ih h
-          · next i_ne_l =>
-            simp only [Array.getElem_modify_of_ne (Ne.symm i_ne_l)] at h
-            exact ih i b h
+          · next i_ne_l => grind
         | some (l, false) =>
           simp only [heq] at h
           rcases ih with ⟨hsize, ih⟩
@@ -194,43 +192,18 @@ theorem readyForRatAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
     ReadyForRatAdd (ofArray arr) := by
   constructor
   · grind
-  · exact readyForRupAdd_ofArray arr
+  · grind [readyForRupAdd_ofArray]
 
 theorem insert_iff {n : Nat} (f : DefaultFormula n) (c1 : DefaultClause n) (c2 : DefaultClause n) :
     c2 ∈ toList (insert f c1) ↔ c2 = c1 ∨ c2 ∈ toList f := by
-  simp only [toList, List.append_assoc, List.mem_append, List.mem_filterMap, id_eq, exists_eq_right,
-    List.mem_map, Prod.exists, Bool.exists_bool]
-  by_cases c2 = c1
-  · next c2_eq_c1 =>
-    constructor
-    · grind
-    · intro _
-      apply Or.inl
-      simp only [c2_eq_c1, insert]
-      grind
-  · next c2_ne_c1 =>
-    constructor
-    · intro h
-      rcases h with h | h | h
-      · simp only [insert] at h
-        grind
-      · grind [rupUnits_insert]
-      · grind [ratUnits_insert]
-    · intro h
-      rcases h with h | h | h | h
-      · grind
-      · simp only [insert]
-        grind
-      · grind [rupUnits_insert]
-      · grind [ratUnits_insert]
+  simp only [toList, List.mem_append, List.mem_filterMap, id_eq, exists_eq_right]
+  simp only [insert]
+  grind
 
 theorem limplies_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) :
     Limplies (PosFin n) (insert f c) f := by
-  intro p
-  simp only [formulaEntails_def, List.all_eq_true]
-  intro h c' c'_in_f
-  have c'_in_fc : c' ∈ toList (insert f c) := by grind [insert_iff]
-  grind
+  simp only [Limplies, formulaEntails_def, List.all_eq_true]
+  grind [insert_iff]
 
 theorem size_assignments_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) :
     (insert f c).assignments.size = f.assignments.size := by
@@ -245,10 +218,7 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
   · refine ⟨f_readyForRupAdd.1, f_readyForRupAdd.2.1, ?_⟩
     intro i b hb
     have hf := f_readyForRupAdd.2.2 i b hb
-    simp only [toList, List.append_assoc, List.mem_append, List.mem_filterMap, id_eq, exists_eq_right,
-      List.mem_map, Prod.exists, Bool.exists_bool] at hf
-    simp only [toList, Array.toList_push, List.append_assoc, List.mem_append, List.mem_filterMap,
-      List.mem_singleton, id_eq, exists_eq_right, Option.some.injEq, List.mem_map, Prod.exists, Bool.exists_bool]
+    simp only [toList] at hf ⊢
     grind
   · next l hc =>
     have hsize : (Array.modify f.assignments l.1 addPosAssignment).size = n := by
@@ -274,19 +244,12 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
             by_cases b = true
             · next b_eq_true =>
               simp only [b_eq_true, Subtype.ext l_eq_i, not_true] at ib_ne_c
-            · next b_eq_false =>
-              simp only [Bool.not_eq_true] at b_eq_false
-              exact b_eq_false
+            · next b_eq_false => grind
           simp only [hasAssignment, b_eq_false, l_eq_i, Array.getElem_modify_self, ite_false, hasNeg_addPos, reduceCtorEq] at hb
-          simp only [hasAssignment, b_eq_false, ite_false, hb, reduceCtorEq]
-        · next l_ne_i =>
-          simp only [Array.getElem_modify_of_ne l_ne_i] at hb
-          exact hb
+          grind [hasAssignment]
+        · next l_ne_i => grind
       specialize hf hb'
-      simp only [toList, List.append_assoc, List.mem_append, List.mem_filterMap, id_eq,
-        exists_eq_right, List.mem_map, Prod.exists, Bool.exists_bool] at hf
-      simp only [toList, Array.toList_push, List.append_assoc, List.mem_append, List.mem_filterMap,
-        List.mem_singleton, id_eq, exists_eq_right, Option.some.injEq, List.mem_map, Prod.exists, Bool.exists_bool]
+      simp only [toList] at hf ⊢
       grind
   · next l hc =>
     have hsize : (Array.modify f.assignments l.1 addNegAssignment).size = n := by
@@ -313,14 +276,10 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
             · assumption
             · next b_eq_false =>
               simp only [b_eq_false, Subtype.ext l_eq_i, not_true] at ib_ne_c
-          simp only [hasAssignment, b_eq_false, l_eq_i, Array.getElem_modify_self, ite_true, hasPos_addNeg] at hb
-          simp only [hasAssignment, b_eq_false, ite_true, hb]
+          grind [hasAssignment, hasPos_addNeg]
         · next l_ne_i => grind
       specialize hf hb'
-      simp only [toList, List.append_assoc, List.mem_append, List.mem_filterMap, id_eq,
-        exists_eq_right, List.mem_map, Prod.exists, Bool.exists_bool] at hf
-      simp only [toList, Array.toList_push, List.append_assoc, List.mem_append, List.mem_filterMap,
-        List.mem_singleton, id_eq, exists_eq_right, Option.some.injEq, List.mem_map]
+      simp only [toList] at hf ⊢
       grind
 
 theorem readyForRatAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) :
@@ -353,11 +312,11 @@ theorem mem_of_insertRupUnits {n : Nat} (f : DefaultFormula n) (units : CNF.Clau
     · apply Or.inr ∘ Or.inr ∘ Or.inl ∘ Exists.intro i ∘ Or.inl
       grind
     · apply Or.inl ∘ Exists.intro i ∘ Or.inl
-      exact ⟨h_insertUnit_fold, h2⟩
+      exact ⟨by grind, h2⟩
   · rcases h_insertUnit_fold (i, true) h1 with h_insertUnit_fold | h_insertUnit_fold
     · grind
     · apply Or.inl ∘ Exists.intro i ∘ Or.inr
-      exact ⟨h_insertUnit_fold, h2⟩
+      exact ⟨by grind, h2⟩
   · grind
 
 theorem mem_of_insertRatUnits {n : Nat} (f : DefaultFormula n) (units : CNF.Clause (PosFin n))
@@ -372,9 +331,7 @@ theorem mem_of_insertRatUnits {n : Nat} (f : DefaultFormula n) (units : CNF.Clau
     (ih : ∀ l : Literal (PosFin n), l ∈ acc.1.toList → l ∈ f.ratUnits.toList ∨ l ∈ units)
     (unit : Literal (PosFin n)) (unit_in_units : unit ∈ units) :
     ∀ l : Literal (PosFin n), l ∈ (insertUnit acc unit).1.toList → (l ∈ f.ratUnits.toList ∨ l ∈ units) := by
-    intro l hl
-    rw [insertUnit.eq_def] at hl
-    grind
+    grind [insertUnit]
   have h_insertUnit_fold := List.foldlRecOn units insertUnit hb hl
   rcases h with h | h | ⟨i, ⟨h1, h2⟩ | ⟨h1, h2⟩⟩
   · grind
@@ -437,25 +394,10 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
           simp only [Array.set!, Array.setIfInBounds]
           split
           · rcases List.getElem_of_mem hf with ⟨idx, hbound, hidx⟩
-            simp only [← hidx, Array.toList_set]
+            have idx_in_bounds : idx < List.length (List.set f.clauses.toList id none) := by grind
             rw [List.mem_iff_get]
-            have idx_in_bounds : idx < List.length (List.set f.clauses.toList id none) := by
-              simp only [List.length_set]
-              exact hbound
             apply Exists.intro ⟨idx, idx_in_bounds⟩
-            by_cases id = idx
-            · next id_eq_idx =>
-              exfalso
-              have idx_in_bounds2 : idx < f.clauses.size := by
-                conv => rhs; rw [List.size_toArray]
-                exact hbound
-              simp only [id_eq_idx, getElem!_def, idx_in_bounds2, Array.getElem?_eq_getElem, ←
-                Array.getElem_toList] at heq
-              rw [hidx, hl] at heq
-              simp only [unit, Option.some.injEq, DefaultClause.mk.injEq, List.cons.injEq, and_true] at heq
-              simp only [← heq] at l_ne_b
-              simp at l_ne_b
-            · next id_ne_idx => simp [id_ne_idx]
+            grind [getElem!_pos, unit]
           · exact hf
         · exact Or.inr hf
       · next l_ne_i =>
@@ -470,33 +412,16 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
           simp only [Array.set!, Array.setIfInBounds]
           split
           · rcases List.getElem_of_mem hf with ⟨idx, hbound, hidx⟩
-            simp only [← hidx, Array.toList_set]
             rw [List.mem_iff_get]
             have idx_in_bounds : idx < List.length (List.set f.clauses.toList id none) := by grind
             apply Exists.intro ⟨idx, idx_in_bounds⟩
-            by_cases id = idx
-            · next id_eq_idx =>
-              exfalso
-              have idx_in_bounds2 : idx < f.clauses.size := by grind
-              simp only [id_eq_idx, getElem!_def, idx_in_bounds2, Array.getElem?_eq_getElem, ←
-                Array.getElem_toList] at heq
-              rw [hidx, hl] at heq
-              simp only [unit, Option.some.injEq, DefaultClause.mk.injEq, List.cons.injEq, and_true] at heq
-              have i_eq_l : i = l.1 := by rw [← heq]
-              simp only [i_eq_l, not_true] at l_ne_i
-            · next id_ne_idx => grind
+            grind [getElem!_pos, unit]
           · exact hf
         · exact Or.inr hf
     · simp only [Prod.exists, Bool.exists_bool, not_exists, not_or, unit] at hl
       split
-      · next some_eq_none =>
-        simp at some_eq_none
-      · next l _ _ heq =>
-        simp only [Option.some.injEq] at heq
-        rw [heq] at hl
-        specialize hl l.1
-        simp only [DefaultClause.mk.injEq, List.cons.injEq, and_true] at hl
-        by_cases hl2 : l.2 <;> grind
+      · next some_eq_none => grind
+      · next l _ _ heq => grind [cases Bool]
       · have deleteOne_f_rw : deleteOne f id = ⟨Array.set! f.clauses id none, f.rupUnits, f.ratUnits, f.assignments⟩ := by
           simp only [deleteOne]
           grind
@@ -511,18 +436,11 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
           simp only [Array.set!, Array.setIfInBounds]
           split
           · rcases List.getElem_of_mem hf with ⟨idx, hbound, hidx⟩
-            simp only [← hidx, Array.toList_set]
             rw [List.mem_iff_get]
             have idx_in_bounds : idx < List.length (List.set f.clauses.toList id none) := by
               grind
             apply Exists.intro ⟨idx, idx_in_bounds⟩
-            by_cases id = idx
-            · next id_eq_idx =>
-              exfalso
-              have idx_in_bounds2 : idx < f.clauses.size := by grind
-              simp only [id_eq_idx, getElem!_def, idx_in_bounds2] at heq
-              grind [unit]
-            · next id_ne_idx => grind
+            grind [getElem!_pos, unit]
           · exact hf
         · exact Or.inr hf
 
@@ -558,18 +476,8 @@ theorem deleteOne_subset (f : DefaultFormula n) (id : Nat) (c : DefaultClause n)
     c ∈ toList (deleteOne f id) → c ∈ toList f := by
   simp only [deleteOne]
   intro h1
-  split at h1 <;> first
-  | exact h1
-  | rw [toList, List.mem_append, List.mem_append, or_assoc] at h1
-    rw [toList, List.mem_append, List.mem_append, or_assoc]
-    rcases h1 with h1 | h1 | h1
-    · apply Or.inl
-      simp only [List.mem_filterMap, id_eq, exists_eq_right] at h1
-      simp only [List.mem_filterMap, id_eq, exists_eq_right]
-      rw [Array.set!, Array.setIfInBounds] at h1
-      grind
-    · grind
-    · grind
+  rw [toList] at h1 ⊢
+  split at h1 <;> grind
 
 theorem delete_subset (f : DefaultFormula n) (arr : Array Nat) (c : DefaultClause n) :
     c ∈ toList (delete f arr) → c ∈ toList f := by

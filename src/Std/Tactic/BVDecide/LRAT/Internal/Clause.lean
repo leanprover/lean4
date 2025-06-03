@@ -110,7 +110,7 @@ namespace DefaultClause
 
 abbrev toList (c : DefaultClause n) : CNF.Clause (PosFin n) := c.clause
 
-attribute [local grind] Literal.negate DefaultClause.nodup DefaultClause.nodupkey
+attribute [local grind] DefaultClause.nodup DefaultClause.nodupkey
 
 theorem not_tautology (c : DefaultClause n) (l : Literal (PosFin n)) :
     l ∉ toList c ∨ ¬Literal.negate l ∈ toList c := by

@@ -13,6 +13,8 @@ import Init.MetaTypes
 import Init.Syntax
 import Init.Data.Array.GetLit
 import Init.Data.Option.BasicAux
+meta import Init.Data.Array.Basic
+meta import Init.Syntax
 
 namespace Lean
 
@@ -1610,7 +1612,7 @@ macro (name := declareSimpLikeTactic) doc?:(docComment)?
     else
       pure (← `(``dsimp), ← `("dsimp"), ← `($[$doc?:docComment]? syntax (name := $tacName) $tacToken:str optConfig (discharger)? (&" only")? (" [" (simpErase <|> simpLemma),* "]")? (location)? : tactic))
   `($stx:command
-    @[macro $tacName] def expandSimp : Macro := fun s => do
+    @[macro $tacName] meta def expandSimp : Macro := fun s => do
       let cfg ← `(optConfig| $cfg)
       let s := s.setKind $kind
       let s := s.setArg 0 (mkAtomFrom s[0] $tkn (canonical := true))

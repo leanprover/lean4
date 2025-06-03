@@ -287,7 +287,7 @@ theorem IterM.Equiv.fold_eq {α₁ α₂ β γ : Type w} {m : Type w → Type w'
     ita.fold (init := init) f = itb.fold (init := init) f := by
   simp [IterM.fold_eq_foldM, h.foldM_eq]
 
-theorem IterM.Equiv.drain_eq {α₁ α₂ β γ : Type w} {m : Type w → Type w'}
+theorem IterM.Equiv.drain_eq {α₁ α₂ β : Type w} {m : Type w → Type w'}
     [Iterator α₁ m β] [Iterator α₂ m β][Iterator α₁ m β] [Iterator α₂ m β]
     [Finite α₁ m] [Finite α₂ m] [Monad m] [LawfulMonad m]
     [IteratorLoop α₁ m m] [LawfulIteratorLoop α₁ m m]

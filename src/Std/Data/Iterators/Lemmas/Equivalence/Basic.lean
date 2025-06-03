@@ -161,11 +161,33 @@ theorem BundledIterM.Equiv.trans {m : Type w → Type w'} {β : Type w} [Monad m
     BundledIterM.Equiv m β ita itc :=
   BundledIterM.Equiv.exact ita itc (Eq.trans (Quot.sound hab) (Quot.sound hbc))
 
+/--
+Equivalence relation on monadic iterators. Equivalent iterators behave the same as long as the
+internal state of them is not directly inspected.
+
+Two iterators (possibly of different types) are equivalent if they have the same
+`Iterator.IsPlausibleStep` relation and their step functions are the same *up to equivalence of the
+successor iterators*. This coinductive definition captures the idea that the only relevant feature
+of an iterator is its step function. Other information retrievable from the iterator -- for example,
+whether it is a list iterator or an array iterator -- is totally irrelevant for the equivalence
+judgement.
+-/
 def IterM.Equiv {m : Type w → Type w'} [Monad m] [LawfulMonad m] {β : Type w} {α₁ α₂}
     [Iterator α₁ m β] [Iterator α₂ m β]
     (ita : IterM (α := α₁) m β) (itb : IterM (α := α₂) m β) :=
   BundledIterM.Equiv m β (BundledIterM.ofIterM ita) (BundledIterM.ofIterM itb)
 
+/--
+Equivalence relation on iterators. Equivalent iterators behave the same as long as the
+internal state of them is not directly inspected.
+
+Two iterators (possibly of different types) are equivalent if they have the same
+`Iterator.IsPlausibleStep` relation and their step functions are the same *up to equivalence of the
+successor iterators*. This coinductive definition captures the idea that the only relevant feature
+of an iterator is its step function. Other information retrievable from the iterator -- for example,
+whether it is a list iterator or an array iterator -- is totally irrelevant for the equivalence
+judgement.
+-/
 def Iter.Equiv {α₁ α₂ β} [Iterator α₁ Id β] [Iterator α₂ Id β]
     (ita : Iter (α := α₁) β) (itb : Iter (α := α₂) β) :=
   IterM.Equiv ita.toIterM itb.toIterM

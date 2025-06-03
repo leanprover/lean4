@@ -192,7 +192,7 @@ theorem Iter.Equiv.foldM_eq {α₁ α₂ β γ : Type w} {m : Type w → Type w'
     ita.foldM (init := init) f = itb.foldM (init := init) f := by
   simp [Iter.foldM_eq_forIn, h.forIn_eq]
 
-theorem IterM.Equiv.fold_eq {α₁ α₂ β γ : Type w} {m : Type w → Type w'}
+theorem Iter.Equiv.fold_eq {α₁ α₂ β γ : Type w} {m : Type w → Type w'}
     [Iterator α₁ Id β] [Iterator α₂ Id β][Iterator α₁ Id β] [Iterator α₂ Id β]
     [Finite α₁ Id] [Finite α₂ Id] [Monad m] [LawfulMonad m]
     [IteratorLoop α₁ Id Id] [LawfulIteratorLoop α₁ Id Id]

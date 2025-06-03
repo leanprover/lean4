@@ -13,10 +13,6 @@ implementation.
 
 set_option grind.warning false -- I've only made a partial effort to use grind here so far.
 
--- FIXME move these, and similar, to the library
-attribute [local grind] Array.size_range Array.getElem_range
-attribute [local grind] Fin.getElem_fin
-
 namespace Std.Tactic.BVDecide
 namespace LRAT
 namespace Internal
@@ -379,6 +375,7 @@ theorem assignmentsInvariant_performRupCheck_of_assignmentsInvariant {n : Nat} (
       have : (acc.fst, acc.snd.fst, acc.snd.snd.fst, acc.snd.snd.snd) = acc := rfl
       simp [this] at *
       omega -- FIXME `grind` fails here with an internal error
+      -- reported as https://github.com/leanprover/lean4/pull/8608
     rw [Array.foldl_induction in_bounds_motive in_bounds_base in_bounds_inductive]
     exact i.2.2
   simp only [( · ⊨ ·)]

@@ -493,9 +493,10 @@ def hasAssignableMVar [Monad m] [MonadMCtx m] : Expr → m Bool
 def assignLevelMVar [MonadMCtx m] (mvarId : LMVarId) (val : Level) : m Unit :=
   modifyMCtx fun m => { m with lAssignment := m.lAssignment.insert mvarId val, numAssignments := m.numAssignments + 1 }
 
+-- `assignLevelMVarExp` is only used in `instantiateMVars`, so it doesn't need to increment `numAssignments`
 @[export lean_assign_lmvar]
 def assignLevelMVarExp (m : MetavarContext) (mvarId : LMVarId) (val : Level) : MetavarContext :=
-  { m with lAssignment := m.lAssignment.insert mvarId val, numAssignments := m.numAssignments + 1 }
+  { m with lAssignment := m.lAssignment.insert mvarId val }
 
 /--
 Add `mvarId := x` to the metavariable assignment.
@@ -506,9 +507,10 @@ This is a low-level API, and it is safer to use `isDefEq (mkMVar mvarId) x`.
 def _root_.Lean.MVarId.assign [MonadMCtx m] (mvarId : MVarId) (val : Expr) : m Unit :=
   modifyMCtx fun m => { m with eAssignment := m.eAssignment.insert mvarId val, numAssignments := m.numAssignments + 1 }
 
+-- `assignExp` is only used in `instantiateMVars`, so it doesn't need to increment `numAssignments`
 @[export lean_assign_mvar]
 def assignExp (m : MetavarContext) (mvarId : MVarId) (val : Expr) : MetavarContext :=
-  { m with eAssignment := m.eAssignment.insert mvarId val, numAssignments := m.numAssignments + 1 }
+  { m with eAssignment := m.eAssignment.insert mvarId val }
 
 /--
 Add a delayed assignment for the given metavariable. You must make sure that

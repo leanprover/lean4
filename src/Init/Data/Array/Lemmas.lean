@@ -986,7 +986,11 @@ theorem mem_or_eq_of_mem_set
 @[simp, grind] theorem setIfInBounds_empty {i : Nat} {a : α} :
     #[].setIfInBounds i a = #[] := rfl
 
-@[simp] theorem set!_eq_setIfInBounds : @set! = @setIfInBounds := rfl
+@[simp, grind =] theorem set!_eq_setIfInBounds : set! xs i v = setIfInBounds xs i v := rfl
+
+@[grind]
+theorem setIfInBounds_def (xs : Array α) (i : Nat) (a : α) :
+    xs.setIfInBounds i a = if h : i < xs.size then xs.set i a else xs := rfl
 
 @[deprecated set!_eq_setIfInBounds (since := "2024-12-12")]
 abbrev set!_is_setIfInBounds := @set!_eq_setIfInBounds
@@ -1078,7 +1082,7 @@ theorem mem_or_eq_of_mem_setIfInBounds
   by_cases h : i < xs.size <;>
     simp [setIfInBounds, Nat.not_lt_of_le, h,  getD_getElem?]
 
-@[simp] theorem toList_setIfInBounds {xs : Array α} {i : Nat} {x : α} :
+@[simp, grind =] theorem toList_setIfInBounds {xs : Array α} {i : Nat} {x : α} :
     (xs.setIfInBounds i x).toList = xs.toList.set i x := by
   simp only [setIfInBounds]
   split <;> rename_i h

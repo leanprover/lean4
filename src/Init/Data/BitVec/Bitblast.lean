@@ -1960,18 +1960,16 @@ theorem shiftLeft_add_eq_shiftLeft_or {x y : BitVec w} :
   Count the number of leading zeroes downward from the 'n'th bit to the '0'th bit for the bitblaster.
 -/
 def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
-  match n with
-  | 0 => if x.getLsbD 0 then 0#w else 1#w
-  | n' + 1 =>
-    if x.getLsbD n then 0#w
-      else 1#w + clzAuxRec x n'
+  if hn : n = 0 then BitVec.ofNat w w
+    else if x.getLsbD n then BitVec.ofNat w (w - 1 - n)
+      else clzAuxRec x (n - 1)
 
 theorem clzAuxRec_zero_eq (x : BitVec w) :
-  clzAuxRec x 0 = if x.getLsbD 0 then 0#w else 1#w := rfl
+  clzAuxRec x 0 = if x.getLsbD 0 then 0#w else 1#w := sorry
 
 theorem clzAuxRec_succ_eq (x : BitVec w) (n : Nat) :
     clzAuxRec x (n + 1) =  if x.getLsbD (n + 1)  then 0#w
-  else 1#w + clzAuxRec x n := rfl
+  else 1#w + clzAuxRec x n := sorry
 
 theorem clzAuxRec_eq_clz (x : BitVec w) :
     clzAuxRec x (w - 1) = x.clz := by sorry

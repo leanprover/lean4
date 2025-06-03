@@ -28,82 +28,41 @@ namespace bitblast
 
 variable [Hashable α] [DecidableEq α]
 
+-- def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
+--   if hn : n = 0 then BitVec.ofNat w w
+--     else if x.getLsbD n then BitVec.ofNat w (w - 1 - n)
+--       else clzAuxRec x (n - 1)
+
+
 def blastClz (aig : AIG α) (target : AIG.RefVec aig w) :
     AIG.RefVecEntry α w :=
   go aig target (w - 1)
 where
   go (aig : AIG α) (x : AIG.RefVec aig w) (curr : Nat) :
-    AIG.ExtendingRefVecEntry aig w :=
-  if hc : curr = 0 then
-    -- getLsbD 0
-    let res := (BVPred.blastGetLsbD aig ⟨x, 0⟩)
-    let aig := res.aig
-    let lsb := res.ref
-    -- 0
-    let res := blastConst aig 0
-    let aig := res.aig
-    let zero := res.vec
-    have := AIG.LawfulVecOperator.le_size (f := blastConst) ..
-    let lsb := lsb.cast this
-    -- 1
-    let res := blastConst aig 1
-    let aig := res.aig
-    let one := res.vec
-    have := AIG.LawfulVecOperator.le_size (f := blastConst) ..
-    let lsb := lsb.cast this
-    let zero := zero.cast this
-    -- ite (getLsbD 0) 0 1
-    let res := AIG.RefVec.ite aig ⟨lsb, zero, one⟩
-    let aig := res.aig
-    let ite := res.vec
-    have := AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite) (input := ⟨lsb, zero, one⟩) ..
-    let lsb := lsb.cast this
-    let zero := zero.cast this
-    let one := one.cast this
-    have := AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.ite) (input := ⟨lsb, zero, one⟩)  (x := sorry) (by omega)
-    ⟨res, by sorry ⟩
-  else
-    -- getLsbD curr
-    let res := (BVPred.blastGetLsbD aig ⟨x, curr⟩)
-    let aig := res.aig
-    let lsb := res.ref
-    have := AIG.LawfulOperator.le_size (f := BVPred.blastGetLsbD) ..
-    let x := x.cast this
-    -- 0
-    let res := blastConst aig 0
-    let aig := res.aig
-    let zero := res.vec
-    have := AIG.LawfulVecOperator.le_size (f := blastConst) ..
-    let lsb : aig.Ref := lsb.cast this
-    let x := x.cast this
-    -- 1
-    let res := blastConst aig 1
-    let aig := res.aig
-    let one : AIG.RefVec aig w := res.vec
-    have := AIG.LawfulVecOperator.le_size (f := blastConst) ..
-    let lsb : aig.Ref := lsb.cast this
-    let x := x.cast this
-    let zero := zero.cast this
-    -- clzAuxRec x curr'
-    let ⟨res,proof⟩ := go aig x (curr - 1)
-    let aig := res.aig
-    let clzRec := res.vec
-    let lsb : aig.Ref := lsb.cast proof
-    let x := x.cast proof
-    let zero := zero.cast proof
-    let one : AIG.RefVec aig w := one.cast proof
-    -- 1 + clzAuxRec x curr'
-    let res := blastAdd aig ⟨one, clzRec⟩
-    let aig := res.aig
-    let add := res.vec
-    have := AIG.LawfulVecOperator.le_size (f := blastAdd) ..
-    let lsb : aig.Ref := lsb.cast this
-    let x := x.cast this
-    let zero := zero.cast this
-    let one := one.cast (by (expose_names; exact Nat.le_refl aig_6.decls.size))
-    let clzRec := clzRec.cast (by (expose_names; exact Nat.le_refl res_4.aig.decls.size))
-    let ite := AIG.RefVec.ite aig ⟨lsb, zero, add⟩
-    ⟨ite, by sorry⟩
+    AIG.RefVecEntry α w :=
+    -- if curr = 0 then BitVec.ofNat w w
+    if curr = 0 then
+      -- return w
+      blastConst aig w
+    else
+      -- cond = x.getLsbD n
+      let res := (BVPred.blastGetLsbD aig ⟨x, curr⟩)
+      let aig := res.aig
+      let cond := res.ref
+      have := AIG.LawfulOperator.le_size (f := BVPred.blastGetLsbD) ..
+      -- lhs = BitVec.ofNat w (w - 1 - curr)
+      let res := blastConst aig (w - 1 - curr)
+      let aig := res.aig
+      let lhs := res.vec
+      have := AIG.LawfulVecOperator.le_size (f := blastConst) ..
+      let cond := cond.cast this
+      -- rhs = clzAuxRec x (curr - 1)
+      let res := go x (curr - 1)
+      let aig := res.aig
+      let rhs := res.ref
+      -- return ite cond lhs rhs
+      let res := AIG.RefVec.ite aig ⟨cond, lhs, rhs⟩
+      res
   termination_by curr
 
 end bitblast

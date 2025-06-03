@@ -79,8 +79,64 @@ example (id : Nat) : _root_.id 2 = 2 := by
   rfl
 
 /-!
-Constant shadowing inside `match` patterns.
+`match` shadowing test. This used to print the first `match` arm as
+`| Bool.true => 0`, which is incorrect, since `Bool.true` resolves to `MatchTest1.Bool.true`
 -/
+namespace MatchTest1
+
+def Bool.true := 0
+set_option linter.constructorNameAsVariable false in
+def f (true : Bool) : Nat :=
+  match true with
+  | _root_.Bool.true => 0
+  | false => 1
+
+/--
+info: def MatchTest1.f : Bool → Nat :=
+fun true =>
+  match true with
+  | _root_.Bool.true => 0
+  | false => 1
+-/
+#guard_msgs in
+#print f
+
+/-- info: Bool.true : Nat -/
+#guard_msgs in #check (Bool.true)
+
+end MatchTest1
+
+/-!
+`match` shadowing test. This used to print the first `match` arm as
+`| Bool.true => 0`, which is incorrect, since `Bool.true` resolves to the local variable.
+-/
+namespace MatchTest2
+
+set_option linter.constructorNameAsVariable false in
+def f (true : Bool) : Nat :=
+  let Bool.true := 1
+  match true with
+  | _root_.Bool.true => 0
+  | false => 1
+
+/--
+info: def MatchTest2.f : Bool → Nat :=
+fun true =>
+  let Bool.true := 1;
+  match true with
+  | _root_.Bool.true => 0
+  | false => 1
+-/
+#guard_msgs in
+#print f
+
+end MatchTest2
+
+/-!
+`match` shadowing test. Similar to `MatchTest2`, but `| Bool.false =>` is correct.
+-/
+namespace MatchTest3
+
 set_option linter.constructorNameAsVariable false in
 def f (true : Bool) :=
   let Bool.true := true
@@ -92,7 +148,7 @@ def f (true : Bool) :=
     | Bool.false => false
     | false => Bool.true
 /--
-info: def f : Bool → Bool :=
+info: def MatchTest3.f : Bool → Bool :=
 fun true =>
   let Bool.true := true;
   let false := true;
@@ -104,6 +160,8 @@ fun true =>
     | false => Bool.true
 -/
 #guard_msgs in open Bool in #print f
+
+end MatchTest3
 
 namespace PrvTest.NS1
 

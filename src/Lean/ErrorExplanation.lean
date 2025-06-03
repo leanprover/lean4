@@ -244,6 +244,8 @@ where
 
   fence := attempt do
     let line ← any
+    -- TODO: update this to account for variable-size code fences
+    -- TODO: no longer need to collect code blocks
     if line.startsWith "```" then
       return line.drop 3
     else

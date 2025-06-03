@@ -19,6 +19,7 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringPosFin___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin___rarg___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___rarg(lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instCoeOutPosFinNat(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin___boxed(lean_object*);
@@ -30,7 +31,6 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instHashablePosFin(
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringPosFin(lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -139,7 +139,7 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringPosFin_
 _start:
 {
 lean_object* x_2; 
-x_2 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_2 = l_Nat_reprFast(x_1);
 return x_2;
 }
 }

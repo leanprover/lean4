@@ -36,7 +36,6 @@ lean_object* l_List_find_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_mul___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instNeg;
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instAdd;
-lean_object* l___private_Init_GetElem_0__List_get_x3fInternal___rarg(lean_object*, lean_object*);
 lean_object* l_List_zipWithAll___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_bmod__dot__sub__dot__bmod(lean_object*, lean_object*, lean_object*);
@@ -49,6 +48,7 @@ static lean_object* l_Lean_Omega_IntList_instNeg___closed__1;
 LEAN_EXPORT lean_object* l_List_zipWith___at_Lean_Omega_IntList_mul___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instMul;
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_sum___boxed(lean_object*);
+lean_object* l_List_get_x3fInternal___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldr___at_Lean_Omega_IntList_sum___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instHMulInt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Omega_IntList_0__List_getElem_x3f__zipWith_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -107,7 +107,7 @@ LEAN_EXPORT lean_object* l_Lean_Omega_IntList_get(lean_object* x_1, lean_object*
 _start:
 {
 lean_object* x_3; 
-x_3 = l___private_Init_GetElem_0__List_get_x3fInternal___rarg(x_1, x_2);
+x_3 = l_List_get_x3fInternal___rarg(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; 

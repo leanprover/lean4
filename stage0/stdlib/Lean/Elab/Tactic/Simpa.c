@@ -156,7 +156,6 @@ uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler
 static lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__4___closed__4;
 lean_object* l_Lean_MetavarContext_getExprAssignmentCore_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__4___closed__7;
 lean_object* l_Lean_MVarId_assumption(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -253,6 +252,7 @@ static lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__3___closed__3;
 static lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__4___closed__15;
 static lean_object* l___private_Lean_Elab_Tactic_Simpa_0__Lean_Elab_Tactic_Simpa_reprUseImplicitLambdaResult____x40_Lean_Elab_Tactic_Simpa___hyg_51____closed__4;
 lean_object* l_Lean_Meta_getMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__15(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__4___closed__11;
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -4064,7 +4064,7 @@ x_2 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__4___closed__19;
 x_3 = lean_unsigned_to_nat(105u);
 x_4 = lean_unsigned_to_nat(17u);
 x_5 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__4___closed__20;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

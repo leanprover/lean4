@@ -28,7 +28,6 @@ LEAN_EXPORT lean_object* l_Lake_MonadLogT_adaptMethods___rarg(lean_object*, lean
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Log_toString___spec__1(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___private_Lake_Util_Log_0__Lake_reprVerbosity____x40_Lake_Util_Log___hyg_10____closed__1;
 static lean_object* l___private_Lake_Util_Log_0__Lake_fromJsonLogLevel____x40_Lake_Util_Log___hyg_929____closed__3;
-lean_object* l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_177____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LogLevel_ofMessageSeverity___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_logError___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Log_isEmpty___boxed(lean_object*);
@@ -144,6 +143,7 @@ LEAN_EXPORT lean_object* l_Lake_LogT_run_x27(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Util_Log_0__Lake_toJsonLogEntry____x40_Lake_Util_Log___hyg_1415____closed__2;
 LEAN_EXPORT lean_object* l_Lake_LogEntry_trace(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_logWarning(lean_object*);
+lean_object* l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_187____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Log_replay___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MonadLog_ofMonadState(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_logVerbose___rarg(lean_object*, lean_object*);
@@ -3165,7 +3165,7 @@ x_14 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_14, 0, x_7);
 lean_ctor_set(x_14, 1, x_13);
 x_15 = l___private_Lake_Util_Log_0__Lake_fromJsonLogLevel____x40_Lake_Util_Log___hyg_929____closed__1;
-x_16 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_177____spec__1(x_14, x_15);
+x_16 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_187____spec__1(x_14, x_15);
 x_17 = l_Lean_Json_mkObj(x_16);
 return x_17;
 }

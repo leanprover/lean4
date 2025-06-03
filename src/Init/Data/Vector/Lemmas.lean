@@ -1138,6 +1138,7 @@ theorem all_eq_false' {p : α → Bool} {xs : Vector α n} :
   simp only [all_mk, Array.all_eq_false']
   simp
 
+@[grind =]
 theorem any_eq {xs : Vector α n} {p : α → Bool} : xs.any p = decide (∃ i : Nat, ∃ h, p (xs[i]'h)) := by
   by_cases h : xs.any p
   · simp_all [any_eq_true]
@@ -1152,6 +1153,7 @@ theorem any_eq' {xs : Vector α n} {p : α → Bool} : xs.any p = decide (∃ x,
     simp only [any_eq_false'] at h
     simpa using h
 
+@[grind =]
 theorem all_eq {xs : Vector α n} {p : α → Bool} : xs.all p = decide (∀ i, (_ : i < n) → p xs[i]) := by
   by_cases h : xs.all p
   · simp_all [all_eq_true]
@@ -1473,7 +1475,8 @@ theorem map_singleton {f : α → β} {a : α} : map f #v[a] = #v[f a] := by sim
 
 -- We use a lower priority here as there are more specific lemmas in downstream libraries
 -- which should be able to fire first.
-@[simp 500] theorem mem_map {f : α → β} {xs : Vector α n} : b ∈ xs.map f ↔ ∃ a, a ∈ xs ∧ f a = b := by
+@[simp 500, grind =] theorem mem_map {f : α → β} {xs : Vector α n} :
+    b ∈ xs.map f ↔ ∃ a, a ∈ xs ∧ f a = b := by
   cases xs
   simp
 

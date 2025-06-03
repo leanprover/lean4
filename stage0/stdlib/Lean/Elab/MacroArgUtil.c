@@ -93,7 +93,6 @@ static lean_object* l_Lean_Elab_Command_expandMacroArg_mkSyntaxAndPat___closed__
 lean_object* l_Lean_addMessageContextPartial___at_Lean_Elab_Command_instAddMessageContextCommandElabM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMacroArg_mkSyntaxAndPat___closed__23;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMacroArg_mkSyntaxAndPat___lambda__3___closed__5;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_expandMacroArg_mkAntiquotNode___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -145,6 +144,7 @@ lean_object* lean_array_mk(lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMacroArg_mkSyntaxAndPat___closed__21;
 static lean_object* l_Lean_Elab_Command_expandMacroArg_mkSyntaxAndPat___lambda__2___closed__2;
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Command_expandMacroArg_mkAntiquotNode___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMacroArg_mkSyntaxAndPat___closed__9;
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -3129,7 +3129,7 @@ x_2 = l_Lean_Elab_Command_expandMacroArg_mkSyntaxAndPat___lambda__2___closed__4;
 x_3 = lean_unsigned_to_nat(21u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_Elab_Command_expandMacroArg_mkSyntaxAndPat___lambda__2___closed__5;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

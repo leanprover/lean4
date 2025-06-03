@@ -43,7 +43,6 @@ static lean_object* l_Lake_commandGen__toml__decoders_x25____x40_Lake_Load_Toml_
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_PatternDescr_decodeToml___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_decodeToml___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_LeanConfig_instConfigTomlInfo___spec__2(lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_mkNameLit(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_instConfigTomlInfo___spec__47(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__3;
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_LeanExeConfig_decodeToml___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -80,7 +79,6 @@ lean_object* l_Lake_PackageConfig_license___proj___elambda__3(lean_object*, lean
 static lean_object* l___private_Lake_Load_Toml_0__Lake_genDecodeToml___closed__53;
 extern lean_object* l_Lake_InputFile_keyword;
 lean_object* l_Lake_Pattern_star(lean_object*, lean_object*);
-static lean_object* l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__14;
 static lean_object* l_Lake_PackageConfig_instConfigTomlInfo___closed__50;
 LEAN_EXPORT lean_object* l_Lake_commandGen__toml__decoders_x25____x40_Lake_Load_Toml___hyg_4493_;
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_decodeToml___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -413,7 +411,6 @@ LEAN_EXPORT lean_object* l_Lake_Toml_decodeArray___at_Lake_PatternDescr_decodeTo
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_LeanExeConfig_decodeToml___spec__22(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_LeanOptionValue_decodeToml___closed__2;
 static lean_object* l_Lake_LeanConfig_instConfigTomlInfo___closed__27;
-static lean_object* l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__15;
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_instConfigTomlInfo___spec__50(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Load_Toml_0__Lake_genDecodeToml___closed__50;
 LEAN_EXPORT lean_object* l_Lake_Toml_decodeArray___at_Lake_decodeVersionTags___spec__4___boxed(lean_object*, lean_object*);
@@ -523,6 +520,7 @@ LEAN_EXPORT lean_object* l_Lake_decodeTableValue(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Dependency_decodeToml___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_PatternDescr_decodeToml___spec__3___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_Lake_InputDirConfig_instConfigTomlInfo___spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_instQuoteNameMkStr1___private__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_instConfigTomlInfo___spec__18(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_instConfigTomlInfo___spec__44(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Dependency_decodeToml___closed__9;
@@ -648,7 +646,6 @@ lean_object* l_Lake_PackageConfig_keywords___proj___elambda__3(lean_object*, lea
 lean_object* l_Lake_PackageConfig_irDir___proj___elambda__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_decodeArray___at_Lake_LeanConfig_instConfigTomlInfo___spec__12(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_decodeToml___spec__39___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_quoteNameMk(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_instConfigTomlInfo___spec__36(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_decodeArray___at_Lake_LeanConfig_instConfigTomlInfo___spec__16___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_PatternDescr_decodeToml___rarg___lambda__1___closed__1;
@@ -659,7 +656,6 @@ LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_decodeTo
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake___aux__Lake__Load__Toml______macroRules__Lake__commandGen__toml__decoders_x25__1___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lake_decodeTargetDecls_go___spec__5___closed__3;
 static lean_object* l_Lake_PackageConfig_instConfigTomlInfo___closed__1;
-static lean_object* l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__17;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_LeanLibConfig_instConfigTomlInfo___spec__9___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_decodeToml___spec__36(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_PackageConfig_instConfigTomlInfo___closed__28;
@@ -804,7 +800,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_InputFileConfig_dec
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_decodeToml___spec__29(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_LeanExeConfig_decodeToml___spec__14(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static uint8_t l___private_Lake_Load_Toml_0__Lake_genDecodeToml___at_Lake___aux__Lake__Load__Toml______macroRules__Lake__commandGen__toml__decoders_x25__1___spec__9___closed__3;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_LeanConfig_instConfigTomlInfo___spec__18(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanLibConfig_instConfigTomlInfo___closed__4;
 static lean_object* l_Lake_instDecodeTomlArrayGlob___closed__1;
@@ -909,6 +904,7 @@ lean_object* l_Lake_PartialBuildKey_parse(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Pattern_decodeToml___at_Lake_InputDirConfig_instConfigTomlInfo___spec__4___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_decodeToml___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Pattern_decodeToml___rarg___closed__8;
+static lean_object* l_Lake_Toml_Table_decodeConfig___at_Lake_LeanLibConfig_decodeToml___spec__1___closed__3;
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_instConfigTomlInfo___spec__21___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_LeanExeConfig_decodeToml___spec__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_decodeKeyval___at_Lake_PatternDescr_decodeToml___spec__7___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -991,7 +987,6 @@ lean_object* l_Lake_StdVer_parse(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_decodeKeyval___at_Lake_LeanOption_decodeToml___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_LeanExeConfig_decodeToml___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_decodeToml___spec__42(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Meta_0__Lean_getEscapedNameParts_x3f(lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__2;
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_LeanLibConfig_instConfigTomlInfo___spec__28(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Pattern_decodeToml___rarg___lambda__2(lean_object*);
@@ -1065,7 +1060,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake___aux__Lake__Load__
 LEAN_EXPORT lean_object* l_Lake_instDecodeTomlTarget(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_PatternDescr_decodeToml___spec__9(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_instConfigTomlInfo___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__16;
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_LeanLibConfig_instConfigTomlInfo___spec__23(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_PackageConfig_instConfigTomlInfo___closed__18;
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_decodeToml___spec__46(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1208,7 +1202,6 @@ static lean_object* l___private_Lake_Load_Toml_0__Lake_genDecodeToml___closed__4
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_LeanConfig_instConfigTomlInfo___spec__7___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_Table_decodeConfig___at_Lake_PackageConfig_decodeToml___spec__1___closed__6;
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_instConfigTomlInfo___spec__35___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_String_intercalate(lean_object*, lean_object*);
 static size_t l___private_Lake_Load_Toml_0__Lake_genDecodeToml___at_Lake___aux__Lake__Load__Toml______macroRules__Lake__commandGen__toml__decoders_x25__1___spec__1___closed__4;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Dependency_decodeToml___spec__2___lambda__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_LeanConfig_instConfigTomlInfo___closed__30;
@@ -1252,6 +1245,7 @@ static lean_object* l_Lake_instDecodeFieldPackageConfigMkStr1___closed__1;
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake___aux__Lake__Load__Toml______macroRules__Lake__commandGen__toml__decoders_x25__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_PatternDescr_decodeToml___spec__3___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_LeanLibConfig_instConfigTomlInfo___closed__10;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_loadTomlConfig___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_instDecodeTomlArrayGlob___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2047,7 +2041,7 @@ x_2 = l_Lake_takeNamePart___closed__2;
 x_3 = lean_unsigned_to_nat(21u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lake_takeNamePart___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -22209,42 +22203,6 @@ x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__14() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("quotedName", 10, 10);
-return x_1;
-}
-}
-static lean_object* _init_l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__15() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__1;
-x_2 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__2;
-x_3 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__3;
-x_4 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__14;
-x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
-return x_5;
-}
-}
-static lean_object* _init_l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__16() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(".", 1, 1);
-return x_1;
-}
-}
-static lean_object* _init_l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__17() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`", 1, 1);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, size_t x_6, size_t x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
@@ -22264,7 +22222,7 @@ lean_dec(x_12);
 x_15 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_1, x_14);
 if (x_15 == 0)
 {
-lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; size_t x_35; size_t x_36; 
 x_16 = lean_ctor_get(x_9, 5);
 lean_inc(x_16);
 x_17 = 0;
@@ -22297,90 +22255,48 @@ lean_ctor_set(x_29, 0, x_18);
 lean_ctor_set(x_29, 1, x_28);
 lean_ctor_set(x_29, 2, x_24);
 lean_ctor_set(x_29, 3, x_27);
-lean_inc(x_14);
-lean_inc(x_3);
-x_30 = l___private_Init_Meta_0__Lean_getEscapedNameParts_x3f(x_3, x_14);
-if (lean_obj_tag(x_30) == 0)
-{
-lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; size_t x_36; size_t x_37; 
-x_31 = l_Lean_quoteNameMk(x_14);
-x_32 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
+x_30 = l_Lean_instQuoteNameMkStr1___private__1(x_14);
+x_31 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
 lean_inc(x_18);
-x_33 = l_Lean_Syntax_node1(x_18, x_32, x_31);
-x_34 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
-x_35 = l_Lean_Syntax_node4(x_18, x_34, x_8, x_22, x_29, x_33);
-x_36 = 1;
-x_37 = lean_usize_add(x_6, x_36);
-x_6 = x_37;
-x_8 = x_35;
+x_32 = l_Lean_Syntax_node1(x_18, x_31, x_30);
+x_33 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
+x_34 = l_Lean_Syntax_node4(x_18, x_33, x_8, x_22, x_29, x_32);
+x_35 = 1;
+x_36 = lean_usize_add(x_6, x_35);
+x_6 = x_36;
+x_8 = x_34;
 goto _start;
 }
 else
 {
-lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; size_t x_55; size_t x_56; 
+size_t x_38; size_t x_39; 
 lean_dec(x_14);
-x_39 = lean_ctor_get(x_30, 0);
-lean_inc(x_39);
-lean_dec(x_30);
-x_40 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__16;
-x_41 = l_String_intercalate(x_40, x_39);
-x_42 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__17;
-x_43 = lean_string_append(x_42, x_41);
-lean_dec(x_41);
-x_44 = lean_box(2);
-x_45 = l_Lean_Syntax_mkNameLit(x_43, x_44);
-x_46 = lean_box(0);
-x_47 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_47, 0, x_45);
-lean_ctor_set(x_47, 1, x_46);
-x_48 = lean_array_mk(x_47);
-x_49 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__15;
-x_50 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_50, 0, x_44);
-lean_ctor_set(x_50, 1, x_49);
-lean_ctor_set(x_50, 2, x_48);
-x_51 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
-lean_inc(x_18);
-x_52 = l_Lean_Syntax_node1(x_18, x_51, x_50);
-x_53 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
-x_54 = l_Lean_Syntax_node4(x_18, x_53, x_8, x_22, x_29, x_52);
-x_55 = 1;
-x_56 = lean_usize_add(x_6, x_55);
-x_6 = x_56;
-x_8 = x_54;
+x_38 = 1;
+x_39 = lean_usize_add(x_6, x_38);
+x_6 = x_39;
 goto _start;
 }
 }
 else
 {
-size_t x_58; size_t x_59; 
-lean_dec(x_14);
-x_58 = 1;
-x_59 = lean_usize_add(x_6, x_58);
-x_6 = x_59;
-goto _start;
-}
-}
-else
-{
-size_t x_61; size_t x_62; 
+size_t x_41; size_t x_42; 
 lean_dec(x_12);
-x_61 = 1;
-x_62 = lean_usize_add(x_6, x_61);
-x_6 = x_62;
+x_41 = 1;
+x_42 = lean_usize_add(x_6, x_41);
+x_6 = x_42;
 goto _start;
 }
 }
 else
 {
-lean_object* x_64; 
+lean_object* x_44; 
 lean_dec(x_9);
 lean_dec(x_4);
 lean_dec(x_3);
-x_64 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_64, 0, x_8);
-lean_ctor_set(x_64, 1, x_10);
-return x_64;
+x_44 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_44, 0, x_8);
+lean_ctor_set(x_44, 1, x_10);
+return x_44;
 }
 }
 }
@@ -24638,7 +24554,7 @@ lean_dec(x_12);
 x_15 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_1, x_14);
 if (x_15 == 0)
 {
-lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; size_t x_35; size_t x_36; 
 x_16 = lean_ctor_get(x_9, 5);
 lean_inc(x_16);
 x_17 = 0;
@@ -24671,90 +24587,48 @@ lean_ctor_set(x_29, 0, x_18);
 lean_ctor_set(x_29, 1, x_28);
 lean_ctor_set(x_29, 2, x_24);
 lean_ctor_set(x_29, 3, x_27);
-lean_inc(x_14);
-lean_inc(x_3);
-x_30 = l___private_Init_Meta_0__Lean_getEscapedNameParts_x3f(x_3, x_14);
-if (lean_obj_tag(x_30) == 0)
-{
-lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; size_t x_36; size_t x_37; 
-x_31 = l_Lean_quoteNameMk(x_14);
-x_32 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
+x_30 = l_Lean_instQuoteNameMkStr1___private__1(x_14);
+x_31 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
 lean_inc(x_18);
-x_33 = l_Lean_Syntax_node1(x_18, x_32, x_31);
-x_34 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
-x_35 = l_Lean_Syntax_node4(x_18, x_34, x_8, x_22, x_29, x_33);
-x_36 = 1;
-x_37 = lean_usize_add(x_6, x_36);
-x_6 = x_37;
-x_8 = x_35;
+x_32 = l_Lean_Syntax_node1(x_18, x_31, x_30);
+x_33 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
+x_34 = l_Lean_Syntax_node4(x_18, x_33, x_8, x_22, x_29, x_32);
+x_35 = 1;
+x_36 = lean_usize_add(x_6, x_35);
+x_6 = x_36;
+x_8 = x_34;
 goto _start;
 }
 else
 {
-lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; size_t x_55; size_t x_56; 
+size_t x_38; size_t x_39; 
 lean_dec(x_14);
-x_39 = lean_ctor_get(x_30, 0);
-lean_inc(x_39);
-lean_dec(x_30);
-x_40 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__16;
-x_41 = l_String_intercalate(x_40, x_39);
-x_42 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__17;
-x_43 = lean_string_append(x_42, x_41);
-lean_dec(x_41);
-x_44 = lean_box(2);
-x_45 = l_Lean_Syntax_mkNameLit(x_43, x_44);
-x_46 = lean_box(0);
-x_47 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_47, 0, x_45);
-lean_ctor_set(x_47, 1, x_46);
-x_48 = lean_array_mk(x_47);
-x_49 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__15;
-x_50 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_50, 0, x_44);
-lean_ctor_set(x_50, 1, x_49);
-lean_ctor_set(x_50, 2, x_48);
-x_51 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
-lean_inc(x_18);
-x_52 = l_Lean_Syntax_node1(x_18, x_51, x_50);
-x_53 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
-x_54 = l_Lean_Syntax_node4(x_18, x_53, x_8, x_22, x_29, x_52);
-x_55 = 1;
-x_56 = lean_usize_add(x_6, x_55);
-x_6 = x_56;
-x_8 = x_54;
+x_38 = 1;
+x_39 = lean_usize_add(x_6, x_38);
+x_6 = x_39;
 goto _start;
 }
 }
 else
 {
-size_t x_58; size_t x_59; 
-lean_dec(x_14);
-x_58 = 1;
-x_59 = lean_usize_add(x_6, x_58);
-x_6 = x_59;
-goto _start;
-}
-}
-else
-{
-size_t x_61; size_t x_62; 
+size_t x_41; size_t x_42; 
 lean_dec(x_12);
-x_61 = 1;
-x_62 = lean_usize_add(x_6, x_61);
-x_6 = x_62;
+x_41 = 1;
+x_42 = lean_usize_add(x_6, x_41);
+x_6 = x_42;
 goto _start;
 }
 }
 else
 {
-lean_object* x_64; 
+lean_object* x_44; 
 lean_dec(x_9);
 lean_dec(x_4);
 lean_dec(x_3);
-x_64 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_64, 0, x_8);
-lean_ctor_set(x_64, 1, x_10);
-return x_64;
+x_44 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_44, 0, x_8);
+lean_ctor_set(x_44, 1, x_10);
+return x_44;
 }
 }
 }
@@ -25806,7 +25680,7 @@ lean_dec(x_12);
 x_15 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_1, x_14);
 if (x_15 == 0)
 {
-lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; size_t x_35; size_t x_36; 
 x_16 = lean_ctor_get(x_9, 5);
 lean_inc(x_16);
 x_17 = 0;
@@ -25839,90 +25713,48 @@ lean_ctor_set(x_29, 0, x_18);
 lean_ctor_set(x_29, 1, x_28);
 lean_ctor_set(x_29, 2, x_24);
 lean_ctor_set(x_29, 3, x_27);
-lean_inc(x_14);
-lean_inc(x_3);
-x_30 = l___private_Init_Meta_0__Lean_getEscapedNameParts_x3f(x_3, x_14);
-if (lean_obj_tag(x_30) == 0)
-{
-lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; size_t x_36; size_t x_37; 
-x_31 = l_Lean_quoteNameMk(x_14);
-x_32 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
+x_30 = l_Lean_instQuoteNameMkStr1___private__1(x_14);
+x_31 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
 lean_inc(x_18);
-x_33 = l_Lean_Syntax_node1(x_18, x_32, x_31);
-x_34 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
-x_35 = l_Lean_Syntax_node4(x_18, x_34, x_8, x_22, x_29, x_33);
-x_36 = 1;
-x_37 = lean_usize_add(x_6, x_36);
-x_6 = x_37;
-x_8 = x_35;
+x_32 = l_Lean_Syntax_node1(x_18, x_31, x_30);
+x_33 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
+x_34 = l_Lean_Syntax_node4(x_18, x_33, x_8, x_22, x_29, x_32);
+x_35 = 1;
+x_36 = lean_usize_add(x_6, x_35);
+x_6 = x_36;
+x_8 = x_34;
 goto _start;
 }
 else
 {
-lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; size_t x_55; size_t x_56; 
+size_t x_38; size_t x_39; 
 lean_dec(x_14);
-x_39 = lean_ctor_get(x_30, 0);
-lean_inc(x_39);
-lean_dec(x_30);
-x_40 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__16;
-x_41 = l_String_intercalate(x_40, x_39);
-x_42 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__17;
-x_43 = lean_string_append(x_42, x_41);
-lean_dec(x_41);
-x_44 = lean_box(2);
-x_45 = l_Lean_Syntax_mkNameLit(x_43, x_44);
-x_46 = lean_box(0);
-x_47 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_47, 0, x_45);
-lean_ctor_set(x_47, 1, x_46);
-x_48 = lean_array_mk(x_47);
-x_49 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__15;
-x_50 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_50, 0, x_44);
-lean_ctor_set(x_50, 1, x_49);
-lean_ctor_set(x_50, 2, x_48);
-x_51 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
-lean_inc(x_18);
-x_52 = l_Lean_Syntax_node1(x_18, x_51, x_50);
-x_53 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
-x_54 = l_Lean_Syntax_node4(x_18, x_53, x_8, x_22, x_29, x_52);
-x_55 = 1;
-x_56 = lean_usize_add(x_6, x_55);
-x_6 = x_56;
-x_8 = x_54;
+x_38 = 1;
+x_39 = lean_usize_add(x_6, x_38);
+x_6 = x_39;
 goto _start;
 }
 }
 else
 {
-size_t x_58; size_t x_59; 
-lean_dec(x_14);
-x_58 = 1;
-x_59 = lean_usize_add(x_6, x_58);
-x_6 = x_59;
-goto _start;
-}
-}
-else
-{
-size_t x_61; size_t x_62; 
+size_t x_41; size_t x_42; 
 lean_dec(x_12);
-x_61 = 1;
-x_62 = lean_usize_add(x_6, x_61);
-x_6 = x_62;
+x_41 = 1;
+x_42 = lean_usize_add(x_6, x_41);
+x_6 = x_42;
 goto _start;
 }
 }
 else
 {
-lean_object* x_64; 
+lean_object* x_44; 
 lean_dec(x_9);
 lean_dec(x_4);
 lean_dec(x_3);
-x_64 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_64, 0, x_8);
-lean_ctor_set(x_64, 1, x_10);
-return x_64;
+x_44 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_44, 0, x_8);
+lean_ctor_set(x_44, 1, x_10);
+return x_44;
 }
 }
 }
@@ -26974,7 +26806,7 @@ lean_dec(x_12);
 x_15 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_1, x_14);
 if (x_15 == 0)
 {
-lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; size_t x_35; size_t x_36; 
 x_16 = lean_ctor_get(x_9, 5);
 lean_inc(x_16);
 x_17 = 0;
@@ -27007,90 +26839,48 @@ lean_ctor_set(x_29, 0, x_18);
 lean_ctor_set(x_29, 1, x_28);
 lean_ctor_set(x_29, 2, x_24);
 lean_ctor_set(x_29, 3, x_27);
-lean_inc(x_14);
-lean_inc(x_3);
-x_30 = l___private_Init_Meta_0__Lean_getEscapedNameParts_x3f(x_3, x_14);
-if (lean_obj_tag(x_30) == 0)
-{
-lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; size_t x_36; size_t x_37; 
-x_31 = l_Lean_quoteNameMk(x_14);
-x_32 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
+x_30 = l_Lean_instQuoteNameMkStr1___private__1(x_14);
+x_31 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
 lean_inc(x_18);
-x_33 = l_Lean_Syntax_node1(x_18, x_32, x_31);
-x_34 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
-x_35 = l_Lean_Syntax_node4(x_18, x_34, x_8, x_22, x_29, x_33);
-x_36 = 1;
-x_37 = lean_usize_add(x_6, x_36);
-x_6 = x_37;
-x_8 = x_35;
+x_32 = l_Lean_Syntax_node1(x_18, x_31, x_30);
+x_33 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
+x_34 = l_Lean_Syntax_node4(x_18, x_33, x_8, x_22, x_29, x_32);
+x_35 = 1;
+x_36 = lean_usize_add(x_6, x_35);
+x_6 = x_36;
+x_8 = x_34;
 goto _start;
 }
 else
 {
-lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; size_t x_55; size_t x_56; 
+size_t x_38; size_t x_39; 
 lean_dec(x_14);
-x_39 = lean_ctor_get(x_30, 0);
-lean_inc(x_39);
-lean_dec(x_30);
-x_40 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__16;
-x_41 = l_String_intercalate(x_40, x_39);
-x_42 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__17;
-x_43 = lean_string_append(x_42, x_41);
-lean_dec(x_41);
-x_44 = lean_box(2);
-x_45 = l_Lean_Syntax_mkNameLit(x_43, x_44);
-x_46 = lean_box(0);
-x_47 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_47, 0, x_45);
-lean_ctor_set(x_47, 1, x_46);
-x_48 = lean_array_mk(x_47);
-x_49 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__15;
-x_50 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_50, 0, x_44);
-lean_ctor_set(x_50, 1, x_49);
-lean_ctor_set(x_50, 2, x_48);
-x_51 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
-lean_inc(x_18);
-x_52 = l_Lean_Syntax_node1(x_18, x_51, x_50);
-x_53 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
-x_54 = l_Lean_Syntax_node4(x_18, x_53, x_8, x_22, x_29, x_52);
-x_55 = 1;
-x_56 = lean_usize_add(x_6, x_55);
-x_6 = x_56;
-x_8 = x_54;
+x_38 = 1;
+x_39 = lean_usize_add(x_6, x_38);
+x_6 = x_39;
 goto _start;
 }
 }
 else
 {
-size_t x_58; size_t x_59; 
-lean_dec(x_14);
-x_58 = 1;
-x_59 = lean_usize_add(x_6, x_58);
-x_6 = x_59;
-goto _start;
-}
-}
-else
-{
-size_t x_61; size_t x_62; 
+size_t x_41; size_t x_42; 
 lean_dec(x_12);
-x_61 = 1;
-x_62 = lean_usize_add(x_6, x_61);
-x_6 = x_62;
+x_41 = 1;
+x_42 = lean_usize_add(x_6, x_41);
+x_6 = x_42;
 goto _start;
 }
 }
 else
 {
-lean_object* x_64; 
+lean_object* x_44; 
 lean_dec(x_9);
 lean_dec(x_4);
 lean_dec(x_3);
-x_64 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_64, 0, x_8);
-lean_ctor_set(x_64, 1, x_10);
-return x_64;
+x_44 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_44, 0, x_8);
+lean_ctor_set(x_44, 1, x_10);
+return x_44;
 }
 }
 }
@@ -28142,7 +27932,7 @@ lean_dec(x_12);
 x_15 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_1, x_14);
 if (x_15 == 0)
 {
-lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; size_t x_35; size_t x_36; 
 x_16 = lean_ctor_get(x_9, 5);
 lean_inc(x_16);
 x_17 = 0;
@@ -28175,90 +27965,48 @@ lean_ctor_set(x_29, 0, x_18);
 lean_ctor_set(x_29, 1, x_28);
 lean_ctor_set(x_29, 2, x_24);
 lean_ctor_set(x_29, 3, x_27);
-lean_inc(x_14);
-lean_inc(x_3);
-x_30 = l___private_Init_Meta_0__Lean_getEscapedNameParts_x3f(x_3, x_14);
-if (lean_obj_tag(x_30) == 0)
-{
-lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; size_t x_36; size_t x_37; 
-x_31 = l_Lean_quoteNameMk(x_14);
-x_32 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
+x_30 = l_Lean_instQuoteNameMkStr1___private__1(x_14);
+x_31 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
 lean_inc(x_18);
-x_33 = l_Lean_Syntax_node1(x_18, x_32, x_31);
-x_34 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
-x_35 = l_Lean_Syntax_node4(x_18, x_34, x_8, x_22, x_29, x_33);
-x_36 = 1;
-x_37 = lean_usize_add(x_6, x_36);
-x_6 = x_37;
-x_8 = x_35;
+x_32 = l_Lean_Syntax_node1(x_18, x_31, x_30);
+x_33 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
+x_34 = l_Lean_Syntax_node4(x_18, x_33, x_8, x_22, x_29, x_32);
+x_35 = 1;
+x_36 = lean_usize_add(x_6, x_35);
+x_6 = x_36;
+x_8 = x_34;
 goto _start;
 }
 else
 {
-lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; size_t x_55; size_t x_56; 
+size_t x_38; size_t x_39; 
 lean_dec(x_14);
-x_39 = lean_ctor_get(x_30, 0);
-lean_inc(x_39);
-lean_dec(x_30);
-x_40 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__16;
-x_41 = l_String_intercalate(x_40, x_39);
-x_42 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__17;
-x_43 = lean_string_append(x_42, x_41);
-lean_dec(x_41);
-x_44 = lean_box(2);
-x_45 = l_Lean_Syntax_mkNameLit(x_43, x_44);
-x_46 = lean_box(0);
-x_47 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_47, 0, x_45);
-lean_ctor_set(x_47, 1, x_46);
-x_48 = lean_array_mk(x_47);
-x_49 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__15;
-x_50 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_50, 0, x_44);
-lean_ctor_set(x_50, 1, x_49);
-lean_ctor_set(x_50, 2, x_48);
-x_51 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
-lean_inc(x_18);
-x_52 = l_Lean_Syntax_node1(x_18, x_51, x_50);
-x_53 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
-x_54 = l_Lean_Syntax_node4(x_18, x_53, x_8, x_22, x_29, x_52);
-x_55 = 1;
-x_56 = lean_usize_add(x_6, x_55);
-x_6 = x_56;
-x_8 = x_54;
+x_38 = 1;
+x_39 = lean_usize_add(x_6, x_38);
+x_6 = x_39;
 goto _start;
 }
 }
 else
 {
-size_t x_58; size_t x_59; 
-lean_dec(x_14);
-x_58 = 1;
-x_59 = lean_usize_add(x_6, x_58);
-x_6 = x_59;
-goto _start;
-}
-}
-else
-{
-size_t x_61; size_t x_62; 
+size_t x_41; size_t x_42; 
 lean_dec(x_12);
-x_61 = 1;
-x_62 = lean_usize_add(x_6, x_61);
-x_6 = x_62;
+x_41 = 1;
+x_42 = lean_usize_add(x_6, x_41);
+x_6 = x_42;
 goto _start;
 }
 }
 else
 {
-lean_object* x_64; 
+lean_object* x_44; 
 lean_dec(x_9);
 lean_dec(x_4);
 lean_dec(x_3);
-x_64 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_64, 0, x_8);
-lean_ctor_set(x_64, 1, x_10);
-return x_64;
+x_44 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_44, 0, x_8);
+lean_ctor_set(x_44, 1, x_10);
+return x_44;
 }
 }
 }
@@ -29310,7 +29058,7 @@ lean_dec(x_12);
 x_15 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_1, x_14);
 if (x_15 == 0)
 {
-lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; size_t x_35; size_t x_36; 
 x_16 = lean_ctor_get(x_9, 5);
 lean_inc(x_16);
 x_17 = 0;
@@ -29343,90 +29091,48 @@ lean_ctor_set(x_29, 0, x_18);
 lean_ctor_set(x_29, 1, x_28);
 lean_ctor_set(x_29, 2, x_24);
 lean_ctor_set(x_29, 3, x_27);
-lean_inc(x_14);
-lean_inc(x_3);
-x_30 = l___private_Init_Meta_0__Lean_getEscapedNameParts_x3f(x_3, x_14);
-if (lean_obj_tag(x_30) == 0)
-{
-lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; size_t x_36; size_t x_37; 
-x_31 = l_Lean_quoteNameMk(x_14);
-x_32 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
+x_30 = l_Lean_instQuoteNameMkStr1___private__1(x_14);
+x_31 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
 lean_inc(x_18);
-x_33 = l_Lean_Syntax_node1(x_18, x_32, x_31);
-x_34 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
-x_35 = l_Lean_Syntax_node4(x_18, x_34, x_8, x_22, x_29, x_33);
-x_36 = 1;
-x_37 = lean_usize_add(x_6, x_36);
-x_6 = x_37;
-x_8 = x_35;
+x_32 = l_Lean_Syntax_node1(x_18, x_31, x_30);
+x_33 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
+x_34 = l_Lean_Syntax_node4(x_18, x_33, x_8, x_22, x_29, x_32);
+x_35 = 1;
+x_36 = lean_usize_add(x_6, x_35);
+x_6 = x_36;
+x_8 = x_34;
 goto _start;
 }
 else
 {
-lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; size_t x_55; size_t x_56; 
+size_t x_38; size_t x_39; 
 lean_dec(x_14);
-x_39 = lean_ctor_get(x_30, 0);
-lean_inc(x_39);
-lean_dec(x_30);
-x_40 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__16;
-x_41 = l_String_intercalate(x_40, x_39);
-x_42 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__17;
-x_43 = lean_string_append(x_42, x_41);
-lean_dec(x_41);
-x_44 = lean_box(2);
-x_45 = l_Lean_Syntax_mkNameLit(x_43, x_44);
-x_46 = lean_box(0);
-x_47 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_47, 0, x_45);
-lean_ctor_set(x_47, 1, x_46);
-x_48 = lean_array_mk(x_47);
-x_49 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__15;
-x_50 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_50, 0, x_44);
-lean_ctor_set(x_50, 1, x_49);
-lean_ctor_set(x_50, 2, x_48);
-x_51 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
-lean_inc(x_18);
-x_52 = l_Lean_Syntax_node1(x_18, x_51, x_50);
-x_53 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
-x_54 = l_Lean_Syntax_node4(x_18, x_53, x_8, x_22, x_29, x_52);
-x_55 = 1;
-x_56 = lean_usize_add(x_6, x_55);
-x_6 = x_56;
-x_8 = x_54;
+x_38 = 1;
+x_39 = lean_usize_add(x_6, x_38);
+x_6 = x_39;
 goto _start;
 }
 }
 else
 {
-size_t x_58; size_t x_59; 
-lean_dec(x_14);
-x_58 = 1;
-x_59 = lean_usize_add(x_6, x_58);
-x_6 = x_59;
-goto _start;
-}
-}
-else
-{
-size_t x_61; size_t x_62; 
+size_t x_41; size_t x_42; 
 lean_dec(x_12);
-x_61 = 1;
-x_62 = lean_usize_add(x_6, x_61);
-x_6 = x_62;
+x_41 = 1;
+x_42 = lean_usize_add(x_6, x_41);
+x_6 = x_42;
 goto _start;
 }
 }
 else
 {
-lean_object* x_64; 
+lean_object* x_44; 
 lean_dec(x_9);
 lean_dec(x_4);
 lean_dec(x_3);
-x_64 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_64, 0, x_8);
-lean_ctor_set(x_64, 1, x_10);
-return x_64;
+x_44 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_44, 0, x_8);
+lean_ctor_set(x_44, 1, x_10);
+return x_44;
 }
 }
 }
@@ -30478,7 +30184,7 @@ lean_dec(x_12);
 x_15 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_1, x_14);
 if (x_15 == 0)
 {
-lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; size_t x_35; size_t x_36; 
 x_16 = lean_ctor_get(x_9, 5);
 lean_inc(x_16);
 x_17 = 0;
@@ -30511,90 +30217,48 @@ lean_ctor_set(x_29, 0, x_18);
 lean_ctor_set(x_29, 1, x_28);
 lean_ctor_set(x_29, 2, x_24);
 lean_ctor_set(x_29, 3, x_27);
-lean_inc(x_14);
-lean_inc(x_3);
-x_30 = l___private_Init_Meta_0__Lean_getEscapedNameParts_x3f(x_3, x_14);
-if (lean_obj_tag(x_30) == 0)
-{
-lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; size_t x_36; size_t x_37; 
-x_31 = l_Lean_quoteNameMk(x_14);
-x_32 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
+x_30 = l_Lean_instQuoteNameMkStr1___private__1(x_14);
+x_31 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
 lean_inc(x_18);
-x_33 = l_Lean_Syntax_node1(x_18, x_32, x_31);
-x_34 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
-x_35 = l_Lean_Syntax_node4(x_18, x_34, x_8, x_22, x_29, x_33);
-x_36 = 1;
-x_37 = lean_usize_add(x_6, x_36);
-x_6 = x_37;
-x_8 = x_35;
+x_32 = l_Lean_Syntax_node1(x_18, x_31, x_30);
+x_33 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
+x_34 = l_Lean_Syntax_node4(x_18, x_33, x_8, x_22, x_29, x_32);
+x_35 = 1;
+x_36 = lean_usize_add(x_6, x_35);
+x_6 = x_36;
+x_8 = x_34;
 goto _start;
 }
 else
 {
-lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; size_t x_55; size_t x_56; 
+size_t x_38; size_t x_39; 
 lean_dec(x_14);
-x_39 = lean_ctor_get(x_30, 0);
-lean_inc(x_39);
-lean_dec(x_30);
-x_40 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__16;
-x_41 = l_String_intercalate(x_40, x_39);
-x_42 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__17;
-x_43 = lean_string_append(x_42, x_41);
-lean_dec(x_41);
-x_44 = lean_box(2);
-x_45 = l_Lean_Syntax_mkNameLit(x_43, x_44);
-x_46 = lean_box(0);
-x_47 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_47, 0, x_45);
-lean_ctor_set(x_47, 1, x_46);
-x_48 = lean_array_mk(x_47);
-x_49 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__15;
-x_50 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_50, 0, x_44);
-lean_ctor_set(x_50, 1, x_49);
-lean_ctor_set(x_50, 2, x_48);
-x_51 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
-lean_inc(x_18);
-x_52 = l_Lean_Syntax_node1(x_18, x_51, x_50);
-x_53 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
-x_54 = l_Lean_Syntax_node4(x_18, x_53, x_8, x_22, x_29, x_52);
-x_55 = 1;
-x_56 = lean_usize_add(x_6, x_55);
-x_6 = x_56;
-x_8 = x_54;
+x_38 = 1;
+x_39 = lean_usize_add(x_6, x_38);
+x_6 = x_39;
 goto _start;
 }
 }
 else
 {
-size_t x_58; size_t x_59; 
-lean_dec(x_14);
-x_58 = 1;
-x_59 = lean_usize_add(x_6, x_58);
-x_6 = x_59;
-goto _start;
-}
-}
-else
-{
-size_t x_61; size_t x_62; 
+size_t x_41; size_t x_42; 
 lean_dec(x_12);
-x_61 = 1;
-x_62 = lean_usize_add(x_6, x_61);
-x_6 = x_62;
+x_41 = 1;
+x_42 = lean_usize_add(x_6, x_41);
+x_6 = x_42;
 goto _start;
 }
 }
 else
 {
-lean_object* x_64; 
+lean_object* x_44; 
 lean_dec(x_9);
 lean_dec(x_4);
 lean_dec(x_3);
-x_64 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_64, 0, x_8);
-lean_ctor_set(x_64, 1, x_10);
-return x_64;
+x_44 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_44, 0, x_8);
+lean_ctor_set(x_44, 1, x_10);
+return x_44;
 }
 }
 }
@@ -31646,7 +31310,7 @@ lean_dec(x_12);
 x_15 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_1, x_14);
 if (x_15 == 0)
 {
-lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; size_t x_35; size_t x_36; 
 x_16 = lean_ctor_get(x_9, 5);
 lean_inc(x_16);
 x_17 = 0;
@@ -31679,90 +31343,48 @@ lean_ctor_set(x_29, 0, x_18);
 lean_ctor_set(x_29, 1, x_28);
 lean_ctor_set(x_29, 2, x_24);
 lean_ctor_set(x_29, 3, x_27);
-lean_inc(x_14);
-lean_inc(x_3);
-x_30 = l___private_Init_Meta_0__Lean_getEscapedNameParts_x3f(x_3, x_14);
-if (lean_obj_tag(x_30) == 0)
-{
-lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; size_t x_36; size_t x_37; 
-x_31 = l_Lean_quoteNameMk(x_14);
-x_32 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
+x_30 = l_Lean_instQuoteNameMkStr1___private__1(x_14);
+x_31 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
 lean_inc(x_18);
-x_33 = l_Lean_Syntax_node1(x_18, x_32, x_31);
-x_34 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
-x_35 = l_Lean_Syntax_node4(x_18, x_34, x_8, x_22, x_29, x_33);
-x_36 = 1;
-x_37 = lean_usize_add(x_6, x_36);
-x_6 = x_37;
-x_8 = x_35;
+x_32 = l_Lean_Syntax_node1(x_18, x_31, x_30);
+x_33 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
+x_34 = l_Lean_Syntax_node4(x_18, x_33, x_8, x_22, x_29, x_32);
+x_35 = 1;
+x_36 = lean_usize_add(x_6, x_35);
+x_6 = x_36;
+x_8 = x_34;
 goto _start;
 }
 else
 {
-lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; size_t x_55; size_t x_56; 
+size_t x_38; size_t x_39; 
 lean_dec(x_14);
-x_39 = lean_ctor_get(x_30, 0);
-lean_inc(x_39);
-lean_dec(x_30);
-x_40 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__16;
-x_41 = l_String_intercalate(x_40, x_39);
-x_42 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__17;
-x_43 = lean_string_append(x_42, x_41);
-lean_dec(x_41);
-x_44 = lean_box(2);
-x_45 = l_Lean_Syntax_mkNameLit(x_43, x_44);
-x_46 = lean_box(0);
-x_47 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_47, 0, x_45);
-lean_ctor_set(x_47, 1, x_46);
-x_48 = lean_array_mk(x_47);
-x_49 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__15;
-x_50 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_50, 0, x_44);
-lean_ctor_set(x_50, 1, x_49);
-lean_ctor_set(x_50, 2, x_48);
-x_51 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13;
-lean_inc(x_18);
-x_52 = l_Lean_Syntax_node1(x_18, x_51, x_50);
-x_53 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__5;
-x_54 = l_Lean_Syntax_node4(x_18, x_53, x_8, x_22, x_29, x_52);
-x_55 = 1;
-x_56 = lean_usize_add(x_6, x_55);
-x_6 = x_56;
-x_8 = x_54;
+x_38 = 1;
+x_39 = lean_usize_add(x_6, x_38);
+x_6 = x_39;
 goto _start;
 }
 }
 else
 {
-size_t x_58; size_t x_59; 
-lean_dec(x_14);
-x_58 = 1;
-x_59 = lean_usize_add(x_6, x_58);
-x_6 = x_59;
-goto _start;
-}
-}
-else
-{
-size_t x_61; size_t x_62; 
+size_t x_41; size_t x_42; 
 lean_dec(x_12);
-x_61 = 1;
-x_62 = lean_usize_add(x_6, x_61);
-x_6 = x_62;
+x_41 = 1;
+x_42 = lean_usize_add(x_6, x_41);
+x_6 = x_42;
 goto _start;
 }
 }
 else
 {
-lean_object* x_64; 
+lean_object* x_44; 
 lean_dec(x_9);
 lean_dec(x_4);
 lean_dec(x_3);
-x_64 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_64, 0, x_8);
-lean_ctor_set(x_64, 1, x_10);
-return x_64;
+x_44 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_44, 0, x_8);
+lean_ctor_set(x_44, 1, x_10);
+return x_44;
 }
 }
 }
@@ -39826,6 +39448,14 @@ x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lake_Toml_Table_decodeConfig___at_Lake_LeanLibConfig_decodeToml___spec__1___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked(".", 1, 1);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_decodeConfig___at_Lake_LeanLibConfig_decodeToml___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -39846,7 +39476,7 @@ x_11 = lean_name_mangle(x_1, x_10);
 x_12 = lean_alloc_closure((void*)(l_Lake_Toml_Table_decodeConfig___at_Lake_LeanLibConfig_decodeToml___spec__1___lambda__1___boxed), 2, 1);
 lean_closure_set(x_12, 0, x_4);
 x_13 = l_Lake_Toml_Table_decodeConfig___at_Lake_LeanConfig_decodeToml___spec__1___closed__1;
-x_14 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__16;
+x_14 = l_Lake_Toml_Table_decodeConfig___at_Lake_LeanLibConfig_decodeToml___spec__1___closed__3;
 x_15 = l_Lake_decodeLeanOptions___lambda__1___closed__1;
 x_16 = 0;
 x_17 = l_Lake_Toml_Table_decodeConfig___at_Lake_LeanLibConfig_decodeToml___spec__1___closed__2;
@@ -43464,7 +43094,7 @@ x_6 = l_Lake_Pattern_decodeToml___rarg___closed__3;
 lean_inc(x_1);
 x_7 = l_Lean_Name_toStringWithSep(x_4, x_5, x_1, x_6);
 x_8 = l_Lake_Toml_Table_decodeConfig___at_Lake_LeanConfig_decodeToml___spec__1___closed__1;
-x_9 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__16;
+x_9 = l_Lake_Toml_Table_decodeConfig___at_Lake_LeanLibConfig_decodeToml___spec__1___closed__3;
 x_10 = l_Lake_decodeLeanOptions___lambda__1___closed__1;
 x_11 = l_Lake_Toml_Table_decodeConfig___at_Lake_LeanExeConfig_decodeToml___spec__1___closed__2;
 lean_inc(x_1);
@@ -54983,7 +54613,7 @@ x_5 = l_Lake_defaultPackagesDir;
 x_6 = l_Lake_Toml_Table_decodeConfig___at_Lake_LeanConfig_decodeToml___spec__1___closed__1;
 x_7 = 0;
 x_8 = l_Lake_decodeLeanOptions___lambda__1___closed__1;
-x_9 = l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__16;
+x_9 = l_Lake_Toml_Table_decodeConfig___at_Lake_LeanLibConfig_decodeToml___spec__1___closed__3;
 x_10 = l_Lake_defaultBuildDir;
 x_11 = l_Lake_defaultLeanLibDir;
 x_12 = l_Lake_defaultNativeLibDir;
@@ -64990,14 +64620,6 @@ l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___
 lean_mark_persistent(l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__12);
 l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13 = _init_l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13();
 lean_mark_persistent(l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__13);
-l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__14 = _init_l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__14();
-lean_mark_persistent(l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__14);
-l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__15 = _init_l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__15();
-lean_mark_persistent(l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__15);
-l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__16 = _init_l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__16();
-lean_mark_persistent(l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__16);
-l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__17 = _init_l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__17();
-lean_mark_persistent(l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__17);
 l___private_Lake_Load_Toml_0__Lake_genDecodeToml___closed__1 = _init_l___private_Lake_Load_Toml_0__Lake_genDecodeToml___closed__1();
 lean_mark_persistent(l___private_Lake_Load_Toml_0__Lake_genDecodeToml___closed__1);
 l___private_Lake_Load_Toml_0__Lake_genDecodeToml___closed__2 = _init_l___private_Lake_Load_Toml_0__Lake_genDecodeToml___closed__2();
@@ -65471,6 +65093,8 @@ l_Lake_Toml_Table_decodeConfig___at_Lake_LeanLibConfig_decodeToml___spec__1___cl
 lean_mark_persistent(l_Lake_Toml_Table_decodeConfig___at_Lake_LeanLibConfig_decodeToml___spec__1___closed__1);
 l_Lake_Toml_Table_decodeConfig___at_Lake_LeanLibConfig_decodeToml___spec__1___closed__2 = _init_l_Lake_Toml_Table_decodeConfig___at_Lake_LeanLibConfig_decodeToml___spec__1___closed__2();
 lean_mark_persistent(l_Lake_Toml_Table_decodeConfig___at_Lake_LeanLibConfig_decodeToml___spec__1___closed__2);
+l_Lake_Toml_Table_decodeConfig___at_Lake_LeanLibConfig_decodeToml___spec__1___closed__3 = _init_l_Lake_Toml_Table_decodeConfig___at_Lake_LeanLibConfig_decodeToml___spec__1___closed__3();
+lean_mark_persistent(l_Lake_Toml_Table_decodeConfig___at_Lake_LeanLibConfig_decodeToml___spec__1___closed__3);
 l_Lake_LeanExeConfig_instConfigTomlInfo___closed__1 = _init_l_Lake_LeanExeConfig_instConfigTomlInfo___closed__1();
 lean_mark_persistent(l_Lake_LeanExeConfig_instConfigTomlInfo___closed__1);
 l_Lake_LeanExeConfig_instConfigTomlInfo___closed__2 = _init_l_Lake_LeanExeConfig_instConfigTomlInfo___closed__2();

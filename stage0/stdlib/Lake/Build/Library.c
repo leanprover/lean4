@@ -171,7 +171,6 @@ lean_object* l_Lake_EquipT_instMonad___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_leanArtsFacetConfig;
 static lean_object* l_Lake_LeanLib_recCollectLocalModules___closed__1;
 extern lean_object* l_instMonadBaseIO;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_stdFormat___at_Lake_LeanLib_modulesFacetConfig___spec__1___closed__6;
 extern lean_object* l_Lake_LeanLib_staticFacet;
 LEAN_EXPORT lean_object* l_Lake_LeanLib_recCollectLocalModules___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -272,6 +271,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lake_Lean
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_bind___at_Lake_LeanLib_recCollectLocalModules___spec__2(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_LeanLib_recBuildStatic___closed__1;
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
@@ -4080,7 +4080,7 @@ x_2 = l_IO_FS_withIsolatedStreams___at_Lake_LeanLib_recCollectLocalModules___spe
 x_3 = lean_unsigned_to_nat(129u);
 x_4 = lean_unsigned_to_nat(47u);
 x_5 = l_IO_FS_withIsolatedStreams___at_Lake_LeanLib_recCollectLocalModules___spec__4___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

@@ -89,7 +89,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normaliz
 lean_object* l_Lean_Meta_simpGoal(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_qpartition___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDeclsD___at___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondForAux_handleSimpleEnum___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_GetElem_0__List_get_x21Internal___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEnumToBitVecLeFor___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondForAux_handleSimpleEnum___spec__8(size_t, size_t, lean_object*);
@@ -255,7 +254,6 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumToBitVecC
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEnumToBitVecFor___lambda__3___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondForAux_handleEnumWithDefault___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_matchEqCondSuffix___closed__1;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_qsort_sort___at___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondForAux_handleSimpleEnum___spec__4___closed__1;
 lean_object* l_Pi_instInhabited___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumToBitVecCtor___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -300,6 +298,7 @@ static lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enu
 static lean_object* l_panic___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumsPass_postprocess___spec__1___closed__1;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumToBitVecCtor___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumsPass_postprocess___spec__7___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumsPass_postprocess___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_get_x21Internal___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumsPass___elambda__1___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_mkCondChain___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumsPass_postprocess___spec__7___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumsPass_postprocess___spec__8___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -391,6 +390,7 @@ LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_visit___at_Lean_Elab_Tactic_BVD
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* l_Lean_Level_param___override(lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEnumToBitVecFor___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEnumToBitVecFor___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEnumToBitVecLeFor___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2747,7 +2747,7 @@ x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEqIffEnumToBitVecEqFor__
 x_3 = lean_unsigned_to_nat(125u);
 x_4 = lean_unsigned_to_nat(60u);
 x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEqIffEnumToBitVecEqFor___lambda__8___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -4124,7 +4124,7 @@ x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEnumToBitVecLeFor___lamb
 x_3 = lean_unsigned_to_nat(184u);
 x_4 = lean_unsigned_to_nat(60u);
 x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEqIffEnumToBitVecEqFor___lambda__8___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -5709,7 +5709,7 @@ x_39 = lean_ctor_get(x_37, 1);
 lean_inc(x_39);
 lean_dec(x_37);
 x_40 = l_Lean_instInhabitedExpr;
-x_41 = l___private_Init_GetElem_0__List_get_x21Internal___rarg(x_40, x_34, x_30);
+x_41 = l_List_get_x21Internal___rarg(x_40, x_34, x_30);
 lean_inc(x_14);
 lean_inc(x_13);
 lean_inc(x_12);
@@ -6255,7 +6255,7 @@ x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Ela
 x_3 = lean_unsigned_to_nat(239u);
 x_4 = lean_unsigned_to_nat(73u);
 x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEqIffEnumToBitVecEqFor___lambda__8___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -6643,7 +6643,7 @@ lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean
 x_14 = lean_ctor_get(x_1, 4);
 x_15 = l_Lean_instInhabitedName;
 lean_inc(x_5);
-x_16 = l___private_Init_GetElem_0__List_get_x21Internal___rarg(x_15, x_14, x_5);
+x_16 = l_List_get_x21Internal___rarg(x_15, x_14, x_5);
 lean_inc(x_3);
 x_17 = l_Lean_Expr_const___override(x_16, x_3);
 lean_inc(x_2);
@@ -6685,7 +6685,7 @@ lean_dec(x_25);
 x_30 = lean_ctor_get(x_1, 4);
 x_31 = l_Lean_instInhabitedName;
 lean_inc(x_5);
-x_32 = l___private_Init_GetElem_0__List_get_x21Internal___rarg(x_31, x_30, x_5);
+x_32 = l_List_get_x21Internal___rarg(x_31, x_30, x_5);
 lean_inc(x_3);
 x_33 = l_Lean_Expr_const___override(x_32, x_3);
 lean_inc(x_2);
@@ -6773,7 +6773,7 @@ lean_dec(x_25);
 x_56 = lean_ctor_get(x_1, 4);
 x_57 = l_Lean_instInhabitedName;
 lean_inc(x_5);
-x_58 = l___private_Init_GetElem_0__List_get_x21Internal___rarg(x_57, x_56, x_5);
+x_58 = l_List_get_x21Internal___rarg(x_57, x_56, x_5);
 lean_inc(x_3);
 x_59 = l_Lean_Expr_const___override(x_58, x_3);
 lean_inc(x_2);
@@ -7811,7 +7811,7 @@ x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Ela
 x_3 = lean_unsigned_to_nat(279u);
 x_4 = lean_unsigned_to_nat(73u);
 x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEqIffEnumToBitVecEqFor___lambda__8___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -10683,7 +10683,7 @@ x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumToBitVecCtor___lambda__
 x_3 = lean_unsigned_to_nat(386u);
 x_4 = lean_unsigned_to_nat(51u);
 x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEqIffEnumToBitVecEqFor___lambda__8___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -13012,7 +13012,7 @@ x_2 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_Norma
 x_3 = lean_unsigned_to_nat(480u);
 x_4 = lean_unsigned_to_nat(58u);
 x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEqIffEnumToBitVecEqFor___lambda__8___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

@@ -340,6 +340,7 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Meta_Tactic
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Meta_Grind_EMatchTheorems_insert___spec__14(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_EMatchTheoremKind_toAttribute___closed__11;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_EMatchTheoremKind_toAttribute___closed__10;
+lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Meta_Grind_EMatchTheorems_insert___spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkEMatchEqTheoremCore___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -622,7 +623,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lea
 static lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_forbiddenDeclNames___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_addNewPattern___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_NormalizePattern_reprPatternArgKind____x40_Lean_Meta_Tactic_Grind_EMatchTheorem___hyg_6611____closed__16;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_collectPatternBVars_go___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_ppPattern___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_NormalizePattern_getPatternFn_x3f___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -936,6 +936,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lea
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_beqEMatchTheoremKind____x40_Lean_Meta_Tactic_Grind_EMatchTheorem___hyg_3846____boxed(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkEMatchTheoremCore___lambda__3(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_diff(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind_EMatchTheorem___hyg_5530____closed__15;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_reprEMatchTheoremKind____x40_Lean_Meta_Tactic_Grind_EMatchTheorem___hyg_4070____closed__15;
@@ -1091,7 +1092,6 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_reprEMatchTheoremKind____x40_Lean_Meta_Tactic_Grind_EMatchTheorem___hyg_4070____closed__6;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_Grind_mkEMatchTheoremForDecl___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_reprEMatchTheoremKind____x40_Lean_Meta_Tactic_Grind_EMatchTheorem___hyg_4070____closed__7;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_ppPattern___spec__1___closed__2;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_collect___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2120,7 +2120,7 @@ lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);
 x_20 = lean_ctor_get(x_1, 0);
 lean_inc(x_20);
-x_21 = l___private_Init_Data_Repr_0__Nat_reprFast(x_20);
+x_21 = l_Nat_reprFast(x_20);
 x_22 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_22, 0, x_21);
 x_23 = l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_reprGenPatternInfo____x40_Lean_Meta_Tactic_Grind_EMatchTheorem___hyg_678____closed__12;
@@ -2149,7 +2149,7 @@ lean_ctor_set(x_31, 1, x_18);
 x_32 = lean_ctor_get(x_1, 1);
 lean_inc(x_32);
 lean_dec(x_1);
-x_33 = l___private_Init_Data_Repr_0__Nat_reprFast(x_32);
+x_33 = l_Nat_reprFast(x_32);
 x_34 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_34, 0, x_33);
 x_35 = lean_alloc_ctor(4, 2, 0);
@@ -2256,7 +2256,7 @@ x_2 = l_Lean_Meta_Grind_isGenPattern_x3f___closed__2;
 x_3 = lean_unsigned_to_nat(75u);
 x_4 = lean_unsigned_to_nat(26u);
 x_5 = l_Lean_Meta_Grind_isGenPattern_x3f___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -2269,7 +2269,7 @@ x_2 = l_Lean_Meta_Grind_isGenPattern_x3f___closed__2;
 x_3 = lean_unsigned_to_nat(74u);
 x_4 = lean_unsigned_to_nat(26u);
 x_5 = l_Lean_Meta_Grind_isGenPattern_x3f___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -2282,7 +2282,7 @@ x_2 = l_Lean_Meta_Grind_isGenPattern_x3f___closed__2;
 x_3 = lean_unsigned_to_nat(71u);
 x_4 = lean_unsigned_to_nat(26u);
 x_5 = l_Lean_Meta_Grind_isGenPattern_x3f___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -2295,7 +2295,7 @@ x_2 = l_Lean_Meta_Grind_isGenPattern_x3f___closed__2;
 x_3 = lean_unsigned_to_nat(70u);
 x_4 = lean_unsigned_to_nat(26u);
 x_5 = l_Lean_Meta_Grind_isGenPattern_x3f___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -4758,7 +4758,7 @@ lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 13, x_1);
 lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 14, x_5);
 lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 15, x_5);
 lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 16, x_5);
-lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 17, x_1);
+lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 17, x_5);
 lean_ctor_set_uint8(x_7, sizeof(void*)*6 + 18, x_1);
 return x_7;
 }
@@ -7307,7 +7307,7 @@ x_2 = l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_EMatch
 x_3 = lean_unsigned_to_nat(296u);
 x_4 = lean_unsigned_to_nat(18u);
 x_5 = l_Lean_Meta_Grind_isGenPattern_x3f___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -7368,7 +7368,7 @@ x_2 = l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_EMatch
 x_3 = lean_unsigned_to_nat(303u);
 x_4 = lean_unsigned_to_nat(18u);
 x_5 = l_Lean_Meta_Grind_isGenPattern_x3f___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -9930,7 +9930,7 @@ x_2 = l_Lean_Meta_Grind_EMatchTheorems_insert___closed__1;
 x_3 = lean_unsigned_to_nat(345u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Lean_Meta_Grind_isGenPattern_x3f___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -13265,7 +13265,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
 lean_dec(x_1);
-x_6 = l___private_Init_Data_Repr_0__Nat_reprFast(x_5);
+x_6 = l_Nat_reprFast(x_5);
 x_7 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 x_8 = l_Lean_MessageData_ofFormat(x_7);
@@ -17887,7 +17887,7 @@ x_2 = l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_Normal
 x_3 = lean_unsigned_to_nat(614u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_NormalizePattern_go___lambda__2___closed__5;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -26235,7 +26235,7 @@ x_2 = l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_checkC
 x_3 = lean_unsigned_to_nat(704u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_checkCoverage___lambda__3___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -39213,7 +39213,7 @@ x_2 = l_Lean_Meta_Grind_mkEMatchTheoremWithKind_x3f___lambda__2___closed__2;
 x_3 = lean_unsigned_to_nat(1084u);
 x_4 = lean_unsigned_to_nat(13u);
 x_5 = l_Lean_Meta_Grind_isGenPattern_x3f___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

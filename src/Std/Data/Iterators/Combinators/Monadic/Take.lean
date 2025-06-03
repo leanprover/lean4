@@ -168,21 +168,10 @@ private def Take.wellFounded_plausibleForInStep {α β : Type w} {m : Type w →
       apply InvImage.wf
       exact WellFoundedRelation.wf
 
-instance Take.instIteratorFor [Monad m] [Monad n] [Iterator α m β]
+instance Take.instIteratorLoop [Monad m] [Monad n] [Iterator α m β]
     [IteratorLoop α m n] [MonadLiftT m n] :
-    IteratorLoop (Take α m β) m n where
-  forIn lift {γ} Plausible wf it init f := by
-    refine Prod.fst <$> IteratorLoop.forIn lift (γ := γ × Nat)
-        (PlausibleForInStep Plausible)
-        (wellFounded_plausibleForInStep wf)
-        it.internalState.inner
-        (init, it.internalState.remaining)
-        fun out acc =>
-          match h : acc.snd with
-          | 0 => pure <| ⟨.done acc, True.intro⟩
-          | n + 1 => (fun
-              | ⟨.yield x, hp⟩ => ⟨.yield ⟨x, n⟩, ⟨h, hp⟩⟩
-              | ⟨.done x ,hp⟩ => ⟨.done ⟨x, n⟩, .intro⟩) <$> f out acc.fst
+    IteratorLoop (Take α m β) m n :=
+  .defaultImplementation
 
 instance Take.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]
     [IteratorLoopPartial α m n] [MonadLiftT m n] :

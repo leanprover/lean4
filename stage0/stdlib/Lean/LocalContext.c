@@ -376,7 +376,6 @@ LEAN_EXPORT lean_object* l_Lean_LocalContext_findDeclRevM_x3f___at_Lean_LocalCon
 LEAN_EXPORT lean_object* l___private_Lean_LocalContext_0__Lean_LocalContext_popTailNoneAux(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_LocalContext_foldr___spec__17___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_LocalContext_contains(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalContext_setUserName(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_LocalDecl_value___closed__1;
 LEAN_EXPORT uint8_t l_Lean_LocalDecl_isLet(lean_object*);
@@ -586,6 +585,7 @@ lean_object* l_Lean_PersistentArray_forM___rarg(lean_object*, lean_object*, lean
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at_Lean_LocalContext_instForInLocalDecl___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_LocalContext_instForInLocalDecl___spec__5___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeMAux___at_Lean_LocalContext_findDecl_x3f___spec__3___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_LocalContext_foldr___spec__18___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_contains___at_Lean_LocalContext_contains___spec__1(lean_object*, lean_object*);
@@ -1774,7 +1774,7 @@ x_2 = l_Lean_LocalDecl_value___closed__2;
 x_3 = lean_unsigned_to_nat(123u);
 x_4 = lean_unsigned_to_nat(29u);
 x_5 = l_Lean_LocalDecl_value___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1990,7 +1990,7 @@ x_2 = l_Lean_LocalDecl_setBinderInfo___closed__1;
 x_3 = lean_unsigned_to_nat(140u);
 x_4 = lean_unsigned_to_nat(38u);
 x_5 = l_Lean_LocalDecl_setBinderInfo___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -3525,7 +3525,7 @@ x_2 = l_Lean_LocalContext_get_x21___closed__1;
 x_3 = lean_unsigned_to_nat(243u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_LocalContext_get_x21___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -11403,7 +11403,7 @@ x_2 = l_Lean_LocalContext_mkBinding___lambda__1___closed__1;
 x_3 = lean_unsigned_to_nat(452u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_LocalContext_get_x21___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

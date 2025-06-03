@@ -29,6 +29,7 @@ lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_Profile___
 static lean_object* l_Lean_checkExponent___closed__2;
 static lean_object* l_Lean_checkExponent___closed__3;
 LEAN_EXPORT lean_object* l_Lean_checkExponent(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_5____closed__6;
 lean_object* l_Lean_Option_get___at_Lean_profiler_threshold_getSecs___spec__1(lean_object*, lean_object*);
@@ -51,7 +52,6 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_checkExponent___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_checkExponent___closed__4;
 static lean_object* l_Lean_checkExponent___closed__6;
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_exponentiation_threshold;
 LEAN_EXPORT uint8_t l_Lean_checkExponent___lambda__2(lean_object*);
 static lean_object* _init_l_Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_5____closed__1() {
@@ -329,13 +329,13 @@ return x_19;
 else
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
-x_20 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_20 = l_Nat_reprFast(x_1);
 x_21 = l_Lean_checkExponent___closed__5;
 x_22 = lean_string_append(x_21, x_20);
 lean_dec(x_20);
 x_23 = l_Lean_checkExponent___closed__6;
 x_24 = lean_string_append(x_22, x_23);
-x_25 = l___private_Init_Data_Repr_0__Nat_reprFast(x_7);
+x_25 = l_Nat_reprFast(x_7);
 x_26 = lean_string_append(x_24, x_25);
 lean_dec(x_25);
 x_27 = l_Lean_checkExponent___closed__7;

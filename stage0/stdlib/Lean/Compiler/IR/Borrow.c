@@ -77,6 +77,7 @@ LEAN_EXPORT uint8_t l_Lean_IR_Borrow_ParamMap_beqKey____x40_Lean_Compiler_IR_Bor
 LEAN_EXPORT lean_object* l_Lean_IR_Borrow_isOwned(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_pure___at_Lean_IR_Borrow_collectDecls___spec__1(lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_IR_Borrow_ParamMap_fmt___spec__1(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___lambda__1(lean_object*);
@@ -129,7 +130,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_Borrow_collectExpr___lambda__1___boxed(lean_o
 LEAN_EXPORT lean_object* l_Lean_IR_Borrow_ownArg___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_Borrow_InitParamMap_visitDecls___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_Borrow_collectFnBody___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_Lean_IR_Borrow_updateParamMap___boxed(lean_object*, lean_object*, lean_object*);
@@ -185,6 +185,7 @@ size_t lean_usize_sub(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_IR_Borrow_collectFnBody(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Borrow_mkInitParamMap___closed__1;
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Nat_forM_loop___at_Lean_IR_Borrow_ownArgsUsingParams___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
@@ -215,7 +216,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_Borrow_getCurrFn(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Borrow_ParamMap_fmt___closed__2;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at_Lean_IR_Borrow_OwnedSet_insert___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_IR_Borrow_getParamInfo___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Borrow_collectExpr(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Borrow_OwnedSet_instBEqKey___closed__1;
@@ -1017,7 +1017,7 @@ x_36 = l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_IR_Borrow_ParamMap_fmt
 lean_ctor_set_tag(x_3, 5);
 lean_ctor_set(x_3, 1, x_36);
 lean_ctor_set(x_3, 0, x_35);
-x_37 = l___private_Init_Data_Repr_0__Nat_reprFast(x_31);
+x_37 = l_Nat_reprFast(x_31);
 x_38 = l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__6;
 x_39 = lean_string_append(x_38, x_37);
 lean_dec(x_37);
@@ -1057,7 +1057,7 @@ x_53 = l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_IR_Borrow_ParamMap_fmt
 x_54 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_54, 0, x_52);
 lean_ctor_set(x_54, 1, x_53);
-x_55 = l___private_Init_Data_Repr_0__Nat_reprFast(x_48);
+x_55 = l_Nat_reprFast(x_48);
 x_56 = l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__6;
 x_57 = lean_string_append(x_56, x_55);
 lean_dec(x_55);
@@ -2637,7 +2637,7 @@ x_2 = l_Lean_IR_Borrow_ApplyParamMap_visitFnBody___closed__2;
 x_3 = lean_unsigned_to_nat(114u);
 x_4 = lean_unsigned_to_nat(17u);
 x_5 = l_Lean_IR_Borrow_ApplyParamMap_visitFnBody___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -2878,7 +2878,7 @@ x_2 = l_Array_mapMUnsafe_map___at_Lean_IR_Borrow_ApplyParamMap_visitDecls___spec
 x_3 = lean_unsigned_to_nat(130u);
 x_4 = lean_unsigned_to_nat(19u);
 x_5 = l_Lean_IR_Borrow_ApplyParamMap_visitFnBody___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -4350,7 +4350,7 @@ x_2 = l_Lean_IR_Borrow_getParamInfo___closed__1;
 x_3 = lean_unsigned_to_nat(203u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_IR_Borrow_ApplyParamMap_visitFnBody___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -4363,7 +4363,7 @@ x_2 = l_Lean_IR_Borrow_getParamInfo___closed__1;
 x_3 = lean_unsigned_to_nat(204u);
 x_4 = lean_unsigned_to_nat(11u);
 x_5 = l_Lean_IR_Borrow_ApplyParamMap_visitFnBody___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

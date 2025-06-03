@@ -239,7 +239,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_Com
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_BasicAux_0__mapMonoMImp___at_Lean_Compiler_LCNF_normParams___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_LCtx_addFunDecl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_modifyLCtx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_normParam___at_Lean_Compiler_LCNF_normCodeImp___spec__4___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_mkFreshBinderName(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normFVarImp___closed__1;
@@ -362,6 +361,7 @@ static lean_object* l_List_foldl___at_Lean_Compiler_LCNF_CacheExtension_register
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_replaceFVars(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_updateAltCodeImp(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getFunDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_updateAltImp(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
@@ -4643,7 +4643,7 @@ x_2 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normExprImp
 x_3 = lean_unsigned_to_nat(202u);
 x_4 = lean_unsigned_to_nat(20u);
 x_5 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normExprImp_go___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -5137,7 +5137,7 @@ x_32 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normExprIm
 x_33 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normFVarImp___closed__2;
 x_34 = lean_unsigned_to_nat(237u);
 x_35 = lean_unsigned_to_nat(6u);
-x_36 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_32, x_33, x_34, x_35, x_31);
+x_36 = l_mkPanicMessageWithDecl(x_32, x_33, x_34, x_35, x_31);
 lean_dec(x_31);
 x_37 = l_panic___at___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normFVarImp___spec__1(x_36);
 return x_37;
@@ -5197,7 +5197,7 @@ x_50 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normExprIm
 x_51 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normFVarImp___closed__2;
 x_52 = lean_unsigned_to_nat(237u);
 x_53 = lean_unsigned_to_nat(6u);
-x_54 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_50, x_51, x_52, x_53, x_49);
+x_54 = l_mkPanicMessageWithDecl(x_50, x_51, x_52, x_53, x_49);
 lean_dec(x_49);
 x_55 = l_panic___at___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normFVarImp___spec__1(x_54);
 return x_55;
@@ -11523,7 +11523,7 @@ x_2 = l_List_foldl___at_Lean_Compiler_LCNF_CacheExtension_register___spec__1___r
 x_3 = lean_unsigned_to_nat(170u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_List_foldl___at_Lean_Compiler_LCNF_CacheExtension_register___spec__1___rarg___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

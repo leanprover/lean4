@@ -98,7 +98,6 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_ImportCompletion_collectAvai
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_ImportCompletion_computePartialImportCompletions___spec__5___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_ImportCompletion_isImportCmdCompletionRequest___spec__1(lean_object*, lean_object*, size_t, size_t);
 static lean_object* l_Array_foldlMUnsafe_fold___at_ImportCompletion_computePartialImportCompletions___spec__3___closed__1;
@@ -151,6 +150,7 @@ LEAN_EXPORT lean_object* l_ImportCompletion_isImportCmdCompletionRequest___lambd
 static lean_object* l_Array_mapMUnsafe_map___at_ImportCompletion_find___spec__2___closed__1;
 uint8_t l_Substring_beq(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_ImportCompletion_collectAvailableImportsFromLake___closed__2;
 lean_object* l_Lean_NameTrie_matchingToArray___rarg(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -1428,7 +1428,7 @@ x_2 = l_Array_forIn_x27Unsafe_loop___at_ImportCompletion_computePartialImportCom
 x_3 = lean_unsigned_to_nat(56u);
 x_4 = lean_unsigned_to_nat(10u);
 x_5 = l_Array_forIn_x27Unsafe_loop___at_ImportCompletion_computePartialImportCompletions___spec__5___lambda__2___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

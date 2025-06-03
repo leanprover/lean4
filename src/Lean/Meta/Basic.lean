@@ -625,8 +625,9 @@ def resetCache : MetaM Unit :=
 
 @[inline] def modifyDefEqTransientCache (numAssignments : Nat) (f : DefEqCache → DefEqCache) : MetaM Unit :=
   modifyCache fun c =>
-    let (transCache, num) := c.defEqTrans
-    { c with defEqTrans := (f (if numAssignments == num then transCache else {}), numAssignments) }
+    let (transCache, numAssignmentsOld) := c.defEqTrans
+    let transCache := if numAssignments == numAssignmentsOld then transCache else {}
+    { c with defEqTrans := (f transCache, numAssignments) }
 
 @[inline] def modifyDefEqPermCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
   modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm⟩
@@ -2197,14 +2198,14 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
         setPostponed (postponed ++ newPostponed)
         return true
       else
-        -- If restoring the state causes a metavariable assignment to be reverted, the transient cache also needs to be reverted
-        let revertedMCtx := (← getMCtx).numAssignments != s.meta.mctx.numAssignments
-        s.restore (transCache := revertedMCtx)
+        -- The transient cache needs to be reverted if it assumes some assignments that are being reverted as well.
+        let invalidCache := s.meta.mctx.numAssignments < (← get).cache.defEqTrans.2
+        s.restore (transCache := invalidCache)
         return false
     else
-      -- If restoring the state causes a metavariable assignment to be reverted, the transient cache also needs to be reverted
-      let revertedMCtx := (← getMCtx).numAssignments != s.meta.mctx.numAssignments
-      s.restore (transCache := revertedMCtx)
+      -- The transient cache needs to be reverted if it assumes some assignments that are being reverted as well.
+      let invalidCache := s.meta.mctx.numAssignments < (← get).cache.defEqTrans.2
+      s.restore (transCache := invalidCache)
       return false
   catch ex =>
     s.restore

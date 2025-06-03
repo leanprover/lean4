@@ -2084,16 +2084,19 @@ private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Un
   let key := keyInfo.key
   match keyInfo.kind with
   | .permanent => modifyDefEqPermCache fun c => c.insert key result
-  | .transient numAssignments =>
+  | .transient numAssignmentsOld =>
     /-
-    we cache results with metavariables if the same result may show up again.
-    That is, if the unification attempt doesn't instantiate any metavariables,
-    either because it returns `false`, or because nothing was assigned.
+    If the result is `false`, we cache it at `numAssignmentsOld`.
+    If the result is `true`, and the number of assignments has increased,
+    then we need to instantiate metavariables and cache it at `numAssignmentsNew`
     -/
     if !result then
-      modifyDefEqTransientCache numAssignments fun c => c.insert key result
-    else if numAssignments == (← getMCtx).numAssignments then
-      modifyDefEqTransientCache numAssignments fun c => c.insert key result
+      modifyDefEqTransientCache numAssignmentsOld fun c => c.insert key result
+    else
+      let numAssignmentsNew := (← getMCtx).numAssignments
+      let key ← if numAssignmentsOld == numAssignmentsNew then pure key else
+        mkDefEqCacheKey (← instantiateMVars key.lhs) (← instantiateMVars key.rhs)
+      modifyDefEqTransientCache numAssignmentsNew fun c => c.insert key result
 
 private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
   if backward.isDefEq.lazyWhnfCore.get (← getOptions) then

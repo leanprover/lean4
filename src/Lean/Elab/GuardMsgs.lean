@@ -17,7 +17,7 @@ See the docstring on the `#guard_msgs` command.
 open Lean Parser.Tactic Elab Command
 
 register_builtin_option guard_msgs.diff : Bool := {
-  defValue := false
+  defValue := true
   descr := "When true, show a diff between expected and actual messages if they don't match. "
 }
 

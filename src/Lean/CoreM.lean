@@ -709,8 +709,9 @@ where doCompile := do
     return
   let opts ← getOptions
   if compiler.enableNew.get opts then
-    try compileDeclsNew decls catch e =>
-      if logErrors then throw e else return ()
+    withoutExporting
+      try compileDeclsNew decls catch e =>
+        if logErrors then throw e else return ()
   else
     let res ← withTraceNode `compiler (fun _ => return m!"compiling old: {decls}") do
       return compileDeclsOld (← getEnv) opts decls

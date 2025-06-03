@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Combinators.Monadic
-// Imports: Std.Data.Iterators.Combinators.Monadic.Take Std.Data.Iterators.Combinators.Monadic.TakeWhile Std.Data.Iterators.Combinators.Monadic.DropWhile Std.Data.Iterators.Combinators.Monadic.FilterMap Std.Data.Iterators.Combinators.Monadic.Zip
+// Imports: Std.Data.Iterators.Combinators.Monadic.Take Std.Data.Iterators.Combinators.Monadic.TakeWhile Std.Data.Iterators.Combinators.Monadic.Drop Std.Data.Iterators.Combinators.Monadic.DropWhile Std.Data.Iterators.Combinators.Monadic.FilterMap Std.Data.Iterators.Combinators.Monadic.Zip
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* initialize_Std_Data_Iterators_Combinators_Monadic_Take(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Combinators_Monadic_TakeWhile(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_Iterators_Combinators_Monadic_Drop(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Combinators_Monadic_DropWhile(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Combinators_Monadic_FilterMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Combinators_Monadic_Zip(uint8_t builtin, lean_object*);
@@ -27,6 +28,9 @@ res = initialize_Std_Data_Iterators_Combinators_Monadic_Take(builtin, lean_io_mk
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Combinators_Monadic_TakeWhile(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_Iterators_Combinators_Monadic_Drop(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Combinators_Monadic_DropWhile(builtin, lean_io_mk_world());

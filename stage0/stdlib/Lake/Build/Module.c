@@ -308,7 +308,6 @@ LEAN_EXPORT lean_object* l_Lake_Module_recParseImports___lambda__1(lean_object*,
 LEAN_EXPORT lean_object* l_Lake_Module_recBuildLeanCToONoExport(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Target_fetchIn___at_Lake_Module_recBuildDeps___spec__3___closed__2;
 static lean_object* l_Lake_Module_recBuildDeps___lambda__8___closed__2;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_ileanFacetConfig___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lake_Build_Module_0__Lake_mkLoadOrder___spec__1(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lake_Module_cFacetConfig___closed__1;
@@ -493,6 +492,7 @@ static lean_object* l_Lake_Module_recBuildDeps___lambda__8___closed__3;
 uint8_t lean_internal_has_llvm_backend(lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStdout___at_Lake_Module_recBuildLean___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_collectImportsAux___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Module_recParseImports___spec__7___closed__2;
 static lean_object* l_IO_FS_withIsolatedStreams___at_Lake_Module_recParseImports___spec__8___closed__4;
@@ -4777,7 +4777,7 @@ x_2 = l_IO_FS_withIsolatedStreams___at_Lake_Module_recParseImports___spec__8___c
 x_3 = lean_unsigned_to_nat(129u);
 x_4 = lean_unsigned_to_nat(47u);
 x_5 = l_IO_FS_withIsolatedStreams___at_Lake_Module_recParseImports___spec__8___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

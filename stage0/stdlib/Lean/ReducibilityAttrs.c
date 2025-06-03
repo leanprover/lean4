@@ -107,6 +107,7 @@ static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___lambda
 static lean_object* l_Lean_getReducibilityStatusCore___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_186____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___lambda__1___closed__7;
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___lambda__1___closed__4;
 static lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_186____closed__2;
@@ -193,7 +194,6 @@ static lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_1450____cl
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_186____spec__1(lean_object*, lean_object*);
 uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_1409____closed__9;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_186____closed__1;
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__5;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_335____spec__5(lean_object*, lean_object*, lean_object*, uint8_t);
@@ -287,6 +287,7 @@ lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_335____spec__6___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_335____closed__4;
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_instInhabitedReducibilityStatus;
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___lambda__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_186_(lean_object*);
@@ -334,7 +335,6 @@ static lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_186____lam
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_645____closed__5;
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__2;
 lean_object* l_Lean_PersistentEnvExtension_findStateAsync___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isIrreducible(lean_object*);
@@ -1084,7 +1084,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_RBNode_fold___at_Lean_RBMap_size___spec__1___rarg(x_2, x_1);
-x_4 = l___private_Init_Data_Repr_0__Nat_reprFast(x_3);
+x_4 = l_Nat_reprFast(x_3);
 x_5 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_5, 0, x_4);
 x_6 = l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_186____lambda__4___closed__6;
@@ -3279,7 +3279,7 @@ x_2 = l___private_Lean_ReducibilityAttrs_0__Lean_setReducibilityStatusCore___clo
 x_3 = lean_unsigned_to_nat(65u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l___private_Lean_ReducibilityAttrs_0__Lean_setReducibilityStatusCore___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

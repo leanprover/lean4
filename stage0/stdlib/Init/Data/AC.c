@@ -35,7 +35,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_mergeIdem_loop
 LEAN_EXPORT lean_object* l_Lean_Data_AC_Expr_toList(lean_object*);
 static lean_object* l_Lean_Data_AC_instContextInformationContext___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Data_AC_mergeIdem_loop(lean_object*, lean_object*);
-lean_object* l___private_Init_GetElem_0__List_get_x3fInternal___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_AC_instInhabitedExpr;
 LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_evalList_match__1_splitter(lean_object*);
 static lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_50____closed__6;
@@ -43,6 +42,7 @@ static lean_object* l_Lean_Data_AC_instContextInformationContext___closed__3;
 LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_removeNeutrals_loop_match__3_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_50_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_50____boxed(lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_AC_instContextInformationContext___lambda__2___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_removeNeutrals_loop_match__1_splitter(lean_object*);
@@ -57,6 +57,7 @@ LEAN_EXPORT uint8_t l_Lean_Data_AC_beqExpr____x40_Init_Data_AC___hyg_172_(lean_o
 LEAN_EXPORT lean_object* l_Lean_Data_AC_removeNeutrals___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Data_AC_instContextInformationContext___closed__1;
 static lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_50____closed__1;
+lean_object* l_List_get_x3fInternal___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Data_AC_instContextInformationContext___lambda__3(lean_object*);
 static lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_50____closed__2;
 static lean_object* l_Lean_Data_AC_instEvalInformationContext___closed__2;
@@ -102,7 +103,6 @@ LEAN_EXPORT uint8_t l_Lean_Data_AC_instContextInformationContext___lambda__1(lea
 LEAN_EXPORT lean_object* l_Lean_Data_AC_sort(lean_object*);
 static lean_object* l_Lean_Data_AC_instEvalInformationContext___closed__3;
 LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_insert_match__1_splitter(lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_removeNeutrals_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_evalList_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_removeNeutrals_match__1_splitter(lean_object*);
@@ -216,7 +216,7 @@ lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* 
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_unsigned_to_nat(1024u);
 x_6 = lean_nat_dec_le(x_5, x_2);
-x_7 = l___private_Init_Data_Repr_0__Nat_reprFast(x_4);
+x_7 = l_Nat_reprFast(x_4);
 lean_ctor_set_tag(x_1, 3);
 lean_ctor_set(x_1, 0, x_7);
 x_8 = l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_50____closed__3;
@@ -260,7 +260,7 @@ lean_inc(x_20);
 lean_dec(x_1);
 x_21 = lean_unsigned_to_nat(1024u);
 x_22 = lean_nat_dec_le(x_21, x_2);
-x_23 = l___private_Init_Data_Repr_0__Nat_reprFast(x_20);
+x_23 = l_Nat_reprFast(x_20);
 x_24 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_24, 0, x_23);
 x_25 = l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_50____closed__3;
@@ -533,7 +533,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_1, 3);
-x_4 = l___private_Init_GetElem_0__List_get_x3fInternal___rarg(x_3, x_2);
+x_4 = l_List_get_x3fInternal___rarg(x_3, x_2);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 

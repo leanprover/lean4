@@ -75,6 +75,7 @@ LEAN_EXPORT lean_object* l_Lean_hasOutParams___boxed(lean_object*, lean_object*)
 LEAN_EXPORT lean_object* l_Lean_instInhabitedClassState;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Class___hyg_798_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ClassEntry_lt___boxed(lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_798____closed__9;
 size_t lean_ptr_addr(lean_object*);
 static lean_object* l_Lean_instInhabitedClassState___closed__6;
@@ -132,7 +133,6 @@ static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_798____lambda__3___clo
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_798____closed__17;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_ClassState_addEntry___spec__3___closed__3;
 LEAN_EXPORT lean_object* l_Lean_classExtension;
@@ -187,6 +187,7 @@ size_t lean_usize_sub(size_t, size_t);
 lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_ClassState_addEntry___spec__7(lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedClassState___closed__5;
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -217,7 +218,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_initFn____x40_Lean_Class___
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_getOutParamPositions_x3f___spec__3(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ClassState_addEntry(lean_object*, lean_object*);
 uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(uint8_t, uint8_t);
@@ -2726,7 +2726,7 @@ lean_dec(x_2);
 x_14 = lean_unsigned_to_nat(1u);
 x_15 = lean_nat_add(x_1, x_14);
 lean_dec(x_1);
-x_16 = l___private_Init_Data_Repr_0__Nat_reprFast(x_15);
+x_16 = l_Nat_reprFast(x_15);
 x_17 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
 x_18 = l_Lean_MessageData_ofFormat(x_17);
@@ -2999,7 +2999,7 @@ x_2 = l_Lean_mkOutParamArgsImplicit_go___closed__2;
 x_3 = lean_unsigned_to_nat(1820u);
 x_4 = lean_unsigned_to_nat(24u);
 x_5 = l_Lean_mkOutParamArgsImplicit_go___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -3020,7 +3020,7 @@ x_2 = l_Lean_mkOutParamArgsImplicit_go___closed__5;
 x_3 = lean_unsigned_to_nat(1809u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lean_mkOutParamArgsImplicit_go___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Lemmas.Combinators
-// Imports: Std.Data.Iterators.Lemmas.Combinators.Monadic Std.Data.Iterators.Lemmas.Combinators.Take Std.Data.Iterators.Lemmas.Combinators.TakeWhile Std.Data.Iterators.Lemmas.Combinators.DropWhile Std.Data.Iterators.Lemmas.Combinators.FilterMap Std.Data.Iterators.Lemmas.Combinators.Zip
+// Imports: Std.Data.Iterators.Lemmas.Combinators.Monadic Std.Data.Iterators.Lemmas.Combinators.Take Std.Data.Iterators.Lemmas.Combinators.TakeWhile Std.Data.Iterators.Lemmas.Combinators.Drop Std.Data.Iterators.Lemmas.Combinators.DropWhile Std.Data.Iterators.Lemmas.Combinators.FilterMap Std.Data.Iterators.Lemmas.Combinators.Zip
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_Monadic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_Take(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_TakeWhile(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_Drop(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_DropWhile(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_FilterMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_Zip(uint8_t builtin, lean_object*);
@@ -31,6 +32,9 @@ res = initialize_Std_Data_Iterators_Lemmas_Combinators_Take(builtin, lean_io_mk_
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Lemmas_Combinators_TakeWhile(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_Iterators_Lemmas_Combinators_Drop(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Lemmas_Combinators_DropWhile(builtin, lean_io_mk_world());

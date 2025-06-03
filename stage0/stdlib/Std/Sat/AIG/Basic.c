@@ -113,6 +113,7 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkAtom___rarg(lean_object*, lean_object*,
 LEAN_EXPORT uint8_t l_Std_Sat_AIG_Fanin_invert(lean_object*);
 static lean_object* l_Std_Sat_AIG___aux__Std__Sat__AIG__Basic______macroRules__Std__Sat__AIG__term_u27e6___x2c___x2c___u27e7__1___closed__8;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Std_Sat_AIG_toGraphviz___spec__1(lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Std_Sat_AIG_toGraphviz___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toGraphviz_go___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_unexpandDenote(lean_object*, lean_object*, lean_object*);
@@ -323,7 +324,6 @@ static lean_object* l_Std_Sat_AIG_unexpandDenote___closed__17;
 lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_Ref_cast___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Std_Sat_AIG___aux__Std__Sat__AIG__Basic______macroRules__Std__Sat__AIG__term_u27e6___x2c___x2c___u27e7__1___closed__13;
 static lean_object* l_Std_Sat_AIG_term_u27e6___x2c___x2c___u27e7___closed__6;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at_Std_Sat_AIG_toGraphviz_go___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -501,7 +501,7 @@ LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_reprFanin_
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_3 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_3 = l_Nat_reprFast(x_1);
 x_4 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_4, 0, x_3);
 x_5 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_reprFanin____x40_Std_Sat_AIG_Basic___hyg_86____closed__7;
@@ -4002,18 +4002,18 @@ x_19 = lean_nat_land(x_14, x_11);
 lean_dec(x_11);
 x_20 = lean_nat_dec_eq(x_19, x_16);
 lean_dec(x_19);
-x_21 = l___private_Init_Data_Repr_0__Nat_reprFast(x_2);
+x_21 = l_Nat_reprFast(x_2);
 x_22 = l_Std_Sat_AIG_toGraphviz_go___rarg___lambda__1___closed__1;
 x_23 = lean_string_append(x_22, x_21);
 x_24 = l_Std_Sat_AIG_toGraphviz_go___rarg___lambda__1___closed__2;
 x_25 = lean_string_append(x_23, x_24);
 lean_inc(x_13);
-x_26 = l___private_Init_Data_Repr_0__Nat_reprFast(x_13);
+x_26 = l_Nat_reprFast(x_13);
 x_27 = lean_string_append(x_25, x_26);
 lean_dec(x_26);
 x_28 = lean_string_append(x_27, x_22);
 lean_inc(x_18);
-x_29 = l___private_Init_Data_Repr_0__Nat_reprFast(x_18);
+x_29 = l_Nat_reprFast(x_18);
 if (x_17 == 0)
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
@@ -4291,7 +4291,7 @@ case 0:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 lean_dec(x_1);
-x_6 = l___private_Init_Data_Repr_0__Nat_reprFast(x_4);
+x_6 = l_Nat_reprFast(x_4);
 x_7 = l_Std_Sat_AIG_toGraphviz_go___rarg___lambda__1___closed__1;
 x_8 = lean_string_append(x_7, x_6);
 lean_dec(x_6);
@@ -4309,7 +4309,7 @@ lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean
 x_15 = lean_ctor_get(x_5, 0);
 lean_inc(x_15);
 lean_dec(x_5);
-x_16 = l___private_Init_Data_Repr_0__Nat_reprFast(x_4);
+x_16 = l_Nat_reprFast(x_4);
 x_17 = l_Std_Sat_AIG_toGraphviz_go___rarg___lambda__1___closed__1;
 x_18 = lean_string_append(x_17, x_16);
 lean_dec(x_16);
@@ -4327,7 +4327,7 @@ default:
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
 lean_dec(x_5);
 lean_dec(x_1);
-x_25 = l___private_Init_Data_Repr_0__Nat_reprFast(x_4);
+x_25 = l_Nat_reprFast(x_4);
 x_26 = l_Std_Sat_AIG_toGraphviz_go___rarg___lambda__1___closed__1;
 x_27 = lean_string_append(x_26, x_25);
 x_28 = l_Std_Sat_AIG_toGraphviz_toGraphvizString___rarg___closed__1;

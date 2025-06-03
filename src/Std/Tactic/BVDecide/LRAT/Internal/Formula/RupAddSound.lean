@@ -629,7 +629,7 @@ theorem confirmRupHint_preserves_motive {n : Nat} (f : DefaultFormula n) (rupHin
         split at hc
         · simp only [Option.some.injEq] at hc
           rw [← hc]
-          -- grind -- FIXME: Using this causes an error:
+          -- grind -- FIXME: Using `grind` causes an error:
           -- unknown constant 'Std.Tactic.BVDecide.LRAT.Internal.DefaultFormula.confirmRupHint_preserves_motive._proof_1_3'
           apply Array.getElem_mem_toList
         · simp at hc

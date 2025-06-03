@@ -375,7 +375,7 @@ theorem assignmentsInvariant_performRupCheck_of_assignmentsInvariant {n : Nat} (
       simp only [f_AssignmentsInvariant.1, in_bounds_motive]
     have in_bounds_inductive (idx : Fin rupHints.size) (acc : Array Assignment × CNF.Clause (PosFin n) × Bool × Bool)
       (ih : in_bounds_motive idx.1 acc) : in_bounds_motive (idx.1 + 1) (confirmRupHint f.clauses acc rupHints[idx]) := by
-      have h := size_assignemnts_confirmRupHint f.clauses acc.1 acc.2.1 acc.2.2.1 acc.2.2.2 rupHints[idx]
+      have h := size_assignments_confirmRupHint f.clauses acc.1 acc.2.1 acc.2.2.1 acc.2.2.2 rupHints[idx]
       have : (acc.fst, acc.snd.fst, acc.snd.snd.fst, acc.snd.snd.snd) = acc := rfl
       simp [this] at *
       omega -- FIXME `grind` fails here with an internal error

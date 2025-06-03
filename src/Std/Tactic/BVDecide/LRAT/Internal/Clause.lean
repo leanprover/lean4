@@ -192,7 +192,7 @@ theorem ofArray.folder_foldl_mem_of_mem
   | cons x xs ih =>
     simp at hl h
     rcases hl with hl | hl
-    · rw [DefaultClause.ofArray.folder.eq_def] at h -- FIXME
+    · rw [DefaultClause.ofArray.folder.eq_def] at h -- FIXME `grind` should do this?
       grind (gen := 7)
     · grind
 

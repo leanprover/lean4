@@ -907,7 +907,7 @@ theorem derivedLitsInvariant_performRupCheck {n : Nat} (f : DefaultFormula n) (f
   have h_base : motive 0 (f.assignments, [], false, false) := by
     apply Exists.intro f_assignments_size
     intro i
-    grind -- FIXME: this fails without the `intro i` as the previous step
+    grind -- FIXME: this `grind`  fails without the `intro i` as the previous step
   have h_inductive (i : Fin rupHints.size) (acc : Array Assignment × CNF.Clause (PosFin n) × Bool × Bool)
     (ih : motive i.1 acc) := derivedLitsInvariant_confirmRupHint f f_assignments_size rupHints i acc ih
   rcases Array.foldl_induction motive h_base h_inductive with ⟨_, h⟩

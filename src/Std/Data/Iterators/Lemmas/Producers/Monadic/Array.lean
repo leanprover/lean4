@@ -150,7 +150,8 @@ theorem Array.stepAsHetT_iterFromIdxM [LawfulMonad m] {array : Array β} {pos : 
     simp [IterM.step, Iterator.step]
     split <;> simp
 
-theorem Array.iterFromIdxM_equiv_listIter {α : Type w} {array : Array α} {m : Type w → Type w'}
+theorem Array.iterFromIdxM_equiv_iterM_drop_toList {α : Type w} {array : Array α}
+    {m : Type w → Type w'}
     [Monad m] [LawfulMonad m] {pos : Nat} :
     (array.iterFromIdxM m pos).Equiv ((array.toList.drop pos).iterM m) := by
   conv =>
@@ -180,9 +181,15 @@ theorem Array.iterFromIdxM_equiv_listIter {α : Type w} {array : Array α} {m : 
       simp [Pure.pure]
       congr
       · rw [← List.drop_drop (i := 1) (j := pos), heq, List.drop_succ_cons, List.drop_zero]
-      · have := List.getElem_drop' (xs := l) (i := pos) (j := 0)
+      · have:= List.getElem_drop' (xs := l) (i := pos) (j := 0)
         simp only [Nat.add_zero, heq, List.getElem_cons_zero] at this
         exact (this hlt).symm
+
+theorem Array.iterM_equiv_iterM_toList {α : Type w} {array : Array α} {m : Type w → Type w'}
+    [Monad m] [LawfulMonad m] :
+    (array.iterM m).Equiv (array.toList.iterM m) := by
+  rw [Array.iterM_eq_iterFromIdxM]
+  simpa using iterFromIdxM_equiv_iterM_drop_toList
 
 end Equivalence
 

@@ -171,16 +171,36 @@ theorem Iter.foldl_toList {α β γ : Type w} [Iterator α Id β] [Finite α Id]
 
 section Equivalence
 
-theorem Iter.Equiv.forIn_eq [Iterator α₁ Id β] [Iterator α₂ Id β] [Finite α₁ Id] [Finite α₂ Id]
-    [Monad n] [LawfulMonad n]
-    [IteratorLoop α₁ Id n] [LawfulIteratorLoop α₁ Id n]
-    [IteratorLoop α₂ Id n] [LawfulIteratorLoop α₂ Id n]
+theorem Iter.Equiv.forIn_eq {α₁ α₂ β γ : Type w} {m : Type w → Type w'}
+    [Iterator α₁ Id β] [Iterator α₂ Id β] [Finite α₁ Id] [Finite α₂ Id]
+    [Monad m] [LawfulMonad m] [IteratorLoop α₁ Id m] [LawfulIteratorLoop α₁ Id m]
+    [IteratorLoop α₂ Id m] [LawfulIteratorLoop α₂ Id m] {init : γ} {f : β → γ → m (ForInStep γ)}
     {ita : Iter (α := α₁) β} {itb : Iter (α := α₂) β} (h : Iter.Equiv ita itb) :
-    ForIn.forIn (m := n) ita init f = ForIn.forIn (m := n) itb init f := by
+    ForIn.forIn (m := m) ita init f = ForIn.forIn (m := m) itb init f := by
   simp [Iter.forIn_eq_forIn_toIterM]
-  letI : MonadLift Id n := ⟨Std.Internal.idToMonad (α := _)⟩
-  letI := Std.Internal.LawfulMonadLiftFunction.idToMonad (m := n)
+  letI : MonadLift Id m := ⟨Std.Internal.idToMonad (α := _)⟩
+  letI := Std.Internal.LawfulMonadLiftFunction.idToMonad (m := m)
   rw [h.toIterM.forIn_eq]
+
+theorem Iter.Equiv.foldM_eq {α₁ α₂ β γ : Type w} {m : Type w → Type w'}
+    [Iterator α₁ Id β] [Iterator α₂ Id β][Iterator α₁ Id β] [Iterator α₂ Id β]
+    [Finite α₁ Id] [Finite α₂ Id] [Monad m] [LawfulMonad m]
+    [IteratorLoop α₁ Id m] [LawfulIteratorLoop α₁ Id m]
+    [IteratorLoop α₂ Id m] [LawfulIteratorLoop α₂ Id m]
+    {init : γ} {f : γ → β → m γ}
+    {ita : Iter (α := α₁) β} {itb : Iter (α := α₂) β} (h : Iter.Equiv ita itb) :
+    ita.foldM (init := init) f = itb.foldM (init := init) f := by
+  simp [Iter.foldM_eq_forIn, h.forIn_eq]
+
+theorem IterM.Equiv.fold_eq {α₁ α₂ β γ : Type w} {m : Type w → Type w'}
+    [Iterator α₁ Id β] [Iterator α₂ Id β][Iterator α₁ Id β] [Iterator α₂ Id β]
+    [Finite α₁ Id] [Finite α₂ Id] [Monad m] [LawfulMonad m]
+    [IteratorLoop α₁ Id Id] [LawfulIteratorLoop α₁ Id Id]
+    [IteratorLoop α₂ Id Id] [LawfulIteratorLoop α₂ Id Id]
+    {init : γ} {f : γ → β → γ}
+    {ita : Iter (α := α₁) β} {itb : Iter (α := α₂) β} (h : Iter.Equiv ita itb) :
+    ita.fold (init := init) f = itb.fold (init := init) f := by
+  simp [Iter.fold_eq_foldM, h.foldM_eq]
 
 end Equivalence
 

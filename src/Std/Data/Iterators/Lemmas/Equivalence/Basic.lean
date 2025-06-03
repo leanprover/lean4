@@ -175,6 +175,11 @@ theorem Iter.Equiv.toIterM {α₁ α₂ β} [Iterator α₁ Id β] [Iterator α�
     IterM.Equiv ita.toIterM itb.toIterM :=
   h
 
+theorem IterM.Equiv.toIter {α₁ α₂ β} [Iterator α₁ Id β] [Iterator α₂ Id β]
+    {ita : IterM (α := α₁) Id β} {itb : IterM (α := α₂) Id β} (h : IterM.Equiv ita itb) :
+    Iter.Equiv ita.toIter itb.toIter :=
+  h
+
 theorem IterM.Equiv.refl {m : Type w → Type w'} {β : Type w} [Monad m] [LawfulMonad m]
     {α : Type w} [Iterator α m β] (it : IterM (α := α) m β) : IterM.Equiv it it :=
   BundledIterM.Equiv.refl _

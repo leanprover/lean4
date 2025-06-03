@@ -141,14 +141,6 @@ theorem Iter.toIterM_comp_toIter {α : Type w} {β : Type w} :
     Iter.toIterM ∘ IterM.toIter (α := α) (β := β) = id :=
   rfl
 
-theorem IterM.exists_iff {α β : Type w} {m : Type w → Type w'} {P : IterM (α := α) m β → Prop} :
-    (∃ it, P it) ↔ ∃ state : α, P ⟨state⟩ := by
-  constructor
-  · rintro ⟨⟨it⟩, h⟩
-    exact ⟨it, h⟩
-  · rintro ⟨it, h⟩
-    exact ⟨⟨it⟩, h⟩
-
 section IterStep
 
 variable {α : Type u} {β : Type w}
@@ -225,20 +217,6 @@ theorem IterStep.mapIterator_comp {α' : Type u'} {α'' : Type u''}
 theorem IterStep.mapIterator_id {step : IterStep α β} :
     step.mapIterator id = step := by
   cases step <;> rfl
-
-theorem IterStep.exists_iff_or {P : IterStep α β → Prop} :
-    (∃ step, P step) ↔ (∃ it' out, P (.yield it' out)) ∨ (∃ it', P (.skip it')) ∨ P .done := by
-  constructor
-  · rintro ⟨s, hs⟩
-    cases s
-    · exact Or.inl ⟨_, _, hs⟩
-    · exact Or.inr <| Or.inl ⟨_, hs⟩
-    · exact Or.inr <| Or.inr hs
-  · intro h
-    match h with
-    | .inl ⟨it', out, h⟩ => exact ⟨_, h⟩
-    | .inr <| .inl ⟨it', h⟩ => exact ⟨_, h⟩
-    | .inr <| .inr h => exact ⟨_, h⟩
 
 /--
 A variant of `IterStep` that bundles the step together with a proof that it is "plausible".

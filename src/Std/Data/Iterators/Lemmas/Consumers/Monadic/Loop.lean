@@ -236,11 +236,13 @@ theorem IterM.drain_eq_map_toArray {α β : Type w} {m : Type w → Type w'} [It
 
 section Equivalence
 
-theorem IterM.Equiv.forIn_eq [Iterator α₁ m β] [Iterator α₂ m β] [Finite α₁ m] [Finite α₂ m]
+theorem IterM.Equiv.forIn_eq {α₁ α₂ β γ : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} [Iterator α₁ m β] [Iterator α₂ m β]
+    [Finite α₁ m] [Finite α₂ m]
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
     [IteratorLoop α₁ m n] [LawfulIteratorLoop α₁ m n]
     [IteratorLoop α₂ m n] [LawfulIteratorLoop α₂ m n]
-    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n] {init : γ} {f : β → γ → n (ForInStep γ)}
     {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β} (h : IterM.Equiv ita itb) :
     ForIn.forIn (m := n) ita init f = ForIn.forIn (m := n) itb init f := by
   revert h itb init
@@ -264,6 +266,35 @@ theorem IterM.Equiv.forIn_eq [Iterator α₁ m β] [Iterator α₂ m β] [Finite
     BundledIterM.Equiv.quotMk_eq_iff] at hs
     exact ihs ‹_› hs
   · rfl
+
+theorem IterM.Equiv.foldM_eq {α₁ α₂ β γ : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} [Iterator α₁ m β] [Iterator α₂ m β][Iterator α₁ m β] [Iterator α₂ m β]
+    [Finite α₁ m] [Finite α₂ m] [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [IteratorLoop α₁ m n] [LawfulIteratorLoop α₁ m n]
+    [IteratorLoop α₂ m n] [LawfulIteratorLoop α₂ m n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n] {init : γ} {f : γ → β → n γ}
+    {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β} (h : IterM.Equiv ita itb) :
+    ita.foldM (init := init) f = itb.foldM (init := init) f := by
+  simp [IterM.foldM_eq_forIn, h.forIn_eq]
+
+theorem IterM.Equiv.fold_eq {α₁ α₂ β γ : Type w} {m : Type w → Type w'}
+    [Iterator α₁ m β] [Iterator α₂ m β][Iterator α₁ m β] [Iterator α₂ m β]
+    [Finite α₁ m] [Finite α₂ m] [Monad m] [LawfulMonad m]
+    [IteratorLoop α₁ m m] [LawfulIteratorLoop α₁ m m]
+    [IteratorLoop α₂ m m] [LawfulIteratorLoop α₂ m m]
+    {init : γ} {f : γ → β → γ}
+    {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β} (h : IterM.Equiv ita itb) :
+    ita.fold (init := init) f = itb.fold (init := init) f := by
+  simp [IterM.fold_eq_foldM, h.foldM_eq]
+
+theorem IterM.Equiv.drain_eq {α₁ α₂ β γ : Type w} {m : Type w → Type w'}
+    [Iterator α₁ m β] [Iterator α₂ m β][Iterator α₁ m β] [Iterator α₂ m β]
+    [Finite α₁ m] [Finite α₂ m] [Monad m] [LawfulMonad m]
+    [IteratorLoop α₁ m m] [LawfulIteratorLoop α₁ m m]
+    [IteratorLoop α₂ m m] [LawfulIteratorLoop α₂ m m]
+    {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β} (h : IterM.Equiv ita itb) :
+    ita.drain = itb.drain := by
+  simp [IterM.drain_eq_fold, h.fold_eq]
 
 end Equivalence
 

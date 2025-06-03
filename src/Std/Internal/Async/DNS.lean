@@ -33,7 +33,7 @@ def getAddrInfo (host : String) (service : String) (addressFamily : Option Addre
 Performs a reverse DNS lookup on a `SocketAddress`.
 -/
 @[inline]
-def getNameInfo (host : @& SocketAddress) : IO (AsyncTask (String × String)) :=
+def getNameInfo (host : SocketAddress) : IO (AsyncTask (String × String)) :=
     AsyncTask.ofPromise <$> UV.DNS.getNameInfo host
 
 end DNS

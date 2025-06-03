@@ -93,32 +93,23 @@ Rather, it is called through the `app` delaborator.
 -/
 def delabConst : Delab := do
   let Expr.const c₀ ls ← getExpr | unreachable!
-  let mut c₀ := c₀
-  let mut c  := c₀
-  if let some n := privateToUserName? c₀ then
+  let unresolveName (n : Name) : DelabM Name := do
+    unresolveNameGlobalAvoidingLocals n (fullNames := ← getPPOption getPPFullNames)
+  let mut c := c₀
+  if isPrivateName c₀ then
     unless (← getPPOption getPPPrivateNames) do
-      if c₀ == mkPrivateName (← getEnv) n then
-        -- The name is defined in this module, so use `n` as the name and unresolve like any other name.
-        c₀ := n
-        c ← unresolveNameGlobal n (fullNames := ← getPPOption getPPFullNames)
-      else
-        -- The name is not defined in this module, so make inaccessible. Unresolving does not make sense to do.
+      c ← unresolveName c
+      if let some n := privateToUserName? c then
+        -- The private name could not be made non-private, so make the result inaccessible
         c ← withFreshMacroScope <| MonadQuotation.addMacroScope n
   else
-    c ← unresolveNameGlobal c (fullNames := ← getPPOption getPPFullNames)
+    c ← unresolveName c
   let stx ←
-    if ls.isEmpty || !(← getPPOption getPPUniverses) then
-      if (← getLCtx).usesUserName c then
-        -- `c` is also a local declaration
-        if c == c₀ && !(← read).inPattern then
-          -- `c` is the fully qualified named. So, we append the `_root_` prefix
-          c := `_root_ ++ c
-        else
-          c := c₀
-      pure <| mkIdent c
-    else
+    if !ls.isEmpty && (← getPPOption getPPUniverses) then
       let mvars ← getPPOption getPPMVarsLevels
       `($(mkIdent c).{$[$(ls.toArray.map (Level.quote · (prec := 0) (mvars := mvars)))],*})
+    else
+      pure <| mkIdent c
 
   let stx ← maybeAddBlockImplicit stx
   if (← getPPOption getPPTagAppFns) then

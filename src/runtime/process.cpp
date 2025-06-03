@@ -138,9 +138,7 @@ static void setup_stdio(SECURITY_ATTRIBUTES * saAttr, HANDLE * theirs, object **
     /* Setup stdio based on process configuration. */
     switch (cfg) {
     case stdio::INHERIT:
-        lean_always_assert(DuplicateHandle(GetCurrentProcess(), *theirs,
-                                           GetCurrentProcess(), theirs,
-                                           0, TRUE, DUPLICATE_SAME_ACCESS));
+        // Use the handle from the parent process
         return;
     case stdio::PIPED: {
         HANDLE readh;
@@ -173,30 +171,15 @@ static void setup_stdio(SECURITY_ATTRIBUTES * saAttr, HANDLE * theirs, object **
 static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const & args, stdio stdin_mode, stdio stdout_mode,
                      stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env,
                      bool inherit_env, bool _do_setsid) {
-    HANDLE child_stdin  = GetStdHandle(STD_INPUT_HANDLE);
-    HANDLE child_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
-    HANDLE child_stderr = GetStdHandle(STD_ERROR_HANDLE);
-
-    SECURITY_ATTRIBUTES saAttr;
-
-    // Set the bInheritHandle flag so pipe/NUL handles are inherited.
-    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
-    saAttr.bInheritHandle = TRUE;
-    saAttr.lpSecurityDescriptor = NULL;
-
-    object * parent_stdin  = box(0); setup_stdio(&saAttr, &child_stdin,  &parent_stdin,  true, stdin_mode);
-    object * parent_stdout = box(0); setup_stdio(&saAttr, &child_stdout, &parent_stdout, false, stdout_mode);
-    object * parent_stderr = box(0); setup_stdio(&saAttr, &child_stderr, &parent_stderr, false, stderr_mode);
-
     std::string program = proc_name.to_std_string();
 
     // Validate program name
     if (program.size() == 0 || program[program.size() - 1] == '\\') {
-        return io_result_mk_error(lean_mk_io_error_invalid_argument_file(proc_name.to_obj_arg(), EINVAL, mk_string("invalid process name")));
+        return io_result_mk_error(lean_mk_io_error_invalid_argument_file(proc_name.to_obj_arg(), EINVAL, mk_string("Invalid process name")));
     }
     for (size_t i = 0; i < program.size(); i++) {
         if (program[i] == '"') {
-            return io_result_mk_error(lean_mk_io_error_invalid_argument_file(proc_name.to_obj_arg(), EINVAL, mk_string("invalid process name")));
+            return io_result_mk_error(lean_mk_io_error_invalid_argument_file(proc_name.to_obj_arg(), EINVAL, mk_string("Invalid process name")));
         }
     }
 
@@ -212,9 +195,10 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     // we might need to revisit escaping here.
     for (auto arg : args) {
         // Adapted from https://github.com/rust-lang/rust/blob/2398bd6/library/std/src/sys/args/windows.rs
-        bool should_quote = *arg.data() == 0; // always escape empty strings
+        bool should_quote = false;
+        char last_char = '\\';
         for (char const * c = arg.data(); *c != 0; c++) {
-            // check for safe characters (safe variant for .bat arguments)
+            // check for safe characters (stricter variant for .bat arguments)
             if ((*c < 'A' || *c > 'Z') && (*c < 'a' || *c > 'z') && (*c < '0' || *c > '9')) {
                 switch (*c) {
                     case '#': case '$': case '*': case '+':
@@ -225,6 +209,11 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
                 should_quote = true;
                 break;
             }
+            last_char = *c;
+        }
+        // escape empty strings and strings with trailing backslash
+        if (last_char == '\\') {
+            should_quote = true;
         }
         if (should_quote) {
             command += " \"";
@@ -251,6 +240,21 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
             command += "\"";
         }
     }
+
+    HANDLE child_stdin  = GetStdHandle(STD_INPUT_HANDLE);
+    HANDLE child_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
+    HANDLE child_stderr = GetStdHandle(STD_ERROR_HANDLE);
+
+    SECURITY_ATTRIBUTES saAttr;
+
+    // Set the bInheritHandle flag so pipe/NUL handles are inherited.
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    object * parent_stdin  = box(0); setup_stdio(&saAttr, &child_stdin,  &parent_stdin,  true, stdin_mode);
+    object * parent_stdout = box(0); setup_stdio(&saAttr, &child_stdout, &parent_stdout, false, stdout_mode);
+    object * parent_stderr = box(0); setup_stdio(&saAttr, &child_stderr, &parent_stderr, false, stderr_mode);
 
     PROCESS_INFORMATION piProcInfo;
     STARTUPINFO siStartInfo;
@@ -326,16 +330,20 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         &siStartInfo,                        // STARTUPINFO pointer
         &piProcInfo);                        // receives PROCESS_INFORMATION
 
+    if (stdin_mode  != stdio::INHERIT) CloseHandle(child_stdin);
+    if (stdout_mode != stdio::INHERIT) CloseHandle(child_stdout);
+    if (stderr_mode != stdio::INHERIT) CloseHandle(child_stderr);
+
     if (!bSuccess) {
+        lean_dec(parent_stdin);
+        lean_dec(parent_stdout);
+        lean_dec(parent_stderr);
+
         throw std::system_error(GetLastError(), std::system_category());
     }
 
     // Close handle to primary thread, we don't need it.
     CloseHandle(piProcInfo.hThread);
-
-    if (stdin_mode  == stdio::PIPED) CloseHandle(child_stdin);
-    if (stdout_mode == stdio::PIPED) CloseHandle(child_stdout);
-    if (stderr_mode == stdio::PIPED) CloseHandle(child_stderr);
 
     object_ref r = mk_cnstr(0, parent_stdin, parent_stdout, parent_stderr, wrap_win_handle(piProcInfo.hProcess));
     return lean_io_result_mk_ok(r.steal());

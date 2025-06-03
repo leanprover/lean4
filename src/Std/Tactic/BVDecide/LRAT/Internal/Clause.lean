@@ -62,7 +62,7 @@ class Clause (α : outParam (Type u)) (β : Type v) where
 
 namespace Clause
 
-attribute [grind] empty_eq unit_eq
+attribute [grind] empty_eq unit_eq isUnit_iff negate_eq delete_iff contains_iff
 
 
 instance : Entails α (Literal α) where

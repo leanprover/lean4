@@ -7,6 +7,8 @@ Previously, unification wouldn't be very careful with the `isDefEq` cache for te
   or to succeed where it is expected to fail.
 
 -/
+set_option maxHeartbeats 1000
+
 namespace test1
 class A (n : Nat) where
   x : Nat

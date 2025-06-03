@@ -44,14 +44,13 @@ variable [Hashable α] [DecidableEq α]
 --   else
 --     AIG.mkConstCached aig false
 
-
 def blastClz (aig : AIG α) (target : AIG.RefVec aig w) :
     AIG.RefVecEntry α w := sorry
   -- let ⟨input, distance⟩ := target
   -- aig (.emptyWithCapacity w)
 where
   go (aig : AIG α) (x : AIG.RefVec aig w) (curr : Nat) :
-    AIG.RefVecEntry α w :=
+    AIG.ExtendingRefVecEntry aig w :=
   if hc : curr = 0 then
     let res := (BVPred.blastGetLsbD aig ⟨x, 0⟩)
     let aig := res.aig
@@ -69,9 +68,16 @@ where
     have := AIG.LawfulVecOperator.le_size (f := blastConst) ..
     let lsb := lsb.cast this
     let zero := zero.cast this
-    let ite := AIG.RefVec.ite aig ⟨lsb, zero, one⟩
 
-    ite
+    let res := AIG.RefVec.ite aig ⟨lsb, zero, one⟩
+    let aig := res.aig
+    let ite : aig.RefVec w := res.vec
+    -- have := AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite)
+    let zero : aig.RefVec w := zero.cast sorry
+    let one : aig.RefVec w  := one.cast sorry
+    let lsb : aig.Ref := lsb.cast sorry
+
+    ⟨res, by sorry⟩
   else
     let curr' := curr - 1
     have : curr' < curr := by omega
@@ -87,37 +93,37 @@ where
     let aig := res.aig
     let zero := res.vec
     have := AIG.LawfulVecOperator.le_size (f := blastConst) ..
-    let lsb := lsb.cast this
+    let lsb : aig.Ref := lsb.cast this
     let x := x.cast this
-    -- node clzAuxRec x curr'
-    let res := go aig x curr'
-    let aig := res.aig
-    let clzRec := res.vec
-    have := AIG.LawfulVecOperator.le_size (f := blastConst) ..
-    let lsb := lsb.cast this
-    let x := x.cast this
-    let zero := zero.cast this
     -- node 1
     let res := blastConst aig 1
     let aig := res.aig
-    let one := res.vec
+    let one : AIG.RefVec aig w := res.vec
     have := AIG.LawfulVecOperator.le_size (f := blastConst) ..
-    let lsb := lsb.cast this
+    let lsb : aig.Ref := lsb.cast this
     let x := x.cast this
     let zero := zero.cast this
+    -- node clzAuxRec x curr'
+    let ⟨res,proof⟩ := go aig x curr'
+    let aig := res.aig
+    let clzRec := res.vec
+    let lsb : aig.Ref := lsb.cast proof
+    let x := x.cast proof
+    let zero := zero.cast proof
+    let one : AIG.RefVec aig w := one.cast proof
     -- node addition: 1 + clzAuxRec x curr'
     let res := blastAdd aig ⟨one, clzRec⟩
     let aig := res.aig
     let add := res.vec
     have := AIG.LawfulVecOperator.le_size (f := blastAdd) ..
-    let lsb := lsb.cast this
+    let lsb : aig.Ref := lsb.cast this
     let x := x.cast this
     let zero := zero.cast this
-    let one := one.cast this
-
+    let one := one.cast (by (expose_names; exact Nat.le_refl aig_6.decls.size))
+    let clzRec := clzRec.cast (by (expose_names; exact Nat.le_refl res_4.aig.decls.size))
     let ite := AIG.RefVec.ite aig ⟨lsb, zero, add⟩
 
-    sorry
+    ⟨ite, by sorry⟩
 
   -- 0 => if x.getLsbD 0 then 0 else 1
 

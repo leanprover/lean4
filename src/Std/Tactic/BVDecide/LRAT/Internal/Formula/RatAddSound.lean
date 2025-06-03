@@ -11,6 +11,8 @@ This module contains the verification of RAT-based clause adding for the default
 implementation.
 -/
 
+set_option grind.warning false -- I've only made a partial effort to use grind here so far.
+
 namespace Std.Tactic.BVDecide
 namespace LRAT
 namespace Internal
@@ -51,22 +53,12 @@ theorem entails_of_irrelevant_assignment {n : Nat} {p : (PosFin n) → Bool} {c 
     left
     constructor
     · simp [Clause.toList, delete_iff, negl_ne_v, v_in_c_del_l]
-    · split
-      · next heq =>
-        simp only [heq, Literal.negate, ne_eq, Prod.mk.injEq, true_and] at negl_ne_v
-        simp_all
-      · next hne =>
-        exact pv
+    · grind
   · exists v
     right
     constructor
     · simp [Clause.toList, delete_iff, negl_ne_v, v_in_c_del_l]
-    · split
-      · next heq =>
-        simp only [heq, Literal.negate, ne_eq, Prod.mk.injEq, true_and] at negl_ne_v
-        simp_all
-      · next hne =>
-        exact pv
+    · grind
 
 theorem assignmentsInvariant_insertRatUnits {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ AssignmentsInvariant f) (units : CNF.Clause (PosFin n)) :
@@ -90,7 +82,7 @@ theorem assignmentsInvariant_insertRatUnits {n : Nat} (f : DefaultFormula n)
       exact hp
     · specialize hp c <| (Or.inr ∘ Or.inl) cf
       exact hp
-    · simp [hf.1] at cf
+    · grind
   rcases h ⟨i.1, i.2.2⟩ with ⟨h1, h2⟩ | ⟨j, b', i_gt_zero, h1, h2, h3, h4⟩ | ⟨j1, j2, i_gt_zero, h1, h2, _, _, _⟩
   · rw [h1] at hb
     exact hf.2.2 i b hb p pf
@@ -222,35 +214,25 @@ theorem sat_of_confirmRupHint_of_insertRat_fold {n : Nat} (f : DefaultFormula n)
       rcases v_in_neg_c with ⟨v', ⟨_, v'_eq_v⟩ | ⟨v'_in_c, v'_eq_v⟩⟩
       · simp [Literal.negate] at v'_eq_v
       · simp only [Literal.negate, Bool.not_true, Prod.mk.injEq, and_true] at v'_eq_v
-        simp only [(· ⊨ ·), Clause.eval, List.any_eq_true, decide_eq_true_eq, Prod.exists,
-          Bool.exists_bool, ← unsat_c_eq, not_exists, not_or, not_and] at p_unsat_c
-        specialize p_unsat_c v
-        rw [Clause.unit_eq] at p_unsat_c
-        simp only [List.mem_singleton, forall_const, Prod.mk.injEq, and_false, false_implies, and_true] at p_unsat_c
-        simp only [(· ⊨ ·), Bool.not_eq_false] at p_unsat_c
+        simp only [(· ⊨ ·), Clause.eval] at p_unsat_c
         specialize pc v
         rw [v'_eq_v] at v'_in_c
         have pv := pc.2 v'_in_c
-        simp only [(· ⊨ ·), Bool.not_eq_true] at pv
-        simp only [p_unsat_c] at pv
-        cases pv
+        grind
     · simp only [negate_eq, List.mem_map, Prod.exists, Bool.exists_bool] at v_in_neg_c
       rcases v_in_neg_c with ⟨v', ⟨v'_in_c, v'_eq_v⟩ | ⟨_, v'_eq_v⟩⟩
       · simp only [Literal.negate, Bool.not_false, Prod.mk.injEq, and_true] at v'_eq_v
-        simp only [(· ⊨ ·), Clause.eval, List.any_eq_true, decide_eq_true_eq, Prod.exists,
-          Bool.exists_bool, ← unsat_c_eq, not_exists, not_or, not_and] at p_unsat_c
+        simp only [(· ⊨ ·), Clause.eval, List.any_eq_true, Prod.exists, ← unsat_c_eq,
+          not_exists] at p_unsat_c
         specialize p_unsat_c v
         rw [Clause.unit_eq] at p_unsat_c
-        simp only [List.mem_singleton, forall_const, Prod.mk.injEq, and_false, false_implies, and_true] at p_unsat_c
+        simp only [List.mem_singleton] at p_unsat_c
         specialize pc v
         rw [v'_eq_v] at v'_in_c
         have pv := pc.1 v'_in_c
-        simp only [(· ⊨ ·), Bool.not_eq_true] at pv
-        simp only [p_unsat_c] at pv
-        cases pv
-      · simp [Literal.negate] at v'_eq_v
-    · simp only [formulaEntails_def, List.all_eq_true, decide_eq_true_eq] at pf
-      exact p_unsat_c <| pf unsat_c unsat_c_in_f
+        grind
+      · grind
+    · grind [formulaEntails_def]
 
 theorem sat_of_insertRat {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ AssignmentsInvariant f) (c : DefaultClause n) (p : PosFin n → Bool)
@@ -389,28 +371,15 @@ theorem assignmentsInvariant_performRupCheck_of_assignmentsInvariant {n : Nat} (
       simp only [f_AssignmentsInvariant.1, in_bounds_motive]
     have in_bounds_inductive (idx : Fin rupHints.size) (acc : Array Assignment × CNF.Clause (PosFin n) × Bool × Bool)
       (ih : in_bounds_motive idx.1 acc) : in_bounds_motive (idx.1 + 1) (confirmRupHint f.clauses acc rupHints[idx]) := by
-      have h := size_assignemnts_confirmRupHint f.clauses acc.1 acc.2.1 acc.2.2.1 acc.2.2.2 rupHints[idx]
+      have h := size_assignments_confirmRupHint f.clauses acc.1 acc.2.1 acc.2.2.1 acc.2.2.2 rupHints[idx]
       have : (acc.fst, acc.snd.fst, acc.snd.snd.fst, acc.snd.snd.snd) = acc := rfl
       simp [this] at *
-      omega
+      omega -- FIXME `grind` fails here with an internal error
+      -- reported as https://github.com/leanprover/lean4/pull/8608
     rw [Array.foldl_induction in_bounds_motive in_bounds_base in_bounds_inductive]
     exact i.2.2
-  simp only [getElem!_def, i_in_bounds, Array.getElem?_eq_getElem] at h1
-  simp only [( · ⊨ ·), Entails.eval.eq_1]
-  by_cases hb : b
-  · rw [hb]
-    rw [hb] at h
-    by_cases pi : p i
-    · exact pi
-    · simp only at pi
-      simp [pi, h] at h1
-  · simp only [Bool.not_eq_true] at hb
-    rw [hb]
-    rw [hb] at h
-    by_cases pi : p i
-    · simp [pi, h] at h1
-    · simp at pi
-      exact pi
+  simp only [( · ⊨ ·)]
+  grind [cases Bool]
 
 theorem c_without_negPivot_of_performRatCheck_success {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ AssignmentsInvariant f) (negPivot : Literal (PosFin n))
@@ -442,22 +411,16 @@ theorem existsRatHint_of_ratHintsExhaustive {n : Nat} (f : DefaultFormula n)
   rw [List.mem_iff_getElem] at c'_in_f
   rcases c'_in_f with ⟨i, hi, c'_in_f⟩
   simp only [ratHintsExhaustive, getRatClauseIndices] at ratHintsExhaustive_eq_true
-  have i_in_bounds : i < Array.size (Array.range (Array.size f.clauses)) := by
-    rw [Array.size_range]
-    simpa using hi
-  have i_lt_f_clauses_size : i < f.clauses.size := by
-    rw [Array.size_range] at i_in_bounds
-    exact i_in_bounds
+  have i_in_bounds : i < Array.size (Array.range (Array.size f.clauses)) := by grind
+  have i_lt_f_clauses_size : i < f.clauses.size := by grind
   have h : i ∈ (ratHints.map (fun x => x.1)).toList := by
     rw [← of_decide_eq_true ratHintsExhaustive_eq_true]
-    have i_eq_range_i : i = (Array.range f.clauses.size)[i]'i_in_bounds := by
-      rw [Array.getElem_range]
+    have i_eq_range_i : i = (Array.range f.clauses.size)[i]'i_in_bounds := by grind
     rw [i_eq_range_i]
-    rw [Array.mem_toList]
+    rw [Array.mem_toList_iff]
     rw [Array.mem_filter]
     constructor
-    · rw [← Array.mem_toList]
-      apply Array.getElem_mem_toList
+    · grind
     · rw [Array.getElem_toList] at c'_in_f
       simp only [Array.getElem_range, getElem!_def, i_lt_f_clauses_size, Array.getElem?_eq_getElem,
         c'_in_f, contains_iff]
@@ -465,14 +428,9 @@ theorem existsRatHint_of_ratHintsExhaustive {n : Nat} (f : DefaultFormula n)
   rcases List.get_of_mem h with ⟨j, h'⟩
   have j_in_bounds : j < ratHints.size := by
     have j_property := j.2
-    simp only [Array.toList_map, List.length_map] at j_property
-    dsimp at *
-    omega
-  simp only [List.get_eq_getElem, Array.toList_map, Array.length_toList, List.getElem_map] at h'
-  rw [Array.getElem_toList] at h'
-  rw [Array.getElem_toList] at c'_in_f
+    grind
   exists ⟨j.1, j_in_bounds⟩
-  simp [getElem!_def, h', i_lt_f_clauses_size, dite_true, c'_in_f]
+  grind
 
 theorem performRatCheck_success_of_performRatCheck_fold_success {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ f.assignments.size = n) (p : Literal (PosFin n))
@@ -496,15 +454,16 @@ theorem performRatCheck_success_of_performRatCheck_fold_success {n : Nat} (f : D
     motive (idx.1 + 1) (fold_fn acc ratHints[idx]) := by
     constructor
     · simp only [Fin.getElem_fin, fold_fn_def, ih.1]
+      -- grind [formula_performRatCheck] -- FIXME: internal grind error
       split
-      · rw [formula_performRatCheck]
-        exact hf
+      · grind [formula_performRatCheck]
       · rfl
     · intro h i
       rw [fold_fn_def] at h
       split at h
       · next acc_eq_true =>
         have i_lt_or_eq_idx : i.1 < idx.1 ∨ i.1 = idx.1 := by
+          -- grind -- FIXME: internal grind error
           omega
         rcases i_lt_or_eq_idx with i_lt_idx | i_eq_idx
         · exact ih.2 acc_eq_true ⟨i.1, i_lt_idx⟩

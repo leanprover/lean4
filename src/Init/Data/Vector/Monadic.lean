@@ -25,10 +25,10 @@ open Nat
 
 /-! ## Monadic operations -/
 
-@[simp] theorem map_toArray_inj [Monad m] [LawfulMonad m]
+theorem map_toArray_inj [Monad m] [LawfulMonad m]
     {xs : m (Vector α n)} {ys : m (Vector α n)} :
-   toArray <$> xs = toArray <$> ys ↔ xs = ys :=
-  _root_.map_inj_right (by simp)
+   toArray <$> xs = toArray <$> ys ↔ xs = ys := by
+  simp
 
 /-! ### mapM -/
 
@@ -148,11 +148,11 @@ theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m]
   rcases xs with ⟨xs, rfl⟩
   simp [Array.forIn'_pure_yield_eq_foldl, Array.foldl_map]
 
-@[simp] theorem idRun_forIn'_yield_eq_foldl
+theorem idRun_forIn'_yield_eq_foldl
     {xs : Vector α n} (f : (a : α) → a ∈ xs → β → Id β) (init : β) :
     (forIn' xs init (fun a m b => .yield <$> f a m b)).run =
-      xs.attach.foldl (fun b ⟨a, h⟩ => f a h b |>.run) init :=
-  forIn'_pure_yield_eq_foldl _ _
+      xs.attach.foldl (fun b ⟨a, h⟩ => f a h b |>.run) init := by
+  simp
 
 @[deprecated forIn'_yield_eq_foldl (since := "2025-05-21")]
 theorem forIn'_yield_eq_foldl
@@ -196,11 +196,11 @@ theorem forIn_eq_foldlM [Monad m] [LawfulMonad m]
   rcases xs with ⟨xs, rfl⟩
   simp [Array.forIn_pure_yield_eq_foldl, Array.foldl_map]
 
-@[simp] theorem idRun_forIn_yield_eq_foldl
+theorem idRun_forIn_yield_eq_foldl
     {xs : Vector α n} (f : α → β → Id β) (init : β) :
     (forIn xs init (fun a b => .yield <$> f a b)).run =
-      xs.foldl (fun b a => f a b |>.run) init :=
-  forIn_pure_yield_eq_foldl _ _
+      xs.foldl (fun b a => f a b |>.run) init := by
+  simp
 
 @[deprecated idRun_forIn_yield_eq_foldl (since := "2025-05-21")]
 theorem forIn_yield_eq_foldl

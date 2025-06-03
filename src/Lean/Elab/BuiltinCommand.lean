@@ -546,4 +546,9 @@ where
       elabCommand cmd
   | _ => throwUnsupportedSyntax
 
+@[builtin_command_elab Parser.Command.dumpAsyncEnvState] def elabDumpAsyncEnvState : CommandElab :=
+  fun _ => do
+    let env ← getEnv
+    IO.eprintln (← env.dbgFormatAsyncState)
+
 end Lean.Elab.Command

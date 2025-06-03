@@ -4,25 +4,32 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Compiler.ExternAttr
 import Lean.Compiler.LCNF.MonoTypes
 import Lean.Compiler.LCNF.InferType
+import Lean.Compiler.NoncomputableAttr
 
 namespace Lean.Compiler.LCNF
 
 structure ToMonoM.State where
-  typeParams : FVarIdSet := {}
+  typeParams : FVarIdHashSet := {}
+  noncomputableVars : Std.HashMap FVarId Name := {}
 
 abbrev ToMonoM := StateRefT ToMonoM.State CompilerM
 
 def Param.toMono (param : Param) : ToMonoM Param := do
   if isTypeFormerType param.type then
-    modify fun { typeParams, .. } => { typeParams := typeParams.insert param.fvarId }
+    modify fun s => { s with typeParams := s.typeParams.insert param.fvarId }
   param.update (← toMonoType param.type)
 
 def isTrivialConstructorApp? (declName : Name) (args : Array Arg) : ToMonoM (Option LetValue) := do
   let some (.ctorInfo ctorInfo) := (← getEnv).find? declName | return none
   let some info ← hasTrivialStructure? ctorInfo.induct | return none
   return args[ctorInfo.numParams + info.fieldIdx]!.toLetValue
+
+def checkFVarUse (fvarId : FVarId) : ToMonoM Unit := do
+  if let some declName := (← get).noncomputableVars.get? fvarId then
+    throwError f!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{declName}', which is 'noncomputable'"
 
 def argToMono (arg : Arg) : ToMonoM Arg := do
   match arg with
@@ -31,6 +38,7 @@ def argToMono (arg : Arg) : ToMonoM Arg := do
     if (← get).typeParams.contains fvarId then
       return .erased
     else
+      checkFVarUse fvarId
       return arg
 
 def ctorAppToMono (ctorInfo : ConstructorVal) (args : Array Arg) : ToMonoM LetValue := do
@@ -42,7 +50,7 @@ def ctorAppToMono (ctorInfo : ConstructorVal) (args : Array Arg) : ToMonoM LetVa
   let argsNew := argsNew ++ (← args[ctorInfo.numParams:].toArray.mapM argToMono)
   return .const ctorInfo.name [] argsNew
 
-partial def LetValue.toMono (e : LetValue) : ToMonoM LetValue := do
+partial def LetValue.toMono (e : LetValue) (fvarId : FVarId) : ToMonoM LetValue := do
   match e with
   | .erased | .lit .. => return e
   | .const declName _ args =>
@@ -55,30 +63,36 @@ partial def LetValue.toMono (e : LetValue) : ToMonoM LetValue := do
       -- and Bool have the same runtime representation.
       return args[1]!.toLetValue
     else if let some e' ← isTrivialConstructorApp? declName args then
-      e'.toMono
+      e'.toMono fvarId
     else if let some (.ctorInfo ctorInfo) := (← getEnv).find? declName then
       ctorAppToMono ctorInfo args
     else
+      let env ← getEnv
+      if isNoncomputable env declName && !(isExtern env declName) then
+        modify fun s => { s with noncomputableVars := s.noncomputableVars.insert fvarId declName }
       return .const declName [] (← args.mapM argToMono)
   | .fvar fvarId args =>
     if (← get).typeParams.contains fvarId then
       return .erased
     else
+      checkFVarUse fvarId
       return .fvar fvarId (← args.mapM argToMono)
   | .proj structName fieldIdx fvarId =>
     if (← get).typeParams.contains fvarId then
       return .erased
-    else if let some info ← hasTrivialStructure? structName then
-      if info.fieldIdx == fieldIdx then
-        return .fvar fvarId #[]
-      else
-        return .erased
     else
-      return e
+      checkFVarUse fvarId
+      if let some info ← hasTrivialStructure? structName then
+        if info.fieldIdx == fieldIdx then
+          return .fvar fvarId #[]
+        else
+          return .erased
+      else
+        return e
 
 def LetDecl.toMono (decl : LetDecl) : ToMonoM LetDecl := do
   let type ← toMonoType decl.type
-  let value ← decl.value.toMono
+  let value ← decl.value.toMono decl.fvarId
   decl.update type value
 
 mutual
@@ -221,8 +235,12 @@ partial def Code.toMono (code : Code) : ToMonoM Code := do
   | .let decl k => return code.updateLet! (← decl.toMono) (← k.toMono)
   | .fun decl k | .jp decl k => return code.updateFun! (← decl.toMono) (← k.toMono)
   | .unreach type => return .unreach (← toMonoType type)
-  | .return .. | .jmp .. => return code
+  | .jmp fvarId args => return code.updateJmp! fvarId (← args.mapM argToMono)
+  | .return fvarId =>
+    checkFVarUse fvarId
+    return code
   | .cases c =>
+    checkFVarUse c.discr
     if h : c.typeName == ``Decidable then
       decToMono c h
     else if h : c.typeName == ``Nat then

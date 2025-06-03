@@ -109,7 +109,7 @@ Example:
   let rec go : ∀ as acc, filterMapTR.go f as acc = acc.toList ++ as.filterMap f
     | [], acc => by simp [filterMapTR.go, filterMap]
     | a::as, acc => by
-      simp only [filterMapTR.go, go as, Array.push_toList, append_assoc, singleton_append,
+      simp only [filterMapTR.go, go as, Array.toList_push, append_assoc, singleton_append,
         filterMap]
       split <;> simp [*]
   exact (go l #[]).symm
@@ -550,7 +550,7 @@ def zipIdxTR (l : List α) (n : Nat := 0) : List (α × Nat) :=
   (as.foldr (fun a (n, acc) => (n-1, (a, n-1) :: acc)) (n + as.size, [])).2
 
 @[csimp] theorem zipIdx_eq_zipIdxTR : @zipIdx = @zipIdxTR := by
-  funext α l n; simp only [zipIdxTR, size_toArray]
+  funext α l n; simp only [zipIdxTR]
   let f := fun (a : α) (n, acc) => (n-1, (a, n-1) :: acc)
   let rec go : ∀ l i, l.foldr f (i + l.length, []) = (i, zipIdx l i)
     | [], n => rfl
@@ -571,7 +571,7 @@ def enumFromTR (n : Nat) (l : List α) : List (Nat × α) :=
 set_option linter.deprecated false in
 @[deprecated zipIdx_eq_zipIdxTR (since := "2025-01-21"), csimp]
 theorem enumFrom_eq_enumFromTR : @enumFrom = @enumFromTR := by
-  funext α n l; simp only [enumFromTR, size_toArray]
+  funext α n l; simp only [enumFromTR]
   let f := fun (a : α) (n, acc) => (n-1, (n-1, a) :: acc)
   let rec go : ∀ l n, l.foldr f (n + l.length, []) = (n, enumFrom n l)
     | [], n => rfl

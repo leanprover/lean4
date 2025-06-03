@@ -2,8 +2,8 @@ import Lean
 
 /--
 info: Vector.extract.hcongr_5.{u_1} (α α' : Type u_1) (e_1 : α = α') (n n' : Nat) (e_2 : n = n') (xs : Vector α n)
-  (xs' : Vector α' n') (e_3 : HEq xs xs') (start start' : Nat) (e_4 : start = start') (stop stop' : Nat)
-  (e_5 : stop = stop') : HEq (xs.extract start stop) (xs'.extract start' stop')
+  (xs' : Vector α' n') (e_3 : xs ≍ xs') (start start' : Nat) (e_4 : start = start') (stop stop' : Nat)
+  (e_5 : stop = stop') : xs.extract start stop ≍ xs'.extract start' stop'
 -/
 #guard_msgs in
 #check Vector.extract.hcongr_5

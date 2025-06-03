@@ -1158,7 +1158,7 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
     m.keys.Pairwise (fun a b => (a == b) = false) :=
   Raw₀.distinct_keys ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
-@[simp, grind =]
+@[simp, grind _=_]
 theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
     m.toList.map Sigma.fst = m.keys :=
   Raw₀.map_fst_toList_eq_keys ⟨m.1, m.2.size_buckets_pos⟩
@@ -1209,7 +1209,7 @@ namespace Const
 
 variable {β : Type v} {m : DHashMap α (fun _ => β)}
 
-@[simp, grind =]
+@[simp, grind _=_]
 theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
     (toList m).map Prod.fst = m.keys :=
   Raw₀.Const.map_fst_toList_eq_keys ⟨m.1, m.2.size_buckets_pos⟩

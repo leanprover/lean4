@@ -391,9 +391,10 @@ _start:
 size_t x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = 0;
 x_2 = l_Lean_Server_FileWorker_RpcSession_new___closed__2;
-x_3 = lean_alloc_ctor(0, 1, sizeof(size_t)*1);
+x_3 = lean_alloc_ctor(0, 2, sizeof(size_t)*1);
 lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set_usize(x_3, 1, x_1);
+lean_ctor_set(x_3, 1, x_2);
+lean_ctor_set_usize(x_3, 2, x_1);
 return x_3;
 }
 }

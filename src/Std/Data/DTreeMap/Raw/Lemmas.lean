@@ -1063,7 +1063,7 @@ theorem ordered_keys [TransCmp cmp] (h : t.WF) :
     t.keys.Pairwise (fun a b => cmp a b = .lt) :=
   Impl.ordered_keys h.out
 
-@[simp, grind =]
+@[simp, grind _=_]
 theorem map_fst_toList_eq_keys :
     t.toList.map Sigma.fst = t.keys :=
   Impl.map_fst_toList_eq_keys
@@ -1108,7 +1108,7 @@ namespace Const
 
 variable {β : Type v} {t : Raw α β cmp}
 
-@[simp, grind =]
+@[simp, grind _=_]
 theorem map_fst_toList_eq_keys :
     (toList t).map Prod.fst = t.keys :=
   Impl.Const.map_fst_toList_eq_keys

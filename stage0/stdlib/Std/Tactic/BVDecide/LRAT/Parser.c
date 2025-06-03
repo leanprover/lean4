@@ -76,6 +76,7 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillNegOrZ
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCore___at_Std_Tactic_BVDecide_LRAT_Parser_Text_parseIdList___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_lratProofToString_serializeRatHints(lean_object*);
 lean_object* l_IO_FS_writeBinFile(lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_satisfy___at_Std_Tactic_BVDecide_LRAT_Parser_Text_parseActions_go___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseZero(lean_object*);
@@ -125,7 +126,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_Tactic_BVDecide_LRAT
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCore___at_Std_Tactic_BVDecide_LRAT_Parser_Text_parseClause___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_Tactic_BVDecide_LRAT_lratProofToString_serializeRatHints___spec__1(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCore___at_Std_Tactic_BVDecide_LRAT_Parser_Text_parseActions_go___spec__2___lambda__1___boxed(lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_lratProofToString_serializeClause(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_lratProofToString_serializeIdList___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCore___at_Std_Tactic_BVDecide_LRAT_Parser_Text_parseRat___spec__1(lean_object*, lean_object*);
@@ -189,6 +189,7 @@ static lean_object* l_Std_Tactic_BVDecide_LRAT_lratProofToBinary_addInt___closed
 lean_object* lean_uint8_to_nat(uint8_t);
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseIdList_idWs___closed__2;
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero_go___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_lratProofToBinary_addInt___closed__1;
@@ -221,7 +222,6 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseId(lean_obj
 lean_object* lean_byte_array_size(lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseDelete(lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction___closed__2;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_lratProofToBinary_addInt(lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_lratProofToString_serialize___closed__3;
@@ -322,7 +322,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Tactic_BVDecide_LRAT_Parser_Text_skipNewline___closed__4;
-x_2 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_2 = l_Nat_reprFast(x_1);
 return x_2;
 }
 }
@@ -669,7 +669,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseNeg___closed__2;
-x_2 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_2 = l_Nat_reprFast(x_1);
 return x_2;
 }
 }
@@ -830,7 +830,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseZero___closed__2;
-x_2 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_2 = l_Nat_reprFast(x_1);
 return x_2;
 }
 }
@@ -951,7 +951,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseIdList_idWs___closed__2;
-x_2 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_2 = l_Nat_reprFast(x_1);
 return x_2;
 }
 }
@@ -1256,7 +1256,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseDelete___closed__2;
-x_2 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_2 = l_Nat_reprFast(x_1);
 return x_2;
 }
 }
@@ -5206,7 +5206,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_2 = l_Nat_reprFast(x_1);
 return x_2;
 }
 }
@@ -8425,7 +8425,7 @@ if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_18 = lean_uint8_to_nat(x_11);
-x_19 = l___private_Init_Data_Repr_0__Nat_reprFast(x_18);
+x_19 = l_Nat_reprFast(x_18);
 x_20 = l_Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction___closed__2;
 x_21 = lean_string_append(x_20, x_19);
 lean_dec(x_19);
@@ -8472,7 +8472,7 @@ if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
 x_35 = lean_uint8_to_nat(x_27);
-x_36 = l___private_Init_Data_Repr_0__Nat_reprFast(x_35);
+x_36 = l_Nat_reprFast(x_35);
 x_37 = l_Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction___closed__2;
 x_38 = lean_string_append(x_37, x_36);
 lean_dec(x_36);
@@ -8907,7 +8907,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; 
 x_6 = lean_array_uget(x_1, x_2);
-x_7 = l___private_Init_Data_Repr_0__Nat_reprFast(x_6);
+x_7 = l_Nat_reprFast(x_6);
 x_8 = l_Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction___closed__3;
 x_9 = lean_string_append(x_8, x_7);
 lean_dec(x_7);
@@ -9001,7 +9001,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
-x_3 = l___private_Init_Data_Repr_0__Nat_reprFast(x_2);
+x_3 = l_Nat_reprFast(x_2);
 x_4 = l_Std_Tactic_BVDecide_LRAT_lratProofToString_serializeRatHint___closed__1;
 x_5 = lean_string_append(x_4, x_3);
 lean_dec(x_3);
@@ -9121,7 +9121,7 @@ if (x_10 == 0)
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_11 = lean_nat_abs(x_6);
 lean_dec(x_6);
-x_12 = l___private_Init_Data_Repr_0__Nat_reprFast(x_11);
+x_12 = l_Nat_reprFast(x_11);
 x_13 = l_Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction___closed__3;
 x_14 = lean_string_append(x_13, x_12);
 lean_dec(x_12);
@@ -9143,7 +9143,7 @@ x_21 = lean_nat_sub(x_19, x_20);
 lean_dec(x_19);
 x_22 = lean_nat_add(x_21, x_20);
 lean_dec(x_21);
-x_23 = l___private_Init_Data_Repr_0__Nat_reprFast(x_22);
+x_23 = l_Nat_reprFast(x_22);
 x_24 = l_Std_Tactic_BVDecide_LRAT_lratProofToString_serializeRatHint___closed__1;
 x_25 = lean_string_append(x_24, x_23);
 lean_dec(x_23);
@@ -9269,7 +9269,7 @@ lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 lean_dec(x_1);
-x_4 = l___private_Init_Data_Repr_0__Nat_reprFast(x_2);
+x_4 = l_Nat_reprFast(x_2);
 x_5 = l_Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction___closed__3;
 x_6 = lean_string_append(x_5, x_4);
 lean_dec(x_4);
@@ -9293,7 +9293,7 @@ lean_inc(x_14);
 x_15 = lean_ctor_get(x_1, 2);
 lean_inc(x_15);
 lean_dec(x_1);
-x_16 = l___private_Init_Data_Repr_0__Nat_reprFast(x_13);
+x_16 = l_Nat_reprFast(x_13);
 x_17 = l_Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction___closed__3;
 x_18 = lean_string_append(x_17, x_16);
 lean_dec(x_16);
@@ -9325,7 +9325,7 @@ lean_inc(x_31);
 x_32 = lean_ctor_get(x_1, 4);
 lean_inc(x_32);
 lean_dec(x_1);
-x_33 = l___private_Init_Data_Repr_0__Nat_reprFast(x_29);
+x_33 = l_Nat_reprFast(x_29);
 x_34 = l_Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction___closed__3;
 x_35 = lean_string_append(x_34, x_33);
 lean_dec(x_33);
@@ -9603,7 +9603,7 @@ x_2 = l_Std_Tactic_BVDecide_LRAT_lratProofToBinary_addInt___closed__7;
 x_3 = lean_unsigned_to_nat(384u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Std_Tactic_BVDecide_LRAT_lratProofToBinary_addInt___closed__5;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

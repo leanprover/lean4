@@ -90,7 +90,6 @@ LEAN_EXPORT lean_object* l_System_Uri_fileUriToPath_x3f___lambda__1___boxed(lean
 static lean_object* l_System_Uri_pathToUri___lambda__1___closed__1;
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__13;
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__4;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_System_Uri_pathToUri___lambda__1___closed__2;
 LEAN_EXPORT uint8_t l_System_Uri_UriEscape_letterA;
 static lean_object* l_System_Uri_fileUriToPath_x3f___closed__2;
@@ -131,6 +130,7 @@ static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__9;
 lean_object* lean_uint8_to_nat(uint8_t);
 uint8_t l_Substring_beq(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_System_Uri_pathToUri___lambda__1___closed__6;
 uint8_t lean_uint32_dec_lt(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__15___boxed__const__1;
@@ -646,7 +646,7 @@ x_2 = l_System_Uri_UriEscape_decodeUri___closed__3;
 x_3 = lean_unsigned_to_nat(129u);
 x_4 = lean_unsigned_to_nat(47u);
 x_5 = l_System_Uri_UriEscape_decodeUri___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

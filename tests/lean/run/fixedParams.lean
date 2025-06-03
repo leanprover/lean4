@@ -59,7 +59,9 @@ namespace Ex4
 trace: [Elab.definition.fixedParams] getFixedParams: notFixed 0 3:
     In foo c n b m
     m not matched
-[Elab.definition.fixedParams] getFixedParams: • [#1 #3] ❌ [#3 #1] ❌ • [#3 #1] ❌ [#1 #3] ❌
+[Elab.definition.fixedParams] getFixedParams:
+      • [#1 #3] ❌ [#3 #1] ❌
+      • [#3 #1] ❌ [#1 #3] ❌
 -/
 #guard_msgs in
 mutual
@@ -79,7 +81,8 @@ trace: [Elab.definition.fixedParams] getFixedParams: notFixed 0 1:
 [Elab.definition.fixedParams] getFixedParams: notFixed 0 2:
     In app as bs
     x✝ =/= bs
-[Elab.definition.fixedParams] getFixedParams: • [#1] ❌ ❌
+[Elab.definition.fixedParams] getFixedParams:
+      • [#1] ❌ ❌
 -/
 #guard_msgs(trace) in
 def app : List α → List α → List α
@@ -90,7 +93,8 @@ def app : List α → List α → List α
 trace: [Elab.definition.fixedParams] getFixedParams: notFixed 0 1:
     In app' as bs
     as✝ =/= as
-[Elab.definition.fixedParams] getFixedParams: • [#1] ❌ [#3]
+[Elab.definition.fixedParams] getFixedParams:
+      • [#1] ❌ [#3]
 -/
 #guard_msgs(trace) in
 def app' (as : List α) (bs : List α) : List α :=

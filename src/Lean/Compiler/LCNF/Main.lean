@@ -34,7 +34,9 @@ def shouldGenerateCode (declName : Name) : CoreM Bool := do
   if (← isCompIrrelevant |>.run') then return false
   let env ← getEnv
   if isExtern env declName then return true
-  let some info ← getDeclInfo? declName | return false
+  -- Look up the decl in the kernel environment, since it will appear there
+  -- as an axiom (rather than a definition) in the case of a kernel error.
+  let some info := env.constants.find? declName | return false
   unless info.hasValue (allowOpaque := true) do return false
   if hasMacroInlineAttribute env declName then return false
   if (getImplementedBy? env declName).isSome then return false

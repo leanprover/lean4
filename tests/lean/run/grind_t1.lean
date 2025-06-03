@@ -380,6 +380,8 @@ h_1 : b = true
   [eqc] Equivalence classes
     [eqc] {a, if b = true then 10 else 20, 10}
     [eqc] {b, true}
+  [cutsat] Assignment satisfying linear constraints
+    [assign] a := 10
 -/
 #guard_msgs (error) in
 example (b : Bool) : (if b then 10 else 20) = a → b = true → False := by
@@ -456,4 +458,14 @@ example (h : ∀ i, (¬i > 0) ∨ ∀ h : i ≠ 10, p i h) : p 5 (by decide) := 
 
 -- Similar to previous test.
 example (h : ∀ i, (∀ h : i ≠ 10, p i h) ∨ (¬i > 0)) : p 5 (by decide) := by
+  grind
+
+-- `grind` performs hash-consing modulo alpha-equivalence
+/--
+trace: [grind.assert] (f fun x => x) = a
+[grind.assert] ¬a = f fun x => x
+-/
+#guard_msgs (trace) in
+example (f : (Nat → Nat) → Nat) : f (fun x => x) = a → a = f (fun y => y) := by
+  set_option trace.grind.assert true in
   grind

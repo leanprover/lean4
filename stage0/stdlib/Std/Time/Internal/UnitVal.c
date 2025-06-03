@@ -25,15 +25,19 @@ LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_tdiv___rarg(lean_object*, l
 LEAN_EXPORT lean_object* l_Std_Time_Internal_instDecidableEqUnitVal___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_instToString___rarg___boxed(lean_object*);
 static lean_object* l_Std_Time_Internal_UnitVal_instSub___closed__1;
+LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_toInt___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_mul___boxed(lean_object*);
+LEAN_EXPORT uint8_t l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212____rarg(lean_object*, lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Internal_UnitVal_instToString___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_div___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_tdiv___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Internal_instInhabitedUnitVal___closed__1;
+lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_convert(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_instOfNat(lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212_(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_abs(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_instDecidableEqUnitVal(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_convert___boxed(lean_object*, lean_object*, lean_object*);
@@ -44,7 +48,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_mul___rarg(lean_object*, le
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_ofNat(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_instOrdUnitVal___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_instNeg___rarg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_208_(lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212____rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_ediv___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_instRepr(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_sub(lean_object*);
@@ -67,7 +71,6 @@ LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_add___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_ediv(lean_object*);
 static lean_object* l_Std_Time_Internal_UnitVal_instAdd___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_Internal_instOrdUnitVal(lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_208____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_instLEUnitVal(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_instLEUnitVal___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_sub___rarg___boxed(lean_object*, lean_object*);
@@ -106,14 +109,11 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_instOfNat___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_instToString___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_ediv___rarg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_208____rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_Internal_instOrdUnitVal___rarg(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_abs___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_mul(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_div___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_instNeg___rarg(lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_208____rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_instRepr___rarg(lean_object*, lean_object*);
 static lean_object* _init_l_Std_Time_Internal_instInhabitedUnitVal___closed__1() {
 _start:
@@ -141,7 +141,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT uint8_t l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_208____rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212____rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -149,30 +149,30 @@ x_3 = lean_int_dec_eq(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_208_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_208____rarg___boxed), 2, 0);
+x_2 = lean_alloc_closure((void*)(l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212____rarg___boxed), 2, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_208____rarg___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212____rarg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_208____rarg(x_1, x_2);
+x_3 = l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212____rarg(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_208____boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212____boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_208_(x_1);
+x_2 = l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_decEqUnitVal____x40_Std_Time_Internal_UnitVal___hyg_212_(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -869,7 +869,7 @@ if (x_3 == 0)
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_nat_abs(x_1);
-x_5 = l___private_Init_Data_Repr_0__Nat_reprFast(x_4);
+x_5 = l_Nat_reprFast(x_4);
 return x_5;
 }
 else
@@ -881,7 +881,7 @@ x_8 = lean_nat_sub(x_6, x_7);
 lean_dec(x_6);
 x_9 = lean_nat_add(x_8, x_7);
 lean_dec(x_8);
-x_10 = l___private_Init_Data_Repr_0__Nat_reprFast(x_9);
+x_10 = l_Nat_reprFast(x_9);
 x_11 = l_Std_Time_Internal_UnitVal_instToString___rarg___closed__1;
 x_12 = lean_string_append(x_11, x_10);
 lean_dec(x_10);

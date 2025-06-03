@@ -112,7 +112,6 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_ofBuffer(lean_object*);
 lean_object* l_Lake_EquipT_instMonad___rarg(lean_object*);
 extern lean_object* l_instMonadBaseIO;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_withIsolatedStreams___at_Lake_LeanExe_recBuildExe___spec__21___closed__4;
 lean_object* l_Lake_BuildTrace_nil(lean_object*);
 static lean_object* l_Lake_LeanExe_exeFacetConfig___closed__1;
@@ -164,6 +163,7 @@ LEAN_EXPORT lean_object* l_IO_withStderr___at_Lake_LeanExe_recBuildExe___spec__2
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 extern lean_object* l_Lake_ExternLib_staticFacet;
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_fetchIn___at_Lake_LeanExe_recBuildExe___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4475,7 +4475,7 @@ x_2 = l_IO_FS_withIsolatedStreams___at_Lake_LeanExe_recBuildExe___spec__21___clo
 x_3 = lean_unsigned_to_nat(129u);
 x_4 = lean_unsigned_to_nat(47u);
 x_5 = l_IO_FS_withIsolatedStreams___at_Lake_LeanExe_recBuildExe___spec__21___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

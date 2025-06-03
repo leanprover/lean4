@@ -795,7 +795,7 @@ theorem ordered_keys [TransCmp cmp] :
     t.keys.Pairwise (fun a b => cmp a b = .lt) :=
   DTreeMap.ordered_keys
 
-@[simp, grind =]
+@[simp, grind _=_]
 theorem map_fst_toList_eq_keys :
     (toList t).map Prod.fst = t.keys :=
   DTreeMap.Const.map_fst_toList_eq_keys

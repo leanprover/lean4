@@ -7,7 +7,6 @@ prelude
 import Init.Grind.Tactics
 import Init.Data.Queue
 import Std.Data.TreeSet
-import Lean.Util.ShareCommon
 import Lean.HeadIndex
 import Lean.Meta.Basic
 import Lean.Meta.CongrTheorems
@@ -16,6 +15,7 @@ import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Ext
 import Lean.Meta.Tactic.Grind.ENodeKey
+import Lean.Meta.Tactic.Grind.AlphaShareCommon
 import Lean.Meta.Tactic.Grind.Attr
 import Lean.Meta.Tactic.Grind.ExtAttr
 import Lean.Meta.Tactic.Grind.Cases
@@ -56,7 +56,7 @@ register_builtin_option grind.warning : Bool := {
 /-- Context for `GrindM` monad. -/
 structure Context where
   simp         : Simp.Context
-  simprocs     : Array Simp.Simprocs
+  simpMethods  : Simp.Methods
   config       : Grind.Config
   /--
   If `cheapCases` is `true`, `grind` only applies `cases` to types that contain
@@ -86,7 +86,7 @@ instance : BEq CongrTheoremCacheKey where
 
 -- We manually define `Hashable` because we want to use pointer equality.
 instance : Hashable CongrTheoremCacheKey where
-  hash a := mixHash (unsafe ptrAddrUnsafe a.f).toUInt64 (hash a.numArgs)
+  hash a := mixHash (hashPtrExpr a.f) (hash a.numArgs)
 
 structure EMatchTheoremTrace where
   origin : Origin
@@ -117,14 +117,14 @@ private def emptySC : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCo
 /-- State for the `GrindM` monad. -/
 structure State where
   /-- `ShareCommon` (aka `Hashconsing`) state. -/
-  scState    : ShareCommon.State.{0} ShareCommon.objectFactory := emptySC
+  scState    : AlphaShareCommon.State := {}
   /--
   Congruence theorems generated so far. Recall that for constant symbols
   we rely on the reserved name feature (i.e., `mkHCongrWithArityForConst?`).
   Remark: we currently do not reuse congruence theorems
   -/
   congrThms  : PHashMap CongrTheoremCacheKey CongrTheorem := {}
-  simpStats  : Simp.Stats := {}
+  simp       : Simp.State := {}
   trueExpr   : Expr
   falseExpr  : Expr
   natZExpr   : Expr
@@ -191,9 +191,16 @@ def cheapCasesOnly : GrindM Bool :=
 def reportMVarInternalization : GrindM Bool :=
   return (← readThe Context).reportMVarIssue
 
+/--
+Returns `true` if `declName` is the name of a `match` equation or a `match` congruence equation.
+-/
+def isMatchEqLikeDeclName (declName : Name) : CoreM Bool := do
+  return (← isMatchCongrEqDeclName declName) || Match.isMatchEqnTheorem (← getEnv) declName
+
 def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
   if (← getConfig).trace then
-    modify fun s => { s with trace.thms := s.trace.thms.insert { origin := thm.origin, kind := thm.kind } }
+    unless (← isMatchEqLikeDeclName thm.origin.key) do
+      modify fun s => { s with trace.thms := s.trace.thms.insert { origin := thm.origin, kind := thm.kind } }
   modify fun s => { s with
     counters.thm := if let some n := s.counters.thm.find? thm.origin then
       s.counters.thm.insert thm.origin (n+1)
@@ -232,8 +239,8 @@ Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
 been hash-consed. We perform this step before we internalize expressions.
 -/
 def shareCommon (e : Expr) : GrindM Expr := do
-  let scState ← modifyGet fun s => (s.scState, { s with scState := emptySC })
-  let (e, scState) := ShareCommon.State.shareCommon scState e
+  let scState ← modifyGet fun s => (s.scState, { s with scState := {} })
+  let (e, scState) := shareCommonAlpha e scState
   modify fun s => { s with scState }
   return e
 
@@ -365,9 +372,9 @@ structure CongrKey (enodes : ENodeMap) where
 
 private def hashRoot (enodes : ENodeMap) (e : Expr) : UInt64 :=
   if let some node := enodes.find? { expr := e } then
-    unsafe (ptrAddrUnsafe node.root).toUInt64
+    hashPtrExpr node.root
   else
-    13
+    hashPtrExpr e
 
 private def hasSameRoot (enodes : ENodeMap) (a b : Expr) : Bool := Id.run do
   if isSameExpr a b then
@@ -454,9 +461,9 @@ structure PreInstance where
 
 instance : Hashable PreInstance where
   hash i := Id.run do
-    let mut r := unsafe (ptrAddrUnsafe i.proof >>> 3).toUInt64
+    let mut r := hashPtrExpr i.proof
     for v in i.assignment do
-      r := mixHash r (unsafe (ptrAddrUnsafe v >>> 3).toUInt64)
+      r := mixHash r (hashPtrExpr v)
     return r
 
 instance : BEq PreInstance where
@@ -950,14 +957,6 @@ Notifies the offset constraint module that `a = b` where
 @[extern "lean_process_new_offset_eq"] -- forward definition
 opaque Arith.Offset.processNewEq (a b : Expr) : GoalM Unit
 
-/--
-Notifies the offset constraint module that `a = k` where
-`a` is term that has been internalized by this module,
-and `k` is a numeral.
--/
-@[extern "lean_process_new_offset_eq_lit"] -- forward definition
-opaque Arith.Offset.processNewEqLit (a k : Expr) : GoalM Unit
-
 /-- Returns `true` if `e` is a numeral and has type `Nat`. -/
 def isNatNum (e : Expr) : Bool := Id.run do
   let_expr OfNat.ofNat _ _ inst := e | false
@@ -973,8 +972,6 @@ def markAsOffsetTerm (e : Expr) : GoalM Unit := do
   let root ← getRootENode e
   if let some e' := root.offset? then
     Arith.Offset.processNewEq e e'
-  else if isNatNum root.self && !isSameExpr e root.self then
-    Arith.Offset.processNewEqLit e root.self
   else
     setENode root.self { root with offset? := some e }
 
@@ -984,13 +981,6 @@ Notifies the cutsat module that `a = b` where
 -/
 @[extern "lean_process_cutsat_eq"] -- forward definition
 opaque Arith.Cutsat.processNewEq (a b : Expr) : GoalM Unit
-
-/--
-Notifies the cutsat module that `a = k` where
-`a` is term that has been internalized by this module, and `k` is a numeral.
--/
-@[extern "lean_process_cutsat_eq_lit"] -- forward definition
-opaque Arith.Cutsat.processNewEqLit (a k : Expr) : GoalM Unit
 
 /--
 Notifies the cutsat module that `a ≠ b` where
@@ -1067,8 +1057,6 @@ def markAsCutsatTerm (e : Expr) : GoalM Unit := do
   let root ← getRootENode e
   if let some e' := root.cutsat? then
     Arith.Cutsat.processNewEq e e'
-  else if isNum root.self && !isSameExpr e root.self then
-    Arith.Cutsat.processNewEqLit e root.self
   else
     setENode root.self { root with cutsat? := some e }
     propagateCutsatDiseqs (← getParents root.self)

@@ -69,6 +69,7 @@ static lean_object* l_Lean_Elab_TerminationHints_ensureNone___closed__5;
 static lean_object* l_Lean_Elab_TerminationHints_ensureNone___closed__12;
 static lean_object* l_Lean_Elab_elabTerminationHints___rarg___lambda__8___closed__2;
 static lean_object* l_Lean_Elab_TerminationHints_ensureNone___closed__2;
+lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabTerminationHints___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_elabTerminationHints___rarg___lambda__20___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_elabTerminationHints___rarg___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -176,7 +177,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_elabTerminationHints___rarg___lambda__13(le
 LEAN_EXPORT lean_object* l_Lean_Elab_elabTerminationHints___rarg___lambda__18___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedTerminationBy___closed__2;
 lean_object* l_Lean_MessageData_ofName(lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Elab_TerminationHints_ensureNone___closed__4;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabTerminationHints___rarg___lambda__16(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1113,7 +1113,7 @@ x_3 = lean_nat_dec_eq(x_1, x_2);
 if (x_3 == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_4 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_4 = l_Nat_reprFast(x_1);
 x_5 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_5, 0, x_4);
 x_6 = l_Lean_MessageData_ofFormat(x_5);

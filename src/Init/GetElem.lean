@@ -164,25 +164,25 @@ export LawfulGetElem (getElem?_def getElem!_def)
 instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (valid xs i)] :
     LawfulGetElem coll idx elem valid where
 
-@[simp] theorem getElem?_pos [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+@[simp, grind] theorem getElem?_pos [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     (c : cont) (i : idx) (h : dom c i) : c[i]? = some (c[i]'h) := by
   have : Decidable (dom c i) := .isTrue h
   rw [getElem?_def]
   exact dif_pos h
 
-@[simp] theorem getElem?_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+@[simp, grind] theorem getElem?_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     (c : cont) (i : idx) (h : ¬dom c i) : c[i]? = none := by
   have : Decidable (dom c i) := .isFalse h
   rw [getElem?_def]
   exact dif_neg h
 
-@[simp] theorem getElem!_pos [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+@[simp, grind] theorem getElem!_pos [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     [Inhabited elem] (c : cont) (i : idx) (h : dom c i) :
     c[i]! = c[i]'h := by
   have : Decidable (dom c i) := .isTrue h
   simp [getElem!_def, getElem?_def, h]
 
-@[simp] theorem getElem!_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+@[simp, grind] theorem getElem!_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     [Inhabited elem] (c : cont) (i : idx) (h : ¬dom c i) : c[i]! = default := by
   have : Decidable (dom c i) := .isFalse h
   simp [getElem!_def, getElem?_def, h]

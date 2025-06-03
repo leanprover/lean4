@@ -14,6 +14,5 @@ def runTests : IO Unit := do
   -- creating a lot of processes should succeed and not leak file handles
   for _ in [0:500] do
     discard <| IO.Process.run { cmd := "cmd.exe", args := #["/c", "echo", "hi"] }
-  --assert_failure! discard <| IO.Process.run { cmd := "cmd.exe\" echo \"hi" }
 
 #eval runTests

@@ -102,7 +102,13 @@ theorem dite_val {n : Nat} {c : Prop} [Decidable c] {x y : Fin n} :
     (if c then x else y).val = if c then x.val else y.val := by
   by_cases c <;> simp [*]
 
-instance (n : Nat) [NeZero n] : NatCast (Fin n) where
+/--
+This is not an instance, because it causes `x < n` (for `x : Fin k`, `n : Nat`)
+to be elaborated as `x < ↑n` rather than `↑x < n`, which is undesirable.
+Note however that in Mathlib this happens anyway!
+-/
+@[expose]
+def instNatCast (n : Nat) [NeZero n] : NatCast (Fin n) where
   natCast a := Fin.ofNat n a
 
 @[expose]
@@ -112,9 +118,11 @@ def intCast [NeZero n] (a : Int) : Fin n :=
   else
     - Fin.ofNat n a.natAbs
 
-instance (n : Nat) [NeZero n] : IntCast (Fin n) where
+@[expose]
+def instIntCast (n : Nat) [NeZero n] : IntCast (Fin n) where
   intCast := Fin.intCast
 
+attribute [local instance] instIntCast in
 theorem intCast_def {n : Nat} [NeZero n] (x : Int) :
     (x : Fin n) = if 0 ≤ x then Fin.ofNat n x.natAbs else -Fin.ofNat n x.natAbs := rfl
 

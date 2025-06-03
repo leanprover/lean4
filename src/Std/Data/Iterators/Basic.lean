@@ -7,7 +7,6 @@ prelude
 import Init.Core
 import Init.Classical
 import Init.Ext
-import Init.RCases
 import Init.NotationExtra
 import Init.TacticsExtra
 

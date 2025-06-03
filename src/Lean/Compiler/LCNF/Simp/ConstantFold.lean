@@ -308,6 +308,18 @@ def higherOrderLiteralFolders : List (Name × Folder) := [
 def Folder.mulShift [Literal α] [BEq α] (shiftLeft : Name) (pow2 : α → α) (log2 : α → α) : Folder :=
   Folder.first #[Folder.mulLhsShift shiftLeft pow2 log2, Folder.mulRhsShift shiftLeft pow2 log2]
 
+-- TODO: add option for controlling the limit
+def natPowThreshold := 256
+
+def foldNatPow (args : Array Arg): FolderM (Option LetValue) := do
+  let #[.fvar fvarId₁, .fvar fvarId₂] := args | return none
+  let some value₁ ← getNatLit fvarId₁ | return none
+  let some value₂ ← getNatLit fvarId₂ | return none
+  if value₂ < natPowThreshold then
+    return .some (.lit (.nat (value₁ ^ value₂)))
+  else
+    return none
+
 /--
 Folder for ofNat operations on fixed-sized integer types.
 -/
@@ -348,7 +360,8 @@ def arithmeticFolders : List (Name × Folder) := [
   (``UInt8.div,  Folder.first #[Folder.mkBinary UInt8.div, Folder.rightNeutral (1 : UInt8), Folder.divShift ``UInt8.shiftRight (UInt8.shiftLeft 1 ·) UInt8.log2]),
   (``UInt16.div,  Folder.first #[Folder.mkBinary UInt16.div, Folder.rightNeutral (1 : UInt16), Folder.divShift ``UInt16.shiftRight (UInt16.shiftLeft 1 ·) UInt16.log2]),
   (``UInt32.div,  Folder.first #[Folder.mkBinary UInt32.div, Folder.rightNeutral (1 : UInt32), Folder.divShift ``UInt32.shiftRight (UInt32.shiftLeft 1 ·) UInt32.log2]),
-  (``UInt64.div,  Folder.first #[Folder.mkBinary UInt64.div, Folder.rightNeutral (1 : UInt64), Folder.divShift ``UInt64.shiftRight (UInt64.shiftLeft 1 ·) UInt64.log2])
+  (``UInt64.div,  Folder.first #[Folder.mkBinary UInt64.div, Folder.rightNeutral (1 : UInt64), Folder.divShift ``UInt64.shiftRight (UInt64.shiftLeft 1 ·) UInt64.log2]),
+  (``Nat.pow, foldNatPow),
 ]
 
 def relationFolders : List (Name × Folder) := [

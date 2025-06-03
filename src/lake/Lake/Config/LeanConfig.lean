@@ -9,7 +9,7 @@ import Lake.Build.Target.Basic
 import Lake.Config.Dynlib
 import Lake.Config.Meta
 
-open System
+open System Lean
 
 namespace Lake
 
@@ -120,18 +120,6 @@ protected def BuildType.toString (bt : BuildType) : String :=
   | .release => "release"
 
 instance : ToString BuildType := ⟨BuildType.toString⟩
-
-/-- An option that is used by Lean as if it was passed using `-D`. -/
-structure LeanOption where
-  /-- The option's name. -/
-  name  : Lean.Name
-  /-- The option's value. -/
-  value : Lean.LeanOptionValue
-  deriving Inhabited, Repr
-
-/-- Formats the lean option as a CLI argument using the `-D` flag. -/
-def LeanOption.asCliArg (o : LeanOption) : String :=
-  s!"-D{o.name}={o.value.asCliFlagValue}"
 
 /-- Configuration options common to targets that build modules. -/
 configuration LeanConfig where
@@ -251,10 +239,11 @@ deriving Inhabited, Repr
 instance : EmptyCollection LeanConfig := ⟨{}⟩
 
 /-- The options to pass to `lean` based on the build type. -/
-def BuildType.leanOptions : BuildType → Array LeanOption
-| debug => #[{ name := `debugAssertions, value := true }]
-| _ => #[]
+def BuildType.leanOptions : BuildType → LeanOptions
+| debug => ⟨NameMap.empty.insert `debugAssertions true⟩
+| _ => {}
 
+set_option linter.unusedVariables false in
 /-- The arguments to pass to `lean` based on the build type. -/
 def BuildType.leanArgs (t : BuildType) : Array String :=
-  t.leanOptions.map (·.asCliArg)
+  #[]

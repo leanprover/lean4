@@ -151,6 +151,8 @@ theorem negate_eq (c : DefaultClause n) : negate c = (toList c).map Literal.nega
       else
         some map
 
+-- Recall `@[local grind]` doesn't work for theorems in namespaces,
+-- so we add the attribute after the fact.
 attribute [local grind] DefaultClause.ofArray.folder
 
 def ofArray (ls : Array (Literal (PosFin n))) : Option (DefaultClause n) :=
@@ -167,8 +169,6 @@ def ofArray (ls : Array (Literal (PosFin n))) : Option (DefaultClause n) :=
 theorem ofArray.foldl_folder_none_eq_none : List.foldl ofArray.folder none ls = none := by
   apply List.foldlRecOn (motive := (· = none)) <;> grind
 
--- Recall `@[local grind]` doesn't work for theorems in namespaces,
--- so we add the attribute after the fact.
 attribute [local grind] ofArray.foldl_folder_none_eq_none
 
 theorem ofArray.mem_of_mem_of_foldl_folder_eq_some
@@ -186,10 +186,8 @@ theorem ofArray.folder_foldl_mem_of_mem
   | nil => grind
   | cons x xs ih =>
     simp at hl h
-    rcases hl with hl | hl
-    · rw [DefaultClause.ofArray.folder.eq_def] at h -- FIXME `grind` should do this?
-      grind (gen := 7)
-    · grind
+    rw [DefaultClause.ofArray.folder.eq_def] at h -- TODO why doesn't `grind` handle this?
+    rcases hl <;> grind (gen := 7)
 
 @[inline, local grind]
 def delete (c : DefaultClause n) (l : Literal (PosFin n)) : DefaultClause n where

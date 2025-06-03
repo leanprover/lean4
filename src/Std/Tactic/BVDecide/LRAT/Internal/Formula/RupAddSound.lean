@@ -622,17 +622,8 @@ theorem confirmRupHint_preserves_motive {n : Nat} (f : DefaultFormula n) (rupHin
     split
     · next c hc =>
       have c_in_f : c ∈ toList f := by
-        simp only [toList, List.append_assoc, List.mem_append, List.mem_filterMap, id_eq,
-          exists_eq_right, List.mem_map, Prod.exists, Bool.exists_bool]
-        apply Or.inl
-        simp only [getElem?, decidableGetElem?] at hc
-        split at hc
-        · simp only [Option.some.injEq] at hc
-          rw [← hc]
-          -- grind -- FIXME: Using `grind` causes an error:
-          -- unknown constant 'Std.Tactic.BVDecide.LRAT.Internal.DefaultFormula.confirmRupHint_preserves_motive._proof_1_3'
-          apply Array.getElem_mem_toList
-        · simp at hc
+        simp only [toList, List.mem_append, List.mem_filterMap, id_eq, exists_eq_right]
+        grind
       split
       · next heq =>
         simp only [ConfirmRupHintFoldEntailsMotive, h1, imp_self, and_self, hsize,
@@ -641,10 +632,7 @@ theorem confirmRupHint_preserves_motive {n : Nat} (f : DefaultFormula n) (rupHin
         simp only [ConfirmRupHintFoldEntailsMotive, h1, hsize, forall_const, true_and]
         intro p
         rcases incompatible_of_reducedToEmpty c acc.1 heq p with pc | pacc
-        · apply Or.inr
-          intro pf
-          simp only [(· ⊨ ·)] at pf
-          simp only [(· ⊨ ·)] at pc
+        · simp only [(· ⊨ ·)] at pc ⊢
           grind
         · exact Or.inl pacc
       · next l b heq =>

@@ -1,3 +1,4 @@
+import Lean
 /-!
 # Tests for delaboration of constants (and name unresolution)
 -/
@@ -77,6 +78,24 @@ set_option pp.universes true in
 example (id : Nat) : _root_.id 2 = 2 := by
   trace_state
   rfl
+
+/-!
+In `pp.fullNames` mode, local name shadowing is still checked.
+-/
+/--
+trace: id : Nat
+⊢ _root_.id 2 = 2
+-/
+#guard_msgs in
+set_option pp.fullNames true in
+example (id : Nat) : _root_.id 2 = 2 := by
+  trace_state
+  rfl
+/-- info: `_root_.id -/
+#guard_msgs in
+variable (id : Nat) in
+#eval Lean.Elab.Command.runTermElabM fun _ =>
+  Lean.unresolveNameGlobalAvoidingLocals ``id (fullNames := true)
 
 /-!
 `match` shadowing test. This used to print the first `match` arm as

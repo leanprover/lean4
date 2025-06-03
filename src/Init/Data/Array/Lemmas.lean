@@ -2997,6 +2997,10 @@ theorem extract_empty_of_size_le_start {xs : Array α} {start stop : Nat} (h : x
   apply ext'
   simp
 
+theorem _root_.List.toArray_drop {l : List α} {k : Nat} :
+    (l.drop k).toArray = l.toArray.extract k := by
+  rw [List.drop_eq_extract, List.extract_toArray, List.size_toArray]
+
 @[deprecated extract_size (since := "2025-02-27")]
 theorem take_size {xs : Array α} : xs.take xs.size = xs := by
   cases xs

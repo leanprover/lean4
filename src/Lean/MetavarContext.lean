@@ -946,7 +946,7 @@ private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) 
 
 /--
   Given `toRevert` an array of free variables s.t. `lctx` contains their declarations,
-  return a new array of free variables that contains `toRevert` and all variables
+  return a new array of free variables that contains `toRevert` and all free variables
   in `lctx` that may depend on `toRevert`.
 
   Remark: the result is sorted by `LocalDecl` indices.
@@ -1010,7 +1010,7 @@ def collectForwardDeps (lctx : LocalContext) (toRevert : Array Expr) : M (Array 
     We use this function when we create auxiliary metavariables at `elimMVarDepsAux`. -/
 def reduceLocalContext (lctx : LocalContext) (toRevert : Array Expr) : LocalContext :=
   toRevert.foldr (init := lctx) fun x lctx =>
-    if x.isFVar then lctx.erase x.fvarId! else lctx
+    lctx.erase x.fvarId!
 
 /-- Return free variables in `xs` that are in the local context `lctx` -/
 private def getInScope (lctx : LocalContext) (xs : Array Expr) : Array Expr :=
@@ -1035,12 +1035,9 @@ private def getInScope (lctx : LocalContext) (xs : Array Expr) : Array Expr :=
   how let-decl free variables are handled. -/
 private def mkMVarApp (lctx : LocalContext) (mvar : Expr) (xs : Array Expr) (kind : MetavarKind) : Expr :=
   xs.foldl (init := mvar) fun e x =>
-    if !x.isFVar then
-      e
-    else
-      match kind with
-      | MetavarKind.syntheticOpaque => mkApp e x
-      | _                           => if (lctx.getFVar! x).isLet then e else mkApp e x
+    match kind with
+    | MetavarKind.syntheticOpaque => mkApp e x
+    | _                           => if (lctx.getFVar! x).isLet then e else mkApp e x
 
 mutual
 
@@ -1059,10 +1056,11 @@ mutual
     | e                => return e
 
   /--
-    Given a metavariable with type `e`, kind `kind` and free/meta variables `xs` in its local context `lctx`,
-    create the type for a new auxiliary metavariable. These auxiliary metavariables are created by `elimMVar`.
+    Given a metavariable with type `e`, kind `kind` and free variables `xs` in its local context `lctx`,
+    create the type `forall xs => e` for a new auxiliary metavariable. This is used by `elimMVar`.
 
-    See "Gruesome details" section in the beginning of the file.
+    See "Gruesome details" section in the beginning of the file for understanding
+    how let-decl free variables are handled.
 
     Note: It is assumed that `xs` is the result of calling `collectForwardDeps` on a subset of variables in `lctx`.
   -/
@@ -1070,39 +1068,31 @@ mutual
     let e ← abstractRangeAux xs xs.size e
     xs.size.foldRevM (init := e) fun i _ e => do
       let x := xs[i]
-      if x.isFVar then
-        match lctx.getFVar! x with
-        | LocalDecl.cdecl _ _ n type bi _ =>
+      match lctx.getFVar! x with
+      | LocalDecl.cdecl _ _ n type bi _ =>
+        let type := type.headBeta
+        let type ← abstractRangeAux xs i type
+        return Lean.mkForall n bi type e
+      | LocalDecl.ldecl _ _ n type value nonDep _ =>
+        if !usedLetOnly || e.hasLooseBVar 0 then
           let type := type.headBeta
-          let type ← abstractRangeAux xs i type
-          return Lean.mkForall n bi type e
-        | LocalDecl.ldecl _ _ n type value nonDep _ =>
-          if !usedLetOnly || e.hasLooseBVar 0 then
+          let type  ← abstractRangeAux xs i type
+          let value ← abstractRangeAux xs i value
+          let e := mkLet n type value e nonDep
+          match kind with
+          | MetavarKind.syntheticOpaque =>
+            -- See "Gruesome details" section in the beginning of the file
+            let e := e.liftLooseBVars 0 1
+            return mkForall n BinderInfo.default type e
+          | _ => pure e
+        else
+          match kind with
+          | MetavarKind.syntheticOpaque =>
             let type := type.headBeta
             let type  ← abstractRangeAux xs i type
-            let value ← abstractRangeAux xs i value
-            let e := mkLet n type value e nonDep
-            match kind with
-            | MetavarKind.syntheticOpaque =>
-              -- See "Gruesome details" section in the beginning of the file
-              let e := e.liftLooseBVars 0 1
-              return mkForall n BinderInfo.default type e
-            | _ => pure e
-          else
-            match kind with
-            | MetavarKind.syntheticOpaque =>
-              let type := type.headBeta
-              let type  ← abstractRangeAux xs i type
-              return mkForall n BinderInfo.default type e
-            | _ =>
-              return e.lowerLooseBVars 1 1
-      else
-        -- `xs` may contain metavariables as "may dependencies" (see `findExprDependsOn`)
-        let mvarDecl := (← get).mctx.getDecl x.mvarId!
-        let type := mvarDecl.type.headBeta
-        let type ← abstractRangeAux xs i type
-        let id ← if mvarDecl.userName.isAnonymous then mkFreshBinderName else pure mvarDecl.userName
-        return Lean.mkForall id (← read).binderInfoForMVars type e
+            return mkForall n BinderInfo.default type e
+          | _ =>
+            return e.lowerLooseBVars 1 1
   where
     abstractRangeAux (xs : Array Expr) (i : Nat) (e : Expr) : M Expr := do
       let e ← elim xs e
@@ -1136,10 +1126,9 @@ mutual
       -/
       let newMVarKind := if !(← mvarId.isAssignable) then MetavarKind.syntheticOpaque else mvarDecl.kind
       let args ← args.mapM (visit xs)
-      -- Note that `toRevert` only contains free variables at this point since it is the result of `getInScope`;
-      -- after `collectForwardDeps`, this may no longer be the case because it may include metavariables
-      -- whose local contexts depend on `toRevert` (i.e. "may dependencies")
+      -- Note that `toRevert` only contains free variables
       let toRevert ← collectForwardDeps mvarLCtx toRevert
+      assert! toRevert.all (·.isFVar)
       let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert
       let newLocalInsts := mvarDecl.localInstances.filter fun inst => toRevert.all fun x => inst.fvar != x
       -- Remark: we must reset the cache before processing `mkAuxMVarType` because `toRevert` may not be equal to `xs`

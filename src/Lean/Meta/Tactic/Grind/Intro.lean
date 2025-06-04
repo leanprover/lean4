@@ -258,7 +258,7 @@ def intros' (generation : Nat) : SearchM Bool := do
   return true
 
 /-- Asserts a new fact `prop` with proof `proof` to the given `goal`. -/
-def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : SearchM Unit := do
+private def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : SearchM Unit := do
   if isEagerCasesCandidate (← getGoal) prop then
     let goal ← getGoal
     let mvarId ← goal.mvarId.assert (← mkFreshUserName `h) prop proof
@@ -280,8 +280,10 @@ def assertNext : SearchM Bool := do
   let some (fact, newRawFacts) := goal.newRawFacts.dequeue?
     | return false
   setGoal { goal with newRawFacts }
-  assertAt fact.proof fact.prop fact.generation
-  return true
+  withSplitSource fact.splitSource do
+    -- Remark: we should probably add `withGeneration`
+    assertAt fact.proof fact.prop fact.generation
+    return true
 
 /--
 Asserts all facts in the `goal` fact queue.

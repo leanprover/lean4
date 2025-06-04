@@ -156,9 +156,9 @@ private def checkForallStatus (imp : Expr) (h : imp.isForall) : GoalM SplitStatu
 
 def checkSplitStatus (s : SplitInfo) : GoalM SplitStatus := do
   match s with
-  | .default e => checkDefaultSplitStatus e
-  | .imp e h => checkForallStatus e h
-  | .arg a b _ eq => checkSplitInfoArgStatus a b eq
+  | .default e _    => checkDefaultSplitStatus e
+  | .imp e h _      => checkForallStatus e h
+  | .arg a b _ eq _ => checkSplitInfoArgStatus a b eq
 
 private inductive SplitCandidate where
   | none
@@ -249,11 +249,11 @@ def splitNext : SearchM Bool := withCurrGoalContext do
   let cExpr := c.getExpr
   let gen ← getGeneration cExpr
   let genNew := if numCases > 1 || isRec then gen+1 else gen
-  saveSplitDiagInfo cExpr genNew numCases
+  saveSplitDiagInfo cExpr genNew numCases c.source
   markCaseSplitAsResolved cExpr
   trace_goal[grind.split] "{cExpr}, generation: {gen}"
   let mvarId ← mkAuxMVarForCurrGoal
-  let mvarIds ← if let .imp e h := c then
+  let mvarIds ← if let .imp e h _ := c then
     casesWithTrace mvarId (mkGrindEM (e.forallDomain h))
   else if (← isMatcherApp cExpr) then
     casesMatch mvarId cExpr

@@ -14,23 +14,25 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Fin_reverseInduction(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Fin_instIntCastOfNeZeroNat(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_inductionOn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_induction_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Fin_IntCast_instIntCast___elambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_lastCases(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Fin_ofNat___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_addCases(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_succRec___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Fin_IntCast_instIntCast(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Fin_NatCast_instNatCast___elambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_succRecOn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_intCast___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Fin_NatCast_instNatCast___elambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_induction_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Fin_instNatCastOfNeZeroNat(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_induction(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_cases___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_cases___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_intCast(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Fin_IntCast_instIntCast___elambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_lastCases___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_succRecOn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -39,6 +41,7 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 static lean_object* l_Fin_intCast___closed__1;
 LEAN_EXPORT lean_object* l_Fin_cases(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Fin_NatCast_instNatCast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_succRec___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_inductionOn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -48,14 +51,32 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_induction___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_cases___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_reverseInduction___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Fin_instNatCastOfNeZeroNat(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Fin_NatCast_instNatCast___elambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_nat_mod(x_3, x_1);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Fin_NatCast_instNatCast(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Fin_ofNat___boxed), 3, 2);
+x_3 = lean_alloc_closure((void*)(l_Fin_NatCast_instNatCast___elambda__1___boxed), 3, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, lean_box(0));
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Fin_NatCast_instNatCast___elambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Fin_NatCast_instNatCast___elambda__1(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Fin_intCast___closed__1() {
@@ -105,14 +126,32 @@ lean_dec(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Fin_instIntCastOfNeZeroNat(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Fin_IntCast_instIntCast___elambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Fin_intCast(x_1, lean_box(0), x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Fin_IntCast_instIntCast(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Fin_intCast___boxed), 3, 2);
+x_3 = lean_alloc_closure((void*)(l_Fin_IntCast_instIntCast___elambda__1___boxed), 3, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, lean_box(0));
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Fin_IntCast_instIntCast___elambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Fin_IntCast_instIntCast___elambda__1(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_1);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Fin_succRec___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

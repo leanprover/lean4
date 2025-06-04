@@ -26,6 +26,7 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceDocumentSymbolParams(lean_obje
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceVersionedTextDocumentIdentifier(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceFoldingRangeParams___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceReferenceParams(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceSignatureHelpParams(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceRpcConnectParams(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceCompletionParams___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourcePlainGoalParams(lean_object*);
@@ -47,6 +48,7 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourcePlainTermGoalParams___boxed(le
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceDefinitionParams(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceTextDocumentEdit(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceSemanticTokensParams___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceSignatureHelpParams___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceDeclarationParams___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceTextDocumentEdit___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceReferenceParams___boxed(lean_object*);
@@ -601,6 +603,25 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Lsp_instFileSourceInlayHintParams(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceSignatureHelpParams(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_ctor_get(x_1, 0);
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceSignatureHelpParams___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Lsp_instFileSourceSignatureHelpParams(x_1);
 lean_dec(x_1);
 return x_2;
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind
-// Imports: Init.Grind.Norm Init.Grind.Tactics Init.Grind.Lemmas Init.Grind.Cases Init.Grind.Propagator Init.Grind.Util Init.Grind.Offset Init.Grind.PP Init.Grind.CommRing Init.Grind.Module Init.Grind.Ordered Init.Grind.Ext Init.Data.Int.OfNat
+// Imports: Init.Grind.Norm Init.Grind.Tactics Init.Grind.Lemmas Init.Grind.Cases Init.Grind.Propagator Init.Grind.Util Init.Grind.Offset Init.Grind.PP Init.Grind.CommRing Init.Grind.Module Init.Grind.Ordered Init.Grind.Ext Init.Grind.ToInt Init.Data.Int.OfNat
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -25,6 +25,7 @@ lean_object* initialize_Init_Grind_CommRing(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Module(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Ordered(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Ext(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_ToInt(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_OfNat(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind(uint8_t builtin, lean_object* w) {
@@ -65,6 +66,9 @@ res = initialize_Init_Grind_Ordered(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_Ext(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_ToInt(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Int_OfNat(builtin, lean_io_mk_world());

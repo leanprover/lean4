@@ -263,7 +263,7 @@ def splitNext : SearchM Bool := withCurrGoalContext do
   let numSubgoals := mvarIds.length
   let goals := mvarIds.mapIdx fun i mvarId => { goal with
     mvarId
-    split.trace := { expr := cExpr, i, num := numSubgoals } :: goal.split.trace
+    split.trace := { expr := cExpr, i, num := numSubgoals, source := c.source } :: goal.split.trace
   }
   mkChoice (mkMVar mvarId) goals genNew
   intros genNew

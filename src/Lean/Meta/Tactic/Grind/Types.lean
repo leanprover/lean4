@@ -551,9 +551,10 @@ structure Canon.State where
 
 /-- Trace information for a case split. -/
 structure CaseTrace where
-  expr : Expr
-  i    : Nat
-  num  : Nat
+  expr   : Expr
+  i      : Nat
+  num    : Nat
+  source : SplitSource
   deriving Inhabited
 
 /-- E-matching related fields for the `grind` goal. -/

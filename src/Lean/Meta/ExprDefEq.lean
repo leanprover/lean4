@@ -76,7 +76,7 @@ where
       if !isStructureLike (← getEnv) ctorVal.induct then
         trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
         return false
-      else if (← isDefEq (← inferType a) (← inferType b)) then
+      else if (← checkpointDefEq <| Meta.isExprDefEqAux (← inferType a) (← inferType b)) then
         checkpointDefEq do
           let args := b.getAppArgs
           let params := args[:ctorVal.numParams].toArray
@@ -91,7 +91,7 @@ where
                 -- See comment at `isAbstractedUnassignedMVar`.
                 continue
             trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{j}], {proj} =?= {args[i]}"
-            unless (← isDefEq proj args[i]) do
+            unless (← Meta.isExprDefEqAux proj args[i]) do
               trace[Meta.isDefEq.eta.struct] "failed, unexpected arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]}"
               return false
           return true

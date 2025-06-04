@@ -59,7 +59,7 @@ def elabCheckedNamedError : TermElab := fun stx expType? => do
 
 open Parser Elab Meta Term Command in
 @[builtin_command_elab registerErrorExplanationStx] def elabRegisterErrorExplanation : CommandElab
-| `(registerErrorExplanationStx| $docStx:docComment register_error_explanation%$cmd $nm:ident $t:term) => withRef cmd do
+| `(registerErrorExplanationStx| $docStx:docComment register_error_explanation%$cmd $id:ident $t:term) => withRef cmd do
   unless (← getEnv).contains ``Lean.ErrorExplanation do
     throwError "To use this command, add `import Lean.ErrorExplanation` to the header of this file"
   let tp := mkConst ``ErrorExplanation.Metadata []
@@ -67,37 +67,37 @@ open Parser Elab Meta Term Command in
     let e ← elabTerm t tp
     if e.hasSyntheticSorry then throwAbortTerm
     evalExpr ErrorExplanation.Metadata tp e
-  let name := nm.getId
+  let name := id.getId
   if name.isAnonymous then
-    throwErrorAt nm "Invalid name for error explanation: `{nm}`"
+    throwErrorAt id "Invalid name for error explanation: `{id}`"
+  if name.hasMacroScopes then
+    throwErrorAt id m!"Invalid name `{name}`: Error explanations cannot have inaccessible names. \
+      This error often occurs when an error explanation is generated using a macro."
   if name.getNumParts != 2 then
-    throwErrorAt nm m!"Invalid name `{nm}`: Error explanation names must have two components"
+    throwErrorAt id m!"Invalid name `{name}`: Error explanation names must have two components"
       ++ .note m!"The first component of an error explanation name identifies the package from \
         which the error originates, and the second identifies the error itself."
   validateDocComment docStx
   let doc ← getDocStringText docStx
   if errorExplanationExt.getState (← getEnv) |>.contains name then
-    throwErrorAt nm m!"Cannot add explanation: An error explanation already exists for `{name}`"
-  let codeBlocks ←
-    match ErrorExplanation.processDoc doc with
-    | .ok bs => pure bs
-    | .error (lineOffset, msg) =>
-      let some range := docStx.raw[1].getRange? | throwError msg
-      let fileMap ← getFileMap
-      let ⟨startLine, _⟩ := fileMap.toPosition range.start
-      let errLine := startLine + lineOffset
-      let synth := Syntax.ofRange { start := fileMap.ofPosition ⟨errLine, 0⟩,
-                                    stop  := fileMap.ofPosition ⟨errLine + 1, 0⟩ }
-      throwErrorAt synth msg
+    throwErrorAt id m!"Cannot add explanation: An error explanation already exists for `{name}`"
+  if let .error (lineOffset, msg) := ErrorExplanation.processDoc doc then
+    let some range := docStx.raw[1].getRange? | throwError msg
+    let fileMap ← getFileMap
+    let ⟨startLine, _⟩ := fileMap.toPosition range.start
+    let errLine := startLine + lineOffset
+    let synth := Syntax.ofRange { start := fileMap.ofPosition ⟨errLine, 0⟩,
+                                  stop  := fileMap.ofPosition ⟨errLine + 1, 0⟩ }
+    throwErrorAt synth msg
   let (declLoc? : Option ErrorExplanation.Location) ← do
     let some uri ← Server.documentUriFromModule? (← getMainModule) | pure none
     let map ← getFileMap
-    let start := map.utf8PosToLspPos <| nm.raw.getPos?.getD 0
-    let fin := nm.raw.getTailPos?.map map.utf8PosToLspPos |>.getD start
+    let start := map.utf8PosToLspPos <| id.raw.getPos?.getD 0
+    let fin := id.raw.getTailPos?.map map.utf8PosToLspPos |>.getD start
     pure <| some {
       uri := (uri : String)
       rangeStart := (start.line, start.character)
       rangeEnd := (fin.line, fin.character)
     }
-  modifyEnv (errorExplanationExt.addEntry · (name, { metadata, doc, codeBlocks, declLoc? }))
+  modifyEnv (errorExplanationExt.addEntry · (name, { metadata, doc, declLoc? }))
 | _ => throwUnsupportedSyntax

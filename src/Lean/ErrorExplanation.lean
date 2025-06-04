@@ -15,18 +15,6 @@ structure ErrorExplanation.Metadata where
   deriving FromJson, ToJson
 
 /--
-The set of code blocks appearing in examples in an explanation.
-
-This structure should not be constructed manually; it is auto-generated during elaboration of an
-error explanation.
--/
-structure ErrorExplanation.CodeBlockSet where
-  broken : String
-  brokenOutputs : Array String
-  fixedWithOutputs : Array (String × Array String)
-  deriving Repr
-
-/--
 Describes the location where (the identifier for) an error explanation is declared.
 
 We want to avoid polluting the environment with dummy declarations for error explanations (since,
@@ -46,7 +34,6 @@ the bottom of corresponding error messages thrown using `throwNamedError` or `th
 -/
 structure ErrorExplanation where
   doc : String
-  codeBlocks : Array ErrorExplanation.CodeBlockSet
   metadata : ErrorExplanation.Metadata
   declLoc? : Option ErrorExplanation.Location
 
@@ -178,9 +165,9 @@ where
 private def manyNotD (p : ValidationM α) : ValidationM Unit :=
   discard (many (notFollowedBy p *> skip))
 
-private def parseExplanation : ValidationM (Array ErrorExplanation.CodeBlockSet) := do
+private def parseExplanation : ValidationM Unit := do
   manyNotD examplesHeader
-  (eof *> pure #[]) <|> (examplesHeader *> manyThenEOF singleExample)
+  eof <|> (examplesHeader *> discard (manyThenEOF singleExample))
 where
   examplesHeader := attempt do
     let line ← any
@@ -194,14 +181,13 @@ where
   singleExample := do
     let header ← exampleHeader
     labelingExampleErrors header do
-      let broken ← codeBlock "lean" (some .broken)
-      let brokenOutputs ← many1 (codeBlock "output")
-      let fixedWithOutputs ← many1 do
+      codeBlock "lean" (some .broken)
+      discard <| many1 (codeBlock "output")
+      discard <| many1 do
         let leanBlock ← codeBlock "lean" (some .fixed)
         let outputBlocks ← many (codeBlock "output")
         return (leanBlock, outputBlocks)
       manyNotD exampleEndingHeader
-      return { broken, brokenOutputs, fixedWithOutputs : ErrorExplanation.CodeBlockSet }
 
   exampleHeader := attempt do
     let line ← any
@@ -219,10 +205,10 @@ where
       fail s!"Expected a level-1 or level-2 header, but found `{line}`"
 
   codeBlock (lang : String) (kind? : Option ErrorExplanation.CodeInfo.Kind := none) := attempt do
-    let infoString ← fence
+    let (numTicks, infoString) ← fence
       <|> fail s!"Expected a(n){kind?.map (s!" {·}") |>.getD ""} `{lang}` code block"
-    let code ← many (notFollowedBy fence *> any)
-    let closing ← fence
+    discard <| many (notFollowedBy (fence numTicks) *> any)
+    let (_, closing) ← fence numTicks
       <|> fail s!"Missing closing code fence for block with header '{infoString}'"
     -- Validate code block:
     unless closing.trim.isEmpty do
@@ -240,14 +226,18 @@ where
           (s!" {kind}", actualKindStr)
         | none => ("", "")
       fail s!"Expected a(n){expKind} `{lang}` code block, but found a(n){actKind} `{info.lang}` one"
-    return "\n".intercalate code.toList
 
-  fence := attempt do
+  fence (ticksToClose : Option Nat := none) := attempt do
     let line ← any
-    -- TODO: update this to account for variable-size code fences
-    -- TODO: no longer need to collect code blocks
     if line.startsWith "```" then
-      return line.drop 3
+      let numTicks := line.takeWhile (· == '`') |>.length
+      match ticksToClose with
+      | none => return (numTicks, line.drop numTicks)
+      | some n =>
+        if numTicks == n then
+          return (numTicks, line.drop numTicks)
+        else
+          fail s!"Expected a closing code fence with {n} ticks, but found:\n{line}"
     else
       -- Don't put `line` in backticks here because it might be a partial code fence
       fail s!"Expected a code fence, but found:\n{line}"

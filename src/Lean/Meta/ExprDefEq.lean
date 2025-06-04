@@ -2087,16 +2087,14 @@ private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Un
   | .transient numAssignmentsOld =>
     /-
     If the result is `false`, we cache it at `numAssignmentsOld`.
-    If the result is `true`, and the number of assignments has increased,
-    then we need to instantiate metavariables and cache it at `numAssignmentsNew`
+    If the result is `true`, we check that the number of assignments hasn't increased.
     -/
     if !result then
       modifyDefEqTransientCache numAssignmentsOld fun c => c.insert key result
     else
       let numAssignmentsNew := (← getMCtx).numAssignments
-      let key ← if numAssignmentsOld == numAssignmentsNew then pure key else
-        mkDefEqCacheKey (← instantiateMVars key.lhs) (← instantiateMVars key.rhs)
-      modifyDefEqTransientCache numAssignmentsNew fun c => c.insert key result
+      if numAssignmentsOld == numAssignmentsNew then
+        modifyDefEqTransientCache numAssignmentsNew fun c => c.insert key result
 
 private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
   if backward.isDefEq.lazyWhnfCore.get (← getOptions) then

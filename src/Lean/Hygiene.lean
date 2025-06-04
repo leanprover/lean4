@@ -101,7 +101,7 @@ private partial def sanitizeSyntaxAux : Syntax → StateM NameSanitizerState Syn
   | stx@(Syntax.ident _ _ n _) => do
     let n ← match (← get).userName2Sanitized.find? n with
       | some n' => pure n'
-      | none    => if n.hasMacroScopes then sanitizeName n else pure n
+      | none    => if n.hasMacroScopes then sanitizeName n else return stx
     return mkIdentFrom stx n
   | Syntax.node info k args => Syntax.node info k <$> args.mapM sanitizeSyntaxAux
   | stx => pure stx

@@ -31,7 +31,7 @@ structure Context where
 structure State where
   stxTrav  : Syntax.Traverser
   /-- Textual content of `stack` up to the first whitespace (not enclosed in an escaped ident). We assume that the textual
-  content of `stack` is modified only by `pushText` and `pushLine`, so `leadWord` is adjusted there accordingly. -/
+  content of `stack` is modified only by `push` and `pushWhitespace`, so `leadWord` is adjusted there accordingly. -/
   leadWord : String := ""
   /-- When the `leadWord` is nonempty, whether it is an identifier. Identifiers get space inserted between them. -/
   leadWordIdent : Bool := false
@@ -351,18 +351,19 @@ def parseToken (s : String) : FormatterM ParserState :=
   } ((← read).table) (Parser.mkParserState s)
 
 def pushToken (info : SourceInfo) (tk : String) (ident : Bool) : FormatterM Unit := do
-  match info with
-  | SourceInfo.original _ _ ss _ =>
-    -- preserve non-whitespace content (i.e. comments)
+  let mkLine (hard : Bool) (suppressSoft : Bool := false) : Format :=
+    if hard then f!"\n"
+    else if suppressSoft then Format.nil
+    else Format.line
+
+  if let SourceInfo.original _ _ ss _ := info then
+    -- preserve non-whitespace content (comments)
     let ss' := ss.trim
     if !ss'.isEmpty then
-      let ws := { ss with startPos := ss'.stopPos }
-      if ws.contains '\n' then
-        push s!"\n{ss'}"
-      else
-        push s!"  {ss'}"
-      modify fun st => { st with leadWord := "", leadWordIdent := false }
-  | _ => pure ()
+      let preNL := Substring.contains { ss with stopPos := ss'.startPos } '\n'
+      let postNL := Substring.contains { ss with startPos := ss'.stopPos } '\n'
+      let st ← get
+      pushWhitespace f!"{mkLine preNL}{ss'}{mkLine postNL (st.leadWord == "")}"
 
   let st ← get
   -- If there is no space between `tk` and the next word, see if we should insert a discretionary space.
@@ -400,21 +401,16 @@ def pushToken (info : SourceInfo) (tk : String) (ident : Bool) : FormatterM Unit
       push tk -- preserve special whitespace for tokens like ":=\n"
     modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "", leadWordIdent := ident }
 
-  match info with
-  | SourceInfo.original ss _ _ _ =>
-    -- preserve non-whitespace content (i.e. comments)
+  if let SourceInfo.original ss _ _ _ := info then
+    -- preserve non-whitespace content (comments)
     let ss' := ss.trim
     if !ss'.isEmpty then
-      let ws := { ss with startPos := ss'.stopPos }
-      if ws.contains '\n' then do
-        -- Indentation is automatically increased when entering a category, but comments should be aligned
-        -- with the actual token, so dedent
-        indent (push s!"{ss'}\n") (some ((0:Int) - Std.Format.getIndent (← getOptions)))
-      else
-        pushLine
-        push ss'.toString
-      modify fun st => { st with leadWord := "" }
-  | _ => pure ()
+      let preNL := Substring.contains { ss with stopPos := ss'.startPos } '\n'
+      let postNL := Substring.contains { ss with startPos := ss'.stopPos } '\n'
+      -- Indentation is automatically increased when entering a category, but comments should be aligned
+      -- with the actual token, so dedent
+      indent (indent := some (-Std.Format.getIndent (← getOptions))) <|
+        pushWhitespace f!"{mkLine preNL}{ss'}{mkLine postNL}"
 
 @[combinator_formatter symbolNoAntiquot]
 def symbolNoAntiquot.formatter (sym : String) : Formatter := do

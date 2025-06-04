@@ -1,51 +1,54 @@
 import Std.Internal.Async
+import Std.Sync.Mutex
+
+open Std
 
 open Std.Internal.IO.Async
 
-def wait (ms : Nat) (ref : IO.Ref Nat) (val : Nat) : Async Unit := do
-  ref.modify (· * val)
+def wait (ms : Nat) (ref : Std.Mutex Nat) (val : Nat) : Async Unit := do
+  ref.atomically (·.modify (· * val))
   IO.sleep ms
-  ref.modify (· + val)
+  ref.atomically (·.modify (· + val))
 
 -- Tests
 
 def sequential : Async Unit := do
-  let ref ← IO.mkRef 0
+  let ref ← Std.Mutex.new 0
   wait 200 ref 1
   wait 400 ref 2
-  ref.modify (· * 10)
-  assert! (← ref.get) == 40
+  ref.atomically (·.modify (· * 10))
+  assert! (← ref.atomically (·.get)) == 40
 
-#eval do (← sequential.toRawEIO).wait
+#eval do (← sequential.toEIO).block
 
 def conc : Async Unit := do
-  let ref ← IO.mkRef 0
+  let ref ← Std.Mutex.new 0
   discard <| concurrently (wait 200 ref 1) (wait 400 ref 2)
-  ref.modify (· * 10)
-  assert! (← ref.get) == 30
+  ref.atomically (·.modify (· * 10))
+  assert! (← ref.atomically (·.get)) == 30
 
-#eval do (← conc.toRawEIO).wait
+#eval do (← conc.toEIO).block
 
 def racer : Async Unit := do
-  let ref ← IO.mkRef 0
+  let ref ← Std.Mutex.new 0
   race (wait 200 ref 1) (wait 400 ref 2)
-  ref.modify (· * 10)
-  assert! (← ref.get) == 10
+  ref.atomically (·.modify (· * 10))
+  assert! (← ref.atomically (·.get)) == 10
 
-#eval do (← racer.toRawEIO).wait
+#eval do (← racer.toEIO).block
 
 def concAll : Async Unit := do
-  let ref ← IO.mkRef 0
+  let ref ← Std.Mutex.new 0
   discard <| concurrentlyAll #[(wait 200 ref 1), (wait 400 ref 2)]
-  ref.modify (· * 10)
-  assert! (← ref.get) == 30
+  ref.atomically (·.modify (· * 10))
+  assert! (← ref.atomically (·.get)) == 30
 
-#eval do (← concAll.toRawEIO).wait
+#eval do (← concAll.toEIO).block
 
 def racerAll : Async Unit := do
-  let ref ← IO.mkRef 0
+  let ref ← Std.Mutex.new 0
   raceAll #[(wait 200 ref 1), (wait 400 ref 2)]
-  ref.modify (· * 10)
-  assert! (← ref.get) == 10
+  ref.atomically (·.modify (· * 10))
+  assert! (← ref.atomically (·.get)) == 10
 
-#eval do (← racerAll.toRawEIO).wait
+#eval do (← racerAll.toEIO).block

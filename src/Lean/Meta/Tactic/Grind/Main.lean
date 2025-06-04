@@ -76,8 +76,8 @@ def GrindM.run (x : GrindM α) (params : Params) (fallback : Fallback) : MetaM �
   let simpMethods := Simp.mkMethods simprocs discharge? (wellBehavedDischarge := true)
   let simp := params.norm
   let config := params.config
-  x (← mkMethods fallback).toMethodsRef { config, simpMethods, simp }
-    |>.run' { scState, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr }
+  x (← mkMethods fallback).toMethodsRef { config, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr }
+    |>.run' { scState }
 
 private def mkCleanState (mvarId : MVarId) (params : Params) : MetaM Clean.State := mvarId.withContext do
   unless params.config.clean do return {}

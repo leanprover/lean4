@@ -24,6 +24,17 @@ variable [Hashable α] [DecidableEq α]
 
 -- prove that blastClz does the same as clzAuxRec
 
+theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
+    (curr : Nat) (hcurr : curr ≤ w) (s : AIG.RefVec aig curr) :
+    ⟦(go aig x curr acc).aig,
+     (go aig x curr acc).vec.get idx (by sorry),
+     assign
+    ⟧
+      =
+    (BitVec.)
+
+
+
 @[simp]
 theorem denote_blastClz (aig : AIG α) (target : RefVec aig w)
     (assign : α → Bool) :
@@ -33,6 +44,7 @@ theorem denote_blastClz (aig : AIG α) (target : RefVec aig w)
         ⟦aig, target.get (w - 1 - idx) (by omega), assign⟧ := by
   intro idx hidx
   simp [blastClz, AIG.RefVec.get]
+
   sorry
 
 

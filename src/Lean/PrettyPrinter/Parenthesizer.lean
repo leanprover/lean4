@@ -175,7 +175,7 @@ unsafe def mkCategoryParenthesizerAttribute : IO (KeyedDeclsAttribute CategoryPa
 Register a parenthesizer for a parser combinator.
 
 `@[combinator_parenthesizer c]` registers a declaration of type `Lean.PrettyPrinter.Parenthesizer`
-for the `Parser` declaration `c`. Note that, unlike with @[parenthesizer], this is not a node kind
+for the `Parser` declaration `c`. Note that, unlike with `@[parenthesizer]`, this is not a node kind
 since combinators usually do not introduce their own node kinds. The tagged declaration may
 optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is
 replaced with `Parenthesizer` in the parameter types.

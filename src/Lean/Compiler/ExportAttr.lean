@@ -22,7 +22,7 @@ Exports a function under the provided unmangled symbol name. This can be used to
 functions from other programming languages like C.
 
 Example:
-```lean
+```
 @[export lean_color_from_map]
 def colorValue (properties : @& Std.HashMap String String) : UInt32 :=
   match properties["color"]? with
@@ -31,7 +31,7 @@ def colorValue (properties : @& Std.HashMap String String) : UInt32 :=
   | some "blue" => 0x0000ff
   | _ => -1
 ```
-
+C code:
 ```c
 #include <lean/lean.h>
 

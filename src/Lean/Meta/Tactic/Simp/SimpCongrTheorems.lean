@@ -131,7 +131,7 @@ def Option.pbind (o : Option α) (f : (a : α) → o = some a → Option β) : O
 theorem Option.pbind_congr
     {o o' : Option α} (ho : o = o') -- equality for first parameter
     {f : (a : α) → o = some a → Option β} {f' : (a : α) → o' = some a → Option β}
-    (hf : ∀ (a : α) (h : o' = some a), f a (ho.trans h) = f' a h) : -- equality for second parameter
+    (hf : ∀ (a : α) (h : _), f a (ho.trans h) = f' a h) : -- equality for second parameter
     o.pbind f = o'.pbind f' := -- conclusion: equality of the whole application
   ...
 ```

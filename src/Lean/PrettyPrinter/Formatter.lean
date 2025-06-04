@@ -89,7 +89,7 @@ unsafe def mkFormatterAttribute : IO (KeyedDeclsAttribute Formatter) :=
 Registers a formatter for a parser combinator.
 
 `@[combinator_formatter c]` registers a declaration of type `Lean.PrettyPrinter.Formatter` for the
-`Parser` declaration `c`. Note that, unlike with @[formatter], this is not a node kind since
+`Parser` declaration `c`. Note that, unlike with `@[formatter]`, this is not a node kind since
 combinators usually do not introduce their own node kinds. The tagged declaration may optionally
 accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced with
 `Formatter` in the parameter types.

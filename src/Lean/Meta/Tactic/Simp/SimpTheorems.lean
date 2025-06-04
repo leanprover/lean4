@@ -456,7 +456,10 @@ private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool)
     if inv || (← shouldPreprocess type) then
       let mut r := #[]
       for (val, type) in (← preprocess val type inv (isGlobal := true)) do
-        let auxName ← mkAuxLemma (kind? := `_simp) cinfo.levelParams type val (inferRfl := true)
+        -- Encode the original declaration name in the name of the auxiliarly lemma
+        -- for easier debugging.
+        let kind := `_simp ++ privateToUserName declName
+        let auxName ← mkAuxLemma (kind? := kind) cinfo.levelParams type val (inferRfl := true)
         r := r.push <| (← withoutExporting do mkSimpTheoremCore origin (mkConst auxName us) #[] (mkConst auxName) post prio (noIndexAtArgs := false))
       return r
     else

@@ -82,14 +82,15 @@ if the proof is `rfl`, essentially reproducing the behavior before the introduct
 attribute. This function infers the `defeq` attribute based on the declaration value.
 -/
 def inferDefEqAttr (declName : Name) : MetaM Unit := do
-  let info ← getConstInfo declName
-  let isRfl ←
-    if let some value := info.value? then
-      isRflProofCore info.type value
-    else
-      pure false
-  if isRfl then
-    -- TODO: We could run `validateDefEqAttr` here as a sanity check, once
-    -- equational lemmas are exported iff their definition's bodies are exposed.
-    -- validateDefEqAttr declName -- just a sanity-check
-    defeqAttr.setTag declName
+  withExporting (isExporting := !isPrivateName declName) do
+    let info ← getConstInfo declName
+    let isRfl ←
+      if let some value := info.value? then
+        isRflProofCore info.type value
+      else
+        pure false
+    if isRfl then
+      -- TODO: We could run `validateDefEqAttr` here as a sanity check, once
+      -- equational lemmas are exported iff their definition's bodies are exposed.
+      -- validateDefEqAttr declName -- just a sanity-check
+      defeqAttr.setTag declName

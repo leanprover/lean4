@@ -10,6 +10,16 @@ import Lean.PrettyPrinter
 namespace Lean
 open Meta
 
+/--
+There are defeq theorems that only hold at transparency `.all`, but also others that hold
+(from the kernel's point of view) but where the defeq checker here will run out of cycles.
+
+So we try the more careful first.
+-/
+private def isDefEqCareful (e1 e2 : Expr) : MetaM Bool := do
+  withOptions (smartUnfolding.set · false) <| do
+    isDefEq e1 e2 <||> (withTransparency .all (isDefEq e1 e2))
+
 def validateDefEqAttr (declName : Name) : AttrM Unit := do
   let info ← getConstVal declName
   MetaM.run' do
@@ -18,14 +28,14 @@ def validateDefEqAttr (declName : Name) : AttrM Unit := do
       -- NB: The warning wording should work both for explicit uses of `@[defeq]` as well as the implicit `:= rfl`.
       let some (_, lhs, rhs) := type.eq? |
         throwError m!"Not a definitional equality: the conclusion should be an equality, but is{inlineExpr type}"
-      let ok ← withOptions (smartUnfolding.set · false) <| isDefEq lhs rhs
+      let ok ← isDefEqCareful lhs rhs
       unless ok do
         let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) do
           let (lhs, rhs) ← addPPExplicitToExposeDiff lhs rhs
           let mut msg := m!"Not a definitional equality: the left-hand side{indentExpr lhs}\nis \
             not definitionally equal to the right-hand side{indentExpr rhs}"
           if (← getEnv).isExporting then
-            let okPrivately ← withoutExporting <| withOptions (smartUnfolding.set · false) <| isDefEq lhs rhs
+            let okPrivately ← withoutExporting <| isDefEqCareful lhs rhs
             if okPrivately then
               msg := msg ++ .note m!"This theorem is exported from the current module. \
                 This requires that all definitions that need to be unfolded to prove this \
@@ -89,5 +99,9 @@ def inferDefEqAttr (declName : Name) : MetaM Unit := do
       else
         pure false
     if isRfl then
-      validateDefEqAttr declName -- sanity-check: would we have accepted `@[defeq]` on this?
+      try
+        validateDefEqAttr declName -- sanity-check: would we have accepted `@[defeq]` on this?
+      catch e =>
+        logError m!"Theorem {declName} has a `rfl`-proof and was thus inferred to be `@[defeq]`, \
+          but validating that attribute failed:{indentD e.toMessageData}"
       defeqAttr.setTag declName

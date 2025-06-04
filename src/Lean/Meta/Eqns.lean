@@ -153,12 +153,12 @@ private def shouldGenerateEqnThms (declName : Name) : MetaM Bool := do
   else
     return false
 
+/-- A mapping from equational theorem to the declaration it was derived from.  -/
 structure EqnsExtState where
-  map    : PHashMap Name (Array Name) := {}
-  mapInv : PHashMap Name Name := {} -- TODO: delete?
+  mapInv : PHashMap Name Name := {}
   deriving Inhabited
 
-/- We generate the equations on demand. -/
+/-- A mapping from equational theorem to the declaration it was derived from.  -/
 builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
   registerEnvExtension (pure {}) (asyncMode := .local)
 
@@ -199,7 +199,6 @@ Stores in the `eqnsExt` environment extension that `eqThms` are the equational t
 -/
 private def registerEqnThms (declName : Name) (eqThms : Array Name) : CoreM Unit := do
   modifyEnv fun env => eqnsExt.modifyState env fun s => { s with
-    map := s.map.insert declName eqThms
     mapInv := eqThms.foldl (init := s.mapInv) fun mapInv eqThm => mapInv.insert eqThm declName
   }
 
@@ -223,10 +222,6 @@ private partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array N
     return none
 
 private def getEqnsFor?Core (declName : Name) : MetaM (Option (Array Name)) := withLCtx {} {} do
-  -- TODO: Do we need this? Now that the name of the equation can be private
-  -- sharing these across modules breaks expectations of the ReservedNameAction.
-  -- if let some eqs := eqnsExt.getState (← getEnv) |>.map.find? declName then
-  --   return some eqs
   if !(← shouldGenerateEqnThms declName) then
     return none
   if let some eqs ← alreadyGenerated? declName then

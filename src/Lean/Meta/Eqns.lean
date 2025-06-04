@@ -212,7 +212,7 @@ private partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array N
   if env.contains eq1 then
     let rec loop (idx : Nat) (eqs : Array Name) : MetaM (Array Name) := do
       let nextEq := mkEqLikeNameFor env declName s!"{eqnThmSuffixBasePrefix}{idx+1}"
-      if env.contains (skipRealize := false) nextEq then
+      if env.containsOnBranch nextEq then
         loop (idx+1) (eqs.push nextEq)
       else
         return eqs

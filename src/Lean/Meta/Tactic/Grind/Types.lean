@@ -74,6 +74,11 @@ structure Context where
   user with "false-alarms". If the instantiation fails, we produce a more informative issue anyways.
   -/
   reportMVarIssue : Bool := true
+  trueExpr   : Expr
+  falseExpr  : Expr
+  natZExpr   : Expr
+  btrueExpr  : Expr
+  bfalseExpr : Expr
 
 /-- Key for the congruence theorem cache. -/
 structure CongrTheoremCacheKey where
@@ -125,11 +130,6 @@ structure State where
   -/
   congrThms  : PHashMap CongrTheoremCacheKey CongrTheorem := {}
   simp       : Simp.State := {}
-  trueExpr   : Expr
-  falseExpr  : Expr
-  natZExpr   : Expr
-  btrueExpr  : Expr
-  bfalseExpr : Expr
   /--
   Used to generate trace messages of the for `[grind] working on <tag>`,
   and implement the macro `trace_goal`.
@@ -167,23 +167,23 @@ def getConfig : GrindM Grind.Config :=
 
 /-- Returns the internalized `True` constant.  -/
 def getTrueExpr : GrindM Expr := do
-  return (← get).trueExpr
+  return (← readThe Context).trueExpr
 
 /-- Returns the internalized `False` constant.  -/
 def getFalseExpr : GrindM Expr := do
-  return (← get).falseExpr
+  return (← readThe Context).falseExpr
 
 /-- Returns the internalized `Bool.true`.  -/
 def getBoolTrueExpr : GrindM Expr := do
-  return (← get).btrueExpr
+  return (← readThe Context).btrueExpr
 
 /-- Returns the internalized `Bool.false`.  -/
 def getBoolFalseExpr : GrindM Expr := do
-  return (← get).bfalseExpr
+  return (← readThe Context).bfalseExpr
 
 /-- Returns the internalized `0 : Nat` numeral.  -/
 def getNatZeroExpr : GrindM Expr := do
-  return (← get).natZExpr
+  return (← readThe Context).natZExpr
 
 def cheapCasesOnly : GrindM Bool :=
   return (← readThe Context).cheapCases

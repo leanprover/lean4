@@ -35,12 +35,20 @@ builtin_initialize manualRoot : String ←
         pure root
   return if r.endsWith "/" then r else r ++ "/"
 
+/--
+The manual domain for error explanations.
+
+We expose this because it is used to populate the URL of the error message description widget.
+-/
+def errorExplanationManualDomain :=
+  "Manual.errorExplanation"
+
 -- TODO: we may wish to make this more general for domains that require additional arguments
 /-- Maps `lean-manual` URL paths to their corresponding manual domains. -/
 private def domainMap : Std.HashMap String String :=
   Std.HashMap.ofList [
     ("section", "Verso.Genre.Manual.section"),
-    ("errorExplanation", "Manual.errorExplanation")
+    ("errorExplanation", errorExplanationManualDomain)
   ]
 
 /--
@@ -115,16 +123,16 @@ where
     | [] | [""] =>
       throw "Missing documentation type"
     | kind :: args =>
-      if let [s] := args then
-        if s.isEmpty then
-          throw s!"Empty section ID"
-        if let some domain := domainMap.get? kind then
+      if let some domain := domainMap.get? kind then
+        if let [s] := args then
+          if s.isEmpty then
+            throw s!"Empty {kind} ID"
           return s!"find/?domain={domain}&name={s}"
         else
-          let acceptableKinds := ", ".intercalate <| domainMap.toList.map fun (k, _) => s!"'{k}'"
-          throw s!"Unknown documentation type '{kind}'. Expected one of the following:\n{acceptableKinds}"
+          throw s!"Expected one item after `{kind}`, but got {args}"
       else
-        throw s!"Expected one item after 'section', but got {args}"
+        let acceptableKinds := ", ".intercalate <| domainMap.toList.map fun (k, _) => s!"`{k}`"
+        throw s!"Unknown documentation type `{kind}`. Expected one of the following: {acceptableKinds}"
 
 
 /--

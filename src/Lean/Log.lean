@@ -83,8 +83,7 @@ export default function ({ code, explanationUrl }) {
 private def MessageData.appendDescriptionWidgetIfNamed (msg : MessageData) : MessageData :=
   match errorNameOfKind? msg.kind with
   | some errorName =>
-    -- TODO: unify with manual link rewriting in docstrings
-    let url := manualRoot ++ s!"find/?domain=Manual.errorExplanation&name={errorName}"
+    let url := manualRoot ++ s!"find/?domain={errorExplanationManualDomain}&name={errorName}"
     let inst := {
       id := ``errorDescriptionWidget
       javascriptHash := errorDescriptionWidget.javascriptHash
@@ -93,8 +92,9 @@ private def MessageData.appendDescriptionWidgetIfNamed (msg : MessageData) : Mes
         explanationUrl: $url
       }
     }
-    msg.appendPreservingKind <|
-      .ofWidget inst m!"\n\nError code: {errorName}\nView explanation: {url}"
+    -- Note: we do not generate corresponding message data for the widget because it pollutes
+    -- console output
+    msg.appendPreservingKind <| .ofWidget inst .nil
   | none => msg
 
 /--

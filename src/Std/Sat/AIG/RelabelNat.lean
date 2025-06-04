@@ -395,7 +395,7 @@ def relabelNat (entry : Entrypoint α) : Entrypoint Nat :=
 /--
 `relabelNat` preserves unsatisfiablility.
 -/
-theorem relabelNat_unsat_iff {entry : Entrypoint α} [Nonempty α] :
+theorem relabelNat_unsat_iff {entry : Entrypoint α} :
     (entry.relabelNat).Unsat ↔ entry.Unsat:= by
   simp only [Unsat, relabelNat]
   rw [AIG.relabelNat_unsat_iff]

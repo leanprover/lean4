@@ -102,8 +102,29 @@ theorem dite_val {n : Nat} {c : Prop} [Decidable c] {x y : Fin n} :
     (if c then x else y).val = if c then x.val else y.val := by
   by_cases c <;> simp [*]
 
-instance (n : Nat) [NeZero n] : NatCast (Fin n) where
+namespace NatCast
+
+/--
+This is not a global instance, but may be activated locally via `open Fin.NatCast in ...`.
+
+This is not an instance because the `binop%` elaborator assumes that
+there are no non-trivial coercion loops,
+but this introduces a coercion from `Nat` to `Fin n` and back.
+
+Non-trivial loops lead to undesirable and counterintuitive elaboration behavior.
+For example, for `x : Fin k` and `n : Nat`,
+it causes `x < n` to be elaborated as `x < ↑n` rather than `↑x < n`,
+silently introducing wraparound arithmetic.
+
+Note: as of 2025-06-03, Mathlib has such a coercion for `Fin n` anyway!
+-/
+@[expose]
+def instNatCast (n : Nat) [NeZero n] : NatCast (Fin n) where
   natCast a := Fin.ofNat n a
+
+attribute [scoped instance] instNatCast
+
+end NatCast
 
 @[expose]
 def intCast [NeZero n] (a : Int) : Fin n :=
@@ -112,9 +133,22 @@ def intCast [NeZero n] (a : Int) : Fin n :=
   else
     - Fin.ofNat n a.natAbs
 
-instance (n : Nat) [NeZero n] : IntCast (Fin n) where
+namespace IntCast
+
+/--
+This is not a global instance, but may be activated locally via `open Fin.IntCast in ...`.
+
+See the doc-string for `Fin.NatCast.instNatCast` for more details.
+-/
+@[expose]
+def instIntCast (n : Nat) [NeZero n] : IntCast (Fin n) where
   intCast := Fin.intCast
 
+attribute [scoped instance] instIntCast
+
+end IntCast
+
+open IntCast in
 theorem intCast_def {n : Nat} [NeZero n] (x : Int) :
     (x : Fin n) = if 0 ≤ x then Fin.ofNat n x.natAbs else -Fin.ofNat n x.natAbs := rfl
 

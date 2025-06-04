@@ -13,26 +13,25 @@ open Meta
 def validateDefEqAttr (declName : Name) : AttrM Unit := do
   let info ← getConstVal declName
   MetaM.run' do
-    withTransparency .all do
-      forallTelescopeReducing info.type fun _ type => do
-        let type ← whnf type
-        -- NB: The warning wording should work both for explicit uses of `@[defeq]` as well as the implicit `:= rfl`.
-        let some (_, lhs, rhs) := type.eq? |
-          throwError m!"Not a definitional equality: the conclusion should be an equality, but is{inlineExpr type}"
-        let ok ← withOptions (smartUnfolding.set · false) <| isDefEq lhs rhs
-        unless ok do
-          let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) do
-            let (lhs, rhs) ← addPPExplicitToExposeDiff lhs rhs
-            let mut msg := m!"Not a definitional equality: the left-hand side{indentExpr lhs}\nis \
-              not definitionally equal to the right-hand side{indentExpr rhs}"
-            if (← getEnv).isExporting then
-              let okPrivately ← withoutExporting <| withOptions (smartUnfolding.set · false) <| isDefEq lhs rhs
-              if okPrivately then
-                msg := msg ++ .note m!"This theorem is exported from the current module. \
-                  This requires that all definitions that need to be unfolded to prove this \
-                  theorem must be exposed."
-            pure msg
-          throwError explanation
+    forallTelescopeReducing info.type fun _ type => do
+      let type ← whnf type
+      -- NB: The warning wording should work both for explicit uses of `@[defeq]` as well as the implicit `:= rfl`.
+      let some (_, lhs, rhs) := type.eq? |
+        throwError m!"Not a definitional equality: the conclusion should be an equality, but is{inlineExpr type}"
+      let ok ← withOptions (smartUnfolding.set · false) <| isDefEq lhs rhs
+      unless ok do
+        let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) do
+          let (lhs, rhs) ← addPPExplicitToExposeDiff lhs rhs
+          let mut msg := m!"Not a definitional equality: the left-hand side{indentExpr lhs}\nis \
+            not definitionally equal to the right-hand side{indentExpr rhs}"
+          if (← getEnv).isExporting then
+            let okPrivately ← withoutExporting <| withOptions (smartUnfolding.set · false) <| isDefEq lhs rhs
+            if okPrivately then
+              msg := msg ++ .note m!"This theorem is exported from the current module. \
+                This requires that all definitions that need to be unfolded to prove this \
+                theorem must be exposed."
+          pure msg
+        throwError explanation
 
 /--
 Marks the theorem as a definitional equality.

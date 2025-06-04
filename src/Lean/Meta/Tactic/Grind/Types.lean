@@ -115,6 +115,8 @@ structure Counters where
   thm  : PHashMap Origin Nat := {}
   /-- Number of times a `cases` has been performed on an inductive type/predicate -/
   case : PHashMap Name Nat := {}
+  /-- Number of applications per function symbol. This information is only collected if `set_option diagnostics true` -/
+  apps : PHashMap Name Nat := {}
   deriving Inhabited
 
 private def emptySC : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCommon.State.mk _
@@ -197,16 +199,17 @@ Returns `true` if `declName` is the name of a `match` equation or a `match` cong
 def isMatchEqLikeDeclName (declName : Name) : CoreM Bool := do
   return (← isMatchCongrEqDeclName declName) || Match.isMatchEqnTheorem (← getEnv) declName
 
+private def incCounter [Hashable α] [BEq α] (s : PHashMap α Nat) (k : α) : PHashMap α Nat :=
+  if let some n := s.find? k then
+      s.insert k (n+1)
+    else
+      s.insert k 1
+
 def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
   if (← getConfig).trace then
     unless (← isMatchEqLikeDeclName thm.origin.key) do
       modify fun s => { s with trace.thms := s.trace.thms.insert { origin := thm.origin, kind := thm.kind } }
-  modify fun s => { s with
-    counters.thm := if let some n := s.counters.thm.find? thm.origin then
-      s.counters.thm.insert thm.origin (n+1)
-    else
-      s.counters.thm.insert thm.origin 1
-  }
+  modify fun s => { s with counters.thm := incCounter s.counters.thm thm.origin }
 
 def saveCases (declName : Name) (eager : Bool) : GrindM Unit := do
   if (← getConfig).trace then
@@ -214,12 +217,12 @@ def saveCases (declName : Name) (eager : Bool) : GrindM Unit := do
       modify fun s => { s with trace.eagerCases := s.trace.eagerCases.insert declName }
     else
       modify fun s => { s with trace.cases := s.trace.cases.insert declName }
-  modify fun s => { s with
-    counters.case := if let some n := s.counters.case.find? declName then
-      s.counters.case.insert declName (n+1)
-    else
-      s.counters.case.insert declName 1
-  }
+  modify fun s => { s with counters.case := incCounter s.counters.case declName }
+
+def saveAppOf (h : HeadIndex) : GrindM Unit := do
+  if (← isDiagnosticsEnabled) then
+    let .const declName := h | return ()
+    modify fun s => { s with counters.apps := incCounter s.counters.apps declName }
 
 @[inline] def getMethodsRef : GrindM MethodsRef :=
   read

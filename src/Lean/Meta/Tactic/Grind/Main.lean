@@ -132,6 +132,8 @@ private def mkGlobalDiag (cs : Counters) (simp : Simp.Stats) : MetaM (Option Mes
     msgs := msgs.push <| (← countersToMessageData "E-Matching instances" `thm thms)
   unless cases.isEmpty do
     msgs := msgs.push <| (← countersToMessageData "Cases instances" `cases cases)
+  unless cs.apps.isEmpty do
+    msgs := msgs.push <| (← countersToMessageData "Applications" `app cs.apps.toList.toArray)
   let simpMsgs ← Simp.mkDiagMessages simp.diag
   unless simpMsgs.isEmpty do
     msgs := msgs.push <| .trace { cls := `grind} "Simplifier" simpMsgs

@@ -35,7 +35,7 @@ def validateDefEqAttr (declName : Name) : AttrM Unit := do
           throwError explanation
 
 /--
-Markes the theorem as a definitional equality.
+Marks the theorem as a definitional equality.
 
 The theorem must be an equality that holds by `rfl`. This allows `dsimp` to use this theorem
 when rewriting.

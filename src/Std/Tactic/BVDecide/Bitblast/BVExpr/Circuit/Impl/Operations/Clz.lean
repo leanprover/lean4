@@ -28,12 +28,6 @@ namespace bitblast
 
 variable [Hashable α] [DecidableEq α]
 
--- def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
---   if hn : n = 0 then BitVec.ofNat w w
---     else if x.getLsbD n then BitVec.ofNat w (w - 1 - n)
---       else clzAuxRec x (n - 1)
-
-
 def blastClz (aig : AIG α) (x : AIG.RefVec aig w) :
     AIG.RefVecEntry α w :=
   let res := blastConst aig (w - 1)
@@ -52,16 +46,7 @@ where
       have := AIG.LawfulVecOperator.le_size (f := blastConst) ..
       let x : AIG.RefVec aig w := x.cast this
       let acc : AIG.RefVec aig w := acc.cast this
-      -- x.getLsbD (curr)
-      let res := BVPred.blastGetLsbD aig ⟨x, curr⟩
-      let aig := res.aig
-      let lsb := res.ref
-      have := AIG.LawfulOperator.le_size (f := BVPred.blastGetLsbD) ..
-      let x : AIG.RefVec aig w := x.cast this
-      let acc : AIG.RefVec aig w := acc.cast this
-      let lhs := lhs.cast this
-      -- ite x.getLsbD (curr)
-      let res := AIG.RefVec.ite aig ⟨lsb, lhs, acc⟩
+      let res := AIG.RefVec.ite aig ⟨x.get curr hc, lhs, acc⟩
       let aig := res.aig
       have := AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite) ..
       let x : AIG.RefVec aig w := x.cast this

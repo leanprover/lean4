@@ -1959,19 +1959,38 @@ theorem shiftLeft_add_eq_shiftLeft_or {x y : BitVec w} :
 /--
   Count the number of leading zeroes downward from the 'n'th bit to the '0'th bit for the bitblaster.
 -/
-def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
-  if hn : n = 0 then BitVec.ofNat w w
-    else if x.getLsbD n then BitVec.ofNat w (w - 1 - n)
-      else clzAuxRec x (n - 1)
+-- def clzAuxLookup {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
+--   if x.getLsbD n then BitVec.ofNat w (w - 1 - n)
+--   else
+--     if hn : n = 0 then BitVec.ofNat w w
+--     else clzAuxLookup x (n - 1)
+
+def clzAuxLookup {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
+  if x.getLsbD n then BitVec.ofNat w (w - 1 - n)
+  else
+    match n with
+    | 0 => BitVec.ofNat w w
+    | n' + 1 =>  clzAuxLookup x n'
+
+
+def clzAuxLookup' {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
+  match n with
+  | 0 => if x.getLsbD 0 then BitVec.ofNat w (w - 1)
+        else BitVec.ofNat w w
+  | n' + 1 => if x.getLsbD n then BitVec.ofNat w (w - 1 - n)
+            else clzAuxLookup' x n'
 
 theorem clzAuxRec_zero_eq (x : BitVec w) :
-  clzAuxRec x 0 = if x.getLsbD 0 then 0#w else 1#w := sorry
+    clzAuxLookup x 0 = if x.getLsbD 0 then BitVec.ofNat w (w - 1)
+        else BitVec.ofNat w w := rfl
+
 
 theorem clzAuxRec_succ_eq (x : BitVec w) (n : Nat) :
-    clzAuxRec x (n + 1) =  if x.getLsbD (n + 1)  then 0#w
-  else 1#w + clzAuxRec x n := sorry
+    clzAuxLookup' x (n + 1) =
+      if x.getLsbD (n + 1) then BitVec.ofNat w (w - 1 - (n + 1))
+            else clzAuxLookup' x n := by rfl
 
-theorem clzAuxRec_eq_clz (x : BitVec w) :
-    clzAuxRec x (w - 1) = x.clz := by sorry
+-- thm1: x.clz = x.clzLookup (w - 1)
+-- thm1: x.clz = x.clzLookup' (w - 1)
 
 end BitVec

@@ -161,7 +161,7 @@ def ofArray (ls : Array (Literal (PosFin n))) : Option (DefaultClause n) :=
   | none => none
   | some map =>
     have mapnodup := map.distinct_keys
-    some ⟨map.toList, by grind, by grind⟩
+    some { clause := map.toList }
 
 @[simp]
 theorem ofArray.foldl_folder_none_eq_none : List.foldl ofArray.folder none ls = none := by

@@ -21,8 +21,7 @@ run_meta show MetaM Unit from do
 
 
 run_meta show MetaM Unit from do
-  let ctx ← readThe Core.Context
-  let s ← getThe Core.State
-  let (_, s, _) ← MetaM.toIO (α := Unit) (ctxCore := ctx) (sCore := s) do
-    logNamedError Lean.DependsOnNoncomputable "foo"
-  discard <| Language.reportMessages s.messages {}
+  logNamedError Lean.DependsOnNoncomputable "function is noncomputable"
+  logNamedError Lean.InductiveParamMismatch "inductive parameter mismatch"
+  discard <| Language.reportMessages (← getThe Core.State).messages {}
+  Core.resetMessageLog

@@ -48,17 +48,19 @@ builtin_initialize implementedByAttr : ParametricAttribute Name ← registerPara
   getParam := fun declName stx => do
     let decl ← getConstInfo declName
     let fnNameStx ← Attribute.Builtin.getIdent stx
-    let fnName ← Elab.realizeGlobalConstNoOverloadWithInfo fnNameStx
-    let fnDecl ← getConstVal fnName
-    unless decl.levelParams.length == fnDecl.levelParams.length do
-      throwError "invalid 'implemented_by' argument '{fnName}', '{fnName}' has {fnDecl.levelParams.length} universe level parameter(s), but '{declName}' has {decl.levelParams.length}"
-    let declType := decl.type
-    let fnType ← Core.instantiateTypeLevelParams fnDecl (decl.levelParams.map mkLevelParam)
-    unless declType == fnType do
-      throwError "invalid 'implemented_by' argument '{fnName}', '{fnName}' has type{indentExpr fnType}\nbut '{declName}' has type{indentExpr declType}"
-    if decl.name == fnDecl.name then
-      throwError "invalid 'implemented_by' argument '{fnName}', function cannot be implemented by itself"
-    return fnName
+    -- IR is (currently) exported always, so access to private decls is fine here.
+    withoutExporting do
+      let fnName ← Elab.realizeGlobalConstNoOverloadWithInfo fnNameStx
+      let fnDecl ← getConstVal fnName
+      unless decl.levelParams.length == fnDecl.levelParams.length do
+        throwError "invalid 'implemented_by' argument '{fnName}', '{fnName}' has {fnDecl.levelParams.length} universe level parameter(s), but '{declName}' has {decl.levelParams.length}"
+      let declType := decl.type
+      let fnType ← Core.instantiateTypeLevelParams fnDecl (decl.levelParams.map mkLevelParam)
+      unless declType == fnType do
+        throwError "invalid 'implemented_by' argument '{fnName}', '{fnName}' has type{indentExpr fnType}\nbut '{declName}' has type{indentExpr declType}"
+      if decl.name == fnDecl.name then
+        throwError "invalid 'implemented_by' argument '{fnName}', function cannot be implemented by itself"
+      return fnName
 }
 
 @[export lean_get_implemented_by]

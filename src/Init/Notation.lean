@@ -377,6 +377,8 @@ recommended_spelling "not" for "~~~" in [Complement.complement, «term~~~_»]
 @[inherit_doc] infix:50 " > "  => GT.gt
 @[inherit_doc] infix:50 " = "  => Eq
 @[inherit_doc] infix:50 " == " => BEq.beq
+@[inherit_doc] infix:50 " ≍ "  => HEq
+
 /-!
   Remark: the infix commands above ensure a delaborator is generated for each relations.
   We redefine the macros below to be able to use the auxiliary `binrel%` elaboration helper for binary relations.
@@ -430,7 +432,7 @@ recommended_spelling "not" for "!" in [not, «term!_»]
 notation:50 a:50 " ∉ " b:50 => ¬ (a ∈ b)
 
 recommended_spelling "mem" for "∈" in [Membership.mem, «term_∈_»]
-recommended_spelling "not_mem" for "∉" in [«term_∉_»]
+recommended_spelling "notMem" for "∉" in [«term_∉_»]
 
 @[inherit_doc] infixr:67 " :: " => List.cons
 @[inherit_doc] infixr:100 " <$> " => Functor.map
@@ -529,8 +531,21 @@ is interpreted as `f (g x)` rather than `(f g) x`.
 syntax:min term " <| " term:min : term
 
 macro_rules
-  | `($f $args* <| $a) => `($f $args* $a)
-  | `($f <| $a) => `($f $a)
+  | `($f $args* <| $a) =>
+    if a.raw.isMissing then
+      -- Ensures that `$f $args* <|` is elaborated as `$f $args*`, not `$f $args* sorry`.
+      -- For the latter, the elaborator produces `TermInfo` where the missing argument has already
+      -- been applied as `sorry`, which inhibits some language server functionality that relies
+      -- on this `TermInfo` (e.g. signature help).
+      -- The parser will still produce an error for `$f $args* <|` in this case.
+      `($f $args*)
+    else
+      `($f $args* $a)
+  | `($f <| $a) =>
+    if a.raw.isMissing then
+      `($f)
+    else
+      `($f $a)
 
 /--
 Haskell-like pipe operator `|>`. `x |> f` means the same as the same as `f x`,
@@ -551,8 +566,21 @@ is interpreted as `f (g x)` rather than `(f g) x`.
 syntax:min term atomic(" $" ws) term:min : term
 
 macro_rules
-  | `($f $args* $ $a) => `($f $args* $a)
-  | `($f $ $a) => `($f $a)
+  | `($f $args* $ $a) =>
+    if a.raw.isMissing then
+      -- Ensures that `$f $args* $` is elaborated as `$f $args*`, not `$f $args* sorry`.
+      -- For the latter, the elaborator produces `TermInfo` where the missing argument has already
+      -- been applied as `sorry`, which inhibits some language server functionality that relies
+      -- on this `TermInfo` (e.g. signature help).
+      -- The parser will still produce an error for `$f $args* <|` in this case.
+      `($f $args*)
+    else
+      `($f $args* $a)
+  | `($f $ $a) =>
+    if a.raw.isMissing then
+      `($f)
+    else
+      `($f $a)
 
 @[inherit_doc Subtype] syntax "{ " withoutPosition(ident (" : " term)? " // " term) " }" : term
 

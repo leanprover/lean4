@@ -69,7 +69,7 @@ theorem isEqv_eq_decide (xs ys : Array α) (r) :
     simpa [isEqv_iff_rel] using h'
 
 @[simp, grind =] theorem isEqv_toList [BEq α] (xs ys : Array α) : (xs.toList.isEqv ys.toList r) = (xs.isEqv ys r) := by
-  simp [isEqv_eq_decide, List.isEqv_eq_decide]
+  simp [isEqv_eq_decide, List.isEqv_eq_decide, Array.size]
 
 theorem eq_of_isEqv [DecidableEq α] (xs ys : Array α) (h : Array.isEqv xs ys (fun x y => x = y)) : xs = ys := by
   have ⟨h, h'⟩ := rel_of_isEqv h
@@ -100,7 +100,7 @@ theorem beq_eq_decide [BEq α] (xs ys : Array α) :
   simp [BEq.beq, isEqv_eq_decide]
 
 @[simp, grind =] theorem beq_toList [BEq α] (xs ys : Array α) : (xs.toList == ys.toList) = (xs == ys) := by
-  simp [beq_eq_decide, List.beq_eq_decide]
+  simp [beq_eq_decide, List.beq_eq_decide, Array.size]
 
 end Array
 

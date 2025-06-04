@@ -63,7 +63,7 @@ partial def shouldExtractLetValue (isRoot : Bool) (v : LetValue) : M Bool := do
   | .lit (.nat v) =>
     -- The old compiler's implementation used the runtime's `is_scalar` function, which
     -- introduces a dependency on the architecture used by the compiler.
-    return v >= Nat.pow 2 63
+    return !isRoot || v >= Nat.pow 2 63
   | .lit _ | .erased => return !isRoot
   | .const name _ args =>
     if (← read).sccDecls.any (·.name == name) then
@@ -148,8 +148,13 @@ partial def Decl.extractClosed (decl : Decl) (sccDecls : Array Decl) : CompilerM
 def extractClosed : Pass where
   phase := .mono
   name := `extractClosed
-  run := fun decls =>
-    decls.foldlM (init := #[]) fun newDecls decl => return newDecls ++ (← decl.extractClosed decls)
+  run := fun decls => do
+    -- Reuse the option from the old compiler for now.
+    if (← getOptions).getBool `compiler.extract_closed true then
+      decls.foldlM (init := #[]) fun newDecls decl =>
+        return newDecls ++ (← decl.extractClosed decls)
+    else
+      return decls
 
 builtin_initialize registerTraceClass `Compiler.extractClosed (inherited := true)
 

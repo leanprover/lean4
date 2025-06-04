@@ -144,20 +144,30 @@ Syntax for trying to clear the values of all local definitions.
 -/
 syntax clearValueStar := "*"
 /--
+Syntax for creating a hypothesis before clearing values.
+In `(hx : x = _)`, the value of `x` is unified with `_`.
+-/
+syntax clearValueHyp := "(" binderIdent " : " term:51 " = " term:51 ")"
+/--
+Argument for the `clear_value` tactic.
+-/
+syntax clearValueArg := clearValueStar <|> clearValueHyp <|> term:max
+/--
 * `clear_value x...` clears the values of the given local definitions.
   A local definition `x : α := v` becomes a hypothesis `x : α`.
 
-* `clear_value x with h` adds a hypothesis `h : x = v` before clearing the value of `x`.
-  This is short for `have h : x = v := rfl; clear_value x`, with the benefit of not needing to mention `v`.
+* `clear_value (h : x = _)` adds a hypothesis `h : x = v` before clearing the value of `x`.
+  This is short for `have h : x = v := rfl; clear_value x`.
+  Any value definitionally equal to `v` can be used in place of `_`.
 
 * `clear_value *` clears values of all hypotheses that can be cleared.
   Fails if none can be cleared.
 
 These syntaxes can be combined. For example, `clear_value x y *` ensures that `x` and `y` are cleared
-while trying to clear all other local definitions, and `clear_value x y * with hx` does the same,
-but adds the `hx : x = v` hypothesis first. Having a `with` binding associated to `*` is not allowed.
+while trying to clear all other local definitions,
+and `clear_value (hx : x = _) y * with hx` does the same while first adding the `hx : x = v` hypothesis.
 -/
-syntax (name := clearValue) "clear_value" (ppSpace colGt (clearValueStar <|> term:max))+ (" with" (ppSpace colGt binderIdent)+)? : tactic
+syntax (name := clearValue) "clear_value" (ppSpace colGt clearValueArg)+ : tactic
 
 /--
 `subst x...` substitutes each hypothesis `x` with a definition found in the local context,

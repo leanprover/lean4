@@ -316,7 +316,7 @@ private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Ar
 open Language in
 def evalAlts (elimInfo : ElimInfo) (alts : Array Alt) (optPreTac : Syntax) (altStxs? : Option (Array Syntax))
     (initialInfo : Info) (tacStx : Syntax)
-    (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[])
+    (numEqs : Nat := 0) (generalized : Array FVarId := #[]) (toClear : Array FVarId := #[])
     (toTag : Array (Ident × FVarId) := #[]) : TacticM Unit := do
   let hasAlts := altStxs?.isSome
   if hasAlts then
@@ -421,9 +421,17 @@ where
       let mut (_, altMVarId) ← altMVarId.introN numFields
       let some (altMVarId', subst) ← Cases.unifyEqs? numEqs altMVarId {}
         | continue  -- alternative is not reachable
+      altMVarId.withContext do
+        for x in subst.domain do
+          if let .fvar y := subst.get x then
+            if let some decl ← x.findDecl? then
+              Elab.pushInfoLeaf (.ofFVarAliasInfo { id := y, baseId := x, userName := decl.userName })
       altMVarId ← if info.provesMotive then
-        (_, altMVarId) ← altMVarId'.introNP numGeneralized
-        pure altMVarId
+        let (generalized', altMVarId') ← altMVarId'.introNP generalized.size
+        altMVarId'.withContext do
+          for x in generalized, y in generalized' do
+            Elab.pushInfoLeaf (.ofFVarAliasInfo { id := y, baseId := x, userName := ← y.getUserName })
+        pure altMVarId'
       else
         pure altMVarId'
       for fvarId in toClear do
@@ -462,9 +470,17 @@ where
         throwError "Alternative '{altName}' is not needed"
     let some (altMVarId', subst) ← Cases.unifyEqs? numEqs altMVarId {}
       | unusedAlt
+    altMVarId.withContext do
+      for x in subst.domain do
+        if let .fvar y := subst.get x then
+          if let some decl ← x.findDecl? then
+            Elab.pushInfoLeaf (.ofFVarAliasInfo { id := y, baseId := x, userName := decl.userName })
     altMVarId ← if info.provesMotive then
-      (_, altMVarId) ← altMVarId'.introNP numGeneralized
-      pure altMVarId
+      let (generalized', altMVarId') ← altMVarId'.introNP generalized.size
+      altMVarId'.withContext do
+        for x in generalized, y in generalized' do
+          Elab.pushInfoLeaf (.ofFVarAliasInfo { id := y, baseId := x, userName := ← y.getUserName })
+      pure altMVarId'
     else
       pure altMVarId'
     for fvarId in toClear do
@@ -526,7 +542,7 @@ private def getUserGeneralizingFVarIds (stx : Syntax) : TacticM (Array FVarId) :
       getFVarIds vars
 
 -- process `generalizingVars` subterm of induction Syntax `stx`.
-private def generalizeVars (mvarId : MVarId) (stx : Syntax) (targets : Array Expr) : TacticM (Nat × MVarId) :=
+private def generalizeVars (mvarId : MVarId) (stx : Syntax) (targets : Array Expr) : TacticM (Array FVarId × MVarId) :=
   mvarId.withContext do
     let userFVarIds ← getUserGeneralizingFVarIds stx
     let forbidden ← mkGeneralizationForbiddenSet targets
@@ -539,7 +555,7 @@ private def generalizeVars (mvarId : MVarId) (stx : Syntax) (targets : Array Exp
       s := s.insert userFVarId
     let fvarIds ← sortFVarIds s.toArray
     let (fvarIds, mvarId') ← mvarId.revert fvarIds
-    return (fvarIds.size, mvarId')
+    return (fvarIds, mvarId')
 
 /--
 Given `inductionAlts` of the form
@@ -865,7 +881,7 @@ private def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Ar
   mvarId.withContext do
     checkInductionTargets targets
     let targetFVarIds := targets.map (·.fvarId!)
-    let (n, mvarId) ← generalizeVars mvarId stx targets
+    let (generalized, mvarId) ← generalizeVars mvarId stx targets
     mvarId.withContext do
       let result ← withRef stx[1] do -- use target position as reference
         ElimApp.mkElimApp elimInfo targets tag
@@ -879,7 +895,7 @@ private def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Ar
         let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
         mvarId.assign result.elimApp
         ElimApp.evalAlts elimInfo result.alts optPreTac alts? initInfo stx[0]
-          (numGeneralized := n) (toClear := targetFVarIds) (toTag := toTag)
+          (generalized := generalized) (toClear := targetFVarIds) (toTag := toTag)
         appendGoals result.others.toList
 
 @[builtin_tactic Lean.Parser.Tactic.induction, builtin_incremental]

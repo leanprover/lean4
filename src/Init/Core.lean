@@ -43,14 +43,14 @@ and `flip (·<·)` is the greater-than relation.
 theorem Function.comp_def {α β δ} (f : β → δ) (g : α → β) : f ∘ g = fun x => f (g x) := rfl
 
 @[simp] theorem Function.const_comp {f : α → β} {c : γ} :
-    (Function.const β c ∘ f) = Function.const α c := by
+    (Function.const β c ∘ f) = Function.const α c :=
   rfl
 @[simp] theorem Function.comp_const {f : β → γ} {b : β} :
-    (f ∘ Function.const α b) = Function.const α (f b) := by
+    (f ∘ Function.const α b) = Function.const α (f b) :=
   rfl
-@[simp] theorem Function.true_comp {f : α → β} : ((fun _ => true) ∘ f) = fun _ => true := by
+@[simp] theorem Function.true_comp {f : α → β} : ((fun _ => true) ∘ f) = fun _ => true :=
   rfl
-@[simp] theorem Function.false_comp {f : α → β} : ((fun _ => false) ∘ f) = fun _ => false := by
+@[simp] theorem Function.false_comp {f : α → β} : ((fun _ => false) ∘ f) = fun _ => false :=
   rfl
 
 @[simp] theorem Function.comp_id (f : α → β) : f ∘ id = f := rfl
@@ -95,7 +95,8 @@ structure Thunk (α : Type u) : Type u where
   -/
   mk ::
   /-- Extract the getter function out of a thunk. Use `Thunk.get` instead. -/
-  private fn : Unit → α
+  -- The field is public so as to allow computation through it.
+  fn : Unit → α
 
 attribute [extern "lean_mk_thunk"] Thunk.mk
 
@@ -116,6 +117,10 @@ Computed values are cached, so the value is not recomputed.
 -- NOTE: we use `Thunk.get` instead of `Thunk.fn` as the accessor primitive as the latter has an additional `Unit` argument
 @[extern "lean_thunk_get_own"] protected def Thunk.get (x : @& Thunk α) : α :=
   x.fn ()
+
+-- Ensure `Thunk.fn` is still computable even if it shouldn't be accessed directly.
+@[inline] private def Thunk.fnImpl (x : Thunk α) : Unit → α := fun _ => x.get
+@[csimp] private theorem Thunk.fn_eq_fnImpl : @Thunk.fn = @Thunk.fnImpl := rfl
 
 /--
 Constructs a new thunk that forces `x` and then applies `x` to the result. Upon forcing, the result
@@ -897,43 +902,43 @@ section
 variable {α β φ : Sort u} {a a' : α} {b b' : β} {c : φ}
 
 /-- Non-dependent recursor for `HEq` -/
-noncomputable def HEq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} (m : motive a) {β : Sort u2} {b : β} (h : HEq a b) : motive b :=
+noncomputable def HEq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} (m : motive a) {β : Sort u2} {b : β} (h : a ≍ b) : motive b :=
   h.rec m
 
 /-- `HEq.ndrec` variant -/
-noncomputable def HEq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} {β : Sort u2} {b : β} (h : HEq a b) (m : motive a) : motive b :=
+noncomputable def HEq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} {β : Sort u2} {b : β} (h : a ≍ b) (m : motive a) : motive b :=
   h.rec m
 
 /-- `HEq.ndrec` variant -/
-noncomputable def HEq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : HEq a b) (h₂ : p a) : p b :=
+noncomputable def HEq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : a ≍ b) (h₂ : p a) : p b :=
   eq_of_heq h₁ ▸ h₂
 
 /-- Substitution with heterogeneous equality. -/
-theorem HEq.subst {p : (T : Sort u) → T → Prop} (h₁ : HEq a b) (h₂ : p α a) : p β b :=
+theorem HEq.subst {p : (T : Sort u) → T → Prop} (h₁ : a ≍ b) (h₂ : p α a) : p β b :=
   HEq.ndrecOn h₁ h₂
 
 /-- Heterogeneous equality is symmetric. -/
-@[symm] theorem HEq.symm (h : HEq a b) : HEq b a :=
+@[symm] theorem HEq.symm (h : a ≍ b) : b ≍ a :=
   h.rec (HEq.refl a)
 
 /-- Propositionally equal terms are also heterogeneously equal. -/
-theorem heq_of_eq (h : a = a') : HEq a a' :=
+theorem heq_of_eq (h : a = a') : a ≍ a' :=
   Eq.subst h (HEq.refl a)
 
 /-- Heterogeneous equality is transitive. -/
-theorem HEq.trans (h₁ : HEq a b) (h₂ : HEq b c) : HEq a c :=
+theorem HEq.trans (h₁ : a ≍ b) (h₂ : b ≍ c) : a ≍ c :=
   HEq.subst h₂ h₁
 
 /-- Heterogeneous equality precomposes with propositional equality. -/
-theorem heq_of_heq_of_eq (h₁ : HEq a b) (h₂ : b = b') : HEq a b' :=
+theorem heq_of_heq_of_eq (h₁ : a ≍ b) (h₂ : b = b') : a ≍ b' :=
   HEq.trans h₁ (heq_of_eq h₂)
 
 /-- Heterogeneous equality postcomposes with propositional equality. -/
-theorem heq_of_eq_of_heq (h₁ : a = a') (h₂ : HEq a' b) : HEq a b :=
+theorem heq_of_eq_of_heq (h₁ : a = a') (h₂ : a' ≍ b) : a ≍ b :=
   HEq.trans (heq_of_eq h₁) h₂
 
 /-- If two terms are heterogeneously equal then their types are propositionally equal. -/
-theorem type_eq_of_heq (h : HEq a b) : α = β :=
+theorem type_eq_of_heq (h : a ≍ b) : α = β :=
   h.rec (Eq.refl α)
 
 end
@@ -942,7 +947,7 @@ end
 Rewriting inside `φ` using `Eq.recOn` yields a term that's heterogeneously equal to the original
 term.
 -/
-theorem eqRec_heq {α : Sort u} {φ : α → Sort v} {a a' : α} : (h : a = a') → (p : φ a) → HEq (Eq.recOn (motive := fun x _ => φ x) h p) p
+theorem eqRec_heq {α : Sort u} {φ : α → Sort v} {a a' : α} : (h : a = a') → (p : φ a) → Eq.recOn (motive := fun x _ => φ x) h p ≍ p
   | rfl, p => HEq.refl p
 
 /--
@@ -950,8 +955,8 @@ Heterogeneous equality with an `Eq.rec` application on the left is equivalent to
 equality on the original term.
 -/
 theorem eqRec_heq_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
-    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : motive b h} :
-    HEq (@Eq.rec α a motive refl b h) c ↔ HEq refl c :=
+    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : motive b h}
+    : @Eq.rec α a motive refl b h ≍ c ↔ refl ≍ c :=
   h.rec (fun _ => ⟨id, id⟩) c
 
 /--
@@ -960,7 +965,7 @@ equality on the original term.
 -/
 theorem heq_eqRec_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
     {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : motive b h} :
-    HEq c (@Eq.rec α a motive refl b h) ↔ HEq c refl :=
+    c ≍ @Eq.rec α a motive refl b h ↔ c ≍ refl :=
   h.rec (fun _ => ⟨id, id⟩) c
 
 /--
@@ -977,7 +982,7 @@ theorem apply_eqRec {α : Sort u} {a : α} (motive : (b : α) → a = b → Sort
 If casting a term with `Eq.rec` to another type makes it equal to some other term, then the two
 terms are heterogeneously equal.
 -/
-theorem heq_of_eqRec_eq {α β : Sort u} {a : α} {b : β} (h₁ : α = β) (h₂ : Eq.rec (motive := fun α _ => α) a h₁ = b) : HEq a b := by
+theorem heq_of_eqRec_eq {α β : Sort u} {a : α} {b : β} (h₁ : α = β) (h₂ : Eq.rec (motive := fun α _ => α) a h₁ = b) : a ≍ b := by
   subst h₁
   apply heq_of_eq
   exact h₂
@@ -985,7 +990,7 @@ theorem heq_of_eqRec_eq {α β : Sort u} {a : α} {b : β} (h₁ : α = β) (h�
 /--
 The result of casting a term with `cast` is heterogeneously equal to the original term.
 -/
-theorem cast_heq {α β : Sort u} : (h : α = β) → (a : α) → HEq (cast h a) a
+theorem cast_heq {α β : Sort u} : (h : α = β) → (a : α) → cast h a ≍ a
   | rfl, a => HEq.refl a
 
 variable {a b c d : Prop}
@@ -1014,8 +1019,8 @@ instance : Trans Iff Iff Iff where
 theorem Eq.comm {a b : α} : a = b ↔ b = a := Iff.intro Eq.symm Eq.symm
 theorem eq_comm {a b : α} : a = b ↔ b = a := Eq.comm
 
-theorem HEq.comm {a : α} {b : β} : HEq a b ↔ HEq b a := Iff.intro HEq.symm HEq.symm
-theorem heq_comm {a : α} {b : β} : HEq a b ↔ HEq b a := HEq.comm
+theorem HEq.comm {a : α} {b : β} : a ≍ b ↔ b ≍ a := Iff.intro HEq.symm HEq.symm
+theorem heq_comm {a : α} {b : β} : a ≍ b ↔ b ≍ a := HEq.comm
 
 @[symm] theorem Iff.symm (h : a ↔ b) : b ↔ a := Iff.intro h.mpr h.mp
 theorem Iff.comm : (a ↔ b) ↔ (b ↔ a) := Iff.intro Iff.symm Iff.symm
@@ -1047,11 +1052,6 @@ theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
   match h with
   | isFalse _ => rfl
   | isTrue h  => False.elim h
-
-set_option linter.missingDocs false in
-@[deprecated decide_true (since := "2024-11-05")] abbrev decide_true_eq_true := decide_true
-set_option linter.missingDocs false in
-@[deprecated decide_false (since := "2024-11-05")] abbrev decide_false_eq_false := decide_false
 
 /-- Similar to `decide`, but uses an explicit instance -/
 @[inline] def toBoolUsing {p : Prop} (d : Decidable p) : Bool :=
@@ -1239,7 +1239,7 @@ protected theorem Subsingleton.elim {α : Sort u} [h : Subsingleton α] : (a b :
 If two types are equal and one of them is a subsingleton, then all of their elements are
 [heterogeneously equal](lean-manual://section/HEq).
 -/
-protected theorem Subsingleton.helim {α β : Sort u} [h₁ : Subsingleton α] (h₂ : α = β) (a : α) (b : β) : HEq a b := by
+protected theorem Subsingleton.helim {α β : Sort u} [h₁ : Subsingleton α] (h₂ : α = β) (a : α) (b : β) : a ≍ b := by
   subst h₂
   apply heq_of_eq
   apply Subsingleton.elim
@@ -1690,7 +1690,7 @@ theorem true_iff_false : (True ↔ False) ↔ False := iff_false_intro (·.mp  T
 theorem false_iff_true : (False ↔ True) ↔ False := iff_false_intro (·.mpr True.intro)
 
 theorem iff_not_self : ¬(a ↔ ¬a) | H => let f h := H.1 h h; f (H.2 f)
-theorem heq_self_iff_true (a : α) : HEq a a ↔ True := iff_true_intro HEq.rfl
+theorem heq_self_iff_true (a : α) : a ≍ a ↔ True := iff_true_intro HEq.rfl
 
 /-! ## implies -/
 
@@ -1890,7 +1890,7 @@ a structure.
 protected abbrev hrecOn
     (q : Quot r)
     (f : (a : α) → motive (Quot.mk r a))
-    (c : (a b : α) → (p : r a b) → HEq (f a) (f b))
+    (c : (a b : α) → (p : r a b) → f a ≍ f b)
     : motive q :=
   Quot.recOn q f fun a b p => eq_of_heq (eqRec_heq_iff.mpr (c a b p))
 
@@ -2088,7 +2088,7 @@ a structure.
 protected abbrev hrecOn
     (q : Quotient s)
     (f : (a : α) → motive (Quotient.mk s a))
-    (c : (a b : α) → (p : a ≈ b) → HEq (f a) (f b))
+    (c : (a b : α) → (p : a ≈ b) → f a ≍ f b)
     : motive q :=
   Quot.hrecOn q f c
 end

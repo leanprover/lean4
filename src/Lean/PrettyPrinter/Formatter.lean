@@ -98,6 +98,7 @@ unsafe builtin_initialize combinatorFormatterAttribute : ParserCompiler.Combinat
   ParserCompiler.registerCombinatorAttribute
     `combinator_formatter
     "Register a formatter for a parser combinator"
+    `Lean.PrettyPrinter.mkCombinatorFormatterAttribute -- TODO (bootstrapping): remove if possible
 
 namespace Formatter
 
@@ -105,7 +106,7 @@ open Lean.Core
 open Lean.Parser
 
 def throwBacktrack {α} : FormatterM α :=
-throw $ Exception.internal backtrackExceptionId
+  throw $ Exception.internal backtrackExceptionId
 
 instance : Syntax.MonadTraverser FormatterM := ⟨{
   get       := State.stxTrav <$> get,

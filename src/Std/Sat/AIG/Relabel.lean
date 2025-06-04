@@ -128,17 +128,17 @@ theorem unsat_relabel {aig : AIG α} (r : α → β) {hidx} :
   specialize h (assign ∘ r)
   simp [h]
 
-theorem relabel_unsat_iff_of_not_Nonempty {aigα : AIG α}
+theorem relabel_unsat_iff_of_not_Nonempty {aig : AIG α}
     {r : α → β} {hidx1} {hidx2}
-    (hαNonempty : ¬ Nonempty α) :
-    (aigα.relabel r).UnsatAt idx invert hidx1 ↔ aigα.UnsatAt idx invert hidx2 := by
+    (hNonempty : ¬ Nonempty α) :
+    (aig.relabel r).UnsatAt idx invert hidx1 ↔ aig.UnsatAt idx invert hidx2 := by
   constructor
   · intro hα assignα
     let assignβ : β → Bool := fun b => false
     specialize hα assignβ
     have hAssignα : assignα  = assignβ ∘ r := by
       ext a
-      apply hαNonempty (Nonempty.intro a) |>.elim
+      apply hNonempty (Nonempty.intro a) |>.elim
     rw [hAssignα, ← denote_relabel, ← hα]
   · apply unsat_relabel
 

@@ -352,9 +352,9 @@ theorem relabelNat_unsat_iff_of_NonEmpty [Nonempty α] {aig : AIG α} {hidx1} {h
 -/
 theorem relabelNat_unsat_iff {aig : AIG α} {hidx1} {hidx2} :
     (aig.relabelNat).UnsatAt idx invert hidx1 ↔ aig.UnsatAt idx invert hidx2 := by
-  by_cases hαNonempty : Nonempty α
+  by_cases hNonempty : Nonempty α
   · apply relabelNat_unsat_iff_of_NonEmpty
-  · apply relabel_unsat_iff_of_not_Nonempty hαNonempty
+  · apply relabel_unsat_iff_of_not_Nonempty hNonempty
 
 namespace Entrypoint
 

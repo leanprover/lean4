@@ -1374,6 +1374,15 @@ def callLeanInitialize (builder : LLVM.Builder llvmctx) : M llvmctx Unit := do
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let _ ← LLVM.buildCall2 builder fnty fn #[]
 
+def callLeanSetupLibUV (builder : LLVM.Builder llvmctx) (argc argv : LLVM.Value llvmctx) : M llvmctx Unit := do
+  let fnName :=  "lean_setup_libuv"
+  let intTy ← LLVM.intTypeInContext llvmctx 32
+  let charPtrPtrTy ← LLVM.pointerType (← LLVM.pointerType (← LLVM.intTypeInContext llvmctx 8))
+  let argtys := #[intTy, charPtrPtrTy]
+  let fnty ← LLVM.functionType charPtrPtrTy argtys
+  let fn ← getOrCreateFunctionPrototype (← getLLVMModule) intTy fnName argtys
+  let _ ← LLVM.buildCall2 builder fnty fn #[argc, argv]
+
 def callLeanInitializeRuntimeModule (builder : LLVM.Builder llvmctx) : M llvmctx Unit := do
   let fnName :=  "lean_initialize_runtime_module"
   let retty ← LLVM.voidType llvmctx
@@ -1479,6 +1488,11 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
   let inslot ← buildPrologueAlloca builder (← LLVM.pointerType inty) "in"
   let resty ← LLVM.voidPtrType llvmctx
   let res ← buildPrologueAlloca builder (← LLVM.pointerType resty) "res"
+
+  let argcval ← LLVM.getParam main 0
+  let argvval ← LLVM.getParam main 1
+  callLeanSetupLibUV builder argcval argvval
+
   if usesLeanAPI then callLeanInitialize builder else callLeanInitializeRuntimeModule builder
     /- We disable panic messages because they do not mesh well with extracted closed terms.
         See issue #534. We can remove this workaround after we implement issue #467. -/

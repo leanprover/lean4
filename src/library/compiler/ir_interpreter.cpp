@@ -885,6 +885,7 @@ private:
             throw exception(sstream() << "cannot evaluate `[init]` declaration '" << fn << "' in the same module");
         }
         push_frame(e.m_decl, m_arg_stack.size());
+        lean_always_assert(decl_tag(e.m_decl) == decl_kind::Fun);
         value r = eval_body(decl_fun_body(e.m_decl));
         pop_frame(r, decl_type(e.m_decl));
         if (!type_is_scalar(t)) {

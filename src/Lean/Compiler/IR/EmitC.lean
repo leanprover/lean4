@@ -416,11 +416,14 @@ def emitSimpleExternalCall (f : String) (ps : Array Param) (ys : Array Arg) : M 
   emitLn ");"
   pure ()
 
-def emitExternCall (f : FunId) (ps : Array Param) (extData : ExternAttrData) (ys : Array Arg) : M Unit :=
+def emitExternCall (f : FunId) (ps : Array Param) (extData : ExternAttrData) (ys : Array Arg) : M Unit := do
   match getExternEntryFor extData `c with
   | some (ExternEntry.standard _ extFn) => emitSimpleExternalCall extFn ps ys
   | some (ExternEntry.inline _ pat)     => do emit (expandExternPattern pat (toStringArgs ys)); emitLn ";"
-  | some (ExternEntry.foreign _ extFn)  => emitSimpleExternalCall extFn ps ys
+  | some (ExternEntry.opaque _)  =>
+    emitCName f
+    if ys.size > 0 then emit "("; emitArgs ys; emit ")"
+    emitLn ";"
   | _ => throw s!"failed to emit extern application '{f}'"
 
 def emitFullApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do

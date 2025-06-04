@@ -325,10 +325,7 @@ theorem relabelNat'_fst_eq_relabelNat {aig : AIG α} : aig.relabelNat'.fst = aig
 theorem relabelNat_size_eq_size {aig : AIG α} : aig.relabelNat.decls.size = aig.decls.size := by
   simp [relabelNat, relabelNat']
 
-/--
-`relabelNat` preserves unsatisfiablility.
--/
-theorem relabelNat_unsat_iff [Nonempty α] {aig : AIG α} {hidx1} {hidx2} :
+theorem relabelNat_unsat_iff_of_NonEmpty [Nonempty α] {aig : AIG α} {hidx1} {hidx2} :
     (aig.relabelNat).UnsatAt idx invert hidx1 ↔ aig.UnsatAt idx invert hidx2 := by
   dsimp only [relabelNat, relabelNat']
   rw [relabel_unsat_iff]
@@ -349,6 +346,15 @@ theorem relabelNat_unsat_iff [Nonempty α] {aig : AIG α} {hidx1} {hidx2} :
     exfalso
     rcases RelabelNat.State.ofAIG_find_some x hx with ⟨n, hn⟩
     simp [hcase] at hn
+
+/--
+`relabelNat` preserves unsatisfiablility.
+-/
+theorem relabelNat_unsat_iff {aig : AIG α} {hidx1} {hidx2} :
+    (aig.relabelNat).UnsatAt idx invert hidx1 ↔ aig.UnsatAt idx invert hidx2 := by
+  by_cases hNonempty : Nonempty α
+  · apply relabelNat_unsat_iff_of_NonEmpty
+  · apply relabel_unsat_iff_of_not_Nonempty hNonempty
 
 namespace Entrypoint
 
@@ -375,7 +381,7 @@ def relabelNat (entry : Entrypoint α) : Entrypoint Nat :=
 /--
 `relabelNat` preserves unsatisfiablility.
 -/
-theorem relabelNat_unsat_iff {entry : Entrypoint α} [Nonempty α] :
+theorem relabelNat_unsat_iff {entry : Entrypoint α} :
     (entry.relabelNat).Unsat ↔ entry.Unsat:= by
   simp only [Unsat, relabelNat]
   rw [AIG.relabelNat_unsat_iff]

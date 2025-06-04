@@ -68,7 +68,7 @@ private theorem neg_neg [NeZero n] (a : Fin n) : - - a = a := by
    have : NeZero (n - (a + 1)) := ⟨by omega⟩
    rw [Nat.self_sub_mod, Nat.sub_sub_eq_min, Nat.min_eq_right (Nat.le_of_lt h)]
 
-attribute [local instance] Fin.instNatCast Fin.instIntCast in
+open Fin.NatCast Fin.IntCast in
 theorem intCast_neg [NeZero n] (i : Int) : Int.cast (R := Fin n) (-i) = - Int.cast (R := Fin n) i := by
   simp [Int.cast, IntCast.intCast, Fin.intCast]
   split <;> split <;> try omega
@@ -76,8 +76,8 @@ theorem intCast_neg [NeZero n] (i : Int) : Int.cast (R := Fin n) (-i) = - Int.ca
   next => simp [Fin.neg_neg]
 
 instance (n : Nat) [NeZero n] : CommRing (Fin n) where
-  natCast := Fin.instNatCast n
-  intCast := Fin.instIntCast n
+  natCast := Fin.NatCast.instNatCast n
+  intCast := Fin.IntCast.instIntCast n
   add_assoc := Fin.add_assoc
   add_comm := Fin.add_comm
   add_zero := Fin.add_zero

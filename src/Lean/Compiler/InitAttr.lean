@@ -112,7 +112,7 @@ The `initialize` command should usually be preferred over using this attribute d
 builtin_initialize regularInitAttr : ParametricAttribute Name ← registerInitAttr `init true
 
 /--
-Registers an builtin initialization procedure.
+Registers a builtin initialization procedure.
 
 This attribute is used internally to define builtin initialization procedures for bootstrapping and
 should not be used otherwise.

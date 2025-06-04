@@ -18,24 +18,33 @@ private def isValidCppName : Name → Bool
   | _                 => false
 
 /--
-Instructs the compiler to use a specific name for a function in compiled code.
+Exports a function under the provided unmangled symbol name. This can be used to refer to Lean
+functions from other programming languages like C.
 
-This feature can be used in combination with `@[extern]` to allow for cyclic references
-between files:
+Example:
+```lean
+@[export lean_color_from_map]
+def colorValue (properties : @& Std.HashMap String String) : UInt32 :=
+  match properties["color"]? with
+  | some "red" => 0xff0000
+  | some "green" => 0x00ff00
+  | some "blue" => 0x0000ff
+  | _ => -1
 ```
--- File1.lean
-@[extern "my_foo_function"]
-opaque fooFn : Nat → Nat
 
-def bar (x : Nat) : Nat := ... -- can use `foo` indirectly as `fooFn`
+```c
+#include <lean/lean.h>
 
--- File2.lean
-import File1
+uint32_t lean_color_from_map(b_lean_obj_arg properties);
 
-@[export my_foo_function]
-def foo (x : Nat) : Nat := ... -- can use `bar`
+void fill_rectangle_from_map(b_lean_obj_arg properties) {
+    uint32_t color = lean_color_from_map(properties);
+    // ...
+}
 ```
-Note however that this only works in compiled code.
+
+The opposite of this is `@[extern]`, which allows Lean functions to refer to functions from other
+programming languages.
 -/
 @[builtin_doc]
 builtin_initialize exportAttr : ParametricAttribute Name ←

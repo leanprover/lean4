@@ -25,6 +25,7 @@ open Language
 builtin_initialize
   registerTraceClass `Meta.instantiateMVars
 
+-- TODO: this documentation is not shown
 /--
 Makes the bodies of definitions available to importing modules.
 
@@ -40,6 +41,16 @@ private def init :=
       -- Attribute will be filtered out by `MutualDef`
       throwError "Invalid attribute 'expose', must be used when declaring `def`"
   }
+
+/--
+Negates a previous `@[expose]` attribute. This is useful for declaring definitions that shouldn't.
+be exposed in a section tagged `@[expose]`
+
+This only has an effect if both the module the definition is defined in and the importing module
+have the module system enabled.
+-/
+@[builtin_init, builtin_doc]
+private def init2 :=
   registerBuiltinAttribute {
     name := `no_expose
     descr := "(module system) Negate previous `[expose]` attribute."

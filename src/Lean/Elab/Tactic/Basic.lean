@@ -139,7 +139,7 @@ directly.
 -/
 @[builtin_doc]
 unsafe def mkTacticAttribute : IO (KeyedDeclsAttribute Tactic) :=
-  mkElabAttribute Tactic `builtin_tactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic" `Lean.Elab.Tactic.tacticElabAttribute
+  mkElabAttribute Tactic `builtin_tactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic"
 
 @[builtin_init mkTacticAttribute] opaque tacticElabAttribute : KeyedDeclsAttribute Tactic
 

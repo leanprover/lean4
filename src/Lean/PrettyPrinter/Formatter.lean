@@ -61,7 +61,7 @@ abbrev Formatter := FormatterM Unit
 /--
 Registers a formatter for a parser.
 
-@[formatter k] registers a declaration of type `Lean.PrettyPrinter.Formatter` to be used for
+`@[formatter k]` registers a declaration of type `Lean.PrettyPrinter.Formatter` to be used for
 formatting syntax of kind `k`.
 -/
 @[builtin_doc]
@@ -82,13 +82,13 @@ unsafe def mkFormatterAttribute : IO (KeyedDeclsAttribute Formatter) :=
       if (← getEnv).contains id && (← Elab.getInfoState).enabled then
         Elab.addConstInfo stx id none
       pure id
-  } `Lean.PrettyPrinter.formatterAttribute
+  }
 @[builtin_init mkFormatterAttribute] opaque formatterAttribute : KeyedDeclsAttribute Formatter
 
 /--
 Registers a formatter for a parser combinator.
 
-@[combinator_formatter c] registers a declaration of type `Lean.PrettyPrinter.Formatter` for the
+`@[combinator_formatter c]` registers a declaration of type `Lean.PrettyPrinter.Formatter` for the
 `Parser` declaration `c`. Note that, unlike with @[formatter], this is not a node kind since
 combinators usually do not introduce their own node kinds. The tagged declaration may optionally
 accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced with

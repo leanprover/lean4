@@ -39,7 +39,7 @@ register_builtin_option quotPrecheck.allowSectionVars : Bool := {
 /--
 Registers a double backtick syntax quotation pre-check.
 
-@[quot_precheck k] registers a declaration of type `Lean.Elab.Term.Quotation.Precheck` for the
+`@[quot_precheck k]` registers a declaration of type `Lean.Elab.Term.Quotation.Precheck` for the
 syntax node kind `k`. It should implement eager name analysis on the passed syntax by throwing an
 exception on unbound identifiers, and calling `precheck` recursively on nested terms, potentially
 with an extended local context (`withNewLocal`). Macros without registered precheck hook are
@@ -52,7 +52,7 @@ unsafe def mkPrecheckAttribute : IO (KeyedDeclsAttribute Precheck) :=
     name := `quot_precheck,
     descr    := "Register a double backtick syntax quotation pre-check.",
     valueTypeName := ``Precheck
-  } `Lean.Elab.Term.Quotation.precheckAttribute
+  }
 @[builtin_init mkPrecheckAttribute] opaque precheckAttribute : KeyedDeclsAttribute Precheck
 
 partial def precheck : Precheck := fun stx => do

@@ -117,7 +117,7 @@ instance : OrElse (ParenthesizerM α) := ⟨ParenthesizerM.orElse⟩
 /--
 Registers a parenthesizer for a parser.
 
-@[parenthesizer k] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` to be used
+`@[parenthesizer k]` registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` to be used
 for parenthesizing syntax of kind `k`.
 -/
 @[builtin_doc]
@@ -138,7 +138,7 @@ unsafe def mkParenthesizerAttribute : IO (KeyedDeclsAttribute Parenthesizer) :=
       if (← getEnv).contains id && (← Elab.getInfoState).enabled then
         Elab.addConstInfo stx id none
       pure id
-  } `Lean.PrettyPrinter.parenthesizerAttribute
+  }
 @[builtin_init mkParenthesizerAttribute] opaque parenthesizerAttribute : KeyedDeclsAttribute Parenthesizer
 
 abbrev CategoryParenthesizer := (prec : Nat) → Parenthesizer
@@ -146,7 +146,7 @@ abbrev CategoryParenthesizer := (prec : Nat) → Parenthesizer
 /--
 Registers a parenthesizer for a syntax category.
 
-@[category_parenthesizer cat] registers a declaration of type
+`@[category_parenthesizer cat]` registers a declaration of type
 `Lean.PrettyPrinter.CategoryParenthesizer` for the syntax category `cat`, which is used when
 parenthesizing occurrences of `cat:prec` (`categoryParser cat prec`). Implementations should call
 `maybeParenthesize` with the precedence and `cat`. If no category parenthesizer is registered, the
@@ -168,13 +168,13 @@ unsafe def mkCategoryParenthesizerAttribute : IO (KeyedDeclsAttribute CategoryPa
       if (← Elab.getInfoState).enabled && (← getEnv).contains cat.declName then
         Elab.addConstInfo stx cat.declName none
       pure id
-  } `Lean.PrettyPrinter.categoryParenthesizerAttribute
+  }
 @[builtin_init mkCategoryParenthesizerAttribute] opaque categoryParenthesizerAttribute : KeyedDeclsAttribute CategoryParenthesizer
 
 /--
 Register a parenthesizer for a parser combinator.
 
-@[combinator_parenthesizer c] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer`
+`@[combinator_parenthesizer c]` registers a declaration of type `Lean.PrettyPrinter.Parenthesizer`
 for the `Parser` declaration `c`. Note that, unlike with @[parenthesizer], this is not a node kind
 since combinators usually do not introduce their own node kinds. The tagged declaration may
 optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is

@@ -30,7 +30,6 @@ These typeclasses are used solely in the `grind` tactic to lift linear inequalit
 
 -- TODO: instances for `ToInt.Mod` (only exists for `Fin n` so far)
 -- TODO: typeclasses for LT, and other algebraic operations.
--- TODO: typeclasses for `BitVec v` and `ISize`.
 -/
 
 namespace Lean.Grind
@@ -41,11 +40,51 @@ class ToInt (α : Type u) (lo? hi? : outParam (Option Int)) where
   le_toInt : lo? = some lo → lo ≤ toInt x
   toInt_lt : hi? = some hi → toInt x < hi
 
-@[simp]
+@[simp 500]
 def ToInt.wrap (lo? hi? : Option Int) (x : Int) : Int :=
   match lo?, hi? with
   | some lo, some hi => (x - lo) % (hi - lo) + lo
   | _, _ => x
+
+theorem ToInt.wrap_eq_bmod {i : Int} (h : 0 ≤ i) :
+    ToInt.wrap (some (-i)) (some i) x = x.bmod ((2 * i).toNat) := by
+  match i, h with
+  | (i : Nat), _ =>
+    have : (2 * (i : Int)).toNat = 2 * i := by omega
+    simp only [this]
+    simp [Int.bmod_eq_emod, ← Int.two_mul]
+    have : (2 * (i : Int) + 1) / 2 = i := by omega
+    simp only [this]
+    by_cases h : i = 0
+    · simp [h]
+    split
+    · rw [← Int.sub_eq_add_neg, Int.sub_eq_iff_eq_add, Nat.two_mul, Int.natCast_add,
+        ← Int.sub_sub, Int.sub_add_cancel]
+      rw [Int.emod_eq_iff (by omega)]
+      refine ⟨?_, ?_, ?_⟩
+      · omega
+      · have := Int.emod_lt x (b := 2 * (i : Int)) (by omega)
+        omega
+      · rw [Int.emod_def]
+        have : x - 2 * ↑i * (x / (2 * ↑i)) - ↑i - (x + ↑i) = (2 * (i : Int)) * (- (x / (2 * i)) - 1) := by
+          simp only [Int.mul_sub, Int.mul_neg]
+          omega
+        simp only [this]
+        exact Int.dvd_mul_right ..
+    · rw [← Int.sub_eq_add_neg, Int.sub_eq_iff_eq_add]
+      rw [Int.natCast_zero]
+      rw [Int.sub_zero]
+      rw [Int.emod_eq_iff (by omega)]
+      refine ⟨?_, ?_, ?_⟩
+      · have := Int.emod_nonneg x (b := 2 * (i : Int)) (by omega)
+        omega
+      · omega
+      · rw [Int.emod_def]
+        have : x - 2 * ↑i * (x / (2 * ↑i)) + ↑i - (x + ↑i) = (2 * (i : Int)) * (- (x / (2 * i))) := by
+          simp only [Int.mul_neg]
+          omega
+        simp only [this]
+        exact Int.dvd_mul_right ..
 
 class ToInt.Add (α : Type u) [Add α] (lo? hi? : Option Int) [ToInt α lo? hi?] where
   toInt_add : ∀ x y : α, toInt (x + y) = wrap lo? hi? (toInt x + toInt y)
@@ -246,8 +285,47 @@ instance : ToInt.Add Int64 (some (-2^63)) (some (2^63)) where
 instance : ToInt.LE Int64 (some (-2^63)) (some (2^63)) where
   le_iff x y := by simpa using Int64.le_iff_toInt_le
 
--- TODO:
--- instance [NeZero v] : ToInt (BitVec v) (some (-2^(v-1))) (some (2^(v-1))) := sorry
--- instance : ToInt ISize (some (-2^(System.Platform.numBits-1))) (some (2^(System.Platform.numBits-1))) := sorry
+instance : ToInt (BitVec 0) (some 0) (some 1) where
+  toInt x := 0
+  toInt_inj x y w := by simp at w; exact BitVec.eq_of_zero_length rfl
+  le_toInt {lo x} w := by simp at w; subst w; exact Int.zero_le_ofNat 0
+  toInt_lt {hi x} w := by simp at w; subst w; exact Int.one_pos
+
+@[simp] theorem toInt_bitVec_0 (x : BitVec 0) : ToInt.toInt x = 0 := rfl
+
+instance [NeZero v] : ToInt (BitVec v) (some (-2^(v-1))) (some (2^(v-1))) where
+  toInt x := x.toInt
+  toInt_inj x y w := BitVec.toInt_inj.mp w
+  le_toInt {lo x} w := by simp at w; subst w; exact BitVec.le_toInt x
+  toInt_lt {hi x} w := by simp at w; subst w; exact BitVec.toInt_lt
+
+@[simp] theorem toInt_bitVec [NeZero v] (x : BitVec v) : ToInt.toInt x = x.toInt := rfl
+
+instance [i : NeZero v] : ToInt.Add (BitVec v) (some (-2^(v-1))) (some (2^(v-1))) where
+  toInt_add x y := by
+    rw [toInt_bitVec, BitVec.toInt_add, ToInt.wrap_eq_bmod (Int.pow_nonneg (by decide))]
+    have : ((2 : Int) * 2 ^ (v - 1)).toNat = 2 ^ v := by
+      match v, i with | v + 1, _ => simp [← Int.pow_succ', Int.toNat_pow_of_nonneg]
+    simp [this]
+
+instance : ToInt ISize (some (-2^(System.Platform.numBits-1))) (some (2^(System.Platform.numBits-1))) where
+  toInt x := x.toInt
+  toInt_inj x y w := ISize.toInt_inj.mp w
+  le_toInt {lo x} w := by simp at w; subst w; exact ISize.two_pow_numBits_le_toInt x
+  toInt_lt {hi x} w := by simp at w; subst w; exact ISize.toInt_lt_two_pow_numBits x
+
+@[simp] theorem toInt_isize (x : ISize) : ToInt.toInt x = x.toInt := rfl
+
+instance : ToInt.Add ISize (some (-2^(System.Platform.numBits-1))) (some (2^(System.Platform.numBits-1))) where
+  toInt_add x y := by
+    rw [toInt_isize, ISize.toInt_add, ToInt.wrap_eq_bmod (Int.pow_nonneg (by decide))]
+    have p₁ : (2 : Int) * 2 ^ (System.Platform.numBits - 1) = 2 ^ System.Platform.numBits := by
+      have := System.Platform.numBits_pos
+      have : System.Platform.numBits - 1 + 1 = System.Platform.numBits := by omega
+      simp [← Int.pow_succ', this]
+    have p₂ : ((2 : Int) ^ System.Platform.numBits).toNat = 2 ^ System.Platform.numBits := by
+      rw [Int.toNat_pow_of_nonneg (by decide)]
+      simp
+    simp [p₁, p₂]
 
 end Lean.Grind

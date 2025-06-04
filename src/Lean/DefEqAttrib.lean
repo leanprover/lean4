@@ -18,30 +18,31 @@ So we try the more careful first.
 -/
 private def isDefEqCareful (e1 e2 : Expr) : MetaM Bool := do
   withOptions (smartUnfolding.set · false) <| do
-    isDefEq e1 e2 <||> (withTransparency .all (isDefEq e1 e2))
+    withDefault (isDefEq e1 e2) <||> withTransparency .all (isDefEq e1 e2)
 
 def validateDefEqAttr (declName : Name) : AttrM Unit := do
   let info ← getConstVal declName
   MetaM.run' do
-    forallTelescopeReducing info.type fun _ type => do
-      let type ← whnf type
-      -- NB: The warning wording should work both for explicit uses of `@[defeq]` as well as the implicit `:= rfl`.
-      let some (_, lhs, rhs) := type.eq? |
-        throwError m!"Not a definitional equality: the conclusion should be an equality, but is{inlineExpr type}"
-      let ok ← isDefEqCareful lhs rhs
-      unless ok do
-        let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) do
-          let (lhs, rhs) ← addPPExplicitToExposeDiff lhs rhs
-          let mut msg := m!"Not a definitional equality: the left-hand side{indentExpr lhs}\nis \
-            not definitionally equal to the right-hand side{indentExpr rhs}"
-          if (← getEnv).isExporting then
-            let okPrivately ← withoutExporting <| isDefEqCareful lhs rhs
-            if okPrivately then
-              msg := msg ++ .note m!"This theorem is exported from the current module. \
-                This requires that all definitions that need to be unfolded to prove this \
-                theorem must be exposed."
-          pure msg
-        throwError explanation
+    withTransparency .all do -- we want to look through defs in `info.type` all the way to `Eq`
+      forallTelescopeReducing info.type fun _ type => do
+        let type ← whnf type
+        -- NB: The warning wording should work both for explicit uses of `@[defeq]` as well as the implicit `:= rfl`.
+        let some (_, lhs, rhs) := type.eq? |
+          throwError m!"Not a definitional equality: the conclusion should be an equality, but is{inlineExpr type}"
+        let ok ← isDefEqCareful lhs rhs
+        unless ok do
+          let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) do
+            let (lhs, rhs) ← addPPExplicitToExposeDiff lhs rhs
+            let mut msg := m!"Not a definitional equality: the left-hand side{indentExpr lhs}\nis \
+              not definitionally equal to the right-hand side{indentExpr rhs}"
+            if (← getEnv).isExporting then
+              let okPrivately ← withoutExporting <| isDefEqCareful lhs rhs
+              if okPrivately then
+                msg := msg ++ .note m!"This theorem is exported from the current module. \
+                  This requires that all definitions that need to be unfolded to prove this \
+                  theorem must be exposed."
+            pure msg
+          throwError explanation
 
 /--
 Marks the theorem as a definitional equality.

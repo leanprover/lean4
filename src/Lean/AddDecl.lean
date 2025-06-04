@@ -77,9 +77,6 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   -- namespaces
   modifyEnv (decl.getNames.foldl registerNamePrefixes)
 
-  if !Elab.async.get (← getOptions) then
-    return (← addSynchronously)
-
   -- convert `Declaration` to `ConstantInfo` to use as a preliminary value in the environment until
   -- kernel checking has finished; not all cases are supported yet
   let mut exportedInfo? := none
@@ -96,44 +93,45 @@ def addDecl (decl : Declaration) : CoreM Unit := do
         exportedInfo? := some <| .axiomInfo { defn with isUnsafe := defn.safety == .unsafe }
       pure (defn.name, .defnInfo defn, .defn)
     | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
-    | _ => return (← addSynchronously)
+    | _ => return (← doAdd)
 
-  -- preserve original constant kind in extension if different from exported one
-  if exportedInfo?.isSome then
-    modifyEnv (privateConstKindsExt.insert · name kind)
+  if decl.getTopLevelNames.all isPrivateName then
+    exportedInfo? := none
+  else
+    -- preserve original constant kind in extension if different from exported one
+    if exportedInfo?.isSome then
+      modifyEnv (privateConstKindsExt.insert · name kind)
+    else
+      exportedInfo? := some info
 
   -- no environment extension changes to report after kernel checking; ensures we do not
   -- accidentally wait for this snapshot when querying extension states
   let env ← getEnv
   let async ← env.addConstAsync (reportExts := false) name kind
-    (exportedKind := exportedInfo?.map (.ofConstantInfo) |>.getD kind)
+    (exportedKind? := exportedInfo?.map (.ofConstantInfo))
   -- report preliminary constant info immediately
-  async.commitConst async.asyncEnv (some info) exportedInfo?
+  async.commitConst async.asyncEnv (some info) (exportedInfo? <|> info)
   setEnv async.mainEnv
-  let cancelTk ← IO.CancelToken.new
-  let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => do
+
+  let doAddAndCommit := do
     setEnv async.asyncEnv
     try
       doAdd
     finally
       async.commitCheckEnv (← getEnv)
-  let t ← BaseIO.mapTask checkAct env.checked
-  let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
-  Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
+
+  if Elab.async.get (← getOptions) then
+    let cancelTk ← IO.CancelToken.new
+    let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => doAddAndCommit
+    let t ← BaseIO.mapTask checkAct env.checked
+    let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
+    Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
+  else
+    try
+      doAddAndCommit
+    finally
+      setEnv async.mainEnv
 where
-  addSynchronously := do
-    doAdd
-    -- make constants known to the elaborator; in the synchronous case, we can simply read them from
-    -- the kernel env
-    for n in decl.getNames do
-      let env ← getEnv
-      let some info := env.checked.get.find? n | unreachable!
-      -- do *not* report extensions in synchronous case at this point as they are usually set only
-      -- after adding the constant itself
-      let res ← env.addConstAsync (reportExts := false) n (.ofConstantInfo info)
-      res.commitConst env (info? := info)
-      res.commitCheckEnv res.asyncEnv
-      setEnv res.mainEnv
   doAdd := do
     profileitM Exception "type checking" (← getOptions) do
       withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do

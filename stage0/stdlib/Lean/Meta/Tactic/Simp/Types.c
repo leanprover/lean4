@@ -158,6 +158,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_tryAutoCongrTheorem_x3f___lambda__2(le
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Meta_Simp_UsedSimps_insert___spec__6(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Context_setLctxInitIndices(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_inDSimp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 size_t lean_ptr_addr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_switch___at_Lean_Meta_Simp_withPreservedCache___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_mkContext___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -273,7 +274,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_getSimpTheorems___boxed(lean_object*);
 lean_object* lean_dsimp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_mkCongrSimp_x3f___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_instInhabitedContext___closed__2;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at_Lean_Meta_Simp_mkCongrSimp_x3f___spec__6(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_Types_0__Lean_Meta_Simp_mkIndexConfig___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_mkImpCongr___closed__2;
@@ -429,6 +429,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_modifyDiag(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_withDischarger(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_withIncDischargeDepth___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_withInDSimp(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Context_isDeclToUnfold___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Result_mkEqTrans(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -487,7 +488,6 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Simp_tryAutoCong
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Simp_tryAutoCongrTheorem_x3f___spec__4___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_UsedSimps_insert(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_panic___at_Lean_Meta_Simp_tryAutoCongrTheorem_x3f___spec__5___closed__3;
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_contains___at_Lean_Meta_Simp_UsedSimps_insert___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_tryAutoCongrTheorem_x3f___lambda__5___closed__4;
@@ -12479,10 +12479,10 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Simp_mkImpCongr___closed__1;
 x_2 = l_Lean_Meta_Simp_mkImpCongr___closed__2;
-x_3 = lean_unsigned_to_nat(1839u);
+x_3 = lean_unsigned_to_nat(1820u);
 x_4 = lean_unsigned_to_nat(24u);
 x_5 = l_Lean_Meta_Simp_mkImpCongr___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -15256,7 +15256,7 @@ x_108 = lean_ctor_get(x_95, 1);
 x_109 = lean_ctor_get(x_95, 0);
 lean_dec(x_109);
 lean_inc(x_29);
-x_110 = l___private_Init_Data_Repr_0__Nat_reprFast(x_29);
+x_110 = l_Nat_reprFast(x_29);
 x_111 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_111, 0, x_110);
 x_112 = l_Lean_MessageData_ofFormat(x_111);
@@ -15268,7 +15268,7 @@ x_114 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Simp_congrArgs___spec__3___c
 x_115 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_115, 0, x_95);
 lean_ctor_set(x_115, 1, x_114);
-x_116 = l___private_Init_Data_Repr_0__Nat_reprFast(x_32);
+x_116 = l_Nat_reprFast(x_32);
 x_117 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_117, 0, x_116);
 x_118 = l_Lean_MessageData_ofFormat(x_117);
@@ -15435,7 +15435,7 @@ x_156 = lean_ctor_get(x_95, 1);
 lean_inc(x_156);
 lean_dec(x_95);
 lean_inc(x_29);
-x_157 = l___private_Init_Data_Repr_0__Nat_reprFast(x_29);
+x_157 = l_Nat_reprFast(x_29);
 x_158 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_158, 0, x_157);
 x_159 = l_Lean_MessageData_ofFormat(x_158);
@@ -15447,7 +15447,7 @@ x_162 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Simp_congrArgs___spec__3___c
 x_163 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_163, 0, x_161);
 lean_ctor_set(x_163, 1, x_162);
-x_164 = l___private_Init_Data_Repr_0__Nat_reprFast(x_32);
+x_164 = l_Nat_reprFast(x_32);
 x_165 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_165, 0, x_164);
 x_166 = l_Lean_MessageData_ofFormat(x_165);
@@ -17671,7 +17671,7 @@ x_2 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Simp_tryAutoCongrTheorem_x3f__
 x_3 = lean_unsigned_to_nat(696u);
 x_4 = lean_unsigned_to_nat(11u);
 x_5 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Simp_tryAutoCongrTheorem_x3f___spec__2___lambda__4___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -21814,7 +21814,7 @@ x_2 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Simp_tryAutoCongrTheorem_x3f__
 x_3 = lean_unsigned_to_nat(763u);
 x_4 = lean_unsigned_to_nat(11u);
 x_5 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Simp_tryAutoCongrTheorem_x3f___spec__2___lambda__4___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -27523,7 +27523,7 @@ x_2 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Simp_tryAutoCongrTheorem_x3f__
 x_3 = lean_unsigned_to_nat(764u);
 x_4 = lean_unsigned_to_nat(61u);
 x_5 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Simp_tryAutoCongrTheorem_x3f___spec__2___lambda__4___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

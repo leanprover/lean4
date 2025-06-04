@@ -227,7 +227,6 @@ lean_object* l_Lean_Parser_many_formatter(lean_object*, lean_object*, lean_objec
 lean_object* l_Lean_Syntax_getTailInfo(lean_object*);
 static lean_object* l_Lean_Parser_Module_module_parenthesizer___closed__4;
 static lean_object* l_Lean_Parser_Module_module___regBuiltin_Lean_Parser_Module_import_formatter__19___closed__1;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Parser_Module_0__Lean_Parser_mkEOI___closed__5;
 static lean_object* l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_Module_updateTokens(lean_object*);
@@ -334,6 +333,7 @@ static lean_object* l_Lean_Parser_Module_import_parenthesizer___closed__2;
 static lean_object* l_Lean_Parser_Module_all___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Parser_Module_module___regBuiltin_Lean_Parser_Module_private_parenthesizer__39(lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Parser_testParseModuleAux_parse___spec__4(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Module_module___regBuiltin_Lean_Parser_Module_header_parenthesizer__51___closed__2;
 static lean_object* l_Lean_Parser_parseHeader___closed__2;
@@ -2899,7 +2899,7 @@ x_2 = l_Lean_Parser_Module_updateTokens___closed__2;
 x_3 = lean_unsigned_to_nat(34u);
 x_4 = lean_unsigned_to_nat(26u);
 x_5 = l_Lean_Parser_Module_updateTokens___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

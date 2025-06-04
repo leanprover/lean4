@@ -142,6 +142,8 @@ theorem range'_eq_cons_iff : range' s n = a :: xs ↔ s = a ∧ 0 < n ∧ xs = r
 
 /-! ### range -/
 
+@[simp, grind =] theorem range_one : range 1 = [0] := rfl
+
 theorem range_loop_range' : ∀ s n, range.loop s (range' s n) = range' 0 (n + s)
   | 0, _ => rfl
   | s + 1, n => by rw [← Nat.add_assoc, Nat.add_right_comm n s 1]; exact range_loop_range' s (n + 1)

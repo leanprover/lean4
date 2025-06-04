@@ -1440,6 +1440,9 @@ def mkLeanServerCapabilities : ServerCapabilities := {
   inlayHintProvider? := some {
     resolveProvider? := false
   }
+  signatureHelpProvider? := some {
+    triggerCharacters? := some #[" "]
+  }
 }
 
 def initAndRunWatchdogAux : ServerM Unit := do

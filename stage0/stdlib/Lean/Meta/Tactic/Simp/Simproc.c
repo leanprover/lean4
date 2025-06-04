@@ -268,6 +268,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_registerSimproc___lambda__1(lean_objec
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_userPostDSimprocs___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_addSimprocAttr(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Meta_Simp_isBuiltinSimproc___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_getSimprocs(lean_object*);
@@ -338,7 +339,6 @@ lean_object* l_Lean_Meta_DiscrTree_getMatchWithExtra___rarg(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Array_binSearchAux___at_Lean_Meta_Simp_getSimprocDeclKeys_x3f___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_Simproc_0__Lean_Meta_Simp_addBuiltin___lambda__1___closed__4;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_dsimprocCore___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_Simp_SimprocsArray_isErased___spec__1(lean_object*, lean_object*, size_t, size_t);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_Simproc_0__Lean_Meta_Simp_addBuiltin___closed__16;
@@ -467,7 +467,6 @@ static lean_object* l_Lean_Meta_Simp_registerSimproc___lambda__3___closed__3;
 static lean_object* l_Lean_Meta_Simp_addSimprocBuiltinAttrCore___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_Simproc___hyg_6633____lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_Name_hash___override(lean_object*);
-lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_Simproc___hyg_5397____closed__4;
 static lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_Simproc___hyg_202____spec__2___closed__3;
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
@@ -524,6 +523,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_Simp_Simprocs_add___sp
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_addSimprocBuiltinAttrCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Meta_Tactic_Simp_Simproc___hyg_5732____closed__9;
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_addSimprocAttrCore(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Simp_simprocCore___spec__1___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_Simp_getSimprocDeclKeys_x3f___spec__2(lean_object*, lean_object*);
@@ -5681,7 +5681,7 @@ x_20 = l_Lean_Meta_Simp_eraseSimprocAttr___closed__3;
 x_21 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_21, 0, x_6);
 lean_ctor_set(x_21, 1, x_20);
-x_22 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_21, x_3, x_4, x_9);
+x_22 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(x_21, x_3, x_4, x_9);
 x_23 = !lean_is_exclusive(x_22);
 if (x_23 == 0)
 {
@@ -5747,7 +5747,7 @@ x_42 = l_Lean_Meta_Simp_eraseSimprocAttr___closed__3;
 x_43 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_43, 0, x_41);
 lean_ctor_set(x_43, 1, x_42);
-x_44 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_43, x_3, x_4, x_30);
+x_44 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(x_43, x_3, x_4, x_30);
 x_45 = lean_ctor_get(x_44, 0);
 lean_inc(x_45);
 x_46 = lean_ctor_get(x_44, 1);
@@ -7464,7 +7464,7 @@ x_2 = l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Simp_Simprocs_addCore___sp
 x_3 = lean_unsigned_to_nat(482u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Simp_Simprocs_addCore___spec__1___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

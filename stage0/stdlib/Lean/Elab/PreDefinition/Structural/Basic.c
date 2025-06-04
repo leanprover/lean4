@@ -82,7 +82,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Structural_Positi
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Structural_instInhabitedM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_initFn____x40_Lean_Elab_PreDefinition_Structural_Basic___hyg_567____closed__17;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_initFn____x40_Lean_Elab_PreDefinition_Structural_Basic___hyg_567_(lean_object*);
 static lean_object* l_initFn____x40_Lean_Elab_PreDefinition_Structural_Basic___hyg_567____closed__10;
 static lean_object* l_Array_qsort_sort___at_Lean_Elab_Structural_Positions_groupAndSort___spec__5___closed__1;
@@ -123,6 +122,7 @@ lean_object* lean_array_mk(lean_object*);
 static lean_object* l_initFn____x40_Lean_Elab_PreDefinition_Structural_Basic___hyg_567____closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_Positions_inverse(lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_initFn____x40_Lean_Elab_PreDefinition_Structural_Basic___hyg_567____closed__13;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Structural_Positions_mapMwith___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Structural_Positions_mapMwith___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -759,7 +759,6 @@ x_11 = lean_array_uset(x_7, x_6, x_10);
 x_12 = lean_array_get_size(x_4);
 x_13 = l_Array_mapMUnsafe_map___at_Lean_Elab_Structural_Positions_groupAndSort___spec__2___rarg___closed__1;
 x_14 = l_Array_ofFn___rarg(x_12, x_13);
-lean_dec(x_12);
 x_15 = lean_array_get_size(x_14);
 x_16 = lean_nat_dec_lt(x_10, x_15);
 x_17 = 1;
@@ -1015,7 +1014,7 @@ x_2 = l_Lean_Elab_Structural_Positions_groupAndSort___rarg___closed__5;
 x_3 = lean_unsigned_to_nat(86u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Elab_Structural_Positions_groupAndSort___rarg___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1029,7 +1028,6 @@ x_8 = l_Array_mapMUnsafe_map___at_Lean_Elab_Structural_Positions_groupAndSort___
 x_9 = lean_array_get_size(x_4);
 x_10 = l_Array_mapMUnsafe_map___at_Lean_Elab_Structural_Positions_groupAndSort___spec__2___rarg___closed__1;
 x_11 = l_Array_ofFn___rarg(x_9, x_10);
-lean_dec(x_9);
 x_12 = lean_array_get_size(x_8);
 x_13 = lean_unsigned_to_nat(0u);
 x_14 = lean_nat_dec_lt(x_13, x_12);
@@ -1405,7 +1403,7 @@ x_2 = l_Lean_Elab_Structural_Positions_mapMwith___rarg___closed__3;
 x_3 = lean_unsigned_to_nat(96u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Elab_Structural_Positions_mapMwith___rarg___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1436,7 +1434,7 @@ x_2 = l_Lean_Elab_Structural_Positions_mapMwith___rarg___closed__3;
 x_3 = lean_unsigned_to_nat(97u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Elab_Structural_Positions_mapMwith___rarg___closed__6;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

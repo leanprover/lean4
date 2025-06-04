@@ -435,7 +435,7 @@ This is the monadic analogue of `Option.getD`.
 @[simp, grind] theorem getDM_some [Pure m] (a : α) (y : m α) : (some a).getDM y = pure a := rfl
 
 instance (α) [BEq α] [ReflBEq α] : ReflBEq (Option α) where
-  rfl {x} :=
+  rfl {x} := private
     match x with
     | some _ => BEq.rfl (α := α)
     | none => rfl

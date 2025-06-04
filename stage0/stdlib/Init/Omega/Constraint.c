@@ -48,6 +48,7 @@ LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_translate(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lean_Omega_instReprConstraint;
 static lean_object* l_Lean_Omega_Constraint_impossible___closed__1;
 LEAN_EXPORT uint8_t l_Lean_Omega_Constraint_sat(lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Omega_Constraint_neg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Omega_instDecidableEqConstraint___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_repr___at___private_Init_Omega_Constraint_0__Lean_Omega_reprConstraint____x40_Init_Omega_Constraint___hyg_297____spec__1___boxed(lean_object*, lean_object*);
@@ -149,7 +150,6 @@ LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_combine___lambda__2(lean_object
 static lean_object* l_Lean_Omega_Constraint_impossible___closed__2;
 static lean_object* l_Lean_Omega_Constraint_map___closed__1;
 LEAN_EXPORT uint8_t l___private_Init_Omega_Constraint_0__Lean_Omega_decEqConstraint____x40_Init_Omega_Constraint___hyg_152_(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Omega_Constraint_isImpossible(lean_object*);
 lean_object* l_Lean_Omega_IntList_dot(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Omega_UpperBound_sat(lean_object*, lean_object*);
@@ -912,7 +912,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_8 = lean_nat_abs(x_5);
-x_9 = l___private_Init_Data_Repr_0__Nat_reprFast(x_8);
+x_9 = l_Nat_reprFast(x_8);
 x_10 = l_Lean_Omega_Constraint_instToString___closed__2;
 x_11 = lean_string_append(x_10, x_9);
 lean_dec(x_9);
@@ -929,7 +929,7 @@ x_16 = lean_nat_sub(x_14, x_15);
 lean_dec(x_14);
 x_17 = lean_nat_add(x_16, x_15);
 lean_dec(x_16);
-x_18 = l___private_Init_Data_Repr_0__Nat_reprFast(x_17);
+x_18 = l_Nat_reprFast(x_17);
 x_19 = l_Lean_Omega_Constraint_instToString___closed__4;
 x_20 = lean_string_append(x_19, x_18);
 lean_dec(x_18);
@@ -956,7 +956,7 @@ if (x_28 == 0)
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
 x_29 = lean_nat_abs(x_26);
-x_30 = l___private_Init_Data_Repr_0__Nat_reprFast(x_29);
+x_30 = l_Nat_reprFast(x_29);
 x_31 = l_Lean_Omega_Constraint_instToString___closed__5;
 x_32 = lean_string_append(x_31, x_30);
 lean_dec(x_30);
@@ -973,7 +973,7 @@ x_37 = lean_nat_sub(x_35, x_36);
 lean_dec(x_35);
 x_38 = lean_nat_add(x_37, x_36);
 lean_dec(x_37);
-x_39 = l___private_Init_Data_Repr_0__Nat_reprFast(x_38);
+x_39 = l_Nat_reprFast(x_38);
 x_40 = l_Lean_Omega_Constraint_instToString___closed__4;
 x_41 = lean_string_append(x_40, x_39);
 lean_dec(x_39);
@@ -1004,7 +1004,7 @@ if (x_51 == 0)
 {
 lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; uint8_t x_58; 
 x_52 = lean_nat_abs(x_46);
-x_53 = l___private_Init_Data_Repr_0__Nat_reprFast(x_52);
+x_53 = l_Nat_reprFast(x_52);
 x_54 = l_Lean_Omega_Constraint_instToString___closed__5;
 x_55 = lean_string_append(x_54, x_53);
 lean_dec(x_53);
@@ -1015,7 +1015,7 @@ if (x_58 == 0)
 {
 lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 x_59 = lean_nat_abs(x_47);
-x_60 = l___private_Init_Data_Repr_0__Nat_reprFast(x_59);
+x_60 = l_Nat_reprFast(x_59);
 x_61 = lean_string_append(x_57, x_60);
 lean_dec(x_60);
 x_62 = l_Lean_Omega_Constraint_instToString___closed__3;
@@ -1031,7 +1031,7 @@ x_66 = lean_nat_sub(x_64, x_65);
 lean_dec(x_64);
 x_67 = lean_nat_add(x_66, x_65);
 lean_dec(x_66);
-x_68 = l___private_Init_Data_Repr_0__Nat_reprFast(x_67);
+x_68 = l_Nat_reprFast(x_67);
 x_69 = l_Lean_Omega_Constraint_instToString___closed__4;
 x_70 = lean_string_append(x_69, x_68);
 lean_dec(x_68);
@@ -1051,7 +1051,7 @@ x_76 = lean_nat_sub(x_74, x_75);
 lean_dec(x_74);
 x_77 = lean_nat_add(x_76, x_75);
 lean_dec(x_76);
-x_78 = l___private_Init_Data_Repr_0__Nat_reprFast(x_77);
+x_78 = l_Nat_reprFast(x_77);
 x_79 = l_Lean_Omega_Constraint_instToString___closed__4;
 x_80 = lean_string_append(x_79, x_78);
 lean_dec(x_78);
@@ -1065,7 +1065,7 @@ if (x_85 == 0)
 {
 lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; 
 x_86 = lean_nat_abs(x_47);
-x_87 = l___private_Init_Data_Repr_0__Nat_reprFast(x_86);
+x_87 = l_Nat_reprFast(x_86);
 x_88 = lean_string_append(x_84, x_87);
 lean_dec(x_87);
 x_89 = l_Lean_Omega_Constraint_instToString___closed__3;
@@ -1080,7 +1080,7 @@ x_92 = lean_nat_sub(x_91, x_75);
 lean_dec(x_91);
 x_93 = lean_nat_add(x_92, x_75);
 lean_dec(x_92);
-x_94 = l___private_Init_Data_Repr_0__Nat_reprFast(x_93);
+x_94 = l_Nat_reprFast(x_93);
 x_95 = lean_string_append(x_79, x_94);
 lean_dec(x_94);
 x_96 = lean_string_append(x_84, x_95);
@@ -1100,7 +1100,7 @@ if (x_100 == 0)
 {
 lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; 
 x_101 = lean_nat_abs(x_46);
-x_102 = l___private_Init_Data_Repr_0__Nat_reprFast(x_101);
+x_102 = l_Nat_reprFast(x_101);
 x_103 = l_Lean_Omega_Constraint_instToString___closed__8;
 x_104 = lean_string_append(x_103, x_102);
 lean_dec(x_102);
@@ -1117,7 +1117,7 @@ x_109 = lean_nat_sub(x_107, x_108);
 lean_dec(x_107);
 x_110 = lean_nat_add(x_109, x_108);
 lean_dec(x_109);
-x_111 = l___private_Init_Data_Repr_0__Nat_reprFast(x_110);
+x_111 = l_Nat_reprFast(x_110);
 x_112 = l_Lean_Omega_Constraint_instToString___closed__4;
 x_113 = lean_string_append(x_112, x_111);
 lean_dec(x_111);

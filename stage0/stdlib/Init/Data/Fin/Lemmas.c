@@ -18,8 +18,8 @@ LEAN_EXPORT lean_object* l_Fin_instIntCastOfNeZeroNat(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Fin_inductionOn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_induction_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Fin_ofNat_x27___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_lastCases(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Fin_ofNat___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_addCases(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_succRec___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -52,7 +52,7 @@ LEAN_EXPORT lean_object* l_Fin_instNatCastOfNeZeroNat(lean_object* x_1, lean_obj
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Fin_ofNat_x27___boxed), 3, 2);
+x_3 = lean_alloc_closure((void*)(l_Fin_ofNat___boxed), 3, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, lean_box(0));
 return x_3;

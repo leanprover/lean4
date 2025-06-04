@@ -93,9 +93,9 @@ private def checkDefaultSplitStatus (e : Expr) : GoalM SplitStatus := do
       checkIffStatus e a b
     else
       return .ready 2
-  | ite _ c _ _ _ => checkIteCondStatus c
-  | dite _ c _ _ _ => checkIteCondStatus c
   | _ =>
+    if isIte e || isDIte e then
+      return (← checkIteCondStatus (e.getArg! 1))
     if (← isResolvedCaseSplit e) then
       trace_goal[grind.debug.split] "split resolved: {e}"
       return .resolved
@@ -215,8 +215,6 @@ private def mkGrindEM (c : Expr) :=
 private def mkCasesMajor (c : Expr) : GoalM Expr := do
   match_expr c with
   | And a b => return mkApp3 (mkConst ``Grind.or_of_and_eq_false) a b (← mkEqFalseProof c)
-  | ite _ c _ _ _ => return mkGrindEM c
-  | dite _ c _ _ _ => return mkGrindEM c
   | Eq _ a b =>
     if isMorallyIff c then
       if (← isEqTrue c) then
@@ -228,7 +226,9 @@ private def mkCasesMajor (c : Expr) : GoalM Expr := do
       return mkGrindEM c
   | Not e => return mkGrindEM e
   | _ =>
-    if (← isEqTrue c) then
+    if isIte c || isDIte c then
+      return mkGrindEM (c.getArg! 1)
+    else if (← isEqTrue c) then
       return mkOfEqTrueCore c (← mkEqTrueProof c)
     else
       return c
@@ -249,6 +249,7 @@ def splitNext : SearchM Bool := withCurrGoalContext do
   let cExpr := c.getExpr
   let gen ← getGeneration cExpr
   let genNew := if numCases > 1 || isRec then gen+1 else gen
+  saveSplitDiagInfo cExpr genNew numCases
   markCaseSplitAsResolved cExpr
   trace_goal[grind.split] "{cExpr}, generation: {gen}"
   let mvarId ← mkAuxMVarForCurrGoal

@@ -381,6 +381,7 @@ LEAN_EXPORT lean_object* l_List_foldl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_throwError___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mk___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_False_elim___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Macro_MethodsRefPointed;
 LEAN_EXPORT lean_object* l_EStateM_throw___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMonadQuotationOfMonadFunctorOfMonadLift___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_minOfLe(lean_object*, lean_object*);
@@ -507,7 +508,6 @@ uint32_t lean_uint32_of_nat_mk(lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_dummySave___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHSub(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Syntax_isIdent(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Prelude_0__Lean_Macro_MethodsRefPointed;
 LEAN_EXPORT lean_object* l_USize_ofNatLT___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Pi_instInhabited___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__4;
@@ -10807,7 +10807,7 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___private_Init_Prelude_0__Lean_Macro_MethodsRefPointed() {
+static lean_object* _init_l_Lean_Macro_MethodsRefPointed() {
 _start:
 {
 return lean_box(0);
@@ -12281,7 +12281,7 @@ l_Lean_instAppendName___closed__1 = _init_l_Lean_instAppendName___closed__1();
 lean_mark_persistent(l_Lean_instAppendName___closed__1);
 l_Lean_instAppendName = _init_l_Lean_instAppendName();
 lean_mark_persistent(l_Lean_instAppendName);
-l___private_Init_Prelude_0__Lean_Macro_MethodsRefPointed = _init_l___private_Init_Prelude_0__Lean_Macro_MethodsRefPointed();
+l_Lean_Macro_MethodsRefPointed = _init_l_Lean_Macro_MethodsRefPointed();
 l_Lean_Macro_instInhabitedState___closed__1 = _init_l_Lean_Macro_instInhabitedState___closed__1();
 lean_mark_persistent(l_Lean_Macro_instInhabitedState___closed__1);
 l_Lean_Macro_instInhabitedState = _init_l_Lean_Macro_instInhabitedState();

@@ -93,6 +93,7 @@ LEAN_EXPORT lean_object* l_Lake_BuildTrace_compute___rarg(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lake_BuildTrace_checkAgainstHash___rarg(lean_object*, lean_object*, uint64_t, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Build_Trace_0__Lake_reprHash____x40_Lake_Build_Trace___hyg_634____closed__7;
 lean_object* l_List_foldl___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instComputeTraceArrayOfMonad___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instReprBuildTrace___closed__1;
@@ -266,7 +267,6 @@ static lean_object* l_Array_Array_repr___at___private_Lake_Build_Trace_0__Lake_r
 LEAN_EXPORT lean_object* l_Lake_Hash_instMixTrace;
 LEAN_EXPORT lean_object* l_Lake_Hash_ofString___boxed(lean_object*);
 LEAN_EXPORT uint64_t l_Lake_Hash_ofByteArray(lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instCoeTextFilePathFilePath(lean_object*);
 static lean_object* l___private_Lake_Build_Trace_0__Lake_reprHash____x40_Lake_Build_Trace___hyg_634____closed__11;
 LEAN_EXPORT uint8_t l___private_Lake_Build_Trace_0__Lake_decEqHash____x40_Lake_Build_Trace___hyg_544_(uint64_t, uint64_t);
@@ -1187,7 +1187,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_3 = lean_uint64_to_nat(x_1);
-x_4 = l___private_Init_Data_Repr_0__Nat_reprFast(x_3);
+x_4 = l_Nat_reprFast(x_3);
 x_5 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_5, 0, x_4);
 x_6 = l___private_Lake_Build_Trace_0__Lake_reprHash____x40_Lake_Build_Trace___hyg_634____closed__7;
@@ -1444,7 +1444,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_uint64_to_nat(x_1);
-x_3 = l___private_Init_Data_Repr_0__Nat_reprFast(x_2);
+x_3 = l_Nat_reprFast(x_2);
 return x_3;
 }
 }

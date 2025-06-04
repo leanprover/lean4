@@ -7150,7 +7150,6 @@ return x_30;
 else
 {
 lean_object* x_31; 
-lean_dec(x_1);
 x_31 = lean_box(x_16);
 lean_ctor_set(x_12, 0, x_31);
 return x_12;
@@ -7200,7 +7199,6 @@ return x_43;
 else
 {
 lean_object* x_44; lean_object* x_45; 
-lean_dec(x_1);
 x_44 = lean_box(x_34);
 x_45 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_45, 0, x_44);
@@ -9115,7 +9113,6 @@ lean_inc(x_18);
 x_19 = lean_ctor_get(x_18, 1);
 lean_inc(x_19);
 lean_dec(x_18);
-lean_inc(x_19);
 x_75 = l_Lean_Elab_isIncrementalElab___at_Lean_Elab_Tactic_evalTactic_eval___spec__2(x_19, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 x_76 = lean_ctor_get(x_75, 0);
 lean_inc(x_76);
@@ -9475,6 +9472,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_11;
 }
 }

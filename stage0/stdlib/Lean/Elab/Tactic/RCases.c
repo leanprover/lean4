@@ -383,7 +383,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyM___at_Lean_Elab_Tactic_RCase
 static lean_object* l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain_declRange__3___closed__3;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_RCases_RCasesPatt_parse___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__6___closed__5;
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData_fmt___spec__2(lean_object*, lean_object*);
 lean_object* l___private_Init_Meta_0__Lean_Syntax_reprTSyntax____x40_Init_Meta___hyg_2271____rarg(lean_object*, lean_object*);
@@ -579,6 +578,7 @@ static lean_object* l_Lean_Elab_Tactic_RCases___aux__Lean__Elab__Tactic__RCases_
 static lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a0____x40_Lean_Elab_Tactic_RCases___hyg_539____closed__3;
 static lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a3____x40_Lean_Elab_Tactic_RCases___hyg_268____closed__8;
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_evalRCases___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange__3___closed__3;
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_evalObtain___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1___closed__1;
@@ -9346,7 +9346,7 @@ x_2 = l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__6___closed__3;
 x_3 = lean_unsigned_to_nat(344u);
 x_4 = lean_unsigned_to_nat(62u);
 x_5 = l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__6___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -10784,7 +10784,7 @@ x_2 = l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__6___closed__3;
 x_3 = lean_unsigned_to_nat(336u);
 x_4 = lean_unsigned_to_nat(76u);
 x_5 = l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__6___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

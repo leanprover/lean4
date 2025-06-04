@@ -120,7 +120,6 @@ LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at_Lake_ExternLib_recComp
 LEAN_EXPORT lean_object* l_Lake_ExternLib_recBuildStatic(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lake_ExternLib_initFacetConfigs___spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ensureJob___at_Lake_ExternLib_recBuildStatic___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_withIsolatedStreams___at_Lake_ExternLib_recBuildStatic___spec__3___closed__2;
 LEAN_EXPORT lean_object* l_Lake_Job_mapM___at_Lake_computeDynlibOfShared___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_BuildTrace_nil(lean_object*);
@@ -174,6 +173,7 @@ uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 extern lean_object* l_Lake_ExternLib_staticFacet;
 uint8_t l_Substring_beq(lean_object*, lean_object*);
 static lean_object* l_Lake_ExternLib_defaultFacetConfig___closed__1;
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStderr___at_Lake_ExternLib_recBuildStatic___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_ExternLib_defaultFacet;
@@ -1540,7 +1540,7 @@ x_2 = l_IO_FS_withIsolatedStreams___at_Lake_ExternLib_recBuildStatic___spec__3__
 x_3 = lean_unsigned_to_nat(129u);
 x_4 = lean_unsigned_to_nat(47u);
 x_5 = l_IO_FS_withIsolatedStreams___at_Lake_ExternLib_recBuildStatic___spec__3___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

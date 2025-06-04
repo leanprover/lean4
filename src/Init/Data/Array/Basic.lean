@@ -91,7 +91,8 @@ theorem ext' {xs ys : Array α} (h : xs.toList = ys.toList) : xs = ys := by
 @[simp, grind =] theorem getElem_toList {xs : Array α} {i : Nat} (h : i < xs.size) : xs.toList[i] = xs[i] := rfl
 
 @[simp, grind =] theorem getElem?_toList {xs : Array α} {i : Nat} : xs.toList[i]? = xs[i]? := by
-  simp [getElem?_def]
+  simp only [getElem?_def, getElem_toList]
+  simp only [Array.size]
 
 /-- `a ∈ as` is a predicate which asserts that `a` is in the array `as`. -/
 -- NB: This is defined as a structure rather than a plain def so that a lemma
@@ -112,7 +113,7 @@ theorem mem_def {a : α} {as : Array α} : a ∈ as ↔ a ∈ as.toList :=
   rw [Array.mem_def, ← getElem_toList]
   apply List.getElem_mem
 
-@[simp] theorem emptyWithCapacity_eq {α n} : @emptyWithCapacity α n = #[] := rfl
+@[simp, grind =] theorem emptyWithCapacity_eq {α n} : @emptyWithCapacity α n = #[] := rfl
 
 @[simp] theorem mkEmpty_eq {α n} : @mkEmpty α n = #[] := rfl
 
@@ -267,8 +268,6 @@ def swapIfInBounds (xs : Array α) (i j : @& Nat) : Array α :=
   else xs
   else xs
 
-@[deprecated swapIfInBounds (since := "2024-11-24")] abbrev swap! := @swapIfInBounds
-
 /-! ### GetElem instance for `USize`, backed by `uget` -/
 
 instance : GetElem (Array α) USize α fun xs i => i.toNat < xs.size where
@@ -332,12 +331,14 @@ Examples:
  * `Array.ofFn (n := 3) toString = #["0", "1", "2"]`
  * `Array.ofFn (fun i => #["red", "green", "blue"].get i.val i.isLt) = #["red", "green", "blue"]`
 -/
-def ofFn {n} (f : Fin n → α) : Array α := go 0 (emptyWithCapacity n) where
-  /-- Auxiliary for `ofFn`. `ofFn.go f i acc = acc ++ #[f i, ..., f(n - 1)]` -/
-  @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
-  go (i : Nat) (acc : Array α) : Array α :=
-    if h : i < n then go (i+1) (acc.push (f ⟨i, h⟩)) else acc
-  decreasing_by simp_wf; decreasing_trivial_pre_omega
+def ofFn {n} (f : Fin n → α) : Array α := go (emptyWithCapacity n) n (Nat.le_refl n) where
+  /-- Auxiliary for `ofFn`. `ofFn.go f acc i h = acc ++ #[f (n - i), ..., f(n - 1)]` -/
+  go (acc : Array α) : (i : Nat) → i ≤ n → Array α
+  | i + 1, h =>
+     have w : n - i - 1 < n :=
+       Nat.lt_of_lt_of_le (Nat.sub_one_lt (Nat.sub_ne_zero_iff_lt.mpr h)) (Nat.sub_le n i)
+     go (acc.push (f ⟨n - i - 1, w⟩)) i (Nat.le_of_succ_le h)
+  | 0, _ => acc
 
 -- See also `Array.ofFnM` defined in `Init.Data.Array.OfFn`.
 
@@ -764,8 +765,6 @@ def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α �
         pure bs
   decreasing_by simp_wf; decreasing_trivial_pre_omega
   map 0 (emptyWithCapacity as.size)
-
-@[deprecated mapM (since := "2024-11-11")] abbrev sequenceMap := @mapM
 
 /--
 Applies the monadic action `f` to every element in the array, along with the element's index and a
@@ -1364,10 +1363,6 @@ Examples:
 def idxOf? [BEq α] (xs : Array α) (v : α) : Option Nat :=
   (xs.finIdxOf? v).map (·.val)
 
-@[deprecated idxOf? (since := "2024-11-20")]
-def getIdx? [BEq α] (xs : Array α) (v : α) : Option Nat :=
-  xs.findIdx? fun a => a == v
-
 /--
 Returns `true` if `p` returns `true` for any element of `as`.
 
@@ -1886,8 +1881,6 @@ Examples:
   let as := as.push a
   loop as ⟨j, size_push .. ▸ j.lt_succ_self⟩
 
-@[deprecated insertIdx (since := "2024-11-20")] abbrev insertAt := @insertIdx
-
 /--
 Inserts an element into an array at the specified index. Panics if the index is greater than the
 size of the array.
@@ -1907,8 +1900,6 @@ def insertIdx! (as : Array α) (i : Nat) (a : α) : Array α :=
   if h : i ≤ as.size then
     insertIdx as i a
   else panic! "invalid index"
-
-@[deprecated insertIdx! (since := "2024-11-20")] abbrev insertAt! := @insertIdx!
 
 /--
 Inserts an element into an array at the specified index. The array is returned unmodified if the
@@ -2031,11 +2022,6 @@ Examples:
 -/
 def unzip (as : Array (α × β)) : Array α × Array β :=
   as.foldl (init := (#[], #[])) fun (as, bs) (a, b) => (as.push a, bs.push b)
-
-@[deprecated partition (since := "2024-11-06")]
-def split (as : Array α) (p : α → Bool) : Array α × Array α :=
-  as.foldl (init := (#[], #[])) fun (as, bs) a =>
-    if p a then (as.push a, bs) else (as, bs.push a)
 
 /--
 Replaces the first occurrence of `a` with `b` in an array. The modification is performed in-place

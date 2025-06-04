@@ -89,7 +89,6 @@ static lean_object* l___private_Std_Time_Date_Unit_Weekday_0__Std_Time_reprWeekd
 static lean_object* l___private_Std_Time_Date_Unit_Weekday_0__Std_Time_reprWeekday____x40_Std_Time_Date_Unit_Weekday___hyg_13____closed__20;
 static lean_object* l___private_Std_Time_Date_Unit_Weekday_0__Std_Time_reprWeekday____x40_Std_Time_Date_Unit_Weekday___hyg_13____closed__24;
 LEAN_EXPORT lean_object* l_Std_Time_Weekday_toOrdinal(uint8_t);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_Weekday_ofNat_x21___closed__4;
 static lean_object* l_Std_Time_Weekday_toOrdinal___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_Weekday_toCtorIdx___boxed(lean_object*);
@@ -143,6 +142,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Weekday_instInhabitedOrdinal;
 static lean_object* l___private_Std_Time_Date_Unit_Weekday_0__Std_Time_reprWeekday____x40_Std_Time_Date_Unit_Weekday___hyg_13____closed__30;
 LEAN_EXPORT lean_object* l_Std_Time_Weekday_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
 static lean_object* l_Std_Time_Weekday_ofNat_x21___closed__1;
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Std_Time_Date_Unit_Weekday_0__Std_Time_reprWeekday____x40_Std_Time_Date_Unit_Weekday___hyg_13____closed__21;
 static lean_object* l___private_Std_Time_Date_Unit_Weekday_0__Std_Time_reprWeekday____x40_Std_Time_Date_Unit_Weekday___hyg_13____closed__8;
 LEAN_EXPORT lean_object* l_Std_Time_Weekday_toOrdinal___boxed(lean_object*);
@@ -2218,7 +2218,7 @@ x_2 = l_Std_Time_Weekday_ofNat_x21___closed__2;
 x_3 = lean_unsigned_to_nat(137u);
 x_4 = lean_unsigned_to_nat(12u);
 x_5 = l_Std_Time_Weekday_ofNat_x21___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

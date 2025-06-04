@@ -165,7 +165,6 @@ lean_object* l_Lean_Compiler_getSpecializationArgs_x3f(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__11(lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__7___closed__3;
 static lean_object* l_Std_Range_forIn_x27_loop___at___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_hasFwdDeps___spec__1___closed__2;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_sortEntries___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addTrace___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -258,6 +257,7 @@ static lean_object* l___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCN
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Compiler_LCNF_SpecState_addEntry___spec__3(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_isSpecCandidate___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_x27_loop___at___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_hasFwdDeps___spec__1___closed__1;
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -2387,6 +2387,7 @@ lean_inc(x_6);
 lean_dec(x_5);
 x_7 = l___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_isNoSpecType___closed__1;
 x_8 = l_Lean_TagAttribute_hasTag(x_7, x_1, x_6);
+lean_dec(x_6);
 return x_8;
 }
 else
@@ -3175,7 +3176,6 @@ lean_dec(x_16);
 x_19 = lean_ctor_get(x_14, 0);
 lean_inc(x_19);
 x_20 = l___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_isNoSpecType___closed__1;
-lean_inc(x_19);
 x_21 = l_Lean_TagAttribute_hasTag(x_20, x_18, x_19);
 if (x_21 == 0)
 {
@@ -5116,7 +5116,7 @@ x_2 = l_Std_Range_forIn_x27_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spe
 x_3 = lean_unsigned_to_nat(190u);
 x_4 = lean_unsigned_to_nat(43u);
 x_5 = l_Std_Range_forIn_x27_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__16___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

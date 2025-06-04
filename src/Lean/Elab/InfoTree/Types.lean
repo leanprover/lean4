@@ -96,7 +96,6 @@ inductive CompletionInfo where
   | option (stx : Syntax)
   | endSection (stx : Syntax) (scopeNames : List String)
   | tactic (stx : Syntax)
-  -- TODO `import`
 
 /-- Info for an option reference (e.g. in `set_option`). -/
 structure OptionInfo where

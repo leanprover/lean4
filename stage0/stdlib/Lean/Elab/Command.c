@@ -601,7 +601,6 @@ extern lean_object* l_Lean_trace_profiler_threshold;
 LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at_Lean_Elab_Command_instAddMessageContextCommandElabM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_instMonadQuotationCommandElabM;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_runLintersAsync___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_instMonadQuotationCommandElabM___closed__4;
 static lean_object* l___auto____x40_Lean_Elab_Command___hyg_2397____closed__5;
@@ -897,6 +896,7 @@ LEAN_EXPORT lean_object* l_IO_withStderr___at_Lean_Elab_Command_wrapAsyncAsSnaps
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_wrapAsyncAsSnapshot___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_instMonadLogCommandElabM___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___at_Lean_Elab_Command_runLinters___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Command___hyg_5651____closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabCommand_go___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -20062,7 +20062,7 @@ x_2 = l_IO_FS_withIsolatedStreams___at_Lean_Elab_Command_wrapAsyncAsSnapshot___s
 x_3 = lean_unsigned_to_nat(129u);
 x_4 = lean_unsigned_to_nat(47u);
 x_5 = l_IO_FS_withIsolatedStreams___at_Lean_Elab_Command_wrapAsyncAsSnapshot___spec__10___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -25376,7 +25376,6 @@ return x_24;
 else
 {
 lean_object* x_25; 
-lean_dec(x_1);
 x_25 = lean_box(x_10);
 lean_ctor_set(x_6, 0, x_25);
 return x_6;
@@ -25426,7 +25425,6 @@ return x_37;
 else
 {
 lean_object* x_38; lean_object* x_39; 
-lean_dec(x_1);
 x_38 = lean_box(x_28);
 x_39 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_39, 0, x_38);
@@ -25526,7 +25524,6 @@ lean_inc(x_20);
 x_21 = lean_ctor_get(x_20, 1);
 lean_inc(x_21);
 lean_dec(x_20);
-lean_inc(x_21);
 x_35 = l_Lean_Elab_isIncrementalElab___at___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing___spec__4(x_21, x_4, x_5, x_6);
 x_36 = lean_ctor_get(x_35, 0);
 lean_inc(x_36);
@@ -25726,6 +25723,7 @@ lean_object* x_5;
 x_5 = l_Lean_Elab_isIncrementalElab___at___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing___spec__4(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_5;
 }
 }
@@ -41307,7 +41305,7 @@ x_2 = l_Lean_Elab_Command_modifyScope___closed__2;
 x_3 = lean_unsigned_to_nat(780u);
 x_4 = lean_unsigned_to_nat(16u);
 x_5 = l_Lean_Elab_Command_modifyScope___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

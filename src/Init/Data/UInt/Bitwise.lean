@@ -29,10 +29,6 @@ namespace $typeName
 @[simp] protected theorem toNat_shiftLeft (a b : $typeName) : (a <<< b).toNat = a.toNat <<< (b.toNat % $bits) % 2 ^ $bits := by simp [toNat, -toNat_toBitVec]
 @[simp] protected theorem toNat_shiftRight (a b : $typeName) : (a >>> b).toNat = a.toNat >>> (b.toNat % $bits) := by simp [toNat, -toNat_toBitVec]
 
-open $typeName (toNat_and) in
-@[deprecated toNat_and (since := "2024-11-28")]
-protected theorem and_toNat (a b : $typeName) : (a &&& b).toNat = a.toNat &&& b.toNat := BitVec.toNat_and ..
-
 end $typeName
 )
 declare_bitwise_uint_theorems UInt8 8
@@ -600,7 +596,7 @@ expression `(a >>> b).toUInt8` is not a function of `a.toUInt8` and `b.toUInt8`.
     USize.ofFin (a <<< (b % ⟨System.Platform.numBits, by cases System.Platform.numBits_eq <;> simp_all [USize.size]⟩)) = USize.ofFin a <<< USize.ofFin b := by
   apply USize.toFin_inj.1
   rw [toFin_ofFin, USize.shiftLeft_eq_shiftLeft_mod, USize.toFin_shiftLeft, toFin_ofFin, USize.toFin_mod,
-    toFin_ofFin, toFin_ofNat', ← Fin.ofNat'_val_eq_self ⟨System.Platform.numBits, _⟩]
+    toFin_ofFin, toFin.ofNat, ← Fin.ofNat_val_eq_self ⟨System.Platform.numBits, _⟩]
   rw [USize.toNat_mod, toNat_ofNat']
   cases System.Platform.numBits_eq <;> simpa [*] using Nat.mod_lt _ (by decide)
 
@@ -695,7 +691,7 @@ expression `(a >>> b).toUInt8` is not a function of `a.toUInt8` and `b.toUInt8`.
     USize.ofFin (a >>> (b % ⟨System.Platform.numBits, by cases System.Platform.numBits_eq <;> simp_all [USize.size]⟩)) = USize.ofFin a >>> USize.ofFin b := by
   apply USize.toFin_inj.1
   rw [toFin_ofFin, USize.shiftRight_eq_shiftRight_mod, USize.toFin_shiftRight, toFin_ofFin, USize.toFin_mod,
-    toFin_ofFin, toFin_ofNat', ← Fin.ofNat'_val_eq_self ⟨System.Platform.numBits, _⟩]
+    toFin_ofFin, toFin.ofNat, ← Fin.ofNat_val_eq_self ⟨System.Platform.numBits, _⟩]
   rw [USize.toNat_mod, toNat_ofNat']
   cases System.Platform.numBits_eq <;> simpa [*] using Nat.mod_lt _ (by decide)
 

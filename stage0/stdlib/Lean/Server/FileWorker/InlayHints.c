@@ -83,6 +83,7 @@ lean_object* l_Lean_initializing(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_handleInlayHints___spec__15(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_toJsonInlayHint____x40_Lean_Data_Lsp_LanguageFeatures___hyg_13058_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintTextEdit_toLspTextEdit(lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleInlayHintsDidChange_updateOldInlayHints___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_InlayHints___hyg_2242____spec__3___lambda__11___closed__3;
 size_t lean_usize_of_nat(lean_object*);
@@ -144,7 +145,6 @@ LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Server_FileWorker
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintTextEdit_toLspTextEdit___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_FileWorker_handleInlayHints___spec__3___closed__2;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_InlayHintInfo_toLspInlayHint___spec__1(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_InlayHints___hyg_2242____closed__3;
 lean_object* l_Lean_Server_RequestCancellationToken_cancellationTasks(lean_object*);
@@ -219,6 +219,7 @@ lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_InlayHints___hyg_2242____spec__3___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_InlayHintInfo_toLspInlayHint___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Server_FileWorker_handleInlayHints___spec__4___closed__3;
 static lean_object* l_Lean_Server_FileWorker_instImpl____x40_Lean_Server_FileWorker_InlayHints___hyg_728____closed__4;
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -253,7 +254,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_FileWorker_h
 LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Server_FileWorker_handleInlayHints___spec__6(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_FileWorker_handleInlayHints___spec__14(lean_object*, lean_object*, size_t, size_t, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static size_t l_Lean_Server_FileWorker_handleInlayHints___lambda__1___closed__6;
 lean_object* l_Lean_Elab_ContextInfo_runMetaM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_handleInlayHints___lambda__1___closed__4;
@@ -1653,19 +1653,19 @@ x_53 = lean_nat_dec_lt(x_14, x_52);
 if (x_53 == 0)
 {
 lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; 
-x_54 = l___private_Init_Data_Repr_0__Nat_reprFast(x_14);
+x_54 = l_Nat_reprFast(x_14);
 x_55 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__1;
 x_56 = lean_string_append(x_55, x_54);
 lean_dec(x_54);
 x_57 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__2;
 x_58 = lean_string_append(x_56, x_57);
-x_59 = l___private_Init_Data_Repr_0__Nat_reprFast(x_52);
+x_59 = l_Nat_reprFast(x_52);
 x_60 = lean_string_append(x_58, x_59);
 lean_dec(x_59);
 x_61 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__3;
 x_62 = lean_string_append(x_60, x_61);
 lean_inc(x_3);
-x_63 = l___private_Init_Data_Repr_0__Nat_reprFast(x_3);
+x_63 = l_Nat_reprFast(x_3);
 x_64 = lean_string_append(x_62, x_63);
 lean_dec(x_63);
 x_65 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__4;
@@ -1674,7 +1674,7 @@ x_67 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___
 x_68 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__6;
 x_69 = lean_unsigned_to_nat(83u);
 x_70 = lean_unsigned_to_nat(6u);
-x_71 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_67, x_68, x_69, x_70, x_66);
+x_71 = l_mkPanicMessageWithDecl(x_67, x_68, x_69, x_70, x_66);
 lean_dec(x_66);
 x_72 = l_panic___at_Lean_Parser_ParserState_mkUnexpectedTokenErrors___spec__1(x_71);
 if (x_18 == 0)
@@ -1779,19 +1779,19 @@ x_23 = lean_nat_dec_lt(x_15, x_22);
 if (x_23 == 0)
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; 
-x_24 = l___private_Init_Data_Repr_0__Nat_reprFast(x_15);
+x_24 = l_Nat_reprFast(x_15);
 x_25 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__1;
 x_26 = lean_string_append(x_25, x_24);
 lean_dec(x_24);
 x_27 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__2;
 x_28 = lean_string_append(x_26, x_27);
-x_29 = l___private_Init_Data_Repr_0__Nat_reprFast(x_22);
+x_29 = l_Nat_reprFast(x_22);
 x_30 = lean_string_append(x_28, x_29);
 lean_dec(x_29);
 x_31 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__3;
 x_32 = lean_string_append(x_30, x_31);
 lean_inc(x_3);
-x_33 = l___private_Init_Data_Repr_0__Nat_reprFast(x_3);
+x_33 = l_Nat_reprFast(x_3);
 x_34 = lean_string_append(x_32, x_33);
 lean_dec(x_33);
 x_35 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__4;
@@ -1800,7 +1800,7 @@ x_37 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___
 x_38 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__6;
 x_39 = lean_unsigned_to_nat(83u);
 x_40 = lean_unsigned_to_nat(6u);
-x_41 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_37, x_38, x_39, x_40, x_36);
+x_41 = l_mkPanicMessageWithDecl(x_37, x_38, x_39, x_40, x_36);
 lean_dec(x_36);
 x_42 = l_panic___at_Lean_Parser_ParserState_mkUnexpectedTokenErrors___spec__1(x_41);
 if (lean_is_scalar(x_16)) {
@@ -1975,19 +1975,19 @@ x_73 = lean_nat_dec_lt(x_32, x_72);
 if (x_73 == 0)
 {
 lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; 
-x_74 = l___private_Init_Data_Repr_0__Nat_reprFast(x_32);
+x_74 = l_Nat_reprFast(x_32);
 x_75 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__1;
 x_76 = lean_string_append(x_75, x_74);
 lean_dec(x_74);
 x_77 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__2;
 x_78 = lean_string_append(x_76, x_77);
-x_79 = l___private_Init_Data_Repr_0__Nat_reprFast(x_72);
+x_79 = l_Nat_reprFast(x_72);
 x_80 = lean_string_append(x_78, x_79);
 lean_dec(x_79);
 x_81 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__3;
 x_82 = lean_string_append(x_80, x_81);
 lean_inc(x_4);
-x_83 = l___private_Init_Data_Repr_0__Nat_reprFast(x_4);
+x_83 = l_Nat_reprFast(x_4);
 x_84 = lean_string_append(x_82, x_83);
 lean_dec(x_83);
 x_85 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__4;
@@ -1996,7 +1996,7 @@ x_87 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___
 x_88 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__6;
 x_89 = lean_unsigned_to_nat(83u);
 x_90 = lean_unsigned_to_nat(6u);
-x_91 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_87, x_88, x_89, x_90, x_86);
+x_91 = l_mkPanicMessageWithDecl(x_87, x_88, x_89, x_90, x_86);
 lean_dec(x_86);
 x_92 = l_panic___at_Lean_Parser_ParserState_mkUnexpectedTokenErrors___spec__1(x_91);
 if (x_71 == 0)
@@ -2125,19 +2125,19 @@ x_38 = lean_nat_dec_lt(x_33, x_37);
 if (x_38 == 0)
 {
 lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; 
-x_39 = l___private_Init_Data_Repr_0__Nat_reprFast(x_33);
+x_39 = l_Nat_reprFast(x_33);
 x_40 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__1;
 x_41 = lean_string_append(x_40, x_39);
 lean_dec(x_39);
 x_42 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__2;
 x_43 = lean_string_append(x_41, x_42);
-x_44 = l___private_Init_Data_Repr_0__Nat_reprFast(x_37);
+x_44 = l_Nat_reprFast(x_37);
 x_45 = lean_string_append(x_43, x_44);
 lean_dec(x_44);
 x_46 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__3;
 x_47 = lean_string_append(x_45, x_46);
 lean_inc(x_4);
-x_48 = l___private_Init_Data_Repr_0__Nat_reprFast(x_4);
+x_48 = l_Nat_reprFast(x_4);
 x_49 = lean_string_append(x_47, x_48);
 lean_dec(x_48);
 x_50 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__4;
@@ -2146,7 +2146,7 @@ x_52 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___
 x_53 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__6;
 x_54 = lean_unsigned_to_nat(83u);
 x_55 = lean_unsigned_to_nat(6u);
-x_56 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_52, x_53, x_54, x_55, x_51);
+x_56 = l_mkPanicMessageWithDecl(x_52, x_53, x_54, x_55, x_51);
 lean_dec(x_51);
 x_57 = l_panic___at_Lean_Parser_ParserState_mkUnexpectedTokenErrors___spec__1(x_56);
 if (lean_is_scalar(x_34)) {
@@ -2378,19 +2378,19 @@ x_34 = lean_nat_dec_lt(x_3, x_33);
 if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; 
-x_35 = l___private_Init_Data_Repr_0__Nat_reprFast(x_3);
+x_35 = l_Nat_reprFast(x_3);
 x_36 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__1;
 x_37 = lean_string_append(x_36, x_35);
 lean_dec(x_35);
 x_38 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__2;
 x_39 = lean_string_append(x_37, x_38);
-x_40 = l___private_Init_Data_Repr_0__Nat_reprFast(x_33);
+x_40 = l_Nat_reprFast(x_33);
 x_41 = lean_string_append(x_39, x_40);
 lean_dec(x_40);
 x_42 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__3;
 x_43 = lean_string_append(x_41, x_42);
 lean_inc(x_15);
-x_44 = l___private_Init_Data_Repr_0__Nat_reprFast(x_15);
+x_44 = l_Nat_reprFast(x_15);
 x_45 = lean_string_append(x_43, x_44);
 lean_dec(x_44);
 x_46 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__4;
@@ -2399,7 +2399,7 @@ x_48 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___
 x_49 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_applyEditToHint_x3f___spec__1___closed__6;
 x_50 = lean_unsigned_to_nat(83u);
 x_51 = lean_unsigned_to_nat(6u);
-x_52 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_48, x_49, x_50, x_51, x_47);
+x_52 = l_mkPanicMessageWithDecl(x_48, x_49, x_50, x_51, x_47);
 lean_dec(x_47);
 x_53 = l_panic___at_Lean_Parser_ParserState_mkUnexpectedTokenErrors___spec__1(x_52);
 if (lean_obj_tag(x_6) == 0)
@@ -3230,7 +3230,7 @@ x_2 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_FileWorker_handleInlayHint
 x_3 = lean_unsigned_to_nat(62u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_FileWorker_handleInlayHints___spec__3___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -4809,7 +4809,7 @@ x_2 = l_Lean_Server_FileWorker_handleInlayHints___lambda__1___closed__4;
 x_3 = lean_unsigned_to_nat(158u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Server_FileWorker_handleInlayHints___lambda__1___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

@@ -861,7 +861,7 @@ instance : Inhabited NonemptyType.{u} where
 Lifts a type to a higher universe level.
 
 `ULift α` wraps a value of type `α`. Instead of occupying the same universe as `α`, which would be
-the minimal level, it takes a further level parameter and occupies their minimum. The resulting type
+the minimal level, it takes a further level parameter and occupies their maximum. The resulting type
 may occupy any universe that's at least as large as that of `α`.
 
 The resulting universe of the lifting operator is the first parameter, and may be written explicitly
@@ -2500,8 +2500,12 @@ Pack a `Nat` encoding a valid codepoint into a `Char`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_of_nat"]
-def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char :=
-  { val := ⟨BitVec.ofNatLT n (isValidChar_UInt32 h)⟩, valid := h }
+def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char where
+  val := ⟨BitVec.ofNatLT n
+    -- We would conventionally use `by exact` here to enter a private context, but `exact` does not
+    -- exist here yet.
+    (private_decl% isValidChar_UInt32 h)⟩
+  valid := h
 
 /--
 Converts a `Nat` into a `Char`. If the `Nat` does not encode a valid Unicode scalar value, `'\0'` is
@@ -3002,7 +3006,7 @@ This is a cached value, so it is `O(1)` to access. The space allocated for an ar
 its _capacity_, is at least as large as its size, but may be larger. The capacity of an array is an
 internal detail that's not observable by Lean code.
 -/
-@[reducible, extern "lean_array_get_size"]
+@[extern "lean_array_get_size"]
 def Array.size {α : Type u} (a : @& Array α) : Nat :=
  a.toList.length
 
@@ -4092,7 +4096,12 @@ protected opaque String.hash (s : @& String) : UInt64
 instance : Hashable String where
   hash := String.hash
 
+end  -- don't expose `Lean` defs
+
 namespace Lean
+
+open BEq (beq)
+open HAdd (hAdd)
 
 /--
 Hierarchical names consist of a sequence of components, each of
@@ -4178,35 +4187,35 @@ abbrev mkSimple (s : String) : Name :=
   .str .anonymous s
 
 /-- Make name `s₁` -/
-@[reducible] def mkStr1 (s₁ : String) : Name :=
+@[expose, reducible] def mkStr1 (s₁ : String) : Name :=
   .str .anonymous s₁
 
 /-- Make name `s₁.s₂` -/
-@[reducible] def mkStr2 (s₁ s₂ : String) : Name :=
+@[expose, reducible] def mkStr2 (s₁ s₂ : String) : Name :=
   .str (.str .anonymous s₁) s₂
 
 /-- Make name `s₁.s₂.s₃` -/
-@[reducible] def mkStr3 (s₁ s₂ s₃ : String) : Name :=
+@[expose, reducible] def mkStr3 (s₁ s₂ s₃ : String) : Name :=
   .str (.str (.str .anonymous s₁) s₂) s₃
 
 /-- Make name `s₁.s₂.s₃.s₄` -/
-@[reducible] def mkStr4 (s₁ s₂ s₃ s₄ : String) : Name :=
+@[expose, reducible] def mkStr4 (s₁ s₂ s₃ s₄ : String) : Name :=
   .str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄
 
 /-- Make name `s₁.s₂.s₃.s₄.s₅` -/
-@[reducible] def mkStr5 (s₁ s₂ s₃ s₄ s₅ : String) : Name :=
+@[expose, reducible] def mkStr5 (s₁ s₂ s₃ s₄ s₅ : String) : Name :=
   .str (.str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄) s₅
 
 /-- Make name `s₁.s₂.s₃.s₄.s₅.s₆` -/
-@[reducible] def mkStr6 (s₁ s₂ s₃ s₄ s₅ s₆ : String) : Name :=
+@[expose, reducible] def mkStr6 (s₁ s₂ s₃ s₄ s₅ s₆ : String) : Name :=
   .str (.str (.str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄) s₅) s₆
 
 /-- Make name `s₁.s₂.s₃.s₄.s₅.s₆.s₇` -/
-@[reducible] def mkStr7 (s₁ s₂ s₃ s₄ s₅ s₆ s₇ : String) : Name :=
+@[expose, reducible] def mkStr7 (s₁ s₂ s₃ s₄ s₅ s₆ s₇ : String) : Name :=
   .str (.str (.str (.str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄) s₅) s₆) s₇
 
 /-- Make name `s₁.s₂.s₃.s₄.s₅.s₆.s₇.s₈` -/
-@[reducible] def mkStr8 (s₁ s₂ s₃ s₄ s₅ s₆ s₇ s₈ : String) : Name :=
+@[expose, reducible] def mkStr8 (s₁ s₂ s₃ s₄ s₅ s₆ s₇ s₈ : String) : Name :=
   .str (.str (.str (.str (.str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄) s₅) s₆) s₇) s₈
 
 /-- (Boolean) equality comparator for names. -/
@@ -4455,7 +4464,7 @@ def Syntax.node8 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ a₃ a�
 Singleton `SyntaxNodeKinds` are extremely common. They are written as name literals, rather than as
 lists; list syntax is required only for empty or non-singleton sets of kinds.
 -/
-def SyntaxNodeKinds := List SyntaxNodeKind
+@[expose] def SyntaxNodeKinds := List SyntaxNodeKind
 
 /--
 Typed syntax, which tracks the potential kinds of the `Syntax` it contains.
@@ -5140,11 +5149,13 @@ end Syntax
 namespace Macro
 
 /-- References -/
-private opaque MethodsRefPointed : NonemptyType.{0}
+-- TODO: make private again and make Nonempty instance no_expose instead after bootstrapping
+opaque MethodsRefPointed : NonemptyType.{0}
 
-private def MethodsRef : Type := MethodsRefPointed.type
+set_option linter.missingDocs false in
+@[expose] def MethodsRef : Type := MethodsRefPointed.type
 
-private instance : Nonempty MethodsRef := MethodsRefPointed.property
+instance : Nonempty MethodsRef := MethodsRefPointed.property
 
 /-- The read-only context for the `MacroM` monad. -/
 structure Context where

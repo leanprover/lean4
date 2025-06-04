@@ -28,7 +28,15 @@ builtin_initialize
     name := `expose
     descr := "(module system) Make bodies of definitions available to importing modules."
     add := fun _ _ _ => do
+      -- Attribute will be filtered out by `MutualDef`
       throwError "Invalid attribute 'expose', must be used when declaring `def`"
+  }
+  registerBuiltinAttribute {
+    name := `no_expose
+    descr := "(module system) Negate previous `[expose]` attribute."
+    add := fun _ _ _ => do
+      -- Attribute will be filtered out by `MutualDef`
+      throwError "Invalid attribute 'no_expose', must be used when declaring `def`"
   }
 
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
@@ -1061,6 +1069,7 @@ where
     let tacPromises ← views.mapM fun _ => IO.Promise.new
     let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
       Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
+    withExporting (isExporting := !expandedDeclIds.all (isPrivateName ·.declName)) do
     let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
     let headers ← levelMVarToParamHeaders views headers
     if let (#[view], #[declId]) := (views, expandedDeclIds) then
@@ -1080,7 +1089,8 @@ where
     processDeriving headers
   elabAsync header view declId := do
     let env ← getEnv
-    let async ← env.addConstAsync declId.declName .thm (exportedKind := .axiom)
+    let async ← env.addConstAsync declId.declName .thm
+      (exportedKind? := guard (!isPrivateName declId.declName) *> some .axiom)
     setEnv async.mainEnv
 
     -- TODO: parallelize header elaboration as well? Would have to refactor auto implicits catch,
@@ -1141,14 +1151,16 @@ where
     Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
-  finishElab headers := withFunLocalDecls headers fun funFVars => withExporting
-    (isExporting :=
-      (headers.all (·.kind == .def) && sc.attrs.any (· matches `(attrInstance| expose))) ||
-      headers.all fun header =>
-        !header.modifiers.isPrivate &&
-        (header.kind matches .abbrev | .instance || header.modifiers.attrs.any (·.name == `expose))) do
+  finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars =>
+    withExporting (isExporting :=
+      !headers.all (fun header =>
+        header.modifiers.isPrivate || header.modifiers.attrs.any (·.name == `no_expose)) &&
+      (isExporting ||
+       headers.all (fun header => (header.kind matches .abbrev | .instance)) ||
+       (headers.all (·.kind == .def) && sc.attrs.any (· matches `(attrInstance| expose))) ||
+       headers.any (·.modifiers.attrs.any (·.name == `expose)))) do
     let headers := headers.map fun header =>
-      { header with modifiers.attrs := header.modifiers.attrs.filter (·.name != `expose) }
+      { header with modifiers.attrs := header.modifiers.attrs.filter (!·.name ∈ [`expose, `no_expose]) }
     for view in views, funFVar in funFVars do
       addLocalVarInfo view.declId funFVar
     let values ← try

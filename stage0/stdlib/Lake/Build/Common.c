@@ -126,6 +126,7 @@ static lean_object* l_Lake_readTraceFile_x3f___closed__2;
 lean_object* l_Lean_Json_getStr_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at___private_Lake_Build_Common_0__Lake_mkLinkOrder_go___spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildLeanSharedLib(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildUnlessUpToDate_x3f___at_Lake_buildFileUnlessUpToDate_x27___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Build_Common_0__Lake_mkLinkOrder___closed__1;
 LEAN_EXPORT lean_object* l_Lake_BuildMetadata_ofHash(uint64_t);
@@ -227,7 +228,6 @@ LEAN_EXPORT lean_object* l_IO_withStderr___at_Lake_inputDir___spec__7(lean_objec
 lean_object* l_Lake_EquipT_instMonad___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStderr___at_Lake_buildLeanExe___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_instMonadBaseIO;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_platformTrace___closed__4;
 LEAN_EXPORT lean_object* l_Lake_Job_bindM___at_Lake_buildLeanExe___spec__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lake_buildFileUnlessUpToDate_x27___spec__5(lean_object*, lean_object*);
@@ -377,6 +377,7 @@ static lean_object* l_Lake_BuildMetadata_fromJson_x3f___closed__11;
 static lean_object* l_Lake_buildO___lambda__2___closed__3;
 LEAN_EXPORT lean_object* l_Lake_inputTextFile(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildO___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_mapTR_loop___at___private_Lake_Build_Common_0__Lake_mkLinkOrder___spec__3___closed__1;
 LEAN_EXPORT lean_object* l_Lake_buildLeanSharedLib___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -439,7 +440,6 @@ LEAN_EXPORT lean_object* l_Lake_inputTextFile___lambda__1___boxed(lean_object*, 
 LEAN_EXPORT lean_object* l_Lake_Job_mapM___at_Lake_buildFileAfterDepList___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildSharedLib___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at_Lake_inputDir___spec__4(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildFileUnlessUpToDate(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_platformTrace___closed__5;
 LEAN_EXPORT lean_object* l_Lake_Job_bindM___at_Lake_buildSharedLib___spec__7___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6430,7 +6430,7 @@ lean_dec(x_8);
 x_10 = lean_unbox_uint64(x_4);
 lean_dec(x_4);
 x_11 = lean_uint64_to_nat(x_10);
-x_12 = l___private_Init_Data_Repr_0__Nat_reprFast(x_11);
+x_12 = l_Nat_reprFast(x_11);
 x_13 = l_IO_FS_writeFile(x_7, x_12, x_9);
 lean_dec(x_12);
 lean_dec(x_7);
@@ -6845,7 +6845,7 @@ x_20 = lean_ctor_get(x_16, 0);
 lean_dec(x_20);
 x_21 = lean_unbox_uint64(x_14);
 x_22 = lean_uint64_to_nat(x_21);
-x_23 = l___private_Init_Data_Repr_0__Nat_reprFast(x_22);
+x_23 = l_Nat_reprFast(x_22);
 x_24 = !lean_is_exclusive(x_19);
 if (x_24 == 0)
 {
@@ -7016,7 +7016,7 @@ lean_inc(x_64);
 lean_dec(x_16);
 x_65 = lean_unbox_uint64(x_14);
 x_66 = lean_uint64_to_nat(x_65);
-x_67 = l___private_Init_Data_Repr_0__Nat_reprFast(x_66);
+x_67 = l_Nat_reprFast(x_66);
 x_68 = lean_ctor_get(x_64, 0);
 lean_inc(x_68);
 x_69 = lean_ctor_get_uint8(x_64, sizeof(void*)*2);
@@ -7235,7 +7235,7 @@ if (lean_is_exclusive(x_125)) {
 }
 x_129 = lean_unbox_uint64(x_123);
 x_130 = lean_uint64_to_nat(x_129);
-x_131 = l___private_Init_Data_Repr_0__Nat_reprFast(x_130);
+x_131 = l_Nat_reprFast(x_130);
 x_132 = lean_ctor_get(x_127, 0);
 lean_inc(x_132);
 x_133 = lean_ctor_get_uint8(x_127, sizeof(void*)*2);
@@ -13543,7 +13543,7 @@ x_2 = l_IO_FS_withIsolatedStreams___at_Lake_buildFileAfterDep___spec__2___closed
 x_3 = lean_unsigned_to_nat(129u);
 x_4 = lean_unsigned_to_nat(47u);
 x_5 = l_IO_FS_withIsolatedStreams___at_Lake_buildFileAfterDep___spec__2___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -44721,7 +44721,7 @@ lean_closure_set(x_21, 8, x_20);
 x_22 = lean_ctor_get(x_15, 1);
 lean_inc(x_22);
 x_23 = l_Task_Priority_default;
-x_24 = 1;
+x_24 = 0;
 x_25 = l_Lake_Job_mapM___at_Lake_buildSharedLib___spec__2(x_18, x_21, x_23, x_24, x_11, x_12, x_13, x_14, x_22, x_16);
 if (lean_obj_tag(x_25) == 0)
 {
@@ -44806,7 +44806,7 @@ lean_closure_set(x_21, 6, x_19);
 lean_closure_set(x_21, 7, x_1);
 lean_closure_set(x_21, 8, x_20);
 x_22 = l_Task_Priority_default;
-x_23 = 0;
+x_23 = 1;
 x_24 = l_Lake_Job_bindM___at_Lake_buildSharedLib___spec__7(x_18, x_21, x_22, x_23, x_11, x_12, x_13, x_14, x_15, x_16);
 return x_24;
 }
@@ -45647,7 +45647,7 @@ lean_closure_set(x_19, 6, x_18);
 x_20 = lean_ctor_get(x_13, 1);
 lean_inc(x_20);
 x_21 = l_Task_Priority_default;
-x_22 = 1;
+x_22 = 0;
 x_23 = l_Lake_Job_mapM___at_Lake_buildSharedLib___spec__2(x_16, x_19, x_21, x_22, x_9, x_10, x_11, x_12, x_20, x_14);
 if (lean_obj_tag(x_23) == 0)
 {
@@ -45722,7 +45722,7 @@ lean_closure_set(x_19, 4, x_17);
 lean_closure_set(x_19, 5, x_1);
 lean_closure_set(x_19, 6, x_18);
 x_20 = l_Task_Priority_default;
-x_21 = 0;
+x_21 = 1;
 x_22 = l_Lake_Job_bindM___at_Lake_buildSharedLib___spec__7(x_16, x_19, x_20, x_21, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_22;
 }
@@ -51325,7 +51325,7 @@ lean_closure_set(x_16, 4, x_5);
 x_17 = lean_ctor_get(x_11, 1);
 lean_inc(x_17);
 x_18 = l_Task_Priority_default;
-x_19 = 1;
+x_19 = 0;
 x_20 = l_Lake_Job_mapM___at_Lake_buildLeanExe___spec__1(x_14, x_16, x_18, x_19, x_7, x_8, x_9, x_10, x_17, x_12);
 if (lean_obj_tag(x_20) == 0)
 {
@@ -51397,7 +51397,7 @@ lean_closure_set(x_16, 2, x_4);
 lean_closure_set(x_16, 3, x_15);
 lean_closure_set(x_16, 4, x_1);
 x_17 = l_Task_Priority_default;
-x_18 = 0;
+x_18 = 1;
 x_19 = l_Lake_Job_bindM___at_Lake_buildLeanExe___spec__2(x_14, x_16, x_17, x_18, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_19;
 }

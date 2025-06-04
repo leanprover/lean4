@@ -39,6 +39,7 @@ extern lean_object* l_Lean_Meta_Grind_grind_debug;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Offset_mkModel___spec__10___closed__2;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Arith_Offset_mkModel___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_mkModel___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Grind_Arith_Offset_mkModel___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -67,7 +68,6 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith
 lean_object* l_Array_qsort_sort___at_Lean_sortExprs___spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_mkModel___closed__2;
 uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Arith_Offset_mkModel___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_AssocList_any___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Grind_Arith_Offset_mkModel___spec__11(lean_object*, size_t, size_t, lean_object*);
@@ -95,6 +95,7 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Arith_O
 lean_object* lean_array_mk(lean_object*);
 lean_object* l_Lean_PersistentArray_get_x21___rarg(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Arith_Offset_mkModel___spec__6___closed__5;
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Arith_Offset_mkModel___spec__8___closed__1;
@@ -117,7 +118,6 @@ LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_Meta_Grind_Arith_Offs
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_mkModel___closed__1;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Arith_Offset_mkModel___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1371____spec__1(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 lean_object* l_Lean_Meta_isLitValue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Arith_Offset_mkModel___spec__6___closed__7;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -988,7 +988,7 @@ x_2 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Arith_Offset_mkModel___spe
 x_3 = lean_unsigned_to_nat(54u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Arith_Offset_mkModel___spec__6___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1019,7 +1019,7 @@ x_2 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Arith_Offset_mkModel___spe
 x_3 = lean_unsigned_to_nat(56u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Arith_Offset_mkModel___spec__6___closed__8;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1050,7 +1050,7 @@ x_2 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Arith_Offset_mkModel___spe
 x_3 = lean_unsigned_to_nat(57u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Arith_Offset_mkModel___spec__6___closed__11;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1402,7 +1402,7 @@ x_2 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Arith_Offset_mkModel___spe
 x_3 = lean_unsigned_to_nat(66u);
 x_4 = lean_unsigned_to_nat(30u);
 x_5 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Arith_Offset_mkModel___spec__8___closed__1;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -2264,7 +2264,7 @@ x_32 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Offset_mkModel___
 lean_ctor_set_tag(x_15, 7);
 lean_ctor_set(x_15, 1, x_32);
 lean_ctor_set(x_15, 0, x_19);
-x_33 = l___private_Init_Data_Repr_0__Nat_reprFast(x_18);
+x_33 = l_Nat_reprFast(x_18);
 x_34 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_34, 0, x_33);
 x_35 = l_Lean_MessageData_ofFormat(x_34);
@@ -2302,7 +2302,7 @@ x_48 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Offset_mkModel___
 lean_ctor_set_tag(x_15, 7);
 lean_ctor_set(x_15, 1, x_48);
 lean_ctor_set(x_15, 0, x_47);
-x_49 = l___private_Init_Data_Repr_0__Nat_reprFast(x_18);
+x_49 = l_Nat_reprFast(x_18);
 x_50 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_50, 0, x_49);
 x_51 = l_Lean_MessageData_ofFormat(x_50);
@@ -2384,7 +2384,7 @@ x_75 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Offset_mkModel___
 x_76 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_76, 0, x_74);
 lean_ctor_set(x_76, 1, x_75);
-x_77 = l___private_Init_Data_Repr_0__Nat_reprFast(x_61);
+x_77 = l_Nat_reprFast(x_61);
 x_78 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_78, 0, x_77);
 x_79 = l_Lean_MessageData_ofFormat(x_78);

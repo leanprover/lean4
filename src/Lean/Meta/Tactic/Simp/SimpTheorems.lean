@@ -456,11 +456,11 @@ private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool)
     if inv || (← shouldPreprocess type) then
       let mut r := #[]
       for (val, type) in (← preprocess val type inv (isGlobal := true)) do
-        let auxName ← mkAuxLemma cinfo.levelParams type val (inferRfl := true)
-        r := r.push <| (← mkSimpTheoremCore origin (mkConst auxName us) #[] (mkConst auxName) post prio (noIndexAtArgs := false))
+        let auxName ← mkAuxLemma (kind? := `_simp) cinfo.levelParams type val (inferRfl := true)
+        r := r.push <| (← withoutExporting do mkSimpTheoremCore origin (mkConst auxName us) #[] (mkConst auxName) post prio (noIndexAtArgs := false))
       return r
     else
-      return #[← mkSimpTheoremCore origin (mkConst declName us) #[] (mkConst declName) post prio (noIndexAtArgs := false)]
+      return #[← withoutExporting do mkSimpTheoremCore origin (mkConst declName us) #[] (mkConst declName) post prio (noIndexAtArgs := false)]
 
 inductive SimpEntry where
   | thm      : SimpTheorem → SimpEntry
@@ -480,7 +480,7 @@ def SimpExtension.getTheorems (ext : SimpExtension) : CoreM SimpTheorems :=
   return ext.getState (← getEnv)
 
 def addSimpTheorem (ext : SimpExtension) (declName : Name) (post : Bool) (inv : Bool) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
-  let simpThms ← mkSimpTheoremsFromConst declName post inv prio
+  let simpThms ← withExporting (isExporting := !isPrivateName declName) do mkSimpTheoremsFromConst declName post inv prio
   for simpThm in simpThms do
     ext.add (SimpEntry.thm simpThm) attrKind
 

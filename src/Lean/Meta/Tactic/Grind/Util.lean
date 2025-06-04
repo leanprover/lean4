@@ -216,4 +216,10 @@ def replacePreMatchCond (e : Expr) : MetaM Simp.Result := do
     let e' ← Core.transform e (pre := pre)
     return { expr := e', proof? := mkExpectedPropHint (← mkEqRefl e') (← mkEq e e') }
 
+def isIte (e : Expr) :=
+  e.isAppOf ``ite && e.getAppNumArgs >= 5
+
+def isDIte (e : Expr) :=
+  e.isAppOf ``dite && e.getAppNumArgs >= 5
+
 end Lean.Meta.Grind

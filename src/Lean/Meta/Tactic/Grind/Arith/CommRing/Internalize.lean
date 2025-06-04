@@ -27,9 +27,19 @@ private def getType? (e : Expr) : Option Expr :=
 
 private def isForbiddenParent (parent? : Option Expr) : Bool :=
   if let some parent := parent? then
-    getType? parent |>.isSome
+    if getType? parent |>.isSome then
+      true
+    else
+      -- We also ignore the following parents.
+      -- Remark: `HDiv` should appear in `getType?` as soon as we add support for `Field`,
+      -- `LE.le` linear combinations
+      match_expr parent with
+      | LE.le _ _ _ _ => true
+      | HDiv.hDiv _ _ _ _ _ _ => true
+      | HMod.hMod _ _ _ _ _ _ => true
+      | _ => false
   else
-    false
+    true
 
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   if !(← getConfig).ring && !(← getConfig).ringNull then return ()

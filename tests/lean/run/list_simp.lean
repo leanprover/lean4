@@ -454,6 +454,8 @@ end Pairwise
 
 /-! ## Ranges and enumeration -/
 
+example : (List.range 1).sum = 0 := by simp
+
 /-! ### enumFrom -/
 
 /-! ### min? -/

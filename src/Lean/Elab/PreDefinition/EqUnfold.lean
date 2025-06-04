@@ -24,8 +24,9 @@ This is not extensible, and always builds on the unfold theorem (`f.eq_def`).
 -/
 def getConstUnfoldEqnFor? (declName : Name) : MetaM (Option Name) := do
   if (← getUnfoldEqnFor? (nonRec := true) declName).isNone then
+    trace[ReservedNameAction] "getConstUnfoldEqnFor? {declName} failed, no unfold theorem available"
     return none
-  let name := .str declName eqUnfoldThmSuffix
+  let name := mkEqLikeNameFor (← getEnv) declName eqUnfoldThmSuffix
   realizeConst declName name do
     -- we have to call `getUnfoldEqnFor?` again to make `unfoldEqnName` available in this context
     let some unfoldEqnName ← getUnfoldEqnFor? (nonRec := true) declName | unreachable!
@@ -60,9 +61,11 @@ def getConstUnfoldEqnFor? (declName : Name) : MetaM (Option Name) := do
 builtin_initialize
   registerReservedNameAction fun name => do
     let .str p s := name | return false
-    unless (← getEnv).isSafeDefinition p do return false
     if s == eqUnfoldThmSuffix then
-      return (← MetaM.run' <| getConstUnfoldEqnFor? p).isSome
+      let env := (← getEnv).setExporting false
+      for p in [p, privateToUserName p] do
+        if env.isSafeDefinition p then
+          return (← MetaM.run' <| getConstUnfoldEqnFor? p).isSome
     return false
 
 end Lean.Meta

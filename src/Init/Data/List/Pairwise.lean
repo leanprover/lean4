@@ -211,6 +211,7 @@ theorem pairwise_append_comm {R : α → α → Prop} (s : ∀ {x y}, R x y → 
 @[grind] theorem Pairwise.take {l : List α} {i : Nat} (h : List.Pairwise R l) : List.Pairwise R (l.take i) :=
   h.sublist (take_sublist _ _)
 
+@[grind =]
 theorem pairwise_iff_forall_sublist : l.Pairwise R ↔ (∀ {a b}, [a,b] <+ l → R a b) := by
   induction l with
   | nil => simp
@@ -268,6 +269,8 @@ theorem pairwise_of_forall_mem_list {l : List α} {r : α → α → Prop} (h : 
 
 /-! ### Nodup -/
 
+@[grind =] theorem nodup_iff_pairwise_ne : List.Nodup l ↔ List.Pairwise (· ≠ ·) l := Iff.rfl
+
 @[simp, grind]
 theorem nodup_nil : @Nodup α [] :=
   Pairwise.nil
@@ -278,6 +281,9 @@ theorem nodup_cons {a : α} {l : List α} : Nodup (a :: l) ↔ a ∉ l ∧ Nodup
 
 @[grind →] theorem Nodup.sublist : l₁ <+ l₂ → Nodup l₂ → Nodup l₁ :=
   Pairwise.sublist
+
+grind_pattern Nodup.sublist => l₁ <+ l₂, Nodup l₁
+grind_pattern Nodup.sublist => l₁ <+ l₂, Nodup l₂
 
 theorem Sublist.nodup : l₁ <+ l₂ → Nodup l₂ → Nodup l₁ :=
   Nodup.sublist

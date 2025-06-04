@@ -130,6 +130,7 @@ static lean_object* l___private_Lean_Syntax_0__String_reprRange____x40_Lean_Synt
 LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_goRight___rarg___lambda__1(lean_object*);
 static lean_object* l_Lean_Syntax_mkAntiquotNode___closed__13;
 lean_object* l_Lean_Syntax_splitNameLit(lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_isAntiquotSuffixSplice___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Syntax_isAntiquot(lean_object*);
@@ -234,7 +235,6 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_replaceM___rarg___lambda__1(lean_object*,
 LEAN_EXPORT lean_object* l_Lean_unreachIsNodeAtom(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Syntax_isEscapedAntiquot(lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_goUp___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SourceInfo_getRangeWithTrailing_x3f(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SyntaxNode_getNumArgs(lean_object*);
@@ -378,6 +378,7 @@ LEAN_EXPORT uint8_t l_Lean_Syntax_hasMissing(lean_object*);
 uint8_t l_Substring_beq(lean_object*, lean_object*);
 static lean_object* l_Lean_isLitKind___closed__8;
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Syntax_eqWithInfo(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_getCur(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Syntax_antiquotKinds___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -434,7 +435,6 @@ LEAN_EXPORT uint8_t l_Lean_Syntax_isAntiquots(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDown_loop___at_Lean_Syntax_hasMissing___spec__1___lambda__1(lean_object*, lean_object*);
 lean_object* lean_dbg_trace(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_unescapeAntiquot(lean_object*);
 lean_object* l_List_zipWith___at_List_zip___spec__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_getCanonicalAntiquot(lean_object*);
@@ -664,7 +664,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
-x_4 = l___private_Init_Data_Repr_0__Nat_reprFast(x_3);
+x_4 = l_Nat_reprFast(x_3);
 x_5 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_5, 0, x_4);
 x_6 = l___private_Lean_Syntax_0__String_reprRange____x40_Lean_Syntax___hyg_42____closed__9;
@@ -706,7 +706,7 @@ lean_ctor_set(x_23, 1, x_22);
 x_24 = lean_ctor_get(x_1, 1);
 lean_inc(x_24);
 lean_dec(x_1);
-x_25 = l___private_Init_Data_Repr_0__Nat_reprFast(x_24);
+x_25 = l_Nat_reprFast(x_24);
 x_26 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_26, 0, x_25);
 x_27 = lean_alloc_ctor(5, 2, 0);
@@ -5051,7 +5051,7 @@ x_2 = l_Lean_Syntax_identComponents___closed__2;
 x_3 = lean_unsigned_to_nat(330u);
 x_4 = lean_unsigned_to_nat(9u);
 x_5 = l_Lean_Syntax_identComponents___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

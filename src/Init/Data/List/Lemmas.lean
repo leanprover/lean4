@@ -575,9 +575,9 @@ theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 :=
 
 /-! ### any / all -/
 
-theorem any_eq {l : List α} : l.any p = decide (∃ x, x ∈ l ∧ p x) := by induction l <;> simp [*]
+@[grind =] theorem any_eq {l : List α} : l.any p = decide (∃ x, x ∈ l ∧ p x) := by induction l <;> simp [*]
 
-theorem all_eq {l : List α} : l.all p = decide (∀ x, x ∈ l → p x) := by induction l <;> simp [*]
+@[grind =] theorem all_eq {l : List α} : l.all p = decide (∀ x, x ∈ l → p x) := by induction l <;> simp [*]
 
 theorem decide_exists_mem {l : List α} {p : α → Prop} [DecidablePred p] :
     decide (∃ x, x ∈ l ∧ p x) = l.any p := by
@@ -1128,7 +1128,8 @@ theorem map_singleton {f : α → β} {a : α} : map f [a] = [f a] := rfl
 
 -- We use a lower priority here as there are more specific lemmas in downstream libraries
 -- which should be able to fire first.
-@[simp 500] theorem mem_map {f : α → β} : ∀ {l : List α}, b ∈ l.map f ↔ ∃ a, a ∈ l ∧ f a = b
+@[simp 500, grind =] theorem mem_map {f : α → β} :
+    ∀ {l : List α}, b ∈ l.map f ↔ ∃ a, a ∈ l ∧ f a = b
   | [] => by simp
   | _ :: l => by simp [mem_map (l := l), eq_comm (a := b)]
 
@@ -1252,7 +1253,7 @@ theorem tailD_map {f : α → β} {l l' : List α} :
 theorem getLastD_map {f : α → β} {l : List α} {a : α} : (map f l).getLastD (f a) = f (l.getLastD a) := by
   simp
 
-@[simp] theorem map_map {g : β → γ} {f : α → β} {l : List α} :
+@[simp, grind _=_] theorem map_map {g : β → γ} {f : α → β} {l : List α} :
     map g (map f l) = map (g ∘ f) l := by induction l <;> simp_all
 
 /-! ### filter -/
@@ -1337,7 +1338,7 @@ theorem foldr_filter {p : α → Bool} {f : α → β → β} {l : List α} {ini
     simp only [filter_cons, foldr_cons]
     split <;> simp [ih]
 
-theorem filter_map {f : β → α} {p : α → Bool} {l : List β} :
+@[grind _=_] theorem filter_map {f : β → α} {p : α → Bool} {l : List β} :
     filter p (map f l) = map f (filter (p ∘ f) l) := by
   induction l with
   | nil => rfl
@@ -1571,9 +1572,6 @@ theorem not_mem_append {a : α} {s t : List α} (h₁ : a ∉ s) (h₂ : a ∉ t
 @[deprecated mem_append (since := "2025-01-13")]
 theorem mem_append_eq {a : α} {s t : List α} : (a ∈ s ++ t) = (a ∈ s ∨ a ∈ t) :=
   propext mem_append
-
-@[deprecated mem_append_left (since := "2024-11-20")] abbrev mem_append_of_mem_left := @mem_append_left
-@[deprecated mem_append_right (since := "2024-11-20")] abbrev mem_append_of_mem_right := @mem_append_right
 
 /--
 See also `eq_append_cons_of_mem`, which proves a stronger version
@@ -1882,7 +1880,7 @@ theorem eq_nil_or_concat : ∀ l : List α, l = [] ∨ ∃ l' b, l = concat l' b
 
 /-! ### flatten -/
 
-@[simp] theorem length_flatten {L : List (List α)} : L.flatten.length = (L.map length).sum := by
+@[simp, grind _=_] theorem length_flatten {L : List (List α)} : L.flatten.length = (L.map length).sum := by
   induction L with
   | nil => rfl
   | cons =>
@@ -2052,7 +2050,7 @@ theorem eq_iff_flatten_eq : ∀ {L L' : List (List α)},
 
 /-! ### flatMap -/
 
-theorem flatMap_def {l : List α} {f : α → List β} : l.flatMap f = flatten (map f l) := rfl
+@[grind _=_] theorem flatMap_def {l : List α} {f : α → List β} : l.flatMap f = flatten (map f l) := rfl
 
 @[simp] theorem flatMap_id {L : List (List α)} : L.flatMap id = L.flatten := by simp [flatMap_def]
 
@@ -3705,17 +3703,6 @@ theorem mem_iff_get? {a} {l : List α} : a ∈ l ↔ ∃ n, l.get? n = some a :=
   simp [getElem?_eq_some_iff, Fin.exists_iff, mem_iff_get]
 
 /-! ### Deprecations -/
-
-@[deprecated get?_eq_none (since := "2024-11-29")] abbrev get?_len_le := @getElem?_eq_none
-@[deprecated getElem?_eq_some_iff (since := "2024-11-29")]
-abbrev getElem?_eq_some := @getElem?_eq_some_iff
-@[deprecated get?_eq_some_iff (since := "2024-11-29")]
-abbrev get?_eq_some := @getElem?_eq_some_iff
-@[deprecated LawfulGetElem.getElem?_def (since := "2024-11-29")]
-theorem getElem?_eq (l : List α) (i : Nat) :
-    l[i]? = if h : i < l.length then some l[i] else none :=
-  getElem?_def _ _
-@[deprecated getElem?_eq_none (since := "2024-11-29")] abbrev getElem?_len_le := @getElem?_eq_none
 
 @[deprecated _root_.isSome_getElem? (since := "2024-12-09")]
 theorem isSome_getElem? {l : List α} {i : Nat} : l[i]?.isSome ↔ i < l.length := by

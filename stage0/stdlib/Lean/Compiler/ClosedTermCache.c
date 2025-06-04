@@ -48,7 +48,6 @@ LEAN_EXPORT lean_object* l_Lean_closedTermCacheExt;
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_69____spec__8(lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_Expr_hash(lean_object*);
 lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedClosedTermCache___closed__3;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_69____spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_69_(lean_object*);
@@ -72,6 +71,7 @@ size_t lean_usize_sub(size_t, size_t);
 lean_object* lean_array_mk(lean_object*);
 static lean_object* l_List_foldl___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_69____spec__8___closed__2;
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_foldl___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_69____spec__8___closed__3;
 size_t lean_usize_shift_left(size_t, size_t);
 lean_object* lean_array_get_size(lean_object*);
@@ -880,7 +880,7 @@ x_2 = l_List_foldl___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_6
 x_3 = lean_unsigned_to_nat(170u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_List_foldl___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_69____spec__8___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

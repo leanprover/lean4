@@ -29,15 +29,15 @@ constructor:
 
 /-! Structure with private field, imported -/
 /--
-info: structure Thunk.{u} (α : Type u) : Type u
-number of parameters: 1
+info: structure IO.CancelToken : Type
+number of parameters: 0
 fields:
-  private Thunk.fn✝ : Unit → α
+  private IO.CancelToken.ref✝ : IO.Ref Bool
 constructor:
-  Thunk.mk.{u} {α : Type u} (fn : Unit → α) : Thunk α
+  IO.CancelToken.mk (ref : IO.Ref Bool) : IO.CancelToken
 -/
 #guard_msgs in
-#print Thunk
+#print IO.CancelToken
 
 /-! Structure with private field, current module -/
 structure PrivField where

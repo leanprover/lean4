@@ -61,7 +61,6 @@ LEAN_EXPORT lean_object* l_Vector_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_findSome_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Vector_any___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Vector_findM_x3f___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Vector_range___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Vector_any___rarg(lean_object*, lean_object*);
 static lean_object* l_Vector_term_x23v_x5b___x2c_x5d___closed__12;
 static lean_object* l_Vector___aux__Init__Data__Vector__Basic______macroRules__Vector__term_x23v_x5b___x2c_x5d__1___closed__6;
@@ -210,6 +209,7 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Vector_all___spec__1(lean_o
 LEAN_EXPORT uint8_t l_Vector_isPrefixOf___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Vector_foldl___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_mkEmpty___rarg(lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Vector_elimAsArray___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instHAppendHAddNat___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Vector_flatten___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -349,7 +349,6 @@ LEAN_EXPORT lean_object* l_Vector_foldrM___rarg(lean_object*, lean_object*, lean
 LEAN_EXPORT uint8_t l_Vector_lex___rarg___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Vector_insertIdx___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_leftpad(lean_object*);
-LEAN_EXPORT lean_object* l_Vector_ofFn___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_emptyWithCapacity(lean_object*);
 static lean_object* l_Vector___aux__Init__Data__Vector__Basic______macroRules__Vector__term_x23v_x5b___x2c_x5d__1___closed__24;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Vector_flatten___spec__1___rarg(lean_object*, size_t, size_t, lean_object*);
@@ -368,7 +367,6 @@ LEAN_EXPORT lean_object* l_Vector_instInhabited___rarg(lean_object*, lean_object
 static lean_object* l___auto____x40_Init_Data_Vector_Basic___hyg_7663____closed__9;
 LEAN_EXPORT lean_object* l_Vector_get___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Vector_Basic_0__reprVector____x40_Init_Data_Vector_Basic___hyg_38____rarg___closed__4;
-LEAN_EXPORT lean_object* l_Vector_range_x27___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Vector_count___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Vector_emptyWithCapacity___rarg___boxed(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -391,7 +389,6 @@ LEAN_EXPORT lean_object* l_Vector_lex___rarg___boxed(lean_object*, lean_object*,
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_Vector_Basic___hyg_7663____closed__33;
 LEAN_EXPORT lean_object* l_Vector_eraseIdx_x21(lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_lex___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Vector_swapAt_x21___rarg___closed__4;
 LEAN_EXPORT lean_object* l_Vector_back_x3f___rarg(lean_object*);
@@ -584,6 +581,7 @@ static lean_object* l_Vector_term_x23v_x5b___x2c_x5d___closed__6;
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Vector_replicate(lean_object*);
 LEAN_EXPORT lean_object* l_Vector_tail(lean_object*);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Vector___aux__Init__Data__Vector__Basic______macroRules__Vector__term_x23v_x5b___x2c_x5d__1___closed__15;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Vector_sum___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Vector_head(lean_object*, lean_object*, lean_object*);
@@ -671,7 +669,6 @@ LEAN_EXPORT lean_object* l_Vector_findSome_x3f___rarg___boxed(lean_object*, lean
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_findSomeRevM_x3f___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_Array_repr___rarg(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Vector_forM___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Vector_insertIdx_x21___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Vector_countP___rarg___boxed(lean_object*, lean_object*);
@@ -1710,7 +1707,7 @@ lean_ctor_set(x_29, 1, x_28);
 x_30 = l_Lean_Syntax_TSepArray_getElems___rarg(x_10);
 x_31 = lean_array_get_size(x_30);
 lean_dec(x_30);
-x_32 = l___private_Init_Data_Repr_0__Nat_reprFast(x_31);
+x_32 = l_Nat_reprFast(x_31);
 x_33 = lean_box(2);
 x_34 = l_Lean_Syntax_mkNumLit(x_32, x_33);
 x_35 = l_Vector___aux__Init__Data__Vector__Basic______macroRules__Vector__term_x23v_x5b___x2c_x5d__1___closed__23;
@@ -4528,15 +4525,6 @@ x_4 = l_Array_ofFn___rarg(x_1, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Vector_ofFn___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Vector_ofFn(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_4;
-}
-}
 static lean_object* _init_l___auto____x40_Init_Data_Vector_Basic___hyg_6117_() {
 _start:
 {
@@ -4730,7 +4718,7 @@ lean_dec(x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
-x_7 = l___private_Init_Data_Repr_0__Nat_reprFast(x_3);
+x_7 = l_Nat_reprFast(x_3);
 x_8 = l_Vector_swapAt_x21___rarg___closed__1;
 x_9 = lean_string_append(x_8, x_7);
 lean_dec(x_7);
@@ -4738,9 +4726,9 @@ x_10 = l_Vector_swapAt_x21___rarg___closed__2;
 x_11 = lean_string_append(x_9, x_10);
 x_12 = l_Vector_swapAt_x21___rarg___closed__3;
 x_13 = l_Vector_swapAt_x21___rarg___closed__4;
-x_14 = lean_unsigned_to_nat(441u);
+x_14 = lean_unsigned_to_nat(442u);
 x_15 = lean_unsigned_to_nat(4u);
-x_16 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_12, x_13, x_14, x_15, x_11);
+x_16 = l_mkPanicMessageWithDecl(x_12, x_13, x_14, x_15, x_11);
 lean_dec(x_11);
 x_17 = l_panic___at_Vector_swapAt_x21___spec__1___rarg(x_2, x_4, x_16);
 x_18 = !lean_is_exclusive(x_17);
@@ -4818,29 +4806,11 @@ x_3 = l_Array_ofFn___rarg(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Vector_range___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Vector_range(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Vector_range_x27(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
 x_4 = l_Array_range_x27(x_1, x_2, x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Vector_range_x27___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Vector_range_x27(x_1, x_2, x_3);
-lean_dec(x_2);
 return x_4;
 }
 }
@@ -5073,7 +5043,7 @@ x_2 = l_Vector_eraseIdx_x21___rarg___closed__2;
 x_3 = lean_unsigned_to_nat(392u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Vector_eraseIdx_x21___rarg___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -5202,7 +5172,7 @@ x_2 = l_Vector_insertIdx_x21___rarg___closed__1;
 x_3 = lean_unsigned_to_nat(405u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Vector_eraseIdx_x21___rarg___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

@@ -422,6 +422,7 @@ where
 end SizeOfSpecNested
 
 private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name) (recMap : NameMap Name) (ctorName : Name) : MetaM Unit := do
+  withExporting (isExporting := !isPrivateName ctorName) do
   let ctorInfo ← getConstInfoCtor ctorName
   let us := ctorInfo.levelParams.map mkLevelParam
   let simpAttr ← ofExcept <| getAttributeImpl (← getEnv) `simp
@@ -479,6 +480,7 @@ register_builtin_option genSizeOfSpec : Bool := {
 }
 
 def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
+  withExporting (isExporting := !isPrivateName typeName) do
   if (← getEnv).contains ``SizeOf && genSizeOf.get (← getOptions) && !(← isInductivePredicate typeName) then
     withTraceNode `Meta.sizeOf (fun _ => return m!"{typeName}") do
       let indInfo ← getConstInfoInduct typeName

@@ -155,7 +155,6 @@ static lean_object* l_Lean_Parser_SyntaxStack_get_x21___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Parser_SyntaxStack_back___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Parser_ParserState_toErrorMsg___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_toString___at_Lean_Parser_FirstTokens_toStr___spec__1___closed__3;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_Parser_withCacheFn___spec__9___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_initCacheForInput___closed__1;
 static lean_object* l_Lean_Parser_SyntaxStack_back___closed__2;
@@ -250,6 +249,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_SyntaxStack_size___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Types_0__Lean_Parser_Error_expectedToString(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_beqParserCacheKey____x40_Lean_Parser_Types___hyg_857____boxed(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Parser_SyntaxNodeKindSet_insert___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_instInhabitedParserInfo___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_withCacheFn___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2026,7 +2026,7 @@ x_2 = l_Lean_Parser_SyntaxStack_back___closed__2;
 x_3 = lean_unsigned_to_nat(176u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Lean_Parser_SyntaxStack_back___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -2089,7 +2089,7 @@ x_2 = l_Lean_Parser_SyntaxStack_get_x21___closed__1;
 x_3 = lean_unsigned_to_nat(182u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Lean_Parser_SyntaxStack_get_x21___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -3276,7 +3276,7 @@ x_2 = l_Lean_Parser_ParserState_mkUnexpectedTokenErrors___closed__2;
 x_3 = lean_unsigned_to_nat(21u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_Parser_ParserState_mkUnexpectedTokenErrors___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -5916,7 +5916,7 @@ x_31 = l_Lean_Parser_SyntaxStack_back___closed__1;
 x_32 = l_Lean_Parser_withCacheFn___lambda__2___closed__3;
 x_33 = lean_unsigned_to_nat(429u);
 x_34 = lean_unsigned_to_nat(4u);
-x_35 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_31, x_32, x_33, x_34, x_30);
+x_35 = l_mkPanicMessageWithDecl(x_31, x_32, x_33, x_34, x_30);
 lean_dec(x_30);
 x_36 = l_panic___at_Lean_Parser_withCacheFn___spec__8(x_35);
 x_37 = l_Lean_Parser_withCacheFn___lambda__1(x_16, x_2, x_5, x_6, x_36);

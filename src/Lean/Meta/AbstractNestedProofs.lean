@@ -9,6 +9,19 @@ import Lean.Meta.Closure
 import Lean.Meta.Transform
 
 namespace Lean.Meta
+
+/-- Abstracts the given proof into an auxiliary theorem, suitably pre-processing its type. -/
+def abstractProof [Monad m] [MonadLiftT MetaM m] [MonadEnv m] [MonadOptions m] [MonadFinally m]
+    (proof : Expr) (cache := true) (postprocessType : Expr → m Expr := pure) : m Expr := do
+  let type ← withoutExporting do inferType proof
+  let type ← (Core.betaReduce type : MetaM _)
+  let type ← zetaReduce type
+  let type ← postprocessType type
+  /- We turn on zetaDelta-expansion to make sure we don't need to perform an expensive `check` step to
+    identify which let-decls can be abstracted. If we design a more efficient test, we can avoid the eager zetaDelta expansion step.
+    In a benchmark created by @selsam, The extra `check` step was a bottleneck. -/
+  mkAuxTheorem (cache := cache) type proof (zetaDelta := true)
+
 namespace AbstractNestedProofs
 
 def getLambdaBody (e : Expr) : Expr :=
@@ -53,8 +66,9 @@ partial def visit (e : Expr) : M Expr := do
         lctx := lctx.modifyLocalDecl xFVarId fun _ => localDecl
       withLCtx lctx localInstances k
     checkCache { val := e : ExprStructEq } fun _ => do
-      if (← isNonTrivialProof e) then
-        mkAuxLemma e
+      if (← withoutExporting do isNonTrivialProof e) then
+        /- Ensure proofs nested in type are also abstracted -/
+        abstractProof e (← read).cache visit
       else match e with
         | .lam ..      => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false)
         | .letE ..     => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false)
@@ -63,18 +77,6 @@ partial def visit (e : Expr) : M Expr := do
         | .proj _ _ b  => return e.updateProj! (← visit b)
         | .app ..      => e.withApp fun f args => return mkAppN (← visit f) (← args.mapM visit)
         | _            => pure e
-where
-  mkAuxLemma (e : Expr) : M Expr := do
-    let ctx ← read
-    let type ← inferType e
-    let type ← Core.betaReduce type
-    let type ← zetaReduce type
-    /- Ensure proofs nested in type are also abstracted -/
-    let type ← visit type
-    /- We turn on zetaDelta-expansion to make sure we don't need to perform an expensive `check` step to
-      identify which let-decls can be abstracted. If we design a more efficient test, we can avoid the eager zetaDelta expansion step.
-      It a benchmark created by @selsam, The extra `check` step was a bottleneck. -/
-    mkAuxTheorem (cache := ctx.cache) type e (zetaDelta := true)
 
 end AbstractNestedProofs
 

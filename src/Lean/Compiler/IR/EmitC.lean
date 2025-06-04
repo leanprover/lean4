@@ -143,7 +143,7 @@ def emitMainFn : M Unit := do
     unless xs.size == 2 || xs.size == 1 do throw "invalid main function, incorrect arity when generating code"
     let env ← getEnv
     let usesLeanAPI := usesModuleFrom env `Lean
-    emitLn "char ** lean_setup_libuv(int argc, char **argv);";
+    emitLn "char ** lean_setup_libuv(int argc, char ** argv);";
     if usesLeanAPI then
        emitLn "void lean_initialize();"
     else

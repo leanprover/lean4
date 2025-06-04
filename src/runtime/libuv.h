@@ -21,7 +21,7 @@ Author: Markus Himmel, Sofia Rodrigues
 namespace lean {
 
 extern "C" void initialize_libuv();
-extern "C" LEAN_EXPORT char ** lean_setup_libuv(int argc, char **argv);
+extern "C" LEAN_EXPORT char ** lean_setup_libuv(int argc, char ** argv);
 
 // =======================================
 // General LibUV functions.

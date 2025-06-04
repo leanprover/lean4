@@ -160,8 +160,6 @@ def ofArray (ls : Array (Literal (PosFin n))) : Option (DefaultClause n) :=
   match mapOption with
   | none => none
   | some map =>
-    -- FIXME: Commenting this out gives an unknown metavariable error in `grind`!
-    -- reported as https://github.com/leanprover/lean4/pull/8607
     have mapnodup := map.distinct_keys
     some ⟨map.toList, by grind, by grind⟩
 

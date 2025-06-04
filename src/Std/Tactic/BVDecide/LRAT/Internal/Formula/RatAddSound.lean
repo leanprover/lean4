@@ -372,10 +372,7 @@ theorem assignmentsInvariant_performRupCheck_of_assignmentsInvariant {n : Nat} (
     have in_bounds_inductive (idx : Fin rupHints.size) (acc : Array Assignment × CNF.Clause (PosFin n) × Bool × Bool)
       (ih : in_bounds_motive idx.1 acc) : in_bounds_motive (idx.1 + 1) (confirmRupHint f.clauses acc rupHints[idx]) := by
       have h := size_assignments_confirmRupHint f.clauses acc.1 acc.2.1 acc.2.2.1 acc.2.2.2 rupHints[idx]
-      have : (acc.fst, acc.snd.fst, acc.snd.snd.fst, acc.snd.snd.snd) = acc := rfl
-      simp [this] at *
-      omega -- FIXME `grind` fails here with an internal error
-      -- reported as https://github.com/leanprover/lean4/pull/8608
+      grind
     rw [Array.foldl_induction in_bounds_motive in_bounds_base in_bounds_inductive]
     exact i.2.2
   simp only [( · ⊨ ·)]
@@ -454,17 +451,13 @@ theorem performRatCheck_success_of_performRatCheck_fold_success {n : Nat} (f : D
     motive (idx.1 + 1) (fold_fn acc ratHints[idx]) := by
     constructor
     · simp only [Fin.getElem_fin, fold_fn_def, ih.1]
-      -- grind [formula_performRatCheck] -- FIXME: internal grind error
-      split
-      · grind [formula_performRatCheck]
-      · rfl
+      grind [formula_performRatCheck]
     · intro h i
       rw [fold_fn_def] at h
       split at h
       · next acc_eq_true =>
         have i_lt_or_eq_idx : i.1 < idx.1 ∨ i.1 = idx.1 := by
-          -- grind -- FIXME: internal grind error
-          omega
+          omega -- FIXME: why can't `grind` to this?
         rcases i_lt_or_eq_idx with i_lt_idx | i_eq_idx
         · exact ih.2 acc_eq_true ⟨i.1, i_lt_idx⟩
         · simp only [getElem!_def, Fin.getElem?_fin, i_eq_idx, idx.2, Array.getElem?_eq_getElem]

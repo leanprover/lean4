@@ -44,6 +44,7 @@ static lean_object* l_Lake_reprSemVerCore____x40_Lake_Util_Version___hyg_54____c
 static lean_object* l_Lake_SemVerCore_parse___closed__8;
 LEAN_EXPORT lean_object* l_Lake_instOrdSemVerCore;
 LEAN_EXPORT uint8_t l_Lake_StdVer_parse___lambda__1(uint32_t);
+LEAN_EXPORT lean_object* l___private_Lake_Util_Version_0__String_atEnd_match__1_splitter(lean_object*);
 static lean_object* l_Lake_StdVer_parse___closed__2;
 LEAN_EXPORT lean_object* l_Lake_SemVerCore_toString(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instLTStdVer;
@@ -175,6 +176,7 @@ lean_object* l_Substring_takeRightWhileAux___at_Substring_trimRight___spec__1(le
 static lean_object* l_Lake_ToolchainVer_ofString___closed__12;
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 static lean_object* l_Lake_SemVerCore_parse___closed__3;
+LEAN_EXPORT lean_object* l___private_Lake_Util_Version_0__String_atEnd_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Version_0__Lake_ToolchainVer_le_match__1_splitter(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instCoeSemVerCoreStdVer;
 static lean_object* l_Lake_reprStdVer____x40_Lake_Util_Version___hyg_964____closed__4;
@@ -2658,6 +2660,22 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lake_ToolchainVer_prOrigin___closed__1;
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lake_Util_Version_0__String_atEnd_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_apply_2(x_3, x_1, x_2);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lake_Util_Version_0__String_atEnd_match__1_splitter(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l___private_Lake_Util_Version_0__String_atEnd_match__1_splitter___rarg), 3, 0);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_ofString___lambda__1(lean_object* x_1, lean_object* x_2) {

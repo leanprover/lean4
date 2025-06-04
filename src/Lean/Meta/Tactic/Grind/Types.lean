@@ -121,6 +121,13 @@ structure Counters where
 
 private def emptySC : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCommon.State.mk _
 
+/-- Case-split diagnostic information -/
+structure SplitDiagInfo where
+  lctx     : LocalContext
+  c        : Expr
+  gen      : Nat
+  numCases : Nat
+
 /-- State for the `GrindM` monad. -/
 structure State where
   /-- `ShareCommon` (aka `Hashconsing`) state. -/
@@ -146,6 +153,8 @@ structure State where
   trace      : Trace := {}
   /-- Performance counters -/
   counters   : Counters := {}
+  /-- Split diagnostic information. This information is only collected when `set_option diagnostics true` -/
+  splitDiags : PArray SplitDiagInfo := {}
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 private def MethodsRef : Type := MethodsRefPointed.type
@@ -223,6 +232,11 @@ def saveAppOf (h : HeadIndex) : GrindM Unit := do
   if (← isDiagnosticsEnabled) then
     let .const declName := h | return ()
     modify fun s => { s with counters.apps := incCounter s.counters.apps declName }
+
+def saveSplitDiagInfo (c : Expr) (gen : Nat) (numCases : Nat) : GrindM Unit := do
+  if (← isDiagnosticsEnabled) then
+    let lctx ← getLCtx
+    modify fun s => { s with splitDiags := s.splitDiags.push { c, gen, lctx, numCases } }
 
 @[inline] def getMethodsRef : GrindM MethodsRef :=
   read

@@ -380,6 +380,8 @@ h_1 : b = true
   [eqc] Equivalence classes
     [eqc] {a, if b = true then 10 else 20, 10}
     [eqc] {b, true}
+  [cutsat] Assignment satisfying linear constraints
+    [assign] a := 10
 -/
 #guard_msgs (error) in
 example (b : Bool) : (if b then 10 else 20) = a → b = true → False := by

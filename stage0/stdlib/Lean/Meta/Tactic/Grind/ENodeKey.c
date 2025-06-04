@@ -13,19 +13,22 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+size_t lean_usize_shift_right(size_t, size_t);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_instBEqENodeKey(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_isSameExpr_unsafe__1___boxed(lean_object*, lean_object*);
 size_t lean_ptr_addr(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_hashPtrExpr_unsafe__1___boxed(lean_object*);
 uint64_t lean_usize_to_uint64(size_t);
 LEAN_EXPORT uint64_t l_Lean_Meta_Grind_instHashableENodeKey(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_isSameExpr___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instBEqENodeKey___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_isSameExpr_unsafe__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_hashPtrExpr___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_isSameExpr(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instHashableENodeKey_unsafe__1___boxed(lean_object*);
-LEAN_EXPORT uint64_t l_Lean_Meta_Grind_instHashableENodeKey_unsafe__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instHashableENodeKey___boxed(lean_object*);
+LEAN_EXPORT uint64_t l_Lean_Meta_Grind_hashPtrExpr_unsafe__1(lean_object*);
+LEAN_EXPORT uint64_t l_Lean_Meta_Grind_hashPtrExpr(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_isSameExpr_unsafe__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -66,20 +69,40 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT uint64_t l_Lean_Meta_Grind_instHashableENodeKey_unsafe__1(lean_object* x_1) {
+LEAN_EXPORT uint64_t l_Lean_Meta_Grind_hashPtrExpr_unsafe__1(lean_object* x_1) {
 _start:
 {
-size_t x_2; uint64_t x_3; 
+size_t x_2; size_t x_3; size_t x_4; uint64_t x_5; 
 x_2 = lean_ptr_addr(x_1);
-x_3 = lean_usize_to_uint64(x_2);
-return x_3;
+x_3 = 3;
+x_4 = lean_usize_shift_right(x_2, x_3);
+x_5 = lean_usize_to_uint64(x_4);
+return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instHashableENodeKey_unsafe__1___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_hashPtrExpr_unsafe__1___boxed(lean_object* x_1) {
 _start:
 {
 uint64_t x_2; lean_object* x_3; 
-x_2 = l_Lean_Meta_Grind_instHashableENodeKey_unsafe__1(x_1);
+x_2 = l_Lean_Meta_Grind_hashPtrExpr_unsafe__1(x_1);
+lean_dec(x_1);
+x_3 = lean_box_uint64(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT uint64_t l_Lean_Meta_Grind_hashPtrExpr(lean_object* x_1) {
+_start:
+{
+uint64_t x_2; 
+x_2 = l_Lean_Meta_Grind_hashPtrExpr_unsafe__1(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_hashPtrExpr___boxed(lean_object* x_1) {
+_start:
+{
+uint64_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Meta_Grind_hashPtrExpr(x_1);
 lean_dec(x_1);
 x_3 = lean_box_uint64(x_2);
 return x_3;
@@ -89,7 +112,7 @@ LEAN_EXPORT uint64_t l_Lean_Meta_Grind_instHashableENodeKey(lean_object* x_1) {
 _start:
 {
 uint64_t x_2; 
-x_2 = l_Lean_Meta_Grind_instHashableENodeKey_unsafe__1(x_1);
+x_2 = l_Lean_Meta_Grind_hashPtrExpr_unsafe__1(x_1);
 return x_2;
 }
 }

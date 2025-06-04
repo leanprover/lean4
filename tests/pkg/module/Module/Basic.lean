@@ -13,6 +13,17 @@ theorem trfl : f = 1 := rfl
 
 @[expose] def fexp := 1
 
+private def priv := 2
+
+/-! Private decls should not be accessible in exported contexts. -/
+
+/-- error: unknown identifier 'priv' -/
+#guard_msgs in
+abbrev h := priv
+
+
+/-! Equational theorems tests. -/
+
 def f_struct : Nat → Nat
 | 0 => 0
 | n + 1 => f_struct n

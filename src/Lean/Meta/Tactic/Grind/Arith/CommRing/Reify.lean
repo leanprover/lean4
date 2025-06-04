@@ -51,15 +51,15 @@ partial def reify? (e : Expr) : RingM (Option RingExpr) := do
       if isPowInst (← getRing) i then return .pow (← go a) k else asVar e
     | Neg.neg _ i a =>
       if isNegInst (← getRing) i then return .neg (← go a) else asVar e
-    | IntCast.intCast _ i e =>
+    | IntCast.intCast _ i a =>
       if isIntCastInst (← getRing) i then
-        let some k ← getIntValue? e | toVar e
+        let some k ← getIntValue? a | toVar e
         return .num k
       else
         asVar e
-    | NatCast.natCast _ i e =>
+    | NatCast.natCast _ i a =>
       if isNatCastInst (← getRing) i then
-        let some k ← getNatValue? e | toVar e
+        let some k ← getNatValue? a | toVar e
         return .num k
       else
         asVar e

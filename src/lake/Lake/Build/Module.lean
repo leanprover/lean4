@@ -105,11 +105,15 @@ def Module.precompileImportsFacetConfig : ModuleFacetConfig precompileImportsFac
 def fetchExternLibs (pkgs : Array Package) : FetchM (Job (Array Dynlib)) :=
   Job.collectArray <$> pkgs.flatMapM (·.externLibs.mapM (·.dynlib.fetch))
 
-private def Module.fetchImportLibsCore
+/--
+Computes the transitive dynamic libraries of a module's imports.
+Modules from the same library are loaded individually, while modules
+from other libraries are loaded as part of the whole library.
+-/
+private def Module.fetchImportLibs
   (self : Module) (imps : Array Module) (compileSelf : Bool)
-  (init : NameSet × Array (Job Dynlib))
-: FetchM (NameSet × Array (Job Dynlib)) :=
-  imps.foldlM (init := init) fun (libs, jobs) imp => do
+: FetchM (Array (Job Dynlib)) := do
+  let (_, jobs) ← imps.foldlM (init := (({} : NameSet), #[])) fun (libs, jobs) imp => do
     if libs.contains imp.lib.name then
       return (libs, jobs)
     else if compileSelf && self.lib.name = imp.lib.name then
@@ -120,28 +124,26 @@ private def Module.fetchImportLibsCore
       return (libs.insert imp.lib.name, jobs)
     else
       return (libs, jobs)
-/--
-Computes the transitive dynamic libraries of a module's imports.
-Modules from the same library are loaded individually, while modules
-from other libraries are loaded as part of the whole library.
--/
-@[inline] private def Module.fetchImportLibs
-  (self : Module) (imps : Array Module) (compileSelf : Bool)
-: FetchM (Array (Job Dynlib)) :=
-  (·.2) <$> self.fetchImportLibsCore imps compileSelf ({}, #[])
+  return jobs
 
-/-- Fetch the dynlibs of a list of imports. **For internal use.**  -/
-@[inline] def fetchImportLibs
+/--
+**For internal use.**
+
+Fetches the library dynlibs of a list of non-local imports.
+Modules are loaded as part of their whole library.
+-/
+def fetchImportLibs
   (mods : Array Module) : FetchM (Job (Array Dynlib))
 := do
-  let (_, jobs) ← mods.foldlM (init := ({}, #[])) fun s mod => do
-    let imports ← (← mod.imports.fetch).await
-    mod.fetchImportLibsCore imports mod.shouldPrecompile s
-  let jobs ← mods.foldlM (init := jobs) fun jobs mod => do
-    if mod.shouldPrecompile then
-      jobs.push <$> mod.dynlib.fetch
-    else return jobs
-  return Job.collectArray jobs
+  let (_, jobs) ← mods.foldlM (init := (({} : NameSet), #[])) fun (libs, jobs) imp => do
+    if libs.contains imp.lib.name then
+      return (libs, jobs)
+    else if imp.shouldPrecompile then
+      let jobs ← jobs.push <$> imp.lib.shared.fetch
+      return (libs.insert imp.lib.name, jobs)
+    else
+      return (libs, jobs)
+  return Job.collectArray jobs "import dynlibs"
 
 /--
 Topologically sorts the library dependency tree by name.
@@ -229,13 +231,13 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
   let dynlibsJob ← mod.dynlibs.fetchIn mod.pkg "module dynlibs"
   let pluginsJob ← mod.plugins.fetchIn mod.pkg "module plugins"
 
-  extraDepJob.bindM fun _ => do
+  extraDepJob.bindM (sync := true) fun _ => do
   importJob.bindM (sync := true) fun _ => do
   let depTrace ← takeTrace
   impLibsJob.bindM (sync := true) fun impLibs => do
   externLibsJob.bindM (sync := true) fun externLibs => do
   dynlibsJob.bindM (sync := true) fun dynlibs => do
-  pluginsJob.mapM (sync := true) fun plugins => do
+  pluginsJob.mapM fun plugins => do
     let libTrace ← takeTrace
     setTraceCaption s!"{mod.name.toString}:deps"
     let depTrace := depTrace.withCaption "deps"
@@ -280,7 +282,7 @@ def Module.recBuildLean (mod : Module) : FetchM (Job Unit) := do
     addTrace srcTrace
     setTraceCaption s!"{mod.name.toString}:leanArts"
     let upToDate ← buildUnlessUpToDate? (oldTrace := srcTrace.mtime) mod (← getTrace) mod.traceFile do
-      compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile mod.cFile mod.bcFile?
+      compileLeanModule mod.leanFile mod.relLeanFile mod.oleanFile mod.ileanFile mod.cFile mod.bcFile?
         (← getLeanPath) mod.rootDir dynlibs plugins
         (mod.weakLeanArgs ++ mod.leanArgs) (← getLean)
       mod.clearOutputHashes
@@ -419,7 +421,14 @@ Recursively build the shared library of a module
 -/
 def Module.recBuildDynlib (mod : Module) : FetchM (Job Dynlib) :=
   withRegisterJob s!"{mod.name}:dynlib" do
-  -- Fetch object files
+  /-
+  Fetch the module's object files.
+
+  NOTE: The `moreLinkObjs` of the module's library are not included
+  here because they would then be linked to the dynlib of each module of the library.
+  On Windows, were module dynlibs must be linked with those of their imports, this would
+  result in duplicate symbols when one library module imports another of the same library.
+  -/
   let objJobs ← (mod.nativeFacets true).mapM (·.fetch mod)
   -- Fetch dependencies' dynlibs
   let libJobs ← id do

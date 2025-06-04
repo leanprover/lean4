@@ -1075,7 +1075,7 @@ theorem map_dropLast {f : α → β} {l : List α} : l.dropLast.map f = (l.map f
 
 theorem dropLast_append {l₁ l₂ : List α} :
     (l₁ ++ l₂).dropLast = if l₂.isEmpty then l₁.dropLast else l₁ ++ l₂.dropLast := by
-  grind +extAll (splits := 10) [length_eq_zero_iff]
+  grind +extAll (splits := 12) [length_eq_zero_iff]
 
 theorem dropLast_append_cons : dropLast (l₁ ++ b :: l₂) = l₁ ++ dropLast (b :: l₂) := by
   grind +extAll
@@ -1288,3 +1288,5 @@ end Hidden
 
 example {xs : List α} {i : Nat} (h : i < xs.length) : xs.take i ++ xs[i] :: xs.drop (i + 1) = xs := by
   apply List.ext_getElem <;> grind (splits := 10)
+
+example : (List.range 1).sum = 0 := by grind

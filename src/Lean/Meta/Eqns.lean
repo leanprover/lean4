@@ -74,12 +74,13 @@ def isEqnLikeSuffix (s : String) : Bool :=
 
 /--
 The equational theorem for a definition can be private even if the definition itself is not.
-So un-private the name here when looking for a declaratin
+So un-private the name here when looking for a declaration
 -/
 def declFromEqLikeName (env : Environment) (name : Name) : Option (Name × String) := Id.run do
   if let .str p s := name then
     if isEqnLikeSuffix s then
       for p in [p, privateToUserName p] do
+        -- Remark: `f.match_<idx>.eq_<idx>` are handled separately in `Lean.Meta.Match.MatchEqs`.
         if (env.setExporting false).isSafeDefinition p && !isMatcherCore env p then
           return some (p, s)
   return none

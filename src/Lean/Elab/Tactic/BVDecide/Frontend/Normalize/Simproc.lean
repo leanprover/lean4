@@ -652,18 +652,18 @@ builtin_simproc [bv_normalize] bv_extract_concat
   let some start ← getNatValue? startExpr | return .continue
   let some len ← getNatValue? lenExpr | return .continue
   let some rhsWidth ← getNatValue? rhsWidthExpr | return .continue
-  if start + len < rhsWidth then
+  if start + len ≤ rhsWidth then
     let expr := mkApp4 (mkConst ``BitVec.extractLsb') rhsWidthExpr startExpr lenExpr rhsExpr
     let proof :=
       mkApp7
-        (mkConst ``BitVec.extractLsb'_append_eq_of_lt)
+        (mkConst ``BitVec.extractLsb'_append_eq_of_add_le)
         lhsWidthExpr
         rhsWidthExpr
         lhsExpr
         rhsExpr
         startExpr
         lenExpr
-        (← mkDecideProof (← mkLt (toExpr (start + len)) rhsWidthExpr))
+        (← mkDecideProof (← mkLe (toExpr (start + len)) rhsWidthExpr))
     return .visit { expr := expr, proof? := some proof }
   else if rhsWidth ≤ start then
     let expr := mkApp4 (mkConst ``BitVec.extractLsb') lhsWidthExpr (toExpr (start - rhsWidth)) lenExpr lhsExpr

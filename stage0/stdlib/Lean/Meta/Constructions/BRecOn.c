@@ -8100,7 +8100,6 @@ lean_closure_set(x_83, 2, x_32);
 lean_closure_set(x_83, 3, x_82);
 lean_closure_set(x_83, 4, x_81);
 x_84 = l_Array_ofFn___rarg(x_73, x_83);
-lean_dec(x_73);
 x_85 = lean_array_get_size(x_84);
 lean_inc(x_84);
 x_86 = l_Array_toSubarray___rarg(x_84, x_28, x_85);

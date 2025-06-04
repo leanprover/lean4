@@ -129,7 +129,6 @@ lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_eraseSimpMatchDiscrsOnly___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_MatchDiscrOnly_0____regBuiltin_Lean_Meta_Grind_reduceSimpMatchDiscrsOnly_declare__10____x40_Lean_Meta_Tactic_Grind_MatchDiscrOnly___hyg_360____closed__9;
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(uint8_t, uint8_t);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_zetaReduce___spec__14___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -145,6 +144,7 @@ static lean_object* l_Lean_Core_transform_visit___at_Lean_Meta_Grind_eraseSimpMa
 static lean_object* l___private_Lean_Meta_Tactic_Grind_MatchDiscrOnly_0____regBuiltin_Lean_Meta_Grind_reduceSimpMatchDiscrsOnly_declare__10____x40_Lean_Meta_Tactic_Grind_MatchDiscrOnly___hyg_360____closed__2;
 static lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_eraseSimpMatchDiscrsOnly___spec__7___rarg___closed__1;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(uint8_t, uint8_t);
 size_t lean_usize_land(size_t, size_t);
 static lean_object* l_Lean_Meta_Grind_markAsSimpMatchDiscrsOnly___closed__1;
 static lean_object* l_Lean_Meta_Grind_eraseSimpMatchDiscrsOnly___lambda__3___closed__1;
@@ -1736,7 +1736,7 @@ return x_41;
 else
 {
 uint8_t x_42; 
-x_42 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(x_24, x_24);
+x_42 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_24, x_24);
 if (x_42 == 0)
 {
 lean_object* x_43; lean_object* x_44; 
@@ -1912,7 +1912,7 @@ return x_74;
 else
 {
 uint8_t x_75; 
-x_75 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(x_57, x_57);
+x_75 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_57, x_57);
 if (x_75 == 0)
 {
 lean_object* x_76; lean_object* x_77; 

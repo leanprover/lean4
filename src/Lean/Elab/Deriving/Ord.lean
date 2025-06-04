@@ -72,9 +72,9 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
     body ← mkLet letDecls body
   let binders    := header.binders
   if ctx.usePartial || indVal.isRec then
-    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Ordering := $body:term)
+    `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Ordering := $body:term)
   else
-    `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Ordering := $body:term)
+    `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Ordering := $body:term)
 
 def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]

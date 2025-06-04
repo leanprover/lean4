@@ -13,6 +13,7 @@ import Lean.Util.CollectFVars
 import Lean.Meta.Basic
 import Lean.Meta.InferType
 import Lean.Meta.Eqns
+import Lean.Meta.Match.MatchEqs
 import Lean.Meta.Tactic.Grind.Util
 
 namespace Lean.Meta.Grind
@@ -49,6 +50,160 @@ def isEqBwdPattern? (e : Expr) : Option (Expr × Expr) :=
   let_expr Grind.eqBwdPattern _ lhs rhs := e
     | none
   some (lhs, rhs)
+
+def mkGenPattern (u : List Level) (α : Expr) (h : Expr) (x : Expr) (val : Expr) : Expr :=
+  mkApp4 (mkConst ``Grind.genPattern u) α h x val
+
+def mkGenHEqPattern (u : List Level) (α β : Expr) (h : Expr) (x : Expr) (val : Expr) : Expr :=
+  mkApp5 (mkConst ``Grind.genHEqPattern u) α β h x val
+
+/-- Generalized pattern information. See `Grind.genPattern` gadget. -/
+structure GenPatternInfo where
+  heq  : Bool
+  hIdx : Nat
+  xIdx : Nat
+  deriving Repr
+
+def isGenPattern? (pat : Expr) : Option (GenPatternInfo × Expr) :=
+  match_expr pat with
+  | Grind.genPattern _ h x pat => Id.run do
+    let .bvar hIdx := h | unreachable!
+    let .bvar xIdx := x | unreachable!
+    return some ({ heq := false, hIdx, xIdx }, pat )
+  | Grind.genHEqPattern _ _ h x pat => Id.run do
+    let .bvar hIdx := h | unreachable!
+    let .bvar xIdx := x | unreachable!
+    return some ({ heq := true, hIdx, xIdx }, pat )
+  | _ => none
+
+/-- Returns `true` if `declName` is the name of a `match`-expression congruence equation. -/
+def isMatchCongrEqDeclName (declName : Name) : CoreM Bool := do
+  let declName := privateToUserName declName
+  match declName with
+  | .str p s => return (← isMatcher p) && Match.isCongrEqnReservedNameSuffix s
+  | _ => return false
+
+/-- Returns `true` if `e` is a constant for a `match`-expression congruence equation. -/
+private def isMatchCongrEqConst (e : Expr) : CoreM Bool := do
+  let .const declName _ := e | return false
+  isMatchCongrEqDeclName declName
+
+/--
+Given the type of a `match` congruence equation, annotate the discriminants using
+the gadgets `Grind.genPattern` and `Grind.genHEqPattern`.
+For example, consider the following `match` congruence theorem type
+```
+forall
+  (motive : Option Nat → Sort u_1) (a✝ : Option Nat)
+  (h_1 : a✝ = none → motive none)
+  (h_2 : (val : Nat) → a✝ = some val → motive (some val))
+  (val✝ : Nat)
+  (heq_1 : a✝ = some val✝),
+  g.match_1 motive a✝ h_1 h_2 ≍ h_2 val✝ heq_1
+```
+This function returns the type
+```
+forall
+  (motive : Option Nat → Sort u_1) (a✝ : Option Nat)
+  (h_1 : a✝ = none → motive none)
+  (h_2 : (val : Nat) → a✝ = some val → motive (some val))
+  (val✝ : Nat)
+  (heq_1 : a✝ = some val✝),
+  g.match_1 motive (Grind.genPattern (Option Nat) heq_1 a✝ (some val✝)) h_1 h_2
+  ≍ h_2 val✝ heq_1
+```
+The gadget is used to infer a `generalize` pattern. The following term is used
+during E-matching `g.match_1 motive (Grind.genPattern (Option Nat) heq_1 a✝ (some val✝)) h_1 h_2`
+when matching `Grind.genPattern (Option Nat) heq_1 a✝ (some val✝)` the matcher uses
+`(some val✝)` as the actual pattern, but also assigns `heq_1` `a✝` using the information stored
+in the equivalence class.
+-/
+private def preprocessMatchCongrEqType (type : Expr) : MetaM Expr := do
+  forallTelescopeReducing type fun hs resultType => do
+    let lhs ← match_expr resultType with
+      | Eq _ lhs _ => pure lhs
+      | HEq _ lhs _ _ => pure lhs
+      | _ => return type
+    let lhsFn := lhs.getAppFn
+    let .const declName _ := lhsFn | return type
+    let some matcherInfo ← getMatcherInfo? declName | return type
+    let range := matcherInfo.getDiscrRange
+    let mut args := lhs.getAppArgs
+    for h in hs do
+      match_expr (← inferType h) with
+      | f@Eq α lhs rhs =>
+        for i in range do
+          if lhs == args[i]! then
+            args := args.set! i (mkGenPattern f.constLevels! α h lhs rhs)
+            break
+      | f@HEq α lhs β rhs =>
+        for i in range do
+          if lhs == args[i]! then
+            args := args.set! i (mkGenHEqPattern f.constLevels! α β h lhs rhs)
+            break
+      | _ => pure ()
+    let lhsNew := mkAppN lhsFn args
+    let resultTypeFn := resultType.getAppFn
+    let resultArgs := resultType.getAppArgs
+    let resultType := mkAppN resultTypeFn (resultArgs.set! 1 lhsNew)
+    mkForallFVars hs resultType
+
+/--
+A heuristic procedure for detecting generalized patterns.
+For example, given the theorem
+```
+theorem Option.pbind_some' {α β} {x : Option α} {a : α} {f : (a : α) → x = some a → Option β}
+  (h : x = some a) : pbind x f = f a h
+```
+In the current implementation, we support only occurrences in the resulting type.
+Thus, the following resulting type is generated for the example above:
+```
+pbind (Grind.genPattern h x (some a)) f = f a h
+```
+-/
+private def detectGeneralizedPatterns? (type : Expr) : MetaM Expr := do
+  forallTelescopeReducing type fun hs resultType => do
+    let isTarget? (lhs : Expr) (rhs : Expr) (s : FVarSubst) : Option (FVarId × Expr) := Id.run do
+      let .fvar fvarId := lhs | return none
+      if !hs.contains lhs then
+        return none -- It is a foreign free variable
+      if rhs.containsFVar fvarId then
+        return none -- It is not a generalization if `rhs` contains it
+      if s.contains fvarId then
+        return none -- Remark: may want to abort instead, it is probably not a generalization
+      let rhs := s.apply rhs
+      return some (fvarId, rhs)
+    let mut s : FVarSubst := {}
+    for h in hs do
+      match_expr (← inferType h) with
+      | f@Eq α lhs rhs =>
+        let some (fvarId, rhs) := isTarget? lhs rhs s | pure ()
+        s := s.insert fvarId <| mkGenPattern f.constLevels! α h lhs rhs
+      | f@HEq α lhs β rhs =>
+        let some (fvarId, rhs) := isTarget? lhs rhs s | pure ()
+        s := s.insert fvarId <| mkGenHEqPattern f.constLevels! α β h lhs rhs
+      | _ => pure ()
+    if s.isEmpty then
+      return type
+    let resultType' := s.apply resultType
+    if resultType' == resultType then
+      return type
+    mkForallFVars hs resultType'
+
+/--
+Given the proof for a proposition to be used as an E-matching theorem,
+infers its type, and preprocess it to identify generalized patterns.
+Recall that we infer these generalized patterns automatically for
+`match` congruence equations.
+-/
+private def inferEMatchProofType (proof : Expr) (gen : Bool) : MetaM Expr := do
+  let type ← inferType proof
+  if (← isMatchCongrEqConst proof) then
+    preprocessMatchCongrEqType type
+  else if gen then
+    detectGeneralizedPatterns? type
+  else
+    return type
 
 -- Configuration for the `grind` normalizer. We want both `zetaDelta` and `zeta`
 private def normConfig : Grind.Config := {}
@@ -98,31 +253,53 @@ instance : Hashable Origin where
   hash a := hash a.key
 
 inductive EMatchTheoremKind where
-  | eqLhs | eqRhs | eqBoth | eqBwd | fwd | bwd | leftRight | rightLeft | default | user /- pattern specified using `grind_pattern` command -/
+  | eqLhs (gen : Bool)
+  | eqRhs (gen : Bool)
+  | eqBoth (gen : Bool)
+  | eqBwd
+  | fwd
+  | bwd (gen : Bool)
+  | leftRight
+  | rightLeft
+  | default (gen : Bool)
+  | user /- pattern specified using `grind_pattern` command -/
   deriving Inhabited, BEq, Repr, Hashable
 
+def EMatchTheoremKind.isEqLhs : EMatchTheoremKind → Bool
+  | .eqLhs _ => true
+  | _ => false
+
+def EMatchTheoremKind.isDefault : EMatchTheoremKind → Bool
+  | .default _ => true
+  | _ => false
+
 private def EMatchTheoremKind.toAttribute : EMatchTheoremKind → String
-  | .eqLhs     => "[grind =]"
-  | .eqRhs     => "[grind =_]"
-  | .eqBoth    => "[grind _=_]"
-  | .eqBwd     => "[grind ←=]"
-  | .fwd       => "[grind →]"
-  | .bwd       => "[grind ←]"
-  | .leftRight => "[grind =>]"
-  | .rightLeft => "[grind <=]"
-  | .default   => "[grind]"
-  | .user      => "[grind]"
+  | .eqLhs true     => "[grind = gen]"
+  | .eqLhs false    => "[grind =]"
+  | .eqRhs true     => "[grind =_ gen]"
+  | .eqRhs false    => "[grind =_]"
+  | .eqBoth false   => "[grind _=_]"
+  | .eqBoth true    => "[grind _=_ gen]"
+  | .eqBwd          => "[grind ←=]"
+  | .fwd            => "[grind →]"
+  | .bwd false      => "[grind ←]"
+  | .bwd true       => "[grind ← gen]"
+  | .leftRight      => "[grind =>]"
+  | .rightLeft      => "[grind <=]"
+  | .default false  => "[grind]"
+  | .default true   => "[grind gen]"
+  | .user           => "[grind]"
 
 private def EMatchTheoremKind.explainFailure : EMatchTheoremKind → String
-  | .eqLhs     => "failed to find pattern in the left-hand side of the theorem's conclusion"
-  | .eqRhs     => "failed to find pattern in the right-hand side of the theorem's conclusion"
-  | .eqBoth    => unreachable! -- eqBoth is a macro
+  | .eqLhs _   => "failed to find pattern in the left-hand side of the theorem's conclusion"
+  | .eqRhs _   => "failed to find pattern in the right-hand side of the theorem's conclusion"
+  | .eqBoth _  => unreachable! -- eqBoth is a macro
   | .eqBwd     => "failed to use theorem's conclusion as a pattern"
   | .fwd       => "failed to find patterns in the antecedents of the theorem"
-  | .bwd       => "failed to find patterns in the theorem's conclusion"
+  | .bwd _     => "failed to find patterns in the theorem's conclusion"
   | .leftRight => "failed to find patterns searching from left to right"
   | .rightLeft => "failed to find patterns searching from right to left"
-  | .default   => "failed to find patterns"
+  | .default _ => "failed to find patterns"
   | .user      => unreachable!
 
 /-- A theorem for heuristic instantiation based on E-matching. -/
@@ -136,7 +313,7 @@ structure EMatchTheorem where
   proof       : Expr
   numParams   : Nat
   patterns    : List Expr
-  /-- Contains all symbols used in `pattterns`. -/
+  /-- Contains all symbols used in `patterns`. -/
   symbols     : List HeadIndex
   origin      : Origin
   /-- The `kind` is used for generating the `patterns`. We save it here to implement `grind?`. -/
@@ -328,6 +505,10 @@ structure State where
 abbrev M := StateRefT State MetaM
 
 private def saveSymbol (h : HeadIndex) : M Unit := do
+  if let .const declName := h then
+    if declName == ``Grind.genHEqPattern || declName == ``Grind.genPattern then
+      -- We do not save gadgets in the list of symbols.
+      return ()
   unless (← get).symbolSet.contains h do
     modify fun s => { s with symbols := s.symbols.push h, symbolSet := s.symbolSet.insert h }
 
@@ -408,6 +589,8 @@ private def getPatternFn? (pattern : Expr) (inSupport : Bool) (argKind : Pattern
     | f@(.const declName _) =>
       if isForbidden declName then
         return none
+      if declName == ``Grind.genPattern || declName == ``Grind.genHEqPattern then
+        return some f
       if inSupport then
         if argKind matches .typeFormer | .relevant then
           if (← isInductive declName) then
@@ -633,8 +816,8 @@ Given a theorem with proof `proof` and type of the form `∀ (a_1 ... a_n), lhs 
 creates an E-matching pattern for it using `addEMatchTheorem n [lhs]`
 If `normalizePattern` is true, it applies the `grind` simplification theorems and simprocs to the pattern.
 -/
-def mkEMatchEqTheoremCore (origin : Origin) (levelParams : Array Name) (proof : Expr) (normalizePattern : Bool) (useLhs : Bool) (showInfo := false) : MetaM EMatchTheorem := do
-  let (numParams, patterns) ← forallTelescopeReducing (← inferType proof) fun xs type => do
+def mkEMatchEqTheoremCore (origin : Origin) (levelParams : Array Name) (proof : Expr) (normalizePattern : Bool) (useLhs : Bool) (gen : Bool) (showInfo := false) : MetaM EMatchTheorem := do
+  let (numParams, patterns) ← forallTelescopeReducing (← inferEMatchProofType proof gen) fun xs type => do
     let (lhs, rhs) ← match_expr type with
       | Eq _ lhs rhs => pure (lhs, rhs)
       | Iff lhs rhs => pure (lhs, rhs)
@@ -646,10 +829,10 @@ def mkEMatchEqTheoremCore (origin : Origin) (levelParams : Array Name) (proof : 
     trace[grind.debug.ematch.pattern] "mkEMatchEqTheoremCore: after preprocessing: {pat}, {← normalize pat normConfig}"
     let pats := splitWhileForbidden (pat.abstract xs)
     return (xs.size, pats)
-  mkEMatchTheoremCore origin levelParams numParams proof patterns (if useLhs then .eqLhs else .eqRhs) (showInfo := showInfo)
+  mkEMatchTheoremCore origin levelParams numParams proof patterns (if useLhs then .eqLhs gen else .eqRhs gen) (showInfo := showInfo)
 
 def mkEMatchEqBwdTheoremCore (origin : Origin) (levelParams : Array Name) (proof : Expr) (showInfo := false) : MetaM EMatchTheorem := do
-  let (numParams, patterns) ← forallTelescopeReducing (← inferType proof) fun xs type => do
+  let (numParams, patterns) ← forallTelescopeReducing (← inferEMatchProofType proof (gen := false)) fun xs type => do
     let_expr f@Eq α lhs rhs := type
       | throwError "invalid E-matching `←=` theorem, conclusion must be an equality{indentExpr type}"
     let pat ← preprocessPattern (mkEqBwdPattern f.constLevels! α lhs rhs)
@@ -663,8 +846,8 @@ creates an E-matching pattern for it using `addEMatchTheorem n [lhs]`
 If `normalizePattern` is true, it applies the `grind` simplification theorems and simprocs to the
 pattern.
 -/
-def mkEMatchEqTheorem (declName : Name) (normalizePattern := true) (useLhs : Bool := true) (showInfo := false) : MetaM EMatchTheorem := do
-  mkEMatchEqTheoremCore (.decl declName) #[] (← getProofFor declName) normalizePattern useLhs (showInfo := showInfo)
+def mkEMatchEqTheorem (declName : Name) (normalizePattern := true) (useLhs : Bool := true) (gen : Bool := false) (showInfo := false) : MetaM EMatchTheorem := do
+  mkEMatchEqTheoremCore (.decl declName) #[] (← getProofFor declName) normalizePattern useLhs gen (showInfo := showInfo)
 
 /--
 Adds an E-matching theorem to the environment.
@@ -842,6 +1025,15 @@ where
         return none
     | _ => return none
 
+def EMatchTheoremKind.gen : EMatchTheoremKind → Bool
+  | .eqLhs gen => gen
+  | .eqRhs gen => gen
+  | .eqBoth gen => gen
+  | .default gen => gen
+  | .bwd gen => gen
+  | .eqBwd | .fwd | .rightLeft
+  | .leftRight | .user => false
+
 /--
 Creates an E-match theorem using the given proof and kind.
 If `groundPatterns` is `true`, it accepts patterns without pattern variables. This is useful for
@@ -851,13 +1043,16 @@ since the theorem is already in the `grind` state and there is nothing to be ins
 def mkEMatchTheoremWithKind?
       (origin : Origin) (levelParams : Array Name) (proof : Expr) (kind : EMatchTheoremKind)
       (groundPatterns := true) (showInfo := false) : MetaM (Option EMatchTheorem) := do
-  if kind == .eqLhs then
-    return (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := true) (useLhs := true) (showInfo := showInfo))
-  else if kind == .eqRhs then
-    return (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := true) (useLhs := false) (showInfo := showInfo))
-  else if kind == .eqBwd then
+  match kind with
+  | .eqLhs gen =>
+    return (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := true) (useLhs := true) (gen := gen) (showInfo := showInfo))
+  | .eqRhs gen =>
+    return (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := true) (useLhs := false) (gen := gen) (showInfo := showInfo))
+  | .eqBwd =>
     return (← mkEMatchEqBwdTheoremCore origin levelParams proof (showInfo := showInfo))
-  let type ← inferType proof
+  | _ =>
+    pure ()
+  let type ← inferEMatchProofType proof kind.gen
   /-
   Remark: we should not use `forallTelescopeReducing` (with default reducibility) here
   because it may unfold a definition/abstraction, and then select a suboptimal pattern.
@@ -882,10 +1077,10 @@ def mkEMatchTheoremWithKind?
         if ps.isEmpty then
           throwError "invalid `grind` forward theorem, theorem `{← origin.pp}` does not have propositional hypotheses"
         pure ps
-      | .bwd => pure #[type]
+      | .bwd _ => pure #[type]
       | .leftRight => pure <| (← getPropTypes xs).push type
       | .rightLeft => pure <| #[type] ++ (← getPropTypes xs).reverse
-      | .default => pure <| #[type] ++ (← getPropTypes xs)
+      | .default _ => pure <| #[type] ++ (← getPropTypes xs)
       | _ => unreachable!
     go xs searchPlaces
 where
@@ -918,7 +1113,7 @@ def mkEMatchEqTheoremsForDef? (declName : Name) (showInfo := false) : MetaM (Opt
 
 private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatchTheoremKind) (useLhs := true) (showInfo := false) : MetaM Unit := do
   if wasOriginallyTheorem (← getEnv) declName then
-    ematchTheoremsExt.add (← mkEMatchEqTheorem declName (normalizePattern := true) (useLhs := useLhs) (showInfo := showInfo)) attrKind
+    ematchTheoremsExt.add (← mkEMatchEqTheorem declName (normalizePattern := true) (useLhs := useLhs) (gen := thmKind.gen) (showInfo := showInfo)) attrKind
   else if let some thms ← mkEMatchEqTheoremsForDef? declName (showInfo := showInfo) then
     unless useLhs do
       throwError "`{declName}` is a definition, you must only use the left-hand side for extracting patterns"
@@ -943,14 +1138,15 @@ def EMatchTheorems.eraseDecl (s : EMatchTheorems) (declName : Name) : MetaM EMat
     return s.erase <| .decl declName
 
 def addEMatchAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatchTheoremKind) (showInfo := false) : MetaM Unit := do
-  if thmKind == .eqLhs then
+  match thmKind with
+  | .eqLhs _ =>
     addGrindEqAttr declName attrKind thmKind (useLhs := true) (showInfo := showInfo)
-  else if thmKind == .eqRhs then
+  | .eqRhs _ =>
     addGrindEqAttr declName attrKind thmKind (useLhs := false) (showInfo := showInfo)
-  else if thmKind == .eqBoth then
+  | .eqBoth _ =>
     addGrindEqAttr declName attrKind thmKind (useLhs := true) (showInfo := showInfo)
     addGrindEqAttr declName attrKind thmKind (useLhs := false) (showInfo := showInfo)
-  else
+  | _ =>
     let info ← getConstInfo declName
     if !wasOriginallyTheorem (← getEnv) declName && !info.isCtor && !info.isAxiom then
       addGrindEqAttr declName attrKind thmKind (showInfo := showInfo)

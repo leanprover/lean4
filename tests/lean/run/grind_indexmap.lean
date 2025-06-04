@@ -6,10 +6,6 @@ import Std.Data.HashMap
 
 set_option grind.warning false
 
--- These are not good `grind` lemmas at present; they really slow things down.
--- TODO: remove globally, or work out how to make them usable.
-attribute [-grind] getElem?_pos getElem?_neg getElem!_pos getElem!_neg
-
 macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| grind)
 
 open Std

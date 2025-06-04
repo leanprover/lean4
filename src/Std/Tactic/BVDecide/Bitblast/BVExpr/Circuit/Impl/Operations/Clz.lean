@@ -61,7 +61,7 @@ where
       -- rhs = clzAuxRec x (curr - 1)
       let res := go aig x (curr - 1)
       let aig := res.aig
-      let rhs := res.ref
+      let rhs := res.vec
       -- return ite cond lhs rhs
       let res := AIG.RefVec.ite aig ⟨cond, lhs, rhs⟩
       res

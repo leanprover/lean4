@@ -385,7 +385,6 @@ LEAN_EXPORT lean_object* l___private_Std_Sync_Channel_0__Std_CloseableChannel_Bo
 LEAN_EXPORT lean_object* l_Std_CloseableChannel_forAsync___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Channel_0__Std_CloseableChannel_Unbounded_tryRecv_x27___at___private_Std_Sync_Channel_0__Std_CloseableChannel_Unbounded_recv___spec__1___rarg(lean_object*, lean_object*);
 extern lean_object* l_instMonadBaseIO;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_get___at___private_Std_Sync_Channel_0__Std_CloseableChannel_Unbounded_isClosed___spec__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Channel_0__Std_CloseableChannel_Zero_close___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Channel_forAsync(lean_object*);
@@ -594,6 +593,7 @@ LEAN_EXPORT lean_object* l_Std_Mutex_atomically___at___private_Std_Sync_Channel_
 LEAN_EXPORT lean_object* l___private_Std_Sync_Channel_0__Std_CloseableChannel_Unbounded_recvSelector___elambda__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_bind___at___private_Std_Sync_Channel_0__Std_CloseableChannel_Bounded_close___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Channel_Sync_instForInOfInhabitedOfMonadLiftTBaseIO___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Channel_0__Std_CloseableChannel_Bounded_tryRecv___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Channel_0__Std_CloseableChannel_Zero_close___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
@@ -23835,7 +23835,7 @@ x_2 = l_Std_Channel_send___rarg___lambda__1___closed__2;
 x_3 = lean_unsigned_to_nat(850u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Std_Channel_send___rarg___lambda__1___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -23981,7 +23981,7 @@ x_2 = l_Std_Channel_recv___rarg___lambda__1___closed__1;
 x_3 = lean_unsigned_to_nat(861u);
 x_4 = lean_unsigned_to_nat(16u);
 x_5 = l_Std_Channel_send___rarg___lambda__1___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -24115,7 +24115,7 @@ x_2 = l_Std_Channel_recvSelector___elambda__2___rarg___lambda__1___closed__2;
 x_3 = lean_unsigned_to_nat(21u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Std_Channel_recvSelector___elambda__2___rarg___lambda__1___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

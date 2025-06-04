@@ -97,7 +97,6 @@ extern lean_object* l_Lean_Elab_Command_instMonadCommandElabM;
 LEAN_EXPORT lean_object* l_Lean_Linter_constructorNameAsVariable___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_ConstructorAsVariable___hyg_8____closed__4;
 uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Lean_Linter_constructorNameAsVariable___elambda__1___spec__6___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Linter_constructorNameAsVariable___elambda__1___spec__11___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Linter_constructorNameAsVariable___elambda__1___spec__11___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -144,6 +143,7 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Linter_constructorNam
 lean_object* l_List_reverse___rarg(lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Linter_constructorNameAsVariable___elambda__1___spec__11___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_ConstructorAsVariable___hyg_8____closed__7;
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -1400,7 +1400,7 @@ x_2 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_constructorNameAsVariable_
 x_3 = lean_unsigned_to_nat(62u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_constructorNameAsVariable___elambda__1___spec__8___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

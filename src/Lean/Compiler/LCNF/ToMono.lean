@@ -12,14 +12,14 @@ import Lean.Compiler.NoncomputableAttr
 namespace Lean.Compiler.LCNF
 
 structure ToMonoM.State where
-  typeParams : FVarIdSet := {}
-  noncomputableVars : FVarIdMap Name := {}
+  typeParams : FVarIdHashSet := {}
+  noncomputableVars : Std.HashMap FVarId Name := {}
 
 abbrev ToMonoM := StateRefT ToMonoM.State CompilerM
 
 def Param.toMono (param : Param) : ToMonoM Param := do
   if isTypeFormerType param.type then
-    modify fun { typeParams, .. } => { typeParams := typeParams.insert param.fvarId }
+    modify fun s => { s with typeParams := s.typeParams.insert param.fvarId }
   param.update (← toMonoType param.type)
 
 def isTrivialConstructorApp? (declName : Name) (args : Array Arg) : ToMonoM (Option LetValue) := do
@@ -28,8 +28,7 @@ def isTrivialConstructorApp? (declName : Name) (args : Array Arg) : ToMonoM (Opt
   return args[ctorInfo.numParams + info.fieldIdx]!.toLetValue
 
 def checkFVarUse (fvarId : FVarId) : ToMonoM Unit := do
-  if (← get).noncomputableVars.contains fvarId then
-    let declName := (← get).noncomputableVars.find! fvarId
+  if let some declName := (← get).noncomputableVars.get? fvarId then
     throwError f!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{declName}', which is 'noncomputable'"
 
 def argToMono (arg : Arg) : ToMonoM Arg := do

@@ -8,6 +8,7 @@ prelude
 import Lean.Server.FileWorker.ExampleHover
 import Lean.Server.FileWorker.InlayHints
 import Lean.Server.FileWorker.SemanticHighlighting
+import Lean.Server.FileWorker.SignatureHelp
 import Lean.Server.Completion
 import Lean.Server.References
 
@@ -346,7 +347,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
     let goal ← ci.runMetaM lctx' do
       Widget.goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
     let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
-    return some { goal with range, term := ⟨ti⟩ }
+    return some { goal with range, term := ← WithRpcRef.mk ti }
 
 def handlePlainTermGoal (p : PlainTermGoalParams)
     : RequestM (RequestTask (Option PlainTermGoal)) := do
@@ -562,6 +563,15 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
               endLine := endP.line
               kind? := some kind }
 
+def handleSignatureHelp (p : SignatureHelpParams) : RequestM (RequestTask (Option SignatureHelp)) := do
+  let doc ← readDoc
+  let text := doc.meta.text
+  let requestedPos := text.lspPosToUtf8Pos p.position
+  mapTaskCostly (findCmdDataAtPos doc requestedPos (includeStop := false)) fun cmdData? => do
+    let some (cmdStx, tree) := cmdData?
+      | return none
+    SignatureHelp.findSignatureHelp? text p.context? cmdStx tree requestedPos
+
 partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
     : RequestM (RequestTask WaitForDiagnostics) := do
   let rec waitLoop : RequestM EditableDocument := do
@@ -627,6 +637,11 @@ builtin_initialize
     FoldingRangeParams
     (Array FoldingRange)
     handleFoldingRange
+  registerLspRequestHandler
+    "textDocument/signatureHelp"
+    SignatureHelpParams
+    (Option SignatureHelp)
+    handleSignatureHelp
   registerLspRequestHandler
     "$/lean/plainGoal"
     PlainGoalParams

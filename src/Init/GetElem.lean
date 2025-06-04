@@ -164,25 +164,25 @@ export LawfulGetElem (getElem?_def getElem!_def)
 instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (valid xs i)] :
     LawfulGetElem coll idx elem valid where
 
-@[simp] theorem getElem?_pos [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+@[simp, grind] theorem getElem?_pos [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     (c : cont) (i : idx) (h : dom c i) : c[i]? = some (c[i]'h) := by
   have : Decidable (dom c i) := .isTrue h
   rw [getElem?_def]
   exact dif_pos h
 
-@[simp] theorem getElem?_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+@[simp, grind] theorem getElem?_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     (c : cont) (i : idx) (h : ¬dom c i) : c[i]? = none := by
   have : Decidable (dom c i) := .isFalse h
   rw [getElem?_def]
   exact dif_neg h
 
-@[simp] theorem getElem!_pos [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+@[simp, grind] theorem getElem!_pos [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     [Inhabited elem] (c : cont) (i : idx) (h : dom c i) :
     c[i]! = c[i]'h := by
   have : Decidable (dom c i) := .isTrue h
   simp [getElem!_def, getElem?_def, h]
 
-@[simp] theorem getElem!_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+@[simp, grind] theorem getElem!_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     [Inhabited elem] (c : cont) (i : idx) (h : ¬dom c i) : c[i]! = default := by
   have : Decidable (dom c i) := .isFalse h
   simp [getElem!_def, getElem?_def, h]
@@ -193,7 +193,7 @@ instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (v
   simp only [getElem?_def] at h ⊢
   split <;> simp_all
 
-@[simp, grind =] theorem getElem?_eq_none_iff [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+@[simp] theorem getElem?_eq_none_iff [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     (c : cont) (i : idx) [Decidable (dom c i)] : c[i]? = none ↔ ¬dom c i := by
   simp only [getElem?_def]
   split <;> simp_all
@@ -238,8 +238,6 @@ theorem getElem_of_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx
     {c : cont} {i : idx} [Decidable (dom c i)] (h : c[i]? = some e) : Exists fun h : dom c i => c[i] = e :=
   getElem?_eq_some_iff.mp h
 
-grind_pattern getElem_of_getElem? => c[i]?, some e
-
 @[simp] theorem some_getElem_eq_getElem?_iff [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     {c : cont} {i : idx} [Decidable (dom c i)] (h : dom c i):
     (some c[i] = c[i]?) ↔ True := by
@@ -275,12 +273,12 @@ instance [GetElem? cont Nat elem dom] [h : LawfulGetElem cont Nat elem dom] :
   getElem?_def _c _i _d := h.getElem?_def ..
   getElem!_def _c _i := h.getElem!_def ..
 
-@[simp] theorem getElem_fin [GetElem Cont Nat Elem Dom] (a : Cont) (i : Fin n) (h : Dom a i) :
+@[simp, grind =] theorem getElem_fin [GetElem Cont Nat Elem Dom] (a : Cont) (i : Fin n) (h : Dom a i) :
     a[i] = a[i.1] := rfl
 
-@[simp] theorem getElem?_fin [h : GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n) : a[i]? = a[i.1]? := rfl
+@[simp, grind =] theorem getElem?_fin [h : GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n) : a[i]? = a[i.1]? := rfl
 
-@[simp] theorem getElem!_fin [GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n) [Inhabited Elem] : a[i]! = a[i.1]! := rfl
+@[simp, grind =] theorem getElem!_fin [GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n) [Inhabited Elem] : a[i]! = a[i.1]! := rfl
 
 macro_rules
   | `(tactic| get_elem_tactic_trivial) => `(tactic| (with_reducible apply Fin.val_lt_of_le); get_elem_tactic_trivial; done)
@@ -313,13 +311,15 @@ theorem getElem_cons_drop_succ_eq_drop {as : List α} {i : Nat} (h : i < as.leng
 /-! ### getElem? -/
 
 /-- Internal implementation of `as[i]?`. Do not use directly. -/
-private def get?Internal : (as : List α) → (i : Nat) → Option α
+-- We still keep it public for reduction purposes
+def get?Internal : (as : List α) → (i : Nat) → Option α
   | a::_,  0   => some a
   | _::as, n+1 => get?Internal as n
   | _,     _   => none
 
 /-- Internal implementation of `as[i]!`. Do not use directly. -/
-private def get!Internal [Inhabited α] : (as : List α) → (i : Nat) → α
+-- We still keep it public for reduction purposes
+def get!Internal [Inhabited α] : (as : List α) → (i : Nat) → α
   | a::_,  0   => a
   | _::as, n+1 => get!Internal as n
   | _,     _   => panic! "invalid index"

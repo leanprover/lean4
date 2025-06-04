@@ -74,6 +74,11 @@ structure Context where
   user with "false-alarms". If the instantiation fails, we produce a more informative issue anyways.
   -/
   reportMVarIssue : Bool := true
+  trueExpr   : Expr
+  falseExpr  : Expr
+  natZExpr   : Expr
+  btrueExpr  : Expr
+  bfalseExpr : Expr
 
 /-- Key for the congruence theorem cache. -/
 structure CongrTheoremCacheKey where
@@ -86,7 +91,7 @@ instance : BEq CongrTheoremCacheKey where
 
 -- We manually define `Hashable` because we want to use pointer equality.
 instance : Hashable CongrTheoremCacheKey where
-  hash a := mixHash (unsafe ptrAddrUnsafe a.f).toUInt64 (hash a.numArgs)
+  hash a := mixHash (hashPtrExpr a.f) (hash a.numArgs)
 
 structure EMatchTheoremTrace where
   origin : Origin
@@ -110,9 +115,18 @@ structure Counters where
   thm  : PHashMap Origin Nat := {}
   /-- Number of times a `cases` has been performed on an inductive type/predicate -/
   case : PHashMap Name Nat := {}
+  /-- Number of applications per function symbol. This information is only collected if `set_option diagnostics true` -/
+  apps : PHashMap Name Nat := {}
   deriving Inhabited
 
 private def emptySC : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCommon.State.mk _
+
+/-- Case-split diagnostic information -/
+structure SplitDiagInfo where
+  lctx     : LocalContext
+  c        : Expr
+  gen      : Nat
+  numCases : Nat
 
 /-- State for the `GrindM` monad. -/
 structure State where
@@ -125,11 +139,6 @@ structure State where
   -/
   congrThms  : PHashMap CongrTheoremCacheKey CongrTheorem := {}
   simp       : Simp.State := {}
-  trueExpr   : Expr
-  falseExpr  : Expr
-  natZExpr   : Expr
-  btrueExpr  : Expr
-  bfalseExpr : Expr
   /--
   Used to generate trace messages of the for `[grind] working on <tag>`,
   and implement the macro `trace_goal`.
@@ -144,6 +153,8 @@ structure State where
   trace      : Trace := {}
   /-- Performance counters -/
   counters   : Counters := {}
+  /-- Split diagnostic information. This information is only collected when `set_option diagnostics true` -/
+  splitDiags : PArray SplitDiagInfo := {}
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 private def MethodsRef : Type := MethodsRefPointed.type
@@ -167,23 +178,23 @@ def getConfig : GrindM Grind.Config :=
 
 /-- Returns the internalized `True` constant.  -/
 def getTrueExpr : GrindM Expr := do
-  return (← get).trueExpr
+  return (← readThe Context).trueExpr
 
 /-- Returns the internalized `False` constant.  -/
 def getFalseExpr : GrindM Expr := do
-  return (← get).falseExpr
+  return (← readThe Context).falseExpr
 
 /-- Returns the internalized `Bool.true`.  -/
 def getBoolTrueExpr : GrindM Expr := do
-  return (← get).btrueExpr
+  return (← readThe Context).btrueExpr
 
 /-- Returns the internalized `Bool.false`.  -/
 def getBoolFalseExpr : GrindM Expr := do
-  return (← get).bfalseExpr
+  return (← readThe Context).bfalseExpr
 
 /-- Returns the internalized `0 : Nat` numeral.  -/
 def getNatZeroExpr : GrindM Expr := do
-  return (← get).natZExpr
+  return (← readThe Context).natZExpr
 
 def cheapCasesOnly : GrindM Bool :=
   return (← readThe Context).cheapCases
@@ -197,16 +208,17 @@ Returns `true` if `declName` is the name of a `match` equation or a `match` cong
 def isMatchEqLikeDeclName (declName : Name) : CoreM Bool := do
   return (← isMatchCongrEqDeclName declName) || Match.isMatchEqnTheorem (← getEnv) declName
 
+private def incCounter [Hashable α] [BEq α] (s : PHashMap α Nat) (k : α) : PHashMap α Nat :=
+  if let some n := s.find? k then
+      s.insert k (n+1)
+    else
+      s.insert k 1
+
 def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
   if (← getConfig).trace then
     unless (← isMatchEqLikeDeclName thm.origin.key) do
       modify fun s => { s with trace.thms := s.trace.thms.insert { origin := thm.origin, kind := thm.kind } }
-  modify fun s => { s with
-    counters.thm := if let some n := s.counters.thm.find? thm.origin then
-      s.counters.thm.insert thm.origin (n+1)
-    else
-      s.counters.thm.insert thm.origin 1
-  }
+  modify fun s => { s with counters.thm := incCounter s.counters.thm thm.origin }
 
 def saveCases (declName : Name) (eager : Bool) : GrindM Unit := do
   if (← getConfig).trace then
@@ -214,12 +226,17 @@ def saveCases (declName : Name) (eager : Bool) : GrindM Unit := do
       modify fun s => { s with trace.eagerCases := s.trace.eagerCases.insert declName }
     else
       modify fun s => { s with trace.cases := s.trace.cases.insert declName }
-  modify fun s => { s with
-    counters.case := if let some n := s.counters.case.find? declName then
-      s.counters.case.insert declName (n+1)
-    else
-      s.counters.case.insert declName 1
-  }
+  modify fun s => { s with counters.case := incCounter s.counters.case declName }
+
+def saveAppOf (h : HeadIndex) : GrindM Unit := do
+  if (← isDiagnosticsEnabled) then
+    let .const declName := h | return ()
+    modify fun s => { s with counters.apps := incCounter s.counters.apps declName }
+
+def saveSplitDiagInfo (c : Expr) (gen : Nat) (numCases : Nat) : GrindM Unit := do
+  if (← isDiagnosticsEnabled) then
+    let lctx ← getLCtx
+    modify fun s => { s with splitDiags := s.splitDiags.push { c, gen, lctx, numCases } }
 
 @[inline] def getMethodsRef : GrindM MethodsRef :=
   read
@@ -372,9 +389,9 @@ structure CongrKey (enodes : ENodeMap) where
 
 private def hashRoot (enodes : ENodeMap) (e : Expr) : UInt64 :=
   if let some node := enodes.find? { expr := e } then
-    unsafe (ptrAddrUnsafe node.root).toUInt64
+    hashPtrExpr node.root
   else
-    13
+    hashPtrExpr e
 
 private def hasSameRoot (enodes : ENodeMap) (a b : Expr) : Bool := Id.run do
   if isSameExpr a b then
@@ -461,9 +478,9 @@ structure PreInstance where
 
 instance : Hashable PreInstance where
   hash i := Id.run do
-    let mut r := unsafe (ptrAddrUnsafe i.proof >>> 3).toUInt64
+    let mut r := hashPtrExpr i.proof
     for v in i.assignment do
-      r := mixHash r (unsafe (ptrAddrUnsafe v >>> 3).toUInt64)
+      r := mixHash r (hashPtrExpr v)
     return r
 
 instance : BEq PreInstance where
@@ -840,6 +857,10 @@ Otherwise, it pushes `HEq lhs rhs`.
 -/
 def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   if grind.debug.get (← getOptions) then
+    unless (← alreadyInternalized lhs) do
+      throwError "`grind` internal error, lhs of new equality has not been internalized{indentExpr lhs}"
+    unless (← alreadyInternalized rhs) do
+      throwError "`grind` internal error, rhs of new equality has not been internalized{indentExpr rhs}"
     unless proof == congrPlaceholderProof do
       let expectedType ← if isHEq then mkHEq lhs rhs else mkEq lhs rhs
       unless (← withReducible <| isDefEq (← inferType proof) expectedType) do
@@ -957,14 +978,6 @@ Notifies the offset constraint module that `a = b` where
 @[extern "lean_process_new_offset_eq"] -- forward definition
 opaque Arith.Offset.processNewEq (a b : Expr) : GoalM Unit
 
-/--
-Notifies the offset constraint module that `a = k` where
-`a` is term that has been internalized by this module,
-and `k` is a numeral.
--/
-@[extern "lean_process_new_offset_eq_lit"] -- forward definition
-opaque Arith.Offset.processNewEqLit (a k : Expr) : GoalM Unit
-
 /-- Returns `true` if `e` is a numeral and has type `Nat`. -/
 def isNatNum (e : Expr) : Bool := Id.run do
   let_expr OfNat.ofNat _ _ inst := e | false
@@ -980,8 +993,6 @@ def markAsOffsetTerm (e : Expr) : GoalM Unit := do
   let root ← getRootENode e
   if let some e' := root.offset? then
     Arith.Offset.processNewEq e e'
-  else if isNatNum root.self && !isSameExpr e root.self then
-    Arith.Offset.processNewEqLit e root.self
   else
     setENode root.self { root with offset? := some e }
 
@@ -991,13 +1002,6 @@ Notifies the cutsat module that `a = b` where
 -/
 @[extern "lean_process_cutsat_eq"] -- forward definition
 opaque Arith.Cutsat.processNewEq (a b : Expr) : GoalM Unit
-
-/--
-Notifies the cutsat module that `a = k` where
-`a` is term that has been internalized by this module, and `k` is a numeral.
--/
-@[extern "lean_process_cutsat_eq_lit"] -- forward definition
-opaque Arith.Cutsat.processNewEqLit (a k : Expr) : GoalM Unit
 
 /--
 Notifies the cutsat module that `a ≠ b` where
@@ -1074,8 +1078,6 @@ def markAsCutsatTerm (e : Expr) : GoalM Unit := do
   let root ← getRootENode e
   if let some e' := root.cutsat? then
     Arith.Cutsat.processNewEq e e'
-  else if isNum root.self && !isSameExpr e root.self then
-    Arith.Cutsat.processNewEqLit e root.self
   else
     setENode root.self { root with cutsat? := some e }
     propagateCutsatDiseqs (← getParents root.self)

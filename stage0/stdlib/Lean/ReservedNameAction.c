@@ -74,7 +74,6 @@ LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_realizeGlobalConstCore___
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_realizeGlobalConstNoOverloadCore___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at_Lean_realizeGlobalConstCore___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ReservedNameAction_0__Lean_reservedNameActionsRef;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerReservedNameAction___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_filterAuxM___at_Lean_realizeGlobalName___spec__2___closed__1;
 static lean_object* l_List_filterAuxM___at_Lean_realizeGlobalName___spec__2___closed__3;
@@ -104,6 +103,7 @@ lean_object* l_List_reverse___rarg(lean_object*);
 static lean_object* l_Lean_ensureNonAmbiguous___at_Lean_realizeGlobalConstNoOverload___spec__1___closed__4;
 lean_object* lean_array_mk(lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mapTR_loop___at_Lean_ensureNonAmbiguous___spec__2(lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedName;
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -2273,7 +2273,7 @@ x_2 = l_Lean_ensureNonAmbiguous___at_Lean_realizeGlobalConstNoOverload___spec__1
 x_3 = lean_unsigned_to_nat(367u);
 x_4 = lean_unsigned_to_nat(11u);
 x_5 = l_Lean_ensureNonAmbiguous___at_Lean_realizeGlobalConstNoOverload___spec__1___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

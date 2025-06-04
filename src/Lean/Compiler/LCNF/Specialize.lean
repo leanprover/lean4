@@ -268,8 +268,12 @@ def getRemainingArgs (paramsInfo : Array SpecParamInfo) (args : Array Arg) : Arr
       result := result.push arg
   return result ++ args[paramsInfo.size:]
 
-def paramsToVarSet (params : Array Param) : FVarIdSet :=
-  params.foldl (fun r p => r.insert p.fvarId) {}
+def paramsToGroundVars (params : Array Param) : CompilerM FVarIdSet :=
+  params.foldlM (init := {}) fun r p => do
+    if isTypeFormerType p.type || (← isArrowClass? p.type).isSome then
+      return r.insert p.fvarId
+    else
+      return r
 
 mutual
   /--
@@ -305,7 +309,7 @@ mutual
       specDecl.saveBase
       let specDecl ← specDecl.simp {}
       let specDecl ← specDecl.simp { etaPoly := true, inlinePartial := true, implementedBy := true }
-      let ground := paramsToVarSet specDecl.params
+      let ground ← paramsToGroundVars specDecl.params
       let value ← withReader (fun _ => { declName := specDecl.name, ground }) do
          withParams specDecl.params <| specDecl.value.mapCodeM visitCode
       let specDecl := { specDecl with value }
@@ -352,7 +356,7 @@ def main (decl : Decl) : SpecializeM Decl := do
 end Specialize
 
 partial def Decl.specialize (decl : Decl) : CompilerM (Array Decl) := do
-  let ground := Specialize.paramsToVarSet decl.params
+  let ground ← Specialize.paramsToGroundVars decl.params
   let (decl, s) ← Specialize.main decl |>.run { declName := decl.name, ground } |>.run {}
   return s.decls.push decl
 

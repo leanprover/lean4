@@ -51,6 +51,7 @@ LEAN_EXPORT lean_object* l_Lean_registerSimplePersistentEnvExtension___boxed(lea
 static lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__5___closed__2;
 lean_object* l_List_foldl___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerSimplePersistentEnvExtension(lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkMapDeclarationExtension___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_TagDeclarationExtension_tag___closed__1;
 lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
@@ -116,7 +117,6 @@ LEAN_EXPORT lean_object* l_Lean_MapDeclarationExtension_find_x3f___rarg(lean_obj
 LEAN_EXPORT lean_object* l_Lean_SimplePersistentEnvExtension_modifyState___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SimplePersistentEnvExtension_modifyState(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkTagDeclarationExtension___lambda__3(lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_TagDeclarationExtension_tag___closed__4;
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_mkMapDeclarationExtension___spec__2___rarg___boxed(lean_object*, lean_object*);
@@ -176,6 +176,7 @@ LEAN_EXPORT lean_object* l_Lean_TagDeclarationExtension_isTagged___boxed(lean_ob
 static lean_object* l_Lean_mkMapDeclarationExtension___rarg___closed__1;
 extern lean_object* l_Lean_NameSet_instInhabited;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedMapDeclarationExtension(lean_object*);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_binSearchAux___at_Lean_MapDeclarationExtension_find_x3f___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedMapDeclarationExtension___lambda__1(lean_object*);
@@ -213,7 +214,6 @@ LEAN_EXPORT lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___la
 LEAN_EXPORT lean_object* l_Lean_mkMapDeclarationExtension(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MapDeclarationExtension_contains(lean_object*);
 static lean_object* l_Lean_SimplePersistentEnvExtensionDescr_name___autoParam___closed__16;
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkMapDeclarationExtension___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_findStateAsync___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_TagDeclarationExtension_tag___closed__7;
@@ -777,7 +777,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_obj
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = l_List_lengthTRAux___rarg(x_2, x_3);
-x_5 = l___private_Init_Data_Repr_0__Nat_reprFast(x_4);
+x_5 = l_Nat_reprFast(x_4);
 x_6 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
 x_7 = l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__5___closed__2;
@@ -1499,7 +1499,7 @@ x_2 = l_Lean_TagDeclarationExtension_tag___closed__5;
 x_3 = lean_unsigned_to_nat(112u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_TagDeclarationExtension_tag___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1530,7 +1530,7 @@ x_2 = l_Lean_TagDeclarationExtension_tag___closed__5;
 x_3 = lean_unsigned_to_nat(111u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_TagDeclarationExtension_tag___closed__8;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -2292,7 +2292,7 @@ x_2 = l_Lean_MapDeclarationExtension_insert___rarg___closed__1;
 x_3 = lean_unsigned_to_nat(153u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_TagDeclarationExtension_tag___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -2323,7 +2323,7 @@ x_2 = l_Lean_MapDeclarationExtension_insert___rarg___closed__1;
 x_3 = lean_unsigned_to_nat(152u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_MapDeclarationExtension_insert___rarg___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

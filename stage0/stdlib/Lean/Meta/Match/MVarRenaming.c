@@ -26,7 +26,6 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__4;
 lean_object* lean_replace_expr(lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_MVarIdMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___at_Lean_Expr_mvarId_x21___spec__1(lean_object*);
 static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_apply___lambda__1(lean_object*, lean_object*);
@@ -36,6 +35,7 @@ static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_isEmpty___boxed(lean_object*);
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_find_x21___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_MVarRenaming_isEmpty(lean_object* x_1) {
 _start:
@@ -165,7 +165,7 @@ x_2 = l_Lean_Meta_MVarRenaming_find_x21___closed__2;
 x_3 = lean_unsigned_to_nat(21u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_Meta_MVarRenaming_find_x21___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

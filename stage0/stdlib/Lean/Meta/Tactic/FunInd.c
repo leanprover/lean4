@@ -267,7 +267,6 @@ LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_cleanPac
 static lean_object* l_Lean_Tactic_FunInd_buildInductionBody___lambda__42___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_deriveUnaryInduction_doRealize___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Tactic_FunInd_deriveCases___spec__1(size_t, size_t, lean_object*);
-lean_object* l___private_Init_GetElem_0__List_get_x21Internal___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addTrace___at_Lean_Tactic_FunInd_buildInductionCase___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withErasedFVars___at_Lean_Tactic_FunInd_deriveCases___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_foldAndCollect___lambda__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -572,6 +571,7 @@ LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_deriveInductionStructural_doRealiz
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Tactic_FunInd_buildInductionBody___spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___lambda__8___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Tactic_FunInd_buildInductionBody___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at_Lean_Tactic_FunInd_buildInductionBody___spec__17___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_ptr_addr(lean_object*);
@@ -972,7 +972,6 @@ LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_buildInductionBody___lambda__37(le
 static lean_object* l_Lean_Meta_MatcherApp_transform___at_Lean_Tactic_FunInd_buildInductionBody___spec__12___lambda__7___closed__4;
 extern lean_object* l_Lean_trace_profiler_threshold;
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_initFn____x40_Lean_Meta_Tactic_FunInd___hyg_28089_(lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___spec__26(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_unpackMutualInduction_doRealize___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_PProdN_packLambdas(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1134,6 +1133,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_rwFun___spec_
 uint8_t l_Lean_Expr_isFVarOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___at_Lean_Tactic_FunInd_buildInductionBody___spec__3___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_rwMatcher___lambda__5___closed__3;
+lean_object* l_List_get_x21Internal___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Tactic_FunInd_foldAndCollect___spec__5___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_unpackMutualInduction_doRealize___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___lambda__18___boxed(lean_object**);
@@ -1478,6 +1478,7 @@ size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___at_Lean_Tactic_FunInd_foldAndCollect___spec__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_mapTR_loop___at_Lean_Tactic_FunInd_deriveCases___spec__11___at_Lean_Tactic_FunInd_deriveCases___spec__12___at_Lean_Tactic_FunInd_deriveCases___spec__13___closed__2;
 static lean_object* l_Lean_Tactic_FunInd_deriveInduction___closed__2;
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_rwIfWith___lambda__3___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_deriveUnaryInduction_doRealize___lambda__19(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1709,7 +1710,6 @@ LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_buildInductionBody(lean_object*, l
 static lean_object* l_Lean_Tactic_FunInd_rwMatcher___lambda__1___closed__1;
 static lean_object* l_Lean_logAt___at_Lean_Tactic_FunInd_buildInductionBody___spec__25___lambda__2___closed__5;
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_buildInductionBody___lambda__27___closed__2;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___spec__19___lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_foldAndCollect___lambda__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3004,7 +3004,7 @@ x_2 = l_List_forIn_x27_loop___at_Lean_Tactic_FunInd_foldAndCollect___spec__6___c
 x_3 = lean_unsigned_to_nat(63u);
 x_4 = lean_unsigned_to_nat(53u);
 x_5 = l_List_forIn_x27_loop___at_Lean_Tactic_FunInd_foldAndCollect___spec__6___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -9626,7 +9626,7 @@ x_2 = l_Lean_Tactic_FunInd_foldAndCollect___lambda__9___closed__2;
 x_3 = lean_unsigned_to_nat(403u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_List_forIn_x27_loop___at_Lean_Tactic_FunInd_foldAndCollect___spec__6___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -9665,7 +9665,7 @@ x_2 = l_Lean_Tactic_FunInd_foldAndCollect___lambda__9___closed__2;
 x_3 = lean_unsigned_to_nat(406u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Lean_Tactic_FunInd_foldAndCollect___lambda__9___closed__6;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -11740,7 +11740,7 @@ x_2 = l_Lean_Tactic_FunInd_foldAndCollect___lambda__9___closed__2;
 x_3 = lean_unsigned_to_nat(331u);
 x_4 = lean_unsigned_to_nat(42u);
 x_5 = l_List_forIn_x27_loop___at_Lean_Tactic_FunInd_foldAndCollect___spec__6___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -14135,7 +14135,7 @@ lean_dec(x_28);
 x_31 = lean_unsigned_to_nat(1u);
 x_32 = lean_nat_add(x_18, x_31);
 lean_dec(x_18);
-x_33 = l___private_Init_Data_Repr_0__Nat_reprFast(x_32);
+x_33 = l_Nat_reprFast(x_32);
 x_34 = l_Array_forIn_x27Unsafe_loop___at_Lean_Tactic_FunInd_assertIHs___spec__1___closed__1;
 x_35 = lean_string_append(x_34, x_33);
 lean_dec(x_33);
@@ -14250,7 +14250,7 @@ lean_dec(x_56);
 x_59 = lean_unsigned_to_nat(1u);
 x_60 = lean_nat_add(x_18, x_59);
 lean_dec(x_18);
-x_61 = l___private_Init_Data_Repr_0__Nat_reprFast(x_60);
+x_61 = l_Nat_reprFast(x_60);
 x_62 = l_Array_forIn_x27Unsafe_loop___at_Lean_Tactic_FunInd_assertIHs___spec__1___closed__1;
 x_63 = lean_string_append(x_62, x_61);
 lean_dec(x_61);
@@ -14418,7 +14418,7 @@ lean_dec(x_93);
 x_96 = lean_unsigned_to_nat(1u);
 x_97 = lean_nat_add(x_84, x_96);
 lean_dec(x_84);
-x_98 = l___private_Init_Data_Repr_0__Nat_reprFast(x_97);
+x_98 = l_Nat_reprFast(x_97);
 x_99 = l_Array_forIn_x27Unsafe_loop___at_Lean_Tactic_FunInd_assertIHs___spec__1___closed__1;
 x_100 = lean_string_append(x_99, x_98);
 lean_dec(x_98);
@@ -41514,7 +41514,7 @@ lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean
 x_24 = lean_ctor_get(x_17, 1);
 x_25 = lean_ctor_get(x_17, 0);
 lean_dec(x_25);
-x_26 = l___private_Init_Data_Repr_0__Nat_reprFast(x_2);
+x_26 = l_Nat_reprFast(x_2);
 x_27 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_27, 0, x_26);
 x_28 = l_Lean_MessageData_ofFormat(x_27);
@@ -41526,7 +41526,7 @@ x_30 = l_Lean_Tactic_FunInd_rwMatcher___lambda__10___closed__4;
 x_31 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_31, 0, x_17);
 lean_ctor_set(x_31, 1, x_30);
-x_32 = l___private_Init_Data_Repr_0__Nat_reprFast(x_14);
+x_32 = l_Nat_reprFast(x_14);
 x_33 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_33, 0, x_32);
 x_34 = l_Lean_MessageData_ofFormat(x_33);
@@ -41566,7 +41566,7 @@ lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean
 x_47 = lean_ctor_get(x_17, 1);
 lean_inc(x_47);
 lean_dec(x_17);
-x_48 = l___private_Init_Data_Repr_0__Nat_reprFast(x_2);
+x_48 = l_Nat_reprFast(x_2);
 x_49 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_49, 0, x_48);
 x_50 = l_Lean_MessageData_ofFormat(x_49);
@@ -41578,7 +41578,7 @@ x_53 = l_Lean_Tactic_FunInd_rwMatcher___lambda__10___closed__4;
 x_54 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_54, 0, x_52);
 lean_ctor_set(x_54, 1, x_53);
-x_55 = l___private_Init_Data_Repr_0__Nat_reprFast(x_14);
+x_55 = l_Nat_reprFast(x_14);
 x_56 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_56, 0, x_55);
 x_57 = l_Lean_MessageData_ofFormat(x_56);
@@ -59351,7 +59351,7 @@ lean_dec(x_7);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_19 = l___private_Init_Data_Repr_0__Nat_reprFast(x_17);
+x_19 = l_Nat_reprFast(x_17);
 x_20 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_20, 0, x_19);
 x_21 = l_Lean_MessageData_ofFormat(x_20);
@@ -67552,10 +67552,10 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Tactic_FunInd_buildInductionBody___lambda__27___closed__2;
 x_2 = l_Lean_Tactic_FunInd_buildInductionBody___lambda__27___closed__3;
-x_3 = lean_unsigned_to_nat(1802u);
+x_3 = lean_unsigned_to_nat(1783u);
 x_4 = lean_unsigned_to_nat(17u);
 x_5 = l_Lean_Tactic_FunInd_buildInductionBody___lambda__27___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -68123,7 +68123,7 @@ x_2 = l_Lean_Tactic_FunInd_buildInductionBody___lambda__32___closed__1;
 x_3 = lean_unsigned_to_nat(871u);
 x_4 = lean_unsigned_to_nat(40u);
 x_5 = l_List_forIn_x27_loop___at_Lean_Tactic_FunInd_foldAndCollect___spec__6___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -72232,7 +72232,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_2 = lean_unsigned_to_nat(1u);
 x_3 = lean_nat_add(x_1, x_2);
-x_4 = l___private_Init_Data_Repr_0__Nat_reprFast(x_3);
+x_4 = l_Nat_reprFast(x_3);
 x_5 = l_Lean_Tactic_FunInd_abstractIndependentMVars___lambda__1___closed__1;
 x_6 = lean_string_append(x_5, x_4);
 lean_dec(x_4);
@@ -72553,7 +72553,7 @@ x_17 = lean_ctor_get(x_10, 1);
 x_18 = lean_ctor_get(x_10, 0);
 lean_dec(x_18);
 lean_inc(x_2);
-x_19 = l___private_Init_Data_Repr_0__Nat_reprFast(x_2);
+x_19 = l_Nat_reprFast(x_2);
 x_20 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_20, 0, x_19);
 x_21 = l_Lean_MessageData_ofFormat(x_20);
@@ -72594,7 +72594,7 @@ x_36 = lean_ctor_get(x_10, 1);
 lean_inc(x_36);
 lean_dec(x_10);
 lean_inc(x_2);
-x_37 = l___private_Init_Data_Repr_0__Nat_reprFast(x_2);
+x_37 = l_Nat_reprFast(x_2);
 x_38 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_38, 0, x_37);
 x_39 = l_Lean_MessageData_ofFormat(x_38);
@@ -73993,7 +73993,7 @@ lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean
 x_17 = l_Lean_Expr_constLevels_x21(x_1);
 x_18 = l_Lean_instInhabitedLevel;
 x_19 = lean_unsigned_to_nat(0u);
-x_20 = l___private_Init_GetElem_0__List_get_x21Internal___rarg(x_18, x_17, x_19);
+x_20 = l_List_get_x21Internal___rarg(x_18, x_17, x_19);
 lean_dec(x_17);
 x_21 = lean_box(0);
 x_22 = l_Lean_Tactic_FunInd_deriveUnaryInduction_doRealize___lambda__11___closed__1;
@@ -75307,7 +75307,7 @@ lean_ctor_set(x_25, 0, x_23);
 lean_ctor_set(x_25, 1, x_24);
 x_26 = lean_unsigned_to_nat(0u);
 x_27 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_26);
-x_28 = l___private_Init_Data_Repr_0__Nat_reprFast(x_27);
+x_28 = l_Nat_reprFast(x_27);
 x_29 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_29, 0, x_28);
 x_30 = l_Lean_MessageData_ofFormat(x_29);
@@ -77362,7 +77362,7 @@ x_2 = l_Std_Range_forIn_x27_loop___at_Lean_Tactic_FunInd_setNaryFunIndInfo___spe
 x_3 = lean_unsigned_to_nat(1109u);
 x_4 = lean_unsigned_to_nat(8u);
 x_5 = l_Std_Range_forIn_x27_loop___at_Lean_Tactic_FunInd_setNaryFunIndInfo___spec__2___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -77733,7 +77733,7 @@ x_2 = l_Std_Range_forIn_x27_loop___at_Lean_Tactic_FunInd_setNaryFunIndInfo___spe
 x_3 = lean_unsigned_to_nat(1099u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Tactic_FunInd_setNaryFunIndInfo___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -77807,7 +77807,7 @@ x_2 = l_Std_Range_forIn_x27_loop___at_Lean_Tactic_FunInd_setNaryFunIndInfo___spe
 x_3 = lean_unsigned_to_nat(1114u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Lean_Tactic_FunInd_setNaryFunIndInfo___closed__10;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -78579,7 +78579,7 @@ x_2 = l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_cleanPackedArgs___spec__1__
 x_3 = lean_unsigned_to_nat(1167u);
 x_4 = lean_unsigned_to_nat(48u);
 x_5 = l_List_forIn_x27_loop___at_Lean_Tactic_FunInd_foldAndCollect___spec__6___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -78752,7 +78752,7 @@ x_2 = l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_cleanPackedArgs___spec__1__
 x_3 = lean_unsigned_to_nat(1161u);
 x_4 = lean_unsigned_to_nat(51u);
 x_5 = l_List_forIn_x27_loop___at_Lean_Tactic_FunInd_foldAndCollect___spec__6___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -78927,7 +78927,7 @@ x_2 = l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_cleanPackedArgs___spec__1__
 x_3 = lean_unsigned_to_nat(1153u);
 x_4 = lean_unsigned_to_nat(51u);
 x_5 = l_List_forIn_x27_loop___at_Lean_Tactic_FunInd_foldAndCollect___spec__6___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -79084,7 +79084,7 @@ x_2 = l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_cleanPackedArgs___spec__1__
 x_3 = lean_unsigned_to_nat(1144u);
 x_4 = lean_unsigned_to_nat(50u);
 x_5 = l_List_forIn_x27_loop___at_Lean_Tactic_FunInd_foldAndCollect___spec__6___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -83354,7 +83354,7 @@ x_2 = l_Lean_Tactic_FunInd_withLetDecls___rarg___closed__3;
 x_3 = lean_unsigned_to_nat(1256u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Tactic_FunInd_withLetDecls___rarg___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -84389,7 +84389,7 @@ x_2 = l_Lean_Elab_Structural_Positions_groupAndSort___at_Lean_Tactic_FunInd_deri
 x_3 = lean_unsigned_to_nat(86u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Elab_Structural_Positions_groupAndSort___at_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___spec__5___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -86957,7 +86957,7 @@ x_2 = l_Lean_Elab_Structural_Positions_mapMwith___at_Lean_Tactic_FunInd_deriveIn
 x_3 = lean_unsigned_to_nat(96u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Elab_Structural_Positions_mapMwith___at_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___spec__12___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -86988,7 +86988,7 @@ x_2 = l_Lean_Elab_Structural_Positions_mapMwith___at_Lean_Tactic_FunInd_deriveIn
 x_3 = lean_unsigned_to_nat(97u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Elab_Structural_Positions_mapMwith___at_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___spec__12___closed__6;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -87869,7 +87869,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_17 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_17 = l_Nat_reprFast(x_1);
 x_18 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_18, 0, x_17);
 x_19 = l_Lean_MessageData_ofFormat(x_18);
@@ -90573,7 +90573,7 @@ x_2 = l_Array_forIn_x27Unsafe_loop___at_Lean_Tactic_FunInd_deriveInductionStruct
 x_3 = lean_unsigned_to_nat(1448u);
 x_4 = lean_unsigned_to_nat(73u);
 x_5 = l_Array_forIn_x27Unsafe_loop___at_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___spec__19___lambda__3___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -90586,7 +90586,7 @@ x_2 = l_Array_forIn_x27Unsafe_loop___at_Lean_Tactic_FunInd_deriveInductionStruct
 x_3 = lean_unsigned_to_nat(1449u);
 x_4 = lean_unsigned_to_nat(67u);
 x_5 = l_Array_forIn_x27Unsafe_loop___at_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___spec__19___lambda__3___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -90599,7 +90599,7 @@ x_2 = l_Array_forIn_x27Unsafe_loop___at_Lean_Tactic_FunInd_deriveInductionStruct
 x_3 = lean_unsigned_to_nat(1450u);
 x_4 = lean_unsigned_to_nat(62u);
 x_5 = l_Array_forIn_x27Unsafe_loop___at_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___spec__19___lambda__3___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -93586,7 +93586,7 @@ if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_5 = lean_nat_add(x_2, x_3);
-x_6 = l___private_Init_Data_Repr_0__Nat_reprFast(x_5);
+x_6 = l_Nat_reprFast(x_5);
 x_7 = l_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___lambda__2___closed__1;
 x_8 = lean_string_append(x_7, x_6);
 lean_dec(x_6);
@@ -95433,7 +95433,7 @@ x_2 = l_Array_forIn_x27Unsafe_loop___at_Lean_Tactic_FunInd_deriveInductionStruct
 x_3 = lean_unsigned_to_nat(1352u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___lambda__12___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -96339,7 +96339,7 @@ x_2 = l_Array_forIn_x27Unsafe_loop___at_Lean_Tactic_FunInd_deriveInductionStruct
 x_3 = lean_unsigned_to_nat(1303u);
 x_4 = lean_unsigned_to_nat(41u);
 x_5 = l_List_forIn_x27_loop___at_Lean_Tactic_FunInd_foldAndCollect___spec__6___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -97244,7 +97244,7 @@ x_2 = l_Array_forIn_x27Unsafe_loop___at_Lean_Tactic_FunInd_deriveInductionStruct
 x_3 = lean_unsigned_to_nat(1281u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -100265,7 +100265,7 @@ x_2 = l_Lean_Tactic_FunInd_refinedArguments___closed__5;
 x_3 = lean_unsigned_to_nat(1520u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Tactic_FunInd_refinedArguments___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -101163,7 +101163,7 @@ x_2 = l_Array_forIn_x27Unsafe_loop___at_Lean_Tactic_FunInd_deriveCases___spec__1
 x_3 = lean_unsigned_to_nat(1640u);
 x_4 = lean_unsigned_to_nat(8u);
 x_5 = l_Array_forIn_x27Unsafe_loop___at_Lean_Tactic_FunInd_deriveCases___spec__10___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

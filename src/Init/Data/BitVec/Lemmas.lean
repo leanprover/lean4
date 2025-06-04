@@ -319,6 +319,7 @@ theorem ofFin_ofNat (n : Nat) :
 @[simp] theorem ofFin_neg {x : Fin (2 ^ w)} : ofFin (-x) = -(ofFin x) := by
   rfl
 
+open Fin.NatCast in
 @[simp, norm_cast] theorem ofFin_natCast (n : Nat) : ofFin (n : Fin (2^w)) = (n : BitVec w) := by
   rfl
 
@@ -337,6 +338,7 @@ theorem toFin_zero : toFin (0 : BitVec w) = 0 := rfl
 theorem toFin_one  : toFin (1 : BitVec w) = 1 := by
   rw [toFin_inj]; simp only [ofNat_eq_ofNat, ofFin_ofNat]
 
+open Fin.NatCast in
 @[simp, norm_cast] theorem toFin_natCast (n : Nat) : toFin (n : BitVec w) = (n : Fin (2^w)) := by
   rfl
 
@@ -2974,7 +2976,7 @@ theorem extractLsb'_append_eq_ite {v w} {xhi : BitVec v} {xlo : BitVec w} {start
     extractLsb' start len (xhi ++ xlo) =
     if hstart : start < w
     then
-      if hlen : start + len < w
+      if hlen : start + len ≤ w
       then extractLsb' start len xlo
       else
         (((extractLsb' (start - w) (len - (w - start)) xhi) ++
@@ -2983,7 +2985,7 @@ theorem extractLsb'_append_eq_ite {v w} {xhi : BitVec v} {xlo : BitVec w} {start
       extractLsb' (start - w) len xhi := by
   by_cases hstart : start < w
   · simp only [hstart, ↓reduceDIte]
-    by_cases hlen : start + len < w
+    by_cases hlen : start + len ≤ w
     · simp only [hlen, ↓reduceDIte]
       ext i hi
       simp only [getElem_extractLsb', getLsbD_append, ite_eq_left_iff, Nat.not_lt]
@@ -3006,11 +3008,14 @@ theorem extractLsb'_append_eq_ite {v w} {xhi : BitVec v} {xlo : BitVec w} {start
 /-- Extracting bits `[start..start+len)` from `(xhi ++ xlo)` equals extracting
 the bits from `xlo` when `start + len` is within `xlo`.
 -/
-theorem extractLsb'_append_eq_of_lt {v w} {xhi : BitVec v} {xlo : BitVec w}
-    {start len : Nat} (h : start + len < w) :
+theorem extractLsb'_append_eq_of_add_le {v w} {xhi : BitVec v} {xlo : BitVec w}
+    {start len : Nat} (h : start + len ≤ w) :
     extractLsb' start len (xhi ++ xlo) = extractLsb' start len xlo := by
-  simp [extractLsb'_append_eq_ite, h]
-  omega
+  simp only [extractLsb'_append_eq_ite, h, ↓reduceDIte, dite_eq_ite, ite_eq_left_iff, Nat.not_lt]
+  intro h'
+  have : len = 0 := by omega
+  subst this
+  simp
 
 /-- Extracting bits `[start..start+len)` from `(xhi ++ xlo)` equals extracting
 the bits from `xhi` when `start` is outside `xlo`.
@@ -3179,7 +3184,7 @@ theorem getElem_concat (x : BitVec w) (b : Bool) (i : Nat) (h : i < w + 1) :
   · simp [Nat.mod_eq_of_lt b.toNat_lt]
   · simp [Nat.div_eq_of_lt b.toNat_lt, Nat.testBit_add_one]
 
-@[simp] theorem getElem_concat_zero : (concat x b)[0] = b := by
+@[simp] theorem getElem_concat_zero {x : BitVec w} : (concat x b)[0] = b := by
   simp [getElem_concat]
 
 theorem getLsbD_concat_zero : (concat x b).getLsbD 0 = b := by
@@ -3995,6 +4000,15 @@ theorem pos_of_msb {x : BitVec w} (hx : x.msb = true) : 0#w < x := by
   rw [BitVec.not_lt, le_zero_iff] at h
   simp [h] at hx
 
+@[simp]
+theorem lt_of_msb_false_of_msb_true {x y : BitVec w} (hx : x.msb = false) (hy : y.msb = true) :
+    x < y := by
+  simp only [LT.lt]
+  have := toNat_ge_of_msb_true hy
+  have := toNat_lt_of_msb_false hx
+  simp
+  omega
+
 /-! ### udiv -/
 
 theorem udiv_def {x y : BitVec n} : x / y = BitVec.ofNat n (x.toNat / y.toNat) := by
@@ -4175,6 +4189,14 @@ theorem toInt_umod {x y : BitVec w} :
 theorem toInt_umod_of_msb {x y : BitVec w} (h : x.msb = false) :
     (x % y).toInt = x.toInt % y.toNat := by
   simp [toInt_eq_msb_cond, h]
+
+@[simp]
+theorem msb_umod_of_msb_false_of_ne_zero {x y : BitVec w} (hmsb : y.msb = false) (h_ne_zero : y ≠ 0#w) :
+    (x % y).msb = false := by
+  simp only [msb_umod, Bool.and_eq_false_imp, Bool.or_eq_false_iff, beq_eq_false_iff_ne,
+    ne_eq, h_ne_zero]
+  intro h
+  simp [BitVec.le_of_lt, lt_of_msb_false_of_msb_true hmsb h]
 
 /-! ### smtUDiv -/
 
@@ -5409,6 +5431,27 @@ theorem neg_ofNat_eq_ofInt_neg {w : Nat} {x : Nat} :
     - BitVec.ofNat w x = BitVec.ofInt w (- x) := by
   apply BitVec.eq_of_toInt_eq
   simp [BitVec.toInt_neg, BitVec.toInt_ofNat]
+
+@[simp]
+theorem neg_toInt_neg {x : BitVec w} (h : x.msb = false) :
+    -(-x).toInt = x.toNat := by
+  simp [toInt_neg_eq_of_msb h, toInt_eq_toNat_of_msb, h]
+
+theorem toNat_pos_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
+    0 < x.toNat := by
+  simp [toNat_eq] at hx; omega
+
+theorem toNat_neg_lt_of_msb (x : BitVec w) (hmsb : x.msb = true) :
+    (-x).toNat ≤ 2^(w-1) := by
+  rcases w with _|w
+  · simp [BitVec.eq_nil x]
+  · by_cases hx : x = 0#(w + 1)
+    · simp [hx]
+    · have := BitVec.le_toNat_of_msb_true hmsb
+      have := toNat_pos_of_ne_zero hx
+      rw [toNat_neg, Nat.mod_eq_of_lt (by omega), ← Nat.two_pow_pred_add_two_pow_pred (by omega),
+        ← Nat.two_mul]
+      omega
 
 /-! ### abs -/
 

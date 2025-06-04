@@ -21,7 +21,7 @@ namespace Literal
 /--
 Flip the polarity of `l`.
 -/
-@[inline]
+@[inline, grind =]
 def negate (l : Literal α) : Literal α := (l.1, !l.2)
 
 end Literal

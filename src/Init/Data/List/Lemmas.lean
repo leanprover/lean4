@@ -575,9 +575,9 @@ theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 :=
 
 /-! ### any / all -/
 
-theorem any_eq {l : List α} : l.any p = decide (∃ x, x ∈ l ∧ p x) := by induction l <;> simp [*]
+@[grind =] theorem any_eq {l : List α} : l.any p = decide (∃ x, x ∈ l ∧ p x) := by induction l <;> simp [*]
 
-theorem all_eq {l : List α} : l.all p = decide (∀ x, x ∈ l → p x) := by induction l <;> simp [*]
+@[grind =] theorem all_eq {l : List α} : l.all p = decide (∀ x, x ∈ l → p x) := by induction l <;> simp [*]
 
 theorem decide_exists_mem {l : List α} {p : α → Prop} [DecidablePred p] :
     decide (∃ x, x ∈ l ∧ p x) = l.any p := by
@@ -1128,7 +1128,8 @@ theorem map_singleton {f : α → β} {a : α} : map f [a] = [f a] := rfl
 
 -- We use a lower priority here as there are more specific lemmas in downstream libraries
 -- which should be able to fire first.
-@[simp 500] theorem mem_map {f : α → β} : ∀ {l : List α}, b ∈ l.map f ↔ ∃ a, a ∈ l ∧ f a = b
+@[simp 500, grind =] theorem mem_map {f : α → β} :
+    ∀ {l : List α}, b ∈ l.map f ↔ ∃ a, a ∈ l ∧ f a = b
   | [] => by simp
   | _ :: l => by simp [mem_map (l := l), eq_comm (a := b)]
 

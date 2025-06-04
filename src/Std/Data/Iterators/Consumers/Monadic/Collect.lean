@@ -5,6 +5,7 @@ Authors: Paul Reichert
 -/
 prelude
 import Std.Data.Iterators.Consumers.Monadic.Partial
+import Std.Data.Internal.LawfulMonadLiftFunction
 
 /-!
 # Collectors
@@ -23,6 +24,7 @@ asserts that an `IteratorCollect` instance equals the default implementation.
 -/
 
 namespace Std.Iterators
+open Std.Internal
 
 section Typeclasses
 
@@ -33,13 +35,20 @@ iterators. Right now, it is limited to a potentially optimized `toArray` impleme
 This class is experimental and users of the iterator API should not explicitly depend on it.
 They can, however, assume that consumers that require an instance will work for all iterators
 provided by the standard library.
+
+Note: For this to be compositional enough to be useful, `toArrayMapped` would need to accept a
+termination proof for the specific mapping function used instead of the blanket `Finite α m`
+instance. Otherwise, most combinators like `map` cannot implement their own instance relying on
+the instance of their base iterators. However, fixing this is currently low priority.
 -/
-class IteratorCollect (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
+class IteratorCollect (α : Type w) (m : Type w → Type w') (n : Type w → Type w'')
+    {β : Type w} [Iterator α m β] where
   /--
   Maps the emitted values of an iterator using the given function and collects the results in an
   `Array`. This is an internal implementation detail. Consider using `it.map f |>.toArray` instead.
   -/
-  toArrayMapped [Finite α m] : ∀ {γ : Type w}, (β → m γ) → IterM (α := α) m β → m (Array γ)
+  toArrayMapped [Finite α m] :
+    (lift : ⦃δ : Type w⦄ → m δ → n δ) → {γ : Type w} → (β → n γ) → IterM (α := α) m β → n (Array γ)
 
 /--
 `IteratorCollectPartial α m` provides efficient implementations of collectors for `α`-based
@@ -49,14 +58,15 @@ This class is experimental and users of the iterator API should not explicitly d
 They can, however, assume that consumers that require an instance will work for all iterators
 provided by the standard library.
 -/
-class IteratorCollectPartial
-    (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
+class IteratorCollectPartial (α : Type w) (m : Type w → Type w') (n : Type w → Type w'')
+    {β : Type w} [Iterator α m β] where
   /--
   Maps the emitted values of an iterator using the given function and collects the results in an
   `Array`. This is an internal implementation detail.
   Consider using `it.map f |>.allowNontermination.toArray` instead.
   -/
-  toArrayMappedPartial : ∀ {γ : Type w}, (β → m γ) → IterM (α := α) m β → m (Array γ)
+  toArrayMappedPartial :
+    (lift : ⦃δ : Type w⦄ → m δ → n δ) → {γ : Type w} → (β → n γ) → IterM (α := α) m β → n (Array γ)
 
 end Typeclasses
 
@@ -69,12 +79,14 @@ It iterates over an iterator and applies `f` whenever a value is emitted before 
 of `f` into an array.
 -/
 @[always_inline, inline]
-def IterM.DefaultConsumers.toArrayMapped {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
-    [Iterator α m β] [Finite α m] {γ : Type w} (f : β → m γ) (it : IterM (α := α) m β) : m (Array γ) :=
+def IterM.DefaultConsumers.toArrayMapped {α β : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} [Monad n] [Iterator α m β] [Finite α m]
+    (lift : ⦃α : Type w⦄ → m α → n α) {γ : Type w} (f : β → n γ)
+    (it : IterM (α := α) m β) : n (Array γ) :=
   go it #[]
 where
   @[specialize]
-  go [Monad m] [Finite α m] (it : IterM (α := α) m β) a := do
+  go [Monad n] [Finite α m] (it : IterM (α := α) m β) a := letI : MonadLift m n := ⟨lift (α := _)⟩; do
     match ← it.step with
     | .yield it' b _ => go it' (a.push (← f b))
     | .skip it' _ => go it' a
@@ -88,30 +100,36 @@ data structure. For certain iterators, more efficient implementations are possib
 used instead.
 -/
 @[always_inline, inline]
-def IteratorCollect.defaultImplementation {α : Type w} {m : Type w → Type w'}
-    [Monad m] [Iterator α m β] : IteratorCollect α m where
+def IteratorCollect.defaultImplementation {α β : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} [Monad n] [Iterator α m β] :
+    IteratorCollect α m n where
   toArrayMapped := IterM.DefaultConsumers.toArrayMapped
 
 /--
 Asserts that a given `IteratorCollect` instance is equal to `IteratorCollect.defaultImplementation`.
 (Even though equal, the given instance might be vastly more efficient.)
 -/
-class LawfulIteratorCollect (α : Type w) (m : Type w → Type w') [Monad m] [Iterator α m β]
-    [i : IteratorCollect α m] where
-  lawful : i = .defaultImplementation
+class LawfulIteratorCollect (α : Type w) (m : Type w → Type w') (n : Type w → Type w'')
+    {β : Type w} [Monad m] [Monad n] [Iterator α m β] [i : IteratorCollect α m n] where
+  lawful_toArrayMapped : ∀ lift [LawfulMonadLiftFunction lift] [Finite α m],
+    i.toArrayMapped lift (α := α) (γ := γ)
+      = IteratorCollect.defaultImplementation.toArrayMapped lift
 
-theorem LawfulIteratorCollect.toArrayMapped_eq {α β γ : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α m β] [Finite α m] [IteratorCollect α m] [hl : LawfulIteratorCollect α m]
-    {f : β → m γ} {it : IterM (α := α) m β} :
-    IteratorCollect.toArrayMapped f it = IterM.DefaultConsumers.toArrayMapped f it := by
-  cases hl.lawful; rfl
+theorem LawfulIteratorCollect.toArrayMapped_eq {α β γ : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} [Monad m] [Monad n] [Iterator α m β] [Finite α m] [IteratorCollect α m n]
+    [hl : LawfulIteratorCollect α m n] {lift : ⦃δ : Type w⦄ → m δ → n δ}
+    [LawfulMonadLiftFunction lift]
+    {f : β → n γ} {it : IterM (α := α) m β} :
+    IteratorCollect.toArrayMapped lift f it (m := m) =
+      IterM.DefaultConsumers.toArrayMapped lift f it (m := m) := by
+  rw [lawful_toArrayMapped]; rfl
 
-instance (α : Type w) (m : Type w → Type w') [Monad m] [Iterator α m β]
-    [Monad m] [Iterator α m β] [Finite α m] :
-    haveI : IteratorCollect α m := .defaultImplementation
-    LawfulIteratorCollect α m :=
-  letI : IteratorCollect α m := .defaultImplementation
-  ⟨rfl⟩
+instance (α β : Type w) (m : Type w → Type w') (n : Type w → Type w'') [Monad n]
+    [Iterator α m β] [Monad m] [Iterator α m β] [Finite α m] :
+    haveI : IteratorCollect α m n := .defaultImplementation
+    LawfulIteratorCollect α m n :=
+  letI : IteratorCollect α m n := .defaultImplementation
+  ⟨fun _ => rfl⟩
 
 /--
 This is an internal function used in `IteratorCollectPartial.defaultImplementation`.
@@ -120,12 +138,14 @@ It iterates over an iterator and applies `f` whenever a value is emitted before 
 of `f` into an array.
 -/
 @[always_inline, inline]
-partial def IterM.DefaultConsumers.toArrayMappedPartial {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
-    [Iterator α m β] {γ : Type w} (f : β → m γ) (it : IterM (α := α) m β) : m (Array γ) :=
+partial def IterM.DefaultConsumers.toArrayMappedPartial {α β : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} [Monad n] [Iterator α m β]
+    (lift : {α : Type w} → m α → n α) {γ : Type w} (f : β → n γ)
+    (it : IterM (α := α) m β) : n (Array γ) :=
   go it #[]
 where
   @[specialize]
-  go [Monad m] (it : IterM (α := α) m β) a := do
+  go [Monad n] (it : IterM (α := α) m β) a := letI : MonadLift m n := ⟨lift⟩; do
     match ← it.step with
     | .yield it' b _ => go it' (a.push (← f b))
     | .skip it' _ => go it' a
@@ -138,8 +158,9 @@ data structure. For certain iterators, more efficient implementations are possib
 used instead.
 -/
 @[always_inline, inline]
-def IteratorCollectPartial.defaultImplementation {α : Type w} {m : Type w → Type w'}
-    [Monad m] [Iterator α m β] : IteratorCollectPartial α m where
+def IteratorCollectPartial.defaultImplementation {α β : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} [Monad n] [Iterator α m β] :
+    IteratorCollectPartial α m n where
   toArrayMappedPartial := IterM.DefaultConsumers.toArrayMappedPartial
 
 /--
@@ -151,9 +172,10 @@ number of steps. If the iterator is not finite or such an instance is not availa
 verify the behavior of the partial variant.
 -/
 @[always_inline, inline]
-def IterM.toArray {α : Type w} {m : Type w → Type w'} {β : Type w} [Monad m]
-    [Iterator α m β] [Finite α m] [IteratorCollect α m] (it : IterM (α := α) m β) : m (Array β) :=
-  IteratorCollect.toArrayMapped pure it
+def IterM.toArray {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m]
+    (it : IterM (α := α) m β) : m (Array β) :=
+  IteratorCollect.toArrayMapped (fun ⦃_⦄ => id) pure it
 
 /--
 Traverses the given iterator and stores the emitted values in an array.
@@ -163,8 +185,8 @@ its behavior. If the iterator has a `Finite` instance, consider using `IterM.toA
 -/
 @[always_inline, inline]
 def IterM.Partial.toArray {α : Type w} {m : Type w → Type w'} {β : Type w} [Monad m]
-    [Iterator α m β] (it : IterM.Partial (α := α) m β) [IteratorCollectPartial α m] : m (Array β) :=
-  IteratorCollectPartial.toArrayMappedPartial pure it.it
+    [Iterator α m β] (it : IterM.Partial (α := α) m β) [IteratorCollectPartial α m m] : m (Array β) :=
+  IteratorCollectPartial.toArrayMappedPartial (fun ⦃_⦄ => id) pure it.it
 
 end ToArray
 
@@ -219,7 +241,7 @@ formally verify the behavior of the partial variant.
 -/
 @[always_inline, inline]
 def IterM.toList {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
-    [Iterator α m β] [Finite α m] [IteratorCollect α m] (it : IterM (α := α) m β) : m (List β) :=
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] (it : IterM (α := α) m β) : m (List β) :=
   Array.toList <$> IterM.toArray it
 
 /--
@@ -231,7 +253,8 @@ its behavior. If the iterator has a `Finite` instance, consider using `IterM.toL
 -/
 @[always_inline, inline]
 def IterM.Partial.toList {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
-    [Iterator α m β] (it : IterM.Partial (α := α) m β) [IteratorCollectPartial α m] : m (List β) :=
+    [Iterator α m β] (it : IterM.Partial (α := α) m β) [IteratorCollectPartial α m m] :
+    m (List β) :=
   Array.toList <$> it.toArray
 
 end Std.Iterators

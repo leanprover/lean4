@@ -55,6 +55,7 @@ static lean_object* l_Prod_repr___at___private_Lean_Util_LeanOptions_0__Lean_rep
 static lean_object* l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_555____closed__6;
 static lean_object* l_Lean_RBNode_foldM___at_Lean_instFromJsonLeanOptions___spec__2___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptionValue____x40_Lean_Util_LeanOptions___hyg_53_(lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptionValue____x40_Lean_Util_LeanOptions___hyg_53____closed__2;
 static lean_object* l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_555____closed__2;
 LEAN_EXPORT lean_object* l_Lean_RBMap_toList___at___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_555____spec__1___boxed(lean_object*);
@@ -139,7 +140,6 @@ lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
 static lean_object* l_Prod_repr___at___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_555____spec__5___closed__7;
 static lean_object* l_List_repr___at___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_555____spec__3___closed__8;
 LEAN_EXPORT lean_object* l_Lean_instToJsonLeanOptions(lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_RBNode_fold___at_Lean_instToJsonLeanOptions___spec__2___lambda__1(lean_object*);
 lean_object* l_Bool_repr(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Lean_LeanOptions_fromOptions_x3f___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -428,7 +428,7 @@ lean_object* x_54; lean_object* x_55; uint8_t x_56; lean_object* x_57; lean_obje
 x_54 = lean_ctor_get(x_1, 0);
 x_55 = lean_unsigned_to_nat(1024u);
 x_56 = lean_nat_dec_le(x_55, x_2);
-x_57 = l___private_Init_Data_Repr_0__Nat_reprFast(x_54);
+x_57 = l_Nat_reprFast(x_54);
 lean_ctor_set_tag(x_1, 3);
 lean_ctor_set(x_1, 0, x_57);
 x_58 = l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptionValue____x40_Lean_Util_LeanOptions___hyg_53____closed__11;
@@ -472,7 +472,7 @@ lean_inc(x_70);
 lean_dec(x_1);
 x_71 = lean_unsigned_to_nat(1024u);
 x_72 = lean_nat_dec_le(x_71, x_2);
-x_73 = l___private_Init_Data_Repr_0__Nat_reprFast(x_70);
+x_73 = l_Nat_reprFast(x_70);
 x_74 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_74, 0, x_73);
 x_75 = l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptionValue____x40_Lean_Util_LeanOptions___hyg_53____closed__11;
@@ -1080,7 +1080,7 @@ lean_object* x_9; lean_object* x_10;
 x_9 = lean_ctor_get(x_1, 0);
 lean_inc(x_9);
 lean_dec(x_1);
-x_10 = l___private_Init_Data_Repr_0__Nat_reprFast(x_9);
+x_10 = l_Nat_reprFast(x_9);
 return x_10;
 }
 }

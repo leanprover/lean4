@@ -284,7 +284,6 @@ LEAN_EXPORT lean_object* l_Lake_Package_buildCacheFacetConfig___lambda__1___boxe
 LEAN_EXPORT lean_object* l_IO_withStdout___at_Lake_Package_afterBuildCacheSync___spec__5(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Package_recComputeTransDeps___spec__8(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_gitHubReleaseFacetConfig___lambda__1___closed__4;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Package_0__Lake_Package_mkBuildArchiveFacetConfig___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lake_buildFileUnlessUpToDate_x27___spec__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_gitHubReleaseFacetConfig___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -421,6 +420,7 @@ static lean_object* l_Lake_Package_recBuildExtraDepTargets___closed__4;
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Package_recComputeTransDeps___spec__6(lean_object*, size_t, size_t, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_getReleaseUrl___closed__8;
 LEAN_EXPORT lean_object* l_Lake_Package_maybeFetchBuildCacheWithWarning___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Env_toolchain(lean_object*);
@@ -1956,7 +1956,7 @@ x_2 = l_IO_FS_withIsolatedStreams___at_Lake_Package_recFetchDeps___spec__4___clo
 x_3 = lean_unsigned_to_nat(129u);
 x_4 = lean_unsigned_to_nat(47u);
 x_5 = l_IO_FS_withIsolatedStreams___at_Lake_Package_recFetchDeps___spec__4___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

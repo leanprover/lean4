@@ -14,22 +14,6 @@ namespace Lean.Grind
 
 namespace Fin
 
-instance (n : Nat) [NeZero n] : NatCast (Fin n) where
-  natCast a := Fin.ofNat n a
-
-@[expose]
-def intCast [NeZero n] (a : Int) : Fin n :=
-  if 0 ≤ a then
-    Fin.ofNat n a.natAbs
-  else
-    - Fin.ofNat n a.natAbs
-
-instance (n : Nat) [NeZero n] : IntCast (Fin n) where
-  intCast := Fin.intCast
-
-theorem intCast_def {n : Nat} [NeZero n] (x : Int) :
-    (x : Fin n) = if 0 ≤ x then Fin.ofNat n x.natAbs else -Fin.ofNat n x.natAbs := rfl
-
 -- TODO: we should replace this at runtime with either repeated squaring,
 -- or a GMP accelerated function.
 @[expose]
@@ -78,18 +62,22 @@ theorem sub_eq_add_neg [NeZero n] (a b : Fin n) : a - b = a + -b := by
   cases a; cases b; simp [Fin.neg_def, Fin.sub_def, Fin.add_def, Nat.add_comm]
 
 private theorem neg_neg [NeZero n] (a : Fin n) : - - a = a := by
-  cases a; simp [Fin.neg_def, Fin.sub_def];
+  cases a; simp [Fin.neg_def, Fin.sub_def]
   next a h => cases a; simp; next a =>
    rw [Nat.self_sub_mod n (a+1)]
    have : NeZero (n - (a + 1)) := ⟨by omega⟩
    rw [Nat.self_sub_mod, Nat.sub_sub_eq_min, Nat.min_eq_right (Nat.le_of_lt h)]
 
+open Fin.NatCast Fin.IntCast in
 theorem intCast_neg [NeZero n] (i : Int) : Int.cast (R := Fin n) (-i) = - Int.cast (R := Fin n) i := by
-  simp [Int.cast, IntCast.intCast, Fin.intCast]; split <;> split <;> try omega
+  simp [Int.cast, IntCast.intCast, Fin.intCast]
+  split <;> split <;> try omega
   next h₁ h₂ => simp [Int.le_antisymm h₁ h₂, Fin.neg_def]
   next => simp [Fin.neg_neg]
 
 instance (n : Nat) [NeZero n] : CommRing (Fin n) where
+  natCast := Fin.NatCast.instNatCast n
+  intCast := Fin.IntCast.instIntCast n
   add_assoc := Fin.add_assoc
   add_comm := Fin.add_comm
   add_zero := Fin.add_zero

@@ -250,7 +250,6 @@ static lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_getNice
 LEAN_EXPORT lean_object* l_IO_withStdout___at_Lean_Language_Lean_process_doElab___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_process_processHeader___lambda__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_process_parseCmd___lambda__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Lean_process_parseCmd___lambda__17___closed__14;
 static lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_withHeaderExceptions___rarg___closed__15;
@@ -367,6 +366,7 @@ static lean_object* l_Lean_Language_Lean_process_doElab___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Lean_Language_Lean_reparseOptions___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Lean_process_parseCmd___lambda__11___closed__4;
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_eqWithInfo(lean_object*, lean_object*);
 static lean_object* l_IO_FS_withIsolatedStreams___at_Lean_Language_Lean_process_doElab___spec__1___closed__5;
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -2753,7 +2753,7 @@ x_2 = l_IO_FS_withIsolatedStreams___at_Lean_Language_Lean_process_doElab___spec_
 x_3 = lean_unsigned_to_nat(129u);
 x_4 = lean_unsigned_to_nat(47u);
 x_5 = l_IO_FS_withIsolatedStreams___at_Lean_Language_Lean_process_doElab___spec__1___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

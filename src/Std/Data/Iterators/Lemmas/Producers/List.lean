@@ -30,17 +30,17 @@ theorem _root_.List.step_iter_cons {x : β} {xs : List β} :
   simp only [List.iter, List.iterM, IterM.step, Iterator.step]; rfl
 
 @[simp]
-theorem _root_.List.toArray_iter {m : Type w → Type w'} [Monad m] [LawfulMonad m] {l : List β} :
+theorem _root_.List.toArray_iter {l : List β} :
     l.iter.toArray = l.toArray := by
   simp [List.iter, List.toArray_iterM, Iter.toArray_eq_toArray_toIterM]
 
 @[simp]
-theorem _root_.List.toList_iter {m : Type w → Type w'} [Monad m] [LawfulMonad m] {l : List β} :
+theorem _root_.List.toList_iter {l : List β} :
     l.iter.toList = l := by
   simp [List.iter, List.toList_iterM]
 
 @[simp]
-theorem _root_.List.toListRev_iter {m : Type w → Type w'} [Monad m] [LawfulMonad m] {l : List β} :
+theorem _root_.List.toListRev_iter {l : List β} :
     l.iter.toListRev = l.reverse := by
   simp [List.iter, Iter.toListRev_eq_toListRev_toIterM, List.toListRev_iterM]
 

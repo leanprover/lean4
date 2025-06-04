@@ -246,7 +246,6 @@ static lean_object* l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Mono
 LEAN_EXPORT lean_object* l_Lean_Meta_Monotonicity_solveMonoStep___lambda__18___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_162____spec__5(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_162____spec__2___boxed(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Monotonicity_solveMonoStep___lambda__24___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isMatcherAppCore_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Monotonicity_evalMonotonicity___regBuiltin_Lean_Meta_Monotonicity_evalMonotonicity__1(lean_object*);
@@ -390,6 +389,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Monotonicity_solveMonoStep___lambda__19___b
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_162____spec__1___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Meta_Monotonicity_evalMonotonicity___rarg___lambda__1___closed__1;
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Monotonicity_solveMonoCall___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_245____closed__13;
 lean_object* l_Lean_MVarId_applyConst(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -521,10 +521,10 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Loop_forIn_loop___at_Lean_Meta_Monotonicity_headBetaUnderLambda___spec__1___closed__1;
 x_2 = l_Lean_Loop_forIn_loop___at_Lean_Meta_Monotonicity_headBetaUnderLambda___spec__1___closed__2;
-x_3 = lean_unsigned_to_nat(1848u);
+x_3 = lean_unsigned_to_nat(1829u);
 x_4 = lean_unsigned_to_nat(19u);
 x_5 = l_Lean_Loop_forIn_loop___at_Lean_Meta_Monotonicity_headBetaUnderLambda___spec__1___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1897,7 +1897,7 @@ x_2 = l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Monotonicity_initFn____x40
 x_3 = lean_unsigned_to_nat(482u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_162____spec__1___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -8732,10 +8732,10 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Loop_forIn_loop___at_Lean_Meta_Monotonicity_headBetaUnderLambda___spec__1___closed__1;
 x_2 = l_Lean_Meta_Monotonicity_solveMonoStep___lambda__14___closed__7;
-x_3 = lean_unsigned_to_nat(1859u);
+x_3 = lean_unsigned_to_nat(1840u);
 x_4 = lean_unsigned_to_nat(20u);
 x_5 = l_Lean_Loop_forIn_loop___at_Lean_Meta_Monotonicity_headBetaUnderLambda___spec__1___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

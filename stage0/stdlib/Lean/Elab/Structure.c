@@ -206,6 +206,7 @@ static lean_object* l_Lean_Elab_Command_Structure_instInhabitedStructFieldInfo__
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_fieldNormalizeExpr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_addDefaults___spec__7___lambda__1___closed__2;
 lean_object* lean_array_fswap(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2875_(lean_object*, lean_object*);
 static lean_object* l_Prod_repr___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_resolveFieldDefaults___spec__32___closed__7;
 LEAN_EXPORT lean_object* l_Lean_mergeStructureResolutionOrders_selectParent___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_addParentInstances___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_expandFields___closed__12;
@@ -1013,7 +1014,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_St
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_withStructField___rarg___lambda__3___boxed(lean_object**);
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_withFields_go___rarg___lambda__4___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_elabFieldTypeValue___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_transformWithCache_visit_visitForall___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_reduceFieldProjs___spec__8___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_checkResolutionOrder___closed__2;
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
@@ -1458,7 +1458,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withLCtx___at___private_Lean_Elab_Structure
 lean_object* l_Lean_Elab_Term_registerLevelMVarErrorExprInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_Structure_elabStructureCommand___elambda__1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
-lean_object* l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3055_(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_Structure_elabStructureCommand___regBuiltin_Lean_Elab_Command_Structure_elabStructureCommand__1___closed__1;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_addProjections___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_expandFields___spec__1___boxed(lean_object**);
@@ -1577,6 +1576,7 @@ static lean_object* l_Array_insertionSort_swapLoop___at___private_Lean_Elab_Stru
 static lean_object* l_Lean_Meta_instantiateStructDefaultValueFn_x3f___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_getFieldDefaultValue_x3f___spec__1___closed__3;
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_mkRemainingProjections___closed__2;
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_addParentInstances___spec__17(size_t, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_getFieldDefault_x3f___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_mkCtorLCtx___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3193,7 +3193,7 @@ lean_inc(x_3);
 lean_dec(x_1);
 x_4 = lean_unsigned_to_nat(1024u);
 x_5 = lean_nat_dec_le(x_4, x_2);
-x_6 = l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3055_(x_3, x_4);
+x_6 = l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2875_(x_3, x_4);
 x_7 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_reprStructFieldDefault____x40_Lean_Elab_Structure___hyg_1442____closed__3;
 x_8 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
@@ -3235,7 +3235,7 @@ lean_inc(x_19);
 lean_dec(x_1);
 x_20 = lean_unsigned_to_nat(1024u);
 x_21 = lean_nat_dec_le(x_20, x_2);
-x_22 = l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3055_(x_19, x_20);
+x_22 = l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2875_(x_19, x_20);
 x_23 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_reprStructFieldDefault____x40_Lean_Elab_Structure___hyg_1442____closed__6;
 x_24 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_24, 0, x_23);
@@ -17138,7 +17138,7 @@ x_2 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_reduceField
 x_3 = lean_unsigned_to_nat(500u);
 x_4 = lean_unsigned_to_nat(79u);
 x_5 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_reduceFieldProjs___lambda__3___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -19662,7 +19662,7 @@ x_2 = l_Lean_Meta_instantiateStructDefaultValueFn_x3f___at___private_Lean_Elab_S
 x_3 = lean_unsigned_to_nat(200u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Meta_instantiateStructDefaultValueFn_x3f___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_getFieldDefaultValue_x3f___spec__1___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -29767,7 +29767,7 @@ x_2 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_withStruct_
 x_3 = lean_unsigned_to_nat(710u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_withStruct___rarg___lambda__10___closed__10;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -33170,7 +33170,7 @@ x_2 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_withStructF
 x_3 = lean_unsigned_to_nat(649u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_withStructFields___rarg___lambda__1___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -33356,7 +33356,7 @@ x_2 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_withStructF
 x_3 = lean_unsigned_to_nat(637u);
 x_4 = lean_unsigned_to_nat(43u);
 x_5 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_reduceFieldProjs___lambda__3___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -56417,7 +56417,7 @@ x_45 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab
 x_46 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_mkCtorLCtx___spec__8___closed__4;
 x_47 = lean_unsigned_to_nat(597u);
 x_48 = lean_unsigned_to_nat(12u);
-x_49 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_45, x_46, x_47, x_48, x_44);
+x_49 = l_mkPanicMessageWithDecl(x_45, x_46, x_47, x_48, x_44);
 lean_dec(x_44);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -56507,7 +56507,7 @@ x_69 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab
 x_70 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_mkCtorLCtx___spec__8___closed__4;
 x_71 = lean_unsigned_to_nat(597u);
 x_72 = lean_unsigned_to_nat(12u);
-x_73 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_69, x_70, x_71, x_72, x_68);
+x_73 = l_mkPanicMessageWithDecl(x_69, x_70, x_71, x_72, x_68);
 lean_dec(x_68);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -56997,7 +56997,7 @@ x_45 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab
 x_46 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_mkCtorLCtx___spec__8___closed__4;
 x_47 = lean_unsigned_to_nat(597u);
 x_48 = lean_unsigned_to_nat(12u);
-x_49 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_45, x_46, x_47, x_48, x_44);
+x_49 = l_mkPanicMessageWithDecl(x_45, x_46, x_47, x_48, x_44);
 lean_dec(x_44);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -57087,7 +57087,7 @@ x_69 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab
 x_70 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_mkCtorLCtx___spec__8___closed__4;
 x_71 = lean_unsigned_to_nat(597u);
 x_72 = lean_unsigned_to_nat(12u);
-x_73 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_69, x_70, x_71, x_72, x_68);
+x_73 = l_mkPanicMessageWithDecl(x_69, x_70, x_71, x_72, x_68);
 lean_dec(x_68);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -57713,7 +57713,7 @@ x_45 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab
 x_46 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_mkCtorLCtx___spec__8___closed__4;
 x_47 = lean_unsigned_to_nat(597u);
 x_48 = lean_unsigned_to_nat(12u);
-x_49 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_45, x_46, x_47, x_48, x_44);
+x_49 = l_mkPanicMessageWithDecl(x_45, x_46, x_47, x_48, x_44);
 lean_dec(x_44);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -57803,7 +57803,7 @@ x_69 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab
 x_70 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_mkCtorLCtx___spec__8___closed__4;
 x_71 = lean_unsigned_to_nat(597u);
 x_72 = lean_unsigned_to_nat(12u);
-x_73 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_69, x_70, x_71, x_72, x_68);
+x_73 = l_mkPanicMessageWithDecl(x_69, x_70, x_71, x_72, x_68);
 lean_dec(x_68);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -58086,7 +58086,7 @@ x_45 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab
 x_46 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_mkCtorLCtx___spec__8___closed__4;
 x_47 = lean_unsigned_to_nat(597u);
 x_48 = lean_unsigned_to_nat(12u);
-x_49 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_45, x_46, x_47, x_48, x_44);
+x_49 = l_mkPanicMessageWithDecl(x_45, x_46, x_47, x_48, x_44);
 lean_dec(x_44);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -58176,7 +58176,7 @@ x_69 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab
 x_70 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_mkCtorLCtx___spec__8___closed__4;
 x_71 = lean_unsigned_to_nat(597u);
 x_72 = lean_unsigned_to_nat(12u);
-x_73 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_69, x_70, x_71, x_72, x_68);
+x_73 = l_mkPanicMessageWithDecl(x_69, x_70, x_71, x_72, x_68);
 lean_dec(x_68);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -58545,7 +58545,7 @@ x_45 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab
 x_46 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_mkCtorLCtx___spec__8___closed__4;
 x_47 = lean_unsigned_to_nat(597u);
 x_48 = lean_unsigned_to_nat(12u);
-x_49 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_45, x_46, x_47, x_48, x_44);
+x_49 = l_mkPanicMessageWithDecl(x_45, x_46, x_47, x_48, x_44);
 lean_dec(x_44);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -58635,7 +58635,7 @@ x_69 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab
 x_70 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_mkCtorLCtx___spec__8___closed__4;
 x_71 = lean_unsigned_to_nat(597u);
 x_72 = lean_unsigned_to_nat(12u);
-x_73 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_69, x_70, x_71, x_72, x_68);
+x_73 = l_mkPanicMessageWithDecl(x_69, x_70, x_71, x_72, x_68);
 lean_dec(x_68);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -59039,7 +59039,7 @@ x_45 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab
 x_46 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_mkCtorLCtx___spec__8___closed__4;
 x_47 = lean_unsigned_to_nat(597u);
 x_48 = lean_unsigned_to_nat(12u);
-x_49 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_45, x_46, x_47, x_48, x_44);
+x_49 = l_mkPanicMessageWithDecl(x_45, x_46, x_47, x_48, x_44);
 lean_dec(x_44);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -59129,7 +59129,7 @@ x_69 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab
 x_70 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_mkCtorLCtx___spec__8___closed__4;
 x_71 = lean_unsigned_to_nat(597u);
 x_72 = lean_unsigned_to_nat(12u);
-x_73 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_69, x_70, x_71, x_72, x_68);
+x_73 = l_mkPanicMessageWithDecl(x_69, x_70, x_71, x_72, x_68);
 lean_dec(x_68);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -74143,7 +74143,7 @@ x_2 = l_Array_insertionSort_swapLoop___at___private_Lean_Elab_Structure_0__Lean_
 x_3 = lean_unsigned_to_nat(389u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Array_insertionSort_swapLoop___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_resolveFieldDefaults___spec__29___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -83179,7 +83179,7 @@ x_2 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_setSourceIn
 x_3 = lean_unsigned_to_nat(1308u);
 x_4 = lean_unsigned_to_nat(9u);
 x_5 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_reduceFieldProjs___lambda__3___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -86266,7 +86266,7 @@ x_2 = l_Std_DHashMap_Internal_AssocList_get_x21___at___private_Lean_Elab_Structu
 x_3 = lean_unsigned_to_nat(138u);
 x_4 = lean_unsigned_to_nat(11u);
 x_5 = l_Std_DHashMap_Internal_AssocList_get_x21___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_mkRemainingProjections___spec__3___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -86328,7 +86328,7 @@ x_2 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_Structure_0__Lean_El
 x_3 = lean_unsigned_to_nat(1381u);
 x_4 = lean_unsigned_to_nat(65u);
 x_5 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_reduceFieldProjs___lambda__3___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

@@ -62,15 +62,34 @@ def eqnThmSuffixBasePrefix := eqnThmSuffixBase ++ "_"
 def eqn1ThmSuffix := eqnThmSuffixBasePrefix ++ "1"
 example : eqn1ThmSuffix = "eq_1" := rfl
 
-def mkEqnThmName (declName : Name) (idx : Nat) : Name :=
-  Name.str declName eqnThmSuffixBase |>.appendIndexAfter idx
-
 /-- Returns `true` if `s` is of the form `eq_<idx>` -/
 def isEqnReservedNameSuffix (s : String) : Bool :=
   eqnThmSuffixBasePrefix.isPrefixOf s && (s.drop 3).isNat
 
 def unfoldThmSuffix := "eq_def"
 def eqUnfoldThmSuffix := "eq_unfold"
+
+def isEqnLikeSuffix (s : String) : Bool :=
+  s == unfoldThmSuffix || s == eqUnfoldThmSuffix || isEqnReservedNameSuffix s
+
+/--
+The equational theorem for a definition can be private even if the definition itself is not.
+So un-private the name here when looking for a declaration
+-/
+def declFromEqLikeName (env : Environment) (name : Name) : Option (Name × String) := Id.run do
+  if let .str p s := name then
+    if isEqnLikeSuffix s then
+      for p in [p, privateToUserName p] do
+        -- Remark: `f.match_<idx>.eq_<idx>` are handled separately in `Lean.Meta.Match.MatchEqs`.
+        if (env.setExporting false).isSafeDefinition p && !isMatcherCore env p then
+          return some (p, s)
+  return none
+
+def mkEqLikeNameFor (env : Environment) (declName : Name) (suffix : String) : Name :=
+  let isExposed := !env.header.isModule || ((env.setExporting true).find? declName).elim false (·.hasValue)
+  let name := .str declName suffix
+  let name := if isExposed then name else mkPrivateName env name
+  name
 
 /--
 Throw an error if names for equation theorems for `declName` are not available.
@@ -85,16 +104,14 @@ def ensureEqnReservedNamesAvailable (declName : Name) : CoreM Unit := do
 /--
 Ensures that `f.eq_def`, `f.unfold` and `f.eq_<idx>` are reserved names if `f` is a safe definition.
 -/
-builtin_initialize registerReservedNamePredicate fun env n =>
-  match n with
-  | .str p s =>
-    (isEqnReservedNameSuffix s || s == unfoldThmSuffix || s == eqUnfoldThmSuffix)
-    -- Make equation theorems accessible even when body should not be visible for compatibility.
-    -- TODO: Make them private instead.
-    && (env.setExporting false).isSafeDefinition p
-    -- Remark: `f.match_<idx>.eq_<idx>` are handled separately in `Lean.Meta.Match.MatchEqs`.
-    && !isMatcherCore env p
-  | _ => false
+builtin_initialize registerReservedNamePredicate fun env n => Id.run do
+  if let some (declName, suffix) := declFromEqLikeName env n then
+    -- The reserved name predicate has to be precise, as `resolveExact`
+    -- will believe it. So make sure that `n` is exactly the name we expect,
+    -- including the privat prefix.
+    n == mkEqLikeNameFor env declName suffix
+  else
+    false
 
 def GetEqnsFn := Name → MetaM (Option (Array Name))
 
@@ -137,21 +154,21 @@ private def shouldGenerateEqnThms (declName : Name) : MetaM Bool := do
   else
     return false
 
+/-- A mapping from equational theorem to the declaration it was derived from.  -/
 structure EqnsExtState where
-  map    : PHashMap Name (Array Name) := {}
-  mapInv : PHashMap Name Name := {} -- TODO: delete?
+  mapInv : PHashMap Name Name := {}
   deriving Inhabited
 
-/- We generate the equations on demand. -/
+/-- A mapping from equational theorem to the declaration it was derived from.  -/
 builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
   registerEnvExtension (pure {}) (asyncMode := .local)
 
 /--
 Simple equation theorem for nonrecursive definitions.
 -/
-private def mkSimpleEqThm (declName : Name) (suffix := Name.mkSimple unfoldThmSuffix) : MetaM (Option Name) := do
+private def mkSimpleEqThm (declName : Name) : MetaM (Option Name) := do
   if let some (.defnInfo info) := (← getEnv).find? declName then
-    let name := declName ++ suffix
+    let name := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
     realizeConst declName name (doRealize name info)
     return some name
   else
@@ -183,7 +200,6 @@ Stores in the `eqnsExt` environment extension that `eqThms` are the equational t
 -/
 private def registerEqnThms (declName : Name) (eqThms : Array Name) : CoreM Unit := do
   modifyEnv fun env => eqnsExt.modifyState env fun s => { s with
-    map := s.map.insert declName eqThms
     mapInv := eqThms.foldl (init := s.mapInv) fun mapInv eqThm => mapInv.insert eqThm declName
   }
 
@@ -192,23 +208,21 @@ Equation theorems are generated on demand, check whether they were generated in 
 -/
 private partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array Name)) := do
   let env ← getEnv
-  let eq1 := Name.str declName eqn1ThmSuffix
+  let eq1 := mkEqLikeNameFor env declName eqn1ThmSuffix
   if env.contains eq1 then
     let rec loop (idx : Nat) (eqs : Array Name) : MetaM (Array Name) := do
-      let nextEq := mkEqnThmName declName idx
-      if env.contains nextEq then
+      let nextEq := mkEqLikeNameFor env declName s!"{eqnThmSuffixBasePrefix}{idx+1}"
+      if env.containsOnBranch nextEq then
         loop (idx+1) (eqs.push nextEq)
       else
         return eqs
-    let eqs ← loop 2 #[eq1]
+    let eqs ← loop 1 #[eq1]
     registerEqnThms declName eqs
     return some eqs
   else
     return none
 
 private def getEqnsFor?Core (declName : Name) : MetaM (Option (Array Name)) := withLCtx {} {} do
-  if let some eqs := eqnsExt.getState (← getEnv) |>.map.find? declName then
-    return some eqs
   if !(← shouldGenerateEqnThms declName) then
     return none
   if let some eqs ← alreadyGenerated? declName then
@@ -223,7 +237,7 @@ private def getEqnsFor?Core (declName : Name) : MetaM (Option (Array Name)) := w
 Returns equation theorems for the given declaration.
 -/
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := withLCtx {} {} do
-  -- This is the entry point for lazy equaion generation. Ignore the current value
+  -- This is the entry point for lazy equation generation. Ignore the current value
   -- of the options, and revert to the default.
   withOptions (eqnAffectingOptions.foldl fun os o => o.set os o.defValue) do
     getEqnsFor?Core declName
@@ -234,6 +248,7 @@ If any equation theorem affecting option is not the default value, create the eq
 def generateEagerEqns (declName : Name) : MetaM Unit := do
   let opts ← getOptions
   if eqnAffectingOptions.any fun o => o.get opts != o.defValue then
+    trace[Elab.definition.eqns] "generating eager equations for {declName}"
     let _ ← getEqnsFor?Core declName
 
 def GetUnfoldEqnFn := Name → MetaM (Option Name)
@@ -276,28 +291,35 @@ By default, we do not create unfold theorems for nonrecursive definitions.
 You can use `nonRec := true` to override this behavior.
 -/
 def getUnfoldEqnFor? (declName : Name) (nonRec := false) : MetaM (Option Name) := withLCtx {} {} do
-  let env ← getEnv
-  let unfoldName := Name.str declName unfoldThmSuffix
-  if env.contains unfoldName then
-    return some unfoldName
-  if (← shouldGenerateEqnThms declName) then
-    for f in (← getUnfoldEqnFnsRef.get) do
-      if let some r ← f declName then
-        unless r == unfoldName do
-          throwError "invalid unfold theorem name `{r}` has been generated expected `{unfoldName}`"
-        return some r
-    if nonRec then
-      return (← mkSimpleEqThm declName)
-   return none
+  let unfoldName := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
+  let r? ← withoutExporting do
+    let env := (← getEnv)
+
+    if env.contains unfoldName then
+      return some unfoldName
+    if (← shouldGenerateEqnThms declName) then
+      if (← isRecursiveDefinition declName) then
+        for f in (← getUnfoldEqnFnsRef.get) do
+          if let some r ← f declName then
+            return some r
+      else
+        if nonRec then
+          return (← mkSimpleEqThm declName)
+    return none
+  if let some r := r? then
+    unless r == unfoldName do
+      throwError "invalid unfold theorem name `{r}` has been generated expected `{unfoldName}`"
+  return r?
 
 builtin_initialize
   registerReservedNameAction fun name => do
-    let .str p s := name | return false
-    unless (← getEnv).isSafeDefinition p && !isMatcherCore (← getEnv) p do return false
-    if isEqnReservedNameSuffix s then
-      return (← MetaM.run' <| getEqnsFor? p).isSome
-    if s == unfoldThmSuffix then
-      return (← MetaM.run' <| getUnfoldEqnFor? p (nonRec := true)).isSome
-    return false
+    withTraceNode `ReservedNameAction (pure m!"{exceptBoolEmoji ·} Lean.Meta.Eqns reserved name action for {name}") do
+      if let some (declName, suffix) := declFromEqLikeName (← getEnv) name then
+        if name == mkEqLikeNameFor (← getEnv) declName suffix then
+          if isEqnReservedNameSuffix suffix then
+            return (← MetaM.run' <| getEqnsFor? declName).isSome
+          if suffix == unfoldThmSuffix then
+            return (← MetaM.run' <| getUnfoldEqnFor? declName (nonRec := true)).isSome
+      return false
 
 end Lean.Meta

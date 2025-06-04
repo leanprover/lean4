@@ -46,14 +46,13 @@ with an extended local context (`withNewLocal`). Macros without registered prech
 unfolded, and identifier-less syntax is ultimately assumed to be well-formed.
 -/
 @[builtin_doc]
-unsafe def mkPrecheckAttribute : IO (KeyedDeclsAttribute Precheck) :=
+unsafe builtin_initialize precheckAttribute : KeyedDeclsAttribute Precheck ←
   KeyedDeclsAttribute.init {
     builtinName := `builtin_quot_precheck,
     name := `quot_precheck,
     descr    := "Register a double backtick syntax quotation pre-check.",
     valueTypeName := ``Precheck
   }
-@[builtin_init mkPrecheckAttribute] opaque precheckAttribute : KeyedDeclsAttribute Precheck
 
 partial def precheck : Precheck := fun stx => do
   if let p::_ := precheckAttribute.getValues (← getEnv) stx.getKind then

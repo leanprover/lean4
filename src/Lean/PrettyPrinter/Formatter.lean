@@ -65,7 +65,7 @@ Registers a formatter for a parser.
 formatting syntax of kind `k`.
 -/
 @[builtin_doc]
-unsafe def mkFormatterAttribute : IO (KeyedDeclsAttribute Formatter) :=
+unsafe builtin_initialize formatterAttribute : KeyedDeclsAttribute Formatter ←
   KeyedDeclsAttribute.init {
     builtinName := `builtin_formatter,
     name := `formatter,
@@ -83,7 +83,6 @@ unsafe def mkFormatterAttribute : IO (KeyedDeclsAttribute Formatter) :=
         Elab.addConstInfo stx id none
       pure id
   }
-@[builtin_init mkFormatterAttribute] opaque formatterAttribute : KeyedDeclsAttribute Formatter
 
 /--
 Registers a formatter for a parser combinator.
@@ -95,11 +94,10 @@ accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is
 `Formatter` in the parameter types.
 -/
 @[builtin_doc]
-unsafe def mkCombinatorFormatterAttribute : IO ParserCompiler.CombinatorAttribute :=
+unsafe builtin_initialize combinatorFormatterAttribute : ParserCompiler.CombinatorAttribute ←
   ParserCompiler.registerCombinatorAttribute
     `combinator_formatter
     "Register a formatter for a parser combinator"
-@[builtin_init mkCombinatorFormatterAttribute] opaque combinatorFormatterAttribute : ParserCompiler.CombinatorAttribute
 
 namespace Formatter
 

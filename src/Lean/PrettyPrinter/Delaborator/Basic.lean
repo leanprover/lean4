@@ -109,7 +109,7 @@ for `app.c` are tried first; this is also done for `Expr.const`s ("nullary appli
 special casing. If the term is an `Expr.mdata` with a single key `k`, `mdata.k` is tried first.
 -/
 @[builtin_doc]
-unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
+unsafe builtin_initialize delabAttribute : KeyedDeclsAttribute Delab ←
   KeyedDeclsAttribute.init {
     builtinName := `builtin_delab,
     name := `delab,
@@ -124,7 +124,6 @@ unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
           Elab.addConstInfo stx c none
       pure kind
   }
-@[builtin_init mkDelabAttribute] opaque delabAttribute : KeyedDeclsAttribute Delab
 
 /--
 `@[app_delab c]` registers a delaborator for applications with head constant `c`.
@@ -461,7 +460,7 @@ special imports. This however also makes them much less capable since they can o
 syntax and don't have access to the expression tree.
 -/
 @[builtin_doc]
-unsafe def mkAppUnexpanderAttribute : IO (KeyedDeclsAttribute Unexpander) :=
+unsafe builtin_initialize appUnexpanderAttribute : KeyedDeclsAttribute Unexpander ←
   KeyedDeclsAttribute.init {
     name  := `app_unexpander,
     descr := "Register an unexpander for applications of a given constant.",
@@ -469,7 +468,6 @@ unsafe def mkAppUnexpanderAttribute : IO (KeyedDeclsAttribute Unexpander) :=
     evalKey := fun _ stx => do
       Elab.realizeGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)
   }
-@[builtin_init mkAppUnexpanderAttribute] opaque appUnexpanderAttribute : KeyedDeclsAttribute Unexpander
 
 end Delaborator
 

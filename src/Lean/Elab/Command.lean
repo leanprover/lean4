@@ -416,12 +416,6 @@ instance : MonadQuotation CommandElabM where
   getMainModule       := Command.getMainModule
   withFreshMacroScope := Command.withFreshMacroScope
 
-unsafe def mkCommandElabAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute CommandElab) :=
-  mkElabAttribute CommandElab `builtin_command_elab `command_elab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command" ref
-
-@[implemented_by mkCommandElabAttributeUnsafe]
-opaque mkCommandElabAttribute (ref : Name) : IO (KeyedDeclsAttribute CommandElab)
-
 /--
 Registers a command elaborator for the given syntax node kind.
 
@@ -433,7 +427,8 @@ The `elab_rules` and `elab` commands should usually be preferred over using this
 directly.
 -/
 @[builtin_doc]
-builtin_initialize commandElabAttribute : KeyedDeclsAttribute CommandElab ← mkCommandElabAttribute decl_name%
+unsafe builtin_initialize commandElabAttribute : KeyedDeclsAttribute CommandElab ←
+  mkElabAttribute CommandElab `builtin_command_elab `command_elab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command" ref
 
 private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : PersistentArray InfoTree) : CommandElabM InfoTree := do
   let ctx ← read

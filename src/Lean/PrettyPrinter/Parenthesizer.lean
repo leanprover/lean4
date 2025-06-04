@@ -121,7 +121,7 @@ Registers a parenthesizer for a parser.
 for parenthesizing syntax of kind `k`.
 -/
 @[builtin_doc]
-unsafe def mkParenthesizerAttribute : IO (KeyedDeclsAttribute Parenthesizer) :=
+unsafe builtin_initialize parenthesizerAttribute : KeyedDeclsAttribute Parenthesizer ←
   KeyedDeclsAttribute.init {
     builtinName := `builtin_parenthesizer,
     name := `parenthesizer,
@@ -139,7 +139,6 @@ unsafe def mkParenthesizerAttribute : IO (KeyedDeclsAttribute Parenthesizer) :=
         Elab.addConstInfo stx id none
       pure id
   }
-@[builtin_init mkParenthesizerAttribute] opaque parenthesizerAttribute : KeyedDeclsAttribute Parenthesizer
 
 abbrev CategoryParenthesizer := (prec : Nat) → Parenthesizer
 
@@ -153,7 +152,7 @@ parenthesizing occurrences of `cat:prec` (`categoryParser cat prec`). Implementa
 category will never be parenthesized, but still traversed for parenthesizing nested categories.
 -/
 @[builtin_doc]
-unsafe def mkCategoryParenthesizerAttribute : IO (KeyedDeclsAttribute CategoryParenthesizer) :=
+unsafe builtin_initialize categoryParenthesizerAttribute : KeyedDeclsAttribute CategoryParenthesizer ←
   KeyedDeclsAttribute.init {
     builtinName := `builtin_category_parenthesizer,
     name := `category_parenthesizer,
@@ -169,7 +168,6 @@ unsafe def mkCategoryParenthesizerAttribute : IO (KeyedDeclsAttribute CategoryPa
         Elab.addConstInfo stx cat.declName none
       pure id
   }
-@[builtin_init mkCategoryParenthesizerAttribute] opaque categoryParenthesizerAttribute : KeyedDeclsAttribute CategoryParenthesizer
 
 /--
 Register a parenthesizer for a parser combinator.
@@ -181,11 +179,10 @@ optionally accept parameters corresponding to (a prefix of) those of `c`, where 
 replaced with `Parenthesizer` in the parameter types.
 -/
 @[builtin_doc]
-unsafe def mkCombinatorParenthesizerAttribute : IO ParserCompiler.CombinatorAttribute :=
+unsafe builtin_initialize combinatorParenthesizerAttribute : ParserCompiler.CombinatorAttribute ←
   ParserCompiler.registerCombinatorAttribute
     `combinator_parenthesizer
     "Register a parenthesizer for a parser combinator."
-@[builtin_init mkCombinatorParenthesizerAttribute] opaque combinatorParenthesizerAttribute : ParserCompiler.CombinatorAttribute
 
 namespace Parenthesizer
 

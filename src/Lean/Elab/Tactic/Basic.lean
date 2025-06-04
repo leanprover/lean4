@@ -138,10 +138,8 @@ The `elab_rules` and `elab` commands should usually be preferred over using this
 directly.
 -/
 @[builtin_doc]
-unsafe def mkTacticAttribute : IO (KeyedDeclsAttribute Tactic) :=
+unsafe builtin_initialize tacticElabAttribute : KeyedDeclsAttribute Tactic ←
   mkElabAttribute Tactic `builtin_tactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic"
-
-@[builtin_init mkTacticAttribute] opaque tacticElabAttribute : KeyedDeclsAttribute Tactic
 
 def mkTacticInfo (mctxBefore : MetavarContext) (goalsBefore : List MVarId) (stx : Syntax) : TacticM Info :=
   return Info.ofTacticInfo {

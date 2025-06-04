@@ -45,7 +45,7 @@ private def mkCandidate (a b : ArgInfo) (i : Nat) : GoalM SplitInfo := do
     (b.arg, a.arg)
   let eq ← mkEq lhs rhs
   let eq ← shareCommon (← canon eq)
-  return .arg a.app b.app i eq
+  return .arg a.app b.app i eq (.mbtc a.app b.app i)
 
 /-- Model-based theory combination. -/
 def mbtc (ctx : MBTC.Context) : GoalM Bool := do
@@ -84,7 +84,7 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
   let result ← result.filterMapM fun info => do
     if (← isKnownCaseSplit info) then
       return none
-    let .arg a b _ eq := info | return none
+    let .arg a b _ eq _ := info | return none
     internalize eq (Nat.max (← getGeneration a) (← getGeneration b))
     return some info
   if result.isEmpty then

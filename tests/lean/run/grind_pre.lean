@@ -161,6 +161,7 @@ right : r
     [prop] r
   [cases] Case analyses
     [cases] [1/2]: p = r
+      [cases] source: Initial goal
 -/
 #guard_msgs (error) in
 example (a : α) (p q r : Prop) : (h₁ : HEq p a) → (h₂ : HEq q a) → (h₃ : p = r) → False := by

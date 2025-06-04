@@ -254,26 +254,27 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
    ∀ {x : α}, x ∈ s → x ∈ t
    ```
 -/
-def elabTermForApply (stx : Syntax) (mayPostpone := true) : TacticM Expr := do
+def elabTermForApply (stx : Syntax) (mayPostpone := true) (tagSuffix := `apply) (parentTag? : Option Name := none): TacticM (Expr × List MVarId) := do
   if stx.isIdent then
     match (← Term.resolveId? stx (withInfo := true)) with
-    | some e => return e
+    | some e => return (e, [])
     | _      => pure ()
-  elabTerm stx none mayPostpone
+  withCollectingNewGoalsFrom (elabTerm stx none mayPostpone) (← parentTag?.getDM getMainTag) tagSuffix (allowNaturalHoles := true)
 
 def getFVarId (id : Syntax) : TacticM FVarId := withRef id <| withMainContext do
   -- use apply-like elaboration to suppress insertion of implicit arguments
   let e ← withoutRecover <| elabTermForApply id (mayPostpone := false)
   match e with
-  | Expr.fvar fvarId => return fvarId
-  | _                => throwError "unexpected term '{e}'; expected single reference to variable"
+  | (Expr.fvar fvarId, []) => return fvarId
+  | _                      => throwError "unexpected term '{e}'; expected single reference to variable"
 
 def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) := do
   withMainContext do ids.mapM getFVarId
 
 def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syntax) : TacticM Unit := do
   withMainContext do
-    let mut val ← instantiateMVars (← elabTermForApply e)
+    let (val, mvarIds) ← elabTermForApply e
+    let mut val ← instantiateMVars val
     if val.isMVar then
       /-
       If `val` is a metavariable, we force the elaboration of postponed terms.
@@ -289,7 +290,7 @@ def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syn
       val ← instantiateMVars val
     let mvarIds' ← tac (← getMainGoal) val
     Term.synthesizeSyntheticMVarsNoPostponing
-    replaceMainGoal mvarIds'
+    replaceMainGoal (mvarIds' ++ mvarIds)
 
 @[builtin_tactic Lean.Parser.Tactic.apply] def evalApply : Tactic := fun stx =>
   match stx with

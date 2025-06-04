@@ -183,6 +183,7 @@ unsafe builtin_initialize combinatorParenthesizerAttribute : ParserCompiler.Comb
   ParserCompiler.registerCombinatorAttribute
     `combinator_parenthesizer
     "Register a parenthesizer for a parser combinator."
+    `Lean.PrettyPrinter.mkCombinatorParenthesizerAttribute -- TODO (bootstrap): remove if possible
 
 namespace Parenthesizer
 

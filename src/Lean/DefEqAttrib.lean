@@ -90,7 +90,5 @@ def inferDefEqAttr (declName : Name) : MetaM Unit := do
       else
         pure false
     if isRfl then
-      -- TODO: We could run `validateDefEqAttr` here as a sanity check, once
-      -- equational lemmas are exported iff their definition's bodies are exposed.
-      -- validateDefEqAttr declName -- just a sanity-check
+      validateDefEqAttr declName -- sanity-check: would we have accepted `@[defeq]` on this?
       defeqAttr.setTag declName

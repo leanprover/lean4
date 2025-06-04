@@ -44,7 +44,7 @@ def blastClz (aig : AIG α) (x : AIG.RefVec aig w) :
   go aig x 0 acc
 where
   go (aig : AIG α) (x : AIG.RefVec aig w) (curr : Nat) (acc : AIG.RefVec aig w) :=
-    if curr < w then
+    if hc : curr < w then
       -- w - curr - 1
       let res := blastConst aig (w := w) (w - 1 - curr)
       let aig  := res.aig
@@ -63,16 +63,13 @@ where
       -- ite x.getLsbD (curr)
       let res := AIG.RefVec.ite aig ⟨lsb, lhs, acc⟩
       let aig := res.aig
-      let ite := res.vec
       have := AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite) ..
       let x : AIG.RefVec aig w := x.cast this
       let acc : AIG.RefVec aig w := acc.cast this
-      let lhs := lhs.cast this
-      let lsb := lsb.cast this
       go aig x (curr + 1) acc
     else
       ⟨aig, acc⟩
-  termination_by w - 1 - curr
+  termination_by w - curr
 
 end bitblast
 end BVExpr

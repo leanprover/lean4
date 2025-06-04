@@ -285,7 +285,7 @@ def getErrorExplanation? [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] (name : Na
 /--
 Returns an error explanation for the given name if one exists *without* rewriting manual links.
 
-In general, `getErrorExplanation?` should be used if the body of the explanation will be accessed.
+In general, use `Lean.getErrorExplanation?` if the body of the explanation will be used.
 -/
 def getErrorExplanationRaw? (env : Environment) (name : Name) : Option ErrorExplanation := do
   errorExplanationExt.getState env |>.find? name
@@ -298,8 +298,8 @@ def hasErrorExplanation [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] (name : Nam
 Returns all error explanations with their names as an unsorted array, *without* rewriting manual
 links.
 
-In general, one should use `Lean.getErrorExplanations` or `Lean.getErrorExplanationsSorted` instead
-of this function. This function is primarily intended for internal use.
+In general, use `Lean.getErrorExplanations` or `Lean.getErrorExplanationsSorted` instead of this
+function if the bodies of the fetched explanations will be used.
 -/
 def getErrorExplanationsRaw (env : Environment) : Array (Name × ErrorExplanation) :=
   errorExplanationExt.getState env |>.toArray

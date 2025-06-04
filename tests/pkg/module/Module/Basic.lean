@@ -27,16 +27,7 @@ but is expected to have type
 #guard_msgs in
 theorem v (x : Vector Unit f) (y : Vector Unit 1) : x = y := testSorry
 
-/--
-error: type mismatch
-  y
-has type
-  Vector Unit 1 : Type
-but is expected to have type
-  Vector Unit f : Type
--/
-#guard_msgs in
-private theorem v' (x : Vector Unit f) (y : Vector Unit 1) : x = y := testSorry -- TODO: Should this not be allowed?
+private theorem v' (x : Vector Unit f) (y : Vector Unit 1) : x = y := testSorry
 
 private theorem v'' (x : Vector Unit fexp) (y : Vector Unit 1) : x = y := testSorry
 
@@ -52,11 +43,6 @@ Note: This theorem is exported from the current module. This requires that all d
 -/
 #guard_msgs in
 theorem trfl : f = 1 := rfl
-/-- error: unknown attribute [rfl] -/
-#guard_msgs in
-@[rfl] theorem trfl' : f = 1 := (rfl)
-
--- TODO: These should be allowed once `private` decls are not exported
 /--
 error: Not a definitional equality: the left-hand side
   f
@@ -66,19 +52,12 @@ is not definitionally equal to the right-hand side
 Note: This theorem is exported from the current module. This requires that all definitions that need to be unfolded to prove this theorem must be exposed.
 -/
 #guard_msgs in
+@[defeq] theorem trfl' : f = 1 := (rfl)
+
 private theorem trflprivate : f = 1 := rfl
 private def trflprivate' : f = 1 := rfl
 @[defeq] private def trflprivate''' : f = 1 := rfl
-/--
-error: Not a definitional equality: the left-hand side
-  f
-is not definitionally equal to the right-hand side
-  1
-
-Note: This theorem is exported from the current module. This requires that all definitions that need to be unfolded to prove this theorem must be exposed.
--/
-#guard_msgs in
-@[defeq] private theorem trflprivate'''' : f = 1 := (rfl)
+private theorem trflprivate'''' : f = 1 := (rfl)
 
 theorem fexp_trfl : fexp = 1 := rfl
 @[defeq] theorem fexp_trfl' : fexp = 1 := rfl
@@ -97,9 +76,6 @@ example : P f := by dsimp only [trfl]; exact hP1
 /-- error: dsimp made no progress -/
 #guard_msgs in
 example : P f := by dsimp only [trfl']; exact hP1
-
-/-- error: dsimp made no progress -/
-#guard_msgs in
 example : P f := by dsimp only [trflprivate]; exact hP1
 example : P f := by dsimp only [trflprivate']; exact hP1
 
@@ -119,7 +95,6 @@ is not definitionally equal to the right-hand side
 -/
 #guard_msgs in
 @[defeq] theorem not_rfl : f = 2 := testSorry
-@[expose] def fexp := 1
 
 private def priv := 2
 

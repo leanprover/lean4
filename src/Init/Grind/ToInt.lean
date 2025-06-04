@@ -71,9 +71,7 @@ theorem ToInt.wrap_eq_bmod {i : Int} (h : 0 ≤ i) :
           omega
         simp only [this]
         exact Int.dvd_mul_right ..
-    · rw [← Int.sub_eq_add_neg, Int.sub_eq_iff_eq_add]
-      rw [Int.natCast_zero]
-      rw [Int.sub_zero]
+    · rw [← Int.sub_eq_add_neg, Int.sub_eq_iff_eq_add, Int.natCast_zero, Int.sub_zero]
       rw [Int.emod_eq_iff (by omega)]
       refine ⟨?_, ?_, ?_⟩
       · have := Int.emod_nonneg x (b := 2 * (i : Int)) (by omega)

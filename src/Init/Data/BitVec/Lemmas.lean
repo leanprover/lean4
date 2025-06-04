@@ -319,6 +319,7 @@ theorem ofFin_ofNat (n : Nat) :
 @[simp] theorem ofFin_neg {x : Fin (2 ^ w)} : ofFin (-x) = -(ofFin x) := by
   rfl
 
+open Fin.NatCast in
 @[simp, norm_cast] theorem ofFin_natCast (n : Nat) : ofFin (n : Fin (2^w)) = (n : BitVec w) := by
   rfl
 
@@ -337,6 +338,7 @@ theorem toFin_zero : toFin (0 : BitVec w) = 0 := rfl
 theorem toFin_one  : toFin (1 : BitVec w) = 1 := by
   rw [toFin_inj]; simp only [ofNat_eq_ofNat, ofFin_ofNat]
 
+open Fin.NatCast in
 @[simp, norm_cast] theorem toFin_natCast (n : Nat) : toFin (n : BitVec w) = (n : Fin (2^w)) := by
   rfl
 

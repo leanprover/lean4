@@ -50,6 +50,7 @@ private def updateAppMap (e : Expr) : GoalM Unit := do
     else
       s.appMap.insert key [e]
   }
+  saveAppOf key
 
 private def forbiddenSplitTypes := [``Eq, ``HEq, ``True, ``False]
 

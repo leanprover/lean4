@@ -106,12 +106,13 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
       activateTheorem thm 0
 
 structure Result where
-  failure? : Option Goal
-  issues   : List MessageData
-  config   : Grind.Config
-  trace    : Trace
-  counters : Counters
-  simp     : Simp.Stats
+  failure?   : Option Goal
+  issues     : List MessageData
+  config     : Grind.Config
+  trace      : Trace
+  counters   : Counters
+  simp       : Simp.Stats
+  splitDiags : PArray SplitDiagInfo
 
 private def countersToMessageData (header : String) (cls : Name) (data : Array (Name × Nat)) : MetaM MessageData := do
   let data := data.qsort fun (d₁, c₁) (d₂, c₂) => if c₁ == c₂ then Name.lt d₁ d₂ else c₁ > c₂
@@ -119,8 +120,19 @@ private def countersToMessageData (header : String) (cls : Name) (data : Array (
     return .trace { cls } m!"{.ofConst (← mkConstWithLevelParams declName)} ↦ {counter}" #[]
   return .trace { cls } header data
 
+private def splitDiagInfoToMessageData (ss : Array SplitDiagInfo) : MetaM MessageData := do
+  let env  ← getEnv
+  let mctx ← getMCtx
+  let opts ← getOptions
+  let cls := `split
+  let data ← ss.mapM fun { c, lctx, numCases, .. } => do
+    let m := m!"[{numCases}] {c}"
+    let m := MessageData.withContext { env, mctx, lctx, opts } m
+    return .trace { cls } m #[]
+  return .trace { cls } "Case splits" data
+
 -- Diagnostics information for the whole search
-private def mkGlobalDiag (cs : Counters) (simp : Simp.Stats) : MetaM (Option MessageData) := do
+private def mkGlobalDiag (cs : Counters) (simp : Simp.Stats) (ss : PArray SplitDiagInfo) : MetaM (Option MessageData) := do
   let thms := cs.thm.toList.toArray.filterMap fun (origin, c) =>
     match origin with
     | .decl declName => some (declName, c)
@@ -130,8 +142,13 @@ private def mkGlobalDiag (cs : Counters) (simp : Simp.Stats) : MetaM (Option Mes
   let mut msgs := #[]
   unless thms.isEmpty do
     msgs := msgs.push <| (← countersToMessageData "E-Matching instances" `thm thms)
+  let ss := ss.toArray.filter fun { numCases, .. } => numCases > 1
+  unless ss.isEmpty do
+    msgs := msgs.push <| (← splitDiagInfoToMessageData ss)
   unless cases.isEmpty do
     msgs := msgs.push <| (← countersToMessageData "Cases instances" `cases cases)
+  unless cs.apps.isEmpty do
+    msgs := msgs.push <| (← countersToMessageData "Applications" `app cs.apps.toList.toArray)
   let simpMsgs ← Simp.mkDiagMessages simp.diag
   unless simpMsgs.isEmpty do
     msgs := msgs.push <| .trace { cls := `grind} "Simplifier" simpMsgs
@@ -155,7 +172,7 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
     -/
     unless issues.isEmpty do
       msgs := msgs ++ [.trace { cls := `grind } "Issues" issues.reverse.toArray]
-    if let some msg ← mkGlobalDiag result.counters result.simp then
+    if let some msg ← mkGlobalDiag result.counters result.simp result.splitDiags then
       msgs := msgs ++ [msg]
   return MessageData.joinSep msgs m!"\n"
 
@@ -172,21 +189,22 @@ def main (mvarId : MVarId) (params : Params) (fallback : Fallback) : MetaM Resul
   if debug.terminalTacticsAsSorry.get (← getOptions) then
     mvarId.admit
     return {
-        failure? := none, issues := [], config := params.config, trace := {}, counters := {}, simp := {}
+        failure? := none, issues := [], config := params.config, trace := {}, counters := {}, simp := {}, splitDiags := {}
     }
   let go : GrindM Result := withReducible do
-    let goal ← initCore mvarId params
-    let failure? ← solve goal
-    let issues   := (← get).issues
-    let trace    := (← get).trace
-    let counters := (← get).counters
-    let simp     := { (← get).simp with }
+    let goal       ← initCore mvarId params
+    let failure?   ← solve goal
+    let issues     := (← get).issues
+    let trace      := (← get).trace
+    let counters   := (← get).counters
+    let splitDiags := (← get).splitDiags
+    let simp       := { (← get).simp with }
     if failure?.isNone then
       -- If there are no failures and diagnostics are enabled, we still report the performance counters.
       if (← isDiagnosticsEnabled) then
-        if let some msg ← mkGlobalDiag counters simp then
+        if let some msg ← mkGlobalDiag counters simp splitDiags then
           logInfo msg
-    return { failure?, issues, config := params.config, trace, counters, simp }
+    return { failure?, issues, config := params.config, trace, counters, simp, splitDiags }
   go.run params fallback
 
 end Lean.Meta.Grind

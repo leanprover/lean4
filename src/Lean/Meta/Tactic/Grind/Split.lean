@@ -249,6 +249,7 @@ def splitNext : SearchM Bool := withCurrGoalContext do
   let cExpr := c.getExpr
   let gen ← getGeneration cExpr
   let genNew := if numCases > 1 || isRec then gen+1 else gen
+  saveSplitDiagInfo cExpr genNew numCases
   markCaseSplitAsResolved cExpr
   trace_goal[grind.split] "{cExpr}, generation: {gen}"
   let mvarId ← mkAuxMVarForCurrGoal

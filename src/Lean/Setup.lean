@@ -23,7 +23,7 @@ structure Import where
   isExported : Bool := true
   /-- Whether all definitions (transitively) reachable through the -/
   isMeta     : Bool := false
-  deriving Repr, Inhabited, ToJson, FromJson
+  deriving Repr, Inhabited, ToJson, FromJson, BEq, Hashable
 
 instance : Coe Name Import := ⟨({module := ·})⟩
 

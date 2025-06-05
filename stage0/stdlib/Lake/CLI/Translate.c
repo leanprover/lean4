@@ -369,10 +369,11 @@ lean_object* x_1; uint8_t x_2; uint8_t x_3; lean_object* x_4;
 x_1 = l_Lake_Package_mkConfigString___closed__5;
 x_2 = 0;
 x_3 = 1;
-x_4 = lean_alloc_ctor(0, 1, 2);
+x_4 = lean_alloc_ctor(0, 1, 3);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set_uint8(x_4, sizeof(void*)*1, x_2);
 lean_ctor_set_uint8(x_4, sizeof(void*)*1 + 1, x_3);
+lean_ctor_set_uint8(x_4, sizeof(void*)*1 + 2, x_2);
 return x_4;
 }
 }

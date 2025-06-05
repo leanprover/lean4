@@ -119,14 +119,14 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateDIte(lean_object*, lean_obje
 static lean_object* l_Lean_Meta_Grind_propagateBoolAndDown___lambda__1___closed__2;
 static lean_object* l_Lean_Meta_Grind_propagateBoolOrDown___lambda__1___closed__1;
 static lean_object* l_Lean_Meta_Grind_propagateEqMatchDown___regBuiltin_Lean_Meta_Grind_propagateEqMatchDown_declare__1____x40_Lean_Meta_Tactic_Grind_Propagate___hyg_4758____closed__1;
-lean_object* l_Lean_Meta_Grind_getBoolTrueExpr___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_getBoolTrueExpr___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateHEqDown___closed__2;
 static lean_object* l_Lean_Meta_Grind_propagateBoolNotUp___lambda__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateEqDown___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkApp6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateDecideUp___lambda__1___closed__4;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_getFalseExpr___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_getFalseExpr___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateOrUp___lambda__1___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBoolAndUp___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateBoolDiseq___lambda__1___closed__3;
@@ -361,7 +361,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateDecideDown___lambda__1(lean_
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Meta_Grind_propagateOrUp___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBoolNotUp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_getBoolFalseExpr___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_getBoolFalseExpr___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateBEqDown___lambda__1___closed__4;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -3824,7 +3824,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBoolDiseq___lambda__1(lean_o
 _start:
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_12 = l_Lean_Meta_Grind_getBoolTrueExpr___rarg(x_6, x_7, x_8, x_9, x_10, x_11);
+x_12 = l_Lean_Meta_Grind_getBoolTrueExpr___rarg(x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);
@@ -3963,7 +3963,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBoolDiseq(lean_object* x_1, 
 _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_11 = l_Lean_Meta_Grind_getBoolFalseExpr___rarg(x_5, x_6, x_7, x_8, x_9, x_10);
+x_11 = l_Lean_Meta_Grind_getBoolFalseExpr___rarg(x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
@@ -4143,6 +4143,7 @@ lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
+lean_inc(x_8);
 x_21 = lean_grind_mk_eq_proof(x_3, x_4, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_20);
 if (lean_obj_tag(x_21) == 0)
 {
@@ -4165,8 +4166,9 @@ lean_inc(x_25);
 x_26 = lean_ctor_get(x_24, 1);
 lean_inc(x_26);
 lean_dec(x_24);
-x_27 = l_Lean_Meta_Grind_getFalseExpr___rarg(x_9, x_10, x_11, x_12, x_13, x_26);
+x_27 = l_Lean_Meta_Grind_getFalseExpr___rarg(x_8, x_9, x_10, x_11, x_12, x_13, x_26);
 lean_dec(x_9);
+lean_dec(x_8);
 x_28 = !lean_is_exclusive(x_27);
 if (x_28 == 0)
 {
@@ -4307,6 +4309,7 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
+lean_dec(x_8);
 lean_dec(x_5);
 x_60 = !lean_is_exclusive(x_24);
 if (x_60 == 0)
@@ -4337,6 +4340,7 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
+lean_dec(x_8);
 lean_dec(x_5);
 x_64 = !lean_is_exclusive(x_21);
 if (x_64 == 0)
@@ -8557,7 +8561,7 @@ lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean
 x_57 = lean_ctor_get(x_56, 1);
 lean_inc(x_57);
 lean_dec(x_56);
-x_58 = l_Lean_Meta_Grind_getBoolFalseExpr___rarg(x_10, x_11, x_12, x_13, x_14, x_57);
+x_58 = l_Lean_Meta_Grind_getBoolFalseExpr___rarg(x_9, x_10, x_11, x_12, x_13, x_14, x_57);
 x_59 = lean_ctor_get(x_58, 0);
 lean_inc(x_59);
 x_60 = lean_ctor_get(x_58, 1);
@@ -8807,7 +8811,7 @@ lean_dec(x_85);
 x_94 = lean_ctor_get(x_86, 0);
 lean_inc(x_94);
 lean_dec(x_86);
-x_95 = l_Lean_Meta_Grind_getBoolTrueExpr___rarg(x_10, x_11, x_12, x_13, x_14, x_93);
+x_95 = l_Lean_Meta_Grind_getBoolTrueExpr___rarg(x_9, x_10, x_11, x_12, x_13, x_14, x_93);
 x_96 = lean_ctor_get(x_95, 0);
 lean_inc(x_96);
 x_97 = lean_ctor_get(x_95, 1);
@@ -12344,7 +12348,7 @@ lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean
 x_26 = lean_ctor_get(x_17, 1);
 lean_inc(x_26);
 lean_dec(x_17);
-x_27 = l_Lean_Meta_Grind_getBoolFalseExpr___rarg(x_7, x_8, x_9, x_10, x_11, x_26);
+x_27 = l_Lean_Meta_Grind_getBoolFalseExpr___rarg(x_6, x_7, x_8, x_9, x_10, x_11, x_26);
 x_28 = lean_ctor_get(x_27, 0);
 lean_inc(x_28);
 x_29 = lean_ctor_get(x_27, 1);
@@ -12450,7 +12454,7 @@ lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean
 x_45 = lean_ctor_get(x_13, 1);
 lean_inc(x_45);
 lean_dec(x_13);
-x_46 = l_Lean_Meta_Grind_getBoolTrueExpr___rarg(x_7, x_8, x_9, x_10, x_11, x_45);
+x_46 = l_Lean_Meta_Grind_getBoolTrueExpr___rarg(x_6, x_7, x_8, x_9, x_10, x_11, x_45);
 x_47 = lean_ctor_get(x_46, 0);
 lean_inc(x_47);
 x_48 = lean_ctor_get(x_46, 1);

@@ -131,7 +131,7 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
     return #[]
 
   let locationLinksFromImport (i : Elab.Info) := do
-    let `(Parser.Module.import| $[private]? import $[all]? $mod) := i.stx
+    let `(Parser.Module.import| $[private]? $[meta]? import $[all]? $mod) := i.stx
       | return #[]
     if let some modUri ← documentUriFromModule? mod.getId then
       let range := { start := ⟨0, 0⟩, «end» := ⟨0, 0⟩ : Range }

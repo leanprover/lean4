@@ -311,7 +311,7 @@ def Folder.mulShift [Literal α] [BEq α] (shiftLeft : Name) (pow2 : α → α) 
 -- TODO: add option for controlling the limit
 def natPowThreshold := 256
 
-def foldNatPow (args : Array Arg): FolderM (Option LetValue) := do
+def foldNatPow (args : Array Arg) : FolderM (Option LetValue) := do
   let #[.fvar fvarId₁, .fvar fvarId₂] := args | return none
   let some value₁ ← getNatLit fvarId₁ | return none
   let some value₂ ← getNatLit fvarId₂ | return none
@@ -323,12 +323,12 @@ def foldNatPow (args : Array Arg): FolderM (Option LetValue) := do
 /--
 Folder for ofNat operations on fixed-sized integer types.
 -/
-def Folder.ofNat (f : Nat → LitValue) (args : Array Arg): FolderM (Option LetValue) := do
+def Folder.ofNat (f : Nat → LitValue) (args : Array Arg) : FolderM (Option LetValue) := do
   let #[.fvar fvarId] := args | return none
   let some value ← getNatLit fvarId | return none
   return some (.lit (f value))
 
-def Folder.toNat (args : Array Arg): FolderM (Option LetValue) := do
+def Folder.toNat (args : Array Arg) : FolderM (Option LetValue) := do
   let #[.fvar fvarId] := args | return none
   let some (.lit lit) ← findLetValue? fvarId | return none
   match lit with

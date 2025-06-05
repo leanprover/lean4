@@ -29,34 +29,8 @@ instance : RangeSize ⟨.none, .open, .custom Nat⟩ Nat where
 instance [RangeIter ⟨sl, su, .custom Nat⟩ Nat] : RangeIter ⟨sl, su, .default⟩ Nat :=
   .of fun r => (PRange.mk (shape := ⟨sl, su, .custom Nat⟩) r.lower r.upper 1).iter
 
-section Iterator
-
-def natRangeIterator' (start : Nat) (step : Nat) (inclusiveUpperBound : Nat) :=
-  Iter.repeat (init := start) (· + step) |>.takeWhile (· ≤ inclusiveUpperBound)
-
-def NatRangeIterator step inclusiveUpperBound := (type_of% (natRangeIterator' 0 step inclusiveUpperBound).internalState)
-
-def natRangeIterator (start step inclusiveUpperBound : Nat) :
-    Iter (α := NatRangeIterator step inclusiveUpperBound) Nat :=
-  natRangeIterator' start step inclusiveUpperBound
-
-instance : Iterator (NatRangeIterator step inclusiveUpperBound) Id Nat :=
-  inferInstanceAs <| Iterator (TakeWhile ..) Id Nat
-
-def NatRangeIterator.instFinite (step inclusiveUpperBound : Nat) (h : step > 0) :
-  Finite (NatRangeIterator step inclusiveUpperBound) Id := sorry
-
-macro_rules
-  | `(tactic| finite_iterator_tactic_trivial) => `(tactic|
-    rw [IterM.IsFinite];
-    apply Lineage.instFiniteOfFinite (h := ?_);
-    apply NatRangeIterator.instFinite;
-    dsimp; omega)
-
-end Iterator
-
 instance : RangeIter ⟨.closed, .closed, .custom Nat⟩ Nat :=
-  .of fun r => natRangeIterator r.lower r.step r.upper
+  .of fun r => Iter.repeat (init := r.lower) (· + r.step) |>.take r.size
 
 instance : RangeIter ⟨.closed, .open, .custom Nat⟩ Nat :=
   .of fun r => Iter.repeat (init := r.lower) (· + r.step) |>.take r.size
@@ -99,7 +73,7 @@ instance {n : Nat} {r : PRange shape Nat} : Decidable (n ∈ r) := by
 
 #eval (2<,,<5).size
 
-example := (2,,→2→,,10).iter.toIterM.showFinite
+example := (2,,→2→,,10).iter.toList
 
 #eval (,,<5).iter.toList
 

@@ -1959,38 +1959,51 @@ theorem shiftLeft_add_eq_shiftLeft_or {x y : BitVec w} :
 /--
   Count the number of leading zeroes downward from the 'n'th bit to the '0'th bit for the bitblaster.
 -/
--- def clzAuxLookup {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
---   if x.getLsbD n then BitVec.ofNat w (w - 1 - n)
---   else
---     if hn : n = 0 then BitVec.ofNat w w
---     else clzAuxLookup x (n - 1)
-
-def clzAuxLookup {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
-  if x.getLsbD n then BitVec.ofNat w (w - 1 - n)
-  else
-    match n with
-    | 0 => BitVec.ofNat w w
-    | n' + 1 =>  clzAuxLookup x n'
-
-
-def clzAuxLookup' {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
+def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
   match n with
   | 0 => if x.getLsbD 0 then BitVec.ofNat w (w - 1)
         else BitVec.ofNat w w
   | n' + 1 => if x.getLsbD n then BitVec.ofNat w (w - 1 - n)
-            else clzAuxLookup' x n'
+            else clzAuxRec x n'
 
+@[simp]
 theorem clzAuxRec_zero_eq (x : BitVec w) :
-    clzAuxLookup x 0 = if x.getLsbD 0 then BitVec.ofNat w (w - 1)
+    clzAuxRec x 0 = if x.getLsbD 0 then BitVec.ofNat w (w - 1)
         else BitVec.ofNat w w := rfl
 
-
 theorem clzAuxRec_succ_eq (x : BitVec w) (n : Nat) :
-    clzAuxLookup' x (n + 1) =
+    clzAuxRec x (n + 1) =
       if x.getLsbD (n + 1) then BitVec.ofNat w (w - 1 - (n + 1))
-            else clzAuxLookup' x n := by rfl
+            else clzAuxRec x n := by rfl
 
--- thm1: x.clz = x.clzLookup (w - 1)
--- thm1: x.clz = x.clzLookup' (w - 1)
+theorem clz_eq_clzRecAux {w : Nat} (x : BitVec w) (n : Nat) :
+    (k = x.clzAux n) ↔ (x.clzAuxRec n = BitVec.ofNat w (w - 1 - k)) := by
+  induction n generalizing k
+  · case zero =>
+    simp [clz]
+    by_cases hx0 : x.getLsbD 0
+    · simp [hx0]
+      constructor
+      · intro h
+        simp [h]
+      · intro h
+        rw [← ofNat_inj_iff_eq] at h
+        have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
+        rw [Nat.mod_eq_of_lt (by omega)] at h
+        rw [Nat.mod_eq_of_lt (by omega)] at h
+        apply Classical.byContradiction
+        intro hcontra
+
+        sorry
+    · simp [hx0]
+      sorry
+  · case succ n ihn =>
+    sorry
+
+-- thm1: x.clz = x.clzAuxRec (w - 1)
+theorem clz_eq_clzAuxRec_of_length (x : BitVec w) :
+    x.clz = x.clzAuxRec (w - 1) := by
+  sorry
+
 
 end BitVec

@@ -45,8 +45,8 @@ structure ErrorExplanation where
 namespace ErrorExplanation
 
 /--
-The kind of a code block in an error explanation example. `broken` blocks do not compile;
-`fixed` blocks must.
+The kind of a code block in an error explanation example. `broken` blocks raise the diagnostic being
+explained; `fixed` blocks must compile successfully.
 -/
 inductive CodeInfo.Kind
   | broken | fixed
@@ -125,9 +125,9 @@ where
           if title?.isNone then
             title? := some val
           else
-            fail "Redundant name specifications"
+            fail "Redundant title specifications"
         else
-          fail s!"Invalid named attribute `{name}`"
+          fail s!"Invalid named attribute `{name}`; expected `title`"
     return { lang, title?, kind? }
 
 open Std.Internal Parsec
@@ -285,17 +285,17 @@ where
   then returns the contents of the header at `line` (i.e., stripping the leading `#`). Returns
   `none` if `line` is not a header of the appropriate form.
   -/
-  matchHeader (level : Nat) (title? : Option String) (line : String) : Option String :=
-    let init := line.take (level + 1)
-    let expected := ⟨List.replicate level '#'⟩ ++ " "
-    let initMatches := init == expected
-    let actual := line.drop (level + 1)
-    let titleMatches? := title?.map fun title =>
-      actual == title
-    if initMatches && titleMatches?.getD true then
-      some actual
-    else
-      none
+  matchHeader (level : Nat) (title? : Option String) (line : String) : Option String := do
+    let octsEndPos := line.nextWhile (· == '#') 0
+    guard (octsEndPos.byteIdx == level)
+    guard (line.get octsEndPos == ' ')
+    let titleStartPos := line.next octsEndPos
+    let title := Substring.mk line titleStartPos line.endPos |>.toString
+    let titleMatches : Bool := match title? with
+      | some expectedTitle => title == expectedTitle
+      | none => true
+    guard titleMatches
+    some title
 
 /--
 Validates that the given error explanation has the expected structure. If an error is found, it is

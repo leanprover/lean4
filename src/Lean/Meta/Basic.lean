@@ -427,7 +427,7 @@ structure State where
 -/
 structure SavedState where
   core        : Core.SavedState
-  meta        : State
+  «meta»      : State
   deriving Nonempty
 
 register_builtin_option maxSynthPendingDepth : Nat := {
@@ -555,7 +555,7 @@ instance : AddMessageContext MetaM where
   addMessageContext := addMessageContextFull
 
 protected def saveState : MetaM SavedState :=
-  return { core := (← Core.saveState), meta := (← get) }
+  return { core := (← Core.saveState), «meta» := (← get) }
 
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) : MetaM Unit := do
@@ -570,7 +570,7 @@ def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState)) (act : M
   let reusableResult? := reusableResult?.map (fun (val, state) => (val, state.core))
   let (a, core) ← controlAt CoreM fun runInBase => do
     Core.withRestoreOrSaveFull reusableResult? <| runInBase act
-  return (a, { core, meta := (← get) })
+  return (a, { core, «meta» := (← get) })
 
 instance : MonadBacktrack SavedState MetaM where
   saveState      := Meta.saveState

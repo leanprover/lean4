@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1561_(lean_object*);
 static lean_object* l_panic___at_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___spec__7___closed__1;
 lean_object* l_Lean_Compiler_LCNF_LetDecl_updateValue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Specialize_findSpecCache_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -246,6 +245,7 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Compiler_LCNF_Sp
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Compiler_LCNF_Specialize_Collector_collect___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___lambda__5___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Specialize_withLetDecl___spec__9(lean_object*, lean_object*, size_t, size_t, lean_object*);
+uint64_t l_Lean_hashFVarId____x40_Lean_Expr___hyg_1561_(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Compiler_LCNF_Specialize_mkSpecDecl_go___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_replace___at_Lean_Compiler_LCNF_addFVarSubst___spec__5(lean_object*, lean_object*, lean_object*);
 lean_object* l_OptionT_instMonad___rarg(lean_object*);
@@ -3584,7 +3584,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; uint64_t x_7; uint64_t x_8
 x_4 = lean_ctor_get(x_1, 2);
 x_5 = lean_ctor_get(x_4, 1);
 x_6 = lean_array_get_size(x_5);
-x_7 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1561_(x_3);
+x_7 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1561_(x_3);
 x_8 = 32;
 x_9 = lean_uint64_shift_right(x_7, x_8);
 x_10 = lean_uint64_xor(x_7, x_9);
@@ -4930,7 +4930,7 @@ lean_object* x_76; lean_object* x_77; lean_object* x_78; uint64_t x_79; uint64_t
 x_76 = lean_ctor_get(x_71, 0);
 x_77 = lean_ctor_get(x_71, 1);
 x_78 = lean_array_get_size(x_77);
-x_79 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1561_(x_73);
+x_79 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1561_(x_73);
 x_80 = 32;
 x_81 = lean_uint64_shift_right(x_79, x_80);
 x_82 = lean_uint64_xor(x_79, x_81);
@@ -5021,7 +5021,7 @@ lean_inc(x_114);
 lean_inc(x_113);
 lean_dec(x_71);
 x_115 = lean_array_get_size(x_114);
-x_116 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1561_(x_73);
+x_116 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1561_(x_73);
 x_117 = 32;
 x_118 = lean_uint64_shift_right(x_116, x_117);
 x_119 = lean_uint64_xor(x_116, x_118);
@@ -5146,7 +5146,7 @@ if (lean_is_exclusive(x_160)) {
  x_166 = lean_box(0);
 }
 x_167 = lean_array_get_size(x_165);
-x_168 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1561_(x_162);
+x_168 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1561_(x_162);
 x_169 = 32;
 x_170 = lean_uint64_shift_right(x_168, x_169);
 x_171 = lean_uint64_xor(x_168, x_170);
@@ -5352,7 +5352,7 @@ if (lean_is_exclusive(x_233)) {
  x_239 = lean_box(0);
 }
 x_240 = lean_array_get_size(x_238);
-x_241 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1561_(x_235);
+x_241 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1561_(x_235);
 x_242 = 32;
 x_243 = lean_uint64_shift_right(x_241, x_242);
 x_244 = lean_uint64_xor(x_241, x_243);
@@ -5618,7 +5618,7 @@ if (lean_is_exclusive(x_316)) {
  x_322 = lean_box(0);
 }
 x_323 = lean_array_get_size(x_321);
-x_324 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1561_(x_318);
+x_324 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1561_(x_318);
 x_325 = 32;
 x_326 = lean_uint64_shift_right(x_324, x_325);
 x_327 = lean_uint64_xor(x_324, x_326);

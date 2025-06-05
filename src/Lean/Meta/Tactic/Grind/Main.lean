@@ -125,10 +125,13 @@ private def splitDiagInfoToMessageData (ss : Array SplitDiagInfo) : MetaM Messag
   let mctx ← getMCtx
   let opts ← getOptions
   let cls := `split
-  let data ← ss.mapM fun { c, lctx, numCases, .. } => do
-    let m := m!"[{numCases}] {c}"
-    let m := MessageData.withContext { env, mctx, lctx, opts } m
-    return .trace { cls } m #[]
+  let data ← ss.mapM fun { c, lctx, numCases, gen, splitSource } => do
+    let header := m!"{c}"
+    return MessageData.withContext { env, mctx, lctx, opts } <| .trace { cls } header #[
+      .trace { cls } m!"source: {← splitSource.toMessageData}" #[],
+      .trace { cls } m!"generation: {gen}" #[],
+      .trace { cls } m!"# cases: {numCases}" #[]
+    ]
   return .trace { cls } "Case splits" data
 
 -- Diagnostics information for the whole search

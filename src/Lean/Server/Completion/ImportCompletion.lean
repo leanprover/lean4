@@ -28,13 +28,11 @@ def AvailableImports.toImportTrie (imports : AvailableImports) : ImportTrie := I
 def isImportNameCompletionRequest (headerStx : TSyntax ``Parser.Module.header) (completionPos : String.Pos) : Bool := Id.run do
   let `(Parser.Module.header| $[module]? $[prelude]? $importsStx*) := headerStx
     | return false
-  return importsStx.any fun importStx => Id.run do
-    let importStx := importStx.raw
-    let importCmd := importStx[1]
-    let allTk? := importStx[2].getOptional?
-    let importId := importStx[3]
-    let keywordsTailPos := allTk?.bind (·.getTailPos?) <|> importCmd.getTailPos?
-    return importId.isMissing && keywordsTailPos.isSome && completionPos == keywordsTailPos.get! + ' '
+  importsStx.anyM fun
+    | `(Parser.Module.import| $[private]? $[meta]? import%$importCmd $[all%$allTk?]? $importId) =>
+      let keywordsTailPos := allTk?.bind (·.getTailPos?) <|> importCmd.getTailPos?
+      return importId.raw.isMissing && keywordsTailPos.isSome && completionPos == keywordsTailPos.get! + ' '
+    | _ => unreachable!
 
 /-- Checks whether `completionPos` points at a free space in the header. -/
 def isImportCmdCompletionRequest (headerStx : TSyntax ``Parser.Module.header) (completionPos : String.Pos) : Bool := Id.run do
@@ -52,7 +50,7 @@ def computePartialImportCompletions
   let `(Parser.Module.header| $[module]? $[prelude]? $importsStx*) := headerStx
     | return #[]
   let some (completePrefix, incompleteSuffix) := importsStx.findSome? fun importStx => do
-      let `(Parser.Module.«import»| $[private]? import $[all]? $importId $[.%$trailingDotTk?$_]?) := importStx
+      let `(Parser.Module.«import»| $[private]? $[meta]? import $[all]? $importId $[.%$trailingDotTk?$_]?) := importStx
         | unreachable!
       match trailingDotTk? with
       | none =>

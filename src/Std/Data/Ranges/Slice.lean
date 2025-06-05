@@ -18,35 +18,38 @@ macro_rules
   | `($x[[$r]]) => `(makeSlice $x $r)
 
 class SliceIter (shape : RangeShape) (ρ α) {β} [Sliceable shape ρ α β] where
-  State : Type u
-  iter : Slice shape ρ α → Iter (α := State) β
+  State : Slice shape ρ α → Type u
+  iter : (s : Slice shape ρ α) → Iter (α := State s) β
 
 @[always_inline, inline]
-def SliceIter.of [Sliceable shape ρ α β] {State} (iter : Slice shape ρ α → Iter (α := State) β) : SliceIter shape ρ α where
+def SliceIter.of [Sliceable shape ρ α β] {State : Slice shape ρ α → _}
+    (iter : (s : Slice shape ρ α) → Iter (α := State s) β) : SliceIter shape ρ α where
   State := State
   iter := iter
 
 @[always_inline, inline]
-def Slice.iter [Sliceable shape ρ α β] [SliceIter shape ρ α] (s : Slice shape ρ α) :
-    Iter (α := SliceIter.State shape ρ α β) β :=
+def Slice.iter [Sliceable shape ρ α β] [SliceIter shape ρ α]
+    (s : Slice shape ρ α) :
+    Iter (α := SliceIter.State (shape := shape) (ρ := ρ) (α := α) (β := β) s) β :=
   SliceIter.iter s
 
-instance [Iterator State Id α] [Sliceable shape ρ α β]
-    {iter : Slice shape ρ α → Iter (α := State) β} :
+instance {State : Slice shape ρ α → _} [Iterator (State s) Id α] [Sliceable shape ρ α β]
+    {iter : (s : Slice shape ρ α) → Iter (α := State s) β} :
     letI : SliceIter shape ρ α := SliceIter.of iter
-    Iterator (SliceIter.State shape ρ α β) Id α :=
-  inferInstanceAs <| Iterator State Id α
+    Iterator (SliceIter.State (shape := shape) (ρ := ρ) (α := α) β s) Id α :=
+  inferInstanceAs <| Iterator (State s) Id α
 
-instance [Iterator State Id α] [Sliceable shape ρ α β]
-    [Finite State Id]
-    {iter : Slice shape ρ α → Iter (α := State) β} :
+instance {State : Slice shape ρ α → _} [Iterator (State s) Id α]
+    [Sliceable shape ρ α β]
+    [Finite (State s) Id]
+    {iter : (s : Slice shape ρ α) → Iter (α := State s) β} :
     letI : SliceIter shape ρ α := SliceIter.of iter
-    Finite (SliceIter.State shape ρ α β) Id :=
-  inferInstanceAs <| Finite State Id
+    Finite (SliceIter.State (shape := shape) (ρ := ρ) (α := α) β s) Id :=
+  inferInstanceAs <| Finite (State s) Id
 
-instance [Iterator State Id α] [Sliceable shape ρ α β]
-    [IteratorCollect State Id m]
-    {iter : Slice shape ρ α → Iter (α := State) β} :
+instance {State : Slice shape ρ α → _} [Iterator (State s) Id α] [Sliceable shape ρ α β]
+    [IteratorCollect (State s) Id m]
+    {iter : (s : Slice shape ρ α) → Iter (α := State s) β} :
     letI : SliceIter shape ρ α := SliceIter.of iter
-    IteratorCollect (SliceIter.State shape ρ α β) Id m :=
-  inferInstanceAs <| IteratorCollect State Id m
+    IteratorCollect (SliceIter.State (shape := shape) (ρ := ρ) (α := α) β s) Id m :=
+  inferInstanceAs <| IteratorCollect (State s) Id m

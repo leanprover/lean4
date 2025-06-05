@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
 prelude
-import Lean.Meta.InferType
+import Lean.Meta.Check
 
 /-!
 # Transforming non-dependent `let`s into `have`s
@@ -95,9 +95,11 @@ private structure State where
 
 private abbrev M := ReaderT Context <| MonadCacheT ExprStructEq Expr' (StateRefT State MetaM)
 
+/-- Executes `m` if either `b` is true or if `fullCheck` is set. -/
 private def whenFullCheck (m : M Unit) (b : Bool := false) : M Unit := do
   if b || (← read).fullCheck then m
 
+/-- Executes `m` in a context where `fullCheck` is enabled if `b` is true. The `fullCheck` flag might already be enabled. -/
 private def withFullCheck (b : Bool) (m : M α) : M α := do
   withReader (fun ctx => { ctx with fullCheck := ctx.fullCheck || b }) m
 
@@ -112,43 +114,24 @@ private def findMCache? (e : Expr) : M (Option Expr') :=
   MonadCache.findCached? { val := e : ExprStructEq }
 
 private def visitFVar (e : Expr) : MetaM Expr' := do
-  let some decl ← e.fvarId!.findDecl? | throwError "fvar: unknown"
+  let some decl ← e.fvarId!.findDecl? | e.fvarId!.throwUnknown
   -- We did `instantiateLCtxMVars`, so no need to `instantiateMVars` the type.
   return { val := e, type := decl.type }
 
 private def visitMVar (e : Expr) : MetaM Expr' := do
-  let some decl ← e.mvarId!.findDecl? | throwError "mvar: unknown"
+  let some decl ← e.mvarId!.findDecl? | throwUnknownMVar e.mvarId!
   return { val := e, type := (← instantiateMVars decl.type) }
 
 private def visitConst (e : Expr) (constName : Name) (us : List Level) : M Expr' := do
   let cinfo ← getConstVal constName
   if cinfo.levelParams.length == us.length then
-    if us.isEmpty then
-      return { val := e, type := cinfo.type }
-    else
-      let type ← instantiateTypeLevelParams cinfo us
-      return { val := e, type }
+    let type ← instantiateTypeLevelParams cinfo us
+    return { val := e, type }
   else
-    throwError "const: invalid"
-
-private def visitApp (f : Expr') (args : Array Expr') : M Expr' := do
-  let argVals := args.map Expr'.val
-  let mut type := f.type
-  let mut j := 0
-  for i in [:args.size] do
-    unless type.isForall do
-      type ← whnf <| type.instantiateRevRange j i argVals
-      j := i
-    let .forallE _ dom b _ := type | throwError "app: function expected"
-    type := b
-    whenFullCheck do
-      let dom := dom.instantiateRevRange j i argVals
-      unless ← isDefEq dom args[i]!.type do throwError "app: dom not defeq"
-  type := type.instantiateRevRange j argVals.size argVals
-  return { val := mkAppN f argVals, type }
+    throwIncorrectNumberOfLevels constName us
 
 private def getSortLevel (e : Expr) : MetaM Level := do
-  let .sort u ← whnf e | throwError "not Sort"
+  let .sort u ← whnf e | throwTypeExcepted e
   return u
 
 private inductive BoundKind
@@ -167,7 +150,7 @@ A conservative check for whether to keep a `let` dependent.
 The `body` may have loose bvars.
 -/
 def isDepLet (fvarId : FVarId) (body : Expr) : M Bool := do
-  let some decl ← fvarId.findDecl? | throwError "isDepLet: unknown"
+  let some decl ← fvarId.findDecl? | fvarId.throwUnknown
   if (← getZetaDeltaFVarIds).contains fvarId then
     /-
     If an fvar is not zeta delta reduced during typechecking, then it is safe
@@ -193,20 +176,22 @@ def isDepLet (fvarId : FVarId) (body : Expr) : M Bool := do
   else
     return false
 
+/--
+Note: We want to cache all prefixes of each application, so there is no `instantiateRevRange`-type logic here.
+-/
+private def visitApp (f a : Expr') : M Expr' := do
+  let mut fType := f.type
+  unless fType.isForall do
+    fType ← whnf fType
+  match fType with
+  | Expr.forallE _ d b _ =>
+    whenFullCheck do
+      unless (← isDefEq d a.type) do
+        throwAppTypeMismatch f a
+    return { val := mkApp f a, type := b.instantiate1 a }
+  | _ => throwFunctionExpected (mkApp f a)
+
 mutual
-
-private partial def visitApp' (f : Expr) (args : Array Expr) : M Expr' := do
-    visitApp (← visit f) (← args.mapM visit)
-
-private partial def visitApp'' (e : Expr) : M Expr' := do
-  let arity := e.getAppNumArgs
-  if e.isAppOf ``letFun && arity ≥ 4 then
-    if arity == 4 then
-      visitBound e
-    else
-      visitApp' (e.getBoundedAppFn (arity - 4)) (e.getBoundedAppArgs (arity - 4))
-  else
-    visitApp' e.getAppFn e.getAppArgs
 
 /--
 Visits foralls, lambdas, lets, and haves.
@@ -251,7 +236,8 @@ where
       let t     ← visitAndInstantiate t
       let v     ← visitAndInstantiate v
       whenFullCheck (b := seenLet) do
-        unless ← withLCtx lctx {} (isDefEq t v.type) do throwError "let: value type not defeq to type"
+        unless ← withLCtx lctx {} (isDefEq t v.type) do
+          throwError "invalid let declaration, term{indentExpr v}{← mkHasTypeButIsExpectedMsg v.type t}"
       let fvarId ← mkFreshFVarId
       let lctx  := lctx.mkLetDecl fvarId n t v
       let fvars := fvars.push (mkFVar fvarId)
@@ -263,7 +249,8 @@ where
         let t     ← visitAndInstantiate t
         let v     ← visitAndInstantiate v
         whenFullCheck (b := seenLet) do
-          unless ← withLCtx lctx {} (isDefEq t v.type) do throwError "have: value type not defeq to type"
+          unless ← withLCtx lctx {} (isDefEq t v.type) do
+            throwError "invalid have declaration, term{indentExpr v}{← mkHasTypeButIsExpectedMsg v.type t}"
         let fvarId ← mkFreshFVarId
         let lctx  := lctx.mkLocalDecl fvarId n t
         let fvars := fvars.push (mkFVar fvarId)
@@ -293,13 +280,13 @@ where
       -- Invariant: the `type` will always be of the form `Sort _` when visiting forall.
       body := { body with type := mkSort u }
       if kinds.any (start := i + 1) (· matches .lambda _) then
-        throwError "forall: body is lambda"
+        throwError "invalid forall, body is a lambda"
     -- Now reconstruct the binding expressions
     body := Expr'.abstract body fvars
     for j in [0:fvars.size] do
       let i := fvars.size - j - 1
-      let fvar := fvars[i]!
-      let some decl ← fvar.fvarId!.findDecl? | throwError "fvar: unknown in visitBound"
+      let .fvar fvarId := fvars[i]! | unreachable!
+      let some decl ← fvarId.findDecl? | fvarId.throwUnknown
       let kind := kinds[i]!
       let level := levels[i]!
       match kind with
@@ -319,7 +306,7 @@ where
         -- typeLevel remains the same
         let t := decl.type.abstractRange i fvars
         let v := decl.value.abstractRange i fvars
-        if ← isDepLet fvar.fvarId! body.val then
+        if ← isDepLet fvarId body.val then
           body := Expr'.mkLet decl.userName { val := v, type := t } body false
         else
           incCount
@@ -333,15 +320,14 @@ where
 
 private partial def visitProj (structName : Name) (idx : Nat) (struct : Expr') : M Expr' := do
   let structType ← whnf struct.type
-  let prop ← isProp structType
-  let failed {α} (_ : Unit) : M α := throwError "proj: invalid"
+  let prop ← if (← read).fullCheck then isProp structType else pure false
+  let failed {α} (_ : Unit) : M α := throwError "invalid projection{indentExpr (mkProj structName idx struct)}\nfrom type{indentExpr structType}"
   matchConstStructure structType.getAppFn failed fun structVal structLvls ctorVal => do
     unless structVal.name == structName do failed ()
     let structTypeArgs := structType.getAppArgs
     if structVal.numParams + structVal.numIndices != structTypeArgs.size then
       failed ()
-    let ctor ← visitApp' (mkConst ctorVal.name structLvls) structTypeArgs[:structVal.numParams]
-    let mut ctorType := ctor.type
+    let mut ctorType ← inferType <| mkAppN (mkConst ctorVal.name structLvls) structTypeArgs[:structVal.numParams]
     let mut args := #[]
     let mut j := 0
     let mut lastFieldTy : Expr := default
@@ -351,9 +337,7 @@ private partial def visitProj (structName : Name) (idx : Nat) (struct : Expr') :
         j := i
       let .forallE _ dom body _ := ctorType | failed ()
       let dom := dom.instantiateRevRange j i args
-      if prop then
-        unless ← isProp dom do
-          throwError "proj: large elim"
+      if prop then unless ← isProp dom do failed ()
       args := args.push <| Expr.proj structName i struct
       ctorType := body
       lastFieldTy := dom
@@ -364,13 +348,17 @@ private partial def visit (e : Expr) : M Expr' := do
   withTraceNode `Meta.letToHave.debug (fun res =>
       return m!"{if res.isOk then checkEmoji else crossEmoji} visit{indentExpr e}") do
     match e with
-    | .bvar .. => throwError "bvar: unexpected"
+    | .bvar .. => throwError "unexpected bound variable {e}"
     | .fvar .. => visitFVar e
     | .mvar .. => visitMVar e
     | .sort u => return { val := e, type := .sort u.succ }
     | .const constName [] => visitConst e constName []
     | .const constName us => checkMCache e do visitConst e constName us
-    | .app .. => checkMCache e do visitApp'' e
+    | .app f a => checkMCache e do
+      if e.isAppOfArity ``letFun 4 then
+        visitBound e
+      else
+        visitApp (← visit f) (← visit a)
     | .lam .. | .forallE .. | .letE .. => checkMCache e do visitBound e
     | .lit v => return { val := e, type := v.type }
     | .mdata _ e' => let e' ← visit e'; return { e' with val := e.updateMData! e' }
@@ -386,7 +374,6 @@ private def main (e : Expr) : MetaM Expr := do
       | .ok (_, msg) => pure m!"{checkEmoji} {msg}"
       | .error ex => pure m!"{crossEmoji} {ex.toMessageData}") do
     if hasLet e then
-      resetZetaDeltaFVarIds
       withTrackingZetaDelta <|
       withTransparency TransparencyMode.all <|
       withInferTypeConfig do
@@ -409,8 +396,9 @@ If `e` is not type correct, returns `e`.
 The `Meta.letToHave` trace class logs errors and messages.
 -/
 def letToHave (e : Expr) : MetaM Expr := do
-  let e ← instantiateMVars e
-  LetToHave.main e
+  profileitM Exception "let-to-have transformation" (← getOptions) do
+    let e ← instantiateMVars e
+    LetToHave.main e
 
 builtin_initialize
   registerTraceClass `Meta.letToHave

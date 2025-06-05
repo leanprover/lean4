@@ -37,6 +37,14 @@ is not definitionally equal to the right-hand side
 #guard_msgs in
 theorem Tricky.a_eq_b : a = b := rfl -- to confuse the heuristics
 
+/-! Does `#print` show the attribute? -/
+
+/-- info: @[defeq] theorem a_eq_c : a = c -/
+#guard_msgs in
+#print sig a_eq_c
+
+/-! Does dsimp use it? -/
+
 /-- error: dsimp made no progress -/
 #guard_msgs in example (h : P b) : P a := by dsimp [a_eq_b]; exact h
 

@@ -498,6 +498,8 @@ See also: `#reduce e` for evaluation by term reduction.
   "#exit"
 @[builtin_command_parser] def print          := leading_parser
   "#print " >> (ident <|> strLit)
+@[builtin_command_parser] def printSig       := leading_parser
+  "#print " >> nonReservedSymbol "sig " >> ident
 @[builtin_command_parser] def printAxioms    := leading_parser
   "#print " >> nonReservedSymbol "axioms " >> ident
 @[builtin_command_parser] def printEqns      := leading_parser

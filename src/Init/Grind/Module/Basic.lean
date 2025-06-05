@@ -55,6 +55,9 @@ variable {M : Type u} [IntModule M]
 theorem add_neg_cancel (a : M) : a + -a = 0 := by
   rw [add_comm, neg_add_cancel]
 
+theorem add_left_comm (a b c : M) : a + (b + c) = b + (a + c) := by
+  rw [← add_assoc, ← add_assoc, add_comm a]
+
 theorem add_left_inj {a b : M} (c : M) : a + c = b + c ↔ a = b :=
   ⟨fun h => by simpa [add_assoc, add_neg_cancel, add_zero] using (congrArg (· + -c) h),
    fun g => congrArg (· + c) g⟩

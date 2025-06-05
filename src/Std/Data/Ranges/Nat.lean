@@ -1,6 +1,7 @@
 prelude
 import Std.Data.Ranges.Basic
 import Std.Data.Ranges.Slice
+import Std.Data.Iterators.Combinators.Monadic.Lineage
 
 open Std.Iterators
 
@@ -39,14 +40,23 @@ def natRangeIterator (start step inclusiveUpperBound : Nat) :
     Iter (α := NatRangeIterator step inclusiveUpperBound) Nat :=
   natRangeIterator' start step inclusiveUpperBound
 
+instance : Iterator (NatRangeIterator step inclusiveUpperBound) Id Nat :=
+  inferInstanceAs <| Iterator (TakeWhile ..) Id Nat
+
+def NatRangeIterator.instFinite (step inclusiveUpperBound : Nat) (h : step > 0) :
+  Finite (NatRangeIterator step inclusiveUpperBound) Id := sorry
+
+macro_rules
+  | `(tactic| finite_iterator_tactic_trivial) => `(tactic|
+    rw [IterM.IsFinite];
+    apply Lineage.instFiniteOfFinite (h := ?_);
+    apply NatRangeIterator.instFinite;
+    dsimp; omega)
+
 end Iterator
 
-instance : RangeIter ⟨.closed, .closed, .custom Nat⟩ Nat where
-  State r := if r.step = 0 then _ else _
-  iter r := if h : r.step = 0 then
-      by rw [h]; exact Iter.repeat (init := r.lower) id
-    else
-      by rw [if_neg h]; exact Iter.repeat (init := r.lower) (· + r.step) |>.take r.size
+instance : RangeIter ⟨.closed, .closed, .custom Nat⟩ Nat :=
+  .of fun r => natRangeIterator r.lower r.step r.upper
 
 instance : RangeIter ⟨.closed, .open, .custom Nat⟩ Nat :=
   .of fun r => Iter.repeat (init := r.lower) (· + r.step) |>.take r.size
@@ -89,7 +99,7 @@ instance {n : Nat} {r : PRange shape Nat} : Decidable (n ∈ r) := by
 
 #eval (2<,,<5).size
 
-#eval (2,,→2→,,10).iter.toList
+example := (2,,→2→,,10).iter.toIterM.showFinite
 
 #eval (,,<5).iter.toList
 

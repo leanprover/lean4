@@ -87,10 +87,6 @@ macro_rules
 class RangeSize (shape : RangeShape) (α : Type u) where
   size : PRange shape α → Nat
 
-/--
-Always use `RangeIter.of` to create instances: Otherwise, no iterator-related
-instances will be inferred for `RangeIter.State`.
--/
 class RangeIter (shape : RangeShape) (α : Type u) where
   State : PRange shape α → Type u
   iter : (r : PRange shape α) → Iter (α := State r) α

@@ -1091,12 +1091,37 @@ def matchExprAlts (rhsParser : Parser) :=
 @[builtin_term_parser] def letExpr := leading_parser:leadPrec
   withPosition ("let_expr " >> matchExprPat >> " := " >> termParser >> checkColGt >> " | " >> termParser) >> optSemicolon termParser
 
+/--
+Throws an error exception, tagging the associated message as a named error with the specified name
+and validating that an associated error explanation exists. The message may be passed as an
+interpolated string or a `MessageData` term. The result of `getRef` is used as position information.
+-/
 @[builtin_term_parser] def throwNamedErrorMacro := leading_parser
   "throwNamedError " >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
+
+/--
+Throws an error exception, tagging the associated message as a named error with the specified name
+and validating that an associated error explanation exists. The error name must be followed by a
+`Syntax` at which the error is to be thrown. The message is the final argument and may be passed as
+an interpolated string or a `MessageData` term.
+-/
 @[builtin_term_parser] def throwNamedErrorAtMacro := leading_parser
   "throwNamedErrorAt " >> termParser maxPrec >> ppSpace >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
+
+/--
+Logs an error, tagging the message as a named error with the specified name and validating that an
+associated error explanation exists. The message may be passed as an interpolated string or a
+`MessageData` term. The result of `getRef` is used as position information.
+-/
 @[builtin_term_parser] def logNamedErrorMacro := leading_parser
   "logNamedError " >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
+
+/--
+Logs an error, tagging the message as a named error with the specified name and validating that an
+associated error explanation exists. The error name must be followed by a `Syntax` at which the
+error is to be thrown. The message is the final argument and may be passed as an interpolated string
+or a `MessageData` term.
+-/
 @[builtin_term_parser] def logNamedErrorAtMacro := leading_parser
   "logNamedErrorAt " >> termParser maxPrec >> ppSpace >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
 

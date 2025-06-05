@@ -12,7 +12,6 @@ namespace Lean.Grind
 
 class NatModule (M : Type u) extends Zero M, Add M, HMul Nat M M where
   add_zero : ∀ a : M, a + 0 = a
-  zero_add : ∀ a : M, 0 + a = a
   add_comm : ∀ a b : M, a + b = b + a
   add_assoc : ∀ a b c : M, a + b + c = a + (b + c)
   zero_hmul : ∀ a : M, 0 * a = 0
@@ -26,7 +25,6 @@ attribute [instance 100] NatModule.toZero NatModule.toAdd NatModule.toHMul
 
 class IntModule (M : Type u) extends Zero M, Add M, Neg M, Sub M, HMul Int M M where
   add_zero : ∀ a : M, a + 0 = a
-  zero_add : ∀ a : M, 0 + a = a
   add_comm : ∀ a b : M, a + b = b + a
   add_assoc : ∀ a b c : M, a + b + c = a + (b + c)
   zero_hmul : ∀ a : M, (0 : Int) * a = 0
@@ -52,8 +50,14 @@ instance toNatModule (M : Type u) [i : IntModule M] : NatModule M :=
 
 variable {M : Type u} [IntModule M]
 
+theorem zero_add (a : M) : 0 + a = a := by
+  rw [add_comm, add_zero]
+
 theorem add_neg_cancel (a : M) : a + -a = 0 := by
   rw [add_comm, neg_add_cancel]
+
+theorem add_left_comm (a b c : M) : a + (b + c) = b + (a + c) := by
+  rw [← add_assoc, ← add_assoc, add_comm a]
 
 theorem add_left_inj {a b : M} (c : M) : a + c = b + c ↔ a = b :=
   ⟨fun h => by simpa [add_assoc, add_neg_cancel, add_zero] using (congrArg (· + -c) h),

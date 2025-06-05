@@ -28,6 +28,19 @@ instance : RangeSize ⟨.none, .open, .custom Nat⟩ Nat where
 instance [RangeIter ⟨sl, su, .custom Nat⟩ Nat] : RangeIter ⟨sl, su, .default⟩ Nat :=
   .of fun r => (PRange.mk (shape := ⟨sl, su, .custom Nat⟩) r.lower r.upper 1).iter
 
+section Iterator
+
+def natRangeIterator' (start : Nat) (step : Nat) (inclusiveUpperBound : Nat) :=
+  Iter.repeat (init := start) (· + step) |>.takeWhile (· ≤ inclusiveUpperBound)
+
+def NatRangeIterator step inclusiveUpperBound := (type_of% (natRangeIterator' 0 step inclusiveUpperBound).internalState)
+
+def natRangeIterator (start step inclusiveUpperBound : Nat) :
+    Iter (α := NatRangeIterator step inclusiveUpperBound) Nat :=
+  natRangeIterator' start step inclusiveUpperBound
+
+end Iterator
+
 instance : RangeIter ⟨.closed, .closed, .custom Nat⟩ Nat where
   State r := if r.step = 0 then _ else _
   iter r := if h : r.step = 0 then

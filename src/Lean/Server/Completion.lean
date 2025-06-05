@@ -51,8 +51,6 @@ partial def find?
           fieldIdCompletion params completionInfoPos i.ctx lctx id structName
         | .option stx =>
           optionCompletion params completionInfoPos i.ctx stx caps
-        | .errorName stx =>
-          errorNameCompletion params completionInfoPos i.ctx stx caps
         | .tactic .. =>
           tacticCompletion params completionInfoPos i.ctx
         | _ =>

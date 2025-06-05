@@ -13,11 +13,12 @@ import Std.Internal.Parsec
 
 namespace Lean.Elab.ErrorExplanation
 
+open Meta Parser Term
+
 -- We cannot import the definitions needed for this attribute in `Lean.Log`, so we instead add it
 -- here
 attribute [builtin_widget_module] Lean.errorDescriptionWidget
 
-open Lean Parser Term in
 def expandThrowNamedError : Macro
   | `(throwNamedErrorMacro| throwNamedError $id:ident $msg:interpolatedStr) =>
     ``(Lean.throwNamedError $(quote id.getId) m! $msg)
@@ -37,12 +38,18 @@ def expandThrowNamedError : Macro
     ``(Lean.logNamedErrorAt $ref $(quote id.getId) $msg)
   | _ => Macro.throwUnsupported
 
-open Lean Elab Term in
 @[builtin_term_elab throwNamedErrorMacro, builtin_term_elab throwNamedErrorAtMacro,
   builtin_term_elab logNamedErrorMacro, builtin_term_elab logNamedErrorAtMacro]
 def elabCheckedNamedError : TermElab := fun stx expType? => do
-  let (id, numArgsExpected) := if stx.isOfKind ``Parser.Term.throwNamedErrorAtMacro ||
-               stx.isOfKind ``Parser.Term.logNamedErrorAtMacro then
+  let env ← getEnv
+  if (stx.isOfKind ``throwNamedErrorMacro || stx.isOfKind ``throwNamedErrorAtMacro) &&
+      !env.contains ``Lean.throwNamedError then
+    throwError m!"Add `import Lean.Exception` to this file's header to use this macro."
+  if (stx.isOfKind ``logNamedErrorMacro || stx.isOfKind ``logNamedErrorAtMacro) &&
+      !env.contains ``Lean.logNamedError then
+    throwError m!"Add `import Lean.Log` to this file's header to use this macro."
+  let (id, numArgsExpected) := if stx.isOfKind ``throwNamedErrorAtMacro ||
+                                  stx.isOfKind ``logNamedErrorAtMacro then
     (stx[2], 5)
   else
     (stx[1], 4)
@@ -64,7 +71,7 @@ def elabCheckedNamedError : TermElab := fun stx expType? => do
   let stx' ← liftMacroM <| expandThrowNamedError stx
   elabTerm stx' expType?
 
-open Parser Elab Meta Term Command in
+open Command in
 @[builtin_command_elab registerErrorExplanationStx] def elabRegisterErrorExplanation : CommandElab
 | `(registerErrorExplanationStx| $docStx:docComment register_error_explanation%$cmd $id:ident $t:term) => withRef cmd do
   unless (← getEnv).contains ``Lean.ErrorExplanation do

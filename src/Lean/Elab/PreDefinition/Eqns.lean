@@ -222,7 +222,7 @@ private def shouldUseSimpMatch (e : Expr) : MetaM Bool := do
         let args := e.getAppArgs
         for discr in args[info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
           if (← Meta.isConstructorApp discr) then
-            throwThe Unit ()
+            throw ()
   return (← (find e).run) matches .error _
 
 partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array Expr) := do

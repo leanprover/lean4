@@ -1091,13 +1091,13 @@ def matchExprAlts (rhsParser : Parser) :=
 @[builtin_term_parser] def letExpr := leading_parser:leadPrec
   withPosition ("let_expr " >> matchExprPat >> " := " >> termParser >> checkColGt >> " | " >> termParser) >> optSemicolon termParser
 
-@[term_parser] def throwNamedErrorMacro := leading_parser
+@[builtin_term_parser] def throwNamedErrorMacro := leading_parser
   "throwNamedError " >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
-@[term_parser] def throwNamedErrorAtMacro := leading_parser
+@[builtin_term_parser] def throwNamedErrorAtMacro := leading_parser
   "throwNamedErrorAt " >> termParser maxPrec >> ppSpace >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
-@[term_parser] def logNamedErrorMacro := leading_parser
+@[builtin_term_parser] def logNamedErrorMacro := leading_parser
   "logNamedError " >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
-@[term_parser] def logNamedErrorAtMacro := leading_parser
+@[builtin_term_parser] def logNamedErrorAtMacro := leading_parser
   "logNamedErrorAt " >> termParser maxPrec >> ppSpace >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
 
 end Term

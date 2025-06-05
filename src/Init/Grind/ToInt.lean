@@ -504,10 +504,10 @@ instance : ToInt.Zero ISize (some (-2^(System.Platform.numBits-1))) (some (2^(Sy
     rw [ISize.toInt_zero, ToInt.wrap_eq_bmod (Int.pow_nonneg (by decide))]
     simp
 
-instance : ToInt.LE ISize (some (-2^(System.Platform.numBits-1))) (some (2^(System.Platform.numBits-1))) where
+instance instToIntLEISize : ToInt.LE ISize (some (-2^(System.Platform.numBits-1))) (some (2^(System.Platform.numBits-1))) where
   le_iff x y := by simpa using ISize.le_iff_toInt_le
 
-instance : ToInt.LT ISize (some (-2^(System.Platform.numBits-1))) (some (2^(System.Platform.numBits-1))) where
+instance instToIntLTISize : ToInt.LT ISize (some (-2^(System.Platform.numBits-1))) (some (2^(System.Platform.numBits-1))) where
   lt_iff x y := by simpa using ISize.lt_iff_toInt_lt
 
 end Lean.Grind

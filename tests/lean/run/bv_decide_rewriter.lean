@@ -649,7 +649,7 @@ example {x y : BitVec 64} : ((x = BitVec.twoPow 64 62) ∧ (y = BitVec.twoPow 64
 
 example {x y : BitVec 64} : ((x = BitVec.intMin 64) ∧ (y = BitVec.allOnes 64)) ↔ (BitVec.sdivOverflow x y) := by bv_decide
 
-def x (x : BitVec 5) : (x.setWidth' (show 5 ≤ 6 by omega)).setWidth 5  = x := by bv_decide
+example {x : BitVec 5} : (x.setWidth' (show 5 ≤ 6 by omega)).setWidth 5  = x := by bv_decide
 
 -- BV_EXTRACT_ADD_MUL
 example {x y : BitVec 8} :

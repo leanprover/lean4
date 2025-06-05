@@ -110,7 +110,24 @@ theorem assignmentsInvariant_performRupCheck_of_assignmentsInvariant {n : Nat} (
         acc.fst.size := sorry
       have : (acc.fst, acc.snd.fst, acc.snd.snd.fst, acc.snd.snd.snd) = acc := rfl
       simp [this] at *
-      fail_if_success grind
-      omega -- FIXME `grind` fails here with an internal error
+      grind
+    sorry
+  sorry
+
+-- Reduce prove above
+example {n : Nat} (f : DefaultFormula n)
+    (f_AssignmentsInvariant : AssignmentsInvariant f) (rupHints : Array Nat) :
+    AssignmentsInvariant (performRupCheck f rupHints).1 := by
+  rcases Array.foldl_induction (ConfirmRupHintFoldEntailsMotive f) sorry sorry with ⟨hsize, h1, _⟩
+  apply Exists.intro hsize
+  intro i b h p pf
+  have i_in_bounds :
+    i.1 < (rupHints.foldl (fun b => confirmRupHint f.clauses b) (f.assignments, [], false, false) 0 rupHints.size).1.size := by
+    let in_bounds_motive (_idx : Nat) (acc : Array Assignment × CNF.Clause (PosFin n) × Bool × Bool) := acc.1.size = n
+    have in_bounds_inductive (idx : Fin rupHints.size) (acc : Array Assignment × CNF.Clause (PosFin n) × Bool × Bool)
+      (ih : in_bounds_motive idx.1 acc) : in_bounds_motive (idx.1 + 1) (confirmRupHint f.clauses acc rupHints[idx]) := by
+      have h : (confirmRupHint f.clauses (acc.fst, acc.snd.fst, acc.snd.snd.fst, acc.snd.snd.snd) rupHints[idx]).fst.size =
+        acc.fst.size := sorry
+      grind
     sorry
   sorry

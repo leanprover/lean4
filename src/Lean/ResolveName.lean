@@ -127,7 +127,7 @@ private def resolveExact (env : Environment) (id : Name) : Option Name :=
     let resolvedId := id.replacePrefix rootNamespace Name.anonymous
     if containsDeclOrReserved env resolvedId then some resolvedId
     else
-      -- We also allow `_root` when accessing private declarations.
+      -- We also allow `_root_` when accessing private declarations.
       -- If we change our minds, we should just replace `resolvedId` with `id`
       let resolvedIdPrv := mkPrivateName env resolvedId
       if containsDeclOrReserved env resolvedIdPrv then some resolvedIdPrv
@@ -574,26 +574,52 @@ The assumption is that non-horizontal aliases are "API exports" (i.e., intention
 
 This function is meant to be used for pretty printing.
 If `n₀` is an accessible name, then the result will be an accessible name.
+
+The name `n₀` may be private.
 -/
 def unresolveNameGlobal [Monad m] [MonadResolveName m] [MonadEnv m]
     (n₀ : Name) (fullNames := false) (allowHorizAliases := false)
     (filter : Name → m Bool := fun _ => pure true) : m Name := do
   if n₀.hasMacroScopes then return n₀
+  -- `n₁` is the name without any private prefix, and `qn₁?` is a valid fully-qualified name.
+  let (n₁, qn₁?) := if let some n := privateToUserName? n₀ then
+    if n₀ == mkPrivateName (← getEnv) n then
+      -- The private name is for the current module. `ResolveName.resolveExact` allows `_root_` for such names.
+      (n, some (rootNamespace ++ n))
+    else
+      (n, none)
+  else
+    (n₀, some (rootNamespace ++ n₀))
   if fullNames then
-    match (← resolveGlobalName n₀) with
-      | [(potentialMatch, _)] => if (privateToUserName? potentialMatch).getD potentialMatch == n₀ then return n₀ else return rootNamespace ++ n₀
-      | _ => return n₀ -- if can't resolve, return the original
+    if let [(potentialMatch, _)] ← resolveGlobalName n₁ then
+      if (← pure (potentialMatch == n₀) <&&> filter n₁) then
+        return n₁
+    if let some qn₁ := qn₁? then
+      -- We assume that the fully-qualified name resolves.
+      return qn₁
+    else
+      -- This is the imported private name case. Return the original private name.
+      return n₀
+  -- `initialNames` is an array of names to try taking suffixes of.
+  -- First are all the names that have `n₀` as an alias.
+  -- If horizontal aliases are not allowed, then any aliases that aren't from a parent namespace are filtered out.
   let mut initialNames := (getRevAliases (← getEnv) n₀).toArray
   unless allowHorizAliases do
-    initialNames := initialNames.filter fun n => n.getPrefix.isPrefixOf n₀.getPrefix
-  initialNames := initialNames.push (rootNamespace ++ n₀)
+    initialNames := initialNames.filter fun n => n.getPrefix.isPrefixOf n₁.getPrefix
+  -- After aliases is the fully-qualified name.
+  if let some qn₁ := qn₁? then
+    initialNames := initialNames.push qn₁
   for initialName in initialNames do
     if let some n ← unresolveNameCore initialName then
       return n
-  return n₀ -- if can't resolve, return the original
+  -- Both non-private names and current-module private names should be handled already,
+  -- but as a backup we return the original name.
+  -- Imported private names will often get to this point.
+  return n₀
 where
   unresolveNameCore (n : Name) : m (Option Name) := do
     if n.hasMacroScopes then return none
+    let n := privateToUserName n
     let mut revComponents := n.componentsRev
     let mut candidate := Name.anonymous
     for cmpt in revComponents do

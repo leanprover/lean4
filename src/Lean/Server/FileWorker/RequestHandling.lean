@@ -8,6 +8,7 @@ prelude
 import Lean.Server.FileWorker.ExampleHover
 import Lean.Server.FileWorker.InlayHints
 import Lean.Server.FileWorker.SemanticHighlighting
+import Lean.Server.FileWorker.SignatureHelp
 import Lean.Server.Completion
 import Lean.Server.References
 
@@ -130,7 +131,7 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
     return #[]
 
   let locationLinksFromImport (i : Elab.Info) := do
-    let `(Parser.Module.import| $[private]? import $[all]? $mod) := i.stx
+    let `(Parser.Module.import| $[private]? $[meta]? import $[all]? $mod) := i.stx
       | return #[]
     if let some modUri ← documentUriFromModule? mod.getId then
       let range := { start := ⟨0, 0⟩, «end» := ⟨0, 0⟩ : Range }
@@ -562,6 +563,15 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
               endLine := endP.line
               kind? := some kind }
 
+def handleSignatureHelp (p : SignatureHelpParams) : RequestM (RequestTask (Option SignatureHelp)) := do
+  let doc ← readDoc
+  let text := doc.meta.text
+  let requestedPos := text.lspPosToUtf8Pos p.position
+  mapTaskCostly (findCmdDataAtPos doc requestedPos (includeStop := false)) fun cmdData? => do
+    let some (cmdStx, tree) := cmdData?
+      | return none
+    SignatureHelp.findSignatureHelp? text p.context? cmdStx tree requestedPos
+
 partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
     : RequestM (RequestTask WaitForDiagnostics) := do
   let rec waitLoop : RequestM EditableDocument := do
@@ -627,6 +637,11 @@ builtin_initialize
     FoldingRangeParams
     (Array FoldingRange)
     handleFoldingRange
+  registerLspRequestHandler
+    "textDocument/signatureHelp"
+    SignatureHelpParams
+    (Option SignatureHelp)
+    handleSignatureHelp
   registerLspRequestHandler
     "$/lean/plainGoal"
     PlainGoalParams

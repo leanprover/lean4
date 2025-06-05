@@ -40,6 +40,7 @@ theorem BitVec.ge_ule (x y : BitVec w) : x ≥ y ↔ ((!x.ult y) = true) := by
 
 attribute [bv_normalize] BitVec.zeroExtend_eq_setWidth
 attribute [bv_normalize] BitVec.truncate_eq_setWidth
+attribute [bv_normalize] BitVec.setWidth'_eq
 
 attribute [bv_normalize] BitVec.extractLsb
 attribute [bv_normalize] BitVec.msb_eq_getLsbD_last

@@ -21,6 +21,6 @@ example (ls : Array Unit) : Option Clause :=
 
 example (ls : Array Unit) : Option Clause :=
   ls.foldl folder (some ∅) |>.map fun map =>
-    -- FIXME: Commenting this out gives an unknown metavariable error in `grind`!
-    -- have mapnodup := map.distinct_keys
+    -- The following example is still failing, but
+    -- we don't get the unknown metavar bug anymore
     ⟨map.toList, by grind⟩

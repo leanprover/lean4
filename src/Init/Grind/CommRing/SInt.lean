@@ -45,6 +45,11 @@ instance : IsCharP Int8 (2 ^ 8) where
     simp [Int8.ofInt_eq_iff_bmod_eq_toInt,
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
 
+-- Verify we can derive the instances showing how `toInt` interacts with operations:
+example : ToInt.Add Int8 (some (-(2^7))) (some (2^7)) := inferInstance
+example : ToInt.Neg Int8 (some (-(2^7))) (some (2^7)) := inferInstance
+example : ToInt.Sub Int8 (some (-(2^7))) (some (2^7)) := inferInstance
+
 instance : NatCast Int16 where
   natCast x := Int16.ofNat x
 
@@ -75,6 +80,11 @@ instance : IsCharP Int16 (2 ^ 16) where
     rw [this]
     simp [Int16.ofInt_eq_iff_bmod_eq_toInt,
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
+
+-- Verify we can derive the instances showing how `toInt` interacts with operations:
+example : ToInt.Add Int16 (some (-(2^15))) (some (2^15)) := inferInstance
+example : ToInt.Neg Int16 (some (-(2^15))) (some (2^15)) := inferInstance
+example : ToInt.Sub Int16 (some (-(2^15))) (some (2^15)) := inferInstance
 
 instance : NatCast Int32 where
   natCast x := Int32.ofNat x
@@ -107,6 +117,11 @@ instance : IsCharP Int32 (2 ^ 32) where
     simp [Int32.ofInt_eq_iff_bmod_eq_toInt,
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
 
+-- Verify we can derive the instances showing how `toInt` interacts with operations:
+example : ToInt.Add Int32 (some (-(2^31))) (some (2^31)) := inferInstance
+example : ToInt.Neg Int32 (some (-(2^31))) (some (2^31)) := inferInstance
+example : ToInt.Sub Int32 (some (-(2^31))) (some (2^31)) := inferInstance
+
 instance : NatCast Int64 where
   natCast x := Int64.ofNat x
 
@@ -137,6 +152,11 @@ instance : IsCharP Int64 (2 ^ 64) where
     rw [this]
     simp [Int64.ofInt_eq_iff_bmod_eq_toInt,
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
+
+-- Verify we can derive the instances showing how `toInt` interacts with operations:
+example : ToInt.Add Int64 (some (-(2^63))) (some (2^63)) := inferInstance
+example : ToInt.Neg Int64 (some (-(2^63))) (some (2^63)) := inferInstance
+example : ToInt.Sub Int64 (some (-(2^63))) (some (2^63)) := inferInstance
 
 instance : NatCast ISize where
   natCast x := ISize.ofNat x
@@ -170,5 +190,10 @@ instance : IsCharP ISize (2 ^ numBits) where
     rw [this]
     simp [ISize.ofInt_eq_iff_bmod_eq_toInt,
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
+
+-- Verify we can derive the instances showing how `toInt` interacts with operations:
+example : ToInt.Add ISize (some (-(2^(numBits-1)))) (some (2^(numBits-1))) := inferInstance
+example : ToInt.Neg ISize (some (-(2^(numBits-1)))) (some (2^(numBits-1))) := inferInstance
+example : ToInt.Sub ISize (some (-(2^(numBits-1)))) (some (2^(numBits-1))) := inferInstance
 
 end Lean.Grind

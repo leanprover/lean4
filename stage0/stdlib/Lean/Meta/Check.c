@@ -160,7 +160,6 @@ static lean_object* l_Lean_Meta_checkProj___closed__3;
 static lean_object* l_Lean_Meta_addPPExplicitToExposeDiff_visit___lambda__4___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkForall___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Check___hyg_4957____closed__7;
-uint8_t l___private_Lean_Data_DeclarationRange_0__Lean_decEqDeclarationLocation____x40_Lean_Data_DeclarationRange___hyg_617_(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwIncorrectNumberOfLevels___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___private_Lean_Meta_Check_0__Lean_Meta_checkAux_check___spec__6(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_check___closed__2;
@@ -281,6 +280,7 @@ static lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkAux___closed__
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkForall(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_addPPExplicitToExposeDiff_visit___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_decEqDeclarationLocation____x40_Lean_Data_DeclarationRange___hyg_617_(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkAux___closed__1;
 uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1371____spec__1(lean_object*, lean_object*);
@@ -2103,7 +2103,7 @@ else
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_2, 0);
-x_8 = l___private_Lean_Data_DeclarationRange_0__Lean_decEqDeclarationLocation____x40_Lean_Data_DeclarationRange___hyg_617_(x_6, x_7);
+x_8 = l_Lean_decEqDeclarationLocation____x40_Lean_Data_DeclarationRange___hyg_617_(x_6, x_7);
 return x_8;
 }
 }

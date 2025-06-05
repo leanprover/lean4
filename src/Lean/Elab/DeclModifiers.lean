@@ -28,7 +28,7 @@ def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] [MonadInfo
     match privateToUserName? declName with
     | none          => throwError "'{.ofConstName declName true}' has already been declared"
     | some declName => throwError "private declaration '{.ofConstName declName true}' has already been declared"
-  if isReservedName env declName then
+  if isReservedName env (privateToUserName declName) || isReservedName env (mkPrivateName (← getEnv) declName) then
     throwError "'{declName}' is a reserved name"
   if env.contains (mkPrivateName env declName) then
     addInfo (mkPrivateName env declName)

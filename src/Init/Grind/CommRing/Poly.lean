@@ -15,6 +15,9 @@ import Init.Grind.CommRing.Basic
 namespace Lean.Grind
 namespace CommRing
 
+-- These are no longer global instances, so we need to turn them on here.
+attribute [local instance] Semiring.natCast Ring.intCast
+
 abbrev Var := Nat
 
 inductive Expr where

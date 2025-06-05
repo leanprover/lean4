@@ -193,7 +193,7 @@ instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (v
   simp only [getElem?_def] at h ⊢
   split <;> simp_all
 
-@[simp, grind =] theorem getElem?_eq_none_iff [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+@[simp] theorem getElem?_eq_none_iff [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     (c : cont) (i : idx) [Decidable (dom c i)] : c[i]? = none ↔ ¬dom c i := by
   simp only [getElem?_def]
   split <;> simp_all
@@ -237,8 +237,6 @@ theorem some_eq_getElem?_iff [GetElem? cont idx elem dom] [LawfulGetElem cont id
 theorem getElem_of_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     {c : cont} {i : idx} [Decidable (dom c i)] (h : c[i]? = some e) : Exists fun h : dom c i => c[i] = e :=
   getElem?_eq_some_iff.mp h
-
-grind_pattern getElem_of_getElem? => c[i]?, some e
 
 @[simp] theorem some_getElem_eq_getElem?_iff [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     {c : cont} {i : idx} [Decidable (dom c i)] (h : dom c i):

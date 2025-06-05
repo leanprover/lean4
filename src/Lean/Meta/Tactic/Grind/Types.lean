@@ -1359,30 +1359,46 @@ def applyFallback : GoalM Unit := do
   let fallback : GoalM Unit := (← getMethods).fallback
   fallback
 
+def Goal.getGeneration (goal : Goal) (e : Expr) : Nat :=
+  if let some n := goal.getENode? e then
+    n.generation
+  else
+    0
+
 /-- Returns expressions in the given expression equivalence class. -/
-partial def Goal.getEqc (goal : Goal) (e : Expr) : List Expr :=
-  go e e []
+partial def Goal.getEqc (goal : Goal) (e : Expr) (sort := false) : List Expr :=
+  let eqc := go e e #[]
+  if sort then
+    Array.toList <| eqc.qsort fun e₁ e₂ =>
+      let g₁ := goal.getGeneration e₁
+      let g₂ := goal.getGeneration e₂
+      if g₁ != g₂ then g₁ < g₂ else e₁.lt e₂
+  else
+    eqc.toList
 where
-  go (first : Expr) (e : Expr) (acc : List Expr) : List Expr := Id.run do
-    let some next ← goal.getNext? e | acc
-    let acc := e :: acc
+  go (first : Expr) (e : Expr) (acc : Array Expr) : Array Expr := Id.run do
+    let some next := goal.getNext? e | acc
+    let acc := acc.push e
     if isSameExpr first next then
       return acc
     else
       go first next acc
 
 @[inline, inherit_doc Goal.getEqc]
-partial def getEqc (e : Expr) : GoalM (List Expr) :=
-  return (← get).getEqc e
+partial def getEqc (e : Expr) (sort := false) : GoalM (List Expr) :=
+  return (← get).getEqc e sort
 
 /-- Returns all equivalence classes in the current goal. -/
-partial def Goal.getEqcs (goal : Goal) : List (List Expr) := Id.run do
- let mut r : List (List Expr) := []
+partial def Goal.getEqcs (goal : Goal) (sort := false) : List (List Expr) := Id.run do
+ let mut r : Array (Nat × Expr × List Expr) := #[]
  for e in goal.exprs do
     let some node := goal.getENode? e | pure ()
     if node.isRoot then
-      r := goal.getEqc node.self :: r
-  return r
+      let e :: es := goal.getEqc node.self sort | unreachable!
+      r := r.push (goal.getGeneration e, e, es)
+  if sort then
+    r := r.qsort fun (g₁, e₁, _) (g₂, e₂, _) => if g₁ != g₂ then g₁ < g₂ else e₁.lt e₂
+  return r.toList.map fun (_, e, es) => e::es
 
 @[inline, inherit_doc Goal.getEqcs]
 def getEqcs : GoalM (List (List Expr)) :=

@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_BitVec_toInt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntInt8SomeIntNegHPowOfNat(uint8_t);
 lean_object* lean_uint32_to_nat(uint32_t);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUInt32SomeIntOfNatHPow___boxed(lean_object*);
@@ -24,18 +23,19 @@ LEAN_EXPORT lean_object* l_Lean_Grind_ToInt_wrap___boxed(lean_object*, lean_obje
 lean_object* lean_int_emod(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntInt16SomeIntNegHPowOfNat(uint16_t);
 LEAN_EXPORT lean_object* l_Lean_Grind_ToInt_wrap(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Grind_instToIntBitVecOfNatNatSomeInt___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Grind_ToInt_0__Lean_Grind_ToInt_wrap_match__1_splitter(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntInt32SomeIntNegHPowOfNat___boxed(lean_object*);
 lean_object* l_Nat_cast___at___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine___spec__1(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_instToIntBitVecSomeIntOfNatHPowNat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntFinSomeIntOfNatCast___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntFinSomeIntOfNatCast___rarg(lean_object*);
 lean_object* lean_int8_to_int(uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Grind_instToIntBitVecOfNatNatSomeInt(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUInt8SomeIntOfNatHPow___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_instToIntBitVecSomeIntOfNatHPowNat___boxed(lean_object*);
 lean_object* lean_int32_to_int(uint32_t);
 lean_object* lean_uint64_to_nat(uint64_t);
+LEAN_EXPORT lean_object* l_Lean_Grind_instToIntBitVecSomeIntOfNatHPowNat___rarg(lean_object*);
 static lean_object* l_Lean_Grind_instToIntNatSomeIntOfNatNone___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUInt32SomeIntOfNatHPow(uint32_t);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUInt16SomeIntOfNatHPow___boxed(lean_object*);
@@ -60,8 +60,6 @@ LEAN_EXPORT lean_object* l_Lean_Grind_instToIntInt64SomeIntNegHPowOfNat(uint64_t
 lean_object* lean_int_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntInt16SomeIntNegHPowOfNat___boxed(lean_object*);
 lean_object* lean_isize_to_int(size_t);
-LEAN_EXPORT lean_object* l_Lean_Grind_instToIntBitVecSomeIntNegHPowNatOfNatHSub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_instToIntBitVecOfNatNatSomeInt___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntISizeSomeIntNegHPowNatOfNatHSubNumBits___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUInt16SomeIntOfNatHPow(uint16_t);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUSizeSomeIntOfNatHPowNatNumBits___boxed(lean_object*);
@@ -375,39 +373,29 @@ x_3 = l_Lean_Grind_instToIntInt64SomeIntNegHPowOfNat(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Grind_instToIntBitVecOfNatNatSomeInt___closed__1() {
+LEAN_EXPORT lean_object* l_Lean_Grind_instToIntBitVecSomeIntOfNatHPowNat___rarg(lean_object* x_1) {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
+lean_object* x_2; 
 x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_instToIntBitVecOfNatNatSomeInt(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Grind_instToIntBitVecSomeIntOfNatHPowNat(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_Grind_instToIntBitVecOfNatNatSomeInt___closed__1;
+x_2 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntBitVecSomeIntOfNatHPowNat___rarg), 1, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_instToIntBitVecOfNatNatSomeInt___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Grind_instToIntBitVecSomeIntOfNatHPowNat___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_Grind_instToIntBitVecOfNatNatSomeInt(x_1);
+x_2 = l_Lean_Grind_instToIntBitVecSomeIntOfNatHPowNat(x_1);
 lean_dec(x_1);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_instToIntBitVecSomeIntNegHPowNatOfNatHSub(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_BitVec_toInt___boxed), 2, 1);
-lean_closure_set(x_3, 0, x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntISizeSomeIntNegHPowNatOfNatHSubNumBits(size_t x_1) {
@@ -465,8 +453,6 @@ l_Lean_Grind_instToIntNatSomeIntOfNatNone___closed__1 = _init_l_Lean_Grind_instT
 lean_mark_persistent(l_Lean_Grind_instToIntNatSomeIntOfNatNone___closed__1);
 l_Lean_Grind_instToIntNatSomeIntOfNatNone = _init_l_Lean_Grind_instToIntNatSomeIntOfNatNone();
 lean_mark_persistent(l_Lean_Grind_instToIntNatSomeIntOfNatNone);
-l_Lean_Grind_instToIntBitVecOfNatNatSomeInt___closed__1 = _init_l_Lean_Grind_instToIntBitVecOfNatNatSomeInt___closed__1();
-lean_mark_persistent(l_Lean_Grind_instToIntBitVecOfNatNatSomeInt___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -366,10 +366,43 @@ def congrSimpSuffix := "congr_simp"
 
 builtin_initialize congrKindsExt : MapDeclarationExtension (Array CongrArgKind) ← mkMapDeclarationExtension
 
-builtin_initialize registerReservedNamePredicate fun env n =>
-  match n with
-  | .str p s => (isHCongrReservedNameSuffix s || s == congrSimpSuffix) && env.isSafeDefinition p
-  | _ => false
+private def deriveHCongrConst (declName : Name) (congrDeclName : Name) (numArgs : Nat) : MetaM Bool := do
+  try
+    realizeConst declName congrDeclName do
+      let info ← getConstInfo declName
+      let f := mkConst declName (info.levelParams.map mkLevelParam)
+      let congrThm ← mkHCongrWithArity f numArgs
+      addDecl <| Declaration.thmDecl {
+          name := congrDeclName, type := congrThm.type, value := congrThm.proof
+          levelParams := info.levelParams
+      }
+      modifyEnv fun env => congrKindsExt.insert env congrDeclName congrThm.argKinds
+    return true
+  catch _ =>
+    return false
+
+private def deriveSimpCongr (declName : Name) (congrDeclName : Name) : MetaM Bool := do
+  try
+    realizeConst declName congrDeclName do
+      let cinfo ← getConstInfo declName
+      let f := mkConst declName (cinfo.levelParams.map mkLevelParam)
+      let info ← getFunInfo f
+      let some congrThm ← mkCongrSimpCore? f info (← getCongrSimpKinds f info)
+        | throwError "`mkCongrSimpCore?` failed at {f}"
+      addDecl <| Declaration.thmDecl {
+          name := congrDeclName, type := congrThm.type, value := congrThm.proof
+          levelParams := cinfo.levelParams
+      }
+      modifyEnv fun env => congrKindsExt.insert env congrDeclName congrThm.argKinds
+    return true
+  catch _ =>
+    return false
+
+builtin_initialize
+  registerReservedNamePredicate fun env n =>
+    match n with
+    | .str p s => (isHCongrReservedNameSuffix s || s == congrSimpSuffix) && env.isSafeDefinition p
+    | _ => false
 
 builtin_initialize
   registerReservedNameAction fun name => do
@@ -377,31 +410,9 @@ builtin_initialize
     unless (← getEnv).isSafeDefinition p do return false
     if isHCongrReservedNameSuffix s then
       let numArgs := (s.drop 7).toNat!
-      try MetaM.run' do
-        let info ← getConstInfo p
-        let f := mkConst p (info.levelParams.map mkLevelParam)
-        let congrThm ← mkHCongrWithArity f numArgs
-        addDecl <| Declaration.thmDecl {
-           name, type := congrThm.type, value := congrThm.proof
-           levelParams := info.levelParams
-        }
-        modifyEnv fun env => congrKindsExt.insert env name congrThm.argKinds
-        return true
-      catch _ => return false
+      MetaM.run' do deriveHCongrConst p name numArgs
     else if s == congrSimpSuffix then
-      try MetaM.run' do
-        let cinfo ← getConstInfo p
-        let f := mkConst p (cinfo.levelParams.map mkLevelParam)
-        let info ← getFunInfo f
-        let some congrThm ← mkCongrSimpCore? f info (← getCongrSimpKinds f info)
-          | return false
-        addDecl <| Declaration.thmDecl {
-           name, type := congrThm.type, value := congrThm.proof
-           levelParams := cinfo.levelParams
-        }
-        modifyEnv fun env => congrKindsExt.insert env name congrThm.argKinds
-        return true
-      catch _ => return false
+      MetaM.run' do deriveSimpCongr p name
     else
       return false
 
@@ -413,8 +424,7 @@ def mkHCongrWithArityForConst? (declName : Name) (levels : List Level) (numArgs 
   try
     let suffix := hcongrThmSuffixBasePrefix ++ toString numArgs
     let thmName := Name.str declName suffix
-    unless (← getEnv).contains thmName do
-      let _ ← executeReservedNameAction thmName
+    discard <| realizeGlobalConstNoOverloadCore thmName
     let proof := mkConst thmName levels
     let type ← inferType proof
     let some argKinds := congrKindsExt.find? (← getEnv) thmName
@@ -430,8 +440,7 @@ same congruence theorem over and over again.
 def mkCongrSimpForConst? (declName : Name) (levels : List Level) : MetaM (Option CongrTheorem) := do
   try
     let thmName := Name.str declName congrSimpSuffix
-    unless (← getEnv).contains thmName do
-      let _ ← executeReservedNameAction thmName
+    discard <| realizeGlobalConstNoOverloadCore thmName
     let proof := mkConst thmName levels
     let type ← inferType proof
     let some argKinds := congrKindsExt.find? (← getEnv) thmName

@@ -650,7 +650,12 @@ def mkCongrSimp? (f : Expr) : SimpM (Option CongrTheorem) := do
   match (← get).congrCache[f]? with
   | some thm? => return thm?
   | none =>
-    let thm? ← mkCongrSimpCore? f info kinds
+    let thm? ← if !(← getConfig).congrConsts then
+      mkCongrSimpCore? f info kinds
+    else if let .const declName us := f then
+      mkCongrSimpForConst? declName us
+    else
+      mkCongrSimpCore? f info kinds
     modify fun s => { s with congrCache := s.congrCache.insert f thm? }
     return thm?
 

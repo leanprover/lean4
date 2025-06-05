@@ -14,32 +14,30 @@ attribute [builtin_widget_module] Lean.errorDescriptionWidget
 
 open Lean Parser Term in
 def expandThrowNamedError : Macro
-  | `(throwNamedErrorParser| throwNamedError $id:ident $msg:interpolatedStr) =>
+  | `(throwNamedErrorMacro| throwNamedError $id:ident $msg:interpolatedStr) =>
     ``(Lean.throwNamedError $(quote id.getId) m! $msg)
-  | `(throwNamedErrorParser| throwNamedError $id $msg:term) =>
+  | `(throwNamedErrorMacro| throwNamedError $id $msg:term) =>
     ``(Lean.throwNamedError $(quote id.getId) $msg)
-  | `(throwNamedErrorAtParser| throwNamedErrorAt $ref $id $msg:interpolatedStr) =>
+  | `(throwNamedErrorAtMacro| throwNamedErrorAt $ref $id $msg:interpolatedStr) =>
     ``(Lean.throwNamedErrorAt $ref $(quote id.getId) m! $msg)
-  | `(throwNamedErrorAtParser| throwNamedErrorAt $ref $id $msg:term) =>
+  | `(throwNamedErrorAtMacro| throwNamedErrorAt $ref $id $msg:term) =>
     ``(Lean.throwNamedErrorAt $ref $(quote id.getId) $msg)
-  | `(logNamedErrorParser| logNamedError $id $msg:interpolatedStr) =>
+  | `(logNamedErrorMacro| logNamedError $id $msg:interpolatedStr) =>
     ``(Lean.logNamedError $(quote id.getId) m! $msg)
-  | `(logNamedErrorParser| logNamedError $id $msg:term) =>
+  | `(logNamedErrorMacro| logNamedError $id $msg:term) =>
     ``(Lean.logNamedError $(quote id.getId) $msg)
-  | `(logNamedErrorAtParser| logNamedErrorAt $ref $id $msg:interpolatedStr) =>
+  | `(logNamedErrorAtMacro| logNamedErrorAt $ref $id $msg:interpolatedStr) =>
     ``(Lean.logNamedErrorAt $ref $(quote id.getId) m! $msg)
-  | `(logNamedErrorAtParser| logNamedErrorAt $ref $id $msg:term) =>
+  | `(logNamedErrorAtMacro| logNamedErrorAt $ref $id $msg:term) =>
     ``(Lean.logNamedErrorAt $ref $(quote id.getId) $msg)
   | _ => Macro.throwUnsupported
 
 open Lean Elab Term in
--- @[builtin_term_elab throwNamedErrorParser, builtin_term_elab throwNamedErrorAtParser,
---   builtin_term_elab logNamedErrorParser, builtin_term_elab logNamedErrorAtParser]
-@[term_elab throwNamedErrorParser, term_elab throwNamedErrorAtParser,
-  term_elab logNamedErrorParser, term_elab logNamedErrorAtParser]
+@[term_elab throwNamedErrorMacro, term_elab throwNamedErrorAtMacro,
+  term_elab logNamedErrorMacro, term_elab logNamedErrorAtMacro]
 def elabCheckedNamedError : TermElab := fun stx expType? => do
-  let (id, numArgsExpected) := if stx.isOfKind ``Parser.Term.throwNamedErrorAtParser ||
-               stx.isOfKind ``Parser.Term.logNamedErrorAtParser then
+  let (id, numArgsExpected) := if stx.isOfKind ``Parser.Term.throwNamedErrorAtMacro ||
+               stx.isOfKind ``Parser.Term.logNamedErrorAtMacro then
     (stx[2], 5)
   else
     (stx[1], 4)
@@ -54,7 +52,7 @@ def elabCheckedNamedError : TermElab := fun stx expType? => do
   pushInfoLeaf <| .ofErrorNameInfo { stx := id, errorName := name }
   let some explan := getErrorExplanationRaw? (← getEnv) name
     | throwError m!"There is no explanation associated with the name `{name}`. \
-      Add an explanation of this error to the `Lean.ErrorExplanation` module."
+      Add an explanation of this error to the `Lean.ErrorExplanations` module."
   if let some removedVersion := explan.metadata.removedVersion then
     logWarningAt id m!"The error name `{name}` was removed in Lean version {removedVersion} and \
       should not be used."

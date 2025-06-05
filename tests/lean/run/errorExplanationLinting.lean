@@ -44,8 +44,8 @@ Foo
 ```
 -/
 register_error_explanation Lean.Example {
-  summary := "hi"
-  sinceVersion := "4.0.0"
+  summary := ""
+  sinceVersion := ""
 }
 
 /-- error: Expected level-2 header for an example section, but found `# End of Examples` -/
@@ -292,5 +292,3 @@ register_error_explanation Lean.WorkingExample₃ {
   summary := ""
   sinceVersion := ""
 }
-
--- TODO: check extracted code blocks in working examples

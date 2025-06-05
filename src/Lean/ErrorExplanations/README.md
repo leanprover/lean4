@@ -27,11 +27,11 @@ the name of the error and a link to the corresponding explanation.
 ## Registering Explanations
 
 New error explanations are declared using the
-`register_builtin_error_explanation` command. Each explanation should
+`register_error_explanation` command. Each explanation should
 appear in a separate submodule of `Lean.ErrorExplanations` whose name
 matches the error name being declared; the module should be marked
 with `prelude` and import only `Lean.ErrorExplanation`. The
-`register_builtin_error_explanation` keyword is preceded by a doc
+`register_error_explanation` keyword is preceded by a doc
 comment containing the explanation (written in Markdown, following the
 structure guidelines below) and is followed by the name of the
 explanation and a `Lean.ErrorExplanation.Metadata` structure

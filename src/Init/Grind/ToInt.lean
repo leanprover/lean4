@@ -40,21 +40,48 @@ class ToInt (α : Type u) (lo? hi? : outParam (Option Int)) where
   le_toInt : lo? = some lo → lo ≤ toInt x
   toInt_lt : hi? = some hi → toInt x < hi
 
-@[simp 500]
+@[simp]
 def ToInt.wrap (lo? hi? : Option Int) (x : Int) : Int :=
   match lo?, hi? with
   | some lo, some hi => (x - lo) % (hi - lo) + lo
   | _, _ => x
+
+theorem ToInt.wrap_add (lo? hi? : Option Int) (x y : Int) :
+    ToInt.wrap lo? hi? (x + y) = ToInt.wrap lo? hi? (ToInt.wrap lo? hi? x + ToInt.wrap lo? hi? y) := by
+  simp only [wrap]
+  split <;> rename_i lo hi
+  · dsimp
+    rw [Int.add_left_inj, Int.emod_eq_emod_iff_emod_sub_eq_zero, Int.emod_def (x - lo), Int.emod_def (y - lo)]
+    have : (x + y - lo -
+        (x - lo - (hi - lo) * ((x - lo) / (hi - lo)) + lo +
+          (y - lo - (hi - lo) * ((y - lo) / (hi - lo)) + lo) - lo)) =
+        (hi - lo) * ((x - lo) / (hi - lo) + (y - lo) / (hi - lo)) := by
+      simp only [Int.mul_add]
+      omega
+    rw [this]
+    exact Int.mul_emod_right ..
+  · simp
+
+@[simp]
+theorem ToInt.wrap_toInt (lo? hi? : Option Int) [ToInt α lo? hi?] (x : α) :
+    ToInt.wrap lo? hi? (ToInt.toInt x) = ToInt.toInt x := by
+  simp only [wrap]
+  split
+  · have := ToInt.le_toInt (x := x) rfl
+    have := ToInt.toInt_lt (x := x) rfl
+    rw [Int.emod_eq_of_lt (by omega) (by omega)]
+    omega
+  · rfl
 
 theorem ToInt.wrap_eq_bmod {i : Int} (h : 0 ≤ i) :
     ToInt.wrap (some (-i)) (some i) x = x.bmod ((2 * i).toNat) := by
   match i, h with
   | (i : Nat), _ =>
     have : (2 * (i : Int)).toNat = 2 * i := by omega
-    simp only [this]
+    rw [this]
     simp [Int.bmod_eq_emod, ← Int.two_mul]
     have : (2 * (i : Int) + 1) / 2 = i := by omega
-    simp only [this]
+    rw [this]
     by_cases h : i = 0
     · simp [h]
     split
@@ -69,7 +96,7 @@ theorem ToInt.wrap_eq_bmod {i : Int} (h : 0 ≤ i) :
         have : x - 2 * ↑i * (x / (2 * ↑i)) - ↑i - (x + ↑i) = (2 * (i : Int)) * (- (x / (2 * i)) - 1) := by
           simp only [Int.mul_sub, Int.mul_neg]
           omega
-        simp only [this]
+        rw [this]
         exact Int.dvd_mul_right ..
     · rw [← Int.sub_eq_add_neg, Int.sub_eq_iff_eq_add, Int.natCast_zero, Int.sub_zero]
       rw [Int.emod_eq_iff (by omega)]
@@ -81,11 +108,24 @@ theorem ToInt.wrap_eq_bmod {i : Int} (h : 0 ≤ i) :
         have : x - 2 * ↑i * (x / (2 * ↑i)) + ↑i - (x + ↑i) = (2 * (i : Int)) * (- (x / (2 * i))) := by
           simp only [Int.mul_neg]
           omega
-        simp only [this]
+        rw [this]
         exact Int.dvd_mul_right ..
 
 class ToInt.Add (α : Type u) [Add α] (lo? hi? : Option Int) [ToInt α lo? hi?] where
   toInt_add : ∀ x y : α, toInt (x + y) = wrap lo? hi? (toInt x + toInt y)
+
+class ToInt.Neg (α : Type u) [Neg α] (lo? hi? : Option Int) [ToInt α lo? hi?] where
+  toInt_neg : ∀ x : α, toInt (-x) = wrap lo? hi? (-toInt x)
+
+class ToInt.Sub (α : Type u) [Sub α] (lo? hi? : Option Int) [ToInt α lo? hi?] where
+  toInt_sub : ∀ x y : α, toInt (x - y) = wrap lo? hi? (toInt x - toInt y)
+
+def ToInt.Sub.of_sub_eq_add_neg (α : Type u) [_root_.Add α] [_root_.Neg α] [_root_.Sub α]
+    (sub_eq_add_neg : ∀ x y : α, x - y = x + -y)
+    (lo? hi? : Option Int) [ToInt α lo? hi?] [Add α lo? hi?] [Neg α lo? hi?] : ToInt.Sub α lo? hi? where
+  toInt_sub x y := by
+    rw [sub_eq_add_neg, ToInt.Add.toInt_add, ToInt.Neg.toInt_neg, Int.sub_eq_add_neg]
+    conv => rhs; rw [ToInt.wrap_add, ToInt.wrap_toInt]
 
 class ToInt.Mod (α : Type u) [Mod α] (lo? hi? : Option Int) [ToInt α lo? hi?] where
   toInt_mod : ∀ x y : α, toInt (x % y) = wrap lo? hi? (toInt x % toInt y)
@@ -104,6 +144,15 @@ instance : ToInt Int none none where
 instance : ToInt.Add Int none none where
   toInt_add := by simp
 
+instance : ToInt.Neg Int none none where
+  toInt_neg x := by simp
+
+instance : ToInt.Sub Int none none where
+  toInt_sub x y := by simp
+
+instance : ToInt.Mod Int none none where
+  toInt_mod x y := by simp
+
 instance : ToInt.LE Int none none where
   le_iff x y := by simp
 
@@ -117,6 +166,9 @@ instance : ToInt Nat (some 0) none where
 
 instance : ToInt.Add Nat (some 0) none where
   toInt_add := by simp
+
+instance : ToInt.Mod Nat (some 0) none where
+  toInt_mod x y := by simp
 
 instance : ToInt.LE Nat (some 0) none where
   le_iff x y := by simp
@@ -133,6 +185,19 @@ instance : ToInt (Fin n) (some 0) (some n) where
 
 instance : ToInt.Add (Fin n) (some 0) (some n) where
   toInt_add x y := by rfl
+
+instance : ToInt.Neg (Fin n) (some 0) (some n) where
+  toInt_neg x := by
+    simp [Fin.neg_def, Int.neg_emod]
+    split <;> rename_i h
+    · rw [Int.emod_eq_zero_of_dvd]
+      rw [Int.natCast_sub Fin.is_le']
+      exact Int.dvd_sub (Int.dvd_refl ↑n) h
+    · rw [Int.natCast_sub Fin.is_le']
+      sorry
+
+instance : ToInt.Sub (Fin n) (some 0) (some n) :=
+    ToInt.Sub.of_sub_eq_add_neg Fin.sub_eq_add_neg (some 0) (some n)
 
 instance : ToInt.Mod (Fin n) (some 0) (some n) where
   toInt_mod x y := by
@@ -306,6 +371,9 @@ instance [i : NeZero v] : ToInt.Add (BitVec v) (some (-2^(v-1))) (some (2^(v-1))
       match v, i with | v + 1, _ => simp [← Int.pow_succ', Int.toNat_pow_of_nonneg]
     simp [this]
 
+-- We can not define a `ToInt.LE` instance for `BitVec v`,
+-- because the order relations on `BitVec` are based on `toNat`.
+
 instance : ToInt ISize (some (-2^(System.Platform.numBits-1))) (some (2^(System.Platform.numBits-1))) where
   toInt x := x.toInt
   toInt_inj x y w := ISize.toInt_inj.mp w
@@ -325,5 +393,8 @@ instance : ToInt.Add ISize (some (-2^(System.Platform.numBits-1))) (some (2^(Sys
       rw [Int.toNat_pow_of_nonneg (by decide)]
       simp
     simp [p₁, p₂]
+
+instance : ToInt.LE ISize (some (-2^(System.Platform.numBits-1))) (some (2^(System.Platform.numBits-1))) where
+  le_iff x y := by simpa using ISize.le_iff_toInt_le
 
 end Lean.Grind

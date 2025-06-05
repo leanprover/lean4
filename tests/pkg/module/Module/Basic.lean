@@ -141,10 +141,10 @@ def fexp.eq_def := 1
 /-- info: @[defeq] private theorem f.eq_unfold : f = 1 -/
 #guard_msgs in #print sig f.eq_unfold
 
-/-- info: theorem fexp.eq_def : fexp = 1 -/
+/-- info: @[defeq] theorem fexp.eq_def : fexp = 1 -/
 #guard_msgs in #print sig fexp.eq_def
 
-/-- info: theorem fexp.eq_unfold : fexp = 1 -/
+/-- info: @[defeq] theorem fexp.eq_unfold : fexp = 1 -/
 #guard_msgs in #print sig fexp.eq_unfold
 
 /-- info: @[defeq] private theorem f_struct.eq_1 : f_struct 0 = 0 -/

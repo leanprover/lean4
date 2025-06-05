@@ -92,7 +92,7 @@ if the proof is `rfl`, essentially reproducing the behavior before the introduct
 attribute. This function infers the `defeq` attribute based on the declaration value.
 -/
 def inferDefEqAttr (declName : Name) : MetaM Unit := do
-  withExporting (isExporting := !isPrivateName declName) do
+  withoutExporting do
     let info ← getConstInfo declName
     let isRfl ←
       if let some value := info.value? then
@@ -101,7 +101,8 @@ def inferDefEqAttr (declName : Name) : MetaM Unit := do
         pure false
     if isRfl then
       try
-        validateDefEqAttr declName -- sanity-check: would we have accepted `@[defeq]` on this?
+        withExporting (isExporting := !isPrivateName declName) do
+          validateDefEqAttr declName -- sanity-check: would we have accepted `@[defeq]` on this?
       catch e =>
         logError m!"Theorem {declName} has a `rfl`-proof and was thus inferred to be `@[defeq]`, \
           but validating that attribute failed:{indentD e.toMessageData}"

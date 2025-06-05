@@ -88,7 +88,7 @@ private def findSyntheticIdentifierCompletion?
     none
   let some (id, danglingDot) :=
       match stx with
-      | `($id:ident) => some (id.getId, false)
+      | `($id:ident) => some (id.getId, id.raw.hasDanglingDot)
       | `($id:ident.) => some (id.getId, true)
       | _ => none
     | none

@@ -4256,8 +4256,8 @@ theorem eraseMany_list [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t�
 theorem mergeWith [TransCmp cmp] [LawfulEqCmp cmp]
     (h₁ : t₁.WF) (h₂ : t₂.WF)
     (h₃ : t₃.WF) (h₄ : t₄.WF)
-    (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
-    (f : (a : α) → β a → β a → β a) :
+    (f : (a : α) → β a → β a → β a)
+    (h : t₁ ~m t₂) (h' : t₃ ~m t₄) :
     t₁.mergeWith f t₃ ~m t₂.mergeWith f t₄ :=
   ⟨h.1.mergeWith! h'.1 h₁.1 h₂.1 h₃.1 h₄.1⟩
 
@@ -4396,8 +4396,8 @@ theorem constInsertMany_list [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h
 theorem constMergeWith [TransCmp cmp]
     (h₁ : t₁.WF) (h₂ : t₂.WF)
     (h₃ : t₃.WF) (h₄ : t₄.WF)
-    (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
-    (f : α → β → β → β) :
+    (f : α → β → β → β)
+    (h : t₁ ~m t₂) (h' : t₃ ~m t₄) :
     Const.mergeWith f t₁ t₃ ~m Const.mergeWith f t₂ t₄ :=
   ⟨h.1.constMergeWith! h'.1 h₁.1 h₂.1 h₃.1 h₄.1⟩
 
@@ -4465,7 +4465,7 @@ theorem equiv_iff_toList_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
 
 section Const
 
-variable (β : Type v) {t₁ t₂ : Raw α β cmp}
+variable {β : Type v} {t₁ t₂ : Raw α β cmp}
 
 theorem Const.equiv_iff_toList_perm : t₁ ~m t₂ ↔ (Const.toList t₁).Perm (Const.toList t₂) :=
   equiv_iff.trans Impl.Const.equiv_iff_toList_perm
@@ -4474,19 +4474,19 @@ theorem Const.equiv_iff_toList_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.W
     t₁ ~m t₂ ↔ Const.toList t₁ = Const.toList t₂ :=
   equiv_iff.trans (Impl.Const.equiv_iff_toList_eq h₁.1 h₂.1)
 
-theorem Const.equiv_iff_keys_perm {t₁ t₂ : Raw α Unit cmp} :
+theorem Const.equiv_iff_keys_unit_perm {t₁ t₂ : Raw α Unit cmp} :
     t₁ ~m t₂ ↔ t₁.keys.Perm t₂.keys :=
   equiv_iff.trans Impl.Const.equiv_iff_keys_perm
 
-theorem Const.equiv_iff_keys_eq {t₁ t₂ : Raw α Unit cmp} [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+theorem Const.equiv_iff_keys_unit_eq {t₁ t₂ : Raw α Unit cmp} [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
     t₁ ~m t₂ ↔ t₁.keys = t₂.keys :=
   equiv_iff.trans (Impl.Const.equiv_iff_keys_eq h₁.1 h₂.1)
 
-theorem Equiv.of_constToList_perm : t₁.toList.Perm t₂.toList → t₁ ~m t₂ :=
-  equiv_iff_toList_perm.mpr
+theorem Equiv.of_constToList_perm : (Const.toList t₁).Perm (Const.toList t₂) → t₁ ~m t₂ :=
+  Const.equiv_iff_toList_perm.mpr
 
 theorem Equiv.of_keys_unit_perm {t₁ t₂ : Raw α Unit cmp} : t₁.keys.Perm t₂.keys → t₁ ~m t₂ :=
-  Const.equiv_iff_keys_perm.mpr
+  Const.equiv_iff_keys_unit_perm.mpr
 
 end Const
 

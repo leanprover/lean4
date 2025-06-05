@@ -4517,14 +4517,13 @@ theorem eraseMany_list [TransCmp cmp] (h : t₁ ~m t₂) (l : List α) :
     t₁.eraseMany l ~m t₂.eraseMany l :=
   ⟨h.1.eraseMany_list t₁.2 t₂.2⟩
 
-theorem mergeWith [TransCmp cmp] [LawfulEqCmp cmp]
-    (h : t₁ ~m t₂) (f : (a : α) → β a → β a → β a) (h' : t₃ ~m t₄) :
-    t₁.mergeWith f t₃ ~m t₂.mergeWith f t₄ :=
+theorem mergeWith [TransCmp cmp] [LawfulEqCmp cmp] (f : (a : α) → β a → β a → β a)
+    (h : t₁ ~m t₂) (h' : t₃ ~m t₄) : t₁.mergeWith f t₃ ~m t₂.mergeWith f t₄ :=
   ⟨h.1.mergeWith h'.1 t₁.2 t₂.2 t₃.2 t₄.2⟩
 
 section Const
 
-variable {β : Type v} {t₁ t₂ : DTreeMap α β cmp} {δ : Type w} {m : Type w → Type w}
+variable {β : Type v} {t₁ t₂ t₃ t₄ : DTreeMap α β cmp} {δ : Type w} {m : Type w → Type w}
 
 theorem constGet?_eq [TransCmp cmp] {k : α} (h : t₁ ~m t₂) : Const.get? t₁ k = Const.get? t₂ k :=
   h.1.constGet?_eq t₁.2 t₂.2
@@ -4657,9 +4656,13 @@ theorem constModify [TransCmp cmp] (h : t₁ ~m t₂) (k : α) (f : β → β) :
     Const.modify t₁ k f ~m Const.modify t₂ k f :=
   ⟨h.1.constModify t₁.2 t₂.2⟩
 
-theorem constInsertMany_list [TransCmp cmp] [LawfulEqCmp cmp] (h : t₁ ~m t₂) (l : List (α × β)) :
+theorem constInsertMany_list [TransCmp cmp] (h : t₁ ~m t₂) (l : List (α × β)) :
     Const.insertMany t₁ l ~m Const.insertMany t₂ l :=
   ⟨h.1.constInsertMany_list t₁.2 t₂.2⟩
+
+theorem constMergeWith [TransCmp cmp] (f : α → β → β → β) (h : t₁ ~m t₂) (h' : t₃ ~m t₄) :
+    Const.mergeWith f t₁ t₃ ~m Const.mergeWith f t₂ t₄ :=
+  ⟨h.1.constMergeWith h'.1 t₁.2 t₂.2 t₃.2 t₄.2⟩
 
 end Const
 
@@ -4731,18 +4734,18 @@ theorem Const.equiv_iff_toList_perm : t₁ ~m t₂ ↔ (Const.toList t₁).Perm 
 theorem Const.equiv_iff_toList_eq [TransCmp cmp] : t₁ ~m t₂ ↔ Const.toList t₁ = Const.toList t₂ :=
   equiv_iff_equiv.trans (Impl.Const.equiv_iff_toList_eq t₁.2 t₂.2)
 
-theorem Const.equiv_iff_keys_perm {t₁ t₂ : DTreeMap α Unit cmp} : t₁ ~m t₂ ↔ t₁.keys.Perm t₂.keys :=
+theorem Const.equiv_iff_keys_unit_perm {t₁ t₂ : DTreeMap α Unit cmp} : t₁ ~m t₂ ↔ t₁.keys.Perm t₂.keys :=
   equiv_iff_equiv.trans Impl.Const.equiv_iff_keys_perm
 
-theorem Const.equiv_iff_keys_eq [TransCmp cmp] {t₁ t₂ : DTreeMap α Unit cmp} :
+theorem Const.equiv_iff_keys_unit_eq [TransCmp cmp] {t₁ t₂ : DTreeMap α Unit cmp} :
     t₁ ~m t₂ ↔ t₁.keys = t₂.keys :=
   equiv_iff_equiv.trans (Impl.Const.equiv_iff_keys_eq t₁.2 t₂.2)
 
-theorem Equiv.of_constToList_perm : t₁.toList.Perm t₂.toList → t₁ ~m t₂ :=
-  equiv_iff_toList_perm.mpr
+theorem Equiv.of_constToList_perm : (Const.toList t₁).Perm (Const.toList t₂) → t₁ ~m t₂ :=
+  Const.equiv_iff_toList_perm.mpr
 
 theorem Equiv.of_keys_unit_perm {t₁ t₂ : DTreeMap α Unit cmp} : t₁.keys.Perm t₂.keys → t₁ ~m t₂ :=
-  Const.equiv_iff_keys_perm.mpr
+  Const.equiv_iff_keys_unit_perm.mpr
 
 end Const
 

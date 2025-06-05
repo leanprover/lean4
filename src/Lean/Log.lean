@@ -80,6 +80,9 @@ export default function ({ code, explanationUrl }) {
   return all
 }"
 
+/--
+If `msg` is tagged as a named error, appends the error description widget displaying the
+corresponding error name and explanation link. Otherwise, returns `msg` unaltered. -/
 private def MessageData.appendDescriptionWidgetIfNamed (msg : MessageData) : MessageData :=
   match errorNameOfKind? msg.kind with
   | some errorName =>

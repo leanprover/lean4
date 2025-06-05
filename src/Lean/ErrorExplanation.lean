@@ -57,6 +57,7 @@ def CodeInfo.Kind.ofString : String → Option CodeInfo.Kind
   | "fixed" => some .fixed
   | _ => none
 
+/-- Metadata about a code block in an error explanation, parsed from the block's info string. -/
 structure CodeInfo where
   lang : String
   kind? : Option CodeInfo.Kind
@@ -64,6 +65,7 @@ structure CodeInfo where
 deriving Repr
 
 open Std.Internal Parsec Parsec.String in
+/-- Parse metadata for an error explanation code block from its info string. -/
 def CodeInfo.parse (s : String) : Except String CodeInfo :=
   infoString.run s |>.mapError (fun e => s!"Invalid code block info string `{s}`: {e}")
 where
@@ -125,11 +127,16 @@ where
 
 open Std.Internal Parsec
 
+/--
+An iterator storing nonempty lines in an error explanation together with their original line
+numbers.
+-/
 private structure ValidationState where
   lines : Array (String × Nat)
   idx   : Nat := 0
 deriving Repr, Inhabited
 
+/-- Creates an iterator for validation from the raw contents of an error explanation. -/
 private def ValidationState.ofSource (input : String) : ValidationState where
   lines := input.splitOn "\n"
     |>.zipIdx
@@ -179,6 +186,7 @@ where
       | .success s' x => loop (acc.push x) s'
       | .error s' err => .error s' err
 
+/-- Repeatedly parses the next input as long as it fails to satisfy `p`, and discards the result. -/
 private def manyNotD (p : ValidationM α) : ValidationM Unit :=
   discard (many (notFollowedBy p *> skip))
 
@@ -186,6 +194,7 @@ private def parseExplanation : ValidationM Unit := do
   manyNotD examplesHeader
   eof <|> (examplesHeader *> discard (manyThenEOF singleExample))
 where
+  /-- The top-level `# Examples` header -/
   examplesHeader := attempt do
     let line ← any
     if (matchHeader 1 "Examples" line).isSome then
@@ -206,6 +215,7 @@ where
         return (leanBlock, outputBlocks)
       manyNotD exampleEndingHeader
 
+  /-- A level-2 header for a single example. -/
   exampleHeader := attempt do
     let line ← any
     if let some header := matchHeader 2 none line then
@@ -259,6 +269,7 @@ where
       -- Don't put `line` in backticks here because it might be a partial code fence
       fail s!"Expected a code fence, but found:\n{line}"
 
+  /-- Prepends an error raised by `x` to indicate that it arose in example `header`. -/
   labelingExampleErrors {α} (header : String) (x : ValidationM α) : ValidationM α := fun s =>
     match x s with
     | res@(.success ..) => res
@@ -283,8 +294,8 @@ where
 
 /--
 Validates that the given error explanation has the expected structure. If an error is found, it is
-returned as a pair `(lineNumber, errorMessage)` where `lineNumber` gives the 0-based offset from the
-first line of `doc` at which the error occurs.
+represented as a pair `(lineNumber, errorMessage)` where `lineNumber` gives the 0-based offset from
+the first line of `doc` at which the error occurs.
 -/
 def processDoc (doc : String) : Except (Nat × String) Unit :=
   parseExplanation.run doc
@@ -310,12 +321,12 @@ def getErrorExplanation? [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] (name : Na
 /--
 Returns an error explanation for the given name if one exists *without* rewriting manual links.
 
-In general, use `Lean.getErrorExplanation?` if the body of the explanation will be used.
+In general, use `Lean.getErrorExplanation?` instead if the body of the explanation will be used.
 -/
 def getErrorExplanationRaw? (env : Environment) (name : Name) : Option ErrorExplanation := do
   errorExplanationExt.getState env |>.find? name
 
-/-- Returns true if there exists an error explanation named `name`. -/
+/-- Returns `true` if there exists an error explanation named `name`. -/
 def hasErrorExplanation [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] (name : Name) : m Bool :=
   return errorExplanationExt.getState (← getEnv) |>.contains name
 

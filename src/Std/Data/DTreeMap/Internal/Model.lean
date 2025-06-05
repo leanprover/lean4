@@ -129,8 +129,8 @@ theorem applyPartition.go.match_1.congr {α : Sort u} {o o' : Ordering}
     (hlt : ∀ h, lt (ho.trans h) = lt' h)
     (heq : ∀ h, eq (ho.trans h) = eq' h)
     (hgt : ∀ h, gt (ho.trans h) = gt' h) :
-    (match (generalizing := false) h : o with | .lt => lt h | .eq => eq h | .gt => gt h)
-    = (match (generalizing := false) h : o' with | .lt => lt' h | .eq => eq' h | .gt => gt' h) := by
+    (match (generalizing := false) h : o with | .lt => lt h | .eq => eq h | .gt => gt h) =
+      (match (generalizing := false) h : o' with | .lt => lt' h | .eq => eq' h | .gt => gt' h) := by
   induction ho; induction funext hlt; induction funext heq; induction funext hgt
   rfl
 

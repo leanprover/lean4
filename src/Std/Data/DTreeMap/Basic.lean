@@ -85,7 +85,7 @@ instance : Inhabited (DTreeMap α β cmp) where
 
 @[inherit_doc Impl.Equiv]
 structure Equiv (m₁ m₂ : DTreeMap α β cmp) where
-  /-- Internal implementation detail of the hash map -/
+  /-- Internal implementation detail of the tree map -/
   inner : m₁.1.Equiv m₂.1
 
 @[inherit_doc] scoped infix:50 " ~m " => Equiv

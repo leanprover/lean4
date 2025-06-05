@@ -255,12 +255,6 @@ theorem toListModel_filter_lt_of_lt [Ord α] [TransOrd α] {k : α → Ordering}
     List.append_cancel_left_eq, List.cons.injEq, List.filter_eq_self, beq_iff_eq, true_and]
   exact fun p hp => IsCut.lt hcmp (ho.compare_right hp)
 
-instance [Ord α] [TransOrd α] {k : α} : IsStrictCut compare (compare k) where
-  lt := TransCmp.lt_trans
-  gt h₁ h₂ := OrientedCmp.gt_of_lt (TransCmp.lt_trans (OrientedCmp.lt_of_gt h₂)
-    (OrientedCmp.lt_of_gt h₁))
-  eq _ _ := TransCmp.congr_left
-
 theorem findCell_of_gt [Ord α] [TransOrd α] {k : α → Ordering} [IsStrictCut compare k]
     {sz k' v' l r} (hcmp : k k' = .gt) (ho : (inner sz k' v' l r : Impl α β).Ordered) :
     List.findCell (inner sz k' v' l r).toListModel k = List.findCell r.toListModel k :=
@@ -1832,11 +1826,6 @@ theorem WF.map [Ord α] {t : Impl α β} {f : (a : α) → β a → γ a} (h : t
 ### `minEntry?`
 -/
 
-instance [Ord α] : IsStrictCut (compare : α → α → Ordering) (fun _ => .lt) where
-  lt := by simp
-  gt := by simp
-  eq := by simp
-
 theorem minEntry?ₘ_eq_minEntry? [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
     l.minEntry?ₘ = List.minEntry? l.toListModel := by
   rw [minEntry?ₘ, applyPartition_eq_apply_toListModel' hlo]
@@ -1883,7 +1872,7 @@ theorem Ordered.reverse [Ord α] {t : Impl α β} (h : t.Ordered) :
   simp only [Ordered, toListModel_reverse]
   exact List.pairwise_reverse.mpr h
 
-theorem maxEntry?_eq_maxEntry? [o : Ord α] [to : TransOrd α] {t : Impl α β} (hlo : t.Ordered) :
+theorem maxEntry?_eq_minEntry? [o : Ord α] [to : TransOrd α] {t : Impl α β} (hlo : t.Ordered) :
     t.maxEntry? = (letI := o.opposite; List.minEntry? t.toListModel) := by
   rw [maxEntry?_eq_minEntry?_reverse, @minEntry?_eq_minEntry? _ _ (_) _ _ hlo.reverse]
   apply @List.minEntry?_of_perm _ _ o.opposite to.opposite (@beqOfOrd _ o.opposite)
@@ -1992,15 +1981,6 @@ end Const
 /-!
 ### `getEntryLE?` / `getKeyLE?` / ...
 -/
-
-instance [Ord α] [TransOrd α] {k : α} : IsStrictCut compare fun k' => (compare k k').then .gt where
-  lt {_ _} := by simpa [Ordering.then_eq_lt] using TransCmp.lt_trans
-  eq {_ _} := by simp [Ordering.then_eq_eq]
-  gt h h' := by
-    simp only [Ordering.then_eq_gt, and_true] at h ⊢
-    rcases h with (h | h)
-    · exact .inl (TransCmp.gt_trans h h')
-    · exact .inl (TransCmp.gt_of_eq_of_gt h h')
 
 theorem getEntryGE?_eq_find? [Ord α] [TransOrd α] {t : Impl α β} (hto : t.Ordered) {k : α} :
     t.getEntryGE? k = t.toListModel.find? (fun e => (compare e.1 k).isGE) := by

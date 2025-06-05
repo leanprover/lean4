@@ -6200,7 +6200,7 @@ theorem minEntryD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~
 
 theorem maxEntry?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.maxEntry? = t₂.maxEntry? := by
-  simp only [maxEntry?_eq_maxEntry?, h₁.ordered, h₂.ordered]
+  simp only [maxEntry?_eq_minEntry?, h₁.ordered, h₂.ordered]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
 theorem maxEntry_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {he} :

@@ -32,13 +32,13 @@ def dbgStackTrace {α : Type u} (f : Unit → α) : α := f ()
 @[extern "lean_dbg_sleep"]
 def dbgSleep {α : Type u} (ms : UInt32) (f : Unit → α) : α := f ()
 
-@[noinline] private def mkPanicMessage (modName : String) (line col : Nat) (msg : String) : String :=
+@[noinline] def mkPanicMessage (modName : String) (line col : Nat) (msg : String) : String :=
   "PANIC at " ++ modName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ msg
 
 @[never_extract, inline, expose] def panicWithPos {α : Sort u} [Inhabited α] (modName : String) (line col : Nat) (msg : String) : α :=
   panic (mkPanicMessage modName line col msg)
 
-@[noinline, expose] private def mkPanicMessageWithDecl (modName : String) (declName : String) (line col : Nat) (msg : String) : String :=
+@[noinline, expose] def mkPanicMessageWithDecl (modName : String) (declName : String) (line col : Nat) (msg : String) : String :=
   "PANIC at " ++ declName ++ " " ++ modName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ msg
 
 @[never_extract, inline, expose] def panicWithPosWithDecl {α : Sort u} [Inhabited α] (modName : String) (declName : String) (line col : Nat) (msg : String) : α :=

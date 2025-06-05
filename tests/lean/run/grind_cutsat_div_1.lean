@@ -66,6 +66,8 @@ example (a b : Int) (_ : 2 ∣ a + 3) (_ : 3 ∣ a + b - 4) (_ : b ≥ 11): Fals
 /--
 trace: [grind.debug.cutsat.search.assign] f 0 := 11
 [grind.debug.cutsat.search.assign] f 1 := 2
+[grind.debug.cutsat.search.assign] 「1」 := 1
+[grind.debug.cutsat.search.assign] 「0」 := 0
 -/
 #guard_msgs (trace) in
 set_option trace.grind.debug.cutsat.search.assign true in

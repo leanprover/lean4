@@ -77,7 +77,15 @@ def canonElemCore (parent : Expr) (f : Expr) (i : Nat) (e : Expr) (useIsDefEqBou
   let eType ← inferType e
   let cs := s.argMap.find? key |>.getD []
   for (c, cType) in cs do
-    -- We first check the typesr
+    /-
+    We first check the types
+    The following checks are a performance bottleneck.
+    For example, in the test `grind_ite.lean`, there are many checks of the form:
+    ```
+    w_4 ∈ assign.insert v true → Prop =?= w_1 ∈ assign.insert v false → Prop
+    ```
+    where `grind` unfolds the definition of `DHashMap.insert` and `TreeMap.insert`.
+    -/
     if (← withDefault <| isDefEq eType cType) then
       if (← isDefEq e c) then
         -- We used to check `c.fvarsSubset e` because it is not
@@ -196,7 +204,7 @@ where
 end Canon
 
 /-- Canonicalizes nested types, type formers, and instances in `e`. -/
-def canon (e : Expr) : GoalM Expr := do
+def canon (e : Expr) : GoalM Expr := do profileitM Exception "grind canon" (← getOptions) do
   trace_goal[grind.debug.canon] "{e}"
   unsafe Canon.canonImpl e
 

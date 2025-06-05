@@ -140,9 +140,46 @@ references to a hypothesis.
 syntax (name := clear) "clear" (ppSpace colGt term:max)+ : tactic
 
 /--
-`subst x...` substitutes each `x` with `e` in the goal if there is a hypothesis
-of type `x = e` or `e = x`.
-If `x` is itself a hypothesis of type `y = e` or `e = y`, `y` is substituted instead.
+Syntax for trying to clear the values of all local definitions.
+-/
+syntax clearValueStar := "*"
+/--
+Syntax for creating a hypothesis before clearing values.
+In `(hx : x = _)`, the value of `x` is unified with `_`.
+-/
+syntax clearValueHyp := "(" binderIdent " : " term:51 " = " term:51 ")"
+/--
+Argument for the `clear_value` tactic.
+-/
+syntax clearValueArg := clearValueStar <|> clearValueHyp <|> term:max
+/--
+* `clear_value x...` clears the values of the given local definitions.
+  A local definition `x : α := v` becomes a hypothesis `x : α`.
+
+* `clear_value (h : x = _)` adds a hypothesis `h : x = v` before clearing the value of `x`.
+  This is short for `have h : x = v := rfl; clear_value x`.
+  Any value definitionally equal to `v` can be used in place of `_`.
+
+* `clear_value *` clears values of all hypotheses that can be cleared.
+  Fails if none can be cleared.
+
+These syntaxes can be combined. For example, `clear_value x y *` ensures that `x` and `y` are cleared
+while trying to clear all other local definitions,
+and `clear_value (hx : x = _) y * with hx` does the same while first adding the `hx : x = v` hypothesis.
+-/
+syntax (name := clearValue) "clear_value" (ppSpace colGt clearValueArg)+ : tactic
+
+/--
+`subst x...` substitutes each hypothesis `x` with a definition found in the local context,
+then eliminates the hypothesis.
+- If `x` is a local definition, then its definition is used.
+- Otherwise, if there is a hypothesis of the form `x = e` or `e = x`,
+  then `e` is used for the definition of `x`.
+
+If `h : a = b`, then `subst h` may be used if either `a` or `b` unfolds to a local hypothesis.
+This is similar to the `cases h` tactic.
+
+See also: `subst_vars` for substituting all local hypotheses that have a defining equation.
 -/
 syntax (name := subst) "subst" (ppSpace colGt term:max)+ : tactic
 

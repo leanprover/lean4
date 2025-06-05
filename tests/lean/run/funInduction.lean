@@ -389,7 +389,7 @@ namespace Nonrec
 
 def foo := 1
 
-/-- error: no functional induction theorem for 'foo', or function is mutually recursive -/
+/-- error: No functional induction theorem for 'foo', or function is mutually recursive -/
 #guard_msgs in
 example : True := by
   fun_induction foo
@@ -413,7 +413,7 @@ def Tree.size_aux : List (Tree α) → Nat
   | t :: ts => size t + size_aux ts
 end
 
-/-- error: no functional induction theorem for 'Tree.size', or function is mutually recursive -/
+/-- error: No functional induction theorem for 'Tree.size', or function is mutually recursive -/
 #guard_msgs in
 example (t : Tree α) : True := by
   fun_induction Tree.size t

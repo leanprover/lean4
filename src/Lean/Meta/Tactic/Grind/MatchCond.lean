@@ -262,6 +262,8 @@ private partial def isStatisfied (e : Expr) : GoalM Bool := do
     e := b
   return false
 
+-- TODO: we don't have support for offset equalities
+
 /-- Constructs a proof for a satisfied `match`-expression condition. -/
 private partial def mkMatchCondProof? (e : Expr) : GoalM (Option Expr) := do
   let_expr Grind.MatchCond f ← e | return none
@@ -286,6 +288,8 @@ where
       | reportIssue! "found term that has not been internalized{indentExpr lhs}\nwhile trying to construct a proof for `MatchCond`{indentExpr e}"
         return none
     let isHEq := α?.isSome
+    unless (← hasSameType root.self rhs) do
+      return none
     let h ← if isHEq then
       mkEqOfHEq (← mkHEqTrans (← mkHEqProof root.self lhs) h) (check := false)
     else

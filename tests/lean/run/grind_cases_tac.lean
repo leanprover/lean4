@@ -18,12 +18,12 @@ def f (v : Vec α n) : Bool :=
 trace: n : Nat
 v : Vec Nat n
 h : f v ≠ false
-⊢ n + 1 = 0 → HEq (Vec.cons 10 v) Vec.nil → False
+⊢ n + 1 = 0 → Vec.cons 10 v ≍ Vec.nil → False
 ---
 trace: n : Nat
 v : Vec Nat n
 h : f v ≠ false
-⊢ ∀ {n_1 : Nat} (a : Nat) (a_1 : Vec Nat n_1), n + 1 = n_1 + 1 → HEq (Vec.cons 10 v) (Vec.cons a a_1) → False
+⊢ ∀ {n_1 : Nat} (a : Nat) (a_1 : Vec Nat n_1), n + 1 = n_1 + 1 → Vec.cons 10 v ≍ Vec.cons a a_1 → False
 -/
 #guard_msgs (trace) in
 example (v : Vec Nat n) (h : f v ≠ false) : False := by

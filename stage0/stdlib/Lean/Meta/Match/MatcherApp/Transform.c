@@ -136,6 +136,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_MatcherApp_transform___at_Lean_Meta_Matcher
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_MatcherApp_transform___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Meta_MatcherApp_transform___rarg___lambda__4___closed__1;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_MatcherApp_refineThrough___spec__2___lambda__2___closed__1;
+lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatcherApp_Transform_0__Lean_Meta_MatcherApp_withUserNamesImpl(lean_object*);
 lean_object* l_Lean_Meta_isTypeCorrect(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MatcherApp_addArg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -439,7 +440,6 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_MatcherApp_transform___spec__8___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_instantiateForallAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MatcherApp_transform___rarg___lambda__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MatcherApp_transform___rarg___lambda__15(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1868,7 +1868,7 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_14 = l___private_Init_Data_Repr_0__Nat_reprFast(x_12);
+x_14 = l_Nat_reprFast(x_12);
 x_15 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_15, 0, x_14);
 x_16 = l_Lean_MessageData_ofFormat(x_15);
@@ -2206,7 +2206,7 @@ lean_dec(x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; 
-x_11 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_11 = l_Nat_reprFast(x_1);
 x_12 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_12, 0, x_11);
 x_13 = l_Lean_MessageData_ofFormat(x_12);
@@ -2758,7 +2758,7 @@ if (x_13 == 0)
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
 lean_dec(x_2);
 lean_dec(x_1);
-x_14 = l___private_Init_Data_Repr_0__Nat_reprFast(x_12);
+x_14 = l_Nat_reprFast(x_12);
 x_15 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_15, 0, x_14);
 x_16 = l_Lean_MessageData_ofFormat(x_15);
@@ -11341,7 +11341,7 @@ lean_dec(x_16);
 if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
-x_19 = l___private_Init_Data_Repr_0__Nat_reprFast(x_17);
+x_19 = l_Nat_reprFast(x_17);
 x_20 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_20, 0, x_19);
 x_21 = l_Lean_MessageData_ofFormat(x_20);
@@ -22894,7 +22894,7 @@ lean_dec(x_7);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_17 = l___private_Init_Data_Repr_0__Nat_reprFast(x_15);
+x_17 = l_Nat_reprFast(x_15);
 x_18 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_18, 0, x_17);
 x_19 = l_Lean_MessageData_ofFormat(x_18);

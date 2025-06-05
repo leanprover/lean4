@@ -427,7 +427,7 @@ structure State where
 -/
 structure SavedState where
   core        : Core.SavedState
-  meta        : State
+  «meta»      : State
   deriving Nonempty
 
 register_builtin_option maxSynthPendingDepth : Nat := {
@@ -555,7 +555,7 @@ instance : AddMessageContext MetaM where
   addMessageContext := addMessageContextFull
 
 protected def saveState : MetaM SavedState :=
-  return { core := (← Core.saveState), meta := (← get) }
+  return { core := (← Core.saveState), «meta» := (← get) }
 
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) : MetaM Unit := do
@@ -570,7 +570,7 @@ def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState)) (act : M
   let reusableResult? := reusableResult?.map (fun (val, state) => (val, state.core))
   let (a, core) ← controlAt CoreM fun runInBase => do
     Core.withRestoreOrSaveFull reusableResult? <| runInBase act
-  return (a, { core, meta := (← get) })
+  return (a, { core, «meta» := (← get) })
 
 instance : MonadBacktrack SavedState MetaM where
   saveState      := Meta.saveState
@@ -1221,7 +1221,7 @@ private def getConstTemp? (constName : Name) : MetaM (Option ConstantInfo) := do
   | some (info@(ConstantInfo.thmInfo _))  => getTheoremInfo info
   | some (info@(ConstantInfo.defnInfo _)) => getDefInfoTemp info
   | some info                             => pure (some info)
-  | none                                  => throwUnknownConstant constName
+  | none                                  => throwUnknownConstantAt (← getRef) constName
 
 private def isClassQuickConst? (constName : Name) : MetaM (LOption Name) := do
   if isClass (← getEnv) constName then
@@ -2392,7 +2392,10 @@ where
         let _ : MonadExceptOf _ MetaM := MonadAlwaysExcept.except
         observing do
           realize
-          if !(← getEnv).contains constName then
+          -- Meta code working on a non-exported declaration should usually do so inside
+          -- `withoutExporting` but we're lenient here in case this call is the only one that needs
+          -- the setting.
+          if !((← getEnv).setExporting false).contains constName then
             throwError "Lean.Meta.realizeConst: {constName} was not added to the environment")
         <* addTraceAsMessages
     let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO

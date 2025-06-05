@@ -18,11 +18,10 @@ open Eqns
 /--
 Simple, coarse-grained equation theorem for nonrecursive definitions.
 -/
-private def mkSimpleEqThm (declName : Name) (suffix := Name.mkSimple unfoldThmSuffix) : MetaM (Option Name) := do
+private def mkSimpleEqThm (declName : Name) : MetaM (Option Name) := do
   if let some (.defnInfo info) := (← getEnv).find? declName then
-    let name := declName ++ suffix
-    -- determinism: `name` and `info` are dependent only on `declName`, not any later env
-    -- modifications
+    let name := mkEqLikeNameFor (← getEnv) declName eqn1ThmSuffix
+    trace[Elab.definition.eqns] "mkSimpleEqnThm: {name}"
     realizeConst declName name (doRealize name info)
     return some name
   else

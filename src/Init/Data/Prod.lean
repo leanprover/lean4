@@ -54,7 +54,7 @@ Examples:
  * `(1, 2).swap = (2, 1)`
  * `("orange", -87).swap = (-87, "orange")`
 -/
-def swap : α × β → β × α := fun p => (p.2, p.1)
+@[expose] def swap : α × β → β × α := fun p => (p.2, p.1)
 
 @[simp]
 theorem swap_swap : ∀ x : α × β, swap (swap x) = x

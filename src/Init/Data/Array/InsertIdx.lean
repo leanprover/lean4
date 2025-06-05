@@ -44,6 +44,7 @@ theorem insertIdx_zero {xs : Array α} {x : α} : xs.insertIdx 0 x = #[x] ++ xs 
 
 @[simp] theorem size_insertIdx {xs : Array α} (h : i ≤ xs.size) : (xs.insertIdx i a).size = xs.size + 1 := by
   rcases xs with ⟨xs⟩
+  simp at h
   simp [List.length_insertIdx, h]
 
 theorem eraseIdx_insertIdx {i : Nat} {xs : Array α} (h : i ≤ xs.size) :

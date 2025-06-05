@@ -11,7 +11,7 @@ import Lean.Elab.SetOption
 import Lean.Linter.Util
 
 namespace Lean.Linter
-open Elab.Command Parser.Command
+open Elab.Command Parser Command
 open Parser.Term hiding «set_option»
 
 register_builtin_option linter.missingDocs : Bool := {
@@ -120,7 +120,7 @@ def hasInheritDoc (attrs : Syntax) : Bool :=
     attr[1][0].getId.eraseMacroScopes == `inherit_doc
 
 def declModifiersPubNoDoc (mods : Syntax) : Bool :=
-  mods[2][0].getKind != ``«private» && mods[0].isNone && !hasInheritDoc mods[1]
+  mods[2][0].getKind != ``Command.private && mods[0].isNone && !hasInheritDoc mods[1]
 
 def lintDeclHead (k : SyntaxNodeKind) (id : Syntax) : CommandElabM Unit := do
   if k == ``«abbrev» then lintNamed id "public abbrev"
@@ -134,7 +134,7 @@ def lintDeclHead (k : SyntaxNodeKind) (id : Syntax) : CommandElabM Unit := do
 @[builtin_missing_docs_handler declaration]
 def checkDecl : SimpleHandler := fun stx => do
   let head := stx[0]; let rest := stx[1]
-  if head[2][0].getKind == ``«private» then return -- not private
+  if head[2][0].getKind == ``Command.private then return -- not private
   let k := rest.getKind
   if declModifiersPubNoDoc head then -- no doc string
     lintDeclHead k rest[1][0]

@@ -495,7 +495,15 @@ def emitNumLit (t : IRType) (v : Nat) : M Unit := do
     else
       emit "lean_cstr_to_nat(\""; emit v; emit "\")"
   else
-    emit v
+    if v < UInt32.size then
+      emit v
+    else if t == .usize then
+      emit "((size_t)"
+      emit v
+      emit "ULL)"
+    else
+      emit v
+      emit "ULL"
 
 def emitLit (z : VarId) (t : IRType) (v : LitVal) : M Unit := do
   emitLhs z;

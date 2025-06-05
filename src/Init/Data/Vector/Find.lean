@@ -144,7 +144,7 @@ abbrev findSome?_mkVector_of_isNone := @findSome?_replicate_of_isNone
 
 @[simp] theorem find?_empty : find? p #v[] = none := rfl
 
-@[simp] theorem find?_singleton {a : α} {p : α → Bool} :
+theorem find?_singleton {a : α} {p : α → Bool} :
     #v[a].find? p = if p a then some a else none := by
   simp
 
@@ -291,7 +291,8 @@ theorem find?_eq_some_iff_getElem {xs : Vector α n} {p : α → Bool} {b : α} 
 
 /-! ### findFinIdx? -/
 
-@[simp] theorem findFinIdx?_empty {p : α → Bool} : findFinIdx? p (#v[] : Vector α 0) = none := by simp
+theorem findFinIdx?_empty {p : α → Bool} : findFinIdx? p (#v[] : Vector α 0) = none := by simp
+
 theorem findFinIdx?_singleton {a : α} {p : α → Bool} :
     #[a].findFinIdx? p = if p a then some ⟨0, by simp⟩ else none := by
   simp

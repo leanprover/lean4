@@ -52,8 +52,8 @@ theorem countP_push {a : α} {xs : Array α} : countP p (xs.push a) = countP p x
   rcases xs with ⟨xs⟩
   simp_all
 
-@[simp] theorem countP_singleton {a : α} : countP p #[a] = if p a then 1 else 0 := by
-  simp [countP_push]
+theorem countP_singleton {a : α} : countP p #[a] = if p a then 1 else 0 := by
+  simp
 
 theorem size_eq_countP_add_countP {xs : Array α} : xs.size = countP p xs + countP (fun a => ¬p a) xs := by
   rcases xs with ⟨xs⟩
@@ -105,6 +105,7 @@ theorem boole_getElem_le_countP {xs : Array α} {i : Nat} (h : i < xs.size) :
 theorem countP_set {xs : Array α} {i : Nat} {a : α} (h : i < xs.size) :
     (xs.set i a).countP p = xs.countP p - (if p xs[i] then 1 else 0) + (if p a then 1 else 0) := by
   rcases xs with ⟨xs⟩
+  simp at h
   simp [List.countP_set, h]
 
 theorem countP_filter {xs : Array α} :

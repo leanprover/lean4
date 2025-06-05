@@ -36,9 +36,9 @@ def buildImportsAndDeps
     let impLibsJob ← fetchImportLibs precompileImports
     let dynlibsJob ← root.dynlibs.fetchIn root
     let pluginsJob ← root.plugins.fetchIn root
-    modJob.bindM fun _ =>
+    modJob.bindM (sync := true) fun _ =>
     impLibsJob.bindM (sync := true) fun impLibs =>
     dynlibsJob.bindM (sync := true) fun dynlibs =>
     pluginsJob.bindM (sync := true) fun plugins =>
-    externLibsJob.mapM (sync := true) fun externLibs => do
+    externLibsJob.mapM fun externLibs => do
       computeModuleDeps impLibs externLibs dynlibs plugins

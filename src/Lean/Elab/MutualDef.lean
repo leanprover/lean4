@@ -28,7 +28,15 @@ builtin_initialize
     name := `expose
     descr := "(module system) Make bodies of definitions available to importing modules."
     add := fun _ _ _ => do
+      -- Attribute will be filtered out by `MutualDef`
       throwError "Invalid attribute 'expose', must be used when declaring `def`"
+  }
+  registerBuiltinAttribute {
+    name := `no_expose
+    descr := "(module system) Negate previous `[expose]` attribute."
+    add := fun _ _ _ => do
+      -- Attribute will be filtered out by `MutualDef`
+      throwError "Invalid attribute 'no_expose', must be used when declaring `def`"
   }
 
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
@@ -353,17 +361,17 @@ def declVal          := declValSimple <|> declValEqns <|> Term.whereDecls
 
 The `Termination.suffix` is ignored here, and extracted in `declValToTerminationHint`.
 -/
-private def declValToTerm (declVal : Syntax) : MacroM Syntax := withRef declVal do
+private def declValToTerm (declVal : Syntax) (expectedType : Expr) : TermElabM Syntax := withRef declVal do
   if declVal.isOfKind ``Parser.Command.declValSimple then
-    expandWhereDeclsOpt declVal[3] declVal[1]
+    liftMacroM <| expandWhereDeclsOpt declVal[3] declVal[1]
   else if declVal.isOfKind ``Parser.Command.declValEqns then
-    expandMatchAltsWhereDecls declVal[0]
+    expandMatchAltsWhereDecls declVal[0] expectedType
   else if declVal.isOfKind ``Parser.Command.whereStructInst then
-    expandWhereStructInst declVal
+    liftMacroM <| expandWhereStructInst declVal
   else if declVal.isMissing then
-    Macro.throwErrorAt declVal "declaration body is missing"
+    throwErrorAt declVal "declaration body is missing"
   else
-    Macro.throwErrorAt declVal "unexpected declaration body"
+    throwErrorAt declVal "unexpected declaration body"
 
 /-- Elaborates the termination hints in a `declVal` syntax. -/
 private def declValToTerminationHint (declVal : Syntax) : TermElabM TerminationHints :=
@@ -464,7 +472,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
       withReuseContext header.value do
       withTraceNode `Elab.definition.value (fun _ => pure header.declName) do
       withDeclName header.declName <| withLevelNames header.levelNames do
-      let valStx ← liftMacroM <| declValToTerm header.value
+      let valStx ← declValToTerm header.value header.type
       (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc #[header] else fun x => x #[]) fun vars => do
       forallBoundedTelescope header.type header.numParams fun xs type => do
         -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
@@ -1061,6 +1069,7 @@ where
     let tacPromises ← views.mapM fun _ => IO.Promise.new
     let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
       Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
+    withExporting (isExporting := !expandedDeclIds.all (isPrivateName ·.declName)) do
     let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
     let headers ← levelMVarToParamHeaders views headers
     -- If the decl looks like a `rfl` theorem, we elaborate is synchronously as we need to wait for
@@ -1094,7 +1103,8 @@ where
     processDeriving headers
   elabAsync header view declId := do
     let env ← getEnv
-    let async ← env.addConstAsync declId.declName .thm (exportedKind := .axiom)
+    let async ← env.addConstAsync declId.declName .thm
+      (exportedKind? := guard (!isPrivateName declId.declName) *> some .axiom)
     setEnv async.mainEnv
 
     -- TODO: parallelize header elaboration as well? Would have to refactor auto implicits catch,
@@ -1155,14 +1165,16 @@ where
     Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
-  finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars => withExporting
-    (isExporting := isExporting ||
-      (headers.all (·.kind == .def) && sc.attrs.any (· matches `(attrInstance| expose))) ||
-      headers.all fun header =>
-        !header.modifiers.isPrivate &&
-        (header.kind matches .abbrev | .instance || header.modifiers.attrs.any (·.name == `expose))) do
+  finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars =>
+    withExporting (isExporting :=
+      !headers.all (fun header =>
+        header.modifiers.isPrivate || header.modifiers.attrs.any (·.name == `no_expose)) &&
+      (isExporting ||
+       headers.all (fun header => (header.kind matches .abbrev | .instance)) ||
+       (headers.all (·.kind == .def) && sc.attrs.any (· matches `(attrInstance| expose))) ||
+       headers.any (·.modifiers.attrs.any (·.name == `expose)))) do
     let headers := headers.map fun header =>
-      { header with modifiers.attrs := header.modifiers.attrs.filter (·.name != `expose) }
+      { header with modifiers.attrs := header.modifiers.attrs.filter (!·.name ∈ [`expose, `no_expose]) }
     for view in views, funFVar in funFVars do
       addLocalVarInfo view.declId funFVar
     let values ← try

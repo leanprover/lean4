@@ -23,6 +23,7 @@ a list `l : List α`, given a proof that every element of `l` in fact satisfies 
 `O(|l|)`. `List.pmap`, named for “partial map,” is the equivalent of `List.map` for such partial
 functions.
 -/
+@[expose]
 def pmap {P : α → Prop} (f : ∀ a, P a → β) : ∀ l : List α, (H : ∀ a ∈ l, P a) → List β
   | [], _ => []
   | a :: l, H => f a (forall_mem_cons.1 H).1 :: pmap f l (forall_mem_cons.1 H).2
@@ -40,7 +41,7 @@ elements in the corresponding subtype `{ x // P x }`.
 
 `O(1)`.
 -/
-@[implemented_by attachWithImpl] def attachWith
+@[implemented_by attachWithImpl, expose] def attachWith
     (l : List α) (P : α → Prop) (H : ∀ x ∈ l, P x) : List {x // P x} := pmap Subtype.mk l H
 
 /--
@@ -54,7 +55,7 @@ recursion](lean-manual://section/well-founded-recursion) that use higher-order f
 `List.map`) to prove that an value taken from a list is smaller than the list. This allows the
 well-founded recursion mechanism to prove that the function terminates.
 -/
-@[inline] def attach (l : List α) : List {x // x ∈ l} := attachWith l _ fun _ => id
+@[inline, expose] def attach (l : List α) : List {x // x ∈ l} := attachWith l _ fun _ => id
 
 /-- Implementation of `pmap` using the zero-copy version of `attach`. -/
 @[inline] private def pmapImpl {P : α → Prop} (f : ∀ a, P a → β) (l : List α) (H : ∀ a ∈ l, P a) :
@@ -675,6 +676,7 @@ the elaboration of definitions by [well-founded
 recursion](lean-manual://section/well-founded-recursion). If this function is encountered in a proof
 state, the right approach is usually the tactic `simp [List.unattach, -List.map_subtype]`.
 -/
+@[expose]
 def unattach {α : Type _} {p : α → Prop} (l : List { x // p x }) : List α := l.map (·.val)
 
 @[simp] theorem unattach_nil {p : α → Prop} : ([] : List { x // p x }).unattach = [] := rfl

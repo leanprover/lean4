@@ -95,7 +95,7 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Rat)) := do
   -- Assign on expressions associated with cutsat terms or interpreted terms
   for e in goal.exprs do
     let node ← goal.getENode e
-    if isSameExpr node.root node.self then
+    if node.isRoot then
     if (← isIntNatENode node) then
       if let some v ← getAssignment? goal node.self then
         if v.den == 1 then used := used.insert v.num
@@ -111,7 +111,7 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Rat)) := do
   -- Assign the remaining ones with values not used by cutsat
   for e in goal.exprs do
     let node ← goal.getENode e
-    if isSameExpr node.root node.self then
+    if node.isRoot then
     if (← isIntNatENode node) then
     if model[node.self]?.isNone then
       let v := pickUnusedValue goal model node.self nextVal used
@@ -121,7 +121,10 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Rat)) := do
   for (e, v) in model do
     unless isInterpretedTerm e do
       r := r.push (e, v)
-  r := r.qsort fun (e₁, _) (e₂, _) => e₁.lt e₂
+  r := r.qsort fun (e₁, _) (e₂, _) =>
+    let g₁ := goal.getGeneration e₁
+    let g₂ := goal.getGeneration e₂
+    if g₁ != g₂ then g₁ < g₂ else e₁.lt e₂
   if (← isTracingEnabledFor `grind.cutsat.model) then
     for (x, v) in r do
       trace[grind.cutsat.model] "{quoteIfArithTerm x} := {v}"

@@ -142,9 +142,9 @@ abbrev findSome?_mkArray_of_isNone := @findSome?_replicate_of_isNone
 
 @[simp] theorem find?_empty : find? p #[] = none := rfl
 
-@[simp] theorem find?_singleton {a : α} {p : α → Bool} :
+theorem find?_singleton {a : α} {p : α → Bool} :
     #[a].find? p = if p a then some a else none := by
-  simp [singleton_eq_toArray_singleton]
+  simp
 
 @[simp] theorem findRev?_push_of_pos {xs : Array α} (h : p a) :
     findRev? p (xs.push a) = some a := by
@@ -347,7 +347,8 @@ theorem find?_eq_some_iff_getElem {xs : Array α} {p : α → Bool} {b : α} :
 
 /-! ### findIdx -/
 
-@[simp] theorem findIdx_empty : findIdx p #[] = 0 := rfl
+theorem findIdx_empty : findIdx p #[] = 0 := rfl
+
 theorem findIdx_singleton {a : α} {p : α → Bool} :
     #[a].findIdx p = if p a then 0 else 1 := by
   simp
@@ -600,7 +601,8 @@ theorem findIdx?_eq_some_le_of_findIdx?_eq_some {xs : Array α} {p q : α → Bo
 
 /-! ### findFinIdx? -/
 
-@[simp] theorem findFinIdx?_empty {p : α → Bool} : findFinIdx? p #[] = none := by simp
+theorem findFinIdx?_empty {p : α → Bool} : findFinIdx? p #[] = none := by simp
+
 theorem findFinIdx?_singleton {a : α} {p : α → Bool} :
     #[a].findFinIdx? p = if p a then some ⟨0, by simp⟩ else none := by
   simp
@@ -653,13 +655,13 @@ theorem findFinIdx?_append {xs ys : Array α} {p : α → Bool} :
 theorem isSome_findFinIdx? {xs : Array α} {p : α → Bool} :
     (xs.findFinIdx? p).isSome = xs.any p := by
   rcases xs with ⟨xs⟩
-  simp
+  simp [Array.size]
 
 @[simp]
 theorem isNone_findFinIdx? {xs : Array α} {p : α → Bool} :
     (xs.findFinIdx? p).isNone = xs.all (fun x => ¬ p x) := by
   rcases xs with ⟨xs⟩
-  simp
+  simp [Array.size]
 
 @[simp] theorem findFinIdx?_subtype {p : α → Prop} {xs : Array { x // p x }}
     {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
@@ -667,7 +669,8 @@ theorem isNone_findFinIdx? {xs : Array α} {p : α → Bool} :
   cases xs
   simp only [List.findFinIdx?_toArray, hf, List.findFinIdx?_subtype]
   rw [findFinIdx?_congr List.unattach_toArray]
-  simp [Function.comp_def]
+  simp only [Option.map_map, Function.comp_def, Fin.cast_trans]
+  simp [Array.size]
 
 /-! ### idxOf
 
@@ -699,7 +702,7 @@ The verification API for `idxOf?` is still incomplete.
 The lemmas below should be made consistent with those for `findIdx?` (and proved using them).
 -/
 
-@[simp] theorem idxOf?_empty [BEq α] : (#[] : Array α).idxOf? a = none := by simp
+theorem idxOf?_empty [BEq α] : (#[] : Array α).idxOf? a = none := by simp
 
 @[simp] theorem idxOf?_eq_none_iff [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
     xs.idxOf? a = none ↔ a ∉ xs := by
@@ -712,13 +715,9 @@ theorem isSome_idxOf? [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
   rcases xs with ⟨xs⟩
   simp
 
-@[simp]
 theorem isNone_idxOf? [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
     (xs.idxOf? a).isNone = ¬ a ∈ xs := by
-  rcases xs with ⟨xs⟩
   simp
-
-
 
 /-! ### finIdxOf?
 
@@ -730,28 +729,27 @@ theorem idxOf?_eq_map_finIdxOf?_val [BEq α] {xs : Array α} {a : α} :
     xs.idxOf? a = (xs.finIdxOf? a).map (·.val) := by
   simp [idxOf?, finIdxOf?, findIdx?_eq_map_findFinIdx?_val]
 
-@[simp] theorem finIdxOf?_empty [BEq α] : (#[] : Array α).finIdxOf? a = none := by simp
+theorem finIdxOf?_empty [BEq α] : (#[] : Array α).finIdxOf? a = none := by simp
 
 @[simp] theorem finIdxOf?_eq_none_iff [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
     xs.finIdxOf? a = none ↔ a ∉ xs := by
   rcases xs with ⟨xs⟩
-  simp [List.finIdxOf?_eq_none_iff]
+  simp [List.finIdxOf?_eq_none_iff, Array.size]
 
 @[simp] theorem finIdxOf?_eq_some_iff [BEq α] [LawfulBEq α] {xs : Array α} {a : α} {i : Fin xs.size} :
     xs.finIdxOf? a = some i ↔ xs[i] = a ∧ ∀ j (_ : j < i), ¬xs[j] = a := by
   rcases xs with ⟨xs⟩
+  unfold Array.size at i ⊢
   simp [List.finIdxOf?_eq_some_iff]
 
 @[simp]
 theorem isSome_finIdxOf? [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
     (xs.finIdxOf? a).isSome ↔ a ∈ xs := by
   rcases xs with ⟨xs⟩
-  simp
+  simp [Array.size]
 
-@[simp]
 theorem isNone_finIdxOf? [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
     (xs.finIdxOf? a).isNone = ¬ a ∈ xs := by
-  rcases xs with ⟨xs⟩
   simp
 
 end Array

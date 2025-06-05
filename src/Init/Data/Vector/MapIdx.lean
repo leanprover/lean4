@@ -295,9 +295,8 @@ theorem mapIdx_eq_push_iff {xs : Vector α (n + 1)} {b : β} :
   · rintro ⟨a, zs, rfl, rfl, rfl⟩
     exact ⟨zs, a, rfl, by simp⟩
 
-@[simp] theorem mapIdx_eq_singleton_iff {xs : Vector α 1} {f : Nat → α → β} {b : β} :
+theorem mapIdx_eq_singleton_iff {xs : Vector α 1} {f : Nat → α → β} {b : β} :
     mapIdx f xs = #v[b] ↔ ∃ (a : α), xs = #v[a] ∧ f 0 a = b := by
-  rcases xs with ⟨xs⟩
   simp
 
 theorem mapIdx_eq_append_iff {xs : Vector α (n + m)} {f : Nat → α → β} {ys : Vector β n} {zs : Vector β m} :

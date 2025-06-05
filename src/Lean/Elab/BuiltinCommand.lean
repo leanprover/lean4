@@ -25,25 +25,34 @@ namespace Lean.Elab.Command
     modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
   | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"
 
-private def addScope (isNewNamespace : Bool) (isNoncomputable : Bool) (header : String) (newNamespace : Name) : CommandElabM Unit := do
+private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name)
+    (isNoncomputable : Bool := false) (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) :
+    CommandElabM Unit := do
   modify fun s => { s with
     env    := s.env.registerNamespace newNamespace,
-    scopes := { s.scopes.head! with header := header, currNamespace := newNamespace, isNoncomputable := s.scopes.head!.isNoncomputable || isNoncomputable } :: s.scopes
+    scopes := { s.scopes.head! with
+      header := header, currNamespace := newNamespace
+      isNoncomputable := s.scopes.head!.isNoncomputable || isNoncomputable
+      attrs := s.scopes.head!.attrs ++ attrs
+    } :: s.scopes
   }
   pushScope
   if isNewNamespace then
     activateScoped newNamespace
 
-private def addScopes (isNewNamespace : Bool) (isNoncomputable : Bool) : Name → CommandElabM Unit
+private def addScopes (header : Name) (isNewNamespace : Bool) (isNoncomputable : Bool := false)
+    (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) : CommandElabM Unit :=
+  go header
+where go
   | .anonymous => pure ()
   | .str p header => do
-    addScopes isNewNamespace isNoncomputable p
+    go p
     let currNamespace ← getCurrNamespace
-    addScope isNewNamespace isNoncomputable header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace)
+    addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace) isNoncomputable attrs
   | _ => throwError "invalid scope"
 
 private def addNamespace (header : Name) : CommandElabM Unit :=
-  addScopes (isNewNamespace := true) (isNoncomputable := false) header
+  addScopes (isNewNamespace := true) (isNoncomputable := false) (attrs := []) header
 
 def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α := do
   addNamespace ns
@@ -76,14 +85,16 @@ private def checkEndHeader : Name → List Scope → Option Name
 
 @[builtin_command_elab «section»] def elabSection : CommandElab := fun stx => do
   match stx with
-  | `(section $header:ident) => addScopes (isNewNamespace := false) (isNoncomputable := false) header.getId
-  | `(section)               => addScope (isNewNamespace := false) (isNoncomputable := false) "" (← getCurrNamespace)
-  | _                        => throwUnsupportedSyntax
-
-@[builtin_command_elab noncomputableSection] def elabNonComputableSection : CommandElab := fun stx => do
-  match stx with
-  | `(noncomputable section $header:ident) => addScopes (isNewNamespace := false) (isNoncomputable := true) header.getId
-  | `(noncomputable section)               => addScope (isNewNamespace := false) (isNoncomputable := true) "" (← getCurrNamespace)
+  | `($[@[expose%$expTk]]? $[noncomputable%$ncTk]? section $(header?)?) =>
+    -- TODO: allow more attributes?
+    let attrs ← if expTk.isSome then
+      pure [← `(Parser.Term.attrInstance| expose)]
+    else
+      pure []
+    if let some header := header? then
+      addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (attrs := attrs) header.getId
+    else
+      addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (attrs := attrs) "" (← getCurrNamespace)
   | _                        => throwUnsupportedSyntax
 
 @[builtin_command_elab «end»] def elabEnd : CommandElab := fun stx => do
@@ -448,7 +459,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
   let mut msg : Array MessageData := #[]
   -- Noncomputable
   if scope.isNoncomputable then
-    msg := msg.push <| ← `(command| noncomputable section)
+    msg := msg.push <| ← `(Parser.Command.section| noncomputable section)
   -- Namespace
   if !scope.currNamespace.isAnonymous then
     msg := msg.push <| ← `(command| namespace $(mkIdent scope.currNamespace))
@@ -528,5 +539,16 @@ where
         else
           lines := lines.push cmd
     return if lines.isEmpty then none else MessageData.joinSep lines.toList "\n"
+
+@[builtin_command_elab Parser.Command.withExporting] def elabWithExporting : CommandElab
+  | `(Parser.Command.withExporting| #with_exporting $cmd) =>
+    withExporting do
+      elabCommand cmd
+  | _ => throwUnsupportedSyntax
+
+@[builtin_command_elab Parser.Command.dumpAsyncEnvState] def elabDumpAsyncEnvState : CommandElab :=
+  fun _ => do
+    let env ← getEnv
+    IO.eprintln (← env.dbgFormatAsyncState)
 
 end Lean.Elab.Command

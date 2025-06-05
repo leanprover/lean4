@@ -49,7 +49,7 @@ namespace AssocList
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def foldl (f : δ → (α : α) → β α → δ) (init : δ) (as : AssocList α β) : δ :=
-  Id.run (foldlM f init as)
+  Id.run (foldlM (pure <| f · · ·) init as)
 
 /-- Internal implementation detail of the hash map -/
 @[specialize] def foldrM (f : (a : α) → β a → δ → m δ) : (init : δ) → AssocList α β → m δ
@@ -60,7 +60,7 @@ namespace AssocList
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def foldr (f : (a : α) → β a → δ → δ) (init : δ) (as : AssocList α β) : δ :=
-  Id.run (foldrM f init as)
+  Id.run (foldrM (pure <| f · · ·) init as)
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def forM (f : (a : α) → β a → m PUnit) (as : AssocList α β) : m PUnit :=

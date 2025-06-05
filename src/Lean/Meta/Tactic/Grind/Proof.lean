@@ -175,18 +175,24 @@ mutual
 
   /-- Constructs a congruence proof for `lhs` and `rhs`. -/
   private partial def mkCongrProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
-    let f := lhs.getAppFn
-    let g := rhs.getAppFn
-    let numArgs := lhs.getAppNumArgs
-    assert! rhs.getAppNumArgs == numArgs
-    if f.isConstOf ``Lean.Grind.nestedProof && g.isConstOf ``Lean.Grind.nestedProof && numArgs == 2 then
-      mkNestedProofCongr lhs rhs heq
-    else if f.isConstOf ``Eq && g.isConstOf ``Eq && numArgs == 3 then
-      mkEqCongrProof lhs rhs heq
-    else if (← isCongrDefaultProofTarget lhs rhs f g numArgs) then
-      mkCongrDefaultProof lhs rhs heq
+    if let .forallE _ p₁ q₁ _ := lhs then
+      let .forallE _ p₂ q₂ _ := rhs | unreachable!
+      let u ← withDefault <| getLevel p₁
+      let v ← withDefault <| getLevel q₁
+      return mkApp6 (mkConst ``implies_congr [u, v]) p₁ p₂ q₁ q₂ (← mkEqProofCore p₁ p₂ false) (← mkEqProofCore q₁ q₂ false)
     else
-      mkHCongrProof lhs rhs heq
+      let f := lhs.getAppFn
+      let g := rhs.getAppFn
+      let numArgs := lhs.getAppNumArgs
+      assert! rhs.getAppNumArgs == numArgs
+      if f.isConstOf ``Lean.Grind.nestedProof && g.isConstOf ``Lean.Grind.nestedProof && numArgs == 2 then
+        mkNestedProofCongr lhs rhs heq
+      else if f.isConstOf ``Eq && g.isConstOf ``Eq && numArgs == 3 then
+        mkEqCongrProof lhs rhs heq
+      else if (← isCongrDefaultProofTarget lhs rhs f g numArgs) then
+        mkCongrDefaultProof lhs rhs heq
+      else
+        mkHCongrProof lhs rhs heq
 
   private partial def realizeEqProof (lhs rhs : Expr) (h : Expr) (flipped : Bool) (heq : Bool) : GoalM Expr := do
     let h ← if h == congrPlaceholderProof then

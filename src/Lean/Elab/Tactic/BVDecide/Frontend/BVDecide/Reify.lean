@@ -182,6 +182,8 @@ where
       let some rhs ← goOrAtom rhsExpr | return none
       addCondLemmas discr atom lhs rhs discrExpr origExpr lhsExpr rhsExpr
       return some atom
+    | BitVec.reverse _ innerExpr =>
+      unaryReflection innerExpr .reverse ``Std.Tactic.BVDecide.Reflect.BitVec.reverse_congr origExpr
     | _ => return none
 
   /--

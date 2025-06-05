@@ -44,7 +44,6 @@ end Std.Classes.RatCast
 
 section Mathlib.Algebra.Group.Defs
 
-class Inv (α : Type u) where
 class Semigroup (G : Type u) extends Mul G where
 class AddSemigroup (G : Type u) extends Add G where
 class CommSemigroup (G : Type u) extends Semigroup G where
@@ -153,6 +152,6 @@ instance Field.isDomain [Field K] : IsDomain K :=
 end Mathlib.Algebra.Field.Basic
 
 set_option synthInstance.maxHeartbeats 200 in
-/-- info: MulZeroClass.toZero -/
+/-- info: CommRing.toCommSemiring.toNonAssocSemiring.toMulZeroClass.toZero -/
 #guard_msgs in
 #synth Zero Int

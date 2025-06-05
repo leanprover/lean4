@@ -9,5 +9,5 @@ prelude
 import Init.Core
 import Init.Grind.Tactics
 
-attribute [grind cases eager] And Prod False Empty True Unit Exists Subtype
+attribute [grind cases eager] And Prod False Empty True PUnit Exists Subtype
 attribute [grind cases] Or

@@ -74,6 +74,7 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
   let unaryPreDef ← Mutual.cleanPreDef (cacheProofs := false) unaryPreDef
   let preDefs ← preDefs.mapM (Mutual.cleanPreDef (cacheProofs := false) ·)
   registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms argsPacker
+  markAsRecursive unaryPreDef.declName
   unless (← isProp unaryPreDef.type) do
     WF.mkUnfoldEq unaryPreDef preDefNonRec.declName wfPreprocessProof
   for preDef in preDefs do

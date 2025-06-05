@@ -6,6 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
+import all Init.Data.Array.Basic
+import all Init.Data.Vector.Basic
 import Init.Data.Vector.Lemmas
 import Init.Data.Vector.Zip
 import Init.Data.Vector.MapIdx
@@ -27,7 +29,7 @@ open Nat
 
 /-! ### range' -/
 
-@[simp] theorem toArray_range' {start size step} :
+@[simp, grind =] theorem toArray_range' {start size step} :
     (range' start size step).toArray = Array.range' start size step := by
   rfl
 
@@ -35,11 +37,11 @@ theorem range'_eq_mk_range' {start size step} :
     range' start size step = Vector.mk (Array.range' start size step) (by simp) := by
   rfl
 
-@[simp] theorem getElem_range' {start size step i} (h : i < size) :
+@[simp, grind =] theorem getElem_range' {start size step i} (h : i < size) :
    (range' start size step)[i] = start + step * i := by
   simp [range', h]
 
-@[simp] theorem getElem?_range' {start size step i} :
+@[simp, grind =] theorem getElem?_range' {start size step i} :
    (range' start size step)[i]? = if i < size then some (start + step * i) else none := by
   simp [getElem?_def, range']
 
@@ -48,18 +50,21 @@ theorem range'_succ {s n step} :
   rw [← toArray_inj]
   simp [Array.range'_succ]
 
+@[grind =]
 theorem range'_zero : range' s 0 step = #v[] := by
   simp
 
-@[simp] theorem range'_one {s step : Nat} : range' s 1 step = #v[s] := by simp
+@[simp, grind =] theorem range'_one {s step : Nat} : range' s 1 step = #v[s] := by simp
 
 @[simp] theorem range'_inj : range' s n = range' s' n ↔ (n = 0 ∨ s = s') := by
   rw [← toArray_inj]
   simp [List.range'_inj]
 
+@[grind =]
 theorem mem_range' {n} : m ∈ range' s n step ↔ ∃ i < n, m = s + step * i := by
   simp [range', Array.mem_range']
 
+@[simp, grind =]
 theorem pop_range' : (range' s n step).pop = range' s (n - 1) step := by
   ext <;> simp
 
@@ -69,6 +74,7 @@ theorem map_add_range' {a} (s n step) : map (a + ·) (range' s n step) = range' 
 theorem range'_succ_left : range' (s + 1) n step = (range' s n step).map (· + 1) := by
   ext <;> simp <;> omega
 
+@[grind _=_]
 theorem range'_append {s m n step : Nat} :
     range' s m step ++ range' (s + step * m) n step = range' s (m + n) step := by
   rw [← toArray_inj]
@@ -78,12 +84,12 @@ theorem range'_append {s m n step : Nat} :
     range' s m ++ range' (s + m) n = range' s (m + n) := by simpa using range'_append (step := 1)
 
 theorem range'_concat {s n : Nat} : range' s (n + 1) step = range' s n step ++ #v[s + step * n] := by
-  simpa using range'_append.symm
+  simp [← range'_append]
 
 theorem range'_1_concat {s n : Nat} : range' s (n + 1) = range' s n ++ #v[s + n] := by
   simp [range'_concat]
 
-@[simp] theorem mem_range'_1 : m ∈ range' s n ↔ s ≤ m ∧ m < s + n := by
+@[simp, grind =] theorem mem_range'_1 : m ∈ range' s n ↔ s ≤ m ∧ m < s + n := by
   simp [mem_range']; exact ⟨
     fun ⟨i, h, e⟩ => e ▸ ⟨Nat.le_add_right .., Nat.add_lt_add_left h _⟩,
     fun ⟨h₁, h₂⟩ => ⟨m - s, Nat.sub_lt_left_of_lt_add h₁ h₂, (Nat.add_sub_cancel' h₁).symm⟩⟩
@@ -116,9 +122,10 @@ theorem range'_eq_append_iff : range' s (n + m) = xs ++ ys ↔ xs = range' s n �
 
 /-! ### range -/
 
-@[simp] theorem getElem_range {i : Nat} (hi : i < n) : (Vector.range n)[i] = i := by
+@[simp, grind =] theorem getElem_range {i : Nat} (hi : i < n) : (Vector.range n)[i] = i := by
   simp [Vector.range]
 
+@[grind _=_]
 theorem range_eq_range' {n : Nat} : range n = range' 0 n := by
   simp [range, range', Array.range_eq_range']
 
@@ -131,6 +138,7 @@ theorem range_succ_eq_map {n : Nat} :
 theorem range'_eq_map_range {s n : Nat} : range' s n = map (s + ·) (range n) := by
   rw [range_eq_range', map_add_range']; rfl
 
+@[grind _=_]
 theorem range_succ {n : Nat} : range (succ n) = range n ++ #v[n] := by
   rw [← toArray_inj]
   simp [Array.range_succ]
@@ -140,9 +148,9 @@ theorem range_add {n m : Nat} : range (n + m) = range n ++ (range m).map (n + ·
   simpa [range_eq_range', Nat.add_comm] using (range'_append_1 (s := 0)).symm
 
 theorem reverse_range' {s n : Nat} : reverse (range' s n) = map (s + n - 1 - ·) (range n) := by
-  simp [← toList_inj, List.reverse_range']
+  simp [← toArray_inj, Array.reverse_range']
 
-@[simp]
+@[simp, grind =]
 theorem mem_range {m n : Nat} : m ∈ range n ↔ m < n := by
   simp only [range_eq_range', mem_range'_1, Nat.zero_le, true_and, Nat.zero_add]
 

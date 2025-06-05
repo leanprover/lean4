@@ -58,7 +58,7 @@ attribute [bv_normalize] BitVec.ofNat_eq_ofNat
 
 @[bv_normalize]
 theorem BitVec.ofNatLT_reduce (n : Nat) (h) : BitVec.ofNatLT n h = BitVec.ofNat w n := by
-  simp [BitVec.ofNatLT, BitVec.ofNat, Fin.ofNat', Nat.mod_eq_of_lt h]
+  simp [BitVec.ofNatLT, BitVec.ofNat, Fin.ofNat, Nat.mod_eq_of_lt h]
 
 @[bv_normalize]
 theorem BitVec.ofBool_eq_if (b : Bool) : BitVec.ofBool b = bif b then 1#1 else 0#1 := by

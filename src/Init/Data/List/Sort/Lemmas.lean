@@ -7,7 +7,7 @@ module
 
 prelude
 import Init.Data.List.Perm
-import Init.Data.List.Sort.Basic
+import all Init.Data.List.Sort.Basic
 import Init.Data.List.Nat.Range
 import Init.Data.Bool
 
@@ -306,8 +306,6 @@ theorem sorted_mergeSort
     apply sorted_mergeSort trans total
 termination_by l => l.length
 
-@[deprecated sorted_mergeSort (since := "2024-09-02")] abbrev mergeSort_sorted := @sorted_mergeSort
-
 /--
 If the input list is already sorted, then `mergeSort` does not change the list.
 -/
@@ -444,9 +442,6 @@ theorem sublist_mergeSort
         ((fun w => Sublist.of_sublist_append_right w h') fun b m₁ m₃ =>
           (Bool.eq_not_self true).mp ((rel_of_pairwise_cons hc m₁).symm.trans (h₃ b m₃))))
 
-@[deprecated sublist_mergeSort (since := "2024-09-02")]
-abbrev mergeSort_stable := @sublist_mergeSort
-
 /--
 Another statement of stability of merge sort.
 If a pair `[a, b]` is a sublist of `l` and `le a b`,
@@ -457,9 +452,6 @@ theorem pair_sublist_mergeSort
     (total : ∀ (a b : α), le a b || le b a)
     (hab : le a b) (h : [a, b] <+ l) : [a, b] <+ mergeSort l le :=
   sublist_mergeSort trans total (pairwise_pair.mpr hab) h
-
-@[deprecated pair_sublist_mergeSort(since := "2024-09-02")]
-abbrev mergeSort_stable_pair := @pair_sublist_mergeSort
 
 theorem map_merge {f : α → β} {r : α → α → Bool} {s : β → β → Bool} {l l' : List α}
     (hl : ∀ a ∈ l, ∀ b ∈ l', r a b = s (f a) (f b)) :

@@ -43,7 +43,7 @@ structure Foo where
 Overapplied `letFun`
 -/
 /--
-info: (let_fun f := id;
+info: (have f := id;
   f)
   1 : Nat
 -/

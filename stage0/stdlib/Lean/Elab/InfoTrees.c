@@ -23,52 +23,52 @@ static lean_object* l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___closed__6;
 lean_object* l_Lean_Elab_Command_elabCommand(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___closed__4;
 lean_object* l_Lean_Elab_InfoTree_format(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__1;
 lean_object* l_Lean_logAt___at_Lean_Elab_Command_runLinters___spec__2(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__4;
+static lean_object* l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__5;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1(lean_object*);
 extern lean_object* l_Lean_Elab_Command_commandElabAttribute;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___closed__3;
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees_docString__1___closed__1;
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__2;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_InfoState_substituteLazy(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__2;
 static lean_object* l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___closed__2;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__3;
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___spec__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees_docString__1(lean_object*);
 lean_object* lean_task_get_own(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___closed__1;
+static lean_object* l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__6;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___spec__1___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___spec__1___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___spec__1___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__3;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___spec__3___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__5;
+static lean_object* l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees_docString__3___closed__1;
+static lean_object* l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__7;
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___spec__1___rarg___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees_docString__3(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
+static lean_object* l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_log___at_Lean_Elab_Command_withLoggingExceptions___spec__4(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
 uint8_t lean_usize_dec_lt(size_t, size_t);
-static lean_object* l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___spec__1___rarg___closed__1() {
 _start:
@@ -1032,7 +1032,7 @@ lean_dec(x_1);
 x_12 = lean_st_ref_get(x_3, x_4);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
-x_14 = lean_ctor_get(x_13, 6);
+x_14 = lean_ctor_get(x_13, 7);
 lean_inc(x_14);
 lean_dec(x_13);
 x_15 = lean_ctor_get_uint8(x_14, sizeof(void*)*3);
@@ -1072,7 +1072,7 @@ lean_inc(x_24);
 x_25 = lean_ctor_get(x_23, 1);
 lean_inc(x_25);
 lean_dec(x_23);
-x_26 = lean_ctor_get(x_24, 6);
+x_26 = lean_ctor_get(x_24, 7);
 lean_inc(x_26);
 lean_dec(x_24);
 x_27 = l_Lean_Elab_InfoState_substituteLazy(x_26);
@@ -1268,7 +1268,7 @@ lean_dec(x_1);
 return x_7;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1276,7 +1276,7 @@ x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__2() {
+static lean_object* _init_l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1284,7 +1284,7 @@ x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__3() {
+static lean_object* _init_l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1292,7 +1292,7 @@ x_1 = lean_mk_string_unchecked("InfoTrees", 9, 9);
 return x_1;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__4() {
+static lean_object* _init_l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1300,20 +1300,20 @@ x_1 = lean_mk_string_unchecked("elabInfoTrees", 13, 13);
 return x_1;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__5() {
+static lean_object* _init_l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___closed__1;
-x_2 = l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__1;
-x_3 = l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__2;
-x_4 = l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__3;
-x_5 = l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__4;
+x_2 = l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__1;
+x_3 = l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__2;
+x_4 = l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__3;
+x_5 = l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__4;
 x_6 = l_Lean_Name_mkStr5(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__6() {
+static lean_object* _init_l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -1321,7 +1321,7 @@ x_1 = l_Lean_Elab_Command_commandElabAttribute;
 return x_1;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__7() {
+static lean_object* _init_l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -1329,32 +1329,32 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees), 4,
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__6;
+x_2 = l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__6;
 x_3 = l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___closed__3;
-x_4 = l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__5;
-x_5 = l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__7;
+x_4 = l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__5;
+x_5 = l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__7;
 x_6 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_5, x_1);
 return x_6;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees_docString__1___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees_docString__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`/-- ... -/ #guard_msgs in cmd` captures the messages generated by the command `cmd`\nand checks that they match the contents of the docstring.\n\nBasic example:\n```lean\n/--\nerror: unknown identifier 'x'\n-/\n#guard_msgs in\nexample : α := x\n```\nThis checks that there is such an error and then consumes the message.\n\nBy default, the command captures all messages, but the filter condition can be adjusted.\nFor example, we can select only warnings:\n```lean\n/--\nwarning: declaration uses 'sorry'\n-/\n#guard_msgs(warning) in\nexample : α := sorry\n```\nor only errors\n```lean\n#guard_msgs(error) in\nexample : α := sorry\n```\nIn the previous example, since warnings are not captured there is a warning on `sorry`.\nWe can drop the warning completely with\n```lean\n#guard_msgs(error, drop warning) in\nexample : α := sorry\n```\n\nIn general, `#guard_msgs` accepts a comma-separated list of configuration clauses in parentheses:\n```\n#guard_msgs (configElt,*) in cmd\n```\nBy default, the configuration list is `(all, whitespace := normalized, ordering := exact)`.\n\nMessage filters (processed in left-to-right order):\n- `info`, `warning`, `error`: capture messages with the given severity level.\n- `all`: capture all messages (the default).\n- `drop info`, `drop warning`, `drop error`: drop messages with the given severity level.\n- `drop all`: drop every message.\n\nWhitespace handling (after trimming leading and trailing whitespace):\n- `whitespace := exact` requires an exact whitespace match.\n- `whitespace := normalized` converts all newline characters to a space before matching\n  (the default). This allows breaking long lines.\n- `whitespace := lax` collapses whitespace to a single space before matching.\n\nMessage ordering:\n- `ordering := exact` uses the exact ordering of the messages (the default).\n- `ordering := sorted` sorts the messages in lexicographic order.\n  This helps with testing commands that are non-deterministic in their ordering.\n\nFor example, `#guard_msgs (error, drop all) in cmd` means to check warnings and drop\neverything else.\n\nThe command elaborator has special support for `#guard_msgs` for linting.\nThe `#guard_msgs` itself wants to capture linter warnings,\nso it elaborates the command it is attached to as if it were a top-level command.\nHowever, the command elaborator runs linters for *all* top-level commands,\nwhich would include `#guard_msgs` itself, and would cause duplicate and/or uncaptured linter warnings.\nThe top-level command elaborator only runs the linters if `#guard_msgs` is not present.\n", 2519, 2515);
+x_1 = lean_mk_string_unchecked("`/-- ... -/ #guard_msgs in cmd` captures the messages generated by the command `cmd`\nand checks that they match the contents of the docstring.\n\nBasic example:\n```lean\n/--\nerror: unknown identifier 'x'\n-/\n#guard_msgs in\nexample : α := x\n```\nThis checks that there is such an error and then consumes the message.\n\nBy default, the command captures all messages, but the filter condition can be adjusted.\nFor example, we can select only warnings:\n```lean\n/--\nwarning: declaration uses 'sorry'\n-/\n#guard_msgs(warning) in\nexample : α := sorry\n```\nor only errors\n```lean\n#guard_msgs(error) in\nexample : α := sorry\n```\nIn the previous example, since warnings are not captured there is a warning on `sorry`.\nWe can drop the warning completely with\n```lean\n#guard_msgs(error, drop warning) in\nexample : α := sorry\n```\n\nIn general, `#guard_msgs` accepts a comma-separated list of configuration clauses in parentheses:\n```\n#guard_msgs (configElt,*) in cmd\n```\nBy default, the configuration list is `(check all, whitespace := normalized, ordering := exact)`.\n\nMessage filters select messages by severity:\n- `info`, `warning`, `error`: (non-trace) messages with the given severity level.\n- `trace`: trace messages\n- `all`: all messages.\n\nThe filters can be prefixed with the action to take:\n- `check` (the default): capture and check the message\n- `drop`: drop the message\n- `pass`: let the message pass through\n\nIf no filter is specified, `check all` is assumed.  Otherwise, these filters are processed in\nleft-to-right order, with an implicit `pass all` at the end.\n\nWhitespace handling (after trimming leading and trailing whitespace):\n- `whitespace := exact` requires an exact whitespace match.\n- `whitespace := normalized` converts all newline characters to a space before matching\n  (the default). This allows breaking long lines.\n- `whitespace := lax` collapses whitespace to a single space before matching.\n\nMessage ordering:\n- `ordering := exact` uses the exact ordering of the messages (the default).\n- `ordering := sorted` sorts the messages in lexicographic order.\n  This helps with testing commands that are non-deterministic in their ordering.\n\nFor example, `#guard_msgs (error, drop all) in cmd` means to check warnings and drop\neverything else.\n\nThe command elaborator has special support for `#guard_msgs` for linting.\nThe `#guard_msgs` itself wants to capture linter warnings,\nso it elaborates the command it is attached to as if it were a top-level command.\nHowever, the command elaborator runs linters for *all* top-level commands,\nwhich would include `#guard_msgs` itself, and would cause duplicate and/or uncaptured linter warnings.\nThe top-level command elaborator only runs the linters if `#guard_msgs` is not present.\n", 2733, 2729);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees_docString__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees_docString__3(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__5;
-x_3 = l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees_docString__1___closed__1;
+x_2 = l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__5;
+x_3 = l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees_docString__3___closed__1;
 x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
 return x_4;
 }
@@ -1384,26 +1384,26 @@ l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___closed__5 = _init_l_Lean_Elab_Tacti
 lean_mark_persistent(l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___closed__5);
 l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___closed__6 = _init_l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___closed__6();
 lean_mark_persistent(l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___closed__6);
-l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__1 = _init_l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__1();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__1);
-l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__2 = _init_l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__2();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__2);
-l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__3 = _init_l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__3();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__3);
-l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__4 = _init_l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__4();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__4);
-l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__5 = _init_l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__5();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__5);
-l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__6 = _init_l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__6();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__6);
-l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__7 = _init_l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__7();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__7);
-if (builtin) {res = l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1(lean_io_mk_world());
+l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__1 = _init_l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__1();
+lean_mark_persistent(l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__1);
+l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__2 = _init_l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__2();
+lean_mark_persistent(l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__2);
+l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__3 = _init_l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__3();
+lean_mark_persistent(l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__3);
+l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__4 = _init_l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__4();
+lean_mark_persistent(l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__4);
+l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__5 = _init_l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__5();
+lean_mark_persistent(l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__5);
+l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__6 = _init_l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__6();
+lean_mark_persistent(l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__6);
+l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__7 = _init_l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__7();
+lean_mark_persistent(l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1___closed__7);
+if (builtin) {res = l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees__1(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees_docString__1___closed__1 = _init_l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees_docString__1___closed__1();
-lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees_docString__1___closed__1);
-if (builtin) {res = l___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees_docString__1(lean_io_mk_world());
+}l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees_docString__3___closed__1 = _init_l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees_docString__3___closed__1();
+lean_mark_persistent(l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees_docString__3___closed__1);
+if (builtin) {res = l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuiltin_Lean_Elab_Tactic_InfoTrees_elabInfoTrees_docString__3(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }return lean_io_result_mk_ok(lean_box(0));

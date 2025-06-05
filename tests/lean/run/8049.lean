@@ -25,13 +25,11 @@ elab "test" : tactic => do
       levelParams := []
     }
 
-/--
-info: [Elab.debug] traced
--/
+/-- trace: [Elab.debug] traced -/
 #guard_msgs in
 theorem f1 : True := by test; trivial
 
-/-- info: [Elab.debug] traced -/
+/-- trace: [Elab.debug] traced -/
 #guard_msgs in
 def f2 : True := by test; trivial
 

@@ -19,17 +19,17 @@ abbrev problem₁ [∀ n, OfNat α n] [Neg α] [Mul α] [Sub α] [Add α] [LE α
   7*x - 9*y ≤ 4
 
 /--
-info: [grind.cutsat.model] x := 241/154
+trace: [grind.cutsat.model] x := 241/154
 [grind.cutsat.model] y := 1
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.cutsat.model true in
 example (x y : Int) : problem₁ x y → False := by
   fail_if_success grind +qlia -- Rational counterexamples allowed
   sorry
 
 /-- info: true -/
-#guard_msgs (info) in
+#guard_msgs in
 open Std.Internal in
 #eval problem₁ (241/154 : Rat) (1 : Rat)
 

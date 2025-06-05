@@ -14,10 +14,13 @@ theorem ex1 : (@OfNat.ofNat Nat 0 Zero.toOfNat0) = @OfNat.ofNat Nat 1 One.toOfNa
   rfl
 
 /--
-error: tactic 'apply' failed, failed to unify
+error: tactic 'apply' failed, could not unify the conclusion of `@congrArg`
   ?_ ?_ = ?_ ?_
-with
+with the goal
   OfNat.ofNat 0 = OfNat.ofNat 1
+
+Note: The full type of `@congrArg` is
+  ∀ {α : Sort _} {β : Sort _} {a₁ a₂ : α} (f : α → β), a₁ = a₂ → f a₁ = f a₂
 ⊢ OfNat.ofNat 0 = OfNat.ofNat 1
 -/
 #guard_msgs in
@@ -27,10 +30,13 @@ example : (@OfNat.ofNat Nat 0 Zero.toOfNat0) = @OfNat.ofNat Nat 1 One.toOfNat1 :
   apply rfl
 
 /--
-error: tactic 'apply' failed, failed to unify
+error: tactic 'apply' failed, could not unify the conclusion of `@congrArg`
   ?_ ?_ = ?_ ?_
-with
+with the goal
   OfNat.ofNat 0 = OfNat.ofNat 1
+
+Note: The full type of `@congrArg` is
+  ∀ {α : Sort _} {β : Sort _} {a₁ a₂ : α} (f : α → β), a₁ = a₂ → f a₁ = f a₂
 ⊢ OfNat.ofNat 0 = OfNat.ofNat 1
 -/
 #guard_msgs in

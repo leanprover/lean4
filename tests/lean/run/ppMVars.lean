@@ -13,8 +13,8 @@ Default values
 /-- info: ?a : Nat -/
 #guard_msgs in #check (?a : Nat)
 
-/-- info: ⊢ Sort ?u.1 -/
-#guard_msgs (info, drop all) in
+/-- trace: ⊢ Sort ?u.1 -/
+#guard_msgs (trace, drop all) in
 example : (by_elab do return .sort (.mvar (.mk (.num `_uniq 1)))) := by
   trace_state
   sorry
@@ -31,14 +31,14 @@ set_option pp.mvars false
 /-- info: ?_ : Nat -/
 #guard_msgs in #check (_ : Nat)
 
-/-- info: ⊢ Sort _ -/
-#guard_msgs (info, drop all) in
+/-- trace: ⊢ Sort _ -/
+#guard_msgs (trace, drop all) in
 example : (by_elab do return .sort (.mvar (.mk (.num `_uniq 1)))) := by
   trace_state
   sorry
 
-/-- info: ⊢ Type _ -/
-#guard_msgs (info, drop all) in
+/-- trace: ⊢ Type _ -/
+#guard_msgs (trace, drop all) in
 example : Type _ := by
   trace_state
   sorry
@@ -63,14 +63,14 @@ set_option pp.mvars.levels false
   Lean.MonadMCtx.modifyMCtx fun mctx => mctx.addExprMVarDecl mvarId .anonymous lctx {} type .natural 0
   return .mvar mvarId
 
-/-- info: ⊢ Sort _ -/
-#guard_msgs (info, drop all) in
+/-- trace: ⊢ Sort _ -/
+#guard_msgs (trace, drop all) in
 example : (by_elab do return .sort (.mvar (.mk (.num `_uniq 1)))) := by
   trace_state
   sorry
 
-/-- info: ⊢ Type _ -/
-#guard_msgs (info, drop all) in
+/-- trace: ⊢ Type _ -/
+#guard_msgs (trace, drop all) in
 example : Type _ := by
   trace_state
   sorry
@@ -95,14 +95,14 @@ set_option pp.mvars.anonymous false
   Lean.MonadMCtx.modifyMCtx fun mctx => mctx.addExprMVarDecl mvarId .anonymous lctx {} type .natural 0
   return .mvar mvarId
 
-/-- info: ⊢ Sort _ -/
-#guard_msgs (info, drop all) in
+/-- trace: ⊢ Sort _ -/
+#guard_msgs (trace, drop all) in
 example : (by_elab do return .sort (.mvar (.mk (.num `_uniq 1)))) := by
   trace_state
   sorry
 
-/-- info: ⊢ Type _ -/
-#guard_msgs (info, drop all) in
+/-- trace: ⊢ Type _ -/
+#guard_msgs (trace, drop all) in
 example : Type _ := by
   trace_state
   sorry

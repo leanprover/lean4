@@ -73,8 +73,10 @@ static void abort_on_panic() {
     }
 }
 
+FILE * g_saved_stderr = stderr;
+
 extern "C" LEAN_EXPORT void lean_internal_panic(char const * msg) {
-    std::cerr << "INTERNAL PANIC: " << msg << "\n";
+    fprintf(g_saved_stderr, "INTERNAL PANIC: %s\n", msg);
     abort_on_panic();
     std::exit(1);
 }
@@ -1462,7 +1464,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_shiftl(b_lean_obj_arg a1, b_lean_ob
     return mpz_to_nat(r);
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_nat_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_big_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (!lean_is_scalar(a2)) {
         return lean_box(0); // This large of an exponent must be 0.
     }
@@ -2653,6 +2655,7 @@ extern "C" LEAN_EXPORT lean_external_class * lean_register_external_class(lean_e
 }
 
 void initialize_object() {
+    g_saved_stderr = stderr;  // Save original pointer early
     g_ext_classes       = new std::vector<external_object_class*>();
     g_ext_classes_mutex = new mutex();
     g_array_empty       = lean_alloc_array(0, 0);

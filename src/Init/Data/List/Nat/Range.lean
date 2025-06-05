@@ -617,9 +617,6 @@ set_option linter.deprecated false
 @[deprecated zipIdx_eq_nil_iff (since := "2025-01-21"), simp]
 theorem enum_eq_nil_iff {l : List α} : List.enum l = [] ↔ l = [] := enumFrom_eq_nil
 
-@[deprecated zipIdx_eq_nil_iff (since := "2024-11-04")]
-theorem enum_eq_nil {l : List α} : List.enum l = [] ↔ l = [] := enum_eq_nil_iff
-
 @[deprecated zipIdx_singleton (since := "2025-01-21"), simp]
 theorem enum_singleton (x : α) : enum [x] = [(0, x)] := rfl
 

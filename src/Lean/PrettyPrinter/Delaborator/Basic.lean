@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
 prelude
-import Lean.Elab.Term
+import Lean.KeyedDeclsAttribute
 import Lean.PrettyPrinter.Delaborator.Options
 import Lean.PrettyPrinter.Delaborator.SubExpr
 import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
@@ -323,11 +323,13 @@ inductive OmissionReason
   | deep
   | proof
   | maxSteps
+  | string (s : String)
 
 def OmissionReason.toString : OmissionReason → String
   | deep => "Term omitted due to its depth (see option `pp.deepTerms`)."
   | proof => "Proof omitted (see option `pp.proofs`)."
   | maxSteps => "Term omitted due to reaching the maximum number of steps allowed for pretty printing this expression (see option `pp.maxSteps`)."
+  | string s => s
 
 def addOmissionInfo (pos : Pos) (stx : Syntax) (e : Expr) (reason : OmissionReason) : DelabM Unit := do
   addDelabTermInfo pos stx e (docString? := reason.toString) (explicit := false)

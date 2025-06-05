@@ -17,11 +17,11 @@ def h (as : List Nat) :=
   | _::_::_ => 3
 
 /--
-info: [grind] closed `grind.1`
+trace: [grind] closed `grind.1`
 [grind] closed `grind.2`
 [grind] closed `grind.3`
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind true in
 example : h as ≠ 0 := by
   grind [h.eq_def]

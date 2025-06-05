@@ -771,7 +771,7 @@ private def cacheResult (cacheKey : SynthInstanceCacheKey) (abstResult? : Option
     if abstResult.numMVars == 0 && abstResult.paramNames.isEmpty then
       -- See `applyCachedAbstractResult?` If new metavariables have **not** been introduced,
       -- we don't need to perform extra checks again when reusing result.
-      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey (some { expr := result, paramNames := #[], numMVars := 0 }) }
+      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey (some { expr := result, paramNames := #[], mvars := #[] }) }
     else
       modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey (some abstResult) }
 

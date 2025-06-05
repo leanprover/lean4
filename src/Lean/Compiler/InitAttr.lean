@@ -140,7 +140,7 @@ def setBuiltinInitAttr (env : Environment) (declName : Name) (initFnName : Name 
   builtinInitAttr.setParam env declName initFnName
 
 def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit := do
-  let name ← mkAuxName (`_regBuiltin ++ forDecl) 1
+  let name ← mkAuxDeclName (kind := `_regBuiltin ++ forDecl)
   let type := mkApp (mkConst `IO) (mkConst `Unit)
   let decl := Declaration.defnDecl { name, levelParams := [], type, value, hints := ReducibilityHints.opaque,
                                      safety := DefinitionSafety.safe }

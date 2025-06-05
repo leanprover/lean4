@@ -451,8 +451,8 @@ def buildSharedLib
   (extraDepTrace : JobM _ := pure BuildTrace.nil)
   (plugin := false) (linkDeps := Platform.isWindows)
 : SpawnM (Job Dynlib) :=
-  (Job.collectArray linkObjs "linkObjs").bindM fun objs => do
-  (Job.collectArray linkLibs "linkLibs").mapM (sync := true) fun libs => do
+  (Job.collectArray linkObjs "linkObjs").bindM (sync := true) fun objs => do
+  (Job.collectArray linkLibs "linkLibs").mapM fun libs => do
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- shared libraries are platform-dependent artifacts
     addTrace (← extraDepTrace)
@@ -472,8 +472,8 @@ def buildLeanSharedLib
   (weakArgs traceArgs : Array String := #[]) (plugin := false)
   (linkDeps := Platform.isWindows)
 : SpawnM (Job Dynlib) :=
-  (Job.collectArray linkObjs "linkObjs").bindM fun objs => do
-  (Job.collectArray linkLibs "linkLibs").mapM (sync := true) fun libs => do
+  (Job.collectArray linkObjs "linkObjs").bindM (sync := true) fun objs => do
+  (Job.collectArray linkLibs "linkLibs").mapM fun libs => do
     addLeanTrace
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- shared libraries are platform-dependent artifacts
@@ -494,8 +494,8 @@ def buildLeanExe
   (linkObjs : Array (Job FilePath)) (linkLibs : Array (Job Dynlib))
   (weakArgs traceArgs : Array String := #[]) (sharedLean : Bool := false)
 : SpawnM (Job FilePath) :=
-  (Job.collectArray linkObjs "linkObjs").bindM fun objs => do
-  (Job.collectArray linkLibs "linkLibs").mapM (sync := true) fun libs => do
+  (Job.collectArray linkObjs "linkObjs").bindM (sync := true) fun objs => do
+  (Job.collectArray linkLibs "linkLibs").mapM fun libs => do
     addLeanTrace
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- executables are platform-dependent artifacts

@@ -6,12 +6,12 @@ example (a : Nat) : let n := 0; n + a = a := by
   simp (config := { zeta := false }) [n]
 
 /--
-info: a b : Nat
+trace: a b : Nat
 h : a = b
 n : Nat := 0
 ⊢ n + a = b
 ---
-info: a b : Nat
+trace: a b : Nat
 h : a = b
 n : Nat := 0
 ⊢ a = b

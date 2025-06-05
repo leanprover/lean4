@@ -277,12 +277,6 @@ abbrev gitHubRelease (self : Package) : BuildInfo :=
 abbrev optGitHubRelease (self : Package) : BuildInfo :=
   self.facetCore optGitHubReleaseFacet
 
-@[deprecated gitHubRelease (since := "2024-09-27")]
-abbrev release := @gitHubRelease
-
-@[deprecated optGitHubRelease (since := "2024-09-27")]
-abbrev optRelease := @optGitHubRelease
-
 @[inherit_doc extraDepFacet]
 abbrev extraDep (self : Package) : BuildInfo :=
   self.facetCore extraDepFacet

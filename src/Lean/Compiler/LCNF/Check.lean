@@ -140,7 +140,7 @@ def checkAppArgs (f : Expr) (args : Array Arg) : CheckM Unit := do
 
 def checkLetValue (e : LetValue) : CheckM Unit := do
   match e with
-  | .value .. | .erased => pure ()
+  | .lit .. | .erased => pure ()
   | .const declName us args => checkAppArgs (mkConst declName us) args
   | .fvar fvarId args => checkFVar fvarId; checkAppArgs (.fvar fvarId) args
   | .proj _ _ fvarId => checkFVar fvarId

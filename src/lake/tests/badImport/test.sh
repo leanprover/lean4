@@ -16,7 +16,7 @@ test_err "Building Etc" build Lib.U Etc
 test_err "U.lean:2:0: unknown module prefix 'Bogus'" build +Lib.U
 test_err "U.lean:2:0: error: unknown module prefix 'Bogus'" lean ./Lib/U.lean
 test_run setup-file ./Lib/U.lean # Lake ignores the unknown import (the server will error)
-# Test importing onself
+# Test importing oneself
 test_err "S.lean: module imports itself" build +Lib.S
 test_err "S.lean: module imports itself" lean ./Lib/S.lean
 test_err "S.lean: module imports itself" setup-file ./Lib/S.lean

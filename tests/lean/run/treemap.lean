@@ -36,13 +36,13 @@ example [TransOrd α] [LawfulEqOrd α] (a : α) (b : β) : Option β :=
   (mkTreeMapSingleton a b)[a]?
 
 example [TransOrd α] (a : α) (b : β) : (mkTreeMapSingleton a b).contains a := by
-  simp [mkTreeMapSingleton, Id.run]
+  simp [mkTreeMapSingleton]
 
 example [TransOrd α] (a : α) (b : β) : (mkDTreeMapSingleton a b).contains a := by
-  simp [mkDTreeMapSingleton, Id.run]
+  simp [mkDTreeMapSingleton]
 
 example [TransOrd α] (a : α) : (mkTreeSetSingleton a).contains a := by
-  simp [mkTreeSetSingleton, Id.run]
+  simp [mkTreeSetSingleton]
 
 namespace DTreeMap.Raw
 

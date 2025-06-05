@@ -126,9 +126,10 @@ theorem le_length_eraseP {l : List α} : l.length - 1 ≤ (l.eraseP p).length :=
   rw [length_eraseP]
   split <;> simp
 
+@[grind →]
 theorem mem_of_mem_eraseP {l : List α} : a ∈ l.eraseP p → a ∈ l := (eraseP_subset ·)
 
-@[simp] theorem mem_eraseP_of_neg {l : List α} (pa : ¬p a) : a ∈ l.eraseP p ↔ a ∈ l := by
+@[simp, grind] theorem mem_eraseP_of_neg {l : List α} (pa : ¬p a) : a ∈ l.eraseP p ↔ a ∈ l := by
   refine ⟨mem_of_mem_eraseP, fun al => ?_⟩
   match exists_or_eq_self_of_eraseP p l with
   | .inl h => rw [h]; assumption
@@ -260,6 +261,7 @@ theorem eraseP_eq_iff {p} {l : List α} :
 theorem Pairwise.eraseP (q) : Pairwise p l → Pairwise p (l.eraseP q) :=
   Pairwise.sublist <| eraseP_sublist
 
+@[grind]
 theorem Nodup.eraseP (p) : Nodup l → Nodup (l.eraseP p) :=
   Pairwise.eraseP p
 
@@ -378,9 +380,10 @@ theorem le_length_erase [LawfulBEq α] {a : α} {l : List α} : l.length - 1 ≤
   rw [length_erase]
   split <;> simp
 
+@[grind →]
 theorem mem_of_mem_erase {a b : α} {l : List α} (h : a ∈ l.erase b) : a ∈ l := erase_subset h
 
-@[simp] theorem mem_erase_of_ne [LawfulBEq α] {a b : α} {l : List α} (ab : a ≠ b) :
+@[simp, grind] theorem mem_erase_of_ne [LawfulBEq α] {a b : α} {l : List α} (ab : a ≠ b) :
     a ∈ l.erase b ↔ a ∈ l :=
   erase_eq_eraseP b l ▸ mem_eraseP_of_neg (mt eq_of_beq ab.symm)
 
@@ -487,6 +490,10 @@ theorem Nodup.mem_erase_iff [LawfulBEq α] {a : α} (d : Nodup l) : a ∈ l.eras
 theorem Nodup.not_mem_erase [LawfulBEq α] {a : α} (h : Nodup l) : a ∉ l.erase a := fun H => by
   simpa using ((Nodup.mem_erase_iff h).mp H).left
 
+-- Only activate `not_mem_erase` when `l.Nodup` is already available.
+grind_pattern List.Nodup.not_mem_erase => a ∈ l.erase a, l.Nodup
+
+@[grind]
 theorem Nodup.erase [LawfulBEq α] (a : α) : Nodup l → Nodup (l.erase a) :=
   Pairwise.erase a
 

@@ -184,7 +184,7 @@ info: Array.heapSort.loop.eq_1 fun a b =>
     match e : a.max with
     | none => out
     | some x =>
-      let_fun this := ⋯;
+      have this := ⋯;
       Array.heapSort.loop (fun a b => decide (a < b)) a.popMax (out.push x)
 -/
 #guard_msgs in

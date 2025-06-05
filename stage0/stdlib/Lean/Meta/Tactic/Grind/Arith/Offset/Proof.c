@@ -104,7 +104,6 @@ static lean_object* l_Lean_Meta_Grind_Arith_Offset_mkTrans___closed__4;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_mkTrans___closed__9;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_mkPropagateEqTrueProof___closed__7;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_mkTrans___closed__31;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_mkPropagateEqFalseProof___closed__21;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_mkTrans___closed__33;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_mkOfNegEqFalse___closed__10;
@@ -151,6 +150,7 @@ lean_object* l_Lean_PersistentArray_get_x21___rarg(lean_object*, lean_object*, l
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_mkTrans___closed__34;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_mkTrans___closed__11;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_mkUnsatProof___closed__9;
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_mkTrans___closed__29;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Proof_0__Lean_Meta_Grind_Arith_Offset_toExprN___closed__7;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_mkPropagateEqTrueProof___closed__1;
@@ -294,7 +294,7 @@ x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Proof_0__Lean_Meta_Grind_A
 x_3 = lean_unsigned_to_nat(20u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Proof_0__Lean_Meta_Grind_Arith_Offset_toExprN___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1303,7 +1303,7 @@ x_2 = l_Lean_Meta_Grind_Arith_Offset_mkUnsatProof___closed__3;
 x_3 = lean_unsigned_to_nat(107u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Lean_Meta_Grind_Arith_Offset_mkUnsatProof___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1364,7 +1364,7 @@ x_2 = l_Lean_Meta_Grind_Arith_Offset_mkUnsatProof___closed__3;
 x_3 = lean_unsigned_to_nat(104u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Lean_Meta_Grind_Arith_Offset_mkUnsatProof___closed__9;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1455,7 +1455,7 @@ x_2 = l_Lean_Meta_Grind_Arith_Offset_mkUnsatProof___closed__3;
 x_3 = lean_unsigned_to_nat(96u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Lean_Meta_Grind_Arith_Offset_mkUnsatProof___closed__18;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1651,7 +1651,7 @@ x_2 = l_Lean_Meta_Grind_Arith_Offset_mkPropagateEqTrueProof___closed__3;
 x_3 = lean_unsigned_to_nat(133u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Lean_Meta_Grind_Arith_Offset_mkPropagateEqTrueProof___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1682,7 +1682,7 @@ x_2 = l_Lean_Meta_Grind_Arith_Offset_mkPropagateEqTrueProof___closed__3;
 x_3 = lean_unsigned_to_nat(134u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Lean_Meta_Grind_Arith_Offset_mkPropagateEqTrueProof___closed__6;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1743,7 +1743,7 @@ x_2 = l_Lean_Meta_Grind_Arith_Offset_mkPropagateEqTrueProof___closed__3;
 x_3 = lean_unsigned_to_nat(130u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Lean_Meta_Grind_Arith_Offset_mkPropagateEqTrueProof___closed__12;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1846,7 +1846,7 @@ x_2 = l_Lean_Meta_Grind_Arith_Offset_mkPropagateEqTrueProof___closed__3;
 x_3 = lean_unsigned_to_nat(120u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Lean_Meta_Grind_Arith_Offset_mkPropagateEqTrueProof___closed__12;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -2084,7 +2084,7 @@ x_2 = l_Lean_Meta_Grind_Arith_Offset_mkPropagateEqFalseProof___closed__1;
 x_3 = lean_unsigned_to_nat(158u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Lean_Meta_Grind_Arith_Offset_mkPropagateEqTrueProof___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -2115,7 +2115,7 @@ x_2 = l_Lean_Meta_Grind_Arith_Offset_mkPropagateEqFalseProof___closed__1;
 x_3 = lean_unsigned_to_nat(159u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Lean_Meta_Grind_Arith_Offset_mkPropagateEqFalseProof___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -2158,7 +2158,7 @@ x_2 = l_Lean_Meta_Grind_Arith_Offset_mkPropagateEqFalseProof___closed__1;
 x_3 = lean_unsigned_to_nat(155u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Lean_Meta_Grind_Arith_Offset_mkPropagateEqTrueProof___closed__12;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -2261,7 +2261,7 @@ x_2 = l_Lean_Meta_Grind_Arith_Offset_mkPropagateEqFalseProof___closed__1;
 x_3 = lean_unsigned_to_nat(144u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Lean_Meta_Grind_Arith_Offset_mkPropagateEqFalseProof___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

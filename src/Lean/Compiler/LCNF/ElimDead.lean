@@ -37,7 +37,7 @@ def collectLocalDeclsArgs (s : UsedLocalDecls) (args : Array Arg) : UsedLocalDec
 
 def collectLocalDeclsLetValue (s : UsedLocalDecls) (e : LetValue) : UsedLocalDecls :=
   match e with
-  | .erased  | .value .. => s
+  | .erased  | .lit .. => s
   | .proj _ _ fvarId => s.insert fvarId
   | .const _ _ args => collectLocalDeclsArgs s args
   | .fvar fvarId args => collectLocalDeclsArgs (s.insert fvarId) args

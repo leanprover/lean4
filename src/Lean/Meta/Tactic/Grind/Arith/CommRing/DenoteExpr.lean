@@ -17,7 +17,7 @@ variable [Monad M] [MonadGetRing M]
 private def denoteNum (k : Int) : M Expr := do
   let ring ← getRing
   let n := mkRawNatLit k.natAbs
-  let ofNatInst := mkApp3 (mkConst ``Grind.CommRing.ofNat [ring.u]) ring.type ring.commRingInst n
+  let ofNatInst := mkApp3 (mkConst ``Grind.Semiring.ofNat [ring.u]) ring.type ring.semiringInst n
   let n := mkApp3 (mkConst ``OfNat.ofNat [ring.u]) ring.type n ofNatInst
   if k < 0 then
     return mkApp ring.negFn n

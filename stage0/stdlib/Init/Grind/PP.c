@@ -22,6 +22,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_NodeDef_noConfusion(lean_object*, lean_obj
 static lean_object* l_Lean_Grind_nodeDefUnexpander___closed__8;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_NodeDef_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Grind_nodeDefUnexpander___closed__4;
 static lean_object* l_Lean_Grind_nodeDefUnexpander___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Grind_node__def(lean_object*, lean_object*, lean_object*);
@@ -45,7 +46,6 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_NodeDefUnexpander___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_node__def___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_NodeDef_toCtorIdx(lean_object* x_1) {
 _start:
 {
@@ -244,7 +244,7 @@ else
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 x_19 = l_Lean_TSyntax_getNat(x_14);
 lean_dec(x_14);
-x_20 = l___private_Init_Data_Repr_0__Nat_reprFast(x_19);
+x_20 = l_Nat_reprFast(x_19);
 x_21 = l_Lean_Grind_nodeDefUnexpander___closed__8;
 x_22 = lean_string_append(x_21, x_20);
 lean_dec(x_20);

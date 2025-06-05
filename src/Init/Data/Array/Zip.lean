@@ -346,6 +346,36 @@ theorem unzip_eq_map {xs : Array (α × β)} : unzip xs = (xs.map Prod.fst, xs.m
   cases xs
   simp [List.unzip_eq_map]
 
+theorem getElem?_fst_unzip {xs : Array (α × β)} {i : Nat} :
+    (unzip xs).fst[i]? = xs[i]?.map Prod.fst := by simp
+
+theorem getElem?_snd_unzip {xs : Array (α × β)} {i : Nat} :
+    (unzip xs).snd[i]? = xs[i]?.map Prod.snd := by simp
+
+theorem getElem?_fst_unzip_eq_some {xs : Array (α × β)} {i : Nat} :
+    (unzip xs).fst[i]? = some a ↔ ∃ b, xs[i]? = some (a, b) := by simp
+
+theorem getElem?_snd_unzip_eq_some {xs : Array (α × β)} {i : Nat} :
+    (unzip xs).snd[i]? = some b ↔ ∃ a, xs[i]? = some (a, b) := by simp
+
+theorem size_fst_unzip {xs : Array (α × β)} :
+    size (unzip xs).fst = xs.size := by simp
+
+theorem size_snd_unzip {xs : Array (α × β)} :
+    size (unzip xs).snd = xs.size := by simp
+
+theorem lt_size_of_unzip_fst {i : Nat} {xs : Array (α × β)} (h : i < (unzip xs).fst.size) :
+    i < xs.size := by simp_all
+
+theorem lt_size_of_unzip_snd {i : Nat} {xs : Array (α × β)} (h : i < (unzip xs).snd.size) :
+    i < xs.size := by simp_all
+
+theorem getElem_fst_unzip {xs : Array (α × β)} {i : Nat} {h : i < (unzip xs).fst.size} :
+    (unzip xs).fst[i] = (xs[i]'(lt_size_of_unzip_fst h)).fst := by simp
+
+theorem getElem_snd_unzip {xs : Array (α × β)} {i : Nat} {h : i < (unzip xs).snd.size} :
+    (unzip xs).snd[i] = (xs[i]'(lt_size_of_unzip_snd h)).snd := by simp
+
 -- The argument `xs` is explicit so we can rewrite from right to left.
 theorem zip_unzip (xs : Array (α × β)) : zip (unzip xs).1 (unzip xs).2 = xs := by
   cases xs

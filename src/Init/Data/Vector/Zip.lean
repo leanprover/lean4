@@ -269,6 +269,24 @@ theorem unzip_eq_map {xs : Vector (α × β) n} : unzip xs = (xs.map Prod.fst, x
   cases xs
   simp [List.unzip_eq_map]
 
+theorem getElem?_fst_unzip {xs : Vector (α × β) n} {i : Nat} :
+    (unzip xs).fst[i]? = xs[i]?.map Prod.fst := by simp
+
+theorem getElem?_snd_unzip {xs : Vector (α × β) n} {i : Nat} :
+    (unzip xs).snd[i]? = xs[i]?.map Prod.snd := by simp
+
+theorem getElem?_fst_unzip_eq_some {xs : Vector (α × β) n} {i : Nat} :
+    (unzip xs).fst[i]? = some a ↔ ∃ b, xs[i]? = some (a, b) := by simp
+
+theorem getElem?_snd_unzip_eq_some {xs : Vector (α × β) n} {i : Nat} :
+    (unzip xs).snd[i]? = some b ↔ ∃ a, xs[i]? = some (a, b) := by simp
+
+theorem getElem_fst_unzip {xs : Vector (α × β) n} {i : Nat} {h : i < n} :
+    (unzip xs).fst[i] = xs[i].fst := by simp
+
+theorem getElem_snd_unzip {xs : Vector (α × β) n} {i : Nat} {h : i < n} :
+    (unzip xs).snd[i] = xs[i].snd := by simp
+
 -- The argument `xs` is explicit so we can rewrite from right to left.
 theorem zip_unzip (xs : Vector (α × β) n) : zip (unzip xs).1 (unzip xs).2 = xs := by
   cases xs

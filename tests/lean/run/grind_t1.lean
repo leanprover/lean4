@@ -260,9 +260,9 @@ h_1 : p
     [prop] p = q
     [prop] p
   [eqc] True propositions
-    [prop] p = q
-    [prop] q
     [prop] p
+    [prop] q
+    [prop] p = q
 -/
 #guard_msgs (error) in
 set_option trace.grind.split true in
@@ -294,9 +294,9 @@ h_1 : p
     [prop] p = ¬q
     [prop] p
   [eqc] True propositions
-    [prop] p = ¬q
-    [prop] ¬q
     [prop] p
+    [prop] ¬q
+    [prop] p = ¬q
   [eqc] False propositions
     [prop] q
 -/
@@ -378,7 +378,7 @@ h_1 : b = true
   [eqc] True propositions
     [prop] b = true
   [eqc] Equivalence classes
-    [eqc] {a, if b = true then 10 else 20, 10}
+    [eqc] {a, 10, if b = true then 10 else 20}
     [eqc] {b, true}
   [cutsat] Assignment satisfying linear constraints
     [assign] a := 10

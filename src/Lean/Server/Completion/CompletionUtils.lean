@@ -66,7 +66,7 @@ where
     else
       shortenIn id contextNamespace.getPrefix
 
-def unfoldeDefinitionGuarded? (e : Expr) : MetaM (Option Expr) :=
+def unfoldDefinitionGuarded? (e : Expr) : MetaM (Option Expr) :=
   try Lean.Meta.unfoldDefinition? e catch _ => pure none
 
 partial def getDotCompletionTypeNames (type : Expr) : MetaM (Array Name) :=
@@ -78,7 +78,7 @@ where
     if isStructure (← getEnv) typeName then
       for parentName in (← getAllParentStructures typeName) do
         modify fun s => s.push parentName
-    let some type ← unfoldeDefinitionGuarded? type | return ()
+    let some type ← unfoldDefinitionGuarded? type | return ()
     visit type
 
 end Lean.Server.Completion

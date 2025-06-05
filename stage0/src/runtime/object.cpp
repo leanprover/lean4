@@ -73,8 +73,10 @@ static void abort_on_panic() {
     }
 }
 
+FILE * g_saved_stderr = stderr;
+
 extern "C" LEAN_EXPORT void lean_internal_panic(char const * msg) {
-    std::cerr << "INTERNAL PANIC: " << msg << "\n";
+    fprintf(g_saved_stderr, "INTERNAL PANIC: %s\n", msg);
     abort_on_panic();
     std::exit(1);
 }
@@ -2653,6 +2655,7 @@ extern "C" LEAN_EXPORT lean_external_class * lean_register_external_class(lean_e
 }
 
 void initialize_object() {
+    g_saved_stderr = stderr;  // Save original pointer early
     g_ext_classes       = new std::vector<external_object_class*>();
     g_ext_classes_mutex = new mutex();
     g_array_empty       = lean_alloc_array(0, 0);

@@ -17,7 +17,7 @@ This module provides an iterator for lists that is accessible via `List.iterM`.
 
 namespace Std.Iterators
 
-variable {α : Type w} {m : Type w → Type w'}
+variable {α : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
 
 /--
 The underlying state of a list iterator. Its contents are internal and should
@@ -47,7 +47,7 @@ instance {α : Type w} [Pure m] : Iterator (ListIterator α) m α where
 
 private def ListIterator.finitenessRelation [Pure m] :
     FinitenessRelation (ListIterator α) m where
-  rel := InvImage WellFoundedRelation.rel (ListIterator.list ∘ BaseIter.internalState)
+  rel := InvImage WellFoundedRelation.rel (ListIterator.list ∘ IterM.internalState)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
@@ -58,11 +58,11 @@ instance [Pure m] : Finite (ListIterator α) m :=
   Finite.of_finitenessRelation ListIterator.finitenessRelation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] : IteratorCollect (ListIterator α) m :=
+instance {α : Type w} [Monad m] [Monad n] : IteratorCollect (ListIterator α) m n :=
   .defaultImplementation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] : IteratorCollectPartial (ListIterator α) m :=
+instance {α : Type w} [Monad m] [Monad n] : IteratorCollectPartial (ListIterator α) m n :=
   .defaultImplementation
 
 @[always_inline, inline]

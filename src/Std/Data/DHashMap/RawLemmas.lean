@@ -102,7 +102,7 @@ theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v 
 theorem mem_iff_contains {m : Raw α β} {a : α} :
     a ∈ m ↔ m.contains a := Iff.rfl
 
-@[simp, grind]
+@[simp, grind _=_]
 theorem contains_iff_mem {m : Raw α β} {a : α} :
     m.contains a ↔ a ∈ m := Iff.rfl
 
@@ -779,7 +779,7 @@ theorem contains_eq_isSome_getKey? [EquivBEq α] [LawfulHashable α] (h : m.WF) 
     m.contains a = (m.getKey? a).isSome := by
   simp_to_raw using Raw₀.contains_eq_isSome_getKey?
 
-@[simp]
+@[simp, grind =]
 theorem isSome_getKey?_eq_contains [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     (m.getKey? a).isSome = m.contains a :=
   (contains_eq_isSome_getKey? h).symm
@@ -1226,7 +1226,7 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.keys.Pairwise (fun a b => (a == b) = false) := by
   simp_to_raw using Raw₀.distinct_keys ⟨m, h.size_buckets_pos⟩ h
 
-@[simp, grind =]
+@[simp, grind _=_]
 theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.map Sigma.fst = m.keys := by
   apply Raw₀.map_fst_toList_eq_keys ⟨m, h.size_buckets_pos⟩
@@ -1277,7 +1277,7 @@ namespace Const
 
 variable {β : Type v} {m : Raw α (fun _ => β)}
 
-@[simp, grind =]
+@[simp, grind _=_]
 theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     (Raw.Const.toList m).map Prod.fst = m.keys := by
   apply Raw₀.Const.map_fst_toList_eq_keys ⟨m, h.size_buckets_pos⟩

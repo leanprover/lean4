@@ -27,7 +27,8 @@ def elabAuxDef : CommandElab
     -- We use a new generator here because we want more control over the name; the default would
     -- create a private name that then breaks the macro below. We assume that `aux_def` is not used
     -- with the same arguments in parallel contexts.
-    let (id, _) := { namePrefix := ns : DeclNameGenerator }.mkUniqueName (← getEnv) («infix» := Name.mkSimple id)
+    let env := (← getEnv).setExporting true
+    let (id, _) := { namePrefix := ns : DeclNameGenerator }.mkUniqueName env («infix» := Name.mkSimple id)
     let id := id.replacePrefix ns Name.anonymous -- TODO: replace with def _root_.id
     elabCommand <|
       ← `($[$doc?:docComment]? $[$attrs?:attributes]?

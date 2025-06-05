@@ -49,30 +49,30 @@ deriving instance BEq for Sum
 section get
 
 /-- Checks whether a sum is the left injection `inl`. -/
-def isLeft : α ⊕ β → Bool
+@[expose] def isLeft : α ⊕ β → Bool
   | inl _ => true
   | inr _ => false
 
 /-- Checks whether a sum is the right injection `inr`. -/
-def isRight : α ⊕ β → Bool
+@[expose] def isRight : α ⊕ β → Bool
   | inl _ => false
   | inr _ => true
 
 /-- Retrieves the contents from a sum known to be `inl`.-/
-def getLeft : (ab : α ⊕ β) → ab.isLeft → α
+@[expose] def getLeft : (ab : α ⊕ β) → ab.isLeft → α
   | inl a, _ => a
 
 /-- Retrieves the contents from a sum known to be `inr`.-/
-def getRight : (ab : α ⊕ β) → ab.isRight → β
+@[expose] def getRight : (ab : α ⊕ β) → ab.isRight → β
   | inr b, _ => b
 
 /-- Checks whether a sum is the left injection `inl` and, if so, retrieves its contents. -/
-def getLeft? : α ⊕ β → Option α
+@[expose] def getLeft? : α ⊕ β → Option α
   | inl a => some a
   | inr _ => none
 
 /-- Checks whether a sum is the right injection `inr` and, if so, retrieves its contents. -/
-def getRight? : α ⊕ β → Option β
+@[expose] def getRight? : α ⊕ β → Option β
   | inr b => some b
   | inl _ => none
 
@@ -95,7 +95,7 @@ end get
 Case analysis for sums that applies the appropriate function `f` or `g` after checking which
 constructor is present.
 -/
-protected def elim {α β γ} (f : α → γ) (g : β → γ) : α ⊕ β → γ :=
+@[expose] protected def elim {α β γ} (f : α → γ) (g : β → γ) : α ⊕ β → γ :=
   fun x => Sum.casesOn x f g
 
 @[simp] theorem elim_inl (f : α → γ) (g : β → γ) (x : α) :
@@ -109,7 +109,7 @@ Transforms a sum according to functions on each type.
 
 This function maps `α ⊕ β` to `α' ⊕ β'`, sending `α` to `α'` and `β` to `β'`.
 -/
-protected def map (f : α → α') (g : β → β') : α ⊕ β → α' ⊕ β' :=
+@[expose] protected def map (f : α → α') (g : β → β') : α ⊕ β → α' ⊕ β' :=
   Sum.elim (inl ∘ f) (inr ∘ g)
 
 @[simp] theorem map_inl (f : α → α') (g : β → β') (x : α) : (inl x).map f g = inl (f x) := rfl
@@ -121,7 +121,7 @@ Swaps the factors of a sum type.
 
 The constructor `Sum.inl` is replaced with `Sum.inr`, and vice versa.
 -/
-def swap : α ⊕ β → β ⊕ α := Sum.elim inr inl
+@[expose] def swap : α ⊕ β → β ⊕ α := Sum.elim inr inl
 
 @[simp] theorem swap_inl : swap (inl x : α ⊕ β) = inr x := rfl
 

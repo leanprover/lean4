@@ -6,7 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Grind.Ordered.PartialOrder
+import Init.Grind.Ordered.Order
 import Init.Grind.Ordered.Module
 import Init.Grind.Ordered.Ring
+import Init.Grind.Ordered.Field
 import Init.Grind.Ordered.Int
+import Init.Grind.Ordered.Linarith

@@ -1477,7 +1477,8 @@ that the `else` is not less indented than the `if` it matches with.
 
 This parser has arity 0 - it does not capture anything. -/
 @[builtin_doc] def checkColGe (errorMsg : String := "checkColGe") : Parser where
-  fn := checkColGeFn errorMsg
+  fn   := checkColGeFn errorMsg
+  info := epsilonInfo
 
 def checkColGtFn (errorMsg : String) : ParserFn := fun c s =>
   match c.savedPos? with
@@ -1975,7 +1976,7 @@ def foldArgsM (s : Syntax) (f : Syntax → β → m β) (b : β) : m β :=
   s.getArgs.foldlM (flip f) b
 
 def foldArgs (s : Syntax) (f : Syntax → β → β) (b : β) : β :=
-  Id.run (s.foldArgsM f b)
+  Id.run (s.foldArgsM (pure <| f · ·) b)
 
 def forArgsM (s : Syntax) (f : Syntax → m Unit) : m Unit :=
   s.foldArgsM (fun s _ => f s) ()

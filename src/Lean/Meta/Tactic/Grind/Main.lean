@@ -54,18 +54,30 @@ def mkMethods (fallback : Fallback) : CoreM Methods := do
        prop e
   }
 
+-- A `simp` discharger that does not use assumptions.
+-- We use it to make sure we don't have to reset the `simp` cache used in `grind`.
+private def discharge? (e : Expr) : SimpM (Option Expr) := do
+  let e := e.cleanupAnnotations
+  let r ← Simp.simp e
+  if let some p ← Simp.dischargeRfl r.expr then
+    return some (mkApp4 (mkConst ``Eq.mpr [levelZero]) e r.expr (← r.getProof) p)
+  else if r.expr.isTrue then
+    return some (← mkOfEqTrue (← r.getProof))
+  else
+    return none
+
 def GrindM.run (x : GrindM α) (params : Params) (fallback : Fallback) : MetaM α := do
-  let scState := ShareCommon.State.mk _
-  let (falseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``False)
-  let (trueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``True)
-  let (bfalseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``Bool.false)
-  let (btrueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``Bool.true)
-  let (natZExpr, scState)  := ShareCommon.State.shareCommon scState (mkNatLit 0)
+  let (falseExpr, scState)  := shareCommonAlpha (mkConst ``False) {}
+  let (trueExpr, scState)   := shareCommonAlpha (mkConst ``True) scState
+  let (bfalseExpr, scState) := shareCommonAlpha (mkConst ``Bool.false) scState
+  let (btrueExpr, scState)  := shareCommonAlpha (mkConst ``Bool.true) scState
+  let (natZExpr, scState)   := shareCommonAlpha (mkNatLit 0) scState
   let simprocs := params.normProcs
+  let simpMethods := Simp.mkMethods simprocs discharge? (wellBehavedDischarge := true)
   let simp := params.norm
   let config := params.config
-  x (← mkMethods fallback).toMethodsRef { config, simprocs, simp }
-    |>.run' { scState, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr }
+  x (← mkMethods fallback).toMethodsRef { config, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr }
+    |>.run' { scState }
 
 private def mkCleanState (mvarId : MVarId) (params : Params) : MetaM Clean.State := mvarId.withContext do
   unless params.config.clean do return {}
@@ -93,25 +105,14 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
     for thm in params.extra do
       activateTheorem thm 0
 
-private def initCore (mvarId : MVarId) (params : Params) : GrindM (List Goal) := do
-  let mvarId ← mvarId.abstractMVars
-  let mvarId ← mvarId.clearAuxDecls
-  let mvarId ← mvarId.revertAll
-  let mvarId ← mvarId.unfoldReducible
-  let mvarId ← mvarId.betaReduce
-  appendTagSuffix mvarId `grind
-  let goals ← intros (← mkGoal mvarId params) (generation := 0)
-  goals.forM (·.checkInvariants (expensive := true))
-  return goals.filter fun goal => !goal.inconsistent
-
 structure Result where
-  failure? : Option Goal
-  skipped  : List Goal
-  issues   : List MessageData
-  config   : Grind.Config
-  trace    : Trace
-  counters : Counters
-  simp     : Simp.Stats
+  failure?   : Option Goal
+  issues     : List MessageData
+  config     : Grind.Config
+  trace      : Trace
+  counters   : Counters
+  simp       : Simp.Stats
+  splitDiags : PArray SplitDiagInfo
 
 private def countersToMessageData (header : String) (cls : Name) (data : Array (Name × Nat)) : MetaM MessageData := do
   let data := data.qsort fun (d₁, c₁) (d₂, c₂) => if c₁ == c₂ then Name.lt d₁ d₂ else c₁ > c₂
@@ -119,8 +120,22 @@ private def countersToMessageData (header : String) (cls : Name) (data : Array (
     return .trace { cls } m!"{.ofConst (← mkConstWithLevelParams declName)} ↦ {counter}" #[]
   return .trace { cls } header data
 
+private def splitDiagInfoToMessageData (ss : Array SplitDiagInfo) : MetaM MessageData := do
+  let env  ← getEnv
+  let mctx ← getMCtx
+  let opts ← getOptions
+  let cls := `split
+  let data ← ss.mapM fun { c, lctx, numCases, gen, splitSource } => do
+    let header := m!"{c}"
+    return MessageData.withContext { env, mctx, lctx, opts } <| .trace { cls } header #[
+      .trace { cls } m!"source: {← splitSource.toMessageData}" #[],
+      .trace { cls } m!"generation: {gen}" #[],
+      .trace { cls } m!"# cases: {numCases}" #[]
+    ]
+  return .trace { cls } "Case splits" data
+
 -- Diagnostics information for the whole search
-private def mkGlobalDiag (cs : Counters) (simp : Simp.Stats) : MetaM (Option MessageData) := do
+private def mkGlobalDiag (cs : Counters) (simp : Simp.Stats) (ss : PArray SplitDiagInfo) : MetaM (Option MessageData) := do
   let thms := cs.thm.toList.toArray.filterMap fun (origin, c) =>
     match origin with
     | .decl declName => some (declName, c)
@@ -130,8 +145,13 @@ private def mkGlobalDiag (cs : Counters) (simp : Simp.Stats) : MetaM (Option Mes
   let mut msgs := #[]
   unless thms.isEmpty do
     msgs := msgs.push <| (← countersToMessageData "E-Matching instances" `thm thms)
+  let ss := ss.toArray.filter fun { numCases, .. } => numCases > 1
+  unless ss.isEmpty do
+    msgs := msgs.push <| (← splitDiagInfoToMessageData ss)
   unless cases.isEmpty do
     msgs := msgs.push <| (← countersToMessageData "Cases instances" `cases cases)
+  unless cs.apps.isEmpty do
+    msgs := msgs.push <| (← countersToMessageData "Applications" `app cs.apps.toList.toArray)
   let simpMsgs ← Simp.mkDiagMessages simp.diag
   unless simpMsgs.isEmpty do
     msgs := msgs.push <| .trace { cls := `grind} "Simplifier" simpMsgs
@@ -155,31 +175,39 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
     -/
     unless issues.isEmpty do
       msgs := msgs ++ [.trace { cls := `grind } "Issues" issues.reverse.toArray]
-    if let some msg ← mkGlobalDiag result.counters result.simp then
+    if let some msg ← mkGlobalDiag result.counters result.simp result.splitDiags then
       msgs := msgs ++ [msg]
   return MessageData.joinSep msgs m!"\n"
+
+private def initCore (mvarId : MVarId) (params : Params) : GrindM Goal := do
+  let mvarId ← mvarId.abstractMVars
+  let mvarId ← mvarId.clearAuxDecls
+  let mvarId ← mvarId.revertAll
+  let mvarId ← mvarId.unfoldReducible
+  let mvarId ← mvarId.betaReduce
+  appendTagSuffix mvarId `grind
+  mkGoal mvarId params
 
 def main (mvarId : MVarId) (params : Params) (fallback : Fallback) : MetaM Result := do profileitM Exception "grind" (← getOptions) do
   if debug.terminalTacticsAsSorry.get (← getOptions) then
     mvarId.admit
     return {
-        failure? := none, skipped := [], issues := [], config := params.config, trace := {}, counters := {}, simp := {}
+        failure? := none, issues := [], config := params.config, trace := {}, counters := {}, simp := {}, splitDiags := {}
     }
-  else
-    let go : GrindM Result := withReducible do
-      let goals ← initCore mvarId params
-      let (failure?, skipped) ← solve goals fallback
-      trace[grind.debug.final] "{← ppGoals goals}"
-      let issues   := (← get).issues
-      let trace    := (← get).trace
-      let counters := (← get).counters
-      let simp     := (← get).simpStats
-      if failure?.isNone then
-        -- If there are no failures and diagnostics are enabled, we still report the performance counters.
-        if (← isDiagnosticsEnabled) then
-          if let some msg ← mkGlobalDiag counters simp then
-            logInfo msg
-      return { failure?, skipped, issues, config := params.config, trace, counters, simp }
-    go.run params fallback
+  let go : GrindM Result := withReducible do
+    let goal       ← initCore mvarId params
+    let failure?   ← solve goal
+    let issues     := (← get).issues
+    let trace      := (← get).trace
+    let counters   := (← get).counters
+    let splitDiags := (← get).splitDiags
+    let simp       := { (← get).simp with }
+    if failure?.isNone then
+      -- If there are no failures and diagnostics are enabled, we still report the performance counters.
+      if (← isDiagnosticsEnabled) then
+        if let some msg ← mkGlobalDiag counters simp splitDiags then
+          logInfo msg
+    return { failure?, issues, config := params.config, trace, counters, simp, splitDiags }
+  go.run params fallback
 
 end Lean.Meta.Grind

@@ -56,7 +56,7 @@ theorem getElem?_take_eq_none {l : List α} {i j : Nat} (h : i ≤ j) :
     (l.take i)[j]? = none :=
   getElem?_eq_none <| Nat.le_trans (length_take_le _ _) h
 
-@[grind =]theorem getElem?_take {l : List α} {i j : Nat} :
+@[grind =] theorem getElem?_take {l : List α} {i j : Nat} :
     (l.take i)[j]? = if j < i then l[j]? else none := by
   split
   · next h => exact getElem?_take_of_lt h
@@ -199,7 +199,7 @@ theorem take_eq_dropLast {l : List α} {i : Nat} (h : i + 1 = l.length) :
         simpa using h
 
 theorem take_prefix_take_left {l : List α} {i j : Nat} (h : i ≤ j) : take i l <+: take j l := by
-  rw [isPrefix_iff]
+  rw [prefix_iff_getElem?]
   intro i w
   rw [getElem?_take_of_lt, getElem_take, getElem?_eq_getElem]
   simp only [length_take] at w

@@ -46,6 +46,8 @@ def hasTrivialStructure? (declName : Name) : CoreM (Option TrivialStructureInfo)
   let .inductInfo info ← getConstInfo declName | return none
   if info.isUnsafe || info.isRec then return none
   let [ctorName] := info.ctors | return none
+  let ctorType ← getOtherDeclBaseType ctorName []
+  if ctorType.isErased then return none
   let mask ← getRelevantCtorFields ctorName
   let mut result := none
   for h : i in [:mask.size] do

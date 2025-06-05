@@ -31,6 +31,11 @@ theorem take_cons {l : List α} (h : 0 < i) : (a :: l).take i = a :: l.take (i -
   | zero => exact absurd h (Nat.lt_irrefl _)
   | succ i => rfl
 
+theorem drop_cons {l : List α} (h : 0 < i) : (a :: l).drop i = l.drop (i - 1) := by
+  cases i with
+  | zero => exact absurd h (Nat.lt_irrefl _)
+  | succ i => rfl
+
 @[simp]
 theorem drop_one : ∀ {l : List α}, l.drop 1 = l.tail
   | [] | _ :: _ => rfl
@@ -251,6 +256,17 @@ theorem dropLast_eq_take {l : List α} : l.dropLast = l.take (l.length - 1) := b
   | _ :: tl, n + 1 => by
     dsimp
     rw [map_drop]
+
+theorem drop_eq_extract {l : List α} {k : Nat} :
+    l.drop k = l.extract k := by
+  induction l generalizing k
+  case nil => simp
+  case cons _ _ ih =>
+    match k with
+    | 0 => simp
+    | _ + 1 =>
+      simp only [List.drop_succ_cons, List.length_cons, ih]
+      simp only [List.extract_eq_drop_take, List.drop_succ_cons, Nat.succ_sub_succ]
 
 /-! ### takeWhile and dropWhile -/
 

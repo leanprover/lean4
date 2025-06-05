@@ -126,6 +126,17 @@ match_text() {
   fi
 }
 
+match_pat() {
+  echo "? grep -E \"$1\""
+  if grep --color -E -- "$1" $2; then
+    return 0
+  else
+    echo "No match found"
+    return 1
+  fi
+}
+
+
 no_match_text() {
   echo "! grep -F \"$1\""
   if grep --color -F -- "$1" $2; then
@@ -148,6 +159,13 @@ test_out() {
   expected=$1; shift
   if lake_out "$@"; then rc=$?; else rc=$?; fi
   match_text "$expected" produced.out
+  return $rc
+}
+
+test_out_pat() {
+  expected=$1; shift
+  if lake_out "$@"; then rc=$?; else rc=$?; fi
+  match_pat "$expected" produced.out
   return $rc
 }
 

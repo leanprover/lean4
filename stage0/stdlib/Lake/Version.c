@@ -34,6 +34,7 @@ static lean_object* l_Lake_versionStringCore___closed__9;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 static lean_object* l_Lake_versionStringCore___closed__5;
 static lean_object* l_Lake_versionStringCore___closed__10;
+lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Lake_versionStringCore___closed__1;
 static lean_object* l_Lake_version_specialDesc___closed__7;
 static lean_object* l_Lake_versionStringCore___closed__6;
@@ -65,7 +66,6 @@ static lean_object* l_Lake_versionStringCore___closed__11;
 static lean_object* l_Lake_version_specialDesc___closed__9;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lake_versionString___closed__5;
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_uiVersionString;
 static lean_object* l_Lake_uiVersionString___closed__6;
 static lean_object* _init_l_Lake_version_major() {
@@ -224,7 +224,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lake_version_major;
-x_2 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_2 = l_Nat_reprFast(x_1);
 return x_2;
 }
 }
@@ -269,7 +269,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lake_version_minor;
-x_2 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_2 = l_Nat_reprFast(x_1);
 return x_2;
 }
 }
@@ -298,7 +298,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lake_version_patch;
-x_2 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_2 = l_Nat_reprFast(x_1);
 return x_2;
 }
 }

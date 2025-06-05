@@ -290,7 +290,7 @@ Examples:
 -/
 @[inline]
 def foldl {α : Type u} {β : Type v} (f : β → α → β) (init : β) (as : Subarray α) : β :=
-  Id.run <| as.foldlM f (init := init)
+  Id.run <| as.foldlM (pure <| f · ·) (init := init)
 
 /--
 Folds an operation from right to left over the elements in a subarray.
@@ -304,7 +304,7 @@ Examples:
 -/
 @[inline]
 def foldr {α : Type u} {β : Type v} (f : α → β → β) (init : β) (as : Subarray α) : β :=
-  Id.run <| as.foldrM f (init := init)
+  Id.run <| as.foldrM (pure <| f · ·) (init := init)
 
 /--
 Checks whether any of the elements in a subarray satisfy a Boolean predicate.
@@ -314,7 +314,7 @@ an element that satisfies the predicate is found.
 -/
 @[inline]
 def any {α : Type u} (p : α → Bool) (as : Subarray α) : Bool :=
-  Id.run <| as.anyM p
+  Id.run <| as.anyM (pure <| p ·)
 
 /--
 Checks whether all of the elements in a subarray satisfy a Boolean predicate.
@@ -324,7 +324,7 @@ an element that does not satisfy the predicate is found.
 -/
 @[inline]
 def all {α : Type u} (p : α → Bool) (as : Subarray α) : Bool :=
-  Id.run <| as.allM p
+  Id.run <| as.allM (pure <| p ·)
 
 /--
 Applies a monadic function to each element in a subarray in reverse order, stopping at the first
@@ -394,7 +394,7 @@ Examples:
 -/
 @[inline]
 def findRev? {α : Type} (as : Subarray α) (p : α → Bool) : Option α :=
-  Id.run <| as.findRevM? p
+  Id.run <| as.findRevM? (pure <| p ·)
 
 end Subarray
 

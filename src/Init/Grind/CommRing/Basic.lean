@@ -71,7 +71,9 @@ class CommRing (α : Type u) extends Ring α, CommSemiring α
 attribute [instance 100] Semiring.toAdd Semiring.toMul Semiring.toHPow Ring.toNeg Ring.toSub
 
 -- This is a low-priority instance, to avoid conflicts with existing `OfNat`, `NatCast`, and `IntCast` instances.
-attribute [instance 100] Semiring.ofNat Semiring.natCast Ring.intCast
+attribute [instance 100] Semiring.ofNat
+
+attribute [local instance] Semiring.natCast Ring.intCast
 
 namespace Semiring
 
@@ -118,7 +120,6 @@ theorem pow_add (a : α) (k₁ k₂ : Nat) : a ^ (k₁ + k₂) = a^k₁ * a^k₂
 instance : NatModule α where
   hMul a x := a * x
   add_zero := by simp [add_zero]
-  zero_add := by simp [zero_add]
   add_assoc := by simp [add_assoc]
   add_comm := by simp [add_comm]
   zero_hmul := by simp [natCast_zero, zero_mul]
@@ -271,7 +272,6 @@ theorem intCast_pow (x : Int) (k : Nat) : ((x ^ k : Int) : α) = (x : α) ^ k :=
 instance : IntModule α where
   hMul a x := a * x
   add_zero := by simp [add_zero]
-  zero_add := by simp [zero_add]
   add_assoc := by simp [add_assoc]
   add_comm := by simp [add_comm]
   zero_hmul := by simp [intCast_zero, zero_mul]

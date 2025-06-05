@@ -57,6 +57,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Day_Ordinal_OfYear_ofNat___rarg(lean_object*
 LEAN_EXPORT uint8_t l_Std_Time_Day_instOrdinalDecidableEq(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Day_instOffsetSub___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_ofHours(lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l___auto____x40_Std_Time_Date_Unit_Day___hyg_426____closed__22;
 static lean_object* l___auto____x40_Std_Time_Date_Unit_Day___hyg_426____closed__27;
 LEAN_EXPORT lean_object* l_Std_Time_Day_Ordinal_instToStringOfYear(uint8_t);
@@ -177,7 +178,6 @@ LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_ofInt(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Day_instOffsetInhabited;
 static lean_object* l_Std_Time_Day_instOrdOffset___closed__1;
 static lean_object* l___auto____x40_Std_Time_Date_Unit_Day___hyg_426____closed__10;
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l___auto____x40_Std_Time_Date_Unit_Day___hyg_426____closed__24;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___auto____x40_Std_Time_Date_Unit_Day___hyg_426____closed__15;
@@ -694,7 +694,7 @@ if (x_3 == 0)
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_nat_abs(x_1);
-x_5 = l___private_Init_Data_Repr_0__Nat_reprFast(x_4);
+x_5 = l_Nat_reprFast(x_4);
 return x_5;
 }
 else
@@ -706,7 +706,7 @@ x_8 = lean_nat_sub(x_6, x_7);
 lean_dec(x_6);
 x_9 = lean_nat_add(x_8, x_7);
 lean_dec(x_8);
-x_10 = l___private_Init_Data_Repr_0__Nat_reprFast(x_9);
+x_10 = l_Nat_reprFast(x_9);
 x_11 = l_Std_Time_Day_Ordinal_instToStringOfYear___rarg___closed__1;
 x_12 = lean_string_append(x_11, x_10);
 lean_dec(x_10);

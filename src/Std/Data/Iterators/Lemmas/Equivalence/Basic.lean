@@ -81,8 +81,8 @@ iterator or an array iterator -- is totally irrelevant for the equivalence judge
 -/
 def BundledIterM.Equiv (m : Type w → Type w') (β : Type w) [Monad m] [LawfulMonad m]
     (ita itb : BundledIterM m β) : Prop :=
-    (BundledIterM.step ita).map (IterStep.mapIterator (Quot.mk (BundledIterM.Equiv m β))) =
-    (BundledIterM.step itb).map (IterStep.mapIterator (Quot.mk (BundledIterM.Equiv m β)))
+  (BundledIterM.step ita).map (IterStep.mapIterator (Quot.mk (BundledIterM.Equiv m β))) =
+  (BundledIterM.step itb).map (IterStep.mapIterator (Quot.mk (BundledIterM.Equiv m β)))
 greatest_fixpoint monotonicity by
   intro R S hRS ita itb h
   simp only [BundledIterM.step, HetT.comp_map] at ⊢ h

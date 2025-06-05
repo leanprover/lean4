@@ -160,15 +160,23 @@ to handle the postconditions manually.
 Caution: Just like `PostconditionT`, this is not a lawful monad transformer.
 To lift from `m` to `HetT m`, use `HetT.lift`.
 
-Because this monad is fundamentally universe-polymorphic, It is recommended for consistency to
+Because this monad is fundamentally universe-polymorphic, it is recommended for consistency to
 always use the methods `HetT.pure`, `HetT.map` and `HetT.bind` instead of the homogeneous versions
 `Pure.pure`, `Functor.map` and `Bind.bind`.
 -/
 structure HetT (m : Type w → Type w') (α : Type v) where
   /--
+  A predicate that holds for the return value(s) of the `m`-monadic operation.
   -/
   Property : α → Prop
+  /--
+  A proof that the possible return values are equivalent to a `w`-small type.
+  -/
   small : Small.{w} (Subtype Property)
+  /--
+  The actual monadic operation. Its return value is bundled together with a proof that
+  it satisfies `Property` and squashed so that it fits into the monad `m`.
+  -/
   operation : m (USquash (Subtype Property))
 
 -- `injEq` is the shortest path to DTT hell. We use `ext_iff` instead (see below).

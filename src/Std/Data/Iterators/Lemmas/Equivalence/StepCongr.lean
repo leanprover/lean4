@@ -7,8 +7,8 @@ prelude
 import Std.Data.Iterators.Lemmas.Equivalence.Basic
 
 /-!
-This module proves under that the step functions of
-equivalent iterators behave the same under certain circumstances.
+This module proves that the step functions of equivalent iterators behave the same under certain
+circumstances.
 -/
 
 namespace Std.Iterators

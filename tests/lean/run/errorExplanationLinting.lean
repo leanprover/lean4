@@ -126,7 +126,7 @@ register_error_explanation Lean.Example {
 }
 
 /--
-error: Example 'Example' is malformed: Invalid code block info string `lean broken_or_fixed`: offset 20: invalid attribute broken_or_fixed
+error: Example 'Example' is malformed: Invalid code block info string `lean broken_or_fixed`: offset 20: Invalid attribute `broken_or_fixed`
 -/
 #guard_msgs in
 /--

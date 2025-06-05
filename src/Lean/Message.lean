@@ -452,6 +452,19 @@ def errorNameOfKind? : Name → Option Name
   | .str p last => if last == errorNameSuffix then some p else none
   | _ => none
 
+/--
+Returns the error name with which `msg` is tagged, if one exists.
+
+Note that this is distinct from `msg.kind`: the `kind` of a named-error message is not equal to its
+name, and there exist message kinds that are not error-name kinds.
+-/
+def MessageData.errorName? (msg : MessageData) : Option Name :=
+  errorNameOfKind? msg.kind
+
+@[inherit_doc MessageData.errorName?]
+def Message.errorName? (msg : Message) : Option Name :=
+  msg.data.errorName?
+
 namespace SerialMessage
 
 @[inline] def toMessage (msg : SerialMessage) : Message :=

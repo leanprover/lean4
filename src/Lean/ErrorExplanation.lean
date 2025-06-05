@@ -39,6 +39,10 @@ structure ErrorExplanation where
 
 namespace ErrorExplanation
 
+/--
+The kind of a code block in an error explanation example. `broken` blocks do not compile;
+`fixed` blocks must.
+-/
 inductive CodeInfo.Kind
   | broken | fixed
   deriving Repr, Inhabited, BEq
@@ -63,11 +67,16 @@ open Std.Internal Parsec Parsec.String in
 def CodeInfo.parse (s : String) : Except String CodeInfo :=
   infoString.run s |>.mapError (fun e => s!"Invalid code block info string `{s}`: {e}")
 where
+  /-- Parses the contents of a string literal up to, but excluding, the closing quotation mark. -/
   stringContents : Parser String := attempt do
     let escaped := pchar '\\' *> pchar '"'
     let cs ← many (notFollowedBy (pchar '"') *> (escaped <|> any))
     return String.mk cs.toList
 
+  /--
+  Parses all input up to the next whitespace. If `nonempty` is `true`, fails if there is no input
+  prior to the next whitespace.
+  -/
   upToWs (nonempty : Bool) : Parser String := fun it =>
     let it' := it.find fun c => c.isWhitespace
     if nonempty && it'.pos == it.pos then
@@ -75,12 +84,17 @@ where
     else
       .success it' (it.extract it')
 
+  /-- Parses a named attribute, and returns its name and value. -/
   namedAttr : Parser (String × String) := attempt do
     let name ← skipChar '(' *> ws *> (upToWs true)
     let contents ← ws *> skipString ":=" *> ws *> skipChar '"' *> stringContents
     discard <| skipChar '"' *> ws *> skipChar ')'
     return (name, contents)
 
+  /--
+  Parses an "attribute" in an info string, either a space-delineated identifier or a named
+  attribute of the form `(name := "value")`.
+  -/
   attr : Parser (String ⊕ String × String) :=
     .inr <$> namedAttr <|> .inl <$> (upToWs true)
 
@@ -130,7 +144,10 @@ private def ValidationState.get (s : ValidationState) :=
     ""
 
 private def ValidationState.getLineNumber (s : ValidationState) :=
-  s.lines[min s.idx (s.lines.size - 1)]!.2
+  if _ : s.lines.size = 0 then
+    0
+  else
+    s.lines[min s.idx (s.lines.size - 1)].2
 
 private instance : Input ValidationState String Nat where
   pos := ValidationState.idx
@@ -247,6 +264,11 @@ where
     | res@(.success ..) => res
     | .error s' msg => .error s' s!"Example '{header}' is malformed: {msg}"
 
+  /--
+  If `line` is a level-`level` header and, if `title?` is non-`none`, its title is `title?`,
+  then returns the contents of the header at `line` (i.e., stripping the leading `#`). Returns
+  `none` if `line` is not a header of the appropriate form.
+  -/
   matchHeader (level : Nat) (title? : Option String) (line : String) : Option String :=
     let init := line.take (level + 1)
     let expected := ⟨List.replicate level '#'⟩ ++ " "
@@ -260,13 +282,16 @@ where
       none
 
 /--
-Validates that the given error explanation has the expected structure, and extracts its code blocks.
+Validates that the given error explanation has the expected structure. If an error is found, it is
+returned as a pair `(lineNumber, errorMessage)` where `lineNumber` gives the 0-based offset from the
+first line of `doc` at which the error occurs.
 -/
-def processDoc (doc : String) :=
+def processDoc (doc : String) : Except (Nat × String) Unit :=
   parseExplanation.run doc
 
 end ErrorExplanation
 
+/-- An environment extension that stores error explanations.  -/
 builtin_initialize errorExplanationExt : SimplePersistentEnvExtension (Name × ErrorExplanation) (NameMap ErrorExplanation) ←
   registerSimplePersistentEnvExtension {
     addEntryFn := fun s (n, v) => s.insert n v

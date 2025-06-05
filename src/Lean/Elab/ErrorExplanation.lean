@@ -12,20 +12,24 @@ namespace Lean.Elab.ErrorExplanation
 -- here
 attribute [builtin_widget_module] Lean.errorDescriptionWidget
 
--- TODO: the following QoL features would be very helpful (i > ii -- probably i >> ii):
--- (i) cmd-click on error names to jump to the explanation   <-- Could labeled sorries be a model?
--- (ii) autocomplete with registered error explanation names
-
 open Lean Parser Term in
 def expandThrowNamedError : Macro
-  | `(throwNamedErrorParser| throwNamedError $id:ident $msg:interpolatedStr) => ``(Lean.throwNamedError $(quote id.getId) m! $msg)
-  | `(throwNamedErrorParser| throwNamedError $id $msg:term) => ``(Lean.throwNamedError $(quote id.getId) $msg)
-  | `(throwNamedErrorAtParser| throwNamedErrorAt $ref $id $msg:interpolatedStr) => ``(Lean.throwNamedErrorAt $ref $(quote id.getId) m! $msg)
-  | `(throwNamedErrorAtParser| throwNamedErrorAt $ref $id $msg:term) => ``(Lean.throwNamedErrorAt $ref $(quote id.getId) $msg)
-  | `(logNamedErrorParser| logNamedError $id $msg:interpolatedStr) => ``(Lean.logNamedError $(quote id.getId) m! $msg)
-  | `(logNamedErrorParser| logNamedError $id $msg:term) => ``(Lean.logNamedError $(quote id.getId) $msg)
-  | `(logNamedErrorAtParser| logNamedErrorAt $ref $id $msg:interpolatedStr) => ``(Lean.logNamedErrorAt $ref $(quote id.getId) m! $msg)
-  | `(logNamedErrorAtParser| logNamedErrorAt $ref $id $msg:term) => ``(Lean.logNamedErrorAt $ref $(quote id.getId) $msg)
+  | `(throwNamedErrorParser| throwNamedError $id:ident $msg:interpolatedStr) =>
+    ``(Lean.throwNamedError $(quote id.getId) m! $msg)
+  | `(throwNamedErrorParser| throwNamedError $id $msg:term) =>
+    ``(Lean.throwNamedError $(quote id.getId) $msg)
+  | `(throwNamedErrorAtParser| throwNamedErrorAt $ref $id $msg:interpolatedStr) =>
+    ``(Lean.throwNamedErrorAt $ref $(quote id.getId) m! $msg)
+  | `(throwNamedErrorAtParser| throwNamedErrorAt $ref $id $msg:term) =>
+    ``(Lean.throwNamedErrorAt $ref $(quote id.getId) $msg)
+  | `(logNamedErrorParser| logNamedError $id $msg:interpolatedStr) =>
+    ``(Lean.logNamedError $(quote id.getId) m! $msg)
+  | `(logNamedErrorParser| logNamedError $id $msg:term) =>
+    ``(Lean.logNamedError $(quote id.getId) $msg)
+  | `(logNamedErrorAtParser| logNamedErrorAt $ref $id $msg:interpolatedStr) =>
+    ``(Lean.logNamedErrorAt $ref $(quote id.getId) m! $msg)
+  | `(logNamedErrorAtParser| logNamedErrorAt $ref $id $msg:term) =>
+    ``(Lean.logNamedErrorAt $ref $(quote id.getId) $msg)
   | _ => Macro.throwUnsupported
 
 open Lean Elab Term in
@@ -71,7 +75,8 @@ open Parser Elab Meta Term Command in
   if name.isAnonymous then
     throwErrorAt id "Invalid name for error explanation: `{id}`"
   if name.hasMacroScopes then
-    throwErrorAt id m!"Invalid name `{name}`: Error explanations cannot have inaccessible names. \
+    -- Use `id` rather than `name` for nicer rendering
+    throwErrorAt id m!"Invalid name `{id}`: Error explanations cannot have inaccessible names. \
       This error often occurs when an error explanation is generated using a macro."
   if name.getNumParts != 2 then
     throwErrorAt id m!"Invalid name `{name}`: Error explanation names must have two components"

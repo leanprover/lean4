@@ -1,6 +1,5 @@
 prelude
 import Std.Data.Ranges.Basic
-import Std.Data.Ranges.Nat
 
 open Std.Iterators
 
@@ -51,36 +50,3 @@ instance [Iterator State Id α] [Sliceable shape ρ α β]
     letI : SliceIter shape ρ α := SliceIter.of iter
     IteratorCollect (SliceIter.State shape ρ α β) Id m :=
   inferInstanceAs <| IteratorCollect State Id m
-
-instance : Sliceable shape (Array α) Nat α where
-
-instance : SliceIter ⟨.none, .none⟩ (Array α) Nat :=
-  .of (·.collection.iter)
-
-instance : SliceIter ⟨.closed, .none⟩ (Array α) Nat :=
-  .of (fun s => s.collection.iter.drop s.range.lower)
-
-instance : SliceIter ⟨.open, .none⟩ (Array α) Nat :=
-  .of (fun s => s.collection.iter.drop (s.range.lower + 1))
-
-instance : SliceIter ⟨.none, .closed⟩ (Array α) Nat :=
-  .of (fun s => s.collection.iter.take (s.range.upper + 1))
-
-instance : SliceIter ⟨.closed, .closed⟩ (Array α) Nat :=
-  .of (fun s => s.collection.iter.take (s.range.upper + 1) |>.drop s.range.lower)
-
-instance : SliceIter ⟨.open, .closed⟩ (Array α) Nat :=
-  .of (fun s => s.collection.iter.take (s.range.upper + 1) |>.drop (s.range.lower + 1))
-
-instance : SliceIter ⟨.none, .open⟩ (Array α) Nat :=
-  .of (fun s => s.collection.iter.take s.range.upper)
-
-instance : SliceIter ⟨.closed, .open⟩ (Array α) Nat :=
-  .of (fun s => s.collection.iter.take s.range.upper |>.drop s.range.lower)
-
-instance : SliceIter ⟨.open, .open⟩ (Array α) Nat :=
-  .of (fun s => s.collection.iter.take s.range.upper |>.drop (s.range.lower + 1))
-
-def testArray := (0,,<10).iter.toArray
-
-#eval testArray[[2<,,]].iter.toList

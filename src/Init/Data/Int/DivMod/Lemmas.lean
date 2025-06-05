@@ -187,7 +187,7 @@ theorem tdiv_eq_ediv_of_nonneg : ∀ {a b : Int}, 0 ≤ a → a.tdiv b = a / b
   | succ _, succ _, _ => rfl
   | succ _, -[_+1], _ => rfl
 
-@[simp] theorem ofNat_tdiv_eq_ediv {a : Nat} {b : Int} : (a : Int).tdiv b = a / b :=
+@[simp] theorem natCast_tdiv_eq_ediv {a : Nat} {b : Int} : (a : Int).tdiv b = a / b :=
     tdiv_eq_ediv_of_nonneg (by simp)
 
 theorem tdiv_eq_ediv {a b : Int} :

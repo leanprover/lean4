@@ -397,21 +397,21 @@ There are two varieties in the Lean core:
 `Message.serialize`.
 -/
 structure BaseMessage (α : Type u) where
-  fileName        : String
-  pos             : Position
-  endPos          : Option Position := none
+  fileName      : String
+  pos           : Position
+  endPos        : Option Position := none
   /-- If `true`, report range as given; see `msgToInteractiveDiagnostic`. -/
-  keepFullRange   : Bool := false
-  severity        : MessageSeverity := .error
+  keepFullRange : Bool := false
+  severity      : MessageSeverity := .error
   /--
   If `true`, filter this message from non-language server output.
   In the language server, silent messages are served as silent diagnostics.
   See also `DiagnosticWith.isSilent?`.
   -/
-  isSilent        : Bool := false
-  caption         : String          := ""
+  isSilent      : Bool := false
+  caption       : String          := ""
   /-- The content of the message. -/
-  data            : α
+  data          : α
   deriving Inhabited, ToJson, FromJson
 
 /-- A `Message` is a richly formatted piece of information emitted by Lean.
@@ -477,8 +477,6 @@ protected def toString (msg : SerialMessage) (includeEndPos := false) : String :
     str := msg.caption ++ ":\n" ++ str
   match msg.severity with
   | .information => pure ()
-  -- TODO: double-check that there wasn't some good reason choosing not to let `mkErrorStringWithPos`
-  -- append the `str` in the old version
   | .warning     =>
     str := mkErrorStringWithPos msg.fileName msg.pos str endPos "warning" (errorNameOfKind? msg.kind)
   | .error       =>

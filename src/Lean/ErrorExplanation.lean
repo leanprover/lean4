@@ -346,16 +346,10 @@ def getErrorExplanations [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] : m (Array
   entries
     |>.mapM fun (n, e) => return (n, { e with doc := (← rewriteManualLinks e.doc) })
 
-private partial def compareNamedExplanations (ne ne' : Name × ErrorExplanation) : Ordering :=
-  match ne.2.metadata.removedVersion, ne'.2.metadata.removedVersion with
-  | .none, .none | .some _, .some _ => compare ne.1.toString ne'.1.toString
-  | .none, .some _ => .lt
-  | .some _, .none => .gt
-
 /--
 Returns all error explanations with their names as a sorted array, rewriting manual links.
 -/
 def getErrorExplanationsSorted [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] : m (Array (Name × ErrorExplanation)) := do
-  return (← getErrorExplanations).qsort fun e e' => (compareNamedExplanations e e').isLT
+  return (← getErrorExplanations).qsort fun e e' => e.1.toString < e'.1.toString
 
 end Lean

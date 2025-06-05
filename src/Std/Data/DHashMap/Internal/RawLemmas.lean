@@ -96,7 +96,7 @@ macro_rules
       | apply Raw.WF.alter₀ | apply Raw.WF.modify₀
       | apply Raw.WF.constAlter₀ | apply Raw.WF.constModify₀
       | apply Raw₀.wf_insertMany₀ | apply Raw₀.Const.wf_insertMany₀
-      | apply Raw₀.Const.wf_insertManyIfNewUnit₀
+      | apply Raw₀.Const.wf_insertManyIfNewUnit₀ | apply Raw₀.wf_union₀
       | apply Raw.WF.filter₀ | apply Raw₀.wf_map₀ | apply Raw₀.wf_filterMap₀
       | apply Raw.WF.emptyWithCapacity₀) <;> wf_trivial)
 
@@ -111,6 +111,7 @@ private def modifyMap : Std.DHashMap Name (fun _ => Name) :=
      ⟨`erase, ``toListModel_erase⟩,
      ⟨`insertIfNew, ``toListModel_insertIfNew⟩,
      ⟨`insertMany, ``toListModel_insertMany_list⟩,
+     ⟨`union, ``toListModel_union⟩,
      ⟨`Const.insertMany, ``Const.toListModel_insertMany_list⟩,
      ⟨`Const.insertManyIfNewUnit, ``Const.toListModel_insertManyIfNewUnit_list⟩,
      ⟨`alter, ``toListModel_alter⟩,
@@ -2440,14 +2441,11 @@ section Union
 
 variable (m₁ m₂ : Raw₀ α β)
 
---Temporary: presumably we'll want to have this somewhere else (and redefine it in terms of `insertMany`?)
-def union : Raw₀ α β := ⟨m₁.val.union m₂.val, sorry⟩
-
 variable {m₁ m₂}
 
 @[simp]
 theorem union_insert_emptyWithCapacity {k : α} {v : β k} [EquivBEq α] [LawfulHashable α] (h : m.val.WF) :
-    m.union (emptyWithCapacity.insert k v) = m.insert k v  := by
+    m.union (emptyWithCapacity.insert k v) = m.insert k v := by
   sorry
 
 theorem contains_union_of_left  [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
@@ -2464,7 +2462,7 @@ theorem contains_union_of_right  [EquivBEq α] [LawfulHashable α] (h₁ : m₁.
 theorem contains_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (h₂ : m₂.val.WF) {k : α} :
     (m₁.union m₂).contains k = (m₁.contains k || m₂.contains k) := by
-  sorry
+  simp_to_model [contains, union] using List.containsKey_insertSmallerList
 
 @[simp]
 theorem contains_union_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)

@@ -390,6 +390,13 @@ def insertListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) 
   | .nil => m
   | .cons hd tl => insertListₘ (m.insert hd.1 hd.2) tl
 
+/-- Internal implementation detail of the hash map -/
+def unionₘ [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
+  if m₁.1.size ≤ m₂.1.size then
+    insertListₘ m₂ (toListModel m₁.1.buckets)
+  else
+    insertListₘ m₁ (toListModel m₂.1.buckets)
+
 section
 
 variable {β : Type v}
@@ -595,7 +602,8 @@ theorem map_eq_mapₘ (m : Raw₀ α β) (f : (a : α) → β a → δ a) :
 theorem filter_eq_filterₘ (m : Raw₀ α β) (f : (a : α) → β a → Bool) :
     m.filter f = m.filterₘ f := rfl
 
-theorem insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) : insertMany m l = insertListₘ m l := by
+theorem insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) :
+    insertMany m l = insertListₘ m l := by
   simp only [insertMany, Id.run_pure, Id.run_bind, pure_bind, List.forIn_pure_yield_eq_foldl]
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
     (∀ {m'' : Raw₀ α β} {a : α} {b : β a}, P m'' → P (m''.insert a b)) → P m → P m' }),

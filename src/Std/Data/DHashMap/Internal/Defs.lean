@@ -422,6 +422,10 @@ where
     r := ⟨r.1.insert a b, fun _ h hm => h (r.2 _ h hm)⟩
   return r
 
+/-- Internal implementation detail of the hash map -/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
+  if m₁.1.size ≤ m₂.1.size then (m₂.insertMany m₁.1).1 else (m₁.insertMany m₂.1).1
+
 section
 
 variable {β : Type v}

@@ -2972,6 +2972,22 @@ theorem isEmpty_insertList [BEq α]
     rw [insertList, List.isEmpty_cons, ih, isEmpty_insertEntry]
     simp
 
+/-- Internal implementation detail of the hash map -/
+def insertSmallerList [BEq α] (l₁ l₂ : List ((a : α) × β a)) : List ((a : α) × β a) :=
+  if l₁.length ≤ l₂.length then insertList l₂ l₁ else insertList l₁ l₂
+
+theorem DistinctKeys.insertSmallerList [BEq α] [PartialEquivBEq α] {l₁ l₂ : List ((a : α) × β a)}
+    (h₁ : DistinctKeys l₁) (h₂ : DistinctKeys l₂) : DistinctKeys (insertSmallerList l₁ l₂) := by
+  rw [List.insertSmallerList]
+  split <;> exact DistinctKeys.insertList ‹_›
+
+theorem containsKey_insertSmallerList [BEq α] [PartialEquivBEq α] {l₁ l₂ : List ((a : α) × β a)}
+    {k : α} : containsKey k (List.insertSmallerList l₁ l₂) = (containsKey k l₁ || containsKey k l₂) := by
+  rw [List.insertSmallerList]
+  split
+  · rw [containsKey_insertList, ← containsKey_eq_contains_map_fst, Bool.or_comm]
+  · rw [containsKey_insertList, ← containsKey_eq_contains_map_fst]
+
 section
 
 variable {β : Type v}

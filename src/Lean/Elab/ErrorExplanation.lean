@@ -13,25 +13,24 @@ namespace Lean.Elab.ErrorExplanation
 attribute [builtin_widget_module] Lean.errorDescriptionWidget
 
 open Lean Parser Term in
--- TODO: change after stage0
-def expandThrowNamedError : Macro := (return ·)
-  -- | `(throwNamedErrorMacro| throwNamedError $id:ident $msg:interpolatedStr) =>
-  --   ``(Lean.throwNamedError $(quote id.getId) m! $msg)
-  -- | `(throwNamedErrorMacro| throwNamedError $id $msg:term) =>
-  --   ``(Lean.throwNamedError $(quote id.getId) $msg)
-  -- | `(throwNamedErrorAtMacro| throwNamedErrorAt $ref $id $msg:interpolatedStr) =>
-  --   ``(Lean.throwNamedErrorAt $ref $(quote id.getId) m! $msg)
-  -- | `(throwNamedErrorAtMacro| throwNamedErrorAt $ref $id $msg:term) =>
-  --   ``(Lean.throwNamedErrorAt $ref $(quote id.getId) $msg)
-  -- | `(logNamedErrorMacro| logNamedError $id $msg:interpolatedStr) =>
-  --   ``(Lean.logNamedError $(quote id.getId) m! $msg)
-  -- | `(logNamedErrorMacro| logNamedError $id $msg:term) =>
-  --   ``(Lean.logNamedError $(quote id.getId) $msg)
-  -- | `(logNamedErrorAtMacro| logNamedErrorAt $ref $id $msg:interpolatedStr) =>
-  --   ``(Lean.logNamedErrorAt $ref $(quote id.getId) m! $msg)
-  -- | `(logNamedErrorAtMacro| logNamedErrorAt $ref $id $msg:term) =>
-  --   ``(Lean.logNamedErrorAt $ref $(quote id.getId) $msg)
-  -- | _ => Macro.throwUnsupported
+def expandThrowNamedError : Macro
+  | `(throwNamedErrorMacro| throwNamedError $id:ident $msg:interpolatedStr) =>
+    ``(Lean.throwNamedError $(quote id.getId) m! $msg)
+  | `(throwNamedErrorMacro| throwNamedError $id $msg:term) =>
+    ``(Lean.throwNamedError $(quote id.getId) $msg)
+  | `(throwNamedErrorAtMacro| throwNamedErrorAt $ref $id $msg:interpolatedStr) =>
+    ``(Lean.throwNamedErrorAt $ref $(quote id.getId) m! $msg)
+  | `(throwNamedErrorAtMacro| throwNamedErrorAt $ref $id $msg:term) =>
+    ``(Lean.throwNamedErrorAt $ref $(quote id.getId) $msg)
+  | `(logNamedErrorMacro| logNamedError $id $msg:interpolatedStr) =>
+    ``(Lean.logNamedError $(quote id.getId) m! $msg)
+  | `(logNamedErrorMacro| logNamedError $id $msg:term) =>
+    ``(Lean.logNamedError $(quote id.getId) $msg)
+  | `(logNamedErrorAtMacro| logNamedErrorAt $ref $id $msg:interpolatedStr) =>
+    ``(Lean.logNamedErrorAt $ref $(quote id.getId) m! $msg)
+  | `(logNamedErrorAtMacro| logNamedErrorAt $ref $id $msg:term) =>
+    ``(Lean.logNamedErrorAt $ref $(quote id.getId) $msg)
+  | _ => Macro.throwUnsupported
 
 open Lean Elab Term in
 @[builtin_term_elab throwNamedErrorMacro, builtin_term_elab throwNamedErrorAtMacro,

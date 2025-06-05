@@ -1,6 +1,5 @@
 import Lean.ErrorExplanation
--- import Lean.Meta.Basic
-import Lean
+import Lean.Meta.Basic
 open Lean Meta
 
 /-!

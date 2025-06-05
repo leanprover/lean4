@@ -1079,6 +1079,17 @@ theorem val_neg {n : Nat} [NeZero n] (x : Fin n) :
     have := Fin.val_ne_zero_iff.mpr h
     omega
 
+protected theorem sub_eq_add_neg {n : Nat} (x y : Fin n) : x - y = x + -y := by
+  by_cases h : n = 0
+  · subst h
+    apply elim0 x
+  · replace h : NeZero n := ⟨h⟩
+    ext
+    rw [Fin.coe_sub, Fin.val_add, val_neg]
+    split
+    · simp_all
+    · simp [Nat.add_comm]
+
 /-! ### mul -/
 
 theorem ofNat_mul [NeZero n] (x : Nat) (y : Fin n) :

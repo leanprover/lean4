@@ -27,9 +27,6 @@ The typeclass `ToInt.Add α lo? hi?` then asserts that `toInt (x + y) = wrap lo?
 There are many variants for other operations.
 
 These typeclasses are used solely in the `grind` tactic to lift linear inequalities into `Int`.
-
--- TODO: instances for `ToInt.Mod` (only exists for `Fin n` so far)
--- TODO: typeclasses for LT, and other algebraic operations.
 -/
 
 namespace Lean.Grind
@@ -45,6 +42,31 @@ def ToInt.wrap (lo? hi? : Option Int) (x : Int) : Int :=
   match lo?, hi? with
   | some lo, some hi => (x - lo) % (hi - lo) + lo
   | _, _ => x
+
+class ToInt.Zero (α : Type u) [Zero α] (lo? hi? : outParam (Option Int)) [ToInt α lo? hi?] where
+  toInt_zero : toInt (0 : α) = wrap lo? hi? 0
+
+class ToInt.Add (α : Type u) [Add α] (lo? hi? : outParam (Option Int)) [ToInt α lo? hi?] where
+  toInt_add : ∀ x y : α, toInt (x + y) = wrap lo? hi? (toInt x + toInt y)
+
+class ToInt.Neg (α : Type u) [Neg α] (lo? hi? : outParam (Option Int)) [ToInt α lo? hi?] where
+  toInt_neg : ∀ x : α, toInt (-x) = wrap lo? hi? (-toInt x)
+
+class ToInt.Sub (α : Type u) [Sub α] (lo? hi? : outParam (Option Int)) [ToInt α lo? hi?] where
+  toInt_sub : ∀ x y : α, toInt (x - y) = wrap lo? hi? (toInt x - toInt y)
+
+class ToInt.Mod (α : Type u) [Mod α] (lo? hi? : outParam (Option Int)) [ToInt α lo? hi?] where
+  /-- One might expect a `wrap` on the right hand side,
+  but in practice this stronger statement is usually true. -/
+  toInt_mod : ∀ x y : α, toInt (x % y) = toInt x % toInt y
+
+class ToInt.LE (α : Type u) [LE α] (lo? hi? : outParam (Option Int)) [ToInt α lo? hi?] where
+  le_iff : ∀ x y : α, x ≤ y ↔ toInt x ≤ toInt y
+
+class ToInt.LT (α : Type u) [LT α] (lo? hi? : outParam (Option Int)) [ToInt α lo? hi?] where
+  lt_iff : ∀ x y : α, x < y ↔ toInt x < toInt y
+
+/-! ## Helper theorems -/
 
 theorem ToInt.wrap_add (lo? hi? : Option Int) (x y : Int) :
     ToInt.wrap lo? hi? (x + y) = ToInt.wrap lo? hi? (ToInt.wrap lo? hi? x + ToInt.wrap lo? hi? y) := by
@@ -111,27 +133,24 @@ theorem ToInt.wrap_eq_bmod {i : Int} (h : 0 ≤ i) :
         rw [this]
         exact Int.dvd_mul_right ..
 
-class ToInt.Add (α : Type u) [Add α] (lo? hi? : Option Int) [ToInt α lo? hi?] where
-  toInt_add : ∀ x y : α, toInt (x + y) = wrap lo? hi? (toInt x + toInt y)
+theorem ToInt.wrap_eq_wrap_iff :
+    ToInt.wrap (some lo) (some hi) x = ToInt.wrap (some lo) (some hi) y ↔ (x - y) % (hi - lo) = 0 := by
+  simp only [wrap]
+  rw [Int.add_left_inj]
+  rw [Int.emod_eq_emod_iff_emod_sub_eq_zero]
+  have : x - lo - (y - lo)  = x - y := by omega
+  rw [this]
 
-class ToInt.Neg (α : Type u) [Neg α] (lo? hi? : Option Int) [ToInt α lo? hi?] where
-  toInt_neg : ∀ x : α, toInt (-x) = wrap lo? hi? (-toInt x)
-
-class ToInt.Sub (α : Type u) [Sub α] (lo? hi? : Option Int) [ToInt α lo? hi?] where
-  toInt_sub : ∀ x y : α, toInt (x - y) = wrap lo? hi? (toInt x - toInt y)
-
-def ToInt.Sub.of_sub_eq_add_neg (α : Type u) [_root_.Add α] [_root_.Neg α] [_root_.Sub α]
+/-- Construct a `ToInt.Sub` instance from a `ToInt.Add` and `ToInt.Neg` instance and
+a `sub_eq_add_neg` assumption. -/
+def ToInt.Sub.of_sub_eq_add_neg {α : Type u} [_root_.Add α] [_root_.Neg α] [_root_.Sub α]
     (sub_eq_add_neg : ∀ x y : α, x - y = x + -y)
-    (lo? hi? : Option Int) [ToInt α lo? hi?] [Add α lo? hi?] [Neg α lo? hi?] : ToInt.Sub α lo? hi? where
+    {lo? hi? : Option Int} [ToInt α lo? hi?] [Add α lo? hi?] [Neg α lo? hi?] : ToInt.Sub α lo? hi? where
   toInt_sub x y := by
     rw [sub_eq_add_neg, ToInt.Add.toInt_add, ToInt.Neg.toInt_neg, Int.sub_eq_add_neg]
     conv => rhs; rw [ToInt.wrap_add, ToInt.wrap_toInt]
 
-class ToInt.Mod (α : Type u) [Mod α] (lo? hi? : Option Int) [ToInt α lo? hi?] where
-  toInt_mod : ∀ x y : α, toInt (x % y) = wrap lo? hi? (toInt x % toInt y)
-
-class ToInt.LE (α : Type u) [LE α] (lo? hi? : Option Int) [ToInt α lo? hi?] where
-  le_iff : ∀ x y : α, x ≤ y ↔ toInt x ≤ toInt y
+/-! ## Instances for concrete types-/
 
 instance : ToInt Int none none where
   toInt := id
@@ -156,6 +175,9 @@ instance : ToInt.Mod Int none none where
 instance : ToInt.LE Int none none where
   le_iff x y := by simp
 
+instance : ToInt.LT Int none none where
+  lt_iff x y := by simp
+
 instance : ToInt Nat (some 0) none where
   toInt := Nat.cast
   toInt_inj x y := Int.ofNat_inj.mp
@@ -173,6 +195,9 @@ instance : ToInt.Mod Nat (some 0) none where
 instance : ToInt.LE Nat (some 0) none where
   le_iff x y := by simp
 
+instance : ToInt.LT Nat (some 0) none where
+  lt_iff x y := by simp
+
 -- Mathlib will add a `ToInt ℕ+ (some 1) none` instance.
 
 instance : ToInt (Fin n) (some 0) (some n) where
@@ -186,29 +211,20 @@ instance : ToInt (Fin n) (some 0) (some n) where
 instance : ToInt.Add (Fin n) (some 0) (some n) where
   toInt_add x y := by rfl
 
-instance : ToInt.Neg (Fin n) (some 0) (some n) where
-  toInt_neg x := by
-    simp [Fin.neg_def, Int.neg_emod]
-    split <;> rename_i h
-    · rw [Int.emod_eq_zero_of_dvd]
-      rw [Int.natCast_sub Fin.is_le']
-      exact Int.dvd_sub (Int.dvd_refl ↑n) h
-    · rw [Int.natCast_sub Fin.is_le']
-      sorry
+instance [NeZero n] : ToInt.Zero (Fin n) (some 0) (some n) where
+  toInt_zero := by rfl
 
-instance : ToInt.Sub (Fin n) (some 0) (some n) :=
-    ToInt.Sub.of_sub_eq_add_neg Fin.sub_eq_add_neg (some 0) (some n)
+-- The `ToInt.Neg` and `ToInt.Sub` instances are generated automatically from the `IntModule (Fin n)` instance.
 
 instance : ToInt.Mod (Fin n) (some 0) (some n) where
   toInt_mod x y := by
-    simp only [toInt_fin, Fin.mod_val, Int.natCast_emod, ToInt.wrap, Int.sub_zero, Int.add_zero]
-    rw [Int.emod_eq_of_lt (b := n)]
-    · omega
-    · rw [Int.ofNat_mod_ofNat, ← Fin.mod_val]
-      exact Int.ofNat_lt.mpr (x % y).isLt
+    simp only [toInt_fin, Fin.mod_val, Int.natCast_emod]
 
 instance : ToInt.LE (Fin n) (some 0) (some n) where
   le_iff x y := by simpa using Fin.le_def
+
+instance : ToInt.LT (Fin n) (some 0) (some n) where
+  lt_iff x y := by simpa using Fin.lt_def
 
 instance : ToInt UInt8 (some 0) (some (2^8)) where
   toInt x := (x.toNat : Int)
@@ -221,8 +237,17 @@ instance : ToInt UInt8 (some 0) (some (2^8)) where
 instance : ToInt.Add UInt8 (some 0) (some (2^8)) where
   toInt_add x y := by simp
 
+instance : ToInt.Zero UInt8 (some 0) (some (2^8)) where
+  toInt_zero := by simp
+
+instance : ToInt.Mod UInt8 (some 0) (some (2^8)) where
+  toInt_mod x y := by simp
+
 instance : ToInt.LE UInt8 (some 0) (some (2^8)) where
   le_iff x y := by simpa using UInt8.le_iff_toBitVec_le
+
+instance : ToInt.LT UInt8 (some 0) (some (2^8)) where
+  lt_iff x y := by simpa using UInt8.lt_iff_toBitVec_lt
 
 instance : ToInt UInt16 (some 0) (some (2^16)) where
   toInt x := (x.toNat : Int)
@@ -235,8 +260,17 @@ instance : ToInt UInt16 (some 0) (some (2^16)) where
 instance : ToInt.Add UInt16 (some 0) (some (2^16)) where
   toInt_add x y := by simp
 
+instance : ToInt.Zero UInt16 (some 0) (some (2^16)) where
+  toInt_zero := by simp
+
+instance : ToInt.Mod UInt16 (some 0) (some (2^16)) where
+  toInt_mod x y := by simp
+
 instance : ToInt.LE UInt16 (some 0) (some (2^16)) where
   le_iff x y := by simpa using UInt16.le_iff_toBitVec_le
+
+instance : ToInt.LT UInt16 (some 0) (some (2^16)) where
+  lt_iff x y := by simpa using UInt16.lt_iff_toBitVec_lt
 
 instance : ToInt UInt32 (some 0) (some (2^32)) where
   toInt x := (x.toNat : Int)
@@ -249,8 +283,17 @@ instance : ToInt UInt32 (some 0) (some (2^32)) where
 instance : ToInt.Add UInt32 (some 0) (some (2^32)) where
   toInt_add x y := by simp
 
+instance : ToInt.Zero UInt32 (some 0) (some (2^32)) where
+  toInt_zero := by simp
+
+instance : ToInt.Mod UInt32 (some 0) (some (2^32)) where
+  toInt_mod x y := by simp
+
 instance : ToInt.LE UInt32 (some 0) (some (2^32)) where
   le_iff x y := by simpa using UInt32.le_iff_toBitVec_le
+
+instance : ToInt.LT UInt32 (some 0) (some (2^32)) where
+  lt_iff x y := by simpa using UInt32.lt_iff_toBitVec_lt
 
 instance : ToInt UInt64 (some 0) (some (2^64)) where
   toInt x := (x.toNat : Int)
@@ -263,8 +306,17 @@ instance : ToInt UInt64 (some 0) (some (2^64)) where
 instance : ToInt.Add UInt64 (some 0) (some (2^64)) where
   toInt_add x y := by simp
 
+instance : ToInt.Zero UInt64 (some 0) (some (2^64)) where
+  toInt_zero := by simp
+
+instance : ToInt.Mod UInt64 (some 0) (some (2^64)) where
+  toInt_mod x y := by simp
+
 instance : ToInt.LE UInt64 (some 0) (some (2^64)) where
   le_iff x y := by simpa using UInt64.le_iff_toBitVec_le
+
+instance : ToInt.LT UInt64 (some 0) (some (2^64)) where
+  lt_iff x y := by simpa using UInt64.lt_iff_toBitVec_lt
 
 instance : ToInt USize (some 0) (some (2^System.Platform.numBits)) where
   toInt x := (x.toNat : Int)
@@ -281,8 +333,17 @@ instance : ToInt USize (some 0) (some (2^System.Platform.numBits)) where
 instance : ToInt.Add USize (some 0) (some (2^System.Platform.numBits)) where
   toInt_add x y := by simp
 
+instance : ToInt.Zero USize (some 0) (some (2^System.Platform.numBits)) where
+  toInt_zero := by simp
+
+instance : ToInt.Mod USize (some 0) (some (2^System.Platform.numBits)) where
+  toInt_mod x y := by simp
+
 instance : ToInt.LE USize (some 0) (some (2^System.Platform.numBits)) where
   le_iff x y := by simpa using USize.le_iff_toBitVec_le
+
+instance : ToInt.LT USize (some 0) (some (2^System.Platform.numBits)) where
+  lt_iff x y := by simpa using USize.lt_iff_toBitVec_lt
 
 instance : ToInt Int8 (some (-2^7)) (some (2^7)) where
   toInt x := x.toInt
@@ -297,8 +358,21 @@ instance : ToInt.Add Int8 (some (-2^7)) (some (2^7)) where
     simp [Int.bmod_eq_emod]
     split <;> · simp; omega
 
+instance : ToInt.Zero Int8 (some (-2^7)) (some (2^7)) where
+  toInt_zero := by
+    --  simp -- FIXME: succeeds, but generates a `(kernel) application type mismatch` error!
+    change (0 : Int8).toInt = _
+    rw [Int8.toInt_zero]
+    decide
+
+-- Note that we can not define `ToInt.Mod` instances for `Int8`,
+-- because the condition does not hold unless `0 ≤ x.toInt ∨ y.toInt ∣ x.toInt ∨ y = 0`.
+
 instance : ToInt.LE Int8 (some (-2^7)) (some (2^7)) where
   le_iff x y := by simpa using Int8.le_iff_toInt_le
+
+instance : ToInt.LT Int8 (some (-2^7)) (some (2^7)) where
+  lt_iff x y := by simpa using Int8.lt_iff_toInt_lt
 
 instance : ToInt Int16 (some (-2^15)) (some (2^15)) where
   toInt x := x.toInt
@@ -313,8 +387,18 @@ instance : ToInt.Add Int16 (some (-2^15)) (some (2^15)) where
     simp [Int.bmod_eq_emod]
     split <;> · simp; omega
 
+instance : ToInt.Zero Int16 (some (-2^15)) (some (2^15)) where
+  toInt_zero := by
+    -- simp -- FIXME: succeeds, but generates a `(kernel) application type mismatch` error!
+    change (0 : Int16).toInt = _
+    rw [Int16.toInt_zero]
+    decide
+
 instance : ToInt.LE Int16 (some (-2^15)) (some (2^15)) where
   le_iff x y := by simpa using Int16.le_iff_toInt_le
+
+instance : ToInt.LT Int16 (some (-2^15)) (some (2^15)) where
+  lt_iff x y := by simpa using Int16.lt_iff_toInt_lt
 
 instance : ToInt Int32 (some (-2^31)) (some (2^31)) where
   toInt x := x.toInt
@@ -329,8 +413,18 @@ instance : ToInt.Add Int32 (some (-2^31)) (some (2^31)) where
     simp [Int.bmod_eq_emod]
     split <;> · simp; omega
 
+instance : ToInt.Zero Int32 (some (-2^31)) (some (2^31)) where
+  toInt_zero := by
+    -- simp -- FIXME: succeeds, but generates a `(kernel) application type mismatch` error!
+    change (0 : Int32).toInt = _
+    rw [Int32.toInt_zero]
+    decide
+
 instance : ToInt.LE Int32 (some (-2^31)) (some (2^31)) where
   le_iff x y := by simpa using Int32.le_iff_toInt_le
+
+instance : ToInt.LT Int32 (some (-2^31)) (some (2^31)) where
+  lt_iff x y := by simpa using Int32.lt_iff_toInt_lt
 
 instance : ToInt Int64 (some (-2^63)) (some (2^63)) where
   toInt x := x.toInt
@@ -345,34 +439,44 @@ instance : ToInt.Add Int64 (some (-2^63)) (some (2^63)) where
     simp [Int.bmod_eq_emod]
     split <;> · simp; omega
 
+instance : ToInt.Zero Int64 (some (-2^63)) (some (2^63)) where
+  toInt_zero := by
+    -- simp -- FIXME: succeeds, but generates a `(kernel) application type mismatch` error!
+    change (0 : Int64).toInt = _
+    rw [Int64.toInt_zero]
+    decide
+
 instance : ToInt.LE Int64 (some (-2^63)) (some (2^63)) where
   le_iff x y := by simpa using Int64.le_iff_toInt_le
 
-instance : ToInt (BitVec 0) (some 0) (some 1) where
-  toInt x := 0
-  toInt_inj x y w := by simp at w; exact BitVec.eq_of_zero_length rfl
-  le_toInt {lo x} w := by simp at w; subst w; exact Int.zero_le_ofNat 0
-  toInt_lt {hi x} w := by simp at w; subst w; exact Int.one_pos
+instance : ToInt.LT Int64 (some (-2^63)) (some (2^63)) where
+  lt_iff x y := by simpa using Int64.lt_iff_toInt_lt
 
-@[simp] theorem toInt_bitVec_0 (x : BitVec 0) : ToInt.toInt x = 0 := rfl
+instance : ToInt (BitVec v) (some 0) (some (2^v)) where
+  toInt x := (x.toNat : Int)
+  toInt_inj x y w :=
+    BitVec.eq_of_toNat_eq (Int.ofNat_inj.mp w)
+  le_toInt {lo x} w := by simp at w; subst w; exact Int.natCast_nonneg x.toNat
+  toInt_lt {hi x} w := by
+    simp at w; subst w;
+    simpa using Int.ofNat_lt.mpr (BitVec.isLt x)
 
-instance [NeZero v] : ToInt (BitVec v) (some (-2^(v-1))) (some (2^(v-1))) where
-  toInt x := x.toInt
-  toInt_inj x y w := BitVec.toInt_inj.mp w
-  le_toInt {lo x} w := by simp at w; subst w; exact BitVec.le_toInt x
-  toInt_lt {hi x} w := by simp at w; subst w; exact BitVec.toInt_lt
+@[simp] theorem toInt_bitVec (x : BitVec v) : ToInt.toInt x = (x.toNat : Int) := rfl
 
-@[simp] theorem toInt_bitVec [NeZero v] (x : BitVec v) : ToInt.toInt x = x.toInt := rfl
+instance : ToInt.Add (BitVec v) (some 0) (some (2^v)) where
+  toInt_add x y := by simp
 
-instance [i : NeZero v] : ToInt.Add (BitVec v) (some (-2^(v-1))) (some (2^(v-1))) where
-  toInt_add x y := by
-    rw [toInt_bitVec, BitVec.toInt_add, ToInt.wrap_eq_bmod (Int.pow_nonneg (by decide))]
-    have : ((2 : Int) * 2 ^ (v - 1)).toNat = 2 ^ v := by
-      match v, i with | v + 1, _ => simp [← Int.pow_succ', Int.toNat_pow_of_nonneg]
-    simp [this]
+instance : ToInt.Zero (BitVec v) (some 0) (some (2^v)) where
+  toInt_zero := by simp
 
--- We can not define a `ToInt.LE` instance for `BitVec v`,
--- because the order relations on `BitVec` are based on `toNat`.
+instance : ToInt.Mod (BitVec v) (some 0) (some (2^v)) where
+  toInt_mod x y := by simp
+
+instance : ToInt.LE (BitVec v) (some 0) (some (2^v)) where
+  le_iff x y := by simpa using BitVec.le_def
+
+instance : ToInt.LT (BitVec v) (some 0) (some (2^v)) where
+  lt_iff x y := by simpa using BitVec.lt_def
 
 instance : ToInt ISize (some (-2^(System.Platform.numBits-1))) (some (2^(System.Platform.numBits-1))) where
   toInt x := x.toInt
@@ -394,7 +498,16 @@ instance : ToInt.Add ISize (some (-2^(System.Platform.numBits-1))) (some (2^(Sys
       simp
     simp [p₁, p₂]
 
+instance : ToInt.Zero ISize (some (-2^(System.Platform.numBits-1))) (some (2^(System.Platform.numBits-1))) where
+  toInt_zero := by
+    rw [toInt_isize]
+    rw [ISize.toInt_zero, ToInt.wrap_eq_bmod (Int.pow_nonneg (by decide))]
+    simp
+
 instance : ToInt.LE ISize (some (-2^(System.Platform.numBits-1))) (some (2^(System.Platform.numBits-1))) where
   le_iff x y := by simpa using ISize.le_iff_toInt_le
+
+instance : ToInt.LT ISize (some (-2^(System.Platform.numBits-1))) (some (2^(System.Platform.numBits-1))) where
+  lt_iff x y := by simpa using ISize.lt_iff_toInt_lt
 
 end Lean.Grind

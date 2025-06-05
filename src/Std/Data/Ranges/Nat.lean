@@ -92,31 +92,35 @@ def f : IO Unit := do
 
 instance : Sliceable shape (Array α) Nat α where
 
-instance : SliceIter ⟨.none, .none⟩ (Array α) Nat :=
+instance [i : SliceIter ⟨sl, su, .custom Nat⟩ (Array α) Nat] : SliceIter ⟨sl, su, .default⟩ (Array α) Nat where
+  State s := i.State ⟨s.collection, ⟨s.range.lower, s.range.upper, 1⟩⟩
+  iter s := i.iter ⟨s.collection, ⟨s.range.lower, s.range.upper, 1⟩⟩
+
+instance : SliceIter ⟨.none, .none, .default⟩ (Array α) Nat :=
   .of (·.collection.iter)
 
-instance : SliceIter ⟨.closed, .none⟩ (Array α) Nat :=
+instance : SliceIter ⟨.closed, .none, .default⟩ (Array α) Nat :=
   .of (fun s => s.collection.iter.drop s.range.lower)
 
-instance : SliceIter ⟨.open, .none⟩ (Array α) Nat :=
+instance : SliceIter ⟨.open, .none, .default⟩ (Array α) Nat :=
   .of (fun s => s.collection.iter.drop (s.range.lower + 1))
 
-instance : SliceIter ⟨.none, .closed⟩ (Array α) Nat :=
+instance : SliceIter ⟨.none, .closed, .default⟩ (Array α) Nat :=
   .of (fun s => s.collection.iter.take (s.range.upper + 1))
 
-instance : SliceIter ⟨.closed, .closed⟩ (Array α) Nat :=
+instance : SliceIter ⟨.closed, .closed, .default⟩ (Array α) Nat :=
   .of (fun s => s.collection.iter.take (s.range.upper + 1) |>.drop s.range.lower)
 
-instance : SliceIter ⟨.open, .closed⟩ (Array α) Nat :=
+instance : SliceIter ⟨.open, .closed, .default⟩ (Array α) Nat :=
   .of (fun s => s.collection.iter.take (s.range.upper + 1) |>.drop (s.range.lower + 1))
 
-instance : SliceIter ⟨.none, .open⟩ (Array α) Nat :=
+instance : SliceIter ⟨.none, .open, .default⟩ (Array α) Nat :=
   .of (fun s => s.collection.iter.take s.range.upper)
 
-instance : SliceIter ⟨.closed, .open⟩ (Array α) Nat :=
+instance : SliceIter ⟨.closed, .open, .default⟩ (Array α) Nat :=
   .of (fun s => s.collection.iter.take s.range.upper |>.drop s.range.lower)
 
-instance : SliceIter ⟨.open, .open⟩ (Array α) Nat :=
+instance : SliceIter ⟨.open, .open, .default⟩ (Array α) Nat :=
   .of (fun s => s.collection.iter.take s.range.upper |>.drop (s.range.lower + 1))
 
 def testArray := (0,,<10).iter.toArray

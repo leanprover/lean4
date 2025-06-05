@@ -687,12 +687,6 @@ def getConfig : MetaM Config :=
 def getConfigWithKey : MetaM ConfigWithKey :=
   return (← getConfig).toConfigWithKey
 
-def resetZetaDeltaFVarIds : MetaM Unit :=
-  modify fun s => { s with zetaDeltaFVarIds := {} }
-
-def getZetaDeltaFVarIds : MetaM FVarIdSet :=
-  return (← get).zetaDeltaFVarIds
-
 /-- Return the array of postponed universe level constraints. -/
 def getPostponed : MetaM (PersistentArray PostponedEntry) :=
   return (← get).postponed
@@ -1120,11 +1114,36 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
       modify fun s => { s with cache := cacheSaved }
 
 /--
-Executes `x` tracking zetaDelta reductions `Config.trackZetaDelta := true`
+Gets the current `zetaDeltaFVarIds` state.
+
+See `withTrackingZetaDelta` and `withTrackingZetaDeltaSet`.
+-/
+def getZetaDeltaFVarIds : MetaM FVarIdSet :=
+  return (← get).zetaDeltaFVarIds
+
+/--
+Executes `x` in a context where the `zetaDeltaFVarIds` are temporarily cleared.
+-/
+@[inline] def withResetZetaDeltaFVarIds : n α → n α :=
+  mapMetaM fun x => do
+    let zetaDeltaFVarIdsSaved ← modifyGet fun s => (s.zetaDeltaFVarIds, { s with zetaDeltaFVarIds := {} })
+    try
+      x
+    finally
+      modify fun s => { s with zetaDeltaFVarIds := zetaDeltaFVarIdsSaved }
+
+@[deprecated withResetZetaDeltaFVarIds (since := "2025-06-04")]
+def resetZetaDeltaFVarIds : MetaM Unit :=
+  modify fun s => { s with zetaDeltaFVarIds := {} }
+
+/--
+Executes `x` while tracking zetaDelta reductions (`Config.trackZetaDelta := true`),
+in a context where the `zetaDeltaFVarIds` are temporarily cleared.
+The cache is reset while executing `x`.
 -/
 @[inline] def withTrackingZetaDelta : n α → n α :=
   mapMetaM fun x =>
-    withFreshCache <| withReader (fun ctx => { ctx with trackZetaDelta := true }) x
+    withFreshCache <| withReader (fun ctx => { ctx with trackZetaDelta := true }) <| withResetZetaDeltaFVarIds x
 
 /--
 `withZetaDeltaSet s x` executes `x` with `zetaDeltaSet := s`.
@@ -1138,14 +1157,17 @@ def withZetaDeltaSet (s : FVarIdSet) : n α → n α :=
       withFreshCache <| withReader (fun ctx => { ctx with zetaDeltaSet := s }) x
 
 /--
-Similar to `withZetaDeltaSet`, but also enables `withTrackingZetaDelta` if `s` is not empty.
+`withTrackingZetaDeltaSet s x` executes `x` with `zetaDeltaSet := s` and enables `withTrackingZetaDelta` if `s` is not empty.
+In all cases `x` is run in a context where the `zetaDeltaFVarIds` are temporarily cleared.
+
+Similar to `withZetaDeltaSet`, but manipulates the `zetaDeltaFVarIds` and `trackZetaDelta` state.
 -/
 def withTrackingZetaDeltaSet (s : FVarIdSet) : n α → n α :=
   mapMetaM fun x =>
     if s.isEmpty then
-      x
+      withResetZetaDeltaFVarIds x
     else
-      withFreshCache <| withReader (fun ctx => { ctx with zetaDeltaSet := s, trackZetaDelta := true }) x
+      withFreshCache <| withReader (fun ctx => { ctx with zetaDeltaSet := s, trackZetaDelta := true }) <| withResetZetaDeltaFVarIds x
 
 @[inline] def withoutProofIrrelevance (x : n α) : n α :=
   withConfig (fun cfg => { cfg with proofIrrelevance := false }) x

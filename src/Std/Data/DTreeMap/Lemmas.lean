@@ -4221,7 +4221,7 @@ theorem contains_eq [TransCmp cmp] {k : α} (h : t₁ ~m t₂) :
     t₁.contains k = t₂.contains k :=
   h.1.contains_eq t₁.2 t₂.2
 
-theorem mem_iff [TransCmp cmp] (h : t₁ ~m t₂) {k : α} :
+theorem mem_iff [TransCmp cmp] {k : α} (h : t₁ ~m t₂) :
     k ∈ t₁ ↔ k ∈ t₂ :=
   h.1.mem_iff t₁.2 t₂.2
 

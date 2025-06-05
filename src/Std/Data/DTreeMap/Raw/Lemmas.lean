@@ -2241,7 +2241,7 @@ theorem mem_alter [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k k' : α}
     k' ∈ t.alter k f ↔ if cmp k k' = .eq then (f (t.get? k)).isSome = true else k' ∈ t :=
   Impl.mem_alter! h
 
-theorem mem_alter_of_compare_eq [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k k': α}
+theorem mem_alter_of_compare_eq [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)}
     (he : cmp k k' = .eq) :
     k' ∈ t.alter k f ↔ (f (t.get? k)).isSome :=
@@ -2467,7 +2467,7 @@ theorem mem_alter [TransCmp cmp] (h : t.WF) {k k' : α} {f : Option β → Optio
       if cmp k k' = .eq then (f (get? t k)).isSome = true else k' ∈ t :=
   Impl.Const.mem_alter! h
 
-theorem mem_alter_of_compare_eq [TransCmp cmp] (h : t.WF) {k k': α} {f : Option β → Option β}
+theorem mem_alter_of_compare_eq [TransCmp cmp] (h : t.WF) {k k' : α} {f : Option β → Option β}
     (he : cmp k k' = .eq) :
     k' ∈ alter t k f ↔ (f (get? t k)).isSome :=
   Impl.Const.mem_alter!_of_compare_eq h he
@@ -3130,7 +3130,7 @@ theorem minKey?_modify_eq_minKey? [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k
   Impl.Const.minKey?_modify_eq_minKey? h
 
 @[grind =]
-theorem isSome_minKey?_modify [TransCmp cmp] {k f}  (h : t.WF) :
+theorem isSome_minKey?_modify [TransCmp cmp] {k f} (h : t.WF) :
     (Const.modify t k f).minKey?.isSome = !t.isEmpty :=
   Impl.Const.isSome_minKey?_modify h
 
@@ -3627,7 +3627,7 @@ theorem maxKey?_modify_eq_maxKey? [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k
     (Const.modify t k f).maxKey? = t.maxKey? :=
   Impl.Const.maxKey?_modify_eq_maxKey? h
 
-theorem isSome_maxKey?_modify [TransCmp cmp] {k f}  (h : t.WF) :
+theorem isSome_maxKey?_modify [TransCmp cmp] {k f} (h : t.WF) :
     (Const.modify t k f).maxKey?.isSome = !t.isEmpty :=
   Impl.Const.isSome_maxKey?_modify h
 
@@ -3965,53 +3965,54 @@ theorem congr_right (h : t₁ ~m t₂) : t₃ ~m t₁ ↔ t₃ ~m t₂ :=
 theorem isEmpty_eq (h : t₁ ~m t₂) : t₁.isEmpty = t₂.isEmpty :=
   h.1.isEmpty_eq
 
-theorem contains_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (k : α) :
+theorem contains_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.contains k = t₂.contains k :=
   h.1.contains_eq h₁.1 h₂.1
 
-theorem mem_iff [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+theorem mem_iff [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     k ∈ t₁ ↔ k ∈ t₂ :=
   h.1.mem_iff h₁.1 h₂.1
 
 theorem size_eq (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.size = t₂.size :=
   h.1.size_eq h₁.1 h₂.1
 
-theorem get?_eq [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+theorem get?_eq [TransCmp cmp] [LawfulEqCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.get? k = t₂.get? k :=
   h.1.get?_eq h₁.1 h₂.1
 
-theorem get_eq [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) (hk : k ∈ t₁) : t₁.get k hk = t₂.get k ((h.mem_iff h₁ h₂).mp hk) :=
+theorem get_eq [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {hk : k ∈ t₁} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : t₁.get k hk = t₂.get k ((h.mem_iff h₁ h₂).mp hk) :=
   h.1.get_eq h₁.1 h₂.1 hk
 
-theorem get!_eq [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) [Inhabited (β k)] : t₁.get! k = t₂.get! k :=
+theorem get!_eq [TransCmp cmp] [LawfulEqCmp cmp] {k : α} [Inhabited (β k)] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.get! k = t₂.get! k :=
   h.1.get!_eq h₁.1 h₂.1
 
-theorem getD_eq [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) (fallback : β k) : t₁.getD k fallback = t₂.getD k fallback :=
+theorem getD_eq [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {fallback : β k} (h₁ : t₁.WF)
+    (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.getD k fallback = t₂.getD k fallback :=
   h.1.getD_eq h₁.1 h₂.1
 
-theorem getKey?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (k : α) :
+theorem getKey?_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.getKey? k = t₂.getKey? k :=
   h.1.getKey?_eq h₁.1 h₂.1
 
-theorem getKey_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) (hk : k ∈ t₁) : t₁.getKey k hk = t₂.getKey k ((h.mem_iff h₁ h₂).mp hk) :=
+theorem getKey_eq [TransCmp cmp] {k : α} {hk : k ∈ t₁} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getKey k hk = t₂.getKey k ((h.mem_iff h₁ h₂).mp hk) :=
   h.1.getKey_eq h₁.1 h₂.1 hk
 
-theorem getKey!_eq [TransCmp cmp] [Inhabited α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) : t₁.getKey! k = t₂.getKey! k :=
+theorem getKey!_eq [TransCmp cmp] [Inhabited α] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getKey! k = t₂.getKey! k :=
   h.1.getKey!_eq h₁.1 h₂.1
 
-theorem getKeyD_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k fallback : α) : t₁.getKeyD k fallback = t₂.getKeyD k fallback :=
+theorem getKeyD_eq [TransCmp cmp] {k fallback : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getKeyD k fallback = t₂.getKeyD k fallback :=
   h.1.getKeyD_eq h₁.1 h₂.1
 
 theorem toList_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.toList = t₂.toList :=
   h.1.toList_eq h₁.1 h₂.1
 
-theorem toArray_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.toArray = t₂.toArray :=
+theorem toArray_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.toArray = t₂.toArray :=
   h.1.toArray_eq h₁.1 h₂.1
 
 theorem keys_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.keys = t₂.keys :=
@@ -4021,33 +4022,33 @@ theorem keysArray_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ 
     t₁.keysArray = t₂.keysArray :=
   h.1.keysArray_eq h₁.1 h₂.1
 
-theorem foldlM_eq [TransCmp cmp] [Monad m] [LawfulMonad m] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (f : δ → (a : α) → β a → m δ) (init : δ) :
+theorem foldlM_eq [TransCmp cmp] [Monad m] [LawfulMonad m] {f : δ → (a : α) → β a → m δ}
+    {init : δ} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.foldlM f init = t₂.foldlM f init :=
   h.1.foldlM_eq h₁.1 h₂.1
 
-theorem foldl_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (f : δ → (a : α) → β a → δ) (init : δ) :
+theorem foldl_eq [TransCmp cmp] {f : δ → (a : α) → β a → δ} {init : δ} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) :
     t₁.foldl f init = t₂.foldl f init :=
   h.1.foldl_eq h₁.1 h₂.1
 
-theorem foldrM_eq [TransCmp cmp] [Monad m] [LawfulMonad m] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (f : (a : α) → β a → δ → m δ) (init : δ) :
+theorem foldrM_eq [TransCmp cmp] [Monad m] [LawfulMonad m] {f : (a : α) → β a → δ → m δ}
+    {init : δ} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.foldrM f init = t₂.foldrM f init :=
   h.1.foldrM_eq h₁.1 h₂.1
 
-theorem foldr_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (f : (a : α) → β a → δ → δ) (init : δ) :
+theorem foldr_eq [TransCmp cmp] {f : (a : α) → β a → δ → δ} {init : δ} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) :
     t₁.foldr f init = t₂.foldr f init :=
   h.1.foldr_eq h₁.1 h₂.1
 
-theorem forIn_eq [TransCmp cmp] [Monad m] [LawfulMonad m] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) :
+theorem forIn_eq [TransCmp cmp] [Monad m] [LawfulMonad m]
+    {f : (a : α) → β a → δ → m (ForInStep δ)} {init : δ} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.forIn f init = t₂.forIn f init :=
   h.1.forIn_eq h₁.1 h₂.1
 
-theorem forM_eq [TransCmp cmp] [Monad m] [LawfulMonad m] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (f : (a : α) → β a → m PUnit) :
+theorem forM_eq [TransCmp cmp] [Monad m] [LawfulMonad m] {f : (a : α) → β a → m PUnit}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.forM f = t₂.forM f :=
   h.1.forM_eq h₁.1 h₂.1
 
@@ -4059,7 +4060,7 @@ theorem minKey!_eq [TransCmp cmp] [Inhabited α] (h₁ : t₁.WF) (h₂ : t₂.W
     t₁.minKey! = t₂.minKey! :=
   h.1.minKey!_eq h₁.1 h₂.1
 
-theorem minKeyD_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (fallback : α) :
+theorem minKeyD_eq [TransCmp cmp] {fallback : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.minKeyD fallback = t₂.minKeyD fallback :=
   h.1.minKeyD_eq h₁.1 h₂.1
 
@@ -4071,7 +4072,7 @@ theorem maxKey!_eq [TransCmp cmp] [Inhabited α] (h₁ : t₁.WF) (h₂ : t₂.W
     t₁.maxKey! = t₂.maxKey! :=
   h.1.maxKey!_eq h₁.1 h₂.1
 
-theorem maxKeyD_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (fallback : α) :
+theorem maxKeyD_eq [TransCmp cmp] {fallback : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.maxKeyD fallback = t₂.maxKeyD fallback :=
   h.1.maxKeyD_eq h₁.1 h₂.1
 
@@ -4079,144 +4080,144 @@ theorem minEntry?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ 
     t₁.minEntry? = t₂.minEntry? :=
   h.1.minEntry?_eq h₁.1 h₂.1
 
-theorem minEntry!_eq [TransCmp cmp] [Inhabited ((a : α) × β a)]
-    (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.minEntry! = t₂.minEntry! :=
+theorem minEntry!_eq [TransCmp cmp] [Inhabited ((a : α) × β a)] (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : t₁.minEntry! = t₂.minEntry! :=
   h.1.minEntry!_eq h₁.1 h₂.1
 
-theorem minEntryD_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (fallback : (a : α) × β a) : t₁.minEntryD fallback = t₂.minEntryD fallback :=
+theorem minEntryD_eq [TransCmp cmp] {fallback : (a : α) × β a} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : t₁.minEntryD fallback = t₂.minEntryD fallback :=
   h.1.minEntryD_eq h₁.1 h₂.1
 
 theorem maxEntry?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.maxEntry? = t₂.maxEntry? :=
   h.1.maxEntry?_eq h₁.1 h₂.1
 
-theorem maxEntry!_eq [TransCmp cmp] [Inhabited ((a : α) × β a)]
-    (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.maxEntry! = t₂.maxEntry! :=
+theorem maxEntry!_eq [TransCmp cmp] [Inhabited ((a : α) × β a)] (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : t₁.maxEntry! = t₂.maxEntry! :=
   h.1.maxEntry!_eq h₁.1 h₂.1
 
-theorem maxEntryD_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (fallback : (a : α) × β a) : t₁.maxEntryD fallback = t₂.maxEntryD fallback :=
+theorem maxEntryD_eq [TransCmp cmp] {fallback : (a : α) × β a} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : t₁.maxEntryD fallback = t₂.maxEntryD fallback :=
   h.1.maxEntryD_eq h₁.1 h₂.1
 
-theorem entryAtIdx?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (i : Nat) :
+theorem entryAtIdx?_eq [TransCmp cmp] {i : Nat} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.entryAtIdx? i = t₂.entryAtIdx? i :=
   h.1.entryAtIdx?_eq h₁.1 h₂.1
 
-theorem entryAtIdx!_eq [TransCmp cmp] [Inhabited ((a : α) × β a)] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    (h : t₁ ~m t₂) (i : Nat) : t₁.entryAtIdx! i = t₂.entryAtIdx! i :=
+theorem entryAtIdx!_eq [TransCmp cmp] [Inhabited ((a : α) × β a)] {i : Nat} (h₁ : t₁.WF)
+    (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.entryAtIdx! i = t₂.entryAtIdx! i :=
   h.1.entryAtIdx!_eq h₁.1 h₂.1
 
-theorem entryAtIdxD_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (i : Nat)
-    (fallback : (a : α) × β a) : t₁.entryAtIdxD i fallback = t₂.entryAtIdxD i fallback :=
+theorem entryAtIdxD_eq [TransCmp cmp] {i : Nat} {fallback : (a : α) × β a} (h₁ : t₁.WF)
+    (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.entryAtIdxD i fallback = t₂.entryAtIdxD i fallback :=
   h.1.entryAtIdxD_eq h₁.1 h₂.1
 
-theorem keyAtIdx?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (i : Nat) :
+theorem keyAtIdx?_eq [TransCmp cmp] {i : Nat} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.keyAtIdx? i = t₂.keyAtIdx? i :=
   h.1.keyAtIdx?_eq h₁.1 h₂.1
 
-theorem keyAtIdx!_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (i : Nat)
-    [Inhabited α] : t₁.keyAtIdx! i = t₂.keyAtIdx! i :=
+theorem keyAtIdx!_eq [TransCmp cmp] [Inhabited α] {i : Nat} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : t₁.keyAtIdx! i = t₂.keyAtIdx! i :=
   h.1.keyAtIdx!_eq h₁.1 h₂.1
 
-theorem keyAtIdxD_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (i : Nat)
-    (fallback : α) : t₁.keyAtIdxD i fallback = t₂.keyAtIdxD i fallback :=
+theorem keyAtIdxD_eq [TransCmp cmp] {i : Nat} {fallback : α} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : t₁.keyAtIdxD i fallback = t₂.keyAtIdxD i fallback :=
   h.1.keyAtIdxD_eq h₁.1 h₂.1
 
-theorem getEntryGE?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (k : α) :
+theorem getEntryGE?_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.getEntryGE? k = t₂.getEntryGE? k :=
   h.1.getEntryGE?_eq h₁.1 h₂.1
 
-theorem getEntryGE!_eq [TransCmp cmp] [Inhabited ((a : α) × β a)] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    (h : t₁ ~m t₂) (k : α) : t₁.getEntryGE! k = t₂.getEntryGE! k :=
+theorem getEntryGE!_eq [TransCmp cmp] [Inhabited ((a : α) × β a)] {k : α} (h₁ : t₁.WF)
+    (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.getEntryGE! k = t₂.getEntryGE! k :=
   h.1.getEntryGE!_eq h₁.1 h₂.1
 
-theorem getEntryGED_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) (fallback : (a : α) × β a) : t₁.getEntryGED k fallback = t₂.getEntryGED k fallback :=
+theorem getEntryGED_eq [TransCmp cmp] {k : α} {fallback : (a : α) × β a} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : t₁.getEntryGED k fallback = t₂.getEntryGED k fallback :=
   h.1.getEntryGED_eq h₁.1 h₂.1
 
-theorem getEntryGT?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (k : α) :
+theorem getEntryGT?_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.getEntryGT? k = t₂.getEntryGT? k :=
   h.1.getEntryGT?_eq h₁.1 h₂.1
 
-theorem getEntryGT!_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) [Inhabited ((a : α) × β a)] : t₁.getEntryGT! k = t₂.getEntryGT! k :=
+theorem getEntryGT!_eq [TransCmp cmp] [Inhabited ((a : α) × β a)] {k : α} (h₁ : t₁.WF)
+    (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.getEntryGT! k = t₂.getEntryGT! k :=
   h.1.getEntryGT!_eq h₁.1 h₂.1
 
-theorem getEntryGTD_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) (fallback : (a : α) × β a) : t₁.getEntryGTD k fallback = t₂.getEntryGTD k fallback :=
+theorem getEntryGTD_eq [TransCmp cmp] {k : α} {fallback : (a : α) × β a} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : t₁.getEntryGTD k fallback = t₂.getEntryGTD k fallback :=
   h.1.getEntryGTD_eq h₁.1 h₂.1
 
-theorem getEntryLE?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (k : α) :
+theorem getEntryLE?_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.getEntryLE? k = t₂.getEntryLE? k :=
   h.1.getEntryLE?_eq h₁.1 h₂.1
 
-theorem getEntryLE!_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) [Inhabited ((a : α) × β a)] : t₁.getEntryLE! k = t₂.getEntryLE! k :=
+theorem getEntryLE!_eq [TransCmp cmp] [Inhabited ((a : α) × β a)] {k : α} (h₁ : t₁.WF)
+    (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.getEntryLE! k = t₂.getEntryLE! k :=
   h.1.getEntryLE!_eq h₁.1 h₂.1
 
-theorem getEntryLED_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) (fallback : (a : α) × β a) : t₁.getEntryLED k fallback = t₂.getEntryLED k fallback :=
+theorem getEntryLED_eq [TransCmp cmp] {k : α} {fallback : (a : α) × β a} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : t₁.getEntryLED k fallback = t₂.getEntryLED k fallback :=
   h.1.getEntryLED_eq h₁.1 h₂.1
 
-theorem getEntryLT?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (k : α) :
+theorem getEntryLT?_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.getEntryLT? k = t₂.getEntryLT? k :=
   h.1.getEntryLT?_eq h₁.1 h₂.1
 
-theorem getEntryLT!_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) [Inhabited ((a : α) × β a)] : t₁.getEntryLT! k = t₂.getEntryLT! k :=
+theorem getEntryLT!_eq [TransCmp cmp] [Inhabited ((a : α) × β a)] {k : α} (h₁ : t₁.WF)
+    (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.getEntryLT! k = t₂.getEntryLT! k :=
   h.1.getEntryLT!_eq h₁.1 h₂.1
 
-theorem getEntryLTD_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) (fallback : (a : α) × β a) : t₁.getEntryLTD k fallback = t₂.getEntryLTD k fallback :=
+theorem getEntryLTD_eq [TransCmp cmp] {k : α} {fallback : (a : α) × β a} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : t₁.getEntryLTD k fallback = t₂.getEntryLTD k fallback :=
   h.1.getEntryLTD_eq h₁.1 h₂.1
 
-theorem getKeyGE?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (k : α) :
+theorem getKeyGE?_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.getKeyGE? k = t₂.getKeyGE? k :=
   h.1.getKeyGE?_eq h₁.1 h₂.1
 
-theorem getKeyGE!_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) [Inhabited α] : t₁.getKeyGE! k = t₂.getKeyGE! k :=
+theorem getKeyGE!_eq [TransCmp cmp] [Inhabited α] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getKeyGE! k = t₂.getKeyGE! k :=
   h.1.getKeyGE!_eq h₁.1 h₂.1
 
-theorem getKeyGED_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k fallback : α) : t₁.getKeyGED k fallback = t₂.getKeyGED k fallback :=
+theorem getKeyGED_eq [TransCmp cmp] {k fallback : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getKeyGED k fallback = t₂.getKeyGED k fallback :=
   h.1.getKeyGED_eq h₁.1 h₂.1
 
-theorem getKeyGT?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (k : α) :
+theorem getKeyGT?_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.getKeyGT? k = t₂.getKeyGT? k :=
   h.1.getKeyGT?_eq h₁.1 h₂.1
 
-theorem getKeyGT!_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) [Inhabited α] : t₁.getKeyGT! k = t₂.getKeyGT! k :=
+theorem getKeyGT!_eq [TransCmp cmp] [Inhabited α] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getKeyGT! k = t₂.getKeyGT! k :=
   h.1.getKeyGT!_eq h₁.1 h₂.1
 
-theorem getKeyGTD_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k fallback : α) : t₁.getKeyGTD k fallback = t₂.getKeyGTD k fallback :=
+theorem getKeyGTD_eq [TransCmp cmp] {k fallback : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getKeyGTD k fallback = t₂.getKeyGTD k fallback :=
   h.1.getKeyGTD_eq h₁.1 h₂.1
 
-theorem getKeyLE?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (k : α) :
+theorem getKeyLE?_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.getKeyLE? k = t₂.getKeyLE? k :=
   h.1.getKeyLE?_eq h₁.1 h₂.1
 
-theorem getKeyLE!_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) [Inhabited α] : t₁.getKeyLE! k = t₂.getKeyLE! k :=
+theorem getKeyLE!_eq [TransCmp cmp] [Inhabited α] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getKeyLE! k = t₂.getKeyLE! k :=
   h.1.getKeyLE!_eq h₁.1 h₂.1
 
-theorem getKeyLED_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k fallback : α) : t₁.getKeyLED k fallback = t₂.getKeyLED k fallback :=
+theorem getKeyLED_eq [TransCmp cmp] {k fallback : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getKeyLED k fallback = t₂.getKeyLED k fallback :=
   h.1.getKeyLED_eq h₁.1 h₂.1
 
-theorem getKeyLT?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (k : α) :
+theorem getKeyLT?_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.getKeyLT? k = t₂.getKeyLT? k :=
   h.1.getKeyLT?_eq h₁.1 h₂.1
 
-theorem getKeyLT!_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) [Inhabited α] : t₁.getKeyLT! k = t₂.getKeyLT! k :=
+theorem getKeyLT!_eq [TransCmp cmp] [Inhabited α] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getKeyLT! k = t₂.getKeyLT! k :=
   h.1.getKeyLT!_eq h₁.1 h₂.1
 
-theorem getKeyLTD_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k fallback : α) : t₁.getKeyLTD k fallback = t₂.getKeyLTD k fallback :=
+theorem getKeyLTD_eq [TransCmp cmp] {k fallback : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getKeyLTD k fallback = t₂.getKeyLTD k fallback :=
   h.1.getKeyLTD_eq h₁.1 h₂.1
 
 theorem insert [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
@@ -4264,20 +4265,20 @@ section Const
 
 variable (β : Type v) {t₁ t₂ t₃ t₄ : Raw α β cmp} (δ : Type w) (m : Type w → Type w)
 
-theorem constGet?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (k : α) :
+theorem constGet?_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     Const.get? t₁ k = Const.get? t₂ k :=
   h.1.constGet?_eq h₁.1 h₂.1
 
-theorem constGet_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) (hk : k ∈ t₁) : Const.get t₁ k hk = Const.get t₂ k ((h.mem_iff h₁ h₂).mp hk) :=
+theorem constGet_eq [TransCmp cmp] {k : α} {hk : k ∈ t₁} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    Const.get t₁ k hk = Const.get t₂ k ((h.mem_iff h₁ h₂).mp hk) :=
   h.1.constGet_eq h₁.1 h₂.1 hk
 
-theorem constGet!_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) [Inhabited β] : Const.get! t₁ k = Const.get! t₂ k :=
+theorem constGet!_eq [TransCmp cmp] [Inhabited β] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    Const.get! t₁ k = Const.get! t₂ k :=
   h.1.constGet!_eq h₁.1 h₂.1
 
-theorem constGetD_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) (fallback : β) : Const.getD t₁ k fallback = Const.getD t₂ k fallback :=
+theorem constGetD_eq [TransCmp cmp] {k : α} {fallback : β} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : Const.getD t₁ k fallback = Const.getD t₂ k fallback :=
   h.1.constGetD_eq h₁.1 h₂.1
 
 theorem constToList_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
@@ -4299,84 +4300,84 @@ theorem constMinEntry?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : 
     Const.minEntry? t₁ = Const.minEntry? t₂ :=
   h.1.constMinEntry?_eq h₁.1 h₂.1
 
-theorem constMinEntry!_eq [TransCmp cmp] [Inhabited (α × β)]
-    (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : Const.minEntry! t₁ = Const.minEntry! t₂ :=
+theorem constMinEntry!_eq [TransCmp cmp] [Inhabited (α × β)] (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : Const.minEntry! t₁ = Const.minEntry! t₂ :=
   h.1.constMinEntry!_eq h₁.1 h₂.1
 
-theorem constMinEntryD_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (fallback : α × β) : Const.minEntryD t₁ fallback = Const.minEntryD t₂ fallback :=
+theorem constMinEntryD_eq [TransCmp cmp] {fallback : α × β} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : Const.minEntryD t₁ fallback = Const.minEntryD t₂ fallback :=
   h.1.constMinEntryD_eq h₁.1 h₂.1
 
 theorem constMaxEntry?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     Const.maxEntry? t₁ = Const.maxEntry? t₂ :=
   h.1.constMaxEntry?_eq h₁.1 h₂.1
 
-theorem constMaxEntry!_eq [TransCmp cmp] [Inhabited (α × β)]
-    (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : Const.maxEntry! t₁ = Const.maxEntry! t₂ :=
+theorem constMaxEntry!_eq [TransCmp cmp] [Inhabited (α × β)] (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : Const.maxEntry! t₁ = Const.maxEntry! t₂ :=
   h.1.constMaxEntry!_eq h₁.1 h₂.1
 
-theorem constMaxEntryD_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (fallback : α × β) : Const.maxEntryD t₁ fallback = Const.maxEntryD t₂ fallback :=
+theorem constMaxEntryD_eq [TransCmp cmp] {fallback : α × β} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : Const.maxEntryD t₁ fallback = Const.maxEntryD t₂ fallback :=
   h.1.constMaxEntryD_eq h₁.1 h₂.1
 
-theorem constEntryAtIdx?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (i : Nat) :
+theorem constEntryAtIdx?_eq [TransCmp cmp] {i : Nat} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     Const.entryAtIdx? t₁ i = Const.entryAtIdx? t₂ i :=
   h.1.constEntryAtIdx?_eq h₁.1 h₂.1
 
-theorem constEntryAtIdx!_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (i : Nat)
-    [Inhabited (α × β)] : Const.entryAtIdx! t₁ i = Const.entryAtIdx! t₂ i :=
+theorem constEntryAtIdx!_eq [TransCmp cmp] [Inhabited (α × β)] {i : Nat} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : Const.entryAtIdx! t₁ i = Const.entryAtIdx! t₂ i :=
   h.1.constEntryAtIdx!_eq h₁.1 h₂.1
 
-theorem constEntryAtIdxD_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (i : Nat)
-    (fallback : α × β) : Const.entryAtIdxD t₁ i fallback = Const.entryAtIdxD t₂ i fallback :=
+theorem constEntryAtIdxD_eq [TransCmp cmp] {i : Nat} {fallback : α × β} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : Const.entryAtIdxD t₁ i fallback = Const.entryAtIdxD t₂ i fallback :=
   h.1.constEntryAtIdxD_eq h₁.1 h₂.1
 
-theorem constGetEntryGE?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (k : α) :
+theorem constGetEntryGE?_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     Const.getEntryGE? t₁ k = Const.getEntryGE? t₂ k :=
   h.1.constGetEntryGE?_eq h₁.1 h₂.1
 
-theorem constGetEntryGE!_eq [TransCmp cmp] [Inhabited (α × β)] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    (h : t₁ ~m t₂) (k : α) : Const.getEntryGE! t₁ k = Const.getEntryGE! t₂ k :=
+theorem constGetEntryGE!_eq [TransCmp cmp] [Inhabited (α × β)] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : Const.getEntryGE! t₁ k = Const.getEntryGE! t₂ k :=
   h.1.constGetEntryGE!_eq h₁.1 h₂.1
 
-theorem constGetEntryGED_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) (fallback : α × β) : Const.getEntryGED t₁ k fallback = Const.getEntryGED t₂ k fallback :=
+theorem constGetEntryGED_eq [TransCmp cmp] {k : α} {fallback : α × β} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : Const.getEntryGED t₁ k fallback = Const.getEntryGED t₂ k fallback :=
   h.1.constGetEntryGED_eq h₁.1 h₂.1
 
-theorem constGetEntryGT?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (k : α) :
+theorem constGetEntryGT?_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     Const.getEntryGT? t₁ k = Const.getEntryGT? t₂ k :=
   h.1.constGetEntryGT?_eq h₁.1 h₂.1
 
-theorem constGetEntryGT!_eq [TransCmp cmp] [Inhabited (α × β)] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    (h : t₁ ~m t₂) (k : α) : Const.getEntryGT! t₁ k = Const.getEntryGT! t₂ k :=
+theorem constGetEntryGT!_eq [TransCmp cmp] [Inhabited (α × β)] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : Const.getEntryGT! t₁ k = Const.getEntryGT! t₂ k :=
   h.1.constGetEntryGT!_eq h₁.1 h₂.1
 
-theorem constGetEntryGTD_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) (fallback : α × β) : Const.getEntryGTD t₁ k fallback = Const.getEntryGTD t₂ k fallback :=
+theorem constGetEntryGTD_eq [TransCmp cmp] {k : α} {fallback : α × β} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : Const.getEntryGTD t₁ k fallback = Const.getEntryGTD t₂ k fallback :=
   h.1.constGetEntryGTD_eq h₁.1 h₂.1
 
-theorem constGetEntryLE?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (k : α) :
+theorem constGetEntryLE?_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     Const.getEntryLE? t₁ k = Const.getEntryLE? t₂ k :=
   h.1.constGetEntryLE?_eq h₁.1 h₂.1
 
-theorem constGetEntryLE!_eq [TransCmp cmp] [Inhabited (α × β)] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    (h : t₁ ~m t₂) (k : α) : Const.getEntryLE! t₁ k = Const.getEntryLE! t₂ k :=
+theorem constGetEntryLE!_eq [TransCmp cmp] [Inhabited (α × β)] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : Const.getEntryLE! t₁ k = Const.getEntryLE! t₂ k :=
   h.1.constGetEntryLE!_eq h₁.1 h₂.1
 
-theorem constGetEntryLED_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) (fallback : α × β) : Const.getEntryLED t₁ k fallback = Const.getEntryLED t₂ k fallback :=
+theorem constGetEntryLED_eq [TransCmp cmp] {k : α} {fallback : α × β} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : Const.getEntryLED t₁ k fallback = Const.getEntryLED t₂ k fallback :=
   h.1.constGetEntryLED_eq h₁.1 h₂.1
 
-theorem constGetEntryLT?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (k : α) :
+theorem constGetEntryLT?_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     Const.getEntryLT? t₁ k = Const.getEntryLT? t₂ k :=
   h.1.constGetEntryLT?_eq h₁.1 h₂.1
 
-theorem constGetEntryLT!_eq [TransCmp cmp] [Inhabited (α × β)] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    (h : t₁ ~m t₂) (k : α) : Const.getEntryLT! t₁ k = Const.getEntryLT! t₂ k :=
+theorem constGetEntryLT!_eq [TransCmp cmp] [Inhabited (α × β)] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : Const.getEntryLT! t₁ k = Const.getEntryLT! t₂ k :=
   h.1.constGetEntryLT!_eq h₁.1 h₂.1
 
-theorem constGetEntryLTD_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
-    (k : α) (fallback : α × β) : Const.getEntryLTD t₁ k fallback = Const.getEntryLTD t₂ k fallback :=
+theorem constGetEntryLTD_eq [TransCmp cmp] {k : α} {fallback : α × β} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : Const.getEntryLTD t₁ k fallback = Const.getEntryLTD t₂ k fallback :=
   h.1.constGetEntryLTD_eq h₁.1 h₂.1
 
 theorem constAlter [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)

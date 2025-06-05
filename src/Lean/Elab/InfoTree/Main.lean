@@ -113,9 +113,9 @@ def ContextInfo.runCoreM (info : ContextInfo) (x : CoreM α) : IO α := do
     have been used in `lctx` and `info.mctx`.
   -/
   (·.1) <$>
-    (withOptions (fun _ => info.options) x).toIO
+    x.toIO
       { currNamespace := info.currNamespace, openDecls := info.openDecls
-        fileName := "<InfoTree>", fileMap := default }
+        options := info.options, fileName := "<InfoTree>", fileMap := default }
       { env, ngen := info.ngen }
 
 def ContextInfo.runMetaM (info : ContextInfo) (lctx : LocalContext) (x : MetaM α) : IO α := do

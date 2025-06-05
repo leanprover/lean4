@@ -229,4 +229,86 @@ instance : LawfulBEq Poly where
 
 attribute [local simp] Poly.denote'_eq_denote
 
+def Poly.leadCoeff (p : Poly) : Int :=
+  match p with
+  | .add a _ _ => a
+  | _ => 1
+
+-- Helper class
+class OrderedIntModule (α : Type u) extends IntModule α, Preorder α, IntModule.IsOrdered α
+
+open IntModule.IsOrdered
+
+private theorem le_add_le {α} [OrderedIntModule α] {a b : α} (h₁ : a ≤ 0) (h₂ : b ≤ 0) : a + b ≤ 0 := by
+  replace h₁ := add_le_left h₁ b; simp at h₁
+  exact Preorder.le_trans h₁ h₂
+
+private theorem le_add_lt {α} [OrderedIntModule α] {a b : α} (h₁ : a ≤ 0) (h₂ : b < 0) : a + b < 0 := by
+  replace h₁ := add_le_left h₁ b; simp at h₁
+  exact Preorder.lt_of_le_of_lt h₁ h₂
+
+private theorem lt_add_lt {α} [OrderedIntModule α] {a b : α} (h₁ : a < 0) (h₂ : b < 0) : a + b < 0 := by
+  replace h₁ := add_lt_left h₁ b; simp at h₁
+  exact Preorder.lt_trans h₁ h₂
+
+private theorem coe_natAbs_nonneg (a : Int) : (a.natAbs : Int) ≥ 0 := by
+  exact Int.natCast_nonneg a.natAbs
+
+def le_le_combine_cert (p₁ p₂ p₃ : Poly) : Bool :=
+  let a₁ := p₁.leadCoeff.natAbs
+  let a₂ := p₂.leadCoeff.natAbs
+  p₃ == (p₁.mul a₂ |>.combine (p₂.mul a₁))
+
+theorem le_le_combine {α} [OrderedIntModule α] (ctx : Context α) (p₁ p₂ p₃ : Poly)
+    : le_le_combine_cert p₁ p₂ p₃ → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
+  simp [le_le_combine_cert]; intro _ h₁ h₂; subst p₃; simp
+  replace h₁ := hmul_nonpos (coe_natAbs_nonneg p₂.leadCoeff) h₁
+  replace h₂ := hmul_nonpos (coe_natAbs_nonneg p₁.leadCoeff) h₂
+  exact le_add_le h₁ h₂
+
+def le_lt_combine_cert (p₁ p₂ p₃ : Poly) : Bool :=
+  let a₁ := p₁.leadCoeff.natAbs
+  let a₂ := p₂.leadCoeff.natAbs
+  a₁ > (0 : Int) && p₃ == (p₁.mul a₂ |>.combine (p₂.mul a₁))
+
+theorem le_lt_combine {α} [OrderedIntModule α] (ctx : Context α) (p₁ p₂ p₃ : Poly)
+    : le_lt_combine_cert p₁ p₂ p₃ → p₁.denote' ctx ≤ 0 → p₂.denote' ctx < 0 → p₃.denote' ctx < 0 := by
+  simp [-Int.natAbs_pos, -Int.ofNat_pos, le_lt_combine_cert]; intro hp _ h₁ h₂; subst p₃; simp
+  replace h₁ := hmul_nonpos (coe_natAbs_nonneg p₂.leadCoeff) h₁
+  replace h₂ := hmul_neg (↑p₁.leadCoeff.natAbs) h₂ |>.mp hp
+  exact le_add_lt h₁ h₂
+
+theorem le_eq_combine {α} [OrderedIntModule α] (ctx : Context α) (p₁ p₂ p₃ : Poly)
+    : le_le_combine_cert p₁ p₂ p₃ → p₁.denote' ctx ≤ 0 → p₂.denote' ctx = 0 → p₃.denote' ctx ≤ 0 := by
+  simp [le_le_combine_cert]; intro _ h₁ h₂; subst p₃; simp [h₂]
+  replace h₁ := hmul_nonpos (coe_natAbs_nonneg p₂.leadCoeff) h₁
+  assumption
+
+def lt_lt_combine_cert (p₁ p₂ p₃ : Poly) : Bool :=
+  let a₁ := p₁.leadCoeff.natAbs
+  let a₂ := p₂.leadCoeff.natAbs
+  a₂ > (0 : Int) && a₁ > (0 : Int) && p₃ == (p₁.mul a₂ |>.combine (p₂.mul a₁))
+
+theorem lt_lt_combine {α} [OrderedIntModule α] (ctx : Context α) (p₁ p₂ p₃ : Poly)
+    : lt_lt_combine_cert p₁ p₂ p₃ → p₁.denote' ctx < 0 → p₂.denote' ctx < 0 → p₃.denote' ctx < 0 := by
+  simp [-Int.natAbs_pos, -Int.ofNat_pos, lt_lt_combine_cert]; intro hp₁ hp₂ _ h₁ h₂; subst p₃; simp
+  replace h₁ := hmul_neg (↑p₂.leadCoeff.natAbs) h₁ |>.mp hp₁
+  replace h₂ := hmul_neg (↑p₁.leadCoeff.natAbs) h₂ |>.mp hp₂
+  exact lt_add_lt h₁ h₂
+
+def lt_eq_combine_cert (p₁ p₂ p₃ : Poly) : Bool :=
+  let a₁ := p₁.leadCoeff.natAbs
+  let a₂ := p₂.leadCoeff.natAbs
+  a₂ > (0 : Int) && p₃ == (p₁.mul a₂ |>.combine (p₂.mul a₁))
+
+theorem lt_eq_combine {α} [OrderedIntModule α] (ctx : Context α) (p₁ p₂ p₃ : Poly)
+    : lt_eq_combine_cert p₁ p₂ p₃ → p₁.denote' ctx < 0 → p₂.denote' ctx = 0 → p₃.denote' ctx < 0 := by
+  simp [-Int.natAbs_pos, -Int.ofNat_pos, lt_eq_combine_cert]; intro hp₁ _ h₁ h₂; subst p₃; simp [h₂]
+  replace h₁ := hmul_neg (↑p₂.leadCoeff.natAbs) h₁ |>.mp hp₁
+  assumption
+
+theorem eq_eq_combine {α} [OrderedIntModule α] (ctx : Context α) (p₁ p₂ p₃ : Poly)
+    : le_le_combine_cert p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx = 0 → p₃.denote' ctx = 0 := by
+  simp [le_le_combine_cert]; intro _ h₁ h₂; subst p₃; simp [h₁, h₂]
+
 end Lean.Grind.Linarith

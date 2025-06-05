@@ -2973,19 +2973,60 @@ theorem isEmpty_insertList [BEq α]
     simp
 
 /-- Internal implementation detail of the hash map -/
+def insertListIfNew [BEq α] (l : List ((a : α) × β a)) (toInsert : List ((a : α) × β a)) :
+    List ((a : α) × β a) :=
+  match toInsert with
+  | .nil => l
+  | .cons ⟨k, v⟩ tl => insertListIfNew (insertEntryIfNew k v l) tl
+
+theorem DistinctKeys.insertListIfNew [BEq α] [PartialEquivBEq α] {l₁ l₂ : List ((a : α) × β a)}
+    (h : DistinctKeys l₁) :
+    DistinctKeys (insertListIfNew l₁ l₂) := by
+  induction l₂ using assoc_induction generalizing l₁
+  · simpa [insertListIfNew]
+  · rename_i k v t ih
+    rw [insertListIfNew.eq_def]
+    exact ih h.insertEntryIfNew
+
+theorem insertListIfNew_perm_of_perm_first [BEq α] [EquivBEq α] {l1 l2 toInsert : List ((a : α) × β a)}
+    (h : Perm l1 l2) (distinct : DistinctKeys l1) :
+    Perm (insertListIfNew l1 toInsert) (insertListIfNew l2 toInsert) := by
+  induction toInsert generalizing l1 l2 with
+  | nil => simp [insertListIfNew, h]
+  | cons hd tl ih =>
+    simp only [insertListIfNew]
+    apply ih (insertEntryIfNew_of_perm distinct h) (DistinctKeys.insertEntryIfNew distinct)
+
+theorem containsKey_insertListIfNew [BEq α] [PartialEquivBEq α] {l toInsert : List ((a : α) × β a)}
+    {k : α} : containsKey k (List.insertListIfNew l toInsert) =
+    (containsKey k l || (toInsert.map Sigma.fst).contains k) := by
+  induction toInsert generalizing l with
+  | nil =>  simp only [insertListIfNew, List.map_nil, List.elem_nil, Bool.or_false]
+  | cons hd tl ih =>
+    unfold insertListIfNew
+    rw [ih]
+    rw [containsKey_insertEntryIfNew]
+    simp only [Bool.or_eq_true, List.map_cons, List.contains_cons]
+    rw [BEq.comm]
+    conv => left; left; rw [Bool.or_comm]
+    rw [Bool.or_assoc]
+
+/-- Internal implementation detail of the hash map -/
 def insertSmallerList [BEq α] (l₁ l₂ : List ((a : α) × β a)) : List ((a : α) × β a) :=
-  if l₁.length ≤ l₂.length then insertList l₂ l₁ else insertList l₁ l₂
+  if l₁.length ≤ l₂.length then insertListIfNew l₂ l₁ else insertList l₁ l₂
 
 theorem DistinctKeys.insertSmallerList [BEq α] [PartialEquivBEq α] {l₁ l₂ : List ((a : α) × β a)}
     (h₁ : DistinctKeys l₁) (h₂ : DistinctKeys l₂) : DistinctKeys (insertSmallerList l₁ l₂) := by
   rw [List.insertSmallerList]
-  split <;> exact DistinctKeys.insertList ‹_›
+  split
+  · exact DistinctKeys.insertListIfNew ‹_›
+  · exact DistinctKeys.insertList ‹_›
 
 theorem containsKey_insertSmallerList [BEq α] [PartialEquivBEq α] {l₁ l₂ : List ((a : α) × β a)}
     {k : α} : containsKey k (List.insertSmallerList l₁ l₂) = (containsKey k l₁ || containsKey k l₂) := by
   rw [List.insertSmallerList]
   split
-  · rw [containsKey_insertList, ← containsKey_eq_contains_map_fst, Bool.or_comm]
+  · rw [containsKey_insertListIfNew, ← containsKey_eq_contains_map_fst, Bool.or_comm]
   · rw [containsKey_insertList, ← containsKey_eq_contains_map_fst]
 
 section

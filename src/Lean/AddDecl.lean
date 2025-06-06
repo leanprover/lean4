@@ -145,6 +145,8 @@ where
         if !(← MonadLog.hasErrors) && decl.hasSorry then
           if warn.sorry.get (← getOptions) then
             logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
+          else if decl.hasSyntheticSorry then
+            logError <| .tagged `hasSorry m!"declaration has unlogged elaboration errors (please report this issue)"
         try
           let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
             |> ofExceptKernelException

@@ -35,13 +35,13 @@ abbrev Context (α : Type u) := RArray α
 def Var.denote {α} (ctx : Context α) (v : Var) : α :=
   ctx.get v
 
-def denoteInt {α} [CommRing α] (k : Int) : α :=
+def denoteInt {α} [Ring α] (k : Int) : α :=
   bif k < 0 then
     - OfNat.ofNat (α := α) k.natAbs
   else
     OfNat.ofNat (α := α) k.natAbs
 
-def Expr.denote {α} [CommRing α] (ctx : Context α) : Expr → α
+def Expr.denote {α} [Ring α] (ctx : Context α) : Expr → α
   | .add a b  => denote ctx a + denote ctx b
   | .sub a b  => denote ctx a - denote ctx b
   | .mul a b  => denote ctx a * denote ctx b

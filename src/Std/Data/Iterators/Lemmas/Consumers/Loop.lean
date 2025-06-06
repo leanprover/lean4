@@ -87,6 +87,13 @@ theorem Iter.foldM_eq_forIn {α β γ : Type w} [Iterator α Id β] [Finite α I
     it.foldM (init := init) f = ForIn.forIn it init (fun x acc => ForInStep.yield <$> f acc x) :=
   rfl
 
+theorem Iter.foldM_eq_foldM_toIterM {α β : Type w} [Iterator α Id β]
+    [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
+    [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
+    {γ : Type w} {it : Iter (α := α) β} {init : γ} {f : γ → β → m γ} :
+    it.foldM (init := init) f = letI : MonadLift Id m := ⟨pure⟩; it.toIterM.foldM (init := init) f :=
+  rfl
+
 theorem Iter.forIn_yield_eq_foldM {α β γ δ : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m] [IteratorLoop α Id m]
     [LawfulIteratorLoop α Id m] {f : β → γ → m δ} {g : β → γ → δ → γ} {init : γ}

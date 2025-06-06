@@ -80,7 +80,7 @@ The initial configuration and starter files are based on the template:
   std                   library and executable; default
   exe                   executable only
   lib                   library only
-  math                  library only with a mathlib dependency
+  mathlib               library only with a mathlib dependency
 
 Templates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML
 version of the configuration file, respectively. The default is TOML."

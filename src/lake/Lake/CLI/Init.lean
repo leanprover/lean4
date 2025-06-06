@@ -194,6 +194,7 @@ def InitTemplate.ofString? : String → Option InitTemplate
 | "exe" => some .exe
 | "lib" => some .lib
 | "math" => some .math
+| "mathlib" => some .math
 | _ => none
 
 def escapeIdent (id : String) : String :=

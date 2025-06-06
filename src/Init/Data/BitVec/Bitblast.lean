@@ -2015,7 +2015,17 @@ theorem clzAuxRec_eq_iff (x : BitVec w) (n : Nat) :
           exact h
 
 theorem clzAuxRec_le (x : BitVec w) (n : Nat) :
-  x.clzAuxRec n ≤ w := by sorry
+    (x.clzAuxRec n).toNat ≤ w := by
+  have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
+  induction n
+  · case zero => simp [clzAuxRec]; by_cases hx0 : x.getLsbD 0 <;> simp [hx0]; rw [Nat.mod_eq_of_lt (by omega)]; omega
+  · case succ n ihn =>
+    unfold clzAuxRec
+    by_cases hxn : x.getLsbD (n + 1)
+    · simp [hxn]
+      rw [Nat.mod_eq_of_lt (by omega)]
+      omega
+    · simp [hxn, ihn]
 
 theorem clzAuxRec_lt_iff (x : BitVec w) (n : Nat) :
     x.clzAuxRec n < n ↔ x.getLsbD ((x.clzAuxRec n).toNat) = true ∧ ∀ j, (j ≤ n ∧ (x.clzAuxRec n).toNat < j) → x.getLsbD j = false :=

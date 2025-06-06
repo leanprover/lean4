@@ -98,6 +98,20 @@ instance {State : PRange shape α → Type u} {r : PRange shape α}
     IteratorCollectPartial (RangeIter.State r) Id m :=
   inferInstanceAs <| IteratorCollectPartial (State r) Id m
 
+instance {State : PRange shape α → Type u} {r : PRange shape α}
+    [Iterator (State r) Id α] [IteratorLoop (State r) Id m]
+    {iter : (r : PRange shape α) → Iter (α := State r) α} :
+    letI : RangeIter shape α := RangeIter.of iter
+    IteratorLoop (RangeIter.State r) Id m :=
+  inferInstanceAs <| IteratorLoop (State r) Id m
+
+instance {State : PRange shape α → Type u} {r : PRange shape α}
+    [Iterator (State r) Id α] [IteratorLoopPartial (State r) Id m]
+    {iter : (r : PRange shape α) → Iter (α := State r) α} :
+    letI : RangeIter shape α := RangeIter.of iter
+    IteratorLoopPartial (RangeIter.State r) Id m :=
+  inferInstanceAs <| IteratorLoopPartial (State r) Id m
+
 @[always_inline, inline]
 def PRange.size [RangeSize shape α] (r : PRange shape α) : Nat :=
   RangeSize.size r

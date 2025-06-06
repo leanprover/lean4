@@ -1,6 +1,7 @@
 prelude
 import Std.Data.Ranges.Basic
 import Std.Data.Ranges.Slice
+open Std.Iterators
 
 -- Have: `LE`, `LT`, `HAdd`
 -- Perhaps need: `Succ`
@@ -68,7 +69,6 @@ instance [LE α] [DecidableLE α] (r : PRange ⟨.closed, .closed⟩ α) : Decid
 
 
 section Iterator
-open Std.Iterators
 
 def Range.succIteratorInternal [Succ? α] (init : α) (stepSize : Nat) (Predicate : α → Bool) :=
   Iter.repeatUntilNone (init := init) (Succ?.succAtIdx? stepSize) |>.takeWhile Predicate
@@ -106,25 +106,29 @@ instance [Monad m] [MonadLiftT Id m] [Succ? α] (stepSize : Nat) (Predicate : α
   unfold Range.SuccIterator
   infer_instance
 
+-- TODO: Should we hide the ≤ or < predicates behind some identifier to avoid accidental rewriting?
 instance [Succ? α] [LE α] [DecidableLE α] : RangeIter ⟨.closed, .closed⟩ α :=
   .of fun r => Range.succIterator r.lower 1 (fun a => a ≤ r.upper) (by omega)
 
 instance [Succ? α] [LT α] [DecidableLT α] : RangeIter ⟨.closed, .open⟩ α :=
   .of fun r => Range.succIterator r.lower 1 (fun a => a < r.upper) (by omega)
 
-instance [Succ? α] [LE α] [DecidableLE α] : RangeIter ⟨.closed, .closed⟩ α :=
-  .of fun r => Range.succIterator (Succ?.succ? 1 r.lower) 1 (fun a => a ≤ r.upper) (by omega)
+instance [Succ? α] [LT α] [DecidableLT α] : RangeIter ⟨.closed, .none⟩ α :=
+  .of fun r => Range.succIterator r.lower 1 (fun _ => True) (by omega)
+
+instance [Succ? α] [LE α] [DecidableLE α] : RangeIter ⟨.open, .closed⟩ α :=
+  .of fun r => Range.succIterator r.lower 1 (fun a => a ≤ r.upper) (by omega) |>.drop 1
+
+instance [Succ? α] [LT α] [DecidableLT α] : RangeIter ⟨.open, .open⟩ α :=
+  .of fun r => Range.succIterator r.lower 1 (fun a => a < r.upper) (by omega) |>.drop 1
+
+instance [Succ? α] [LT α] [DecidableLT α] : RangeIter ⟨.open, .none⟩ α :=
+  .of fun r => Range.succIterator r.lower 1 (fun _ => True) (by omega) |>.drop 1
+
+-- TODO: iterators for ranges that are unbounded downwards
 
 end Iterator
 
-
 section Examples
-
-instance : Succ? Nat where
-  succ? n := some (n + 1)
-
-#eval "b" ∈ ("a",,"c")
-
-#eval (1,,<4).iter.allowNontermination.toList
 
 end Examples

@@ -34,12 +34,7 @@ where
         let s := s.push (input.get curr hcurr2)
         go aig w input newWidth (curr + 1) (by omega) s
       else
-        let res := aig.mkConstCached false
-        let aig := res.aig
-        let zeroRef := res.ref
-        have hcast := AIG.LawfulOperator.le_size (f := AIG.mkConstCached) ..
-        let input := input.cast hcast
-        let s := s.cast hcast
+        let zeroRef := aig.mkConstCached false
         let s := s.push zeroRef
         go aig w input newWidth (curr + 1) (by omega) s
     else
@@ -56,10 +51,8 @@ theorem go_le_size (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWidth
   split
   · dsimp only
     split
-    · refine Nat.le_trans ?_ (by apply go_le_size)
-      omega
-    · refine Nat.le_trans ?_ (by apply go_le_size)
-      apply AIG.LawfulOperator.le_size (f := AIG.mkConstCached)
+    · apply go_le_size
+    · apply go_le_size
   · simp
 termination_by newWidth - curr
 
@@ -78,9 +71,6 @@ theorem go_decl_eq (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWidth
     · rw [← hgo]
       intro idx h1 h2
       rw [go_decl_eq]
-      rw [AIG.LawfulOperator.decl_eq (f := AIG.mkConstCached)]
-      apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkConstCached)
-      assumption
   · simp [← hgo]
 termination_by newWidth - curr
 

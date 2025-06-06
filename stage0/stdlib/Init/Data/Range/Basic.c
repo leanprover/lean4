@@ -53,7 +53,6 @@ static lean_object* l___aux__Init__Data__Range__Basic______macroRules__tacticGet
 static lean_object* l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__4;
 LEAN_EXPORT lean_object* l_Std_Range_term_x5b___x3a___x3a___x5d;
 static lean_object* l_Std_Range___aux__Init__Data__Range__Basic______macroRules__Std__Range__term_x5b_x3a___x5d__1___closed__38;
-static lean_object* l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__1;
 static lean_object* l_Std_Range_term_x5b_x3a___x5d___closed__22;
 static lean_object* l_Std_Range_term_x5b_x3a___x5d___closed__19;
 static lean_object* l_Std_Range___aux__Init__Data__Range__Basic______macroRules__Std__Range__term_x5b___x3a___x3a___x5d__1___closed__2;
@@ -145,7 +144,6 @@ static lean_object* l_Std_Range_term_x5b___x3a___x3a___x5d___closed__5;
 static lean_object* l___auto____x40_Init_Data_Range_Basic___hyg_144____closed__18;
 static lean_object* l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__3;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__trivial__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_term_x5b_x3a___x5d___closed__10;
 static lean_object* l_Std_Range_term_x5b___x3a___x5d___closed__1;
 static lean_object* l_Std_Range___aux__Init__Data__Range__Basic______macroRules__Std__Range__term_x5b_x3a___x5d__1___closed__41;
@@ -180,7 +178,6 @@ static lean_object* l___auto____x40_Init_Data_Range_Basic___hyg_144____closed__3
 static lean_object* l_Std_Range_term_x5b_x3a___x3a___x5d___closed__5;
 static lean_object* l_Std_Range_term_x5b_x3a___x5d___closed__9;
 static lean_object* l_Std_Range_term_x5b___x3a___x3a___x5d___closed__3;
-static lean_object* l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__2;
 static lean_object* l_Std_Range___aux__Init__Data__Range__Basic______macroRules__Std__Range__term_x5b_x3a___x5d__1___closed__2;
 static lean_object* l_Std_Range_term_x5b___x3a___x5d___closed__7;
 static lean_object* l_Std_Range_term_x5b___x3a___x3a___x5d___closed__2;
@@ -2997,105 +2994,6 @@ return x_36;
 }
 }
 }
-static lean_object* _init_l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("tacticGet_elem_tactic_trivial", 29, 29);
-return x_1;
-}
-}
-static lean_object* _init_l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__trivial__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; uint8_t x_5; 
-x_4 = l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__2;
-x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
-if (x_5 == 0)
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
-x_6 = lean_box(1);
-x_7 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_7, 0, x_6);
-lean_ctor_set(x_7, 1, x_3);
-return x_7;
-}
-else
-{
-lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
-x_8 = lean_ctor_get(x_2, 5);
-lean_inc(x_8);
-x_9 = 0;
-x_10 = l_Lean_SourceInfo_fromRef(x_8, x_9);
-lean_dec(x_8);
-x_11 = lean_ctor_get(x_2, 2);
-lean_inc(x_11);
-x_12 = lean_ctor_get(x_2, 1);
-lean_inc(x_12);
-lean_dec(x_2);
-x_13 = l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__5;
-lean_inc(x_10);
-x_14 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_14, 0, x_10);
-lean_ctor_set(x_14, 1, x_13);
-x_15 = l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__11;
-x_16 = l_Lean_addMacroScope(x_12, x_15, x_11);
-x_17 = l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__8;
-x_18 = l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__13;
-lean_inc(x_10);
-x_19 = lean_alloc_ctor(3, 4, 0);
-lean_ctor_set(x_19, 0, x_10);
-lean_ctor_set(x_19, 1, x_17);
-lean_ctor_set(x_19, 2, x_16);
-lean_ctor_set(x_19, 3, x_18);
-x_20 = l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__6;
-lean_inc(x_10);
-x_21 = l_Lean_Syntax_node2(x_10, x_20, x_14, x_19);
-x_22 = l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__14;
-lean_inc(x_10);
-x_23 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_23, 0, x_10);
-lean_ctor_set(x_23, 1, x_22);
-x_24 = l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__15;
-lean_inc(x_10);
-x_25 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_25, 0, x_10);
-lean_ctor_set(x_25, 1, x_24);
-x_26 = l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__16;
-lean_inc(x_10);
-x_27 = l_Lean_Syntax_node1(x_10, x_26, x_25);
-x_28 = l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__19;
-lean_inc(x_10);
-x_29 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_29, 0, x_10);
-lean_ctor_set(x_29, 1, x_28);
-x_30 = l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__18;
-lean_inc(x_10);
-x_31 = l_Lean_Syntax_node1(x_10, x_30, x_29);
-x_32 = l___auto____x40_Init_Data_Range_Basic___hyg_144____closed__10;
-lean_inc(x_23);
-lean_inc(x_10);
-x_33 = l_Lean_Syntax_node5(x_10, x_32, x_21, x_23, x_27, x_23, x_31);
-x_34 = l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__4;
-x_35 = l_Lean_Syntax_node1(x_10, x_34, x_33);
-x_36 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_36, 0, x_35);
-lean_ctor_set(x_36, 1, x_3);
-return x_36;
-}
-}
-}
 lean_object* initialize_Init_Meta(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Omega(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -3433,10 +3331,6 @@ l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__exte
 lean_mark_persistent(l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__18);
 l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__19 = _init_l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__19();
 lean_mark_persistent(l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__19);
-l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__1 = _init_l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__1();
-lean_mark_persistent(l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__1);
-l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__2 = _init_l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__2();
-lean_mark_persistent(l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

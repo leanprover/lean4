@@ -22,7 +22,6 @@ lean_object* l_Lean_MVarId_replaceTargetDefEq(lean_object*, lean_object*, lean_o
 lean_object* l_Lean_MapDeclarationExtension_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_PartialFixpoint_mkUnfoldEq_doRealize___lambda__6___closed__4;
 static lean_object* l_Lean_Elab_PartialFixpoint_registerEqnsInfo___closed__2;
-lean_object* l_Lean_Meta_lambdaTelescope___at___private_Lean_Meta_Eqns_0__Lean_Meta_mkSimpleEqThm_doRealize___spec__1___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__4;
@@ -129,6 +128,7 @@ static lean_object* l_Lean_Elab_PartialFixpoint_mkUnfoldEq_doRealize___lambda__4
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_MapDeclarationExtension_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* l_Lean_Meta_lambdaTelescope___at_Lean_PrettyPrinter_Delaborator_returnsPi___spec__1___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_PartialFixpoint_mkUnfoldEq_doRealize___lambda__4___closed__2;
 uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__7;
@@ -4263,7 +4263,7 @@ lean_ctor_set(x_8, 4, x_15);
 lean_ctor_set(x_8, 2, x_1);
 lean_ctor_set_uint8(x_8, sizeof(void*)*13, x_2);
 x_16 = 0;
-x_17 = l_Lean_Meta_lambdaTelescope___at___private_Lean_Meta_Eqns_0__Lean_Meta_mkSimpleEqThm_doRealize___spec__1___rarg(x_3, x_4, x_16, x_5, x_6, x_8, x_9, x_10);
+x_17 = l_Lean_Meta_lambdaTelescope___at_Lean_PrettyPrinter_Delaborator_returnsPi___spec__1___rarg(x_3, x_4, x_16, x_5, x_6, x_8, x_9, x_10);
 return x_17;
 }
 else
@@ -4312,7 +4312,7 @@ lean_ctor_set(x_32, 12, x_29);
 lean_ctor_set_uint8(x_32, sizeof(void*)*13, x_2);
 lean_ctor_set_uint8(x_32, sizeof(void*)*13 + 1, x_28);
 x_33 = 0;
-x_34 = l_Lean_Meta_lambdaTelescope___at___private_Lean_Meta_Eqns_0__Lean_Meta_mkSimpleEqThm_doRealize___spec__1___rarg(x_3, x_4, x_33, x_5, x_6, x_32, x_9, x_10);
+x_34 = l_Lean_Meta_lambdaTelescope___at_Lean_PrettyPrinter_Delaborator_returnsPi___spec__1___rarg(x_3, x_4, x_33, x_5, x_6, x_32, x_9, x_10);
 return x_34;
 }
 }

@@ -29813,6 +29813,7 @@ x_17 = lean_ctor_get(x_16, 1);
 lean_inc(x_17);
 lean_dec(x_16);
 x_18 = l_Lean_PrettyPrinter_Delaborator_delabStructureInstance___lambda__10___closed__3;
+lean_inc(x_2);
 x_19 = l_Lean_TagAttribute_hasTag(x_18, x_1, x_2);
 if (x_19 == 0)
 {

@@ -2027,9 +2027,36 @@ theorem clzAuxRec_le (x : BitVec w) (n : Nat) :
       omega
     · simp [hxn, ihn]
 
+
+-- (x.clzAuxRec n).toNat < w ↔ ∃ k, x.getLsbD k = true ∧ ∀ j, (j ≤ n ∧ k < j) → x.getLsbD j = false := by
+
 theorem clzAuxRec_lt_iff (x : BitVec w) (n : Nat) :
-    x.clzAuxRec n < n ↔ x.getLsbD ((x.clzAuxRec n).toNat) = true ∧ ∀ j, (j ≤ n ∧ (x.clzAuxRec n).toNat < j) → x.getLsbD j = false :=
-  by sorry
+    (x.clzAuxRec n).toNat < w ↔ ∃ k, x.getLsbD k = true ∧ ∀ j, (j ≤ n ∧ k < j) → x.getLsbD j = false := by
+  have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
+  rcases w with _|w
+  · simp [of_length_zero]
+  · induction n
+    · case zero =>
+      simp [clzAuxRec]
+      by_cases hx0 : x.getLsbD 0
+      · simp [hx0]
+        rw [Nat.mod_eq_of_lt (by omega)]
+        constructor
+        · intro h; exists 0
+        · intro h; omega
+      · constructor
+        · intro h
+          rw [getLsbD_eq_getElem (by omega)] at hx0
+          simp [hx0] at h
+        · intro h
+          rw [getLsbD_eq_getElem (by omega)] at hx0
+          simp_all
+          obtain ⟨k,hk⟩ := h
+          sorry
+    · case succ n ihn =>
+      simp
+
+      sorry
 
 -- @[simp]
 -- theorem clzAuxRec_zero_eq (x : BitVec w) :

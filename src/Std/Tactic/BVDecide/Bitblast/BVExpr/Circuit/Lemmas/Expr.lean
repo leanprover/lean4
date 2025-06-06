@@ -195,7 +195,7 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
     · exact hinv
   · rw [← hres]
     apply Cache.Inv_cast
-    · apply LawfulVecOperator.isPrefix_aig (f := blastConst)
+    · apply IsPrefix.rfl
     · exact hinv
   · next op lhsExpr rhsExpr =>
     dsimp only at hres

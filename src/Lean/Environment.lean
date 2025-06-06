@@ -549,6 +549,11 @@ structure Environment where
   -/
   private base : VisibilityMap Kernel.Environment
   /--
+  Additional imported environment extension state for use in codegen.  Access via
+  `getModuleEntries (level := .ir)`.
+  -/
+  private irBaseExts : Array EnvExtensionState := base.private.extensions
+  /--
   Additional imported environment extension state for use in the language server. This field is
   identical to `base.extensions` in other contexts. Access via
   `getModuleEntries (level := .server)`.
@@ -1484,6 +1489,8 @@ abbrev ImportM := ReaderT Lean.ImportM.Context IO
 inductive OLeanLevel where
   /-- Information from exported contexts. -/
   | exported
+  /-- Environment extension state for codegen. -/
+  | ir
   /-- Environment extension state for the language server. -/
   | server
   /-- Private module data. -/
@@ -1571,12 +1578,15 @@ namespace PersistentEnvExtension
 /--
 Returns the data saved by `ext.exportEntriesFn` when `m` was elaborated. See docs on the function for
 details. When using the module system, `level` can be used to select the level of data to retrieve,
-but is limited to the maximum level actually imported: `exported` on the cmdline and `server` in the
+but is limited to the maximum level actually imported: `ir` on the cmdline and `server` in the
 language server. Higher levels will return the data of the maximum imported level.
 -/
 def getModuleEntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ)
     (env : Environment) (m : ModuleIdx) (level := OLeanLevel.exported) : Array α :=
-  let exts := if level = .exported then env.base.private.extensions else env.serverBaseExts
+  let exts := match level with
+    | .exported => env.base.private.extensions
+    | .ir       => env.irBaseExts
+    | _         => env.serverBaseExts
   -- safety: as in `getStateUnsafe`
   unsafe (ext.toEnvExtension.getStateImpl exts).importedEntries[m]!
 
@@ -1715,6 +1725,7 @@ unsafe def Environment.freeRegions (env : Environment) : IO Unit :=
 
 def OLeanLevel.adjustFileName (base : System.FilePath) : OLeanLevel → System.FilePath
   | .exported => base
+  | ir        => base.addExtension "ir"
   | .server   => base.addExtension "server"
   | .private  => base.addExtension "private"
 
@@ -1754,6 +1765,7 @@ def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
       return (level.adjustFileName fname, (← mkModuleData env level))
     saveModuleDataParts env.mainModule #[
       (← mkPart .exported),
+      (← mkPart .ir),
       (← mkPart .server),
       (← mkPart .private)]
   else
@@ -1839,21 +1851,33 @@ private structure ImportedModule extends EffectiveImport where
   /-- All loaded incremental compacted regions. -/
   parts     : Array (ModuleData × CompactedRegion)
 
-/-- The main module data that will eventually be used to construct the kernel environment. -/
-private def ImportedModule.mainModule? (self : ImportedModule) : Option ModuleData := do
-  let (baseMod, _) ← self.parts[0]?
-  self.parts[if baseMod.isModule && self.importAll then 2 else 0]?.map (·.1)
-
 /-- The main module data that will eventually be used to construct the publicly accessible constants. -/
 private def ImportedModule.publicModule? (self : ImportedModule) : Option ModuleData := do
   let (baseMod, _) ← self.parts[0]?
   return baseMod
 
+private def ImportedModule.getData? (self : ImportedModule) (level : OLeanLevel) : Option ModuleData := do
+  -- Without the module system, we only have the exported level.
+  let level := if (← self.publicModule?).isModule then level else .exported
+  self.parts[level.toCtorIdx]?.map (·.1)
+
+/-- The main module data that will eventually be used to construct the kernel environment. -/
+private def ImportedModule.mainModule? (self : ImportedModule) : Option ModuleData :=
+  self.getData? (if self.importAll then OLeanLevel.private else .exported)
+
 /-- The module data that should be used for server purposes. -/
 private def ImportedModule.serverData? (self : ImportedModule) (level : OLeanLevel) :
+    Option ModuleData :=
+  -- fall back to .exported outside the server
+  self.getData? (if level ≥ .server then level else .exported)
+
+/-- The module data that should be used for codegen purposes. -/
+private def ImportedModule.irData? (self : ImportedModule) (level : OLeanLevel) :
     Option ModuleData := do
-  let (baseMod, _) ← self.parts[0]?
-  self.parts[if baseMod.isModule && level != .exported then 1 else 0]?.map (·.1)
+  let level :=
+    if level ≥ .server then level
+    else .ir
+  self.getData? level
 
 structure ImportState where
   private moduleNameMap : Std.HashMap Name ImportedModule := {}
@@ -1888,12 +1912,15 @@ private def findOLeanParts (mod : Name) : IO (Array System.FilePath) := do
   let mut fnames := #[mFile]
   -- Opportunistically load all available parts.
   -- Necessary because the import level may be upgraded a later import.
-  let sFile := OLeanLevel.server.adjustFileName mFile
+  let sFile := OLeanLevel.ir.adjustFileName mFile
   if (← sFile.pathExists) then
     fnames := fnames.push sFile
-    let pFile := OLeanLevel.private.adjustFileName mFile
-    if (← pFile.pathExists) then
-      fnames := fnames.push pFile
+    let sFile := OLeanLevel.server.adjustFileName mFile
+    if (← sFile.pathExists) then
+      fnames := fnames.push sFile
+      let pFile := OLeanLevel.private.adjustFileName mFile
+      if (← pFile.pathExists) then
+        fnames := fnames.push pFile
   return fnames
 
 partial def importModulesCore
@@ -2084,9 +2111,23 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     base.public  := publicBase
     realizedImportedConsts? := none
   }
-  env := env.setCheckedSync { env.base.private with extensions := (← setImportedEntries env.base.private.extensions moduleData) }
+  let mut extensions ← setImportedEntries env.base.private.extensions moduleData
+  let extDescrs ← persistentEnvExtensionsRef.get
+  if let some declMapExt := extDescrs.find? (·.name == `Lean.IR.declMapExt) then
+    for h : modIdx in [:modules.size] do
+      let mod := modules[modIdx]
+      if mod.irPhases != .runtime then
+        if let some irData := mod.irData? level then
+          if let some (_, entries) := irData.entries.find? (·.1 == declMapExt.name) then
+            extensions := unsafe declMapExt.toEnvExtension.modifyStateImpl extensions fun s =>
+              { s with importedEntries := s.importedEntries.setIfInBounds modIdx entries }
+  env := env.setCheckedSync { env.base.private with extensions }
+  let irData     := modules.filterMap (·.irData? level)
   let serverData := modules.filterMap (·.serverData? level)
-  env := { env with serverBaseExts := (← setImportedEntries env.base.private.extensions serverData) }
+  env := { env with
+    irBaseExts     := (← setImportedEntries env.base.private.extensions irData)
+    serverBaseExts := (← setImportedEntries env.base.private.extensions serverData)
+  }
   if leakEnv then
     /- Mark persistent a first time before `finalizePersistenExtensions`, which
        avoids costly MT markings when e.g. an interpreter closure (which

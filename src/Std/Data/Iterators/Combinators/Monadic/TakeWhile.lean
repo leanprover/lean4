@@ -274,7 +274,7 @@ instance TakeWhile.instIteratorLoop [Monad m] [Monad n] [Iterator α m β]
             | ⟨.done c, h'⟩ => pure ⟨.done c, .intro⟩
           | ⟨.up false, h⟩ => pure ⟨.done acc, .intro⟩
 
-instance TakeWhile.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]
+instance TakeWhile.instIteratorLoopPartial [Monad m] [Monad n] [Iterator α m β]
     [IteratorLoopPartial α m n] [MonadLiftT m n] {P} :
     IteratorLoopPartial (TakeWhile α m β P) m n where
   forInPartial lift {γ} it init f := do

@@ -14,7 +14,7 @@ namespace Parsec
 inductive ParseResult (α : Type) (ι : Type) where
   | success (pos : ι) (res : α)
   | error (pos : ι) (err : String)
-  deriving Repr, Inhabited
+  deriving Repr
 
 end Parsec
 

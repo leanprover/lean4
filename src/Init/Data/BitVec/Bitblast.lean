@@ -2027,6 +2027,19 @@ theorem clzAuxRec_le (x : BitVec w) (n : Nat) :
       omega
     · simp [hxn, ihn]
 
+-- theorem mulRec_zero_eq (x y : BitVec w) :
+--     mulRec x y 0 = if y.getLsbD 0 then x else 0 := by
+--   simp [mulRec]
+-- theorem mulRec_succ_eq (x y : BitVec w) (s : Nat) :
+--     mulRec x y (s + 1) = mulRec x y s + if y.getLsbD (s + 1) then (x <<< (s + 1)) else 0 := rfl
+
+theorem clzAuxRec_zero_eq (x : BitVec w) :
+      clzAuxRec x 0 = if x.getLsbD 0 then BitVec.ofNat w (w - 1)
+        else BitVec.ofNat w w := rfl
+
+theorem clzAuxRec_succ_eq (x : BitVec w) (n : Nat) (hn : n = n' + 1) :
+    clzAuxRec x n = if x.getLsbD n then BitVec.ofNat w (w - 1 - n) else clzAuxRec x n' := by
+  simp_all; rfl
 
 -- (x.clzAuxRec n).toNat < w ↔ ∃ k, x.getLsbD k = true ∧ ∀ j, (j ≤ n ∧ k < j) → x.getLsbD j = false := by
 

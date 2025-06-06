@@ -20,7 +20,7 @@ namespace Vector'
   | ⟨i+1, h⟩, cons x xs => cons x $ xs.insert a ⟨i, Nat.lt_of_succ_lt_succ h⟩
 
   theorem insert_at_0_eq_cons1 (a: α) (v: Vector' α n):  v.insert a ⟨0, Nat.zero_lt_succ n⟩ = cons a v :=
-    rfl -- Error, it does not hold by reflexivity because the recursion is on v
+    (rfl) -- Error, it does not hold by reflexivity because the recursion is on v
 
   example (a : α) :  nil.insert a ⟨0, by simp +arith⟩ = cons a nil :=
     rfl

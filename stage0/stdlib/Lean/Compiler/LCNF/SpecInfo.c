@@ -2387,7 +2387,6 @@ lean_inc(x_6);
 lean_dec(x_5);
 x_7 = l___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_isNoSpecType___closed__1;
 x_8 = l_Lean_TagAttribute_hasTag(x_7, x_1, x_6);
-lean_dec(x_6);
 return x_8;
 }
 else
@@ -3176,6 +3175,7 @@ lean_dec(x_16);
 x_19 = lean_ctor_get(x_14, 0);
 lean_inc(x_19);
 x_20 = l___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_isNoSpecType___closed__1;
+lean_inc(x_19);
 x_21 = l_Lean_TagAttribute_hasTag(x_20, x_18, x_19);
 if (x_21 == 0)
 {

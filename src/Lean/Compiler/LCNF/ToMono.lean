@@ -77,14 +77,15 @@ partial def LetValue.toMono (e : LetValue) (fvarId : FVarId) : ToMonoM LetValue 
     else
       checkFVarUse fvarId
       return .fvar fvarId (← args.mapM argToMono)
-  | .proj structName fieldIdx fvarId =>
-    if (← get).typeParams.contains fvarId then
+  | .proj structName fieldIdx baseFVar =>
+    if (← get).typeParams.contains baseFVar then
       return .erased
     else
-      checkFVarUse fvarId
+      if let some declName := (← get).noncomputableVars.get? baseFVar then
+        modify fun s => { s with noncomputableVars := s.noncomputableVars.insert fvarId declName }
       if let some info ← hasTrivialStructure? structName then
         if info.fieldIdx == fieldIdx then
-          return .fvar fvarId #[]
+          return .fvar baseFVar #[]
         else
           return .erased
       else

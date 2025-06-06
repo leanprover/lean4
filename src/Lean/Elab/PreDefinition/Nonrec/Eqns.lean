@@ -36,6 +36,7 @@ where
         name, type, value
         levelParams := info.levelParams
       }
+      inferDefEqAttr name
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if (← isRecursiveDefinition declName) then

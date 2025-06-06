@@ -4,7 +4,7 @@ has type
   ?m = ?m : Prop
 but is expected to have type
   f 0 y = y : Prop
-1081.lean:23:4-23:7: error: type mismatch
+1081.lean:23:4-23:9: error: type mismatch
   rfl
 has type
   ?m = ?m : Prop

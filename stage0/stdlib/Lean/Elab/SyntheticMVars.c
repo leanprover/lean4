@@ -44,6 +44,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_runTactic___lambda__3(lean_object*, le
 LEAN_EXPORT lean_object* l_Lean_Elab_withInfoTreeContext___at_Lean_Elab_Term_runTactic___spec__21(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_initFn____x40_Lean_Elab_SyntheticMVars___hyg_7474____closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_withSynthesizeLight___rarg(lean_object*, lean_object*);
+uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_Lean_CollectLevelParams_visitExpr___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_TacticMVarKind_maybeWithoutRecovery___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizePendingInstMVar___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_insert___at_Lean_instantiateMVarDeclMVars___spec__1(lean_object*, lean_object*, lean_object*);
@@ -80,7 +81,6 @@ size_t lean_uint64_to_usize(uint64_t);
 uint64_t lean_uint64_lor(uint64_t, uint64_t);
 static lean_object* l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizeUsingDefaultPrio_synthesizeUsingDefaultInstance___lambda__2___closed__2;
 static lean_object* l_Lean_RBNode_forIn_visit___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizeUsingDefaultPrio_synthesizeUsingDefault___spec__2___closed__3;
-uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_Lean_CollectLevelMVars_visitExpr___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_reprPostponeBehavior____x40_Lean_Elab_SyntheticMVars___hyg_4157____closed__10;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_instReprPostponeBehavior;
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
@@ -460,7 +460,6 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_S
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitWhen___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizeUsingDefaultPrio_synthesizePendingInstMVar_x27___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_throwStuckAtUniverseCnstr___spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_CollectLevelMVars_visitExpr___spec__2(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_runTactic___spec__11(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabTermAndSynthesize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -482,6 +481,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_
 LEAN_EXPORT lean_object* l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_TacticMVarKind_logError(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at_Lean_Elab_Term_runTactic___spec__6___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_throwStuckAtUniverseCnstr___spec__5___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_CollectLevelParams_visitExpr___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_List_filterAuxM___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizeSyntheticMVarsStep___spec__1___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* l_Array_ofSubarray___rarg(lean_object*);
@@ -1080,7 +1080,7 @@ x_27 = 1;
 x_28 = lean_usize_sub(x_26, x_27);
 x_29 = lean_usize_land(x_25, x_28);
 x_30 = lean_array_uget(x_16, x_29);
-x_31 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_CollectLevelMVars_visitExpr___spec__1(x_2, x_30);
+x_31 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_CollectLevelParams_visitExpr___spec__1(x_2, x_30);
 if (x_31 == 0)
 {
 uint8_t x_32; 
@@ -1114,7 +1114,7 @@ lean_dec(x_43);
 if (x_45 == 0)
 {
 lean_object* x_46; 
-x_46 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_CollectLevelMVars_visitExpr___spec__2(x_39);
+x_46 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_CollectLevelParams_visitExpr___spec__2(x_39);
 lean_ctor_set(x_3, 1, x_46);
 lean_ctor_set(x_3, 0, x_36);
 switch (lean_obj_tag(x_2)) {
@@ -2554,7 +2554,7 @@ lean_dec(x_349);
 if (x_351 == 0)
 {
 lean_object* x_352; lean_object* x_353; 
-x_352 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_CollectLevelMVars_visitExpr___spec__2(x_345);
+x_352 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_CollectLevelParams_visitExpr___spec__2(x_345);
 x_353 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_353, 0, x_342);
 lean_ctor_set(x_353, 1, x_352);

@@ -25,5 +25,6 @@ theorem SPred.and_cons {P Q : SPred (σ::σs)} {s : σ} : SPred.and P Q s = SPre
 
 example {s : Nat} : (SPred.and (fun s => True) (fun s => True) : SPred [Nat]) s = True ∧ True := by
   rw [SPred.and_cons]; simp
+  exact And.intro trivial trivial
 
 end Test1

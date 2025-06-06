@@ -110,7 +110,7 @@ where
       return false
 
 private def useImplicitDefEqProof (thm : SimpTheorem) : SimpM Bool := do
-  if thm.isRfl (← getEnv) then
+  if thm.rfl then
     return (← getConfig).implicitDefEqProofs
   else
     return false
@@ -220,8 +220,7 @@ where
       for (thm, numExtraArgs) in candidates do
         if inErasedSet thm then continue
         if rflOnly then
-          let isRfl := thm.isRfl (← getEnv)
-          if !isRfl then
+          unless thm.rfl do
             if debug.tactic.simp.checkDefEqAttr.get (← getOptions) &&
                backward.dsimp.useDefEqAttr.get (← getOptions) then
               let isRflOld ← withOptions (backward.dsimp.useDefEqAttr.set · false) do
@@ -246,7 +245,7 @@ where
     else
       let candidates := candidates.insertionSort fun e₁ e₂ => e₁.priority > e₂.priority
       for thm in candidates do
-        unless inErasedSet thm || (rflOnly && !thm.isRfl (← getEnv)) do
+        unless inErasedSet thm || (rflOnly && !thm.rfl) do
           let result? ← withNewMCtxDepth do
             let val  ← thm.getValue
             let type ← inferType val

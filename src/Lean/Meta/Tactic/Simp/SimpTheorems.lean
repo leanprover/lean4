@@ -136,23 +136,10 @@ structure SimpTheorem where
   -/
   origin      : Origin
   /--
-  `rfl` is true if `proof` is by `Eq.refl` or `rfl`.
-
-  NOTE: As the visibility of `proof` may have changed between the point of declaration and use
-  of a `@[simp]` theorem, `isRfl` must be used to check for this flag.
+  `rfl` is true if `proof` is by `Eq.refl`, `rfl` or a `@[defeq]` theorem.
   -/
   rfl         : Bool
   deriving Inhabited
-
-/-- Checks whether the theorem holds by reflexivity in the scope given by the environment. -/
-def SimpTheorem.isRfl (s : SimpTheorem) (_env : Environment) : Bool := Id.run do
-  return s.rfl
-  -- if !s.rfl then
-  --   return false
-  -- let .decl declName _ _ := s.origin |
-  --   return true  -- not a global simp theorem, proof visibility must be unchanged
-  -- -- If we can see the proof, it must hold in the current scope.
-  -- env.findAsync? declName matches some ({ kind := .thm, .. })
 
 mutual
   private partial def isRflProofCore (type : Expr) (proof : Expr) : CoreM Bool := do

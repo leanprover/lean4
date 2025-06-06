@@ -305,11 +305,6 @@ open Lean in open Int.Linear in
 theorem ex4 (a b : Int) : 6 ∣ a + (11 - a) + 3*(a + 2*b) - 11 ↔ 2 ∣ a + 2*b := by
   simp +arith
 
-/-!
-
-Please uncomment after stage0 update; namesof internal theorems changed.
-
-
 /--
 info: theorem ex4 : ∀ (a b : Int), 6 ∣ a + (11 - a) + 3 * (a + 2 * b) - 11 ↔ 2 ∣ a + 2 * b :=
 fun a b =>
@@ -331,5 +326,3 @@ fun a b =>
 #guard_msgs (info) in
 open Lean in open Int.Linear in
 #print ex4
-
--/

@@ -50,13 +50,13 @@ Marks the theorem as a definitional equality.
 The theorem must be an equality that holds by `rfl`. This allows `dsimp` to use this theorem
 when rewriting.
 
-A theorem with a body is written exactly as `:= rfl` is implicitly marked `@[defeq]`. To avoid
-this behavior, write `:= (rfl)` instead.
+A theorem with with a definition that is (syntactically) `:= rfl` is implicitly marked `@[defeq]`.
+To avoid this behavior, write `:= (rfl)` instead.
 
 The attribute should be given before a `@[simp]` attribute to have effect.
 
 When using the module system, an exported theorem can only be `@[defeq]` if all definitions that
-need to be unfolded to prove the theorem are also exported.
+need to be unfolded to prove the theorem are exported and exposed.
 -/
 @[builtin_doc]
 builtin_initialize defeqAttr : TagAttribute ←

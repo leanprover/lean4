@@ -186,7 +186,9 @@ def hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
   | some modIdx => (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
   | none        =>
     if attr.ext.toEnvExtension.asyncMode matches .async then
-      -- TODO: This is obviously not correct. To discuss with Sebastian.
+      -- It seems that the env extension API doesn't quite allow querying attributes in a way
+      -- that works for realizable constants, but without waiting on proofs to finish.
+      -- Until then, we use the following overapproximation, to be refined later:
       (attr.ext.findStateAsync env decl).contains decl ||
       (attr.ext.getState env (asyncMode := .local)).contains decl
     else

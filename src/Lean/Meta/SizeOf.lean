@@ -149,7 +149,8 @@ partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
           trace[Meta.sizeOf] "declName: {declName}"
           trace[Meta.sizeOf] "type: {sizeOfType}"
           trace[Meta.sizeOf] "val: {sizeOfValue}"
-          withExporting do -- We expose the `sizeOf` fucntions so that the `spec` functions can be
+          -- We expose the `sizeOf` functions so that the `spec` theorems can be publicly `defeq`
+          withExporting do
             addDecl <| Declaration.defnDecl {
               name        := declName
               levelParams := levelParams
@@ -503,7 +504,8 @@ def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
                   let instDeclType ← mkForallFVars (xs ++ localInsts) sizeOfIndType
                   let instDeclValue ← mkLambdaFVars (xs ++ localInsts) sizeOfMk
                   trace[Meta.sizeOf] ">> {instDeclName} : {instDeclType}"
-                  withExporting do -- We expose the `sizeOf` fucntions so that the `spec` functions can be
+                  -- We expose the `sizeOf` instance so that the `spec` theorems can be publicly `defeq`
+                  withExporting do
                     addDecl <| Declaration.defnDecl {
                       name        := instDeclName
                       levelParams := indInfo.levelParams

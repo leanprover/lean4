@@ -85,3 +85,9 @@ def f := a
 #guard_msgs in example (h : P a) : P f := by dsimp [f.eq_1]; exact h
 #guard_msgs in example (h : P a) : P f := by dsimp [f.eq_def]; exact h
 #guard_msgs in example (h : P a) : P f := by dsimp [f.eq_unfold]; exact h
+
+
+def Q := 1 = 1
+@[defeq, simp] theorem Q_true : Q := rfl
+/-- error: dsimp made no progress -/
+#guard_msgs in example : Q := by dsimp [Q_true]

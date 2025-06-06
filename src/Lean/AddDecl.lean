@@ -142,8 +142,8 @@ where
   doAdd := do
     profileitM Exception "type checking" (← getOptions) do
       withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
-        if !(← MonadLog.hasErrors) && decl.hasSorry then
-          if warn.sorry.get (← getOptions) then
+        if warn.sorry.get (← getOptions) then
+          if !(← MonadLog.hasErrors) && decl.hasSorry then
             if decl.hasSyntheticSorry then
               logWarning <| .tagged `hasSorry m!"declaration uses 'sorry' due to elaboration errors.\n\n\
                 This can be caused by (1) referring to declarations with elaboration errors or \

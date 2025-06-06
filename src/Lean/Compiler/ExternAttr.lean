@@ -17,7 +17,8 @@ inductive ExternEntry where
   | adhoc    (backend : Name)
   | inline   (backend : Name) (pattern : String)
   | standard (backend : Name) (fn : String)
-  | foreign  (backend : Name) (fn : String)
+  /-- Call to a Lean function without exported IR. -/
+  | opaque   (fn : Name)
   deriving BEq, Hashable
 
 /--
@@ -112,7 +113,7 @@ def ExternEntry.backend : ExternEntry → Name
   | ExternEntry.adhoc n      => n
   | ExternEntry.inline n _   => n
   | ExternEntry.standard n _ => n
-  | ExternEntry.foreign n _  => n
+  | ExternEntry.opaque ..    => `all
 
 def getExternEntryForAux (backend : Name) : List ExternEntry → Option ExternEntry
   | []    => none
@@ -139,7 +140,6 @@ def getExternNameFor (env : Environment) (backend : Name) (fn : Name) : Option S
   let entry ← getExternEntryFor data? backend
   match entry with
   | ExternEntry.standard _ n => pure n
-  | ExternEntry.foreign _ n  => pure n
   | _ => failure
 
 private def getExternConstArity (declName : Name) : CoreM Nat := do

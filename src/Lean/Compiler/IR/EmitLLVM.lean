@@ -665,7 +665,7 @@ def emitExternCall (builder : LLVM.Builder llvmctx)
   | some (ExternEntry.standard _ extFn) => emitSimpleExternalCall builder extFn ps ys retty name
   | some (ExternEntry.inline `llvm _pat) => throw "Unimplemented codegen of inline LLVM"
   | some (ExternEntry.inline _ pat) => throw s!"Cannot codegen non-LLVM inline code '{pat}'."
-  | some (ExternEntry.foreign _ extFn)  => emitSimpleExternalCall builder extFn ps ys retty name
+  | some (ExternEntry.opaque _)  => unreachable!
   | _ => throw s!"Failed to emit extern application '{f}'."
 
 def getFunIdTy (f : FunId) : M llvmctx (LLVM.LLVMType llvmctx) := do
@@ -740,10 +740,7 @@ def emitFullApp (builder : LLVM.Builder llvmctx)
   let (__zty, zslot) ← emitLhsSlot_ z
   let decl ← getDecl f
   match decl with
-  | Decl.extern _ ps retty extData =>
-     let zv ← emitExternCall builder f ps extData ys retty
-     LLVM.buildStore builder zv zslot
-  | Decl.fdecl .. =>
+  | .fdecl .. | .extern _ _ _ { entries := [.opaque _] } =>
     if ys.size > 0 then
         let fv ← getOrAddFunIdValue builder f
         let ys ←  ys.mapM (fun y => do
@@ -755,6 +752,9 @@ def emitFullApp (builder : LLVM.Builder llvmctx)
     else
        let zv ← getOrAddFunIdValue builder f
        LLVM.buildStore builder zv zslot
+  | Decl.extern _ ps retty extData =>
+     let zv ← emitExternCall builder f ps extData ys retty
+     LLVM.buildStore builder zv zslot
 
 -- Note that this returns a *slot*, just like `emitLhsSlot_`.
 def emitLit (builder : LLVM.Builder llvmctx)

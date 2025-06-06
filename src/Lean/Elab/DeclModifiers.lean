@@ -128,7 +128,13 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
   let docCommentStx := stx.raw[0]
   let attrsStx      := stx.raw[1]
   let visibilityStx := stx.raw[2]
-  let noncompStx    := stx.raw[3]
+  let isNoncomputable :=
+    if stx.raw[3].isNone then
+      false
+    else if stx.raw[3][0].getKind == ``Parser.Command.meta then
+      false  -- TODO: handle `meta` declarations
+    else
+      true
   let unsafeStx     := stx.raw[4]
   let recKind       :=
     if stx.raw[5].isNone then

@@ -422,18 +422,17 @@ def emitExternCall (f : FunId) (ps : Array Param) (extData : ExternAttrData) (ys
   match getExternEntryFor extData `c with
   | some (ExternEntry.standard _ extFn) => emitSimpleExternalCall extFn ps ys
   | some (ExternEntry.inline _ pat)     => do emit (expandExternPattern pat (toStringArgs ys)); emitLn ";"
-  | some (ExternEntry.foreign _ extFn)  => emitSimpleExternalCall extFn ps ys
   | _ => throw s!"failed to emit extern application '{f}'"
 
 def emitFullApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do
   emitLhs z
   let decl ← getDecl f
   match decl with
-  | Decl.extern _ ps _ extData => emitExternCall f ps extData ys
-  | _ =>
+  | .fdecl .. | .extern _ _ _ { entries := [.opaque _], .. } =>
     emitCName f
     if ys.size > 0 then emit "("; emitArgs ys; emit ")"
     emitLn ";"
+  | Decl.extern _ ps _ extData => emitExternCall f ps extData ys
 
 def emitPartialApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do
   let decl ← getDecl f

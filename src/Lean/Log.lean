@@ -94,7 +94,7 @@ private def MessageData.appendDescriptionWidgetIfNamed (msg : MessageData) : Mes
     }
     -- Note: we do not generate corresponding message data for the widget because it pollutes
     -- console output
-    msg.appendPreservingKind <| .ofWidget inst .nil
+    msg.composePreservingKind <| .ofWidget inst .nil
   | none => msg
 
 /--
@@ -137,6 +137,15 @@ protected def «logNamedErrorAt» (ref : Syntax) (name : Name) (msgData : Messag
 def logWarningAt [MonadOptions m] (ref : Syntax) (msgData : MessageData) : m Unit := do
   logAt ref msgData .warning
 
+/--
+Log a named error warning using the given message data. The position is provided by `ref`.
+
+Note: Use the macro `logNamedWarningAt`, which validates error names, instead of calling this function
+directly.
+-/
+protected def «logNamedWarningAt» (ref : Syntax) (name : Name) (msgData : MessageData) : m Unit :=
+  logAt ref (msgData.tagWithErrorName name) MessageSeverity.warning
+
 /-- Log a new information message using the given message data. The position is provided by `ref`. -/
 def logInfoAt (ref : Syntax) (msgData : MessageData) : m Unit :=
   logAt ref msgData MessageSeverity.information
@@ -163,6 +172,15 @@ protected def «logNamedError» (name : Name) (msgData : MessageData) : m Unit :
 /-- Log a new warning message using the given message data. The position is provided by `getRef`. -/
 def logWarning [MonadOptions m] (msgData : MessageData) : m Unit := do
   log msgData .warning
+
+/--
+Log a named warning using the given message data. The position is provided by `getRef`.
+
+Note: Use the macro `logNamedWarning`, which validates error names, instead of calling this function
+directly.
+-/
+protected def «logNamedWarning» (name : Name) (msgData : MessageData) : m Unit :=
+  log (msgData.tagWithErrorName name) MessageSeverity.warning
 
 /-- Log a new information message using the given message data. The position is provided by `getRef`. -/
 def logInfo (msgData : MessageData) : m Unit :=

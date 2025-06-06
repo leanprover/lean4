@@ -1119,11 +1119,28 @@ associated error explanation exists. The message may be passed as an interpolate
 /--
 Logs an error, tagging the message as a named error with the specified name and validating that an
 associated error explanation exists. The error name must be followed by a `Syntax` at which the
-error is to be thrown. The message is the final argument and may be passed as an interpolated string
+error is to be logged. The message is the final argument and may be passed as an interpolated string
 or a `MessageData` term.
 -/
 @[builtin_term_parser] def logNamedErrorAtMacro := leading_parser
   "logNamedErrorAt " >> termParser maxPrec >> ppSpace >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
+
+/--
+Logs a warning, tagging the message as a named diagnostic with the specified name and validating
+that an associated error explanation exists. The message may be passed as an interpolated string or
+a `MessageData` term. The result of `getRef` is used as position information.
+-/
+@[builtin_term_parser] def logNamedWarningMacro := leading_parser
+  "logNamedWarning " >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
+
+/--
+Logs a warning, tagging the message as a named diagnostic with the specified name and validating
+that an associated error explanation exists. The error name must be followed by a `Syntax` at which
+the warning is to be logged. The message is the final argument and may be passed as an interpolated
+string or a `MessageData` term.
+-/
+@[builtin_term_parser] def logNamedWarningAtMacro := leading_parser
+  "logNamedWarningAt " >> termParser maxPrec >> ppSpace >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
 
 end Term
 

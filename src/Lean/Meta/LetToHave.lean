@@ -42,6 +42,10 @@ private structure Expr' where
   type : Expr
   deriving Inhabited
 
+private def Expr'.type' (e : Expr') : MetaM Expr' := do
+  let typeType ← inferType e.type
+  return { val := e.type, type := typeType }
+
 @[inline] private def Expr'.abstract (e : Expr') (fvars : Array Expr) : Expr' where
   val := e.val.abstract fvars
   type := e.type.abstract fvars
@@ -130,8 +134,9 @@ private def visitConst (e : Expr) (constName : Name) (us : List Level) : M Expr'
   else
     throwIncorrectNumberOfLevels constName us
 
-private def getSortLevel (e : Expr) : MetaM Level := do
-  let .sort u ← whnf e | throwTypeExcepted e
+/-- Checks that `e` is a type and then returns its universe level. -/
+private def getTypeLevel (e : Expr') : MetaM Level := do
+  let .sort u ← whnf e.type | throwTypeExpected e
   return u
 
 private inductive BoundKind
@@ -222,7 +227,7 @@ where
       let lctx  := lctx.mkLocalDecl fvarId n t.val.cleanupAnnotations bi
       let fvars := fvars.push (mkFVar fvarId)
       let kinds := kinds.push (.forall t)
-      let levels := levels.push (← withLCtx lctx {} <| getSortLevel t.type)
+      let levels := levels.push (← withLCtx lctx {} <| getTypeLevel t)
       visitBody lctx fvars kinds levels seenLet b
     | .lam n t b bi =>
       let t     ← visitAndInstantiate t
@@ -230,7 +235,7 @@ where
       let lctx  := lctx.mkLocalDecl fvarId n t.val.cleanupAnnotations bi
       let fvars := fvars.push (mkFVar fvarId)
       let kinds := kinds.push (.lambda t)
-      let levels := levels.push (← withLCtx lctx {} <| getSortLevel t.type)
+      let levels := levels.push (← withLCtx lctx {} <| getTypeLevel t)
       visitBody lctx fvars kinds levels seenLet b
     | .letE n t v b _ =>
       let t     ← visitAndInstantiate t
@@ -242,7 +247,7 @@ where
       let lctx  := lctx.mkLetDecl fvarId n t v
       let fvars := fvars.push (mkFVar fvarId)
       let kinds := kinds.push .let
-      let levels := levels.push (← withLCtx lctx {} <| getSortLevel t.type)
+      let levels := levels.push (← withLCtx lctx {} <| getTypeLevel t)
       visitBody lctx fvars kinds levels true b
     | _ =>
       if let some (n, t, v, b) := e.letFun? then
@@ -255,7 +260,7 @@ where
         let lctx  := lctx.mkLocalDecl fvarId n t
         let fvars := fvars.push (mkFVar fvarId)
         let kinds := kinds.push (.have v)
-        let levels := levels.push (← withLCtx lctx {} <| getSortLevel t.type)
+        let levels := levels.push (← withLCtx lctx {} <| getTypeLevel t)
         visitBody lctx fvars kinds levels seenLet b
       else
         withFullCheck seenLet do
@@ -272,11 +277,11 @@ where
     trace[Meta.letToHave.debug] "finalize {fvars},{indentD m!"{body.val} : {body.type}"}"
     -- When building `have`s, we need to know the type of `type`.
     -- We must compute this before we abstract the fvars.
-    let mut typeLevel ← getSortLevel (← inferType body.type)
+    let mut typeLevel ← getTypeLevel (← body.type')
     -- If there is a forall, then there cannot be any lambdas after it, and `body` must be a type.
     -- This is necessary and sufficient for all the foralls to be well-constructed.
     if let some i := kinds.findIdx? (· matches .forall _) then
-      let u ← getSortLevel body.type
+      let u ← getTypeLevel body
       -- Invariant: the `type` will always be of the form `Sort _` when visiting forall.
       body := { body with type := mkSort u }
       if kinds.any (start := i + 1) (· matches .lambda _) then

@@ -311,7 +311,7 @@ theorem lt_eq_combine {α} [IntModule α] [Preorder α] [IntModule.IsOrdered α]
   replace h₁ := hmul_neg (↑p₂.leadCoeff.natAbs) h₁ |>.mp hp₁
   assumption
 
-theorem eq_eq_combine {α} [IntModule α] [Preorder α] [IntModule.IsOrdered α] (ctx : Context α) (p₁ p₂ p₃ : Poly)
+theorem eq_eq_combine {α} [IntModule α] (ctx : Context α) (p₁ p₂ p₃ : Poly)
     : le_le_combine_cert p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx = 0 → p₃.denote' ctx = 0 := by
   simp [le_le_combine_cert]; intro _ h₁ h₂; subst p₃; simp [h₁, h₂]
 
@@ -416,6 +416,21 @@ theorem not_lt_norm {α} [IntModule α] [LinearOrder α] [IntModule.IsOrdered α
   assumption
 
 /-!
+Equality detection
+-/
+def eq_of_le_ge_cert (p₁ p₂ : Poly) : Bool :=
+  p₂ == p₁.mul (-1)
+
+theorem eq_of_le_ge {α} [IntModule α] [PartialOrder α] [IntModule.IsOrdered α] (ctx : Context α) (p₁ : Poly) (p₂ : Poly)
+    : eq_of_le_ge_cert p₁ p₂ → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 → p₁.denote' ctx = 0 := by
+  simp [eq_of_le_ge_cert]
+  intro; subst p₂; simp
+  intro h₁ h₂
+  replace h₂ := add_le_left h₂ (p₁.denote ctx)
+  rw [add_comm, neg_hmul, one_hmul, ← sub_eq_add_neg, sub_self, zero_add] at h₂
+  exact PartialOrder.le_antisymm h₁ h₂
+
+/-!
 Helper theorems for closing the goal
 -/
 
@@ -427,6 +442,34 @@ theorem lt_unsat {α} [IntModule α] [Preorder α] (ctx : Context α) : (Poly.ni
   have := Preorder.lt_iff_le_not_le.mp h
   simp at this
 
--- TODO: support for the special variable representing (1 : α). Example: `3 * (1 : α) ≤ 0`
+/-!
+Coefficient normalization
+-/
+
+def coeff_cert (p₁ p₂ : Poly) (k : Nat) :=
+  k > 0 && p₁ == p₂.mul k
+
+theorem eq_coeff {α} [IntModule α] [NoNatZeroDivisors α] (ctx : Context α) (p₁ p₂ : Poly) (k : Nat)
+    : coeff_cert p₁ p₂ k → p₁.denote ctx = 0 → p₂.denote ctx = 0 := by
+  simp [coeff_cert]; intro h _; subst p₁; simp
+  exact no_nat_zero_divisors k (p₂.denote ctx) (Nat.ne_zero_of_lt h)
+
+theorem le_coeff {α} [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (ctx : Context α) (p₁ p₂ : Poly) (k : Nat)
+    : coeff_cert p₁ p₂ k → p₁.denote ctx ≤ 0 → p₂.denote ctx ≤ 0 := by
+  simp [coeff_cert]; intro h _; subst p₁; simp
+  have : ↑k > (0 : Int) := Int.natCast_pos.mpr h
+  intro h₁; apply Classical.byContradiction
+  intro h₂; replace h₂ := lt_of_not_le h₂
+  replace h₂ := IsOrdered.hmul_pos (↑k) h₂ |>.mp this
+  exact Preorder.lt_irrefl 0 (Preorder.lt_of_lt_of_le h₂ h₁)
+
+theorem lt_coeff {α} [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (ctx : Context α) (p₁ p₂ : Poly) (k : Nat)
+    : coeff_cert p₁ p₂ k → p₁.denote ctx < 0 → p₂.denote ctx < 0 := by
+  simp [coeff_cert]; intro h _; subst p₁; simp
+  have : ↑k > (0 : Int) := Int.natCast_pos.mpr h
+  intro h₁; apply Classical.byContradiction
+  intro h₂; replace h₂ := le_of_not_lt h₂
+  replace h₂ := IsOrdered.hmul_nonneg (Int.le_of_lt this) h₂
+  exact Preorder.lt_irrefl 0 (Preorder.lt_of_le_of_lt h₂ h₁)
 
 end Lean.Grind.Linarith

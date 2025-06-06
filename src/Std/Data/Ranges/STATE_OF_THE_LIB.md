@@ -1,6 +1,6 @@
 # Just a place for some working notes about the iterators/ranges/slices
 
-## Ranges with step sizes (solved for now)
+## Ranges with step sizes
 
 *At least* in the `Nat` case, the finiteness of a range `a,,b` only depends on the type of its bounds -- but only as long as range doesn't have a custom step size.
 
@@ -20,6 +20,6 @@ However, `for ... in` notation essentially relies on the synthesis of a `ForIn` 
 
 The best (and still bad) idea I can come up with is to overload the range notation, and to make the higher-prioritized implementation try to annotate the range with a finiteness hint. If that fails, the lower-prioritized implementation kicks in and `for ... in` etc. will not work without tricks (`allowNontermination` or supplying a proof manually).
 
-**Solution:** define the zero-step range as the empty range, at least for
+**Solution for `Nat`:** define the zero-step range as the empty range, at least for
 those kinds of bounds where a finite iterator is expected to arise.
 

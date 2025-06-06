@@ -30,10 +30,18 @@ abbrev StepSize (shape : StepShape.{u}) : Type u :=
   | .default => PUnit
   | .custom α => α
 
-structure PRange (shape : RangeShape.{u}) (α : Type u) where
+class HasRange (shape : RangeShape.{u}) (α : Type u) where
+  IsValid : StepSize shape.step → Prop
+  decidable : DecidablePred IsValid
+
+instance [i : HasRange shape α] : DecidablePred i.IsValid :=
+  i.decidable
+
+structure PRange (shape : RangeShape.{u}) (α : Type u) [HasRange shape α] where
   lower : Bound shape.lower α
   upper : Bound shape.upper α
   step : StepSize shape.step
+  valid : HasRange.IsValid α step
 
 /-!
 
@@ -65,16 +73,16 @@ syntax:max (term ",,→" term "→,," term) : term
 -- syntax:max (term "<,," term ",,<" term) : term
 
 macro_rules
-  | `($a,,$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.closed StepShape.default) $a $b PUnit.unit)
-  | `(,,$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.none BoundShape.closed StepShape.default) PUnit.unit $b PUnit.unit)
-  | `($a,,) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.none StepShape.default) $a PUnit.unit PUnit.unit)
-  | `(,,) => ``(PRange.mk (shape := RangeShape.mk BoundShape.none BoundShape.none StepShape.default) PUnit.unit PUnit.unit PUnit.unit)
-  | `($a<,,$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.closed StepShape.default) $a $b PUnit.unit)
-  | `($a<,,) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.none StepShape.default) $a PUnit.unit PUnit.unit)
-  | `($a,,<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.open StepShape.default) $a $b PUnit.unit)
-  | `(,,<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.none BoundShape.open StepShape.default) PUnit.unit $b PUnit.unit)
-  | `($a<,,<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.open StepShape.default) $a $b PUnit.unit)
-  | `($a,,→$s→,,$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.closed (StepShape.custom _)) $a $b $s)
+  | `($a,,$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.closed StepShape.default) $a $b PUnit.unit (by decide))
+  | `(,,$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.none BoundShape.closed StepShape.default) PUnit.unit $b PUnit.unit (by decide))
+  | `($a,,) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.none StepShape.default) $a PUnit.unit PUnit.unit (by decide))
+  | `(,,) => ``(PRange.mk (shape := RangeShape.mk BoundShape.none BoundShape.none StepShape.default) PUnit.unit PUnit.unit PUnit.unit (by decide))
+  | `($a<,,$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.closed StepShape.default) $a $b PUnit.unit (by decide))
+  | `($a<,,) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.none StepShape.default) $a PUnit.unit PUnit.unit (by decide))
+  | `($a,,<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.open StepShape.default) $a $b PUnit.unit (by decide))
+  | `(,,<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.none BoundShape.open StepShape.default) PUnit.unit $b PUnit.unit (by decide))
+  | `($a<,,<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.open StepShape.default) $a $b PUnit.unit (by decide))
+  | `($a,,→$s→,,$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.closed (StepShape.custom _)) $a $b $s (by decide))
   -- | `(,,$s,,$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.none BoundShape.closed StepShape.default) PUnit.unit $b)
   -- | `($a,,$s,,) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.none StepShape.default) $a PUnit.unit)
   -- | `(,,$s,,) => ``(PRange.mk (shape := RangeShape.mk BoundShape.none BoundShape.none StepShape.default) PUnit.unit PUnit.unit)
@@ -84,49 +92,51 @@ macro_rules
   -- | `(,,$s,,<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.none BoundShape.open StepShape.default) PUnit.unit $b)
   -- | `($a<,,$s,,<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.open StepShape.default) $a $b)
 
-class RangeSize (shape : RangeShape) (α : Type u) where
+class RangeSize (shape : RangeShape) (α : Type u) [HasRange shape α] where
   size : PRange shape α → Nat
 
-class RangeIter (shape : RangeShape) (α : Type u) where
+class RangeIter (shape : RangeShape) (α : Type u) [HasRange shape α] where
   State : PRange shape α → Type u
   iter : (r : PRange shape α) → Iter (α := State r) α
 
 @[always_inline, inline]
-def RangeIter.of {State : PRange shape α → Type u}
+def RangeIter.of [HasRange shape α] {State : PRange shape α → Type u}
     (iter : (r : PRange shape α) → Iter (α := State r) α) :
     RangeIter shape α where
   State := State
   iter := iter
 
-instance {State : PRange shape α → Type u} [Iterator (State r) Id α]
+instance [HasRange shape α] {State : PRange shape α → Type u}
+    {r : PRange shape α} [Iterator (State r) Id α]
     {iter : (r : PRange shape α) → Iter (α := State r) α} :
     letI : RangeIter shape α := RangeIter.of iter
     Iterator (RangeIter.State (shape := shape) (α := α) r) Id α :=
   inferInstanceAs <| Iterator (State r) Id α
 
-instance {State : PRange shape α → Type u} [Iterator (State r) Id α]
+instance [HasRange shape α] {State : PRange shape α → Type u} {r : PRange shape α}
+    [Iterator (State r) Id α]
     [Finite (State r) Id]
     {iter : (r : PRange shape α) → Iter (α := State r) α} :
     letI : RangeIter shape α := RangeIter.of iter
     Finite (RangeIter.State (shape := shape) (α := α) r) Id :=
   inferInstanceAs <| Finite (State r) Id
 
-instance {State : PRange shape α → Type u} [Iterator (State r) Id α]
-    [IteratorCollect (State r) Id m]
+instance [HasRange shape α] {State : PRange shape α → Type u} {r : PRange shape α}
+    [Iterator (State r) Id α] [IteratorCollect (State r) Id m]
     {iter : (r : PRange shape α) → Iter (α := State r) α} :
     letI : RangeIter shape α := RangeIter.of iter
     IteratorCollect (RangeIter.State r) Id m :=
   inferInstanceAs <| IteratorCollect (State r) Id m
 
 @[always_inline, inline]
-def PRange.size [RangeSize shape α] (r : PRange shape α) : Nat :=
+def PRange.size [HasRange shape α] [RangeSize shape α] (r : PRange shape α) : Nat :=
   RangeSize.size r
 
 @[always_inline, inline]
-def PRange.iter [RangeIter shape α] (r : PRange shape α) :=
+def PRange.iter [HasRange shape α] [RangeIter shape α] (r : PRange shape α) :=
   (RangeIter.iter r : Iter α)
 
-instance [i : RangeIter shape α] [∀ r, ForIn m (Iter (α := i.State r) α) α] :
+instance [HasRange shape α] [i : RangeIter shape α] [∀ r, ForIn m (Iter (α := i.State r) α) α] :
     ForIn m (PRange shape α) α where
   forIn r := forIn r.iter
 

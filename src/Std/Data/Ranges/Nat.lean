@@ -5,90 +5,50 @@ import Std.Data.Iterators.Combinators.Monadic.Lineage
 
 open Std.Iterators
 
-instance : HasRange ⟨sl, su, .custom Nat⟩ Nat where
-  IsValid step := step > 0
-  decidable := inferInstance
+instance : RangeSize ⟨.closed, .closed⟩ Nat where
+  size r := ((r.upper + 1) - r.lower)
 
-instance : HasRange ⟨sl, su, .default⟩ Nat where
-  IsValid _ := True
-  decidable := inferInstance
+instance : RangeSize ⟨.closed, .open⟩ Nat where
+  size r := r.upper - r.lower
 
+instance : RangeSize ⟨.open, .closed⟩ Nat where
+  size r := r.upper + r.lower
 
+instance : RangeSize ⟨.open, .open⟩ Nat where
+  size r := r.upper - r.lower - 1
 
-instance [RangeSize ⟨sl, su, .custom Nat⟩ Nat] : RangeSize ⟨sl, su, .default⟩ Nat where
-  size r := (PRange.mk (shape := ⟨sl, su, .custom Nat⟩) r.lower r.upper 1 (by simp only [HasRange.IsValid]; omega; dsimp [RangeShape.step.eq_def]; decide)).size
+instance : RangeSize ⟨.none, .closed⟩ Nat where
+  size r := r.upper + 1
 
-instance [RangeSize ⟨.closed, .open, .custom Nat⟩ Nat] : RangeSize ⟨.closed, .open, .default⟩ Nat where
-  size r := (PRange.mk (shape := ⟨.closed, .open, .custom Nat⟩) r.lower r.upper 1 (by decide)).size
+instance : RangeSize ⟨.none, .open⟩ Nat where
+  size r := r.upper + 1
 
-instance [RangeSize ⟨.closed, .none, .custom Nat⟩ Nat] : RangeSize ⟨.closed, .none, .default⟩ Nat where
-  size r := (PRange.mk (shape := ⟨.closed, .none, .custom Nat⟩) r.lower .unit 1 (by decide)).size
+instance : RangeIter ⟨.closed, .closed⟩ Nat :=
+  .of fun r => Iter.repeat (init := r.lower) (· + 1) |>.take r.size
 
-instance [RangeSize ⟨.open, .closed, .custom Nat⟩ Nat] : RangeSize ⟨.open, .closed, .default⟩ Nat where
-  size r := (PRange.mk (shape := ⟨.open, .closed, .custom Nat⟩) r.lower r.upper 1 (by decide)).size
+instance : RangeIter ⟨.closed, .open⟩ Nat :=
+  .of fun r => Iter.repeat (init := r.lower) (· + 1) |>.take r.size
 
-instance [RangeSize ⟨.open, .open, .custom Nat⟩ Nat] : RangeSize ⟨.open, .open, .default⟩ Nat where
-  size r := (PRange.mk (shape := ⟨.open, .open, .custom Nat⟩) r.lower r.upper 1 (by decide)).size
+instance : RangeIter ⟨.closed, .none⟩ Nat :=
+  .of fun r => Iter.repeat (init := r.lower) (· + 1)
 
-instance [RangeSize ⟨.open, .none, .custom Nat⟩ Nat] : RangeSize ⟨.open, .none, .default⟩ Nat where
-  size r := (PRange.mk (shape := ⟨.open, .none, .custom Nat⟩) r.lower .unit 1 (by decide)).size
+instance : RangeIter ⟨.open, .closed⟩ Nat :=
+  .of fun r => Iter.repeat (init := r.lower) (· + 1) |>.take r.size
 
-instance [RangeSize ⟨.none, .closed, .custom Nat⟩ Nat] : RangeSize ⟨.none, .closed, .default⟩ Nat where
-  size r := (PRange.mk (shape := ⟨.none, .closed, .custom Nat⟩) .unit r.upper 1 (by decide)).size
+instance : RangeIter ⟨.open, .open⟩ Nat :=
+  .of fun r => Iter.repeat (init := r.lower + 1) (· + 1) |>.take r.size
 
-instance [RangeSize ⟨.none, .open, .custom Nat⟩ Nat] : RangeSize ⟨.none, .open, .default⟩ Nat where
-  size r := (PRange.mk (shape := ⟨.none, .open, .custom Nat⟩) .unit r.upper 1 (by decide)).size
+instance : RangeIter ⟨.open, .none⟩ Nat :=
+  .of fun r => Iter.repeat (init := r.lower + 1) (· + 1)
 
-instance [RangeSize ⟨.none, .none, .custom Nat⟩ Nat] : RangeSize ⟨.none, .none, .default⟩ Nat where
-  size r := (PRange.mk (α := Nat) (shape := ⟨.none, .none, .custom Nat⟩) .unit .unit 1 (by decide)).size
+instance : RangeIter ⟨.none, .closed⟩ Nat :=
+  .of fun r => Iter.repeat (init := 0) (· + 1) |>.take r.size
 
-instance : RangeSize ⟨.none, .none, .custom Nat⟩ Nat where
-  size r := ((r.upper + r.step) - r.lower) / r.step
+instance : RangeIter ⟨.none, .open⟩ Nat :=
+  .of fun r => Iter.repeat (init := 0) (· + 1) |>.take r.size
 
-instance : RangeSize ⟨.closed, .open, .custom Nat⟩ Nat where
-  size r := (r.upper + r.step - r.lower - 1) / r.step
-
-instance : RangeSize ⟨.open, .closed, .custom Nat⟩ Nat where
-  size r := (r.upper + r.step - r.lower - 1) / r.step
-
-instance : RangeSize ⟨.open, .open, .custom Nat⟩ Nat where
-  size r := (r.upper + r.step - r.lower - 2) / r.step
-
-instance : RangeSize ⟨.none, .closed, .custom Nat⟩ Nat where
-  size r := (r.upper + r.step) / r.step
-
-instance : RangeSize ⟨.none, .open, .custom Nat⟩ Nat where
-  size r := (r.upper + r.step - 1) / r.step
-
-instance [RangeIter ⟨sl, su, .custom Nat⟩ Nat] : RangeIter ⟨sl, su, .default⟩ Nat :=
-  .of fun r => (PRange.mk (shape := ⟨sl, su, .custom Nat⟩) r.lower r.upper 1).iter
-
-instance : RangeIter ⟨.closed, .closed, .custom Nat⟩ Nat :=
-  .of fun r => Iter.repeat (init := r.lower) (· + r.step) |>.take r.size
-
-instance : RangeIter ⟨.closed, .open, .custom Nat⟩ Nat :=
-  .of fun r => Iter.repeat (init := r.lower) (· + r.step) |>.take r.size
-
-instance : RangeIter ⟨.closed, .none, .custom Nat⟩ Nat :=
-  .of fun r => Iter.repeat (init := r.lower) (· + r.step)
-
-instance : RangeIter ⟨.open, .closed, .custom Nat⟩ Nat :=
-  .of fun r => Iter.repeat (init := r.lower) (· + r.step) |>.take r.size
-
-instance : RangeIter ⟨.open, .open, .custom Nat⟩ Nat :=
-  .of fun r => Iter.repeat (init := r.lower + 1) (· + r.step) |>.take r.size
-
-instance : RangeIter ⟨.open, .none, .custom Nat⟩ Nat :=
-  .of fun r => Iter.repeat (init := r.lower + 1) (· + r.step)
-
-instance : RangeIter ⟨.none, .closed, .custom Nat⟩ Nat :=
-  .of fun r => Iter.repeat (init := 0) (· + r.step) |>.take r.size
-
-instance : RangeIter ⟨.none, .open, .custom Nat⟩ Nat :=
-  .of fun r => Iter.repeat (init := 0) (· + r.step) |>.take r.size
-
-instance : RangeIter ⟨.none, .none, .custom Nat⟩ Nat :=
-  .of fun r => Iter.repeat (init := 0) (· + r.step)
+instance : RangeIter ⟨.none, .none⟩ Nat :=
+  .of fun r => Iter.repeat (init := 0) (· + 1)
 
 instance : Membership Nat (PRange shape Nat) where
   mem r n := match shape with

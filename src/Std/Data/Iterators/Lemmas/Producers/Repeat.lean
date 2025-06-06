@@ -16,7 +16,7 @@ namespace Std.Iterators
 variable {α : Type w} {f : α → α} {init : α}
 
 theorem Iter.step_repeat :
-    (Iter.repeat f init).step = .yield (Iter.repeat f (f init)) init ⟨rfl, rfl⟩ := by
+    (Iter.repeat f init).step = .yield (Iter.repeat f (f init)) init ⟨rfl, f init, rfl, rfl⟩ := by
   rfl
 
 theorem Iter.atIdxSlow?_zero_repeat :

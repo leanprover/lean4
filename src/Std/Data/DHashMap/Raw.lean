@@ -397,20 +397,6 @@ by `foldM`. -/
 def foldRev (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
   Id.run (Internal.foldRevM (pure <| f · · ·) init b)
 
-/-- Carries out a monadic action on each mapping in the hash map in some order. -/
-@[inline] def forM (f : (a : α) → β a → m PUnit) (b : Raw α β) : m PUnit :=
-  b.buckets.forM (AssocList.forM f)
-
-/-- Support for the `for` loop construct in `do` blocks. -/
-@[inline] def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (b : Raw α β) : m δ :=
-  ForIn.forIn b.buckets init (fun bucket acc => bucket.forInStep acc f)
-
-instance : ForM m (Raw α β) ((a : α) × β a) where
-  forM m f := m.forM (fun a b => f ⟨a, b⟩)
-
-instance : ForIn m (Raw α β) ((a : α) × β a) where
-  forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
-
 namespace Const
 
 variable {β : Type v}

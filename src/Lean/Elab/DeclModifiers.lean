@@ -84,9 +84,13 @@ def Modifiers.isNonrec : Modifiers → Bool
   | { recKind := .nonrec, .. } => true
   | _                          => false
 
-/-- Adds attribute `attr` in `modifiers` -/
+/-- Adds attribute `attr` in `modifiers`, at the end -/
 def Modifiers.addAttr (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
   { modifiers with attrs := modifiers.attrs.push attr }
+
+/-- Adds attribute `attr` in `modifiers`, at the beginning -/
+def Modifiers.addFirstAttr (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
+  { modifiers with attrs := #[attr] ++ modifiers.attrs }
 
 /-- Filters attributes using `p` -/
 def Modifiers.filterAttrs (modifiers : Modifiers) (p : Attribute → Bool) : Modifiers :=

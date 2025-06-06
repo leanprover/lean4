@@ -1,3 +1,8 @@
+/-!
+
+Re-instantiate these after a stage0 update
+
+
 /--
 info: equations:
 theorem List.append.eq_1.{u} : ∀ {α : Type u} (x : List α), [].append x = x
@@ -13,6 +18,8 @@ theorem List.append.eq_2.{u} : ∀ {α : Type u} (x : List α) (a : α) (l : Lis
 -/
 #guard_msgs in
 #print equations List.append
+
+-/
 
 @[simp] def ack : Nat → Nat → Nat
   | 0,   y   => y+1

@@ -9,6 +9,7 @@ import Lean.AddDecl
 import Lean.Meta.Basic
 import Lean.Meta.AppBuilder
 import Lean.Meta.Match.MatcherInfo
+import Lean.DefEqAttrib
 
 namespace Lean.Meta
 
@@ -182,6 +183,7 @@ where doRealize name info := do
       name, type, value
       levelParams := info.levelParams
     }
+    inferDefEqAttr name -- should always succeed
 
 /--
 Returns `some declName` if `thmName` is an equational theorem for `declName`.

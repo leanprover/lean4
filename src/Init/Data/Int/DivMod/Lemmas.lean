@@ -1369,16 +1369,14 @@ than the absolute value of the denominator, or the denominator is zero.
 @[simp] theorem tdiv_eq_zero_iff_natAbs_lt_or_eq_zero {a : Int} {b : Int} :
     a.tdiv b = 0 ↔ (a.natAbs < b.natAbs ∨ b = 0):= by
   have hb := Int.lt_trichotomy b 0
-  rcases hb with hb | hb | hb
-  · obtain ⟨b, hb⟩ := exists_eq_neg_ofNat (show b ≤ 0 by omega)
-    subst hb
+  rcases hb with hb | rfl | hb
+  · obtain ⟨b, rfl⟩ := exists_eq_neg_ofNat (show b ≤ 0 by omega)
     rw [Int.tdiv_neg]
     simp only [Int.neg_eq_zero, natAbs_neg, natAbs_natCast]
     norm_cast
     apply Int.tdiv_ofNat_eq_zero_iff_natAbs_lt_or_eq_zero
-  · subst hb; simp
-  · obtain ⟨b, hb⟩ := eq_ofNat_of_zero_le (show 0 ≤ b by omega)
-    subst hb
+  · simp
+  · obtain ⟨b, rfl⟩ := eq_ofNat_of_zero_le (show 0 ≤ b by omega)
     norm_cast
     apply Int.tdiv_ofNat_eq_zero_iff_natAbs_lt_or_eq_zero
     

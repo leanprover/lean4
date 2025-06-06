@@ -1966,6 +1966,8 @@ def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
   | n' + 1 => if x.getLsbD n then BitVec.ofNat w (w - 1 - n)
             else clzAuxRec x n'
 
+-- link proving that the def above is correct: https://live.lean-lang.org/#codez=JYWwDg9gTgLgBAZRgEwHQBUCGBjGxuoBCAagCICm2wy5AULTQGZzYA2AXgIICuAHgEqU4AbwDucAFxwAcphgBfOAApekuIWAxiQ0QEplAOzWyY+qRq07JAXlpw4IOdgAWcI6M3O7cAD5wADHDWAHxwwMy8qADm5DAAMgDOAEakAXAwzuRGFtoEEIwmcOJK4gC0cACMut72tXDkrAnk6pq5qPmF4qLefgYA5HAA1JVBoeFwkTHxyalGGVktlnkFckXKZSPlBtV1u7UNTSwcPAJCqv30TEdcfCLiUiaKKmo5OvpKRg9yZjKrErb2RwwFxuIqeHppEJhCLRWKJFJpeZGQIHZoVCH9IYjEI1aETWHTBFzTLI3H2VEjYZsG6qc59egAelK5QAwhBuAZ4PM3NwQElyFA4Pk4KxyJhkMADFE4OwBRByAlUHBSgyGORmNS7sY5E9VOZWm8XgbsGt/njxNZESS0hTXstOspqScJutlZVdNVaPNoOQQHAwKLME0APqiaAAa2UesWuTgAA4fk7bqoAOxBa4nQQm1M2OBJACecG8CVAYDgAG1qQAaDN8GtJ07YAC63ig5AAbgL4LwANxF+w0Kg0bzMvPt4OD6h0ey0JnlSWMCBSPoBsUhsNQcMDGhgLLIBJCoyYXjACAgBJSctgKAQXe8GA1lmsIMl7CYVioFwQfDkGsARW4CAYFQBJ2QMZAm2VVUAGIom4TAoGQYNzyiA9JTgaDr0leBj1Pc9/UDdcIyAA
+
 theorem clzAuxRec_eq_iff (x : BitVec w) (n : Nat) :
     (x.clzAuxRec n).toNat = w ↔ ∀ i, i ≤ n → x.getLsbD i = false := by
   rcases w with _|w
@@ -2027,12 +2029,6 @@ theorem clzAuxRec_le (x : BitVec w) (n : Nat) :
       omega
     · simp [hxn, ihn]
 
--- theorem mulRec_zero_eq (x y : BitVec w) :
---     mulRec x y 0 = if y.getLsbD 0 then x else 0 := by
---   simp [mulRec]
--- theorem mulRec_succ_eq (x y : BitVec w) (s : Nat) :
---     mulRec x y (s + 1) = mulRec x y s + if y.getLsbD (s + 1) then (x <<< (s + 1)) else 0 := rfl
-
 theorem clzAuxRec_zero_eq (x : BitVec w) :
       clzAuxRec x 0 = if x.getLsbD 0 then BitVec.ofNat w (w - 1)
         else BitVec.ofNat w w := rfl
@@ -2041,66 +2037,75 @@ theorem clzAuxRec_succ_eq (x : BitVec w) (n : Nat) (hn : n = n' + 1) :
     clzAuxRec x n = if x.getLsbD n then BitVec.ofNat w (w - 1 - n) else clzAuxRec x n' := by
   simp_all; rfl
 
--- (x.clzAuxRec n).toNat < w ↔ ∃ k, x.getLsbD k = true ∧ ∀ j, (j ≤ n ∧ k < j) → x.getLsbD j = false := by
-
-theorem clzAuxRec_lt_iff (x : BitVec w) (n : Nat) :
-    (x.clzAuxRec n).toNat < w ↔ ∃ k, x.getLsbD k = true ∧ ∀ j, (j ≤ n ∧ k < j) → x.getLsbD j = false := by
+theorem clzAuxRec_zero_eq_or (x : BitVec w):
+    (x.clzAuxRec 0).toNat = w ∨ (x.clzAuxRec 0).toNat = w - 1 := by
   have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
+  simp [clzAuxRec_zero_eq]
+  by_cases hx0 : x.getLsbD 0 <;> simp [hx0]; rw [Nat.mod_eq_of_lt (by omega)]; omega
+
+theorem clzAuxRec_lt_iff (x : BitVec w) (n : Nat)
+    (hk : ∀ i, n < i → x.getLsbD i = false) :
+    ((x.clzAuxRec n).toNat = k ∧ k < w) ↔
+    x.getLsbD ((w - 1) - k) = true ∧ (∀ j, (j ≤ n ∧ k < j) → x.getLsbD j = false):= by
   rcases w with _|w
   · simp [of_length_zero]
-  · induction n
-    · case zero =>
-      simp [clzAuxRec]
-      by_cases hx0 : x.getLsbD 0
-      · simp [hx0]
-        rw [Nat.mod_eq_of_lt (by omega)]
-        constructor
-        · intro h; exists 0
-        · intro h; omega
-      · constructor
-        · intro h
-          rw [getLsbD_eq_getElem (by omega)] at hx0
-          simp [hx0] at h
-        · intro h
-          rw [getLsbD_eq_getElem (by omega)] at hx0
-          simp_all
-          obtain ⟨k,hk⟩ := h
-          sorry
-    · case succ n ihn =>
-      simp
+  · have h0 := Nat.lt_pow_self (a := 2) (n := w) (by omega)
+    have h1 := clzAuxRec_le (x := x) (n := n)
+    have h2 := clzAuxRec_eq_iff (x := x) (n := n)
+    · induction n generalizing k
+      · case zero =>
+        simp
+        induction k
+        · case zero =>
+          simp
+          constructor
+          · intro h
+            unfold clzAuxRec at h
+            simp at h
+            specialize hk w
+            by_cases hw0 : w = 0
+            · simp_all
+              by_cases hx0 : x[0]
+              · simp [hx0]
+              · simp [hx0] at h
+            · simp [show 0 < w by omega] at hk
+              simp_all
+              by_cases hx0 : x[0]
+              · simp [hx0] at h
+                rw [Nat.mod_eq_of_lt (by omega)] at h
+                omega
+              · simp [hx0] at h
+          · intro h
+            specialize hk w
+            unfold clzAuxRec
+            by_cases hw0 : w = 0
+            · simp_all
+            · simp_all
+        · case succ k ihk => sorry
+      · case succ n ihn =>
+        sorry
 
-      sorry
-
--- @[simp]
--- theorem clzAuxRec_zero_eq (x : BitVec w) :
---     clzAuxRec x 0 = if x.getLsbD 0 then BitVec.ofNat w (w - 1)
---         else BitVec.ofNat w w := rfl
-
--- theorem clzAuxRec_succ_eq (x : BitVec w) (n : Nat) :
---     clzAuxRec x (n + 1) =
---       if x.getLsbD (n + 1) then BitVec.ofNat w (w - 1 - (n + 1))
---             else clzAuxRec x n := by rfl
-
--- #eval ((3#5).clzAuxRec 0 = BitVec.ofNat 5 (5 - 1 - ((3#5).clzAux 0)))
--- #eval ((3#5).clzAuxRec 1 = BitVec.ofNat 5 (5 - 1 - ((3#5).clzAux 1)))
--- #eval ((3#5).clzAuxRec 2 = BitVec.ofNat 5 (5 - 1 - ((3#5).clzAux 2)))
--- #eval ((3#5).clzAuxRec 3 = BitVec.ofNat 5 (5 - 1 - ((3#5).clzAux 3)))
--- #eval ((3#5).clzAuxRec 4 = BitVec.ofNat 5 (5 - 1 - ((3#5).clzAux 4)))
--- #eval ((3#5).clzAuxRec n = BitVec.ofNat 5 (5 - 1 - ((3#5).clzAux 5)))
-
-
--- this is actually also true for w = 0 but somehow I cant get the porof right
-theorem clzAuxRec_eq_clzAux {w : Nat} (x : BitVec w) (n : Nat) :
-    (x.clzAuxRec n = BitVec.ofNat w (w - 1 - (x.clzAux n))) := by
-  induction n
-  · simp
-    sorry
+theorem clzAux_toNat_eq_clzAuxRec (x : BitVec w) :
+    (x.clzAux (w - 1)) = (x.clzAuxRec (w - 1)).toNat := by
+  unfold clzAux clzAuxRec
+  rcases w with _|_|w
   · sorry
+  · simp
+    by_cases hx0 : x[0] <;> simp [hx0]
+  · simp
+    by_cases hxw : x[w+1]
+    · simp [hxw]
+    · simp [hxw]
+      sorry
 
 -- thm1: x.clz = x.clzAuxRec (w - 1)
 theorem clz_eq_clzAuxRec_of_length (x : BitVec w) :
     x.clz = x.clzAuxRec (w - 1) := by
-  sorry
+  rcases w with _|w
+  · simp [clz, clzAuxRec]
+  · simp [clz, clzAuxRec]
+
+    sorry
 
 
 end BitVec

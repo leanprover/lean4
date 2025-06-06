@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 prelude
 import Lean.HeadIndex
 import Lean.Meta.Basic
+import Lean.Meta.InferType
 
 namespace Lean.Meta
 
@@ -50,7 +51,7 @@ def kabstract (e : Expr) (p : Expr) (occs : Occurrences := .all) : MetaM Expr :=
         -- so that it can be rolled back unless `occs.contains i`.
         let mctx ← getMCtx
         let eTy ← inferType e
-        if (← isDefEq eTy pTy <&&> isDefEq e p) then
+        if (← (withInferTypeConfig <| isDefEq eTy pTy) <&&> isDefEq e p) then
           let i ← get
           set (i+1)
           if occs.contains i then

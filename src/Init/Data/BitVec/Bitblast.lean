@@ -1961,44 +1961,36 @@ theorem shiftLeft_add_eq_shiftLeft_or {x y : BitVec w} :
 -/
 def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
   match n with
-  | 0 => if x.getLsbD 0 then BitVec.ofNat w (w - 1)
-        else BitVec.ofNat w w
+  | 0 => if x.getLsbD 0 then BitVec.ofNat w (n - 1)
+        else BitVec.ofNat w n
   | n' + 1 => if x.getLsbD n then BitVec.ofNat w (w - 1 - n)
             else clzAuxRec x n'
 
-@[simp]
-theorem clzAuxRec_zero_eq (x : BitVec w) :
-    clzAuxRec x 0 = if x.getLsbD 0 then BitVec.ofNat w (w - 1)
-        else BitVec.ofNat w w := rfl
+-- @[simp]
+-- theorem clzAuxRec_zero_eq (x : BitVec w) :
+--     clzAuxRec x 0 = if x.getLsbD 0 then BitVec.ofNat w (w - 1)
+--         else BitVec.ofNat w w := rfl
 
-theorem clzAuxRec_succ_eq (x : BitVec w) (n : Nat) :
-    clzAuxRec x (n + 1) =
-      if x.getLsbD (n + 1) then BitVec.ofNat w (w - 1 - (n + 1))
-            else clzAuxRec x n := by rfl
+-- theorem clzAuxRec_succ_eq (x : BitVec w) (n : Nat) :
+--     clzAuxRec x (n + 1) =
+--       if x.getLsbD (n + 1) then BitVec.ofNat w (w - 1 - (n + 1))
+--             else clzAuxRec x n := by rfl
 
-theorem clz_eq_clzRecAux {w : Nat} (x : BitVec w) (n : Nat) :
-    (k = x.clzAux n) ↔ (x.clzAuxRec n = BitVec.ofNat w (w - 1 - k)) := by
-  induction n generalizing k
-  · case zero =>
-    simp [clz]
-    by_cases hx0 : x.getLsbD 0
-    · simp [hx0]
-      constructor
-      · intro h
-        simp [h]
-      · intro h
-        rw [← ofNat_inj_iff_eq] at h
-        have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
-        rw [Nat.mod_eq_of_lt (by omega)] at h
-        rw [Nat.mod_eq_of_lt (by omega)] at h
-        apply Classical.byContradiction
-        intro hcontra
+-- #eval ((3#5).clzAuxRec 0 = BitVec.ofNat 5 (5 - 1 - ((3#5).clzAux 0)))
+-- #eval ((3#5).clzAuxRec 1 = BitVec.ofNat 5 (5 - 1 - ((3#5).clzAux 1)))
+-- #eval ((3#5).clzAuxRec 2 = BitVec.ofNat 5 (5 - 1 - ((3#5).clzAux 2)))
+-- #eval ((3#5).clzAuxRec 3 = BitVec.ofNat 5 (5 - 1 - ((3#5).clzAux 3)))
+-- #eval ((3#5).clzAuxRec 4 = BitVec.ofNat 5 (5 - 1 - ((3#5).clzAux 4)))
+-- #eval ((3#5).clzAuxRec n = BitVec.ofNat 5 (5 - 1 - ((3#5).clzAux 5)))
 
-        sorry
-    · simp [hx0]
-      sorry
-  · case succ n ihn =>
+
+-- this is actually also true for w = 0 but somehow I cant get the porof right
+theorem clzAuxRec_eq_clzAux {w : Nat} (x : BitVec w) (n : Nat) :
+    (x.clzAuxRec n = BitVec.ofNat w (w - 1 - (x.clzAux n))) := by
+  induction n
+  · simp
     sorry
+  · sorry
 
 -- thm1: x.clz = x.clzAuxRec (w - 1)
 theorem clz_eq_clzAuxRec_of_length (x : BitVec w) :

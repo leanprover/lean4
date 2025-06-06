@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Data.Int.Order
+import Init.Grind.ToInt
 
 namespace Lean.Grind
 
@@ -114,5 +115,18 @@ class NoNatZeroDivisors (α : Type u) [Zero α] [HMul Nat α α] where
   no_nat_zero_divisors : ∀ (k : Nat) (a : α), k ≠ 0 → k * a = 0 → a = 0
 
 export NoNatZeroDivisors (no_nat_zero_divisors)
+
+instance [ToInt α (some lo) (some hi)] [IntModule α] [ToInt.Zero α (some lo) (some hi)] [ToInt.Add α (some lo) (some hi)] : ToInt.Neg α (some lo) (some hi) where
+  toInt_neg x := by
+    have := (ToInt.Add.toInt_add (-x) x).symm
+    rw [IntModule.neg_add_cancel, ToInt.Zero.toInt_zero] at this
+    rw [ToInt.wrap_eq_wrap_iff] at this
+    simp at this
+    rw [← ToInt.wrap_toInt]
+    rw [ToInt.wrap_eq_wrap_iff]
+    simpa
+
+instance [ToInt α (some lo) (some hi)] [IntModule α] [ToInt.Add α (some lo) (some hi)] [ToInt.Neg α (some lo) (some hi)] : ToInt.Sub α (some lo) (some hi) :=
+  ToInt.Sub.of_sub_eq_add_neg IntModule.sub_eq_add_neg
 
 end Lean.Grind

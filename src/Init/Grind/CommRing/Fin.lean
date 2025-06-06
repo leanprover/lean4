@@ -100,6 +100,9 @@ instance (n : Nat) [NeZero n] : IsCharP (Fin n) n where
     simp only [Nat.zero_mod]
     simp only [Fin.mk.injEq]
 
+example [NeZero n] : ToInt.Neg (Fin n) (some 0) (some n) := inferInstance
+example [NeZero n] : ToInt.Sub (Fin n) (some 0) (some n) := inferInstance
+
 end Fin
 
 end Lean.Grind

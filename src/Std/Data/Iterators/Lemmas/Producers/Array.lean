@@ -84,4 +84,18 @@ theorem _root_.Array.toListRev_toIter {array : Array β} :
     array.iter.toListRev = array.toListRev := by
   simp [Array.iter_eq_iterFromIdx]
 
+section Equivalence
+
+theorem Array.iterFromIdx_equiv_iter_drop_toList {α : Type w} {array : Array α}
+    {pos : Nat} : (array.iterFromIdx pos).Equiv (array.toList.drop pos).iter := by
+  apply IterM.Equiv.toIter
+  exact iterFromIdxM_equiv_iterM_drop_toList
+
+theorem Array.iter_equiv_iter_toList {α : Type w} {array : Array α} :
+    array.iter.Equiv array.toList.iter := by
+  rw [Array.iter_eq_iterFromIdx]
+  simpa using iterFromIdx_equiv_iter_drop_toList
+
+end Equivalence
+
 end Std.Iterators

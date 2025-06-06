@@ -85,6 +85,14 @@ def complexFun (f : Nat → Nat → Nat → Nat → Nat) (x : Nat) : Nat := sorr
 #check complexFun (simpleFun  ) -- Signature help of `simpleFun` expected
                            --^ textDocument/signatureHelp
 
+def complexFun' (x : Nat) (f : Nat → Nat → Nat → Nat → Nat) : Nat := sorry
+
+#check complexFun' 0  -- Shortened signature help of `complexFun'` expected
+                   --^ textDocument/signatureHelp
+
+#check complexFun' 0 simpleFun  -- No signature help expected
+                             --^ textDocument/signatureHelp
+
 structure SomeStructure where
   fieldFun (x : Nat) : Nat → Nat
 

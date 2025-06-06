@@ -6,7 +6,7 @@ import Std.Data.HashMap
 
 set_option grind.warning false
 
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| grind)
+macro_rules | `(tactic| get_elem_tactic_extensible) => `(tactic| grind)
 
 open Std
 

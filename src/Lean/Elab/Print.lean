@@ -28,6 +28,7 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
   | ReducibilityStatus.irreducible =>   attrs := attrs.push m!"irreducible"
   | ReducibilityStatus.reducible =>     attrs := attrs.push m!"reducible"
   | ReducibilityStatus.semireducible => pure ()
+
   if defeqAttr.hasTag (← getEnv) id then
     attrs := attrs.push m!"defeq"
 

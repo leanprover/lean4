@@ -567,7 +567,7 @@ def addHeartbeats (count : Nat) : BaseIO Unit := do
 /--
 Whether a file should be opened for reading, writing, creation and writing, or appending.
 
-A the operating system level, this translates to the mode of a file handle (i.e., a set of `open`
+At the operating system level, this translates to the mode of a file handle (i.e., a set of `open`
 flags and an `fdopen` mode).
 
 None of the modes represented by this datatype translate line endings (i.e. `O_BINARY` on Windows).

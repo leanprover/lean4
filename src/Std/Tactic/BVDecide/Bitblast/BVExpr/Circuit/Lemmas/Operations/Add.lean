@@ -216,19 +216,10 @@ theorem denote_blast (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
     unfold blast
     dsimp only
     rw [blastAdd.go_denote_eq _ 0 (by omega) _ _ _ _ assign lhs rhs _ _]
-    · simp only [BinaryRefVec.lhs_get_cast, Ref.cast_eq, BinaryRefVec.rhs_get_cast]
-      rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
-      rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
+    · simp
     · simp
     · omega
-    · intros
-      simp only [BinaryRefVec.lhs_get_cast, Ref.cast_eq]
-      rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
-      rw [hleft]
-    · intros
-      simp only [BinaryRefVec.rhs_get_cast, Ref.cast_eq]
-      rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
-      rw [hright]
+    · simp [hright]
   · assumption
 
 end blastAdd

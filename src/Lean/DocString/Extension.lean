@@ -58,9 +58,11 @@ structure ModuleDoc where
 private builtin_initialize moduleDocExt : SimplePersistentEnvExtension ModuleDoc (PersistentArray ModuleDoc) ← registerSimplePersistentEnvExtension {
   addImportedFn := fun _ => {}
   addEntryFn    := fun s e => s.push e
-  exportEntriesFnEx? := some fun _ _ es => fun
-    | .exported => #[]
-    | _         => es.toArray
+  exportEntriesFnEx? := some fun _ _ es level =>
+    if level < .server then
+      #[]
+    else
+      es.toArray
 }
 
 def addMainModuleDoc (env : Environment) (doc : ModuleDoc) : Environment :=

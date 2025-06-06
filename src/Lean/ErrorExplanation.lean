@@ -11,7 +11,14 @@ import Lean.DocString.Links
 
 namespace Lean
 
-/-- Metadata for an error explanation. -/
+/--
+Metadata for an error explanation.
+
+* `summary` gives a short description of the error
+* `sinceVersion` indicates the version of Lean in which an error with this name was introduced
+* `severity` is the severity of the diagnostic
+* `removedVersion` indicates the version of Lean in which this name was retired, if applicable
+-/
 structure ErrorExplanation.Metadata where
   summary : String
   sinceVersion : String
@@ -180,24 +187,30 @@ private def ValidationM.run (p : ValidationM α) (input : String) : Except (Nat 
 Matches `p` as many times as possible, followed by EOF. If `p` cannot be matched prior to the end
 of the input, rethrows the corresponding error.
 -/
-private partial def manyThenEOF (p : ValidationM α) : ValidationM (Array α) :=
-  loop #[]
-where
-  loop (acc : Array α) := fun s =>
-    match eof s with
-    | .success .. => .success s acc
-    | .error .. =>
-      match p s with
-      | .success s' x => loop (acc.push x) s'
-      | .error s' err => .error s' err
+private partial def manyThenEOF (p : ValidationM α) : ValidationM Unit := fun s =>
+  match eof s with
+  | .success .. => .success s ()
+  | .error .. =>
+    match p s with
+    | .success s' _ => manyThenEOF p s'
+    | .error s' err => .error s' err
+
+/-- Repeatedly parses the next input as long as it satisfies `p`, and discards the result. -/
+private partial def manyD (p : ValidationM α) : ValidationM Unit :=
+  Parsec.tryCatch p (fun _ => manyD p) (fun _ => pure ())
+
+/-- Parses one or more inputs as long as they satisfy `p`, and discards the result. -/
+private partial def many1D (p : ValidationM α) : ValidationM Unit :=
+  p *> manyD p
 
 /-- Repeatedly parses the next input as long as it fails to satisfy `p`, and discards the result. -/
-private def manyNotD (p : ValidationM α) : ValidationM Unit :=
-  discard (many (notFollowedBy p *> skip))
+private partial def manyNotD (p : ValidationM α) : ValidationM Unit :=
+  manyD (notFollowedBy p *> skip)
 
+/-- Parses an error explanation: a general description followed by an examples section. -/
 private def parseExplanation : ValidationM Unit := do
   manyNotD examplesHeader
-  eof <|> (examplesHeader *> discard (manyThenEOF singleExample))
+  eof <|> (examplesHeader *> manyThenEOF singleExample)
 where
   /-- The top-level `# Examples` header -/
   examplesHeader := attempt do
@@ -213,8 +226,8 @@ where
     let header ← exampleHeader
     labelingExampleErrors header do
       codeBlock "lean" (some .broken)
-      discard <| many1 (codeBlock "output")
-      discard <| many1 do
+      many1D (codeBlock "output")
+      many1D do
         let leanBlock ← codeBlock "lean" (some .fixed)
         let outputBlocks ← many (codeBlock "output")
         return (leanBlock, outputBlocks)
@@ -239,7 +252,7 @@ where
   codeBlock (lang : String) (kind? : Option ErrorExplanation.CodeInfo.Kind := none) := attempt do
     let (numTicks, infoString) ← fence
       <|> fail s!"Expected a(n){kind?.map (s!" {·}") |>.getD ""} `{lang}` code block"
-    discard <| many (notFollowedBy (fence numTicks) *> any)
+    manyD (notFollowedBy (fence numTicks) *> any)
     let (_, closing) ← fence numTicks
       <|> fail s!"Missing closing code fence for block with header '{infoString}'"
     -- Validate code block:

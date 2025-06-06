@@ -232,47 +232,10 @@ instance TakeWhile.instIteratorCollectPartial [Monad m] [Monad n] [Iterator α m
     IteratorCollectPartial (TakeWhile α m β P) m n :=
   .defaultImplementation
 
-private def TakeWhile.PlausibleForInStep {β : Type u} {γ : Type v}
-    (P : β → PostconditionT m (ULift Bool))
-    (f : β → γ → ForInStep γ → Prop) :
-    β → γ → (ForInStep γ) → Prop
-  | out, c, ForInStep.yield c' => (P out).Property (.up true) ∧ f out c (.yield c')
-  | _, _, .done _ => True
-
-private def TakeWhile.wellFounded_plausibleForInStep {α β : Type w} {m : Type w → Type w'}
-    [Monad m] [Iterator α m β] {γ : Type x} {P}
-    {f : β → γ → ForInStep γ → Prop} (wf : IteratorLoop.WellFounded (TakeWhile α m β P) m f) :
-    IteratorLoop.WellFounded α m (PlausibleForInStep P f) := by
-      simp only [IteratorLoop.WellFounded] at ⊢ wf
-      letI : WellFoundedRelation _ := ⟨_, wf⟩
-      apply Subrelation.wf
-        (r := InvImage WellFoundedRelation.rel fun p => (p.1.takeWhileWithPostcondition P, p.2))
-        (fun {p q} h => by
-          simp only [InvImage, WellFoundedRelation.rel, this, IteratorLoop.rel,
-            IterM.IsPlausibleStep, Iterator.IsPlausibleStep]
-          obtain ⟨out, h, h'⟩ | ⟨h, h'⟩ := h
-          · apply Or.inl
-            exact ⟨out, .yield h h'.1, h'.2⟩
-          · apply Or.inr
-            refine ⟨?_, h'⟩
-            exact PlausibleStep.skip h)
-      apply InvImage.wf
-      exact WellFoundedRelation.wf
-
 instance TakeWhile.instIteratorLoop [Monad m] [Monad n] [Iterator α m β]
     [IteratorLoop α m n] [MonadLiftT m n] :
-    IteratorLoop (TakeWhile α m β P) m n where
-  forIn lift {γ} Plausible wf it init f := by
-    refine IteratorLoop.forIn lift (γ := γ)
-        (PlausibleForInStep P Plausible)
-        (wellFounded_plausibleForInStep wf)
-        it.internalState.inner
-        init
-        fun out acc => do match ← (P out).operation with
-          | ⟨.up true, h⟩ => match ← f out acc with
-            | ⟨.yield c, h'⟩ => pure ⟨.yield c, h, h'⟩
-            | ⟨.done c, h'⟩ => pure ⟨.done c, .intro⟩
-          | ⟨.up false, h⟩ => pure ⟨.done acc, .intro⟩
+    IteratorLoop (TakeWhile α m β P) m n :=
+  .defaultImplementation
 
 instance TakeWhile.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]
     [IteratorLoopPartial α m n] [MonadLiftT m n] {P} :

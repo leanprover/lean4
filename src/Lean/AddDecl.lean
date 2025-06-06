@@ -70,6 +70,13 @@ private def looksLikeRelevantTheoremProofType (type : Expr) : Bool :=
   else
     type.isAppOfArity ``WellFounded 2
 
+/-- If `warn.sorry` is set to true, then, so long as the message log does not already have any errors,
+declarations with `sorryAx` generate the "declaration uses 'sorry'" warning. -/
+register_builtin_option warn.sorry : Bool := {
+  defValue := true
+  descr    := "warn about uses of `sorry` in declarations added to the environment"
+}
+
 def addDecl (decl : Declaration) : CoreM Unit := do
   -- register namespaces for newly added constants; this used to be done by the kernel itself
   -- but that is incompatible with moving it to a separate task
@@ -136,7 +143,8 @@ where
     profileitM Exception "type checking" (← getOptions) do
       withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
         if !(← MonadLog.hasErrors) && decl.hasSorry then
-          logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
+          if warn.sorry.get (← getOptions) then
+            logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
         try
           let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
             |> ofExceptKernelException

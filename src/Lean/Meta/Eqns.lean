@@ -9,6 +9,7 @@ import Lean.AddDecl
 import Lean.Meta.Basic
 import Lean.Meta.AppBuilder
 import Lean.Meta.Match.MatcherInfo
+import Lean.Meta.LetToHave
 
 namespace Lean.Meta
 
@@ -155,6 +156,7 @@ where doRealize name info := do
   lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
     let lhs := mkAppN (mkConst info.name <| info.levelParams.map mkLevelParam) xs
     let type  ← mkForallFVars xs (← mkEq lhs body)
+    -- let type  ← letToHave type
     let value ← mkLambdaFVars xs (← mkEqRefl lhs)
     addDecl <| Declaration.thmDecl {
       name, type, value

@@ -991,7 +991,6 @@ def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mai
   let letRecsToLift := letRecsToLift.toArray
   let mainFVarIds := mainFVars.map Expr.fvarId!
   let recFVarIds  := (letRecsToLift.map fun toLift => toLift.fvarId) ++ mainFVarIds
-  resetZetaDeltaFVarIds
   withTrackingZetaDelta do
     -- By checking `toLift.type` and `toLift.val` we populate `zetaFVarIds`. See comments at `src/Lean/Meta/Closure.lean`.
     let letRecsToLift ← letRecsToLift.mapM fun toLift => withLCtx toLift.lctx toLift.localInstances do
@@ -1123,11 +1122,6 @@ where
       s := collectLevelParams s type
       let scopeLevelNames ← getLevelNames
       let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
-
-      let type ← if cleanup.letToHave.get (← getOptions) then
-        withRef header.declId <| Meta.letToHave type
-      else
-        pure type
 
       async.commitSignature { name := header.declName, levelParams, type }
 

@@ -1961,10 +1961,65 @@ theorem shiftLeft_add_eq_shiftLeft_or {x y : BitVec w} :
 -/
 def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
   match n with
-  | 0 => if x.getLsbD 0 then BitVec.ofNat w (n - 1)
-        else BitVec.ofNat w n
+  | 0 => if x.getLsbD 0 then BitVec.ofNat w (w - 1)
+        else BitVec.ofNat w w
   | n' + 1 => if x.getLsbD n then BitVec.ofNat w (w - 1 - n)
             else clzAuxRec x n'
+
+theorem clzAuxRec_eq_iff (x : BitVec w) (n : Nat) :
+    (x.clzAuxRec n).toNat = w ↔ ∀ i, i ≤ n → x.getLsbD i = false := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · induction n
+    · case zero =>
+      simp [clzAuxRec]
+      by_cases hx: x[0]
+      · simp [hx]
+        have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
+        rw [Nat.mod_eq_of_lt (by omega)]
+        omega
+      · simp [hx]
+    · case succ n ihn =>
+      constructor
+      · intro h
+        apply Classical.byContradiction
+        intro hcontra
+        unfold clzAuxRec at h
+        by_cases hxn : x.getLsbD (n + 1)
+        · simp only [hxn, ↓reduceIte, Nat.add_one_sub_one, toNat_ofNat] at h
+          have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
+          rw [Nat.mod_eq_of_lt (by omega)] at h
+          simp at ihn
+          omega
+        · simp [hxn] at h
+          simp [ihn] at h
+          simp at hcontra
+          obtain ⟨j, hj', hj⟩ := hcontra
+          by_cases hin : j ≤ n
+          · specialize h j (by omega)
+            simp [h] at hj
+          · have : j = n + 1 := by omega
+            simp at hxn
+            simp_all
+      · intro h
+        simp [clzAuxRec]
+        by_cases hxn : x.getLsbD (n + 1)
+        · simp [hxn]
+          have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
+          rw [Nat.mod_eq_of_lt (by omega)]
+          simp_all
+        · simp [hxn]
+          simp [ihn]
+          intro i hi
+          specialize h i (by omega)
+          exact h
+
+theorem clzAuxRec_le (x : BitVec w) (n : Nat) :
+  x.clzAuxRec n ≤ w := by sorry
+
+theorem clzAuxRec_lt_iff (x : BitVec w) (n : Nat) :
+    x.clzAuxRec n < n ↔ x.getLsbD ((x.clzAuxRec n).toNat) = true ∧ ∀ j, (j ≤ n ∧ (x.clzAuxRec n).toNat < j) → x.getLsbD j = false :=
+  by sorry
 
 -- @[simp]
 -- theorem clzAuxRec_zero_eq (x : BitVec w) :

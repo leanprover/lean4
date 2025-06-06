@@ -292,3 +292,22 @@ register_error_explanation Lean.WorkingExample₃ {
   summary := ""
   sinceVersion := ""
 }
+
+/--
+
+# Examples
+
+## Nested Code Fences
+````lean broken
+```
+````
+`````output
+````
+`````
+`````lean fixed
+`````
+-/
+register_error_explanation Lean.WorkingExample₄ {
+  summary := ""
+  sinceVersion := ""
+}

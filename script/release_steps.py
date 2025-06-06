@@ -94,6 +94,7 @@ def generate_script(repo, version, config):
             "echo 'This repo has nightly-testing infrastructure'",
             f"git merge origin/bump/{version.split('-rc')[0]}",
             "echo 'Please resolve any conflicts.'",
+            "grep nightly-testing lakefile.* && echo 'Please ensure the lakefile does not include nightly-testing versions.'",
             ""
         ])
     if re.search(r'rc\d+$', version) and repo_name in ["verso", "reference-manual"]:

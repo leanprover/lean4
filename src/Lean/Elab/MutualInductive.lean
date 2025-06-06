@@ -171,8 +171,15 @@ structure InductiveElabDescr where
   deriving Inhabited
 
 /--
-Environment extension to register inductive type elaborator commands.
+Registers an inductive type elaborator for the given syntax node kind.
+
+Commands registered using this attribute are allowed to be used together in mutual blocks with
+other inductive type commands. This attribute is mostly used internally for `inductive` and
+`structure`.
+
+An inductive type elaborator should have type `Lean.Elab.Command.InductiveElabDescr`.
 -/
+@[builtin_doc]
 builtin_initialize inductiveElabAttr : KeyedDeclsAttribute InductiveElabDescr ←
   unsafe KeyedDeclsAttribute.init {
     builtinName := `builtin_inductive_elab,

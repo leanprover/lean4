@@ -60,10 +60,9 @@ register_builtin_option warningAsError : Bool := {
 
 /--
 A widget for displaying error names and explanation links.
-
-Note that we cannot tag this as a `builtin_widget_module` in this module because doing so would
-create circular imports. Instead, we add this attribute post-hoc in `Lean.ErrorExplanation`.
 -/
+-- Note that we cannot tag this as a `builtin_widget_module` in this module because doing so would
+-- create circular imports. Instead, we add this attribute post-hoc in `Lean.ErrorExplanation`.
 def errorDescriptionWidget : Widget.Module where
   javascript := "
 import { createElement } from 'react';
@@ -82,7 +81,8 @@ export default function ({ code, explanationUrl }) {
 
 /--
 If `msg` is tagged as a named error, appends the error description widget displaying the
-corresponding error name and explanation link. Otherwise, returns `msg` unaltered. -/
+corresponding error name and explanation link. Otherwise, returns `msg` unaltered.
+-/
 private def MessageData.appendDescriptionWidgetIfNamed (msg : MessageData) : MessageData :=
   match errorNameOfKind? msg.kind with
   | some errorName =>

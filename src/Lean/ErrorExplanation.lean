@@ -200,11 +200,11 @@ private partial def manyD (p : ValidationM α) : ValidationM Unit :=
   Parsec.tryCatch p (fun _ => manyD p) (fun _ => pure ())
 
 /-- Parses one or more inputs as long as they satisfy `p`, and discards the result. -/
-private partial def many1D (p : ValidationM α) : ValidationM Unit :=
+private def many1D (p : ValidationM α) : ValidationM Unit :=
   p *> manyD p
 
 /-- Repeatedly parses the next input as long as it fails to satisfy `p`, and discards the result. -/
-private partial def manyNotD (p : ValidationM α) : ValidationM Unit :=
+private def manyNotD (p : ValidationM α) : ValidationM Unit :=
   manyD (notFollowedBy p *> skip)
 
 /-- Parses an error explanation: a general description followed by an examples section. -/

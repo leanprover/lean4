@@ -19,7 +19,7 @@ open Meta Parser Term
 -- here
 attribute [builtin_widget_module] Lean.errorDescriptionWidget
 
-def expandThrowNamedError : Macro
+def expandNamedErrorMacro : Macro
   | `(throwNamedErrorMacro| throwNamedError $id:ident $msg:interpolatedStr) =>
     ``(Lean.throwNamedError $(quote id.getId) m! $msg)
   | `(throwNamedErrorMacro| throwNamedError $id $msg:term) =>
@@ -36,20 +36,40 @@ def expandThrowNamedError : Macro
     ``(Lean.logNamedErrorAt $ref $(quote id.getId) m! $msg)
   | `(logNamedErrorAtMacro| logNamedErrorAt $ref $id $msg:term) =>
     ``(Lean.logNamedErrorAt $ref $(quote id.getId) $msg)
+  | `(logNamedWarningMacro| logNamedWarning $id $msg:interpolatedStr) =>
+    ``(Lean.logNamedWarning $(quote id.getId) m! $msg)
+  | `(logNamedWarningMacro| logNamedWarning $id $msg:term) =>
+    ``(Lean.logNamedWarning $(quote id.getId) $msg)
+  | `(logNamedWarningAtMacro| logNamedWarningAt $ref $id $msg:interpolatedStr) =>
+    ``(Lean.logNamedWarningAt $ref $(quote id.getId) m! $msg)
+  | `(logNamedWarningAtMacro| logNamedWarningAt $ref $id $msg:term) =>
+    ``(Lean.logNamedWarningAt $ref $(quote id.getId) $msg)
   | _ => Macro.throwUnsupported
 
+/--
+Maps macro syntax categories to a pair of the module containing the declaration on which the macro
+depends and the name of that declaration.
+-/
+private def macroDeclMap :=
+  Std.HashMap.ofList
+    [(``throwNamedErrorMacro, (`Lean.Exception, ``Lean.throwNamedError)),
+     (``throwNamedErrorAtMacro, (`Lean.Exception, ``Lean.throwNamedErrorAt)),
+     (``logNamedErrorMacro, (`Lean.Log, ``Lean.logNamedError)),
+     (``logNamedErrorAtMacro, (`Lean.Log, ``Lean.logNamedErrorAt)),
+     (``logNamedWarningMacro, (`Lean.Log, ``Lean.logNamedWarning)),
+     (``logNamedWarningAtMacro, (`Lean.Log, ``Lean.logNamedWarningAt))]
+
 @[builtin_term_elab throwNamedErrorMacro, builtin_term_elab throwNamedErrorAtMacro,
-  builtin_term_elab logNamedErrorMacro, builtin_term_elab logNamedErrorAtMacro]
+  builtin_term_elab logNamedErrorMacro, builtin_term_elab logNamedErrorAtMacro,
+  builtin_term_elab logNamedWarningMacro, builtin_term_elab logNamedWarningAtMacro]
 def elabCheckedNamedError : TermElab := fun stx expType? => do
-  let env ← getEnv
-  if (stx.isOfKind ``throwNamedErrorMacro || stx.isOfKind ``throwNamedErrorAtMacro) &&
-      !env.contains ``Lean.throwNamedError then
-    throwError m!"Add `import Lean.Exception` to this file's header to use this macro."
-  if (stx.isOfKind ``logNamedErrorMacro || stx.isOfKind ``logNamedErrorAtMacro) &&
-      !env.contains ``Lean.logNamedError then
-    throwError m!"Add `import Lean.Log` to this file's header to use this macro."
-  let (id, numArgsExpected) := if stx.isOfKind ``throwNamedErrorAtMacro ||
-                                  stx.isOfKind ``logNamedErrorAtMacro then
+  if let some (module, decl) := macroDeclMap.get? stx.getKind then
+    if !(← getEnv).contains decl then
+      throwError m!"The constant `{decl}` has not been imported" ++
+        .hint' m!"Add `import {module}` to this file's header to use this macro"
+  let (id, numArgsExpected) :=
+    if stx.isOfKind ``throwNamedErrorAtMacro || stx.isOfKind ``logNamedErrorAtMacro
+        || stx.isOfKind ``logNamedWarningAtMacro then
     (stx[2], 5)
   else
     (stx[1], 4)
@@ -68,7 +88,7 @@ def elabCheckedNamedError : TermElab := fun stx expType? => do
   if let some removedVersion := explan.metadata.removedVersion then
     logWarningAt id m!"The error name `{name}` was removed in Lean version {removedVersion} and \
       should not be used."
-  let stx' ← liftMacroM <| expandThrowNamedError stx
+  let stx' ← liftMacroM <| expandNamedErrorMacro stx
   elabTerm stx' expType?
 
 open Command in

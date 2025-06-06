@@ -73,11 +73,17 @@ def logErrorNames (x : MetaM Unit) : MetaM Unit := do
 error: (Lean.Bar) Logged error
 ---
 error: (Lean.Bar) Logged error with ref
+---
+warning: (Lean.Bar) Logged warning
+---
+warning: (Lean.Bar) Logged warning with ref
 -/
 #guard_msgs in
 run_meta logErrorNames do
   logNamedError Lean.Bar m!"Logged error"
   logNamedErrorAt (← getRef) Lean.Bar m!"Logged error with ref"
+  logNamedWarning Lean.Bar m!"Logged warning"
+  logNamedWarningAt (← getRef) Lean.Bar m!"Logged warning with ref"
 
 /-- error: (Lean.Bar) Thrown error -/
 #guard_msgs in
@@ -97,17 +103,26 @@ run_meta logErrorNames do
 
 /-! # Message name in serialized output -/
 
-/-- info:  error(Lean.Bar): function is noncomputable -/
-#guard_msgs in
-run_meta show MetaM Unit from do
-  let msg := "function is noncomputable"
-  logNamedError Lean.Bar msg
+def withReportedOutput (x : MetaM α) : MetaM Unit := do
+  Core.resetMessageLog
+  discard <| x
   let (res, fileName) ← IO.FS.withIsolatedStreams do
     let msgs := (← getThe Core.State).messages
     let fileName := msgs.toList[0]!.fileName
     discard <| Language.reportMessages msgs {}
     pure fileName
+  Core.resetMessageLog
   -- We need to omit the path to the file, since that's host-dependent; also drop line
   -- number to avoid noise
-  Core.resetMessageLog
-  logInfo (res.drop fileName.length |>.dropWhile (· != ' '))
+  let dropped := res.splitOn fileName |>.map (fun (s : String) => s.dropWhile (· != ' '))
+  logInfo ("".intercalate dropped)
+
+/--
+info:  error(Lean.Bar): function is noncomputable
+ warning(Lean.Bar): function is noncomputable
+-/
+#guard_msgs in
+run_meta withReportedOutput do
+  let msg := "function is noncomputable"
+  logNamedError Lean.Bar msg
+  logNamedWarning Lean.Bar msg

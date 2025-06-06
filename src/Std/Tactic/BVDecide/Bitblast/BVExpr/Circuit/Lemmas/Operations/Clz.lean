@@ -35,7 +35,6 @@ namespace blastClz
 --       =
 --     (BitVec.)
 
-
 theorem go_denote_eq {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr + 1 ≤ w)
     (acc : AIG.RefVec aig w) (x : AIG.RefVec aig w) (xexpr : BitVec w) (assign : α → Bool)
     -- correctness of the denotation for x and xexpr
@@ -53,6 +52,8 @@ theorem go_denote_eq {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr + 1 ≤
         ⟧
           =
         (BitVec.clzAuxRec xexpr (w - 1)).getLsbD idx := by
+  intro idx hidx
+
   sorry
 
 end blastClz

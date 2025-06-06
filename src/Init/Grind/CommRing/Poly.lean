@@ -11,6 +11,7 @@ import Init.Data.Hashable
 import all Init.Data.Ord
 import Init.Data.RArray
 import Init.Grind.CommRing.Basic
+import Init.Grind.Ordered.Ring
 
 namespace Lean.Grind
 namespace CommRing
@@ -1138,6 +1139,73 @@ theorem imp_keqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) [NoNatZe
   rw [← sub_eq_zero_iff, h]
 
 end Stepwise
+
+/-! IntModule interface -/
+
+def Poly.denoteAsIntModule [CommRing α] (ctx : Context α) (p : Poly) : α :=
+  match p with
+  | .num k => Int.cast k * 1
+  | .add k m p => Int.cast k * m.denote ctx + denote ctx p
+
+theorem Poly.denoteAsIntModule_eq_denote {α} [CommRing α] (ctx : Context α) (p : Poly) : p.denoteAsIntModule ctx = p.denote ctx := by
+  induction p <;> simp [*, denoteAsIntModule, denote, mul_one]
+
+open Stepwise
+
+theorem eq_norm {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+    : core_cert lhs rhs p → lhs.denote ctx = rhs.denote ctx → p.denoteAsIntModule ctx = 0 := by
+  rw [Poly.denoteAsIntModule_eq_denote]; apply core
+
+theorem diseq_norm {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+    : core_cert lhs rhs p → lhs.denote ctx ≠ rhs.denote ctx → p.denoteAsIntModule ctx ≠ 0 := by
+  simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h; subst p; simp [Expr.denote_toPoly, Expr.denote]
+  intro h; rw [sub_eq_zero_iff] at h; contradiction
+
+open IntModule.IsOrdered
+
+theorem le_norm {α} [CommRing α] [Preorder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+    : core_cert lhs rhs p → lhs.denote ctx ≤ rhs.denote ctx → p.denoteAsIntModule ctx ≤ 0 := by
+  simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h; subst p; simp [Expr.denote_toPoly, Expr.denote]
+  replace h := add_le_left h ((-1) * rhs.denote ctx)
+  rw [neg_mul, ← sub_eq_add_neg, one_mul, ← sub_eq_add_neg, sub_self] at h
+  assumption
+
+theorem lt_norm {α} [CommRing α] [Preorder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+    : core_cert lhs rhs p → lhs.denote ctx < rhs.denote ctx → p.denoteAsIntModule ctx < 0 := by
+  simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h; subst p; simp [Expr.denote_toPoly, Expr.denote]
+  replace h := add_lt_left h ((-1) * rhs.denote ctx)
+  rw [neg_mul, ← sub_eq_add_neg, one_mul, ← sub_eq_add_neg, sub_self] at h
+  assumption
+
+theorem not_le_norm {α} [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+    : core_cert rhs lhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → p.denote ctx < 0 := by
+  simp [core_cert]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]
+  replace h₁ := LinearOrder.lt_of_not_le h₁
+  replace h₁ := add_lt_left h₁ (-lhs.denote ctx)
+  simp [← sub_eq_add_neg, sub_self] at h₁
+  assumption
+
+theorem not_lt_norm {α} [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+    : core_cert rhs lhs p → ¬ lhs.denote ctx < rhs.denote ctx → p.denote ctx ≤ 0 := by
+  simp [core_cert]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]
+  replace h₁ := LinearOrder.le_of_not_lt h₁
+  replace h₁ := add_le_left h₁ (-lhs.denote ctx)
+  simp [← sub_eq_add_neg, sub_self] at h₁
+  assumption
+
+theorem not_le_norm' {α} [CommRing α] [Preorder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+    : core_cert lhs rhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → ¬ p.denote ctx ≤ 0 := by
+  simp [core_cert]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]; intro h
+  replace h := add_le_right (rhs.denote ctx) h
+  rw [sub_eq_add_neg, add_left_comm, ← sub_eq_add_neg, sub_self] at h; simp [add_zero] at h
+  contradiction
+
+theorem not_lt_norm' {α} [CommRing α] [Preorder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+    : core_cert lhs rhs p → ¬ lhs.denote ctx < rhs.denote ctx → ¬ p.denote ctx < 0 := by
+  simp [core_cert]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]; intro h
+  replace h := add_lt_right (rhs.denote ctx) h
+  rw [sub_eq_add_neg, add_left_comm, ← sub_eq_add_neg, sub_self] at h; simp [add_zero] at h
+  contradiction
 
 end CommRing
 end Lean.Grind

@@ -15,9 +15,9 @@ namespace Lean
 Metadata for an error explanation.
 
 * `summary` gives a short description of the error
-* `sinceVersion` indicates the version of Lean in which an error with this name was introduced
+* `sinceVersion` indicates the version of Lean in which an error with this error name was introduced
 * `severity` is the severity of the diagnostic
-* `removedVersion` indicates the version of Lean in which this name was retired, if applicable
+* `removedVersion` indicates the version of Lean in which this error name was retired, if applicable
 -/
 structure ErrorExplanation.Metadata where
   summary : String

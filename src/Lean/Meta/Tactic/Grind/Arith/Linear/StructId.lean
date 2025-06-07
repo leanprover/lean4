@@ -48,13 +48,13 @@ where
       let some parentInst := parentInst? | return none
       let some inst := inst? | return none
       let toField := mkApp2 (mkConst toFieldName [u]) type inst
-      unless (← isDefEq parentInst toField) do
+      unless (← withDefault <| isDefEq parentInst toField) do
         reportIssue! "`grind linarith` expected{indentExpr parentInst}\nto be definitionally equal to{indentExpr toField}"
         return none
       return some inst
     let ensureToFieldDefEq (parentInst : Expr) (inst : Expr) (toFieldName : Name) : GoalM Unit := do
       let toField := mkApp2 (mkConst toFieldName [u]) type inst
-      unless (← isDefEq parentInst toField) do
+      unless (← withDefault <| isDefEq parentInst toField) do
         throwError "`grind linarith` expected{indentExpr parentInst}\nto be definitionally equal to{indentExpr toField}"
     let some intModuleInst ← getInst? ``Grind.IntModule | return none
     let zeroInst ← getInst ``Zero
@@ -87,7 +87,7 @@ where
       let smulType := mkApp2 (mkConst ``SMul [0, u]) Int.mkType type
       let .some smulInst ← trySynthInstance smulType | return none
       let smulFn := mkApp3 (mkConst ``SMul.smul [0, u]) Int.mkType type smulInst
-      if (← isDefEq hmulFn smulFn) then
+      if (← withDefault <| isDefEq hmulFn smulFn) then
         return smulFn
       reportIssue! "`grind linarith` expected{indentExpr hmulFn}\nto be definitionally equal to{indentExpr smulFn}"
       return none
@@ -97,7 +97,7 @@ where
       let some oneInst ← getInst? ``One | return none
       let one := mkApp2 (mkConst ``One.one [u]) type oneInst
       let one' ← mkNumeral type 1
-      unless (← isDefEq one one') do reportIssue! "`grind linarith` expected{indentExpr one}\nto be definitionally equal to{indentExpr one'}"
+      unless (← withDefault <| isDefEq one one') do reportIssue! "`grind linarith` expected{indentExpr one}\nto be definitionally equal to{indentExpr one'}"
       return some one
     let one? ← getOne?
     let commRingInst? ← getInst? ``Grind.CommRing

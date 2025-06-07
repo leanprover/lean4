@@ -149,7 +149,7 @@ Because the resulting value is treated as a side-effect-free term, the compiler 
 duplicate, or delete calls to this function. The side effect may even be hoisted into a constant,
 causing the side effect to occur at initialization time, even if it would otherwise never be called.
 -/
-@[inline] unsafe def unsafeBaseIO (fn : BaseIO α) : α :=
+@[noinline] unsafe def unsafeBaseIO (fn : BaseIO α) : α :=
   match fn.run () with
   | EStateM.Result.ok a _ => a
 

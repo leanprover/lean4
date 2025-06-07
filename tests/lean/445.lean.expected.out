@@ -11,5 +11,5 @@ i + 1
 i + i * 2
 i + i * r i j
 i + i * r i j
-let z := s i j;
+have z := s i j;
 z + z

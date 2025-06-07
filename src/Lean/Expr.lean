@@ -1962,7 +1962,7 @@ def letFun? (e : Expr) : Option (Name × Expr × Expr × Expr) :=
   | .app (.app (.app (.app (.const ``letFun _) t) _β) v) f =>
     match f with
     | .lam n _ b _ => some (n, t, v, b)
-    | _ => some (.anonymous, t, v, .app f (.bvar 0))
+    | _ => some (.anonymous, t, v, .app (f.liftLooseBVars 0 1) (.bvar 0))
   | _ => none
 
 /--
@@ -1979,7 +1979,7 @@ def letFunAppArgs? (e : Expr) : Option (Array Expr × Name × Expr × Expr × Ex
   let rest := args.extract 4 args.size
   match f with
   | .lam n _ b _ => some (rest, n, t, v, b)
-  | _ => some (rest, .anonymous, t, v, .app f (.bvar 0))
+  | _ => some (rest, .anonymous, t, v, .app (f.liftLooseBVars 0 1) (.bvar 0))
 
 /-- Maps `f` on each immediate child of the given expression. -/
 @[specialize]

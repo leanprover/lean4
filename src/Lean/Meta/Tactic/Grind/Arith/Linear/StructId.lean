@@ -56,6 +56,11 @@ where
       let toField := mkApp2 (mkConst toFieldName [u]) type inst
       unless (← withDefault <| isDefEq parentInst toField) do
         throwError "`grind linarith` expected{indentExpr parentInst}\nto be definitionally equal to{indentExpr toField}"
+    let ensureToHomoFieldDefEq (parentInst : Expr) (inst : Expr) (toFieldName : Name) (toHeteroName : Name) : GoalM Unit := do
+      let toField := mkApp2 (mkConst toFieldName [u]) type inst
+      let heteroToField := mkApp2 (mkConst toHeteroName [u]) type toField
+      unless (← withDefault <| isDefEq parentInst heteroToField) do
+        throwError "`grind linarith` expected{indentExpr parentInst}\nto be definitionally equal to{indentExpr heteroToField}"
     let some intModuleInst ← getInst? ``Grind.IntModule | return none
     let zeroInst ← getInst ``Zero
     let zero := mkApp2 (mkConst ``Zero.zero [u]) type zeroInst
@@ -68,8 +73,8 @@ where
     let hmulInst ← getHMulInst
     let hmulFn := mkApp4 (mkConst ``HMul.hMul [0, u, u]) Int.mkType type type hmulInst
     ensureToFieldDefEq zeroInst intModuleInst ``Grind.IntModule.toZero
-    ensureToFieldDefEq addInst intModuleInst ``Grind.IntModule.toAdd
-    ensureToFieldDefEq subInst intModuleInst ``Grind.IntModule.toSub
+    ensureToHomoFieldDefEq addInst intModuleInst ``Grind.IntModule.toAdd ``instHAdd
+    ensureToHomoFieldDefEq subInst intModuleInst ``Grind.IntModule.toSub ``instHSub
     ensureToFieldDefEq negInst intModuleInst ``Grind.IntModule.toNeg
     ensureToFieldDefEq hmulInst intModuleInst ``Grind.IntModule.toHMul
     let some preorderInst ← getInst? ``Grind.Preorder | return none

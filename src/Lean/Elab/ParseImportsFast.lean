@@ -15,6 +15,7 @@ structure State where
   error?        : Option String := none
   isModule      : Bool := false
   -- per-import fields to be consumed by `moduleIdent`
+  isMeta        : Bool := false
   isExported    : Bool := false
   importAll     : Bool := false
   deriving Inhabited
@@ -147,7 +148,7 @@ def State.pushImport (i : Import) (s : State) : State :=
 
 partial def moduleIdent : Parser := fun input s =>
   let finalize (module : Name) : Parser := fun input s =>
-    whitespace input (s.pushImport { module, importAll := s.importAll, isExported := s.isExported })
+    whitespace input (s.pushImport { module, isMeta := s.isMeta, importAll := s.importAll, isExported := s.isExported })
   let rec parse (module : Name) (s : State) :=
     let i := s.pos
     if h : input.atEnd i then
@@ -190,8 +191,11 @@ partial def moduleIdent : Parser := fun input s =>
   | none => many p input s
   | some _ => { pos, error? := none, imports := s.imports.shrink size }
 
+def setIsMeta (isMeta : Bool) : Parser := fun _ s =>
+  { s with isMeta }
+
 def setIsExported (isExported : Bool) : Parser := fun _ s =>
-  { s with isExported := isExported }
+  { s with isExported }
 
 def setImportAll (importAll : Bool) : Parser := fun _ s =>
   { s with importAll }
@@ -200,6 +204,7 @@ def main : Parser :=
   keywordCore "module" (fun _ s => { s with isModule := true }) (fun _ s => s) >>
   keywordCore "prelude" (fun _ s => s.pushImport `Init) (fun _ s => s) >>
   many (keywordCore "private" (setIsExported true) (setIsExported false) >>
+    keywordCore "meta" (setIsMeta true) (setIsMeta false) >>
     keyword "import" >>
     keywordCore "all" (setImportAll false) (setImportAll true) >>
     moduleIdent)

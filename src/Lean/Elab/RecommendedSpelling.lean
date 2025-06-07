@@ -28,7 +28,7 @@ open Lean.Parser.Command
 def allRecommendedSpellings : MetaM (Array RecommendedSpelling) := do
   let all := recommendedSpellingExt.toEnvExtension.getState (← getEnv)
       |>.importedEntries
-      |>.push (recommendedSpellingExt.exportEntriesFn (recommendedSpellingExt.getState (← getEnv)))
+      |>.push (recommendedSpellingExt.exportEntriesFn (← getEnv) (recommendedSpellingExt.getState (← getEnv)) .exported)
   return all.flatMap id
 
 end Lean.Elab.Term.Doc

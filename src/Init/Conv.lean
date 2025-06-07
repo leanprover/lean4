@@ -9,7 +9,7 @@ module
 
 prelude
 import Init.Tactics
-import Init.Meta
+meta import Init.Meta
 
 namespace Lean.Parser.Tactic.Conv
 

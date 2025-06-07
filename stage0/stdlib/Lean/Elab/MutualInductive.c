@@ -989,6 +989,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_MutualInduct
 LEAN_EXPORT lean_object* l___private_Lean_Elab_MutualInductive_0__Lean_Elab_Command_updateResultingUniverse___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_checkValidCtorModifier___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___private_Lean_Elab_MutualInductive_0__Lean_Elab_Command_replaceIndFVarsWithConsts___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Elab_Modifiers_isNoncomputable(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_instInhabitedInductiveElabStep2___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_elabAttr___at_Lean_Elab_Command_elabMutualInductive___spec__4___closed__4;
 static lean_object* l___private_Lean_Elab_MutualInductive_0__Lean_Elab_Command_checkParamsAndResultType___lambda__1___closed__6;
@@ -1550,22 +1551,23 @@ return x_2;
 static lean_object* _init_l_Lean_Elab_Command_instInhabitedCtorView___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_1; lean_object* x_2; uint8_t x_3; uint8_t x_4; uint8_t x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
 x_1 = lean_box(0);
 x_2 = lean_box(0);
 x_3 = 0;
 x_4 = 0;
 x_5 = 0;
-x_6 = l_Lean_Elab_Command_instInhabitedCtorView___closed__1;
-x_7 = lean_alloc_ctor(0, 3, 4);
-lean_ctor_set(x_7, 0, x_2);
-lean_ctor_set(x_7, 1, x_1);
-lean_ctor_set(x_7, 2, x_6);
-lean_ctor_set_uint8(x_7, sizeof(void*)*3, x_3);
-lean_ctor_set_uint8(x_7, sizeof(void*)*3 + 1, x_4);
-lean_ctor_set_uint8(x_7, sizeof(void*)*3 + 2, x_5);
-lean_ctor_set_uint8(x_7, sizeof(void*)*3 + 3, x_4);
-return x_7;
+x_6 = 0;
+x_7 = l_Lean_Elab_Command_instInhabitedCtorView___closed__1;
+x_8 = lean_alloc_ctor(0, 3, 4);
+lean_ctor_set(x_8, 0, x_2);
+lean_ctor_set(x_8, 1, x_1);
+lean_ctor_set(x_8, 2, x_7);
+lean_ctor_set_uint8(x_8, sizeof(void*)*3, x_3);
+lean_ctor_set_uint8(x_8, sizeof(void*)*3 + 1, x_4);
+lean_ctor_set_uint8(x_8, sizeof(void*)*3 + 2, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*3 + 3, x_6);
+return x_8;
 }
 }
 static lean_object* _init_l_Lean_Elab_Command_instInhabitedCtorView___closed__3() {
@@ -2736,7 +2738,7 @@ x_4 = lean_alloc_closure((void*)(l_Lean_Elab_Command_checkValidInductiveModifier
 lean_closure_set(x_4, 0, x_3);
 lean_closure_set(x_4, 1, x_1);
 lean_closure_set(x_4, 2, x_2);
-x_5 = lean_ctor_get_uint8(x_3, sizeof(void*)*3 + 1);
+x_5 = l_Lean_Elab_Modifiers_isNoncomputable(x_3);
 lean_dec(x_3);
 if (x_5 == 0)
 {
@@ -2980,7 +2982,7 @@ x_4 = lean_alloc_closure((void*)(l_Lean_Elab_Command_checkValidCtorModifier___ra
 lean_closure_set(x_4, 0, x_3);
 lean_closure_set(x_4, 1, x_1);
 lean_closure_set(x_4, 2, x_2);
-x_5 = lean_ctor_get_uint8(x_3, sizeof(void*)*3 + 1);
+x_5 = l_Lean_Elab_Modifiers_isNoncomputable(x_3);
 lean_dec(x_3);
 if (x_5 == 0)
 {
@@ -32848,7 +32850,7 @@ lean_dec(x_30);
 x_33 = lean_ctor_get(x_31, 0);
 lean_inc(x_33);
 lean_dec(x_31);
-x_34 = lean_ctor_get_uint8(x_33, sizeof(void*)*8);
+x_34 = lean_ctor_get_uint8(x_33, sizeof(void*)*9);
 lean_dec(x_33);
 x_35 = lean_st_ref_take(x_12, x_32);
 x_36 = lean_ctor_get(x_35, 0);
@@ -34654,7 +34656,7 @@ lean_dec(x_476);
 x_479 = lean_ctor_get(x_477, 0);
 lean_inc(x_479);
 lean_dec(x_477);
-x_480 = lean_ctor_get_uint8(x_479, sizeof(void*)*8);
+x_480 = lean_ctor_get_uint8(x_479, sizeof(void*)*9);
 lean_dec(x_479);
 x_481 = lean_st_ref_take(x_12, x_478);
 x_482 = lean_ctor_get(x_481, 0);
@@ -42279,7 +42281,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Command_checkValidInductiveModifier___at_Le
 _start:
 {
 uint8_t x_9; 
-x_9 = lean_ctor_get_uint8(x_1, sizeof(void*)*3 + 1);
+x_9 = l_Lean_Elab_Modifiers_isNoncomputable(x_1);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -44400,14 +44402,14 @@ lean_dec(x_57);
 if (x_59 == 0)
 {
 uint8_t x_60; 
-x_60 = 1;
+x_60 = 2;
 x_21 = x_60;
 goto block_55;
 }
 else
 {
 uint8_t x_61; 
-x_61 = 0;
+x_61 = 1;
 x_21 = x_61;
 goto block_55;
 }

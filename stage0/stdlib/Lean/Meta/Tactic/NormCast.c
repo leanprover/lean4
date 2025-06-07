@@ -143,7 +143,7 @@ static lean_object* l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_NormCast_reprLabel____x40_Lean_Meta_Tactic_NormCast___hyg_108____closed__15;
 lean_object* l_Lean_Syntax_isStrLit_x3f(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__6___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__6___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_2008____lambda__3___closed__15;
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
@@ -155,7 +155,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_countCoes___lambda__1___boxed(lean
 LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_Label_toCtorIdx(uint8_t);
 static lean_object* l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_2008____lambda__3___closed__10;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_NormCast_countCoes___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__6(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__6(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_1656_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_2008____lambda__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3360,12 +3360,12 @@ lean_ctor_set(x_5, 1, x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__6(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__6(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lean_Meta_NormCast_getSimpArgs___closed__2;
-return x_2;
+lean_object* x_4; 
+x_4 = l_Lean_Meta_NormCast_getSimpArgs___closed__2;
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__7(lean_object* x_1) {
@@ -3464,7 +3464,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_instInhabitedNormCastExtension___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__6___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__6___boxed), 3, 0);
 return x_1;
 }
 }
@@ -3486,14 +3486,13 @@ x_3 = l_Lean_Meta_NormCast_instInhabitedNormCastExtension___closed__8;
 x_4 = l_Lean_Meta_NormCast_instInhabitedNormCastExtension___closed__4;
 x_5 = l_Lean_Meta_NormCast_instInhabitedNormCastExtension___closed__9;
 x_6 = l_Lean_Meta_NormCast_instInhabitedNormCastExtension___closed__10;
-x_7 = lean_alloc_ctor(0, 7, 0);
+x_7 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_7, 0, x_1);
 lean_ctor_set(x_7, 1, x_2);
 lean_ctor_set(x_7, 2, x_3);
 lean_ctor_set(x_7, 3, x_4);
 lean_ctor_set(x_7, 4, x_5);
-lean_ctor_set(x_7, 5, x_5);
-lean_ctor_set(x_7, 6, x_6);
+lean_ctor_set(x_7, 5, x_6);
 return x_7;
 }
 }
@@ -3569,13 +3568,16 @@ lean_dec(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__6___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__6(x_1);
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_3);
+lean_dec(x_3);
+x_5 = l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__6(x_1, x_2, x_4);
+lean_dec(x_2);
 lean_dec(x_1);
-return x_2;
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__7___boxed(lean_object* x_1) {

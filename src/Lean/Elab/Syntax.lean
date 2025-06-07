@@ -273,7 +273,7 @@ private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := d
     let quotSymbol := "`(" ++ suffix ++ "| "
     let name := catName ++ `quot
     let cmd ← `(
-      @[term_parser] def $(mkIdent name) : Lean.ParserDescr :=
+      @[term_parser] meta def $(mkIdent name) : Lean.ParserDescr :=
         Lean.ParserDescr.node `Lean.Parser.Term.quot $(quote Lean.Parser.maxPrec)
           (Lean.ParserDescr.node $(quote name) $(quote Lean.Parser.maxPrec)
             (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol $(quote quotSymbol))
@@ -295,7 +295,7 @@ private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := d
   let attrName := catName.appendAfter "_parser"
   let catDeclName := ``Lean.Parser.Category ++ catName
   setEnv (← Parser.registerParserCategory (← getEnv) attrName catName catBehavior catDeclName)
-  let cmd ← `($[$docString?]? def $(mkIdentFrom stx[2] (`_root_ ++ catDeclName) (canonical := true)) : Lean.Parser.Category := {})
+  let cmd ← `($[$docString?]? meta def $(mkIdentFrom stx[2] (`_root_ ++ catDeclName) (canonical := true)) : Lean.Parser.Category := {})
   declareSyntaxCatQuotParser catName
   elabCommand cmd
 
@@ -396,10 +396,10 @@ def addMacroScopeIfLocal [MonadQuotation m] [Monad m] (name : Name) (attrKind : 
   let attrInstances := attrInstances.getD { elemsAndSeps := #[] }
   let attrInstances := attrInstances.push attrInstance
   let d ← if let some lhsPrec := lhsPrec? then
-    `($[$doc?:docComment]? @[$attrInstances,*] def $declName:ident : Lean.TrailingParserDescr :=
+    `($[$doc?:docComment]? @[$attrInstances,*] meta def $declName:ident : Lean.TrailingParserDescr :=
         ParserDescr.trailingNode $(quote stxNodeKind) $(quote prec) $(quote lhsPrec) $val)
   else
-    `($[$doc?:docComment]? @[$attrInstances,*] def $declName:ident : Lean.ParserDescr :=
+    `($[$doc?:docComment]? @[$attrInstances,*] meta def $declName:ident : Lean.ParserDescr :=
         ParserDescr.node $(quote stxNodeKind) $(quote prec) $val)
   trace `Elab fun _ => d
   withMacroExpansion stx d <| elabCommand d
@@ -409,7 +409,7 @@ def addMacroScopeIfLocal [MonadQuotation m] [Monad m] (name : Name) (attrKind : 
   -- TODO: nonatomic names
   let (val, _) ← runTermElabM fun _ => Term.toParserDescr (mkNullNode ps) Name.anonymous
   let stxNodeKind := (← getCurrNamespace) ++ declName.getId
-  let stx' ← `($[$doc?:docComment]? def $declName:ident : Lean.ParserDescr := ParserDescr.nodeWithAntiquot $(quote (toString declName.getId)) $(quote stxNodeKind) $val)
+  let stx' ← `($[$doc?:docComment]? meta def $declName:ident : Lean.ParserDescr := ParserDescr.nodeWithAntiquot $(quote (toString declName.getId)) $(quote stxNodeKind) $val)
   withMacroExpansion stx stx' <| elabCommand stx'
 
 def checkRuleKind (given expected : SyntaxNodeKind) : Bool :=

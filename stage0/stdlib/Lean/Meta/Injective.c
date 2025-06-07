@@ -8353,7 +8353,7 @@ lean_dec(x_59);
 x_63 = lean_ctor_get(x_61, 0);
 lean_inc(x_63);
 lean_dec(x_61);
-x_64 = lean_ctor_get_uint8(x_63, sizeof(void*)*8);
+x_64 = lean_ctor_get_uint8(x_63, sizeof(void*)*9);
 lean_dec(x_63);
 x_65 = lean_st_ref_take(x_10, x_62);
 x_66 = lean_ctor_get(x_65, 0);

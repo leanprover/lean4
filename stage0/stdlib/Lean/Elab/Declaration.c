@@ -4040,7 +4040,7 @@ lean_dec(x_9);
 x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
 lean_dec(x_11);
-x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*8);
+x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*9);
 lean_dec(x_13);
 x_15 = lean_st_ref_take(x_3, x_12);
 x_16 = lean_ctor_get(x_15, 0);

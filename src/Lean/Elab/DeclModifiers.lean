@@ -56,13 +56,18 @@ inductive RecKind where
   | «partial» | «nonrec» | default
   deriving Inhabited
 
+/-- Codegen-relevant modifiers. -/
+inductive ComputeKind where
+  | regular | «meta» | «noncomputable»
+  deriving Inhabited
+
 /-- Flags and data added to declarations (eg docstrings, attributes, `private`, `unsafe`, `partial`, ...). -/
 structure Modifiers where
   /-- Input syntax, used for adjusting declaration range (unless missing) -/
   stx             : TSyntax ``Parser.Command.declModifiers := ⟨.missing⟩
   docString?      : Option (TSyntax ``Parser.Command.docComment) := none
   visibility      : Visibility := Visibility.regular
-  isNoncomputable : Bool := false
+  computeKind     : ComputeKind := .regular
   recKind         : RecKind := RecKind.default
   isUnsafe        : Bool := false
   attrs           : Array Attribute := #[]
@@ -77,14 +82,29 @@ def Modifiers.isProtected : Modifiers → Bool
   | _                                => false
 
 def Modifiers.isPartial : Modifiers → Bool
-  | { recKind := .partial, .. } => true
-  | _                           => false
+  | { recKind := .partial, .. }  => true
+  | _                            => false
+
+/--
+Whether the declaration is explicitly `partial` or should be considered as such via `meta`. In the
+latter case, elaborators should not produce an error if partialty is unnecessary.
+-/
+def Modifiers.isInferredPartial : Modifiers → Bool
+  | { recKind := .partial, .. }  => true
+  | { computeKind := .meta, .. } => true
+  | _                            => false
 
 def Modifiers.isNonrec : Modifiers → Bool
   | { recKind := .nonrec, .. } => true
   | _                          => false
 
-/-- Adds attribute `attr` in `modifiers`, at the end -/
+def Modifiers.isMeta (m : Modifiers) : Bool :=
+  m.computeKind matches .meta
+
+def Modifiers.isNoncomputable (m : Modifiers) : Bool :=
+  m.computeKind matches .noncomputable
+
+/-- Adds attribute `attr` in `modifiers` -/
 def Modifiers.addAttr (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
   { modifiers with attrs := modifiers.attrs.push attr }
 
@@ -105,7 +125,7 @@ instance : ToFormat Modifiers := ⟨fun m =>
      | .regular   => []
      | .protected => [f!"protected"]
      | .private   => [f!"private"])
-    ++ (if m.isNoncomputable then [f!"noncomputable"] else [])
+    ++ (match m.computeKind with | .regular => [] | .meta => [f!"meta"] | .noncomputable => [f!"noncomputable"])
     ++ (match m.recKind with | RecKind.partial => [f!"partial"] | RecKind.nonrec => [f!"nonrec"] | _ => [])
     ++ (if m.isUnsafe then [f!"unsafe"] else [])
     ++ m.attrs.toList.map (fun attr => format attr)
@@ -127,18 +147,18 @@ section Methods
 
 variable [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadInfoTree m] [MonadLiftT IO m]
 
-/-- Elaborate declaration modifiers (i.e., attributes, `partial`, `private`, `protected`, `unsafe`, `noncomputable`, doc string)-/
+/-- Elaborate declaration modifiers (i.e., attributes, `partial`, `private`, `protected`, `unsafe`, `meta`, `noncomputable`, doc string)-/
 def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers := do
   let docCommentStx := stx.raw[0]
   let attrsStx      := stx.raw[1]
   let visibilityStx := stx.raw[2]
-  let isNoncomputable :=
+  let computeKind   :=
     if stx.raw[3].isNone then
-      false
+      .regular
     else if stx.raw[3][0].getKind == ``Parser.Command.meta then
-      false  -- TODO: handle `meta` declarations
+      .meta
     else
-      true
+      .noncomputable
   let unsafeStx     := stx.raw[4]
   let recKind       :=
     if stx.raw[5].isNone then
@@ -159,9 +179,8 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
     | none       => pure #[]
     | some attrs => elabDeclAttrs attrs
   return {
-    stx, docString?, visibility, recKind, attrs,
+    stx, docString?, visibility, computeKind, recKind, attrs,
     isUnsafe        := !unsafeStx.isNone
-    isNoncomputable
   }
 
 /--

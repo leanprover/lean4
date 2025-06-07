@@ -17,9 +17,9 @@ test_err "U.lean:2:0: unknown module prefix 'Bogus'" build +Lib.U
 test_err "U.lean:2:0: error: unknown module prefix 'Bogus'" lean ./Lib/U.lean
 test_run setup-file ./Lib/U.lean # Lake ignores the unknown import (the server will error)
 # Test importing oneself
-# test_err "S.lean: module imports itself" build +Lib.S
-# test_err "S.lean: module imports itself" lean ./Lib/S.lean
-# test_err "S.lean: module imports itself" setup-file ./Lib/S.lean
+test_err "S.lean: module imports itself" build +Lib.S
+test_err "S.lean: module imports itself" lean ./Lib/S.lean
+test_err "S.lean: module imports itself" setup-file ./Lib/S.lean
 # Test importing a missing module from within the workspace
 test_err "B.lean: bad import 'Lib.Bogus'" build +Lib.B
 test_err "B.lean: bad import 'Lib.Bogus'" lean ./Lib/B.lean

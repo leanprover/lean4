@@ -7,6 +7,7 @@ Authors: Shreyas Srinivas, François G. Dorais, Kim Morrison
 module
 
 prelude
+meta import Init.Coe
 import Init.Data.Array.Lemmas
 import Init.Data.Array.MapIdx
 import Init.Data.Array.InsertIdx

@@ -1461,7 +1461,7 @@ x_43 = lean_ctor_get(x_17, 1);
 lean_inc(x_43);
 lean_dec(x_17);
 x_44 = 1;
-x_45 = 2;
+x_45 = 3;
 x_46 = l_Lean_importModules(x_2, x_4, x_7, x_8, x_9, x_44, x_45, x_11, x_43);
 if (lean_obj_tag(x_46) == 0)
 {
@@ -1604,7 +1604,7 @@ x_75 = lean_ctor_get(x_17, 1);
 lean_inc(x_75);
 lean_dec(x_17);
 x_76 = 1;
-x_77 = 1;
+x_77 = 2;
 x_78 = l_Lean_importModules(x_2, x_4, x_7, x_8, x_9, x_76, x_77, x_11, x_75);
 if (lean_obj_tag(x_78) == 0)
 {

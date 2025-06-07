@@ -7045,7 +7045,7 @@ lean_dec(x_19);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
-x_23 = lean_ctor_get_uint8(x_22, sizeof(void*)*8);
+x_23 = lean_ctor_get_uint8(x_22, sizeof(void*)*9);
 lean_dec(x_22);
 x_24 = lean_box(0);
 x_25 = l_Lean_Elab_Term_mkTacticMVar(x_18, x_1, x_24, x_23, x_3, x_4, x_5, x_6, x_7, x_8, x_21);
@@ -27647,7 +27647,7 @@ lean_inc(x_16);
 x_17 = lean_ctor_get(x_16, 0);
 lean_inc(x_17);
 lean_dec(x_16);
-x_18 = lean_ctor_get_uint8(x_17, sizeof(void*)*8);
+x_18 = lean_ctor_get_uint8(x_17, sizeof(void*)*9);
 lean_dec(x_17);
 if (x_18 == 0)
 {

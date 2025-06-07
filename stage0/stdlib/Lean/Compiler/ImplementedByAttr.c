@@ -446,7 +446,7 @@ lean_dec(x_5);
 x_8 = lean_ctor_get(x_6, 0);
 lean_inc(x_8);
 lean_dec(x_6);
-x_9 = lean_ctor_get_uint8(x_8, sizeof(void*)*8);
+x_9 = lean_ctor_get_uint8(x_8, sizeof(void*)*9);
 lean_dec(x_8);
 x_10 = lean_st_ref_take(x_3, x_7);
 x_11 = lean_ctor_get(x_10, 0);

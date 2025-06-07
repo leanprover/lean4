@@ -258,7 +258,7 @@ lean_inc(x_5);
 lean_dec(x_4);
 x_6 = l_Lean_instInhabitedDeclarationRanges;
 x_7 = l_Lean_addDeclarationRanges___rarg___lambda__1___closed__1;
-x_8 = 1;
+x_8 = 2;
 x_9 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_6, x_7, x_3, x_2, x_8);
 x_10 = lean_apply_2(x_5, lean_box(0), x_9);
 return x_10;

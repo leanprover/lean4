@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Compiler.LCNF.PassManager
+import Lean.Compiler.MetaAttr
 
 namespace Lean.Compiler.LCNF
 
@@ -33,7 +34,15 @@ def mkDeclExt (name : Name := by exact decl_name%) : IO DeclExt :=
     mkInitial := pure {},
     addImportedFn := fun _ => pure {},
     addEntryFn := fun s decl => s.insert decl.name decl
-    exportEntriesFn := sortedDecls
+    exportEntriesFnEx env s level := Id.run do
+      let mut entries := sortedDecls s
+      if level == .exported then
+        entries := entries.map fun decl =>
+          if !isMeta env decl.name && (getInlineAttribute? env decl.name).isNone && !hasSpecializeAttribute env decl.name then
+            { decl with value := .extern { arity? := decl.getArity, entries := [] } }
+          else
+            decl
+      return entries
     statsFn := fun s =>
       let numEntries := s.foldl (init := 0) (fun count _ _ => count + 1)
       format "number of local entries: " ++ format numEntries

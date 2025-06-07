@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Basic
-// Imports: Init.SimpLemmas Init.Data.Nat.Basic Init.Data.List.Notation
+// Imports: Init.SimpLemmas Init.Data.Nat.Basic Init.Data.List.Notation Init.Data.Nat.Div.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -10573,6 +10573,7 @@ return x_5;
 lean_object* initialize_Init_SimpLemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Notation(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Nat_Div_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_Basic(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -10585,6 +10586,9 @@ res = initialize_Init_Data_Nat_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Notation(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Div_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___auto____x40_Init_Data_List_Basic___hyg_1900____closed__1 = _init_l___auto____x40_Init_Data_List_Basic___hyg_1900____closed__1();

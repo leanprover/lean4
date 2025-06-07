@@ -214,7 +214,6 @@ lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Term_processDefDeriving___spec__
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_elabGrindParams___spec__5___lambda__3(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at_Lean_Elab_Tactic_mkGrindOnly___spec__6___closed__36;
 static lean_object* l_List_forIn_x27_loop___at_Lean_Elab_Tactic_mkGrindOnly___spec__13___closed__1;
-lean_object* lean_eval_const(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_preprocessSyntaxAndResolve___at_Lean_Elab_Tactic_elabGrindPattern___spec__6___closed__2;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_elabGrindPattern___spec__10(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_elabInitGrindNorm___spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -518,6 +517,7 @@ LEAN_EXPORT lean_object* l___private_Lean_ResolveName_0__Lean_resolveGlobalConst
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Grind_0__Lean_Elab_Tactic_elabFallback___closed__3;
 lean_object* l_Lean_Elab_Tactic_replaceMainGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Environment_evalConst___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_List_filterTR_loop___at_Lean_filterFieldList___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalGrindTrace___closed__2;
 static lean_object* l_Lean_Elab_Tactic_evalGrindCore___closed__2;
@@ -10212,7 +10212,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_evalConst___at___private_Lean_Elab_Tactic_Grind_0__Lean_Elab_Tactic_elabFallback_unsafe__3___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; 
 x_9 = lean_st_ref_get(x_7, x_8);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
@@ -10223,11 +10223,11 @@ x_12 = lean_ctor_get(x_10, 0);
 lean_inc(x_12);
 lean_dec(x_10);
 x_13 = lean_ctor_get(x_6, 2);
-x_14 = lean_eval_const(x_12, x_13, x_1);
-lean_dec(x_12);
-x_15 = l_Lean_ofExcept___at___private_Lean_Elab_Tactic_Grind_0__Lean_Elab_Tactic_elabFallback_unsafe__3___spec__2___rarg(x_14, x_2, x_3, x_4, x_5, x_6, x_7, x_11);
-lean_dec(x_14);
-return x_15;
+x_14 = 1;
+x_15 = l_Lean_Environment_evalConst___rarg(x_12, x_13, x_1, x_14);
+x_16 = l_Lean_ofExcept___at___private_Lean_Elab_Tactic_Grind_0__Lean_Elab_Tactic_elabFallback_unsafe__3___spec__2___rarg(x_15, x_2, x_3, x_4, x_5, x_6, x_7, x_11);
+lean_dec(x_15);
+return x_16;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_evalConst___at___private_Lean_Elab_Tactic_Grind_0__Lean_Elab_Tactic_elabFallback_unsafe__3___spec__1(lean_object* x_1) {
@@ -10283,7 +10283,6 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_1);
 return x_9;
 }
 }
@@ -10297,7 +10296,6 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_1);
 return x_9;
 }
 }

@@ -17,8 +17,9 @@ Build info is what is the data passed to a Lake build function to facilitate
 the build.
 -/
 
+open Lean
+
 namespace Lake
-open Lean (Name)
 
 /-- The type of Lake's build info. -/
 inductive BuildInfo
@@ -160,6 +161,61 @@ and target facets.
 
 /-! #### Module Infos -/
 
+structure ModuleImports where
+  module : Module
+  transSet : NameSet := {}
+  localImports : Array Module := #[]
+  transImports : Array Module := #[]
+  publicSet : NameSet := {}
+  publicImports : Array Module := #[]
+  libSet : NameSet := .insert {} module.lib.name
+  libs : Array LeanLib := #[]
+
+private def ModuleImports.addLibCore (self : ModuleImports) (lib : LeanLib) : ModuleImports :=
+  if self.libSet.contains lib.name then
+    self
+  else
+    {self with
+      libSet := self.libSet.insert lib.name
+      libs := self.libs.push lib
+    }
+
+private def ModuleImports.addPublicImportCore (self : ModuleImports) (mod : Module) : ModuleImports :=
+  if self.publicSet.contains mod.name then
+    self
+  else
+    {self with
+      publicSet := self.publicSet.insert mod.name
+      publicImports := self.publicImports.push mod
+    }
+
+private def ModuleImports.addImportCore
+  (self : ModuleImports) (mod : Module)
+: ModuleImports := Id.run do
+  let mut self := self
+  if self.transSet.contains mod.name then
+    return self
+  self := {self with
+    transSet := self.transSet.insert mod.name
+    transImports := self.transImports.push mod
+  }
+  if self.module.name = mod.lib.name then
+    self := {self with localImports := self.localImports.push mod}
+  else
+    self := self.addLibCore mod.lib
+  return self
+
+def ModuleImports.insert
+  (self : ModuleImports) (mod : Module) (isPublic : Bool)
+: ModuleImports :=
+  let self := inline <| self.addImportCore mod
+  if isPublic then inline <| self.addPublicImportCore mod else self
+
+def ModuleImports.append (self other : ModuleImports) : ModuleImports :=
+  let self := other.publicImports.foldl addPublicImportCore self
+  let self := other.transImports.foldl addImportCore self
+  self
+
 /--
 Build info for applying the specified facet to the module.
 It is the user's obiligation to ensure the facet in question is a module facet.
@@ -174,6 +230,9 @@ abbrev Module.facet (facet : Name) (self : Module) : BuildInfo :=
 @[deprecated Module.facetCore (since := "2025-03-04")]
 abbrev BuildInfo.moduleFacet (module : Module) (facet : Name) : BuildInfo :=
   module.facetCore facet
+
+/-- The computed imports of a Lean module. -/
+builtin_facet allImports : Module => ModuleImports
 
 namespace Module
 
@@ -191,6 +250,9 @@ namespace Module
 
 @[inherit_doc precompileImportsFacet] abbrev precompileImports (self : Module) :=
   self.facetCore precompileImportsFacet
+
+@[inherit_doc allImportsFacet] abbrev allImports (self : Module) :=
+  self.facetCore allImportsFacet
 
 @[inherit_doc setupFacet] abbrev setup  (self : Module) :=
   self.facetCore setupFacet

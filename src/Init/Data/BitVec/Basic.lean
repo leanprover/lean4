@@ -174,7 +174,7 @@ recommended_spelling "zero" for "0#n" in [BitVec.ofNat, «term__#__»]
 recommended_spelling "one" for "1#n" in [BitVec.ofNat, «term__#__»]
 
 /-- Unexpander for bitvector literals. -/
-@[app_unexpander BitVec.ofNat] def unexpandBitVecOfNat : Lean.PrettyPrinter.Unexpander
+@[app_unexpander BitVec.ofNat] meta def unexpandBitVecOfNat : Lean.PrettyPrinter.Unexpander
   | `($(_) $n $i:num) => `($i:num#$n)
   | _ => throw ()
 
@@ -183,7 +183,7 @@ scoped syntax:max term:max noWs "#'" noWs term:max : term
 macro_rules | `($i#'$p) => `(BitVec.ofNatLT $i $p)
 
 /-- Unexpander for bitvector literals without truncation. -/
-@[app_unexpander BitVec.ofNatLT] def unexpandBitVecOfNatLt : Lean.PrettyPrinter.Unexpander
+@[app_unexpander BitVec.ofNatLT] meta def unexpandBitVecOfNatLt : Lean.PrettyPrinter.Unexpander
   | `($(_) $i $p) => `($i#'$p)
   | _ => throw ()
 

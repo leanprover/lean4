@@ -70,41 +70,38 @@ def getRecArgInfo (fnName : Name) (fixedParamPerm : FixedParamPerm) (xs : Array 
       throwError "it is a let-binding"
     let xType ← whnfD localDecl.type
     matchConstInduct xType.getAppFn (fun _ => throwError "its type is not an inductive") fun indInfo us => do
-    if indInfo.isReflexive && !(← hasConst (mkBInductionOnName indInfo.name)) && !(← isInductivePredicate indInfo.name) then
-      throwError "its type {indInfo.name} is a reflexive inductive, but {mkBInductionOnName indInfo.name} does not exist and it is not an inductive predicate"
+    let indArgs    : Array Expr := xType.getAppArgs
+    let indParams  : Array Expr := indArgs[0:indInfo.numParams]
+    let indIndices : Array Expr := indArgs[indInfo.numParams:]
+    if !indIndices.all Expr.isFVar then
+      throwError "its type {indInfo.name} is an inductive family and indices are not variables{indentExpr xType}"
+    else if !indIndices.allDiff then
+      throwError "its type {indInfo.name} is an inductive family and indices are not pairwise distinct{indentExpr xType}"
     else
-      let indArgs    : Array Expr := xType.getAppArgs
-      let indParams  : Array Expr := indArgs[0:indInfo.numParams]
-      let indIndices : Array Expr := indArgs[indInfo.numParams:]
-      if !indIndices.all Expr.isFVar then
-        throwError "its type {indInfo.name} is an inductive family and indices are not variables{indentExpr xType}"
-      else if !indIndices.allDiff then
-        throwError "its type {indInfo.name} is an inductive family and indices are not pairwise distinct{indentExpr xType}"
-      else
-        let ys := fixedParamPerm.pickVarying xs
-        match (← hasBadIndexDep? ys indIndices) with
-        | some (index, y) =>
-          throwError "its type {indInfo.name} is an inductive family{indentExpr xType}\nand index{indentExpr index}\ndepends on the non index{indentExpr y}"
+      let ys := fixedParamPerm.pickVarying xs
+      match (← hasBadIndexDep? ys indIndices) with
+      | some (index, y) =>
+        throwError "its type {indInfo.name} is an inductive family{indentExpr xType}\nand index{indentExpr index}\ndepends on the non index{indentExpr y}"
+      | none =>
+        match (← hasBadParamDep? ys indParams) with
+        | some (indParam, y) =>
+          throwError "its type is an inductive datatype{indentExpr xType}\nand the datatype parameter{indentExpr indParam}\ndepends on the function parameter{indentExpr y}\nwhich is not fixed."
         | none =>
-          match (← hasBadParamDep? ys indParams) with
-          | some (indParam, y) =>
-            throwError "its type is an inductive datatype{indentExpr xType}\nand the datatype parameter{indentExpr indParam}\ndepends on the function parameter{indentExpr y}\nwhich is not fixed."
-          | none =>
-            let indAll := indInfo.all.toArray
-            let .some indIdx := indAll.idxOf? indInfo.name | panic! "{indInfo.name} not in {indInfo.all}"
-            let indicesPos := indIndices.map fun index => match xs.idxOf? index with | some i => i | none => unreachable!
-            let indGroupInst := {
-              IndGroupInfo.ofInductiveVal indInfo with
-              levels := us
-              params := indParams }
-            return { fnName       := fnName
-                     fixedParamPerm := fixedParamPerm
-                     recArgPos    := i
-                     indicesPos   := indicesPos
-                     indGroupInst := indGroupInst
-                     indIdx       := indIdx }
-    else
-      throwError "the index #{i+1} exceeds {xs.size}, the number of parameters"
+          let indAll := indInfo.all.toArray
+          let .some indIdx := indAll.idxOf? indInfo.name | panic! "{indInfo.name} not in {indInfo.all}"
+          let indicesPos := indIndices.map fun index => match xs.idxOf? index with | some i => i | none => unreachable!
+          let indGroupInst := {
+            IndGroupInfo.ofInductiveVal indInfo with
+            levels := us
+            params := indParams }
+          return { fnName       := fnName
+                   fixedParamPerm := fixedParamPerm
+                   recArgPos    := i
+                   indicesPos   := indicesPos
+                   indGroupInst := indGroupInst
+                   indIdx       := indIdx }
+  else
+    throwError "the index #{i+1} exceeds {xs.size}, the number of parameters"
 
 /--
 Collects the `RecArgInfos` for one function, and returns a report for why the others were not

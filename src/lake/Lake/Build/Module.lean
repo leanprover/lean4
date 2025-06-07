@@ -289,7 +289,7 @@ def Module.recBuildLean (mod : Module) : FetchM (Job Unit) := do
 
 /-- The `ModuleFacetConfig` for the builtin `leanArtsFacet`. -/
 def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=
-  mkFacetJobConfig (·.recBuildLean)
+  mkFacetJobConfig recBuildLean
 
 /-- The `ModuleFacetConfig` for the builtin `oleanFacet`. -/
 def Module.oleanFacetConfig : ModuleFacetConfig oleanFacet :=
@@ -375,11 +375,11 @@ def Module.recBuildLeanCToONoExport (self : Module) : FetchM (Job FilePath) := d
 
 /-- The `ModuleFacetConfig` for the builtin `coNoExportFacet`. -/
 def Module.coNoExportFacetConfig : ModuleFacetConfig coNoExportFacet :=
-  mkFacetJobConfig Module.recBuildLeanCToONoExport
+  mkFacetJobConfig recBuildLeanCToONoExport
 
 /-- The `ModuleFacetConfig` for the builtin `coFacet`. -/
 def Module.coFacetConfig : ModuleFacetConfig coFacet :=
-  mkFacetJobConfig fun mod =>
+  mkFacetJobConfig (memoize := false) fun mod =>
     if Platform.isWindows then mod.coNoExport.fetch else mod.coExport.fetch
 
 /-- Recursively build the module's object file from its bitcode file produced by `lean`. -/
@@ -390,25 +390,25 @@ def Module.recBuildLeanBcToO (self : Module) : FetchM (Job FilePath) := do
 
 /-- The `ModuleFacetConfig` for the builtin `bcoFacet`. -/
 def Module.bcoFacetConfig : ModuleFacetConfig bcoFacet :=
-  mkFacetJobConfig Module.recBuildLeanBcToO
+  mkFacetJobConfig recBuildLeanBcToO
 
 /-- The `ModuleFacetConfig` for the builtin `oExportFacet`. -/
 def Module.oExportFacetConfig : ModuleFacetConfig oExportFacet :=
-  mkFacetJobConfig fun mod =>
+  mkFacetJobConfig (memoize := false) fun mod =>
     match mod.backend with
     | .default | .c => mod.coExport.fetch
     | .llvm => mod.bco.fetch
 
 /-- The `ModuleFacetConfig` for the builtin `oNoExportFacet`. -/
 def Module.oNoExportFacetConfig : ModuleFacetConfig oNoExportFacet :=
-  mkFacetJobConfig fun mod =>
+  mkFacetJobConfig (memoize := false) fun mod =>
     match mod.backend with
     | .default | .c => mod.coNoExport.fetch
     | .llvm => error "the LLVM backend only supports exporting Lean symbols"
 
 /-- The `ModuleFacetConfig` for the builtin `oFacet`. -/
 def Module.oFacetConfig : ModuleFacetConfig oFacet :=
-  mkFacetJobConfig fun mod =>
+  mkFacetJobConfig (memoize := false) fun mod =>
     match mod.backend with
     | .default | .c => mod.co.fetch
     | .llvm => mod.bco.fetch
@@ -435,7 +435,7 @@ def Module.recBuildDynlib (mod : Module) : FetchM (Job Dynlib) :=
 
 /-- The `ModuleFacetConfig` for the builtin `dynlibFacet`. -/
 def Module.dynlibFacetConfig : ModuleFacetConfig dynlibFacet :=
-  mkFacetJobConfig Module.recBuildDynlib
+  mkFacetJobConfig recBuildDynlib
 
 /--
 A name-configuration map for the initial set of

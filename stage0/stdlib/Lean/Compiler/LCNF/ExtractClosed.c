@@ -2022,7 +2022,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_ExtractClosed_visitCode___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("_closedTerm", 11, 11);
+x_1 = lean_mk_string_unchecked("_closed", 7, 7);
 return x_1;
 }
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
-// Imports: Init.Data.Int.Linear Std.Internal.Rat Lean.Data.PersistentArray Lean.Meta.Tactic.Grind.ENodeKey Lean.Meta.Tactic.Grind.Arith.Util
+// Imports: Init.Data.Int.Linear Std.Internal.Rat Lean.Data.PersistentArray Lean.Meta.Tactic.Grind.ExprPtr Lean.Meta.Tactic.Grind.Arith.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -572,7 +572,7 @@ return x_8;
 lean_object* initialize_Init_Data_Int_Linear(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Internal_Rat(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_PersistentArray(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Grind_ENodeKey(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_ExprPtr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Util(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types(uint8_t builtin, lean_object* w) {
@@ -588,7 +588,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_PersistentArray(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_ENodeKey(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Grind_ExprPtr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Arith_Util(builtin, lean_io_mk_world());

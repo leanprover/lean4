@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Types
-// Imports: Init.Grind.Tactics Init.Data.Queue Std.Data.TreeSet Lean.HeadIndex Lean.Meta.Basic Lean.Meta.CongrTheorems Lean.Meta.AbstractNestedProofs Lean.Meta.Tactic.Simp.Types Lean.Meta.Tactic.Util Lean.Meta.Tactic.Ext Lean.Meta.Tactic.Grind.ENodeKey Lean.Meta.Tactic.Grind.AlphaShareCommon Lean.Meta.Tactic.Grind.Attr Lean.Meta.Tactic.Grind.ExtAttr Lean.Meta.Tactic.Grind.Cases Lean.Meta.Tactic.Grind.Arith.Types Lean.Meta.Tactic.Grind.EMatchTheorem
+// Imports: Init.Grind.Tactics Init.Data.Queue Std.Data.TreeSet Lean.HeadIndex Lean.Meta.Basic Lean.Meta.CongrTheorems Lean.Meta.AbstractNestedProofs Lean.Meta.Tactic.Simp.Types Lean.Meta.Tactic.Util Lean.Meta.Tactic.Ext Lean.Meta.Tactic.Grind.ExprPtr Lean.Meta.Tactic.Grind.AlphaShareCommon Lean.Meta.Tactic.Grind.Attr Lean.Meta.Tactic.Grind.ExtAttr Lean.Meta.Tactic.Grind.Cases Lean.Meta.Tactic.Grind.Arith.Types Lean.Meta.Tactic.Grind.EMatchTheorem
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -48534,7 +48534,7 @@ lean_object* initialize_Lean_Meta_AbstractNestedProofs(uint8_t builtin, lean_obj
 lean_object* initialize_Lean_Meta_Tactic_Simp_Types(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Util(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Ext(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Grind_ENodeKey(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_ExprPtr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_AlphaShareCommon(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Attr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_ExtAttr(uint8_t builtin, lean_object*);
@@ -48576,7 +48576,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Ext(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_ENodeKey(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Grind_ExprPtr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_AlphaShareCommon(builtin, lean_io_mk_world());

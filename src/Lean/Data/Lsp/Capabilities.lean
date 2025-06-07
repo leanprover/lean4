@@ -9,6 +9,7 @@ import Lean.Data.JsonRpc
 import Lean.Data.Lsp.TextSync
 import Lean.Data.Lsp.LanguageFeatures
 import Lean.Data.Lsp.CodeActions
+import Lean.Data.Lsp.Extra
 
 /-! Minimal LSP servers/clients do not have to implement a lot
 of functionality. Most useful additional behavior is instead
@@ -82,6 +83,10 @@ def ClientCapabilities.silentDiagnosticSupport (c : ClientCapabilities) : Bool :
     | return false
   return silentDiagnosticSupport
 
+structure LeanServerCapabilities where
+  moduleHierarchyProvider? : Option ModuleHierarchyOptions
+  deriving FromJson, ToJson
+
 -- TODO largely unimplemented
 structure ServerCapabilities where
   textDocumentSync?         : Option TextDocumentSyncOptions := none
@@ -101,6 +106,7 @@ structure ServerCapabilities where
   codeActionProvider?       : Option CodeActionOptions       := none
   inlayHintProvider?        : Option InlayHintOptions        := none
   signatureHelpProvider?    : Option SignatureHelpOptions    := none
+  experimental?             : Option LeanServerCapabilities  := none
   deriving ToJson, FromJson
 
 end Lsp

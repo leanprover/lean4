@@ -121,6 +121,52 @@ structure PlainTermGoal where
   range : Range
   deriving FromJson, ToJson
 
+structure ModuleHierarchyOptions where
+  deriving FromJson, ToJson
+
+structure LeanModule where
+  name  : String
+  uri   : DocumentUri
+  data? : Option Json := none
+  deriving FromJson, ToJson
+
+/--
+`$/lean/prepareModuleHierarchy` client->server request.
+
+Response type: `Option LeanModule`
+-/
+structure LeanPrepareModuleHierarchyParams where
+  textDocument : TextDocumentIdentifier
+  deriving FromJson, ToJson
+
+structure LeanImportKind where
+  isPrivate : Bool
+  isAll     : Bool
+  deriving FromJson, ToJson
+
+structure LeanImport where
+  module : LeanModule
+  kind   : LeanImportKind
+  deriving FromJson, ToJson
+
+/--
+`$/lean/moduleHierarchy/imports` client->server request.
+
+Response type: `Array LeanImport`
+-/
+structure LeanModuleHierarchyImportsParams where
+  module : LeanModule
+  deriving FromJson, ToJson
+
+/--
+`$/lean/moduleHierarchy/importedBy` client->server request.
+
+Response type: `Array LeanImport`
+-/
+structure LeanModuleHierarchyImportedByParams where
+  module : LeanModule
+  deriving FromJson, ToJson
+
 /-- `$/lean/rpc/connect` client->server request.
 
 Starts an RPC session at the given file's worker, replying with the new session ID.

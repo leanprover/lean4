@@ -200,7 +200,12 @@ def runFrontend
   if let some ileanFileName := ileanFileName? then
     let trees := snaps.getAll.flatMap (match ·.infoTree? with | some t => #[t] | _ => #[])
     let references := Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false)
-    let ilean := { module := mainModuleName, references := ← references.toLspModuleRefs : Lean.Server.Ilean }
+    let ilean := {
+      module        := mainModuleName
+      directImports := Server.collectImports ⟨snap.stx⟩
+      references    := ← references.toLspModuleRefs
+      : Lean.Server.Ilean
+    }
     IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
 
   if let some out := trace.profiler.output.get? opts then

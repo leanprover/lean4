@@ -15,11 +15,26 @@ import Lean.Util.Sorry
 
 namespace Lean
 
-def mkErrorStringWithPos (fileName : String) (pos : Position) (msg : String) (endPos : Option Position := none) : String :=
+/--
+Creates a string describing an error message `msg` produced at `pos`, optionally ending at `endPos`,
+in `fileName`.
+
+Additional optional arguments can be used to prepend a label `kind` describing the severity of
+the error (e.g., `"warning"` or `"error"`) and a bracketed `name` label displaying the name of the
+error if it has one.
+-/
+def mkErrorStringWithPos (fileName : String) (pos : Position) (msg : String)
+    (endPos : Option Position := none) (kind : Option String := none) (name : Option Name := none)
+    : String :=
   let endPos := match endPos with
     | some endPos => s!"-{endPos.line}:{endPos.column}"
     | none        => ""
-  s!"{fileName}:{pos.line}:{pos.column}{endPos}: {msg}"
+  let label := if name.isSome || kind.isSome then
+    let name := name.map (s!"({·})")
+    s!" {kind.getD ""}{name.getD ""}:"
+  else
+    ""
+  s!"{fileName}:{pos.line}:{pos.column}{endPos}:{label} {msg}"
 
 inductive MessageSeverity where
   | information | warning | error
@@ -153,6 +168,16 @@ def isTrace : MessageData → Bool
   | tagged _ msg            => msg.isTrace
   | .trace _ _ _            => true
   | _                       => false
+
+/--
+`composePreservingKind msg msg'` appends the contents of `msg'` to the end of `msg` but ensures that
+the resulting message preserves the kind (as given by `MessageData.kind`) of `msg`.
+-/
+def composePreservingKind : MessageData → MessageData → MessageData
+  | withContext ctx msg     , msg' => withContext ctx (composePreservingKind msg msg')
+  | withNamingContext nc msg, msg' => withNamingContext nc (composePreservingKind msg msg')
+  | tagged t msg            , msg' => tagged t (compose msg msg')
+  | msg                     , msg' => compose msg msg'
 
 /-- An empty message. -/
 def nil : MessageData :=
@@ -401,6 +426,45 @@ structure SerialMessage extends BaseMessage String where
   kind          : Name
   deriving ToJson, FromJson
 
+/--
+A suffix added to diagnostic name-containing tags to indicate that they should be used as an error
+code.
+-/
+def errorNameSuffix := "_namedError"
+
+/--
+Produces a `MessageData` tagged with an identifier for error `name`.
+
+Note: this function generally should not be called directly; instead, use the macros `logNamedError`
+and `throwNamedError`.
+-/
+def MessageData.tagWithErrorName (msg : MessageData) (name : Name) : MessageData :=
+  .tagged (.str name errorNameSuffix) msg
+
+/--
+If the provided name is labeled as a diagnostic name, removes the label and returns the
+corresponding diagnostic name.
+
+Note: we use this labeling mechanism so that we can have error kinds that are not intended to be
+shown to the user, without having to validate the presence of an error explanation at runtime.
+-/
+def errorNameOfKind? : Name → Option Name
+  | .str p last => if last == errorNameSuffix then some p else none
+  | _ => none
+
+/--
+Returns the error name with which `msg` is tagged, if one exists.
+
+Note that this is distinct from `msg.kind`: the `kind` of a named-error message is not equal to its
+name, and there exist message kinds that are not error-name kinds.
+-/
+def MessageData.errorName? (msg : MessageData) : Option Name :=
+  errorNameOfKind? msg.kind
+
+@[inherit_doc MessageData.errorName?]
+def Message.errorName? (msg : Message) : Option Name :=
+  msg.data.errorName?
+
 namespace SerialMessage
 
 @[inline] def toMessage (msg : SerialMessage) : Message :=
@@ -413,8 +477,10 @@ protected def toString (msg : SerialMessage) (includeEndPos := false) : String :
     str := msg.caption ++ ":\n" ++ str
   match msg.severity with
   | .information => pure ()
-  | .warning     => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "warning: " ++ str
-  | .error       => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "error: " ++ str
+  | .warning     =>
+    str := mkErrorStringWithPos msg.fileName msg.pos str endPos "warning" (errorNameOfKind? msg.kind)
+  | .error       =>
+    str := mkErrorStringWithPos msg.fileName msg.pos str endPos "error" (errorNameOfKind? msg.kind)
   if str.isEmpty || str.back != '\n' then
     str := str ++ "\n"
   return str

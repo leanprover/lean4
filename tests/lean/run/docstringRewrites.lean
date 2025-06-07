@@ -31,7 +31,7 @@ Now validate the docstrings.
 /--
 error: Docstring errors for 'check': ⏎
    • "lean-manual://oops":
-    Unknown documentation type 'oops'. Expected 'section'.
+    Unknown documentation type `oops`. Expected one of the following: `section`, `errorExplanation`
 -/
 #guard_msgs in
 #eval show CommandElabM Unit from do
@@ -61,7 +61,7 @@ def checkResult (str : String) : CommandElabM Unit := do
     let errMsgs := result.1.map fun (⟨s, e⟩, msg) => m!" • {repr <| str.extract s e}:{indentD msg}"
     logInfo <| m!"Errors: {indentD <| MessageData.joinSep errMsgs.toList "\n"}\n\n"
 
-  let root ← manualRoot
+  let root := manualRoot
   logInfo m!"Result: {repr <| result.2.replace root "MANUAL/"}"
 
 
@@ -76,6 +76,10 @@ def checkResult (str : String) : CommandElabM Unit := do
 /-- info: Result: "abc [](MANUAL/find/?domain=Verso.Genre.Manual.section&name=the-section-id)" -/
 #guard_msgs in
 #eval checkResult "abc [](lean-manual://section/the-section-id)"
+
+/-- info: Result: "abc [](MANUAL/find/?domain=Manual.errorExplanation&name=Lean.MyErrorName)" -/
+#guard_msgs in
+#eval checkResult "abc [](lean-manual://errorExplanation/Lean.MyErrorName)"
 
 /--
 info: Result: "abc\n\nMANUAL/find/?domain=Verso.Genre.Manual.section&name=the-section-id\n\nmore text"
@@ -106,9 +110,9 @@ info: Errors: ⏎
    • "lean-manual://":
     Missing documentation type
    • "lean-manual://f":
-    Unknown documentation type 'f'. Expected 'section'.
+    Unknown documentation type `f`. Expected one of the following: `section`, `errorExplanation`
    • "lean-manual://a/":
-    Unknown documentation type 'a'. Expected 'section'.
+    Unknown documentation type `a`. Expected one of the following: `section`, `errorExplanation`
 
 ---
 info: Result: "foo [](lean-manual://) [](lean-manual://f) lean-manual://a/b"
@@ -121,9 +125,9 @@ info: Errors: ⏎
    • "lean-manual://":
     Missing documentation type
    • "lean-manual://f":
-    Unknown documentation type 'f'. Expected 'section'.
+    Unknown documentation type `f`. Expected one of the following: `section`, `errorExplanation`
    • "lean-manual://a/b":
-    Unknown documentation type 'a'. Expected 'section'.
+    Unknown documentation type `a`. Expected one of the following: `section`, `errorExplanation`
 
 ---
 info: Result: "foo [](lean-manual://) [](lean-manual://f) lean-manual://a/b "
@@ -151,7 +155,7 @@ info: Result: "a b c\nlean-manual://\n"
 /--
 error: Missing documentation type
 ---
-error: Unknown documentation type 'f'. Expected 'section'.
+error: Unknown documentation type `f`. Expected one of the following: `section`, `errorExplanation`
 -/
 #guard_msgs in
 /--
@@ -249,7 +253,7 @@ Stderr:
 /--
 info: Exit code: 0
 Stdout:
-(#[({ start := { byteIdx := 0 }, stop := { byteIdx := 21 } }, "Expected one item after 'section', but got []")],
+(#[({ start := { byteIdx := 0 }, stop := { byteIdx := 21 } }, "Expected one item after `section`, but got []")],
  "lean-manual://section\n")
 
 Stderr:
@@ -260,7 +264,8 @@ Stderr:
 /--
 info: Exit code: 0
 Stdout:
-(#[({ start := { byteIdx := 0 }, stop := { byteIdx := 15 } }, "Unknown documentation type 's'. Expected 'section'.")],
+(#[({ start := { byteIdx := 0 }, stop := { byteIdx := 15 } },
+    "Unknown documentation type `s`. Expected one of the following: `section`, `errorExplanation`")],
  "lean-manual://s\n")
 
 Stderr:
@@ -302,13 +307,13 @@ It contains many further things of even greater lean-manual://section/aaaaa/bbbb
 The `lean-manual` URL scheme is used to link to the version of the Lean reference manual that
 corresponds to this version of Lean. Errors occurred while processing the links in this documentation
 comment:
- * ```lean-manual://invalid/link```: Unknown documentation type 'invalid'. Expected 'section'.
+ * ```lean-manual://invalid/link```: Unknown documentation type `invalid`. Expected one of the following: `section`, `errorExplanation`
 
  * ```lean-manual://```: Missing documentation type
 
  * ```lean-manual://section/```: Empty section ID
 
- * ```lean-manual://section/aaaaa/bbbb```: Expected one item after 'section', but got [aaaaa, bbbb]
+ * ```lean-manual://section/aaaaa/bbbb```: Expected one item after `section`, but got [aaaaa, bbbb]
 -/
 #guard_msgs in
 #eval show CommandElabM Unit from do

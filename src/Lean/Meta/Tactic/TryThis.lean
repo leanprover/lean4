@@ -86,7 +86,7 @@ export default function ({ suggestions, range, header, isInline, style }) {
     inner)
 }"
 
--- Because we can't reference `builtin_widget_module` in `Lean.Meta.Hint`, we add the attribute here
+-- Because we can't use `builtin_widget_module` in `Lean.Meta.Hint`, we add the attribute here
 attribute [builtin_widget_module] Hint.tryThisDiffWidget
 
 /-! # Code action -/

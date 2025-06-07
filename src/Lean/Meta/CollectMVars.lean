@@ -73,7 +73,7 @@ where
       addMVars mdecl.type
       for ldecl in mdecl.lctx do
         addMVars ldecl.type
-        if let (some val) := ldecl.value? then
+        if let (some val) := ldecl.value? (allowNonDep := true) then
           addMVars val
       if let (some ass) ← getDelayedMVarAssignment? mvarId then
         let pendingMVarId := ass.mvarIdPending

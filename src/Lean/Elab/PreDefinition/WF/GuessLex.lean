@@ -241,10 +241,10 @@ where
       loop param d
       withLocalDecl n c d fun x => do
         loop param (b.instantiate1 x)
-    | Expr.letE n type val body _ =>
+    | Expr.letE n type val body nonDep =>
       loop param type
       loop param val
-      withLetDecl n type val fun x => do
+      withLetDecl n type val (nonDep := nonDep) fun x => do
         loop param (body.instantiate1 x)
     | Expr.mdata _d b =>
       if let some stx := getRecAppSyntax? e then

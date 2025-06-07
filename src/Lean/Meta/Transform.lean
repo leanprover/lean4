@@ -59,7 +59,7 @@ partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
         match e with
         | .forallE _ d b _ => visitPost (e.updateForallE! (← visit d) (← visit b))
         | .lam _ d b _     => visitPost (e.updateLambdaE! (← visit d) (← visit b))
-        | .letE _ t v b _  => visitPost (e.updateLet! (← visit t) (← visit v) (← visit b))
+        | .letE _ t v b _  => visitPost (e.updateLetE! (← visit t) (← visit v) (← visit b))
         | .app ..          => e.withApp fun f args => do visitPost (mkAppN (← visit f) (← args.mapM visit))
         | .mdata _ b       => visitPost (e.updateMData! (← visit b))
         | .proj _ _ b      => visitPost (e.updateProj! (← visit b))
@@ -113,10 +113,10 @@ partial def transformWithCache {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT
         | e => visitPost (← mkForallFVars (usedLetOnly := usedLetOnly) fvars (← visit (e.instantiateRev fvars)))
       let rec visitLet (fvars : Array Expr) (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
         match e with
-        | .letE n t v b _ =>
-          withLetDecl n (← visit (t.instantiateRev fvars)) (← visit (v.instantiateRev fvars)) fun x =>
+        | .letE n t v b nonDep =>
+          withLetDecl n (← visit (t.instantiateRev fvars)) (← visit (v.instantiateRev fvars)) (nonDep := nonDep) fun x =>
             visitLet (fvars.push x) b
-        | e => visitPost (← mkLetFVars (usedLetOnly := usedLetOnly) fvars (← visit (e.instantiateRev fvars)))
+        | e => visitPost (← mkLetFVars (usedLetOnly := usedLetOnly) (generalizeNonDepLet := false) fvars (← visit (e.instantiateRev fvars)))
       let visitApp (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
         e.withApp fun f args => do
           if skipConstInApp && f.isConst then
@@ -164,7 +164,7 @@ def zetaReduce (e : Expr) : MetaM Expr := do
   let pre (e : Expr) : MetaM TransformStep := do
     let .fvar fvarId := e | return .continue
     let some localDecl := (← getLCtx).find? fvarId | return .done e
-    let some value := localDecl.value? | return .done e
+    let some value := localDecl.value? (allowNonDep := false) | return .done e
     return .visit (← instantiateMVars value)
   transform e (pre := pre) (usedLetOnly := true)
 
@@ -174,7 +174,7 @@ Zeta reduces only the provided fvars, beta reducing the substitutions.
 def zetaDeltaFVars (e : Expr) (fvars : Array FVarId) : MetaM Expr :=
   let unfold? (fvarId : FVarId) : MetaM (Option Expr) := do
     if fvars.contains fvarId then
-      fvarId.getValue?
+      fvarId.getValue? (allowNonDep := false)
     else
       return none
   let pre (e : Expr) : MetaM TransformStep := do

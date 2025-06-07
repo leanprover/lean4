@@ -101,7 +101,7 @@ where
   go : StateRefT Cache M Unit := do
     for localDecl in (← getLCtx) do
       unless localDecl.isAuxDecl do
-        if let some val := localDecl.value? then
+        if let some val := localDecl.value? false then
           visit val
         else
           visit localDecl.type

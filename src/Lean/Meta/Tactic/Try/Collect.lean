@@ -159,7 +159,7 @@ where
     unless (← getConfig).targetOnly do
       for localDecl in (← getLCtx) do
         unless localDecl.isAuxDecl do
-          if let some val := localDecl.value? then
+          if let some val := localDecl.value? false then
             visit val
           else
             checkInductive localDecl

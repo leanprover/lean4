@@ -193,7 +193,7 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
   | Expr.proj _ _ s      => return e.updateProj! (← collect s)
   | Expr.forallE _ d b _ => return e.updateForallE! (← collect d) (← collect b)
   | Expr.lam _ d b _     => return e.updateLambdaE! (← collect d) (← collect b)
-  | Expr.letE _ t v b _  => return e.updateLet! (← collect t) (← collect v) (← collect b)
+  | Expr.letE _ t v b _  => return e.updateLetE! (← collect t) (← collect v) (← collect b)
   | Expr.app f a         => return e.updateApp! (← collect f) (← collect a)
   | Expr.mdata _ b       => return e.updateMData! (← collect b)
   | Expr.sort u          => return e.updateSort! (← collectLevel u)
@@ -222,6 +222,7 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
     since the fvars are being collected anyway. It's not clear that the additional implementation complexity is worth it,
     and it is something we can evaluate later. In any case, the current solution is necessary as the generic case.
     -/
+    -- TODO(kmill) Some of the arguments might be for lets. We need these arguments to have a term that is defeq to the one in the context.
     let e' ←
       if let some { fvars, .. } ← getDelayedMVarAssignment? mvarId then
         -- Eta expand `e` for the requisite number of arguments.
@@ -235,7 +236,7 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
     }
     return mkFVar newFVarId
   | Expr.fvar fvarId =>
-    match (← read).zetaDelta, (← fvarId.getValue?) with
+    match (← read).zetaDelta, (← fvarId.getValue? (allowNonDep := false)) with
     | true, some value => collect (← preprocess value)
     | _,    _          =>
       let newFVarId ← mkFreshFVarId
@@ -286,9 +287,9 @@ partial def process : ClosureM Unit := do
       pushLocalDecl newFVarId userName type bi
       pushFVarArg (mkFVar fvarId)
       process
-    | .ldecl _ _ userName type val _ _ =>
+    | .ldecl _ _ userName type val nonDep _ =>
       let zetaDeltaFVarIds ← getZetaDeltaFVarIds
-      if !zetaDeltaFVarIds.contains fvarId then
+      if nonDep || !zetaDeltaFVarIds.contains fvarId then
         /- Non-dependent let-decl
 
             Recall that if `fvarId` is in `zetaDeltaFVarIds`, then we zetaDelta-expanded it

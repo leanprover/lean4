@@ -129,7 +129,7 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
     return ⟨lc, mkEvalRflProof e lc, ∅⟩
   | none =>
     if e.isFVar then
-      if let some v ← e.fvarId!.getValue? then
+      if let some v ← e.fvarId!.getValue? false then
         rewrite e (← mkEqReflWithExpectedType e v)
       else
         mkAtomLinearCombo e
@@ -248,7 +248,7 @@ where
   handleNatCast (e i n : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr) := do
     match n with
     | .fvar h =>
-      if let some v ← h.getValue? then
+      if let some v ← h.getValue? false then
         rewrite e (← mkEqReflWithExpectedType e
           (mkApp3 (.const ``Nat.cast [0]) (.const ``Int []) i v))
       else
@@ -295,7 +295,7 @@ where
   handleFinVal (e i n x : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr) := do
     match x with
     | .fvar h =>
-      if let some v ← h.getValue? then
+      if let some v ← h.getValue? false then
         rewrite e (← mkEqReflWithExpectedType e
           (mkApp3 (.const ``Nat.cast [0]) (.const ``Int []) i (mkApp2 (.const ``Fin.val []) n v)))
       else

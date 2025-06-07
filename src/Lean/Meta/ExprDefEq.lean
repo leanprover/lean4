@@ -426,7 +426,7 @@ private partial def mkLambdaFVarsWithLetDeps (xs : Array Expr) (v : Expr) : Meta
     mkLambdaFVars ys v (etaReduce := true)
 
 where
-  /-- Return true if there are let-declarions between `xs[0]` and `xs[xs.size-1]`.
+  /-- Return true if there are let-declarations between `xs[0]` and `xs[xs.size-1]`.
      We use it a quick-check to avoid the more expensive collection procedure. -/
   hasLetDeclsInBetween : MetaM Bool := do
     let check (lctx : LocalContext) : Bool := Id.run do
@@ -435,7 +435,7 @@ where
       for i in [start+1:stop] do
         match lctx.getAt? i with
         | some localDecl =>
-          if localDecl.isLet then
+          if localDecl.isLet false then
             return true
         | _ => pure ()
       return false
@@ -458,7 +458,7 @@ where
         | .proj _ _ b        => visit b
         | .fvar fvarId       =>
           let localDecl ← fvarId.getDecl
-          if localDecl.isLet && localDecl.index > (← read) then
+          if localDecl.isLet false && localDecl.index > (← read) then
             modify fun s => s.insert localDecl.fvarId
         | _ => pure ()
     visit (← instantiateMVars e) |>.run
@@ -480,7 +480,7 @@ where
         | some localDecl =>
           if (← get).contains localDecl.fvarId then
             collectLetDeclsFrom localDecl.type
-            match localDecl.value? with
+            match localDecl.value? false with
             | some val => collectLetDeclsFrom val
             | _ =>  pure ()
           collectLetDepsAux i
@@ -728,7 +728,7 @@ mutual
     else
       let lctx := ctxMeta.lctx
       match lctx.findFVar? fvar with
-      | some (.ldecl (value := v) ..) => check v
+      | some (.ldecl (nonDep := false) (value := v) ..) => check v
       | _ =>
         if ctx.fvars.contains fvar then pure fvar
         else
@@ -851,7 +851,7 @@ mutual
       | .proj _ _ s      => return e.updateProj! (← check s)
       | .lam _ d b _     => return e.updateLambdaE! (← check d) (← check b)
       | .forallE _ d b _ => return e.updateForallE! (← check d) (← check b)
-      | .letE _ t v b _  => return e.updateLet! (← check t) (← check v) (← check b)
+      | .letE _ t v b _  => return e.updateLetE! (← check t) (← check v) (← check b)
       | .bvar ..         => return e
       | .sort ..         => return e
       | .const ..        => return e
@@ -917,7 +917,7 @@ unsafe def checkImpl
     | .fvar fvarId ..  =>
       if mvarDecl.lctx.contains fvarId then
         return true
-      if let some (LocalDecl.ldecl ..) := lctx.find? fvarId then
+      if let some (LocalDecl.ldecl (nonDep := false) ..) := lctx.find? fvarId then
         return false -- need expensive CheckAssignment.check
       if fvars.any fun x => x.fvarId! == fvarId then
         return true
@@ -1081,7 +1081,7 @@ private partial def simpAssignmentArgAux (e : Expr) : MetaM Expr := do
   match e with
   | .mdata _ e   => simpAssignmentArgAux e
   | .fvar fvarId =>
-    let some value ← fvarId.getValue? | return e
+    let some value ← fvarId.getValue? false | return e
     simpAssignmentArgAux value
   | _ => return e
 
@@ -1656,7 +1656,7 @@ private partial def isDefEqQuick (t s : Expr) : MetaM LBool := do
   | .fvar fvarId₁, .fvar fvarId₂ => do
     if fvarId₁ == fvarId₂ then
       return .true
-    else if (← fvarId₁.isLetVar <||> fvarId₂.isLetVar) then
+    else if (← fvarId₁.isLetVar false <||> fvarId₂.isLetVar false) then
       return .undef
     else
       -- If `t` and `s` are not proofs or let-variables, we still return `.undef` and let other rules (e.g., unit-like) kick in.

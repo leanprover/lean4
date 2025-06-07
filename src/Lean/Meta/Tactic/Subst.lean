@@ -145,7 +145,7 @@ and runs `substCore` on it. Throws an exception if no such equation is found.
 partial def substVar (mvarId : MVarId) (x : FVarId) : MetaM MVarId :=
   mvarId.withContext do
     let localDecl ← x.getDecl
-    if localDecl.isLet then
+    if localDecl.isLet false then
       throwTacticEx `subst mvarId m!"variable '{mkFVar x}' is a let-declaration"
     let lctx ← getLCtx
     let some (fvarId, symm) ← lctx.findDeclM? fun localDecl => do

@@ -109,7 +109,7 @@ private def addDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (thms : SimpT
     let decl ← fvarId.getDecl
     if (← isProp decl.type) then
       thms.add id #[] e (post := post) (inv := inv) (config := config)
-    else if !decl.isLet then
+    else if !decl.isLet false then
       throwError "invalid argument, variable is not a proposition or let-declaration"
     else if inv then
       throwError "invalid '←' modifier, '{e}' is a let-declaration name to be unfolded"
@@ -290,7 +290,7 @@ where
           if arg[0].isNone && arg[1].isNone then
             let term := arg[2]
             let .expr (.fvar fvarId) ← resolveSimpIdTheorem? term | pure ()
-            if (← fvarId.getDecl).isLet then
+            if (← fvarId.getDecl).isLet false then
               s := s.insert fvarId
       return s
 
@@ -413,7 +413,7 @@ def mkSimpOnly (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Syntax := do
       if let some ldecl := lctx.find? fvarId then
         -- `simp_all` always uses all propositional hypotheses.
         -- So `simp_all only [x]`, only makes sense if `ldecl` is a let-variable.
-        if isSimpAll && !ldecl.hasValue then
+        if isSimpAll && !ldecl.hasValue false then
           continue
         localsOrStar := localsOrStar.bind fun locals =>
           if !ldecl.userName.isInaccessibleUserName && !ldecl.userName.hasMacroScopes &&

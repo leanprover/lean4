@@ -65,7 +65,7 @@ partial def structuresPass : Pass where
     let interesting := (← PreProcessM.getTypeAnalysis).interestingStructures
     if interesting.isEmpty then return goal
     let goals ← goal.casesRec fun decl => do
-      if decl.isLet || decl.isImplementationDetail then
+      if decl.isLet false || decl.isImplementationDetail then
         return false
       else
         let some const := (← instantiateMVars decl.type).getAppFn.constName? | return false

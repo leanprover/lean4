@@ -222,6 +222,7 @@ inline expr mk_binding(expr_kind k, name const & n, expr const & t, expr const &
 }
 expr mk_arrow(expr const & t, expr const & e);
 expr mk_let(name const & n, expr const & t, expr const & v, expr const & b);
+expr mk_let(name const & n, expr const & t, expr const & v, expr const & b, bool nonDep);
 expr mk_sort(level const & l);
 expr mk_Prop();
 expr mk_Type();

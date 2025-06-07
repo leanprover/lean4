@@ -673,8 +673,8 @@ private def zetaDeltaImplDetailsInProps (e : Expr) : MetaM Expr := do
   let unfoldPre (e : Expr) : MetaM TransformStep := do
     let .fvar fvarId := e.getAppFn | return .continue
     let decl ← fvarId.getDecl
-    if decl.isLet && decl.kind matches .implDetail then
-      return .visit <| (← instantiateMVars decl.value).beta e.getAppArgs
+    if decl.isLet false && decl.kind matches .implDetail then
+      return .visit <| (← instantiateMVars (decl.value false)).beta e.getAppArgs
     else
       return .continue
   let pre (e : Expr) : MetaM TransformStep := do

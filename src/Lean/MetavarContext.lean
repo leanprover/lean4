@@ -144,7 +144,7 @@ the requirements imposed by these modules.
     process above is recursive. We claim it terminates because we keep
     creating new metavariables with smaller local contexts.
 
-  - Suppose, we have `t[?m]` and we want to create a let-expression by
+  - Suppose we have `t[?m]` and we want to create a `let`-expression by
     abstracting a let-decl free variable `x`, and the local context of
     `?m` contains `x`. Similarly to the previous case
     ```
@@ -153,13 +153,14 @@ the requirements imposed by these modules.
     will be ill-formed if we later assign a term `s` to `?m`, and
     `s` contains free variable `x`. Again, assume the type of `?m` is `A[x]`.
 
-    1. If `?m` is natural or synthetic, then we create `?n : (let x : T := v; A[x])` with
-       and local context := local context of `?m` - `x`, we assign `?m := ?n`,
-       and produce the term `let x : T := v; t[?n]`. That is, we are just making
+    1. If `?m` is natural or synthetic, then we create `?n : (let x : T := v; A[x])` whose
+       local context is the local context of `?m` minus `x`, we assign `?m := ?n`
+       (which is correct since the types of `?m` and `?n` both reduce to `A[v]`),
+       and then produce the term `let x : T := v; t[?n]`. That is, we are just making
        sure `?n` must never be assigned to a term containing `x`.
 
     2. If `?m` is syntheticOpaque, we create a fresh syntheticOpaque `?n`
-       with type `?n : T -> (let x : T := v; A[x])` and local context := local context of `?m` - `x`,
+       with type `?n : T -> (let x : T := v; A[x])` whose local context is the local context of `?m` minus `x`,
        create the delayed assignment `?n #[x] := ?m`, and produce the term `let x : T := v; t[?n x]`.
 
        Now suppose we assign `s` to `?m`. We do not assign the term `fun (x : T) => s` to `?n`, since
@@ -169,6 +170,18 @@ the requirements imposed by these modules.
 
        We are essentially using the pair "delayed assignment + application" to implement a delayed
        substitution.
+
+  - Suppose we have `t[?m]` and we want to create a `have`-expression
+    by abstracting a *non-dependent* let-decl free variable `x`.
+    This needs a different procedure since `A[x]` does not reduce to `A[v]`,
+    and it is the same as abstracting for lambda expressions, but produces `have` instead of lambda terms:
+
+    1. If `?m` is natural or synthetic, then we create `?n : ∀ (x : T), A[x]` whose
+       local context is the local context of `?m` minus `x`, and then we assign `?m := ?n x`,
+       and we produce the term `have x : T := v; t[?n x]`.
+
+    2. If `?m` is syntheticOpaque, we create the same `?n` but as syntheticOpaque,
+       create the delayed assignment `?n #[x] := ?m`, and produce the term `have x : T := v; t[?n x]`.
 
 - We use TC for implementing coercions. Both Joe Hendrix and Reid Barton
   reported a nasty limitation. In Lean3, TC will not be used if there are
@@ -969,7 +982,7 @@ private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) 
   When we try to create the lambda `fun {α : Type} (a : α) => ?m`, we first need to create
   an auxiliary `?n` which does not contain `α` and `a` in its context. That is,
   we create the metavariable `?n : {α : Type} → (a : α) → (f : α → List α) → List α`,
-  add the delayed assignment `?n #[α, a, f] := ?m`, and create the lambda
+  add the delayed assignment `?n #[l, a, f] := ?m`, and create the lambda
   `fun {α : Type} (a : α) => ?n α a f`.
 
   See `elimMVarDeps` for more information.
@@ -1040,7 +1053,7 @@ private def mkMVarApp (lctx : LocalContext) (mvar : Expr) (xs : Array Expr) (kin
     else
       match kind with
       | MetavarKind.syntheticOpaque => mkApp e x
-      | _                           => if (lctx.getFVar! x).isLet then e else mkApp e x
+      | _                           => if (lctx.getFVar! x).isLet (allowNonDep := false) then e else mkApp e x
 
 mutual
 
@@ -1052,7 +1065,7 @@ mutual
     | .proj _ _ s      => return e.updateProj! (← visit xs s)
     | .forallE _ d b _ => return e.updateForallE! (← visit xs d) (← visit xs b)
     | .lam _ d b _     => return e.updateLambdaE! (← visit xs d) (← visit xs b)
-    | .letE _ t v b _  => return e.updateLet! (← visit xs t) (← visit xs v) (← visit xs b)
+    | .letE _ t v b _  => return e.updateLetE! (← visit xs t) (← visit xs v) (← visit xs b)
     | .mdata _ b       => return e.updateMData! (← visit xs b)
     | .app ..          => e.withApp fun f args => elimApp xs f args
     | .mvar _          => elimApp xs e #[]
@@ -1076,12 +1089,16 @@ mutual
           let type := type.headBeta
           let type ← abstractRangeAux xs i type
           return Lean.mkForall n bi type e
-        | LocalDecl.ldecl _ _ n type value nonDep _ =>
+        | LocalDecl.ldecl (nonDep := true) _ _ n type _ _ =>
+          let type := type.headBeta
+          let type ← abstractRangeAux xs i type
+          return Lean.mkForall n .default type e
+        | LocalDecl.ldecl (nonDep := false) _ _ n type value _ =>
           if !usedLetOnly || e.hasLooseBVar 0 then
             let type := type.headBeta
             let type  ← abstractRangeAux xs i type
             let value ← abstractRangeAux xs i value
-            let e := mkLet n type value e nonDep
+            let e := mkLet n type value e false
             match kind with
             | MetavarKind.syntheticOpaque =>
               -- See "Gruesome details" section in the beginning of the file
@@ -1233,16 +1250,21 @@ private def mkLambda' (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) (etaRed
     mkLambda x bi t b
 
 /--
-  Similar to `LocalContext.mkBinding`, but handles metavariables correctly.
-  If `usedOnly == true` then `forall` and `lambda` expressions are created only for used variables.
-  If `usedLetOnly == true` then `let` expressions are created only for used (let-) variables. -/
-def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) (usedOnly : Bool) (usedLetOnly : Bool) (etaReduce : Bool) : M Expr := do
+Similar to `LocalContext.mkBinding`, but handles metavariables correctly.
+- If `usedOnly := true` then `forall` and `lambda` expressions are created only for used variables.
+- If `usedLetOnly := true` then `let` expressions are created only for used (let-) variables.
+- If `generalizeNonDepLet := true` then non-dependent `ldecl`s are generalized as `cdecl`s (the value is cleared).
+  This can be necessary when making terms that should remain type correct with respect to the same `lctx`.
+  For example, if `e' ← mkBinding true lctx xs e (generalizeNonDepLet := true)` and `xs' ← xs.filterM (FVarId.isLetVar · false)`,
+  then one has that `mkAppN e' xs'` is definitionally equal to `e` with respect to `lctx`.
+  **Note:** `generalizeNonDepLet` is the common case, so API around `mkBinding` use it as the default.
+-/
+def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) (usedOnly : Bool) (usedLetOnly : Bool) (etaReduce : Bool) (generalizeNonDepLet : Bool) : M Expr := do
   let e ← abstractRange xs xs.size e
   xs.size.foldRevM (init := e) fun i _ e => do
       let x := xs[i]
       if x.isFVar then
-        match lctx.getFVar! x with
-        | LocalDecl.cdecl _ _ n type bi _ =>
+        let handleCDecl (n : Name) (type : Expr) (bi : BinderInfo) : M Expr := do
           if !usedOnly || e.hasLooseBVar 0 then
             let type := type.headBeta;
             let type ← abstractRange xs i type
@@ -1252,11 +1274,16 @@ def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Exp
               return Lean.mkForall n bi type e
           else
             return e.lowerLooseBVars 1 1
+        match lctx.getFVar! x with
+        | LocalDecl.cdecl _ _ n type bi _ =>
+          handleCDecl n type bi
         | LocalDecl.ldecl _ _ n type value nonDep _ =>
-          if !usedLetOnly || e.hasLooseBVar 0 then
+          if generalizeNonDepLet && nonDep then
+            handleCDecl n type .default
+          else if !usedLetOnly || e.hasLooseBVar 0 then
             let type  ← abstractRange xs i type
             let value ← abstractRange xs i value
-            return mkLet n type value e nonDep
+            return mkLet n type value e false
           else
             return e.lowerLooseBVars 1 1
       else
@@ -1283,15 +1310,15 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool) : MkBinding
 def revert (xs : Array Expr) (mvarId : MVarId) (preserveOrder : Bool) : MkBindingM (Expr × Array Expr) := fun ctx =>
   MkBinding.revert xs mvarId { preserveOrder, mainModule := ctx.mainModule }
 
-def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce := false) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr := fun ctx =>
+def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce := false) (generalizeNonDepLet := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr := fun ctx =>
   let mvarIdsToAbstract := xs.foldl (init := {}) fun s x => if x.isMVar then s.insert x.mvarId! else s
-  MkBinding.mkBinding isLambda ctx.lctx xs e usedOnly usedLetOnly etaReduce { preserveOrder := false, binderInfoForMVars, mvarIdsToAbstract, mainModule := ctx.mainModule }
+  MkBinding.mkBinding isLambda ctx.lctx xs e usedOnly usedLetOnly etaReduce generalizeNonDepLet { preserveOrder := false, binderInfoForMVars, mvarIdsToAbstract, mainModule := ctx.mainModule }
 
-@[inline] def mkLambda (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce := false) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr :=
-  mkBinding (isLambda := true) xs e usedOnly usedLetOnly etaReduce binderInfoForMVars
+@[inline] def mkLambda (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce := false) (generalizeNonDepLet := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr :=
+  mkBinding (isLambda := true) xs e usedOnly usedLetOnly etaReduce generalizeNonDepLet binderInfoForMVars
 
-@[inline] def mkForall (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr :=
-  mkBinding (isLambda := false) xs e usedOnly usedLetOnly false binderInfoForMVars
+@[inline] def mkForall (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (generalizeNonDepLet := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr :=
+  mkBinding (isLambda := false) xs e usedOnly usedLetOnly false generalizeNonDepLet binderInfoForMVars
 
 @[inline] def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MkBindingM Expr := fun ctx =>
   MkBinding.abstractRange xs n e { preserveOrder := false, mainModule := ctx.mainModule }
@@ -1385,7 +1412,7 @@ partial def main (e : Expr) : M Expr :=
       | .proj _ _ s      => return e.updateProj! (← main s)
       | .forallE _ d b _ => return e.updateForallE! (← main d) (← main b)
       | .lam _ d b _     => return e.updateLambdaE! (← main d) (← main b)
-      | .letE _ t v b _  => return e.updateLet! (← main t) (← main v) (← main b)
+      | .letE _ t v b _  => return e.updateLetE! (← main t) (← main v) (← main b)
       | .app ..          => e.withApp fun f args => visitApp f args
       | .mdata _ b       => return e.updateMData! (← main b)
       | .const _ us      => return e.updateConst! (← us.mapM visitLevel)

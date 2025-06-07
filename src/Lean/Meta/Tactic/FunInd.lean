@@ -381,13 +381,13 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
           let body' ← foldAndCollect oldIH newIH isRecCall (body.instantiate1 x)
           mkForallFVars #[x] body'
 
-    | .letE n t v b _ =>
+    | .letE n t v b nonDep =>
       let t' ← foldAndCollect oldIH newIH isRecCall t
       let v' ← foldAndCollect oldIH newIH isRecCall v
-      withLetDecl n t' v' fun x => do
+      withLetDecl n t' v' (nonDep := nonDep) fun x => do
         M.localMapM (mkLetFVars (usedLetOnly := true) #[x] ·) do
           let b' ← foldAndCollect oldIH newIH isRecCall (b.instantiate1 x)
-          mkLetFVars #[x] b'
+          mkLetFVars (generalizeNonDepLet := false) #[x] b'
 
     | .mdata m b =>
       pure <| .mdata m (← foldAndCollect oldIH newIH isRecCall b)
@@ -475,7 +475,7 @@ where
     mvarId.withContext do
       for localDecl in (← getLCtx) do
         if localDecl.index > index && (!firstPass || localDecl.userName.hasMacroScopes) then
-          if localDecl.isLet then
+          if localDecl.isLet (allowNonDep := true) then
             if ← Meta.isProp localDecl.type then
               if let some mvarId' ← observing? <| mvarId.clearValue localDecl.fvarId then
                 return some mvarId'

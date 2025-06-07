@@ -30,7 +30,7 @@ where
   addDeps (fvarId : FVarId) : StateRefT (Bool × FVarIdSet) MetaM Unit := do
     let localDecl ← fvarId.getDecl
     addUsedFVars localDecl.type
-    if let some val := localDecl.value? then
+    if let some val := localDecl.value? false then
       addUsedFVars val
 
   addUsedFVar (fvarId : FVarId) : StateRefT (Bool × FVarIdSet) MetaM Unit := do

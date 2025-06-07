@@ -66,7 +66,7 @@ def getRecArgInfo (fnName : Name) (fixedParamPerm : FixedParamPerm) (xs : Array 
       throwError "it is unchanged in the recursive calls"
     let x := xs[i]
     let localDecl ← getFVarLocalDecl x
-    if localDecl.isLet then
+    if localDecl.isLet false then
       throwError "it is a let-binding"
     let xType ← whnfD localDecl.type
     matchConstInduct xType.getAppFn (fun _ => throwError "its type is not an inductive") fun indInfo us => do

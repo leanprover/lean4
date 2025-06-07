@@ -407,20 +407,19 @@ inductive Expr where
   /--
   Let-expressions.
 
-  **IMPORTANT**: The `nonDep` flag is for "local" use only. That is, a module should not "trust" its value for any purpose.
-  In the intended use-case, the compiler will set this flag, and be responsible for maintaining it.
-  Other modules may not preserve its value while applying transformations.
+  The let-expression `let x : Nat := 2; Nat.succ x` is represented as
+  ```
+  Expr.letE `x (.const `Nat []) (.lit (.natVal 2)) (.app (.const `Nat.succ []) (.bvar 0)) true
+  ```
 
+  If the `nonDep` flag is `true`, then the elaborator treats this as a *non-dependent `let`* (known as a *`have` expression*).
   Given an environment, a metavariable context, and a local context,
   we say a let-expression `let x : t := v; e` is non-dependent when it is equivalent
   to `(fun x : t => e) v`. In contrast, the dependent let-expression
   `let n : Nat := 2; fun (a : Array Nat n) (b : Array Nat 2) => a = b` is type correct,
   but `(fun (n : Nat) (a : Array Nat n) (b : Array Nat 2) => a = b) 2` is not.
 
-  The let-expression `let x : Nat := 2; Nat.succ x` is represented as
-  ```
-  Expr.letE `x (.const `Nat []) (.lit (.natVal 2)) (.app (.const `Nat.succ []) (.bvar 0)) true
-  ```
+  The kernel does not pay attention to `nonDep`.
   -/
   | letE (declName : Name) (type : Expr) (value : Expr) (body : Expr) (nonDep : Bool)
 
@@ -739,7 +738,7 @@ def mkStrLit (s : String) : Expr :=
 @[export lean_expr_mk_app] def mkAppEx : Expr → Expr → Expr := mkApp
 @[export lean_expr_mk_lambda] def mkLambdaEx (n : Name) (d b : Expr) (bi : BinderInfo) : Expr := mkLambda n bi d b
 @[export lean_expr_mk_forall] def mkForallEx (n : Name) (d b : Expr) (bi : BinderInfo) : Expr := mkForall n bi d b
-@[export lean_expr_mk_let] def mkLetEx (n : Name) (t v b : Expr) : Expr := mkLet n t v b
+@[export lean_expr_mk_let] def mkLetEx (n : Name) (t v b : Expr) (nonDep : Bool) : Expr := mkLet n t v b nonDep
 @[export lean_expr_mk_lit] def mkLitEx : Literal → Expr := mkLit
 @[export lean_expr_mk_mdata] def mkMDataEx : MData → Expr → Expr := mkMData
 @[export lean_expr_mk_proj] def mkProjEx : Name → Nat → Expr → Expr := mkProj
@@ -1027,6 +1026,10 @@ def letValue! : Expr → Expr
 def letBody! : Expr → Expr
   | letE _ _ _ b .. => b
   | _               => panic! "let expression expected"
+
+def letNonDep! : Expr → Bool
+  | letE _ _ _ _ nonDep => nonDep
+  | _                   => panic! "let expression expected"
 
 def consumeMData : Expr → Expr
   | mdata _ e => consumeMData e
@@ -1858,20 +1861,29 @@ def updateLambda! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody
   | lam n d b bi => updateLambda! (lam n d b bi) bi newDomain newBody
   | _            => panic! "lambda expected"
 
-@[inline] private unsafe def updateLet!Impl (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : Expr :=
+@[inline] private unsafe def updateLet!Impl (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) (newNonDep : Bool) : Expr :=
   match e with
   | letE n t v b nonDep =>
-    if ptrEq t newType && ptrEq v newVal && ptrEq b newBody then
+    if ptrEq t newType && ptrEq v newVal && ptrEq b newBody && nonDep == newNonDep then
       e
     else
-      letE n newType newVal newBody nonDep
+      letE n newType newVal newBody newNonDep
   | _              => panic! "let expression expected"
 
 @[implemented_by updateLet!Impl]
-def updateLet! (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : Expr :=
+def updateLet! (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) (newNonDep : Bool) : Expr :=
   match e with
-  | letE n _ _ _ c => letE n newType newVal newBody c
+  | letE n _ _ _ _ => letE n newType newVal newBody newNonDep
   | _              => panic! "let expression expected"
+
+/-- Like `Expr.updateLet!` but preserves the `nonDep` flag. -/
+@[inline]
+def updateLetE! (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : Expr :=
+  match e with
+  | letE n t v b nonDep => updateLet! (letE n t v b nonDep) newType newVal newBody nonDep
+  | _                   => panic! "let expression expected"
+
+@[export lean_expr_updateLetE] def updateLetE!Ex : Expr → Expr → Expr → Expr → Expr := updateLetE!
 
 def updateFn : Expr → Expr → Expr
   | e@(app f a), g => e.updateApp! (updateFn f g) a
@@ -2006,7 +2018,7 @@ def traverseChildren [Applicative M] (f : Expr → M Expr) : Expr → M Expr
   | e@(forallE _ d b _) => pure e.updateForallE! <*> f d <*> f b
   | e@(lam _ d b _)     => pure e.updateLambdaE! <*> f d <*> f b
   | e@(mdata _ b)       => e.updateMData! <$> f b
-  | e@(letE _ t v b _)  => pure e.updateLet! <*> f t <*> f v <*> f b
+  | e@(letE _ t v b _)  => pure e.updateLetE! <*> f t <*> f v <*> f b
   | e@(app l r)         => pure e.updateApp! <*> f l <*> f r
   | e@(proj _ _ b)      => e.updateProj! <$> f b
   | e                   => pure e

@@ -752,7 +752,7 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
 
 private def shouldGeneralizeTarget (e : Expr) : MetaM Bool := do
   if let .fvar fvarId .. := e then
-    return (← fvarId.getDecl).hasValue -- must generalize let-decls
+    return (← fvarId.getDecl).hasValue false -- must generalize let-decls
   else
     return true
 

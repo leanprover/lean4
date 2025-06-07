@@ -166,7 +166,7 @@ private partial def introNext (goal : Goal) (generation : Nat) : GrindM IntroRes
             let mvarId ← (← get).mvarId.assert (← mkCleanName `h localDecl.type) localDecl.type (mkFVar fvarId)
             return .newDepHyp { (← get) with mvarId }
           else
-            let v := (← fvarId.getDecl).value
+            let v := (← fvarId.getDecl).value false
             let r ← preprocessHypothesis v
             let x ← shareCommon (mkFVar fvarId)
             addNewEq x r.expr (← r.getProof) generation

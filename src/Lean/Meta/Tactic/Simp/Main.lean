@@ -109,7 +109,7 @@ private def reduceFVar (cfg : Config) (thms : SimpTheoremsArray) (e : Expr) : Si
   if cfg.zetaDelta || thms.isLetDeclToUnfold e.fvarId! || localDecl.isImplementationDetail then
     if !cfg.zetaDelta && thms.isLetDeclToUnfold e.fvarId! then
       recordSimpTheorem (.fvar localDecl.fvarId)
-    let some v := localDecl.value? | return e
+    let some v := localDecl.value? false | return e
     return v
   else
     return e
@@ -618,7 +618,7 @@ Auxiliary structure used to represent the return value of `simpNonDepLetFun.go`.
 -/
 private structure SimpLetFunResult where
   /--
-  The simplified expression. Note that is may contain loose bound variables.
+  The simplified expression. Note that it may contain loose bound variables.
   `simpNonDepLetFun.go` attempts to minimize the quadratic overhead imposed
   by the locally nameless discipline in a sequence of `let_fun` declarations.
   -/

@@ -298,7 +298,7 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
     unless cinfo.hasValue do throwErrorAt ident "Constant has no value."
     return cinfo.instantiateValueLevelParams! us
   | .fvar fvarId => do
-    let some val ← fvarId.getValue? | throwErrorAt ident "Local declaration has no value."
+    let some val ← fvarId.getValue? false | throwErrorAt ident "Local declaration has no value."
     return val
   | _ => panic! "resolveId? returned an unexpected expression"
 

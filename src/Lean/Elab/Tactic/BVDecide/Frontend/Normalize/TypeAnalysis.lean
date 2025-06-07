@@ -204,7 +204,7 @@ where
   checkContext (goal : MVarId) : PreProcessM Unit := do
     goal.withContext do
       for decl in ← getLCtx do
-        if !decl.isLet && !decl.isImplementationDetail then
+        if !decl.isLet false && !decl.isImplementationDetail then
           analyzeType (← instantiateMVars decl.type)
 
   analyzeType (expr : Expr) : PreProcessM Unit := do

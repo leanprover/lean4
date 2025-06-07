@@ -35,7 +35,7 @@ where
     | .const declName _ =>
       withLocation loc (unfoldLocalDecl declName) (unfoldTarget declName) (throwTacticEx `unfold · m!"did not unfold '{declName}'")
     | .fvar declFVarId =>
-      unless ← declFVarId.isLetVar do
+      unless ← declFVarId.isLetVar false do
         throwError "tactic 'unfold' failed, local variable '{Expr.fvar declFVarId}' has no definition"
       withLocation loc (zetaDeltaLocalDecl declFVarId) (zetaDeltaTarget declFVarId) (throwTacticEx `unfold · m!"did not unfold '{e}'")
     | _ => throwTacticEx `unfold (← getMainGoal) m!"expression {e} is not a global or local constant"

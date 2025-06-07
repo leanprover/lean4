@@ -18,7 +18,7 @@ open Meta
       | .const declName _ =>
         applySimpResult (← unfold (← getLhs) declName)
       | .fvar declFVarId =>
-        unless ← declFVarId.isLetVar do
+        unless ← declFVarId.isLetVar false do
           throwError "conv tactic 'unfold' failed, local variable '{Expr.fvar declFVarId}' has no definition"
         let lhs ← instantiateMVars (← getLhs)
         changeLhs (← Meta.zetaDeltaFVars lhs #[declFVarId])

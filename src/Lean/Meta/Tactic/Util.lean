@@ -86,10 +86,10 @@ def _root_.Lean.MVarId.getNondepPropHyps (mvarId : MVarId) : MetaM (Array FVarId
     for localDecl in (← getLCtx) do
       unless localDecl.isImplementationDetail do
         candidates ← removeDeps localDecl.type candidates
-        match localDecl.value? with
+        match localDecl.value? false with
         | none => pure ()
         | some value => candidates ← removeDeps value candidates
-        if (← isProp localDecl.type) && !localDecl.hasValue then
+        if (← isProp localDecl.type) && !localDecl.hasValue false then
           candidates := candidates.insert localDecl.fvarId
     candidates ← removeDeps (← mvarId.getType) candidates
     if candidates.isEmpty then

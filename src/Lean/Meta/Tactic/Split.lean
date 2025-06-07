@@ -321,7 +321,7 @@ def splitLocalDecl? (mvarId : MVarId) (fvarId : FVarId) : MetaM (Option (List MV
           return result?
         -- Generalization failed, if `fvarId` is a let-decl or has forward dependencies, we try to `assert` a copy and try again
         let localDecl ← fvarId.getDecl
-        if (← pure localDecl.isLet <||> exprDependsOn (← mvarId.getType) fvarId <||> fvarId.hasForwardDeps) then
+        if (← pure (localDecl.isLet false) <||> exprDependsOn (← mvarId.getType) fvarId <||> fvarId.hasForwardDeps) then
           try
             let mvarId ← mvarId.assert localDecl.userName localDecl.type localDecl.toExpr
             let mvarIds ← splitMatch mvarId e

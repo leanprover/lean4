@@ -503,7 +503,7 @@ private def reduceFieldProjs (e : Expr) (zetaDelta := true) : StructElabM Expr :
           if let some major := args[projInfo.numParams]? then
             let major ←
               if zetaDelta && major == info.fvar then
-                pure <| (← major.fvarId!.getValue?).getD major
+                pure <| (← major.fvarId!.getValue? false).getD major
               else
                 pure major
             if major.isAppOfArity projInfo.ctorName (cval.numParams + cval.numFields) then
@@ -1084,7 +1084,7 @@ private def mkCtorLCtx : StructElabM LocalContext := do
     let fvarId := field.fvar.fvarId!
     if !field.kind.isInCtor then
       lctx := lctx.erase fvarId
-      let some e ← pure field.projExpr? <||> fvarId.getValue?
+      let some e ← pure field.projExpr? <||> fvarId.getValue? false
         | throwError "(mkCtorLCtx internal error) non-constructor field has no value"
       fvarMap ← insert fvarMap field e
     else
@@ -1364,7 +1364,7 @@ private def mkRemainingProjections (levelParams : List Name) (params : Array Exp
     -- Then add remaining fields to `fvarToConst`
     for field in (← get).fields do
       if !field.kind.isInCtor then
-        if let some val ← pure field.projExpr? <||> field.fvar.fvarId!.getValue? then
+        if let some val ← pure field.projExpr? <||> field.fvar.fvarId!.getValue? false then
           let val ← instantiateMVars val
           let val := val.replace (fvarToConst[·]?)
           -- No need to zeta delta reduce; `fvarToConst` has replaced such fvars.

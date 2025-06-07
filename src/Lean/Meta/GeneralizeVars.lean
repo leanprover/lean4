@@ -10,9 +10,11 @@ import Lean.Util.CollectFVars
 namespace Lean.Meta
 
 /--
-  Add to `forbidden` all a set of `FVarId`s containing `targets` and all variables they depend on.
+Adds to `forbidden` a set of all `FVarId`s containing `targets` and all variables they depend on.
+
+- If `generalizeNonDepLet := true` then non-dep `ldecl`s are treated as `cdecl`s.
 -/
-partial def mkGeneralizationForbiddenSet (targets : Array Expr) (forbidden : FVarIdSet := {}) : MetaM FVarIdSet := do
+partial def mkGeneralizationForbiddenSet (targets : Array Expr) (forbidden : FVarIdSet := {}) (generalizeNonDepLet := true) : MetaM FVarIdSet := do
   let mut s := { fvarSet := forbidden }
   let mut todo := #[]
   for target in targets do
@@ -25,7 +27,7 @@ where
   visit (fvarId : FVarId) (todo : List FVarId) (s : FVarIdSet) : MetaM (List FVarId × FVarIdSet) := do
     let localDecl ← fvarId.getDecl
     let mut s' := collectFVars {} (← instantiateMVars localDecl.type)
-    if let some val := localDecl.value? then
+    if let some val := localDecl.value? (allowNonDep := !generalizeNonDepLet) then
       s' := collectFVars s' (← instantiateMVars val)
     let mut todo := todo
     let mut s := s
@@ -46,29 +48,31 @@ where
         loop todo s
 
 /--
-  Collect variables to be generalized.
-  It uses the following heuristic
-  - Collect forward dependencies that are not in the forbidden set, and depend on some variable in `targets`.
+Collects variables to be generalized.
+It uses the following heuristic
+- Collect forward dependencies that are not in the forbidden set, and depend on some variable in `targets`.
 
-  - We use `mkForbiddenSet` to compute `forbidden`.
+- We use `mkForbiddenSet` to compute `forbidden`.
 
-  Remark: we *not* collect instance implicit arguments nor auxiliary declarations for compiling
-  recursive declarations.
+Remark: we *not* collect instance implicit arguments nor auxiliary declarations for compiling
+recursive declarations.
+
+- If `generalizeNonDepLet := true` then non-dep `ldecl`s are treated as `cdecl`s.
 -/
-def getFVarSetToGeneralize (targets : Array Expr) (forbidden : FVarIdSet) (ignoreLetDecls := false) : MetaM FVarIdSet := do
+def getFVarSetToGeneralize (targets : Array Expr) (forbidden : FVarIdSet) (ignoreLetDecls := false) (generalizeNonDepLet := true) : MetaM FVarIdSet := do
   let mut s : FVarIdSet := targets.foldl (init := {}) fun s target => if target.isFVar then s.insert target.fvarId! else s
   let mut r : FVarIdSet := {}
   for localDecl in (← getLCtx) do
     unless forbidden.contains localDecl.fvarId do
-      unless localDecl.isAuxDecl || localDecl.binderInfo.isInstImplicit || (ignoreLetDecls && localDecl.isLet) do
+      unless localDecl.isAuxDecl || localDecl.binderInfo.isInstImplicit || (ignoreLetDecls && localDecl.isLet (allowNonDep := !generalizeNonDepLet)) do
       if (← findLocalDeclDependsOn localDecl (s.contains ·)) then
         r := r.insert localDecl.fvarId
         s := s.insert localDecl.fvarId
   return r
 
-def getFVarsToGeneralize (targets : Array Expr) (forbidden : FVarIdSet := {}) (ignoreLetDecls := false) : MetaM (Array FVarId) := do
-  let forbidden ← mkGeneralizationForbiddenSet targets forbidden
-  let s ← getFVarSetToGeneralize targets forbidden ignoreLetDecls
+def getFVarsToGeneralize (targets : Array Expr) (forbidden : FVarIdSet := {}) (ignoreLetDecls := false) (generalizeNonDepLet := true) : MetaM (Array FVarId) := do
+  let forbidden ← mkGeneralizationForbiddenSet targets forbidden generalizeNonDepLet
+  let s ← getFVarSetToGeneralize targets forbidden ignoreLetDecls generalizeNonDepLet
   sortFVarIds s.toArray
 
 end Lean.Meta

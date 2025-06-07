@@ -804,9 +804,9 @@ private partial def mkClosureForAux (toProcess : Array FVarId) : StateRefT Closu
     | .cdecl _ _ userName type bi k =>
       let toProcess ← pushLocalDecl toProcess fvarId userName type bi k
       mkClosureForAux toProcess
-    | .ldecl _ _ userName type val _ k =>
+    | .ldecl _ _ userName type val nonDep k =>
       let zetaDeltaFVarIds ← getZetaDeltaFVarIds
-      if !zetaDeltaFVarIds.contains fvarId then
+      if nonDep || !zetaDeltaFVarIds.contains fvarId then
         /- Non-dependent let-decl. See comment at src/Lean/Meta/Closure.lean -/
         let toProcess ← pushLocalDecl toProcess fvarId userName type .default k
         mkClosureForAux toProcess

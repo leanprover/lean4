@@ -159,9 +159,12 @@ expr mk_arrow(expr const & t, expr const & e) {
     return mk_pi(*g_default_name, t, e, mk_binder_info());
 }
 
-extern "C" object * lean_expr_mk_let(object * n, object * t, object * v, object * b);
+extern "C" object * lean_expr_mk_let(object * n, object * t, object * v, object * b, uint8 nonDep);
 expr mk_let(name const & n, expr const & t, expr const & v, expr const & b) {
-    return expr(lean_expr_mk_let(n.to_obj_arg(), t.to_obj_arg(), v.to_obj_arg(), b.to_obj_arg()));
+    return expr(lean_expr_mk_let(n.to_obj_arg(), t.to_obj_arg(), v.to_obj_arg(), b.to_obj_arg(), false));
+}
+expr mk_let(name const & n, expr const & t, expr const & v, expr const & b, bool nonDep) {
+    return expr(lean_expr_mk_let(n.to_obj_arg(), t.to_obj_arg(), v.to_obj_arg(), b.to_obj_arg(), nonDep));
 }
 
 static expr * g_Prop  = nullptr;
@@ -324,11 +327,10 @@ expr update_const(expr const & e, levels const & new_levels) {
         return e;
 }
 
+extern "C" object * lean_expr_updateLetE(object * e, object * t, object * v, object * b);
+
 expr update_let(expr const & e, expr const & new_type, expr const & new_value, expr const & new_body) {
-    if (!is_eqp(let_type(e), new_type) || !is_eqp(let_value(e), new_value) || !is_eqp(let_body(e), new_body))
-        return mk_let(let_name(e), new_type, new_value, new_body);
-    else
-        return e;
+    return expr(lean_expr_updateLetE(e.to_obj_arg(), new_type.to_obj_arg(), new_value.to_obj_arg(), new_body.to_obj_arg()));
 }
 
 extern "C" object * lean_expr_consume_type_annotations(obj_arg e);

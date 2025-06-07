@@ -354,7 +354,7 @@ where
     let mut hypStxs : Array Syntax := #[]
     let mut hyps : Array Hypothesis := #[]
     let pushFVarId (fvarIds : Array FVarId) (x : Term) (fvarId : FVarId) : TacticM (Array FVarId) := do
-      unless ← fvarId.isLetVar do
+      unless ← fvarId.isLetVar false do
         throwErrorAt x "Hypothesis `{mkFVar fvarId}` is not a local definition."
       if fvarIds.contains fvarId then
         throwErrorAt x "Hypothesis `{mkFVar fvarId}` appears multiple times."
@@ -368,7 +368,7 @@ where
       | `(clearValueArg| ($h : $x = $v)) =>
         let fvarId ← getFVarId x
         fvarIds ← pushFVarId fvarIds x fvarId
-        let e := (← fvarId.getValue?).get!
+        let e := (← fvarId.getValue? false).get!
         let e' ← Tactic.elabTermEnsuringType v (← fvarId.getType)
         unless ← withAssignableSyntheticOpaque <| isDefEq e e' do
           let (e, e') ← addPPExplicitToExposeDiff e e'
@@ -420,7 +420,7 @@ def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : 
   match stx with
   | `(tactic| subst $hs*) => forEachVar hs fun mvarId fvarId => do
     let decl ← fvarId.getDecl
-    if decl.isLet then
+    if decl.isLet false then
       -- Zeta delta reduce the let and eliminate it.
       let (_, mvarId) ← mvarId.withReverted #[fvarId] fun mvarId' fvars => mvarId'.withContext do
         let tgt ← mvarId'.getType

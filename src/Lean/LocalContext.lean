@@ -48,9 +48,28 @@ See `LocalDecl.index`, `LocalDecl.fvarId`, `LocalDecl.userName`, `LocalDecl.type
 arguments common to both constructors.
 -/
 inductive LocalDecl where
-  /-- A local variable. -/
+  /-- A local variable without any value.
+  `Lean.LocalContext.mkBinding` creates lambdas or foralls from `cdecl`s. -/
   | cdecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo) (kind : LocalDeclKind)
-  /-- A let-bound free variable, with a `value : Expr`. -/
+  /-- A let-bound free variable, with a value `value : Expr`.
+  If `nonDep := false`, then the variable is definitionally equal to its value.
+  If `nonDep := true`, then the variable has an opaque value;
+  we call these "have-bound free variables."
+  `Lean.LocalContext.mkBinding` creates let expressions from `ldecl`s.
+
+  **Important:** The `nondep := true` case is subtle! It is not merely an opaque `ldecl`.
+  In most contexts, non-dependent `ldecl`s should be treated like `cdecl`s.
+  For example, suppose we have a tactic goal `x : α := v (non-dep) ⊢ b`.
+  It would be incorrect for `revert x` to produce the goal `⊢ have x : α := v; b`,
+  since this would be saying "to prove `b` without knowledge of the value of `x`, it suffices to
+  prove `have x : α := v; b` for this particular value of `x`."
+  Instead, `revert x` *must* produce the goal `⊢ ∀ x : α, b`.
+  Furthermore, given a goal `⊢ have x : α := v; b`, the `intro x` tactic should yield a *dependent* `ldecl`,
+  since users expect to be able to make use of the value of `x`,
+  and also the value creates a hidden source of dependencies on other local variables.
+
+  Therefore, `nondep := true` should be used with care.
+  Its primary use is in metaprograms that enter telescopes and wish to reconstruct them. -/
   | ldecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep : Bool) (kind : LocalDeclKind)
   deriving Inhabited
 
@@ -66,9 +85,11 @@ def LocalDecl.binderInfoEx : LocalDecl → BinderInfo
   | _                   => BinderInfo.default
 namespace LocalDecl
 
-def isLet : LocalDecl → Bool
-  | cdecl .. => false
-  | ldecl .. => true
+/-- Returns true if this is an `ldecl`; if `allowNonDep` is false, then requires that `nonDep` be false. -/
+def isLet : LocalDecl → (allowNonDep : Bool) → Bool
+  | cdecl .., _ => false
+  | ldecl (nonDep := false) .., _ => true
+  | ldecl (nonDep := true) .., allowNonDep => allowNonDep
 
 /-- The position of the decl in the local context. -/
 def index : LocalDecl → Nat
@@ -115,20 +136,38 @@ Is the local declaration an implementation-detail hypothesis
 def isImplementationDetail (d : LocalDecl) : Bool :=
   d.kind != .default
 
-def value? : LocalDecl → Option Expr
-  | cdecl ..              => none
-  | ldecl (value := v) .. => some v
+/--
+Returns the value of the `ldecl`,
+but if the `ldecl` is non-dependent and `allowNonDep` is false, returns `none`.
+-/
+def value? : LocalDecl → (allowNonDep : Bool) → Option Expr
+  | ldecl (nonDep := false) (value := v) .., _    => some v
+  | ldecl (nonDep := true)  (value := v) .., true => some v
+  | _,                                       _    => none
 
-def value : LocalDecl → Expr
-  | cdecl ..              => panic! "let declaration expected"
-  | ldecl (value := v) .. => v
+/--
+Returns the value of the `ldecl`,
+but if the `ldecl` is non-dependent and `allowNonDep` is false, panics.
+-/
+def value : LocalDecl → (allowNonDep : Bool) → Expr
+  | cdecl ..,                                _     => panic! "let declaration expected"
+  | ldecl (nonDep := false) (value := v) .., _     => v
+  | ldecl (nonDep := true)  (value := v) .., true  => v
+  | ldecl (nonDep := true) ..,               false => panic! "dependent let declaration expected"
 
-def hasValue : LocalDecl → Bool
-  | cdecl .. => false
-  | ldecl .. => true
+/--
+Returns `true` if `LocalDecl.value?` is not `none`.
+-/
+def hasValue : LocalDecl → (allowNonDep : Bool) → Bool
+  | cdecl ..,                    _           => false
+  | ldecl (nonDep := nonDep) .., allowNonDep => !nonDep || allowNonDep
 
 def setValue : LocalDecl → Expr → LocalDecl
   | ldecl idx id n t _ nd k, v => ldecl idx id n t v nd k
+  | d, _                       => d
+
+def setNonDep : LocalDecl → Bool → LocalDecl
+  | ldecl idx id n t v _ k, nd => ldecl idx id n t v nd k
   | d, _                       => d
 
 def setUserName : LocalDecl → Name → LocalDecl
@@ -182,7 +221,7 @@ def empty : LocalContext := {}
 def isEmpty (lctx : LocalContext) : Bool :=
   lctx.fvarIdToDecl.isEmpty
 
-/-- Low level API for creating local declarations.
+/-- Low level API for creating local declarations (`LocalDecl.cdecl`).
 It is used to implement actions in the monads `Elab` and `Tactic`.
 It should not be used directly since the argument `(fvarId : FVarId)` is
 assumed to be unique. You can create a unique fvarId with `mkFreshFVarId`. -/
@@ -431,19 +470,23 @@ partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) (exceptFVar
 def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) (exceptFVars : Array Expr := #[]) : Bool :=
   isSubPrefixOfAux lctx₁.decls lctx₂.decls exceptFVars 0 0
 
-@[inline] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
+@[inline] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (b : Expr) (generalizeNonDepLet := false) : Expr :=
   let b := b.abstract xs
   xs.size.foldRev (init := b) fun i _ b =>
     let x := xs[i]
-    match lctx.findFVar? x with
-    | some (.cdecl _ _ n ty bi _)  =>
+    let handleCDecl (n : Name) (ty : Expr) (bi : BinderInfo) : Expr :=
       let ty := ty.abstractRange i xs;
       if isLambda then
         Lean.mkLambda n bi ty b
       else
         Lean.mkForall n bi ty b
+    match lctx.findFVar? x with
+    | some (.cdecl _ _ n ty bi _)  =>
+      handleCDecl n ty bi
     | some (.ldecl _ _ n ty val nonDep _) =>
-      if b.hasLooseBVar 0 then
+      if nonDep && generalizeNonDepLet then
+        handleCDecl n ty .default
+      else if b.hasLooseBVar 0 then
         let ty  := ty.abstractRange i xs
         let val := val.abstractRange i xs
         mkLet n ty val b nonDep
@@ -453,13 +496,13 @@ def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) (exceptFVars : Array Expr := 
 
 /-- Creates the expression `fun x₁ .. xₙ => b` for free variables `xs = #[x₁, .., xₙ]`,
 suitably abstracting `b` and the types for each of the `xᵢ`. -/
-def mkLambda (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
-  mkBinding true lctx xs b
+def mkLambda (lctx : LocalContext) (xs : Array Expr) (b : Expr) (generalizeNonDepLet := false) : Expr :=
+  mkBinding true lctx xs b generalizeNonDepLet
 
 /-- Creates the expression `(x₁:α₁) → .. → (xₙ:αₙ) → b` for free variables `xs = #[x₁, .., xₙ]`,
 suitably abstracting `b` and the types for each of the `xᵢ`, `αᵢ`. -/
-def mkForall (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
-  mkBinding false lctx xs b
+def mkForall (lctx : LocalContext) (xs : Array Expr) (b : Expr) (generalizeNonDepLet := false) : Expr :=
+  mkBinding false lctx xs b generalizeNonDepLet
 
 @[inline] def anyM [Monad m] (lctx : LocalContext) (p : LocalDecl → m Bool) : m Bool :=
   lctx.decls.anyM fun d => match d with

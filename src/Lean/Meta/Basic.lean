@@ -978,17 +978,23 @@ def _root_.Lean.FVarId.getType (fvarId : FVarId) : MetaM Expr :=
 def _root_.Lean.FVarId.getBinderInfo (fvarId : FVarId) : MetaM BinderInfo :=
   return (← fvarId.getDecl).binderInfo
 
-/-- Return `some value` if the given free variable is a let-declaration, and `none` otherwise. -/
-def _root_.Lean.FVarId.getValue? (fvarId : FVarId) : MetaM (Option Expr) :=
-  return (← fvarId.getDecl).value?
+/--
+Returns `some value` if the given free variable is a let-declaration, and `none` otherwise.
+If `allowNonDep := false` then returns `none` if it is a non-dependent let-declaration.
+-/
+def _root_.Lean.FVarId.getValue? (fvarId : FVarId) (allowNonDep : Bool) : MetaM (Option Expr) :=
+  return (← fvarId.getDecl).value? allowNonDep
 
 /-- Return the user-facing name for the given free variable. -/
 def _root_.Lean.FVarId.getUserName (fvarId : FVarId) : MetaM Name :=
   return (← fvarId.getDecl).userName
 
-/-- Return `true` is the free variable is a let-variable. -/
-def _root_.Lean.FVarId.isLetVar (fvarId : FVarId) : MetaM Bool :=
-  return (← fvarId.getDecl).isLet
+/--
+Returns `true` is the free variable is a let-variable.
+If `allowNonDep := false` then returns `false` if it is a non-dependent let-declaration.
+-/
+def _root_.Lean.FVarId.isLetVar (fvarId : FVarId) (allowNonDep : Bool) : MetaM Bool :=
+  return (← fvarId.getDecl).isLet allowNonDep
 
 /-- Get the local declaration associated to the given `Expr` in the current local
 context. Fails if the given expression is not a fvar or if no such declaration exists. -/
@@ -1062,18 +1068,19 @@ def collectForwardDeps (toRevert : Array Expr) (preserveOrder : Bool) : MetaM (A
 
 - if `usedOnly = true` then only variables that the expression body depends on will appear.
 - if `usedLetOnly = true` same as `usedOnly` except for let-bound variables. (That is, local constants which have been assigned a value.)
+- if `generalizeNonDepLet = true` then non-dependent `ldecl`s become foralls too.
  -/
-def mkForallFVars (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (binderInfoForMVars := BinderInfo.implicit) : MetaM Expr :=
-  if xs.isEmpty then return e else liftMkBindingM <| MetavarContext.mkForall xs e usedOnly usedLetOnly binderInfoForMVars
+def mkForallFVars (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (generalizeNonDepLet := true) (binderInfoForMVars := BinderInfo.implicit) : MetaM Expr :=
+  if xs.isEmpty then return e else liftMkBindingM <| MetavarContext.mkForall xs e usedOnly usedLetOnly generalizeNonDepLet binderInfoForMVars
 
 /-- Takes an array `xs` of free variables and metavariables and a
 body term `e` and creates `fun ..xs => e`, suitably
 abstracting `e` and the types in `xs`. -/
-def mkLambdaFVars (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce : Bool := false) (binderInfoForMVars := BinderInfo.implicit) : MetaM Expr :=
-  if xs.isEmpty then return e else liftMkBindingM <| MetavarContext.mkLambda xs e usedOnly usedLetOnly etaReduce binderInfoForMVars
+def mkLambdaFVars (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce : Bool := false) (generalizeNonDepLet := true) (binderInfoForMVars := BinderInfo.implicit) : MetaM Expr :=
+  if xs.isEmpty then return e else liftMkBindingM <| MetavarContext.mkLambda xs e usedOnly usedLetOnly etaReduce generalizeNonDepLet binderInfoForMVars
 
-def mkLetFVars (xs : Array Expr) (e : Expr) (usedLetOnly := true) (binderInfoForMVars := BinderInfo.implicit) : MetaM Expr :=
-  mkLambdaFVars xs e (usedLetOnly := usedLetOnly) (binderInfoForMVars := binderInfoForMVars)
+def mkLetFVars (xs : Array Expr) (e : Expr) (usedLetOnly := true) (generalizeNonDepLet := true) (binderInfoForMVars := BinderInfo.implicit) : MetaM Expr :=
+  mkLambdaFVars xs e (usedLetOnly := usedLetOnly) (generalizeNonDepLet := generalizeNonDepLet) (binderInfoForMVars := binderInfoForMVars)
 
 /-- `fun _ : Unit => a` -/
 def mkFunUnit (a : Expr) : MetaM Expr :=
@@ -1492,7 +1499,7 @@ private def forallBoundedTelescopeImp (type : Expr) (maxFVars? : Option Nat) (k 
 def forallBoundedTelescope (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
   map2MetaM (fun k => forallBoundedTelescopeImp type maxFVars? k cleanupAnnotations) k
 
-private partial def lambdaTelescopeImp (e : Expr) (consumeLet : Bool) (maxFVars? : Option Nat)
+private partial def lambdaTelescopeImp (e : Expr) (consumeLet : Bool) (preserveNonDepLet : Bool) (maxFVars? : Option Nat)
     (k : Array Expr → Expr → MetaM α) (cleanupAnnotations := false) : MetaM α := do
   process consumeLet (← getLCtx) #[] e
 where
@@ -1505,12 +1512,12 @@ where
       let lctx := lctx.mkLocalDecl fvarId n d bi
       let fvar := mkFVar fvarId
       process consumeLet lctx (fvars.push fvar) b
-    | true, true, .letE n t v b _ => do
+    | true, true, .letE n t v b nonDep => do
       let t := t.instantiateRevRange 0 fvars.size fvars
       let t := if cleanupAnnotations then t.cleanupAnnotations else t
       let v := v.instantiateRevRange 0 fvars.size fvars
       let fvarId ← mkFreshFVarId
-      let lctx := lctx.mkLetDecl fvarId n t v
+      let lctx := lctx.mkLetDecl fvarId n t v (nonDep && preserveNonDepLet)
       let fvar := mkFVar fvarId
       process true lctx (fvars.push fvar) b
     | _, _, e =>
@@ -1523,9 +1530,11 @@ where
 Similar to `lambdaTelescope` but for lambda and let expressions.
 
 If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
+
+If `preserveNonDep` is `false`, all `have`s are converted to `let`s.
 -/
-def lambdaLetTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
-  map2MetaM (fun k => lambdaTelescopeImp e true .none k (cleanupAnnotations := cleanupAnnotations)) k
+def lambdaLetTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) (preserveNonDepLet := true) : n α :=
+  map2MetaM (fun k => lambdaTelescopeImp e true preserveNonDepLet .none k (cleanupAnnotations := cleanupAnnotations)) k
 
 /--
   Given `e` of the form `fun ..xs => A`, execute `k xs A`.
@@ -1535,7 +1544,7 @@ def lambdaLetTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnn
   If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
 -/
 def lambdaTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
-  map2MetaM (fun k => lambdaTelescopeImp e false none k (cleanupAnnotations := cleanupAnnotations)) k
+  map2MetaM (fun k => lambdaTelescopeImp e false true none k (cleanupAnnotations := cleanupAnnotations)) k
 
 /--
   Given `e` of the form `fun ..xs ..ys => A`, execute `k xs (fun ..ys => A)` where
@@ -1546,7 +1555,7 @@ def lambdaTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnota
   If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
 -/
 def lambdaBoundedTelescope (e : Expr) (maxFVars : Nat) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
-  map2MetaM (fun k => lambdaTelescopeImp e false (.some maxFVars) k (cleanupAnnotations := cleanupAnnotations)) k
+  map2MetaM (fun k => lambdaTelescopeImp e false true (.some maxFVars) k (cleanupAnnotations := cleanupAnnotations)) k
 
 /-- Return the parameter names for the given global declaration. -/
 def getParamNames (declName : Name) : MetaM (Array Name) := do
@@ -1727,10 +1736,10 @@ def withInstImplicitAsImplict (xs : Array Expr) (k : MetaM α) : MetaM α := do
       return none
   withNewBinderInfos newBinderInfos k
 
-private def withLetDeclImp (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) (kind : LocalDeclKind) : MetaM α := do
+private def withLetDeclImp (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) (nonDep : Bool) (kind : LocalDeclKind) : MetaM α := do
   let fvarId ← mkFreshFVarId
   let ctx ← read
-  let lctx := ctx.lctx.mkLetDecl fvarId n type val (nonDep := false) kind
+  let lctx := ctx.lctx.mkLetDecl fvarId n type val nonDep kind
   let fvar := mkFVar fvarId
   withReader (fun ctx => { ctx with lctx := lctx }) do
     withNewFVar fvar type k
@@ -1739,8 +1748,8 @@ private def withLetDeclImp (n : Name) (type : Expr) (val : Expr) (k : Expr → M
   Add the local declaration `<name> : <type> := <val>` to the local context and execute `k x`, where `x` is a new
   free variable corresponding to the `let`-declaration. After executing `k x`, the local context is restored.
 -/
-def withLetDecl (name : Name) (type : Expr) (val : Expr) (k : Expr → n α) (kind : LocalDeclKind := .default) : n α :=
-  map1MetaM (fun k => withLetDeclImp name type val k kind) k
+def withLetDecl (name : Name) (type : Expr) (val : Expr) (k : Expr → n α) (nonDep : Bool := false) (kind : LocalDeclKind := .default) : n α :=
+  map1MetaM (fun k => withLetDeclImp name type val k nonDep kind) k
 
 def withLocalInstancesImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := do
   let mut localInsts := (← read).localInstances

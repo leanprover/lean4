@@ -156,7 +156,9 @@ The `body` may have loose bvars.
 -/
 def isDepLet (fvarId : FVarId) (body : Expr) : M Bool := do
   let some decl ← fvarId.findDecl? | fvarId.throwUnknown
-  if (← getZetaDeltaFVarIds).contains fvarId then
+  if !decl.hasValue (allowNonDep := false) then
+    return false
+  else if (← getZetaDeltaFVarIds).contains fvarId then
     /-
     If an fvar is not zeta delta reduced during typechecking, then it is safe
     to assume it is non-dependent. However, if it *is* zeta delta reduced,
@@ -237,14 +239,14 @@ where
       let kinds := kinds.push (.lambda t)
       let levels := levels.push (← withLCtx lctx {} <| getTypeLevel t)
       visitBody lctx fvars kinds levels seenLet b
-    | .letE n t v b _ =>
+    | .letE n t v b nonDep =>
       let t     ← visitAndInstantiate t
       let v     ← visitAndInstantiate v
       whenFullCheck (b := seenLet) do
         unless ← withLCtx lctx {} (isDefEq t v.type) do
           throwError "invalid let declaration, term{indentExpr v}{← mkHasTypeButIsExpectedMsg v.type t}"
       let fvarId ← mkFreshFVarId
-      let lctx  := lctx.mkLetDecl fvarId n t v
+      let lctx  := lctx.mkLetDecl fvarId n t v nonDep
       let fvars := fvars.push (mkFVar fvarId)
       let kinds := kinds.push .let
       let levels := levels.push (← withLCtx lctx {} <| getTypeLevel t)
@@ -310,17 +312,17 @@ where
       | .let =>
         -- typeLevel remains the same
         let t := decl.type.abstractRange i fvars
-        let v := decl.value.abstractRange i fvars
+        let v := (decl.value true).abstractRange i fvars
         if ← isDepLet fvarId body.val then
           body := Expr'.mkLet decl.userName { val := v, type := t } body false
         else
           incCount
-          body := Expr'.mkHave level.normalize typeLevel.normalize decl.userName { val := v, type := t } body
+          body := Expr'.mkLet decl.userName { val := v, type := t } body true
       | .have v =>
         -- typeLevel remains the same
         let t := decl.type.abstractRange i fvars
         let v := v.abstractRange i fvars
-        body := Expr'.mkHave level.normalize typeLevel.normalize decl.userName { val := v, type := t } body
+        body := Expr'.mkLet decl.userName { val := v, type := t } body true
     return body
 
 private partial def visitProj (structName : Name) (idx : Nat) (struct : Expr') : M Expr' := do

@@ -695,7 +695,7 @@ syntax (name := dsimp) "dsimp" optConfig (discharger)? (&" only")?
 A `simpArg` is either a `*`, `-lemma` or a simp lemma specification
 (which includes the `↑` `↓` `←` specifications for pre, post, reverse rewriting).
 -/
-def simpArg := simpStar.binary `orelse (simpErase.binary `orelse simpLemma)
+meta def simpArg := simpStar.binary `orelse (simpErase.binary `orelse simpLemma)
 
 /-- A simp args list is a list of `simpArg`. This is the main argument to `simp`. -/
 syntax simpArgs := " [" simpArg,* "]"
@@ -704,7 +704,7 @@ syntax simpArgs := " [" simpArg,* "]"
 A `dsimpArg` is similar to `simpArg`, but it does not have the `simpStar` form
 because it does not make sense to use hypotheses in `dsimp`.
 -/
-def dsimpArg := simpErase.binary `orelse simpLemma
+meta def dsimpArg := simpErase.binary `orelse simpLemma
 
 /-- A dsimp args list is a list of `dsimpArg`. This is the main argument to `dsimp`. -/
 syntax dsimpArgs := " [" dsimpArg,* "]"

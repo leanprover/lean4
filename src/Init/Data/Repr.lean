@@ -171,6 +171,11 @@ def digitChar (n : Nat) : Char :=
   if n = 0xf then 'f' else
   '*'
 
+theorem digitChar_lt_10_isDigit (h : n < 10) : n.digitChar.isDigit := by
+  match n with
+  | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 => simp [*, digitChar]
+  | _ + 10                                => contradiction
+
 def toDigitsCore (base : Nat) : Nat → Nat → List Char → List Char
   | 0,      _, ds => ds
   | fuel+1, n, ds =>
@@ -191,6 +196,30 @@ Examples:
 -/
 def toDigits (base : Nat) (n : Nat) : List Char :=
   toDigitsCore base (n+1) n []
+
+theorem mem_toDigits_base_10_isDigit (h : c ∈ toDigits 10 n) : c.isDigit := by
+  rw [toDigits] at h
+  generalize h₁ : n + 1 = fuel at h
+  generalize h₂ : [] = cs at h
+  have hf : n < fuel := h₁ ▸ Nat.lt_succ_self _
+  have hc (h : c ∈ cs) : c.isDigit := by rw [← h₂] at h; contradiction
+  clear h₁ h₂
+  induction fuel generalizing n cs <;> rw [toDigitsCore] at h
+  next => contradiction
+  next m ih =>
+    split at h
+    case' isFalse =>
+      have hm : n / 10 < m := by
+        refine Nat.lt_of_lt_of_le (div_lt_self ?_ <| by decide) (le_of_lt_succ hf)
+        exact Nat.lt_trans (by decide : 0 < 9) <| by
+          refine Decidable.byContradiction (fun hc => ?_)
+          have := div_eq_of_lt (lt_succ.mpr <| Nat.not_lt.mp hc)
+          contradiction
+      apply ih _ h hm (fun h => ?_)
+    all_goals
+      cases h
+      next => have := digitChar_lt_10_isDigit (mod_lt n <| by decide); simp_all
+      next hm => exact hc hm
 
 /--
 Converts a word-sized unsigned integer into a decimal string.

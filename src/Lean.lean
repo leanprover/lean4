@@ -41,4 +41,5 @@ import Lean.PrivateName
 import Lean.PremiseSelection
 import Lean.Namespace
 import Lean.EnvExtension
+import Lean.ErrorExplanation
 import Lean.DefEqAttrib

@@ -45,6 +45,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instBEqEMatchTheoremTrace;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_Grind_throwNonInternalizedExpr___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_markAsCommRingTerm(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instReprENode;
+uint8_t l_Lean_Meta_Grind_beqEMatchTheoremKind____x40_Lean_Meta_Tactic_Grind_EMatchTheorem___hyg_3844_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind___aux__Lean__Meta__Tactic__Grind__Types______macroRules__Lean__Meta__Grind__doElemTrace__goal_x5b___x5d______1___lambda__1___closed__21;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Meta_Grind_markTheoremInstance___spec__4(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_throwNonInternalizedExpr___rarg___closed__2;
@@ -69,7 +70,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Goal_getEqcs___lambda__1___boxed(lean
 static lean_object* l_Lean_Meta_Grind_instInhabitedGoal___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_SplitInfo_getExpr___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_pure___at_Lean_Meta_Grind_instInhabitedMethods___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Meta_Grind_beqEMatchTheoremKind____x40_Lean_Meta_Tactic_Grind_EMatchTheorem___hyg_3846_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_addNewRawFact___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Goal_getEqc_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -703,7 +703,6 @@ uint8_t l_Lean_PersistentHashMap_contains___at_Lean_MVarId_isAssigned___spec__1(
 lean_object* l_Lean_Meta_mkFalseElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at_Lean_Meta_Grind_propagateCutsatDiseqs___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind_Types___hyg_109_(lean_object*);
-uint64_t l_Lean_Meta_Grind_hashEMatchTheoremKind____x40_Lean_Meta_Tactic_Grind_EMatchTheorem___hyg_4460_(lean_object*);
 static lean_object* l_Lean_Meta_Grind_instInhabitedENode___closed__2;
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Meta_Grind_forEachENode___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -940,6 +939,7 @@ static lean_object* l_Lean_Meta_Grind_reportIssue___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Methods_toMethodsRef(lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_isCongruent___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkEqTrueProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint64_t l_Lean_Meta_Grind_hashEMatchTheoremKind____x40_Lean_Meta_Tactic_Grind_EMatchTheorem___hyg_4458_(lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instInhabitedTrace;
 static lean_object* l_Lean_Meta_Grind_reportIssue___closed__3;
@@ -2053,7 +2053,7 @@ return x_10;
 else
 {
 uint8_t x_11; 
-x_11 = l_Lean_Meta_Grind_beqEMatchTheoremKind____x40_Lean_Meta_Tactic_Grind_EMatchTheorem___hyg_3846_(x_4, x_6);
+x_11 = l_Lean_Meta_Grind_beqEMatchTheoremKind____x40_Lean_Meta_Tactic_Grind_EMatchTheorem___hyg_3844_(x_4, x_6);
 return x_11;
 }
 }
@@ -2096,7 +2096,7 @@ x_5 = l_Lean_Meta_Grind_Origin_key(x_2);
 x_6 = l_Lean_Name_hash___override(x_5);
 lean_dec(x_5);
 x_7 = lean_uint64_mix_hash(x_4, x_6);
-x_8 = l_Lean_Meta_Grind_hashEMatchTheoremKind____x40_Lean_Meta_Tactic_Grind_EMatchTheorem___hyg_4460_(x_3);
+x_8 = l_Lean_Meta_Grind_hashEMatchTheoremKind____x40_Lean_Meta_Tactic_Grind_EMatchTheorem___hyg_4458_(x_3);
 x_9 = lean_uint64_mix_hash(x_7, x_8);
 return x_9;
 }

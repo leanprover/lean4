@@ -7864,19 +7864,21 @@ return x_1;
 static lean_object* _init_l_Lake_Module_importsFacetConfig___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_importsFacetConfig___closed__1;
 x_3 = lean_box(0);
 x_4 = 0;
 x_5 = l_Lake_Module_importsFacetConfig___closed__2;
-x_6 = lean_alloc_ctor(0, 4, 1);
-lean_ctor_set(x_6, 0, x_1);
-lean_ctor_set(x_6, 1, x_2);
-lean_ctor_set(x_6, 2, x_3);
-lean_ctor_set(x_6, 3, x_5);
-lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
-return x_6;
+x_6 = 1;
+x_7 = lean_alloc_ctor(0, 4, 2);
+lean_ctor_set(x_7, 0, x_1);
+lean_ctor_set(x_7, 1, x_2);
+lean_ctor_set(x_7, 2, x_3);
+lean_ctor_set(x_7, 3, x_5);
+lean_ctor_set_uint8(x_7, sizeof(void*)*4, x_4);
+lean_ctor_set_uint8(x_7, sizeof(void*)*4 + 1, x_6);
+return x_7;
 }
 }
 static lean_object* _init_l_Lake_Module_importsFacetConfig() {
@@ -12577,19 +12579,21 @@ return x_1;
 static lean_object* _init_l_Lake_Module_transImportsFacetConfig___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_transImportsFacetConfig___closed__1;
 x_3 = lean_box(0);
 x_4 = 0;
 x_5 = l_Lake_Module_importsFacetConfig___closed__2;
-x_6 = lean_alloc_ctor(0, 4, 1);
-lean_ctor_set(x_6, 0, x_1);
-lean_ctor_set(x_6, 1, x_2);
-lean_ctor_set(x_6, 2, x_3);
-lean_ctor_set(x_6, 3, x_5);
-lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
-return x_6;
+x_6 = 1;
+x_7 = lean_alloc_ctor(0, 4, 2);
+lean_ctor_set(x_7, 0, x_1);
+lean_ctor_set(x_7, 1, x_2);
+lean_ctor_set(x_7, 2, x_3);
+lean_ctor_set(x_7, 3, x_5);
+lean_ctor_set_uint8(x_7, sizeof(void*)*4, x_4);
+lean_ctor_set_uint8(x_7, sizeof(void*)*4 + 1, x_6);
+return x_7;
 }
 }
 static lean_object* _init_l_Lake_Module_transImportsFacetConfig() {
@@ -14563,19 +14567,21 @@ return x_1;
 static lean_object* _init_l_Lake_Module_precompileImportsFacetConfig___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_precompileImportsFacetConfig___closed__1;
 x_3 = lean_box(0);
 x_4 = 0;
 x_5 = l_Lake_Module_importsFacetConfig___closed__2;
-x_6 = lean_alloc_ctor(0, 4, 1);
-lean_ctor_set(x_6, 0, x_1);
-lean_ctor_set(x_6, 1, x_2);
-lean_ctor_set(x_6, 2, x_3);
-lean_ctor_set(x_6, 3, x_5);
-lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
-return x_6;
+x_6 = 1;
+x_7 = lean_alloc_ctor(0, 4, 2);
+lean_ctor_set(x_7, 0, x_1);
+lean_ctor_set(x_7, 1, x_2);
+lean_ctor_set(x_7, 2, x_3);
+lean_ctor_set(x_7, 3, x_5);
+lean_ctor_set_uint8(x_7, sizeof(void*)*4, x_4);
+lean_ctor_set_uint8(x_7, sizeof(void*)*4 + 1, x_6);
+return x_7;
 }
 }
 static lean_object* _init_l_Lake_Module_precompileImportsFacetConfig() {
@@ -35576,12 +35582,13 @@ x_2 = l_Lake_Module_depsFacetConfig___closed__1;
 x_3 = lean_box(0);
 x_4 = 1;
 x_5 = l_Lake_Module_depsFacetConfig___closed__2;
-x_6 = lean_alloc_ctor(0, 4, 1);
+x_6 = lean_alloc_ctor(0, 4, 2);
 lean_ctor_set(x_6, 0, x_1);
 lean_ctor_set(x_6, 1, x_2);
 lean_ctor_set(x_6, 2, x_3);
 lean_ctor_set(x_6, 3, x_5);
 lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4 + 1, x_4);
 return x_6;
 }
 }
@@ -48037,12 +48044,13 @@ x_2 = l_Lake_Module_leanArtsFacetConfig___closed__1;
 x_3 = l_Lake_instDataKindUnit;
 x_4 = 1;
 x_5 = l_Lake_Module_depsFacetConfig___closed__2;
-x_6 = lean_alloc_ctor(0, 4, 1);
+x_6 = lean_alloc_ctor(0, 4, 2);
 lean_ctor_set(x_6, 0, x_1);
 lean_ctor_set(x_6, 1, x_2);
 lean_ctor_set(x_6, 2, x_3);
 lean_ctor_set(x_6, 3, x_5);
 lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4 + 1, x_4);
 return x_6;
 }
 }
@@ -49868,12 +49876,13 @@ x_2 = l_Lake_Module_oleanFacetConfig___closed__1;
 x_3 = l_Lake_instDataKindFilePath;
 x_4 = 1;
 x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_6 = lean_alloc_ctor(0, 4, 1);
+x_6 = lean_alloc_ctor(0, 4, 2);
 lean_ctor_set(x_6, 0, x_1);
 lean_ctor_set(x_6, 1, x_2);
 lean_ctor_set(x_6, 2, x_3);
 lean_ctor_set(x_6, 3, x_5);
 lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4 + 1, x_4);
 return x_6;
 }
 }
@@ -50598,12 +50607,13 @@ x_2 = l_Lake_Module_ileanFacetConfig___closed__1;
 x_3 = l_Lake_instDataKindFilePath;
 x_4 = 1;
 x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_6 = lean_alloc_ctor(0, 4, 1);
+x_6 = lean_alloc_ctor(0, 4, 2);
 lean_ctor_set(x_6, 0, x_1);
 lean_ctor_set(x_6, 1, x_2);
 lean_ctor_set(x_6, 2, x_3);
 lean_ctor_set(x_6, 3, x_5);
 lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4 + 1, x_4);
 return x_6;
 }
 }
@@ -51334,12 +51344,13 @@ x_2 = l_Lake_Module_cFacetConfig___closed__1;
 x_3 = l_Lake_instDataKindFilePath;
 x_4 = 1;
 x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_6 = lean_alloc_ctor(0, 4, 1);
+x_6 = lean_alloc_ctor(0, 4, 2);
 lean_ctor_set(x_6, 0, x_1);
 lean_ctor_set(x_6, 1, x_2);
 lean_ctor_set(x_6, 2, x_3);
 lean_ctor_set(x_6, 3, x_5);
 lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4 + 1, x_4);
 return x_6;
 }
 }
@@ -52047,12 +52058,13 @@ x_2 = l_Lake_Module_bcFacetConfig___closed__1;
 x_3 = l_Lake_instDataKindFilePath;
 x_4 = 1;
 x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_6 = lean_alloc_ctor(0, 4, 1);
+x_6 = lean_alloc_ctor(0, 4, 2);
 lean_ctor_set(x_6, 0, x_1);
 lean_ctor_set(x_6, 1, x_2);
 lean_ctor_set(x_6, 2, x_3);
 lean_ctor_set(x_6, 3, x_5);
 lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4 + 1, x_4);
 return x_6;
 }
 }
@@ -54964,12 +54976,13 @@ x_2 = l_Lake_Module_coExportFacetConfig___closed__1;
 x_3 = l_Lake_instDataKindFilePath;
 x_4 = 1;
 x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_6 = lean_alloc_ctor(0, 4, 1);
+x_6 = lean_alloc_ctor(0, 4, 2);
 lean_ctor_set(x_6, 0, x_1);
 lean_ctor_set(x_6, 1, x_2);
 lean_ctor_set(x_6, 2, x_3);
 lean_ctor_set(x_6, 3, x_5);
 lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4 + 1, x_4);
 return x_6;
 }
 }
@@ -55635,12 +55648,13 @@ x_2 = l_Lake_Module_coNoExportFacetConfig___closed__1;
 x_3 = l_Lake_instDataKindFilePath;
 x_4 = 1;
 x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_6 = lean_alloc_ctor(0, 4, 1);
+x_6 = lean_alloc_ctor(0, 4, 2);
 lean_ctor_set(x_6, 0, x_1);
 lean_ctor_set(x_6, 1, x_2);
 lean_ctor_set(x_6, 2, x_3);
 lean_ctor_set(x_6, 3, x_5);
 lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4 + 1, x_4);
 return x_6;
 }
 }
@@ -55704,19 +55718,21 @@ return x_1;
 static lean_object* _init_l_Lake_Module_coFacetConfig___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_coFacetConfig___closed__1;
 x_3 = l_Lake_instDataKindFilePath;
 x_4 = 1;
 x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_6 = lean_alloc_ctor(0, 4, 1);
-lean_ctor_set(x_6, 0, x_1);
-lean_ctor_set(x_6, 1, x_2);
-lean_ctor_set(x_6, 2, x_3);
-lean_ctor_set(x_6, 3, x_5);
-lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
-return x_6;
+x_6 = 0;
+x_7 = lean_alloc_ctor(0, 4, 2);
+lean_ctor_set(x_7, 0, x_1);
+lean_ctor_set(x_7, 1, x_2);
+lean_ctor_set(x_7, 2, x_3);
+lean_ctor_set(x_7, 3, x_5);
+lean_ctor_set_uint8(x_7, sizeof(void*)*4, x_4);
+lean_ctor_set_uint8(x_7, sizeof(void*)*4 + 1, x_6);
+return x_7;
 }
 }
 static lean_object* _init_l_Lake_Module_coFacetConfig() {
@@ -56266,12 +56282,13 @@ x_2 = l_Lake_Module_bcoFacetConfig___closed__1;
 x_3 = l_Lake_instDataKindFilePath;
 x_4 = 1;
 x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_6 = lean_alloc_ctor(0, 4, 1);
+x_6 = lean_alloc_ctor(0, 4, 2);
 lean_ctor_set(x_6, 0, x_1);
 lean_ctor_set(x_6, 1, x_2);
 lean_ctor_set(x_6, 2, x_3);
 lean_ctor_set(x_6, 3, x_5);
 lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4 + 1, x_4);
 return x_6;
 }
 }
@@ -56357,19 +56374,21 @@ return x_1;
 static lean_object* _init_l_Lake_Module_oExportFacetConfig___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_oExportFacetConfig___closed__1;
 x_3 = l_Lake_instDataKindFilePath;
 x_4 = 1;
 x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_6 = lean_alloc_ctor(0, 4, 1);
-lean_ctor_set(x_6, 0, x_1);
-lean_ctor_set(x_6, 1, x_2);
-lean_ctor_set(x_6, 2, x_3);
-lean_ctor_set(x_6, 3, x_5);
-lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
-return x_6;
+x_6 = 0;
+x_7 = lean_alloc_ctor(0, 4, 2);
+lean_ctor_set(x_7, 0, x_1);
+lean_ctor_set(x_7, 1, x_2);
+lean_ctor_set(x_7, 2, x_3);
+lean_ctor_set(x_7, 3, x_5);
+lean_ctor_set_uint8(x_7, sizeof(void*)*4, x_4);
+lean_ctor_set_uint8(x_7, sizeof(void*)*4 + 1, x_6);
+return x_7;
 }
 }
 static lean_object* _init_l_Lake_Module_oExportFacetConfig() {
@@ -56476,19 +56495,21 @@ return x_1;
 static lean_object* _init_l_Lake_Module_oNoExportFacetConfig___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_oNoExportFacetConfig___closed__1;
 x_3 = l_Lake_instDataKindFilePath;
 x_4 = 1;
 x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_6 = lean_alloc_ctor(0, 4, 1);
-lean_ctor_set(x_6, 0, x_1);
-lean_ctor_set(x_6, 1, x_2);
-lean_ctor_set(x_6, 2, x_3);
-lean_ctor_set(x_6, 3, x_5);
-lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
-return x_6;
+x_6 = 0;
+x_7 = lean_alloc_ctor(0, 4, 2);
+lean_ctor_set(x_7, 0, x_1);
+lean_ctor_set(x_7, 1, x_2);
+lean_ctor_set(x_7, 2, x_3);
+lean_ctor_set(x_7, 3, x_5);
+lean_ctor_set_uint8(x_7, sizeof(void*)*4, x_4);
+lean_ctor_set_uint8(x_7, sizeof(void*)*4 + 1, x_6);
+return x_7;
 }
 }
 static lean_object* _init_l_Lake_Module_oNoExportFacetConfig() {
@@ -56573,19 +56594,21 @@ return x_1;
 static lean_object* _init_l_Lake_Module_oFacetConfig___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_oFacetConfig___closed__1;
 x_3 = l_Lake_instDataKindFilePath;
 x_4 = 1;
 x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_6 = lean_alloc_ctor(0, 4, 1);
-lean_ctor_set(x_6, 0, x_1);
-lean_ctor_set(x_6, 1, x_2);
-lean_ctor_set(x_6, 2, x_3);
-lean_ctor_set(x_6, 3, x_5);
-lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
-return x_6;
+x_6 = 0;
+x_7 = lean_alloc_ctor(0, 4, 2);
+lean_ctor_set(x_7, 0, x_1);
+lean_ctor_set(x_7, 1, x_2);
+lean_ctor_set(x_7, 2, x_3);
+lean_ctor_set(x_7, 3, x_5);
+lean_ctor_set_uint8(x_7, sizeof(void*)*4, x_4);
+lean_ctor_set_uint8(x_7, sizeof(void*)*4 + 1, x_6);
+return x_7;
 }
 }
 static lean_object* _init_l_Lake_Module_oFacetConfig() {
@@ -61465,12 +61488,13 @@ x_2 = l_Lake_Module_dynlibFacetConfig___closed__1;
 x_3 = l_Lake_instDataKindDynlib;
 x_4 = 1;
 x_5 = l_Lake_Module_dynlibFacetConfig___closed__2;
-x_6 = lean_alloc_ctor(0, 4, 1);
+x_6 = lean_alloc_ctor(0, 4, 2);
 lean_ctor_set(x_6, 0, x_1);
 lean_ctor_set(x_6, 1, x_2);
 lean_ctor_set(x_6, 2, x_3);
 lean_ctor_set(x_6, 3, x_5);
 lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4 + 1, x_4);
 return x_6;
 }
 }

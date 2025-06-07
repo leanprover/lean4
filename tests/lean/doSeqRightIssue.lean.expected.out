@@ -1,3 +1,7 @@
 doSeqRightIssue.lean:5:23-5:24: error: unknown universe level 'v'
-doSeqRightIssue.lean:8:0-9:40: warning: declaration uses 'sorry'
-doSeqRightIssue.lean:7:8-7:10: warning: declaration uses 'sorry'
+doSeqRightIssue.lean:8:0-9:40: warning: declaration uses 'sorry' due to elaboration errors.
+
+This can be caused by (1) referring to declarations with elaboration errors or (2) bugs in elaborators. In the second case, please report a minimized error-free example that produces this warning.
+doSeqRightIssue.lean:7:8-7:10: warning: declaration uses 'sorry' due to elaboration errors.
+
+This can be caused by (1) referring to declarations with elaboration errors or (2) bugs in elaborators. In the second case, please report a minimized error-free example that produces this warning.

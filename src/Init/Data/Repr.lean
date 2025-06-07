@@ -171,7 +171,7 @@ def digitChar (n : Nat) : Char :=
   if n = 0xf then 'f' else
   '*'
 
-theorem digitChar_lt_10_isDigit (h : n < 10) : n.digitChar.isDigit := by
+theorem isDigit_digitChar_of_lt (h : n < 10) : n.digitChar.isDigit := by
   match n with
   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 => simp [*, digitChar]
   | _ + 10                                => contradiction
@@ -184,7 +184,7 @@ def toDigitsCore (base : Nat) : Nat → Nat → List Char → List Char
     if n' = 0 then d::ds
     else toDigitsCore base fuel n' (d::ds)
 
-private theorem mem_toDigitsCore_base_10_isDigit
+private theorem isDigit_of_mem_toDigitsCore_10
     (hf : n < fuel) (hc : c ∈ cs → c.isDigit) (h : c ∈ toDigitsCore 10 fuel n cs) :
     c.isDigit := by
   induction fuel generalizing n cs <;> rw [toDigitsCore] at h
@@ -201,7 +201,7 @@ private theorem mem_toDigitsCore_base_10_isDigit
       apply ih hm (fun h => ?_) h
     all_goals
       cases h
-      next => have := digitChar_lt_10_isDigit (mod_lt n <| by decide); simp_all
+      next => have := isDigit_digitChar_of_lt (mod_lt n <| by decide); simp_all
       next hm => exact hc hm
 
 /--
@@ -217,8 +217,8 @@ Examples:
 def toDigits (base : Nat) (n : Nat) : List Char :=
   toDigitsCore base (n+1) n []
 
-theorem mem_toDigits_base_10_isDigit (h : c ∈ toDigits 10 n) : c.isDigit :=
-  mem_toDigitsCore_base_10_isDigit (Nat.lt_succ_self _) (fun _ => by contradiction) h
+theorem isDigit_of_mem_toDigits_10 (h : c ∈ toDigits 10 n) : c.isDigit :=
+  isDigit_of_mem_toDigitsCore_10 (Nat.lt_succ_self _) (fun _ => by contradiction) h
 
 /--
 Converts a word-sized unsigned integer into a decimal string.

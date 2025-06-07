@@ -329,6 +329,11 @@ theorem diseq_split {α} [IntModule α] [LinearOrder α] [IntModule.IsOrdered α
     simp [h₁] at h
     rw [← neg_pos_iff, neg_hmul, neg_neg, one_hmul]; assumption
 
+theorem diseq_split_resolve {α} [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (ctx : Context α) (p₁ p₂ : Poly)
+    : diseq_split_cert p₁ p₂ → p₁.denote' ctx ≠ 0 → ¬p₁.denote' ctx < 0 → p₂.denote' ctx < 0 := by
+  intro h₁ h₂ h₃
+  exact (diseq_split ctx p₁ p₂ h₁ h₂).resolve_left h₃
+
 def eq_diseq_combine_cert (p₁ p₂ p₃ : Poly) : Bool :=
   let a₁ := p₁.leadCoeff.natAbs
   let a₂ := p₂.leadCoeff.natAbs

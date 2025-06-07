@@ -2,4 +2,7 @@
       default
     ==>
       PUnit.unit
-[Meta.Tactic.simp.rewrite] eq_self:1000: PUnit.unit = x ==> True
+[Meta.Tactic.simp.rewrite] eq_self:1000:
+      PUnit.unit = x
+    ==>
+      True

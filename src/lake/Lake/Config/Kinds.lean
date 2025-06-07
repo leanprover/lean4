@@ -66,7 +66,7 @@ as the facet kind for modules.
 /-- The keyword for input directory declarations. -/
 @[reducible] def InputDir.keyword : Name := `input_dir
 
-/-- Tge kind identifier for facets of an input directory. -/
+/-- The kind identifier for facets of an input directory. -/
 @[match_pattern] abbrev InputDir.facetKind := keyword
 
 /-- The type kind for input directory configurations. -/

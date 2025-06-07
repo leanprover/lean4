@@ -50,11 +50,9 @@ LEAN_EXPORT lean_object* l_Lake_Module_oNoExport(lean_object*);
 extern lean_object* l_Lake_Module_ileanFacet;
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_dynlibExternLib(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_staticExternLib(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Package_optRelease(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_transImportsFacet;
 static lean_object* l_Lake_instDataKindInputDir___closed__1;
 extern lean_object* l_Lake_Module_depsFacet;
-LEAN_EXPORT lean_object* l_Lake_Package_release(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_bc(lean_object*);
 extern lean_object* l_Lake_LeanLib_extraDepFacet;
 LEAN_EXPORT lean_object* l_Lake_Module_bco(lean_object*);
@@ -1532,42 +1530,6 @@ return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Package_optGitHubRelease(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-x_4 = l_Lake_Package_keyword;
-x_5 = l_Lake_Package_optGitHubReleaseFacet;
-x_6 = lean_alloc_ctor(1, 4, 0);
-lean_ctor_set(x_6, 0, x_3);
-lean_ctor_set(x_6, 1, x_4);
-lean_ctor_set(x_6, 2, x_1);
-lean_ctor_set(x_6, 3, x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Package_release(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-x_4 = l_Lake_Package_keyword;
-x_5 = l_Lake_Package_gitHubReleaseFacet;
-x_6 = lean_alloc_ctor(1, 4, 0);
-lean_ctor_set(x_6, 0, x_3);
-lean_ctor_set(x_6, 1, x_4);
-lean_ctor_set(x_6, 2, x_1);
-lean_ctor_set(x_6, 3, x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Package_optRelease(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 

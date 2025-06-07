@@ -109,7 +109,7 @@ def PreNullCert.combine (k₁ : Int) (m₁ : Mon) (c₁ : PreNullCert) (k₂ : I
         qs := qs.set i q₁
     else
       have : i < n := h.upper
-      have : qs₁.size = n ∨ qs₂.size = n := by simp +zetaDelta [Nat.max_def]; split <;> simp [*]
+      have : qs₁.size = n ∨ qs₂.size = n := by simp +zetaDelta only [Nat.max_def, right_eq_ite_iff]; split <;> simp [*]
       have : i < qs₂.size := by omega
       let q₂ ← qs₂[i].mulMonM k₂ m₂
       qs := qs.set i q₂

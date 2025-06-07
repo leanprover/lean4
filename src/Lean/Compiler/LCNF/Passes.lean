@@ -18,6 +18,8 @@ import Lean.Compiler.LCNF.LambdaLifting
 import Lean.Compiler.LCNF.FloatLetIn
 import Lean.Compiler.LCNF.ReduceArity
 import Lean.Compiler.LCNF.ElimDeadBranches
+import Lean.Compiler.LCNF.StructProjCases
+import Lean.Compiler.LCNF.ExtractClosed
 
 namespace Lean.Compiler.LCNF
 
@@ -76,8 +78,10 @@ def builtinPassManager : PassManager := {
     lambdaLifting,
     extendJoinPointContext (phase := .mono) (occurrence := 1),
     simp (occurrence := 5) (phase := .mono),
+    structProjCases,
     cse (occurrence := 2) (phase := .mono),
-    saveMono  -- End of mono phase
+    saveMono,  -- End of mono phase
+    extractClosed
   ]
 }
 

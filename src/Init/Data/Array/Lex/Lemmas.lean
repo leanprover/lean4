@@ -6,6 +6,7 @@ Author: Kim Morrison
 module
 
 prelude
+import all Init.Data.Array.Lex.Basic
 import Init.Data.Array.Lemmas
 import Init.Data.List.Lex
 
@@ -22,22 +23,18 @@ namespace Array
 @[simp, grind =] theorem lt_toList [LT α] {xs ys : Array α} : xs.toList < ys.toList ↔ xs < ys := Iff.rfl
 @[simp, grind =] theorem le_toList [LT α] {xs ys : Array α} : xs.toList ≤ ys.toList ↔ xs ≤ ys := Iff.rfl
 
-protected theorem not_lt_iff_ge [LT α] {l₁ l₂ : List α} : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
-protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {l₁ l₂ : List α} :
-    ¬ l₁ ≤ l₂ ↔ l₂ < l₁ :=
+protected theorem not_lt_iff_ge [LT α] {xs ys : Array α} : ¬ xs < ys ↔ ys ≤ xs := Iff.rfl
+protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {xs ys : Array α} :
+    ¬ xs ≤ ys ↔ ys < xs :=
   Decidable.not_not
 
 @[simp] theorem lex_empty [BEq α] {lt : α → α → Bool} {xs : Array α} : xs.lex #[] lt = false := by
-  simp [lex, Id.run]
-
-@[simp] theorem singleton_lex_singleton [BEq α] {lt : α → α → Bool} : #[a].lex #[b] lt = lt a b := by
-  simp only [lex, List.getElem_toArray, List.getElem_singleton]
-  cases lt a b <;> cases a != b <;> simp [Id.run]
+  simp [lex]
 
 private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs ys : Array α} :
      (#[a] ++ xs).lex (#[b] ++ ys) lt =
        (lt a b || a == b && xs.lex ys lt) := by
-  simp only [lex, Id.run]
+  simp only [lex]
   simp only [Std.Range.forIn'_eq_forIn'_range', size_append, List.size_toArray, List.length_singleton,
     Nat.add_comm 1]
   simp [Nat.add_min_add_right, List.range'_succ, getElem_append_left, List.range'_succ_left,
@@ -50,12 +47,15 @@ private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs 
 @[simp, grind =] theorem _root_.List.lex_toArray [BEq α] {lt : α → α → Bool} {l₁ l₂ : List α} :
     l₁.toArray.lex l₂.toArray lt = l₁.lex l₂ lt := by
   induction l₁ generalizing l₂ with
-  | nil => cases l₂ <;> simp [lex, Id.run]
+  | nil => cases l₂ <;> simp [lex]
   | cons x l₁ ih =>
     cases l₂ with
-    | nil => simp [lex, Id.run]
+    | nil => simp [lex]
     | cons y l₂ =>
       rw [List.toArray_cons, List.toArray_cons y, cons_lex_cons, List.lex, ih]
+
+theorem singleton_lex_singleton [BEq α] {lt : α → α → Bool} : #[a].lex #[b] lt = lt a b := by
+  simp
 
 @[simp, grind =] theorem lex_toList [BEq α] {lt : α → α → Bool} {xs ys : Array α} :
     xs.toList.lex ys.toList lt = xs.lex ys lt := by

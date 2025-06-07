@@ -1,10 +1,10 @@
 def foo (x : Nat) (y : Bool) (z : Nat) (w : Nat) := ()
 /--
-error: Application type mismatch: In the appplication
+error: Application type mismatch: In the application
   foo 1 true true
-the final argument
+the last
   true
-has type
+argument has type
   Bool : Type
 but is expected to have type
   Nat : Type

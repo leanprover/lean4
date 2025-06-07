@@ -104,6 +104,26 @@ theorem flip_bool_eq (a b : Bool) : (a = b) = (b = a) := by
 theorem bool_eq_to_prop (a b : Bool) : (a = b) = ((a = true) = (b = true)) := by
   simp
 
+theorem forall_or_forall {α : Sort u} {β : α → Sort v} (p : α → Prop) (q : (a : α) → β a → Prop)
+    : (∀ a : α, p a ∨ ∀ b : β a, q a b) =
+      (∀ (a : α) (b : β a), p a ∨ q a b) := by
+  apply propext; constructor
+  · intro h a b; cases h a <;> simp [*]
+  · intro h a
+    apply Classical.byContradiction
+    intro h'; simp at h'; have ⟨h₁, b, h₂⟩ := h'
+    replace h := h a b; simp [h₁, h₂] at h
+
+theorem forall_forall_or {α : Sort u} {β : α → Sort v} (p : α → Prop) (q : (a : α) → β a → Prop)
+    : (∀ a : α, (∀ b : β a, q a b) ∨ p a) =
+      (∀ (a : α) (b : β a), q a b ∨ p a) := by
+  apply propext; constructor
+  · intro h a b; cases h a <;> simp [*]
+  · intro h a
+    apply Classical.byContradiction
+    intro h'; simp at h'; have ⟨⟨b, h₁⟩, h₂⟩ := h'
+    replace h := h a b; simp [h₁, h₂] at h
+
 init_grind_norm
   /- Pre theorems -/
   not_and not_or not_ite not_forall not_exists
@@ -113,6 +133,7 @@ init_grind_norm
   /- Post theorems -/
   Classical.not_not
   ne_eq iff_eq eq_self heq_eq_eq
+  forall_or_forall forall_forall_or
   -- Prop equality
   eq_true_eq eq_false_eq not_eq_prop
   -- True

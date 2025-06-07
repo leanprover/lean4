@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Option.Attach
-// Imports: Init.Data.Option.Basic Init.Data.Option.List Init.Data.List.Attach Init.BinderPredicates
+// Imports: Init.Data.Option.Basic Init.Data.Option.List Init.Data.Option.Array Init.Data.Array.Attach Init.Data.List.Attach Init.BinderPredicates
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -109,6 +109,8 @@ return x_3;
 }
 lean_object* initialize_Init_Data_Option_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Option_List(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Option_Array(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Attach(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Attach(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_BinderPredicates(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -120,6 +122,12 @@ res = initialize_Init_Data_Option_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Option_List(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Option_Array(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Attach(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Attach(builtin, lean_io_mk_world());

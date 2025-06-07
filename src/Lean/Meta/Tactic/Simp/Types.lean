@@ -232,6 +232,7 @@ structure Diagnostics where
 structure State where
   cache        : Cache := {}
   congrCache   : CongrCache := {}
+  dsimpCache   : ExprStructMap Expr := {}
   usedTheorems : UsedSimps := {}
   numSteps     : Nat := 0
   diag         : Diagnostics := {}
@@ -258,6 +259,13 @@ abbrev SimpM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
 @[inline] def withInDSimp : SimpM α → SimpM α :=
   withTheReader Context (fun ctx => { ctx with inDSimp := true })
 
+@[inline] def withInDSimpWithCache (k : ExprStructMap Expr → SimpM (α × ExprStructMap Expr)) : SimpM α := do
+  -- replace the cache in the state to ensure the old cache is used linearly.
+  let dsimpCache ← modifyGet fun s => (s.dsimpCache, { s with dsimpCache := {} })
+  let (x, dsimpCache) ← withInDSimp (k dsimpCache)
+  modify fun s => { s with dsimpCache }
+  return x
+
 /--
 Executes `x` using a `MetaM` configuration for indexing terms.
 It is inferred from `Simp.Config`.
@@ -281,7 +289,7 @@ opaque dsimp (e : Expr) : SimpM Expr
 
 @[inline] def modifyDiag (f : Diagnostics → Diagnostics) : SimpM Unit := do
   if (← isDiagnosticsEnabled) then
-    modify fun { cache, congrCache, usedTheorems, numSteps, diag } => { cache, congrCache, usedTheorems, numSteps, diag := f diag }
+    modify fun { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag } => { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag := f diag }
 
 /--
 Result type for a simplification procedure. We have `pre` and `post` simplification procedures.

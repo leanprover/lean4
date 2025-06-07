@@ -54,7 +54,6 @@ lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Lean_Meta_matchMatcherApp_x3f___spec__8(lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Lean_Meta_matchMatcherApp_x3f___spec__8___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___rarg___lambda__6(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___rarg___lambda__1(lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at_Lean_Meta_matchMatcherApp_x3f___spec__8___rarg___lambda__3___closed__4;
@@ -81,6 +80,7 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_matchMatcherApp_x3f___spec__1___
 lean_object* l_Array_ofSubarray___rarg(lean_object*);
 lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Lean_Meta_matchMatcherApp_x3f___spec__8___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_matchMatcherApp_x3f___spec__4(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___rarg___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
@@ -282,7 +282,7 @@ x_2 = l_List_forIn_x27_loop___at_Lean_Meta_matchMatcherApp_x3f___spec__8___rarg_
 x_3 = lean_unsigned_to_nat(63u);
 x_4 = lean_unsigned_to_nat(53u);
 x_5 = l_List_forIn_x27_loop___at_Lean_Meta_matchMatcherApp_x3f___spec__8___rarg___lambda__3___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

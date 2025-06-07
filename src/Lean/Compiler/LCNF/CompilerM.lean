@@ -264,7 +264,7 @@ See `normExprImp`
 -/
 private partial def normLetValueImp (s : FVarSubst) (e : LetValue) (translator : Bool) : LetValue :=
   match e with
-  | .erased | .value .. => e
+  | .erased | .lit .. => e
   | .proj _ _ fvarId => match normFVarImp s fvarId translator with
     | .fvar fvarId' => e.updateProj! fvarId'
     | .erased => .erased
@@ -395,7 +395,7 @@ private unsafe def updateLetDeclImp (decl : LetDecl) (type : Expr) (value : LetV
 def LetDecl.updateValue (decl : LetDecl) (value : LetValue) : CompilerM LetDecl :=
   decl.update decl.type value
 
-private unsafe def updateFunDeclImp (decl: FunDecl) (type : Expr) (params : Array Param) (value : Code) : CompilerM FunDecl := do
+private unsafe def updateFunDeclImp (decl : FunDecl) (type : Expr) (params : Array Param) (value : Code) : CompilerM FunDecl := do
   if ptrEq type decl.type && ptrEq params decl.params && ptrEq value decl.value then
     return decl
   else
@@ -403,12 +403,12 @@ private unsafe def updateFunDeclImp (decl: FunDecl) (type : Expr) (params : Arra
     modifyLCtx fun lctx => lctx.addFunDecl decl
     return decl
 
-@[implemented_by updateFunDeclImp] opaque FunDeclCore.update (decl: FunDecl) (type : Expr) (params : Array Param) (value : Code) : CompilerM FunDecl
+@[implemented_by updateFunDeclImp] opaque FunDecl.update (decl : FunDecl) (type : Expr) (params : Array Param) (value : Code) : CompilerM FunDecl
 
-abbrev FunDeclCore.update' (decl : FunDecl) (type : Expr) (value : Code) : CompilerM FunDecl :=
+abbrev FunDecl.update' (decl : FunDecl) (type : Expr) (value : Code) : CompilerM FunDecl :=
   decl.update type decl.params value
 
-abbrev FunDeclCore.updateValue (decl : FunDecl) (value : Code) : CompilerM FunDecl :=
+abbrev FunDecl.updateValue (decl : FunDecl) (value : Code) : CompilerM FunDecl :=
   decl.update decl.type decl.params value
 
 @[inline] def normParam [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m t] (p : Param) : m Param := do

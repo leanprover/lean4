@@ -167,7 +167,6 @@ LEAN_EXPORT lean_object* l_Std_Time_DateTime_alignedWeekOfMonth___boxed(lean_obj
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_instHSubDuration___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_instHSubDuration__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_instOrdDateTime___closed__1;
-uint8_t l___private_Std_Time_Duration_0__Std_Time_decEqDuration____x40_Std_Time_Duration___hyg_363_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_minute(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_time___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_inLeapYear___boxed(lean_object*);
@@ -209,6 +208,7 @@ LEAN_EXPORT lean_object* l_Std_Time_DateTime_nanosecond(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_inLeapYear(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_withMilliseconds___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_convertTimeZone___boxed(lean_object*);
+uint8_t l_Std_Time_decEqDuration____x40_Std_Time_Duration___hyg_368_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instOrdDateTime___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_era(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_subSeconds___boxed(lean_object*, lean_object*, lean_object*);
@@ -261,7 +261,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_2, 0);
-x_5 = l___private_Std_Time_Duration_0__Std_Time_decEqDuration____x40_Std_Time_Duration___hyg_363_(x_3, x_4);
+x_5 = l_Std_Time_decEqDuration____x40_Std_Time_Duration___hyg_368_(x_3, x_4);
 return x_5;
 }
 }

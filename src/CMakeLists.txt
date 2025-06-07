@@ -689,7 +689,7 @@ add_custom_target(make_stdlib ALL
   # The actual rule is in a separate makefile because we want to prefix it with '+' to use the Make job server
   # for a parallelized nested build, but CMake doesn't let us do that.
   # We use `lean` from the previous stage, but `leanc`, headers, etc. from the current stage
-  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Init Std Lean
+  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Init Std Lean Leanc
   VERBATIM)
 
 # if we have LLVM enabled, then build `lean.h.bc` which has the LLVM bitcode
@@ -768,7 +768,7 @@ if(${STAGE} GREATER 0 AND EXISTS ${LEAN_SOURCE_DIR}/Leanc.lean AND NOT ${CMAKE_S
   add_custom_target(leanc ALL
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/leanc
     DEPENDS leanshared
-    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Leanc
+    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanc
     VERBATIM)
 endif()
 
@@ -823,7 +823,6 @@ endif()
 
 # Escape for `make`. Yes, twice.
 string(REPLACE "$" "\\\$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
-string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE "${CMAKE_EXE_LINKER_FLAGS_MAKE}")
 configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
 
 # hacky

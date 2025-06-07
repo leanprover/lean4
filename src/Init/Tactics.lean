@@ -140,9 +140,46 @@ references to a hypothesis.
 syntax (name := clear) "clear" (ppSpace colGt term:max)+ : tactic
 
 /--
-`subst x...` substitutes each `x` with `e` in the goal if there is a hypothesis
-of type `x = e` or `e = x`.
-If `x` is itself a hypothesis of type `y = e` or `e = y`, `y` is substituted instead.
+Syntax for trying to clear the values of all local definitions.
+-/
+syntax clearValueStar := "*"
+/--
+Syntax for creating a hypothesis before clearing values.
+In `(hx : x = _)`, the value of `x` is unified with `_`.
+-/
+syntax clearValueHyp := "(" binderIdent " : " term:51 " = " term:51 ")"
+/--
+Argument for the `clear_value` tactic.
+-/
+syntax clearValueArg := clearValueStar <|> clearValueHyp <|> term:max
+/--
+* `clear_value x...` clears the values of the given local definitions.
+  A local definition `x : α := v` becomes a hypothesis `x : α`.
+
+* `clear_value (h : x = _)` adds a hypothesis `h : x = v` before clearing the value of `x`.
+  This is short for `have h : x = v := rfl; clear_value x`.
+  Any value definitionally equal to `v` can be used in place of `_`.
+
+* `clear_value *` clears values of all hypotheses that can be cleared.
+  Fails if none can be cleared.
+
+These syntaxes can be combined. For example, `clear_value x y *` ensures that `x` and `y` are cleared
+while trying to clear all other local definitions,
+and `clear_value (hx : x = _) y * with hx` does the same while first adding the `hx : x = v` hypothesis.
+-/
+syntax (name := clearValue) "clear_value" (ppSpace colGt clearValueArg)+ : tactic
+
+/--
+`subst x...` substitutes each hypothesis `x` with a definition found in the local context,
+then eliminates the hypothesis.
+- If `x` is a local definition, then its definition is used.
+- Otherwise, if there is a hypothesis of the form `x = e` or `e = x`,
+  then `e` is used for the definition of `x`.
+
+If `h : a = b`, then `subst h` may be used if either `a` or `b` unfolds to a local hypothesis.
+This is similar to the `cases h` tactic.
+
+See also: `subst_vars` for substituting all local hypotheses that have a defining equation.
 -/
 syntax (name := subst) "subst" (ppSpace colGt term:max)+ : tactic
 
@@ -940,8 +977,8 @@ You can use `with` to provide the variables names for each constructor.
 syntax (name := cases) "cases " elimTarget,+ (" using " term)? (inductionAlts)? : tactic
 
 /--
-The `fun_induction` tactic is a convenience wrapper of the `induction` tactic when using a functional
-induction principle.
+The `fun_induction` tactic is a convenience wrapper around the `induction` tactic to use the the
+functional induction principle.
 
 The tactic invocation
 ```
@@ -949,10 +986,10 @@ fun_induction f x₁ ... xₙ y₁ ... yₘ
 ```
 where `f` is a function defined by non-mutual structural or well-founded recursion, is equivalent to
 ```
-induction y₁, ... yₘ using f.induct x₁ ... xₙ
+induction y₁, ... yₘ using f.induct_unfolding x₁ ... xₙ
 ```
-where the arguments of `f` are used as arguments to `f.induct` or targets of the induction, as
-appropriate.
+where the arguments of `f` are used as arguments to `f.induct_unfolding` or targets of the
+induction, as appropriate.
 
 The form
 ```
@@ -964,6 +1001,10 @@ become targets are free variables.
 
 The forms `fun_induction f x y generalizing z₁ ... zₙ` and
 `fun_induction f x y with | case1 => tac₁ | case2 x' ih => tac₂` work like with `induction.`
+
+Under `set_option tactic.fun_induction.unfolding true` (the default), `fun_induction` uses the
+`f.induct_unfolding` induction principle, which will try to automatically unfold the call to `f` in
+the goal. With `set_option tactic.fun_induction.unfolding false`, it uses `f.induct` instead.
 -/
 syntax (name := funInduction) "fun_induction " term
   (" generalizing" (ppSpace colGt term:max)+)? (inductionAlts)? : tactic
@@ -978,10 +1019,10 @@ fun_cases f x ... y ...`
 ```
 is equivalent to
 ```
-cases y, ... using f.fun_cases x ...
+cases y, ... using f.fun_cases_unfolding x ...
 ```
-where the arguments of `f` are used as arguments to `f.fun_cases` or targets of the case analysis, as
-appropriate.
+where the arguments of `f` are used as arguments to `f.fun_cases_unfolding` or targets of the case
+analysis, as appropriate.
 
 The form
 ```
@@ -992,6 +1033,10 @@ these arguments. An application of `f` is eligible if it is saturated and the ar
 become targets are free variables.
 
 The form `fun_cases f x y with | case1 => tac₁ | case2 x' ih => tac₂` works like with `cases`.
+
+Under `set_option tactic.fun_induction.unfolding true` (the default), `fun_induction` uses the
+`f.fun_cases_unfolding` theorem, which will try to automatically unfold the call to `f` in
+the goal. With `set_option tactic.fun_induction.unfolding false`, it uses `f.fun_cases` instead.
 -/
 syntax (name := funCases) "fun_cases " term (inductionAlts)? : tactic
 

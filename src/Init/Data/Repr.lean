@@ -210,8 +210,8 @@ protected def _root_.USize.repr (n : @& USize) : String :=
 private def reprArray : Array String := Id.run do
   List.range 128 |>.map (·.toUSize.repr) |> Array.mk
 
-private def reprFast (n : Nat) : String :=
-  if h : n < 128 then Nat.reprArray.getInternal n h else
+def reprFast (n : Nat) : String :=
+  if h : n < Nat.reprArray.size then Nat.reprArray.getInternal n h else
   if h : n < USize.size then (USize.ofNatLT n h).repr
   else (toDigits 10 n).asString
 

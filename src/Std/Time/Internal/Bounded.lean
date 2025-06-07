@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 prelude
 import Init.Omega
 import Init.Data.Int.DivMod.Lemmas
-import Std.Classes.Ord
+import Std.Classes.Ord.Basic
 
 namespace Std
 namespace Time

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Bootstrap
-// Imports: Init.Data.List.TakeDrop
+// Imports: Init.Data.List.TakeDrop Init.Data.Array.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,17 +13,17 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Bootstrap_0__Array_forIn_x27_loop_match__3_splitter(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_get(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Bootstrap_0__Array_foldlM_loop_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_get___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Bootstrap_0__Array_isEqvAux_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_get_x21___rarg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Bootstrap_0__Array_forIn_x27_loop_match__3_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_get___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Bootstrap_0__Array_isEqvAux_match__1_splitter(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Bootstrap_0__Array_isEqvAux_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Bootstrap_0__Array_forIn_x27_loop_match__3_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Bootstrap_0__Array_forIn_x27_loop_match__3_splitter___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Bootstrap_0__Array_isEqvAux_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Bootstrap_0__Array_foldlM_loop_match__1_splitter(lean_object*);
@@ -129,7 +129,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Bootstrap_0__Array_isEqvAux_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Bootstrap_0__Array_forIn_x27_loop_match__3_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
@@ -153,39 +153,43 @@ return x_10;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Bootstrap_0__Array_isEqvAux_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Bootstrap_0__Array_forIn_x27_loop_match__3_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Bootstrap_0__Array_isEqvAux_match__1_splitter___rarg___boxed), 4, 0);
+x_4 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Bootstrap_0__Array_forIn_x27_loop_match__3_splitter___rarg___boxed), 4, 0);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Bootstrap_0__Array_isEqvAux_match__1_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Bootstrap_0__Array_forIn_x27_loop_match__3_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l___private_Init_Data_Array_Bootstrap_0__Array_isEqvAux_match__1_splitter___rarg(x_1, x_2, x_3, x_4);
+x_5 = l___private_Init_Data_Array_Bootstrap_0__Array_forIn_x27_loop_match__3_splitter___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_1);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Bootstrap_0__Array_isEqvAux_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Bootstrap_0__Array_forIn_x27_loop_match__3_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l___private_Init_Data_Array_Bootstrap_0__Array_isEqvAux_match__1_splitter(x_1, x_2, x_3);
+x_4 = l___private_Init_Data_Array_Bootstrap_0__Array_forIn_x27_loop_match__3_splitter(x_1, x_2, x_3);
 lean_dec(x_2);
 return x_4;
 }
 }
 lean_object* initialize_Init_Data_List_TakeDrop(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Array_Bootstrap(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_List_TakeDrop(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

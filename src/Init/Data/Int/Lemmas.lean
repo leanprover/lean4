@@ -6,7 +6,6 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 module
 
 prelude
-import Init.Data.Int.Basic
 import Init.Conv
 import Init.NotationExtra
 import Init.PropLemmas
@@ -593,5 +592,7 @@ but it is convenient to have these earlier, for users who only need `Nat` and `I
 protected theorem natCast_zero : ((0 : Nat) : Int) = (0 : Int) := rfl
 
 protected theorem natCast_one : ((1 : Nat) : Int) = (1 : Int) := rfl
+
+@[simp, norm_cast] theorem natAbs_cast (n : Nat) : natAbs ↑n = n := rfl
 
 end Int

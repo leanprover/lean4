@@ -1,6 +1,6 @@
-phashmap_inst_coherence.lean:12:53-12:54: error: Application type mismatch: In the appplication
+phashmap_inst_coherence.lean:12:53-12:54: error: Application type mismatch: In the application
   m.find?
-the final argument
+the argument
   m
 has type
   @PersistentHashMap Nat Nat instBEqOfDecidableEq instHashableNat : Type

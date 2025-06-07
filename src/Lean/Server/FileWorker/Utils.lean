@@ -43,7 +43,7 @@ reporter task has been started.
 -/
 structure EditableDocumentCore where
   /-- The document. -/
-  meta     : DocumentMeta
+  «meta»   : DocumentMeta
   /-- Initial processing snapshot. -/
   initSnap : Language.Lean.InitialSnapshot
   /-- Old representation for backward compatibility. -/

@@ -317,9 +317,12 @@ structure SynthInstanceCacheKey where
 /-- Resulting type for `abstractMVars` -/
 structure AbstractMVarsResult where
   paramNames : Array Name
-  numMVars   : Nat
+  mvars      : Array Expr
   expr       : Expr
   deriving Inhabited, BEq
+
+def AbstractMVarsResult.numMVars (r : AbstractMVarsResult) : Nat :=
+  r.mvars.size
 
 abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option AbstractMVarsResult)
 
@@ -424,7 +427,7 @@ structure State where
 -/
 structure SavedState where
   core        : Core.SavedState
-  meta        : State
+  «meta»      : State
   deriving Nonempty
 
 register_builtin_option maxSynthPendingDepth : Nat := {
@@ -552,7 +555,7 @@ instance : AddMessageContext MetaM where
   addMessageContext := addMessageContextFull
 
 protected def saveState : MetaM SavedState :=
-  return { core := (← Core.saveState), meta := (← get) }
+  return { core := (← Core.saveState), «meta» := (← get) }
 
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) (transCache : Bool := false) : MetaM Unit := do
@@ -571,7 +574,7 @@ def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState)) (act : M
   let reusableResult? := reusableResult?.map (fun (val, state) => (val, state.core))
   let (a, core) ← controlAt CoreM fun runInBase => do
     Core.withRestoreOrSaveFull reusableResult? <| runInBase act
-  return (a, { core, meta := (← get) })
+  return (a, { core, «meta» := (← get) })
 
 instance : MonadBacktrack SavedState MetaM where
   saveState      := Meta.saveState
@@ -1228,7 +1231,7 @@ private def getConstTemp? (constName : Name) : MetaM (Option ConstantInfo) := do
   | some (info@(ConstantInfo.thmInfo _))  => getTheoremInfo info
   | some (info@(ConstantInfo.defnInfo _)) => getDefInfoTemp info
   | some info                             => pure (some info)
-  | none                                  => throwUnknownConstant constName
+  | none                                  => throwUnknownConstantAt (← getRef) constName
 
 private def isClassQuickConst? (constName : Name) : MetaM (LOption Name) := do
   if isClass (← getEnv) constName then
@@ -2055,16 +2058,23 @@ instance : Alternative MetaM where
     (mergeMsg : MessageData → MessageData → MessageData := fun m₁ m₂ => m₁ ++ Format.line ++ Format.line ++ m₂) : m α := do
   controlAt MetaM fun runInBase => orelseMergeErrorsImp (runInBase x) (runInBase y) mergeRef mergeMsg
 
-/-- Execute `x`, and apply `f` to the produced error message -/
 def mapErrorImp (x : MetaM α) (f : MessageData → MessageData) : MetaM α := do
   try
     x
   catch
-    | Exception.error ref msg => throw <| Exception.error ref <| f msg
+    | Exception.error ref msg =>
+      let msg' := f msg
+      let msg' ← addMessageContext msg'
+      throw <| Exception.error ref msg'
     | ex => throw ex
 
+/-- Execute `x`, and apply `f` to the produced error message -/
 @[inline] def mapError [MonadControlT MetaM m] [Monad m] (x : m α) (f : MessageData → MessageData) : m α :=
   controlAt MetaM fun runInBase => mapErrorImp (runInBase x) f
+
+/-- Execute `x`. If it throws an error, indent and prepend `msg` to it.  -/
+@[inline] def prependError [MonadControlT MetaM m] [Monad m] (msg : MessageData) (x : m α) : m α := do
+  mapError x fun e => m!"{msg}{indentD e}"
 
 /--
   Sort free variables using an order `x < y` iff `x` was defined before `y`.
@@ -2396,7 +2406,10 @@ where
         let _ : MonadExceptOf _ MetaM := MonadAlwaysExcept.except
         observing do
           realize
-          if !(← getEnv).contains constName then
+          -- Meta code working on a non-exported declaration should usually do so inside
+          -- `withoutExporting` but we're lenient here in case this call is the only one that needs
+          -- the setting.
+          if !((← getEnv).setExporting false).contains constName then
             throwError "Lean.Meta.realizeConst: {constName} was not added to the environment")
         <* addTraceAsMessages
     let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO

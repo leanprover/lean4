@@ -14,8 +14,6 @@ namespace Lean.Meta.Grind.Arith.CommRing
 export Lean.Grind.CommRing (Var Power Mon Poly)
 abbrev RingExpr := Grind.CommRing.Expr
 
-deriving instance Repr for Power, Mon, Poly
-
 mutual
 
 structure EqCnstr where
@@ -123,7 +121,7 @@ structure DiseqCnstr where
   rlhs : RingExpr
   /-- Reified `rhs` -/
   rrhs : RingExpr
-  /-- `lhs - rhs` simplication chain. If it becomes `0` we have an inconsistency. -/
+  /-- `lhs - rhs` simplification chain. If it becomes `0` we have an inconsistency. -/
   d : PolyDerivation
 
 /-- State for each `CommRing` processed by this module. -/
@@ -132,6 +130,12 @@ structure Ring where
   type           : Expr
   /-- Cached `getDecLevel type` -/
   u              : Level
+  /-- `Semiring` instance for `type` -/
+  semiringInst   : Expr
+  /-- `Ring` instance for `type` -/
+  ringInst       : Expr
+  /-- `CommSemiring` instance for `type` -/
+  commSemiringInst   : Expr
   /-- `CommRing` instance for `type` -/
   commRingInst   : Expr
   /-- `IsCharP` instance for `type` if available. -/

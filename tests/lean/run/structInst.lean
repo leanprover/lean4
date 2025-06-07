@@ -353,7 +353,7 @@ instance instBar : Bar where
 
 /--
 info: def Ex6769_2.instBar : Bar :=
-{ x := 0, hx := Mathlib12129.bar._proof_3, hx' := Mathlib12129.bar._proof_3 }
+{ x := 0, hx := Mathlib12129.bar._proof_1, hx' := Mathlib12129.bar._proof_1 }
 -/
 #guard_msgs in #print instBar
 end Ex6769_2
@@ -372,7 +372,7 @@ instance instBar : Bar where
 
 /--
 info: def Ex6769_3.instBar : Bar :=
-{ x := 0, hx := Mathlib12129.bar._proof_3, hx' := Mathlib12129.bar._proof_3 }
+{ x := 0, hx := Mathlib12129.bar._proof_1, hx' := Mathlib12129.bar._proof_1 }
 -/
 #guard_msgs in #print instBar
 end Ex6769_3

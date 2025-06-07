@@ -104,29 +104,29 @@ register_builtin_option linter.unusedVariables.analyzeTactics : Bool := {
 }
 
 /-- Gets the status of `linter.unusedVariables` -/
-def getLinterUnusedVariables (o : Options) : Bool :=
+def getLinterUnusedVariables (o : LinterOptions) : Bool :=
   getLinterValue linter.unusedVariables o
 
 /-- Gets the status of `linter.unusedVariables.funArgs` -/
-def getLinterUnusedVariablesFunArgs (o : Options) : Bool :=
+def getLinterUnusedVariablesFunArgs (o : LinterOptions) : Bool :=
   o.get linter.unusedVariables.funArgs.name (getLinterUnusedVariables o)
 
 /-- Gets the status of `linter.unusedVariables.patternVars` -/
-def getLinterUnusedVariablesPatternVars (o : Options) : Bool :=
+def getLinterUnusedVariablesPatternVars (o : LinterOptions) : Bool :=
   o.get linter.unusedVariables.patternVars.name (getLinterUnusedVariables o)
 
 /-- An `IgnoreFunction` receives:
 
 * a `Syntax.ident` for the unused variable
 * a `Syntax.Stack` with the location of this piece of syntax in the command
-* The `Options` set locally to this syntax
+* The `LinterOptions` set locally to this syntax
 
 and should return `true` to indicate that the lint should be suppressed,
 or `false` to proceed with linting as usual (other `IgnoreFunction`s may still
 say it is ignored). A variable is only linted if it is unused and no
 `IgnoreFunction` returns `true` on this syntax.
 -/
-abbrev IgnoreFunction := Syntax → Syntax.Stack → Options → Bool
+abbrev IgnoreFunction := Syntax → Syntax.Stack → LinterOptions → Bool
 
 /-- Interpret an `IgnoreFunction` from the environment. -/
 unsafe def mkIgnoreFnImpl (constName : Name) : ImportM IgnoreFunction := do
@@ -381,7 +381,8 @@ structure References where
 
 /-- Collect information from the `infoTrees` into `References`.
 See `References` for more information about the return value. -/
-partial def collectReferences (infoTrees : Array Elab.InfoTree) (cmdStxRange : String.Range) :
+partial def collectReferences (infoTrees : Array Elab.InfoTree) (cmdStxRange : String.Range)
+    (linterSets : LinterSets) :
     StateRefT References IO Unit := ReaderT.run (r := false) <| go infoTrees none
 where
   go infoTrees ctx? := do
@@ -422,7 +423,7 @@ where
               -- Skip declarations which are outside the command syntax range, like `variable`s
               -- (it would be confusing to lint these), or those which are macro-generated
               if !cmdStxRange.contains range.start || ldecl.userName.hasMacroScopes then return true
-              let opts := ci.options
+              let opts : LinterOptions := { toOptions := ci.options, linterSets }
               -- we have to check for the option again here because it can be set locally
               if !getLinterUnusedVariables opts then return true
               let stx := skipDeclIdIfPresent info.stx
@@ -435,7 +436,7 @@ where
                 if let some ref := s.fvarDefs[range]? then
                   { s with fvarDefs := s.fvarDefs.insert range { ref with aliases := ref.aliases.push id } }
                 else
-                  { s with fvarDefs := s.fvarDefs.insert range { userName := ldecl.userName, stx, opts, aliases := #[id] } }
+                  { s with fvarDefs := s.fvarDefs.insert range { userName := ldecl.userName, stx, opts := opts.toOptions, aliases := #[id] } }
             else
               -- Found a direct use, keep track of it
               modify fun s => { s with fvarUses := s.fvarUses.insert id }
@@ -471,7 +472,7 @@ private def hasSorry (stx : Syntax) : Bool :=
 /-- Reports unused variable warnings on each command. Use `linter.unusedVariables` to disable. -/
 def unusedVariables : Linter where
   run cmdStx := do
-    unless getLinterUnusedVariables (← getOptions) do
+    unless getLinterUnusedVariables (← getLinterOptions) do
       return
 
     -- NOTE: `messages` is local to the current command
@@ -488,8 +489,10 @@ def unusedVariables : Linter where
 
     let infoTrees := (← get).infoState.trees.toArray
 
+    let linterSets := linterSetsExt.getState (← getEnv)
+
     -- Run the main collection pass, resulting in `s : References`.
-    let (_, s) ← (collectReferences infoTrees cmdStxRange).run {}
+    let (_, s) ← (collectReferences infoTrees cmdStxRange linterSets).run {}
 
     -- If there are no local defs then there is nothing to do
     if s.fvarDefs.isEmpty then return
@@ -526,7 +529,8 @@ def unusedVariables : Linter where
         | continue
 
       -- If it is blacklisted by an `ignoreFn` then skip it
-      if id'.isIdent && ignoreFns.any (· declStx stack opts) then continue
+      let linterOpts ← opts.toLinterOptions
+      if id'.isIdent && ignoreFns.any (· declStx stack linterOpts) then continue
 
       -- Evaluate ignore functions again on macro expansion outputs
       if ← infoTrees.anyM fun tree => do
@@ -539,7 +543,7 @@ def unusedVariables : Linter where
               (·.getRange?.any (·.includes range))
               (fun stx => stx.isIdent && stx.getRange?.any (· == range))
           then
-            ignoreFns.any (· declStx stack opts)
+            ignoreFns.any (· declStx stack linterOpts)
           else
             false
       then

@@ -29,6 +29,7 @@ LEAN_EXPORT lean_object* l_instToFormatList(lean_object*);
 LEAN_EXPORT lean_object* l_List_format(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 static lean_object* l_List_format___rarg___closed__9;
+lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_String_splitOnAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_instToFormatOfToString(lean_object*);
@@ -64,7 +65,6 @@ static lean_object* l_instToFormatProd___rarg___closed__4;
 LEAN_EXPORT lean_object* l_instToFormatOption(lean_object*);
 LEAN_EXPORT lean_object* l_instToFormatProd(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_String_toFormat___spec__2(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_List_format___rarg___closed__10;
 static lean_object* l_instToFormatArray___rarg___closed__2;
 LEAN_EXPORT lean_object* l_instToFormatOfToString___rarg___lambda__1(lean_object* x_1) {
@@ -720,7 +720,7 @@ LEAN_EXPORT lean_object* l_instToFormatPos(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_2 = l_Nat_reprFast(x_1);
 x_3 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_3, 0, x_2);
 return x_3;

@@ -18,6 +18,7 @@ import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateRight
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Umod
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Reverse
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec` expressions (`BVExpr`).
@@ -193,10 +194,10 @@ where
       | .not =>
         let res := bitblast.blastNot eaig evec
         have := by
-          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.map)
+          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastNot)
           dsimp only at heaig
           omega
-        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := AIG.RefVec.map) ..)⟩
+        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastNot) ..)⟩
       | .rotateLeft distance =>
         let res := bitblast.blastRotateLeft eaig ⟨evec, distance⟩
         have := by
@@ -218,6 +219,13 @@ where
           dsimp only at heaig
           assumption
         ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastArithShiftRightConst) ..)⟩
+      | .reverse =>
+        let res := bitblast.blastReverse eaig evec
+        have := by
+          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastReverse)
+          dsimp only at heaig
+          omega
+        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastReverse) ..)⟩
     | .append lhs rhs h =>
       let ⟨⟨⟨aig, lhs⟩, hlaig⟩, cache⟩ := goCache aig lhs cache
       let ⟨⟨⟨aig, rhs⟩, hraig⟩, cache⟩ := goCache aig rhs cache
@@ -329,7 +337,7 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
         · apply Nat.le_trans <;> assumption
   · next op expr =>
     match op with
-    | .not | .rotateLeft .. | .rotateRight .. | .arithShiftRightConst .. =>
+    | .not | .rotateLeft .. | .rotateRight .. | .arithShiftRightConst .. | .reverse =>
       rw [AIG.LawfulVecOperator.decl_eq]
       rw [goCache_decl_eq]
       have := (goCache aig expr cache).result.property

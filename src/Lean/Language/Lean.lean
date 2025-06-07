@@ -284,7 +284,7 @@ structure SetupImportsResult where
   /-- Module name of the file being processed. -/
   mainModuleName : Name
   /-- Whether the file is participating in the module system. -/
-  isModule : Bool := false
+  isModule : Bool
   /-- Direct imports of the file being processed. -/
   imports : Array Import
   /-- Options provided outside of the file content, e.g. on the cmdline or in the lakefile. -/
@@ -687,7 +687,8 @@ where
           -- create a temporary snapshot tree containing all tasks but it
           let snaps := #[
             { stx? := stx', task := elabPromise.result!.map (sync := true) toSnapshotTree, cancelTk? := none },
-            { stx? := stx', task := resultPromise.result!.map (sync := true) toSnapshotTree, cancelTk? := none }] ++
+            { stx? := stx', task := resultPromise.result!.map (sync := true) toSnapshotTree, cancelTk? := none },
+            { stx? := stx', task := finishedPromise.result!.map (sync := true) toSnapshotTree, cancelTk? := none }] ++
             cmdState.snapshotTasks
           let tree := SnapshotTree.mk { diagnostics := .empty } snaps
           BaseIO.bindTask (← tree.waitAll) fun _ => do

@@ -59,8 +59,13 @@ inductive SyntheticMVarKind where
   -/
   | coe (header? : Option String) (expectedType : Expr) (e : Expr) (f? : Option Expr)
       (mkErrorMsg? : Option (MVarId → Expr → Expr → MetaM MessageData))
-  /-- Use tactic to synthesize value for metavariable. -/
-  | tactic (tacticCode : Syntax) (ctx : SavedContext) (kind : TacticMVarKind)
+  /--
+  Use tactic to synthesize value for metavariable.
+
+  If `delayOnMVars` is true, the tactic will not be executed until the goal is free of unassigned
+  expr metavariables.
+  -/
+  | tactic (tacticCode : Syntax) (ctx : SavedContext) (kind : TacticMVarKind) (delayOnMVars := false)
   /-- Metavariable represents a hole whose elaboration has been postponed. -/
   | postponed (ctx : SavedContext)
   deriving Inhabited
@@ -172,7 +177,7 @@ structure State where
   Backtrackable state for the `TermElabM` monad.
 -/
 structure SavedState where
-  meta   : Meta.SavedState
+  «meta» : Meta.SavedState
   «elab» : State
   deriving Nonempty
 
@@ -195,7 +200,7 @@ structure State where
 -/
 structure Snapshot where
   core   : Core.State
-  meta   : Meta.State
+  «meta» : Meta.State
   term   : Term.State
   tactic : Tactic.State
   stx    : Syntax
@@ -347,7 +352,7 @@ instance : Inhabited (TermElabM α) where
   default := throw default
 
 protected def saveState : TermElabM SavedState :=
-  return { meta := (← Meta.saveState), «elab» := (← get) }
+  return { «meta» := (← Meta.saveState), «elab» := (← get) }
 
 def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : TermElabM Unit := do
   let traceState ← getTraceState -- We never backtrack trace message
@@ -382,10 +387,10 @@ def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
       snap.new.resolve old.val.get
 
   let reusableResult? := reusableResult?.map (fun (val, state) => (val, state.meta))
-  let (a, meta) ← withReader ({ · with tacSnap? }) do
+  let (a, «meta») ← withReader ({ · with tacSnap? }) do
     controlAt MetaM fun runInBase => do
       Meta.withRestoreOrSaveFull reusableResult? <| runInBase act
-  return (a, { meta, «elab» := (← get) })
+  return (a, { «meta», «elab» := (← get) })
 
 instance : MonadBacktrack SavedState TermElabM where
   saveState      := Term.saveState
@@ -609,9 +614,16 @@ def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := return (← getMCtx
 instance : MonadParentDecl TermElabM where
   getParentDeclName? := getDeclName?
 
-/-- Execute `withSaveParentDeclInfoContext x` with `declName? := name`. See `getDeclName?`. -/
+/--
+Executes `x` in the context of the given declaration name. Ensures that the info tree is set up
+correctly and adjusts the declaration name generator to generate names below this name, resetting
+the nested counter.
+-/
 def withDeclName (name : Name) (x : TermElabM α) : TermElabM α :=
-  withReader (fun ctx => { ctx with declName? := name }) <| withSaveParentDeclInfoContext x
+  withReader (fun ctx => { ctx with declName? := name }) do
+  withSaveParentDeclInfoContext do
+  withDeclNameForAuxNaming name do
+    x
 
 /-- Update the universe level parameter names. -/
 def setLevelNames (levelNames : List Name) : TermElabM Unit :=
@@ -1256,14 +1268,15 @@ register_builtin_option debug.byAsSorry : Bool := {
 Creates a new metavariable of type `type` that will be synthesized using the tactic code.
 The `tacticCode` syntax is the full `by ..` syntax.
 -/
-def mkTacticMVar (type : Expr) (tacticCode : Syntax) (kind : TacticMVarKind) : TermElabM Expr := do
+def mkTacticMVar (type : Expr) (tacticCode : Syntax) (kind : TacticMVarKind)
+    (delayOnMVars := false) : TermElabM Expr := do
   if ← pure (debug.byAsSorry.get (← getOptions)) <&&> isProp type then
     withRef tacticCode <| mkLabeledSorry type false (unique := true)
   else
     let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
     let mvarId := mvar.mvarId!
     let ref ← getRef
-    registerSyntheticMVar ref mvarId <| SyntheticMVarKind.tactic tacticCode (← saveContext) kind
+    registerSyntheticMVar ref mvarId <| .tactic tacticCode (← saveContext) kind delayOnMVars
     return mvar
 
 /--
@@ -1894,10 +1907,7 @@ def addAutoBoundImplicits' (xs : Array Expr) (type : Expr) (k : Array Expr → E
   else
     forallBoundedTelescope (← mkForallFVars xs type) xs.size fun xs type => k xs type
 
-def mkAuxName (suffix : Name) : TermElabM Name := do
-  match (← read).declName? <|> (← getEnv).asyncPrefix? with
-  | none          => Lean.mkAuxName (mkPrivateName (← getEnv) `aux) 1
-  | some declName => Lean.mkAuxName (declName ++ suffix) 1
+def mkAuxName (suffix : Name) : TermElabM Name := mkAuxDeclName (kind := suffix)
 
 builtin_initialize registerTraceClass `Elab.letrec
 
@@ -1975,7 +1985,7 @@ where
            isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
         throwAutoBoundImplicitLocal n
       else
-        throwUnknownIdentifier m!"unknown identifier '{Lean.mkConst n}'"
+        throwUnknownIdentifierAt stx m!"unknown identifier '{Lean.mkConst n}'"
     mkConsts candidates explicitLevels
 
 /--

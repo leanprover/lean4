@@ -52,7 +52,7 @@ where
     let some letDecl ← findLetDecl? fvarId | failure
     match letDecl.value with
     | .proj _ i s => visit s (i :: projs)
-    | .fvar .. | .value .. | .erased => failure
+    | .fvar .. | .lit .. | .erased => failure
     | .const declName us args =>
       if let some (.ctorInfo ctorVal) := (← getEnv).find? declName then
         let i :: projs := projs | unreachable!

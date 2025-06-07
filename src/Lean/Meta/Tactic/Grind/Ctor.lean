@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.ProveEq
 
 namespace Lean.Meta.Grind
 
@@ -16,9 +17,9 @@ private partial def propagateInjEqs (eqs : Expr) (proof : Expr) : GoalM Unit := 
     propagateInjEqs left (.proj ``And 0 proof)
     propagateInjEqs right (.proj ``And 1 proof)
   | Eq _ lhs rhs    =>
-    pushEq (← shareCommon lhs) (← shareCommon rhs) proof
+    pushEq (← preprocessLight lhs) (← preprocessLight rhs) proof
   | HEq _ lhs _ rhs =>
-    pushHEq (← shareCommon lhs) (← shareCommon rhs) proof
+    pushHEq (← preprocessLight lhs) (← preprocessLight rhs) proof
   | _ =>
    reportIssue! "unexpected injectivity theorem result type{indentExpr eqs}"
    return ()
@@ -41,9 +42,15 @@ def propagateCtor (a b : Expr) : GoalM Unit := do
     let info ← getConstInfo injDeclName
     let n := info.type.getForallArity
     let mask : Array (Option Expr) := .replicate n none
-    let mask := mask.set! (n-1) (some (← mkEqProof a b))
+    /-
+    We use `mkExpectedTypeHint` here to ensure that `mkAppOptM` will "fill" the implicit
+    arguments of `injDeclName` using exactly the fields of `a` and `b`.
+    There is no guarantee that `inferType (← mkEqProof a b)` is structurally equal to `a = b`.
+    -/
+    let mask := mask.set! (n-1) (some (← mkExpectedTypeHint (← mkEqProof a b) (← mkEq a b)))
     let injLemma ← mkAppOptM injDeclName mask
-    propagateInjEqs (← inferType injLemma) injLemma
+    let injLemmaType ← inferType injLemma
+    propagateInjEqs injLemmaType injLemma
   else
     let .const declName _ := aType.getAppFn | return ()
     let noConfusionDeclName := Name.mkStr declName "noConfusion"

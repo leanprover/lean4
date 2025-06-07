@@ -22,8 +22,21 @@ protected structure String.Range where
 def String.Range.contains (r : String.Range) (pos : String.Pos) (includeStop := false) : Bool :=
   r.start <= pos && (if includeStop then pos <= r.stop else pos < r.stop)
 
-def String.Range.includes (super sub : String.Range) : Bool :=
-  super.start <= sub.start && super.stop >= sub.stop
+/--
+Checks whether `sub` is contained in `super`.
+`includeSuperStop` and `includeSubStop` control whether `super` and `sub` have
+an inclusive upper bound.
+-/
+def String.Range.includes (super sub : String.Range)
+    (includeSuperStop := false) (includeSubStop := false) : Bool :=
+  super.start <= sub.start && (
+    if includeSuperStop && !includeSubStop then
+      sub.stop.byteIdx <= super.stop.byteIdx + 1
+    else if !includeSuperStop && includeSubStop then
+      sub.stop < super.stop
+    else
+      sub.stop <= super.stop
+  )
 
 def String.Range.overlaps (first second : String.Range)
     (includeFirstStop := false) (includeSecondStop := false) : Bool :=
@@ -222,7 +235,7 @@ partial def hasIdent (id : Name) : Syntax → Bool
   | stx => fn stx
 
 @[inline] def rewriteBottomUp (fn : Syntax → Syntax) (stx : Syntax) : Syntax :=
-  Id.run <| stx.rewriteBottomUpM fn
+  Id.run <| stx.rewriteBottomUpM (pure <| fn ·)
 
 private def updateInfo : SourceInfo → String.Pos → String.Pos → SourceInfo
   | SourceInfo.original lead pos trail endPos, leadStart, trailStop =>

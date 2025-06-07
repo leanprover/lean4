@@ -6,11 +6,14 @@ Authors: Mario Carneiro
 module
 
 prelude
+import all Init.Data.List.Control
 import Init.Data.List.Impl
 import Init.Data.List.Nat.Erase
 import Init.Data.List.Monadic
 import Init.Data.List.Nat.InsertIdx
 import Init.Data.Array.Lex.Basic
+import all Init.Data.Array.Basic
+import all Init.Data.Array.Set
 
 /-! ### Lemmas about `List.toArray`.
 
@@ -207,12 +210,6 @@ theorem forM_toArray [Monad m] (l : List α) (f : α → m PUnit) :
   cases as
   simp
 
-@[simp] theorem foldl_push {l : List α} {as : Array α} : l.foldl Array.push as = as ++ l.toArray := by
-  induction l generalizing as <;> simp [*]
-
-@[simp] theorem foldr_push {l : List α} {as : Array α} : l.foldr (fun a bs => push bs a) as = as ++ l.reverse.toArray := by
-  rw [foldr_eq_foldl_reverse, foldl_push]
-
 @[simp, grind =] theorem findSomeM?_toArray [Monad m] [LawfulMonad m] (f : α → m (Option β)) (l : List α) :
     l.toArray.findSomeM? f = l.findSomeM? f := by
   rw [Array.findSomeM?]
@@ -259,16 +256,16 @@ theorem findRevM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : Lis
 
 @[simp, grind =] theorem findSome?_toArray (f : α → Option β) (l : List α) :
     l.toArray.findSome? f = l.findSome? f := by
-  rw [Array.findSome?, ← findSomeM?_id, findSomeM?_toArray, Id.run]
+  rw [Array.findSome?, findSomeM?_toArray, findSomeM?_pure, Id.run_pure]
 
 @[simp, grind =] theorem find?_toArray (f : α → Bool) (l : List α) :
     l.toArray.find? f = l.find? f := by
   rw [Array.find?]
-  simp only [Id.run, Id, Id.pure_eq, Id.bind_eq, forIn_toArray]
+  simp only [forIn_toArray]
   induction l with
   | nil => simp
   | cons a l ih =>
-    simp only [forIn_cons, Id.pure_eq, Id.bind_eq, find?]
+    simp only [forIn_cons, find?]
     by_cases f a <;> simp_all
 
 private theorem findFinIdx?_loop_toArray (w : l' = l.drop j) :
@@ -305,7 +302,7 @@ termination_by l.length - j
 @[simp, grind =] theorem findIdx?_toArray (p : α → Bool) (l : List α) :
     l.toArray.findIdx? p = l.findIdx? p := by
   rw [Array.findIdx?_eq_map_findFinIdx?_val, findIdx?_eq_map_findFinIdx?_val]
-  simp
+  simp [Array.size]
 
 private theorem idxAuxOf_toArray [BEq α] (a : α) (l : List α) (j : Nat) (w : l' = l.drop j) (h) :
     l.toArray.idxOfAux a j = findFinIdx?.go (fun x => x == a) l l' j h := by
@@ -342,11 +339,11 @@ termination_by l.length - j
 @[simp, grind =] theorem idxOf?_toArray [BEq α] (a : α) (l : List α) :
     l.toArray.idxOf? a = l.idxOf? a := by
   rw [Array.idxOf?, idxOf?]
-  simp [finIdxOf?, findIdx?_eq_map_findFinIdx?_val]
+  simp [finIdxOf?, findIdx?_eq_map_findFinIdx?_val, Array.size]
 
 @[simp, grind =] theorem findIdx_toArray {as : List α} {p : α → Bool} :
     as.toArray.findIdx p = as.findIdx p := by
-  rw [Array.findIdx, findIdx?_toArray, findIdx_eq_getD_findIdx?]
+  rw [Array.findIdx, findIdx?_toArray, findIdx_eq_getD_findIdx?, Array.size]
 
 @[simp, grind =] theorem idxOf_toArray [BEq α] {as : List α} {a : α} :
     as.toArray.idxOf a = as.idxOf a := by
@@ -673,9 +670,9 @@ theorem replace_toArray [BEq α] [LawfulBEq α] (l : List α) (a b : α) :
   split <;> rename_i i h
   · simp only [finIdxOf?_toArray, finIdxOf?_eq_none_iff] at h
     rw [replace_of_not_mem]
-    simpa
+    exact finIdxOf?_eq_none_iff.mp h
   · simp_all only [finIdxOf?_toArray, finIdxOf?_eq_some_iff, Fin.getElem_fin, set_toArray,
-      mk.injEq]
+      mk.injEq, Array.size]
     apply List.ext_getElem
     · simp
     · intro j h₁ h₂

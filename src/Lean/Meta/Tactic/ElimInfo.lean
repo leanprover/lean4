@@ -62,7 +62,7 @@ def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : Me
     let motiveType ← inferType motive
     forallTelescopeReducing motiveType fun motiveParams motiveResultType => do
       unless motiveParams.size == motiveArgs.size do
-        throwError "expecetd {motiveArgs.size} parameters at motive type, got {motiveParams.size}:{indentExpr motiveType}"
+        throwError "expected {motiveArgs.size} parameters at motive type, got {motiveParams.size}:{indentExpr motiveType}"
       unless motiveResultType.isSort do
         throwError "motive result type must be a sort{indentExpr motiveType}"
     let some motivePos ← pure (xs.idxOf? motive) |

@@ -69,15 +69,6 @@ partial def merge (v₁ v₂ : Value) : Value :=
   | choice vs, v => choice <| addChoice merge vs v
   | v, choice vs => choice <| addChoice merge vs v
 
-protected partial def format : Value → Format
-  | top => "top"
-  | bot => "bot"
-  | choice vs => format "@" ++ @List.format _ ⟨Value.format⟩ vs
-  | ctor i vs => format "#" ++ if vs.isEmpty then format i.name else Format.paren (format i.name ++ @formatArray _ ⟨Value.format⟩ vs)
-
-instance : ToFormat Value := ⟨Value.format⟩
-instance : ToString Value := ⟨Format.pretty ∘ Value.format⟩
-
 /--
   In `truncate`, we approximate a value as `top` if depth > `truncateMaxDepth`.
   TODO: add option to control this parameter.

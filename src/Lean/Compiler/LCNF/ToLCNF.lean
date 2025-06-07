@@ -407,8 +407,8 @@ partial def etaReduceImplicit (e : Expr) : Expr :=
 
 def litToValue (lit : Literal) : LitValue :=
   match lit with
-  | .natVal val => .natVal val
-  | .strVal val => .strVal val
+  | .natVal val => .nat val
+  | .strVal val => .str val
 
 /--
 Put the given expression in `LCNF`.
@@ -453,7 +453,7 @@ where
     visitCore e
 
   visitLit (lit : Literal) : M Arg :=
-    letValueToArg (.value (litToValue lit))
+    letValueToArg (.lit (litToValue lit))
 
   visitAppArg (e : Expr) : M Arg := do
     if isLCProof e then
@@ -704,7 +704,7 @@ where
         visitQuotLift e
       else if declName == ``Quot.mk then
         visitCtor 3 e
-      else if declName == ``Eq.casesOn || declName == ``Eq.rec || declName == ``Eq.ndrec then
+      else if declName == ``Eq.casesOn || declName == ``Eq.rec || declName == ``Eq.recOn || declName == ``Eq.ndrec then
         visitEqRec e
       else if declName == ``HEq.casesOn || declName == ``HEq.rec || declName == ``HEq.ndrec then
         visitHEqRec e

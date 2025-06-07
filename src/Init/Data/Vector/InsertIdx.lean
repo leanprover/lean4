@@ -104,7 +104,7 @@ theorem getElem?_insertIdx {xs : Vector α n} {x : α} {i k : Nat} (h : i ≤ n)
         xs[k]?
       else
         if k = i then
-          if k ≤ xs.size then some x else none
+          if k ≤ n then some x else none
         else
           xs[k-1]? := by
   rcases xs with ⟨xs, rfl⟩

@@ -2,7 +2,7 @@
 /--
 trace: b : Bool
 ⊢ if b = true then
-    let_fun unused := ();
+    have unused := ();
     True
   else False
 ---
@@ -25,7 +25,7 @@ example (b : Bool) : if b then have unused := (); True else False := by
 /--
 trace: b : Bool
 ⊢ b = true ∧
-    let_fun unused := ();
+    have unused := ();
     True
 ---
 warning: declaration uses 'sorry'
@@ -68,7 +68,7 @@ example (b : Bool) : if b then have unused := (); True else False := by
 trace: case isTrue
 b : Bool
 h✝ : b = true
-⊢ let_fun unused := ();
+⊢ have unused := ();
   True
 ---
 warning: declaration uses 'sorry'

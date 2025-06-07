@@ -36,7 +36,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_Preproce
 uint8_t l_Lean_Expr_isHeadBetaTarget(lean_object*, uint8_t);
 extern lean_object* l_Lean_levelZero;
 lean_object* l_Lean_Expr_constName_x21(lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_preprocess___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_preprocess___lambda__3___closed__6;
 lean_object* l_Lean_Core_transform___at_Lean_Core_betaReduce___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -45,6 +44,7 @@ lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 extern lean_object* l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey;
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Elab_PreDefinition_Structural_Preprocess_0__Lean_Elab_Structural_shouldBetaReduce___lambda__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_preprocess___closed__1;
@@ -245,7 +245,7 @@ x_2 = l_Lean_Elab_Structural_preprocess___lambda__3___closed__3;
 x_3 = lean_unsigned_to_nat(47u);
 x_4 = lean_unsigned_to_nat(39u);
 x_5 = l_Lean_Elab_Structural_preprocess___lambda__3___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

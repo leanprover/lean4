@@ -30,7 +30,7 @@ namespace Structure
 
 /-! Recall that the `structure command syntax is
 ```
-leading_parser (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> Term.optType >> optional «extends» >> optional (" := " >> optional structCtor >> structFields)
+leading_parser (structureTk <|> classTk) >> declId >> optDeclSig >> optional «extends» >> optional (" := " >> optional structCtor >> structFields)
 ```
 -/
 
@@ -206,10 +206,10 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
     let ref := structStx[1].mkSynthetic
     addDeclarationRangesFromSyntax declName ref
     pure { ref, declId := ref, modifiers := default, declName }
-  if structStx[5].isNone then
+  if structStx[4].isNone then
     useDefault
   else
-    let optCtor := structStx[5][1]
+    let optCtor := structStx[4][1]
     if optCtor.isNone then
       useDefault
     else
@@ -278,12 +278,12 @@ def structFields         := leading_parser many (structExplicitBinder <|> struct
 ```
 -/
 private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : TermElabM (Array StructFieldView) := do
-  if structStx[5][0].isToken ":=" then
+  if structStx[4][0].isToken ":=" then
     -- https://github.com/leanprover/lean4/issues/5236
     let cmd := if structStx[0].getKind == ``Parser.Command.classTk then "class" else "structure"
-    withRef structStx[0] <| Linter.logLintIf Linter.linter.deprecated structStx[5][0]
+    withRef structStx[0] <| Linter.logLintIf Linter.linter.deprecated structStx[4][0]
       s!"{cmd} ... :=' has been deprecated in favor of '{cmd} ... where'."
-  let fieldBinders := if structStx[5].isNone then #[] else structStx[5][2][0].getArgs
+  let fieldBinders := if structStx[4].isNone then #[] else structStx[4][2][0].getArgs
   fieldBinders.foldlM (init := #[]) fun (views : Array StructFieldView) fieldBinder => withRef fieldBinder do
     let mut fieldBinder := fieldBinder
     if fieldBinder.getKind == ``Parser.Command.structSimpleBinder then
@@ -342,43 +342,45 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
       }
 
 /-
-leading_parser (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> Term.optType >> optional «extends» >>
+leading_parser (structureTk <|> classTk) >> declId >> optDeclSig >> optional «extends» >>
   optional (("where" <|> ":=") >> optional structCtor >> structFields) >> optDeriving
 
 where
 def structParent := leading_parser optional (atomic (ident >> " : ")) >> termParser
-def «extends» := leading_parser " extends " >> sepBy1 structParent ", "
-def typeSpec := leading_parser " : " >> termParser
-def optType : Parser := optional typeSpec
+def «extends» := leading_parser " extends " >> sepBy1 structParent ", " >> optType
 
 def structFields         := leading_parser many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
 def structCtor           := leading_parser try (declModifiers >> ident >> " :: ")
 -/
 def structureSyntaxToView (modifiers : Modifiers) (stx : Syntax) : TermElabM StructView := do
+  let stx := -- for bootstrap compatibility, remove this after stage0 update
+    if stx.getNumArgs == 7
+    then stx.setArgs #[stx[0], stx[1], .node .none ``Parser.Command.optDeclSig #[stx[2], stx[3]], stx[4], stx[5], stx[6]]
+    else stx
   checkValidInductiveModifier modifiers
   let isClass   := stx[0].getKind == ``Parser.Command.classTk
   let modifiers := if isClass then modifiers.addAttr { name := `class } else modifiers
   let declId    := stx[1]
   let ⟨name, declName, levelNames⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
   addDeclarationRangesForBuiltin declName modifiers.stx stx
-  let binders   := stx[2]
-  let (optType, exts) ←
+  let (binders, type?) := expandOptDeclSig stx[2]
+  let exts := stx[3]
+  let type? ←
     -- Compatibility mode for `structure S extends P : Type` syntax
-    if stx[3].isNone && !stx[4].isNone && !stx[4][0][2].isNone then
-      logWarningAt stx[4][0][2][0] "\
+    if type?.isNone && !exts.isNone && !exts[0][2].isNone then
+      logWarningAt exts[0][2][0] "\
         The syntax is now 'structure S : Type extends P' rather than 'structure S extends P : Type'.\n\n\
         The purpose of this change is to accommodate 'structure S extends toP : P' syntax for naming parent projections."
-      pure (stx[4][0][2], stx[4])
+      pure (some exts[0][2][0][1])
     else
-      if !stx[4].isNone && !stx[4][0][2].isNone then
-        logErrorAt stx[4][0][2][0] "\
+      if !exts.isNone && !exts[0][2].isNone then
+        logErrorAt exts[0][2][0] "\
           Unexpected additional resulting type. \
           The syntax is now 'structure S : Type extends P' rather than 'structure S extends P : Type'.\n\n\
           The purpose of this change is to accommodate 'structure S extends toP : P' syntax for naming parent projections."
-      pure (stx[3], stx[4])
-  let parents   ← expandParents exts
-  let derivingClasses ← getOptDerivingClasses stx[6]
-  let type?     := if optType.isNone then none else some optType[0][1]
+      pure type?
+  let parents ← expandParents exts
+  let derivingClasses ← getOptDerivingClasses stx[5]
   let ctor ← expandCtor stx modifiers declName
   let fields ← expandFields stx modifiers declName
   fields.forM fun field => do

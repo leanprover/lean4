@@ -386,23 +386,10 @@ theorem lt_norm {α} [IntModule α] [Preorder α] [IntModule.IsOrdered α] (ctx 
   simp [← sub_eq_add_neg, sub_self] at h₁
   assumption
 
-private theorem le_of_not_lt {α} [LinearOrder α] {a b : α} (h : ¬ a < b) : b ≤ a := by
-  cases LinearOrder.trichotomy a b
-  next => contradiction
-  next h => apply PartialOrder.le_iff_lt_or_eq.mpr; cases h <;> simp [*]
-
-private theorem lt_of_not_le {α} [LinearOrder α] {a b : α} (h : ¬ a ≤ b) : b < a := by
-  cases LinearOrder.trichotomy a b
-  next h₁ h₂ => have := Preorder.lt_iff_le_not_le.mp h₂; simp [h] at this
-  next h =>
-    cases h
-    next h => subst a; exact False.elim <| h (Preorder.le_refl b)
-    next => assumption
-
 theorem not_le_norm {α} [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : norm_cert rhs lhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → p.denote ctx < 0 := by
   simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote, h₁, sub_self]
-  replace h₁ := lt_of_not_le h₁
+  replace h₁ := LinearOrder.lt_of_not_le h₁
   replace h₁ := add_lt_left h₁ (-lhs.denote ctx)
   simp [← sub_eq_add_neg, sub_self] at h₁
   assumption
@@ -410,10 +397,26 @@ theorem not_le_norm {α} [IntModule α] [LinearOrder α] [IntModule.IsOrdered α
 theorem not_lt_norm {α} [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : norm_cert rhs lhs p → ¬ lhs.denote ctx < rhs.denote ctx → p.denote ctx ≤ 0 := by
   simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote, h₁, sub_self]
-  replace h₁ := le_of_not_lt h₁
+  replace h₁ := LinearOrder.le_of_not_lt h₁
   replace h₁ := add_le_left h₁ (-lhs.denote ctx)
   simp [← sub_eq_add_neg, sub_self] at h₁
   assumption
+
+-- If the module does not have a linear order, we can still put the expressions in polynomial forms
+
+theorem not_le_norm' {α} [IntModule α] [Preorder α] [IntModule.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+    : norm_cert lhs rhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → ¬ p.denote ctx ≤ 0 := by
+  simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote, h₁, sub_self]; intro h
+  replace h := add_le_right (rhs.denote ctx) h
+  rw [sub_eq_add_neg, add_left_comm, ← sub_eq_add_neg, sub_self] at h; simp at h
+  contradiction
+
+theorem not_lt_norm' {α} [IntModule α] [Preorder α] [IntModule.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+    : norm_cert lhs rhs p → ¬ lhs.denote ctx < rhs.denote ctx → ¬ p.denote ctx < 0 := by
+  simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote, h₁, sub_self]; intro h
+  replace h := add_lt_right (rhs.denote ctx) h
+  rw [sub_eq_add_neg, add_left_comm, ← sub_eq_add_neg, sub_self] at h; simp at h
+  contradiction
 
 /-!
 Equality detection
@@ -459,7 +462,7 @@ theorem le_coeff {α} [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (
   simp [coeff_cert]; intro h _; subst p₁; simp
   have : ↑k > (0 : Int) := Int.natCast_pos.mpr h
   intro h₁; apply Classical.byContradiction
-  intro h₂; replace h₂ := lt_of_not_le h₂
+  intro h₂; replace h₂ := LinearOrder.lt_of_not_le h₂
   replace h₂ := IsOrdered.hmul_pos (↑k) h₂ |>.mp this
   exact Preorder.lt_irrefl 0 (Preorder.lt_of_lt_of_le h₂ h₁)
 
@@ -468,7 +471,7 @@ theorem lt_coeff {α} [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (
   simp [coeff_cert]; intro h _; subst p₁; simp
   have : ↑k > (0 : Int) := Int.natCast_pos.mpr h
   intro h₁; apply Classical.byContradiction
-  intro h₂; replace h₂ := le_of_not_lt h₂
+  intro h₂; replace h₂ := LinearOrder.le_of_not_lt h₂
   replace h₂ := IsOrdered.hmul_nonneg (Int.le_of_lt this) h₂
   exact Preorder.lt_irrefl 0 (Preorder.lt_of_le_of_lt h₂ h₁)
 

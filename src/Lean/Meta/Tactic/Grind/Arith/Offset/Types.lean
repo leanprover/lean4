@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Data.AssocList
 import Lean.Data.PersistentArray
-import Lean.Meta.Tactic.Grind.ENodeKey
+import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.Offset.Util
 
@@ -43,9 +43,9 @@ structure State where
   /-- Mapping from `NodeId` to the `Expr` represented by the node. -/
   nodes    : PArray Expr := {}
   /-- Mapping from `Expr` to a node representing it. -/
-  nodeMap  : PHashMap ENodeKey NodeId := {}
+  nodeMap  : PHashMap ExprPtr NodeId := {}
   /-- Mapping from `Expr` representing inequalites to constraints. -/
-  cnstrs   : PHashMap ENodeKey (Cnstr NodeId) := {}
+  cnstrs   : PHashMap ExprPtr (Cnstr NodeId) := {}
   /--
   Mapping from pairs `(u, v)` to a list of offset constraints on `u` and `v`.
   We use this mapping to implement exhaustive constraint propagation.

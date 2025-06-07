@@ -157,7 +157,7 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
   return {
     stx, docString?, visibility, recKind, attrs,
     isUnsafe        := !unsafeStx.isNone
-    isNoncomputable := !noncompStx.isNone
+    isNoncomputable
   }
 
 /--

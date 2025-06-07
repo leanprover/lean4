@@ -135,6 +135,21 @@ structure ModuleData where
   entries         : Array (Name × Array EnvExtensionEntry)
   deriving Inhabited
 
+/-- Phases for which some IR is available for execution. -/
+inductive IRPhases where
+  /-- Available for execution in the final native code. -/
+  | runtime
+  /-- Available for execution during elaboration. -/
+  | comptime
+  /-- Available during run time and compile time. -/
+  | all
+deriving Inhabited, BEq, Repr
+
+/-- Import including information resulting from processing of the entire import DAG. -/
+structure EffectiveImport extends Import where
+  /-- Phases for which the import's IR is available. -/
+  irPhases : IRPhases
+
 /-- Environment fields that are not used often. -/
 structure EnvironmentHeader where
   /--
@@ -153,13 +168,21 @@ structure EnvironmentHeader where
   /-- Compacted regions for all imported modules. Objects in compacted memory regions do no require any memory management. -/
   regions      : Array CompactedRegion := #[]
   /--
-  Name of all imported modules (directly and indirectly).
-  The index of a module name in the array equals the `ModuleIdx` for the same module.
+  Direct and transitive imports. Modules are given with their effective import modifiers, not their
+  original ones. Each module is listed at most once. The index of a module in the array equals the
+  `ModuleIdx` for the same module.
   -/
-  moduleNames  : Array Name   := #[]
+  modules      : Array EffectiveImport := #[]
   /-- Module data for all imported modules. -/
   moduleData   : Array ModuleData := #[]
   deriving Nonempty
+
+/--
+Name of all imported modules (directly and indirectly).
+The index of a module name in the array equals the `ModuleIdx` for the same module.
+-/
+def EnvironmentHeader.moduleNames (header : EnvironmentHeader) : Array Name :=
+  header.modules.map (·.module)
 
 namespace Kernel
 
@@ -1155,7 +1178,7 @@ def isSafeDefinition (env : Environment) (declName : Name) : Bool :=
   | _ => false
 
 def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
-  env.header.moduleNames.findIdx? (· == moduleName)
+  env.header.modules.findIdx? (·.module == moduleName)
 
 end Environment
 
@@ -1465,7 +1488,10 @@ inductive OLeanLevel where
   | server
   /-- Private module data. -/
   | «private»
-deriving DecidableEq
+deriving DecidableEq, Ord
+
+instance : LE OLeanLevel := leOfOrd
+instance : LT OLeanLevel := ltOfOrd
 
 /--
 An environment extension with support for storing/retrieving entries from a .olean file.
@@ -1809,7 +1835,7 @@ where
     else
       return env
 
-private structure ImportedModule extends Import where
+private structure ImportedModule extends EffectiveImport where
   /-- All loaded incremental compacted regions. -/
   parts     : Array (ModuleData × CompactedRegion)
 
@@ -1872,7 +1898,7 @@ private def findOLeanParts (mod : Name) : IO (Array System.FilePath) := do
 
 partial def importModulesCore
     (imports : Array Import) (isModule := false) (arts : NameMap ModuleArtifacts := {}) :
-    ImportStateM Unit := go imports (importAll := true) (isExported := isModule)
+    ImportStateM Unit := go imports (importAll := true) (isExported := isModule) (isMeta := false)
 /-
 When the module system is disabled for the root, we import all transitively referenced modules and
 ignore any module sytem annotations on the way.
@@ -1912,7 +1938,7 @@ For implementation purposes, we represent elements in the lattice using two flag
 
 `none` then is represented by not visiting a module at all.
 -/
-where go (imports : Array Import) (importAll : Bool) (isExported : Bool) := do
+where go (imports : Array Import) (importAll isExported isMeta : Bool) := do
   for i in imports do
     -- `B = none`?
     if !(i.isExported || importAll) then
@@ -1921,13 +1947,17 @@ where go (imports : Array Import) (importAll : Bool) (isExported : Bool) := do
     let importAll := !isModule || (importAll && i.importAll)
     -- `B ≥ public`?
     let isExported := isExported && i.isExported
+    let irPhases := if isMeta || i.isMeta then .comptime else .runtime
     let goRec imports := do
-      go (importAll := importAll) (isExported := isExported) imports
+      go (importAll := importAll) (isExported := isExported) (isMeta := isMeta || i.isMeta) imports
     if let some mod := (← get).moduleNameMap[i.module]? then
       -- when module is already imported, bump flags
-      if importAll && !mod.importAll || isExported && !mod.isExported then
+      let importAll := importAll || mod.importAll
+      let isExported := isExported || mod.isExported
+      let irPhases := if irPhases == mod.irPhases then irPhases else .all
+      if importAll != mod.importAll || isExported != mod.isExported || irPhases != mod.irPhases then
         modify fun s => { s with moduleNameMap := s.moduleNameMap.insert i.module { mod with
-          importAll, isExported }}
+          importAll, isExported, irPhases }}
         -- bump entire closure
         if let some mod := mod.mainModule? then
           goRec mod.imports
@@ -1950,7 +1980,7 @@ where go (imports : Array Import) (importAll : Bool) (isExported : Bool) := do
           if !mod.isModule then
             throw <| IO.userError s!"cannot import non`-module` {i'.module} from `module` {i.module}"
     modify fun s => { s with
-      moduleNameMap := s.moduleNameMap.insert i.module { i with importAll, isExported, parts }
+      moduleNameMap := s.moduleNameMap.insert i.module { i with importAll, isExported, irPhases, parts }
       moduleNames := s.moduleNames.push i.module
     }
 
@@ -2042,10 +2072,9 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     extraConstNames := {}
     extensions      := exts
     header     := {
-      trustLevel, imports, moduleData
-      isModule
+      trustLevel, imports, moduleData, isModule
+      modules      := modules.map (·.toEffectiveImport)
       regions      := modules.flatMap (·.parts.map (·.2))
-      moduleNames  := s.moduleNames
     }
   }
   let publicConstants : ConstMap := SMap.fromHashMap publicConstantMap false
@@ -2191,7 +2220,16 @@ def displayStats (env : Environment) : IO Unit := do
   This function is only safe to use if the type matches the declaration's type in the environment
   and if `enableInitializersExecution` has been used before importing any modules. -/
 @[extern "lean_eval_const"]
-unsafe opaque evalConst (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) : Except String α
+private unsafe opaque evalConstCore (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) : Except String α
+
+@[extern "lean_get_ir_phases"]
+private opaque getIRPhases (env : Environment) (constName : Name) : IRPhases
+
+unsafe def evalConst (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) (checkMeta := true) : Except String α :=
+  if checkMeta && getIRPhases env constName == .runtime then
+    throw ("cannot evaluate non-`meta` constant '" ++ toString constName ++ "'")
+  else
+    evalConstCore α env opts constName
 
 private def throwUnexpectedType {α} (typeName : Name) (constName : Name) : ExceptT String Id α :=
   throw ("unexpected type at '" ++ toString constName ++ "', `" ++ toString typeName ++ "` expected")

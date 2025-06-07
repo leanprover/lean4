@@ -326,13 +326,22 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
         else if preDefs.any (·.modifiers.isUnsafe) then
           addAndCompileUnsafe preDefs
           preDefs.forM (·.termination.ensureNone "unsafe")
-        else if preDefs.any (·.modifiers.isPartial) then
-          for preDef in preDefs do
-            if preDef.modifiers.isPartial && !(← whnfD preDef.type).isForall then
-              withRef preDef.ref <| throwError "invalid use of 'partial', '{preDef.declName}' is not a function{indentExpr preDef.type}"
-          addAndCompilePartial preDefs
-          preDefs.forM (·.termination.ensureNone "partial")
         else
+          if preDefs.any (·.modifiers.isInferredPartial) then
+            let mut isPartial := true
+            for preDef in preDefs do
+              if !(← whnfD preDef.type).isForall then
+                if preDef.modifiers.isPartial then
+                  withRef preDef.ref <| throwError "invalid use of 'partial', '{preDef.declName}' is not a function{indentExpr preDef.type}"
+                else
+                  -- `meta` should not imply `partial` in this case
+                  isPartial := false
+
+            if isPartial then
+              addAndCompilePartial preDefs
+              preDefs.forM (·.termination.ensureNone "partial")
+              continue
+
           ensureFunIndReservedNamesAvailable preDefs
           try
             checkCodomainsLevel preDefs

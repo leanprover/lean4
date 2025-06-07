@@ -51,7 +51,7 @@ static lean_object* l_Lean_IR_EmitC_emitCtorScalarSize___closed__1;
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__1___closed__7;
 LEAN_EXPORT lean_object* l_List_forM___at_Lean_IR_EmitC_emitMainFn___spec__3(lean_object*, lean_object*, lean_object*);
-lean_object* lean_ir_find_env_decl(lean_object*, lean_object*);
+lean_object* l_Lean_IR_findEnvDecl(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_throwUnknownVar___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_toStringArgs(lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitNumLit___closed__5;
@@ -742,73 +742,75 @@ x_4 = l_Lean_IR_EmitC_getEnv(x_2, x_3);
 x_5 = !lean_is_exclusive(x_4);
 if (x_5 == 0)
 {
-lean_object* x_6; lean_object* x_7; 
+lean_object* x_6; uint8_t x_7; lean_object* x_8; 
 x_6 = lean_ctor_get(x_4, 0);
+x_7 = 1;
 lean_inc(x_1);
-x_7 = lean_ir_find_env_decl(x_6, x_1);
-if (lean_obj_tag(x_7) == 0)
+x_8 = l_Lean_IR_findEnvDecl(x_6, x_1, x_7);
+if (lean_obj_tag(x_8) == 0)
 {
-uint8_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_8 = 1;
-x_9 = l_Lean_IR_EmitC_getDecl___closed__1;
-x_10 = l_Lean_Name_toString(x_1, x_8, x_9);
-x_11 = l_Lean_IR_EmitC_getDecl___closed__2;
-x_12 = lean_string_append(x_11, x_10);
-lean_dec(x_10);
-x_13 = l_Lean_IR_EmitC_getDecl___closed__3;
-x_14 = lean_string_append(x_12, x_13);
+uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_9 = 1;
+x_10 = l_Lean_IR_EmitC_getDecl___closed__1;
+x_11 = l_Lean_Name_toString(x_1, x_9, x_10);
+x_12 = l_Lean_IR_EmitC_getDecl___closed__2;
+x_13 = lean_string_append(x_12, x_11);
+lean_dec(x_11);
+x_14 = l_Lean_IR_EmitC_getDecl___closed__3;
+x_15 = lean_string_append(x_13, x_14);
 lean_ctor_set_tag(x_4, 1);
-lean_ctor_set(x_4, 0, x_14);
-return x_4;
-}
-else
-{
-lean_object* x_15; 
-lean_dec(x_1);
-x_15 = lean_ctor_get(x_7, 0);
-lean_inc(x_15);
-lean_dec(x_7);
 lean_ctor_set(x_4, 0, x_15);
 return x_4;
 }
-}
 else
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_16 = lean_ctor_get(x_4, 0);
-x_17 = lean_ctor_get(x_4, 1);
-lean_inc(x_17);
-lean_inc(x_16);
-lean_dec(x_4);
-lean_inc(x_1);
-x_18 = lean_ir_find_env_decl(x_16, x_1);
-if (lean_obj_tag(x_18) == 0)
-{
-uint8_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-x_19 = 1;
-x_20 = l_Lean_IR_EmitC_getDecl___closed__1;
-x_21 = l_Lean_Name_toString(x_1, x_19, x_20);
-x_22 = l_Lean_IR_EmitC_getDecl___closed__2;
-x_23 = lean_string_append(x_22, x_21);
-lean_dec(x_21);
-x_24 = l_Lean_IR_EmitC_getDecl___closed__3;
-x_25 = lean_string_append(x_23, x_24);
-x_26 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_26, 0, x_25);
-lean_ctor_set(x_26, 1, x_17);
-return x_26;
-}
-else
-{
-lean_object* x_27; lean_object* x_28; 
+lean_object* x_16; 
 lean_dec(x_1);
-x_27 = lean_ctor_get(x_18, 0);
-lean_inc(x_27);
-lean_dec(x_18);
-x_28 = lean_alloc_ctor(0, 2, 0);
+x_16 = lean_ctor_get(x_8, 0);
+lean_inc(x_16);
+lean_dec(x_8);
+lean_ctor_set(x_4, 0, x_16);
+return x_4;
+}
+}
+else
+{
+lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; 
+x_17 = lean_ctor_get(x_4, 0);
+x_18 = lean_ctor_get(x_4, 1);
+lean_inc(x_18);
+lean_inc(x_17);
+lean_dec(x_4);
+x_19 = 1;
+lean_inc(x_1);
+x_20 = l_Lean_IR_findEnvDecl(x_17, x_1, x_19);
+if (lean_obj_tag(x_20) == 0)
+{
+uint8_t x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
+x_21 = 1;
+x_22 = l_Lean_IR_EmitC_getDecl___closed__1;
+x_23 = l_Lean_Name_toString(x_1, x_21, x_22);
+x_24 = l_Lean_IR_EmitC_getDecl___closed__2;
+x_25 = lean_string_append(x_24, x_23);
+lean_dec(x_23);
+x_26 = l_Lean_IR_EmitC_getDecl___closed__3;
+x_27 = lean_string_append(x_25, x_26);
+x_28 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_28, 0, x_27);
-lean_ctor_set(x_28, 1, x_17);
+lean_ctor_set(x_28, 1, x_18);
 return x_28;
+}
+else
+{
+lean_object* x_29; lean_object* x_30; 
+lean_dec(x_1);
+x_29 = lean_ctor_get(x_20, 0);
+lean_inc(x_29);
+lean_dec(x_20);
+x_30 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_30, 0, x_29);
+lean_ctor_set(x_30, 1, x_18);
+return x_30;
 }
 }
 }

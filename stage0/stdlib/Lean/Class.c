@@ -19,6 +19,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAtAux___at_Lean_isClas
 LEAN_EXPORT lean_object* l_Lean_ClassState_switch(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_798____closed__16;
 size_t lean_usize_shift_right(size_t, size_t);
+lean_object* l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at_Lean_ClassState_addEntry___spec__8(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedClassState___closed__2;
 static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_798____closed__8;
@@ -116,7 +117,6 @@ lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContex
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 uint8_t lean_is_out_param(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_ClassState_addEntry___spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Class___hyg_798____lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_BinderInfo_isInstImplicit(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_ClassState_addEntry___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1665,23 +1665,22 @@ return x_1;
 static lean_object* _init_l_Lean_initFn____x40_Lean_Class___hyg_92____closed__7() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; lean_object* x_8; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
 x_1 = lean_box(0);
 x_2 = l_Lean_initFn____x40_Lean_Class___hyg_92____closed__3;
 x_3 = l_Lean_initFn____x40_Lean_Class___hyg_92____closed__4;
 x_4 = l_Lean_initFn____x40_Lean_Class___hyg_92____closed__5;
 x_5 = l_Lean_initFn____x40_Lean_Class___hyg_92____closed__6;
 x_6 = 2;
-x_7 = 1;
-x_8 = lean_alloc_ctor(0, 5, 2);
-lean_ctor_set(x_8, 0, x_2);
-lean_ctor_set(x_8, 1, x_3);
-lean_ctor_set(x_8, 2, x_4);
-lean_ctor_set(x_8, 3, x_5);
-lean_ctor_set(x_8, 4, x_1);
-lean_ctor_set_uint8(x_8, sizeof(void*)*5, x_6);
-lean_ctor_set_uint8(x_8, sizeof(void*)*5 + 1, x_7);
-return x_8;
+x_7 = lean_alloc_ctor(0, 6, 1);
+lean_ctor_set(x_7, 0, x_2);
+lean_ctor_set(x_7, 1, x_3);
+lean_ctor_set(x_7, 2, x_4);
+lean_ctor_set(x_7, 3, x_5);
+lean_ctor_set(x_7, 4, x_1);
+lean_ctor_set(x_7, 5, x_1);
+lean_ctor_set_uint8(x_7, sizeof(void*)*6, x_6);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Class___hyg_92_(lean_object* x_1) {
@@ -3774,7 +3773,7 @@ lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
 lean_dec(x_8);
-x_11 = l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__4(x_9, x_4, x_5, x_10);
+x_11 = l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__7(x_9, x_4, x_5, x_10);
 return x_11;
 }
 else

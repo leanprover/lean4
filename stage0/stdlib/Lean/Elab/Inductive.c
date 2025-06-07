@@ -470,6 +470,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_transformWithCache_visit_visitLet___at___pr
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
 static lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_elabCtors_checkParamOccs___closed__1;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_reorderCtorArgs___spec__4___lambda__1___boxed(lean_object*, lean_object*);
+uint8_t l_Lean_Elab_Modifiers_isNoncomputable(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabInductiveCommand___regBuiltin_Lean_Elab_Command_elabInductiveCommand__1___closed__3;
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -2707,14 +2708,14 @@ lean_dec(x_61);
 if (x_63 == 0)
 {
 uint8_t x_64; 
-x_64 = 1;
+x_64 = 2;
 x_25 = x_64;
 goto block_59;
 }
 else
 {
 uint8_t x_65; 
-x_65 = 0;
+x_65 = 1;
 x_25 = x_65;
 goto block_59;
 }
@@ -3053,7 +3054,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Command_checkValidCtorModifier___at___priva
 _start:
 {
 uint8_t x_9; 
-x_9 = lean_ctor_get_uint8(x_1, sizeof(void*)*3 + 1);
+x_9 = l_Lean_Elab_Modifiers_isNoncomputable(x_1);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 

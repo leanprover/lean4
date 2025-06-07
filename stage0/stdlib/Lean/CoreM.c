@@ -1879,7 +1879,7 @@ return x_10;
 else
 {
 uint8_t x_11; 
-x_11 = lean_ctor_get_uint8(x_1, sizeof(void*)*8);
+x_11 = lean_ctor_get_uint8(x_1, sizeof(void*)*9);
 if (x_11 == 0)
 {
 uint8_t x_12; 
@@ -27642,7 +27642,7 @@ lean_dec(x_5);
 x_8 = lean_ctor_get(x_6, 0);
 lean_inc(x_8);
 lean_dec(x_6);
-x_9 = lean_ctor_get_uint8(x_8, sizeof(void*)*8);
+x_9 = lean_ctor_get_uint8(x_8, sizeof(void*)*9);
 lean_dec(x_8);
 x_10 = lean_st_ref_take(x_3, x_7);
 x_11 = lean_ctor_get(x_10, 0);
@@ -28996,7 +28996,7 @@ lean_inc(x_26);
 x_27 = lean_ctor_get(x_25, 1);
 lean_inc(x_27);
 lean_dec(x_25);
-x_28 = lean_ctor_get(x_11, 2);
+x_28 = lean_ctor_get(x_11, 3);
 lean_inc(x_28);
 lean_dec(x_11);
 x_29 = l_Task_Priority_default;
@@ -29175,7 +29175,7 @@ lean_dec(x_14);
 x_17 = lean_ctor_get(x_15, 0);
 lean_inc(x_17);
 lean_dec(x_15);
-x_18 = lean_ctor_get(x_17, 2);
+x_18 = lean_ctor_get(x_17, 3);
 lean_inc(x_18);
 lean_dec(x_17);
 x_19 = l_Lean_compileDecls___closed__2;
@@ -29290,7 +29290,7 @@ lean_dec(x_40);
 x_43 = lean_ctor_get(x_41, 0);
 lean_inc(x_43);
 lean_dec(x_41);
-x_44 = lean_ctor_get(x_43, 2);
+x_44 = lean_ctor_get(x_43, 3);
 lean_inc(x_44);
 lean_dec(x_43);
 x_45 = l_Lean_compileDecls___closed__2;

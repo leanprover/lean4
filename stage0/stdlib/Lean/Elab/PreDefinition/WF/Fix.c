@@ -16014,7 +16014,7 @@ lean_dec(x_20);
 x_23 = lean_ctor_get(x_21, 0);
 lean_inc(x_23);
 lean_dec(x_21);
-x_24 = lean_ctor_get_uint8(x_23, sizeof(void*)*8);
+x_24 = lean_ctor_get_uint8(x_23, sizeof(void*)*9);
 lean_dec(x_23);
 x_25 = lean_st_ref_take(x_5, x_22);
 x_26 = lean_ctor_get(x_25, 0);

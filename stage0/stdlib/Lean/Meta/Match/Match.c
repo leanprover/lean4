@@ -33749,7 +33749,7 @@ lean_dec(x_140);
 x_143 = lean_ctor_get(x_141, 0);
 lean_inc(x_143);
 lean_dec(x_141);
-x_144 = lean_ctor_get_uint8(x_143, sizeof(void*)*8);
+x_144 = lean_ctor_get_uint8(x_143, sizeof(void*)*9);
 lean_dec(x_143);
 x_145 = lean_st_ref_take(x_10, x_142);
 x_146 = lean_ctor_get(x_145, 0);

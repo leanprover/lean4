@@ -1263,7 +1263,7 @@ x_6 = lean_box(0);
 x_7 = l_Lake_importModulesUsingCache___lambda__1___closed__1;
 x_8 = 0;
 x_9 = 1;
-x_10 = 2;
+x_10 = 3;
 lean_inc(x_1);
 x_11 = l_Lean_importModules(x_1, x_2, x_3, x_7, x_8, x_9, x_10, x_6, x_5);
 if (lean_obj_tag(x_11) == 0)

@@ -31,7 +31,6 @@ LEAN_EXPORT lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind
 lean_object* l_Lean_getConstInfo___at___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerInternalExceptionId(lean_object*, lean_object*);
-lean_object* lean_eval_const(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__9;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -54,6 +53,7 @@ static lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__11;
 lean_object* l_Lean_KeyedDeclsAttribute_getValues___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
+lean_object* l_Lean_Environment_evalConst___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* _init_l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_Basic___hyg_4____closed__1() {
 _start:
 {
@@ -207,7 +207,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; 
 x_5 = lean_st_ref_get(x_3, x_4);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
@@ -218,11 +218,11 @@ x_8 = lean_ctor_get(x_6, 0);
 lean_inc(x_8);
 lean_dec(x_6);
 x_9 = lean_ctor_get(x_2, 2);
-x_10 = lean_eval_const(x_8, x_9, x_1);
-lean_dec(x_8);
-x_11 = l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg(x_10, x_2, x_3, x_7);
-lean_dec(x_10);
-return x_11;
+x_10 = 1;
+x_11 = l_Lean_Environment_evalConst___rarg(x_8, x_9, x_1, x_10);
+x_12 = l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg(x_11, x_2, x_3, x_7);
+lean_dec(x_11);
+return x_12;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2(lean_object* x_1) {
@@ -404,7 +404,6 @@ else
 lean_object* x_33; 
 lean_dec(x_1);
 x_33 = l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(x_2, x_4, x_5, x_15);
-lean_dec(x_2);
 if (lean_obj_tag(x_33) == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; 
@@ -449,7 +448,6 @@ lean_object* x_41;
 lean_dec(x_16);
 lean_dec(x_1);
 x_41 = l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(x_2, x_4, x_5, x_15);
-lean_dec(x_2);
 if (lean_obj_tag(x_41) == 0)
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; 
@@ -603,7 +601,6 @@ else
 lean_object* x_78; 
 lean_dec(x_1);
 x_78 = l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(x_2, x_4, x_5, x_60);
-lean_dec(x_2);
 if (lean_obj_tag(x_78) == 0)
 {
 lean_object* x_79; lean_object* x_80; lean_object* x_81; 
@@ -650,7 +647,6 @@ lean_object* x_86;
 lean_dec(x_61);
 lean_dec(x_1);
 x_86 = l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(x_2, x_4, x_5, x_60);
-lean_dec(x_2);
 if (lean_obj_tag(x_86) == 0)
 {
 lean_object* x_87; lean_object* x_88; lean_object* x_89; 
@@ -786,7 +782,6 @@ lean_object* x_5;
 x_5 = l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_5;
 }
 }

@@ -49,7 +49,6 @@ lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_evalExprCore___rarg___lambda__1___closed__1;
 lean_object* l_Lean_Option_get___at_Lean_profiler_threshold_getSecs___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_evalExpr___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_eval_const(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_evalExprCore___spec__4(lean_object*, lean_object*, size_t, size_t);
 lean_object* l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_evalExpr___rarg___lambda__1___closed__2;
@@ -111,6 +110,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_evalExpr___rarg___lambda__1(lean_object*, l
 lean_object* l_Lean_addAndCompile(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_evalExpr_x27(lean_object*);
 static lean_object* l_Lean_Meta_evalExprCore___rarg___lambda__3___closed__11;
+lean_object* l_Lean_Environment_evalConst___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Meta_evalExprCore___rarg___lambda__2___closed__4;
 LEAN_EXPORT lean_object* l_Lean_evalConst___at_Lean_Meta_evalExprCore___spec__1(lean_object*);
 static lean_object* l_Lean_Meta_evalExprCore___rarg___lambda__3___closed__5;
@@ -194,7 +194,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_evalConst___at_Lean_Meta_evalExprCore___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; 
 x_7 = lean_st_ref_get(x_5, x_6);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
@@ -205,11 +205,11 @@ x_10 = lean_ctor_get(x_8, 0);
 lean_inc(x_10);
 lean_dec(x_8);
 x_11 = lean_ctor_get(x_4, 2);
-x_12 = lean_eval_const(x_10, x_11, x_1);
-lean_dec(x_10);
-x_13 = l_Lean_ofExcept___at_Lean_Meta_evalExprCore___spec__2___rarg(x_12, x_2, x_3, x_4, x_5, x_9);
-lean_dec(x_12);
-return x_13;
+x_12 = 1;
+x_13 = l_Lean_Environment_evalConst___rarg(x_10, x_11, x_1, x_12);
+x_14 = l_Lean_ofExcept___at_Lean_Meta_evalExprCore___spec__2___rarg(x_13, x_2, x_3, x_4, x_5, x_9);
+lean_dec(x_13);
+return x_14;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_evalConst___at_Lean_Meta_evalExprCore___spec__1(lean_object* x_1) {
@@ -399,6 +399,7 @@ else
 uint8_t x_19; 
 lean_dec(x_8);
 lean_dec(x_9);
+lean_dec(x_4);
 x_19 = !lean_is_exclusive(x_16);
 if (x_19 == 0)
 {
@@ -483,6 +484,7 @@ else
 lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
 lean_dec(x_37);
 lean_dec(x_9);
+lean_dec(x_4);
 x_41 = lean_ctor_get(x_38, 0);
 lean_inc(x_41);
 x_42 = lean_ctor_get(x_38, 1);
@@ -618,7 +620,7 @@ lean_dec(x_24);
 x_27 = lean_ctor_get(x_25, 0);
 lean_inc(x_27);
 lean_dec(x_25);
-x_28 = lean_ctor_get(x_27, 2);
+x_28 = lean_ctor_get(x_27, 3);
 lean_inc(x_28);
 lean_dec(x_27);
 x_29 = l_Lean_Meta_evalExprCore___rarg___lambda__2___closed__1;
@@ -658,7 +660,6 @@ x_72 = lean_box(0);
 x_73 = l_Lean_Meta_evalExprCore___rarg___lambda__1(x_35, x_37, x_23, x_4, x_8, x_9, x_72, x_10, x_11, x_40);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec(x_4);
 return x_73;
 }
 else
@@ -685,7 +686,6 @@ x_76 = lean_box(0);
 x_77 = l_Lean_Meta_evalExprCore___rarg___lambda__1(x_35, x_37, x_23, x_4, x_8, x_9, x_76, x_10, x_11, x_40);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec(x_4);
 return x_77;
 }
 }
@@ -718,7 +718,6 @@ x_53 = lean_box(0);
 x_54 = l_Lean_Meta_evalExprCore___rarg___lambda__1(x_35, x_37, x_23, x_4, x_8, x_9, x_53, x_10, x_11, x_52);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec(x_4);
 return x_54;
 }
 else
@@ -761,7 +760,6 @@ x_68 = lean_box(0);
 x_69 = l_Lean_Meta_evalExprCore___rarg___lambda__1(x_35, x_37, x_23, x_4, x_8, x_9, x_68, x_10, x_11, x_67);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec(x_4);
 return x_69;
 }
 }
@@ -1460,7 +1458,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_7;
 }
 }
@@ -1489,7 +1486,6 @@ x_12 = l_Lean_Meta_evalExprCore___rarg___lambda__1(x_1, x_11, x_3, x_4, x_5, x_6
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
 return x_12;
 }
 }

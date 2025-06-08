@@ -8,9 +8,8 @@ import Lean.Util.Sorry
 import Lean.Widget.Types
 import Lean.Message
 import Lean.DocString.Links
--- This import is necessary to ensure that any users of the `logNamedError` macros have access to
--- all declared explanations:
-import Lean.ErrorExplanations
+-- TODO: This import should be changed to `Lean.ErrorExplanations` after the stage0 rebuild
+import Lean.ErrorExplanation
 
 namespace Lean
 

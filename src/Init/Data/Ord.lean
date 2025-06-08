@@ -670,11 +670,11 @@ protected theorem _root_.List.compareLex_eq_compareLex_toArray {α} {cmp} {l₁ 
   induction l₁ generalizing l₂ with
   | nil =>
     cases l₂
-    · simp [Array.compareLex.go, List.compareLex_nil_nil]
-    · simp [Array.compareLex.go, List.compareLex_nil_cons]
+    · unfold Array.compareLex.go; simp [List.compareLex_nil_nil]
+    · unfold Array.compareLex.go; unfold Array.compareLex.go; simp [List.compareLex_nil_cons]
   | cons x xs ih =>
     cases l₂
-    · simp [Array.compareLex.go, List.compareLex_cons_nil]
+    · unfold Array.compareLex.go; unfold Array.compareLex.go; simp [List.compareLex_cons_nil]
     · rw [Array.compareLex.go, List.compareLex_cons_cons]
       simp only [List.size_toArray, List.length_cons, Nat.le_zero_eq, Nat.add_one_ne_zero,
         ↓reduceDIte, List.getElem_toArray, List.getElem_cons_zero, Nat.zero_add]

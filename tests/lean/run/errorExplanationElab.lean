@@ -3,7 +3,9 @@ import Lean.Meta.Basic
 open Lean Meta
 
 /-!
-# Error explanation non-interactive tests
+# Error explanation non-interactive elaboration tests
+
+Tests the elaborators for `register_error_explanation` and named-error macros.
 -/
 
 /-! ## Name and metadata -/

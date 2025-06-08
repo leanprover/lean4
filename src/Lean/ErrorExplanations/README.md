@@ -12,11 +12,11 @@ external documentation linked from error messages.
 
 Explanations straddle the line between diagnostics and documentation:
 unlike the error messages they describe, explanations serve not only
-to aid the debugging process but also to deepen users' understanding
-of the relevant language features. Accordingly, error explanations
-should be written with both of these aims in mind. Refer to existing
-explanations for examples of the formatting and content conventions
-described here.
+to aid the debugging process but also to help users understand the
+principles of the language that underlie the error. Accordingly, error
+explanations should be written with both of these aims in mind. Refer
+to existing explanations for examples of the formatting and content
+conventions described here.
 
 Once an error explanation has been registered, use the macros
 `throwNamedError`, `logNamedError`, `throwNamedErrorAt` and
@@ -52,17 +52,17 @@ for "independent," since the latter could be confused with
 
 ### Descriptions
 
-Error explanations broadly consist of two parts: a prose description
-of the error, followed by code examples. The description should begin
-by explaining the meaning of the error and why it occurs. It should
-also briefly explain, if appropriate, any relevant context, such as
-related errors or relevant entries in the reference manual. The latter
-is especially useful for directing users to important concepts for
-understanding an error: while it is appropriate to provide brief
-conceptual exposition in an error explanation, avoid extensively
-duplicating content that can be found elsewhere in the manual. General
-resolution or debugging strategies not tied to specific examples can
-also be discussed in the description portion of an explanation.
+Error explanations consist of two parts: a prose description of the
+error and code examples. The description should begin by explaining
+the meaning of the error and why it occurs. It should also briefly
+explain, if appropriate, any relevant context, such as related errors
+or relevant entries in the reference manual. The latter is especially
+useful for directing users to important concepts for understanding an
+error: while it is appropriate to provide brief conceptual exposition
+in an error explanation, avoid extensively duplicating content that
+can be found elsewhere in the manual. General resolution or debugging
+strategies not tied to specific examples can also be discussed in the
+description portion of an explanation.
 
 ### Examples
 
@@ -70,13 +70,13 @@ The second half of an explanation (set off by the level-1 header
 "Examples") contains annotated code examples. Each of these consists
 of a level-2 header with the name of the example, followed immediately
 by a sequence of code blocks containing self-contained minimal working
-examples (MWE) and outputs. The first MWE should have the Markdown
-info string `lean broken` and demonstrate the error in question, and
-be followed by an `output` code block with the corresponding error
-message; subsequent MWEs should have the info string `lean fixed` and
-illustrate how to rewrite the code correctly. Finally, after these
-MWEs, include explanatory text describing the example and the cause
-and resolution of the error it demonstrates.
+(or error-producing) examples (MWEs) and outputs. The first MWE should
+have the Markdown info string `lean broken` and demonstrate the error
+in question; it should be followed by an `output` code block with the
+corresponding error message. Subsequent MWEs should have the info
+string `lean fixed` and illustrate how to rewrite the code correctly.
+Finally, after these MWEs, include explanatory text describing the
+example and the cause and resolution of the error it demonstrates.
 
 Note that each MWE in an example will be rendered as a tab, and the
 full example (including its explanatory text) will appear in a

@@ -9,7 +9,6 @@ import Lean.Meta.Eval
 import Lean.Elab.Term
 import Lean.Elab.Command
 import Lean.Widget.UserWidget
-import Std.Internal.Parsec
 
 namespace Lean.Elab.ErrorExplanation
 

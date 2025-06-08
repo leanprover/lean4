@@ -4,11 +4,7 @@ import Lean.Elab.Tactic.Basic
 Kernel errors should not lead to follow-up errors but should be detectable using `#print axioms`.
 -/
 
-/--
-error: (kernel) declaration has metavariables 'bad'
----
-error: unknown metavariable '?_uniq.3'
--/
+/-- error: (kernel) declaration has metavariables 'bad' -/
 #guard_msgs in
 def bad : Empty := by
   run_tac do Lean.Elab.Tactic.popMainGoal

@@ -67,7 +67,7 @@ trace: [Compiler.result] size: 5
       let _x.4 : String := "Erased";
       let _x.5 : String := "mk";
       let _x.6 : Lean.Name := Lean.Name.mkStr2 _x.4 _x.5;
-      let _x.7 : Nat := nat_lit 1;
+      let _x.7 : Nat := 1;
       let _x.8 : Array Lean.Name := Array.mkEmpty ◾ _x.7;
       let _x.9 : Array Lean.Name := Array.push ◾ _x.8 _x.6;
       let _x.10 : PUnit := PUnit.unit;

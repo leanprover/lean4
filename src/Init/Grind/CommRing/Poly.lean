@@ -1178,31 +1178,31 @@ theorem lt_norm {α} [CommRing α] [Preorder α] [Ring.IsOrdered α] (ctx : Cont
   assumption
 
 theorem not_le_norm {α} [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
-    : core_cert rhs lhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → p.denote ctx < 0 := by
-  simp [core_cert]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]
+    : core_cert rhs lhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → p.denoteAsIntModule ctx < 0 := by
+  simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]
   replace h₁ := LinearOrder.lt_of_not_le h₁
   replace h₁ := add_lt_left h₁ (-lhs.denote ctx)
   simp [← sub_eq_add_neg, sub_self] at h₁
   assumption
 
 theorem not_lt_norm {α} [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
-    : core_cert rhs lhs p → ¬ lhs.denote ctx < rhs.denote ctx → p.denote ctx ≤ 0 := by
-  simp [core_cert]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]
+    : core_cert rhs lhs p → ¬ lhs.denote ctx < rhs.denote ctx → p.denoteAsIntModule ctx ≤ 0 := by
+  simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]
   replace h₁ := LinearOrder.le_of_not_lt h₁
   replace h₁ := add_le_left h₁ (-lhs.denote ctx)
   simp [← sub_eq_add_neg, sub_self] at h₁
   assumption
 
 theorem not_le_norm' {α} [CommRing α] [Preorder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
-    : core_cert lhs rhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → ¬ p.denote ctx ≤ 0 := by
-  simp [core_cert]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]; intro h
+    : core_cert lhs rhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → ¬ p.denoteAsIntModule ctx ≤ 0 := by
+  simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]; intro h
   replace h := add_le_right (rhs.denote ctx) h
   rw [sub_eq_add_neg, add_left_comm, ← sub_eq_add_neg, sub_self] at h; simp [add_zero] at h
   contradiction
 
 theorem not_lt_norm' {α} [CommRing α] [Preorder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
-    : core_cert lhs rhs p → ¬ lhs.denote ctx < rhs.denote ctx → ¬ p.denote ctx < 0 := by
-  simp [core_cert]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]; intro h
+    : core_cert lhs rhs p → ¬ lhs.denote ctx < rhs.denote ctx → ¬ p.denoteAsIntModule ctx < 0 := by
+  simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]; intro h
   replace h := add_lt_right (rhs.denote ctx) h
   rw [sub_eq_add_neg, add_left_comm, ← sub_eq_add_neg, sub_self] at h; simp [add_zero] at h
   contradiction

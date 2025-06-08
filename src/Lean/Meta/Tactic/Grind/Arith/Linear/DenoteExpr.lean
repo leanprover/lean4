@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 
@@ -86,18 +87,6 @@ where
 def _root_.Lean.Grind.CommRing.Poly.denoteAsIntModuleExpr (p : Grind.CommRing.Poly) : LinearM Expr := do
   match p with
   | .num k => denoteNum k
-  | .add k m p => go p (← denoteTerm k m)
-where
-  denoteTerm (k : Int) (m : Grind.CommRing.Mon) : LinearM Expr := do
-    if k == 1 then
-      m.denoteAsIntModuleExpr
-    else
-      return mkApp2 (← getStruct).hmulFn (mkIntLit k) (← m.denoteAsIntModuleExpr)
-
-  go (p : Grind.CommRing.Poly) (acc : Expr) : LinearM Expr := do
-    match p with
-    | .num 0 => return acc
-    | .num k => return mkApp2 (← getStruct).addFn acc (← denoteNum k)
-    | .add k m p => go p (mkApp2 (← getStruct).addFn acc (← denoteTerm k m))
+  | .add k m p => return mkApp2 (← getStruct).addFn (mkApp2 (← getRing).mulFn (mkIntLit k) (← m.denoteExpr)) (← denoteAsIntModuleExpr p)
 
 end Lean.Meta.Grind.Arith.Linear

@@ -50,7 +50,7 @@ def propagateCommRingIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : 
     let lhs' ← p'.denoteAsIntModuleExpr
     let some lhs' ← reify? lhs' (skipVar := false) | return ()
     let p := lhs'.norm
-    let c : IneqCnstr := { p, strict, h := .coreCommRing e lhs rhs lhs' }
+    let c : IneqCnstr := { p, strict, h := .coreCommRing e lhs rhs p' lhs' }
     c.assert
   else if (← isLinearOrder) then
     let p' := (rhs.sub lhs).toPoly
@@ -58,7 +58,7 @@ def propagateCommRingIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : 
     let lhs' ← p'.denoteAsIntModuleExpr
     let some lhs' ← reify? lhs' (skipVar := false) | return ()
     let p := lhs'.norm
-    let c : IneqCnstr := { p, strict, h := .notCoreCommRing e lhs rhs lhs' }
+    let c : IneqCnstr := { p, strict, h := .notCoreCommRing e lhs rhs p' lhs' }
     c.assert
   else
     let p' := (lhs.sub rhs).toPoly

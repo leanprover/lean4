@@ -104,6 +104,21 @@ def setTermStructId (e : Expr) : LinearM Unit := do
     return ()
   modify' fun s => { s with exprToStructId := s.exprToStructId.insert { expr := e } structId }
 
+def getLinearOrderInst : LinearM Expr := do
+  let some inst := (← getStruct).linearInst?
+    | throwError "`grind linarith` internal error, structure is not a linear order"
+  return inst
+
+def getCommRingInst : LinearM Expr := do
+  let some inst := (← getStruct).commRingInst?
+    | throwError "`grind linarith` internal error, structure is not a commutative ring"
+  return inst
+
+def getRingIsOrdInst : LinearM Expr := do
+  let some inst := (← getStruct).ringIsOrdInst?
+    | throwError "`grind linarith` internal error, structure is not an ordered ring"
+  return inst
+
 /--
 Tries to evaluate the polynomial `p` using the partial model/assignment built so far.
 The result is `none` if the polynomial contains variables that have not been assigned.

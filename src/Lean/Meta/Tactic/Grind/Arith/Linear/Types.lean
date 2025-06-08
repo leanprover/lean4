@@ -40,8 +40,8 @@ structure IneqCnstr where
 inductive IneqCnstrProof where
   | core (e : Expr) (lhs rhs : LinExpr)
   | notCore (e : Expr) (lhs rhs : LinExpr)
-  | coreCommRing (e : Expr) (lhs rhs : Grind.CommRing.Expr) (lhs' : LinExpr)
-  | notCoreCommRing (e : Expr) (lhs rhs : Grind.CommRing.Expr) (lhs' : LinExpr)
+  | coreCommRing (e : Expr) (lhs rhs : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+  | notCoreCommRing (e : Expr) (lhs rhs : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
   | combine (c₁ : IneqCnstr) (c₂ : IneqCnstr)
   | combineEq (c₁ : IneqCnstr) (c₂ : EqCnstr)
   | norm (c₁ : IneqCnstr) (k : Nat)

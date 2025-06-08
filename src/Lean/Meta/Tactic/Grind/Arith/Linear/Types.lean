@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Std.Internal.Rat
+import Init.Grind.CommRing.Poly
 import Init.Grind.Ordered.Linarith
 import Lean.Data.PersistentArray
 import Lean.Meta.Tactic.Grind.ExprPtr
@@ -38,6 +39,8 @@ structure IneqCnstr where
 inductive IneqCnstrProof where
   | core (e : Expr) (lhs rhs : LinExpr)
   | notCore (e : Expr) (lhs rhs : LinExpr)
+  | coreCommRing (e : Expr) (lhs rhs : Grind.CommRing.Expr) (lhs' : LinExpr)
+  | notCoreCommRing (e : Expr) (lhs rhs : Grind.CommRing.Expr) (lhs' : LinExpr)
   | combine (c₁ : IneqCnstr) (c₂ : IneqCnstr)
   | combineEq (c₁ : IneqCnstr) (c₂ : EqCnstr)
   | norm (c₁ : IneqCnstr) (k : Nat)
@@ -62,6 +65,7 @@ structure NotIneqCnstr where
 
 inductive NotIneqCnstrProof where
   | core (e : Expr) (lhs rhs : LinExpr)
+  | coreCommRing (e : Expr) (lhs rhs : Grind.CommRing.Expr) (lhs' : LinExpr)
   -- TODO: norm, and combineEq
 
 inductive UnsatProof where
@@ -77,6 +81,8 @@ Each type must be at least implement the instances `IntModule`, `Preorder`, and 
 -/
 structure Struct where
   id               : Nat
+  /-- If the structure is a ring, we store its id in the `CommRing` module at `ringId?` -/
+  ringId?          : Option Nat
   type             : Expr
   /-- Cached `getDecLevel type` -/
   u                : Level
@@ -99,6 +105,7 @@ structure Struct where
   /-- `Ring.IsOrdered` instance with `Preorder` -/
   ringIsOrdInst?   : Option Expr
   zero             : Expr
+  ofNatZero        : Expr
   one?             : Option Expr
   leFn             : Expr
   ltFn             : Expr

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
 
 namespace Lean.Meta.Grind.Arith.Linear
 
@@ -45,6 +46,48 @@ protected def LinearM.getStruct : LinearM Struct := do
 
 instance : MonadGetStruct LinearM where
   getStruct := LinearM.getStruct
+
+open CommRing
+
+def getRingCore? (ringId? : Option Nat) : GoalM (Option Ring) := do
+  let some ringId := ringId? | return none
+  RingM.run ringId do return some (← getRing)
+
+def throwNotRing : LinearM α :=
+  throwError "`grind linarith` internal error, structure is not a ring"
+
+def throwNotCommRing : LinearM α :=
+  throwError "`grind linarith` internal error, structure is not a commutative ring"
+
+def getRing? : LinearM (Option Ring) := do
+  getRingCore? (← getStruct).ringId?
+
+def getRing : LinearM Ring := do
+  let some ring ← getRing?
+    | throwNotCommRing
+  return ring
+
+instance : MonadGetRing LinearM where
+  getRing := Linear.getRing
+
+def getZero : LinearM Expr :=
+  return (← getStruct).zero
+
+def getOne : LinearM Expr := do
+  let some one := (← getStruct).one?
+    | throwNotRing
+  return one
+
+def withRingM (x : RingM α) : LinearM α := do
+  let some ringId := (← getStruct).ringId?
+    | throwNotCommRing
+  RingM.run ringId x
+
+def isCommRing : LinearM Bool :=
+  return (← getStruct).ringId?.isSome
+
+def isLinearOrder : LinearM Bool :=
+  return (← getStruct).linearInst?.isSome
 
 @[inline] def modifyStruct (f : Struct → Struct) : LinearM Unit := do
   let structId ← getStructId

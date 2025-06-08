@@ -79,19 +79,19 @@ run_meta logErrorNames do
   logNamedError Lean.Bar m!"Logged error"
   logNamedErrorAt (← getRef) Lean.Bar m!"Logged error with ref"
 
-/-- error: (Lean.DependsOnNoncomputable) Thrown error -/
+/-- error: (Lean.Bar) Thrown error -/
 #guard_msgs in
 run_meta logErrorNames do
   try
-    throwNamedError Lean.DependsOnNoncomputable "Thrown error"
+    throwNamedError Lean.Bar "Thrown error"
   catch e =>
     logError e.toMessageData
 
-/-- error: (Lean.DependsOnNoncomputable) Thrown error with ref -/
+/-- error: (Lean.Bar) Thrown error with ref -/
 #guard_msgs in
 run_meta logErrorNames do
   try
-    throwNamedErrorAt (← getRef) Lean.DependsOnNoncomputable "Thrown error with ref"
+    throwNamedErrorAt (← getRef) Lean.Bar "Thrown error with ref"
   catch e =>
     logError e.toMessageData
 

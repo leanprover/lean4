@@ -1144,11 +1144,11 @@ end Stepwise
 
 def Poly.denoteAsIntModule [CommRing α] (ctx : Context α) (p : Poly) : α :=
   match p with
-  | .num k => Int.cast k * 1
+  | .num k => Int.cast k * One.one
   | .add k m p => Int.cast k * m.denote ctx + denote ctx p
 
 theorem Poly.denoteAsIntModule_eq_denote {α} [CommRing α] (ctx : Context α) (p : Poly) : p.denoteAsIntModule ctx = p.denote ctx := by
-  induction p <;> simp [*, denoteAsIntModule, denote, mul_one]
+  induction p <;> simp [*, denoteAsIntModule, denote, mul_one, One.one]
 
 open Stepwise
 

@@ -9,6 +9,7 @@ import Lean.Meta.Tactic.Grind.Arith.Offset
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
 import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
+import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
 
 namespace Lean.Meta.Grind.Arith
 
@@ -31,10 +32,18 @@ builtin_grind_propagator propagateLE ↓LE.le := fun e => do
     if let some c ← Offset.isCnstr? e then
       Offset.assertTrue c (← mkEqTrueProof e)
     Cutsat.propagateIfSupportedLe e (eqTrue := true)
-  if (← isEqFalse e) then
+    Linear.propagateIneq e (eqTrue := true) (strict := false)
+  else if (← isEqFalse e) then
     if let some c ← Offset.isCnstr? e then
       Offset.assertFalse c (← mkEqFalseProof e)
     Cutsat.propagateIfSupportedLe e (eqTrue := false)
+    Linear.propagateIneq e (eqTrue := false) (strict := false)
+
+builtin_grind_propagator propagateLT ↓LT.lt := fun e => do
+  if (← isEqTrue e) then
+    Linear.propagateIneq e (eqTrue := true) (strict := true)
+  else if (← isEqFalse e) then
+    Linear.propagateIneq e (eqTrue := false) (strict := true)
 
 def check : GoalM Bool := do
   let c₁ ← Cutsat.check

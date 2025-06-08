@@ -26,7 +26,9 @@ def checkLoops (thm : SimpTheorem) : SimpM Bool := do
   unless (← getConfig).loopProtection do return true
 
   -- Do not complain about permutating theorems
-  if thm.perm then return true
+  -- Permutation theorems confuse the loop checker, do not use inside a check
+  if thm.perm && (← isLoopChecking) then return false
+
 
   let thmId := thm.origin
   if let some r := (← get).loopProtectionCache.lookup? thmId then

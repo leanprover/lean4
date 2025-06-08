@@ -314,7 +314,6 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
     else
       withNormFVarResult (← normFVar c.discr) fun discr => do
         let resultType ← normExpr c.resultType
-        markUsedFVar discr
         let alts ← c.alts.mapMonoM fun alt => do
           match alt with
           | .alt ctorName ps k =>
@@ -331,5 +330,6 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
         if alts.size == 1 && alts[0]! matches .default .. then
           return alts[0]!.getCode
         else
+          markUsedFVar discr
           return code.updateCases! resultType discr alts
 end

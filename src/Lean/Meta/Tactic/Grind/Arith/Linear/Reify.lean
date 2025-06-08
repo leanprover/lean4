@@ -40,6 +40,11 @@ partial def reify? (e : Expr) (skipVar : Bool) : LinearM (Option LinExpr) := do
   let asVar (e : Expr) : LinearM LinExpr := do
     reportInstIssue e
     return .var (← mkVar e)
+  let isOfNatZero (e : Expr) : LinearM Bool := do
+    let_expr OfNat.ofNat _ n _ := e | return false
+    let some k ← getNatValue? n | return false
+    unless k == 0 do return false
+    withDefault <| isDefEq e (← getStruct).zero
   let rec go (e : Expr) : LinearM   LinExpr := do
     match_expr e with
     | HAdd.hAdd _ _ _ i a b =>
@@ -51,7 +56,7 @@ partial def reify? (e : Expr) (skipVar : Bool) : LinearM (Option LinExpr) := do
         let some k ← getIntValue? a | pure ()
         return .mul k (← go b)
       asVar e
-    | SMul.smul _ _ i a b =>
+    | HSMul.hSMul _ _ _ i a b =>
       if isSMulInst (← getStruct) i then
         let some k ← getIntValue? a | pure ()
         return .mul k (← go b)
@@ -60,6 +65,8 @@ partial def reify? (e : Expr) (skipVar : Bool) : LinearM (Option LinExpr) := do
       if isNegInst (← getStruct) i then return .neg (← go a) else asVar e
     | Zero.zero _ i =>
       if isZeroInst (← getStruct) i then return .zero else asVar e
+    | OfNat.ofNat _ _ _ =>
+      if (← isOfNatZero e) then return .zero else toVar e
     | _ => toVar e
   let asTopVar (e : Expr) : LinearM (Option LinExpr) := do
     reportInstIssue e
@@ -77,7 +84,7 @@ partial def reify? (e : Expr) (skipVar : Bool) : LinearM (Option LinExpr) := do
       let some k ← getIntValue? a | pure ()
       return some (.mul k (← go b))
     asTopVar e
-  | SMul.smul _ _ i a b =>
+  | HSMul.hSMul _ _ _ i a b =>
     if isSMulInst (← getStruct) i then
       let some k ← getIntValue? a | pure ()
       return some (.mul k (← go b))
@@ -85,7 +92,9 @@ partial def reify? (e : Expr) (skipVar : Bool) : LinearM (Option LinExpr) := do
   | Neg.neg _ i a =>
     if isNegInst (← getStruct  ) i then return some (.neg (← go a)) else asTopVar e
   | Zero.zero _ i =>
-    if isZeroInst (← getStruct) i then return some (.zero) else asTopVar e
+    if isZeroInst (← getStruct) i then return some .zero else asTopVar e
+  | OfNat.ofNat _ _ _ =>
+    if (← isOfNatZero e) then return some .zero else asTopVar e
   | _ =>
     if skipVar then
       return none

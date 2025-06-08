@@ -95,9 +95,9 @@ where
     let isOrderedType := mkApp3 (mkConst ``Grind.IntModule.IsOrdered [u]) type preorderInst intModuleInst
     let .some isOrdInst ← trySynthInstance isOrderedType | return none
     let getSMulFn? : GoalM (Option Expr) := do
-      let smulType := mkApp2 (mkConst ``SMul [0, u]) Int.mkType type
+      let smulType := mkApp3 (mkConst ``HSMul [0, u, u]) Int.mkType type type
       let .some smulInst ← trySynthInstance smulType | return none
-      let smulFn ← internalizeFn <| mkApp3 (mkConst ``SMul.smul [0, u]) Int.mkType type smulInst
+      let smulFn ← internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Int.mkType type smulInst smulInst
       if (← withDefault <| isDefEq hmulFn smulFn) then
         return smulFn
       reportIssue! "`grind linarith` expected{indentExpr hmulFn}\nto be definitionally equal to{indentExpr smulFn}"

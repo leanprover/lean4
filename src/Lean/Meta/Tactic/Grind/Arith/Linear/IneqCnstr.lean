@@ -34,10 +34,10 @@ def propagateIneq (e : Expr) (eqTrue : Bool) : GoalM Unit := do
     let some lhs ← reify? (e.getArg! 2 numArgs) (skipVar := false) | trace[grind.linarith] "lhs failed {e}"; return ()
     let some rhs ← reify? (e.getArg! 3 numArgs) (skipVar := false) | trace[grind.linarith] "rhs failed {e}"; return ()
     let p := (lhs.sub rhs).norm
+    -- TODO
     trace[grind.linarith] "{e}, {eqTrue}, strict: {strict}, structId: {structId}"
     trace[grind.linarith] "{← p.denoteExpr}"
     trace[grind.linarith] "structId: {structId}"
-    -- TODO
     return ()
 
 end Lean.Meta.Grind.Arith.Linear

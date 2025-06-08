@@ -40,7 +40,7 @@ private def addCtorFields (fieldInfos : Array StructFieldInfo) : Nat â†’ Expr â†
     let type := type.abstract #[info.fvar]
     match info.kind with
     | StructFieldKind.fromParent =>
-      let val := decl.value
+      let val := decl.value false
       addCtorFields fieldInfos i (type.instantiate1 val)
     | _  =>
       addCtorFields fieldInfos i (mkForall decl.userName decl.binderInfo decl.type type)

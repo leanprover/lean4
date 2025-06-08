@@ -1283,7 +1283,7 @@ def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Exp
           else if !usedLetOnly || e.hasLooseBVar 0 then
             let type  ← abstractRange xs i type
             let value ← abstractRange xs i value
-            return mkLet n type value e false
+            return mkLet n type value e nonDep
           else
             return e.lowerLooseBVars 1 1
       else

@@ -101,6 +101,12 @@ name fix_name(name const & a) {
     }
 }
 
+extern "C" uint8 lean_expr_letNonDep(object * e);
+
+static bool let_nonDep(expr const & e) {
+    return lean_expr_letNonDep(e.to_obj_arg());
+}
+
 /**
    \brief Very basic printer for expressions.
    It is mainly used when debugging code.
@@ -192,7 +198,12 @@ struct print_expr_fn {
 
     void print_let(expr const & e) {
         auto p = let_body_fresh(e);
-        out() << "let " << p.second << " : ";
+        if (let_nonDep(e)) {
+            out() << "have ";
+        } else {
+            out() << "let ";
+        }
+        out() << p.second << " : ";
         print(let_type(e));
         out() << " := ";
         print(let_value(e));

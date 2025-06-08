@@ -110,6 +110,11 @@ structure Context where
   transformations that presereve definitional equality.
   -/
   inDSimp : Bool := false
+  /--
+  Stack of simp theorems we are in the process of checking for loops.
+  -/
+  loopCheckStack : List Origin := []
+
   deriving Inhabited
 
 /--
@@ -213,6 +218,16 @@ def UsedSimps.insert (s : UsedSimps) (thmId : Origin) : UsedSimps :=
 def UsedSimps.toArray (s : UsedSimps) : Array Origin :=
   s.map.toArray.qsort (·.2 < ·.2) |>.map (·.1)
 
+structure LoopProtectionCache where
+  map : PHashMap Origin Bool := {}
+  deriving Inhabited
+
+def LoopProtectionCache.lookup? (c : LoopProtectionCache) (thmId : Origin) : Option Bool :=
+  c.map.find? thmId
+
+def LoopProtectionCache.insert (c : LoopProtectionCache) (thmId : Origin) (b : Bool) : LoopProtectionCache :=
+    { c with map := c.map.insert thmId b }
+
 structure Diagnostics where
   /-- Number of times each simp theorem has been used/applied. -/
   usedThmCounter : PHashMap Origin Nat := {}
@@ -230,12 +245,13 @@ structure Diagnostics where
   deriving Inhabited
 
 structure State where
-  cache        : Cache := {}
-  congrCache   : CongrCache := {}
-  dsimpCache   : ExprStructMap Expr := {}
-  usedTheorems : UsedSimps := {}
-  numSteps     : Nat := 0
-  diag         : Diagnostics := {}
+  cache               : Cache := {}
+  congrCache          : CongrCache := {}
+  dsimpCache          : ExprStructMap Expr := {}
+  usedTheorems        : UsedSimps := {}
+  loopProtectionCache : LoopProtectionCache := {}
+  numSteps            : Nat := 0
+  diag                : Diagnostics := {}
 
 structure Stats where
   usedTheorems : UsedSimps := {}
@@ -266,6 +282,9 @@ abbrev SimpM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
   modify fun s => { s with dsimpCache }
   return x
 
+@[inline] def withPushingLoopCheck (thm : SimpTheorem) : SimpM α → SimpM α :=
+  withTheReader Context fun ctx => { ctx with loopCheckStack := thm.origin :: ctx.loopCheckStack }
+
 /--
 Executes `x` using a `MetaM` configuration for indexing terms.
 It is inferred from `Simp.Config`.
@@ -289,7 +308,8 @@ opaque dsimp (e : Expr) : SimpM Expr
 
 @[inline] def modifyDiag (f : Diagnostics → Diagnostics) : SimpM Unit := do
   if (← isDiagnosticsEnabled) then
-    modify fun { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag } => { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag := f diag }
+    modify fun { cache, congrCache, dsimpCache, usedTheorems, loopProtectionCache, numSteps, diag } =>
+      { cache, congrCache, dsimpCache, usedTheorems,  loopProtectionCache, numSteps, diag := f diag }
 
 /--
 Result type for a simplification procedure. We have `pre` and `post` simplification procedures.

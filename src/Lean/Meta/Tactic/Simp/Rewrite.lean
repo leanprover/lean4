@@ -18,6 +18,47 @@ import Lean.Meta.BinderNameHint
 
 namespace Lean.Meta.Simp
 
+def checkLoops (thm : SimpTheorem) : SimpM Bool := do
+  unless (← getConfig).loopProtection do return true
+
+  let thmId := thm.origin
+  if let some r := (← get).loopProtectionCache.lookup? thmId then
+    pure r
+  else
+    let seen := (← getContext).loopCheckStack
+    if seen.contains thmId then
+      if seen.length = 1 then
+        throwError "Ignoring looping simp theorem: {← ppOrigin thmId}"
+      else
+        throwError "Ignoring jointly looping simp theorems: {.andList (← seen.mapM ppOrigin)}"
+    else
+      let checkRhs := do
+        withTraceNode `Meta.Tactic.simp.loopProtection (return m!"{exceptEmoji ·} loop-checking {← ppSimpTheorem thm}") do
+          withPushingLoopCheck thm <| withFreshCache <| do
+            let type ← inferType (← thm.getValue)
+            forallTelescopeReducing type fun _xs type => do
+              let rhs := type.appArg!
+              -- We ignore the result for now. We could return it to `tryTheoremCore` to avoid
+              -- re-simplifying the right-hand side, but that would require some more refactoring
+              let _ ← simp rhs
+      if seen.isEmpty then
+        -- This is the initial checkLoops call. Catch errors and turn them into warnings.
+        try
+          checkRhs
+          modifyThe State fun s => { s with loopProtectionCache := s.loopProtectionCache.insert thmId true }
+          pure true
+        catch e =>
+          -- This catches all errors, but ideally we only catch the error thrown above.
+          -- Can we achieve that without hacks?
+          logWarning e.toMessageData
+          modifyThe State fun s => { s with loopProtectionCache := s.loopProtectionCache.insert thmId false }
+          pure false
+      else
+        -- We are in a nested call to `checkLoops`, so propagate any exception.
+        checkRhs
+        pure true
+
+
 /--
 Helper type for implementing `discharge?'`
 -/
@@ -147,6 +188,8 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
         if !(← acLt rhs e .reduceSimpleOnly) then
           trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, perm rejected {e} ==> {rhs}"
           return none
+      unless (← checkLoops thm) do
+        return none
       trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}:{indentExpr e}\n==>{indentExpr rhs}"
       let rhs ← if type.hasBinderNameHint then rhs.resolveBinderNameHint else pure rhs
       recordSimpTheorem thm.origin

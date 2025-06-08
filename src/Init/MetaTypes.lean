@@ -249,6 +249,14 @@ structure Config where
   convert them into `simp` exceptions.
   -/
   catchRuntime : Bool := true
+  /--
+  When `true` (default: `false`), simp will try to detect some forms of looping rewrite rules.
+
+  Before applying a simp theorem, it simplifies the theorem's uninstantiated right-hand side.
+  If while doing that the same theorem could be applied again, the theorem is considered to be
+  looping and (with a warning) ignored.
+  -/
+  loopProtection : Bool := false
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`

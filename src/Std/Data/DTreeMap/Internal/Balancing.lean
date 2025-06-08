@@ -675,7 +675,7 @@ theorem balanceLErase_eq_balanceL! {k : α} {v : β k} {l r : Impl α β} {hlb h
   fun_cases balanceL!
   all_goals dsimp only [balanceLErase]
   all_goals simp only [*]
-  all_goals dsimp only [dreduceDIte, dreduceIte]
+  all_goals dsimp only [dite_true, dite_false, ite_true, ite_false]
   all_goals contradiction
 
 theorem balanceL!_eq_balance! {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced)
@@ -698,7 +698,7 @@ theorem balanceRErase_eq_balanceR! {k : α} {v : β k} {l r : Impl α β} {hlb h
   fun_cases balanceR!
   all_goals dsimp only [balanceRErase, balanceR!]
   all_goals simp only [*]
-  all_goals dsimp only [dreduceDIte, dreduceIte]
+  all_goals dsimp only [dite_true, dite_false, ite_true, ite_false]
   all_goals contradiction
 
 theorem balanceR!_eq_balance! {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced)
@@ -730,7 +730,7 @@ theorem balance!_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced) 
     (hlr : BalanceLErasePrecond l.size r.size ∨ BalanceLErasePrecond r.size l.size) :
     (balance! k v l r).size = l.size + 1 + r.size ∧ (balance! k v l r).Balanced := by
   rw [balance!_eq_balanceₘ hlb hrb hlr]
-  induction k, v, l, r using balanceₘ.fun_cases_unfolding
+  fun_cases balanceₘ
   · rw [bin, balanced_inner_iff]
     exact ⟨rfl, hlb, hrb, Or.inl ‹_›, rfl⟩
   · simp only [size_rotateL (.left ‹_›), size_bin, size_inner]

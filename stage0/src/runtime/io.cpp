@@ -958,17 +958,35 @@ extern "C" LEAN_EXPORT obj_res lean_io_realpath(obj_arg fname, obj_arg) {
 #if defined(LEAN_WINDOWS)
     constexpr unsigned BufferSize = 8192;
     char buffer[BufferSize];
-    DWORD retval = GetFullPathName(string_cstr(fname), BufferSize, buffer, nullptr);
+    HANDLE handle = CreateFile(string_cstr(fname), 0, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+    if (handle == INVALID_HANDLE_VALUE) {
+        obj_res res = mk_file_not_found_error(fname);
+        dec_ref(fname);
+        return res;
+    }
+    DWORD retval = GetFinalPathNameByHandle(handle, buffer, BufferSize, 0);
+    CloseHandle(handle);
     if (retval == 0 || retval > BufferSize) {
         return io_result_mk_ok(fname);
     } else {
         dec_ref(fname);
+        char * res = buffer;
+        if (memcmp(res, "\\\\?\\", 4) == 0) {
+            if (memcmp(res + 4, "UNC\\", 4) == 0) {
+                // network path: convert "\\\\?\\UNC\\..." to "\\\\..."
+                res[6] = '\\';
+                res += 6;
+            } else {
+                // simple path: convert "\\\\?\\C:\\.." to "C:\\..."
+                res += 4;
+            }
+        }
         // Hack for making sure disk is lower case
         // TODO(Leo): more robust solution
-        if (strlen(buffer) >= 2 && buffer[1] == ':') {
-            buffer[0] = tolower(buffer[0]);
+        if (strlen(res) >= 2 && res[1] == ':') {
+            res[0] = tolower(res[0]);
         }
-        return io_result_mk_ok(mk_string(buffer));
+        return io_result_mk_ok(mk_string(res));
     }
 #else
     char buffer[PATH_MAX];

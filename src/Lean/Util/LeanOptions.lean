@@ -81,14 +81,14 @@ def LeanOptions.ofArray (opts : Array LeanOption) : LeanOptions :=
   ⟨opts.foldl (fun m {name, value} => m.insert name value) {}⟩
 
 /-- Add the options from `new`, overriding those in `self`. -/
-protected def LeanOptions.append (self opts : LeanOptions) : LeanOptions :=
-  ⟨self.values.mergeBy (fun _ _ b => b) opts.values⟩
+protected def LeanOptions.append (self new : LeanOptions) : LeanOptions :=
+  ⟨self.values.mergeBy (fun _ _ b => b) new.values⟩
 
 instance : Append LeanOptions := ⟨LeanOptions.append⟩
 
 /-- Add the options from `new`, overriding those in `self`. -/
-def LeanOptions.appendArray (self : LeanOptions) (opts : Array LeanOption) : LeanOptions :=
-  ⟨opts.foldl (fun m {name, value} => m.insert name value) self.values⟩
+def LeanOptions.appendArray (self : LeanOptions) (new : Array LeanOption) : LeanOptions :=
+  ⟨new.foldl (fun m {name, value} => m.insert name value) self.values⟩
 
 instance : HAppend LeanOptions (Array LeanOption) LeanOptions := ⟨LeanOptions.appendArray⟩
 

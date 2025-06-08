@@ -12,6 +12,7 @@ import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
 import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
 import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr
+import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
 
 namespace Lean
 

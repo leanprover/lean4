@@ -9,6 +9,8 @@ import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
 import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
+import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
+import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
 
 namespace Lean
 

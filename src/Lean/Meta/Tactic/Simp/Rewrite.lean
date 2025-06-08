@@ -18,8 +18,15 @@ import Lean.Meta.BinderNameHint
 
 namespace Lean.Meta.Simp
 
+def isLoopChecking : SimpM Bool := do
+  return !(← getContext).loopCheckStack.isEmpty
+
 def checkLoops (thm : SimpTheorem) : SimpM Bool := do
+  if (← getConfig).singlePass then return true
   unless (← getConfig).loopProtection do return true
+
+  -- Do not complain about permutating theorems
+  if thm.perm then return true
 
   let thmId := thm.origin
   if let some r := (← get).loopProtectionCache.lookup? thmId then
@@ -34,13 +41,14 @@ def checkLoops (thm : SimpTheorem) : SimpM Bool := do
     else
       let checkRhs := do
         withTraceNode `Meta.Tactic.simp.loopProtection (return m!"{exceptEmoji ·} loop-checking {← ppSimpTheorem thm}") do
-          withPushingLoopCheck thm <| withFreshCache <| do
-            let type ← inferType (← thm.getValue)
-            forallTelescopeReducing type fun _xs type => do
-              let rhs := type.appArg!
-              -- We ignore the result for now. We could return it to `tryTheoremCore` to avoid
-              -- re-simplifying the right-hand side, but that would require some more refactoring
-              let _ ← simp rhs
+        withPushingLoopCheck thm do
+        withFreshCache do
+          let type ← inferType (← thm.getValue)
+          forallTelescopeReducing type fun _xs type => do
+            let rhs := (← whnf type).appArg!
+            -- We ignore the result for now. We could return it to `tryTheoremCore` to avoid
+            -- re-simplifying the right-hand side, but that would require some more refactoring
+            let _ ← simp rhs
       if seen.isEmpty then
         -- This is the initial checkLoops call. Catch errors and turn them into warnings.
         try
@@ -188,6 +196,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
         if !(← acLt rhs e .reduceSimpleOnly) then
           trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, perm rejected {e} ==> {rhs}"
           return none
+
       unless (← checkLoops thm) do
         return none
       trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}:{indentExpr e}\n==>{indentExpr rhs}"
@@ -675,6 +684,9 @@ def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
   if isEqnThmHypothesis e then
     if let some r ← dischargeUsingAssumption? e then return some r
     if let some r ← dischargeEqnThmHypothesis? e then return some r
+  -- TODO: Should we really disable conditional simp theorems while loop checking?
+  if (←  isLoopChecking) then
+    return none
   let r ← simp e
   if let some p ← dischargeRfl r.expr then
     return some (mkApp4 (mkConst ``Eq.mpr [levelZero]) e r.expr (← r.getProof) p)

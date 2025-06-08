@@ -13,7 +13,7 @@ namespace Lean.Meta
 private def getSimpUnfoldContext : MetaM Simp.Context := do
    Simp.mkContext
       (congrTheorems := (← getSimpCongrTheorems))
-      (config        := Simp.neutralConfig)
+      (config        := { Simp.neutralConfig with loopProtection := false })
 
 def unfold (e : Expr) (declName : Name) : MetaM Simp.Result := do
   if let some unfoldThm ← getUnfoldEqnFor? declName  then

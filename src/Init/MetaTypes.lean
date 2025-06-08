@@ -256,7 +256,7 @@ structure Config where
   If while doing that the same theorem could be applied again, the theorem is considered to be
   looping and (with a warning) ignored.
   -/
-  loopProtection : Bool := false
+  loopProtection : Bool := true
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`

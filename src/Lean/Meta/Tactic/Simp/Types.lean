@@ -196,6 +196,9 @@ def Context.setFailIfUnchanged (c : Context) (flag : Bool) : Context :=
 def Context.setMemoize (c : Context) (flag : Bool) : Context :=
   { c with config.memoize := flag }
 
+def Context.setContextual (c : Context) (flag : Bool) : Context :=
+  { c with config.contextual := flag }
+
 def Context.setZetaDeltaSet (c : Context) (zetaDeltaSet : FVarIdSet) (initUsedZetaDelta : FVarIdSet) : Context :=
   { c with zetaDeltaSet, initUsedZetaDelta }
 

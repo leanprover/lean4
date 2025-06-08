@@ -127,15 +127,15 @@ structure MapDeclarationExtension (α : Type) extends PersistentEnvExtension (Na
 deriving Inhabited
 
 def mkMapDeclarationExtension (name : Name := by exact decl_name%)
-    (exportEntriesFn : NameMap α → Array (Name × α) := (·.toArray)) : IO (MapDeclarationExtension α) :=
+    (exportEntriesFn : Environment → NameMap α → OLeanLevel → Array (Name × α) :=
+      fun _ s _ => s.toArray) :
+    IO (MapDeclarationExtension α) :=
   .mk <$> registerPersistentEnvExtension {
     name            := name,
     mkInitial       := pure {}
     addImportedFn   := fun _ => pure {}
     addEntryFn      := fun s (n, v) => s.insert n v
-    exportEntriesFnEx _ s
-      | .exported => exportEntriesFn s
-      | _         => s.toArray
+    exportEntriesFnEx env s level := exportEntriesFn env s level
     asyncMode       := .async
     replay?         := some fun _ newState newConsts s =>
       newConsts.foldl (init := s) fun s c =>

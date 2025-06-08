@@ -15,7 +15,10 @@ namespace Lean
 
 builtin_initialize builtinDeclRanges : IO.Ref (NameMap DeclarationRanges) ← IO.mkRef {}
 builtin_initialize declRangeExt : MapDeclarationExtension DeclarationRanges ←
-  mkMapDeclarationExtension (exportEntriesFn := fun _ => #[])
+  mkMapDeclarationExtension (exportEntriesFn := fun _ s level =>
+    if level < .server then
+      #[]
+    else s.toArray)
 
 def addBuiltinDeclarationRanges (declName : Name) (declRanges : DeclarationRanges) : IO Unit :=
   builtinDeclRanges.modify (·.insert declName declRanges)

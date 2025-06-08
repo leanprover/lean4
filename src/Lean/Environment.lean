@@ -1465,7 +1465,10 @@ inductive OLeanLevel where
   | server
   /-- Private module data. -/
   | «private»
-deriving DecidableEq
+deriving DecidableEq, Ord
+
+instance : LE OLeanLevel := leOfOrd
+instance : LT OLeanLevel := ltOfOrd
 
 /--
 An environment extension with support for storing/retrieving entries from a .olean file.

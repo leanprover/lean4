@@ -8,6 +8,9 @@ import Lean.Util.Sorry
 import Lean.Widget.Types
 import Lean.Message
 import Lean.DocString.Links
+-- This import is necessary to ensure that any users of the `logNamedError` macros have access to
+-- all declared explanations:
+import Lean.ErrorExplanations
 
 namespace Lean
 
@@ -110,7 +113,7 @@ def logAt (ref : Syntax) (msgData : MessageData)
     let pos    := ref.getPos?.getD 0
     let endPos := ref.getTailPos?.getD pos
     let fileMap ← getFileMap
-    let msgData ← addMessageContext msgData
+    let msgData ← addMessageContext msgData.appendDescriptionWidgetIfNamed
     logMessage {
       fileName := (← getFileName)
       pos := fileMap.toPosition pos

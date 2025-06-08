@@ -617,7 +617,7 @@ theorem msb_eq_false_iff_two_mul_lt {x : BitVec w} : x.msb = false ↔ 2 * x.toN
   cases w <;> simp [Nat.pow_succ, Nat.mul_comm _ 2, msb_eq_decide, toNat_of_zero_length]
 
 theorem msb_eq_true_iff_two_mul_ge {x : BitVec w} : x.msb = true ↔ 2 * x.toNat ≥ 2^w := by
-  simp [← Bool.ne_false_iff, msb_eq_false_iff_two_mul_lt]
+  simp [← Bool.ne_false_iff, msb_eq_false_iff_two_mul_lt, - Bool.not_eq_false]
 
 /-- Characterize `x.toInt` in terms of `x.msb`. -/
 theorem toInt_eq_msb_cond (x : BitVec w) :

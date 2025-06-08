@@ -33,7 +33,11 @@ variable does not exist there. On the other direction, suppose we have the inequ
 `z` does not occur in its context, but it occurs in the variable context created by this module.
 -/
 def toRingContextExpr : LinearM Expr := do
-  withRingM do CommRing.toContextExpr
+  if (← isCommRing) then
+    withRingM do CommRing.toContextExpr
+  else
+    let struct ← getStruct
+    RArray.toExpr struct.type id (RArray.leaf struct.zero)
 
 structure ProofM.State where
   cache       : Std.HashMap UInt64 Expr := {}

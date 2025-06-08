@@ -189,7 +189,7 @@ partial def moduleIdent : Parser := fun input s =>
   let s := p input s
   match s.error? with
   | none => many p input s
-  | some _ => { pos, error? := none, imports := s.imports.shrink size }
+  | some _ => { s with pos, error? := none, imports := s.imports.shrink size }
 
 def setIsMeta (isMeta : Bool) : Parser := fun _ s =>
   { s with isMeta }
@@ -201,7 +201,7 @@ def setImportAll (importAll : Bool) : Parser := fun _ s =>
   { s with importAll }
 
 def main : Parser :=
-  keywordCore "module" (fun _ s => { s with isModule := true }) (fun _ s => s) >>
+  keywordCore "module" (fun _ s => s) (fun _ s => { s with isModule := true }) >>
   keywordCore "prelude" (fun _ s => s.pushImport `Init) (fun _ s => s) >>
   many (keywordCore "private" (setIsExported true) (setIsExported false) >>
     keywordCore "meta" (setIsMeta true) (setIsMeta false) >>
@@ -211,24 +211,17 @@ def main : Parser :=
 
 end ParseImports
 
-deriving instance ToJson for Import
-
-structure ParseImportsResult where
-  imports  : Array Import
-  isModule : Bool
-  deriving ToJson
-
 /--
 Simpler and faster version of `parseImports`. We use it to implement Lake.
 -/
-def parseImports' (input : String) (fileName : String) : IO ParseImportsResult := do
+def parseImports' (input : String) (fileName : String) : IO ModuleHeader := do
   let s := ParseImports.main input (ParseImports.whitespace input {})
   match s.error? with
   | none => return { s with }
   | some err => throw <| IO.userError s!"{fileName}: {err}"
 
 structure PrintImportResult where
-  result?  : Option ParseImportsResult := none
+  result?  : Option ModuleHeader := none
   errors   : Array String := #[]
   deriving ToJson
 

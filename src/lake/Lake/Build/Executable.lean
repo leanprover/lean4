@@ -14,7 +14,7 @@ The build function definition for a Lean executable.
 -/
 
 def LeanExe.recBuildExe (self : LeanExe) : FetchM (Job FilePath) :=
-  withRegisterJob s!"{self.name}" do
+  withRegisterJob s!"{self.name}:exe" do
   /-
   Remark: We must build the root before we fetch the transitive imports
   so that errors in the import block of transitive imports will not kill this
@@ -25,7 +25,8 @@ def LeanExe.recBuildExe (self : LeanExe) : FetchM (Job FilePath) :=
   let shouldExport := self.supportInterpreter
   for facet in self.root.nativeFacets shouldExport do
     objJobs := objJobs.push <| ← facet.fetch self.root
-  let imports ← (← self.root.transImports.fetch).await
+  let .ok imports _ ← (← self.root.transImports.fetch).wait
+    | error s!"bad imports (see the '{self.root.name.toString}' job for details)"
   for mod in imports do
     for facet in mod.nativeFacets shouldExport do
       objJobs := objJobs.push <| ← facet.fetch mod

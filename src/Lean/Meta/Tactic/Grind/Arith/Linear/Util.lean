@@ -104,4 +104,48 @@ def setTermStructId (e : Expr) : LinearM Unit := do
     return ()
   modify' fun s => { s with exprToStructId := s.exprToStructId.insert { expr := e } structId }
 
+/--
+Tries to evaluate the polynomial `p` using the partial model/assignment built so far.
+The result is `none` if the polynomial contains variables that have not been assigned.
+-/
+def _root_.Lean.Grind.Linarith.Poly.eval? (p : Poly) : LinearM (Option Rat) := do
+  let a := (← getStruct).assignment
+  let rec go (v : Rat) : Poly → Option Rat
+    | .nil => some v
+    | .add k x p =>
+      if _ : x < a.size then
+        go (v + k*a[x]) p
+      else
+        none
+  return go 0 p
+/--
+Returns `.true` if `c` is satisfied by the current partial model,
+`.undef` if `c` contains unassigned variables, and `.false` otherwise.
+-/
+def IneqCnstr.satisfied (c : IneqCnstr) : LinearM LBool := do
+  let some v ← c.p.eval? | return .undef
+  if c.strict then
+    return decide (v < 0) |>.toLBool
+  else
+    return decide (v <= 0) |>.toLBool
+
+def EqCnstr.satisfied (c : EqCnstr) : LinearM LBool := do
+  let some v ← c.p.eval? | return .undef
+  return decide (v == 0) |>.toLBool
+
+def DiseqCnstr.satisfied (c : DiseqCnstr) : LinearM LBool := do
+  let some v ← c.p.eval? | return .undef
+  return decide (v != 0) |>.toLBool
+
+def NotEqCnstr.satisfied (c : NotIneqCnstr) : LinearM LBool := do
+  let some v ← c.p.eval? | return .undef
+  if c.strict then
+    return decide (v >= 0) |>.toLBool
+  else
+    return decide (v > 0) |>.toLBool
+
+/-- Resets the assignment of any variable bigger or equal to `x`. -/
+def resetAssignmentFrom (x : Var) : LinearM Unit := do
+  modifyStruct fun s => { s with assignment := shrink s.assignment x }
+
 end Lean.Meta.Grind.Arith.Linear

@@ -16,6 +16,7 @@ export Std.Internal (Rat)
 abbrev LinExpr := Lean.Grind.Linarith.Expr
 
 deriving instance Hashable for Poly
+deriving instance Hashable for Grind.Linarith.Expr
 
 mutual
 /-- A equality constraint and its justification/proof. -/
@@ -69,8 +70,8 @@ inductive NotIneqCnstrProof where
   -- TODO: norm, and combineEq
 
 inductive UnsatProof where
-  | diseqUnsat (c : DiseqCnstr)
-  | ltUnsat (c : IneqCnstr)
+  | diseq (c : DiseqCnstr)
+  | lt (c : IneqCnstr)
   -- TODO: IneqCnstr + NotIneqCnstr
 
 end

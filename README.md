@@ -23,3 +23,5 @@ Please read our [Contribution Guidelines](CONTRIBUTING.md) first.
 # Building from Source
 
 See [Building Lean](doc/make/index.md).
+
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/leanprover/lean4)

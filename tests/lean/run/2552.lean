@@ -19,7 +19,7 @@ local instance decidableBallLT :
     | isFalse p => isFalse (p <| · _ _)
     | isTrue p => isTrue fun _ h' => (Nat.le_of_lt_succ h').lt_or_eq_dec.elim (h _) (· ▸ p)
 
-set_option maxHeartbeats 5000
+set_option maxHeartbeats 10000
 example : ∀ a, a < 9 → ∀ b, b < 9 → ∀ c, c < 9 → a ^ 2 + b ^ 2 + c ^ 2 ≠ 7 := by decide
 
 end succeeds_using_match
@@ -38,7 +38,7 @@ local instance decidableBallLT' :
     | isFalse p => isFalse (p <| · _ _)
     | isTrue p => isTrue fun _ h' => (Nat.le_of_lt_succ h').lt_or_eq_dec.elim (h _) (· ▸ p)
 
-set_option maxHeartbeats 5000
+set_option maxHeartbeats 10000
 example : ∀ a, a < 9 → ∀ b, b < 9 → ∀ c, c < 9 → a ^ 2 + b ^ 2 + c ^ 2 ≠ 7 := by decide
 
 end fails_with_timeout

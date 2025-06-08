@@ -2817,7 +2817,8 @@ x_91 = lean_ctor_get(x_87, 3);
 lean_inc(x_91);
 lean_dec(x_87);
 x_92 = l_Lean_Compiler_LCNF_PullLetDecls_pullDecls___closed__2;
-x_93 = lean_name_eq(x_88, x_92);
+//x_93 = lean_name_eq(x_88, x_92);
+x_93 = 0; // bootstrap: disable
 if (x_93 == 0)
 {
 lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; 

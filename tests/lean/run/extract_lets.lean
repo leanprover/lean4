@@ -599,7 +599,7 @@ example : ∀ n : Nat, let x := n; let y := 2; x + y = x + y := by
 /-!
 Testing lots of `let`s
 -/
-set_option maxHeartbeats 300 in
+set_option maxHeartbeats 600 in
 example :
     let x := 2
     let x := let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; x

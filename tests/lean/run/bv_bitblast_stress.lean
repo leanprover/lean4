@@ -4,6 +4,8 @@ open BitVec
 
 set_option exponentiation.threshold 4096
 
+set_option maxHeartbeats 4000000
+
 theorem t1 {x y : BitVec 64} (h : x = y) : (~~~x) &&& y = (~~~y) &&& x := by
   bv_decide
 

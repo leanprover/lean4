@@ -41,10 +41,7 @@ partial def reify? (e : Expr) (skipVar : Bool) : LinearM (Option LinExpr) := do
     reportInstIssue e
     return .var (← mkVar e)
   let isOfNatZero (e : Expr) : LinearM Bool := do
-    let_expr OfNat.ofNat _ n _ := e | return false
-    let some k ← getNatValue? n | return false
-    unless k == 0 do return false
-    withDefault <| isDefEq e (← getStruct).zero
+    withDefault <| isDefEq e (← getStruct).ofNatZero
   let rec go (e : Expr) : LinearM   LinExpr := do
     match_expr e with
     | HAdd.hAdd _ _ _ i a b =>

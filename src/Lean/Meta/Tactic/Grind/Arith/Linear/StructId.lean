@@ -7,6 +7,7 @@ prelude
 import Init.Grind.Ordered.Module
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Internalize
+import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 
@@ -21,6 +22,13 @@ private def internalizeConst (c : Expr) : GoalM Expr := do
   return c
 
 open Grind.Linarith (Poly)
+
+private def mkExpectedDefEqMsg (a b : Expr) : MetaM MessageData :=
+  return m!"`grind linarith` expected{indentExpr a}\nto be definitionally equal to{indentExpr b}"
+
+private def ensureDefEq (a b : Expr) : MetaM Unit := do
+  unless (← withDefault <| isDefEq a b) do
+    throwError (← mkExpectedDefEqMsg a b)
 
 def getStructId? (type : Expr) : GoalM (Option Nat) := do
   if let some id? := (← get').typeIdOf.find? { expr := type } then
@@ -55,21 +63,23 @@ where
       let some inst := inst? | return none
       let toField := mkApp2 (mkConst toFieldName [u]) type inst
       unless (← withDefault <| isDefEq parentInst toField) do
-        reportIssue! "`grind linarith` expected{indentExpr parentInst}\nto be definitionally equal to{indentExpr toField}"
+        reportIssue! (← mkExpectedDefEqMsg parentInst toField)
         return none
       return some inst
     let ensureToFieldDefEq (parentInst : Expr) (inst : Expr) (toFieldName : Name) : GoalM Unit := do
       let toField := mkApp2 (mkConst toFieldName [u]) type inst
-      unless (← withDefault <| isDefEq parentInst toField) do
-        throwError "`grind linarith` expected{indentExpr parentInst}\nto be definitionally equal to{indentExpr toField}"
+      ensureDefEq parentInst toField
     let ensureToHomoFieldDefEq (parentInst : Expr) (inst : Expr) (toFieldName : Name) (toHeteroName : Name) : GoalM Unit := do
       let toField := mkApp2 (mkConst toFieldName [u]) type inst
       let heteroToField := mkApp2 (mkConst toHeteroName [u]) type toField
-      unless (← withDefault <| isDefEq parentInst heteroToField) do
-        throwError "`grind linarith` expected{indentExpr parentInst}\nto be definitionally equal to{indentExpr heteroToField}"
+      ensureDefEq parentInst heteroToField
     let some intModuleInst ← getInst? ``Grind.IntModule | return none
     let zeroInst ← getInst ``Zero
     let zero ← internalizeConst <| mkApp2 (mkConst ``Zero.zero [u]) type zeroInst
+    let ofNatZeroType := mkApp2 (mkConst ``OfNat [u]) type (mkRawNatLit 0)
+    let some ofNatZeroInst := LOption.toOption (← trySynthInstance ofNatZeroType) | return none
+    let ofNatZero ← internalizeConst <| mkApp3 (mkConst ``OfNat.ofNat [u]) type (mkRawNatLit 0) ofNatZeroInst
+    ensureDefEq zero ofNatZero
     let addInst ← getBinHomoInst ``HAdd
     let addFn ← internalizeFn <| mkApp4 (mkConst ``HAdd.hAdd [u, u, u]) type type type addInst
     let subInst ← getBinHomoInst ``HSub
@@ -100,15 +110,16 @@ where
       let smulFn ← internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Int.mkType type smulInst smulInst
       if (← withDefault <| isDefEq hmulFn smulFn) then
         return smulFn
-      reportIssue! "`grind linarith` expected{indentExpr hmulFn}\nto be definitionally equal to{indentExpr smulFn}"
+      reportIssue! (← mkExpectedDefEqMsg hmulFn smulFn)
       return none
     let smulFn? ← getSMulFn?
+    let ringId? ← CommRing.getRingId? type
     let ringInst? ← getInst? ``Grind.Ring
     let getOne? : GoalM (Option Expr) := do
       let some oneInst ← getInst? ``One | return none
       let one ← internalizeConst <| mkApp2 (mkConst ``One.one [u]) type oneInst
       let one' ← mkNumeral type 1
-      unless (← withDefault <| isDefEq one one') do reportIssue! "`grind linarith` expected{indentExpr one}\nto be definitionally equal to{indentExpr one'}"
+      unless (← withDefault <| isDefEq one one') do reportIssue! (← mkExpectedDefEqMsg one one')
       return some one
     let one? ← getOne?
     let commRingInst? ← getInst? ``Grind.CommRing
@@ -127,7 +138,7 @@ where
     let struct : Struct := {
       id, type, u, intModuleInst, preorderInst, isOrdInst, partialInst?, linearInst?, noNatDivInst?
       leFn, ltFn, addFn, subFn, negFn, hmulFn, smulFn?, zero, one?
-      ringInst?, commRingInst?, ringIsOrdInst?
+      ringInst?, commRingInst?, ringIsOrdInst?, ringId?, ofNatZero
     }
     modify' fun s => { s with structs := s.structs.push struct }
     if let some one := one? then

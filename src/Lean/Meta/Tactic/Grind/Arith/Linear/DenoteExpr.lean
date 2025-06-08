@@ -46,21 +46,58 @@ private def mkEq (a b : Expr) : M Expr := do
   return mkApp3 (mkConst ``Eq [s.u.succ]) s.type a b
 
 def EqCnstr.denoteExpr (c : EqCnstr) : M Expr := do
-  mkEq (← c.p.denoteExpr) (← getStruct).zero
+  mkEq (← c.p.denoteExpr) (← getStruct).ofNatZero
 
 def DiseqCnstr.denoteExpr (c : DiseqCnstr) : M Expr := do
-  return mkNot (← mkEq (← c.p.denoteExpr) (← getStruct).zero)
+  return mkNot (← mkEq (← c.p.denoteExpr) (← getStruct).ofNatZero)
 
 private def denoteIneq (p : Poly) (strict : Bool) : M Expr := do
   if strict then
-    return mkApp2 (← getStruct).ltFn (← p.denoteExpr) (← getStruct).zero
+    return mkApp2 (← getStruct).ltFn (← p.denoteExpr) (← getStruct).ofNatZero
   else
-    return mkApp2 (← getStruct).leFn (← p.denoteExpr) (← getStruct).zero
+    return mkApp2 (← getStruct).leFn (← p.denoteExpr) (← getStruct).ofNatZero
 
 def IneqCnstr.denoteExpr (c : IneqCnstr) : M Expr := do
   denoteIneq c.p c.strict
 
 def NotIneqCnstr.denoteExpr (c : NotIneqCnstr) : M Expr := do
   return mkNot (← denoteIneq c.p c.strict)
+
+private def denoteNum (k : Int) : LinearM Expr := do
+  return mkApp2 (← getStruct).hmulFn (mkIntLit k) (← getOne)
+
+def _root_.Lean.Grind.CommRing.Power.denoteAsIntModuleExpr (pw : Grind.CommRing.Power) : LinearM Expr := do
+  let x := (← getRing).vars[pw.x]!
+  if pw.k == 1 then
+    return x
+  else
+    return mkApp2 (← getRing).powFn x (toExpr pw.k)
+
+def _root_.Lean.Grind.CommRing.Mon.denoteAsIntModuleExpr (m : Grind.CommRing.Mon) : LinearM Expr := do
+  match m with
+  | .unit => getOne
+  | .mult pw m => go m (← pw.denoteAsIntModuleExpr)
+where
+  go (m : Grind.CommRing.Mon) (acc : Expr) : LinearM Expr := do
+    match m with
+    | .unit => return acc
+    | .mult pw m => go m (mkApp2 (← getRing).mulFn acc (← pw.denoteAsIntModuleExpr))
+
+def _root_.Lean.Grind.CommRing.Poly.denoteAsIntModuleExpr (p : Grind.CommRing.Poly) : LinearM Expr := do
+  match p with
+  | .num k => denoteNum k
+  | .add k m p => go p (← denoteTerm k m)
+where
+  denoteTerm (k : Int) (m : Grind.CommRing.Mon) : LinearM Expr := do
+    if k == 1 then
+      m.denoteAsIntModuleExpr
+    else
+      return mkApp2 (← getStruct).hmulFn (mkIntLit k) (← m.denoteAsIntModuleExpr)
+
+  go (p : Grind.CommRing.Poly) (acc : Expr) : LinearM Expr := do
+    match p with
+    | .num 0 => return acc
+    | .num k => return mkApp2 (← getStruct).addFn acc (← denoteNum k)
+    | .add k m p => go p (mkApp2 (← getStruct).addFn acc (← denoteTerm k m))
 
 end Lean.Meta.Grind.Arith.Linear

@@ -31,8 +31,11 @@ private def reportAppIssue (e : Expr) : GoalM Unit := do
 /--
 Converts a Lean expression `e` in the `CommRing` with id `ringId` into
 a `CommRing.Expr` object.
+
+If `skipVar` is `true`, then the result is `none` if `e` is not an interpreted `CommRing` term.
+We use `skipVar := false` when processing inequalities, and `skipVar := true` for equalities and disequalities
 -/
-partial def reify? (e : Expr) : RingM (Option RingExpr) := do
+partial def reify? (e : Expr) (skipVar := true) : RingM (Option RingExpr) := do
   let toVar (e : Expr) : RingM RingExpr := do
     return .var (← mkVar e)
   let asVar (e : Expr) : RingM RingExpr := do
@@ -67,36 +70,41 @@ partial def reify? (e : Expr) : RingM (Option RingExpr) := do
       let some k ← getNatValue? n | toVar e
       return .num k
     | _ => toVar e
-  let asNone (e : Expr) : GoalM (Option RingExpr) := do
+  let toTopVar (e : Expr) : RingM (Option RingExpr) := do
+    if skipVar then
+      return none
+    else
+      return some (← toVar e)
+  let asTopVar (e : Expr) : RingM (Option RingExpr) := do
     reportAppIssue e
-    return none
+    toTopVar e
   match_expr e with
   | HAdd.hAdd _ _ _ i a b =>
-    if isAddInst (← getRing) i then return some (.add (← go a) (← go b)) else asNone e
+    if isAddInst (← getRing) i then return some (.add (← go a) (← go b)) else asTopVar e
   | HMul.hMul _ _ _ i a b =>
-    if isMulInst (← getRing) i then return some (.mul (← go a) (← go b)) else asNone e
+    if isMulInst (← getRing) i then return some (.mul (← go a) (← go b)) else asTopVar e
   | HSub.hSub _ _ _ i a b =>
-    if isSubInst (← getRing) i then return some (.sub (← go a) (← go b)) else asNone e
+    if isSubInst (← getRing) i then return some (.sub (← go a) (← go b)) else asTopVar e
   | HPow.hPow _ _ _ i a b =>
     let some k ← getNatValue? b | return none
-    if isPowInst (← getRing) i then return some (.pow (← go a) k) else asNone e
+    if isPowInst (← getRing) i then return some (.pow (← go a) k) else asTopVar e
   | Neg.neg _ i a =>
-    if isNegInst (← getRing) i then return some (.neg (← go a)) else asNone e
-  | IntCast.intCast _ i e =>
+    if isNegInst (← getRing) i then return some (.neg (← go a)) else asTopVar e
+  | IntCast.intCast _ i a =>
     if isIntCastInst (← getRing) i then
-      let some k ← getIntValue? e | return none
+      let some k ← getIntValue? a | asTopVar e
       return some (.num k)
     else
-      asNone e
-  | NatCast.natCast _ i e =>
+      asTopVar e
+  | NatCast.natCast _ i a =>
     if isNatCastInst (← getRing) i then
-      let some k ← getNatValue? e | return none
+      let some k ← getNatValue? a | asTopVar e
       return some (.num k)
     else
-      asNone e
+      asTopVar e
   | OfNat.ofNat _ n _ =>
-    let some k ← getNatValue? n | return none
+    let some k ← getNatValue? n | asTopVar e
     return some (.num k)
-  | _ => return none
+  | _ => toTopVar e
 
 end  Lean.Meta.Grind.Arith.CommRing

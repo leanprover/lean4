@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Types
-// Imports: Init.Grind.Tactics Init.Data.Queue Std.Data.TreeSet Lean.HeadIndex Lean.Meta.Basic Lean.Meta.CongrTheorems Lean.Meta.AbstractNestedProofs Lean.Meta.Tactic.Simp.Types Lean.Meta.Tactic.Util Lean.Meta.Tactic.Ext Lean.Meta.Tactic.Grind.ENodeKey Lean.Meta.Tactic.Grind.AlphaShareCommon Lean.Meta.Tactic.Grind.Attr Lean.Meta.Tactic.Grind.ExtAttr Lean.Meta.Tactic.Grind.Cases Lean.Meta.Tactic.Grind.Arith.Types Lean.Meta.Tactic.Grind.EMatchTheorem
+// Imports: Init.Grind.Tactics Init.Data.Queue Std.Data.TreeSet Lean.HeadIndex Lean.Meta.Basic Lean.Meta.CongrTheorems Lean.Meta.AbstractNestedProofs Lean.Meta.Tactic.Simp.Types Lean.Meta.Tactic.Util Lean.Meta.Tactic.Ext Lean.Meta.Tactic.Grind.ExprPtr Lean.Meta.Tactic.Grind.AlphaShareCommon Lean.Meta.Tactic.Grind.Attr Lean.Meta.Tactic.Grind.ExtAttr Lean.Meta.Tactic.Grind.Cases Lean.Meta.Tactic.Grind.Arith.Types Lean.Meta.Tactic.Grind.EMatchTheorem
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -622,6 +622,7 @@ static lean_object* l_panic___at_Lean_Meta_Grind_foldEqc___spec__2___closed__5;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_Grind_registerParent___spec__7___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addTrace___at_Lean_Meta_Grind_reportIssue___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_pushEqCore___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Grind_instInhabitedGoal___closed__8;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_forEachENode___spec__3___boxed(lean_object**);
 static lean_object* l_Lean_Meta_Grind_addLookaheadCandidate___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateCommRingDiseq_get_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -13241,15 +13242,30 @@ return x_4;
 static lean_object* _init_l_Lean_Meta_Grind_instInhabitedGoal___closed__7() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_expandReportIssueMacro___lambda__1___closed__17;
+x_2 = l_Lean_PersistentHashMap_empty___at_Lean_Meta_Grind_instInhabitedTrace___spec__1___closed__2;
+x_3 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+lean_ctor_set(x_3, 2, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_instInhabitedGoal___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Meta_Grind_instInhabitedGoal___closed__4;
 x_2 = l_Lean_Meta_Grind_instInhabitedGoal___closed__5;
 x_3 = l_Lean_Meta_Grind_instInhabitedGoal___closed__6;
-x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
+x_4 = l_Lean_Meta_Grind_instInhabitedGoal___closed__7;
+x_5 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_5, 0, x_1);
+lean_ctor_set(x_5, 1, x_2);
+lean_ctor_set(x_5, 2, x_3);
+lean_ctor_set(x_5, 3, x_4);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Meta_Grind_instInhabitedGoal() {
@@ -13267,7 +13283,7 @@ x_8 = lean_unsigned_to_nat(0u);
 x_9 = l_Lean_Meta_Grind_instInhabitedGoal___closed__1;
 x_10 = l_Lean_Meta_Grind_instInhabitedGoal___closed__2;
 x_11 = l_Lean_Meta_Grind_instInhabitedGoal___closed__3;
-x_12 = l_Lean_Meta_Grind_instInhabitedGoal___closed__7;
+x_12 = l_Lean_Meta_Grind_instInhabitedGoal___closed__8;
 x_13 = l_Lean_Meta_Grind_Clean_instInhabitedState___closed__1;
 x_14 = lean_alloc_ctor(0, 16, 1);
 lean_ctor_set(x_14, 0, x_1);
@@ -48534,7 +48550,7 @@ lean_object* initialize_Lean_Meta_AbstractNestedProofs(uint8_t builtin, lean_obj
 lean_object* initialize_Lean_Meta_Tactic_Simp_Types(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Util(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Ext(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Grind_ENodeKey(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_ExprPtr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_AlphaShareCommon(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Attr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_ExtAttr(uint8_t builtin, lean_object*);
@@ -48576,7 +48592,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Ext(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_ENodeKey(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Grind_ExprPtr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_AlphaShareCommon(builtin, lean_io_mk_world());
@@ -49124,6 +49140,8 @@ l_Lean_Meta_Grind_instInhabitedGoal___closed__6 = _init_l_Lean_Meta_Grind_instIn
 lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedGoal___closed__6);
 l_Lean_Meta_Grind_instInhabitedGoal___closed__7 = _init_l_Lean_Meta_Grind_instInhabitedGoal___closed__7();
 lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedGoal___closed__7);
+l_Lean_Meta_Grind_instInhabitedGoal___closed__8 = _init_l_Lean_Meta_Grind_instInhabitedGoal___closed__8();
+lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedGoal___closed__8);
 l_Lean_Meta_Grind_instInhabitedGoal = _init_l_Lean_Meta_Grind_instInhabitedGoal();
 lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedGoal);
 l_Lean_Meta_Grind_GoalM_run_x27___closed__1 = _init_l_Lean_Meta_Grind_GoalM_run_x27___closed__1();

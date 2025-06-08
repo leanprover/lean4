@@ -86,6 +86,7 @@ def propagateIntModuleIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue :
     c.assert
 
 def propagateIneq (e : Expr) (eqTrue : Bool) : GoalM Unit := do
+  unless (← getConfig).linarith do return ()
   let numArgs := e.getAppNumArgs
   unless numArgs == 4 do return ()
   let α := e.getArg! 0 numArgs

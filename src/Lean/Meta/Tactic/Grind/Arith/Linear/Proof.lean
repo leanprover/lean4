@@ -113,7 +113,7 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
 partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' do
   throwError "NIY"
 
-partial def DiesqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do
+partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do
   throwError "NIY"
 
 partial def NotIneqCnstr.toExprProof (c' : NotIneqCnstr) : ProofM Expr := caching c' do

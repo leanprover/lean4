@@ -131,6 +131,15 @@ private def mkIntModPreOrdThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
   return mkApp5 (mkConst declName [s.u]) s.type s.intModuleInst s.preorderInst s.isOrdInst (← getContext)
 
+/--
+Returns the prefix of a theorem with name `declName` where the first five arguments are
+`{α} [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (ctx : Context α)`
+This is the most common theorem prefix at `Linarith.lean`
+-/
+private def mkIntModLinOrdThmPrefix (declName : Name) : ProofM Expr := do
+  let s ← getStruct
+  return mkApp5 (mkConst declName [s.u]) s.type s.intModuleInst (← getLinearOrderInst) s.isOrdInst (← getContext)
+
 mutual
 partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
   throwError "NIY"
@@ -140,6 +149,9 @@ partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' d
   | .core e lhs rhs =>
     let h ← mkIntModPreOrdThmPrefix (if c'.strict then ``Grind.Linarith.lt_norm else ``Grind.Linarith.le_norm)
     return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue (mkOfEqTrueCore e (← mkEqTrueProof e))
+  | .notCore e lhs rhs =>
+    let h ← mkIntModLinOrdThmPrefix (if c'.strict then ``Grind.Linarith.not_le_norm else ``Grind.Linarith.not_lt_norm)
+    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
   | _ => throwError "NIY"
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do

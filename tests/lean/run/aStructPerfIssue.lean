@@ -129,6 +129,7 @@ namespace Equiv
   ⟨id, (⟨id, idp⟩, ⟨id, idp⟩)⟩
 end Equiv
 
+set_option compiler.extract_closed false in -- work-around for a weird bug
 def transport {A : Type u} (B : A → Type v) {a b : A} (p : a = b) : B a → B b :=
 by { induction p; apply id }
 

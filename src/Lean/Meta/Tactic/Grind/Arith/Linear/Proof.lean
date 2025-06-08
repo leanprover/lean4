@@ -106,12 +106,41 @@ where
     let h ← mkLetOfMap (← get).ringExprMap h `r (mkConst ``Grind.CommRing.Expr) toExpr
     mkLetFVars #[(← getContext), (← getRingContext)] h
 
+/--
+Returns the prefix of a theorem with name `declName` where the first three arguments are
+`{α} [IntModule α] (ctx : Context α)`
+-/
+private def mkIntModThmPrefix (declName : Name) : ProofM Expr := do
+  let s ← getStruct
+  return mkApp3 (mkConst declName [s.u]) s.type s.intModuleInst (← getContext)
+
+/--
+Returns the prefix of a theorem with name `declName` where the first four arguments are
+`{α} [IntModule α] [Preorder α] (ctx : Context α)`
+-/
+private def mkIntModPreThmPrefix (declName : Name) : ProofM Expr := do
+  let s ← getStruct
+  return mkApp4 (mkConst declName [s.u]) s.type s.intModuleInst s.preorderInst (← getContext)
+
+/--
+Returns the prefix of a theorem with name `declName` where the first five arguments are
+`{α} [IntModule α] [Preorder α] [IntModule.IsOrdered α] (ctx : Context α)`
+This is the most common theorem prefix at `Linarith.lean`
+-/
+private def mkIntModPreOrdThmPrefix (declName : Name) : ProofM Expr := do
+  let s ← getStruct
+  return mkApp5 (mkConst declName [s.u]) s.type s.intModuleInst s.preorderInst s.isOrdInst (← getContext)
+
 mutual
 partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
   throwError "NIY"
 
 partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' do
-  throwError "NIY"
+  match c'.h with
+  | .core e lhs rhs =>
+    let h ← mkIntModPreOrdThmPrefix (if c'.strict then ``Grind.Linarith.lt_norm else ``Grind.Linarith.le_norm)
+    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue (mkOfEqTrueCore e (← mkEqTrueProof e))
+  | _ => throwError "NIY"
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do
   throwError "NIY"
@@ -119,8 +148,11 @@ partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c'
 partial def NotIneqCnstr.toExprProof (c' : NotIneqCnstr) : ProofM Expr := caching c' do
   throwError "NIY"
 
-partial def UnsatProof.toExprProofCore (_h : UnsatProof) : ProofM Expr := do
-  throwError "NIY"
+partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
+  match h with
+  | .lt c => return mkApp (← mkIntModPreThmPrefix ``Grind.Linarith.lt_unsat) (← c.toExprProof)
+  | .diseq _ => throwError "NIY"
+
 end
 
 def UnsatProof.toExprProof (h : UnsatProof) : LinearM Expr := do

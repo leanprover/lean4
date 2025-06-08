@@ -34,8 +34,7 @@ def mkModuleSetup
   (buildConfig : BuildConfig)
 : IO ModuleSetup := do
   let header ← Lean.parseImports' input fileName
-  let imports := header.imports.filterMap (ws.findModule? ·.module)
-  let {dynlibs, plugins} ← ws.runBuild (buildImportsAndDeps fileName imports) buildConfig
+  let {dynlibs, plugins} ← ws.runBuild (buildImportsAndDeps fileName header.imports) buildConfig
   return {
     name := ← Lean.moduleNameOfFileName fileName none
     isModule := header.isModule

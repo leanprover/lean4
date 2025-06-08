@@ -162,13 +162,16 @@ and target facets.
 /-! #### Module Infos -/
 
 structure ModuleImports where
-  module : Module
   transSet : NameSet := {}
   localImports : Array Module := #[]
   transImports : Array Module := #[]
   publicSet : NameSet := {}
   publicImports : Array Module := #[]
-  libSet : NameSet := .insert {} module.lib.name
+  libName? : Option Name := none
+  libSet : NameSet :=
+    match libName? with
+    | some libName => .insert {} libName
+    | none => {}
   libs : Array LeanLib := #[]
 
 private def ModuleImports.addLibCore (self : ModuleImports) (lib : LeanLib) : ModuleImports :=
@@ -199,7 +202,7 @@ private def ModuleImports.addImportCore
     transSet := self.transSet.insert mod.name
     transImports := self.transImports.push mod
   }
-  if self.module.name = mod.lib.name then
+  if self.libName? = mod.lib.name then
     self := {self with localImports := self.localImports.push mod}
   else
     self := self.addLibCore mod.lib

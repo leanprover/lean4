@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Ordered.Module
 import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 
@@ -13,6 +14,11 @@ namespace Lean.Meta.Grind.Arith.Linear
 
 private def internalizeFn (fn : Expr) : GoalM Expr := do
   shareCommon (← canon fn)
+
+private def internalizeConst (c : Expr) : GoalM Expr := do
+  let c ← shareCommon (← canon c)
+  internalize c none
+  return c
 
 open Grind.Linarith (Poly)
 
@@ -63,15 +69,15 @@ where
         throwError "`grind linarith` expected{indentExpr parentInst}\nto be definitionally equal to{indentExpr heteroToField}"
     let some intModuleInst ← getInst? ``Grind.IntModule | return none
     let zeroInst ← getInst ``Zero
-    let zero := mkApp2 (mkConst ``Zero.zero [u]) type zeroInst
+    let zero ← internalizeConst <| mkApp2 (mkConst ``Zero.zero [u]) type zeroInst
     let addInst ← getBinHomoInst ``HAdd
-    let addFn := mkApp4 (mkConst ``HAdd.hAdd [u, u, u]) type type type addInst
+    let addFn ← internalizeFn <| mkApp4 (mkConst ``HAdd.hAdd [u, u, u]) type type type addInst
     let subInst ← getBinHomoInst ``HSub
-    let subFn := mkApp4 (mkConst ``HSub.hSub [u, u, u]) type type type subInst
+    let subFn ← internalizeFn <| mkApp4 (mkConst ``HSub.hSub [u, u, u]) type type type subInst
     let negInst ← getInst ``Neg
-    let negFn := mkApp2 (mkConst ``Neg.neg [u]) type negInst
+    let negFn ← internalizeFn <| mkApp2 (mkConst ``Neg.neg [u]) type negInst
     let hmulInst ← getHMulInst
-    let hmulFn := mkApp4 (mkConst ``HMul.hMul [0, u, u]) Int.mkType type type hmulInst
+    let hmulFn ← internalizeFn <| mkApp4 (mkConst ``HMul.hMul [0, u, u]) Int.mkType type type hmulInst
     ensureToFieldDefEq zeroInst intModuleInst ``Grind.IntModule.toZero
     ensureToHomoFieldDefEq addInst intModuleInst ``Grind.IntModule.toAdd ``instHAdd
     ensureToHomoFieldDefEq subInst intModuleInst ``Grind.IntModule.toSub ``instHSub
@@ -80,8 +86,8 @@ where
     let some preorderInst ← getInst? ``Grind.Preorder | return none
     let leInst ← getInst ``LE
     let ltInst ← getInst ``LT
-    let leFn := mkApp2 (mkConst ``LE.le [u]) type leInst
-    let ltFn := mkApp2 (mkConst ``LT.lt [u]) type ltInst
+    let leFn ← internalizeFn <| mkApp2 (mkConst ``LE.le [u]) type leInst
+    let ltFn ← internalizeFn <| mkApp2 (mkConst ``LT.lt [u]) type ltInst
     ensureToFieldDefEq leInst preorderInst ``Grind.Preorder.toLE
     ensureToFieldDefEq ltInst preorderInst ``Grind.Preorder.toLT
     let partialInst? ← checkToFieldDefEq? (some preorderInst) (← getInst? ``Grind.PartialOrder) ``Grind.PartialOrder.toPreorder
@@ -89,9 +95,9 @@ where
     let isOrderedType := mkApp3 (mkConst ``Grind.IntModule.IsOrdered [u]) type preorderInst intModuleInst
     let .some isOrdInst ← trySynthInstance isOrderedType | return none
     let getSMulFn? : GoalM (Option Expr) := do
-      let smulType := mkApp2 (mkConst ``SMul [0, u]) Int.mkType type
+      let smulType := mkApp3 (mkConst ``HSMul [0, u, u]) Int.mkType type type
       let .some smulInst ← trySynthInstance smulType | return none
-      let smulFn := mkApp3 (mkConst ``SMul.smul [0, u]) Int.mkType type smulInst
+      let smulFn ← internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Int.mkType type smulInst smulInst
       if (← withDefault <| isDefEq hmulFn smulFn) then
         return smulFn
       reportIssue! "`grind linarith` expected{indentExpr hmulFn}\nto be definitionally equal to{indentExpr smulFn}"
@@ -100,7 +106,7 @@ where
     let ringInst? ← getInst? ``Grind.Ring
     let getOne? : GoalM (Option Expr) := do
       let some oneInst ← getInst? ``One | return none
-      let one := mkApp2 (mkConst ``One.one [u]) type oneInst
+      let one ← internalizeConst <| mkApp2 (mkConst ``One.one [u]) type oneInst
       let one' ← mkNumeral type 1
       unless (← withDefault <| isDefEq one one') do reportIssue! "`grind linarith` expected{indentExpr one}\nto be definitionally equal to{indentExpr one'}"
       return some one

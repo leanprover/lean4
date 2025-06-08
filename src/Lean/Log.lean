@@ -112,7 +112,9 @@ def logAt (ref : Syntax) (msgData : MessageData)
     let pos    := ref.getPos?.getD 0
     let endPos := ref.getTailPos?.getD pos
     let fileMap ← getFileMap
-    let msgData ← addMessageContext msgData.appendDescriptionWidgetIfNamed
+    -- TODO: change to `msgData.appendDescriptionWidgetIfNamed` once error explanation support is
+    -- added to the manual
+    let msgData ← addMessageContext msgData
     logMessage {
       fileName := (← getFileName)
       pos := fileMap.toPosition pos

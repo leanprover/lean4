@@ -583,10 +583,10 @@ def buildImportsAndDeps
     root.extraDep.fetch <&> (·.map fun _ => {})
   else
     -- build local imports from list
-    let modJob ← Job.mixArray <$> imports.foldlM (init := #[]) fun s imp => do
+    let modJob ← imports.foldlM (init := Job.pure ()) fun job imp => do
       let some mod ← findModule? imp.module
-        | return s
-      s.push <$> mod.olean.fetch
+        | return job
+      job.mix <$> mod.fetchOLeanArts imp.importAll
     let impsJob ← computeAllImportsAux leanFile none imports
     let externLibsJob ← Job.collectArray <$>
       if root.precompileModules then root.externLibs.mapM (·.dynlib.fetch) else pure #[]

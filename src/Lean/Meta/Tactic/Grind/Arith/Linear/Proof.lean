@@ -43,6 +43,7 @@ structure ProofM.State where
   cache       : Std.HashMap UInt64 Expr := {}
   polyMap     : Std.HashMap Poly Expr := {}
   exprMap     : Std.HashMap LinExpr Expr := {}
+  ringPolyMap : Std.HashMap CommRing.Poly Expr := {}
   ringExprMap : Std.HashMap RingExpr Expr := {}
 
 structure ProofM.Context where
@@ -86,6 +87,13 @@ def mkExprDecl (e : LinExpr) : ProofM Expr := do
   modify fun s => { s with exprMap := s.exprMap.insert e x }
   return x
 
+def mkRingPolyDecl (p : CommRing.Poly) : ProofM Expr := do
+  if let some x := (← get).ringPolyMap[p]? then
+    return x
+  let x := mkFVar (← mkFreshFVarId)
+  modify fun s => { s with ringPolyMap := s.ringPolyMap.insert p x }
+  return x
+
 def mkRingExprDecl (e : RingExpr) : ProofM Expr := do
   if let some x := (← get).ringExprMap[e]? then
     return x
@@ -103,7 +111,8 @@ where
     let h ← x
     let h ← mkLetOfMap (← get).polyMap h `p (mkConst ``Grind.Linarith.Poly) toExpr
     let h ← mkLetOfMap (← get).exprMap h `e (mkConst ``Grind.Linarith.Expr) toExpr
-    let h ← mkLetOfMap (← get).ringExprMap h `r (mkConst ``Grind.CommRing.Expr) toExpr
+    let h ← mkLetOfMap (← get).ringPolyMap h `rp (mkConst ``Grind.CommRing.Poly) toExpr
+    let h ← mkLetOfMap (← get).ringExprMap h `re (mkConst ``Grind.CommRing.Expr) toExpr
     mkLetFVars #[(← getContext), (← getRingContext)] h
 
 /--
@@ -140,6 +149,22 @@ private def mkIntModLinOrdThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
   return mkApp5 (mkConst declName [s.u]) s.type s.intModuleInst (← getLinearOrderInst) s.isOrdInst (← getContext)
 
+/--
+Returns the prefix of a theorem with name `declName` where the first five arguments are
+`{α} [CommRing α] [Preorder α] [Ring.IsOrdered α] (rctx : Context α)`
+-/
+private def mkCommRingPreOrdThmPrefix (declName : Name) : ProofM Expr := do
+  let s ← getStruct
+  return mkApp5 (mkConst declName [s.u]) s.type (← getCommRingInst) s.preorderInst (← getRingIsOrdInst) (← getRingContext)
+
+/--
+Returns the prefix of a theorem with name `declName` where the first five arguments are
+`{α} [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (rctx : Context α)`
+-/
+private def mkCommRingLinOrdThmPrefix (declName : Name) : ProofM Expr := do
+  let s ← getStruct
+  return mkApp5 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getLinearOrderInst) (← getRingIsOrdInst) (← getRingContext)
+
 mutual
 partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
   throwError "NIY"
@@ -152,6 +177,16 @@ partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' d
   | .notCore e lhs rhs =>
     let h ← mkIntModLinOrdThmPrefix (if c'.strict then ``Grind.Linarith.not_le_norm else ``Grind.Linarith.not_lt_norm)
     return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
+  | .coreCommRing e lhs rhs p' lhs' =>
+    let h' ← mkCommRingPreOrdThmPrefix (if c'.strict then ``Grind.CommRing.lt_norm else ``Grind.CommRing.le_norm)
+    let h' := mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl p') reflBoolTrue (mkOfEqTrueCore e (← mkEqTrueProof e))
+    let h ← mkIntModPreOrdThmPrefix (if c'.strict then ``Grind.Linarith.lt_norm else ``Grind.Linarith.le_norm)
+    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) reflBoolTrue h'
+  | .notCoreCommRing e lhs rhs p' lhs' =>
+    let h' ← mkCommRingLinOrdThmPrefix (if c'.strict then ``Grind.CommRing.not_le_norm else ``Grind.CommRing.not_lt_norm)
+    let h' := mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl p') reflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
+    let h ← mkIntModPreOrdThmPrefix (if c'.strict then ``Grind.Linarith.lt_norm else ``Grind.Linarith.le_norm)
+    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) reflBoolTrue h'
   | _ => throwError "NIY"
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do

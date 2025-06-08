@@ -13,8 +13,16 @@ import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 
 namespace Lean.Meta.Grind.Arith.Linear
 
+private def preprocess (e : Expr) : GoalM Expr := do
+  shareCommon (← canon e)
+
 private def internalizeFn (fn : Expr) : GoalM Expr := do
-  shareCommon (← canon fn)
+  preprocess fn
+
+private def preprocessConst (c : Expr) : GoalM Expr := do
+  let c ← preprocess c
+  internalize c none
+  return c
 
 private def internalizeConst (c : Expr) : GoalM Expr := do
   let c ← shareCommon (← canon c)
@@ -78,7 +86,8 @@ where
     let zero ← internalizeConst <| mkApp2 (mkConst ``Zero.zero [u]) type zeroInst
     let ofNatZeroType := mkApp2 (mkConst ``OfNat [u]) type (mkRawNatLit 0)
     let some ofNatZeroInst := LOption.toOption (← trySynthInstance ofNatZeroType) | return none
-    let ofNatZero ← internalizeConst <| mkApp3 (mkConst ``OfNat.ofNat [u]) type (mkRawNatLit 0) ofNatZeroInst
+    -- `ofNatZero` is used internally, we don't need to internalize
+    let ofNatZero ← preprocess <| mkApp3 (mkConst ``OfNat.ofNat [u]) type (mkRawNatLit 0) ofNatZeroInst
     ensureDefEq zero ofNatZero
     let addInst ← getBinHomoInst ``HAdd
     let addFn ← internalizeFn <| mkApp4 (mkConst ``HAdd.hAdd [u, u, u]) type type type addInst

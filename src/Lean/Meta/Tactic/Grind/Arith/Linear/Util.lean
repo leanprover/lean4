@@ -144,4 +144,8 @@ def NotEqCnstr.satisfied (c : NotIneqCnstr) : LinearM LBool := do
   else
     return decide (v > 0) |>.toLBool
 
+/-- Resets the assignment of any variable bigger or equal to `x`. -/
+def resetAssignmentFrom (x : Var) : LinearM Unit := do
+  modifyStruct fun s => { s with assignment := shrink s.assignment x }
+
 end Lean.Meta.Grind.Arith.Linear

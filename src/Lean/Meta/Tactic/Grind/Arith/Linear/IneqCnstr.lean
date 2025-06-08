@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
 import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
 import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
+import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
 
 namespace Lean.Meta.Grind.Arith.Linear
 
@@ -21,7 +22,21 @@ def isLtInst (struct : Struct) (inst : Expr) : Bool :=
 
 def IneqCnstr.assert (c : IneqCnstr) : LinearM Unit := do
   trace[grind.linarith.assert] "{← c.denoteExpr}"
-  -- TODO
+  match c.p with
+  | .nil =>
+    if c.strict then
+      trace[grind.linarith.unsat] "{← c.denoteExpr}"
+      setInconsistent (.lt c)
+    else
+      trace[grind.linarith.trivial] "{← c.denoteExpr}"
+  | .add a x _ =>
+    trace[grind.cutsat.assert.store] "{← c.denoteExpr}"
+    if a < 0 then
+      modifyStruct fun s => { s with lowers := s.lowers.modify x (·.push c) }
+    else
+      modifyStruct fun s => { s with uppers := s.uppers.modify x (·.push c) }
+    if (← c.satisfied) == .false then
+      resetAssignmentFrom x
 
 def NotIneqCnstr.assert (c : NotIneqCnstr) : LinearM Unit := do
   trace[grind.linarith.assert] "{← c.denoteExpr}"

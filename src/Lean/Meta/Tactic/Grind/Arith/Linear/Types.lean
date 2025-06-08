@@ -70,8 +70,8 @@ inductive NotIneqCnstrProof where
   -- TODO: norm, and combineEq
 
 inductive UnsatProof where
-  | diseqUnsat (c : DiseqCnstr)
-  | ltUnsat (c : IneqCnstr)
+  | diseq (c : DiseqCnstr)
+  | lt (c : IneqCnstr)
   -- TODO: IneqCnstr + NotIneqCnstr
 
 end

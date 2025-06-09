@@ -96,6 +96,6 @@ partial def reify? (e : Expr) (skipVar : Bool) : LinearM (Option LinExpr) := do
     if skipVar then
       return none
     else
-      return some (← asVar e)
+      return some (← toVar e)
 
 end  Lean.Meta.Grind.Arith.Linear

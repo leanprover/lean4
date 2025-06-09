@@ -30,7 +30,7 @@ def IneqCnstr.assert (c : IneqCnstr) : LinearM Unit := do
     else
       trace[grind.linarith.trivial] "{← c.denoteExpr}"
   | .add a x _ =>
-    trace[grind.cutsat.assert.store] "{← c.denoteExpr}"
+    trace[grind.linarith.assert.store] "{← c.denoteExpr}"
     if a < 0 then
       modifyStruct fun s => { s with lowers := s.lowers.modify x (·.push c) }
     else

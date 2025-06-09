@@ -76,6 +76,9 @@ inductive UnsatProof where
 
 end
 
+instance : Inhabited DiseqCnstr where
+  default := { p := .nil, h := .core default .zero .zero }
+
 /--
 State for each algebraic structure by this module.
 Each type must be at least implement the instances `IntModule`, `Preorder`, and `IntModule.IsOrdered`
@@ -139,10 +142,10 @@ structure Struct where
   diseqs : PArray (PArray DiseqCnstr) := {}
   notIneqs : PArray (PArray NotIneqCnstr) := {}
   /--
-  Mapping from variable to equation constraint used to eliminate it. `solved` variables should not occur in
-  `dvdCnstrs`, `lowers`, or `uppers`.
+  Mapping from variable to equation constraint. We keep at most one equation per variable.
+  We use substitution to eliminate other equation constraints.
   -/
-  elimEqs : PArray (Option EqCnstr) := {}
+  eqs : PArray (Option EqCnstr) := {}
   /-- Partial assignment being constructed by linarith. -/
   assignment : PArray Rat := {}
   /--
@@ -162,6 +165,7 @@ structure Struct where
   This is necessary because the same disequality may be in different conflicts.
   -/
   diseqSplits : PHashMap Poly FVarId := {}
+  deriving Inhabited
 
 /-- State for all `IntModule` types detected by `grind`. -/
 structure State where

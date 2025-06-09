@@ -13,6 +13,8 @@ import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
 import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr
 import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
+import Lean.Meta.Tactic.Grind.Arith.Linear.SearchM
+import Lean.Meta.Tactic.Grind.Arith.Linear.Search
 
 namespace Lean
 
@@ -21,5 +23,10 @@ builtin_initialize registerTraceClass `grind.linarith.internalize
 builtin_initialize registerTraceClass `grind.linarith.assert
 builtin_initialize registerTraceClass `grind.linarith.assert.unsat (inherited := true)
 builtin_initialize registerTraceClass `grind.linarith.assert.trivial (inherited := true)
+builtin_initialize registerTraceClass `grind.linarith.assert.store (inherited := true)
+
+builtin_initialize registerTraceClass `grind.debug.linarith.search
+builtin_initialize registerTraceClass `grind.debug.linarith.search.conflict (inherited := true)
+builtin_initialize registerTraceClass `grind.debug.linarith.search.assign (inherited := true)
 
 end Lean

@@ -88,10 +88,26 @@ example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b : α)
   fail_if_success grind
   sorry
 
+example [IntModule α] [Preorder α] [IntModule.IsOrdered α] (a b c d : α)
+    : a < c → b = a + d → b - d > c → False := by
+  grind
+
+example [IntModule α] [Preorder α] [IntModule.IsOrdered α] (a b c d : α)
+    : a + d < c → b = a + (2:Int)*d → b - d > c → False := by
+  grind
+
 example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b : α)
     : a < 2 → b = a → b > 5 → False := by
   grind
 
 example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b : α)
     : a < 2 → a = b + b → b > 5 → False := by
+  grind
+
+example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b : α)
+    : a < 2 → a = b + b → b < 1 := by
+  grind
+
+example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b : α)
+    : a ≤ 2 → a + b = 3*b → b ≤ 1 := by
   grind

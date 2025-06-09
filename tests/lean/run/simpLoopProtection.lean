@@ -86,3 +86,20 @@ error: simp made no progress
 -/
 #guard_msgs in
 example (t : Tree α) : 0 < t.size := by simp +loopProtection [Tree.size]
+
+
+/-! Extracted from Balancing.lean -/
+
+-- TODO: Count projection of conjunction separately.
+
+/--
+warning: Ignoring looping simp theorem: h1
+---
+error: simp made no progress
+-/
+#guard_msgs in
+example
+  (a b : Nat)
+  (h1 : b = 1 ∧ a = b )
+  (h2 : a > 0) : True := by
+  simp +loopProtection only [h1] at h2

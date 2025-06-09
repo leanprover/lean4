@@ -2218,36 +2218,7 @@ theorem clzAuxRec_lt_iff (x : BitVec w) (n : Nat) (hwn : n < w) (hw : 0 < w)
               omega
             · simp_all
 
-theorem clzAux_of_clzAuxRec (x : BitVec w) (hw : 0 < w) (h : (x.clzAuxRec (w - 1)).toNat = k):
-    (x.clzAux (w - 1)) = k := by
-  rcases w with _|_|w
-  · omega
-  · simp
-    simp at h
-    simp [clzAuxRec] at h
-    by_cases hx0 : x[0]
-    <;> (simp [hx0] at *; exact h)
-  · simp at *
-    induction k
-    · case zero =>
-      have hrec := clzAuxRec_eq_zero_iff x (w + 1) (by omega) (by omega) (by
-        intros i hiw
-        simp [show w + 1 +1 ≤ i by omega])
-      unfold clzAux
-      by_cases hxw : x.getLsbD (w + 1)
-      · simp [hxw]
-      · simp at hxw
-        simp [hxw] at *
-        simp [hrec] at h
-    · case succ k ihk =>
-      unfold clzAuxRec at h
-      by_cases hxw : x.getLsbD (w + 1)
-      · simp [hxw] at *
-      · simp at h hxw
-
-        sorry
-
-theorem clzAuxRec_of_clzAux (x : BitVec w) (hw : 0 < w) (h : ∀ i, n < i → x.getLsbD i = false) :
+theorem clzAuxRec_eq_clz (x : BitVec w) (hw : 0 < w) (h : ∀ i, n < i → x.getLsbD i = false) :
     x.clzAuxRec n = x.clz  := by
   have h0 := Nat.lt_pow_self (a := 2) (n := w) (by omega)
   rcases w with _|w
@@ -2347,16 +2318,6 @@ theorem clzAuxRec_of_clzAux (x : BitVec w) (hw : 0 < w) (h : ∀ i, n < i → x.
             · have : i < n + 1 := by omega
               omega
         simp [inh hf']
-
--- thm1: x.clz = x.clzAuxRec (w - 1)
-theorem clz_eq_clzAuxRec_of_length (x : BitVec w) :
-    x.clz = x.clzAuxRec (w - 1) := by
-  rcases w with _|w
-  · simp [clz, clzAuxRec]
-  · simp [clz, clzAuxRec]
-
-
-    sorry
 
 
 end BitVec

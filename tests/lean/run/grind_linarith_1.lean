@@ -87,3 +87,51 @@ example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b : α)
     : a < One.one + 5 → b < a → b ≥ 5 → False := by
   fail_if_success grind
   sorry
+
+example [IntModule α] [Preorder α] [IntModule.IsOrdered α] (a b c d : α)
+    : a < c → b = a + d → b - d > c → False := by
+  grind
+
+example [IntModule α] [Preorder α] [IntModule.IsOrdered α] (a b c d : α)
+    : a + d < c → b = a + (2:Int)*d → b - d > c → False := by
+  grind
+
+example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b : α)
+    : a < 2 → b = a → b > 5 → False := by
+  grind
+
+example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b : α)
+    : a < 2 → a = b + b → b > 5 → False := by
+  grind
+
+example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b : α)
+    : a < 2 → a = b + b → b < 1 := by
+  grind
+
+example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b : α)
+    : a ≤ 2 → a + b = 3*b → b ≤ 1 := by
+  grind
+
+example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b c d e : α) :
+    2*a + b ≥ 1 → b ≥ 0 → c ≥ 0 → d ≥ 0 → e ≥ 0
+    → a ≥ 3*c → c ≥ 6*e → d - e*5 ≥ 0
+    → a + b + 3*c + d + 2*e ≥ 0 := by
+  grind
+
+example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b c d e : α) :
+    2*a + b ≥ 1 → b ≥ 0 → c ≥ 0 → d ≥ 0 → e ≥ 0
+    → a ≥ 3*c → c ≥ 6*e → d - e*5 ≥ 0
+    → a + b + 3*c + d + 2*e < 0 → False := by
+  grind
+
+example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b : α)
+    : a = 0 → b = 1 → a + b > 2 → False := by
+  grind
+
+example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b c : α)
+    : a = 0 → a + b > 2 → b = c → 1 = c → False := by
+  grind
+
+example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b : α)
+    : a = 0 → b = 1 → a + b ≤ 2 := by
+  grind

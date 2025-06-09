@@ -46,9 +46,6 @@ private def mkEq (a b : Expr) : M Expr := do
   let s ← getStruct
   return mkApp3 (mkConst ``Eq [s.u.succ]) s.type a b
 
-def EqCnstr.denoteExpr (c : EqCnstr) : M Expr := do
-  mkEq (← c.p.denoteExpr) (← getStruct).ofNatZero
-
 def DiseqCnstr.denoteExpr (c : DiseqCnstr) : M Expr := do
   return mkNot (← mkEq (← c.p.denoteExpr) (← getStruct).ofNatZero)
 
@@ -60,9 +57,6 @@ private def denoteIneq (p : Poly) (strict : Bool) : M Expr := do
 
 def IneqCnstr.denoteExpr (c : IneqCnstr) : M Expr := do
   denoteIneq c.p c.strict
-
-def NotIneqCnstr.denoteExpr (c : NotIneqCnstr) : M Expr := do
-  return mkNot (← denoteIneq c.p c.strict)
 
 private def denoteNum (k : Int) : LinearM Expr := do
   return mkApp2 (← getStruct).hmulFn (mkIntLit k) (← getOne)

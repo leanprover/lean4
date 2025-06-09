@@ -370,6 +370,11 @@ theorem eq_norm {α} [IntModule α] (ctx : Context α) (lhs rhs : Expr) (p : Pol
     : norm_cert lhs rhs p → lhs.denote ctx = rhs.denote ctx → p.denote' ctx = 0 := by
   simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote, h₁, sub_self]
 
+theorem le_of_eq {α} [IntModule α] [Preorder α] [IntModule.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+    : norm_cert lhs rhs p → lhs.denote ctx = rhs.denote ctx → p.denote' ctx ≤ 0 := by
+  simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote, h₁, sub_self]
+  apply Preorder.le_refl
+
 theorem diseq_norm {α} [IntModule α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : norm_cert lhs rhs p → lhs.denote ctx ≠ rhs.denote ctx → p.denote' ctx ≠ 0 := by
   simp [norm_cert]; intro _ h₁; subst p; simp [Expr.denote, h₁, sub_self]

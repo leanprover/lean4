@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Ordered.Module
 import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Arith.Linear.Util
@@ -22,12 +21,12 @@ private def internalizeFn (fn : Expr) : GoalM Expr := do
 
 private def preprocessConst (c : Expr) : GoalM Expr := do
   let c ← preprocess c
-  internalize c none
+  internalize c 0 none
   return c
 
 private def internalizeConst (c : Expr) : GoalM Expr := do
   let c ← shareCommon (← canon c)
-  internalize c none
+  internalize c 0 none
   return c
 
 open Grind.Linarith (Poly)
@@ -160,7 +159,7 @@ where
     if let some one := one? then
       if ringInst?.isSome then LinearM.run id do
         -- Create `1` variable, and assert strict lower bound `0 < 1`
-        let x ← mkVar one
+        let x ← mkVar one (mark := false)
         let p := Poly.add (-1) x .nil
         modifyStruct fun s => { s with
           lowers := s.lowers.modify x fun cs => cs.push { p, h := .oneGtZero, strict := true }

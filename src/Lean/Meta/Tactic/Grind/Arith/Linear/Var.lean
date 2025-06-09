@@ -8,7 +8,7 @@ import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 
 namespace Lean.Meta.Grind.Arith.Linear
 
-def mkVar (e : Expr) : LinearM Var := do
+def mkVar (e : Expr) (mark := true) : LinearM Var := do
   let s ← getStruct
   if let some var := s.varMap.find? { expr := e } then
     return var
@@ -19,11 +19,10 @@ def mkVar (e : Expr) : LinearM Var := do
     lowers     := s.lowers.push {}
     uppers     := s.uppers.push {}
     diseqs     := s.diseqs.push {}
-    eqs        := s.eqs.push none
-    notIneqs   := s.notIneqs.push {}
   }
   setTermStructId e
-  -- TODO: markAsLinearTerm e
+  if mark then
+    markAsLinarithTerm e
   return var
 
 end Lean.Meta.Grind.Arith.Linear

@@ -87,3 +87,11 @@ example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b : α)
     : a < One.one + 5 → b < a → b ≥ 5 → False := by
   fail_if_success grind
   sorry
+
+example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b : α)
+    : a < 2 → b = a → b > 5 → False := by
+  grind
+
+example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b : α)
+    : a < 2 → a = b + b → b > 5 → False := by
+  grind

@@ -48,6 +48,10 @@ inductive IneqCnstrProof where
   | dec (h : FVarId)
   | ofDiseqSplit (c₁ : DiseqCnstr) (decVar : FVarId) (h : UnsatProof) (decVars : Array FVarId)
   | oneGtZero
+  | /-- `a ≤ b` from an equality `a = b` coming from the core. -/
+    eq1 (a b : Expr) (la lb : LinExpr)
+  | /-- `b ≤ a` from an equality `a = b` coming from the core. -/
+    eq2 (a b : Expr) (la lb : LinExpr)
 
 structure DiseqCnstr where
   p  : Poly

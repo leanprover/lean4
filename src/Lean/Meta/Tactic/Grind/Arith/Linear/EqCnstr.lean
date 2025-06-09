@@ -10,6 +10,7 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
 import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
+import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
 import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
 
@@ -46,9 +47,12 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
     let p := (la.sub lb).norm
     match p with
     | .nil => trace_goal[grind.linarith.assert.trivial] "{← p.denoteExpr}"
-    | .add _ _ _ =>
-      trace_goal[grind.linarith.assert] "p: {← p.denoteExpr}"
-      -- TODO
+    | .add .. =>
+      let c₁ : IneqCnstr := { p, strict := false, h := .eq1 a b la lb }
+      c₁.assert
+      let p := p.mul (-1)
+      let c₂ : IneqCnstr := { p, strict := false, h := .eq2 a b la lb }
+      c₂.assert
 
 @[export lean_process_linarith_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 import Init.Grind.Ordered.Module
+import Init.Grind.Ordered.Ring
 import all Init.Data.Ord
 import all Init.Data.AC
 import Init.Data.RArray
@@ -449,6 +450,14 @@ theorem lt_unsat {α} [IntModule α] [Preorder α] (ctx : Context α) : (Poly.ni
   simp [Poly.denote]; intro h
   have := Preorder.lt_iff_le_not_le.mp h
   simp at this
+
+def zero_lt_one_cert (p : Poly) : Bool :=
+  p == .add (-1) 0 .nil
+
+theorem zero_lt_one {α} [Ring α] [Preorder α] [Ring.IsOrdered α] (ctx : Context α) (p : Poly)
+    : zero_lt_one_cert p → (0 : Var).denote ctx = One.one → p.denote' ctx < 0 := by
+  simp [zero_lt_one_cert]; intro _ h; subst p; simp [Poly.denote, h, One.one, neg_hmul]
+  rw [neg_lt_iff, neg_zero]; apply Ring.IsOrdered.zero_lt_one
 
 /-!
 Coefficient normalization

@@ -74,3 +74,16 @@ set_option trace.grind.issues true in
 example [CommRing α] [Preorder α] [IntModule.IsOrdered α] (a b c : α)
     : a < b → b + b < c → c < a → False := by
   grind
+
+example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b : α)
+    : a < 2 → b < a → b > 5 → False := by
+  grind
+
+example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b : α)
+    : a < One.one + 4 → b < a → b ≥ 5 → False := by
+  grind
+
+example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b : α)
+    : a < One.one + 5 → b < a → b ≥ 5 → False := by
+  fail_if_success grind
+  sorry

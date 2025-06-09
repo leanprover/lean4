@@ -112,6 +112,11 @@ def getLinearOrderInst : LinearM Expr := do
     | throwError "`grind linarith` internal error, structure is not a linear order"
   return inst
 
+def getRingInst : LinearM Expr := do
+  let some inst := (← getStruct).ringInst?
+    | throwError "`grind linarith` internal error, structure is not a ring"
+  return inst
+
 def getCommRingInst : LinearM Expr := do
   let some inst := (← getStruct).commRingInst?
     | throwError "`grind linarith` internal error, structure is not a commutative ring"

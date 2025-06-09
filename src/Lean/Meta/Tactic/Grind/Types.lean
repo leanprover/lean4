@@ -1234,7 +1234,7 @@ def markAsLinarithTerm (e : Expr) : GoalM Unit := do
   if let some e' := root.linarith? then
     Arith.Linear.processNewEq e e'
   else
-    setENode root.self { root with ring? := some e }
+    setENode root.self { root with linarith? := some e }
     propagateLinarithDiseqs (← getParents root.self)
 
 /-- Returns `true` is `e` is the root of its congruence class. -/

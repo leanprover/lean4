@@ -1142,13 +1142,31 @@ end Stepwise
 
 /-! IntModule interface -/
 
+def Mon.denoteAsIntModule [CommRing α] (ctx : Context α) (m : Mon) : α :=
+  match m with
+  | .unit => One.one
+  | .mult pw m => go m (pw.denote ctx)
+where
+  go (m : Mon) (acc : α) : α :=
+    match m with
+    | .unit => acc
+    | .mult pw m => go m (acc * pw.denote ctx)
+
 def Poly.denoteAsIntModule [CommRing α] (ctx : Context α) (p : Poly) : α :=
   match p with
   | .num k => Int.cast k * One.one
-  | .add k m p => Int.cast k * m.denote ctx + denote ctx p
+  | .add k m p => Int.cast k * m.denoteAsIntModule ctx + denoteAsIntModule ctx p
+
+theorem Mon.denoteAsIntModule_go_eq_denote {α} [CommRing α] (ctx : Context α) (m : Mon) (acc : α)
+    : denoteAsIntModule.go ctx m acc = acc * m.denote ctx := by
+  induction m generalizing acc <;> simp [*, denoteAsIntModule.go, denote, mul_one, One.one, *, mul_assoc]
+
+theorem Mon.denoteAsIntModule_eq_denote {α} [CommRing α] (ctx : Context α) (m : Mon)
+    : m.denoteAsIntModule ctx = m.denote ctx := by
+  cases m <;> simp [denoteAsIntModule, denote, denoteAsIntModule_go_eq_denote]; rfl
 
 theorem Poly.denoteAsIntModule_eq_denote {α} [CommRing α] (ctx : Context α) (p : Poly) : p.denoteAsIntModule ctx = p.denote ctx := by
-  induction p <;> simp [*, denoteAsIntModule, denote, mul_one, One.one]
+  induction p <;> simp [*, denoteAsIntModule, denote, mul_one, One.one, Mon.denoteAsIntModule_eq_denote]
 
 open Stepwise
 

@@ -18,6 +18,20 @@ namespace DNS
 open Std.Net
 
 /--
+Represents a resolved hostname and service name from a socket address.
+-/
+structure NameInfo where
+  /--
+  The resolved hostname (e.g., "example.com").
+  -/
+  host : String
+
+  /--
+  The service name (e.g., "http" for port 80).
+  -/
+  service : String
+
+/--
 Asynchronously resolves a hostname and service to an array of socket addresses.
 -/
 @[inline]
@@ -33,8 +47,9 @@ def getAddrInfo (host : String) (service : String) (addressFamily : Option Addre
 Performs a reverse DNS lookup on a `SocketAddress`.
 -/
 @[inline]
-def getNameInfo (host : @& SocketAddress) : IO (AsyncTask (String × String)) :=
-  AsyncTask.ofPromise <$> UV.DNS.getNameInfo host
+def getNameInfo (host : @& SocketAddress) : IO (AsyncTask NameInfo) :=
+  UV.DNS.getNameInfo host
+  |>.map (Task.map (.map <| Function.uncurry NameInfo.mk) ∘ AsyncTask.ofPromise)
 
 end DNS
 end Async

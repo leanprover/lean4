@@ -163,4 +163,7 @@ def NotEqCnstr.satisfied (c : NotIneqCnstr) : LinearM LBool := do
 def resetAssignmentFrom (x : Var) : LinearM Unit := do
   modifyStruct fun s => { s with assignment := shrink s.assignment x }
 
+def getVar (x : Var) : LinearM Expr :=
+  return (← getStruct).vars[x]!
+
 end Lean.Meta.Grind.Arith.Linear

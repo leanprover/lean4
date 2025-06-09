@@ -142,10 +142,10 @@ structure Struct where
   diseqs : PArray (PArray DiseqCnstr) := {}
   notIneqs : PArray (PArray NotIneqCnstr) := {}
   /--
-  Mapping from variable to equation constraint used to eliminate it. `solved` variables should not occur in
-  `dvdCnstrs`, `lowers`, or `uppers`.
+  Mapping from variable to equation constraint. We keep at most one equation per variable.
+  We use substitution to eliminate other equation constraints.
   -/
-  elimEqs : PArray (Option EqCnstr) := {}
+  eqs : PArray (Option EqCnstr) := {}
   /-- Partial assignment being constructed by linarith. -/
   assignment : PArray Rat := {}
   /--

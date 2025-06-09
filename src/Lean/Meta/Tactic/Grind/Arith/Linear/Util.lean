@@ -86,6 +86,9 @@ def withRingM (x : RingM α) : LinearM α := do
 def isCommRing : LinearM Bool :=
   return (← getStruct).ringId?.isSome
 
+def isOrderedCommRing : LinearM Bool := do
+  return (← isCommRing) && (← getStruct).ringIsOrdInst?.isSome
+
 def isLinearOrder : LinearM Bool :=
   return (← getStruct).linearInst?.isSome
 
@@ -107,6 +110,11 @@ def setTermStructId (e : Expr) : LinearM Unit := do
 def getLinearOrderInst : LinearM Expr := do
   let some inst := (← getStruct).linearInst?
     | throwError "`grind linarith` internal error, structure is not a linear order"
+  return inst
+
+def getRingInst : LinearM Expr := do
+  let some inst := (← getStruct).ringInst?
+    | throwError "`grind linarith` internal error, structure is not a ring"
   return inst
 
 def getCommRingInst : LinearM Expr := do

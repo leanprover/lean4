@@ -61,5 +61,29 @@ example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b c d : α)
   grind
 
 example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b c : α)
-    : a < b → b < c → c < a → False := by
+    : a < b → 2*b < c → c < 2*a → False := by
   grind
+
+-- Test misconfigured instances
+/--
+trace: [grind.issues] type is an ordered `IntModule` and a `Ring`, but is not an ordered ring, failed to synthesize
+      Ring.IsOrdered α
+-/
+#guard_msgs (drop error, trace) in
+set_option trace.grind.issues true in
+example [CommRing α] [Preorder α] [IntModule.IsOrdered α] (a b c : α)
+    : a < b → b + b < c → c < a → False := by
+  grind
+
+example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b : α)
+    : a < 2 → b < a → b > 5 → False := by
+  grind
+
+example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b : α)
+    : a < One.one + 4 → b < a → b ≥ 5 → False := by
+  grind
+
+example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b : α)
+    : a < One.one + 5 → b < a → b ≥ 5 → False := by
+  fail_if_success grind
+  sorry

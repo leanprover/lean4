@@ -139,7 +139,10 @@ where
     let getRingIsOrdInst? : GoalM (Option Expr) := do
       let some ringInst := ringInst? | return none
       let isOrdType := mkApp3 (mkConst ``Grind.Ring.IsOrdered [u]) type ringInst preorderInst
-      return LOption.toOption (← trySynthInstance isOrdType)
+      let .some inst ← trySynthInstance isOrdType
+        | reportIssue! "type is an ordered `IntModule` and a `Ring`, but is not an ordered ring, failed to synthesize{indentExpr isOrdType}"
+          return none
+      return some inst
     let ringIsOrdInst? ← getRingIsOrdInst?
     let getNoNatZeroDivInst? : GoalM (Option Expr) := do
       let hmulNat := mkApp3 (mkConst ``HMul [0, u, u]) Nat.mkType type type

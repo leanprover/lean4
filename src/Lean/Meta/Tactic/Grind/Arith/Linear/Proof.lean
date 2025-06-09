@@ -196,6 +196,10 @@ partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' d
       | false, false => (``Grind.Linarith.le_le_combine, c₁, c₂)
     return mkApp6 (← mkIntModPreOrdThmPrefix declName) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p) reflBoolTrue
       (← c₁.toExprProof) (← c₂.toExprProof)
+  | .oneGtZero =>
+    let s ← getStruct
+    let h := mkApp5 (mkConst ``Grind.Linarith.zero_lt_one [s.u]) s.type (← getRingInst) s.preorderInst (← getRingIsOrdInst) (← getContext)
+    return mkApp3 h (← mkPolyDecl c'.p) reflBoolTrue (← mkEqRefl (← getOne))
   | _ => throwError "NIY"
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do

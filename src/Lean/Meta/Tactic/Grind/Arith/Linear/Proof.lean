@@ -150,6 +150,14 @@ private def mkIntModLinOrdThmPrefix (declName : Name) : ProofM Expr := do
   return mkApp5 (mkConst declName [s.u]) s.type s.intModuleInst (← getLinearOrderInst) s.isOrdInst (← getContext)
 
 /--
+Returns the prefix of a theorem with name `declName` where the first three arguments are
+`{α} [CommRing α] (rctx : Context α)`
+-/
+private def mkCommRingThmPrefix (declName : Name) : ProofM Expr := do
+  let s ← getStruct
+  return mkApp3 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getRingContext)
+
+/--
 Returns the prefix of a theorem with name `declName` where the first five arguments are
 `{α} [CommRing α] [Preorder α] [Ring.IsOrdered α] (rctx : Context α)`
 -/
@@ -197,12 +205,14 @@ partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' d
     let s ← getStruct
     let h := mkApp5 (mkConst ``Grind.Linarith.zero_lt_one [s.u]) s.type (← getRingInst) s.preorderInst (← getRingIsOrdInst) (← getContext)
     return mkApp3 h (← mkPolyDecl c'.p) reflBoolTrue (← mkEqRefl (← getOne))
-  | .eq1 a b la lb =>
+  | .ofEq a b la lb =>
     let h ← mkIntModPreOrdThmPrefix ``Grind.Linarith.le_of_eq
     return mkApp5 h (← mkExprDecl la) (← mkExprDecl lb) (← mkPolyDecl c'.p) reflBoolTrue (← mkEqProof a b)
-  | .eq2 a b la lb =>
+  | .ofCommRingEq a b la lb p' lhs' =>
+    let h' ← mkCommRingThmPrefix ``Grind.CommRing.eq_norm
+    let h' := mkApp5 h' (← mkRingExprDecl la) (← mkRingExprDecl lb) (← mkRingPolyDecl p') reflBoolTrue (← mkEqProof a b)
     let h ← mkIntModPreOrdThmPrefix ``Grind.Linarith.le_of_eq
-    return mkApp5 h (← mkExprDecl lb) (← mkExprDecl la) (← mkPolyDecl c'.p) reflBoolTrue (← mkEqProof b a)
+    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) reflBoolTrue h'
   | _ => throwError "NIY"
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do

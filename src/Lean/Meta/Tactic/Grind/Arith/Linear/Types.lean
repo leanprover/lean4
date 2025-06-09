@@ -36,9 +36,9 @@ inductive IneqCnstrProof where
   | ofDiseqSplit (c₁ : DiseqCnstr) (decVar : FVarId) (h : UnsatProof) (decVars : Array FVarId)
   | oneGtZero
   | /-- `a ≤ b` from an equality `a = b` coming from the core. -/
-    eq1 (a b : Expr) (la lb : LinExpr)
-  | /-- `b ≤ a` from an equality `a = b` coming from the core. -/
-    eq2 (a b : Expr) (la lb : LinExpr)
+    ofEq (a b : Expr) (la lb : LinExpr)
+  | /-- `a ≤ b` from an equality `a = b` coming from the core. -/
+    ofCommRingEq (a b : Expr) (la lb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
 
 structure DiseqCnstr where
   p  : Poly
@@ -103,8 +103,6 @@ structure Struct where
   vars             : PArray Expr := {}
   /-- Mapping from `Expr` to a variable representing it. -/
   varMap           : PHashMap ExprPtr Var := {}
-  /-- Mapping from Lean expressions to their representations as `LinExpr` -/
-  denote           : PHashMap ExprPtr LinExpr := {}
   /--
   Mapping from variables to their "lower" bounds. We say a relational constraint `c` is a lower bound for a variable `x`
   if `x` is the maximal variable in `c`, and `x` coefficient in `c` is negative.

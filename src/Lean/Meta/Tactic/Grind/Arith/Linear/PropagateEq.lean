@@ -22,19 +22,33 @@ private def inSameStruct? (a b : Expr) : GoalM (Option Nat) := do
   unless structId == structId' do return none -- This can happen when we have heterogeneous equalities
   return structId
 
-/--
-Returns the linarith expression denoting the given Lean expression.
-Recall that we compute the linarith expressions during internalization.
--/
-private def toLinExpr? (e : Expr) : LinearM (Option LinExpr) := do
-  let s ← getStruct
-  if let some re := s.denote.find? { expr := e } then
-    return some re
-  else if let some x := s.varMap.find? { expr := e } then
-    return some (.var x)
-  else
-    reportIssue! "failed to convert to linarith expression{indentExpr e}"
-    return none
+private def processNewCommRingEq (a b : Expr) : LinearM Unit := do
+  let some lhs ← withRingM <| CommRing.reify? a (skipVar := false) | return ()
+  let some rhs ← withRingM <| CommRing.reify? b (skipVar := false) | return ()
+  let p' := (lhs.sub rhs).toPoly
+  let lhs' ← p'.denoteAsIntModuleExpr
+  let some lhs' ← reify? lhs' (skipVar := false) | return ()
+  let p := lhs'.norm
+  if p == .nil then return ()
+  let c₁ : IneqCnstr := { p, strict := false, h := .ofCommRingEq a b lhs rhs p' lhs' }
+  c₁.assert
+  let p := p.mul (-1)
+  let p' := p'.mulConst (-1)
+  let lhs' ← p'.denoteAsIntModuleExpr
+  let some lhs' ← reify? lhs' (skipVar := false) | return ()
+  let c₂ : IneqCnstr := { p, strict := false, h := .ofCommRingEq b a rhs lhs p' lhs' }
+  c₂.assert
+
+private def processNewIntModuleEq (a b : Expr) : LinearM Unit := do
+  let some lhs ← reify? a (skipVar := false) | return ()
+  let some rhs ← reify? b (skipVar := false) | return ()
+  let p := (lhs.sub rhs).norm
+  if p == .nil then return ()
+  let c₁ : IneqCnstr := { p, strict := false, h := .ofEq a b lhs rhs }
+  c₁.assert
+  let p := p.mul (-1)
+  let c₂ : IneqCnstr := { p, strict := false, h := .ofEq b a rhs lhs }
+  c₂.assert
 
 @[export lean_process_linarith_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
@@ -42,17 +56,10 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
   let some structId ← inSameStruct? a b | return ()
   LinearM.run structId do
     trace_goal[grind.linarith.assert] "{← mkEq a b}"
-    let some la ← toLinExpr? a | return ()
-    let some lb ← toLinExpr? b | return ()
-    let p := (la.sub lb).norm
-    match p with
-    | .nil => trace_goal[grind.linarith.assert.trivial] "{← p.denoteExpr}"
-    | .add .. =>
-      let c₁ : IneqCnstr := { p, strict := false, h := .eq1 a b la lb }
-      c₁.assert
-      let p := p.mul (-1)
-      let c₂ : IneqCnstr := { p, strict := false, h := .eq2 a b la lb }
-      c₂.assert
+    if (← isCommRing) then
+      processNewCommRingEq a b
+    else
+      processNewIntModuleEq a b
 
 @[export lean_process_linarith_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do

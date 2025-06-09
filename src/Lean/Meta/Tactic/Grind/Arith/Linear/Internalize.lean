@@ -5,10 +5,14 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
 import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
 
-namespace Lean.Meta.Grind.Arith.Linear
+namespace Lean.Meta.Grind.Arith
+
+
+namespace Linear
 
 /-- If `e` is a function application supported by the linarith module, return its type. -/
 private def getType? (e : Expr) : Option Expr :=
@@ -45,10 +49,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   if isForbiddenParent parent? then return ()
   let some structId ← getStructId? type | return ()
   LinearM.run structId do
-    let some re ← reify? e (skipVar := true) | return ()
-    trace_goal[grind.linarith.internalize] "[{structId}]: {e}"
     setTermStructId e
     markAsLinarithTerm e
-    modifyStruct fun s => { s with denote := s.denote.insert { expr := e } re }
 
 end Lean.Meta.Grind.Arith.Linear

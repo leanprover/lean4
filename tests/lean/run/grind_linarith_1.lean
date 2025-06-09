@@ -52,6 +52,14 @@ example [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (a b c : α)
     : a ≤ b → b ≤ c → a ≤ c := by
   grind
 
-example [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (a b c : α)
+example [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (a b c d : α)
     : a < b → b < c + d → a - d < c := by
+  grind
+
+example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b c d : α)
+    : a < b → b < c + d → a - d < c := by
+  grind
+
+example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b c : α)
+    : a < b → b < c → c < a → False := by
   grind

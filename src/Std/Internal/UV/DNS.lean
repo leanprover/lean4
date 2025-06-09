@@ -20,11 +20,8 @@ open Std.Net
 Asynchronously resolves a hostname and service to an array of socket addresses.
 -/
 @[extern "lean_uv_dns_get_info"]
-opaque getAddrInfo
-  (host : @& String)
-  (service : @& String)
-  (family : UInt8)
-  : IO (IO.Promise (Except IO.Error (Array IPAddr)))
+opaque getAddrInfo (host : @& String) (service : @& String) (family : UInt8) :
+    IO (IO.Promise (Except IO.Error (Array IPAddr)))
 
 /--
 Performs a reverse DNS lookup on a `SocketAddress`.

@@ -35,3 +35,23 @@ example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b : α)
 example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b : α)
     : 2 + 2*a + b + 1 <= b + a + a + 3 := by
   grind
+
+example [IntModule α] [Preorder α] [IntModule.IsOrdered α] (a b c : α)
+    : a < b → b < c → c < a → False := by
+  grind
+
+example [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (a b c : α)
+    : a < b → b < c → a < c := by
+  grind
+
+example [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (a b c : α)
+    : a < b → b ≤ c → a < c := by
+  grind
+
+example [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (a b c : α)
+    : a ≤ b → b ≤ c → a ≤ c := by
+  grind
+
+example [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (a b c : α)
+    : a < b → b < c + d → a - d < c := by
+  grind

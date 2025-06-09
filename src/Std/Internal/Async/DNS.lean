@@ -36,12 +36,12 @@ Asynchronously resolves a hostname and service to an array of socket addresses.
 -/
 @[inline]
 def getAddrInfo (host : String) (service : String) (addressFamily : Option AddressFamily := none) :
-    IO (AsyncTask (Array IPAddr)) :=
-    AsyncTask.ofPromise <$> UV.DNS.getAddrInfo host service
-      (match addressFamily with
-      | none => 0
-      | some .ipv4 => 1
-      | some .ipv6 => 2)
+  IO (AsyncTask (Array IPAddr)) :=
+  AsyncTask.ofPromise <$> UV.DNS.getAddrInfo host service
+    (match addressFamily with
+    | none => 0
+    | some .ipv4 => 1
+    | some .ipv6 => 2)
 
 /--
 Performs a reverse DNS lookup on a `SocketAddress`.

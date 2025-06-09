@@ -17,7 +17,7 @@ def mkVar (e : Expr) : LinearM Var := do
     vars       := s.vars.push e
     varMap     := s.varMap.insert { expr := e } var
     lowers     := s.lowers.push {}
-    uppers     := s.lowers.push {}
+    uppers     := s.uppers.push {}
     diseqs     := s.diseqs.push {}
     eqs        := s.eqs.push none
     notIneqs   := s.notIneqs.push {}

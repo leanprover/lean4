@@ -100,7 +100,7 @@ partial def leAvoiding (v : Rat) (dvals : Array (Rat × DiseqCnstr)) : Rat :=
   if inDiseqValues v dvals then leAvoiding (v-1) dvals else v
 
 def resolveLowerUpperConflict (c₁ c₂ : IneqCnstr) : LinearM Unit := do
-  trace[grind.debug.linear.search.conflict] "{← c₁.denoteExpr}, {← c₂.denoteExpr}"
+  trace[grind.debug.linarith.search.conflict] "{← c₁.denoteExpr}, {← c₂.denoteExpr}"
   let .add a₁ _ p₁ := c₁.p | c₁.throwUnexpected
   let .add a₂ _ p₂ := c₂.p | c₂.throwUnexpected
   let p := p₁.mul a₂.natAbs |>.combine (p₂.mul a₁.natAbs)
@@ -179,7 +179,7 @@ def resolveConflict (_ : UnsatProof) : SearchM Unit := do
 /-- Search for an assignment/model for the linear constraints. -/
 private def searchAssignmentMain : SearchM Unit := do
   repeat
-    trace[grind.debug.linear.search] "main loop"
+    trace[grind.debug.linarith.search] "main loop"
     checkSystem "linarith"
     if (← hasAssignment) then
       return ()

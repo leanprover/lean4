@@ -166,9 +166,6 @@ private def mkCommRingLinOrdThmPrefix (declName : Name) : ProofM Expr := do
   return mkApp5 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getLinearOrderInst) (← getRingIsOrdInst) (← getRingContext)
 
 mutual
-partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
-  throwError "NIY"
-
 partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' do
   match c'.h with
   | .core e lhs rhs =>
@@ -209,9 +206,6 @@ partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' d
   | _ => throwError "NIY"
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do
-  throwError "NIY"
-
-partial def NotIneqCnstr.toExprProof (c' : NotIneqCnstr) : ProofM Expr := caching c' do
   throwError "NIY"
 
 partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do

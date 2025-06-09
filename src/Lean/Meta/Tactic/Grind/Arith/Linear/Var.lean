@@ -19,8 +19,6 @@ def mkVar (e : Expr) (mark := true) : LinearM Var := do
     lowers     := s.lowers.push {}
     uppers     := s.uppers.push {}
     diseqs     := s.diseqs.push {}
-    eqs        := s.eqs.push none
-    notIneqs   := s.notIneqs.push {}
   }
   setTermStructId e
   if mark then

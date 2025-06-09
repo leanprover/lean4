@@ -19,18 +19,6 @@ deriving instance Hashable for Poly
 deriving instance Hashable for Grind.Linarith.Expr
 
 mutual
-/-- A equality constraint and its justification/proof. -/
-structure EqCnstr where
-  p  : Poly
-  h  : EqCnstrProof
-
-inductive EqCnstrProof where
-  | /-- An equality `a = b` coming from the core. -/
-    core (a b : Expr) (la lb : LinExpr)
-  | combine (c₁ : EqCnstr) (c₂ : EqCnstr)
-  | ofLe (c₁ : IneqCnstr) (c₂ : IneqCnstr)
-  | norm (c₁ : EqCnstr) (k : Nat)
-
 /-- An inequality constraint and its justification/proof. -/
 structure IneqCnstr where
   p      : Poly
@@ -43,7 +31,6 @@ inductive IneqCnstrProof where
   | coreCommRing (e : Expr) (lhs rhs : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
   | notCoreCommRing (e : Expr) (lhs rhs : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
   | combine (c₁ : IneqCnstr) (c₂ : IneqCnstr)
-  | combineEq (c₁ : IneqCnstr) (c₂ : EqCnstr)
   | norm (c₁ : IneqCnstr) (k : Nat)
   | dec (h : FVarId)
   | ofDiseqSplit (c₁ : DiseqCnstr) (decVar : FVarId) (h : UnsatProof) (decVars : Array FVarId)
@@ -59,24 +46,11 @@ structure DiseqCnstr where
 
 inductive DiseqCnstrProof where
   | core (e : Expr) (lhs rhs : LinExpr)
-  | combineEq (c₁ : DiseqCnstr) (c₂ : EqCnstr)
-  | combineEq' (c₁ : DiseqCnstr) (c₂ : EqCnstr)
-
--- Only used if `LinearOrder` instance is not available
-structure NotIneqCnstr where
-  p      : Poly
-  strict : Bool
-  h      : NotIneqCnstrProof
-
-inductive NotIneqCnstrProof where
-  | core (e : Expr) (lhs rhs : LinExpr)
-  | coreCommRing (e : Expr) (lhs rhs : Grind.CommRing.Expr) (lhs' : LinExpr)
-  -- TODO: norm, and combineEq
+  -- TODO
 
 inductive UnsatProof where
   | diseq (c : DiseqCnstr)
   | lt (c : IneqCnstr)
-  -- TODO: IneqCnstr + NotIneqCnstr
 
 end
 
@@ -146,12 +120,6 @@ structure Struct where
   if `x` is the maximal variable in `c`.
   -/
   diseqs : PArray (PArray DiseqCnstr) := {}
-  notIneqs : PArray (PArray NotIneqCnstr) := {}
-  /--
-  Mapping from variable to equation constraint. We keep at most one equation per variable.
-  We use substitution to eliminate other equation constraints.
-  -/
-  eqs : PArray (Option EqCnstr) := {}
   /-- Partial assignment being constructed by linarith. -/
   assignment : PArray Rat := {}
   /--

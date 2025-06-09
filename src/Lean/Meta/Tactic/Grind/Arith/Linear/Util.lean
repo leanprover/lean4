@@ -152,20 +152,9 @@ def IneqCnstr.satisfied (c : IneqCnstr) : LinearM LBool := do
   else
     return decide (v <= 0) |>.toLBool
 
-def EqCnstr.satisfied (c : EqCnstr) : LinearM LBool := do
-  let some v ← c.p.eval? | return .undef
-  return decide (v == 0) |>.toLBool
-
 def DiseqCnstr.satisfied (c : DiseqCnstr) : LinearM LBool := do
   let some v ← c.p.eval? | return .undef
   return decide (v != 0) |>.toLBool
-
-def NotEqCnstr.satisfied (c : NotIneqCnstr) : LinearM LBool := do
-  let some v ← c.p.eval? | return .undef
-  if c.strict then
-    return decide (v >= 0) |>.toLBool
-  else
-    return decide (v > 0) |>.toLBool
 
 /-- Resets the assignment of any variable bigger or equal to `x`. -/
 def resetAssignmentFrom (x : Var) : LinearM Unit := do

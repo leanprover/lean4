@@ -38,10 +38,6 @@ def IneqCnstr.assert (c : IneqCnstr) : LinearM Unit := do
     if (← c.satisfied) == .false then
       resetAssignmentFrom x
 
-def NotIneqCnstr.assert (c : NotIneqCnstr) : LinearM Unit := do
-  trace[grind.linarith.assert] "{← c.denoteExpr}"
-  -- TODO
-
 def propagateCommRingIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : Bool) : LinearM Unit := do
   let some lhs ← withRingM <| CommRing.reify? lhs (skipVar := false) | return ()
   let some rhs ← withRingM <| CommRing.reify? rhs (skipVar := false) | return ()
@@ -61,12 +57,8 @@ def propagateCommRingIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : 
     let c : IneqCnstr := { p, strict, h := .notCoreCommRing e lhs rhs p' lhs' }
     c.assert
   else
-    let p' := (lhs.sub rhs).toPoly
-    let lhs' ← p'.denoteAsIntModuleExpr
-    let some lhs' ← reify? lhs' (skipVar := false) | return ()
-    let p := lhs'.norm
-    let c : NotIneqCnstr := { p, strict, h := .coreCommRing e lhs rhs lhs' }
-    c.assert
+    -- Negation for preorders is not supported
+    return ()
 
 def propagateIntModuleIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : Bool) : LinearM Unit := do
   let some lhs ← reify? lhs (skipVar := false) | return ()
@@ -81,9 +73,8 @@ def propagateIntModuleIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue :
     let c : IneqCnstr := { p, strict, h := .notCore e lhs rhs }
     c.assert
   else
-    let p := (lhs.sub rhs).norm
-    let c : NotIneqCnstr := { p, strict, h := .core e lhs rhs }
-    c.assert
+    -- Negation for preorders is not supported
+    return ()
 
 def propagateIneq (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   unless (← getConfig).linarith do return ()

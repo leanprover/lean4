@@ -13,9 +13,6 @@ namespace Lean.Meta.Grind.Arith.Linear
 def IneqCnstr.throwUnexpected (c : IneqCnstr) : LinearM α := do
   throwError "`grind linarith` internal error, unexpected{indentD (← c.denoteExpr)}"
 
-def EqCnstr.throwUnexpected (c : EqCnstr) : LinearM α := do
-  throwError "`grind linarith` internal error, unexpected{indentD (← c.denoteExpr)}"
-
 def DiseqCnstr.throwUnexpected (c : DiseqCnstr) : LinearM α := do
   throwError "`grind linarith` internal error, unexpected{indentD (← c.denoteExpr)}"
 
@@ -79,14 +76,6 @@ def getDiseqValues (x : Var) : LinearM (Array (Rat × DiseqCnstr)) := do
     r := r.push (((-v)/k), c)
   return r
 
-def getEqValue? (x : Var) : LinearM (Option (Rat × EqCnstr)) := do
-  let s ← getStruct
-  let some c := s.eqs[x]! | return none
-  let .add k _ p := c.p | c.throwUnexpected
-  let some v ← p.eval? | c.throwUnexpected
-  let val := (-v) / k
-  return some (val, c)
-
 def findDiseq? (v : Rat) (dvals : Array (Rat × DiseqCnstr)) : Option DiseqCnstr :=
   (·.2) <$> dvals.find? fun (v', _) => v' == v
 
@@ -140,18 +129,17 @@ def processVar (x : Var) : SearchM Unit := do
   let lower? ← getBestLower? x
   let upper? ← getBestUpper? x
   let diseqVals ← getDiseqValues x
-  let val? ← getEqValue? x
   -- TODO: handle special variable One.one
-  match lower?, upper?, val? with
-  | none, none, none =>
+  match lower?, upper? with
+  | none, none =>
     setAssignment x <| geAvoiding 0 diseqVals
-  | some (lower, _), none, none =>
+  | some (lower, _), none =>
     let v := geAvoiding (lower.ceil + 1) diseqVals
     setAssignment x v
-  | none, some (upper, _), none =>
+  | none, some (upper, _) =>
     let v := geAvoiding (upper.floor - 1) diseqVals
     setAssignment x v
-  | some (lower, c₁), some (upper, c₂), none =>
+  | some (lower, c₁), some (upper, c₂) =>
     if lower > upper || (lower == upper && (c₁.strict || c₂.strict)) then
       resolveLowerUpperConflict c₁ c₂
     else if lower == upper then
@@ -165,9 +153,6 @@ def processVar (x : Var) : SearchM Unit := do
       else
         findRat lower upper diseqVals
       setAssignment x v
-  | _, _, _ =>
-    -- Handle equalities
-    throwError "NIY"
 
 /-- Returns `true` if we already have a complete assignment / model. -/
 def hasAssignment : LinearM Bool := do

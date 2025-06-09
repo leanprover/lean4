@@ -23,7 +23,7 @@ def mkVar (e : Expr) : LinearM Var := do
     notIneqs   := s.notIneqs.push {}
   }
   setTermStructId e
-  -- TODO: markAsLinearTerm e
+  markAsLinarithTerm e
   return var
 
 end Lean.Meta.Grind.Arith.Linear

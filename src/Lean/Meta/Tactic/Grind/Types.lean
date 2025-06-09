@@ -403,7 +403,12 @@ structure ENode where
   to the comm ring module. Its implementation is similar to the `offset?` field.
   -/
   ring? : Option Expr := none
-  -- Remark: we expect to have builtin support for offset constraints, cutsat, and comm ring.
+  /--
+  The `linarith?` field is used to propagate equalities from the `grind` congruence closure module
+  to the linarith module. Its implementation is similar to the `offset?` field.
+  -/
+  linarith? : Option Expr := none
+  -- Remark: we expect to have builtin support for offset constraints, cutsat, comm ring, and linarith.
   -- If the number of satellite solvers increases, we may add support for an arbitrary solvers like done in Z3.
   deriving Inhabited, Repr
 
@@ -1184,6 +1189,53 @@ def markAsCommRingTerm (e : Expr) : GoalM Unit := do
   else
     setENode root.self { root with ring? := some e }
     propagateCommRingDiseqs (← getParents root.self)
+
+/--
+Notifies the linarith module that `a = b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_linarith_eq"] -- forward definition
+opaque Arith.Linear.processNewEq (a b : Expr) : GoalM Unit
+
+/--
+Notifies the linarith module that `a ≠ b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_linarith_diseq"] -- forward definition
+opaque Arith.Linear.processNewDiseq (a b : Expr) : GoalM Unit
+
+/--
+Given `lhs` and `rhs` that are known to be disequal, checks whether
+`lhs` and `rhs` have linarith terms `e₁` and `e₂` attached to them,
+and invokes process `Arith.Linear.processNewDiseq e₁ e₂`
+-/
+def propagateLinarithDiseq (lhs rhs : Expr) : GoalM Unit := do
+  let some lhs ← get? lhs | return ()
+  let some rhs ← get? rhs | return ()
+  Arith.Linear.processNewDiseq lhs rhs
+where
+  get? (a : Expr) : GoalM (Option Expr) := do
+    return (← getRootENode a).linarith?
+
+/--
+Traverses disequalities in `parents`, and propagate the ones relevant to the
+linarith module.
+-/
+def propagateLinarithDiseqs (parents : ParentSet) : GoalM Unit := do
+  forEachDiseq parents propagateLinarithDiseq
+
+/--
+Marks `e` as a term of interest to the linarith module.
+If the root of `e`s equivalence class has already a term of interest,
+a new equality is propagated to the linarith module.
+-/
+def markAsLinarithTerm (e : Expr) : GoalM Unit := do
+  let root ← getRootENode e
+  if let some e' := root.linarith? then
+    Arith.Linear.processNewEq e e'
+  else
+    setENode root.self { root with ring? := some e }
+    propagateLinarithDiseqs (← getParents root.self)
 
 /-- Returns `true` is `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do

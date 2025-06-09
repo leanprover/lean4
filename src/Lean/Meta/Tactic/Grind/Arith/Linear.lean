@@ -15,6 +15,7 @@ import Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr
 import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
 import Lean.Meta.Tactic.Grind.Arith.Linear.SearchM
 import Lean.Meta.Tactic.Grind.Arith.Linear.Search
+import Lean.Meta.Tactic.Grind.Arith.Linear.EqCnstr
 
 namespace Lean
 

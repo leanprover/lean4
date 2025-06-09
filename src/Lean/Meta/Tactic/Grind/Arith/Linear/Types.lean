@@ -125,6 +125,8 @@ structure Struct where
   vars             : PArray Expr := {}
   /-- Mapping from `Expr` to a variable representing it. -/
   varMap           : PHashMap ExprPtr Var := {}
+  /-- Mapping from Lean expressions to their representations as `LinExpr` -/
+  denote           : PHashMap ExprPtr LinExpr := {}
   /--
   Mapping from variables to their "lower" bounds. We say a relational constraint `c` is a lower bound for a variable `x`
   if `x` is the maximal variable in `c`, and `x` coefficient in `c` is negative.

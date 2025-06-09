@@ -7,6 +7,7 @@ prelude
 import Init.Grind.Ordered.Module
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Internalize
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.Var
@@ -39,6 +40,9 @@ private def ensureDefEq (a b : Expr) : MetaM Unit := do
     throwError (← mkExpectedDefEqMsg a b)
 
 def getStructId? (type : Expr) : GoalM (Option Nat) := do
+  if Cutsat.isSupportedType type then
+    -- If `type` is supported by cutsat, let it handle
+    return none
   if let some id? := (← get').typeIdOf.find? { expr := type } then
     return id?
   else

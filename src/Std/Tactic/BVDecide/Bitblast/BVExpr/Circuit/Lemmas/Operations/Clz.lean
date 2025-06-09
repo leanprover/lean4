@@ -53,8 +53,14 @@ theorem go_denote_eq {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr + 1 ≤
           =
         (BitVec.clzAuxRec xexpr (w - 1)).getLsbD idx := by
   intro idx hidx
+  generalize hgo: go aig x curr acc = res
+  unfold go at hgo
+  split at hgo
+  · case isTrue =>
+    simp at hgo
 
-  sorry
+    sorry
+  · sorry
 
 end blastClz
 

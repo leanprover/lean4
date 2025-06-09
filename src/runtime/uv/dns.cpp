@@ -7,6 +7,10 @@ Author: Sofia Rodrigues, Henrik Böving
 #include "runtime/uv/dns.h"
 #include <cstring>
 
+#ifndef LEAN_EMSCRIPTEN
+#include <uv.h>
+#endif
+
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN
 
@@ -14,14 +18,15 @@ using namespace std;
 
 // Std.Internal.IO.Async.DNS.getAddrInfo (host service : @& String) (family : UInt8) : IO (IO.Promise (Except IO.Error (Array IPAddr)))
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_arg service, uint8_t family, obj_arg /* w */) {
+    char const * name_cstr = lean_string_cstr(name);
+    char const * service_cstr = lean_string_cstr(service);
+
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
 
     uv_getaddrinfo_t* resolver = (uv_getaddrinfo_t*)malloc(sizeof(uv_getaddrinfo_t));
     resolver->data = promise;
 
-    char const * name_cstr = lean_string_cstr(name);
-    char const * service_cstr = lean_string_cstr(service);
 
     struct addrinfo hints;
     memset(&hints, 0, sizeof(hints));

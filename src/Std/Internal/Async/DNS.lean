@@ -18,7 +18,7 @@ namespace DNS
 open Std.Net
 
 /--
-Asynchronously resolves a hostname and service to an array of socket addresses.Asynchronously resolves a hostname and service to a list of socket addresses.
+Asynchronously resolves a hostname and service to an array of socket addresses.
 -/
 @[inline]
 def getAddrInfo
@@ -37,7 +37,7 @@ Performs a reverse DNS lookup on a `SocketAddress`.
 -/
 @[inline]
 def getNameInfo (host : @& SocketAddress) : IO (AsyncTask (String × String)) :=
-    AsyncTask.ofPromise <$> UV.DNS.getNameInfo host
+  AsyncTask.ofPromise <$> UV.DNS.getNameInfo host
 
 end DNS
 end Async

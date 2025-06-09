@@ -2320,4 +2320,14 @@ theorem clzAuxRec_eq_clz (x : BitVec w) (hw : 0 < w) (h : ∀ i, n < i → x.get
         simp [inh hf']
 
 
+theorem getLsbD_clzAuxRec (x : BitVec w) (i : Nat) (hw : 0 < w) :
+    (x.clz).getLsbD i = (x.clzAuxRec (w - 1)).getLsbD i := by
+  congr
+  have := clzAuxRec_eq_clz (x := x) (n := w - 1) hw
+  apply Eq.symm
+  apply this
+  intro i hi
+  simp [show w ≤ i by omega]
+
+
 end BitVec

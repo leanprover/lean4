@@ -64,7 +64,8 @@ def runDNS : Async Unit := do
 
 def runReverseDNS : Async Unit := do
   let result ← await (DNS.getNameInfo (.v4 ⟨.ofParts 8 8 8 8, 53⟩))
-  assertBEq result ("dns.google", "domain")
+  assertBEq result.service "domain"
+  assertBEq result.host "dns.google"
 
 #eval runDNS.run >>= AsyncTask.block
 #eval runReverseDNS.run >>= AsyncTask.block

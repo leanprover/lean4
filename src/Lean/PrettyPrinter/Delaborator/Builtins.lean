@@ -858,9 +858,9 @@ def delabLetFun : Delab := whenPPOption getPPNotation <| withOverApp 4 do
   let (stxN, stxB) ← withAppArg <| withBindingBody' n (mkAnnotatedIdent n) fun stxN => return (stxN, ← delab)
   if ← getPPOption getPPLetVarTypes <||> getPPOption getPPAnalysisLetVarType then
     let stxT ← SubExpr.withNaryArg 0 delab
-    `(have $stxN : $stxT := $stxV; $stxB)
+    `(let_fun $stxN : $stxT := $stxV; $stxB)
   else
-    `(have $stxN := $stxV; $stxB)
+    `(let_fun $stxN := $stxV; $stxB)
 
 @[builtin_delab mdata]
 def delabMData : Delab := do

@@ -1499,42 +1499,46 @@ private def forallBoundedTelescopeImp (type : Expr) (maxFVars? : Option Nat) (k 
 def forallBoundedTelescope (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
   map2MetaM (fun k => forallBoundedTelescopeImp type maxFVars? k cleanupAnnotations) k
 
-private partial def lambdaTelescopeImp (e : Expr) (consumeLet : Bool) (preserveNonDepLet : Bool) (maxFVars? : Option Nat)
+private partial def lambdaTelescopeImp (e : Expr) (consumeLambda : Bool) (consumeLet : Bool) (preserveNonDepLet : Bool) (nonDepLetOnly : Bool) (maxFVars? : Option Nat)
     (k : Array Expr → Expr → MetaM α) (cleanupAnnotations := false) : MetaM α := do
-  process consumeLet (← getLCtx) #[] e
+  process consumeLambda consumeLet (← getLCtx) #[] e
 where
-  process (consumeLet : Bool) (lctx : LocalContext) (fvars : Array Expr) (e : Expr) : MetaM α := do
-    match fvarsSizeLtMaxFVars fvars maxFVars?, consumeLet, e with
-    | true, _, .lam n d b bi =>
+  process (consumeLambda : Bool) (consumeLet : Bool) (lctx : LocalContext) (fvars : Array Expr) (e : Expr) : MetaM α := do
+    let finish (e : Expr) : MetaM α :=
+      let e := e.instantiateRevRange 0 fvars.size fvars
+      withReader (fun ctx => { ctx with lctx := lctx }) do
+        withNewLocalInstancesImp fvars 0 do
+          k fvars e
+    match fvarsSizeLtMaxFVars fvars maxFVars?, consumeLambda, consumeLet, e with
+    | true, true, _, .lam n d b bi =>
       let d := d.instantiateRevRange 0 fvars.size fvars
       let d := if cleanupAnnotations then d.cleanupAnnotations else d
       let fvarId ← mkFreshFVarId
       let lctx := lctx.mkLocalDecl fvarId n d bi
       let fvar := mkFVar fvarId
-      process consumeLet lctx (fvars.push fvar) b
-    | true, true, .letE n t v b nonDep => do
-      let t := t.instantiateRevRange 0 fvars.size fvars
-      let t := if cleanupAnnotations then t.cleanupAnnotations else t
-      let v := v.instantiateRevRange 0 fvars.size fvars
-      let fvarId ← mkFreshFVarId
-      let lctx := lctx.mkLetDecl fvarId n t v (nonDep && preserveNonDepLet)
-      let fvar := mkFVar fvarId
-      process true lctx (fvars.push fvar) b
-    | _, _, e =>
-      let e := e.instantiateRevRange 0 fvars.size fvars
-      withReader (fun ctx => { ctx with lctx := lctx }) do
-        withNewLocalInstancesImp fvars 0 do
-          k fvars e
+      process true consumeLet lctx (fvars.push fvar) b
+    | true, _, true, .letE n t v b nonDep => do
+      if !nonDep && nonDepLetOnly then
+        finish e
+      else
+        let t := t.instantiateRevRange 0 fvars.size fvars
+        let t := if cleanupAnnotations then t.cleanupAnnotations else t
+        let v := v.instantiateRevRange 0 fvars.size fvars
+        let fvarId ← mkFreshFVarId
+        let lctx := lctx.mkLetDecl fvarId n t v (nonDep && preserveNonDepLet)
+        let fvar := mkFVar fvarId
+        process consumeLambda true lctx (fvars.push fvar) b
+    | _, _, _, e =>
+      finish e
 
 /--
 Similar to `lambdaTelescope` but for lambda and let expressions.
 
-If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
-
-If `preserveNonDep` is `false`, all `have`s are converted to `let`s.
+- If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
+- If `preserveNonDep` is `false`, all `have`s are converted to `let`s.
 -/
 def lambdaLetTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) (preserveNonDepLet := true) : n α :=
-  map2MetaM (fun k => lambdaTelescopeImp e true preserveNonDepLet .none k (cleanupAnnotations := cleanupAnnotations)) k
+  map2MetaM (fun k => lambdaTelescopeImp e true true preserveNonDepLet false .none k (cleanupAnnotations := cleanupAnnotations)) k
 
 /--
   Given `e` of the form `fun ..xs => A`, execute `k xs A`.
@@ -1544,7 +1548,7 @@ def lambdaLetTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnn
   If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
 -/
 def lambdaTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
-  map2MetaM (fun k => lambdaTelescopeImp e false true none k (cleanupAnnotations := cleanupAnnotations)) k
+  map2MetaM (fun k => lambdaTelescopeImp e true false true false none k (cleanupAnnotations := cleanupAnnotations)) k
 
 /--
   Given `e` of the form `fun ..xs ..ys => A`, execute `k xs (fun ..ys => A)` where
@@ -1555,7 +1559,26 @@ def lambdaTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnota
   If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
 -/
 def lambdaBoundedTelescope (e : Expr) (maxFVars : Nat) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
-  map2MetaM (fun k => lambdaTelescopeImp e false true (.some maxFVars) k (cleanupAnnotations := cleanupAnnotations)) k
+  map2MetaM (fun k => lambdaTelescopeImp e true false true false (.some maxFVars) k (cleanupAnnotations := cleanupAnnotations)) k
+
+/--
+Given `e` of the form `let x₁ := v₁; ...; let xₙ := vₙ; A`, executes `k xs A`,
+where `xs` is an array of free variables for the binders.
+The `let`s can also be `have`s.
+
+- If `cleanupAnnotations` is `true`, applies `Expr.cleanupAnnotations` to each type in the telescope.
+- If `preserveNonDep` is `false`, all `have`s are converted to `let`s.
+- If `nonDepLetOnly` is `true`, then only `have`s are consumed (it stops at the first dependent `let`).
+-/
+def letTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) (preserveNonDepLet := true) (nonDepLetOnly := false) : n α :=
+  map2MetaM (fun k => lambdaTelescopeImp e false true preserveNonDepLet nonDepLetOnly none k (cleanupAnnotations := cleanupAnnotations)) k
+
+/--
+Like `letTelescope`, but limits the number of `let`/`have`s consumed to `maxFVars?`.
+If `maxFVars?` is none, then this is the same as `letTelescope`.
+-/
+def letBoundedTelescope (e : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) (preserveNonDepLet := true) (nonDepLetOnly := false) : n α :=
+  map2MetaM (fun k => lambdaTelescopeImp e false true preserveNonDepLet nonDepLetOnly maxFVars? k (cleanupAnnotations := cleanupAnnotations)) k
 
 /-- Return the parameter names for the given global declaration. -/
 def getParamNames (declName : Name) : MetaM (Array Name) := do

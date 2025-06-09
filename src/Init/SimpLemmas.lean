@@ -63,6 +63,9 @@ theorem forall_prop_congr_dom {p₁ p₂ : Prop} (h : p₁ = p₂) (q : p₁ →
 theorem pi_congr {α : Sort u} {β β' : α → Sort v} (h : ∀ a, β a = β' a) : (∀ a, β a) = ∀ a, β' a :=
   (funext h : β = β') ▸ rfl
 
+theorem let_unused {α : Sort u} {β : Sort v} (a : α) {b b' : β} (h : b = b') : (let _ := a; b) = b' :=
+  h
+
 theorem let_congr {α : Sort u} {β : Sort v} {a a' : α} {b b' : α → β}
     (h₁ : a = a') (h₂ : ∀ x, b x = b' x) : (let x := a; b x) = (let x := a'; b' x) :=
   h₁ ▸ (funext h₂ : b = b') ▸ rfl
@@ -73,6 +76,21 @@ theorem let_val_congr {α : Sort u} {β : Sort v} {a a' : α}
 theorem let_body_congr {α : Sort u} {β : α → Sort v} {b b' : (a : α) → β a}
     (a : α) (h : ∀ x, b x = b' x) : (let x := a; b x) = (let x := a; b' x) :=
   (funext h : b = b') ▸ rfl
+
+theorem have_unused {α : Sort u} {β : Sort v} (a : α) {b b' : β} (h : b = b') : (have _ := a; b) = b' :=
+  h
+
+theorem have_congr {α : Sort u} {β : Sort v} {a a' : α} {f f' : α → β}
+    (h₁ : a = a') (h₂ : ∀ x, f x = f' x) : (have x := a; f x) = (have x := a'; f' x) := by
+  rw [h₁, funext h₂]
+
+theorem have_val_congr {α : Sort u} {β : Sort v} {a a' : α} {f : α → β}
+    (h : a = a') : (have x := a; f x) = (have x := a'; f x) := by
+  rw [h]
+
+theorem have_body_congr {α : Sort u} {β : α → Sort v} (a : α) {f f' : (x : α) → β x}
+    (h : ∀ x, f x = f' x) : (have x := a; f x) = (have x := a; f' x) := by
+  rw [funext h]
 
 theorem letFun_unused {α : Sort u} {β : Sort v} (a : α) {b b' : β} (h : b = b') : @letFun α (fun _ => β) a (fun _ => b) = b' :=
   h

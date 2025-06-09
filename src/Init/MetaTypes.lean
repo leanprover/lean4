@@ -161,8 +161,9 @@ structure Config where
   -/
   singlePass        : Bool := false
   /--
-  When `true` (default: `true`), performs zeta reduction of let expressions.
+  When `true` (default: `true`), performs zeta reduction of `let` and `have` expressions.
   That is, `let x := v; e[x]` reduces to `e[v]`.
+  If `zetaHave` is `false` then `have` expressions are not zeta reduced.
   See also `zetaDelta`.
   -/
   zeta              : Bool := true
@@ -240,7 +241,7 @@ structure Config where
   -/
   implicitDefEqProofs : Bool := true
   /--
-  When `true` (default : `true`), then simps will remove unused let-declarations:
+  When `true` (default : `true`), then `simp` will remove unused let-declarations:
   `let x := v; e` simplifies to `e` when `x` does not occur in `e`.
   -/
   zetaUnused : Bool := true
@@ -249,6 +250,17 @@ structure Config where
   convert them into `simp` exceptions.
   -/
   catchRuntime : Bool := true
+  /--
+  When `true` (default : `true`), then `simp` will attempt to transform `let`s into `have`s
+  if they are non-dependent. This only applies when `zeta := false`.
+  -/
+  letToHave : Bool := true
+  /--
+  When `false` (default: `true`), then disables zeta reduction of `have` expressions
+  when `zeta` is `true`. If `zeta` is `false`, then this option has no effect.
+  Unused `have`s are still removed if `zeta` or `zetaUnused` are true.
+  -/
+  zetaHave : Bool := true
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`

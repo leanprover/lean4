@@ -1031,11 +1031,11 @@ def letNonDep! : Expr → Bool
   | letE _ _ _ _ nonDep => nonDep
   | _                   => panic! "let expression expected"
 
--- Separate definition since `panic!` causes the result to be `obj` instead of `u8`.
-@[export lean_expr_letNonDep]
-def letNonDep!Ex : Expr → Bool
-  | letE _ _ _ _ nonDep => nonDep
-  | _                   => false
+-- -- Separate definition since `panic!` causes the result to be `obj` instead of `u8`.
+-- @[export lean_expr_letNonDep]
+-- def letNonDep!Ex : Expr → Bool
+--   | letE _ _ _ _ nonDep => nonDep
+--   | _                   => false
 
 def consumeMData : Expr → Expr
   | mdata _ e => consumeMData e

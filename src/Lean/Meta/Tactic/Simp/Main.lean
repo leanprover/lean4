@@ -10,6 +10,9 @@ import Lean.Meta.Tactic.UnifyEq
 import Lean.Meta.Tactic.Simp.Rewrite
 import Lean.Meta.Tactic.Simp.Diagnostics
 import Lean.Meta.Match.Value
+import Lean.Meta.LetToHave
+import Lean.Util.CollectLooseBVars
+import Lean.Util.CollectFVars
 
 namespace Lean.Meta
 namespace Simp
@@ -199,10 +202,12 @@ private def reduceStep (e : Expr) : SimpM Expr := do
     | some e => return e
     | none   => pure ()
   if cfg.zeta then
-    if let some (args, _, _, v, b) := e.letFunAppArgs? then
-      return mkAppN (b.instantiate1 v) args
-    if e.isLet then
-      return e.letBody!.instantiate1 e.letValue!
+    if cfg.zetaHave then
+      if let some (args, _, _, v, b) := e.letFunAppArgs? then
+        return mkAppN (b.instantiate1 v) args
+    if let .letE _ _ v b nonDep := e then
+      if !nonDep || cfg.zetaHave then
+        return b.instantiate1 v
   match (← unfold? e) with
   | some e' =>
     trace[Meta.Tactic.simp.rewrite] "unfold {.ofConst e.getAppFn}, {e} ==> {e'}"
@@ -230,9 +235,12 @@ where
     | e => k xs e
 
 inductive SimpLetCase where
-  | dep -- `let x := v; b` is not equivalent to `(fun x => b) v`
-  | nondepDepVar -- `let x := v; b` is equivalent to `(fun x => b) v`, but result type depends on `x`
-  | nondep -- `let x := v; b` is equivalent to `(fun x => b) v`, and result type does not depend on `x`
+  /-- `let x := v; b` is not equivalent to `(fun x => b) v` -/
+  | dep
+  /-- `let x := v; b` is equivalent to `(fun x => b) v`, but result type depends on `x` -/
+  | nondepDepVar
+  /-- `let x := v; b` is equivalent to `(fun x => b) v`, and result type does not depend on `x` -/
+  | nondep
 deriving Repr
 
 def getSimpLetCase (n : Name) (t : Expr) (b : Expr) : MetaM SimpLetCase := do
@@ -388,39 +396,312 @@ def simpForall (e : Expr) : SimpM Result := withParent e do
   else
     return { expr := (← dsimp e) }
 
+structure HaveInfo where
+  /-- Previous `have`s that the type of this `have` depends on. -/
+  typeBackDeps : Std.HashSet Nat
+  /-- Previous `have`s that the value of this `have` depends on. -/
+  valueBackDeps : Std.HashSet Nat
+  /-- The local decl for the `have`, so that the local context can be re-entered `have`-by-`have`. -/
+  decl : LocalDecl
+  /-- The level of the type for this `have`, cached. -/
+  level : Level
+  deriving Inhabited
+
+structure HaveTelescopeInfo where
+  /-- Information for each `have` in the telescope. -/
+  haveInfo : Array HaveInfo := #[]
+  /-- The set of `have`s that the body depends on. -/
+  bodyDeps : Std.HashSet Nat := {}
+  /-- The set of `have`s that the type of the body depends on. -/
+  bodyTypeDeps : Std.HashSet Nat := {}
+  body : Expr := Expr.const `_have_telescope_info_dummy_ []
+  bodyType : Expr := Expr.const `_have_telescope_info_dummy_ []
+  /-- The universe level for the `have` expression, cached. -/
+  level : Level := Level.param `_have_telescope_info_dummy_
+  deriving Inhabited
+
+/--
+Efficiently collect dependency information for a `have` telescope.
+The expression `e` must not have loose bvars.
+-/
+def getHaveTelescopeInfo (e : Expr) : MetaM HaveTelescopeInfo := do
+  collect e 0 {} (← getLCtx) #[]
+where
+  collect (e : Expr) (numHaves : Nat) (info : HaveTelescopeInfo) (lctx : LocalContext) (fvars : Array Expr) : MetaM HaveTelescopeInfo := do
+    let getBackDeps (a : Expr) : Std.HashSet Nat :=
+      a.collectLooseBVars.fold (init := {}) fun deps vidx =>
+        -- Since the original expression has no bvars, `vidx < numHaves` must be true.
+        deps.insert (numHaves - vidx - 1)
+    match e with
+    | .letE n t v b true =>
+      let typeBackDeps := getBackDeps t
+      let valueBackDeps := getBackDeps v
+      let t := t.instantiateRev fvars
+      let v := v.instantiateRev fvars
+      let level ← withLCtx' lctx <| getLevel t
+      let fvarId ← mkFreshFVarId
+      let decl := LocalDecl.ldecl 0 fvarId n t v true .default
+      let info := { info with haveInfo := info.haveInfo.push { typeBackDeps, valueBackDeps, decl, level } }
+      let lctx := lctx.addDecl decl
+      let fvars := fvars.push (mkFVar fvarId)
+      collect b (numHaves + 1) info lctx fvars
+    | _ =>
+      let bodyDeps := getBackDeps e
+      /-
+      Collect fvars appearing in the type of `e`. This in particular is where `MetaM` is necessary in computing dependencies.
+      -/
+      withLCtx' lctx do
+        let body := e.instantiateRev fvars
+        let bodyType ← inferType body
+        let level ← getLevel bodyType
+        let bodyTypeFVarIds := (collectFVars {} bodyType).fvarSet
+        let bodyTypeDeps : Std.HashSet Nat := Nat.fold fvars.size (init := {}) fun idx _ deps =>
+          if bodyTypeFVarIds.contains fvars[idx].fvarId! then
+            deps.insert idx
+          else
+            deps
+        return { info with bodyDeps, bodyTypeDeps, body, bodyType, level }
+
+/--
+Auxiliary structure used to represent the return value of `simpLet.simpHaveTelescopeAux`.
+-/
+private structure SimpHaveResult where
+  /--
+  The simplified expression. Note that it may contain loose bound variables.
+  `simpLet` attempts to minimize the quadratic overhead imposed
+  by the locally nameless discipline in a sequence of `have` expressions.
+  -/
+  expr     : Expr
+  /--
+  The type of `expr`. It may contain loose bound variables like in the `expr` field.
+  Used in proof construction.
+  -/
+  exprType : Expr
+  /--
+  The proof that the simplified expression is equal to the input one.
+  It may contain loose bound variables like in the `expr` field.
+  -/
+  proof    : Expr
+  /--
+  `modified := false` iff `expr` is structurally equal to the input expression.
+  When false, `proof` is `Eq.refl`.
+  -/
+  modified : Bool
+
+private def SimpHaveResult.toResult : SimpHaveResult → Result
+  | { expr, proof, modified, .. } => { expr, proof? := if modified then some proof else none }
+
+/-- Given the initial expression `e`, converts a `Result` to a `SimpHaveResult`. -/
+private def SimpHaveResult.ofResult (e : Expr) (r : Result) : MetaM SimpHaveResult := do
+  return { expr := r.expr, exprType := ← inferType r.expr, proof := ← r.getProof, modified := !(e.equal r.expr) }
+
+private def SimpHaveResult.abstract (r : SimpHaveResult) (xs : Array Expr) : SimpHaveResult :=
+  { expr := r.expr.abstract xs, exprType := r.exprType.abstract xs, proof := r.proof.abstract xs, modified := r.modified }
+
+/--
+Routine for simplifying `let` expressions.
+
+Consider a `have` telescope:
+```
+have x₁ : T₁ := v₁; ...; have xₙ : Tₙ := vₙ; b
+```
+We say `xᵢ` is *fixed* if it appears in any `Tⱼ` or if it appears in the type of `b`.
+
+If `xᵢ` is fixed, then it can only be rewritten with definitional equalities.
+Otherwise, we can freely rewrite the value with a propositional equality `vᵢ = vᵢ'`.
+
+The body `b` can always be freely rewritten with a propositional equality `b'`.
+
+If `xᵢ` does not appear in `b` or any `Tⱼ` or `vⱼ`, then its `have` is *unused*.
+Unused `have`s can be eliminated, which we do if `cfg.zetaUnused` is true.
+Note that it is best to clear unused `have`s from the right, to eliminate uses
+from unused `have`s. Eliminating unused `have` may cause fixed `xᵢ`s to become unfixed as well.
+
+We assume that dependent `let`s are dependent.
+At the first `let` in a `let`/`have` telescope,
+we attempt to transform it into a `have` if `cfg.letToHave` is true.
+If that does not change it, then it is only `dsimp`ed.
+-/
 def simpLet (e : Expr) : SimpM Result := do
-  let .letE n t v b _ := e | unreachable!
-  if (← getConfig).zeta then
-    return { expr := b.instantiate1 v }
+  assert! e.isLet
+  trace[Debug.Meta.Tactic.simp] "let {e}"
+  let cfg ← getConfig
+  /-
+  In `zeta` mode, we zeta reduce the whole telescope,
+  unless `zetaHave` is false, in which case we zeta reduce up to the first `have`.
+  The `if` makes sure that reduction will make progress.
+  If not, then we wish to try simplifying the telescope.
+  -/
+  if cfg.zeta && (!e.letNonDep! || cfg.zetaHave) then
+    let expandLet (e : Expr) (vs : Array Expr) : Expr :=
+      match e with
+      | .letE _ _ v b nonDep =>
+        if !nonDep || cfg.zetaHave then
+          expandLet b (vs.push v)
+        else
+          e.instantiateRev vs
+      | _ => e.instantiateRev vs
+    return { expr := expandLet e #[] }
+  else if !e.letNonDep! then
+    /-
+    This is a `let` and not a `have`.
+    Ideally non-dependent `let`s have already been transformed to `have`s.
+    However, when `letToHave` is true we apply the transformation, which we only commit to if
+    the head `let` becomes a `have`.
+    -/
+    if cfg.letToHave then
+      let e' ← letToHave e
+      if e'.isLet && e'.letNonDep! then
+        return ← simpHaveTelescope e'
+    /-
+    This is a dependent `let`. We fall back to doing only definitional simplification.
+
+    Note that for `let x := v; b`, if we had a rewrite `h : b = b'` given `x := v` in the local context,
+    we could abstract `x` to get `(let x := v; h) : (let x := v; b = b')` and then use the fact that
+    this type is definitionally equal to `(let x := v; b) = (let x := v; b')`.
+    -/
+    return { expr := (← dsimp e) }
   else
-    let simpLetCase ← getSimpLetCase n t b
-    trace[Debug.Meta.Tactic.simp] "getSimpLetCase is {repr simpLetCase}:{indentExpr e}"
-    match simpLetCase with
-    | SimpLetCase.dep => return { expr := (← dsimp e) }
-    | SimpLetCase.nondep =>
-      let rv ← simp v
-      withLocalDeclD n t fun x => withNewLemmas #[x] do
-        let bx := b.instantiate1 x
-        let rbx ← simp bx
-        let hb? ← match rbx.proof? with
-          | none => pure none
-          | some h => pure (some (← mkLambdaFVars #[x] h))
-        let e' := mkLet n t rv.expr (← rbx.expr.abstractM #[x])
-        match rv.proof?, hb? with
-        | none,   none   => return { expr := e' }
-        | some h, none   => return { expr := e', proof? := some (← mkLetValCongr (← mkLambdaFVars #[x] rbx.expr) h) }
-        | _,      some h => return { expr := e', proof? := some (← mkLetCongr (← rv.getProof) h) }
-    | SimpLetCase.nondepDepVar =>
-      let v' ← dsimp v
-      withLocalDeclD n t fun x => withNewLemmas #[x] do
-        let bx := b.instantiate1 x
-        let rbx ← simp bx
-        let e' := mkLet n t v' (← rbx.expr.abstractM #[x])
-        match rbx.proof? with
-        | none => return { expr := e' }
-        | some h =>
-          let h ← mkLambdaFVars #[x] h
-          return { expr := e', proof? := some (← mkLetBodyCongr v' h) }
+    simpHaveTelescope e
+    -- withLetTelescope #[] #[] e fun xs used abody body => do
+    --   withoutUnused e xs used abody body fun res xs => do
+    --     failure
+where
+  simpHaveTelescope (e : Expr) : SimpM Result := do
+    let cfg ← getConfig
+    let info ← getHaveTelescopeInfo e
+    assert! !info.haveInfo.isEmpty
+    let (fixed, used) ← computeFixedUsed info
+    trace[Debug.Meta.Tactic.simp] "used: {used}; fixed: {fixed}"
+    let r ← simpHaveTelescopeAux info fixed used e 0 #[]
+    return r.toResult
+  /--
+  Computes which `have`s in the telescope are fixed and which are unused. Unused takes precedence over fixed.
+  -/
+  computeFixedUsed (info : HaveTelescopeInfo) : SimpM (Array Bool × Array Bool) := do
+    let numHaves := info.haveInfo.size
+    let cfg ← getConfig
+    let updateArrayFromBackDeps (arr : Array Bool) (s : Std.HashSet Nat) : Array Bool :=
+      if s.isEmpty then arr
+      else s.fold (init := arr) fun arr idx => arr.set! idx true
+    let mut fixed : Array Bool := Array.replicate numHaves false
+    -- If `cfg.zetaUnused` is false, mark all `have`s as used.
+    let mut used : Array Bool := Array.replicate numHaves (!cfg.zetaUnused)
+    -- Initialize `fixed`/`used` with the body's dependencies.
+    -- No need to update `used` for the body's type dependencies
+    fixed := updateArrayFromBackDeps fixed info.bodyTypeDeps
+    if cfg.zetaUnused then
+      used := updateArrayFromBackDeps used info.bodyDeps
+    -- For each used `have`, in reverse order, update `fixed`/`used`.
+    for i in [0:numHaves] do
+      let idx := numHaves - i - 1
+      if used[idx]! then
+        let hinfo := info.haveInfo[idx]!
+        fixed := updateArrayFromBackDeps fixed hinfo.typeBackDeps
+        if cfg.zetaUnused then
+          used := updateArrayFromBackDeps used hinfo.typeBackDeps
+          used := updateArrayFromBackDeps used hinfo.valueBackDeps
+    return (fixed, used)
+  /-
+  Re-enters the telescope in `info` while simplifying according to `fixed`/`used`.
+  Note that we must use the low-level `Expr` APIs because the expressions may contain loose bound variables.
+  -/
+  simpHaveTelescopeAux (info : HaveTelescopeInfo) (fixed used : Array Bool) (e : Expr) (i : Nat) (xs : Array Expr) : SimpM SimpHaveResult := do
+    if h : i < info.haveInfo.size then
+      let hinfo := info.haveInfo[i]
+      let x := hinfo.decl.toExpr
+      let .letE n t v b true := e | unreachable!
+      let us := [hinfo.level, info.level]
+      if !used[i]! then
+        let { expr, exprType, proof, .. } ← simpHaveTelescopeAux info fixed used b (i + 1) (xs.push x)
+        let expr := expr.lowerLooseBVars 1 1
+        let exprType := exprType.lowerLooseBVars 1 1
+        let proof := proof.lowerLooseBVars 1 1
+        let proof := mkApp6 (mkConst ``have_unused us) t exprType v b expr proof
+        return { expr, exprType, proof, modified := true }
+      else if fixed[i]! then
+        let v' ← dsimp (hinfo.decl.value true)
+        withExistingLocalDecls [hinfo.decl] <| withNewLemmas #[x] do
+          let rb ← simpHaveTelescopeAux info fixed used b (i + 1) (xs.push x)
+          if rb.modified then
+            let expr := mkLet n t v' rb.expr true
+            let exprType := mkLet n t v' rb.exprType true
+            let proof := mkApp6 (mkConst ``have_body_congr us) t (mkLambda n .default t rb.exprType) v'
+              (mkLambda n .default t b) (mkLambda n .default t rb.expr) (mkLambda n .default t rb.proof)
+            return { expr, exprType, proof, modified := true }
+          else if !(v.equal v') then
+            let expr := mkLet n t v' rb.expr true
+            let exprType := mkLet n t v' rb.exprType true
+            let proof := mkApp2 (mkConst ``Eq.refl [info.level]) exprType expr
+            return { expr, exprType, proof, modified := true }
+          else
+            let exprType := mkLet n t v rb.exprType true
+            let proof := mkApp2 (mkConst ``Eq.refl [info.level]) exprType e
+            return { expr := e, exprType, proof, modified := false }
+      else
+        let val := hinfo.decl.value true
+        let rval ← simp val
+        let rval := (← SimpHaveResult.ofResult val rval).abstract xs
+        withExistingLocalDecls [hinfo.decl] <| withNewLemmas #[x] do
+          let rb ← simpHaveTelescopeAux info fixed used b (i + 1) (xs.push x)
+          match rval.modified, rb.modified with
+          | false, false =>
+            let exprType := mkLet n t v rb.exprType true
+            let proof := mkApp2 (mkConst ``Eq.refl [info.level]) exprType e
+            return { expr := e, exprType, proof, modified := false }
+          | true, false => failure
+          | false, true =>
+            let expr := mkLet n t v rb.expr true
+            let exprType := mkLet n t v rb.exprType true
+            let proof := mkApp6 (mkConst ``have_body_congr us) t (mkLambda n .default t rb.exprType) v
+              (mkLambda n .default t b) (mkLambda n .default t rb.expr) (mkLambda n .default t rb.proof)
+            return { expr, exprType, proof, modified := true }
+          | true, true =>
+            let expr := mkLet n t rval.expr rb.expr true
+            let exprType := mkLet n t rval.expr rb.exprType true
+            -- The body type does not depend on the value in this case.
+            let beta := rb.exprType.lowerLooseBVars 1 1
+            let proof := mkApp8 (mkConst ``have_congr us) t beta v rval.expr
+              (mkLambda n .default t b) (mkLambda n .default t rb.expr) rval.proof (mkLambda n .default t rb.proof)
+            return { expr, exprType, proof, modified := true }
+    else
+      -- Base case: simplify the body.
+      let r ← simp info.body
+      return (← SimpHaveResult.ofResult e r).abstract xs
+
+-- def simpLet' (e : Expr) : SimpM Result := do
+--   let .letE n t v b _ := e | unreachable!
+--   if (← getConfig).zeta then
+--     return { expr := b.instantiate1 v }
+--   else
+--     let simpLetCase ← getSimpLetCase n t b
+--     trace[Debug.Meta.Tactic.simp] "getSimpLetCase is {repr simpLetCase}:{indentExpr e}"
+--     match simpLetCase with
+--     | SimpLetCase.dep => return { expr := (← dsimp e) }
+--     | SimpLetCase.nondep =>
+--       let rv ← simp v
+--       withLocalDeclD n t fun x => withNewLemmas #[x] do
+--         let bx := b.instantiate1 x
+--         let rbx ← simp bx
+--         let hb? ← match rbx.proof? with
+--           | none => pure none
+--           | some h => pure (some (← mkLambdaFVars #[x] h))
+--         let e' := mkLet n t rv.expr (← rbx.expr.abstractM #[x])
+--         match rv.proof?, hb? with
+--         | none,   none   => return { expr := e' }
+--         | some h, none   => return { expr := e', proof? := some (← mkLetValCongr (← mkLambdaFVars #[x] rbx.expr) h) }
+--         | _,      some h => return { expr := e', proof? := some (← mkLetCongr (← rv.getProof) h) }
+--     | SimpLetCase.nondepDepVar =>
+--       let v' ← dsimp v
+--       withLocalDeclD n t fun x => withNewLemmas #[x] do
+--         let bx := b.instantiate1 x
+--         let rbx ← simp bx
+--         let e' := mkLet n t v' (← rbx.expr.abstractM #[x])
+--         match rbx.proof? with
+--         | none => return { expr := e' }
+--         | some h =>
+--           let h ← mkLambdaFVars #[x] h
+--           return { expr := e', proof? := some (← mkLetBodyCongr v' h) }
 
 private def dsimpReduce : DSimproc := fun e => do
   let mut eNew ← reduce e

@@ -102,7 +102,7 @@ def propagateIneq (e : Expr) (eqTrue : Bool) : GoalM Unit := do
       return ()
     let lhs := e.getArg! 2 numArgs
     let rhs := e.getArg! 3 numArgs
-    if (← isCommRing) then
+    if (← isOrderedCommRing) then
       propagateCommRingIneq e lhs rhs strict eqTrue
     -- TODO: non-commutative ring normalizer
     else

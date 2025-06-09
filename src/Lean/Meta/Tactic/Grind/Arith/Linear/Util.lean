@@ -86,6 +86,9 @@ def withRingM (x : RingM α) : LinearM α := do
 def isCommRing : LinearM Bool :=
   return (← getStruct).ringId?.isSome
 
+def isOrderedCommRing : LinearM Bool := do
+  return (← isCommRing) && (← getStruct).ringIsOrdInst?.isSome
+
 def isLinearOrder : LinearM Bool :=
   return (← getStruct).linearInst?.isSome
 

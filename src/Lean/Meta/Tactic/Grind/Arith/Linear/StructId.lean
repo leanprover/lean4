@@ -160,7 +160,7 @@ where
     if let some one := one? then
       if ringInst?.isSome then LinearM.run id do
         -- Create `1` variable, and assert strict lower bound `0 < 1`
-        let x ← mkVar one
+        let x ← mkVar one (mark := false)
         let p := Poly.add (-1) x .nil
         modifyStruct fun s => { s with
           lowers := s.lowers.modify x fun cs => cs.push { p, h := .oneGtZero, strict := true }

@@ -1747,7 +1747,7 @@ private theorem neg_udiv_eq_intmin_iff_eq_intmin_eq_one_of_msb_eq_true
   constructor
   · intros h
     rcases w with _ | w; decide +revert
-    have : (-x / y).msb = true := by simp [h, msb_intMin];
+    have : (-x / y).msb = true := by simp [h, msb_intMin]
     rw [msb_udiv] at this
     simp only [bool_to_prop] at this
     obtain ⟨hx₂, hy⟩ := this
@@ -1756,8 +1756,7 @@ private theorem neg_udiv_eq_intmin_iff_eq_intmin_eq_one_of_msb_eq_true
     simp only [udiv_one, zero_lt_succ, neg_eq_intMin] at h
     simp [h]
   · rintro ⟨hx, hy⟩
-    subst hx
-    subst hy
+    subst hx hy
     simp
 
 theorem msb_sdiv_eq_decide {x y : BitVec w} :
@@ -1821,9 +1820,7 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
     simp only [hxmsb, bne_true, Bool.not_and]
     simp only [bool_to_prop]
     simp only [not_eq_eq_eq_not, Bool.not_true, bne_eq_false_iff_eq, beq_iff_eq]
-    have hxne0 : ¬ (x = 0#w) := by
-      intros h
-      simp [h] at hxmsb
+    have hxne0 := BitVec.ne_zero_of_msb_true (x := x) hxmsb
     simp [hxne0, neg_eq_iff_eq_neg]
 
 theorem msb_umod_eq_false_of_left {x : BitVec w} (hx : x.msb = false) (y : BitVec w) : (x % y).msb = false := by

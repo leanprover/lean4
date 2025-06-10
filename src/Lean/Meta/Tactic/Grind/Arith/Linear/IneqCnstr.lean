@@ -41,9 +41,10 @@ def IneqCnstr.assert (c : IneqCnstr) : LinearM Unit := do
 def propagateCommRingIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : Bool) : LinearM Unit := do
   let some lhs ← withRingM <| CommRing.reify? lhs (skipVar := false) | return ()
   let some rhs ← withRingM <| CommRing.reify? rhs (skipVar := false) | return ()
+  let gen ← getGeneration e
   if eqTrue then
     let p' := (lhs.sub rhs).toPoly
-    let lhs' ← p'.denoteAsIntModuleExpr
+    let lhs' ← p'.toIntModuleExpr gen
     let some lhs' ← reify? lhs' (skipVar := false) | return ()
     let p := lhs'.norm
     let c : IneqCnstr := { p, strict, h := .coreCommRing e lhs rhs p' lhs' }
@@ -51,7 +52,7 @@ def propagateCommRingIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : 
   else if (← isLinearOrder) then
     let p' := (rhs.sub lhs).toPoly
     let strict := !strict
-    let lhs' ← p'.denoteAsIntModuleExpr
+    let lhs' ← p'.toIntModuleExpr gen
     let some lhs' ← reify? lhs' (skipVar := false) | return ()
     let p := lhs'.norm
     let c : IneqCnstr := { p, strict, h := .notCoreCommRing e lhs rhs p' lhs' }

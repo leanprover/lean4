@@ -135,3 +135,11 @@ example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b c : α)
 example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b : α)
     : a = 0 → b = 1 → a + b ≤ 2 := by
   grind
+
+example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b : α)
+    : a*b + b*a > 1 → a*b > 0 := by
+  grind
+
+example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b c : α)
+    : a*b + c > 1 → c = b*a → a*b > 0 := by
+  grind

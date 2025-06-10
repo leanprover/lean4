@@ -25,8 +25,9 @@ private def inSameStruct? (a b : Expr) : GoalM (Option Nat) := do
 private def processNewCommRingEq (a b : Expr) : LinearM Unit := do
   let some lhs ← withRingM <| CommRing.reify? a (skipVar := false) | return ()
   let some rhs ← withRingM <| CommRing.reify? b (skipVar := false) | return ()
+  let gen := max (← getGeneration a) (← getGeneration b)
   let p' := (lhs.sub rhs).toPoly
-  let lhs' ← p'.denoteAsIntModuleExpr
+  let lhs' ← p'.toIntModuleExpr gen
   let some lhs' ← reify? lhs' (skipVar := false) | return ()
   let p := lhs'.norm
   if p == .nil then return ()
@@ -34,7 +35,7 @@ private def processNewCommRingEq (a b : Expr) : LinearM Unit := do
   c₁.assert
   let p := p.mul (-1)
   let p' := p'.mulConst (-1)
-  let lhs' ← p'.denoteAsIntModuleExpr
+  let lhs' ← p'.toIntModuleExpr gen
   let some lhs' ← reify? lhs' (skipVar := false) | return ()
   let c₂ : IneqCnstr := { p, strict := false, h := .ofCommRingEq b a rhs lhs p' lhs' }
   c₂.assert

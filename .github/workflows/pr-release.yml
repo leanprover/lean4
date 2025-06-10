@@ -54,14 +54,14 @@ jobs:
           SHORT_SHA="${SHORT_SHA:0:7}"
           
           # Export the short SHA for use in subsequent steps
-          echo "SHORT_SHA=${SHORT_SHA}" >> $GITHUB_ENV
+          echo "SHORT_SHA=${SHORT_SHA}" >> "$GITHUB_ENV"
 
           git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }} "${{ steps.workflow-info.outputs.sourceHeadSha }}"
-          git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-${SHORT_SHA} "${{ steps.workflow-info.outputs.sourceHeadSha }}"
+          git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}" "${{ steps.workflow-info.outputs.sourceHeadSha }}"
           
           git -C lean4.git remote add pr-releases https://foo:'${{ secrets.PR_RELEASES_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
           git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
-          git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-${SHORT_SHA}          
+          git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}"
       - name: Delete existing release if present
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         run: |

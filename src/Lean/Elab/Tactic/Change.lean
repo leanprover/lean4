@@ -32,7 +32,7 @@ def elabChange (e : Expr) (p : Term) (tacticName : Name := `change) : TacticM Ex
     pure p
   withAssignableSyntheticOpaque do
     unless ← isDefEq p e do
-      throwError MessageData.ofLazyM do
+      throwError MessageData.ofLazyM (es := #[p, e]) do
         let (p, tgt) ← addPPExplicitToExposeDiff p e
         return m!"'{tacticName}' tactic failed, pattern{indentExpr p}\n\
           is not definitionally equal to target{indentExpr tgt}"

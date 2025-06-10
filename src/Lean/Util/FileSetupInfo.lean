@@ -6,9 +6,11 @@ Authors: Marc Huisinga
 prelude
 import Lean.Util.LeanOptions
 
+set_option linter.deprecated false in
 /--
 Information shared between Lake and Lean when calling `lake setup-file`.
 -/
+@[deprecated "Deprecated without replacement." (since := "2025-06-29")]
 structure Lean.FileSetupInfo where
   paths        : LeanPaths
   setupOptions : LeanOptions

@@ -28,6 +28,10 @@ def HeaderSyntax.imports : HeaderSyntax → Array Import
       | _ => unreachable!
   | _ => unreachable!
 
+def HeaderSyntax.toModuleHeader (stx : HeaderSyntax) : ModuleHeader where
+  isModule := stx.isModule
+  imports := stx.imports
+
 abbrev headerToImports := @HeaderSyntax.imports
 
 def processHeaderCore

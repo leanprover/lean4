@@ -11,3 +11,7 @@ import Init.Grind.Tactics
 
 attribute [grind cases eager] And Prod False Empty True PUnit Exists Subtype
 attribute [grind cases] Or
+
+attribute [grind cases] Std.Associative Std.Commutative Std.IdempotentOp
+  Std.LawfulLeftIdentity Std.LawfulRightIdentity Std.LawfulIdentity Std.LawfulCommIdentity
+  Std.Refl Std.Antisymm Std.Asymm Std.Total Std.Irrefl

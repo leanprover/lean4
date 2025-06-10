@@ -77,20 +77,24 @@ theorem let_body_congr {α : Sort u} {β : α → Sort v} {b b' : (a : α) → �
     (a : α) (h : ∀ x, b x = b' x) : (let x := a; b x) = (let x := a; b' x) :=
   (funext h : b = b') ▸ rfl
 
-theorem have_unused {α : Sort u} {β : Sort v} (a : α) {b b' : β} (h : b = b') : (have _ := a; b) = b' :=
-  h
+theorem have_unused {α : Sort u} {β : Sort v} (a : α) {b b' : β}
+    (h : b = b') : (have _ := a; b) = b' := h
 
 theorem have_congr {α : Sort u} {β : Sort v} {a a' : α} {f f' : α → β}
-    (h₁ : a = a') (h₂ : ∀ x, f x = f' x) : (have x := a; f x) = (have x := a'; f' x) := by
-  rw [h₁, funext h₂]
+    (h₁ : a = a') (h₂ : ∀ x, f x = f' x) : (have x := a; f x) = (have x := a'; f' x) :=
+  @congr α β f f' a a' (funext h₂) h₁
 
 theorem have_val_congr {α : Sort u} {β : Sort v} {a a' : α} {f : α → β}
-    (h : a = a') : (have x := a; f x) = (have x := a'; f x) := by
-  rw [h]
+    (h : a = a') : (have x := a; f x) = (have x := a'; f x) :=
+  @congrArg α β a a' f h
 
-theorem have_body_congr {α : Sort u} {β : α → Sort v} (a : α) {f f' : (x : α) → β x}
-    (h : ∀ x, f x = f' x) : (have x := a; f x) = (have x := a; f' x) := by
-  rw [funext h]
+theorem have_body_congr_dep {α : Sort u} {β : α → Sort v} (a : α) {f f' : (x : α) → β x}
+    (h : ∀ x, f x = f' x) : (have x := a; f x) = (have x := a; f' x) :=
+  h a
+
+theorem have_body_congr {α : Sort u} {β : Sort v} (a : α) {f f' : α → β}
+    (h : ∀ x, f x = f' x) : (have x := a; f x) = (have x := a; f' x) :=
+  h a
 
 theorem letFun_unused {α : Sort u} {β : Sort v} (a : α) {b b' : β} (h : b = b') : @letFun α (fun _ => β) a (fun _ => b) = b' :=
   h

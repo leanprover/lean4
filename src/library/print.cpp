@@ -101,8 +101,6 @@ name fix_name(name const & a) {
     }
 }
 
-inline bool            let_nonDep_TMP(expr const & e)            { lean_assert(is_let(e)); return lean_ctor_get_uint8(e.raw(), sizeof(void*)*4); }
-
 /**
    \brief Very basic printer for expressions.
    It is mainly used when debugging code.
@@ -194,7 +192,7 @@ struct print_expr_fn {
 
     void print_let(expr const & e) {
         auto p = let_body_fresh(e);
-        if (let_nonDep_TMP(e)) {
+        if (let_nonDep(e)) {
             out() << "have ";
         } else {
             out() << "let ";

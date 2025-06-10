@@ -110,18 +110,22 @@ builtin_dsimproc paramMatcher (_) := fun e => do
   let matcherApp' := { matcherApp with discrs := discrs', alts := alts' }
   return .continue <| matcherApp'.toExpr
 
-/-- `let x := (wfParam e); body[x] ==> let x := e; body[wfParam y] -/
+/-- `let x := (wfParam e); body[x] ==> let x := e; body[wfParam y]`
+Also accepts non-Prop `have`s as well. -/
 builtin_dsimproc paramLet (_) := fun e => do
-  unless e.isLet do return .continue
-  let some v := isWfParam? e.letValue! | return .continue
-  let u ← getLevel e.letType!
-  let body' := e.letBody!.instantiate1 <|
-    mkApp2 (.const ``wfParam [u]) e.letType! (.bvar 0)
-  return .continue <| e.updateLetE! e.letType! v body'
+  let .letE _ t v b _ := e | return .continue
+  let some v := isWfParam? v | return .continue
+  if ← Meta.isProp t then return .continue <| e.updateLetE! t v b
+  let u ← getLevel t
+  let body' := b.instantiate1 <|
+    mkApp2 (.const ``wfParam [u]) t (.bvar 0)
+  return .continue <| e.updateLetE! t v body'
 
 def preprocess (e : Expr) : MetaM Simp.Result := do
   unless wf.preprocess.get (← getOptions) do
     return { expr := e }
+  -- Transform `let`s to `have`s to enable `simp` entering let bodies.
+  let e ← letToHave e
   lambdaTelescope e fun xs _ => do
     -- Annotate all xs with `wfParam`
     let xs' ← xs.mapM mkWfParam
@@ -135,7 +139,11 @@ def preprocess (e : Expr) : MetaM Simp.Result := do
     let (result, _) ← Meta.simp e' (← getSimpContext) (simprocs := #[simprocs])
 
     -- Remove left-over markers
-    let e'' ← Core.transform result.expr fun e =>
+    -- and convert non-Prop `have`s to `let`s so that the definitions are visible
+    let e'' ← Meta.transform result.expr fun e => do
+      if let .letE n t v b true := e then
+        unless ← Meta.isProp t do
+          return .continue (Expr.letE n t v b false)
       e.withApp fun f as => do
         if f.isConstOf ``wfParam then
           if h : as.size ≥ 2 then

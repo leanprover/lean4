@@ -134,6 +134,8 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
       withLocalDecl n c (← loop below d) fun x => do
         mkForallFVars #[x] (← loop below (b.instantiate1 x))
     | Expr.letE n type val body nonDep =>
+      -- Turn `have`s into `let`s if they are not propositions.
+      let nonDep ← pure nonDep <&&> not <$> Meta.isProp type
       withLetDecl n (← loop below type) (← loop below val) (nonDep := nonDep) fun x => do
         mkLetFVars #[x] (← loop below (body.instantiate1 x)) (usedLetOnly := false) (generalizeNonDepLet := false)
     | Expr.mdata d b =>

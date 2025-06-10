@@ -5,6 +5,9 @@ Authors: Kyle Miller
 -/
 prelude
 import Lean.Meta.Check
+import Lean.ReservedNameAction
+import Lean.AddDecl
+import Lean.Meta.Transform
 
 /-!
 # Transforming non-dependent `let`s into `have`s
@@ -410,5 +413,45 @@ def letToHave (e : Expr) : MetaM Expr := do
 builtin_initialize
   registerTraceClass `Meta.letToHave
   registerTraceClass `Meta.letToHave.debug
+
+
+/-!
+Staging hack: we need some `have` versions of some theorems.
+Using `name.let_to_have_thm` gives the theorem with the type transformed.
+-/
+
+def isLetToHaveName (env : Environment) (name : Name) : Bool := Id.run do
+    let .str p "let_to_have_thm" := name | return false
+    return env.findAsync? p |>.isSome
+
+def deriveLetToHaveTheorem (letToHaveName : Name) (constName : Name) : MetaM Unit := do
+  realizeConst constName letToHaveName do
+    let ci ← getConstInfo constName
+    let type ← letToHave ci.type
+    -- Then transform `letFun`s to `have`s.
+    let type ← Core.transform type
+      (post := fun e =>
+        if let some (args, n, t, v, b) := e.letFunAppArgs? then
+          return .done <| mkAppN (.letE n t v b true) args
+        else
+          return .continue)
+    let value := mkConst constName (ci.levelParams.map Level.param)
+    addDecl <| Declaration.thmDecl {
+      name := letToHaveName
+      levelParams := ci.levelParams
+      type
+      value
+    }
+
+builtin_initialize
+  registerReservedNamePredicate isLetToHaveName
+
+builtin_initialize
+  registerReservedNameAction fun name => do
+    if isLetToHaveName (← getEnv) name then
+      let .str p _ := name | return false
+      MetaM.run' <| deriveLetToHaveTheorem name p
+      return true
+    return false
 
 end Lean.Meta

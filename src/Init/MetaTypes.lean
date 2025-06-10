@@ -282,6 +282,8 @@ def neutralConfig : Simp.Config := {
   ground            := false
   zetaDelta         := false
   zetaUnused        := false
+  zetaHave          := false
+  letToHave         := false
 }
 
 structure NormCastConfig extends Simp.Config where

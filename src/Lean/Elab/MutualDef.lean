@@ -1314,6 +1314,17 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
     snap.new.resolve <| .ofTyped defsParsedSnap
   let sc ← getScope
   runTermElabM fun vars => do
+    -- hack: make sure `have` versions of theorems exist for `simp`
+    if !(← getEnv).contains `have_body_congr.let_to_have_thm && (← getEnv).contains `have_body_congr then
+      let realize (c : Name) : MetaM Unit := do
+        let c' := c ++ `let_to_have_thm
+        unless (← getEnv).contains c' do
+          executeReservedNameAction c'
+      realize `have_unused
+      realize `have_val_congr
+      realize `have_body_congr
+      realize `have_body_congr_dep
+      realize `have_congr
     Term.elabMutualDef vars sc views
     Term.logGoalsAccomplishedSnapshotTask views defsParsedSnap
 

@@ -18,7 +18,8 @@ Elaborates the pattern `p` and ensures that it is defeq to `e`.
 Emulates `(show p from ?m : e)`, returning the type of `?m`, but `e` and `p` do not need to be types.
 Unlike `(show p from ?m : e)`, this can assign synthetic opaque metavariables appearing in `p`.
 -/
-def elabChange (e : Expr) (p : Term) (tacticName : Name := `change) : TacticM Expr := do
+def elabChange (e : Expr) (p : Term) (tacticName : Name := `change) (lastOfMany : Bool := false) :
+    TacticM Expr := do
   let p ← runTermElab do
     let p ← Term.elabTermEnsuringType p (← inferType e)
     unless ← isDefEq p e do
@@ -34,8 +35,11 @@ def elabChange (e : Expr) (p : Term) (tacticName : Name := `change) : TacticM Ex
     unless ← isDefEq p e do
       throwError MessageData.ofLazyM (es := #[p, e]) do
         let (p, tgt) ← addPPExplicitToExposeDiff p e
-        return m!"'{tacticName}' tactic failed, pattern{indentExpr p}\n\
-          is not definitionally equal to target{indentExpr tgt}"
+        let mut msg := m!"'{tacticName}' tactic failed, pattern{indentExpr p}\n\
+            is not definitionally equal to target{indentExpr tgt}"
+        if lastOfMany then
+          msg := msg ++ m!"\nor the type of any other goal"
+        return msg
     instantiateMVars p
 
 /-- `change` can be used to replace the main goal or its hypotheses with

@@ -37,7 +37,9 @@ where
     let type ← goal.getType
     let tag ← goal.getTag
     goal.withContext do
-      let (tgt', mvars) ← withCollectingNewGoalsFrom (elabChange type newType `show) tag `show
+      let (tgt', mvars) ← withCollectingNewGoalsFrom
+        (elabChange type newType `show (lastOfMany := goals.isEmpty && !prevRev.isEmpty))
+        tag `show
       let goal' ← goal.replaceTargetDefEq tgt'
       let newGoals := goal' :: prevRev.reverseAux (mvars ++ goals)
       setGoals newGoals

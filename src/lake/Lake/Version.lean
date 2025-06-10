@@ -16,7 +16,7 @@ def version.isRelease :=
   Lean.version.isRelease
 
 def version.specialDesc :=
-  if isRelease && !Lean.githash.isEmpty then Lean.githash.take 7 else "src"
+  if isRelease && !Lean.githash.isEmpty then s!"src+{Lean.githash.take 7}" else "src"
 
 def versionStringCore :=
   s!"{version.major}.{version.minor}.{version.patch}"

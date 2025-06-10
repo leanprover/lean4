@@ -23,7 +23,7 @@ detect equalities between array access terms.
 
 /--
 trace: [Meta.debug] [‹i < a.size›, ‹j < a.size›, ‹j < b.size›]
-[Meta.debug] [a[i], b[j], a[j]]
+[Meta.debug] [a[j], b[j], a[i]]
 -/
 #guard_msgs (trace) in
 example (i j : Nat) (a b : Array Nat) (h1 : j < a.size) (h : j < b.size) (h2 : i ≤ j) : a[i] < a[j] + b[j] → i = j → a = b → False := by
@@ -31,7 +31,7 @@ example (i j : Nat) (a b : Array Nat) (h1 : j < a.size) (h : j < b.size) (h2 : i
 
 /--
 trace: [Meta.debug] [‹i < a.size›, ‹j < a.size›, ‹j < b.size›]
-[Meta.debug] [a[i], a[j]]
+[Meta.debug] [a[j], a[i]]
 -/
 #guard_msgs (trace) in
 example (i j : Nat) (a b : Array Nat) (h1 : j < a.size) (h : j < b.size) (h2 : i ≤ j) : a[i] < a[j] + b[j] → i = j → False := by

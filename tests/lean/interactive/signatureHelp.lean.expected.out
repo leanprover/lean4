@@ -90,50 +90,57 @@ null
 {"signatures": [{"label": "{x : Type} → (a b : Nat) → Nat → Nat → Nat"}],
  "activeSignature": 0}
 {"textDocument": {"uri": "file:///signatureHelp.lean"},
- "position": {"line": 96, "character": 18}}
-{"signatures": [{"label": "(x : Nat) → Nat → Nat"}], "activeSignature": 0}
+ "position": {"line": 89, "character": 21}}
+{"signatures": [{"label": "(f : Nat → Nat → Nat → Nat → Nat) → Nat"}],
+ "activeSignature": 0}
 {"textDocument": {"uri": "file:///signatureHelp.lean"},
- "position": {"line": 99, "character": 20}}
-{"signatures": [{"label": "Nat → Nat"}], "activeSignature": 0}
-{"textDocument": {"uri": "file:///signatureHelp.lean"},
- "position": {"line": 102, "character": 22}}
+ "position": {"line": 92, "character": 31}}
 null
 {"textDocument": {"uri": "file:///signatureHelp.lean"},
- "position": {"line": 105, "character": 23}}
+ "position": {"line": 104, "character": 18}}
 {"signatures": [{"label": "(x : Nat) → Nat → Nat"}], "activeSignature": 0}
 {"textDocument": {"uri": "file:///signatureHelp.lean"},
- "position": {"line": 108, "character": 25}}
+ "position": {"line": 107, "character": 20}}
 {"signatures": [{"label": "Nat → Nat"}], "activeSignature": 0}
 {"textDocument": {"uri": "file:///signatureHelp.lean"},
- "position": {"line": 111, "character": 16}}
+ "position": {"line": 110, "character": 22}}
+null
+{"textDocument": {"uri": "file:///signatureHelp.lean"},
+ "position": {"line": 113, "character": 23}}
+{"signatures": [{"label": "(x : Nat) → Nat → Nat"}], "activeSignature": 0}
+{"textDocument": {"uri": "file:///signatureHelp.lean"},
+ "position": {"line": 116, "character": 25}}
+{"signatures": [{"label": "Nat → Nat"}], "activeSignature": 0}
+{"textDocument": {"uri": "file:///signatureHelp.lean"},
+ "position": {"line": 119, "character": 16}}
 {"signatures": [{"label": "(x : Nat) → Nat"}], "activeSignature": 0}
 {"textDocument": {"uri": "file:///signatureHelp.lean"},
- "position": {"line": 114, "character": 18}}
+ "position": {"line": 122, "character": 18}}
 null
 {"textDocument": {"uri": "file:///signatureHelp.lean"},
- "position": {"line": 117, "character": 21}}
+ "position": {"line": 125, "character": 21}}
 {"signatures": [{"label": "(x : Nat) → Nat"}], "activeSignature": 0}
 {"textDocument": {"uri": "file:///signatureHelp.lean"},
- "position": {"line": 120, "character": 23}}
+ "position": {"line": 128, "character": 23}}
 null
 {"textDocument": {"uri": "file:///signatureHelp.lean"},
- "position": {"line": 123, "character": 21}}
+ "position": {"line": 131, "character": 21}}
 {"signatures": [{"label": "(x : Nat) → Nat → Nat"}], "activeSignature": 0}
 {"textDocument": {"uri": "file:///signatureHelp.lean"},
- "position": {"line": 126, "character": 23}}
+ "position": {"line": 134, "character": 23}}
 {"signatures": [{"label": "Nat → Nat"}], "activeSignature": 0}
 {"textDocument": {"uri": "file:///signatureHelp.lean"},
- "position": {"line": 129, "character": 25}}
+ "position": {"line": 137, "character": 25}}
 null
 {"textDocument": {"uri": "file:///signatureHelp.lean"},
- "position": {"line": 132, "character": 24}}
+ "position": {"line": 140, "character": 24}}
 {"signatures": [{"label": "(x : Nat) → Nat → Nat"}], "activeSignature": 0}
 {"textDocument": {"uri": "file:///signatureHelp.lean"},
- "position": {"line": 135, "character": 26}}
+ "position": {"line": 143, "character": 26}}
 {"signatures": [{"label": "Nat → Nat"}], "activeSignature": 0}
 {"textDocument": {"uri": "file:///signatureHelp.lean"},
- "position": {"line": 138, "character": 37}}
+ "position": {"line": 146, "character": 37}}
 {"signatures": [{"label": "(x : Nat) → SomeStructure"}], "activeSignature": 0}
 {"textDocument": {"uri": "file:///signatureHelp.lean"},
- "position": {"line": 142, "character": 39}}
+ "position": {"line": 150, "character": 39}}
 null

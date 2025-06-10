@@ -128,7 +128,21 @@ theorem unsat_relabel {aig : AIG α} (r : α → β) {hidx} :
   specialize h (assign ∘ r)
   simp [h]
 
-theorem relabel_unsat_iff [Nonempty α] {aig : AIG α} {r : α → β} {hidx1} {hidx2}
+theorem relabel_unsat_iff_of_not_Nonempty {aig : AIG α}
+    {r : α → β} {hidx1} {hidx2}
+    (hNonempty : ¬ Nonempty α) :
+    (aig.relabel r).UnsatAt idx invert hidx1 ↔ aig.UnsatAt idx invert hidx2 := by
+  constructor
+  · intro hα assignα
+    let assignβ : β → Bool := fun b => false
+    specialize hα assignβ
+    have hAssignα : assignα  = assignβ ∘ r := by
+      ext a
+      apply hNonempty (Nonempty.intro a) |>.elim
+    rw [hAssignα, ← denote_relabel, ← hα]
+  · apply unsat_relabel
+
+theorem relabel_unsat_iff_of_Nonempty [Nonempty α] {aig : AIG α} {r : α → β} {hidx1} {hidx2}
     (hinj : ∀ x y, x ∈ aig → y ∈ aig → r x = r y → x = y) :
     (aig.relabel r).UnsatAt idx invert hidx1 ↔ aig.UnsatAt idx invert hidx2 := by
   constructor
@@ -153,6 +167,16 @@ theorem relabel_unsat_iff [Nonempty α] {aig : AIG α} {r : α → β} {hidx1} {
         specialize h a hmem
         contradiction
   · apply unsat_relabel
+
+/--
+`relabel` preserves unsatisfiablility.
+-/
+theorem relabel_unsat_iff {aig : AIG α} {r : α → β} {hidx1} {hidx2}
+    (hinj : ∀ x y, x ∈ aig → y ∈ aig → r x = r y → x = y) :
+    (aig.relabel r).UnsatAt idx invert hidx1 ↔ aig.UnsatAt idx invert hidx2 := by
+  by_cases hαNonempty : Nonempty α
+  · apply relabel_unsat_iff_of_Nonempty hinj
+  · apply relabel_unsat_iff_of_not_Nonempty hαNonempty
 
 namespace Entrypoint
 

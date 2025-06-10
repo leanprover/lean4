@@ -6,6 +6,7 @@ Authors: Paul Reichert
 prelude
 import Init.Core
 import Init.Classical
+import Init.Ext
 import Init.NotationExtra
 import Init.TacticsExtra
 
@@ -58,6 +59,7 @@ def x := [1, 2, 3].iterM IO
 def x := ([1, 2, 3].iterM IO : IterM IO Nat)
 ```
 -/
+@[ext]
 structure IterM {α : Type w} (m : Type w → Type w') (β : Type w) where
   /-- Internal implementation detail of the iterator. -/
   internalState : α
@@ -203,6 +205,12 @@ theorem IterStep.mapIterator_mapIterator {α' : Type u'} {α'' : Type u''}
     {f : α → α'} {g : α' → α''} {step : IterStep α β} :
     (step.mapIterator f).mapIterator g = step.mapIterator (g ∘ f) := by
   cases step <;> rfl
+
+theorem IterStep.mapIterator_comp {α' : Type u'} {α'' : Type u''}
+    {f : α → α'} {g : α' → α''} :
+    IterStep.mapIterator (β := β) (g ∘ f) = mapIterator g ∘ mapIterator f := by
+  apply funext
+  exact fun _ => mapIterator_mapIterator.symm
 
 @[simp]
 theorem IterStep.mapIterator_id {step : IterStep α β} :

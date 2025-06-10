@@ -368,6 +368,7 @@ LEAN_EXPORT lean_object* l_Std_TreeSet_fold___boxed(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Std_TreeSet_any___rarg___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_getKeyLE_x3f_go___at_Std_TreeSet_getLE_x21___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at_Std_TreeSet_toArray___spec__1___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___auto____x40_Std_Data_TreeSet_Basic___hyg_1551_;
 LEAN_EXPORT lean_object* l_Std_TreeSet_all(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -392,6 +393,7 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeSet_fo
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeSet_forM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at_Std_TreeSet_instSingleton___spec__2(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___auto____x40_Std_Data_TreeSet_Basic___hyg_1645_;
 LEAN_EXPORT lean_object* l_Std_TreeSet_size___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at_Std_TreeSet_all___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at_Std_TreeSet_fold___spec__1(lean_object*, lean_object*);
@@ -412,9 +414,7 @@ LEAN_EXPORT lean_object* l_Std_TreeSet_getGE_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at_Std_TreeSet_forIn___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldrM___at_Std_TreeSet_instRepr___spec__1___rarg(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Std_Data_TreeSet_Basic___hyg_25____closed__3;
-LEAN_EXPORT lean_object* l___auto____x40_Std_Data_TreeSet_Basic___hyg_1646_;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at_Std_TreeSet_ofArray___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___auto____x40_Std_Data_TreeSet_Basic___hyg_1552_;
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_TreeSet_getGTD(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -31975,7 +31975,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Std_Data_TreeSet_Basic___hyg_1552_() {
+static lean_object* _init_l___auto____x40_Std_Data_TreeSet_Basic___hyg_1551_() {
 _start:
 {
 lean_object* x_1; 
@@ -35349,7 +35349,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Std_Data_TreeSet_Basic___hyg_1646_() {
+static lean_object* _init_l___auto____x40_Std_Data_TreeSet_Basic___hyg_1645_() {
 _start:
 {
 lean_object* x_1; 
@@ -50237,10 +50237,10 @@ l_Std_TreeSet_all___rarg___closed__1 = _init_l_Std_TreeSet_all___rarg___closed__
 lean_mark_persistent(l_Std_TreeSet_all___rarg___closed__1);
 l_Std_TreeSet_all___rarg___closed__2 = _init_l_Std_TreeSet_all___rarg___closed__2();
 lean_mark_persistent(l_Std_TreeSet_all___rarg___closed__2);
-l___auto____x40_Std_Data_TreeSet_Basic___hyg_1552_ = _init_l___auto____x40_Std_Data_TreeSet_Basic___hyg_1552_();
-lean_mark_persistent(l___auto____x40_Std_Data_TreeSet_Basic___hyg_1552_);
-l___auto____x40_Std_Data_TreeSet_Basic___hyg_1646_ = _init_l___auto____x40_Std_Data_TreeSet_Basic___hyg_1646_();
-lean_mark_persistent(l___auto____x40_Std_Data_TreeSet_Basic___hyg_1646_);
+l___auto____x40_Std_Data_TreeSet_Basic___hyg_1551_ = _init_l___auto____x40_Std_Data_TreeSet_Basic___hyg_1551_();
+lean_mark_persistent(l___auto____x40_Std_Data_TreeSet_Basic___hyg_1551_);
+l___auto____x40_Std_Data_TreeSet_Basic___hyg_1645_ = _init_l___auto____x40_Std_Data_TreeSet_Basic___hyg_1645_();
+lean_mark_persistent(l___auto____x40_Std_Data_TreeSet_Basic___hyg_1645_);
 l_Std_TreeSet_instRepr___rarg___closed__1 = _init_l_Std_TreeSet_instRepr___rarg___closed__1();
 lean_mark_persistent(l_Std_TreeSet_instRepr___rarg___closed__1);
 l_Std_TreeSet_instRepr___rarg___closed__2 = _init_l_Std_TreeSet_instRepr___rarg___closed__2();

@@ -133,7 +133,6 @@ grind_pattern Array.getElem?_eq_none => xs.size ≤ i, xs[i]?
 theorem getElem?_eq_some_iff {xs : Array α} : xs[i]? = some b ↔ ∃ h : i < xs.size, xs[i] = b :=
   _root_.getElem?_eq_some_iff
 
-@[grind →]
 theorem getElem_of_getElem? {xs : Array α} : xs[i]? = some a → ∃ h : i < xs.size, xs[i] = a :=
   getElem?_eq_some_iff.mp
 

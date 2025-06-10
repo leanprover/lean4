@@ -7,7 +7,7 @@ prelude
 import Init.Data.Int.Linear
 import Std.Internal.Rat
 import Lean.Data.PersistentArray
-import Lean.Meta.Tactic.Grind.ENodeKey
+import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.Arith.Util
 
 namespace Lean.Meta.Grind.Arith.Cutsat
@@ -231,18 +231,18 @@ structure State where
   /-- Mapping from variables to their denotations. -/
   vars : PArray Expr := {}
   /-- Mapping from `Expr` to a variable representing it. -/
-  varMap  : PHashMap ENodeKey Var := {}
+  varMap  : PHashMap ExprPtr Var := {}
   /--
   Mapping from foreign terms to their variable and type (e.g., `Nat`). They are also marked using `markAsCutsatTerm`.
   -/
-  foreignVarMap : PHashMap ENodeKey (Var × ForeignType) := {}
+  foreignVarMap : PHashMap ExprPtr (Var × ForeignType) := {}
   foreignVars : PHashMap ForeignType (PArray Expr) := {}
   /--
   Some foreign variables encode nested terms such as `b+1`.
   This is a mapping from this kind of variable to the integer variable
   representing `natCast (b+1)`.
   -/
-  foreignDef : PHashMap ENodeKey Var := {}
+  foreignDef : PHashMap ExprPtr Var := {}
   /--
   Mapping from variables to divisibility constraints. Recall that we keep the divisibility constraint in solved form.
   Thus, we have at most one divisibility per variable. -/

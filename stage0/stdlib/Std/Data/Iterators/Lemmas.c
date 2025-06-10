@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Lemmas
-// Imports: Std.Data.Iterators.Lemmas.Basic Std.Data.Iterators.Lemmas.Monadic Std.Data.Iterators.Lemmas.Consumers Std.Data.Iterators.Lemmas.Combinators Std.Data.Iterators.Lemmas.Producers
+// Imports: Std.Data.Iterators.Lemmas.Basic Std.Data.Iterators.Lemmas.Monadic Std.Data.Iterators.Lemmas.Consumers Std.Data.Iterators.Lemmas.Combinators Std.Data.Iterators.Lemmas.Producers Std.Data.Iterators.Lemmas.Equivalence
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,7 @@ lean_object* initialize_Std_Data_Iterators_Lemmas_Monadic(uint8_t builtin, lean_
 lean_object* initialize_Std_Data_Iterators_Lemmas_Consumers(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Producers(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_Iterators_Lemmas_Equivalence(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Lemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -36,6 +37,9 @@ res = initialize_Std_Data_Iterators_Lemmas_Combinators(builtin, lean_io_mk_world
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Lemmas_Producers(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_Iterators_Lemmas_Equivalence(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

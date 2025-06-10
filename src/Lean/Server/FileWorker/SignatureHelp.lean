@@ -134,7 +134,14 @@ def findSignatureHelp? (text : FileMap) (ctx? : Option Lsp.SignatureHelpContext)
   -- applications of a `forall` in front of ones that do.
   -- This usually happens when `.termArg` candidates overshadow `.pipeArg` candidates,
   -- but the `.termArg` candidates are not semantically valid left-hand sides of applications.
+  let hasHighPrioCandidate := candidates.any (·.kind.prio > CandidateKind.termArg.prio)
   for candidate in candidates do
+    if candidate.kind matches .termArg && hasHighPrioCandidate then
+      -- If all high prio candidates agree that there is no function application here,
+      -- we trust them instead of falling back to `.termArg` candidates.
+      -- This ensures that no signature help is displayed for a function that is passed as
+      -- the last argument to another function.
+      return none
     if let some signatureHelp ← determineSignatureHelp tree candidate.appStx then
       return some signatureHelp
   return none

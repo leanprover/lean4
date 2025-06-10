@@ -121,7 +121,10 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Rat)) := do
   for (e, v) in model do
     unless isInterpretedTerm e do
       r := r.push (e, v)
-  r := r.qsort fun (e₁, _) (e₂, _) => e₁.lt e₂
+  r := r.qsort fun (e₁, _) (e₂, _) =>
+    let g₁ := goal.getGeneration e₁
+    let g₂ := goal.getGeneration e₂
+    if g₁ != g₂ then g₁ < g₂ else e₁.lt e₂
   if (← isTracingEnabledFor `grind.cutsat.model) then
     for (x, v) in r do
       trace[grind.cutsat.model] "{quoteIfArithTerm x} := {v}"

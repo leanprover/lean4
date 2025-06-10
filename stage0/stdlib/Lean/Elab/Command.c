@@ -25376,6 +25376,7 @@ return x_24;
 else
 {
 lean_object* x_25; 
+lean_dec(x_1);
 x_25 = lean_box(x_10);
 lean_ctor_set(x_6, 0, x_25);
 return x_6;
@@ -25425,6 +25426,7 @@ return x_37;
 else
 {
 lean_object* x_38; lean_object* x_39; 
+lean_dec(x_1);
 x_38 = lean_box(x_28);
 x_39 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_39, 0, x_38);
@@ -25524,6 +25526,7 @@ lean_inc(x_20);
 x_21 = lean_ctor_get(x_20, 1);
 lean_inc(x_21);
 lean_dec(x_20);
+lean_inc(x_21);
 x_35 = l_Lean_Elab_isIncrementalElab___at___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing___spec__4(x_21, x_4, x_5, x_6);
 x_36 = lean_ctor_get(x_35, 0);
 lean_inc(x_36);
@@ -25723,7 +25726,6 @@ lean_object* x_5;
 x_5 = l_Lean_Elab_isIncrementalElab___at___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing___spec__4(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_5;
 }
 }

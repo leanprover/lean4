@@ -144,6 +144,7 @@ def grind
     let result ← Grind.main mvar'.mvarId! params fallback
     if result.hasFailed then
       throwError "`grind` failed\n{← result.toMessageData}"
+    trace[grind.debug.proof] "{← instantiateMVars mvar'}"
     -- `grind` proofs are often big
     let e ← if (← isProp type) then
       mkAuxTheorem type (← instantiateMVarsProfiling mvar') (zetaDelta := true)

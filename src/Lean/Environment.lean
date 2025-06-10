@@ -1465,7 +1465,7 @@ inductive OLeanLevel where
   | server
   /-- Private module data. -/
   | «private»
-deriving DecidableEq, Ord
+deriving DecidableEq, Ord, Repr
 
 instance : LE OLeanLevel := leOfOrd
 instance : LT OLeanLevel := ltOfOrd
@@ -1524,8 +1524,11 @@ structure PersistentEnvExtension (α : Type) (β : Type) (σ : Type) where
   Function to transform state into data that should be imported into other modules. When using the
   module system without `import all`, `OLeanLevel.exported` is imported, else `OLeanLevel.private`.
   Additionally, when using the module system in the language server, the `OLeanLevel.server` data is
-  accessible via `getModuleEntries (level := .server)`. Each level should include all data of
-  previous levels.
+  accessible via `getModuleEntries (level := .server)`. By convention, each level should include all
+  data of previous levels.
+
+  This function is run after elaborating the file and joining all asynchronous threads. It is run
+  once for each level when the module system is enabled, otherwise once for `private`.
   -/
   exportEntriesFn : Environment → σ → OLeanLevel → Array α
   statsFn         : σ → Format

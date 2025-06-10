@@ -10,30 +10,36 @@ namespace Lean.Elab.Tactic
 open Meta
 /-!
 # Implementation of the `show` tactic
+
+The `show p` tactic finds the first goal that `p` unifies with and brings it to the front of the
+goal list. If there were a `first_goal` combinator, it would be like `first_goal change p`.
 -/
 
 def elabShow (newType : Term) : TacticM Unit := do
   let (goal :: goals) ← getGoals | throwNoGoalsToBeSolved
   go newType goal goals []
 where
-  go (newType : Term) (goal : MVarId) (l : List MVarId) (prev : List MVarId) : TacticM Unit := do
-    match l with
-    | [] => -- last goal
-      Tactic.tryCatch
-        (tryGoal newType goal [] prev)
-        (fun e => throwNestedTacticEx `show e)
+  go (newType : Term) (goal : MVarId) (goals : List MVarId) (prevRev : List MVarId) : TacticM Unit := do
+    match goals with
+    | [] => tryGoal newType goal [] prevRev -- last goal
     | x :: l' =>
+      /-
+      Save state manually to make sure that the info state is reverted,
+      since `elabChange` elaborates the pattern each time.
+      -/
       let state ← saveState
-      Tactic.tryCatch (tryGoal newType goal l prev) fun _ => do
-        state.restore true
-        go newType x l' (goal :: prev)
-  tryGoal (newType : Term) (goal : MVarId) (l : List MVarId) (prev : List MVarId) : TacticM Unit := do
+      Tactic.tryCatch
+        (withoutRecover (tryGoal newType goal goals prevRev))
+        fun _ => do
+          state.restore true
+          go newType x l' (goal :: goals)
+  tryGoal (newType : Term) (goal : MVarId) (goals : List MVarId) (prevRev : List MVarId) : TacticM Unit := do
     let type ← goal.getType
     let tag ← goal.getTag
     goal.withContext do
-      let (tgt', mvars) ← withCollectingNewGoalsFrom (elabChange type newType) tag `show
+      let (tgt', mvars) ← withCollectingNewGoalsFrom (elabChange `show type newType) tag `show
       let goal' ← goal.replaceTargetDefEq tgt'
-      let newGoals := goal' :: prev.reverseAux (mvars ++ l)
+      let newGoals := goal' :: prevRev.reverseAux (mvars ++ goals)
       setGoals newGoals
 
 @[builtin_tactic «show»] elab_rules : tactic

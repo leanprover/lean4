@@ -18,7 +18,7 @@ Elaborates the pattern `p` and ensures that it is defeq to `e`.
 Emulates `(show p from ?m : e)`, returning the type of `?m`, but `e` and `p` do not need to be types.
 Unlike `(show p from ?m : e)`, this can assign synthetic opaque metavariables appearing in `p`.
 -/
-def elabChange (e : Expr) (p : Term) : TacticM Expr := do
+def elabChange (tacticName : Name) (e : Expr) (p : Term) : TacticM Expr := do
   let p ← runTermElab do
     let p ← Term.elabTermEnsuringType p (← inferType e)
     unless ← isDefEq p e do
@@ -32,10 +32,10 @@ def elabChange (e : Expr) (p : Term) : TacticM Expr := do
     pure p
   withAssignableSyntheticOpaque do
     unless ← isDefEq p e do
-      let (p, tgt) ← addPPExplicitToExposeDiff p e
-      throwError "\
-        'change' tactic failed, pattern{indentExpr p}\n\
-        is not definitionally equal to target{indentExpr tgt}"
+      throwError MessageData.ofLazyM do
+        let (p, tgt) ← addPPExplicitToExposeDiff p e
+        return m!"'{tacticName}' tactic failed, pattern{indentExpr p}\n\
+          is not definitionally equal to target{indentExpr tgt}"
     instantiateMVars p
 
 /-- `change` can be used to replace the main goal or its hypotheses with
@@ -63,11 +63,11 @@ the main goal. -/
   | `(tactic| change $newType:term $[$loc:location]?) => do
     withLocation (expandOptLocation (Lean.mkOptionalNode loc))
       (atLocal := fun h => do
-        let (hTy', mvars) ← withCollectingNewGoalsFrom (elabChange (← h.getType) newType) (← getMainTag) `change
+        let (hTy', mvars) ← withCollectingNewGoalsFrom (elabChange `change (← h.getType) newType) (← getMainTag) `change
         liftMetaTactic fun mvarId => do
           return (← mvarId.changeLocalDecl h hTy') :: mvars)
       (atTarget := do
-        let (tgt', mvars) ← withCollectingNewGoalsFrom (elabChange (← getMainTarget) newType) (← getMainTag) `change
+        let (tgt', mvars) ← withCollectingNewGoalsFrom (elabChange `change (← getMainTarget) newType) (← getMainTag) `change
         liftMetaTactic fun mvarId => do
           return (← mvarId.replaceTargetDefEq tgt') :: mvars)
       (failed := fun _ => throwError "'change' tactic failed")

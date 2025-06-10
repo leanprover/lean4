@@ -66,7 +66,7 @@ def getEntryLE [TransCmp cmp] (t : DTreeMap α β cmp) (k : α) (h : ∃ a ∈ t
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLE k t.inner t.wf.ordered h
 
 /--
-Given a proof that such a mapping exists, retrieves the key-value pair with the smallest key that is
+Given a proof that such a mapping exists, retrieves the key-value pair with the largest key that is
 less than the given key.
 -/
 @[inline]
@@ -99,7 +99,7 @@ def getKeyLE [TransCmp cmp] (t : DTreeMap α β cmp) (k : α) (h : ∃ a ∈ t, 
   letI : Ord α := ⟨cmp⟩; Impl.getKeyLE k t.inner t.wf.ordered h
 
 /--
-Given a proof that such a mapping exists, retrieves the smallest key that is
+Given a proof that such a mapping exists, retrieves the largest key that is
 less than the given key.
 -/
 @[inline]
@@ -138,7 +138,7 @@ def getEntryLE [TransCmp cmp] (t : DTreeMap α β cmp) (k : α) (h : ∃ a ∈ t
   letI : Ord α := ⟨cmp⟩; Impl.Const.getEntryLE k t.inner t.wf.ordered h
 
 /--
-Given a proof that such a mapping exists, retrieves the key-value pair with the smallest key that is
+Given a proof that such a mapping exists, retrieves the key-value pair with the largest key that is
 less than the given key.
 -/
 @[inline]

@@ -24,16 +24,6 @@ structure PRange (shape : RangeShape) (α : Type u) where
   lower : Bound shape.lower α
   upper : Bound shape.upper α
 
-/-!
-
-# Stepped ranges
-
-- IP addresses (finite!), natural numbers, rational numbers
-
-- backward, rational steps, continuous range without step indication,
-
--/
-
 syntax:max (term ",," term) : term
 syntax:max (",," term) : term
 syntax:max (term ",,") : term

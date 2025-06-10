@@ -36,25 +36,3 @@ instance (stepSize : Nat) (h) :
     Finite (Range.SuccIterator (α := Nat) stepSize (· < n) h) Id := by
   unfold Range.SuccIterator
   sorry
-
-#eval "b" ∈ ("a",,"c")
-
-#eval "a"
-
-#eval! (1<,,<4).iter.toList
-
-#eval (2<,,<5).size
-
--- #eval (,,<5).iter.toList
-
-#eval 1 ∈ (1,,5)
-
--- TODO:
-instance [Pure m] : MonadLiftT Id m where
-  monadLift := pure
-
-def f : IO Unit := do
-  for x in ((2 : Nat),,8) do -- ugly: For some reason, we need a type hint here
-    IO.println x
-
-#synth ForIn IO (type_of% (2,,8)) _ -- Note that we don't need the type hint this time

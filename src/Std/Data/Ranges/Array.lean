@@ -29,7 +29,3 @@ instance : SliceIter ⟨.closed, .open⟩ (Array α) Nat :=
 
 instance : SliceIter ⟨.open, .open⟩ (Array α) Nat :=
   .of (fun s => s.collection.iter.take s.range.upper |>.drop (s.range.lower + 1))
-
-def testArray : Array Nat := #[0, 1, 2, 3, 4, 5, 6]
-
-#eval testArray[[2<,,]].iter.toList

@@ -6,7 +6,7 @@ import Std
 
 #eval! (1<,,<4).iter.toList
 
-#eval (2<,,<5).size
+#eval! (2<,,<5).size
 
 -- #eval (,,<5).iter.toList
 

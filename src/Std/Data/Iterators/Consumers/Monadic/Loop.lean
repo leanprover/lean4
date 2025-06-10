@@ -78,6 +78,12 @@ class IteratorLoopPartial (α : Type w) (m : Type w → Type w') {β : Type w} [
   forInPartial : ∀ (_lift : (γ : Type w) → m γ → n γ) {γ : Type w},
       IterM (α := α) m β → γ → ((b : β) → (c : γ) → n (ForInStep γ)) → n γ
 
+class IteratorSize (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
+  size : IterM (α := α) m β → m (ULift Nat)
+
+class IteratorSizePartial (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
+  size : IterM (α := α) m β → m (ULift Nat)
+
 end Typeclasses
 
 private def IteratorLoop.WFRel {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
@@ -326,5 +332,43 @@ def IterM.Partial.drain {α : Type w} {m : Type w → Type w'} [Monad m] {β : T
     [Iterator α m β] (it : IterM.Partial (α := α) m β) [IteratorLoopPartial α m m] :
     m PUnit :=
   it.fold (γ := PUnit) (fun _ _ => .unit) .unit
+
+section Size
+
+@[always_inline, inline]
+def IterM.DefaultConsumers.size {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
+    [Iterator α m β] [IteratorLoop α m m] [Finite α m] (it : IterM (α := α) m β) :
+    m (ULift Nat) :=
+  it.fold (init := .up 0) fun acc _ => .up (acc.down + 1)
+
+@[always_inline, inline]
+def IterM.DefaultConsumers.sizePartial {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
+    [Iterator α m β] [IteratorLoopPartial α m m] (it : IterM (α := α) m β) :
+    m (ULift Nat) :=
+  it.allowNontermination.fold (init := .up 0) fun acc _ => .up (acc.down + 1)
+
+@[always_inline, inline]
+instance IteratorSize.defaultImplementation {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [Finite α m] [IteratorLoop α m m] :
+    IteratorSize α m where
+  size := IterM.DefaultConsumers.size
+
+@[always_inline, inline]
+instance IteratorSize.Partial.defaultImplementation {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [Finite α m] [IteratorLoopPartial α m m] :
+    IteratorSizePartial α m where
+  size := IterM.DefaultConsumers.sizePartial
+
+@[always_inline, inline]
+def IterM.size {α : Type} {m : Type → Type w'} {β : Type} [Iterator α m β] [Monad m]
+    (it : IterM (α := α) m β) [IteratorSize α m] : m Nat :=
+  ULift.down <$> IteratorSize.size it
+
+@[always_inline, inline]
+def IterM.Partial.size {α : Type} {m : Type → Type w'} {β : Type} [Iterator α m β] [Monad m]
+    (it : IterM.Partial (α := α) m β) [IteratorSizePartial α m] : m Nat :=
+  ULift.down <$> IteratorSizePartial.size it.it
+
+end Size
 
 end Std.Iterators

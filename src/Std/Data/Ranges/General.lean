@@ -81,6 +81,11 @@ def Range.succIterator [Succ? α] (init : α) (stepSize : Nat) (Predicate : α �
     (Iter (α := SuccIterator stepSize Predicate h) α) :=
   Iter.repeatUntilNone (init := init) (Succ?.succAtIdx? stepSize) |>.takeWhile Predicate
 
+@[always_inline, inline]
+def Range.SuccIterator.next [Succ? α] (stepSize : Nat) (Predicate : α → Bool)
+    {h : stepSize > 0} (it : SuccIterator stepSize Predicate h) : α :=
+  it.inner.internalState.next
+
 instance [Succ? α] (stepSize : Nat) (Predicate : α → Bool) (h) :
     Iterator (Range.SuccIterator stepSize Predicate h) Id α := by
   unfold Range.SuccIterator

@@ -45,9 +45,6 @@ macro_rules
   | `(,,<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.none BoundShape.open) PUnit.unit $b)
   | `($a<,,<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.open) $a $b)
 
-class RangeSize (shape : RangeShape) (α : Type u) where
-  size : PRange shape α → Nat
-
 class RangeIter (shape : RangeShape) (α : Type u) where
   State : PRange shape α → Type u
   iter : (r : PRange shape α) → Iter (α := State r) α
@@ -103,12 +100,14 @@ instance {State : PRange shape α → Type u} {r : PRange shape α}
   inferInstanceAs <| IteratorLoopPartial (State r) Id m
 
 @[always_inline, inline]
-def PRange.size [RangeSize shape α] (r : PRange shape α) : Nat :=
-  RangeSize.size r
-
-@[always_inline, inline]
 def PRange.iter [RangeIter shape α] (r : PRange shape α) :=
   (RangeIter.iter r : Iter α)
+
+@[always_inline, inline]
+def PRange.size [RangeIter shape α] (r : PRange shape α)
+    [Iterator (RangeIter.State r) Id α] [IteratorSize (RangeIter.State r) Id] :
+    Nat :=
+  r.iter.size
 
 instance [i : RangeIter shape α] [∀ r, ForIn m (Iter (α := i.State r) α) α] :
     ForIn m (PRange shape α) α where

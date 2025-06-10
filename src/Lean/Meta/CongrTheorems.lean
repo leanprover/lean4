@@ -61,7 +61,7 @@ partial def mkHCongrWithArity (f : Expr) (numArgs : Nat) : MetaM CongrTheorem :=
   forallBoundedTelescope fType numArgs (cleanupAnnotations := true) fun xs _ =>
   forallBoundedTelescope fType numArgs (cleanupAnnotations := true) fun ys _ => do
     if xs.size != numArgs then
-      throwError "failed to generate hcongr theorem, insufficient number of arguments"
+      throwError "failed to generate `hcongr` theorem: expected {numArgs} arguments, but got {xs.size} for{indentExpr f}"
     else
       let lctx := addPrimeToFVarUserNames ys (← getLCtx) |> setBinderInfosD ys |> setBinderInfosD xs
       withLCtx lctx (← getLocalInstances) do
@@ -414,7 +414,7 @@ def mkHCongrWithArityForConst? (declName : Name) (levels : List Level) (numArgs 
     let suffix := hcongrThmSuffixBasePrefix ++ toString numArgs
     let thmName := Name.str declName suffix
     unless (← getEnv).contains thmName do
-      executeReservedNameAction thmName
+      let _ ← executeReservedNameAction thmName
     let proof := mkConst thmName levels
     let type ← inferType proof
     let some argKinds := congrKindsExt.find? (← getEnv) thmName
@@ -431,7 +431,7 @@ def mkCongrSimpForConst? (declName : Name) (levels : List Level) : MetaM (Option
   try
     let thmName := Name.str declName congrSimpSuffix
     unless (← getEnv).contains thmName do
-      executeReservedNameAction thmName
+      let _ ← executeReservedNameAction thmName
     let proof := mkConst thmName levels
     let type ← inferType proof
     let some argKinds := congrKindsExt.find? (← getEnv) thmName

@@ -6,7 +6,7 @@ def f (x y : Nat) : Nat :=
   | x+1, y => 2 * f x y
 
 /--
-info: x y : Nat
+trace: x y : Nat
 h : y ≠ 5
 ⊢ ∃ z, 2 * f x y = 2 * z
 -/
@@ -25,7 +25,7 @@ theorem ex1 (x : Nat) (y : Nat) (h : y ≠ 5) : ∃ z, f (x+1) y = 2 * z := by
   | x+1, y => 2 * g x y
 
 /--
-info: x y : Nat
+trace: x y : Nat
 h : y ≠ 5
 ⊢ ∃ z, 2 * g x y = 2 * z
 -/
@@ -37,7 +37,7 @@ theorem ex2 (x : Nat) (y : Nat) (h : y ≠ 5) : ∃ z, g (x+1) y = 2 * z := by
   rfl
 
 /--
-info: x y : Nat
+trace: x y : Nat
 h : y = 5 → False
 ⊢ ∃ z, 2 * f x y = 2 * z
 -/
@@ -59,7 +59,7 @@ theorem ex3 (x : Nat) (y : Nat) (h : y = 5 → False) : ∃ z, f (x+1) y = 2 * z
 #check f2.eq_4
 
 /--
-info: x y z : Nat
+trace: x y z : Nat
 h : y = 5 → z = 6 → False
 ⊢ ∃ w, 2 * f2 x y z = 2 * w
 -/

@@ -88,6 +88,13 @@ instance : EmptyCollection (Raw α cmp) where
 instance : Inhabited (Raw α cmp) where
   default := ∅
 
+/-- Two tree sets are equivalent in the sense of Equiv iff all the values are equal. -/
+structure Equiv (m₁ m₂ : Raw α cmp) where
+  /-- Internal implementation detail of the tree map -/
+  inner : m₁.1.Equiv m₂.1
+
+@[inherit_doc] scoped infix:50 " ~m " => Equiv
+
 @[simp]
 theorem empty_eq_emptyc : (empty : Raw α cmp) = ∅ :=
   rfl
@@ -103,7 +110,7 @@ instance : Insert α (Raw α cmp) where
   insert e s := s.insert e
 
 instance : LawfulSingleton α (Raw α cmp) where
-  insert_emptyc_eq _ := rfl
+  insert_empty_eq _ := rfl
 
 @[inline, inherit_doc TreeSet.empty]
 def containsThenInsert (t : Raw α cmp) (a : α) : Bool × Raw α cmp :=
@@ -183,7 +190,7 @@ def maxD (t : Raw α cmp) (fallback : α) : α :=
 
 @[inline, inherit_doc TreeSet.atIdx?]
 def atIdx? (t : Raw α cmp) (n : Nat) : Option α :=
-  TreeMap.Raw.keyAtIndex? t.inner n
+  TreeMap.Raw.keyAtIdx? t.inner n
 
 /-!
 We do not provide `entryAtIdx` for the raw trees.
@@ -191,11 +198,11 @@ We do not provide `entryAtIdx` for the raw trees.
 
 @[inline, inherit_doc TreeSet.atIdx!]
 def atIdx! [Inhabited α] (t : Raw α cmp) (n : Nat) : α :=
-  TreeMap.Raw.keyAtIndex! t.inner n
+  TreeMap.Raw.keyAtIdx! t.inner n
 
 @[inline, inherit_doc TreeSet.atIdxD]
 def atIdxD (t : Raw α cmp) (n : Nat) (fallback : α) : α :=
-  TreeMap.Raw.keyAtIndexD t.inner n fallback
+  TreeMap.Raw.keyAtIdxD t.inner n fallback
 
 @[inline, inherit_doc TreeSet.getGE?]
 def getGE? (t : Raw α cmp) (k : α) : Option α :=
@@ -298,7 +305,7 @@ def forIn (f : α → δ → m (ForInStep δ)) (init : δ) (t : Raw α cmp) : m 
 instance : ForM m (Raw α cmp) α where
   forM t f := t.forM f
 
-instance {t : Type w → Type w} : ForIn t (Raw α cmp) α where
+instance : ForIn m (Raw α cmp) α where
   forIn t init f := t.forIn (fun a acc => f a acc) init
 
 @[inline, inherit_doc TreeSet.empty]
@@ -346,7 +353,7 @@ def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α cmp) (l : ρ) : Raw α cmp :=
   ⟨t.inner.eraseMany l⟩
 
 instance [Repr α] : Repr (Raw α cmp) where
-  reprPrec m prec := Repr.addAppParen ("TreeSet.Raw.ofList " ++ repr m.toList) prec
+  reprPrec m prec := Repr.addAppParen ("Std.TreeSet.Raw.ofList " ++ repr m.toList) prec
 
 end Raw
 

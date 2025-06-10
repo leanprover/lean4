@@ -20,7 +20,6 @@ static lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticClean__wf__1___closed__6;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__62;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__59;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__39;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__69;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__60;
@@ -84,7 +83,6 @@ static lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__
 LEAN_EXPORT lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__with____1___closed__16;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__18;
-static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__81;
 static lean_object* l_tacticDecreasing__trivial___closed__2;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__with____1___closed__33;
 static lean_object* l_tacticDecreasing__trivial__pre__omega___closed__5;
@@ -96,14 +94,12 @@ static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1_
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__17;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__1___closed__8;
-static lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__7;
 LEAN_EXPORT lean_object* l_tacticDecreasing__trivial;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticClean__wf__1___closed__1;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__41;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__1___closed__2;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__tactic__1___closed__2;
 LEAN_EXPORT lean_object* l___aux__Init__WFTactics______macroRules__tacticClean__wf__1(lean_object*, lean_object*, lean_object*);
-static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__79;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__28;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__with____1___closed__25;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__78;
@@ -117,7 +113,6 @@ static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1_
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__56;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticClean__wf__1___closed__13;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__with____1___closed__9;
-static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__82;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__38;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__44;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__with____1___closed__12;
@@ -220,7 +215,6 @@ static lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__
 static lean_object* l_tacticDecreasing__trivial__pre__omega___closed__4;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__with____1___closed__13;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__43;
-static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__80;
 lean_object* lean_array_mk(lean_object*);
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__30;
 static lean_object* l_tacticDecreasing__trivial___closed__5;
@@ -233,7 +227,6 @@ static lean_object* l_tacticSimp__wf___closed__3;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__7;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__68;
-static lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__8;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__1___closed__9;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__with____1___closed__27;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__with____1___closed__14;
@@ -258,6 +251,7 @@ static lean_object* l___aux__Init__WFTactics______macroRules__tacticClean__wf__1
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__1___closed__9;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__64;
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticClean__wf__1___closed__11;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__1___closed__11;
 LEAN_EXPORT lean_object* l_tacticSimp__wf;
 static lean_object* l_tacticDecreasing__tactic___closed__3;
@@ -652,38 +646,16 @@ return x_3;
 static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__36() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__34;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__37() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__36;
+x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__35;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__38() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__35;
-x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__37;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__39() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__37() {
 _start:
 {
 lean_object* x_1; 
@@ -691,7 +663,7 @@ x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__40() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__38() {
 _start:
 {
 lean_object* x_1; 
@@ -699,23 +671,45 @@ x_1 = lean_mk_string_unchecked("InvImage", 8, 8);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__41() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__39() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__40;
+x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__38;
 x_2 = l_String_toSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__42() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__40() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__38;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__41() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__40;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
+}
+}
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__42() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__40;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
 }
 }
 static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__43() {
@@ -733,38 +727,16 @@ return x_3;
 static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__44() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__42;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__45() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__44;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__46() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__43;
-x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__45;
+x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__41;
+x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__43;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__47() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__45() {
 _start:
 {
 lean_object* x_1; 
@@ -772,16 +744,16 @@ x_1 = lean_mk_string_unchecked("Prod.lex", 8, 8);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__48() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__46() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__47;
+x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__45;
 x_2 = l_String_toSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__49() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__47() {
 _start:
 {
 lean_object* x_1; 
@@ -789,7 +761,7 @@ x_1 = lean_mk_string_unchecked("Prod", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__50() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__48() {
 _start:
 {
 lean_object* x_1; 
@@ -797,14 +769,36 @@ x_1 = lean_mk_string_unchecked("lex", 3, 3);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__51() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__49() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__49;
-x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__50;
+x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__47;
+x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__48;
 x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
+}
+}
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__50() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__49;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__51() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__49;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
 }
 }
 static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__52() {
@@ -822,38 +816,16 @@ return x_3;
 static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__53() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__51;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__54() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__53;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__55() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__52;
-x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__54;
+x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__50;
+x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__52;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__56() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__54() {
 _start:
 {
 lean_object* x_1; 
@@ -861,13 +833,35 @@ x_1 = lean_mk_string_unchecked("sizeOfWFRel", 11, 11);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__57() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__55() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__56;
+x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__54;
 x_2 = l_String_toSubstring_x27(x_1);
 return x_2;
+}
+}
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__56() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__54;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__57() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__56;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__58() {
@@ -875,36 +869,14 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__56;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__57;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
 static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__59() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__58;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__60() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__59;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__61() {
 _start:
 {
 lean_object* x_1; 
@@ -912,13 +884,35 @@ x_1 = lean_mk_string_unchecked("measure", 7, 7);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__62() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__60() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__61;
+x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__59;
 x_2 = l_String_toSubstring_x27(x_1);
 return x_2;
+}
+}
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__61() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__59;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__62() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__61;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__63() {
@@ -926,36 +920,14 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__61;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__62;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
 static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__64() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__63;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__65() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__64;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__66() {
 _start:
 {
 lean_object* x_1; 
@@ -963,16 +935,16 @@ x_1 = lean_mk_string_unchecked("Nat.lt_wfRel", 12, 12);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__67() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__65() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__66;
+x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__64;
 x_2 = l_String_toSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__68() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__66() {
 _start:
 {
 lean_object* x_1; 
@@ -980,7 +952,7 @@ x_1 = lean_mk_string_unchecked("Nat", 3, 3);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__69() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__67() {
 _start:
 {
 lean_object* x_1; 
@@ -988,63 +960,41 @@ x_1 = lean_mk_string_unchecked("lt_wfRel", 8, 8);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__70() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__68() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__68;
-x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__69;
+x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__66;
+x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__67;
 x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__69() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__68;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__70() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__69;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
 static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__71() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__70;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__72() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__70;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__73() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__72;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__74() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__71;
-x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__73;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__75() {
 _start:
 {
 lean_object* x_1; 
@@ -1052,16 +1002,16 @@ x_1 = lean_mk_string_unchecked("WellFoundedRelation.rel", 23, 23);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__76() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__72() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__75;
+x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__71;
 x_2 = l_String_toSubstring_x27(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__77() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__73() {
 _start:
 {
 lean_object* x_1; 
@@ -1069,7 +1019,7 @@ x_1 = lean_mk_string_unchecked("WellFoundedRelation", 19, 19);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__78() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__74() {
 _start:
 {
 lean_object* x_1; 
@@ -1077,41 +1027,41 @@ x_1 = lean_mk_string_unchecked("rel", 3, 3);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__79() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__75() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__77;
-x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__78;
+x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__73;
+x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__74;
 x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__80() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__76() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__79;
+x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__75;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__81() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__77() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__80;
+x_2 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__76;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__82() {
+static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__78() {
 _start:
 {
 lean_object* x_1; 
@@ -1219,7 +1169,7 @@ lean_inc(x_11);
 lean_inc(x_12);
 x_43 = l_Lean_addMacroScope(x_12, x_42, x_11);
 x_44 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__33;
-x_45 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__38;
+x_45 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__36;
 lean_inc(x_10);
 x_46 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_46, 0, x_10);
@@ -1230,17 +1180,17 @@ x_47 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__31;
 lean_inc_n(x_39, 2);
 lean_inc(x_10);
 x_48 = l_Lean_Syntax_node3(x_10, x_47, x_39, x_39, x_46);
-x_49 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__39;
+x_49 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__37;
 lean_inc(x_10);
 x_50 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_50, 0, x_10);
 lean_ctor_set(x_50, 1, x_49);
-x_51 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__42;
+x_51 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__40;
 lean_inc(x_11);
 lean_inc(x_12);
 x_52 = l_Lean_addMacroScope(x_12, x_51, x_11);
-x_53 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__41;
-x_54 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__46;
+x_53 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__39;
+x_54 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__44;
 lean_inc(x_10);
 x_55 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_55, 0, x_10);
@@ -1250,12 +1200,12 @@ lean_ctor_set(x_55, 3, x_54);
 lean_inc_n(x_39, 2);
 lean_inc(x_10);
 x_56 = l_Lean_Syntax_node3(x_10, x_47, x_39, x_39, x_55);
-x_57 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__51;
+x_57 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__49;
 lean_inc(x_11);
 lean_inc(x_12);
 x_58 = l_Lean_addMacroScope(x_12, x_57, x_11);
-x_59 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__48;
-x_60 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__55;
+x_59 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__46;
+x_60 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__53;
 lean_inc(x_10);
 x_61 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_61, 0, x_10);
@@ -1265,12 +1215,12 @@ lean_ctor_set(x_61, 3, x_60);
 lean_inc_n(x_39, 2);
 lean_inc(x_10);
 x_62 = l_Lean_Syntax_node3(x_10, x_47, x_39, x_39, x_61);
-x_63 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__58;
+x_63 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__56;
 lean_inc(x_11);
 lean_inc(x_12);
 x_64 = l_Lean_addMacroScope(x_12, x_63, x_11);
-x_65 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__57;
-x_66 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__60;
+x_65 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__55;
+x_66 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__58;
 lean_inc(x_10);
 x_67 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_67, 0, x_10);
@@ -1280,12 +1230,12 @@ lean_ctor_set(x_67, 3, x_66);
 lean_inc_n(x_39, 2);
 lean_inc(x_10);
 x_68 = l_Lean_Syntax_node3(x_10, x_47, x_39, x_39, x_67);
-x_69 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__63;
+x_69 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__61;
 lean_inc(x_11);
 lean_inc(x_12);
 x_70 = l_Lean_addMacroScope(x_12, x_69, x_11);
-x_71 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__62;
-x_72 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__65;
+x_71 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__60;
+x_72 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__63;
 lean_inc(x_10);
 x_73 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_73, 0, x_10);
@@ -1295,12 +1245,12 @@ lean_ctor_set(x_73, 3, x_72);
 lean_inc_n(x_39, 2);
 lean_inc(x_10);
 x_74 = l_Lean_Syntax_node3(x_10, x_47, x_39, x_39, x_73);
-x_75 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__70;
+x_75 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__68;
 lean_inc(x_11);
 lean_inc(x_12);
 x_76 = l_Lean_addMacroScope(x_12, x_75, x_11);
-x_77 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__67;
-x_78 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__74;
+x_77 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__65;
+x_78 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__70;
 lean_inc(x_10);
 x_79 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_79, 0, x_10);
@@ -1310,10 +1260,10 @@ lean_ctor_set(x_79, 3, x_78);
 lean_inc_n(x_39, 2);
 lean_inc(x_10);
 x_80 = l_Lean_Syntax_node3(x_10, x_47, x_39, x_39, x_79);
-x_81 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__79;
+x_81 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__75;
 x_82 = l_Lean_addMacroScope(x_12, x_81, x_11);
-x_83 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__76;
-x_84 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__81;
+x_83 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__72;
+x_84 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__77;
 lean_inc(x_10);
 x_85 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_85, 0, x_10);
@@ -1373,7 +1323,7 @@ x_101 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_101, 0, x_10);
 lean_ctor_set(x_101, 1, x_34);
 lean_ctor_set(x_101, 2, x_100);
-x_102 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__82;
+x_102 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__78;
 lean_inc(x_10);
 x_103 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_103, 0, x_10);
@@ -1725,7 +1675,7 @@ lean_inc(x_11);
 lean_inc(x_12);
 x_53 = l_Lean_addMacroScope(x_12, x_52, x_11);
 x_54 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__33;
-x_55 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__38;
+x_55 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__36;
 lean_inc(x_10);
 x_56 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_56, 0, x_10);
@@ -1736,17 +1686,17 @@ x_57 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__31;
 lean_inc_n(x_46, 2);
 lean_inc(x_10);
 x_58 = l_Lean_Syntax_node3(x_10, x_57, x_46, x_46, x_56);
-x_59 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__39;
+x_59 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__37;
 lean_inc(x_10);
 x_60 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_60, 0, x_10);
 lean_ctor_set(x_60, 1, x_59);
-x_61 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__42;
+x_61 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__40;
 lean_inc(x_11);
 lean_inc(x_12);
 x_62 = l_Lean_addMacroScope(x_12, x_61, x_11);
-x_63 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__41;
-x_64 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__46;
+x_63 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__39;
+x_64 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__44;
 lean_inc(x_10);
 x_65 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_65, 0, x_10);
@@ -1756,12 +1706,12 @@ lean_ctor_set(x_65, 3, x_64);
 lean_inc_n(x_46, 2);
 lean_inc(x_10);
 x_66 = l_Lean_Syntax_node3(x_10, x_57, x_46, x_46, x_65);
-x_67 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__51;
+x_67 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__49;
 lean_inc(x_11);
 lean_inc(x_12);
 x_68 = l_Lean_addMacroScope(x_12, x_67, x_11);
-x_69 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__48;
-x_70 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__55;
+x_69 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__46;
+x_70 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__53;
 lean_inc(x_10);
 x_71 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_71, 0, x_10);
@@ -1771,12 +1721,12 @@ lean_ctor_set(x_71, 3, x_70);
 lean_inc_n(x_46, 2);
 lean_inc(x_10);
 x_72 = l_Lean_Syntax_node3(x_10, x_57, x_46, x_46, x_71);
-x_73 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__58;
+x_73 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__56;
 lean_inc(x_11);
 lean_inc(x_12);
 x_74 = l_Lean_addMacroScope(x_12, x_73, x_11);
-x_75 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__57;
-x_76 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__60;
+x_75 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__55;
+x_76 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__58;
 lean_inc(x_10);
 x_77 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_77, 0, x_10);
@@ -1786,12 +1736,12 @@ lean_ctor_set(x_77, 3, x_76);
 lean_inc_n(x_46, 2);
 lean_inc(x_10);
 x_78 = l_Lean_Syntax_node3(x_10, x_57, x_46, x_46, x_77);
-x_79 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__63;
+x_79 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__61;
 lean_inc(x_11);
 lean_inc(x_12);
 x_80 = l_Lean_addMacroScope(x_12, x_79, x_11);
-x_81 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__62;
-x_82 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__65;
+x_81 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__60;
+x_82 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__63;
 lean_inc(x_10);
 x_83 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_83, 0, x_10);
@@ -1801,12 +1751,12 @@ lean_ctor_set(x_83, 3, x_82);
 lean_inc_n(x_46, 2);
 lean_inc(x_10);
 x_84 = l_Lean_Syntax_node3(x_10, x_57, x_46, x_46, x_83);
-x_85 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__70;
+x_85 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__68;
 lean_inc(x_11);
 lean_inc(x_12);
 x_86 = l_Lean_addMacroScope(x_12, x_85, x_11);
-x_87 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__67;
-x_88 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__74;
+x_87 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__65;
+x_88 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__70;
 lean_inc(x_10);
 x_89 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_89, 0, x_10);
@@ -1816,12 +1766,12 @@ lean_ctor_set(x_89, 3, x_88);
 lean_inc_n(x_46, 2);
 lean_inc(x_10);
 x_90 = l_Lean_Syntax_node3(x_10, x_57, x_46, x_46, x_89);
-x_91 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__79;
+x_91 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__75;
 lean_inc(x_11);
 lean_inc(x_12);
 x_92 = l_Lean_addMacroScope(x_12, x_91, x_11);
-x_93 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__76;
-x_94 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__81;
+x_93 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__72;
+x_94 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__77;
 lean_inc(x_10);
 x_95 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_95, 0, x_10);
@@ -1922,7 +1872,7 @@ x_126 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_126, 0, x_10);
 lean_ctor_set(x_126, 1, x_41);
 lean_ctor_set(x_126, 2, x_125);
-x_127 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__82;
+x_127 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__78;
 lean_inc(x_10);
 x_128 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_128, 0, x_10);
@@ -2512,7 +2462,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__68;
+x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__66;
 x_2 = l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__1___closed__7;
 x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
@@ -2651,7 +2601,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__68;
+x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__66;
 x_2 = l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__2___closed__3;
 x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
@@ -2782,7 +2732,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__68;
+x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__66;
 x_2 = l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__3;
 x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
@@ -2803,34 +2753,12 @@ return x_3;
 static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__6() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__4;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__7() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__6;
+x_2 = l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__5;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__8() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__5;
-x_2 = l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__7;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -2871,7 +2799,7 @@ lean_ctor_set(x_14, 1, x_13);
 x_15 = l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__4;
 x_16 = l_Lean_addMacroScope(x_12, x_15, x_11);
 x_17 = l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__2;
-x_18 = l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__8;
+x_18 = l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__6;
 lean_inc(x_10);
 x_19 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_19, 0, x_10);
@@ -3129,7 +3057,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__49;
+x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__47;
 x_2 = l___aux__Init__WFTactics______macroRules__tacticDecreasing__with____1___closed__11;
 x_3 = l___aux__Init__WFTactics______macroRules__tacticDecreasing__with____1___closed__12;
 x_4 = l_Lean_Name_mkStr3(x_1, x_2, x_3);
@@ -3189,7 +3117,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__49;
+x_1 = l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__47;
 x_2 = l___aux__Init__WFTactics______macroRules__tacticDecreasing__with____1___closed__11;
 x_3 = l___aux__Init__WFTactics______macroRules__tacticDecreasing__with____1___closed__18;
 x_4 = l_Lean_Name_mkStr3(x_1, x_2, x_3);
@@ -4119,14 +4047,6 @@ l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__77 = _init
 lean_mark_persistent(l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__77);
 l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__78 = _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__78();
 lean_mark_persistent(l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__78);
-l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__79 = _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__79();
-lean_mark_persistent(l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__79);
-l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__80 = _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__80();
-lean_mark_persistent(l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__80);
-l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__81 = _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__81();
-lean_mark_persistent(l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__81);
-l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__82 = _init_l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__82();
-lean_mark_persistent(l___aux__Init__WFTactics______macroRules__tacticSimp__wf__1___closed__82);
 l_tacticClean__wf___closed__1 = _init_l_tacticClean__wf___closed__1();
 lean_mark_persistent(l_tacticClean__wf___closed__1);
 l_tacticClean__wf___closed__2 = _init_l_tacticClean__wf___closed__2();
@@ -4271,10 +4191,6 @@ l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega_
 lean_mark_persistent(l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__5);
 l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__6 = _init_l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__6();
 lean_mark_persistent(l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__6);
-l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__7 = _init_l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__7();
-lean_mark_persistent(l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__7);
-l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__8 = _init_l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__8();
-lean_mark_persistent(l___aux__Init__WFTactics______macroRules__tacticDecreasing__trivial__pre__omega__3___closed__8);
 l_tacticDecreasing__with_____closed__1 = _init_l_tacticDecreasing__with_____closed__1();
 lean_mark_persistent(l_tacticDecreasing__with_____closed__1);
 l_tacticDecreasing__with_____closed__2 = _init_l_tacticDecreasing__with_____closed__2();

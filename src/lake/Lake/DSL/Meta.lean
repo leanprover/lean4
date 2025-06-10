@@ -7,6 +7,7 @@ prelude
 import Lean.Elab.Eval
 import Lean.Elab.ElabRules
 import Lake.Util.FilePath
+import Lake.DSL.Syntax
 
 /-!
 Syntax for elaboration time control flow.
@@ -18,44 +19,10 @@ open Lean Meta Elab Command Term
 @[implemented_by Term.evalTerm]
 opaque evalTerm (α) (type : Expr) (value : Syntax) (safety := DefinitionSafety.safe) : TermElabM α
 
-/--
-The `do` command syntax groups multiple similarly indented commands together.
-The group can then be passed to another command that usually only accepts a
-single command (e.g., `meta if`).
--/
-syntax cmdDo := ("do" many1Indent(command)) <|> command
-
 def expandCmdDo : TSyntax ``cmdDo → Array Command
 | `(cmdDo|do $cmds*) => cmds
 | `(cmdDo|$cmd:command) => #[cmd]
 | _ => #[]
-
-/--
-The `meta if` command has two forms:
-
-```lean
-meta if <c:term> then <a:command>
-meta if <c:term> then <a:command> else <b:command>
-```
-
-It expands to the command `a` if the term `c` evaluates to true
-(at elaboration time). Otherwise, it expands to command `b` (if an `else`
-clause is provided).
-
-One can use this command to specify, for example, external library targets
-only available on specific platforms:
-
-```lean
-meta if System.Platform.isWindows then
-extern_lib winOnlyLib := ...
-else meta if System.Platform.isOSX then
-extern_lib macOnlyLib := ...
-else
-extern_lib linuxOnlyLib := ...
-```
--/
-scoped syntax (name := metaIf)
-"meta " "if " term " then " cmdDo (" else " cmdDo)? : command
 
 @[builtin_command_elab metaIf]
 def elabMetaIf : CommandElab := fun stx => do
@@ -73,12 +40,6 @@ opaque evalExpr (α) (expectedType : Expr) (value : Expr) (safety := DefinitionS
 
 def toExprIO [ToExpr α] (x : IO α) : IO Expr :=
   toExpr <$> x
-
-/--
-Executes a term of type `IO α` at elaboration-time
-and produces an expression corresponding to the result via `ToExpr α`.
--/
-scoped syntax:lead (name := runIO) "run_io " doSeq : term
 
 @[builtin_term_elab runIO]
 def elabRunIO : TermElab := fun stx expectedType? =>

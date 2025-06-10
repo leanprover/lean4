@@ -97,9 +97,9 @@ set_option pp.explicit true
 #guard_msgs in #check x.val
 /-- info: y.val : Nat -/
 #guard_msgs in #check y.val
-/-- info: (@Fin''.toFin0 (@OfNat.ofNat Nat 5 (instOfNatNat 5)) z).val : Nat -/
+/-- info: (@Fin''.toFin0 (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5))) z).val : Nat -/
 #guard_msgs in #check z.val
-/-- info: (@D.toA (@OfNat.ofNat Nat 5 (instOfNatNat 5)) d).x : Nat -/
+/-- info: (@D.toA (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5))) d).x : Nat -/
 #guard_msgs in #check d.x
 
 end

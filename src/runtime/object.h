@@ -303,6 +303,12 @@ inline obj_res mk_option_none() { return box(0); }
 inline obj_res mk_option_some(obj_arg v) { obj_res r = alloc_cnstr(1, 1, 0); cnstr_set(r, 0, v); return r; }
 
 // =======================================
+// Except
+
+inline obj_res mk_except_ok(obj_arg v) { obj_res r = alloc_cnstr(1, 1, 0); cnstr_set(r, 0, v); return r; }
+inline obj_res mk_except_err(obj_arg v) { obj_res r = alloc_cnstr(0, 1, 0); cnstr_set(r, 0, v); return r; }
+
+// =======================================
 // Natural numbers
 
 inline mpz const & mpz_value(b_obj_arg o) { return to_mpz(o)->m_value; }
@@ -467,6 +473,8 @@ inline obj_res st_ref_set(b_obj_arg r, obj_arg v, obj_arg w) { return lean_st_re
 inline obj_res st_ref_reset(b_obj_arg r, obj_arg w) { return lean_st_ref_reset(r, w); }
 inline obj_res st_ref_swap(b_obj_arg r, obj_arg v, obj_arg w) { return lean_st_ref_swap(r, v, w); }
 
+obj_res lean_promise_new();
+void lean_promise_resolve(obj_arg value, b_obj_arg promise);
 
 extern "C" LEAN_EXPORT obj_res lean_io_promise_new(obj_arg);
 extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise, obj_arg);

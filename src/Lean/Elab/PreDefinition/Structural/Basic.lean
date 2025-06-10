@@ -70,7 +70,7 @@ def Positions.numIndices (positions : Positions) : Nat :=
 `positions.inverse[k] = i` means that function `i` has type k
 -/
 def Positions.inverse (positions : Positions) : Array Nat := Id.run do
-  let mut r := mkArray positions.numIndices 0
+  let mut r := .replicate positions.numIndices 0
   for _h : i in [:positions.size] do
     for k in positions[i] do
       r := r.set! k i

@@ -36,12 +36,26 @@ register_builtin_option Elab.async : Bool := {
   descr := "perform elaboration using multiple threads where possible\
     \n\
     \nThis option defaults to `false` but (when not explicitly set) is overridden to `true` in \
-      the language server. \
+      the Lean language server and cmdline. \
       Metaprogramming users driving elaboration directly via e.g. \
       `Lean.Elab.Command.elabCommandTopLevel` can opt into asynchronous elaboration by setting \
       this option but then are responsible for processing messages and other data not only in the \
       resulting command state but also from async tasks in `Lean.Command.Context.snap?` and \
       `Lean.Command.State.snapshotTasks`."
+}
+
+register_builtin_option Elab.inServer : Bool := {
+  defValue := false
+  descr := "true if elaboration is being run inside the Lean language server\
+    \n\
+    \nThis option is set by the file worker and should not be modified otherwise."
+}
+
+/-- Performance option used by cmdline driver. -/
+register_builtin_option internal.cmdlineSnapshots : Bool := {
+  defValue := false
+  descr    := "reduce information stored in snapshots to the minimum necessary \
+    for the cmdline driver: diagnostics per command and final full snapshot"
 }
 
 /--
@@ -55,6 +69,100 @@ def useDiagnosticMsg : MessageData :=
       pure ""
     else
       pure s!"\n\nAdditional diagnostic information may be available using the `set_option {diagnostics.name} true` command."
+
+/-- Name generator that creates user-accessible names. -/
+structure DeclNameGenerator where
+  namePrefix : Name := .anonymous
+  -- We use a non-nil list instead of changing `namePrefix` as we want to distinguish between
+  -- numeric components in the original name (e.g. from macro scopes) and ones added by `mkChild`.
+  private idx        : Nat := 1
+  private parentIdxs : List Nat := .nil
+  deriving Inhabited
+
+namespace DeclNameGenerator
+
+private def idxs (g : DeclNameGenerator) : List Nat :=
+  g.idx :: g.parentIdxs
+
+def next (g : DeclNameGenerator) : DeclNameGenerator :=
+  { g with idx := g.idx + 1 }
+
+/--
+Creates a user-accessible unique name of the following structure:
+```
+<name prefix>.<infix>_<numeric components>_...
+```
+Uniqueness is guaranteed for the current branch of elaboration. When entering parallelism and other
+branching elaboration steps, `mkChild` must be used (automatically done in `wrapAsync*`).
+-/
+partial def mkUniqueName (env : Environment) (g : DeclNameGenerator) («infix» : Name) :
+    (Name × DeclNameGenerator) := Id.run do
+  -- `Name.append` does not allow macro scopes on both operands; as the result of this function is
+  -- unlikely to be referenced in a macro; the choice doesn't really matter.
+  let «infix» := if g.namePrefix.hasMacroScopes && infix.hasMacroScopes then infix.eraseMacroScopes else «infix»
+  let base := g.namePrefix ++ «infix»
+  let mut g := g
+  while isConflict (curr g base) do
+    g := g.next
+  return (curr g base, g)
+where
+  -- Check whether the name conflicts with an existing one. Conflicts ignore privacy.
+  -- NOTE: We only check the current branch and rely on the documented invariant instead because we
+  -- do not want to block here and because it would not solve the issue for completely separated
+  -- threads of elaboration such as in Aesop's backtracking search.
+  isConflict (n : Name) : Bool :=
+    (env.setExporting false).containsOnBranch n ||
+    isPrivateName n && (env.setExporting false).containsOnBranch (privateToUserName n) ||
+    !isPrivateName n && (env.setExporting false).containsOnBranch (mkPrivateName env n)
+  curr (g : DeclNameGenerator) (base : Name) : Name := Id.run do
+    let mut n := g.idxs.foldr (fun i n => n.appendIndexAfter i) base
+    if env.header.isModule && !env.isExporting && !isPrivateName n then
+      n := mkPrivateName env n
+    return n
+
+def mkChild (g : DeclNameGenerator) : DeclNameGenerator × DeclNameGenerator :=
+  ({ g with parentIdxs := g.idx :: g.parentIdxs, idx := 1 },
+   { g with idx := g.idx + 1 })
+
+end DeclNameGenerator
+
+class MonadDeclNameGenerator (m : Type → Type) where
+  getDeclNGen : m DeclNameGenerator
+  setDeclNGen : DeclNameGenerator → m Unit
+
+export MonadDeclNameGenerator (getDeclNGen setDeclNGen)
+
+instance [MonadLift m n] [MonadDeclNameGenerator m] : MonadDeclNameGenerator n where
+  getDeclNGen := liftM (getDeclNGen : m _)
+  setDeclNGen := fun ngen => liftM (setDeclNGen ngen : m _)
+
+/--
+Creates a new name for use as an auxiliary declaration that can be assumed to be globally unique.
+
+Uniqueness is guaranteed for the current branch of elaboration. When entering parallelism and other
+branching elaboration steps, `mkChild` must be used (automatically done in `wrapAsync*`).
+-/
+def mkAuxDeclName [Monad m] [MonadEnv m] [MonadDeclNameGenerator m] (kind : Name := `_aux) : m Name := do
+  let ngen ← getDeclNGen
+  let (n, ngen) := ngen.mkUniqueName (← getEnv) («infix» := kind)
+  setDeclNGen ngen
+  return n
+
+/--
+Adjusts the `namePrefix` of `getDeclNGen` to the given name and resets the nested counter.
+-/
+def withDeclNameForAuxNaming [Monad m] [MonadFinally m] [MonadDeclNameGenerator m]
+    (name : Name) (x : m α) : m α := do
+  let ngen ← getDeclNGen
+  -- do not reset index if prefix unchanged
+  if ngen.namePrefix != name then
+    try
+      setDeclNGen { namePrefix := name }
+      x
+    finally
+      setDeclNGen ngen
+  else
+    x
 
 namespace Core
 
@@ -79,6 +187,11 @@ structure State where
   nextMacroScope  : MacroScope     := firstFrontendMacroScope + 1
   /-- Name generator for producing unique `FVarId`s, `MVarId`s, and `LMVarId`s -/
   ngen            : NameGenerator  := {}
+  /--
+  Name generator for creating persistent auxiliary declarations. Separate from `ngen` to keep
+  numbers smaller and create user-accessible names.
+  -/
+  auxDeclNGen     : DeclNameGenerator := {}
   /-- Trace messages -/
   traceState      : TraceState     := {}
   /-- Cache for instantiating universe polymorphic declarations. -/
@@ -123,6 +236,8 @@ structure Context where
   errors; see also `logMessage` below.
   -/
   suppressElabErrors : Bool := false
+  /-- Cache of `Lean.inheritedTraceOptions`. -/
+  inheritedTraceOptions : Std.HashSet Name := {}
   deriving Nonempty
 
 /-- CoreM is a monad for manipulating the Lean environment.
@@ -168,9 +283,11 @@ instance : MonadWithOptions CoreM where
           maxRecDepth := maxRecDepth.get options })
       x
 
--- Helper function for ensuring fields that depend on `options` have the correct value.
+-- Helper function for ensuring fields derived from e.g. options have the correct value.
 @[inline] private def withConsistentCtx (x : CoreM α) : CoreM α := do
-  withOptions id x
+  let inheritedTraceOptions ← inheritedTraceOptions.get
+  withReader (fun ctx => { ctx with inheritedTraceOptions }) do
+    withOptions id x
 
 instance : AddMessageContext CoreM where
   addMessageContext := addMessageContextPartial
@@ -178,6 +295,10 @@ instance : AddMessageContext CoreM where
 instance : MonadNameGenerator CoreM where
   getNGen := return (← get).ngen
   setNGen ngen := modify fun s => { s with ngen := ngen }
+
+instance : MonadDeclNameGenerator CoreM where
+  getDeclNGen := return (← get).auxDeclNGen
+  setDeclNGen ngen := modify fun s => { s with auxDeclNGen := ngen }
 
 instance : MonadRecDepth CoreM where
   withRecDepth d x := withReader (fun ctx => { ctx with currRecDepth := d }) x
@@ -202,8 +323,8 @@ instance : Elab.MonadInfoTree CoreM where
   modifyInfoState f := modify fun s => { s with infoState := f s.infoState }
 
 @[inline] def modifyCache (f : Cache → Cache) : CoreM Unit :=
-  modify fun ⟨env, next, ngen, trace, cache, messages, infoState, snaps⟩ =>
-   ⟨env, next, ngen, trace, f cache, messages, infoState, snaps⟩
+  modify fun ⟨env, next, ngen, auxDeclNGen, trace, cache, messages, infoState, snaps⟩ =>
+   ⟨env, next, ngen, auxDeclNGen, trace, f cache, messages, infoState, snaps⟩
 
 @[inline] def modifyInstLevelTypeCache (f : InstantiateLevelCache → InstantiateLevelCache) : CoreM Unit :=
   modifyCache fun ⟨c₁, c₂⟩ => ⟨f c₁, c₂⟩
@@ -211,7 +332,7 @@ instance : Elab.MonadInfoTree CoreM where
 @[inline] def modifyInstLevelValueCache (f : InstantiateLevelCache → InstantiateLevelCache) : CoreM Unit :=
   modifyCache fun ⟨c₁, c₂⟩ => ⟨c₁, f c₂⟩
 
-def instantiateTypeLevelParams (c : ConstantInfo) (us : List Level) : CoreM Expr := do
+def instantiateTypeLevelParams (c : ConstantVal) (us : List Level) : CoreM Expr := do
   if let some (us', r) := (← get).cache.instLevelType.find? c.name then
     if us == us' then
       return r
@@ -239,6 +360,7 @@ instance : MonadLift IO CoreM where
 instance : MonadTrace CoreM where
   getTraceState := return (← get).traceState
   modifyTraceState f := modify fun s => { s with traceState := f s.traceState }
+  getInheritedTraceOptions := return (← read).inheritedTraceOptions
 
 structure SavedState extends State where
   /-- Number of heartbeats passed inside `withRestoreOrSaveFull`, not used otherwise. -/
@@ -267,7 +389,7 @@ itself after calling `act` as well as by reuse-handling code such as the one sup
     (act : CoreM α) : CoreM (α × SavedState) := do
   if let some (val, state) := reusableResult? then
     set state.toState
-    IO.addHeartbeats state.passedHeartbeats.toUInt64
+    IO.addHeartbeats state.passedHeartbeats
     return (val, state)
 
   let startHeartbeats ← IO.getNumHeartbeats
@@ -284,6 +406,17 @@ private def mkFreshNameImp (n : Name) : CoreM Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
   return addMacroScope (← getEnv).mainModule n fresh
 
+/--
+Creates a name from `n` that is guaranteed to be unique.
+This is intended to be used for creating inaccessible user names for free variables and constants.
+
+It works by adding a fresh macro scope to `n`.
+Applying `Lean.Name.eraseMacroScopes` to the resulting name yields `n`.
+
+See also `Lean.LocalContext.getUnusedName` (for creating a new accessible user name that is
+unused in the local context) and `Lean.Meta.mkFreshBinderNameForTactic` (for creating names
+that are conditionally inaccessible, depending on the current value of the `tactic.hygiene` option).
+-/
 def mkFreshUserName (n : Name) : CoreM Name :=
   mkFreshNameImp n
 
@@ -403,17 +536,20 @@ def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : CoreM
   modify fun s => { s with snapshotTasks := s.snapshotTasks.push task }
 
 /-- Wraps the given action for use in `EIO.asTask` etc., discarding its final monadic state. -/
-def wrapAsync (act : Unit → CoreM α) (cancelTk? : Option IO.CancelToken) :
-    CoreM (EIO Exception α) := do
+def wrapAsync {α : Type} (act : α → CoreM β) (cancelTk? : Option IO.CancelToken) :
+    CoreM (α → EIO Exception β) := do
+  let (childNGen, parentNGen) := (← getDeclNGen).mkChild
+  setDeclNGen parentNGen
   let st ← get
+  let st := { st with auxDeclNGen := childNGen }
   let ctx ← read
   let ctx := { ctx with cancelTk? }
   let heartbeats := (← IO.getNumHeartbeats) - ctx.initHeartbeats
-  return withCurrHeartbeats (do
+  return fun a => withCurrHeartbeats (do
       -- include heartbeats since start of elaboration in new thread as well such that forking off
       -- an action doesn't suddenly allow it to succeed from a lower heartbeat count
-      IO.addHeartbeats heartbeats.toUInt64
-      act () : CoreM _)
+      IO.addHeartbeats heartbeats
+      act a : CoreM _)
     |>.run' ctx st
 
 /-- Option for capturing output to stderr during elaboration. -/
@@ -450,20 +586,21 @@ Wraps the given action for use in `BaseIO.asTask` etc., discarding its final sta
 token, if any, should be stored in a `SnapshotTask` for the server to trigger it when the result is
 no longer needed.
 -/
-def wrapAsyncAsSnapshot (act : Unit → CoreM Unit) (cancelTk? : Option IO.CancelToken)
-    (desc : String := by exact decl_name%.toString) : CoreM (BaseIO SnapshotTree) := do
-  let t ← wrapAsync (cancelTk? := cancelTk?) fun _ => do
+def wrapAsyncAsSnapshot {α : Type} (act : α → CoreM Unit) (cancelTk? : Option IO.CancelToken)
+    (desc : String := by exact decl_name%.toString) : CoreM (α → BaseIO SnapshotTree) := do
+  let f ← wrapAsync (cancelTk? := cancelTk?) fun a => do
     IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
       let tid ← IO.getTID
-      -- reset trace state and message log so as not to report them twice
+      -- reset trace/info state and message log so as not to report them twice
       modify fun st => { st with
         messages := st.messages.markAllReported
         traceState := { tid }
         snapshotTasks := #[]
+        infoState := {}
       }
       try
         withTraceNode `Elab.async (fun _ => return desc) do
-          act ()
+          act a
       catch e =>
         unless e.isInterrupt do
           logError e.toMessageData
@@ -471,8 +608,8 @@ def wrapAsyncAsSnapshot (act : Unit → CoreM Unit) (cancelTk? : Option IO.Cance
         addTraceAsMessages
       get
   let ctx ← readThe Core.Context
-  return do
-    match (← t.toBaseIO) with
+  return fun a => do
+    match (← (f a).toBaseIO) with
     | .ok (output, st) => mkSnapshot output ctx st desc
     -- interrupt or abort exception as `try catch` above should have caught any others
     | .error _ => default
@@ -535,6 +672,16 @@ register_builtin_option compiler.enableNew : Bool := {
   descr    := "(compiler) enable the new code generator, this should have no significant effect on your code but it does help to test the new code generator; unset to only use the old code generator instead"
 }
 
+/--
+If `t` has not finished yet, waits for it under an `Elab.block` trace node. Returns `t`'s result.
+-/
+def traceBlock (tag : String) (t : Task α) : CoreM α := do
+  if (← IO.hasFinished t) then
+    return t.get
+  withTraceNode `Elab.block (tag := tag) (fun _ => pure tag) do
+    profileitM Exception "blocked" (← getOptions) do
+      IO.wait t
+
 -- Forward declaration
 @[extern "lean_lcnf_compile_decls"]
 opaque compileDeclsNew (declNames : List Name) : CoreM Unit
@@ -548,6 +695,7 @@ partial def compileDecls (decls : List Name) (ref? : Option Declaration := none)
   -- When inside `realizeConst`, do compilation synchronously so that `_cstage*` constants are found
   -- by the replay code
   if !Elab.async.get (← getOptions) || (← getEnv).isRealizing then
+    let _ ← traceBlock "compiler env" (← getEnv).checked
     doCompile
     return
   let env ← getEnv
@@ -560,7 +708,7 @@ partial def compileDecls (decls : List Name) (ref? : Option Declaration := none)
       doCompile
     finally
       res.commitChecked (← getEnv)
-  let t ← BaseIO.mapTask (fun _ => checkAct) env.checked
+  let t ← BaseIO.mapTask checkAct env.checked
   let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
   Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
 where doCompile := do
@@ -570,20 +718,22 @@ where doCompile := do
     return
   let opts ← getOptions
   if compiler.enableNew.get opts then
-    compileDeclsNew decls
-
-  let res ← withTraceNode `compiler (fun _ => return m!"compiling old: {decls}") do
-    return compileDeclsOld (← getEnv) opts decls
-  match res with
-  | Except.ok env   => setEnv env
-  | Except.error (.other msg) =>
-    if logErrors then
-      if let some decl := ref? then
-        checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
-      throwError msg
-  | Except.error ex =>
-    if logErrors then
-      throwKernelException ex
+    withoutExporting
+      try compileDeclsNew decls catch e =>
+        if logErrors then throw e else return ()
+  else
+    let res ← withTraceNode `compiler (fun _ => return m!"compiling old: {decls}") do
+      return compileDeclsOld (← getEnv) opts decls
+    match res with
+    | Except.ok env   => setEnv env
+    | Except.error (.other msg) =>
+      if logErrors then
+        if let some decl := ref? then
+          checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
+        throwError msg
+    | Except.error ex =>
+      if logErrors then
+        throwKernelException ex
 
 def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
   compileDecls (Compiler.getDeclNamesForCodeGen decl) decl logErrors

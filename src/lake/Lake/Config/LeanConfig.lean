@@ -7,10 +7,14 @@ prelude
 import Lean.Util.LeanOptions
 import Lake.Build.Target.Basic
 import Lake.Config.Dynlib
+import Lake.Config.Meta
 
-open System
+open System Lean
 
 namespace Lake
+
+-- 2025-06-08: `LeanOption` was moved to the `Lean` namespace
+export Lean (LeanOption)
 
 /--
 Lake equivalent of CMake's
@@ -120,27 +124,17 @@ protected def BuildType.toString (bt : BuildType) : String :=
 
 instance : ToString BuildType := ⟨BuildType.toString⟩
 
-/-- Option that is used by Lean as if it was passed using `-D`. -/
-structure LeanOption where
-  name  : Lean.Name
-  value : Lean.LeanOptionValue
-  deriving Inhabited, Repr
-
-/-- Formats the lean option as a CLI argument using the `-D` flag. -/
-def LeanOption.asCliArg (o : LeanOption) : String :=
-  s!"-D{o.name}={o.value.asCliFlagValue}"
-
 /-- Configuration options common to targets that build modules. -/
-structure LeanConfig where
+configuration LeanConfig where
   /--
   The mode in which the modules should be built (e.g., `debug`, `release`).
   Defaults to `release`.
   -/
   buildType : BuildType := .release
   /--
-  Additional options to pass to both the Lean language server
-  (i.e., `lean --server`) launched by `lake serve` and to `lean`
-  when compiling a module's Lean source files.
+  An `Array` of additional options to pass to both the Lean language server
+  (i.e., `lean --server`) launched by `lake serve` and to `lean` when compiling
+  a module's Lean source files.
   -/
   leanOptions : Array LeanOption := #[]
   /--
@@ -180,15 +174,26 @@ structure LeanConfig where
   -/
   weakLeancArgs : Array String := #[]
   /--
+  Additional target objects to use when linking (both static and shared).
+  These will come *after* the paths of native facets.
+  -/
+  moreLinkObjs : TargetArray FilePath := #[]
+  /--
+  Additional target libraries to pass to `leanc` when linking
+  (e.g., for shared libraries or binary executables).
+  These will come *after* the paths of other link objects.
+  -/
+  moreLinkLibs : TargetArray Dynlib := #[]
+  /--
   Additional arguments to pass to `leanc` when linking (e.g., for shared
   libraries or binary executables). These will come *after* the paths of
-  external libraries.
+  the linked objects.
   -/
   moreLinkArgs : Array String := #[]
   /--
   Additional arguments to pass to `leanc` when linking (e.g., for shared
   libraries or binary executables). These will come *after* the paths of
-  external libraries.
+  the linked objects.
 
   Unlike `moreLinkArgs`, these arguments do not affect the trace
   of the build result, so they can be changed without triggering a rebuild.
@@ -234,11 +239,14 @@ structure LeanConfig where
   plugins : TargetArray Dynlib := #[]
 deriving Inhabited, Repr
 
-/-- The options to pass to `lean` based on the build type. -/
-def BuildType.leanOptions : BuildType → Array LeanOption
-| debug => #[{ name := `debugAssertions, value := true }]
-| _ => #[]
+instance : EmptyCollection LeanConfig := ⟨{}⟩
 
+/-- The options to pass to `lean` based on the build type. -/
+def BuildType.leanOptions : BuildType → LeanOptions
+| debug => ⟨NameMap.empty.insert `debugAssertions true⟩
+| _ => {}
+
+set_option linter.unusedVariables false in
 /-- The arguments to pass to `lean` based on the build type. -/
 def BuildType.leanArgs (t : BuildType) : Array String :=
-  t.leanOptions.map (·.asCliArg)
+  #[]

@@ -36,16 +36,19 @@ builtin_initialize leanExeAttr : OrderedTagAttribute ←
 builtin_initialize externLibAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `extern_lib "mark a definition as a Lake external library target"
 
+builtin_initialize inputFileAttr : OrderedTagAttribute ←
+  registerOrderedTagAttribute `input_file "mark a definition as a Lake input file target"
+
+builtin_initialize inputDirAttr : OrderedTagAttribute ←
+  registerOrderedTagAttribute `input_dir "mark a definition as a Lake input directory target"
+
 builtin_initialize targetAttr : OrderedTagAttribute ←
-  registerOrderedTagAttribute `target "mark a definition as a custom Lake target"
+  registerOrderedTagAttribute `target "mark a definition as a Lake target"
 
 builtin_initialize defaultTargetAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `default_target "mark a Lake target as the package's default"
     fun name => do
       let valid ← getEnv <&> fun env =>
-        leanLibAttr.hasTag env name ||
-        leanExeAttr.hasTag env name ||
-        externLibAttr.hasTag env name ||
         targetAttr.hasTag env name
       unless valid do
         throwError "attribute `default_target` can only be used on a target (e.g., `lean_lib`, `lean_exe`)"

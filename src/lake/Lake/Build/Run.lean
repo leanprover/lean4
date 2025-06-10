@@ -6,6 +6,7 @@ Authors: Mac Malone, Gabriel Ebner, Sebastian Ullrich
 prelude
 import Lake.Util.Lock
 import Lake.Build.Index
+import Lake.Build.Job
 
 /-! # Build Runner
 
@@ -23,7 +24,8 @@ def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO BuildContext
     opaqueWs := ws,
     toBuildConfig := config,
     registeredJobs := ← IO.mkRef #[],
-    leanTrace := Hash.ofString ws.lakeEnv.leanGithash
+    leanTrace := .ofHash (pureHash ws.lakeEnv.leanGithash)
+      s!"Lean {Lean.versionStringCore}, commit {ws.lakeEnv.leanGithash}"
   }
 
 /-- Unicode icons that make up the spinner in animation order. -/
@@ -105,7 +107,7 @@ def renderProgress (running unfinished : Array OpaqueJob) (h : 0 < unfinished.si
 def reportJob (job : OpaqueJob) : MonitorM PUnit := do
   let {jobNo, totalJobs, ..} ← get
   let {failLv, outLv, showOptional, out, useAnsi, showProgress, minAction, ..} ← read
-  let {task, caption, optional} := job
+  let {task, caption, optional, ..} := job
   let {log, action, ..} := task.get.state
   let maxLv := log.maxLv
   let failed := log.hasEntries ∧ maxLv ≥ failLv

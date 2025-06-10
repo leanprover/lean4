@@ -8,7 +8,6 @@ import Lake.Build.Trace
 import Lake.Config.LeanLib
 import Lake.Config.OutFormat
 import Lake.Util.OrdHashSet
-import Lean.Compiler.NameMangling
 
 namespace Lake
 open Lean System
@@ -30,7 +29,7 @@ instance : Hashable Module where hash m := hash m.keyName
 instance : BEq Module where beq m n := m.keyName == n.keyName
 
 abbrev ModuleSet := Std.HashSet Module
-@[inline] def ModuleSet.empty : ModuleSet := Std.HashSet.empty
+@[inline] def ModuleSet.empty : ModuleSet := ∅
 
 abbrev OrdModuleSet := OrdHashSet Module
 @[inline] def OrdModuleSet.empty : OrdModuleSet := OrdHashSet.empty
@@ -45,7 +44,13 @@ Locate the named, buildable module in the library
 def LeanLib.findModule? (mod : Name) (self : LeanLib) : Option Module :=
   if self.isBuildableModule mod then some {lib := self, name := mod} else none
 
-/--  Locate the named, buildable, importable, local module in the package.  -/
+/-- Returns the buildable module in the library whose source file is `path`.  -/
+def LeanLib.findModuleBySrc? (path : FilePath) (self : LeanLib) : Option Module := do
+  let modPath ← path.toString.dropPrefix? self.srcDir.toString
+  let modPath := (modPath.drop 1).toString -- remove leading `/`
+  self.findModule? (modOfFilePath modPath)
+
+/-- Locate the named, buildable, importable, local module in the package.  -/
 def Package.findModule? (mod : Name) (self : Package) : Option Module :=
   self.leanLibs.findSomeRev? (·.findModule? mod)
 
@@ -77,11 +82,20 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def leanFile (self : Module) : FilePath :=
   self.srcPath "lean"
 
+@[inline] def relLeanFile (self : Module) : FilePath :=
+  relPathFrom self.pkg.dir self.leanFile
+
 @[inline] def leanLibPath (ext : String) (self : Module) : FilePath :=
   self.filePath self.pkg.leanLibDir ext
 
 @[inline] def oleanFile (self : Module) : FilePath :=
   self.leanLibPath "olean"
+
+@[inline] def oleanServerFile (self : Module) : FilePath :=
+  self.leanLibPath "olean.server"
+
+@[inline] def oleanPrivateFile (self : Module) : FilePath :=
+  self.leanLibPath "olean.private"
 
 @[inline] def ileanFile (self : Module) : FilePath :=
   self.leanLibPath "ilean"
@@ -91,6 +105,9 @@ abbrev pkg (self : Module) : Package :=
 
 @[inline] def irPath (ext : String) (self : Module) : FilePath :=
   self.filePath self.pkg.irDir ext
+
+@[inline] def setupFile (self : Module) : FilePath :=
+  self.irPath "setup.json"
 
 @[inline] def cFile (self : Module) : FilePath :=
   self.irPath "c"
@@ -125,7 +142,7 @@ def dynlibSuffix := "-1"
 @[inline] def dynlibFile (self : Module) : FilePath :=
   self.pkg.leanLibDir / s!"{self.dynlibName}.{sharedLibExt}"
 
-@[inline] def serverOptions (self : Module) : Array LeanOption :=
+@[inline] def serverOptions (self : Module) : LeanOptions :=
   self.lib.serverOptions
 
 @[inline] def buildType (self : Module) : BuildType :=
@@ -139,6 +156,9 @@ def dynlibSuffix := "-1"
 
 @[inline] def plugins (self : Module) : TargetArray Dynlib :=
   self.lib.plugins
+
+@[inline] def leanOptions (self : Module) : LeanOptions :=
+  self.lib.leanOptions
 
 @[inline] def leanArgs (self : Module) : Array String :=
   self.lib.leanArgs
@@ -157,6 +177,9 @@ def dynlibSuffix := "-1"
 
 @[inline] def weakLinkArgs (self : Module) : Array String :=
   self.lib.weakLinkArgs
+
+@[inline] def leanIncludeDir? (self : Module) : Option FilePath :=
+  if self.pkg.bootstrap then some <| self.pkg.buildDir / "include" else none
 
 @[inline] def platformIndependent (self : Module) : Option Bool :=
   self.lib.platformIndependent

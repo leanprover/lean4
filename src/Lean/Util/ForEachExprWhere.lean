@@ -31,7 +31,7 @@ structure State where
   checked : Std.HashSet Expr
 
 unsafe def initCache : State := {
-  visited := mkArray cacheSize.toNat (cast lcProof ())
+  visited := .replicate cacheSize.toNat (cast lcProof ())
   checked := {}
 }
 

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.DocString.Extension
+import Lean.DocString.Links
 import Lean.Parser.Tactic.Doc
 import Lean.Parser.Term.Doc
 
@@ -29,4 +30,5 @@ def findDocString? (env : Environment) (declName : Name) (includeBuiltin := true
   let declName := alternativeOfTactic env declName |>.getD declName
   let exts := getTacticExtensionString env declName
   let spellings := getRecommendedSpellingString env declName
-  return (← findSimpleDocString? env declName (includeBuiltin := includeBuiltin)).map (· ++ exts ++ spellings)
+  let str := (← findSimpleDocString? env declName (includeBuiltin := includeBuiltin)).map (· ++ exts ++ spellings)
+  str.mapM (rewriteManualLinks ·)

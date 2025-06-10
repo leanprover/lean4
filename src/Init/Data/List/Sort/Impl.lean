@@ -3,7 +3,10 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
+import all Init.Data.List.Sort.Basic
 import Init.Data.List.Sort.Lemmas
 
 /-!
@@ -39,7 +42,7 @@ open List
 namespace List.MergeSort.Internal
 
 /--
-`O(min |l| |r|)`. Merge two lists using `le` as a switch.
+`O(|l₁| + |l₂|)`. Merge two lists using `le` as a switch.
 -/
 def mergeTR (l₁ l₂ : List α) (le : α → α → Bool) : List α :=
   go l₁ l₂ []
@@ -150,12 +153,12 @@ where
     mergeTR (run' r) (run l) le
 
 theorem splitRevInTwo'_fst (l : { l : List α // l.length = n }) :
-    (splitRevInTwo' l).1 = ⟨(splitInTwo ⟨l.1.reverse, by simpa using l.2⟩).2.1, by simp; omega⟩ := by
+    (splitRevInTwo' l).1 = ⟨(splitInTwo (n := n) ⟨l.1.reverse, by simpa using l.2⟩).2.1, by simp; omega⟩ := by
   simp only [splitRevInTwo', splitRevAt_eq, reverse_take, splitInTwo_snd]
   congr
   omega
 theorem splitRevInTwo'_snd (l : { l : List α // l.length = n }) :
-    (splitRevInTwo' l).2 = ⟨(splitInTwo ⟨l.1.reverse, by simpa using l.2⟩).1.1.reverse, by simp; omega⟩ := by
+    (splitRevInTwo' l).2 = ⟨(splitInTwo (n := n) ⟨l.1.reverse, by simpa using l.2⟩).1.1.reverse, by simp; omega⟩ := by
   simp only [splitRevInTwo', splitRevAt_eq, reverse_take, splitInTwo_fst, reverse_reverse]
   congr 2
   simp

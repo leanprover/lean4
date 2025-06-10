@@ -26,8 +26,8 @@ Lean's IR.
 #include "llvm-c/Target.h"
 #include "llvm-c/TargetMachine.h"
 #include "llvm-c/Types.h"
-#include "llvm-c/Transforms/PassBuilder.h"
-#include "llvm-c/Transforms/PassManagerBuilder.h"
+//#include "llvm-c/Transforms/PassBuilder.h"
+//#include "llvm-c/Transforms/PassManagerBuilder.h"
 #endif
 
 // This is mostly boilerplate, suppress warnings
@@ -135,6 +135,8 @@ static inline LLVMBasicBlockRef lean_to_BasicBlock(size_t s) {
     return reinterpret_cast<LLVMBasicBlockRef>(s);
 }
 
+/* TODO: update to new pass manager
+
 // == LLVM <-> Lean: PassManagerRef ==
 static inline size_t PassManager_to_lean(LLVMPassManagerRef s) {
     return reinterpret_cast<size_t>(s);
@@ -152,6 +154,7 @@ static inline size_t PassManagerBuilder_to_lean(LLVMPassManagerBuilderRef s) {
 static inline LLVMPassManagerBuilderRef lean_to_PassManagerBuilder(size_t s) {
     return reinterpret_cast<LLVMPassManagerBuilderRef>(s);
 }
+*/
 
 // == LLVM <-> Lean: AttributeRef ==
 static inline size_t Attribute_to_lean(LLVMAttributeRef s) {
@@ -1184,90 +1187,90 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_target_machine_emit_to_file(size_t
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_create_pass_manager(size_t ctx,
-    lean_object * /* w */) {
-#ifndef LEAN_LLVM
-    lean_always_assert(
-        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
-                  "the LLVM backend function."));
-#else
-    return lean_io_result_mk_ok(lean_box_usize(PassManager_to_lean(LLVMCreatePassManager())));
-#endif  // LEAN_LLVM
-}
-
-extern "C" LEAN_EXPORT lean_object *lean_llvm_run_pass_manager(size_t ctx, size_t pm, size_t mod,
-    lean_object * /* w */) {
-#ifndef LEAN_LLVM
-    lean_always_assert(
-        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
-                  "the LLVM backend function."));
-#else
-    int is_error = LLVMRunPassManager(lean_to_PassManager(pm), lean_to_Module(mod));
-    return lean_io_result_mk_ok(lean_box(0));
-#endif  // LEAN_LLVM
-}
-
-extern "C" LEAN_EXPORT lean_object *lean_llvm_dispose_pass_manager(size_t ctx, size_t pm,
-    lean_object * /* w */) {
-#ifndef LEAN_LLVM
-    lean_always_assert(
-        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
-                  "the LLVM backend function."));
-#else
-    LLVMDisposePassManager(lean_to_PassManager(pm));
-    return lean_io_result_mk_ok(lean_box(0));
-#endif  // LEAN_LLVM
-}
-
-extern "C" LEAN_EXPORT lean_object *lean_llvm_create_pass_manager_builder(size_t ctx,
-    lean_object * /* w */) {
-#ifndef LEAN_LLVM
-    lean_always_assert(
-        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
-                  "the LLVM backend function."));
-#else
-    return lean_io_result_mk_ok(lean_box_usize(PassManagerBuilder_to_lean(LLVMPassManagerBuilderCreate())));
-#endif  // LEAN_LLVM
-}
-
-
-extern "C" LEAN_EXPORT lean_object *lean_llvm_dispose_pass_manager_builder(size_t ctx, size_t pmb,
-    lean_object * /* w */) {
-#ifndef LEAN_LLVM
-    lean_always_assert(
-        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
-                  "the LLVM backend function."));
-#else
-    LLVMPassManagerBuilderDispose(lean_to_PassManagerBuilder(pmb));
-    return lean_io_result_mk_ok(lean_box(0));
-#endif  // LEAN_LLVM
-}
-
-
-extern "C" LEAN_EXPORT lean_object *lean_llvm_pass_manager_builder_set_opt_level(size_t ctx, size_t pmb, unsigned opt_level,
-    lean_object * /* w */) {
-#ifndef LEAN_LLVM
-    lean_always_assert(
-        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
-                  "the LLVM backend function."));
-#else
-    LLVMPassManagerBuilderSetOptLevel(lean_to_PassManagerBuilder(pmb), opt_level);
-    return lean_io_result_mk_ok(lean_box(0));
-#endif  // LEAN_LLVM
-}
-
-
-extern "C" LEAN_EXPORT lean_object *lean_llvm_pass_manager_builder_populate_module_pass_manager(size_t ctx, size_t pmb, size_t pm,
-    lean_object * /* w */) {
-#ifndef LEAN_LLVM
-    lean_always_assert(
-        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
-                  "the LLVM backend function."));
-#else
-    LLVMPassManagerBuilderPopulateModulePassManager(lean_to_PassManagerBuilder(pmb), lean_to_PassManager(pm));
-    return lean_io_result_mk_ok(lean_box(0));
-#endif  // LEAN_LLVM
-}
+//extern "C" LEAN_EXPORT lean_object *lean_llvm_create_pass_manager(size_t ctx,
+//    lean_object * /* w */) {
+//#ifndef LEAN_LLVM
+//    lean_always_assert(
+//        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+//                  "the LLVM backend function."));
+//#else
+//    return lean_io_result_mk_ok(lean_box_usize(PassManager_to_lean(LLVMCreatePassManager())));
+//#endif  // LEAN_LLVM
+//}
+//
+//extern "C" LEAN_EXPORT lean_object *lean_llvm_run_pass_manager(size_t ctx, size_t pm, size_t mod,
+//    lean_object * /* w */) {
+//#ifndef LEAN_LLVM
+//    lean_always_assert(
+//        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+//                  "the LLVM backend function."));
+//#else
+//    int is_error = LLVMRunPassManager(lean_to_PassManager(pm), lean_to_Module(mod));
+//    return lean_io_result_mk_ok(lean_box(0));
+//#endif  // LEAN_LLVM
+//}
+//
+//extern "C" LEAN_EXPORT lean_object *lean_llvm_dispose_pass_manager(size_t ctx, size_t pm,
+//    lean_object * /* w */) {
+//#ifndef LEAN_LLVM
+//    lean_always_assert(
+//        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+//                  "the LLVM backend function."));
+//#else
+//    LLVMDisposePassManager(lean_to_PassManager(pm));
+//    return lean_io_result_mk_ok(lean_box(0));
+//#endif  // LEAN_LLVM
+//}
+//
+//extern "C" LEAN_EXPORT lean_object *lean_llvm_create_pass_manager_builder(size_t ctx,
+//    lean_object * /* w */) {
+//#ifndef LEAN_LLVM
+//    lean_always_assert(
+//        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+//                  "the LLVM backend function."));
+//#else
+//    return lean_io_result_mk_ok(lean_box_usize(PassManagerBuilder_to_lean(LLVMPassManagerBuilderCreate())));
+//#endif  // LEAN_LLVM
+//}
+//
+//
+//extern "C" LEAN_EXPORT lean_object *lean_llvm_dispose_pass_manager_builder(size_t ctx, size_t pmb,
+//    lean_object * /* w */) {
+//#ifndef LEAN_LLVM
+//    lean_always_assert(
+//        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+//                  "the LLVM backend function."));
+//#else
+//    LLVMPassManagerBuilderDispose(lean_to_PassManagerBuilder(pmb));
+//    return lean_io_result_mk_ok(lean_box(0));
+//#endif  // LEAN_LLVM
+//}
+//
+//
+//extern "C" LEAN_EXPORT lean_object *lean_llvm_pass_manager_builder_set_opt_level(size_t ctx, size_t pmb, unsigned opt_level,
+//    lean_object * /* w */) {
+//#ifndef LEAN_LLVM
+//    lean_always_assert(
+//        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+//                  "the LLVM backend function."));
+//#else
+//    LLVMPassManagerBuilderSetOptLevel(lean_to_PassManagerBuilder(pmb), opt_level);
+//    return lean_io_result_mk_ok(lean_box(0));
+//#endif  // LEAN_LLVM
+//}
+//
+//
+//extern "C" LEAN_EXPORT lean_object *lean_llvm_pass_manager_builder_populate_module_pass_manager(size_t ctx, size_t pmb, size_t pm,
+//    lean_object * /* w */) {
+//#ifndef LEAN_LLVM
+//    lean_always_assert(
+//        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+//                  "the LLVM backend function."));
+//#else
+//    LLVMPassManagerBuilderPopulateModulePassManager(lean_to_PassManagerBuilder(pmb), lean_to_PassManager(pm));
+//    return lean_io_result_mk_ok(lean_box(0));
+//#endif  // LEAN_LLVM
+//}
 
 extern "C" LEAN_EXPORT lean_object *lean_llvm_dispose_target_machine(size_t ctx, size_t tm,
     lean_object * /* w */) {

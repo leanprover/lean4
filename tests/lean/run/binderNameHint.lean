@@ -1,6 +1,6 @@
 theorem all_eq_not_any_not (l : List α) (p : α → Bool) :
     l.all p = !l.any fun x => binderNameHint x p (!p x)
-  := List.all_eq_not_any_not l p
+  := List.all_eq_not_any_not
 
 /--
 error: tactic 'fail' failed
@@ -84,7 +84,7 @@ error: unsolved goals
 names : List String
 ⊢ (!names.any fun x => !"Waldo".isPrefixOf x) = true
 ---
-info: names : List String
+trace: names : List String
 ⊢ (!names.any fun x => binderNameHint x (fun name => "Waldo".isPrefixOf name) !"Waldo".isPrefixOf x) = true
 -/
 #guard_msgs in

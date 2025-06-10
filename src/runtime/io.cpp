@@ -688,7 +688,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
 
         if (U_FAILURE(status)) {
             ucal_close(cal);
-            return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get next transation")));
+            return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get next transition")));
         }
 
         tm = (int64_t)(nextTransition / 1000.0);
@@ -913,9 +913,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_num_heartbeats(obj_arg /* w */) {
     return io_result_mk_ok(lean_uint64_to_nat(get_num_heartbeats()));
 }
 
-/* addHeartbeats (count : Int64) : BaseIO Unit */
-extern "C" LEAN_EXPORT obj_res lean_io_add_heartbeats(int64_t count, obj_arg /* w */) {
-    add_heartbeats(count);
+/* setHeartbeats (count : Nat) : BaseIO Unit */
+extern "C" LEAN_EXPORT obj_res lean_io_set_heartbeats(obj_arg count, obj_arg /* w */) {
+    set_heartbeats(lean_uint64_of_nat(count));
+    lean_dec(count);
     return io_result_mk_ok(box(0));
 }
 
@@ -1038,11 +1039,7 @@ static obj_res timespec_to_obj(timespec const & ts) {
     return o;
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_metadata(b_obj_arg fname, obj_arg) {
-    struct stat st;
-    if (stat(string_cstr(fname), &st) != 0) {
-        return io_result_mk_error(decode_io_error(errno, fname));
-    }
+static obj_res metadata_core(struct stat const & st) {
     object * mdata = alloc_cnstr(0, 2, sizeof(uint64) + sizeof(uint8));
 #ifdef __APPLE__
     cnstr_set(mdata, 0, timespec_to_obj(st.st_atimespec));
@@ -1064,6 +1061,26 @@ extern "C" LEAN_EXPORT obj_res lean_io_metadata(b_obj_arg fname, obj_arg) {
 #endif
                     3);
     return io_result_mk_ok(mdata);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_metadata(b_obj_arg fname, obj_arg) {
+    struct stat st;
+    if (stat(string_cstr(fname), &st) != 0) {
+        return io_result_mk_error(decode_io_error(errno, fname));
+    }
+    return metadata_core(st);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_symlink_metadata(b_obj_arg fname, obj_arg) {
+#ifdef LEAN_WINDOWS
+    return lean_io_metadata(fname, io_mk_world());
+#else
+    struct stat st;
+    if (lstat(string_cstr(fname), &st) != 0) {
+        return io_result_mk_error(decode_io_error(errno, fname));
+    }
+    return metadata_core(st);
+#endif
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_create_dir(b_obj_arg p, obj_arg) {
@@ -1464,7 +1481,18 @@ extern "C" LEAN_EXPORT obj_res lean_runtime_mark_persistent(obj_arg a, obj_arg /
     return io_result_mk_ok(a);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_runtime_forget(obj_arg /* a */, obj_arg /* w */) {
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+#include <sanitizer/lsan_interface.h>
+#endif
+#endif
+
+extern "C" LEAN_EXPORT obj_res lean_runtime_forget(obj_arg o, obj_arg /* w */) {
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+    __lsan_ignore_object(o);
+#endif
+#endif
     return io_result_mk_ok(box(0));
 }
 

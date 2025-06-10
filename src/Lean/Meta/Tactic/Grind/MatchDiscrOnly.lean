@@ -49,6 +49,6 @@ def eraseSimpMatchDiscrsOnly (e : Expr) : MetaM Simp.Result := do
     reducible. Thus, `e` and `e'` are not definitionally equal in this setting, and we must
     add a hint.
     -/
-    return { expr := e', proof? := (← mkExpectedTypeHint (← mkEqRefl e') (← mkEq e e')) }
+    return { expr := e', proof? := mkExpectedPropHint (← mkEqRefl e') (← mkEq e e') }
 
 end Lean.Meta.Grind

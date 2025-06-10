@@ -37,7 +37,7 @@ Mark all free variables occurring in `e` as used.
 -/
 def markUsedLetValue (e : LetValue) : SimpM Unit := do
   match e with
-  | .value .. | .erased => return ()
+  | .lit .. | .erased => return ()
   | .proj _ _ fvarId => markUsedFVar fvarId
   | .const _ _ args => args.forM markUsedArg
   | .fvar fvarId args => markUsedFVar fvarId; args.forM markUsedArg

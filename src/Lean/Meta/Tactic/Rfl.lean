@@ -90,7 +90,7 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
     let mut ex? := none
     for lem in ← (reflExt.getState (← getEnv)).getMatch rel do
       try
-        let gs ← goal.apply (← mkConstWithFreshMVarLevels lem)
+        let gs ← goal.apply (← mkConstWithFreshMVarLevels lem) (term? := m!"'{.ofConstName lem}'")
         if gs.isEmpty then return () else
           throwError MessageData.tagged `Tactic.unsolvedGoals <| m!"unsolved goals\n{
             goalsToMessageData gs}"

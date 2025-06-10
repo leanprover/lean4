@@ -318,7 +318,11 @@ private def ext (userName? : Option Name) : TacticM Unit := do
     ext none
   else
     for id in ids do
-      withRef id <| ext id.getId
+      let userName? :=
+        match id with
+        | `(binderIdent| $id:ident) => some id.getId
+        | _ => none
+      withRef id <| ext userName?
 
 -- syntax (name := enter) "enter" " [" enterArg,+ "]" : conv
 @[builtin_tactic Lean.Parser.Tactic.Conv.enter] def evalEnter : Tactic := fun stx => do
@@ -334,8 +338,8 @@ private def ext (userName? : Option Name) : TacticM Unit := do
     -- show state up to (incl.) next `,` and show errors on `enterArg`
     withTacticInfoContext (mkNullNode #[enterArg, sep]) <| withRef enterArg do
       match enterArg with
-      | `(Parser.Tactic.Conv.enterArg| $arg:argArg) => evalTactic (← `(conv| arg $arg))
-      | `(Parser.Tactic.Conv.enterArg| $id:ident)   => evalTactic (← `(conv| ext $id))
+      | `(Parser.Tactic.Conv.enterArg| $arg:argArg)     => evalTactic (← `(conv| arg $arg))
+      | `(Parser.Tactic.Conv.enterArg| $id:binderIdent) => evalTactic (← `(conv| ext $id))
       | _ => pure ()
 
 end Lean.Elab.Tactic.Conv

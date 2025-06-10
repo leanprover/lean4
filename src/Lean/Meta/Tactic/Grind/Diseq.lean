@@ -78,4 +78,9 @@ def mkDiseqProof? (a b : Expr) : GoalM (Option Expr) := do
   else
     return mkApp6 (mkConst ``Grind.ne_of_ne_of_eq_right u) α b a d (← mkEqProof b d) h
 
+def mkDiseqProof (a b : Expr) : GoalM Expr := do
+ let some h ← mkDiseqProof? a b
+   | throwError "internal `grind` error, failed to build disequality proof for{indentExpr a}\nand{indentExpr b}"
+  return h
+
 end Lean.Meta.Grind

@@ -60,7 +60,7 @@ def relabel (r : α → β) (f : CNF α) : CNF β := f.map (Clause.relabel r)
   induction f <;> simp_all
 
 @[simp] theorem relabel_append : relabel r (f1 ++ f2) = relabel r f1 ++ relabel r f2 :=
-  List.map_append _ _ _
+  List.map_append
 
 @[simp] theorem relabel_relabel : relabel r1 (relabel r2 f) = relabel (r1 ∘ r2) f := by
   simp only [relabel, List.map_map, Clause.relabel_relabel']

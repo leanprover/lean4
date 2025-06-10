@@ -75,12 +75,19 @@ builtin_initialize inheritedTraceOptions : IO.Ref (Std.HashSet Name) ← IO.mkRe
 class MonadTrace (m : Type → Type) where
   modifyTraceState : (TraceState → TraceState) → m Unit
   getTraceState    : m TraceState
+  /--
+  Should return the value of `inheritedTraceOptions.get`, which does not change after
+  initialization. As `IO.Ref.get` may be too expensive on frequent and multi-threaded access, the
+  value may want to be cached, which is done in the stdlib in `CoreM`.
+  -/
+  getInheritedTraceOptions : m (Std.HashSet Name) := by exact inheritedTraceOptions.get
 
 export MonadTrace (getTraceState modifyTraceState)
 
 instance (m n) [MonadLift m n] [MonadTrace m] : MonadTrace n where
   modifyTraceState := fun f => liftM (modifyTraceState f : m _)
   getTraceState    := liftM (getTraceState : m _)
+  getInheritedTraceOptions := liftM (MonadTrace.getInheritedTraceOptions : m _)
 
 variable {α : Type} {m : Type → Type} [Monad m] [MonadTrace m] [MonadOptions m] [MonadLiftT IO m]
 
@@ -91,7 +98,7 @@ def printTraces : m Unit := do
 def resetTraceState : m Unit :=
   modifyTraceState (fun _ => {})
 
-private def checkTraceOption (inherited : Std.HashSet Name) (opts : Options) (cls : Name) : Bool :=
+def checkTraceOption (inherited : Std.HashSet Name) (opts : Options) (cls : Name) : Bool :=
   !opts.isEmpty && go (`trace ++ cls)
 where
   go (opt : Name) : Bool :=
@@ -102,12 +109,8 @@ where
     else
       false
 
-def isTracingEnabledForCore (cls : Name) (opts : Options) : BaseIO Bool := do
-  let inherited ← inheritedTraceOptions.get
-  return checkTraceOption inherited opts cls
-
 def isTracingEnabledFor (cls : Name) : m Bool := do
-  (isTracingEnabledForCore cls (← getOptions) : IO _)
+  return checkTraceOption (← MonadTrace.getInheritedTraceOptions) (← getOptions) cls
 
 @[inline] def getTraces : m (PersistentArray TraceElem) := do
   let s ← getTraceState

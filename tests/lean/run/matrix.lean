@@ -1,14 +1,3 @@
-/-
-Helper classes for Lean 3 users
--/
-class One (α : Type u) where
-  one : α
-
-instance [OfNat α (nat_lit 1)] : One α where
-  one := 1
-
-instance [One α] : OfNat α (nat_lit 1) where
-  ofNat := One.one
 
 /- Simple Matrix -/
 

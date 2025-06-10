@@ -117,7 +117,7 @@ structure RecS where
   n : Nat
   recS : Option RecS := none
 
-/-- info: { n := 0, recS := none } : RecS -/
+/-- info: { n := 0 } : RecS -/
 #guard_msgs in #check ({ n := 0 } : RecS)
 
 /-!

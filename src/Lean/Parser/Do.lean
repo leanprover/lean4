@@ -65,7 +65,7 @@ def notFollowedByRedefinedTermToken :=
   checkColGt >> " | " >> doSeq
 
 @[builtin_doElem_parser] def doLetMetaExpr  := leading_parser
-  "let_expr " >> matchExprPat >> " ← " >> termParser >>
+  "let_expr " >> matchExprPat >> leftArrow >> termParser >>
   checkColGt >> " | " >> doSeq
 
 @[builtin_doElem_parser] def doLetRec   := leading_parser
@@ -123,7 +123,7 @@ else if c_2 then
 def elseIf := atomic (group (withPosition ("else " >> checkLineEq >> " if ")))
 -- ensure `if $e then ...` still binds to `e:term`
 def doIfLetPure := leading_parser " := " >> termParser
-def doIfLetBind := leading_parser " ← " >> termParser
+def doIfLetBind := leading_parser leftArrow >> termParser
 def doIfLet     := leading_parser (withAnonymousAntiquot := false)
   "let " >> termParser >> (doIfLetPure <|> doIfLetBind)
 def doIfProp    := leading_parser (withAnonymousAntiquot := false)
@@ -225,7 +225,7 @@ The second `notFollowedBy` prevents this problem.
 -/
 @[builtin_doElem_parser] def doExpr   := leading_parser
   notFollowedByRedefinedTermToken >> termParser >>
-  notFollowedBy (symbol ":=" <|> symbol "←" <|> symbol "<-")
+  notFollowedBy (symbol ":=" <|> leftArrow)
     "unexpected token after 'expr' in 'do' block"
 @[builtin_doElem_parser] def doNested := leading_parser
   "do " >> doSeq

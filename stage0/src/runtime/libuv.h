@@ -8,6 +8,8 @@ Author: Markus Himmel, Sofia Rodrigues
 #include <lean/lean.h>
 #include "runtime/uv/event_loop.h"
 #include "runtime/uv/timer.h"
+#include "runtime/uv/tcp.h"
+#include "runtime/uv/udp.h"
 #include "runtime/alloc.h"
 #include "runtime/io.h"
 #include "runtime/utf8.h"
@@ -17,9 +19,6 @@ Author: Markus Himmel, Sofia Rodrigues
 #include "runtime/object.h"
 
 namespace lean {
-#ifndef LEAN_EMSCRIPTEN
-#include <uv.h>
-#endif
 
 extern "C" void initialize_libuv();
 

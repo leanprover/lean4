@@ -71,7 +71,7 @@ structure ClientCapabilities where
   textDocument? : Option TextDocumentClientCapabilities := none
   window?       : Option WindowClientCapabilities       := none
   workspace?    : Option WorkspaceClientCapabilities    := none
-  /-- Capabilties for Lean language server extensions. -/
+  /-- Capabilities for Lean language server extensions. -/
   lean?         : Option LeanClientCapabilities         := none
   deriving ToJson, FromJson
 
@@ -100,6 +100,7 @@ structure ServerCapabilities where
   semanticTokensProvider?   : Option SemanticTokensOptions   := none
   codeActionProvider?       : Option CodeActionOptions       := none
   inlayHintProvider?        : Option InlayHintOptions        := none
+  signatureHelpProvider?    : Option SignatureHelpOptions    := none
   deriving ToJson, FromJson
 
 end Lsp

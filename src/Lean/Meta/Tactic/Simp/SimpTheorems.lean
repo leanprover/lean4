@@ -10,9 +10,22 @@ import Lean.Meta.DiscrTree
 import Lean.Meta.AppBuilder
 import Lean.Meta.Eqns
 import Lean.Meta.Tactic.AuxLemma
+import Lean.DefEqAttrib
 import Lean.DocString
-import Lean.PrettyPrinter
 namespace Lean.Meta
+
+register_builtin_option backward.dsimp.useDefEqAttr : Bool := {
+  defValue := true
+  descr    := "Use `defeq` attribute rather than checking theorem body to decide whether a theroem \
+    can be used in `dsimp` or with `implicitDefEqProofs`."
+}
+
+register_builtin_option debug.tactic.simp.checkDefEqAttr : Bool := {
+  defValue := false
+  descr    := "If true, whenever `dsimp` fails to apply a rewrite rule because it is not marked as \
+    `defeq`, check whether it would have been considered as a rfl theorem before the introduction \
+    of the `defeq` attribute, and warn if it was. Note that this is a costly check."
+}
 
 /--
 An `Origin` is an identifier for simp theorems which indicates roughly
@@ -122,12 +135,14 @@ structure SimpTheorem where
     It is also viewed an `id` used to "erase" `simp` theorems from `SimpTheorems`.
   -/
   origin      : Origin
-  /-- `rfl` is true if `proof` is by `Eq.refl` or `rfl`. -/
+  /--
+  `rfl` is true if `proof` is by `Eq.refl`, `rfl` or a `@[defeq]` theorem.
+  -/
   rfl         : Bool
   deriving Inhabited
 
 mutual
-  partial def isRflProofCore (type : Expr) (proof : Expr) : CoreM Bool := do
+  private partial def isRflProofCore (type : Expr) (proof : Expr) : CoreM Bool := do
     match type with
     | .forallE _ _ type _ =>
       if let .lam _ _ proof _ := proof then
@@ -144,22 +159,37 @@ mutual
         else if proof.getAppFn.isConst then
           -- The application of a `rfl` theorem is a `rfl` theorem
           -- A constant which is a `rfl` theorem is a `rfl` theorem
-          isRflTheorem proof.getAppFn.constName!
+          isRflTheoremCore proof.getAppFn.constName!
         else
           return false
       else
         return false
 
-  partial def isRflTheorem (declName : Name) : CoreM Bool := do
-    let .thmInfo info ← getConstInfo declName | return false
-    isRflProofCore info.type info.value
+  private partial def isRflTheoremCore (declName : Name) : CoreM Bool := do
+    if backward.dsimp.useDefEqAttr.get (← getOptions) then
+      return defeqAttr.hasTag (← getEnv) declName
+    else
+      let { kind := .thm, constInfo, .. } ← getAsyncConstInfo declName | return false
+      let .thmInfo info ← traceBlock "isRflTheorem theorem body" constInfo | return false
+      isRflProofCore info.type info.value
 end
 
+def isRflTheorem (declName : Name) : CoreM Bool :=
+  -- Make theorem body available if `declName` is from the current module; the body does not matter
+  -- for the ultimate application of a rfl theorem, only that the theorem type's LHS and RHS are
+  -- defeq.
+  withoutExporting do
+    isRflTheoremCore declName
+
 def isRflProof (proof : Expr) : MetaM Bool := do
-  if let .const declName .. := proof then
-    isRflTheorem declName
-  else
-    isRflProofCore (← inferType proof) proof
+  -- Make theorem body available if `declName` is from the current module; the body does not matter
+  -- for the ultimate application of a rfl theorem, only that the theorem type's LHS and RHS are
+  -- defeq.
+  withoutExporting do
+    if let .const declName .. := proof then
+      isRflTheoremCore declName
+    else
+      isRflProofCore (← inferType proof) proof
 
 instance : ToFormat SimpTheorem where
   format s :=
@@ -191,6 +221,9 @@ instance : BEq SimpTheorem where
 
 abbrev SimpTheoremTree := DiscrTree SimpTheorem
 
+/--
+The theorems in a simp set.
+-/
 structure SimpTheorems where
   pre          : SimpTheoremTree := DiscrTree.empty
   post         : SimpTheoremTree := DiscrTree.empty
@@ -400,7 +433,7 @@ private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array 
     return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl := (← isRflProof proof) }
 
 private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool) (prio : Nat) : MetaM (Array SimpTheorem) := do
-  let cinfo ← getConstInfo declName
+  let cinfo ← getConstVal declName
   let us := cinfo.levelParams.map mkLevelParam
   let origin := .decl declName post inv
   let val := mkConst declName us
@@ -410,11 +443,11 @@ private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool)
     if inv || (← shouldPreprocess type) then
       let mut r := #[]
       for (val, type) in (← preprocess val type inv (isGlobal := true)) do
-        let auxName ← mkAuxLemma cinfo.levelParams type val
-        r := r.push <| (← mkSimpTheoremCore origin (mkConst auxName us) #[] (mkConst auxName) post prio (noIndexAtArgs := false))
+        let auxName ← mkAuxLemma (kind? := `_simp) cinfo.levelParams type val (inferRfl := true)
+        r := r.push <| (← withoutExporting do mkSimpTheoremCore origin (mkConst auxName us) #[] (mkConst auxName) post prio (noIndexAtArgs := false))
       return r
     else
-      return #[← mkSimpTheoremCore origin (mkConst declName us) #[] (mkConst declName) post prio (noIndexAtArgs := false)]
+      return #[← withoutExporting do mkSimpTheoremCore origin (mkConst declName us) #[] (mkConst declName) post prio (noIndexAtArgs := false)]
 
 inductive SimpEntry where
   | thm      : SimpTheorem → SimpEntry
@@ -422,13 +455,19 @@ inductive SimpEntry where
   | toUnfoldThms : Name → Array Name → SimpEntry
   deriving Inhabited
 
+/--
+The environment extension that contains a simp set, returned by `Lean.Meta.registerSimpAttr`.
+
+Use the simp set's attribute or `Lean.Meta.addSimpTheorem` to add theorems to the simp set. Use
+`Lean.Meta.SimpExtension.getTheorems` to get the contents.
+-/
 abbrev SimpExtension := SimpleScopedEnvExtension SimpEntry SimpTheorems
 
 def SimpExtension.getTheorems (ext : SimpExtension) : CoreM SimpTheorems :=
   return ext.getState (← getEnv)
 
 def addSimpTheorem (ext : SimpExtension) (declName : Name) (post : Bool) (inv : Bool) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
-  let simpThms ← mkSimpTheoremsFromConst declName post inv prio
+  let simpThms ← withExporting (isExporting := !isPrivateName declName) do mkSimpTheoremsFromConst declName post inv prio
   for simpThm in simpThms do
     ext.add (SimpEntry.thm simpThm) attrKind
 
@@ -458,7 +497,7 @@ def SimpTheorems.addConst (s : SimpTheorems) (declName : Name) (post := true) (i
 
 def SimpTheorem.getValue (simpThm : SimpTheorem) : MetaM Expr := do
   if simpThm.proof.isConst && simpThm.levelParams.isEmpty then
-    let info ← getConstInfo simpThm.proof.constName!
+    let info ← getConstVal simpThm.proof.constName!
     if info.levelParams.isEmpty then
       return simpThm.proof
     else
@@ -507,6 +546,10 @@ def SimpTheorems.unfoldEvenWithEqns (declName : Name) : CoreM Bool := do
   return false
 
 def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM SimpTheorems := do
+  -- NOTE: the latter condition is only to preserve previous behavior where simp accepts even things
+  -- that neither theorems nor unfoldable. This should likely be tightened up in the future.
+  if !(← getConstInfo declName).isDefinition && getOriginalConstKind? (← getEnv) declName == some .defn then
+    throwError "invalid 'simp', definition with exposed body expected: {.ofConstName declName}"
   if (← ignoreEquations declName) then
     return d.addDeclToUnfoldCore declName
   else if let some eqns ← getEqnsFor? declName then

@@ -13,7 +13,7 @@ termination_by n
 -- #check bar.match_1
 -- #print bar.induct
 
--- NB: The induction theorem used to ahve two `h` in scope, as its original type mentioning `x`,
+-- NB: The induction theorem used to have two `h` in scope, as its original type mentioning `x`,
 -- and a refined `h` mentioning `m+1`.
 -- At some point we had a HEq between them, but not any more, thanks to proof irrelevance
 -- Since #7110, we drop the shadowed `h`.

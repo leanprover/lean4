@@ -25,7 +25,6 @@ package test where
   binDir := defaultBinDir
   irDir := defaultIrDir
   releaseRepo := none
-  releaseRepo? := none
   buildArchive? := none
   preferReleaseBuild := false
   packagesDir := defaultPackagesDir

@@ -31,7 +31,12 @@ def rewriteRulesPass : Pass where
     let cfg ← PreProcessM.getConfig
 
     let simpCtx ← Simp.mkContext
-      (config := { failIfUnchanged := false, zetaDelta := true, maxSteps := cfg.maxSteps })
+      (config := {
+        failIfUnchanged := false,
+        zetaDelta := true,
+        implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
+        maxSteps := cfg.maxSteps,
+      })
       (simpTheorems := #[bvThms, sevalThms])
       (congrTheorems := (← getSimpCongrTheorems))
 

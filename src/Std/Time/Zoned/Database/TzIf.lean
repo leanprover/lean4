@@ -292,7 +292,7 @@ private def parseFooter : Parser (Option String) := do
   for byte in tzString do
     str := str.push (Char.ofUInt8 byte)
 
-  return str
+  return some str
 
 private def parseTZifV2 : Parser (Option TZifV2) := optional do
   let header ← parseHeader

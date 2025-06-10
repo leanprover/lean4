@@ -67,10 +67,7 @@ theorem zip_length {α β} (xs : List α) (ys : List β) :
   induction xs, ys using zip.induct
   case case1 => simp [zip]
   case case2 => simp [zip]
-  case case3 =>
-    simp [zip, *]
-    simp [Nat.min_def]
-    split <;> omega
+  case case3 => simp [zip, *]
 
 theorem zip_get? {i : Nat}  {α β} (as : List α) (bs : List β) :
     (List.zip as bs)[i]? = match as[i]?, bs[i]? with
@@ -92,8 +89,8 @@ termination_by structural n
 
 /--
 info: Finn.min.induct (motive : Bool → {n : Nat} → Nat → Finn n → Finn n → Prop)
-  (case1 : ∀ (x : Bool) (m n : Nat) (x_1 : Finn n), motive x m Finn.fzero x_1)
-  (case2 : ∀ (x : Bool) (m n : Nat) (x_1 : Finn n), (x_1 = Finn.fzero → False) → motive x m x_1 Finn.fzero)
+  (case1 : ∀ (x : Bool) (m n : Nat) (f : Finn n), motive x m Finn.fzero f)
+  (case2 : ∀ (x : Bool) (m n : Nat) (a : Finn n), (a = Finn.fzero → False) → motive x m a Finn.fzero)
   (case3 : ∀ (x : Bool) (m n : Nat) (i j : Finn n), motive (!x) (m + 1) i j → motive x m i.fsucc j.fsucc) (x : Bool)
   {n : Nat} (m : Nat) (a✝ f : Finn n) : motive x m a✝ f
 -/

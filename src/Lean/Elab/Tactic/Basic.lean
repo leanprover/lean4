@@ -11,10 +11,10 @@ namespace Lean.Elab
 open Meta
 
 /-- Assign `mvarId := sorry` -/
-def admitGoal (mvarId : MVarId) : MetaM Unit :=
+def admitGoal (mvarId : MVarId) (synthetic : Bool := true): MetaM Unit :=
   mvarId.withContext do
     let mvarType ← inferType (mkMVar mvarId)
-    mvarId.assign (← mkLabeledSorry mvarType (synthetic := true) (unique := true))
+    mvarId.assign (← mkLabeledSorry mvarType (synthetic := synthetic) (unique := true))
 
 def goalsToMessageData (goals : List MVarId) : MessageData :=
   MessageData.joinSep (goals.map MessageData.ofGoal) m!"\n\n"
@@ -35,7 +35,19 @@ structure Context where
   -/
   recover    : Bool := true
 
+/--
+The tactic monad, which extends the term elaboration monad `TermElabM` with state that contains the
+current goals (`Lean.Elab.Tactic.State`, accessible via `MonadStateOf`) and local information about
+the current tactic's name and whether error recovery is enabled (`Lean.Elab.Tactic.Context`,
+accessible via `MonadReaderOf`).
+-/
 abbrev TacticM := ReaderT Context $ StateRefT State TermElabM
+/--
+A tactic is a function from syntax to an action in the tactic monad.
+
+A given tactic syntax kind may have multiple `Tactic`s associated with it, all of which will be
+attempted until one succeeds.
+-/
 abbrev Tactic  := Syntax → TacticM Unit
 
 /-
@@ -153,6 +165,7 @@ structure EvalTacticFailure where
   state : SavedState
 
 partial def evalTactic (stx : Syntax) : TacticM Unit := do
+  checkSystem "tactic execution"
   profileitM Exception "tactic execution" (decl := stx.getKind) (← getOptions) <|
   withRef stx <| withIncRecDepth <| withFreshMacroScope <| match stx with
     | .node _ k _    =>
@@ -228,6 +241,7 @@ where
                     snap.old?.forM (·.val.cancelRec)
                   let promise ← IO.Promise.new
                   -- Store new unfolding in the snapshot tree
+                  let cancelTk? := (← readThe Core.Context).cancelTk?
                   snap.new.resolve {
                     stx := stx'
                     diagnostics := .empty
@@ -237,7 +251,7 @@ where
                       state? := (← Tactic.saveState)
                       moreSnaps := #[]
                     }
-                    next := #[{ stx? := stx', task := promise.resultD default }]
+                    next := #[{ stx? := stx', task := promise.resultD default, cancelTk? }]
                   }
                   -- Update `tacSnap?` to old unfolding
                   withTheReader Term.Context ({ · with tacSnap? := some {

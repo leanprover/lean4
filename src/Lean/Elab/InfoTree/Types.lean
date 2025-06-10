@@ -96,7 +96,6 @@ inductive CompletionInfo where
   | option (stx : Syntax)
   | endSection (stx : Syntax) (scopeNames : List String)
   | tactic (stx : Syntax)
-  -- TODO `import`
 
 /-- Info for an option reference (e.g. in `set_option`). -/
 structure OptionInfo where
@@ -255,6 +254,11 @@ structure InfoState where
   enabled    : Bool := true
   /-- Map from holes in the infotree to child infotrees. -/
   assignment : PersistentHashMap MVarId InfoTree := {}
+  /--
+  Assignments fulfilled by other elaboration tasks. We substitute them only just before reporting
+  the info tree via a snapshot to avoid premature blocking.
+  -/
+  lazyAssignment : PersistentHashMap MVarId (Task InfoTree) := {}
   /-- Pending child trees of a node. -/
   trees      : PersistentArray InfoTree := {}
   deriving Inhabited

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Basic
-// Imports: Init.SimpLemmas Init.Data.NeZero
+// Imports: Init.SimpLemmas Init.Data.NeZero Init.Grind.Tactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -494,6 +494,7 @@ return x_5;
 }
 lean_object* initialize_Init_SimpLemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_NeZero(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_Tactics(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Nat_Basic(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -503,6 +504,9 @@ res = initialize_Init_SimpLemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_NeZero(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Tactics(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Nat_instTransLt = _init_l_Nat_instTransLt();

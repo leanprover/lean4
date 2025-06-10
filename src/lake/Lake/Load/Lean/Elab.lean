@@ -24,24 +24,24 @@ namespace Lake
 deriving instance BEq, Hashable for Import
 
 /- Cache for the imported header environment of Lake configuration files. -/
-initialize importEnvCache : IO.Ref (Std.HashMap (Array Import) Environment) ← IO.mkRef {}
+builtin_initialize importEnvCache : IO.Ref (Std.HashMap (Array Import) Environment) ← IO.mkRef {}
 
 /-- Like `importModules`, but fetch the resulting import state from the cache if possible. -/
 def importModulesUsingCache (imports : Array Import) (opts : Options) (trustLevel : UInt32) : IO Environment := do
   if let some env := (← importEnvCache.get)[imports]? then
     return env
-  let env ← importModules imports opts trustLevel
+  let env ← importModules (loadExts := true) imports opts trustLevel
   importEnvCache.modify (·.insert imports env)
   return env
 
 /-- Like `Lean.Elab.processHeader`, but using `importEnvCache`. -/
-def processHeader (header : Syntax) (opts : Options)
+def processHeader (header : TSyntax ``Parser.Module.header) (opts : Options)
 (inputCtx : Parser.InputContext) : StateT MessageLog IO Environment := do
   try
     let imports := Elab.headerToImports header
     importModulesUsingCache imports opts 1024
   catch e =>
-    let pos := inputCtx.fileMap.toPosition <| header.getPos?.getD 0
+    let pos := inputCtx.fileMap.toPosition <| header.raw.getPos?.getD 0
     modify (·.add { fileName := inputCtx.fileName, data := toString e, pos })
     mkEmptyEnvironment
 
@@ -58,7 +58,6 @@ def elabConfigFile (pkgDir : FilePath) (lakeOpts : NameMap String)
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
   let (env, messages) ← processHeader header leanOpts inputCtx messages
   let env := env.setMainModule configModuleName
-  let env ← env.enableRealizationsForImports leanOpts
 
   -- Configure extensions
   let env := dirExt.setState env pkgDir
@@ -69,13 +68,7 @@ def elabConfigFile (pkgDir : FilePath) (lakeOpts : NameMap String)
   let s ← Elab.IO.processCommands inputCtx parserState commandState
 
   -- Log messages
-  for msg in s.commandState.messages.toList do
-    if msg.isSilent then
-      continue
-    match msg.severity with
-    | MessageSeverity.information => logInfo (← msg.toString)
-    | MessageSeverity.warning     => logWarning (← msg.toString)
-    | MessageSeverity.error       => logError (← msg.toString)
+  s.commandState.messages.forM (logMessage ·)
 
   -- Check result
   if s.commandState.messages.hasErrors then

@@ -1,3 +1,5 @@
+attribute [-simp] Nat.default_eq_zero -- undo changes to simp set after this test was written
+
 #check_simp #[1,2,3,4,5][2]  ~> 3
 #check_simp #[1,2,3,4,5][2]? ~> some 3
 #check_simp #[1,2,3,4,5][7]? ~> none
@@ -9,7 +11,6 @@
 variable {xs : Array α} in
 #check_simp xs.size = 0 ~> xs = #[]
 
-attribute [local simp] Id.run in
 #check_simp
   (Id.run do
     let mut s := 0
@@ -17,7 +18,6 @@ attribute [local simp] Id.run in
       s := s + i
     pure s) ~> 10
 
-attribute [local simp] Id.run in
 #check_simp
   (Id.run do
     let mut s := 0

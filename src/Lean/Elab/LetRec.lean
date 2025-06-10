@@ -32,7 +32,7 @@ structure LetRecView where
 private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
   let mut decls : Array LetRecDeclView := #[]
   for attrDeclStx in letRec[1][0].getSepArgs do
-    let docStr? ← expandOptDocComment? attrDeclStx[0]
+    let docStr? := attrDeclStx[0].getOptional?.map TSyntax.mk
     let attrOptStx := attrDeclStx[1]
     let attrs ← if attrOptStx.isNone then pure #[] else elabDeclAttrs attrOptStx[0]
     let decl := attrDeclStx[2][0]

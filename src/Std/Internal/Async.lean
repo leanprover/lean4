@@ -6,3 +6,6 @@ Authors: Henrik Böving
 prelude
 import Std.Internal.Async.Basic
 import Std.Internal.Async.Timer
+import Std.Internal.Async.TCP
+import Std.Internal.Async.UDP
+import Std.Internal.Async.Select

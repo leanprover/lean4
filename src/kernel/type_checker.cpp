@@ -599,6 +599,7 @@ template<typename F> optional<expr> type_checker::reduce_bin_nat_op(F const & f,
 
 optional<expr> type_checker::reduce_pow(expr const & e) {
     expr arg1 = whnf(app_arg(app_fn(e)));
+    if (!is_nat_lit_ext(arg1)) return none_expr();
     expr arg2 = whnf(app_arg(e));
     if (!is_nat_lit_ext(arg2)) return none_expr();
     nat v1 = get_nat_val(arg1);
@@ -618,7 +619,6 @@ template<typename F> optional<expr> type_checker::reduce_bin_nat_pred(F const & 
 }
 
 optional<expr> type_checker::reduce_nat(expr const & e) {
-    if (has_fvar(e)) return none_expr();
     unsigned nargs = get_app_num_args(e);
     if (nargs == 1) {
         expr const & f = app_fn(e);

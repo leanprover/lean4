@@ -113,6 +113,19 @@ where
       | Except.error inner => throw $ userError s!"Cannot decode publishDiagnostics parameters\n{inner}"
     | _ => loop
 
+partial def waitForILeans (waitForILeansId : RequestID := 0) (target : DocumentUri) (version : Nat) : IpcM Unit := do
+  writeRequest ⟨waitForILeansId, "$/lean/waitForILeans", WaitForILeansParams.mk target version⟩
+  while true do
+    match (← readMessage) with
+    | .response id _ =>
+      if id == waitForILeansId then
+        return
+    | .responseError id _ msg _ =>
+      if id == waitForILeansId then
+        throw $ userError s!"Waiting for ILeans failed: {msg}"
+    | _ =>
+      pure ()
+
 /--
 Waits for a diagnostic notification with a specific message to be emitted. Discards all received
 messages, so should not be combined with `collectDiagnostics`.

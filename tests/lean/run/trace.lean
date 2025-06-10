@@ -2,7 +2,7 @@ import Lean.CoreM
 
 open Lean
 
-structure MyState :=
+structure MyState where
 (trace_state : TraceState := {})
 (s          : Nat := 0)
 
@@ -60,7 +60,7 @@ info: [module] message
   [bughunt] at test2
 ERROR
 ---
-info: [module] message
+trace: [module] message
   [module] hello
                world
   [bughunt] at test2
@@ -73,12 +73,13 @@ info: [module] message
   [module] hello
                world
   [bughunt] at test2
-  [module] hello world
+  [module] hello
+               world
 [module] hello
              world
 [bughunt] at end of tst3
 ---
-info: [module] message
+trace: [module] message
   [module] hello
                world
   [bughunt] at test2

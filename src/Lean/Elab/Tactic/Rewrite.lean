@@ -51,7 +51,7 @@ def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) 
         let term := rule[1]
         let processId (id : Syntax) : TacticM Unit := do
           -- See if we can interpret `id` as a hypothesis first.
-          if (← optional <| getFVarId id).isSome then
+          if (← withMainContext <| Term.isLocalIdent? id).isSome then
             x symm term
           else
             -- Try to get equation theorems for `id`.
@@ -61,11 +61,9 @@ def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) 
               m!" Try rewriting with '{Name.str declName unfoldThmSuffix}'."
             let rec go : List Name →  TacticM Unit
               | [] => throwError "failed to rewrite using equation theorems for '{declName}'.{hint}"
-              -- Remark: we prefix `eqThm` with `_root_` to ensure it is resolved correctly.
-              -- See test: `rwPrioritizesLCtxOverEnv.lean`
-              | eqThm::eqThms => (x symm (mkIdentFrom id (`_root_ ++ eqThm))) <|> go eqThms
-            go eqThms.toList
+              | eqThm::eqThms => (x symm (mkCIdentFrom id eqThm)) <|> go eqThms
             discard <| Term.addTermInfo id (← mkConstWithFreshMVarLevels declName) (lctx? := ← getLCtx)
+            go eqThms.toList
         match term with
         | `($id:ident)  => processId id
         | `(@$id:ident) => processId id

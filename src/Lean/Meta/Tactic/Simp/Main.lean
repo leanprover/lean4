@@ -14,6 +14,11 @@ import Lean.Meta.Match.Value
 namespace Lean.Meta
 namespace Simp
 
+register_builtin_option backward.dsimp.proofs : Bool := {
+    defValue := false
+    descr    := "Let `dsimp` simplify proof terms"
+  }
+
 builtin_initialize congrHypothesisExceptionId : InternalExceptionId ←
   registerInternalExceptionId `congrHypothesisFailed
 
@@ -228,6 +233,7 @@ inductive SimpLetCase where
   | dep -- `let x := v; b` is not equivalent to `(fun x => b) v`
   | nondepDepVar -- `let x := v; b` is equivalent to `(fun x => b) v`, but result type depends on `x`
   | nondep -- `let x := v; b` is equivalent to `(fun x => b) v`, and result type does not depend on `x`
+deriving Repr
 
 def getSimpLetCase (n : Name) (t : Expr) (b : Expr) : MetaM SimpLetCase := do
   withLocalDeclD n t fun x => do
@@ -387,7 +393,9 @@ def simpLet (e : Expr) : SimpM Result := do
   if (← getConfig).zeta then
     return { expr := b.instantiate1 v }
   else
-    match (← getSimpLetCase n t b) with
+    let simpLetCase ← getSimpLetCase n t b
+    trace[Debug.Meta.Tactic.simp] "getSimpLetCase is {repr simpLetCase}:{indentExpr e}"
+    match simpLetCase with
     | SimpLetCase.dep => return { expr := (← dsimp e) }
     | SimpLetCase.nondep =>
       let rv ← simp v
@@ -419,6 +427,16 @@ private def dsimpReduce : DSimproc := fun e => do
   if eNew.isFVar then
     eNew ← reduceFVar (← getConfig) (← getSimpTheorems) eNew
   if eNew != e then return .visit eNew else return .done e
+
+/-- Auxiliary `dsimproc` for not visiting proof terms. -/
+private def doNotVisitProofs : DSimproc := fun e => do
+  if ← isProof e then
+    if !backward.dsimp.proofs.get (← getOptions) then
+      return .done e
+    else
+      return .continue e
+  else
+    return .continue e
 
 /-- Helper `dsimproc` for `doNotVisitOfNat` and `doNotVisitOfScientific` -/
 private def doNotVisit (pred : Expr → Bool) (declName : Name) : DSimproc := fun e => do
@@ -456,10 +474,10 @@ private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   unless cfg.dsimp do
     return e
   let m ← getMethods
-  let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific >> doNotVisitCharLit
+  let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific >> doNotVisitCharLit >> doNotVisitProofs
   let post := m.dpost >> dsimpReduce
-  withInDSimp do
-  transform (usedLetOnly := cfg.zeta || cfg.zetaUnused) e (pre := pre) (post := post)
+  withInDSimpWithCache fun cache => do
+    transformWithCache e cache (usedLetOnly := cfg.zeta || cfg.zetaUnused) (pre := pre) (post := post)
 
 def visitFn (e : Expr) : SimpM Result := do
   let f := e.getAppFn
@@ -517,7 +535,7 @@ def processCongrHypothesis (h : Expr) (hType : Expr) : SimpM Bool := do
       return r.proof?.isSome || (xs.size > 0 && lhs != r.expr)
 
 /-- Try to rewrite `e` children using the given congruence theorem -/
-def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Result) := withNewMCtxDepth do
+def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Result) := withNewMCtxDepth do withParent e do
   recordCongrTheorem c.theoremName
   trace[Debug.Meta.Tactic.simp.congr] "{c.theoremName}, {e}"
   let thm ← mkConstWithFreshMVarLevels c.theoremName
@@ -607,7 +625,7 @@ private structure SimpLetFunResult where
   expr     : Expr
   /--
   The proof that the simplified expression is equal to the input one.
-  It may containt loose bound variables. See `expr` field.
+  It may contain loose bound variables. See `expr` field.
   -/
   proof    : Expr
   /--
@@ -792,48 +810,61 @@ private def updateUsedSimpsWithZetaDelta (ctx : Context) (stats : Stats) : MetaM
   let used := updateUsedSimpsWithZetaDeltaCore used (← getZetaDeltaFVarIds)
   return { stats with usedTheorems := used }
 
-def main (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Result × Stats) := do
+@[inline] def withCatchingRuntimeEx (x : SimpM α) : SimpM α := do
+  if (← getConfig).catchRuntime then
+    tryCatchRuntimeEx x
+      fun ex => do
+        reportDiag (← get).diag
+        if ex.isRuntime then
+          throwNestedTacticEx `simp ex
+        else
+          throw ex
+  else
+    x
+
+def mainCore (e : Expr) (ctx : Context) (s : State := {}) (methods : Methods := {}) : MetaM (Result × State) := do
   let ctx ← ctx.setLctxInitIndices
   withSimpContext ctx do
-    let (r, s) ← go e methods.toMethodsRef ctx |>.run { stats with }
+    let (r, s) ← go e methods.toMethodsRef ctx |>.run s
     trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
-    let s ← updateUsedSimpsWithZetaDelta ctx { s with }
+    let stats ← updateUsedSimpsWithZetaDelta ctx { s with }
+    let s := { s with diag := stats.diag, usedTheorems := stats.usedTheorems }
     return (r, s)
 where
   go (e : Expr) : SimpM Result :=
-    tryCatchRuntimeEx
-      (simp e)
-      fun ex => do
-        reportDiag (← get).diag
-        if ex.isRuntime then
-          throwNestedTacticEx `simp ex
-        else
-          throw ex
+    withCatchingRuntimeEx (simp e)
 
-def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Expr × Stats) := do
+def main (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Result × Stats) := do
+  let (r, s) ← mainCore e ctx { stats with } methods
+  return (r, { s with })
+
+def dsimpMainCore (e : Expr) (ctx : Context) (s : State := {}) (methods : Methods := {}) : MetaM (Expr × State) := do
   withSimpContext ctx do
-    let (r, s) ← go e methods.toMethodsRef ctx |>.run { stats with }
-    let s ← updateUsedSimpsWithZetaDelta ctx { s with }
+    let (r, s) ← go e methods.toMethodsRef ctx |>.run s
+    let stats ← updateUsedSimpsWithZetaDelta ctx { s with }
+    let s := { s with diag := stats.diag, usedTheorems := stats.usedTheorems}
     pure (r, s)
 where
   go (e : Expr) : SimpM Expr :=
-    tryCatchRuntimeEx
-      (dsimp e)
-      fun ex => do
-        reportDiag (← get).diag
-        if ex.isRuntime then
-          throwNestedTacticEx `simp ex
-        else
-          throw ex
+    withCatchingRuntimeEx (dsimp e)
+
+def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Expr × Stats) := do
+  let (r, s) ← dsimpMainCore e ctx { stats with } methods
+  return (r, { s with })
 
 end Simp
 open Simp (SimprocsArray Stats)
 
+def simpCore (e : Expr) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (discharge? : Option Simp.Discharge := none)
+    (s : Simp.State := {}) : MetaM (Simp.Result × Simp.State) := do profileitM Exception "simp" (← getOptions) do
+  match discharge? with
+  | none   => Simp.mainCore e ctx s (methods := Simp.mkDefaultMethodsCore simprocs)
+  | some d => Simp.mainCore e ctx s (methods := Simp.mkMethods simprocs d (wellBehavedDischarge := false))
+
 def simp (e : Expr) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (discharge? : Option Simp.Discharge := none)
     (stats : Stats := {}) : MetaM (Simp.Result × Stats) := do profileitM Exception "simp" (← getOptions) do
-  match discharge? with
-  | none   => Simp.main e ctx stats (methods := Simp.mkDefaultMethodsCore simprocs)
-  | some d => Simp.main e ctx stats (methods := Simp.mkMethods simprocs d (wellBehavedDischarge := false))
+  let (r, s) ← simpCore e ctx simprocs discharge? { stats with }
+  return (r, { s with })
 
 def dsimp (e : Expr) (ctx : Simp.Context) (simprocs : SimprocsArray := #[])
     (stats : Stats := {}) : MetaM (Expr × Stats) := do profileitM Exception "dsimp" (← getOptions) do
@@ -862,28 +893,34 @@ def simpTarget (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray 
     simpTargetCore mvarId ctx simprocs discharge? mayCloseGoal stats
 
 /--
-  Apply the result `r` for `prop` (which is inhabited by `proof`). Return `none` if the goal was closed. Return `some (proof', prop')`
-  otherwise, where `proof' : prop'` and `prop'` is the simplified `prop`.
+Applies the result `r` for `type` (which is inhabited by `val`). Returns `none` if the goal was closed. Returns `some (val', type')`
+otherwise, where `val' : type'` and `type'` is the simplified `type`.
 
-  This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
-def applySimpResultToProp (mvarId : MVarId) (proof : Expr) (prop : Expr) (r : Simp.Result) (mayCloseGoal := true) : MetaM (Option (Expr × Expr)) := do
+This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
+def applySimpResult (mvarId : MVarId) (val : Expr) (type : Expr) (r : Simp.Result) (mayCloseGoal := true) : MetaM (Option (Expr × Expr)) := do
   if mayCloseGoal && r.expr.isFalse then
     match r.proof? with
-    | some eqProof => mvarId.assign (← mkFalseElim (← mvarId.getType) (← mkEqMP eqProof proof))
-    | none => mvarId.assign (← mkFalseElim (← mvarId.getType) proof)
+    | some eqProof => mvarId.assign (← mkFalseElim (← mvarId.getType) (mkApp4 (mkConst ``Eq.mp [levelZero]) type r.expr eqProof val))
+    | none => mvarId.assign (← mkFalseElim (← mvarId.getType) val)
     return none
   else
     match r.proof? with
-    | some eqProof => return some ((← mkEqMP eqProof proof), r.expr)
+    | some eqProof =>
+      let u ← getLevel type
+      return some (mkApp4 (mkConst ``Eq.mp [u]) type r.expr eqProof val, r.expr)
     | none =>
-      if r.expr != prop then
-        return some ((← mkExpectedTypeHint proof r.expr), r.expr)
+      if r.expr != type then
+        return some ((← mkExpectedTypeHint val r.expr), r.expr)
       else
-        return some (proof, r.expr)
+        return some (val, r.expr)
+
+@[deprecated applySimpResult (since := "2025-03-26")]
+def applySimpResultToProp (mvarId : MVarId) (proof : Expr) (prop : Expr) (r : Simp.Result) (mayCloseGoal := true) : MetaM (Option (Expr × Expr)) :=
+  applySimpResult mvarId proof prop r mayCloseGoal
 
 def applySimpResultToFVarId (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Result) (mayCloseGoal : Bool) : MetaM (Option (Expr × Expr)) := do
   let localDecl ← fvarId.getDecl
-  applySimpResultToProp mvarId (mkFVar fvarId) localDecl.type r mayCloseGoal
+  applySimpResult mvarId (mkFVar fvarId) localDecl.type r mayCloseGoal
 
 /--
   Simplify `prop` (which is inhabited by `proof`). Return `none` if the goal was closed. Return `some (proof', prop')`
@@ -893,7 +930,7 @@ def applySimpResultToFVarId (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Result
 def simpStep (mvarId : MVarId) (proof : Expr) (prop : Expr) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (discharge? : Option Simp.Discharge := none)
     (mayCloseGoal := true) (stats : Stats := {}) : MetaM (Option (Expr × Expr) × Stats) := do
   let (r, stats) ← simp prop ctx simprocs discharge? stats
-  return (← applySimpResultToProp mvarId proof prop r (mayCloseGoal := mayCloseGoal), stats)
+  return (← applySimpResult mvarId proof prop r (mayCloseGoal := mayCloseGoal), stats)
 
 def applySimpResultToLocalDeclCore (mvarId : MVarId) (fvarId : FVarId) (r : Option (Expr × Expr)) : MetaM (Option (FVarId × MVarId)) := do
   match r with
@@ -947,7 +984,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray :=
       let (r, stats') ← simp type ctx simprocs discharge? stats
       stats := stats'
       match r.proof? with
-      | some _ => match (← applySimpResultToProp mvarIdNew (mkFVar fvarId) type r) with
+      | some _ => match (← applySimpResult mvarIdNew (mkFVar fvarId) type r) with
         | none => return (none, stats)
         | some (value, type) => toAssert := toAssert.push { userName := localDecl.userName, type := type, value := value }
       | none =>

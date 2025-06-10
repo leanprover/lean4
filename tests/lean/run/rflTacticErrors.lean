@@ -1,4 +1,6 @@
 
+set_option pp.mvars.levels false
+
 /-!
 This file tests the `rfl` tactic:
  * Extensibility
@@ -196,12 +198,17 @@ is not definitionally equal to the right-hand side
 -/
 #guard_msgs in
 example : true'' = true   := by with_reducible apply_rfl -- Error
+
+
 /--
-error: tactic 'apply' failed, failed to unify
+error: tactic 'apply' failed, could not unify the conclusion of 'HEq.refl'
   @HEq ?α ?a ?α ?a
-with
+with the goal
   @HEq Bool true'' Bool true
-⊢ HEq true'' true
+
+Note: The full type of 'HEq.refl' is
+  ∀ {α : Sort _} (a : α), a ≍ a
+⊢ true'' ≍ true
 -/
 #guard_msgs in
 example : HEq true'' true := by with_reducible apply_rfl -- Error
@@ -262,11 +269,14 @@ is not definitionally equal to the right-hand side
 #guard_msgs in
 example : false = true   := by apply_rfl -- Error
 /--
-error: tactic 'apply' failed, failed to unify
-  HEq ?a ?a
-with
-  HEq false true
-⊢ HEq false true
+error: tactic 'apply' failed, could not unify the conclusion of 'HEq.refl'
+  ?a ≍ ?a
+with the goal
+  false ≍ true
+
+Note: The full type of 'HEq.refl' is
+  ∀ {α : Sort _} (a : α), a ≍ a
+⊢ false ≍ true
 -/
 #guard_msgs in
 example : HEq false true := by apply_rfl -- Error
@@ -326,11 +336,14 @@ is not definitionally equal to the right-hand side
 #guard_msgs in
 example : false = true   := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'apply' failed, failed to unify
-  HEq ?a ?a
-with
-  HEq false true
-⊢ HEq false true
+error: tactic 'apply' failed, could not unify the conclusion of 'HEq.refl'
+  ?a ≍ ?a
+with the goal
+  false ≍ true
+
+Note: The full type of 'HEq.refl' is
+  ∀ {α : Sort _} (a : α), a ≍ a
+⊢ false ≍ true
 -/
 #guard_msgs in
 example : HEq false true := by with_reducible apply_rfl -- Error
@@ -383,20 +396,26 @@ example : R false true   := by with_reducible apply_rfl -- Error
 -- Inheterogeneous unequal
 
 /--
-error: tactic 'apply' failed, failed to unify
-  HEq ?a ?a
-with
-  HEq true 1
-⊢ HEq true 1
+error: tactic 'apply' failed, could not unify the conclusion of 'HEq.refl'
+  ?a ≍ ?a
+with the goal
+  true ≍ 1
+
+Note: The full type of 'HEq.refl' is
+  ∀ {α : Sort _} (a : α), a ≍ a
+⊢ true ≍ 1
 -/
 #guard_msgs in
 example : HEq true 1 := by apply_rfl -- Error
 /--
-error: tactic 'apply' failed, failed to unify
-  HEq ?a ?a
-with
-  HEq true 1
-⊢ HEq true 1
+error: tactic 'apply' failed, could not unify the conclusion of 'HEq.refl'
+  ?a ≍ ?a
+with the goal
+  true ≍ 1
+
+Note: The full type of 'HEq.refl' is
+  ∀ {α : Sort _} (a : α), a ≍ a
+⊢ true ≍ 1
 -/
 #guard_msgs in
 example : HEq true 1 := by with_reducible apply_rfl -- Error

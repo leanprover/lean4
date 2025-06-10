@@ -12,6 +12,7 @@ import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Match.MatchEqs
+import Lean.DefEqAttrib
 
 namespace Lean.Elab.Eqns
 open Meta
@@ -401,6 +402,7 @@ This is currently used for non-recursive functions, well-founded recursion and p
 but not for structural recursion.
 -/
 def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true): MetaM (Array Name) := do
+  trace[Elab.definition.eqns] "mkEqns: {declName}"
   let info ← getConstInfoDefn declName
   let us := info.levelParams.map mkLevelParam
   withOptions (tactic.hygienic.set · false) do
@@ -414,7 +416,7 @@ def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true): MetaM (
   for h : i in [: eqnTypes.size] do
     let type := eqnTypes[i]
     trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]}"
-    let name := (Name.str declName eqnThmSuffixBase).appendIndexAfter (i+1)
+    let name := mkEqLikeNameFor (← getEnv) declName s!"{eqnThmSuffixBasePrefix}{i+1}"
     thmNames := thmNames.push name
     -- determinism: `type` should be independent of the environment changes since `baseName` was
     -- added
@@ -428,6 +430,7 @@ where
       name, type, value
       levelParams := info.levelParams
     }
+    inferDefEqAttr name
 
 /--
   Auxiliary method for `mkUnfoldEq`. The structure is based on `mkEqnTypes`.
@@ -468,31 +471,6 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
 
     throwError "failed to generate unfold theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
   go mvarId
-
-/-- Generate the "unfold" lemma for `declName`. -/
-def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := do
-  let name := Name.str declName unfoldThmSuffix
-  realizeConst declName name (doRealize name)
-  return name
-where
-  doRealize name := withOptions (tactic.hygienic.set · false) do
-    lambdaTelescope info.value fun xs body => do
-      let us := info.levelParams.map mkLevelParam
-      let type ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
-      let goal ← mkFreshExprSyntheticOpaqueMVar type
-      mkUnfoldProof declName goal.mvarId!
-      let type ← mkForallFVars xs type
-      let value ← mkLambdaFVars xs (← instantiateMVars goal)
-      addDecl <| Declaration.thmDecl {
-        name, type, value
-        levelParams := info.levelParams
-      }
-
-def getUnfoldFor? (declName : Name) (getInfo? : Unit → Option EqnInfoCore) : MetaM (Option Name) := do
-  if let some info := getInfo? () then
-    return some (← mkUnfoldEq declName info)
-  else
-    return none
 
 builtin_initialize
   registerTraceClass `Elab.definition.unfoldEqn

@@ -1,0 +1,20 @@
+{
+  "name": "Dep",
+  "isModule": false,
+  "imports": [
+    {
+      "module": "Dep",
+      "importAll": false,
+      "isExported": true,
+      "isMeta": false
+    }
+  ],
+  "modules": {
+    "Dep": {
+      "olean": "Dep.olean"
+    }
+  },
+  "dynlibs": [],
+  "plugins": [],
+  "options": {}
+}

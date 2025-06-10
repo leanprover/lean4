@@ -70,7 +70,7 @@ def visitArg (arg : Arg) : FindUsedM Unit := do
 
 def visitLetValue (e : LetValue) : FindUsedM Unit := do
   match e with
-  | .erased | .value .. => return ()
+  | .erased | .lit .. => return ()
   | .proj _ _ fvarId => visitFVar fvarId
   | .fvar fvarId args => visitFVar fvarId; args.forM visitArg
   | .const declName _ args =>

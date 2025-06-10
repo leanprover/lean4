@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 prelude
 import Lean.Structure
 import Lean.Elab.Attributes
+import Lean.DocString.Add
 
 namespace Lean.Elab
 
@@ -27,7 +28,7 @@ def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] [MonadInfo
     match privateToUserName? declName with
     | none          => throwError "'{.ofConstName declName true}' has already been declared"
     | some declName => throwError "private declaration '{.ofConstName declName true}' has already been declared"
-  if isReservedName env declName then
+  if isReservedName env (privateToUserName declName) || isReservedName env (mkPrivateName (← getEnv) declName) then
     throwError "'{declName}' is a reserved name"
   if env.contains (mkPrivateName env declName) then
     addInfo (mkPrivateName env declName)
@@ -59,7 +60,7 @@ inductive RecKind where
 structure Modifiers where
   /-- Input syntax, used for adjusting declaration range (unless missing) -/
   stx             : TSyntax ``Parser.Command.declModifiers := ⟨.missing⟩
-  docString?      : Option String := none
+  docString?      : Option (TSyntax ``Parser.Command.docComment) := none
   visibility      : Visibility := Visibility.regular
   isNoncomputable : Bool := false
   recKind         : RecKind := RecKind.default
@@ -83,9 +84,13 @@ def Modifiers.isNonrec : Modifiers → Bool
   | { recKind := .nonrec, .. } => true
   | _                          => false
 
-/-- Adds attribute `attr` in `modifiers` -/
+/-- Adds attribute `attr` in `modifiers`, at the end -/
 def Modifiers.addAttr (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
   { modifiers with attrs := modifiers.attrs.push attr }
+
+/-- Adds attribute `attr` in `modifiers`, at the beginning -/
+def Modifiers.addFirstAttr (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
+  { modifiers with attrs := #[attr] ++ modifiers.attrs }
 
 /-- Filters attributes using `p` -/
 def Modifiers.filterAttrs (modifiers : Modifiers) (p : Attribute → Bool) : Modifiers :=
@@ -127,7 +132,13 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
   let docCommentStx := stx.raw[0]
   let attrsStx      := stx.raw[1]
   let visibilityStx := stx.raw[2]
-  let noncompStx    := stx.raw[3]
+  let isNoncomputable :=
+    if stx.raw[3].isNone then
+      false
+    else if stx.raw[3][0].getKind == ``Parser.Command.meta then
+      false  -- TODO: handle `meta` declarations
+    else
+      true
   let unsafeStx     := stx.raw[4]
   let recKind       :=
     if stx.raw[5].isNone then
@@ -136,9 +147,7 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
       RecKind.partial
     else
       RecKind.nonrec
-  let docString? ← match docCommentStx.getOptional? with
-    | none   => pure none
-    | some s => pure (some (← getDocStringText ⟨s⟩))
+  let docString? := docCommentStx.getOptional?.map TSyntax.mk
   let visibility ← match visibilityStx.getOptional? with
     | none   => pure Visibility.regular
     | some v =>
@@ -152,7 +161,7 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
   return {
     stx, docString?, visibility, recKind, attrs,
     isUnsafe        := !unsafeStx.isNone
-    isNoncomputable := !noncompStx.isNone
+    isNoncomputable
   }
 
 /--

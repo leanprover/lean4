@@ -20,17 +20,14 @@ open Eqns
 structure EqnInfo extends EqnInfoCore where
   declNames       : Array Name
   declNameNonRec  : Name
-  fixedPrefixSize : Nat
   argsPacker      : ArgsPacker
   fixedParamPerms : FixedParamPerms
   deriving Inhabited
-
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
 def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedParamPerms : FixedParamPerms)
     (argsPacker : ArgsPacker) : MetaM Unit := do
-  let fixedPrefixSize := fixedParamPerms.numFixed
   preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
   /-
   See issue #2327.
@@ -43,7 +40,7 @@ def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fi
       modifyEnv fun env =>
         preDefs.foldl (init := env) fun env preDef =>
           eqnInfoExt.insert env preDef.declName { preDef with
-            declNames, declNameNonRec, fixedPrefixSize, argsPacker, fixedParamPerms }
+            declNames, declNameNonRec, argsPacker, fixedParamPerms }
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then
@@ -53,5 +50,33 @@ def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
 
 builtin_initialize
   registerGetEqnsFn getEqnsFor?
+
+
+/--
+This is a hack to fix fallout from #8519, where a non-exposed wfrec definition `foo`
+in a module would cause `foo.eq_def` to be defined eagerly and privately,
+but it should still be visible from non-mudule files.
+
+So we create a unfold equation generator that aliases an existing private `eq_def` to
+wherever the current module expects it.
+-/
+def copyPrivateUnfoldTheorem : GetUnfoldEqnFn := fun declName => do
+  withTraceNode `ReservedNameAction (pure m!"{exceptOptionEmoji ·} copyPrivateUnfoldTheorem running for {declName}") do
+  let name := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
+  if let some mod ← findModuleOf? declName then
+    let unfoldName' := mkPrivateNameCore mod (.str declName unfoldThmSuffix)
+    if let some (.thmInfo info) := (← getEnv).find? unfoldName' then
+      realizeConst declName name do
+        addDecl <| Declaration.thmDecl {
+          name,
+          type := info.type,
+          value := .const unfoldName' (info.levelParams.map mkLevelParam),
+          levelParams := info.levelParams
+        }
+      return name
+  return none
+
+builtin_initialize
+  registerGetUnfoldEqnFn copyPrivateUnfoldTheorem
 
 end Lean.Elab.WF

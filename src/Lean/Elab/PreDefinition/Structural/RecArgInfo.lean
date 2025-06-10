@@ -42,12 +42,12 @@ def RecArgInfo.indicesAndRecArgPos (info : RecArgInfo) : Array Nat :=
   info.indicesPos.push info.recArgPos
 
 /--
-If `xs` are the varing parameters of the functions, partitions them into indices and major
+If `xs` are the varying parameters of the functions, partitions them into indices and major
 arguments, and other parameters.
 -/
 def RecArgInfo.pickIndicesMajor (info : RecArgInfo) (xs : Array Expr) : (Array Expr × Array Expr) := Id.run do
   -- To simplify the index calculation, pad xs with dummy values where fixed parameters are
-  let xs := info.fixedParamPerm.buildArgs (mkArray info.fixedParamPerm.numFixed (mkSort 0)) xs
+  let xs := info.fixedParamPerm.buildArgs (.replicate info.fixedParamPerm.numFixed (mkSort 0)) xs
   -- First indices and major arg, using the order they appear in `info.indicesPos`
   let mut indexMajorArgs := #[]
   let indexMajorPos := info.indicesPos.push info.recArgPos

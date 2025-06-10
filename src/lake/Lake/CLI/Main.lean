@@ -5,7 +5,6 @@ Authors: Mac Malone
 -/
 prelude
 import Lake.Load
-import Lake.Build.Imports
 import Lake.Util.Error
 import Lake.Util.MainM
 import Lake.Util.Cli
@@ -75,11 +74,13 @@ def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
     opts.noCache |>.adaptExcept fun msg => .invalidEnv msg
 
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
-def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
+def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig := do
+  let some wsDir ← resolvePath? opts.rootDir
+    | throw <| .missingRootDir opts.rootDir
   return {
     lakeArgs? := opts.args.toArray
     lakeEnv := ← opts.computeEnv
-    wsDir := opts.rootDir
+    wsDir
     relConfigFile := opts.configFile
     packageOverrides := opts.packageOverrides
     lakeOpts := opts.configOpts
@@ -381,6 +382,26 @@ protected def query : CliM PUnit := do
   let results ← ws.runBuild (querySpecs specs fmt) buildConfig
   results.forM (IO.println ·)
 
+protected def queryKind : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let config ← mkLoadConfig opts
+  let ws ← loadWorkspace config
+  let targetSpecs ← takeArgs
+  let keys ← targetSpecs.toArray.mapM fun spec =>
+    IO.ofExcept <| PartialBuildKey.parse spec
+  let buildConfig := mkBuildConfig opts
+  let r ← ws.runFetchM (cfg := buildConfig) <| keys.mapM fun key => do
+    let ⟨_, job⟩ ← key.fetchInCore ws.root
+    let kind := job.kind
+    let job ← maybeRegisterJob key.toString job.toOpaque
+    return (kind.name, job)
+  r.forM (IO.println ·.1)
+  r.forM fun (_, job) => do
+    match (← job.wait?) with
+    | some _ => pure ()
+    | none => error "build failed"
+
 protected def resolveDeps : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
@@ -424,8 +445,10 @@ protected def setupFile : CliM PUnit := do
   let loadConfig ← mkLoadConfig opts
   let buildConfig := mkBuildConfig opts
   let filePath ← takeArg "file path"
-  let imports ← takeArgs
-  setupFile loadConfig filePath imports buildConfig
+  -- Additional arguments (imports) are ignored
+  -- TODO: Forbid them once the language server is updated
+  -- noArgsRem do
+  setupFile loadConfig filePath buildConfig
 
 protected def test : CliM PUnit := do
   processOptions lakeOption
@@ -509,27 +532,48 @@ protected def exe : CliM PUnit := do
   let exeFile ← ws.runBuild exe.fetch (mkBuildConfig opts)
   exit <| ← (env exeFile.toString args.toArray).run <| mkLakeContext ws
 
+private def evalLeanFile
+  (ws : Workspace) (leanFile : FilePath)
+  (moreArgs : Array String := #[]) (buildConfig : BuildConfig := {})
+: LoggerIO UInt32 := do
+  let some path ← resolvePath? leanFile
+    | error s!"file not found: {leanFile}"
+  let args ← do
+    if let some mod := ws.findModuleBySrc? path then
+      let setup ← ws.runBuild (cfg := buildConfig) do
+        withRegisterJob s!"{mod.name}:setup" do mod.setup.fetch
+      mkArgs path setup (some mod.rootDir) mod.leanArgs
+    else
+      let setup ← mkModuleSetup
+        ws leanFile.toString (← IO.FS.readFile path) ws.leanOptions buildConfig
+      mkArgs path setup none ws.root.moreLeanArgs
+  let spawnArgs : IO.Process.SpawnArgs := {
+    args := args ++ moreArgs
+    cmd := ws.lakeEnv.lean.lean.toString
+    env := ws.augmentedEnvVars
+  }
+  logVerbose (mkCmdLog spawnArgs)
+  let child ← IO.Process.spawn spawnArgs
+  child.wait
+where
+  mkArgs leanFile setup rootDir? cfgArgs := do
+    let mut args := cfgArgs.push leanFile.toString
+    if let some rootDir := rootDir? then
+      args := args ++ #["-R", rootDir.toString]
+    let (h, setupFile) ← IO.FS.createTempFile
+    let contents := (toJson setup).compress
+    logVerbose s!"module setup: {contents}"
+    h.putStr contents
+    args := args ++ #["--setup", setupFile.toString]
+    return args
+
 protected def lean : CliM PUnit := do
   processOptions lakeOption
   let leanFile ← takeArg "Lean file"
   let opts ← getThe LakeOptions
   noArgsRem do
   let ws ← loadWorkspace (← mkLoadConfig opts)
-  let imports ← Lean.parseImports' (← IO.FS.readFile leanFile) leanFile
-  let imports := imports.filterMap (ws.findModule? ·.module)
-  let {dynlibs, plugins} ←
-    ws.runBuild (buildImportsAndDeps leanFile imports) (mkBuildConfig opts)
-  let spawnArgs := {
-    args :=
-      #[leanFile] ++
-      dynlibs.map (s!"--load-dynlib={·}") ++
-      plugins.map (s!"--plugin={·}") ++
-      ws.root.moreLeanArgs ++ opts.subArgs
-    cmd := ws.lakeEnv.lean.lean.toString
-    env := ws.augmentedEnvVars
-  }
-  logVerbose (mkCmdLog spawnArgs)
-  let rc ← IO.Process.spawn spawnArgs >>= (·.wait)
+  let rc ← evalLeanFile ws leanFile opts.subArgs.toArray (mkBuildConfig opts)
   exit rc
 
 protected def translateConfig : CliM PUnit := do
@@ -622,6 +666,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "build"               => lake.build
 | "check-build"         => lake.checkBuild
 | "query"               => lake.query
+| "query-kind"          => lake.queryKind
 | "update" | "upgrade"  => lake.update
 | "resolve-deps"        => lake.resolveDeps
 | "pack"                => lake.pack

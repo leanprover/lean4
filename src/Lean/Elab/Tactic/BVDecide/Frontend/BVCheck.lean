@@ -35,15 +35,15 @@ def mkContext (lratPath : System.FilePath) (cfg : BVDecideConfig) : TermElabM Ta
 /--
 Prepare an `Expr` that proves `bvExpr.unsat` using `ofReduceBool`.
 -/
-def lratChecker (ctx : TacticContext) (bvExpr : BVLogicalExpr) : MetaM Expr := do
+def lratChecker (ctx : TacticContext) (reflectionResult : ReflectionResult) : MetaM Expr := do
   let cert ← LratCert.ofFile ctx.lratPath ctx.config.trimProofs
-  cert.toReflectionProof ctx bvExpr ``verifyBVExpr ``unsat_of_verifyBVExpr_eq_true
+  cert.toReflectionProof ctx reflectionResult
 
 @[inherit_doc Lean.Parser.Tactic.bvCheck]
 def bvCheck (g : MVarId) (ctx : TacticContext) : MetaM Unit := do
   let unsatProver : UnsatProver := fun _ reflectionResult _ => do
     withTraceNode `Meta.Tactic.sat (fun _ => return "Preparing LRAT reflection term") do
-      let proof ← lratChecker ctx reflectionResult.bvExpr
+      let proof ← lratChecker ctx reflectionResult
       return .ok ⟨proof, ""⟩
   let _ ← closeWithBVReflection g unsatProver
   return ()

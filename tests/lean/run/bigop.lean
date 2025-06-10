@@ -22,8 +22,8 @@ class Enumerable (α : Type) where
 instance : Enumerable Bool where
   elems := [false, true]
 
-instance {α β} [Enumerable α] [Enumerable β]: Enumerable (α × β) where
-  elems := Enumerable.elems.bind fun (a : α) => Enumerable.elems.bind fun (b : β) => [(a, b)]
+instance {α β} [Enumerable α] [Enumerable β] : Enumerable (α × β) where
+  elems := Enumerable.elems.flatMap fun (a : α) => Enumerable.elems.flatMap fun (b : β) => [(a, b)]
 
 def finElems (n : Nat) : List (Fin n) :=
   match n with
@@ -39,7 +39,7 @@ instance : Enumerable (Fin n) where
   elems := (finElems n).reverse
 
 instance : OfNat (Fin (Nat.succ n)) m :=
-  ⟨Fin.ofNat' _ m⟩
+  ⟨Fin.ofNat _ m⟩
 
 -- Declare a new syntax category for "indexing" big operators
 declare_syntax_cat index

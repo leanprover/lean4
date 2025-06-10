@@ -3,10 +3,10 @@ def replicate : (n : Nat) → (a : α) → List α
   | n+1, a => a :: replicate n a
 
 /--
-info: [grind.ematch.pattern] replicate.eq_1: [@replicate #1 `[0] #0]
+trace: [grind.ematch.pattern] replicate.eq_1: [@replicate #1 `[0] #0]
 [grind.ematch.pattern] replicate.eq_2: [@replicate #2 (#0 + 1) #1]
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.ematch.pattern true in
 attribute [grind] replicate
 

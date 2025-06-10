@@ -27,9 +27,9 @@ ih1✝ : P (xs✝.zip ys✝)
 case case2
 xs ys : List Nat
 P : {α : Type} → List α → Prop
-t✝ x✝¹ : List Nat
-x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → x✝¹ = y :: ys → False
-⊢ P (t✝.zip x✝¹)
+t✝ ys✝ : List Nat
+x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → ys✝ = y :: ys → False
+⊢ P (t✝.zip ys✝)
 -/
 #guard_msgs in
 example : P (List.zip xs ys) := by
@@ -52,10 +52,10 @@ h : (x✝ :: xs✝).isEmpty = true
 case case2
 xs ys : List Nat
 P : {α : Type} → List α → Prop
-t✝ x✝¹ : List Nat
-x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → x✝¹ = y :: ys → False
+t✝ ys✝ : List Nat
+x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → ys✝ = y :: ys → False
 h : t✝.isEmpty = true
-⊢ P (t✝.zip x✝¹)
+⊢ P (t✝.zip ys✝)
 -/
 #guard_msgs in
 example (h : xs.isEmpty) : P (List.zip xs ys) := by
@@ -78,8 +78,8 @@ h : (x✝ :: xs✝).isEmpty = true
 case case2
 xs ys : List Nat
 P : {α : Type} → List α → Prop
-t✝ x✝¹ : List Nat
-x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → x✝¹ = y :: ys → False
+t✝ ys✝ : List Nat
+x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → ys✝ = y :: ys → False
 h : t✝.isEmpty = true
 ⊢ P (t✝.zip ys)
 -/
@@ -103,8 +103,8 @@ h : (x✝ :: xs✝).isEmpty = true
 case case2
 xs ys : List Nat
 P : {α : Type} → List α → Prop
-t✝ x✝¹ : List Nat
-x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → x✝¹ = y :: ys → False
+t✝ ys✝ : List Nat
+x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → ys✝ = y :: ys → False
 h : t✝.isEmpty = true
 ⊢ P (t✝.zip ys)
 -/
@@ -129,9 +129,9 @@ case case2
 xs ys : List Nat
 P : {α : Type} → List α → Prop
 h : xs.isEmpty = true
-t✝ x✝¹ : List Nat
-x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → x✝¹ = y :: ys → False
-⊢ P (xs.zip x✝¹)
+t✝ ys✝ : List Nat
+x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → ys✝ = y :: ys → False
+⊢ P (xs.zip ys✝)
 -/
 #guard_msgs in
 example (h : xs.isEmpty) : P (List.zip xs ys) := by
@@ -154,9 +154,9 @@ case case2
 xs ys : List Nat
 P : {α : Type} → List α → Prop
 h : xs.isEmpty = true
-t✝ x✝¹ : List Nat
-x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → x✝¹ = y :: ys → False
-⊢ P (xs.zip x✝¹)
+t✝ ys✝ : List Nat
+x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → ys✝ = y :: ys → False
+⊢ P (xs.zip ys✝)
 -/
 #guard_msgs in
 example (h : xs.isEmpty) : P (List.zip xs ys) := by
@@ -177,11 +177,11 @@ h : xs.isEmpty = true
 
 case case2
 P : {α : Type} → List α → Prop
-t✝ x✝¹ : List Nat
-x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → x✝¹ = y :: ys → False
+t✝ ys✝ : List Nat
+x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → ys✝ = y :: ys → False
 xs : List Nat
 h : xs.isEmpty = true
-⊢ P (xs.zip x✝¹)
+⊢ P (xs.zip ys✝)
 -/
 #guard_msgs in
 example (h : xs.isEmpty) : P (List.zip xs ys) := by
@@ -202,11 +202,11 @@ h : xs.isEmpty = true
 
 case case2
 P : {α : Type} → List α → Prop
-t✝ x✝¹ : List Nat
-x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → x✝¹ = y :: ys → False
+t✝ ys✝ : List Nat
+x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → ys✝ = y :: ys → False
 xs : List Nat
 h : xs.isEmpty = true
-⊢ P (xs.zip x✝¹)
+⊢ P (xs.zip ys✝)
 -/
 #guard_msgs in
 example (h : xs.isEmpty) : P (List.zip xs ys) := by

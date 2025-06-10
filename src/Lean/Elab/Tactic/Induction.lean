@@ -16,6 +16,7 @@ import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.FunIndCollect
 import Lean.Meta.GeneralizeVars
 import Lean.Elab.App
+import Lean.Elab.Match
 import Lean.Elab.Tactic.ElabTerm
 import Lean.Elab.Tactic.Generalize
 
@@ -26,8 +27,10 @@ open Meta
   Given an `inductionAlt` of the form
   ```
   syntax inductionAltLHS := "| " (group("@"? ident) <|> hole) (ident <|> hole)*
-  syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ " => " (hole <|> syntheticHole <|> tacticSeq)
+  syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ (" => " (hole <|> syntheticHole <|> tacticSeq))?
   ```
+  We assume that the syntax has been expanded. There is exactly one `inductionAltLHS`,
+  and `" => " (hole <|> syntheticHole <|> tacticSeq)` is present
 -/
 private def getAltLhses (alt : Syntax) : Syntax :=
   alt[0]
@@ -49,36 +52,40 @@ private def altHasExplicitModifier (alt : Syntax) : Bool :=
 private def getAltVars (alt : Syntax) : Array Syntax :=
   let lhs := getFirstAltLhs alt
   lhs[2].getArgs
+private def hasAltRHS (alt : Syntax) : Bool :=
+  alt[1].getNumArgs > 0
 private def getAltRHS (alt : Syntax) : Syntax :=
-  alt[2]
+  alt[1][1]
 private def getAltDArrow (alt : Syntax) : Syntax :=
-  alt[1]
+  alt[1][0]
 
 -- Return true if `stx` is a term occurring in the RHS of the induction/cases tactic
 def isHoleRHS (rhs : Syntax) : Bool :=
   rhs.isOfKind ``Parser.Term.syntheticHole || rhs.isOfKind ``Parser.Term.hole
 
-def evalAlt (mvarId : MVarId) (alt : Syntax) (addInfo : TermElabM Unit) : TacticM Unit :=
-  let rhs := getAltRHS alt
-  withCaseRef (getAltDArrow alt) rhs do
-    if isHoleRHS rhs then
-      addInfo
-      mvarId.withContext <| withTacticInfoContext rhs do
-        let mvarDecl ← mvarId.getDecl
-        let val ← elabTermEnsuringType rhs mvarDecl.type
-        mvarId.assign val
-        let gs' ← getMVarsNoDelayed val
-        tagUntaggedGoals mvarDecl.userName `induction gs'.toList
-        setGoals <| (← getGoals) ++ gs'.toList
-    else
+def evalAlt (mvarId : MVarId) (alt : Syntax) (addInfo : TermElabM Unit) : TacticM Unit := do
+  if !hasAltRHS alt then
+    throwErrorAt alt "(internal error) RHS was not expanded"
+  else
+    let rhs := getAltRHS alt
+    withCaseRef (getAltDArrow alt) rhs do
       let goals ← getGoals
+      setGoals []
       try
         setGoals [mvarId]
-        closeUsingOrAdmit <|
-          withTacticInfoContext (mkNullNode #[getAltLhses alt, getAltDArrow alt]) <|
-            (addInfo *> evalTactic rhs)
+        withTacticInfoContext (mkNullNode #[getAltLhses alt, getAltDArrow alt]) do
+          addInfo
+          if isHoleRHS rhs then
+            mvarId.withContext do
+              let mvarDecl ← mvarId.getDecl
+              -- Elaborate ensuring that `_` is interpreted as `?_`.
+              let (val, gs') ← elabTermWithHoles rhs mvarDecl.type `induction (parentTag? := mvarDecl.userName) (allowNaturalHoles := true)
+              mvarId.assign val
+              setGoals gs'
+          else
+            closeUsingOrAdmit <| evalTactic rhs
       finally
-        setGoals goals
+        pushGoals goals
 
 /-!
   Helper method for creating an user-defined eliminator/recursor application.
@@ -122,16 +129,19 @@ private def getFType : M Expr := do
   pure fType
 
 structure Result where
-  elimApp : Expr
-  motive  : MVarId
-  alts    : Array Alt := #[]
-  others  : Array MVarId := #[]
+  elimApp     : Expr
+  elimArgs    : Array Expr
+  motive      : MVarId
+  alts        : Array Alt
+  others      : Array MVarId
+  complexArgs : Array Expr
 
 /--
-  Construct the an eliminator/recursor application. `targets` contains the explicit and implicit targets for
-  the eliminator. For example, the indices of builtin recursors are considered implicit targets.
-  Remark: the method `addImplicitTargets` may be used to compute the sequence of implicit and explicit targets
-  from the explicit ones.
+  Construct the an eliminator/recursor application. `targets` contains the explicit and implicit
+  targets for the eliminator, not yet generalized.
+  For example, the indices of builtin recursors are considered implicit targets.
+  Remark: the method `addImplicitTargets` may be used to compute the sequence of implicit and
+  explicit targets from the explicit ones.
 -/
 partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) : TermElabM Result := do
   let rec loop : M Unit := do
@@ -147,7 +157,7 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
         let s ← get
         let ctx ← read
         unless s.targetPos < ctx.targets.size do
-          throwError "insufficient number of targets for '{elimInfo.elimExpr}'"
+          throwError "Insufficient number of targets for '{elimInfo.elimExpr}'"
         let target := ctx.targets[s.targetPos]!
         let expectedType ← getArgExpectedType
         let target ← withAssignableSyntheticOpaque <| Term.ensureHasType expectedType target
@@ -176,7 +186,7 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
       let s ← get
       let ctx ← read
       unless s.targetPos = ctx.targets.size do
-        throwError "unexpected number of targets for '{elimInfo.elimExpr}'"
+        throwError "Unexpected number of targets for '{elimInfo.elimExpr}'"
       pure ()
   let (_, s) ← (loop).run { elimInfo := elimInfo, targets := targets }
     |>.run { f := elimInfo.elimExpr, fType := elimInfo.elimType, motive := none }
@@ -191,25 +201,65 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
       others := others.push mvarId
   let alts ← s.alts.filterM fun alt => return !(← alt.mvarId.isAssigned)
   let some motive := s.motive |
-      throwError "mkElimApp: motive not found"
-  return { elimApp := (← instantiateMVars s.f), alts, others, motive }
+      throwError "Internal error in mkElimApp: Motive not found"
+  let complexArgs ← s.fType.withApp fun f motiveArgs => do
+    unless f == mkMVar motive do
+      throwError "Internal error in mkElimApp: Expected application of {motive}:{indentExpr s.fType}"
+    -- Sanity-checking that the motive is applied to the targets.
+    -- NB: The motive can take them in a different order than the eliminator itself
+    for motiveArg in motiveArgs[:targets.size] do
+      unless targets.contains motiveArg do
+        throwError "Internal error in mkElimApp: Expected first {targets.size} arguments of motive \
+          in conclusion to be one of the targets:{indentExpr s.fType}"
+    pure motiveArgs[targets.size:]
+  let elimApp ← instantiateMVars s.f
+  -- `elimArgs` is the argument list that the offsets in `elimInfo` work with
+  let elimArgs := elimApp.getAppArgs[elimInfo.elimExpr.getAppNumArgs:]
+  return { elimApp, elimArgs, alts, others, motive, complexArgs }
 
-/-- Given a goal `... targets ... |- C[targets]` associated with `mvarId`, assign
-  `motiveArg := fun targets => C[targets]` -/
-def setMotiveArg (mvarId : MVarId) (motiveArg : MVarId) (targets : Array FVarId) : MetaM Unit := do
+/--
+Given a goal `... targets ... |- C[targets, complexArgs]` associated with `mvarId`,
+where `complexArgs` are the the complex (i.e. non-target) arguments to the motive in the conclusion
+of the eliminator, construct `motiveArg := fun targets rs => C[targets, rs]`
+
+This checks if the type of the complex arguments match what's expected by the motive, and
+ignores them otherwise. This limits the ability of `cases` to use unfolding function
+principles with dependent types, because after generalization of the targets, the types do
+no longer match. This can likely be improved.
+-/
+def setMotiveArg (mvarId : MVarId) (motiveArg : MVarId) (targets : Array FVarId) (complexArgs : Array Expr := #[]) : MetaM Unit := do
   let type ← inferType (mkMVar mvarId)
-  let motive ← mkLambdaFVars (targets.map mkFVar) type
-  let motiverInferredType ← inferType motive
+
   let motiveType ← inferType (mkMVar motiveArg)
+  let exptComplexArgTypes ← arrowDomainsN complexArgs.size (← instantiateForall motiveType (targets.map mkFVar))
+
+  let mut absType := type
+  for complexArg in complexArgs.reverse, exptComplexArgType in exptComplexArgTypes.reverse do
+    trace[Elab.induction] "setMotiveArg: trying to abstract over {complexArg}, expected type {exptComplexArgType}"
+    let complexArgType ← inferType complexArg
+    if (← isDefEq complexArgType exptComplexArgType) then
+      let absType' ← kabstract absType complexArg
+      let absType' := .lam (← mkFreshUserName `x) complexArgType absType' .default
+      if (← isTypeCorrect absType') then
+        absType := absType'
+      else
+        trace[Elab.induction] "Not abstracing goal over {complexArg}, resulting term is not type correct:{indentExpr absType'} }"
+        absType := .lam (← mkFreshUserName `x) complexArgType absType .default
+    else
+      trace[Elab.induction] "Not abstracing goal over {complexArg}, its type {complexArgType} does not match the expected {exptComplexArgType}"
+      absType := .lam (← mkFreshUserName `x) exptComplexArgType absType .default
+
+  let motive ← mkLambdaFVars (targets.map mkFVar) absType
+  let motiverInferredType ← inferType motive
   unless (← isDefEqGuarded motiverInferredType motiveType) do
-    throwError "type mismatch when assigning motive{indentExpr motive}\n{← mkHasTypeButIsExpectedMsg motiverInferredType motiveType}"
+    throwError "Type mismatch when assigning motive{indentExpr motive}\n{← mkHasTypeButIsExpectedMsg motiverInferredType motiveType}"
   motiveArg.assign motive
 
 private def getAltNumFields (elimInfo : ElimInfo) (altName : Name) : TermElabM Nat := do
   for altInfo in elimInfo.altsInfo do
     if altInfo.name == altName then
       return altInfo.numFields
-  throwError "unknown alternative name '{altName}'"
+  throwError "Unknown alternative name '{altName}'"
 
 private def isWildcard (altStx : Syntax) : Bool :=
   getAltName altStx == `_
@@ -219,21 +269,21 @@ private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : Tacti
   for h : i in [:altsSyntax.size] do
     let altStx := altsSyntax[i]
     if getAltName altStx == `_ && i != altsSyntax.size - 1 then
-      withRef altStx <| throwError "invalid occurrence of wildcard alternative, it must be the last alternative"
+      withRef altStx <| throwError "Invalid occurrence of the wildcard alternative `| _ => ...`: It must be the last alternative"
     let altName := getAltName altStx
     if altName != `_ then
       if seenNames.contains altName then
-        throwErrorAt altStx s!"duplicate alternative name '{altName}'"
+        throwErrorAt altStx s!"Duplicate alternative name '{altName}'"
       seenNames := seenNames.push altName
       unless alts.any (·.name == altName) do
         let unhandledAlts := alts.filter fun alt => !seenNames.contains alt.name
         let msg :=
           if unhandledAlts.isEmpty then
-            m!"invalid alternative name '{altName}', no unhandled alternatives"
+            m!"Invalid alternative name '{altName}': There are no unhandled alternatives"
           else
-            let unhandledAltsMessages := unhandledAlts.map (m!"{·.name}")
+            let unhandledAltsMessages := unhandledAlts.map (m!"'{·.name}'")
             let unhandledAlts := MessageData.orList unhandledAltsMessages.toList
-            m!"invalid alternative name '{altName}', expected {unhandledAlts}"
+            m!"Invalid alternative name '{altName}': Expected {unhandledAlts}"
         throwErrorAt altStx msg
 
 
@@ -247,7 +297,7 @@ private def getNumExplicitFields (altMVarId : MVarId) (numFields : Nat) : MetaM 
     -- `forallMetaBoundTelescope` will reduce let-bindings, so we don't just count how many
     -- explicit binders are in `bis`, but how many implicit ones.
     -- If this turns out to be insufficient, then the real (and complicated) logic for which
-    -- arguments are explicit or implicit can be found in  `introNImp`,
+    -- arguments are explicit or implicit can be found in `introNImp`,
     let (_, bis, _) ← forallMetaBoundedTelescope target numFields
     let numImplicits := (bis.filter (!·.isExplicit)).size
     return numFields - numImplicits
@@ -265,8 +315,8 @@ private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Ar
 
 open Language in
 def evalAlts (elimInfo : ElimInfo) (alts : Array Alt) (optPreTac : Syntax) (altStxs? : Option (Array Syntax))
-    (initialInfo : Info)
-    (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[])
+    (initialInfo : Info) (tacStx : Syntax)
+    (numEqs : Nat := 0) (generalized : Array FVarId := #[]) (toClear : Array FVarId := #[])
     (toTag : Array (Ident × FVarId) := #[]) : TacticM Unit := do
   let hasAlts := altStxs?.isSome
   if hasAlts then
@@ -286,14 +336,15 @@ where
         -- them, eventually put each of them back in `Context.tacSnap?` in `applyAltStx`
         let finished ← IO.Promise.new
         let altPromises ← altStxs.mapM fun _ => IO.Promise.new
+        let cancelTk? := (← readThe Core.Context).cancelTk?
         tacSnap.new.resolve {
           -- save all relevant syntax here for comparison with next document version
           stx := mkNullNode altStxs
           diagnostics := .empty
           inner? := none
-          finished := { stx? := mkNullNode altStxs, reportingRange? := none, task := finished.resultD default }
+          finished := { stx? := mkNullNode altStxs, reportingRange? := none, task := finished.resultD default, cancelTk? }
           next := Array.zipWith
-            (fun stx prom => { stx? := some stx, task := prom.resultD default })
+            (fun stx prom => { stx? := some stx, task := prom.resultD default, cancelTk? })
             altStxs altPromises
         }
         goWithIncremental <| altPromises.mapIdx fun i prom => {
@@ -361,7 +412,7 @@ where
           applyAltStx tacSnaps altStxs altStxIdx altStx alt
         alts := #[]
       else
-        throwErrorAt altStx "unused alternative '{altName}'"
+        throwErrorAt altStx (Term.mkRedundantAlternativeMsg altName none)
 
     -- now process remaining alternatives; these might either be unreachable or we're in `induction`
     -- without `with`. In all other cases, remaining alternatives are flagged as errors.
@@ -370,9 +421,17 @@ where
       let mut (_, altMVarId) ← altMVarId.introN numFields
       let some (altMVarId', subst) ← Cases.unifyEqs? numEqs altMVarId {}
         | continue  -- alternative is not reachable
+      altMVarId.withContext do
+        for x in subst.domain do
+          if let .fvar y := subst.get x then
+            if let some decl ← x.findDecl? then
+              Elab.pushInfoLeaf (.ofFVarAliasInfo { id := y, baseId := x, userName := decl.userName })
       altMVarId ← if info.provesMotive then
-        (_, altMVarId) ← altMVarId'.introNP numGeneralized
-        pure altMVarId
+        let (generalized', altMVarId') ← altMVarId'.introNP generalized.size
+        altMVarId'.withContext do
+          for x in generalized, y in generalized' do
+            Elab.pushInfoLeaf (.ofFVarAliasInfo { id := y, baseId := x, userName := ← y.getUserName })
+        pure altMVarId'
       else
         pure altMVarId'
       for fvarId in toClear do
@@ -385,7 +444,7 @@ where
         -- User did not provide alternatives using `|`
         setGoals <| (← getGoals) ++ altMVarIds
       else if !altMVarIds.isEmpty then
-        logError m!"alternative '{altName}' has not been provided"
+        logErrorAt tacStx m!"Alternative '{altName}' has not been provided"
         altMVarIds.forM fun mvarId => admitGoal mvarId
 
   /-- Applies syntactic alternative to alternative goal. -/
@@ -396,7 +455,7 @@ where
     let altVars := getAltVars altStx
     let numFieldsToName ← if altHasExplicitModifier altStx then pure numFields else getNumExplicitFields altMVarId numFields
     if altVars.size > numFieldsToName then
-      logError m!"too many variable names provided at alternative '{altName}', #{altVars.size} provided, but #{numFieldsToName} expected"
+      logError m!"Too many variable names provided at alternative '{altName}': {altVars.size} provided, but {numFieldsToName} expected"
     let mut (fvarIds, altMVarId) ← altMVarId.introN numFields (altVars.toList.map getNameOfIdent') (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
     -- Delay adding the infos for the pattern LHS because we want them to nest
     -- inside tacticInfo for the current alternative (in `evalAlt`)
@@ -408,12 +467,20 @@ where
     let unusedAlt := do
       addInfo
       if !isWildcard altStx then
-        throwError "alternative '{altName}' is not needed"
+        throwError "Alternative '{altName}' is not needed"
     let some (altMVarId', subst) ← Cases.unifyEqs? numEqs altMVarId {}
       | unusedAlt
+    altMVarId.withContext do
+      for x in subst.domain do
+        if let .fvar y := subst.get x then
+          if let some decl ← x.findDecl? then
+            Elab.pushInfoLeaf (.ofFVarAliasInfo { id := y, baseId := x, userName := decl.userName })
     altMVarId ← if info.provesMotive then
-      (_, altMVarId) ← altMVarId'.introNP numGeneralized
-      pure altMVarId
+      let (generalized', altMVarId') ← altMVarId'.introNP generalized.size
+      altMVarId'.withContext do
+        for x in generalized, y in generalized' do
+          Elab.pushInfoLeaf (.ofFVarAliasInfo { id := y, baseId := x, userName := ← y.getUserName })
+      pure altMVarId'
     else
       pure altMVarId'
     for fvarId in toClear do
@@ -431,7 +498,8 @@ where
     -- all previous alternatives have to be unchanged for reuse
     Term.withNarrowedArgTacticReuse (stx := mkNullNode altStxs) (argIdx := altStxIdx) fun altStx => do
     -- everything up to rhs has to be unchanged for reuse
-    Term.withNarrowedArgTacticReuse (stx := altStx) (argIdx := 2) fun _rhs => do
+    Term.withNarrowedArgTacticReuse (stx := altStx) (argIdx := 1) fun rhs? => do
+    Term.withNarrowedArgTacticReuse (stx := rhs?) (argIdx := 1) fun _rhs => do
     -- disable reuse if rhs is run multiple times
     Term.withoutTacticIncrementality (altMVarIds.length != 1 || isWildcard altStx) do
       for altMVarId' in altMVarIds do
@@ -474,20 +542,20 @@ private def getUserGeneralizingFVarIds (stx : Syntax) : TacticM (Array FVarId) :
       getFVarIds vars
 
 -- process `generalizingVars` subterm of induction Syntax `stx`.
-private def generalizeVars (mvarId : MVarId) (stx : Syntax) (targets : Array Expr) : TacticM (Nat × MVarId) :=
+private def generalizeVars (mvarId : MVarId) (stx : Syntax) (targets : Array Expr) : TacticM (Array FVarId × MVarId) :=
   mvarId.withContext do
     let userFVarIds ← getUserGeneralizingFVarIds stx
     let forbidden ← mkGeneralizationForbiddenSet targets
     let mut s ← getFVarSetToGeneralize targets forbidden
     for userFVarId in userFVarIds do
       if forbidden.contains userFVarId then
-        throwError "variable cannot be generalized because target depends on it{indentExpr (mkFVar userFVarId)}"
+        throwError "Variable '{mkFVar userFVarId}' cannot be generalized because the induction target depends on it"
       if s.contains userFVarId then
-        throwError "unnecessary 'generalizing' argument, variable '{mkFVar userFVarId}' is generalized automatically"
+        throwError "Unnecessary 'generalizing' argument: Variable '{mkFVar userFVarId}' is generalized automatically"
       s := s.insert userFVarId
     let fvarIds ← sortFVarIds s.toArray
     let (fvarIds, mvarId') ← mvarId.revert fvarIds
-    return (fvarIds.size, mvarId')
+    return (fvarIds, mvarId')
 
 /--
 Given `inductionAlts` of the form
@@ -530,13 +598,25 @@ private def withAltsOfOptInductionAlts (optInductionAlts : Syntax)
 private def getOptPreTacOfOptInductionAlts (optInductionAlts : Syntax) : Syntax :=
   if optInductionAlts.isNone then mkNullNode else optInductionAlts[0][1]
 
-private def isMultiAlt (alt : Syntax) : Bool :=
-  alt[0].getNumArgs > 1
+/--
+Returns true if the `Lean.Parser.Tactic.inductionAlt` either has more than one alternative
+or has no RHS.
+-/
+private def shouldExpandAlt (alt : Syntax) : Bool :=
+  alt[0].getNumArgs > 1 || (1 < alt.getNumArgs && alt[1].getNumArgs == 0)
 
-/-- Return `some #[alt_1, ..., alt_n]` if `alt` has multiple LHSs. -/
-private def expandMultiAlt? (alt : Syntax) : Option (Array Syntax) := Id.run do
-  if isMultiAlt alt then
-    some <| alt[0].getArgs.map fun lhs => alt.setArg 0 (mkNullNode #[lhs])
+/--
+Returns `some #[alt_1, ..., alt_n]` if `alt` has multiple LHSs or if `alt` has no RHS.
+If there is no RHS, it is filled in with a hole.
+-/
+private def expandAlt? (alt : Syntax) : Option (Array Syntax) := Id.run do
+  if shouldExpandAlt alt then
+    some <| alt[0].getArgs.map fun lhs =>
+      let alt := alt.setArg 0 (mkNullNode #[lhs])
+      if 1 < alt.getNumArgs && alt[1].getNumArgs == 0 then
+        alt.setArg 1 <| mkNullNode #[mkAtomFrom lhs "=>", mkHole lhs]
+      else
+        alt
   else
     none
 
@@ -545,17 +625,17 @@ Given `inductionAlts` of the form
 ```
 syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)*)
 ```
-Return `some inductionAlts'` if one of the alternatives have multiple LHSs, in the new `inductionAlts'`
-all alternatives have a single LHS.
+Return `some inductionAlts'` if one of the alternatives has multiple LHSs or no RHS.
+In the new `inductionAlts'` all alternatives have a single LHS.
 
 Remark: the `RHS` of alternatives with multi LHSs is copied.
 -/
 private def expandInductionAlts? (inductionAlts : Syntax) : Option Syntax := Id.run do
   let alts := getAltsOfInductionAlts inductionAlts
-  if alts.any isMultiAlt then
+  if alts.any shouldExpandAlt then
     let mut altsNew := #[]
     for alt in alts do
-      if let some alt' := expandMultiAlt? alt then
+      if let some alt' := expandAlt? alt then
         altsNew := altsNew ++ alt'
       else
         altsNew := altsNew.push alt
@@ -573,7 +653,7 @@ private def inductionAltsPos (stx : Syntax) : Nat :=
   else if stx.getKind == ``Lean.Parser.Tactic.funCases then
     2
   else
-    panic! "inductionAltsSyntaxPos: Unexpected syntax kind {stx.getKind}"
+    panic! s!"inductionAltsSyntaxPos: Unexpected syntax kind {stx.getKind}"
 
 /--
 Expand
@@ -600,9 +680,9 @@ private def checkAltsOfOptInductionAlts (optInductionAlts : Syntax) : TacticM Un
       let n := getAltName alt
       if n == `_ then
         unless (getAltVars alt).isEmpty do
-          throwErrorAt alt "wildcard alternative must not specify variable names"
+          throwErrorAt alt "The wildcard alternative `| _ => ...` must not specify variable names"
         if found then
-          throwErrorAt alt "more than one wildcard alternative '| _ => ...' used"
+          throwErrorAt alt "More than one wildcard alternative `| _ => ...` used"
         found := true
 
 def getInductiveValFromMajor (induction : Bool) (major : Expr) : TacticM InductiveVal :=
@@ -665,7 +745,7 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
       if let some elimName ← getCustomEliminator? targets induction then
         return ← getElimInfo elimName
     unless targets.size == 1 do
-      throwError "eliminator must be provided when multiple targets are used (use 'using <eliminator-name>'), and no default eliminator has been registered using attribute `[eliminator]`"
+      throwError "Eliminator must be provided when multiple targets are used (use 'using <eliminator-name>'), and no default eliminator has been registered using attribute `[eliminator]`"
     let indVal ← getInductiveValFromMajor induction targets[0]!
     if induction && indVal.all.length != 1 then
       throwError "'induction' tactic does not support mutually inductive types, the eliminator '{mkRecName indVal.name}' has multiple motives"
@@ -783,9 +863,9 @@ def checkInductionTargets (targets : Array Expr) : MetaM Unit := do
   let mut foundFVars : FVarIdSet := {}
   for target in targets do
     unless target.isFVar do
-      throwError "index in target's type is not a variable (consider using the `cases` tactic instead){indentExpr target}"
+      throwError "Invalid target: Index in target's type is not a variable (consider using the `cases` tactic instead){indentExpr target}"
     if foundFVars.contains target.fvarId! then
-      throwError "target (or one of its indices) occurs more than once{indentExpr target}"
+      throwError "Invalid target: Target (or one of its indices) occurs more than once{indentExpr target}"
     foundFVars := foundFVars.insert target.fvarId!
 
 /--
@@ -801,12 +881,12 @@ private def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Ar
   mvarId.withContext do
     checkInductionTargets targets
     let targetFVarIds := targets.map (·.fvarId!)
-    let (n, mvarId) ← generalizeVars mvarId stx targets
+    let (generalized, mvarId) ← generalizeVars mvarId stx targets
     mvarId.withContext do
       let result ← withRef stx[1] do -- use target position as reference
         ElimApp.mkElimApp elimInfo targets tag
       trace[Elab.induction] "elimApp: {result.elimApp}"
-      ElimApp.setMotiveArg mvarId result.motive targetFVarIds
+      ElimApp.setMotiveArg mvarId result.motive targetFVarIds result.complexArgs
       -- drill down into old and new syntax: allow reuse of an rhs only if everything before it is
       -- unchanged
       -- everything up to the alternatives must be unchanged for reuse
@@ -814,8 +894,8 @@ private def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Ar
       withAltsOfOptInductionAlts optInductionAlts fun alts? => do
         let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
         mvarId.assign result.elimApp
-        ElimApp.evalAlts elimInfo result.alts optPreTac alts? initInfo
-          (numGeneralized := n) (toClear := targetFVarIds) (toTag := toTag)
+        ElimApp.evalAlts elimInfo result.alts optPreTac alts? initInfo stx[0]
+          (generalized := generalized) (toClear := targetFVarIds) (toTag := toTag)
         appendGoals result.others.toList
 
 @[builtin_tactic Lean.Parser.Tactic.induction, builtin_incremental]
@@ -829,6 +909,16 @@ def evalInduction : Tactic := fun stx =>
     evalInductionCore stx elimInfo targets toTag
 
 
+register_builtin_option tactic.fun_induction.unfolding : Bool := {
+  defValue := true
+  group    := "tactic"
+  descr    := "if set to 'true', then 'fun_induction' and 'fun_cases' will use the “unfolding \
+    functional induction (resp. cases) principle” ('….induct_unfolding'/'….fun_cases_unfolding'), \
+    which will attempt to replace the function goal of interest in the goal with the appropriate \
+    right-hand-side in each case. If 'false', the regular “functional induction principle” \
+    ('….induct'/'….fun_cases') is used."
+}
+
 /--
 Elaborates the `foo args` of `fun_induction` or `fun_cases`, inferring the args if omitted from the goal
 -/
@@ -836,14 +926,15 @@ def elabFunTargetCall (cases : Bool) (stx : Syntax) : TacticM Expr := do
   match stx with
   | `($id:ident) =>
     let fnName ← realizeGlobalConstNoOverload id
-    let some _ ← getFunIndInfo? cases fnName |
-      let theoremKind := if cases then "induction" else "cases"
-      throwError "no functional {theoremKind} theorem for '{.ofConstName fnName}', or function is mutually recursive "
-    let candidates ← FunInd.collect fnName (← getMainGoal)
+    let unfolding := tactic.fun_induction.unfolding.get (← getOptions)
+    let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := unfolding) fnName |
+      let theoremKind := if cases then "cases" else "induction"
+      throwError "No functional {theoremKind} theorem for '{.ofConstName fnName}', or function is mutually recursive "
+    let candidates ← FunInd.collect funIndInfo (← getMainGoal)
     if candidates.isEmpty then
-      throwError "could not find suitable call of '{.ofConstName fnName}' in the goal"
+      throwError "Could not find suitable call of '{.ofConstName fnName}' in the goal"
     if candidates.size > 1 then
-      throwError "found more than one suitable call of '{.ofConstName fnName}' in the goal. \
+      throwError "Found more than one suitable call of '{.ofConstName fnName}' in the goal. \
         Please include the desired arguments."
     pure candidates[0]!
   | _ =>
@@ -857,10 +948,11 @@ private def elabFunTarget (cases : Bool) (stx : Syntax) : TacticM (ElimInfo × A
     let funCall ← elabFunTargetCall cases stx
     funCall.withApp fun fn funArgs => do
     let .const fnName fnUs := fn |
-      throwError "expected application headed by a function constant"
-    let some funIndInfo ← getFunIndInfo? cases fnName |
-      let theoremKind := if cases then "induction" else "cases"
-      throwError "no functional {theoremKind} theorem for '{.ofConstName fnName}', or function is mutually recursive "
+      throwError "Expected application headed by a function constant"
+    let unfolding := tactic.fun_induction.unfolding.get (← getOptions)
+    let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := unfolding) fnName |
+      let theoremKind := if cases then "cases" else "induction"
+      throwError "No functional {theoremKind} theorem for '{.ofConstName fnName}', or function is mutually recursive "
     if funArgs.size != funIndInfo.params.size then
       throwError "Expected fully applied application of '{.ofConstName fnName}' with \
         {funIndInfo.params.size} arguments, but found {funArgs.size} arguments"
@@ -885,7 +977,7 @@ private def elabFunTarget (cases : Bool) (stx : Syntax) : TacticM (ElimInfo × A
     unless targets.size = elimInfo.targetsPos.size do
       let tacName := if cases then "fun_cases" else "fun_induction"
       throwError "{tacName} got confused trying to use \
-        {.ofConstName funIndInfo.funIndName}. Does it take {targets.size} or \
+        '{.ofConstName funIndInfo.funIndName}'. Does it take {targets.size} or \
         {elimInfo.targetsPos.size} targets?"
     return (elimInfo, targets)
 
@@ -911,13 +1003,13 @@ def evalCasesCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr)
   let tag ← mvarId.getTag
   mvarId.withContext do
     let result ← withRef targetRef <| ElimApp.mkElimApp elimInfo targets tag
-    let elimArgs := result.elimApp.getAppArgs
+    let elimArgs := result.elimArgs
     let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]!
     let motiveType ← inferType elimArgs[elimInfo.motivePos]!
     let mvarId ← generalizeTargetsEq mvarId motiveType targets
     let (targetsNew, mvarId) ← mvarId.introN targets.size
     mvarId.withContext do
-      ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos]!.mvarId! targetsNew
+      ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos]!.mvarId! targetsNew result.complexArgs
       mvarId.assign result.elimApp
       -- drill down into old and new syntax: allow reuse of an rhs only if everything before it is
       -- unchanged
@@ -925,7 +1017,7 @@ def evalCasesCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr)
       Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := inductionAltsPos stx) fun optInductionAlts => do
       withAltsOfOptInductionAlts optInductionAlts fun alts => do
         let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
-        ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo
+        ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo stx[0]
           (numEqs := targets.size) (toClear := targetsNew) (toTag := toTag)
 
 @[builtin_tactic Lean.Parser.Tactic.cases, builtin_incremental]

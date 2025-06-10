@@ -5,6 +5,7 @@ Authors: Josh Clune
 -/
 prelude
 import Init.NotationExtra
+import Init.Data.Hashable
 
 namespace Std.Tactic.BVDecide
 namespace LRAT
@@ -17,6 +18,9 @@ instance : DecidableEq (PosFin n) :=
 
 instance : CoeOut (PosFin n) Nat where
   coe p := p.val
+
+instance {n} : Hashable (PosFin n) where
+  hash p := hash p.val
 
 instance : ToString (PosFin n) where
   toString p := toString p.val

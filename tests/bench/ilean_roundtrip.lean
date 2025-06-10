@@ -35,7 +35,7 @@ def parse (s : String) : IO (Except String Lean.Json) := do
   return Lean.Json.parse s
 
 def main (args : List String) : IO Unit := do
-  let n := (args.get! 0).toNat!
+  let n := (args[0]!).toNat!
   let refs ← genModuleRefs n
   let compressStartTime ← IO.monoMsNow
   let s ← compress refs

@@ -6,8 +6,22 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Util
 import Lean.Meta.Closure
+import Lean.Meta.Transform
 
 namespace Lean.Meta
+
+/-- Abstracts the given proof into an auxiliary theorem, suitably pre-processing its type. -/
+def abstractProof [Monad m] [MonadLiftT MetaM m] [MonadEnv m] [MonadOptions m] [MonadFinally m]
+    (proof : Expr) (cache := true) (postprocessType : Expr → m Expr := pure) : m Expr := do
+  let type ← withoutExporting do inferType proof
+  let type ← (Core.betaReduce type : MetaM _)
+  let type ← zetaReduce type
+  let type ← postprocessType type
+  /- We turn on zetaDelta-expansion to make sure we don't need to perform an expensive `check` step to
+    identify which let-decls can be abstracted. If we design a more efficient test, we can avoid the eager zetaDelta expansion step.
+    In a benchmark created by @selsam, The extra `check` step was a bottleneck. -/
+  mkAuxTheorem (cache := cache) type proof (zetaDelta := true)
+
 namespace AbstractNestedProofs
 
 def getLambdaBody (e : Expr) : Expr :=
@@ -30,22 +44,9 @@ def isNonTrivialProof (e : Expr) : MetaM Bool := do
       pure $ !f.isAtomic || args.any fun arg => !arg.isAtomic
 
 structure Context where
-  baseName : Name
+  cache    : Bool
 
-structure State where
-  nextIdx : Nat := 1
-
-abbrev M := ReaderT Context $ MonadCacheT ExprStructEq Expr $ StateRefT State MetaM
-
-private def mkAuxLemma (e : Expr) : M Expr := do
-  let ctx ← read
-  let s ← get
-  let lemmaName ← mkAuxName (ctx.baseName ++ `proof) s.nextIdx
-  modify fun s => { s with nextIdx := s.nextIdx + 1 }
-  /- We turn on zetaDelta-expansion to make sure we don't need to perform an expensive `check` step to
-     identify which let-decls can be abstracted. If we design a more efficient test, we can avoid the eager zetaDelta expansion step.
-     It a benchmark created by @selsam, The extra `check` step was a bottleneck. -/
-  mkAuxTheoremFor lemmaName e (zetaDelta := true)
+abbrev M := ReaderT Context $ MonadCacheT ExprStructEq Expr MetaM
 
 partial def visit (e : Expr) : M Expr := do
   if e.isAtomic then
@@ -65,8 +66,9 @@ partial def visit (e : Expr) : M Expr := do
         lctx := lctx.modifyLocalDecl xFVarId fun _ => localDecl
       withLCtx lctx localInstances k
     checkCache { val := e : ExprStructEq } fun _ => do
-      if (← isNonTrivialProof e) then
-        mkAuxLemma e
+      if (← withoutExporting do isNonTrivialProof e) then
+        /- Ensure proofs nested in type are also abstracted -/
+        abstractProof e (← read).cache visit
       else match e with
         | .lam ..      => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false)
         | .letE ..     => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false)
@@ -78,12 +80,12 @@ partial def visit (e : Expr) : M Expr := do
 
 end AbstractNestedProofs
 
-/-- Replace proofs nested in `e` with new lemmas. The new lemmas have names of the form `mainDeclName.proof_<idx>` -/
-def abstractNestedProofs (mainDeclName : Name) (e : Expr) : MetaM Expr := do
+/-- Replace proofs nested in `e` with new lemmas. The new lemmas are named using `getDeclNGen`. -/
+def abstractNestedProofs (e : Expr) (cache := true) : MetaM Expr := do
   if (← isProof e) then
     -- `e` is a proof itself. So, we don't abstract nested proofs
     return e
   else
-    AbstractNestedProofs.visit e |>.run { baseName := mainDeclName } |>.run |>.run' { nextIdx := 1 }
+    AbstractNestedProofs.visit e |>.run { cache } |>.run
 
 end Lean.Meta

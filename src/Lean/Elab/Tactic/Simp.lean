@@ -94,7 +94,7 @@ def elabSimpConfig (optConfig : Syntax) (kind : SimpKind) : TacticM Meta.Simp.Co
 private def addDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (thms : SimpTheorems) (id : Origin) (e : Expr) (post : Bool) (inv : Bool) (kind : SimpKind) : MetaM SimpTheorems := do
   if e.isConst then
     let declName := e.constName!
-    let info ← getConstInfo declName
+    let info ← getConstVal declName
     if (← isProp info.type) then
       thms.addConst declName (post := post) (inv := inv)
     else
@@ -202,7 +202,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
                   if (← Simp.isBuiltinSimproc name) then
                     simprocs := simprocs.erase name
                   else
-                    withRef id <| throwUnknownConstant name
+                    throwUnknownConstantAt id name
             else if arg.getKind == ``Lean.Parser.Tactic.simpLemma then
               let post :=
                 if arg[0].isNone then

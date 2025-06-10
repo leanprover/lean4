@@ -32,6 +32,8 @@ Structure projection declaration for `mkProjections`.
 structure StructProjDecl where
   ref : Syntax
   projName : Name
+  /-- Overrides to param binders to apply after param binder info inference. -/
+  paramInfoOverrides : List (Option BinderInfo) := []
 
 /--
 Adds projection functions to the environment for the one-constructor inductive type named `n`.
@@ -73,11 +75,15 @@ def mkProjections (n : Name) (projDecls : Array StructProjDecl) (instImplicit : 
         -- Construct the projection functions:
         let mut ctorType := ctorType
         for h : i in [0:projDecls.size] do
-          let {ref, projName} := projDecls[i]
+          let {ref, projName, paramInfoOverrides} := projDecls[i]
           unless ctorType.isForall do
             throwErrorAt ref "\
               failed to generate projection '{projName}' for '{.ofConstName n}', \
               not enough constructor fields"
+          unless paramInfoOverrides.length ≤ params.size do
+            throwErrorAt ref "\
+              failed to generate projection '{projName}' for '{.ofConstName n}', \
+              too many structure parameter overrides"
           let resultType := ctorType.bindingDomain!.consumeTypeAnnotations
           let isProp ← isProp resultType
           if isPredicate && !isProp then
@@ -87,6 +93,7 @@ def mkProjections (n : Name) (projDecls : Array StructProjDecl) (instImplicit : 
               {indentExpr resultType}"
           let projType := lctx.mkForall projArgs resultType
           let projType := projType.inferImplicit indVal.numParams (considerRange := true)
+          let projType := projType.updateForallBinderInfos paramInfoOverrides
           let projVal := lctx.mkLambda projArgs <| Expr.proj n i self
           let cval : ConstantVal := { name := projName, levelParams := indVal.levelParams, type := projType }
           withRef ref do
@@ -108,5 +115,108 @@ def mkProjections (n : Name) (projDecls : Array StructProjDecl) (instImplicit : 
           modifyEnv fun env => addProjectionFnInfo env projName ctorVal.name indVal.numParams i instImplicit
           let proj := mkApp (mkAppN (.const projName lvls) params) self
           ctorType := ctorType.bindingBody!.instantiate1 proj
+
+/--
+Checks if the expression is of the form `S.mk x.1 ... x.n` with `n` nonzero
+and `S.mk` a structure constructor with `S` one of the recorded structure parents.
+Returns `x`.
+Each projection `x.i` can be either a native projection or from a projection function.
+-/
+def etaStruct? (e : Expr) (p : Name → Bool) : MetaM (Option Expr) := do
+  let .const ctor _ := e.getAppFn | return none
+  let some (ConstantInfo.ctorInfo fVal) := (← getEnv).find? ctor | return none
+  unless p fVal.induct do return none
+  unless 0 < fVal.numFields && e.getAppNumArgs == fVal.numParams + fVal.numFields do return none
+  let args := e.getAppArgs
+  let params := args.extract 0 fVal.numParams
+  let some x ← getProjectedExpr ctor fVal.induct params 0 args[fVal.numParams]! none | return none
+  for i in [1 : fVal.numFields] do
+    let arg := args[fVal.numParams + i]!
+    let some x' ← getProjectedExpr ctor fVal.induct params i arg x | return none
+    unless x' == x do return none
+  return x
+where
+  sameParams (params1 params2 : Array Expr) : MetaM Bool := withNewMCtxDepth do
+    if params1.size == params2.size then
+      for p1 in params1, p2 in params2 do
+        unless ← isDefEqGuarded p1 p2 do
+          return false
+      return true
+    else
+      return false
+  /--
+  Given an expression `e` that's either a native projection or a registered projection
+  function, gives the object being projected.
+  Checks that the parameters are defeq to `params`, that the projection index is equal to `idx`,
+  and, if `x?` is provided, that the object being projected is equal to it.
+  -/
+  getProjectedExpr (ctor induct : Name) (params : Array Expr) (idx : Nat) (e : Expr) (x? : Option Expr) : MetaM (Option Expr) := do
+    if let .proj S i x := e then
+      if i == idx && induct == S && (x? |>.map (· == x) |>.getD true) then
+        let ety ← whnf (← inferType e)
+        let params' := ety.getAppArgs
+        if ← sameParams params params' then
+          return x
+      return none
+    if let .const fn _ := e.getAppFn then
+      if let some info ← getProjectionFnInfo? fn then
+        if info.ctorName == ctor && info.i == idx && e.getAppNumArgs == info.numParams + 1 then
+          let x := e.appArg!
+          if (x? |>.map (· == x) |>.getD true) then
+            let params' := e.appFn!.getAppArgs
+            if ← sameParams params params' then
+              return e.appArg!
+    return none
+
+/--
+Eta reduces all structures satisfying `p` in the whole expression.
+
+See `etaStruct?` for reducing single expressions.
+-/
+def etaStructReduce (e : Expr) (p : Name → Bool) : MetaM Expr := do
+  let e ← instantiateMVars e
+  Meta.transform e (post := fun e => do
+    if let some e ← etaStruct? e p then
+      return .done e
+    else
+      return .continue)
+
+/--
+Instantiates the default value given by the default value function `defaultFn`.
+- `defaultFn` is the default value function returned by `Lean.getEffectiveDefaultFnForField?` or `Lean.getDefaultFnForField?`.
+- `levels?` is the list of levels to use, and otherwise the levels are inferred.
+- `params` is the list of structure parameters. These are assumed to be correct for the given levels.
+- `fieldVal?` is a function for getting fields for values, if they exist.
+
+If successful, returns a set of fields used and the resulting default value.
+Success is expected. Callers should do metacontext backtracking themselves if needed.
+-/
+partial def instantiateStructDefaultValueFn?
+    [Monad m] [MonadEnv m] [MonadError m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
+    (defaultFn : Name) (levels? : Option (List Level)) (params : Array Expr)
+    (fieldVal? : Name → m (Option Expr)) : m (Option (NameSet × Expr)) := do
+  let cinfo ← getConstInfo defaultFn
+  let us ← levels?.getDM (mkFreshLevelMVarsFor cinfo)
+  assert! us.length == cinfo.levelParams.length
+  let mut val ← liftMetaM <| instantiateValueLevelParams cinfo us
+  for param in params do
+    let .lam _ t b _ := val | return none
+    -- If no levels given, need to unify to solve for level mvars.
+    if levels?.isNone then
+      unless (← isDefEq (← inferType param) t) do return none
+    val := b.instantiate1 param
+  go? {} val
+where
+  go? (usedFields : NameSet) (e : Expr) : m (Option (NameSet × Expr)) := do
+    match e with
+    | .lam n d b _ =>
+      let some val ← fieldVal? n | return none
+      if (← isDefEq (← inferType val) d) then
+        go? (usedFields.insert n) (b.instantiate1 val)
+      else
+        return none
+    | e =>
+      let_expr id _ a := e | return some (usedFields, e)
+      return some (usedFields, a)
 
 end Lean.Meta

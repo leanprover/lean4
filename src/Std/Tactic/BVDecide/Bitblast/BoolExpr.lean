@@ -5,9 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
-import Std.Tactic.BVDecide.Bitblast.BoolExpr.Circuit
 
 /-!
-This directory contains the definition and bitblaster of generic boolean substructures for
-SMT-like problems.
+This directory contains the definition of generic boolean substructures for SMT-like problems.
 -/

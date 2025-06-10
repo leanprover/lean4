@@ -3,6 +3,8 @@ Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Data.Nat.Div.Basic
 import Init.Meta
@@ -20,6 +22,12 @@ protected theorem dvd_trans {a b c : Nat} (h₁ : a ∣ b) (h₂ : b ∣ c) : a 
   match h₁, h₂ with
   | ⟨d, (h₃ : b = a * d)⟩, ⟨e, (h₄ : c = b * e)⟩ =>
     ⟨d * e, show c = a * (d * e) by simp[h₃,h₄, Nat.mul_assoc]⟩
+
+protected theorem dvd_mul_left_of_dvd {a b : Nat} (h : a ∣ b) (c : Nat) : a ∣ c * b :=
+  Nat.dvd_trans h (Nat.dvd_mul_left _ _)
+
+protected theorem dvd_mul_right_of_dvd {a b : Nat} (h : a ∣ b) (c : Nat) : a ∣ b * c :=
+  Nat.dvd_trans h (Nat.dvd_mul_right _ _)
 
 protected theorem eq_zero_of_zero_dvd {a : Nat} (h : 0 ∣ a) : a = 0 :=
   let ⟨c, H'⟩ := h; H'.trans c.zero_mul
@@ -106,8 +114,26 @@ protected theorem dvd_of_mul_dvd_mul_left
 protected theorem dvd_of_mul_dvd_mul_right (kpos : 0 < k) (H : m * k ∣ n * k) : m ∣ n := by
   rw [Nat.mul_comm m k, Nat.mul_comm n k] at H; exact Nat.dvd_of_mul_dvd_mul_left kpos H
 
-theorem dvd_sub {k m n : Nat} (H : n ≤ m) (h₁ : k ∣ m) (h₂ : k ∣ n) : k ∣ m - n :=
-  (Nat.dvd_add_iff_left h₂).2 <| by rwa [Nat.sub_add_cancel H]
+theorem dvd_sub {k m n : Nat} (h₁ : k ∣ m) (h₂ : k ∣ n) : k ∣ m - n :=
+  if H : n ≤ m then
+    (Nat.dvd_add_iff_left h₂).2 <| by rwa [Nat.sub_add_cancel H]
+  else
+    Nat.sub_eq_zero_of_le (Nat.le_of_not_le H) ▸ Nat.dvd_zero k
+
+theorem dvd_sub_iff_right {m n k : Nat} (hkn : k ≤ n) (h : m ∣ n) : m ∣ n - k ↔ m ∣ k := by
+  refine ⟨?_, dvd_sub h⟩
+  let ⟨x, hx⟩ := h
+  cases hx
+  intro hy
+  let ⟨y, hy⟩ := hy
+  have hk : k = m * (x - y) := by
+    rw [Nat.sub_eq_iff_eq_add hkn] at hy
+    rw [Nat.mul_sub, hy, Nat.add_comm, Nat.add_sub_cancel]
+  exact hk ▸ Nat.dvd_mul_right _ _
+
+theorem dvd_sub_iff_left {m n k : Nat} (hkn : k ≤ n) (h : m ∣ k) : m ∣ n - k ↔ m ∣ n := by
+  rw (occs := [2]) [← Nat.sub_add_cancel hkn]
+  exact Nat.dvd_add_iff_left h
 
 protected theorem mul_dvd_mul {a b c d : Nat} : a ∣ b → c ∣ d → a * c ∣ b * d
   | ⟨e, he⟩, ⟨f, hf⟩ =>

@@ -16,15 +16,20 @@ namespace Frontend.Normalize
 
 open Lean.Meta
 
--- TODO(henrik): Add further match statements like matches with default cases
 /--
 The various kinds of matches supported by the match to cond infrastructure.
 -/
 inductive MatchKind
   /--
   It is a full match statement on an enum inductive with one constructor handled per arm.
+  The ctors are listed in the order they occur in the match statement in `ctors`.
   -/
-  | simpleEnum (info : InductiveVal)
+  | simpleEnum (info : InductiveVal) (ctors : Array ConstructorVal)
+  /--
+  It is a match statement on an enum inductive with a default arm, all explicitly handled ctors
+  are listed in `ctors` in the order they occur in the match statement.
+  -/
+  | enumWithDefault (info : InductiveVal) (ctors : Array ConstructorVal)
 
 /--
 Contains the result of the type analysis to be used in the structures and enums pass.
@@ -54,6 +59,11 @@ structure PreProcessState where
   -/
   rewriteCache : Std.HashSet FVarId := {}
   /--
+  Contains `FVarId` that we already know have been run through the AC normal form and thus don't
+  don't need to be processed again when we visit the next time.
+  -/
+  acNfCache : Std.HashSet FVarId := {}
+  /--
   Analysis results for the structure and enum pass if required.
   -/
   typeAnalysis : TypeAnalysis := {}
@@ -70,8 +80,16 @@ def checkRewritten (fvar : FVarId) : PreProcessM Bool := do
   return (← get).rewriteCache.contains fvar
 
 @[inline]
+def checkAcNf (fvar : FVarId) : PreProcessM Bool := do
+  return (← get).acNfCache.contains fvar
+
+@[inline]
 def rewriteFinished (fvar : FVarId) : PreProcessM Unit := do
   modify (fun s => { s with rewriteCache := s.rewriteCache.insert fvar })
+
+@[inline]
+def acNfFinished (fvar : FVarId) : PreProcessM Unit := do
+  modify (fun s => { s with acNfCache := s.acNfCache.insert fvar })
 
 @[inline]
 def getTypeAnalysis : PreProcessM TypeAnalysis := do
@@ -111,7 +129,10 @@ def markUninterestingConst (n : Name) : PreProcessM Unit := do
 @[inline]
 def run (cfg : BVDecideConfig) (goal : MVarId) (x : PreProcessM α) : MetaM α := do
   let hyps ← goal.withContext do getPropHyps
-  ReaderT.run x cfg |>.run' { rewriteCache := Std.HashSet.empty hyps.size }
+  ReaderT.run x cfg |>.run' {
+    rewriteCache := Std.HashSet.emptyWithCapacity hyps.size,
+    acNfCache := Std.HashSet.emptyWithCapacity hyps.size,
+  }
 
 end PreProcessM
 

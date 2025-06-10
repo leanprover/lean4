@@ -1,1 +1,1 @@
-rm -rf .lake lake-manifest.json dep/.lake dep/.git
+rm -rf produced.out .lake lake-manifest.json dep/.lake dep/.git

@@ -77,7 +77,7 @@ private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
     let motiveTypes ← inferArgumentTypesN numTypeFormers pre
     let numMotives : Nat := positions.numIndices
     trace[Elab.definition.structural] "numMotives: {numMotives}"
-    let mut CTypes := Array.mkArray numMotives (.sort 37) -- dummy value
+    let mut CTypes := Array.replicate numMotives (.sort 37) -- dummy value
     for poss in positions, motiveType in motiveTypes do
       for pos in poss do
         CTypes := CTypes.set! pos motiveType
@@ -274,7 +274,7 @@ def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (positions : Positions)
     -- And return the types of the next arguments
     arrowDomainsN numTypeFormers brecOnType
 
-  let mut FTypes := Array.mkArray positions.numIndices (Expr.sort 0)
+  let mut FTypes := Array.replicate positions.numIndices (Expr.sort 0)
   for packedFType in packedFTypes, poss in positions do
     for pos in poss do
       FTypes := FTypes.set! pos packedFType

@@ -17,7 +17,7 @@ fun α [self : Inhabited α] => self.1
 -/
 #guard_msgs in #print default
 /--
-info: protected def ReaderT.read.{u, v} : {ρ : Type u} → {m : Type u → Type v} → [inst : Monad m] → ReaderT ρ m ρ :=
+info: protected def ReaderT.read.{u, v} : {ρ : Type u} → {m : Type u → Type v} → [Monad m] → ReaderT ρ m ρ :=
 fun {ρ} {m} [Monad m] => pure
 -/
 #guard_msgs in #print ReaderT.read

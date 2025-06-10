@@ -17,7 +17,7 @@ error: overloaded, errors ⏎
   ⏎
   Additional diagnostic information may be available using the `set_option diagnostics true` command.
   ⏎
-  invalid {...} notation, constructor for `Name` is marked as private
+  invalid {...} notation, constructor for 'Name' is marked as private
 -/
 #guard_msgs in
 def m1 : Name "hello" := {}

@@ -30,7 +30,7 @@ def sortedBySize : Probe Decl (Nat × Decl) := fun decls =>
     if sz₁ == sz₂ then Name.lt decl₁.name decl₂.name else sz₁ < sz₂
 
 def countUnique [ToString α] [BEq α] [Hashable α] : Probe α (α × Nat) := fun data => do
-  let mut map := Std.HashMap.empty
+  let mut map := Std.HashMap.emptyWithCapacity data.size
   for d in data do
     if let some count := map[d]? then
       map := map.insert d (count + 1)
@@ -54,7 +54,7 @@ where
     | .fun decl k | .jp decl k =>
       go decl.value
       go k
-    | .cases (cases : CasesCore Code) => cases.alts.forM (go ·.getCode)
+    | .cases cs => cs.alts.forM (go ·.getCode)
     | .jmp .. | .return .. | .unreach .. => return ()
   start (decls : Array Decl) : StateRefT (Array LetValue) CompilerM Unit :=
     decls.forM (·.value.forCodeM go)

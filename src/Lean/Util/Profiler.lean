@@ -67,7 +67,7 @@ structure SamplesTable where
   time : Array Milliseconds
   weight : Array Milliseconds
   weightType : String := "tracing-ms"
-  threadCPUDelta : Array Float
+  threadCPUDelta : Array Microseconds
   length : Nat
 deriving FromJson, ToJson
 
@@ -150,7 +150,7 @@ structure Thread where
 deriving FromJson, ToJson
 
 structure Profile where
-  meta : ProfileMeta
+  «meta» : ProfileMeta
   libs : Array Json := #[]
   threads : Array Thread
 deriving FromJson, ToJson
@@ -170,7 +170,8 @@ def categories : Array Category := #[
   { name := `Elab.async, color := "gray" },
   { name := `Elab.block, color := "brown" },
   { name := `Elab, color := "red" },
-  { name := `Meta, color := "yellow" }
+  { name := `Meta, color := "yellow" },
+  { name := `Kernel, color := "green" }
 ]
 
 /-- Returns first `startTime` in the trace tree, if any. -/
@@ -307,7 +308,7 @@ def Profile.export (name : String) (startTime : Float) (traceStates : Array Trac
       thread ← addTrace (Lean.trace.profiler.output.pp.get opts) thread trace
     return thread
   return {
-    meta := { startTime, categories }
+    «meta» := { startTime, categories }
     threads := threads.map (·.toThread)
   }
 
@@ -344,7 +345,7 @@ where
               stack := stack.push stackIdx
               time := time.push time.size.toFloat
               weight := weight.push add.samples.weight[oldSampleIdx]!
-              threadCPUDelta := threadCPUDelta.push 1
+              threadCPUDelta := threadCPUDelta.push 1.0
               length := length + 1
             }
           let sampleMap := sampleMap.insert stackIdx sampleMap.size

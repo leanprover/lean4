@@ -1,40 +1,41 @@
 #!/usr/bin/env bash
-set -euxo pipefail
-
-LAKE=${LAKE:-../../.lake/build/bin/lake}
+source ../common.sh
 
 ./clean.sh
 
 # Test Lean to TOML translation
-$LAKE translate-config -f source.lean toml out.produced.toml
-diff --strip-trailing-cr out.expected.toml out.produced.toml
-rm out.produced.toml
+test_no_out translate-config -f source.lean toml out.produced.toml
+test_cmd diff --strip-trailing-cr out.expected.toml out.produced.toml
+test_cmd rm out.produced.toml
 
 # Test idempotency of TOML translation
-$LAKE translate-config -f out.expected.toml toml out.produced.toml
-diff --strip-trailing-cr out.expected.toml out.produced.toml
+test_no_out translate-config -f out.expected.toml toml out.produced.toml
+test_cmd diff --strip-trailing-cr out.expected.toml out.produced.toml
 
 # Test TOML to Lean translation
-$LAKE translate-config -f source.toml lean out.produced.lean
-diff --strip-trailing-cr out.expected.lean out.produced.lean
-rm out.produced.lean
+test_no_out translate-config -f source.toml lean out.produced.lean
+test_cmd diff --strip-trailing-cr out.expected.lean out.produced.lean
+test_cmd rm out.produced.lean
 
 # Test idempotency of Lean translation
-$LAKE translate-config -f out.expected.lean lean out.produced.lean
-diff --strip-trailing-cr out.expected.lean out.produced.lean
+test_no_out translate-config -f out.expected.lean lean out.produced.lean
+test_cmd diff --strip-trailing-cr out.expected.lean out.produced.lean
 
 # Test produced TOML round-trips
-$LAKE translate-config -f out.produced.toml lean bridge.produced.lean
-$LAKE translate-config -f bridge.produced.lean toml roundtrip.produced.toml
-diff --strip-trailing-cr out.produced.toml roundtrip.produced.toml
+test_no_out translate-config -f out.produced.toml lean bridge.produced.lean
+test_no_out translate-config -f bridge.produced.lean toml roundtrip.produced.toml
+test_cmd diff --strip-trailing-cr out.produced.toml roundtrip.produced.toml
 
 # Test produced Lean round-trips
-$LAKE translate-config -f out.produced.lean toml bridge.produced.toml
-$LAKE translate-config -f bridge.produced.toml lean roundtrip.produced.lean
-diff --strip-trailing-cr out.produced.lean roundtrip.produced.lean
+test_no_out translate-config -f out.produced.lean toml bridge.produced.toml
+test_no_out translate-config -f bridge.produced.toml lean roundtrip.produced.lean
+test_cmd diff --strip-trailing-cr out.produced.lean roundtrip.produced.lean
 
 # Test source rename
-cp source.lean lakefile.lean
-$LAKE translate-config toml
-test -f lakefile.lean.bak
-test -f lakefile.toml
+test_cmd cp source.lean lakefile.lean
+test_no_out translate-config toml
+test_exp -f lakefile.lean.bak
+test_exp -f lakefile.toml
+
+# Cleanup
+rm -f produced.out

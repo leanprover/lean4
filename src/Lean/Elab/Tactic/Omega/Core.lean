@@ -139,12 +139,14 @@ instance : ToString Fact where
 /-- `tidy`, implemented on `Fact`. -/
 def tidy (f : Fact) : Fact :=
   match f.justification.tidy? with
-  | some ⟨_, _, justification⟩ => { justification }
+  | some ⟨constraint, coeffs, justification⟩ => { coeffs, constraint, justification }
   | none => f
 
 /-- `combo`, implemented on `Fact`. -/
 def combo (a : Int) (f : Fact) (b : Int) (g : Fact) : Fact :=
-  { justification := .combo a f.justification b g.justification }
+  { coeffs := .combo a f.coeffs b g.coeffs
+    constraint := .combo a f.constraint b g.constraint
+    justification := .combo a f.justification b g.justification }
 
 end Fact
 

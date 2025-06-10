@@ -14,21 +14,15 @@ State for the environment extension used to save the LCNF base phase type for de
 that do not have code associated with them.
 Example: constructors, inductive types, foreign functions.
 -/
-structure BaseTypeExtState where
-  /-- The LCNF type for the `base` phase. -/
-  base : PHashMap Name Expr := {}
-  deriving Inhabited
-
-builtin_initialize baseTypeExt : EnvExtension BaseTypeExtState ←
-  registerEnvExtension (pure {}) (asyncMode := .sync)  -- compilation is non-parallel anyway
+builtin_initialize baseTypeExt : CacheExtension Name Expr ← CacheExtension.register
 
 def getOtherDeclBaseType (declName : Name) (us : List Level) : CoreM Expr := do
   let info ← getConstInfo declName
-  let type ← match baseTypeExt.getState (← getEnv) |>.base.find? declName with
+  let type ← match (← baseTypeExt.find? declName) with
     | some type => pure type
     | none =>
       let type ← Meta.MetaM.run' <| toLCNFType info.type
-      modifyEnv fun env => baseTypeExt.modifyState env fun s => { s with base := s.base.insert declName type }
+      baseTypeExt.insert declName type
       pure type
   return type.instantiateLevelParamsNoCache info.levelParams us
 

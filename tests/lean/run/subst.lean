@@ -49,7 +49,7 @@ theorem ex12 {α : Type u} {n : Nat}
   (a b : Array α)
   (hsz₁ : a.size = n) (hsz₂ : b.size = n)
   (h : ∀ (i : Nat) (hi : i < n), a.getLit i hsz₁ hi = b.getLit i hsz₂ hi) : a = b :=
-Array.ext a b (hsz₁.trans hsz₂.symm) fun i hi₁ hi₂ => h i (hsz₁ ▸ hi₁)
+Array.ext (hsz₁.trans hsz₂.symm) fun i hi₁ hi₂ => h i (hsz₁ ▸ hi₁)
 
 def toArrayLit {α : Type u} (a : Array α) (n : Nat) (hsz : a.size = n) : Array α :=
 List.toArray $ Array.toListLitAux a n hsz n (hsz ▸ Nat.le_refl _) []

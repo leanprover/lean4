@@ -35,7 +35,7 @@ private def makeFresh (bidx : Nat) (xs : Array Name) : CoreM (Array Name) := do
     return xs.set! (xs.size - bidx - 1) name'
 
 /--
-Resovles occurrences of `binderNameHint` in `e`. See docstring of `binderNameHint` for more
+Resolves occurrences of `binderNameHint` in `e`. See docstring of `binderNameHint` for more
 information.
 -/
 partial def Expr.resolveBinderNameHint (e : Expr) : CoreM Expr :=

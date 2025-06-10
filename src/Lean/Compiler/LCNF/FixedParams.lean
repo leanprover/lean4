@@ -169,7 +169,7 @@ def mkFixedParamsMap (decls : Array Decl) : NameMap (Array Bool) := Id.run do
   for decl in decls do
     let values := mkInitialValues decl.params.size
     let assignment := mkAssignment decl values
-    let fixed := Array.mkArray decl.params.size true
+    let fixed := Array.replicate decl.params.size true
     match decl.value with
     | .code c =>
       match evalCode c |>.run { main := decl, decls, assignment } |>.run { fixed } with

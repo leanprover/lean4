@@ -19,17 +19,17 @@ abbrev problem₁ [∀ n, OfNat α n] [Neg α] [Mul α] [Sub α] [Add α] [LE α
   7*x - 9*y ≤ 4
 
 /--
-info: [grind.cutsat.model] x := 241/154
+trace: [grind.cutsat.model] x := 241/154
 [grind.cutsat.model] y := 1
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.cutsat.model true in
 example (x y : Int) : problem₁ x y → False := by
   fail_if_success grind +qlia -- Rational counterexamples allowed
   sorry
 
 /-- info: true -/
-#guard_msgs (info) in
+#guard_msgs in
 open Std.Internal in
 #eval problem₁ (241/154 : Rat) (1 : Rat)
 
@@ -50,8 +50,13 @@ theorem ex₃ (x y : Int) :
 theorem ex₄ (x y : Int) :
     5 ≤ 2*x + y → 3*x + 2*y ≤ 14 → 7 ∣ x → 4 ∣ y → y ≥ 4 → False := by
   grind
+
+theorem ex₅ (x y : Int) : 1 ≤ x + y → 100 ∣ x + y → 100 ≤ x + y := by
+  grind
+
 open Int.Linear
 #print ex₁
 #print ex₂
 #print ex₃
 #print ex₄
+#print ex₅

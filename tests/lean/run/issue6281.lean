@@ -17,7 +17,7 @@ info: f.induct (motive : (n : Nat) → n % 2 = 1 → (m : Nat) → (n + m) % 2 =
   (case3 :
     ∀ (n' : Nat) (hn : (n' + 3) % 2 = 1) (m' : Nat) (hm : (n' + 3 + (m' + 1)) % 2 = 1),
       (n' + 3 + m'.succ) % 2 = 1 →
-        motive n' (f.proof_1 n') m' (f.proof_2 n' m') → motive n'.succ.succ.succ hn m'.succ hm)
+        motive n' (f._proof_1 n') m' (f._proof_2 n' m') → motive n'.succ.succ.succ hn m'.succ hm)
   (n : Nat) (hn : n % 2 = 1) (m : Nat) (hm : (n + m) % 2 = 1) : motive n hn m hm
 -/
 #guard_msgs in

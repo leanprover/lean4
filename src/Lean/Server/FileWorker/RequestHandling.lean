@@ -5,8 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Wojciech Nawrocki, Marc Huisinga
 -/
 prelude
+import Lean.Server.FileWorker.ExampleHover
 import Lean.Server.FileWorker.InlayHints
 import Lean.Server.FileWorker.SemanticHighlighting
+import Lean.Server.FileWorker.SignatureHelp
 import Lean.Server.Completion
 import Lean.Server.References
 
@@ -69,13 +71,15 @@ def handleHover (p : HoverParams)
     : RequestM (RequestTask (Option Hover)) := do
   let doc ← readDoc
   let text := doc.meta.text
-  let mkHover (s : String) (r : String.Range) : Hover := {
-    contents := {
-      kind := MarkupKind.markdown
-      value := s
+  let mkHover (s : String) (r : String.Range) : Hover :=
+    let s := Hover.rewriteExamples s
+    {
+      contents := {
+        kind := MarkupKind.markdown
+        value := s
+      }
+      range? := r.toLspRange text
     }
-    range? := r.toLspRange text
-  }
 
   let hoverPos := text.lspPosToUtf8Pos p.position
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
@@ -105,12 +109,11 @@ def handleHover (p : HoverParams)
 open Elab GoToKind in
 def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
     (infoTree? : Option InfoTree := none) : RequestM (Array LocationLink) := do
-  let rc ← read
   let doc ← readDoc
   let text := doc.meta.text
 
   let locationLinksFromDecl (i : Elab.Info) (n : Name) :=
-    locationLinksFromDecl rc.srcSearchPath doc.meta.uri n <| (·.toLspRange text) <$> i.range?
+    locationLinksFromDecl doc.meta.uri n <| (·.toLspRange text) <$> i.range?
 
   let locationLinksFromBinder (i : Elab.Info) (id : FVarId) := do
     if let some i' := infoTree? >>= InfoTree.findInfo? fun
@@ -128,11 +131,12 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
     return #[]
 
   let locationLinksFromImport (i : Elab.Info) := do
-    let name := i.stx[2].getId
-    if let some modUri ← documentUriFromModule rc.srcSearchPath name then
+    let `(Parser.Module.import| $[private]? $[meta]? import $[all]? $mod) := i.stx
+      | return #[]
+    if let some modUri ← documentUriFromModule? mod.getId then
       let range := { start := ⟨0, 0⟩, «end» := ⟨0, 0⟩ : Range }
       let ll : LocationLink := {
-        originSelectionRange? := (·.toLspRange text) <$> i.stx[2].getRange? (canonicalOnly := true)
+        originSelectionRange? := (·.toLspRange text) <$> mod.raw.getRange? (canonicalOnly := true)
         targetUri := modUri
         targetRange := range
         targetSelectionRange := range
@@ -207,7 +211,7 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
     return ← locationLinksFromTermInfo ti
   | .ofDelabTermInfo { toTermInfo := ti, location?, .. } =>
     if let some location := location? then
-      if let some targetUri ← documentUriFromModule rc.srcSearchPath location.module then
+      if let some targetUri ← documentUriFromModule? location.module then
         let range := location.range.toLspRange
         let result : LocationLink := {
           targetUri, targetRange := range, targetSelectionRange := range,
@@ -251,8 +255,10 @@ def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : ServerTask (
   findCmdParsedSnap doc hoverPos |>.bindCostly fun
     | some cmdParsed =>
       let t := toSnapshotTree cmdParsed |>.foldSnaps [] fun snap oldGoals => Id.run do
-        let some (pos, tailPos, trailingPos) := getPositions snap
+        let some stx := snap.stx?
           | return .pure (oldGoals, .proceed (foldChildren := false))
+        let some (pos, tailPos, trailingPos) := getPositions stx
+          | return .pure (oldGoals, .proceed (foldChildren := true))
         let snapRange : String.Range := ⟨pos, trailingPos⟩
         -- When there is no trailing whitespace, we also consider snapshots directly before the
         -- cursor.
@@ -280,8 +286,7 @@ def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : ServerTask (
     | none =>
       .pure none
 where
-  getPositions (snap : SnapshotTask SnapshotTree) : Option (String.Pos × String.Pos × String.Pos) := do
-    let stx ← snap.stx?
+  getPositions (stx : Syntax) : Option (String.Pos × String.Pos × String.Pos) := do
     let pos ← stx.getPos? (canonicalOnly := true)
     let tailPos ← stx.getTailPos? (canonicalOnly := true)
     let trailingPos? ← stx.getTrailingTailPos? (canonicalOnly := true)
@@ -342,7 +347,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
     let goal ← ci.runMetaM lctx' do
       Widget.goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
     let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
-    return some { goal with range, term := ⟨ti⟩ }
+    return some { goal with range, term := ← WithRpcRef.mk ti }
 
 def handlePlainTermGoal (p : PlainTermGoalParams)
     : RequestM (RequestTask (Option PlainTermGoal)) := do
@@ -434,7 +439,7 @@ where
       | `(namespace $id)  =>
         let entry := { name := id.getId.componentsRev, stx, selection := id, prevSiblings := syms }
         toDocumentSymbols text stxs #[] (entry :: stack)
-      | `(section $(id)?) =>
+      | `($_:sectionHeader section $(id)?) =>
         let name := id.map (·.getId.componentsRev) |>.getD [`«»]
         let entry := { name, stx, selection := id.map (·.raw) |>.getD stx, prevSiblings := syms }
         toDocumentSymbols text stxs #[] (entry :: stack)
@@ -496,7 +501,7 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
       match stx with
       | `(namespace $id)  =>
         addRanges text ((id.getId.getNumParts, stx.getPos?)::sections) stxs
-      | `(section $(id)?) =>
+      | `($_:sectionHeader section $(id)?) =>
         addRanges text ((id.map (·.getId.getNumParts) |>.getD 1, stx.getPos?)::sections) stxs
       | `(end $(id)?) => do
         let rec popRanges n sections := do
@@ -557,6 +562,15 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
             { startLine := startP.line
               endLine := endP.line
               kind? := some kind }
+
+def handleSignatureHelp (p : SignatureHelpParams) : RequestM (RequestTask (Option SignatureHelp)) := do
+  let doc ← readDoc
+  let text := doc.meta.text
+  let requestedPos := text.lspPosToUtf8Pos p.position
+  mapTaskCostly (findCmdDataAtPos doc requestedPos (includeStop := false)) fun cmdData? => do
+    let some (cmdStx, tree) := cmdData?
+      | return none
+    SignatureHelp.findSignatureHelp? text p.context? cmdStx tree requestedPos
 
 partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
     : RequestM (RequestTask WaitForDiagnostics) := do
@@ -623,6 +637,11 @@ builtin_initialize
     FoldingRangeParams
     (Array FoldingRange)
     handleFoldingRange
+  registerLspRequestHandler
+    "textDocument/signatureHelp"
+    SignatureHelpParams
+    (Option SignatureHelp)
+    handleSignatureHelp
   registerLspRequestHandler
     "$/lean/plainGoal"
     PlainGoalParams

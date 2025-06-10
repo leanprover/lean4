@@ -9,13 +9,16 @@ Author: Sofia Rodrigues
 #include "runtime/io.h"
 #include "runtime/object.h"
 
+#ifndef LEAN_EMSCRIPTEN
+#include <uv.h>
+#endif
+
 namespace lean {
 
 void initialize_libuv_loop();
 
 #ifndef LEAN_EMSCRIPTEN
 using namespace std;
-#include <uv.h>
 
 // Event loop structure for managing asynchronous events and synchronization across multiple threads.
 typedef struct {
@@ -43,5 +46,9 @@ void event_loop_run_loop(event_loop_t *event_loop);
 // Global event loop manipulation functions
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg options, obj_arg /* w */ );
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive(obj_arg /* w */ );
+
+// Helpers
+
+void lean_promise_resolve_with_code(int status, obj_arg promise);
 
 }

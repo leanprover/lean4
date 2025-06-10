@@ -171,9 +171,13 @@ where
   | n + 1 => .ctor ``Nat.succ #[goSmall n]
 
 def ofLCNFLit : LCNF.LitValue → Value
-| .natVal n => ofNat n
+| .nat n => ofNat n
 -- TODO: We could make this much more precise but the payoff is questionable
-| .strVal .. => .top
+| .str .. => .top
+| .uint8 v => ofNat (UInt8.toNat v)
+| .uint16 v => ofNat (UInt16.toNat v)
+| .uint32 v => ofNat (UInt32.toNat v)
+| .uint64 v | .usize v => ofNat (UInt64.toNat v)
 
 partial def proj : Value → Nat → Value
 | .ctor _ vs , i => vs.getD i bot
@@ -206,11 +210,11 @@ partial def getLiteral (v : Value) : CompilerM (Option ((Array CodeDecl) × FVar
 where
   go : Value → CompilerM ((Array CodeDecl) × FVarId)
   | .ctor `Nat.zero #[] .. => do
-    let decl ← mkAuxLetDecl <| .value <| .natVal <| 0
+    let decl ← mkAuxLetDecl <| .lit <| .nat <| 0
     return (#[.let decl], decl.fvarId)
   | .ctor `Nat.succ #[val] .. => do
     let val := getNatConstant val + 1
-    let decl ← mkAuxLetDecl <| .value <| .natVal <| val
+    let decl ← mkAuxLetDecl <| .lit <| .nat <| val
     return (#[.let decl], decl.fvarId)
   | .ctor i vs => do
     let args ← vs.mapM go
@@ -249,6 +253,7 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (Name × 
     addEntryFn := fun s ⟨e, n⟩ => s.insert e n
     toArrayFn := fun s => s.toArray.qsort decLt
     asyncMode := .sync  -- compilation is non-parallel anyway
+    replay? := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.1) (fun s ⟨e, n⟩ => s.insert e n)
   }
 
 /--
@@ -393,6 +398,16 @@ def updateFunDeclParamsAssignment (params : Array Param) (args : Array Arg) : In
       updateVarAssignment param.fvarId .top
   return ret
 
+def updateFunDeclParamsTop (params : Array Param) : InterpM Bool := do
+  let mut ret := false
+  for param in params do
+    let paramVal ← findVarValue param.fvarId
+    let newVal := .top
+    if newVal != paramVal then
+      modifyAssignment (·.insert param.fvarId newVal)
+      ret := true
+  return ret
+
 private partial def resetNestedFunDeclParams : Code → InterpM Unit
 | .let _ k => resetNestedFunDeclParams k
 | .jp decl k | .fun decl k => do
@@ -445,7 +460,7 @@ where
   -/
   interpLetValue (letVal : LetValue) : InterpM Value := do
     match letVal with
-    | .value val => return .ofLCNFLit val
+    | .lit val => return .ofLCNFLit val
     | .proj _ idx struct => return (← findVarValue struct).proj idx
     | .const declName _ args =>
       let env ← getEnv
@@ -488,8 +503,12 @@ where
   -/
   handleFunVar (var : FVarId) : InterpM Unit := do
     if let some funDecl ← findFunDecl? var then
-      funDecl.params.forM (updateVarAssignment ·.fvarId .top)
-      interpFunCall funDecl #[]
+      let updated ← updateFunDeclParamsTop funDecl.params
+      if updated then
+        /- We must reset the value of nested function declaration
+        parameters since they depend on `args` values. -/
+        resetNestedFunDeclParams funDecl.value
+        interpCode funDecl.value
 
   interpFunCall (funDecl : FunDecl) (args : Array Arg) : InterpM Unit := do
     let updated ← updateFunDeclParamsAssignment funDecl.params args

@@ -25,6 +25,7 @@ builtin_initialize
           logWarning m!"{← mkConstWithLevelParams decl} already has a doc string"
         let some doc ← findSimpleDocString? (← getEnv) declName
           | logWarningAt id m!"{← mkConstWithLevelParams declName} does not have a doc string"
-        addDocString decl doc
+        -- This docstring comes from the environment, so documentation links have already been validated
+        addDocStringCore decl doc
       | _  => throwError "invalid `[inherit_doc]` attribute"
   }

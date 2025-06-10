@@ -317,9 +317,12 @@ structure SynthInstanceCacheKey where
 /-- Resulting type for `abstractMVars` -/
 structure AbstractMVarsResult where
   paramNames : Array Name
-  numMVars   : Nat
+  mvars      : Array Expr
   expr       : Expr
   deriving Inhabited, BEq
+
+def AbstractMVarsResult.numMVars (r : AbstractMVarsResult) : Nat :=
+  r.mvars.size
 
 abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option AbstractMVarsResult)
 
@@ -424,7 +427,7 @@ structure State where
 -/
 structure SavedState where
   core        : Core.SavedState
-  meta        : State
+  «meta»      : State
   deriving Nonempty
 
 register_builtin_option maxSynthPendingDepth : Nat := {
@@ -552,7 +555,7 @@ instance : AddMessageContext MetaM where
   addMessageContext := addMessageContextFull
 
 protected def saveState : MetaM SavedState :=
-  return { core := (← Core.saveState), meta := (← get) }
+  return { core := (← Core.saveState), «meta» := (← get) }
 
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) : MetaM Unit := do
@@ -567,7 +570,7 @@ def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState)) (act : M
   let reusableResult? := reusableResult?.map (fun (val, state) => (val, state.core))
   let (a, core) ← controlAt CoreM fun runInBase => do
     Core.withRestoreOrSaveFull reusableResult? <| runInBase act
-  return (a, { core, meta := (← get) })
+  return (a, { core, «meta» := (← get) })
 
 instance : MonadBacktrack SavedState MetaM where
   saveState      := Meta.saveState
@@ -603,6 +606,9 @@ export Core (instantiateTypeLevelParams instantiateValueLevelParams)
 
 @[inline] def map2MetaM [MonadControlT MetaM m] [Monad m] (f : forall {α}, (β → γ → MetaM α) → MetaM α) {α} (k : β → γ → m α) : m α :=
   controlAt MetaM fun runInBase => f fun b c => runInBase <| k b c
+
+@[inline] def map3MetaM [MonadControlT MetaM m] [Monad m] (f : forall {α}, (β → γ → δ → MetaM α) → MetaM α) {α} (k : β → γ → δ → m α) : m α :=
+  controlAt MetaM fun runInBase => f fun b c d => runInBase <| k b c d
 
 section Methods
 variable [MonadControlT MetaM n] [Monad n]
@@ -1215,7 +1221,7 @@ private def getConstTemp? (constName : Name) : MetaM (Option ConstantInfo) := do
   | some (info@(ConstantInfo.thmInfo _))  => getTheoremInfo info
   | some (info@(ConstantInfo.defnInfo _)) => getDefInfoTemp info
   | some info                             => pure (some info)
-  | none                                  => throwUnknownConstant constName
+  | none                                  => throwUnknownConstantAt (← getRef) constName
 
 private def isClassQuickConst? (constName : Name) : MetaM (LOption Name) := do
   if isClass (← getEnv) constName then
@@ -1633,7 +1639,7 @@ def withLocalDeclNoLocalInstanceUpdate (name : Name) (bi : BinderInfo) (type : E
 - a type constructor for the variable, where the array consists of all of the free variables
   defined prior to this one. This is needed because the type of the variable may depend on prior variables.
 
-See `withLocalDeclsD` and `withLocalDeclsDND` for simplier variants.
+See `withLocalDeclsD` and `withLocalDeclsDND` for simpler variants.
 -/
 partial def withLocalDecls
     [Inhabited α]
@@ -1926,6 +1932,76 @@ private partial def instantiateLambdaAux (ps : Array Expr) (i : Nat) (e : Expr) 
 def instantiateLambda (e : Expr) (ps : Array Expr) : MetaM Expr :=
   instantiateLambdaAux ps 0 e
 
+/--
+A simpler version of `ParamInfo` for information about the parameter of a forall or lambda.
+-/
+structure ExprParamInfo where
+  /-- The name of the parameter. -/
+  name : Name
+  /-- The type of the parameter. -/
+  type : Expr
+  /-- The binder annotation for the parameter. -/
+  binderInfo : BinderInfo := BinderInfo.default
+  deriving Inhabited
+
+/--
+Given `e` of the form `∀ (p₁ : P₁) … (p₁ : P₁), B[p_1,…,p_n]` and `arg₁ : P₁, …, argₙ : Pₙ`, returns
+* the names `p₁, …, pₙ`,
+* the binder infos,
+* the binder types `P₁, P₂[arg₁], …, P[arg₁,…,argₙ₋₁]`, and
+* the type `B[arg₁,…,argₙ]`.
+
+It uses `whnf` to reduce `e` if it is not a forall.
+
+See also `Lean.Meta.instantiateForall`.
+-/
+def instantiateForallWithParamInfos (e : Expr) (args : Array Expr) (cleanupAnnotations : Bool := false) :
+    MetaM (Array ExprParamInfo × Expr) := do
+  let mut e := e
+  let mut res := Array.mkEmpty args.size
+  let mut j := 0
+  for i in [0:args.size] do
+    unless e.isForall do
+      e ← whnf (e.instantiateRevRange j i args)
+      j := i
+    match e with
+    | .forallE name type e' binderInfo =>
+      let type := type.instantiateRevRange j i args
+      let type := if cleanupAnnotations then type.cleanupAnnotations else type
+      res := res.push { name, type, binderInfo }
+      e := e'
+    | _ => throwError "invalid `instantiateForallWithParams`, too many parameters{indentExpr e}"
+  return (res, e)
+
+/--
+Given `e` of the form `fun (p₁ : P₁) … (p₁ : P₁) => t[p_1,…,p_n]` and `arg₁ : P₁, …, argₙ : Pₙ`, returns
+* the names `p₁, …, pₙ`,
+* the binder infos,
+* the binder types `P₁, P₂[arg₁], …, P[arg₁,…,argₙ₋₁]`, and
+* the term `t[arg₁,…,argₙ]`.
+
+It uses `whnf` to reduce `e` if it is not a lambda.
+
+See also `Lean.Meta.instantiateLambda`.
+-/
+def instantiateLambdaWithParamInfos (e : Expr) (args : Array Expr) (cleanupAnnotations : Bool := false) :
+    MetaM (Array ExprParamInfo × Expr) := do
+  let mut e := e
+  let mut res := Array.mkEmpty args.size
+  let mut j := 0
+  for i in [0:args.size] do
+    unless e.isLambda do
+      e ← whnf (e.instantiateRevRange j i args)
+      j := i
+    match e with
+    | .forallE name type e' binderInfo =>
+      let type := type.instantiateRevRange j i args
+      let type := if cleanupAnnotations then type.cleanupAnnotations else type
+      res := res.push { name, type, binderInfo }
+      e := e'
+    | _ => throwError "invalid `instantiateForallWithParams`, too many parameters{indentExpr e}"
+  return (res, e)
+
 /-- Pretty-print the given expression. -/
 def ppExprWithInfos (e : Expr) : MetaM FormatWithInfos := do
   let ctxCore  ← readThe Core.Context
@@ -1972,16 +2048,23 @@ instance : Alternative MetaM where
     (mergeMsg : MessageData → MessageData → MessageData := fun m₁ m₂ => m₁ ++ Format.line ++ Format.line ++ m₂) : m α := do
   controlAt MetaM fun runInBase => orelseMergeErrorsImp (runInBase x) (runInBase y) mergeRef mergeMsg
 
-/-- Execute `x`, and apply `f` to the produced error message -/
 def mapErrorImp (x : MetaM α) (f : MessageData → MessageData) : MetaM α := do
   try
     x
   catch
-    | Exception.error ref msg => throw <| Exception.error ref <| f msg
+    | Exception.error ref msg =>
+      let msg' := f msg
+      let msg' ← addMessageContext msg'
+      throw <| Exception.error ref msg'
     | ex => throw ex
 
+/-- Execute `x`, and apply `f` to the produced error message -/
 @[inline] def mapError [MonadControlT MetaM m] [Monad m] (x : m α) (f : MessageData → MessageData) : m α :=
   controlAt MetaM fun runInBase => mapErrorImp (runInBase x) f
+
+/-- Execute `x`. If it throws an error, indent and prepend `msg` to it.  -/
+@[inline] def prependError [MonadControlT MetaM m] [Monad m] (msg : MessageData) (x : m α) : m α := do
+  mapError x fun e => m!"{msg}{indentD e}"
 
 /--
   Sort free variables using an order `x < y` iff `x` was defined before `y`.
@@ -2242,12 +2325,11 @@ Makes the helper constant `constName` that is derived from `forConst` available 
 `enableRealizationsForConst forConst` must have been called first on this environment branch. If
 this is the first environment branch requesting `constName` to be realized (atomically), `realize`
 is called with the environment and options at the time of calling `enableRealizationsForConst` if
-`forConst` is from the current module and the state just after importing (when
-`enableRealizationsForImports` should be called) otherwise, thus helping achieve deterministic
-results despite the non-deterministic choice of which thread is tasked with realization. In other
-words, the state after calling `realizeConst` is *as if* `realize` had been called immediately after
-`enableRealizationsForConst forConst`, though the effects of this call are visible only after
-calling `realizeConst`. See below for more details on the replayed effects.
+`forConst` is from the current module and the state just after importing  otherwise, thus helping
+achieve deterministic results despite the non-deterministic choice of which thread is tasked with
+realization. In other words, the state after calling `realizeConst` is *as if* `realize` had been
+called immediately after `enableRealizationsForConst forConst`, though the effects of this call are
+visible only after calling `realizeConst`. See below for more details on the replayed effects.
 
 `realizeConst` cannot check what other data is captured in the `realize` closure,
 so it is best practice to extract it into a separate function and pay close attention to the passed
@@ -2271,10 +2353,6 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
   -- the relevant local environment extension state when accessed on this branch.
   if env.containsOnBranch constName then
     return
-  -- TODO: remove when Mathlib passes without it
-  if !Elab.async.get (← getOptions) then
-    realize
-    return
   withTraceNode `Meta.realizeConst (fun _ => return constName) do
     let coreCtx ← readThe Core.Context
     let coreCtx := {
@@ -2283,7 +2361,17 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
       -- heartbeat limits inside `realizeAndReport` should be measured from this point on
       initHeartbeats := (← IO.getNumHeartbeats)
     }
-    let (env, dyn) ← env.realizeConst forConst constName (realizeAndReport coreCtx)
+    let (env, exTask, dyn) ← env.realizeConst forConst constName (realizeAndReport coreCtx)
+    -- Realizations cannot be cancelled as their result is shared across elaboration runs
+    let exAct ← Core.wrapAsyncAsSnapshot (cancelTk? := none) fun
+      | none => return
+      | some ex => do
+        logError <| ex.toMessageData (← getOptions)
+    Core.logSnapshotTask {
+      stx? := none
+      task := (← BaseIO.mapTask (t := exTask) exAct)
+      cancelTk? := none
+    }
     if let some res := dyn.get? RealizeConstantResult then
       let mut snap := res.snap
       -- localize diagnostics
@@ -2299,13 +2387,16 @@ where
   realizeAndReport (coreCtx : Core.Context) env opts := do
     let coreCtx := { coreCtx with options := opts }
     let act :=
-      IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get opts) do
+      IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get opts) (do
         -- catch all exceptions
         let _ : MonadExceptOf _ MetaM := MonadAlwaysExcept.except
         observing do
           realize
-          if !(← getEnv).contains constName then
-            throwError "Lean.Meta.realizeConst: {constName} was not added to the environment"
+          -- Meta code working on a non-exported declaration should usually do so inside
+          -- `withoutExporting` but we're lenient here in case this call is the only one that needs
+          -- the setting.
+          if !((← getEnv).setExporting false).contains constName then
+            throwError "Lean.Meta.realizeConst: {constName} was not added to the environment")
         <* addTraceAsMessages
     let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO
     match res? with

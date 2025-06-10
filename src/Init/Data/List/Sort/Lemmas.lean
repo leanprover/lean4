@@ -3,9 +3,11 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison, Eric Wieser, François G. Dorais
 -/
+module
+
 prelude
 import Init.Data.List.Perm
-import Init.Data.List.Sort.Basic
+import all Init.Data.List.Sort.Basic
 import Init.Data.List.Nat.Range
 import Init.Data.Bool
 
@@ -243,7 +245,7 @@ theorem merge_of_le : ∀ {xs ys : List α} (_ : ∀ a b, a ∈ xs → b ∈ ys 
     rw [if_pos, merge_of_le]
     · intro a b ma mb
       exact h a b (mem_cons_of_mem _ ma) mb
-    · exact h x y (mem_cons_self _ _) (mem_cons_self _ _)
+    · exact h x y mem_cons_self mem_cons_self
 
 variable (le) in
 theorem merge_perm_append : ∀ {xs ys : List α}, merge xs ys le ~ xs ++ ys
@@ -303,8 +305,6 @@ theorem sorted_mergeSort
     apply sorted_mergeSort trans total
     apply sorted_mergeSort trans total
 termination_by l => l.length
-
-@[deprecated sorted_mergeSort (since := "2024-09-02")] abbrev mergeSort_sorted := @sorted_mergeSort
 
 /--
 If the input list is already sorted, then `mergeSort` does not change the list.
@@ -367,9 +367,9 @@ theorem mergeSort_cons {le : α → α → Bool}
       ∀ b, b ∈ l₁ → !le a b := by
   rw [← mergeSort_zipIdx]
   rw [zipIdx_cons]
-  have nd : Nodup ((a :: l).zipIdx.map (·.2)) := by rw [zipIdx_map_snd]; exact nodup_range' _ _
+  have nd : Nodup ((a :: l).zipIdx.map (·.2)) := by rw [zipIdx_map_snd]; exact nodup_range' _
   have m₁ : (a, 0) ∈ mergeSort ((a :: l).zipIdx) (zipIdxLE le) :=
-    mem_mergeSort.mpr (mem_cons_self _ _)
+    mem_mergeSort.mpr mem_cons_self
   obtain ⟨l₁, l₂, h⟩ := append_of_mem m₁
   have s := sorted_mergeSort (zipIdxLE_trans trans) (zipIdxLE_total total) ((a :: l).zipIdx)
   rw [h] at s
@@ -408,9 +408,9 @@ theorem mergeSort_cons {le : α → α → Bool}
     have nd' := nd.perm p.symm
     rw [map_append] at nd'
     have j0 := nd'.rel_of_mem_append
-      (mem_map_of_mem (·.2) m) (mem_map_of_mem _ (mem_cons_self _ _))
+      (mem_map_of_mem m) (mem_map_of_mem mem_cons_self)
     simp only [ne_eq] at j0
-    have r := s.rel_of_mem_append m (mem_cons_self _ _)
+    have r := s.rel_of_mem_append m mem_cons_self
     simp_all [zipIdxLE]
 
 /--
@@ -442,9 +442,6 @@ theorem sublist_mergeSort
         ((fun w => Sublist.of_sublist_append_right w h') fun b m₁ m₃ =>
           (Bool.eq_not_self true).mp ((rel_of_pairwise_cons hc m₁).symm.trans (h₃ b m₃))))
 
-@[deprecated sublist_mergeSort (since := "2024-09-02")]
-abbrev mergeSort_stable := @sublist_mergeSort
-
 /--
 Another statement of stability of merge sort.
 If a pair `[a, b]` is a sublist of `l` and `le a b`,
@@ -455,9 +452,6 @@ theorem pair_sublist_mergeSort
     (total : ∀ (a b : α), le a b || le b a)
     (hab : le a b) (h : [a, b] <+ l) : [a, b] <+ mergeSort l le :=
   sublist_mergeSort trans total (pairwise_pair.mpr hab) h
-
-@[deprecated pair_sublist_mergeSort(since := "2024-09-02")]
-abbrev mergeSort_stable_pair := @pair_sublist_mergeSort
 
 theorem map_merge {f : α → β} {r : α → α → Bool} {s : β → β → Bool} {l l' : List α}
     (hl : ∀ a ∈ l, ∀ b ∈ l', r a b = s (f a) (f b)) :

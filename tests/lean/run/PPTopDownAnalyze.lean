@@ -337,7 +337,6 @@ set_option pp.analyze.trustSubtypeMk true in
 #testDelabN Nat.brecOn
 #testDelabN Nat.below
 #testDelabN Nat.mod_lt
-#testDelabN Array.qsort
 #testDelabN List.partition
 #testDelabN List.partition.loop
 #testDelabN StateT.modifyGet
@@ -358,7 +357,6 @@ set_option pp.analyze.trustSubtypeMk true in
 #testDelabN Array.mk.injEq
 #testDelabN Lean.PrefixTree.empty
 #testDelabN Lean.PersistentHashMap.getCollisionNodeSize.match_1
-#testDelabN Lean.HashMap.size.match_1
 #testDelabN and_false
 #testDelabN Lean.Server.FileWorker.handlePlainTermGoal
 #testDelabN Lean.Server.FileWorker.handlePlainGoal

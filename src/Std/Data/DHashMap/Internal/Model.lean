@@ -101,7 +101,7 @@ theorem exists_bucket_of_uset [BEq α] [Hashable α]
         ∀ k : α, (mkIdx self.size (by omega) (hash k)).1.toNat = i.toNat →
           containsKey k l = false) := by
   have h₀ : 0 < self.size := by omega
-  obtain ⟨l₁, l₂, h₁, h₂, h₃⟩ := Array.exists_of_uset self i d hi
+  obtain ⟨l₁, l₂, h₁, h₂, h₃⟩ := Array.exists_of_uset hi
   refine ⟨l₁.flatMap AssocList.toList ++ l₂.flatMap AssocList.toList, ?_, ?_, ?_⟩
   · rw [toListModel, h₁]
     simpa using perm_append_comm_assoc _ _ _
@@ -221,9 +221,13 @@ theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β →
 namespace IsHashSelf
 
 @[simp]
-theorem mkArray [BEq α] [Hashable α] {c : Nat} : IsHashSelf
-    (mkArray c (AssocList.nil : AssocList α β)) :=
+theorem replicate [BEq α] [Hashable α] {c : Nat} : IsHashSelf
+    (Array.replicate c (AssocList.nil : AssocList α β)) :=
   ⟨by simp⟩
+
+set_option linter.missingDocs false in
+@[deprecated replicate (since := "2025-03-18")]
+abbrev mkArray := @replicate
 
 theorem uset [BEq α] [Hashable α] {m : Array (AssocList α β)} {i : USize} {h : i.toNat < m.size}
     {d : AssocList α β}
@@ -591,8 +595,8 @@ theorem map_eq_mapₘ (m : Raw₀ α β) (f : (a : α) → β a → δ a) :
 theorem filter_eq_filterₘ (m : Raw₀ α β) (f : (a : α) → β a → Bool) :
     m.filter f = m.filterₘ f := rfl
 
-theorem insertMany_eq_insertListₘ [BEq α] [Hashable α](m : Raw₀ α β) (l : List ((a : α) × β a)) : insertMany m l = insertListₘ m l := by
-  simp only [insertMany, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl]
+theorem insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) : insertMany m l = insertListₘ m l := by
+  simp only [insertMany, Id.run_pure, Id.run_bind, pure_bind, List.forIn_pure_yield_eq_foldl]
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
     (∀ {m'' : Raw₀ α β} {a : α} {b : β a}, P m'' → P (m''.insert a b)) → P m → P m' }),
       (List.foldl (fun m' p => ⟨m'.val.insert p.1 p.2, fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =
@@ -626,7 +630,7 @@ theorem Const.getThenInsertIfNew?_eq_insertIfNewₘ [BEq α] [Hashable α] (m : 
     (a : α) (b : β) : (Const.getThenInsertIfNew? m a b).2 = m.insertIfNewₘ a b := by
   rw [getThenInsertIfNew?, insertIfNewₘ, containsₘ, bucket]
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
-  split <;> simp_all [consₘ, updateBucket, List.containsKey_eq_isSome_getValue?, -Option.not_isSome]
+  split <;> simp_all [consₘ, updateBucket, List.containsKey_eq_isSome_getValue?, -Option.isSome_eq_false_iff]
 
 theorem Const.getThenInsertIfNew?_eq_get?ₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α)
     (b : β) : (Const.getThenInsertIfNew? m a b).1 = Const.get?ₘ m a := by
@@ -635,9 +639,9 @@ theorem Const.getThenInsertIfNew?_eq_get?ₘ [BEq α] [Hashable α] (m : Raw₀ 
   split <;> simp_all [-getValue?_eq_none]
 
 theorem Const.insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β))
-    (l: List (α × β)):
+    (l : List (α × β)) :
     (Const.insertMany m l).1 = Const.insertListₘ m l := by
-  simp only [insertMany, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl]
+  simp only [insertMany, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α (fun _ => β) → Prop),
     (∀ {m'' : Raw₀ α (fun _ => β)} {a : α} {b : β}, P m'' → P (m''.insert a b)) → P m → P m' }),
       (List.foldl (fun m' p => ⟨m'.val.insert p.1 p.2, fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =
@@ -652,7 +656,7 @@ theorem Const.insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α 
 theorem Const.insertManyIfNewUnit_eq_insertListIfNewUnitₘ [BEq α] [Hashable α]
     (m : Raw₀ α (fun _ => Unit)) (l: List α):
     (Const.insertManyIfNewUnit m l).1 = Const.insertListIfNewUnitₘ m l := by
-  simp only [insertManyIfNewUnit, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl]
+  simp only [insertManyIfNewUnit, Id.run_pure, Id.run_bind, pure_bind, List.forIn_pure_yield_eq_foldl]
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α (fun _ => Unit) → Prop),
       (∀ {m'' a b}, P m'' → P (m''.insertIfNew a b)) → P m → P m'}),
       (List.foldl (fun m' p => ⟨m'.val.insertIfNew p (), fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =

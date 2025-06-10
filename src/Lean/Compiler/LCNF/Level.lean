@@ -111,7 +111,7 @@ def visitArgs (args : Array Arg) : Visitor :=
 
 def visitLetValue (e : LetValue) : Visitor :=
   match e with
-  | .erased | .value .. | .proj .. => id
+  | .erased | .lit .. | .proj .. => id
   | .const _ us args => visitLevels us ∘ visitArgs args
   | .fvar _ args => visitArgs args
 

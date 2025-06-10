@@ -36,7 +36,7 @@ open Std.Internal
 @[simp]
 theorem foldl_eq {f : δ → (a : α) → β a → δ} {init : δ} {l : AssocList α β} :
     l.foldl f init = l.toList.foldl (fun d p => f d p.1 p.2) init := by
-  induction l generalizing init <;> simp_all [foldl, Id.run, foldlM]
+  induction l generalizing init <;> simp_all [foldl, foldlM]
 
 @[simp]
 theorem length_eq {l : AssocList α β} : l.length = l.toList.length := by
@@ -200,6 +200,24 @@ theorem toList_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
     · exact (ih _).trans (by simpa using perm_middle.symm)
     · exact ih _
 
+theorem filterMap_eq_map {f : (a : α) → β a → γ a} {l : AssocList α β} :
+    l.filterMap (fun k v => some (f k v)) = l.map f := by
+  dsimp [filterMap, map]
+  generalize nil = l'
+  induction l generalizing l' with
+  | nil => rfl
+  | cons k v t ih => simp only [filterMap.go, map.go, ih]
+
+theorem filterMap_eq_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
+    l.filterMap (fun k => Option.guard (fun v => f k v)) = l.filter f := by
+  dsimp [filterMap, filter]
+  generalize nil = l'
+  induction l generalizing l' with
+  | nil => rfl
+  | cons k v t ih =>
+    simp only [filterMap.go, filter.go, ih, Option.guard, cond_eq_if]
+    symm; split <;> rfl
+
 theorem toList_alter [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
     {l : AssocList α β} :
     Perm (l.alter a f).toList (alterKey a f l.toList) := by
@@ -215,7 +233,7 @@ theorem modify_eq_alter [BEq α] [LawfulBEq α] {a : α} {f : β a → β a} {l 
     modify a f l = alter a (·.map f) l := by
   induction l
   · rfl
-  · next ih => simp only [modify, beq_iff_eq, alter, Option.map_some', ih]
+  · next ih => simp only [modify, beq_iff_eq, alter, Option.map_some, ih]
 
 namespace Const
 
@@ -235,18 +253,18 @@ theorem modify_eq_alter [BEq α] [EquivBEq α] {a : α} {f : β → β} {l : Ass
     modify a f l = alter a (·.map f) l := by
   induction l
   · rfl
-  · next ih => simp only [modify, beq_iff_eq, alter, Option.map_some', ih]
+  · next ih => simp only [modify, beq_iff_eq, alter, Option.map_some, ih]
 
 end Const
 
 theorem foldl_apply {l : AssocList α β} {acc : List δ} (f : (a : α) → β a → δ) :
     l.foldl (fun acc k v => f k v :: acc) acc =
       (l.toList.map (fun p => f p.1 p.2)).reverse ++ acc := by
-  induction l generalizing acc <;> simp_all [AssocList.foldl, AssocList.foldlM, Id.run]
+  induction l generalizing acc <;> simp_all [AssocList.foldl, AssocList.foldlM]
 
 theorem foldr_apply {l : AssocList α β} {acc : List δ} (f : (a : α) → β a → δ) :
     l.foldr (fun k v acc => f k v :: acc) acc =
       (l.toList.map (fun p => f p.1 p.2)) ++ acc := by
-  induction l generalizing acc <;> simp_all [AssocList.foldr, AssocList.foldrM, Id.run]
+  induction l generalizing acc <;> simp_all [AssocList.foldr, AssocList.foldrM]
 
 end Std.DHashMap.Internal.AssocList

@@ -33,8 +33,13 @@ structure DateTime (tz : TimeZone) where
 instance : BEq (DateTime tz) where
   beq x y := x.timestamp == y.timestamp
 
-instance : Inhabited (DateTime tz) where
-  default := ⟨Inhabited.default, Thunk.mk fun _ => Inhabited.default⟩
+instance : Ord (DateTime tz) where
+  compare := compareOn (·.timestamp)
+
+instance : TransOrd (DateTime tz) := inferInstanceAs <| TransCmp (compareOn _)
+
+instance : LawfulBEqOrd (DateTime tz) where
+  compare_eq_iff_beq := LawfulBEqOrd.compare_eq_iff_beq (α := Timestamp)
 
 namespace DateTime
 
@@ -44,6 +49,9 @@ Creates a new `DateTime` out of a `Timestamp` that is in a `TimeZone`.
 @[inline]
 def ofTimestamp (tm : Timestamp) (tz : TimeZone) : DateTime tz :=
   DateTime.mk tm (Thunk.mk fun _ => tm.toPlainDateTimeAssumingUTC |>.addSeconds tz.toSeconds)
+
+instance : Inhabited (DateTime tz) where
+  default := ofTimestamp Inhabited.default tz
 
 /--
 Converts a `DateTime` to the number of days since the UNIX epoch.

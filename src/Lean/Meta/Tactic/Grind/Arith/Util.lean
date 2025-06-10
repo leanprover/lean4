@@ -6,12 +6,17 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Expr
 import Lean.Message
+import Std.Internal.Rat
 
 namespace Lean.Meta.Grind.Arith
 
 /-- Returns `true` if `e` is of the form `Nat` -/
 def isNatType (e : Expr) : Bool :=
   e.isConstOf ``Nat
+
+/-- Returns `true` if `e` is of the form `Int` -/
+def isIntType (e : Expr) : Bool :=
+  e.isConstOf ``Int
 
 /-- Returns `true` if `e` is of the form `@instHAdd Nat instAddNat` -/
 def isInstAddNat (e : Expr) : Bool :=
@@ -49,5 +54,57 @@ def isNatNum? (e : Expr) : Option Nat := Id.run do
   let .lit (.natVal k) := k | none
   some k
 
+def isSupportedType (e : Expr) : Bool :=
+  isNatType e || isIntType e
+
+partial def isRelevantPred (e : Expr) : Bool :=
+  match_expr e with
+  | Not p => isRelevantPred p
+  | LE.le α _ _ _ => isSupportedType α
+  | Eq α _ _ => isSupportedType α
+  | Dvd.dvd α _ _ _ => isSupportedType α
+  | _ => false
+
+def isArithTerm (e : Expr) : Bool :=
+  match_expr e with
+  | HAdd.hAdd _ _ _ _ _ _ => true
+  | HSub.hSub _ _ _ _ _ _ => true
+  | HMul.hMul _ _ _ _ _ _ => true
+  | HDiv.hDiv _ _ _ _ _ _ => true
+  | HMod.hMod _ _ _ _ _ _ => true
+  | HPow.hPow _ _ _ _ _ _ => true
+  | Neg.neg _ _ _ => true
+  | OfNat.ofNat _ _ _ => true
+  | _ => false
+
+/-- Quote `e` using `「` and `」` if `e` is an arithmetic term that is being treated as a variable. -/
+def quoteIfArithTerm (e : Expr) : MessageData :=
+  if isArithTerm e then
+    aquote e
+  else
+    e
+/--
+`gcdExt a b` returns the triple `(g, α, β)` such that
+- `g = gcd a b` (with `g ≥ 0`), and
+- `g = α * a + β * β`.
+-/
+partial def gcdExt (a b : Int) : Int × Int × Int :=
+  if b = 0 then
+    (a.natAbs, if a = 0 then 0 else a / a.natAbs, 0)
+  else
+    let (g, α, β) := gcdExt b (a % b)
+    (g, β, α - (a / b) * β)
+
+open Std.Internal
+
+-- TODO: PArray.shrink and PArray.resize
+partial def shrink (a : PArray Rat) (sz : Nat) : PArray Rat :=
+  if a.size > sz then shrink a.pop sz else a
+
+partial def resize (a : PArray Rat) (sz : Nat) : PArray Rat :=
+  if a.size > sz then shrink a sz else go a
+where
+  go (a : PArray Rat) : PArray Rat :=
+    if a.size < sz then go (a.push 0) else a
 
 end Lean.Meta.Grind.Arith

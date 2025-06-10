@@ -3,6 +3,8 @@ Copyright (c) 2017 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Yury G. Kudryashov
 -/
+module
+
 prelude
 import Init.PropLemmas
 
@@ -42,36 +44,35 @@ universe signature in consequence. The `Prop` version is `Or`.
 
 namespace Sum
 
-deriving instance DecidableEq for Sum
 deriving instance BEq for Sum
 
 section get
 
-/-- Check if a sum is `inl`. -/
-def isLeft : α ⊕ β → Bool
+/-- Checks whether a sum is the left injection `inl`. -/
+@[expose] def isLeft : α ⊕ β → Bool
   | inl _ => true
   | inr _ => false
 
-/-- Check if a sum is `inr`. -/
-def isRight : α ⊕ β → Bool
+/-- Checks whether a sum is the right injection `inr`. -/
+@[expose] def isRight : α ⊕ β → Bool
   | inl _ => false
   | inr _ => true
 
-/-- Retrieve the contents from a sum known to be `inl`.-/
-def getLeft : (ab : α ⊕ β) → ab.isLeft → α
+/-- Retrieves the contents from a sum known to be `inl`.-/
+@[expose] def getLeft : (ab : α ⊕ β) → ab.isLeft → α
   | inl a, _ => a
 
-/-- Retrieve the contents from a sum known to be `inr`.-/
-def getRight : (ab : α ⊕ β) → ab.isRight → β
+/-- Retrieves the contents from a sum known to be `inr`.-/
+@[expose] def getRight : (ab : α ⊕ β) → ab.isRight → β
   | inr b, _ => b
 
-/-- Check if a sum is `inl` and if so, retrieve its contents. -/
-def getLeft? : α ⊕ β → Option α
+/-- Checks whether a sum is the left injection `inl` and, if so, retrieves its contents. -/
+@[expose] def getLeft? : α ⊕ β → Option α
   | inl a => some a
   | inr _ => none
 
-/-- Check if a sum is `inr` and if so, retrieve its contents. -/
-def getRight? : α ⊕ β → Option β
+/-- Checks whether a sum is the right injection `inr` and, if so, retrieves its contents. -/
+@[expose] def getRight? : α ⊕ β → Option β
   | inr b => some b
   | inl _ => none
 
@@ -90,8 +91,11 @@ def getRight? : α ⊕ β → Option β
 
 end get
 
-/-- Define a function on `α ⊕ β` by giving separate definitions on `α` and `β`. -/
-protected def elim {α β γ} (f : α → γ) (g : β → γ) : α ⊕ β → γ :=
+/--
+Case analysis for sums that applies the appropriate function `f` or `g` after checking which
+constructor is present.
+-/
+@[expose] protected def elim {α β γ} (f : α → γ) (g : β → γ) : α ⊕ β → γ :=
   fun x => Sum.casesOn x f g
 
 @[simp] theorem elim_inl (f : α → γ) (g : β → γ) (x : α) :
@@ -100,16 +104,24 @@ protected def elim {α β γ} (f : α → γ) (g : β → γ) : α ⊕ β → γ
 @[simp] theorem elim_inr (f : α → γ) (g : β → γ) (x : β) :
     Sum.elim f g (inr x) = g x := rfl
 
-/-- Map `α ⊕ β` to `α' ⊕ β'` sending `α` to `α'` and `β` to `β'`. -/
-protected def map (f : α → α') (g : β → β') : α ⊕ β → α' ⊕ β' :=
+/--
+Transforms a sum according to functions on each type.
+
+This function maps `α ⊕ β` to `α' ⊕ β'`, sending `α` to `α'` and `β` to `β'`.
+-/
+@[expose] protected def map (f : α → α') (g : β → β') : α ⊕ β → α' ⊕ β' :=
   Sum.elim (inl ∘ f) (inr ∘ g)
 
 @[simp] theorem map_inl (f : α → α') (g : β → β') (x : α) : (inl x).map f g = inl (f x) := rfl
 
 @[simp] theorem map_inr (f : α → α') (g : β → β') (x : β) : (inr x).map f g = inr (g x) := rfl
 
-/-- Swap the factors of a sum type -/
-def swap : α ⊕ β → β ⊕ α := Sum.elim inr inl
+/--
+Swaps the factors of a sum type.
+
+The constructor `Sum.inl` is replaced with `Sum.inr`, and vice versa.
+-/
+@[expose] def swap : α ⊕ β → β ⊕ α := Sum.elim inr inl
 
 @[simp] theorem swap_inl : swap (inl x : α ⊕ β) = inr x := rfl
 

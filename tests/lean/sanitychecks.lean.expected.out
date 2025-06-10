@@ -14,7 +14,7 @@ Additional diagnostic information may be available using the `set_option diagnos
 sanitychecks.lean:18:12-18:20: error: invalid use of 'partial', 'Foo.unsound3' is not a function
   False
 sanitychecks.lean:20:0-20:54: error: failed to compile 'partial' definition 'Foo.unsound4', could not prove that the type
-  Unit → False
+  ∀ (x : Unit), False
 is nonempty.
 
 This process uses multiple strategies:

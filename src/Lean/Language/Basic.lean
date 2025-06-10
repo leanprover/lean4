@@ -82,6 +82,12 @@ structure SnapshotTask (α : Type) where
   `Syntax` processed by this `SnapshotTask`.
   The `Syntax` is used by the language server to determine whether to force this `SnapshotTask`
   when a request is made.
+  In general, the elaborator retains the following invariant:
+  If `stx?` is `none`, then this snapshot task (and all of its children) do not contain `InfoTree`
+  information that can be used in the language server, and so the language server will ignore it
+  when it is looking for an `InfoTree`.
+  Nonetheless, if `stx?` is `none`, then this snapshot task (and any of its children) may still
+  contain message log information.
   -/
   stx? : Option Syntax
   /--
@@ -93,18 +99,17 @@ structure SnapshotTask (α : Type) where
   Cancellation token that can be set by the server to cancel the task when it detects the results
   are not needed anymore.
   -/
-  cancelTk? : Option IO.CancelToken := none
+  cancelTk? : Option IO.CancelToken
   /-- Underlying task producing the snapshot. -/
   task : Task α
 deriving Nonempty, Inhabited
 
 /-- Creates a snapshot task from the syntax processed by the task and a `BaseIO` action. -/
-def SnapshotTask.ofIO (stx? : Option Syntax)
+def SnapshotTask.ofIO (stx? : Option Syntax) (cancelTk? : Option IO.CancelToken)
     (reportingRange? : Option String.Range := defaultReportingRange? stx?) (act : BaseIO α) :
     BaseIO (SnapshotTask α) := do
   return {
-    stx?
-    reportingRange?
+    stx?, reportingRange?, cancelTk?
     task := (← BaseIO.asTask act)
   }
 
@@ -114,6 +119,7 @@ def SnapshotTask.finished (stx? : Option Syntax) (a : α) : SnapshotTask α wher
   -- irrelevant when already finished
   reportingRange? := none
   task := .pure a
+  cancelTk? := none
 
 /-- Transforms a task's output without changing the processed syntax. -/
 def SnapshotTask.map (t : SnapshotTask α) (f : α → β) (stx? : Option Syntax := t.stx?)
@@ -309,15 +315,15 @@ def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options)
 
 /-- Waits on and returns all snapshots in the tree. -/
 def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
-  Id.run <| s.foldM (·.push ·) #[]
+  Id.run <| s.foldM (pure <| ·.push ·) #[]
 
 /-- Returns a task that waits on all snapshots in the tree. -/
-def SnapshotTree.waitAll : SnapshotTree → BaseIO (Task Unit)
+partial def SnapshotTree.waitAll : SnapshotTree → BaseIO (Task Unit)
   | mk _ children => go children.toList
 where
   go : List (SnapshotTask SnapshotTree) → BaseIO (Task Unit)
     | [] => return .pure ()
-    | t::ts => BaseIO.bindTask t.task fun _ => go ts
+    | t::ts => BaseIO.bindTask (sync := true) t.task fun t => go (t.children.toList ++ ts)
 
 /-- Context of an input processing invocation. -/
 structure ProcessingContext extends Parser.InputContext

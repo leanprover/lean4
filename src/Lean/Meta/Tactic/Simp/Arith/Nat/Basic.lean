@@ -179,7 +179,7 @@ def toLinearCnstr? (e : Expr) : MetaM (Option (LinearCnstr × Array Expr)) := do
     let c := c.applyPerm perm
     return some (c, atoms)
 
-def toContextExpr (ctx : Array Expr) : Expr :=
+def toContextExpr (ctx : Array Expr) : MetaM Expr := do
   if h : 0 < ctx.size then
     RArray.toExpr (mkConst ``Nat) id (RArray.ofArray ctx h)
   else

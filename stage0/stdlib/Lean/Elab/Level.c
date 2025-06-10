@@ -45,6 +45,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Level_elabLevel___lambda__1(lean_object*, l
 static lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_296____closed__3;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Elab_Level_elabLevel___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_List_elem___at_Lean_Environment_realizeConst___spec__6(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___closed__4;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__3;
@@ -56,10 +57,10 @@ static lean_object* l_Lean_Elab_Level_elabLevel___closed__5;
 static lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___closed__2;
 static lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_296____closed__5;
 static lean_object* l_Lean_Elab_throwIllFormedSyntax___at_Lean_Elab_Level_elabLevel___spec__2___closed__2;
+lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__5___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__9;
-uint8_t l_List_elem___at_Lean_addAliasEntry___spec__16(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_mkFreshLevelMVar___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___lambda__1(lean_object*, lean_object*);
@@ -149,7 +150,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_5____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__14;
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__8;
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadOptionsLevelElabM___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_read___at_Lean_Elab_Level_instMonadOptionsLevelElabM___spec__1(lean_object* x_1, lean_object* x_2) {
@@ -917,7 +917,7 @@ x_7 = lean_nat_dec_le(x_1, x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_8 = l___private_Init_Data_Repr_0__Nat_reprFast(x_6);
+x_8 = l_Nat_reprFast(x_6);
 x_9 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
 x_10 = l_Lean_MessageData_ofFormat(x_9);
@@ -1048,7 +1048,7 @@ x_7 = lean_nat_dec_le(x_1, x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_8 = l___private_Init_Data_Repr_0__Nat_reprFast(x_6);
+x_8 = l_Nat_reprFast(x_6);
 x_9 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
 x_10 = l_Lean_MessageData_ofFormat(x_9);
@@ -1616,7 +1616,7 @@ x_53 = lean_ctor_get(x_3, 1);
 lean_inc(x_53);
 x_54 = lean_ctor_get(x_3, 2);
 lean_inc(x_54);
-x_55 = l_List_elem___at_Lean_addAliasEntry___spec__16(x_51, x_54);
+x_55 = l_List_elem___at_Lean_Environment_realizeConst___spec__6(x_51, x_54);
 if (x_55 == 0)
 {
 if (x_10 == 0)
@@ -2438,7 +2438,7 @@ x_258 = lean_ctor_get(x_3, 1);
 lean_inc(x_258);
 x_259 = lean_ctor_get(x_3, 2);
 lean_inc(x_259);
-x_260 = l_List_elem___at_Lean_addAliasEntry___spec__16(x_256, x_259);
+x_260 = l_List_elem___at_Lean_Environment_realizeConst___spec__6(x_256, x_259);
 if (x_260 == 0)
 {
 if (x_216 == 0)

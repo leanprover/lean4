@@ -275,3 +275,7 @@ error: apply? didn't find any relevant lemmas
 -/
 #guard_msgs in
 example {α : Sort u} (x y : α) : Eq x y := by apply?
+
+-- Verify that there is a `sorry` warning when `apply?` closes the goal.
+#guard_msgs (drop info) in
+example : False := by apply?

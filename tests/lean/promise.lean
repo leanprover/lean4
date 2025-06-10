@@ -15,15 +15,15 @@ open IO
   let promise : Promise Nat ← Promise.new
   assert! promise.result?.get = none
 
-#eval do
-  let ch ← Std.Channel.new
+#eval show IO _ from do
+  let ch ← Std.CloseableChannel.new
 
   let out ← IO.mkRef #[]
-  ch.send 0
+  ch.sync.send 0
   let drainFinished ← ch.forAsync fun x => out.modify (·.push x)
-  ch.send 1
+  ch.sync.send 1
   ch.close
-  ch.send 2
+  assert! (← EIO.toBaseIO (ch.sync.send 2)) matches .error .closed
 
   IO.wait drainFinished
   assert! (← out.get) = #[0, 1]

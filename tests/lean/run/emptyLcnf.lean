@@ -7,7 +7,7 @@ def f (x : MyEmpty) : Nat :=
 
 set_option trace.Compiler.result true
 /--
-info: [Compiler.result] size: 0
+trace: [Compiler.result] size: 0
     def f x : Nat :=
       ⊥
 -/

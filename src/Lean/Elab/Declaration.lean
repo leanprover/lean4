@@ -152,7 +152,10 @@ def expandNamespacedDeclaration : Macro := fun stx => do
   | none => Macro.throwUnsupported
 
 @[builtin_command_elab declaration, builtin_incremental]
-def elabDeclaration : CommandElab := fun stx => do
+def elabDeclaration : CommandElab := fun stx =>
+  -- We assume by default that data from declarations will be exported. Specific elaborators can
+  -- then nest inside `withoutExporting` for non-exported parts.
+  withExporting do
   let decl     := stx[1]
   let declKind := decl.getKind
   if isDefLike decl then
@@ -308,7 +311,7 @@ def elabMutual : CommandElab := fun stx => do
         if (← Simp.isBuiltinSimproc name) then
           pure [name]
         else
-          throwUnknownConstant name
+          throwUnknownConstantAt ident name
     let declName ← ensureNonAmbiguous ident declNames
     Term.applyAttributes declName attrs
     for attrName in toErase do

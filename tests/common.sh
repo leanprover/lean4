@@ -1,6 +1,6 @@
 set -euo pipefail
 
-ulimit -s 8192
+ulimit -s ${MAIN_STACK_SIZE:-8192}
 DIFF=diff
 if diff --color --help >/dev/null 2>&1; then
     DIFF="diff --color";
@@ -48,8 +48,12 @@ function exec_capture_raw {
 function exec_capture {
     # backtraces are system-specific, strip them
     # mvar suffixes like in `?m.123` are deterministic but prone to change on minor changes, so strip them
-    LEAN_BACKTRACE=0 "$@" 2>&1 | perl -pe 's/(\?(\w|_\w+))\.[0-9]+/\1/g' > "$f.produced.out"
+    # similarly, links to the language reference may have URL components depending on the toolchain, so normalize those
+    LEAN_BACKTRACE=0 "$@" 2>&1 \
+      | perl -pe 's/(\?(\w|_\w+))\.[0-9]+/\1/g' \
+      | perl -pe 's/https:\/\/lean-lang\.org\/doc\/reference\/(v?[0-9.]+(-rc[0-9]+)?|latest)/REFERENCE/g'  > "$f.produced.out"
 }
+
 
 # Remark: `${var+x}` is a parameter expansion which evaluates to nothing if `var` is unset, and substitutes the string `x` otherwise.
 function check_ret {

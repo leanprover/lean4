@@ -65,10 +65,6 @@ where
       | .trace ..,     _ => .text "(trace)"
     tt.stripTags
 
-/-- Compares interactive diagnostics modulo `TaggedText` tags and traces. -/
-def compareAsDiagnostics (a b : InteractiveDiagnostic) : Ordering :=
-  compareByUserVisible a.toDiagnostic b.toDiagnostic
-
 end InteractiveDiagnostic
 
 private def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext := {
@@ -196,8 +192,8 @@ partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent
   let rec fmtToTT (fmt : Format) (indent : Nat) : IO (TaggedText MsgEmbed) :=
     (TaggedText.prettyTagged fmt indent).rewriteM fun (n, col) tt =>
       match embeds[n]! with
-        | .code ctx infos =>
-          return .tag (.expr (tagCodeInfos ctx infos tt)) default
+        | .code ctx infos => do
+          return .tag (.expr (← tagCodeInfos ctx infos tt)) default
         | .goal ctx lctx g =>
           ctx.runMetaM lctx do
             return .tag (.goal (← goalToInteractive g)) default
@@ -209,7 +205,10 @@ partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent
           let col := indent + col
           let children ←
             match children with
-              | .lazy children => pure <| .lazy ⟨{indent := col+2, children := children.map .mk}⟩
+              | .lazy children => pure <| .lazy <| ← WithRpcRef.mk {
+                  indent := col+2
+                  children := ← children.mapM (WithRpcRef.mk ·)
+                }
               | .strict children => pure <| .strict (← children.mapM (fmtToTT · (col+2)))
           return .tag (.trace indent cls (← fmtToTT msg col) collapsed children) default
         | .ignoreTags => return .text tt.stripTags

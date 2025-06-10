@@ -107,7 +107,9 @@ info: Errors: ⏎
     Missing documentation type
    • "lean-manual://f":
     Unknown documentation type 'f'. Expected 'section'.
-   • "lean-manual://a/": Unknown documentation type 'a'. Expected 'section'.  ⏎
+   • "lean-manual://a/":
+    Unknown documentation type 'a'. Expected 'section'.
+
 ---
 info: Result: "foo [](lean-manual://) [](lean-manual://f) lean-manual://a/b"
 -/
@@ -120,7 +122,9 @@ info: Errors: ⏎
     Missing documentation type
    • "lean-manual://f":
     Unknown documentation type 'f'. Expected 'section'.
-   • "lean-manual://a/b": Unknown documentation type 'a'. Expected 'section'.  ⏎
+   • "lean-manual://a/b":
+    Unknown documentation type 'a'. Expected 'section'.
+
 ---
 info: Result: "foo [](lean-manual://) [](lean-manual://f) lean-manual://a/b "
 -/

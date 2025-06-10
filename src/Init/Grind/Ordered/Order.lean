@@ -91,6 +91,19 @@ theorem trichotomy (a b : α) : a < b ∨ a = b ∨ b < a := by
     | inl h => right; right; exact h
     | inr h => right; left; exact h.symm
 
+theorem le_of_not_lt {α} [LinearOrder α] {a b : α} (h : ¬ a < b) : b ≤ a := by
+  cases LinearOrder.trichotomy a b
+  next => contradiction
+  next h => apply PartialOrder.le_iff_lt_or_eq.mpr; cases h <;> simp [*]
+
+theorem lt_of_not_le {α} [LinearOrder α] {a b : α} (h : ¬ a ≤ b) : b < a := by
+  cases LinearOrder.trichotomy a b
+  next h₁ h₂ => have := Preorder.lt_iff_le_not_le.mp h₂; simp [h] at this
+  next h =>
+    cases h
+    next h => subst a; exact False.elim <| h (Preorder.le_refl b)
+    next => assumption
+
 end LinearOrder
 
 end Lean.Grind

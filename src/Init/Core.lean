@@ -43,14 +43,14 @@ and `flip (·<·)` is the greater-than relation.
 theorem Function.comp_def {α β δ} (f : β → δ) (g : α → β) : f ∘ g = fun x => f (g x) := rfl
 
 @[simp] theorem Function.const_comp {f : α → β} {c : γ} :
-    (Function.const β c ∘ f) = Function.const α c := by
+    (Function.const β c ∘ f) = Function.const α c :=
   rfl
 @[simp] theorem Function.comp_const {f : β → γ} {b : β} :
-    (f ∘ Function.const α b) = Function.const α (f b) := by
+    (f ∘ Function.const α b) = Function.const α (f b) :=
   rfl
-@[simp] theorem Function.true_comp {f : α → β} : ((fun _ => true) ∘ f) = fun _ => true := by
+@[simp] theorem Function.true_comp {f : α → β} : ((fun _ => true) ∘ f) = fun _ => true :=
   rfl
-@[simp] theorem Function.false_comp {f : α → β} : ((fun _ => false) ∘ f) = fun _ => false := by
+@[simp] theorem Function.false_comp {f : α → β} : ((fun _ => false) ∘ f) = fun _ => false :=
   rfl
 
 @[simp] theorem Function.comp_id (f : α → β) : f ∘ id = f := rfl
@@ -95,7 +95,8 @@ structure Thunk (α : Type u) : Type u where
   -/
   mk ::
   /-- Extract the getter function out of a thunk. Use `Thunk.get` instead. -/
-  private fn : Unit → α
+  -- The field is public so as to allow computation through it.
+  fn : Unit → α
 
 attribute [extern "lean_mk_thunk"] Thunk.mk
 
@@ -116,6 +117,10 @@ Computed values are cached, so the value is not recomputed.
 -- NOTE: we use `Thunk.get` instead of `Thunk.fn` as the accessor primitive as the latter has an additional `Unit` argument
 @[extern "lean_thunk_get_own"] protected def Thunk.get (x : @& Thunk α) : α :=
   x.fn ()
+
+-- Ensure `Thunk.fn` is still computable even if it shouldn't be accessed directly.
+@[inline] private def Thunk.fnImpl (x : Thunk α) : Unit → α := fun _ => x.get
+@[csimp] private theorem Thunk.fn_eq_fnImpl : @Thunk.fn = @Thunk.fnImpl := rfl
 
 /--
 Constructs a new thunk that forces `x` and then applies `x` to the result. Upon forcing, the result
@@ -1047,11 +1052,6 @@ theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
   match h with
   | isFalse _ => rfl
   | isTrue h  => False.elim h
-
-set_option linter.missingDocs false in
-@[deprecated decide_true (since := "2024-11-05")] abbrev decide_true_eq_true := decide_true
-set_option linter.missingDocs false in
-@[deprecated decide_false (since := "2024-11-05")] abbrev decide_false_eq_false := decide_false
 
 /-- Similar to `decide`, but uses an explicit instance -/
 @[inline] def toBoolUsing {p : Prop} (d : Decidable p) : Bool :=

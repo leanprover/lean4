@@ -35,6 +35,7 @@ static lean_object* l_Lake_mkBuildContext___closed__1;
 lean_object* lean_io_as_task(lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___at_Lean_Name_getString_x21___spec__1(lean_object*);
 lean_object* l_String_quote(lean_object*);
+uint8_t l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_268_(uint8_t, uint8_t);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_runFetchM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -73,6 +74,7 @@ static lean_object* l_Lake_Monitor_reportJob___lambda__2___closed__6;
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Workspace_runFetchM___spec__7___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Monitor_spinnerFrames___closed__3___boxed__const__1;
 static lean_object* l_Lake_print_x21___closed__7;
+lean_object* l_Nat_reprFast(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Monitor_renderProgress(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Workspace_runFetchM___rarg___closed__8;
@@ -116,10 +118,8 @@ LEAN_EXPORT lean_object* l_Lake_runBuild(lean_object*);
 lean_object* l_IO_FS_Stream_ofBuffer(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_runFetchM(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Workspace_runFetchM___spec__7(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
-uint8_t l___private_Lake_Util_Log_0__Lake_ordLogLevel____x40_Lake_Util_Log___hyg_756_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_IO_withStderr___at_Lake_Workspace_runFetchM___spec__4(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_runFetchM___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Monitor_renderProgress___closed__4;
 lean_object* l_Lake_BuildTrace_nil(lean_object*);
 lean_object* lean_get_set_stderr(lean_object*, lean_object*);
@@ -148,6 +148,7 @@ lean_object* l_Substring_takeWhileAux___at_Substring_trimLeft___spec__1(lean_obj
 static lean_object* l_Lake_Workspace_runFetchM___rarg___closed__12;
 static lean_object* l_Lake_Monitor_sleep___closed__1;
 uint8_t l_Lake_instDecidableEqVerbosity(uint8_t, uint8_t);
+uint8_t l_Lake_ordLogLevel____x40_Lake_Util_Log___hyg_764_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_Monitor_spinnerFrames___closed__2___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lake_Monitor_reportJob___lambda__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, uint8_t, uint8_t, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Workspace_runFetchM___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -172,7 +173,6 @@ LEAN_EXPORT lean_object* l_Lake_Monitor_poll(lean_object*, lean_object*, lean_ob
 lean_object* lean_io_get_task_state(lean_object*, lean_object*);
 static lean_object* l_Lake_print_x21___closed__4;
 LEAN_EXPORT lean_object* l_Lake_Workspace_runFetchM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lake_Build_Job_Basic_0__Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_268_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_MonitorM_run___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_get_set_stdin(lean_object*, lean_object*);
@@ -182,6 +182,7 @@ LEAN_EXPORT lean_object* l_Lake_Monitor_poll___boxed(lean_object*, lean_object*,
 lean_object* lean_array_mk(lean_object*);
 static lean_object* l_Lake_Monitor_reportJob___lambda__2___closed__2;
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Workspace_runFetchM___rarg___closed__4;
 lean_object* lean_array_uget(lean_object*, size_t);
 static uint8_t l_Lake_Monitor_reportJob___lambda__2___closed__7;
@@ -208,7 +209,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_runBuild(lean_object*);
 static lean_object* l_Lake_Monitor_renderProgress___closed__6;
 static lean_object* l_Lake_Monitor_spinnerFrames___closed__3;
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Monitor_spinnerFrames___closed__1___boxed__const__1;
 static lean_object* l_IO_FS_withIsolatedStreams___at_Lake_Workspace_runFetchM___spec__1___rarg___closed__5;
 static lean_object* l_Lake_Monitor_reportJob___lambda__2___closed__4;
@@ -845,7 +845,7 @@ x_25 = l_Lake_print_x21___closed__11;
 x_26 = l_Lake_print_x21___closed__12;
 x_27 = lean_unsigned_to_nat(79u);
 x_28 = lean_unsigned_to_nat(4u);
-x_29 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_25, x_26, x_27, x_28, x_24);
+x_29 = l_mkPanicMessageWithDecl(x_25, x_26, x_27, x_28, x_24);
 lean_dec(x_24);
 x_30 = l_panic___at_Lean_Environment_PromiseCheckedResult_commitChecked___spec__1(x_29, x_11);
 return x_30;
@@ -935,7 +935,7 @@ x_30 = l_Lake_print_x21___closed__11;
 x_31 = l_Lake_print_x21___closed__12;
 x_32 = lean_unsigned_to_nat(79u);
 x_33 = lean_unsigned_to_nat(4u);
-x_34 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_30, x_31, x_32, x_33, x_29);
+x_34 = l_mkPanicMessageWithDecl(x_30, x_31, x_32, x_33, x_29);
 lean_dec(x_29);
 x_35 = l_panic___at_Lean_Environment_PromiseCheckedResult_commitChecked___spec__1(x_34, x_16);
 if (lean_obj_tag(x_35) == 0)
@@ -1195,12 +1195,12 @@ x_35 = lean_string_append(x_33, x_34);
 lean_dec(x_34);
 x_36 = l_Lake_Monitor_renderProgress___closed__2;
 x_37 = lean_string_append(x_35, x_36);
-x_38 = l___private_Init_Data_Repr_0__Nat_reprFast(x_16);
+x_38 = l_Nat_reprFast(x_16);
 x_39 = lean_string_append(x_37, x_38);
 lean_dec(x_38);
 x_40 = l_Lake_Monitor_renderProgress___closed__3;
 x_41 = lean_string_append(x_39, x_40);
-x_42 = l___private_Init_Data_Repr_0__Nat_reprFast(x_17);
+x_42 = l_Nat_reprFast(x_17);
 x_43 = lean_string_append(x_41, x_42);
 lean_dec(x_42);
 x_44 = l_Lake_print_x21___closed__10;
@@ -1240,7 +1240,7 @@ x_164 = lean_string_append(x_163, x_162);
 lean_dec(x_162);
 x_165 = l_Lake_Monitor_renderProgress___closed__5;
 x_166 = lean_string_append(x_164, x_165);
-x_167 = l___private_Init_Data_Repr_0__Nat_reprFast(x_160);
+x_167 = l_Nat_reprFast(x_160);
 x_168 = lean_string_append(x_166, x_167);
 lean_dec(x_167);
 x_169 = l_Lake_Monitor_renderProgress___closed__6;
@@ -1425,7 +1425,7 @@ x_93 = l_Lake_print_x21___closed__11;
 x_94 = l_Lake_print_x21___closed__12;
 x_95 = lean_unsigned_to_nat(79u);
 x_96 = lean_unsigned_to_nat(4u);
-x_97 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_93, x_94, x_95, x_96, x_92);
+x_97 = l_mkPanicMessageWithDecl(x_93, x_94, x_95, x_96, x_92);
 lean_dec(x_92);
 x_98 = l_panic___at_Lean_Environment_PromiseCheckedResult_commitChecked___spec__1(x_97, x_82);
 if (lean_obj_tag(x_98) == 0)
@@ -1555,7 +1555,7 @@ x_129 = l_Lake_print_x21___closed__11;
 x_130 = l_Lake_print_x21___closed__12;
 x_131 = lean_unsigned_to_nat(79u);
 x_132 = lean_unsigned_to_nat(4u);
-x_133 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_129, x_130, x_131, x_132, x_128);
+x_133 = l_mkPanicMessageWithDecl(x_129, x_130, x_131, x_132, x_128);
 lean_dec(x_128);
 x_134 = l_panic___at_Lean_Environment_PromiseCheckedResult_commitChecked___spec__1(x_133, x_118);
 if (lean_obj_tag(x_134) == 0)
@@ -1702,12 +1702,12 @@ x_193 = lean_string_append(x_191, x_192);
 lean_dec(x_192);
 x_194 = l_Lake_Monitor_renderProgress___closed__2;
 x_195 = lean_string_append(x_193, x_194);
-x_196 = l___private_Init_Data_Repr_0__Nat_reprFast(x_171);
+x_196 = l_Nat_reprFast(x_171);
 x_197 = lean_string_append(x_195, x_196);
 lean_dec(x_196);
 x_198 = l_Lake_Monitor_renderProgress___closed__3;
 x_199 = lean_string_append(x_197, x_198);
-x_200 = l___private_Init_Data_Repr_0__Nat_reprFast(x_172);
+x_200 = l_Nat_reprFast(x_172);
 x_201 = lean_string_append(x_199, x_200);
 lean_dec(x_200);
 x_202 = l_Lake_print_x21___closed__10;
@@ -1747,7 +1747,7 @@ x_271 = lean_string_append(x_270, x_269);
 lean_dec(x_269);
 x_272 = l_Lake_Monitor_renderProgress___closed__5;
 x_273 = lean_string_append(x_271, x_272);
-x_274 = l___private_Init_Data_Repr_0__Nat_reprFast(x_267);
+x_274 = l_Nat_reprFast(x_267);
 x_275 = lean_string_append(x_273, x_274);
 lean_dec(x_274);
 x_276 = l_Lake_Monitor_renderProgress___closed__6;
@@ -1877,7 +1877,7 @@ x_236 = l_Lake_print_x21___closed__11;
 x_237 = l_Lake_print_x21___closed__12;
 x_238 = lean_unsigned_to_nat(79u);
 x_239 = lean_unsigned_to_nat(4u);
-x_240 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_236, x_237, x_238, x_239, x_235);
+x_240 = l_mkPanicMessageWithDecl(x_236, x_237, x_238, x_239, x_235);
 lean_dec(x_235);
 x_241 = l_panic___at_Lean_Environment_PromiseCheckedResult_commitChecked___spec__1(x_240, x_224);
 if (lean_obj_tag(x_241) == 0)
@@ -2284,8 +2284,8 @@ x_21 = lean_array_get_size(x_1);
 x_22 = lean_unsigned_to_nat(0u);
 x_23 = lean_nat_dec_eq(x_21, x_22);
 x_24 = l_instDecidableNot___rarg(x_23);
-x_25 = l___private_Init_Data_Repr_0__Nat_reprFast(x_2);
-x_26 = l___private_Init_Data_Repr_0__Nat_reprFast(x_3);
+x_25 = l_Nat_reprFast(x_2);
+x_26 = l_Nat_reprFast(x_3);
 if (x_24 == 0)
 {
 uint8_t x_272; 
@@ -2313,7 +2313,7 @@ goto block_265;
 else
 {
 uint8_t x_267; lean_object* x_268; 
-x_267 = l___private_Lake_Util_Log_0__Lake_ordLogLevel____x40_Lake_Util_Log___hyg_756_(x_10, x_9);
+x_267 = l_Lake_ordLogLevel____x40_Lake_Util_Log___hyg_764_(x_10, x_9);
 x_268 = lean_box(x_267);
 if (lean_obj_tag(x_268) == 2)
 {
@@ -2347,7 +2347,7 @@ goto block_258;
 else
 {
 uint8_t x_260; lean_object* x_261; 
-x_260 = l___private_Lake_Util_Log_0__Lake_ordLogLevel____x40_Lake_Util_Log___hyg_756_(x_6, x_9);
+x_260 = l_Lake_ordLogLevel____x40_Lake_Util_Log___hyg_764_(x_6, x_9);
 x_261 = lean_box(x_260);
 if (lean_obj_tag(x_261) == 2)
 {
@@ -2472,7 +2472,7 @@ x_98 = l_Lake_print_x21___closed__11;
 x_99 = l_Lake_print_x21___closed__12;
 x_100 = lean_unsigned_to_nat(79u);
 x_101 = lean_unsigned_to_nat(4u);
-x_102 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_98, x_99, x_100, x_101, x_97);
+x_102 = l_mkPanicMessageWithDecl(x_98, x_99, x_100, x_101, x_97);
 lean_dec(x_97);
 x_103 = l_panic___at_Lean_Environment_PromiseCheckedResult_commitChecked___spec__1(x_102, x_86);
 if (lean_obj_tag(x_103) == 0)
@@ -2545,7 +2545,7 @@ x_123 = l_Lake_print_x21___closed__11;
 x_124 = l_Lake_print_x21___closed__12;
 x_125 = lean_unsigned_to_nat(79u);
 x_126 = lean_unsigned_to_nat(4u);
-x_127 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_123, x_124, x_125, x_126, x_122);
+x_127 = l_mkPanicMessageWithDecl(x_123, x_124, x_125, x_126, x_122);
 lean_dec(x_122);
 x_128 = l_panic___at_Lean_Environment_PromiseCheckedResult_commitChecked___spec__1(x_127, x_111);
 if (lean_obj_tag(x_128) == 0)
@@ -2809,7 +2809,7 @@ x_206 = l_Lake_print_x21___closed__11;
 x_207 = l_Lake_print_x21___closed__12;
 x_208 = lean_unsigned_to_nat(79u);
 x_209 = lean_unsigned_to_nat(4u);
-x_210 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_206, x_207, x_208, x_209, x_205);
+x_210 = l_mkPanicMessageWithDecl(x_206, x_207, x_208, x_209, x_205);
 lean_dec(x_205);
 x_211 = l_panic___at_Lean_Environment_PromiseCheckedResult_commitChecked___spec__1(x_210, x_193);
 if (lean_obj_tag(x_211) == 0)
@@ -3133,7 +3133,7 @@ return x_286;
 else
 {
 uint8_t x_287; lean_object* x_288; 
-x_287 = l___private_Lake_Build_Job_Basic_0__Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_268_(x_12, x_4);
+x_287 = l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_268_(x_12, x_4);
 x_288 = lean_box(x_287);
 if (lean_obj_tag(x_288) == 2)
 {
@@ -3184,7 +3184,7 @@ return x_296;
 else
 {
 uint8_t x_297; lean_object* x_298; 
-x_297 = l___private_Lake_Build_Job_Basic_0__Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_268_(x_12, x_4);
+x_297 = l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_268_(x_12, x_4);
 x_298 = lean_box(x_297);
 if (lean_obj_tag(x_298) == 2)
 {
@@ -3217,12 +3217,12 @@ goto block_274;
 else
 {
 uint8_t x_303; lean_object* x_304; 
-x_303 = l___private_Lake_Util_Log_0__Lake_ordLogLevel____x40_Lake_Util_Log___hyg_756_(x_10, x_9);
+x_303 = l_Lake_ordLogLevel____x40_Lake_Util_Log___hyg_764_(x_10, x_9);
 x_304 = lean_box(x_303);
 if (lean_obj_tag(x_304) == 2)
 {
 uint8_t x_305; lean_object* x_306; 
-x_305 = l___private_Lake_Util_Log_0__Lake_ordLogLevel____x40_Lake_Util_Log___hyg_756_(x_6, x_9);
+x_305 = l_Lake_ordLogLevel____x40_Lake_Util_Log___hyg_764_(x_6, x_9);
 x_306 = lean_box(x_305);
 if (lean_obj_tag(x_306) == 2)
 {
@@ -3267,7 +3267,7 @@ return x_313;
 else
 {
 uint8_t x_314; lean_object* x_315; 
-x_314 = l___private_Lake_Build_Job_Basic_0__Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_268_(x_12, x_4);
+x_314 = l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_268_(x_12, x_4);
 x_315 = lean_box(x_314);
 if (lean_obj_tag(x_315) == 2)
 {
@@ -3318,7 +3318,7 @@ return x_323;
 else
 {
 uint8_t x_324; lean_object* x_325; 
-x_324 = l___private_Lake_Build_Job_Basic_0__Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_268_(x_12, x_4);
+x_324 = l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_268_(x_12, x_4);
 x_325 = lean_box(x_324);
 if (lean_obj_tag(x_325) == 2)
 {
@@ -3436,7 +3436,7 @@ return x_45;
 else
 {
 uint8_t x_46; lean_object* x_47; 
-x_46 = l___private_Lake_Util_Log_0__Lake_ordLogLevel____x40_Lake_Util_Log___hyg_756_(x_13, x_23);
+x_46 = l_Lake_ordLogLevel____x40_Lake_Util_Log___hyg_764_(x_13, x_23);
 x_47 = lean_box(x_46);
 if (lean_obj_tag(x_47) == 2)
 {
@@ -5885,7 +5885,7 @@ x_49 = l_Lake_print_x21___closed__11;
 x_50 = l_Lake_print_x21___closed__12;
 x_51 = lean_unsigned_to_nat(79u);
 x_52 = lean_unsigned_to_nat(4u);
-x_53 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_49, x_50, x_51, x_52, x_48);
+x_53 = l_mkPanicMessageWithDecl(x_49, x_50, x_51, x_52, x_48);
 lean_dec(x_48);
 x_54 = l_panic___at_Lean_Environment_PromiseCheckedResult_commitChecked___spec__1(x_53, x_37);
 if (lean_obj_tag(x_54) == 0)
@@ -6122,7 +6122,7 @@ x_112 = l_Lake_print_x21___closed__11;
 x_113 = l_Lake_print_x21___closed__12;
 x_114 = lean_unsigned_to_nat(79u);
 x_115 = lean_unsigned_to_nat(4u);
-x_116 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_112, x_113, x_114, x_115, x_111);
+x_116 = l_mkPanicMessageWithDecl(x_112, x_113, x_114, x_115, x_111);
 lean_dec(x_111);
 x_117 = l_panic___at_Lean_Environment_PromiseCheckedResult_commitChecked___spec__1(x_116, x_100);
 if (lean_obj_tag(x_117) == 0)
@@ -6376,7 +6376,7 @@ x_174 = l_Lake_print_x21___closed__11;
 x_175 = l_Lake_print_x21___closed__12;
 x_176 = lean_unsigned_to_nat(79u);
 x_177 = lean_unsigned_to_nat(4u);
-x_178 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_174, x_175, x_176, x_177, x_173);
+x_178 = l_mkPanicMessageWithDecl(x_174, x_175, x_176, x_177, x_173);
 lean_dec(x_173);
 x_179 = l_panic___at_Lean_Environment_PromiseCheckedResult_commitChecked___spec__1(x_178, x_162);
 if (lean_obj_tag(x_179) == 0)
@@ -6646,7 +6646,7 @@ x_241 = l_Lake_print_x21___closed__11;
 x_242 = l_Lake_print_x21___closed__12;
 x_243 = lean_unsigned_to_nat(79u);
 x_244 = lean_unsigned_to_nat(4u);
-x_245 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_241, x_242, x_243, x_244, x_240);
+x_245 = l_mkPanicMessageWithDecl(x_241, x_242, x_243, x_244, x_240);
 lean_dec(x_240);
 x_246 = l_panic___at_Lean_Environment_PromiseCheckedResult_commitChecked___spec__1(x_245, x_229);
 if (lean_obj_tag(x_246) == 0)
@@ -11162,7 +11162,7 @@ x_2 = l_IO_FS_withIsolatedStreams___at_Lake_Workspace_runFetchM___spec__1___rarg
 x_3 = lean_unsigned_to_nat(129u);
 x_4 = lean_unsigned_to_nat(47u);
 x_5 = l_IO_FS_withIsolatedStreams___at_Lake_Workspace_runFetchM___spec__1___rarg___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -12803,7 +12803,7 @@ x_35 = l_Lake_print_x21___closed__11;
 x_36 = l_Lake_print_x21___closed__12;
 x_37 = lean_unsigned_to_nat(79u);
 x_38 = lean_unsigned_to_nat(4u);
-x_39 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_35, x_36, x_37, x_38, x_34);
+x_39 = l_mkPanicMessageWithDecl(x_35, x_36, x_37, x_38, x_34);
 lean_dec(x_34);
 x_40 = l_panic___at_Lean_Environment_PromiseCheckedResult_commitChecked___spec__1(x_39, x_21);
 x_41 = lean_ctor_get(x_40, 0);
@@ -13645,7 +13645,7 @@ x_110 = l_Lake_print_x21___closed__11;
 x_111 = l_Lake_print_x21___closed__12;
 x_112 = lean_unsigned_to_nat(79u);
 x_113 = lean_unsigned_to_nat(4u);
-x_114 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_110, x_111, x_112, x_113, x_109);
+x_114 = l_mkPanicMessageWithDecl(x_110, x_111, x_112, x_113, x_109);
 lean_dec(x_109);
 x_115 = l_panic___at_Lean_Environment_PromiseCheckedResult_commitChecked___spec__1(x_114, x_100);
 x_116 = lean_ctor_get(x_115, 1);
@@ -14037,7 +14037,7 @@ x_215 = l_Lake_print_x21___closed__11;
 x_216 = l_Lake_print_x21___closed__12;
 x_217 = lean_unsigned_to_nat(79u);
 x_218 = lean_unsigned_to_nat(4u);
-x_219 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_215, x_216, x_217, x_218, x_214);
+x_219 = l_mkPanicMessageWithDecl(x_215, x_216, x_217, x_218, x_214);
 lean_dec(x_214);
 x_220 = l_panic___at_Lean_Environment_PromiseCheckedResult_commitChecked___spec__1(x_219, x_205);
 x_221 = lean_ctor_get(x_220, 1);

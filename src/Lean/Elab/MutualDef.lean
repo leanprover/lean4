@@ -28,7 +28,15 @@ builtin_initialize
     name := `expose
     descr := "(module system) Make bodies of definitions available to importing modules."
     add := fun _ _ _ => do
+      -- Attribute will be filtered out by `MutualDef`
       throwError "Invalid attribute 'expose', must be used when declaring `def`"
+  }
+  registerBuiltinAttribute {
+    name := `no_expose
+    descr := "(module system) Negate previous `[expose]` attribute."
+    add := fun _ _ _ => do
+      -- Attribute will be filtered out by `MutualDef`
+      throwError "Invalid attribute 'no_expose', must be used when declaring `def`"
   }
 
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
@@ -1061,40 +1069,28 @@ where
     let tacPromises ← views.mapM fun _ => IO.Promise.new
     let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
       Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
+    withExporting (isExporting := !expandedDeclIds.all (isPrivateName ·.declName)) do
     let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
     let headers ← levelMVarToParamHeaders views headers
-    -- If the decl looks like a `rfl` theorem, we elaborate is synchronously as we need to wait for
-    -- the type before we can decide whether the theorem body should be exported and then waiting
-    -- for the body as well should not add any significant overhead.
-    let isRflLike := headers.all (·.value matches `(declVal| := rfl))
-    -- elaborate body in parallel when all stars align
     if let (#[view], #[declId]) := (views, expandedDeclIds) then
-      if Elab.async.get (← getOptions) && view.kind.isTheorem && !isRflLike &&
+      if Elab.async.get (← getOptions) && view.kind.isTheorem &&
           !deprecated.oldSectionVars.get (← getOptions) &&
           -- holes in theorem types is not a fatal error, but it does make parallelism impossible
           !headers[0]!.type.hasMVar then
         elabAsync headers[0]! view declId
-      else elabSync headers isRflLike
-    else elabSync headers isRflLike
+      else elabSync headers
+    else elabSync headers
     for view in views, declId in expandedDeclIds do
       -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
       -- that depends only on a part of the ref
       addDeclarationRangesForBuiltin declId.declName view.modifiers.stx view.ref
-  elabSync headers isRflLike := do
-    -- If the reflexivity holds publicly as well (we're still inside `withExporting` here), export
-    -- the body even if it is a theorem so that it is recognized as a rfl theorem even without
-    -- `import all`.
-    let rflPublic ← pure isRflLike <&&> pure (← getEnv).header.isModule <&&>
-      forallTelescopeReducing headers[0]!.type fun _ type => do
-        let some (_, lhs, rhs) := type.eq? | pure false
-        try
-          isDefEq lhs rhs
-        catch _ => pure false
-    finishElab (isExporting := rflPublic) headers
+  elabSync headers := do
+    finishElab headers
     processDeriving headers
   elabAsync header view declId := do
     let env ← getEnv
-    let async ← env.addConstAsync declId.declName .thm (exportedKind := .axiom)
+    let async ← env.addConstAsync declId.declName .thm
+      (exportedKind? := guard (!isPrivateName declId.declName) *> some .axiom)
     setEnv async.mainEnv
 
     -- TODO: parallelize header elaboration as well? Would have to refactor auto implicits catch,
@@ -1137,7 +1133,7 @@ where
         (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
       setEnv async.asyncEnv
       try
-        finishElab (isExporting := false) #[header]
+        finishElab #[header]
       finally
         reportDiag
         -- must introduce node to fill `infoHole` with multiple info trees
@@ -1155,14 +1151,16 @@ where
     Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
-  finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars => withExporting
-    (isExporting := isExporting ||
-      (headers.all (·.kind == .def) && sc.attrs.any (· matches `(attrInstance| expose))) ||
-      headers.all fun header =>
-        !header.modifiers.isPrivate &&
-        (header.kind matches .abbrev | .instance || header.modifiers.attrs.any (·.name == `expose))) do
+  finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars =>
+    withExporting (isExporting :=
+      !headers.all (fun header =>
+        header.modifiers.isPrivate || header.modifiers.attrs.any (·.name == `no_expose)) &&
+      (isExporting ||
+       headers.all (fun header => (header.kind matches .abbrev | .instance)) ||
+       (headers.all (·.kind == .def) && sc.attrs.any (· matches `(attrInstance| expose))) ||
+       headers.any (·.modifiers.attrs.any (·.name == `expose)))) do
     let headers := headers.map fun header =>
-      { header with modifiers.attrs := header.modifiers.attrs.filter (·.name != `expose) }
+      { header with modifiers.attrs := header.modifiers.attrs.filter (!·.name ∈ [`expose, `no_expose]) }
     for view in views, funFVar in funFVars do
       addLocalVarInfo view.declId funFVar
     let values ← try
@@ -1267,6 +1265,8 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
     if ds.size > 1 && modifiers.isNonrec then
       throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
     let mut view ← mkDefView modifiers d[1]
+    if view.kind != .example && view.value matches `(declVal| := rfl) then
+      view := view.markDefEq
     let fullHeaderRef := mkNullNode #[d[0], view.headerRef]
     if let some snap := snap? then
       view := { view with headerSnap? := some {

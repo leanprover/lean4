@@ -15,17 +15,28 @@ Data types used by Lean module headers and the `--setup` CLI.
 
 namespace Lean
 
+/- Abstract sturcture of an `import` statement. -/
 structure Import where
-  module        : Name
+  module     : Name
   /-- `import all`; whether to import and expose all data saved by the module. -/
-  importAll : Bool := false
+  importAll  : Bool := false
   /-- Whether to activate this import when the current module itself is imported. -/
-  isExported    : Bool := true
+  isExported : Bool := true
+  /-- Whether all definitions (transitively) reachable through the -/
+  isMeta     : Bool := false
   deriving Repr, Inhabited, ToJson, FromJson
 
 instance : Coe Name Import := ⟨({module := ·})⟩
 
 instance : ToString Import := ⟨fun imp => toString imp.module⟩
+
+/-- Abstract structure of a module's header. -/
+structure ModuleHeader where
+  /-- The module's direct imports (i.e., those listed in the header). -/
+  imports  : Array Import
+  /-- Whether the module is participating in the module system. -/
+  isModule : Bool
+  deriving Repr, Inhabited, ToJson, FromJson
 
 /-- Files containing data for a single module. -/
 structure ModuleArtifacts where
@@ -34,6 +45,8 @@ structure ModuleArtifacts where
   oleanServer? : Option System.FilePath := none
   oleanPrivate? : Option System.FilePath := none
   ilean? : Option System.FilePath := none
+  c? : Option System.FilePath := none
+  bc? : Option System.FilePath := none
   deriving Repr, Inhabited, ToJson, FromJson
 
 /--
@@ -45,7 +58,7 @@ structure ModuleSetup where
   name : Name
   /-- Whether the module is participating in the module system. -/
   isModule : Bool := false
-  /- The module's direct imports. -/
+  /-- The module's direct imports. -/
   imports : Array Import := #[]
   /-- Pre-resolved artifacts of related modules (e.g., this module's transitive imports). -/
   modules : NameMap ModuleArtifacts := {}

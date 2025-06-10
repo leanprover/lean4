@@ -44,6 +44,7 @@ This is a non-tail-recursive variant of `List.mapM` that's easier to reason abou
 as the main definition and replaced by the tail-recursive version because they can only be proved
 equal when `m` is a `LawfulMonad`.
 -/
+@[expose]
 def mapM' [Monad m] (f : α → m β) : List α → m (List β)
   | [] => pure []
   | a :: l => return (← f a) :: (← l.mapM' f)

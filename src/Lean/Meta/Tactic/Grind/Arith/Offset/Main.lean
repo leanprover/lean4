@@ -339,9 +339,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     if let some (b, k) := isNatOffset? e then
       internalizeTerm e b k
     else if let some k := isNatNum? e then
-      -- core module has support for detecting equality between literals
-      unless isEqParent parent? do
-        internalizeTerm e z k
+      internalizeTerm e z k
 
 @[export lean_process_new_offset_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
@@ -352,17 +350,6 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
     let h ← mkEqProof a b
     addEdge u v 0 <| mkApp3 (mkConst ``Grind.Nat.le_of_eq_1) a b h
     addEdge v u 0 <| mkApp3 (mkConst ``Grind.Nat.le_of_eq_2) a b h
-
-@[export lean_process_new_offset_eq_lit]
-def processNewEqLitImpl (a b : Expr) : GoalM Unit := do
-  unless isSameExpr a b do
-    trace[grind.offset.eq.to] "{a}, {b}"
-    let some k := isNatNum? b | unreachable!
-    let u ← getNodeId a
-    let z ← mkNode (← getNatZeroExpr)
-    let h ← mkEqProof a b
-    addEdge u z k <| mkApp3 (mkConst ``Grind.Nat.le_of_eq_1) a b h
-    addEdge z u (-k) <| mkApp3 (mkConst ``Grind.Nat.le_of_eq_2) a b h
 
 def traceDists : GoalM Unit := do
   let s ← get'

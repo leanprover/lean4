@@ -23,6 +23,14 @@ private def simpCore (e : Expr) : GrindM Simp.Result := do profileitM Exception 
   modify fun s => { s with simp }
   return r
 
+/-- Similar to `simpCore`, but uses `dsimp`. -/
+def dsimpCore (e : Expr) : GrindM Expr := do profileitM Exception "grind dsimp" (← getOptions) do
+  let simp ← modifyGet fun s => (s.simp, { s with simp := {} })
+  let ctx := (← readThe Context).simp
+  let (r, simp) ← Simp.dsimpMainCore e ctx simp (methods := (← readThe Context).simpMethods)
+  modify fun s => { s with simp }
+  return r
+
 /--
 Preprocesses `e` using `grind` normalization theorems and simprocs,
 and then applies several other preprocessing steps.

@@ -24,6 +24,7 @@ static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncod
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___lambda__1___closed__9;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__93;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__12;
+static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__10;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__118;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___lambda__1___closed__3;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__10(lean_object*, size_t, size_t, lean_object*);
@@ -35,7 +36,6 @@ static lean_object* l_Lean_Server_RpcEncodable_isOptField___closed__1;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__21;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInstance___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___at_Lean_Elab_Term_processDefDeriving___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002_(lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___lambda__1___closed__33;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__4(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___closed__2;
@@ -52,7 +52,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Server_Rp
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___closed__1;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__68;
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__13___lambda__1___closed__3;
-static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__1;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___closed__8;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__17;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__66;
@@ -75,8 +74,10 @@ static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncod
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__38;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___closed__5;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__112;
+static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__15;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__19;
+static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__3;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__91;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__63;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__121;
@@ -122,13 +123,16 @@ static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Derivi
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__117;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___lambda__1___closed__21;
 lean_object* lean_string_utf8_byte_size(lean_object*);
+static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__4;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__27;
+static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__11;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__50;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__62;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___lambda__1___closed__7;
 static lean_object* l_Lean_getConstInfoCtor___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__1___closed__3;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__40;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__47;
+static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__16;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__3;
 LEAN_EXPORT uint8_t l_Lean_Server_RpcEncodable_isOptField___lambda__1(lean_object*);
@@ -144,6 +148,7 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__54;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInstance___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__11___closed__1;
+static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__8;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__35;
 lean_object* l_Lean_Elab_registerDerivingHandler(lean_object*, lean_object*, lean_object*);
 uint8_t l_instDecidableNot___rarg(uint8_t);
@@ -166,7 +171,6 @@ static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncod
 static lean_object* l_Lean_getConstInfo___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInstance___spec__2___closed__1;
 lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__13(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__10;
 LEAN_EXPORT lean_object* l_Lean_Server_RpcEncodable_isOptField___lambda__1___boxed(lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__11;
 lean_object* l_Lean_addTrace___at_Lean_Elab_Term_traceAtCmdPos___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -184,7 +188,6 @@ static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncod
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_matchAltTerm;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__58;
-static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__11;
 lean_object* l_List_mapTR_loop___at_Lean_MessageData_instCoeListExpr___spec__1(lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInstance___spec__5___closed__6;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -193,6 +196,7 @@ lean_object* l_Lean_mkCIdentFrom(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__15(size_t, size_t, lean_object*);
+static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__14;
 static lean_object* l_Lean_Server_RpcEncodable_isOptField___closed__3;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__9;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__22;
@@ -202,6 +206,7 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___lambda__1___closed__29;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__124;
 lean_object* l_Lean_Elab_Command_liftTermElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__9;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__15;
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__3___closed__8;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -212,6 +217,7 @@ lean_object* l_Lean_Elab_addMacroStack___at_Lean_Elab_Term_instAddErrorMessageCo
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___lambda__1___closed__18;
 lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Elab_Term_elabNoFun___spec__2___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__45;
+static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__12;
 lean_object* lean_array_to_list(lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__51;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__28;
@@ -221,7 +227,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_D
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___lambda__1___closed__22;
-static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__14;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___lambda__1___closed__23;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__11;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__13___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -241,6 +246,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_D
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__12;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__61;
+static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__1;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___closed__4;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__17(size_t, size_t, lean_object*);
@@ -258,6 +264,7 @@ LEAN_EXPORT lean_object* l_Lean_getConstInfoCtor___at___private_Lean_Server_Rpc_
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__50;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInstance___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___closed__2;
+static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__2;
 lean_object* l_Lean_addMessageContextPartial___at_Lean_Elab_Command_instAddMessageContextCommandElabM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___lambda__1___closed__6;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -285,7 +292,6 @@ static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncod
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__38;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__18___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__4;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__81;
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__13___lambda__1___closed__1;
@@ -303,6 +309,7 @@ static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncod
 LEAN_EXPORT lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfoInduct___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInstance___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInstance___spec__6(size_t, size_t, lean_object*);
+static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__7;
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__13___lambda__1___closed__8;
 lean_object* l_Lean_LocalDecl_userName(lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__40;
@@ -310,16 +317,13 @@ lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_
 lean_object* l_Lean_Elab_Term_mkFreshBinderName___at___private_Lean_Elab_Match_0__Lean_Elab_Term_mkUserNameFor___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__14(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__8;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__20;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__99;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInstance___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInstance___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__3;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__15___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__2;
-static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__12;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__16;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__115;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__36;
@@ -333,6 +337,7 @@ lean_object* l_Lean_Meta_getFVarLocalDecl(lean_object*, lean_object*, lean_objec
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__88;
 lean_object* l_Lean_Syntax_SepArray_ofElems(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__24;
+static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__6;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_mainModule(lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__17;
@@ -345,12 +350,10 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_D
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__123;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInstance___spec__5___closed__4;
-static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__15;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__105;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__95;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInstance___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__9;
-static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__5;
+LEAN_EXPORT lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050_(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_RpcEncodable_isOptField___closed__2;
 lean_object* l_Lean_Syntax_node7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -380,7 +383,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_RpcEncodable_instCoeTSyntaxConsSyntaxNode
 static lean_object* l_Lean_getConstInfoInduct___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInstance___spec__1___closed__2;
 static lean_object* l_Lean_Server_RpcEncodable_isOptField___closed__4;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__7;
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__3___closed__5;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__35;
 static lean_object* l_Lean_getConstInfoCtor___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__1___closed__2;
@@ -390,9 +392,8 @@ static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncod
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__48;
 lean_object* lean_array_mk(lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__57;
-static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__6;
-static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__13;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__10;
+static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__5;
 uint8_t l_Substring_beq(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__13;
@@ -403,6 +404,7 @@ static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Derivi
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__4___closed__2;
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
+static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__13;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__13;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInstance___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__13___lambda__1___closed__4;
@@ -447,12 +449,10 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Server_Rpc_Derivi
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___lambda__1___closed__15;
 static lean_object* l_Lean_getConstInfoCtor___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__1___closed__1;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__23;
-static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__2;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__34;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__4(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__1;
 lean_object* l_Lean_getStructureFieldsFlattened(lean_object*, lean_object*, uint8_t);
-static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__16;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__76;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__62;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___lambda__1___closed__32;
@@ -1351,9 +1351,10 @@ lean_inc(x_37);
 lean_inc(x_35);
 x_80 = l_Lean_Syntax_node2(x_35, x_79, x_37, x_78);
 x_81 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__20;
+lean_inc(x_58);
 lean_inc(x_50);
 lean_inc(x_35);
-x_82 = l_Lean_Syntax_node2(x_35, x_81, x_50, x_80);
+x_82 = l_Lean_Syntax_node3(x_35, x_81, x_50, x_58, x_80);
 lean_inc_n(x_58, 2);
 lean_inc(x_35);
 x_83 = l_Lean_Syntax_node3(x_35, x_56, x_58, x_58, x_82);
@@ -1401,8 +1402,9 @@ lean_inc(x_35);
 x_102 = l_Lean_Syntax_node2(x_35, x_77, x_97, x_101);
 lean_inc(x_35);
 x_103 = l_Lean_Syntax_node2(x_35, x_79, x_37, x_102);
+lean_inc(x_58);
 lean_inc(x_35);
-x_104 = l_Lean_Syntax_node2(x_35, x_81, x_50, x_103);
+x_104 = l_Lean_Syntax_node3(x_35, x_81, x_50, x_58, x_103);
 lean_inc(x_58);
 lean_inc(x_35);
 x_105 = l_Lean_Syntax_node3(x_35, x_56, x_58, x_58, x_104);
@@ -1462,8 +1464,9 @@ lean_inc(x_35);
 x_124 = l_Lean_Syntax_node2(x_35, x_77, x_119, x_123);
 lean_inc(x_35);
 x_125 = l_Lean_Syntax_node2(x_35, x_79, x_37, x_124);
+lean_inc(x_58);
 lean_inc(x_35);
-x_126 = l_Lean_Syntax_node2(x_35, x_81, x_50, x_125);
+x_126 = l_Lean_Syntax_node3(x_35, x_81, x_50, x_58, x_125);
 lean_inc(x_58);
 lean_inc(x_35);
 x_127 = l_Lean_Syntax_node3(x_35, x_56, x_58, x_58, x_126);
@@ -1562,9 +1565,10 @@ lean_inc(x_37);
 lean_inc(x_35);
 x_163 = l_Lean_Syntax_node2(x_35, x_162, x_37, x_161);
 x_164 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__20;
+lean_inc(x_140);
 lean_inc(x_144);
 lean_inc(x_35);
-x_165 = l_Lean_Syntax_node2(x_35, x_164, x_144, x_163);
+x_165 = l_Lean_Syntax_node3(x_35, x_164, x_144, x_140, x_163);
 lean_inc_n(x_140, 2);
 lean_inc(x_35);
 x_166 = l_Lean_Syntax_node3(x_35, x_138, x_140, x_140, x_165);
@@ -1618,8 +1622,9 @@ lean_inc(x_35);
 x_185 = l_Lean_Syntax_node2(x_35, x_160, x_180, x_184);
 lean_inc(x_35);
 x_186 = l_Lean_Syntax_node2(x_35, x_162, x_37, x_185);
+lean_inc(x_140);
 lean_inc(x_35);
-x_187 = l_Lean_Syntax_node2(x_35, x_164, x_144, x_186);
+x_187 = l_Lean_Syntax_node3(x_35, x_164, x_144, x_140, x_186);
 lean_inc(x_140);
 lean_inc(x_35);
 x_188 = l_Lean_Syntax_node3(x_35, x_138, x_140, x_140, x_187);
@@ -1758,9 +1763,10 @@ lean_inc(x_220);
 lean_inc(x_35);
 x_238 = l_Lean_Syntax_node2(x_35, x_237, x_220, x_236);
 x_239 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__20;
+lean_inc(x_214);
 lean_inc(x_218);
 lean_inc(x_35);
-x_240 = l_Lean_Syntax_node2(x_35, x_239, x_218, x_238);
+x_240 = l_Lean_Syntax_node3(x_35, x_239, x_218, x_214, x_238);
 lean_inc_n(x_214, 2);
 lean_inc(x_35);
 x_241 = l_Lean_Syntax_node3(x_35, x_212, x_214, x_214, x_240);
@@ -1814,8 +1820,9 @@ lean_inc(x_35);
 x_260 = l_Lean_Syntax_node2(x_35, x_235, x_255, x_259);
 lean_inc(x_35);
 x_261 = l_Lean_Syntax_node2(x_35, x_237, x_220, x_260);
+lean_inc(x_214);
 lean_inc(x_35);
-x_262 = l_Lean_Syntax_node2(x_35, x_239, x_218, x_261);
+x_262 = l_Lean_Syntax_node3(x_35, x_239, x_218, x_214, x_261);
 lean_inc(x_214);
 lean_inc(x_35);
 x_263 = l_Lean_Syntax_node3(x_35, x_212, x_214, x_214, x_262);
@@ -1997,9 +2004,10 @@ lean_inc(x_274);
 lean_inc(x_272);
 x_335 = l_Lean_Syntax_node2(x_272, x_334, x_274, x_333);
 x_336 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__20;
+lean_inc(x_303);
 lean_inc(x_296);
 lean_inc(x_272);
-x_337 = l_Lean_Syntax_node2(x_272, x_336, x_296, x_335);
+x_337 = l_Lean_Syntax_node3(x_272, x_336, x_296, x_303, x_335);
 lean_inc_n(x_303, 2);
 lean_inc(x_272);
 x_338 = l_Lean_Syntax_node3(x_272, x_291, x_303, x_303, x_337);
@@ -2061,8 +2069,9 @@ lean_inc(x_272);
 x_361 = l_Lean_Syntax_node2(x_272, x_293, x_354, x_360);
 lean_inc(x_272);
 x_362 = l_Lean_Syntax_node2(x_272, x_334, x_274, x_361);
+lean_inc(x_303);
 lean_inc(x_272);
-x_363 = l_Lean_Syntax_node2(x_272, x_336, x_296, x_362);
+x_363 = l_Lean_Syntax_node3(x_272, x_336, x_296, x_303, x_362);
 lean_inc(x_303);
 lean_inc(x_272);
 x_364 = l_Lean_Syntax_node3(x_272, x_291, x_303, x_303, x_363);
@@ -2136,8 +2145,9 @@ lean_inc(x_272);
 x_387 = l_Lean_Syntax_node2(x_272, x_293, x_380, x_386);
 lean_inc(x_272);
 x_388 = l_Lean_Syntax_node2(x_272, x_334, x_274, x_387);
+lean_inc(x_303);
 lean_inc(x_272);
-x_389 = l_Lean_Syntax_node2(x_272, x_336, x_296, x_388);
+x_389 = l_Lean_Syntax_node3(x_272, x_336, x_296, x_303, x_388);
 lean_inc(x_303);
 lean_inc(x_272);
 x_390 = l_Lean_Syntax_node3(x_272, x_291, x_303, x_303, x_389);
@@ -2263,9 +2273,10 @@ lean_inc(x_274);
 lean_inc(x_272);
 x_435 = l_Lean_Syntax_node2(x_272, x_434, x_274, x_433);
 x_436 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__20;
+lean_inc(x_402);
 lean_inc(x_406);
 lean_inc(x_272);
-x_437 = l_Lean_Syntax_node2(x_272, x_436, x_406, x_435);
+x_437 = l_Lean_Syntax_node3(x_272, x_436, x_406, x_402, x_435);
 lean_inc_n(x_402, 2);
 lean_inc(x_272);
 x_438 = l_Lean_Syntax_node3(x_272, x_291, x_402, x_402, x_437);
@@ -2333,8 +2344,9 @@ lean_inc(x_272);
 x_461 = l_Lean_Syntax_node2(x_272, x_293, x_454, x_460);
 lean_inc(x_272);
 x_462 = l_Lean_Syntax_node2(x_272, x_434, x_274, x_461);
+lean_inc(x_402);
 lean_inc(x_272);
-x_463 = l_Lean_Syntax_node2(x_272, x_436, x_406, x_462);
+x_463 = l_Lean_Syntax_node3(x_272, x_436, x_406, x_402, x_462);
 lean_inc(x_402);
 lean_inc(x_272);
 x_464 = l_Lean_Syntax_node3(x_272, x_291, x_402, x_402, x_463);
@@ -2518,9 +2530,10 @@ lean_inc(x_504);
 lean_inc(x_272);
 x_532 = l_Lean_Syntax_node2(x_272, x_531, x_504, x_530);
 x_533 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__20;
+lean_inc(x_498);
 lean_inc(x_502);
 lean_inc(x_272);
-x_534 = l_Lean_Syntax_node2(x_272, x_533, x_502, x_532);
+x_534 = l_Lean_Syntax_node3(x_272, x_533, x_502, x_498, x_532);
 lean_inc_n(x_498, 2);
 lean_inc(x_272);
 x_535 = l_Lean_Syntax_node3(x_272, x_486, x_498, x_498, x_534);
@@ -2588,8 +2601,9 @@ lean_inc(x_272);
 x_558 = l_Lean_Syntax_node2(x_272, x_488, x_551, x_557);
 lean_inc(x_272);
 x_559 = l_Lean_Syntax_node2(x_272, x_531, x_504, x_558);
+lean_inc(x_498);
 lean_inc(x_272);
-x_560 = l_Lean_Syntax_node2(x_272, x_533, x_502, x_559);
+x_560 = l_Lean_Syntax_node3(x_272, x_533, x_502, x_498, x_559);
 lean_inc(x_498);
 lean_inc(x_272);
 x_561 = l_Lean_Syntax_node3(x_272, x_486, x_498, x_498, x_560);
@@ -4487,9 +4501,10 @@ lean_ctor_set(x_148, 2, x_146);
 lean_ctor_set(x_148, 3, x_13);
 x_149 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__20;
 lean_inc(x_148);
+lean_inc(x_49);
 lean_inc(x_135);
 lean_inc(x_40);
-x_150 = l_Lean_Syntax_node2(x_40, x_149, x_135, x_148);
+x_150 = l_Lean_Syntax_node3(x_40, x_149, x_135, x_49, x_148);
 lean_inc_n(x_49, 2);
 lean_inc(x_40);
 x_151 = l_Lean_Syntax_node3(x_40, x_47, x_49, x_49, x_150);
@@ -4523,9 +4538,10 @@ lean_ctor_set(x_163, 1, x_162);
 lean_ctor_set(x_163, 2, x_161);
 lean_ctor_set(x_163, 3, x_13);
 lean_inc(x_163);
+lean_inc(x_49);
 lean_inc(x_135);
 lean_inc(x_40);
-x_164 = l_Lean_Syntax_node2(x_40, x_149, x_135, x_163);
+x_164 = l_Lean_Syntax_node3(x_40, x_149, x_135, x_49, x_163);
 lean_inc_n(x_49, 2);
 lean_inc(x_40);
 x_165 = l_Lean_Syntax_node3(x_40, x_47, x_49, x_49, x_164);
@@ -5014,9 +5030,10 @@ lean_ctor_set(x_371, 2, x_369);
 lean_ctor_set(x_371, 3, x_13);
 x_372 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__20;
 lean_inc(x_371);
+lean_inc(x_272);
 lean_inc(x_358);
 lean_inc(x_40);
-x_373 = l_Lean_Syntax_node2(x_40, x_372, x_358, x_371);
+x_373 = l_Lean_Syntax_node3(x_40, x_372, x_358, x_272, x_371);
 lean_inc_n(x_272, 2);
 lean_inc(x_40);
 x_374 = l_Lean_Syntax_node3(x_40, x_270, x_272, x_272, x_373);
@@ -5050,9 +5067,10 @@ lean_ctor_set(x_386, 1, x_385);
 lean_ctor_set(x_386, 2, x_384);
 lean_ctor_set(x_386, 3, x_13);
 lean_inc(x_386);
+lean_inc(x_272);
 lean_inc(x_358);
 lean_inc(x_40);
-x_387 = l_Lean_Syntax_node2(x_40, x_372, x_358, x_386);
+x_387 = l_Lean_Syntax_node3(x_40, x_372, x_358, x_272, x_386);
 lean_inc_n(x_272, 2);
 lean_inc(x_40);
 x_388 = l_Lean_Syntax_node3(x_40, x_270, x_272, x_272, x_387);
@@ -5608,9 +5626,10 @@ lean_ctor_set(x_612, 2, x_610);
 lean_ctor_set(x_612, 3, x_13);
 x_613 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__20;
 lean_inc(x_612);
+lean_inc(x_512);
 lean_inc(x_599);
 lean_inc(x_502);
-x_614 = l_Lean_Syntax_node2(x_502, x_613, x_599, x_612);
+x_614 = l_Lean_Syntax_node3(x_502, x_613, x_599, x_512, x_612);
 lean_inc_n(x_512, 2);
 lean_inc(x_502);
 x_615 = l_Lean_Syntax_node3(x_502, x_510, x_512, x_512, x_614);
@@ -5644,9 +5663,10 @@ lean_ctor_set(x_627, 1, x_626);
 lean_ctor_set(x_627, 2, x_625);
 lean_ctor_set(x_627, 3, x_13);
 lean_inc(x_627);
+lean_inc(x_512);
 lean_inc(x_599);
 lean_inc(x_502);
-x_628 = l_Lean_Syntax_node2(x_502, x_613, x_599, x_627);
+x_628 = l_Lean_Syntax_node3(x_502, x_613, x_599, x_512, x_627);
 lean_inc_n(x_512, 2);
 lean_inc(x_502);
 x_629 = l_Lean_Syntax_node3(x_502, x_510, x_512, x_512, x_628);
@@ -6222,9 +6242,10 @@ lean_ctor_set(x_856, 2, x_854);
 lean_ctor_set(x_856, 3, x_13);
 x_857 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__20;
 lean_inc(x_856);
+lean_inc(x_755);
 lean_inc(x_843);
 lean_inc(x_745);
-x_858 = l_Lean_Syntax_node2(x_745, x_857, x_843, x_856);
+x_858 = l_Lean_Syntax_node3(x_745, x_857, x_843, x_755, x_856);
 lean_inc_n(x_755, 2);
 lean_inc(x_745);
 x_859 = l_Lean_Syntax_node3(x_745, x_753, x_755, x_755, x_858);
@@ -6258,9 +6279,10 @@ lean_ctor_set(x_871, 1, x_870);
 lean_ctor_set(x_871, 2, x_869);
 lean_ctor_set(x_871, 3, x_13);
 lean_inc(x_871);
+lean_inc(x_755);
 lean_inc(x_843);
 lean_inc(x_745);
-x_872 = l_Lean_Syntax_node2(x_745, x_857, x_843, x_871);
+x_872 = l_Lean_Syntax_node3(x_745, x_857, x_843, x_755, x_871);
 lean_inc_n(x_755, 2);
 lean_inc(x_745);
 x_873 = l_Lean_Syntax_node3(x_745, x_753, x_755, x_755, x_872);
@@ -6851,9 +6873,10 @@ lean_ctor_set(x_1103, 2, x_1101);
 lean_ctor_set(x_1103, 3, x_13);
 x_1104 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__20;
 lean_inc(x_1103);
+lean_inc(x_1001);
 lean_inc(x_1090);
 lean_inc(x_991);
-x_1105 = l_Lean_Syntax_node2(x_991, x_1104, x_1090, x_1103);
+x_1105 = l_Lean_Syntax_node3(x_991, x_1104, x_1090, x_1001, x_1103);
 lean_inc_n(x_1001, 2);
 lean_inc(x_991);
 x_1106 = l_Lean_Syntax_node3(x_991, x_999, x_1001, x_1001, x_1105);
@@ -6887,9 +6910,10 @@ lean_ctor_set(x_1118, 1, x_1117);
 lean_ctor_set(x_1118, 2, x_1116);
 lean_ctor_set(x_1118, 3, x_13);
 lean_inc(x_1118);
+lean_inc(x_1001);
 lean_inc(x_1090);
 lean_inc(x_991);
-x_1119 = l_Lean_Syntax_node2(x_991, x_1104, x_1090, x_1118);
+x_1119 = l_Lean_Syntax_node3(x_991, x_1104, x_1090, x_1001, x_1118);
 lean_inc_n(x_1001, 2);
 lean_inc(x_991);
 x_1120 = l_Lean_Syntax_node3(x_991, x_999, x_1001, x_1001, x_1119);
@@ -7495,9 +7519,10 @@ lean_ctor_set(x_1353, 2, x_1351);
 lean_ctor_set(x_1353, 3, x_13);
 x_1354 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__20;
 lean_inc(x_1353);
+lean_inc(x_1250);
 lean_inc(x_1340);
 lean_inc(x_1240);
-x_1355 = l_Lean_Syntax_node2(x_1240, x_1354, x_1340, x_1353);
+x_1355 = l_Lean_Syntax_node3(x_1240, x_1354, x_1340, x_1250, x_1353);
 lean_inc_n(x_1250, 2);
 lean_inc(x_1240);
 x_1356 = l_Lean_Syntax_node3(x_1240, x_1248, x_1250, x_1250, x_1355);
@@ -7531,9 +7556,10 @@ lean_ctor_set(x_1368, 1, x_1367);
 lean_ctor_set(x_1368, 2, x_1366);
 lean_ctor_set(x_1368, 3, x_13);
 lean_inc(x_1368);
+lean_inc(x_1250);
 lean_inc(x_1340);
 lean_inc(x_1240);
-x_1369 = l_Lean_Syntax_node2(x_1240, x_1354, x_1340, x_1368);
+x_1369 = l_Lean_Syntax_node3(x_1240, x_1354, x_1340, x_1250, x_1368);
 lean_inc_n(x_1250, 2);
 lean_inc(x_1240);
 x_1370 = l_Lean_Syntax_node3(x_1240, x_1248, x_1250, x_1250, x_1369);
@@ -11446,9 +11472,10 @@ lean_ctor_set(x_145, 2, x_143);
 lean_ctor_set(x_145, 3, x_38);
 x_146 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__20;
 lean_inc(x_145);
+lean_inc(x_60);
 lean_inc(x_132);
 lean_inc(x_33);
-x_147 = l_Lean_Syntax_node2(x_33, x_146, x_132, x_145);
+x_147 = l_Lean_Syntax_node3(x_33, x_146, x_132, x_60, x_145);
 lean_inc_n(x_60, 2);
 lean_inc(x_33);
 x_148 = l_Lean_Syntax_node3(x_33, x_50, x_60, x_60, x_147);
@@ -11482,9 +11509,10 @@ lean_ctor_set(x_160, 1, x_159);
 lean_ctor_set(x_160, 2, x_158);
 lean_ctor_set(x_160, 3, x_38);
 lean_inc(x_160);
+lean_inc(x_60);
 lean_inc(x_132);
 lean_inc(x_33);
-x_161 = l_Lean_Syntax_node2(x_33, x_146, x_132, x_160);
+x_161 = l_Lean_Syntax_node3(x_33, x_146, x_132, x_60, x_160);
 lean_inc_n(x_60, 2);
 lean_inc(x_33);
 x_162 = l_Lean_Syntax_node3(x_33, x_50, x_60, x_60, x_161);
@@ -11999,9 +12027,10 @@ lean_ctor_set(x_382, 2, x_380);
 lean_ctor_set(x_382, 3, x_38);
 x_383 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__20;
 lean_inc(x_382);
+lean_inc(x_297);
 lean_inc(x_369);
 lean_inc(x_33);
-x_384 = l_Lean_Syntax_node2(x_33, x_383, x_369, x_382);
+x_384 = l_Lean_Syntax_node3(x_33, x_383, x_369, x_297, x_382);
 lean_inc_n(x_297, 2);
 lean_inc(x_33);
 x_385 = l_Lean_Syntax_node3(x_33, x_50, x_297, x_297, x_384);
@@ -12035,9 +12064,10 @@ lean_ctor_set(x_397, 1, x_396);
 lean_ctor_set(x_397, 2, x_395);
 lean_ctor_set(x_397, 3, x_38);
 lean_inc(x_397);
+lean_inc(x_297);
 lean_inc(x_369);
 lean_inc(x_33);
-x_398 = l_Lean_Syntax_node2(x_33, x_383, x_369, x_397);
+x_398 = l_Lean_Syntax_node3(x_33, x_383, x_369, x_297, x_397);
 lean_inc_n(x_297, 2);
 lean_inc(x_33);
 x_399 = l_Lean_Syntax_node3(x_33, x_50, x_297, x_297, x_398);
@@ -12601,9 +12631,10 @@ lean_ctor_set(x_641, 2, x_639);
 lean_ctor_set(x_641, 3, x_532);
 x_642 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__20;
 lean_inc(x_641);
+lean_inc(x_556);
 lean_inc(x_628);
 lean_inc(x_33);
-x_643 = l_Lean_Syntax_node2(x_33, x_642, x_628, x_641);
+x_643 = l_Lean_Syntax_node3(x_33, x_642, x_628, x_556, x_641);
 lean_inc_n(x_556, 2);
 lean_inc(x_33);
 x_644 = l_Lean_Syntax_node3(x_33, x_545, x_556, x_556, x_643);
@@ -12637,9 +12668,10 @@ lean_ctor_set(x_656, 1, x_655);
 lean_ctor_set(x_656, 2, x_654);
 lean_ctor_set(x_656, 3, x_532);
 lean_inc(x_656);
+lean_inc(x_556);
 lean_inc(x_628);
 lean_inc(x_33);
-x_657 = l_Lean_Syntax_node2(x_33, x_642, x_628, x_656);
+x_657 = l_Lean_Syntax_node3(x_33, x_642, x_628, x_556, x_656);
 lean_inc_n(x_556, 2);
 lean_inc(x_33);
 x_658 = l_Lean_Syntax_node3(x_33, x_545, x_556, x_556, x_657);
@@ -13274,9 +13306,10 @@ lean_ctor_set(x_916, 2, x_914);
 lean_ctor_set(x_916, 3, x_806);
 x_917 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__20;
 lean_inc(x_916);
+lean_inc(x_830);
 lean_inc(x_903);
 lean_inc(x_802);
-x_918 = l_Lean_Syntax_node2(x_802, x_917, x_903, x_916);
+x_918 = l_Lean_Syntax_node3(x_802, x_917, x_903, x_830, x_916);
 lean_inc_n(x_830, 2);
 lean_inc(x_802);
 x_919 = l_Lean_Syntax_node3(x_802, x_819, x_830, x_830, x_918);
@@ -13310,9 +13343,10 @@ lean_ctor_set(x_931, 1, x_930);
 lean_ctor_set(x_931, 2, x_929);
 lean_ctor_set(x_931, 3, x_806);
 lean_inc(x_931);
+lean_inc(x_830);
 lean_inc(x_903);
 lean_inc(x_802);
-x_932 = l_Lean_Syntax_node2(x_802, x_917, x_903, x_931);
+x_932 = l_Lean_Syntax_node3(x_802, x_917, x_903, x_830, x_931);
 lean_inc_n(x_830, 2);
 lean_inc(x_802);
 x_933 = l_Lean_Syntax_node3(x_802, x_819, x_830, x_830, x_932);
@@ -13967,9 +14001,10 @@ lean_ctor_set(x_1196, 2, x_1194);
 lean_ctor_set(x_1196, 3, x_1085);
 x_1197 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__20;
 lean_inc(x_1196);
+lean_inc(x_1109);
 lean_inc(x_1183);
 lean_inc(x_1081);
-x_1198 = l_Lean_Syntax_node2(x_1081, x_1197, x_1183, x_1196);
+x_1198 = l_Lean_Syntax_node3(x_1081, x_1197, x_1183, x_1109, x_1196);
 lean_inc_n(x_1109, 2);
 lean_inc(x_1081);
 x_1199 = l_Lean_Syntax_node3(x_1081, x_1098, x_1109, x_1109, x_1198);
@@ -14003,9 +14038,10 @@ lean_ctor_set(x_1211, 1, x_1210);
 lean_ctor_set(x_1211, 2, x_1209);
 lean_ctor_set(x_1211, 3, x_1085);
 lean_inc(x_1211);
+lean_inc(x_1109);
 lean_inc(x_1183);
 lean_inc(x_1081);
-x_1212 = l_Lean_Syntax_node2(x_1081, x_1197, x_1183, x_1211);
+x_1212 = l_Lean_Syntax_node3(x_1081, x_1197, x_1183, x_1109, x_1211);
 lean_inc_n(x_1109, 2);
 lean_inc(x_1081);
 x_1213 = l_Lean_Syntax_node3(x_1081, x_1098, x_1109, x_1109, x_1212);
@@ -16099,7 +16135,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__1() {
+static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -16107,7 +16143,7 @@ x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_Rpc_Deriving_0__Lean_Se
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__2() {
+static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -16117,27 +16153,27 @@ x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__3() {
+static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__2;
+x_1 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__2;
 x_2 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__30;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__4() {
+static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__3;
+x_1 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__3;
 x_2 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__31;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__5() {
+static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -16145,17 +16181,17 @@ x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__6() {
+static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__4;
-x_2 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__5;
+x_1 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__4;
+x_2 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__5;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__7() {
+static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -16163,37 +16199,37 @@ x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__8() {
+static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__6;
-x_2 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__7;
+x_1 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__6;
+x_2 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__7;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__9() {
+static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__8;
+x_1 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__8;
 x_2 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__4;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__10() {
+static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__9;
+x_1 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__9;
 x_2 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__30;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__11() {
+static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__11() {
 _start:
 {
 lean_object* x_1; 
@@ -16201,27 +16237,27 @@ x_1 = lean_mk_string_unchecked("Rpc", 3, 3);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__12() {
+static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__10;
-x_2 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__11;
+x_1 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__10;
+x_2 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__11;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__13() {
+static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__12;
+x_1 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__12;
 x_2 = l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___closed__2;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__14() {
+static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__14() {
 _start:
 {
 lean_object* x_1; 
@@ -16229,32 +16265,32 @@ x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__15() {
+static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__15() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__13;
-x_2 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__14;
+x_1 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__13;
+x_2 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__14;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__16() {
+static lean_object* _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__16() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__15;
-x_2 = lean_unsigned_to_nat(5002u);
+x_1 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__15;
+x_2 = lean_unsigned_to_nat(5050u);
 x_3 = l_Lean_Name_num___override(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__53;
-x_3 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__1;
+x_3 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__1;
 x_4 = l_Lean_Elab_registerDerivingHandler(x_2, x_3, x_1);
 if (lean_obj_tag(x_4) == 0)
 {
@@ -16264,7 +16300,7 @@ lean_inc(x_5);
 lean_dec(x_4);
 x_6 = l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___closed__3;
 x_7 = 0;
-x_8 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__16;
+x_8 = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__16;
 x_9 = l_Lean_registerTraceClass(x_6, x_7, x_8, x_5);
 return x_9;
 }
@@ -16885,39 +16921,39 @@ l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInstance_
 lean_mark_persistent(l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInstance___closed__1);
 l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInstance___closed__2 = _init_l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInstance___closed__2();
 lean_mark_persistent(l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInstance___closed__2);
-l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__1 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__1();
-lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__1);
-l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__2 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__2();
-lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__2);
-l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__3 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__3();
-lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__3);
-l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__4 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__4();
-lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__4);
-l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__5 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__5();
-lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__5);
-l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__6 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__6();
-lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__6);
-l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__7 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__7();
-lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__7);
-l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__8 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__8();
-lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__8);
-l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__9 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__9();
-lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__9);
-l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__10 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__10();
-lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__10);
-l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__11 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__11();
-lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__11);
-l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__12 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__12();
-lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__12);
-l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__13 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__13();
-lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__13);
-l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__14 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__14();
-lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__14);
-l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__15 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__15();
-lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__15);
-l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__16 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__16();
-lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002____closed__16);
-res = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5002_(lean_io_mk_world());
+l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__1 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__1();
+lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__1);
+l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__2 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__2();
+lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__2);
+l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__3 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__3();
+lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__3);
+l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__4 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__4();
+lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__4);
+l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__5 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__5();
+lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__5);
+l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__6 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__6();
+lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__6);
+l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__7 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__7();
+lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__7);
+l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__8 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__8();
+lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__8);
+l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__9 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__9();
+lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__9);
+l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__10 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__10();
+lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__10);
+l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__11 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__11();
+lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__11);
+l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__12 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__12();
+lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__12);
+l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__13 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__13();
+lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__13);
+l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__14 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__14();
+lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__14);
+l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__15 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__15();
+lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__15);
+l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__16 = _init_l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__16();
+lean_mark_persistent(l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050____closed__16);
+res = l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Deriving___hyg_5050_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -318,12 +318,12 @@ def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
   Id.run <| s.foldM (pure <| ·.push ·) #[]
 
 /-- Returns a task that waits on all snapshots in the tree. -/
-def SnapshotTree.waitAll : SnapshotTree → BaseIO (Task Unit)
+partial def SnapshotTree.waitAll : SnapshotTree → BaseIO (Task Unit)
   | mk _ children => go children.toList
 where
   go : List (SnapshotTask SnapshotTree) → BaseIO (Task Unit)
     | [] => return .pure ()
-    | t::ts => BaseIO.bindTask t.task fun _ => go ts
+    | t::ts => BaseIO.bindTask (sync := true) t.task fun t => go (t.children.toList ++ ts)
 
 /-- Context of an input processing invocation. -/
 structure ProcessingContext extends Parser.InputContext

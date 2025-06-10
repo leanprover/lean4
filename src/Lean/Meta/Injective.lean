@@ -188,6 +188,7 @@ def mkInjectiveTheorems (declName : Name) : MetaM Unit := do
       -- See https://github.com/leanprover/lean4/issues/2188
       withLCtx {} {} do
       for ctor in info.ctors do
+        withExporting (isExporting := !isPrivateName ctor) do
         withTraceNode `Meta.injective (fun _ => return m!"{ctor}") do
           let ctorVal ← getConstInfoCtor ctor
           if ctorVal.numFields > 0 then

@@ -295,11 +295,6 @@ theorem beq_self_eq_true' [DecidableEq α] (a : α) : (a == a) = true := BEq.rfl
 @[simp] theorem bne_self_eq_false [BEq α] [LawfulBEq α] (a : α) : (a != a) = false := by simp [bne]
 theorem bne_self_eq_false' [DecidableEq α] (a : α) : (a != a) = false := by simp
 
-set_option linter.missingDocs false in
-@[deprecated decide_false (since := "2024-11-05")] abbrev decide_False := decide_false
-set_option linter.missingDocs false in
-@[deprecated decide_true  (since := "2024-11-05")] abbrev decide_True  := decide_true
-
 @[simp] theorem bne_iff_ne [BEq α] [LawfulBEq α] {a b : α} : a != b ↔ a ≠ b := by
   simp [bne]; rw [← beq_iff_eq (a := a) (b := b)]; simp [-beq_iff_eq]
 

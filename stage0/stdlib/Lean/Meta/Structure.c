@@ -150,7 +150,6 @@ static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_mkProjections___sp
 static lean_object* l_Lean_Meta_instantiateStructDefaultValueFn_x3f___rarg___lambda__5___closed__3;
 static lean_object* l_Lean_Meta_mkProjections___lambda__5___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_etaStruct_x3f_sameParams___lambda__2(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_etaStructReduce___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_instantiateStructDefaultValueFn_x3f___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instantiateStructDefaultValueFn_x3f___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -224,6 +223,7 @@ static lean_object* l_Lean_Meta_instantiateStructDefaultValueFn_x3f___rarg___lam
 LEAN_EXPORT lean_object* l_Lean_Meta_etaStruct_x3f_getProjectedExpr___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfoInduct___at_Lean_Meta_mkProjections___spec__1___closed__2;
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instantiateStructDefaultValueFn_x3f_go_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_mkProjections___spec__7___boxed(lean_object**);
 extern lean_object* l_Lean_instInhabitedName;
@@ -7282,7 +7282,7 @@ x_2 = l_Lean_Meta_instantiateStructDefaultValueFn_x3f___rarg___lambda__5___close
 x_3 = lean_unsigned_to_nat(200u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Meta_instantiateStructDefaultValueFn_x3f___rarg___lambda__5___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

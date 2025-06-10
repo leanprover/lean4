@@ -20,19 +20,24 @@ inductive AttrKind where
 /-- Return theorem kind for `stx` of the form `Attr.grindThmMod` -/
 def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   match stx with
-  | `(Parser.Attr.grindMod| =) => return .ematch .eqLhs
+  | `(Parser.Attr.grindMod| =) => return .ematch (.eqLhs false)
+  | `(Parser.Attr.grindMod| = gen) => return .ematch (.eqLhs true)
   | `(Parser.Attr.grindMod| →)
   | `(Parser.Attr.grindMod| ->) => return .ematch .fwd
   | `(Parser.Attr.grindMod| ←)
-  | `(Parser.Attr.grindMod| <-) => return .ematch .bwd
-  | `(Parser.Attr.grindMod| =_) => return .ematch .eqRhs
-  | `(Parser.Attr.grindMod| _=_) => return .ematch .eqBoth
+  | `(Parser.Attr.grindMod| <-) => return .ematch (.bwd false)
+  | `(Parser.Attr.grindMod| <- gen) => return .ematch (.bwd true)
+  | `(Parser.Attr.grindMod| =_) => return .ematch (.eqRhs false)
+  | `(Parser.Attr.grindMod| =_ gen) => return .ematch (.eqRhs true)
+  | `(Parser.Attr.grindMod| _=_) => return .ematch (.eqBoth false)
+  | `(Parser.Attr.grindMod| _=_ gen) => return .ematch (.eqBoth true)
   | `(Parser.Attr.grindMod| ←=) => return .ematch .eqBwd
   | `(Parser.Attr.grindMod| ⇒)
   | `(Parser.Attr.grindMod| =>) => return .ematch .leftRight
   | `(Parser.Attr.grindMod| ⇐)
   | `(Parser.Attr.grindMod| <=) => return .ematch .rightLeft
   | `(Parser.Attr.grindMod| usr) => return .ematch .user
+  | `(Parser.Attr.grindMod| gen) => return .ematch (.default true)
   | `(Parser.Attr.grindMod| cases) => return .cases false
   | `(Parser.Attr.grindMod| cases eager) => return .cases true
   | `(Parser.Attr.grindMod| intro) => return .intro
@@ -87,7 +92,7 @@ private def registerGrindAttr (showInfo : Bool) : IO Unit :=
       | .intro =>
         if let some info ← isCasesAttrPredicateCandidate? declName false then
           for ctor in info.ctors do
-            addEMatchAttr ctor attrKind .default (showInfo := showInfo)
+            addEMatchAttr ctor attrKind (.default false) (showInfo := showInfo)
         else
           throwError "invalid `[grind intro]`, `{declName}` is not an inductive predicate"
       | .ext => addExtAttr declName attrKind
@@ -98,9 +103,9 @@ private def registerGrindAttr (showInfo : Bool) : IO Unit :=
             -- If it is an inductive predicate,
             -- we also add the constructors (intro rules) as E-matching rules
             for ctor in info.ctors do
-              addEMatchAttr ctor attrKind .default (showInfo := showInfo)
+              addEMatchAttr ctor attrKind (.default false) (showInfo := showInfo)
         else
-          addEMatchAttr declName attrKind .default (showInfo := showInfo)
+          addEMatchAttr declName attrKind (.default false) (showInfo := showInfo)
     erase := fun declName => MetaM.run' do
       if showInfo then
         throwError "`[grind?]` is a helper attribute for displaying inferred patterns, if you want to remove the attribute, consider using `[grind]` instead"

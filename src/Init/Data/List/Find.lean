@@ -243,9 +243,6 @@ theorem find?_eq_some_iff_append :
           cases h₁
           simp
 
-@[deprecated find?_eq_some_iff_append (since := "2024-11-06")]
-abbrev find?_eq_some := @find?_eq_some_iff_append
-
 @[simp]
 theorem find?_cons_eq_some : (a :: xs).find? p = some b ↔ (p a ∧ a = b) ∨ (!p a ∧ xs.find? p = some b) := by
   rw [find?_cons]

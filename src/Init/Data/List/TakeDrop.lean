@@ -257,6 +257,17 @@ theorem dropLast_eq_take {l : List α} : l.dropLast = l.take (l.length - 1) := b
     dsimp
     rw [map_drop]
 
+theorem drop_eq_extract {l : List α} {k : Nat} :
+    l.drop k = l.extract k := by
+  induction l generalizing k
+  case nil => simp
+  case cons _ _ ih =>
+    match k with
+    | 0 => simp
+    | _ + 1 =>
+      simp only [List.drop_succ_cons, List.length_cons, ih]
+      simp only [List.extract_eq_drop_take, List.drop_succ_cons, Nat.succ_sub_succ]
+
 /-! ### takeWhile and dropWhile -/
 
 theorem takeWhile_cons {p : α → Bool} {a : α} {l : List α} :

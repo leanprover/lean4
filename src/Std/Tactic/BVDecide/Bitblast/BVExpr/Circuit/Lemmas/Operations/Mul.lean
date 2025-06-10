@@ -144,12 +144,10 @@ theorem denote_blast (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
     · omega
     · intro idx hidx
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
-      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
       · simp [hleft]
       · simp [Ref.hgate]
     · intro idx hidx
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
-      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
       · simp [hright]
       · simp [Ref.hgate]
     · intro idx hidx
@@ -161,18 +159,12 @@ theorem denote_blast (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
       split
       · next heq =>
         rw [← hright] at heq
-        · rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
-          rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
-          · simp [heq, hleft]
-          · simp [Ref.hgate]
-          · simp [Ref.hgate]
+        · simp [heq, hleft]
         · omega
       · next heq =>
         simp only [Bool.not_eq_true] at heq
         rw [← hright] at heq
-        · rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
-          · simp [heq]
-          · simp [Ref.hgate]
+        · simp [heq]
         · omega
 
 

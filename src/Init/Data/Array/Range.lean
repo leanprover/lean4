@@ -29,6 +29,7 @@ open Nat
 
 /-! ### range' -/
 
+@[grind _=_]
 theorem range'_succ {s n step} : range' s (n + 1) step = #[s] ++ range' (s + step) n step := by
   rw [← toList_inj]
   simp [List.range'_succ]
@@ -39,16 +40,17 @@ theorem range'_succ {s n step} : range' s (n + 1) step = #[s] ++ range' (s + ste
 theorem range'_ne_empty_iff : range' s n step ≠ #[] ↔ n ≠ 0 := by
   cases n <;> simp
 
-@[simp] theorem range'_zero : range' s 0 step = #[] := by
+@[simp, grind =] theorem range'_zero : range' s 0 step = #[] := by
   simp
 
-@[simp] theorem range'_one {s step : Nat} : range' s 1 step = #[s] := by
+@[simp, grind =] theorem range'_one {s step : Nat} : range' s 1 step = #[s] := by
   simp [range', ofFn, ofFn.go]
 
 @[simp] theorem range'_inj : range' s n = range' s' n' ↔ n = n' ∧ (n = 0 ∨ s = s') := by
   rw [← toList_inj]
   simp [List.range'_inj]
 
+@[grind =]
 theorem mem_range' {n} : m ∈ range' s n step ↔ ∃ i < n, m = s + step * i := by
   simp [range']
   constructor
@@ -57,6 +59,7 @@ theorem mem_range' {n} : m ∈ range' s n step ↔ ∃ i < n, m = s + step * i :
   · rintro ⟨i, w, h'⟩
     exact ⟨⟨i, w⟩, by simp_all⟩
 
+@[simp, grind =]
 theorem pop_range' : (range' s n step).pop = range' s (n - 1) step := by
   ext <;> simp
 
@@ -66,6 +69,7 @@ theorem map_add_range' {a} (s n step) : map (a + ·) (range' s n step) = range' 
 theorem range'_succ_left : range' (s + 1) n step = (range' s n step).map (· + 1) := by
   ext <;> simp <;> omega
 
+@[grind _=_]
 theorem range'_append {s m n step : Nat} :
     range' s m step ++ range' (s + step * m) n step = range' s (m + n) step := by
   ext i h₁ h₂
@@ -77,7 +81,8 @@ theorem range'_append {s m n step : Nat} :
     have : step * m ≤ step * i := by exact mul_le_mul_left step h
     omega
 
-@[simp] theorem range'_append_1 {s m n : Nat} :
+@[simp, grind _=_]
+theorem range'_append_1 {s m n : Nat} :
     range' s m ++ range' (s + m) n = range' s (m + n) := by simpa using range'_append (step := 1)
 
 theorem range'_concat {s n : Nat} : range' s (n + 1) step = range' s n step ++ #[s + step * n] := by
@@ -86,7 +91,7 @@ theorem range'_concat {s n : Nat} : range' s (n + 1) step = range' s n step ++ #
 theorem range'_1_concat {s n : Nat} : range' s (n + 1) = range' s n ++ #[s + n] := by
   simp [range'_concat]
 
-@[simp] theorem mem_range'_1 : m ∈ range' s n ↔ s ≤ m ∧ m < s + n := by
+@[simp, grind =] theorem mem_range'_1 : m ∈ range' s n ↔ s ≤ m ∧ m < s + n := by
   simp [mem_range']; exact ⟨
     fun ⟨i, h, e⟩ => e ▸ ⟨Nat.le_add_right .., Nat.add_lt_add_left h _⟩,
     fun ⟨h₁, h₂⟩ => ⟨m - s, Nat.sub_lt_left_of_lt_add h₁ h₂, (Nat.add_sub_cancel' h₁).symm⟩⟩
@@ -116,6 +121,7 @@ theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs =
   simp only [List.find?_toArray]
   simp
 
+@[grind =]
 theorem erase_range' :
     (range' s n).erase i =
       range' s (min n (i - s)) ++ range' (max s (i + 1)) (min s (i + 1) + n - (i + 1)) := by
@@ -124,6 +130,7 @@ theorem erase_range' :
 
 /-! ### range -/
 
+@[grind _=_]
 theorem range_eq_range' {n : Nat} : range n = range' 0 n := by
   simp [range, range']
 
@@ -145,6 +152,7 @@ theorem range'_eq_map_range {s n : Nat} : range' s n = map (s + ·) (range n) :=
 theorem range_ne_empty_iff {n : Nat} : range n ≠ #[] ↔ n ≠ 0 := by
   cases n <;> simp
 
+@[grind _=_]
 theorem range_succ {n : Nat} : range (succ n) = range n ++ #[n] := by
   ext i h₁ h₂
   · simp
@@ -160,7 +168,7 @@ theorem range_add {n m : Nat} : range (n + m) = range n ++ (range m).map (n + ·
 theorem reverse_range' {s n : Nat} : reverse (range' s n) = map (s + n - 1 - ·) (range n) := by
   simp [← toList_inj, List.reverse_range']
 
-@[simp]
+@[simp, grind =]
 theorem mem_range {m n : Nat} : m ∈ range n ↔ m < n := by
   simp only [range_eq_range', mem_range'_1, Nat.zero_le, true_and, Nat.zero_add]
 
@@ -168,7 +176,7 @@ theorem not_mem_range_self {n : Nat} : n ∉ range n := by simp
 
 theorem self_mem_range_succ {n : Nat} : n ∈ range (n + 1) := by simp
 
-@[simp] theorem take_range {i n : Nat} : take (range n) i = range (min i n) := by
+@[simp, grind =] theorem take_range {i n : Nat} : take (range n) i = range (min i n) := by
   ext <;> simp
 
 @[simp] theorem find?_range_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
@@ -179,6 +187,7 @@ theorem self_mem_range_succ {n : Nat} : n ∈ range (n + 1) := by simp
     (range n).find? p = none ↔ ∀ i, i < n → !p i := by
   simp only [← List.toArray_range, List.find?_toArray, List.find?_range_eq_none]
 
+@[grind =]
 theorem erase_range : (range n).erase i = range (min n i) ++ range' (i + 1) (n - (i + 1)) := by
   simp [range_eq_range', erase_range']
 

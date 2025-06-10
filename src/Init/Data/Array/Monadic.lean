@@ -310,7 +310,7 @@ namespace List
 @[simp] theorem filterM_toArray' [Monad m] [LawfulMonad m] {l : List α} {p : α → m Bool} (w : stop = l.length) :
     l.toArray.filterM p 0 stop = toArray <$> l.filterM p := by
   subst w
-  rw [filterM_toArray]
+  simp [← filterM_toArray]
 
 @[grind =] theorem filterRevM_toArray [Monad m] [LawfulMonad m] {l : List α} {p : α → m Bool} :
     l.toArray.filterRevM p = toArray <$> l.filterRevM p := by
@@ -322,7 +322,7 @@ namespace List
 @[simp] theorem filterRevM_toArray' [Monad m] [LawfulMonad m] {l : List α} {p : α → m Bool} (w : start = l.length) :
     l.toArray.filterRevM p start 0 = toArray <$> l.filterRevM p := by
   subst w
-  rw [filterRevM_toArray]
+  simp [← filterRevM_toArray]
 
 @[grind =] theorem filterMapM_toArray [Monad m] [LawfulMonad m] {l : List α} {f : α → m (Option β)} :
     l.toArray.filterMapM f = toArray <$> l.filterMapM f := by
@@ -340,7 +340,7 @@ namespace List
 @[simp] theorem filterMapM_toArray' [Monad m] [LawfulMonad m] {l : List α} {f : α → m (Option β)} (w : stop = l.length) :
     l.toArray.filterMapM f 0 stop = toArray <$> l.filterMapM f := by
   subst w
-  rw [filterMapM_toArray]
+  simp [← filterMapM_toArray]
 
 @[simp, grind =] theorem flatMapM_toArray [Monad m] [LawfulMonad m] {l : List α} {f : α → m (Array β)} :
     l.toArray.flatMapM f = toArray <$> l.flatMapM (fun a => Array.toList <$> f a) := by

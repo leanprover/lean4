@@ -31,6 +31,15 @@ example : let x := 22; 0 ≤ x := by
   exact Nat.zero_le _
 
 /-!
+Double `*` is not allowd.
+-/
+/-- error: Multiple `*` arguments provided. -/
+#guard_msgs in
+example : let x := 22; 0 ≤ x := by
+  intro x
+  clear_value * *
+
+/-!
 Check that `clear_value` fails if there is no value to clear.
 -/
 /-- error: Hypothesis `x` is not a local definition. -/
@@ -60,23 +69,120 @@ example : let x := 22; 0 ≤ x := by
   clear_value x x
 
 /-!
-Check that `clear_value ... with` creates an equality hypothesis.
+Check that `clear_value (h : x = _)` creates an equality hypothesis.
 -/
 /--
 trace: x : Nat
 h : x = 22
-⊢ 0 ≤ 22
+⊢ 0 ≤ x
 -/
 #guard_msgs in
 example : let x := 22; 0 ≤ x := by
   intro x
-  clear_value x with h
-  rw [h]
+  clear_value (h : x = _)
   trace_state
+  rw [h]
   exact Nat.zero_le _
 
 /-!
-Check `clear_value ... with` with `_`.
+Can use any term that is definitionally equal to the term.
+-/
+/--
+trace: x : Nat
+h : x = 12 + 10
+⊢ 0 ≤ x
+-/
+#guard_msgs in
+example : let x := 22; 0 ≤ x := by
+  intro x
+  clear_value (h : x = 12 + 10)
+  trace_state
+  rw [h]
+  exact Nat.zero_le _
+
+/-!
+There is no restriction on the value, except that it can't depend on the values being cleared.
+-/
+/--
+trace: x : Nat
+h : x = x
+⊢ 0 ≤ x
+-/
+#guard_msgs in
+example : let x := 22; 0 ≤ x := by
+  intro x
+  clear_value (h : x = x)
+  trace_state
+  rw [h]
+  exact Nat.zero_le _
+
+/-!
+Failure because it depends on the value.
+-/
+/--
+error: Tactic `clear_value` failed, the value of `x` cannot be cleared.
+x : Nat := 22
+h : x = 22 + ↑0
+⊢ 0 ≤ x
+-/
+#guard_msgs in
+example : let x := 22; 0 ≤ x := by
+  intro x
+  clear_value (h : x = 22 + (0 : Fin x))
+  trace_state
+  rw [h]
+  exact Nat.zero_le _
+
+/-!
+Unifies the term.
+-/
+/--
+trace: x : Nat
+h : x = id 22
+⊢ 0 ≤ x
+-/
+#guard_msgs in
+example : let x := 22; 0 ≤ x := by
+  intro x
+  clear_value (h : x = id _)
+  trace_state
+  rw [h]
+  exact Nat.zero_le _
+
+/-!
+Error if provided term is not defeq.
+-/
+/--
+error: Provided term
+  23
+is not definitionally equal to
+  x := 22
+-/
+#guard_msgs in
+example : let x := 22; 0 ≤ x := by
+  intro x
+  clear_value (h : x = 23)
+
+/-!
+Error if unification does not solve all metavariables.
+-/
+/--
+error: don't know how to synthesize placeholder for argument 'e'
+context:
+x : Nat := ⋯
+⊢ Nat
+---
+error: unsolved goals
+x : Nat := 22
+⊢ 0 ≤ x
+-/
+#guard_msgs in
+example : let x := 22; 0 ≤ x := by
+  intro x
+  clear_value (h : x = if True then _ else _)
+
+/-!
+Check `clear_value` with `_` for binder for equality hypothesis.
 -/
 /--
 trace: x : Nat
@@ -86,19 +192,10 @@ h✝ : x = 22
 #guard_msgs in
 example : let x := 22; 0 ≤ x := by
   intro x
-  clear_value x with _
+  clear_value (_ : x = _)
   rw [‹x = 22›]
   trace_state
   exact Nat.zero_le _
-
-/-!
-Check `clear_value ... with` with too many `with` binders.
--/
-/-- error: Too many binders provided. -/
-#guard_msgs in
-example : let x := 22; 0 ≤ x := by
-  intro x
-  clear_value x with h1 h2
 
 /-!
 Check that `clear_value` checks for type correctness.
@@ -219,22 +316,12 @@ example : let α := Nat; let x : α := 1; @Eq α x 1 := by
   clear_value *
 
 /-!
-Can use `with` clause with `*` so long as it's paired with a local.
+Can use `*` along with `(h : x = _)`.
 -/
 #guard_msgs in
 example : let α := Nat; let x : α := 1; @Eq α x 1 := by
   intro α x
-  clear_value x * with h
-  exact h
-
-/-!
-Can't use `with` with `*` directly.
--/
-/-- error: When using `*`, no binder may be provided for it. -/
-#guard_msgs in
-example : let α := Nat; let x : α := 1; @Eq α x 1 := by
-  intro α x
-  clear_value * with h
+  clear_value (h : x = _) *
   exact h
 
 /-!
@@ -251,7 +338,7 @@ has `val` as a let binding, the value is still being passed in (the types are *n
 that `val` is defeq to the expected `val`!)
 
 In this case, we can fix the issue by making sure to instantiate metavariables before running
-`isTypecorrect`.
+`isTypeCorrect`.
 -/
 example : True := by
   let val := 22

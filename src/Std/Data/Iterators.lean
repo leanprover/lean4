@@ -7,8 +7,10 @@ prelude
 import Std.Data.Iterators.Basic
 import Std.Data.Iterators.Producers
 import Std.Data.Iterators.Consumers
-import Std.Data.Iterators.Internal
+import Std.Data.Iterators.Combinators
 import Std.Data.Iterators.Lemmas
+import Std.Data.Iterators.PostConditionMonad
+import Std.Data.Iterators.Internal
 
 /-!
 # Iterators
@@ -94,6 +96,8 @@ All of the following module names are prefixed with `Std.Data.Iterators`.
 ### Verification API
 
 `Lemmas` provides the means to verify programs that use iterators.
+
+In particular, `Lemmas.Equivalence` develops the theory of equivalences of iterators.
 
 ### Implementation details
 

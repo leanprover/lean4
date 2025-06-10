@@ -58,21 +58,37 @@ private def getPowFn (type : Expr) (u : Level) (semiringInst : Expr) : GoalM Exp
   internalizeFn <| mkApp4 (mkConst ``HPow.hPow [u, 0, u]) type Nat.mkType type inst
 
 private def getIntCastFn (type : Expr) (u : Level) (ringInst : Expr) : GoalM Expr := do
-  let instType := mkApp (mkConst ``IntCast [u]) type
-  let .some inst ← trySynthInstance instType |
-    throwError "failed to find instance for ring intCast{indentExpr instType}"
   let inst' := mkApp2 (mkConst ``Grind.Ring.intCast [u]) type ringInst
-  unless (← withDefault <| isDefEq inst inst') do
-    throwError "instance for intCast{indentExpr inst}\nis not definitionally equal to the `Grind.Ring` one{indentExpr inst'}"
+  let instType := mkApp (mkConst ``IntCast [u]) type
+  -- Note that `Ring.intCast` is not registered as a global instance
+  -- (to avoid introducing unwanted coercions)
+  -- so merely having a `Ring α` instance
+  -- does not guarantee that an `IntCast α` will be available.
+  -- When both are present we verify that they are defeq,
+  -- and otherwise fall back to the field of the `Ring α` instance that we already have.
+  let inst ← match (← trySynthInstance instType).toOption with
+  | none => pure inst'
+  | some inst =>
+    unless (← withDefault <| isDefEq inst inst') do
+      throwError "instance for intCast{indentExpr inst}\nis not definitionally equal to the `Grind.Ring` one{indentExpr inst'}"
+    pure inst
   internalizeFn <| mkApp2 (mkConst ``IntCast.intCast [u]) type inst
 
 private def getNatCastFn (type : Expr) (u : Level) (semiringInst : Expr) : GoalM Expr := do
-  let instType := mkApp (mkConst ``NatCast [u]) type
-  let .some inst ← trySynthInstance instType |
-    throwError "failed to find instance for ring natCast{indentExpr instType}"
   let inst' := mkApp2 (mkConst ``Grind.Semiring.natCast [u]) type semiringInst
-  unless (← withDefault <| isDefEq inst inst') do
-    throwError "instance for natCast{indentExpr inst}\nis not definitionally equal to the `Grind.Semiring` one{indentExpr inst'}"
+  let instType := mkApp (mkConst ``NatCast [u]) type
+  -- Note that `Semiring.natCast` is not registered as a global instance
+  -- (to avoid introducing unwanted coercions)
+  -- so merely having a `Semiring α` instance
+  -- does not guarantee that an `NatCast α` will be available.
+  -- When both are present we verify that they are defeq,
+  -- and otherwise fall back to the field of the `Semiring α` instance that we already have.
+  let inst ← match (← trySynthInstance instType).toOption with
+  | none => pure inst'
+  | some inst =>
+    unless (← withDefault <| isDefEq inst inst') do
+      throwError "instance for natCast{indentExpr inst}\nis not definitionally equal to the `Grind.Semiring` one{indentExpr inst'}"
+    pure inst
   internalizeFn <| mkApp2 (mkConst ``NatCast.natCast [u]) type inst
 
 /--

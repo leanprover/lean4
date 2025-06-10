@@ -22,6 +22,7 @@ to apply `f`.
 
 We replace this at runtime with a more efficient version via the `csimp` lemma `pmap_eq_pmapImpl`.
 -/
+@[expose]
 def pmap {P : α → Prop} (f : ∀ a, P a → β) (xs : Vector α n) (H : ∀ a ∈ xs, P a) : Vector β n :=
   Vector.mk (xs.toArray.pmap f (fun a m => H a (by simpa using m))) (by simp)
 
@@ -34,13 +35,13 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
 
 /-- `O(1)`. "Attach" a proof `P x` that holds for all the elements of `xs` to produce a new array
   with the same elements but in the type `{x // P x}`. -/
-@[implemented_by attachWithImpl] def attachWith
+@[implemented_by attachWithImpl, expose] def attachWith
     (xs : Vector α n) (P : α → Prop) (H : ∀ x ∈ xs, P x) : Vector {x // P x} n :=
   Vector.mk (xs.toArray.attachWith P fun x h => H x (by simpa using h)) (by simp)
 
 /-- `O(1)`. "Attach" the proof that the elements of `xs` are in `xs` to produce a new vector
   with the same elements but in the type `{x // x ∈ xs}`. -/
-@[inline] def attach (xs : Vector α n) : Vector {x // x ∈ xs} n := xs.attachWith _ fun _ => id
+@[inline, expose] def attach (xs : Vector α n) : Vector {x // x ∈ xs} n := xs.attachWith _ fun _ => id
 
 @[simp] theorem attachWith_mk {xs : Array α} {h : xs.size = n} {P : α → Prop} {H : ∀ x ∈ mk xs h, P x} :
     (mk xs h).attachWith P H = mk (xs.attachWith P (by simpa using H)) (by simpa using h) := by

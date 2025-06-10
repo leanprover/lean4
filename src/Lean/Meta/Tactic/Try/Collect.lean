@@ -111,7 +111,7 @@ def saveLibSearchCandidates (e : Expr) : M Unit := do
     for (declName, declMod) in (← libSearchFindDecls e) do
       unless (← Grind.isEMatchTheorem declName) do
         let kind := match declMod with
-          | .none => .default
+          | .none => (.default false)
           | .mp => .leftRight
           | .mpr => .rightLeft
         modify fun s => { s with libSearchResults := s.libSearchResults.insert (declName, kind) }

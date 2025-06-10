@@ -6,7 +6,7 @@ open Lean Meta
 The following should not deadlock: The `simp` tactic should be able to use `a_eq_b` even before
 that theorem body is evaluated.
 
-TODO: Does't work any more with the rfl extension being .async, as that waits for the body to be
+TODO: Doesn't work any more with the rfl extension being .async, as that waits for the body to be
 evaluated.
 -/
 

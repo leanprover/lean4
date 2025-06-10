@@ -31,7 +31,7 @@ example : let x := 22; 0 ≤ x := by
   exact Nat.zero_le _
 
 /-!
-Double `*` is not allowd.
+Double `*` is not allowed.
 -/
 /-- error: Multiple `*` arguments provided. -/
 #guard_msgs in

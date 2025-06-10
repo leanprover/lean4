@@ -1859,7 +1859,7 @@ partial def importModulesCore
     ImportStateM Unit := go imports (importAll := true) (isExported := isModule)
 /-
 When the module system is disabled for the root, we import all transitively referenced modules and
-ignore any module sytem annotations on the way.
+ignore any module system annotations on the way.
 
 When the module system is enabled for the root, each module may need to be imported at one of the
 following levels:

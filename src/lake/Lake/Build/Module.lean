@@ -221,9 +221,9 @@ def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob 
     headerJob.bindM fun header => do
       let artsJobMap : NameMap (Job ModuleArtifacts) := {}
       /-
-      Remark: Errrors in the transitive import graph will prevent downstream builds.
+      Remark: Errors in the transitive import graph will prevent downstream builds.
       Thus, we fetch the direct import artifacts first so they can still potentially
-      succeed even if the overall graph is erronous.
+      succeed even if the overall graph is erroneous.
       -/
       let artsJobMap ← header.imports.foldlM (init := artsJobMap) fun s imp => do
         if s.contains imp.module then

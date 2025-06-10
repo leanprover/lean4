@@ -13,6 +13,9 @@ open System Lean
 
 namespace Lake
 
+-- 2025-06-08: `LeanOption` was moved to the `Lean` namespace
+export Lean (LeanOption)
+
 /--
 Lake equivalent of CMake's
 [`CMAKE_BUILD_TYPE`](https://stackoverflow.com/a/59314670).

@@ -26,7 +26,7 @@ can be found in `Std.Data.Internal.Lemmas`.
 set_option autoImplicit false
 set_option linter.all true
 
-universe u v w
+universe u v w w'
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w}
 private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
@@ -1271,7 +1271,7 @@ theorem valuesArray_eq_toArray_map {β : Type v} {t : Impl α β} :
 ### forM
 -/
 
-theorem forM_eq_forM {t: Impl α β} {m : Type w → Type w} [Monad m] [LawfulMonad m]
+theorem forM_eq_forM {t : Impl α β} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {f : (a : α) → β a → m PUnit} :
     t.forM f = t.toListModel.forM (fun a => f a.1 a.2) := by
   simp only [Impl.forM, foldlM_eq_foldlM_toListModel]
@@ -1283,7 +1283,7 @@ theorem forM_eq_forM {t: Impl α β} {m : Type w → Type w} [Monad m] [LawfulMo
 ### forIn
 -/
 
-theorem forInStep_eq_foldlM {δ : Type w} {t : Impl α β} {m : Type w → Type w} [Monad m] [LawfulMonad m]
+theorem forInStep_eq_foldlM {δ : Type w} {t : Impl α β} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {f : (a : α) → β a → δ → m (ForInStep δ)} {init : δ} :
     t.forInStep f init = t.foldlM (init := .yield init) fun
       | .yield d => fun k v => f k v d
@@ -1310,7 +1310,7 @@ theorem forInStep_eq_foldlM {δ : Type w} {t : Impl α β} {m : Type w → Type 
       induction r <;> simp [foldlM, *]
 
 
-theorem forIn_eq_forIn_toListModel {δ : Type w} {t : Impl α β} {m : Type w → Type w} [Monad m] [LawfulMonad m]
+theorem forIn_eq_forIn_toListModel {δ : Type w} {t : Impl α β} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {f : (a : α) → β a → δ → m (ForInStep δ)} {init : δ} :
     t.forIn f init = ForIn.forIn t.toListModel init (fun a d => f a.1 a.2 d) := by
   rw [Impl.forIn, forInStep_eq_foldlM, List.forIn_eq_foldlM, foldlM_eq_foldlM_toListModel]

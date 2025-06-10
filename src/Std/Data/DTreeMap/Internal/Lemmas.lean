@@ -20,7 +20,7 @@ set_option autoImplicit false
 open Std.Internal.List
 open Std.Internal
 
-universe u v w
+universe u v w w'
 
 namespace Std.DTreeMap.Internal.Impl
 
@@ -1682,7 +1682,7 @@ end Const
 
 section monadic
 
-variable {t : Impl α β} {δ : Type w} {m : Type w → Type w}
+variable {t : Impl α β} {δ : Type w} {m : Type w → Type w'}
 
 theorem foldlM_eq_foldlM_toList [Monad m] [LawfulMonad m]
     {f : δ → (a : α) → β a → m δ} {init : δ} :
@@ -6026,7 +6026,7 @@ end Max
 
 namespace Equiv
 
-variable {t₁ t₂ t₃ t₄ : Impl α β} {δ : Type w} {m : Type w → Type w}
+variable {t₁ t₂ t₃ t₄ : Impl α β} {δ : Type w} {m : Type w → Type w'}
 
 @[refl, simp] theorem rfl : Equiv t t := ⟨.rfl⟩
 
@@ -6681,6 +6681,19 @@ theorem constInsertMany!_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h
     {l : List (α × β)} :
     (Const.insertMany! t₁ l).1 ~m (Const.insertMany! t₂ l).1 := by
   simpa only [Const.insertMany_eq_insertMany!] using h.constInsertMany_list h₁ h₂
+
+theorem constInsertManyIfNewUnit_list [TransOrd α] {t₁ t₂ : Impl α Unit}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {l : List α} :
+    (Const.insertManyIfNewUnit t₁ l h₁.balanced).1 ~m (Const.insertManyIfNewUnit t₂ l h₂.balanced).1 := by
+  simp only [Const.insertManyIfNewUnit_eq_foldl]
+  refine (List.foldl_rel (r := fun a b : Impl α Unit => a.WF ∧ b.WF ∧ a ~m b) ⟨h₁, h₂, h⟩ ?_).2.2
+  intro a ha c c' hc
+  refine ⟨hc.1.insertIfNew!, hc.2.1.insertIfNew!, hc.2.2.insertIfNew! hc.1 hc.2.1⟩
+
+theorem constInsertManyIfNewUnit!_list [TransOrd α] {t₁ t₂ : Impl α Unit}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {l : List α} :
+    (Const.insertManyIfNewUnit! t₁ l).1 ~m (Const.insertManyIfNewUnit! t₂ l).1 := by
+  simpa only [Const.insertManyIfNewUnit_eq_insertManyIfNewUnit!] using h.constInsertManyIfNewUnit_list h₁ h₂
 
 theorem constMergeWith [TransOrd α]
     (h : t₁ ~m t₂) (h' : t₃ ~m t₄)

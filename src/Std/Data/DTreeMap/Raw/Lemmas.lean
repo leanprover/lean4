@@ -6,6 +6,7 @@ Authors: Markus Himmel, Paul Reichert
 prelude
 import Std.Data.DTreeMap.Internal.Lemmas
 import Std.Data.DTreeMap.Raw.Basic
+import Std.Data.DTreeMap.Raw.AdditionalOperations
 
 /-!
 # Dependent tree map lemmas
@@ -20,7 +21,7 @@ set_option autoImplicit false
 
 open Std.DTreeMap.Internal
 
-universe u v w
+universe u v w w'
 
 namespace Std.DTreeMap.Raw
 
@@ -1164,7 +1165,7 @@ end Const
 
 section monadic
 
-variable {δ : Type w} {m : Type w → Type w}
+variable {δ : Type w} {m : Type w → Type w'}
 
 theorem foldlM_eq_foldlM_toList [Monad m] [LawfulMonad m] {f : δ → (a : α) → β a → m δ} {init : δ} :
     t.foldlM f init = t.toList.foldlM (fun a b => f a b.1 b.2) init :=
@@ -3943,7 +3944,7 @@ end Max
 
 namespace Equiv
 
-variable {t₁ t₂ t₃ t₄ : Raw α β cmp} {δ : Type w} {m : Type w → Type w}
+variable {t₁ t₂ t₃ t₄ : Raw α β cmp} {δ : Type w} {m : Type w → Type w'}
 
 @[refl, simp] theorem rfl : Equiv t t := ⟨.rfl⟩
 
@@ -4043,14 +4044,22 @@ theorem foldr_eq [TransCmp cmp] {f : (a : α) → β a → δ → δ} {init : δ
   h.1.foldr_eq h₁.1 h₂.1
 
 theorem forIn_eq [TransCmp cmp] [Monad m] [LawfulMonad m]
-    {f : (a : α) → β a → δ → m (ForInStep δ)} {init : δ} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
-    t₁.forIn f init = t₂.forIn f init :=
+    {b : δ} {f : (a : α) × β a → δ → m (ForInStep δ)} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    ForIn.forIn t₁ b f = ForIn.forIn t₂ b f :=
   h.1.forIn_eq h₁.1 h₂.1
 
-theorem forM_eq [TransCmp cmp] [Monad m] [LawfulMonad m] {f : (a : α) → β a → m PUnit}
+theorem forM_eq [TransCmp cmp] [Monad m] [LawfulMonad m] {f : (a : α) × β a → m PUnit}
     (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
-    t₁.forM f = t₂.forM f :=
+    ForM.forM t₁ f = ForM.forM t₂ f :=
   h.1.forM_eq h₁.1 h₂.1
+
+theorem any_eq [TransCmp cmp] {p : (a : α) → β a → Bool} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.any p = t₂.any p := by
+  simp only [any, h.forIn_eq h₁ h₂]
+
+theorem all_eq [TransCmp cmp] {p : (a : α) → β a → Bool} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.all p = t₂.all p := by
+  simp only [all, h.forIn_eq h₁ h₂]
 
 theorem minKey?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.minKey? = t₂.minKey? :=
@@ -4245,6 +4254,14 @@ theorem filter (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (f : (a : α
     t₁.filter f ~m t₂.filter f :=
   ⟨h.1.filter! h₁.1 h₂.1⟩
 
+theorem map (h : t₁ ~m t₂) (f : (a : α) → β a → γ a) :
+    t₁.map f ~m t₂.map f :=
+  ⟨h.1.map⟩
+
+theorem filterMap  (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (f : (a : α) → β a → Option (γ a)) :
+    t₁.filterMap f ~m t₂.filterMap f :=
+  ⟨h.1.filterMap! h₁.1 h₂.1⟩
+
 theorem insertMany_list [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     (l : List ((a : α) × β a)) : t₁.insertMany l ~m t₂.insertMany l :=
   ⟨h.1.insertMany!_list h₁.1 h₂.1⟩
@@ -4263,7 +4280,7 @@ theorem mergeWith [TransCmp cmp] [LawfulEqCmp cmp]
 
 section Const
 
-variable (β : Type v) {t₁ t₂ t₃ t₄ : Raw α β cmp} (δ : Type w) (m : Type w → Type w)
+variable {β : Type v} {t₁ t₂ t₃ t₄ : Raw α β cmp} (δ : Type w) (m : Type w → Type w)
 
 theorem constGet?_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     Const.get? t₁ k = Const.get? t₂ k :=
@@ -4393,6 +4410,11 @@ theorem constInsertMany_list [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h
     (l : List (α × β)) : Const.insertMany t₁ l ~m Const.insertMany t₂ l :=
   ⟨h.1.constInsertMany!_list h₁.1 h₂.1⟩
 
+theorem constInsertManyIfNewUnit_list [TransCmp cmp] {t₁ t₂ : Raw α Unit cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (l : List α) :
+    Const.insertManyIfNewUnit t₁ l ~m Const.insertManyIfNewUnit t₂ l :=
+  ⟨h.1.constInsertManyIfNewUnit!_list h₁.1 h₂.1⟩
+
 theorem constMergeWith [TransCmp cmp]
     (h₁ : t₁.WF) (h₂ : t₂.WF)
     (h₃ : t₃.WF) (h₄ : t₄.WF)
@@ -4411,7 +4433,7 @@ theorem of_forall_get?_eq [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : t₁.WF) (h�
 
 section Const
 
-variable (β : Type v) {t₁ t₂ : Raw α β cmp}
+variable {β : Type v} {t₁ t₂ : Raw α β cmp}
 
 theorem of_forall_getKey_eq_of_forall_constGet?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
     (hk : ∀ k hk hk', t₁.getKey k hk = t₂.getKey k hk')

@@ -1,0 +1,134 @@
+/-!
+# Testing the new behavior of the `show` tactic
+
+Implemented in PR #7395.
+-/
+
+/-!
+`show` can change a single goal to a definitionally equivalent one.
+-/
+
+/--
+error: unsolved goals
+x : Nat
+⊢ x - 0 = 3 - 3
+-/
+#guard_msgs in
+example : x = 0 := by
+  show x - 0 = 3 - 3
+
+/-!
+`show` on a single goal fails if the pattern is not defeq to the target.
+-/
+
+/--
+error: 'show' tactic failed, pattern
+  x = 1
+is not definitionally equal to target
+  x = 0
+-/
+#guard_msgs in
+example : x = 0 := by
+  show x = 1
+
+/-!
+`show` on multiple goals picks the first that matches.
+-/
+
+/--
+error: unsolved goals
+case refine_2
+x : Nat
+⊢ x = 1
+
+case refine_1
+x : Nat
+⊢ x = 0
+-/
+#guard_msgs in
+example : x = 0 ∧ x = 1 := by
+  and_intros
+  show _ = 1
+
+/-!
+The matching goal is moved to the front and the order of the others is preserved.
+-/
+
+/--
+error: unsolved goals
+case refine_2.refine_2.refine_1
+x : Nat
+⊢ x = 2
+
+case refine_1
+x : Nat
+⊢ x = 0
+
+case refine_2.refine_1
+x : Nat
+⊢ x = 1
+
+case refine_2.refine_2.refine_2
+x : Nat
+⊢ x = 3
+-/
+#guard_msgs in
+example : x = 0 ∧ x = 1 ∧ x = 2 ∧ x = 3 := by
+  and_intros
+  show _ = 2
+
+/-!
+The goals before the last one are elaborated without error recovery.
+-/
+
+/--
+error: unsolved goals
+case refine_2
+a : Unit
+⊢ a = ()
+
+case refine_1
+⊢ () = ()
+-/
+#guard_msgs in
+example : () = () ∧ (∀ a, a = ()) := by
+  and_intros; all_goals try intro a
+  show a = _
+
+/-!
+The last goal is elaborated with error recovery.
+-/
+
+/--
+error: unknown identifier 'a'
+---
+error: unsolved goals
+case refine_2
+⊢ sorry = ()
+
+case refine_1
+⊢ () = ()
+-/
+#guard_msgs in
+example : () = () ∧ () = () := by
+  and_intros
+  show a = _
+
+/-!
+If all unifications fail, the error is from the last goal.
+-/
+
+/--
+error: 'show' tactic failed, pattern
+  x = 4
+is not definitionally equal to target
+  x = 3
+-/
+#guard_msgs in
+example : x = 1 ∧ x = 2 ∧ x = 3 := by
+  and_intros
+  show x = 4
+
+/-!
+There is only one elaboration info for the pattern.
+-/

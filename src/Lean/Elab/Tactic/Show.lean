@@ -22,7 +22,7 @@ where
   go (newType : Term) (goal : MVarId) (goals : List MVarId) (prevRev : List MVarId) : TacticM Unit := do
     match goals with
     | [] => tryGoal newType goal [] prevRev -- last goal
-    | x :: l' =>
+    | nextGoal :: remainingGoals =>
       /-
       Save state manually to make sure that the info state is reverted,
       since `elabChange` elaborates the pattern each time.
@@ -32,7 +32,7 @@ where
         (withoutRecover (tryGoal newType goal goals prevRev))
         fun _ => do
           state.restore true
-          go newType x l' (goal :: goals)
+          go newType nextGoal remainingGoals (goal :: prevRev)
   tryGoal (newType : Term) (goal : MVarId) (goals : List MVarId) (prevRev : List MVarId) : TacticM Unit := do
     let type ← goal.getType
     let tag ← goal.getTag

@@ -130,5 +130,24 @@ example : x = 1 ∧ x = 2 ∧ x = 3 := by
   show x = 4
 
 /-!
-There is only one elaboration info for the pattern.
+`show` also works when a mentioned variable only exists in some goals.
 -/
+
+/--
+error: unsolved goals
+case refine_2.refine_2
+c : Nat
+⊢ c = 1
+
+case refine_1
+a : Nat
+⊢ a = 1
+
+case refine_2.refine_1
+b : Nat
+⊢ b = 1
+-/
+#guard_msgs in
+example : (∀ a, a = 1) ∧ (∀ b, b = 1) ∧ (∀ c, c = 1) := by
+  and_intros; all_goals unhygienic intro
+  show c = _

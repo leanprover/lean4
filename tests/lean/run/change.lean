@@ -140,6 +140,11 @@ Fails, type hint can't hint enough since `.some _` is postponed.
 /--
 error: invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant
   ?_
+---
+error: 'change' tactic failed, pattern
+  ?_ = sorry
+is not definitionally equal to target
+  some true = Option.map id (some true)
 -/
 #guard_msgs in example : some true = (some true).map id := by
   change _ = .some _

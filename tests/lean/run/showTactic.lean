@@ -115,7 +115,8 @@ example : () = () ∧ () = () := by
   show a = _
 
 /-!
-If all unifications fail, the error is from the last goal.
+If all unifications fail, the error is from the last goal with a mention that the previous goals
+also weren't defeq.
 -/
 
 /--
@@ -123,6 +124,7 @@ error: 'show' tactic failed, pattern
   x = 4
 is not definitionally equal to target
   x = 3
+or the type of any other goal
 -/
 #guard_msgs in
 example : x = 1 ∧ x = 2 ∧ x = 3 := by

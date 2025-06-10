@@ -57,7 +57,7 @@ def setupFile
   if configFile.toString.isEmpty then
     exit noConfigFileCode
   else if configFile == path then do
-    let header ← header?.getDM <|
+    let header ← header?.getDM do
       Lean.parseImports' (← IO.FS.readFile path) leanFile.toString
     let setup : ModuleSetup := {
       name := configModuleName

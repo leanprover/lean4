@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
-import Lean.Util.Paths
 import Lake.Config.FacetConfig
 import Lake.Config.TargetConfig
 import Lake.Config.Env

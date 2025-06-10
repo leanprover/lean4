@@ -38,8 +38,7 @@ partial def runLakeSetupFile
   }
   let lakeProc ← Process.spawn spawnArgs
   let (stdin, lakeProc) ← lakeProc.takeStdin
-  stdin.putStr (toJson header).compress
-  stdin.putStr "\n"
+  stdin.putStrLn (toJson header).compress
 
   let rec processStderr (acc : String) : IO String := do
     let line ← lakeProc.stderr.getLine

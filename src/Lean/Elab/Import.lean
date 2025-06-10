@@ -5,7 +5,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Lean.Parser.Module
-import Lean.Util.Paths
 import Lean.CoreM
 
 namespace Lean.Elab

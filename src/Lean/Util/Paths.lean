@@ -14,6 +14,8 @@ namespace Lean
 
 open System
 
+set_option linter.deprecated false in
+@[deprecated "Deprecated without replacement." (since := "2025-06-29")]
 structure LeanPaths where
   oleanPath       : SearchPath
   srcPath         : SearchPath

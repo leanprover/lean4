@@ -14,7 +14,6 @@ import Lean.Environment
 import Lean.Data.Lsp
 import Lean.Data.Json.FromToJson
 
-import Lean.Util.FileSetupInfo
 import Lean.LoadDynlib
 import Lean.Language.Lean
 
@@ -372,7 +371,7 @@ def setupImports
     (doc         : DocumentMeta)
     (cmdlineOpts : Options)
     (chanOut     : Std.Channel JsonRpc.Message)
-    (stx         : TSyntax ``Parser.Module.header)
+    (stx         : Elab.HeaderSyntax)
     : Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot SetupImportsResult) := do
   let importsAlreadyLoaded ← importsLoadedRef.modifyGet ((·, true))
   if importsAlreadyLoaded then
@@ -385,8 +384,7 @@ def setupImports
     return .error { diagnostics := .empty, result? := none }
 
   chanOut.sync.send <| mkInitialIleanInfoUpdateNotification doc <| collectImports stx
-  let imports := Elab.headerToImports stx
-  let fileSetupResult ← setupFile doc imports fun stderrLine => do
+  let fileSetupResult ← setupFile doc stx.toModuleHeader fun stderrLine => do
     let progressDiagnostic := {
       range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
       -- make progress visible anywhere in the file
@@ -412,8 +410,10 @@ def setupImports
     }
   | _ => pure ()
 
+  let setup := fileSetupResult.setup
+
   -- override cmdline options with file options
-  let opts := cmdlineOpts.mergeBy (fun _ _ fileOpt => fileOpt) fileSetupResult.fileOptions
+  let opts := cmdlineOpts.mergeBy (fun _ _ fileOpt => fileOpt) setup.options.toOptions
 
   -- default to async elaboration; see also `Elab.async` docs
   let opts := Elab.async.setIfNotSet opts true
@@ -422,10 +422,11 @@ def setupImports
 
   return .ok {
     mainModuleName := doc.mod
-    isModule := Elab.HeaderSyntax.isModule stx
-    imports
+    isModule := setup.isModule
+    imports := setup.imports
     opts
-    plugins := fileSetupResult.plugins
+    modules := setup.modules
+    plugins := setup.plugins
   }
 
 /- Worker initialization sequence. -/

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Basic
-// Imports: Init.Core Init.Classical Init.NotationExtra Init.TacticsExtra
+// Imports: Init.Core Init.Classical Init.Ext Init.NotationExtra Init.TacticsExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1983,6 +1983,7 @@ return x_36;
 }
 lean_object* initialize_Init_Core(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Classical(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Ext(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_NotationExtra(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_TacticsExtra(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -1994,6 +1995,9 @@ res = initialize_Init_Core(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Classical(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Ext(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_NotationExtra(builtin, lean_io_mk_world());

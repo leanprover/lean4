@@ -95,7 +95,8 @@ structure Thunk (α : Type u) : Type u where
   -/
   mk ::
   /-- Extract the getter function out of a thunk. Use `Thunk.get` instead. -/
-  private fn : Unit → α
+  -- The field is public so as to allow computation through it.
+  fn : Unit → α
 
 attribute [extern "lean_mk_thunk"] Thunk.mk
 
@@ -116,6 +117,10 @@ Computed values are cached, so the value is not recomputed.
 -- NOTE: we use `Thunk.get` instead of `Thunk.fn` as the accessor primitive as the latter has an additional `Unit` argument
 @[extern "lean_thunk_get_own"] protected def Thunk.get (x : @& Thunk α) : α :=
   x.fn ()
+
+-- Ensure `Thunk.fn` is still computable even if it shouldn't be accessed directly.
+@[inline] private def Thunk.fnImpl (x : Thunk α) : Unit → α := fun _ => x.get
+@[csimp] private theorem Thunk.fn_eq_fnImpl : @Thunk.fn = @Thunk.fnImpl := rfl
 
 /--
 Constructs a new thunk that forces `x` and then applies `x` to the result. Upon forcing, the result

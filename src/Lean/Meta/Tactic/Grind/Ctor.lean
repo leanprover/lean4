@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.ProveEq
 
 namespace Lean.Meta.Grind
 
@@ -16,9 +17,9 @@ private partial def propagateInjEqs (eqs : Expr) (proof : Expr) : GoalM Unit := 
     propagateInjEqs left (.proj ``And 0 proof)
     propagateInjEqs right (.proj ``And 1 proof)
   | Eq _ lhs rhs    =>
-    pushEq (← shareCommon lhs) (← shareCommon rhs) proof
+    pushEq (← preprocessLight lhs) (← preprocessLight rhs) proof
   | HEq _ lhs _ rhs =>
-    pushHEq (← shareCommon lhs) (← shareCommon rhs) proof
+    pushHEq (← preprocessLight lhs) (← preprocessLight rhs) proof
   | _ =>
    reportIssue! "unexpected injectivity theorem result type{indentExpr eqs}"
    return ()

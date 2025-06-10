@@ -97,6 +97,8 @@ All of the following module names are prefixed with `Std.Data.Iterators`.
 
 `Lemmas` provides the means to verify programs that use iterators.
 
+In particular, `Lemmas.Equivalence` develops the theory of equivalences of iterators.
+
 ### Implementation details
 
 `Internal` contains code that should not be relied upon because it may change in the future.

@@ -175,15 +175,20 @@ structure Config where
   -/
   zeta := true
   /--
-  When `true` (default: `false`), uses procedure for handling equalities over commutative rings.
+  When `true` (default: `true`), uses procedure for handling equalities over commutative rings.
   -/
-  ring := false
+  ring := true
   ringSteps := 10000
   /--
   When `true` (default: `false`), the commutative ring procedure in `grind` constructs stepwise
   proof terms, instead of a single-step Nullstellensatz certificate
   -/
   ringNull := false
+  /--
+  When `true` (default: `true`), uses procedure for handling linear arithmetic for `IntModule`, and
+  `CommRing`.
+  -/
+  linarith := true
   deriving Inhabited, BEq
 
 end Lean.Grind

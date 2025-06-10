@@ -377,6 +377,7 @@ static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___lamb
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lake_LeanConfig_toToml___spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___lambda__1___closed__90;
 lean_object* l_Lake_PartialBuildKey_toString(lean_object*);
+uint8_t l_Lake_decEqStdVer____x40_Lake_Util_Version___hyg_1022_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___at_Lake___aux__Lake__CLI__Translate__Toml______macroRules__Lake__commandGen__toml__encoders_x25__1___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_PathPatDescr_toToml_x3f___closed__6;
 static lean_object* l_Lake_LeanLibConfig_toToml___closed__12;
@@ -704,7 +705,6 @@ LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml__
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___lambda__1___closed__43;
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at_Lake_PackageConfig_toToml___spec__17___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___at_Lake___aux__Lake__CLI__Translate__Toml______macroRules__Lake__commandGen__toml__encoders_x25__1___spec__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lake_Config_Glob_0__Lake_decEqGlob____x40_Lake_Config_Glob___hyg_207_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_PackageConfig_toToml___spec__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanExeConfig_toToml___spec__11___at_Lake_LeanExeConfig_toToml___spec__12(size_t, size_t, lean_object*);
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lake_PackageConfig_toToml___spec__26(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -762,7 +762,6 @@ static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___lamb
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at_Lake_LeanLibConfig_toToml___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_LeanLibConfig_toToml___closed__6;
 static lean_object* l_Lake___aux__Lake__CLI__Translate__Toml______macroRules__Lake__commandGen__toml__encoders_x25__1___closed__12;
-uint8_t l___private_Lake_Util_Version_0__Lake_decEqStdVer____x40_Lake_Util_Version___hyg_1022_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at_Lake_LeanExeConfig_toToml___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_defaultIrDir;
 static lean_object* l_Lake_LeanLibConfig_toToml___closed__8;
@@ -786,6 +785,7 @@ static size_t l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___at_Lake___
 static lean_object* l_Lake_instToToml_x3fPathPatDescr___closed__1;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Package_mkTomlConfig___spec__8(lean_object*, lean_object*, size_t, size_t, lean_object*);
+uint8_t l_Lake_decEqGlob____x40_Lake_Config_Glob___hyg_207_(lean_object*, lean_object*);
 static lean_object* l_Lake_instInsertFieldOfEncodeFieldOfBEqOfConfigField___rarg___closed__1;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___at_Lake___aux__Lake__CLI__Translate__Toml______macroRules__Lake__commandGen__toml__encoders_x25__1___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_commandGen__toml__encoders_x25____x40_Lake_CLI_Translate_Toml___hyg_1795____closed__5;
@@ -16345,7 +16345,7 @@ x_11 = lean_nat_sub(x_6, x_10);
 lean_dec(x_6);
 x_12 = lean_array_fget(x_4, x_11);
 x_13 = lean_array_fget(x_5, x_11);
-x_14 = l___private_Lake_Config_Glob_0__Lake_decEqGlob____x40_Lake_Config_Glob___hyg_207_(x_12, x_13);
+x_14 = l_Lake_decEqGlob____x40_Lake_Config_Glob___hyg_207_(x_12, x_13);
 lean_dec(x_13);
 lean_dec(x_12);
 if (x_14 == 0)
@@ -23670,7 +23670,7 @@ lean_dec(x_65);
 x_67 = lean_ctor_get(x_2, 17);
 lean_inc(x_67);
 x_68 = l_Lake_PackageConfig_version___proj___elambda__1(x_1, x_2);
-x_69 = l___private_Lake_Util_Version_0__Lake_decEqStdVer____x40_Lake_Util_Version___hyg_1022_(x_67, x_68);
+x_69 = l_Lake_decEqStdVer____x40_Lake_Util_Version___hyg_1022_(x_67, x_68);
 lean_dec(x_68);
 x_70 = lean_ctor_get(x_2, 18);
 lean_inc(x_70);

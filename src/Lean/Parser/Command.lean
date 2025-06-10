@@ -60,6 +60,7 @@ def optNamedPrio := optional namedPrio
 def «private»        := leading_parser "private "
 def «protected»      := leading_parser "protected "
 def visibility       := «private» <|> «protected»
+def «meta»           := leading_parser "meta "
 def «noncomputable»  := leading_parser "noncomputable "
 def «unsafe»         := leading_parser "unsafe "
 def «partial»        := leading_parser "partial "
@@ -82,7 +83,7 @@ such as inductive constructors, structure projections, and `let rec` / `where` d
   optional docComment >>
   optional (Term.«attributes» >> if inline then skip else ppDedent ppLine) >>
   optional visibility >>
-  optional «noncomputable» >>
+  optional («meta» <|> «noncomputable») >>
   optional «unsafe» >>
   optional («partial» <|> «nonrec»)
 /-- `declId` matches `foo` or `foo.{u,v}`: an identifier possibly followed by a list of universe names -/
@@ -498,6 +499,8 @@ See also: `#reduce e` for evaluation by term reduction.
   "#exit"
 @[builtin_command_parser] def print          := leading_parser
   "#print " >> (ident <|> strLit)
+@[builtin_command_parser] def printSig       := leading_parser
+  "#print " >> nonReservedSymbol "sig " >> ident
 @[builtin_command_parser] def printAxioms    := leading_parser
   "#print " >> nonReservedSymbol "axioms " >> ident
 @[builtin_command_parser] def printEqns      := leading_parser
@@ -523,6 +526,9 @@ declaration signatures.
 -/
 @[builtin_command_parser] def withExporting  := leading_parser
   "#with_exporting " >> commandParser
+/-- Debugging command: Prints the result of `Environment.dumpAsyncEnvState`. -/
+@[builtin_command_parser] def dumpAsyncEnvState := leading_parser
+  "#dump_async_env_state"
 @[builtin_command_parser] def «init_quot»    := leading_parser
   "init_quot"
 def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit

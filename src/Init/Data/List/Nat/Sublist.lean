@@ -30,7 +30,7 @@ theorem IsSuffix.getElem {xs ys : List α} (h : xs <:+ ys) {i} (hn : i < xs.leng
   have := h.length_le
   omega
 
-theorem suffix_iff_getElem? : l₁ <:+ l₂ ↔
+theorem suffix_iff_getElem? {l₁ l₂ : List α} : l₁ <:+ l₂ ↔
     l₁.length ≤ l₂.length ∧ ∀ i (h : i < l₁.length), l₂[i + l₂.length - l₁.length]? = some l₁[i] := by
   suffices l₁.length ≤ l₂.length ∧ l₁ <:+ l₂ ↔
       l₁.length ≤ l₂.length ∧ ∀ i (h : i < l₁.length), l₂[i + l₂.length - l₁.length]? = some l₁[i] by
@@ -78,7 +78,7 @@ theorem suffix_iff_getElem {l₁ l₂ : List α} :
     rw [getElem?_eq_getElem]
     simpa using w
 
-theorem infix_iff_getElem? : l₁ <:+: l₂ ↔
+theorem infix_iff_getElem? {l₁ l₂ : List α} : l₁ <:+: l₂ ↔
     ∃ k, l₁.length + k ≤ l₂.length ∧ ∀ i (h : i < l₁.length), l₂[i + k]? = some l₁[i] := by
   constructor
   · intro h

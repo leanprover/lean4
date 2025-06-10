@@ -8,9 +8,10 @@ def foo (n : Nat) : Nat :=
   | .true => n
   | .false => 47
 
+set_option pp.mvars.anonymous false in
 /--
 error: Invalid dotted identifier notation: not supported on type
-  Sort ?u.44
+  Sort _
 -/
 #guard_msgs in
 def foo2 (n : Nat) : Nat :=

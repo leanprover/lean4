@@ -45,7 +45,6 @@ lean_object* l_Lean_Meta_Rewrites_localHypotheses(lean_object*, lean_object*, le
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_Elab_Rewrites_evalExact___closed__1;
 static lean_object* l_Lean_Elab_Rewrites_evalExact___lambda__7___closed__1;
-lean_object* l___private_Init_GetElem_0__List_get_x3fInternal___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Rewrites_evalExact___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_Quotation_withNewLocals___spec__1(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Elab_Rewrites_evalExact___lambda__8___closed__6;
@@ -81,6 +80,7 @@ static lean_object* l_Lean_Elab_Rewrites_evalExact___regBuiltin_Lean_Elab_Rewrit
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Rewrites_evalExact___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
+lean_object* l_List_get_x3fInternal___rarg(lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Rewrites_evalExact___spec__4___closed__2;
 lean_object* l_Lean_reportOutOfHeartbeats(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Rewrites_evalExact___lambda__5___closed__5;
@@ -576,7 +576,7 @@ x_19 = lean_ctor_get(x_17, 1);
 x_20 = lean_ctor_get(x_17, 0);
 lean_dec(x_20);
 x_21 = lean_unsigned_to_nat(0u);
-x_22 = l___private_Init_GetElem_0__List_get_x3fInternal___rarg(x_3, x_21);
+x_22 = l_List_get_x3fInternal___rarg(x_3, x_21);
 lean_dec(x_3);
 if (lean_obj_tag(x_22) == 0)
 {
@@ -895,7 +895,7 @@ x_84 = lean_ctor_get(x_17, 1);
 lean_inc(x_84);
 lean_dec(x_17);
 x_85 = lean_unsigned_to_nat(0u);
-x_86 = l___private_Init_GetElem_0__List_get_x3fInternal___rarg(x_3, x_85);
+x_86 = l_List_get_x3fInternal___rarg(x_3, x_85);
 lean_dec(x_3);
 if (lean_obj_tag(x_86) == 0)
 {
@@ -2041,7 +2041,7 @@ x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
 lean_dec(x_14);
 x_17 = lean_unsigned_to_nat(0u);
-x_18 = l___private_Init_GetElem_0__List_get_x3fInternal___rarg(x_2, x_17);
+x_18 = l_List_get_x3fInternal___rarg(x_2, x_17);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; 

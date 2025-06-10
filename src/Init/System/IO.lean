@@ -149,7 +149,7 @@ Because the resulting value is treated as a side-effect-free term, the compiler 
 duplicate, or delete calls to this function. The side effect may even be hoisted into a constant,
 causing the side effect to occur at initialization time, even if it would otherwise never be called.
 -/
-@[inline] unsafe def unsafeBaseIO (fn : BaseIO α) : α :=
+@[noinline] unsafe def unsafeBaseIO (fn : BaseIO α) : α :=
   match fn.run () with
   | EStateM.Result.ok a _ => a
 
@@ -567,7 +567,7 @@ def addHeartbeats (count : Nat) : BaseIO Unit := do
 /--
 Whether a file should be opened for reading, writing, creation and writing, or appending.
 
-A the operating system level, this translates to the mode of a file handle (i.e., a set of `open`
+At the operating system level, this translates to the mode of a file handle (i.e., a set of `open`
 flags and an `fdopen` mode).
 
 None of the modes represented by this datatype translate line endings (i.e. `O_BINARY` on Windows).

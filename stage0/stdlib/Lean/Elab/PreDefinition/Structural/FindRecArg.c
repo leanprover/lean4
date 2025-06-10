@@ -87,7 +87,6 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Structural_
 static lean_object* l_Lean_Elab_Structural_getRecArgInfos___lambda__4___closed__3;
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_solveCnstrs_go___spec__5(lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Structural_tryAllArgs___spec__9___rarg___lambda__1___closed__6;
-uint8_t l_Array_anyMUnsafe_any___at_Lean_PrettyPrinter_Delaborator_delabDelayedAssignedMVar___spec__2(lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_tryAllArgs___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_dedup___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_dedup___spec__1(lean_object*, lean_object*);
@@ -143,6 +142,7 @@ lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Match_0__Lean_Elab_
 uint8_t l_Array_contains___at_Lean_Meta_setMVarUserNamesAt___spec__1(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Structural_tryAllArgs___spec__8___rarg___closed__6;
+uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotive___spec__1(lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Structural_prettyParameterSet___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Structural_argsInGroup___spec__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_getRecArgInfos___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3470,7 +3470,7 @@ size_t x_190; size_t x_191; uint8_t x_192;
 x_190 = 0;
 x_191 = lean_usize_of_nat(x_185);
 lean_dec(x_185);
-x_192 = l_Array_anyMUnsafe_any___at_Lean_PrettyPrinter_Delaborator_delabDelayedAssignedMVar___spec__2(x_67, x_190, x_191);
+x_192 = l_Array_anyMUnsafe_any___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotive___spec__1(x_67, x_190, x_191);
 if (x_192 == 0)
 {
 uint8_t x_193; 
@@ -7452,7 +7452,7 @@ else
 size_t x_79; uint8_t x_80; 
 x_79 = lean_usize_of_nat(x_68);
 lean_dec(x_68);
-x_80 = l_Array_anyMUnsafe_any___at_Lean_PrettyPrinter_Delaborator_delabDelayedAssignedMVar___spec__2(x_66, x_64, x_79);
+x_80 = l_Array_anyMUnsafe_any___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotive___spec__1(x_66, x_64, x_79);
 if (x_80 == 0)
 {
 lean_object* x_81; lean_object* x_82; 
@@ -7841,7 +7841,7 @@ else
 size_t x_143; uint8_t x_144; 
 x_143 = lean_usize_of_nat(x_132);
 lean_dec(x_132);
-x_144 = l_Array_anyMUnsafe_any___at_Lean_PrettyPrinter_Delaborator_delabDelayedAssignedMVar___spec__2(x_130, x_128, x_143);
+x_144 = l_Array_anyMUnsafe_any___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotive___spec__1(x_130, x_128, x_143);
 if (x_144 == 0)
 {
 lean_object* x_145; lean_object* x_146; 
@@ -8285,7 +8285,7 @@ else
 size_t x_216; uint8_t x_217; 
 x_216 = lean_usize_of_nat(x_205);
 lean_dec(x_205);
-x_217 = l_Array_anyMUnsafe_any___at_Lean_PrettyPrinter_Delaborator_delabDelayedAssignedMVar___spec__2(x_203, x_201, x_216);
+x_217 = l_Array_anyMUnsafe_any___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotive___spec__1(x_203, x_201, x_216);
 if (x_217 == 0)
 {
 lean_object* x_218; lean_object* x_219; 

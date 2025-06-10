@@ -1,4 +1,5 @@
 import Std.Data.Iterators
+import Std.Data.Iterators.Producers.Empty
 
 section ListIteratorBasic
 
@@ -296,3 +297,14 @@ example : isPrime 5 := by
   simp
 
 end Repeat
+
+section Empty
+
+/-- info: [] -/
+#guard_msgs in
+#eval (Std.Iterators.Iter.empty Nat).toList
+
+example : (Std.Iterators.Iter.empty Nat).toList = [] := by
+  simp
+
+end Empty

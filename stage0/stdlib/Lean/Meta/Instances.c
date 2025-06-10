@@ -205,7 +205,6 @@ lean_object* l_Lean_Meta_DiscrTree_empty(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_5____closed__9;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_contains___at_Lean_Meta_Instances_erase___spec__1___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_setEnv___at_Lean_Meta_setInlineAttribute___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_3715____closed__18;
 LEAN_EXPORT lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_4326____spec__1(lean_object*, lean_object*);
@@ -351,6 +350,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Instances_erase___rarg___lambda__1(lean_obj
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_3715____closed__17;
 uint64_t l_Lean_Name_hash___override(lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_4669____lambda__3___closed__1;
+lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_4669____lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder_getSemiOutParamPositionsOf___spec__2(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10664,7 +10664,7 @@ x_11 = l_Lean_Meta_Instances_erase___rarg___closed__4;
 x_12 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
-x_13 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(x_12, x_3, x_4, x_5);
+x_13 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_12, x_3, x_4, x_5);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
 {
@@ -15422,7 +15422,7 @@ lean_object* x_14; lean_object* x_15; uint8_t x_16;
 lean_dec(x_10);
 lean_dec(x_1);
 x_14 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_4669____lambda__2___closed__2;
-x_15 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(x_14, x_4, x_5, x_11);
+x_15 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_14, x_4, x_5, x_11);
 lean_dec(x_5);
 lean_dec(x_4);
 x_16 = !lean_is_exclusive(x_15);

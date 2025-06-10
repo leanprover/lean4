@@ -6,8 +6,7 @@ def f : Char → Nat
 | 'e' => 4
 | _   => 5
 
-theorem ex1 : (f 'a', f 'b', f 'c', f 'd', f 'e', f 'f') = (0, 1, 2, 3, 4, 5) :=
-rfl
+theorem ex1 : (f 'a', f 'b', f 'c', f 'd', f 'e', f 'f') = (0, 1, 2, 3, 4, 5) := rfl
 
 def g : Nat → Nat
 | 100000 => 0
@@ -16,8 +15,10 @@ def g : Nat → Nat
 | 400000 => 3
 | _      => 5
 
-theorem ex2 : (g 100000, g 200000, g 300000, g 400000, g 0) = (0, 1, 2, 3, 5) :=
-rfl
+-- This uses `(rfl)` and no `rfl` to avoid the `rfl` attribute kicking in
+-- and trying to prove the theorem with full transparency and without smart unfolding,
+-- which goes wrong
+theorem ex2 : (g 100000, g 200000, g 300000, g 400000, g 0) = (0, 1, 2, 3, 5) := (rfl)
 
 def h : String → Nat
 | "hello" => 0

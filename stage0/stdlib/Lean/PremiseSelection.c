@@ -16,7 +16,6 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_PremiseSelection_empty(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_PremiseSelection_elabSetPremiseSelector___spec__1(lean_object*, lean_object*);
-lean_object* l_Lean_log___at_Lean_Elab_Term_reportUnsolvedGoals___spec__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PremiseSelection_elabSetPremiseSelector___regBuiltin_Lean_PremiseSelection_elabSetPremiseSelector_docString__3___closed__1;
 lean_object* l_Lean_addBuiltinDocString(lean_object*, lean_object*, lean_object*);
@@ -110,6 +109,7 @@ lean_object* l_Lean_Environment_const2ModIdx(lean_object*);
 static lean_object* l_Lean_PremiseSelection_select___closed__3;
 lean_object* l_Lean_Elab_Command_liftCoreM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PremiseSelection_elabSetPremiseSelector_unsafe__1___closed__4;
+lean_object* l_Lean_log___at_Lean_inferDefEqAttr___spec__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PremiseSelection_elabSetPremiseSelector_unsafe__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_PremiseSelection_random___spec__1(lean_object*, lean_object*);
@@ -1608,7 +1608,7 @@ lean_ctor_set(x_27, 0, x_25);
 lean_ctor_set(x_27, 1, x_26);
 x_28 = 0;
 lean_inc(x_7);
-x_29 = l_Lean_log___at_Lean_Elab_Term_reportUnsolvedGoals___spec__1(x_27, x_28, x_5, x_6, x_7, x_8, x_16);
+x_29 = l_Lean_log___at_Lean_inferDefEqAttr___spec__2(x_27, x_28, x_5, x_6, x_7, x_8, x_16);
 x_30 = !lean_is_exclusive(x_29);
 if (x_30 == 0)
 {

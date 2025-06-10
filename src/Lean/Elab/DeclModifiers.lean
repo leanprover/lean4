@@ -84,9 +84,13 @@ def Modifiers.isNonrec : Modifiers → Bool
   | { recKind := .nonrec, .. } => true
   | _                          => false
 
-/-- Adds attribute `attr` in `modifiers` -/
+/-- Adds attribute `attr` in `modifiers`, at the end -/
 def Modifiers.addAttr (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
   { modifiers with attrs := modifiers.attrs.push attr }
+
+/-- Adds attribute `attr` in `modifiers`, at the beginning -/
+def Modifiers.addFirstAttr (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
+  { modifiers with attrs := #[attr] ++ modifiers.attrs }
 
 /-- Filters attributes using `p` -/
 def Modifiers.filterAttrs (modifiers : Modifiers) (p : Attribute → Bool) : Modifiers :=
@@ -128,7 +132,13 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
   let docCommentStx := stx.raw[0]
   let attrsStx      := stx.raw[1]
   let visibilityStx := stx.raw[2]
-  let noncompStx    := stx.raw[3]
+  let isNoncomputable :=
+    if stx.raw[3].isNone then
+      false
+    else if stx.raw[3][0].getKind == ``Parser.Command.meta then
+      false  -- TODO: handle `meta` declarations
+    else
+      true
   let unsafeStx     := stx.raw[4]
   let recKind       :=
     if stx.raw[5].isNone then
@@ -151,7 +161,7 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
   return {
     stx, docString?, visibility, recKind, attrs,
     isUnsafe        := !unsafeStx.isNone
-    isNoncomputable := !noncompStx.isNone
+    isNoncomputable
   }
 
 /--

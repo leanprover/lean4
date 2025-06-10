@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Lemmas.Consumers.Monadic.Loop
-// Imports: Init.Control.Lawful.Basic Std.Data.Iterators.Consumers.Monadic.Collect Std.Data.Iterators.Consumers.Monadic.Loop Std.Data.Iterators.Lemmas.Monadic.Basic Std.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+// Imports: Init.Control.Lawful.Basic Std.Data.Iterators.Consumers.Monadic.Collect Std.Data.Iterators.Consumers.Monadic.Loop Std.Data.Iterators.Lemmas.Monadic.Basic Std.Data.Iterators.Lemmas.Consumers.Monadic.Collect Std.Data.Iterators.Lemmas.Equivalence.StepCongr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -219,6 +219,7 @@ lean_object* initialize_Std_Data_Iterators_Consumers_Monadic_Collect(uint8_t bui
 lean_object* initialize_Std_Data_Iterators_Consumers_Monadic_Loop(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Monadic_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_Iterators_Lemmas_Equivalence_StepCongr(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Lemmas_Consumers_Monadic_Loop(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -237,6 +238,9 @@ res = initialize_Std_Data_Iterators_Lemmas_Monadic_Basic(builtin, lean_io_mk_wor
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_Iterators_Lemmas_Equivalence_StepCongr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

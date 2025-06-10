@@ -513,8 +513,8 @@ namespace Package
   self.config.moreGlobalServerArgs
 
 /-- The package's `moreServerOptions` configuration appended to its `leanOptions` configuration. -/
-@[inline] def moreServerOptions (self : Package) : Array LeanOption :=
-  self.config.leanOptions ++ self.config.moreServerOptions
+@[inline] def moreServerOptions (self : Package) : LeanOptions :=
+  LeanOptions.ofArray self.config.leanOptions ++ self.config.moreServerOptions
 
 /-- The package's `buildType` configuration. -/
 @[inline] def buildType (self : Package) : BuildType :=
@@ -533,12 +533,12 @@ namespace Package
   self.config.plugins
 
 /-- The package's `leanOptions` configuration. -/
-@[inline] def leanOptions (self : Package) : Array LeanOption :=
-  self.config.leanOptions
+@[inline] def leanOptions (self : Package) : LeanOptions :=
+  .ofArray self.config.leanOptions
 
 /-- The package's `moreLeanArgs` configuration appended to its `leanOptions` configuration. -/
 @[inline] def moreLeanArgs (self : Package) : Array String :=
-  self.config.leanOptions.map (·.asCliArg) ++ self.config.moreLeanArgs
+  self.config.moreLeanArgs
 
 /-- The package's `weakLeanArgs` configuration. -/
 @[inline] def weakLeanArgs (self : Package) : Array String :=

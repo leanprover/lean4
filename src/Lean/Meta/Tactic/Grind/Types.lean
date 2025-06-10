@@ -48,9 +48,9 @@ register_builtin_option grind.debug.proofs : Bool := {
 }
 
 register_builtin_option grind.warning : Bool := {
-  defValue := true
+  defValue := false
   group    := "debug"
-  descr    := "disable `grind` usage warning"
+  descr    := "generate a warning whenever `grind` is used"
 }
 
 /--

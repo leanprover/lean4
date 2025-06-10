@@ -182,7 +182,7 @@ def evalGrindCore
   let only := only.isSome
   let params := if let some params := params then params.getElems else #[]
   if Grind.grind.warning.get (← getOptions) then
-    logWarningAt ref "The `grind` tactic is experimental and still under development. Avoid using it in production projects."
+    logWarningAt ref "The `grind` tactic is new and its behaviour may change in the future. This project has used `set_option grind.warning true` to discourage its use."
   withMainContext do
     let result ← grind (← getMainGoal) config only params fallback
     replaceMainGoal []

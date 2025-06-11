@@ -201,6 +201,7 @@ Unfolding should not confuse it.
 
 def c := a
 def ac : a = c := rfl
+def ca : c = a := rfl
 def d := c
 def dc : d = c := rfl
 
@@ -231,6 +232,8 @@ P : Nat → Prop
 -/
 #guard_msgs in
 example : d > 0 := by simp only [dc, c, ac]
+
+
 /--
 warning: Ignoring looping simp theorem: ac
 
@@ -242,3 +245,26 @@ error: simp made no progress
 -/
 #guard_msgs in
 example : a > 0 := by simp only [c, ac]
+
+/-!
+Check that we do not get warnings for theorems not actually encountered, because
+of a local theorem that prevents them from rewriting in the first place.
+-/
+example (h : c = 1) : d > 0 := by
+  simp only [dc, h, ca, ac, Nat.one_pos]
+
+
+/-!
+Check that `simp?` does not leak the rewrites done during loop protection.
+-/
+/--
+warning: Ignoring jointly looping simp theorems: ca and ac
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
+---
+info: Try this: simp only [dc]
+-/
+#guard_msgs in
+example : d > 0 := by simp? only [dc, ca, ac]; exact testSorry

@@ -472,12 +472,12 @@ def coeff_cert (p₁ p₂ : Poly) (k : Nat) :=
   k > 0 && p₁ == p₂.mul k
 
 theorem eq_coeff {α} [IntModule α] [NoNatZeroDivisors α] (ctx : Context α) (p₁ p₂ : Poly) (k : Nat)
-    : coeff_cert p₁ p₂ k → p₁.denote ctx = 0 → p₂.denote ctx = 0 := by
+    : coeff_cert p₁ p₂ k → p₁.denote' ctx = 0 → p₂.denote' ctx = 0 := by
   simp [coeff_cert]; intro h _; subst p₁; simp
   exact no_nat_zero_divisors k (p₂.denote ctx) (Nat.ne_zero_of_lt h)
 
 theorem le_coeff {α} [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (ctx : Context α) (p₁ p₂ : Poly) (k : Nat)
-    : coeff_cert p₁ p₂ k → p₁.denote ctx ≤ 0 → p₂.denote ctx ≤ 0 := by
+    : coeff_cert p₁ p₂ k → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 := by
   simp [coeff_cert]; intro h _; subst p₁; simp
   have : ↑k > (0 : Int) := Int.natCast_pos.mpr h
   intro h₁; apply Classical.byContradiction
@@ -486,7 +486,7 @@ theorem le_coeff {α} [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (
   exact Preorder.lt_irrefl 0 (Preorder.lt_of_lt_of_le h₂ h₁)
 
 theorem lt_coeff {α} [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (ctx : Context α) (p₁ p₂ : Poly) (k : Nat)
-    : coeff_cert p₁ p₂ k → p₁.denote ctx < 0 → p₂.denote ctx < 0 := by
+    : coeff_cert p₁ p₂ k → p₁.denote' ctx < 0 → p₂.denote' ctx < 0 := by
   simp [coeff_cert]; intro h _; subst p₁; simp
   have : ↑k > (0 : Int) := Int.natCast_pos.mpr h
   intro h₁; apply Classical.byContradiction

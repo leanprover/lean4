@@ -511,7 +511,6 @@ private def trailingDotCompletion [ForIn Id Coll (Name × α)]
     (mkItem : Name → α → Option InsertReplaceEdit → CompletionItem) :
     Array CompletionItem := Id.run do
   let (partialName, trailingDot) :=
-    -- `stx` is from `"set_option" >> ident`
     match stx.getSubstring? (withLeading := false) (withTrailing := false) with
     | none => ("", false)  -- the `ident` is `missing`, list all options
     | some ss =>
@@ -546,6 +545,7 @@ def optionCompletion
     -- HACK(WN): unfold the type so ForIn works
     let (decls : RBMap _ _ _) ← getOptionDecls
     let opts ← getOptions
+    -- `stx` is from `"set_option " >> ident`
     return trailingDotCompletion decls stx[1] caps ctx fun name decl textEdit? => {
       label := name.toString
       detail? := s!"({opts.get name decl.defValue}), {decl.descr}"
@@ -568,7 +568,7 @@ def errorNameCompletion
     : IO (Array CompletionItem) :=
   ctx.runMetaM {} do
     let explanations := getErrorExplanationsRaw (← getEnv)
-    -- -- Per the invariant on `errorName` completion info, we want the penultimate argument:
+    -- Per the invariant on `errorName` completion info, the identifier is the penultimate argument:
     let errorNameStx := stx[stx.getNumArgs - 2]
     return trailingDotCompletion explanations errorNameStx caps ctx fun name explan textEdit? => {
       label := name.toString,

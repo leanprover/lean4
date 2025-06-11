@@ -83,7 +83,7 @@ def elabCheckedNamedError : TermElab := fun stx expType? => do
   pushInfoLeaf <| .ofErrorNameInfo { stx := id, errorName := name }
   let some explan := getErrorExplanationRaw? (← getEnv) name
     | throwError m!"There is no explanation associated with the name `{name}`. \
-      Add an explanation of this error to the `Lean.ErrorExplanations` module."
+        Add an explanation of this error to the `Lean.ErrorExplanations` module."
   if let some removedVersion := explan.metadata.removedVersion then
     logWarningAt id m!"The error name `{name}` was removed in Lean version {removedVersion} and \
       should not be used."

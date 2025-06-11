@@ -9,6 +9,10 @@ theorem aa : a = id a := testSorry
 
 /--
 warning: Ignoring looping simp theorem: aa
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
 ---
 error: unsolved goals
 ⊢ a = 23
@@ -19,6 +23,10 @@ example : id a = 23 := by
 
 /--
 warning: Ignoring jointly looping simp theorems: ab and ba
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
 ---
 error: unsolved goals
 ⊢ a = 23
@@ -28,8 +36,16 @@ example : a = 23 := by simp +loopProtection -failIfUnchanged [ab, ba]
 
 /--
 warning: Ignoring jointly looping simp theorems: ab and ba
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
 ---
 warning: Ignoring jointly looping simp theorems: ba and ab
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
 ---
 error: unsolved goals
 ⊢ a = 2 * b
@@ -39,6 +55,10 @@ example : a = 2*b := by simp +loopProtection -failIfUnchanged [ab, ba]
 
 /--
 warning: Ignoring jointly looping simp theorems: ← ba and ← ab
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
 ---
 error: unsolved goals
 ⊢ a = 23
@@ -76,6 +96,10 @@ example : id' 1 + id' 2 = id' 3 := by simp +loopProtection -failIfUnchanged [id'
 
 /--
 warning: Ignoring looping simp theorem: id'_eq_bad
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
 ---
 error: unsolved goals
 ⊢ id' 1 + id' 2 = id' 3
@@ -94,6 +118,10 @@ example : id' 1 + id' 2 = id' 3 := by simp +loopProtection -failIfUnchanged [id'
 variable (P : Nat → Prop)
 /--
 warning: Ignoring jointly looping simp theorems: Nat.add_assoc and (Nat.add_assoc _ _ _).symm
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
 ---
 error: simp made no progress
 -/
@@ -107,6 +135,10 @@ decreasing_by simp_wf; cases t; simp_all [Tree.children]; decreasing_trivial
 
 /--
 warning: Ignoring looping simp theorem: Tree.size.eq_1
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
 ---
 error: simp made no progress
 -/
@@ -134,6 +166,10 @@ example : a > 0 := by simp +loopProtection only [b1ab]
 
 /--
 warning: Ignoring jointly looping simp theorems: baab and baab
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
 ---
 error: simp made no progress
 -/
@@ -170,6 +206,10 @@ def dc : d = c := rfl
 
 /--
 warning: Ignoring looping simp theorem: ac
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
 ---
 error: unsolved goals
 P : Nat → Prop
@@ -180,6 +220,10 @@ example : c > 0 := by simp only [c, ac]
 
 /--
 warning: Ignoring looping simp theorem: ac
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
 ---
 error: unsolved goals
 P : Nat → Prop
@@ -189,6 +233,10 @@ P : Nat → Prop
 example : d > 0 := by simp only [dc, c, ac]
 /--
 warning: Ignoring looping simp theorem: ac
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
 ---
 error: simp made no progress
 -/

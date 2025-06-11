@@ -43,11 +43,16 @@ def unlessWarnedBefore (thm : SimpTheorem) (k : SimpM Unit) : SimpM Unit := do
     k
 
 def mkLoopWarningMsg (thms : Array SimpTheorem) : SimpM MessageData := do
+  let mut msg := m!""
   if thms.size = 1 then
-    return m!"Ignoring looping simp theorem: {← ppOrigin thms[0]!.origin}"
+    msg := msg ++ m!"Ignoring looping simp theorem: {← ppOrigin thms[0]!.origin}"
   else
-    return m! "Ignoring jointly looping simp theorems: \
+    msg := msg ++ m! "Ignoring jointly looping simp theorems: \
       {.andList (← thms.mapM (ppOrigin ·.origin)).toList}"
+  msg := msg ++ .hint' m!"You can disable a simp theorem from the default simp set by \
+    passing `- theoremName` to `simp`."
+  msg := msg ++ .hint' m!"You can disable this check using `simp -loopProtection`."
+  pure msg
 
 private def rotations (a : Array α) : Array (Array α) := Id.run do
   let mut r : Array (Array α) := #[]

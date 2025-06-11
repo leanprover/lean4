@@ -24,30 +24,65 @@ namespace BVExpr
 namespace bitblast
 namespace blastClz
 
--- go aig x n acc = ite x[n] then (w - 1 - n) else acc
--- we prove that this is true for n = 0 
--- we prove that under the hypothesis that this holds until n, it will hold until n + 1
--- circuit: when curr = 0 → ite x[0] then (w - 1) else acc, where acc is w
--- circuit: when curr = w - 1 → ite x[w - 1] then 0 else acc, where acc is a chain of ite nodes
--- the actual base case of the recursion is 
-    
-theorem go_denote_zero_eq {w : Nat} (aig : AIG α) 
-    (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool)
-    (hxbv : ∀ (idx : Nat) (hidx : 0 < idx), x.getLsbD idx = false) 
-    (hx : ∀ (idx : Nat) (hidx : 0 < idx) (hidx' : idx < w), ⟦aig, (xc.get idx hidx'), assign⟧ = false) 
-    : 
-    ∀ (idx : Nat) (hidx : idx < w), 
-      ⟦(go aig xc 0 acc).aig, (go aig xc 0 acc).vec.get idx hidx, assign⟧ = 
-        (BitVec.clzAuxRec x 0).getLsbD idx := by 
-    intro idx hidx 
-    generalize hgo0 : go aig xc 0 acc = res 
-    unfold go at hgo0 
-    split at hgo0 
-    · simp at hgo0
-      rw [RefVec.denote_ite] at hgo0i
+-- it 0
 
-      sorry 
-    · simp [show w = 0 by omega] at hidx 
+-- clzAuxRec x 0 = ite x[0] then w - 1 else w
+
+-- if x[0] then w - 1 else acc ; acc = w
+
+-- it 1
+/-
+
+clzAuxRec x 1 :
+
+if x[1] then w - 1 - 1 else clzAuxRec x 0
+
+if x[1] then w - 1 - 1 else acc; acc = if x[0] then w - 1 else w
+
+
+clzAuxRec x n
+
+if x[n] then w - 1 - n ; go aig x n acc s.t. acc = what clzAuxRec x (n - 1) produces
+  else if x [n - 1] then w - 1 - (n - 1) ; go aig x (n - 1) acc s.t. acc = what clzAuxRec x (n - 2) produces
+    else if x[n - 2] then w - 1 - (n - 2) ; go aig x (n - 2) acc s.t. acc = what clzAuxRec x (n - 3) produces
+                                       ; go aig x 2 acc s.t. acc = what clzAuxRec x 1 produces
+      ...                              ; go aig x 1 acc s.t. acc = what clzAuxRec x 0 produces
+        else if x[0] then w - 1 else w ; go aig x 0 w
+
+we phrase it the other way around:
+
+go aig x i acc; where acc = clzAuxRec (i - 1) :=
+  if i < w then
+    ite x[i] then w - 1 - i else acc
+    go aig x (i + 1) acc
+
+-/
+
+
+-- go aig x n acc = ite x[n] then (w - 1 - n) else acc
+-- we prove that this is true for n = 0
+-- we prove that under the hypothesis that this holds until n, it will hold until n + 1
+-- circuit: when curr = 0 → ite x[0] then (w - 1) else acc, where acc is the rec. call
+-- circuit: when curr = w - 1 → ite x[w - 1] then 0 else acc, where acc is a chain of ite nodes
+-- the actual base case of the recursion is
+-- acc[0] contains the ite node formed at curr = 0
+-- acc n = ite curr [n]
+theorem go_denote_base_eq {w : Nat} (aig : AIG α)
+    (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool)
+    (hacc : ∀ (idx : Nat) (hidx : idx < w),
+                ⟦aig, acc.get idx hidx, assign⟧
+                  =
+                (BitVec.clzAuxRec x (w - 1)).getLsbD idx) :
+    ∀ (idx : Nat) (hidx : idx < w),
+      ⟦(go aig xc w acc).aig, (go aig xc w acc).vec.get idx hidx, assign⟧ =
+        (BitVec.clzAuxRec x (w - 1)).getLsbD idx := by
+    intro idx hidx
+    generalize hgo0 : go aig xc w acc = res
+    unfold go at hgo0
+    split at hgo0
+    · omega
+    · rw [← hgo0]
+      simp [hacc]
 
 theorem go_denote_eq {w : Nat} (aig : AIG α)
     (acc : AIG.RefVec aig w) (x : AIG.RefVec aig w) (xexpr : BitVec w) (assign : α → Bool)
@@ -55,23 +90,47 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
     (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, x.get idx hidx, assign⟧ = xexpr.getLsbD idx)
     -- correctness of the denotation for the accumulator
     (hacc : ∀ (idx : Nat) (hidx : idx < w),
-                ⟦aig, acc.get idx hidx, assign⟧
-                  =
-                (BitVec.clzAuxRec xexpr (w - 1)).getLsbD idx) :
+                if curr = 0 then ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.ofNat w w).getLsbD idx
+                else if w ≤ curr then
+                  ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.clzAuxRec xexpr (w - 1)).getLsbD idx
+                else
+                  ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.clzAuxRec xexpr (curr - 1)).getLsbD idx)
+                :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦
-          (go aig x 0 acc).aig,
-          (go aig x 0 acc).vec.get idx hidx,
+          (go aig x curr acc).aig,
+          (go aig x curr acc).vec.get idx hidx,
           assign
         ⟧
           =
         (BitVec.clzAuxRec xexpr (w - 1)).getLsbD idx := by
-    generalize hgo: go aig x 0 acc = res
+    intro idx hidx
+    generalize hgo: go aig x curr acc = res
     unfold go at hgo
     split at hgo
-    ·
-      sorry
-    · simp [show w = 0 by omega]
+    · -- w < curr
+      case isTrue h =>
+        by_cases hc0 : curr = w
+        · simp [hc0, show ¬ w = 0 by omega] at hacc
+          rw [← hgo]
+          simp
+
+          sorry
+        · sorry
+        -- simp at hgo
+        -- rw [← hgo]
+        -- rw [go_denote_eq]
+        -- ·
+
+
+        --   sorry
+        -- · simp [show ¬ curr + 1 = 0 by omega]
+
+          -- sorry
+    · case isFalse h =>
+      rw [← hgo]
+      simp [show w ≤ curr by omega, show ¬ curr = 0 by omega] at hacc
+      simp [hacc]
 
 -- theorem go_denote_eq {w : Nat} (aig : AIG α) (hw : 0 < w)
 --     (acc : AIG.RefVec aig w) (x : AIG.RefVec aig w) (xexpr : BitVec w) (assign : α → Bool)
@@ -113,7 +172,7 @@ theorem denote_blastClz (aig : AIG α) (x : RefVec aig w) (xbv : BitVec w) (assi
   generalize hb : blastClz aig x = res
   unfold blastClz at hb
   dsimp only at hb
-  -- blastClz.go (blastConst aig (w - 1).aig x 0 (blastConst aig (w - 1).vec = 
+  -- blastClz.go (blastConst aig (w - 1).aig x 0 (blastConst aig (w - 1).vec =
 
   -- split at hb
   -- · rw [← hb, blastMul.denote_blast] <;> assumption

@@ -2,19 +2,6 @@
 
 open List
 
-@[grind] theorem _root_.List.getElem_filter {xs : List α} {p : α → Bool} {i : Nat} (h : i < (xs.filter p).length) :
-    p (xs.filter p)[i] :=
-  (List.mem_filter.mp (getElem_mem h)).2
-
-theorem _root_.List.getElem?_filter {xs : List α} {p : α → Bool} {i : Nat} (h : i < (xs.filter p).length)
-    (w : (xs.filter p)[i]? = some a) : p a := by
-  rw [List.getElem?_eq_getElem] at w
-  simp only [Option.some.injEq] at w
-  rw [← w]
-  apply List.getElem_filter h
-
-grind_pattern List.getElem?_filter => (xs.filter p)[i]?, some a
-
 
 variable [BEq α] [LawfulBEq α]
 

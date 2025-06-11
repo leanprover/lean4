@@ -156,6 +156,16 @@ def size (t : ExtDTreeMap α β cmp) : Nat :=
 def isEmpty (t : ExtDTreeMap α β cmp) : Bool :=
   t.lift (fun m => m.isEmpty) (fun m m' (h : m ~m m') => h.isEmpty_eq)
 
+@[simp, grind =]
+theorem isEmpty_iff {t : ExtDTreeMap α β cmp} [TransCmp cmp] : t.isEmpty ↔ t = ∅ := by
+  rcases t with ⟨t⟩
+  refine t.equiv_empty_iff_isEmpty.symm.trans ?_
+  exact ⟨fun h => Quotient.sound h, Quotient.exact⟩
+
+@[simp]
+theorem isEmpty_eq_false_iff {t : ExtDTreeMap α β cmp} [TransCmp cmp] : t.isEmpty = false ↔ ¬t = ∅ :=
+  (Bool.not_eq_true _).symm.to_iff.trans (not_congr isEmpty_iff)
+
 @[inline, inherit_doc DTreeMap.erase]
 def erase [TransCmp cmp] (t : ExtDTreeMap α β cmp) (a : α) : ExtDTreeMap α β cmp :=
   t.lift (fun m => Quotient.mk' (m.erase a))
@@ -200,8 +210,8 @@ def minEntry? [TransCmp cmp] (t : ExtDTreeMap α β cmp) : Option ((a : α) × �
   t.lift (fun m => m.minEntry?) (fun m m' (h : m ~m m') => h.minEntry?_eq)
 
 @[inline, inherit_doc DTreeMap.minEntry]
-def minEntry [TransCmp cmp] (t : ExtDTreeMap α β cmp) (h : t.isEmpty = false) : (a : α) × β a :=
-  t.pliftOn (fun m h' => m.minEntry (h' ▸ h :))
+def minEntry [TransCmp cmp] (t : ExtDTreeMap α β cmp) (h : t ≠ ∅) : (a : α) × β a :=
+  t.pliftOn (fun m h' => m.minEntry (h' ▸ isEmpty_eq_false_iff.mpr h :))
     (fun m m' _ _ (h : m ~m m') => h.minEntry_eq)
 
 @[inline, inherit_doc DTreeMap.minEntry!]
@@ -217,8 +227,8 @@ def maxEntry? [TransCmp cmp] (t : ExtDTreeMap α β cmp) : Option ((a : α) × �
   t.lift (fun m => m.maxEntry?) (fun m m' (h : m ~m m') => h.maxEntry?_eq)
 
 @[inline, inherit_doc DTreeMap.maxEntry]
-def maxEntry [TransCmp cmp] (t : ExtDTreeMap α β cmp) (h : t.isEmpty = false) : (a : α) × β a :=
-  t.pliftOn (fun m h' => m.maxEntry (h' ▸ h :))
+def maxEntry [TransCmp cmp] (t : ExtDTreeMap α β cmp) (h : t ≠ ∅) : (a : α) × β a :=
+  t.pliftOn (fun m h' => m.maxEntry (h' ▸ isEmpty_eq_false_iff.mpr h :))
     (fun m m' _ _ (h : m ~m m') => h.maxEntry_eq)
 
 @[inline, inherit_doc DTreeMap.maxEntry!]
@@ -234,8 +244,8 @@ def minKey? [TransCmp cmp] (t : ExtDTreeMap α β cmp) : Option α :=
   t.lift (fun m => m.minKey?) (fun m m' (h : m ~m m') => h.minKey?_eq)
 
 @[inline, inherit_doc DTreeMap.minKey]
-def minKey [TransCmp cmp] (t : ExtDTreeMap α β cmp) (h : t.isEmpty = false) : α :=
-  t.pliftOn (fun m h' => m.minKey (h' ▸ h :))
+def minKey [TransCmp cmp] (t : ExtDTreeMap α β cmp) (h : t ≠ ∅) : α :=
+  t.pliftOn (fun m h' => m.minKey (h' ▸ isEmpty_eq_false_iff.mpr h :))
     (fun m m' _ _ (h : m ~m m') => h.minKey_eq)
 
 @[inline, inherit_doc DTreeMap.minKey!]
@@ -251,8 +261,8 @@ def maxKey? [TransCmp cmp] (t : ExtDTreeMap α β cmp) : Option α :=
   t.lift (fun m => m.maxKey?) (fun m m' (h : m ~m m') => h.maxKey?_eq)
 
 @[inline, inherit_doc DTreeMap.maxKey]
-def maxKey [TransCmp cmp] (t : ExtDTreeMap α β cmp) (h : t.isEmpty = false) : α :=
-  t.pliftOn (fun m h' => m.maxKey (h' ▸ h :))
+def maxKey [TransCmp cmp] (t : ExtDTreeMap α β cmp) (h : t ≠ ∅) : α :=
+  t.pliftOn (fun m h' => m.maxKey (h' ▸ isEmpty_eq_false_iff.mpr h :))
     (fun m m' _ _ (h : m ~m m') => h.maxKey_eq)
 
 @[inline, inherit_doc DTreeMap.maxKey!]
@@ -482,8 +492,8 @@ def minEntry? [TransCmp cmp] (t : ExtDTreeMap α β cmp) : Option (α × β) :=
     (fun m m' (h : m ~m m') => h.constMinEntry?_eq)
 
 @[inline, inherit_doc ExtDTreeMap.minEntry]
-def minEntry [TransCmp cmp] (t : ExtDTreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
-  t.pliftOn (fun m h' => DTreeMap.Const.minEntry m (h' ▸ h :))
+def minEntry [TransCmp cmp] (t : ExtDTreeMap α β cmp) (h : t ≠ ∅) : α × β :=
+  t.pliftOn (fun m h' => DTreeMap.Const.minEntry m (h' ▸ isEmpty_eq_false_iff.mpr h :))
     (fun m m' _ _ (h : m ~m m') => h.constMinEntry_eq)
 
 @[inline, inherit_doc ExtDTreeMap.minEntry!]
@@ -502,8 +512,8 @@ def maxEntry? [TransCmp cmp] (t : ExtDTreeMap α β cmp) : Option (α × β) :=
     (fun m m' (h : m ~m m') => h.constMaxEntry?_eq)
 
 @[inline, inherit_doc ExtDTreeMap.maxEntry]
-def maxEntry [TransCmp cmp] (t : ExtDTreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
-  t.pliftOn (fun m h' => DTreeMap.Const.maxEntry m (h' ▸ h :))
+def maxEntry [TransCmp cmp] (t : ExtDTreeMap α β cmp) (h : t ≠ ∅) : α × β :=
+  t.pliftOn (fun m h' => DTreeMap.Const.maxEntry m (h' ▸ isEmpty_eq_false_iff.mpr h :))
     (fun m m' _ _ (h : m ~m m') => h.constMaxEntry_eq)
 
 @[inline, inherit_doc ExtDTreeMap.maxEntry!]
@@ -845,10 +855,10 @@ def insertMany [TransCmp cmp] {ρ} [ForIn Id ρ (α × β)] (t : ExtDTreeMap α 
 @[inline, inherit_doc DTreeMap.Const.insertManyIfNewUnit]
 def insertManyIfNewUnit [TransCmp cmp] {ρ} [ForIn Id ρ α] (t : ExtDTreeMap α Unit cmp) (l : ρ) :
     ExtDTreeMap α Unit cmp := Id.run do
-  let mut acc : { a // ∀ P : _ → Prop, P t → (∀ t a, P t → P (t.insert a ())) → P a } :=
+  let mut acc : { a // ∀ P : _ → Prop, P t → (∀ t a, P t → P (t.insertIfNew a ())) → P a } :=
     ⟨t, fun _ h _ => h⟩
   for a in l do
-    acc := ⟨acc.1.insert a (), fun P h h' => h' acc.1 a (acc.2 P h h')⟩
+    acc := ⟨acc.1.insertIfNew a (), fun P h h' => h' acc.1 a (acc.2 P h h')⟩
   return acc.1
 
 end Const

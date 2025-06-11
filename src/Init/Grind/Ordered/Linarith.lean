@@ -494,4 +494,9 @@ theorem lt_coeff {α} [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (
   replace h₂ := IsOrdered.hmul_nonneg (Int.le_of_lt this) h₂
   exact Preorder.lt_irrefl 0 (Preorder.lt_of_le_of_lt h₂ h₁)
 
+theorem diseq_neg {α} [IntModule α] (ctx : Context α) (p p' : Poly) : p' == p.mul (-1) → p.denote' ctx ≠ 0 → p'.denote' ctx ≠ 0 := by
+  simp; intro _ _; subst p'; simp [neg_hmul]
+  intro h; replace h := congrArg (- ·) h; simp [neg_neg, neg_zero] at h
+  contradiction
+
 end Lean.Grind.Linarith

@@ -125,11 +125,39 @@ partial def findRat (lower : Rat) (upper : Rat) (dvals : Array (Rat × DiseqCnst
   else
     mid
 
+def DiseqCnstr.split (c : DiseqCnstr) : SearchM IneqCnstr := do
+  let fvarId ← if let some fvarId := (← getStruct).diseqSplits.find? c.p then
+    trace[grind.debug.linarith.search.split] "{← c.denoteExpr}, reusing {fvarId.name}"
+    pure fvarId
+  else
+    let fvarId ← mkCase c
+    trace[grind.debug.cutsat.search.split] "{← c.denoteExpr}, {fvarId.name}"
+    modifyStruct fun s => { s with diseqSplits := s.diseqSplits.insert c.p fvarId }
+    pure fvarId
+  return { p := c.p, strict := true, h := .dec fvarId }
+
+/--
+Given an inequality `c₁` which is a lower bound, i.e., leading coefficient is negative,
+and a disequality `c`, splits `c` and resolve with `c₁`.
+-/
+def resolveLowerDiseqConflict (c₁ : IneqCnstr) (c : DiseqCnstr) : SearchM Unit := do
+  let c := if c.p.leadCoeff < 0 then
+    /-
+    Ensure leading coefficient of the disequality is positive.
+    Thus, after the split, we have an upper bound that can be resolved with `c₁`
+    -/
+    { p := c.p.mul (-1), h := .neg c : DiseqCnstr }
+  else
+    c
+  let c₂ ← c.split
+  resolveLowerUpperConflict c₁ c₂
+
 def processVar (x : Var) : SearchM Unit := do
   let lower? ← getBestLower? x
   let upper? ← getBestUpper? x
   let diseqVals ← getDiseqValues x
-  -- TODO: handle special variable One.one
+  -- TODO: sanity check for variable `One.one`.
+  -- Recall that `One.one` must be the smallest variable.
   match lower?, upper? with
   | none, none =>
     setAssignment x <| geAvoiding 0 diseqVals
@@ -143,8 +171,22 @@ def processVar (x : Var) : SearchM Unit := do
     if lower > upper || (lower == upper && (c₁.strict || c₂.strict)) then
       resolveLowerUpperConflict c₁ c₂
     else if lower == upper then
-      if inDiseqValues lower diseqVals then
-        throwError "NIY" -- TODO: case-split on disequality
+      if let some d := findDiseq? lower diseqVals then
+        /-
+        Remark: We are currently eagerly splitting `a = b` into `a ≤ b` and `b ≤ a`.
+        Thus, even if `c₁.p == -c₂.p`, we can only combine them back into an equality
+        if the order is partial.
+        -- TODO: eliminate variables using equations eagerly like we do in the cutsat module.
+        -/
+        if (← isLinearOrder) then
+          resolveLowerDiseqConflict c₁ d
+        else
+          -- TODO: if we have a partial order and `c₁.p == -c₂.p`,
+          -- we can generate an equality and resolve it with the disequality.
+          let diseq ← d.denoteExpr
+          -- Remark: we filter duplicates before displaying diagnostics to users
+          modifyStruct fun s => { s with ignored := s.ignored.push diseq }
+          setAssignment x lower
       else
         setAssignment x lower
     else
@@ -159,7 +201,7 @@ def hasAssignment : LinearM Bool := do
   return (← getStruct).vars.size == (← getStruct).assignment.size
 
 def resolveConflict (_ : UnsatProof) : SearchM Unit := do
-  throwError "NIY"
+  throwError "NIY: resolve conflict with backtracking"
 
 /-- Search for an assignment/model for the linear constraints. -/
 private def searchAssignmentMain : SearchM Unit := do

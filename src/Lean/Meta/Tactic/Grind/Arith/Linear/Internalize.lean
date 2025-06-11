@@ -23,6 +23,7 @@ private def getType? (e : Expr) : Option Expr :=
   | HSMul.hSMul _ _ α _ _ _ => some α
   | Neg.neg α _ _ => some α
   | Zero.zero α _ => some α
+  | One.one α _ => some α
   | OfNat.ofNat α _ _ => some α
   | NatCast.natCast α _ _ => some α
   | IntCast.intCast α _ _ => some α
@@ -49,6 +50,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   if isForbiddenParent parent? then return ()
   let some structId ← getStructId? type | return ()
   LinearM.run structId do
+    trace[grind.linarith.internalize] "{e}"
     setTermStructId e
     markAsLinarithTerm e
 

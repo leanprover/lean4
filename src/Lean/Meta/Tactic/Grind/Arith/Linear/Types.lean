@@ -47,6 +47,7 @@ structure DiseqCnstr where
 inductive DiseqCnstrProof where
   | core (a b : Expr) (lhs rhs : LinExpr)
   | coreCommRing (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+  | neg (c : DiseqCnstr)
 
 inductive UnsatProof where
   | diseq (c : DiseqCnstr)
@@ -140,6 +141,7 @@ structure Struct where
   /--
   Linear constraints that are not supported.
   We use this information for diagnostics.
+  TODO: store constraints instead.
   -/
   ignored : PArray Expr := {}
   deriving Inhabited

@@ -225,6 +225,9 @@ partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c'
     let h' := mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl p') reflBoolTrue (← mkDiseqProof a b)
     let h ← mkIntModThmPrefix ``Grind.Linarith.diseq_norm
     return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) reflBoolTrue h'
+  | .neg c =>
+    let h ← mkIntModThmPrefix ``Grind.Linarith.diseq_neg
+    return mkApp4 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
 
 partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
   match h with

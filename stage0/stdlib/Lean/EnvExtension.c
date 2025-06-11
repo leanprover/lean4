@@ -2332,7 +2332,7 @@ static lean_object* _init_l_Lean_MapDeclarationExtension_insert___rarg___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(", it is not contined in ", 24, 24);
+x_1 = lean_mk_string_unchecked(", it is not contained in ", 25, 25);
 return x_1;
 }
 }

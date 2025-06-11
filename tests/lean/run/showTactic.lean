@@ -78,20 +78,23 @@ example : x = 0 ∧ x = 1 ∧ x = 2 ∧ x = 3 := by
   show _ = 2
 
 /-!
-The goals before the last one are elaborated without error recovery.
+All goals except the first one are elaborated without error recovery.
 -/
 
 /--
 error: unsolved goals
-case refine_2
+case refine_2.refine_2
 a : Unit
 ⊢ a = ()
 
 case refine_1
 ⊢ () = ()
+
+case refine_2.refine_1
+⊢ () = ()
 -/
 #guard_msgs in
-example : () = () ∧ (∀ a, a = ()) := by
+example : () = () ∧ () = () ∧ (∀ a, a = ()) := by
   and_intros; all_goals try intro a
   show a = _
 

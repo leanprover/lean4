@@ -1,4 +1,3 @@
-set_option grind.warning false
 set_option grind.debug true
 set_option pp.structureInstances false
 open Int.Linear

@@ -6,8 +6,6 @@ It may still be a good source of ideas for `grind` attributes, or `grind` bugs!
 But it's also fine to just delete it at some point.
 -/
 
-set_option grind.warning false
-
 -- Rejected `grind` attributes:
 -- attribute [grind] List.getElem?_eq_getElem -- This is way too slow, it adds about 30% time to this file.
 -- attribute [grind] List.not_mem_nil -- unnecessary

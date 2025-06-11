@@ -1,5 +1,4 @@
 import Std.Data.HashMap
-set_option grind.warning false
 reset_grind_attrs%
 
 open Std

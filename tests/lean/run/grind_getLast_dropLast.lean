@@ -1,6 +1,4 @@
 reset_grind_attrs%
-set_option grind.warning false
-
 open List
 
 theorem length_pos_of_ne_nil {l : List α} (h : l ≠ []) : 0 < l.length := by

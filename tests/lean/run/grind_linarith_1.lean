@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 open Lean.Grind
 
 example [IntModule α] [Preorder α] [IntModule.IsOrdered α] (a b : α)

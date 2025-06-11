@@ -1,4 +1,3 @@
-set_option grind.warning false
 set_option grind.debug true
 open Int.Linear
 

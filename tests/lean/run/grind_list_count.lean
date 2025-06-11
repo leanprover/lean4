@@ -1,6 +1,4 @@
 
-set_option grind.warning false
-
 open List Nat
 
 namespace List'

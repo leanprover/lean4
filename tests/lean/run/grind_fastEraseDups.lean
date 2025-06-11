@@ -3,8 +3,6 @@ import Std.Data.HashSet
 
 open Std
 
-set_option grind.warning false
-
 namespace List
 
 -- Fast duplicate-removing function, using a hash set to check if an element was seen before

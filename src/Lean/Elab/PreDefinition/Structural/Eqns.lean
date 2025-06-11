@@ -93,6 +93,7 @@ where
   doRealize name type := withOptions (tactic.hygienic.set · false) do
     let value ← mkProof info.declName type
     let (type, value) ← removeUnusedEqnHypotheses type value
+    let type ← letToHave type
     addDecl <| Declaration.thmDecl {
       name, type, value
       levelParams := info.levelParams
@@ -126,6 +127,7 @@ where
       let goal ← mkFreshExprSyntheticOpaqueMVar type
       mkUnfoldProof declName goal.mvarId!
       let type ← mkForallFVars xs type
+      let type ← letToHave type
       let value ← mkLambdaFVars xs (← instantiateMVars goal)
       addDecl <| Declaration.thmDecl {
         name, type, value

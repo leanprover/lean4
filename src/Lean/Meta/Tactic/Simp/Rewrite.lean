@@ -18,56 +18,73 @@ import Lean.Meta.BinderNameHint
 
 namespace Lean.Meta.Simp
 
-def isLoopChecking : SimpM Bool := do
+def currentlyLoopChecking : SimpM Bool := do
   return !(← getContext).loopCheckStack.isEmpty
 
 def checkLoops (thm : SimpTheorem) : SimpM Bool := do
-  if (← getConfig).singlePass then return true
-  unless (← getConfig).loopProtection do return true
-
-  -- Do not complain about permutating theorems
-  -- Permutation theorems confuse the loop checker, do not use inside a check
-  if thm.perm && (← isLoopChecking) then return false
-
+  let cfg ← getConfig
+  -- No loop checking when disabled or in single pass mode
+  if !cfg.loopProtection || cfg.singlePass then return true
 
   let thmId := thm.origin
+
+  -- Check cache
   if let some r := (← get).loopProtectionCache.lookup? thmId then
-    pure r
-  else
-    let seen := (← getContext).loopCheckStack
-    if seen.contains thmId then
-      if seen.length = 1 then
+     return r
+
+  let checkRhs : SimpM Unit := do
+    withTraceNode `Meta.Tactic.simp.loopProtection (return m!"{exceptEmoji ·} loop-checking {← ppSimpTheorem thm}") do
+    withPushingLoopCheck thm do
+    withFreshCache do
+      let type ← inferType (← thm.getValue)
+      forallTelescopeReducing type fun _xs type => do
+        let rhs := (← whnf type).appArg!
+        -- We ignore the result for now. We could return it to `tryTheoremCore` to avoid
+        -- re-simplifying the right-hand side, but that would require some more refactoring
+        let _ ← simp rhs
+
+  if let checkingThmId :: otherThms := (← getContext).loopCheckStack then
+    -- We are in the process of checking `checkingThmId` for loops
+
+    -- Disable all local theorems and all permutating theorems
+    if thm.perm then return false
+    if thm.proof.hasFVar then return false
+
+    if thmId == checkingThmId then
+      -- We found a loop starting with `checkingThmId`!
+      if otherThms.isEmpty then
         throwError "Ignoring looping simp theorem: {← ppOrigin thmId}"
       else
-        throwError "Ignoring jointly looping simp theorems: {.andList (← seen.mapM ppOrigin)}"
-    else
-      let checkRhs := do
-        withTraceNode `Meta.Tactic.simp.loopProtection (return m!"{exceptEmoji ·} loop-checking {← ppSimpTheorem thm}") do
-        withPushingLoopCheck thm do
-        withFreshCache do
-          let type ← inferType (← thm.getValue)
-          forallTelescopeReducing type fun _xs type => do
-            let rhs := (← whnf type).appArg!
-            -- We ignore the result for now. We could return it to `tryTheoremCore` to avoid
-            -- re-simplifying the right-hand side, but that would require some more refactoring
-            let _ ← simp rhs
-      if seen.isEmpty then
-        -- This is the initial checkLoops call. Catch errors and turn them into warnings.
-        try
-          checkRhs
-          modifyThe State fun s => { s with loopProtectionCache := s.loopProtectionCache.insert thmId true }
-          pure true
-        catch e =>
-          -- This catches all errors, but ideally we only catch the error thrown above.
-          -- Can we achieve that without hacks?
-          logWarning e.toMessageData
-          modifyThe State fun s => { s with loopProtectionCache := s.loopProtectionCache.insert thmId false }
-          pure false
-      else
-        -- We are in a nested call to `checkLoops`, so propagate any exception.
-        checkRhs
-        pure true
+        throwError "Ignoring simp theorem {← ppOrigin thmId}, it is jointly looping with {.andList (← otherThms.reverse.mapM ppOrigin)}"
 
+    if otherThms.contains thmId then
+      -- Starting with `checkingThmId`, we run into a loop, but the loop does
+      -- not actually involve `checkingThmId`. Stop rewriting, but do not complain.
+      return false
+
+    checkRhs
+    return true
+  else
+    -- This is the main entry into loop checking
+
+    -- Accept permutating and local theorems without checking
+    if thm.perm then return true
+    if thm.proof.hasFVar then return false
+
+    -- Check the right-hand side, turn thrown errors into logged warnigns.
+    let r ←
+      try
+      checkRhs
+      pure true
+    catch e =>
+      -- This catches all errors, but ideally we only catch the error thrown above.
+      -- Can we achieve that without hacks?
+      logWarning e.toMessageData
+      pure false
+
+    -- Update the cache
+    modifyThe State fun s => { s with loopProtectionCache := s.loopProtectionCache.insert thmId r }
+    pure r
 
 /--
 Helper type for implementing `discharge?'`
@@ -687,7 +704,7 @@ def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
     if let some r ← dischargeUsingAssumption? e then return some r
     if let some r ← dischargeEqnThmHypothesis? e then return some r
   -- TODO: Should we really disable conditional simp theorems while loop checking?
-  if (←  isLoopChecking) then
+  if (←  currentlyLoopChecking) then
     return none
   let r ← simp e
   if let some p ← dischargeRfl r.expr then

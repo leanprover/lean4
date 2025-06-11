@@ -17,7 +17,7 @@ error: unsolved goals
 example : id a = 23 := by simp +loopProtection -failIfUnchanged [aa]
 
 /--
-warning: Ignoring jointly looping simp theorems: ba and ab
+warning: Ignoring jointly looping simp theorems: ab and ba
 ---
 error: unsolved goals
 ⊢ a = 23
@@ -26,7 +26,7 @@ error: unsolved goals
 example : a = 23 := by simp +loopProtection -failIfUnchanged [ab, ba]
 
 /--
-warning: Ignoring jointly looping simp theorems: ← ab and ← ba
+warning: Ignoring jointly looping simp theorems: ← ba and ← ab
 ---
 error: unsolved goals
 ⊢ a = 23
@@ -34,7 +34,14 @@ error: unsolved goals
 #guard_msgs in
 example : a = 23 := by simp +loopProtection -failIfUnchanged [← ab, ← ba]
 
-example (h : b = 23) : a = 23 := by simp +loopProtection [ab, h]
+-- Local theorems are ignored:
+/--
+error: unsolved goals
+h : b = 23
+⊢ b = 23
+-/
+#guard_msgs in
+example (h : b = 23) : a = 23 := by simp +loopProtection -failIfUnchanged [ab, h]
 
 /-! Check that we cache the protection result (both positive and negative) -/
 
@@ -67,7 +74,7 @@ example : id' 1 + id' 2 = id' 3 := by simp +loopProtection -failIfUnchanged [id'
 
 variable (P : Nat → Prop)
 /--
-warning: Ignoring jointly looping simp theorems: (Nat.add_assoc _ _ _).symm and Nat.add_assoc
+warning: Ignoring jointly looping simp theorems: Nat.add_assoc and (Nat.add_assoc _ _ _).symm
 ---
 error: simp made no progress
 -/
@@ -88,15 +95,26 @@ error: simp made no progress
 example (t : Tree α) : 0 < t.size := by simp +loopProtection [Tree.size]
 
 
-/-! Extracted from Balancing.lean -/
+/--
+TODO: Identifiyng looping theorems by their origin is not enough,
+as the elements of conjunctions would clash.
+-/
 
--- TODO: Count projection of conjunction separately.
+theorem b1ab : b = 1 ∧ a = b := testSorry
 
 /--
-warning: Ignoring looping simp theorem: h1
+warning: Ignoring looping simp theorem: b1ab
 ---
 error: simp made no progress
 -/
+#guard_msgs in
+example
+  (h2 : a > 0) : True := by
+  simp +loopProtection only [b1ab] at h2
+
+-- Same, with local theorems (should we ever support them):
+
+/-- error: simp made no progress -/
 #guard_msgs in
 example
   (a b : Nat)

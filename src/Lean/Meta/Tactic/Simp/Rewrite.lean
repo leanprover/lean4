@@ -43,28 +43,8 @@ def checkLoops (thm : SimpTheorem) : SimpM Bool := do
         -- re-simplifying the right-hand side, but that would require some more refactoring
         let _ ← simp rhs
 
-  if let checkingThmId :: otherThms := (← getContext).loopCheckStack then
-    -- We are in the process of checking `checkingThmId` for loops
-
-    -- Disable all local theorems and all permutating theorems
-    if thm.perm then return false
-    if thm.proof.hasFVar then return false
-
-    if thmId == checkingThmId then
-      -- We found a loop starting with `checkingThmId`!
-      if otherThms.isEmpty then
-        throwError "Ignoring looping simp theorem: {← ppOrigin thmId}"
-      else
-        throwError "Ignoring simp theorem {← ppOrigin thmId}, it is jointly looping with {.andList (← otherThms.reverse.mapM ppOrigin)}"
-
-    if otherThms.contains thmId then
-      -- Starting with `checkingThmId`, we run into a loop, but the loop does
-      -- not actually involve `checkingThmId`. Stop rewriting, but do not complain.
-      return false
-
-    checkRhs
-    return true
-  else
+  let seenThms := (← getContext).loopCheckStack
+  if seenThms.isEmpty then
     -- This is the main entry into loop checking
 
     -- Accept permutating and local theorems without checking
@@ -85,6 +65,28 @@ def checkLoops (thm : SimpTheorem) : SimpM Bool := do
     -- Update the cache
     modifyThe State fun s => { s with loopProtectionCache := s.loopProtectionCache.insert thmId r }
     pure r
+  else
+    let checkingThmId := seenThms.getLast!
+    -- We are in the process of checking `checkingThmId` for loops
+
+    -- Disable all local theorems and all permutating theorems
+    if thm.perm then return false
+    if thm.proof.hasFVar then return false
+
+    if thmId == checkingThmId then
+      -- We found a loop starting with `checkingThmId`!
+      if seenThms matches [_] then
+        throwError "Ignoring looping simp theorem: {← ppOrigin thmId}"
+      else
+        throwError "Ignoring jointly looping simp theorems: {.andList (← seenThms.reverse.mapM ppOrigin)}"
+
+    if seenThms.contains thmId then
+      -- Starting with `checkingThmId`, we run into a loop, but the loop does
+      -- not actually involve `checkingThmId`. Stop rewriting, but do not complain.
+      return false
+
+    checkRhs
+    return true
 
 /--
 Helper type for implementing `discharge?'`

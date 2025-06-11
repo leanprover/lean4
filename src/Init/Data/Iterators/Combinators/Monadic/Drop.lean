@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
 import Init.Data.Iterators.Basic
 import Init.Data.Iterators.Consumers.Collect
@@ -109,8 +111,8 @@ private def Drop.instFinitenessRelation [Iterator α m β] [Monad m]
       exact h'
 
 instance Drop.instFinite [Iterator α m β] [Monad m] [Finite α m] :
-    Finite (Drop α m β) m :=
-  Finite.of_finitenessRelation instFinitenessRelation
+    Finite (Drop α m β) m := by
+  exact Finite.of_finitenessRelation instFinitenessRelation
 
 private def Drop.ProductiveRel (m : Type w → Type w') [Iterator α m β] [Productive α m] :
     IterM (α := Drop α m β) m β → IterM (α := Drop α m β) m β → Prop :=
@@ -147,8 +149,8 @@ private def Drop.instProductivenessRelation [Iterator α m β] [Monad m]
       exact h
 
 instance Drop.instProductive [Iterator α m β] [Monad m] [Productive α m] :
-    Productive (Drop α m β) m :=
-  Productive.of_productivenessRelation instProductivenessRelation
+    Productive (Drop α m β) m := by
+  exact Productive.of_productivenessRelation instProductivenessRelation
 
 instance Drop.instIteratorCollect [Monad m] [Monad n] [Iterator α m β] [Finite α m] :
     IteratorCollect (Drop α m β) m n :=

@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
 import Init.RCases
 import Init.Data.Iterators.Basic
@@ -99,7 +101,7 @@ private def IteratorLoop.WFRel.mk {α : Type w} {m : Type w → Type w'} {β : T
     IteratorLoop.WFRel wf :=
   (it, c)
 
-instance {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+private instance {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     {γ : Type x} {plausible_forInStep : β → γ → ForInStep γ → Prop}
     (wf : IteratorLoop.WellFounded α m plausible_forInStep) :
     WellFoundedRelation (IteratorLoop.WFRel wf) where

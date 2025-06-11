@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
 import Init.Data.Nat.Lemmas
 import Init.RCases
@@ -206,8 +208,8 @@ private def TakeWhile.instFinitenessRelation [Monad m] [Iterator α m β]
       cases h
 
 instance TakeWhile.instFinite [Monad m] [Iterator α m β] [Finite α m] {P} :
-    Finite (TakeWhile α m β P) m :=
-  Finite.of_finitenessRelation instFinitenessRelation
+    Finite (TakeWhile α m β P) m := by
+  exact Finite.of_finitenessRelation instFinitenessRelation
 
 private def TakeWhile.instProductivenessRelation [Monad m] [Iterator α m β]
     [Productive α m] {P} :
@@ -221,8 +223,8 @@ private def TakeWhile.instProductivenessRelation [Monad m] [Iterator α m β]
     exact IterM.TerminationMeasures.Productive.rel_of_skip ‹_›
 
 instance TakeWhile.instProductive [Monad m] [Iterator α m β] [Productive α m] {P} :
-    Productive (TakeWhile α m β P) m :=
-  Productive.of_productivenessRelation instProductivenessRelation
+    Productive (TakeWhile α m β P) m := by
+  exact Productive.of_productivenessRelation instProductivenessRelation
 
 instance TakeWhile.instIteratorCollect [Monad m] [Monad n] [Iterator α m β] [Productive α m] {P} :
     IteratorCollect (TakeWhile α m β P) m n :=

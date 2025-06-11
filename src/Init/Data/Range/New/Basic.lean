@@ -1,7 +1,116 @@
 prelude
-import Std.Data.Ranges.Basic
-import Std.Data.Ranges.Slice
+import Init.Core
+import Init.NotationExtra
+import Init.Data.Iterators
+
 open Std.Iterators
+
+inductive BoundShape where
+  | «open» : BoundShape
+  | closed : BoundShape
+  | none : BoundShape
+
+structure RangeShape where
+  lower : BoundShape
+  upper : BoundShape
+
+abbrev Bound (shape : BoundShape) (α : Type u) : Type u :=
+  match shape with
+  | .open | .closed => α
+  | .none => PUnit
+
+structure PRange (shape : RangeShape) (α : Type u) where
+  lower : Bound shape.lower α
+  upper : Bound shape.upper α
+
+syntax:max (term ",," term) : term
+syntax:max (",," term) : term
+syntax:max (term ",,") : term
+syntax:max (",,") : term
+syntax:max (term "<,," term) : term
+syntax:max (term "<,,") : term
+syntax:max (term ",,<" term) : term
+syntax:max (",,<" term) : term
+syntax:max (term "<,,<" term) : term
+
+macro_rules
+  | `($a,,$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.closed) $a $b)
+  | `(,,$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.none BoundShape.closed) PUnit.unit $b)
+  | `($a,,) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.none) $a PUnit.unit)
+  | `(,,) => ``(PRange.mk (shape := RangeShape.mk BoundShape.none BoundShape.none) PUnit.unit PUnit.unit)
+  | `($a<,,$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.closed) $a $b)
+  | `($a<,,) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.none) $a PUnit.unit)
+  | `($a,,<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.open) $a $b)
+  | `(,,<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.none BoundShape.open) PUnit.unit $b)
+  | `($a<,,<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.open) $a $b)
+
+class RangeIter (shape : RangeShape) (α : Type u) where
+  State : PRange shape α → Type u
+  iter : (r : PRange shape α) → Iter (α := State r) α
+
+@[always_inline, inline]
+def RangeIter.of {State : PRange shape α → Type u}
+    (iter : (r : PRange shape α) → Iter (α := State r) α) :
+    RangeIter shape α where
+  State := State
+  iter := iter
+
+instance {State : PRange shape α → Type u}
+    {r : PRange shape α} [Iterator (State r) Id α]
+    {iter : (r : PRange shape α) → Iter (α := State r) α} :
+    letI : RangeIter shape α := RangeIter.of iter
+    Iterator (RangeIter.State (shape := shape) (α := α) r) Id α :=
+  inferInstanceAs <| Iterator (State r) Id α
+
+instance {State : PRange shape α → Type u} {r : PRange shape α}
+    [Iterator (State r) Id α]
+    [Finite (State r) Id]
+    {iter : (r : PRange shape α) → Iter (α := State r) α} :
+    letI : RangeIter shape α := RangeIter.of iter
+    Finite (RangeIter.State (shape := shape) (α := α) r) Id :=
+  inferInstanceAs <| Finite (State r) Id
+
+instance {State : PRange shape α → Type u} {r : PRange shape α}
+    [Iterator (State r) Id α] [IteratorCollect (State r) Id m]
+    {iter : (r : PRange shape α) → Iter (α := State r) α} :
+    letI : RangeIter shape α := RangeIter.of iter
+    IteratorCollect (RangeIter.State r) Id m :=
+  inferInstanceAs <| IteratorCollect (State r) Id m
+
+instance {State : PRange shape α → Type u} {r : PRange shape α}
+    [Iterator (State r) Id α] [IteratorCollectPartial (State r) Id m]
+    {iter : (r : PRange shape α) → Iter (α := State r) α} :
+    letI : RangeIter shape α := RangeIter.of iter
+    IteratorCollectPartial (RangeIter.State r) Id m :=
+  inferInstanceAs <| IteratorCollectPartial (State r) Id m
+
+instance {State : PRange shape α → Type u} {r : PRange shape α}
+    [Iterator (State r) Id α] [IteratorLoop (State r) Id m]
+    {iter : (r : PRange shape α) → Iter (α := State r) α} :
+    letI : RangeIter shape α := RangeIter.of iter
+    IteratorLoop (RangeIter.State r) Id m :=
+  inferInstanceAs <| IteratorLoop (State r) Id m
+
+instance {State : PRange shape α → Type u} {r : PRange shape α}
+    [Iterator (State r) Id α] [IteratorLoopPartial (State r) Id m]
+    {iter : (r : PRange shape α) → Iter (α := State r) α} :
+    letI : RangeIter shape α := RangeIter.of iter
+    IteratorLoopPartial (RangeIter.State r) Id m :=
+  inferInstanceAs <| IteratorLoopPartial (State r) Id m
+
+@[always_inline, inline]
+def PRange.iter [RangeIter shape α] (r : PRange shape α) :=
+  (RangeIter.iter r : Iter α)
+
+@[always_inline, inline]
+def PRange.size [RangeIter shape α] (r : PRange shape α)
+    [Iterator (RangeIter.State r) Id α] [IteratorSize (RangeIter.State r) Id] :
+    Nat :=
+  r.iter.size
+
+instance [i : RangeIter shape α] [∀ r, ForIn m (Iter (α := i.State r) α) α] :
+    ForIn m (PRange shape α) α where
+  forIn r := forIn r.iter
 
 class Succ? (α : Type u) where
   succ? : α → Option α
@@ -179,18 +288,8 @@ instance [Succ? α] [LE α] [DecidableLE α] [LawfulLESucc? α]
     [HasDownwardUnboundedRanges α] [Monad m]
     [∀ a h, Finite (Range.SuccIterator (α := α) 1  (· ≤ a) h) Id] :
     ForIn' m (PRange ⟨.none, .closed⟩ α) α inferInstance where
-  forIn' r init f := by
-    haveI : MonadLift Id m := ⟨Std.Internal.idToMonad (α := _)⟩
-    refine ForIn'.forIn' (α := α) r.iter init (fun a ha acc => f a ?_ acc)
-    generalize r.iter = it at ha
-    induction ha with
-    | direct =>
-      sorry
-    | indirect =>
-      sorry
+  forIn' r init f :=
+    ForIn'.forIn' (HasDownwardUnboundedRanges.min,,r.upper) init
+      fun out h acc => f out (by exact h.2) acc
 
 end Iterator
-
-section Examples
-
-end Examples

@@ -5,8 +5,8 @@ Authors: Paul Reichert
 -/
 prelude
 import Init.RCases
-import Std.Data.Iterators.Basic
-import Std.Data.Iterators.Consumers.Monadic.Partial
+import Init.Data.Iterators.Basic
+import Init.Data.Iterators.Consumers.Monadic.Partial
 
 /-!
 # Loop-based consumers

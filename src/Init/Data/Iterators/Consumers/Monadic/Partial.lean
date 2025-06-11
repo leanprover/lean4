@@ -4,15 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
-import Std.Data.Iterators.Basic
+import Init.Data.Iterators.Basic
 
 namespace Std.Iterators
 
 /--
-A wrapper around an iterator that provides partial consumers. See `Iter.allowNontermination`.
+A wrapper around an iterator that provides partial consumers. See `IterM.allowNontermination`.
 -/
-structure Iter.Partial {α : Type w} (β : Type w) where
-  it : Iter (α := α) β
+structure IterM.Partial {α : Type w} (m : Type w → Type w') (β : Type w) where
+  it : IterM (α := α) m β
 
 /--
 For an iterator `it`, `it.allowNontermination` provides potentially nonterminating variants of
@@ -21,8 +21,8 @@ or `Productive`, but as they are implemented with the `partial` declaration modi
 opaque for the kernel and it is impossible to prove anything about them.
 -/
 @[always_inline, inline]
-def Iter.allowNontermination {α : Type w} {β : Type w}
-    (it : Iter (α := α) β) : Iter.Partial (α := α) β :=
+def IterM.allowNontermination {α : Type w} {m : Type w → Type w'} {β : Type w}
+    (it : IterM (α := α) m β) : IterM.Partial (α := α) m β :=
   ⟨it⟩
 
 end Std.Iterators

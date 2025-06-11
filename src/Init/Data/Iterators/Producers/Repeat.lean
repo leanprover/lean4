@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
-import Std.Data.Iterators.Consumers.Monadic
-import Std.Data.Iterators.Internal.Termination
+import Init.Data.Iterators.Consumers.Monadic
+import Init.Data.Iterators.Internal.Termination
 
 /-!
 # Function-unfolding iterator
@@ -95,5 +95,21 @@ instance RepeatIterator.instIteratorCollect {α : Type w} {f : α → Option α}
 instance RepeatIterator.instIteratorCollectPartial {α : Type w} {f : α → Option α} {n : Type w → Type w'}
     [Monad n] : IteratorCollectPartial (RepeatIterator α f) Id n :=
   .defaultImplementation
+
+theorem RepeatIterator.Monadic.next_eq_some_of_isPlausibleSuccessorOf {f : α → Option α}
+    {it' it : IterM (α := RepeatIterator α f) Id α} (h : it'.IsPlausibleSuccessorOf it) :
+    f it.internalState.next = some it'.internalState.next := by
+  rcases h with ⟨step, h, h'⟩
+  cases step
+  · cases h
+    rcases h' with ⟨rfl, a, ha, h'⟩
+    simp_all [Iter.toIterM]
+  · cases h'
+  · cases h
+
+theorem RepeatIterator.next_eq_some_of_isPlausibleSuccessorOf {f : α → Option α}
+    {it' it : Iter (α := RepeatIterator α f) α} (h : it'.IsPlausibleSuccessorOf it) :
+    f it.internalState.next = some it'.internalState.next :=
+  RepeatIterator.Monadic.next_eq_some_of_isPlausibleSuccessorOf h
 
 end Std.Iterators

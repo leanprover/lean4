@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
-import Std.Data.Iterators.Combinators.Monadic.TakeWhile
+import Init.Data.Iterators.Combinators.Monadic.TakeWhile
 
 namespace Std.Iterators
 
@@ -41,5 +41,11 @@ it terminates.
 @[always_inline, inline]
 def Iter.takeWhile {α : Type w} {β : Type w} (P : β → Bool) (it : Iter (α := α) β) :=
   (it.toIterM.takeWhile P |>.toIter : Iter β)
+
+theorem TakeWhile.isPlausibleSuccessorOf_inner_of_isPlausibleSuccessorOf {α β P}
+    [Iterator α Id β]
+    {it' it : Iter (α := TakeWhile α Id β P) β} (h : it'.IsPlausibleSuccessorOf it) :
+    it'.internalState.inner.IsPlausibleSuccessorOf it.internalState.inner :=
+  TakeWhile.Monadic.isPlausibleSuccessorOf_inner_of_isPlausibleSuccessorOf h
 
 end Std.Iterators

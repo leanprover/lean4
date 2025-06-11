@@ -165,10 +165,11 @@ structure Ring where
   /-- Equations to process. -/
   queue          : Queue := {}
   /--
-  Mapping from variables `x` to equations such that the smallest variable
-  in the leading monomial is `x`.
+  The basis is currently just a list. If this is a performance bottleneck, we should use
+  a better data-structure. For examples, we could use a simple indexing for the linear case
+  where we map variable in the leading monomial to `EqCnstr`.
   -/
-  varToBasis     : PArray (List EqCnstr) := {}
+  basis          : List EqCnstr := {}
   /-- Disequalities. -/
   -- TODO: add indexing
   diseqs         : PArray DiseqCnstr := {}

@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 theorem ex1 (x y z : Nat) : x < y + z → y + 1 < z → z + x < 3*z := by
   grind
 

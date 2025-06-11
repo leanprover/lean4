@@ -1,4 +1,3 @@
-set_option grind.warning false
 variable (d : Nat) in
 inductive X : Nat → Prop
   | f {s : Nat} : X s

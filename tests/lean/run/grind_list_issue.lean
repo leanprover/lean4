@@ -1,5 +1,4 @@
 reset_grind_attrs%
-set_option grind.warning false
 open List Nat
 
 attribute [grind] List.filter_nil List.filter_cons

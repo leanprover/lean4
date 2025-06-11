@@ -1,8 +1,6 @@
 import Std.Data.HashMap
 import Std.Data.DHashMap
 import Std.Data.ExtHashMap
-set_option grind.warning false
-
 open Std
 
 -- Do we want this?

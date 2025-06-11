@@ -1,7 +1,5 @@
 open Lean.Grind
 
-set_option grind.warning false
-
 example {α} [CommRing α] [IsCharP α 0] [NoNatZeroDivisors α]
     (d t : α)
   (Δ40 : d + t + d * t = 0)

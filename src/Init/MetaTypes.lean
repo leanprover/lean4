@@ -250,11 +250,13 @@ structure Config where
   -/
   catchRuntime : Bool := true
   /--
-  When `true` (default: `false`), simp will try to detect some forms of looping rewrite rules.
+  When `true` (default: `true`), simp will try to detect rewrite rules that are likely to loop.
 
   Before applying a simp theorem, it simplifies the theorem's uninstantiated right-hand side.
-  If while doing that the same theorem could be applied again, the theorem is considered to be
+  If during that process, the theorem can be applied again, the theorem is considered to be
   looping and (with a warning) ignored.
+
+  Local hypotheses and permutating theorems not considered during this process.
   -/
   loopProtection : Bool := true
   deriving Inhabited, BEq

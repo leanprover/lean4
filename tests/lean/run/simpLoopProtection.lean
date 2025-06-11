@@ -34,13 +34,18 @@ error: unsolved goals
 #guard_msgs in
 example : a = 23 := by simp +loopProtection -failIfUnchanged [← ab, ← ba]
 
--- Local theorems are ignored:
+-- Local theorems are not considered during loop checking:
+
 /--
-error: unsolved goals
-h : b = 23
-⊢ b = 23
+error: tactic 'simp' failed, nested error:
+maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
 -/
 #guard_msgs in
+example (h : b = a) : a = 23 := by simp +loopProtection -failIfUnchanged [ab, h]
+
+-- ..but still are applied
 example (h : b = 23) : a = 23 := by simp +loopProtection -failIfUnchanged [ab, h]
 
 /-! Check that we cache the protection result (both positive and negative) -/
@@ -63,7 +68,8 @@ warning: Ignoring looping simp theorem: id'_eq_bad
 error: unsolved goals
 ⊢ id' 1 + id' 2 = id' 3
 ---
-trace: [Meta.Tactic.simp.loopProtection] ❌️ loop-checking id'_eq_bad:1000
+trace: [Meta.Tactic.simp.loopProtection] ✅️ loop-checking id'_eq_bad:1000
+  [Meta.Tactic.simp.loopProtection] ❌️ loop-checking id'_eq_bad:1000
 -/
 #guard_msgs in
 set_option trace.Meta.Tactic.simp.loopProtection true in
@@ -123,10 +129,54 @@ example : a > 0 := by simp +loopProtection only [baab]
 
 -- Same, with local theorems (should we ever support them):
 
-/-- error: simp made no progress -/
+/--
+error: unsolved goals
+P : Nat → Prop
+a b : Nat
+h1 : b = 1 ∧ a = b
+h2 : 1 > 0
+⊢ True
+-/
 #guard_msgs in
 example
   (a b : Nat)
   (h1 : b = 1 ∧ a = b )
   (h2 : a > 0) : True := by
   simp +loopProtection only [h1] at h2
+
+
+/-!
+Unfolding should not confuse it.
+(Error message is not optimal as it does not mention the unfolded definition.)
+-/
+
+def c := a
+def ac : a = c := rfl
+def d := c
+def dc : d = c := rfl
+
+/--
+warning: Ignoring looping simp theorem: ac
+---
+error: unsolved goals
+P : Nat → Prop
+⊢ a > 0
+-/
+#guard_msgs in
+example : c > 0 := by simp only [c, ac]
+/--
+warning: Ignoring looping simp theorem: ac
+---
+error: unsolved goals
+P : Nat → Prop
+⊢ a > 0
+-/
+#guard_msgs in
+example : d > 0 := by simp only [c, ac, dc]
+/--
+warning: Ignoring looping simp theorem: ac
+---
+error: simp made no progress
+-/
+#guard_msgs in
+example : a > 0 := by simp only [c, ac]

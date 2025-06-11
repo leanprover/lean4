@@ -226,14 +226,14 @@ def UsedSimps.toArray (s : UsedSimps) : Array Origin :=
   s.map.toArray.qsort (·.2 < ·.2) |>.map (·.1)
 
 structure LoopProtectionCache where
-  map : PHashMap Origin Bool := {}
+  map : PHashMap Expr Bool := {}
   deriving Inhabited
 
-def LoopProtectionCache.lookup? (c : LoopProtectionCache) (thmId : Origin) : Option Bool :=
-  c.map.find? thmId
+def LoopProtectionCache.lookup? (c : LoopProtectionCache) (thm : SimpTheorem) : Option Bool :=
+  c.map.find? thm.proof
 
-def LoopProtectionCache.insert (c : LoopProtectionCache) (thmId : Origin) (b : Bool) : LoopProtectionCache :=
-    { c with map := c.map.insert thmId b }
+def LoopProtectionCache.insert (c : LoopProtectionCache) (thm : SimpTheorem) (b : Bool) : LoopProtectionCache :=
+    { c with map := c.map.insert thm.proof b }
 
 structure Diagnostics where
   /-- Number of times each simp theorem has been used/applied. -/

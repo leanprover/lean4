@@ -21,19 +21,27 @@ namespace Lean.Meta.Simp
 def currentlyLoopChecking : SimpM Bool := do
   return !(← getContext).loopCheckStack.isEmpty
 
+def setLoopCache (thm : SimpTheorem) (r : Bool) : SimpM Unit := do
+  modifyThe State fun s => { s with loopProtectionCache := s.loopProtectionCache.insert thm r }
+
+@[inline] def withPreservedLoopCache (x : SimpM α) : SimpM α := do
+  -- Recall that `cache.map₁` should be used linearly but `cache.map₂` is great for copies.
+  let saved := (← get).loopProtectionCache
+  try x
+  finally modify fun s => { s with loopProtectionCache := saved }
+
 def checkLoops (thm : SimpTheorem) : SimpM Bool := do
   let cfg ← getConfig
   -- No loop checking when disabled or in single pass mode
   if !cfg.loopProtection || cfg.singlePass then return true
 
-  let thmId := thm.origin
-
   -- Check cache
-  if let some r := (← get).loopProtectionCache.lookup? thmId then
-     return r
+  if let some r := (← get).loopProtectionCache.lookup? thm then
+    return r
+
+  withTraceNode `Meta.Tactic.simp.loopProtection (return m!"{exceptEmoji ·} loop-checking {← ppSimpTheorem thm}") do
 
   let checkRhs : SimpM Unit := do
-    withTraceNode `Meta.Tactic.simp.loopProtection (return m!"{exceptEmoji ·} loop-checking {← ppSimpTheorem thm}") do
     withPushingLoopCheck thm do
     withFreshCache do
       let type ← inferType (← thm.getValue)
@@ -52,19 +60,17 @@ def checkLoops (thm : SimpTheorem) : SimpM Bool := do
     if thm.proof.hasFVar then return true
 
     -- Check the right-hand side, turn thrown errors into logged warnigns.
-    let r ←
-      try
-      checkRhs
+    try
+      withPreservedLoopCache do
+        checkRhs
+      setLoopCache thm true
       pure true
     catch e =>
       -- This catches all errors, but ideally we only catch the error thrown above.
       -- Can we achieve that without hacks?
       logWarning e.toMessageData
+      setLoopCache thm false
       pure false
-
-    -- Update the cache
-    modifyThe State fun s => { s with loopProtectionCache := s.loopProtectionCache.insert thmId r }
-    pure r
   else
     let checkingThmId := seenThms.getLast!
     -- We are in the process of checking `checkingThmId` for loops
@@ -76,7 +82,7 @@ def checkLoops (thm : SimpTheorem) : SimpM Bool := do
     if thm == checkingThmId then
       -- We found a loop starting with `checkingThmId`!
       if seenThms matches [_] then
-        throwError "Ignoring looping simp theorem: {← ppOrigin thmId}"
+        throwError "Ignoring looping simp theorem: {← ppOrigin thm.origin}"
       else
         throwError "Ignoring jointly looping simp theorems: \
           {.andList (← seenThms.reverse.mapM (ppOrigin ·.origin))}"
@@ -84,10 +90,19 @@ def checkLoops (thm : SimpTheorem) : SimpM Bool := do
     if seenThms.contains thm then
       -- Starting with `checkingThmId`, we run into a loop, but the loop does
       -- not actually involve `checkingThmId`. Stop rewriting, but do not complain.
+      -- We update the cache to avoid looping during checking.
+      -- Since this is not reportd, we throw away the cache updates
+      -- at the end of the loop checking.
+      setLoopCache thm false
       return false
 
     checkRhs
-    return true
+    -- Check cache again, we may have found a loop for this one
+    if let some r := (← get).loopProtectionCache.lookup? thm then
+      return r
+    else
+      setLoopCache thm true
+      return true
 
 /--
 Helper type for implementing `discharge?'`

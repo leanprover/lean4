@@ -17,7 +17,7 @@ instance [Pure m] : MonadLiftT Id m where
   monadLift := pure
 
 def f : IO Unit := do
-  for x in ((2 : Nat),,8) do -- ugly: For some reason, we need a type hint here
+  for h : x in ((2 : Nat),,8) do -- ugly: For some reason, we need a type hint here
     IO.println x
 
 #synth ForIn IO (type_of% (2,,8)) _ -- Note that we don't need the type hint this time

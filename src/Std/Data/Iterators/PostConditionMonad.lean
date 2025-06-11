@@ -213,7 +213,7 @@ theorem PostconditionT.operation_map {m : Type w → Type w'} [Functor m] {α : 
   rfl
 
 @[simp]
-theorem PostconditionT.operation_lift {m : Type w →Type w'} [Functor m] {α : Type w}
+theorem PostconditionT.operation_lift {m : Type w → Type w'} [Functor m] {α : Type w}
     {x : m α} : (lift x : PostconditionT m α).operation = (⟨·, True.intro⟩) <$> x :=
   rfl
 

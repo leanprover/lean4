@@ -145,13 +145,7 @@ instance Take.instIteratorLoop [Monad m] [Monad n] [Iterator α m β]
 
 instance Take.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]
     [IteratorLoopPartial α m n] [MonadLiftT m n] :
-    IteratorLoopPartial (Take α m β) m n where
-  forInPartial lift {γ} it init f := do
-    Prod.fst <$> IteratorLoopPartial.forInPartial lift it.internalState.inner (γ := γ × Nat)
-        (init, it.internalState.remaining)
-        fun out acc =>
-          match acc.snd with
-          | 0 => pure <| .done acc
-          | n + 1 => (fun | .yield x => .yield ⟨x, n⟩ | .done x => .done ⟨x, n⟩) <$> f out acc.fst
+    IteratorLoopPartial (Take α m β) m n :=
+  .defaultImplementation
 
 end Std.Iterators

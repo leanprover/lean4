@@ -3,13 +3,18 @@ import Std.Data.Ranges.Basic
 import Std.Data.Ranges.Slice
 open Std.Iterators
 
--- Have: `LE`, `LT`, `HAdd`
--- Perhaps need: `Succ`
--- In general, how can we avoid cases like the zero step size?
-
 class Succ? (α : Type u) where
   succ? : α → Option α
   succAtIdx? (n : Nat) (a : α) : Option α := Nat.repeat (· >>= succ?) n (some a)
+
+class LawfulLESucc? (α : Type u) [LE α] [Succ? α] where
+  le_rfl : {a : α} → a ≤ a
+  le_succ?_of_le : {a b c : α} → a ≤ b → (h : Succ?.succ? b = some c) → a ≤ c
+  le_succAtIdx?_of_le : {a b c : α} → {n : Nat} → a ≤ b → (h : Succ?.succAtIdx? n b = some c) → a ≤ c
+
+class LawfulLTSucc? [LT α] [Succ? α] where
+  lt_succ? : {a b : α} → (h : Succ?.succ? a = some b) → a < b
+  lt_succ?_of_lt : {a b c : α} → a < b → (h : Succ?.succ? b = some c) → a < c
 
 instance : Membership α (PRange ⟨.none, .none⟩ α) where
   mem _ _ := True
@@ -131,6 +136,37 @@ instance [Succ? α] [LT α] [DecidableLT α] : RangeIter ⟨.open, .none⟩ α :
   .of fun r => Range.succIterator r.lower 1 (fun _ => True) (by omega) |>.drop 1
 
 -- TODO: iterators for ranges that are unbounded downwards
+
+theorem Range.SuccIterator.succ?_eq_some_of_isPlausibleSuccessorOf [Succ? α] [LE α] [DecidableLE α]
+    [∀ a h, Finite (Range.SuccIterator (α := α) 1 (· ≤ a) h) Id]
+    {it' it : Iter (α := Range.SuccIterator (α := α) 1 (· ≤ a) h) α}
+    (h' : it'.IsPlausibleSuccessorOf it) :
+    Succ?.succAtIdx? 1 it.internalState.next = some it'.internalState.next :=
+  h' |>
+    TakeWhile.isPlausibleSuccessorOf_inner_of_isPlausibleSuccessorOf |>
+    RepeatIterator.Monadic.next_eq_some_of_isPlausibleSuccessorOf
+
+instance [Succ? α] [LE α] [DecidableLE α] [LawfulLESucc? α] [Monad m]
+    [∀ a h, Finite (Range.SuccIterator (α := α) 1  (· ≤ a) h) Id] :
+    ForIn' m (PRange ⟨.closed, .closed⟩ α) α inferInstance where
+  forIn' r init f := by
+    haveI : MonadLift Id m := ⟨Std.Internal.idToMonad (α := _)⟩
+    refine ForIn'.forIn' (α := α) r.iter init (fun a ha acc => f a ?_ acc)
+    have hle : r.lower ≤ r.iter.internalState.next := LawfulLESucc?.le_rfl
+    generalize r.iter = it at ha hle
+    induction ha with
+    | direct =>
+      rename_i it out h
+      rcases h with ⟨it', h, h'⟩
+      refine ⟨?_, ?_⟩
+      · rcases h with ⟨rfl, _⟩
+        exact hle
+      · simpa [PostconditionT.pure] using h'
+    | indirect =>
+      rename_i it it' it'' out h h' ih
+      apply ih
+      replace h := Range.SuccIterator.succ?_eq_some_of_isPlausibleSuccessorOf h
+      exact LawfulLESucc?.le_succAtIdx?_of_le (α := α) hle h
 
 end Iterator
 

@@ -360,6 +360,13 @@ def IterM.IsPlausibleSuccessorOf {α : Type w} {m : Type w → Type w'} {β : Ty
     (it' it : IterM (α := α) m β) : Prop :=
   ∃ step, step.successor = some it' ∧ it.IsPlausibleStep step
 
+inductive IterM.IsPlausibleIndirectOutput {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    : IterM (α := α) m β → β → Prop where
+  | direct {it : IterM (α := α) m β} {out : β} : it.IsPlausibleOutput out →
+      it.IsPlausibleIndirectOutput out
+  | indirect {it it' : IterM (α := α) m β} {out : β} : it'.IsPlausibleSuccessorOf it →
+      it'.IsPlausibleIndirectOutput out → it.IsPlausibleIndirectOutput out
+
 def IterM.IsInLineageOf {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     (it' it : IterM (α := α) m β) : Prop :=
   it' = it ∨ Relation.TransGen IterM.IsPlausibleSuccessorOf it' it
@@ -474,6 +481,34 @@ given iterator `it`.
 def Iter.IsPlausibleSuccessorOf {α : Type w} {β : Type w} [Iterator α Id β]
     (it' it : Iter (α := α) β) : Prop :=
   it'.toIterM.IsPlausibleSuccessorOf it.toIterM
+
+inductive Iter.IsPlausibleIndirectOutput {α β : Type w} [Iterator α Id β] :
+    Iter (α := α) β → β → Prop where
+  | direct {it : Iter (α := α) β} {out : β} : it.IsPlausibleOutput out →
+      it.IsPlausibleIndirectOutput out
+  | indirect {it it' : Iter (α := α) β} {out : β} : it'.IsPlausibleSuccessorOf it →
+      it'.IsPlausibleIndirectOutput out → it.IsPlausibleIndirectOutput out
+
+theorem Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM {α β : Type w}
+    [Iterator α Id β] {it : Iter (α := α) β} {out : β} :
+    it.IsPlausibleIndirectOutput out ↔ it.toIterM.IsPlausibleIndirectOutput out := by
+  constructor
+  · intro h
+    induction h with
+    | direct h =>
+      exact .direct h
+    | indirect h _ ih =>
+      exact .indirect h ih
+  · intro h
+    rw [← Iter.toIter_toIterM (it := it)]
+    generalize it.toIterM = it at ⊢ h
+    induction h with
+    | direct h =>
+      exact .direct h
+    | indirect h h' ih =>
+      rename_i it it' out
+      replace h : it'.toIter.IsPlausibleSuccessorOf it.toIter := h
+      exact .indirect (α := α) h ih
 
 /--
 Asserts that a certain iterator `it'` could plausibly be the directly succeeding iterator of another

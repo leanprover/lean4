@@ -48,18 +48,35 @@ theorem IterM.step_takeWhile {α m β} [Monad m] [LawfulMonad m] [Iterator α m 
     {it : IterM (α := α) m β} {P} :
     (it.takeWhile P).step = (do
       match ← it.step with
-      | .yield it' out h => match P out with
-        | true => pure <| .yield (it'.takeWhile P) out (.yield h True.intro)
-        | false => pure <| .done (.rejected h True.intro)
+      | .yield it' out h => match h' : P out with
+        | true => pure <| .yield (it'.takeWhile P) out (.yield h (congrArg ULift.up h'))
+        | false => pure <| .done (.rejected h (congrArg ULift.up h'))
       | .skip it' h => pure <| .skip (it'.takeWhile P) (.skip h)
       | .done h => pure <| .done (.done h)) := by
-  simp only [takeWhile, step_takeWhileM]
+  simp only [takeWhile, step_takeWhileWithPostcondition]
   apply bind_congr
   intro step
   cases step using PlausibleIterStep.casesOn
   · simp only [Function.comp_apply, PlausibleIterStep.yield, PlausibleIterStep.done, pure_bind]
-    cases P _ <;> rfl
+    simp only [PostconditionT.pure, pure_bind]
+    split <;> split <;> simp_all
   · simp
   · simp
+
+theorem TakeWhile.Monadic.isPlausibleSuccessorOf_inner_of_isPlausibleSuccessorOf {α m β P} [Monad m] [Iterator α m β]
+    {it' it : IterM (α := TakeWhile α m β P) m β} (h : it'.IsPlausibleSuccessorOf it) :
+    it'.internalState.inner.IsPlausibleSuccessorOf it.internalState.inner := by
+  rcases h with ⟨step, h, h'⟩
+  cases step
+  · rename_i out
+    cases h
+    cases h'
+    rename_i it' h' h''
+    exact ⟨.yield it' out, rfl, h'⟩
+  · cases h
+    cases h'
+    rename_i it' h'
+    exact ⟨.skip it', rfl, h'⟩
+  · cases h
 
 end Std.Iterators

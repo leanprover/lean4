@@ -52,4 +52,20 @@ theorem Iter.toList_take_repeat_succ {k : Nat} :
     ((Iter.repeat f init).take (k + 1)).toList = init :: ((Iter.repeat f (f init)).take k).toList := by
   rw [toList_eq_match_step, step_take, step_repeat]
 
+theorem RepeatIterator.Monadic.next_eq_some_of_isPlausibleSuccessorOf {f : α → Option α}
+    {it' it : IterM (α := RepeatIterator α f) Id α} (h : it'.IsPlausibleSuccessorOf it) :
+    f it.internalState.next = some it'.internalState.next := by
+  rcases h with ⟨step, h, h'⟩
+  cases step
+  · cases h
+    rcases h' with ⟨rfl, a, ha, h'⟩
+    simp_all [Iter.toIterM]
+  · cases h'
+  · cases h
+
+theorem RepeatIterator.next_eq_some_of_isPlausibleSuccessorOf {f : α → Option α}
+    {it' it : Iter (α := RepeatIterator α f) α} (h : it'.IsPlausibleSuccessorOf it) :
+    f it.internalState.next = some it'.internalState.next :=
+  RepeatIterator.Monadic.next_eq_some_of_isPlausibleSuccessorOf h
+
 end Std.Iterators

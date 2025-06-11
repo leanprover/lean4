@@ -26,16 +26,30 @@ namespace blastClz
 
 
 -- prove that blastClz does the same as clzAuxRec
--- theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
---     (curr : Nat) (hcurr : curr ≤ w) (s : AIG.RefVec aig curr) :
---     ⟦(go aig x curr acc).aig,
---      (go aig x curr acc).vec.get idx (by sorry),
---      assign
---     ⟧
---       =
---     (BitVec.)
+theorem go_zero_denote_eq {w : Nat} (aig : AIG α)
+    (acc : AIG.RefVec aig w) (x : AIG.RefVec aig w) (xexpr : BitVec w) (assign : α → Bool)
+    -- correctness of the denotation for the accumulator
+    (hacc : ∀ (idx : Nat) (hidx : idx < w),
+                ⟦aig, acc.get idx hidx, assign⟧
+                  =
+                (BitVec.clzAuxRec xexpr (w - 1)).getLsbD idx) :
+    ∀ (idx : Nat) (hidx : idx < w),
+        ⟦
+          (go aig x w acc).aig,
+          (go aig x w acc).vec.get idx hidx,
+          assign
+        ⟧
+          =
+        (BitVec.clzAuxRec xexpr (w - 1)).getLsbD idx := by
+    intro idx hidx
+    generalize hgo: go aig x w acc = res
+    unfold go at hgo
+    simp [show ¬ w < w by omega] at hgo
+    rw [← hgo]
+    simp
+    simp [hacc]
 
-theorem go_denote_eq {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr + 1 ≤ w)
+theorem go_denote_eq {w : Nat} (aig : AIG α) (hw : 0 < w)
     (acc : AIG.RefVec aig w) (x : AIG.RefVec aig w) (xexpr : BitVec w) (assign : α → Bool)
     -- correctness of the denotation for x and xexpr
     (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, x.get idx hidx, assign⟧ = xexpr.getLsbD idx)
@@ -43,24 +57,24 @@ theorem go_denote_eq {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr + 1 ≤
     (hacc : ∀ (idx : Nat) (hidx : idx < w),
                 ⟦aig, acc.get idx hidx, assign⟧
                   =
-                (BitVec.clzAuxRec xexpr curr).getLsbD idx) :
+                (BitVec.clzAuxRec xexpr (w - 1)).getLsbD idx) :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦
-          (go aig x curr acc).aig,
-          (go aig x curr acc).vec.get idx hidx,
+          (go aig x (w - 1) acc).aig,
+          (go aig x (w - 1) acc).vec.get idx hidx,
           assign
         ⟧
           =
         (BitVec.clzAuxRec xexpr (w - 1)).getLsbD idx := by
   intro idx hidx
-  generalize hgo: go aig x curr acc = res
+  generalize hgo: go aig x (w - 1) acc = resx
   unfold go at hgo
   split at hgo
-  · case isTrue =>
-    simp at hgo
+  · rw [← hgo]
+    simp only [BitVec.natCast_eq_ofNat, BitVec.ofNat_eq_ofNat, RefVec.cast_cast] at hgo
 
     sorry
-  · sorry
+  · omega
 
 end blastClz
 

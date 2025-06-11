@@ -100,6 +100,10 @@ unsafe builtin_initialize combinatorFormatterAttribute : ParserCompiler.Combinat
     "Register a formatter for a parser combinator"
     `Lean.PrettyPrinter.mkCombinatorFormatterAttribute -- TODO (bootstrapping): remove if possible
 
+-- More details on TODO: Removing this would lead to an environment extension with a name that
+-- doesn't match what's saved in the oleans, so tests don't pass. Removing it will require a
+-- non-CI stage0 update, or careful work to keep the test working across updates.
+
 namespace Formatter
 
 open Lean.Core

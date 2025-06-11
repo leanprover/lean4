@@ -250,8 +250,7 @@ example : a > 0 := by simp only [c, ac]
 Check that we do not get warnings for theorems not actually encountered, because
 of a local theorem that prevents them from rewriting in the first place.
 -/
-example (h : c = 1) : d > 0 := by
-  simp only [dc, h, ca, ac, Nat.one_pos]
+example (h : c = 1) : d > 0 := by simp only [dc, h, ca, ac, Nat.one_pos]
 
 
 /-!
@@ -268,3 +267,7 @@ info: Try this: simp only [dc]
 -/
 #guard_msgs in
 example : d > 0 := by simp? only [dc, ca, ac]; exact testSorry
+
+/-- info: Try this: simp only [dc, h, Nat.one_pos] -/
+#guard_msgs in
+example (h : c = 1) : d > 0 := by simp? only [dc, h, ca, ac, Nat.one_pos]

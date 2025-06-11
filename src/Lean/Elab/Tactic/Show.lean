@@ -15,14 +15,39 @@ The `show p` tactic finds the first goal that `p` unifies with and brings it to 
 goal list. If there were a `first_goal` combinator, it would be like `first_goal change p`.
 -/
 
+@[inline]
+private def withCaptureLog (x : TacticM Unit) : TacticM MessageLog := do
+  let prevMessages := (← getThe Core.State).messages
+  modifyThe Core.State (fun s => { s with messages := {} })
+
+  withTheReader Core.Context (fun ctx => { ctx with suppressElabErrors := false }) x
+
+  let newMessages := (← getThe Core.State).messages
+  modifyThe Core.State (fun s => { s with messages := prevMessages ++ newMessages })
+  return newMessages
+
 def elabShow (newType : Term) : TacticM Unit := do
   let (goal :: goals) ← getGoals | throwNoGoalsToBeSolved
-  go newType goal goals []
+  let state ← saveState
+
+  Tactic.tryCatch (do
+      let log ← withCaptureLog (tryGoal newType goal goals [])
+      if log.hasErrors then
+        let errState ← saveState
+        state.restore true
+        go errState none newType goals [])
+    (fun ex => do
+      let errState ← saveState
+      state.restore true
+      go errState (some ex) newType goals [])
 where
-  go (newType : Term) (goal : MVarId) (goals : List MVarId) (prevRev : List MVarId) : TacticM Unit := do
+  go (errState : SavedState) (err : Option Exception) (newType : Term) (goals : List MVarId) (prevRev : List MVarId) : TacticM Unit := do
     match goals with
-    | [] => tryGoal newType goal [] prevRev -- last goal
-    | nextGoal :: remainingGoals =>
+    | [] =>
+      errState.restore true
+      if let some ex := err then
+        throw ex
+    | goal :: goals =>
       /-
       Save state manually to make sure that the info state is reverted,
       since `elabChange` elaborates the pattern each time.
@@ -32,17 +57,24 @@ where
         (withoutRecover (tryGoal newType goal goals prevRev))
         fun _ => do
           state.restore true
-          go newType nextGoal remainingGoals (goal :: prevRev)
+          go errState err newType goals (goal :: prevRev)
   tryGoal (newType : Term) (goal : MVarId) (goals : List MVarId) (prevRev : List MVarId) : TacticM Unit := do
     let type ← goal.getType
     let tag ← goal.getTag
     goal.withContext do
       let (tgt', mvars) ← withCollectingNewGoalsFrom
-        (elabChange type newType `show (lastOfMany := goals.isEmpty && !prevRev.isEmpty))
+        (elabChange type newType (defeqError (prevRev.isEmpty && !goals.isEmpty)))
         tag `show
       let goal' ← goal.replaceTargetDefEq tgt'
       let newGoals := goal' :: prevRev.reverseAux (mvars ++ goals)
       setGoals newGoals
+  defeqError (firstOfMany : Bool) (p tgt : Expr) : MetaM MessageData := do
+    let mut msg := m!"\
+      'show' tactic failed, pattern{indentExpr p}\n\
+      is not definitionally equal to target{indentExpr tgt}"
+    if firstOfMany then
+      msg := msg ++ "\nor to the target of any other goal"
+    return msg
 
 @[builtin_tactic «show»] elab_rules : tactic
   | `(tactic| show $newType:term) => elabShow newType

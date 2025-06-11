@@ -13,12 +13,17 @@ open Meta
 # Implementation of the `change` tactic
 -/
 
+private def elabChangeDefaultError (p tgt : Expr) : MetaM MessageData := do
+  return m!"\
+    'change' tactic failed, pattern{indentExpr p}\n\
+    is not definitionally equal to target{indentExpr tgt}"
+
 /--
 Elaborates the pattern `p` and ensures that it is defeq to `e`.
 Emulates `(show p from ?m : e)`, returning the type of `?m`, but `e` and `p` do not need to be types.
 Unlike `(show p from ?m : e)`, this can assign synthetic opaque metavariables appearing in `p`.
 -/
-def elabChange (e : Expr) (p : Term) (tacticName : Name := `change) (lastOfMany : Bool := false) :
+def elabChange (e : Expr) (p : Term) (mkDefeqError : Expr → Expr → MetaM MessageData := elabChangeDefaultError) :
     TacticM Expr := do
   let p ← runTermElab do
     let p ← Term.elabTermEnsuringType p (← inferType e)
@@ -35,11 +40,7 @@ def elabChange (e : Expr) (p : Term) (tacticName : Name := `change) (lastOfMany 
     unless ← isDefEq p e do
       throwError MessageData.ofLazyM (es := #[p, e]) do
         let (p, tgt) ← addPPExplicitToExposeDiff p e
-        let mut msg := m!"'{tacticName}' tactic failed, pattern{indentExpr p}\n\
-            is not definitionally equal to target{indentExpr tgt}"
-        if lastOfMany then
-          msg := msg ++ m!"\nor the type of any other goal"
-        return msg
+        mkDefeqError p tgt
     instantiateMVars p
 
 /-- `change` can be used to replace the main goal or its hypotheses with

@@ -1,6 +1,4 @@
 import Lean
-set_option grind.warning false
-
 /-
 Use `grind` as one of the tactics for array-element access and termination proofs.
 -/

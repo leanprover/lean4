@@ -743,13 +743,15 @@ theorem finIdxOf?_empty [BEq α] : (#[] : Array α).finIdxOf? a = none := by sim
   simp [List.finIdxOf?_eq_some_iff]
 
 @[simp]
-theorem isSome_finIdxOf? [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
-    (xs.finIdxOf? a).isSome ↔ a ∈ xs := by
+theorem isSome_finIdxOf? [BEq α] [PartialEquivBEq α] {xs : Array α} {a : α} :
+    (xs.finIdxOf? a).isSome = xs.contains a := by
   rcases xs with ⟨xs⟩
   simp [Array.size]
 
-theorem isNone_finIdxOf? [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
-    (xs.finIdxOf? a).isNone = ¬ a ∈ xs := by
-  simp
+@[simp]
+theorem isNone_finIdxOf? [BEq α] [PartialEquivBEq α] {xs : Array α} {a : α} :
+    (xs.finIdxOf? a).isNone = !xs.contains a := by
+  rcases xs with ⟨xs⟩
+  simp [Array.size]
 
 end Array

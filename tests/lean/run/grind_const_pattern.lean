@@ -1,4 +1,3 @@
-set_option grind.warning false
 reset_grind_attrs%
 
 attribute [grind] List.map_append

@@ -7,8 +7,6 @@ prelude
 import Std.Tactic.BVDecide.LRAT.Internal.Formula.Implementation
 import Std.Tactic.BVDecide.LRAT.Internal.CNF
 
-set_option grind.warning false -- I've only made a partial effort to use grind here so far.
-
 /-!
 This module contains basic statements about the invariants that are satisfied by the LRAT checker
 implementation in `Implementation`.

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Util
-// Imports: Lean.Expr Lean.Message
+// Imports: Lean.Expr Lean.Message Std.Internal.Rat
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -27,6 +27,7 @@ static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__4;
 static lean_object* l_Lean_Meta_Grind_Arith_isIntType___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isInstAddNat___boxed(lean_object*);
 uint8_t l_Lean_Expr_isApp(lean_object*);
+lean_object* l_Lean_PersistentArray_push___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_isSupportedType(lean_object*);
 lean_object* lean_int_emod(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isNatNum_x3f___lambda__3(lean_object*);
@@ -35,8 +36,10 @@ static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__17;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isNatNum_x3f___lambda__1(lean_object*);
 lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__9;
+static lean_object* l_Lean_Meta_Grind_Arith_resize_go___closed__1;
 static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__1;
 static lean_object* l_Lean_Meta_Grind_Arith_isInstAddNat___closed__3;
+lean_object* l_Lean_PersistentArray_pop___rarg(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__6;
 static lean_object* l_Lean_Meta_Grind_Arith_isInstAddNat___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isSupportedType___boxed(lean_object*);
@@ -60,10 +63,14 @@ lean_object* l_Lean_Expr_appFnCleanup(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isNatAdd_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isNatType___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isRelevantPred___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_resize(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_resize_go___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__3;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_resize_go(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__11;
 static lean_object* l_Lean_Meta_Grind_Arith_isRelevantPred___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_shrink(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isIntType___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isInstAddNat___closed__2;
 lean_object* lean_int_sub(lean_object*, lean_object*);
@@ -77,6 +84,7 @@ static lean_object* l_Lean_Meta_Grind_Arith_isRelevantPred___closed__3;
 lean_object* lean_nat_abs(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isInstLENat___closed__2;
 lean_object* lean_int_mul(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isRelevantPred___closed__4;
 static lean_object* l_Lean_Meta_Grind_Arith_isNatNum_x3f___closed__4;
@@ -87,6 +95,7 @@ static lean_object* l_Lean_Meta_Grind_Arith_isNatAdd_x3f___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isRelevantPred___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__7;
 static lean_object* l_Lean_Meta_Grind_Arith_isNatNum_x3f___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_shrink___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_isNatAdd(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_gcdExt___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isRelevantPred___closed__5;
@@ -100,6 +109,7 @@ static lean_object* l_Lean_Meta_Grind_Arith_isRelevantPred___closed__9;
 static lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___closed__13;
 static lean_object* l_Lean_Meta_Grind_Arith_isInstAddNat___closed__4;
 static lean_object* l_Lean_Meta_Grind_Arith_isNatNum_x3f___lambda__3___closed__5;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_resize___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isInstLENat___closed__1;
 lean_object* lean_int_ediv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_isArithTerm___boxed(lean_object*);
@@ -1616,8 +1626,113 @@ lean_dec(x_1);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_shrink(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; uint8_t x_4; 
+x_3 = lean_ctor_get(x_1, 2);
+lean_inc(x_3);
+x_4 = lean_nat_dec_lt(x_2, x_3);
+lean_dec(x_3);
+if (x_4 == 0)
+{
+return x_1;
+}
+else
+{
+lean_object* x_5; 
+x_5 = l_Lean_PersistentArray_pop___rarg(x_1);
+x_1 = x_5;
+goto _start;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_shrink___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Meta_Grind_Arith_shrink(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_Arith_resize_go___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Meta_Grind_Arith_gcdExt___closed__1;
+x_2 = lean_unsigned_to_nat(1u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_resize_go(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; uint8_t x_4; 
+x_3 = lean_ctor_get(x_2, 2);
+lean_inc(x_3);
+x_4 = lean_nat_dec_lt(x_3, x_1);
+lean_dec(x_3);
+if (x_4 == 0)
+{
+return x_2;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = l_Lean_Meta_Grind_Arith_resize_go___closed__1;
+x_6 = l_Lean_PersistentArray_push___rarg(x_2, x_5);
+x_2 = x_6;
+goto _start;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_resize_go___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Meta_Grind_Arith_resize_go(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_resize(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; uint8_t x_4; 
+x_3 = lean_ctor_get(x_1, 2);
+lean_inc(x_3);
+x_4 = lean_nat_dec_lt(x_2, x_3);
+lean_dec(x_3);
+if (x_4 == 0)
+{
+lean_object* x_5; 
+x_5 = l_Lean_Meta_Grind_Arith_resize_go(x_2, x_1);
+return x_5;
+}
+else
+{
+lean_object* x_6; 
+x_6 = l_Lean_Meta_Grind_Arith_shrink(x_1, x_2);
+return x_6;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_resize___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Meta_Grind_Arith_resize(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
 lean_object* initialize_Lean_Expr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Message(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Internal_Rat(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Util(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1627,6 +1742,9 @@ res = initialize_Lean_Expr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Message(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Internal_Rat(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Grind_Arith_isNatType___closed__1 = _init_l_Lean_Meta_Grind_Arith_isNatType___closed__1();
@@ -1733,6 +1851,8 @@ l_Lean_Meta_Grind_Arith_gcdExt___closed__1 = _init_l_Lean_Meta_Grind_Arith_gcdEx
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_gcdExt___closed__1);
 l_Lean_Meta_Grind_Arith_gcdExt___closed__2 = _init_l_Lean_Meta_Grind_Arith_gcdExt___closed__2();
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_gcdExt___closed__2);
+l_Lean_Meta_Grind_Arith_resize_go___closed__1 = _init_l_Lean_Meta_Grind_Arith_resize_go___closed__1();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_resize_go___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

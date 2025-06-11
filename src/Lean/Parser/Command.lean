@@ -858,6 +858,14 @@ builtin_initialize
   register_parser_alias                                                 openDecl
   register_parser_alias                                                 docComment
 
+/--
+Registers an error explanation.
+
+Note that the error name is not relativized to the current namespace.
+-/
+@[builtin_command_parser] def registerErrorExplanationStx := leading_parser
+  docComment >> "register_error_explanation " >> ident >> termParser
+
 end Command
 
 namespace Term

@@ -55,7 +55,7 @@ and stores `c` in `x`, `b` in `a`, and the proof that `c = some b` in `h`.
 -/
 def genPattern {α : Sort u} (_h : Prop) (x : α) (_val : α) : α := x
 
-/-- Similar to `genPattern` but for the heterogenous case -/
+/-- Similar to `genPattern` but for the heterogeneous case -/
 def genHEqPattern {α β : Sort u} (_h : Prop) (x : α) (_val : β) : α := x
 end Lean.Grind
 

@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 example (x : Nat) (h : x < 0) : Nat → Nat := by
   grind
 

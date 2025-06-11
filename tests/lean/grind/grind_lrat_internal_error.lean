@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 namespace Std
 namespace Sat
 

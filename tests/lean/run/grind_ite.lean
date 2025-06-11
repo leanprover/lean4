@@ -111,8 +111,6 @@ def IfNormalization : Type := { Z : IfExpr → IfExpr // ∀ e, (Z e).normalized
 -/
 
 -- `grind` is currently experimental, but for now we can suppress the warnings about this.
-set_option grind.warning false
-
 namespace IfExpr
 
 /--

@@ -361,10 +361,10 @@
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 194, "character": 2}}
 {"range":
- {"start": {"line": 194, "character": 0}, "end": {"line": 194, "character": 9}},
+ {"start": {"line": 194, "character": 2}, "end": {"line": 194, "character": 8}},
  "contents":
  {"value":
-  "`declModifiers` is the collection of modifiers on a declaration:\n* a doc comment `/-- ... -/`\n* a list of attributes `@[attr1, attr2]`\n* a visibility specifier, `private` or `protected`\n* `noncomputable`\n* `unsafe`\n* `partial` or `nonrec`\n\nAll modifiers are optional, and have to come in the listed order.\n\n`nestedDeclModifiers` is the same as `declModifiers`, but attributes are printed\non the same line as the declaration. It is used for declarations nested inside other syntax,\nsuch as inductive constructors, structure projections, and `let rec` / `where` definitions. ",
+  "Changes the inlining behavior. This attribute comes in several variants:\n- `@[inline]`: marks the definition to be inlined when it is appropriate.\n- `@[inline_if_reduce]`: marks the definition to be inlined if an application of it after inlining\n  and applying reduction isn't a `match` expression. This attribute can be used for inlining\n  structurally recursive functions.\n- `@[noinline]`: marks the definition to never be inlined.\n- `@[always_inline]`: marks the definition to always be inlined.\n- `@[macro_inline]`: marks the definition to always be inlined at the beginning of compilation.\n  This makes it possible to define functions that evaluate some of their parameters lazily.\n  Example:\n  ```\n  @[macro_inline]\n  def test (x y : Nat) : Nat :=\n    if x = 42 then x else y\n\n  #eval test 42 (2^1000000000000) -- doesn't compute 2^1000000000000\n  ```\n  Only non-recursive functions may be marked `@[macro_inline]`.\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 200, "character": 2}}

@@ -10,7 +10,6 @@
 -- `tests/lean/grind/experiments/list.lean` contains everything from `Data/List/Lemmas.lean`
 -- that still resists `grind`!
 
-set_option grind.warning false
 open List Nat
 
 namespace Hidden

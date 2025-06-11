@@ -18,9 +18,10 @@ def HeaderSyntax.startPos (header : HeaderSyntax) : String.Pos :=
 def HeaderSyntax.isModule (header : HeaderSyntax) : Bool :=
   !header.raw[0].isNone
 
-def HeaderSyntax.imports : HeaderSyntax → Array Import
+def HeaderSyntax.imports (stx : HeaderSyntax) (includeInit : Bool := true) : Array Import :=
+  match stx with
   | `(Parser.Module.header| $[module%$moduleTk]? $[prelude%$preludeTk]? $importsStx*) =>
-    let imports := if preludeTk.isNone then #[{ module := `Init : Import }] else #[]
+    let imports := if preludeTk.isNone && includeInit then #[{ module := `Init : Import }] else #[]
     imports ++ importsStx.map fun
       | `(Parser.Module.import| $[private%$privateTk]? $[meta%$metaTk]? import $[all%$allTk]? $n) =>
         { module := n.getId, importAll := allTk.isSome, isExported := privateTk.isNone

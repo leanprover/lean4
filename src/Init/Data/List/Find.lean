@@ -1097,17 +1097,18 @@ theorem finIdxOf?_cons [BEq α] {a : α} {xs : List α} :
   simp only [finIdxOf?, findFinIdx?_eq_some_iff, beq_iff_eq]
 
 @[simp]
-theorem isSome_finIdxOf? [BEq α] [LawfulBEq α] {l : List α} {a : α} :
-    (l.finIdxOf? a).isSome ↔ a ∈ l := by
+theorem isSome_finIdxOf? [BEq α] [PartialEquivBEq α] {l : List α} {a : α} :
+    (l.finIdxOf? a).isSome = l.contains a := by
   induction l with
   | nil => simp
   | cons x xs ih =>
     simp only [finIdxOf?_cons]
-    split <;> simp_all [@eq_comm _ x a]
+    split <;> simp_all [BEq.comm]
 
-theorem isNone_finIdxOf? [BEq α] [LawfulBEq α] {l : List α} {a : α} :
-    (l.finIdxOf? a).isNone = ¬ a ∈ l := by
-  simp
+@[simp]
+theorem isNone_finIdxOf? [BEq α] [PartialEquivBEq α] {l : List α} {a : α} :
+    (l.finIdxOf? a).isNone = !l.contains a := by
+  rw [← isSome_finIdxOf?, Option.not_isSome]
 
 /-! ### idxOf?
 

@@ -27,7 +27,7 @@ static lean_object* l_Lake_mkMessageStringCore___lambda__3___closed__1;
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 lean_object* l_Lean_Syntax_getTailPos_x3f(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lake_mkMessageLogString___spec__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkErrorStringWithPos(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkErrorStringWithPos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkMessageStringCore___lambda__1___boxed(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Exception_toMessageData(lean_object*);
@@ -427,37 +427,40 @@ return x_10;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_11 = l_Lake_mkMessageStringCore___lambda__3___closed__2;
-x_12 = l_Lean_mkErrorStringWithPos(x_3, x_4, x_11, x_5);
-x_13 = lean_string_append(x_12, x_6);
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+x_11 = lean_box(0);
+x_12 = l_Lake_mkMessageStringCore___lambda__3___closed__2;
+x_13 = l_Lean_mkErrorStringWithPos(x_3, x_4, x_12, x_5, x_11, x_11);
+x_14 = lean_string_append(x_13, x_6);
 lean_dec(x_6);
-x_14 = lean_box(0);
-x_15 = lean_apply_2(x_8, x_13, x_14);
-return x_15;
+x_15 = lean_box(0);
+x_16 = lean_apply_2(x_8, x_14, x_15);
+return x_16;
 }
 }
 case 1:
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_16 = l_Lake_mkMessageStringCore___lambda__3___closed__3;
-x_17 = l_Lean_mkErrorStringWithPos(x_3, x_4, x_16, x_5);
-x_18 = lean_string_append(x_17, x_6);
+lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+x_17 = lean_box(0);
+x_18 = l_Lake_mkMessageStringCore___lambda__3___closed__3;
+x_19 = l_Lean_mkErrorStringWithPos(x_3, x_4, x_18, x_5, x_17, x_17);
+x_20 = lean_string_append(x_19, x_6);
 lean_dec(x_6);
-x_19 = lean_box(0);
-x_20 = lean_apply_2(x_8, x_18, x_19);
-return x_20;
+x_21 = lean_box(0);
+x_22 = lean_apply_2(x_8, x_20, x_21);
+return x_22;
 }
 default: 
 {
-lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-x_21 = l_Lake_mkMessageStringCore___lambda__3___closed__4;
-x_22 = l_Lean_mkErrorStringWithPos(x_3, x_4, x_21, x_5);
-x_23 = lean_string_append(x_22, x_6);
+lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
+x_23 = lean_box(0);
+x_24 = l_Lake_mkMessageStringCore___lambda__3___closed__4;
+x_25 = l_Lean_mkErrorStringWithPos(x_3, x_4, x_24, x_5, x_23, x_23);
+x_26 = lean_string_append(x_25, x_6);
 lean_dec(x_6);
-x_24 = lean_box(0);
-x_25 = lean_apply_2(x_8, x_23, x_24);
-return x_25;
+x_27 = lean_box(0);
+x_28 = lean_apply_2(x_8, x_26, x_27);
+return x_28;
 }
 }
 }

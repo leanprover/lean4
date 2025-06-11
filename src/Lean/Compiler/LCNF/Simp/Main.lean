@@ -227,7 +227,14 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
     if let some value ← simpValue? decl.value then
       markSimplified
       decl ← decl.updateValue value
-    if let some decls ← ConstantFold.foldConstants decl then
+    -- This `decl.value != .erased` check is required because `.return` takes
+    -- and `FVarId` rather than `Arg`, and the substitution will end up
+    -- creating a new erased let decl in that case.
+    if decl.type.isErased && decl.value != .erased then
+      modifySubst fun s => s.insert decl.fvarId (.const ``lcErased [])
+      eraseLetDecl decl
+      simp k
+    else if let some decls ← ConstantFold.foldConstants decl then
       markSimplified
       let k ← simp k
       attachCodeDecls decls k

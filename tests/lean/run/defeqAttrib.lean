@@ -78,7 +78,7 @@ def e3 := a
 /-- error: dsimp made no progress -/
 #guard_msgs in example (h : P a) : P e3 := by dsimp; exact h
 
--- Tests the `defeq` attibute on a realized constant: That they are set, and that they
+-- Tests the `defeq` attribute on a realized constant: That they are set, and that they
 -- are transported out
 def f := a
 #guard_msgs in example (h : P a) : P f := by dsimp [f]; exact h

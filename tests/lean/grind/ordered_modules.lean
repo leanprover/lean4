@@ -1,7 +1,5 @@
 open Lean.Grind
 
-set_option grind.warning false
-
 variable (R : Type u) [IntModule R] [NoNatZeroDivisors R] [Preorder R] [IntModule.IsOrdered R]
 
 example (a b c : R) (h : a < b) : a + c < b + c := by grind

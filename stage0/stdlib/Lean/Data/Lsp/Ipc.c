@@ -17,7 +17,6 @@ lean_object* l_Lean_JsonNumber_fromNat(lean_object*);
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__53;
 static lean_object* l_Lean_Lsp_Ipc_runWith___rarg___closed__1;
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__58;
-lean_object* l_Lean_Json_opt___at___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJsonDiagnosticWith____x40_Lean_Data_Lsp_Diagnostics___hyg_1722____spec__13(lean_object*, lean_object*);
 lean_object* l_Lean_Json_compress(lean_object*);
 uint8_t l_Lean_Json_isNull(lean_object*);
 static lean_object* l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___spec__5___closed__12;
@@ -172,6 +171,7 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_waitForMessage_loop(lean_object*, lean_o
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__57;
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_waitForMessage(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___spec__5___closed__8;
+lean_object* l_Lean_Json_opt___at___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_toJsonLeanModule____x40_Lean_Data_Lsp_Extra___hyg_2262____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_waitForILeans___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__42;
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__3;
@@ -2498,7 +2498,7 @@ x_155 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_155, 0, x_153);
 lean_ctor_set(x_155, 1, x_154);
 x_156 = l_Lean_Lsp_Ipc_readResponseAs___closed__8;
-x_157 = l_Lean_Json_opt___at___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJsonDiagnosticWith____x40_Lean_Data_Lsp_Diagnostics___hyg_1722____spec__13(x_156, x_150);
+x_157 = l_Lean_Json_opt___at___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_toJsonLeanModule____x40_Lean_Data_Lsp_Extra___hyg_2262____spec__1(x_156, x_150);
 lean_dec(x_150);
 switch (lean_obj_tag(x_147)) {
 case 0:
@@ -3015,7 +3015,7 @@ x_281 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_281, 0, x_279);
 lean_ctor_set(x_281, 1, x_280);
 x_282 = l_Lean_Lsp_Ipc_readResponseAs___closed__8;
-x_283 = l_Lean_Json_opt___at___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJsonDiagnosticWith____x40_Lean_Data_Lsp_Diagnostics___hyg_1722____spec__13(x_282, x_276);
+x_283 = l_Lean_Json_opt___at___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_toJsonLeanModule____x40_Lean_Data_Lsp_Extra___hyg_2262____spec__1(x_282, x_276);
 lean_dec(x_276);
 switch (lean_obj_tag(x_273)) {
 case 0:

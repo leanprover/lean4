@@ -111,6 +111,7 @@ uint8_t l_Lean_MessageData_hasTag(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_constName_x21(lean_object*);
 static lean_object* l_Lean_logAt___at_Lean_inferDefEqAttr___spec__3___lambda__2___closed__5;
 static lean_object* l_Lean_TagAttribute_setTag___at_Lean_inferDefEqAttr___spec__1___lambda__2___closed__6;
+lean_object* l_Lean_getConstVal___at_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_204____spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DefEqAttrib_0__Lean_isDefEqCareful___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_TagAttribute_setTag___at_Lean_inferDefEqAttr___spec__1___closed__2;
 static lean_object* l_Lean_validateDefEqAttr___closed__11;
@@ -128,7 +129,6 @@ extern lean_object* l_Lean_diagnostics;
 static lean_object* l_Lean_TagAttribute_setTag___at_Lean_inferDefEqAttr___spec__1___lambda__2___closed__10;
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
 lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*);
-lean_object* l_Lean_getConstVal___at_Lean_PrettyPrinter_mkFormatterAttribute___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_inferDefEqAttr___lambda__1___closed__4;
 static lean_object* l_Lean_validateDefEqAttr___lambda__3___closed__4;
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
@@ -3703,7 +3703,7 @@ LEAN_EXPORT lean_object* l_Lean_validateDefEqAttr(lean_object* x_1, lean_object*
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lean_getConstVal___at_Lean_PrettyPrinter_mkFormatterAttribute___spec__3(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_getConstVal___at_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_204____spec__3(x_1, x_2, x_3, x_4);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; 

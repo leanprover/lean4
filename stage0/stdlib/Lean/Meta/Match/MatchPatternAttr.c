@@ -15,21 +15,33 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__3;
+lean_object* l_Lean_addBuiltinDocString(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__1;
+static lean_object* l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__7;
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__5;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3_(lean_object*);
+static lean_object* l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__6;
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__4;
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__1;
 LEAN_EXPORT lean_object* l_Lean_matchPatternAttr;
+lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__4;
 static lean_object* l_Lean_hasMatchPatternAttribute___closed__1;
+static lean_object* l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_docString__1___closed__1;
 uint8_t l_Lean_TagAttribute_hasTag(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__5;
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__2;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3(lean_object*);
 lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__6;
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__7;
+static lean_object* l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__2;
+LEAN_EXPORT lean_object* l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_docString__1(lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t lean_has_match_pattern_attribute(lean_object*, lean_object*);
+static lean_object* l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__3;
 LEAN_EXPORT lean_object* l_Lean_hasMatchPatternAttribute___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
@@ -127,6 +139,126 @@ lean_dec(x_1);
 return x_5;
 }
 }
+static lean_object* _init_l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_docString__1___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Instructs the pattern matcher to unfold occurrences of this definition.\n\nBy default, only constructors and literals can be used for pattern matching. Using\n`@[match_pattern]` allows using other definitions, as long as they eventually reduce to\nconstructors and literals.\n\nExample:\n```\n@[match_pattern]\ndef yellowString : String := \"yellow\"\n\ndef isYellow (color : String) : Bool :=\n  match color with\n  | yellowString => true\n  | _ => false\n```\n", 444, 444);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__5;
+x_3 = l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_docString__1___closed__1;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(11u);
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(31u);
+x_2 = lean_unsigned_to_nat(164u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__1;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__2;
+x_4 = lean_unsigned_to_nat(164u);
+x_5 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_5, 0, x_1);
+lean_ctor_set(x_5, 1, x_2);
+lean_ctor_set(x_5, 2, x_3);
+lean_ctor_set(x_5, 3, x_4);
+return x_5;
+}
+}
+static lean_object* _init_l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(30u);
+x_2 = lean_unsigned_to_nat(19u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(30u);
+x_2 = lean_unsigned_to_nat(35u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__4;
+x_2 = lean_unsigned_to_nat(19u);
+x_3 = l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__5;
+x_4 = lean_unsigned_to_nat(35u);
+x_5 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_5, 0, x_1);
+lean_ctor_set(x_5, 1, x_2);
+lean_ctor_set(x_5, 2, x_3);
+lean_ctor_set(x_5, 3, x_4);
+return x_5;
+}
+}
+static lean_object* _init_l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__3;
+x_2 = l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__6;
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__5;
+x_3 = l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__7;
+x_4 = l_Lean_addBuiltinDeclarationRanges(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_hasMatchPatternAttribute___closed__1() {
 _start:
 {
@@ -176,7 +308,29 @@ l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__6 = _in
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__6);
 l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__7 = _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__7();
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3____closed__7);
-if (builtin) {res = l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3_(lean_io_mk_world());
+l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_docString__1___closed__1 = _init_l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_docString__1___closed__1();
+lean_mark_persistent(l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_docString__1___closed__1);
+if (builtin) {res = l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__1 = _init_l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__1();
+lean_mark_persistent(l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__1);
+l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__2 = _init_l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__2();
+lean_mark_persistent(l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__2);
+l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__3 = _init_l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__3();
+lean_mark_persistent(l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__3);
+l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__4 = _init_l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__4();
+lean_mark_persistent(l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__4);
+l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__5 = _init_l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__5();
+lean_mark_persistent(l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__5);
+l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__6 = _init_l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__6();
+lean_mark_persistent(l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__6);
+l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__7 = _init_l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__7();
+lean_mark_persistent(l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__7);
+if (builtin) {res = l_Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}if (builtin) {res = l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_matchPatternAttr = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_matchPatternAttr);

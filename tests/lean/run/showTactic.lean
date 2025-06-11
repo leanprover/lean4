@@ -78,7 +78,7 @@ example : x = 0 ∧ x = 1 ∧ x = 2 ∧ x = 3 := by
   show _ = 2
 
 /-!
-All goals except the first one are elaborated without error recovery.
+All goals are first elaborated without error recovery.
 -/
 
 /--
@@ -99,7 +99,7 @@ example : () = () ∧ () = () ∧ (∀ a, a = ()) := by
   show a = _
 
 /-!
-The first goal is elaborated with error recovery.
+The first goal is re-elaborated with error recovery.
 -/
 
 /--
@@ -123,11 +123,13 @@ also weren't defeq.
 -/
 
 /--
-error: 'show' tactic failed, pattern
+error: 'show' tactic failed, no goals unify with the given pattern.
+
+In the first goal, the pattern
   x = 4
 is not definitionally equal to target
   x = 1
-or to the target of any other goal
+(Errors for other goals omitted)
 -/
 #guard_msgs in
 example : x = 1 ∧ x = 2 ∧ x = 3 := by

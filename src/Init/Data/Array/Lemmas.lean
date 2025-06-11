@@ -1498,6 +1498,19 @@ theorem forall_mem_filter {p : α → Bool} {xs : Array α} {P : α → Prop} :
     (∀ (i) (_ : i ∈ xs.filter p), P i) ↔ ∀ (j) (_ : j ∈ xs), p j → P j := by
   simp
 
+@[grind] theorem getElem_filter {xs : Array α} {p : α → Bool} {i : Nat} (h : i < (xs.filter p).size) :
+    p (xs.filter p)[i] :=
+  (mem_filter.mp (getElem_mem h)).2
+
+theorem getElem?_filter {xs : Array α} {p : α → Bool} {i : Nat} (h : i < (xs.filter p).size)
+    (w : (xs.filter p)[i]? = some a) : p a := by
+  rw [getElem?_eq_getElem] at w
+  simp only [Option.some.injEq] at w
+  rw [← w]
+  apply getElem_filter h
+
+grind_pattern getElem?_filter => (xs.filter p)[i]?, some a
+
 @[simp] theorem filter_filter {p q : α → Bool} {xs : Array α} :
     filter p (filter q xs) = filter (fun a => p a && q a) xs := by
   apply ext'

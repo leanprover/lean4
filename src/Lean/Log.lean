@@ -8,7 +8,7 @@ import Lean.Util.Sorry
 import Lean.Widget.Types
 import Lean.Message
 import Lean.DocString.Links
--- TODO: This import should be changed to `Lean.ErrorExplanations` after the stage0 rebuild
+-- TODO: This import should be changed to `Lean.ErrorExplanations` once that module is added
 import Lean.ErrorExplanation
 
 namespace Lean

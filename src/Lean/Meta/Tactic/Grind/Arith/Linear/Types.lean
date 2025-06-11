@@ -137,6 +137,11 @@ structure Struct where
   This is necessary because the same disequality may be in different conflicts.
   -/
   diseqSplits : PHashMap Poly FVarId := {}
+  /--
+  Linear constraints that are not supported.
+  We use this information for diagnostics.
+  -/
+  ignored : PArray Expr := {}
   deriving Inhabited
 
 /-- State for all `IntModule` types detected by `grind`. -/

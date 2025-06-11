@@ -59,7 +59,7 @@ def propagateCommRingIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : 
     c.assert
   else
     -- Negation for preorders is not supported
-    return ()
+    modifyStruct fun s => { s with ignored := s.ignored.push e }
 
 def propagateIntModuleIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : Bool) : LinearM Unit := do
   let some lhs ← reify? lhs (skipVar := false) | return ()
@@ -75,7 +75,7 @@ def propagateIntModuleIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue :
     c.assert
   else
     -- Negation for preorders is not supported
-    return ()
+    modifyStruct fun s => { s with ignored := s.ignored.push e }
 
 def propagateIneq (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   unless (← getConfig).linarith do return ()

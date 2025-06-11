@@ -10,4 +10,4 @@ import Init.Core
 import Init.Grind.Tactics
 
 attribute [grind cases eager] And Prod False Empty True PUnit Exists Subtype
-attribute [grind cases] Or
+attribute [grind cases] Or Option

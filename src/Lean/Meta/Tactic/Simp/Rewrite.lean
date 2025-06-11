@@ -21,88 +21,87 @@ namespace Lean.Meta.Simp
 def currentlyLoopChecking : SimpM Bool := do
   return !(← getContext).loopCheckStack.isEmpty
 
-def setLoopCache (thm : SimpTheorem) (r : Bool) : SimpM Unit := do
+def getLoopCache (thm : SimpTheorem) : SimpM (Option LoopProtectionResult) := do
+  return (← get).loopProtectionCache.lookup? thm
+
+def setLoopCache (thm : SimpTheorem) (r : LoopProtectionResult) : SimpM Unit := do
   modifyThe State fun s => { s with loopProtectionCache := s.loopProtectionCache.insert thm r }
 
-@[inline] def withPreservedLoopCache (x : SimpM α) : SimpM α := do
-  -- Recall that `cache.map₁` should be used linearly but `cache.map₂` is great for copies.
-  let saved := (← get).loopProtectionCache
-  try x
-  finally modify fun s => { s with loopProtectionCache := saved }
+def setLoopCacheOkIfUnset (thm : SimpTheorem) : SimpM Unit := do
+  unless (← getLoopCache thm).isSome do
+    setLoopCache thm .ok
+
+def setLoopCacheLoop (loop : Array SimpTheorem): SimpM Unit := do
+  let thm := loop[0]!
+  assert! (← getLoopCache thm).isNone
+  assert! loop.size > 0
+  setLoopCache thm (.loop loop)
+
+def unlessWarnedBefore (thm : SimpTheorem) (k : SimpM Unit) : SimpM Unit := do
+  unless (← get).loopProtectionCache.warned thm do
+    modifyThe State fun s => { s with loopProtectionCache := s.loopProtectionCache.setWarned thm }
+    k
+
+def mkLoopWarningMsg (thms : Array SimpTheorem) : SimpM MessageData := do
+  if thms.size = 1 then
+    return m!"Ignoring looping simp theorem: {← ppOrigin thms[0]!.origin}"
+  else
+    return m! "Ignoring jointly looping simp theorems: \
+      {.andList (← thms.mapM (ppOrigin ·.origin)).toList}"
+
+private def rotations (a : Array α) : Array (Array α) := Id.run do
+  let mut r : Array (Array α) := #[]
+  for i in [:a.size] do
+    r := r.push (a[i:] ++ a[:i])
+  return r
 
 def checkLoops (thm : SimpTheorem) : SimpM Bool := do
   let cfg ← getConfig
   -- No loop checking when disabled or in single pass mode
   if !cfg.loopProtection || cfg.singlePass then return true
 
+
+  -- Permutating and local theorems are never checked, so accept when starting
+  -- a loop check, and ignore when inside a loop check
+  if thm.perm || thm.proof.hasFVar then
+    return !(← currentlyLoopChecking)
+
   -- Check cache
-  if let some r := (← get).loopProtectionCache.lookup? thm then
-    return r
+  if (← getLoopCache thm).isNone then
+    withTraceNode `Meta.Tactic.simp.loopProtection (fun _ => return m!"loop-checking {← ppSimpTheorem thm}") do
 
-  withTraceNode `Meta.Tactic.simp.loopProtection (return m!"{exceptEmoji ·} loop-checking {← ppSimpTheorem thm}") do
-
-  let checkRhs : SimpM Unit := do
-    withPushingLoopCheck thm do
-    withFreshCache do
-      let type ← inferType (← thm.getValue)
-      forallTelescopeReducing type fun _xs type => do
-        let rhs := (← whnf type).appArg!
-        -- We ignore the result for now. We could return it to `tryTheoremCore` to avoid
-        -- re-simplifying the right-hand side, but that would require some more refactoring
-        let _ ← simp rhs
-
-  let seenThms := (← getContext).loopCheckStack
-  if seenThms.isEmpty then
-    -- This is the main entry into loop checking
-
-    -- Accept permutating and local theorems without checking
-    if thm.perm then return true
-    if thm.proof.hasFVar then return true
-
-    -- Check the right-hand side, turn thrown errors into logged warnigns.
-    try
-      withPreservedLoopCache do
-        checkRhs
-      setLoopCache thm true
-      pure true
-    catch e =>
-      -- This catches all errors, but ideally we only catch the error thrown above.
-      -- Can we achieve that without hacks?
-      logWarning e.toMessageData
-      setLoopCache thm false
-      pure false
-  else
-    let checkingThmId := seenThms.getLast!
-    -- We are in the process of checking `checkingThmId` for loops
-
-    -- Disable all local theorems and all permutating theorems
-    if thm.perm then return false
-    if thm.proof.hasFVar then return false
-
-    if thm == checkingThmId then
-      -- We found a loop starting with `checkingThmId`!
-      if seenThms matches [_] then
-        throwError "Ignoring looping simp theorem: {← ppOrigin thm.origin}"
-      else
-        throwError "Ignoring jointly looping simp theorems: \
-          {.andList (← seenThms.reverse.mapM (ppOrigin ·.origin))}"
-
-    if seenThms.contains thm then
-      -- Starting with `checkingThmId`, we run into a loop, but the loop does
-      -- not actually involve `checkingThmId`. Stop rewriting, but do not complain.
-      -- We update the cache to avoid looping during checking.
-      -- Since this is not reportd, we throw away the cache updates
-      -- at the end of the loop checking.
-      setLoopCache thm false
-      return false
-
-    checkRhs
-    -- Check cache again, we may have found a loop for this one
-    if let some r := (← get).loopProtectionCache.lookup? thm then
-      return r
+    -- Checking for a loop
+    let seenThms := (← getContext).loopCheckStack
+    if let some idx := seenThms.idxOf? thm then
+      let loopThms := (seenThms.take (idx + 1)).toArray.reverse
+      assert! loopThms[0]! == thm
+      trace[Meta.Tactic.simp.loopProtection] "loop detected: {.andList (← loopThms.mapM (ppOrigin ·.origin)).toList}"
+      (rotations loopThms).forM setLoopCacheLoop
     else
-      setLoopCache thm true
-      return true
+      -- Check the right-hand side
+      withPushingLoopCheck thm do
+      withFreshCache do
+        let type ← inferType (← thm.getValue)
+        forallTelescopeReducing type fun _xs type => do
+          let rhs := (← whnf type).appArg!
+          -- We ignore the result for now. We could return it to `tryTheoremCore` to avoid
+          -- re-simplifying the right-hand side, but that would require some more refactoring
+          let _ ← simp rhs
+          -- If we made it this far without finding a loop, this theorem is fine
+          setLoopCacheOkIfUnset thm
+
+  -- Now the cache tells us if this was looping
+  if let some (.loop thms) ← getLoopCache thm then
+    -- Only when this is the starting point and we have not warned before: report the loop
+    unless (← currentlyLoopChecking) do
+      unlessWarnedBefore thm do
+        if let .stx _ ref := thm.origin then
+          logWarningAt ref (← mkLoopWarningMsg thms)
+        else
+          logWarning (← mkLoopWarningMsg thms)
+    return false
+  else
+    return true
 
 /--
 Helper type for implementing `discharge?'`

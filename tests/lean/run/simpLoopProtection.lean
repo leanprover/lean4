@@ -14,7 +14,8 @@ error: unsolved goals
 ⊢ a = 23
 -/
 #guard_msgs in
-example : id a = 23 := by simp +loopProtection -failIfUnchanged [aa]
+example : id a = 23 := by
+  simp +loopProtection -failIfUnchanged [aa]
 
 /--
 warning: Ignoring jointly looping simp theorems: ab and ba
@@ -24,6 +25,17 @@ error: unsolved goals
 -/
 #guard_msgs in
 example : a = 23 := by simp +loopProtection -failIfUnchanged [ab, ba]
+
+/--
+warning: Ignoring jointly looping simp theorems: ab and ba
+---
+warning: Ignoring jointly looping simp theorems: ba and ab
+---
+error: unsolved goals
+⊢ a = 2 * b
+-/
+#guard_msgs in
+example : a = 2*b := by simp +loopProtection -failIfUnchanged [ab, ba]
 
 /--
 warning: Ignoring jointly looping simp theorems: ← ba and ← ab
@@ -55,8 +67,8 @@ theorem id'_eq (n : Nat) : id' n = n := testSorry
 theorem id'_eq_bad (n : Nat) : id' n = id' (id' n) := testSorry
 
 /--
-trace: [Meta.Tactic.simp.loopProtection] ✅️ loop-checking id'_eq:1000
-[Meta.Tactic.simp.loopProtection] ✅️ loop-checking eq_self:1000
+trace: [Meta.Tactic.simp.loopProtection] loop-checking id'_eq:1000
+[Meta.Tactic.simp.loopProtection] loop-checking eq_self:1000
 -/
 #guard_msgs in
 set_option trace.Meta.Tactic.simp.loopProtection true in
@@ -68,8 +80,9 @@ warning: Ignoring looping simp theorem: id'_eq_bad
 error: unsolved goals
 ⊢ id' 1 + id' 2 = id' 3
 ---
-trace: [Meta.Tactic.simp.loopProtection] ✅️ loop-checking id'_eq_bad:1000
-  [Meta.Tactic.simp.loopProtection] ❌️ loop-checking id'_eq_bad:1000
+trace: [Meta.Tactic.simp.loopProtection] loop-checking id'_eq_bad:1000
+  [Meta.Tactic.simp.loopProtection] loop-checking id'_eq_bad:1000
+    [Meta.Tactic.simp.loopProtection] loop detected: id'_eq_bad
 -/
 #guard_msgs in
 set_option trace.Meta.Tactic.simp.loopProtection true in
@@ -164,6 +177,7 @@ P : Nat → Prop
 -/
 #guard_msgs in
 example : c > 0 := by simp only [c, ac]
+
 /--
 warning: Ignoring looping simp theorem: ac
 ---
@@ -172,7 +186,7 @@ P : Nat → Prop
 ⊢ a > 0
 -/
 #guard_msgs in
-example : d > 0 := by simp only [c, ac, dc]
+example : d > 0 := by simp only [dc, c, ac]
 /--
 warning: Ignoring looping simp theorem: ac
 ---

@@ -225,15 +225,26 @@ def UsedSimps.insert (s : UsedSimps) (thmId : Origin) : UsedSimps :=
 def UsedSimps.toArray (s : UsedSimps) : Array Origin :=
   s.map.toArray.qsort (·.2 < ·.2) |>.map (·.1)
 
+inductive LoopProtectionResult where
+  | ok
+  | loop (loop : Array SimpTheorem)
+
 structure LoopProtectionCache where
-  map : PHashMap Expr Bool := {}
+  map : PHashMap Expr LoopProtectionResult := {}
+  warnedSet : PHashSet Expr := {}
   deriving Inhabited
 
-def LoopProtectionCache.lookup? (c : LoopProtectionCache) (thm : SimpTheorem) : Option Bool :=
+def LoopProtectionCache.lookup? (c : LoopProtectionCache) (thm : SimpTheorem) : Option LoopProtectionResult :=
   c.map.find? thm.proof
 
-def LoopProtectionCache.insert (c : LoopProtectionCache) (thm : SimpTheorem) (b : Bool) : LoopProtectionCache :=
-    { c with map := c.map.insert thm.proof b }
+def LoopProtectionCache.insert (c : LoopProtectionCache) (thm : SimpTheorem) (r : LoopProtectionResult) : LoopProtectionCache :=
+  { c with map := c.map.insert thm.proof r }
+
+def LoopProtectionCache.warned (c : LoopProtectionCache) (thm : SimpTheorem) : Bool :=
+  c.warnedSet.contains thm.proof
+
+def LoopProtectionCache.setWarned (c : LoopProtectionCache) (thm : SimpTheorem) : LoopProtectionCache :=
+  { c with warnedSet := c.warnedSet.insert thm.proof }
 
 structure Diagnostics where
   /-- Number of times each simp theorem has been used/applied. -/

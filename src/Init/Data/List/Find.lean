@@ -1106,7 +1106,7 @@ theorem isSome_finIdxOf? [BEq α] [PartialEquivBEq α] {l : List α} {a : α} :
     split <;> simp_all [BEq.comm]
 
 @[simp]
-theorem isNone_finIdxOf?' [BEq α] [PartialEquivBEq α] {l : List α} {a : α} :
+theorem isNone_finIdxOf? [BEq α] [PartialEquivBEq α] {l : List α} {a : α} :
     (l.finIdxOf? a).isNone = !l.contains a := by
   rw [← isSome_finIdxOf?, Option.not_isSome]
 

@@ -810,10 +810,17 @@ Termination hints are `termination_by` and `decreasing_by`, in that order.
 end Termination
 namespace Term
 
+/--
+`obligations_by` opens a tactic block to discharge proof obligations introduced by
+use of `?hole`s in the definition body.
+-/
+@[builtin_doc] def obligationsBy := leading_parser
+  ppDedent ppLine >> "obligations_by " >> Tactic.tacticSeqIndentGt
+
 /-- `letRecDecl` matches the body of a let-rec declaration: a doc comment, attributes, and then
 a let declaration without the `let` keyword, such as `/-- foo -/ @[simp] bar := 1`. -/
 @[builtin_doc] def letRecDecl := leading_parser
-  optional Command.docComment >> optional «attributes» >> letDecl >> Termination.suffix
+  optional Command.docComment >> optional «attributes» >> letDecl >> Termination.suffix >> optional obligationsBy
 /-- `letRecDecls` matches `letRecDecl,+`, a comma-separated list of let-rec declarations (see `letRecDecl`). -/
 -- @[builtin_doc] -- FIXME: suppress the hover
 def letRecDecls      := leading_parser
@@ -829,7 +836,7 @@ def whereDecls := leading_parser
 
 @[run_builtin_parser_attribute_hooks]
 def matchAltsWhereDecls := leading_parser
-  matchAlts >> Termination.suffix >> optional whereDecls
+  matchAlts >> Termination.suffix >> optional whereDecls >> optional obligationsBy
 
 @[builtin_term_parser] def noindex := leading_parser
   "no_index " >> termParser maxPrec

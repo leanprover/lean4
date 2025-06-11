@@ -132,7 +132,7 @@ open PrettyPrinter in
   Parenthesizer.categoryParser.parenthesizer `term 0
 
 def declValSimple    := leading_parser
-  " :=" >> ppHardLineUnlessUngrouped >> declBody >> Termination.suffix >> optional Term.whereDecls
+  " :=" >> ppHardLineUnlessUngrouped >> declBody >> Termination.suffix >> optional Term.whereDecls >> optional Term.obligationsBy
 def declValEqns      := leading_parser
   Term.matchAltsWhereDecls
 def whereStructInst  := leading_parser

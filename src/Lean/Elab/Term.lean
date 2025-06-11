@@ -15,6 +15,7 @@ import Lean.Elab.Level
 import Lean.Elab.DeclModifiers
 import Lean.Elab.PreDefinition.TerminationHint
 import Lean.Elab.DeclarationRange
+import Lean.Elab.Obligations
 import Lean.Language.Basic
 import Lean.Elab.InfoTree.InlayHints
 
@@ -145,6 +146,7 @@ structure LetRecToLift where
   val            : Expr
   mvarId         : MVarId
   termination    : TerminationHints
+  obligations    : Obligations
   deriving Inhabited
 
 /--

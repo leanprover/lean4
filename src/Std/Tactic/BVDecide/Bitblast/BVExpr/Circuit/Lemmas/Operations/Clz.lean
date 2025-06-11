@@ -28,13 +28,26 @@ namespace blastClz
 -- we prove that this is true for n = 0 
 -- we prove that under the hypothesis that this holds until n, it will hold until n + 1
 -- circuit: when curr = 0 → ite x[0] then (w - 1) else acc, where acc is w
+-- circuit: when curr = w - 1 → ite x[w - 1] then 0 else acc, where acc is a chain of ite nodes
+-- the actual base case of the recursion is 
     
 theorem go_denote_zero_eq {w : Nat} (aig : AIG α) 
-    (acc : AIG.RefVec aig w) (x : AIG.RefVec aig w) (xbv : BitVec w) (assign : α → Bool) 
+    (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool)
+    (hxbv : ∀ (idx : Nat) (hidx : 0 < idx), x.getLsbD idx = false) 
+    (hx : ∀ (idx : Nat) (hidx : 0 < idx) (hidx' : idx < w), ⟦aig, (xc.get idx hidx'), assign⟧ = false) 
+    : 
+    ∀ (idx : Nat) (hidx : idx < w), 
+      ⟦(go aig xc 0 acc).aig, (go aig xc 0 acc).vec.get idx hidx, assign⟧ = 
+        (BitVec.clzAuxRec x 0).getLsbD idx := by 
+    intro idx hidx 
+    generalize hgo0 : go aig xc 0 acc = res 
+    unfold go at hgo0 
+    split at hgo0 
+    · simp at hgo0
+      rw [RefVec.denote_ite] at hgo0i
 
-                                            (BitVec.clzAuxRec xbv (w - 1)).getLsbD idx) : 
-
-
+      sorry 
+    · simp [show w = 0 by omega] at hidx 
 
 theorem go_denote_eq {w : Nat} (aig : AIG α)
     (acc : AIG.RefVec aig w) (x : AIG.RefVec aig w) (xexpr : BitVec w) (assign : α → Bool)

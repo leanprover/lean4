@@ -157,6 +157,22 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
         return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
     return #[]
 
+  let locationLinksFromErrorNameInfo (eni : ErrorNameInfo) : MetaM (Array LocationLink) := do
+    let some explan := getErrorExplanationRaw? (← getEnv) eni.errorName | return #[]
+    let some loc := explan.declLoc? | return #[]
+    let { rangeStart := (startLine, startChar), rangeEnd := (endLine, endChar), .. } := loc
+    let range : Lsp.Range := {
+      start := { line := startLine, character := startChar },
+      «end» := { line := endLine  , character := endChar }
+    }
+    let link : LocationLink := {
+      originSelectionRange? := none
+      targetUri := loc.uri
+      targetRange := range
+      targetSelectionRange := range
+    }
+    return #[link]
+
   let locationLinksFromTermInfo (ti : TermInfo) : RequestM (Array LocationLink) := do
     let mut expr := ti.expr
     if kind == type then
@@ -231,21 +247,7 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
   | .ofOptionInfo oi =>
     return ← ci.runMetaM i.lctx <| locationLinksFromDecl i oi.declName
   | .ofErrorNameInfo eni =>
-    return ← ci.runMetaM i.lctx do
-      let some explan := getErrorExplanationRaw? (← getEnv) eni.errorName | return #[]
-      let some loc := explan.declLoc? | return #[]
-      let { rangeStart := (startLine, startChar), rangeEnd := (endLine, endChar), .. } := loc
-      let range : Lsp.Range := {
-        start := { line := startLine, character := startChar },
-        «end» := { line := endLine  , character := endChar }
-      }
-      let link : LocationLink := {
-        originSelectionRange? := none
-        targetUri := loc.uri
-        targetRange := range
-        targetSelectionRange := range
-      }
-      return #[link]
+    return ← ci.runMetaM i.lctx <| locationLinksFromErrorNameInfo eni
   | .ofCommandInfo ⟨`import, _⟩ =>
     if kind == definition || kind == declaration then
       return ← ci.runMetaM i.lctx <| locationLinksFromImport i

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith
-// Imports: Lean.Meta.Tactic.Grind.Arith.Util Lean.Meta.Tactic.Grind.Arith.ProofUtil Lean.Meta.Tactic.Grind.Arith.Types Lean.Meta.Tactic.Grind.Arith.Main Lean.Meta.Tactic.Grind.Arith.Offset Lean.Meta.Tactic.Grind.Arith.Cutsat Lean.Meta.Tactic.Grind.Arith.CommRing
+// Imports: Lean.Meta.Tactic.Grind.Arith.Util Lean.Meta.Tactic.Grind.Arith.ProofUtil Lean.Meta.Tactic.Grind.Arith.Types Lean.Meta.Tactic.Grind.Arith.Main Lean.Meta.Tactic.Grind.Arith.Offset Lean.Meta.Tactic.Grind.Arith.Cutsat Lean.Meta.Tactic.Grind.Arith.CommRing Lean.Meta.Tactic.Grind.Arith.Linear
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,6 +20,7 @@ lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Main(uint8_t builtin, lean_
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Offset(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Linear(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -44,6 +45,9 @@ res = initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat(builtin, lean_io_mk_world()
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Arith_CommRing(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_Arith_Linear(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

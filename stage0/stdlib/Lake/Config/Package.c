@@ -77,6 +77,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Package_licenseFiles__
 LEAN_EXPORT lean_object* l_Lake_OpaquePostUpdateHook_instCoePostUpdateHook(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaquePostUpdateHook_unsafeMk___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_binDir___proj___elambda__1(lean_object*, lean_object*);
+lean_object* l_Lean_LeanOptions_ofArray(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_name___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_plugins___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_version___proj___elambda__2(lean_object*, lean_object*, lean_object*);
@@ -170,7 +171,6 @@ LEAN_EXPORT lean_object* l_Lake_PackageConfig_keywords___proj___elambda__3___box
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_extraDepTargets___proj___elambda__4(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_precompileModules___proj___elambda__3(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_keywords___proj___elambda__1___boxed(lean_object*, lean_object*);
-lean_object* l_Array_mapMUnsafe_map___at_Lake_BuildType_leanArgs___spec__1(size_t, size_t, lean_object*);
 static lean_object* l_Lake_PackageConfig___fields___closed__81;
 lean_object* l_Nat_nextPowerOfTwo_go(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_relReadmeFile(lean_object*);
@@ -227,6 +227,7 @@ LEAN_EXPORT lean_object* l_Lake_PackageConfig_testDriver___proj___elambda__1(lea
 static lean_object* l_Lake_PackageConfig___fields___closed__113;
 LEAN_EXPORT lean_object* l_Lake_Package_licenseFiles(lean_object*);
 static lean_object* l_Lake_PackageConfig___fields___closed__12;
+LEAN_EXPORT lean_object* l_Lake_Package_moreLeanArgs___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_readmeFile___proj___elambda__4___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_buildDir(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -439,6 +440,7 @@ LEAN_EXPORT lean_object* l_Lake_PackageConfig_toWorkspaceConfig___proj___elambda
 LEAN_EXPORT lean_object* l_Lake_Package_staticLibDir(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_licenseFiles___proj___elambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_moreGlobalServerArgs___proj___elambda__4___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Package_moreServerOptions___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_testDriver___proj___elambda__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_irDir___proj___elambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
@@ -524,6 +526,7 @@ static lean_object* l_Lake_PackageConfig___fields___closed__118;
 static lean_object* l_Lake_PackageConfig_instConfigMeta___closed__10;
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_bootstrap___proj___elambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_homepage___proj(lean_object*);
+lean_object* l_Lean_LeanOptions_appendArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_nativeLibDir___proj(lean_object*);
 static lean_object* l_Lake_PackageConfig___fields___closed__107;
 static lean_object* l_Lake_PackageConfig___fields___closed__83;
@@ -12808,21 +12811,23 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lake_Package_moreServerOptions(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_2 = lean_ctor_get(x_1, 3);
-lean_inc(x_2);
-lean_dec(x_1);
 x_3 = lean_ctor_get(x_2, 1);
-lean_inc(x_3);
-lean_dec(x_2);
 x_4 = lean_ctor_get(x_3, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_3, 4);
-lean_inc(x_5);
-lean_dec(x_3);
-x_6 = l_Array_append___rarg(x_4, x_5);
-lean_dec(x_5);
-return x_6;
+x_5 = l_Lean_LeanOptions_ofArray(x_4);
+x_6 = lean_ctor_get(x_3, 4);
+x_7 = l_Lean_LeanOptions_appendArray(x_5, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Package_moreServerOptions___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lake_Package_moreServerOptions(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT uint8_t l_Lake_Package_buildType(lean_object* x_1) {
@@ -12908,12 +12913,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lake_Package_leanOptions(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = lean_ctor_get(x_1, 3);
 x_3 = lean_ctor_get(x_2, 1);
 x_4 = lean_ctor_get(x_3, 0);
-lean_inc(x_4);
-return x_4;
+x_5 = l_Lean_LeanOptions_ofArray(x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Package_leanOptions___boxed(lean_object* x_1) {
@@ -12928,24 +12933,21 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lake_Package_moreLeanArgs(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 3);
-lean_inc(x_2);
-lean_dec(x_1);
 x_3 = lean_ctor_get(x_2, 1);
-lean_inc(x_3);
-lean_dec(x_2);
-x_4 = lean_ctor_get(x_3, 0);
+x_4 = lean_ctor_get(x_3, 1);
 lean_inc(x_4);
-x_5 = lean_array_size(x_4);
-x_6 = 0;
-x_7 = l_Array_mapMUnsafe_map___at_Lake_BuildType_leanArgs___spec__1(x_5, x_6, x_4);
-x_8 = lean_ctor_get(x_3, 1);
-lean_inc(x_8);
-lean_dec(x_3);
-x_9 = l_Array_append___rarg(x_7, x_8);
-lean_dec(x_8);
-return x_9;
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Package_moreLeanArgs___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lake_Package_moreLeanArgs(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Package_weakLeanArgs(lean_object* x_1) {

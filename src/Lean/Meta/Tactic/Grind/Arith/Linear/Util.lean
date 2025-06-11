@@ -92,6 +92,9 @@ def isOrderedCommRing : LinearM Bool := do
 def isLinearOrder : LinearM Bool :=
   return (← getStruct).linearInst?.isSome
 
+def hasNoNatZeroDivisors : LinearM Bool :=
+  return (← getStruct).noNatDivInst?.isSome
+
 @[inline] def modifyStruct (f : Struct → Struct) : LinearM Unit := do
   let structId ← getStructId
   modify' fun s => { s with structs := s.structs.modify structId f }

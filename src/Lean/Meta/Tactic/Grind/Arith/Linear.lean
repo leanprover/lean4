@@ -30,5 +30,6 @@ builtin_initialize registerTraceClass `grind.linarith.assert.store (inherited :=
 builtin_initialize registerTraceClass `grind.debug.linarith.search
 builtin_initialize registerTraceClass `grind.debug.linarith.search.conflict (inherited := true)
 builtin_initialize registerTraceClass `grind.debug.linarith.search.assign (inherited := true)
+builtin_initialize registerTraceClass `grind.debug.linarith.search.split (inherited := true)
 
 end Lean

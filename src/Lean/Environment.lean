@@ -1878,7 +1878,13 @@ private def findOLeanParts (mod : Name) : IO (Array System.FilePath) := do
 
 partial def importModulesCore
     (imports : Array Import) (isModule := false) (arts : NameMap ModuleArtifacts := {}) :
-    ImportStateM Unit := go imports (importAll := true) (isExported := isModule)
+    ImportStateM Unit := do
+  go imports (importAll := true) (isExported := isModule)
+  if isModule then
+    for i in imports do
+      if let some mod := (← get).moduleNameMap[i.module]?.bind (·.mainModule?) then
+        if !mod.isModule then
+          throw <| IO.userError s!"cannot import non`-module` {i.module} from `module`"
 /-
 When the module system is disabled for the root, we import all transitively referenced modules and
 ignore any module system annotations on the way.
@@ -1950,11 +1956,6 @@ where go (imports : Array Import) (importAll : Bool) (isExported : Bool) := do
     -- `imports` is identical for each part
     let some (baseMod, _) := parts[0]? | unreachable!
     goRec baseMod.imports
-    if baseMod.isModule && isModule then
-      for i' in imports do
-        if let some mod := (← get).moduleNameMap[i'.module]?.bind (·.mainModule?) then
-          if !mod.isModule then
-            throw <| IO.userError s!"cannot import non`-module` {i'.module} from `module` {i.module}"
     modify fun s => { s with
       moduleNameMap := s.moduleNameMap.insert i.module { i with importAll, isExported, parts }
       moduleNames := s.moduleNames.push i.module

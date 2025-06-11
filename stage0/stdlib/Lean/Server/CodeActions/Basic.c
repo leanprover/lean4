@@ -36,6 +36,7 @@ static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___
 uint8_t l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__5(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_handleCodeActionResolve___lambda__2___closed__1;
 lean_object* l_panic___at_Lean_Lsp_CompletionItem_getFileSource_x21___spec__1(lean_object*);
+lean_object* l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_handleCodeActionResolve___lambda__2___closed__3;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Server_handleCodeAction___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_1224____closed__2;
@@ -165,7 +166,6 @@ static lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_ini
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_parseRequestParams___at_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_1224____spec__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_handleCodeAction(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ofExcept___at_Lean_Server_handleCodeAction___spec__3(lean_object*);
 static lean_object* l_Lean_Server_instCodeActionProviderInhabited___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_528____lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1300,23 +1300,22 @@ return x_1;
 static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_469____closed__6() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; lean_object* x_8; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_469____closed__2;
 x_3 = l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_469____closed__3;
 x_4 = l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_469____closed__4;
 x_5 = l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_469____closed__5;
 x_6 = 2;
-x_7 = 1;
-x_8 = lean_alloc_ctor(0, 5, 2);
-lean_ctor_set(x_8, 0, x_2);
-lean_ctor_set(x_8, 1, x_3);
-lean_ctor_set(x_8, 2, x_4);
-lean_ctor_set(x_8, 3, x_5);
-lean_ctor_set(x_8, 4, x_1);
-lean_ctor_set_uint8(x_8, sizeof(void*)*5, x_6);
-lean_ctor_set_uint8(x_8, sizeof(void*)*5 + 1, x_7);
-return x_8;
+x_7 = lean_alloc_ctor(0, 6, 1);
+lean_ctor_set(x_7, 0, x_2);
+lean_ctor_set(x_7, 1, x_3);
+lean_ctor_set(x_7, 2, x_4);
+lean_ctor_set(x_7, 3, x_5);
+lean_ctor_set(x_7, 4, x_1);
+lean_ctor_set(x_7, 5, x_1);
+lean_ctor_set_uint8(x_7, sizeof(void*)*6, x_6);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_469_(lean_object* x_1) {
@@ -1693,7 +1692,7 @@ lean_inc(x_9);
 lean_dec(x_7);
 x_10 = l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_528____lambda__5___closed__1;
 x_11 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_10, x_9, x_1);
-x_12 = l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__4(x_11, x_3, x_4, x_8);
+x_12 = l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__7(x_11, x_3, x_4, x_8);
 return x_12;
 }
 }

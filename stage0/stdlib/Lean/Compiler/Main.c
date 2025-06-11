@@ -13,8 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_withTraceNode___at_Lean_addDecl_doAdd___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_89____closed__7;
+lean_object* l_Lean_withTraceNode___at_Lean_addDecl_doAdd___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_89____closed__6;
 lean_object* l_Lean_MessageData_ofList(lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_89____closed__2;
@@ -204,7 +204,7 @@ x_8 = l_Lean_Compiler_compile___closed__2;
 x_9 = 1;
 x_10 = l_Lean_Compiler_compile___lambda__1___closed__3;
 x_11 = lean_box(x_9);
-x_12 = lean_alloc_closure((void*)(l_Lean_withTraceNode___at_Lean_addDecl_doAdd___spec__2___boxed), 8, 5);
+x_12 = lean_alloc_closure((void*)(l_Lean_withTraceNode___at_Lean_addDecl_doAdd___spec__1___boxed), 8, 5);
 lean_closure_set(x_12, 0, x_8);
 lean_closure_set(x_12, 1, x_6);
 lean_closure_set(x_12, 2, x_7);

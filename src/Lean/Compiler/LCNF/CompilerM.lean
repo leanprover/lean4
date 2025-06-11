@@ -166,7 +166,7 @@ it is a free variable, a type (or type former), or `lcErased`.
 
 `Check.lean` contains a substitution validator.
 -/
-abbrev FVarSubst := Std.HashMap FVarId Expr
+abbrev FVarSubst := Std.HashMap FVarId Arg
 
 /--
 Replace the free variables in `e` using the given substitution.
@@ -191,7 +191,9 @@ where
     if e.hasFVar then
       match e with
       | .fvar fvarId => match s[fvarId]? with
-        | some e => if translator then e else go e
+        | some (.fvar fvarId') => if translator then .fvar fvarId' else go (.fvar fvarId')
+        | some (.type e) => if translator then e else go e
+        | some .erased => erasedExpr
         | none => e
       | .lit .. | .const .. | .sort .. | .mvar .. | .bvar .. => e
       | .app f a => e.updateApp! (goApp f) (go a) |>.headBeta
@@ -230,11 +232,9 @@ private partial def normFVarImp (s : FVarSubst) (fvarId : FVarId) (translator : 
       .fvar fvarId'
     else
       normFVarImp s fvarId' translator
-  | some e =>
-    if e.isErased then
-      .erased
-    else
-      panic! s!"invalid LCNF substitution of free variable with expression {e}"
+  -- Types and type formers are only preserved as hints and
+  -- are erased in computationally relevant contexts.
+  | some .erased | some (.type _) => .erased
   | none => .fvar fvarId
 
 /--
@@ -247,10 +247,9 @@ private partial def normArgImp (s : FVarSubst) (arg : Arg) (translator : Bool) :
   | .erased => arg
   | .fvar fvarId =>
     match s[fvarId]? with
-    | some (.fvar fvarId') =>
-      let arg' := .fvar fvarId'
+    | some (arg'@(.fvar _)) =>
       if translator then arg' else normArgImp s arg' translator
-    | some e => if e.isErased then .erased else .type e
+    | some (arg'@.erased) | some (arg'@(.type _)) => arg'
     | none => arg
   | .type e => arg.updateType! (normExprImp s e translator)
 
@@ -293,19 +292,18 @@ instance (m n) [MonadLift m n] [MonadFVarSubstState m] : MonadFVarSubstState n w
   modifySubst f := liftM (modifySubst f : m _)
 
 /--
+Add the substitution `fvarId ↦ e`, `e` must be a valid LCNF `Arg`.
+
+See `Check.lean` for the free variable substitution checker.
+-/
+@[inline] def addSubst [MonadFVarSubstState m] (fvarId : FVarId) (arg : Arg) : m Unit :=
+  modifySubst fun s => s.insert fvarId arg
+
+/--
 Add the entry `fvarId ↦ fvarId'` to the free variable substitution.
 -/
 @[inline] def addFVarSubst [MonadFVarSubstState m] (fvarId : FVarId) (fvarId' : FVarId) : m Unit :=
   modifySubst fun s => s.insert fvarId (.fvar fvarId')
-
-/--
-Add the substitution `fvarId ↦ e`, `e` must be a valid LCNF argument.
-That is, it must be a free variable, type (or type former), or `lcErased`.
-
-See `Check.lean` for the free variable substitution checker.
--/
-@[inline] def addSubst [MonadFVarSubstState m] (fvarId : FVarId) (e : Expr) : m Unit :=
-  modifySubst fun s => s.insert fvarId e
 
 @[inline, inherit_doc normFVarImp] def normFVar [MonadFVarSubst m t] [Monad m] (fvarId : FVarId) : m NormFVarResult :=
   return normFVarImp (← getSubst) fvarId t

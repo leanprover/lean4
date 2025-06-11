@@ -15,7 +15,7 @@ Lemmas about the operations on `Std.DTreeMap` will be available in the
 module `Std.Data.DTreeMap.Lemmas`.
 
 See the module `Std.Data.DTreeMap.Raw.Basic` for a variant of this type which is safe to use in
-nested inductive types.
+nested inductive types and `Std.Data.ExtDTreeMap.Basic` for a variant with extensionality.
 -/
 
 set_option autoImplicit false
@@ -53,6 +53,10 @@ To avoid expensive copies, users should make sure that the tree map is used line
 
 Internally, the tree maps are represented as size-bounded trees, a type of self-balancing binary
 search tree with efficient order statistic lookups.
+
+For use in proofs, the type `Std.ExtDTreeMap` of extensional dependent tree maps should be
+preferred. This type comes with several extensionality lemmas and provides the same functions but
+requires a `TransCmp` instance to work with.
 
 These tree maps contain a bundled well-formedness invariant, which means that they cannot
 be used in nested inductive types. For these use cases, `Std.DTreeMap.Raw` and

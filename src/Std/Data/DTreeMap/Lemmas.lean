@@ -4770,6 +4770,16 @@ end Equiv
 
 section Equiv
 
+/-- Implementation detail of the tree map -/
+def isSetoid (α : Type u) (β : α → Type v) (cmp : α → α → Ordering := by exact compare) :
+    Setoid (Std.DTreeMap α β cmp) where
+  r := Equiv
+  iseqv := {
+    refl _ := .rfl
+    symm := .symm
+    trans := .trans
+  }
+
 variable {t₁ t₂ : DTreeMap α β cmp}
 
 private theorem equiv_iff_equiv : t₁ ~m t₂ ↔ t₁.1.Equiv t₂.1 :=

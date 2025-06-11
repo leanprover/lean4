@@ -238,7 +238,7 @@ where
     for param in decl.params, arg in argMask do
       if let some arg := arg then
         let arg ← normArg arg
-        modify fun s => s.insert param.fvarId arg.toExpr
+        modify fun s => s.insert param.fvarId arg
       else
         -- Keep the parameter
         let param := { param with type := param.type.instantiateLevelParamsNoCache decl.levelParams us }

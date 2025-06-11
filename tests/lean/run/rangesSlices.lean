@@ -1,4 +1,6 @@
-import Std
+prelude
+import Init.Data.Range.New.Nat
+import Init.System.IO
 
 #eval "b" ∈ ("a",,"c")
 
@@ -24,4 +26,4 @@ def f : IO Unit := do
 
 def testArray : Array Nat := #[0, 1, 2, 3, 4, 5, 6]
 
-#eval testArray[[2<,,]].iter.toList
+-- #eval testArray[[2<,,]].iter.toList

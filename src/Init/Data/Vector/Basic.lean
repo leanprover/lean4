@@ -11,8 +11,10 @@ import Init.Data.Array.Lemmas
 import Init.Data.Array.MapIdx
 import Init.Data.Array.InsertIdx
 import Init.Data.Array.Range
-import Init.Data.Range
+import Init.Data.Range.New.Nat
 import Init.Data.Stream
+
+import Init.GetElem
 
 /-!
 # Vectors
@@ -549,6 +551,10 @@ instance : ToStream (Vector α n) (Subarray α) where
 instance instLT [LT α] : LT (Vector α n) := ⟨fun xs ys => xs.toArray < ys.toArray⟩
 instance instLE [LT α] : LE (Vector α n) := ⟨fun xs ys => xs.toArray ≤ ys.toArray⟩
 
+#synth ForIn' Id Std.Range Nat _
+
+#check Std.Range.instForIn'NatInferInstanceMembership
+
 /--
 Lexicographic comparator for vectors.
 
@@ -556,8 +562,8 @@ Lexicographic comparator for vectors.
 - `v` is pairwise equivalent via `==` to `w`, or
 - there is an index `i` such that `lt v[i] w[i]`, and for all `j < i`, `v[j] == w[j]`.
 -/
-def lex [BEq α] (xs ys : Vector α n) (lt : α → α → Bool := by exact (· < ·)) : Bool := Id.run do
-  for h : i in [0 : n] do
+def lex' [BEq α] (xs ys : Vector α n) (lt : α → α → Bool := by exact (· < ·)) : Bool := Id.run do
+  for h : i in 0,,<n do
     if lt xs[i] ys[i] then
       return true
     else if xs[i] != ys[i] then

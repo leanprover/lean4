@@ -266,8 +266,8 @@ instance [Succ? α] [LE α] [DecidableLE α] [HasDownwardUnboundedRanges α] :
 -- TODO: iterators for ranges that are unbounded downwards
 
 theorem Range.SuccIterator.succ?_eq_some_of_isPlausibleSuccessorOf [Succ? α] [LE α] [DecidableLE α]
-    [∀ a h, Finite (Range.SuccIterator (α := α) 1 (· ≤ a) h) Id]
-    {it' it : Iter (α := Range.SuccIterator (α := α) 1 (· ≤ a) h) α}
+    {it' it : Iter (α := Range.SuccIterator (α := α) 1 P h) α}
+    [Finite (Range.SuccIterator (α := α) 1 P h) Id]
     (h' : it'.IsPlausibleSuccessorOf it) :
     Succ?.succAtIdx? 1 it.internalState.next = some it'.internalState.next :=
   h' |>
@@ -297,6 +297,29 @@ instance [Succ? α] [LE α] [DecidableLE α] [LawfulLESucc? α] [Monad m]
       replace h := Range.SuccIterator.succ?_eq_some_of_isPlausibleSuccessorOf h
       exact LawfulLESucc?.le_succAtIdx?_of_le (α := α) hle h
 
+@[no_expose]
+instance [Succ? α] [LT α] [DecidableLT α] [LE α] [DecidableLE α] [LawfulLESucc? α] [Monad m]
+    [∀ a h, Finite (Range.SuccIterator (α := α) 1  (· < a) h) Id] :
+    ForIn' m (PRange ⟨.closed, .open⟩ α) α inferInstance where
+  forIn' r init f := by
+    haveI : MonadLift Id m := ⟨Std.Internal.idToMonad (α := _)⟩
+    refine ForIn'.forIn' (α := α) r.iter init (fun a ha acc => f a ?_ acc)
+    have hle : r.lower ≤ r.iter.internalState.next := by exact LawfulLESucc?.le_rfl (α := α)
+    generalize r.iter = it at ha hle
+    induction ha with
+    | direct =>
+      rename_i it out h
+      rcases h with ⟨it', h, h'⟩
+      refine ⟨?_, ?_⟩
+      · rcases h with ⟨rfl, _⟩
+        exact hle
+      · simpa [← PostconditionT.pure_eq_pure] using h'
+    | indirect =>
+      rename_i it it' it'' out h h' ih
+      apply ih
+      replace h := Range.SuccIterator.succ?_eq_some_of_isPlausibleSuccessorOf h
+      exact LawfulLESucc?.le_succAtIdx?_of_le (α := α) hle h
+
 instance [Succ? α] [LE α] [DecidableLE α] [LawfulLESucc? α]
     [HasDownwardUnboundedRanges α] [Monad m]
     [∀ a h, Finite (Range.SuccIterator (α := α) 1  (· ≤ a) h) Id] :
@@ -306,3 +329,16 @@ instance [Succ? α] [LE α] [DecidableLE α] [LawfulLESucc? α]
       fun out h acc => f out (by exact h.2) acc
 
 end Iterator
+
+theorem Range.mem.upper [LE α] {i : α} {r : PRange ⟨.none, .closed⟩ α} (h : i ∈ r) : i ≤ r.upper :=
+  h
+
+-- theorem Range.mem.lower [LE α] {i : α} {r : PRange ⟨.none, .closed⟩ α} (h : i ∈ r) : r.lower ≤ i := h.1
+
+-- theorem Range.mem.step {i : Nat} {r : PRange shape α} (h : i ∈ r) : (i - r.start) % r.step = 0 := h.2.2
+
+theorem Range.get_elem_helper {i n : Nat} {r : PRange ⟨.closed, .open⟩ Nat} (h₁ : i ∈ r) (h₂ : r.upper = n) :
+    i < n := h₂ ▸ h₁.2
+
+macro_rules
+  | `(tactic| get_elem_tactic_extensible) => `(tactic| apply Range.get_elem_helper; assumption; rfl)

@@ -73,14 +73,15 @@ def checkLoops (thm : SimpTheorem) : SimpM Bool := do
     if thm.perm then return false
     if thm.proof.hasFVar then return false
 
-    if thmId == checkingThmId then
+    if thm == checkingThmId then
       -- We found a loop starting with `checkingThmId`!
       if seenThms matches [_] then
         throwError "Ignoring looping simp theorem: {← ppOrigin thmId}"
       else
-        throwError "Ignoring jointly looping simp theorems: {.andList (← seenThms.reverse.mapM ppOrigin)}"
+        throwError "Ignoring jointly looping simp theorems: \
+          {.andList (← seenThms.reverse.mapM (ppOrigin ·.origin))}"
 
-    if seenThms.contains thmId then
+    if seenThms.contains thm then
       -- Starting with `checkingThmId`, we run into a loop, but the loop does
       -- not actually involve `checkingThmId`. Stop rewriting, but do not complain.
       return false

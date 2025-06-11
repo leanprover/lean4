@@ -112,8 +112,12 @@ structure Context where
   inDSimp : Bool := false
   /--
   Stack of simp theorems we are in the process of checking for loops.
+
+  We store the whole `SimpTheorem` here, not just the `Origin`, as
+  simp theorems that are conjunctions lead to different theorems
+  with the same origin, but different proofs.
   -/
-  loopCheckStack : List Origin := []
+  loopCheckStack : List SimpTheorem := []
 
   deriving Inhabited
 
@@ -286,7 +290,7 @@ abbrev SimpM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
   return x
 
 @[inline] def withPushingLoopCheck (thm : SimpTheorem) : SimpM α → SimpM α :=
-  withTheReader Context fun ctx => { ctx with loopCheckStack := thm.origin :: ctx.loopCheckStack }
+  withTheReader Context fun ctx => { ctx with loopCheckStack := thm :: ctx.loopCheckStack }
 
 /--
 Executes `x` using a `MetaM` configuration for indexing terms.

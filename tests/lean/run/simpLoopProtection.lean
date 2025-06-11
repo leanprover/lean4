@@ -96,21 +96,30 @@ example (t : Tree α) : 0 < t.size := by simp +loopProtection [Tree.size]
 
 
 /--
-TODO: Identifiyng looping theorems by their origin is not enough,
-as the elements of conjunctions would clash.
+Identifiyng looping theorems by their origin is not enough,
+as the elements of conjunctions would clash, as shown by these:
+
+(The error message isn't great yet, but it's a corner case)
 -/
 
 theorem b1ab : b = 1 ∧ a = b := testSorry
+theorem baab : b = a ∧ a = b := testSorry
 
 /--
-warning: Ignoring looping simp theorem: b1ab
+error: unsolved goals
+P : Nat → Prop
+⊢ 1 > 0
+-/
+#guard_msgs in
+example : a > 0 := by simp +loopProtection only [b1ab]
+
+/--
+warning: Ignoring jointly looping simp theorems: baab and baab
 ---
 error: simp made no progress
 -/
 #guard_msgs in
-example
-  (h2 : a > 0) : True := by
-  simp +loopProtection only [b1ab] at h2
+example : a > 0 := by simp +loopProtection only [baab]
 
 -- Same, with local theorems (should we ever support them):
 

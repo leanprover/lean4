@@ -150,7 +150,7 @@ private def addSorted (c : EqCnstr) : List EqCnstr → List EqCnstr
       c' :: addSorted c cs
 
 def addToBasisCore (c : EqCnstr) : RingM Unit := do
-  trace[grind.debug.ring.basis] "adding: {← c.denoteExpr}"
+  trace[grind.debug.ring.basis] "{← c.denoteExpr}"
   modifyRing fun s => { s with
     basis := addSorted c s.basis
     recheck := true

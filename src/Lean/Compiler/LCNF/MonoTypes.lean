@@ -88,11 +88,7 @@ partial def toMonoType (type : Expr) : CoreM Expr := do
 where
   visitApp (f : Expr) (args : Array Expr) : CoreM Expr := do
     match f with
-    | .const ``lcErased _ =>
-      if args.all (·.isErased) then
-        return erasedExpr
-      else
-        return anyExpr
+    | .const ``lcErased _ => return erasedExpr
     | .const ``lcAny _ => return anyExpr
     | .const ``Decidable _ => return mkConst ``Bool
     | .const declName us =>

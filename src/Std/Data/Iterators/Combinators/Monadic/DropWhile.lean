@@ -16,7 +16,7 @@ import Std.Data.Iterators.PostConditionMonad
 # Monadic `dropWhile` iterator combinator
 
 This module provides the iterator combinator `IterM.dropWhile` that will drop all values emitted
-by a given iterator until a given predicate on these values becomes false the first fime. Beginning
+by a given iterator until a given predicate on these values becomes false the first time. Beginning
 with that moment, the combinator will forward all emitted values.
 
 Several variants of this combinator are provided:

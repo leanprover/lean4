@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Expr
 import Lean.Message
+import Std.Internal.Rat
 
 namespace Lean.Meta.Grind.Arith
 
@@ -93,5 +94,17 @@ partial def gcdExt (a b : Int) : Int × Int × Int :=
   else
     let (g, α, β) := gcdExt b (a % b)
     (g, β, α - (a / b) * β)
+
+open Std.Internal
+
+-- TODO: PArray.shrink and PArray.resize
+partial def shrink (a : PArray Rat) (sz : Nat) : PArray Rat :=
+  if a.size > sz then shrink a.pop sz else a
+
+partial def resize (a : PArray Rat) (sz : Nat) : PArray Rat :=
+  if a.size > sz then shrink a sz else go a
+where
+  go (a : PArray Rat) : PArray Rat :=
+    if a.size < sz then go (a.push 0) else a
 
 end Lean.Meta.Grind.Arith

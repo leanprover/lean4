@@ -55,7 +55,7 @@ and stores `c` in `x`, `b` in `a`, and the proof that `c = some b` in `h`.
 -/
 def genPattern {α : Sort u} (_h : Prop) (x : α) (_val : α) : α := x
 
-/-- Similar to `genPattern` but for the heterogenous case -/
+/-- Similar to `genPattern` but for the heterogeneous case -/
 def genHEqPattern {α β : Sort u} (_h : Prop) (x : α) (_val : β) : α := x
 end Lean.Grind
 
@@ -175,7 +175,7 @@ structure Config where
   -/
   zeta := true
   /--
-  When `true` (default: `false`), uses procedure for handling equalities over commutative rings.
+  When `true` (default: `true`), uses procedure for handling equalities over commutative rings.
   -/
   ring := true
   ringSteps := 10000
@@ -184,6 +184,11 @@ structure Config where
   proof terms, instead of a single-step Nullstellensatz certificate
   -/
   ringNull := false
+  /--
+  When `true` (default: `true`), uses procedure for handling linear arithmetic for `IntModule`, and
+  `CommRing`.
+  -/
+  linarith := true
   deriving Inhabited, BEq
 
 end Lean.Grind

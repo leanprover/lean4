@@ -16,7 +16,7 @@ import Std.Data.Iterators.PostConditionMonad
 # Monadic `takeWhile` iterator combinator
 
 This module provides the iterator combinator `IterM.takeWhile` that will take all values emitted
-by a given iterator until a given predicate on these values becomes false the first fime. Then
+by a given iterator until a given predicate on these values becomes false the first time. Then
 the combinator will terminate.
 
 Several variants of this combinator are provided:

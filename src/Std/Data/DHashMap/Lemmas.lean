@@ -51,9 +51,13 @@ theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
 
 -- While setting up the API, often use this in the reverse direction,
 -- but prefer this direction for users.
-@[simp, grind _=_]
+@[simp, grind =]
 theorem contains_iff_mem {a : α} : m.contains a ↔ a ∈ m :=
   Iff.rfl
+
+-- We need to specify the pattern for the reverse direction manually,
+-- as the default heuristic leaves the `DHashMap α β` argument as a wildcard.
+grind_pattern contains_iff_mem => @Membership.mem α (DHashMap α β) _ m a
 
 theorem contains_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) :
     m.contains a = m.contains b :=

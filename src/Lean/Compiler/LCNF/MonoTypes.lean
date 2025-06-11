@@ -102,6 +102,7 @@ where
       else
         let mut result := mkConst declName
         let mut type ← getOtherDeclBaseType declName us
+        if type.isErased then return erasedExpr
         for arg in args do
           let .forallE _ d b _ := type.headBeta | unreachable!
           let arg := arg.headBeta

@@ -5439,7 +5439,7 @@ static lean_object* _init_l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_Eli
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Not abstracing goal over ", 25, 25);
+x_1 = lean_mk_string_unchecked("Not abstracting goal over ", 26, 26);
 return x_1;
 }
 }

@@ -596,7 +596,7 @@ theorem clear_insertRup {n : Nat} (f : DefaultFormula n) (f_readyForRupAdd : Rea
       specialize h ⟨i, i_lt_n⟩
       rcases h with ⟨h,_⟩
       · exact h
-      · omega -- FIXME: `grind` doesn't work here
+      · omega -- FIXME why can't `grind` do this?
 
 theorem clauses_performRupCheck {n : Nat} (f : DefaultFormula n) (rupHints : Array Nat) :
     (performRupCheck f rupHints).1.clauses = f.clauses := by

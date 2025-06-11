@@ -25,12 +25,9 @@ where
       -- re-run first goal for error message
       tryGoal newType firstGoal (← getGoals).tail [] manyError
     | goal :: goals =>
-      if goals.isEmpty && prevRev.isEmpty then
-        -- optimization for single goal
-        tryGoal newType firstGoal goals prevRev simpleError
-      else if goals.isEmpty && !(← read).recover then
-        -- optimization for last goal without error recovery
-        withoutRecover (tryGoal newType goal goals prevRev simpleError)
+      if goals.isEmpty && (prevRev.isEmpty || !(← read).recover) then
+        -- optimization for single goal / last goal without error recovery
+        tryGoal newType goal goals prevRev simpleError
       else
         /-
         Save state manually to make sure that the info state is reverted,

@@ -15,6 +15,7 @@ import Lean.Elab.Level
 import Lean.Elab.DeclModifiers
 import Lean.Elab.PreDefinition.TerminationHint
 import Lean.Elab.DeclarationRange
+import Lean.Elab.WhereFinally
 import Lean.Language.Basic
 import Lean.Elab.InfoTree.InlayHints
 
@@ -139,6 +140,7 @@ structure LetRecToLift where
   attrs          : Array Attribute
   shortDeclName  : Name
   declName       : Name
+  parentName?    : Option Name
   lctx           : LocalContext
   localInstances : LocalInstances
   type           : Expr

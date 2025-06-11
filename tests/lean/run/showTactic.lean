@@ -127,7 +127,7 @@ error: 'show' tactic failed, no goals unify with the given pattern.
 
 In the first goal, the pattern
   x = 4
-is not definitionally equal to target
+is not definitionally equal to the target
   x = 1
 (Errors for other goals omitted)
 -/

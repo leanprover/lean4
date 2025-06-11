@@ -56,7 +56,7 @@ where
   manyError (p tgt : Expr) : MetaM MessageData := do
     return m!"\
       'show' tactic failed, no goals unify with the given pattern.\n\
-      \n
+      \n\
       In the first goal, the pattern{indentExpr p}\n\
       is not definitionally equal to the target{indentExpr tgt}\n\
       (Errors for other goals omitted)"

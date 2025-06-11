@@ -213,7 +213,7 @@ inductive NormFVarResult where
     fvar (fvarId : FVarId)
   | /--
     Free variable has been erased. This can happen when instantiating polymorphic code
-    with computationally irrelant stuff. -/
+    with computationally irrelevant stuff. -/
     erased
   deriving Inhabited
 

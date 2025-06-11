@@ -49,7 +49,7 @@ def checkLoops (thm : SimpTheorem) : SimpM Bool := do
 
     -- Accept permutating and local theorems without checking
     if thm.perm then return true
-    if thm.proof.hasFVar then return false
+    if thm.proof.hasFVar then return true
 
     -- Check the right-hand side, turn thrown errors into logged warnigns.
     let r ←

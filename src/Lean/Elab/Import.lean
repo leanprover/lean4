@@ -5,7 +5,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Lean.Parser.Module
-import Lean.Util.Paths
 import Lean.CoreM
 
 namespace Lean.Elab
@@ -27,6 +26,10 @@ def HeaderSyntax.imports : HeaderSyntax → Array Import
           isMeta := metaTk.isSome }
       | _ => unreachable!
   | _ => unreachable!
+
+def HeaderSyntax.toModuleHeader (stx : HeaderSyntax) : ModuleHeader where
+  isModule := stx.isModule
+  imports := stx.imports
 
 abbrev headerToImports := @HeaderSyntax.imports
 

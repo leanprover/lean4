@@ -216,12 +216,20 @@ partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' d
   | _ => throwError "NIY"
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do
-  throwError "NIY"
+  match c'.h with
+  | .core a b lhs rhs =>
+    let h ← mkIntModThmPrefix ``Grind.Linarith.diseq_norm
+    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue (← mkDiseqProof a b)
+  | .coreCommRing a b lhs rhs p' lhs' =>
+    let h' ← mkCommRingThmPrefix ``Grind.CommRing.diseq_norm
+    let h' := mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl p') reflBoolTrue (← mkDiseqProof a b)
+    let h ← mkIntModThmPrefix ``Grind.Linarith.diseq_norm
+    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) reflBoolTrue h'
 
 partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
   match h with
   | .lt c => return mkApp (← mkIntModPreThmPrefix ``Grind.Linarith.lt_unsat) (← c.toExprProof)
-  | .diseq _ => throwError "NIY"
+  | .diseq c => return mkApp (← mkIntModThmPrefix ``Grind.Linarith.diseq_unsat) (← c.toExprProof)
 
 end
 

@@ -38,15 +38,15 @@ inductive IneqCnstrProof where
   | /-- `a ≤ b` from an equality `a = b` coming from the core. -/
     ofEq (a b : Expr) (la lb : LinExpr)
   | /-- `a ≤ b` from an equality `a = b` coming from the core. -/
-    ofCommRingEq (a b : Expr) (la lb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+    ofCommRingEq (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
 
 structure DiseqCnstr where
   p  : Poly
   h  : DiseqCnstrProof
 
 inductive DiseqCnstrProof where
-  | core (e : Expr) (lhs rhs : LinExpr)
-  -- TODO
+  | core (a b : Expr) (lhs rhs : LinExpr)
+  | coreCommRing (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
 
 inductive UnsatProof where
   | diseq (c : DiseqCnstr)
@@ -55,7 +55,7 @@ inductive UnsatProof where
 end
 
 instance : Inhabited DiseqCnstr where
-  default := { p := .nil, h := .core default .zero .zero }
+  default := { p := .nil, h := .core default default .zero .zero }
 
 /--
 State for each algebraic structure by this module.

@@ -136,8 +136,8 @@ theorem Option.pbind_congr
   ...
 ```
 -/
-@[builtin_init, builtin_doc]
-private def init :=
+@[builtin_doc]
+builtin_initialize
   registerBuiltinAttribute {
     name  := `congr
     descr := "congruence theorem"

@@ -2100,8 +2100,8 @@ builtin_initialize builtinIncrementalElabs : IO.Ref NameSet ← IO.mkRef {}
 def addBuiltinIncrementalElab (decl : Name) : IO Unit := do
   builtinIncrementalElabs.modify fun s => s.insert decl
 
-@[builtin_init, inherit_doc incrementalAttr, builtin_doc]
-private def init :=
+@[inherit_doc incrementalAttr, builtin_doc]
+builtin_initialize
   registerBuiltinAttribute {
     name            := `builtin_incremental
     descr           := s!"(builtin) {incrementalAttr.attr.descr}"

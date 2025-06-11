@@ -62,6 +62,7 @@ LEAN_EXPORT lean_object* l_Lake_compileExe(lean_object*, lean_object*, lean_obje
 lean_object* l_IO_FS_createDirAll(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_foldlAux___at_Lake_mkArgs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Actions_0__Lake_getMacOSXDeploymentEnv(lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lake_download___lambda__1___closed__4;
 static lean_object* l_Lake_tar___lambda__1___closed__3;
@@ -164,7 +165,6 @@ extern uint8_t l_System_Platform_isWindows;
 LEAN_EXPORT lean_object* l_Lake_compileLeanModule___lambda__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_compileLeanModule___lambda__2___closed__1;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l___private_Lake_Build_Actions_0__Lake_getMacOSXDeploymentEnv___closed__1;
 static lean_object* l_Lake_untar___closed__1;
 static lean_object* l_Lake_tar___lambda__1___closed__4;
@@ -637,7 +637,7 @@ else
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_12 = lean_uint32_to_nat(x_5);
-x_13 = l___private_Init_Data_Repr_0__Nat_reprFast(x_12);
+x_13 = l_Nat_reprFast(x_12);
 x_14 = l_Lake_compileLeanModule___lambda__1___closed__1;
 x_15 = lean_string_append(x_14, x_13);
 lean_dec(x_13);

@@ -159,6 +159,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_PartialFixpoint_derivePartialCorrectness___
 uint8_t l_Lean_Expr_isLambda(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_PartialFixpoint_isOptionFixpoint(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_PartialFixpoint_deriveInduction___lambda__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_initFn____x40_Lean_Elab_PreDefinition_PartialFixpoint_Induction___hyg_6806____closed__8;
 lean_object* l_Lean_Elab_FixedParamPerm_instantiateLambda(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -273,7 +274,6 @@ static lean_object* l_Lean_Elab_PartialFixpoint_initFn____x40_Lean_Elab_PreDefin
 static lean_object* l_Lean_Elab_PartialFixpoint_isPartialCorrectnessName___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_PartialFixpoint_unfoldPredRel___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_PartialFixpoint_deriveInduction___lambda__11___boxed(lean_object**);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_PartialFixpoint_derivePartialCorrectness___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_Lean_Elab_PartialFixpoint_deriveInduction___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_PartialFixpoint_initFn____x40_Lean_Elab_PreDefinition_PartialFixpoint_Induction___hyg_4608____lambda__2___closed__7;
@@ -422,6 +422,7 @@ lean_object* l_Lean_getConstInfoDefn___at___private_Lean_Elab_PreDefinition_Eqns
 lean_object* l_Lean_Meta_PProdN_stripProjs(lean_object*);
 lean_object* l_Lean_Meta_elimOptParam___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_PartialFixpoint_deriveInduction___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_PartialFixpoint_initFn____x40_Lean_Elab_PreDefinition_PartialFixpoint_Induction___hyg_6620____lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedName;
@@ -495,7 +496,6 @@ uint64_t l___private_Lean_Meta_Basic_0__Lean_Meta_Config_toKey(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Induction_0__Lean_Elab_PartialFixpoint_numberNames___lambda__1___closed__1;
 lean_object* l_Lean_MessageData_ofName(lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_PartialFixpoint_isPartialCorrectnessName(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_instantiateForallAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_PartialFixpoint_mkOptionAdm___lambda__1___closed__3;
@@ -876,7 +876,7 @@ x_2 = l_Lean_Elab_PartialFixpoint_mkAdmProj___closed__7;
 x_3 = lean_unsigned_to_nat(38u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Lean_Elab_PartialFixpoint_mkAdmProj___closed__5;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1502,7 +1502,7 @@ x_2 = l_Lean_Elab_PartialFixpoint_unfoldPredRel___lambda__3___closed__3;
 x_3 = lean_unsigned_to_nat(73u);
 x_4 = lean_unsigned_to_nat(30u);
 x_5 = l_Lean_Elab_PartialFixpoint_unfoldPredRel___lambda__3___closed__1;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -3035,7 +3035,7 @@ lean_dec(x_2);
 x_8 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Induction_0__Lean_Elab_PartialFixpoint_numberNames___lambda__1___closed__1;
 x_9 = lean_string_append(x_7, x_8);
 x_10 = lean_nat_add(x_3, x_4);
-x_11 = l___private_Init_Data_Repr_0__Nat_reprFast(x_10);
+x_11 = l_Nat_reprFast(x_10);
 x_12 = lean_string_append(x_9, x_11);
 lean_dec(x_11);
 x_13 = lean_string_append(x_12, x_6);
@@ -10112,7 +10112,7 @@ x_8 = l_Lean_Elab_PartialFixpoint_mkAdmProj___closed__6;
 x_9 = l_Lean_Elab_PartialFixpoint_isOptionFixpoint___lambda__2___closed__2;
 x_10 = lean_unsigned_to_nat(278u);
 x_11 = lean_unsigned_to_nat(48u);
-x_12 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_8, x_9, x_10, x_11, x_7);
+x_12 = l_mkPanicMessageWithDecl(x_8, x_9, x_10, x_11, x_7);
 lean_dec(x_7);
 x_13 = l_panic___at_Lean_Elab_PartialFixpoint_isOptionFixpoint___spec__1(x_12);
 return x_13;
@@ -10145,7 +10145,7 @@ x_2 = l_Lean_Elab_PartialFixpoint_isOptionFixpoint___lambda__2___closed__2;
 x_3 = lean_unsigned_to_nat(275u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Elab_PartialFixpoint_isOptionFixpoint___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -11446,7 +11446,7 @@ lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean
 x_21 = lean_nat_add(x_6, x_16);
 lean_dec(x_6);
 lean_inc(x_21);
-x_22 = l___private_Init_Data_Repr_0__Nat_reprFast(x_21);
+x_22 = l_Nat_reprFast(x_21);
 x_23 = l_Array_mapFinIdxM_map___at_Lean_Elab_PartialFixpoint_derivePartialCorrectness___spec__3___closed__1;
 x_24 = lean_string_append(x_23, x_22);
 lean_dec(x_22);

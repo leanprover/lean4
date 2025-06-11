@@ -72,7 +72,7 @@ def CompletionInfo.lctx : CompletionInfo → LocalContext
   | _                   => .empty
 
 def CustomInfo.format : CustomInfo → Format
-  | i => f!"CustomInfo({i.value.typeName})"
+  | i => f!"[CustomInfo({i.value.typeName})]"
 
 instance : ToFormat CustomInfo := ⟨CustomInfo.format⟩
 
@@ -155,26 +155,26 @@ def TermInfo.format (ctx : ContextInfo) (info : TermInfo) : IO Format := do
         Meta.ppExpr (← Meta.inferType info.expr)
       catch _ =>
         pure "<failed-to-infer-type>"
-    return f!"{← Meta.ppExpr info.expr} {if info.isBinder then "(isBinder := true) " else ""}: {ty} @ {formatElabInfo ctx info.toElabInfo}"
+    return f!"[Term] {← Meta.ppExpr info.expr} {if info.isBinder then "(isBinder := true) " else ""}: {ty} @ {formatElabInfo ctx info.toElabInfo}"
 
 def PartialTermInfo.format (ctx : ContextInfo) (info : PartialTermInfo) : Format :=
-  f!"Partial term @ {formatElabInfo ctx info.toElabInfo}"
+  f!"[PartialTerm] @ {formatElabInfo ctx info.toElabInfo}"
 
 def CompletionInfo.format (ctx : ContextInfo) (info : CompletionInfo) : IO Format :=
   match info with
-  | .dot i (expectedType? := expectedType?) .. => return f!"[.] {← i.format ctx} : {expectedType?}"
-  | .id stx _ _ lctx expectedType? => ctx.runMetaM lctx do return f!"[.] {← ctx.ppSyntax lctx stx} : {expectedType?} @ {formatStxRange ctx info.stx}"
-  | _ => return f!"[.] {info.stx} @ {formatStxRange ctx info.stx}"
+  | .dot i (expectedType? := expectedType?) .. => return f!"[Completion-Dot] {← i.format ctx} : {expectedType?}"
+  | .id stx _ _ lctx expectedType? => ctx.runMetaM lctx do return f!"[Completion-Id] {← ctx.ppSyntax lctx stx} : {expectedType?} @ {formatStxRange ctx info.stx}"
+  | _ => return f!"[Completion] {info.stx} @ {formatStxRange ctx info.stx}"
 
 def CommandInfo.format (ctx : ContextInfo) (info : CommandInfo) : IO Format := do
-  return f!"command @ {formatElabInfo ctx info.toElabInfo}"
+  return f!"[Command] @ {formatElabInfo ctx info.toElabInfo}"
 
 def OptionInfo.format (ctx : ContextInfo) (info : OptionInfo) : IO Format := do
-  return f!"option {info.optionName} @ {formatStxRange ctx info.stx}"
+  return f!"[Option] {info.optionName} @ {formatStxRange ctx info.stx}"
 
 def FieldInfo.format (ctx : ContextInfo) (info : FieldInfo) : IO Format := do
   ctx.runMetaM info.lctx do
-    return f!"{info.fieldName} : {← Meta.ppExpr (← Meta.inferType info.val)} := {← Meta.ppExpr info.val} @ {formatStxRange ctx info.stx}"
+    return f!"[Field] {info.fieldName} : {← Meta.ppExpr (← Meta.inferType info.val)} := {← Meta.ppExpr info.val} @ {formatStxRange ctx info.stx}"
 
 def ContextInfo.ppGoals (ctx : ContextInfo) (goals : List MVarId) : IO Format :=
   if goals.isEmpty then
@@ -187,31 +187,31 @@ def TacticInfo.format (ctx : ContextInfo) (info : TacticInfo) : IO Format := do
   let ctxA := { ctx with mctx := info.mctxAfter }
   let goalsBefore ← ctxB.ppGoals info.goalsBefore
   let goalsAfter  ← ctxA.ppGoals info.goalsAfter
-  return f!"Tactic @ {formatElabInfo ctx info.toElabInfo}\n{info.stx}\nbefore {goalsBefore}\nafter {goalsAfter}"
+  return f!"[Tactic] @ {formatElabInfo ctx info.toElabInfo}\n{info.stx}\nbefore {goalsBefore}\nafter {goalsAfter}"
 
 def MacroExpansionInfo.format (ctx : ContextInfo) (info : MacroExpansionInfo) : IO Format := do
   let stx    ← ctx.ppSyntax info.lctx info.stx
   let output ← ctx.ppSyntax info.lctx info.output
-  return f!"Macro expansion\n{stx}\n===>\n{output}"
+  return f!"[MacroExpansion]\n{stx}\n===>\n{output}"
 
 def UserWidgetInfo.format (info : UserWidgetInfo) : Format :=
-  f!"UserWidget {info.id}\n{Std.ToFormat.format <| info.props.run' {}}"
+  f!"[UserWidget] {info.id}\n{Std.ToFormat.format <| info.props.run' {}}"
 
 def FVarAliasInfo.format (info : FVarAliasInfo) : Format :=
-  f!"FVarAlias {info.userName.eraseMacroScopes}: {info.id.name} -> {info.baseId.name}"
+  f!"[FVarAlias] {info.userName.eraseMacroScopes}: {info.id.name} -> {info.baseId.name}"
 
 def FieldRedeclInfo.format (ctx : ContextInfo) (info : FieldRedeclInfo) : Format :=
-  f!"FieldRedecl @ {formatStxRange ctx info.stx}"
+  f!"[FieldRedecl] @ {formatStxRange ctx info.stx}"
 
 def DelabTermInfo.format (ctx : ContextInfo) (info : DelabTermInfo) : IO Format := do
   let loc := if let some loc := info.location? then f!"{loc.module} {loc.range.pos}-{loc.range.endPos}" else "none"
-  return f!"DelabTermInfo @ {← TermInfo.format ctx info.toTermInfo}\n\
+  return f!"[DelabTerm] @ {← TermInfo.format ctx info.toTermInfo}\n\
     Location: {loc}\n\
     Docstring: {repr info.docString?}\n\
     Explicit: {info.explicit}"
 
 def ChoiceInfo.format (ctx : ContextInfo) (info : ChoiceInfo) : Format :=
-  f!"Choice @ {formatElabInfo ctx info.toElabInfo}"
+  f!"[Choice] @ {formatElabInfo ctx info.toElabInfo}"
 
 def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofTacticInfo i         => i.format ctx

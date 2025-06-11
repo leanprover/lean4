@@ -37,6 +37,7 @@ static lean_object* l_Std_Internal_Parsec_String_hexDigit___closed__1;
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_skipString___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharPos;
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_pstring___boxed(lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Std_Internal_Parsec_String_take___closed__2;
 uint8_t l_instDecidableNot___rarg(uint8_t);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
@@ -88,7 +89,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_ws(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_Parsec_String_pstring___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharPos___lambda__4___boxed(lean_object*);
 static lean_object* l_Std_Internal_Parsec_String_Parser_run___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharPos___lambda__1(lean_object* x_1) {
@@ -381,7 +381,7 @@ lean_dec(x_5);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
 lean_dec(x_8);
-x_11 = l___private_Init_Data_Repr_0__Nat_reprFast(x_10);
+x_11 = l_Nat_reprFast(x_10);
 x_12 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_12, 0, x_11);
 x_13 = l_Std_Format_defWidth;
@@ -1919,7 +1919,7 @@ x_15 = lean_ctor_get(x_3, 1);
 lean_dec(x_15);
 x_16 = lean_ctor_get(x_3, 0);
 lean_dec(x_16);
-x_17 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_17 = l_Nat_reprFast(x_1);
 x_18 = l_Std_Internal_Parsec_String_pstring___closed__1;
 x_19 = lean_string_append(x_18, x_17);
 lean_dec(x_17);
@@ -1934,7 +1934,7 @@ else
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 lean_dec(x_3);
-x_22 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_22 = l_Nat_reprFast(x_1);
 x_23 = l_Std_Internal_Parsec_String_pstring___closed__1;
 x_24 = lean_string_append(x_23, x_22);
 lean_dec(x_22);
@@ -1992,7 +1992,7 @@ x_35 = lean_ctor_get(x_3, 1);
 lean_dec(x_35);
 x_36 = lean_ctor_get(x_3, 0);
 lean_dec(x_36);
-x_37 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_37 = l_Nat_reprFast(x_1);
 x_38 = l_Std_Internal_Parsec_String_pstring___closed__1;
 x_39 = lean_string_append(x_38, x_37);
 lean_dec(x_37);
@@ -2007,7 +2007,7 @@ else
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
 lean_dec(x_3);
-x_42 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_42 = l_Nat_reprFast(x_1);
 x_43 = l_Std_Internal_Parsec_String_pstring___closed__1;
 x_44 = lean_string_append(x_43, x_42);
 lean_dec(x_42);
@@ -2068,7 +2068,7 @@ x_57 = lean_ctor_get(x_3, 1);
 lean_dec(x_57);
 x_58 = lean_ctor_get(x_3, 0);
 lean_dec(x_58);
-x_59 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_59 = l_Nat_reprFast(x_1);
 x_60 = l_Std_Internal_Parsec_String_pstring___closed__1;
 x_61 = lean_string_append(x_60, x_59);
 lean_dec(x_59);
@@ -2083,7 +2083,7 @@ else
 {
 lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; 
 lean_dec(x_3);
-x_64 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
+x_64 = l_Nat_reprFast(x_1);
 x_65 = l_Std_Internal_Parsec_String_pstring___closed__1;
 x_66 = lean_string_append(x_65, x_64);
 lean_dec(x_64);

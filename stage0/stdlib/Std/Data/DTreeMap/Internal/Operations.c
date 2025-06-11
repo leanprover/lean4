@@ -181,7 +181,6 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Std_DTreeMap_Internal_Impl_C
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_insertMany___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_mergeWith___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Std_DTreeMap_Internal_Impl_link2_x21___spec__5(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_maxView_x21___rarg___closed__4;
 LEAN_EXPORT lean_object* l_panic___at_Std_DTreeMap_Internal_Impl_erase_x21___spec__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Std_DTreeMap_Internal_Impl_Const_unitOfList___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -284,6 +283,7 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_filter_x21(lean_object*, l
 LEAN_EXPORT lean_object* l_panic___at_Std_DTreeMap_Internal_Impl_link_x21___spec__1(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Internal_Operations_0__Std_DTreeMap_Internal_Impl_link2_match__5_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Std_DTreeMap_Internal_Impl_link_x21___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_DTreeMap_Internal_Impl_Const_mergeWith___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_filterMap_x21(lean_object*, lean_object*, lean_object*);
@@ -1886,7 +1886,7 @@ x_2 = l_Std_DTreeMap_Internal_Impl_minView_x21___rarg___closed__2;
 x_3 = lean_unsigned_to_nat(268u);
 x_4 = lean_unsigned_to_nat(35u);
 x_5 = l_Std_DTreeMap_Internal_Impl_minView_x21___rarg___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1899,7 +1899,7 @@ x_2 = l_Std_DTreeMap_Internal_Impl_minView_x21___rarg___closed__2;
 x_3 = lean_unsigned_to_nat(269u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Std_DTreeMap_Internal_Impl_minView_x21___rarg___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -6126,7 +6126,7 @@ x_2 = l_Std_DTreeMap_Internal_Impl_maxView_x21___rarg___closed__1;
 x_3 = lean_unsigned_to_nat(174u);
 x_4 = lean_unsigned_to_nat(35u);
 x_5 = l_Std_DTreeMap_Internal_Impl_maxView_x21___rarg___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -6139,7 +6139,7 @@ x_2 = l_Std_DTreeMap_Internal_Impl_maxView_x21___rarg___closed__1;
 x_3 = lean_unsigned_to_nat(175u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Std_DTreeMap_Internal_Impl_maxView_x21___rarg___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

@@ -676,10 +676,30 @@ def addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declarati
     if let some n := decl.getTopLevelNames.find? (!ctx.mayContain ·) then
       throw <| .other s!"cannot add declaration {n} to environment as it is restricted to the \
         prefix {ctx.declPrefix}"
-  if doCheck then
+  let mut env ← if doCheck then
     addDeclCheck env maxHeartbeats decl cancelTk?
   else
     addDeclWithoutChecking env decl
+
+  -- Let the elaborator know about the new constants. This uses the same constant for both
+  -- visibility scopes but the caller can still customize the public one on the main elaboration
+  -- branch by use of `addConstAsync` as is the case for `Lean.addDecl`.
+  for n in decl.getNames do
+    let some info := env.checked.get.find? n | unreachable!
+    env := { env with asyncConstsMap.private := env.asyncConstsMap.private.add {
+      constInfo := .ofConstantInfo info
+      exts? := none
+      consts := .pure <| .mk (α := AsyncConsts) default
+    } }
+    -- TODO
+    if true /- !isPrivateName n-/ then
+      env := { env with asyncConstsMap.public := env.asyncConstsMap.public.add {
+        constInfo := .ofConstantInfo info
+        exts? := none
+        consts := .pure <| .mk (α := AsyncConsts) default
+      } }
+
+  return env
 
 @[inherit_doc Kernel.Environment.constants]
 def constants (env : Environment) : ConstMap :=
@@ -1839,7 +1859,7 @@ partial def importModulesCore
     ImportStateM Unit := go imports (importAll := true) (isExported := isModule)
 /-
 When the module system is disabled for the root, we import all transitively referenced modules and
-ignore any module sytem annotations on the way.
+ignore any module system annotations on the way.
 
 When the module system is enabled for the root, each module may need to be imported at one of the
 following levels:

@@ -224,6 +224,9 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
     let mut decl ← normLetDecl baseDecl
     if baseDecl != decl then
       markSimplified
+    if decl.type.isErased && decl.value != .erased then
+      markSimplified
+      decl ← decl.updateValue .erased
     if let some value ← simpValue? decl.value then
       markSimplified
       decl ← decl.updateValue value
@@ -314,7 +317,6 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
     else
       withNormFVarResult (← normFVar c.discr) fun discr => do
         let resultType ← normExpr c.resultType
-        markUsedFVar discr
         let alts ← c.alts.mapMonoM fun alt => do
           match alt with
           | .alt ctorName ps k =>
@@ -328,8 +330,14 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
                 return alt.updateCode (← simp k)
           | .default k => return alt.updateCode (← simp k)
         let alts ← addDefaultAlt alts
-        if alts.size == 1 && alts[0]! matches .default .. then
-          return alts[0]!.getCode
-        else
-          return code.updateCases! resultType discr alts
+        if let #[alt] := alts then
+          match alt with
+          | .default k => return k
+          | .alt _ params k =>
+            if !(← params.anyM (isUsed ·.fvarId)) then
+              params.forM (eraseParam ·)
+              markSimplified
+              return k
+        markUsedFVar discr
+        return code.updateCases! resultType discr alts
 end

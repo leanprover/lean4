@@ -24,6 +24,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Time_
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_Elab_Time_elabTimeCmd___closed__3;
+lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_mono_ms_now(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Time_elabTimeCmd___spec__1___boxed(lean_object*, lean_object*);
@@ -47,7 +48,6 @@ lean_object* l_Lean_logAt___at_Lean_Elab_Command_withLoggingExceptions___spec__3
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Time_elabTimeCmd___spec__1(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* _init_l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Time_elabTimeCmd___spec__1___rarg___closed__1() {
 _start:
 {
@@ -206,7 +206,7 @@ x_21 = lean_ctor_get(x_18, 1);
 x_22 = lean_nat_sub(x_20, x_14);
 lean_dec(x_14);
 lean_dec(x_20);
-x_23 = l___private_Init_Data_Repr_0__Nat_reprFast(x_22);
+x_23 = l_Nat_reprFast(x_22);
 x_24 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_24, 0, x_23);
 x_25 = l_Lean_MessageData_ofFormat(x_24);
@@ -236,7 +236,7 @@ lean_dec(x_18);
 x_33 = lean_nat_sub(x_31, x_14);
 lean_dec(x_14);
 lean_dec(x_31);
-x_34 = l___private_Init_Data_Repr_0__Nat_reprFast(x_33);
+x_34 = l_Nat_reprFast(x_33);
 x_35 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_35, 0, x_34);
 x_36 = l_Lean_MessageData_ofFormat(x_35);
@@ -317,7 +317,7 @@ if (lean_is_exclusive(x_51)) {
 x_55 = lean_nat_sub(x_52, x_47);
 lean_dec(x_47);
 lean_dec(x_52);
-x_56 = l___private_Init_Data_Repr_0__Nat_reprFast(x_55);
+x_56 = l_Nat_reprFast(x_55);
 x_57 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_57, 0, x_56);
 x_58 = l_Lean_MessageData_ofFormat(x_57);

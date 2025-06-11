@@ -115,6 +115,7 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___closed_
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_runExternal___lambda__1___closed__2;
 static lean_object* l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Lean_Elab_Tactic_BVDecide_Frontend_instToExprIntAction___spec__3___closed__23;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___spec__2___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprIntAction___lambda__1___closed__24;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___spec__2___lambda__4(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -186,7 +187,6 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___closed_
 uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_trace_profiler_threshold;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprIntAction___lambda__1___closed__9;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_create_tempfile(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_TacticContext_new_determineSolver___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Lean_Elab_Tactic_BVDecide_Frontend_instToExprIntAction___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -272,6 +272,7 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_TacticContext_new___clo
 static lean_object* l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Lean_Elab_Tactic_BVDecide_Frontend_instToExprIntAction___spec__3___closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Lean_Elab_Tactic_BVDecide_Frontend_instToExprIntAction___spec__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_TacticContext_new_determineSolver___closed__1;
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static double l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___spec__2___lambda__4___closed__5;
 static lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___spec__2___lambda__4___closed__2;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___lambda__6___closed__1;
@@ -309,7 +310,6 @@ static lean_object* l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Lean_Ela
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___lambda__9___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Lean_Elab_Tactic_BVDecide_Frontend_instToExprIntAction___spec__2___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___lambda__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_runExternal___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -402,7 +402,7 @@ x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_TacticContext_new_determineSolver___c
 x_3 = lean_unsigned_to_nat(21u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_TacticContext_new_determineSolver___closed__5;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -3876,7 +3876,7 @@ x_13 = lean_ctor_get(x_6, 1);
 lean_inc(x_13);
 lean_dec(x_6);
 x_14 = lean_array_get_size(x_2);
-x_15 = l___private_Init_Data_Repr_0__Nat_reprFast(x_14);
+x_15 = l_Nat_reprFast(x_14);
 x_16 = l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___lambda__5___closed__1;
 x_17 = lean_string_append(x_16, x_15);
 lean_dec(x_15);
@@ -4255,7 +4255,7 @@ x_25 = lean_ctor_get(x_19, 1);
 lean_inc(x_25);
 lean_dec(x_19);
 x_26 = lean_array_get_size(x_17);
-x_27 = l___private_Init_Data_Repr_0__Nat_reprFast(x_26);
+x_27 = l_Nat_reprFast(x_26);
 x_28 = l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___lambda__5___closed__1;
 x_29 = lean_string_append(x_28, x_27);
 lean_dec(x_27);

@@ -804,7 +804,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_InputFileConfig_dec
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_decodeToml___spec__29(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_LeanExeConfig_decodeToml___spec__14(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static uint8_t l___private_Lake_Load_Toml_0__Lake_genDecodeToml___at_Lake___aux__Lake__Load__Toml______macroRules__Lake__commandGen__toml__decoders_x25__1___spec__9___closed__3;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_LeanConfig_instConfigTomlInfo___spec__18(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanLibConfig_instConfigTomlInfo___closed__4;
 static lean_object* l_Lake_instDecodeTomlArrayGlob___closed__1;
@@ -1252,6 +1251,7 @@ static lean_object* l_Lake_instDecodeFieldPackageConfigMkStr1___closed__1;
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake___aux__Lake__Load__Toml______macroRules__Lake__commandGen__toml__decoders_x25__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_PatternDescr_decodeToml___spec__3___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_LeanLibConfig_instConfigTomlInfo___closed__10;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_loadTomlConfig___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_instDecodeTomlArrayGlob___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2047,7 +2047,7 @@ x_2 = l_Lake_takeNamePart___closed__2;
 x_3 = lean_unsigned_to_nat(21u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lake_takeNamePart___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

@@ -575,9 +575,9 @@ theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 :=
 
 /-! ### any / all -/
 
-theorem any_eq {l : List α} : l.any p = decide (∃ x, x ∈ l ∧ p x) := by induction l <;> simp [*]
+@[grind =] theorem any_eq {l : List α} : l.any p = decide (∃ x, x ∈ l ∧ p x) := by induction l <;> simp [*]
 
-theorem all_eq {l : List α} : l.all p = decide (∀ x, x ∈ l → p x) := by induction l <;> simp [*]
+@[grind =] theorem all_eq {l : List α} : l.all p = decide (∀ x, x ∈ l → p x) := by induction l <;> simp [*]
 
 theorem decide_exists_mem {l : List α} {p : α → Prop} [DecidablePred p] :
     decide (∃ x, x ∈ l ∧ p x) = l.any p := by
@@ -1128,7 +1128,8 @@ theorem map_singleton {f : α → β} {a : α} : map f [a] = [f a] := rfl
 
 -- We use a lower priority here as there are more specific lemmas in downstream libraries
 -- which should be able to fire first.
-@[simp 500] theorem mem_map {f : α → β} : ∀ {l : List α}, b ∈ l.map f ↔ ∃ a, a ∈ l ∧ f a = b
+@[simp 500, grind =] theorem mem_map {f : α → β} :
+    ∀ {l : List α}, b ∈ l.map f ↔ ∃ a, a ∈ l ∧ f a = b
   | [] => by simp
   | _ :: l => by simp [mem_map (l := l), eq_comm (a := b)]
 
@@ -2777,8 +2778,8 @@ We can prove that two folds over the same list are related (by some arbitrary re
 if we know that the initial elements are related and the folding function, for each element of the list,
 preserves the relation.
 -/
-theorem foldl_rel {l : List α} {f g : β → α → β} {a b : β} {r : β → β → Prop}
-    (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f c a) (g c' a)) :
+theorem foldl_rel {l : List α} {f : β → α → β} {g : γ → α → γ} {a : β} {b : γ} {r : β → γ → Prop}
+    (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c : β) (c' : γ), r c c' → r (f c a) (g c' a)) :
     r (l.foldl (fun acc a => f acc a) a) (l.foldl (fun acc a => g acc a) b) := by
   induction l generalizing a b with
   | nil => simp_all
@@ -2793,8 +2794,8 @@ We can prove that two folds over the same list are related (by some arbitrary re
 if we know that the initial elements are related and the folding function, for each element of the list,
 preserves the relation.
 -/
-theorem foldr_rel {l : List α} {f g : α → β → β} {a b : β} {r : β → β → Prop}
-    (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f a c) (g a c')) :
+theorem foldr_rel {l : List α} {f : α → β → β} {g : α → γ → γ} {a : β} {b : γ} {r : β → γ → Prop}
+    (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c : β) (c' : γ), r c c' → r (f a c) (g a c')) :
     r (l.foldr (fun a acc => f a acc) a) (l.foldr (fun a acc => g a acc) b) := by
   induction l generalizing a b with
   | nil => simp_all

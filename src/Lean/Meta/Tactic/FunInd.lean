@@ -1506,7 +1506,7 @@ where doRealize inductName := do
 
 /--
 Given an expression `fun x y z => body`, returns a bit mask of the functinon's arity length
-that has `true` whenver that parameter of the function appears as a scrutinee of a `match` in
+that has `true` whenever that parameter of the function appears as a scrutinee of a `match` in
 tail position. These are the parameters that are likely useful as targets of the motive
 of the functional cases theorem. All others become parameters or may be dropped.
 
@@ -1680,12 +1680,14 @@ def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
   match s with
   | "induct"
   | "induct_unfolding" =>
+    unless env.isSafeDefinition p do return false
     if let some eqnInfo := WF.eqnInfoExt.find? env p then
       return true
     if (Structural.eqnInfoExt.find? env p).isSome then return true
     return false
   | "mutual_induct"
   | "mutual_induct_unfolding" =>
+    unless env.isSafeDefinition p do return false
     if let some eqnInfo := WF.eqnInfoExt.find? env p then
       if h : eqnInfo.declNames.size > 1 then
         return eqnInfo.declNames[0] = p
@@ -1701,12 +1703,8 @@ def isFunCasesName (env : Environment) (name : Name) : Bool := Id.run do
   match s with
   | "fun_cases"
   | "fun_cases_unfolding" =>
-    if (WF.eqnInfoExt.find? env p).isSome then return true
-    if (Structural.eqnInfoExt.find? env p).isSome then return true
-    if let some ci := env.find? p then
-      if ci.hasValue then
-        return true
-    return false
+    unless env.isSafeDefinition p do return false
+    return true
   | _ => return false
 
 builtin_initialize
@@ -1716,11 +1714,13 @@ builtin_initialize
   registerReservedNameAction fun name => do
     if isFunInductName (← getEnv) name then
       let .str p s := name | return false
+      unless (← getEnv).isSafeDefinition p do return false
       let unfolding := s.endsWith "_unfolding"
       MetaM.run' <| deriveInduction unfolding p
       return true
     if isFunCasesName (← getEnv) name then
       let .str p s := name | return false
+      unless (← getEnv).isSafeDefinition p do return false
       let unfolding := s == "fun_cases_unfolding"
       MetaM.run' <| deriveCases unfolding p
       return true

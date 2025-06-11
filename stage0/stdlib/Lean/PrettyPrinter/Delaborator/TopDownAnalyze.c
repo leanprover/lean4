@@ -459,7 +459,6 @@ static lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownA
 static lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownAnalyze___hyg_247____closed__1;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_tryUnify___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_maybeSetExplicit___spec__1(lean_object*, size_t, size_t);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_collectBottomUps___spec__1___boxed(lean_object**);
 lean_object* l_Lean_Meta_getResetPostponed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_hasMVarAtCurrDepth___lambda__1(lean_object*, lean_object*);
@@ -712,6 +711,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_topDownAnalyze___lambd
 LEAN_EXPORT lean_object* l_Lean_Meta_withNewMCtxDepth___at_Lean_PrettyPrinter_Delaborator_topDownAnalyze___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_getPos___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_analyzeArg___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_findLevelDepth_x3f(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_containsBadMax(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_collectHigherOrders___spec__1___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4869,7 +4869,7 @@ x_2 = l_Std_DHashMap_Internal_AssocList_get_x21___at_Lean_PrettyPrinter_Delabora
 x_3 = lean_unsigned_to_nat(138u);
 x_4 = lean_unsigned_to_nat(11u);
 x_5 = l_Std_DHashMap_Internal_AssocList_get_x21___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_replaceLPsWithVars___spec__7___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -15978,7 +15978,7 @@ x_2 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___clo
 x_3 = lean_unsigned_to_nat(441u);
 x_4 = lean_unsigned_to_nat(41u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -18080,7 +18080,7 @@ x_2 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetBody___at_Lean_PrettyPrint
 x_3 = lean_unsigned_to_nat(124u);
 x_4 = lean_unsigned_to_nat(38u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -18439,7 +18439,7 @@ x_2 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetVarType___at_Lean_PrettyPr
 x_3 = lean_unsigned_to_nat(116u);
 x_4 = lean_unsigned_to_nat(38u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -18739,7 +18739,7 @@ x_2 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetValue___at_Lean_PrettyPrin
 x_3 = lean_unsigned_to_nat(120u);
 x_4 = lean_unsigned_to_nat(38u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -18931,7 +18931,7 @@ x_2 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___close
 x_3 = lean_unsigned_to_nat(458u);
 x_4 = lean_unsigned_to_nat(46u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -19350,7 +19350,7 @@ x_2 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___at_Lean_PrettyPri
 x_3 = lean_unsigned_to_nat(112u);
 x_4 = lean_unsigned_to_nat(33u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -19716,7 +19716,7 @@ x_2 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___at_Lean_PrettyPrinter_
 x_3 = lean_unsigned_to_nat(108u);
 x_4 = lean_unsigned_to_nat(34u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

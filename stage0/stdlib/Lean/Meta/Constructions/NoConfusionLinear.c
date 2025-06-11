@@ -132,7 +132,6 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_Lean_NoConfusionLinear_mkNoConfusionTypeLinear___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Meta_Constructions_NoConfusionLinear___hyg_83____closed__27;
 LEAN_EXPORT lean_object* l___auto____x40_Lean_Meta_Constructions_NoConfusionLinear___hyg_83_;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkNot(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NoConfusionLinear_mkWithCtor___lambda__6___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_Lean_NoConfusionLinear_mkWithCtor___lambda__3___boxed(lean_object**);
@@ -202,6 +201,7 @@ LEAN_EXPORT lean_object* l_Lean_NoConfusionLinear_mkNatLookupTable(lean_object*,
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_NoConfusionLinear_mkWithCtorType___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_Lean_NoConfusionLinear_mkWithCtor___spec__1___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NoConfusionLinear_mkNoConfusionTypeLinear___lambda__3___boxed(lean_object**);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_NoConfusionLinear_mkWithCtorType___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2027,7 +2027,7 @@ x_2 = l_Lean_NoConfusionLinear_mkWithCtorType___closed__2;
 x_3 = lean_unsigned_to_nat(72u);
 x_4 = lean_unsigned_to_nat(60u);
 x_5 = l_Lean_NoConfusionLinear_mkWithCtorType___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -2048,7 +2048,7 @@ x_2 = l_Lean_NoConfusionLinear_mkWithCtorType___closed__2;
 x_3 = lean_unsigned_to_nat(75u);
 x_4 = lean_unsigned_to_nat(58u);
 x_5 = l_Lean_NoConfusionLinear_mkWithCtorType___closed__5;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -4227,7 +4227,7 @@ x_2 = l_Lean_NoConfusionLinear_mkWithCtor___lambda__2___closed__4;
 x_3 = lean_unsigned_to_nat(122u);
 x_4 = lean_unsigned_to_nat(8u);
 x_5 = l_Lean_NoConfusionLinear_mkWithCtor___lambda__2___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -4556,7 +4556,7 @@ x_2 = l_Lean_NoConfusionLinear_mkWithCtor___lambda__2___closed__4;
 x_3 = lean_unsigned_to_nat(105u);
 x_4 = lean_unsigned_to_nat(60u);
 x_5 = l_Lean_NoConfusionLinear_mkWithCtorType___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -4569,7 +4569,7 @@ x_2 = l_Lean_NoConfusionLinear_mkWithCtor___lambda__2___closed__4;
 x_3 = lean_unsigned_to_nat(109u);
 x_4 = lean_unsigned_to_nat(58u);
 x_5 = l_Lean_NoConfusionLinear_mkWithCtorType___closed__5;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -7512,7 +7512,7 @@ x_2 = l_Lean_NoConfusionLinear_mkNoConfusionTypeLinear___closed__1;
 x_3 = lean_unsigned_to_nat(165u);
 x_4 = lean_unsigned_to_nat(60u);
 x_5 = l_Lean_NoConfusionLinear_mkWithCtorType___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -7525,7 +7525,7 @@ x_2 = l_Lean_NoConfusionLinear_mkNoConfusionTypeLinear___closed__1;
 x_3 = lean_unsigned_to_nat(168u);
 x_4 = lean_unsigned_to_nat(58u);
 x_5 = l_Lean_NoConfusionLinear_mkWithCtorType___closed__5;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

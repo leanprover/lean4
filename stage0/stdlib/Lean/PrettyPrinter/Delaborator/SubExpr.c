@@ -160,7 +160,6 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_wit
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withBindingBody_x27___at_Lean_PrettyPrinter_Delaborator_SubExpr_withBindingBody___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withLetVarType___spec__10(lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withNaryArg___rarg___lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withLetBody___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withLetValue___spec__7(lean_object*);
@@ -247,6 +246,7 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_wit
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___spec__8___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withLetValue___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_PrettyPrinter_Delaborator_SubExpr_withLetBody___spec__9___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withLetBody___spec__7(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withLetValue___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withBoundedAppFnArgs___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4006,7 +4006,7 @@ x_2 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___rarg___lambda__1___clo
 x_3 = lean_unsigned_to_nat(108u);
 x_4 = lean_unsigned_to_nat(34u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___rarg___lambda__1___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -4380,7 +4380,7 @@ x_2 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___rarg___lambda__2_
 x_3 = lean_unsigned_to_nat(112u);
 x_4 = lean_unsigned_to_nat(33u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___rarg___lambda__1___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -4752,7 +4752,7 @@ x_2 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetVarType___rarg___lambda__1
 x_3 = lean_unsigned_to_nat(116u);
 x_4 = lean_unsigned_to_nat(38u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___rarg___lambda__1___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -5114,7 +5114,7 @@ x_2 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetValue___rarg___lambda__1__
 x_3 = lean_unsigned_to_nat(120u);
 x_4 = lean_unsigned_to_nat(38u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___rarg___lambda__1___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -5530,7 +5530,7 @@ x_2 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetBody___rarg___lambda__2___
 x_3 = lean_unsigned_to_nat(124u);
 x_4 = lean_unsigned_to_nat(38u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___rarg___lambda__1___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

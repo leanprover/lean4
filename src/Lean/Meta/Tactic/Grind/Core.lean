@@ -187,6 +187,31 @@ def propagateCommRing : PendingTheoryPropagation → GoalM Unit
   | _ => return ()
 
 /--
+Helper function for combining `ENode.linarith?` fields and detecting what needs to be
+propagated to the linarith module.
+-/
+private def checkLinarithEq (rhsRoot lhsRoot : ENode) : GoalM PendingTheoryPropagation := do
+  match lhsRoot.linarith? with
+  | some lhs =>
+    if let some rhs := rhsRoot.linarith? then
+      return .eq lhs rhs
+    else
+      -- We have to retrieve the node because other fields have been updated
+      let rhsRoot ← getENode rhsRoot.self
+      setENode rhsRoot.self { rhsRoot with linarith? := lhs }
+      return .diseqs (← getParents rhsRoot.self)
+  | none =>
+    if rhsRoot.linarith?.isSome then
+      return .diseqs (← getParents lhsRoot.self)
+    else
+      return .none
+
+def propagateLinarith : PendingTheoryPropagation → GoalM Unit
+  | .eq lhs rhs => Arith.Linear.processNewEq lhs rhs
+  | .diseqs ps => propagateLinarithDiseqs ps
+  | _ => return ()
+
+/--
 Tries to apply beta-reductiong using the parent applications of the functions in `fns` with
 the lambda expressions in `lams`.
 -/
@@ -291,6 +316,7 @@ where
     let offsetTodo ← checkOffsetEq rhsRoot lhsRoot
     let cutsatTodo ← checkCutsatEq rhsRoot lhsRoot
     let ringTodo ← checkCommRingEq rhsRoot lhsRoot
+    let linarithTodo ← checkLinarithEq rhsRoot lhsRoot
     resetParentsOf lhsRoot.self
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
@@ -303,6 +329,7 @@ where
       propagateOffset offsetTodo
       propagateCutsat cutsatTodo
       propagateCommRing ringTodo
+      propagateLinarith linarithTodo
   updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do
     traverseEqc lhs fun n =>
       setENode n.self { n with root := rootNew }

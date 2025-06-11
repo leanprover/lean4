@@ -70,7 +70,6 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Lean_Environment_Replay_repl
 static lean_object* l_Lean_RBNode_forIn_visit___at_Lean_Environment_Replay_checkPostponedConstructors___spec__1___closed__3;
 uint8_t l_Lean_beqConstructorVal____x40_Lean_Declaration___hyg_3119_(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Environment_Replay_replayConstant___spec__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Environment_Replay_checkPostponedRecursors(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Lean_Environment_Replay_replayConstant___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -103,6 +102,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldrM___at_Lean_Envi
 size_t lean_usize_sub(size_t, size_t);
 static lean_object* l_Lean_RBNode_forIn_visit___at_Lean_Environment_Replay_checkPostponedRecursors___spec__1___closed__1;
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Environment_Replay_replayConstant___spec__10(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at_Lean_Environment_Replay_checkPostponedConstructors___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Environment_Replay_replayConstants(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -784,7 +784,7 @@ x_2 = l_Std_DHashMap_Internal_AssocList_get_x21___at_Lean_Environment_Replay_rep
 x_3 = lean_unsigned_to_nat(138u);
 x_4 = lean_unsigned_to_nat(11u);
 x_5 = l_Std_DHashMap_Internal_AssocList_get_x21___at_Lean_Environment_Replay_replayConstant___spec__2___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1573,7 +1573,7 @@ x_2 = l_Lean_Environment_Replay_replayConstant___closed__2;
 x_3 = lean_unsigned_to_nat(74u);
 x_4 = lean_unsigned_to_nat(50u);
 x_5 = l_Lean_Environment_Replay_replayConstant___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

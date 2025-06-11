@@ -8,6 +8,7 @@ import Init.Data.List.BasicAux
 import Lean.AddDecl
 import Lean.Meta.AppBuilder
 import Lean.Meta.Instances
+import Lean.DefEqAttrib
 
 namespace Lean.Meta
 
@@ -148,14 +149,16 @@ partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
           trace[Meta.sizeOf] "declName: {declName}"
           trace[Meta.sizeOf] "type: {sizeOfType}"
           trace[Meta.sizeOf] "val: {sizeOfValue}"
-          addDecl <| Declaration.defnDecl {
-            name        := declName
-            levelParams := levelParams
-            type        := sizeOfType
-            value       := sizeOfValue
-            safety      := DefinitionSafety.safe
-            hints       := ReducibilityHints.abbrev
-          }
+          -- We expose the `sizeOf` functions so that the `spec` theorems can be publicly `defeq`
+          withExporting do
+            addDecl <| Declaration.defnDecl {
+              name        := declName
+              levelParams := levelParams
+              type        := sizeOfType
+              value       := sizeOfValue
+              safety      := DefinitionSafety.safe
+              hints       := ReducibilityHints.abbrev
+            }
 
 /--
   Create `sizeOf` functions for all inductive datatypes in the mutual inductive declaration containing `typeName`
@@ -457,6 +460,7 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
         type        := thmType
         value       := thmValue
       }
+      inferDefEqAttr thmName
       simpAttr.add thmName default AttributeKind.global
 
 private def mkSizeOfSpecTheorems (indTypeNames : Array Name) (sizeOfFns : Array Name) (recMap : NameMap Name) : MetaM Unit := do
@@ -500,14 +504,16 @@ def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
                   let instDeclType ← mkForallFVars (xs ++ localInsts) sizeOfIndType
                   let instDeclValue ← mkLambdaFVars (xs ++ localInsts) sizeOfMk
                   trace[Meta.sizeOf] ">> {instDeclName} : {instDeclType}"
-                  addDecl <| Declaration.defnDecl {
-                    name        := instDeclName
-                    levelParams := indInfo.levelParams
-                    type        := instDeclType
-                    value       := instDeclValue
-                    safety      := .safe
-                    hints       := .abbrev
-                  }
+                  -- We expose the `sizeOf` instance so that the `spec` theorems can be publicly `defeq`
+                  withExporting do
+                    addDecl <| Declaration.defnDecl {
+                      name        := instDeclName
+                      levelParams := indInfo.levelParams
+                      type        := instDeclType
+                      value       := instDeclValue
+                      safety      := .safe
+                      hints       := .abbrev
+                    }
                   addInstance instDeclName AttributeKind.global (eval_prio default)
         if genSizeOfSpec.get (← getOptions) then
           mkSizeOfSpecTheorems indInfo.all.toArray fns recMap

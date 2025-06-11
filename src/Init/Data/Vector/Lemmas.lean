@@ -1138,6 +1138,7 @@ theorem all_eq_false' {p : α → Bool} {xs : Vector α n} :
   simp only [all_mk, Array.all_eq_false']
   simp
 
+@[grind =]
 theorem any_eq {xs : Vector α n} {p : α → Bool} : xs.any p = decide (∃ i : Nat, ∃ h, p (xs[i]'h)) := by
   by_cases h : xs.any p
   · simp_all [any_eq_true]
@@ -1152,6 +1153,7 @@ theorem any_eq' {xs : Vector α n} {p : α → Bool} : xs.any p = decide (∃ x,
     simp only [any_eq_false'] at h
     simpa using h
 
+@[grind =]
 theorem all_eq {xs : Vector α n} {p : α → Bool} : xs.all p = decide (∀ i, (_ : i < n) → p xs[i]) := by
   by_cases h : xs.all p
   · simp_all [all_eq_true]
@@ -1473,7 +1475,8 @@ theorem map_singleton {f : α → β} {a : α} : map f #v[a] = #v[f a] := by sim
 
 -- We use a lower priority here as there are more specific lemmas in downstream libraries
 -- which should be able to fire first.
-@[simp 500] theorem mem_map {f : α → β} {xs : Vector α n} : b ∈ xs.map f ↔ ∃ a, a ∈ xs ∧ f a = b := by
+@[simp 500, grind =] theorem mem_map {f : α → β} {xs : Vector α n} :
+    b ∈ xs.map f ↔ ∃ a, a ∈ xs ∧ f a = b := by
   cases xs
   simp
 
@@ -2535,23 +2538,23 @@ theorem foldr_hom (f : β₁ → β₂) {g₁ : α → β₁ → β₁} {g₂ : 
   rw [Array.foldr_hom _ H]
 
 /--
-We can prove that two folds over the same array are related (by some arbitrary relation)
-if we know that the initial elements are related and the folding function, for each element of the array,
-preserves the relation.
+We can prove that two folds over the same vector are related (by some arbitrary relation)
+if we know that the initial elements are related and the folding function, for each element of the
+vector, preserves the relation.
 -/
-theorem foldl_rel {xs : Vector α n} {f g : β → α → β} {a b : β} {r : β → β → Prop}
-    (h : r a b) (h' : ∀ (a : α), a ∈ xs → ∀ (c c' : β), r c c' → r (f c a) (g c' a)) :
+theorem foldl_rel {xs : Vector α n} {f : β → α → β} {g : γ → α → γ} {a : β} {b : γ} {r : β → γ → Prop}
+    (h : r a b) (h' : ∀ (a : α), a ∈ xs → ∀ (c : β) (c' : γ), r c c' → r (f c a) (g c' a)) :
     r (xs.foldl (fun acc a => f acc a) a) (xs.foldl (fun acc a => g acc a) b) := by
   rcases xs with ⟨xs, rfl⟩
   simpa using Array.foldl_rel h (by simpa using h')
 
 /--
-We can prove that two folds over the same array are related (by some arbitrary relation)
-if we know that the initial elements are related and the folding function, for each element of the array,
-preserves the relation.
+We can prove that two folds over the same vector are related (by some arbitrary relation)
+if we know that the initial elements are related and the folding function, for each element of the
+vector, preserves the relation.
 -/
-theorem foldr_rel {xs : Vector α n} {f g : α → β → β} {a b : β} {r : β → β → Prop}
-    (h : r a b) (h' : ∀ (a : α), a ∈ xs → ∀ (c c' : β), r c c' → r (f a c) (g a c')) :
+theorem foldr_rel {xs : Vector α n} {f : α → β → β} {g : α → γ → γ} {a : β} {b : γ} {r : β → γ → Prop}
+    (h : r a b) (h' : ∀ (a : α), a ∈ xs → ∀ (c : β) (c' : γ), r c c' → r (f a c) (g a c')) :
     r (xs.foldr (fun a acc => f a acc) a) (xs.foldr (fun a acc => g a acc) b) := by
   rcases xs with ⟨xs, rfl⟩
   simpa using Array.foldr_rel h (by simpa using h')

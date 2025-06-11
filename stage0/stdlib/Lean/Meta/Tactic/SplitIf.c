@@ -187,7 +187,6 @@ static lean_object* l___private_Lean_Meta_Tactic_SplitIf_0__Lean_Meta_SplitIf_di
 lean_object* l_Lean_Meta_Simp_mkContext(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SplitIf_mkDischarge_x3f___elambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_simpIfTarget(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SplitKind_considerIte___boxed(lean_object*);
 uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Expr_NumObjs_visit___spec__1(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isIte(lean_object*);
@@ -264,6 +263,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_SplitKind_considerMatch(uint8_t);
 LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___private_Lean_Meta_Tactic_SplitIf_0__Lean_Meta_SplitIf_discharge_x3f___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_SplitIf_0__Lean_Meta_FindSplitImpl_isCandidate_x3f___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_findSplit_x3f_find_x3f_unsafe__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SplitIf_getSimpContext___closed__6;
 extern lean_object* l_Lean_Meta_Simp_defaultMaxSteps;
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
@@ -7943,7 +7943,7 @@ x_2 = l_Lean_Meta_simpIfTarget___closed__9;
 x_3 = lean_unsigned_to_nat(204u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Lean_Meta_simpIfTarget___closed__10;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -8167,7 +8167,7 @@ x_2 = l_Lean_Meta_simpIfLocalDecl___closed__2;
 x_3 = lean_unsigned_to_nat(211u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Lean_Meta_simpIfTarget___closed__10;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

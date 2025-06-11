@@ -7,6 +7,7 @@ prelude
 import Std.Data.Iterators.Combinators.Monadic
 import Std.Data.Iterators.Combinators.Take
 import Std.Data.Iterators.Combinators.TakeWhile
+import Std.Data.Iterators.Combinators.Drop
 import Std.Data.Iterators.Combinators.DropWhile
 import Std.Data.Iterators.Combinators.FilterMap
 import Std.Data.Iterators.Combinators.Zip

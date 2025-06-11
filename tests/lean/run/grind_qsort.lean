@@ -48,7 +48,7 @@ attribute [grind] Vector.Perm.refl
 -- attribute [grind] Array.Perm.extract
 -- attribute [grind] Vector.Perm.extract
 
--- These are just the patterns resultin from `grind`, but the behaviour should be explained!
+-- These are just the patterns resulting from `grind`, but the behaviour should be explained!
 grind_pattern List.Perm.trans => l₁ ~ l₂, l₁ ~ l₃
 grind_pattern Array.Perm.trans => xs ~ ys, xs ~ zs
 grind_pattern Vector.Perm.trans => xs ~ ys, xs ~ zs
@@ -270,7 +270,7 @@ private theorem qsort_sort_spec
         -- moving elements above where we're looking.
         rw [getElem_qsort_sort_of_lt_lo (i := i)]
         rw [getElem_qsort_sort_of_lt_lo (i := i + 1)]
-        -- And so we can appply the theorem recursively replacing `hi` with `mid`.
+        -- And so we can apply the theorem recursively replacing `hi` with `mid`.
         apply qsort_sort_spec lt_asymm le_trans as' lo mid
         -- The remaining arithmetic side conditions are easily resolved.
         all_goals grind

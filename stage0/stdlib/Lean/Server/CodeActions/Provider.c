@@ -103,7 +103,6 @@ static lean_object* l_Lean_CodeAction_findInfoTree_x3f___lambda__2___closed__2;
 lean_object* l_Lean_Syntax_getTailInfo(lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Server_addBuiltinCodeActionProvider(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__10;
 LEAN_EXPORT lean_object* l_Lean_CodeAction_findTactic_x3f_go___lambda__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___closed__2;
@@ -144,6 +143,7 @@ static lean_object* l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_Co
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1(lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at_Lean_CodeAction_findInfoTree_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
@@ -4167,7 +4167,7 @@ x_2 = l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_cmdCodeActionProvider___
 x_3 = lean_unsigned_to_nat(180u);
 x_4 = lean_unsigned_to_nat(48u);
 x_5 = l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_cmdCodeActionProvider___spec__4___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

@@ -11,9 +11,9 @@ import Lean.Meta.Transform
 namespace Lean.Meta
 
 /-- Abstracts the given proof into an auxiliary theorem, suitably pre-processing its type. -/
-def abstractProof [Monad m] [MonadLiftT MetaM m] (proof : Expr) (cache := true)
-    (postprocessType : Expr → m Expr := pure) : m Expr := do
-  let type ← inferType proof
+def abstractProof [Monad m] [MonadLiftT MetaM m] [MonadEnv m] [MonadOptions m] [MonadFinally m]
+    (proof : Expr) (cache := true) (postprocessType : Expr → m Expr := pure) : m Expr := do
+  let type ← withoutExporting do inferType proof
   let type ← (Core.betaReduce type : MetaM _)
   let type ← zetaReduce type
   let type ← postprocessType type
@@ -66,7 +66,7 @@ partial def visit (e : Expr) : M Expr := do
         lctx := lctx.modifyLocalDecl xFVarId fun _ => localDecl
       withLCtx lctx localInstances k
     checkCache { val := e : ExprStructEq } fun _ => do
-      if (← isNonTrivialProof e) then
+      if (← withoutExporting do isNonTrivialProof e) then
         /- Ensure proofs nested in type are also abstracted -/
         abstractProof e (← read).cache visit
       else match e with

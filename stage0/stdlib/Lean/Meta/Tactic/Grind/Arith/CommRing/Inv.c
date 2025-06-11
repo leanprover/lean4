@@ -78,7 +78,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___private_Lean_Meta_T
 uint8_t l_Lean_Meta_Grind_isSameExpr_unsafe__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkVars___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkPoly___closed__11;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkDiseqs___spec__3___boxed(lean_object**);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkPoly___closed__5;
@@ -127,6 +126,7 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at___private_Lean_Meta_Tact
 lean_object* l_Lean_PersistentArray_get_x21___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_CommRing_get_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Arith_CommRing_checkInvariants___spec__1___closed__4;
 static lean_object* l_panic___at___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkVars___spec__2___closed__1;
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -1204,7 +1204,7 @@ x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_A
 x_3 = lean_unsigned_to_nat(20u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkVars___lambda__2___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1243,7 +1243,7 @@ x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_A
 x_3 = lean_unsigned_to_nat(18u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkVars___lambda__2___closed__8;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1372,7 +1372,7 @@ x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_A
 x_3 = lean_unsigned_to_nat(22u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkVars___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1644,7 +1644,7 @@ x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_A
 x_3 = lean_unsigned_to_nat(25u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkPoly___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1675,7 +1675,7 @@ x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_A
 x_3 = lean_unsigned_to_nat(26u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkPoly___closed__6;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1706,7 +1706,7 @@ x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_A
 x_3 = lean_unsigned_to_nat(27u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkPoly___closed__9;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1737,7 +1737,7 @@ x_2 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_A
 x_3 = lean_unsigned_to_nat(28u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkPoly___closed__12;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1880,7 +1880,7 @@ x_2 = l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_Arith_CommRing
 x_3 = lean_unsigned_to_nat(35u);
 x_4 = lean_unsigned_to_nat(30u);
 x_5 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkVars___lambda__2___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1893,7 +1893,7 @@ x_2 = l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_Arith_CommRing
 x_3 = lean_unsigned_to_nat(36u);
 x_4 = lean_unsigned_to_nat(28u);
 x_5 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkVars___lambda__2___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1924,7 +1924,7 @@ x_2 = l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_Arith_CommRing
 x_3 = lean_unsigned_to_nat(37u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkBasis___spec__3___closed__5;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -5104,7 +5104,7 @@ x_2 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Arith_CommRing_checkInvari
 x_3 = lean_unsigned_to_nat(58u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Arith_CommRing_checkInvariants___spec__1___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

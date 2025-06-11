@@ -110,6 +110,7 @@ static lean_object* l_Lean_ScopedEnvExtension_getState___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__2___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerSimpleScopedEnvExtension(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerSimpleScopedEnvExtension___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__17(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__2___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_ScopedEntries_insert(lean_object*);
@@ -193,7 +194,6 @@ LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_add___rarg___lambda__1(lean_o
 static lean_object* l_Lean_ScopedEnvExtension_Descr_name___autoParam___closed__17;
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__23___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_instInhabitedDescr___rarg___lambda__3___boxed(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_ScopedEnvExtension_activateScoped___spec__7___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_ScopedEnvExtension_activateScoped___spec__2(lean_object*);
 static lean_object* l_Lean_ScopedEnvExtension_instInhabitedScopedEntries___closed__6;
@@ -291,6 +291,7 @@ static lean_object* l_Lean_ScopedEnvExtension_Descr_name___autoParam___closed__1
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__26(lean_object*);
 static lean_object* l_Lean_ScopedEnvExtension_Descr_name___autoParam___closed__14;
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ScopedEnvExtension_Descr_name___autoParam___closed__2;
 static lean_object* l_Lean_ScopedEnvExtension_instInhabitedDescr___rarg___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_pushScope___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*);
@@ -339,7 +340,6 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__16___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__10___rarg(lean_object*, size_t, size_t, lean_object*, lean_object*);
 static lean_object* l_Lean_ScopedEnvExtension_instInhabitedDescr___rarg___closed__3;
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_ScopedEnvExtension_activateScoped___spec__2___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__27___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_addScopedEntry(lean_object*, lean_object*, lean_object*);
@@ -5341,7 +5341,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_obj
 x_2 = lean_ctor_get(x_1, 2);
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = l_List_lengthTRAux___rarg(x_2, x_3);
-x_5 = l___private_Init_Data_Repr_0__Nat_reprFast(x_4);
+x_5 = l_Nat_reprFast(x_4);
 x_6 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
 x_7 = l_Lean_registerScopedEnvExtensionUnsafe___rarg___lambda__1___closed__2;
@@ -6117,7 +6117,7 @@ x_2 = l_Lean_ScopedEnvExtension_getState___rarg___closed__3;
 x_3 = lean_unsigned_to_nat(168u);
 x_4 = lean_unsigned_to_nat(16u);
 x_5 = l_Lean_ScopedEnvExtension_getState___rarg___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

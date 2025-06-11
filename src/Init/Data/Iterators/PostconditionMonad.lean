@@ -119,6 +119,10 @@ instance {m : Type w → Type w'} [Monad m] : Monad (PostconditionT m) where
   pure := PostconditionT.pure
   bind := PostconditionT.bind
 
+theorem PostconditionT.pure_eq_pure {m : Type w → Type w'} [Monad m] {α} {a : α} :
+    pure a = PostconditionT.pure (m := m) a :=
+  rfl
+
 @[simp]
 theorem PostconditionT.property_pure {m : Type w → Type w'} [Monad m] {α : Type w}
     {x : α} :
@@ -126,7 +130,7 @@ theorem PostconditionT.property_pure {m : Type w → Type w'} [Monad m] {α : Ty
   rfl
 
 @[simp]
-theorem PostconditionT.computation_pure {m : Type w → Type w'} [Monad m] {α : Type w}
+theorem PostconditionT.operation_pure {m : Type w → Type w'} [Monad m] {α : Type w}
     {x : α} :
     (pure x : PostconditionT m α).operation = pure ⟨x, property_pure (m := m) ▸ rfl⟩ := by
   rfl

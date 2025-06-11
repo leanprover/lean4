@@ -1,7 +1,13 @@
+module
+
 prelude
 import Init.Core
 import Init.NotationExtra
 import Init.Data.Iterators
+-- TODO: avoid this by not using the public iterators
+import all Init.Data.Iterators.Combinators.TakeWhile
+import all Init.Data.Iterators.Combinators.Monadic.TakeWhile
+import all Init.Data.Iterators.Producers.Repeat
 
 open Std.Iterators
 
@@ -48,7 +54,7 @@ class RangeIter (shape : RangeShape) (α : Type u) where
   State : PRange shape α → Type u
   iter : (r : PRange shape α) → Iter (α := State r) α
 
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def RangeIter.of {State : PRange shape α → Type u}
     (iter : (r : PRange shape α) → Iter (α := State r) α) :
     RangeIter shape α where
@@ -203,32 +209,38 @@ def Range.SuccIterator.next [Succ? α] (stepSize : Nat) (Predicate : α → Bool
     {h : stepSize > 0} (it : SuccIterator stepSize Predicate h) : α :=
   it.inner.internalState.next
 
+@[no_expose]
 instance [Succ? α] (stepSize : Nat) (Predicate : α → Bool) (h) :
     Iterator (Range.SuccIterator stepSize Predicate h) Id α := by
   unfold Range.SuccIterator
   infer_instance
 
+@[no_expose]
 instance [Monad m] [Succ? α] (stepSize : Nat) (Predicate : α → Bool) (h) :
     IteratorCollect (Range.SuccIterator stepSize Predicate h) Id m := by
   unfold Range.SuccIterator
   infer_instance
 
+@[no_expose]
 instance [Monad m] [Succ? α] (stepSize : Nat) (Predicate : α → Bool) (h) :
     IteratorCollectPartial (Range.SuccIterator stepSize Predicate h) Id m := by
   unfold Range.SuccIterator
   infer_instance
 
+@[no_expose]
 instance [Monad m] [MonadLiftT Id m] [Succ? α] (stepSize : Nat) (Predicate : α → Bool) (h) :
     IteratorLoop (Range.SuccIterator stepSize Predicate h) Id m := by
   unfold Range.SuccIterator
   infer_instance
 
+@[no_expose]
 instance [Monad m] [MonadLiftT Id m] [Succ? α] (stepSize : Nat) (Predicate : α → Bool) (h) :
     IteratorLoopPartial (Range.SuccIterator stepSize Predicate h) Id m := by
   unfold Range.SuccIterator
   infer_instance
 
 -- TODO: Should we hide the ≤ or < predicates behind some identifier to avoid accidental rewriting?
+@[expose]
 instance [Succ? α] [LE α] [DecidableLE α] : RangeIter ⟨.closed, .closed⟩ α :=
   .of fun r => Range.succIterator r.lower 1 (fun a => a ≤ r.upper) (by omega)
 
@@ -262,13 +274,14 @@ theorem Range.SuccIterator.succ?_eq_some_of_isPlausibleSuccessorOf [Succ? α] [L
     TakeWhile.isPlausibleSuccessorOf_inner_of_isPlausibleSuccessorOf |>
     RepeatIterator.Monadic.next_eq_some_of_isPlausibleSuccessorOf
 
+@[no_expose]
 instance [Succ? α] [LE α] [DecidableLE α] [LawfulLESucc? α] [Monad m]
     [∀ a h, Finite (Range.SuccIterator (α := α) 1  (· ≤ a) h) Id] :
     ForIn' m (PRange ⟨.closed, .closed⟩ α) α inferInstance where
   forIn' r init f := by
     haveI : MonadLift Id m := ⟨Std.Internal.idToMonad (α := _)⟩
     refine ForIn'.forIn' (α := α) r.iter init (fun a ha acc => f a ?_ acc)
-    have hle : r.lower ≤ r.iter.internalState.next := LawfulLESucc?.le_rfl
+    have hle : r.lower ≤ r.iter.internalState.next := by exact LawfulLESucc?.le_rfl (α := α)
     generalize r.iter = it at ha hle
     induction ha with
     | direct =>
@@ -277,7 +290,7 @@ instance [Succ? α] [LE α] [DecidableLE α] [LawfulLESucc? α] [Monad m]
       refine ⟨?_, ?_⟩
       · rcases h with ⟨rfl, _⟩
         exact hle
-      · simpa [PostconditionT.pure] using h'
+      · simpa [← PostconditionT.pure_eq_pure] using h'
     | indirect =>
       rename_i it it' it'' out h h' ih
       apply ih

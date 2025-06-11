@@ -278,7 +278,7 @@ instance DropWhile.instIteratorCollectPartial [Monad m] [Monad n] [Iterator α m
   .defaultImplementation
 
 instance DropWhile.instIteratorLoop [Monad m] [Monad n] [Iterator α m β] :
-    IteratorLoop α m n :=
+    IteratorLoop (DropWhile α m β P) m n :=
   .defaultImplementation
 
 instance DropWhile.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]

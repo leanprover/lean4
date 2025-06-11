@@ -95,7 +95,7 @@ open Command in
 | `(registerErrorExplanationStx| $docStx:docComment register_error_explanation%$cmd $id:ident $t:term) => withRef cmd do
   unless (← getEnv).contains ``Lean.ErrorExplanation do
     throwError "To use this command, add `import Lean.ErrorExplanation` to the header of this file"
-  let tp := mkConst ``ErrorExplanation.Metadata []
+  let tp := mkConst ``ErrorExplanation.Metadata
   let metadata ← runTermElabM <| fun _ => unsafe do
     let e ← elabTerm t tp
     if e.hasSyntheticSorry then throwAbortTerm

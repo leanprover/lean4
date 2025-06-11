@@ -125,6 +125,7 @@ def EqCnstr.checkConstant (c : EqCnstr) : RingM Bool := do
     c.setUnsat
   else
     -- Remark: we currently don't do anything if the characteristic is not known.
+    -- TODO: if `k.natAbs` is `1`, we could set all terms of this ring `0`.
     trace_goal[grind.ring.assert.discard] "{← c.denoteExpr}"
   return true
 

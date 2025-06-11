@@ -30,7 +30,7 @@ variable [Hashable α] [DecidableEq α]
 
 def blastClz (aig : AIG α) (x : AIG.RefVec aig w) :
     AIG.RefVecEntry α w :=
-  let res := blastConst aig (w - 1)
+  let res := blastConst aig w
   let aig := res.aig
   let acc := res.vec
   have := AIG.LawfulVecOperator.le_size (f := blastConst) ..

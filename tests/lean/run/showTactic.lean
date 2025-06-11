@@ -96,17 +96,17 @@ example : () = () ∧ (∀ a, a = ()) := by
   show a = _
 
 /-!
-The last goal is elaborated with error recovery.
+The first goal is elaborated with error recovery.
 -/
 
 /--
 error: unknown identifier 'a'
 ---
 error: unsolved goals
-case refine_2
+case refine_1
 ⊢ sorry = ()
 
-case refine_1
+case refine_2
 ⊢ () = ()
 -/
 #guard_msgs in
@@ -115,7 +115,7 @@ example : () = () ∧ () = () := by
   show a = _
 
 /-!
-If all unifications fail, the error is from the last goal with a mention that the previous goals
+If all unifications fail, the error is from the first goal with a mention that the later goals
 also weren't defeq.
 -/
 
@@ -123,8 +123,8 @@ also weren't defeq.
 error: 'show' tactic failed, pattern
   x = 4
 is not definitionally equal to target
-  x = 3
-or the type of any other goal
+  x = 1
+or to the target of any other goal
 -/
 #guard_msgs in
 example : x = 1 ∧ x = 2 ∧ x = 3 := by

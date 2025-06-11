@@ -35,11 +35,11 @@ def elabShow (newType : Term) : TacticM Unit := do
       if log.hasErrors then
         let errState ← saveState
         state.restore true
-        go errState none newType goals [])
+        go errState none newType goals [goal])
     (fun ex => do
       let errState ← saveState
       state.restore true
-      go errState (some ex) newType goals [])
+      go errState (some ex) newType goals [goal])
 where
   go (errState : SavedState) (err : Option Exception) (newType : Term) (goals : List MVarId) (prevRev : List MVarId) : TacticM Unit := do
     match goals with

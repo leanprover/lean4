@@ -1624,8 +1624,8 @@ def find? (p : α → Bool) : List α → Option α
     | true  => some a
     | false => find? p as
 
-@[simp] theorem find?_nil : ([] : List α).find? p = none := rfl
-theorem find?_cons : (a::as).find? p = match p a with | true => some a | false => as.find? p :=
+@[simp, grind =] theorem find?_nil : ([] : List α).find? p = none := rfl
+@[grind =]theorem find?_cons : (a::as).find? p = match p a with | true => some a | false => as.find? p :=
   rfl
 
 /-! ### findSome? -/
@@ -1845,8 +1845,8 @@ def lookup [BEq α] : α → List (α × β) → Option β
     | true  => some b
     | false => lookup a as
 
-@[simp] theorem lookup_nil [BEq α] : ([] : List (α × β)).lookup a = none := rfl
-theorem lookup_cons [BEq α] {k : α} :
+@[simp, grind =] theorem lookup_nil [BEq α] : ([] : List (α × β)).lookup a = none := rfl
+@[grind =] theorem lookup_cons [BEq α] {k : α} :
     ((k, b)::as).lookup a = match a == k with | true => some b | false => as.lookup a :=
   rfl
 

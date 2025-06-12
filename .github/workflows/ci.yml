@@ -180,6 +180,7 @@ jobs:
                 "check-level": 0,
                 "test": true,
                 "check-rebootstrap": level >= 1,
+                "check-stage3": level >= 2,
                 "test-speedcenter": level >= 2,
                 "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
               },

@@ -210,7 +210,7 @@ jobs:
       - name: Check Stage 3
         run: |
           make -C build -j$NPROC check-stage3
-        if: matrix.test-speedcenter
+        if: matrix.check-stage3
       - name: Test Speedcenter Benchmarks
         run: |
           # Necessary for some timing metrics but does not work on Namespace runners

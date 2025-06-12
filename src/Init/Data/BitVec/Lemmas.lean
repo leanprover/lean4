@@ -3403,6 +3403,10 @@ theorem toInt_add_of_not_saddOverflow {x y : BitVec w} (h : ¬ saddOverflow x y)
       _root_.not_or, Int.not_le, Int.not_lt] at h
     rw [toInt_add, Int.bmod_eq_of_le (by push_cast; omega) (by push_cast; omega)]
 
+/--
+Signed addition overflow reassociation.
+If `(x + y)` and `(y + z)` do not overflow, then `(x + y) + z` overflows iff `x + (y + z)` overflows.
+-/
 theorem saddOverflow_assoc {x y z : BitVec w} (h : ¬ x.saddOverflow y) (h' : ¬ y.saddOverflow z) :
     (x + y).saddOverflow z = x.saddOverflow (y + z) := by
   rcases w with _|w

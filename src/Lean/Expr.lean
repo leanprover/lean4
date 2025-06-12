@@ -403,7 +403,7 @@ inductive Expr where
   `let n : Nat := 2; fun (a : Array Nat n) (b : Array Nat 2) => a = b` is type correct,
   but `(fun (n : Nat) (a : Array Nat n) (b : Array Nat 2) => a = b) 2` is not.
 
-  The kernel does not pay attention to `nonDep` when type checking.
+  The kernel does not verify `nonDep` when type checking. This is an elaborator feature.
   -/
   | letE (declName : Name) (type : Expr) (value : Expr) (body : Expr) (nonDep : Bool)
 

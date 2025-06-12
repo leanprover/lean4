@@ -24,7 +24,10 @@ def mkObligations {m} [Monad m] [MonadError m] (stx : TSyntax ``Parser.Term.obli
     return { ref := stx, tactic := ⟨.missing⟩ }
   if let some ob := stx.raw.getOptional? then
     match ob with
-    | `(Parser.Term.obligationsBy| obligations_by $tactic) => do
+    | `(Parser.Term.obligationsBy| obligations_by $tactic) =>
       return { ref := stx, tactic }
-    | _ => throwErrorAt stx s!"Unexpected obligationsBy syntax: {stx} of kind {stx.raw.getKind}"
+    | `(Parser.Term.obligationsBy| obligations_by) =>
+      return { ref := stx, tactic := ⟨.missing⟩ }
+    | `(Parser.Term.obligationsBy| $_) =>
+      throwErrorAt stx "`obligations_by` does not currently support any named sub-sections `| sectionName => ...`"
   else return .none

@@ -811,11 +811,18 @@ end Termination
 namespace Term
 
 /--
+A named subsection of `obligations_by`. In the future, sections such as `decreasing_by` might become
+syntactic sugar for an `obligations_by` subsection `| decreasing => ...`.
+-/
+def obligationsBySubSection := leading_parser
+  ppLine >> "| " >> ident >> darrow >> Tactic.tacticSeq
+
+/--
 `obligations_by` opens a tactic block to discharge proof obligations introduced by
 use of `?hole`s in the definition body.
 -/
 @[builtin_doc] def obligationsBy := leading_parser
-  ppDedent ppLine >> "obligations_by " >> Tactic.tacticSeqIndentGt
+  ppDedent ppLine >> withPosition ("obligations_by " >> optional Tactic.tacticSeqIndentGt >> manyIndent obligationsBySubSection)
 
 /-- `letRecDecl` matches the body of a let-rec declaration: a doc comment, attributes, and then
 a let declaration without the `let` keyword, such as `/-- foo -/ @[simp] bar := 1`. -/

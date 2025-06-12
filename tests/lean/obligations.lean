@@ -62,3 +62,13 @@ def obligation_in_rec_let_and_def (i : Nat) (xs : Array Nat) (h : i < xs.size) :
   f i + xs[i]'?hole₂
 obligations_by
   case hole₂ => exact h
+
+/--
+error: `obligations_by` does not currently support any named sub-sections `| sectionName => ...`
+-/
+#guard_msgs in
+def obligation_decreasing_does_not_exist (i : Nat) (xs : Array Nat) (h : i < xs.size) : Nat :=
+  xs[i]'?hole
+obligations_by
+  case hole => exact h
+| decreasing => skip

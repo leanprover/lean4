@@ -5,6 +5,8 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.Arith.ModelUtil
+
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -24,50 +26,10 @@ private def getCutsatAssignment? (goal : Goal) (node : ENode) : Option Rat := Id
   else
     return none
 
-private partial def satisfyDiseqs (goal : Goal) (a : Std.HashMap Expr Rat) (e : Expr) (v : Int) : Bool := Id.run do
-  let some parents := goal.parents.find? { expr := e } | return true
-  for parent in parents do
-    let_expr Eq _ lhs rhs := parent | continue
-    let some root := goal.getRoot? parent | continue
-    if root.isConstOf ``False then
-      let some lhsRoot := goal.getRoot? lhs | continue
-      let some rhsRoot := goal.getRoot? rhs | continue
-      if lhsRoot == e && !checkDiseq rhsRoot then return false
-      if rhsRoot == e && !checkDiseq lhsRoot then return false
-  return true
-where
-  checkDiseq (other : Expr) : Bool :=
-    if let some v' := a[other]? then
-      v' != v
-    else
-      true
-
-private partial def pickUnusedValue (goal : Goal) (a : Std.HashMap Expr Rat) (e : Expr) (next : Int) (alreadyUsed : Std.HashSet Int) : Int :=
-  go next
-where
-  go (next : Int) : Int :=
-    if alreadyUsed.contains next then
-      go (next+1)
-    else if satisfyDiseqs goal a e next then
-      next
-    else
-      go (next + 1)
-
-def isInterpretedTerm (e : Expr) : Bool :=
-  isNatNum e || isIntNum e || e.isAppOf ``HAdd.hAdd || e.isAppOf ``HMul.hMul || e.isAppOf ``HSub.hSub
-  || e.isAppOf ``Neg.neg || e.isAppOf ``HDiv.hDiv || e.isAppOf ``HMod.hMod
-  || e.isAppOf ``NatCast.natCast || e.isIte || e.isDIte
-
 private def natCast? (e : Expr) : Option Expr :=
   let_expr NatCast.natCast _ inst a := e | none
   let_expr instNatCastInt := inst | none
   some a
-
-private def assignEqc (goal : Goal) (e : Expr) (v : Rat) (a : Std.HashMap Expr Rat) : Std.HashMap Expr Rat := Id.run do
-  let mut a := a
-  for e in goal.getEqc e do
-    a := a.insert e v
-  return a
 
 def getAssignment? (goal : Goal) (e : Expr) : MetaM (Option Rat) := do
   let node ← goal.getENode (← goal.getRoot e)

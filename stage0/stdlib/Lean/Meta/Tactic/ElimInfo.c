@@ -25,7 +25,6 @@ LEAN_EXPORT lean_object* l_Lean_SMap_toList___at_Lean_Meta_reprCustomEliminators
 lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getElimExprInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at_Lean_Meta_getCustomEliminator_x3f___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_reprExpr____x40_Lean_Expr___hyg_2875_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_isAssigned___at_Lean_Meta_addImplicitTargets___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_ElimInfo___hyg_2500_(lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_addImplicitTargets___spec__2___closed__1;
@@ -303,6 +302,7 @@ static lean_object* l_Lean_Meta_reprElimAltInfo____x40_Lean_Meta_Tactic_ElimInfo
 static lean_object* l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_init___lambda__1___closed__10;
 static lean_object* l_Lean_Meta_reprElimAltInfo____x40_Lean_Meta_Tactic_ElimInfo___hyg_47____closed__19;
 static lean_object* l_Lean_Meta_instInhabitedCustomEliminators___closed__3;
+lean_object* l_Lean_reprExpr____x40_Lean_Expr___hyg_2896_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instReprElimAltInfo;
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lean_Meta_addCustomEliminatorEntry___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_repr___at_Lean_Meta_reprCustomEliminators____x40_Lean_Meta_Tactic_ElimInfo___hyg_2434____spec__11___closed__4;
@@ -1493,7 +1493,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 x_4 = lean_unsigned_to_nat(0u);
-x_5 = l_Lean_reprExpr____x40_Lean_Expr___hyg_2875_(x_3, x_4);
+x_5 = l_Lean_reprExpr____x40_Lean_Expr___hyg_2896_(x_3, x_4);
 x_6 = l_Lean_Meta_reprElimInfo____x40_Lean_Meta_Tactic_ElimInfo___hyg_233____closed__5;
 x_7 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
@@ -1524,7 +1524,7 @@ lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);
 x_20 = lean_ctor_get(x_1, 1);
 lean_inc(x_20);
-x_21 = l_Lean_reprExpr____x40_Lean_Expr___hyg_2875_(x_20, x_4);
+x_21 = l_Lean_reprExpr____x40_Lean_Expr___hyg_2896_(x_20, x_4);
 x_22 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_22, 0, x_6);
 lean_ctor_set(x_22, 1, x_21);

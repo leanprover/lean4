@@ -6,6 +6,7 @@ Authors: Luisa Cicolini
 prelude
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Clz
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
 
 /-!
 This module contains the verification of the bitblaster for `BitVec.clz` from
@@ -124,7 +125,16 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
             · next hx' =>
               have : x.getLsbD 0 = true := by rw [hx] at hx'; exact hx'
               simp [hacc, BitVec.clzAuxRec, this]
-              sorry
+              congr
+              rw [BitVec.toNat_eq]
+              rcases w with _|w
+              · simp
+              · rw [BitVec.ofNat_sub_ofNat, ← BitVec.toNat_eq]
+                rw [← BitVec.ofNat_inj_iff_eq]
+                have hlt := Nat.one_lt_two_pow' w
+                rw [Nat.mod_eq_of_lt hlt]
+                rw [show 2 ^ (w + 1) - 1 + (w + 1) = 2 ^ (w + 1) + w by omega]
+                simp
             · next hx' =>
               have : x.getLsbD 0 = false := by rw [hx] at hx'; simp at hx'; exact hx'
               simp [BitVec.clzAuxRec, this]
@@ -137,7 +147,29 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
               simp [hx']
               have : x.getLsbD (curr + 1) = true := by rw [hx] at hx'; exact hx'
               simp [hacc, BitVec.clzAuxRec, this]
-              sorry
+              congr
+              rcases w with _|w
+              · simp [BitVec.of_length_zero]
+              · simp [BitVec.ofNat_sub_ofNat, ← BitVec.toNat_eq]
+                have hlt := Nat.lt_pow_self (n := curr + 1) (a := 2) (by omega)
+                have hlt := Nat.lt_pow_self (n := w + 1) (a := 2) (by omega)
+                have hlt' := Nat.pow_lt_pow_of_lt (a := 2) (n := curr + 1) (m := w + 1) (by omega) (by omega)
+                rw [Nat.mod_eq_of_lt (a := curr + 1) (by omega)]
+                rw [show 2 ^ (w + 1) - 1 + (w + 1) = 2 ^ (w + 1) + w by omega, Nat.add_comm]
+                rw [← BitVec.ofNat_inj_iff_eq]
+                rw [Nat.add_comm]
+                by_cases hcw : curr + 1 = w
+                · simp [hcw] at *
+                  rw [show 2 ^ (1 + w) + w + (2 ^ (1 + w) - w) = 2 ^ (1 + w) +((2 ^ (1 + w) - w) + w) by omega]
+                  rw [Nat.add_mod_left]
+                  rw [Nat.sub_add_cancel (by rw [Nat.add_comm] at hlt'; omega)]
+                  simp
+                · have : curr + 1 < w := by omega
+                  have hc2 : curr + 1 < 2 ^ (1 + w) := by
+                    rw [Nat.add_comm 1 w]; omega
+                  rw [show 2 ^ (1 + w) + w + (2 ^ (1 + w) - (curr + 1)) = 2 ^ (1 + w) + (2 ^ (1 + w) + (w - (curr + 1))) by rw [Nat.add_comm] at hc2; omega]
+                  rw [Nat.add_mod_left]
+                  rw [Nat.add_mod_left]
             · next hx' =>
               have : x.getLsbD (curr + 1) = false := by rw [hx] at hx'; simp at hx'; exact hx'
               simp at hx' hacc
@@ -157,7 +189,6 @@ end blastClz
 @[simp]
 theorem denote_blastClz (aig : AIG α) (xc : RefVec aig w) (x : BitVec w) (assign : α → Bool)
       (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)
-      (hw : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, (blastConst aig (BitVec.ofNat w w)).get idx hidx, assign⟧ = (BitVec.ofNat w w).getLsbD idx)
       :
       ∀ (idx : Nat) (hidx : idx < w),
         ⟦(blastClz aig xc).aig, (blastClz aig xc).vec.get idx hidx, assign⟧
@@ -168,10 +199,10 @@ theorem denote_blastClz (aig : AIG α) (xc : RefVec aig w) (x : BitVec w) (assig
   unfold blastClz at hb
   dsimp only at hb
   rw [← hb, blastClz.go_denote_eq (x := x) (w := w)]
-  · sorry
   · exact hx
   · intro idx hidx
-    simp only [↓reduceIte, BitVec.natCast_eq_ofNat, hw]
+    simp only [↓reduceIte, BitVec.natCast_eq_ofNat]
+    rw [denote_blastConst]
 
 end bitblast
 end BVExpr

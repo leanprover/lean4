@@ -1376,8 +1376,8 @@ def callLeanInitialize (builder : LLVM.Builder llvmctx) : M llvmctx Unit := do
 
 def callLeanSetupLibUV (builder : LLVM.Builder llvmctx) (argc argv : LLVM.Value llvmctx) : M llvmctx (LLVM.Value llvmctx) := do
   let fnName :=  "lean_setup_libuv"
-  let intTy ← LLVM.intTypeInContext llvmctx 64
-  let charPtrPtrTy ← LLVM.pointerType (← LLVM.pointerType (← LLVM.intTypeInContext llvmctx 8))
+  let intTy ← LLVM.i32Type llvmctx
+  let charPtrPtrTy ← LLVM.pointerType (← LLVM.pointerType (← LLVM.i8Type llvmctx))
   let argtys := #[intTy, charPtrPtrTy]
   let fnty ← LLVM.functionType charPtrPtrTy argtys
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) intTy fnName argtys
@@ -1491,6 +1491,7 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
 
   let argcval ← LLVM.getParam main 0
   let argvval ← LLVM.getParam main 1
+  let argcval ← LLVM.buildSextOrTrunc builder argcval (← LLVM.i32Type llvmctx)
   let value ← callLeanSetupLibUV builder argcval argvval
   LLVM.buildStore builder value argvval
 

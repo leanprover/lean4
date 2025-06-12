@@ -281,7 +281,6 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Linter_UnusedVariable
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_Linter_UnusedVariables_collectReferences_go___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_UnusedVariables_unusedVariables___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
-lean_object* lean_eval_const(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_4961____lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_640____lambda__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Linter_logLint___at_Lean_Linter_UnusedVariables_unusedVariables___elambda__1___spec__23(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -701,6 +700,7 @@ LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_426____closed__2;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_8____closed__1;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1187____lambda__1___closed__5;
+lean_object* l_Lean_Environment_evalConst___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1021____lambda__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Linter_UnusedVariables_insertObjImpl___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Linter_UnusedVariables_unusedVariables___elambda__1___spec__14(lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -1145,10 +1145,11 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Linter_mkIgnoreFnImpl___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; 
-x_7 = lean_eval_const(x_1, x_2, x_3);
-x_8 = l_IO_ofExcept___at_Lean_Linter_mkIgnoreFnImpl___spec__1(x_7, x_6);
-return x_8;
+uint8_t x_7; lean_object* x_8; lean_object* x_9; 
+x_7 = 1;
+x_8 = l_Lean_Environment_evalConst___rarg(x_1, x_2, x_3, x_7);
+x_9 = l_IO_ofExcept___at_Lean_Linter_mkIgnoreFnImpl___spec__1(x_8, x_6);
+return x_9;
 }
 }
 static lean_object* _init_l_Lean_Linter_mkIgnoreFnImpl___closed__1() {
@@ -1338,9 +1339,7 @@ lean_free_object(x_7);
 x_51 = lean_box(0);
 x_52 = l_Lean_Linter_mkIgnoreFnImpl___lambda__2(x_4, x_5, x_1, x_51, x_2, x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 lean_dec(x_5);
-lean_dec(x_4);
 return x_52;
 }
 }
@@ -1394,9 +1393,7 @@ lean_object* x_67; lean_object* x_68;
 x_67 = lean_box(0);
 x_68 = l_Lean_Linter_mkIgnoreFnImpl___lambda__2(x_4, x_5, x_1, x_67, x_2, x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 lean_dec(x_5);
-lean_dec(x_4);
 return x_68;
 }
 }
@@ -1420,9 +1417,7 @@ lean_object* x_7;
 x_7 = l_Lean_Linter_mkIgnoreFnImpl___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_7;
 }
 }

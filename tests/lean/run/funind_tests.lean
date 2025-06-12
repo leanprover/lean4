@@ -94,8 +94,8 @@ def have_non_tailrec : Nat → Nat
 termination_by n => n
 
 /--
-info: have_non_tailrec.induct (motive : Nat → Prop) (case1 : motive 0)
-  (case2 : ∀ (n : Nat), (n < n + 1 → motive n) → motive n.succ) (a✝ : Nat) : motive a✝
+info: have_non_tailrec.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), motive n → motive n.succ)
+  (a✝ : Nat) : motive a✝
 -/
 #guard_msgs in
 #check have_non_tailrec.induct
@@ -125,8 +125,8 @@ def let_non_tailrec : Nat → Nat
 termination_by n => n
 
 /--
-info: let_non_tailrec.induct (motive : Nat → Prop) (case1 : motive 0)
-  (case2 : ∀ (n : Nat), (n < n + 1 → motive n) → motive n.succ) (a✝ : Nat) : motive a✝
+info: let_non_tailrec.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), motive n → motive n.succ)
+  (a✝ : Nat) : motive a✝
 -/
 #guard_msgs in
 #check let_non_tailrec.induct

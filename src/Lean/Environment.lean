@@ -103,6 +103,10 @@ def CompactedRegion := USize
 @[extern "lean_compacted_region_is_memory_mapped"]
 opaque CompactedRegion.isMemoryMapped : CompactedRegion → Bool
 
+/-- Size in bytes. -/
+@[extern "lean_compacted_region_size"]
+opaque CompactedRegion.size : CompactedRegion → USize
+
 /-- Free a compacted region and its contents. No live references to the contents may exist at the time of invocation. -/
 @[extern "lean_compacted_region_free"]
 unsafe opaque CompactedRegion.free : CompactedRegion → IO Unit
@@ -2178,6 +2182,7 @@ def displayStats (env : Environment) : IO Unit := do
   IO.println ("direct imports:                        " ++ toString env.header.imports);
   IO.println ("number of imported modules:            " ++ toString env.header.regions.size);
   IO.println ("number of memory-mapped modules:       " ++ toString (env.header.regions.filter (·.isMemoryMapped) |>.size));
+  IO.println ("number of imported bytes:              " ++ toString (env.header.regions.map (·.size) |>.sum));
   IO.println ("number of imported consts:             " ++ toString env.constants.map₁.size);
   IO.println ("number of buckets for imported consts: " ++ toString env.constants.numBuckets);
   IO.println ("trust level:                           " ++ toString env.header.trustLevel);

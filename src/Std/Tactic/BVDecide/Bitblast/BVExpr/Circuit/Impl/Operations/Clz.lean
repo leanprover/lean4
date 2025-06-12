@@ -39,9 +39,9 @@ where
       let lhs := blastConst aig (w := w) (w - 1 - curr)
       let res := AIG.RefVec.ite aig ⟨x.get curr hc, lhs, acc⟩
       let aig := res.aig
-      have := AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite) ..
+      let acc := res.vec
+      have := by apply AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite)
       let x : AIG.RefVec aig w := x.cast this
-      let acc : AIG.RefVec aig w := acc.cast this
       go aig x (curr + 1) acc
     else
       ⟨aig, acc⟩

@@ -12,7 +12,7 @@ test_out 'Hello Bob!' lean Test.lean -- --run Test.lean Bob
 
 # Test that Lake uses module-specific configuration
 # if the source file is a module in the workspace
-test_out '"options":{"weak.foo":"bar"}' -v lean Lib/Basic.lean
+test_out '-Dweak.foo="bar"' -v lean Lib/Basic.lean
 
 # cleanup
 rm -f produced.out

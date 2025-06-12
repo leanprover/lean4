@@ -23,27 +23,11 @@ and falls back to plain `lean --server`.
 -/
 def invalidConfigEnvVar := "LAKE_INVALID_CONFIG"
 
-private def mkLeanPaths (ws : Workspace) (setup : ModuleSetup) : LeanPaths where
+private def mkLeanPaths (ws : Workspace) (deps : ModuleDeps) : LeanPaths where
   oleanPath := ws.leanPath
   srcPath := ws.leanSrcPath
-  loadDynlibPaths := setup.dynlibs
-  pluginPaths := setup.plugins
-
-def mkModuleSetup
-  (ws : Workspace) (fileName : String) (input : String) (opts : LeanOptions)
-  (buildConfig : BuildConfig)
-: IO ModuleSetup := do
-  let header ← Lean.parseImports' input fileName
-  let {dynlibs, plugins} ← ws.runBuild (buildImportsAndDeps fileName header.imports) buildConfig
-  return {
-    name := ← Lean.moduleNameOfFileName fileName none
-    isModule := header.isModule
-    imports := header.imports
-    modules := {} -- TODO
-    dynlibs := dynlibs.map (·.path.toString)
-    plugins := plugins.map (·.path.toString)
-    options := opts
-  }
+  loadDynlibPaths := deps.dynlibs.map (·.path)
+  pluginPaths := deps.plugins.map (·.path)
 
 /--
 Build a list of imports of a file and print the `.olean` and source directories
@@ -53,7 +37,8 @@ If no configuration file exists, exit silently with `noConfigFileCode` (i.e, 2).
 The `setup-file` command is used internally by the Lean 4 server.
 -/
 def setupFile
-  (loadConfig : LoadConfig) (path : FilePath) (buildConfig : BuildConfig := {})
+  (loadConfig : LoadConfig) (path : FilePath) (imports : List String := [])
+  (buildConfig : BuildConfig := {})
 : MainM PUnit := do
   let path ← resolvePath path
   let configFile ← realConfigFile loadConfig.configFile
@@ -77,19 +62,19 @@ def setupFile
     let some ws ← loadWorkspace loadConfig |>.toBaseIO buildConfig.outLv buildConfig.ansiMode
       | error "failed to load workspace"
     if let some mod := ws.findModuleBySrc? path then
-      let setup ← ws.runBuild (cfg := buildConfig) do
-        withRegisterJob s!"{mod.name}:setup" do mod.setup.fetch
+      let deps ← ws.runBuild (withRegisterJob s!"setup ({mod.name})" do mod.deps.fetch) buildConfig
       let info : FileSetupInfo := {
-        paths := mkLeanPaths ws setup
+        paths := mkLeanPaths ws deps
         setupOptions := mod.serverOptions
       }
       IO.println (toJson info).compress
     else
-      let setup ← mkModuleSetup
-        ws path.toString (← IO.FS.readFile path) ws.serverOptions buildConfig
+      let imports := imports.foldl (init := #[]) fun imps imp =>
+        if let some mod := ws.findModule? imp.toName then imps.push mod else imps
+      let deps ← ws.runBuild (buildImportsAndDeps path imports) buildConfig
       let info : FileSetupInfo := {
-        paths := mkLeanPaths ws setup
-        setupOptions := setup.options
+        paths := mkLeanPaths ws deps
+        setupOptions := ⟨∅⟩
       }
       IO.println (toJson info).compress
 

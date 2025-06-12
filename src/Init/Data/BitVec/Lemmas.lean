@@ -3866,6 +3866,10 @@ theorem toInt_mul_of_not_smulOverflow {x y : BitVec w} (h : ¬ smulOverflow x y)
       _root_.not_or, Int.not_le, Int.not_lt] at h
     rw [toInt_mul, Int.bmod_eq_of_le (by push_cast; omega) (by push_cast; omega)]
 
+/--
+Signed multiplication overflow reassociation.
+If `(x * y)` and `(y * z)` do not overflow, then `(x * y) * z` overflows iff `x * (y * z)` overflows.
+-/
 theorem smulOverflow_assoc {x y z : BitVec w} (h : ¬ x.smulOverflow y) (h' : ¬ y.smulOverflow z) :
     (x * y).smulOverflow z = x.smulOverflow (y * z) := by
   rcases w with _|w

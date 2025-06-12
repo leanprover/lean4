@@ -33,7 +33,7 @@ See `Std.Data.Iterators.Producers` for ways to iterate over common data structur
 By convention, the monadic iterator associated with an object can be obtained via dot notation.
 For example, `List.iterM IO` creates an iterator over a list in the monad `IO`.
 
-See `Std.Data.Iterators.Consumers` for ways to use an iterator. For example, `it.toList` will
+See `Init.Data.Iterators.Consumers` for ways to use an iterator. For example, `it.toList` will
 convert a provably finite iterator `it` into a list and `it.allowNontermination.toList` will
 do so even if finiteness cannot be proved. It is also always possible to manually iterate using
 `it.step`, relying on the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
@@ -77,7 +77,7 @@ See `Std.Data.Iterators.Producers` for ways to iterate over common data structur
 By convention, the monadic iterator associated with an object can be obtained via dot notation.
 For example, `List.iterM IO` creates an iterator over a list in the monad `IO`.
 
-See `Std.Data.Iterators.Consumers` for ways to use an iterator. For example, `it.toList` will
+See `Init.Data.Iterators.Consumers` for ways to use an iterator. For example, `it.toList` will
 convert a provably finite iterator `it` into a list and `it.allowNontermination.toList` will
 do so even if finiteness cannot be proved. It is also always possible to manually iterate using
 `it.step`, relying on the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.

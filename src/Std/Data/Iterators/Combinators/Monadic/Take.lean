@@ -6,10 +6,10 @@ Authors: Paul Reichert
 prelude
 import Init.Data.Nat.Lemmas
 import Init.RCases
-import Std.Data.Iterators.Basic
-import Std.Data.Iterators.Consumers.Monadic.Collect
-import Std.Data.Iterators.Consumers.Monadic.Loop
-import Std.Data.Iterators.Internal.Termination
+import Init.Data.Iterators.Basic
+import Init.Data.Iterators.Consumers.Monadic.Collect
+import Init.Data.Iterators.Consumers.Monadic.Loop
+import Init.Data.Iterators.Internal.Termination
 
 /-!
 This module provides the iterator combinator `IterM.take`.

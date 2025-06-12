@@ -3,8 +3,6 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
-module
-
 prelude
 import Init.Data.Iterators.Consumers.Monadic
 import Init.Data.Iterators.Internal.Termination
@@ -79,8 +77,8 @@ private def RepeatIterator.instProductivenessRelation :
   subrelation {it it'} h := by cases h
 
 instance RepeatIterator.instProductive :
-    Productive (RepeatIterator α f) Id := by
-  exact Productive.of_productivenessRelation instProductivenessRelation
+    Productive (RepeatIterator α f) Id :=
+  Productive.of_productivenessRelation instProductivenessRelation
 
 instance RepeatIterator.instIteratorLoop {α : Type w} {f : α → Option α} {n : Type w → Type w'} [Monad n] :
     IteratorLoop (RepeatIterator α f) Id n :=
@@ -97,21 +95,5 @@ instance RepeatIterator.instIteratorCollect {α : Type w} {f : α → Option α}
 instance RepeatIterator.instIteratorCollectPartial {α : Type w} {f : α → Option α} {n : Type w → Type w'}
     [Monad n] : IteratorCollectPartial (RepeatIterator α f) Id n :=
   .defaultImplementation
-
-theorem RepeatIterator.Monadic.next_eq_some_of_isPlausibleSuccessorOf {f : α → Option α}
-    {it' it : IterM (α := RepeatIterator α f) Id α} (h : it'.IsPlausibleSuccessorOf it) :
-    f it.internalState.next = some it'.internalState.next := by
-  rcases h with ⟨step, h, h'⟩
-  cases step
-  · cases h
-    rcases h' with ⟨rfl, a, ha, h'⟩
-    simp_all [Iter.toIterM]
-  · cases h'
-  · cases h
-
-theorem RepeatIterator.next_eq_some_of_isPlausibleSuccessorOf {f : α → Option α}
-    {it' it : Iter (α := RepeatIterator α f) α} (h : it'.IsPlausibleSuccessorOf it) :
-    f it.internalState.next = some it'.internalState.next := by
-  exact RepeatIterator.Monadic.next_eq_some_of_isPlausibleSuccessorOf h
 
 end Std.Iterators

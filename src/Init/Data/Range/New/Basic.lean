@@ -4,10 +4,9 @@ prelude
 import Init.Core
 import Init.NotationExtra
 import Init.Data.Iterators
--- TODO: avoid this by not using the public iterators
-import all Init.Data.Iterators.Combinators.TakeWhile
-import all Init.Data.Iterators.Combinators.Monadic.TakeWhile
-import all Init.Data.Iterators.Producers.Repeat
+import Init.Data.Range.New.Classes
+
+import Init.Data.Range.New.RangeIterator
 
 open Std.Iterators
 
@@ -118,22 +117,6 @@ instance [i : RangeIter shape α] [∀ r, ForIn m (Iter (α := i.State r) α) α
     ForIn m (PRange shape α) α where
   forIn r := forIn r.iter
 
-class Succ? (α : Type u) where
-  succ? : α → Option α
-  succAtIdx? (n : Nat) (a : α) : Option α := Nat.repeat (· >>= succ?) n (some a)
-
-class LawfulLESucc? (α : Type u) [LE α] [Succ? α] where
-  le_rfl : {a : α} → a ≤ a
-  le_succ?_of_le : {a b c : α} → a ≤ b → (h : Succ?.succ? b = some c) → a ≤ c
-  le_succAtIdx?_of_le : {a b c : α} → {n : Nat} → a ≤ b → (h : Succ?.succAtIdx? n b = some c) → a ≤ c
-
-class LawfulLTSucc? [LT α] [Succ? α] where
-  lt_succ? : {a b : α} → (h : Succ?.succ? a = some b) → a < b
-  lt_succ?_of_lt : {a b c : α} → a < b → (h : Succ?.succ? b = some c) → a < c
-
-class HasDownwardUnboundedRanges (α : Type u) where
-  min : α
-
 instance : Membership α (PRange ⟨.none, .none⟩ α) where
   mem _ _ := True
 
@@ -194,141 +177,135 @@ instance [LE α] [DecidableLE α] (r : PRange ⟨.closed, .closed⟩ α) : Decid
 section Iterator
 
 @[always_inline, inline]
-def Range.succIteratorInternal [Succ? α] (init : α) (stepSize : Nat) (Predicate : α → Bool) :=
-  Iter.repeatUntilNone (init := init) (Succ?.succAtIdx? stepSize) |>.takeWhile Predicate
+def Range.succIterator [Succ? α] (init : Option α) (Predicate : α → Bool) :
+    (Iter (α := Types.RangeIterator α inferInstance Predicate) α) :=
+  ⟨⟨init⟩⟩
 
-def Range.SuccIterator [Succ? α] (stepSize : Nat) (Predicate : α → Bool)
-    (_ : stepSize > 0) :=
-  type_of% (succIteratorInternal (_ : α) stepSize Predicate).internalState
+-- @[always_inline, inline]
+-- def Range.SuccIterator.next [Succ? α] (stepSize : Nat) (Predicate : α → Bool)
+--     {h : stepSize > 0} (it : SuccIterator stepSize Predicate h) : α :=
+--   it.inner.internalState.next
 
-@[always_inline, inline]
-def Range.succIterator [Succ? α] (init : α) (stepSize : Nat) (Predicate : α → Bool) (h) :
-    (Iter (α := SuccIterator stepSize Predicate h) α) :=
-  Range.succIteratorInternal init stepSize Predicate
+-- @[no_expose]
+-- instance [Succ? α] (stepSize : Nat) (Predicate : α → Bool) (h) :
+--     Iterator (Range.SuccIterator stepSize Predicate h) Id α := by
+--   unfold Range.SuccIterator
+--   infer_instance
 
-@[always_inline, inline]
-def Range.SuccIterator.next [Succ? α] (stepSize : Nat) (Predicate : α → Bool)
-    {h : stepSize > 0} (it : SuccIterator stepSize Predicate h) : α :=
-  it.inner.internalState.next
+-- @[no_expose]
+-- instance [Monad m] [Succ? α] (stepSize : Nat) (Predicate : α → Bool) (h) :
+--     IteratorCollect (Range.SuccIterator stepSize Predicate h) Id m := by
+--   unfold Range.SuccIterator
+--   infer_instance
 
-@[no_expose]
-instance [Succ? α] (stepSize : Nat) (Predicate : α → Bool) (h) :
-    Iterator (Range.SuccIterator stepSize Predicate h) Id α := by
-  unfold Range.SuccIterator
-  infer_instance
+-- @[no_expose]
+-- instance [Monad m] [Succ? α] (stepSize : Nat) (Predicate : α → Bool) (h) :
+--     IteratorCollectPartial (Range.SuccIterator stepSize Predicate h) Id m := by
+--   unfold Range.SuccIterator
+--   infer_instance
 
-@[no_expose]
-instance [Monad m] [Succ? α] (stepSize : Nat) (Predicate : α → Bool) (h) :
-    IteratorCollect (Range.SuccIterator stepSize Predicate h) Id m := by
-  unfold Range.SuccIterator
-  infer_instance
+-- @[no_expose]
+-- instance [Monad m] [MonadLiftT Id m] [Succ? α] (stepSize : Nat) (Predicate : α → Bool) (h) :
+--     IteratorLoop (Range.SuccIterator stepSize Predicate h) Id m := by
+--   unfold Range.SuccIterator
+--   infer_instance
 
-@[no_expose]
-instance [Monad m] [Succ? α] (stepSize : Nat) (Predicate : α → Bool) (h) :
-    IteratorCollectPartial (Range.SuccIterator stepSize Predicate h) Id m := by
-  unfold Range.SuccIterator
-  infer_instance
-
-@[no_expose]
-instance [Monad m] [MonadLiftT Id m] [Succ? α] (stepSize : Nat) (Predicate : α → Bool) (h) :
-    IteratorLoop (Range.SuccIterator stepSize Predicate h) Id m := by
-  unfold Range.SuccIterator
-  infer_instance
-
-@[no_expose]
-instance [Monad m] [MonadLiftT Id m] [Succ? α] (stepSize : Nat) (Predicate : α → Bool) (h) :
-    IteratorLoopPartial (Range.SuccIterator stepSize Predicate h) Id m := by
-  unfold Range.SuccIterator
-  infer_instance
+-- @[no_expose]
+-- instance [Monad m] [MonadLiftT Id m] [Succ? α] (stepSize : Nat) (Predicate : α → Bool) (h) :
+--     IteratorLoopPartial (Range.SuccIterator stepSize Predicate h) Id m := by
+--   unfold Range.SuccIterator
+--   infer_instance
 
 -- TODO: Should we hide the ≤ or < predicates behind some identifier to avoid accidental rewriting?
 @[expose]
 instance [Succ? α] [LE α] [DecidableLE α] : RangeIter ⟨.closed, .closed⟩ α :=
-  .of fun r => Range.succIterator r.lower 1 (fun a => a ≤ r.upper) (by omega)
+  .of fun r => Range.succIterator (some r.lower) (fun a => a ≤ r.upper)
 
 instance [Succ? α] [LT α] [DecidableLT α] : RangeIter ⟨.closed, .open⟩ α :=
-  .of fun r => Range.succIterator r.lower 1 (fun a => a < r.upper) (by omega)
+  .of fun r => Range.succIterator (some r.lower) (fun a => a < r.upper)
 
 instance [Succ? α] [LT α] [DecidableLT α] : RangeIter ⟨.closed, .none⟩ α :=
-  .of fun r => Range.succIterator r.lower 1 (fun _ => True) (by omega)
+  .of fun r => Range.succIterator (some r.lower) (fun _ => True)
 
 instance [Succ? α] [LE α] [DecidableLE α] : RangeIter ⟨.open, .closed⟩ α :=
-  .of fun r => Range.succIterator r.lower 1 (fun a => a ≤ r.upper) (by omega) |>.drop 1
+  .of fun r => Range.succIterator (Succ?.succ? r.lower) (fun a => a ≤ r.upper)
 
 instance [Succ? α] [LT α] [DecidableLT α] : RangeIter ⟨.open, .open⟩ α :=
-  .of fun r => Range.succIterator r.lower 1 (fun a => a < r.upper) (by omega) |>.drop 1
+  .of fun r => Range.succIterator (Succ?.succ? r.lower) (fun a => a < r.upper)
 
 instance [Succ? α] [LT α] [DecidableLT α] : RangeIter ⟨.open, .none⟩ α :=
-  .of fun r => Range.succIterator r.lower 1 (fun _ => True) (by omega) |>.drop 1
+  .of fun r => Range.succIterator (Succ?.succ? r.lower) (fun _ => True)
 
 instance [Succ? α] [LE α] [DecidableLE α] [HasDownwardUnboundedRanges α] :
     RangeIter ⟨.none, .closed⟩ α :=
-  .of fun r => Range.succIterator HasDownwardUnboundedRanges.min 1 (· ≤ r.upper) (by omega)
+  .of fun r => Range.succIterator (some HasDownwardUnboundedRanges.min) (· ≤ r.upper)
 
 -- TODO: iterators for ranges that are unbounded downwards
 
-theorem Range.SuccIterator.succ?_eq_some_of_isPlausibleSuccessorOf [Succ? α] [LE α] [DecidableLE α]
-    {it' it : Iter (α := Range.SuccIterator (α := α) 1 P h) α}
-    [Finite (Range.SuccIterator (α := α) 1 P h) Id]
-    (h' : it'.IsPlausibleSuccessorOf it) :
-    Succ?.succAtIdx? 1 it.internalState.next = some it'.internalState.next :=
-  h' |>
-    TakeWhile.isPlausibleSuccessorOf_inner_of_isPlausibleSuccessorOf |>
-    RepeatIterator.Monadic.next_eq_some_of_isPlausibleSuccessorOf
+-- theorem Range.SuccIterator.succ?_eq_some_of_isPlausibleSuccessorOf [Succ? α] [LE α] [DecidableLE α]
+--     {it' it : Iter (α := Types.RangeIterator α inferInstance P) α}
+--     [Finite (Types.RangeIterator α inferInstance P) Id]
+--     (h' : it'.IsPlausibleSuccessorOf it) :
+--     Succ?.succ? 1 it.internalState.next = some it'.internalState.next :=
+--   h' |>
+--     TakeWhile.isPlausibleSuccessorOf_inner_of_isPlausibleSuccessorOf |>
+--     RepeatIterator.Monadic.next_eq_some_of_isPlausibleSuccessorOf
 
 @[no_expose]
 instance [Succ? α] [LE α] [DecidableLE α] [LawfulLESucc? α] [Monad m]
-    [∀ a h, Finite (Range.SuccIterator (α := α) 1  (· ≤ a) h) Id] :
+    [∀ a, Finite (Types.RangeIterator α inferInstance (· ≤ a)) Id] :
     ForIn' m (PRange ⟨.closed, .closed⟩ α) α inferInstance where
   forIn' r init f := by
     haveI : MonadLift Id m := ⟨Std.Internal.idToMonad (α := _)⟩
     refine ForIn'.forIn' (α := α) r.iter init (fun a ha acc => f a ?_ acc)
-    have hle : r.lower ≤ r.iter.internalState.next := by exact LawfulLESucc?.le_rfl (α := α)
-    generalize r.iter = it at ha hle
-    induction ha with
-    | direct =>
-      rename_i it out h
-      rcases h with ⟨it', h, h'⟩
-      refine ⟨?_, ?_⟩
-      · rcases h with ⟨rfl, _⟩
-        exact hle
-      · simpa [← PostconditionT.pure_eq_pure] using h'
-    | indirect =>
-      rename_i it it' it'' out h h' ih
-      apply ih
-      replace h := Range.SuccIterator.succ?_eq_some_of_isPlausibleSuccessorOf h
-      exact LawfulLESucc?.le_succAtIdx?_of_le (α := α) hle h
+    sorry
+    -- have hle : r.lower ≤ r.iter.internalState.next := by exact LawfulLESucc?.le_rfl (α := α)
+    -- generalize r.iter = it at ha hle
+    -- induction ha with
+    -- | direct =>
+    --   rename_i it out h
+    --   rcases h with ⟨it', h, h'⟩
+    --   refine ⟨?_, ?_⟩
+    --   · rcases h with ⟨rfl, _⟩
+    --     exact hle
+    --   · simpa [← PostconditionT.pure_eq_pure] using h'
+    -- | indirect =>
+    --   rename_i it it' it'' out h h' ih
+    --   apply ih
+    --   replace h := Range.SuccIterator.succ?_eq_some_of_isPlausibleSuccessorOf h
+    --   exact LawfulLESucc?.le_succAtIdx?_of_le (α := α) hle h
 
 @[no_expose]
 instance [Succ? α] [LT α] [DecidableLT α] [LE α] [DecidableLE α] [LawfulLESucc? α] [Monad m]
-    [∀ a h, Finite (Range.SuccIterator (α := α) 1  (· < a) h) Id] :
+    [∀ a, Finite (Types.RangeIterator α inferInstance (· < a)) Id] :
     ForIn' m (PRange ⟨.closed, .open⟩ α) α inferInstance where
   forIn' r init f := by
     haveI : MonadLift Id m := ⟨Std.Internal.idToMonad (α := _)⟩
     refine ForIn'.forIn' (α := α) r.iter init (fun a ha acc => f a ?_ acc)
-    have hle : r.lower ≤ r.iter.internalState.next := by exact LawfulLESucc?.le_rfl (α := α)
-    generalize r.iter = it at ha hle
-    induction ha with
-    | direct =>
-      rename_i it out h
-      rcases h with ⟨it', h, h'⟩
-      refine ⟨?_, ?_⟩
-      · rcases h with ⟨rfl, _⟩
-        exact hle
-      · simpa [← PostconditionT.pure_eq_pure] using h'
-    | indirect =>
-      rename_i it it' it'' out h h' ih
-      apply ih
-      replace h := Range.SuccIterator.succ?_eq_some_of_isPlausibleSuccessorOf h
-      exact LawfulLESucc?.le_succAtIdx?_of_le (α := α) hle h
+    sorry
+    -- have hle : r.lower ≤ r.iter.internalState.next := by exact LawfulLESucc?.le_rfl (α := α)
+    -- generalize r.iter = it at ha hle
+    -- induction ha with
+    -- | direct =>
+    --   rename_i it out h
+    --   rcases h with ⟨it', h, h'⟩
+    --   refine ⟨?_, ?_⟩
+    --   · rcases h with ⟨rfl, _⟩
+    --     exact hle
+    --   · simpa [← PostconditionT.pure_eq_pure] using h'
+    -- | indirect =>
+    --   rename_i it it' it'' out h h' ih
+    --   apply ih
+    --   replace h := Range.SuccIterator.succ?_eq_some_of_isPlausibleSuccessorOf h
+    --   exact LawfulLESucc?.le_succAtIdx?_of_le (α := α) hle h
 
-instance [Succ? α] [LE α] [DecidableLE α] [LawfulLESucc? α]
-    [HasDownwardUnboundedRanges α] [Monad m]
-    [∀ a h, Finite (Range.SuccIterator (α := α) 1  (· ≤ a) h) Id] :
-    ForIn' m (PRange ⟨.none, .closed⟩ α) α inferInstance where
-  forIn' r init f :=
-    ForIn'.forIn' (HasDownwardUnboundedRanges.min,,r.upper) init
-      fun out h acc => f out (by exact h.2) acc
+-- instance [Succ? α] [LE α] [DecidableLE α] [LawfulLESucc? α]
+--     [HasDownwardUnboundedRanges α] [Monad m]
+--     [∀ a h, Finite (Range.SuccIterator (α := α) 1  (· ≤ a) h) Id] :
+--     ForIn' m (PRange ⟨.none, .closed⟩ α) α inferInstance where
+--   forIn' r init f :=
+--     ForIn'.forIn' (HasDownwardUnboundedRanges.min,,r.upper) init
+--       fun out h acc => f out (by exact h.2) acc
 
 end Iterator
 

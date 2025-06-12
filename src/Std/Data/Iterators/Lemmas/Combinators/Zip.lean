@@ -6,7 +6,7 @@ Authors: Paul Reichert
 prelude
 import Std.Data.Iterators.Combinators.Take
 import Std.Data.Iterators.Combinators.Zip
-import Std.Data.Iterators.Consumers.Access
+import Init.Data.Iterators.Consumers.Access
 import Std.Data.Iterators.Lemmas.Combinators.Monadic.Zip
 import Std.Data.Iterators.Lemmas.Combinators.Take
 import Std.Data.Iterators.Lemmas.Consumers

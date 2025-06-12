@@ -4,13 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
-import Std.Data.Iterators.Basic
+import Init.Data.Iterators.Basic
+import Init.Data.Iterators.Consumers
+import Init.Data.Iterators.PostconditionMonad
+import Init.Data.Iterators.Internal
 import Std.Data.Iterators.Producers
-import Std.Data.Iterators.Consumers
 import Std.Data.Iterators.Combinators
 import Std.Data.Iterators.Lemmas
-import Std.Data.Iterators.PostConditionMonad
-import Std.Data.Iterators.Internal
 
 /-!
 # Iterators

@@ -2,6 +2,7 @@ module
 
 prelude
 import all Init.Data.Range.New.Basic
+import Init.Omega
 
 open Std.Iterators
 
@@ -27,28 +28,28 @@ instance : LawfulLESucc? Nat where
     --   specialize ih hle hc'
     --   omega
 
-instance (stepSize : Nat) (h) :
-    Finite (Range.SuccIterator (α := Nat) stepSize (· ≤ n) h) Id := by
-  unfold Range.SuccIterator
-  sorry
+-- instance (stepSize : Nat) (h) :
+--     Finite (Range.SuccIterator (α := Nat) stepSize (· ≤ n) h) Id := by
+--   unfold Range.SuccIterator
+--   sorry
 
-instance (stepSize : Nat) (h) :
-    Finite (Range.SuccIterator (α := Nat) stepSize (· < n) h) Id := by
-  unfold Range.SuccIterator
-  sorry
+-- instance (stepSize : Nat) (h) :
+--     Finite (Range.SuccIterator (α := Nat) stepSize (· < n) h) Id := by
+--   unfold Range.SuccIterator
+--   sorry
 
-instance (stepSize : Nat) (h) :
-    IteratorSize (Range.SuccIterator (α := Nat) stepSize (· ≤ n) h) Id where
-  size it := pure <| .up <| (n + stepSize - it.internalState.next) / stepSize
+-- instance (stepSize : Nat) (h) :
+--     IteratorSize (Range.SuccIterator (α := Nat) stepSize (· ≤ n) h) Id where
+--   size it := pure <| .up <| (n + stepSize - it.internalState.next) / stepSize
 
-instance (stepSize : Nat) (h) :
-    IteratorSizePartial (Range.SuccIterator (α := Nat) stepSize (· ≤ n) h) Id where
-  size it := pure <| .up <| (n + stepSize - it.internalState.next) / stepSize
+-- instance (stepSize : Nat) (h) :
+--     IteratorSizePartial (Range.SuccIterator (α := Nat) stepSize (· ≤ n) h) Id where
+--   size it := pure <| .up <| (n + stepSize - it.internalState.next) / stepSize
 
-instance (stepSize : Nat) (h) :
-    IteratorSize (Range.SuccIterator (α := Nat) stepSize (· < n) h) Id where
-  size it := pure <| .up <| (n + stepSize - it.internalState.next - 1) / stepSize
+-- instance (stepSize : Nat) (h) :
+--     IteratorSize (Range.SuccIterator (α := Nat) stepSize (· < n) h) Id where
+--   size it := pure <| .up <| (n + stepSize - it.internalState.next - 1) / stepSize
 
-instance (stepSize : Nat) (h) :
-    IteratorSizePartial (Range.SuccIterator (α := Nat) stepSize (· < n) h) Id where
-  size it := pure <| .up <| (n + stepSize - it.internalState.next - 1) / stepSize
+-- instance (stepSize : Nat) (h) :
+--     IteratorSizePartial (Range.SuccIterator (α := Nat) stepSize (· < n) h) Id where
+--   size it := pure <| .up <| (n + stepSize - it.internalState.next - 1) / stepSize

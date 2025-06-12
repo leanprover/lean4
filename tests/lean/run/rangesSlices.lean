@@ -1,6 +1,24 @@
 prelude
-import Init.Data.Range.New.Nat
+import Init.Data.Range.New.RangeIterator
+--import Init.Data.Range.New.Nat
 import Init.System.IO
+import Init.Data.Iterators
+
+open Std.Iterators Types
+
+def it := (⟨⟨some 0⟩⟩ : Iter (α := RangeIterator Nat inferInstance (· < 5)) Nat)
+
+set_option trace.compiler.ir true in
+set_option compiler.small 1000 in
+def f (it : Iter (α := RangeIterator Nat (some <| · + 1) (· < 5)) Nat) : Nat := Id.run do
+  let mut acc := 0
+  for x in it do
+    acc := acc + x
+  return acc
+
+#eval! f it
+
+#eval! it.toList
 
 #eval "b" ∈ ("a",,"c")
 

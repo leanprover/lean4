@@ -44,18 +44,18 @@ theorem Iter.atIdxSlow?_takeWhile {α β}
     apply Eq.symm
     split
     · -- Ugh, this is so ugly
-      have : (match h' : P out with | true => Unit.unit | false => Unit.unit) = .unit := sorry
+      have : (match h' : P out with | true => Unit.unit | false => Unit.unit) = .unit := rfl
       split at this
       · simp
       · exfalso; simp_all
-    · have : (match h' : P out with | true => Unit.unit | false => Unit.unit) = .unit := sorry
+    · have : (match h' : P out with | true => Unit.unit | false => Unit.unit) = .unit := rfl
       split at this
       · exfalso; simp_all
       · simp
   case case2 it it' out h h' l ih =>
     simp only [Nat.succ_eq_add_one, atIdxSlow?.eq_def (it := it.takeWhile P), step_takeWhile, h']
     simp only [atIdxSlow?.eq_def (it := it), h']
-    have : (match h' : P out with | true => Unit.unit | false => Unit.unit) = .unit := sorry
+    have : (match h' : P out with | true => Unit.unit | false => Unit.unit) = .unit := rfl
     split at this
     · rename_i hP
       simp only [ih]

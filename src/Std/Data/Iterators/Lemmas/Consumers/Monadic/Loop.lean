@@ -5,8 +5,8 @@ Authors: Paul Reichert
 -/
 prelude
 import Init.Control.Lawful.Basic
-import Std.Data.Iterators.Consumers.Monadic.Collect
-import Std.Data.Iterators.Consumers.Monadic.Loop
+import Init.Data.Iterators.Consumers.Monadic.Collect
+import Init.Data.Iterators.Consumers.Monadic.Loop
 import Std.Data.Iterators.Lemmas.Monadic.Basic
 import Std.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 import Std.Data.Iterators.Lemmas.Equivalence.StepCongr

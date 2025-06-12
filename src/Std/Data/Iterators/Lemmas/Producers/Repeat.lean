@@ -6,8 +6,8 @@ Authors: Paul Reichert
 prelude
 import Init.Data.Option.Lemmas
 import Std.Data.Iterators.Producers.Repeat
-import Std.Data.Iterators.Consumers.Access
-import Std.Data.Iterators.Consumers.Collect
+import Init.Data.Iterators.Consumers.Access
+import Init.Data.Iterators.Consumers.Collect
 import Std.Data.Iterators.Combinators.Take
 import Std.Data.Iterators.Lemmas.Combinators.Take
 

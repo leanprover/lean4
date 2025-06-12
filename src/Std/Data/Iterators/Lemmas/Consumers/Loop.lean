@@ -8,8 +8,8 @@ import Init.Data.List.Control
 import Std.Data.Iterators.Lemmas.Basic
 import Std.Data.Iterators.Lemmas.Consumers.Collect
 import Std.Data.Iterators.Lemmas.Consumers.Monadic.Loop
-import Std.Data.Iterators.Consumers.Collect
-import Std.Data.Iterators.Consumers.Loop
+import Init.Data.Iterators.Consumers.Collect
+import Init.Data.Iterators.Consumers.Loop
 
 namespace Std.Iterators
 

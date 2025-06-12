@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
-import Std.Data.Iterators.Consumers.Access
-import Std.Data.Iterators.Consumers.Collect
+import Init.Data.Iterators.Consumers.Access
+import Init.Data.Iterators.Consumers.Collect
 import Std.Data.Iterators.Lemmas.Basic
 import Std.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 

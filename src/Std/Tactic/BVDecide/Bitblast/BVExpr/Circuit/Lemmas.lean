@@ -31,8 +31,8 @@ theorem go_Inv_of_Inv (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.
   | const =>
     simp only [go]
     apply BVExpr.Cache.Inv_cast
-    apply LawfulOperator.isPrefix_aig (f := mkConstCached)
-    exact hinv
+    · apply IsPrefix.rfl
+    · exact hinv
   | literal =>
     simp only [go]
     apply BVPred.bitblast_Inv_of_Inv

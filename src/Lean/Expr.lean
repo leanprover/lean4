@@ -223,6 +223,9 @@ instance : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (RBTree ..) ..)
 def FVarIdSet.insert (s : FVarIdSet) (fvarId : FVarId) : FVarIdSet :=
   RBTree.insert s fvarId
 
+def FVarIdSet.union (vs₁ vs₂ : FVarIdSet) : FVarIdSet :=
+  vs₁.fold (init := vs₂) (·.insert ·)
+
 /--
 A set of unique free variable identifiers implemented using hashtables.
 Hashtables are faster than red-black trees if they are used linearly.

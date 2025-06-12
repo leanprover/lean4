@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.ShareCommon
+import Lean.Compiler.MetaAttr
 import Lean.Compiler.NoncomputableAttr
 import Lean.Util.CollectLevelParams
 import Lean.Util.NumObjs
@@ -123,6 +124,20 @@ private def reportTheoremDiag (d : TheoremVal) : TermElabM Unit := do
       -- let info
       logInfo <| MessageData.trace { cls := `theorem } m!"{d.name}" (#[sizeMsg] ++ constOccsMsg)
 
+-- TODO: should become part of the compiler to deal with erasure
+private def checkMeta (preDef : PreDefinition) : TermElabM Unit := do
+  preDef.value.forEach' fun e => do
+    if e.isAutoParam then
+      return false
+    if let .const c .. := e then
+      match getIRPhases (← getEnv) c, preDef.modifiers.isMeta with
+      | .runtime, true =>
+        throwError "Invalid meta definition, '{.ofConstName c}' must be `meta` to access"
+      | .comptime, false =>
+        throwError "Invalid definition, may not access `meta` declaration '{.ofConstName c}'"
+      | _, _ => pure ()
+    return true
+
 private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) (cacheProofs := true) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs (cache := cacheProofs) preDef
@@ -158,8 +173,11 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List N
     withSaveInfoContext do  -- save new env
       addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
-    if preDef.modifiers.isNoncomputable then
-      modifyEnv fun env => addNoncomputable env preDef.declName
+    match preDef.modifiers.computeKind with
+    | .meta          => modifyEnv (addMeta · preDef.declName)
+    | .noncomputable => modifyEnv (addNoncomputable · preDef.declName)
+    | _              => pure ()
+    checkMeta preDef
     if compile && shouldGenCodeFor preDef then
       compileDecl decl
     if applyAttrAfterCompilation then

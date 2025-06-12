@@ -2538,23 +2538,23 @@ theorem foldr_hom (f : β₁ → β₂) {g₁ : α → β₁ → β₁} {g₂ : 
   rw [Array.foldr_hom _ H]
 
 /--
-We can prove that two folds over the same array are related (by some arbitrary relation)
-if we know that the initial elements are related and the folding function, for each element of the array,
-preserves the relation.
+We can prove that two folds over the same vector are related (by some arbitrary relation)
+if we know that the initial elements are related and the folding function, for each element of the
+vector, preserves the relation.
 -/
-theorem foldl_rel {xs : Vector α n} {f g : β → α → β} {a b : β} {r : β → β → Prop}
-    (h : r a b) (h' : ∀ (a : α), a ∈ xs → ∀ (c c' : β), r c c' → r (f c a) (g c' a)) :
+theorem foldl_rel {xs : Vector α n} {f : β → α → β} {g : γ → α → γ} {a : β} {b : γ} {r : β → γ → Prop}
+    (h : r a b) (h' : ∀ (a : α), a ∈ xs → ∀ (c : β) (c' : γ), r c c' → r (f c a) (g c' a)) :
     r (xs.foldl (fun acc a => f acc a) a) (xs.foldl (fun acc a => g acc a) b) := by
   rcases xs with ⟨xs, rfl⟩
   simpa using Array.foldl_rel h (by simpa using h')
 
 /--
-We can prove that two folds over the same array are related (by some arbitrary relation)
-if we know that the initial elements are related and the folding function, for each element of the array,
-preserves the relation.
+We can prove that two folds over the same vector are related (by some arbitrary relation)
+if we know that the initial elements are related and the folding function, for each element of the
+vector, preserves the relation.
 -/
-theorem foldr_rel {xs : Vector α n} {f g : α → β → β} {a b : β} {r : β → β → Prop}
-    (h : r a b) (h' : ∀ (a : α), a ∈ xs → ∀ (c c' : β), r c c' → r (f a c) (g a c')) :
+theorem foldr_rel {xs : Vector α n} {f : α → β → β} {g : α → γ → γ} {a : β} {b : γ} {r : β → γ → Prop}
+    (h : r a b) (h' : ∀ (a : α), a ∈ xs → ∀ (c : β) (c' : γ), r c c' → r (f a c) (g a c')) :
     r (xs.foldr (fun a acc => f a acc) a) (xs.foldr (fun a acc => g a acc) b) := by
   rcases xs with ⟨xs, rfl⟩
   simpa using Array.foldr_rel h (by simpa using h')

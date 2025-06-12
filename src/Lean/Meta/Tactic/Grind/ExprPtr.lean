@@ -14,20 +14,20 @@ namespace Lean.Meta.Grind
   unsafe ptrEq a b
 
 /--
-Key for the `ENodeMap` and `ParentMap` map.
+Key for the `ENodeMap`, `ParentMap`, and other maps and sets.
 We use pointer addresses and rely on the fact all internalized expressions
 have been hash-consed, i.e., we have applied `shareCommon`.
 -/
-structure ENodeKey where
+structure ExprPtr where
   expr : Expr
 
 abbrev hashPtrExpr (e : Expr) : UInt64 :=
   unsafe (ptrAddrUnsafe e >>> 3).toUInt64
 
-instance : Hashable ENodeKey where
+instance : Hashable ExprPtr where
   hash k := hashPtrExpr k.expr
 
-instance : BEq ENodeKey where
+instance : BEq ExprPtr where
   beq k₁ k₂ := isSameExpr k₁.expr k₂.expr
 
 end Lean.Meta.Grind

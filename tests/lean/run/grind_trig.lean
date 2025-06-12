@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 axiom R : Type
 instance : Lean.Grind.CommRing R := sorry
 

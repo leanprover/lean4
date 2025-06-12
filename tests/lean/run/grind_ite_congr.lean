@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 example : ((if true then id else id) false) = false := by
   grind
 

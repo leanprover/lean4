@@ -83,10 +83,7 @@ abbrev pkg (self : Module) : Package :=
   self.srcPath "lean"
 
 @[inline] def relLeanFile (self : Module) : FilePath :=
-  if let some relPath := self.leanFile.toString.dropPrefix? self.pkg.dir.toString then
-    FilePath.mk (relPath.drop 1).toString -- remove leading `/`
-  else
-    self.leanFile
+  relPathFrom self.pkg.dir self.leanFile
 
 @[inline] def leanLibPath (ext : String) (self : Module) : FilePath :=
   self.filePath self.pkg.leanLibDir ext
@@ -136,7 +133,7 @@ def dynlibSuffix := "-1"
 @[inline] def dynlibFile (self : Module) : FilePath :=
   self.pkg.leanLibDir / s!"{self.dynlibName}.{sharedLibExt}"
 
-@[inline] def serverOptions (self : Module) : Array LeanOption :=
+@[inline] def serverOptions (self : Module) : LeanOptions :=
   self.lib.serverOptions
 
 @[inline] def buildType (self : Module) : BuildType :=
@@ -151,8 +148,11 @@ def dynlibSuffix := "-1"
 @[inline] def plugins (self : Module) : TargetArray Dynlib :=
   self.lib.plugins
 
+@[inline] def leanOptions (self : Module) : LeanOptions :=
+  self.lib.leanOptions
+
 @[inline] def leanArgs (self : Module) : Array String :=
-  self.lib.leanArgs
+  self.leanOptions.values.fold (fun s k v => s.push s!"-D{k}={v.asCliFlagValue}") self.lib.leanArgs
 
 @[inline] def weakLeanArgs (self : Module) : Array String :=
   self.lib.weakLeanArgs

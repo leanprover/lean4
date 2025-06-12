@@ -175,7 +175,7 @@ def IteratorLoopPartial.defaultImplementation {α : Type w} {m : Type w → Type
     IteratorLoopPartial α m n where
   forInPartial lift := IterM.DefaultConsumers.forInPartial lift _
 
-instance (α : Type w) (m : Type w → Type w') (n : Type w → Type w')
+instance (α : Type w) (m : Type w → Type w') (n : Type w → Type w'')
     [Monad m] [Monad n] [Iterator α m β] [Finite α m] :
     letI : IteratorLoop α m n := .defaultImplementation
     LawfulIteratorLoop α m n :=

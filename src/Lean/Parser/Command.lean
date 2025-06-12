@@ -499,6 +499,8 @@ See also: `#reduce e` for evaluation by term reduction.
   "#exit"
 @[builtin_command_parser] def print          := leading_parser
   "#print " >> (ident <|> strLit)
+@[builtin_command_parser] def printSig       := leading_parser
+  "#print " >> nonReservedSymbol "sig " >> ident
 @[builtin_command_parser] def printAxioms    := leading_parser
   "#print " >> nonReservedSymbol "axioms " >> ident
 @[builtin_command_parser] def printEqns      := leading_parser
@@ -855,6 +857,14 @@ builtin_initialize
   register_parser_alias                                                 optDeclSig
   register_parser_alias                                                 openDecl
   register_parser_alias                                                 docComment
+
+/--
+Registers an error explanation.
+
+Note that the error name is not relativized to the current namespace.
+-/
+@[builtin_command_parser] def registerErrorExplanationStx := leading_parser
+  docComment >> "register_error_explanation " >> ident >> termParser
 
 end Command
 

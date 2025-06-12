@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Expr
 import Lean.Message
+import Std.Internal.Rat
 
 namespace Lean.Meta.Grind.Arith
 
@@ -93,5 +94,43 @@ partial def gcdExt (a b : Int) : Int × Int × Int :=
   else
     let (g, α, β) := gcdExt b (a % b)
     (g, β, α - (a / b) * β)
+
+open Std.Internal
+
+-- TODO: PArray.shrink and PArray.resize
+partial def shrink (a : PArray Rat) (sz : Nat) : PArray Rat :=
+  if a.size > sz then shrink a.pop sz else a
+
+partial def resize (a : PArray Rat) (sz : Nat) : PArray Rat :=
+  if a.size > sz then shrink a sz else go a
+where
+  go (a : PArray Rat) : PArray Rat :=
+    if a.size < sz then go (a.push 0) else a
+
+namespace CollectDecVars
+/-! Helper monad for collecting decision variables in `linarith` and `cutsat` -/
+
+structure State where
+  visited : Std.HashSet UInt64 := {}
+  found : FVarIdSet := {}
+
+abbrev CollectDecVarsM := ReaderT FVarIdSet $ StateM State
+
+def alreadyVisited (c : α) : CollectDecVarsM Bool := do
+  let addr := unsafe (ptrAddrUnsafe c).toUInt64 >>> 2
+  if (← get).visited.contains addr then return true
+  modify fun s => { s with visited := s.visited.insert addr }
+  return false
+
+def markAsFound (fvarId : FVarId) : CollectDecVarsM Unit := do
+  modify fun s => { s with found := s.found.insert fvarId }
+
+abbrev CollectDecVarsM.run (x : CollectDecVarsM Unit) (decVars : FVarIdSet) : FVarIdSet :=
+  let (_, s) := x decVars |>.run {}
+  s.found
+
+end CollectDecVars
+
+export CollectDecVars (CollectDecVarsM)
 
 end Lean.Meta.Grind.Arith

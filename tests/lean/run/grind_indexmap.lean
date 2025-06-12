@@ -4,9 +4,7 @@
 
 import Std.Data.HashMap
 
-set_option grind.warning false
-
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| grind)
+macro_rules | `(tactic| get_elem_tactic_extensible) => `(tactic| grind)
 
 open Std
 
@@ -56,7 +54,7 @@ variable [LawfulBEq α] [LawfulHashable α]
 attribute [local grind _=_] IndexMap.WF
 
 private theorem getElem_indices_lt {h : a ∈ m} : m.indices[a] < m.size := by
-  have : m.indices[a]? = some m.indices[a] := by grind [getElem?_pos]
+  have : m.indices[a]? = some m.indices[a] := by grind
   grind
 
 grind_pattern getElem_indices_lt => m.indices[a]
@@ -77,7 +75,7 @@ instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
 @[local grind] private theorem WF' (i : Nat) (a : α) (h₁ : i < m.keys.size) (h₂ : a ∈ m) :
     m.keys[i] = a ↔ m.indices[a] = i := by
   have := m.WF i a
-  grind [getElem?_pos]
+  grind
 
 @[local grind] private theorem getElem_keys_getElem_indices
     {m : IndexMap α β} {a : α} {h : a ∈ m} :
@@ -93,8 +91,8 @@ instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
   m.values[i]
 
 instance : LawfulGetElem (IndexMap α β) α β (fun m a => a ∈ m) where
-  getElem?_def := by grind [getElem?_pos]
-  getElem!_def := by grind [getElem!_pos]
+  getElem?_def := by grind
+  getElem!_def := by grind
 
 @[inline] def insert [LawfulBEq α] (m : IndexMap α β) (a : α) (b : β) :
     IndexMap α β :=

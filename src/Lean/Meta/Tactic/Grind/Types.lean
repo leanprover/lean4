@@ -14,7 +14,7 @@ import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Ext
-import Lean.Meta.Tactic.Grind.ENodeKey
+import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.AlphaShareCommon
 import Lean.Meta.Tactic.Grind.Attr
 import Lean.Meta.Tactic.Grind.ExtAttr
@@ -48,9 +48,9 @@ register_builtin_option grind.debug.proofs : Bool := {
 }
 
 register_builtin_option grind.warning : Bool := {
-  defValue := true
+  defValue := false
   group    := "debug"
-  descr    := "disable `grind` usage warning"
+  descr    := "generate a warning whenever `grind` is used"
 }
 
 /--
@@ -403,7 +403,12 @@ structure ENode where
   to the comm ring module. Its implementation is similar to the `offset?` field.
   -/
   ring? : Option Expr := none
-  -- Remark: we expect to have builtin support for offset constraints, cutsat, and comm ring.
+  /--
+  The `linarith?` field is used to propagate equalities from the `grind` congruence closure module
+  to the linarith module. Its implementation is similar to the `offset?` field.
+  -/
+  linarith? : Option Expr := none
+  -- Remark: we expect to have builtin support for offset constraints, cutsat, comm ring, and linarith.
   -- If the number of satellite solvers increases, we may add support for an arbitrary solvers like done in Z3.
   deriving Inhabited, Repr
 
@@ -418,7 +423,7 @@ inductive NewFact where
   | eq (lhs rhs proof : Expr) (isHEq : Bool)
   | fact (prop proof : Expr) (generation : Nat)
 
-abbrev ENodeMap := PHashMap ENodeKey ENode
+abbrev ENodeMap := PHashMap ExprPtr ENode
 
 /--
 Key for the congruence table.
@@ -503,7 +508,7 @@ abbrev CongrTable (enodeMap : ENodeMap) := PHashSet (CongrKey enodeMap)
 
 -- Remark: we cannot use pointer addresses here because we have to traverse the tree.
 abbrev ParentSet := Std.TreeSet Expr Expr.quickComp
-abbrev ParentMap := PHashMap ENodeKey ParentSet
+abbrev ParentMap := PHashMap ExprPtr ParentSet
 
 /--
 The E-matching module instantiates theorems using the `EMatchTheorem proof` and a (partial) assignment.
@@ -650,7 +655,7 @@ structure Split.State where
   /-- Case-splits that have been inserted at `candidates` at some point. -/
   added        : Std.HashSet SplitInfo := {}
   /-- Case-splits that have already been performed, or that do not have to be performed anymore. -/
-  resolved     : PHashSet ENodeKey := {}
+  resolved     : PHashSet ExprPtr := {}
   /--
   Sequence of cases steps that generated this goal. We only use this information for diagnostics.
   Remark: `casesTrace.length ≥ numSplits` because we don't increase the counter for `cases`
@@ -707,7 +712,7 @@ structure Goal where
   /-- Asserted facts -/
   facts        : PArray Expr := {}
   /-- Cached extensionality theorems for types. -/
-  extThms      : PHashMap ENodeKey (Array Ext.ExtTheorem) := {}
+  extThms      : PHashMap ExprPtr (Array Ext.ExtTheorem) := {}
   /-- State of the E-matching module. -/
   ematch       : EMatch.State
   /-- State of the case-splitting module. -/
@@ -1185,6 +1190,53 @@ def markAsCommRingTerm (e : Expr) : GoalM Unit := do
     setENode root.self { root with ring? := some e }
     propagateCommRingDiseqs (← getParents root.self)
 
+/--
+Notifies the linarith module that `a = b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_linarith_eq"] -- forward definition
+opaque Arith.Linear.processNewEq (a b : Expr) : GoalM Unit
+
+/--
+Notifies the linarith module that `a ≠ b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_linarith_diseq"] -- forward definition
+opaque Arith.Linear.processNewDiseq (a b : Expr) : GoalM Unit
+
+/--
+Given `lhs` and `rhs` that are known to be disequal, checks whether
+`lhs` and `rhs` have linarith terms `e₁` and `e₂` attached to them,
+and invokes process `Arith.Linear.processNewDiseq e₁ e₂`
+-/
+def propagateLinarithDiseq (lhs rhs : Expr) : GoalM Unit := do
+  let some lhs ← get? lhs | return ()
+  let some rhs ← get? rhs | return ()
+  Arith.Linear.processNewDiseq lhs rhs
+where
+  get? (a : Expr) : GoalM (Option Expr) := do
+    return (← getRootENode a).linarith?
+
+/--
+Traverses disequalities in `parents`, and propagate the ones relevant to the
+linarith module.
+-/
+def propagateLinarithDiseqs (parents : ParentSet) : GoalM Unit := do
+  forEachDiseq parents propagateLinarithDiseq
+
+/--
+Marks `e` as a term of interest to the linarith module.
+If the root of `e`s equivalence class has already a term of interest,
+a new equality is propagated to the linarith module.
+-/
+def markAsLinarithTerm (e : Expr) : GoalM Unit := do
+  let root ← getRootENode e
+  if let some e' := root.linarith? then
+    Arith.Linear.processNewEq e e'
+  else
+    setENode root.self { root with linarith? := some e }
+    propagateLinarithDiseqs (← getParents root.self)
+
 /-- Returns `true` is `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do
   return (← getENode e).isCongrRoot
@@ -1359,30 +1411,46 @@ def applyFallback : GoalM Unit := do
   let fallback : GoalM Unit := (← getMethods).fallback
   fallback
 
+def Goal.getGeneration (goal : Goal) (e : Expr) : Nat :=
+  if let some n := goal.getENode? e then
+    n.generation
+  else
+    0
+
 /-- Returns expressions in the given expression equivalence class. -/
-partial def Goal.getEqc (goal : Goal) (e : Expr) : List Expr :=
-  go e e []
+partial def Goal.getEqc (goal : Goal) (e : Expr) (sort := false) : List Expr :=
+  let eqc := go e e #[]
+  if sort then
+    Array.toList <| eqc.qsort fun e₁ e₂ =>
+      let g₁ := goal.getGeneration e₁
+      let g₂ := goal.getGeneration e₂
+      if g₁ != g₂ then g₁ < g₂ else e₁.lt e₂
+  else
+    eqc.toList
 where
-  go (first : Expr) (e : Expr) (acc : List Expr) : List Expr := Id.run do
-    let some next ← goal.getNext? e | acc
-    let acc := e :: acc
+  go (first : Expr) (e : Expr) (acc : Array Expr) : Array Expr := Id.run do
+    let some next := goal.getNext? e | acc
+    let acc := acc.push e
     if isSameExpr first next then
       return acc
     else
       go first next acc
 
 @[inline, inherit_doc Goal.getEqc]
-partial def getEqc (e : Expr) : GoalM (List Expr) :=
-  return (← get).getEqc e
+partial def getEqc (e : Expr) (sort := false) : GoalM (List Expr) :=
+  return (← get).getEqc e sort
 
 /-- Returns all equivalence classes in the current goal. -/
-partial def Goal.getEqcs (goal : Goal) : List (List Expr) := Id.run do
- let mut r : List (List Expr) := []
+partial def Goal.getEqcs (goal : Goal) (sort := false) : List (List Expr) := Id.run do
+ let mut r : Array (Nat × Expr × List Expr) := #[]
  for e in goal.exprs do
     let some node := goal.getENode? e | pure ()
     if node.isRoot then
-      r := goal.getEqc node.self :: r
-  return r
+      let e :: es := goal.getEqc node.self sort | unreachable!
+      r := r.push (goal.getGeneration e, e, es)
+  if sort then
+    r := r.qsort fun (g₁, e₁, _) (g₂, e₂, _) => if g₁ != g₂ then g₁ < g₂ else e₁.lt e₂
+  return r.toList.map fun (_, e, es) => e::es
 
 @[inline, inherit_doc Goal.getEqcs]
 def getEqcs : GoalM (List (List Expr)) :=

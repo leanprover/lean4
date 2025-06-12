@@ -265,7 +265,7 @@ def findRev?TR (p : α → Bool) (l : List α) : Option α := l.reverse.find? p
   simp only [find?]
   split <;> simp_all
 
-@[simp] theorem find?_append {xs ys : List α} : (xs ++ ys).find? p = (xs.find? p).or (ys.find? p) := by
+@[simp, grind =] theorem find?_append {xs ys : List α} : (xs ++ ys).find? p = (xs.find? p).or (ys.find? p) := by
   induction xs with
   | nil => simp [find?]
   | cons x xs ih =>

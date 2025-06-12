@@ -407,7 +407,7 @@ private def applyAssignment (mvars : Array Expr) : OptionT (StateT Choice M) Uni
         theorem getElem_reverse {xs : Array α} {i : Nat} (hi : i < xs.reverse.size) :
           (xs.reverse)[i] = xs[xs.size - 1 - i]'(by simp at hi; omega)
         ```
-        The pattern for this theorem is `xs.reverese[i]`. Note that `hi` occurs there as an implicit argument.
+        The pattern for this theorem is `xs.reverse[i]`. Note that `hi` occurs there as an implicit argument.
         The term `xs[j]` in our goal e-matches the pattern because we have the equality `xs.reverse = xs`.
         However, the implicit proof at `xs[j]` has type `j < xs.size` instead of `j < xs.reverse.size`.
         -/

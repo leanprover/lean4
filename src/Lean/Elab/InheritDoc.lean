@@ -9,7 +9,13 @@ import Lean.DocString.Extension
 
 namespace Lean
 
-builtin_initialize
+/--
+Uses documentation from a specified declaration.
+
+`@[inherit_doc decl]` is used to inherit the documentation from the declaration `decl`.
+-/
+@[builtin_init, builtin_doc]
+private def init :=
   registerBuiltinAttribute {
     name := `inherit_doc
     descr := "inherit documentation from a specified declaration"

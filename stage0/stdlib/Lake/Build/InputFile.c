@@ -3014,12 +3014,13 @@ x_2 = l_Lake_InputFile_defaultFacetConfig___closed__1;
 x_3 = l_Lake_instDataKindFilePath;
 x_4 = 1;
 x_5 = l_Lake_InputFile_defaultFacetConfig___closed__2;
-x_6 = lean_alloc_ctor(0, 4, 1);
+x_6 = lean_alloc_ctor(0, 4, 2);
 lean_ctor_set(x_6, 0, x_1);
 lean_ctor_set(x_6, 1, x_2);
 lean_ctor_set(x_6, 2, x_3);
 lean_ctor_set(x_6, 3, x_5);
 lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4 + 1, x_4);
 return x_6;
 }
 }
@@ -8317,12 +8318,13 @@ x_2 = l_Lake_InputDir_defaultFacetConfig___closed__1;
 x_3 = lean_box(0);
 x_4 = 1;
 x_5 = l_Lake_InputDir_defaultFacetConfig___closed__2;
-x_6 = lean_alloc_ctor(0, 4, 1);
+x_6 = lean_alloc_ctor(0, 4, 2);
 lean_ctor_set(x_6, 0, x_1);
 lean_ctor_set(x_6, 1, x_2);
 lean_ctor_set(x_6, 2, x_3);
 lean_ctor_set(x_6, 3, x_5);
 lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4 + 1, x_4);
 return x_6;
 }
 }

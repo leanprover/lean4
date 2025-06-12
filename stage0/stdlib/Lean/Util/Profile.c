@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* lean_profileit(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_Profile___hyg_5____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_EIO_toBaseIO___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profiler;
 LEAN_EXPORT lean_object* l_Lean_profileitIOUnsafe___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 double lean_float_div(double, double);
@@ -43,6 +44,7 @@ static lean_object* l_Lean_initFn____x40_Lean_Util_Profile___hyg_5____closed__1;
 LEAN_EXPORT lean_object* l_Lean_profileitIOUnsafe___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 double l_Float_ofScientific(lean_object*, uint8_t, lean_object*);
+lean_object* l_unsafeBaseIO___rarg(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_Profile___hyg_40____closed__5;
 LEAN_EXPORT double lean_get_profiler_threshold(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_Profile___hyg_5____closed__2;
@@ -540,28 +542,10 @@ LEAN_EXPORT lean_object* l_Lean_profileitIOUnsafe___rarg___lambda__1(lean_object
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = lean_box(0);
-x_4 = lean_apply_1(x_1, x_3);
-if (lean_obj_tag(x_4) == 0)
-{
-lean_object* x_5; lean_object* x_6; 
-x_5 = lean_ctor_get(x_4, 0);
-lean_inc(x_5);
-lean_dec(x_4);
-x_6 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_6, 0, x_5);
-return x_6;
-}
-else
-{
-lean_object* x_7; lean_object* x_8; 
-x_7 = lean_ctor_get(x_4, 0);
-lean_inc(x_7);
-lean_dec(x_4);
-x_8 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_8, 0, x_7);
-return x_8;
-}
+x_3 = lean_alloc_closure((void*)(l_EIO_toBaseIO___rarg), 2, 1);
+lean_closure_set(x_3, 0, x_1);
+x_4 = l_unsafeBaseIO___rarg(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_profileitIOUnsafe___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

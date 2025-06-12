@@ -11,8 +11,6 @@ This module contains the implementation of RAT-based clause adding for the defau
 implementation.
 -/
 
-set_option grind.warning false -- I've only made a partial effort to use grind here so far.
-
 namespace Std.Tactic.BVDecide
 namespace LRAT
 namespace Internal
@@ -134,13 +132,7 @@ theorem performRatCheck_fold_formula_eq {n : Nat} (f : DefaultFormula n)
   have h_base : motive 0 (f, true) := rfl
   have h_inductive (idx : Fin ratHints.size) (acc : DefaultFormula n × Bool) :
     motive idx.1 acc → motive (idx.1 + 1) (if acc.2 then performRatCheck acc.1 p ratHints[idx] else (acc.1, false)) := by
-    -- FIXME: this causes an internal `grind` error:
-    -- grind [formula_performRatCheck]
-    intro ih
-    rw [ih]
-    split
-    · exact formula_performRatCheck f hf p ratHints[idx]
-    · rfl
+    grind [formula_performRatCheck]
   exact Array.foldl_induction motive h_base h_inductive
 
 theorem ratAdd_result {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) (p : Literal (PosFin n))

@@ -138,36 +138,6 @@ instance Take.instIteratorCollectPartial [Monad m] [Monad n] [Iterator α m β] 
     IteratorCollectPartial (Take α m β) m n :=
   .defaultImplementation
 
-private def Take.PlausibleForInStep {β : Type u} {γ : Type v}
-    (f : β → γ → ForInStep γ → Prop) :
-    β → γ × Nat → (ForInStep (γ × Nat)) → Prop
-  | out, (c, n), ForInStep.yield (c', n') => n = n' + 1 ∧ f out c (.yield c')
-  | _, _, .done _ => True
-
-private def Take.wellFounded_plausibleForInStep {α β : Type w} {m : Type w → Type w'}
-    [Monad m] [Iterator α m β] {γ : Type x}
-    {f : β → γ → ForInStep γ → Prop} (wf : IteratorLoop.WellFounded (Take α m β) m f) :
-    IteratorLoop.WellFounded α m (PlausibleForInStep f) := by
-      simp only [IteratorLoop.WellFounded] at ⊢ wf
-      letI : WellFoundedRelation _ := ⟨_, wf⟩
-      apply Subrelation.wf
-        (r := InvImage WellFoundedRelation.rel fun p => (p.1.take (p.2.2 + 1), p.2.1))
-        (fun {p q} h => by
-          simp only [InvImage, WellFoundedRelation.rel, this, IteratorLoop.rel,
-            IterM.IsPlausibleStep, Iterator.IsPlausibleStep]
-          obtain ⟨out, h, h'⟩ | ⟨h, h'⟩ := h
-          · apply Or.inl
-            exact ⟨out, .yield h (by simp only [IterM.take, internalState_toIterM,
-                Nat.add_right_cancel_iff, this]; exact h'.1), h'.2⟩
-          · apply Or.inr
-            refine ⟨?_, by rw [h']⟩
-            rw [h']
-            apply PlausibleStep.skip
-            · exact h
-            · rfl)
-      apply InvImage.wf
-      exact WellFoundedRelation.wf
-
 instance Take.instIteratorLoop [Monad m] [Monad n] [Iterator α m β]
     [IteratorLoop α m n] [MonadLiftT m n] :
     IteratorLoop (Take α m β) m n :=

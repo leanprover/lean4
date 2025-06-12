@@ -60,7 +60,7 @@ def Goal.ppState (goal : Goal) : MetaM MessageData := do
   for e in goal.exprs do
     let node ← goal.getENode e
     r := r ++ "\n" ++ (← goal.ppENodeDecl node.self)
-  let eqcs := goal.getEqcs
+  let eqcs := goal.getEqcs (sort := true)
   for eqc in eqcs do
     if eqc.length > 1 then
       r := r ++ "\n" ++ "{" ++ (MessageData.joinSep (← eqc.mapM goal.ppENodeRef) ", ") ++  "}"
@@ -87,7 +87,7 @@ private def ppEqcs : M Unit := do
    let mut falseEqc? : Option MessageData := none
    let mut otherEqcs : Array MessageData := #[]
    let goal ← read
-   for eqc in goal.getEqcs do
+   for eqc in goal.getEqcs (sort := true) do
      if Option.isSome <| eqc.find? (·.isTrue) then
        let eqc := eqc.filter fun e => !e.isTrue
        unless eqc.isEmpty do

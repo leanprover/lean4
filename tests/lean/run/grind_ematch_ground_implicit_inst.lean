@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 example (a : Nat) : max a a = a := by
   grind
 

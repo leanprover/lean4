@@ -2,8 +2,6 @@
 -- This may prove fragile, so remember it is okay to update the expected output if appropriate!
 -- Hopefully these will act as regression tests against `grind` activating irrelevant lemmas.
 
-set_option grind.warning false
-
 section
 
 variable [BEq α] {o₁ o₂ o₃ o₄ o₅ : Option α}

@@ -1506,7 +1506,7 @@ where doRealize inductName := do
 
 /--
 Given an expression `fun x y z => body`, returns a bit mask of the functinon's arity length
-that has `true` whenver that parameter of the function appears as a scrutinee of a `match` in
+that has `true` whenever that parameter of the function appears as a scrutinee of a `match` in
 tail position. These are the parameters that are likely useful as targets of the motive
 of the functional cases theorem. All others become parameters or may be dropped.
 

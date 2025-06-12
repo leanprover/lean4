@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Compiler.ExternAttr
+import Lean.Compiler.ImplementedByAttr
 import Lean.Compiler.LCNF.MonoTypes
 import Lean.Compiler.LCNF.InferType
 import Lean.Compiler.NoncomputableAttr
@@ -106,6 +107,24 @@ def LetDecl.toMono (decl : LetDecl) : ToMonoM LetDecl := do
   let type ← toMonoType decl.type
   let value ← decl.value.toMono decl.fvarId
   decl.update type value
+
+def mkFieldParamsForComputedFields (ctorType : Expr) (numParams : Nat) (numNewFields : Nat)
+    (oldFields : Array Param) : ToMonoM (Array Param) := do
+  let mut type := ctorType
+  for _ in [0:numParams] do
+    match type with
+    | .forallE _ _ body _ =>
+      type := body
+    | _ => unreachable!
+  let mut newFields := Array.emptyWithCapacity (oldFields.size + numNewFields)
+  for _ in [0:numNewFields] do
+    match type with
+    | .forallE name fieldType body _ =>
+      let param ← mkParam name (← toMonoType fieldType) false
+      newFields := newFields.push param
+      type := body
+    | _ => unreachable!
+  return newFields ++ oldFields
 
 mutual
 
@@ -278,12 +297,30 @@ partial def Code.toMono (code : Code) : ToMonoM Code := do
     else if let some info ← hasTrivialStructure? c.typeName then
       trivialStructToMono info c
     else
-      let type ← toMonoType c.resultType
-      let alts ← c.alts.mapM fun alt =>
-        match alt with
-        | .default k => return alt.updateCode (← k.toMono)
-        | .alt _ ps k => return alt.updateAlt! (← ps.mapM (·.toMono)) (← k.toMono)
-      return code.updateCases! type c.discr alts
+      let resultType ← toMonoType c.resultType
+      let env ← getEnv
+      let some (.inductInfo inductInfo) := env.find? c.typeName | panic! "expected inductive type"
+      let casesOnName := mkCasesOnName inductInfo.name
+      if (getImplementedBy? env casesOnName).isSome then
+        -- TODO: Enforce that this is only used for computed fields.
+        let typeName := c.typeName ++ `_impl
+        let alts ← c.alts.mapM fun alt => do
+          match alt with
+          | .default k => return alt.updateCode (← k.toMono)
+          | .alt ctorName ps k =>
+            let implCtorName := ctorName ++ `_impl
+            let some (.ctorInfo ctorInfo) := env.find? implCtorName | panic! "expected constructor"
+            let numNewFields := ctorInfo.numFields - ps.size
+            let ps ← mkFieldParamsForComputedFields ctorInfo.type ctorInfo.numParams numNewFields ps
+            let k ← k.toMono
+            return .alt implCtorName ps k
+        return .cases { discr := c.discr, resultType, typeName, alts }
+      else
+        let alts ← c.alts.mapM fun alt =>
+          match alt with
+          | .default k => return alt.updateCode (← k.toMono)
+          | .alt _ ps k => return alt.updateAlt! (← ps.mapM (·.toMono)) (← k.toMono)
+        return code.updateCases! resultType c.discr alts
 
 end
 

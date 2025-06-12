@@ -36,12 +36,11 @@ deriving Nonempty
 instance : ToSnapshotTree CommandResultSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot, #[]⟩
 
-/-- State after a command has been parsed. -/
-structure CommandParsedSnapshot extends Snapshot where
-  /-- Syntax tree of the command. -/
-  stx : Syntax
-  /-- Resulting parser state. -/
-  parserState : Parser.ModuleParserState
+/--
+State before a command is elaborated. This is separate from `CommandParsedSnapshot` so that all
+snapshots belonging to a command are grouped below a task with the command's syntax tree.
+-/
+structure CommandElaboratingSnapshot extends Snapshot where
   /--
   Snapshot for incremental reporting and reuse during elaboration, type dependent on specific
   elaborator.
@@ -55,16 +54,30 @@ structure CommandParsedSnapshot extends Snapshot where
   infoTreeSnap : SnapshotTask SnapshotLeaf
   /-- Additional, untyped snapshots used for reporting, not reuse. -/
   reportSnap : SnapshotTask SnapshotTree
+deriving Nonempty
+instance : ToSnapshotTree CommandElaboratingSnapshot where
+  toSnapshotTree := go where
+    go s := ⟨s.toSnapshot,
+      #[s.elabSnap.map (sync := true) toSnapshotTree,
+        s.resultSnap.map (sync := true) toSnapshotTree,
+        s.infoTreeSnap.map (sync := true) toSnapshotTree,
+        s.reportSnap]⟩
+
+/-- State after a command has been parsed. -/
+structure CommandParsedSnapshot extends Snapshot where
+  /-- Syntax tree of the command. -/
+  stx : Syntax
+  /-- Resulting parser state. -/
+  parserState : Parser.ModuleParserState
+  /-- State before the command is elaborated. This snapshot is always fulfilled immediately. -/
+  elabSnap : CommandElaboratingSnapshot
   /-- Next command, unless this is a terminal command. -/
   nextCmdSnap? : Option (SnapshotTask CommandParsedSnapshot)
 deriving Nonempty
 partial instance : ToSnapshotTree CommandParsedSnapshot where
   toSnapshotTree := go where
     go s := ⟨s.toSnapshot,
-      #[s.elabSnap.map (sync := true) toSnapshotTree,
-        s.resultSnap.map (sync := true) toSnapshotTree,
-        s.infoTreeSnap.map (sync := true) toSnapshotTree,
-        s.reportSnap] |>
+      #[.finished s.stx (toSnapshotTree s.elabSnap)] |>
         pushOpt (s.nextCmdSnap?.map (·.map (sync := true) go))⟩
 
 /-- State after successful importing. -/

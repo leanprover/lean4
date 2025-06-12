@@ -76,3 +76,15 @@ set_option trace.grind.linarith.model true in
 example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b c d : α)
     : b ≥ 0 → c > b → d > b → a ≠ b + c → a > b + c → a < b + d →  False := by
   grind
+
+/--
+trace: [grind.linarith.model] a := 0
+[grind.linarith.model] b := 1
+[grind.linarith.model] c := 1
+[grind.linarith.model] d := -1
+-/
+#guard_msgs (drop error, trace) in
+set_option trace.grind.linarith.model true in
+example [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (a b c d : α)
+    : a ≤ b → a - c ≥ 0 + d → d ≤ 0 → b = c → a ≠ b → False := by
+  grind

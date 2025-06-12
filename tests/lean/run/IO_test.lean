@@ -85,7 +85,7 @@ info: ⟨[₂,α]⟩⟨[₂,α]⟩
 0
 "⟨[₂,α]⟩⟨[₂,α]⟩\n"
 1
-"/* Handle.getLine : Handle → IO Unit                     *//*   The line returned by `lean_io_prim_handle_get_line` *//*   is truncated at the first '\\0' character and the    *//*   rest of the line is discarded.                      */\n"
+"/* Handle.getLine : Handle → IO Unit                     *//*   The line returned by `lean_io_prim_handle_get_line` *//*   is truncated at the first \'\\0\' character and the    *//*   rest of the line is discarded.                      */\n"
 2
 "⟨[6,8,@]⟩\n"
 3

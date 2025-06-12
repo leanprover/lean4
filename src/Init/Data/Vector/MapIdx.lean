@@ -61,12 +61,12 @@ namespace Vector
 
 /-! ### zipIdx -/
 
-@[simp] theorem toList_zipIdx {xs : Vector α n} (k : Nat := 0) :
+@[simp, grind =] theorem toList_zipIdx {xs : Vector α n} (k : Nat := 0) :
     (xs.zipIdx k).toList = xs.toList.zipIdx k := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp] theorem getElem_zipIdx {xs : Vector α n} {i : Nat} {h : i < n} :
+@[simp, grind =] theorem getElem_zipIdx {xs : Vector α n} {i : Nat} {h : i < n} :
     (xs.zipIdx k)[i] = (xs[i]'(by simp_all), k + i) := by
   rcases xs with ⟨xs, rfl⟩
   simp

@@ -126,7 +126,7 @@ namespace Array
 
 /-! ### zipIdx -/
 
-@[simp] theorem getElem_zipIdx {xs : Array α} {k : Nat} {i : Nat} (h : i < (xs.zipIdx k).size) :
+@[simp, grind =] theorem getElem_zipIdx {xs : Array α} {k : Nat} {i : Nat} (h : i < (xs.zipIdx k).size) :
     (xs.zipIdx k)[i] = (xs[i]'(by simp_all), k + i) := by
   simp [zipIdx]
 
@@ -140,7 +140,7 @@ abbrev getElem_zipWithIndex := @getElem_zipIdx
 @[deprecated zipIdx_toArray (since := "2025-01-21")]
 abbrev zipWithIndex_toArray := @zipIdx_toArray
 
-@[simp] theorem toList_zipIdx {xs : Array α} {k : Nat} :
+@[simp, grind =] theorem toList_zipIdx {xs : Array α} {k : Nat} :
     (xs.zipIdx k).toList = xs.toList.zipIdx k := by
   rcases xs with ⟨xs⟩
   simp

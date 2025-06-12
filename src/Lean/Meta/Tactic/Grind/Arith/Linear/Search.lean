@@ -41,7 +41,7 @@ def getBestLower? (x : Var) : LinearM (Option (Rat × IneqCnstr)) := do
     let some v ← p.eval? | c'.throwUnexpected
     let lower' := v / (-k)
     if let some (lower, c) := best? then
-      if lower' > lower || (lower' == lower && !c'.strict && c.strict) then
+      if lower' > lower || (lower' == lower && c'.strict && !c.strict) then
         best? := some (lower', c')
     else
       best? := some (lower', c')
@@ -60,7 +60,7 @@ def getBestUpper? (x : Var) : LinearM (Option (Rat × IneqCnstr)) := do
     let some v ← p.eval? | c'.throwUnexpected
     let upper' := (-v) / k
     if let some (upper, c) := best? then
-      if upper' < upper || (upper' == upper && !c'.strict && c.strict) then
+      if upper' < upper || (upper' == upper && c'.strict && !c.strict) then
         best? := some (upper', c')
     else
       best? := some (upper', c')

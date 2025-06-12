@@ -193,7 +193,7 @@ jobs:
         run: |
           ulimit -c unlimited  # coredumps
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
-        if: (matrix.wasm || !matrix.cross) && (inputs.check-level >= 1 || matrix.name == 'Linux release')
+        if: (matrix.wasm || !matrix.cross) && (inputs.check-level >= 1 || inputs.test)
       - name: Test Summary
         uses: test-summary/action@v2
         with:
@@ -224,7 +224,7 @@ jobs:
         run: |
           # clean rebuild in case of Makefile changes
           make -C build update-stage0 && rm -rf build/stage* && make -C build -j$NPROC
-        if: matrix.name == 'Linux' && inputs.check-level >= 1
+        if: inputs.check-rebootstrap
       - name: CCache stats
         if: always()
         run: ccache -s

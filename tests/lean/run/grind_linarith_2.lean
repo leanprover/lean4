@@ -38,3 +38,29 @@ set_option trace.grind.debug.linarith.search.assign true in
 example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b c d : α)
     : b ≥ 0 → c > b → d > b → a ≠ b + c → a > b + c → a < b + d →  False := by
   grind
+
+example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b c d : α)
+    : a ≤ b → a ≥ c + d → d = 0 → b = c → a = b := by
+  grind
+
+example [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (a b c d : α)
+    : a ≤ b → a ≥ c + d → d ≤ 0 → d ≥ 0 → b = c → a = b := by
+  grind
+
+open Linarith RArray
+set_option trace.grind.debug.proof true in
+example [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (a b c d : α)
+    : a ≤ b → a - c ≥ 0 + d → d ≤ 0 → d ≥ 0 → b = c → a ≠ b → False := by
+  grind
+
+example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b c : α)
+    : a + 2*b = 0 → c + b = -b → a = c := by
+  grind
+
+example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b c : α)
+    : a + 2*b = 0 → a = c → c + b = -b := by
+  grind
+
+example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b c : α)
+    : c = a → a + b ≤ 3 → 3 ≤ b + c → a + b = 3 := by
+  grind

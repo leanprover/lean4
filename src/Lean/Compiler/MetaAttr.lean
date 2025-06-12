@@ -27,7 +27,13 @@ def getIRPhases (env : Environment) (declName : Name) : IRPhases := Id.run do
   if !env.header.isModule then
     return .all
   match env.getModuleIdxFor? declName with
-  | some idx => if isMeta env declName then .comptime else env.header.modules[idx.toNat]?.map (·.irPhases) |>.get!
+  | some idx => if isMeta env declName then .comptime else
+    -- HACK: The old compiler gets the ABI wrong if the result is not an immediate
+    -- constructor. The `match` can be removed once the new compiler is enabled.
+    match env.header.modules[idx.toNat]?.map (·.irPhases) |>.get! with
+    | .comptime => .comptime
+    | .runtime => .runtime
+    | .all => .all
   -- Allow `meta`->non-`meta` acesses in the same module
   | none => if isMeta env declName then .comptime else .all
 

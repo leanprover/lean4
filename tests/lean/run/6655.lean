@@ -53,6 +53,18 @@ example {α : Type} (c : α → α) (x : α) : c x = x := by
   sorry
 
 /-!
+Example from comments of #6655. This used to suggest `simp only [Int.add_sub_cancel, p]`.
+(N.B. the goal at that point does not have `p` in it!)
+-/
+/-- info: Try this: simp only [Int.add_sub_cancel] -/
+#guard_msgs in
+example (a b : Int) : a + b - b = a := by
+  let p := 1
+  have h : p = 1 := by
+    simp only [p]
+  simp?
+
+/-!
 Example from https://github.com/leanprover/lean4/pull/7539 by JovanGerb.
 This used to suggest `simp only [a, b] ` and `simp only [a, b]`
 -/

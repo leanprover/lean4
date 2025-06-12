@@ -312,7 +312,7 @@ theorem map_fst_zip :
   | [], _, _ => rfl
   | _ :: as, _ :: bs, h => by
     simp [Nat.succ_le_succ_iff] at h
-    show _ :: map Prod.fst (zip as bs) = _ :: as
+    change _ :: map Prod.fst (zip as bs) = _ :: as
     rw [map_fst_zip (l₁ := as) h]
   | _ :: _, [], h => by simp at h
 
@@ -324,7 +324,7 @@ theorem map_snd_zip :
   | [], b :: bs, h => by simp at h
   | a :: as, b :: bs, h => by
     simp [Nat.succ_le_succ_iff] at h
-    show _ :: map Prod.snd (zip as bs) = _ :: bs
+    change _ :: map Prod.snd (zip as bs) = _ :: bs
     rw [map_snd_zip (l₂ := bs) h]
 
 theorem map_prod_left_eq_zip {l : List α} {f : α → β} :

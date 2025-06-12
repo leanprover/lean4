@@ -248,7 +248,7 @@ def appendBefore (n : Name) (pre : String) : Name :=
     | num p n => Name.mkNum (Name.mkStr p pre) n
 
 protected theorem beq_iff_eq {m n : Name} : m == n ↔ m = n := by
-  show m.beq n ↔ _
+  change m.beq n ↔ _
   induction m generalizing n <;> cases n <;> simp_all [Name.beq, And.comm]
 
 instance : LawfulBEq Name where

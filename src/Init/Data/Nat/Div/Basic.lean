@@ -76,7 +76,7 @@ private theorem div.go.fuel_congr (x y fuel1 fuel2 : Nat) (hy : 0 < y) (h1 : x <
 termination_by structural fuel1
 
 theorem div_eq (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 := by
-  show Nat.div _ _ = ite _ (Nat.div _ _ + 1) _
+  change Nat.div _ _ = ite _ (Nat.div _ _ + 1) _
   unfold Nat.div
   split
   next =>
@@ -258,7 +258,7 @@ protected def mod : @& Nat → @& Nat → Nat
 instance instMod : Mod Nat := ⟨Nat.mod⟩
 
 protected theorem modCore_eq_mod (n m : Nat) : Nat.modCore n m = n % m := by
-  show Nat.modCore n m = Nat.mod n m
+  change Nat.modCore n m = Nat.mod n m
   match n, m with
   | 0, _ =>
     rw [Nat.modCore_eq]
@@ -522,7 +522,7 @@ theorem mul_sub_div (x n p : Nat) (h₁ : x < n*p) : (n * p - (x + 1)) / n = p -
     rw [Nat.mul_sub_right_distrib, Nat.mul_comm]
     exact Nat.sub_le_sub_left ((div_lt_iff_lt_mul npos).1 (lt_succ_self _)) _
   focus
-    show succ (pred (n * p - x)) ≤ (succ (pred (p - x / n))) * n
+    change succ (pred (n * p - x)) ≤ (succ (pred (p - x / n))) * n
     rw [succ_pred_eq_of_pos (Nat.sub_pos_of_lt h₁),
       fun h => succ_pred_eq_of_pos (Nat.sub_pos_of_lt h)] -- TODO: why is the function needed?
     focus

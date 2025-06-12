@@ -66,4 +66,51 @@ def assignEqc (goal : Goal) (e : Expr) (v : Rat) (a : Std.HashMap Expr Rat) : St
     a := a.insert e v
   return a
 
+/--
+Assigns terms in the goal that satisfy `isTarget`.
+Recall that not all terms are communicated to `linarith` and `cutsat` modules if they do not appear in relevant constraints.
+The idea is to assign unused integer values that have not been used in the model and do not falsify equalities and disequalities
+in core.
+-/
+private def assignUnassigned (goal : Goal) (isTarget : ENode → MetaM Bool) (model : Std.HashMap Expr Rat) : MetaM (Std.HashMap Expr Rat) := do
+  let mut nextVal : Int := 0
+  -- Collect used values
+  let mut used : Std.HashSet Int := {}
+  for (_, v) in model do
+    if v.den == 1 then
+      used := used.insert v.num
+  let mut model := model
+  -- Assign the remaining ones with values not used by cutsat
+  for e in goal.exprs do
+    let node ← goal.getENode e
+    if node.isRoot then
+    if (← isTarget node) then
+    if model[node.self]?.isNone then
+      let v := pickUnusedValue goal model node.self nextVal used
+      model := assignEqc goal node.self v model
+      used := used.insert v
+      nextVal := v + 1
+  return model
+
+/-- Sorts assignment first by expression generation and then `Expr.lt` -/
+private def sortModel (goal : Goal) (m : Array (Expr × Rat)) : Array (Expr × Rat) :=
+  m.qsort fun (e₁, _) (e₂, _) =>
+    let g₁ := goal.getGeneration e₁
+    let g₂ := goal.getGeneration e₂
+    if g₁ != g₂ then g₁ < g₂ else e₁.lt e₂
+
+/--
+Converts the given model into a sorted array of pairs `(e, v)` representing assignments `e := v`.
+`isTarget` is a predicate used to detect terms that must be in the model but have not been assigned a value (see: `assignUnassigned`)
+The pairs are sorted using `e`s generation and then `Expr.lt`.
+Only terms s.t. `isInterpretedTerm e = false` are included into the resulting array.
+-/
+def finalizeModel (goal : Goal) (isTarget : ENode → MetaM Bool) (model : Std.HashMap Expr Rat) : MetaM (Array (Expr × Rat)) := do
+  let model ← assignUnassigned goal isTarget model
+  let mut r := #[]
+  for (e, v) in model do
+    unless isInterpretedTerm e do
+      r := r.push (e, v)
+  return sortModel goal r
+
 end Lean.Meta.Grind.Arith

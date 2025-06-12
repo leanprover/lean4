@@ -7,7 +7,6 @@ prelude
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Arith.ModelUtil
 
-
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 private def isIntNatENode (n : ENode) : MetaM Bool :=
@@ -51,8 +50,6 @@ Remark: it uses rational numbers because cutsat may have failed to build an
 integer model.
 -/
 def mkModel (goal : Goal) : MetaM (Array (Expr × Rat)) := do
-  let mut used : Std.HashSet Int := {}
-  let mut nextVal : Int := 0
   let mut model := {}
   -- Assign on expressions associated with cutsat terms or interpreted terms
   for e in goal.exprs do
@@ -60,7 +57,6 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Rat)) := do
     if node.isRoot then
     if (← isIntNatENode node) then
       if let some v ← getAssignment? goal node.self then
-        if v.den == 1 then used := used.insert v.num
         model := assignEqc goal node.self v model
   -- Assign cast terms
   for e in goal.exprs do
@@ -70,23 +66,7 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Rat)) := do
     if model[n]?.isNone then
       let some v := model[i]? | pure ()
       model := assignEqc goal n v model
-  -- Assign the remaining ones with values not used by cutsat
-  for e in goal.exprs do
-    let node ← goal.getENode e
-    if node.isRoot then
-    if (← isIntNatENode node) then
-    if model[node.self]?.isNone then
-      let v := pickUnusedValue goal model node.self nextVal used
-      model := assignEqc goal node.self v model
-      used := used.insert v
-  let mut r := #[]
-  for (e, v) in model do
-    unless isInterpretedTerm e do
-      r := r.push (e, v)
-  r := r.qsort fun (e₁, _) (e₂, _) =>
-    let g₁ := goal.getGeneration e₁
-    let g₂ := goal.getGeneration e₂
-    if g₁ != g₂ then g₁ < g₂ else e₁.lt e₂
+  let r ← finalizeModel goal isIntNatENode model
   if (← isTracingEnabledFor `grind.cutsat.model) then
     for (x, v) in r do
       trace[grind.cutsat.model] "{quoteIfArithTerm x} := {v}"

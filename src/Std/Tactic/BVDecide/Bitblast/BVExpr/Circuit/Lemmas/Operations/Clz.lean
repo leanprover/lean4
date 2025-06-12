@@ -69,16 +69,15 @@ go aig x i acc; where acc = clzAuxRec (i - 1) :=
 -- acc n = ite curr [n]
 theorem go_denote_base_eq {w : Nat} (aig : AIG α)
     (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool)
-    (hc : w ≤ curr)
     (hacc : ∀ (idx : Nat) (hidx : idx < w),
                 ⟦aig, acc.get idx hidx, assign⟧
                   =
                 (BitVec.clzAuxRec x (w - 1)).getLsbD idx) :
     ∀ (idx : Nat) (hidx : idx < w),
-      ⟦(go aig xc curr acc).aig, (go aig xc curr acc).vec.get idx hidx, assign⟧ =
+      ⟦(go aig xc w acc).aig, (go aig xc w acc).vec.get idx hidx, assign⟧ =
         (BitVec.clzAuxRec x (w - 1)).getLsbD idx := by
     intro idx hidx
-    generalize hgo0 : go aig xc curr acc = res
+    generalize hgo0 : go aig xc w acc = res
     unfold go at hgo0
     split at hgo0
     · omega
@@ -86,34 +85,32 @@ theorem go_denote_base_eq {w : Nat} (aig : AIG α)
       simp [hacc]
 
 theorem go_denote_eq {w : Nat} (aig : AIG α)
-    (acc : AIG.RefVec aig w) (x : AIG.RefVec aig w) (xexpr : BitVec w) (assign : α → Bool)
+    (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool) (hc : curr ≤ w)
     -- correctness of the denotation for x and xexpr
-    (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, x.get idx hidx, assign⟧ = xexpr.getLsbD idx)
+    (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)
     -- correctness of the denotation for the accumulator
     (hacc : ∀ (idx : Nat) (hidx : idx < w),
       if curr = 0 then ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.ofNat w w).getLsbD idx
-      else if w ≤ curr then
-        ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.clzAuxRec xexpr (w - 1)).getLsbD idx
-      else
-        ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.clzAuxRec xexpr (curr - 1)).getLsbD idx)
+      else ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.clzAuxRec x (curr - 1)).getLsbD idx)
     :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦
-          (go aig x curr acc).aig,
-          (go aig x curr acc).vec.get idx hidx,
+          (go aig xc curr acc).aig,
+          (go aig xc curr acc).vec.get idx hidx,
           assign
         ⟧
           =
-        (BitVec.clzAuxRec xexpr (w - 1)).getLsbD idx := by
+        (BitVec.clzAuxRec x (w - 1)).getLsbD idx := by
     intro idx hidx
-    generalize hgo: go aig x curr acc = res
+    generalize hgo: go aig xc curr acc = res
     unfold go at hgo
     split at hgo
-    · -- w < curr
+    · -- curr < w
       case isTrue h =>
         simp at hgo
         rw [← hgo]
         rw [go_denote_eq]
+        · sorry
         · intro idx hidx
           rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
           rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
@@ -121,22 +118,32 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
           simp [Ref.hgate]
         · intro idx hidx
           simp [show ¬ curr + 1 = 0 by omega]
-          by_cases hcw : w ≤ curr + 1
-          · simp [hcw]
-            rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
-            rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
-            · sorry
-            · simp [Ref.hgate]
-          · simp [hcw]
-            rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
-            rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
-            ·
-              sorry
-            · simp [Ref.hgate]
+          by_cases hc : curr = 0
+          · simp [hc] at hacc
+            simp [hc]
+            unfold BitVec.clzAuxRec
+            rw [RefVec.denote_ite (aig := aig)]
+            by_cases hx0 : x.getLsbD 0
+            · rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
+              rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
+              · simp [hx0, hacc]
+                sorry
+              ·
+                sorry
+            · rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
+              rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
+              · simp [hx0, hacc]
+              · simp [Ref.hgate]
+          · simp [hc] at hacc
+
+            sorry
     · case isFalse h =>
       rw [← hgo]
       simp [show w ≤ curr by omega, show ¬ curr = 0 by omega] at hacc
       simp [hacc]
+      by_cases hcw : curr = w
+      · subst hcw; rfl
+      · omega
 
 -- theorem go_denote_eq {w : Nat} (aig : AIG α) (hw : 0 < w)
 --     (acc : AIG.RefVec aig w) (x : AIG.RefVec aig w) (xexpr : BitVec w) (assign : α → Bool)

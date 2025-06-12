@@ -30,22 +30,13 @@ variable [Hashable α] [DecidableEq α]
 
 def blastClz (aig : AIG α) (x : AIG.RefVec aig w) :
     AIG.RefVecEntry α w :=
-  let res := blastConst aig w
-  let aig := res.aig
-  let acc := res.vec
-  have := AIG.LawfulVecOperator.le_size (f := blastConst) ..
-  have x := x.cast this
-  go aig x 0 acc
+  let wconst := blastConst aig w
+  go aig x 0 wconst
 where
   go (aig : AIG α) (x : AIG.RefVec aig w) (curr : Nat) (acc : AIG.RefVec aig w) :=
     if hc : curr < w then
       -- w - curr - 1
-      let res := blastConst aig (w := w) (w - 1 - curr)
-      let aig  := res.aig
-      let lhs := res.vec
-      have := AIG.LawfulVecOperator.le_size (f := blastConst) ..
-      let x : AIG.RefVec aig w := x.cast this
-      let acc : AIG.RefVec aig w := acc.cast this
+      let lhs := blastConst aig (w := w) (w - 1 - curr)
       let res := AIG.RefVec.ite aig ⟨x.get curr hc, lhs, acc⟩
       let aig := res.aig
       have := AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite) ..

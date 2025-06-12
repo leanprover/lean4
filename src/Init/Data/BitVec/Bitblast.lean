@@ -2031,7 +2031,7 @@ theorem clzAuxRec_le (x : BitVec w) (n : Nat) :
 
 theorem clzAuxRec_zero_eq (x : BitVec w) :
       clzAuxRec x 0 = if x.getLsbD 0 then BitVec.ofNat w (w - 1)
-        else BitVec.ofNat w w := rfl
+        else BitVec.ofNat w w := by simp [clzAuxRec]
 
 theorem clzAuxRec_succ_eq (x : BitVec w) (n : Nat) (hn : n = n' + 1) :
     clzAuxRec x n = if x.getLsbD n then BitVec.ofNat w (w - 1 - n) else clzAuxRec x n' := by
@@ -2250,7 +2250,7 @@ theorem clzAuxRec_eq_clz (x : BitVec w) (hw : 0 < w) (h : ∀ i, n < i → x.get
           simp at hx0
           exact hx0
         · case neg.succ w =>
-          by_cases hxw : x[w + 1]
+          by_cases hxw : x[w + 1]'(by omega)
           · simp [clzAux]
             simp [hxw]
             specialize h (w + 1) (by omega)
@@ -2329,5 +2329,17 @@ theorem getLsbD_clzAuxRec (x : BitVec w) (i : Nat) (hw : 0 < w) :
   intro i hi
   simp [show w ≤ i by omega]
 
+theorem clzAuxRec_eq_of_le (x : BitVec w) (hn : w ≤ n) :
+    x.clzAuxRec n = x.clzAuxRec (w - 1) := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · rw [clzAuxRec_eq_clz]
+    · rw [clzAuxRec_eq_clz]
+      · omega
+      · intro i hi
+        simp [show w + 1 ≤ i by omega]
+    · omega
+    · intro i hi
+      simp [show w + 1 ≤ i by omega]
 
 end BitVec

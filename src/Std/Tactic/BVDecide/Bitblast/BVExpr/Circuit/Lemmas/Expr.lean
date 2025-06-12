@@ -427,9 +427,11 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       rw [goCache_denote_eq]
       exact hinv
     · rw [← hres]
-      simp [denote_blastClz, eval_un, BVUnOp.eval_clz, BitVec.clzAuxRec_eq_clz]
-      have := denote_blastClz (aig := aig) (w := w)
-      sorry
+      simp only [eval_un, BVUnOp.eval_clz]
+      rw [BitVec.clzAuxRec_eq_clz_of_eq (x := eval assign _) (by omega), denote_blastClz]
+      intro idx hidx
+      rw [goCache_denote_eq]
+      exact hinv
   · next h =>
     subst h
     rw [← hres]

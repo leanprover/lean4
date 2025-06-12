@@ -80,6 +80,9 @@ theorem let_body_congr {α : Sort u} {β : α → Sort v} {b b' : (a : α) → �
 theorem have_unused {α : Sort u} {β : Sort v} (a : α) {b b' : β}
     (h : b = b') : (have _ := a; b) = b' := h
 
+theorem have_unused_dep {α : Sort u} {β : Sort v} (a : α) {b : α → β} {b' : β}
+    (h : ∀ x, b x = b') : (have x := a; b x) = b' := h a
+
 theorem have_congr {α : Sort u} {β : Sort v} {a a' : α} {f f' : α → β}
     (h₁ : a = a') (h₂ : ∀ x, f x = f' x) : (have x := a; f x) = (have x := a'; f' x) :=
   @congr α β f f' a a' (funext h₂) h₁

@@ -53,23 +53,27 @@ inductive LocalDecl where
   | cdecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo) (kind : LocalDeclKind)
   /-- A let-bound free variable, with a value `value : Expr`.
   If `nonDep := false`, then the variable is definitionally equal to its value.
-  If `nonDep := true`, then the variable has an opaque value;
-  we call these "have-bound free variables."
-  `Lean.LocalContext.mkBinding` creates let expressions from `ldecl`s.
+  If `nonDep := true`, then the variable has an opaque value; we call these "have-bound free variables."
+  `Lean.LocalContext.mkBinding` creates let/have expressions from `ldecl`s.
 
-  **Important:** The `nondep := true` case is subtle! It is not merely an opaque `ldecl`.
-  In most contexts, non-dependent `ldecl`s should be treated like `cdecl`s.
-  For example, suppose we have a tactic goal `x : α := v (non-dep) ⊢ b`.
-  It would be incorrect for `revert x` to produce the goal `⊢ have x : α := v; b`,
-  since this would be saying "to prove `b` without knowledge of the value of `x`, it suffices to
-  prove `have x : α := v; b` for this particular value of `x`."
-  Instead, `revert x` *must* produce the goal `⊢ ∀ x : α, b`.
-  Furthermore, given a goal `⊢ have x : α := v; b`, the `intro x` tactic should yield a *dependent* `ldecl`,
-  since users expect to be able to make use of the value of `x`,
-  and also the value creates a hidden source of dependencies on other local variables.
+  **Important:** The `nonDep := true` case is subtle! It is not merely an opaque `ldecl`.
+  - In most contexts, non-dependent `ldecl`s should be treated like `cdecl`s.
+    For example, suppose we have a tactic goal `x : α := v (non-dep) ⊢ b`.
+    It would be incorrect for `revert x` to produce the goal `⊢ have x : α := v; b`,
+    since this would be saying "to prove `b` without knowledge of the value of `x`, it suffices to
+    prove `have x : α := v; b` for this particular value of `x`."
+    Instead, `revert x` *must* produce the goal `⊢ ∀ x : α, b`.
+    Furthermore, given a goal `⊢ have x : α := v; b`, the `intro x` tactic should yield a *dependent* `ldecl`,
+    since users expect to be able to make use of the value of `x`,
+    and also the value creates a hidden source of dependencies on other local variables.
+  - Also: `value` might not be type correct. Metaprograms may decide to pretend that all `nonDep := true`
+    `ldecl`s are `cdecl`s (for example, when reverting variables), which can make non-reverted non-dep `ldecl`s
+    have type-incorrect values. This design decision allows metaprograms to not have to think about non-dep `ldecl`s,
+    so long as `LocalDecl` values are consumed through `LocalDecl.isLet` and `LocalDecl.value?` with `(allowNonDep := false)`.
+    Rule: never use `(generalizeNonDepLet := false)` in `mkBinding`-family functions a local context you do not own.
 
   Therefore, `nondep := true` should be used with care.
-  Its primary use is in metaprograms that enter telescopes and wish to reconstruct them. -/
+  Its primary use is in metaprograms that enter `let`/`have` telescopes and wish to reconstruct them. -/
   | ldecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep : Bool) (kind : LocalDeclKind)
   deriving Inhabited
 

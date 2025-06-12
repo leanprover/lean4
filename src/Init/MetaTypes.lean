@@ -282,7 +282,6 @@ def neutralConfig : Simp.Config := {
   ground            := false
   zetaDelta         := false
   zetaUnused        := false
-  zetaHave          := false
   letToHave         := false
 }
 

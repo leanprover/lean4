@@ -713,13 +713,16 @@ end DependsOn
 /--
   Similar to `findExprDependsOn`, but checks the expressions in the given local declaration
   depends on a free variable `x` s.t. `pf x` is `true` or an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
-@[inline] def findLocalDeclDependsOn [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : m Bool := do
+@[inline] def findLocalDeclDependsOn [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) (generalizeNonDepLet := true) : m Bool := do
   match localDecl with
   | .cdecl (type := t) ..  => findExprDependsOn t pf pm
-  | .ldecl (type := t) (value := v) .. =>
-    let (result, { mctx, .. }) := (DependsOn.main pf pm t <||> DependsOn.main pf pm v).run { mctx := (← getMCtx) }
-    setMCtx mctx
-    return result
+  | .ldecl (type := t) (value := v) (nonDep := nonDep) .. =>
+    if generalizeNonDepLet && nonDep then
+      findExprDependsOn t pf pm
+    else
+      let (result, { mctx, .. }) := (DependsOn.main pf pm t <||> DependsOn.main pf pm v).run { mctx := (← getMCtx) }
+      setMCtx mctx
+      return result
 
 def exprDependsOn [Monad m] [MonadMCtx m] (e : Expr) (fvarId : FVarId) : m Bool :=
   findExprDependsOn e (fvarId == ·)
@@ -729,8 +732,8 @@ def dependsOn [Monad m] [MonadMCtx m] (e : Expr) (fvarId : FVarId) : m Bool :=
   exprDependsOn e fvarId
 
 /-- Return true iff `localDecl` depends on the free variable `fvarId` -/
-def localDeclDependsOn [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (fvarId : FVarId) : m Bool :=
-  findLocalDeclDependsOn localDecl (fvarId == ·)
+def localDeclDependsOn [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (fvarId : FVarId) (generalizeNonDepLet := true) : m Bool :=
+  findLocalDeclDependsOn localDecl (fvarId == ·) (generalizeNonDepLet := generalizeNonDepLet)
 
 /-- Similar to `exprDependsOn`, but `x` can be a free variable or an unassigned metavariable. -/
 def exprDependsOn' [Monad m] [MonadMCtx m] (e : Expr) (x : Expr) : m Bool :=
@@ -742,11 +745,11 @@ def exprDependsOn' [Monad m] [MonadMCtx m] (e : Expr) (x : Expr) : m Bool :=
     return false
 
 /-- Similar to `localDeclDependsOn`, but `x` can be a free variable or an unassigned metavariable. -/
-def localDeclDependsOn' [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (x : Expr) : m Bool :=
+def localDeclDependsOn' [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (x : Expr) (generalizeNonDepLet := true) : m Bool :=
   if x.isFVar then
-    findLocalDeclDependsOn localDecl (x.fvarId! == ·)
+    findLocalDeclDependsOn localDecl (x.fvarId! == ·) (generalizeNonDepLet := generalizeNonDepLet)
   else if x.isMVar then
-    findLocalDeclDependsOn localDecl (pm := (x.mvarId! == ·))
+    findLocalDeclDependsOn localDecl (pm := (x.mvarId! == ·)) (generalizeNonDepLet := generalizeNonDepLet)
   else
     return false
 
@@ -755,8 +758,8 @@ def dependsOnPred [Monad m] [MonadMCtx m] (e : Expr) (pf : FVarId → Bool := fu
   findExprDependsOn e pf pm
 
 /-- Return true iff the local declaration `localDecl` depends on a free variable `x` s.t. `pf x`, an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
-def localDeclDependsOnPred [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : m Bool := do
-  findLocalDeclDependsOn localDecl pf pm
+def localDeclDependsOnPred [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) (generalizeNonDepLet := true) : m Bool := do
+  findLocalDeclDependsOn localDecl pf pm (generalizeNonDepLet := generalizeNonDepLet)
 
 
 namespace MetavarContext
@@ -922,12 +925,14 @@ structure State where
   cache          : Std.HashMap ExprStructEq Expr := {}
 
 structure Context where
-  mainModule         : Name
-  preserveOrder      : Bool
+  mainModule          : Name
+  -- /-- Treat non-dependent `ldecl`s as `cdecl`s. See the docstring for `MkBinding.mkBinding`. -/
+  -- generalizeNonDepLet : Bool
+  preserveOrder       : Bool
   /-- When creating binders for abstracted metavariables, we use the following `BinderInfo`. -/
-  binderInfoForMVars : BinderInfo := BinderInfo.implicit
+  binderInfoForMVars  : BinderInfo := BinderInfo.implicit
   /-- Set of unassigned metavariables being abstracted. -/
-  mvarIdsToAbstract  : MVarIdSet := {}
+  mvarIdsToAbstract   : MVarIdSet := {}
 
 abbrev MCore := EStateM Exception State
 abbrev M     := ReaderT Context MCore
@@ -942,6 +947,9 @@ private def mkFreshBinderName (n : Name := `x) : M Name := do
 
 def preserveOrder : M Bool :=
   return (← read).preserveOrder
+
+-- def generalizeNonDepLet : M Bool :=
+--   return (← read).generalizeNonDepLet
 
 instance : MonadHashMapCacheAdapter ExprStructEq Expr M where
   getCache    := do let s ← get; pure s.cache
@@ -993,7 +1001,7 @@ private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) 
   Note that <https://github.com/leanprover/lean/issues/1258> is not an issue in Lean4 because
   we have changed how we compile recursive definitions.
 -/
-def collectForwardDeps (lctx : LocalContext) (toRevert : Array Expr) : M (Array Expr) := do
+def collectForwardDeps (lctx : LocalContext) (toRevert : Array Expr) (generalizeNonDepLet := true) : M (Array Expr) := do
   if toRevert.size == 0 then
     pure toRevert
   else
@@ -1004,7 +1012,7 @@ def collectForwardDeps (lctx : LocalContext) (toRevert : Array Expr) : M (Array 
         i.forM fun j _ => do
           let prevFVar := toRevert[j]
           let prevDecl := lctx.getFVar! prevFVar
-          if (← localDeclDependsOn prevDecl fvar.fvarId!) then
+          if (← localDeclDependsOn prevDecl fvar.fvarId! (generalizeNonDepLet := generalizeNonDepLet)) then
             throw (Exception.revertFailure (← getMCtx) lctx toRevert prevDecl.userName.toString)
     let newToRevert      := if (← preserveOrder) then toRevert else Array.mkEmpty toRevert.size
     let firstDeclToVisit := getLocalDeclWithSmallestIdx lctx toRevert
@@ -1014,7 +1022,7 @@ def collectForwardDeps (lctx : LocalContext) (toRevert : Array Expr) : M (Array 
         return newToRevert
       else if toRevert.any fun x => decl.fvarId == x.fvarId! then
         return newToRevert.push decl.toExpr
-      else if (← findLocalDeclDependsOn decl (newToRevert.any fun x => x.fvarId! == ·)) then
+      else if (← findLocalDeclDependsOn decl (newToRevert.any fun x => x.fvarId! == ·) (generalizeNonDepLet := generalizeNonDepLet)) then
         return newToRevert.push decl.toExpr
       else
         return newToRevert
@@ -1251,13 +1259,17 @@ private def mkLambda' (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) (etaRed
 
 /--
 Similar to `LocalContext.mkBinding`, but handles metavariables correctly.
+This function trusts that `xs` has all forward dependencies that appear in `e` and that the variables are in order.
+
 - If `usedOnly := true` then `forall` and `lambda` expressions are created only for used variables.
 - If `usedLetOnly := true` then `let` expressions are created only for used (let-) variables.
-- If `generalizeNonDepLet := true` then non-dependent `ldecl`s are generalized as `cdecl`s (the value is cleared).
-  This can be necessary when making terms that should remain type correct with respect to the same `lctx`.
-  For example, if `e' ← mkBinding true lctx xs e (generalizeNonDepLet := true)` and `xs' ← xs.filterM (FVarId.isLetVar · false)`,
+- If `generalizeNonDepLet := true` then non-dependent `ldecl`s are generalized as `cdecl`s (the value is ignored).
+  The basic rule is that `generalizeNonDepLet` should be `true`
+  *unless* `mkBinding` is being used when leaving a telescope combinator (like `Meta.lambdaLetTelescope`).
+  This needs to be `true` when making terms that should remain type correct with respect to the same `lctx`;
+  for example, if `e' ← mkBinding true lctx xs e (generalizeNonDepLet := true)` and `xs' ← xs.filterM (FVarId.isLetVar · false)`,
   then one has that `mkAppN e' xs'` is definitionally equal to `e` with respect to `lctx`.
-  **Note:** `generalizeNonDepLet` is the common case, so API around `mkBinding` use it as the default.
+  **Note:** `generalizeNonDepLet := true` is the common case, so `mkBinding` API uses it as the default.
 -/
 def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) (usedOnly : Bool) (usedLetOnly : Bool) (etaReduce : Bool) (generalizeNonDepLet : Bool) : M Expr := do
   let e ← abstractRange xs xs.size e
@@ -1323,8 +1335,8 @@ def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool :=
 @[inline] def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MkBindingM Expr := fun ctx =>
   MkBinding.abstractRange xs n e { preserveOrder := false, mainModule := ctx.mainModule }
 
-@[inline] def collectForwardDeps (toRevert : Array Expr) (preserveOrder : Bool) : MkBindingM (Array Expr) := fun ctx =>
-  MkBinding.collectForwardDeps ctx.lctx toRevert { preserveOrder, mainModule := ctx.mainModule }
+@[inline] def collectForwardDeps (toRevert : Array Expr) (preserveOrder : Bool) (generalizeNonDepLet := true) : MkBindingM (Array Expr) := fun ctx =>
+  MkBinding.collectForwardDeps ctx.lctx toRevert generalizeNonDepLet { preserveOrder, mainModule := ctx.mainModule }
 
 /--
   `isWellFormed lctx e` returns true iff

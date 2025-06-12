@@ -1061,8 +1061,8 @@ def _root_.Lean.Expr.abstractM (e : Expr) (xs : Array Expr) : MetaM Expr :=
 Collect forward dependencies for the free variables in `toRevert`.
 Recall that when reverting free variables `xs`, we must also revert their forward dependencies.
 -/
-def collectForwardDeps (toRevert : Array Expr) (preserveOrder : Bool) : MetaM (Array Expr) := do
-  liftMkBindingM <| MetavarContext.collectForwardDeps toRevert preserveOrder
+def collectForwardDeps (toRevert : Array Expr) (preserveOrder : Bool) (generalizeNonDepLet := true) : MetaM (Array Expr) := do
+  liftMkBindingM <| MetavarContext.collectForwardDeps toRevert preserveOrder generalizeNonDepLet
 
 /-- Takes an array `xs` of free variables or metavariables and a term `e` that may contain those variables, and abstracts and binds them as universal quantifiers.
 

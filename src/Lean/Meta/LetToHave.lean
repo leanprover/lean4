@@ -40,6 +40,10 @@ namespace LetToHave
 private def hasDepLet (e : Expr) : Bool :=
   Option.isSome <| e.find? (· matches .letE (nonDep := false) ..)
 
+/-- Heuristic for skipping subexpressions. If true, we definitely can skip. -/
+private def canSkip (e : Expr) (maxDepth : UInt32 := 5) : Bool :=
+  !e.hasFVar && !e.hasExprMVar && (e.approxDepth ≤ maxDepth && !hasDepLet e)
+
 private structure Result where
   /-- The transformed expression. -/
   expr : Expr
@@ -101,11 +105,10 @@ private def checkCache (e : Expr) (m : M Result) : M Result := do
   if let some r ← findCache? e then
     return r
   else
-    if e.approxDepth ≤ 2 then
-      -- Then up to 9 expression nodes.
-      unless e.hasFVar || e.hasExprMVar || hasDepLet e do
-        return { expr := e, type? := none }
-    let r ← m
+    let r ← if canSkip (maxDepth := 2) e then
+      pure { expr := e, type? := none }
+    else
+      m
     modify fun st => { st with results := st.results.insert e r }
     return r
 
@@ -212,10 +215,10 @@ private partial def visitAppArgs (e : Expr) : M Result := do
       return { expr := mkAppN (← visit f) (← args.mapM (fun arg => return (← visit arg).expr)), type? := none }
 
 private partial def visitForall (e : Expr) : M Result := do
-  if e.hasFVar || e.hasExprMVar || hasDepLet e then
-    go (← getLCtx) #[] #[] e
-  else
+  if canSkip e then
     return { expr := e, type? := none }
+  else
+    go (← getLCtx) #[] #[] e
 where
   go (lctx : LocalContext) (fvars : Array Expr) (doms : Array Result) (e : Expr) : M Result := do
     if let some e' ← findCache?' e then
@@ -250,10 +253,10 @@ The tradeoff is that we save time instantiating bvars by doing it all at once,
 at the expense of possibly not sharing terms.
 -/
 private partial def visitLambdaLet (e : Expr) : M Result := do
-  if e.hasFVar || e.hasExprMVar || hasDepLet e then
-    go (← getLCtx) #[] e (← read).letFVars
-  else
+  if canSkip e then
     return { expr := e, type? := none }
+  else
+    go (← getLCtx) #[] e (← read).letFVars
 where
   /--
   Enters a forall/lambda/let/have telescope, checking that each domain type is a type.

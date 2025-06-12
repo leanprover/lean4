@@ -1321,6 +1321,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
         unless (← getEnv).contains c' do
           executeReservedNameAction c'
       realize `have_unused
+      realize `have_unused_dep
       realize `have_val_congr
       realize `have_body_congr
       realize `have_body_congr_dep

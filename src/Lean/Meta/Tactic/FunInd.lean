@@ -385,7 +385,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
       let t' ← foldAndCollect oldIH newIH isRecCall t
       let v' ← foldAndCollect oldIH newIH isRecCall v
       withLetDecl n t' v' (nonDep := nonDep) fun x => do
-        M.localMapM (mkLetFVars (usedLetOnly := true) #[x] ·) do
+        M.localMapM (mkLetFVars (usedLetOnly := true) (generalizeNonDepLet := false) #[x] ·) do
           let b' ← foldAndCollect oldIH newIH isRecCall (b.instantiate1 x)
           mkLetFVars (generalizeNonDepLet := false) #[x] b'
 
@@ -475,10 +475,12 @@ where
     mvarId.withContext do
       for localDecl in (← getLCtx) do
         if localDecl.index > index && (!firstPass || localDecl.userName.hasMacroScopes) then
-          if localDecl.isLet (allowNonDep := true) then
+          if localDecl.isLet false then
             if ← Meta.isProp localDecl.type then
               if let some mvarId' ← observing? <| mvarId.clearValue localDecl.fvarId then
                 return some mvarId'
+              else
+                continue
             if let some mvarId' ← observing? <| mvarId.clear localDecl.fvarId then
               return some mvarId'
           if let some mvarId' ← substVar? mvarId localDecl.fvarId then
@@ -913,10 +915,6 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
   if let some (n, t, v, b) := e.letFun? then
     let t' ← foldAndCollect oldIH newIH isRecCall t
     let v' ← foldAndCollect oldIH newIH isRecCall v
-    /-
-    Convert to a `let`, since in `FunInd.deriveCases` we use the unfolding theorem,
-    and the unfolding theorem has had `letToHave` applied.
-    -/
     return ← withLetDecl n t' v' fun x => M2.branch do
       let b' ← withRewrittenMotiveArg goal (rwHaveWith x) fun goal' =>
         buildInductionBody toErase toClear goal' oldIH newIH isRecCall (b.instantiate1 x)
@@ -1095,6 +1093,7 @@ def projectMutualInduct (unfolding : Bool) (names : Array Name) (mutualInduct : 
         let value ← PProdN.projM names.size idx value
         mkLambdaFVars xs value
       let type ← inferType value
+      let type ← letToHave type
       addDecl <| Declaration.thmDecl { name := inductName, levelParams, type, value }
 
       if idx == 0 then finalizeFirstInd
@@ -1253,6 +1252,7 @@ where doRealize inductName := do
     check value
   let type ← inferType value
   let type ← elimOptParam type
+  let type ← letToHave type
 
   addDecl <| Declaration.thmDecl
     { name := inductName, levelParams := ci.levelParams, type, value }

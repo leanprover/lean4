@@ -89,11 +89,16 @@ structure HeaderProcessedState where
 
 /-- State after the module header has been processed including imports. -/
 structure HeaderProcessedSnapshot extends Snapshot where
+  /--
+  Holds produced diagnostics and info tree. Separate snapshot so that it can be tagged with the
+  header syntax, which should not be done for this snapshot containing `firstCmdSnap`.
+  -/
+  metaSnap : SnapshotTask SnapshotLeaf
   /-- State after successful importing. -/
   result? : Option HeaderProcessedState
   isFatal := result?.isNone
 instance : ToSnapshotTree HeaderProcessedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, #[] |>
+  toSnapshotTree s := ⟨s.toSnapshot, #[s.metaSnap.map (sync := true) toSnapshotTree] |>
     pushOpt (s.result?.map (·.firstCmdSnap.map (sync := true) toSnapshotTree))⟩
 
 /-- State after successfully parsing the module header. -/
@@ -105,6 +110,11 @@ structure HeaderParsedState where
 
 /-- State after the module header has been parsed. -/
 structure HeaderParsedSnapshot extends Snapshot where
+  /--
+  Holds produced diagnostics. Separate snapshot so that it can be tagged with the header syntax,
+  which should not be done for this snapshot containing `firstCmdSnap`.
+  -/
+  metaSnap : SnapshotTask SnapshotLeaf
   /-- Parser input context supplied by the driver, stored here for incremental parsing. -/
   ictx : Parser.InputContext
   /-- Resulting syntax tree. -/
@@ -114,8 +124,8 @@ structure HeaderParsedSnapshot extends Snapshot where
   isFatal := result?.isNone
 
 instance : ToSnapshotTree HeaderParsedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot,
-    #[] |> pushOpt (s.result?.map (·.processedSnap.map (sync := true) toSnapshotTree))⟩
+  toSnapshotTree s := ⟨s.toSnapshot, #[s.metaSnap.map (sync := true) toSnapshotTree] |>
+    pushOpt (s.result?.map (·.processedSnap.map (sync := true) toSnapshotTree))⟩
 
 /-- Shortcut accessor to the final header state, if successful. -/
 def HeaderParsedSnapshot.processedResult (snap : HeaderParsedSnapshot) :

@@ -392,21 +392,27 @@ where
         return {
           ictx
           stx := newStx
-          diagnostics := old.diagnostics
+          diagnostics := .empty
+          metaSnap := .finished newStx {
+            diagnostics := old.diagnostics
+          }
           result? := some {
             parserState := newParserState
-            processedSnap := (← oldSuccess.processedSnap.bindIO (stx? := newStx)
+            processedSnap := (← oldSuccess.processedSnap.bindIO
                 (cancelTk? := none) (reportingRange? := progressRange?) (sync := true) fun oldProcessed => do
               if let some oldProcSuccess := oldProcessed.result? then
                 -- also wait on old command parse snapshot as parsing is cheap and may allow for
                 -- elaboration reuse
-                oldProcSuccess.firstCmdSnap.bindIO (sync := true) (stx? := newStx)
+                oldProcSuccess.firstCmdSnap.bindIO (sync := true)
                     (cancelTk? := none) (reportingRange? := progressRange?) fun oldCmd => do
                   let prom ← IO.Promise.new
                   let cancelTk ← IO.CancelToken.new
                   parseCmd oldCmd newParserState oldProcSuccess.cmdState prom (sync := true) cancelTk ctx
-                  return .finished newStx {
-                    diagnostics := oldProcessed.diagnostics
+                  return .finished none {
+                    diagnostics := .empty
+                    metaSnap := .finished newStx {
+                      diagnostics := oldProcessed.diagnostics
+                    }
                     result? := some {
                       cmdState := oldProcSuccess.cmdState
                       firstCmdSnap := { stx? := none, task := prom.result!, cancelTk? := cancelTk } } }
@@ -425,13 +431,16 @@ where
                 -- ...go immediately to next snapshot
                 return (← unchanged old old.stx oldSuccess.parserState)
 
-    withHeaderExceptions ({ · with ictx, stx := .missing, result? := none }) do
+    withHeaderExceptions ({ · with ictx, stx := .missing, result? := none, metaSnap := default }) do
       -- parsing the header should be cheap enough to do synchronously
       let (stx, parserState, msgLog) ← Parser.parseHeader ictx
       if msgLog.hasErrors then
         return {
           ictx, stx
-          diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
+          diagnostics := .empty
+          metaSnap := .finished stx {
+            diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
+          }
           result? := none
         }
 
@@ -452,7 +461,10 @@ where
         old.result?.forM (·.processedSnap.cancelRec)
       return {
         ictx, stx
-        diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
+        diagnostics := .empty
+        metaSnap := .finished stx {
+          diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
+        }
         result? := some {
           parserState
           processedSnap := (← processHeader ⟨trimmedStx⟩ parserState)
@@ -462,9 +474,9 @@ where
   processHeader (stx : HeaderSyntax) (parserState : Parser.ModuleParserState) :
       LeanProcessingM (SnapshotTask HeaderProcessedSnapshot) := do
     let ctx ← read
-    SnapshotTask.ofIO stx none (some ⟨0, ctx.input.endPos⟩) <|
+    SnapshotTask.ofIO none none (some ⟨0, ctx.input.endPos⟩) <|
     ReaderT.run (r := ctx) <|  -- re-enter reader in new task
-    withHeaderExceptions (α := HeaderProcessedSnapshot) ({ · with result? := none }) do
+    withHeaderExceptions (α := HeaderProcessedSnapshot) ({ · with result? := none, metaSnap := default }) do
       let setup ← match (← setupImports stx) with
         | .ok setup => pure setup
         | .error snap => return snap
@@ -483,7 +495,7 @@ where
       let stopTime := (← IO.monoNanosNow).toFloat / 1000000000
       let diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
       if msgLog.hasErrors then
-        return { diagnostics, result? := none }
+        return { diagnostics, result? := none, metaSnap := default }
 
       let mut traceState := default
       if trace.profiler.output.get? setup.opts |>.isSome then
@@ -521,8 +533,11 @@ where
       let cancelTk ← IO.CancelToken.new
       parseCmd none parserState cmdState prom (sync := true) cancelTk ctx
       return {
-        diagnostics
-        infoTree? := cmdState.infoState.trees[0]!
+        diagnostics := .empty
+        metaSnap := .finished stx {
+          diagnostics
+          infoTree? := cmdState.infoState.trees[0]!
+        }
         result? := some {
           cmdState
           firstCmdSnap := { stx? := none, task := prom.result!, cancelTk? := cancelTk }

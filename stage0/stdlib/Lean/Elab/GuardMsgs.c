@@ -65,6 +65,7 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_GuardMsgs
 static lean_object* l_Lean_Diff_diff___at_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___spec__4___closed__2;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_185_(uint8_t, uint8_t);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
@@ -241,7 +242,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at_Lean_E
 extern lean_object* l_Lean_MessageLog_empty;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___spec__19(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
-uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(uint8_t, uint8_t);
 static lean_object* l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_GuardMsgs_messageToStringWithoutPos___lambda__3___closed__5;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
@@ -1308,7 +1308,7 @@ if (x_2 == 0)
 uint8_t x_3; uint8_t x_4; uint8_t x_5; 
 x_3 = lean_ctor_get_uint8(x_1, sizeof(void*)*5 + 1);
 x_4 = 2;
-x_5 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_3, x_4);
+x_5 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_185_(x_3, x_4);
 return x_5;
 }
 else
@@ -1329,7 +1329,7 @@ if (x_2 == 0)
 uint8_t x_3; uint8_t x_4; uint8_t x_5; 
 x_3 = lean_ctor_get_uint8(x_1, sizeof(void*)*5 + 1);
 x_4 = 1;
-x_5 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_3, x_4);
+x_5 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_185_(x_3, x_4);
 return x_5;
 }
 else
@@ -1350,7 +1350,7 @@ if (x_2 == 0)
 uint8_t x_3; uint8_t x_4; uint8_t x_5; 
 x_3 = lean_ctor_get_uint8(x_1, sizeof(void*)*5 + 1);
 x_4 = 0;
-x_5 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_3, x_4);
+x_5 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_185_(x_3, x_4);
 return x_5;
 }
 else

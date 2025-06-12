@@ -81,6 +81,7 @@ LEAN_EXPORT uint8_t l_Lean_Grind_CommRing_Stepwise_simp__cert(lean_object*, lean
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Stepwise_imp__keq__certC___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Power_denote___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_CommRing_Poly_0__Lean_Grind_CommRing_Expr_toPoly_match__1_splitter(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Mon_denoteAsIntModule___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_beqExpr____x40_Init_Grind_CommRing_Poly___hyg_143____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_CommRing_Poly_0__Lean_Grind_CommRing_hashPower_match__1_splitter____x40_Init_Grind_CommRing_Poly___hyg_941_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_hugeFuel;
@@ -92,6 +93,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Poly_mul_go(lean_object*, lean_ob
 LEAN_EXPORT uint8_t l_Lean_Grind_CommRing_Mon_revlex(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_CommRing_reprPower____x40_Init_Grind_CommRing_Poly___hyg_872____closed__9;
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Poly_denote___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Mon_denoteAsIntModule___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_CommRing_reprMon____x40_Init_Grind_CommRing_Poly___hyg_1271____closed__3;
 static lean_object* l_Lean_Grind_CommRing_reprMon____x40_Init_Grind_CommRing_Poly___hyg_1271____closed__5;
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Stepwise_superpose__cert___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -101,6 +103,7 @@ lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Poly_addConst_go(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_CommRing_Poly_0__Lean_Grind_CommRing_Power_denote_match__1_splitter(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Stepwise_unsat__eq__cert___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Mon_denoteAsIntModule_go(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Poly_pow___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Poly_mulConst_go___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Mon_concat(lean_object*, lean_object*);
@@ -187,6 +190,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_NullCert_eq__nzdiv__cert___boxed(
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_hashExpr____x40_Init_Grind_CommRing_Poly___hyg_438____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_NullCert_eq__unsat__cert___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_CommRing_instBEqExpr___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Mon_denoteAsIntModule_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Grind_CommRing_Stepwise_core__certC(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Poly_insert_go(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_CommRing_Poly_pow___closed__1;
@@ -198,6 +202,7 @@ LEAN_EXPORT uint8_t l_Lean_Grind_CommRing_beqMon____x40_Init_Grind_CommRing_Poly
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Poly_mulConst(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_NullCert_eq__cert___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_CommRing_instBEqPower___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Mon_denoteAsIntModule_go___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_CommRing_Poly_0__Lean_Grind_CommRing_Poly_insert_go_match__1_splitter___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Var_denote___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_CommRing_reprPower____x40_Init_Grind_CommRing_Poly___hyg_872____closed__4;
@@ -221,6 +226,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Poly_ofVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Expr_toPolyC_go(lean_object*, lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_CommRing_instHashableExpr___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Mon_denoteAsIntModule(lean_object*);
 static lean_object* l_Lean_Grind_CommRing_reprPower____x40_Init_Grind_CommRing_Poly___hyg_872____closed__12;
 lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Poly_denote___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -8394,6 +8400,101 @@ x_8 = lean_box(x_7);
 return x_8;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Mon_denoteAsIntModule_go___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+if (lean_obj_tag(x_3) == 0)
+{
+lean_dec(x_1);
+return x_4;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_5 = lean_ctor_get(x_3, 0);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_3, 1);
+lean_inc(x_6);
+lean_dec(x_3);
+x_7 = lean_ctor_get(x_1, 0);
+lean_inc(x_7);
+x_8 = lean_ctor_get(x_7, 1);
+lean_inc(x_8);
+lean_dec(x_7);
+lean_inc(x_1);
+x_9 = l_Lean_Grind_CommRing_Power_denote___rarg(x_1, x_2, x_5);
+x_10 = lean_apply_2(x_8, x_4, x_9);
+x_3 = x_6;
+x_4 = x_10;
+goto _start;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Mon_denoteAsIntModule_go(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Grind_CommRing_Mon_denoteAsIntModule_go___rarg___boxed), 4, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Mon_denoteAsIntModule_go___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Grind_CommRing_Mon_denoteAsIntModule_go___rarg(x_1, x_2, x_3, x_4);
+lean_dec(x_2);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Mon_denoteAsIntModule___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_ctor_get(x_4, 3);
+lean_inc(x_5);
+lean_dec(x_4);
+x_6 = lean_unsigned_to_nat(1u);
+x_7 = lean_apply_1(x_5, x_6);
+return x_7;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_8 = lean_ctor_get(x_3, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_3, 1);
+lean_inc(x_9);
+lean_dec(x_3);
+lean_inc(x_1);
+x_10 = l_Lean_Grind_CommRing_Power_denote___rarg(x_1, x_2, x_8);
+x_11 = l_Lean_Grind_CommRing_Mon_denoteAsIntModule_go___rarg(x_1, x_2, x_9, x_10);
+return x_11;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Mon_denoteAsIntModule(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Grind_CommRing_Mon_denoteAsIntModule___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Mon_denoteAsIntModule___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Grind_CommRing_Mon_denoteAsIntModule___rarg(x_1, x_2, x_3);
+lean_dec(x_2);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Poly_denoteAsIntModule___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -8440,9 +8541,9 @@ x_19 = lean_ctor_get(x_1, 3);
 lean_inc(x_19);
 x_20 = lean_apply_1(x_19, x_13);
 lean_inc(x_1);
-x_21 = l_Lean_Grind_CommRing_Mon_denote___rarg(x_1, x_2, x_14);
+x_21 = l_Lean_Grind_CommRing_Mon_denoteAsIntModule___rarg(x_1, x_2, x_14);
 x_22 = lean_apply_2(x_18, x_20, x_21);
-x_23 = l_Lean_Grind_CommRing_Poly_denote___rarg(x_1, x_2, x_15);
+x_23 = l_Lean_Grind_CommRing_Poly_denoteAsIntModule___rarg(x_1, x_2, x_15);
 x_24 = lean_apply_2(x_17, x_22, x_23);
 return x_24;
 }

@@ -4,8 +4,6 @@ import Std.Data.ExtHashMap
 import Std.Data.HashSet
 import Std.Data.TreeMap
 
-set_option grind.warning false
-
 open Std
 
 section

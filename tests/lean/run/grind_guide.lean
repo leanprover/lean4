@@ -11,8 +11,6 @@ we keep all the facts we know about the current goal.
 Remark: Terms known to be true (false) belong to the equivalence class of the term `True` (`False`).
 -/
 
-set_option grind.warning false -- Disables warning messages stating that `grind` is WIP.
-
 example (a b c : α) (f : α → α) : f a = c → a = b → c = f b := by
   grind
 

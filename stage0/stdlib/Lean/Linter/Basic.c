@@ -417,7 +417,7 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_39_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; 
 x_2 = lean_box(0);
 x_3 = lean_alloc_closure((void*)(l_Lean_mkStateFromImportedEntries___at_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_39____spec__1___boxed), 2, 1);
 lean_closure_set(x_3, 0, x_2);
@@ -426,17 +426,16 @@ x_5 = l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_39____closed__4;
 x_6 = l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_39____closed__5;
 x_7 = l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_39____closed__6;
 x_8 = 2;
-x_9 = 1;
-x_10 = lean_alloc_ctor(0, 5, 2);
-lean_ctor_set(x_10, 0, x_5);
-lean_ctor_set(x_10, 1, x_6);
-lean_ctor_set(x_10, 2, x_3);
-lean_ctor_set(x_10, 3, x_7);
-lean_ctor_set(x_10, 4, x_4);
-lean_ctor_set_uint8(x_10, sizeof(void*)*5, x_8);
-lean_ctor_set_uint8(x_10, sizeof(void*)*5 + 1, x_9);
-x_11 = l_Lean_registerSimplePersistentEnvExtension___rarg(x_10, x_1);
-return x_11;
+x_9 = lean_alloc_ctor(0, 6, 1);
+lean_ctor_set(x_9, 0, x_5);
+lean_ctor_set(x_9, 1, x_6);
+lean_ctor_set(x_9, 2, x_3);
+lean_ctor_set(x_9, 3, x_7);
+lean_ctor_set(x_9, 4, x_4);
+lean_ctor_set(x_9, 5, x_4);
+lean_ctor_set_uint8(x_9, sizeof(void*)*6, x_8);
+x_10 = l_Lean_registerSimplePersistentEnvExtension___rarg(x_9, x_1);
+return x_10;
 }
 }
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_39____spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

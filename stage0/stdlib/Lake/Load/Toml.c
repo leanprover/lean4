@@ -300,7 +300,7 @@ lean_object* l_Lake_PackageConfig_preferReleaseBuild___proj___elambda__3(lean_ob
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_decodeToml___spec__27___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_decodeLeanOptions___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_InputDirConfig_instConfigTomlInfo___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkErrorStringWithPos(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkErrorStringWithPos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_PackageConfig_decodeToml___spec__24(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_decodeFieldCore___at_Lake_LeanConfig_instConfigTomlInfo___spec__10___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at___private_Lake_Load_Toml_0__Lake_genDecodeToml___spec__2___closed__7;
@@ -61844,7 +61844,7 @@ if (lean_obj_tag(x_14) == 0)
 lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; size_t x_23; size_t x_24; lean_object* x_25; 
 x_17 = lean_unsigned_to_nat(0u);
 x_18 = l_Lean_FileMap_toPosition(x_12, x_17);
-x_19 = l_Lean_mkErrorStringWithPos(x_15, x_18, x_11, x_16);
+x_19 = l_Lean_mkErrorStringWithPos(x_15, x_18, x_11, x_16, x_16, x_16);
 lean_dec(x_11);
 lean_dec(x_15);
 x_20 = 3;
@@ -61868,7 +61868,7 @@ lean_inc(x_27);
 lean_dec(x_14);
 x_28 = l_Lean_FileMap_toPosition(x_12, x_27);
 lean_dec(x_27);
-x_29 = l_Lean_mkErrorStringWithPos(x_15, x_28, x_11, x_16);
+x_29 = l_Lean_mkErrorStringWithPos(x_15, x_28, x_11, x_16, x_16, x_16);
 lean_dec(x_11);
 lean_dec(x_15);
 x_30 = 3;

@@ -13,18 +13,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_logWarning___at_Lean_checkExponent___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_5____closed__8;
 static lean_object* l_Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_5____closed__2;
-lean_object* l_Lean_log___at_Lean_Core_wrapAsyncAsSnapshot___spec__13(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_logWarning___at_Lean_checkExponent___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_log___at_Lean_Core_wrapAsyncAsSnapshot___spec__13(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_checkExponent___closed__5;
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_checkExponent___closed__8;
 static lean_object* l_Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_5____closed__7;
 static lean_object* l_Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_5____closed__5;
 lean_object* l_Lean_logMessageKind(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_logWarning___at_Lean_checkExponent___spec__1___closed__1;
 lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_Profile___hyg_40____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_checkExponent___closed__2;
 static lean_object* l_Lean_checkExponent___closed__3;
@@ -39,8 +36,6 @@ static lean_object* l_Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_5___
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_5_(lean_object*);
 static lean_object* l_Lean_checkExponent___closed__10;
 LEAN_EXPORT lean_object* l_Lean_checkExponent___lambda__2___boxed(lean_object*);
-extern lean_object* l_Lean_warningAsError;
-uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_checkExponent___closed__7;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
@@ -138,39 +133,6 @@ x_3 = l_Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_5____closed__6;
 x_4 = l_Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_5____closed__8;
 x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_Profile___hyg_40____spec__1(x_2, x_3, x_4, x_1);
 return x_5;
-}
-}
-static lean_object* _init_l_Lean_logWarning___at_Lean_checkExponent___spec__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_warningAsError;
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_logWarning___at_Lean_checkExponent___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_5 = lean_ctor_get(x_2, 2);
-lean_inc(x_5);
-x_6 = l_Lean_logWarning___at_Lean_checkExponent___spec__1___closed__1;
-x_7 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_5, x_6);
-lean_dec(x_5);
-if (x_7 == 0)
-{
-uint8_t x_8; lean_object* x_9; 
-x_8 = 1;
-x_9 = l_Lean_log___at_Lean_Core_wrapAsyncAsSnapshot___spec__13(x_1, x_8, x_2, x_3, x_4);
-return x_9;
-}
-else
-{
-uint8_t x_10; lean_object* x_11; 
-x_10 = 2;
-x_11 = l_Lean_log___at_Lean_Core_wrapAsyncAsSnapshot___spec__13(x_1, x_10, x_2, x_3, x_4);
-return x_11;
-}
 }
 }
 LEAN_EXPORT lean_object* l_Lean_checkExponent___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -328,7 +290,7 @@ return x_19;
 }
 else
 {
-lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
+lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; uint8_t x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
 x_20 = l_Nat_reprFast(x_1);
 x_21 = l_Lean_checkExponent___closed__5;
 x_22 = lean_string_append(x_21, x_20);
@@ -347,26 +309,19 @@ x_32 = lean_string_append(x_30, x_31);
 x_33 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_33, 0, x_32);
 x_34 = l_Lean_MessageData_ofFormat(x_33);
+x_35 = 1;
+x_36 = 0;
 lean_inc(x_2);
-x_35 = l_Lean_logWarning___at_Lean_checkExponent___spec__1(x_34, x_2, x_3, x_15);
-x_36 = lean_ctor_get(x_35, 0);
-lean_inc(x_36);
-x_37 = lean_ctor_get(x_35, 1);
-lean_inc(x_37);
-lean_dec(x_35);
-x_38 = lean_apply_4(x_16, x_36, x_2, x_3, x_37);
-return x_38;
+x_37 = l_Lean_log___at_Lean_Core_wrapAsyncAsSnapshot___spec__13(x_34, x_35, x_36, x_2, x_3, x_15);
+x_38 = lean_ctor_get(x_37, 0);
+lean_inc(x_38);
+x_39 = lean_ctor_get(x_37, 1);
+lean_inc(x_39);
+lean_dec(x_37);
+x_40 = lean_apply_4(x_16, x_38, x_2, x_3, x_39);
+return x_40;
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_logWarning___at_Lean_checkExponent___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_logWarning___at_Lean_checkExponent___spec__1(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_checkExponent___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -420,9 +375,7 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_exponentiation_threshold = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_exponentiation_threshold);
 lean_dec_ref(res);
-}l_Lean_logWarning___at_Lean_checkExponent___spec__1___closed__1 = _init_l_Lean_logWarning___at_Lean_checkExponent___spec__1___closed__1();
-lean_mark_persistent(l_Lean_logWarning___at_Lean_checkExponent___spec__1___closed__1);
-l_Lean_checkExponent___closed__1 = _init_l_Lean_checkExponent___closed__1();
+}l_Lean_checkExponent___closed__1 = _init_l_Lean_checkExponent___closed__1();
 lean_mark_persistent(l_Lean_checkExponent___closed__1);
 l_Lean_checkExponent___closed__2 = _init_l_Lean_checkExponent___closed__2();
 lean_mark_persistent(l_Lean_checkExponent___closed__2);

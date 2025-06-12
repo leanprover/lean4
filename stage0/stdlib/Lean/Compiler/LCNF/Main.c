@@ -30,9 +30,9 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Compiler_LCNF_checkpo
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_compile___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Main___hyg_1689____closed__23;
-lean_object* l_Lean_withTraceNode___at_Lean_addDecl_doAdd___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_PassManager_run___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_constants(lean_object*);
+lean_object* l_Lean_withTraceNode___at_Lean_addDecl_doAdd___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_toArray___rarg(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Main___hyg_1689____closed__4;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Compiler_LCNF_PassManager_run___spec__6___lambda__1___closed__3;
@@ -8885,7 +8885,7 @@ x_13 = l_Array_forIn_x27Unsafe_loop___at_Lean_Compiler_LCNF_checkpoint___spec__1
 x_14 = 1;
 x_15 = l_Array_forIn_x27Unsafe_loop___at_Lean_Compiler_LCNF_checkpoint___spec__1___lambda__2___closed__6;
 x_16 = lean_box(x_14);
-x_17 = lean_alloc_closure((void*)(l_Lean_withTraceNode___at_Lean_addDecl_doAdd___spec__2___boxed), 8, 5);
+x_17 = lean_alloc_closure((void*)(l_Lean_withTraceNode___at_Lean_addDecl_doAdd___spec__1___boxed), 8, 5);
 lean_closure_set(x_17, 0, x_13);
 lean_closure_set(x_17, 1, x_6);
 lean_closure_set(x_17, 2, x_12);

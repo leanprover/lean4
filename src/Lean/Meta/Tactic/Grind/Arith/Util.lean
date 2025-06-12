@@ -107,4 +107,30 @@ where
   go (a : PArray Rat) : PArray Rat :=
     if a.size < sz then go (a.push 0) else a
 
+namespace CollectDecVars
+/-! Helper monad for collecting decision variables in `linarith` and `cutsat` -/
+
+structure State where
+  visited : Std.HashSet UInt64 := {}
+  found : FVarIdSet := {}
+
+abbrev CollectDecVarsM := ReaderT FVarIdSet $ StateM State
+
+def alreadyVisited (c : α) : CollectDecVarsM Bool := do
+  let addr := unsafe (ptrAddrUnsafe c).toUInt64 >>> 2
+  if (← get).visited.contains addr then return true
+  modify fun s => { s with visited := s.visited.insert addr }
+  return false
+
+def markAsFound (fvarId : FVarId) : CollectDecVarsM Unit := do
+  modify fun s => { s with found := s.found.insert fvarId }
+
+abbrev CollectDecVarsM.run (x : CollectDecVarsM Unit) (decVars : FVarIdSet) : FVarIdSet :=
+  let (_, s) := x decVars |>.run {}
+  s.found
+
+end CollectDecVars
+
+export CollectDecVars (CollectDecVarsM)
+
 end Lean.Meta.Grind.Arith

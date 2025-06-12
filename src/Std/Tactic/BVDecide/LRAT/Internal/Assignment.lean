@@ -9,8 +9,6 @@ import Std.Tactic.BVDecide.LRAT.Internal.Entails
 import Std.Tactic.BVDecide.LRAT.Internal.PosFin
 import Init.Grind
 
-set_option grind.warning false
-
 namespace Std.Tactic.BVDecide
 namespace LRAT
 namespace Internal

@@ -24,9 +24,8 @@ private def push (msgs : Array MessageData) (msg? : Option MessageData) : Array 
 
 def ppBasis? : ReaderT Ring MetaM (Option MessageData) := do
   let mut basis := #[]
-  for cs in (← getRing).varToBasis do
-    for c in cs do
-      basis := basis.push (toTraceElem (← c.denoteExpr))
+  for c in (← getRing).basis do
+    basis := basis.push (toTraceElem (← c.denoteExpr))
   return toOption `basis "Basis" basis
 
 def ppDiseqs? : ReaderT Ring MetaM (Option MessageData) := do

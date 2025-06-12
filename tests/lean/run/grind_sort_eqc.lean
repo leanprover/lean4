@@ -1,4 +1,3 @@
-set_option grind.warning false
 opaque f [Inhabited α] : α → α
 theorem feq [Inhabited α] [Add α] [One α] (x : α) : f x = f (f x) + 1 := sorry
 opaque g [Inhabited α] : α → α → α

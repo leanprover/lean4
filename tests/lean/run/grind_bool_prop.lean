@@ -1,4 +1,3 @@
-set_option grind.warning false
 example (f : Bool → Nat) : f (a && b) = 0 → a = false → f false = 0 := by grind (splits := 0)
 example (f : Bool → Nat) : f (a && b) = 0 → b = false → f false = 0 := by grind (splits := 0)
 example (f : Bool → Nat) : f (a && b) = 0 → a = true → f b = 0 := by grind (splits := 0)

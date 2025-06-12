@@ -1,5 +1,4 @@
 abbrev f (a : α) := a
-set_option grind.warning false
 set_option grind.debug true
 set_option grind.debug.proofs true
 

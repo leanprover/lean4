@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 open Lean.Grind
 
 example [IntModule α] [Preorder α] [IntModule.IsOrdered α] (a b : α)
@@ -142,4 +140,11 @@ example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b : α)
 
 example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b c : α)
     : a*b + c > 1 → c = b*a → a*b > 0 := by
+  grind
+
+-- It must not internalize subterms `b + c + d` and `b + b + d`
+#guard_msgs (trace) in
+set_option trace.grind.linarith.internalize true
+example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b c d : α)
+    : a < b + c + d → c = b → a < b + b + d := by
   grind

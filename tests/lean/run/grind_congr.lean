@@ -1,6 +1,4 @@
 import Lean
-set_option grind.warning false
-
 def f (a : Nat) := a + a + a
 def g (a : Nat) := a + a
 

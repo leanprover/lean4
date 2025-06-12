@@ -120,7 +120,7 @@ where
                     let type ← replaceExprFVars param.type subst (translator := true)
                     let paramNew ← mkAuxParam type
                     jpParams := jpParams.push paramNew
-                    subst := subst.insert param.fvarId (Expr.fvar paramNew.fvarId)
+                    subst := subst.insert param.fvarId (.fvar paramNew.fvarId)
                     jpArgs := jpArgs.push (Arg.fvar paramNew.fvarId)
                   let letDecl ← mkAuxLetDecl (.fvar f jpArgs)
                   let jpValue := .let letDecl (.jmp jpDecl.fvarId #[.fvar letDecl.fvarId])

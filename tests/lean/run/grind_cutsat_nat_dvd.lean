@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 theorem ex₁ (a : Nat) (h₁ : 2 ∣ a) (h₂ : 2 ∣ a + 1) : False := by
   grind
 

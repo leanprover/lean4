@@ -42,6 +42,7 @@ static lean_object* l_Lean_Linter_logLint___at_Lean_Elab_Tactic_extractLetsAddVa
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Lets______elabRules__Lean__Parser__Tactic__extractLets__1___regBuiltin_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Lets______elabRules__Lean__Parser__Tactic__extractLets__1__1___closed__3;
 static lean_object* l_Lean_Elab_Tactic_evalUnsafe____x40_Lean_Elab_Tactic_Lets___hyg_1344____closed__1;
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Lets______elabRules__Lean__Parser__Tactic__liftLets__1___closed__1;
+uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_185_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Lets______elabRules__Lean__Parser__Tactic__extractLets__1___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
@@ -128,7 +129,6 @@ static lean_object* l_Lean_Elab_Tactic_elabExtractLetsConfig___lambda__1___close
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_extractLetsAddVarInfo___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Tactic_extractLetsAddVarInfo___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(uint8_t, uint8_t);
 lean_object* l_Lean_mkOptionalNode(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_elabExtractLetsConfig___lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Lets______elabRules__Lean__Parser__Tactic__liftLets__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -662,7 +662,7 @@ _start:
 {
 lean_object* x_14; uint8_t x_189; uint8_t x_190; 
 x_189 = 2;
-x_190 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_3, x_189);
+x_190 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_185_(x_3, x_189);
 if (x_190 == 0)
 {
 lean_object* x_191; 
@@ -703,7 +703,7 @@ lean_dec(x_14);
 x_182 = lean_ctor_get(x_11, 2);
 lean_inc(x_182);
 x_183 = 1;
-x_184 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_3, x_183);
+x_184 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_185_(x_3, x_183);
 if (x_184 == 0)
 {
 lean_dec(x_182);

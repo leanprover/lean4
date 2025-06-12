@@ -46,6 +46,7 @@ theorem zipWith_self {f : α → α → δ} : ∀ {l : List α}, zipWith f l l =
 See also `getElem?_zipWith'` for a variant
 using `Option.map` and `Option.bind` rather than a `match`.
 -/
+@[grind =]
 theorem getElem?_zipWith {f : α → β → γ} {i : Nat} :
     (zipWith f as bs)[i]? = match as[i]?, bs[i]? with
       | some a, some b => some (f a b) | _, _ => none := by
@@ -83,33 +84,39 @@ theorem getElem?_zip_eq_some {l₁ : List α} {l₂ : List β} {z : α × β} {i
   · rintro ⟨h₀, h₁⟩
     exact ⟨_, _, h₀, h₁, rfl⟩
 
+@[grind =]
 theorem head?_zipWith {f : α → β → γ} :
     (List.zipWith f as bs).head? = match as.head?, bs.head? with
       | some a, some b => some (f a b) | _, _ => none := by
   simp [head?_eq_getElem?, getElem?_zipWith]
 
+@[grind =]
 theorem head_zipWith {f : α → β → γ} (h):
     (List.zipWith f as bs).head h = f (as.head (by rintro rfl; simp_all)) (bs.head (by rintro rfl; simp_all)) := by
   apply Option.some.inj
   rw [← head?_eq_head, head?_zipWith, head?_eq_head, head?_eq_head]
 
-@[simp]
+@[simp, grind =]
 theorem zipWith_map {μ} {f : γ → δ → μ} {g : α → γ} {h : β → δ} {l₁ : List α} {l₂ : List β} :
     zipWith f (l₁.map g) (l₂.map h) = zipWith (fun a b => f (g a) (h b)) l₁ l₂ := by
   induction l₁ generalizing l₂ <;> cases l₂ <;> simp_all
 
+@[grind =]
 theorem zipWith_map_left {l₁ : List α} {l₂ : List β} {f : α → α'} {g : α' → β → γ} :
     zipWith g (l₁.map f) l₂ = zipWith (fun a b => g (f a) b) l₁ l₂ := by
   induction l₁ generalizing l₂ <;> cases l₂ <;> simp_all
 
+@[grind =]
 theorem zipWith_map_right {l₁ : List α} {l₂ : List β} {f : β → β'} {g : α → β' → γ} :
     zipWith g l₁ (l₂.map f) = zipWith (fun a b => g a (f b)) l₁ l₂ := by
   induction l₁ generalizing l₂ <;> cases l₂ <;> simp_all
 
+@[grind =]
 theorem zipWith_foldr_eq_zip_foldr {f : α → β → γ} {i : δ} {g : γ → δ → δ} :
     (zipWith f l₁ l₂).foldr g i = (zip l₁ l₂).foldr (fun p r => g (f p.1 p.2) r) i := by
   induction l₁ generalizing l₂ <;> cases l₂ <;> simp_all
 
+@[grind =]
 theorem zipWith_foldl_eq_zip_foldl {f : α → β → γ} {i : δ} {g : δ → γ → δ} :
     (zipWith f l₁ l₂).foldl g i = (zip l₁ l₂).foldl (fun r p => g r (f p.1 p.2)) i := by
   induction l₁ generalizing i l₂ <;> cases l₂ <;> simp_all
@@ -118,6 +125,7 @@ theorem zipWith_foldl_eq_zip_foldl {f : α → β → γ} {i : δ} {g : δ → �
 theorem zipWith_eq_nil_iff {f : α → β → γ} {l l'} : zipWith f l l' = [] ↔ l = [] ∨ l' = [] := by
   cases l <;> cases l' <;> simp
 
+@[grind =]
 theorem map_zipWith {δ : Type _} {f : α → β} {g : γ → δ → α} {l : List γ} {l' : List δ} :
     map f (zipWith g l l') = zipWith (fun x y => f (g x y)) l l' := by
   induction l generalizing l' with
@@ -127,6 +135,7 @@ theorem map_zipWith {δ : Type _} {f : α → β} {g : γ → δ → α} {l : Li
       · simp
       · simp [hl]
 
+@[grind =]
 theorem take_zipWith : (zipWith f l l').take i = zipWith f (l.take i) (l'.take i) := by
   induction l generalizing l' i with
   | nil => simp
@@ -137,6 +146,7 @@ theorem take_zipWith : (zipWith f l l').take i = zipWith f (l.take i) (l'.take i
       · simp
       · simp [hl]
 
+@[grind =]
 theorem drop_zipWith : (zipWith f l l').drop i = zipWith f (l.drop i) (l'.drop i) := by
   induction l generalizing l' i with
   | nil => simp
@@ -147,10 +157,11 @@ theorem drop_zipWith : (zipWith f l l').drop i = zipWith f (l.drop i) (l'.drop i
         · simp
         · simp [hl]
 
-@[simp]
+@[simp, grind =]
 theorem tail_zipWith : (zipWith f l l').tail = zipWith f l.tail l'.tail := by
   rw [← drop_one]; simp [drop_zipWith]
 
+@[grind =]
 theorem zipWith_append {f : α → β → γ} {l₁ l₁' : List α} {l₂ l₂' : List β}
     (h : l₁.length = l₂.length) :
     zipWith f (l₁ ++ l₁') (l₂ ++ l₂') = zipWith f l₁ l₂ ++ zipWith f l₁' l₂' := by
@@ -254,22 +265,26 @@ theorem zip_eq_zipWith : ∀ {l₁ : List α} {l₂ : List β}, zip l₁ l₂ = 
   | _, [] => rfl
   | a :: l₁, b :: l₂ => by simp [zip_cons_cons, zip_eq_zipWith (l₁ := l₁)]
 
+@[grind _=_]
 theorem zip_map {f : α → γ} {g : β → δ} :
     ∀ {l₁ : List α} {l₂ : List β}, zip (l₁.map f) (l₂.map g) = (zip l₁ l₂).map (Prod.map f g)
   | [], _ => rfl
   | _, [] => by simp only [map, zip_nil_right]
   | _ :: _, _ :: _ => by simp only [map, zip_cons_cons, zip_map, Prod.map]
 
+@[grind _=_]
 theorem zip_map_left {f : α → γ} {l₁ : List α} {l₂ : List β} :
     zip (l₁.map f) l₂ = (zip l₁ l₂).map (Prod.map f id) := by rw [← zip_map, map_id]
 
+@[grind _=_]
 theorem zip_map_right {f : β → γ} {l₁ : List α} {l₂ : List β} :
     zip l₁ (l₂.map f) = (zip l₁ l₂).map (Prod.map id f) := by rw [← zip_map, map_id]
 
-@[simp] theorem tail_zip {l₁ : List α} {l₂ : List β} :
+@[simp, grind =] theorem tail_zip {l₁ : List α} {l₂ : List β} :
     (zip l₁ l₂).tail = zip l₁.tail l₂.tail := by
   cases l₁ <;> cases l₂ <;> simp
 
+@[grind =]
 theorem zip_append :
     ∀ {l₁ r₁ : List α} {l₂ r₂ : List β} (_h : length l₁ = length l₂),
       zip (l₁ ++ r₁) (l₂ ++ r₂) = zip l₁ l₂ ++ zip r₁ r₂
@@ -278,6 +293,7 @@ theorem zip_append :
   | _ :: _, _, _ :: _, _, h => by
     simp only [cons_append, zip_cons_cons, zip_append (Nat.succ.inj h)]
 
+@[grind =]
 theorem zip_map' {f : α → β} {g : α → γ} :
     ∀ {l : List α}, zip (l.map f) (l.map g) = l.map fun a => (f a, g a)
   | [] => rfl
@@ -353,6 +369,7 @@ theorem zip_eq_append_iff {l₁ : List α} {l₂ : List β} :
 
 /-! ### zipWithAll -/
 
+@[grind =]
 theorem getElem?_zipWithAll {f : Option α → Option β → γ} {i : Nat} :
     (zipWithAll f as bs)[i]? = match as[i]?, bs[i]? with
       | none, none => .none | a?, b? => some (f a? b?) := by
@@ -366,33 +383,38 @@ theorem getElem?_zipWithAll {f : Option α → Option β → γ} {i : Nat} :
       cases i <;> simp_all
     | cons b bs => cases i <;> simp_all
 
+@[grind =]
 theorem head?_zipWithAll {f : Option α → Option β → γ} :
     (zipWithAll f as bs).head? = match as.head?, bs.head? with
       | none, none => .none | a?, b? => some (f a? b?) := by
   simp [head?_eq_getElem?, getElem?_zipWithAll]
 
-@[simp] theorem head_zipWithAll {f : Option α → Option β → γ} (h) :
+@[simp, grind =] theorem head_zipWithAll {f : Option α → Option β → γ} (h) :
     (zipWithAll f as bs).head h = f as.head? bs.head? := by
   apply Option.some.inj
   rw [← head?_eq_head, head?_zipWithAll]
   split <;> simp_all
 
-@[simp] theorem tail_zipWithAll {f : Option α → Option β → γ} :
+@[simp, grind =] theorem tail_zipWithAll {f : Option α → Option β → γ} :
     (zipWithAll f as bs).tail = zipWithAll f as.tail bs.tail := by
   cases as <;> cases bs <;> simp
 
+@[grind =]
 theorem zipWithAll_map {μ} {f : Option γ → Option δ → μ} {g : α → γ} {h : β → δ} {l₁ : List α} {l₂ : List β} :
     zipWithAll f (l₁.map g) (l₂.map h) = zipWithAll (fun a b => f (g <$> a) (h <$> b)) l₁ l₂ := by
   induction l₁ generalizing l₂ <;> cases l₂ <;> simp_all
 
+@[grind =]
 theorem zipWithAll_map_left {l₁ : List α} {l₂ : List β} {f : α → α'} {g : Option α' → Option β → γ} :
     zipWithAll g (l₁.map f) l₂ = zipWithAll (fun a b => g (f <$> a) b) l₁ l₂ := by
   induction l₁ generalizing l₂ <;> cases l₂ <;> simp_all
 
+@[grind =]
 theorem zipWithAll_map_right {l₁ : List α} {l₂ : List β} {f : β → β'} {g : Option α → Option β' → γ} :
     zipWithAll g l₁ (l₂.map f) = zipWithAll (fun a b => g a (f <$> b)) l₁ l₂ := by
   induction l₁ generalizing l₂ <;> cases l₂ <;> simp_all
 
+@[grind =]
 theorem map_zipWithAll {δ : Type _} {f : α → β} {g : Option γ → Option δ → α} {l : List γ} {l' : List δ} :
     map f (zipWithAll g l l') = zipWithAll (fun x y => f (g x y)) l l' := by
   induction l generalizing l' with
@@ -400,7 +422,7 @@ theorem map_zipWithAll {δ : Type _} {f : α → β} {g : Option γ → Option �
   | cons hd tl hl =>
     cases l' <;> simp_all
 
-@[simp] theorem zipWithAll_replicate {a : α} {b : β} {n : Nat} :
+@[simp, grind =] theorem zipWithAll_replicate {a : α} {b : β} {n : Nat} :
     zipWithAll f (replicate n a) (replicate n b) = replicate n (f (some a) (some b)) := by
   induction n with
   | zero => rfl
@@ -408,12 +430,13 @@ theorem map_zipWithAll {δ : Type _} {f : α → β} {g : Option γ → Option �
 
 /-! ### unzip -/
 
-@[simp] theorem unzip_fst : (unzip l).fst = l.map Prod.fst := by
+@[simp, grind =] theorem unzip_fst : (unzip l).fst = l.map Prod.fst := by
   induction l <;> simp_all
 
-@[simp] theorem unzip_snd : (unzip l).snd = l.map Prod.snd := by
+@[simp, grind =] theorem unzip_snd : (unzip l).snd = l.map Prod.snd := by
   induction l <;> simp_all
 
+@[grind =]
 theorem unzip_eq_map : ∀ {l : List (α × β)}, unzip l = (l.map Prod.fst, l.map Prod.snd)
   | [] => rfl
   | (a, b) :: l => by simp only [unzip_cons, map_cons, unzip_eq_map (l := l)]
@@ -453,6 +476,6 @@ theorem tail_zip_fst {l : List (α × β)} : l.unzip.1.tail = l.tail.unzip.1 := 
 theorem tail_zip_snd {l : List (α × β)} : l.unzip.2.tail = l.tail.unzip.2 := by
   simp
 
-@[simp] theorem unzip_replicate {n : Nat} {a : α} {b : β} :
+@[simp, grind =] theorem unzip_replicate {n : Nat} {a : α} {b : β} :
     unzip (replicate n (a, b)) = (replicate n a, replicate n b) := by
   ext1 <;> simp

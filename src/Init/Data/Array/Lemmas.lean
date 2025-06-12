@@ -4539,7 +4539,7 @@ abbrev contains_def [DecidableEq α] {a : α} {xs : Array α} : xs.contains a �
     (zip xs ys).size = min xs.size ys.size :=
   size_zipWith
 
-@[simp] theorem getElem_zipWith {xs : Array α} {ys : Array β} {f : α → β → γ} {i : Nat}
+@[simp, grind =] theorem getElem_zipWith {xs : Array α} {ys : Array β} {f : α → β → γ} {i : Nat}
     (hi : i < (zipWith f xs ys).size) :
     (zipWith f xs ys)[i] = f (xs[i]'(by simp at hi; omega)) (ys[i]'(by simp at hi; omega)) := by
   cases xs

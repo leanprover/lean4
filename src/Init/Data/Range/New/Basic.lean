@@ -193,6 +193,7 @@ instance [LE α] [DecidableLE α] (r : PRange ⟨.closed, .closed⟩ α) : Decid
 
 section Iterator
 
+@[always_inline, inline]
 def Range.succIteratorInternal [Succ? α] (init : α) (stepSize : Nat) (Predicate : α → Bool) :=
   Iter.repeatUntilNone (init := init) (Succ?.succAtIdx? stepSize) |>.takeWhile Predicate
 
@@ -200,9 +201,10 @@ def Range.SuccIterator [Succ? α] (stepSize : Nat) (Predicate : α → Bool)
     (_ : stepSize > 0) :=
   type_of% (succIteratorInternal (_ : α) stepSize Predicate).internalState
 
+@[always_inline, inline]
 def Range.succIterator [Succ? α] (init : α) (stepSize : Nat) (Predicate : α → Bool) (h) :
     (Iter (α := SuccIterator stepSize Predicate h) α) :=
-  Iter.repeatUntilNone (init := init) (Succ?.succAtIdx? stepSize) |>.takeWhile Predicate
+  Range.succIteratorInternal init stepSize Predicate
 
 @[always_inline, inline]
 def Range.SuccIterator.next [Succ? α] (stepSize : Nat) (Predicate : α → Bool)

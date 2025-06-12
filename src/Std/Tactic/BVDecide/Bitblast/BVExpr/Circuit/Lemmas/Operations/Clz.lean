@@ -85,7 +85,7 @@ theorem go_denote_base_eq {w : Nat} (aig : AIG α)
       simp [hacc]
 
 theorem go_denote_eq {w : Nat} (aig : AIG α)
-    (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool) (hc : curr ≤ w)
+    (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool)
     -- correctness of the denotation for x and xexpr
     (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)
     -- correctness of the denotation for the accumulator
@@ -110,10 +110,8 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
         simp at hgo
         rw [← hgo]
         rw [go_denote_eq]
-        · sorry
         · intro idx hidx
           rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
-          rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
           simp [hx]
           simp [Ref.hgate]
         · intro idx hidx
@@ -125,13 +123,11 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
             rw [RefVec.denote_ite (aig := aig)]
             by_cases hx0 : x.getLsbD 0
             · rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
-              rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
               · simp [hx0, hacc]
                 sorry
               ·
                 sorry
             · rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
-              rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
               · simp [hx0, hacc]
               · simp [Ref.hgate]
           · simp [hc] at hacc
@@ -143,7 +139,8 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
       simp [hacc]
       by_cases hcw : curr = w
       · subst hcw; rfl
-      · omega
+      · rw [BitVec.clzAuxRec_eq_of_le]
+        omega
 
 -- theorem go_denote_eq {w : Nat} (aig : AIG α) (hw : 0 < w)
 --     (acc : AIG.RefVec aig w) (x : AIG.RefVec aig w) (xexpr : BitVec w) (assign : α → Bool)

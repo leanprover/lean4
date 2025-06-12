@@ -64,3 +64,22 @@ info: have n := Nat.zero;
 n : Nat
 -/
 #guard_msgs in #check eval_expr% (mkHave `n (mkConst ``Nat) (mkConst ``Nat.zero) (.bvar 0))
+
+/-!
+Testing `Expr.replace`, which is implemented in C++.
+The `nonDep` flag was previously cleared.
+-/
+/-- info: Lean.Expr.letE `n (Lean.Expr.bvar 1) (Lean.Expr.bvar 1) (Lean.Expr.bvar 1) true -/
+#guard_msgs in #eval Expr.replace (fun e => if let .bvar i := e then some (.bvar (i + 1)) else none) (mkHave `n (.bvar 0) (.bvar 0) (.bvar 0))
+
+/-!
+Testing `instantiateMvars`, which is implemented in C++.
+The `nonDep` flag was previously cleared.
+-/
+/--
+info: Lean.Expr.letE `n (Lean.Expr.const `Nat []) (Lean.Expr.const `Nat.zero []) (Lean.Expr.const `Unit []) true
+-/
+#guard_msgs in #eval show MetaM Expr from do
+  let m ← Meta.mkFreshExprMVar none
+  m.mvarId!.assign (mkConst ``Unit)
+  Lean.instantiateMVars (Lean.mkLet `n (mkConst ``Nat) (mkConst ``Nat.zero) m true)

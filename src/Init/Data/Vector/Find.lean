@@ -72,11 +72,11 @@ theorem findSome?_eq_some_iff {f : α → Option β} {xs : Vector α n} {b : β}
   · rintro ⟨k₁, k₂, h, ys, a, zs, w, h₁, h₂⟩
     exact ⟨ys.toArray, a, zs.toArray, by simp [w], h₁, by simpa using h₂⟩
 
-@[simp] theorem findSome?_guard {xs : Vector α n} : findSome? (Option.guard fun x => p x) xs = find? p xs := by
+@[simp] theorem findSome?_guard {xs : Vector α n} : findSome? (Option.guard p) xs = find? p xs := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
-theorem find?_eq_findSome?_guard {xs : Vector α n} : find? p xs = findSome? (Option.guard fun x => p x) xs :=
+theorem find?_eq_findSome?_guard {xs : Vector α n} : find? p xs = findSome? (Option.guard p) xs :=
   findSome?_guard.symm
 
 @[simp] theorem map_findSome? {f : α → Option β} {g : β → γ} {xs : Vector α n} :
@@ -209,7 +209,7 @@ theorem get_find?_mem {xs : Vector α n} (h) : (xs.find? p).get h ∈ xs := by
   simp
 
 @[simp] theorem find?_flatten {xs : Vector (Vector α m) n} {p : α → Bool} :
-    xs.flatten.find? p = xs.findSome? (·.find? p) := by
+    xs.flatten.find? p = xs.findSome? (find? p) := by
   cases xs using vector₂_induction
   simp [Array.findSome?_map, Function.comp_def]
 

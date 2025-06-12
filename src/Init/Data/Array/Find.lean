@@ -59,10 +59,10 @@ theorem findSome?_eq_some_iff {f : α → Option β} {xs : Array α} {b : β} :
   · rintro ⟨xs, a, ys, h₀, h₁, h₂⟩
     exact ⟨xs.toList, a, ys.toList, by simpa using congrArg toList h₀, h₁, by simpa⟩
 
-@[simp] theorem findSome?_guard {xs : Array α} : findSome? (Option.guard fun x => p x) xs = find? p xs := by
+@[simp] theorem findSome?_guard {xs : Array α} : findSome? (Option.guard p) xs = find? p xs := by
   cases xs; simp
 
-theorem find?_eq_findSome?_guard {xs : Array α} : find? p xs = findSome? (Option.guard fun x => p x) xs :=
+theorem find?_eq_findSome?_guard {xs : Array α} : find? p xs = findSome? (Option.guard p) xs :=
   findSome?_guard.symm
 
 @[simp] theorem getElem?_zero_filterMap {f : α → Option β} {xs : Array α} : (xs.filterMap f)[0]? = xs.findSome? f := by
@@ -231,7 +231,7 @@ theorem get_find?_mem {xs : Array α} (h) : (xs.find? p).get h ∈ xs := by
   simp
 
 @[simp] theorem find?_flatten {xss : Array (Array α)} {p : α → Bool} :
-    xss.flatten.find? p = xss.findSome? (·.find? p) := by
+    xss.flatten.find? p = xss.findSome? (find? p) := by
   cases xss using array₂_induction
   simp [List.findSome?_map, Function.comp_def]
 

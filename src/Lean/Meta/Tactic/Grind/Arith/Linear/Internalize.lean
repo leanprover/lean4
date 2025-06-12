@@ -37,6 +37,7 @@ private def isForbiddenParent (parent? : Option Expr) : Bool :=
       -- We also ignore the following parents.
       -- Remark: `HDiv` should appear in `getType?` as soon as we add support for `Field`
       match_expr parent with
+      | LT.lt _ _ _ _ => true
       | LE.le _ _ _ _ => true
       | HDiv.hDiv _ _ _ _ _ _ => true
       | HMod.hMod _ _ _ _ _ _ => true

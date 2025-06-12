@@ -223,7 +223,7 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
       rw [← hres]
       dsimp only
       apply Cache.Inv_cast
-      · sorry --apply LawfulVecOperator.isPrefix_aig
+      · apply LawfulVecOperator.isPrefix_aig
       · apply goCache_Inv_of_Inv
         exact hinv
   · rw [← hres]
@@ -427,10 +427,9 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       rw [goCache_denote_eq]
       exact hinv
     · rw [← hres]
-      simp only [denote_blastClz, eval_un, BVUnOp.eval_clz]
+      simp [denote_blastClz, eval_un, BVUnOp.eval_clz, BitVec.clzAuxRec_eq_clz]
+      have := denote_blastClz (aig := aig) (w := w)
       sorry
-      -- rw [goCache_denote_eq]
-      -- exact hinv
   · next h =>
     subst h
     rw [← hres]

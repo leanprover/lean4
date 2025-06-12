@@ -113,10 +113,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
         rw [← hgo]
         rw [go_denote_eq]
         · intro idx hidx
-          rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
-          ·
-            sorry
-          · sorry
+          sorry
         · intro idx hidx
           rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
           simp [hx]
@@ -127,8 +124,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
           by_cases hc : curr = 0
           · simp [hc] at hacc
             simp [hc]
-            unfold BitVec.clzAuxRec
-
+            simp [BitVec.clzAuxRec]
             have hite := RefVec.denote_ite (aig := aig) (assign := assign)
                 (input :=
                       {discr := xc.get curr h,

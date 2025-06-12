@@ -13,7 +13,7 @@ end
 
 namespace A.B.C
 /--
-error: Missing name after `end`: The current scope is named `C`, but a name was not provided
+error: Missing name after `end`: Expected the current scope name `C`
 
 Hint: To end the current scope `C`, specify its name:
   end ̲C̲
@@ -22,7 +22,7 @@ Hint: To end the current scope `C`, specify its name:
 end
 
 /--
-error: Name `A.B` does not match the current scope(s) `A.B.C`: Expected `B.C` or some other suffix of the current scope(s)
+error: Invalid name after `end`: Expected `B.C`, but found `A.B`
 
 Hint: If you meant to end the outer scope(s) `A.B`, you must end all the intervening scopes `A.B.C`:
   end A.B.̲C̲
@@ -34,7 +34,7 @@ end A.B
 section
 namespace D
 
-/-- error: Name `A.B` does not match the current scope(s) `D`: Expected `D` -/
+/-- error: Invalid name after `end`: Expected `D`, but found `A.B` -/
 #guard_msgs in
 end A.B
 
@@ -42,7 +42,9 @@ end D
 end
 
 /--
-error: Name `Irrelevant` does not match the current scope(s) `A.B.C`: Expected `C` or some other suffix of the current scope(s)
+error: Invalid name after `end`: Expected `C`, but found `Irrelevant`
+
+Note: The current scopes are `A.B.C`
 -/
 #guard_msgs in
 end Irrelevant
@@ -61,7 +63,29 @@ end C
 end
 
 /--
-error: Invalid name after `end`: The provided name `D.E.F.G` contains too many components; expected `A.B.C` or some suffix thereof
+error: Invalid name after `end`: `D.E.F.G` contains too many components
+
+Hint: The name after `end` must be `A.B.C` or some suffix thereof
 -/
 #guard_msgs in
 end D.E.F.G
+
+end B.C
+
+/--
+error: Invalid name after `end`: Expected `A`, but found `Z`
+
+Hint: Use current scope name `A`:
+  end Z̵A̲
+-/
+#guard_msgs in
+end Z
+
+/--
+error: Invalid name after `end`: `X.Y.Z` contains too many components
+
+Hint: Use current scope name `A`:
+  end X̵.̵Y̵.̵Z̵A̲
+-/
+#guard_msgs in
+end X.Y.Z

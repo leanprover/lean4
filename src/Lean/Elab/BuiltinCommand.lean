@@ -160,50 +160,59 @@ private def throwNoScope : CommandElabM Unit :=
   throwError m!"Invalid `end`: There is no current scope to end"
     ++ .note m!"Scopes are introduced using `namespace` and `section`"
 
-private def throwMissingName (stx : Syntax) (name : Name) : CommandElabM Unit := do
-  let suggestion : Meta.Hint.Suggestions := {
-    ref := stx
-    suggestions := #[← `(end $(mkIdent name))]
-    codeActionPrefix? := "Add scope name: "
-  }
-  let hint ← liftCoreM <| MessageData.hint m!"To end the current scope `{name}`, specify its name:" suggestion
-  throwError "Missing name after `end`: The current scope is named `{name}`, but a name was not provided{hint}"
+private def throwMissingName (name : Name) : CommandElabM Unit := do
+  let hint ← liftCoreM <| MessageData.hint m!"To end the current scope `{name}`, specify its name:"
+    #[← `(end $(mkIdent name))] (codeActionPrefix? := "Add scope name: ")
+  throwError "Missing name after `end`: Expected the current scope name `{name}`{hint}"
+
+/--
+Produces a hint message with a suggestion to replace the name following `end` at the current ref
+with the name given by `scopes` if there is only one active scope; otherwise, returns `none`.
+
+Rationale: When there is only one active scope, only one valid `end` command is possible, so we
+suggest it; if there are multiple, then it is harder to determine with confidence which the user
+intended to end.
+-/
+private def mkSingleScopeReplacementHint? (scopes : List Scope) := do
+  -- Recall that there is always an anonymous topmost scope, so `scopes.length = 2` when there is
+  -- only one active scope:
+  if scopes.length == 2 then
+    let name := nameOfScopes scopes
+    some <$> MessageData.hint m!"Use current scope name `{name}`:" #[(← `(end $(mkIdent name)))]
+      (codeActionPrefix? := "Replace scope name: ")
+  else
+    return none
 
 private def throwTooManyScopeComponents (header : Name) (scopes : List Scope) : CommandElabM Unit := do
-  let scopesName := nameOfScopes scopes
-  let addendum := if scopes.length > 1 then " or some suffix thereof" else ""
-  throwError "Invalid name after `end`: The provided name `{header}` contains too many components; \
-    expected `{scopesName}`{addendum}"
+  let hint ← liftCoreM do
+    if let some hint ← mkSingleScopeReplacementHint? scopes then
+      pure hint
+    else
+      let scopesName := nameOfScopes scopes
+      pure <| MessageData.hint' m!"The name after `end` must be `{scopesName}` or some suffix thereof"
+  throwError m!"Invalid name after `end`: `{header}` contains too many components" ++ hint
 
-private def throwScopeNameMismatch (stx : Syntax) (header : Name) (scopes : List Scope) (endSize : Nat)
+private def throwScopeNameMismatch (header : Name) (scopes : List Scope) (endSize : Nat)
     : CommandElabM Unit := do
   let correspondingScopes := nameOfScopes scopes endSize
   let allScopes := nameOfScopes scopes
-  let hint ← liftCoreM do
-    if let some suffix := findSuffixWithPrefix allScopes header then
-      let suggestion : Meta.Hint.Suggestions := {
-        ref := stx
-        suggestions := #[← `(end $(mkIdent suffix))]
-        codeActionPrefix? := "Add intervening scopes: "
-      }
+  let help ← liftCoreM do
+    if let some hint ← mkSingleScopeReplacementHint? scopes then
+      pure hint
+    else if let some suffix := findSuffixWithPrefix allScopes header then
       let hintMsg := m!"If you meant to end the outer scope(s) `{header}`, you must end all the \
         intervening scopes `{suffix}`:"
-      MessageData.hint hintMsg suggestion
+      MessageData.hint hintMsg #[← `(end $(mkIdent suffix))]
+        (codeActionPrefix? := "Add intervening scopes: ")
+    else if correspondingScopes != allScopes then
+      pure <| .note m!"The current scopes are `{allScopes}`"
     else pure .nil
-  let numParts := allScopes.getNumParts  -- NB this may not be equal to `endSize`
-  let suffixMsg := if numParts > 1 then " or some other suffix of the current scope(s)" else ""
-  throwError m!"Name `{header}` does not match the current scope(s) `{allScopes}`: \
-    Expected `{correspondingScopes}`{suffixMsg}" ++ hint
+  throwError m!"Invalid name after `end`: Expected `{correspondingScopes}`, but found `{header}`" ++ help
 
-private def throwUnnecessaryScopeName (stx : Syntax) (header : Name) : CommandElabM Unit := do
-  let suggestion : Meta.Hint.Suggestions := {
-    ref := stx
-    suggestions := #[← `(end)]
-    codeActionPrefix? := "Delete name: "
-  }
+private def throwUnnecessaryScopeName (header : Name) : CommandElabM Unit := do
   let hintMsg := m!"Delete the name `{header}` to end the current unnamed scope; outer named scopes \
     can then be closed using additional `end` command(s):"
-  let hint ← liftCoreM <| MessageData.hint hintMsg suggestion
+  let hint ← liftCoreM <| MessageData.hint hintMsg #[← `(end)] (codeActionPrefix? := "Delete name: ")
   throwError m!"Unexpected name `{header}` after `end`: The current section is unnamed" ++ hint
 
 @[builtin_command_elab «end»] def elabEnd : CommandElab := fun stx => do
@@ -218,7 +227,7 @@ private def throwUnnecessaryScopeName (stx : Syntax) (header : Name) : CommandEl
   match header? with
   | none        =>
     if let some name := innermostScopeName? scopes then
-      throwMissingName stx name
+      throwMissingName name
   | some header =>
     if endSize >= numScopes then
       throwTooManyScopeComponents header scopes
@@ -226,9 +235,9 @@ private def throwUnnecessaryScopeName (stx : Syntax) (header : Name) : CommandEl
       let scopesName := nameOfScopes scopes endSize
       if scopesName != header then
         if scopesName == .anonymous then
-          throwUnnecessaryScopeName stx header
+          throwUnnecessaryScopeName header
         else
-          throwScopeNameMismatch stx header scopes endSize
+          throwScopeNameMismatch header scopes endSize
   modify fun s => {s with scopes := s.scopes.drop endSize }
   popScopes endSize
 

@@ -261,7 +261,7 @@ Examples:
 /-- Tail recursive implementation of `findRev?`. This is only used at runtime. -/
 def findRev?TR (p : α → Bool) (l : List α) : Option α := l.reverse.find? p
 
-@[simp] theorem find?_singleton {a : α} : [a].find? p = if p a then some a else none := by
+@[simp, grind =] theorem find?_singleton {a : α} : [a].find? p = if p a then some a else none := by
   simp only [find?]
   split <;> simp_all
 
@@ -287,12 +287,12 @@ def findRev?TR (p : α → Bool) (l : List α) : Option α := l.reverse.find? p
 /-- Tail recursive implementation of `finSomedRev?`. This is only used at runtime. -/
 def findSomeRev?TR (f : α → Option β) (l : List α) : Option β := l.reverse.findSome? f
 
-@[simp] theorem findSome?_singleton {a : α} :
+@[simp, grind =] theorem findSome?_singleton {a : α} :
     [a].findSome? f = f a := by
   simp only [findSome?_cons, findSome?_nil]
   split <;> simp_all
 
-@[simp] theorem findSome?_append {xs ys : List α} : (xs ++ ys).findSome? f = (xs.findSome? f).or (ys.findSome? f) := by
+@[simp, grind =] theorem findSome?_append {xs ys : List α} : (xs ++ ys).findSome? f = (xs.findSome? f).or (ys.findSome? f) := by
   induction xs with
   | nil => simp [findSome?]
   | cons x xs ih =>

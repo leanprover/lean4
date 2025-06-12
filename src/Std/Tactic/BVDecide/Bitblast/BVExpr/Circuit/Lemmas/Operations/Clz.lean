@@ -86,8 +86,6 @@ theorem go_denote_base_eq {w : Nat} (aig : AIG α)
 
 theorem go_denote_eq {w : Nat} (aig : AIG α)
     (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool)
-    -- correctness of the denotation for blastConst and w
-    -- (hw : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, (blastConst aig (BitVec.ofNat w w)).get idx hidx, assign⟧ = (BitVec.ofNat w w).getLsbD idx)
     -- correctness of the denotation for x and xexpr
     (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)
     -- correctness of the denotation for the accumulator
@@ -116,14 +114,35 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
           rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
           simp [hx]
           simp [Ref.hgate]
-        · intro  idx hidx
+        · intro idx hidx
           simp only [Nat.add_eq_zero, Nat.succ_ne_self, and_false, ↓reduceIte, RefVec.get_cast,
             Ref.cast_eq, Nat.add_one_sub_one]
+          rw [RefVec.denote_ite]
           rcases curr
           · case zero =>
-            sorry
-          · case succ n =>
-            sorry
+            split
+            · next hx' =>
+              have : x.getLsbD 0 = true := by rw [hx] at hx'; exact hx'
+              simp [hacc, BitVec.clzAuxRec, this]
+              sorry
+            · next hx' =>
+              have : x.getLsbD 0 = false := by rw [hx] at hx'; simp at hx'; exact hx'
+              simp [BitVec.clzAuxRec, this]
+              simp at hacc
+              simp [hacc]
+          · case succ curr =>
+            split
+            · next hx' =>
+              simp at hx'
+              simp [hx']
+              have : x.getLsbD (curr + 1) = true := by rw [hx] at hx'; exact hx'
+              simp [hacc, BitVec.clzAuxRec, this]
+              sorry
+            · next hx' =>
+              have : x.getLsbD (curr + 1) = false := by rw [hx] at hx'; simp at hx'; exact hx'
+              simp at hx' hacc
+              simp [hx']
+              simp [hacc, BitVec.clzAuxRec, this]
     · case isFalse h =>
       rw [← hgo]
       simp [show w ≤ curr by omega, show ¬ curr = 0 by omega] at hacc
@@ -149,6 +168,7 @@ theorem denote_blastClz (aig : AIG α) (xc : RefVec aig w) (x : BitVec w) (assig
   unfold blastClz at hb
   dsimp only at hb
   rw [← hb, blastClz.go_denote_eq (x := x) (w := w)]
+  · sorry
   · exact hx
   · intro idx hidx
     simp only [↓reduceIte, BitVec.natCast_eq_ofNat, hw]

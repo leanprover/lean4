@@ -132,20 +132,19 @@ def process (input : String) (env : Environment) (opts : Options) (fileName : Op
   let s ← IO.processCommands inputCtx { : Parser.ModuleParserState } (Command.mkState env {} opts)
   pure (s.commandState.env, s.commandState.messages)
 
-@[export lean_run_frontend]
 def runFrontend
     (input : String)
     (opts : Options)
     (fileName : String)
     (mainModuleName : Name)
     (trustLevel : UInt32 := 0)
-    (oleanFileName? : Option String := none)
-    (ileanFileName? : Option String := none)
+    (oleanFileName? : Option System.FilePath := none)
+    (ileanFileName? : Option System.FilePath := none)
     (jsonOutput : Bool := false)
     (errorOnKinds : Array Name := #[])
     (plugins : Array System.FilePath := #[])
     (printStats : Bool := false)
-    (setupFileName? : Option System.FilePath := none)
+    (setup? : Option ModuleSetup := none)
     : IO (Option Environment) := do
   let startTime := (← IO.monoNanosNow).toFloat / 1000000000
   let inputCtx := Parser.mkInputContext input fileName
@@ -154,8 +153,7 @@ def runFrontend
   let opts := Elab.async.setIfNotSet opts true
   let ctx := { inputCtx with }
   let setup stx := do
-    if let some file := setupFileName? then
-      let setup ← ModuleSetup.load file
+    if let some setup := setup? then
       liftM <| setup.dynlibs.forM Lean.loadDynlib
       return .ok {
         trustLevel
@@ -164,7 +162,7 @@ def runFrontend
         imports := setup.imports
         plugins := plugins ++ setup.plugins
         modules := setup.modules
-        -- override cmdline options with header options
+        -- override cmdline options with setup options
         opts := opts.mergeBy (fun _ _ hOpt => hOpt) setup.options.toOptions
       }
     else

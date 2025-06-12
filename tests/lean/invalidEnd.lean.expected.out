@@ -2,9 +2,11 @@ invalidEnd.lean:5:0-5:7: error: Unexpected name `Baz` after `end`: The current s
 
 Hint: Delete the name `Baz` to end the current unnamed scope; outer named scopes can then be closed using additional `end` command(s):
   end ̵B̵a̵z̵
-invalidEnd.lean:7:0-7:7: error: Name `Bal` does not match the current scope(s) `Foo.Bar.Baz`: Expected `Baz` or some other suffix of the current scope(s)
-invalidEnd.lean:9:0-9:12: error: Name `Fool.Bar` does not match the current scope(s) `Foo.Bar`: Expected `Foo.Bar` or some other suffix of the current scope(s)
-invalidEnd.lean:10:0-10:3: error: Missing name after `end`: The current scope is named `Bar`, but a name was not provided
+invalidEnd.lean:7:0-7:7: error: Invalid name after `end`: Expected `Baz`, but found `Bal`
+
+Note: The current scopes are `Foo.Bar.Baz`
+invalidEnd.lean:9:0-9:12: error: Invalid name after `end`: Expected `Foo.Bar`, but found `Fool.Bar`
+invalidEnd.lean:10:0-10:3: error: Missing name after `end`: Expected the current scope name `Bar`
 
 Hint: To end the current scope `Bar`, specify its name:
   end ̲B̲a̲r̲

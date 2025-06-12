@@ -68,6 +68,7 @@ def builtinPassManager : PassManager := {
     toMono,
     simp (occurrence := 3) (phase := .mono),
     reduceJpArity (phase := .mono),
+    structProjCases,
     extendJoinPointContext (phase := .mono) (occurrence := 0),
     floatLetIn (phase := .mono) (occurrence := 1),
     reduceArity,
@@ -78,7 +79,6 @@ def builtinPassManager : PassManager := {
     lambdaLifting,
     extendJoinPointContext (phase := .mono) (occurrence := 1),
     simp (occurrence := 5) (phase := .mono),
-    structProjCases,
     cse (occurrence := 2) (phase := .mono),
     saveMono,  -- End of mono phase
     extractClosed

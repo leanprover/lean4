@@ -3399,6 +3399,16 @@ theorem toInt_add_of_not_saddOverflow {x y : BitVec w} (h : ¬ saddOverflow x y)
       _root_.not_or, Int.not_le, Int.not_lt] at h
     rw [toInt_add, Int.bmod_eq_of_le (by push_cast; omega) (by push_cast; omega)]
 
+theorem saddOverflow_assoc {x y z : BitVec w} (h : ¬ x.saddOverflow y) (h' : ¬ y.saddOverflow z) :
+    (x + y).saddOverflow z = x.saddOverflow (y + z) := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · simp only [saddOverflow, Nat.add_one_sub_one, ge_iff_le, Bool.or_eq_true, decide_eq_true_eq,
+      _root_.not_or, Int.not_le, Int.not_lt] at h h'
+    simp only [bool_to_prop, saddOverflow, toInt_add, ge_iff_le, Nat.add_one_sub_one]
+    repeat rw [Int.bmod_eq_of_le (by push_cast; omega) (by push_cast; omega)]
+    omega
+
 @[simp]
 theorem shiftLeft_add_distrib {x y : BitVec w} {n : Nat} :
     (x + y) <<< n = x <<< n + y <<< n := by
@@ -3827,6 +3837,13 @@ theorem toNat_mul_of_not_umulOverflow {x y : BitVec w} (h : ¬ umulOverflow x y)
   · simp only [umulOverflow, ge_iff_le, decide_eq_true_eq, Nat.not_le] at h
     rw [toNat_mul, Nat.mod_eq_of_lt h]
 
+theorem umulOverflow_assoc {x y z : BitVec w} (h : ¬ x.umulOverflow y) (h' : ¬ y.umulOverflow z) :
+    (x * y).umulOverflow z = x.umulOverflow (y * z) := by
+  simp only [umulOverflow, ge_iff_le, decide_eq_true_eq, Nat.not_le] at h h'
+  simp only [umulOverflow, toNat_mul, ge_iff_le, decide_eq_decide]
+  repeat rw [Nat.mod_eq_of_lt (by omega)]
+  rw [Nat.mul_assoc]
+
 @[simp]
 theorem toInt_mul_of_not_smulOverflow {x y : BitVec w} (h : ¬ smulOverflow x y) :
     (x * y).toInt = x.toInt * y.toInt := by
@@ -3835,6 +3852,16 @@ theorem toInt_mul_of_not_smulOverflow {x y : BitVec w} (h : ¬ smulOverflow x y)
   · simp only [smulOverflow, Nat.add_one_sub_one, ge_iff_le, Bool.or_eq_true, decide_eq_true_eq,
       _root_.not_or, Int.not_le, Int.not_lt] at h
     rw [toInt_mul, Int.bmod_eq_of_le (by push_cast; omega) (by push_cast; omega)]
+
+theorem smulOverflow_assoc {x y z : BitVec w} (h : ¬ x.smulOverflow y) (h' : ¬ y.smulOverflow z) :
+    (x * y).smulOverflow z = x.smulOverflow (y * z) := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · simp only [smulOverflow, Nat.add_one_sub_one, ge_iff_le, Bool.or_eq_true, decide_eq_true_eq,
+      _root_.not_or, Int.not_le, Int.not_lt] at h h'
+    simp only [smulOverflow, toInt_mul, Nat.add_one_sub_one, ge_iff_le, bool_to_prop]
+    repeat rw [Int.bmod_eq_of_le (by push_cast; omega) (by push_cast; omega)]
+    rw [Int.mul_assoc]
 
 theorem ofInt_mul {n} (x y : Int) : BitVec.ofInt n (x * y) =
     BitVec.ofInt n x * BitVec.ofInt n y := by

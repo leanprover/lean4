@@ -668,6 +668,10 @@ example {x y : BitVec 8} : (y <<< x) + x = (y <<< x) ||| x := by bv_normalize
 example {x : BitVec 8} {y : BitVec 3} : (x ++ 0#3) + (0#8 ++ y) = x ++ y := by bv_normalize
 example {x : BitVec 8} {y : BitVec 3} : (0#3 ++ x) + (y ++ 0#8) = y ++ x := by bv_normalize
 
+-- CLZ
+example {x : BitVec 8} (h : x = 0#8) : x.clz = 8 := by bv_decide
+example {x : BitVec 8} (h : ¬ x = 0#8) : (x >>> 1).clz = x.clz + 1 := by bv_decide
+
 section
 
 namespace NormalizeMul

@@ -113,4 +113,10 @@ def finalizeModel (goal : Goal) (isTarget : ENode → MetaM Bool) (model : Std.H
       r := r.push (e, v)
   return sortModel goal r
 
+/-- If the given trace class is enabled, trace the model using the class. -/
+def traceModel (traceClass : Name) (model : Array (Expr × Rat)) : MetaM Unit := do
+  if (← isTracingEnabledFor traceClass) then
+    for (x, v) in model do
+      addTrace traceClass m!"{quoteIfArithTerm x} := {v}"
+
 end Lean.Meta.Grind.Arith

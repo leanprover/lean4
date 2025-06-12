@@ -166,7 +166,7 @@ def eval : BVUnOp → (BitVec w → BitVec w)
   | rotateRight n => (BitVec.rotateRight · n)
   | arithShiftRightConst n => (BitVec.sshiftRight · n)
   | reverse =>  BitVec.reverse
-  | clz =>  BitVec.clz
+  | clz => BitVec.clz
 
 @[simp] theorem eval_not : eval .not = ((~~~ ·) : BitVec w → BitVec w) := by rfl
 

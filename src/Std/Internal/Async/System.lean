@@ -185,7 +185,7 @@ structure Environment where
 deriving Inhabited, Repr
 
 @[inline]
-def Environment.get (env : Environment) (key : String) : Option String :=
+def Environment.get? (env : Environment) (key : String) : Option String :=
   env.toHashMap[key]?
 
 /--
@@ -226,7 +226,7 @@ def getUpTime : IO Second.Offset := do
   return .ofNat <| UInt64.toNat (← UV.System.uptime)
 
 /--
-Gets the system uptime in seconds.
+Ghe current high-resolution timestamp in nanoseconds. It is relative to an arbitrary time in the past.
 -/
 @[inline]
 def getHighResolutionTime : IO Nanosecond.Offset := do
@@ -266,7 +266,7 @@ Gets all environment variables.
 @[inline]
 def getEnv : IO Environment := do
   let array ← UV.System.osEnviron
-  return ⟨HashMap.ofList array.toList⟩
+  return ⟨HashMap.insertMany (.emptyWithCapacity array.size) array⟩
 
 /--
 Gets the current user's home directory.
@@ -284,6 +284,8 @@ def getTmpDir : IO String := do
 
 /--
 Gets the current user by using `passwd`.
+
+On Windows systems, `userId`, `groupId` and `shell` are set to none
 -/
 def getCurrentUser : IO SystemUser := do
   let passwd ← UV.System.osGetPasswd

@@ -24,12 +24,12 @@ structure ResourceUsageStats where
   /--
   CPU time spent in user mode (milliseconds)
   -/
-  cpuUserTimeMs : UInt64
+  cpuUserTimeMs : Time.Millisecond.Offset
 
   /--
   CPU time spent in kernel mode (milliseconds)
   -/
-  cpuSystemTimeMs : UInt64
+  cpuSystemTimeMs : Time.Millisecond.Offset
 
   /--
   Peak resident set size (max physical memory usage) in kilobytes
@@ -159,14 +159,14 @@ def setCwd (path : System.FilePath) : IO Unit :=
   UV.System.chdir path.toString
 
 /--
-Gets the scheduling priority of the current process.
+Gets the scheduling priority of a process.
 -/
 @[inline]
 def getPriority (pid : PId) : IO Int64 :=
   UV.System.osGetPriority pid.toUInt64
 
 /--
-Sets the scheduling priority of the current process.
+Sets the scheduling priority of a process.
 -/
 @[inline]
 def setPriority (pid : PId) (priority : Int64) : IO Unit :=
@@ -179,8 +179,8 @@ Retrieves resource usage statistics.
 def getResourceUsage : IO ResourceUsageStats :=
   UV.System.getrusage <&> fun rusage =>
     {
-      cpuUserTimeMs := rusage.userTime
-      cpuSystemTimeMs := rusage.systemTime
+      cpuUserTimeMs := .ofNat <| UInt64.toNat rusage.userTime
+      cpuSystemTimeMs := .ofNat <| UInt64.toNat rusage.systemTime
       peakResidentSetSizeKb := rusage.maxRSS
       sharedMemorySizeKb := rusage.ixRSS
       unsharedDataSizeKb := rusage.idRSS

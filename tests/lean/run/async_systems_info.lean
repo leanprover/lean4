@@ -20,7 +20,7 @@ open Std.Internal.IO.Async.System
   assert! (← getEnvVar "TEST_LEAN_ASYNC") == (some "hello world")
 
 #eval do
-  assert! (← getEnv).get "TEST_LEAN_ASYNC" == (some "hello world")
+  assert! (← getEnv).get? "TEST_LEAN_ASYNC" == (some "hello world")
 
 #eval
   unsetEnvVar "TEST_LEAN_ASYNC"

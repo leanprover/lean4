@@ -3354,6 +3354,10 @@ theorem toNat_add_of_not_uaddOverflow {x y : BitVec w} (h : ¬ uaddOverflow x y)
   · simp only [uaddOverflow, ge_iff_le, decide_eq_true_eq, Nat.not_le] at h
     rw [toNat_add, Nat.mod_eq_of_lt h]
 
+/--
+Unsigned addition overflow reassociation.
+If `(x + y)` and `(y + z)` do not overflow, then `(x + y) + z` overflows iff `x + (y + z)` overflows.
+-/
 theorem uaddOverflow_assoc {x y z : BitVec w} (h : ¬ x.uaddOverflow y) (h' : ¬ y.uaddOverflow z) :
     (x + y).uaddOverflow z = x.uaddOverflow (y + z) := by
   simp only [uaddOverflow, ge_iff_le, decide_eq_true_eq, Nat.not_le] at h h'

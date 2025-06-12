@@ -551,10 +551,6 @@ instance : ToStream (Vector α n) (Subarray α) where
 instance instLT [LT α] : LT (Vector α n) := ⟨fun xs ys => xs.toArray < ys.toArray⟩
 instance instLE [LT α] : LE (Vector α n) := ⟨fun xs ys => xs.toArray ≤ ys.toArray⟩
 
-#synth ForIn' Id Std.Range Nat _
-
-#check Std.Range.instForIn'NatInferInstanceMembership
-
 /--
 Lexicographic comparator for vectors.
 

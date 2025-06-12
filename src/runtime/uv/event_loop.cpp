@@ -113,12 +113,12 @@ void event_loop_destroy(event_loop_t * event_loop) {
     uv_cond_signal(&event_loop->cond_var);
 
     uv_close((uv_handle_t*)&event_loop->async, nullptr);
+    uv_run(event_loop->loop, UV_RUN_NOWAIT);
+
     int err = uv_loop_close(event_loop->loop);
 
     if (err == UV_EBUSY) {
         uv_walk(event_loop->loop, [](uv_handle_t* h, void* arg) {
-            if (uv_is_closing(h)) return;
-
             uv_handle_type type = uv_handle_get_type(h);
             const char* type_name = uv_handle_type_name(type);
 
@@ -126,15 +126,9 @@ void event_loop_destroy(event_loop_t * event_loop) {
                 type_name = "Unknown";
             }
 
-            std::string message = "active " + std::string(type_name) + " handle while closing all handles in " + std::to_string((long)h);
+            std::string message = "active " + std::string(type_name) + " handle while closing all handles";
             lean_internal_panic(message.c_str());
         }, 0);
-
-        while (uv_loop_alive(event_loop->loop)) {
-            err = uv_run(event_loop->loop, UV_RUN_NOWAIT);
-        }
-
-        if (err != 0) lean_internal_panic("loop has active handles after stopping.");
     }
 
     uv_cond_signal(&event_loop->cond_var);
@@ -144,7 +138,6 @@ void event_loop_destroy(event_loop_t * event_loop) {
     }
 
     uv_mutex_unlock(&event_loop->mutex);
-    free(event_loop);
 }
 
 /* Std.Internal.UV.Loop.configure (options : Loop.Options) : BaseIO Unit */

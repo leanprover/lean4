@@ -23,6 +23,7 @@ namespace Lean
 builtin_initialize registerTraceClass `grind.linarith
 builtin_initialize registerTraceClass `grind.linarith.internalize
 builtin_initialize registerTraceClass `grind.linarith.assert
+builtin_initialize registerTraceClass `grind.linarith.model
 builtin_initialize registerTraceClass `grind.linarith.assert.unsat (inherited := true)
 builtin_initialize registerTraceClass `grind.linarith.assert.trivial (inherited := true)
 builtin_initialize registerTraceClass `grind.linarith.assert.store (inherited := true)

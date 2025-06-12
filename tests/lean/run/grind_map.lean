@@ -45,4 +45,16 @@ example [BEq α] [LawfulBEq α] [Hashable α] [LawfulHashable α]
 example (m : Std.TreeMap Nat Bool) : (m.insert 37 true)[32]? = m[32]? := by
   grind
 
+example (m : HashMap Nat Nat) : ((m.alter 5 id).erase 7).size ≥ m.size - 1 := by grind
+
+example (m : ExtHashMap Nat Nat) :
+    (m.insert 1 2).filter (fun k _ => k > 1000) = (m.insert 1 3).filter fun k _ => k > 1000 := by
+  ext1 k
+  grind
+
+example (m : ExtHashMap Nat Nat) :
+    (((m.insert 1 2).insert 3 4).insert 5 6).filter (fun k _ => k > 6) = m.filter fun k _ => k > 6 := by
+  ext1 k
+  grind
+
 end

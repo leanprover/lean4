@@ -3845,7 +3845,12 @@ theorem toNat_mul_of_not_umulOverflow {x y : BitVec w} (h : ¬ umulOverflow x y)
   · simp only [umulOverflow, ge_iff_le, decide_eq_true_eq, Nat.not_le] at h
     rw [toNat_mul, Nat.mod_eq_of_lt h]
 
+/--
+Unsigned multiplication overflow reassociation.
+If `(x * y)` and `(y * z)` do not overflow, then `(x * y) * z` overflows iff `x * (y * z)` overflows.
+-/
 theorem umulOverflow_assoc {x y z : BitVec w} (h : ¬ x.umulOverflow y) (h' : ¬ y.umulOverflow z) :
+
     (x * y).umulOverflow z = x.umulOverflow (y * z) := by
   simp only [umulOverflow, ge_iff_le, decide_eq_true_eq, Nat.not_le] at h h'
   simp only [umulOverflow, toNat_mul, ge_iff_le, decide_eq_decide]

@@ -538,7 +538,7 @@ theorem dropWhile_eq_drop_findIdx_not {xs : List α} {p : α → Bool} :
 
 /-! ### zipWith -/
 
-@[simp] theorem length_zipWith {f : α → β → γ} {l₁ : List α} {l₂ : List β} :
+@[simp, grind =] theorem length_zipWith {f : α → β → γ} {l₁ : List α} {l₂ : List β} :
     length (zipWith f l₁ l₂) = min (length l₁) (length l₂) := by
   induction l₁ generalizing l₂ <;> cases l₂ <;>
     simp_all [succ_min_succ, Nat.zero_min, Nat.min_zero]
@@ -549,7 +549,7 @@ theorem lt_length_left_of_zipWith {f : α → β → γ} {i : Nat} {l : List α}
 theorem lt_length_right_of_zipWith {f : α → β → γ} {i : Nat} {l : List α} {l' : List β}
     (h : i < (zipWith f l l').length) : i < l'.length := by rw [length_zipWith] at h; omega
 
-@[simp]
+@[simp, grind =]
 theorem getElem_zipWith {f : α → β → γ} {l : List α} {l' : List β}
     {i : Nat} {h : i < (zipWith f l l').length} :
     (zipWith f l l')[i] =
@@ -566,6 +566,7 @@ theorem zipWith_eq_zipWith_take_min : ∀ {l₁ : List α} {l₂ : List β},
   | _, [] => by simp
   | a :: l₁, b :: l₂ => by simp [succ_min_succ, zipWith_eq_zipWith_take_min (l₁ := l₁) (l₂ := l₂)]
 
+@[grind =]
 theorem reverse_zipWith (h : l.length = l'.length) :
     (zipWith f l l').reverse = zipWith f l.reverse l'.reverse := by
   induction l generalizing l' with
@@ -578,14 +579,14 @@ theorem reverse_zipWith (h : l.length = l'.length) :
       have : tl.reverse.length = tl'.reverse.length := by simp [h]
       simp [hl h, zipWith_append this]
 
-@[simp] theorem zipWith_replicate {a : α} {b : β} {m n : Nat} :
+@[simp, grind =] theorem zipWith_replicate {a : α} {b : β} {m n : Nat} :
     zipWith f (replicate m a) (replicate n b) = replicate (min m n) (f a b) := by
   rw [zipWith_eq_zipWith_take_min]
   simp
 
 /-! ### zip -/
 
-@[simp] theorem length_zip {l₁ : List α} {l₂ : List β} :
+@[simp, grind =] theorem length_zip {l₁ : List α} {l₂ : List β} :
     length (zip l₁ l₂) = min (length l₁) (length l₂) := by
   simp [zip]
 
@@ -597,7 +598,7 @@ theorem lt_length_right_of_zip {i : Nat} {l : List α} {l' : List β} (h : i < (
     i < l'.length :=
   lt_length_right_of_zipWith h
 
-@[simp]
+@[simp, grind =]
 theorem getElem_zip {l : List α} {l' : List β} {i : Nat} {h : i < (zip l l').length} :
     (zip l l')[i] =
       (l[i]'(lt_length_left_of_zip h), l'[i]'(lt_length_right_of_zip h)) :=
@@ -609,7 +610,7 @@ theorem zip_eq_zip_take_min : ∀ {l₁ : List α} {l₂ : List β},
   | _, [] => by simp
   | a :: l₁, b :: l₂ => by simp [succ_min_succ, zip_eq_zip_take_min (l₁ := l₁) (l₂ := l₂)]
 
-@[simp] theorem zip_replicate {a : α} {b : β} {m n : Nat} :
+@[simp, grind =] theorem zip_replicate {a : α} {b : β} {m n : Nat} :
     zip (replicate m a) (replicate n b) = replicate (min m n) (a, b) := by
   rw [zip_eq_zip_take_min]
   simp

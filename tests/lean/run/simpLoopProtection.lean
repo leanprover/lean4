@@ -10,6 +10,9 @@ theorem aa : a = id a := testSorry
 /--
 warning: Ignoring looping simp theorem: aa
 
+Note: These theorems may also play a role:
+      id
+
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 
 Hint: You can disable this check using `simp -loopProtection`.
@@ -19,7 +22,7 @@ error: unsolved goals
 -/
 #guard_msgs in
 example : id a = 23 := by
-  simp +loopProtection -failIfUnchanged [aa]
+  simp +loopProtection -failIfUnchanged only [aa, id]
 
 /--
 warning: Ignoring jointly looping simp theorems: ab and ba
@@ -208,6 +211,9 @@ def dc : d = c := rfl
 /--
 warning: Ignoring looping simp theorem: ac
 
+Note: These theorems may also play a role:
+      c
+
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 
 Hint: You can disable this check using `simp -loopProtection`.
@@ -236,6 +242,9 @@ example : d > 0 := by simp only [dc, c, ac]
 
 /--
 warning: Ignoring looping simp theorem: ac
+
+Note: These theorems may also play a role:
+      c
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 
@@ -271,3 +280,29 @@ example : d > 0 := by simp? only [dc, ca, ac]; exact testSorry
 /-- info: Try this: simp only [dc, h, Nat.one_pos] -/
 #guard_msgs in
 example (h : c = 1) : d > 0 := by simp? only [dc, h, ca, ac, Nat.one_pos]
+
+
+/-! An example where a second rewrite rules makes the looping rule looping,
+without being itself looping. Needs diagnostics to see it!
+-/
+
+opaque f : Nat → Nat
+theorem fbfa : f b = f a := testSorry
+
+/--
+warning: Ignoring looping simp theorem: fbfa
+
+Note: These theorems may also play a role:
+      ab
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
+---
+error: unsolved goals
+P : Nat → Prop
+⊢ 0 < f b
+-/
+#guard_msgs in
+example : f b > 0 := by
+  simp +loopProtection -failIfUnchanged [fbfa, ab]

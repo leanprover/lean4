@@ -225,6 +225,22 @@ def UsedSimps.insert (s : UsedSimps) (thmId : Origin) : UsedSimps :=
 def UsedSimps.toArray (s : UsedSimps) : Array Origin :=
   s.map.toArray.qsort (·.2 < ·.2) |>.map (·.1)
 
+structure Diagnostics where
+  /-- Number of times each simp theorem has been used/applied. -/
+  usedThmCounter : PHashMap Origin Nat := {}
+  /-- Number of times each simp theorem has been tried. -/
+  triedThmCounter : PHashMap Origin Nat := {}
+  /-- Number of times each congr theorem has been tried. -/
+  congrThmCounter : PHashMap Name Nat := {}
+  /--
+  When using `Simp.Config.index := false`, and `set_option diagnostics true`,
+  for every theorem used by `simp`, we check whether the theorem would be
+  also applied if `index := true`, and we store it here if it would not have
+  been tried.
+  -/
+  thmsWithBadKeys : PArray SimpTheorem := {}
+  deriving Inhabited
+
 inductive LoopProtectionResult where
   | ok
   | loop (loop : Array SimpTheorem)
@@ -246,21 +262,6 @@ def LoopProtectionCache.warned (c : LoopProtectionCache) (thm : SimpTheorem) : B
 def LoopProtectionCache.setWarned (c : LoopProtectionCache) (thm : SimpTheorem) : LoopProtectionCache :=
   { c with warnedSet := c.warnedSet.insert thm.proof }
 
-structure Diagnostics where
-  /-- Number of times each simp theorem has been used/applied. -/
-  usedThmCounter : PHashMap Origin Nat := {}
-  /-- Number of times each simp theorem has been tried. -/
-  triedThmCounter : PHashMap Origin Nat := {}
-  /-- Number of times each congr theorem has been tried. -/
-  congrThmCounter : PHashMap Name Nat := {}
-  /--
-  When using `Simp.Config.index := false`, and `set_option diagnostics true`,
-  for every theorem used by `simp`, we check whether the theorem would be
-  also applied if `index := true`, and we store it here if it would not have
-  been tried.
-  -/
-  thmsWithBadKeys : PArray SimpTheorem := {}
-  deriving Inhabited
 
 structure State where
   cache               : Cache := {}

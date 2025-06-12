@@ -33,13 +33,27 @@ def unlessWarnedBefore (thm : SimpTheorem) (k : SimpM Unit) : SimpM Unit := do
     modifyThe State fun s => { s with loopProtectionCache := s.loopProtectionCache.setWarned thm }
     k
 
+@[inline] def withFreshUsedTheorems (x : SimpM α) : SimpM α := do
+  let saved := (← get).usedTheorems
+  modify fun s => { s with usedTheorems := {} }
+  try x finally modify fun s => { s with usedTheorems := saved }
+
+
 def mkLoopWarningMsg (thms : Array SimpTheorem) : SimpM MessageData := do
   let mut msg := m!""
   if thms.size = 1 then
     msg := msg ++ m!"Ignoring looping simp theorem: {← ppOrigin thms[0]!.origin}"
   else
-    msg := msg ++ m! "Ignoring jointly looping simp theorems: \
+    msg := msg ++ m!"Ignoring jointly looping simp theorems: \
       {.andList (← thms.mapM (ppOrigin ·.origin)).toList}"
+  let mut others := #[]
+  for other in (← get).usedTheorems.toArray do
+    if thms.all (·.origin != other) then
+      others := others.push other
+  unless others.isEmpty do
+    msg := msg ++ .note m!"These theorems may also play a role:
+      {.andList (← others.mapM (ppOrigin ·)).toList}"
+
   msg := msg ++ .hint' m!"You can disable a simp theorem from the default simp set by \
     passing `- theoremName` to `simp`."
   msg := msg ++ .hint' m!"You can disable this check using `simp -loopProtection`."
@@ -61,6 +75,15 @@ def checkLoops (thm : SimpTheorem) : SimpM Bool := do
   -- a loop check, and ignore when inside a loop check
   if thm.perm || thm.proof.hasFVar then
     return !(← currentlyLoopChecking)
+
+  -- Reset the used theorems upon first entry
+  if (← currentlyLoopChecking) then
+    go
+  else
+    withFreshUsedTheorems go
+
+where
+  go := do
 
   -- Check cache
   if (← getLoopCache thm).isNone then

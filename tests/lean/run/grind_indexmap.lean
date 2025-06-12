@@ -12,7 +12,7 @@ structure IndexMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
   private indices : HashMap α Nat
   private keys : Array α
   private values : Array β
-  private size_keys' : keys.size = values.size := by grind
+  private size_keys : keys.size = values.size := by grind
   private WF : ∀ (i : Nat) (a : α), keys[i]? = some a ↔ indices[a]? = some i := by grind
 
 namespace IndexMap
@@ -23,7 +23,7 @@ variable {m : IndexMap α β} {a : α} {b : β} {i : Nat}
 @[inline] def size (m : IndexMap α β) : Nat :=
   m.values.size
 
-@[local grind =] private theorem size_keys : m.keys.size = m.size := m.size_keys'
+attribute [local grind] size size_keys
 
 def emptyWithCapacity (capacity := 8) : IndexMap α β where
   indices := HashMap.emptyWithCapacity capacity
@@ -59,14 +59,13 @@ private theorem getElem_indices_lt {h : a ∈ m} : m.indices[a] < m.size := by
 
 grind_pattern getElem_indices_lt => m.indices[a]
 
-attribute [local grind] size
-
 instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
   getElem m a h := m.values[m.indices[a]'h]
   getElem? m a := m.indices[a]?.bind (fun i => (m.values[i]?))
   getElem! m a := m.indices[a]?.bind (fun i => (m.values[i]?)) |>.getD default
 
-@[local grind] private theorem getElem_def (m : IndexMap α β) (a : α) (h : a ∈ m) : m[a] = m.values[m.indices[a]'h] := rfl
+@[local grind] private theorem getElem_def (m : IndexMap α β) (a : α) (h : a ∈ m) :
+    m[a] = m.values[m.indices[a]] := rfl
 @[local grind] private theorem getElem?_def (m : IndexMap α β) (a : α) :
     m[a]? = m.indices[a]?.bind (fun i => (m.values[i]?)) := rfl
 @[local grind] private theorem getElem!_def [Inhabited β] (m : IndexMap α β) (a : α) :

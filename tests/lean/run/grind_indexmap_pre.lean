@@ -42,7 +42,7 @@ instance {m : IndexMap α β} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs (Decidable (a ∈ m.indices))
 
 instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
-  getElem m a h := m.values[m.indices[a]'h]'(by sorry)
+  getElem m a h := m.values[m.indices[a]]'(by sorry)
   getElem? m a := m.indices[a]?.bind (fun i => (m.values[i]?))
   getElem! m a := m.indices[a]?.bind (fun i => (m.values[i]?)) |>.getD default
 

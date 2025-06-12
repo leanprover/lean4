@@ -3354,9 +3354,11 @@ theorem toNat_add_of_not_uaddOverflow {x y : BitVec w} (h : ¬ uaddOverflow x y)
   · simp only [uaddOverflow, ge_iff_le, decide_eq_true_eq, Nat.not_le] at h
     rw [toNat_add, Nat.mod_eq_of_lt h]
 
-theorem uaddoverflow_assoc {x y z : BitVec w} (h : uaddOverflow x y) :
-    2 ^ w ≤ x.toNat + y.toNat + z.toNat := by
-  simp only [uaddOverflow, ge_iff_le, decide_eq_true_eq] at h
+theorem uaddOverflow_assoc {x y z : BitVec w} (h : ¬ x.uaddOverflow y) (h' : ¬ y.uaddOverflow z) :
+    (x + y).uaddOverflow z = x.uaddOverflow (y + z) := by
+  simp only [uaddOverflow, ge_iff_le, decide_eq_true_eq, Nat.not_le] at h h'
+  simp only [uaddOverflow, toNat_add, ge_iff_le, decide_eq_decide]
+  repeat rw [Nat.mod_eq_of_lt (by omega)]
   omega
 
 protected theorem add_assoc (x y z : BitVec n) : x + y + z = x + (y + z) := by

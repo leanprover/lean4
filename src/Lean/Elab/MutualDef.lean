@@ -32,8 +32,8 @@ Makes the bodies of definitions available to importing modules.
 This only has an effect if both the module the definition is defined in and the importing module
 have the module system enabled.
 -/
-@[builtin_init, builtin_doc]
-private def init :=
+@[builtin_doc]
+builtin_initialize
   registerBuiltinAttribute {
     name := `expose
     descr := "(module system) Make bodies of definitions available to importing modules."
@@ -49,8 +49,8 @@ be exposed in a section tagged `@[expose]`
 This only has an effect if both the module the definition is defined in and the importing module
 have the module system enabled.
 -/
-@[builtin_init, builtin_doc]
-private def init2 :=
+@[builtin_doc]
+builtin_initialize
   registerBuiltinAttribute {
     name := `no_expose
     descr := "(module system) Negate previous `[expose]` attribute."

@@ -242,8 +242,8 @@ in particular for `opaque` instances.
 To assign priorities to instances, `@[instance prio]` can be used (where `prio` is a priority).
 This corresponds to the `instance (priority := prio)` notation.
 -/
-@[builtin_init, builtin_doc]
-private def init :=
+@[builtin_doc]
+builtin_initialize
   registerBuiltinAttribute {
     name  := `instance
     descr := "type class instance"

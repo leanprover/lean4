@@ -36,8 +36,8 @@ Monotonicity theorems should have `Lean.Order.monotone ...` as a conclusion. The
 `monotonicity` tactic (scoped in the `Lean.Order` namespace) to automatically prove monotonicity
 for functions defined using `partial_fixpoint`.
 -/
-@[builtin_init, builtin_doc]
-private def init := registerBuiltinAttribute {
+@[builtin_doc]
+builtin_initialize registerBuiltinAttribute {
   name := `partial_fixpoint_monotone
   descr := "monotonicity theorem"
   add := fun decl _ kind => MetaM.run' do

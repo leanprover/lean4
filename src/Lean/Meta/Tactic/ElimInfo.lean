@@ -209,8 +209,8 @@ example (x : Three) (p : Three → Prop) : p x := by
 
 `@[cases_eliminator]` works similarly for the `cases` tactic.
 -/
-@[builtin_init, builtin_doc]
-private def init : IO Unit :=
+@[builtin_doc]
+builtin_initialize
   registerBuiltinAttribute {
     name  := `induction_eliminator
     descr := "custom `rec`-like eliminator for the `induction` tactic"
@@ -249,8 +249,8 @@ example (x : Three) (p : Three → Prop) : p x := by
 
 `@[induction_eliminator]` works similarly for the `induction` tactic.
 -/
-@[builtin_init, builtin_doc]
-private def init2 : IO Unit :=
+@[builtin_doc]
+builtin_initialize
   registerBuiltinAttribute {
     name  := `cases_eliminator
     descr := "custom `casesOn`-like eliminator for the `cases` tactic"

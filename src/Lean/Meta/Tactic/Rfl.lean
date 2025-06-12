@@ -35,8 +35,8 @@ A reflexivity lemma should have the conclusion `r x x` where `r` is an arbitrary
 It is not possible to tag reflexivity lemmas for `=` using this attribute. These are handled as a
 special case in the `rfl` tactic.
 -/
-@[builtin_init, builtin_doc]
-private def initFn := registerBuiltinAttribute {
+@[builtin_doc]
+builtin_initialize registerBuiltinAttribute {
   name := `refl
   descr := "reflexivity relation"
   add := fun decl _ kind => MetaM.run' do

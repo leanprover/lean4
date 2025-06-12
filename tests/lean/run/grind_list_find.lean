@@ -28,3 +28,29 @@ theorem find?_flatMap_eq_none_iff {xs : List α} {f : α → List β} {p : β �
 theorem find?_replicate_eq_some_iff {n : Nat} {a b : α} {p : α → Bool} :
     (replicate n a).find? p = some b ↔ n ≠ 0 ∧ p a ∧ a = b := by
   grind
+
+macro_rules | `(tactic| get_elem_tactic_extensible) => `(tactic| grind)
+
+example (xs : List Nat) (h : 3 ∈ xs) : (xs.find? (· ≤ 5)).isSome := by grind
+example (xs : List Nat) (h : 3 ∈ xs) : xs.findIdx (· ≤ 5) < xs.length := by grind
+example (xs : List Nat) (h : 3 ∈ xs) : xs[xs.findIdx (· ≤ 5)] < 7 := by grind
+example (xs : List Nat) (h : 3 ∈ xs) : xs[xs.findIdx (· ≤ 5)] < 5 + xs.length := by grind
+example (xs : List Nat) (h : 3 ∈ xs) : xs[xs.findIdx (· ≤ 5)] = 4 → 2 ≤ xs.length := by
+  grind [cases List]
+
+example (xs : List Nat) (h : ∀ x, x ∈ xs → x > 7) : xs.find? (· ≤ 5) = none := by grind
+example (xs : List Nat) (h : ∀ x, x ∈ xs → x > 7) : xs.findIdx (· ≤ 5) = xs.length := by grind
+
+/-- If `¬ p xs[j]` for all `j < i`, then `i ≤ xs.findIdx p`. -/
+theorem le_findIdx_of_not {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs.length)
+    (h2 : ∀ j (hji : j < i), p (xs[j]'(Nat.lt_trans hji h)) = false) : i ≤ xs.findIdx p := by
+  grind
+
+/-- If `¬ p xs[j]` for all `j ≤ i`, then `i < xs.findIdx p`. -/
+theorem lt_findIdx_of_not {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs.length)
+    (h2 : ∀ j (hji : j ≤ i), ¬p (xs[j]'(Nat.lt_of_le_of_lt hji h))) : i < xs.findIdx p := by
+  grind
+
+theorem Sublist.findIdx?_isSome {l₁ l₂ : List α} (h : l₁ <+ l₂) :
+    (l₁.findIdx? p).isSome → (l₂.findIdx? p).isSome := by
+  grind

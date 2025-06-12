@@ -179,14 +179,9 @@ jobs:
                 "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
                 "check-level": 0,
                 "test": true,
-                "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
-              },
-              {
-                "name": "Linux",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
-                "check-level": 1,
                 "check-rebootstrap": level >= 1,
                 "test-speedcenter": level >= 2,
+                "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
               },
               {
                 "name": "Linux Reldebug",

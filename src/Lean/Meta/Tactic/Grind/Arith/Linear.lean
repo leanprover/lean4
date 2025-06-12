@@ -17,6 +17,8 @@ import Lean.Meta.Tactic.Grind.Arith.Linear.SearchM
 import Lean.Meta.Tactic.Grind.Arith.Linear.Search
 import Lean.Meta.Tactic.Grind.Arith.Linear.PropagateEq
 import Lean.Meta.Tactic.Grind.Arith.Linear.Internalize
+import Lean.Meta.Tactic.Grind.Arith.Linear.Model
+import Lean.Meta.Tactic.Grind.Arith.Linear.PP
 
 namespace Lean
 

@@ -4,9 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr
+import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
 
 namespace Lean.Meta.Grind.Arith.Linear
 
@@ -213,6 +215,13 @@ partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' d
     let h' := mkApp5 h' (← mkRingExprDecl la) (← mkRingExprDecl lb) (← mkRingPolyDecl p') reflBoolTrue (← mkEqProof a b)
     let h ← mkIntModPreOrdThmPrefix ``Grind.Linarith.le_of_eq
     return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) reflBoolTrue h'
+  | .dec h => return mkFVar h
+  | .ofDiseqSplit c₁ fvarId h _ =>
+    let hFalse ← h.toExprProofCore
+    let lt := (← getStruct).ltFn
+    let hNot := mkLambda `h .default (mkApp2 lt (← c₁.p.denoteExpr) (← getZero)) (hFalse.abstract #[mkFVar fvarId])
+    let h ← mkIntModLinOrdThmPrefix ``Grind.Linarith.diseq_split_resolve
+    return mkApp5 h (← mkPolyDecl c₁.p) (← mkPolyDecl c'.p) reflBoolTrue (← c₁.toExprProof) hNot
   | _ => throwError "NIY"
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do
@@ -246,5 +255,34 @@ def setInconsistent (h : UnsatProof) : LinearM Unit := do
   else
     let h ← h.toExprProof
     closeGoal h
+
+/-!
+A linarith proof may depend on decision variables.
+We collect them and perform non chronological backtracking.
+-/
+open CollectDecVars
+mutual
+
+partial def IneqCnstr.collectDecVars (c' : IneqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
+  match c'.h with
+  | .core .. | .notCore .. | .coreCommRing .. | .notCoreCommRing ..
+  | .oneGtZero | .ofEq .. | .ofCommRingEq .. => return ()
+  | .combine c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
+  | .norm c₁ _ => c₁.collectDecVars
+  | .dec h => markAsFound h
+  | .ofDiseqSplit (decVars := decVars) .. => decVars.forM markAsFound
+
+-- `DiseqCnstr` is currently mutually recursive with `IneqCnstr`, but it will be in the future.
+-- Actually, it cannot even contain decision variables in the current implementation.
+partial def DiseqCnstr.collectDecVars (c' : DiseqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
+  match c'.h with
+  | .core .. | .coreCommRing .. => return ()
+  | .neg c => c.collectDecVars
+
+end
+
+def UnsatProof.collectDecVars (h : UnsatProof) : CollectDecVarsM Unit := do
+  match h with
+  | .lt c | .diseq c => c.collectDecVars
 
 end Lean.Meta.Grind.Arith.Linear

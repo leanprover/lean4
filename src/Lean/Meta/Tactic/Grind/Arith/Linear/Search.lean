@@ -41,7 +41,7 @@ def getBestLower? (x : Var) : LinearM (Option (Rat × IneqCnstr)) := do
     let some v ← p.eval? | c'.throwUnexpected
     let lower' := v / (-k)
     if let some (lower, c) := best? then
-      if lower' > lower || (lower' == lower && !c'.strict && c.strict) then
+      if lower' > lower || (lower' == lower && c'.strict && !c.strict) then
         best? := some (lower', c')
     else
       best? := some (lower', c')
@@ -60,7 +60,7 @@ def getBestUpper? (x : Var) : LinearM (Option (Rat × IneqCnstr)) := do
     let some v ← p.eval? | c'.throwUnexpected
     let upper' := (-v) / k
     if let some (upper, c) := best? then
-      if upper' < upper || (upper' == upper && !c'.strict && c.strict) then
+      if upper' < upper || (upper' == upper && c'.strict && !c.strict) then
         best? := some (upper', c')
     else
       best? := some (upper', c')
@@ -131,7 +131,7 @@ def DiseqCnstr.split (c : DiseqCnstr) : SearchM IneqCnstr := do
     pure fvarId
   else
     let fvarId ← mkCase c
-    trace[grind.debug.cutsat.search.split] "{← c.denoteExpr}, {fvarId.name}"
+    trace[grind.debug.linarith.search.split] "{← c.denoteExpr}, {fvarId.name}"
     modifyStruct fun s => { s with diseqSplits := s.diseqSplits.insert c.p fvarId }
     pure fvarId
   return { p := c.p, strict := true, h := .dec fvarId }
@@ -160,12 +160,16 @@ def processVar (x : Var) : SearchM Unit := do
   -- Recall that `One.one` must be the smallest variable.
   match lower?, upper? with
   | none, none =>
-    setAssignment x <| geAvoiding 0 diseqVals
+    let v := geAvoiding 0 diseqVals
+    trace[grind.debug.linarith.search] "v: {v}, diseqs: {diseqVals.map (·.1)}"
+    setAssignment x v
   | some (lower, _), none =>
     let v := geAvoiding (lower.ceil + 1) diseqVals
+    trace[grind.debug.linarith.search] "v: {v}, lower: {lower}, diseqs: {diseqVals.map (·.1)}"
     setAssignment x v
   | none, some (upper, _) =>
     let v := geAvoiding (upper.floor - 1) diseqVals
+    trace[grind.debug.linarith.search] "v: {v}, upper: {upper}, diseqs: {diseqVals.map (·.1)}"
     setAssignment x v
   | some (lower, c₁), some (upper, c₂) =>
     if lower > upper || (lower == upper && (c₁.strict || c₂.strict)) then
@@ -186,22 +190,51 @@ def processVar (x : Var) : SearchM Unit := do
           let diseq ← d.denoteExpr
           -- Remark: we filter duplicates before displaying diagnostics to users
           modifyStruct fun s => { s with ignored := s.ignored.push diseq }
+          trace[grind.debug.linarith.search] "v: {lower}, lower, upper: {lower}, **ignore diseq**, diseqs: {diseqVals.map (·.1)}"
           setAssignment x lower
       else
+        trace[grind.debug.linarith.search] "v: {lower}, lower, upper: {lower}, diseqs: {diseqVals.map (·.1)}"
         setAssignment x lower
     else
       let v := if let some v := findInt? lower c₁.strict upper c₂.strict diseqVals then
         v
       else
         findRat lower upper diseqVals
+      trace[grind.debug.linarith.search] "v: {v}, lower: {lower}, upper: {upper}, diseqs: {diseqVals.map (·.1)}"
       setAssignment x v
 
 /-- Returns `true` if we already have a complete assignment / model. -/
 def hasAssignment : LinearM Bool := do
   return (← getStruct).vars.size == (← getStruct).assignment.size
 
-def resolveConflict (_ : UnsatProof) : SearchM Unit := do
-  throwError "NIY: resolve conflict with backtracking"
+private def findCase (decVars : FVarIdSet) : SearchM Case := do
+  repeat
+    let numCases := (← get).cases.size
+    assert! numCases > 0
+    let case := (← get).cases[numCases-1]!
+    modify fun s => { s with cases := s.cases.pop }
+    if decVars.contains case.fvarId then
+      return case
+    -- Conflict does not depend on this case.
+    trace[grind.debug.linarith.search.backtrack] "skipping {case.fvarId.name}"
+  unreachable!
+
+def resolveConflict (h : UnsatProof) : SearchM Unit := do
+  trace[grind.debug.linarith.search.backtrack] "resolve conflict, decision stack: {(← get).cases.toList.map fun c => c.fvarId.name}"
+  let decVars := h.collectDecVars.run (← get).decVars
+  trace[grind.debug.linarith.search.backtrack] "dec vars: {decVars.toList.map (·.name)}"
+  if decVars.isEmpty then
+    closeGoal (← h.toExprProof)
+    return ()
+  let c ← findCase decVars
+  modifyStruct fun _  => c.saved
+  trace[grind.debug.linarith.search.backtrack] "backtracking {c.fvarId.name}"
+  let decVars := decVars.erase c.fvarId
+  let decVars := decVars.toArray
+  let p' := c.c.p.mul (-1)
+  let c' := { p := p', strict := true, h := .ofDiseqSplit c.c c.fvarId h decVars : IneqCnstr }
+  trace[grind.debug.linarith.search.backtrack] "resolved diseq split: {← c'.denoteExpr}"
+  c'.assert
 
 /-- Search for an assignment/model for the linear constraints. -/
 private def searchAssignmentMain : SearchM Unit := do

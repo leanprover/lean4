@@ -32,7 +32,7 @@ MSYS2 has a package management system, [pacman][pacman].
 Here are the commands to install all dependencies needed to compile Lean on your machine.
 
 ```bash
-pacman -S make python mingw-w64-clang-x86_64-cmake mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-ccache mingw-w64-clang-x86_64-libuv mingw-w64-clang-x86_64-gmp git unzip diffutils binutils
+pacman -S make python mingw-w64-clang-x86_64-cmake mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-ccache mingw-w64-clang-x86_64-libuv mingw-w64-x86_64-libidn2 mingw-w64-clang-x86_64-gmp git unzip diffutils binutils
 ```
 
 You should now be able to run these commands:

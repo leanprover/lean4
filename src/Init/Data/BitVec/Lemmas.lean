@@ -5681,7 +5681,7 @@ theorem msb_replicate {n w : Nat} {x : BitVec w} :
 
 /-! ### Leading zeroes -/
 
-theorem clzAux_eq_zero_iff {x : BitVec w} {n : Nat}:
+theorem clzAux_eq_zero_iff {x : BitVec w} {n : Nat} :
     clzAux x n = 0 ↔ x.getLsbD n = true := by
   cases n <;> simp [clzAux]
 

@@ -1344,24 +1344,19 @@ theorem sign_tdiv (a b : Int) : sign (a.tdiv b) = if natAbs a < natAbs b then 0 
 the absolute value of the numerator is less than the denominator.
 -/
 theorem tdiv_ofNat_eq_zero_iff_natAbs_lt_or_eq_zero {a : Int} {b : Nat} :
-    a.tdiv b = 0 ↔ (a.natAbs < b ∨ b = 0):= by
-  by_cases hb : b = 0
-  · simp [hb]
-  · simp only at hb
-    simp only [hb, or_false]
-    by_cases h : a < 0
-    · obtain ⟨n, hn⟩ := exists_eq_neg_ofNat (show a ≤ 0 by omega)
-      subst hn
-      simp only [Int.neg_tdiv, Int.neg_eq_zero, natAbs_neg, natAbs_natCast]
-      rw [Int.tdiv_eq_ediv_of_nonneg (by omega)]
-      norm_cast
-      apply Nat.div_eq_zero_iff_lt (by omega)
-    · simp only [Int.not_lt] at h;
-      obtain ⟨n, hn⟩ := Int.eq_ofNat_of_zero_le h
-      subst hn
-      rw [Int.tdiv_eq_ediv_of_nonneg (by omega)]
-      norm_cast
-      apply Nat.div_eq_zero_iff_lt (by omega)
+    a.tdiv b = 0 ↔ (a.natAbs < b ∨ b = 0) := by
+  rcases b with _|b
+  · simp
+  · simp only [natCast_add, cast_ofNat_Int, Nat.add_eq_zero, Nat.succ_ne_self, and_false, or_false]
+    suffices ∀ (a : Nat), (a : Int).tdiv (↑b + 1) = 0 ↔ a < b + 1 by
+      rcases a with _|a
+      · simpa using this _
+      · obtain ⟨n, hn⟩ := exists_eq_neg_ofNat (show -[a+1] ≤ 0 by omega)
+        simp [hn, this]
+    intro a
+    rw [Int.tdiv_eq_ediv_of_nonneg (by omega)]
+    norm_cast
+    apply Nat.div_eq_zero_iff_lt (by omega)
 
 /-- T-divison equals zero iff the absolute value of the numerator is less
 than the absolute value of the denominator, or the denominator is zero.

@@ -1957,7 +1957,7 @@ theorem shiftLeft_add_eq_shiftLeft_or {x y : BitVec w} :
 /-! ### Leading Zeros -/
 
 /--
-  Count the number of leading zeroes downward from the `n`-th bit to the `0`-th bit for the bitblaster.
+  Count the number of leading zeros downward from the `n`-th bit to the `0`-th bit for the bitblaster.
 -/
 def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
   match n with

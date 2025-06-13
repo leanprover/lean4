@@ -162,7 +162,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_
 uint8_t l_Lean_Meta_hasSmartUnfoldingDecl(lean_object*, lean_object*);
 uint8_t l_Lean_MapDeclarationExtension_contains___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SimpExtension_getTheorems___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqConstantKind____x40_Lean_Environment___hyg_1543_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedSimpTheorem;
 LEAN_EXPORT uint8_t l_Lean_Meta_instBEqSimpTheorem(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_shouldPreprocess___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -467,6 +466,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_ppOrigin(lean_object*);
 static lean_object* l_Lean_Meta_instToFormatSimpTheorem___closed__2;
 lean_object* l_Lean_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_SimpTheoremsArray_isDeclToUnfold___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqConstantKind____x40_Lean_Environment___hyg_1557_(uint8_t, uint8_t);
 static lean_object* l___auto____x40_Lean_Meta_Tactic_Simp_SimpTheorems___hyg_5722____closed__6;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SimpTheorems_addConst(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -19177,7 +19177,7 @@ x_8 = lean_unbox(x_6);
 lean_dec(x_6);
 x_9 = lean_unbox(x_7);
 lean_dec(x_7);
-x_10 = l_Lean_beqConstantKind____x40_Lean_Environment___hyg_1543_(x_8, x_9);
+x_10 = l_Lean_beqConstantKind____x40_Lean_Environment___hyg_1557_(x_8, x_9);
 return x_10;
 }
 }

@@ -340,6 +340,7 @@ def toMono : Pass where
   run      := (·.mapM (·.toMono))
   phase    := .base
   phaseOut := .mono
+  shouldAlwaysRunCheck := true
 
 builtin_initialize
   registerTraceClass `Compiler.toMono (inherited := true)

@@ -480,7 +480,6 @@ def IterM.TerminationMeasures.Finite.Rel
 instance {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     [Finite α m] : WellFoundedRelation (IterM.TerminationMeasures.Finite α m) where
   rel := IterM.TerminationMeasures.Finite.Rel
-  -- TODO: workaround for module system issue?
   wf := by exact (InvImage.wf _ Finite.wf).transGen
 
 /--
@@ -588,7 +587,6 @@ def IterM.TerminationMeasures.Productive.Rel
 instance {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     [Productive α m] : WellFoundedRelation (IterM.TerminationMeasures.Productive α m) where
   rel := IterM.TerminationMeasures.Productive.Rel
-  -- TODO: workaround for module system issue?
   wf := by exact (InvImage.wf _ Productive.wf).transGen
 
 /--

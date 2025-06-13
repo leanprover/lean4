@@ -5679,7 +5679,7 @@ theorem msb_replicate {n w : Nat} {x : BitVec w} :
   simp only [BitVec.msb, getMsbD_replicate, Nat.zero_mod]
   cases n <;> cases w <;> simp
 
-/-! ### Leading zeroes -/
+/-! ### Count leading zeroes -/
 
 theorem clzAux_eq_zero_iff {x : BitVec w} {n : Nat} :
     clzAux x n = 0 ↔ x.getLsbD n = true := by

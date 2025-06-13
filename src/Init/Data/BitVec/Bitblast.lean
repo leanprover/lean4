@@ -1964,7 +1964,7 @@ def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
   | 0 => if x.getLsbD 0 then BitVec.ofNat w (w - 1) else BitVec.ofNat w w
   | n' + 1 => if x.getLsbD n then BitVec.ofNat w (w - 1 - n) else clzAuxRec x n'
 
-theorem clz_eq_clzAuxRec_of_false (x : BitVec w) (h : ∀ i, n < i → x.getLsbD i = false) :
+theorem clz_eq_clzAuxRec_of_forall_getLsbD_false (x : BitVec w) (h : ∀ i, n < i → x.getLsbD i = false) :
     x.clz = x.clzAuxRec n := by
   have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
   rcases w with _|w
@@ -2017,7 +2017,7 @@ theorem clz_eq_clzAuxRec_of_false (x : BitVec w) (h : ∀ i, n < i → x.getLsbD
 
 theorem clz_eq_clzAuxRec_of_le (x : BitVec w) (h : w - 1 ≤ n) :
     x.clz = x.clzAuxRec n := by
-  rw [clz_eq_clzAuxRec_of_false]
+  rw [clz_eq_clzAuxRec_of_forall_getLsbD_false]
   intro i hi
   simp [show w ≤ i by omega]
 

@@ -311,6 +311,7 @@ index 5e8e0166..f3b29134 100644
 	  PATCH_COMMAND git reset --hard HEAD && printf "${LIBUV_PATCH}" > patch.diff && git apply patch.diff
     BUILD_IN_SOURCE ON
     INSTALL_COMMAND "")
+
   set(LIBUV_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/libuv/src/libuv/include")
   set(LIBUV_LDFLAGS "${CMAKE_BINARY_DIR}/libuv/src/libuv/libuv.a")
 
@@ -324,6 +325,7 @@ index 5e8e0166..f3b29134 100644
     BUILD_COMMAND make -j${CMAKE_BUILD_PARALLEL_LEVEL}
     BUILD_IN_SOURCE ON
     INSTALL_COMMAND make install)
+
   set(LIBIDN2_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/libidn2/include")
   set(LIBIDN2_LDFLAGS "${CMAKE_BINARY_DIR}/libidn2/lib/libidn2.a")
 
@@ -333,14 +335,14 @@ else()
 endif()
 
 include_directories(${LIBUV_INCLUDE_DIRS})
-include_directories(${LIBIDN2_INCLUDE_DIR})
+include_directories(${LIBIDN2_INCLUDE_DIRS})
 
 if(NOT LEAN_STANDALONE)
   string(JOIN " " LIBUV_LDFLAGS ${LIBUV_LDFLAGS})
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${LIBUV_LDFLAGS}")
 
-  string(JOIN " " LIBIDN2_LDFLAGS ${LIBIDN2_LIBRARIES})
-  string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${LIBIDN2_LIBRARIES}")
+  string(JOIN " " LIBIDN2_LDFLAGS ${LIBIDN2_LDFLAGS})
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${LIBIDN2_LDFLAGS}")
 endif()
 
 # Windows SDK (for ICU)

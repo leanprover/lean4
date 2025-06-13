@@ -2021,4 +2021,12 @@ theorem clz_eq_clzAuxRec_of_le (x : BitVec w) (h : w - 1 ≤ n) :
   intro i hi
   simp [show w ≤ i by omega]
 
+theorem clzAuxRec_eq_of_le (x : BitVec w) (hn : w ≤ n) :
+    x.clzAuxRec n = x.clzAuxRec (w - 1) := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · rw [← clz_eq_clzAuxRec_of_le]
+    · rw [clz_eq_clzAuxRec_of_le]; omega
+    · omega
+
 end BitVec

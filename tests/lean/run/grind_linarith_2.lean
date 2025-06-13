@@ -88,3 +88,17 @@ set_option trace.grind.linarith.model true in
 example [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (a b c d : α)
     : a ≤ b → a - c ≥ 0 + d → d ≤ 0 → b = c → a ≠ b → False := by
   grind
+
+/-- trace: [grind.split] x = 0, generation: 0 -/
+#guard_msgs (trace) in
+set_option trace.grind.split true in
+example [IntModule α] [LinearOrder α] [IntModule.IsOrdered α] (f : α → α) (x : α)
+    : Zero.zero ≤ x → x ≤ 0 → f x = a → f 0 = a := by
+  grind
+
+-- should not split on `x = 0` since `α` is not a linear order
+#guard_msgs (drop error, trace) in
+set_option trace.grind.split true in
+example [IntModule α] [Preorder α] [IntModule.IsOrdered α] (f : α → α) (x : α)
+    : Zero.zero ≤ x → x ≤ 0 → f x = a → f 0 = a := by
+  grind

@@ -106,7 +106,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
               simp [hacc, BitVec.clzAuxRec, show x.getLsbD (curr + 1) = false by rw [hx] at hx'; simp at hx'; exact hx']
     · case isFalse h =>
       rw [← hgo]
-      simp only [show ¬curr = 0 by omega, ↓reduceIte] at hacc
+      simp only [show ¬curr = 0 by omega, reduceIte] at hacc
       by_cases hcw : curr = w
       · subst hcw; simp [hacc]
       · simp only [hacc];

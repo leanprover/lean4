@@ -1964,6 +1964,10 @@ def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
   | 0 => if x.getLsbD 0 then BitVec.ofNat w (w - 1) else BitVec.ofNat w w
   | n' + 1 => if x.getLsbD n then BitVec.ofNat w (w - 1 - n) else clzAuxRec x n'
 
+/--
+If `x : BitVec w` has all bits larger than index `n` equal to `false`,
+then `clzAuxRec` starting from `n` will compute the `clz`. 
+-/
 theorem clz_eq_clzAuxRec_of_forall_getLsbD_false (x : BitVec w) (h : ∀ i, n < i → x.getLsbD i = false) :
     x.clz = x.clzAuxRec n := by
   have := Nat.lt_pow_self (a := 2) (n := w) (by omega)

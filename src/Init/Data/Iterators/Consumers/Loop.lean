@@ -3,9 +3,11 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.Iterators.Consumers.Monadic.Loop
-import Std.Data.Iterators.Consumers.Partial
+import Init.Data.Iterators.Consumers.Monadic.Loop
+import Init.Data.Iterators.Consumers.Partial
 
 /-!
 # Loop consumers
@@ -24,9 +26,11 @@ namespace Std.Iterators
 
 instance (α : Type w) (β : Type w) (n : Type w → Type w') [Monad n]
     [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] :
-    ForIn n (Iter (α := α) β) β where
-  forIn it init f :=
-    IteratorLoop.finiteForIn (fun δ (c : Id δ) => pure c.run) |>.forIn it.toIterM init f
+    ForIn' n (Iter (α := α) β) β ⟨fun it out => it.IsPlausibleIndirectOutput out⟩ where
+  forIn' it init f :=
+    IteratorLoop.finiteForIn' (fun δ (c : Id δ) => pure c.run) |>.forIn' it.toIterM init
+        fun out h acc =>
+          f out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc
 
 instance (α : Type w) (β : Type w) (n : Type w → Type w') [Monad n]
     [Iterator α Id β] [IteratorLoopPartial α Id n] :
@@ -110,5 +114,15 @@ def Iter.Partial.fold {α : Type w} {β : Type w} {γ : Type w} [Iterator α Id 
     [IteratorLoopPartial α Id Id] (f : γ → β → γ)
     (init : γ) (it : Iter.Partial (α := α) β) : γ :=
   ForIn.forIn (m := Id) it init (fun x acc => ForInStep.yield (f acc x))
+
+@[always_inline, inline, inherit_doc IterM.size]
+def Iter.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorSize α Id]
+    (it : Iter (α := α) β) : Nat :=
+  (IteratorSize.size it.toIterM).run.down
+
+@[always_inline, inline, inherit_doc IterM.Partial.size]
+def Iter.Partial.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorSizePartial α Id]
+    (it : Iter (α := α) β) : Nat :=
+  (IteratorSizePartial.size it.toIterM).run.down
 
 end Std.Iterators

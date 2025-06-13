@@ -6,11 +6,11 @@ Authors: Paul Reichert
 prelude
 import Init.Data.Nat.Lemmas
 import Init.RCases
-import Std.Data.Iterators.Basic
-import Std.Data.Iterators.Consumers.Monadic.Collect
-import Std.Data.Iterators.Consumers.Monadic.Loop
-import Std.Data.Iterators.Internal.Termination
-import Std.Data.Iterators.PostConditionMonad
+import Init.Data.Iterators.Basic
+import Init.Data.Iterators.Consumers.Monadic.Collect
+import Init.Data.Iterators.Consumers.Monadic.Loop
+import Init.Data.Iterators.Internal.Termination
+import Init.Data.Iterators.PostconditionMonad
 
 /-!
 # Monadic `takeWhile` iterator combinator
@@ -155,7 +155,7 @@ it terminates.
 -/
 @[always_inline, inline]
 def IterM.takeWhile [Monad m] (P : β → Bool) (it : IterM (α := α) m β) :=
-  (it.takeWhileM (pure ∘ ULift.up ∘ P) : IterM m β)
+  (it.takeWhileWithPostcondition (fun x => PostconditionT.pure (.up <| P x)) : IterM m β)
 
 /--
 `it.PlausibleStep step` is the proposition that `step` is a possible next step from the
@@ -237,16 +237,9 @@ instance TakeWhile.instIteratorLoop [Monad m] [Monad n] [Iterator α m β]
     IteratorLoop (TakeWhile α m β P) m n :=
   .defaultImplementation
 
-instance TakeWhile.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]
+instance TakeWhile.instIteratorLoopPartial [Monad m] [Monad n] [Iterator α m β]
     [IteratorLoopPartial α m n] [MonadLiftT m n] {P} :
-    IteratorLoopPartial (TakeWhile α m β P) m n where
-  forInPartial lift {γ} it init f := do
-    IteratorLoopPartial.forInPartial lift it.internalState.inner (γ := γ)
-        init
-        fun out acc => do match ← (P out).operation with
-          | ⟨.up true, _⟩ => match ← f out acc with
-            | .yield c => pure (.yield c)
-            | .done c => pure (.done c)
-          | ⟨.up false, _⟩ => pure (.done acc)
+    IteratorLoopPartial (TakeWhile α m β P) m n :=
+  .defaultImplementation
 
 end Std.Iterators

@@ -186,7 +186,6 @@ theorem eval_arithShiftRightConst : eval (arithShiftRightConst n) = (BitVec.sshi
 
 @[simp] theorem eval_clz : eval .clz = (BitVec.clz : BitVec w → BitVec w) := by rfl
 
-
 end BVUnOp
 
 /--

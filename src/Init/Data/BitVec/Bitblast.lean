@@ -1980,7 +1980,7 @@ theorem clz_eq_clzAuxRec_of_false (x : BitVec w) (h : ∀ i, n < i → x.getLsbD
         rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by omega)]
         simp only [show ¬∀ i, i < w + 1 → x.getLsbD i = false by simp; exists 0; simp [hx0],
           iff_false] at heq
-        rw [clzAux_eq_iff_forall_of_clzAuz_lt (by omega) (by omega)]
+        rw [clzAux_eq_iff_forall_of_clzAux_lt (by omega)]
         simp only [Nat.sub_self, zero_lt_succ, getLsbD_eq_getElem, hx0, _root_.and_true]
         intro i hi
         apply h
@@ -2003,7 +2003,7 @@ theorem clz_eq_clzAuxRec_of_false (x : BitVec w) (h : ∀ i, n < i → x.getLsbD
         simp only [iff_false, show ¬∀ i, i < w + 1 → x.getLsbD i = false by simp; exists n + 1] at heq
         simp only [hxn, ↓reduceIte, toNat_eq, toNat_ofNat]
         rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by omega),
-          clzAux_eq_iff_forall_of_clzAuz_lt (by omega) (by omega)]
+          clzAux_eq_iff_forall_of_clzAux_lt (by omega)]
         simp only [show w - (w - (n + 1)) = n + 1 by omega, hxn, _root_.and_true]
         intro i hi
         apply h
@@ -2020,5 +2020,13 @@ theorem clz_eq_clzAuxRec_of_eq (x : BitVec w) (h : w - 1 ≤ n) :
   rw [clz_eq_clzAuxRec_of_false]
   intro i hi
   simp [show w ≤ i by omega]
+
+theorem clzAuxRec_eq_of_le (x : BitVec w) (hn : w ≤ n) :
+    x.clzAuxRec n = x.clzAuxRec (w - 1) := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · rw [← clz_eq_clzAuxRec_of_eq]
+    · rw [clz_eq_clzAuxRec_of_eq]; omega
+    · omega
 
 end BitVec

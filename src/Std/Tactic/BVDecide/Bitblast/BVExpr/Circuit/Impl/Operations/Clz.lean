@@ -1,18 +1,10 @@
 /-
 Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Luisa Cicolini, Siddharth Bhat
+Authors: Luisa Cicolini, Siddharth Bhat, Henrik Böving
 -/
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.GetLsbD
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Eq
-import Std.Sat.AIG
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Sub
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Eq
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Ult
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ZeroExtend
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
 import Std.Sat.AIG.If
 
 /-!
@@ -35,7 +27,6 @@ def blastClz (aig : AIG α) (x : AIG.RefVec aig w) :
 where
   go (aig : AIG α) (x : AIG.RefVec aig w) (curr : Nat) (acc : AIG.RefVec aig w) :=
     if hc : curr < w then
-      -- w - curr - 1
       let lhs := blastConst aig (w := w) (w - 1 - curr)
       let res := AIG.RefVec.ite aig ⟨x.get curr hc, lhs, acc⟩
       let aig := res.aig
@@ -72,8 +63,7 @@ theorem blastClz.go_decl_eq (aig : AIG α) (curr : Nat) (acc : AIG.RefVec aig w)
   split at hgo
   · rw [← hgo]
     intros
-    rw [blastClz.go_decl_eq]
-    rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
+    rw [blastClz.go_decl_eq, AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
     apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
     assumption
   · simp [← hgo]
@@ -84,12 +74,12 @@ instance : AIG.LawfulVecOperator α AIG.RefVec blastClz where
     intros
     unfold blastClz
     dsimp only
-    (expose_names; exact blastClz.go_le_size aig 0 (blastConst aig ↑len) input)
+    apply blastClz.go_le_size
   decl_eq := by
     intros
     unfold blastClz
     dsimp only
-    (expose_names; exact blastClz.go_decl_eq aig 0 (blastConst aig ↑len) input idx h2 h1)
+    apply blastClz.go_decl_eq
 
 end bitblast
 end BVExpr

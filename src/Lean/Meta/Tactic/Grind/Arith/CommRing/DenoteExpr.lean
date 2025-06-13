@@ -14,7 +14,7 @@ Helper functions for converting reified terms back into their denotations.
 
 variable [Monad M] [MonadGetRing M]
 
-private def denoteNum (k : Int) : M Expr := do
+def denoteNum (k : Int) : M Expr := do
   let ring ← getRing
   let n := mkRawNatLit k.natAbs
   let ofNatInst := mkApp3 (mkConst ``Grind.Semiring.ofNat [ring.u]) ring.type ring.semiringInst n

@@ -108,8 +108,14 @@ theorem Perm.append_left {t₁ t₂ : List α} : ∀ l : List α, t₁ ~ t₂ �
 theorem Perm.append {l₁ l₂ t₁ t₂ : List α} (p₁ : l₁ ~ l₂) (p₂ : t₁ ~ t₂) : l₁ ++ t₁ ~ l₂ ++ t₂ :=
   (p₁.append_right t₁).trans (p₂.append_left l₂)
 
+grind_pattern Perm.append => l₁ ~ l₂, t₁ ~ t₂, l₁ ++ t₁
+grind_pattern Perm.append => l₁ ~ l₂, t₁ ~ t₂, l₂ ++ t₂
+
 theorem Perm.append_cons (a : α) {l₁ l₂ r₁ r₂ : List α} (p₁ : l₁ ~ l₂) (p₂ : r₁ ~ r₂) :
     l₁ ++ a :: r₁ ~ l₂ ++ a :: r₂ := p₁.append (p₂.cons a)
+
+grind_pattern Perm.append_cons => l₁ ~ l₂, r₁ ~ r₂, l₁ ++ a :: r₁
+grind_pattern Perm.append_cons => l₁ ~ l₂, r₁ ~ r₂, l₂ ++ a :: r₂
 
 @[simp] theorem perm_middle {a : α} : ∀ {l₁ l₂ : List α}, l₁ ++ a :: l₂ ~ a :: (l₁ ++ l₂)
   | [], _ => .refl _

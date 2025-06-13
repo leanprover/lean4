@@ -52,6 +52,7 @@ theorem countP_push {a : α} {xs : Array α} : countP p (xs.push a) = countP p x
   rcases xs with ⟨xs⟩
   simp_all
 
+@[grind =]
 theorem countP_singleton {a : α} : countP p #[a] = if p a then 1 else 0 := by
   simp
 
@@ -62,6 +63,8 @@ theorem size_eq_countP_add_countP {xs : Array α} : xs.size = countP p xs + coun
 theorem countP_eq_size_filter {xs : Array α} : countP p xs = (filter p xs).size := by
   rcases xs with ⟨xs⟩
   simp [List.countP_eq_length_filter]
+
+grind_pattern countP_eq_size_filter => countP p xs, filter p xs
 
 theorem countP_eq_size_filter' : countP p = size ∘ filter p := by
   funext xs
@@ -189,13 +192,14 @@ theorem count_le_size {a : α} {xs : Array α} : count a xs ≤ xs.size := count
 theorem count_le_count_push {a b : α} {xs : Array α} : count a xs ≤ count a (xs.push b) := by
   simp [count_push]
 
+@[grind =]
 theorem count_singleton {a b : α} : count a #[b] = if b == a then 1 else 0 := by
   simp [count_eq_countP]
 
 @[simp, grind =] theorem count_append {a : α} {xs ys : Array α} : count a (xs ++ ys) = count a xs + count a ys :=
   countP_append
 
-@[simp] theorem count_flatten {a : α} {xss : Array (Array α)} :
+@[simp, grind =] theorem count_flatten {a : α} {xss : Array (Array α)} :
     count a xss.flatten = (xss.map (count a)).sum := by
   cases xss using array₂_induction
   simp [List.count_flatten, Function.comp_def]

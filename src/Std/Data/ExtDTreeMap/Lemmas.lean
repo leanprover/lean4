@@ -24,12 +24,16 @@ namespace Std.ExtDTreeMap
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {cmp : α → α → Ordering} {t : ExtDTreeMap α β cmp}
 private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
+@[simp, grind =]
+theorem isEmpty_empty : (∅ : ExtDTreeMap α β cmp).isEmpty :=
+  rfl
+
 @[simp]
 theorem empty_eq : ∅ = t ↔ t = ∅ := eq_comm
 
 @[simp]
-theorem not_insert_eq_empty [TransCmp cmp] {k : α} {v : β k} :
-    ¬t.insert k v = ∅ :=
+theorem insert_ne_empty [TransCmp cmp] {k : α} {v : β k} :
+    t.insert k v ≠ ∅ :=
   t.inductionOn fun _ => isEmpty_eq_false_iff.mp DTreeMap.isEmpty_insert
 
 theorem mem_iff_contains [TransCmp cmp] {k : α} : k ∈ t ↔ t.contains k :=
@@ -53,11 +57,11 @@ theorem mem_congr [TransCmp cmp] {k k' : α} (hab : cmp k k' = .eq) : k ∈ t �
 
 @[simp, grind =]
 theorem contains_empty [TransCmp cmp] {k : α} : (∅ : ExtDTreeMap α β cmp).contains k = false :=
-  DTreeMap.contains_emptyc
+  rfl
 
 @[simp]
 theorem not_mem_empty [TransCmp cmp] {k : α} : k ∉ (∅ : ExtDTreeMap α β cmp) :=
-  DTreeMap.not_mem_emptyc
+  Bool.false_ne_true
 
 theorem eq_empty_iff_forall_contains [TransCmp cmp] : t = ∅ ↔ ∀ a, t.contains a = false :=
   isEmpty_iff.symm.trans <| t.inductionOn fun _ => DTreeMap.isEmpty_iff_forall_contains
@@ -105,13 +109,13 @@ theorem mem_of_mem_insert [TransCmp cmp] {k a : α} {v : β k} :
 
 @[simp, grind =]
 theorem size_empty : (∅ : ExtDTreeMap α β cmp).size = 0 :=
-  DTreeMap.size_emptyc
+  rfl
 
 theorem isEmpty_eq_size_beq_zero : t.isEmpty = (t.size == 0) :=
   t.inductionOn fun _ => DTreeMap.isEmpty_eq_size_eq_zero
 
 theorem eq_empty_iff_size_eq_zero [TransCmp cmp] : t = ∅ ↔ t.size = 0 := by
-  rcases t with ⟨t⟩
+  cases t with | mk t
   simpa only [← isEmpty_iff, ← decide_eq_decide, Bool.decide_eq_true] using isEmpty_eq_size_beq_zero
 
 @[grind =] theorem size_insert [TransCmp cmp] {k : α} {v : β k} :
@@ -128,19 +132,19 @@ theorem size_insert_le [TransCmp cmp] {k : α} {v : β k} :
 
 @[simp, grind =]
 theorem erase_empty [TransCmp cmp] {k : α} : (∅ : ExtDTreeMap α β cmp).erase k = ∅ :=
-  congrArg Quotient.mk' DTreeMap.erase_emptyc
+  rfl
 
 @[simp]
 theorem erase_eq_empty_iff [TransCmp cmp] {k : α} :
     t.erase k = ∅ ↔ t = ∅ ∨ (t.size = 1 ∧ k ∈ t) := by
-  rcases t with ⟨t⟩
+  cases t with | mk t
   simp only [← isEmpty_iff, ← decide_eq_decide, Bool.decide_eq_true, Bool.decide_or,
     Bool.decide_and, mem_iff_contains]
   exact DTreeMap.isEmpty_erase
 
 theorem eq_empty_iff_erase_eq_empty_and_not_mem [TransCmp cmp] (k : α) :
     t = ∅ ↔ t.erase k = ∅ ∧ ¬k ∈ t := by
-  rcases t with ⟨t⟩
+  cases t with | mk t
   simp only [← isEmpty_iff, mem_iff_contains, ← decide_eq_decide, Bool.decide_eq_true,
     Bool.decide_and, decide_not]
   exact DTreeMap.isEmpty_eq_isEmpty_erase_and_not_contains k
@@ -186,7 +190,7 @@ theorem containsThenInsert_fst [TransCmp cmp] {k : α} {v : β k} :
 @[simp, grind =]
 theorem containsThenInsert_snd [TransCmp cmp] {k : α} {v : β k} :
     (t.containsThenInsert k v).2 = t.insert k v :=
-  t.inductionOn fun _ => congrArg Quotient.mk' DTreeMap.containsThenInsert_snd
+  t.inductionOn fun _ => congrArg mk DTreeMap.containsThenInsert_snd
 
 @[simp, grind =]
 theorem containsThenInsertIfNew_fst [TransCmp cmp] {k : α} {v : β k} :
@@ -196,7 +200,7 @@ theorem containsThenInsertIfNew_fst [TransCmp cmp] {k : α} {v : β k} :
 @[simp, grind =]
 theorem containsThenInsertIfNew_snd [TransCmp cmp] {k : α} {v : β k} :
     (t.containsThenInsertIfNew k v).2 = t.insertIfNew k v :=
-  t.inductionOn fun _ => congrArg Quotient.mk' DTreeMap.containsThenInsertIfNew_snd
+  t.inductionOn fun _ => congrArg mk DTreeMap.containsThenInsertIfNew_snd
 
 @[simp, grind =]
 theorem get?_empty [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
@@ -329,7 +333,7 @@ theorem get_erase [TransCmp cmp] [LawfulEqCmp cmp] {k a : α} {h'} :
     (t.erase k).get a h' = t.get a (mem_of_mem_erase h') :=
   t.inductionOn (fun _ _ => DTreeMap.get_erase) h'
 
-theorem get?_eq_some_get [TransCmp cmp] [LawfulEqCmp cmp] {a : α} {h'} :
+theorem get?_eq_some_get [TransCmp cmp] [LawfulEqCmp cmp] {a : α} (h') :
     t.get? a = some (t.get a h') :=
   t.inductionOn (fun _ _ => DTreeMap.get?_eq_some_get) h'
 
@@ -353,7 +357,7 @@ theorem get_erase [TransCmp cmp] {k a : α} {h'} :
     get (t.erase k) a h' = get t a (mem_of_mem_erase h') :=
   t.inductionOn (fun _ _ => DTreeMap.Const.get_erase) h'
 
-theorem get?_eq_some_get [TransCmp cmp] {a : α} {h} :
+theorem get?_eq_some_get [TransCmp cmp] {a : α} (h) :
     get? t a = some (get t a h) :=
   t.inductionOn (fun _ _ => DTreeMap.Const.get?_eq_some_get) h
 
@@ -678,7 +682,7 @@ theorem getKey_erase [TransCmp cmp] {k a : α} {h'} :
     (t.erase k).getKey a h' = t.getKey a (mem_of_mem_erase h') :=
   t.inductionOn (fun _ _ => DTreeMap.getKey_erase) h'
 
-theorem getKey?_eq_some_getKey [TransCmp cmp] {a : α} {h'} :
+theorem getKey?_eq_some_getKey [TransCmp cmp] {a : α} (h') :
     t.getKey? a = some (t.getKey a h') :=
   t.inductionOn (fun _ _ => DTreeMap.getKey?_eq_some_getKey) h'
 
@@ -823,10 +827,10 @@ theorem getKeyD_eq_of_mem [TransCmp cmp] [LawfulEqCmp cmp] {k fallback : α} (h'
   t.inductionOn (fun _ h' => DTreeMap.getKeyD_eq_of_mem h') h'
 
 @[simp]
-theorem not_insertIfNew_eq_empty [TransCmp cmp] {k : α} {v : β k} :
-    ¬t.insertIfNew k v = ∅ := by
-  rcases t with ⟨t⟩
-  simpa only [← isEmpty_iff, Bool.not_eq_true] using DTreeMap.isEmpty_insertIfNew
+theorem insertIfNew_ne_empty [TransCmp cmp] {k : α} {v : β k} :
+    t.insertIfNew k v ≠ ∅ := by
+  cases t with | mk t
+  simpa only [← isEmpty_iff, ne_eq, Bool.not_eq_true] using DTreeMap.isEmpty_insertIfNew
 
 @[simp, grind =]
 theorem contains_insertIfNew [TransCmp cmp] {k a : α} {v : β k} :
@@ -958,7 +962,7 @@ theorem getThenInsertIfNew?_fst [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {v : �
 @[simp, grind =]
 theorem getThenInsertIfNew?_snd [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {v : β k} :
     (t.getThenInsertIfNew? k v).2 = t.insertIfNew k v :=
-  t.inductionOn fun _ => congrArg Quotient.mk' DTreeMap.getThenInsertIfNew?_snd
+  t.inductionOn fun _ => congrArg mk DTreeMap.getThenInsertIfNew?_snd
 
 namespace Const
 
@@ -972,7 +976,7 @@ theorem getThenInsertIfNew?_fst [TransCmp cmp] {k : α} {v : β} :
 @[simp, grind =]
 theorem getThenInsertIfNew?_snd [TransCmp cmp] {k : α} {v : β} :
     (getThenInsertIfNew? t k v).2 = t.insertIfNew k v :=
-  t.inductionOn fun _ => congrArg Quotient.mk' DTreeMap.Const.getThenInsertIfNew?_snd
+  t.inductionOn fun _ => congrArg mk DTreeMap.Const.getThenInsertIfNew?_snd
 
 end Const
 
@@ -1253,15 +1257,14 @@ theorem insertMany_append [TransCmp cmp] {l₁ l₂ : List ((a : α) × β a)} :
 
 private theorem insertMany_list_mk [TransCmp cmp]
     {t : DTreeMap α β cmp} {l : List ((a : α) × β a)} :
-    (ExtDTreeMap.insertMany (Quotient.mk _ t) l : ExtDTreeMap α β cmp) =
-      Quotient.mk _ (t.insertMany l) := by
-  simp only [Quotient.mk]
+    (ExtDTreeMap.insertMany (mk t) l : ExtDTreeMap α β cmp) =
+      mk (t.insertMany l) := by
+  simp only [mk, Quotient.mk]
   induction l generalizing t with
   | nil => rfl
   | cons x l ih =>
     rcases x with ⟨k, v⟩
-    simp only [insertMany_cons, DTreeMap.insertMany_cons, insert,
-      Quotient.mk', Quotient.mk, Quotient.lift, ih]
+    simp only [insertMany_cons, insert, mk, Quotient.mk, ih, DTreeMap.insertMany_cons]
 
 @[simp, grind =]
 theorem contains_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
@@ -1503,15 +1506,14 @@ theorem insertMany_append [TransCmp cmp] {l₁ l₂ : List (α × β)} :
 
 private theorem insertMany_list_mk [TransCmp cmp]
     {t : DTreeMap α β cmp} {l : List (α × β)} :
-    (Const.insertMany (Quotient.mk _ t) l : ExtDTreeMap α β cmp) =
-      Quotient.mk _ (DTreeMap.Const.insertMany t l) := by
-  simp only [Quotient.mk]
+    (Const.insertMany (mk t) l : ExtDTreeMap α β cmp) =
+      mk (DTreeMap.Const.insertMany t l) := by
+  simp only [mk]
   induction l generalizing t with
   | nil => rfl
   | cons x l ih =>
     rcases x with ⟨k, v⟩
-    simp only [insertMany_cons, DTreeMap.Const.insertMany_cons, insert,
-      Quotient.mk', Quotient.mk, Quotient.lift, ih]
+    simp only [Quotient.mk, insertMany_cons, insert, ih, DTreeMap.Const.insertMany_cons]
 
 @[simp, grind =]
 theorem contains_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
@@ -1741,14 +1743,14 @@ theorem insertManyIfNewUnit_cons [TransCmp cmp] {l : List α} {k : α} :
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
 
 private theorem insertManyIfNewUnit_list_mk [TransCmp cmp] {t : DTreeMap α Unit cmp} {l : List α} :
-    (Const.insertManyIfNewUnit (Quotient.mk _ t) l : ExtDTreeMap α Unit cmp) =
-      Quotient.mk _ (DTreeMap.Const.insertManyIfNewUnit t l) := by
-  simp only [Quotient.mk]
+    (Const.insertManyIfNewUnit (mk t) l : ExtDTreeMap α Unit cmp) =
+      mk (DTreeMap.Const.insertManyIfNewUnit t l) := by
+  simp only [mk]
   induction l generalizing t with
   | nil => rfl
   | cons x l ih =>
-    simp only [insertManyIfNewUnit_cons, DTreeMap.Const.insertManyIfNewUnit_cons, insertIfNew,
-      Quotient.mk', Quotient.mk, Quotient.lift, ih]
+    simp only [Quotient.mk, insertManyIfNewUnit_cons, insertIfNew, ih,
+      DTreeMap.Const.insertManyIfNewUnit_cons]
 
 @[simp]
 theorem contains_insertManyIfNewUnit_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
@@ -1929,12 +1931,12 @@ theorem ofList_singleton [TransCmp cmp] {k : α} {v : β k} :
 @[grind _=_] theorem ofList_cons [TransCmp cmp] {k : α} {v : β k} {tl : List ((a : α) × (β a))} :
     ofList (⟨k, v⟩ :: tl) cmp = ((∅ : ExtDTreeMap α β cmp).insert k v).insertMany tl := by
   conv => rhs; apply insertMany_list_mk
-  exact congrArg Quotient.mk' DTreeMap.ofList_cons
+  exact congrArg mk DTreeMap.ofList_cons
 
 theorem ofList_eq_insertMany_empty [TransCmp cmp] {l : List ((a : α) × (β a))} :
     ofList l cmp = insertMany (∅ : ExtDTreeMap α β cmp) l := by
   conv => rhs; apply insertMany_list_mk
-  exact congrArg Quotient.mk' DTreeMap.ofList_eq_insertMany_empty
+  exact congrArg mk DTreeMap.ofList_eq_insertMany_empty
 
 @[simp, grind =]
 theorem contains_ofList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
@@ -2077,12 +2079,12 @@ theorem ofList_singleton [TransCmp cmp] {k : α} {v : β} :
 @[grind _=_] theorem ofList_cons [TransCmp cmp] {k : α} {v : β} {tl : List (α × β)} :
     ofList (⟨k, v⟩ :: tl) cmp = insertMany ((∅ : ExtDTreeMap α β cmp).insert k v) tl := by
   conv => rhs; apply insertMany_list_mk
-  exact congrArg Quotient.mk' DTreeMap.Const.ofList_cons
+  exact congrArg mk DTreeMap.Const.ofList_cons
 
 theorem ofList_eq_insertMany_empty [TransCmp cmp] {l : List (α × β)} :
     ofList l cmp = insertMany (∅ : ExtDTreeMap α β cmp) l := by
   conv => rhs; apply insertMany_list_mk
-  exact congrArg Quotient.mk' DTreeMap.Const.ofList_eq_insertMany_empty
+  exact congrArg mk DTreeMap.Const.ofList_eq_insertMany_empty
 
 @[simp, grind =]
 theorem contains_ofList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List (α × β)} {k : α} :
@@ -2220,7 +2222,7 @@ theorem unitOfList_cons [TransCmp cmp] {hd : α} {tl : List α} :
     unitOfList (hd :: tl) cmp =
       insertManyIfNewUnit ((∅ : ExtDTreeMap α Unit cmp).insertIfNew hd ()) tl := by
   conv => rhs; apply insertManyIfNewUnit_list_mk
-  exact congrArg Quotient.mk' DTreeMap.Const.unitOfList_cons
+  exact congrArg mk DTreeMap.Const.unitOfList_cons
 
 @[simp]
 theorem contains_unitOfList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List α} {k : α} :
@@ -2319,7 +2321,7 @@ section Alter
 theorem alter_eq_empty_iff_erase_eq_empty [TransCmp cmp] [LawfulEqCmp cmp] {k : α}
     {f : Option (β k) → Option (β k)} :
     t.alter k f = ∅ ↔ t.erase k = ∅ ∧ f (t.get? k) = none := by
-  rcases t with ⟨t⟩
+  cases t with | mk t
   simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using
     DTreeMap.isEmpty_alter_eq_isEmpty_erase
 
@@ -2538,7 +2540,7 @@ variable {β : Type v} {t : ExtDTreeMap α β cmp}
 theorem alter_eq_empty_iff_erase_eq_empty [TransCmp cmp] {k : α}
     {f : Option β → Option β} :
     alter t k f = ∅ ↔ t.erase k = ∅ ∧ f (get? t k) = none := by
-  rcases t with ⟨t⟩
+  cases t with | mk t
   simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using
     DTreeMap.Const.isEmpty_alter_eq_isEmpty_erase
 
@@ -2759,7 +2761,7 @@ variable [LawfulEqCmp cmp]
 @[simp]
 theorem modify_eq_empty_iff {k : α} {f : β k → β k} :
     t.modify k f = ∅ ↔ t = ∅ := by
-  rcases t with ⟨t⟩
+  cases t with | mk t
   simpa only [← isEmpty_iff, Bool.coe_iff_coe] using DTreeMap.isEmpty_modify
 
 @[grind =]
@@ -2900,7 +2902,7 @@ variable {β : Type v} {t : ExtDTreeMap α β cmp}
 @[simp]
 theorem modify_eq_empty_iff {k : α} {f : β → β} :
     modify t k f = ∅ ↔ t = ∅ := by
-  rcases t with ⟨t⟩
+  cases t with | mk t
   simpa only [← isEmpty_iff, Bool.coe_iff_coe] using DTreeMap.Const.isEmpty_modify
 
 @[grind =]
@@ -3252,16 +3254,16 @@ theorem minKey_eq_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] {he km} :
   t.inductionOn (fun _ _ _ => DTreeMap.minKey_eq_iff_mem_and_forall) he km
 
 @[grind =] theorem minKey_insert [TransCmp cmp] {k v} :
-    (t.insert k v).minKey not_insert_eq_empty =
+    (t.insert k v).minKey insert_ne_empty =
       t.minKey?.elim k fun k' => if cmp k k' |>.isLE then k else k' :=
   t.inductionOn fun _ => DTreeMap.minKey_insert
 
 theorem minKey_insert_le_minKey [TransCmp cmp] {k v he} :
-    cmp (t.insert k v |>.minKey not_insert_eq_empty) (t.minKey he) |>.isLE :=
+    cmp (t.insert k v |>.minKey insert_ne_empty) (t.minKey he) |>.isLE :=
   t.inductionOn (fun _ _ => DTreeMap.minKey_insert_le_minKey) he
 
 theorem minKey_insert_le_self [TransCmp cmp] {k v} :
-    cmp (t.insert k v |>.minKey not_insert_eq_empty) k |>.isLE :=
+    cmp (t.insert k v |>.minKey insert_ne_empty) k |>.isLE :=
   t.inductionOn fun _ => DTreeMap.minKey_insert_le_self
 
 @[grind =] theorem contains_minKey [TransCmp cmp] {he} :
@@ -3323,17 +3325,17 @@ theorem minKey_le_minKey_erase [TransCmp cmp] {k he} :
   t.inductionOn (fun _ _ => DTreeMap.minKey_le_minKey_erase) he
 
 @[grind =] theorem minKey_insertIfNew [TransCmp cmp] {k v} :
-    (t.insertIfNew k v).minKey not_insertIfNew_eq_empty =
+    (t.insertIfNew k v).minKey insertIfNew_ne_empty =
       t.minKey?.elim k fun k' => if cmp k k' = .lt then k else k' :=
   t.inductionOn fun _ => DTreeMap.minKey_insertIfNew
 
 theorem minKey_insertIfNew_le_minKey [TransCmp cmp] {k v he} :
-    cmp (t.insertIfNew k v |>.minKey not_insertIfNew_eq_empty)
+    cmp (t.insertIfNew k v |>.minKey insertIfNew_ne_empty)
       (t.minKey he) |>.isLE :=
   t.inductionOn (fun _ _ => DTreeMap.minKey_insertIfNew_le_minKey) he
 
 theorem minKey_insertIfNew_le_self [TransCmp cmp] {k v} :
-    cmp (t.insertIfNew k v |>.minKey <| not_insertIfNew_eq_empty) k |>.isLE :=
+    cmp (t.insertIfNew k v |>.minKey <| insertIfNew_ne_empty) k |>.isLE :=
   t.inductionOn fun _ => DTreeMap.minKey_insertIfNew_le_self
 
 @[grind =_] theorem minKey_eq_head_keys [TransCmp cmp] {he} :
@@ -3888,16 +3890,16 @@ theorem maxKey_eq_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] {he km} :
   t.inductionOn (fun _ _ _ => DTreeMap.maxKey_eq_iff_mem_and_forall) he km
 
 @[grind =] theorem maxKey_insert [TransCmp cmp] {k v} :
-    (t.insert k v).maxKey not_insert_eq_empty =
+    (t.insert k v).maxKey insert_ne_empty =
       t.maxKey?.elim k fun k' => if cmp k' k |>.isLE then k else k' :=
   t.inductionOn fun _ => DTreeMap.maxKey_insert
 
 theorem maxKey_le_maxKey_insert [TransCmp cmp] {k v he} :
-    cmp (t.maxKey he) (t.insert k v |>.maxKey not_insert_eq_empty) |>.isLE :=
+    cmp (t.maxKey he) (t.insert k v |>.maxKey insert_ne_empty) |>.isLE :=
   t.inductionOn (fun _ _ => DTreeMap.maxKey_le_maxKey_insert) he
 
 theorem self_le_maxKey_insert [TransCmp cmp] {k v} :
-    cmp k (t.insert k v |>.maxKey not_insert_eq_empty) |>.isLE :=
+    cmp k (t.insert k v |>.maxKey insert_ne_empty) |>.isLE :=
   t.inductionOn fun _ => DTreeMap.self_le_maxKey_insert
 
 @[grind =] theorem contains_maxKey [TransCmp cmp] {he} :
@@ -3959,17 +3961,17 @@ theorem maxKey_erase_le_maxKey [TransCmp cmp] {k he} :
   t.inductionOn (fun _ _ => DTreeMap.maxKey_erase_le_maxKey) he
 
 @[grind =] theorem maxKey_insertIfNew [TransCmp cmp] {k v} :
-    (t.insertIfNew k v).maxKey not_insertIfNew_eq_empty =
+    (t.insertIfNew k v).maxKey insertIfNew_ne_empty =
       t.maxKey?.elim k fun k' => if cmp k' k = .lt then k else k' :=
   t.inductionOn fun _ => DTreeMap.maxKey_insertIfNew
 
 theorem maxKey_le_maxKey_insertIfNew [TransCmp cmp] {k v he} :
     cmp (t.maxKey he)
-      (t.insertIfNew k v |>.maxKey not_insertIfNew_eq_empty) |>.isLE :=
+      (t.insertIfNew k v |>.maxKey insertIfNew_ne_empty) |>.isLE :=
   t.inductionOn (fun _ _ => DTreeMap.maxKey_le_maxKey_insertIfNew) he
 
 theorem self_le_maxKey_insertIfNew [TransCmp cmp] {k v} :
-    cmp k (t.insertIfNew k v |>.maxKey <| not_insertIfNew_eq_empty) |>.isLE :=
+    cmp k (t.insertIfNew k v |>.maxKey <| insertIfNew_ne_empty) |>.isLE :=
   t.inductionOn fun _ => DTreeMap.self_le_maxKey_insertIfNew
 
 @[grind =_] theorem maxKey_eq_getLast_keys [TransCmp cmp] {he} :
@@ -4320,19 +4322,19 @@ variable {t₁ t₂ : ExtDTreeMap α β cmp}
 @[ext]
 theorem ext_get? [TransCmp cmp] [LawfulEqCmp cmp] {t₁ t₂ : ExtDTreeMap α β cmp}
     (h : ∀ k, t₁.get? k = t₂.get? k) : t₁ = t₂ :=
-  t₁.inductionOn₂ t₂ (fun _ _ h => Quotient.sound (DTreeMap.Equiv.of_forall_get?_eq h)) h
+  t₁.inductionOn₂ t₂ (fun _ _ h => sound (.of_forall_get?_eq h)) h
 
 @[simp]
 theorem toList_inj [TransCmp cmp] {t₁ t₂ : ExtDTreeMap α β cmp} :
     t₁.toList = t₂.toList ↔ t₁ = t₂ := by
   constructor
   · intro h
-    rcases t₁; rcases t₂
-    exact Quotient.sound (DTreeMap.Equiv.of_toList_perm (.of_eq h))
+    cases t₁; cases t₂
+    exact sound (.of_toList_perm (.of_eq h))
   · rintro rfl; rfl
 
 theorem ext_toList [TransCmp cmp] (h : t₁.toList.Perm t₂.toList) : t₁ = t₂ :=
-  t₁.inductionOn₂ t₂ (fun _ _ h => Quotient.sound (DTreeMap.Equiv.of_toList_perm h)) h
+  t₁.inductionOn₂ t₂ (fun _ _ h => sound (.of_toList_perm h)) h
 
 namespace Const
 
@@ -4341,40 +4343,40 @@ variable {β : Type v} {t₁ t₂ : ExtDTreeMap α β cmp}
 theorem ext_getKey_get? [TransCmp cmp]
     (hk : ∀ k hk hk', t₁.getKey k hk = t₂.getKey k hk')
     (hv : ∀ k, Const.get? t₁ k = Const.get? t₂ k) : t₁ = t₂ :=
-  t₁.inductionOn₂ t₂ (fun _ _ hk hv => Quotient.sound <|
-    DTreeMap.Equiv.of_forall_getKey_eq_of_forall_constGet?_eq hk hv) hk hv
+  t₁.inductionOn₂ t₂ (fun _ _ hk hv => sound <|
+    .of_forall_getKey_eq_of_forall_constGet?_eq hk hv) hk hv
 
 theorem ext_get? [TransCmp cmp] [LawfulEqCmp cmp]
     (h : ∀ k, Const.get? t₁ k = Const.get? t₂ k) : t₁ = t₂ :=
-  t₁.inductionOn₂ t₂ (fun _ _ h => Quotient.sound (DTreeMap.Equiv.of_forall_constGet?_eq h)) h
+  t₁.inductionOn₂ t₂ (fun _ _ h => sound (.of_forall_constGet?_eq h)) h
 
 theorem ext_getKey?_unit [TransCmp cmp] {t₁ t₂ : ExtDTreeMap α Unit cmp}
     (h : ∀ k, t₁.getKey? k = t₂.getKey? k) : t₁ = t₂ :=
-  t₁.inductionOn₂ t₂ (fun _ _ h => Quotient.sound (DTreeMap.Equiv.of_forall_getKey?_unit_eq h)) h
+  t₁.inductionOn₂ t₂ (fun _ _ h => sound (.of_forall_getKey?_unit_eq h)) h
 
 theorem ext_contains_unit [TransCmp cmp] [LawfulEqCmp cmp] {t₁ t₂ : ExtDTreeMap α Unit cmp}
     (h : ∀ k, t₁.contains k = t₂.contains k) : t₁ = t₂ :=
-  t₁.inductionOn₂ t₂ (fun _ _ h => Quotient.sound (DTreeMap.Equiv.of_forall_contains_unit_eq h)) h
+  t₁.inductionOn₂ t₂ (fun _ _ h => sound (.of_forall_contains_unit_eq h)) h
 
 theorem ext_mem_unit [TransCmp cmp] [LawfulEqCmp cmp] {t₁ t₂ : ExtDTreeMap α Unit cmp}
     (h : ∀ k, k ∈ t₁ ↔ k ∈ t₂) : t₁ = t₂ :=
-  t₁.inductionOn₂ t₂ (fun _ _ h => Quotient.sound (DTreeMap.Equiv.of_forall_mem_unit_iff h)) h
+  t₁.inductionOn₂ t₂ (fun _ _ h => sound (.of_forall_mem_unit_iff h)) h
 
 @[simp]
 theorem toList_inj [TransCmp cmp] {t₁ t₂ : ExtDTreeMap α β cmp} :
     Const.toList t₁ = Const.toList t₂ ↔ t₁ = t₂ := by
   constructor
   · intro h
-    rcases t₁; rcases t₂
-    exact Quotient.sound (DTreeMap.Equiv.of_constToList_perm (.of_eq h))
+    cases t₁; cases t₂
+    exact sound (.of_constToList_perm (.of_eq h))
   · rintro rfl; rfl
 
 theorem ext_toList [TransCmp cmp] (h : (Const.toList t₁).Perm (Const.toList t₂)) : t₁ = t₂ :=
-  t₁.inductionOn₂ t₂ (fun _ _ h => Quotient.sound (DTreeMap.Equiv.of_constToList_perm h)) h
+  t₁.inductionOn₂ t₂ (fun _ _ h => sound (.of_constToList_perm h)) h
 
 theorem ext_keys_unit [TransCmp cmp] {t₁ t₂ : ExtDTreeMap α Unit cmp} (h : t₁.keys.Perm t₂.keys) :
     t₁ = t₂ :=
-  t₁.inductionOn₂ t₂ (fun _ _ h => Quotient.sound (DTreeMap.Equiv.of_keys_unit_perm h)) h
+  t₁.inductionOn₂ t₂ (fun _ _ h => sound (.of_keys_unit_perm h)) h
 
 end Const
 

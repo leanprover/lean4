@@ -60,14 +60,19 @@ private def unReplaceRecApps {α} (preDefs : Array PreDefinition) (fixedParamPer
       pure e
     k e
 
-def mkMonoPProd (hmono₁ hmono₂ : Expr) : MetaM Expr := do
+/--
+Given two type-proof pairs for `monotone f` and `monotone g`, constructs a type-proof pair for `monotone fun x => ⟨f x, g x⟩`.
+-/
+private def mkMonoPProd : (hmono₁ hmono₂ : Expr × Expr) → MetaM (Expr × Expr)
+  | (hmono1Type, hmono1Proof), (hmono2Type, hmono2Proof) => do
   -- mkAppM does not support the equivalent of (cfg := { synthAssignedInstances := false}),
   -- so this is a bit more pedestrian
-  let_expr monotone _ inst _ inst₁ _ := (← inferType hmono₁)
-    | throwError "mkMonoPProd: unexpected type of{indentExpr hmono₁}"
-  let_expr monotone _ _ _ inst₂ _ := (← inferType hmono₂)
-    | throwError "mkMonoPProd: unexpected type of{indentExpr hmono₂}"
-  mkAppOptM ``PProd.monotone_mk #[none, none, none, inst₁, inst₂, inst, none, none, hmono₁, hmono₂]
+  let_expr monotone _ inst _ inst₁ _ := hmono1Type
+    | throwError "mkMonoPProd: unexpected type of{indentExpr hmono1Proof}"
+  let_expr monotone _ _ _ inst₂ _ := hmono2Type
+    | throwError "mkMonoPProd: unexpected type of{indentExpr hmono2Proof}"
+  let hmonoProof ← mkAppOptM ``PProd.monotone_mk #[none, none, none, inst₁, inst₂, inst, none, none, hmono1Proof, hmono2Proof]
+  return (← inferType hmonoProof, hmonoProof)
 
 def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
   -- We expect all functions in the clique to have `partial_fixpoint` or `greatest_fixpoint` syntax
@@ -168,17 +173,17 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
         let hmono ← instantiateMVars hmono
         let mvars ← getMVars hmono
         if mvars.isEmpty then
-          pure hmono
+          pure (goal, hmono)
         else
           discard <| Term.logUnassignedUsingErrorInfos mvars
-          mkSorry goal (synthetic := true)
+          pure (goal, ← mkSorry goal (synthetic := true))
       else
         let hmono ← mkFreshExprSyntheticOpaqueMVar goal
         prependError m!"Could not prove '{preDef.declName}' to be monotone in its recursive calls:" do
           solveMono failK hmono.mvarId!
         trace[Elab.definition.partialFixpoint] "monotonicity proof for {preDef.declName}: {hmono}"
-        instantiateMVars hmono
-    let hmono ← PProdN.genMk mkMonoPProd hmonos
+        pure (goal, ← instantiateMVars hmono)
+    let (_, hmono) ← PProdN.genMk mkMonoPProd hmonos
 
     let packedValue ← mkFixOfMonFun packedType packedInst hmono
 

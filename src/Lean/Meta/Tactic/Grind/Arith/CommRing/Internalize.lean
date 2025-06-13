@@ -94,7 +94,9 @@ private def processDiv (e inst a b : Expr) : RingM Unit := do
         pushNewFact <| mkExpectedPropHint
           (mkApp7 (mkConst ``Grind.CommRing.div_int_eqC [ring.u]) ring.type (mkNatLit c) fieldInst charInst a (mkIntLit k) reflBoolTrue)
           expected
-  return ()
+  else
+    -- TODO
+    return ()
 
 /--
 Returns `true` if `e` is a term `a/b` or `a⁻¹`.

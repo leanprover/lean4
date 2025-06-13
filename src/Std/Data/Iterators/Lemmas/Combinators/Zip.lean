@@ -9,7 +9,7 @@ import Std.Data.Iterators.Combinators.Zip
 import Init.Data.Iterators.Consumers.Access
 import Std.Data.Iterators.Lemmas.Combinators.Monadic.Zip
 import Std.Data.Iterators.Lemmas.Combinators.Take
-import Std.Data.Iterators.Lemmas.Consumers
+import Init.Data.Iterators.Lemmas.Consumers
 
 namespace Std.Iterators
 

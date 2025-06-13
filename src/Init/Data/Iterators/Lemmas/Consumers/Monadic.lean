@@ -4,5 +4,5 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
-import Std.Data.Iterators.Lemmas.Consumers.Monadic.Collect
-import Std.Data.Iterators.Lemmas.Consumers.Monadic.Loop
+import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop

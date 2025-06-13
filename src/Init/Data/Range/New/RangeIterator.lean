@@ -4,7 +4,7 @@ prelude
 import Init.Data.Iterators.Internal.Termination
 import Init.Data.Iterators.Consumers.Loop
 import Init.Data.Iterators.Consumers.Collect
-import Init.Data.Range.New.Classes
+import Init.Data.Range.Classes
 
 open Std.Iterators
 

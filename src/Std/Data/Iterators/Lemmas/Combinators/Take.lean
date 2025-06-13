@@ -7,7 +7,7 @@ prelude
 import Std.Data.Iterators.Combinators.Take
 import Init.Data.Iterators.Consumers.Access
 import Std.Data.Iterators.Lemmas.Combinators.Monadic.Take
-import Std.Data.Iterators.Lemmas.Consumers
+import Init.Data.Iterators.Lemmas.Consumers
 
 namespace Std.Iterators
 

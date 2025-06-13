@@ -7,7 +7,7 @@ prelude
 import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 import Std.Data.Iterators.Producers.Monadic.Array
 import Init.Data.Iterators.Consumers
-import Std.Data.Iterators.Lemmas.Consumers.Monadic
+import Init.Data.Iterators.Lemmas.Consumers.Monadic
 import Std.Data.Iterators.Lemmas.Producers.Monadic.List
 import Std.Data.Iterators.Lemmas.Equivalence.Basic
 

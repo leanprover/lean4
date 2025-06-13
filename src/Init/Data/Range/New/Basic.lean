@@ -3,8 +3,7 @@ module
 prelude
 import Init.Core
 import Init.NotationExtra
-import Init.Data.Iterators
-import Init.Data.Range.New.Classes
+import Init.Data.Range.Classes
 
 import Init.Data.Range.New.RangeIterator
 
@@ -112,6 +111,13 @@ def PRange.size [RangeIter shape α] (r : PRange shape α)
     [Iterator (RangeIter.State r) Id α] [IteratorSize (RangeIter.State r) Id] :
     Nat :=
   r.iter.size
+
+@[always_inline, inline]
+def PRange.toList [RangeIter shape α] (r : PRange shape α)
+    [Iterator (RangeIter.State r) Id α] [IteratorCollect (RangeIter.State r) Id Id]
+    [Finite (RangeIter.State r) Id] :
+    List α :=
+  r.iter.toList
 
 instance [i : RangeIter shape α] [∀ r, ForIn m (Iter (α := i.State r) α) α] :
     ForIn m (PRange shape α) α where

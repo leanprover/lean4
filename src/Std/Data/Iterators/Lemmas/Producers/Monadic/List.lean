@@ -6,7 +6,7 @@ Authors: Paul Reichert
 prelude
 import Std.Data.Iterators.Producers.Monadic.List
 import Init.Data.Iterators.Consumers
-import Std.Data.Iterators.Lemmas.Consumers.Monadic
+import Init.Data.Iterators.Lemmas.Consumers.Monadic
 import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 
 /-!

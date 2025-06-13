@@ -9,3 +9,4 @@ prelude
 import Init.Data.Iterators.Basic
 import Init.Data.Iterators.PostconditionMonad
 import Init.Data.Iterators.Consumers
+import Init.Data.Iterators.Lemmas

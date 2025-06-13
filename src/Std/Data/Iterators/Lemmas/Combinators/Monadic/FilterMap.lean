@@ -6,7 +6,7 @@ Authors: Paul Reichert
 prelude
 import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 import Std.Data.Iterators.Combinators.Monadic.FilterMap
-import Std.Data.Iterators.Lemmas.Consumers.Monadic
+import Init.Data.Iterators.Lemmas.Consumers.Monadic
 import Std.Data.Iterators.Lemmas.Equivalence.StepCongr
 
 namespace Std.Iterators

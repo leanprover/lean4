@@ -82,7 +82,7 @@ jobs:
       - name: CI Merge Checkout
         run: |
           git fetch --depth=1 origin ${{ github.sha }}
-          git checkout FETCH_HEAD flake.nix flake.lock script/prepare-*
+          git checkout FETCH_HEAD flake.nix flake.lock script/prepare-* tests/lean/run/importStructure.lean
         if: github.event_name == 'pull_request'
       # (needs to be after "Checkout" so files don't get overridden)
       - name: Setup emsdk

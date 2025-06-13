@@ -381,8 +381,10 @@ partial def normalize (l : Level) (offset := 0): Level :=
         let l₁ := normalize l₁
         let l₂ := normalize l₂
         match l₂ with
-          | max  l₂ l₃ => normalize (max (imax l₁ l₂) (imax l₁ l₃)) k
-          | imax l₂ l₃ => normalize (imax (max l₁ l₂) l₃) k
+          | max l₂ l₃ =>
+            normalize (mkLevelMax (mkIMaxAux l₁ l₂) (mkIMaxAux l₁ l₃)) k
+          | imax l₂ l₃ =>
+            normalize (mkIMaxAux (mkLevelMax l₁ l₂) l₃) k
           | _ => addOffset (mkIMaxAux l₁ l₂) k
     | _ => unreachable!
 

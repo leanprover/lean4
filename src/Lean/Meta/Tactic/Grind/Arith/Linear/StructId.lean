@@ -39,7 +39,7 @@ private def ensureDefEq (a b : Expr) : MetaM Unit := do
     throwError (← mkExpectedDefEqMsg a b)
 
 def getStructId? (type : Expr) : GoalM (Option Nat) := do
-  if Cutsat.isSupportedType type then
+  if (← getConfig).cutsat && Cutsat.isSupportedType type then
     -- If `type` is supported by cutsat, let it handle
     return none
   if let some id? := (← get').typeIdOf.find? { expr := type } then

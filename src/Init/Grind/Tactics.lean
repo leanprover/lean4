@@ -189,6 +189,10 @@ structure Config where
   `CommRing`.
   -/
   linarith := true
+  /--
+  When `true` (default: `true`), uses procedure for handling linear integer arithmetic for `Int` and `Nat`.
+  -/
+  cutsat := true
   deriving Inhabited, BEq
 
 end Lean.Grind

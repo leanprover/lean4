@@ -5690,28 +5690,26 @@ theorem clzAux_eq_iff {x : BitVec w} {n : Nat} :
   induction n
   · case zero => simp [clzAux]
   · case succ n ihn =>
-    by_cases hn1 : x.getLsbD (n + 1)
-    · simp only [clzAux, hn1, ↓reduceIte, Nat.right_eq_add, Nat.add_eq_zero, reduceCtorEq, and_false,
-        false_iff, Classical.not_forall, not_imp, Bool.not_eq_false]
+    by_cases hxn : x.getLsbD (n + 1)
+    · simp only [clzAux, hxn, ↓reduceIte, Nat.right_eq_add, Nat.add_eq_zero, reduceCtorEq,
+        and_false, false_iff, Classical.not_forall, not_imp, Bool.not_eq_false]
       exists n + 1, by omega
-    · have h3 : 1 + x.clzAux n = n + 1 + 1 ↔ x.clzAux n = n + 1 := by omega
-      simp only [clzAux, hn1, Bool.false_eq_true, ↓reduceIte, h3, ihn]
+    · simp only [clzAux, hxn, Bool.false_eq_true, ↓reduceIte,
+        show 1 + x.clzAux n = n + 1 + 1 ↔ x.clzAux n = n + 1 by omega, ihn]
       constructor
-      · intro h i hin
+      · intro hc i hin
         by_cases hi : i ≤ n
-        · apply h
-          omega
-        · simp only [Bool.not_eq_true] at hn1
-          simp [show i = n + 1 by omega, hn1]
-      · intro h i hin
-        apply h
+        · apply hc; omega
+        · simp [show i = n + 1 by omega, hxn]
+      · intro hc i hin
+        apply hc
         omega
 
 theorem clzAux_le {x : BitVec w} {n : Nat} :
     clzAux x n ≤ n + 1 := by
   induction n
   · case zero =>
-    by_cases hx0 : x.getLsbD 0
+    cases hx0 : x.getLsbD 0
     <;> simp [clzAux, hx0]
   · case succ n ihn =>
     by_cases hxn : x.getLsbD (n + 1)
@@ -5740,8 +5738,7 @@ theorem clzAux_eq_iff_forall_of_clzAux_lt  {x : BitVec w} (hlt : (clzAux x n < n
     rcases k
     · case zero => simp [clzAux_eq_zero_iff]
     · case succ k =>
-      unfold clzAux at hlt
-      unfold clzAux
+      simp only [clzAux, Nat.reduceSubDiff] at *
       by_cases hxn : x.getLsbD (n + 1)
       · simp only [hxn, ↓reduceIte, Nat.right_eq_add, Nat.add_eq_zero, Nat.succ_ne_self, and_false,
           Nat.reduceSubDiff, false_iff, _root_.not_and, Bool.not_eq_true]

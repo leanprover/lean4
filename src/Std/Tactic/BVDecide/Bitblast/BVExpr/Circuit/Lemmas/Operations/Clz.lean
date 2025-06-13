@@ -61,7 +61,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
             split
             · next hx' =>
               simp only [BitVec.sub_zero, denote_blastConst, BitVec.clzAuxRec,
-                show x.getLsbD 0 = true by rw [hx] at hx'; exact hx', ↓reduceIte]
+                show x.getLsbD 0 = true by rw [hx] at hx'; exact hx', reduceIte]
               congr
               rw [BitVec.toNat_eq]
               rcases w with _|w

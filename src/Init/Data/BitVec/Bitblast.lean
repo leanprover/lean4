@@ -2015,18 +2015,10 @@ theorem clz_eq_clzAuxRec_of_false (x : BitVec w) (h : ∀ i, n < i → x.getLsbD
         · apply h; exact hi
         · simp [show i = n + 1 by omega, hxn]
 
-theorem clz_eq_clzAuxRec_of_eq (x : BitVec w) (h : w - 1 ≤ n) :
+theorem clz_eq_clzAuxRec_of_le (x : BitVec w) (h : w - 1 ≤ n) :
     x.clz = x.clzAuxRec n := by
   rw [clz_eq_clzAuxRec_of_false]
   intro i hi
   simp [show w ≤ i by omega]
-
-theorem clzAuxRec_eq_of_le (x : BitVec w) (hn : w ≤ n) :
-    x.clzAuxRec n = x.clzAuxRec (w - 1) := by
-  rcases w with _|w
-  · simp [of_length_zero]
-  · rw [← clz_eq_clzAuxRec_of_eq]
-    · rw [clz_eq_clzAuxRec_of_eq]; omega
-    · omega
 
 end BitVec

@@ -182,7 +182,7 @@ init_grind_norm
   Int.emod_neg Int.ediv_neg
   Int.ediv_zero Int.emod_zero
   Int.ediv_one Int.emod_one
-
+  Int.negSucc_eq
   natCast_eq natCast_div natCast_mod
   natCast_add natCast_mul
 

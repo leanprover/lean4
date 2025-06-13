@@ -1648,7 +1648,7 @@ theorem isEmpty_insertMany_list [TransCmp cmp] {l : List (α × β)} :
   exact DTreeMap.Const.isEmpty_insertMany_list
 
 @[simp]
-theorem insertMany_list_eq_empty [TransCmp cmp] {l : List (α × β)} :
+theorem insertMany_list_eq_empty_iff [TransCmp cmp] {l : List (α × β)} :
     insertMany t l = ∅ ↔ t = ∅ ∧ l = [] := by
   simp only [← isEmpty_iff, isEmpty_insertMany_list, Bool.and_eq_true, List.isEmpty_iff]
 
@@ -1889,7 +1889,7 @@ theorem isEmpty_insertManyIfNewUnit_list [TransCmp cmp] {l : List α} :
   exact DTreeMap.Const.isEmpty_insertManyIfNewUnit_list
 
 @[simp]
-theorem insertManyIfNewUnit_list_eq_empty [TransCmp cmp] {l : List α} :
+theorem insertManyIfNewUnit_list_eq_empty_iff [TransCmp cmp] {l : List α} :
     insertManyIfNewUnit t l = ∅ ↔ t = ∅ ∧ l = [] := by
   simp only [← isEmpty_iff, isEmpty_insertManyIfNewUnit_list, Bool.and_eq_true, List.isEmpty_iff]
 
@@ -3734,8 +3734,7 @@ theorem contains_maxKey? [TransCmp cmp] {km} :
   t.inductionOn fun _ => DTreeMap.contains_maxKey?
 
 theorem maxKey?_mem [TransCmp cmp] {km} :
-    (hkm : t.maxKey? = some km) →
-    km ∈ t:=
+    (hkm : t.maxKey? = some km) → km ∈ t :=
   t.inductionOn fun _ => DTreeMap.maxKey?_mem
 
 theorem isSome_maxKey?_of_contains [TransCmp cmp] {k} :
@@ -4324,7 +4323,6 @@ theorem ext_get? [TransCmp cmp] [LawfulEqCmp cmp] {t₁ t₂ : ExtDTreeMap α β
     (h : ∀ k, t₁.get? k = t₂.get? k) : t₁ = t₂ :=
   t₁.inductionOn₂ t₂ (fun _ _ h => sound (.of_forall_get?_eq h)) h
 
-@[simp]
 theorem toList_inj [TransCmp cmp] {t₁ t₂ : ExtDTreeMap α β cmp} :
     t₁.toList = t₂.toList ↔ t₁ = t₂ := by
   constructor
@@ -4362,7 +4360,6 @@ theorem ext_mem_unit [TransCmp cmp] [LawfulEqCmp cmp] {t₁ t₂ : ExtDTreeMap �
     (h : ∀ k, k ∈ t₁ ↔ k ∈ t₂) : t₁ = t₂ :=
   t₁.inductionOn₂ t₂ (fun _ _ h => sound (.of_forall_mem_unit_iff h)) h
 
-@[simp]
 theorem toList_inj [TransCmp cmp] {t₁ t₂ : ExtDTreeMap α β cmp} :
     Const.toList t₁ = Const.toList t₂ ↔ t₁ = t₂ := by
   constructor

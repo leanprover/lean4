@@ -64,7 +64,6 @@ theorem length_eq_countP_add_countP (p : α → Bool) {l : List α} : length l =
       · rfl
       · simp [h]
 
-@[grind =]
 theorem countP_eq_length_filter {l : List α} : countP p l = length (filter p l) := by
   induction l with
   | nil => rfl
@@ -73,16 +72,19 @@ theorem countP_eq_length_filter {l : List α} : countP p l = length (filter p l)
     then rw [countP_cons_of_pos h, ih, filter_cons_of_pos h, length]
     else rw [countP_cons_of_neg h, ih, filter_cons_of_neg h]
 
-@[grind =]
+grind_pattern countP_eq_length_filter => countP p l, filter p l
+
 theorem countP_eq_length_filter' : countP p = length ∘ filter p := by
   funext l
   apply countP_eq_length_filter
+
+grind_pattern countP_eq_length_filter => countP p l, filter p l
 
 theorem countP_le_length : countP p l ≤ l.length := by
   simp only [countP_eq_length_filter]
   apply length_filter_le
 
-@[simp] theorem countP_append {l₁ l₂ : List α} : countP p (l₁ ++ l₂) = countP p l₁ + countP p l₂ := by
+@[simp, grind =] theorem countP_append {l₁ l₂ : List α} : countP p (l₁ ++ l₂) = countP p l₁ + countP p l₂ := by
   simp only [countP_eq_length_filter, filter_append, length_append]
 
 @[simp] theorem countP_pos_iff {p} : 0 < countP p l ↔ ∃ a ∈ l, p a := by
@@ -174,7 +176,7 @@ theorem countP_flatMap {p : β → Bool} {l : List α} {f : α → List β} :
     countP p (l.flatMap f) = sum (map (countP p ∘ f) l) := by
   rw [List.flatMap, countP_flatten, map_map]
 
-@[simp] theorem countP_reverse {l : List α} : countP p l.reverse = countP p l := by
+@[simp, grind =] theorem countP_reverse {l : List α} : countP p l.reverse = countP p l := by
   simp [countP_eq_length_filter, filter_reverse]
 
 theorem countP_mono_left (h : ∀ x ∈ l, p x → q x) : countP p l ≤ countP q l := by
@@ -210,7 +212,7 @@ theorem count_cons {a b : α} {l : List α} :
     count a (b :: l) = count a l + if b == a then 1 else 0 := by
   simp [count, countP_cons]
 
-@[grind =] theorem count_eq_countP {a : α} {l : List α} : count a l = countP (· == a) l := rfl
+theorem count_eq_countP {a : α} {l : List α} : count a l = countP (· == a) l := rfl
 theorem count_eq_countP' {a : α} : count a = countP (· == a) := by
   funext l
   apply count_eq_countP
@@ -245,10 +247,11 @@ theorem count_singleton {a b : α} : count a [b] = if b == a then 1 else 0 := by
 @[simp, grind =] theorem count_append {a : α} {l₁ l₂ : List α} : count a (l₁ ++ l₂) = count a l₁ + count a l₂ :=
   countP_append
 
+@[grind =]
 theorem count_flatten {a : α} {l : List (List α)} : count a l.flatten = (l.map (count a)).sum := by
   simp only [count_eq_countP, countP_flatten, count_eq_countP']
 
-@[simp] theorem count_reverse {a : α} {l : List α} : count a l.reverse = count a l := by
+@[simp, grind =] theorem count_reverse {a : α} {l : List α} : count a l.reverse = count a l := by
   simp only [count_eq_countP, countP_eq_length_filter, filter_reverse, length_reverse]
 
 @[grind]

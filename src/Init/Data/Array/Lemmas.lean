@@ -89,6 +89,8 @@ theorem size_pos_of_mem {a : α} {xs : Array α} (h : a ∈ xs) : 0 < xs.size :=
   simp only [mem_toArray] at h
   simpa using List.length_pos_of_mem h
 
+grind_pattern size_pos_of_mem => a ∈ xs, xs.size
+
 theorem exists_mem_of_size_pos {xs : Array α} (h : 0 < xs.size) : ∃ a, a ∈ xs := by
   cases xs
   simpa using List.exists_mem_of_length_pos h

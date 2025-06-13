@@ -109,8 +109,10 @@ abbrev length_eq_zero := @length_eq_zero_iff
 theorem eq_nil_iff_length_eq_zero : l = [] ↔ length l = 0 :=
   length_eq_zero_iff.symm
 
-@[grind →] theorem length_pos_of_mem {a : α} : ∀ {l : List α}, a ∈ l → 0 < length l
+theorem length_pos_of_mem {a : α} : ∀ {l : List α}, a ∈ l → 0 < length l
   | _::_, _ => Nat.zero_lt_succ _
+
+grind_pattern length_pos_of_mem => a ∈ l, length l
 
 theorem exists_mem_of_length_pos : ∀ {l : List α}, 0 < length l → ∃ a, a ∈ l
   | _::_, _ => ⟨_, .head ..⟩

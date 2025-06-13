@@ -69,3 +69,7 @@ example (a b : Int) : a = 0 → b = 1 → a + b > 2 → False := by
 
 example (a b c : Int) : a = 0 → a + b > 2 → b = c → 1 = c → False := by
   grind
+
+example (p : Int) (n : Nat) (hmp : Int.negSucc (n + 1) + 1 = p)
+    (hnm : Int.negSucc (n + 1 + 1) + 1 = Int.negSucc (n + 1)) : p = Int.negSucc n := by
+  grind

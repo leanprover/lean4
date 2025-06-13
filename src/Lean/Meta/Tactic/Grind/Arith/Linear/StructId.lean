@@ -69,6 +69,11 @@ where
       let .some inst ← trySynthInstance instType
         | throwError "`grind linarith` failed to find instance{indentExpr instType}"
       return inst
+    let getHMulNatInst : GoalM Expr := do
+      let instType := mkApp3 (mkConst ``HMul [0, u, u]) Nat.mkType type type
+      let .some inst ← trySynthInstance instType
+        | throwError "`grind linarith` failed to find instance{indentExpr instType}"
+      return inst
     let checkToFieldDefEq? (parentInst? : Option Expr) (inst? : Option Expr) (toFieldName : Name) : GoalM (Option Expr) := do
       let some parentInst := parentInst? | return none
       let some inst := inst? | return none
@@ -100,6 +105,8 @@ where
     let negFn ← internalizeFn <| mkApp2 (mkConst ``Neg.neg [u]) type negInst
     let hmulInst ← getHMulInst
     let hmulFn ← internalizeFn <| mkApp4 (mkConst ``HMul.hMul [0, u, u]) Int.mkType type type hmulInst
+    let hmulNatInst ← getHMulNatInst
+    let hmulNatFn ← internalizeFn <| mkApp4 (mkConst ``HMul.hMul [0, u, u]) Nat.mkType type type hmulNatInst
     ensureToFieldDefEq zeroInst intModuleInst ``Grind.IntModule.toZero
     ensureToHomoFieldDefEq addInst intModuleInst ``Grind.IntModule.toAdd ``instHAdd
     ensureToHomoFieldDefEq subInst intModuleInst ``Grind.IntModule.toSub ``instHSub
@@ -152,7 +159,7 @@ where
     let id := (← get').structs.size
     let struct : Struct := {
       id, type, u, intModuleInst, preorderInst, isOrdInst, partialInst?, linearInst?, noNatDivInst?
-      leFn, ltFn, addFn, subFn, negFn, hmulFn, smulFn?, zero, one?
+      leFn, ltFn, addFn, subFn, negFn, hmulFn, hmulNatFn, smulFn?, zero, one?
       ringInst?, commRingInst?, ringIsOrdInst?, ringId?, ofNatZero
     }
     modify' fun s => { s with structs := s.structs.push struct }

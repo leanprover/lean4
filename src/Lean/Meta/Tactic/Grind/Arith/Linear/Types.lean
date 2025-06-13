@@ -94,6 +94,7 @@ structure Struct where
   ltFn             : Expr
   addFn            : Expr
   hmulFn           : Expr
+  hmulNatFn        : Expr
   smulFn?          : Option Expr
   subFn            : Expr
   negFn            : Expr

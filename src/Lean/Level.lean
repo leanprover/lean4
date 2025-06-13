@@ -375,8 +375,6 @@ partial def normalize (l : Level) (offset := 0): Level :=
       let prev  := lvl₁.getLevelOffset
       let prevK := lvl₁.getOffset
       mkMaxAux lvls k (i+1) prev prevK levelZero
-    | imax l₁ (imax l₂ l₃) =>
-      addOffset (normalize (imax (max l₁ l₂) l₃)) k
     | imax l₁ l₂ =>
       if l₂.isNeverZero then normalize (mkLevelMax l₁ l₂) k
       else

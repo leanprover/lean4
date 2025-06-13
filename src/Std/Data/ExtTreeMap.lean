@@ -5,4 +5,4 @@ Authors: Robin Arnez
 -/
 prelude
 import Std.Data.ExtTreeMap.Basic
---import Std.Data.ExtTreeMap.Lemmas
+import Std.Data.ExtTreeMap.Lemmas

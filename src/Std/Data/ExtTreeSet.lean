@@ -5,4 +5,4 @@ Authors: Robin Arnez
 -/
 prelude
 import Std.Data.ExtTreeSet.Basic
---import Std.Data.ExtTreeSet.Lemmas
+import Std.Data.ExtTreeSet.Lemmas

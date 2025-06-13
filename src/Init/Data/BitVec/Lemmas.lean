@@ -5683,8 +5683,7 @@ theorem msb_replicate {n w : Nat} {x : BitVec w} :
 
 theorem clzAux_eq_zero_iff {x : BitVec w} {n : Nat}:
     clzAux x n = 0 ↔ x.getLsbD n = true := by
-  unfold clzAux
-  cases n <;> simp
+  cases n <;> simp [clzAux]
 
 theorem clzAux_eq_iff {x : BitVec w} {n : Nat} :
     clzAux x n = (n + 1) ↔ (∀ i, i < n + 1 → x.getLsbD i = false) := by

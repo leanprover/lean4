@@ -84,27 +84,35 @@ class MonadAsync (t : Type → Type) (m : Type → Type) extends Monad m where
   -/
   async : m α → m (t α)
 
+@[default_instance]
 instance [Monad m] [MonadAwait t m] : MonadAwait t (StateT n m) where
   await := liftM (m := m) ∘ MonadAwait.await
 
+@[default_instance]
 instance [Monad m] [MonadAwait t m] : MonadAwait t (ExceptT n m) where
   await := liftM (m := m) ∘ MonadAwait.await
 
+@[default_instance]
 instance [Monad m] [MonadAwait t m] : MonadAwait t (ReaderT n m) where
   await := liftM (m := m) ∘ MonadAwait.await
 
+@[default_instance]
 instance [MonadAwait t m] : MonadAwait t (StateRefT' s n m) where
   await := liftM (m := m) ∘ MonadAwait.await
 
+@[default_instance]
 instance [MonadAwait t m] : MonadAwait t (StateT s m) where
   await := liftM (m := m) ∘ MonadAwait.await
 
+@[default_instance]
 instance [MonadAsync t m] : MonadAsync t (ReaderT n m) where
   async p := MonadAsync.async ∘ p
 
+@[default_instance]
 instance [MonadAsync t m] : MonadAsync t (StateRefT' s n m) where
   async p := MonadAsync.async ∘ p
 
+@[default_instance]
 instance [Functor t] [inst : MonadAsync t m] : MonadAsync t (StateT s m) where
   async p := fun s => do
     let t ← inst.async (p s)
@@ -125,9 +133,7 @@ protected def pure (x : α) : ETask ε α :=
   Task.pure <| .ok x
 
 /--
-Creates a new `ETask` that will run after `x` has finished.
-
-If `x`:
+Creates a new `ETask` that will run after `x` has finished. If `x`:
 - errors, return an `ETask` that resolves to the error.
 - succeeds, return an `ETask` that resolves to `f x`.
 -/
@@ -151,22 +157,22 @@ protected def bind (x : ETask ε α) (f : α → ETask ε β) : ETask ε β :=
     | .error e => Task.pure <| .error e
 
 /--
-Similar to `bind`, however `f` has access to the `IO` monad. If `f` throws an error, the returned
+Similar to `bind`, however `f` has access to the `EIO` monad. If `f` throws an error, the returned
 `ETask` resolves to that error.
 -/
 @[inline]
-protected def bindIO (x : ETask ε α) (f : α → EIO ε (ETask ε β)) : EIO ε (ETask ε β) :=
+protected def bindEIO (x : ETask ε α) (f : α → EIO ε (ETask ε β)) : EIO ε (ETask ε β) :=
   EIO.bindTask x fun r =>
     match r with
     | .ok a => f a
     | .error e => .error e
 
 /--
-Similar to `bind`, however `f` has access to the `IO` monad. If `f` throws an error, the returned
+Similar to `bind`, however `f` has access to the `EIO` monad. If `f` throws an error, the returned
 `ETask` resolves to that error.
 -/
 @[inline]
-protected def mapIO (f : α → EIO ε β) (x : ETask ε α) : BaseIO (ETask ε β) :=
+protected def mapEIO (f : α → EIO ε β) (x : ETask ε α) : BaseIO (ETask ε β) :=
   EIO.mapTask (t := x) fun r =>
     match r with
     | .ok a => f a
@@ -622,12 +628,12 @@ Returns the `Async` computation inside an `AsyncTask`, so it can be awaited.
 def async (self : Async α) : Async (AsyncTask α) :=
   EAsync.lift <| self.asTask
 
-instance : MonadAwait AsyncTask Async :=
-  inferInstanceAs (MonadAwait AsyncTask (EAsync IO.Error))
-
 @[default_instance]
 instance : MonadAsync AsyncTask Async :=
   inferInstanceAs (MonadAsync (ETask IO.Error) (EAsync IO.Error))
+
+instance : MonadAwait AsyncTask Async :=
+  inferInstanceAs (MonadAwait AsyncTask (EAsync IO.Error))
 
 instance : MonadAwait IO.Promise Async :=
   inferInstanceAs (MonadAwait IO.Promise (EAsync IO.Error))

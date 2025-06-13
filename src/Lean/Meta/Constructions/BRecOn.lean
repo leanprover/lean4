@@ -13,14 +13,6 @@ import Lean.Meta.PProdN
 namespace Lean
 open Meta
 
-/-- Transforms `e : xᵢ → (t₁ ×' t₂)` into `(xᵢ → t₁) ×' (xᵢ → t₂) -/
-private def etaPProd (xs : Array Expr) (e : Expr) : MetaM Expr := do
-  if xs.isEmpty then return e
-  let r := mkAppN e xs
-  let r₁ ← mkLambdaFVars xs (← mkPProdFstM r)
-  let r₂ ← mkLambdaFVars xs (← mkPProdSndM r)
-  mkPProdMk r₁ r₂
-
 /--
 If `minorType` is the type of a minor premies of a recursor, such as
 ```
@@ -40,7 +32,6 @@ of type
 private def buildBelowMinorPremise (rlvl : Level) (motives : Array Expr) (minorType : Expr) : MetaM Expr :=
   forallTelescope minorType fun minor_args _ => do go #[] minor_args.toList
 where
-  ibelow := rlvl matches .zero
   go (prods : Array Expr) : List Expr → MetaM Expr
   | [] => PProdN.pack rlvl prods
   | arg::args => do
@@ -50,8 +41,7 @@ where
         let name ← arg.fvarId!.getUserName
         let type' ← forallTelescope argType fun args _ => mkForallFVars args (.sort rlvl)
         withLocalDeclD name type' fun arg' => do
-          let snd ← mkForallFVars arg_args (mkAppN arg' arg_args)
-          let e' ← mkPProd argType snd
+          let e' ← mkForallFVars arg_args <| ← mkPProd arg_type (mkAppN arg' arg_args)
           mkLambdaFVars #[arg'] (← go (prods.push e') args)
       else
         mkLambdaFVars #[arg] (← go prods args)
@@ -86,8 +76,6 @@ private def mkBelowFromRec (recName : Name) (ibelow reflexive : Bool) (nParams :
   let refType :=
     if ibelow then
       recVal.type.instantiateLevelParams [lvlParam] [0]
-    else if reflexive then
-      recVal.type.instantiateLevelParams [lvlParam] [lvl.succ]
     else
       recVal.type
 
@@ -116,12 +104,9 @@ private def mkBelowFromRec (recName : Name) (ibelow reflexive : Bool) (nParams :
       if ibelow then
         0
       else if reflexive then
-        if let .max 1 ilvl' := ilvl then
-          mkLevelMax' (.succ lvl) ilvl'
-        else
-          mkLevelMax' (.succ lvl) ilvl
+        mkLevelMax ilvl lvl
       else
-        mkLevelMax' 1 lvl
+        mkLevelMax 1 lvl
 
     let mut val := .const recName (rlvl.succ :: lvls)
     -- add parameters
@@ -168,8 +153,8 @@ private def mkBelowOrIBelow (indName : Name) (ibelow : Bool) : MetaM Unit := do
       let belowName := belowName.appendIndexAfter (i + 1)
       mkBelowFromRec recName ibelow indVal.isReflexive indVal.numParams belowName
 
-def mkBelow (declName : Name) : MetaM Unit := mkBelowOrIBelow declName true
-def mkIBelow (declName : Name) : MetaM Unit := mkBelowOrIBelow declName false
+def mkBelow (declName : Name) : MetaM Unit := mkBelowOrIBelow declName false
+def mkIBelow (declName : Name) : MetaM Unit := mkBelowOrIBelow declName true
 
 /--
 If `minorType` is the type of a minor premies of a recursor, such as
@@ -207,8 +192,7 @@ private def buildBRecOnMinorPremise (rlvl : Level) (motives : Array Expr)
               let type' ← mkForallFVars arg_args
                 (← mkPProd arg_type (mkAppN belows[idx]! arg_type_args) )
               withLocalDeclD name type' fun arg' => do
-                let r ← etaPProd arg_args arg'
-                mkLambdaFVars #[arg'] (← go (prods.push r) args)
+                mkLambdaFVars #[arg'] (← go (prods.push arg') args)
             else
               mkLambdaFVars #[arg] (← go prods args)
     go #[] minor_args.toList
@@ -251,8 +235,6 @@ private def mkBRecOnFromRec (recName : Name) (ind reflexive : Bool) (nParams : N
   let refType :=
     if ind then
       recVal.type.instantiateLevelParams [lvlParam] [0]
-    else if reflexive then
-      recVal.type.instantiateLevelParams [lvlParam] [lvl.succ]
     else
       recVal.type
 
@@ -279,12 +261,9 @@ private def mkBRecOnFromRec (recName : Name) (ind reflexive : Bool) (nParams : N
       if ind then
         0
       else if reflexive then
-        if let .max 1 ilvl' := ilvl then
-          mkLevelMax' (.succ lvl) ilvl'
-        else
-          mkLevelMax' (.succ lvl) ilvl
+        mkLevelMax ilvl lvl
       else
-        mkLevelMax' 1 lvl
+        mkLevelMax 1 lvl
 
     -- One `below` for each motive, with the same motive parameters
     let blvls := if ind then lvls else lvl::lvls

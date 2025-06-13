@@ -12,28 +12,28 @@ example (a b : Int) (f : Int → Int) (h₁ : f a + b + 3 = 2)  : False := by
   fail_if_success grind
   sorry
 
-theorem ex₁ (a b : Int) (_ : 2*a + 3*b = 0) (_ : 2 ∣ 3*b + 1) : False := by
+example (a b : Int) (_ : 2*a + 3*b = 0) (_ : 2 ∣ 3*b + 1) : False := by
   grind
 
-theorem ex₂ (a b : Int) (_ : 2 ∣ 3*a + 1) (_ : 2*b + 3*a = 0) : False := by
+example (a b : Int) (_ : 2 ∣ 3*a + 1) (_ : 2*b + 3*a = 0) : False := by
   grind
 
-theorem ex₃ (a b c : Int) (_ : c + 3*a = 0) (_ : 2 ∣ 3*a + 1) (_ : 2*b + c = 0) : False := by
+example (a b c : Int) (_ : c + 3*a = 0) (_ : 2 ∣ 3*a + 1) (_ : 2*b + c = 0) : False := by
   grind
 
-theorem ex₄ (a b c : Int) (_ : 2*c + 3*a = 0) (_ : 2*b + c = 0) (_ : 2 ∣ 3*a + 1) : False := by
+example (a b c : Int) (_ : 2*c + 3*a = 0) (_ : 2*b + c = 0) (_ : 2 ∣ 3*a + 1) : False := by
   grind
 
-theorem ex₅ (a c : Int) (_ : 2*c + 3*a = 0) (_ : c + 1 = 0) : False := by
+example (a c : Int) (_ : 2*c + 3*a = 0) (_ : c + 1 = 0) : False := by
   grind
 
-theorem ex₆ (a c : Int) (_ : c + 3*a = 0) (_ : c + 3*a = 1) : False := by
+example (a c : Int) (_ : c + 3*a = 0) (_ : c + 3*a = 1) : False := by
   grind
 
-theorem ex₇ (a c : Int) (_ : c + 3*a = 0) (_ : c - 3*a = 6) (_ : 2*c + a = 0) : False := by
+example (a c : Int) (_ : c + 3*a = 0) (_ : c - 3*a = 6) (_ : 2*c + a = 0) : False := by
   grind
 
-theorem ex₈ (a b : Int) (_ : 2 ∣ a + 1) (_ : a = 2*b) : False := by
+example (a b : Int) (_ : 2 ∣ a + 1) (_ : a = 2*b) : False := by
   grind
 
 example (a b : Int) (_ : a = 2*b) (_ : 2 ∣ a + 1) : False := by
@@ -70,12 +70,6 @@ example (a b : Int) : a = 0 → b = 1 → a + b > 2 → False := by
 example (a b c : Int) : a = 0 → a + b > 2 → b = c → 1 = c → False := by
   grind
 
-#print ex₁
-#print ex₂
-#print ex₃
-#print ex₄
-#print ex₅
-#print ex₆
-#print ex₇
-#print ex₈
-#print ex₉
+example (p : Int) (n : Nat) (hmp : Int.negSucc (n + 1) + 1 = p)
+    (hnm : Int.negSucc (n + 1 + 1) + 1 = Int.negSucc (n + 1)) : p = Int.negSucc n := by
+  grind

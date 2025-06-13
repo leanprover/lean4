@@ -10,3 +10,9 @@ import Init.Data.Iterators.Basic
 import Init.Data.Iterators.PostconditionMonad
 import Init.Data.Iterators.Consumers
 import Init.Data.Iterators.Lemmas
+
+/-!
+# Iterators
+
+See `Std.Data.Iterators` for an overview over the iterator API.
+-/

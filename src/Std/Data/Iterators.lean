@@ -79,7 +79,9 @@ that needs to wait for a language feature.
 A distinction that cuts through the whole module is that between pure and monadic
 iterators. Each submodule contains a dedicated `Monadic` sub-submodule.
 
-All of the following module names are prefixed with `Std.Data.Iterators`.
+Depending on whether functionality is needed in `Init`, modules might exist in `Init` or in `Std`.
+The following module names can then be found under `Init.Data.Iterators`, `Std.Data.Iterators` or
+both.
 
 ### Basic iterator API
 

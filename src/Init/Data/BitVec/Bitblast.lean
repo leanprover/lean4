@@ -1798,8 +1798,7 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
       · simp only [hy₁, decide_false, Bool.not_false, Bool.and_true]
         by_cases hxy₁ : (- x / y) = 0#w
         · simp only [hxy₁, neg_zero, msb_zero, false_eq_decide_iff, BitVec.not_le]
-          simp only [udiv_eq_zero_iff_eq_zero_or_lt] at hxy₁
-          simp only [hy₁, _root_.false_or] at hxy₁
+          simp only [udiv_eq_zero_iff_eq_zero_or_lt, hy₁, _root_.false_or] at hxy₁
           bv_omega
         · simp only [udiv_eq_zero_iff_eq_zero_or_lt, _root_.not_or, BitVec.not_lt,
             hy₁, not_false_eq_true, _root_.true_and] at hxy₁

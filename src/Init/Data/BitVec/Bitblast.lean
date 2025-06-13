@@ -1956,9 +1956,9 @@ theorem shiftLeft_add_eq_shiftLeft_or {x y : BitVec w} :
 
 /-! ### Leading Zeros -/
 
-/--
-  Count the number of leading zeros downward from the `n`-th bit to the `0`-th bit for the bitblaster.
--/
+/-- Count the number of leading zeros downward from the `n`-th bit to the `0`-th bit for the bitblaster.
+This builds a tree of `if-then-else` lookups whose length is linear in the bitwidth,
+and an efficient circuit for bitblasting `clz`. -/
 def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
   match n with
   | 0 => if x.getLsbD 0 then BitVec.ofNat w (w - 1) else BitVec.ofNat w w

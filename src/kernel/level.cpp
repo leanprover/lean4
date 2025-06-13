@@ -448,7 +448,19 @@ level normalize(level const & l) {
     case level_kind::IMax: {
         auto l1 = normalize(imax_lhs(r));
         auto l2 = normalize(imax_rhs(r));
-        return mk_succ(mk_imax(l1, l2), p.second);
+        switch (kind(l2)) {
+        case level_kind::IMax: {
+            auto l3 = imax_lhs(l2);
+            auto l4 = imax_rhs(l2);
+            return mk_succ(normalize(mk_imax(mk_max(l1,l3),l4)),p.second);
+        }
+        case level_kind::Max: {
+            auto l3 = max_lhs(l2);
+            auto l4 = max_rhs(l2);
+            return mk_succ(normalize(mk_max(mk_imax(l1,l3),mk_imax(l1,l4))),p.second);
+        }
+        default: return mk_succ(mk_imax(l1, l2), p.second);
+        }        
     }
     case level_kind::Max: {
         buffer<level> todo;

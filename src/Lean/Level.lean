@@ -359,10 +359,10 @@ private def isExplicitSubsumed (lvls : Array Level) (firstNonExplicit : Nat) : B
     let max := lvls[firstNonExplicit - 1]!.getOffset
     isExplicitSubsumedAux lvls max firstNonExplicit
 
-partial def normalize (l : Level) : Level :=
+partial def normalize (l : Level) (offset := 0): Level :=
   if isAlreadyNormalizedCheap l then l
   else
-    let k := l.getOffset
+    let k := offset + l.getOffset
     let u := l.getLevelOffset
     match u with
     | max l₁ l₂ =>
@@ -375,12 +375,17 @@ partial def normalize (l : Level) : Level :=
       let prev  := lvl₁.getLevelOffset
       let prevK := lvl₁.getOffset
       mkMaxAux lvls k (i+1) prev prevK levelZero
+    | imax l₁ (imax l₂ l₃) =>
+      addOffset (normalize (imax (max l₁ l₂) l₃)) k
     | imax l₁ l₂ =>
-      if l₂.isNeverZero then addOffset (normalize (mkLevelMax l₁ l₂)) k
+      if l₂.isNeverZero then normalize (mkLevelMax l₁ l₂) k
       else
         let l₁ := normalize l₁
         let l₂ := normalize l₂
-        addOffset (mkIMaxAux l₁ l₂) k
+        match l₂ with
+          | max  l₂ l₃ => normalize (max (imax l₁ l₂) (imax l₁ l₃)) k
+          | imax l₂ l₃ => normalize (imax (max l₁ l₂) l₃) k
+          | _ => addOffset (mkIMaxAux l₁ l₂) k
     | _ => unreachable!
 
 /--

@@ -8,6 +8,7 @@ module
 prelude
 import Init.Data.List.Pairwise
 import Init.Data.List.Zip
+import Init.Data.Range.Classes
 
 /-!
 # Lemmas about `List.range` and `List.zipIdx`

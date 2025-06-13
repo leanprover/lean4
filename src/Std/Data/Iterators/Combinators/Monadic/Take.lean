@@ -143,7 +143,7 @@ instance Take.instIteratorLoop [Monad m] [Monad n] [Iterator α m β]
     IteratorLoop (Take α m β) m n :=
   .defaultImplementation
 
-instance Take.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]
+instance Take.instIteratorLoopPartial [Monad m] [Monad n] [Iterator α m β]
     [IteratorLoopPartial α m n] [MonadLiftT m n] :
     IteratorLoopPartial (Take α m β) m n :=
   .defaultImplementation

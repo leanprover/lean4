@@ -223,36 +223,6 @@ theorem IterStep.mapIterator_id {step : IterStep α β} :
   cases step <;> rfl
 
 /--
-A variant of `mapIterator` where the mapping function takes a proof that the
-given iterator has been obtained with `IterStep.successor`.
-
-If present, applies `f` to the iterator of an `IterStep` and replaces the iterator
-with the result of the application of `f`.
--/
-@[always_inline, inline, expose]
-def IterStep.pmapIterator {α' : Type u'} (step : IterStep α β)
-    (f : (it : α) → step.successor = some it → α') : IterStep α' β :=
-  match step with
-  | .yield it out => .yield (f it rfl) out
-  | .skip it => .skip (f it rfl)
-  | .done => .done
-
-@[simp]
-theorem IterStep.pmapIterator_yield {α' : Type u'} {it : α} {out : β} {f : (it : α) → _ → α'} :
-    (IterStep.yield it out).pmapIterator f = IterStep.yield (f it rfl) out :=
-  rfl
-
-@[simp]
-theorem IterStep.pmapIterator_skip {α' : Type u'} {it : α} {f : (it : α) → _ → α'} :
-    (IterStep.skip it (β := β)).pmapIterator f = IterStep.skip (f it rfl) :=
-  rfl
-
-@[simp]
-theorem IterStep.pmapIterator_done {α' : Type u'} {f : (it : α) → _ → α'} :
-    (IterStep.done (α := α) (β := β)).pmapIterator f = IterStep.done :=
-  rfl
-
-/--
 A variant of `IterStep` that bundles the step together with a proof that it is "plausible".
 The plausibility predicate will later be chosen to assert that a state is a plausible successor
 of another state. Having this proof bundled up with the step is important for termination proofs.
@@ -370,45 +340,6 @@ def IterM.IsPlausibleSuccessorOf {α : Type w} {m : Type w → Type w'} {β : Ty
     (it' it : IterM (α := α) m β) : Prop :=
   ∃ step, step.successor = some it' ∧ it.IsPlausibleStep step
 
-inductive IterM.IsPlausibleIndirectOutput {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
-    : IterM (α := α) m β → β → Prop where
-  | direct {it : IterM (α := α) m β} {out : β} : it.IsPlausibleOutput out →
-      it.IsPlausibleIndirectOutput out
-  | indirect {it it' : IterM (α := α) m β} {out : β} : it'.IsPlausibleSuccessorOf it →
-      it'.IsPlausibleIndirectOutput out → it.IsPlausibleIndirectOutput out
-
--- TODO: remove if unused
-def IterM.IsInLineageOf {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
-    (it' it : IterM (α := α) m β) : Prop :=
-  it' = it ∨ Relation.TransGen IterM.IsPlausibleSuccessorOf it' it
-
-protected theorem IterM.IsInLineageOf.rfl {α : Type w} {m : Type w → Type w'} {β : Type w}
-    [Iterator α m β] {it : IterM (α := α) m β} :
-    it.IsInLineageOf it :=
-  .inl rfl
-
-protected theorem IterM.IsInLineageOf.single {α : Type w} {m : Type w → Type w'} {β : Type w}
-    [Iterator α m β] {it' it : IterM (α := α) m β}
-    (h : it'.IsPlausibleSuccessorOf it) :
-    it'.IsInLineageOf it :=
-  .inr <| .single h
-
-protected theorem IterM.IsInLineageOf.trans {α : Type w} {m : Type w → Type w'} {β : Type w}
-    [Iterator α m β] {it'' it' it : IterM (α := α) m β}
-    (h' : it''.IsInLineageOf it') (h : it'.IsInLineageOf it) :
-    it''.IsInLineageOf it := by
-  cases h
-  · rename_i h
-    cases h
-    exact h'
-  · rename_i h
-    cases h'
-    · rename_i h'
-      cases h'
-      exact .inr h
-    · rename_i h'
-      exact .inr <| .trans h' h
-
 /--
 Asserts that a certain iterator `it'` could plausibly be the directly succeeding iterator of another
 given iterator `it` while no value is emitted (see `IterStep.skip`).
@@ -497,34 +428,6 @@ given iterator `it`.
 def Iter.IsPlausibleSuccessorOf {α : Type w} {β : Type w} [Iterator α Id β]
     (it' it : Iter (α := α) β) : Prop :=
   it'.toIterM.IsPlausibleSuccessorOf it.toIterM
-
-inductive Iter.IsPlausibleIndirectOutput {α β : Type w} [Iterator α Id β] :
-    Iter (α := α) β → β → Prop where
-  | direct {it : Iter (α := α) β} {out : β} : it.IsPlausibleOutput out →
-      it.IsPlausibleIndirectOutput out
-  | indirect {it it' : Iter (α := α) β} {out : β} : it'.IsPlausibleSuccessorOf it →
-      it'.IsPlausibleIndirectOutput out → it.IsPlausibleIndirectOutput out
-
-theorem Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM {α β : Type w}
-    [Iterator α Id β] {it : Iter (α := α) β} {out : β} :
-    it.IsPlausibleIndirectOutput out ↔ it.toIterM.IsPlausibleIndirectOutput out := by
-  constructor
-  · intro h
-    induction h with
-    | direct h =>
-      exact .direct h
-    | indirect h _ ih =>
-      exact .indirect h ih
-  · intro h
-    rw [← Iter.toIter_toIterM (it := it)]
-    generalize it.toIterM = it at ⊢ h
-    induction h with
-    | direct h =>
-      exact .direct h
-    | indirect h h' ih =>
-      rename_i it it' out
-      replace h : it'.toIter.IsPlausibleSuccessorOf it.toIter := h
-      exact .indirect (α := α) h ih
 
 /--
 Asserts that a certain iterator `it'` could plausibly be the directly succeeding iterator of another

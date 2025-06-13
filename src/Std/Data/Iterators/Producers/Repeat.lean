@@ -18,39 +18,23 @@ namespace Std.Iterators
 
 universe u v
 
-variable {α : Type w} {m : Type w → Type w'} {f : α → Option α}
+variable {α : Type w} {m : Type w → Type w'} {f : α → α}
 
 /--
 Internal state of the `repeat` combinator. Do not depend on its internals.
 -/
 @[unbox]
-structure RepeatIterator (α : Type u) (f : α → Option α) where
+structure RepeatIterator (α : Type u) (f : α → α) where
   /-- Internal implementation detail of the iterator library. -/
   next : α
 
 @[always_inline, inline]
 instance : Iterator (RepeatIterator α f) Id α where
   IsPlausibleStep it
-    | .yield it' out => out = it.internalState.next ∧ ∃ a, f it.internalState.next = some a ∧ it' = ⟨⟨a⟩⟩
+    | .yield it' out => out = it.internalState.next ∧ it' = ⟨⟨f it.internalState.next⟩⟩
     | .skip _ => False
-    | .done => f it.internalState.next = none
-  step it := match f it.internalState.next with
-    | none => pure <| .done rfl
-    | some a => pure <| .yield ⟨⟨a⟩⟩ it.internalState.next (by simp)
-
-/--
-Creates an iterator from an initial value `init` and a function `f : α → Option α`.
-First it yields `init`, and in each successive step, the iterator applies `f` to the previous value.
-If `f` returns `some a`, the iterator emits `a`, and otherwise terminates.
-
-**Termination properties:**
-
-* `Finite` instance: not available but provable in some cases
-* `Productive` instance: always
--/
-@[always_inline, inline]
-def Iter.repeatUntilNone {α : Type w} (f : α → Option α) (init : α) :=
-  (⟨RepeatIterator.mk (f := f) init⟩ : Iter α)
+    | .done => False
+  step it := pure <| .yield ⟨⟨f it.internalState.next⟩⟩ it.internalState.next (by simp)
 
 /--
 Creates an infinite iterator from an initial value `init` and a function `f : α → α`.
@@ -68,7 +52,7 @@ order.
 -/
 @[always_inline, inline]
 def Iter.repeat {α : Type w} (f : α → α) (init : α) :=
-  Iter.repeatUntilNone (fun a => some (f a)) init
+  (⟨RepeatIterator.mk (f := f) init⟩ : Iter α)
 
 private def RepeatIterator.instProductivenessRelation :
     ProductivenessRelation (RepeatIterator α f) Id where
@@ -80,19 +64,19 @@ instance RepeatIterator.instProductive :
     Productive (RepeatIterator α f) Id :=
   Productive.of_productivenessRelation instProductivenessRelation
 
-instance RepeatIterator.instIteratorLoop {α : Type w} {f : α → Option α} {n : Type w → Type w'} [Monad n] :
+instance RepeatIterator.instIteratorLoop {α : Type w} {f : α → α} {n : Type w → Type w'} [Monad n] :
     IteratorLoop (RepeatIterator α f) Id n :=
   .defaultImplementation
 
-instance RepeatIterator.instIteratorLoopPartial {α : Type w} {f : α → Option α} {n : Type w → Type w'}
+instance RepeatIterator.instIteratorLoopPartial {α : Type w} {f : α → α} {n : Type w → Type w'}
     [Monad n] : IteratorLoopPartial (RepeatIterator α f) Id n :=
   .defaultImplementation
 
-instance RepeatIterator.instIteratorCollect {α : Type w} {f : α → Option α} {n : Type w → Type w'}
+instance RepeatIterator.instIteratorCollect {α : Type w} {f : α → α} {n : Type w → Type w'}
     [Monad n] : IteratorCollect (RepeatIterator α f) Id n :=
   .defaultImplementation
 
-instance RepeatIterator.instIteratorCollectPartial {α : Type w} {f : α → Option α} {n : Type w → Type w'}
+instance RepeatIterator.instIteratorCollectPartial {α : Type w} {f : α → α} {n : Type w → Type w'}
     [Monad n] : IteratorCollectPartial (RepeatIterator α f) Id n :=
   .defaultImplementation
 

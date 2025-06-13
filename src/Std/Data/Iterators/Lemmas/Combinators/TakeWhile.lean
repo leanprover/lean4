@@ -6,7 +6,7 @@ Authors: Paul Reichert
 prelude
 import Std.Data.Iterators.Combinators.TakeWhile
 import Std.Data.Iterators.Lemmas.Combinators.Monadic.TakeWhile
-import Init.Data.Iterators.Lemmas.Consumers
+import Std.Data.Iterators.Lemmas.Consumers
 
 namespace Std.Iterators
 
@@ -18,16 +18,16 @@ theorem Iter.takeWhile_eq {α β} [Iterator α Id β] {P}
 theorem Iter.step_takeWhile {α β} [Iterator α Id β] {P}
     {it : Iter (α := α) β} :
     (it.takeWhile P).step = (match it.step with
-      | .yield it' out h => match h' : P out with
-        | true => .yield (it'.takeWhile P) out (.yield h (congrArg _ h'))
-        | false => .done (.rejected h (congrArg _ h'))
+      | .yield it' out h => match P out with
+        | true => .yield (it'.takeWhile P) out (.yield h True.intro)
+        | false => .done (.rejected h True.intro)
       | .skip it' h => .skip (it'.takeWhile P) (.skip h)
       | .done h => .done (.done h)) := by
   simp [Iter.takeWhile_eq, Iter.step, toIterM_toIter, IterM.step_takeWhile]
   generalize it.toIterM.step.run = step
   cases step using PlausibleIterStep.casesOn
   · simp only [IterM.Step.toPure_yield, PlausibleIterStep.yield, toIter_toIterM, toIterM_toIter]
-    split <;> split <;> (try exfalso; simp_all; done) <;> simp_all
+    cases P _ <;> rfl
   · simp
   · simp
 
@@ -43,29 +43,29 @@ theorem Iter.atIdxSlow?_takeWhile {α β}
     simp only [Option.any_some]
     apply Eq.symm
     split
-    · -- Ugh, this is so ugly
-      have : (match h' : P out with | true => Unit.unit | false => Unit.unit) = .unit := rfl
-      split at this
-      · simp
-      · exfalso; simp_all
-    · have : (match h' : P out with | true => Unit.unit | false => Unit.unit) = .unit := rfl
-      split at this
+    · cases h' : P out
       · exfalso; simp_all
       · simp
+    · cases h' : P out
+      · simp
+      · exfalso; simp_all
   case case2 it it' out h h' l ih =>
     simp only [Nat.succ_eq_add_one, atIdxSlow?.eq_def (it := it.takeWhile P), step_takeWhile, h']
     simp only [atIdxSlow?.eq_def (it := it), h']
-    have : (match h' : P out with | true => Unit.unit | false => Unit.unit) = .unit := rfl
-    split at this
-    · rename_i hP
-      simp only [ih]
+    cases hP : P out
+    · simp
+      intro h
+      specialize h 0 (Nat.zero_le _)
+      simp at h
+      exfalso; simp_all
+    · simp [ih]
       split
       · rename_i h
         rw [if_pos]
         intro k hk
         split
         · exact hP
-        · simp only [Nat.succ_eq_add_one, Nat.add_le_add_iff_right] at hk
+        · simp at hk
           exact h _ hk
       · rename_i hl
         rw [if_neg]
@@ -73,11 +73,6 @@ theorem Iter.atIdxSlow?_takeWhile {α β}
         apply hl
         intro k hk
         exact hl' (k + 1) (Nat.succ_le_succ hk)
-    · simp only [right_eq_ite_iff]
-      intro h
-      specialize h 0 (Nat.zero_le _)
-      simp only at h
-      exfalso; simp_all
   case case3 l it it' h h' ih =>
     simp only [atIdxSlow?.eq_def (it := it.takeWhile P), step_takeWhile, h', ih]
     simp only [atIdxSlow?.eq_def (it := it), h']
@@ -135,11 +130,5 @@ theorem Iter.toArray_takeWhile_of_finite {α β} [Iterator α Id β] {P}
     {it : Iter (α := α) β} :
     (it.takeWhile P).toArray = it.toArray.takeWhile P := by
   rw [← toArray_toList, ← toArray_toList, List.takeWhile_toArray, toList_takeWhile_of_finite]
-
-theorem TakeWhile.isPlausibleSuccessorOf_inner_of_isPlausibleSuccessorOf {α β P}
-    [Iterator α Id β]
-    {it' it : Iter (α := TakeWhile α Id β P) β} (h : it'.IsPlausibleSuccessorOf it) :
-    it'.internalState.inner.IsPlausibleSuccessorOf it.internalState.inner :=
-  TakeWhile.Monadic.isPlausibleSuccessorOf_inner_of_isPlausibleSuccessorOf h
 
 end Std.Iterators

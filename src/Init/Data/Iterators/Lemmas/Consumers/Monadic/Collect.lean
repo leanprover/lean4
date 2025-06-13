@@ -7,8 +7,8 @@ module
 
 prelude
 import Init.Data.Array.Lemmas
-import all Init.Data.Iterators.Consumers.Monadic.Collect
 import Init.Data.Iterators.Lemmas.Monadic.Basic
+import all Init.Data.Iterators.Consumers.Monadic.Collect
 
 namespace Std.Iterators
 

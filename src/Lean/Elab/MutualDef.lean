@@ -993,9 +993,12 @@ def getKindForLetRecs (mainHeaders : Array DefViewElabHeader) : DefKind :=
   else DefKind.«def»
 
 def getModifiersForLetRecs (mainHeaders : Array DefViewElabHeader) : Modifiers := {
-  isNoncomputable := mainHeaders.any fun h => h.modifiers.isNoncomputable
-  recKind         := if mainHeaders.any fun h => h.modifiers.isPartial then RecKind.partial else RecKind.default
-  isUnsafe        := mainHeaders.any fun h => h.modifiers.isUnsafe
+  computeKind :=
+    if mainHeaders.any (·.modifiers.isNoncomputable) then .noncomputable
+    else if mainHeaders.any (·.modifiers.isMeta) then .meta
+    else .regular
+  recKind     := if mainHeaders.any fun h => h.modifiers.isInferredPartial then RecKind.partial else RecKind.default
+  isUnsafe    := mainHeaders.any fun h => h.modifiers.isUnsafe
 }
 
 /--
@@ -1011,7 +1014,6 @@ def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mai
   let letRecsToLift := letRecsToLift.toArray
   let mainFVarIds := mainFVars.map Expr.fvarId!
   let recFVarIds  := (letRecsToLift.map fun toLift => toLift.fvarId) ++ mainFVarIds
-  resetZetaDeltaFVarIds
   withTrackingZetaDelta do
     -- By checking `toLift.type` and `toLift.val` we populate `zetaFVarIds`. See comments at `src/Lean/Meta/Closure.lean`.
     let letRecsToLift ← letRecsToLift.mapM fun toLift => withLCtx toLift.lctx toLift.localInstances do

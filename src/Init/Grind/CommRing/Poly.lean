@@ -206,7 +206,7 @@ instance : LawfulBEq Poly where
     intro a
     induction a <;> simp! [BEq.beq]
     next k m p ih =>
-    show m == m ∧ p == p
+    change m == m ∧ p == p
     simp [ih]
 
 def Poly.denote [CommRing α] (ctx : Context α) (p : Poly) : α :=
@@ -533,7 +533,7 @@ theorem Mon.denote_concat {α} [CommRing α] (ctx : Context α) (m₁ m₂ : Mon
   next p₁ m₁ ih => rw [mul_assoc]
 
 private theorem le_of_blt_false {a b : Nat} : a.blt b = false → b ≤ a := by
-  intro h; apply Nat.le_of_not_gt; show ¬a < b
+  intro h; apply Nat.le_of_not_gt; change ¬a < b
   rw [← Nat.blt_eq, h]; simp
 
 private theorem eq_of_blt_false {a b : Nat} : a.blt b = false → b.blt a = false → a = b := by

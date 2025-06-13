@@ -685,7 +685,7 @@ theorem replace_toArray [BEq α] [LawfulBEq α] (l : List α) (a b : α) :
         · rw [if_pos (by omega), if_pos, if_neg]
           · simp only [mem_take_iff_getElem, not_exists]
             intro k hk
-            simpa using h.2 ⟨k, by omega⟩ (by show k < i.1; omega)
+            simpa using h.2 ⟨k, by omega⟩ (by change k < i.1; omega)
           · subst h₃
             simpa using h.1
         · rw [if_neg (by omega)]

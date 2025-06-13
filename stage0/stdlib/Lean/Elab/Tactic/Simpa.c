@@ -20,7 +20,6 @@ lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_obj
 static lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__4___closed__10;
 LEAN_EXPORT lean_object* l_Lean_occursCheck___at_Lean_Elab_Tactic_Simpa_evalSimpa___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Simpa_instReprUseImplicitLambdaResult___closed__1;
-lean_object* l_Lean_reprExpr____x40_Lean_Expr___hyg_2875_(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getSimpTheorems___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___regBuiltin_Lean_Elab_Tactic_Simpa_evalSimpa_declRange__3___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -157,6 +156,7 @@ uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler
 static lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__4___closed__4;
 lean_object* l_Lean_MetavarContext_getExprAssignmentCore_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
+lean_object* l_Lean_reprExpr____x40_Lean_Expr___hyg_2896_(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__4___closed__7;
 lean_object* l_Lean_MVarId_assumption(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -612,7 +612,7 @@ lean_inc(x_9);
 lean_dec(x_1);
 x_10 = lean_unsigned_to_nat(1024u);
 x_11 = lean_nat_dec_le(x_10, x_2);
-x_12 = l_Lean_reprExpr____x40_Lean_Expr___hyg_2875_(x_9, x_10);
+x_12 = l_Lean_reprExpr____x40_Lean_Expr___hyg_2896_(x_9, x_10);
 x_13 = l_Lean_Elab_Tactic_Simpa_reprUseImplicitLambdaResult____x40_Lean_Elab_Tactic_Simpa___hyg_51____closed__11;
 x_14 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_14, 0, x_13);

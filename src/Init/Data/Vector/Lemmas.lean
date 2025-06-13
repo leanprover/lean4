@@ -3076,7 +3076,7 @@ theorem getElem_push_last {xs : Vector α n} {x : α} : (xs.push x)[n] = x := by
 
 /-! ### zipWith -/
 
-@[simp] theorem getElem_zipWith {f : α → β → γ} {as : Vector α n} {bs : Vector β n} {i : Nat}
+@[simp, grind =] theorem getElem_zipWith {f : α → β → γ} {as : Vector α n} {bs : Vector β n} {i : Nat}
     (hi : i < n) : (zipWith f as bs)[i] = f as[i] bs[i] := by
   cases as
   cases bs

@@ -343,7 +343,6 @@ structure MkValueTypeClosureResult where
   exprArgs    : Array Expr
 
 def mkValueTypeClosureAux (type : Expr) (value : Expr) : ClosureM (Expr × Expr) := do
-  resetZetaDeltaFVarIds
   withTrackingZetaDelta do
     let type  ← collectExpr type
     let value ← collectExpr value

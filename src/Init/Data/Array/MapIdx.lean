@@ -51,27 +51,27 @@ theorem mapFinIdx_spec {xs : Array α} {f : (i : Nat) → α → (h : i < xs.siz
       ∀ i h, p i ((Array.mapFinIdx xs f)[i]) h :=
   (mapFinIdx_induction _ _ (fun _ => True) trivial p fun _ _ _ => ⟨hs .., trivial⟩).2
 
-@[simp] theorem size_mapFinIdx {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} :
+@[simp, grind =] theorem size_mapFinIdx {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} :
     (xs.mapFinIdx f).size = xs.size :=
   (mapFinIdx_spec (p := fun _ _ _ => True) (hs := fun _ _ => trivial)).1
 
-@[simp] theorem size_zipIdx {xs : Array α} {k : Nat} : (xs.zipIdx k).size = xs.size :=
+@[simp, grind =] theorem size_zipIdx {xs : Array α} {k : Nat} : (xs.zipIdx k).size = xs.size :=
   Array.size_mapFinIdx
 
 @[deprecated size_zipIdx (since := "2025-01-21")] abbrev size_zipWithIndex := @size_zipIdx
 
-@[simp] theorem getElem_mapFinIdx {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} {i : Nat}
+@[simp, grind =] theorem getElem_mapFinIdx {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} {i : Nat}
     (h : i < (xs.mapFinIdx f).size) :
     (xs.mapFinIdx f)[i] = f i (xs[i]'(by simp_all)) (by simp_all) :=
   (mapFinIdx_spec (p := fun i b h => b = f i xs[i] h) fun _ _ => rfl).2 i _
 
-@[simp] theorem getElem?_mapFinIdx {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} {i : Nat} :
+@[simp, grind =] theorem getElem?_mapFinIdx {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} {i : Nat} :
     (xs.mapFinIdx f)[i]? =
       xs[i]?.pbind fun b h => some <| f i b (getElem?_eq_some_iff.1 h).1 := by
   simp only [getElem?_def, size_mapFinIdx, getElem_mapFinIdx]
   split <;> simp_all
 
-@[simp] theorem toList_mapFinIdx {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} :
+@[simp, grind =] theorem toList_mapFinIdx {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} :
     (xs.mapFinIdx f).toList = xs.toList.mapFinIdx (fun i a h => f i a (by simpa)) := by
   apply List.ext_getElem <;> simp
 
@@ -91,20 +91,20 @@ theorem mapIdx_spec {f : Nat → α → β} {xs : Array α}
       ∀ i h, p i ((xs.mapIdx f)[i]) h :=
   (mapIdx_induction (motive := fun _ => True) trivial fun _ _ _ => ⟨hs .., trivial⟩).2
 
-@[simp] theorem size_mapIdx {f : Nat → α → β} {xs : Array α} : (xs.mapIdx f).size = xs.size :=
+@[simp, grind =] theorem size_mapIdx {f : Nat → α → β} {xs : Array α} : (xs.mapIdx f).size = xs.size :=
   (mapIdx_spec (p := fun _ _ _ => True) (hs := fun _ _ => trivial)).1
 
-@[simp] theorem getElem_mapIdx {f : Nat → α → β} {xs : Array α} {i : Nat}
+@[simp, grind =] theorem getElem_mapIdx {f : Nat → α → β} {xs : Array α} {i : Nat}
     (h : i < (xs.mapIdx f).size) :
     (xs.mapIdx f)[i] = f i (xs[i]'(by simp_all)) :=
   (mapIdx_spec (p := fun i b h => b = f i xs[i]) fun _ _ => rfl).2 i (by simp_all)
 
-@[simp] theorem getElem?_mapIdx {f : Nat → α → β} {xs : Array α} {i : Nat} :
+@[simp, grind =] theorem getElem?_mapIdx {f : Nat → α → β} {xs : Array α} {i : Nat} :
     (xs.mapIdx f)[i]? =
       xs[i]?.map (f i) := by
   simp [getElem?_def, size_mapIdx, getElem_mapIdx]
 
-@[simp] theorem toList_mapIdx {f : Nat → α → β} {xs : Array α} :
+@[simp, grind =] theorem toList_mapIdx {f : Nat → α → β} {xs : Array α} :
     (xs.mapIdx f).toList = xs.toList.mapIdx (fun i a => f i a) := by
   apply List.ext_getElem <;> simp
 
@@ -126,7 +126,7 @@ namespace Array
 
 /-! ### zipIdx -/
 
-@[simp] theorem getElem_zipIdx {xs : Array α} {k : Nat} {i : Nat} (h : i < (xs.zipIdx k).size) :
+@[simp, grind =] theorem getElem_zipIdx {xs : Array α} {k : Nat} {i : Nat} (h : i < (xs.zipIdx k).size) :
     (xs.zipIdx k)[i] = (xs[i]'(by simp_all), k + i) := by
   simp [zipIdx]
 
@@ -140,7 +140,7 @@ abbrev getElem_zipWithIndex := @getElem_zipIdx
 @[deprecated zipIdx_toArray (since := "2025-01-21")]
 abbrev zipWithIndex_toArray := @zipIdx_toArray
 
-@[simp] theorem toList_zipIdx {xs : Array α} {k : Nat} :
+@[simp, grind =] theorem toList_zipIdx {xs : Array α} {k : Nat} :
     (xs.zipIdx k).toList = xs.toList.zipIdx k := by
   rcases xs with ⟨xs⟩
   simp
@@ -185,7 +185,7 @@ abbrev mem_zipWithIndex_iff_getElem? := @mem_zipIdx_iff_getElem?
   subst w
   rfl
 
-@[simp]
+@[simp, grind =]
 theorem mapFinIdx_empty {f : (i : Nat) → α → (h : i < 0) → β} : mapFinIdx #[] f = #[] :=
   rfl
 
@@ -195,6 +195,7 @@ theorem mapFinIdx_eq_ofFn {xs : Array α} {f : (i : Nat) → α → (h : i < xs.
   simp only [List.mapFinIdx_toArray, List.mapFinIdx_eq_ofFn, Fin.getElem_fin, List.getElem_toArray]
   simp [Array.size]
 
+@[grind =]
 theorem mapFinIdx_append {xs ys : Array α} {f : (i : Nat) → α → (h : i < (xs ++ ys).size) → β} :
     (xs ++ ys).mapFinIdx f =
       xs.mapFinIdx (fun i a h => f i a (by simp; omega)) ++
@@ -203,7 +204,7 @@ theorem mapFinIdx_append {xs ys : Array α} {f : (i : Nat) → α → (h : i < (
   cases ys
   simp [List.mapFinIdx_append, Array.size]
 
-@[simp]
+@[simp, grind =]
 theorem mapFinIdx_push {xs : Array α} {a : α} {f : (i : Nat) → α → (h : i < (xs.push a).size) → β} :
     mapFinIdx (xs.push a) f =
       (mapFinIdx xs (fun i a h => f i a (by simp; omega))).push (f xs.size a (by simp)) := by
@@ -237,7 +238,7 @@ theorem exists_of_mem_mapFinIdx {b : β} {xs : Array α} {f : (i : Nat) → α �
   rcases xs with ⟨xs⟩
   exact List.exists_of_mem_mapFinIdx (by simpa using h)
 
-@[simp] theorem mem_mapFinIdx {b : β} {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} :
+@[simp, grind =] theorem mem_mapFinIdx {b : β} {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} :
     b ∈ xs.mapFinIdx f ↔ ∃ (i : Nat) (h : i < xs.size), f i xs[i] h = b := by
   rcases xs with ⟨xs⟩
   simp
@@ -290,7 +291,7 @@ theorem mapFinIdx_eq_mapFinIdx_iff {xs : Array α} {f g : (i : Nat) → α → (
   rw [eq_comm, mapFinIdx_eq_iff]
   simp
 
-@[simp] theorem mapFinIdx_mapFinIdx {xs : Array α}
+@[simp, grind =] theorem mapFinIdx_mapFinIdx {xs : Array α}
     {f : (i : Nat) → α → (h : i < xs.size) → β}
     {g : (i : Nat) → β → (h : i < (xs.mapFinIdx f).size) → γ} :
     (xs.mapFinIdx f).mapFinIdx g = xs.mapFinIdx (fun i a h => g i (f i a h) (by simpa using h)) := by
@@ -305,14 +306,14 @@ theorem mapFinIdx_eq_replicate_iff {xs : Array α} {f : (i : Nat) → α → (h 
 @[deprecated mapFinIdx_eq_replicate_iff (since := "2025-03-18")]
 abbrev mapFinIdx_eq_mkArray_iff := @mapFinIdx_eq_replicate_iff
 
-@[simp] theorem mapFinIdx_reverse {xs : Array α} {f : (i : Nat) → α → (h : i < xs.reverse.size) → β} :
+@[simp, grind =] theorem mapFinIdx_reverse {xs : Array α} {f : (i : Nat) → α → (h : i < xs.reverse.size) → β} :
     xs.reverse.mapFinIdx f = (xs.mapFinIdx (fun i a h => f (xs.size - 1 - i) a (by simp; omega))).reverse := by
   rcases xs with ⟨l⟩
   simp [List.mapFinIdx_reverse, Array.size]
 
 /-! ### mapIdx -/
 
-@[simp]
+@[simp, grind =]
 theorem mapIdx_empty {f : Nat → α → β} : mapIdx f #[] = #[] :=
   rfl
 
@@ -332,13 +333,14 @@ theorem mapIdx_eq_zipIdx_map {xs : Array α} {f : Nat → α → β} :
 @[deprecated mapIdx_eq_zipIdx_map (since := "2025-01-21")]
 abbrev mapIdx_eq_zipWithIndex_map := @mapIdx_eq_zipIdx_map
 
+@[grind =]
 theorem mapIdx_append {xs ys : Array α} :
     (xs ++ ys).mapIdx f = xs.mapIdx f ++ ys.mapIdx (fun i => f (i + xs.size)) := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
   simp [List.mapIdx_append]
 
-@[simp]
+@[simp, grind =]
 theorem mapIdx_push {xs : Array α} {a : α} :
     mapIdx f (xs.push a) = (mapIdx f xs).push (f xs.size a) := by
   simp [← append_singleton, mapIdx_append]
@@ -360,7 +362,7 @@ theorem exists_of_mem_mapIdx {b : β} {xs : Array α}
   rw [mapIdx_eq_mapFinIdx] at h
   simpa [Fin.exists_iff] using exists_of_mem_mapFinIdx h
 
-@[simp] theorem mem_mapIdx {b : β} {xs : Array α} :
+@[simp, grind =] theorem mem_mapIdx {b : β} {xs : Array α} :
     b ∈ mapIdx f xs ↔ ∃ (i : Nat) (h : i < xs.size), f i xs[i] = b := by
   constructor
   · intro h
@@ -414,7 +416,7 @@ theorem mapIdx_eq_mapIdx_iff {xs : Array α} :
   rcases xs with ⟨xs⟩
   simp [List.mapIdx_eq_mapIdx_iff]
 
-@[simp] theorem mapIdx_set {f : Nat → α → β} {xs : Array α} {i : Nat} {h : i < xs.size} {a : α} :
+@[simp, grind =] theorem mapIdx_set {f : Nat → α → β} {xs : Array α} {i : Nat} {h : i < xs.size} {a : α} :
     (xs.set i a).mapIdx f = (xs.mapIdx f).set i (f i a) (by simpa) := by
   rcases xs with ⟨xs⟩
   simp [List.mapIdx_set]
@@ -424,17 +426,17 @@ theorem mapIdx_eq_mapIdx_iff {xs : Array α} :
   rcases xs with ⟨xs⟩
   simp [List.mapIdx_set]
 
-@[simp] theorem back?_mapIdx {xs : Array α} {f : Nat → α → β} :
+@[simp, grind =] theorem back?_mapIdx {xs : Array α} {f : Nat → α → β} :
     (mapIdx f xs).back? = (xs.back?).map (f (xs.size - 1)) := by
   rcases xs with ⟨xs⟩
   simp [List.getLast?_mapIdx]
 
-@[simp] theorem back_mapIdx {xs : Array α} {f : Nat → α → β} (h) :
+@[simp, grind =] theorem back_mapIdx {xs : Array α} {f : Nat → α → β} (h) :
     (xs.mapIdx f).back h = f (xs.size - 1) (xs.back (by simpa using h)) := by
   rcases xs with ⟨xs⟩
   simp [List.getLast_mapIdx]
 
-@[simp] theorem mapIdx_mapIdx {xs : Array α} {f : Nat → α → β} {g : Nat → β → γ} :
+@[simp, grind =] theorem mapIdx_mapIdx {xs : Array α} {f : Nat → α → β} {g : Nat → β → γ} :
     (xs.mapIdx f).mapIdx g = xs.mapIdx (fun i => g i ∘ f i) := by
   simp [mapIdx_eq_iff]
 
@@ -447,7 +449,7 @@ theorem mapIdx_eq_replicate_iff {xs : Array α} {f : Nat → α → β} {b : β}
 @[deprecated mapIdx_eq_replicate_iff (since := "2025-03-18")]
 abbrev mapIdx_eq_mkArray_iff := @mapIdx_eq_replicate_iff
 
-@[simp] theorem mapIdx_reverse {xs : Array α} {f : Nat → α → β} :
+@[simp, grind =] theorem mapIdx_reverse {xs : Array α} {f : Nat → α → β} :
     xs.reverse.mapIdx f = (mapIdx (fun i => f (xs.size - 1 - i)) xs).reverse := by
   rcases xs with ⟨xs⟩
   simp [List.mapIdx_reverse]
@@ -456,7 +458,7 @@ end Array
 
 namespace List
 
-@[grind] theorem mapFinIdxM_toArray [Monad m] [LawfulMonad m] {l : List α}
+@[grind =] theorem mapFinIdxM_toArray [Monad m] [LawfulMonad m] {l : List α}
     {f : (i : Nat) → α → (h : i < l.length) → m β} :
     l.toArray.mapFinIdxM f = toArray <$> l.mapFinIdxM f := by
   let rec go (i : Nat) (acc : Array β) (inv : i + acc.size = l.length) :
@@ -477,7 +479,7 @@ namespace List
   simp only [Array.mapFinIdxM, mapFinIdxM]
   exact go _ #[] _
 
-@[grind] theorem mapIdxM_toArray [Monad m] [LawfulMonad m] {l : List α}
+@[grind =] theorem mapIdxM_toArray [Monad m] [LawfulMonad m] {l : List α}
     {f : Nat → α → m β} :
     l.toArray.mapIdxM f = toArray <$> l.mapIdxM f := by
   let rec go (bs : List α) (acc : Array β) (inv : bs.length + acc.size = l.length) :

@@ -4284,7 +4284,7 @@ if (x_10 == 0)
 uint8_t x_11; lean_object* x_12; 
 lean_dec(x_5);
 lean_dec(x_4);
-x_11 = 1;
+x_11 = 0;
 x_12 = l_Lean_ParseImports_setIsMeta(x_11, x_2, x_3);
 return x_12;
 }
@@ -4305,7 +4305,7 @@ else
 uint8_t x_16; lean_object* x_17; 
 lean_dec(x_5);
 lean_dec(x_4);
-x_16 = 1;
+x_16 = 0;
 x_17 = l_Lean_ParseImports_setIsMeta(x_16, x_2, x_3);
 return x_17;
 }
@@ -4322,7 +4322,7 @@ x_19 = lean_ctor_get(x_3, 1);
 lean_dec(x_19);
 lean_ctor_set(x_3, 1, x_5);
 x_20 = l_Lean_ParseImports_whitespace(x_2, x_3);
-x_21 = 0;
+x_21 = 1;
 x_22 = l_Lean_ParseImports_setIsMeta(x_21, x_2, x_20);
 return x_22;
 }
@@ -4347,7 +4347,7 @@ lean_ctor_set_uint8(x_29, sizeof(void*)*3 + 1, x_26);
 lean_ctor_set_uint8(x_29, sizeof(void*)*3 + 2, x_27);
 lean_ctor_set_uint8(x_29, sizeof(void*)*3 + 3, x_28);
 x_30 = l_Lean_ParseImports_whitespace(x_2, x_29);
-x_31 = 0;
+x_31 = 1;
 x_32 = l_Lean_ParseImports_setIsMeta(x_31, x_2, x_30);
 return x_32;
 }

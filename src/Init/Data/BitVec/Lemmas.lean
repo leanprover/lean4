@@ -5884,73 +5884,76 @@ theorem getLsbD_true_of_eq_clzAux_of_ne_zero {x : BitVec w} {n : Nat} (hw : 0 < 
             omega
 
 theorem clzAux_eq_iff_forall_of_clzAuz_lt  {x : BitVec w} (hw : 0 < w) (hlt : (clzAux x n < n + 1)):
-    ((∀ i, i < k → x.getLsbD (n - i) = false) ∧ ((x.getLsbD (n - k) = true))) ↔ k = x.clzAux n := by
-  induction n generalizing k
-  · case zero =>
-    induction k
-    · case zero =>
-      by_cases hx0 : x.getLsbD 0
-      · simp only [Nat.not_lt_zero, Nat.zero_le, Nat.sub_eq_zero_of_le, hx0, Bool.true_eq_false,
-          imp_self, implies_true, Nat.sub_self, _root_.and_self, clzAux_zero, ↓reduceIte]
-      · -- contra
-        simp only [hx0]
-        constructor
-        · intro h
-          simp only [clzAux_zero, left_eq_ite_iff, Bool.not_eq_true, Nat.zero_ne_one, imp_false,
-            Bool.not_eq_false]
-          obtain ⟨h1, h2⟩ := h
-          simp only [clzAux_zero, Nat.zero_add, Nat.lt_one_iff, ite_eq_left_iff, Bool.not_eq_true,
-            Nat.succ_ne_self, imp_false, Bool.not_eq_false] at hlt
-          exact hlt
-        · intro h
-          simp only [clzAux_zero, Nat.zero_add, Nat.lt_one_iff, ite_eq_left_iff, Bool.not_eq_true,
-            Nat.succ_ne_self, imp_false, Bool.not_eq_false] at hlt
-          simp only [Bool.not_eq_true] at hx0
-          simp only [hx0, Bool.false_eq_true] at hlt
-    · case succ k ihk =>
-      by_cases hx0 : x.getLsbD 0
-      · simp only [Nat.zero_le, Nat.sub_eq_zero_of_le, hx0, Bool.true_eq_false, imp_false,
-          Nat.not_lt, Nat.le_add_left, and_true, clzAux_zero, ↓reduceIte, Nat.add_eq_zero,
-          Nat.succ_ne_self, and_false, iff_false, Classical.not_forall, Nat.not_le]
-        exists 0
-        omega
-      · simp_all
-  · case succ n ihn =>
-    induction k
-    · case zero =>
-      simp only [Nat.not_lt_zero, false_implies, implies_true, Nat.sub_zero, ← clzAuz_eq_zero_iff,
-        true_and]
-      omega
-    · case succ k ihk =>
-      simp only [Nat.reduceSubDiff]
-      unfold clzAux at hlt
-      unfold clzAux
-      by_cases hxn : x.getLsbD (n + 1)
-      · simp only [hxn, ↓reduceIte, Nat.lt_add_left_iff_pos, Nat.zero_lt_succ] at hlt
-        simp only [hxn, ↓reduceIte, Nat.add_eq_zero, Nat.succ_ne_self, and_false, iff_false,
-          _root_.not_and, Bool.not_eq_true]
-        intro i
-        specialize i 0 (by omega)
-        simp only [Nat.sub_zero] at i
-        simp only [i, Bool.false_eq_true] at hxn
-      · simp only [hxn, Bool.false_eq_true, ↓reduceIte] at hlt
-        simp only [show x.clzAux n < n + 1 by omega, forall_const] at ihn
-        simp only [hxn, Bool.false_eq_true, ↓reduceIte,
-          show k + 1 = 1 + x.clzAux n ↔ k = x.clzAux n by omega]
-        specialize @ihn k
-        simp only [← ihn, and_congr_left_iff]
-        intro h
-        constructor
-        · intro i j hj
-          simp only [h, and_true] at ihn
-          specialize i (j + 1) (by omega)
-          simpa only [Nat.reduceSubDiff] using i
-        · intro i j hj
-          by_cases hj0 : j = 0
-          · simp_all
-          · specialize i (j - 1) (by omega)
-            simp only [show n - (j - 1) = n + 1 - j by omega] at i
-            exact i
+    x.clzAux n = k ↔ ((∀ i, i < k → x.getLsbD (n - i) = false) ∧ ((x.getLsbD (n - k) = true))) := by sorry
+  -- induction n generalizing k
+  -- · case zero =>
+  --   induction k
+  --   · case zero =>
+  --     by_cases hx0 : x.getLsbD 0
+  --     · simp only [Nat.not_lt_zero, Nat.zero_le, Nat.sub_eq_zero_of_le, hx0, Bool.true_eq_false,
+  --         imp_self, implies_true, Nat.sub_self, _root_.and_self, clzAux_zero, ↓reduceIte]
+  --     · -- contra
+  --       simp only [hx0]
+  --       constructor
+  --       · intro h
+  --         simp only [clzAux_zero, left_eq_ite_iff, Bool.not_eq_true, Nat.zero_ne_one, imp_false,
+  --           Bool.not_eq_false]
+  --         obtain ⟨h1, h2⟩ := h
+  --         simp only [clzAux_zero, Nat.zero_add, Nat.lt_one_iff, ite_eq_left_iff, Bool.not_eq_true,
+  --           Nat.succ_ne_self, imp_false, Bool.not_eq_false] at hlt
+  --         simp [hlt]
+  --       · intro h
+  --         simp only [clzAux_zero, Nat.zero_add, Nat.lt_one_iff, ite_eq_left_iff, Bool.not_eq_true,
+  --           Nat.succ_ne_self, imp_false, Bool.not_eq_false] at hlt
+  --         simp only [Bool.not_eq_true] at hx0
+  --         simp only [hx0, Bool.false_eq_true] at hlt
+  --   · case succ k ihk =>
+  --     by_cases hx0 : x.getLsbD 0
+  --     · simp only [Nat.zero_le, Nat.sub_eq_zero_of_le, hx0, Bool.true_eq_false, imp_false,
+  --         Nat.not_lt, Nat.le_add_left, and_true, clzAux_zero, ↓reduceIte, Nat.add_eq_zero,
+  --         Nat.succ_ne_self, and_false, iff_false, Classical.not_forall, Nat.not_le]
+  --       simp
+  --       exists 0
+  --       omega
+  --     · simp_all
+  -- · case succ n ihn =>
+  --   induction k
+  --   · case zero =>
+  --     simp only [Nat.not_lt_zero, false_implies, implies_true, Nat.sub_zero, ← clzAuz_eq_zero_iff,
+  --       true_and]
+  --   · case succ k ihk =>
+  --     simp only [Nat.reduceSubDiff]
+  --     unfold clzAux at hlt
+  --     unfold clzAux
+  --     by_cases hxn : x.getLsbD (n + 1)
+  --     · simp only [hxn, ↓reduceIte, Nat.lt_add_left_iff_pos, Nat.zero_lt_succ] at hlt
+  --       simp only [hxn, ↓reduceIte, Nat.add_eq_zero, Nat.succ_ne_self, and_false, iff_false,
+  --         _root_.not_and, Bool.not_eq_true]
+  --       simp
+  --       intro i
+  --       specialize i 0 (by omega)
+  --       simp only [Nat.sub_zero] at i
+  --       simp only [i, Bool.false_eq_true] at hxn
+  --     · simp only [hxn, Bool.false_eq_true, ↓reduceIte] at hlt
+  --       simp only [show x.clzAux n < n + 1 by omega, forall_const] at ihn
+  --       simp only [hxn, Bool.false_eq_true, ↓reduceIte,
+  --         show k + 1 = 1 + x.clzAux n ↔ k = x.clzAux n by omega]
+  --       specialize @ihn k
+  --       rw [Nat.add_comm k 1]
+  --       simp
+  --       simp only [← ihn, and_congr_left_iff]
+  --       intro h
+  --       constructor
+  --       · intro i j hj
+  --         simp only [h, and_true] at ihn
+  --         specialize i (j + 1) (by omega)
+  --         simpa only [Nat.reduceSubDiff] using i
+  --       · intro i j hj
+  --         by_cases hj0 : j = 0
+  --         · simp_all
+  --         · specialize i (j - 1) (by omega)
+  --           simp only [show n - (j - 1) = n + 1 - j by omega] at i
+  --           exact i
 
 theorem clzAux_eq_iff_forall  {x : BitVec w} (hw : 0 < w) :
     ∀ i, i < BitVec.clzAux x n → x.getLsbD (n - i) = false := by

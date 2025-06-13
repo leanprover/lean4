@@ -35,6 +35,9 @@ structure TrivialStructureInfo where
   fieldIdx  : Nat
   deriving Inhabited, Repr
 
+builtin_initialize trivialStructureInfoExt : CacheExtension Name (Option TrivialStructureInfo) ←
+  CacheExtension.register
+
 /--
 Return `some fieldIdx` if `declName` is the name of an inductive datatype s.t.
 - It does not have builtin support in the runtime.
@@ -42,6 +45,13 @@ Return `some fieldIdx` if `declName` is the name of an inductive datatype s.t.
 - This constructor has only one computationally relevant field.
 -/
 def hasTrivialStructure? (declName : Name) : CoreM (Option TrivialStructureInfo) := do
+  match (← trivialStructureInfoExt.find? declName) with
+  | some info? => return info?
+  | none =>
+    let info? ← fillCache
+    trivialStructureInfoExt.insert declName info?
+    return info?
+where fillCache : CoreM (Option TrivialStructureInfo) := do
   if isRuntimeBultinType declName then return none
   let .inductInfo info ← getConstInfo declName | return none
   if info.isUnsafe || info.isRec then return none

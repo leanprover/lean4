@@ -239,14 +239,7 @@ instance TakeWhile.instIteratorLoop [Monad m] [Monad n] [Iterator α m β]
 
 instance TakeWhile.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]
     [IteratorLoopPartial α m n] [MonadLiftT m n] {P} :
-    IteratorLoopPartial (TakeWhile α m β P) m n where
-  forInPartial lift {γ} it init f := do
-    IteratorLoopPartial.forInPartial lift it.internalState.inner (γ := γ)
-        init
-        fun out acc => do match ← (P out).operation with
-          | ⟨.up true, _⟩ => match ← f out acc with
-            | .yield c => pure (.yield c)
-            | .done c => pure (.done c)
-          | ⟨.up false, _⟩ => pure (.done acc)
+    IteratorLoopPartial (TakeWhile α m β P) m n :=
+  .defaultImplementation
 
 end Std.Iterators

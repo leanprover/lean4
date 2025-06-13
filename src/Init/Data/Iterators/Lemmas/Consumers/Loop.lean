@@ -10,6 +10,17 @@ import Init.Data.Iterators.Consumers.Loop
 
 namespace Std.Iterators
 
+theorem Iter.forIn'_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
+    {m : Type w → Type w''} [Monad m] [IteratorLoop α Id m] [hl : LawfulIteratorLoop α Id m]
+    {γ : Type w} {it : Iter (α := α) β} {init : γ}
+    {f : (b : β) → it.IsPlausibleIndirectOutput b → γ → m (ForInStep γ)} :
+    ForIn'.forIn' it init f =
+      IterM.DefaultConsumers.forIn (fun _ c => pure c.run) γ (fun _ _ _ => True)
+        IteratorLoop.wellFounded_of_finite it.toIterM init
+          (fun out h acc => (⟨·, .intro⟩) <$>
+            f out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc) := by
+  cases hl.lawful; rfl
+
 theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
     {m : Type w → Type w''} [Monad m] [IteratorLoop α Id m] [hl : LawfulIteratorLoop α Id m]
     {γ : Type w} {it : Iter (α := α) β} {init : γ}
@@ -17,7 +28,7 @@ theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
     ForIn.forIn it init f =
       IterM.DefaultConsumers.forIn (fun _ c => pure c.run) γ (fun _ _ _ => True)
         IteratorLoop.wellFounded_of_finite it.toIterM init
-          (fun out acc => (⟨·, .intro⟩) <$>
+          (fun out _ acc => (⟨·, .intro⟩) <$>
             f out acc) := by
   cases hl.lawful; rfl
 

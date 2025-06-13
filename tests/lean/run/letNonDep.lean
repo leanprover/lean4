@@ -1,8 +1,8 @@
 import Lean
 /-!
-# Tests of `Expr.letE (nonDep := true) ..`
+# Tests of `Expr.letE (nondep := true) ..`
 
-This file exercises the Lean/C++ interface to make sure that the `nonDep` field
+This file exercises the Lean/C++ interface to make sure that the `nondep` field
 is successfully part of the data model.
 -/
 
@@ -67,14 +67,14 @@ n : Nat
 
 /-!
 Testing `Expr.replace`, which is implemented in C++.
-The `nonDep` flag was previously cleared.
+The `nondep` flag was previously cleared.
 -/
 /-- info: Lean.Expr.letE `n (Lean.Expr.bvar 1) (Lean.Expr.bvar 1) (Lean.Expr.bvar 1) true -/
 #guard_msgs in #eval Expr.replace (fun e => if let .bvar i := e then some (.bvar (i + 1)) else none) (mkHave `n (.bvar 0) (.bvar 0) (.bvar 0))
 
 /-!
 Testing `instantiateMvars`, which is implemented in C++.
-The `nonDep` flag was previously cleared.
+The `nondep` flag was previously cleared.
 -/
 /--
 info: Lean.Expr.letE `n (Lean.Expr.const `Nat []) (Lean.Expr.const `Nat.zero []) (Lean.Expr.const `Unit []) true

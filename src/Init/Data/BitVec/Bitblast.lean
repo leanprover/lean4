@@ -1992,14 +1992,14 @@ theorem clz_eq_clzAuxRec_of_false (x : BitVec w) (h : ∀ i, n < i → x.getLsbD
         by_cases hi' : 0 < i
         · apply h; exact hi'
         · simp [show i = 0 by omega, hx0]
-    · case succ n inh =>
+    · case succ n ihn =>
       by_cases hxn : x.getLsbD (n + 1)
       · have : n + 1 < w + 1 := by
           apply Classical.byContradiction
           intro hcontra
           simp only [show w + 1 ≤ n + 1 by omega, getLsbD_of_ge, false_eq_true] at hxn
-        simp only [clz, clzAuxRec, Nat.add_eq_zero, succ_ne_self, _root_.and_false, ↓reduceIte, Nat.add_one_sub_one,
-          Nat.mod_eq_of_lt (by omega)]
+        simp only [clz, clzAuxRec, Nat.add_eq_zero, succ_ne_self, _root_.and_false, ↓reduceIte,
+          Nat.add_one_sub_one, Nat.mod_eq_of_lt (by omega)]
         simp only [iff_false, show ¬∀ i, i < w + 1 → x.getLsbD i = false by simp; exists n + 1] at heq
         simp only [hxn, ↓reduceIte, toNat_eq, toNat_ofNat]
         rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by omega),
@@ -2009,7 +2009,7 @@ theorem clz_eq_clzAuxRec_of_false (x : BitVec w) (h : ∀ i, n < i → x.getLsbD
         apply h
         omega
       · simp only [clzAuxRec, hxn, false_eq_true, ↓reduceIte]
-        apply inh
+        apply ihn
         intro i hi
         by_cases hi : n + 1 < i
         · apply h; exact hi

@@ -2019,6 +2019,9 @@ theorem clz_eq_clzAuxRec_of_forall_getLsbD_false (x : BitVec w) (h : ∀ i, n < 
         · apply h; exact hi
         · simp [show i = n + 1 by omega, hxn]
 
+/--
+`clzAuxRec` agrees with `clz` when `clzAuxRec` is started from an index `n` that is at least `w - 1`. 
+-/
 theorem clz_eq_clzAuxRec_of_le (x : BitVec w) (h : w - 1 ≤ n) :
     x.clz = x.clzAuxRec n := by
   rw [clz_eq_clzAuxRec_of_forall_getLsbD_false]

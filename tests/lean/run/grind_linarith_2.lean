@@ -102,3 +102,7 @@ set_option trace.grind.split true in
 example [IntModule α] [Preorder α] [IntModule.IsOrdered α] (f : α → α) (x : α)
     : Zero.zero ≤ x → x ≤ 0 → f x = a → f 0 = a := by
   grind
+
+example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (f : α → α → α) (x y z : α)
+    : z ≤ x → x ≤ 1 → z = 1 → f x y = 2 → f 1 y = 2 := by
+  grind

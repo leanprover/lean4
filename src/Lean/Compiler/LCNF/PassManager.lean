@@ -49,6 +49,11 @@ structure Pass where
   phaseOut : Phase := phase
   phaseInv : phaseOut ≥ phase := by simp +arith +decide
   /--
+  Whether IR validation checks should always run after this pass, regardless
+  of configuration options.
+  -/
+  shouldAlwaysRunCheck : Bool := false
+  /--
   The name of the `Pass`
   -/
   name : Name

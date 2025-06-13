@@ -690,8 +690,6 @@ example (x y : BitVec 256) : x * y * z = z * y * x := by
 example (x y : BitVec 256) : x * y * z = z * y * x := by
   bv_decide (config := { acNf := true })
 
-
-
 end NormalizeMul
 
 def foo (x : Bool) : Prop := x = true

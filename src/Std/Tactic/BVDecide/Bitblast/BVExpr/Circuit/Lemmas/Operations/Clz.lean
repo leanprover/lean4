@@ -44,15 +44,14 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
     generalize hgo: go aig xc curr acc = res
     unfold go at hgo
     split at hgo
-    · -- curr < w
-      case isTrue h =>
+    · case isTrue h =>
         simp at hgo
         rw [← hgo]
         rw [go_denote_eq]
         · intro idx hidx
           rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
-          simp [hx]
-          simp [Ref.hgate]
+          · simp [hx]
+          · simp [Ref.hgate]
         · intro idx hidx
           simp only [Nat.add_eq_zero, Nat.succ_ne_self, and_false, ↓reduceIte, RefVec.get_cast,
             Ref.cast_eq, Nat.add_one_sub_one]
@@ -61,66 +60,56 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
           · case zero =>
             split
             · next hx' =>
-              have : x.getLsbD 0 = true := by rw [hx] at hx'; exact hx'
-              simp [hacc, BitVec.clzAuxRec, this]
+              simp only [BitVec.sub_zero, denote_blastConst, BitVec.clzAuxRec,
+                show x.getLsbD 0 = true by rw [hx] at hx'; exact hx', ↓reduceIte]
               congr
               rw [BitVec.toNat_eq]
               rcases w with _|w
               · simp
-              · rw [BitVec.ofNat_sub_ofNat, ← BitVec.toNat_eq]
-                rw [← BitVec.ofNat_inj_iff_eq]
+              · rw [BitVec.ofNat_sub_ofNat]
                 have hlt := Nat.one_lt_two_pow' w
-                rw [Nat.mod_eq_of_lt hlt]
-                rw [show 2 ^ (w + 1) - 1 + (w + 1) = 2 ^ (w + 1) + w by omega]
+                rw [Nat.mod_eq_of_lt hlt, show 2 ^ (w + 1) - 1 + (w + 1) = 2 ^ (w + 1) + w by omega]
                 simp
             · next hx' =>
-              have : x.getLsbD 0 = false := by rw [hx] at hx'; simp at hx'; exact hx'
-              simp [BitVec.clzAuxRec, this]
-              simp at hacc
-              simp [hacc]
+              simp only [↓reduceIte] at hacc
+              simp only [BitVec.clzAuxRec,
+                show x.getLsbD 0 = false by rw [hx] at hx'; simp at hx'; exact hx',
+                Bool.false_eq_true, ↓reduceIte, hacc]
           · case succ curr =>
             split
             · next hx' =>
-              simp at hx'
-              simp [hx']
-              have : x.getLsbD (curr + 1) = true := by rw [hx] at hx'; exact hx'
-              simp [hacc, BitVec.clzAuxRec, this]
+              simp only at hx'
+              simp only [denote_blastConst,BitVec.clzAuxRec,
+                show x.getLsbD (curr + 1) = true by rw [hx] at hx'; exact hx', ↓reduceIte]
               congr
               rcases w with _|w
               · simp [BitVec.of_length_zero]
               · simp [BitVec.ofNat_sub_ofNat, ← BitVec.toNat_eq]
                 have hlt := Nat.lt_pow_self (n := curr + 1) (a := 2) (by omega)
-                have hlt := Nat.lt_pow_self (n := w + 1) (a := 2) (by omega)
                 have hlt' := Nat.pow_lt_pow_of_lt (a := 2) (n := curr + 1) (m := w + 1) (by omega) (by omega)
-                rw [Nat.mod_eq_of_lt (a := curr + 1) (by omega)]
-                rw [show 2 ^ (w + 1) - 1 + (w + 1) = 2 ^ (w + 1) + w by omega, Nat.add_comm]
-                rw [← BitVec.ofNat_inj_iff_eq]
-                rw [Nat.add_comm]
+                rw [Nat.mod_eq_of_lt (a := curr + 1) (by omega),
+                  show 2 ^ (w + 1) - 1 + (w + 1) = 2 ^ (w + 1) + w by omega, Nat.add_comm]
+                simp only [BitVec.toNat_eq, BitVec.toNat_ofNat]
                 by_cases hcw : curr + 1 = w
-                · simp [hcw] at *
-                  rw [show 2 ^ (1 + w) + w + (2 ^ (1 + w) - w) = 2 ^ (1 + w) +((2 ^ (1 + w) - w) + w) by omega]
-                  rw [Nat.add_mod_left]
-                  rw [Nat.sub_add_cancel (by rw [Nat.add_comm] at hlt'; omega)]
-                  simp
-                · have : curr + 1 < w := by omega
-                  have hc2 : curr + 1 < 2 ^ (1 + w) := by
-                    rw [Nat.add_comm 1 w]; omega
-                  rw [show 2 ^ (1 + w) + w + (2 ^ (1 + w) - (curr + 1)) = 2 ^ (1 + w) + (2 ^ (1 + w) + (w - (curr + 1))) by rw [Nat.add_comm] at hc2; omega]
-                  rw [Nat.add_mod_left]
-                  rw [Nat.add_mod_left]
+                · simp only [hcw, Nat.sub_self, Nat.zero_mod] at *
+                  rw [Nat.add_comm,
+                    show 2 ^ (1 + w) + w + (2 ^ (1 + w) - w) = 2 ^ (1 + w) +((2 ^ (1 + w) - w) + w) by omega,
+                    Nat.sub_add_cancel (by rw [Nat.add_comm] at hlt'; omega),
+                    Nat.add_mod_right,  Nat.mod_self]
+                · have hlt'' : curr + 1 < 2 ^ (1 + w) := by rw [Nat.add_comm 1 w]; omega
+                  rw [Nat.add_comm,
+                    show 2 ^ (1 + w) + w + (2 ^ (1 + w) - (curr + 1)) = 2 ^ (1 + w) + (2 ^ (1 + w) + (w - (curr + 1))) by omega,
+                    Nat.add_mod_left, Nat.add_mod_left]
             · next hx' =>
-              have : x.getLsbD (curr + 1) = false := by rw [hx] at hx'; simp at hx'; exact hx'
-              simp at hx' hacc
-              simp [hx']
-              simp [hacc, BitVec.clzAuxRec, this]
+              simp only [Nat.add_eq_zero, Nat.succ_ne_self, and_false, ↓reduceIte,
+                Nat.add_one_sub_one] at hacc
+              simp [hacc, BitVec.clzAuxRec, show x.getLsbD (curr + 1) = false by rw [hx] at hx'; simp at hx'; exact hx']
     · case isFalse h =>
       rw [← hgo]
-      simp [show w ≤ curr by omega, show ¬ curr = 0 by omega] at hacc
-      simp [hacc]
+      simp only [show ¬curr = 0 by omega, ↓reduceIte] at hacc
       by_cases hcw : curr = w
-      · subst hcw; rfl
-      · rw [BitVec.clzAuxRec_eq_of_le]
-        omega
+      · subst hcw; simp [hacc]
+      · simp only [hacc]; rw [BitVec.clzAuxRec_eq_of_le]; omega
 
 end blastClz
 

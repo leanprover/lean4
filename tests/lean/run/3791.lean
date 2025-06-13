@@ -6,6 +6,9 @@ This is a regression test for https://github.com/leanprover/lean4/issues/3791
 
 The issue was that the formatter was not preserving whether there were hard newlines
 around comments in Syntax.
+
+Note: one should turn off the sanitizer when pretty printing user syntax,
+since the sanitizer clears comments from all identifiers.
 -/
 
 open Lean
@@ -13,24 +16,26 @@ open Lean
 deriving instance Repr for Std.Format.FlattenBehavior, Format
 
 elab "#parse_cmd " update?:("!")? dbg?:("?")? s:str : command => Elab.Command.liftTermElabM do
-  let s := s.getString
-  let mut cmd ← ofExcept <| Parser.runParserCategory (← getEnv) `command s
-  if update?.isSome then
-    cmd := cmd.updateLeading
-  let fmt ← PrettyPrinter.ppCommand ⟨cmd⟩
-  if dbg?.isSome then
-    dbg_trace "{repr cmd}"; dbg_trace "{repr fmt}"
-  logInfo (toString f!"‹{fmt}›")
+  withOptions (fun opts => opts.set pp.sanitizeNames.name false) do
+    let s := s.getString
+    let mut cmd ← ofExcept <| Parser.runParserCategory (← getEnv) `command s
+    if update?.isSome then
+      cmd := cmd.updateLeading
+    let fmt ← PrettyPrinter.ppCommand ⟨cmd⟩
+    if dbg?.isSome then
+      dbg_trace "{repr cmd}"; dbg_trace "{repr fmt}"
+    logInfo (toString f!"‹{fmt}›")
 
 elab "#parse_term " update?:("!")? dbg?:("?")? s:str : command => Elab.Command.liftTermElabM do
-  let s := s.getString
-  let mut term ← ofExcept <| Parser.runParserCategory (← getEnv) `term s
-  if update?.isSome then
-    term := term.updateLeading
-  let fmt ← PrettyPrinter.ppTerm ⟨term⟩
-  if dbg?.isSome then
-    dbg_trace "{repr term}"; dbg_trace "{repr fmt}"
-  logInfo (toString f!"‹{fmt}›")
+  withOptions (fun opts => opts.set pp.sanitizeNames.name false) do
+    let s := s.getString
+    let mut term ← ofExcept <| Parser.runParserCategory (← getEnv) `term s
+    if update?.isSome then
+      term := term.updateLeading
+    let fmt ← PrettyPrinter.ppTerm ⟨term⟩
+    if dbg?.isSome then
+      dbg_trace "{repr term}"; dbg_trace "{repr fmt}"
+    logInfo (toString f!"‹{fmt}›")
 
 /-!
 Newline before and after comment, puts hard newlines before and after.
@@ -147,7 +152,10 @@ info: ‹(x --comment
 Comments before a term. The `!` mode applies `updateLeading`, and the newline causes the comment
 to be applied to the succeeding term.
 -/
-/-- info: ‹( /-comment-/ 1)› -/
+/--
+info: ‹(
+/-comment-/ 1)›
+-/
 #guard_msgs in #parse_term ! "(\n/-comment-/ 1)"
 /--
 info: ‹(

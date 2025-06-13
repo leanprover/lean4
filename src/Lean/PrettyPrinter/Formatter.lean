@@ -351,19 +351,21 @@ def parseToken (s : String) : FormatterM ParserState :=
   } ((← read).table) (Parser.mkParserState s)
 
 def pushToken (info : SourceInfo) (tk : String) (ident : Bool) : FormatterM Unit := do
-  let mkLine (hard : Bool) (suppressSoft : Bool := false) : Format :=
-    if hard then f!"\n"
-    else if suppressSoft then Format.nil
-    else Format.line
-
   if let SourceInfo.original _ _ ss _ := info then
     -- preserve non-whitespace content (comments)
     let ss' := ss.trim
-    if !ss'.isEmpty then
+    unless ss'.isEmpty do
       let preNL := Substring.contains { ss with stopPos := ss'.startPos } '\n'
       let postNL := Substring.contains { ss with startPos := ss'.stopPos } '\n'
-      let st ← get
-      pushWhitespace f!"{mkLine preNL}{ss'}{mkLine postNL (st.leadWord == "")}"
+      if postNL then
+        pushWhitespace "\n"
+      else if !(← get).leadWord.isEmpty then
+        pushLine
+      push ss'.toString
+      if preNL then
+        pushWhitespace "\n"
+      else
+        pushLine
 
   let st ← get
   -- If there is no space between `tk` and the next word, see if we should insert a discretionary space.
@@ -404,13 +406,24 @@ def pushToken (info : SourceInfo) (tk : String) (ident : Bool) : FormatterM Unit
   if let SourceInfo.original ss _ _ _ := info then
     -- preserve non-whitespace content (comments)
     let ss' := ss.trim
-    if !ss'.isEmpty then
+    unless ss'.isEmpty do
       let preNL := Substring.contains { ss with stopPos := ss'.startPos } '\n'
       let postNL := Substring.contains { ss with startPos := ss'.stopPos } '\n'
       -- Indentation is automatically increased when entering a category, but comments should be aligned
       -- with the actual token, so dedent
-      indent (indent := some (-Std.Format.getIndent (← getOptions))) <|
-        pushWhitespace f!"{mkLine preNL}{ss'}{mkLine postNL}"
+      indent (indent := some (-Std.Format.getIndent (← getOptions))) do
+        if postNL then
+          pushWhitespace "\n"
+        else
+          pushLine
+        pushWhitespace ss'.toString
+        if preNL then
+          pushWhitespace "\n"
+        else
+          -- It is conceivable that the start of comment syntax could be misinterpreted as part of a token,
+          -- so add the beginning of it as the leadWord.
+          let ctk := ss' |>.takeWhile (!·.isWhitespace) |>.toString
+          modify fun st => { st with leadWord := ctk }
 
 @[combinator_formatter symbolNoAntiquot]
 def symbolNoAntiquot.formatter (sym : String) : Formatter := do

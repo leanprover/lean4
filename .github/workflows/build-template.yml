@@ -127,9 +127,12 @@ jobs:
           [ -d build ] || mkdir build
           cd build
           # arguments passed to `cmake`
-          # this also enables githash embedding into stage 1 library
-          OPTIONS=(-DCHECK_OLEAN_VERSION=ON)
-          OPTIONS+=(-DLEAN_EXTRA_MAKE_OPTS=-DwarningAsError=true)
+          OPTIONS=(-DLEAN_EXTRA_MAKE_OPTS=-DwarningAsError=true)
+          if [[ -n '${{ matrix.release }}' ]]; then
+            # this also enables githash embedding into stage 1 library, which prohibits reusing
+            # `.olean`s across commits, so we don't do it in the fast non-release CI
+            OPTIONS+=(-DCHECK_OLEAN_VERSION=ON)
+          fi
           if [[ -n '${{ matrix.cross_target }}' ]]; then
             # used by `prepare-llvm`
             export EXTRA_FLAGS=--target=${{ matrix.cross_target }}

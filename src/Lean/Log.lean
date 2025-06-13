@@ -8,6 +8,8 @@ import Lean.Util.Sorry
 import Lean.Widget.Types
 import Lean.Message
 import Lean.DocString.Links
+-- TODO: This import should be changed to `Lean.ErrorExplanations` once that module is added
+import Lean.ErrorExplanation
 
 namespace Lean
 
@@ -110,6 +112,8 @@ def logAt (ref : Syntax) (msgData : MessageData)
     let pos    := ref.getPos?.getD 0
     let endPos := ref.getTailPos?.getD pos
     let fileMap ← getFileMap
+    -- TODO: change to `msgData.appendDescriptionWidgetIfNamed` once error explanation support is
+    -- added to the manual
     let msgData ← addMessageContext msgData
     logMessage {
       fileName := (← getFileName)

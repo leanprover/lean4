@@ -57,6 +57,7 @@ def CompletionInfo.stx : CompletionInfo → Syntax
   | fieldId stx ..    => stx
   | namespaceId stx   => stx
   | option stx        => stx
+  | errorName stx ..  => stx
   | endSection stx .. => stx
   | tactic stx ..     => stx
 
@@ -172,6 +173,9 @@ def CommandInfo.format (ctx : ContextInfo) (info : CommandInfo) : IO Format := d
 def OptionInfo.format (ctx : ContextInfo) (info : OptionInfo) : IO Format := do
   return f!"[Option] {info.optionName} @ {formatStxRange ctx info.stx}"
 
+def ErrorNameInfo.format (ctx : ContextInfo) (info : ErrorNameInfo) : IO Format := do
+  return f!"[ErrorName] {info.errorName} @ {formatStxRange ctx info.stx}"
+
 def FieldInfo.format (ctx : ContextInfo) (info : FieldInfo) : IO Format := do
   ctx.runMetaM info.lctx do
     return f!"[Field] {info.fieldName} : {← Meta.ppExpr (← Meta.inferType info.val)} := {← Meta.ppExpr info.val} @ {formatStxRange ctx info.stx}"
@@ -220,6 +224,7 @@ def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofCommandInfo i        => i.format ctx
   | ofMacroExpansionInfo i => i.format ctx
   | ofOptionInfo i         => i.format ctx
+  | ofErrorNameInfo i      => i.format ctx
   | ofFieldInfo i          => i.format ctx
   | ofCompletionInfo i     => i.format ctx
   | ofUserWidgetInfo i     => pure <| i.format
@@ -236,6 +241,7 @@ def Info.toElabInfo? : Info → Option ElabInfo
   | ofCommandInfo i        => some i.toElabInfo
   | ofMacroExpansionInfo _ => none
   | ofOptionInfo _         => none
+  | ofErrorNameInfo _      => none
   | ofFieldInfo _          => none
   | ofCompletionInfo _     => none
   | ofUserWidgetInfo _     => none

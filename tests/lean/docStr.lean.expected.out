@@ -10,7 +10,7 @@ doc string for 'Boo.y' is not available
 "Tree.node documentation "
 "Tree.leaf stores the values "
 "documenting definition in namespace "
-"We can document \'where\' functions too\n\n... and indentation is stripped, even after an empty line. "
+"We can document 'where' functions too\n\n... and indentation is stripped, even after an empty line. "
 doc string for 'f' is not available
 "let rec documentation at f "
 doc string for 'g' is not available

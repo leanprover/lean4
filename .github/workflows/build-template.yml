@@ -127,9 +127,12 @@ jobs:
           [ -d build ] || mkdir build
           cd build
           # arguments passed to `cmake`
-          # this also enables githash embedding into stage 1 library
-          OPTIONS=(-DCHECK_OLEAN_VERSION=ON)
-          OPTIONS+=(-DLEAN_EXTRA_MAKE_OPTS=-DwarningAsError=true)
+          OPTIONS=(-DLEAN_EXTRA_MAKE_OPTS=-DwarningAsError=true)
+          if [[ -n '${{ matrix.release }}' ]]; then
+            # this also enables githash embedding into stage 1 library, which prohibits reusing
+            # `.olean`s across commits, so we don't do it in the fast non-release CI
+            OPTIONS+=(-DCHECK_OLEAN_VERSION=ON)
+          fi
           if [[ -n '${{ matrix.cross_target }}' ]]; then
             # used by `prepare-llvm`
             export EXTRA_FLAGS=--target=${{ matrix.cross_target }}
@@ -193,7 +196,7 @@ jobs:
         run: |
           ulimit -c unlimited  # coredumps
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
-        if: (matrix.wasm || !matrix.cross) && (inputs.check-level >= 1 || matrix.name == 'Linux release')
+        if: (matrix.wasm || !matrix.cross) && (inputs.check-level >= 1 || matrix.test)
       - name: Test Summary
         uses: test-summary/action@v2
         with:
@@ -210,7 +213,7 @@ jobs:
       - name: Check Stage 3
         run: |
           make -C build -j$NPROC check-stage3
-        if: matrix.test-speedcenter
+        if: matrix.check-stage3
       - name: Test Speedcenter Benchmarks
         run: |
           # Necessary for some timing metrics but does not work on Namespace runners
@@ -224,7 +227,7 @@ jobs:
         run: |
           # clean rebuild in case of Makefile changes
           make -C build update-stage0 && rm -rf build/stage* && make -C build -j$NPROC
-        if: matrix.name == 'Linux' && inputs.check-level >= 1
+        if: matrix.check-rebootstrap
       - name: CCache stats
         if: always()
         run: ccache -s

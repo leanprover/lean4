@@ -848,9 +848,7 @@ def smulOverflow {w : Nat} (x y : BitVec w) : Bool :=
 def clzAux {w : Nat} (x : BitVec w) (n : Nat) : Nat :=
   match n with
   | 0 => if x.getLsbD 0 then 0 else 1
-  | n' + 1 =>
-    if x.getLsbD n then 0
-      else 1 + clzAux x n'
+  | n' + 1 => if x.getLsbD n then 0 else 1 + clzAux x n'
 
 /-- Count the number of leading zeroes. -/
 def clz {w : Nat} (x : BitVec w) : BitVec w := if w = 0 then 0 else BitVec.ofNat w (clzAux x (w - 1))

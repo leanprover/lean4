@@ -109,7 +109,9 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
       simp only [show ¬curr = 0 by omega, ↓reduceIte] at hacc
       by_cases hcw : curr = w
       · subst hcw; simp [hacc]
-      · simp only [hacc]; rw [BitVec.clzAuxRec_eq_of_le]; omega
+      · simp only [hacc];
+        rw [BitVec.clzAuxRec_eq_of_le]
+        omega
 
 end blastClz
 

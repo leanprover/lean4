@@ -102,15 +102,33 @@ private def mkDiffString (ds : Array (Diff.Action × String)) : String :=
     | (.skip  , s) => s
   rangeStrs.foldl (· ++ ·) ""
 
+/-- The granularity at which to display an inline diff for a suggested edit. -/
+inductive DiffGranularity where
+  /-- Automatically select diff granularity based on edit distance. -/
+  | auto
+  /-- Character-level diff. -/
+  | char
+  /-- Diff using whitespace-separated tokens. -/
+  | word
+  /--
+  "Monolithic" diff: shows a deletion of the entire existing source, followed by an insertion of the
+  entire suggestion.
+  -/
+  | all
+
 /--
 A code action suggestion associated with a hint in a message.
 
-Refer to `TryThis.Suggestion`; this extends that structure with a `span?` field, allowing a single
-hint to suggest modifications at different locations. If `span?` is not specified, then the syntax
-reference provided to `MessageData.hint` will be used.
+Refer to `TryThis.Suggestion`. This extends that structure with the following fields:
+* `span?`: the span at which this suggestion should apply. This allows a single hint to suggest
+  modifications at different locations. If `span?` is not specified, then the syntax reference
+  provided to `MessageData.hint` will be used.
+* `diffGranularity`: the granularity at which the diff for this suggestion should be rendered in the
+  Infoview. See `DiffMode` for the possible granularities. This is `.auto` by default.
 -/
 structure Suggestion extends toTryThisSuggestion : TryThis.Suggestion where
   span? : Option Syntax := none
+  diffGranularity : DiffGranularity := .auto
 
 instance : Coe TryThis.SuggestionText Suggestion where
   coe t := { suggestion := t }
@@ -119,32 +137,37 @@ instance : ToMessageData Suggestion where
   toMessageData s := toMessageData s.toTryThisSuggestion
 
 /--
-Produces a diff that splits either on characters, tokens, or not at all, depending on the edit
-distance between the arguments.
+Produces a diff that splits either on characters, tokens, or not at all, depending on the selected
+`diffMode`.
 
 Guarantees that all actions in the output will be maximally grouped; that is, instead of returning
 `#[(.insert, "a"), (.insert, "b")]`, it will return `#[(.insert, "ab")]`.
 -/
-partial def readableDiff (s s' : String) : Array (Diff.Action × String) :=
-  let minLength := min s.length s'.length
-  -- The coefficient on these values can be tuned:
-  let maxCharDiffDistance := minLength / 2
-  let maxWordDiffDistance := minLength + (max s.length s'.length - minLength) / 2
+partial def readableDiff (s s' : String) (granularity : DiffGranularity) : Array (Diff.Action × String) :=
+  match granularity with
+  | .char => charDiff
+  | .word => wordDiff
+  | .all => maxDiff
+  | .auto =>
+    let minLength := min s.length s'.length
+    -- The coefficients on these values can be tuned:
+    let maxCharDiffDistance := minLength / 2
+    let maxWordDiffDistance := minLength / 2 + (max s.length s'.length) / 2
 
-  let charDiffRaw := Diff.diff (splitChars s) (splitChars s')
-  -- Note: this is just a rough heuristic, since the diff has no notion of substitution
-  let approxEditDistance := charDiffRaw.filter (·.1 != .skip) |>.size
-  let charArrDiff := joinEdits charDiffRaw
+    let charDiffRaw := Diff.diff (splitChars s) (splitChars s')
+    -- Note: this is just a rough heuristic, since the diff has no notion of substitution
+    let approxEditDistance := charDiffRaw.filter (·.1 != .skip) |>.size
+    let charArrDiff := joinEdits charDiffRaw
 
-  -- Given that `Diff.diff` returns a minimal diff, any length-≤3 diff can only have edits at the
-  -- front and back, or at a single interior point. This will always be fairly readable (and
-  -- splitting by a larger unit would likely only be worse)
-  if charArrDiff.size ≤ 3 || approxEditDistance ≤ maxCharDiffDistance then
-    charArrDiff.map fun (act, cs) => (act, String.mk cs.toList)
-  else if approxEditDistance ≤ maxWordDiffDistance then
-    wordDiff
-  else
-    maxDiff
+    -- Given that `Diff.diff` returns a minimal diff, any length-≤3 diff can only have edits at the
+    -- front and back, or at a single interior point. This will always be fairly readable (and
+    -- splitting by a larger unit would likely only be worse)
+    if charArrDiff.size ≤ 3 || approxEditDistance ≤ maxCharDiffDistance then
+      charArrDiff.map fun (act, cs) => (act, String.mk cs.toList)
+    else if approxEditDistance ≤ maxWordDiffDistance then
+      wordDiff
+    else
+      maxDiff
 where
   /-
   Note on whitespace insertion:
@@ -224,6 +247,11 @@ where
       |> joinEdits
       |>.map fun (act, ss) => (act, ss.foldl (· ++ ·) "")
 
+  charDiff :=
+    Diff.diff (splitChars s) (splitChars s')
+      |> joinEdits
+      |>.map fun (act, cs) => (act, String.mk cs.toList)
+
   maxDiff :=
     #[(.delete, s), (.insert, s')]
 
@@ -276,7 +304,7 @@ def mkSuggestionsMessage (suggestions : Array Suggestion)
       let suggestionText := suggestionArr[0]!.2.1
       let map ← getFileMap
       let rangeContents := Substring.mk map.source range.start range.stop |>.toString
-      let edits := readableDiff rangeContents suggestionText
+      let edits := readableDiff rangeContents suggestionText suggestion.diffGranularity
       let diffJson := mkDiffJson edits
       let json := json% {
         diff: $diffJson,

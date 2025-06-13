@@ -11,7 +11,7 @@ import Std.Data.DTreeMap.AdditionalOperations
 /-!
 # Dependent tree map lemmas
 
-This file contains lemmas about `Std.Data.DTreeMap`. Most of the lemmas require
+This file contains lemmas about `Std.DTreeMap`. Most of the lemmas require
 `TransCmp cmp` for the comparison function `cmp`.
 -/
 

@@ -15,7 +15,7 @@ Lemmas about the operations on `Std.Data.TreeSet` will be available in the
 module `Std.Data.TreeSet.Lemmas`.
 
 See the module `Std.Data.TreeSet.Raw.Basic` for a variant of this type which is safe to use in
-nested inductive types.
+nested inductive types and `Std.Data.ExtTreeSet.Basic` for a variant with extensionality.
 -/
 
 set_option autoImplicit false
@@ -49,6 +49,10 @@ To avoid expensive copies, users should make sure that the tree set is used line
 
 Internally, the tree sets are represented as size-bounded trees, a type of self-balancing binary
 search tree with efficient order statistic lookups.
+
+For use in proofs, the type `Std.ExtTreeSet` of extensional tree sets should be preferred. This
+type comes with several extensionality lemmas and provides the same functions but requires a
+`TransCmp` instance to work with.
 
 These tree sets contain a bundled well-formedness invariant, which means that they cannot
 be used in nested inductive types. For these use cases, `Std.TreeSet.Raw` and

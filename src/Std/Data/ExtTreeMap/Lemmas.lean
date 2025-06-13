@@ -10,8 +10,7 @@ import Std.Data.ExtTreeMap.Basic
 /-!
 # Extensional tree map lemmas
 
-This file contains lemmas about `Std.Data.ExtTreeMap`. Most of the lemmas require
-`TransCmp cmp` for the comparison function `cmp`.
+This file contains lemmas about `Std.ExtTreeMap`.
 -/
 
 set_option linter.missingDocs true

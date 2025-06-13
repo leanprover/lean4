@@ -10,8 +10,7 @@ import Std.Data.ExtTreeSet.Basic
 /-!
 # Tree set lemmas
 
-This file contains lemmas about `Std.Data.ExtTreeSet`. Most of the lemmas require
-`TransCmp cmp` for the comparison function `cmp`.
+This file contains lemmas about `Std.ExtTreeSet`.
 -/
 
 set_option linter.missingDocs true

@@ -59,7 +59,7 @@ Internally, the tree maps are represented as size-bounded trees, a type of self-
 search tree with efficient order statistic lookups.
 
 In contrast to regular dependent tree maps, `Std.ExtDTreeMap` offers several extensionality lemmas
-and therefore has more lemmas about equality of tree maps This doesn't affect the amount of
+and therefore has more lemmas about equality of tree maps. This doesn't affect the amount of
 supported functions though: `Std.ExtDTreeMap` supports all operations from `Std.DTreeMap`.
 
 In order to use most functions, a `TransCmp` instance is required. This is necessary to make sure

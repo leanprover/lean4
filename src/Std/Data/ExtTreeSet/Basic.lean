@@ -28,7 +28,7 @@ variable {α : Type u} {cmp : α → α → Ordering}
 namespace Std
 
 /--
-Tree sets.
+Extensional tree sets.
 
 A tree set stores elements of a certain type in a certain order. It depends on a comparator function
 that defines an ordering on the keys and provides efficient order-dependent queries, such as
@@ -49,6 +49,14 @@ To avoid expensive copies, users should make sure that the tree set is used line
 
 Internally, the tree sets are represented as size-bounded trees, a type of self-balancing binary
 search tree with efficient order statistic lookups.
+
+In contrast to regular dependent tree maps, `Std.ExtTreeSet` offers several extensionality lemmas
+and therefore has more lemmas about equality of tree sets. This doesn't affect the amount of
+supported functions though: `Std.ExtTreeSet` supports all operations from `Std.TreeMap`.
+
+In order to use most functions, a `TransCmp` instance is required. This is necessary to make sure
+that the functions are congruent, i.e. equivalent tree sets as parameters produce equivalent return
+values.
 
 These tree sets contain a bundled well-formedness invariant, which means that they cannot
 be used in nested inductive types. For these use cases, `Std.TreeSet.Raw` and

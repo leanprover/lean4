@@ -28,7 +28,7 @@ variable {α : Type u} {β : Type v} {γ : Type w} {cmp : α → α → Ordering
 namespace Std
 
 /--
-Tree maps.
+Extensional tree maps.
 
 A tree map stores an assignment of keys to values. It depends on a comparator function that
 defines an ordering on the keys and provides efficient order-dependent queries, such as retrieval
@@ -50,6 +50,14 @@ To avoid expensive copies, users should make sure that the tree map is used line
 
 Internally, the tree maps are represented as size-bounded trees, a type of self-balancing binary
 search tree with efficient order statistic lookups.
+
+In contrast to regular tree maps, `Std.ExtTreeMap` offers several extensionality lemmas
+and therefore has more lemmas about equality of tree maps. This doesn't affect the amount of
+supported functions though: `Std.ExtTreeMap` supports all operations from `Std.TreeMap`.
+
+In order to use most functions, a `TransCmp` instance is required. This is necessary to make sure
+that the functions are congruent, i.e. equivalent tree maps as parameters produce equivalent return
+values.
 
 These tree maps contain a bundled well-formedness invariant, which means that they cannot
 be used in nested inductive types. For these use cases, `Std.TreeMap.Raw` and

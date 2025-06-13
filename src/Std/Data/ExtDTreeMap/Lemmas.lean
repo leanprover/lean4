@@ -9,7 +9,7 @@ import Std.Data.ExtDTreeMap.Basic
 /-!
 # Extensional dependent tree map lemmas
 
-This file contains lemmas about `Std.Data.ExtDTreeMap`.
+This file contains lemmas about `Std.ExtDTreeMap`.
 -/
 
 set_option linter.missingDocs true

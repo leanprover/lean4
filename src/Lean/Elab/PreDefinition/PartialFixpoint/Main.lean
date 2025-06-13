@@ -60,15 +60,19 @@ private def unReplaceRecApps {α} (preDefs : Array PreDefinition) (fixedParamPer
       pure e
     k e
 
-private def mkMonoPProd (hmono₁ hmono₂ : Expr × Expr) : MetaM (Expr × Expr) := do
+/--
+Given two type-proof pairs for `monotone f` and `monotone g`, constructs a type-proof pair for `monotone fun x => ⟨f x, g x⟩`.
+-/
+private def mkMonoPProd : (hmono₁ hmono₂ : Expr × Expr) → MetaM (Expr × Expr)
+  | (hmono1Type, hmono1Proof), (hmono2Type, hmono2Proof) => do
   -- mkAppM does not support the equivalent of (cfg := { synthAssignedInstances := false}),
   -- so this is a bit more pedestrian
-  let_expr monotone _ inst _ inst₁ _ := hmono₁.1
-    | throwError "mkMonoPProd: unexpected type of{indentExpr hmono₁.2}"
-  let_expr monotone _ _ _ inst₂ _ := hmono₂.1
-    | throwError "mkMonoPProd: unexpected type of{indentExpr hmono₂.2}"
-  let hmono ← mkAppOptM ``PProd.monotone_mk #[none, none, none, inst₁, inst₂, inst, none, none, hmono₁.2, hmono₂.2]
-  return (← inferType hmono, hmono)
+  let_expr monotone _ inst _ inst₁ _ := hmono1Type
+    | throwError "mkMonoPProd: unexpected type of{indentExpr hmono1Proof}"
+  let_expr monotone _ _ _ inst₂ _ := hmono2Type
+    | throwError "mkMonoPProd: unexpected type of{indentExpr hmono2Proof}"
+  let hmonoProof ← mkAppOptM ``PProd.monotone_mk #[none, none, none, inst₁, inst₂, inst, none, none, hmono1Proof, hmono2Proof]
+  return (← inferType hmonoProof, hmonoProof)
 
 def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
   -- We expect all functions in the clique to have `partial_fixpoint` or `greatest_fixpoint` syntax

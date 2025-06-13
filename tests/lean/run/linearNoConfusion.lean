@@ -13,13 +13,14 @@ inductive Vec.{u} (α : Type) : Nat → Type u where
   | cons {n} : α → Vec α n → Vec α (n + 1)
 
 @[reducible] protected def Vec.noConfusionType.withCtorType'.{u_1, u} :
-    Type → Type u_1 → Nat → Type (max (u + 1) u_1) := fun α P ctorIdx =>
+    Type → Sort u_1 →  Nat → Sort (imax (u + 2) u_1) := fun α P ctorIdx =>
   bif Nat.blt ctorIdx 1
   then PUnit.{u + 2} → P
   else PUnit.{u + 2} → {n : Nat} → α → Vec.{u} α n → P
 
 /--
-info: @[reducible] protected def Vec.noConfusionType.withCtorType.{u_1, u} : Type → Type u_1 → Nat → Type (max (u + 1) u_1) :=
+info: @[reducible] protected def Vec.noConfusionType.withCtorType.{u_1, u} : Type →
+  Sort u_1 → Nat → Sort (imax (u + 2) u_1) :=
 fun α P ctorIdx => bif ctorIdx.blt 1 then PUnit → P else PUnit → {n : Nat} → α → Vec α n → P
 -/
 #guard_msgs in
@@ -28,7 +29,7 @@ fun α P ctorIdx => bif ctorIdx.blt 1 then PUnit → P else PUnit → {n : Nat} 
 example : @Vec.noConfusionType.withCtorType.{u_1,u} = @Vec.noConfusionType.withCtorType'.{u_1,u} := rfl
 
 @[reducible] protected noncomputable def Vec.noConfusionType.withCtor'.{u_1, u} : (α : Type) →
-  (P : Type u_1) → (ctorIdx : Nat) → Vec.noConfusionType.withCtorType' α P ctorIdx → P → (a : Nat) → Vec.{u} α a → P :=
+  (P : Sort u_1) → (ctorIdx : Nat) → Vec.noConfusionType.withCtorType' α P ctorIdx → P → (a : Nat) → Vec.{u} α a → P :=
 fun _α _P ctorIdx k k' _a x =>
   Vec.casesOn x
     (if h : ctorIdx = 0 then Eq.ndrec k h PUnit.unit else k')
@@ -36,7 +37,7 @@ fun _α _P ctorIdx k k' _a x =>
 
 /--
 info: @[reducible] protected def Vec.noConfusionType.withCtor.{u_1, u} : (α : Type) →
-  (P : Type u_1) → (ctorIdx : Nat) → Vec.noConfusionType.withCtorType α P ctorIdx → P → (a : Nat) → Vec α a → P :=
+  (P : Sort u_1) → (ctorIdx : Nat) → Vec.noConfusionType.withCtorType α P ctorIdx → P → (a : Nat) → Vec α a → P :=
 fun α P ctorIdx k k' a x =>
   Vec.casesOn x (if h : ctorIdx = 0 then (h ▸ k) PUnit.unit else k') fun {n} a a_1 =>
     if h : ctorIdx = 1 then (h ▸ k) PUnit.unit a a_1 else k'

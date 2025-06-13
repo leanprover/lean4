@@ -878,7 +878,7 @@ def isHave : Expr → Bool
   | letE (nonDep := nonDep) .. => nonDep
   | _       => false
 
-@[export lean_expr_isHave] def isHaveEx : Expr → Bool := isHave
+@[export lean_expr_is_have] def isHaveEx : Expr → Bool := isHave
 
 /-- Return `true` if the given expression is a metadata. -/
 def isMData : Expr → Bool

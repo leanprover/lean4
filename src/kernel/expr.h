@@ -259,11 +259,11 @@ inline name const &    let_name(expr const & e)              { lean_assert(is_le
 inline expr const &    let_type(expr const & e)              { lean_assert(is_let(e)); return static_cast<expr const &>(cnstr_get_ref(e, 1)); }
 inline expr const &    let_value(expr const & e)             { lean_assert(is_let(e)); return static_cast<expr const &>(cnstr_get_ref(e, 2)); }
 inline expr const &    let_body(expr const & e)              { lean_assert(is_let(e)); return static_cast<expr const &>(cnstr_get_ref(e, 3)); }
-bool                   let_nonDep_core(expr const & e);
-inline bool            let_nonDep(expr const & e) {
+bool                   let_nondep_core(expr const & e);
+inline bool            let_nondep(expr const & e) {
     lean_assert(is_let(e));
     bool r = lean_ctor_get_uint8(e.raw(), 4*sizeof(object*) + sizeof(uint64_t));
-    lean_assert(r == let_nonDep_core(e)); // ensure the C++ implementation matches the Lean one.
+    lean_assert(r == let_nondep_core(e)); // ensure the C++ implementation matches the Lean one.
     return r;
 }
 inline bool            is_shared(expr const & e)             { return !is_exclusive(e.raw()); }

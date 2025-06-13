@@ -295,10 +295,10 @@ bool is_default_var_name(name const & n) {
     return n == *g_default_name;
 }
 
-extern "C" uint8 lean_expr_isHave(object * e);
-bool let_nonDep_core(expr const & e) {
+extern "C" uint8 lean_expr_is_have(object * e);
+bool let_nondep_core(expr const & e) {
     lean_assert(is_let(e));
-    return lean_expr_isHave(e.to_obj_arg());
+    return lean_expr_is_have(e.to_obj_arg());
 }
 
 // =======================================
@@ -355,7 +355,7 @@ expr update_const(expr const & e, levels const & new_levels) {
 
 expr update_let(expr const & e, expr const & new_type, expr const & new_value, expr const & new_body) {
     if (!is_eqp(let_type(e), new_type) || !is_eqp(let_value(e), new_value) || !is_eqp(let_body(e), new_body))
-        return mk_let(let_name(e), new_type, new_value, new_body, let_nonDep(e));
+        return mk_let(let_name(e), new_type, new_value, new_body, let_nondep(e));
     else
         return e;
 }

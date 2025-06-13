@@ -191,7 +191,7 @@ struct print_expr_fn {
     }
 
     void print_let(expr const & e) {
-        out() << (let_nonDep(e) ? "have " : "let ");
+        out() << (let_nondep(e) ? "have " : "let ");
         auto p = let_body_fresh(e);
         out() << p.second << " : ";
         print(let_type(e));

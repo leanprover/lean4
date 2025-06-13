@@ -16,7 +16,7 @@ import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
 
 namespace Lean.Meta.Grind.Arith.Linear
 /-- Returns `some structId` if `a` and `b` are elements of the same structure. -/
-private def inSameStruct? (a b : Expr) : GoalM (Option Nat) := do
+def inSameStruct? (a b : Expr) : GoalM (Option Nat) := do
   let some structId ← getTermStructId? a | return none
   let some structId' ← getTermStructId? b | return none
   unless structId == structId' do return none -- This can happen when we have heterogeneous equalities

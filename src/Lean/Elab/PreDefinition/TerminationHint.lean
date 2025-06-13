@@ -155,7 +155,7 @@ def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) :
       | `(terminationBy|termination_by $[structural%$s]? => $_body) =>
         throwErrorAt t "no extra parameters bounds, please omit the `=>`"
       | `(terminationBy|termination_by $[structural%$s]? $vars* => $body) =>
-        pure (some {ref := t, structural := s.isSome, vars, body})
+        pure (some {ref := t, structural := s.isSome, vars, body : TerminationBy})
       | `(terminationBy|termination_by $[structural%$s]? $body:term) =>
         pure (some {ref := t, structural := s.isSome, vars := #[], body})
       | `(terminationBy?|termination_by?) => pure none

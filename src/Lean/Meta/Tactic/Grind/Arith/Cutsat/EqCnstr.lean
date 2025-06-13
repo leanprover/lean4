@@ -254,6 +254,7 @@ private def processNewNatEq (a b : Expr) : GoalM Unit := do
 
 @[export lean_process_cutsat_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
+  unless (← getConfig).cutsat do return ()
   match (← foreignTerm? a), (← foreignTerm? b) with
   | none, none => processNewIntEq a b
   | some .nat, some .nat => processNewNatEq a b
@@ -281,6 +282,7 @@ private def processNewNatDiseq (a b : Expr) : GoalM Unit := do
 
 @[export lean_process_cutsat_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
+  unless (← getConfig).cutsat do return ()
   match (← foreignTerm? a), (← foreignTermOrLit? b) with
   | none, none => processNewIntDiseq a b
   | some .nat, some .nat => processNewNatDiseq a b
@@ -404,6 +406,7 @@ Internalizes an integer (and `Nat`) expression. Here are the different cases tha
   back to the congruence closure module. Example: we have `f 5`, `f x`, `x - y = 3`, `y = 2`.
 -/
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
+  unless (← getConfig).cutsat do return ()
   let some (k, type) := getKindAndType? e | return ()
   if isForbiddenParent parent? k then return ()
   trace[grind.debug.cutsat.internalize] "{e} : {type}"

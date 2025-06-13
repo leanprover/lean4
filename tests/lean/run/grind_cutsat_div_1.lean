@@ -79,3 +79,7 @@ example (x : Int) (_ : 10 ∣ x) (_ : ¬ 5 ∣ x) : False := by
 
 example (x : Nat) (_ : 10 ∣ x) (_ : ¬ 5 ∣ x) : False := by
   grind
+
+example (a b : Int) (h₀ : 2 ∣ a + 1) (h₁ : 2 ∣ b + a) (h₂ : 2 ∣ b + 2*a) : False := by
+  fail_if_success grind -cutsat
+  sorry

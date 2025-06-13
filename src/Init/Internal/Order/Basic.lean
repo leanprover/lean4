@@ -914,7 +914,7 @@ instance ReverseImplicationOrder.instOrder : PartialOrder ReverseImplicationOrde
   rel_antisymm h₁ h₂ := propext ⟨h₂, h₁⟩
 
 -- This defines a complete lattice on `Prop`, used to define coinductive predicates
-instance ReverseImplicationOrder.instCompleteLattice : CompleteLattice ReverseImplicationOrder where
+def ReverseImplicationOrder.instCompleteLattice : CompleteLattice ReverseImplicationOrder where
   sup c := ∀ p, c p → p
   sup_spec := by
     intro x c

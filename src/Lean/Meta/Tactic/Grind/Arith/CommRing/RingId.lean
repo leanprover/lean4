@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Grind.CommRing.Field
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
 
@@ -12,41 +13,38 @@ namespace Lean.Meta.Grind.Arith.CommRing
 private def internalizeFn (fn : Expr) : GoalM Expr := do
   shareCommon (← canon fn)
 
-private def getAddFn (type : Expr) (u : Level) (semiringInst : Expr) : GoalM Expr := do
-  let instType := mkApp3 (mkConst ``HAdd [u, u, u]) type type type
-  let .some inst ← trySynthInstance instType |
-    throwError "failed to find instance for ring addition{indentExpr instType}"
-  let inst' := mkApp2 (mkConst ``instHAdd [u]) type <| mkApp2 (mkConst ``Grind.Semiring.toAdd [u]) type semiringInst
-  unless (← withDefault <| isDefEq inst inst') do
-    throwError "instance for addition{indentExpr inst}\nis not definitionally equal to the `Grind.Semiring` one{indentExpr inst'}"
-  internalizeFn <| mkApp4 (mkConst ``HAdd.hAdd [u, u, u]) type type type inst
+private def getUnaryFn (type : Expr)(u : Level) (instDeclName : Name) (declName : Name) : GoalM Expr := do
+  let instType := mkApp (mkConst instDeclName [u]) type
+  let .some inst ← trySynthInstance instType
+    | throwError "`grind ring` failed to find instance{indentExpr instType}"
+  internalizeFn <| mkApp2 (mkConst declName [u]) type inst
 
-private def getMulFn (type : Expr) (u : Level) (semiringInst : Expr) : GoalM Expr := do
-  let instType := mkApp3 (mkConst ``HMul [u, u, u]) type type type
-  let .some inst ← trySynthInstance instType |
-    throwError "failed to find instance for ring multiplication{indentExpr instType}"
-  let inst' := mkApp2 (mkConst ``instHMul [u]) type <| mkApp2 (mkConst ``Grind.Semiring.toMul [u]) type semiringInst
-  unless (← withDefault <| isDefEq inst inst') do
-    throwError "instance for multiplication{indentExpr inst}\nis not definitionally equal to the `Grind.Semiring` one{indentExpr inst'}"
-  internalizeFn <| mkApp4 (mkConst ``HMul.hMul [u, u, u]) type type type inst
+private def getBinHomoFn (type : Expr)(u : Level) (instDeclName : Name) (declName : Name) : GoalM Expr := do
+  let instType := mkApp3 (mkConst instDeclName [u, u, u]) type type type
+  let .some inst ← trySynthInstance instType
+    | throwError "`grind ring` failed to find instance{indentExpr instType}"
+  internalizeFn <| mkApp4 (mkConst declName [u, u, u]) type type type inst
 
-private def getSubFn (type : Expr) (u : Level) (ringInst : Expr) : GoalM Expr := do
-  let instType := mkApp3 (mkConst ``HSub [u, u, u]) type type type
-  let .some inst ← trySynthInstance instType |
-    throwError "failed to find instance for ring subtraction{indentExpr instType}"
-  let inst' := mkApp2 (mkConst ``instHSub [u]) type <| mkApp2 (mkConst ``Grind.Ring.toSub [u]) type ringInst
-  unless (← withDefault <| isDefEq inst inst') do
-    throwError "instance for subtraction{indentExpr inst}\nis not definitionally equal to the `Grind.Ring` one{indentExpr inst'}"
-  internalizeFn <| mkApp4 (mkConst ``HSub.hSub [u, u, u]) type type type inst
+-- Remark: we removed consistency checks such as the one that ensures `HAdd` instance matches `Semiring.toAdd`
+-- That is, we are assuming the type classes were properly setup.
 
-private def getNegFn (type : Expr) (u : Level) (ringInst : Expr) : GoalM Expr := do
-  let instType := mkApp (mkConst ``Neg [u]) type
-  let .some inst ← trySynthInstance instType |
-    throwError "failed to find instance for ring negation{indentExpr instType}"
-  let inst' := mkApp2 (mkConst ``Grind.Ring.toNeg [u]) type ringInst
-  unless (← withDefault <| isDefEq inst inst') do
-    throwError "instance for negation{indentExpr inst}\nis not definitionally equal to the `Grind.Ring` one{indentExpr inst'}"
-  internalizeFn <| mkApp2 (mkConst ``Neg.neg [u]) type inst
+private def getAddFn (type : Expr) (u : Level) : GoalM Expr := do
+  getBinHomoFn type u ``HAdd ``HAdd.hAdd
+
+private def getMulFn (type : Expr) (u : Level) : GoalM Expr := do
+  getBinHomoFn type u ``HMul ``HMul.hMul
+
+private def getSubFn (type : Expr) (u : Level) : GoalM Expr := do
+  getBinHomoFn type u ``HSub ``HSub.hSub
+
+private def getDivFn (type : Expr) (u : Level) : GoalM Expr := do
+  getBinHomoFn type u ``HDiv ``HDiv.hDiv
+
+private def getNegFn (type : Expr) (u : Level) : GoalM Expr := do
+  getUnaryFn type u ``Neg ``Neg.neg
+
+private def getInvFn (type : Expr) (u : Level) : GoalM Expr := do
+  getUnaryFn type u ``Inv ``Inv.inv
 
 private def getPowFn (type : Expr) (u : Level) (semiringInst : Expr) : GoalM Expr := do
   let instType := mkApp3 (mkConst ``HPow [u, 0, u]) type Nat.mkType type
@@ -135,15 +133,23 @@ where
       let noZeroDivType := mkApp3 (mkConst ``Grind.NoNatZeroDivisors [u]) type zeroInst hmulInst
       LOption.toOption <$> trySynthInstance noZeroDivType
     trace_goal[grind.ring] "NoNatZeroDivisors available: {noZeroDivInst?.isSome}"
-    let addFn ← getAddFn type u semiringInst
-    let mulFn ← getMulFn type u semiringInst
-    let subFn ← getSubFn type u ringInst
-    let negFn ← getNegFn type u ringInst
+    let field := mkApp (mkConst ``Grind.Field [u]) type
+    let fieldInst? : Option Expr ← LOption.toOption <$> trySynthInstance field
+    let addFn ← getAddFn type u
+    let mulFn ← getMulFn type u
+    let subFn ← getSubFn type u
+    let negFn ← getNegFn type u
     let powFn ← getPowFn type u semiringInst
     let intCastFn ← getIntCastFn type u ringInst
     let natCastFn ← getNatCastFn type u semiringInst
+    let (invFn?, divFn?) ← if fieldInst?.isSome then
+      pure (some (← getInvFn type u), some (← getDivFn type u))
+    else
+      pure (none, none)
     let id := (← get').rings.size
-    let ring : Ring := { id, type, u, semiringInst, ringInst, commSemiringInst, commRingInst, charInst?, noZeroDivInst?, addFn, mulFn, subFn, negFn, powFn, intCastFn, natCastFn }
+    let ring : Ring := {
+      id, type, u, semiringInst, ringInst, commSemiringInst, commRingInst, charInst?, noZeroDivInst?, fieldInst?,
+      addFn, mulFn, subFn, negFn, powFn, intCastFn, natCastFn, invFn?, divFn? }
     modify' fun s => { s with rings := s.rings.push ring }
     return some id
 

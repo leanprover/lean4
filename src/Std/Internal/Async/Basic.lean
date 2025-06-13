@@ -84,6 +84,11 @@ class MonadAsync (t : Type → Type) (m : Type → Type) extends Monad m where
   -/
   async : m α → m (t α)
 
+/-
+These instances have the default_instance attribute so that other default instances
+can function correctly within monad transformers.
+-/
+
 @[default_instance]
 instance [Monad m] [MonadAwait t m] : MonadAwait t (StateT n m) where
   await := liftM (m := m) ∘ MonadAwait.await

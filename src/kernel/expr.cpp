@@ -182,9 +182,9 @@ expr mk_arrow(expr const & t, expr const & e) {
     return mk_pi(*g_default_name, t, e, mk_binder_info());
 }
 
-extern "C" object * lean_expr_mk_let(object * n, object * t, object * v, object * b, uint8 nonDep);
-expr mk_let(name const & n, expr const & t, expr const & v, expr const & b, bool nonDep) {
-    return expr(lean_expr_mk_let(n.to_obj_arg(), t.to_obj_arg(), v.to_obj_arg(), b.to_obj_arg(), nonDep));
+extern "C" object * lean_expr_mk_let(object * n, object * t, object * v, object * b, uint8 nondep);
+expr mk_let(name const & n, expr const & t, expr const & v, expr const & b, bool nondep) {
+    return expr(lean_expr_mk_let(n.to_obj_arg(), t.to_obj_arg(), v.to_obj_arg(), b.to_obj_arg(), nondep));
 }
 
 static expr * g_Prop  = nullptr;

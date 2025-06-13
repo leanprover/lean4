@@ -76,7 +76,7 @@ inductive Expr
 | app     : Expr → Expr → Expr                        -- application
 | lam     : Name → BinderInfo → Expr → Expr → Expr    -- lambda abstraction
 | forallE : Name → BinderInfo → Expr → Expr → Expr    -- (dependent) arrow
-| letE    : Name → Expr → Expr → Expr → Expr          -- let expressions
+| letE    : Name → Expr → Expr → Expr → Bool → Expr   -- let expressions
 | lit     : Literal → Expr                            -- literals
 | mdata   : MData → Expr → Expr                       -- metadata
 | proj    : Name → Nat → Expr → Expr                  -- projection
@@ -221,7 +221,7 @@ inline expr mk_binding(expr_kind k, name const & n, expr const & t, expr const &
     return k == expr_kind::Pi ? mk_pi(n, t, e, bi) : mk_lambda(n, t, e, bi);
 }
 expr mk_arrow(expr const & t, expr const & e);
-expr mk_let(name const & n, expr const & t, expr const & v, expr const & b, bool nonDep);
+expr mk_let(name const & n, expr const & t, expr const & v, expr const & b, bool nondep);
 inline expr mk_let(name const & n, expr const & t, expr const & v, expr const & b) { return mk_let(n, t, v, b, false); };
 expr mk_sort(level const & l);
 expr mk_Prop();

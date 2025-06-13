@@ -105,11 +105,15 @@ def Module.precompileImportsFacetConfig : ModuleFacetConfig precompileImportsFac
 def fetchExternLibs (pkgs : Array Package) : FetchM (Job (Array Dynlib)) :=
   Job.collectArray <$> pkgs.flatMapM (·.externLibs.mapM (·.dynlib.fetch))
 
-private def Module.fetchImportLibsCore
+/--
+Computes the transitive dynamic libraries of a module's imports.
+Modules from the same library are loaded individually, while modules
+from other libraries are loaded as part of the whole library.
+-/
+private def Module.fetchImportLibs
   (self : Module) (imps : Array Module) (compileSelf : Bool)
-  (init : NameSet × Array (Job Dynlib))
-: FetchM (NameSet × Array (Job Dynlib)) :=
-  imps.foldlM (init := init) fun (libs, jobs) imp => do
+: FetchM (Array (Job Dynlib)) := do
+  let (_, jobs) ← imps.foldlM (init := (({} : NameSet), #[])) fun (libs, jobs) imp => do
     if libs.contains imp.lib.name then
       return (libs, jobs)
     else if compileSelf && self.lib.name = imp.lib.name then
@@ -120,28 +124,26 @@ private def Module.fetchImportLibsCore
       return (libs.insert imp.lib.name, jobs)
     else
       return (libs, jobs)
-/--
-Computes the transitive dynamic libraries of a module's imports.
-Modules from the same library are loaded individually, while modules
-from other libraries are loaded as part of the whole library.
--/
-@[inline] private def Module.fetchImportLibs
-  (self : Module) (imps : Array Module) (compileSelf : Bool)
-: FetchM (Array (Job Dynlib)) :=
-  (·.2) <$> self.fetchImportLibsCore imps compileSelf ({}, #[])
+  return jobs
 
-/-- Fetch the dynlibs of a list of imports. **For internal use.**  -/
-@[inline] def fetchImportLibs
+/--
+**For internal use.**
+
+Fetches the library dynlibs of a list of non-local imports.
+Modules are loaded as part of their whole library.
+-/
+def fetchImportLibs
   (mods : Array Module) : FetchM (Job (Array Dynlib))
 := do
-  let (_, jobs) ← mods.foldlM (init := ({}, #[])) fun s mod => do
-    let imports ← (← mod.imports.fetch).await
-    mod.fetchImportLibsCore imports mod.shouldPrecompile s
-  let jobs ← mods.foldlM (init := jobs) fun jobs mod => do
-    if mod.shouldPrecompile then
-      jobs.push <$> mod.dynlib.fetch
-    else return jobs
-  return Job.collectArray jobs
+  let (_, jobs) ← mods.foldlM (init := (({} : NameSet), #[])) fun (libs, jobs) imp => do
+    if libs.contains imp.lib.name then
+      return (libs, jobs)
+    else if imp.shouldPrecompile then
+      let jobs ← jobs.push <$> imp.lib.shared.fetch
+      return (libs.insert imp.lib.name, jobs)
+    else
+      return (libs, jobs)
+  return Job.collectArray jobs "import dynlibs"
 
 /--
 Topologically sorts the library dependency tree by name.
@@ -229,13 +231,13 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
   let dynlibsJob ← mod.dynlibs.fetchIn mod.pkg "module dynlibs"
   let pluginsJob ← mod.plugins.fetchIn mod.pkg "module plugins"
 
-  extraDepJob.bindM fun _ => do
+  extraDepJob.bindM (sync := true) fun _ => do
   importJob.bindM (sync := true) fun _ => do
   let depTrace ← takeTrace
   impLibsJob.bindM (sync := true) fun impLibs => do
   externLibsJob.bindM (sync := true) fun externLibs => do
   dynlibsJob.bindM (sync := true) fun dynlibs => do
-  pluginsJob.mapM (sync := true) fun plugins => do
+  pluginsJob.mapM fun plugins => do
     let libTrace ← takeTrace
     setTraceCaption s!"{mod.name.toString}:deps"
     let depTrace := depTrace.withCaption "deps"
@@ -280,7 +282,7 @@ def Module.recBuildLean (mod : Module) : FetchM (Job Unit) := do
     addTrace srcTrace
     setTraceCaption s!"{mod.name.toString}:leanArts"
     let upToDate ← buildUnlessUpToDate? (oldTrace := srcTrace.mtime) mod (← getTrace) mod.traceFile do
-      compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile mod.cFile mod.bcFile?
+      compileLeanModule mod.leanFile mod.relLeanFile mod.oleanFile mod.ileanFile mod.cFile mod.bcFile?
         (← getLeanPath) mod.rootDir dynlibs plugins
         (mod.weakLeanArgs ++ mod.leanArgs) (← getLean)
       mod.clearOutputHashes
@@ -289,7 +291,7 @@ def Module.recBuildLean (mod : Module) : FetchM (Job Unit) := do
 
 /-- The `ModuleFacetConfig` for the builtin `leanArtsFacet`. -/
 def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=
-  mkFacetJobConfig (·.recBuildLean)
+  mkFacetJobConfig recBuildLean
 
 /-- The `ModuleFacetConfig` for the builtin `oleanFacet`. -/
 def Module.oleanFacetConfig : ModuleFacetConfig oleanFacet :=
@@ -375,11 +377,11 @@ def Module.recBuildLeanCToONoExport (self : Module) : FetchM (Job FilePath) := d
 
 /-- The `ModuleFacetConfig` for the builtin `coNoExportFacet`. -/
 def Module.coNoExportFacetConfig : ModuleFacetConfig coNoExportFacet :=
-  mkFacetJobConfig Module.recBuildLeanCToONoExport
+  mkFacetJobConfig recBuildLeanCToONoExport
 
 /-- The `ModuleFacetConfig` for the builtin `coFacet`. -/
 def Module.coFacetConfig : ModuleFacetConfig coFacet :=
-  mkFacetJobConfig fun mod =>
+  mkFacetJobConfig (memoize := false) fun mod =>
     if Platform.isWindows then mod.coNoExport.fetch else mod.coExport.fetch
 
 /-- Recursively build the module's object file from its bitcode file produced by `lean`. -/
@@ -390,25 +392,25 @@ def Module.recBuildLeanBcToO (self : Module) : FetchM (Job FilePath) := do
 
 /-- The `ModuleFacetConfig` for the builtin `bcoFacet`. -/
 def Module.bcoFacetConfig : ModuleFacetConfig bcoFacet :=
-  mkFacetJobConfig Module.recBuildLeanBcToO
+  mkFacetJobConfig recBuildLeanBcToO
 
 /-- The `ModuleFacetConfig` for the builtin `oExportFacet`. -/
 def Module.oExportFacetConfig : ModuleFacetConfig oExportFacet :=
-  mkFacetJobConfig fun mod =>
+  mkFacetJobConfig (memoize := false) fun mod =>
     match mod.backend with
     | .default | .c => mod.coExport.fetch
     | .llvm => mod.bco.fetch
 
 /-- The `ModuleFacetConfig` for the builtin `oNoExportFacet`. -/
 def Module.oNoExportFacetConfig : ModuleFacetConfig oNoExportFacet :=
-  mkFacetJobConfig fun mod =>
+  mkFacetJobConfig (memoize := false) fun mod =>
     match mod.backend with
     | .default | .c => mod.coNoExport.fetch
     | .llvm => error "the LLVM backend only supports exporting Lean symbols"
 
 /-- The `ModuleFacetConfig` for the builtin `oFacet`. -/
 def Module.oFacetConfig : ModuleFacetConfig oFacet :=
-  mkFacetJobConfig fun mod =>
+  mkFacetJobConfig (memoize := false) fun mod =>
     match mod.backend with
     | .default | .c => mod.co.fetch
     | .llvm => mod.bco.fetch
@@ -419,7 +421,14 @@ Recursively build the shared library of a module
 -/
 def Module.recBuildDynlib (mod : Module) : FetchM (Job Dynlib) :=
   withRegisterJob s!"{mod.name}:dynlib" do
-  -- Fetch object files
+  /-
+  Fetch the module's object files.
+
+  NOTE: The `moreLinkObjs` of the module's library are not included
+  here because they would then be linked to the dynlib of each module of the library.
+  On Windows, were module dynlibs must be linked with those of their imports, this would
+  result in duplicate symbols when one library module imports another of the same library.
+  -/
   let objJobs ← (mod.nativeFacets true).mapM (·.fetch mod)
   -- Fetch dependencies' dynlibs
   let libJobs ← id do
@@ -435,7 +444,7 @@ def Module.recBuildDynlib (mod : Module) : FetchM (Job Dynlib) :=
 
 /-- The `ModuleFacetConfig` for the builtin `dynlibFacet`. -/
 def Module.dynlibFacetConfig : ModuleFacetConfig dynlibFacet :=
-  mkFacetJobConfig Module.recBuildDynlib
+  mkFacetJobConfig recBuildDynlib
 
 /--
 A name-configuration map for the initial set of
@@ -463,3 +472,37 @@ def Module.initFacetConfigs : DNameMap ModuleFacetConfig :=
 
 @[inherit_doc Module.initFacetConfigs]
 abbrev initModuleFacetConfigs := Module.initFacetConfigs
+
+/-!
+Definitions to support `lake setup-file` builds.
+-/
+
+/--
+Builds an `Array` of module imports for a Lean file.
+Used by `lake setup-file` to build modules for the Lean server and
+by `lake lean` to build the imports of a file.
+Returns the dynlibs and plugins built (so they can be loaded by Lean).
+-/
+def buildImportsAndDeps
+  (leanFile : FilePath) (imports : Array Module)
+: FetchM (Job ModuleDeps) := do
+  withRegisterJob s!"setup ({leanFile})" do
+  let root ← getRootPackage
+  if imports.isEmpty then
+    -- build the package's (and its dependencies') `extraDepTarget`
+    root.extraDep.fetch <&> (·.map fun _ => {})
+  else
+    -- build local imports from list
+    let modJob := Job.mixArray <| ← imports.mapM (·.olean.fetch)
+    let precompileImports ← (← computePrecompileImportsAux leanFile imports).await
+    let pkgs := precompileImports.foldl (·.insert ·.pkg) OrdPackageSet.empty |>.toArray
+    let externLibsJob ← fetchExternLibs pkgs
+    let impLibsJob ← fetchImportLibs precompileImports
+    let dynlibsJob ← root.dynlibs.fetchIn root
+    let pluginsJob ← root.plugins.fetchIn root
+    modJob.bindM (sync := true) fun _ =>
+    impLibsJob.bindM (sync := true) fun impLibs =>
+    dynlibsJob.bindM (sync := true) fun dynlibs =>
+    pluginsJob.bindM (sync := true) fun plugins =>
+    externLibsJob.mapM fun externLibs => do
+      computeModuleDeps impLibs externLibs dynlibs plugins

@@ -58,13 +58,18 @@ instance {α} : OrElse (FormatterM α) := ⟨FormatterM.orElse⟩
 
 abbrev Formatter := FormatterM Unit
 
-unsafe def mkFormatterAttribute : IO (KeyedDeclsAttribute Formatter) :=
+/--
+Registers a formatter for a parser.
+
+`@[formatter k]` registers a declaration of type `Lean.PrettyPrinter.Formatter` to be used for
+formatting syntax of kind `k`.
+-/
+@[builtin_doc]
+unsafe builtin_initialize formatterAttribute : KeyedDeclsAttribute Formatter ←
   KeyedDeclsAttribute.init {
     builtinName := `builtin_formatter,
     name := `formatter,
-    descr := "Register a formatter for a parser.
-
-  [formatter k] registers a declaration of type `Lean.PrettyPrinter.Formatter` for the `SyntaxNodeKind` `k`.",
+    descr := "Register a formatter for a parser.",
     valueTypeName := `Lean.PrettyPrinter.Formatter,
     evalKey := fun builtin stx => do
       let env ← getEnv
@@ -77,19 +82,27 @@ unsafe def mkFormatterAttribute : IO (KeyedDeclsAttribute Formatter) :=
       if (← getEnv).contains id && (← Elab.getInfoState).enabled then
         Elab.addConstInfo stx id none
       pure id
-  } `Lean.PrettyPrinter.formatterAttribute
-@[builtin_init mkFormatterAttribute] opaque formatterAttribute : KeyedDeclsAttribute Formatter
+  }
 
-unsafe def mkCombinatorFormatterAttribute : IO ParserCompiler.CombinatorAttribute :=
+/--
+Registers a formatter for a parser combinator.
+
+`@[combinator_formatter c]` registers a declaration of type `Lean.PrettyPrinter.Formatter` for the
+`Parser` declaration `c`. Note that, unlike with `@[formatter]`, this is not a node kind since
+combinators usually do not introduce their own node kinds. The tagged declaration may optionally
+accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced with
+`Formatter` in the parameter types.
+-/
+@[builtin_doc]
+unsafe builtin_initialize combinatorFormatterAttribute : ParserCompiler.CombinatorAttribute ←
   ParserCompiler.registerCombinatorAttribute
     `combinator_formatter
-    "Register a formatter for a parser combinator.
+    "Register a formatter for a parser combinator"
+    `Lean.PrettyPrinter.mkCombinatorFormatterAttribute -- TODO (bootstrapping): remove if possible
 
-  [combinator_formatter c] registers a declaration of type `Lean.PrettyPrinter.Formatter` for the `Parser` declaration `c`.
-  Note that, unlike with [formatter], this is not a node kind since combinators usually do not introduce their own node kinds.
-  The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced
-  with `Formatter` in the parameter types."
-@[builtin_init mkCombinatorFormatterAttribute] opaque combinatorFormatterAttribute : ParserCompiler.CombinatorAttribute
+-- More details on TODO: Removing this would lead to an environment extension with a name that
+-- doesn't match what's saved in the oleans, so tests don't pass. Removing it will require a
+-- non-CI stage0 update, or careful work to keep the test working across updates.
 
 namespace Formatter
 
@@ -97,7 +110,7 @@ open Lean.Core
 open Lean.Parser
 
 def throwBacktrack {α} : FormatterM α :=
-throw $ Exception.internal backtrackExceptionId
+  throw $ Exception.internal backtrackExceptionId
 
 instance : Syntax.MonadTraverser FormatterM := ⟨{
   get       := State.stxTrav <$> get,

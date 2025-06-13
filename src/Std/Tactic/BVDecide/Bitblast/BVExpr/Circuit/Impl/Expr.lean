@@ -129,9 +129,7 @@ where
       ⟨⟨res, this⟩, cache⟩
     | .const val =>
       let res := bitblast.blastConst aig val
-      have := AIG.LawfulVecOperator.le_size (f := bitblast.blastConst) ..
-      let cache := cache.cast this
-      ⟨⟨res, this⟩, cache⟩
+      ⟨⟨⟨aig, res⟩, by simp⟩, cache⟩
     | .bin lhsExpr op rhsExpr =>
       let ⟨⟨⟨aig, lhs⟩, hlaig⟩, cache⟩ := goCache aig lhsExpr cache
       let ⟨⟨⟨aig, rhs⟩, hraig⟩, cache⟩ := goCache aig rhsExpr cache
@@ -316,7 +314,7 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
   unfold go
   split
   · rw [AIG.LawfulVecOperator.decl_eq (f := blastVar)]
-  · rw [AIG.LawfulVecOperator.decl_eq (f := blastConst)]
+  · simp
   · next op lhsExpr rhsExpr =>
     have hl := (goCache aig lhsExpr cache).result.property
     have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property

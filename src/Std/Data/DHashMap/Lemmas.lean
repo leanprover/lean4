@@ -51,9 +51,13 @@ theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
 
 -- While setting up the API, often use this in the reverse direction,
 -- but prefer this direction for users.
-@[simp, grind]
+@[simp, grind =]
 theorem contains_iff_mem {a : α} : m.contains a ↔ a ∈ m :=
   Iff.rfl
+
+-- We need to specify the pattern for the reverse direction manually,
+-- as the default heuristic leaves the `DHashMap α β` argument as a wildcard.
+grind_pattern contains_iff_mem => @Membership.mem α (DHashMap α β) _ m a
 
 theorem contains_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) :
     m.contains a = m.contains b :=
@@ -721,7 +725,7 @@ theorem contains_eq_isSome_getKey? [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = (m.getKey? a).isSome :=
   Raw₀.contains_eq_isSome_getKey? ⟨m.1, _⟩ m.2
 
-@[simp]
+@[simp, grind =]
 theorem isSome_getKey?_eq_contains [EquivBEq α] [LawfulHashable α] {a : α} :
     (m.getKey? a).isSome = m.contains a :=
   contains_eq_isSome_getKey?.symm
@@ -1158,7 +1162,7 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
     m.keys.Pairwise (fun a b => (a == b) = false) :=
   Raw₀.distinct_keys ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
-@[simp, grind =]
+@[simp, grind _=_]
 theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
     m.toList.map Sigma.fst = m.keys :=
   Raw₀.map_fst_toList_eq_keys ⟨m.1, m.2.size_buckets_pos⟩
@@ -1209,7 +1213,7 @@ namespace Const
 
 variable {β : Type v} {m : DHashMap α (fun _ => β)}
 
-@[simp, grind =]
+@[simp, grind _=_]
 theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
     (toList m).map Prod.fst = m.keys :=
   Raw₀.Const.map_fst_toList_eq_keys ⟨m.1, m.2.size_buckets_pos⟩

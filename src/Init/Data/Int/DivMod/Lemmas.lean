@@ -3,7 +3,6 @@ Copyright (c) 2016 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Avigad, Mario Carneiro, Kim Morrison, Markus Himmel
 -/
-
 module
 
 prelude
@@ -203,6 +202,9 @@ theorem tdiv_eq_ediv_of_nonneg : ∀ {a b : Int}, 0 ≤ a → a.tdiv b = a / b
   | succ _, succ _, _ => rfl
   | succ _, -[_+1], _ => rfl
 
+@[simp] theorem natCast_tdiv_eq_ediv {a : Nat} {b : Int} : (a : Int).tdiv b = a / b :=
+    tdiv_eq_ediv_of_nonneg (by simp)
+
 theorem tdiv_eq_ediv {a b : Int} :
     a.tdiv b = a / b + if 0 ≤ a ∨ b ∣ a then 0 else sign b := by
   simp only [dvd_iff_emod_eq_zero]
@@ -329,17 +331,17 @@ theorem fdiv_eq_ediv_of_dvd {a b : Int} (h : b ∣ a) : a.fdiv b = a / b := by
 theorem tmod_add_tdiv : ∀ a b : Int, tmod a b + b * (a.tdiv b) = a
   | ofNat _, ofNat _ => congrArg ofNat (Nat.mod_add_div ..)
   | ofNat m, -[n+1] => by
-    show (m % succ n + -↑(succ n) * -↑(m / succ n) : Int) = m
+    change (m % succ n + -↑(succ n) * -↑(m / succ n) : Int) = m
     rw [Int.neg_mul_neg]; exact congrArg ofNat (Nat.mod_add_div ..)
   | -[m+1], 0 => by
-    show -(↑((succ m) % 0) : Int) + 0 * -↑(succ m / 0) = -↑(succ m)
+    change -(↑((succ m) % 0) : Int) + 0 * -↑(succ m / 0) = -↑(succ m)
     rw [Nat.mod_zero, Int.zero_mul, Int.add_zero]
   | -[m+1], ofNat n => by
-    show -(↑((succ m) % n) : Int) + ↑n * -↑(succ m / n) = -↑(succ m)
+    change -(↑((succ m) % n) : Int) + ↑n * -↑(succ m / n) = -↑(succ m)
     rw [Int.mul_neg, ← Int.neg_add]
     exact congrArg (-ofNat ·) (Nat.mod_add_div ..)
   | -[m+1], -[n+1] => by
-    show -(↑(succ m % succ n) : Int) + -↑(succ n) * ↑(succ m / succ n) = -↑(succ m)
+    change -(↑(succ m % succ n) : Int) + -↑(succ n) * ↑(succ m / succ n) = -↑(succ m)
     rw [Int.neg_mul, ← Int.neg_add]
     exact congrArg (-ofNat ·) (Nat.mod_add_div ..)
 
@@ -361,17 +363,17 @@ theorem fmod_add_fdiv : ∀ a b : Int, a.fmod b + b * a.fdiv b = a
   | 0, ofNat _ | 0, -[_+1] => congrArg ofNat <| by simp
   | succ _, ofNat _ => congrArg ofNat <| Nat.mod_add_div ..
   | succ m, -[n+1] => by
-    show subNatNat (m % succ n) n + (↑(succ n * (m / succ n)) + n + 1) = (m + 1)
+    change subNatNat (m % succ n) n + (↑(succ n * (m / succ n)) + n + 1) = (m + 1)
     rw [Int.add_comm _ n, ← Int.add_assoc, ← Int.add_assoc,
       Int.subNatNat_eq_coe, Int.sub_add_cancel]
     exact congrArg (ofNat · + 1) <| Nat.mod_add_div ..
   | -[_+1], 0 => by rw [fmod_zero]; rfl
   | -[m+1], succ n => by
-    show subNatNat .. - (↑(succ n * (m / succ n)) + ↑(succ n)) = -↑(succ m)
+    change subNatNat .. - (↑(succ n * (m / succ n)) + ↑(succ n)) = -↑(succ m)
     rw [Int.subNatNat_eq_coe, ← Int.sub_sub, ← Int.neg_sub, Int.sub_sub, Int.sub_sub_self]
     exact congrArg (-ofNat ·) <| Nat.succ_add .. ▸ Nat.mod_add_div .. ▸ rfl
   | -[m+1], -[n+1] => by
-    show -(↑(succ m % succ n) : Int) + -↑(succ n * (succ m / succ n)) = -↑(succ m)
+    change -(↑(succ m % succ n) : Int) + -↑(succ n * (succ m / succ n)) = -↑(succ m)
     rw [← Int.neg_add]; exact congrArg (-ofNat ·) <| Nat.mod_add_div ..
 
 /-- Variant of `fmod_add_fdiv` with the multiplication written the other way around. -/
@@ -572,7 +574,7 @@ theorem neg_one_ediv (b : Int) : -1 / b = -b.sign :=
       · refine Nat.le_trans ?_ (Nat.le_add_right _ _)
         rw [← Nat.mul_div_mul_left _ _ m.succ_pos]
         apply Nat.div_mul_le_self
-      · show m.succ * n.succ ≤ _
+      · change m.succ * n.succ ≤ _
         rw [Nat.mul_left_comm]
         apply Nat.mul_le_mul_left
         apply (Nat.div_lt_iff_lt_mul k.succ_pos).1
@@ -1410,8 +1412,7 @@ theorem mul_tmod (a b n : Int) : (a * b).tmod n = (a.tmod n * b.tmod n).tmod n :
   norm_cast at h
   rw [Nat.mod_mod_of_dvd _ h]
 
-@[simp] theorem tmod_tmod (a b : Int) : (a.tmod b).tmod b = a.tmod b :=
-  tmod_tmod_of_dvd a (Int.dvd_refl b)
+theorem tmod_tmod (a b : Int) : (a.tmod b).tmod b = a.tmod b := by simp
 
 theorem tmod_eq_zero_of_dvd : ∀ {a b : Int}, a ∣ b → tmod b a = 0
   | _, _, ⟨_, rfl⟩ => mul_tmod_right ..
@@ -1469,9 +1470,8 @@ protected theorem tdiv_mul_cancel {a b : Int} (H : b ∣ a) : a.tdiv b * b = a :
 protected theorem mul_tdiv_cancel' {a b : Int} (H : a ∣ b) : a * b.tdiv a = b := by
   rw [Int.mul_comm, Int.tdiv_mul_cancel H]
 
-@[simp] theorem neg_tmod_self (a : Int) : (-a).tmod a = 0 := by
-  rw [← dvd_iff_tmod_eq_zero, Int.dvd_neg]
-  exact Int.dvd_refl a
+theorem neg_tmod_self (a : Int) : (-a).tmod a = 0 := by
+  simp
 
 theorem lt_tdiv_add_one_mul_self (a : Int) {b : Int} (H : 0 < b) : a < (a.tdiv b + 1) * b := by
   rw [Int.add_mul, Int.one_mul, Int.mul_comm]
@@ -1568,13 +1568,11 @@ theorem dvd_tmod_sub_self {x m : Int} : m ∣ x.tmod m - x := by
 theorem dvd_self_sub_tmod {x m : Int} : m ∣ x - x.tmod m :=
   Int.dvd_neg.1 (by simpa only [Int.neg_sub] using dvd_tmod_sub_self)
 
-@[simp] theorem neg_mul_tmod_right (a b : Int) : (-(a * b)).tmod a = 0 := by
-  rw [← dvd_iff_tmod_eq_zero, Int.dvd_neg]
-  exact Int.dvd_mul_right a b
+theorem neg_mul_tmod_right (a b : Int) : (-(a * b)).tmod a = 0 := by
+  simp
 
-@[simp] theorem neg_mul_tmod_left (a b : Int) : (-(a * b)).tmod b = 0 := by
-  rw [← dvd_iff_tmod_eq_zero, Int.dvd_neg]
-  exact Int.dvd_mul_left a b
+theorem neg_mul_tmod_left (a b : Int) : (-(a * b)).tmod b = 0 := by
+  simp
 
 @[simp] protected theorem tdiv_one : ∀ a : Int, a.tdiv 1 = a
   | (n:Nat) => congrArg ofNat (Nat.div_one _)
@@ -2193,8 +2191,8 @@ theorem mul_fmod (a b n : Int) : (a * b).fmod n = (a.fmod n * b.fmod n).fmod n :
   match k, h with
   | _, ⟨t, rfl⟩ => rw [Int.mul_assoc, add_mul_fmod_self_left]
 
-@[simp] theorem fmod_fmod (a b : Int) : (a.fmod b).fmod b = a.fmod b :=
-  fmod_fmod_of_dvd _ (Int.dvd_refl b)
+theorem fmod_fmod (a b : Int) : (a.fmod b).fmod b = a.fmod b := by
+  simp
 
 theorem sub_fmod (a b n : Int) : (a - b).fmod n = (a.fmod n - b.fmod n).fmod n := by
   apply (fmod_add_cancel_right b).mp
@@ -2749,7 +2747,7 @@ theorem bmod_lt {x : Int} {m : Nat} (h : 0 < m) : bmod x m < (m + 1) / 2 := by
   split
   · assumption
   · apply Int.lt_of_lt_of_le
-    · show _ < 0
+    · change _ < 0
       have : x % m < m := emod_lt_of_pos x (natCast_pos.mpr h)
       exact Int.sub_neg_of_lt this
     · exact Int.le.intro_sub _ rfl

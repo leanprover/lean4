@@ -5,4 +5,7 @@ Authors: Paul Reichert
 -/
 prelude
 import Std.Data.Iterators.Producers.Monadic
+import Std.Data.Iterators.Producers.Array
+import Std.Data.Iterators.Producers.Empty
 import Std.Data.Iterators.Producers.List
+import Std.Data.Iterators.Producers.Repeat

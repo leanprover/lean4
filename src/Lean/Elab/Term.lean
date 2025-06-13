@@ -59,8 +59,13 @@ inductive SyntheticMVarKind where
   -/
   | coe (header? : Option String) (expectedType : Expr) (e : Expr) (f? : Option Expr)
       (mkErrorMsg? : Option (MVarId → Expr → Expr → MetaM MessageData))
-  /-- Use tactic to synthesize value for metavariable. -/
-  | tactic (tacticCode : Syntax) (ctx : SavedContext) (kind : TacticMVarKind)
+  /--
+  Use tactic to synthesize value for metavariable.
+
+  If `delayOnMVars` is true, the tactic will not be executed until the goal is free of unassigned
+  expr metavariables.
+  -/
+  | tactic (tacticCode : Syntax) (ctx : SavedContext) (kind : TacticMVarKind) (delayOnMVars := false)
   /-- Metavariable represents a hole whose elaboration has been postponed. -/
   | postponed (ctx : SavedContext)
   deriving Inhabited
@@ -172,7 +177,7 @@ structure State where
   Backtrackable state for the `TermElabM` monad.
 -/
 structure SavedState where
-  meta   : Meta.SavedState
+  «meta» : Meta.SavedState
   «elab» : State
   deriving Nonempty
 
@@ -195,7 +200,7 @@ structure State where
 -/
 structure Snapshot where
   core   : Core.State
-  meta   : Meta.State
+  «meta» : Meta.State
   term   : Term.State
   tactic : Tactic.State
   stx    : Syntax
@@ -347,7 +352,7 @@ instance : Inhabited (TermElabM α) where
   default := throw default
 
 protected def saveState : TermElabM SavedState :=
-  return { meta := (← Meta.saveState), «elab» := (← get) }
+  return { «meta» := (← Meta.saveState), «elab» := (← get) }
 
 def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : TermElabM Unit := do
   let traceState ← getTraceState -- We never backtrack trace message
@@ -382,10 +387,10 @@ def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
       snap.new.resolve old.val.get
 
   let reusableResult? := reusableResult?.map (fun (val, state) => (val, state.meta))
-  let (a, meta) ← withReader ({ · with tacSnap? }) do
+  let (a, «meta») ← withReader ({ · with tacSnap? }) do
     controlAt MetaM fun runInBase => do
       Meta.withRestoreOrSaveFull reusableResult? <| runInBase act
-  return (a, { meta, «elab» := (← get) })
+  return (a, { «meta», «elab» := (← get) })
 
 instance : MonadBacktrack SavedState TermElabM where
   saveState      := Term.saveState
@@ -572,6 +577,17 @@ unsafe def mkTermElabAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute Term
 @[implemented_by mkTermElabAttributeUnsafe]
 opaque mkTermElabAttribute (ref : Name) : IO (KeyedDeclsAttribute TermElab)
 
+/--
+Registers a term elaborator for the given syntax node kind.
+
+A term elaborator should have type `Lean.Elab.Term.TermElab` (which is
+`Lean.Syntax → Option Lean.Expr → Lean.Elab.Term.TermElabM Lean.Expr`), i.e. should take syntax of
+the given syntax node kind and an optional expected type as parameters and produce an expression.
+
+The `elab_rules` and `elab` commands should usually be preferred over using this attribute
+directly.
+-/
+@[builtin_doc]
 builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermElabAttribute decl_name%
 
 /--
@@ -951,7 +967,7 @@ private def applyAttributesCore
         let runAttr := do
           -- not truly an elaborator, but a sensible target for go-to-definition
           let elaborator := attrImpl.ref
-          if (← getInfoState).enabled && (← getEnv).contains elaborator then
+          if (← getInfoState).enabled then
             withInfoContext (mkInfo := return .ofCommandInfo { elaborator, stx := attr.stx }) do
               try runAttr
               finally if attr.stx[0].isIdent || attr.stx[0].isAtom then
@@ -1263,14 +1279,15 @@ register_builtin_option debug.byAsSorry : Bool := {
 Creates a new metavariable of type `type` that will be synthesized using the tactic code.
 The `tacticCode` syntax is the full `by ..` syntax.
 -/
-def mkTacticMVar (type : Expr) (tacticCode : Syntax) (kind : TacticMVarKind) : TermElabM Expr := do
+def mkTacticMVar (type : Expr) (tacticCode : Syntax) (kind : TacticMVarKind)
+    (delayOnMVars := false) : TermElabM Expr := do
   if ← pure (debug.byAsSorry.get (← getOptions)) <&&> isProp type then
     withRef tacticCode <| mkLabeledSorry type false (unique := true)
   else
     let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
     let mvarId := mvar.mvarId!
     let ref ← getRef
-    registerSyntheticMVar ref mvarId <| SyntheticMVarKind.tactic tacticCode (← saveContext) kind
+    registerSyntheticMVar ref mvarId <| .tactic tacticCode (← saveContext) kind delayOnMVars
     return mvar
 
 /--
@@ -1979,7 +1996,7 @@ where
            isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
         throwAutoBoundImplicitLocal n
       else
-        throwUnknownIdentifier m!"unknown identifier '{Lean.mkConst n}'"
+        throwUnknownIdentifierAt stx m!"unknown identifier '{Lean.mkConst n}'"
     mkConsts candidates explicitLevels
 
 /--
@@ -2066,6 +2083,13 @@ builtin_initialize
   registerTraceClass `Elab.debug
   registerTraceClass `Elab.reuse
 
+/--
+Marks an elaborator (tactic or command, currently) as supporting incremental elaboration.
+
+For unmarked elaborators, the corresponding snapshot bundle field in the elaboration context is
+unset so as to prevent accidental, incorrect reuse.
+-/
+@[builtin_doc]
 builtin_initialize incrementalAttr : TagAttribute ←
   registerTagAttribute `incremental "Marks an elaborator (tactic or command, currently) as \
 supporting incremental elaboration. For unmarked elaborators, the corresponding snapshot bundle \
@@ -2076,7 +2100,8 @@ builtin_initialize builtinIncrementalElabs : IO.Ref NameSet ← IO.mkRef {}
 def addBuiltinIncrementalElab (decl : Name) : IO Unit := do
   builtinIncrementalElabs.modify fun s => s.insert decl
 
-builtin_initialize
+@[builtin_init, inherit_doc incrementalAttr, builtin_doc]
+private def init :=
   registerBuiltinAttribute {
     name            := `builtin_incremental
     descr           := s!"(builtin) {incrementalAttr.attr.descr}"

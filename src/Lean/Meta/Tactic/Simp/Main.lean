@@ -800,58 +800,83 @@ where
   withTrackingZetaDeltaSet ctx.zetaDeltaSet <|
   withReducible x
 
-private def updateUsedSimpsWithZetaDeltaCore (s : UsedSimps) (usedZetaDelta : FVarIdSet) : UsedSimps :=
-  usedZetaDelta.fold (init := s) fun s fvarId =>
-    s.insert <| .fvar fvarId
+/--
+Adds the fvars from `usedZetaDelta` to `s` if they are present in
+the set `zetaDeltaSet` of fvars that are explicitly added to the simp context.
+
+*Note:* `usedZetaDelta` might contain fvars that are not in `zetaDeltaSet`,
+since within `withResetZetaDeltaFVarIds` it is possible for `whnf` to be run with different configurations,
+ones that allow zeta-delta reducing fvars not in `zetaDeltaSet` (e.g. `withInferTypeConfig` sets `zetaDelta := true`).
+This also means that `usedZetaDelta` set might be reporting fvars in `zetaDeltaSet` that weren't "used".
+-/
+private def updateUsedSimpsWithZetaDeltaCore (s : UsedSimps) (zetaDeltaSet : FVarIdSet) (usedZetaDelta : FVarIdSet) : UsedSimps :=
+  zetaDeltaSet.fold (init := s) fun s fvarId =>
+    if usedZetaDelta.contains fvarId then
+      s.insert <| .fvar fvarId
+    else
+      s
 
 private def updateUsedSimpsWithZetaDelta (ctx : Context) (stats : Stats) : MetaM Stats := do
   let used := stats.usedTheorems
-  let used := updateUsedSimpsWithZetaDeltaCore used ctx.initUsedZetaDelta
-  let used := updateUsedSimpsWithZetaDeltaCore used (← getZetaDeltaFVarIds)
+  let used := updateUsedSimpsWithZetaDeltaCore used ctx.zetaDeltaSet ctx.initUsedZetaDelta
+  let used := updateUsedSimpsWithZetaDeltaCore used ctx.zetaDeltaSet (← getZetaDeltaFVarIds)
   return { stats with usedTheorems := used }
 
-def main (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Result × Stats) := do
+@[inline] def withCatchingRuntimeEx (x : SimpM α) : SimpM α := do
+  if (← getConfig).catchRuntime then
+    tryCatchRuntimeEx x
+      fun ex => do
+        reportDiag (← get).diag
+        if ex.isRuntime then
+          throwNestedTacticEx `simp ex
+        else
+          throw ex
+  else
+    x
+
+def mainCore (e : Expr) (ctx : Context) (s : State := {}) (methods : Methods := {}) : MetaM (Result × State) := do
   let ctx ← ctx.setLctxInitIndices
   withSimpContext ctx do
-    let (r, s) ← go e methods.toMethodsRef ctx |>.run { stats with }
+    let (r, s) ← go e methods.toMethodsRef ctx |>.run s
     trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
-    let s ← updateUsedSimpsWithZetaDelta ctx { s with }
+    let stats ← updateUsedSimpsWithZetaDelta ctx { s with }
+    let s := { s with diag := stats.diag, usedTheorems := stats.usedTheorems }
     return (r, s)
 where
   go (e : Expr) : SimpM Result :=
-    tryCatchRuntimeEx
-      (simp e)
-      fun ex => do
-        reportDiag (← get).diag
-        if ex.isRuntime then
-          throwNestedTacticEx `simp ex
-        else
-          throw ex
+    withCatchingRuntimeEx (simp e)
 
-def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Expr × Stats) := do
+def main (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Result × Stats) := do
+  let (r, s) ← mainCore e ctx { stats with } methods
+  return (r, { s with })
+
+def dsimpMainCore (e : Expr) (ctx : Context) (s : State := {}) (methods : Methods := {}) : MetaM (Expr × State) := do
   withSimpContext ctx do
-    let (r, s) ← go e methods.toMethodsRef ctx |>.run { stats with }
-    let s ← updateUsedSimpsWithZetaDelta ctx { s with }
+    let (r, s) ← go e methods.toMethodsRef ctx |>.run s
+    let stats ← updateUsedSimpsWithZetaDelta ctx { s with }
+    let s := { s with diag := stats.diag, usedTheorems := stats.usedTheorems}
     pure (r, s)
 where
   go (e : Expr) : SimpM Expr :=
-    tryCatchRuntimeEx
-      (dsimp e)
-      fun ex => do
-        reportDiag (← get).diag
-        if ex.isRuntime then
-          throwNestedTacticEx `simp ex
-        else
-          throw ex
+    withCatchingRuntimeEx (dsimp e)
+
+def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Expr × Stats) := do
+  let (r, s) ← dsimpMainCore e ctx { stats with } methods
+  return (r, { s with })
 
 end Simp
 open Simp (SimprocsArray Stats)
 
+def simpCore (e : Expr) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (discharge? : Option Simp.Discharge := none)
+    (s : Simp.State := {}) : MetaM (Simp.Result × Simp.State) := do profileitM Exception "simp" (← getOptions) do
+  match discharge? with
+  | none   => Simp.mainCore e ctx s (methods := Simp.mkDefaultMethodsCore simprocs)
+  | some d => Simp.mainCore e ctx s (methods := Simp.mkMethods simprocs d (wellBehavedDischarge := false))
+
 def simp (e : Expr) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (discharge? : Option Simp.Discharge := none)
     (stats : Stats := {}) : MetaM (Simp.Result × Stats) := do profileitM Exception "simp" (← getOptions) do
-  match discharge? with
-  | none   => Simp.main e ctx stats (methods := Simp.mkDefaultMethodsCore simprocs)
-  | some d => Simp.main e ctx stats (methods := Simp.mkMethods simprocs d (wellBehavedDischarge := false))
+  let (r, s) ← simpCore e ctx simprocs discharge? { stats with }
+  return (r, { s with })
 
 def dsimp (e : Expr) (ctx : Simp.Context) (simprocs : SimprocsArray := #[])
     (stats : Stats := {}) : MetaM (Expr × Stats) := do profileitM Exception "dsimp" (← getOptions) do

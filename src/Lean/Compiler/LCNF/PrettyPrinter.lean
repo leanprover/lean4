@@ -58,7 +58,7 @@ def ppArgs (args : Array Arg) : M Format := do
 
 def ppLitValue (lit : LitValue) : M Format := do
   match lit with
-  | .nat v | .uint8 v | .uint16 v | .uint32 v | .uint64 v => return format v
+  | .nat v | .uint8 v | .uint16 v | .uint32 v | .uint64 v | .usize v => return format v
   | .str v => return format (repr v)
 
 def ppLetValue (e : LetValue) : M Format := do

@@ -49,8 +49,8 @@ A version of `AIG.mkConst` that uses the subterm cache in `AIG`. This version is
 programming, for proving purposes use `AIG.mkGate` and equality theorems to this one.
 -/
 @[inline]
-def mkConstCached (aig : AIG α) (val : Bool) : Entrypoint α :=
-  ⟨aig, ⟨0, val, aig.hzero⟩⟩
+def mkConstCached (aig : AIG α) (val : Bool) : Ref aig :=
+  ⟨0, val, aig.hzero⟩
 
 /--
 A version of `AIG.mkGate` that uses the subterm cache in `AIG`. This version is meant for
@@ -88,7 +88,9 @@ where
       let rhsVal := AIG.getConstant ⟨decls, cache, hdag, hzero, hconst⟩ input.rhs
       match lhsVal, rhsVal with
       -- Boundedness
-      | .some false, _ | _, .some false => mkConstCached ⟨decls, cache, hdag, hzero, hconst⟩ false
+      | .some false, _ | _, .some false =>
+        let ref := mkConstCached ⟨decls, cache, hdag, hzero, hconst⟩ false
+        ⟨⟨decls, cache, hdag, hzero, hconst⟩, ref⟩
       -- Left Neutrality
       | .some true, _ => ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨rhs, rinv, by assumption⟩⟩
       -- Right Neutrality
@@ -97,9 +99,12 @@ where
       | _, _ =>
         if lhs == rhs then
            -- Idempotency
-          if linv == rinv then ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨lhs, linv, by assumption⟩⟩
+          if linv == rinv then
+            ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨lhs, linv, by assumption⟩⟩
           -- Contradiction
-          else mkConstCached ⟨decls, cache, hdag, hzero, hconst⟩ false
+          else
+            let ref := mkConstCached ⟨decls, cache, hdag, hzero, hconst⟩ false
+            ⟨⟨decls, cache, hdag, hzero, hconst⟩, ref⟩
         else
           -- Gate couldn't be simplified
           let g := decls.size

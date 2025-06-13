@@ -51,9 +51,14 @@ theorem not_insert_eq_empty [EquivBEq α] [LawfulHashable α] {k : α} {v : β k
 theorem mem_iff_contains [EquivBEq α] [LawfulHashable α] {a : α} : a ∈ m ↔ m.contains a :=
   Iff.rfl
 
-@[simp, grind]
+@[simp, grind =]
 theorem contains_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} : m.contains a ↔ a ∈ m :=
   Iff.rfl
+
+-- We need to specify the pattern for the reverse direction manually,
+-- as the default heuristic leaves the `ExtDHashMap α β` argument as a wildcard.
+grind_pattern contains_iff_mem => @Membership.mem α (ExtDHashMap α β) _ m a
+
 
 theorem contains_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : m.contains a = m.contains b :=
   m.inductionOn fun _ => DHashMap.contains_congr hab
@@ -305,7 +310,7 @@ theorem get_eq_get_get? [LawfulBEq α] {a : α} {h} :
     m.get a h = (m.get? a).get (mem_iff_isSome_get?.mp h) :=
   m.inductionOn (fun _ _ => DHashMap.get_eq_get_get?) h
 
-@[grind =]theorem get_get? [LawfulBEq α] {a : α} {h} :
+@[grind =] theorem get_get? [LawfulBEq α] {a : α} {h} :
     (m.get? a).get h = m.get a (mem_iff_isSome_get?.mpr h) :=
   m.inductionOn (fun _ _ => DHashMap.get_get?) h
 
@@ -405,7 +410,7 @@ variable {β : Type v} {m : ExtDHashMap α (fun _ => β)}
 theorem get!_empty [EquivBEq α] [LawfulHashable α] [Inhabited β] {a : α} : get! (∅ : ExtDHashMap α (fun _ => β)) a = default :=
   DHashMap.Const.get!_empty
 
-@[grind =]theorem get!_insert [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} {v : β} :
+@[grind =] theorem get!_insert [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} {v : β} :
     get! (m.insert k v) a = if k == a then v else get! m a :=
   m.inductionOn fun _ => DHashMap.Const.get!_insert
 
@@ -462,7 +467,7 @@ theorem getD_empty [LawfulBEq α] {a : α} {fallback : β a} :
     (∅ : ExtDHashMap α β).getD a fallback = fallback :=
   DHashMap.getD_empty
 
-@[grind =]theorem getD_insert [LawfulBEq α] {k a : α} {fallback : β a} {v : β k} :
+@[grind =] theorem getD_insert [LawfulBEq α] {k a : α} {fallback : β a} {v : β k} :
     (m.insert k v).getD a fallback =
       if h : k == a then cast (congrArg β (eq_of_beq h)) v else m.getD a fallback :=
   m.inductionOn fun _ => DHashMap.getD_insert
@@ -591,7 +596,7 @@ theorem contains_eq_isSome_getKey? [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = (m.getKey? a).isSome :=
   m.inductionOn fun _ => DHashMap.contains_eq_isSome_getKey?
 
-@[simp]
+@[simp, grind =]
 theorem isSome_getKey?_eq_contains [EquivBEq α] [LawfulHashable α] {a : α} :
     (m.getKey? a).isSome = m.contains a :=
   contains_eq_isSome_getKey?.symm
@@ -965,7 +970,7 @@ theorem insertMany_cons [EquivBEq α] [LawfulHashable α]
     m.insertMany (p :: l) = (m.insert p.1 p.2).insertMany l := by
   rcases p with ⟨k, v⟩
   unfold insertMany
-  simp only [Id.pure_eq, Id.bind_eq, Id.run, List.forIn_yield_eq_foldl, List.foldl_cons]
+  simp only [bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, List.foldl_cons, Id.run_pure]
   refine Eq.trans ?_ (Eq.symm ?_ : l.foldl (fun b a => b.insert a.1 a.2) (m.insert k v) = _)
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
@@ -1228,7 +1233,7 @@ theorem insertMany_cons [EquivBEq α] [LawfulHashable α] {l : List (α × β)} 
     insertMany m (p :: l) = insertMany (m.insert p.1 p.2) l := by
   rcases p with ⟨k, v⟩
   unfold insertMany
-  simp only [Id.pure_eq, Id.bind_eq, Id.run, List.forIn_yield_eq_foldl, List.foldl_cons]
+  simp only [bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, List.foldl_cons, Id.run_pure]
   refine Eq.trans ?_ (Eq.symm ?_ : l.foldl (fun b a => b.insert a.1 a.2) (m.insert k v) = _)
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
@@ -1492,7 +1497,7 @@ theorem insertManyIfNewUnit_list_singleton [EquivBEq α] [LawfulHashable α] {k 
 theorem insertManyIfNewUnit_cons [EquivBEq α] [LawfulHashable α] {l : List α} {k : α} :
     insertManyIfNewUnit m (k :: l) = insertManyIfNewUnit (m.insertIfNew k ()) l := by
   unfold insertManyIfNewUnit
-  simp only [Id.pure_eq, Id.bind_eq, Id.run, List.forIn_yield_eq_foldl, List.foldl_cons]
+  simp only [bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, List.foldl_cons, Id.run_pure]
   refine Eq.trans ?_ (Eq.symm ?_ : l.foldl (fun b a => b.insertIfNew a ()) (m.insertIfNew k ()) = _)
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm

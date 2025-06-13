@@ -18,6 +18,7 @@ static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__2;
 LEAN_EXPORT lean_object* l_Lean_IR_instInhabitedCtorFieldInfo;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__4;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__3;
+lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__11;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__9;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__14;
@@ -32,7 +33,6 @@ static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__13;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__8;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__6;
 LEAN_EXPORT lean_object* l_Lean_IR_getCtorLayout___boxed(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_IR_CtorFieldInfo_instToFormat___closed__1;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__5;
 static lean_object* _init_l_Lean_IR_instInhabitedCtorFieldInfo() {
@@ -187,7 +187,7 @@ if (x_3 == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = lean_ctor_get(x_1, 0);
-x_5 = l___private_Init_Data_Repr_0__Nat_reprFast(x_4);
+x_5 = l_Nat_reprFast(x_4);
 lean_ctor_set_tag(x_1, 3);
 lean_ctor_set(x_1, 0, x_5);
 x_6 = l_Lean_IR_CtorFieldInfo_format___closed__4;
@@ -206,7 +206,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = lean_ctor_get(x_1, 0);
 lean_inc(x_10);
 lean_dec(x_1);
-x_11 = l___private_Init_Data_Repr_0__Nat_reprFast(x_10);
+x_11 = l_Nat_reprFast(x_10);
 x_12 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_12, 0, x_11);
 x_13 = l_Lean_IR_CtorFieldInfo_format___closed__4;
@@ -228,7 +228,7 @@ if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_18 = lean_ctor_get(x_1, 0);
-x_19 = l___private_Init_Data_Repr_0__Nat_reprFast(x_18);
+x_19 = l_Nat_reprFast(x_18);
 lean_ctor_set_tag(x_1, 3);
 lean_ctor_set(x_1, 0, x_19);
 x_20 = l_Lean_IR_CtorFieldInfo_format___closed__8;
@@ -247,7 +247,7 @@ lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean
 x_24 = lean_ctor_get(x_1, 0);
 lean_inc(x_24);
 lean_dec(x_1);
-x_25 = l___private_Init_Data_Repr_0__Nat_reprFast(x_24);
+x_25 = l_Nat_reprFast(x_24);
 x_26 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_26, 0, x_25);
 x_27 = l_Lean_IR_CtorFieldInfo_format___closed__8;
@@ -271,7 +271,7 @@ lean_inc(x_32);
 x_33 = lean_ctor_get(x_1, 2);
 lean_inc(x_33);
 lean_dec(x_1);
-x_34 = l___private_Init_Data_Repr_0__Nat_reprFast(x_31);
+x_34 = l_Nat_reprFast(x_31);
 x_35 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_35, 0, x_34);
 x_36 = l_Lean_IR_CtorFieldInfo_format___closed__10;
@@ -282,7 +282,7 @@ x_38 = l_Lean_IR_CtorFieldInfo_format___closed__12;
 x_39 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_39, 0, x_37);
 lean_ctor_set(x_39, 1, x_38);
-x_40 = l___private_Init_Data_Repr_0__Nat_reprFast(x_32);
+x_40 = l_Nat_reprFast(x_32);
 x_41 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_41, 0, x_40);
 x_42 = lean_alloc_ctor(5, 2, 0);

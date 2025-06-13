@@ -5,7 +5,8 @@
     {
       "module": "Dep",
       "importAll": false,
-      "isExported": true
+      "isExported": true,
+      "isMeta": false
     }
   ],
   "modules": {

@@ -420,7 +420,7 @@ where
         if let some (some processed) ← old.processedResult.get? then
           -- ...and the edit is after the second-next command (see note [Incremental Parsing])...
           if let some nextCom ← processed.firstCmdSnap.get? then
-            if let some nextNextCom ← processed.firstCmdSnap.get? then
+            if let some nextNextCom ← nextCom.nextCmdSnap?.bindM (·.get?) then
               if (← isBeforeEditPos nextNextCom.parserState.pos) then
                 -- ...go immediately to next snapshot
                 return (← unchanged old old.stx oldSuccess.parserState)
@@ -687,7 +687,8 @@ where
           -- create a temporary snapshot tree containing all tasks but it
           let snaps := #[
             { stx? := stx', task := elabPromise.result!.map (sync := true) toSnapshotTree, cancelTk? := none },
-            { stx? := stx', task := resultPromise.result!.map (sync := true) toSnapshotTree, cancelTk? := none }] ++
+            { stx? := stx', task := resultPromise.result!.map (sync := true) toSnapshotTree, cancelTk? := none },
+            { stx? := stx', task := finishedPromise.result!.map (sync := true) toSnapshotTree, cancelTk? := none }] ++
             cmdState.snapshotTasks
           let tree := SnapshotTree.mk { diagnostics := .empty } snaps
           BaseIO.bindTask (← tree.waitAll) fun _ => do

@@ -47,10 +47,10 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
       `(tactic| simp_all!%$tk $cfg:optConfig $(discharger)? $[only%$o]? $[[$args,*]]?)
     else
       `(tactic| simp_all%$tk $cfg:optConfig $(discharger)? $[only%$o]? $[[$args,*]]?)
-    let { ctx, .. } ← mkSimpContext stx (eraseLocal := true)
+    let { ctx, simprocs, .. } ← mkSimpContext stx (eraseLocal := true)
       (kind := .simpAll) (ignoreStarArg := true)
     let ctx := if bang.isSome then ctx.setAutoUnfold else ctx
-    let (result?, stats) ← simpAll (← getMainGoal) ctx
+    let (result?, stats) ← simpAll (← getMainGoal) ctx (simprocs := simprocs)
     match result? with
     | none => replaceMainGoal []
     | some mvarId => replaceMainGoal [mvarId]

@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 example (a b : List Nat) : a = [] → b = [2] → a = b → False := by
   grind
 
@@ -260,9 +258,9 @@ h_1 : p
     [prop] p = q
     [prop] p
   [eqc] True propositions
-    [prop] p = q
-    [prop] q
     [prop] p
+    [prop] q
+    [prop] p = q
 -/
 #guard_msgs (error) in
 set_option trace.grind.split true in
@@ -294,9 +292,9 @@ h_1 : p
     [prop] p = ¬q
     [prop] p
   [eqc] True propositions
-    [prop] p = ¬q
-    [prop] ¬q
     [prop] p
+    [prop] ¬q
+    [prop] p = ¬q
   [eqc] False propositions
     [prop] q
 -/
@@ -378,8 +376,10 @@ h_1 : b = true
   [eqc] True propositions
     [prop] b = true
   [eqc] Equivalence classes
-    [eqc] {a, if b = true then 10 else 20, 10}
+    [eqc] {a, 10, if b = true then 10 else 20}
     [eqc] {b, true}
+  [cutsat] Assignment satisfying linear constraints
+    [assign] a := 10
 -/
 #guard_msgs (error) in
 example (b : Bool) : (if b then 10 else 20) = a → b = true → False := by
@@ -456,4 +456,14 @@ example (h : ∀ i, (¬i > 0) ∨ ∀ h : i ≠ 10, p i h) : p 5 (by decide) := 
 
 -- Similar to previous test.
 example (h : ∀ i, (∀ h : i ≠ 10, p i h) ∨ (¬i > 0)) : p 5 (by decide) := by
+  grind
+
+-- `grind` performs hash-consing modulo alpha-equivalence
+/--
+trace: [grind.assert] (f fun x => x) = a
+[grind.assert] ¬a = f fun x => x
+-/
+#guard_msgs (trace) in
+example (f : (Nat → Nat) → Nat) : f (fun x => x) = a → a = f (fun y => y) := by
+  set_option trace.grind.assert true in
   grind

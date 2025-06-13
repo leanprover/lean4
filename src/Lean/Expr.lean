@@ -166,32 +166,13 @@ def BinderInfo.toUInt64 : BinderInfo → UInt64
   | .strictImplicit => 2
   | .instImplicit   => 3
 
-def Expr.mkData
-    (h : UInt64) (looseBVarRange : Nat := 0) (approxDepth : UInt32 := 0)
-    (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false)
-    : Expr.Data :=
-  let approxDepth : UInt8 := if approxDepth > 255 then 255 else approxDepth.toUInt8
-  assert! (looseBVarRange ≤ Nat.pow 2 20 - 1)
-  let r : UInt64 :=
-      h.toUInt32.toUInt64 +
-      approxDepth.toUInt64.shiftLeft 32 +
-      hasFVar.toUInt64.shiftLeft 40 +
-      hasExprMVar.toUInt64.shiftLeft 41 +
-      hasLevelMVar.toUInt64.shiftLeft 42 +
-      hasLevelParam.toUInt64.shiftLeft 43 +
-      looseBVarRange.toUInt64.shiftLeft 44
-  r
+@[extern "lean_expr_mk_data"]
+opaque Expr.mkData (h : UInt64) (looseBVarRange : Nat := 0) (approxDepth : UInt32 := 0)
+    (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) : Expr.Data
 
 /-- Optimized version of `Expr.mkData` for applications. -/
-@[inline] def Expr.mkAppData (fData : Data) (aData : Data) : Data :=
-  let depth          := (max fData.approxDepth.toUInt16 aData.approxDepth.toUInt16) + 1
-  let approxDepth    := if depth > 255 then 255 else depth.toUInt8
-  let looseBVarRange := max fData.looseBVarRange aData.looseBVarRange
-  let hash           := mixHash fData aData
-  let fData : UInt64 := fData
-  let aData : UInt64 := aData
-  assert! (looseBVarRange ≤ (Nat.pow 2 20 - 1).toUInt32)
-  ((fData ||| aData) &&& ((15 : UInt64) <<< (40 : UInt64))) ||| hash.toUInt32.toUInt64 ||| (approxDepth.toUInt64 <<< (32 : UInt64)) ||| (looseBVarRange.toUInt64 <<< (44 : UInt64))
+@[extern "lean_expr_mk_app_data"]
+opaque Expr.mkAppData (fData : Data) (aData : Data) : Data
 
 @[inline] def Expr.mkDataForBinder (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) : Expr.Data :=
   Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam
@@ -241,6 +222,9 @@ instance : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (RBTree ..) ..)
 
 def FVarIdSet.insert (s : FVarIdSet) (fvarId : FVarId) : FVarIdSet :=
   RBTree.insert s fvarId
+
+def FVarIdSet.union (vs₁ vs₂ : FVarIdSet) : FVarIdSet :=
+  vs₁.fold (init := vs₂) (·.insert ·)
 
 /--
 A set of unique free variable identifiers implemented using hashtables.
@@ -750,7 +734,7 @@ def mkStrLit (s : String) : Expr :=
 def mkAppN (f : Expr) (args : Array Expr) : Expr :=
   args.foldl mkApp f
 
-private partial def mkAppRangeAux (n : Nat) (args : Array Expr) (i : Nat) (e : Expr) : Expr :=
+private def mkAppRangeAux (n : Nat) (args : Array Expr) (i : Nat) (e : Expr) : Expr :=
   if i < n then mkAppRangeAux n args (i+1) (mkApp e args[i]!) else e
 
 /-- `mkAppRange f i j #[a_1, ..., a_i, ..., a_j, ... ]` ==> the expression `f a_i ... a_{j-1}` -/
@@ -1502,8 +1486,8 @@ abbrev PersistentExprStructMap (α : Type) := PHashMap ExprStructEq α
 
 namespace Expr
 
-private partial def mkAppRevRangeAux (revArgs : Array Expr) (start : Nat) (b : Expr) (i : Nat) : Expr :=
-  if i == start then b
+private def mkAppRevRangeAux (revArgs : Array Expr) (start : Nat) (b : Expr) (i : Nat) : Expr :=
+  if i ≤ start then b
   else
     let i := i - 1
     mkAppRevRangeAux revArgs start (mkApp b revArgs[i]!) i
@@ -1880,7 +1864,7 @@ def updateFn : Expr → Expr → Expr
 /--
 Eta reduction. If `e` is of the form `(fun x => f x)`, then return `f`.
 -/
-partial def eta (e : Expr) : Expr :=
+def eta (e : Expr) : Expr :=
   match e with
   | Expr.lam _ d b _ =>
     let b' := b.eta

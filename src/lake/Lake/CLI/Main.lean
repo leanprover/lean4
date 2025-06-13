@@ -5,7 +5,6 @@ Authors: Mac Malone
 -/
 prelude
 import Lake.Load
-import Lake.Build.Imports
 import Lake.Util.Error
 import Lake.Util.MainM
 import Lake.Util.Cli

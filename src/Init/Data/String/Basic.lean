@@ -57,7 +57,7 @@ Examples:
 * `"abc".length = 3`
 * `"L∃∀N".length = 4`
 -/
-@[extern "lean_string_length"]
+@[extern "lean_string_length", expose]
 def length : (@& String) → Nat
   | ⟨s⟩ => s.length
 
@@ -71,7 +71,7 @@ Examples:
 * `"abc".push 'd' = "abcd"`
 * `"".push 'a' = "a"`
 -/
-@[extern "lean_string_push"]
+@[extern "lean_string_push", expose]
 def push : String → Char → String
   | ⟨s⟩, c => ⟨s ++ [c]⟩
 
@@ -85,7 +85,7 @@ Examples:
  * `"abc" ++ "def" = "abcdef"`
  * `"" ++ "" = ""`
 -/
-@[extern "lean_string_append"]
+@[extern "lean_string_append", expose]
 def append : String → (@& String) → String
   | ⟨a⟩, ⟨b⟩ => ⟨a ++ b⟩
 
@@ -145,7 +145,7 @@ Examples:
 * `"abc".get ⟨3⟩ = (default : Char)` because byte `3` is at the end of the string.
 * `"L∃∀N".get ⟨2⟩ = (default : Char)` because byte `2` is in the middle of `'∃'`.
 -/
-@[extern "lean_string_utf8_get"]
+@[extern "lean_string_utf8_get", expose]
 def get (s : @& String) (p : @& Pos) : Char :=
   match s with
   | ⟨s⟩ => utf8GetAux s 0 p
@@ -182,7 +182,7 @@ This function is overridden with an efficient implementation in runtime code. Se
 Examples
 * `"abc".get! ⟨1⟩ = 'b'`
 -/
-@[extern "lean_string_utf8_get_bang"]
+@[extern "lean_string_utf8_get_bang", expose]
 def get! (s : @& String) (p : @& Pos) : Char :=
   match s with
   | ⟨s⟩ => utf8GetAux s 0 p
@@ -239,7 +239,7 @@ Examples:
 * `"abc".get ("abc".next 0) = 'b'`
 * `"L∃∀N".get (0 |> "L∃∀N".next |> "L∃∀N".next) = '∀'`
 -/
-@[extern "lean_string_utf8_next"]
+@[extern "lean_string_utf8_next", expose]
 def next (s : @& String) (p : @& Pos) : Pos :=
   let c := get s p
   p + c
@@ -261,7 +261,7 @@ Examples:
 * `"abc".get ("abc".endPos |> "abc".prev) = 'c'`
 * `"L∃∀N".get ("L∃∀N".endPos |> "L∃∀N".prev |> "L∃∀N".prev |> "L∃∀N".prev) = '∃'`
 -/
-@[extern "lean_string_utf8_prev"]
+@[extern "lean_string_utf8_prev", expose]
 def prev : (@& String) → (@& Pos) → Pos
   | ⟨s⟩, p => if p = 0 then 0 else utf8PrevAux s 0 p
 
@@ -322,7 +322,7 @@ Examples:
 * `"abc".get' 0 (by decide) = 'a'`
 * `let lean := "L∃∀N"; lean.get' (0 |> lean.next |> lean.next) (by decide) = '∀'`
 -/
-@[extern "lean_string_utf8_get_fast"]
+@[extern "lean_string_utf8_get_fast", expose]
 def get' (s : @& String) (p : @& Pos) (h : ¬ s.atEnd p) : Char :=
   match s with
   | ⟨s⟩ => utf8GetAux s 0 p
@@ -344,7 +344,7 @@ def next? (s: String) (p : String.Pos) : Option Char :=
 Example:
 * `let abc := "abc"; abc.get (abc.next' 0 (by decide)) = 'b'`
 -/
-@[extern "lean_string_utf8_next_fast"]
+@[extern "lean_string_utf8_next_fast", expose]
 def next' (s : @& String) (p : @& Pos) (h : ¬ s.atEnd p) : Pos :=
   let c := get s p
   p + c
@@ -586,7 +586,7 @@ decreasing_by
   focus
     rename_i i₀ j₀ _ eq h'
     rw [show (s.next i₀ - sep.next j₀).1 = (i₀ - j₀).1 by
-      show (_ + Char.utf8Size _) - (_ + Char.utf8Size _) = _
+      change (_ + Char.utf8Size _) - (_ + Char.utf8Size _) = _
       rw [(beq_iff_eq ..).1 eq, Nat.add_sub_add_right]; rfl]
     right; exact Nat.sub_lt_sub_left
       (Nat.lt_of_le_of_lt (Nat.le_add_right ..) (Nat.gt_of_not_le (mt decide_eq_true h')))
@@ -669,7 +669,7 @@ Examples:
  * `String.singleton '"' = "\""`
  * `String.singleton '𝒫' = "𝒫"`
 -/
-@[inline] def singleton (c : Char) : String :=
+@[inline,expose] def singleton (c : Char) : String :=
   "".push c
 
 /--
@@ -1954,7 +1954,7 @@ Examples:
  * `'L'.toString = "L"`
  * `'"'.toString = "\""`
 -/
-@[inline] protected def toString (c : Char) : String :=
+@[inline, expose] protected def toString (c : Char) : String :=
   String.singleton c
 
 @[simp] theorem length_toString (c : Char) : c.toString.length = 1 := rfl

@@ -61,7 +61,7 @@ s
 { goals := #[{ type := Lean.Widget.TaggedText.tag
                          { subexprPos := "/", diffStatus? := none }
                          (Lean.Widget.TaggedText.text "True"),
-               isInserted? := some false,
+               isInserted? := none,
                isRemoved? := none,
                hyps := #[] }] }
 

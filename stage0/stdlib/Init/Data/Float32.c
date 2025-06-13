@@ -32,7 +32,6 @@ extern uint8_t l_instDecidableTrue;
 LEAN_EXPORT lean_object* l_Float32_frExp___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Float32_scaleB___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Float32_sinh___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_float32DecLt(float, float);
 LEAN_EXPORT lean_object* l_UInt16_toFloat32___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringFloat32;
 static lean_object* l_instHomogeneousPowFloat32___closed__1;
@@ -58,11 +57,9 @@ float acoshf(float);
 uint8_t lean_float32_isnan(float);
 LEAN_EXPORT lean_object* l_Float32_cos___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Float32_atan2___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_float32DecLe___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Float32_sub___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Float32_toUInt64___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instNegFloat32;
-LEAN_EXPORT lean_object* l_float32DecLt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Float32_repr(float, lean_object*);
 float lean_uint8_to_float32(uint8_t);
 float sinf(float);
@@ -144,7 +141,6 @@ LEAN_EXPORT lean_object* l_instMulFloat32;
 uint32_t lean_float32_to_uint32(float);
 float asinhf(float);
 uint8_t lean_float32_decLe(float, float);
-LEAN_EXPORT uint8_t l_float32DecLe(float, float);
 uint8_t lean_float32_isfinite(float);
 LEAN_EXPORT uint8_t l_float32Spec___elambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_UInt64_toFloat32___boxed(lean_object*);
@@ -439,48 +435,6 @@ lean_dec(x_1);
 x_4 = lean_unbox_float32(x_2);
 lean_dec(x_2);
 x_5 = lean_float32_decLe(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT uint8_t l_float32DecLt(float x_1, float x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_float32_decLt(x_1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_float32DecLt___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-float x_3; float x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox_float32(x_1);
-lean_dec(x_1);
-x_4 = lean_unbox_float32(x_2);
-lean_dec(x_2);
-x_5 = l_float32DecLt(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT uint8_t l_float32DecLe(float x_1, float x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_float32_decLe(x_1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_float32DecLe___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-float x_3; float x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox_float32(x_1);
-lean_dec(x_1);
-x_4 = lean_unbox_float32(x_2);
-lean_dec(x_2);
-x_5 = l_float32DecLe(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }

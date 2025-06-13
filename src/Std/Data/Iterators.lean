@@ -7,6 +7,9 @@ prelude
 import Std.Data.Iterators.Basic
 import Std.Data.Iterators.Producers
 import Std.Data.Iterators.Consumers
+import Std.Data.Iterators.Combinators
+import Std.Data.Iterators.Lemmas
+import Std.Data.Iterators.PostConditionMonad
 import Std.Data.Iterators.Internal
 
 /-!
@@ -64,7 +67,7 @@ steps are called productive. This behavior is encoded in the `Std.Iterators.Prod
 ## Stability
 
 The API for the usage of iterators provided in this module can be considered stable, as well as
-the API for the verification of programms using iterators, unless explicitly stated otherwise.
+the API for the verification of programs using iterators, unless explicitly stated otherwise.
 
 Contrarily, the API for implementation of new iterators, including the design of the `Iterator`
 typeclass, is still experimental and will change in the future. It is already planned that there
@@ -92,7 +95,9 @@ All of the following module names are prefixed with `Std.Data.Iterators`.
 
 ### Verification API
 
-`Lemmas` will provide the means to verify programs that use iterators.
+`Lemmas` provides the means to verify programs that use iterators.
+
+In particular, `Lemmas.Equivalence` develops the theory of equivalences of iterators.
 
 ### Implementation details
 

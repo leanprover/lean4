@@ -26,6 +26,13 @@ private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => �
 
 namespace Std.DTreeMap.Internal.Impl
 
+/-- Two tree maps are equivalent in the sense of Equiv iff all the keys and values are equal. -/
+structure Equiv (t t' : Impl α β) where
+  /-- Implementation detail of the tree map -/
+  impl : t.toListModel.Perm t'.toListModel
+
+@[inherit_doc] scoped infix:50 " ~m " => Equiv
+
 /-- Returns `true` if the given key is contained in the map. -/
 def contains [Ord α] (k : α) (t : Impl α β) : Bool :=
   match t with
@@ -200,7 +207,7 @@ def foldlM {m} [Monad m] (f : δ → (a : α) → β a → m δ) (init : δ) : I
 /-- Folds the given function over the mappings in the tree in ascending order. -/
 @[specialize]
 def foldl (f : δ → (a : α) → β a → δ) (init : δ) (t : Impl α β) : δ :=
-  Id.run (t.foldlM f init)
+  Id.run (t.foldlM (pure <| f · · ·) init)
 
 /-- Folds the given function over the mappings in the tree in descending order. -/
 @[specialize]
@@ -214,7 +221,7 @@ def foldrM {m} [Monad m] (f : (a : α) → β a → δ → m δ) (init : δ) : I
 /-- Folds the given function over the mappings in the tree in descending order. -/
 @[inline]
 def foldr (f : (a : α) → β a → δ → δ) (init : δ) (t : Impl α β) : δ :=
-  Id.run (t.foldrM f init)
+  Id.run (t.foldrM (pure <| f · · ·) init)
 
 /-- Applies the given function to the mappings in the tree in ascending order. -/
 @[inline]

@@ -522,10 +522,10 @@ The structure type can be specified if not inferable:
 
 @[builtin_structInstFieldDecl_parser]
 def structInstFieldDef := leading_parser
-  " := " >> termParser
+  " := " >> optional "private" >> termParser
 @[builtin_structInstFieldDecl_parser]
 def structInstFieldEqns := leading_parser
-  matchAlts
+  optional "private" >> matchAlts
 
 def funImplicitBinder := withAntiquot (mkAntiquot "implicitBinder" ``implicitBinder) <|
   atomic (lookahead ("{" >> many1 binderIdent >> (symbol " : " <|> "}"))) >> implicitBinder
@@ -879,6 +879,10 @@ In particular, it is like a unary operation with a fixed parameter `b`, where on
 /-- A macro which evaluates to the name of the currently elaborating declaration. -/
 @[builtin_term_parser] def declName := leading_parser "decl_name%"
 
+/-- `private_decl% e` elaborates `e` in a private context and wraps the result in a helper `def`. -/
+@[builtin_term_parser] def «privateDecl» :=
+  leading_parser "private_decl% " >> termParser maxPrec
+
 /--
 * `with_decl_name% id e` elaborates `e` in a context while changing the effective
   declaration name to `id`.
@@ -895,6 +899,11 @@ In particular, it is like a unary operation with a fixed parameter `b`, where on
   "ensure_expected_type% " >> strLit >> ppSpace >> termParser maxPrec
 @[builtin_term_parser] def noImplicitLambda := leading_parser
   "no_implicit_lambda% " >> termParser maxPrec
+/--
+`value_of% x` elaborates to the value of `x`, which can be a local or global definition.
+-/
+@[builtin_term_parser] def valueOf := leading_parser
+  "value_of% " >> ident
 
 /--
 `clear% x; e` elaborates `x` after clearing the free variable `x` from the local context.
@@ -1081,6 +1090,57 @@ def matchExprAlts (rhsParser : Parser) :=
 
 @[builtin_term_parser] def letExpr := leading_parser:leadPrec
   withPosition ("let_expr " >> matchExprPat >> " := " >> termParser >> checkColGt >> " | " >> termParser) >> optSemicolon termParser
+
+/--
+Throws an error exception, tagging the associated message as a named error with the specified name
+and validating that an associated error explanation exists. The message may be passed as an
+interpolated string or a `MessageData` term. The result of `getRef` is used as position information.
+-/
+@[builtin_term_parser] def throwNamedErrorMacro := leading_parser
+  "throwNamedError " >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
+
+/--
+Throws an error exception, tagging the associated message as a named error with the specified name
+and validating that an associated error explanation exists. The error name must be followed by a
+`Syntax` at which the error is to be thrown. The message is the final argument and may be passed as
+an interpolated string or a `MessageData` term.
+-/
+@[builtin_term_parser] def throwNamedErrorAtMacro := leading_parser
+  "throwNamedErrorAt " >> termParser maxPrec >> ppSpace >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
+
+/--
+Logs an error, tagging the message as a named error with the specified name and validating that an
+associated error explanation exists. The message may be passed as an interpolated string or a
+`MessageData` term. The result of `getRef` is used as position information.
+-/
+@[builtin_term_parser] def logNamedErrorMacro := leading_parser
+  "logNamedError " >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
+
+/--
+Logs an error, tagging the message as a named error with the specified name and validating that an
+associated error explanation exists. The error name must be followed by a `Syntax` at which the
+error is to be logged. The message is the final argument and may be passed as an interpolated string
+or a `MessageData` term.
+-/
+@[builtin_term_parser] def logNamedErrorAtMacro := leading_parser
+  "logNamedErrorAt " >> termParser maxPrec >> ppSpace >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
+
+/--
+Logs a warning, tagging the message as a named diagnostic with the specified name and validating
+that an associated error explanation exists. The message may be passed as an interpolated string or
+a `MessageData` term. The result of `getRef` is used as position information.
+-/
+@[builtin_term_parser] def logNamedWarningMacro := leading_parser
+  "logNamedWarning " >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
+
+/--
+Logs a warning, tagging the message as a named diagnostic with the specified name and validating
+that an associated error explanation exists. The error name must be followed by a `Syntax` at which
+the warning is to be logged. The message is the final argument and may be passed as an interpolated
+string or a `MessageData` term.
+-/
+@[builtin_term_parser] def logNamedWarningAtMacro := leading_parser
+  "logNamedWarningAt " >> termParser maxPrec >> ppSpace >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
 
 end Term
 

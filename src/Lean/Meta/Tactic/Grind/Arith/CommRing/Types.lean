@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Data.PersistentArray
 import Lean.Data.RBTree
-import Lean.Meta.Tactic.Grind.ENodeKey
+import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
 
@@ -155,9 +155,9 @@ structure Ring where
   -/
   vars           : PArray Expr := {}
   /-- Mapping from `Expr` to a variable representing it. -/
-  varMap         : PHashMap ENodeKey Var := {}
+  varMap         : PHashMap ExprPtr Var := {}
   /-- Mapping from Lean expressions to their representations as `RingExpr` -/
-  denote         : PHashMap ENodeKey RingExpr := {}
+  denote         : PHashMap ExprPtr RingExpr := {}
   /-- Next unique id for `EqCnstr`s. -/
   nextId         : Nat := 0
   /-- Number of "steps": simplification and superposition. -/
@@ -165,10 +165,11 @@ structure Ring where
   /-- Equations to process. -/
   queue          : Queue := {}
   /--
-  Mapping from variables `x` to equations such that the smallest variable
-  in the leading monomial is `x`.
+  The basis is currently just a list. If this is a performance bottleneck, we should use
+  a better data-structure. For examples, we could use a simple indexing for the linear case
+  where we map variable in the leading monomial to `EqCnstr`.
   -/
-  varToBasis     : PArray (List EqCnstr) := {}
+  basis          : List EqCnstr := {}
   /-- Disequalities. -/
   -- TODO: add indexing
   diseqs         : PArray DiseqCnstr := {}
@@ -189,9 +190,9 @@ structure State where
   /--
   Mapping from types to its "ring id". We cache failures using `none`.
   `typeIdOf[type]` is `some id`, then `id < rings.size`. -/
-  typeIdOf : PHashMap ENodeKey (Option Nat) := {}
+  typeIdOf : PHashMap ExprPtr (Option Nat) := {}
   /- Mapping from expressions/terms to their ring ids. -/
-  exprToRingId : PHashMap ENodeKey Nat := {}
+  exprToRingId : PHashMap ExprPtr Nat := {}
   steps := 0
   deriving Inhabited
 

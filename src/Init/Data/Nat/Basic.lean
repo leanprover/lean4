@@ -150,7 +150,7 @@ theorem add_one (n : Nat) : n + 1 = succ n :=
 @[simp] theorem succ_eq_add_one (n : Nat) : succ n = n + 1 :=
   rfl
 
-@[simp] theorem add_one_ne_zero (n : Nat) : n + 1 ≠ 0 := nofun
+theorem add_one_ne_zero (n : Nat) : n + 1 ≠ 0 := nofun
 theorem zero_ne_add_one (n : Nat) : 0 ≠ n + 1 := by simp
 
 protected theorem add_comm : ∀ (n m : Nat), n + m = m + n
@@ -731,13 +731,12 @@ theorem exists_eq_add_one_of_ne_zero : ∀ {n}, n ≠ 0 → Exists fun k => n = 
 theorem ctor_eq_zero : Nat.zero = 0 :=
   rfl
 
-@[simp] protected theorem one_ne_zero : 1 ≠ (0 : Nat) :=
-  fun h => Nat.noConfusion h
+protected theorem one_ne_zero : 1 ≠ (0 : Nat) := by simp
 
 @[simp] protected theorem zero_ne_one : 0 ≠ (1 : Nat) :=
   fun h => Nat.noConfusion h
 
-@[simp] theorem succ_ne_zero (n : Nat) : succ n ≠ 0 := by simp
+theorem succ_ne_zero (n : Nat) : succ n ≠ 0 := by simp
 
 instance instNeZeroSucc {n : Nat} : NeZero (n + 1) := ⟨succ_ne_zero n⟩
 
@@ -1070,7 +1069,7 @@ protected theorem sub_lt_sub_right : ∀ {a b c : Nat}, c ≤ a → a < b → a 
     exact Nat.sub_lt_sub_right (le_of_succ_le_succ hle) (lt_of_succ_lt_succ h)
 
 protected theorem sub_self_add (n m : Nat) : n - (n + m) = 0 := by
-  show (n + 0) - (n + m) = 0
+  change (n + 0) - (n + m) = 0
   rw [Nat.add_sub_add_left, Nat.zero_sub]
 
 @[simp] protected theorem sub_eq_zero_of_le {n m : Nat} (h : n ≤ m) : n - m = 0 := by

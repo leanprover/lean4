@@ -5,6 +5,7 @@ Authors: Paul Reichert
 -/
 prelude
 import Std.Data.Iterators.Consumers.Monadic
+import Std.Data.Iterators.Consumers.Access
 import Std.Data.Iterators.Consumers.Collect
 import Std.Data.Iterators.Consumers.Loop
 import Std.Data.Iterators.Consumers.Partial

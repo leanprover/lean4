@@ -37,6 +37,7 @@ lean_object* l_Lake_importModulesUsingCache(lean_object*, lean_object*, uint32_t
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean_Kernel_enableDiag(lean_object*, uint8_t);
 uint8_t l_Lean_Kernel_isDiagnosticsEnabled(lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__13;
 LEAN_EXPORT lean_object* l_Lake_Package_mkConfigString(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -99,7 +100,6 @@ static lean_object* l_Lake_Package_mkConfigString___closed__19;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_0__Lake_descopeSyntax(lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__18;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_0__Lake_descopeTSyntax___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lake_CLI_Translate_0__Lake_descopeSyntax___spec__1(size_t x_1, size_t x_2, lean_object* x_3) {
@@ -369,10 +369,11 @@ lean_object* x_1; uint8_t x_2; uint8_t x_3; lean_object* x_4;
 x_1 = l_Lake_Package_mkConfigString___closed__5;
 x_2 = 0;
 x_3 = 1;
-x_4 = lean_alloc_ctor(0, 1, 2);
+x_4 = lean_alloc_ctor(0, 1, 3);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set_uint8(x_4, sizeof(void*)*1, x_2);
 lean_ctor_set_uint8(x_4, sizeof(void*)*1 + 1, x_3);
+lean_ctor_set_uint8(x_4, sizeof(void*)*1 + 2, x_2);
 return x_4;
 }
 }
@@ -1121,7 +1122,7 @@ lean_dec(x_148);
 x_149 = lean_ctor_get(x_136, 0);
 lean_inc(x_149);
 lean_dec(x_136);
-x_150 = l___private_Init_Data_Repr_0__Nat_reprFast(x_149);
+x_150 = l_Nat_reprFast(x_149);
 x_151 = l_Lake_Package_mkConfigString___closed__27;
 x_152 = lean_string_append(x_151, x_150);
 lean_dec(x_150);
@@ -1140,7 +1141,7 @@ lean_dec(x_131);
 x_155 = lean_ctor_get(x_136, 0);
 lean_inc(x_155);
 lean_dec(x_136);
-x_156 = l___private_Init_Data_Repr_0__Nat_reprFast(x_155);
+x_156 = l_Nat_reprFast(x_155);
 x_157 = l_Lake_Package_mkConfigString___closed__27;
 x_158 = lean_string_append(x_157, x_156);
 lean_dec(x_156);

@@ -23,14 +23,14 @@ Examples:
 -/
 def finRange (n : Nat) : List (Fin n) := ofFn fun i => i
 
-@[simp] theorem length_finRange {n : Nat} : (List.finRange n).length = n := by
+@[simp, grind =] theorem length_finRange {n : Nat} : (List.finRange n).length = n := by
   simp [List.finRange]
 
-@[simp] theorem getElem_finRange {i : Nat} (h : i < (List.finRange n).length) :
+@[simp, grind =] theorem getElem_finRange {i : Nat} (h : i < (List.finRange n).length) :
     (finRange n)[i] = Fin.cast length_finRange ⟨i, h⟩ := by
   simp [List.finRange]
 
-@[simp] theorem finRange_zero : finRange 0 = [] := by simp [finRange]
+@[simp, grind =] theorem finRange_zero : finRange 0 = [] := by simp [finRange]
 
 theorem finRange_succ {n} : finRange (n+1) = 0 :: (finRange n).map Fin.succ := by
   apply List.ext_getElem; simp; intro i; cases i <;> simp
@@ -46,6 +46,7 @@ theorem finRange_succ_last {n} :
     · rfl
     · next h => exact Fin.eq_last_of_not_lt h
 
+@[grind _=_]
 theorem finRange_reverse {n} : (finRange n).reverse = (finRange n).map Fin.rev := by
   induction n with
   | zero => simp

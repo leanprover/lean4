@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Cutsat.MBTC
-// Imports: Lean.Meta.Tactic.Grind.Combinators Lean.Meta.Tactic.Grind.Canon Lean.Meta.Tactic.Grind.MBTC Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
+// Imports: Lean.Meta.Tactic.Grind.Canon Lean.Meta.Tactic.Grind.MBTC Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,11 +14,12 @@
 extern "C" {
 #endif
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f___lambda__2___closed__2;
+lean_object* l_Lean_Meta_Grind_mbtc(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_isInterpreted___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f___lambda__2___closed__1;
 uint8_t l_Lean_Expr_isApp(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f___spec__1___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__2;
 lean_object* l_Lean_Meta_Grind_Arith_Cutsat_getAssignment_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f___spec__1___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -26,24 +27,23 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___private_L
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_isInterpreted___lambda__1___closed__1;
 static lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f___spec__1___closed__3;
+static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__4;
 static lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f___spec__1___lambda__3___closed__1;
-lean_object* l_Lean_Meta_Grind_mbtcTac(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_isInterpreted___lambda__1___closed__4;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__3;
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_isInterpreted___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_isInterpreted___lambda__1___closed__5;
-static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__4;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_37_(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_isInterpreted___lambda__1___closed__3;
 lean_object* l_Lean_Expr_appArg(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appFnCleanup(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__3;
 uint8_t l_Lean_Meta_Grind_Arith_Cutsat_isInterpretedTerm(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_eqAssignment(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mbtc(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f___spec__1___lambda__3___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_hasTheoryVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_isInterpreted___lambda__1___closed__2;
@@ -55,8 +55,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0_
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_isInterpreted___lambda__1___closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__2;
-static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__1;
+static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__1;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f___spec__1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -67,6 +66,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0_
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_isInterpreted___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f___spec__1___closed__1;
+uint8_t l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_42_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f___spec__1___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
@@ -1389,7 +1389,7 @@ lean_dec(x_35);
 x_36 = lean_ctor_get(x_25, 0);
 lean_inc(x_36);
 lean_dec(x_25);
-x_37 = l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_37_(x_23, x_36);
+x_37 = l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_42_(x_23, x_36);
 lean_dec(x_36);
 lean_dec(x_23);
 x_38 = lean_box(x_37);
@@ -1405,7 +1405,7 @@ lean_dec(x_24);
 x_40 = lean_ctor_get(x_25, 0);
 lean_inc(x_40);
 lean_dec(x_25);
-x_41 = l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_37_(x_23, x_40);
+x_41 = l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_42_(x_23, x_40);
 lean_dec(x_40);
 lean_dec(x_23);
 x_42 = lean_box(x_41);
@@ -1474,7 +1474,7 @@ return x_51;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__1() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1482,7 +1482,7 @@ x_1 = lean_alloc_closure((void*)(l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__2() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1490,7 +1490,7 @@ x_1 = lean_alloc_closure((void*)(l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__3() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1498,13 +1498,13 @@ x_1 = lean_alloc_closure((void*)(l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__4() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__1;
-x_2 = l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__2;
-x_3 = l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__3;
+x_1 = l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__1;
+x_2 = l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__2;
+x_3 = l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__3;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -1512,16 +1512,15 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mbtc(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
 lean_object* x_10; lean_object* x_11; 
-x_10 = l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__4;
-x_11 = l_Lean_Meta_Grind_mbtcTac(x_10, x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+x_10 = l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__4;
+x_11 = l_Lean_Meta_Grind_mbtc(x_10, x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }
 }
-lean_object* initialize_Lean_Meta_Tactic_Grind_Combinators(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Canon(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_MBTC(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Model(uint8_t builtin, lean_object*);
@@ -1530,9 +1529,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC(uin
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Tactic_Grind_Combinators(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Canon(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -1568,14 +1564,14 @@ l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cu
 lean_mark_persistent(l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_isInterpreted___lambda__1___closed__5);
 l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_isInterpreted___lambda__1___closed__6 = _init_l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_isInterpreted___lambda__1___closed__6();
 lean_mark_persistent(l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_isInterpreted___lambda__1___closed__6);
-l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__1 = _init_l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__1();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__1);
-l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__2 = _init_l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__2();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__2);
-l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__3 = _init_l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__3();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__3);
-l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__4 = _init_l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__4();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Cutsat_mbtcTac___closed__4);
+l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__1 = _init_l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__1();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__1);
+l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__2 = _init_l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__2();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__2);
+l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__3 = _init_l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__3();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__3);
+l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__4 = _init_l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__4();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_Cutsat_mbtc___closed__4);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

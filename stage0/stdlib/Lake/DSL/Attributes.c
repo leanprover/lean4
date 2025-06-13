@@ -22,6 +22,7 @@ lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 static lean_object* l_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4____closed__12;
 static lean_object* l_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4____closed__15;
 static lean_object* l_Lean_logAt___at_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4____spec__1___closed__2;
+uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_185_(uint8_t, uint8_t);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 lean_object* l_Lean_Syntax_getTailPos_x3f(lean_object*, uint8_t);
@@ -50,7 +51,6 @@ LEAN_EXPORT lean_object* l_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4_(lean_
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 extern lean_object* l_Lean_warningAsError;
 uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
-uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(uint8_t, uint8_t);
 static lean_object* l_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4____lambda__1___closed__1;
 static lean_object* l_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4____closed__9;
 static lean_object* l_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4____closed__11;
@@ -333,7 +333,7 @@ _start:
 {
 lean_object* x_8; uint8_t x_183; uint8_t x_184; 
 x_183 = 2;
-x_184 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_3, x_183);
+x_184 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_185_(x_3, x_183);
 if (x_184 == 0)
 {
 lean_object* x_185; 
@@ -374,7 +374,7 @@ lean_dec(x_8);
 x_176 = lean_ctor_get(x_5, 2);
 lean_inc(x_176);
 x_177 = 1;
-x_178 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_3, x_177);
+x_178 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_185_(x_3, x_177);
 if (x_178 == 0)
 {
 lean_dec(x_176);

@@ -38,6 +38,7 @@ cmake -DCMAKE_CXX_COMPILER=g++ ...
 brew install cmake
 brew install gmp
 brew install libuv
+brew install libidn2
 brew install pkgconf
 ```
 

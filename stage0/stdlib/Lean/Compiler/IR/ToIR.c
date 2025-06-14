@@ -40,7 +40,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_ToIR_lowerLet_lowerNonObjectFields___boxed(le
 static lean_object* l_Lean_IR_ToIR_lowerLet___closed__2;
 static lean_object* l_Lean_IR_ToIR_lowerLet___closed__33;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_IR_toIR___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_ir_find_env_decl(lean_object*, lean_object*);
+lean_object* l_Lean_IR_findEnvDecl(lean_object*, lean_object*);
 extern lean_object* l_Lean_IR_instInhabitedCtorFieldInfo;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_IR_ToIR_lowerArg___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_IR_ToIR_lowerLet___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2532,7 +2532,7 @@ x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 lean_dec(x_8);
-x_10 = lean_ir_find_env_decl(x_9, x_1);
+x_10 = l_Lean_IR_findEnvDecl(x_9, x_1);
 lean_ctor_set(x_6, 0, x_10);
 return x_6;
 }
@@ -2547,7 +2547,7 @@ lean_dec(x_6);
 x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
 lean_dec(x_11);
-x_14 = lean_ir_find_env_decl(x_13, x_1);
+x_14 = l_Lean_IR_findEnvDecl(x_13, x_1);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
 lean_ctor_set(x_15, 1, x_12);

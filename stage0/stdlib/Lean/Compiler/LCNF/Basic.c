@@ -345,10 +345,10 @@ LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_beqLitValue____x40_Lean_Compiler_LCNF_B
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Decl_size___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_forM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
-uint8_t l_Lean_beqExternAttrData____x40_Lean_Compiler_ExternAttr___hyg_403_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Decl_isCasesOnParam_x3f_go___lambda__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_instInhabitedDecl___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Cases_getCtorNames___spec__1(lean_object*, size_t, size_t, lean_object*);
+uint8_t l_Lean_beqExternAttrData____x40_Lean_Compiler_ExternAttr___hyg_366_(lean_object*, lean_object*);
 lean_object* lean_uint8_to_nat(uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_updateAltCodeImp(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
@@ -7642,7 +7642,7 @@ else
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_8 = lean_ctor_get(x_1, 0);
 x_9 = lean_ctor_get(x_2, 0);
-x_10 = l_Lean_beqExternAttrData____x40_Lean_Compiler_ExternAttr___hyg_403_(x_8, x_9);
+x_10 = l_Lean_beqExternAttrData____x40_Lean_Compiler_ExternAttr___hyg_366_(x_8, x_9);
 return x_10;
 }
 }

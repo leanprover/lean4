@@ -14,7 +14,7 @@ namespace Lean.Meta.Grind.Arith.Linear
 Helper functions for converting reified terms back into their denotations.
 -/
 
-variable [Monad M] [MonadGetStruct M]
+variable [Monad M] [MonadGetStruct M] [MonadError M]
 
 def _root_.Lean.Grind.Linarith.Poly.denoteExpr (p : Poly) : M Expr := do
   match p with
@@ -52,9 +52,9 @@ def DiseqCnstr.denoteExpr (c : DiseqCnstr) : M Expr := do
 
 private def denoteIneq (p : Poly) (strict : Bool) : M Expr := do
   if strict then
-    return mkApp2 (← getStruct).ltFn (← p.denoteExpr) (← getStruct).ofNatZero
+    return mkApp2 (← getLtFn) (← p.denoteExpr) (← getStruct).ofNatZero
   else
-    return mkApp2 (← getStruct).leFn (← p.denoteExpr) (← getStruct).ofNatZero
+    return mkApp2 (← getLeFn) (← p.denoteExpr) (← getStruct).ofNatZero
 
 def IneqCnstr.denoteExpr (c : IneqCnstr) : M Expr := do
   denoteIneq c.p c.strict

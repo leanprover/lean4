@@ -131,7 +131,7 @@ Returns the prefix of a theorem with name `declName` where the first four argume
 -/
 private def mkIntModPreThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp4 (mkConst declName [s.u]) s.type s.intModuleInst s.preorderInst (← getContext)
+  return mkApp4 (mkConst declName [s.u]) s.type s.intModuleInst (← getPreorderInst) (← getContext)
 
 /--
 Returns the prefix of a theorem with name `declName` where the first five arguments are
@@ -140,7 +140,7 @@ This is the most common theorem prefix at `Linarith.lean`
 -/
 private def mkIntModPreOrdThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp5 (mkConst declName [s.u]) s.type s.intModuleInst s.preorderInst s.isOrdInst (← getContext)
+  return mkApp5 (mkConst declName [s.u]) s.type s.intModuleInst (← getPreorderInst) (← getIsOrdInst) (← getContext)
 
 /--
 Returns the prefix of a theorem with name `declName` where the first five arguments are
@@ -149,7 +149,7 @@ This is the most common theorem prefix at `Linarith.lean`
 -/
 private def mkIntModLinOrdThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp5 (mkConst declName [s.u]) s.type s.intModuleInst (← getLinearOrderInst) s.isOrdInst (← getContext)
+  return mkApp5 (mkConst declName [s.u]) s.type s.intModuleInst (← getLinearOrderInst) (← getIsOrdInst) (← getContext)
 
 /--
 Returns the prefix of a theorem with name `declName` where the first three arguments are
@@ -165,7 +165,7 @@ Returns the prefix of a theorem with name `declName` where the first five argume
 -/
 private def mkCommRingPreOrdThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp5 (mkConst declName [s.u]) s.type (← getCommRingInst) s.preorderInst (← getRingIsOrdInst) (← getRingContext)
+  return mkApp5 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getPreorderInst) (← getRingIsOrdInst) (← getRingContext)
 
 /--
 Returns the prefix of a theorem with name `declName` where the first five arguments are
@@ -205,7 +205,7 @@ partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' d
       (← c₁.toExprProof) (← c₂.toExprProof)
   | .oneGtZero =>
     let s ← getStruct
-    let h := mkApp5 (mkConst ``Grind.Linarith.zero_lt_one [s.u]) s.type (← getRingInst) s.preorderInst (← getRingIsOrdInst) (← getContext)
+    let h := mkApp5 (mkConst ``Grind.Linarith.zero_lt_one [s.u]) s.type (← getRingInst) (← getPreorderInst) (← getRingIsOrdInst) (← getContext)
     return mkApp3 h (← mkPolyDecl c'.p) reflBoolTrue (← mkEqRefl (← getOne))
   | .ofEq a b la lb =>
     let h ← mkIntModPreOrdThmPrefix ``Grind.Linarith.le_of_eq
@@ -218,7 +218,7 @@ partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' d
   | .dec h => return mkFVar h
   | .ofDiseqSplit c₁ fvarId h _ =>
     let hFalse ← h.toExprProofCore
-    let lt := (← getStruct).ltFn
+    let lt ← getLtFn
     let hNot := mkLambda `h .default (mkApp2 lt (← c₁.p.denoteExpr) (← getZero)) (hFalse.abstract #[mkFVar fvarId])
     let h ← mkIntModLinOrdThmPrefix ``Grind.Linarith.diseq_split_resolve
     return mkApp5 h (← mkPolyDecl c₁.p) (← mkPolyDecl c'.p) reflBoolTrue (← c₁.toExprProof) hNot

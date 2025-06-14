@@ -70,11 +70,11 @@ Otherwise, asserts `if a = 0 then a⁻¹ = 0 else a * a⁻¹ = 1`
 -/
 private def processInv (e inst a : Expr) : RingM Unit := do
   unless (← isInvInst inst) do return ()
+  let ring ← getRing
+  let some fieldInst := ring.fieldInst? | return ()
   if (← getRing).invSet.contains a then return ()
   modifyRing fun s => { s with invSet := s.invSet.insert a }
   if let some k ← toInt? a then
-    let ring ← getRing
-    let some fieldInst := ring.fieldInst? | return ()
     assert! k != 0 -- We have the normalization rule `Field.inv_zero`
     if (← hasChar) then
       let (charInst, c) ← getCharInst
@@ -94,9 +94,7 @@ private def processInv (e inst a : Expr) : RingM Unit := do
           (mkApp6 (mkConst ``Grind.CommRing.inv_int_eqC [ring.u]) ring.type (mkNatLit c) fieldInst charInst (mkIntLit k) reflBoolTrue)
           expected
       return ()
-
-  -- TODO
-  return ()
+  pushNewFact <| mkApp3 (mkConst ``Grind.CommRing.inv_split [ring.u]) ring.type fieldInst a
 
 /-- Returns `true` if `e` is a term `a⁻¹`. -/
 private def internalizeInv (e : Expr) : GoalM Bool := do

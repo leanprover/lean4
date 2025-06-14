@@ -1264,7 +1264,10 @@ theorem diseq_to_eq {α} [Field α] (a b : α) : a ≠ b → (a - b)*(a - b)⁻�
   have : a - b ≠ 0 := by
     intro h'; rw [Ring.sub_eq_zero_iff.mp h'] at h
     contradiction
-  apply Field.mul_inv_cancel this
+  exact Field.mul_inv_cancel this
+
+theorem diseq0_to_eq {α} [Field α] (a : α) : a ≠ 0 → a*a⁻¹ = 1 := by
+  exact Field.mul_inv_cancel
 
 end CommRing
 

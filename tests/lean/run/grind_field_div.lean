@@ -75,5 +75,14 @@ example [Field α] (a : α) : a^2 = 0 → a = 0 := by
 example [Field α] (a : α) : a^3 = 0 → a = 0 := by
   grind
 
-example [Field α] (a b c : α) : a^2 = 0 → c = b → b + a = c := by
+/-- trace: [grind.debug.ring.rabinowitsch] (b + a - (c - b + b)) * (b + a - (c - b + b))⁻¹ -/
+#guard_msgs (trace) in
+set_option trace.grind.debug.ring.rabinowitsch true in
+example [Field α] (a b c : α) : a^2 = 0 → c = b → b + a = c - b + b := by
+  grind
+
+/-- trace: [grind.debug.ring.rabinowitsch] (b + a - c) * (b + a - c)⁻¹ -/
+#guard_msgs (trace) in
+set_option trace.grind.debug.ring.rabinowitsch true in
+example [Field α] (a b c : α) : a^2 = 0 → c = b → b + a - c = 0 := by
   grind

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Var
+import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 
 namespace Lean.Meta.Grind.Arith.CommRing
 /-!
@@ -16,13 +17,7 @@ variable [Monad M] [MonadGetRing M]
 
 def denoteNum (k : Int) : M Expr := do
   let ring ← getRing
-  let n := mkRawNatLit k.natAbs
-  let ofNatInst := mkApp3 (mkConst ``Grind.Semiring.ofNat [ring.u]) ring.type ring.semiringInst n
-  let n := mkApp3 (mkConst ``OfNat.ofNat [ring.u]) ring.type n ofNatInst
-  if k < 0 then
-    return mkApp ring.negFn n
-  else
-    return n
+  return denoteNumCore ring.u ring.type ring.semiringInst ring.negFn k
 
 def _root_.Lean.Grind.CommRing.Power.denoteExpr (pw : Power) : M Expr := do
   let x := (← getRing).vars[pw.x]!

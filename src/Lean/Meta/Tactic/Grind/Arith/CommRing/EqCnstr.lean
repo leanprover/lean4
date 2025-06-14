@@ -295,7 +295,22 @@ private def diseqToEq (a b : Expr) : RingM Unit := do
   internalize lhs gen none
   let rhs ← shareCommon <| (← denoteNum 1)
   internalize rhs gen none
+  trace[grind.debug.ring.rabinowitsch] "{lhs}"
   pushEq lhs rhs <| mkApp5 (mkConst ``Grind.CommRing.diseq_to_eq [ring.u]) ring.type fieldInst a b (← mkDiseqProof a b)
+
+private def diseqZeroToEq (a b : Expr) : RingM Unit := do
+  -- Rabinowitsch transformation for `b = 0` case
+  let gen ← getGeneration a
+  let ring ← getRing
+  let some fieldInst := ring.fieldInst? | unreachable!
+  modifyRing fun s => { s with invSet := s.invSet.insert a }
+  let aInv ← shareCommon <| mkApp (← getRing).invFn?.get! a
+  let lhs ← shareCommon <| mkApp2 ring.mulFn a aInv
+  internalize lhs gen none
+  let rhs ← shareCommon <| (← denoteNum 1)
+  internalize rhs gen none
+  trace[grind.debug.ring.rabinowitsch] "{lhs}"
+  pushEq lhs rhs <| mkApp4 (mkConst ``Grind.CommRing.diseq0_to_eq [ring.u]) ring.type fieldInst a (← mkDiseqProof a b)
 
 @[export lean_process_ring_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
@@ -307,7 +322,10 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
     let p ← (ra.sub rb).toPolyM
     if (← isField) then
       unless p matches .num _ do
-        diseqToEq a b
+        if rb matches .num 0 then
+          diseqZeroToEq a b
+        else
+          diseqToEq a b
         return ()
     addNewDiseq {
       lhs := a, rhs := b

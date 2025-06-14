@@ -5679,6 +5679,91 @@ theorem msb_replicate {n w : Nat} {x : BitVec w} :
   simp only [BitVec.msb, getMsbD_replicate, Nat.zero_mod]
   cases n <;> cases w <;> simp
 
+/-! ### Count leading zeroes -/
+
+theorem clzAux_eq_zero_iff {x : BitVec w} {n : Nat} :
+    clzAux x n = 0 ↔ x.getLsbD n = true := by
+  cases n <;> simp [clzAux]
+
+theorem clzAux_eq_iff {x : BitVec w} {n : Nat} :
+    clzAux x n = (n + 1) ↔ (∀ i, i < n + 1 → x.getLsbD i = false) := by
+  induction n
+  · case zero => simp [clzAux]
+  · case succ n ihn =>
+    by_cases hxn : x.getLsbD (n + 1)
+    · simp only [clzAux, hxn, ↓reduceIte, Nat.right_eq_add, Nat.add_eq_zero, reduceCtorEq,
+        and_false, false_iff, Classical.not_forall, not_imp, Bool.not_eq_false]
+      exists n + 1, by omega
+    · simp only [clzAux, hxn, Bool.false_eq_true, ↓reduceIte,
+        show 1 + x.clzAux n = n + 1 + 1 ↔ x.clzAux n = n + 1 by omega, ihn]
+      constructor
+      · intro hc i hin
+        by_cases hi : i ≤ n
+        · apply hc; omega
+        · simp [show i = n + 1 by omega, hxn]
+      · intro hc i hin
+        apply hc
+        omega
+
+theorem clzAux_le {x : BitVec w} {n : Nat} :
+    clzAux x n ≤ n + 1 := by
+  induction n
+  · case zero =>
+    cases hx0 : x.getLsbD 0
+    <;> simp [clzAux, hx0]
+  · case succ n ihn =>
+    by_cases hxn : x.getLsbD (n + 1)
+    · simp [clzAux, hxn]
+    · simp [clzAux, hxn]; omega
+
+@[simp]
+theorem clzAux_zero {x : BitVec w} : clzAux x 0 = if x.getLsbD 0 then 0 else 1 := by simp [clzAux]
+
+theorem clzAux_eq_iff_forall_of_clzAux_lt  {x : BitVec w} (hlt : (clzAux x n < n + 1)):
+    x.clzAux n = k ↔ ((∀ i, i < k → x.getLsbD (n - i) = false) ∧ ((x.getLsbD (n - k) = true))) := by
+  induction n generalizing k
+  · case zero =>
+    rcases k
+    · case zero => simp [clzAux_eq_zero_iff]
+    · case succ k =>
+      by_cases hx0 : x.getLsbD 0
+      · simp only [clzAux_zero, hx0, ↓reduceIte, Nat.right_eq_add, Nat.add_eq_zero,
+          Nat.succ_ne_self, and_false, Nat.zero_le, Nat.sub_eq_zero_of_le, Bool.true_eq_false,
+          imp_false, Nat.not_lt, Nat.le_add_left, and_true, false_iff, Classical.not_forall,
+          Nat.not_le]
+        exists 0
+        omega
+      · simp [hx0] at hlt
+  · case succ n ihn =>
+    rcases k
+    · case zero => simp [clzAux_eq_zero_iff]
+    · case succ k =>
+      simp only [clzAux, Nat.reduceSubDiff] at *
+      by_cases hxn : x.getLsbD (n + 1)
+      · simp only [hxn, ↓reduceIte, Nat.right_eq_add, Nat.add_eq_zero, Nat.succ_ne_self, and_false,
+          Nat.reduceSubDiff, false_iff, _root_.not_and, Bool.not_eq_true]
+        intro hi
+        specialize hi 0 (by omega)
+        simp [hxn] at hi
+      · simp only [hxn, Bool.false_eq_true, ↓reduceIte] at hlt
+        simp only [show x.clzAux n < n + 1 by omega, forall_const] at ihn
+        simp only [hxn, Bool.false_eq_true, ↓reduceIte,
+          show 1 + x.clzAux n = k + 1 ↔ x.clzAux n = k by omega, Nat.reduceSubDiff, ihn,
+          and_congr_left_iff]
+        intro h
+        constructor
+        · intro hc i hi
+          by_cases hi0 : i = 0
+          · simp [hi0, hxn]
+          · simp only [show n + 1 - i = n - (i - 1) by omega]
+            apply hc
+            omega
+        · intro hc i hi
+          specialize hc (1 + i)
+          simp only [show n + 1 - (1 + i) = n - i by omega] at hc
+          apply hc
+          omega
+
 /-! ### Decidable quantifiers -/
 
 theorem forall_zero_iff {P : BitVec 0 → Prop} :

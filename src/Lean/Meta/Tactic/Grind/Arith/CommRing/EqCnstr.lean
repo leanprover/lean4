@@ -123,9 +123,15 @@ def EqCnstr.checkConstant (c : EqCnstr) : RingM Bool := do
     trace_goal[grind.ring.assert.trivial] "{← c.denoteExpr}"
   else if (← hasChar) then
     c.setUnsat
+  else  if k.natAbs == 1 then
+    if (← isField) then
+      c.setUnsat
+    else
+      -- Remark: we currently don't do anything if the ring characteristic is not known.
+      -- TODO: we could set all terms of this ring `0` if `1 = 0`.
+      trace_goal[grind.ring.assert.discard] "{← c.denoteExpr}"
   else
-    -- Remark: we currently don't do anything if the characteristic is not known.
-    -- TODO: if `k.natAbs` is `1`, we could set all terms of this ring `0`.
+    -- TODO: we could save the equation for and use it to simplify polynomials
     trace_goal[grind.ring.assert.discard] "{← c.denoteExpr}"
   return true
 

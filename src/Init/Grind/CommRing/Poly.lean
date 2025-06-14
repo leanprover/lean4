@@ -1251,6 +1251,14 @@ theorem inv_split {α} [Field α] (a : α) : if a = 0 then a⁻¹ = 0 else a * a
   next h => simp [h, Field.inv_zero]
   next h => rw [CommRing.mul_comm, Field.inv_mul_cancel h]
 
+def one_eq_zero_unsat_cert (p : Poly) :=
+  p == .num 1 || p == .num (-1)
+
+theorem one_eq_zero_unsat {α} [Field α] (ctx : Context α) (p : Poly) : one_eq_zero_unsat_cert p → p.denote ctx = 0 → False := by
+  simp [one_eq_zero_unsat_cert]; intro h; cases h <;> simp [*, Poly.denote, intCast_one, intCast_neg]
+  next => rw [Eq.comm]; apply Field.zero_ne_one
+  next => rw [← neg_eq_zero, neg_neg, Eq.comm]; apply Field.zero_ne_one
+
 end CommRing
 
 end Lean.Grind

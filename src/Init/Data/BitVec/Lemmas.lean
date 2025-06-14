@@ -617,7 +617,7 @@ theorem msb_eq_false_iff_two_mul_lt {x : BitVec w} : x.msb = false ↔ 2 * x.toN
   cases w <;> simp [Nat.pow_succ, Nat.mul_comm _ 2, msb_eq_decide, toNat_of_zero_length]
 
 theorem msb_eq_true_iff_two_mul_ge {x : BitVec w} : x.msb = true ↔ 2 * x.toNat ≥ 2^w := by
-  simp [← Bool.ne_false_iff, msb_eq_false_iff_two_mul_lt]
+  simp [← Bool.ne_false_iff, msb_eq_false_iff_two_mul_lt, - Bool.not_eq_false]
 
 /-- Characterize `x.toInt` in terms of `x.msb`. -/
 theorem toInt_eq_msb_cond (x : BitVec w) :
@@ -3180,7 +3180,7 @@ theorem cons_append_append (x : BitVec w₁) (y : BitVec w₂) (z : BitVec w₃)
   cases b
   · simp
   · rintro (_ | i)
-    <;> simp [Nat.add_mod, Nat.add_comm, Nat.add_mul_div_right, Nat.testBit_add_one]
+    <;> simp [Nat.add_comm, Nat.add_mul_div_right, Nat.testBit_add_one]
 
 theorem getLsbD_concat (x : BitVec w) (b : Bool) (i : Nat) :
     (concat x b).getLsbD i = if i = 0 then b else x.getLsbD (i - 1) := by
@@ -4976,14 +4976,7 @@ theorem twoPow_and (x : BitVec w) (i : Nat) :
 theorem mul_twoPow_eq_shiftLeft (x : BitVec w) (i : Nat) :
     x * (twoPow w i) = x <<< i := by
   apply eq_of_toNat_eq
-  simp only [toNat_mul, toNat_twoPow, toNat_shiftLeft, Nat.shiftLeft_eq]
-  by_cases hi : i < w
-  · have hpow : 2^i < 2^w := Nat.pow_lt_pow_of_lt (by omega) (by omega)
-    rw [Nat.mod_eq_of_lt hpow]
-  · have hpow : 2 ^ i % 2 ^ w = 0 := by
-      rw [Nat.mod_eq_zero_of_dvd]
-      apply Nat.pow_dvd_pow 2 (by omega)
-    simp [Nat.mul_mod, hpow]
+  simp only [toNat_mul, toNat_twoPow, Nat.mul_mod_mod, Nat.shiftLeft_eq, toNat_shiftLeft]
 
 theorem twoPow_mul_eq_shiftLeft (x : BitVec w) (i : Nat) :
     (twoPow w i) * x = x <<< i := by

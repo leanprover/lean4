@@ -549,7 +549,7 @@ theorem ult_eq_not_carry (x y : BitVec w) : x.ult y = !carry w x (~~~y) true := 
   omega
 
 theorem ule_eq_not_ult (x y : BitVec w) : x.ule y = !y.ult x := by
-  simp [BitVec.ule, BitVec.ult, ← decide_not]
+  simp [BitVec.ule, BitVec.ult, ← decide_not, -Classical.decide_not]
 
 theorem ule_eq_carry (x y : BitVec w) : x.ule y = carry w y (~~~x) true := by
   simp [ule_eq_not_ult, ult_eq_not_carry]

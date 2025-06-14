@@ -400,7 +400,8 @@ theorem monotone_foldlM_loop
     · apply monotone_of_monotone_apply
       apply ih
   | case3 =>
-    simp only [Array.foldlM.loop, ↓reduceDIte, *]
+    unfold Array.foldlM.loop
+    simp only [↓reduceDIte, *]
     apply monotone_const
 
 @[partial_fixpoint_monotone]

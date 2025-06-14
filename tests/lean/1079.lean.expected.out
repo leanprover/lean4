@@ -7,10 +7,6 @@
       n = n
     ==>
       True
-[Meta.Tactic.simp.unify] eq_self:1000, failed to unify
-      ?a = ?a
-    with
-      Ordering.eq = Ordering.lt
 [Meta.Tactic.simp.rewrite] imp_self:10000:
       False → False
     ==>

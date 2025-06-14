@@ -138,7 +138,11 @@ theorem Perm.contains_eq [BEq α] {l₁ l₂ : List α} (h : l₁ ~ l₂) {a : �
   induction h with
   | nil => rfl
   | cons => simp_all
-  | swap => simp only [contains_cons, ← Bool.or_assoc, Bool.or_comm]
+  | swap =>
+    -- TODO: This is fine, due to the ordering for permutation theorems.
+    -- Maybe disable them completely when checking?
+    try simp -loopProtection only [contains_cons, ← Bool.or_assoc, Bool.or_comm]
+    try simp only [contains_cons, ← Bool.or_assoc, Bool.or_comm]
   | trans => simp_all
 
 theorem Perm.eq_nil {l : List α} (p : l ~ []) : l = [] := eq_nil_of_length_eq_zero p.length_eq

@@ -110,6 +110,15 @@ structure Context where
   transformations that presereve definitional equality.
   -/
   inDSimp : Bool := false
+  /--
+  Stack of simp theorems we are in the process of checking for loops.
+
+  We store the whole `SimpTheorem` here, not just the `Origin`, as
+  simp theorems that are conjunctions lead to different theorems
+  with the same origin, but different proofs.
+  -/
+  loopCheckStack : List SimpTheorem := []
+
   deriving Inhabited
 
 /--
@@ -191,6 +200,9 @@ def Context.setFailIfUnchanged (c : Context) (flag : Bool) : Context :=
 def Context.setMemoize (c : Context) (flag : Bool) : Context :=
   { c with config.memoize := flag }
 
+def Context.setContextual (c : Context) (flag : Bool) : Context :=
+  { c with config.contextual := flag }
+
 def Context.setZetaDeltaSet (c : Context) (zetaDeltaSet : FVarIdSet) (initUsedZetaDelta : FVarIdSet) : Context :=
   { c with zetaDeltaSet, initUsedZetaDelta }
 
@@ -229,13 +241,36 @@ structure Diagnostics where
   thmsWithBadKeys : PArray SimpTheorem := {}
   deriving Inhabited
 
+inductive LoopProtectionResult where
+  | ok
+  | loop (loop : Array SimpTheorem)
+
+structure LoopProtectionCache where
+  map : PHashMap Expr LoopProtectionResult := {}
+  warnedSet : PHashSet Expr := {}
+  deriving Inhabited
+
+def LoopProtectionCache.lookup? (c : LoopProtectionCache) (thm : SimpTheorem) : Option LoopProtectionResult :=
+  c.map.find? thm.proof
+
+def LoopProtectionCache.insert (c : LoopProtectionCache) (thm : SimpTheorem) (r : LoopProtectionResult) : LoopProtectionCache :=
+  { c with map := c.map.insert thm.proof r }
+
+def LoopProtectionCache.warned (c : LoopProtectionCache) (thm : SimpTheorem) : Bool :=
+  c.warnedSet.contains thm.proof
+
+def LoopProtectionCache.setWarned (c : LoopProtectionCache) (thm : SimpTheorem) : LoopProtectionCache :=
+  { c with warnedSet := c.warnedSet.insert thm.proof }
+
+
 structure State where
-  cache        : Cache := {}
-  congrCache   : CongrCache := {}
-  dsimpCache   : ExprStructMap Expr := {}
-  usedTheorems : UsedSimps := {}
-  numSteps     : Nat := 0
-  diag         : Diagnostics := {}
+  cache               : Cache := {}
+  congrCache          : CongrCache := {}
+  dsimpCache          : ExprStructMap Expr := {}
+  usedTheorems        : UsedSimps := {}
+  loopProtectionCache : LoopProtectionCache := {}
+  numSteps            : Nat := 0
+  diag                : Diagnostics := {}
 
 structure Stats where
   usedTheorems : UsedSimps := {}
@@ -266,6 +301,9 @@ abbrev SimpM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
   modify fun s => { s with dsimpCache }
   return x
 
+@[inline] def withPushingLoopCheck (thm : SimpTheorem) : SimpM α → SimpM α :=
+  withTheReader Context fun ctx => { ctx with loopCheckStack := thm :: ctx.loopCheckStack }
+
 /--
 Executes `x` using a `MetaM` configuration for indexing terms.
 It is inferred from `Simp.Config`.
@@ -289,7 +327,8 @@ opaque dsimp (e : Expr) : SimpM Expr
 
 @[inline] def modifyDiag (f : Diagnostics → Diagnostics) : SimpM Unit := do
   if (← isDiagnosticsEnabled) then
-    modify fun { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag } => { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag := f diag }
+    modify fun { cache, congrCache, dsimpCache, usedTheorems, loopProtectionCache, numSteps, diag } =>
+      { cache, congrCache, dsimpCache, usedTheorems,  loopProtectionCache, numSteps, diag := f diag }
 
 /--
 Result type for a simplification procedure. We have `pre` and `post` simplification procedures.

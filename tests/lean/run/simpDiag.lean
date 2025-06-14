@@ -9,12 +9,12 @@ axiom q_eq (x : Nat) : q x = x
 
 /--
 trace: [simp] Diagnostics
-  [simp] used theorems (max: 50, num: 2):
+  [simp] used theorems (max: 51, num: 2):
+    [simp] q_eq ↦ 51
     [simp] f_eq ↦ 50
-    [simp] q_eq ↦ 50
-  [simp] tried theorems (max: 101, num: 2):
-    [simp] f_eq ↦ 101, succeeded: 50
-    [simp] q_eq ↦ 50, succeeded: 50
+  [simp] tried theorems (max: 103, num: 2):
+    [simp] f_eq ↦ 103, succeeded: 50
+    [simp] q_eq ↦ 51, succeeded: 51
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
@@ -37,8 +37,8 @@ trace: [simp] Diagnostics
     [simp] ack.eq_3 ↦ 1201
     [simp] Nat.reduceAdd (builtin simproc) ↦ 771
     [simp] ack.eq_1 ↦ 768
-  [simp] tried theorems (max: 1973, num: 2):
-    [simp] ack.eq_3 ↦ 1973, succeeded: 1201
+  [simp] tried theorems (max: 1976, num: 2):
+    [simp] ack.eq_3 ↦ 1976, succeeded: 1201
     [simp] ack.eq_1 ↦ 768, succeeded: 768
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---

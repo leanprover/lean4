@@ -47,3 +47,12 @@ example [Field α] [IsCharP α 0] (a b : α) : 2*b - a = a + b → 1 / a + 1 / (
 
 example [Field α] [NoNatZeroDivisors α] (a : α) : 1 / a + 1 / (2 * a) = 3 / (2 * a) := by
   grind
+
+example [Field α] {x y z w : α} : x / y = z / w → y ≠ 0 → w ≠ 0 → x * w = z * y := by
+  grind
+
+example [Field α] (a : α) : a = 0 → a ≠ 1 := by
+  grind
+
+example [Field α] (a : α) : a = 0 → a ≠ 1 - a := by
+  grind

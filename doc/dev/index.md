@@ -8,7 +8,7 @@ You should not edit the `stage0` directory except using the commands described i
 
 ## Development Setup
 
-You can use any of the [supported editors](../setup.md) for editing the Lean source code.
+You can use any of the [supported editors](https://docs.lean-lang.org/lean4/doc/setup.html#editing) for editing the Lean source code.
 If you set up `elan` as below, opening `src/` as a *workspace folder* should ensure that stage 0 (i.e. the stage that first compiles `src/`) will be used for files in that directory.
 
 ### Dev setup using elan

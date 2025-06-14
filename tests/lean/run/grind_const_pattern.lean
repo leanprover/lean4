@@ -18,7 +18,7 @@ h : ¬a = 10
   [eqc] False propositions
     [prop] a = 10
   [cutsat] Assignment satisfying linear constraints
-    [assign] a := 1
+    [assign] a := 2
 -/
 #guard_msgs (error) in
 example : a = 5 + 5 := by
@@ -49,8 +49,8 @@ h : ¬f a = 11
   [eqc] False propositions
     [prop] f a = 11
   [cutsat] Assignment satisfying linear constraints
-    [assign] a := 2
-    [assign] f a := 1
+    [assign] a := 3
+    [assign] f a := 2
 -/
 #guard_msgs (error) in
 example : f a = 10 + 1 := by
@@ -75,9 +75,9 @@ h : ¬f x = 11
   [ematch] E-matching patterns
     [thm] fa: [f `[a]]
   [cutsat] Assignment satisfying linear constraints
-    [assign] x := 3
-    [assign] a := 2
-    [assign] f x := 1
+    [assign] x := 4
+    [assign] a := 3
+    [assign] f x := 2
 -/
 #guard_msgs (error) in
 example : f x = 10 + 1 := by

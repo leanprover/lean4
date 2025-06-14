@@ -2022,7 +2022,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_ExtractClosed_visitCode___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("_closedTerm", 11, 11);
+x_1 = lean_mk_string_unchecked("_closed", 7, 7);
 return x_1;
 }
 }
@@ -3620,18 +3620,20 @@ return x_1;
 static lean_object* _init_l_Lean_Compiler_LCNF_extractClosed___closed__4() {
 _start:
 {
-lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; uint8_t x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = 1;
-x_3 = l_Lean_Compiler_LCNF_extractClosed___closed__2;
-x_4 = l_Lean_Compiler_LCNF_extractClosed___closed__3;
-x_5 = lean_alloc_ctor(0, 3, 2);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_3);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_2);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3 + 1, x_2);
-return x_5;
+x_3 = 0;
+x_4 = l_Lean_Compiler_LCNF_extractClosed___closed__2;
+x_5 = l_Lean_Compiler_LCNF_extractClosed___closed__3;
+x_6 = lean_alloc_ctor(0, 3, 3);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_4);
+lean_ctor_set(x_6, 2, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*3, x_2);
+lean_ctor_set_uint8(x_6, sizeof(void*)*3 + 1, x_2);
+lean_ctor_set_uint8(x_6, sizeof(void*)*3 + 2, x_3);
+return x_6;
 }
 }
 static lean_object* _init_l_Lean_Compiler_LCNF_extractClosed() {

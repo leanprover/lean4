@@ -22876,7 +22876,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_CoreM___hyg_5857____closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("(compiler) enable the new code generator, this should have no significant effect on your code but it does help to test the new code generator; unset to only use the old code generator instead", 191, 191);
+x_1 = lean_mk_string_unchecked("(compiler) enable the new code generator, unset to only use the old code generator instead", 90, 90);
 return x_1;
 }
 }
@@ -22884,7 +22884,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_CoreM___hyg_5857____closed__
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = 0;
+x_1 = 1;
 x_2 = l_Lean_initFn____x40_Lean_CoreM___hyg_5857____closed__1;
 x_3 = l_Lean_initFn____x40_Lean_CoreM___hyg_5857____closed__4;
 x_4 = lean_box(x_1);

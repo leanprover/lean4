@@ -56,3 +56,33 @@ example [Field α] (a : α) : a = 0 → a ≠ 1 := by
 
 example [Field α] (a : α) : a = 0 → a ≠ 1 - a := by
   grind
+
+example [Field α] {sqrtTwo a b c : α} :
+    sqrtTwo / 32 * ((a - b) ^ 2 + (b - c) ^ 2 + (c - a) ^ 2 + (-(a + b + c)) ^ 2) ^ 2 =
+      9 * sqrtTwo / 32 * (a ^ 2 + b ^ 2 + c ^ 2) ^ 2 := by
+  grind
+
+example [Field α] [LinearOrder α] [Ring.IsOrdered α] (x y z : α)
+    : x > 0 → y > 0 → z > 0 → x * y * z ≥ 1 →
+      (x ^ 2 - y * z) / (x ^ 2 + y ^ 2 + z ^ 2) + (y ^ 2 - z * x) / (y ^ 2 + z ^ 2 + x ^ 2) +
+        (z ^ 2 - x * y) / (z ^ 2 + x ^ 2 + y ^ 2) =
+      1 / 2 * ((x - y) ^ 2 + (y - z) ^ 2 + (z - x) ^ 2) / (x ^ 2 + y ^ 2 + z ^ 2) := by
+  grind
+
+example [Field α] (a : α) : a^2 = 0 → a = 0 := by
+  grind
+
+example [Field α] (a : α) : a^3 = 0 → a = 0 := by
+  grind
+
+/-- trace: [grind.debug.ring.rabinowitsch] (b + a - (c - b + b)) * (b + a - (c - b + b))⁻¹ -/
+#guard_msgs (trace) in
+set_option trace.grind.debug.ring.rabinowitsch true in
+example [Field α] (a b c : α) : a^2 = 0 → c = b → b + a = c - b + b := by
+  grind
+
+/-- trace: [grind.debug.ring.rabinowitsch] (b + a - c) * (b + a - c)⁻¹ -/
+#guard_msgs (trace) in
+set_option trace.grind.debug.ring.rabinowitsch true in
+example [Field α] (a b c : α) : a^2 = 0 → c = b → b + a - c = 0 := by
+  grind

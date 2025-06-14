@@ -22,6 +22,7 @@ theorem ex₄ (f : Int → Int) (a b : Int) (_ : 2 ∣ f (f a) + 1) (h₁ : 3 �
 /--
 trace: [grind.debug.cutsat.search.assign] a := 1
 [grind.debug.cutsat.search.assign] b := 0
+[grind.debug.cutsat.search.assign] 「1」 := 1
 -/
 #guard_msgs (trace) in -- finds the model without any backtracking
 set_option trace.grind.debug.cutsat.search.assign true in
@@ -30,10 +31,12 @@ example (a b : Int) (_ : 2 ∣ a + 3) (_ : 3 ∣ a + b - 4) : False := by
   sorry
 
 /--
-trace: [grind.cutsat.assert] 2 ∣ a + 3
+trace: [grind.cutsat.assert] -1*「1」 + 1 = 0
+[grind.cutsat.assert] 2 ∣ a + 3
 [grind.cutsat.assert] 3 ∣ a + 3*b + -4
 [grind.debug.cutsat.search.assign] a := 1
 [grind.debug.cutsat.search.assign] b := 0
+[grind.debug.cutsat.search.assign] 「1」 := 1
 -/
 #guard_msgs (trace) in
 set_option trace.grind.cutsat.assert true in
@@ -45,6 +48,7 @@ example (a b : Int) (_ : 2 ∣ a + 3) (_ : 3 ∣ a + 3*b - 4) : False := by
 /--
 trace: [grind.debug.cutsat.search.assign] a := 1
 [grind.debug.cutsat.search.assign] b := 15
+[grind.debug.cutsat.search.assign] 「1」 := 1
 -/
 #guard_msgs (trace) in
 set_option trace.grind.debug.cutsat.search.assign true in
@@ -55,6 +59,7 @@ example (a b : Int) (_ : 2 ∣ a + 3) (_ : 3 ∣ a + b - 4) (_ : b < 18): False 
 /--
 trace: [grind.debug.cutsat.search.assign] a := 1
 [grind.debug.cutsat.search.assign] b := 12
+[grind.debug.cutsat.search.assign] 「1」 := 1
 -/
 #guard_msgs (trace) in
 set_option trace.grind.debug.cutsat.search.assign true in
@@ -65,8 +70,8 @@ example (a b : Int) (_ : 2 ∣ a + 3) (_ : 3 ∣ a + b - 4) (_ : b ≥ 11): Fals
 /--
 trace: [grind.debug.cutsat.search.assign] f 0 := 11
 [grind.debug.cutsat.search.assign] f 1 := 2
-[grind.debug.cutsat.search.assign] 「1」 := 1
 [grind.debug.cutsat.search.assign] 「0」 := 0
+[grind.debug.cutsat.search.assign] 「1」 := 1
 -/
 #guard_msgs (trace) in
 set_option trace.grind.debug.cutsat.search.assign true in

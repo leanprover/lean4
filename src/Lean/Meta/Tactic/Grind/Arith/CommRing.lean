@@ -39,5 +39,6 @@ builtin_initialize registerTraceClass `grind.debug.ring.check
 builtin_initialize registerTraceClass `grind.debug.ring.impEq
 builtin_initialize registerTraceClass `grind.debug.ring.simpBasis
 builtin_initialize registerTraceClass `grind.debug.ring.basis
+builtin_initialize registerTraceClass `grind.debug.ring.rabinowitsch
 
 end Lean

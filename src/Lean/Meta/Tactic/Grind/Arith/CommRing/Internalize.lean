@@ -35,12 +35,13 @@ private def isForbiddenParent (parent? : Option Expr) : Bool :=
       -- Remark: `HDiv` should appear in `getType?` as soon as we add support for `Field`,
       -- `LE.le` linear combinations
       match_expr parent with
+      | LT.lt _ _ _ _ => true
       | LE.le _ _ _ _ => true
       | HDiv.hDiv _ _ _ _ _ _ => true
       | HMod.hMod _ _ _ _ _ _ => true
       | _ => false
   else
-    true
+    false
 
 private partial def toInt? (e : Expr) : RingM (Option Int) := do
   match_expr e with

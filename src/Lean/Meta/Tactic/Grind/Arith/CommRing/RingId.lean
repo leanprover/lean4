@@ -10,6 +10,15 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
 
 namespace Lean.Meta.Grind.Arith.CommRing
 
+def denoteNumCore (u : Level) (type : Expr) (semiringInst : Expr) (negFn : Expr) (k : Int) : Expr :=
+  let n := mkRawNatLit k.natAbs
+  let ofNatInst := mkApp3 (mkConst ``Grind.Semiring.ofNat [u]) type semiringInst n
+  let n := mkApp3 (mkConst ``OfNat.ofNat [u]) type n ofNatInst
+  if k < 0 then
+    mkApp negFn n
+  else
+    n
+
 private def internalizeFn (fn : Expr) : GoalM Expr := do
   shareCommon (← canon fn)
 
@@ -103,6 +112,10 @@ def getRingId? (type : Expr) : GoalM (Option Nat) := do
   else
     let id? ← go?
     modify' fun s => { s with typeIdOf := s.typeIdOf.insert { expr := type } id? }
+    if let some id := id? then
+      -- Internalize helper constants
+      let ring := (← get').rings[id]!
+      internalize ring.one 0
     return id?
 where
   go? : GoalM (Option Nat) := do
@@ -142,14 +155,15 @@ where
     let powFn ← getPowFn type u semiringInst
     let intCastFn ← getIntCastFn type u ringInst
     let natCastFn ← getNatCastFn type u semiringInst
-    let (invFn?, divFn?) ← if fieldInst?.isSome then
-      pure (some (← getInvFn type u), some (← getDivFn type u))
+    let invFn? ← if fieldInst?.isSome then
+      pure (some (← getInvFn type u))
     else
-      pure (none, none)
+      pure none
+    let one ← shareCommon <| (← canon <| denoteNumCore u type semiringInst negFn 1)
     let id := (← get').rings.size
     let ring : Ring := {
       id, type, u, semiringInst, ringInst, commSemiringInst, commRingInst, charInst?, noZeroDivInst?, fieldInst?,
-      addFn, mulFn, subFn, negFn, powFn, intCastFn, natCastFn, invFn?, divFn? }
+      addFn, mulFn, subFn, negFn, powFn, intCastFn, natCastFn, invFn?, one }
     modify' fun s => { s with rings := s.rings.push ring }
     return some id
 

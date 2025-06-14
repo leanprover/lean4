@@ -153,8 +153,7 @@ structure Ring where
   natCastFn      : Expr
   /-- Inverse if `fieldInst?` is `some inst` -/
   invFn?         : Option Expr
-  /-- Division if `fieldInst?` is `some inst` -/
-  divFn?         : Option Expr
+  one            : Expr
   /--
   Mapping from variables to their denotations.
   Remark each variable can be in only one ring.

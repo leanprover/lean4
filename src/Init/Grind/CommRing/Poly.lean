@@ -1247,6 +1247,37 @@ theorem div_zero_eqC {α c} [Field α] [IsCharP α c] (a : α) (b : Int) : b % c
     have := IsCharP.intCast_eq_zero_iff (α := α) c b
     simp [*]
   simp [this, Field.div_eq_mul_inv, Field.inv_zero, Semiring.mul_zero]
+
+theorem inv_int_eq [Field α] [IsCharP α 0] (b : Int) : b != 0 → (denoteInt b : α) * (denoteInt b)⁻¹ = 1 := by
+  simp; intro h
+  have : (denoteInt b : α) ≠ 0 := by
+    simp [denoteInt_eq]; intro h
+    have := IsCharP.intCast_eq_zero_iff (α := α) 0 b; simp [*] at this
+  rw [Field.mul_inv_cancel this]
+
+theorem inv_int_eqC {α c} [Field α] [IsCharP α c] (b : Int) : b % c != 0 → (denoteInt b : α) * (denoteInt b)⁻¹ = 1 := by
+  simp; intro h
+  have : (denoteInt b : α) ≠ 0 := by
+    simp [denoteInt_eq]; intro h
+    have := IsCharP.intCast_eq_zero_iff (α := α) c b; simp [*] at this
+  rw [Field.mul_inv_cancel this]
+
+theorem inv_zero_eq {α} [Field α] : (0:α)⁻¹ = 0 := by
+  simp [Field.inv_zero]
+
+theorem inv_zero_eqC {α c} [Field α] [IsCharP α c] (b : Int) : b % c == 0 → (denoteInt b : α)⁻¹ = 0 := by
+  simp [denoteInt_eq]; intro h
+  have : (b : α) = 0 := by
+    have := IsCharP.intCast_eq_zero_iff (α := α) c b
+    simp [*]
+  simp [this, Field.inv_zero]
+
+open Classical in
+theorem inv_split {α} [Field α] (a : α) : if a = 0 then a⁻¹ = 0 else a * a⁻¹ = 1 := by
+  split
+  next h => simp [h, Field.inv_zero]
+  next h => rw [CommRing.mul_comm, Field.inv_mul_cancel h]
+
 end CommRing
 
 end Lean.Grind

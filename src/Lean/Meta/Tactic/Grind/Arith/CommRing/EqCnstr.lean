@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Meta.Tactic.Grind.ProveEq
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
@@ -282,6 +283,20 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
     let p ← (ra.sub rb).toPolyM
     addNewEq (← mkEqCnstr p (.core a b ra rb))
 
+private def diseqToEq (a b : Expr) : RingM Unit := do
+  -- Rabinowitsch transformation
+  let gen := max (← getGeneration a) (← getGeneration b)
+  let ring ← getRing
+  let some fieldInst := ring.fieldInst? | unreachable!
+  let e ← shareCommon <| mkApp2 ring.subFn a b
+  modifyRing fun s => { s with invSet := s.invSet.insert e }
+  let eInv ← shareCommon <| mkApp (← getRing).invFn?.get! e
+  let lhs ← shareCommon <| mkApp2 ring.mulFn e eInv
+  internalize lhs gen none
+  let rhs ← shareCommon <| (← denoteNum 1)
+  internalize rhs gen none
+  pushEq lhs rhs <| mkApp5 (mkConst ``Grind.CommRing.diseq_to_eq [ring.u]) ring.type fieldInst a b (← mkDiseqProof a b)
+
 @[export lean_process_ring_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
   let some ringId ← inSameRing? a b | return ()
@@ -290,6 +305,10 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
     let some ra ← toRingExpr? a | return ()
     let some rb ← toRingExpr? b | return ()
     let p ← (ra.sub rb).toPolyM
+    if (← isField) then
+      unless p matches .num _ do
+        diseqToEq a b
+        return ()
     addNewDiseq {
       lhs := a, rhs := b
       rlhs := ra, rrhs := rb

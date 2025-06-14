@@ -1262,9 +1262,6 @@ theorem inv_int_eqC {α c} [Field α] [IsCharP α c] (b : Int) : b % c != 0 → 
     have := IsCharP.intCast_eq_zero_iff (α := α) c b; simp [*] at this
   rw [Field.mul_inv_cancel this]
 
-theorem inv_zero_eq {α} [Field α] : (0:α)⁻¹ = 0 := by
-  simp [Field.inv_zero]
-
 theorem inv_zero_eqC {α c} [Field α] [IsCharP α c] (b : Int) : b % c == 0 → (denoteInt b : α)⁻¹ = 0 := by
   simp [denoteInt_eq]; intro h
   have : (b : α) = 0 := by

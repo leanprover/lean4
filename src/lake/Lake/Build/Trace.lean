@@ -123,6 +123,10 @@ instance : ToString Hash := ⟨Hash.toString⟩
 @[inline] def ofString (str : String) :=
   mix nil <| mk <| hash str -- same as Name.mkSimple
 
+/-- Hash of a line-ending normalized string. -/
+@[inline] def ofText (str : String) :=
+  ofString str.crlfToLf
+
 @[inline] def ofByteArray (bytes : ByteArray) : Hash :=
   ⟨hash bytes⟩
 
@@ -171,10 +175,8 @@ instance : ComputeHash FilePath IO := ⟨computeBinFileHash⟩
 Compute the hash of a text file.
 Normalizes `\r\n` sequences to `\n` for cross-platform compatibility.
 -/
-def computeTextFileHash (file : FilePath) : IO Hash := do
-  let text ← IO.FS.readFile file
-  let text := text.crlfToLf
-  return Hash.ofString text
+def computeTextFileHash (file : FilePath) : IO Hash :=
+  Hash.ofText <$> IO.FS.readFile file
 
 /--
 A wrapper around `FilePath` that adjusts its `ComputeHash` implementation

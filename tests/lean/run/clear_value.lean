@@ -347,3 +347,19 @@ example : True := by
     clear_value val -- used to fail
     rfl
   trivial
+
+/-!
+Local context order preservation.
+-/
+/--
+trace: x : Nat
+y : Nat := 2
+z : Nat := 3
+⊢ x + y = x + z - 1
+-/
+#guard_msgs in
+example : let x := 1; let y := 2; let z := 3; x + y = x + z - 1 := by
+  intro x y z
+  clear_value x
+  trace_state
+  rfl

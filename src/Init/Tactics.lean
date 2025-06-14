@@ -130,6 +130,11 @@ syntax (name := rename) "rename " term " => " ident : tactic
 /--
 `revert x...` is the inverse of `intro x...`: it moves the given hypotheses
 into the main goal's target type.
+If the hypothesis has dependencies, those are reverted too.
+
+The terms do not need to be identifiers;
+for example, `revert ‹x = y›` reverts a local hypothesis with the type `x = y`.
+If `e` is not a local hypothesis, then `revert e` is like `have := e; revert this`.
 -/
 syntax (name := revert) "revert" (ppSpace colGt term:max)+ : tactic
 

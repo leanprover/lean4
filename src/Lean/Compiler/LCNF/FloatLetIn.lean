@@ -296,7 +296,7 @@ where
       let mut newCases := Code.updateCases! code cs.resultType cs.discr newAlts
       return attachCodeDecls remainders.toArray newCases
     | .jmp .. | .return .. | .unreach .. =>
-    return attachCodeDecls (← read).decls.toArray.reverse code
+      return attachCodeDecls (← read).decls.toArray.reverse code
 
 end FloatLetIn
 

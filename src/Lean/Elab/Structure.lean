@@ -1157,12 +1157,11 @@ private partial def mkFlatCtor (levelParams : List Name) (params : Array Expr) (
   let ctor := getStructureCtor env structName
   let val ← mkFlatCtorExpr levelParams params ctor replaceIndFVars
   withLCtx {} {} do trace[Elab.structure] "created flat constructor:{indentExpr val}"
-  unless val.hasSyntheticSorry do
-    -- Note: flatCtorName will be private if the constructor is private
-    let flatCtorName := mkFlatCtorOfStructCtorName ctor.name
-    let valType ← replaceIndFVars (← instantiateMVars (← inferType val))
-    let valType := valType.inferImplicit params.size true
-    addDecl <| Declaration.defnDecl (← mkDefinitionValInferrringUnsafe flatCtorName levelParams valType val .abbrev)
+  -- Note: flatCtorName will be private if the constructor is private
+  let flatCtorName := mkFlatCtorOfStructCtorName ctor.name
+  let valType ← replaceIndFVars (← instantiateMVars (← inferType val))
+  let valType := valType.inferImplicit params.size true
+  addDecl <| Declaration.defnDecl (← mkDefinitionValInferrringUnsafe flatCtorName levelParams valType val .abbrev)
 
 private partial def checkResultingUniversesForFields (fieldInfos : Array StructFieldInfo) (u : Level) : TermElabM Unit := do
   for info in fieldInfos do
@@ -1444,13 +1443,16 @@ def elabStructureCommand : InductiveElabDescr where
             finalizeTermElab := withLCtx lctx localInsts do checkDefaults fieldInfos
             prefinalize := fun levelParams params replaceIndFVars => do
               withLCtx lctx localInsts do
-                addProjections params r fieldInfos
+                withOptions (warn.sorry.set · false) do
+                  addProjections params r fieldInfos
                 registerStructure view.declName fieldInfos
                 runStructElabM (init := state) do
-                  mkFlatCtor levelParams params view.declName replaceIndFVars
+                  withOptions (warn.sorry.set · false) do
+                    mkFlatCtor levelParams params view.declName replaceIndFVars
                   addDefaults levelParams params replaceIndFVars
               let parentInfos ← withLCtx lctx localInsts <| runStructElabM (init := state) do
-                mkRemainingProjections levelParams params view
+                withOptions (warn.sorry.set · false) do
+                  mkRemainingProjections levelParams params view
               setStructureParents view.declName parentInfos
               withSaveInfoContext do  -- save new env
                 for field in view.fields do

@@ -1761,10 +1761,10 @@ private theorem neg_udiv_eq_intmin_iff_eq_intmin_eq_one_of_msb_eq_true
 
 theorem msb_sdiv_eq_decide {x y : BitVec w} :
     (x.sdiv y).msb = ((0 < w) &&
-      -- x +ve, y +ve: never negative..
-      (!x.msb && y.msb && (-y ≤ x ∧ y ≠ 0#w)) || -- x +ve, y -ve: -ve when result nonzero.
-      (x.msb && !y.msb && (y ≤ -x && y ≠ 0#w)) || -- x -ve, y +ve: -ve when result nonzero.
-      (x.msb && y.msb && (x = intMin w && y = -1#w))) -- x -ve, y -ve:  `intMin / -1 = intMin` -ve.
+      -- (1) x nonneg, y nonneg: never negative.
+      (!x.msb && y.msb && (-y ≤ x ∧ y ≠ 0#w)) || -- (2) x nonneg, y neg: neg when result nonzero.
+      (x.msb && !y.msb && (y ≤ -x && y ≠ 0#w)) || -- (3) x neg, y nonneg: neg when result nonzero.
+      (x.msb && y.msb && (x = intMin w && y = -1#w))) -- (4) x nonneg, y nonneg: neg when `intMin / -1 = intMin`
      := by
   by_cases hw : w = 0; subst hw; decide +revert
   simp only [show 0 < w by omega, decide_true, ne_eq, decide_and, decide_not, Bool.true_and,

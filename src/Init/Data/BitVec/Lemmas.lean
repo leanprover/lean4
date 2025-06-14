@@ -1934,21 +1934,26 @@ theorem shiftLeftZeroExtend_eq {x : BitVec w} :
 
 theorem toNat_shiftLeftZeroExtend {x : BitVec w} :
     (shiftLeftZeroExtend x n).toNat = x.toNat <<< n := by
-  by_cases h : n = 0
-  · subst h
-    simp [shiftLeftZeroExtend]
+  rcases n with _|n
+  · simp [shiftLeftZeroExtend]
   · simp only [shiftLeftZeroExtend_eq, toNat_shiftLeft, toNat_setWidth]
-    have :=  Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := w + n) (by omega) (by omega)
-    have : x.toNat < 2 ^ (w + n) := by omega
-    have : x.toNat <<< n < 2 ^ (w + n) := by
-      rw [Nat.shiftLeft_eq, Nat.pow_add, Nat.mul_lt_mul_right (by apply Nat.two_pow_pos (w := n))]; omega
+    have :=  Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := w + (n + 1)) (by omega) (by omega)
+    have : x.toNat < 2 ^ (w + (n + 1)) := by omega
+    have : x.toNat <<< (n + 1) < 2 ^ (w + (n + 1)) := by
+      rw [Nat.shiftLeft_eq, Nat.pow_add (m := w) (n := n + 1), Nat.mul_lt_mul_right (by apply Nat.two_pow_pos (w := n + 1))]; omega
     rw [Nat.mod_eq_of_lt (by rw [Nat.mod_eq_of_lt (by omega)]; omega), Nat.mod_eq_of_lt (by omega)]
 
 theorem toInt_shiftLeftZeroExtend {x : BitVec w} :
-    (shiftLeftZeroExtend x n).toInt = x.toInt * 2 ^ n := by sorry
+    (shiftLeftZeroExtend x n).toInt = x.toInt * 2 ^ n := by
+  rcases n with _|n
+  · simp [shiftLeftZeroExtend]
+  · simp only [shiftLeftZeroExtend_eq, toNat_shiftLeft, toNat_setWidth]
+
+    sorry
 
 theorem toFin_shiftLeftZeroExtend {x : BitVec w} :
-    (shiftLeftZeroExtend x n).toFin = Fin.ofNat (2 ^ (w + n)) (x.toNat * 2 ^ n) := by sorry
+    (shiftLeftZeroExtend x n).toFin = Fin.ofNat (2 ^ (w + n)) (x.toNat * 2 ^ n) := by
+  sorry
 
 @[simp] theorem getElem_shiftLeftZeroExtend {x : BitVec m} {n : Nat} (h : i < m + n) :
     (shiftLeftZeroExtend x n)[i] = if h' : i < n then false else x[i - n] := by

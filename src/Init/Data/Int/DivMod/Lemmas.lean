@@ -1353,6 +1353,7 @@ theorem tdiv_ofNat_eq_zero_iff_natAbs_lt_or_eq_zero {a : Int} {b : Nat} :
       · simpa using this _
       · obtain ⟨n, hn⟩ := exists_eq_neg_ofNat (show -[a+1] ≤ 0 by omega)
         simp [hn, this]
+        apply this
     intro a
     rw [Int.tdiv_eq_ediv_of_nonneg (by omega)]
     norm_cast
@@ -1374,7 +1375,7 @@ than the absolute value of the denominator, or the denominator is zero.
   · obtain ⟨b, rfl⟩ := eq_ofNat_of_zero_le (show 0 ≤ b by omega)
     norm_cast
     apply Int.tdiv_ofNat_eq_zero_iff_natAbs_lt_or_eq_zero
-    
+
 /-! ### tmod -/
 
 -- `tmod` analogues of `emod` lemmas from `Bootstrap.lean`

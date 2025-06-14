@@ -31525,7 +31525,7 @@ return x_15;
 else
 {
 uint8_t x_16; lean_object* x_17; 
-x_16 = 0;
+x_16 = 1;
 x_17 = l___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowOrIBelow(x_3, x_16, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_17) == 0)
 {
@@ -31601,7 +31601,7 @@ return x_15;
 else
 {
 uint8_t x_16; lean_object* x_17; 
-x_16 = 1;
+x_16 = 0;
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);

@@ -9541,19 +9541,21 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Probe_toPass___rarg(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_Probe_toPass___elambda__1___rarg), 8, 2);
 lean_closure_set(x_4, 0, x_1);
 lean_closure_set(x_4, 1, x_2);
 x_5 = lean_unsigned_to_nat(0u);
-x_6 = l_Lean_Compiler_LCNF_Probe_toPass___rarg___closed__1;
-x_7 = lean_alloc_ctor(0, 3, 2);
-lean_ctor_set(x_7, 0, x_5);
-lean_ctor_set(x_7, 1, x_6);
-lean_ctor_set(x_7, 2, x_4);
-lean_ctor_set_uint8(x_7, sizeof(void*)*3, x_3);
-lean_ctor_set_uint8(x_7, sizeof(void*)*3 + 1, x_3);
-return x_7;
+x_6 = 0;
+x_7 = l_Lean_Compiler_LCNF_Probe_toPass___rarg___closed__1;
+x_8 = lean_alloc_ctor(0, 3, 3);
+lean_ctor_set(x_8, 0, x_5);
+lean_ctor_set(x_8, 1, x_7);
+lean_ctor_set(x_8, 2, x_4);
+lean_ctor_set_uint8(x_8, sizeof(void*)*3, x_3);
+lean_ctor_set_uint8(x_8, sizeof(void*)*3 + 1, x_3);
+lean_ctor_set_uint8(x_8, sizeof(void*)*3 + 2, x_6);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Probe_toPass(lean_object* x_1) {

@@ -5,7 +5,7 @@ Authors: Paul Reichert
 -/
 prelude
 import Std.Data.Iterators.Combinators.Monadic.Take
-import Std.Data.Iterators.Lemmas.Consumers.Monadic
+import Init.Data.Iterators.Lemmas.Consumers.Monadic
 
 namespace Std.Iterators
 

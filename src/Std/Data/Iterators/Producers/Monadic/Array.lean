@@ -6,8 +6,8 @@ Authors: Paul Reichert
 prelude
 import Init.Data.Nat.Lemmas
 import Init.RCases
-import Std.Data.Iterators.Consumers
-import Std.Data.Iterators.Internal.Termination
+import Init.Data.Iterators.Consumers
+import Init.Data.Iterators.Internal.Termination
 
 /-!
 # Array iterator

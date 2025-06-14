@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
-import Std.Data.Internal.LawfulMonadLiftFunction
+import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 import Std.Data.Iterators.Combinators.Monadic.FilterMap
-import Std.Data.Iterators.Lemmas.Consumers.Monadic
+import Init.Data.Iterators.Lemmas.Consumers.Monadic
 import Std.Data.Iterators.Lemmas.Equivalence.StepCongr
 
 namespace Std.Iterators

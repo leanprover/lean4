@@ -1028,7 +1028,7 @@ def delabForall : Delab := do
 
 @[builtin_delab letE]
 def delabLetE : Delab := do
-  let Expr.letE n t v b _ ← getExpr | unreachable!
+  let Expr.letE n t v b nondep ← getExpr | unreachable!
   let n ← getUnusedName n b
   let stxV ← descend v 1 delab
   let (stxN, stxB) ← withLetDecl n t v fun fvar => do
@@ -1036,8 +1036,14 @@ def delabLetE : Delab := do
     return (← mkAnnotatedIdent n fvar, ← descend b 2 delab)
   if ← getPPOption getPPLetVarTypes <||> getPPOption getPPAnalysisLetVarType then
     let stxT ← descend t 0 delab
-    `(let $stxN : $stxT := $stxV; $stxB)
-  else `(let $stxN := $stxV; $stxB)
+    if nondep then
+      `(have $stxN : $stxT := $stxV; $stxB)
+    else
+      `(let $stxN : $stxT := $stxV; $stxB)
+  else if nondep then
+    `(have $stxN := $stxV; $stxB)
+  else
+    `(let $stxN := $stxV; $stxB)
 
 @[builtin_delab app.Char.ofNat]
 def delabChar : Delab := do
@@ -1295,14 +1301,17 @@ partial def delabDoElems : DelabM (List Syntax) := do
             prependAndRec `(doElem|let _ ← $ma:term)
       | _ => failure
   else if e.isLet then
-    let Expr.letE n t v b _ ← getExpr | unreachable!
+    let Expr.letE n t v b nondep ← getExpr | unreachable!
     let n ← getUnusedName n b
     let stxT ← descend t 0 delab
     let stxV ← descend v 1 delab
     withLetDecl n t v fun fvar =>
       let b := b.instantiate1 fvar
       descend b 2 $
-        prependAndRec `(doElem|let $(mkIdent n) : $stxT := $stxV)
+        if nondep then
+          prependAndRec `(doElem|have $(mkIdent n) : $stxT := $stxV)
+        else
+          prependAndRec `(doElem|let $(mkIdent n) : $stxT := $stxV)
   else if e.isLetFun then
     -- letFun.{u, v} : {α : Sort u} → {β : α → Sort v} → (v : α) → ((x : α) → β x) → β v
     let stxT ← withNaryArg 0 delab

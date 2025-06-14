@@ -391,22 +391,21 @@ inductive Expr where
   /--
   Let-expressions.
 
-  **IMPORTANT**: The `nonDep` flag is for "local" use only. That is, a module should not "trust" its value for any purpose.
-  In the intended use-case, the compiler will set this flag, and be responsible for maintaining it.
-  Other modules may not preserve its value while applying transformations.
+  The let-expression `let x : Nat := 2; Nat.succ x` is represented as
+  ```
+  Expr.letE `x (.const `Nat []) (.lit (.natVal 2)) (.app (.const `Nat.succ []) (.bvar 0)) true
+  ```
 
+  If the `nondep` flag is `true`, then the elaborator treats this as a *non-dependent `let`* (known as a *`have` expression*).
   Given an environment, a metavariable context, and a local context,
   we say a let-expression `let x : t := v; e` is non-dependent when it is equivalent
   to `(fun x : t => e) v`. In contrast, the dependent let-expression
   `let n : Nat := 2; fun (a : Array Nat n) (b : Array Nat 2) => a = b` is type correct,
   but `(fun (n : Nat) (a : Array Nat n) (b : Array Nat 2) => a = b) 2` is not.
 
-  The let-expression `let x : Nat := 2; Nat.succ x` is represented as
-  ```
-  Expr.letE `x (.const `Nat []) (.lit (.natVal 2)) (.app (.const `Nat.succ []) (.bvar 0)) true
-  ```
+  The kernel does not verify `nondep` when type checking. This is an elaborator feature.
   -/
-  | letE (declName : Name) (type : Expr) (value : Expr) (body : Expr) (nonDep : Bool)
+  | letE (declName : Name) (type : Expr) (value : Expr) (body : Expr) (nondep : Bool)
 
   /--
   Natural number and string literal values.
@@ -671,11 +670,13 @@ def mkSimpleThunkType (type : Expr) : Expr :=
 def mkSimpleThunk (type : Expr) : Expr :=
   mkLambda `_ BinderInfo.default (mkConst `Unit) type
 
-/--
-`.letE x t v b nonDep` is now the preferred form.
--/
-def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nonDep : Bool := false) : Expr :=
-  .letE x t v b nonDep
+/-- Returns `let x : t := v; b`, a `let` expression. If `nondep := true`, then returns a `have`. -/
+@[inline] def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nondep : Bool := false) : Expr :=
+  .letE x t v b nondep
+
+/-- Returns `have x : t := v; b`, a non-dependent `let` expression. -/
+@[inline] def mkHave (x : Name) (t : Expr) (v : Expr) (b : Expr) : Expr :=
+  .letE x t v b true
 
 @[match_pattern] def mkAppB (f a b : Expr) := mkApp (mkApp f a) b
 @[match_pattern] def mkApp2 (f a b : Expr) := mkAppB f a b
@@ -723,7 +724,7 @@ def mkStrLit (s : String) : Expr :=
 @[export lean_expr_mk_app] def mkAppEx : Expr → Expr → Expr := mkApp
 @[export lean_expr_mk_lambda] def mkLambdaEx (n : Name) (d b : Expr) (bi : BinderInfo) : Expr := mkLambda n bi d b
 @[export lean_expr_mk_forall] def mkForallEx (n : Name) (d b : Expr) (bi : BinderInfo) : Expr := mkForall n bi d b
-@[export lean_expr_mk_let] def mkLetEx (n : Name) (t v b : Expr) : Expr := mkLet n t v b
+@[export lean_expr_mk_let] def mkLetEx (n : Name) (t v b : Expr) (nondep : Bool) : Expr := mkLet n t v b nondep
 @[export lean_expr_mk_lit] def mkLitEx : Literal → Expr := mkLit
 @[export lean_expr_mk_mdata] def mkMDataEx : MData → Expr → Expr := mkMData
 @[export lean_expr_mk_proj] def mkProjEx : Name → Nat → Expr → Expr := mkProj
@@ -867,10 +868,17 @@ def isBinding : Expr → Bool
   | forallE .. => true
   | _          => false
 
-/-- Return `true` if the given expression is a let-expression. -/
+/-- Return `true` if the given expression is a let-expression or a have-expression. -/
 def isLet : Expr → Bool
   | letE .. => true
   | _       => false
+
+/-- Return `true` if the given expression is a non-dependent let-expression (a have-expression). -/
+def isHave : Expr → Bool
+  | letE (nondep := nondep) .. => nondep
+  | _       => false
+
+@[export lean_expr_is_have] def isHaveEx : Expr → Bool := isHave
 
 /-- Return `true` if the given expression is a metadata. -/
 def isMData : Expr → Bool
@@ -1011,6 +1019,10 @@ def letValue! : Expr → Expr
 def letBody! : Expr → Expr
   | letE _ _ _ b .. => b
   | _               => panic! "let expression expected"
+
+def letNondep! : Expr → Bool
+  | letE _ _ _ _ nondep => nondep
+  | _                   => panic! "let expression expected"
 
 def consumeMData : Expr → Expr
   | mdata _ e => consumeMData e
@@ -1842,20 +1854,27 @@ def updateLambda! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody
   | lam n d b bi => updateLambda! (lam n d b bi) bi newDomain newBody
   | _            => panic! "lambda expected"
 
-@[inline] private unsafe def updateLet!Impl (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : Expr :=
+@[inline] private unsafe def updateLet!Impl (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) (newNondep : Bool) : Expr :=
   match e with
-  | letE n t v b nonDep =>
-    if ptrEq t newType && ptrEq v newVal && ptrEq b newBody then
+  | letE n t v b nondep =>
+    if ptrEq t newType && ptrEq v newVal && ptrEq b newBody && nondep == newNondep then
       e
     else
-      letE n newType newVal newBody nonDep
+      letE n newType newVal newBody newNondep
   | _              => panic! "let expression expected"
 
 @[implemented_by updateLet!Impl]
-def updateLet! (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : Expr :=
+def updateLet! (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) (newNondep : Bool) : Expr :=
   match e with
-  | letE n _ _ _ c => letE n newType newVal newBody c
+  | letE n _ _ _ _ => letE n newType newVal newBody newNondep
   | _              => panic! "let expression expected"
+
+/-- Like `Expr.updateLet!` but preserves the `nondep` flag. -/
+@[inline]
+def updateLetE! (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : Expr :=
+  match e with
+  | letE n t v b nondep => updateLet! (letE n t v b nondep) newType newVal newBody nondep
+  | _                   => panic! "let expression expected"
 
 def updateFn : Expr → Expr → Expr
   | e@(app f a), g => e.updateApp! (updateFn f g) a
@@ -1965,7 +1984,7 @@ def letFun? (e : Expr) : Option (Name × Expr × Expr × Expr) :=
   | .app (.app (.app (.app (.const ``letFun _) t) _β) v) f =>
     match f with
     | .lam n _ b _ => some (n, t, v, b)
-    | _ => some (.anonymous, t, v, .app f (.bvar 0))
+    | _ => some (.anonymous, t, v, .app (f.liftLooseBVars 0 1) (.bvar 0))
   | _ => none
 
 /--
@@ -1982,7 +2001,7 @@ def letFunAppArgs? (e : Expr) : Option (Array Expr × Name × Expr × Expr × Ex
   let rest := args.extract 4 args.size
   match f with
   | .lam n _ b _ => some (rest, n, t, v, b)
-  | _ => some (rest, .anonymous, t, v, .app f (.bvar 0))
+  | _ => some (rest, .anonymous, t, v, .app (f.liftLooseBVars 0 1) (.bvar 0))
 
 /-- Maps `f` on each immediate child of the given expression. -/
 @[specialize]
@@ -1990,7 +2009,7 @@ def traverseChildren [Applicative M] (f : Expr → M Expr) : Expr → M Expr
   | e@(forallE _ d b _) => pure e.updateForallE! <*> f d <*> f b
   | e@(lam _ d b _)     => pure e.updateLambdaE! <*> f d <*> f b
   | e@(mdata _ b)       => e.updateMData! <$> f b
-  | e@(letE _ t v b _)  => pure e.updateLet! <*> f t <*> f v <*> f b
+  | e@(letE _ t v b _)  => pure e.updateLetE! <*> f t <*> f v <*> f b
   | e@(app l r)         => pure e.updateApp! <*> f l <*> f r
   | e@(proj _ _ b)      => e.updateProj! <$> f b
   | e                   => pure e

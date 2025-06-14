@@ -671,7 +671,7 @@ where
 
   visitApp (e : Expr) : M Arg := do
     if let some (args, n, t, v, b) := e.letFunAppArgs? then
-      visitCore <| mkAppN (.letE n t v b (nonDep := true)) args
+      visitCore <| mkAppN (.letE n t v b (nondep := true)) args
     else if let .const declName us := CSimp.replaceConstants (← getEnv) e.getAppFn then
       if declName == ``Quot.lift then
         visitQuotLift e

@@ -851,7 +851,7 @@ mutual
       | .proj _ _ s      => return e.updateProj! (← check s)
       | .lam _ d b _     => return e.updateLambdaE! (← check d) (← check b)
       | .forallE _ d b _ => return e.updateForallE! (← check d) (← check b)
-      | .letE _ t v b _  => return e.updateLet! (← check t) (← check v) (← check b)
+      | .letE _ t v b _  => return e.updateLetE! (← check t) (← check v) (← check b)
       | .bvar ..         => return e
       | .sort ..         => return e
       | .const ..        => return e

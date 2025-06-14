@@ -29,6 +29,9 @@ namespace Std.DHashMap
 
 variable {m : DHashMap α β}
 
+private theorem ext {t t' : DHashMap α β} : t.inner = t'.inner → t = t' := by
+  cases t; cases t'; rintro rfl; rfl
+
 @[simp, grind =]
 theorem isEmpty_emptyWithCapacity {c} : (emptyWithCapacity c : DHashMap α β).isEmpty :=
   Raw₀.isEmpty_emptyWithCapacity
@@ -51,13 +54,9 @@ theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
 
 -- While setting up the API, often use this in the reverse direction,
 -- but prefer this direction for users.
-@[simp, grind =]
+@[simp, grind _=_]
 theorem contains_iff_mem {a : α} : m.contains a ↔ a ∈ m :=
   Iff.rfl
-
--- We need to specify the pattern for the reverse direction manually,
--- as the default heuristic leaves the `DHashMap α β` argument as a wildcard.
-grind_pattern contains_iff_mem => @Membership.mem α (DHashMap α β) _ m a
 
 theorem contains_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) :
     m.contains a = m.contains b :=
@@ -169,7 +168,7 @@ theorem size_insert_le [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
 
 @[simp, grind =]
 theorem erase_emptyWithCapacity {k : α} {c : Nat} : (emptyWithCapacity c : DHashMap α β).erase k = emptyWithCapacity c :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.erase_emptyWithCapacity (k := k)) :)
+  ext <| congrArg Subtype.val (Raw₀.erase_emptyWithCapacity (k := k))
 
 @[simp, grind =]
 theorem erase_empty {k : α} : (∅ : DHashMap α β).erase k = ∅ :=
@@ -218,7 +217,7 @@ theorem containsThenInsert_fst {k : α} {v : β k} : (m.containsThenInsert k v).
 
 @[simp, grind =]
 theorem containsThenInsert_snd {k : α} {v : β k} : (m.containsThenInsert k v).2 = m.insert k v :=
-  Subtype.eq <| (congrArg Subtype.val (Raw₀.containsThenInsert_snd _ (k := k)) :)
+  ext <| congrArg Subtype.val (Raw₀.containsThenInsert_snd _ (k := k))
 
 @[simp, grind =]
 theorem containsThenInsertIfNew_fst {k : α} {v : β k} :
@@ -228,7 +227,7 @@ theorem containsThenInsertIfNew_fst {k : α} {v : β k} :
 @[simp, grind =]
 theorem containsThenInsertIfNew_snd {k : α} {v : β k} :
     (m.containsThenInsertIfNew k v).2 = m.insertIfNew k v :=
-  Subtype.eq <| (congrArg Subtype.val (Raw₀.containsThenInsertIfNew_snd _ (k := k)) :)
+  ext <| congrArg Subtype.val (Raw₀.containsThenInsertIfNew_snd _ (k := k))
 
 @[simp, grind =]
 theorem get?_emptyWithCapacity [LawfulBEq α] {a : α} {c} : (emptyWithCapacity c : DHashMap α β).get? a = none :=
@@ -1116,7 +1115,7 @@ theorem getThenInsertIfNew?_fst [LawfulBEq α] {k : α} {v : β k} :
 @[simp, grind =]
 theorem getThenInsertIfNew?_snd [LawfulBEq α] {k : α} {v : β k} :
     (m.getThenInsertIfNew? k v).2 = m.insertIfNew k v :=
-  Subtype.eq <| (congrArg Subtype.val (Raw₀.getThenInsertIfNew?_snd _ (k := k)) :)
+  ext <| congrArg Subtype.val (Raw₀.getThenInsertIfNew?_snd _ (k := k))
 
 namespace Const
 
@@ -1129,7 +1128,7 @@ theorem getThenInsertIfNew?_fst {k : α} {v : β} : (getThenInsertIfNew? m k v).
 @[simp, grind =]
 theorem getThenInsertIfNew?_snd {k : α} {v : β} :
     (getThenInsertIfNew? m k v).2 = m.insertIfNew k v :=
-  Subtype.eq <| (congrArg Subtype.val (Raw₀.Const.getThenInsertIfNew?_snd _ (k := k)) :)
+  ext <| congrArg Subtype.val (Raw₀.Const.getThenInsertIfNew?_snd _ (k := k))
 
 end Const
 
@@ -1402,16 +1401,16 @@ variable {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
 @[simp, grind =]
 theorem insertMany_nil :
     m.insertMany [] = m :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.insertMany_nil ⟨m.1, m.2.size_buckets_pos⟩) :)
+  ext <| congrArg Subtype.val (Raw₀.insertMany_nil ⟨m.1, m.2.size_buckets_pos⟩)
 
 @[simp, grind =]
 theorem insertMany_list_singleton {k : α} {v : β k} :
     m.insertMany [⟨k, v⟩] = m.insert k v :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.insertMany_list_singleton ⟨m.1, m.2.size_buckets_pos⟩) :)
+  ext <| congrArg Subtype.val (Raw₀.insertMany_list_singleton ⟨m.1, m.2.size_buckets_pos⟩)
 
 @[grind _=_] theorem insertMany_cons {l : List ((a : α) × β a)} {k : α} {v : β k} :
     m.insertMany (⟨k, v⟩ :: l) = (m.insert k v).insertMany l :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.insertMany_cons ⟨m.1, m.2.size_buckets_pos⟩) :)
+  ext <| congrArg Subtype.val (Raw₀.insertMany_cons ⟨m.1, m.2.size_buckets_pos⟩)
 
 @[grind _=_]
 theorem insertMany_append {l₁ l₂ : List ((a : α) × β a)} :
@@ -1607,17 +1606,17 @@ variable {ρ : Type w} [ForIn Id ρ (α × β)]
 @[simp, grind =]
 theorem insertMany_nil :
     insertMany m [] = m :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertMany_nil ⟨m.1, m.2.size_buckets_pos⟩) :)
+  ext <| congrArg Subtype.val (Raw₀.Const.insertMany_nil ⟨m.1, m.2.size_buckets_pos⟩)
 
 @[simp, grind =]
 theorem insertMany_list_singleton {k : α} {v : β} :
     insertMany m [⟨k, v⟩] = m.insert k v :=
-  Subtype.eq (congrArg Subtype.val
-    (Raw₀.Const.insertMany_list_singleton ⟨m.1, m.2.size_buckets_pos⟩) :)
+  ext <| congrArg Subtype.val
+    (Raw₀.Const.insertMany_list_singleton ⟨m.1, m.2.size_buckets_pos⟩)
 
 @[grind _=_] theorem insertMany_cons {l : List (α × β)} {k : α} {v : β} :
     insertMany m (⟨k, v⟩ :: l) = insertMany (m.insert k v) l :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertMany_cons ⟨m.1, m.2.size_buckets_pos⟩) :)
+  ext <| congrArg Subtype.val (Raw₀.Const.insertMany_cons ⟨m.1, m.2.size_buckets_pos⟩)
 
 @[grind _=_]
 theorem insertMany_append {l₁ l₂ : List (α × β)} :
@@ -1819,19 +1818,19 @@ variable {ρ : Type w} [ForIn Id ρ α]
 @[simp]
 theorem insertManyIfNewUnit_nil :
     insertManyIfNewUnit m [] = m :=
-  Subtype.eq (congrArg Subtype.val
-    (Raw₀.Const.insertManyIfNewUnit_nil ⟨m.1, m.2.size_buckets_pos⟩) :)
+  ext <| congrArg Subtype.val
+    (Raw₀.Const.insertManyIfNewUnit_nil ⟨m.1, m.2.size_buckets_pos⟩)
 
 @[simp]
 theorem insertManyIfNewUnit_list_singleton {k : α} :
     insertManyIfNewUnit m [k] = m.insertIfNew k () :=
-  Subtype.eq (congrArg Subtype.val
-    (Raw₀.Const.insertManyIfNewUnit_list_singleton ⟨m.1, m.2.size_buckets_pos⟩) :)
+  ext <| congrArg Subtype.val
+    (Raw₀.Const.insertManyIfNewUnit_list_singleton ⟨m.1, m.2.size_buckets_pos⟩)
 
 theorem insertManyIfNewUnit_cons {l : List α} {k : α} :
     insertManyIfNewUnit m (k :: l) = insertManyIfNewUnit (m.insertIfNew k ()) l :=
-  Subtype.eq (congrArg Subtype.val
-    (Raw₀.Const.insertManyIfNewUnit_cons ⟨m.1, m.2.size_buckets_pos⟩) :)
+  ext <| congrArg Subtype.val
+    (Raw₀.Const.insertManyIfNewUnit_cons ⟨m.1, m.2.size_buckets_pos⟩)
 
 @[elab_as_elim]
 theorem insertManyIfNewUnit_ind {motive : DHashMap α (fun _ => Unit) → Prop}
@@ -2005,16 +2004,16 @@ namespace DHashMap
 @[simp, grind =]
 theorem ofList_nil :
     ofList ([] : List ((a : α) × (β a))) = ∅ :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.insertMany_emptyWithCapacity_list_nil (α := α)) :)
+  ext <| congrArg Subtype.val (Raw₀.insertMany_emptyWithCapacity_list_nil (α := α))
 
 @[simp, grind =]
 theorem ofList_singleton {k : α} {v : β k} :
     ofList [⟨k, v⟩] = (∅: DHashMap α β).insert k v :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.insertMany_emptyWithCapacity_list_singleton (α := α)) :)
+  ext <| congrArg Subtype.val (Raw₀.insertMany_emptyWithCapacity_list_singleton (α := α))
 
 @[grind _=_] theorem ofList_cons {k : α} {v : β k} {tl : List ((a : α) × (β a))} :
     ofList (⟨k, v⟩ :: tl) = ((∅ : DHashMap α β).insert k v).insertMany tl :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.insertMany_emptyWithCapacity_list_cons (α := α)) :)
+  ext <| congrArg Subtype.val (Raw₀.insertMany_emptyWithCapacity_list_cons (α := α))
 
 theorem ofList_eq_insertMany_empty {l : List ((a : α) × β a)} :
     ofList l = insertMany (∅ : DHashMap α β) l := rfl
@@ -2154,16 +2153,16 @@ variable {β : Type v}
 @[simp, grind =]
 theorem ofList_nil :
     ofList ([] : List (α × β)) = ∅ :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertMany_emptyWithCapacity_list_nil (α:= α)) :)
+  ext <| congrArg Subtype.val (Raw₀.Const.insertMany_emptyWithCapacity_list_nil (α:= α))
 
 @[simp, grind =]
 theorem ofList_singleton {k : α} {v : β} :
     ofList [⟨k, v⟩] = (∅ : DHashMap α (fun _ => β)).insert k v :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertMany_emptyWithCapacity_list_singleton (α:= α)) :)
+  ext <| congrArg Subtype.val (Raw₀.Const.insertMany_emptyWithCapacity_list_singleton (α:= α))
 
 @[grind _=_] theorem ofList_cons {k : α} {v : β} {tl : List (α × β)} :
     ofList (⟨k, v⟩ :: tl) = insertMany ((∅ : DHashMap α (fun _ => β)).insert k v) tl :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertMany_emptyWithCapacity_list_cons (α:= α)) :)
+  ext <| congrArg Subtype.val (Raw₀.Const.insertMany_emptyWithCapacity_list_cons (α:= α))
 
 theorem ofList_eq_insertMany_empty {l : List (α × β)} :
     ofList l = insertMany (∅ : DHashMap α (fun _ => β)) l := rfl
@@ -2299,17 +2298,17 @@ theorem isEmpty_ofList [EquivBEq α] [LawfulHashable α]
 @[simp]
 theorem unitOfList_nil :
     unitOfList ([] : List α) = ∅ :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertManyIfNewUnit_emptyWithCapacity_list_nil (α := α)) :)
+  ext <| congrArg Subtype.val (Raw₀.Const.insertManyIfNewUnit_emptyWithCapacity_list_nil (α := α))
 
 @[simp]
 theorem unitOfList_singleton {k : α} :
     unitOfList [k] = (∅ : DHashMap α (fun _ => Unit)).insertIfNew k () :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertManyIfNewUnit_emptyWithCapacity_list_singleton (α := α)) :)
+  ext <| congrArg Subtype.val (Raw₀.Const.insertManyIfNewUnit_emptyWithCapacity_list_singleton (α := α))
 
 theorem unitOfList_cons {hd : α} {tl : List α} :
     unitOfList (hd :: tl) =
       insertManyIfNewUnit ((∅ : DHashMap α (fun _ => Unit)).insertIfNew hd ()) tl :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertManyIfNewUnit_emptyWithCapacity_list_cons (α := α)) :)
+  ext <| congrArg Subtype.val (Raw₀.Const.insertManyIfNewUnit_emptyWithCapacity_list_cons (α := α))
 
 @[simp]
 theorem contains_unitOfList [EquivBEq α] [LawfulHashable α]

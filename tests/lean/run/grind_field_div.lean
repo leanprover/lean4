@@ -68,3 +68,12 @@ example [Field α] [LinearOrder α] [Ring.IsOrdered α] (x y z : α)
         (z ^ 2 - x * y) / (z ^ 2 + x ^ 2 + y ^ 2) =
       1 / 2 * ((x - y) ^ 2 + (y - z) ^ 2 + (z - x) ^ 2) / (x ^ 2 + y ^ 2 + z ^ 2) := by
   grind
+
+example [Field α] (a : α) : a^2 = 0 → a = 0 := by
+  grind
+
+example [Field α] (a : α) : a^3 = 0 → a = 0 := by
+  grind
+
+example [Field α] (a b c : α) : a^2 = 0 → c = b → b + a = c := by
+  grind

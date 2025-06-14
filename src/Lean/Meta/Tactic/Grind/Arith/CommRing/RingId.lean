@@ -159,7 +159,7 @@ where
       pure (some (← getInvFn type u))
     else
       pure none
-    let one ← shareCommon <| denoteNumCore u type semiringInst negFn 1
+    let one ← shareCommon <| (← canon <| denoteNumCore u type semiringInst negFn 1)
     let id := (← get').rings.size
     let ring : Ring := {
       id, type, u, semiringInst, ringInst, commSemiringInst, commRingInst, charInst?, noZeroDivInst?, fieldInst?,

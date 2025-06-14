@@ -48,7 +48,13 @@ Author: Leonardo de Moura
 #endif
 
 #if !defined(__STDC_VERSION_STDLIB_H__) || __STDC_VERSION_STDLIB_H__ < 202311L
-extern "C" LEAN_EXPORT __attribute__((weak)) void free_sized(void *ptr, size_t) {
+extern "C" LEAN_EXPORT
+#if defined(__GLIBC__) && (defined(__GNUC__) || defined(__clang__))
+// glibc tacks on `__attribute__((nothrow))` to its declarations. In C++ this requires either
+// `__attribute__((nothrow))` to be present or `noexcept`.
+__attribute__((nothrow))
+#endif
+__attribute__((weak)) void free_sized(void *ptr, size_t) {
     free(ptr);
 }
 #endif

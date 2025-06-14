@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.CommRing.Poly
-// Imports: Init.Data.Nat.Lemmas Init.Data.Hashable Init.Data.Ord Init.Data.RArray Init.Grind.CommRing.Basic Init.Grind.Ordered.Ring
+// Imports: Init.Data.Nat.Lemmas Init.Data.Hashable Init.Data.Ord Init.Data.RArray Init.Grind.CommRing.Basic Init.Grind.CommRing.Field Init.Grind.Ordered.Ring
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -8571,6 +8571,7 @@ lean_object* initialize_Init_Data_Hashable(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Ord(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_RArray(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_CommRing_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_CommRing_Field(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Ordered_Ring(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_CommRing_Poly(uint8_t builtin, lean_object* w) {
@@ -8590,6 +8591,9 @@ res = initialize_Init_Data_RArray(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_CommRing_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_CommRing_Field(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_Ordered_Ring(builtin, lean_io_mk_world());

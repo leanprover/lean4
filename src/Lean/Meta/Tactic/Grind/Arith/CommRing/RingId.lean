@@ -142,14 +142,14 @@ where
     let powFn ← getPowFn type u semiringInst
     let intCastFn ← getIntCastFn type u ringInst
     let natCastFn ← getNatCastFn type u semiringInst
-    let (invFn?, divFn?) ← if fieldInst?.isSome then
-      pure (some (← getInvFn type u), some (← getDivFn type u))
+    let invFn? ← if fieldInst?.isSome then
+      pure (some (← getInvFn type u))
     else
-      pure (none, none)
+      pure none
     let id := (← get').rings.size
     let ring : Ring := {
       id, type, u, semiringInst, ringInst, commSemiringInst, commRingInst, charInst?, noZeroDivInst?, fieldInst?,
-      addFn, mulFn, subFn, negFn, powFn, intCastFn, natCastFn, invFn?, divFn? }
+      addFn, mulFn, subFn, negFn, powFn, intCastFn, natCastFn, invFn? }
     modify' fun s => { s with rings := s.rings.push ring }
     return some id
 

@@ -73,12 +73,15 @@ You can use `TSyntax.getId` to extract the name from the resulting syntax object
 @[run_builtin_parser_attribute_hooks, builtin_doc] def ident : Parser :=
   withAntiquot (mkAntiquot "ident" identKind) identNoAntiquot
 
+@[run_builtin_parser_attribute_hooks, builtin_doc] def identBeforeDot : Parser :=
+  withAntiquot (mkAntiquot "ident" identKind) identBeforeDotNoAntiquot
+
 -- `optional (checkNoWsBefore >> "." >> checkNoWsBefore >> ident)`
 -- can never fully succeed but ensures that the identifier
 -- produces a partial syntax that contains the dot.
 -- The partial syntax is sometimes useful for dot-auto-completion.
 @[run_builtin_parser_attribute_hooks, builtin_doc] def identWithPartialTrailingDot :=
-  ident >> optional (checkNoWsBefore >> "." >> checkNoWsBefore >> ident)
+  identBeforeDot >> optional (checkNoWsBefore >> "." >> checkNoWsBefore >> identBeforeDot)
 
 -- `ident` and `rawIdent` produce the same syntax tree, so we reuse the antiquotation kind name
 @[run_builtin_parser_attribute_hooks, builtin_doc] def rawIdent : Parser :=

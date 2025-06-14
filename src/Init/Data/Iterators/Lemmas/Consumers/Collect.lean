@@ -111,4 +111,27 @@ theorem Iter.toList_eq_of_atIdxSlow?_eq {α₁ α₂ β}
     it₁.toList = it₂.toList := by
   ext; simp [getElem?_toList_eq_atIdxSlow?, h]
 
+theorem Iter.isPlausibleIndirectOutput_of_mem_toList
+    [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {it : Iter (α := α) β} {b : β} :
+    b ∈ it.toList → it.IsPlausibleIndirectOutput b := by
+  induction it using Iter.inductSteps with | step it ihy ihs =>
+  rw [toList_eq_match_step]
+  cases it.step using PlausibleIterStep.casesOn
+  case yield it' out h =>
+    simp only [List.mem_cons]
+    rintro h'
+    cases h' <;> rename_i h'
+    · cases h'
+      exact .direct ⟨_, h⟩
+    · specialize ihy h h'
+      exact IsPlausibleIndirectOutput.indirect ⟨_, rfl, h⟩ ihy
+  case skip it' h =>
+    simp only
+    intro h'
+    specialize ihs h h'
+    exact IsPlausibleIndirectOutput.indirect ⟨_, rfl, h⟩ ihs
+  case done h =>
+    simp
+
 end Std.Iterators

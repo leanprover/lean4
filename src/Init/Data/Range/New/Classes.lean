@@ -4,44 +4,65 @@ prelude
 import Init.Core
 import Init.Data.Nat.Basic
 import Init.Data.Option.Basic
+import Init.NotationExtra
 
-class Succ? (α : Type u) where
+class UpwardEnumerable (α : Type u) where
   succ? : α → Option α
-  succAtIdx? (n : Nat) (a : α) : Option α := Nat.repeat (· >>= succ?) n (some a)
+  succMany? (n : Nat) (a : α) : Option α := Nat.repeat (· >>= succ?) n (some a)
 
-class LawfulSucc? (α : Type u) [Succ? α] where
-  succAtIdx?_zero {a : α} : Succ?.succAtIdx? 0 a = some a
-  succAtIdx?_succ {a : α} : Succ?.succAtIdx? (n + 1) a = Succ?.succAtIdx? n a >>= Succ?.succ?
+def UpwardEnumerable.le {α : Type u} [UpwardEnumerable α] (a b : α) : Prop :=
+  ∃ n, UpwardEnumerable.succMany? n a = some b
 
-class LawfulLESucc? (α : Type u) [LE α] [Succ? α] where
-  le_rfl : {a : α} → a ≤ a
-  le_succ? : {a b : α} → Succ?.succ? a = some b → a ≤ b
-  le_succ?_of_le : {a b c : α} → a ≤ b → (h : Succ?.succ? b = some c) → a ≤ c
-  le_succAtIdx?_of_le : {a b c : α} → {n : Nat} → a ≤ b → (h : Succ?.succAtIdx? n b = some c) → a ≤ c
+def UpwardEnumerable.lt {α : Type u} [UpwardEnumerable α] (a b : α) : Prop :=
+  ∃ n, UpwardEnumerable.succMany? (n + 1) a = some b
 
-class LawfulLTSucc? [LT α] [Succ? α] where
-  lt_succ? : {a b : α} → (h : Succ?.succ? a = some b) → a < b
-  lt_succ?_of_lt : {a b c : α} → a < b → (h : Succ?.succ? b = some c) → a < c
+-- Should we call it `OrderBot?` in analogy to Mathlib? Might be less clear to programmers.
+class Least? (α : Type u) extends UpwardEnumerable α where
+  least? : Option α
 
-class HasDownwardUnboundedRanges (α : Type u) where
-  min : α
+-- class UpwardEnumerableMembership (α : outParam (Type u)) (γ : Type v) [UpwardEnumerable α] where
+--   init : γ → Option α
+--   Predicate : γ → α → Bool
 
-instance : Succ? Nat where
+class LawfulUpwardEnumerable (α : Type u) [UpwardEnumerable α] where
+  ne_of_lt (a b : α) : UpwardEnumerable.lt a b → a ≠ b
+  succMany?_zero (a : α) : UpwardEnumerable.succMany? 0 a = some a
+  succMany?_succ (n : Nat) (a : α) :
+    UpwardEnumerable.succMany? (n + 1) a = (UpwardEnumerable.succMany? n a).bind UpwardEnumerable.succ?
+
+class LawfulUpwardEnumerableLE (α : Type u) [UpwardEnumerable α] [LE α] where
+  le_iff (a b : α) : a ≤ b ↔ UpwardEnumerable.le a b
+
+class LawfulUpwardEnumerableLT (α : Type u) [UpwardEnumerable α] [LT α] where
+  lt_iff (a b : α) : a < b ↔ UpwardEnumerable.lt a b
+
+class LawfulUpwardEnumerableLeast? (α : Type u) [UpwardEnumerable α] [Least? α] where
+  eq_succMany?_least? (a : α) : ∃ init, Least?.least? = some init ∧ UpwardEnumerable.le init a
+
+-- class LawfulUpwardEnumerableMembership (α : Type u) (γ : Type v) [UpwardEnumerable α]
+--     [Membership α γ] [UpwardEnumerableMembership α γ] where
+--   predicate_of_predicate_of_le (r : γ) (a b : α) : UpwardEnumerableMembership.Predicate r b →
+--     UpwardEnumerable.le a b → UpwardEnumerableMembership.Predicate r a
+--   mem_iff (a : α) (r : γ) :
+--     a ∈ r ↔ ∃ init, UpwardEnumerableMembership.init r = some init ∧ UpwardEnumerable.le init a ∧
+--       UpwardEnumerableMembership.Predicate r a
+
+instance : UpwardEnumerable Nat where
   succ? n := some (n + 1)
-  succAtIdx? k n := some (n + k)
+  succMany? k n := some (n + k)
 
-instance : LawfulSucc? Nat where
-  succAtIdx?_zero := by simp [Succ?.succAtIdx?]
-  succAtIdx?_succ := by simp [Succ?.succAtIdx?, Succ?.succ?, Bind.bind, Nat.add_assoc]
+instance : Least? Nat where
+  least? := some 0
 
-instance : LawfulLESucc? Nat where
-  le_rfl := Nat.le_refl _
-  le_succ? := sorry
-  le_succ?_of_le hle h := by
-    simp only [Succ?.succ?, Option.some.injEq] at h
-    rw [← h]
-    exact Nat.le_trans hle (Nat.le_succ _)
-  le_succAtIdx?_of_le {a b c n} hle h := by
-    simp only [Succ?.succAtIdx?, Option.some.injEq] at h
-    rw [← h]
-    exact Nat.le_trans hle (Nat.le_add_right _ _)
+instance : LawfulUpwardEnumerableLE Nat where
+  le_iff a b := sorry
+
+instance : LawfulUpwardEnumerableLT Nat where
+  lt_iff a b := sorry
+
+instance : LawfulUpwardEnumerable Nat where
+  succMany?_zero := by simp [UpwardEnumerable.succMany?]
+  succMany?_succ := by simp [UpwardEnumerable.succMany?, UpwardEnumerable.succ?, Bind.bind, Nat.add_assoc]
+  ne_of_lt a b hlt := by
+    rw [← LawfulUpwardEnumerableLT.lt_iff] at hlt
+    exact Nat.ne_of_lt hlt

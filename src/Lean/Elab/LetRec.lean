@@ -9,6 +9,7 @@ import Lean.Elab.Binders
 import Lean.Elab.DeclModifiers
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.DeclarationRange
+import Lean.Elab.MutualDef
 
 namespace Lean.Elab.Term
 open Meta
@@ -23,6 +24,7 @@ structure LetRecDeclView where
   mvar          : Expr -- auxiliary metavariable used to lift the 'let rec'
   valStx        : Syntax
   termination   : TerminationHints
+  obligations   : Obligations
 
 structure LetRecView where
   decls     : Array LetRecDeclView
@@ -66,9 +68,10 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
       else
         liftMacroM <| expandMatchAltsIntoMatch decl decl[3]
       let termination ← elabTerminationHints ⟨attrDeclStx[3]⟩
+      let obligations ← mkObligations ⟨attrDeclStx[4]⟩
       decls := decls.push {
         ref := declId, attrs, shortDeclName, declName,
-        binderIds, type, mvar, valStx, termination
+        binderIds, type, mvar, valStx, termination, obligations
       }
     else
       throwUnsupportedSyntax
@@ -94,8 +97,8 @@ private def elabLetRecDeclValues (view : LetRecView) : TermElabM (Array Expr) :=
           (mkInfo := (pure <| .inl <| mkBodyInfo view.valStx ·))
           (mkInfoOnError := (pure <| mkBodyInfo view.valStx none))
           do
-             let value ← elabTermEnsuringType view.valStx type
-             mkLambdaFVars xs value
+            let value ← elabTermEnsuringType view.valStx type
+            mkLambdaFVars xs value
 
 private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array Expr) (values : Array Expr) : TermElabM Unit := do
   let letRecsToLiftCurr := (← get).letRecsToLift
@@ -109,6 +112,7 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
   let toLift ← views.mapIdxM fun i view => do
     let value := values[i]!
     let termination := view.termination.rememberExtraParams view.binderIds.size value
+    let obligations := view.obligations
     pure {
       ref            := view.ref
       fvarId         := fvars[i]!.fvarId!
@@ -120,8 +124,9 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
       type           := view.type
       val            := value
       mvarId         := view.mvar.mvarId!
-      termination    := termination
-      : LetRecToLift }
+      termination
+      obligations
+    }
   modify fun s => { s with letRecsToLift := toLift.toList ++ s.letRecsToLift }
 
 @[builtin_term_elab «letrec»] def elabLetRec : TermElab := fun stx expectedType? => do

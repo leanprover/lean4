@@ -100,7 +100,7 @@ the requirements imposed by these modules.
      assigned by `isDefEq`.
 
   3. SyntheticOpaque metavariables are never assigned by `isDefEq`.
-     That is, the constraint `?n =?= Nat.succ Nat.zero` always fail
+     That is, the constraint `?n =?= Nat.succ Nat.zero` will always fail
      if `?n` is a syntheticOpaque metavariable. This kind of metavariable
      is created by tactics such as `intro`. Reason: in the tactic framework,
      subgoals as represented as metavariables, and a subgoal `?n` is considered

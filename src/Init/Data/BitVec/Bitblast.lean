@@ -1966,7 +1966,7 @@ def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
 
 /--
 If `x : BitVec w` has all bits larger than index `n` equal to `false`,
-then `clzAuxRec` starting from `n` will compute the `clz`. 
+then `clzAuxRec` starting from `n` will compute the `clz`.
 -/
 theorem clz_eq_clzAuxRec_of_forall_getLsbD_false (x : BitVec w) (h : ∀ i, n < i → x.getLsbD i = false) :
     x.clz = x.clzAuxRec n := by
@@ -2020,20 +2020,12 @@ theorem clz_eq_clzAuxRec_of_forall_getLsbD_false (x : BitVec w) (h : ∀ i, n < 
         · simp [show i = n + 1 by omega, hxn]
 
 /--
-`clzAuxRec` agrees with `clz` when `clzAuxRec` is started from an index `n` that is at least `w - 1`. 
+`clzAuxRec` agrees with `clz` when `clzAuxRec` is started from an index `n` that is at least `w - 1`.
 -/
 theorem clz_eq_clzAuxRec_of_le (x : BitVec w) (h : w - 1 ≤ n) :
     x.clz = x.clzAuxRec n := by
   rw [clz_eq_clzAuxRec_of_forall_getLsbD_false]
   intro i hi
   simp [show w ≤ i by omega]
-
-theorem clzAuxRec_eq_of_le (x : BitVec w) (hn : w ≤ n) :
-    x.clzAuxRec n = x.clzAuxRec (w - 1) := by
-  rcases w with _|w
-  · simp [of_length_zero]
-  · rw [← clz_eq_clzAuxRec_of_le]
-    · rw [clz_eq_clzAuxRec_of_le]; omega
-    · omega
 
 end BitVec

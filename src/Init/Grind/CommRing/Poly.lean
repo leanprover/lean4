@@ -1224,30 +1224,6 @@ theorem not_lt_norm' {α} [CommRing α] [Preorder α] [Ring.IsOrdered α] (ctx :
   rw [sub_eq_add_neg, add_left_comm, ← sub_eq_add_neg, sub_self] at h; simp [add_zero] at h
   contradiction
 
-theorem div_int_eq {α} [Field α] [IsCharP α 0] (a : α) (b : Int) : b != 0 → a = denoteInt b * (a / denoteInt b) := by
-  simp [Field.div_eq_mul_inv]; intro h
-  have : (denoteInt b : α) ≠ 0 := by
-    simp [denoteInt_eq]; intro h
-    have := IsCharP.intCast_eq_zero_iff (α := α) 0 b; simp [*] at this
-  rw [CommRing.mul_comm, Semiring.mul_assoc, CommRing.mul_comm _ (denoteInt b), Field.mul_inv_cancel this, Semiring.mul_one]
-
-theorem div_int_eqC {α c} [Field α] [IsCharP α c] (a : α) (b : Int) : b % c != 0 → a = (denoteInt b) * (a / denoteInt b) := by
-  simp [Field.div_eq_mul_inv]; intro h
-  have : (denoteInt b : α) ≠ 0 := by
-    simp [denoteInt_eq]; intro h
-    have := IsCharP.intCast_eq_zero_iff (α := α) c b; simp [*] at this
-  rw [CommRing.mul_comm, Semiring.mul_assoc, CommRing.mul_comm _ (denoteInt b), Field.mul_inv_cancel this, Semiring.mul_one]
-
-theorem div_zero_eq {α} [Field α] (a : α) : a / 0 = 0 := by
-  simp [Field.div_eq_mul_inv, Field.inv_zero, Semiring.mul_zero]
-
-theorem div_zero_eqC {α c} [Field α] [IsCharP α c] (a : α) (b : Int) : b % c == 0 → (a / denoteInt b) = 0 := by
-  simp [Field.div_eq_mul_inv, denoteInt_eq]; intro h
-  have : (b : α) = 0 := by
-    have := IsCharP.intCast_eq_zero_iff (α := α) c b
-    simp [*]
-  simp [this, Field.div_eq_mul_inv, Field.inv_zero, Semiring.mul_zero]
-
 theorem inv_int_eq [Field α] [IsCharP α 0] (b : Int) : b != 0 → (denoteInt b : α) * (denoteInt b)⁻¹ = 1 := by
   simp; intro h
   have : (denoteInt b : α) ≠ 0 := by

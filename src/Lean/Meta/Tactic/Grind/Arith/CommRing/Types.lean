@@ -184,8 +184,6 @@ structure Ring where
   disequalities and implied equalities.
   -/
   recheck        : Bool := false
-  /-- Division theorems that have been already asserted. -/
-  divSet         : PHashSet (Expr × Expr) := {}
   /-- Inverse theorems that have been already asserted. -/
   invSet         : PHashSet Expr := {}
   deriving Inhabited

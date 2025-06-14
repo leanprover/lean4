@@ -12,6 +12,7 @@ import Init.Classical
 import Init.ByCases
 import Init.Data.Int.Linear
 import Init.Data.Int.Pow
+import Init.Grind.CommRing.Field
 
 namespace Lean.Grind
 /-!
@@ -197,5 +198,7 @@ init_grind_norm
   -- Function composition
   Function.const_apply Function.comp_apply Function.const_comp
   Function.comp_const Function.true_comp Function.false_comp
+  -- Field
+  Field.div_eq_mul_inv Field.inv_zero Field.inv_inv Field.inv_one Field.inv_neg
 
 end Lean.Grind

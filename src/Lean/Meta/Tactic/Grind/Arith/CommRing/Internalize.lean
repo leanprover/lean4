@@ -59,62 +59,55 @@ private partial def toInt? (e : Expr) : RingM (Option Int) := do
     return some (Int.ofNat v)
   | _ => return none
 
-private def isDivInst (inst : Expr) : RingM Bool := do
-  let some fn := (← getRing).divFn? | return false
+private def isInvInst (inst : Expr) : RingM Bool := do
+  let some fn := (← getRing).invFn? | return false
   return isSameExpr fn.appArg! inst
 
 /--
-Given `e` of the form `@HDiv.hDiv _ _ _ inst a b`,
-asserts `a = b * e` if `b` is a numeral.
-Otherwise, asserts `b = 0 ∨ a = b * e`
+Given `e` of the form `@Inv.inv _ inst a`,
+asserts `a * a⁻¹ = 1` if `a` is a numeral.
+Otherwise, asserts `if a = 0 then a⁻¹ = 0 else a * a⁻¹ = 1`
 -/
-private def processDiv (e inst a b : Expr) : RingM Unit := do
-  unless (← isDivInst inst) do return ()
-  if (← getRing).divSet.contains (a, b) then return ()
-  modifyRing fun s => { s with divSet := s.divSet.insert (a, b) }
-  if let some k ← toInt? b then
-    let ring ← getRing
-    let some fieldInst := ring.fieldInst? | return ()
-    if k == 0 then
-      pushNewFact <| mkApp3 (mkConst ``Grind.CommRing.div_zero_eq [ring.u]) ring.type fieldInst a
-    else if (← hasChar) then
+private def processInv (e inst a : Expr) : RingM Unit := do
+  unless (← isInvInst inst) do return ()
+  let ring ← getRing
+  let some fieldInst := ring.fieldInst? | return ()
+  if (← getRing).invSet.contains a then return ()
+  modifyRing fun s => { s with invSet := s.invSet.insert a }
+  if let some k ← toInt? a then
+    assert! k != 0 -- We have the normalization rule `Field.inv_zero`
+    if (← hasChar) then
       let (charInst, c) ← getCharInst
       if c == 0 then
-        let expected ← mkEq a (mkApp2 ring.mulFn b e)
+        let expected ← mkEq (mkApp2 ring.mulFn a e) (← denoteNum 1)
         pushNewFact <| mkExpectedPropHint
-          (mkApp6 (mkConst ``Grind.CommRing.div_int_eq [ring.u]) ring.type fieldInst charInst a (mkIntLit k) reflBoolTrue)
+          (mkApp5 (mkConst ``Grind.CommRing.inv_int_eq [ring.u]) ring.type fieldInst charInst (mkIntLit k) reflBoolTrue)
           expected
       else if k % c == 0 then
         let expected ← mkEq e (← denoteNum 0)
         pushNewFact <| mkExpectedPropHint
-          (mkApp7 (mkConst ``Grind.CommRing.div_zero_eqC [ring.u]) ring.type (mkNatLit c) fieldInst charInst a (mkIntLit k) reflBoolTrue)
+          (mkApp6 (mkConst ``Grind.CommRing.inv_zero_eqC [ring.u]) ring.type (mkNatLit c) fieldInst charInst (mkIntLit k) reflBoolTrue)
           expected
       else
-        let expected ← mkEq a (mkApp2 ring.mulFn b e)
+        let expected ← mkEq (mkApp2 ring.mulFn a e) (← denoteNum 1)
         pushNewFact <| mkExpectedPropHint
-          (mkApp7 (mkConst ``Grind.CommRing.div_int_eqC [ring.u]) ring.type (mkNatLit c) fieldInst charInst a (mkIntLit k) reflBoolTrue)
+          (mkApp6 (mkConst ``Grind.CommRing.inv_int_eqC [ring.u]) ring.type (mkNatLit c) fieldInst charInst (mkIntLit k) reflBoolTrue)
           expected
-  else
-    -- TODO
-    return ()
+      return ()
+  pushNewFact <| mkApp3 (mkConst ``Grind.CommRing.inv_split [ring.u]) ring.type fieldInst a
 
-/--
-Returns `true` if `e` is a term `a/b` or `a⁻¹`.
--/
-private def internalizeDivInv (e : Expr) : GoalM Bool := do
+/-- Returns `true` if `e` is a term `a⁻¹`. -/
+private def internalizeInv (e : Expr) : GoalM Bool := do
   match_expr e with
-  | HDiv.hDiv α _ _ inst a b =>
+  | Inv.inv α inst a =>
     let some ringId ← getRingId? α | return true
-    RingM.run ringId do processDiv e inst a b
-    return true
-  | Inv.inv _α _inst _a =>
-    -- TODO
+    RingM.run ringId do processInv e inst a
     return true
   | _ => return false
 
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   if !(← getConfig).ring && !(← getConfig).ringNull then return ()
-  if (← internalizeDivInv e) then return ()
+  if (← internalizeInv e) then return ()
   let some type := getType? e | return ()
   if isForbiddenParent parent? then return ()
   let some ringId ← getRingId? type | return ()

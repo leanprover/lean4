@@ -10,7 +10,9 @@ import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
 
 /-!
 This module contains the verification of the bitblaster for `BitVec.clz` from
-`Impl.Operations.Clz`.
+`Impl.Operations.Clz`. We prove that the accumulator of the `go` function
+at step`n` represents the portion of the `ite` nodes in the AIG constructed for
+bits `0` until `n`.
 -/
 
 namespace Std.Tactic.BVDecide
@@ -46,8 +48,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
     split at hgo
     · case isTrue h =>
         simp at hgo
-        rw [← hgo]
-        rw [go_denote_eq]
+        rw [← hgo, go_denote_eq]
         · intro idx hidx
           rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
           · simp [hx]

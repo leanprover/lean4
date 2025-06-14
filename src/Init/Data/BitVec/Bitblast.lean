@@ -1759,21 +1759,35 @@ private theorem neg_udiv_eq_intmin_iff_eq_intmin_eq_one_of_msb_eq_true
     subst hx hy
     simp
 
+
+
+/--
+the most significant bit of the signed division `x.sdiv y` can be computed
+by the following cases:
+(1) x nonneg, y nonneg: never neg.
+(2) x nonneg, y neg: neg when result nonzero.
+   We know that y is nonzero since it is negative, so we only check `|x| ≥ |y|`.
+(3) x neg, y nonneg: neg when result nonzero.
+  We check that `y ≠ 0` and `|x| ≥ |y|`.
+(4) x neg, y neg: neg when `x = intMin, `y = -1`, since `intMin / -1 = intMin`.
+
+The proof strategy is to perform a case analysis on the sign of `x` and `y`,
+followed by unfolding the `sdiv` into `udiv`.
+-/
 theorem msb_sdiv_eq_decide {x y : BitVec w} :
-    (x.sdiv y).msb = ((0 < w) &&
-      -- (1) x nonneg, y nonneg: never negative.
-      (!x.msb && y.msb && (-y ≤ x ∧ y ≠ 0#w)) || -- (2) x nonneg, y neg: neg when result nonzero.
-      (x.msb && !y.msb && (y ≤ -x && y ≠ 0#w)) || -- (3) x neg, y nonneg: neg when result nonzero.
-      (x.msb && y.msb && (x = intMin w && y = -1#w))) -- (4) x nonneg, y nonneg: neg when `intMin / -1 = intMin`
+    (x.sdiv y).msb = (decide (0 < w) &&
+      (!x.msb && y.msb && decide (-y ≤ x)) ||
+      (x.msb && !y.msb && decide (y ≤ -x) && decide (y ≠ 0#w)) ||
+      (x.msb && y.msb && decide (x = intMin w) && decide (y = -1#w)))
      := by
   by_cases hw : w = 0; subst hw; decide +revert
   simp only [show 0 < w by omega, decide_true, ne_eq, decide_and, decide_not, Bool.true_and,
     sdiv_eq, udiv_eq]
   rcases hxmsb : x.msb <;> rcases hymsb : y.msb
-  · -- x:false, y:false
+  · -- x:nonneg, y:nonneg
     simp [hxmsb, hymsb, msb_udiv_eq_false_of, Bool.not_false, Bool.and_false, Bool.false_and,
       Bool.and_true, Bool.or_self, Bool.and_self]
-  · -- x:false, y:true
+  · -- x:nonneg, y:neg
     simp only [hxmsb, hymsb, msb_neg, msb_udiv_eq_false_of, bne_false, Bool.not_false,
       Bool.and_self, ne_zero_of_msb_true, decide_false, Bool.and_true, Bool.true_and, Bool.not_true,
       Bool.false_and, Bool.or_false, bool_to_prop]
@@ -1786,7 +1800,7 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
       obtain ⟨hcontra, _⟩ := this
       simp only [hcontra, true_eq_false] at hxmsb
     simp [this, hymsb]
-  · -- x:true, y:false
+  · -- x:neg, y:nonneg
     simp only [hxmsb, hymsb, Bool.not_true, Bool.and_self, Bool.false_and, Bool.not_false,
       Bool.true_and, Bool.false_or, Bool.and_false, Bool.or_false]
     by_cases hx₁ : x = 0#w
@@ -1795,7 +1809,8 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
       · simp [hy₁, udiv_zero, neg_zero, msb_zero, decide_true, Bool.not_true, Bool.and_false]
       · simp only [hy₁, decide_false, Bool.not_false, Bool.and_true]
         by_cases hxy₁ : (- x / y) = 0#w
-        · simp only [hxy₁, neg_zero, msb_zero, false_eq_decide_iff, BitVec.not_le]
+        · simp only [hxy₁, neg_zero, msb_zero, false_eq_decide_iff, BitVec.not_le,
+            decide_eq_true_eq, BitVec.not_le]
           simp only [udiv_eq_zero_iff_eq_zero_or_lt, hy₁, _root_.false_or] at hxy₁
           bv_omega
         · simp only [udiv_eq_zero_iff_eq_zero_or_lt, _root_.not_or, BitVec.not_lt,
@@ -1809,7 +1824,7 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
             bne_iff_ne, ne_eq, hx₁, not_false_eq_true, _root_.true_and, decide_not, hxmsb,
             bne_true, Bool.not_not, decide_eq_true_eq, beq_iff_eq]
           apply neg_udiv_eq_intmin_iff_eq_intmin_eq_one_of_msb_eq_true hxmsb hymsb
-  ·  -- x:true, y:true
+  ·  -- x:neg, y:neg
     simp only [hxmsb, hymsb, Bool.not_true, Bool.and_true, ne_zero_of_msb_true, decide_false,
     Bool.not_false, Bool.false_and, Bool.and_false, Bool.or_self, Bool.and_self, Bool.true_and,
     Bool.false_or]

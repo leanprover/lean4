@@ -1053,15 +1053,15 @@ public:
     uint32 run_main(list_ref<string_ref> const & args) {
         decl d = get_decl("main");
         array_ref<param> const & params = decl_params(d);
-        buffer<object *> rargs;
+        buffer<object *> call_args;
         if (params.size() == 2) { // List String -> IO _
-            rargs.push_back(args.to_obj_arg());
+            call_args.push_back(args.to_obj_arg());
         } else { // IO _
             lean_assert(params.size() == 1);
         }
         object * w = io_mk_world();
-        rargs.push_back(w);
-        w = call_boxed("main", rargs.size(), &rargs[0]);
+        call_args.push_back(w);
+        w = call_boxed("main", call_args.size(), &call_args[0]);
         if (io_result_is_ok(w)) {
             int ret = 0;
             lean::expr ret_ty = m_env.get("main").get_type();

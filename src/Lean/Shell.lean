@@ -1,13 +1,13 @@
 /-
 Copyright (c) 2025 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: eonardo de Moura, Mac Malone
+Authors: Leonardo de Moura, Mac Malone
 -/
 prelude
 import Lean.Elab.Frontend
 import Lean.Compiler.IR.EmitC
 
-/-  Lean compaion to  `shell.cpp` -/
+/-  Lean companion to  `shell.cpp` -/
 
 open System
 
@@ -26,7 +26,7 @@ private opaque initLLVM : IO Unit
 
 /--
 Emits LLVM bitcode for the module.
-Before calling this function, the LLVM subsystem must first be successfuly initialized.
+Before calling this function, the LLVM subsystem must first be successfully initialized.
 -/
 @[extern "lean_emit_llvm"]
 private opaque emitLLVM (env : Environment) (modName : Name) (filepath : FilePath) : IO Unit

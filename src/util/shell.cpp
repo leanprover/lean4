@@ -356,7 +356,7 @@ uint32 run_shell_main(
     uint8_t json_output,
     array_ref<name> const & error_kinds,
     bool print_stats,
-     optional<std::string> const & setup_file_name,
+    optional<std::string> const & setup_file_name,
     bool run
 ) {
     list_ref<string_ref> args;

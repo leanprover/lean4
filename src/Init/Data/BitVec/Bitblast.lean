@@ -1785,9 +1785,7 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
       simp only [and_eq_true, beq_iff_eq] at this
       obtain ⟨hcontra, _⟩ := this
       simp only [hcontra, true_eq_false] at hxmsb
-    simp [bne_iff_ne, ne_eq, udiv_eq_zero_iff_eq_zero_or_lt, neg_eq_zero_iff,
-      ne_zero_of_msb_true hymsb, _root_.false_or, BitVec.not_lt, this, not_false_eq_true,
-      _root_.and_true]
+    simp [this, hymsb]
   · -- x:true, y:false
     simp only [hxmsb, hymsb, Bool.not_true, Bool.and_self, Bool.false_and, Bool.not_false,
       Bool.true_and, Bool.false_or, Bool.and_false, Bool.or_false]

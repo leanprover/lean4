@@ -134,7 +134,7 @@ where
       if decision == .unknown then
         modify fun s => s.insert var plannedDecision
       else if decision != plannedDecision then
-          modify fun s => s.insert var .dont
+        modify fun s => s.insert var .dont
       -- otherwise we already have the proper decision
 
   goAlt (alt : Alt) : StateRefT (Std.HashMap FVarId Decision) BaseFloatM Unit :=

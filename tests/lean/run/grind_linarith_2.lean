@@ -6,7 +6,7 @@ example [IntModule α] [Preorder α] [IntModule.IsOrdered α] (a b : α)
 
 /--
 trace: [grind.debug.proof] Classical.byContradiction fun h =>
-      let ctx := RArray.leaf One.one;
+      let ctx := RArray.branch 1 (RArray.leaf One.one) (RArray.branch 2 (RArray.leaf a) (RArray.leaf b));
       let rctx := RArray.branch 1 (RArray.leaf a) (RArray.leaf b);
       let re_1 := (CommRing.Expr.var 1).add (CommRing.Expr.var 0);
       let re_2 := (CommRing.Expr.var 0).add (CommRing.Expr.var 1);

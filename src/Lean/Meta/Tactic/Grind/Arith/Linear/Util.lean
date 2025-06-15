@@ -194,4 +194,31 @@ def inconsistent : LinearM Bool := do
   if (← isInconsistent) then return true
   return (← getStruct).conflict?.isSome
 
+/-- Returns `true` if `x` has been eliminated using an equality constraint. -/
+def eliminated (x : Var) : LinearM Bool :=
+  return (← getStruct).elimEqs[x]!.isSome
+
+/-- Returns occurrences of `x`. -/
+def getOccursOf (x : Var) : LinearM VarSet :=
+  return (← getStruct).occurs[x]!
+
+/--
+Adds `y` as an occurrence of `x`.
+That is, `x` occurs in `lowers[y]`, `uppers[y]`, or `diseqs[y]`.
+-/
+def addOcc (x : Var) (y : Var) : LinearM Unit := do
+  unless (← getOccursOf x).contains y do
+    modifyStruct fun s => { s with occurs := s.occurs.modify x fun ys => ys.insert y }
+
+/--
+Given `p` a polynomial being inserted into `lowers`, `uppers`, or `diseqs`,
+get its leading variable `y`, and adds `y` as an occurrence for the remaining variables in `p`.
+-/
+partial def _root_.Lean.Grind.Linarith.Poly.updateOccs (p : Poly) : LinearM Unit := do
+  let .add _ y p := p | throwError "`grind linarith` internal error, unexpected constant polynomial"
+  let rec go (p : Poly) : LinearM Unit := do
+    let .add _ x p := p | return ()
+    addOcc x y; go p
+  go p
+
 end Lean.Meta.Grind.Arith.Linear

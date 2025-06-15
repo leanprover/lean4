@@ -1759,8 +1759,6 @@ private theorem neg_udiv_eq_intmin_iff_eq_intmin_eq_one_of_msb_eq_true
     subst hx hy
     simp
 
-
-
 /--
 the most significant bit of the signed division `x.sdiv y` can be computed
 by the following cases:

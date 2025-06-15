@@ -92,13 +92,13 @@ partial def reify? (e : Expr) (skipVar := true) : RingM (Option RingExpr) := do
     if isNegInst (← getRing) i then return some (.neg (← go a)) else asTopVar e
   | IntCast.intCast _ i a =>
     if isIntCastInst (← getRing) i then
-      let some k ← getIntValue? a | asTopVar e
+      let some k ← getIntValue? a | toTopVar e
       return some (.num k)
     else
       asTopVar e
   | NatCast.natCast _ i a =>
     if isNatCastInst (← getRing) i then
-      let some k ← getNatValue? a | asTopVar e
+      let some k ← getNatValue? a | toTopVar e
       return some (.num k)
     else
       asTopVar e

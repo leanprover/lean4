@@ -45,6 +45,10 @@ private def isForbiddenParent (parent? : Option Expr) : Bool :=
   else
     true
 
+def markVars (e : Expr) : LinearM Unit := do
+  -- TODO: avoid creation of auxiliary reified expression
+  discard <| reify? e (skipVar := true)
+
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).linarith do return ()
   if isIntModuleVirtualParent parent? then
@@ -57,5 +61,6 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     trace[grind.linarith.internalize] "{e}"
     setTermStructId e
     markAsLinarithTerm e
+    markVars e
 
 end Lean.Meta.Grind.Arith.Linear

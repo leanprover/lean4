@@ -96,7 +96,8 @@ structure Struct where
   addFn            : Expr
   hmulFn           : Expr
   hmulNatFn        : Expr
-  smulFn?          : Option Expr
+  hsmulFn?         : Option Expr
+  hsmulNatFn?      : Option Expr
   subFn            : Expr
   negFn            : Expr
   /--

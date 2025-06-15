@@ -43,3 +43,4 @@ import Lean.Namespace
 import Lean.EnvExtension
 import Lean.ErrorExplanation
 import Lean.DefEqAttrib
+import Lean.Shell

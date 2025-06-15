@@ -19,6 +19,14 @@ deriving instance Hashable for Poly
 deriving instance Hashable for Grind.Linarith.Expr
 
 mutual
+/-- An equality constraint and its justification/proof. -/
+structure EqCnstr where
+  p      : Poly
+  h      : EqCnstrProof
+
+inductive EqCnstrProof where
+  | rfl -- TODO
+
 /-- An inequality constraint and its justification/proof. -/
 structure IneqCnstr where
   p      : Poly
@@ -57,6 +65,8 @@ end
 
 instance : Inhabited DiseqCnstr where
   default := { p := .nil, h := .core default default .zero .zero }
+
+abbrev VarSet := RBTree Var compare
 
 /--
 State for each algebraic structure by this module.
@@ -141,6 +151,24 @@ structure Struct where
   This is necessary because the same disequality may be in different conflicts.
   -/
   diseqSplits : PHashMap Poly FVarId := {}
+  /--
+  Mapping from variable to equation constraint used to eliminate it. `solved` variables should not occur in
+  `diseqs`, `lowers`, or `uppers`.
+  -/
+  elimEqs : PArray (Option EqCnstr) := {}
+  /--
+  Elimination stack. For every variable in `elimStack`. If `x` in `elimStack`, then `elimEqs[x]` is not `none`.
+  -/
+  elimStack : List Var := []
+  /--
+  Mapping from variable to occurrences.
+  For example, an entry `x ↦ {y, z}` means that `x` may occur in `lowers`, or `uppers`, or `diseqs` of
+  variables `y` and `z`.
+  If `x` occurs in `diseqs[y]`, `lowers[y]`, or `uppers[y]`, then `y` is in `occurs[x]`,
+  but the reverse is not true.
+  If `x` is in `elimStack`, then `occurs[x]` is the empty set.
+  -/
+  occurs : PArray VarSet := {}
   /--
   Linear constraints that are not supported.
   We use this information for diagnostics.

@@ -114,11 +114,10 @@ def LeCnstr.assertImpl (c : LeCnstr) : GoalM Unit := do
     return ()
   let c ← refineWithDiseq c
   trace[grind.cutsat.assert.store] "{← c.pp}"
+  c.p.updateOccs
   if a < 0 then
-    c.p.updateOccs
     modify' fun s => { s with lowers := s.lowers.modify x (·.push c) }
   else
-    c.p.updateOccs
     modify' fun s => { s with uppers := s.uppers.modify x (·.push c) }
   if (← c.satisfied) == .false then
     resetAssignmentFrom x

@@ -179,6 +179,7 @@ where
         -- Create `1` variable, and assert strict lower bound `0 < 1`
         let x ← mkVar one (mark := false)
         let p := Poly.add (-1) x .nil
+        p.updateOccs
         modifyStruct fun s => { s with
           lowers := s.lowers.modify x fun cs => cs.push { p, h := .oneGtZero, strict := true }
         }

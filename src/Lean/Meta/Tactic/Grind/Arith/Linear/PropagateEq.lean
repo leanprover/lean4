@@ -72,6 +72,7 @@ def DiseqCnstr.assert (c : DiseqCnstr) : LinearM Unit := do
     setInconsistent (.diseq c)
   | .add _ x _ =>
     trace[grind.linarith.assert.store] "{← c.denoteExpr}"
+    c.p.updateOccs
     modifyStruct fun s => { s with diseqs := s.diseqs.modify x (·.push c) }
     if (← c.satisfied) == .false then
       resetAssignmentFrom x

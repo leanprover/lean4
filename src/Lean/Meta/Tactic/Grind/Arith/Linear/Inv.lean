@@ -25,12 +25,25 @@ def _root_.Lean.Grind.Linarith.Poly.checkCoeffs : Poly → Bool
   | .nil => true
   | .add k _ p => k != 0 && checkCoeffs p
 
+def _root_.Lean.Grind.Linarith.Poly.checkOccs (p : Poly) : LinearM Unit := do
+  let .add _ y p := p | return ()
+  let rec go (p : Poly) : LinearM Unit := do
+    let .add _ x p := p | return ()
+    assert! (← getOccursOf x).contains y
+    go p
+  go p
+
+def _root_.Lean.Grind.Linarith.Poly.checkNoElimVars (p : Poly) : LinearM Unit := do
+  let .add _ x p := p | return ()
+  assert! !(← eliminated x)
+  checkNoElimVars p
+
 def _root_.Lean.Grind.Linarith.Poly.checkCnstrOf (p : Poly) (x : Var) : LinearM Unit := do
   assert! p.isSorted
   assert! p.checkCoeffs
   unless (← inconsistent) do
-    -- p.checkNoElimVars
-    -- p.checkOccs
+    p.checkNoElimVars
+    p.checkOccs
     pure ()
   let .add _ y _ := p | unreachable!
   assert! x == y

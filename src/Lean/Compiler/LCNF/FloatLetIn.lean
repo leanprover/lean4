@@ -228,10 +228,10 @@ def float (decl : CodeDecl) : FloatM Unit := do
 where
   goFVar (fvar : FVarId) (arm : Decision) : FloatM Unit := do
     let some decision := (← get).decision[fvar]? | return ()
-    if decision != arm then
-      modify fun s => { s with decision := s.decision.insert fvar .dont }
-    else if decision == .unknown then
+    if decision == .unknown then
       modify fun s => { s with decision := s.decision.insert fvar arm }
+    else if decision != arm then
+      modify fun s => { s with decision := s.decision.insert fvar .dont }
 
 /--
 Iterate through `decl`, pushing local declarations that are only used in one

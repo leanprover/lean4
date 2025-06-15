@@ -7,6 +7,7 @@ module
 prelude
 import Init.Grind.Ordered.Module
 import Init.Grind.Ordered.Ring
+import Init.Grind.CommRing.Field
 import all Init.Data.Ord
 import all Init.Data.AC
 import Init.Data.RArray
@@ -423,6 +424,36 @@ theorem zero_lt_one {α} [Ring α] [Preorder α] [Ring.IsOrdered α] (ctx : Cont
     : zero_lt_one_cert p → (0 : Var).denote ctx = One.one → p.denote' ctx < 0 := by
   simp [zero_lt_one_cert]; intro _ h; subst p; simp [Poly.denote, h, One.one, neg_hmul]
   rw [neg_lt_iff, neg_zero]; apply Ring.IsOrdered.zero_lt_one
+
+def zero_ne_one_cert (p : Poly) : Bool :=
+  p == .add 1 0 .nil
+
+theorem zero_ne_one_of_ord_ring {α} [Ring α] [Preorder α] [Ring.IsOrdered α] (ctx : Context α) (p : Poly)
+    : zero_ne_one_cert p → (0 : Var).denote ctx = One.one → p.denote' ctx ≠ 0 := by
+  simp [zero_ne_one_cert]; intro _ h; subst p; simp [Poly.denote, h, One.one]
+  intro h; have := Ring.IsOrdered.zero_lt_one (R := α); simp [h, Preorder.lt_irrefl] at this
+
+theorem zero_ne_one_of_field {α} [Field α] (ctx : Context α) (p : Poly)
+    : zero_ne_one_cert p → (0 : Var).denote ctx = One.one → p.denote' ctx ≠ 0 := by
+  simp [zero_ne_one_cert]; intro _ h; subst p; simp [Poly.denote, h, One.one]
+  intro h; have := Field.zero_ne_one (α := α); simp [h] at this
+
+theorem zero_ne_one_of_char0 {α} [Ring α] [IsCharP α 0] (ctx : Context α) (p : Poly)
+    : zero_ne_one_cert p → (0 : Var).denote ctx = One.one → p.denote' ctx ≠ 0 := by
+  simp [zero_ne_one_cert]; intro _ h; subst p; simp [Poly.denote, h, One.one]
+  intro h; have := IsCharP.intCast_eq_zero_iff (α := α) 0 1; simp [Ring.intCast_one] at this
+  contradiction
+
+def zero_ne_one_of_charC_cert (c : Nat) (p : Poly) : Bool :=
+  (c:Int) > 1 && p == .add 1 0 .nil
+
+theorem zero_ne_one_of_charC {α c} [Ring α] [IsCharP α c] (ctx : Context α) (p : Poly)
+    : zero_ne_one_of_charC_cert c p → (0 : Var).denote ctx = One.one → p.denote' ctx ≠ 0 := by
+  simp [zero_ne_one_of_charC_cert]; intro hc _ h; subst p; simp [Poly.denote, h, One.one]
+  intro h; have h' := IsCharP.intCast_eq_zero_iff (α := α) c 1; simp [Ring.intCast_one] at h'
+  replace h' := h'.mp h
+  have := Int.emod_eq_of_lt (by decide) hc
+  simp [this] at h'
 
 /-!
 Coefficient normalization

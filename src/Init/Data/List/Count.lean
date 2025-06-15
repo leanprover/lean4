@@ -64,7 +64,8 @@ theorem length_eq_countP_add_countP (p : α → Bool) {l : List α} : length l =
       · rfl
       · simp [h]
 
-theorem countP_eq_length_filter {l : List α} : countP p l = length (filter p l) := by
+@[grind _=_]  -- This to quite aggressive, as it introduces `filter` based reasoning whenever we see `countP`.
+theorem countP_eq_length_filter {l : List α} : countP p l = (filter p l).length := by
   induction l with
   | nil => rfl
   | cons x l ih =>
@@ -72,13 +73,10 @@ theorem countP_eq_length_filter {l : List α} : countP p l = length (filter p l)
     then rw [countP_cons_of_pos h, ih, filter_cons_of_pos h, length]
     else rw [countP_cons_of_neg h, ih, filter_cons_of_neg h]
 
-grind_pattern countP_eq_length_filter => countP p l, filter p l
-
+@[grind =]
 theorem countP_eq_length_filter' : countP p = length ∘ filter p := by
   funext l
   apply countP_eq_length_filter
-
-grind_pattern countP_eq_length_filter => countP p l, filter p l
 
 theorem countP_le_length : countP p l ≤ l.length := by
   simp only [countP_eq_length_filter]
@@ -122,9 +120,23 @@ theorem Sublist.countP_le (s : l₁ <+ l₂) : countP p l₁ ≤ countP p l₂ :
   simp only [countP_eq_length_filter]
   apply s.filter _ |>.length_le
 
+grind_pattern Sublist.countP_le => l₁ <+ l₂, countP p l₁
+grind_pattern Sublist.countP_le => l₁ <+ l₂, countP p l₂
+
 theorem IsPrefix.countP_le (s : l₁ <+: l₂) : countP p l₁ ≤ countP p l₂ := s.sublist.countP_le
+
+grind_pattern IsPrefix.countP_le => l₁ <+: l₂, countP p l₁
+grind_pattern IsPrefix.countP_le => l₁ <+: l₂, countP p l₂
+
 theorem IsSuffix.countP_le (s : l₁ <:+ l₂) : countP p l₁ ≤ countP p l₂ := s.sublist.countP_le
+
+grind_pattern IsSuffix.countP_le => l₁ <:+ l₂, countP p l₁
+grind_pattern IsSuffix.countP_le => l₁ <:+ l₂, countP p l₂
+
 theorem IsInfix.countP_le (s : l₁ <:+: l₂) : countP p l₁ ≤ countP p l₂ := s.sublist.countP_le
+
+grind_pattern IsInfix.countP_le => l₁ <:+: l₂, countP p l₁
+grind_pattern IsInfix.countP_le => l₁ <:+: l₂, countP p l₂
 
 -- See `Init.Data.List.Nat.Count` for `Sublist.le_countP : countP p l₂ - (l₂.length - l₁.length) ≤ countP p l₁`.
 
@@ -205,7 +217,7 @@ section count
 
 variable [BEq α]
 
-@[simp] theorem count_nil {a : α} : count a [] = 0 := rfl
+@[simp, grind =] theorem count_nil {a : α} : count a [] = 0 := rfl
 
 @[grind]
 theorem count_cons {a b : α} {l : List α} :
@@ -217,6 +229,10 @@ theorem count_eq_countP' {a : α} : count a = countP (· == a) := by
   funext l
   apply count_eq_countP
 
+@[grind =]
+theorem count_eq_length_filter {a : α} {l : List α} : count a l = (filter (· == a) l).length := by
+  simp [count, countP_eq_length_filter]
+
 @[grind]
 theorem count_tail : ∀ {l : List α} {a : α},
       l.tail.count a = l.count a - if l.head? == some a then 1 else 0
@@ -225,11 +241,27 @@ theorem count_tail : ∀ {l : List α} {a : α},
 
 theorem count_le_length {a : α} {l : List α} : count a l ≤ l.length := countP_le_length
 
+grind_pattern count_le_length => count a l
+
 theorem Sublist.count_le (a : α) (h : l₁ <+ l₂) : count a l₁ ≤ count a l₂ := h.countP_le
 
+grind_pattern Sublist.count_le => l₁ <+ l₂, count a l₁
+grind_pattern Sublist.count_le => l₁ <+ l₂, count a l₂
+
 theorem IsPrefix.count_le (a : α) (h : l₁ <+: l₂) : count a l₁ ≤ count a l₂ := h.sublist.count_le a
+
+grind_pattern IsPrefix.count_le => l₁ <+: l₂, count a l₁
+grind_pattern IsPrefix.count_le => l₁ <+: l₂, count a l₂
+
 theorem IsSuffix.count_le (a : α) (h : l₁ <:+ l₂) : count a l₁ ≤ count a l₂ := h.sublist.count_le a
+
+grind_pattern IsSuffix.count_le => l₁ <:+ l₂, count a l₁
+grind_pattern IsSuffix.count_le => l₁ <:+ l₂, count a l₂
+
 theorem IsInfix.count_le (a : α) (h : l₁ <:+: l₂) : count a l₁ ≤ count a l₂ := h.sublist.count_le a
+
+grind_pattern IsInfix.count_le => l₁ <:+: l₂, count a l₁
+grind_pattern IsInfix.count_le => l₁ <:+: l₂, count a l₂
 
 -- See `Init.Data.List.Nat.Count` for `Sublist.le_count : count a l₂ - (l₂.length - l₁.length) ≤ countP a l₁`.
 

@@ -40,6 +40,7 @@ theorem countP_push {a : α} {xs : Vector α n} : countP p (xs.push a) = countP 
   rcases xs with ⟨xs, rfl⟩
   simp [Array.countP_push]
 
+@[grind =]
 theorem countP_singleton {a : α} : countP p #v[a] = if p a then 1 else 0 := by
   simp
 
@@ -155,14 +156,14 @@ theorem count_le_count_push {a b : α} {xs : Vector α n} : count a xs ≤ count
   rcases xs with ⟨xs, rfl⟩
   simp [Array.count_push]
 
-@[simp] theorem count_singleton {a b : α} : count a #v[b] = if b == a then 1 else 0 := by
+@[simp, grind =] theorem count_singleton {a b : α} : count a #v[b] = if b == a then 1 else 0 := by
   simp [count_eq_countP]
 
 @[simp, grind =] theorem count_append {a : α} {xs : Vector α n} {ys : Vector α m} :
     count a (xs ++ ys) = count a xs + count a ys :=
   countP_append ..
 
-@[simp] theorem count_flatten {a : α} {xss : Vector (Vector α m) n} :
+@[simp, grind =] theorem count_flatten {a : α} {xss : Vector (Vector α m) n} :
     count a xss.flatten = (xss.map (count a)).sum := by
   rcases xss with ⟨xss, rfl⟩
   simp [Array.count_flatten, Function.comp_def]

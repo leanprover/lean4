@@ -1793,7 +1793,7 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
       Bool.false_and, Bool.or_false, bool_to_prop]
     have : x / -y ≠ intMin w := by
       intros h
-      have : (x  / -y).msb = (intMin w).msb := by simp only [h]
+      have : (x / -y).msb = (intMin w).msb := by simp only [h]
       simp only [msb_intMin, show 0 < w by omega, decide_true] at this
       rw [msb_udiv] at this
       simp only [and_eq_true, beq_iff_eq] at this

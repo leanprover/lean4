@@ -70,7 +70,7 @@ def _root_.Lean.Grind.CommRing.Poly.denoteAsIntModuleExpr (p : Grind.CommRing.Po
 def _root_.Lean.Grind.CommRing.Poly.toIntModuleExpr (p : Grind.CommRing.Poly) (generation := 0) : LinearM Expr := do
   let e ← p.denoteAsIntModuleExpr
   let e ← preprocessLight e
-  internalize e generation none
+  internalize e generation (some getIntModuleVirtualParent)
   return e
 
 end Lean.Meta.Grind.Arith.Linear

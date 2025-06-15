@@ -132,7 +132,7 @@ where
       pure (some leFn, some ltFn)
     else
       pure (none, none)
-    let getSMulFn? : GoalM (Option Expr) := do
+    let getHSMulFn? : GoalM (Option Expr) := do
       let smulType := mkApp3 (mkConst ``HSMul [0, u, u]) Int.mkType type type
       let .some smulInst ← trySynthInstance smulType | return none
       let smulFn ← internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Int.mkType type smulInst smulInst
@@ -140,7 +140,16 @@ where
         return smulFn
       reportIssue! (← mkExpectedDefEqMsg hmulFn smulFn)
       return none
-    let smulFn? ← getSMulFn?
+    let getHSMulNatFn? : GoalM (Option Expr) := do
+      let smulType := mkApp3 (mkConst ``HSMul [0, u, u]) Nat.mkType type type
+      let .some smulInst ← trySynthInstance smulType | return none
+      let smulFn ← internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Nat.mkType type smulInst smulInst
+      if (← withDefault <| isDefEq hmulNatFn smulFn) then
+        return smulFn
+      reportIssue! (← mkExpectedDefEqMsg hmulNatFn smulFn)
+      return none
+    let hsmulFn? ← getHSMulFn?
+    let hsmulNatFn? ← getHSMulNatFn?
     let ringId? ← CommRing.getRingId? type
     let ringInst? ← getInst? ``Grind.Ring
     let getOne? : GoalM (Option Expr) := do
@@ -169,7 +178,7 @@ where
     let id := (← get').structs.size
     let struct : Struct := {
       id, type, u, intModuleInst, preorderInst?, isOrdInst?, partialInst?, linearInst?, noNatDivInst?
-      leFn?, ltFn?, addFn, subFn, negFn, hmulFn, hmulNatFn, smulFn?, zero, one?
+      leFn?, ltFn?, addFn, subFn, negFn, hmulFn, hmulNatFn, hsmulFn?, hsmulNatFn?, zero, one?
       ringInst?, commRingInst?, ringIsOrdInst?, ringId?, ofNatZero
     }
     modify' fun s => { s with structs := s.structs.push struct }

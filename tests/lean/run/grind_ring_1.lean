@@ -81,3 +81,17 @@ set_option trace.grind.debug.ring.basis true in
 example [CommRing α] (a b c : α)
     : a^2*b = 1 → a*b^2 = b → False := by
    grind
+
+
+/--
+trace: [grind.ring.assert.basis] a ^ 2 * b + -1 = 0
+[grind.ring.assert.basis] a * b ^ 2 + -1 * b = 0
+[grind.ring.assert.basis] a * b + -1 * b = 0
+[grind.ring.assert.basis] b + -1 = 0
+[grind.ring.assert.basis] a + -1 = 0
+-/
+#guard_msgs (drop error, trace) in
+set_option trace.grind.ring.assert.basis true in
+example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b c : α)
+    : a^2*b = 1 → a*b^2 = b → False := by
+   grind

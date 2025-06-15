@@ -47,6 +47,9 @@ private def isForbiddenParent (parent? : Option Expr) : Bool :=
 
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).linarith do return ()
+  if isIntModuleVirtualParent parent? then
+    -- `e` is an auxiliary term used to convert `CommRing` to `IntModule`
+    return ()
   let some type := getType? e | return ()
   if isForbiddenParent parent? then return ()
   let some structId ← getStructId? type | return ()

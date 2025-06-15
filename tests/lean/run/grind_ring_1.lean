@@ -75,8 +75,6 @@ trace: [grind.debug.ring.basis] a ^ 2 * b + -1 = 0
 [grind.debug.ring.basis] a * b + -1 * b = 0
 [grind.debug.ring.basis] b + -1 = 0
 [grind.debug.ring.basis] a + -1 = 0
-[grind.debug.ring.basis] -1 * (a ^ 2 * b) + -1 * (-1 * (a * b ^ 2)) = 0
-[grind.debug.ring.basis] 1 * (a ^ 2 * b) + -1 * (1 * (a * b ^ 2)) = 0
 -/
 #guard_msgs (drop error, trace) in
 set_option trace.grind.debug.ring.basis true in

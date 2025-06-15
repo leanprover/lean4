@@ -120,6 +120,9 @@ def getIsOrdInst : LinearM Expr := do
     | throwError "`grind linarith` internal error, structure is not an ordered module"
   return inst
 
+def isOrdered : LinearM Bool :=
+  return (← getStruct).isOrdInst?.isSome
+
 def getLtFn [Monad m] [MonadError m] [MonadGetStruct m] : m Expr := do
   let some lt := (← getStruct).ltFn?
     | throwError "`grind linarith` internal error, structure is not an ordered module"

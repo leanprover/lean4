@@ -135,19 +135,11 @@ where
     let getHSMulFn? : GoalM (Option Expr) := do
       let smulType := mkApp3 (mkConst ``HSMul [0, u, u]) Int.mkType type type
       let .some smulInst ← trySynthInstance smulType | return none
-      let smulFn ← internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Int.mkType type smulInst smulInst
-      if (← withDefault <| isDefEq hmulFn smulFn) then
-        return smulFn
-      reportIssue! (← mkExpectedDefEqMsg hmulFn smulFn)
-      return none
+      internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Int.mkType type smulInst smulInst
     let getHSMulNatFn? : GoalM (Option Expr) := do
       let smulType := mkApp3 (mkConst ``HSMul [0, u, u]) Nat.mkType type type
       let .some smulInst ← trySynthInstance smulType | return none
-      let smulFn ← internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Nat.mkType type smulInst smulInst
-      if (← withDefault <| isDefEq hmulNatFn smulFn) then
-        return smulFn
-      reportIssue! (← mkExpectedDefEqMsg hmulNatFn smulFn)
-      return none
+      internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Nat.mkType type smulInst smulInst
     let hsmulFn? ← getHSMulFn?
     let hsmulNatFn? ← getHSMulNatFn?
     let ringId? ← CommRing.getRingId? type

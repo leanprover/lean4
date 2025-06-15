@@ -189,4 +189,9 @@ def resetAssignmentFrom (x : Var) : LinearM Unit := do
 def getVar (x : Var) : LinearM Expr :=
   return (← getStruct).vars[x]!
 
+/-- Returns `true` if the linarith state is inconsistent. -/
+def inconsistent : LinearM Bool := do
+  if (← isInconsistent) then return true
+  return (← getStruct).conflict?.isSome
+
 end Lean.Meta.Grind.Arith.Linear

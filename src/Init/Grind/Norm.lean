@@ -178,6 +178,7 @@ init_grind_norm
   Nat.add_eq Nat.sub_eq Nat.mul_eq Nat.zero_eq Nat.le_eq
   Nat.div_zero Nat.mod_zero Nat.div_one Nat.mod_one
   Nat.sub_sub Nat.pow_zero Nat.pow_one Nat.sub_self
+  Nat.one_pow
   -- Int
   Int.lt_eq
   Int.emod_neg Int.ediv_neg
@@ -186,7 +187,7 @@ init_grind_norm
   Int.negSucc_eq
   natCast_eq natCast_div natCast_mod
   natCast_add natCast_mul
-
+  Int.one_pow
   Int.pow_zero Int.pow_one
   -- GT GE
   ge_eq gt_eq

@@ -6,6 +6,7 @@ Authors: Sebastian Ullrich
 prelude
 import Std.Classes
 import Std.Data
+import Std.Do
 import Std.Sat
 import Std.Sync
 import Std.Time

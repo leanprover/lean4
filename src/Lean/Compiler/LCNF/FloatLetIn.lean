@@ -118,13 +118,12 @@ up to this point, with respect to `cs`. The initial decisions are:
 -/
 def initialDecisions (cs : Cases) : BaseFloatM (Std.HashMap FVarId Decision) := do
   let mut map := Std.HashMap.emptyWithCapacity (← read).decls.length
-  let folder val acc := do
+  map ← (← read).decls.foldrM (init := map) fun val acc => do
     if let .let decl := val then
       if (← ignore? decl) then
         return acc.insert decl.fvarId .dont
     return acc.insert val.fvarId .unknown
 
-  map ← (← read).decls.foldrM (init := map) folder
   if map.contains cs.discr then
     map := map.insert cs.discr .dont
   (_, map) ← goCases cs |>.run map
@@ -285,14 +284,13 @@ where
       }
       let (_, res) ← goCases |>.run base
       let remainders := res.newArms[Decision.dont]!
-      let altMapper alt := do
+      let newAlts ← cs.alts.mapM fun alt => do
         let decision := Decision.ofAlt alt
         let newCode := res.newArms[decision]!
         trace[Compiler.floatLetIn] "Size of code that was pushed into arm: {repr decision} {newCode.length}"
         let fused ← withNewScope do
           go (attachCodeDecls newCode.toArray alt.getCode)
         return alt.updateCode fused
-      let newAlts ← cs.alts.mapM altMapper
       let mut newCases := Code.updateCases! code cs.resultType cs.discr newAlts
       return attachCodeDecls remainders.toArray newCases
     | .jmp .. | .return .. | .unreach .. =>

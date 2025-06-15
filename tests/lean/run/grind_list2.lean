@@ -93,6 +93,14 @@ theorem getD_cons_succ : getD (x :: xs) (n + 1) d = getD xs n d := by grind
 
 /-! ### mem -/
 
+-- I've gone back and forth on this one. It's an expensive lemma to instantiate merely because we see `a ∈ l`,
+-- so globally it is set up with `grind_pattern length_pos_of_mem => a ∈ l, length l`.
+-- While it's quite useful as simply `grind →` in this "very eary theory", it doesn't  seem essential?
+
+section length_pos_of_mem
+
+attribute [local grind →] length_pos_of_mem
+
 theorem not_mem_nil {a : α} : ¬ a ∈ [] := by grind
 
 theorem mem_cons : a ∈ b :: l ↔ a = b ∨ a ∈ l := by grind
@@ -195,6 +203,8 @@ theorem contains_eq_mem [BEq α] [LawfulBEq α] (a : α) (as : List α) :
 
 theorem contains_cons [BEq α] {a : α} {b : α} {l : List α} :
     (a :: l).contains b = (b == a || l.contains b) := by grind
+
+end length_pos_of_mem
 
 /-! ### `isEmpty` -/
 

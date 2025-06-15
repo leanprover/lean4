@@ -40,6 +40,7 @@ theorem countP_push {a : α} {xs : Vector α n} : countP p (xs.push a) = countP 
   rcases xs with ⟨xs, rfl⟩
   simp [Array.countP_push]
 
+@[grind =]
 theorem countP_singleton {a : α} : countP p #v[a] = if p a then 1 else 0 := by
   simp
 
@@ -51,7 +52,7 @@ theorem countP_le_size {xs : Vector α n} : countP p xs ≤ n := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.countP_le_size (p := p)]
 
-@[simp] theorem countP_append {xs : Vector α n} {ys : Vector α m} : countP p (xs ++ ys) = countP p xs + countP p ys := by
+@[simp, grind =] theorem countP_append {xs : Vector α n} {ys : Vector α m} : countP p (xs ++ ys) = countP p xs + countP p ys := by
   cases xs
   cases ys
   simp
@@ -116,7 +117,7 @@ theorem countP_flatMap {p : β → Bool} {xs : Vector α n} {f : α → Vector �
   rcases xs with ⟨xs, rfl⟩
   simp [Array.countP_flatMap, Function.comp_def]
 
-@[simp] theorem countP_reverse {xs : Vector α n} : countP p xs.reverse = countP p xs := by
+@[simp, grind =] theorem countP_reverse {xs : Vector α n} : countP p xs.reverse = countP p xs := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
@@ -136,7 +137,7 @@ section count
 
 variable [BEq α]
 
-@[simp] theorem count_empty {a : α} : count a #v[] = 0 := rfl
+@[simp, grind =] theorem count_empty {a : α} : count a #v[] = 0 := rfl
 
 theorem count_push {a b : α} {xs : Vector α n} :
     count a (xs.push b) = count a xs + if b == a then 1 else 0 := by
@@ -151,23 +152,25 @@ theorem count_eq_countP' {a : α} : count (n := n) a = countP (· == a) := by
 
 theorem count_le_size {a : α} {xs : Vector α n} : count a xs ≤ n := countP_le_size
 
+grind_pattern count_le_size => count a xs
+
 theorem count_le_count_push {a b : α} {xs : Vector α n} : count a xs ≤ count a (xs.push b) := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.count_push]
 
-@[simp] theorem count_singleton {a b : α} : count a #v[b] = if b == a then 1 else 0 := by
+@[simp, grind =] theorem count_singleton {a b : α} : count a #v[b] = if b == a then 1 else 0 := by
   simp [count_eq_countP]
 
-@[simp] theorem count_append {a : α} {xs : Vector α n} {ys : Vector α m} :
+@[simp, grind =] theorem count_append {a : α} {xs : Vector α n} {ys : Vector α m} :
     count a (xs ++ ys) = count a xs + count a ys :=
   countP_append ..
 
-@[simp] theorem count_flatten {a : α} {xss : Vector (Vector α m) n} :
+@[simp, grind =] theorem count_flatten {a : α} {xss : Vector (Vector α m) n} :
     count a xss.flatten = (xss.map (count a)).sum := by
   rcases xss with ⟨xss, rfl⟩
   simp [Array.count_flatten, Function.comp_def]
 
-@[simp] theorem count_reverse {a : α} {xs : Vector α n} : count a xs.reverse = count a xs := by
+@[simp, grind =] theorem count_reverse {a : α} {xs : Vector α n} : count a xs.reverse = count a xs := by
   rcases xs with ⟨xs, rfl⟩
   simp
 

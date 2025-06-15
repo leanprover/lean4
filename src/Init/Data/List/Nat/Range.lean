@@ -158,6 +158,26 @@ theorem erase_range' :
       simp [p]
       omega
 
+@[simp, grind =]
+theorem count_range' {a s n step} (h : 0 < step := by simp) :
+    count a (range' s n step) = if ∃ i, i < n ∧ a = s + step * i then 1 else 0 := by
+  rw [(nodup_range' step h).count]
+  simp only [mem_range']
+
+@[simp, grind =]
+theorem count_range_1' {a s n} :
+    count a (range' s n) = if s ≤ a ∧ a < s + n then 1 else 0 := by
+  rw [count_range' (by simp)]
+  split <;> rename_i h
+  · obtain ⟨i, h, rfl⟩ := h
+    simp [h]
+  · simp at h
+    rw [if_neg]
+    simp only [not_and, Nat.not_lt]
+    intro w
+    specialize h (a - s)
+    omega
+
 /-! ### range -/
 
 theorem reverse_range' : ∀ {s n : Nat}, reverse (range' s n) = map (s + n - 1 - ·) (range n)
@@ -199,6 +219,12 @@ theorem find?_range_eq_none {n : Nat} {p : Nat → Bool} :
 
 theorem erase_range : (range n).erase i = range (min n i) ++ range' (i + 1) (n - (i + 1)) := by
   simp [range_eq_range', erase_range']
+
+@[simp, grind =]
+theorem count_range {a n} :
+    count a (range n) = if a < n then 1 else 0 := by
+  rw [range_eq_range', count_range_1']
+  simp
 
 /-! ### iota -/
 

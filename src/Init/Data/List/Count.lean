@@ -64,8 +64,8 @@ theorem length_eq_countP_add_countP (p : α → Bool) {l : List α} : length l =
       · rfl
       · simp [h]
 
-@[grind =]
-theorem countP_eq_length_filter {l : List α} : countP p l = length (filter p l) := by
+@[grind _=_]  -- This to quite aggressive, as it introduces `filter` based reasoning whenever we see `countP`.
+theorem countP_eq_length_filter {l : List α} : countP p l = (filter p l).length := by
   induction l with
   | nil => rfl
   | cons x l ih =>
@@ -82,7 +82,7 @@ theorem countP_le_length : countP p l ≤ l.length := by
   simp only [countP_eq_length_filter]
   apply length_filter_le
 
-@[simp] theorem countP_append {l₁ l₂ : List α} : countP p (l₁ ++ l₂) = countP p l₁ + countP p l₂ := by
+@[simp, grind =] theorem countP_append {l₁ l₂ : List α} : countP p (l₁ ++ l₂) = countP p l₁ + countP p l₂ := by
   simp only [countP_eq_length_filter, filter_append, length_append]
 
 @[simp] theorem countP_pos_iff {p} : 0 < countP p l ↔ ∃ a ∈ l, p a := by
@@ -120,9 +120,23 @@ theorem Sublist.countP_le (s : l₁ <+ l₂) : countP p l₁ ≤ countP p l₂ :
   simp only [countP_eq_length_filter]
   apply s.filter _ |>.length_le
 
+grind_pattern Sublist.countP_le => l₁ <+ l₂, countP p l₁
+grind_pattern Sublist.countP_le => l₁ <+ l₂, countP p l₂
+
 theorem IsPrefix.countP_le (s : l₁ <+: l₂) : countP p l₁ ≤ countP p l₂ := s.sublist.countP_le
+
+grind_pattern IsPrefix.countP_le => l₁ <+: l₂, countP p l₁
+grind_pattern IsPrefix.countP_le => l₁ <+: l₂, countP p l₂
+
 theorem IsSuffix.countP_le (s : l₁ <:+ l₂) : countP p l₁ ≤ countP p l₂ := s.sublist.countP_le
+
+grind_pattern IsSuffix.countP_le => l₁ <:+ l₂, countP p l₁
+grind_pattern IsSuffix.countP_le => l₁ <:+ l₂, countP p l₂
+
 theorem IsInfix.countP_le (s : l₁ <:+: l₂) : countP p l₁ ≤ countP p l₂ := s.sublist.countP_le
+
+grind_pattern IsInfix.countP_le => l₁ <:+: l₂, countP p l₁
+grind_pattern IsInfix.countP_le => l₁ <:+: l₂, countP p l₂
 
 -- See `Init.Data.List.Nat.Count` for `Sublist.le_countP : countP p l₂ - (l₂.length - l₁.length) ≤ countP p l₁`.
 
@@ -174,7 +188,7 @@ theorem countP_flatMap {p : β → Bool} {l : List α} {f : α → List β} :
     countP p (l.flatMap f) = sum (map (countP p ∘ f) l) := by
   rw [List.flatMap, countP_flatten, map_map]
 
-@[simp] theorem countP_reverse {l : List α} : countP p l.reverse = countP p l := by
+@[simp, grind =] theorem countP_reverse {l : List α} : countP p l.reverse = countP p l := by
   simp [countP_eq_length_filter, filter_reverse]
 
 theorem countP_mono_left (h : ∀ x ∈ l, p x → q x) : countP p l ≤ countP q l := by
@@ -203,17 +217,21 @@ section count
 
 variable [BEq α]
 
-@[simp] theorem count_nil {a : α} : count a [] = 0 := rfl
+@[simp, grind =] theorem count_nil {a : α} : count a [] = 0 := rfl
 
 @[grind]
 theorem count_cons {a b : α} {l : List α} :
     count a (b :: l) = count a l + if b == a then 1 else 0 := by
   simp [count, countP_cons]
 
-@[grind =] theorem count_eq_countP {a : α} {l : List α} : count a l = countP (· == a) l := rfl
+theorem count_eq_countP {a : α} {l : List α} : count a l = countP (· == a) l := rfl
 theorem count_eq_countP' {a : α} : count a = countP (· == a) := by
   funext l
   apply count_eq_countP
+
+@[grind =]
+theorem count_eq_length_filter {a : α} {l : List α} : count a l = (filter (· == a) l).length := by
+  simp [count, countP_eq_length_filter]
 
 @[grind]
 theorem count_tail : ∀ {l : List α} {a : α},
@@ -223,11 +241,27 @@ theorem count_tail : ∀ {l : List α} {a : α},
 
 theorem count_le_length {a : α} {l : List α} : count a l ≤ l.length := countP_le_length
 
+grind_pattern count_le_length => count a l
+
 theorem Sublist.count_le (a : α) (h : l₁ <+ l₂) : count a l₁ ≤ count a l₂ := h.countP_le
 
+grind_pattern Sublist.count_le => l₁ <+ l₂, count a l₁
+grind_pattern Sublist.count_le => l₁ <+ l₂, count a l₂
+
 theorem IsPrefix.count_le (a : α) (h : l₁ <+: l₂) : count a l₁ ≤ count a l₂ := h.sublist.count_le a
+
+grind_pattern IsPrefix.count_le => l₁ <+: l₂, count a l₁
+grind_pattern IsPrefix.count_le => l₁ <+: l₂, count a l₂
+
 theorem IsSuffix.count_le (a : α) (h : l₁ <:+ l₂) : count a l₁ ≤ count a l₂ := h.sublist.count_le a
+
+grind_pattern IsSuffix.count_le => l₁ <:+ l₂, count a l₁
+grind_pattern IsSuffix.count_le => l₁ <:+ l₂, count a l₂
+
 theorem IsInfix.count_le (a : α) (h : l₁ <:+: l₂) : count a l₁ ≤ count a l₂ := h.sublist.count_le a
+
+grind_pattern IsInfix.count_le => l₁ <:+: l₂, count a l₁
+grind_pattern IsInfix.count_le => l₁ <:+: l₂, count a l₂
 
 -- See `Init.Data.List.Nat.Count` for `Sublist.le_count : count a l₂ - (l₂.length - l₁.length) ≤ countP a l₁`.
 
@@ -245,10 +279,11 @@ theorem count_singleton {a b : α} : count a [b] = if b == a then 1 else 0 := by
 @[simp, grind =] theorem count_append {a : α} {l₁ l₂ : List α} : count a (l₁ ++ l₂) = count a l₁ + count a l₂ :=
   countP_append
 
+@[grind =]
 theorem count_flatten {a : α} {l : List (List α)} : count a l.flatten = (l.map (count a)).sum := by
   simp only [count_eq_countP, countP_flatten, count_eq_countP']
 
-@[simp] theorem count_reverse {a : α} {l : List α} : count a l.reverse = count a l := by
+@[simp, grind =] theorem count_reverse {a : α} {l : List α} : count a l.reverse = count a l := by
   simp only [count_eq_countP, countP_eq_length_filter, filter_reverse, length_reverse]
 
 @[grind]

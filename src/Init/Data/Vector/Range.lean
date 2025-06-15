@@ -120,6 +120,17 @@ theorem range'_eq_append_iff : range' s (n + m) = xs ++ ys ↔ xs = range' s n �
     (range' s n).find? p = none ↔ ∀ i, s ≤ i → i < s + n → !p i := by
   simp [range'_eq_mk_range']
 
+@[simp, grind =]
+theorem count_range' {a s n step} (h : 0 < step := by simp) :
+    count a (range' s n step) = if ∃ i, i < n ∧ a = s + step * i then 1 else 0 := by
+  rw [range'_eq_mk_range', count_mk, ← Array.count_range' h]
+
+@[simp, grind =]
+theorem count_range_1' {a s n} :
+    count a (range' s n) = if s ≤ a ∧ a < s + n then 1 else 0 := by
+  rw [range'_eq_mk_range', count_mk, ← Array.count_range_1']
+
+
 /-! ### range -/
 
 @[simp, grind =] theorem getElem_range {i : Nat} (hi : i < n) : (Vector.range n)[i] = i := by
@@ -170,6 +181,12 @@ theorem self_mem_range_succ {n : Nat} : n ∈ range (n + 1) := by simp
 @[simp] theorem find?_range_eq_none {n : Nat} {p : Nat → Bool} :
     (range n).find? p = none ↔ ∀ i, i < n → !p i := by
   simp [range_eq_range']
+
+@[simp, grind =]
+theorem count_range {a n} :
+    count a (range n) = if a < n then 1 else 0 := by
+  rw [range_eq_range', count_range_1']
+  simp
 
 /-! ### zipIdx -/
 

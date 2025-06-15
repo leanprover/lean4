@@ -122,9 +122,6 @@ theorem count_nil {a : α} : count a [] = 0 := by grind
 theorem count_cons {a b : α} {l : List α} :
     count a (b :: l) = count a l + if b == a then 1 else 0 := by grind
 
-theorem count_eq_countP {a : α} {l : List α} : count a l = countP (· == a) l := by grind
-theorem count_eq_countP' {a : α} : count a = countP (· == a) := by grind
-
 theorem count_tail {l : List α} (h : l ≠ []) (a : α) :
       l.tail.count a = l.count a - if l.head h == a then 1 else 0 := by
   induction l with grind

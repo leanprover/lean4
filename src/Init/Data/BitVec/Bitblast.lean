@@ -1717,7 +1717,6 @@ theorem toInt_sdiv (a b : BitVec w) : (a.sdiv b).toInt = (a.toInt.tdiv b.toInt).
 
 /-- Unsigned division is zero if and only if either the denominator is zero,
 or the numerator is unsigned less than the denominator -/
-@[simp]
 theorem udiv_eq_zero_iff_eq_zero_or_lt {x y : BitVec w} :
      x / y = 0#w ↔ (y = 0#w ∨ x < y) := by
   constructor

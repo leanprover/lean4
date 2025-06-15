@@ -1050,27 +1050,18 @@ public:
         return r;
     }
 
-    uint32 run_main(int argc, char * argv[]) {
+    uint32 run_main(list_ref<string_ref> const & args) {
         decl d = get_decl("main");
         array_ref<param> const & params = decl_params(d);
-        buffer<object *> args;
+        buffer<object *> call_args;
         if (params.size() == 2) { // List String -> IO _
-            lean_object * in = lean_box(0);
-            int i = argc;
-            while (i > 0) {
-                i--;
-                lean_object * n = lean_alloc_ctor(1, 2, 0);
-                lean_ctor_set(n, 0, lean_mk_string(argv[i]));
-                lean_ctor_set(n, 1, in);
-                in = n;
-            }
-            args.push_back(in);
+            call_args.push_back(args.to_obj_arg());
         } else { // IO _
             lean_assert(params.size() == 1);
         }
         object * w = io_mk_world();
-        args.push_back(w);
-        w = call_boxed("main", args.size(), &args[0]);
+        call_args.push_back(w);
+        w = call_boxed("main", call_args.size(), &call_args[0]);
         if (io_result_is_ok(w)) {
             int ret = 0;
             lean::expr ret_ty = m_env.get("main").get_type();
@@ -1137,8 +1128,14 @@ object * run_boxed_kernel(environment const & env, options const & opts, name co
     return run_boxed(elab_environment_of_kernel_env(env), opts, fn, n, args);
 }
 
-uint32 run_main(elab_environment const & env, options const & opts, int argv, char * argc[]) {
-    return interpreter::with_interpreter<uint32>(env, opts, "main", [&](interpreter & interp) { return interp.run_main(argv, argc); });
+uint32 run_main(elab_environment const & env, options const & opts, list_ref<string_ref> const & args) {
+    return interpreter::with_interpreter<uint32>(env, opts, "main", [&](interpreter & interp) { return interp.run_main(args); });
+}
+
+/* runMain (env : Environment) (opts : Iptions) (args : List String) : BaseIO UInt32 */
+extern "C" LEAN_EXPORT obj_res lean_run_main(b_obj_arg env, b_obj_arg opts, b_obj_arg args, obj_arg) {
+    uint32 ret = run_main(TO_REF(elab_environment, env), TO_REF(options, opts), TO_REF(list_ref<string_ref>, args));
+    return io_result_mk_ok(box(ret));
 }
 
 extern "C" LEAN_EXPORT object * lean_eval_const(object * env, object * opts, object * c) {

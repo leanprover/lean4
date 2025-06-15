@@ -13100,6 +13100,7 @@ lean_closure_set(x_13, 1, x_1);
 lean_closure_set(x_13, 2, x_2);
 lean_closure_set(x_13, 3, x_4);
 x_14 = l_Lean_Expr_letFun_x3f(x_3);
+lean_dec(x_3);
 lean_inc(x_1);
 lean_inc(x_4);
 x_15 = lean_alloc_closure((void*)(l_Lean_Tactic_FunInd_foldAndCollect___lambda__24), 9, 2);
@@ -30324,7 +30325,6 @@ LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_rwHaveWith(lean_object* x_1, lean_
 _start:
 {
 lean_object* x_8; 
-lean_inc(x_2);
 x_8 = l_Lean_Expr_letFun_x3f(x_2);
 if (lean_obj_tag(x_8) == 0)
 {
@@ -66890,7 +66890,6 @@ LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_buildInductionBody___lambda__23(le
 _start:
 {
 lean_object* x_16; 
-lean_inc(x_7);
 x_16 = l_Lean_Expr_letFun_x3f(x_7);
 if (lean_obj_tag(x_16) == 0)
 {
@@ -67561,7 +67560,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Tactic_FunInd_buildInductionBody___lambda__27___closed__2;
 x_2 = l_Lean_Tactic_FunInd_buildInductionBody___lambda__27___closed__3;
-x_3 = lean_unsigned_to_nat(1786u);
+x_3 = lean_unsigned_to_nat(1798u);
 x_4 = lean_unsigned_to_nat(17u);
 x_5 = l_Lean_Tactic_FunInd_buildInductionBody___lambda__27___closed__4;
 x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

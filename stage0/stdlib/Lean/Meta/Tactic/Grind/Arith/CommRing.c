@@ -15,6 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_542_(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_583____closed__1;
+static lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_747____closed__2;
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_210____closed__2;
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_501____closed__2;
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_3____closed__15;
@@ -43,8 +44,10 @@ static lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing__
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_419_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_460_(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_252____closed__1;
+static lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_747____closed__3;
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_3____closed__17;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_44_(lean_object*);
+static lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_747____closed__1;
 lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_336____closed__1;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_126_(lean_object*);
@@ -92,6 +95,7 @@ static lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing__
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_168____closed__3;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_168_(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_665____closed__3;
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_747_(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_419____closed__1;
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_542____closed__3;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1004,6 +1008,47 @@ x_5 = l_Lean_registerTraceClass(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
+static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_747____closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("rabinowitsch", 12, 12);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_747____closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_3____closed__1;
+x_2 = l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_501____closed__1;
+x_3 = l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_3____closed__2;
+x_4 = l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_747____closed__1;
+x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
+static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_747____closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_3____closed__22;
+x_2 = lean_unsigned_to_nat(747u);
+x_3 = l_Lean_Name_num___override(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_747_(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+x_2 = l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_747____closed__2;
+x_3 = 0;
+x_4 = l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_747____closed__3;
+x_5 = l_Lean_registerTraceClass(x_2, x_3, x_4, x_1);
+return x_5;
+}
+}
 lean_object* initialize_Lean_Util_Trace(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Poly(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Types(uint8_t builtin, lean_object*);
@@ -1257,6 +1302,15 @@ lean_mark_persistent(l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing_
 l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_706____closed__2 = _init_l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_706____closed__2();
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_706____closed__2);
 if (builtin) {res = l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_706_(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_747____closed__1 = _init_l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_747____closed__1();
+lean_mark_persistent(l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_747____closed__1);
+l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_747____closed__2 = _init_l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_747____closed__2();
+lean_mark_persistent(l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_747____closed__2);
+l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_747____closed__3 = _init_l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_747____closed__3();
+lean_mark_persistent(l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_747____closed__3);
+if (builtin) {res = l_Lean_initFn____x40_Lean_Meta_Tactic_Grind_Arith_CommRing___hyg_747_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }return lean_io_result_mk_ok(lean_box(0));

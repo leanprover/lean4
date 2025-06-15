@@ -37,6 +37,20 @@ Lean's IR.
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
+namespace lean {
+/*  initLLVM : IO Unit */
+extern "C" obj_res initialize_Lean_Compiler_IR_EmitLLVM(uint8_t builtin, obj_arg);
+extern "C" LEAN_EXPORT obj_res lean_init_llvm(obj_arg) {
+    return initialize_Lean_Compiler_IR_EmitLLVM(/*builtin*/ false, io_mk_world());
+}
+
+/*  emitLLVM (env : Environment) (modName : Name) (filepath : FilePath) : IO Unit */
+extern "C" obj_res lean_ir_emit_llvm(obj_arg env, obj_arg mod_name, obj_arg filepath, obj_arg);
+extern "C" LEAN_EXPORT obj_res lean_emit_llvm(obj_arg env, obj_arg mod_name, obj_arg filepath, obj_arg) {
+    return lean_ir_emit_llvm(env, mod_name, filepath, io_mk_world());
+}
+}
+
 extern "C" LEAN_EXPORT lean_object* lean_llvm_initialize_target_info(lean_object * /* w */) {
 
 #ifdef LEAN_LLVM

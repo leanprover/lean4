@@ -137,7 +137,7 @@ section count
 
 variable [BEq α]
 
-@[simp] theorem count_empty {a : α} : count a #v[] = 0 := rfl
+@[simp, grind =] theorem count_empty {a : α} : count a #v[] = 0 := rfl
 
 theorem count_push {a b : α} {xs : Vector α n} :
     count a (xs.push b) = count a xs + if b == a then 1 else 0 := by
@@ -151,6 +151,8 @@ theorem count_eq_countP' {a : α} : count (n := n) a = countP (· == a) := by
   apply count_eq_countP
 
 theorem count_le_size {a : α} {xs : Vector α n} : count a xs ≤ n := countP_le_size
+
+grind_pattern count_le_size => count a xs
 
 theorem count_le_count_push {a b : α} {xs : Vector α n} : count a xs ≤ count a (xs.push b) := by
   rcases xs with ⟨xs, rfl⟩

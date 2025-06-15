@@ -60,12 +60,12 @@ theorem size_eq_countP_add_countP {xs : Array α} : xs.size = countP p xs + coun
   rcases xs with ⟨xs⟩
   simp [List.length_eq_countP_add_countP (p := p)]
 
+@[grind _=_]
 theorem countP_eq_size_filter {xs : Array α} : countP p xs = (filter p xs).size := by
   rcases xs with ⟨xs⟩
   simp [List.countP_eq_length_filter]
 
-grind_pattern countP_eq_size_filter => countP p xs, filter p xs
-
+@[grind =]
 theorem countP_eq_size_filter' : countP p = size ∘ filter p := by
   funext xs
   apply countP_eq_size_filter
@@ -176,7 +176,7 @@ variable [BEq α]
   cases xs
   simp
 
-@[simp] theorem count_empty {a : α} : count a #[] = 0 := rfl
+@[simp, grind =] theorem count_empty {a : α} : count a #[] = 0 := rfl
 
 theorem count_push {a b : α} {xs : Array α} :
     count a (xs.push b) = count a xs + if b == a then 1 else 0 := by
@@ -188,6 +188,12 @@ theorem count_eq_countP' {a : α} : count a = countP (· == a) := by
   apply count_eq_countP
 
 theorem count_le_size {a : α} {xs : Array α} : count a xs ≤ xs.size := countP_le_size
+
+grind_pattern count_le_size => count a xs
+
+@[grind =]
+theorem count_eq_size_filter {a : α} {xs : Array α} : count a xs = (filter (· == a) xs).size := by
+  simp [count, countP_eq_size_filter]
 
 theorem count_le_count_push {a b : α} {xs : Array α} : count a xs ≤ count a (xs.push b) := by
   simp [count_push]

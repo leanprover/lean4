@@ -1,5 +1,6 @@
 open Lean Grind
 variable (R : Type u) [IntModule R]
+set_option grind.debug true
 
 example (a b : R) : a + b = b + a := by grind
 example (a : R) : a + 0 = a := by grind

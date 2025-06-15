@@ -1,4 +1,5 @@
 open Lean.Grind
+set_option grind.debug true
 
 example [IntModule α] [Preorder α] [IntModule.IsOrdered α] (a b : α)
     : (2:Int)*a + b < b + a + a → False := by

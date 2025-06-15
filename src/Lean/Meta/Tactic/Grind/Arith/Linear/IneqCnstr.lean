@@ -16,9 +16,16 @@ import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
 namespace Lean.Meta.Grind.Arith.Linear
 
 def isLeInst (struct : Struct) (inst : Expr) : Bool :=
-  isSameExpr struct.leFn.appArg! inst
+  if let some leFn := struct.leFn? then
+    isSameExpr leFn.appArg! inst
+  else
+    false
+
 def isLtInst (struct : Struct) (inst : Expr) : Bool :=
-  isSameExpr struct.ltFn.appArg! inst
+  if let some ltFn := struct.ltFn? then
+    isSameExpr ltFn.appArg! inst
+  else
+    false
 
 def IneqCnstr.assert (c : IneqCnstr) : LinearM Unit := do
   trace[grind.linarith.assert] "{← c.denoteExpr}"

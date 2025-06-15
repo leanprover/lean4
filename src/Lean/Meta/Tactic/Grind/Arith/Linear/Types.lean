@@ -60,7 +60,8 @@ instance : Inhabited DiseqCnstr where
 
 /--
 State for each algebraic structure by this module.
-Each type must be at least implement the instances `IntModule`, `Preorder`, and `IntModule.IsOrdered`
+Each type must at least implement the instance `IntModule`.
+For being able to process inequalities, it must at least implement `Preorder`, and `IntModule.IsOrdered`
 -/
 structure Struct where
   id               : Nat
@@ -71,10 +72,10 @@ structure Struct where
   u                : Level
   /-- `IntModule` instance -/
   intModuleInst    : Expr
-  /-- `Preorder` instance -/
-  preorderInst     : Expr
-  /-- `IntModule.IsOrdered` instance with `Preorder` -/
-  isOrdInst        : Expr
+  /-- `Preorder` instance if available -/
+  preorderInst?    : Option Expr
+  /-- `IntModule.IsOrdered` instance with `Preorder` if available -/
+  isOrdInst?       : Option Expr
   /-- `PartialOrder` instance if available -/
   partialInst?     : Option Expr
   /-- `LinearOrder` instance if available -/
@@ -90,8 +91,8 @@ structure Struct where
   zero             : Expr
   ofNatZero        : Expr
   one?             : Option Expr
-  leFn             : Expr
-  ltFn             : Expr
+  leFn?            : Option Expr
+  ltFn?            : Option Expr
   addFn            : Expr
   hmulFn           : Expr
   hmulNatFn        : Expr

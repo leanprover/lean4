@@ -4,4 +4,4 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
-import Std.Data.Iterators.Lemmas.Monadic.Basic
+import Init.Data.Iterators.Lemmas.Monadic.Basic

@@ -3,10 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
 import Init.RCases
-import Std.Data.Iterators.Basic
-import Std.Data.Iterators.Consumers.Monadic.Partial
+import Init.Data.Iterators.Basic
+import Init.Data.Iterators.Consumers.Monadic.Partial
 
 /-!
 # Loop-based consumers
@@ -62,8 +64,9 @@ class IteratorLoop (α : Type w) (m : Type w → Type w') {β : Type w} [Iterato
   forIn : ∀ (_lift : (γ : Type w) → m γ → n γ) (γ : Type w),
       (plausible_forInStep : β → γ → ForInStep γ → Prop) →
       IteratorLoop.WellFounded α m plausible_forInStep →
-      IterM (α := α) m β → γ →
-      ((b : β) → (c : γ) → n (Subtype (plausible_forInStep b c))) → n γ
+      (it : IterM (α := α) m β) → γ →
+      ((b : β) → (c : γ) → n (Subtype (plausible_forInStep b c))) →
+      n γ
 
 /--
 `IteratorLoopPartial α m` provides efficient implementations of loop-based consumers for `α`-based
@@ -76,7 +79,8 @@ provided by the standard library.
 class IteratorLoopPartial (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
     (n : Type w → Type w'') where
   forInPartial : ∀ (_lift : (γ : Type w) → m γ → n γ) {γ : Type w},
-      IterM (α := α) m β → γ → ((b : β) → (c : γ) → n (ForInStep γ)) → n γ
+      (it : IterM (α := α) m β) → γ →
+      ((b : β) → (c : γ) → n (ForInStep γ)) → n γ
 
 end Typeclasses
 
@@ -91,7 +95,7 @@ private def IteratorLoop.WFRel.mk {α : Type w} {m : Type w → Type w'} {β : T
     IteratorLoop.WFRel wf :=
   (it, c)
 
-instance {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+private instance {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     {γ : Type x} {plausible_forInStep : β → γ → ForInStep γ → Prop}
     (wf : IteratorLoop.WellFounded α m plausible_forInStep) :
     WellFoundedRelation (IteratorLoop.WFRel wf) where
@@ -116,9 +120,13 @@ def IterM.DefaultConsumers.forIn {m : Type w → Type w'} {α : Type w} {β : Ty
     match ← it.step with
     | .yield it' out _ =>
       match ← f out init with
-      | ⟨.yield c, _⟩ => IterM.DefaultConsumers.forIn lift _ plausible_forInStep wf it' c f
+      | ⟨.yield c, _⟩ =>
+        IterM.DefaultConsumers.forIn lift _ plausible_forInStep wf it' c
+          (fun out acc => f out acc)
       | ⟨.done c, _⟩ => return c
-    | .skip it' _ => IterM.DefaultConsumers.forIn lift _ plausible_forInStep wf it' init f
+    | .skip it' _ =>
+      IterM.DefaultConsumers.forIn lift _ plausible_forInStep wf it' init
+        (fun out acc => f out acc)
     | .done _ => return init
 termination_by IteratorLoop.WFRel.mk wf it init
 decreasing_by
@@ -159,9 +167,13 @@ partial def IterM.DefaultConsumers.forInPartial {m : Type w → Type w'} {α : T
     match ← it.step with
     | .yield it' out _ =>
       match ← f out init with
-      | .yield c => IterM.DefaultConsumers.forInPartial lift _ it' c f
+      | .yield c =>
+        IterM.DefaultConsumers.forInPartial lift _ it' c
+          fun out acc => f out acc
       | .done c => return c
-    | .skip it' _ => IterM.DefaultConsumers.forInPartial lift _ it' init f
+    | .skip it' _ =>
+      IterM.DefaultConsumers.forInPartial lift _ it' init
+        fun out acc => f out acc
     | .done _ => return init
 
 /--
@@ -206,12 +218,13 @@ def IteratorLoop.finiteForIn {m : Type w → Type w'} {n : Type w → Type w''}
   forIn {γ} [Monad n] it init f :=
     IteratorLoop.forIn (α := α) (m := m) lift γ (fun _ _ _ => True)
       wellFounded_of_finite
-      it init ((⟨·, .intro⟩) <$> f · ·)
+      it init (fun out acc => (⟨·, .intro⟩) <$> f out acc)
 
 instance {m : Type w → Type w'} {n : Type w → Type w''}
     {α : Type w} {β : Type w} [Iterator α m β] [Finite α m] [IteratorLoop α m n]
     [MonadLiftT m n] :
-    ForIn n (IterM (α := α) m β) β := IteratorLoop.finiteForIn (fun _ => monadLift)
+    ForIn n (IterM (α := α) m β) β :=
+  IteratorLoop.finiteForIn (fun _ => monadLift)
 
 instance {m : Type w → Type w'} {n : Type w → Type w''}
     {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoopPartial α m n] [MonadLiftT m n] :

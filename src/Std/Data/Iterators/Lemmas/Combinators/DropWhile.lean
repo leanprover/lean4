@@ -6,7 +6,7 @@ Authors: Paul Reichert
 prelude
 import Std.Data.Iterators.Combinators.DropWhile
 import Std.Data.Iterators.Lemmas.Combinators.Monadic.DropWhile
-import Std.Data.Iterators.Lemmas.Consumers
+import Init.Data.Iterators.Lemmas.Consumers
 
 namespace Std.Iterators
 

@@ -237,6 +237,7 @@ partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c'
   | .neg c =>
     let h ← mkIntModThmPrefix ``Grind.Linarith.diseq_neg
     return mkApp4 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
+  | _ => throwError "NIY"
 
 partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
   match h with
@@ -278,6 +279,11 @@ partial def DiseqCnstr.collectDecVars (c' : DiseqCnstr) : CollectDecVarsM Unit :
   match c'.h with
   | .core .. | .coreCommRing .. => return ()
   | .neg c => c.collectDecVars
+  | .subst _ c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
+
+partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
+  match c'.h with
+  | _ => return () -- TODO
 
 end
 

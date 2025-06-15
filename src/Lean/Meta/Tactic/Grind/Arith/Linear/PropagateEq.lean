@@ -15,6 +15,15 @@ import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
 
 namespace Lean.Meta.Grind.Arith.Linear
+
+private def _root_.Lean.Grind.Linarith.Poly.substVar (p : Poly) : LinearM (Option (Var × EqCnstr × Poly)) := do
+  let some (a, x, c) ← p.findVarToSubst | return none
+  let b := c.p.coeff x
+  let p' := p.mul (-b) |>.combine (c.p.mul a)
+  trace[grind.debug.linarith.subst] "{← p.denoteExpr}, {a}, {← getVar x}, {← c.denoteExpr}, {b}, {← p'.denoteExpr}"
+  return some (x, c, p')
+
+
 /-- Returns `some structId` if `a` and `b` are elements of the same structure. -/
 def inSameStruct? (a b : Expr) : GoalM (Option Nat) := do
   let some structId ← getTermStructId? a | return none

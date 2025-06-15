@@ -221,4 +221,17 @@ partial def _root_.Lean.Grind.Linarith.Poly.updateOccs (p : Poly) : LinearM Unit
     addOcc x y; go p
   go p
 
+/--
+Given a polynomial `p`, returns `some (x, k, c)` if `p` contains the monomial `k*x`,
+and `x` has been eliminated using the equality `c`.
+-/
+def _root_.Lean.Grind.Linarith.Poly.findVarToSubst (p : Poly) : LinearM (Option (Int × Var × EqCnstr)) := do
+  match p with
+  | .nil => return none
+  | .add k x p =>
+    if let some c := (← getStruct).elimEqs[x]! then
+      return some (k, x, c)
+    else
+      findVarToSubst p
+
 end Lean.Meta.Grind.Arith.Linear

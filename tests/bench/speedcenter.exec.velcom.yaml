@@ -40,6 +40,8 @@
       find ${BUILD:-build/release}/stage2/lib/lean -name '*.olean.server' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'bytes .olean.private: '
       find ${BUILD:-build/release}/stage2/lib/lean -name '*.olean.private' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      echo -n 'bytes .ir: '
+      find ${BUILD:-build/release}/stage2/lib/lean -name '*.ir' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'lines C: '
       find ${BUILD:-build/release}/stage2/lib/temp -name '*.c' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'lines C++: '

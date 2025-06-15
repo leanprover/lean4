@@ -185,4 +185,54 @@ theorem mul_le_mul_iff_of_neg_left {a b c : R} (h : c < 0) : c * a ≤ c * b ↔
 
 end Field.IsOrdered
 
+theorem Field.zero_lt_one [Field α] [LinearOrder α] [Ring.IsOrdered α] : (0 : α) < 1 := by
+  cases LinearOrder.trichotomy (0:α) 1
+  next => assumption
+  next h =>
+    cases h
+    next => have := Field.zero_ne_one (α := α); contradiction
+    next h =>
+      have := Ring.IsOrdered.mul_pos_of_neg_of_neg h h
+      simp [Semiring.one_mul] at this
+      assumption
+
+theorem Field.minus_one_lt_zero [Field α] [LinearOrder α] [Ring.IsOrdered α] : (-1 : α) < 0 := by
+  have h := Field.zero_lt_one (α := α)
+  have := IntModule.IsOrdered.add_lt_left h (-1)
+  rw [Semiring.zero_add, Ring.add_neg_cancel] at this
+  assumption
+
+theorem ofNat_nonneg [Field α] [LinearOrder α] [Ring.IsOrdered α] (x : Nat) : (OfNat.ofNat x : α) ≥ 0 := by
+  induction x
+  next => simp [OfNat.ofNat, Zero.zero]; apply Preorder.le_refl
+  next n ih =>
+    have := Field.zero_lt_one (α := α)
+    rw [Semiring.ofNat_succ]
+    replace ih := IntModule.IsOrdered.add_le_left ih 1
+    rw [Semiring.zero_add] at ih
+    have := Preorder.lt_of_lt_of_le this ih
+    exact Preorder.le_of_lt this
+
+instance [Field α] [LinearOrder α] [Ring.IsOrdered α] : IsCharP α 0 where
+  ofNat_eq_zero_iff := by
+    intro x
+    simp only [Nat.mod_zero]; constructor
+    next =>
+      intro h
+      cases x
+      next => rfl
+      next x =>
+        rw [Semiring.ofNat_succ] at h
+        replace h := congrArg (· - 1) h; simp at h
+        rw [Ring.sub_eq_add_neg, Semiring.add_assoc, Ring.add_neg_cancel,
+            Ring.sub_eq_add_neg, Semiring.zero_add, Semiring.add_zero] at h
+        have h₁ : (OfNat.ofNat x : α) < 0 := by
+          have := Field.minus_one_lt_zero (α := α)
+          rw [h]; assumption
+        have h₂ := ofNat_nonneg (α := α) x
+        have : (0 : α) < 0 := Preorder.lt_of_le_of_lt h₂ h₁
+        simp
+        exact (Preorder.lt_irrefl 0) this
+    next => intro h; rw [OfNat.ofNat, h]; rfl
+
 end Lean.Grind

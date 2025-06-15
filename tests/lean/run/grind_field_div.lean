@@ -62,6 +62,10 @@ example [Field α] {sqrtTwo a b c : α} :
       9 * sqrtTwo / 32 * (a ^ 2 + b ^ 2 + c ^ 2) ^ 2 := by
   grind
 
+-- The following example should not split on `2 = 0` because a linear ordered field has
+-- characteristic zero.
+#guard_msgs (trace) in
+set_option trace.grind.split true in
 example [Field α] [LinearOrder α] [Ring.IsOrdered α] (x y z : α)
     : x > 0 → y > 0 → z > 0 → x * y * z ≥ 1 →
       (x ^ 2 - y * z) / (x ^ 2 + y ^ 2 + z ^ 2) + (y ^ 2 - z * x) / (y ^ 2 + z ^ 2 + x ^ 2) +

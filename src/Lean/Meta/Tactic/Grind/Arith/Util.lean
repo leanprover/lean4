@@ -133,4 +133,22 @@ end CollectDecVars
 
 export CollectDecVars (CollectDecVarsM)
 
+private def ____intModuleMarker____ : Bool := true
+
+/--
+Return auxiliary expression used as "virtual" parent when
+internalizing auxiliary expressions created by `toIntModuleExpr`.
+The function `toIntModuleExpr` converts a `CommRing` polynomial into
+a `IntModule` expression. We don't want this auxiliary expression to be
+internalized by the `CommRing` module since it uses a nonstandard encoding
+with `@HMul.hMul Int α α`, a virtual `One.one` constant, etc.
+ -/
+def getIntModuleVirtualParent : Expr :=
+  mkConst ``____intModuleMarker____
+
+def isIntModuleVirtualParent (parent? : Option Expr) : Bool :=
+  match parent? with
+  | none => false
+  | some parent => parent == getIntModuleVirtualParent
+
 end Lean.Meta.Grind.Arith

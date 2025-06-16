@@ -149,7 +149,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
           trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, perm rejected {e} ==> {rhs}"
           return none
 
-      unless (← checkRewriteForLoops thm) do
+      unless (← checkLoops thm) do
         return none
       trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}:{indentExpr e}\n==>{indentExpr rhs}"
       let rhs ← if type.hasBinderNameHint then rhs.resolveBinderNameHint else pure rhs

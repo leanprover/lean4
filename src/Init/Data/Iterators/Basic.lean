@@ -472,6 +472,26 @@ theorem Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM {α
       replace h : it'.toIter.IsPlausibleSuccessorOf it.toIter := h
       exact .indirect (α := α) h ih
 
+inductive Iter.IsPlausibleIndirectSuccessorOf {α : Type w} {β : Type w} [Iterator α Id β] :
+    Iter (α := α) β → Iter (α := α) β → Prop where
+  | refl (it : Iter (α := α) β) : IsPlausibleIndirectSuccessorOf it it
+  | cons_right {it'' it' it : Iter (α := α) β} (h' : it''.IsPlausibleIndirectSuccessorOf it')
+      (h : it'.IsPlausibleSuccessorOf it) : it''.IsPlausibleIndirectSuccessorOf it
+
+theorem Iter.IsPlausibleIndirectSuccessorOf.trans {α : Type w} {β : Type w} [Iterator α Id β]
+    {it'' it' it : Iter (α := α) β} (h' : it''.IsPlausibleIndirectSuccessorOf it')
+    (h : it'.IsPlausibleIndirectSuccessorOf it) : it''.IsPlausibleIndirectSuccessorOf it := by
+  induction h
+  case refl => exact h'
+  case cons_right ih => exact IsPlausibleIndirectSuccessorOf.cons_right ih ‹_›
+
+theorem Iter.IsPlausibleIndirectOutput.trans {α : Type w} {β : Type w} [Iterator α Id β]
+    {it' it : Iter (α := α) β} {out : β} (h : it'.IsPlausibleIndirectSuccessorOf it)
+    (h' : it'.IsPlausibleIndirectOutput out) : it.IsPlausibleIndirectOutput out := by
+  induction h
+  case refl => exact h'
+  case cons_right ih => exact IsPlausibleIndirectOutput.indirect ‹_› ih
+
 /--
 Asserts that a certain iterator `it'` could plausibly be the directly succeeding iterator of another
 given iterator `it` while no value is emitted (see `IterStep.skip`).

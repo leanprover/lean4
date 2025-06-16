@@ -8,3 +8,4 @@ module
 prelude
 import Init.Data.Range.Basic
 import Init.Data.Range.Lemmas
+import Init.Data.Range.New.Nat

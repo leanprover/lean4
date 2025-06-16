@@ -1,6 +1,7 @@
 prelude
 import Init.Data.Range.New.RangeIterator
-import Init.Data.Range.New.Basic
+import Init.Data.Range.New.Nat
+import Init.Data.Range.New.Iteration
 import Init.System.IO
 import Init.Data.Iterators
 
@@ -101,7 +102,7 @@ def f (it : Iter (α := RangeIterator Nat inferInstance (· < 5)) Nat) : Nat := 
 
 #eval "b" ∈ ("a",,"c")
 
-#eval "a"
+#eval! (1,,4).iter.toList
 
 #eval! (1<,,<4).iter.toList
 

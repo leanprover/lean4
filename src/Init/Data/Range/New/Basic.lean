@@ -65,16 +65,31 @@ instance [HasRange shape α] : Membership α (PRange shape α) where
 instance [HasRange shape α] (r : PRange shape α) : Decidable (a ∈ r) :=
   inferInstanceAs <| Decidable (_ ∧ _)
 
+class FinitelyEnumerableRange (shape α) [HasRange shape α] where
+  enumeration : Bound shape.upper α → List α
+  mem_enumeration_of_satisfiesUpperBound : (u : Bound shape.upper α) → (a : α) →
+    HasRange.SatisfiesUpperBound u a → a ∈ enumeration u
+
 class UpwardEnumerableRange (shape : RangeShape) (α : Type u) where
   init : Bound shape.lower α → Option α
 
-class LawfulUpwardEnumerableRange [HasRange shape α] [UpwardEnumerable α]
+class LawfulUpwardEnumerableRange (shape α) [HasRange shape α] [UpwardEnumerable α]
     [UpwardEnumerableRange shape α] where
   satisfiesUpperBound_of_le (u : Bound shape.upper α) (a b : α) :
     HasRange.SatisfiesUpperBound u b → UpwardEnumerable.le a b → HasRange.SatisfiesUpperBound u a
-  mem_iff (a : α) (r : PRange shape α) :
-    a ∈ r ↔ ∃ init, UpwardEnumerableRange.init r.lower = some init ∧ UpwardEnumerable.le init a ∧
-        HasRange.SatisfiesUpperBound r.upper a
+  satisfiesLowerBound_iff (a : α) (l : Bound shape.lower α) :
+    HasRange.SatisfiesLowerBound l a ↔
+      ∃ init, UpwardEnumerableRange.init l = some init ∧ UpwardEnumerable.le init a
+
+theorem LawfulUpwardEnumerableRange.satisfiesLowerBound_of_le
+    [HasRange shape α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [UpwardEnumerableRange shape α] [LawfulUpwardEnumerableRange shape α]
+    (l : Bound shape.lower α) (a b : α)
+    (ha : HasRange.SatisfiesLowerBound l a) (hle : UpwardEnumerable.le a b) :
+    HasRange.SatisfiesLowerBound l b := by
+  rw [LawfulUpwardEnumerableRange.satisfiesLowerBound_iff] at ⊢ ha
+  obtain ⟨init, hi, ha⟩ := ha
+  exact ⟨init, hi, UpwardEnumerable.le_trans ha hle⟩
 
 instance : HasRange ⟨.unbounded, .unbounded⟩ α where
   SatisfiesUpperBound _ _ := True

@@ -1,2 +1,4 @@
 doLetLoop.lean:4:0: error: unexpected end of input
-doLetLoop.lean:2:4-2:5: warning: declaration uses 'sorry'
+doLetLoop.lean:2:4-2:5: warning: declaration uses 'sorry' due to elaboration errors.
+
+This can be caused by (1) referring to declarations with elaboration errors or (2) bugs in elaborators. In the second case, please report a minimized error-free example that produces this warning.

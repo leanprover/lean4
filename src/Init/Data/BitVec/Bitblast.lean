@@ -1735,9 +1735,8 @@ theorem udiv_eq_zero_iff_eq_zero_or_lt {x y : BitVec w} :
     simp only [lt_def] at h
     rcases h with h | h <;> simp [h]
 
-@[simp]
 theorem udiv_ne_zero_iff_ne_zero_and_le {x y : BitVec w} :
-     x / y ≠ 0#w ↔ (y ≠ 0#w ∧ y ≤ x) := by
+     ¬ (x / y = 0#w) ↔ (y ≠ 0#w ∧ y ≤ x) := by
   simp only [ne_eq, udiv_eq_zero_iff_eq_zero_or_lt, _root_.not_or, BitVec.not_lt]
 
 private theorem neg_udiv_eq_intmin_iff_eq_intmin_eq_one_of_msb_eq_true
@@ -1796,7 +1795,7 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
       simp only [and_eq_true, beq_iff_eq] at this
       obtain ⟨hcontra, _⟩ := this
       simp only [hcontra, true_eq_false] at hxmsb
-    simp [this, hymsb]
+    simp [this, hymsb, udiv_ne_zero_iff_ne_zero_and_le]
   · -- x:neg, y:nonneg
     simp only [hxmsb, hymsb, Bool.not_true, Bool.and_self, Bool.false_and, Bool.not_false,
       Bool.true_and, Bool.false_or, Bool.and_false, Bool.or_false]

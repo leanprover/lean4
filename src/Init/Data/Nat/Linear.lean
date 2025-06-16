@@ -149,7 +149,7 @@ instance : LawfulBEq PolyCnstr where
     rw [h₁, h₂, h₃]
   rfl {a} := by
     cases a; rename_i eq lhs rhs
-    show (eq == eq && (lhs == lhs && rhs == rhs)) = true
+    change (eq == eq && (lhs == lhs && rhs == rhs)) = true
     simp
 
 structure ExprCnstr where

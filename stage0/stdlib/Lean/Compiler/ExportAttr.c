@@ -15,14 +15,18 @@ extern "C" {
 #endif
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_addBuiltinDocString(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Attribute_Builtin_getId(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getExportNameFor_x3f___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppName___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____lambda__2___closed__2;
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppName(lean_object*);
+static lean_object* l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_get_export_name_for(lean_object*, lean_object*);
+lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____lambda__4___boxed(lean_object*, lean_object*, lean_object*);
@@ -31,8 +35,13 @@ static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____cl
 LEAN_EXPORT uint8_t l_Lean_isExport(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
+static lean_object* l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__7;
 LEAN_EXPORT lean_object* l_Lean_exportAttr;
+static lean_object* l_Lean_exportAttr___regBuiltin_Lean_exportAttr_docString__1___closed__1;
+LEAN_EXPORT lean_object* l_Lean_exportAttr___regBuiltin_Lean_exportAttr_docString__1(lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId(lean_object*);
+static lean_object* l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__5;
+static lean_object* l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__4;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____closed__11;
@@ -49,7 +58,9 @@ static lean_object* l_Lean_isExport___closed__2;
 lean_object* l_Lean_ParametricAttribute_getParam_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_anyAux___at___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__6;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____lambda__4(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__3;
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____closed__9;
 lean_object* l_Lean_registerParametricAttribute___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -64,6 +75,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_anyAux___at___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____closed__6;
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____closed__3;
+static lean_object* l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_isExport___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_anyAux___at___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
@@ -762,6 +774,126 @@ lean_dec(x_1);
 return x_4;
 }
 }
+static lean_object* _init_l_Lean_exportAttr___regBuiltin_Lean_exportAttr_docString__1___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Exports a function under the provided unmangled symbol name. This can be used to refer to Lean\nfunctions from other programming languages like C.\n\nExample:\n```\n@[export lean_color_from_map]\ndef colorValue (properties : @& Std.HashMap String String) : UInt32 :=\n  match properties[\"color\"]\? with\n  | some \"red\" => 0xff0000\n  | some \"green\" => 0x00ff00\n  | some \"blue\" => 0x0000ff\n  | _ => -1\n```\nC code:\n```c\n#include <lean/lean.h>\n\nuint32_t lean_color_from_map(b_lean_obj_arg properties);\n\nvoid fill_rectangle_from_map(b_lean_obj_arg properties) {\n    uint32_t color = lean_color_from_map(properties);\n    // ...\n}\n```\n\nThe opposite of this is `@[extern]`, which allows Lean functions to refer to functions from other\nprogramming languages.\n", 741, 741);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_exportAttr___regBuiltin_Lean_exportAttr_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____closed__3;
+x_3 = l_Lean_exportAttr___regBuiltin_Lean_exportAttr_docString__1___closed__1;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(20u);
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(59u);
+x_2 = lean_unsigned_to_nat(3u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__1;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__2;
+x_4 = lean_unsigned_to_nat(3u);
+x_5 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_5, 0, x_1);
+lean_ctor_set(x_5, 1, x_2);
+lean_ctor_set(x_5, 2, x_3);
+lean_ctor_set(x_5, 3, x_4);
+return x_5;
+}
+}
+static lean_object* _init_l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(50u);
+x_2 = lean_unsigned_to_nat(19u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(50u);
+x_2 = lean_unsigned_to_nat(29u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__4;
+x_2 = lean_unsigned_to_nat(19u);
+x_3 = l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__5;
+x_4 = lean_unsigned_to_nat(29u);
+x_5 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_5, 0, x_1);
+lean_ctor_set(x_5, 1, x_2);
+lean_ctor_set(x_5, 2, x_3);
+lean_ctor_set(x_5, 3, x_4);
+return x_5;
+}
+}
+static lean_object* _init_l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__3;
+x_2 = l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__6;
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____closed__3;
+x_3 = l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__7;
+x_4 = l_Lean_addBuiltinDeclarationRanges(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_getExportNameFor_x3f___closed__1() {
 _start:
 {
@@ -868,7 +1000,29 @@ l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____closed__10 = _init_l_L
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____closed__10);
 l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____closed__11 = _init_l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____closed__11();
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____closed__11);
-if (builtin) {res = l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94_(lean_io_mk_world());
+l_Lean_exportAttr___regBuiltin_Lean_exportAttr_docString__1___closed__1 = _init_l_Lean_exportAttr___regBuiltin_Lean_exportAttr_docString__1___closed__1();
+lean_mark_persistent(l_Lean_exportAttr___regBuiltin_Lean_exportAttr_docString__1___closed__1);
+if (builtin) {res = l_Lean_exportAttr___regBuiltin_Lean_exportAttr_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__1 = _init_l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__1();
+lean_mark_persistent(l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__1);
+l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__2 = _init_l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__2();
+lean_mark_persistent(l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__2);
+l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__3 = _init_l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__3();
+lean_mark_persistent(l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__3);
+l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__4 = _init_l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__4();
+lean_mark_persistent(l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__4);
+l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__5 = _init_l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__5();
+lean_mark_persistent(l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__5);
+l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__6 = _init_l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__6();
+lean_mark_persistent(l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__6);
+l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__7 = _init_l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__7();
+lean_mark_persistent(l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__7);
+if (builtin) {res = l_Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}if (builtin) {res = l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_exportAttr = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_exportAttr);

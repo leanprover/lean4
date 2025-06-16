@@ -5,8 +5,6 @@ Authors: Kim Morrison
 -/
 
 -- TODO: when `grind` is ready for production use, move this file to `src/Init/Data/Array/QSort/Lemmas.lean`.
-set_option grind.warning false
-
 /-!
 # Verification of `Array.qsort`
 

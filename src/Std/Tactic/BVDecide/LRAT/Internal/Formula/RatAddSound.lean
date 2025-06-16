@@ -11,8 +11,6 @@ This module contains the verification of RAT-based clause adding for the default
 implementation.
 -/
 
-set_option grind.warning false -- I've only made a partial effort to use grind here so far.
-
 namespace Std.Tactic.BVDecide
 namespace LRAT
 namespace Internal

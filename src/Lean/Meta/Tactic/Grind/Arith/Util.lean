@@ -107,4 +107,48 @@ where
   go (a : PArray Rat) : PArray Rat :=
     if a.size < sz then go (a.push 0) else a
 
+namespace CollectDecVars
+/-! Helper monad for collecting decision variables in `linarith` and `cutsat` -/
+
+structure State where
+  visited : Std.HashSet UInt64 := {}
+  found : FVarIdSet := {}
+
+abbrev CollectDecVarsM := ReaderT FVarIdSet $ StateM State
+
+def alreadyVisited (c : α) : CollectDecVarsM Bool := do
+  let addr := unsafe (ptrAddrUnsafe c).toUInt64 >>> 2
+  if (← get).visited.contains addr then return true
+  modify fun s => { s with visited := s.visited.insert addr }
+  return false
+
+def markAsFound (fvarId : FVarId) : CollectDecVarsM Unit := do
+  modify fun s => { s with found := s.found.insert fvarId }
+
+abbrev CollectDecVarsM.run (x : CollectDecVarsM Unit) (decVars : FVarIdSet) : FVarIdSet :=
+  let (_, s) := x decVars |>.run {}
+  s.found
+
+end CollectDecVars
+
+export CollectDecVars (CollectDecVarsM)
+
+private def ____intModuleMarker____ : Bool := true
+
+/--
+Return auxiliary expression used as "virtual" parent when
+internalizing auxiliary expressions created by `toIntModuleExpr`.
+The function `toIntModuleExpr` converts a `CommRing` polynomial into
+a `IntModule` expression. We don't want this auxiliary expression to be
+internalized by the `CommRing` module since it uses a nonstandard encoding
+with `@HMul.hMul Int α α`, a virtual `One.one` constant, etc.
+ -/
+def getIntModuleVirtualParent : Expr :=
+  mkConst ``____intModuleMarker____
+
+def isIntModuleVirtualParent (parent? : Option Expr) : Bool :=
+  match parent? with
+  | none => false
+  | some parent => parent == getIntModuleVirtualParent
+
 end Lean.Meta.Grind.Arith

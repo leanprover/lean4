@@ -11,14 +11,13 @@ import Init.Data.Hashable
 import all Init.Data.Ord
 import Init.Data.RArray
 import Init.Grind.CommRing.Basic
+import Init.Grind.CommRing.Field
 import Init.Grind.Ordered.Ring
 
 namespace Lean.Grind
-namespace CommRing
-
 -- These are no longer global instances, so we need to turn them on here.
 attribute [local instance] Semiring.natCast Ring.intCast
-
+namespace CommRing
 abbrev Var := Nat
 
 inductive Expr where
@@ -206,7 +205,7 @@ instance : LawfulBEq Poly where
     intro a
     induction a <;> simp! [BEq.beq]
     next k m p ih =>
-    show m == m ∧ p == p
+    change m == m ∧ p == p
     simp [ih]
 
 def Poly.denote [CommRing α] (ctx : Context α) (p : Poly) : α :=
@@ -533,7 +532,7 @@ theorem Mon.denote_concat {α} [CommRing α] (ctx : Context α) (m₁ m₂ : Mon
   next p₁ m₁ ih => rw [mul_assoc]
 
 private theorem le_of_blt_false {a b : Nat} : a.blt b = false → b ≤ a := by
-  intro h; apply Nat.le_of_not_gt; show ¬a < b
+  intro h; apply Nat.le_of_not_gt; change ¬a < b
   rw [← Nat.blt_eq, h]; simp
 
 private theorem eq_of_blt_false {a b : Nat} : a.blt b = false → b.blt a = false → a = b := by
@@ -1225,5 +1224,51 @@ theorem not_lt_norm' {α} [CommRing α] [Preorder α] [Ring.IsOrdered α] (ctx :
   rw [sub_eq_add_neg, add_left_comm, ← sub_eq_add_neg, sub_self] at h; simp [add_zero] at h
   contradiction
 
+theorem inv_int_eq [Field α] [IsCharP α 0] (b : Int) : b != 0 → (denoteInt b : α) * (denoteInt b)⁻¹ = 1 := by
+  simp; intro h
+  have : (denoteInt b : α) ≠ 0 := by
+    simp [denoteInt_eq]; intro h
+    have := IsCharP.intCast_eq_zero_iff (α := α) 0 b; simp [*] at this
+  rw [Field.mul_inv_cancel this]
+
+theorem inv_int_eqC {α c} [Field α] [IsCharP α c] (b : Int) : b % c != 0 → (denoteInt b : α) * (denoteInt b)⁻¹ = 1 := by
+  simp; intro h
+  have : (denoteInt b : α) ≠ 0 := by
+    simp [denoteInt_eq]; intro h
+    have := IsCharP.intCast_eq_zero_iff (α := α) c b; simp [*] at this
+  rw [Field.mul_inv_cancel this]
+
+theorem inv_zero_eqC {α c} [Field α] [IsCharP α c] (b : Int) : b % c == 0 → (denoteInt b : α)⁻¹ = 0 := by
+  simp [denoteInt_eq]; intro h
+  have : (b : α) = 0 := by
+    have := IsCharP.intCast_eq_zero_iff (α := α) c b
+    simp [*]
+  simp [this, Field.inv_zero]
+
+open Classical in
+theorem inv_split {α} [Field α] (a : α) : if a = 0 then a⁻¹ = 0 else a * a⁻¹ = 1 := by
+  split
+  next h => simp [h, Field.inv_zero]
+  next h => rw [Field.mul_inv_cancel h]
+
+def one_eq_zero_unsat_cert (p : Poly) :=
+  p == .num 1 || p == .num (-1)
+
+theorem one_eq_zero_unsat {α} [Field α] (ctx : Context α) (p : Poly) : one_eq_zero_unsat_cert p → p.denote ctx = 0 → False := by
+  simp [one_eq_zero_unsat_cert]; intro h; cases h <;> simp [*, Poly.denote, intCast_one, intCast_neg]
+  next => rw [Eq.comm]; apply Field.zero_ne_one
+  next => rw [← neg_eq_zero, neg_neg, Eq.comm]; apply Field.zero_ne_one
+
+theorem diseq_to_eq {α} [Field α] (a b : α) : a ≠ b → (a - b)*(a - b)⁻¹ = 1 := by
+  intro h
+  have : a - b ≠ 0 := by
+    intro h'; rw [Ring.sub_eq_zero_iff.mp h'] at h
+    contradiction
+  exact Field.mul_inv_cancel this
+
+theorem diseq0_to_eq {α} [Field α] (a : α) : a ≠ 0 → a*a⁻¹ = 1 := by
+  exact Field.mul_inv_cancel
+
 end CommRing
+
 end Lean.Grind

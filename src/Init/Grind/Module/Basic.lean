@@ -51,6 +51,12 @@ instance toNatModule (M : Type u) [i : IntModule M] : NatModule M :=
 
 variable {M : Type u} [IntModule M]
 
+instance (priority := 100) (M : Type u) [IntModule M] : SMul Nat M where
+  smul a x := (a : Int) * x
+
+instance (priority := 100) (M : Type u) [IntModule M] : SMul Int M where
+  smul a x := a * x
+
 theorem zero_add (a : M) : 0 + a = a := by
   rw [add_comm, add_zero]
 

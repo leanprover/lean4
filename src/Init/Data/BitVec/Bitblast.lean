@@ -1023,7 +1023,7 @@ theorem DivModState.toNat_shiftRight_sub_one_eq
     {args : DivModArgs w} {qr : DivModState w} (h : qr.Poised args) :
     args.n.toNat >>> (qr.wn - 1)
     = (args.n.toNat >>> qr.wn) * 2 + (args.n.getLsbD (qr.wn - 1)).toNat := by
-  show BitVec.toNat (args.n >>> (qr.wn - 1)) = _
+  change BitVec.toNat (args.n >>> (qr.wn - 1)) = _
   have {..} := h -- break the structure down for `omega`
   rw [shiftRight_sub_one_eq_shiftConcat args.n h.hwn_lt]
   rw [toNat_shiftConcat_eq_of_lt (k := w - qr.wn)]

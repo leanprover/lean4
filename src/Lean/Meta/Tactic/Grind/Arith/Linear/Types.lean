@@ -38,15 +38,16 @@ inductive IneqCnstrProof where
   | /-- `a ≤ b` from an equality `a = b` coming from the core. -/
     ofEq (a b : Expr) (la lb : LinExpr)
   | /-- `a ≤ b` from an equality `a = b` coming from the core. -/
-    ofCommRingEq (a b : Expr) (la lb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+    ofCommRingEq (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
 
 structure DiseqCnstr where
   p  : Poly
   h  : DiseqCnstrProof
 
 inductive DiseqCnstrProof where
-  | core (e : Expr) (lhs rhs : LinExpr)
-  -- TODO
+  | core (a b : Expr) (lhs rhs : LinExpr)
+  | coreCommRing (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+  | neg (c : DiseqCnstr)
 
 inductive UnsatProof where
   | diseq (c : DiseqCnstr)
@@ -55,11 +56,12 @@ inductive UnsatProof where
 end
 
 instance : Inhabited DiseqCnstr where
-  default := { p := .nil, h := .core default .zero .zero }
+  default := { p := .nil, h := .core default default .zero .zero }
 
 /--
 State for each algebraic structure by this module.
-Each type must be at least implement the instances `IntModule`, `Preorder`, and `IntModule.IsOrdered`
+Each type must at least implement the instance `IntModule`.
+For being able to process inequalities, it must at least implement `Preorder`, and `IntModule.IsOrdered`
 -/
 structure Struct where
   id               : Nat
@@ -70,10 +72,10 @@ structure Struct where
   u                : Level
   /-- `IntModule` instance -/
   intModuleInst    : Expr
-  /-- `Preorder` instance -/
-  preorderInst     : Expr
-  /-- `IntModule.IsOrdered` instance with `Preorder` -/
-  isOrdInst        : Expr
+  /-- `Preorder` instance if available -/
+  preorderInst?    : Option Expr
+  /-- `IntModule.IsOrdered` instance with `Preorder` if available -/
+  isOrdInst?       : Option Expr
   /-- `PartialOrder` instance if available -/
   partialInst?     : Option Expr
   /-- `LinearOrder` instance if available -/
@@ -89,11 +91,13 @@ structure Struct where
   zero             : Expr
   ofNatZero        : Expr
   one?             : Option Expr
-  leFn             : Expr
-  ltFn             : Expr
+  leFn?            : Option Expr
+  ltFn?            : Option Expr
   addFn            : Expr
   hmulFn           : Expr
-  smulFn?          : Option Expr
+  hmulNatFn        : Expr
+  hsmulFn?         : Option Expr
+  hsmulNatFn?      : Option Expr
   subFn            : Expr
   negFn            : Expr
   /--
@@ -137,6 +141,12 @@ structure Struct where
   This is necessary because the same disequality may be in different conflicts.
   -/
   diseqSplits : PHashMap Poly FVarId := {}
+  /--
+  Linear constraints that are not supported.
+  We use this information for diagnostics.
+  TODO: store constraints instead.
+  -/
+  ignored : PArray Expr := {}
   deriving Inhabited
 
 /-- State for all `IntModule` types detected by `grind`. -/

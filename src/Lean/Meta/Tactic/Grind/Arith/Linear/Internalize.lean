@@ -23,6 +23,7 @@ private def getType? (e : Expr) : Option Expr :=
   | HSMul.hSMul _ _ α _ _ _ => some α
   | Neg.neg α _ _ => some α
   | Zero.zero α _ => some α
+  | One.one α _ => some α
   | OfNat.ofNat α _ _ => some α
   | NatCast.natCast α _ _ => some α
   | IntCast.intCast α _ _ => some α
@@ -36,6 +37,7 @@ private def isForbiddenParent (parent? : Option Expr) : Bool :=
       -- We also ignore the following parents.
       -- Remark: `HDiv` should appear in `getType?` as soon as we add support for `Field`
       match_expr parent with
+      | LT.lt _ _ _ _ => true
       | LE.le _ _ _ _ => true
       | HDiv.hDiv _ _ _ _ _ _ => true
       | HMod.hMod _ _ _ _ _ _ => true
@@ -43,13 +45,22 @@ private def isForbiddenParent (parent? : Option Expr) : Bool :=
   else
     true
 
+def markVars (e : Expr) : LinearM Unit := do
+  -- TODO: avoid creation of auxiliary reified expression
+  discard <| reify? e (skipVar := true)
+
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).linarith do return ()
+  if isIntModuleVirtualParent parent? then
+    -- `e` is an auxiliary term used to convert `CommRing` to `IntModule`
+    return ()
   let some type := getType? e | return ()
   if isForbiddenParent parent? then return ()
   let some structId ← getStructId? type | return ()
   LinearM.run structId do
+    trace[grind.linarith.internalize] "{e}"
     setTermStructId e
     markAsLinarithTerm e
+    markVars e
 
 end Lean.Meta.Grind.Arith.Linear

@@ -92,6 +92,9 @@ def isOrderedCommRing : LinearM Bool := do
 def isLinearOrder : LinearM Bool :=
   return (← getStruct).linearInst?.isSome
 
+def hasNoNatZeroDivisors : LinearM Bool :=
+  return (← getStruct).noNatDivInst?.isSome
+
 @[inline] def modifyStruct (f : Struct → Struct) : LinearM Unit := do
   let structId ← getStructId
   modify' fun s => { s with structs := s.structs.modify structId f }
@@ -106,6 +109,29 @@ def setTermStructId (e : Expr) : LinearM Unit := do
       reportIssue! "expression in two different structure in linarith module{indentExpr e}"
     return ()
   modify' fun s => { s with exprToStructId := s.exprToStructId.insert { expr := e } structId }
+
+def getPreorderInst : LinearM Expr := do
+  let some inst := (← getStruct).preorderInst?
+    | throwError "`grind linarith` internal error, structure is not a preorder"
+  return inst
+
+def getIsOrdInst : LinearM Expr := do
+  let some inst := (← getStruct).isOrdInst?
+    | throwError "`grind linarith` internal error, structure is not an ordered module"
+  return inst
+
+def isOrdered : LinearM Bool :=
+  return (← getStruct).isOrdInst?.isSome
+
+def getLtFn [Monad m] [MonadError m] [MonadGetStruct m] : m Expr := do
+  let some lt := (← getStruct).ltFn?
+    | throwError "`grind linarith` internal error, structure is not an ordered module"
+  return lt
+
+def getLeFn [Monad m] [MonadError m] [MonadGetStruct m] : m Expr := do
+  let some le := (← getStruct).leFn?
+    | throwError "`grind linarith` internal error, structure is not an ordered int module"
+  return le
 
 def getLinearOrderInst : LinearM Expr := do
   let some inst := (← getStruct).linearInst?

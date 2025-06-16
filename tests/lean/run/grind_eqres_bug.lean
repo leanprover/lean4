@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 /--
 trace: [grind.eqResolution] ∀ (x : Nat), p x a → ∀ (y : Nat), p y b → ¬x = y, ∀ (y : Nat), p y a → p y b → False
 [grind.ematch.instance] local_0: p c a → ¬p c b

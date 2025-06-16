@@ -1,7 +1,5 @@
 open List
 reset_grind_attrs%
-set_option grind.warning false
-
 attribute [grind →] Array.eq_empty_of_append_eq_empty eq_nil_of_length_eq_zero
 attribute [grind] Vector.getElem?_append getElem?_dropLast
 

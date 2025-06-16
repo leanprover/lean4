@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 theorem ex1 (x y z : Nat) : x < y + z → y + 1 < z → z + x < 3*z := by
   grind
 
@@ -29,7 +27,10 @@ example (a b : Int) : a + b = Int.ofNat 2 → a - 2 = -b := by
   grind
 
 /--
-trace: [grind.cutsat.assert] -1*「↑a * ↑b」 ≤ 0
+trace: [grind.cutsat.assert] -1*↑a ≤ 0
+[grind.cutsat.assert] -1*↑b ≤ 0
+[grind.cutsat.assert] -1*「↑a * ↑b」 ≤ 0
+[grind.cutsat.assert] -1*「1」 + 1 = 0
 [grind.cutsat.assert] -1*↑c ≤ 0
 [grind.cutsat.assert] -1*↑c + 「↑a * ↑b」 + 1 ≤ 0
 [grind.cutsat.assert] -1*↑0 = 0

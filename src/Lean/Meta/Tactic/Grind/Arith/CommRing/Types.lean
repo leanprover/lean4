@@ -139,9 +139,11 @@ structure Ring where
   /-- `CommRing` instance for `type` -/
   commRingInst   : Expr
   /-- `IsCharP` instance for `type` if available. -/
-  charInst?      : Option (Expr × Nat) := .none
+  charInst?      : Option (Expr × Nat)
   /-- `NoNatZeroDivisors` instance for `type` if available. -/
-  noZeroDivInst? : Option Expr := .none
+  noZeroDivInst? : Option Expr
+  /-- `Field` instance for `type` if available. -/
+  fieldInst?     : Option Expr
   addFn          : Expr
   mulFn          : Expr
   subFn          : Expr
@@ -149,6 +151,9 @@ structure Ring where
   powFn          : Expr
   intCastFn      : Expr
   natCastFn      : Expr
+  /-- Inverse if `fieldInst?` is `some inst` -/
+  invFn?         : Option Expr
+  one            : Expr
   /--
   Mapping from variables to their denotations.
   Remark each variable can be in only one ring.
@@ -178,6 +183,8 @@ structure Ring where
   disequalities and implied equalities.
   -/
   recheck        : Bool := false
+  /-- Inverse theorems that have been already asserted. -/
+  invSet         : PHashSet Expr := {}
   deriving Inhabited
 
 /-- State for all `CommRing` types detected by `grind`. -/

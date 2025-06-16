@@ -4,9 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr
+import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
 
 namespace Lean.Meta.Grind.Arith.Linear
 
@@ -129,7 +131,7 @@ Returns the prefix of a theorem with name `declName` where the first four argume
 -/
 private def mkIntModPreThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp4 (mkConst declName [s.u]) s.type s.intModuleInst s.preorderInst (← getContext)
+  return mkApp4 (mkConst declName [s.u]) s.type s.intModuleInst (← getPreorderInst) (← getContext)
 
 /--
 Returns the prefix of a theorem with name `declName` where the first five arguments are
@@ -138,7 +140,7 @@ This is the most common theorem prefix at `Linarith.lean`
 -/
 private def mkIntModPreOrdThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp5 (mkConst declName [s.u]) s.type s.intModuleInst s.preorderInst s.isOrdInst (← getContext)
+  return mkApp5 (mkConst declName [s.u]) s.type s.intModuleInst (← getPreorderInst) (← getIsOrdInst) (← getContext)
 
 /--
 Returns the prefix of a theorem with name `declName` where the first five arguments are
@@ -147,7 +149,7 @@ This is the most common theorem prefix at `Linarith.lean`
 -/
 private def mkIntModLinOrdThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp5 (mkConst declName [s.u]) s.type s.intModuleInst (← getLinearOrderInst) s.isOrdInst (← getContext)
+  return mkApp5 (mkConst declName [s.u]) s.type s.intModuleInst (← getLinearOrderInst) (← getIsOrdInst) (← getContext)
 
 /--
 Returns the prefix of a theorem with name `declName` where the first three arguments are
@@ -163,7 +165,7 @@ Returns the prefix of a theorem with name `declName` where the first five argume
 -/
 private def mkCommRingPreOrdThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp5 (mkConst declName [s.u]) s.type (← getCommRingInst) s.preorderInst (← getRingIsOrdInst) (← getRingContext)
+  return mkApp5 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getPreorderInst) (← getRingIsOrdInst) (← getRingContext)
 
 /--
 Returns the prefix of a theorem with name `declName` where the first five arguments are
@@ -203,7 +205,7 @@ partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' d
       (← c₁.toExprProof) (← c₂.toExprProof)
   | .oneGtZero =>
     let s ← getStruct
-    let h := mkApp5 (mkConst ``Grind.Linarith.zero_lt_one [s.u]) s.type (← getRingInst) s.preorderInst (← getRingIsOrdInst) (← getContext)
+    let h := mkApp5 (mkConst ``Grind.Linarith.zero_lt_one [s.u]) s.type (← getRingInst) (← getPreorderInst) (← getRingIsOrdInst) (← getContext)
     return mkApp3 h (← mkPolyDecl c'.p) reflBoolTrue (← mkEqRefl (← getOne))
   | .ofEq a b la lb =>
     let h ← mkIntModPreOrdThmPrefix ``Grind.Linarith.le_of_eq
@@ -213,15 +215,33 @@ partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' d
     let h' := mkApp5 h' (← mkRingExprDecl la) (← mkRingExprDecl lb) (← mkRingPolyDecl p') reflBoolTrue (← mkEqProof a b)
     let h ← mkIntModPreOrdThmPrefix ``Grind.Linarith.le_of_eq
     return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) reflBoolTrue h'
+  | .dec h => return mkFVar h
+  | .ofDiseqSplit c₁ fvarId h _ =>
+    let hFalse ← h.toExprProofCore
+    let lt ← getLtFn
+    let hNot := mkLambda `h .default (mkApp2 lt (← c₁.p.denoteExpr) (← getZero)) (hFalse.abstract #[mkFVar fvarId])
+    let h ← mkIntModLinOrdThmPrefix ``Grind.Linarith.diseq_split_resolve
+    return mkApp5 h (← mkPolyDecl c₁.p) (← mkPolyDecl c'.p) reflBoolTrue (← c₁.toExprProof) hNot
   | _ => throwError "NIY"
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do
-  throwError "NIY"
+  match c'.h with
+  | .core a b lhs rhs =>
+    let h ← mkIntModThmPrefix ``Grind.Linarith.diseq_norm
+    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue (← mkDiseqProof a b)
+  | .coreCommRing a b lhs rhs p' lhs' =>
+    let h' ← mkCommRingThmPrefix ``Grind.CommRing.diseq_norm
+    let h' := mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl p') reflBoolTrue (← mkDiseqProof a b)
+    let h ← mkIntModThmPrefix ``Grind.Linarith.diseq_norm
+    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) reflBoolTrue h'
+  | .neg c =>
+    let h ← mkIntModThmPrefix ``Grind.Linarith.diseq_neg
+    return mkApp4 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
 
 partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
   match h with
   | .lt c => return mkApp (← mkIntModPreThmPrefix ``Grind.Linarith.lt_unsat) (← c.toExprProof)
-  | .diseq _ => throwError "NIY"
+  | .diseq c => return mkApp (← mkIntModThmPrefix ``Grind.Linarith.diseq_unsat) (← c.toExprProof)
 
 end
 
@@ -235,5 +255,34 @@ def setInconsistent (h : UnsatProof) : LinearM Unit := do
   else
     let h ← h.toExprProof
     closeGoal h
+
+/-!
+A linarith proof may depend on decision variables.
+We collect them and perform non chronological backtracking.
+-/
+open CollectDecVars
+mutual
+
+partial def IneqCnstr.collectDecVars (c' : IneqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
+  match c'.h with
+  | .core .. | .notCore .. | .coreCommRing .. | .notCoreCommRing ..
+  | .oneGtZero | .ofEq .. | .ofCommRingEq .. => return ()
+  | .combine c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
+  | .norm c₁ _ => c₁.collectDecVars
+  | .dec h => markAsFound h
+  | .ofDiseqSplit (decVars := decVars) .. => decVars.forM markAsFound
+
+-- `DiseqCnstr` is currently mutually recursive with `IneqCnstr`, but it will be in the future.
+-- Actually, it cannot even contain decision variables in the current implementation.
+partial def DiseqCnstr.collectDecVars (c' : DiseqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
+  match c'.h with
+  | .core .. | .coreCommRing .. => return ()
+  | .neg c => c.collectDecVars
+
+end
+
+def UnsatProof.collectDecVars (h : UnsatProof) : CollectDecVarsM Unit := do
+  match h with
+  | .lt c | .diseq c => c.collectDecVars
 
 end Lean.Meta.Grind.Arith.Linear

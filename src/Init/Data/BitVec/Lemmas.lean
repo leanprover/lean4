@@ -5740,14 +5740,14 @@ theorem clzAux_eq_iff_forall_of_clzAux_lt  {x : BitVec w} (hlt : (clzAux x n < n
     · case succ k =>
       simp only [clzAux, Nat.reduceSubDiff] at *
       by_cases hxn : x.getLsbD (n + 1)
-      · simp only [hxn, ↓reduceIte, Nat.right_eq_add, Nat.add_eq_zero, Nat.succ_ne_self, and_false,
+      · simp only [hxn, reduceIte, Nat.right_eq_add, Nat.add_eq_zero, Nat.succ_ne_self, and_false,
           Nat.reduceSubDiff, false_iff, _root_.not_and, Bool.not_eq_true]
         intro hi
         specialize hi 0 (by omega)
         simp [hxn] at hi
-      · simp only [hxn, Bool.false_eq_true, ↓reduceIte] at hlt
+      · simp only [hxn, Bool.false_eq_true, reduceIte] at hlt
         simp only [show x.clzAux n < n + 1 by omega, forall_const] at ihn
-        simp only [hxn, Bool.false_eq_true, ↓reduceIte,
+        simp only [hxn, Bool.false_eq_true, reduceIte,
           show 1 + x.clzAux n = k + 1 ↔ x.clzAux n = k by omega, Nat.reduceSubDiff, ihn,
           and_congr_left_iff]
         intro h

@@ -44,6 +44,33 @@ variable {M : Type u} [NatModule M]
 theorem zero_add (a : M) : 0 + a = a := by
   rw [add_comm, add_zero]
 
+abbrev PreEnvelope (M : Type u) [NatModule M] : Type u := M × M
+instance setoid (M : Type u) [NatModule M] : Setoid (PreEnvelope M) where
+  r x y := x.1 + y.2 = x.2 + y.1
+  iseqv := sorry
+
+abbrev Envelope (M : Type u) [NatModule M] : Type u := Quotient (setoid M)
+
+instance : IntModule (Envelope M) where
+  zero := Quotient.mk' ((0 : M), (0 : M))
+  add := Quotient.lift₂ (fun (a, b) (c, d) => Quotient.mk' (a + c, b + d)) sorry
+  neg := Quotient.lift (fun (a, b) => Quotient.mk' (b, a)) sorry
+  sub := Quotient.lift₂ (fun (a, b) (c, d) => Quotient.mk' (a + d, b + c)) sorry
+  hMul
+  | (i : Nat) => Quotient.lift (fun (a, b) => Quotient.mk' (i * a, i * b)) sorry
+  | -(i + 1 : Nat) => Quotient.lift (fun (a, b) => Quotient.mk' ((i + 1) * b, (i + 1) * a)) sorry
+  add_zero := sorry
+  add_comm := sorry
+  add_assoc := sorry
+  neg_add_cancel := sorry
+  sub_eq_add_neg := sorry
+  zero_hmul := sorry
+  add_hmul := sorry
+  one_hmul := sorry
+  mul_hmul := sorry
+  hmul_zero := sorry
+  hmul_add := sorry
+
 end NatModule
 
 namespace IntModule

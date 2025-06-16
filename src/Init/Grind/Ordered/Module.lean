@@ -23,6 +23,19 @@ class IntModule.IsOrdered (M : Type u) [Preorder M] [IntModule M] where
   hmul_pos : ∀ (k : Int) {a : M}, 0 < a → (0 < k ↔ 0 < k * a)
   hmul_nonneg : ∀ {k : Int} {a : M}, 0 ≤ k → 0 ≤ a → 0 ≤ k * a
 
+namespace NatModule
+
+variable {M : Type u} [Preorder M] [NatModule M]
+
+instance : Preorder (Envelope M) where
+  le := Quotient.lift₂ (fun x y => x.1 + y.2 ≤ y.1 + x.2) sorry
+  lt := Quotient.lift₂ (fun x y => x.1 < y.1) sorry
+  le_refl := sorry
+  le_trans := sorry
+  lt_iff_le_not_le := sorry
+
+end NatModule
+
 namespace NatModule.IsOrdered
 
 variable {M : Type u} [Preorder M] [NatModule M] [NatModule.IsOrdered M]

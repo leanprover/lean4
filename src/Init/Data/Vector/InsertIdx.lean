@@ -38,7 +38,7 @@ theorem insertIdx_zero {xs : Vector α n} {x : α} : xs.insertIdx 0 x = (#v[x] +
 theorem eraseIdx_insertIdx_self {i : Nat} {xs : Vector α n} {h : i ≤ n} :
     (xs.insertIdx i a).eraseIdx i = xs := by
   rcases xs with ⟨xs, rfl⟩
-  simp_all [Array.eraseIdx_insertIdx]
+  simp_all [Array.eraseIdx_insertIdx_self]
 
 @[deprecated eraseIdx_insertIdx_self (since := "2025-06-15")]
 theorem eraseIdx_insertIdx {i : Nat} {xs : Vector α n} {h : i ≤ n} :

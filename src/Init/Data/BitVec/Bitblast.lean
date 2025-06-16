@@ -1715,30 +1715,6 @@ theorem toInt_sdiv (a b : BitVec w) : (a.sdiv b).toInt = (a.toInt.tdiv b.toInt).
   · rw [← toInt_bmod_cancel]
     rw [BitVec.toInt_sdiv_of_ne_or_ne _ _ (by simpa only [Decidable.not_and_iff_not_or_not] using h)]
 
-/-- Unsigned division is zero if and only if either the denominator is zero,
-or the numerator is unsigned less than the denominator -/
-theorem udiv_eq_zero_iff_eq_zero_or_lt {x y : BitVec w} :
-     x / y = 0#w ↔ (y = 0#w ∨ x < y) := by
-  constructor
-  · intros h
-    obtain h := toNat_inj.mpr h
-    simp only [toNat_udiv, toNat_ofNat, zero_mod, Nat.div_eq_zero_iff] at h
-    rcases h with h | h
-    · left
-      apply eq_of_toNat_eq
-      simp [h]
-    · right
-      simp [lt_def, h]
-  · intros h
-    apply eq_of_toNat_eq
-    simp only [toNat_udiv, toNat_ofNat, zero_mod, Nat.div_eq_zero_iff]
-    simp only [lt_def] at h
-    rcases h with h | h <;> simp [h]
-
-theorem udiv_ne_zero_iff_ne_zero_and_le {x y : BitVec w} :
-     ¬ (x / y = 0#w) ↔ (y ≠ 0#w ∧ y ≤ x) := by
-  simp only [ne_eq, udiv_eq_zero_iff_eq_zero_or_lt, _root_.not_or, BitVec.not_lt]
-
 private theorem neg_udiv_eq_intmin_iff_eq_intmin_eq_one_of_msb_eq_true
     {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = false) :
     -x / y = intMin w ↔ (x = intMin w ∧ y = 1#w) := by

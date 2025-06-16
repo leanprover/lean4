@@ -28,7 +28,7 @@ inductive EqCnstrProof where
   | core (a b : Expr) (lhs rhs : LinExpr)
   | coreCommRing (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
   | neg (c : EqCnstr)
-  | coeff (k : Int) (c : EqCnstr)
+  | coeff (k : Nat) (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
 
 /-- An inequality constraint and its justification/proof. -/
@@ -51,6 +51,7 @@ inductive IneqCnstrProof where
     ofEq (a b : Expr) (la lb : LinExpr)
   | /-- `a ≤ b` from an equality `a = b` coming from the core. -/
     ofCommRingEq (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+  | subst (x : Var) (c₁ : EqCnstr) (c₂ : IneqCnstr)
 
 structure DiseqCnstr where
   p  : Poly
@@ -60,7 +61,8 @@ inductive DiseqCnstrProof where
   | core (a b : Expr) (lhs rhs : LinExpr)
   | coreCommRing (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
   | neg (c : DiseqCnstr)
-  | subst (x : Var) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
+  | subst (k₁ k₂ : Int) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
+  | subst1 (k : Int) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
   | oneNeZero
 
 inductive UnsatProof where
@@ -70,6 +72,9 @@ inductive UnsatProof where
 end
 
 instance : Inhabited DiseqCnstr where
+  default := { p := .nil, h := .core default default .zero .zero }
+
+instance : Inhabited EqCnstr where
   default := { p := .nil, h := .core default default .zero .zero }
 
 abbrev VarSet := RBTree Var compare

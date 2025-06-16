@@ -30,6 +30,7 @@ builtin_initialize registerTraceClass `grind.linarith.model
 builtin_initialize registerTraceClass `grind.linarith.assert.unsat (inherited := true)
 builtin_initialize registerTraceClass `grind.linarith.assert.trivial (inherited := true)
 builtin_initialize registerTraceClass `grind.linarith.assert.store (inherited := true)
+builtin_initialize registerTraceClass `grind.linarith.assert.ignored (inherited := true)
 
 builtin_initialize registerTraceClass `grind.debug.linarith.search
 builtin_initialize registerTraceClass `grind.debug.linarith.search.conflict (inherited := true)

@@ -110,7 +110,8 @@ def lowerType (e : Lean.Expr) : M IRType := do
       else
         return .object
   | .app f _ =>
-    if let .const name _ := f.headBeta then
+    -- All mono types are in headBeta form.
+    if let .const name _ := f then
       if let some scalarType ← lowerEnumToScalarType name then
         return scalarType
       else

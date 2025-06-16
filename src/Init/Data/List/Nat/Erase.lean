@@ -187,7 +187,7 @@ theorem set_eraseIdx {xs : List α} {i : Nat} {j : Nat} {a : α} :
       · have t : ¬ n < i := by omega
         simp [t]
 
-@[simp] theorem eraseIdx_length_sub_one {l : List α} :
+@[simp, grind =] theorem eraseIdx_length_sub_one {l : List α} :
     (l.eraseIdx (l.length - 1)) = l.dropLast := by
   apply ext_getElem
   · simp [length_eraseIdx]

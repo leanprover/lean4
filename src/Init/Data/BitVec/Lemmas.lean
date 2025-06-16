@@ -3998,21 +3998,7 @@ theorem toInt_udiv_of_msb {x : BitVec w} (h : x.msb = false) (y : BitVec w) :
 or the numerator is unsigned less than the denominator -/
 theorem udiv_eq_zero_iff_eq_zero_or_lt {x y : BitVec w} :
      x / y = 0#w ↔ (y = 0#w ∨ x < y) := by
-  constructor
-  · intros h
-    obtain h := toNat_inj.mpr h
-    simp only [toNat_udiv, toNat_ofNat, Nat.zero_mod, Nat.div_eq_zero_iff] at h
-    rcases h with h | h
-    · left
-      apply eq_of_toNat_eq
-      simp [h]
-    · right
-      simp [lt_def, h]
-  · intros h
-    apply eq_of_toNat_eq
-    simp only [toNat_udiv, toNat_ofNat, Nat.zero_mod, Nat.div_eq_zero_iff]
-    simp only [lt_def] at h
-    rcases h with h | h <;> simp [h]
+    simp [toNat_eq, toNat_udiv, toNat_ofNat, Nat.zero_mod, Nat.div_eq_zero_iff, BitVec.lt_def]
 
 theorem udiv_ne_zero_iff_ne_zero_and_le {x y : BitVec w} :
      ¬ (x / y = 0#w) ↔ (y ≠ 0#w ∧ y ≤ x) := by

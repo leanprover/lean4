@@ -1724,7 +1724,7 @@ private theorem neg_udiv_eq_intmin_iff_eq_intmin_eq_one_of_msb_eq_true
     have : (-x / y).msb = true := by simp [h, msb_intMin]
     rw [msb_udiv] at this
     simp only [bool_to_prop] at this
-    obtain ⟨hx₂, hy⟩ := this
+    obtain ⟨hx, hy⟩ := this
     simp only [beq_iff_eq] at hy
     subst hy
     simp only [udiv_one, zero_lt_succ, neg_eq_intMin] at h

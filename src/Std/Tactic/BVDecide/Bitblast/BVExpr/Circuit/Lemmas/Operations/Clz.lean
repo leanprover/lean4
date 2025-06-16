@@ -57,9 +57,8 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
           simp only [Nat.add_eq_zero, Nat.succ_ne_self, and_false, ↓reduceIte, RefVec.get_cast,
             Ref.cast_eq, Nat.add_one_sub_one]
           rw [RefVec.denote_ite]
-          rcases curr
-          · case zero =>
-            split
+          rcases curr with _|curr
+          · split
             · next hx' =>
               simp only [BitVec.sub_zero, denote_blastConst, BitVec.clzAuxRec,
                 show x.getLsbD 0 = true by rw [hx] at hx'; exact hx', reduceIte]
@@ -76,8 +75,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
               simp only [BitVec.clzAuxRec,
                 show x.getLsbD 0 = false by rw [hx] at hx'; simp at hx'; exact hx',
                 Bool.false_eq_true, ↓reduceIte, hacc]
-          · case succ curr =>
-            split
+          · split
             · next hx' =>
               simp only at hx'
               simp only [denote_blastConst,BitVec.clzAuxRec,
@@ -85,7 +83,8 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
               congr
               rcases w with _|w
               · simp [BitVec.of_length_zero]
-              · simp [BitVec.ofNat_sub_ofNat, ← BitVec.toNat_eq]
+              · simp only [BitVec.ofNat_sub_ofNat, Nat.zero_lt_succ, Nat.one_mod_two_pow,
+                  Nat.add_one_sub_one]
                 have hlt := Nat.lt_pow_self (n := curr + 1) (a := 2) (by omega)
                 have hlt' := Nat.pow_lt_pow_of_lt (a := 2) (n := curr + 1) (m := w + 1) (by omega) (by omega)
                 rw [Nat.mod_eq_of_lt (a := curr + 1) (by omega),

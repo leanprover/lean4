@@ -12,6 +12,8 @@ open Lean System
 /-- A Lean library -- its package plus its configuration. -/
 abbrev LeanLib := ConfigTarget LeanLib.configKind
 
+instance : Inhabited LeanLib := ⟨⟨default, default, (default : LeanLibConfig _)⟩⟩
+
 /-- The Lean libraries of the package (as an Array). -/
 @[inline] def Package.leanLibs (self : Package) : Array LeanLib :=
   self.configTargets LeanLib.configKind

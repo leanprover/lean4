@@ -162,63 +162,49 @@ and target facets.
 /-! #### Module Infos -/
 
 structure ModuleImports where
-  transSet : NameSet := {}
+  importMap : Std.HashMap Name Nat := {}
+  importData : Array Bool := #[]
   localImports : Array Module := #[]
   transImports : Array Module := #[]
-  publicSet : NameSet := {}
   publicImports : Array Module := #[]
   libName? : Option Name := none
-  libSet : NameSet :=
+  libSet : Std.HashSet Name :=
     match libName? with
     | some libName => .insert {} libName
     | none => {}
   libs : Array LeanLib := #[]
 
-private def ModuleImports.addLibCore (self : ModuleImports) (lib : LeanLib) : ModuleImports :=
-  if self.libSet.contains lib.name then
-    self
-  else
-    {self with
-      libSet := self.libSet.insert lib.name
-      libs := self.libs.push lib
-    }
-
-private def ModuleImports.addPublicImportCore (self : ModuleImports) (mod : Module) : ModuleImports :=
-  if self.publicSet.contains mod.name then
-    self
-  else
-    {self with
-      publicSet := self.publicSet.insert mod.name
-      publicImports := self.publicImports.push mod
-    }
-
-private def ModuleImports.addImportCore
-  (self : ModuleImports) (mod : Module)
-: ModuleImports := Id.run do
-  let mut self := self
-  if self.transSet.contains mod.name then
-    return self
-  self := {self with
-    transSet := self.transSet.insert mod.name
-    transImports := self.transImports.push mod
-  }
-  -- if self.libName? = mod.lib.name then
-  --   self := {self with localImports := self.localImports.push mod}
-  -- else
-  --   self := self.addLibCore mod.lib
-  return self
-
-set_option linter.unusedVariables false in
 def ModuleImports.insert
   (self : ModuleImports) (mod : Module) (isPublic : Bool)
 : ModuleImports :=
-  let self := inline <| self.addImportCore mod
-  --let self := if isPublic then inline <| self.addPublicImportCore mod else self
-  self
+ if let some i := self.importMap.get? mod.name then
+    if isPublic && !self.importData[i]! then
+      {self with
+        importData := self.importData.set! i true
+        publicImports := self.publicImports.push mod
+      }
+    else
+      self
+  else
+    let self := {self with
+      importMap := self.importMap.insert mod.name self.transImports.size
+      importData := self.importData.push isPublic
+      transImports := self.transImports.push mod
+      publicImports := if isPublic then self.publicImports.push mod else self.publicImports
+    }
+    if self.libName? = some mod.lib.name then
+      {self with localImports := self.localImports.push mod}
+    else if self.libSet.contains mod.lib.name then
+      self
+    else
+      {self with
+        libSet := self.libSet.insert mod.lib.name
+        libs := self.libs.push mod.lib
+      }
 
 def ModuleImports.append (self other : ModuleImports) : ModuleImports :=
-  --let self := other.publicImports.foldl addPublicImportCore self
-  let self := other.transImports.foldl addImportCore self
+  let self := other.transImports.size.fold (init := self) fun i _ imps =>
+    imps.insert other.transImports[i] other.importData[i]!
   self
 
 /--

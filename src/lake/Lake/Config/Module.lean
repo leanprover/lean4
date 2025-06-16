@@ -21,6 +21,7 @@ structure Module where
   Used to create private modules (e.g., executable roots).
   -/
   keyName : Name := name
+  deriving Inhabited
 
 instance : ToText Module := ⟨(·.name.toString)⟩
 instance : ToJson Module := ⟨(toJson ·.name)⟩

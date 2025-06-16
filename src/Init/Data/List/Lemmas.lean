@@ -2927,10 +2927,10 @@ theorem getLast_filterMap_of_eq_some {f : α → Option β} {l : List α} (w : l
     (flatten L).getLast? = L.reverse.findSome? fun l => l.getLast? := by
   simp [← flatMap_id, getLast?_flatMap]
 
-@[grind =] theorem getLast?_replicate {a : α} {n : Nat} : (replicate n a).getLast? = if n = 0 then none else some a := by
+theorem getLast?_replicate {a : α} {n : Nat} : (replicate n a).getLast? = if n = 0 then none else some a := by
   simp only [← head?_reverse, reverse_replicate, head?_replicate]
 
-@[simp, grind =] theorem getLast_replicate (w : replicate n a ≠ []) : (replicate n a).getLast w = a := by
+@[simp] theorem getLast_replicate (w : replicate n a ≠ []) : (replicate n a).getLast w = a := by
   simp [getLast_eq_head_reverse]
 
 /-! ## Additional operations -/

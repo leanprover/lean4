@@ -1979,7 +1979,7 @@ theorem clz_eq_clzAuxRec_of_forall_getLsbD_false (x : BitVec w) (h : ∀ i, n < 
     · case zero =>
       simp only [clzAuxRec, zero_lt_succ, getLsbD_eq_getElem, Nat.add_one_sub_one]
       by_cases hx0 : x[0]
-      · simp only [clz, Nat.add_eq_zero, succ_ne_self, _root_.and_false, ↓reduceIte,
+      · simp only [clz, Nat.add_eq_zero, succ_ne_self, _root_.and_false, reduceIte,
           Nat.add_one_sub_one, hx0, toNat_eq, toNat_ofNat]
         rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by omega)]
         simp only [show ¬∀ i, i < w + 1 → x.getLsbD i = false by simp; exists 0; simp [hx0],
@@ -1989,7 +1989,7 @@ theorem clz_eq_clzAuxRec_of_forall_getLsbD_false (x : BitVec w) (h : ∀ i, n < 
         intro i hi
         apply h
         omega
-      · simp only [clz, Nat.add_eq_zero, succ_ne_self, _root_.and_false, ↓reduceIte,
+      · simp only [clz, Nat.add_eq_zero, succ_ne_self, _root_.and_false, reduceIte,
           Nat.add_one_sub_one, hx0, false_eq_true, toNat_eq, toNat_ofNat, Nat.mod_two_pow_self]
         rw [Nat.mod_eq_of_lt (by omega), heq]
         intro i hi
@@ -2002,17 +2002,17 @@ theorem clz_eq_clzAuxRec_of_forall_getLsbD_false (x : BitVec w) (h : ∀ i, n < 
           apply Classical.byContradiction
           intro hcontra
           simp only [show w + 1 ≤ n + 1 by omega, getLsbD_of_ge, false_eq_true] at hxn
-        simp only [clz, clzAuxRec, Nat.add_eq_zero, succ_ne_self, _root_.and_false, ↓reduceIte,
+        simp only [clz, clzAuxRec, Nat.add_eq_zero, succ_ne_self, _root_.and_false, reduceIte,
           Nat.add_one_sub_one, Nat.mod_eq_of_lt (by omega)]
         simp only [iff_false, show ¬∀ i, i < w + 1 → x.getLsbD i = false by simp; exists n + 1] at heq
-        simp only [hxn, ↓reduceIte, toNat_eq, toNat_ofNat]
+        simp only [hxn, reduceIte, toNat_eq, toNat_ofNat]
         rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by omega),
           clzAux_eq_iff_forall_of_clzAux_lt (by omega)]
         simp only [show w - (w - (n + 1)) = n + 1 by omega, hxn, _root_.and_true]
         intro i hi
         apply h
         omega
-      · simp only [clzAuxRec, hxn, false_eq_true, ↓reduceIte]
+      · simp only [clzAuxRec, hxn, false_eq_true, reduceIte]
         apply ihn
         intro i hi
         by_cases hi : n + 1 < i

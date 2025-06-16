@@ -5685,6 +5685,17 @@ theorem clzAux_eq_zero_iff {x : BitVec w} {n : Nat} :
     clzAux x n = 0 ↔ x.getLsbD n = true := by
   cases n <;> simp [clzAux]
 
+theorem clzAux_le {x : BitVec w} {n : Nat} :
+    clzAux x n ≤ n + 1 := by
+  induction n
+  · case zero =>
+    cases hx0 : x.getLsbD 0
+    <;> simp [clzAux, hx0]
+  · case succ n ihn =>
+    by_cases hxn : x.getLsbD (n + 1)
+    · simp [clzAux, hxn]
+    · simp [clzAux, hxn]; omega
+
 theorem clzAux_eq_iff {x : BitVec w} {n : Nat} :
     clzAux x n = (n + 1) ↔ (∀ i, i < n + 1 → x.getLsbD i = false) := by
   induction n
@@ -5705,17 +5716,6 @@ theorem clzAux_eq_iff {x : BitVec w} {n : Nat} :
         apply hc
         omega
 
-theorem clzAux_le {x : BitVec w} {n : Nat} :
-    clzAux x n ≤ n + 1 := by
-  induction n
-  · case zero =>
-    cases hx0 : x.getLsbD 0
-    <;> simp [clzAux, hx0]
-  · case succ n ihn =>
-    by_cases hxn : x.getLsbD (n + 1)
-    · simp [clzAux, hxn]
-    · simp [clzAux, hxn]; omega
-
 @[simp]
 theorem clzAux_zero {x : BitVec w} : clzAux x 0 = if x.getLsbD 0 then 0 else 1 := by simp [clzAux]
 
@@ -5723,17 +5723,17 @@ theorem clzAux_eq_iff_forall_of_clzAux_lt  {x : BitVec w} (hlt : (clzAux x n < n
     x.clzAux n = k ↔ ((∀ i, i < k → x.getLsbD (n - i) = false) ∧ ((x.getLsbD (n - k) = true))) := by
   induction n generalizing k
   · case zero =>
-    rcases k
-    · case zero => simp [clzAux_eq_zero_iff]
-    · case succ k =>
+    by_cases hk0 : 0 = k
+    · simp [← hk0, clzAux_eq_zero_iff]
+    · simp [clzAux_zero]
       by_cases hx0 : x.getLsbD 0
-      · simp only [clzAux_zero, hx0, reduceIte, Nat.right_eq_add, Nat.add_eq_zero,
-          Nat.succ_ne_self, and_false, Nat.zero_le, Nat.sub_eq_zero_of_le, Bool.true_eq_false,
-          imp_false, Nat.not_lt, Nat.le_add_left, and_true, false_iff, Classical.not_forall,
-          Nat.not_le]
+      · simp [hx0, hk0]
         exists 0
         omega
-      · simp [hx0] at hlt
+      · have heq : x.clzAux 0 = 0 := by omega
+        have := clzAux_eq_zero_iff (x := x) (n := 0)
+        simp [heq] at this
+        simp [this] at hx0
   · case succ n ihn =>
     rcases k
     · case zero => simp [clzAux_eq_zero_iff]

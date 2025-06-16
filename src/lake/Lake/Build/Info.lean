@@ -202,20 +202,22 @@ private def ModuleImports.addImportCore
     transSet := self.transSet.insert mod.name
     transImports := self.transImports.push mod
   }
-  if self.libName? = mod.lib.name then
-    self := {self with localImports := self.localImports.push mod}
-  else
-    self := self.addLibCore mod.lib
+  -- if self.libName? = mod.lib.name then
+  --   self := {self with localImports := self.localImports.push mod}
+  -- else
+  --   self := self.addLibCore mod.lib
   return self
 
+set_option linter.unusedVariables false in
 def ModuleImports.insert
   (self : ModuleImports) (mod : Module) (isPublic : Bool)
 : ModuleImports :=
   let self := inline <| self.addImportCore mod
-  if isPublic then inline <| self.addPublicImportCore mod else self
+  --let self := if isPublic then inline <| self.addPublicImportCore mod else self
+  self
 
 def ModuleImports.append (self other : ModuleImports) : ModuleImports :=
-  let self := other.publicImports.foldl addPublicImportCore self
+  --let self := other.publicImports.foldl addPublicImportCore self
   let self := other.transImports.foldl addImportCore self
   self
 

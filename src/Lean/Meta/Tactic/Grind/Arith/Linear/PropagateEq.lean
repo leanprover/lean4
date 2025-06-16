@@ -142,8 +142,8 @@ def DiseqCnstr.ignore (c : DiseqCnstr) : LinearM Unit := do
   modifyStruct fun s => { s with ignored := s.ignored.push diseq }
 
 partial def DiseqCnstr.applySubsts? (c₂ : DiseqCnstr) : LinearM (Option DiseqCnstr) := withIncRecDepth do
-  let some (a, x, c₁) ← c₂.p.findVarToSubst | return some c₂
-  let b := c₂.p.coeff x
+  let some (b, x, c₁) ← c₂.p.findVarToSubst | return some c₂
+  let a := c₁.p.coeff x
   if let some c₂ ← c₂.applyEq? a x c₁ b then
     c₂.applySubsts?
   else

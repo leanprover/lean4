@@ -1954,7 +1954,7 @@ theorem shiftLeft_add_eq_shiftLeft_or {x y : BitVec w} :
     (y <<< x) + x =  (y <<< x) ||| x := by
   rw [BitVec.add_comm, add_shiftLeft_eq_or_shiftLeft, or_comm]
 
-/-! ### Leading Zeros -/
+/-! ### Count Leading Zeros -/
 
 /-- Count the number of leading zeros downward from the `n`-th bit to the `0`-th bit for the bitblaster.
 This builds a tree of `if-then-else` lookups whose length is linear in the bitwidth,

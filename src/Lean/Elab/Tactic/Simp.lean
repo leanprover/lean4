@@ -104,8 +104,8 @@ inductive ResolveSimpIdResult where
   -/
   | ext  (ext₁? : Option SimpExtension) (ext₂? : Option Simp.SimprocExtension) (h : ext₁?.isSome || ext₂?.isSome)
 
-private def resolveSimpIdTheorem? (simpArgTerm : Term) : TacticM ResolveSimpIdResult := do
-    let resolveExt (n : Name) : TacticM ResolveSimpIdResult := do
+private def resolveSimpIdTheorem? (simpArgTerm : Term) : TermElabM ResolveSimpIdResult := do
+    let resolveExt (n : Name) : TermElabM ResolveSimpIdResult := do
       let ext₁? ← getSimpExtension? n
       let ext₂? ← Simp.getSimprocExtension? n
       if h : ext₁?.isSome || ext₂?.isSome then
@@ -153,7 +153,7 @@ inductive ElabSimpArgResult where
   | star
   | none -- used for example when elaboration fails
 
-private def ElabSimpArgResult.ofDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (id : Origin)
+private def elabDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (id : Origin)
     (e : Expr) (post : Bool) (inv : Bool) (kind : SimpKind) : MetaM ElabSimpArgResult := do
   if e.isConst then
     let declName := e.constName!
@@ -184,7 +184,7 @@ private def ElabSimpArgResult.ofDeclToUnfoldOrTheorem (config : Meta.ConfigWithK
     let thms ← mkSimpTheoremsFromExpr id #[] e (post := post) (inv := inv) (config := config)
     return .addEntries <| thms.map (SimpEntry.thm ·)
 
-private def ElabSimpArgResult.ofTheorem (config : Meta.ConfigWithKey) (id : Origin) (stx : Syntax)
+private def elabSimpTheorem (config : Meta.ConfigWithKey) (id : Origin) (stx : Syntax)
     (post : Bool) (inv : Bool) : TermElabM ElabSimpArgResult := do
   let thm? ← Term.withoutModifyingElabMetaStateWithInfo <| withRef stx do
     let e ← Term.elabTerm stx .none
@@ -204,7 +204,7 @@ private def ElabSimpArgResult.ofTheorem (config : Meta.ConfigWithKey) (id : Orig
   else
     return .none
 
-def elabSimpArg (indexConfig : Meta.ConfigWithKey) (eraseLocal : Bool) (kind : SimpKind)
+private def elabSimpArg (indexConfig : Meta.ConfigWithKey) (eraseLocal : Bool) (kind : SimpKind)
     (arg : Syntax) : TacticM ElabSimpArgResult := do
   try
     /-
@@ -248,14 +248,14 @@ def elabSimpArg (indexConfig : Meta.ConfigWithKey) (eraseLocal : Bool) (kind : S
       match (← resolveSimpIdTheorem? term) with
       | .expr e  =>
         let name ← mkFreshId
-        ElabSimpArgResult.ofDeclToUnfoldOrTheorem indexConfig (.stx name arg) e post inv kind
+        elabDeclToUnfoldOrTheorem indexConfig (.stx name arg) e post inv kind
       | .simproc declName =>
         return .addSimproc declName post
       | .ext ext₁? ext₂? h =>
         return .ext ext₁? ext₂? h
       | .none    =>
         let name ← mkFreshId
-        ElabSimpArgResult.ofTheorem indexConfig (.stx name arg) term post inv
+        elabSimpTheorem indexConfig (.stx name arg) term post inv
     else if arg.getKind == ``Lean.Parser.Tactic.simpStar then
       return .star
     else

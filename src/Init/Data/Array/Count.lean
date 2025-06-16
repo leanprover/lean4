@@ -105,6 +105,7 @@ theorem boole_getElem_le_countP {xs : Array α} {i : Nat} (h : i < xs.size) :
   rcases xs with ⟨xs⟩
   simp [List.boole_getElem_le_countP]
 
+@[grind =]
 theorem countP_set {xs : Array α} {i : Nat} {a : α} (h : i < xs.size) :
     (xs.set i a).countP p = xs.countP p - (if p xs[i] then 1 else 0) + (if p a then 1 else 0) := by
   rcases xs with ⟨xs⟩
@@ -219,6 +220,7 @@ theorem boole_getElem_le_count {xs : Array α} {i : Nat} {a : α} (h : i < xs.si
   rw [count_eq_countP]
   apply boole_getElem_le_countP (p := (· == a))
 
+@[grind =]
 theorem count_set {xs : Array α} {i : Nat} {a b : α} (h : i < xs.size) :
     (xs.set i a).count b = xs.count b - (if xs[i] == b then 1 else 0) + (if a == b then 1 else 0) := by
   simp [count_eq_countP, countP_set, h]

@@ -1938,7 +1938,6 @@ theorem toNat_shiftLeftZeroExtend {x : BitVec w} :
   · simp [shiftLeftZeroExtend]
   · simp only [shiftLeftZeroExtend_eq, toNat_shiftLeft, toNat_setWidth]
     have :=  Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := w + (n + 1)) (by omega) (by omega)
-    have : x.toNat < 2 ^ (w + (n + 1)) := by omega
     have : x.toNat <<< (n + 1) < 2 ^ (w + (n + 1)) := by
       rw [Nat.shiftLeft_eq, Nat.pow_add (m := w) (n := n + 1), Nat.mul_lt_mul_right (by apply Nat.two_pow_pos (w := n + 1))]; omega
     rw [Nat.mod_eq_of_lt (by rw [Nat.mod_eq_of_lt (by omega)]; omega), Nat.mod_eq_of_lt (by omega)]

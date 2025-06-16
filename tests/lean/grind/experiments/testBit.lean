@@ -48,7 +48,7 @@ example {α : Type} [Lean.Grind.IntModule α] [Lean.Grind.Preorder α] [Lean.Gri
     (wb : 0 ≤ b) (wc : 0 ≤ c)
     (h : a = b + d * c) (w : 1 ≤ d) : a ≥ c := by
   subst h
-  conv => rhs; rw [←IntModule.zero_add c]
+  conv => rhs; rw [← IntModule.zero_add c]
   apply IntModule.IsOrdered.add_le_add
   · exact wb
   · have := IntModule.IsOrdered.hmul_le_hmul_of_le_of_le_of_nonneg_of_nonneg w (Preorder.le_refl c) (by decide) wc
@@ -58,24 +58,12 @@ example {α : Type} [Lean.Grind.IntModule α] [Lean.Grind.Preorder α] [Lean.Gri
 example {α : Type} [Lean.Grind.NatModule α] [Lean.Grind.Preorder α] [Lean.Grind.NatModule.IsOrdered α] {a b c : α} {d : Nat}
     (wb : 0 ≤ b) (wc : 0 ≤ c)
     (h : a = b + d * c) (w : 1 ≤ d) : a ≥ c := by
-  -- horrific proof, sorry:
-  have p₁ : d * c ≤ a := by
-    rw [h]
-    conv => lhs; rw [← NatModule.zero_add (d * c)]
-    rw [← NatModule.IsOrdered.add_le_left_iff]
-    exact wb
-  have p₂ : 0 ≤ (d - 1) * c := by
-    apply NatModule.IsOrdered.hmul_nonneg
-    exact wc
-  have p₃ : c ≤ d * c := by
-    have : d = d - 1 + 1 := by omega
-    rw [this]
-    rw [NatModule.add_hmul]
-    rw [NatModule.one_hmul]
-    conv => lhs; rw [← NatModule.zero_add c]
-    rw [← NatModule.IsOrdered.add_le_left_iff]
-    exact p₂
-  exact Lean.Grind.Preorder.le_trans p₃ p₁
+  subst h
+  conv => rhs; rw [← NatModule.zero_add c]
+  apply NatModule.IsOrdered.add_le_add
+  · exact wb
+  · have := NatModule.IsOrdered.hmul_le_hmul_of_le_of_le_of_nonneg w (Preorder.le_refl c) wc
+    rwa [NatModule.one_hmul] at this
 
 -- The correct proof is to embed a NatModule in its IntModule envelope.
 

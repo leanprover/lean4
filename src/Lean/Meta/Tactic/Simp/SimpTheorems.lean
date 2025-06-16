@@ -282,8 +282,6 @@ def SimpTheorems.unerase (d : SimpTheorems) (thmId : Origin) : SimpTheorems :=
   { d with erased := d.erased.erase thmId }
 
 def addSimpTheoremEntry (d : SimpTheorems) (e : SimpTheorem) : SimpTheorems :=
-  -- Unerase
-  let d := d.unerase e.origin
   -- Erase the converse, if it exists
   let d := eraseFwdIfBwd d e
   if e.post then
@@ -483,6 +481,15 @@ def SimpTheorems.addSimpEntry (d : SimpTheorems) (e : SimpEntry) : SimpTheorems 
   | .thm e => addSimpTheoremEntry d e
   | .toUnfold n => d.addDeclToUnfoldCore n
   | .toUnfoldThms n thms => d.registerDeclToUnfoldThms n thms
+
+/--
+`simp [foo]` should undo a previous `attribute @[-simp] foo`.
+(Note that `attribute @[simp] foo` does not undo a `attribute @[simp] foo`, see #5852)
+-/
+def SimpTheorems.uneraseSimpEntry (d : SimpTheorems) (e : SimpEntry) : SimpTheorems :=
+  match e with
+  | .thm e => d.unerase e.origin
+  | _ => d
 
 def mkSimpExt (name : Name := by exact decl_name%) : IO SimpExtension :=
   registerSimpleScopedEnvExtension {

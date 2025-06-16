@@ -305,6 +305,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
           match (← elabSimpArg ctx.indexConfig (eraseLocal || starArg) kind arg) with
           | .addEntries entries =>
             for entry in entries do
+              thms := thms.uneraseSimpEntry entry
               thms := thms.addSimpEntry entry
           | .addLetToUnfold fvarId =>
             thms := thms.addLetDeclToUnfold fvarId

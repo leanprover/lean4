@@ -163,7 +163,7 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
     let { rangeStart := (startLine, startChar), rangeEnd := (endLine, endChar), .. } := loc
     let range : Lsp.Range := {
       start := { line := startLine, character := startChar },
-      «end» := { line := endLine  , character := endChar }
+      «end» := { line := endLine, character := endChar }
     }
     let link : LocationLink := {
       originSelectionRange? := none

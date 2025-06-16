@@ -123,15 +123,18 @@ open Command in
     let synth := Syntax.ofRange { start := fileMap.ofPosition ⟨errLine, 0⟩,
                                   stop  := fileMap.ofPosition ⟨errLine + 1, 0⟩ }
     throwErrorAt synth msg
-  let (declLoc? : Option ErrorExplanation.Location) ← do
-    let some uri ← Server.documentUriFromModule? (← getMainModule) | pure none
+  let (declLoc? : Option DeclarationLocation) ← do
     let map ← getFileMap
-    let start := map.utf8PosToLspPos <| id.raw.getPos?.getD 0
-    let fin := id.raw.getTailPos?.map map.utf8PosToLspPos |>.getD start
+    let start := map.toPosition <| id.raw.getPos?.getD 0
+    let fin := id.raw.getTailPos?.map map.toPosition |>.getD start
     pure <| some {
-      uri := (uri : String)
-      rangeStart := (start.line, start.character)
-      rangeEnd := (fin.line, fin.character)
+      module := (← getMainModule)
+      range := {
+        pos := start
+        endPos := fin
+        charUtf16 := (map.leanPosToLspPos start).character
+        endCharUtf16 := (map.leanPosToLspPos fin).character
+      }
     }
   modifyEnv (errorExplanationExt.addEntry · (name, { metadata, doc, declLoc? }))
 | _ => throwUnsupportedSyntax

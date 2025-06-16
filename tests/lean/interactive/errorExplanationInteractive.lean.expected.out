@@ -5,29 +5,14 @@
    {"replace":
     {"start": {"line": 28, "character": 23},
      "end": {"line": 28, "character": 33}},
-    "newText": "TestDomain.Bar",
-    "insert":
-    {"start": {"line": 28, "character": 23},
-     "end": {"line": 28, "character": 33}}},
-   "label": "TestDomain.Bar",
-   "kind": 10,
-   "detail": "Error 0",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
-     "position": {"line": 28, "character": 33}},
-    "cPos": 0}},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 28, "character": 23},
-     "end": {"line": 28, "character": 33}},
     "newText": "TestDomain.Foo1",
     "insert":
     {"start": {"line": 28, "character": 23},
      "end": {"line": 28, "character": 33}}},
    "label": "TestDomain.Foo1",
    "kind": 10,
-   "detail": "Error 1",
+   "documentation": {"value": "(error) Error 1", "kind": "markdown"},
+   "detail": "error name",
    "data":
    {"params":
     {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
@@ -43,7 +28,25 @@
      "end": {"line": 28, "character": 33}}},
    "label": "TestDomain.Foo2",
    "kind": 10,
-   "detail": "Error 2",
+   "documentation": {"value": "(error) Error 2", "kind": "markdown"},
+   "detail": "error name",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
+     "position": {"line": 28, "character": 33}},
+    "cPos": 0}},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 28, "character": 23},
+     "end": {"line": 28, "character": 33}},
+    "newText": "TestDomain.Bar",
+    "insert":
+    {"start": {"line": 28, "character": 23},
+     "end": {"line": 28, "character": 33}}},
+   "label": "TestDomain.Bar",
+   "kind": 10,
+   "documentation": {"value": "(error) Error 0", "kind": "markdown"},
+   "detail": "error name",
    "data":
    {"params":
     {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
@@ -57,29 +60,14 @@
    {"replace":
     {"start": {"line": 30, "character": 23},
      "end": {"line": 30, "character": 34}},
-    "newText": "TestDomain.Foo2",
-    "insert":
-    {"start": {"line": 30, "character": 23},
-     "end": {"line": 30, "character": 34}}},
-   "label": "TestDomain.Foo2",
-   "kind": 10,
-   "detail": "Error 2",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
-     "position": {"line": 30, "character": 34}},
-    "cPos": 0}},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 30, "character": 23},
-     "end": {"line": 30, "character": 34}},
     "newText": "TestDomain.Bar",
     "insert":
     {"start": {"line": 30, "character": 23},
      "end": {"line": 30, "character": 34}}},
    "label": "TestDomain.Bar",
    "kind": 10,
-   "detail": "Error 0",
+   "documentation": {"value": "(error) Error 0", "kind": "markdown"},
+   "detail": "error name",
    "data":
    {"params":
     {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
@@ -95,7 +83,25 @@
      "end": {"line": 30, "character": 34}}},
    "label": "TestDomain.Foo1",
    "kind": 10,
-   "detail": "Error 1",
+   "documentation": {"value": "(error) Error 1", "kind": "markdown"},
+   "detail": "error name",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
+     "position": {"line": 30, "character": 34}},
+    "cPos": 0}},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 30, "character": 23},
+     "end": {"line": 30, "character": 34}},
+    "newText": "TestDomain.Foo2",
+    "insert":
+    {"start": {"line": 30, "character": 23},
+     "end": {"line": 30, "character": 34}}},
+   "label": "TestDomain.Foo2",
+   "kind": 10,
+   "documentation": {"value": "(error) Error 2", "kind": "markdown"},
+   "detail": "error name",
    "data":
    {"params":
     {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
@@ -109,13 +115,14 @@
    {"replace":
     {"start": {"line": 32, "character": 23},
      "end": {"line": 32, "character": 35}},
-    "newText": "TestDomain.Foo2",
+    "newText": "TestDomain.Foo1",
     "insert":
     {"start": {"line": 32, "character": 23},
      "end": {"line": 32, "character": 35}}},
-   "label": "TestDomain.Foo2",
+   "label": "TestDomain.Foo1",
    "kind": 10,
-   "detail": "Error 2",
+   "documentation": {"value": "(error) Error 1", "kind": "markdown"},
+   "detail": "error name",
    "data":
    {"params":
     {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
@@ -125,13 +132,14 @@
    {"replace":
     {"start": {"line": 32, "character": 23},
      "end": {"line": 32, "character": 35}},
-    "newText": "TestDomain.Foo1",
+    "newText": "TestDomain.Foo2",
     "insert":
     {"start": {"line": 32, "character": 23},
      "end": {"line": 32, "character": 35}}},
-   "label": "TestDomain.Foo1",
+   "label": "TestDomain.Foo2",
    "kind": 10,
-   "detail": "Error 1",
+   "documentation": {"value": "(error) Error 2", "kind": "markdown"},
+   "detail": "error name",
    "data":
    {"params":
     {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
@@ -145,13 +153,14 @@
    {"replace":
     {"start": {"line": 34, "character": 23},
      "end": {"line": 34, "character": 35}},
-    "newText": "TestDomain.Foo2",
+    "newText": "TestDomain.Foo1",
     "insert":
     {"start": {"line": 34, "character": 23},
      "end": {"line": 34, "character": 35}}},
-   "label": "TestDomain.Foo2",
+   "label": "TestDomain.Foo1",
    "kind": 10,
-   "detail": "Error 2",
+   "documentation": {"value": "(error) Error 1", "kind": "markdown"},
+   "detail": "error name",
    "data":
    {"params":
     {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
@@ -161,13 +170,14 @@
    {"replace":
     {"start": {"line": 34, "character": 23},
      "end": {"line": 34, "character": 35}},
-    "newText": "TestDomain.Foo1",
+    "newText": "TestDomain.Foo2",
     "insert":
     {"start": {"line": 34, "character": 23},
      "end": {"line": 34, "character": 35}}},
-   "label": "TestDomain.Foo1",
+   "label": "TestDomain.Foo2",
    "kind": 10,
-   "detail": "Error 1",
+   "documentation": {"value": "(error) Error 2", "kind": "markdown"},
+   "detail": "error name",
    "data":
    {"params":
     {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},

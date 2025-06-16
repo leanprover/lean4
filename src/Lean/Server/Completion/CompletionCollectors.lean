@@ -572,7 +572,11 @@ def errorNameCompletion
     let errorNameStx := stx[stx.getNumArgs - 2]
     return trailingDotCompletion explanations errorNameStx caps ctx fun name explan textEdit? => {
       label := name.toString,
-      detail? := explan.metadata.summary,
+      detail? := "error name",
+      documentation? := some {
+        kind := .markdown,
+        value := s!"({explan.metadata.severity}) {explan.metadata.summary}"
+      }
       -- TODO: whatever we decide about the kind for options above is also likely relevant here
       kind? := CompletionItemKind.property
       textEdit?

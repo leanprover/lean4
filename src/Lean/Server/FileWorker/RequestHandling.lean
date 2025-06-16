@@ -159,17 +159,14 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
 
   let locationLinksFromErrorNameInfo (eni : ErrorNameInfo) : MetaM (Array LocationLink) := do
     let some explan := getErrorExplanationRaw? (← getEnv) eni.errorName | return #[]
-    let some loc := explan.declLoc? | return #[]
-    let { rangeStart := (startLine, startChar), rangeEnd := (endLine, endChar), .. } := loc
-    let range : Lsp.Range := {
-      start := { line := startLine, character := startChar },
-      «end» := { line := endLine, character := endChar }
-    }
+    let some (loc : DeclarationLocation) := explan.declLoc? | return #[]
+    let some targetUri ← documentUriFromModule? loc.module | return #[]
+    let targetRange := loc.range.toLspRange
     let link : LocationLink := {
-      originSelectionRange? := none
-      targetUri := loc.uri
-      targetRange := range
-      targetSelectionRange := range
+      originSelectionRange? := (·.toLspRange text) <$> eni.stx.getRange?
+      targetUri
+      targetRange
+      targetSelectionRange := targetRange
     }
     return #[link]
 

@@ -5723,45 +5723,42 @@ theorem clzAux_eq_iff_forall_of_clzAux_lt  {x : BitVec w} (hlt : (clzAux x n < n
     x.clzAux n = k ↔ ((∀ i, i < k → x.getLsbD (n - i) = false) ∧ ((x.getLsbD (n - k) = true))) := by
   induction n generalizing k
   · case zero =>
-    by_cases hk0 : 0 = k
-    · simp [← hk0, clzAux_eq_zero_iff]
-    · simp [clzAux_zero]
+    rcases k with _|k
+    · simp [clzAux_eq_zero_iff]
+    · simp only [clzAux_zero, Nat.zero_le, Nat.sub_eq_zero_of_le]
       by_cases hx0 : x.getLsbD 0
-      · simp [hx0, hk0]
+      · simp only [hx0, reduceIte, Bool.true_eq_false, imp_false, Nat.not_lt, and_true,
+          false_iff, Classical.not_forall, Nat.not_le, show ¬ 0 = k + 1 by omega]
         exists 0
         omega
-      · have heq : x.clzAux 0 = 0 := by omega
-        have := clzAux_eq_zero_iff (x := x) (n := 0)
-        simp [heq] at this
-        simp [this] at hx0
+      · have hiff := clzAux_eq_zero_iff (x := x) (n := 0)
+        simp only [show x.clzAux 0 = 0 by omega, true_iff] at hiff
+        simp [hiff] at hx0
   · case succ n ihn =>
-    rcases k
-    · case zero => simp [clzAux_eq_zero_iff]
-    · case succ k =>
-      simp only [clzAux, Nat.reduceSubDiff] at *
+    rcases k with _|k
+    · simp [clzAux_eq_zero_iff]
+    · simp only [clzAux, Nat.reduceSubDiff] at *
       by_cases hxn : x.getLsbD (n + 1)
-      · simp only [hxn, reduceIte, Nat.right_eq_add, Nat.add_eq_zero, Nat.succ_ne_self, and_false,
-          Nat.reduceSubDiff, false_iff, _root_.not_and, Bool.not_eq_true]
-        intro hi
-        specialize hi 0 (by omega)
-        simp [hxn] at hi
-      · simp only [hxn, Bool.false_eq_true, reduceIte] at hlt
+      · simp only [hxn, reduceIte, show ¬ 0 = k + 1 by omega, false_iff, _root_.not_and, Bool.not_eq_true]
+        intro h
+        specialize h 0 (by omega)
+        simp [hxn] at h
+      · simp only [clzAux, hxn, Bool.false_eq_true, reduceIte] at hlt
         simp only [show x.clzAux n < n + 1 by omega, forall_const] at ihn
         simp only [hxn, Bool.false_eq_true, reduceIte,
-          show 1 + x.clzAux n = k + 1 ↔ x.clzAux n = k by omega, Nat.reduceSubDiff, ihn,
-          and_congr_left_iff]
+          show 1 + x.clzAux n = k + 1 ↔ x.clzAux n = k by omega, ihn, and_congr_left_iff]
         intro h
         constructor
-        · intro hc i hi
-          by_cases hi0 : i = 0
-          · simp [hi0, hxn]
-          · simp only [show n + 1 - i = n - (i - 1) by omega]
-            apply hc
-            omega
-        · intro hc i hi
-          specialize hc (1 + i)
-          simp only [show n + 1 - (1 + i) = n - i by omega] at hc
-          apply hc
+        · intro hi j hj
+          by_cases hj0 : j = 0
+          · simp [hj0, hxn]
+          · specialize hi (j - 1) (by omega)
+            rw [show n - (j - 1) = n + 1 - j by omega] at hi
+            exact hi
+        · intro hj i hi
+          specialize hj (1 + i)
+          rw [show n + 1 - (1 + i) = n - i by omega] at hj
+          apply hj
           omega
 
 /-! ### Decidable quantifiers -/

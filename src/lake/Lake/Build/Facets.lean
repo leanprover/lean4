@@ -43,8 +43,19 @@ instance (facet : ModuleFacet α) : FamilyDef FacetOut facet.name α :=
 instance [FamilyOut FacetOut facet α] : CoeDep Name facet (ModuleFacet α) :=
   ⟨facet, FamilyOut.fam_eq⟩
 
-/-- The module's (Lean) source file. -/
-builtin_facet src : Module => FilePath
+/-- A module's source file path plus its parsed header. -/
+structure ModuleInput where
+  path : FilePath
+  header : ModuleHeader
+
+/--
+The module's processed Lean source file.
+Combines tracing the file with parsing its header.
+-/
+builtin_facet input : Module => ModuleInput
+
+/-- The module's Lean source file. -/
+builtin_facet lean : Module => FilePath
 
 /-- The parsed module header of the module's source file. -/
 builtin_facet header : Module => ModuleHeader

@@ -239,8 +239,11 @@ builtin_facet allImports : Module => ModuleImports
 
 namespace Module
 
-@[inherit_doc srcFacet] abbrev src (self : Module) :=
-  self.facetCore srcFacet
+@[inherit_doc inputFacet] abbrev input (self : Module) :=
+  self.facetCore inputFacet
+
+@[inherit_doc leanFacet] abbrev lean (self : Module) :=
+  self.facetCore leanFacet
 
 @[inherit_doc headerFacet] abbrev header (self : Module) :=
   self.facetCore headerFacet

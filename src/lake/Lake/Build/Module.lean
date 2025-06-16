@@ -29,20 +29,25 @@ def recBuildExternDynlibs (pkgs : Array Package)
     jobs := jobs.append <| ← pkg.externLibs.mapM (·.dynlib.fetch)
   return (jobs, libDirs)
 
-/-- The `ModuleFacetConfig` for the builtin `srcFacet`. -/
-def Module.srcFacetConfig : ModuleFacetConfig srcFacet :=
-  mkFacetJobConfig fun mod => inputFile mod.leanFile (text := true)
-
 /-- Parse the header of a Lean file from its source. -/
-def Module.recParseHeader (mod : Module) : FetchM (Job ModuleHeader) := do
-  (← mod.src.fetch).mapM fun srcFile => do
-    setTraceCaption s!"{mod.name}:header"
-    let contents ← IO.FS.readFile srcFile
-    Lean.parseImports' contents srcFile.toString
+def Module.recFetchInput (mod : Module) : FetchM (Job ModuleInput) := Job.async do
+  let path := mod.leanFile
+  let contents ← IO.FS.readFile path
+  setTrace <| .ofHash (.ofText contents) path.toString
+  let header ← Lean.parseImports' contents path.toString
+  return {path, header}
+
+/-- The `ModuleFacetConfig` for the builtin `inputFacet`. -/
+def Module.inputFacetConfig : ModuleFacetConfig inputFacet :=
+  mkFacetJobConfig recFetchInput
+
+/-- The `ModuleFacetConfig` for the builtin `leanFacet`. -/
+def Module.leanFacetConfig : ModuleFacetConfig leanFacet :=
+  mkFacetJobConfig fun mod => return (← mod.input.fetch).map (sync := true) (·.path)
 
 /-- The `ModuleFacetConfig` for the builtin `headerFacet`. -/
 def Module.headerFacetConfig : ModuleFacetConfig headerFacet :=
-  mkFacetJobConfig recParseHeader (buildable := false)
+   mkFacetJobConfig fun mod => return (← mod.input.fetch).map (sync := true) (·.header)
 
 /-- Compute an `Array` of a module's direct local imports from its header. -/
 def Module.recParseImports (mod : Module) : FetchM (Job (Array Module)) := do
@@ -412,7 +417,7 @@ all possible artifacts (e.g., `.olean`, `.ilean`, `.c`, `.bc`).
 -/
 def Module.recBuildLean (mod : Module) : FetchM (Job ModuleArtifacts) := do
   withRegisterJob mod.name.toString do
-  (← mod.src.fetch).bindM fun srcFile => do
+  (← mod.lean.fetch).bindM (sync := true) fun srcFile => do
   let srcTrace ← getTrace
   (← mod.setup.fetch).mapM fun setup => do
     addLeanTrace
@@ -626,7 +631,8 @@ Lake module facets (e.g., `imports`, `c`, `o`, `dynlib`).
 -/
 def Module.initFacetConfigs : DNameMap ModuleFacetConfig :=
   DNameMap.empty
-  |>.insert srcFacet srcFacetConfig
+  |>.insert inputFacet inputFacetConfig
+  |>.insert leanFacet leanFacetConfig
   |>.insert headerFacet headerFacetConfig
   |>.insert importsFacet importsFacetConfig
   |>.insert transImportsFacet transImportsFacetConfig

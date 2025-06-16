@@ -19,7 +19,7 @@ def dummyMetadata : ErrorExplanation.Metadata := {
 register_error_explanation Lean.Foo {
   summary := "A removed error."
   sinceVersion := "4.0.0"
-  removedVersion := "4.21.0"
+  removedVersion? := "4.21.0"
 }
 
 /-- error: Cannot add explanation: An error explanation already exists for `Lean.Foo` -/

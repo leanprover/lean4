@@ -23,7 +23,7 @@ structure ErrorExplanation.Metadata where
   summary : String
   sinceVersion : String
   severity : MessageSeverity     := .error
-  removedVersion : Option String := none
+  removedVersion? : Option String := none
   deriving FromJson, ToJson
 
 /--
@@ -38,6 +38,13 @@ structure ErrorExplanation where
   declLoc? : Option DeclarationLocation
 
 namespace ErrorExplanation
+
+/--
+Returns the error explanation summary prepended with its severity. For use in completions and
+hovers.
+-/
+def summaryWithSeverity (explan : ErrorExplanation) : String :=
+  s!"({explan.metadata.severity}) {explan.metadata.summary}"
 
 /--
 The kind of a code block in an error explanation example. `broken` blocks raise the diagnostic being

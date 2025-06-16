@@ -188,9 +188,9 @@
  "position": {"line": 37, "character": 34}}
 {"range":
  {"start": {"line": 37, "character": 23}, "end": {"line": 37, "character": 38}},
- "contents": {"value": "Error 2", "kind": "markdown"}}
+ "contents": {"value": "(error) Error 2", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
  "position": {"line": 39, "character": 34}}
 {"range":
  {"start": {"line": 39, "character": 23}, "end": {"line": 39, "character": 38}},
- "contents": {"value": "Error 2", "kind": "markdown"}}
+ "contents": {"value": "(error) Error 2", "kind": "markdown"}}

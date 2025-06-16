@@ -306,12 +306,11 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
     return none
   | .ofErrorNameInfo eni => do
     let some errorExplanation := getErrorExplanationRaw? (← getEnv) eni.errorName | return none
-    return errorExplanation.metadata.summary
+    return errorExplanation.summaryWithSeverity
   | _ => pure ()
   if let some ei := i.toElabInfo? then
     return ← findDocString? env ei.stx.getKind <||> findDocString? env ei.elaborator
   return none
-
 
 /-- Construct a hover popup, if any, from an info node in a context.-/
 def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option FormatWithInfos) := do

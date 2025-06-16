@@ -5691,7 +5691,7 @@ theorem clzAux_eq_iff {x : BitVec w} {n : Nat} :
   · case zero => simp [clzAux]
   · case succ n ihn =>
     by_cases hxn : x.getLsbD (n + 1)
-    · simp only [clzAux, hxn, ↓reduceIte, Nat.right_eq_add, Nat.add_eq_zero, reduceCtorEq,
+    · simp only [clzAux, hxn, reduceIte, Nat.right_eq_add, Nat.add_eq_zero, reduceCtorEq,
         and_false, false_iff, Classical.not_forall, not_imp, Bool.not_eq_false]
       exists n + 1, by omega
     · simp only [clzAux, hxn, Bool.false_eq_true, ↓reduceIte,

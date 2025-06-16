@@ -57,6 +57,7 @@ inductive DiseqCnstrProof where
   | coreCommRing (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
   | neg (c : DiseqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
+  | oneNeZero
 
 inductive UnsatProof where
   | diseq (c : DiseqCnstr)
@@ -99,6 +100,10 @@ structure Struct where
   commRingInst?    : Option Expr
   /-- `Ring.IsOrdered` instance with `Preorder` -/
   ringIsOrdInst?   : Option Expr
+  /-- `Field` instance -/
+  fieldInst?       : Option Expr
+  /-- `IsCharP` instance for `type` if available. -/
+  charInst?        : Option (Expr × Nat)
   zero             : Expr
   ofNatZero        : Expr
   one?             : Option Expr

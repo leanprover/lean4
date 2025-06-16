@@ -280,6 +280,7 @@ partial def DiseqCnstr.collectDecVars (c' : DiseqCnstr) : CollectDecVarsM Unit :
   | .core .. | .coreCommRing .. => return ()
   | .neg c => c.collectDecVars
   | .subst _ c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
+  | .oneNeZero => return () -- TODO
 
 partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with

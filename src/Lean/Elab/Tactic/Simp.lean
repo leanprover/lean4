@@ -136,11 +136,6 @@ private def addSimpTheorem (config : Meta.ConfigWithKey) (thms : SimpTheorems) (
   else
     return thms
 
-structure ElabSimpArgsResult where
-  ctx      : Simp.Context
-  simprocs : Simp.SimprocsArray
-  starArg  : Bool := false
-
 inductive ResolveSimpIdResult where
   | none
   | expr (e : Expr)
@@ -153,6 +148,130 @@ inductive ResolveSimpIdResult where
   `simp` and `simproc` sets are stored in different data-structures.
   -/
   | ext  (ext₁? : Option SimpExtension) (ext₂? : Option Simp.SimprocExtension) (h : ext₁?.isSome || ext₂?.isSome)
+
+private def  resolveSimpIdTheorem? (simpArgTerm : Term) : TacticM ResolveSimpIdResult := do
+    let resolveExt (n : Name) : TacticM ResolveSimpIdResult := do
+      let ext₁? ← getSimpExtension? n
+      let ext₂? ← Simp.getSimprocExtension? n
+      if h : ext₁?.isSome || ext₂?.isSome then
+        return .ext ext₁? ext₂? h
+      else
+        return .none
+    match simpArgTerm with
+    | `($id:ident) =>
+      try
+        if let some e ← Term.resolveId? simpArgTerm (withInfo := true) then
+          if let some simprocDeclName ← isSimproc? e then
+            return .simproc simprocDeclName
+          else
+            return .expr e
+        else
+          let name := id.getId.eraseMacroScopes
+          if (← Simp.isBuiltinSimproc name) then
+            return .simproc name
+          else
+            resolveExt name
+      catch _ =>
+        resolveExt id.getId.eraseMacroScopes
+    | _ =>
+      if let some e ← Term.elabCDotFunctionAlias? simpArgTerm then
+        return .expr e
+      else
+        return .none
+where
+  isSimproc? (e : Expr) : MetaM (Option Name) := do
+    let .const declName _ := e | return none
+    unless (← Simp.isSimproc declName) do return none
+    return some declName
+
+
+
+
+/--
+The result of elaborating a single `simp` argument
+-/
+inductive ElabSimpArgResult where
+  | addEntries (entries : Array SimpEntry)
+  | addSimproc («simproc» : Name) (post : Bool)
+  | ext  (ext₁? : Option SimpExtension) (ext₂? : Option Simp.SimprocExtension) (h : ext₁?.isSome || ext₂?.isSome)
+  | erase (toErase : Origin)
+  | eraseSimproc (toErase : Name)
+  | star
+  | none -- used for example when elaboration fails
+
+def elabSimpArg (eraseLocal : Bool) (arg : Syntax) : TacticM ElabSimpArgResult := do
+  try
+    /-
+    syntax simpPre := "↓"
+    syntax simpPost := "↑"
+    syntax simpLemma := (simpPre <|> simpPost)? "← "? term
+
+    syntax simpErase := "-" ident
+    -/
+    if arg.getKind == ``Lean.Parser.Tactic.simpErase then
+      -- TODO: this was checking starArg
+      let fvar? ← if eraseLocal then Term.isLocalIdent? arg[1] else pure none
+      if let some fvar := fvar? then
+        -- We use `eraseCore` because the simp theorem for the hypothesis was not added yet
+        return .erase (.fvar fvar.fvarId!)
+      else
+        let id := arg[1]
+        if let .ok declName ← observing (realizeGlobalConstNoOverloadWithInfo id) then
+          if (← Simp.isSimproc declName) then
+            return .eraseSimproc declName
+          -- TODO: What was this about ctx.config.autoUnfold and withRef?
+          -- else if ctx.config.autoUnfold then
+          --   return .erase (.decl declName)
+          else
+            return .erase (.decl declName)
+        else
+          -- If `id` could not be resolved, we should check whether it is a builtin simproc.
+          -- before returning error.
+          let name := id.getId.eraseMacroScopes
+          if (← Simp.isBuiltinSimproc name) then
+            return .eraseSimproc name
+          else
+            throwUnknownConstantAt id name
+    else if arg.getKind == ``Lean.Parser.Tactic.simpLemma then
+      let post :=
+        if arg[0].isNone then
+          true
+        else
+          arg[0][0].getKind == ``Parser.Tactic.simpPost
+      let inv  := !arg[1].isNone
+      let term := arg[2]
+      match (← resolveSimpIdTheorem? term) with
+      | .expr e  =>
+        let name ← mkFreshId
+        -- thms ← addDeclToUnfoldOrTheorem ctx.indexConfig thms (.stx name arg) e post inv kind
+        return .none -- TODO
+      | .simproc declName =>
+        return .addSimproc declName post
+      | .ext ext₁? ext₂? h =>
+        return .ext ext₁? ext₂? h
+      | .none    =>
+        let name ← mkFreshId
+        -- thms ← addSimpTheorem ctx.indexConfig thms (.stx name arg) term post inv
+        return .none -- TODO
+    else if arg.getKind == ``Lean.Parser.Tactic.simpStar then
+      return .star
+    else
+      throwUnsupportedSyntax
+  catch ex =>
+    if (← read).recover then
+      logException ex
+      return .none
+    else
+      throw ex
+
+/--
+The result of elaborating a full array of simp arguments and applying them to the simp context.
+-/
+structure ElabSimpArgsResult where
+  ctx      : Simp.Context
+  simprocs : Simp.SimprocsArray
+  starArg  : Bool := false
+
 
 /--
   Elaborate extra simp theorems provided to `simp`. `stx` is of the form `"[" simpTheorem,* "]"`
@@ -245,41 +364,6 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
     else
       Term.withoutErrToSorry go
 where
-  isSimproc? (e : Expr) : MetaM (Option Name) := do
-    let .const declName _ := e | return none
-    unless (← Simp.isSimproc declName) do return none
-    return some declName
-
-  resolveSimpIdTheorem? (simpArgTerm : Term) : TacticM ResolveSimpIdResult := do
-    let resolveExt (n : Name) : TacticM ResolveSimpIdResult := do
-      let ext₁? ← getSimpExtension? n
-      let ext₂? ← Simp.getSimprocExtension? n
-      if h : ext₁?.isSome || ext₂?.isSome then
-        return .ext ext₁? ext₂? h
-      else
-        return .none
-    match simpArgTerm with
-    | `($id:ident) =>
-      try
-        if let some e ← Term.resolveId? simpArgTerm (withInfo := true) then
-          if let some simprocDeclName ← isSimproc? e then
-            return .simproc simprocDeclName
-          else
-            return .expr e
-        else
-          let name := id.getId.eraseMacroScopes
-          if (← Simp.isBuiltinSimproc name) then
-            return .simproc name
-          else
-            resolveExt name
-      catch _ =>
-        resolveExt id.getId.eraseMacroScopes
-    | _ =>
-      if let some e ← Term.elabCDotFunctionAlias? simpArgTerm then
-        return .expr e
-      else
-        return .none
-
   /-- If `zetaDelta := false`, create a `FVarId` set with all local let declarations in the `simp` argument list. -/
   toZetaDeltaSet (stx : Syntax) (ctx : Simp.Context) : TacticM FVarIdSet := do
     if ctx.config.zetaDelta then return {}

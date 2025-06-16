@@ -86,19 +86,19 @@ x: 7
 
 open Std.Iterators Types
 
-def it := (⟨⟨some 0⟩⟩ : Iter (α := RangeIterator Nat inferInstance (· < 5)) Nat)
+-- def it := (⟨⟨some 0⟩⟩ : Iter (α := RangeIterator Nat inferInstance (· < 5)) Nat)
 
-set_option trace.compiler.ir true in
-set_option compiler.small 1000 in
-def f (it : Iter (α := RangeIterator Nat inferInstance (· < 5)) Nat) : Nat := Id.run do
-  let mut acc := 0
-  for x in it do
-    acc := acc + x
-  return acc
+-- set_option trace.compiler.ir true in
+-- set_option compiler.small 1000 in
+-- def f (it : Iter (α := RangeIterator Nat inferInstance (· < 5)) Nat) : Nat := Id.run do
+--   let mut acc := 0
+--   for x in it do
+--     acc := acc + x
+--   return acc
 
-#eval! f it
+-- #eval! f it
 
-#eval! it.toList
+-- #eval! it.toList
 
 #eval "b" ∈ ("a",,"c")
 

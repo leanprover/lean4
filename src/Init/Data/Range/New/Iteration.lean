@@ -11,14 +11,9 @@ def PRange.iterInternal [UpwardEnumerable α] [HasRange shape α] [UpwardEnumera
   ⟨⟨UpwardEnumerableRange.init r.lower, r.upper⟩⟩
 
 @[always_inline, inline]
-def PRange.iter [UpwardEnumerable α] [HasRange shape α] [UpwardEnumerableRange shape α]
-    (r : PRange shape α) : Iter (α := Types.RangeIterator shape α) α :=
-  PRange.iterInternal r
-
-@[always_inline, inline]
 def PRange.size [UpwardEnumerable α] [HasRange shape α] [UpwardEnumerableRange shape α]
     (r : PRange shape α) [IteratorSize (Types.RangeIterator shape α) Id] : Nat :=
-  r.iter.size
+  r.iterInternal.size
 
 @[always_inline, inline]
 def PRange.toList [UpwardEnumerable α] [HasRange shape α] [UpwardEnumerableRange shape α]
@@ -121,7 +116,7 @@ theorem RangeIterator.isPlausibleIndirectOutput_iff'
       · exact hu
       · exact hle
 
-theorem RangeIterator.isPlausibleIndirectOutput_iff
+private theorem RangeIterator.isPlausibleIndirectOutput_iff
     [UpwardEnumerable α] [HasRange shape α] [UpwardEnumerableRange shape α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableRange shape α]
     {r : PRange shape α} {a : α} :
@@ -140,6 +135,7 @@ theorem RangeIterator.isPlausibleIndirectOutput_iff
     obtain ⟨_, hr, n, hn⟩ := hl
     exact ⟨n, by simp [PRange.iterInternal, hr, hn], hu⟩
 
+@[no_expose]
 instance [UpwardEnumerable α] [HasRange shape α] [UpwardEnumerableRange shape α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableRange shape α]
     [Monad m] [Finite (Types.RangeIterator shape α) Id] :

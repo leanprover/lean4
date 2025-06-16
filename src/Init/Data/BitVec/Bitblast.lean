@@ -1977,7 +1977,7 @@ theorem clz_eq_clzAuxRec_of_forall_getLsbD_false (x : BitVec w) (h : ∀ i, n < 
     have heq := clzAux_eq_iff (x := x) (n := w)
     induction n
     · case zero =>
-      simp only [clzAuxRec, zero_lt_succ, getLsbD_eq_getElem, Nat.add_one_sub_one]
+      simp only [clzAuxRec, zero_lt_succ, getLsbD_eq_getElem]
       by_cases hx0 : x[0]
       · simp only [clz, Nat.add_eq_zero, succ_ne_self, _root_.and_false, reduceIte,
           Nat.add_one_sub_one, hx0, toNat_eq, toNat_ofNat]

@@ -68,10 +68,9 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
                 show 2 ^ w - 1 + w = 2 ^ w + (w - 1) by omega]
               simp only [BitVec.toNat_ofNat, Nat.add_mod_left]
             · next hx' =>
+              have hx0 : x.getLsbD 0 = false := by rw [hx, Bool.not_eq_true] at hx'; exact hx'
               simp only [reduceIte] at hacc
-              simp only [BitVec.clzAuxRec,
-                show x.getLsbD 0 = false by rw [hx] at hx'; simp at hx'; exact hx',
-                Bool.false_eq_true, reduceIte, hacc]
+              simp [BitVec.clzAuxRec, hx0, hacc]
           · split
             · next hx' =>
               simp only at hx'

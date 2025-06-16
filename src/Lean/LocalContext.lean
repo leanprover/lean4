@@ -176,6 +176,11 @@ def setNondep : LocalDecl → Bool → LocalDecl
   | ldecl idx id n t v _ k, nd => ldecl idx id n t v nd k
   | d, _                       => d
 
+/-- Returns `true` if this is an `ldecl` with `nondep := true`. -/
+def isNondep : LocalDecl → Bool
+  | ldecl (nondep := nondep) .. => nondep
+  | _                           => false
+
 def setUserName : LocalDecl → Name → LocalDecl
   | cdecl index id _ type bi k,     userName => cdecl index id userName type bi k
   | ldecl index id _ type val nd k, userName => ldecl index id userName type val nd k

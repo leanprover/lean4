@@ -5727,7 +5727,7 @@ theorem clzAux_eq_iff_forall_of_clzAux_lt  {x : BitVec w} (hlt : (clzAux x n < n
     · case zero => simp [clzAux_eq_zero_iff]
     · case succ k =>
       by_cases hx0 : x.getLsbD 0
-      · simp only [clzAux_zero, hx0, ↓reduceIte, Nat.right_eq_add, Nat.add_eq_zero,
+      · simp only [clzAux_zero, hx0, reduceIte, Nat.right_eq_add, Nat.add_eq_zero,
           Nat.succ_ne_self, and_false, Nat.zero_le, Nat.sub_eq_zero_of_le, Bool.true_eq_false,
           imp_false, Nat.not_lt, Nat.le_add_left, and_true, false_iff, Classical.not_forall,
           Nat.not_le]

@@ -215,7 +215,6 @@ def elabSimpArg (indexConfig : Meta.ConfigWithKey) (eraseLocal : Bool) (kind : S
     syntax simpErase := "-" ident
     -/
     if arg.getKind == ``Lean.Parser.Tactic.simpErase then
-      -- TODO: this was checking starArg
       let fvar? ← if eraseLocal then Term.isLocalIdent? arg[1] else pure none
       if let some fvar := fvar? then
         -- We use `eraseCore` because the simp theorem for the hypothesis was not added yet
@@ -303,7 +302,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
         let mut simprocs  := simprocs
         let mut starArg   := false
         for arg in stx[1].getSepArgs do
-          match (← elabSimpArg ctx.indexConfig eraseLocal kind arg) with
+          match (← elabSimpArg ctx.indexConfig (eraseLocal || starArg) kind arg) with
           | .addEntries entries =>
             for entry in entries do
               thms := thms.addSimpEntry entry

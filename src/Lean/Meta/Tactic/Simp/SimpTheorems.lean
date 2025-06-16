@@ -278,8 +278,13 @@ private def eraseFwdIfBwd (d : SimpTheorems) (e : SimpTheorem) : SimpTheorems :=
   else
     d
 
+def SimpTheorems.unerase (d : SimpTheorems) (thmId : Origin) : SimpTheorems :=
+  { d with erased := d.erased.erase thmId }
+
 def addSimpTheoremEntry (d : SimpTheorems) (e : SimpTheorem) : SimpTheorems :=
-  -- TODO: Unerase here?
+  -- Unerase
+  let d := d.unerase e.origin
+  -- Erase the converse, if it exists
   let d := eraseFwdIfBwd d e
   if e.post then
     { d with post := d.post.insertCore e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
@@ -495,7 +500,6 @@ def getSimpExtension? (attrName : Name) : IO (Option SimpExtension) :=
 
 /-- Auxiliary method for adding a global declaration to a `SimpTheorems` datastructure. -/
 def SimpTheorems.addConst (s : SimpTheorems) (declName : Name) (post := true) (inv := false) (prio : Nat := eval_prio default) : MetaM SimpTheorems := do
-  let s := { s with erased := s.erased.erase (.decl declName post inv) }
   let simpThms ← mkSimpTheoremsFromConst declName post inv prio
   return simpThms.foldl addSimpTheoremEntry s
 

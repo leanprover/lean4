@@ -14,23 +14,27 @@ example (l : List Nat)  :
 
 theorem foldr_to_sum (l : List Nat) (f : Nat → Nat → Nat) (g : Nat → Nat)
   (h : ∀ acc x, f x acc = g x + acc) :
-  l.foldr f 0 = Nat.sum (l.map g) := by
-  rw [Nat.sum, List.foldr_map]
+  l.foldr f 0 = List.sum (l.map g) := by
+  rw [List.sum, List.foldr_map]
   congr
   funext x acc
   apply h
 
 -- this works:
 example (l : List Nat) :
-  l.foldr (fun x a => x*x + a) 0 = Nat.sum (l.map (fun x => x * x)) := by
+  l.foldr (fun x a => x*x + a) 0 = List.sum (l.map (fun x => x * x)) := by
   simp [foldr_to_sum]
 
 -- this does not, so such a pattern is still quite fragile
 
-/-- error: simp made no progress -/
+/--
+error: unsolved goals
+l : List Nat
+⊢ List.foldr (fun x a => a + x * x) 0 l = (List.map (fun x => x * x) l).sum
+-/
 #guard_msgs in
 example (l : List Nat) :
-  l.foldr (fun x a => a + x*x) 0 = Nat.sum (l.map (fun x => x * x)) := by
+  l.foldr (fun x a => a + x*x) 0 = List.sum (l.map (fun x => x * x)) := by
   simp [foldr_to_sum]
 
 -- but with stronger simp normal forms, it would work:
@@ -39,7 +43,7 @@ example (l : List Nat) :
 theorem add_eq_add_cancel (a x y : Nat) : (a + x = y + a) ↔  (x = y) := by omega
 
 example (l : List Nat) :
-  l.foldr (fun x a => a + x*x) 0 = Nat.sum (l.map (fun x => x * x)) := by
+  l.foldr (fun x a => a + x*x) 0 = List.sum (l.map (fun x => x * x)) := by
   simp [foldr_to_sum]
 
 

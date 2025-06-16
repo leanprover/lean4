@@ -283,10 +283,16 @@ simple uses, these can be computed eagerly without looking at the imports.
 structure SetupImportsResult where
   /-- Module name of the file being processed. -/
   mainModuleName : Name
+  /-- Whether the file is participating in the module system. -/
+  isModule : Bool
+  /-- Direct imports of the file being processed. -/
+  imports : Array Import
   /-- Options provided outside of the file content, e.g. on the cmdline or in the lakefile. -/
   opts : Options
   /-- Kernel trust level. -/
   trustLevel : UInt32 := 0
+  /-- Pre-resolved artifacts of related modules (e.g., this module's transitive imports). -/
+  modules : NameMap ModuleArtifacts := {}
   /-- Lean plugins to load as part of the environment setup. -/
   plugins : Array System.FilePath := #[]
 
@@ -367,7 +373,7 @@ General notes:
   the `sync` parameter on `parseCmd` and spawn an elaboration task when we leave it.
 -/
 partial def process
-    (setupImports : TSyntax ``Parser.Module.header → ProcessingT IO (Except HeaderProcessedSnapshot SetupImportsResult))
+    (setupImports : HeaderSyntax → ProcessingT IO (Except HeaderProcessedSnapshot SetupImportsResult))
     (old? : Option InitialSnapshot) : ProcessingM InitialSnapshot := do
   parseHeader old? |>.run (old?.map (·.ictx))
 where
@@ -414,7 +420,7 @@ where
         if let some (some processed) ← old.processedResult.get? then
           -- ...and the edit is after the second-next command (see note [Incremental Parsing])...
           if let some nextCom ← processed.firstCmdSnap.get? then
-            if let some nextNextCom ← processed.firstCmdSnap.get? then
+            if let some nextNextCom ← nextCom.nextCmdSnap?.bindM (·.get?) then
               if (← isBeforeEditPos nextNextCom.parserState.pos) then
                 -- ...go immediately to next snapshot
                 return (← unchanged old old.stx oldSuccess.parserState)
@@ -453,7 +459,7 @@ where
         }
       }
 
-  processHeader (stx : TSyntax ``Parser.Module.header) (parserState : Parser.ModuleParserState) :
+  processHeader (stx : HeaderSyntax) (parserState : Parser.ModuleParserState) :
       LeanProcessingM (SnapshotTask HeaderProcessedSnapshot) := do
     let ctx ← read
     SnapshotTask.ofIO stx none (some ⟨0, ctx.input.endPos⟩) <|
@@ -471,9 +477,9 @@ where
       if !stx.raw[0].isNone && !experimental.module.get opts then
         throw <| IO.Error.userError "`module` keyword is experimental and not enabled here"
       -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
-      let (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true)
-        (mainModule := setup.mainModuleName) stx opts .empty ctx.toInputContext setup.trustLevel
-        setup.plugins
+      let (headerEnv, msgLog) ← Elab.processHeaderCore (leakEnv := true)
+        stx.startPos setup.imports setup.isModule setup.opts .empty ctx.toInputContext
+        setup.trustLevel setup.plugins setup.mainModuleName setup.modules
       let stopTime := (← IO.monoNanosNow).toFloat / 1000000000
       let diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
       if msgLog.hasErrors then
@@ -681,7 +687,8 @@ where
           -- create a temporary snapshot tree containing all tasks but it
           let snaps := #[
             { stx? := stx', task := elabPromise.result!.map (sync := true) toSnapshotTree, cancelTk? := none },
-            { stx? := stx', task := resultPromise.result!.map (sync := true) toSnapshotTree, cancelTk? := none }] ++
+            { stx? := stx', task := resultPromise.result!.map (sync := true) toSnapshotTree, cancelTk? := none },
+            { stx? := stx', task := finishedPromise.result!.map (sync := true) toSnapshotTree, cancelTk? := none }] ++
             cmdState.snapshotTasks
           let tree := SnapshotTree.mk { diagnostics := .empty } snaps
           BaseIO.bindTask (← tree.waitAll) fun _ => do

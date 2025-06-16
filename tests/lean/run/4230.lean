@@ -16,7 +16,7 @@ theorem foo (curr : Nat) (input : Array Nat) (output : Array Nat)
   unfold copy
   split
   . rw [foo]
-    . rw [Array.get_push_lt]
+    . rw [Array.getElem_push_lt]
     . omega
   . rfl
 termination_by?

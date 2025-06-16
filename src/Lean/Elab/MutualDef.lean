@@ -25,6 +25,40 @@ open Language
 builtin_initialize
   registerTraceClass `Meta.instantiateMVars
 
+-- TODO: this documentation is not shown
+/--
+Makes the bodies of definitions available to importing modules.
+
+This only has an effect if both the module the definition is defined in and the importing module
+have the module system enabled.
+-/
+@[builtin_init, builtin_doc]
+private def init :=
+  registerBuiltinAttribute {
+    name := `expose
+    descr := "(module system) Make bodies of definitions available to importing modules."
+    add := fun _ _ _ => do
+      -- Attribute will be filtered out by `MutualDef`
+      throwError "Invalid attribute 'expose', must be used when declaring `def`"
+  }
+
+/--
+Negates a previous `@[expose]` attribute. This is useful for declaring definitions that shouldn't.
+be exposed in a section tagged `@[expose]`
+
+This only has an effect if both the module the definition is defined in and the importing module
+have the module system enabled.
+-/
+@[builtin_init, builtin_doc]
+private def init2 :=
+  registerBuiltinAttribute {
+    name := `no_expose
+    descr := "(module system) Negate previous `[expose]` attribute."
+    add := fun _ _ _ => do
+      -- Attribute will be filtered out by `MutualDef`
+      throwError "Invalid attribute 'no_expose', must be used when declaring `def`"
+  }
+
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
   profileitM Exception s!"instantiate metavars" (← getOptions) do
   withTraceNode `Meta.instantiateMVars (fun _ => pure e) do
@@ -89,8 +123,15 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
   else
     pure ()
 
-private def registerFailedToInferDefTypeInfo (type : Expr) (ref : Syntax) : TermElabM Unit :=
-  registerCustomErrorIfMVar type ref "failed to infer definition type"
+private def registerFailedToInferDefTypeInfo (type : Expr) (ref : Syntax) (view : DefView) : TermElabM Unit :=
+  let msg := if view.kind.isExample then
+    m!"failed to infer type of example"
+  else if view.kind matches .instance then
+    -- TODO: instances are sometime named. We should probably include the name if available.
+    m!"failed to infer type of instance"
+  else
+    m!"failed to infer type of `{view.declId}`"
+  registerCustomErrorIfMVar type ref msg
 
 /--
   Return `some [b, c]` if the given `views` are representing a declaration of the form
@@ -106,14 +147,17 @@ private def isMultiConstant? (views : Array DefView) : Option (List Name) :=
   else
     none
 
-private def getPendingMVarErrorMessage (views : Array DefView) : String :=
+private def getPendingMVarErrorMessage (views : Array DefView) : MessageData :=
   match isMultiConstant? views with
   | some ids =>
     let idsStr := ", ".intercalate <| ids.map fun id => s!"`{id}`"
     let paramsStr := ", ".intercalate <| ids.map fun id => s!"`({id} : _)`"
-    s!"\nrecall that you cannot declare multiple constants in a single declaration. The identifier(s) {idsStr} are being interpreted as parameters {paramsStr}"
+    MessageData.note m!"Recall that you cannot declare multiple constants in a single declaration. The identifier(s) {idsStr} are being interpreted as parameters {paramsStr}."
   | none =>
-    "\nwhen the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed"
+    if views.all fun view => view.kind.isTheorem then
+      MessageData.note "All holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be"
+    else
+      MessageData.note "When the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed"
 
 /--
 Convert terms of the form `OfNat <type> (OfNat.ofNat Nat <num> ..)` into `OfNat <type> <num>`.
@@ -188,13 +232,13 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
             let mut type ← match view.type? with
               | some typeStx =>
                 let type ← elabType typeStx
-                registerFailedToInferDefTypeInfo type typeStx
+                registerFailedToInferDefTypeInfo type typeStx view
                 pure type
               | none =>
                 let hole := mkHole refForElabFunType
                 let type ← elabType hole
                 trace[Elab.definition] ">> type: {type}\n{type.mvarId!}"
-                registerFailedToInferDefTypeInfo type refForElabFunType
+                registerFailedToInferDefTypeInfo type refForElabFunType view
                 pure type
             Term.synthesizeSyntheticMVarsNoPostponing
             if view.isInstance then
@@ -337,17 +381,17 @@ def declVal          := declValSimple <|> declValEqns <|> Term.whereDecls
 
 The `Termination.suffix` is ignored here, and extracted in `declValToTerminationHint`.
 -/
-private def declValToTerm (declVal : Syntax) : MacroM Syntax := withRef declVal do
+private def declValToTerm (declVal : Syntax) (expectedType : Expr) : TermElabM Syntax := withRef declVal do
   if declVal.isOfKind ``Parser.Command.declValSimple then
-    expandWhereDeclsOpt declVal[3] declVal[1]
+    liftMacroM <| expandWhereDeclsOpt declVal[3] declVal[1]
   else if declVal.isOfKind ``Parser.Command.declValEqns then
-    expandMatchAltsWhereDecls declVal[0]
+    expandMatchAltsWhereDecls declVal[0] expectedType
   else if declVal.isOfKind ``Parser.Command.whereStructInst then
-    expandWhereStructInst declVal
+    liftMacroM <| expandWhereStructInst declVal
   else if declVal.isMissing then
-    Macro.throwErrorAt declVal "declaration body is missing"
+    throwErrorAt declVal "declaration body is missing"
   else
-    Macro.throwErrorAt declVal "unexpected declaration body"
+    throwErrorAt declVal "unexpected declaration body"
 
 /-- Elaborates the termination hints in a `declVal` syntax. -/
 private def declValToTerminationHint (declVal : Syntax) : TermElabM TerminationHints :=
@@ -366,9 +410,11 @@ Runs `k` with a restricted local context where only section variables from `vars
 * are instance-implicit variables that only reference section variables included by these rules AND
   are not listed in `sc.omittedVars` (via `omit`; note that `omit` also subtracts from
   `sc.includedVars`).
+
+If `check` is false, no exceptions will be produced.
 -/
 private def withHeaderSecVars {α} (vars : Array Expr) (sc : Command.Scope) (headers : Array DefViewElabHeader)
-    (k : Array Expr → TermElabM α) : TermElabM α := do
+    (k : Array Expr → TermElabM α) (check := true) : TermElabM α := do
   let mut revSectionFVars : Std.HashMap FVarId Name := {}
   for (uid, var) in (← read).sectionFVars do
     revSectionFVars := revSectionFVars.insert var.fvarId! uid
@@ -386,10 +432,11 @@ where
           modify (·.add var.fvarId!)
     -- transitively referenced
     get >>= (·.addDependencies) >>= set
-    for var in (← get).fvarIds do
-      if let some uid := revSectionFVars[var]? then
-        if sc.omittedVars.contains uid then
-          throwError "cannot omit referenced section variable '{Expr.fvar var}'"
+    if check then
+      for var in (← get).fvarIds do
+        if let some uid := revSectionFVars[var]? then
+          if sc.omittedVars.contains uid then
+            throwError "cannot omit referenced section variable '{Expr.fvar var}'"
     -- instances (`addDependencies` unnecessary as by definition they may only reference variables
     -- already included)
     for var in vars do
@@ -445,7 +492,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
       withReuseContext header.value do
       withTraceNode `Elab.definition.value (fun _ => pure header.declName) do
       withDeclName header.declName <| withLevelNames header.levelNames do
-      let valStx ← liftMacroM <| declValToTerm header.value
+      let valStx ← declValToTerm header.value header.type
       (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc #[header] else fun x => x #[]) fun vars => do
       forallBoundedTelescope header.type header.numParams fun xs type => do
         -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
@@ -946,9 +993,12 @@ def getKindForLetRecs (mainHeaders : Array DefViewElabHeader) : DefKind :=
   else DefKind.«def»
 
 def getModifiersForLetRecs (mainHeaders : Array DefViewElabHeader) : Modifiers := {
-  isNoncomputable := mainHeaders.any fun h => h.modifiers.isNoncomputable
-  recKind         := if mainHeaders.any fun h => h.modifiers.isPartial then RecKind.partial else RecKind.default
-  isUnsafe        := mainHeaders.any fun h => h.modifiers.isUnsafe
+  computeKind :=
+    if mainHeaders.any (·.modifiers.isNoncomputable) then .noncomputable
+    else if mainHeaders.any (·.modifiers.isMeta) then .meta
+    else .regular
+  recKind     := if mainHeaders.any fun h => h.modifiers.isInferredPartial then RecKind.partial else RecKind.default
+  isUnsafe    := mainHeaders.any fun h => h.modifiers.isUnsafe
 }
 
 /--
@@ -964,7 +1014,6 @@ def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mai
   let letRecsToLift := letRecsToLift.toArray
   let mainFVarIds := mainFVars.map Expr.fvarId!
   let recFVarIds  := (letRecsToLift.map fun toLift => toLift.fvarId) ++ mainFVarIds
-  resetZetaDeltaFVarIds
   withTrackingZetaDelta do
     -- By checking `toLift.type` and `toLift.val` we populate `zetaFVarIds`. See comments at `src/Lean/Meta/Closure.lean`.
     let letRecsToLift ← letRecsToLift.mapM fun toLift => withLCtx toLift.lctx toLift.localInstances do
@@ -1042,9 +1091,9 @@ where
     let tacPromises ← views.mapM fun _ => IO.Promise.new
     let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
       Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
+    withExporting (isExporting := !expandedDeclIds.all (isPrivateName ·.declName)) do
     let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
     let headers ← levelMVarToParamHeaders views headers
-    -- elaborate body in parallel when all stars align
     if let (#[view], #[declId]) := (views, expandedDeclIds) then
       if Elab.async.get (← getOptions) && view.kind.isTheorem &&
           !deprecated.oldSectionVars.get (← getOptions) &&
@@ -1062,9 +1111,8 @@ where
     processDeriving headers
   elabAsync header view declId := do
     let env ← getEnv
-    -- HACK: should be replaced by new `[dsimp]` attribute
-    let isRflLike := header.value matches `(declVal| := rfl)
-    let async ← env.addConstAsync declId.declName .thm (exportedKind := if isRflLike then .thm else .axiom)
+    let async ← env.addConstAsync declId.declName .thm
+      (exportedKind? := guard (!isPrivateName declId.declName) *> some .axiom)
     setEnv async.mainEnv
 
     -- TODO: parallelize header elaboration as well? Would have to refactor auto implicits catch,
@@ -1099,7 +1147,11 @@ where
 
     -- now start new thread for body elaboration, then nested thread for kernel checking
     let cancelTk ← IO.CancelToken.new
-    let act ← wrapAsyncAsSnapshot (desc := s!"elaborating proof of {declId.declName}")
+    let act ←
+      -- NOTE: We must set the decl name before going async to ensure that the `auxDeclNGen` is
+      -- forked correctly.
+      withDeclName header.declName do
+      wrapAsyncAsSnapshot (desc := s!"elaborating proof of {declId.declName}")
         (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
       setEnv async.asyncEnv
       try
@@ -1121,7 +1173,16 @@ where
     Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
-  finishElab headers := withFunLocalDecls headers fun funFVars => withoutExporting do
+  finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars =>
+    withExporting (isExporting :=
+      !headers.all (fun header =>
+        header.modifiers.isPrivate || header.modifiers.attrs.any (·.name == `no_expose)) &&
+      (isExporting ||
+       headers.all (fun header => (header.kind matches .abbrev | .instance)) ||
+       (headers.all (·.kind == .def) && sc.attrs.any (· matches `(attrInstance| expose))) ||
+       headers.any (·.modifiers.attrs.any (·.name == `expose)))) do
+    let headers := headers.map fun header =>
+      { header with modifiers.attrs := header.modifiers.attrs.filter (!·.name ∈ [`expose, `no_expose]) }
     for view in views, funFVar in funFVars do
       addLocalVarInfo view.declId funFVar
     let values ← try
@@ -1135,7 +1196,10 @@ where
     let letRecsToLift ← getLetRecsToLift
     let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
     checkLetRecsToLiftTypes funFVars letRecsToLift
-    (if headers.all (·.kind.isTheorem) && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc headers else withUsed vars headers values letRecsToLift) fun vars => do
+    (if headers.all (·.kind.isTheorem) && !deprecated.oldSectionVars.get (← getOptions) then
+       -- do not repeat checks already done in `elabFunValues`
+       withHeaderSecVars (check := false) vars sc headers
+     else withUsed vars headers values letRecsToLift) fun vars => do
       let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
       checkAllDeclNamesDistinct preDefs
       for preDef in preDefs do
@@ -1165,7 +1229,7 @@ is error-free and contains no syntactical `sorry`s.
 -/
 private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
     (defsParsedSnap : DefsParsedSnapshot) : TermElabM Unit := do
-  if Lean.Elab.inServer.get (← getOptions) then
+  if ! Lean.Elab.inServer.get (← getOptions) then
     -- Skip 'goals accomplished' task if we are on the command line.
     -- These messages are only used in the language server.
     return
@@ -1223,6 +1287,8 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
     if ds.size > 1 && modifiers.isNonrec then
       throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
     let mut view ← mkDefView modifiers d[1]
+    if view.kind != .example && view.value matches `(declVal| := rfl) then
+      view := view.markDefEq
     let fullHeaderRef := mkNullNode #[d[0], view.headerRef]
     if let some snap := snap? then
       view := { view with headerSnap? := some {

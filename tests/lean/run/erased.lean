@@ -20,7 +20,7 @@ set_option pp.funBinderTypes true
 set_option pp.letVarTypes true
 set_option trace.Compiler.result true
 /--
-info: [Compiler.result] size: 1
+trace: [Compiler.result] size: 1
     def Erased.mk (α : lcErased) (a : lcAny) : PSigma lcErased lcAny :=
       let _x.1 : PSigma lcErased lcAny := PSigma.mk lcErased ◾ ◾ ◾;
       return _x.1

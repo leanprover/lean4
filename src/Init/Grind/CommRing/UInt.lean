@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Grind.CommRing.Basic
+import all Init.Data.UInt.Basic
 import Init.Data.UInt.Lemmas
 
 namespace UInt8
@@ -27,7 +28,7 @@ theorem intCast_ofNat (x : Nat) : (OfNat.ofNat (α := Int) x : UInt8) = OfNat.of
     rw [Int.toNat_emod (Int.zero_le_ofNat x) (by decide)]
     erw [Int.toNat_natCast]
     rw [Int.toNat_pow_of_nonneg (by decide)]
-    simp only [ofNat, BitVec.ofNat, Fin.ofNat', Int.reduceToNat, Nat.dvd_refl,
+    simp only [ofNat, BitVec.ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
       Nat.mod_mod_of_dvd, instOfNat]
 
 end UInt8
@@ -50,7 +51,7 @@ theorem intCast_ofNat (x : Nat) : (OfNat.ofNat (α := Int) x : UInt16) = OfNat.o
     rw [Int.toNat_emod (Int.zero_le_ofNat x) (by decide)]
     erw [Int.toNat_natCast]
     rw [Int.toNat_pow_of_nonneg (by decide)]
-    simp only [ofNat, BitVec.ofNat, Fin.ofNat', Int.reduceToNat, Nat.dvd_refl,
+    simp only [ofNat, BitVec.ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
       Nat.mod_mod_of_dvd, instOfNat]
 
 end UInt16
@@ -73,7 +74,7 @@ theorem intCast_ofNat (x : Nat) : (OfNat.ofNat (α := Int) x : UInt32) = OfNat.o
     rw [Int.toNat_emod (Int.zero_le_ofNat x) (by decide)]
     erw [Int.toNat_natCast]
     rw [Int.toNat_pow_of_nonneg (by decide)]
-    simp only [ofNat, BitVec.ofNat, Fin.ofNat', Int.reduceToNat, Nat.dvd_refl,
+    simp only [ofNat, BitVec.ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
       Nat.mod_mod_of_dvd, instOfNat]
 
 end UInt32
@@ -96,7 +97,7 @@ theorem intCast_ofNat (x : Nat) : (OfNat.ofNat (α := Int) x : UInt64) = OfNat.o
     rw [Int.toNat_emod (Int.zero_le_ofNat x) (by decide)]
     erw [Int.toNat_natCast]
     rw [Int.toNat_pow_of_nonneg (by decide)]
-    simp only [ofNat, BitVec.ofNat, Fin.ofNat', Int.reduceToNat, Nat.dvd_refl,
+    simp only [ofNat, BitVec.ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
       Nat.mod_mod_of_dvd, instOfNat]
 
 end UInt64
@@ -116,7 +117,7 @@ theorem intCast_ofNat (x : Nat) : (OfNat.ofNat (α := Int) x : USize) = OfNat.of
     rw [Int.toNat_emod (Int.zero_le_ofNat x)]
     · erw [Int.toNat_natCast]
       rw [Int.toNat_pow_of_nonneg (by decide)]
-      simp only [ofNat, BitVec.ofNat, Fin.ofNat', Int.reduceToNat, Nat.dvd_refl,
+      simp only [ofNat, BitVec.ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
         Nat.mod_mod_of_dvd, instOfNat]
     · obtain _ | _ := System.Platform.numBits_eq <;> simp_all
 
@@ -131,8 +132,11 @@ instance : CommRing UInt8 where
   mul_assoc := UInt8.mul_assoc
   mul_comm := UInt8.mul_comm
   mul_one := UInt8.mul_one
+  one_mul := UInt8.one_mul
   left_distrib _ _ _ := UInt8.mul_add
+  right_distrib _ _ _ := UInt8.add_mul
   zero_mul _ := UInt8.zero_mul
+  mul_zero _ := UInt8.mul_zero
   sub_eq_add_neg := UInt8.sub_eq_add_neg
   pow_zero := UInt8.pow_zero
   pow_succ := UInt8.pow_succ
@@ -145,6 +149,11 @@ instance : IsCharP UInt8 256 where
     have : OfNat.ofNat x = UInt8.ofNat x := rfl
     simp [this, UInt8.ofNat_eq_iff_mod_eq_toNat]
 
+-- Verify we can derive the instances showing how `toInt` interacts with operations:
+example : ToInt.Add UInt8 (some 0) (some (2^8)) := inferInstance
+example : ToInt.Neg UInt8 (some 0) (some (2^8)) := inferInstance
+example : ToInt.Sub UInt8 (some 0) (some (2^8)) := inferInstance
+
 instance : CommRing UInt16 where
   add_assoc := UInt16.add_assoc
   add_comm := UInt16.add_comm
@@ -153,8 +162,11 @@ instance : CommRing UInt16 where
   mul_assoc := UInt16.mul_assoc
   mul_comm := UInt16.mul_comm
   mul_one := UInt16.mul_one
+  one_mul := UInt16.one_mul
   left_distrib _ _ _ := UInt16.mul_add
+  right_distrib _ _ _ := UInt16.add_mul
   zero_mul _ := UInt16.zero_mul
+  mul_zero _ := UInt16.mul_zero
   sub_eq_add_neg := UInt16.sub_eq_add_neg
   pow_zero := UInt16.pow_zero
   pow_succ := UInt16.pow_succ
@@ -167,6 +179,11 @@ instance : IsCharP UInt16 65536 where
     have : OfNat.ofNat x = UInt16.ofNat x := rfl
     simp [this, UInt16.ofNat_eq_iff_mod_eq_toNat]
 
+-- Verify we can derive the instances showing how `toInt` interacts with operations:
+example : ToInt.Add UInt16 (some 0) (some (2^16)) := inferInstance
+example : ToInt.Neg UInt16 (some 0) (some (2^16)) := inferInstance
+example : ToInt.Sub UInt16 (some 0) (some (2^16)) := inferInstance
+
 instance : CommRing UInt32 where
   add_assoc := UInt32.add_assoc
   add_comm := UInt32.add_comm
@@ -175,8 +192,11 @@ instance : CommRing UInt32 where
   mul_assoc := UInt32.mul_assoc
   mul_comm := UInt32.mul_comm
   mul_one := UInt32.mul_one
+  one_mul := UInt32.one_mul
   left_distrib _ _ _ := UInt32.mul_add
+  right_distrib _ _ _ := UInt32.add_mul
   zero_mul _ := UInt32.zero_mul
+  mul_zero _ := UInt32.mul_zero
   sub_eq_add_neg := UInt32.sub_eq_add_neg
   pow_zero := UInt32.pow_zero
   pow_succ := UInt32.pow_succ
@@ -189,6 +209,11 @@ instance : IsCharP UInt32 4294967296 where
     have : OfNat.ofNat x = UInt32.ofNat x := rfl
     simp [this, UInt32.ofNat_eq_iff_mod_eq_toNat]
 
+-- Verify we can derive the instances showing how `toInt` interacts with operations:
+example : ToInt.Add UInt32 (some 0) (some (2^32)) := inferInstance
+example : ToInt.Neg UInt32 (some 0) (some (2^32)) := inferInstance
+example : ToInt.Sub UInt32 (some 0) (some (2^32)) := inferInstance
+
 instance : CommRing UInt64 where
   add_assoc := UInt64.add_assoc
   add_comm := UInt64.add_comm
@@ -197,8 +222,11 @@ instance : CommRing UInt64 where
   mul_assoc := UInt64.mul_assoc
   mul_comm := UInt64.mul_comm
   mul_one := UInt64.mul_one
+  one_mul := UInt64.one_mul
   left_distrib _ _ _ := UInt64.mul_add
+  right_distrib _ _ _ := UInt64.add_mul
   zero_mul _ := UInt64.zero_mul
+  mul_zero _ := UInt64.mul_zero
   sub_eq_add_neg := UInt64.sub_eq_add_neg
   pow_zero := UInt64.pow_zero
   pow_succ := UInt64.pow_succ
@@ -211,6 +239,11 @@ instance : IsCharP UInt64 18446744073709551616 where
     have : OfNat.ofNat x = UInt64.ofNat x := rfl
     simp [this, UInt64.ofNat_eq_iff_mod_eq_toNat]
 
+-- Verify we can derive the instances showing how `toInt` interacts with operations:
+example : ToInt.Add UInt64 (some 0) (some (2^64)) := inferInstance
+example : ToInt.Neg UInt64 (some 0) (some (2^64)) := inferInstance
+example : ToInt.Sub UInt64 (some 0) (some (2^64)) := inferInstance
+
 instance : CommRing USize where
   add_assoc := USize.add_assoc
   add_comm := USize.add_comm
@@ -219,8 +252,11 @@ instance : CommRing USize where
   mul_assoc := USize.mul_assoc
   mul_comm := USize.mul_comm
   mul_one := USize.mul_one
+  one_mul := USize.one_mul
   left_distrib _ _ _ := USize.mul_add
+  right_distrib _ _ _ := USize.add_mul
   zero_mul _ := USize.zero_mul
+  mul_zero _ := USize.mul_zero
   sub_eq_add_neg := USize.sub_eq_add_neg
   pow_zero := USize.pow_zero
   pow_succ := USize.pow_succ
@@ -234,5 +270,10 @@ instance : IsCharP USize (2 ^ numBits) where
   ofNat_eq_zero_iff {x} := by
     have : OfNat.ofNat x = USize.ofNat x := rfl
     simp [this, USize.ofNat_eq_iff_mod_eq_toNat]
+
+-- Verify we can derive the instances showing how `toInt` interacts with operations:
+example : ToInt.Add USize (some 0) (some (2^numBits)) := inferInstance
+example : ToInt.Neg USize (some 0) (some (2^numBits)) := inferInstance
+example : ToInt.Sub USize (some 0) (some (2^numBits)) := inferInstance
 
 end Lean.Grind

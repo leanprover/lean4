@@ -281,3 +281,7 @@ example {α : Sort u} (x y : α) : Eq x y := by apply?
 /-- error: `exact?` could not close the goal. Try `apply?` to see partial suggestions. -/
 #guard_msgs in
 example (p q : Prop) : (¬ p = q) = (p = ¬ q) := by exact?
+
+-- Verify that there is a `sorry` warning when `apply?` closes the goal.
+#guard_msgs (drop info) in
+example : False := by apply?

@@ -99,7 +99,6 @@ static lean_object* l_Lake_DRBMap_min_x21___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lake_DRBMap_max_x21___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_DRBMap_min_x21___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_DRBMap_instForInSigma___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_DRBMap_insert(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_DRBMap_revFold___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DRBMap_min_x21___rarg___closed__4;
@@ -144,6 +143,7 @@ LEAN_EXPORT lean_object* l_Lake_DRBMap_fold___rarg(lean_object*, lean_object*, l
 lean_object* l_Lean_RBNode_depth___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_DRBMap_findD(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_DRBMap_contains___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instCoeDRBMapRBMap___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DRBMap_find_x21___rarg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_RBNode_foldM___at_Lake_DRBMap_forM___spec__1___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1713,7 +1713,7 @@ x_2 = l_Lake_DRBMap_min_x21___rarg___closed__2;
 x_3 = lean_unsigned_to_nat(137u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lake_DRBMap_min_x21___rarg___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1800,7 +1800,7 @@ x_2 = l_Lake_DRBMap_max_x21___rarg___closed__1;
 x_3 = lean_unsigned_to_nat(142u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lake_DRBMap_min_x21___rarg___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1895,7 +1895,7 @@ x_2 = l_Lake_DRBMap_find_x21___rarg___closed__1;
 x_3 = lean_unsigned_to_nat(147u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lake_DRBMap_find_x21___rarg___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

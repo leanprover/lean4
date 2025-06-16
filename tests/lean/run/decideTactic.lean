@@ -92,8 +92,8 @@ since its 'Decidable' instance
   instDecidableNot
 did not reduce to 'isTrue' or 'isFalse'.
 
-After unfolding the instances 'baz', 'instDecidableNice' and 'instDecidableNot', reduction got stuck
-at the 'Decidable' instance
+After unfolding the instances 'baz', 'instDecidableNice', and 'instDecidableNot', reduction got
+stuck at the 'Decidable' instance
   ⋯ ▸ inferInstance
 
 Hint: Reduction got stuck on '▸' (Eq.rec), which suggests that one of the 'Decidable' instances is

@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+uint8_t l_Lean_PersistentHashMap_contains___at_Lean_Environment_containsOnBranch___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_Server_Completion_forEligibleDeclsM___spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Completion_forEligibleDeclsM___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_Completion_forEligibleDeclsM___spec__4___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -40,7 +41,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_Completion_g
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forM___at_Lean_Server_Completion_forEligibleDeclsM___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_Completion_forEligibleDeclsM___spec__4___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
-uint8_t l_Lean_PersistentHashMap_contains___at_Lean_Environment_addExtraName___spec__2(lean_object*, lean_object*);
 uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___private_Lean_Environment_0__Lean_Kernel_Environment_add___spec__6(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Completion_getEligibleHeaderDecls(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Completion_getEligibleHeaderDecls___closed__1;
@@ -1139,7 +1139,7 @@ x_20 = l_Lean_Environment_constants(x_2);
 x_21 = lean_ctor_get(x_20, 1);
 lean_inc(x_21);
 lean_dec(x_20);
-x_22 = l_Lean_PersistentHashMap_contains___at_Lean_Environment_addExtraName___spec__2(x_21, x_3);
+x_22 = l_Lean_PersistentHashMap_contains___at_Lean_Environment_containsOnBranch___spec__2(x_21, x_3);
 if (x_22 == 0)
 {
 uint8_t x_23; 

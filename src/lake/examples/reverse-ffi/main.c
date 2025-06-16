@@ -3,7 +3,7 @@
 
 extern uint64_t my_length(lean_obj_arg);
 
-// see https://leanprover.github.io/lean4/doc/dev/ffi.html#initialization
+// see https://lean-lang.org/doc/reference/latest/find/?domain=Verso.Genre.Manual.section&name=ffi-initialization
 extern void lean_initialize_runtime_module();
 extern void lean_initialize();
 extern void lean_io_mark_end_initialization();

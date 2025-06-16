@@ -8,10 +8,13 @@ Additional goodies for writing macros
 module
 
 prelude
+import all Init.Prelude  -- for unfolding `Name.beq`
 import Init.MetaTypes
 import Init.Syntax
 import Init.Data.Array.GetLit
 import Init.Data.Option.BasicAux
+meta import Init.Data.Array.Basic
+meta import Init.Syntax
 
 namespace Lean
 
@@ -245,7 +248,7 @@ def appendBefore (n : Name) (pre : String) : Name :=
     | num p n => Name.mkNum (Name.mkStr p pre) n
 
 protected theorem beq_iff_eq {m n : Name} : m == n ↔ m = n := by
-  show m.beq n ↔ _
+  change m.beq n ↔ _
   induction m generalizing n <;> cases n <;> simp_all [Name.beq, And.comm]
 
 instance : LawfulBEq Name where
@@ -1203,7 +1206,8 @@ def quoteNameMk : Name → Term
   | .num n i => Syntax.mkCApp ``Name.mkNum #[quoteNameMk n, quote i]
 
 instance : Quote Name `term where
-  quote n := match getEscapedNameParts? [] n with
+  quote n := private
+    match getEscapedNameParts? [] n with
     | some ss => ⟨mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ ".".intercalate ss)]⟩
     | none    => ⟨quoteNameMk n⟩
 
@@ -1216,7 +1220,7 @@ private def quoteList [Quote α `term] : List α → Term
   | (x::xs) => Syntax.mkCApp ``List.cons #[quote x, quoteList xs]
 
 instance [Quote α `term] : Quote (List α) `term where
-  quote := quoteList
+  quote := private quoteList
 
 private def quoteArray [Quote α `term] (xs : Array α) : Term :=
   if xs.size <= 8 then
@@ -1233,7 +1237,7 @@ where
   decreasing_by decreasing_trivial_pre_omega
 
 instance [Quote α `term] : Quote (Array α) `term where
-  quote := quoteArray
+  quote := private quoteArray
 
 instance Option.hasQuote {α : Type} [Quote α `term] : Quote (Option α) `term where
   quote
@@ -1317,7 +1321,7 @@ test with the predicate `p`. The resulting array contains the tested elements fo
 `true`, separated by the corresponding separator elements.
 -/
 def filterSepElems (a : Array Syntax) (p : Syntax → Bool) : Array Syntax :=
-  Id.run <| a.filterSepElemsM p
+  Id.run <| a.filterSepElemsM (pure <| p ·)
 
 private partial def mapSepElemsMAux {m : Type → Type} [Monad m] (a : Array Syntax) (f : Syntax → m Syntax) (i : Nat) (acc : Array Syntax) : m (Array Syntax) := do
   if h : i < a.size then
@@ -1334,7 +1338,7 @@ def mapSepElemsM {m : Type → Type} [Monad m] (a : Array Syntax) (f : Syntax �
   mapSepElemsMAux a f 0 #[]
 
 def mapSepElems (a : Array Syntax) (f : Syntax → Syntax) : Array Syntax :=
-  Id.run <| a.mapSepElemsM f
+  Id.run <| a.mapSepElemsM (pure <| f ·)
 
 end Array
 
@@ -1608,7 +1612,7 @@ macro (name := declareSimpLikeTactic) doc?:(docComment)?
     else
       pure (← `(``dsimp), ← `("dsimp"), ← `($[$doc?:docComment]? syntax (name := $tacName) $tacToken:str optConfig (discharger)? (&" only")? (" [" (simpErase <|> simpLemma),* "]")? (location)? : tactic))
   `($stx:command
-    @[macro $tacName] def expandSimp : Macro := fun s => do
+    @[macro $tacName] meta def expandSimp : Macro := fun s => do
       let cfg ← `(optConfig| $cfg)
       let s := s.setKind $kind
       let s := s.setArg 0 (mkAtomFrom s[0] $tkn (canonical := true))

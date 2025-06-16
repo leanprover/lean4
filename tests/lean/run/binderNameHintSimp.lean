@@ -12,19 +12,22 @@ def z : Nat := 0
 set_option trace.Meta.Tactic.simp.rewrite true
 
 /--
-info: [Meta.Tactic.simp.rewrite] ↓ binderNameHint.eq_1:1000:
+trace: [Meta.Tactic.simp.rewrite] ↓ binderNameHint.eq_1:1000:
       binderNameHint x y z
     ==>
       z
 [Meta.Tactic.simp.rewrite] unfold z, z ==> 0
-[Meta.Tactic.simp.rewrite] eq_self:1000: 0 = 0 ==> True
+[Meta.Tactic.simp.rewrite] eq_self:1000:
+      0 = 0
+    ==>
+      True
 -/
 #guard_msgs in
 example : binderNameHint x y z = 0 := by
   simp [x, y, z]
 
 /--
-info: [Meta.Tactic.simp.rewrite] ↓ binderNameHint.eq_1:1000:
+trace: [Meta.Tactic.simp.rewrite] ↓ binderNameHint.eq_1:1000:
       binderNameHint x y z
     ==>
       z

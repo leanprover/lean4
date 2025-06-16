@@ -83,6 +83,13 @@ instance : EmptyCollection (DTreeMap α β cmp) where
 instance : Inhabited (DTreeMap α β cmp) where
   default := ∅
 
+@[inherit_doc Impl.Equiv]
+structure Equiv (m₁ m₂ : DTreeMap α β cmp) where
+  /-- Internal implementation detail of the tree map -/
+  inner : m₁.1.Equiv m₂.1
+
+@[inherit_doc] scoped infix:50 " ~m " => Equiv
+
 @[simp]
 theorem empty_eq_emptyc : (empty : DTreeMap α β cmp) = ∅ :=
   rfl
@@ -500,7 +507,7 @@ def getEntryLE? (t : DTreeMap α β cmp) (k : α) : Option ((a : α) × β a) :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLE? k t.inner
 
 /--
-Tries to retrieve the key-value pair with the smallest key that is less than the given key,
+Tries to retrieve the key-value pair with the largest key that is less than the given key,
 returning `none` if no such pair exists.
 -/
 @[inline]
@@ -537,7 +544,7 @@ def getEntryLE! [Inhabited (Sigma β)] (t : DTreeMap α β cmp) (k : α) : (a : 
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLE! k t.inner
 
 /--
-Tries to retrieve the key-value pair with the smallest key that is less than the given key,
+Tries to retrieve the key-value pair with the largest key that is less than the given key,
 panicking if no such pair exists.
 -/
 @[inline]
@@ -569,7 +576,7 @@ def getEntryLED (t : DTreeMap α β cmp) (k : α) (fallback : Sigma β) : (a : �
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLED k t.inner fallback
 
 /--
-Tries to retrieve the key-value pair with the smallest key that is less than the given key,
+Tries to retrieve the key-value pair with the largest key that is less than the given key,
 returning `fallback` if no such pair exists.
 -/
 @[inline]
@@ -601,7 +608,7 @@ def getKeyLE? (t : DTreeMap α β cmp) (k : α) : Option α :=
   letI : Ord α := ⟨cmp⟩; t.inner.getKeyLE? k
 
 /--
-Tries to retrieve the smallest key that is less than the given key,
+Tries to retrieve the largest key that is less than the given key,
 returning `none` if no such key exists.
 -/
 @[inline]
@@ -638,7 +645,7 @@ def getKeyLE! [Inhabited α] (t : DTreeMap α β cmp) (k : α) : α :=
   letI : Ord α := ⟨cmp⟩; Impl.getKeyLE! k t.inner
 
 /--
-Tries to retrieve the smallest key that is less than the given key,
+Tries to retrieve the largest key that is less than the given key,
 panicking if no such key exists.
 -/
 @[inline]
@@ -670,7 +677,7 @@ def getKeyLED (t : DTreeMap α β cmp) (k : α) (fallback : α) : α :=
   letI : Ord α := ⟨cmp⟩; Impl.getKeyLED k t.inner fallback
 
 /--
-Tries to retrieve the smallest key that is less than the given key,
+Tries to retrieve the largest key that is less than the given key,
 returning `fallback` if no such key exists.
 -/
 @[inline]

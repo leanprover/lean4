@@ -9,6 +9,9 @@ prelude
 import Init.SimpLemmas
 import Init.Data.Nat.Basic
 import Init.Data.List.Notation
+import Init.Data.Nat.Div.Basic
+
+@[expose] section
 
 /-!
 # Basic operations on `List`.
@@ -584,7 +587,7 @@ Examples:
 * `[1, 2, 3, 4].reverse = [4, 3, 2, 1]`
 * `[].reverse = []`
 -/
-def reverse (as : List α) : List α :=
+@[expose] def reverse (as : List α) : List α :=
   reverseAux as []
 
 @[simp, grind] theorem reverse_nil : reverse ([] : List α) = [] := rfl
@@ -670,7 +673,7 @@ instance : Std.Associative (α := List α) (· ++ ·) := ⟨append_assoc⟩
 theorem append_cons (as : List α) (b : α) (bs : List α) : as ++ b :: bs = as ++ [b] ++ bs := by
   simp
 
-@[simp] theorem concat_eq_append {as : List α} {a : α} : as.concat a = as ++ [a] := by
+@[simp, grind =] theorem concat_eq_append {as : List α} {a : α} : as.concat a = as ++ [a] := by
   induction as <;> simp [concat, *]
 
 theorem reverseAux_eq_append {as bs : List α} : reverseAux as bs = reverseAux as [] ++ bs := by
@@ -703,8 +706,6 @@ def flatten : List (List α) → List α
 @[simp, grind] theorem flatten_nil : List.flatten ([] : List (List α)) = [] := rfl
 @[simp, grind] theorem flatten_cons : (l :: L).flatten = l ++ L.flatten := rfl
 
-@[deprecated flatten (since := "2024-10-14"), inherit_doc flatten] abbrev join := @flatten
-
 /-! ### singleton -/
 
 /--
@@ -715,10 +716,7 @@ Examples:
  * `List.singleton "green" = ["green"]`.
  * `List.singleton [1, 2, 3] = [[1, 2, 3]]`
 -/
-@[inline] protected def singleton {α : Type u} (a : α) : List α := [a]
-
-set_option linter.missingDocs false in
-@[deprecated singleton (since := "2024-10-16")] protected abbrev pure := @singleton
+@[inline, expose] protected def singleton {α : Type u} (a : α) : List α := [a]
 
 /-! ### flatMap -/
 
@@ -735,13 +733,6 @@ Examples:
 @[simp, grind] theorem flatMap_nil {f : α → List β} : List.flatMap f [] = [] := by simp [flatten, List.flatMap]
 @[simp, grind] theorem flatMap_cons {x : α} {xs : List α} {f : α → List β} :
   List.flatMap f (x :: xs) = f x ++ List.flatMap f xs := by simp [flatten, List.flatMap]
-
-set_option linter.missingDocs false in
-@[deprecated flatMap (since := "2024-10-16")] abbrev bind := @flatMap
-set_option linter.missingDocs false in
-@[deprecated flatMap_nil (since := "2024-10-16")] abbrev nil_flatMap := @flatMap_nil
-set_option linter.missingDocs false in
-@[deprecated flatMap_cons (since := "2024-10-16")] abbrev cons_flatMap := @flatMap_cons
 
 /-! ### replicate -/
 
@@ -912,13 +903,13 @@ theorem elem_eq_true_of_mem [BEq α] [ReflBEq α] {a : α} {as : List α} (h : a
 instance [BEq α] [LawfulBEq α] (a : α) (as : List α) : Decidable (a ∈ as) :=
   decidable_of_decidable_of_iff (Iff.intro mem_of_elem_eq_true elem_eq_true_of_mem)
 
-@[grind] theorem mem_append_left {a : α} {as : List α} (bs : List α) : a ∈ as → a ∈ as ++ bs := by
+theorem mem_append_left {a : α} {as : List α} (bs : List α) : a ∈ as → a ∈ as ++ bs := by
   intro h
   induction h with
   | head => apply Mem.head
   | tail => apply Mem.tail; assumption
 
-@[grind] theorem mem_append_right {b : α} (as : List α) {bs : List α} : b ∈ bs → b ∈ as ++ bs := by
+theorem mem_append_right {b : α} (as : List α) {bs : List α} : b ∈ bs → b ∈ as ++ bs := by
   intro h
   induction as with
   | nil  => simp [h]
@@ -1200,10 +1191,10 @@ def isPrefixOf [BEq α] : List α → List α → Bool
   | _,     []    => false
   | a::as, b::bs => a == b && isPrefixOf as bs
 
-@[simp] theorem isPrefixOf_nil_left [BEq α] : isPrefixOf ([] : List α) l = true := by
+@[simp, grind =] theorem isPrefixOf_nil_left [BEq α] : isPrefixOf ([] : List α) l = true := by
   simp [isPrefixOf]
-@[simp] theorem isPrefixOf_cons_nil [BEq α] : isPrefixOf (a::as) ([] : List α) = false := rfl
-theorem isPrefixOf_cons₂ [BEq α] {a : α} :
+@[simp, grind =] theorem isPrefixOf_cons_nil [BEq α] : isPrefixOf (a::as) ([] : List α) = false := rfl
+@[grind =] theorem isPrefixOf_cons₂ [BEq α] {a : α} :
     isPrefixOf (a::as) (b::bs) = (a == b && isPrefixOf as bs) := rfl
 
 /--
@@ -1239,7 +1230,7 @@ Examples:
 def isSuffixOf [BEq α] (l₁ l₂ : List α) : Bool :=
   isPrefixOf l₁.reverse l₂.reverse
 
-@[simp] theorem isSuffixOf_nil_left [BEq α] : isSuffixOf ([] : List α) l = true := by
+@[simp, grind =] theorem isSuffixOf_nil_left [BEq α] : isSuffixOf ([] : List α) l = true := by
   simp [isSuffixOf]
 
 /--
@@ -1574,8 +1565,8 @@ protected def erase {α} [BEq α] : List α → α → List α
     | true  => as
     | false => a :: List.erase as b
 
-@[simp] theorem erase_nil [BEq α] (a : α) : [].erase a = [] := rfl
-theorem erase_cons [BEq α] {a b : α} {l : List α} :
+@[simp, grind =] theorem erase_nil [BEq α] (a : α) : [].erase a = [] := rfl
+@[grind =] theorem erase_cons [BEq α] {a b : α} {l : List α} :
     (b :: l).erase a = if b == a then l else b :: l.erase a := by
   simp only [List.erase]; split <;> simp_all
 
@@ -1634,8 +1625,8 @@ def find? (p : α → Bool) : List α → Option α
     | true  => some a
     | false => find? p as
 
-@[simp] theorem find?_nil : ([] : List α).find? p = none := rfl
-theorem find?_cons : (a::as).find? p = match p a with | true => some a | false => as.find? p :=
+@[simp, grind =] theorem find?_nil : ([] : List α).find? p = none := rfl
+@[grind =]theorem find?_cons : (a::as).find? p = match p a with | true => some a | false => as.find? p :=
   rfl
 
 /-! ### findSome? -/
@@ -1855,8 +1846,8 @@ def lookup [BEq α] : α → List (α × β) → Option β
     | true  => some b
     | false => lookup a as
 
-@[simp] theorem lookup_nil [BEq α] : ([] : List (α × β)).lookup a = none := rfl
-theorem lookup_cons [BEq α] {k : α} :
+@[simp, grind =] theorem lookup_nil [BEq α] : ([] : List (α × β)).lookup a = none := rfl
+@[grind =] theorem lookup_cons [BEq α] {k : α} :
     ((k, b)::as).lookup a = match a == k with | true => some b | false => as.lookup a :=
   rfl
 
@@ -2087,18 +2078,6 @@ def sum {α} [Add α] [Zero α] : List α → α :=
 @[simp, grind] theorem sum_nil [Add α] [Zero α] : ([] : List α).sum = 0 := rfl
 @[simp, grind] theorem sum_cons [Add α] [Zero α] {a : α} {l : List α} : (a::l).sum = a + l.sum := rfl
 
-/-- Sum of a list of natural numbers. -/
-@[deprecated List.sum (since := "2024-10-17")]
-protected def _root_.Nat.sum (l : List Nat) : Nat := l.foldr (·+·) 0
-
-set_option linter.deprecated false in
-@[deprecated sum_nil (since := "2024-10-17")]
-theorem _root_.Nat.sum_nil : Nat.sum ([] : List Nat) = 0 := rfl
-set_option linter.deprecated false in
-@[deprecated sum_cons (since := "2024-10-17")]
-theorem _root_.Nat.sum_cons (a : Nat) (l : List Nat) :
-    Nat.sum (a::l) = a + Nat.sum l := rfl
-
 /-! ### range -/
 
 /--
@@ -2118,7 +2097,7 @@ where
   | 0,   acc => acc
   | n+1, acc => loop n (n::acc)
 
-@[simp] theorem range_zero : range 0 = [] := rfl
+@[simp, grind =] theorem range_zero : range 0 = [] := rfl
 
 /-! ### range' -/
 
@@ -2220,8 +2199,6 @@ def min? [Min α] : List α → Option α
   | []    => none
   | a::as => some <| as.foldl min a
 
-@[inherit_doc min?, deprecated min? (since := "2024-09-29")] abbrev minimum? := @min?
-
 /-! ### max? -/
 
 /--
@@ -2235,8 +2212,6 @@ Examples:
 def max? [Max α] : List α → Option α
   | []    => none
   | a::as => some <| as.foldl max a
-
-@[inherit_doc max?, deprecated max? (since := "2024-09-29")] abbrev maximum? := @max?
 
 /-! ## Other list operations
 
@@ -2409,8 +2384,6 @@ where
     | true  => loop as a (b::r) acc
     | false => loop as a [] ((b::r).reverse::acc)
   | [], ag, r, acc => ((ag::r).reverse::acc).reverse
-
-@[deprecated splitBy (since := "2024-10-30"), inherit_doc splitBy] abbrev groupBy := @splitBy
 
 /-! ### removeAll -/
 

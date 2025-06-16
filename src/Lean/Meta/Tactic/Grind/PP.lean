@@ -8,6 +8,8 @@ import Init.Grind.Util
 import Init.Grind.PP
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Arith.Model
+import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
+import Lean.Meta.Tactic.Grind.Arith.Linear.PP
 
 namespace Lean.Meta.Grind
 
@@ -59,7 +61,7 @@ def Goal.ppState (goal : Goal) : MetaM MessageData := do
   for e in goal.exprs do
     let node ← goal.getENode e
     r := r ++ "\n" ++ (← goal.ppENodeDecl node.self)
-  let eqcs := goal.getEqcs
+  let eqcs := goal.getEqcs (sort := true)
   for eqc in eqcs do
     if eqc.length > 1 then
       r := r ++ "\n" ++ "{" ++ (MessageData.joinSep (← eqc.mapM goal.ppENodeRef) ", ") ++  "}"
@@ -72,25 +74,25 @@ def ppGoals (goals : List Goal) : MetaM MessageData := do
     r := r ++ Format.line ++ m
   return r
 
-private def ppExprArray (cls : Name) (header : String) (es : Array Expr) (clsElem : Name := Name.mkSimple "_") : MessageData :=
-  let es := es.map fun e => .trace { cls := clsElem} m!"{e}" #[]
-  .trace { cls } header es
-
 private abbrev M := ReaderT Goal (StateT (Array MessageData) MetaM)
 
 private def pushMsg (m : MessageData) : M Unit :=
   modify fun s => s.push m
+
+def ppExprArray (cls : Name) (header : String) (es : Array Expr) (clsElem : Name := Name.mkSimple "_") : MessageData :=
+  let es := es.map (toTraceElem · clsElem)
+  .trace { cls } header es
 
 private def ppEqcs : M Unit := do
    let mut trueEqc?  : Option MessageData := none
    let mut falseEqc? : Option MessageData := none
    let mut otherEqcs : Array MessageData := #[]
    let goal ← read
-   for eqc in goal.getEqcs do
+   for eqc in goal.getEqcs (sort := true) do
      if Option.isSome <| eqc.find? (·.isTrue) then
        let eqc := eqc.filter fun e => !e.isTrue
        unless eqc.isEmpty do
-         trueEqc? := ppExprArray `eqc "True propositions" eqc.toArray `prop
+         trueEqc? := ppExprArray `eqc  "True propositions" eqc.toArray `prop
      else if Option.isSome <| eqc.find? (·.isFalse) then
        let eqc := eqc.filter fun e => !e.isFalse
        unless eqc.isEmpty do
@@ -141,6 +143,16 @@ private def ppCutsat : M Unit := do
     ms := ms.push <| .trace { cls := `assign } m!"{Arith.quoteIfArithTerm e} := {val}" #[]
   pushMsg <| .trace { cls := `cutsat } "Assignment satisfying linear constraints" ms
 
+private def ppCommRing : M Unit := do
+  let goal ← read
+  let some msg ← Arith.CommRing.pp? goal | return ()
+  pushMsg msg
+
+private def ppLinarith : M Unit := do
+  let goal ← read
+  let some msg ← Arith.Linear.pp? goal | return ()
+  pushMsg msg
+
 private def ppThresholds (c : Grind.Config) : M Unit := do
   let goal ← read
   let maxGen := goal.exprs.foldl (init := 0) fun g e =>
@@ -166,8 +178,10 @@ private def ppCasesTrace : M Unit := do
   let goal ← read
   unless goal.split.trace.isEmpty do
     let mut msgs := #[]
-    for { expr, i , num } in goal.split.trace.reverse do
-      msgs := msgs.push <| .trace { cls := `cases } m!"[{i+1}/{num}]: {expr}" #[]
+    for { expr, i , num, source } in goal.split.trace.reverse do
+      msgs := msgs.push <| .trace { cls := `cases } m!"[{i+1}/{num}]: {expr}" #[
+        .trace { cls := `cases } m!"source: {← source.toMessageData}" #[]
+      ]
     pushMsg <| .trace { cls := `cases } "Case analyses" msgs
 
 def goalToMessageData (goal : Goal) (config : Grind.Config) : MetaM MessageData := goal.mvarId.withContext do
@@ -186,6 +200,8 @@ where
     ppActiveTheoremPatterns
     ppOffset
     ppCutsat
+    ppLinarith
+    ppCommRing
     ppThresholds config
 
 end Lean.Meta.Grind

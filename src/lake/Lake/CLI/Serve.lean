@@ -63,11 +63,9 @@ def setupFile
       | error "failed to load workspace"
     if let some mod := ws.findModuleBySrc? path then
       let deps ← ws.runBuild (withRegisterJob s!"setup ({mod.name})" do mod.deps.fetch) buildConfig
-      let opts := mod.serverOptions.foldl (init := {}) fun opts opt =>
-        opts.insert opt.name opt.value
       let info : FileSetupInfo := {
         paths := mkLeanPaths ws deps
-        setupOptions := ⟨opts⟩
+        setupOptions := mod.serverOptions
       }
       IO.println (toJson info).compress
     else

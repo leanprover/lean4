@@ -171,8 +171,15 @@ structure InductiveElabDescr where
   deriving Inhabited
 
 /--
-Environment extension to register inductive type elaborator commands.
+Registers an inductive type elaborator for the given syntax node kind.
+
+Commands registered using this attribute are allowed to be used together in mutual blocks with
+other inductive type commands. This attribute is mostly used internally for `inductive` and
+`structure`.
+
+An inductive type elaborator should have type `Lean.Elab.Command.InductiveElabDescr`.
 -/
+@[builtin_doc]
 builtin_initialize inductiveElabAttr : KeyedDeclsAttribute InductiveElabDescr ←
   unsafe KeyedDeclsAttribute.init {
     builtinName := `builtin_inductive_elab,
@@ -219,7 +226,7 @@ private def checkUnsafe (rs : Array PreElabHeaderResult) : TermElabM Unit := do
   let isUnsafe := rs[0]!.view.modifiers.isUnsafe
   for r in rs do
     unless r.view.modifiers.isUnsafe == isUnsafe do
-      throwErrorAt r.view.ref "invalid inductive type, cannot mix unsafe and safe declarations in a mutually inductive datatypes"
+      throwErrorAt r.view.ref "invalid inductive type, cannot mix unsafe and safe declarations in mutually inductive datatypes"
 
 private def checkClass (rs : Array PreElabHeaderResult) : TermElabM Unit := do
   if rs.size > 1 then
@@ -952,6 +959,7 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
   let view0 := elabs[0]!.view
   let ref := view0.ref
   Term.withDeclName view0.declName do withRef ref do
+  withExporting (isExporting := !isPrivateName view0.declName) do
     let res ← mkInductiveDecl vars elabs
     mkAuxConstructions (elabs.map (·.view.declName))
     unless view0.isClass do

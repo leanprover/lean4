@@ -6,7 +6,6 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 module
 
 prelude
-import Init.Data.Int.Basic
 import Init.Conv
 import Init.NotationExtra
 import Init.PropLemmas
@@ -340,7 +339,7 @@ protected theorem add_sub_assoc (a b c : Int) : a + b - c = a + (b - c) := by
   match m with
   | 0 => rfl
   | succ m =>
-    show ofNat (n - succ m) = subNatNat n (succ m)
+    change ofNat (n - succ m) = subNatNat n (succ m)
     rw [subNatNat, Nat.sub_eq_zero_of_le h]
 
 @[deprecated negSucc_eq (since := "2025-03-11")]
@@ -593,5 +592,7 @@ but it is convenient to have these earlier, for users who only need `Nat` and `I
 protected theorem natCast_zero : ((0 : Nat) : Int) = (0 : Int) := rfl
 
 protected theorem natCast_one : ((1 : Nat) : Int) = (1 : Int) := rfl
+
+@[simp, norm_cast] theorem natAbs_cast (n : Nat) : natAbs ↑n = n := rfl
 
 end Int

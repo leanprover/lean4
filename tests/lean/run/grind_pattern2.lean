@@ -16,14 +16,14 @@ grind_pattern contains_insert => contains (insertElem s a) a
 set_option trace.grind.ematch true
 set_option trace.grind.ematch.pattern true
 
-/-- info: [grind.ematch] activated `contains_insert`, [@contains #3 (@insertElem _ #2 #1 #0) #0] -/
-#guard_msgs (info) in
+/-- trace: [grind.ematch] activated `contains_insert`, [@contains #3 (@insertElem _ #2 #1 #0) #0] -/
+#guard_msgs (trace) in
 example [DecidableEq α] (s₁ s₂ : Set α) (a₁ a₂ : α) :
         s₂ = insertElem s₁ a₁ → a₁ = a₂ → contains s₂ a₂ := by
   grind
 
-/-- info: [grind.ematch] activated `contains_insert`, [@contains #3 (@insertElem _ #2 #1 #0) #0] -/
-#guard_msgs (info) in
+/-- trace: [grind.ematch] activated `contains_insert`, [@contains #3 (@insertElem _ #2 #1 #0) #0] -/
+#guard_msgs (trace) in
 example [DecidableEq α] (s₁ s₂ : Set α) (a₁ a₂ : α) :
         ¬ contains s₂ a₂ → s₂ = insertElem s₁ a₁ → a₁ = a₂ → False := by
   grind
@@ -34,13 +34,13 @@ def foo (x : List Nat) (y : List Nat) := x ++ y ++ x
 
 theorem fooThm : foo x [a, b] = x ++ [a, b] ++ x := rfl
 
-/-- info: [grind.ematch.pattern] fooThm: [foo #0 `[[a, b]]] -/
+/-- trace: [grind.ematch.pattern] fooThm: [foo #0 `[[a, b]]] -/
 #guard_msgs in
 grind_pattern fooThm => foo x [a, b]
 
 
 /--
-info: [grind.internalize] foo x y
+trace: [grind.internalize] foo x y
 [grind.internalize] [a, b]
 [grind.internalize] Nat
 [grind.internalize] a
@@ -52,7 +52,7 @@ info: [grind.internalize] foo x y
 [grind.internalize] y
 [grind.internalize] z
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind.internalize true in
 example : foo x y = z → False := by
   fail_if_success grind
@@ -62,7 +62,7 @@ theorem arrEx [Add α] (as : Array α) (h₁ : i < as.size) (h₂ : i = j) : as[
 
 
 /--
-info: [grind.ematch.pattern] arrEx: [@HAdd.hAdd #6 _ _ _ (@getElem (Array _) `[Nat] _ _ _ #2 #5 _) (@getElem (Array _) `[Nat] _ _ _ #2 #4 _)]
+trace: [grind.ematch.pattern] arrEx: [@HAdd.hAdd #6 _ _ _ (@getElem (Array _) `[Nat] _ _ _ #2 #5 _) (@getElem (Array _) `[Nat] _ _ _ #2 #4 _)]
 -/
 #guard_msgs in
 grind_pattern arrEx => as[i]+as[j]'(h₂▸h₁)

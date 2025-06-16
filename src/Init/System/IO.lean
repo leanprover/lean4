@@ -10,6 +10,7 @@ import Init.System.IOError
 import Init.System.FilePath
 import Init.System.ST
 import Init.Data.Ord
+import Init.Data.String.Extra
 
 open System
 
@@ -36,7 +37,7 @@ A monad that can have side effects on the external world or throw exceptions of 
    def getWorld : IO (IO.RealWorld) := get
    ```
 -/
-def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
+@[expose] def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
 
 instance : Monad (EIO ε) := inferInstanceAs (Monad (EStateM ε IO.RealWorld))
 instance : MonadFinally (EIO ε) := inferInstanceAs (MonadFinally (EStateM ε IO.RealWorld))
@@ -47,7 +48,7 @@ instance [Inhabited ε] : Inhabited (EIO ε α) := inferInstanceAs (Inhabited (E
 /--
 An `IO` monad that cannot throw exceptions.
 -/
-def BaseIO := EIO Empty
+@[expose] def BaseIO := EIO Empty
 
 instance : Monad BaseIO := inferInstanceAs (Monad (EIO Empty))
 instance : MonadFinally BaseIO := inferInstanceAs (MonadFinally (EIO Empty))
@@ -148,7 +149,7 @@ Because the resulting value is treated as a side-effect-free term, the compiler 
 duplicate, or delete calls to this function. The side effect may even be hoisted into a constant,
 causing the side effect to occur at initialization time, even if it would otherwise never be called.
 -/
-@[inline] unsafe def unsafeBaseIO (fn : BaseIO α) : α :=
+@[noinline] unsafe def unsafeBaseIO (fn : BaseIO α) : α :=
   match fn.run () with
   | EStateM.Result.ok a _ => a
 
@@ -566,7 +567,7 @@ def addHeartbeats (count : Nat) : BaseIO Unit := do
 /--
 Whether a file should be opened for reading, writing, creation and writing, or appending.
 
-A the operating system level, this translates to the mode of a file handle (i.e., a set of `open`
+At the operating system level, this translates to the mode of a file handle (i.e., a set of `open`
 flags and an `fdopen` mode).
 
 None of the modes represented by this datatype translate line endings (i.e. `O_BINARY` on Windows).
@@ -727,7 +728,7 @@ Use `IO.getStderr` to get the current standard error stream.
 /--
 Iterates an `IO` action. Starting with an initial state, the action is applied repeatedly until it
 returns a final value in `Sum.inr`. Each time it returns `Sum.inl`, the returned value is treated as
-a new sate.
+a new state.
 -/
 @[specialize] partial def iterate (a : α) (f : α → IO (Sum α β)) : IO β := do
   let v ← f a
@@ -1013,7 +1014,10 @@ inductive FileType where
   | dir
   /-- Ordinary files that have contents and are not directories. -/
   | file
-  /-- Symbolic links that are pointers to other named files. -/
+  /--
+  Symbolic links that are pointers to other named files. Note that `System.FilePath.metadata` never
+  indicates this type as it follows symlinks; use `System.FilePath.symlinkMetadata` instead.
+  -/
   | symlink
   /-- Files that are neither ordinary files, directories, or symbolic links. -/
   | other
@@ -1035,7 +1039,8 @@ instance : LE SystemTime := leOfOrd
 /--
 File metadata.
 
-The metadata for a file can be accessed with `System.FilePath.metadata`.
+The metadata for a file can be accessed with `System.FilePath.metadata`/
+`System.FilePath.symlinkMetadata`.
 -/
 structure Metadata where
   --permissions : ...
@@ -1065,14 +1070,22 @@ is not a directory.
 opaque readDir : @& FilePath → IO (Array IO.FS.DirEntry)
 
 /--
-Returns metadata for the indicated file. Throws an exception if the file does not exist or the
-metadata cannot be accessed.
+Returns metadata for the indicated file, following symlinks. Throws an exception if the file does
+not exist or the metadata cannot be accessed.
 -/
 @[extern "lean_io_metadata"]
 opaque metadata : @& FilePath → IO IO.FS.Metadata
 
 /--
-Checks whether the indicated path can be read and is a directory.
+Returns metadata for the indicated file without following symlinks. Throws an exception if the file
+does not exist or the metadata cannot be accessed.
+-/
+@[extern "lean_io_symlink_metadata"]
+opaque symlinkMetadata : @& FilePath → IO IO.FS.Metadata
+
+/--
+Checks whether the indicated path can be read and is a directory. This function will traverse
+symlinks.
 -/
 def isDir (p : FilePath) : BaseIO Bool := do
   match (← p.metadata.toBaseIO) with
@@ -1080,7 +1093,8 @@ def isDir (p : FilePath) : BaseIO Bool := do
   | Except.error _ => return false
 
 /--
-Checks whether the indicated path points to a file that exists.
+Checks whether the indicated path points to a file that exists. This function will traverse
+symlinks.
 -/
 def pathExists (p : FilePath) : BaseIO Bool :=
   return (← p.metadata.toBaseIO).toBool
@@ -1242,11 +1256,14 @@ partial def createDirAll (p : FilePath) : IO Unit := do
         throw e
 
 /--
-  Fully remove given directory by deleting all contained files and directories in an unspecified order.
-  Fails if any contained entry cannot be deleted or was newly created during execution. -/
+Fully remove given directory by deleting all contained files and directories in an unspecified order.
+Symlinks are deleted but not followed. Fails if any contained entry cannot be deleted or was newly
+created during execution.
+-/
 partial def removeDirAll (p : FilePath) : IO Unit := do
   for ent in (← p.readDir) do
-    if (← ent.path.isDir : Bool) then
+    -- Do not follow symlinks
+    if (← ent.path.symlinkMetadata).type == .dir then
       removeDirAll ent.path
     else
       removeFile ent.path
@@ -1467,7 +1484,9 @@ terminates with any other exit code.
 def run (args : SpawnArgs) : IO String := do
   let out ← output args
   if out.exitCode != 0 then
-    throw <| IO.userError <| "process '" ++ args.cmd ++ "' exited with code " ++ toString out.exitCode
+    throw <| IO.userError s!"process '{args.cmd}' exited with code {out.exitCode}\
+      \nstderr:\
+      \n{out.stderr}"
   pure out.stdout
 
 /--

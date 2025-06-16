@@ -855,7 +855,7 @@ private def registerFailedToInferDefaultValue (fieldName : Name) (e : Expr) (ref
 Goes through all the natural mvars appearing in `e`, assigning any whose type is one of the inherited parents.
 
 Rationale 1: Structures can only extend a parent once.
-There should be no other occurences of a parent except for the parent itself.
+There should be no other occurrences of a parent except for the parent itself.
 
 Rationale 2: Consider the following code in the test `lean/run/balg.lean`:
 ```lean

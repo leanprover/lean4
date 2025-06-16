@@ -115,6 +115,10 @@ theorem cond_false (discr : Bool) (lhs rhs : BitVec w) :
     (discr || ((bif discr then lhs else rhs) == rhs)) = true := by
   cases discr <;> simp
 
+theorem reverse_congr (w : Nat) (x x' : BitVec w) (h : x = x') :
+    BitVec.reverse x' = BitVec.reverse x := by
+  simp[*]
+
 end BitVec
 
 namespace Bool

@@ -8,8 +8,9 @@ module
 
 prelude
 
-import Init.Data.List.Control
-import Init.Data.Array.Basic
+import all Init.Data.List.Control
+import all Init.Data.Option.Basic
+import all Init.Data.Array.Basic
 import Init.Internal.Order.Basic
 
 /-!
@@ -81,16 +82,13 @@ theorem SeqRight.monotone_seqRight [LawfulMonad m] (f : γ → m α) (g : γ →
 
 namespace Option
 
+omit [MonoBind m] in
 @[partial_fixpoint_monotone]
 theorem monotone_bindM (f : γ → α → m (Option β)) (xs : Option α) (hmono : monotone f) :
     monotone (fun x => xs.bindM (f x)) := by
   cases xs with
   | none => apply monotone_const
-  | some x =>
-    apply monotone_bind
-    · apply monotone_apply
-      apply hmono
-    · apply monotone_const
+  | some x => apply monotone_apply _ _ hmono
 
 @[partial_fixpoint_monotone]
 theorem monotone_mapM [LawfulMonad m] (f : γ → α → m β) (xs : Option α) (hmono : monotone f) :

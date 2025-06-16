@@ -3,13 +3,17 @@ source ../common.sh
 
 ./clean.sh
 
+# Test that precompilation works with a Lake import
+# https://github.com/leanprover/lean4/issues/7388
+test_run -v build LakeTest
+
 # Test that the link & load order of precompiled libraries is correct
 # https://github.com/leanprover/lean4/issues/7790
 test_run -v exe orderTest
 
 # Test that transitively importing a precompiled module
 # from a non-precompiled module works
-test_not_out '"pluginPaths":[]' -v setup-file bogus Downstream
+test_not_out '"pluginPaths":[]' -v setup-file ImportDownstream.lean
 test_run -v build Downstream
 
 # Test that `moreLinkArgs` are included when linking precompiled modules

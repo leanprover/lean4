@@ -109,7 +109,7 @@ def PreNullCert.combine (k₁ : Int) (m₁ : Mon) (c₁ : PreNullCert) (k₂ : I
         qs := qs.set i q₁
     else
       have : i < n := h.upper
-      have : qs₁.size = n ∨ qs₂.size = n := by simp +zetaDelta [Nat.max_def]; split <;> simp [*]
+      have : qs₁.size = n ∨ qs₂.size = n := by simp +zetaDelta only [Nat.max_def, right_eq_ite_iff]; split <;> simp [*]
       have : i < qs₂.size := by omega
       let q₂ ← qs₂[i].mulMonM k₂ m₂
       qs := qs.set i q₂
@@ -236,7 +236,7 @@ def setEqUnsat (c : EqCnstr) : RingM Unit := do
   trace_goal[grind.ring.assert.unsat] "{ncx.d}*({← c.p.denoteExpr}), {← (← ncx.toPoly).denoteExpr}"
   let ring ← getRing
   let some (charInst, char) := ring.charInst?
-    | throwError "`grind` internal error, `IsCharP` insrtance is needed, but it is not available for{indentExpr (← getRing).type}"
+    | throwError "`grind` internal error, `IsCharP` instance is needed, but it is not available for{indentExpr (← getRing).type}\nconsider not using `+ringNull`"
   let h := if char == 0 then
     mkApp (mkConst ``Grind.CommRing.NullCert.eq_unsat [ring.u]) ring.type
   else
@@ -432,12 +432,18 @@ where
 open Lean.Grind.CommRing in
 def setEqUnsat (c : EqCnstr) : RingM Unit := do
   let h ← withProofContext do
-    let mut h ← mkStepPrefix ``Stepwise.unsat_eq ``Stepwise.unsat_eqC
-    let (charInst, char) ← getCharInst
-    if char == 0 then
-      h := mkApp h charInst
-    let k ← getPolyConst c.p
-    return mkApp4 h (← mkPolyDecl c.p) (toExpr k) reflBoolTrue (← c.toExprProof)
+    let ring ← getRing
+    if let some (charInst, char) := ring.charInst? then
+      let mut h ← mkStepPrefix ``Stepwise.unsat_eq ``Stepwise.unsat_eqC
+      if char == 0 then
+        h := mkApp h charInst
+      let k ← getPolyConst c.p
+      return mkApp4 h (← mkPolyDecl c.p) (toExpr k) reflBoolTrue (← c.toExprProof)
+    else if let some fieldInst := ring.fieldInst? then
+      return mkApp6 (mkConst ``Grind.CommRing.one_eq_zero_unsat [ring.u]) ring.type fieldInst (← getContext)
+        (← mkPolyDecl c.p) reflBoolTrue (← c.toExprProof)
+    else
+      throwError "`grind ring` internal error, unexpected unsat eq proof {← c.denoteExpr}"
   closeGoal h
 
 def setDiseqUnsat (c : DiseqCnstr) : RingM Unit := do

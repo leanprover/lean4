@@ -193,7 +193,7 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
   | Expr.proj _ _ s      => return e.updateProj! (← collect s)
   | Expr.forallE _ d b _ => return e.updateForallE! (← collect d) (← collect b)
   | Expr.lam _ d b _     => return e.updateLambdaE! (← collect d) (← collect b)
-  | Expr.letE _ t v b _  => return e.updateLet! (← collect t) (← collect v) (← collect b)
+  | Expr.letE _ t v b _  => return e.updateLetE! (← collect t) (← collect v) (← collect b)
   | Expr.app f a         => return e.updateApp! (← collect f) (← collect a)
   | Expr.mdata _ b       => return e.updateMData! (← collect b)
   | Expr.sort u          => return e.updateSort! (← collectLevel u)
@@ -343,7 +343,6 @@ structure MkValueTypeClosureResult where
   exprArgs    : Array Expr
 
 def mkValueTypeClosureAux (type : Expr) (value : Expr) : ClosureM (Expr × Expr) := do
-  resetZetaDeltaFVarIds
   withTrackingZetaDelta do
     let type  ← collectExpr type
     let value ← collectExpr value
@@ -392,9 +391,9 @@ def mkAuxDefinitionFor (name : Name) (value : Expr) (zetaDelta : Bool := false) 
 /--
   Create an auxiliary theorem with the given name, type and value. It is similar to `mkAuxDefinition`.
 -/
-def mkAuxTheorem (type : Expr) (value : Expr) (zetaDelta : Bool := false) (prefix? : Option Name) (cache := true) : MetaM Expr := do
+def mkAuxTheorem (type : Expr) (value : Expr) (zetaDelta : Bool := false) (kind? : Option Name := none) (cache := true) : MetaM Expr := do
   let result ← Closure.mkValueTypeClosure type value zetaDelta
-  let name ← mkAuxLemma (prefix? := prefix?) (cache := cache) result.levelParams.toList result.type result.value
+  let name ← mkAuxLemma (kind? := kind?) (cache := cache) result.levelParams.toList result.type result.value
   return mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
 
 end Lean.Meta

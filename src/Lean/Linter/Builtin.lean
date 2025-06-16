@@ -14,11 +14,11 @@ register_builtin_option linter.suspiciousUnexpanderPatterns : Bool := {
   descr := "enable the 'suspicious unexpander patterns' linter"
 }
 
-def getLinterSuspiciousUnexpanderPatterns (o : Options) : Bool := getLinterValue linter.suspiciousUnexpanderPatterns o
+def getLinterSuspiciousUnexpanderPatterns (o : LinterOptions) : Bool := getLinterValue linter.suspiciousUnexpanderPatterns o
 
 def suspiciousUnexpanderPatterns : Linter where
   run cmdStx := do
-    unless getLinterSuspiciousUnexpanderPatterns (← getOptions) do
+    unless getLinterSuspiciousUnexpanderPatterns (← getLinterOptions) do
       return
 
     -- check `[app_unexpander _]` defs defined by pattern matching

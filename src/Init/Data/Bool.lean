@@ -432,7 +432,7 @@ theorem and_or_inj_left_iff :
 /--
 Converts `true` to `1` and `false` to `0`.
 -/
-def toNat (b : Bool) : Nat := cond b 1 0
+@[expose] def toNat (b : Bool) : Nat := cond b 1 0
 
 @[simp, bitvec_to_nat] theorem toNat_false : false.toNat = 0 := rfl
 
@@ -455,7 +455,7 @@ theorem toNat_lt (b : Bool) : b.toNat < 2 :=
 /--
 Converts `true` to `1` and `false` to `0`.
 -/
-def toInt (b : Bool) : Int := cond b 1 0
+@[expose] def toInt (b : Bool) : Int := cond b 1 0
 
 @[simp] theorem toInt_false : false.toInt = 0 := rfl
 
@@ -687,7 +687,7 @@ def boolPredToPred : Coe (α → Bool) (α  → Prop) where
 This should not be turned on globally as an instance because it degrades performance in Mathlib,
 but may be used locally.
 -/
-def boolRelToRel : Coe (α → α → Bool) (α → α → Prop) where
+@[expose] def boolRelToRel : Coe (α → α → Bool) (α → α → Prop) where
   coe r := fun a b => Eq (r a b) true
 
 /-! ### subtypes -/

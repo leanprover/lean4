@@ -27,7 +27,7 @@ open Nat
 
 /-! ### take -/
 
-@[simp] theorem length_take : ∀ {i : Nat} {l : List α}, (take i l).length = min i l.length
+@[simp, grind =] theorem length_take : ∀ {i : Nat} {l : List α}, (take i l).length = min i l.length
   | 0, l => by simp [Nat.zero_min]
   | succ n, [] => by simp [Nat.min_zero]
   | succ n, _ :: l => by simp [Nat.succ_min_succ, length_take]
@@ -47,7 +47,7 @@ theorem getElem_take' {xs : List α} {i j : Nat} (hi : i < xs.length) (hj : i < 
 
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the small list to the big list. -/
-@[simp] theorem getElem_take {xs : List α} {j i : Nat} {h : i < (xs.take j).length} :
+@[simp, grind =] theorem getElem_take {xs : List α} {j i : Nat} {h : i < (xs.take j).length} :
     (xs.take j)[i] =
     xs[i]'(Nat.lt_of_lt_of_le h (length_take_le' _ _)) := by
   rw [length_take, Nat.lt_min] at h; rw [getElem_take' (xs := xs) _ h.1]
@@ -56,7 +56,7 @@ theorem getElem?_take_eq_none {l : List α} {i j : Nat} (h : i ≤ j) :
     (l.take i)[j]? = none :=
   getElem?_eq_none <| Nat.le_trans (length_take_le _ _) h
 
-theorem getElem?_take {l : List α} {i j : Nat} :
+@[grind =] theorem getElem?_take {l : List α} {i j : Nat} :
     (l.take i)[j]? = if j < i then l[j]? else none := by
   split
   · next h => exact getElem?_take_of_lt h
@@ -184,8 +184,6 @@ theorem dropLast_take {i : Nat} {l : List α} (h : i < l.length) :
     (l.take i).dropLast = l.take (i - 1) := by
   simp only [dropLast_eq_take, length_take, Nat.le_of_lt h, Nat.min_eq_left, take_take, sub_le]
 
-@[deprecated map_eq_append_iff (since := "2024-09-05")] abbrev map_eq_append_split := @map_eq_append_iff
-
 theorem take_eq_dropLast {l : List α} {i : Nat} (h : i + 1 = l.length) :
     l.take i = l.dropLast := by
   induction l generalizing i with
@@ -201,7 +199,7 @@ theorem take_eq_dropLast {l : List α} {i : Nat} (h : i + 1 = l.length) :
         simpa using h
 
 theorem take_prefix_take_left {l : List α} {i j : Nat} (h : i ≤ j) : take i l <+: take j l := by
-  rw [isPrefix_iff]
+  rw [prefix_iff_getElem?]
   intro i w
   rw [getElem?_take_of_lt, getElem_take, getElem?_eq_getElem]
   simp only [length_take] at w
@@ -232,7 +230,7 @@ theorem getElem_drop' {xs : List α} {i j : Nat} (h : i + j < xs.length) :
 
 /-- The `i + j`-th element of a list coincides with the `j`-th element of the list obtained by
 dropping the first `i` elements. Version designed to rewrite from the small list to the big list. -/
-@[simp] theorem getElem_drop {xs : List α} {i : Nat} {j : Nat} {h : j < (xs.drop i).length} :
+@[simp, grind =] theorem getElem_drop {xs : List α} {i : Nat} {j : Nat} {h : j < (xs.drop i).length} :
     (xs.drop i)[j] = xs[i + j]'(by
       rw [Nat.add_comm]
       exact Nat.add_lt_of_lt_sub (length_drop ▸ h)) := by
@@ -365,8 +363,6 @@ theorem drop_take : ∀ {i j : Nat} {l : List α}, drop i (take j l) = take (j -
   | _, _, [] => by simp
   | i+1, j+1, h :: t => by
     simp [take_succ_cons, drop_succ_cons, drop_take]
-    congr 1
-    omega
 
 @[simp] theorem drop_take_self : drop i (take i l) = [] := by
   rw [drop_take]
@@ -542,7 +538,7 @@ theorem dropWhile_eq_drop_findIdx_not {xs : List α} {p : α → Bool} :
 
 /-! ### zipWith -/
 
-@[simp] theorem length_zipWith {f : α → β → γ} {l₁ : List α} {l₂ : List β} :
+@[simp, grind =] theorem length_zipWith {f : α → β → γ} {l₁ : List α} {l₂ : List β} :
     length (zipWith f l₁ l₂) = min (length l₁) (length l₂) := by
   induction l₁ generalizing l₂ <;> cases l₂ <;>
     simp_all [succ_min_succ, Nat.zero_min, Nat.min_zero]
@@ -553,7 +549,7 @@ theorem lt_length_left_of_zipWith {f : α → β → γ} {i : Nat} {l : List α}
 theorem lt_length_right_of_zipWith {f : α → β → γ} {i : Nat} {l : List α} {l' : List β}
     (h : i < (zipWith f l l').length) : i < l'.length := by rw [length_zipWith] at h; omega
 
-@[simp]
+@[simp, grind =]
 theorem getElem_zipWith {f : α → β → γ} {l : List α} {l' : List β}
     {i : Nat} {h : i < (zipWith f l l').length} :
     (zipWith f l l')[i] =
@@ -570,6 +566,7 @@ theorem zipWith_eq_zipWith_take_min : ∀ {l₁ : List α} {l₂ : List β},
   | _, [] => by simp
   | a :: l₁, b :: l₂ => by simp [succ_min_succ, zipWith_eq_zipWith_take_min (l₁ := l₁) (l₂ := l₂)]
 
+@[grind =]
 theorem reverse_zipWith (h : l.length = l'.length) :
     (zipWith f l l').reverse = zipWith f l.reverse l'.reverse := by
   induction l generalizing l' with
@@ -582,14 +579,14 @@ theorem reverse_zipWith (h : l.length = l'.length) :
       have : tl.reverse.length = tl'.reverse.length := by simp [h]
       simp [hl h, zipWith_append this]
 
-@[simp] theorem zipWith_replicate {a : α} {b : β} {m n : Nat} :
+@[simp, grind =] theorem zipWith_replicate {a : α} {b : β} {m n : Nat} :
     zipWith f (replicate m a) (replicate n b) = replicate (min m n) (f a b) := by
   rw [zipWith_eq_zipWith_take_min]
   simp
 
 /-! ### zip -/
 
-@[simp] theorem length_zip {l₁ : List α} {l₂ : List β} :
+@[simp, grind =] theorem length_zip {l₁ : List α} {l₂ : List β} :
     length (zip l₁ l₂) = min (length l₁) (length l₂) := by
   simp [zip]
 
@@ -601,7 +598,7 @@ theorem lt_length_right_of_zip {i : Nat} {l : List α} {l' : List β} (h : i < (
     i < l'.length :=
   lt_length_right_of_zipWith h
 
-@[simp]
+@[simp, grind =]
 theorem getElem_zip {l : List α} {l' : List β} {i : Nat} {h : i < (zip l l').length} :
     (zip l l')[i] =
       (l[i]'(lt_length_left_of_zip h), l'[i]'(lt_length_right_of_zip h)) :=
@@ -613,7 +610,7 @@ theorem zip_eq_zip_take_min : ∀ {l₁ : List α} {l₂ : List β},
   | _, [] => by simp
   | a :: l₁, b :: l₂ => by simp [succ_min_succ, zip_eq_zip_take_min (l₁ := l₁) (l₂ := l₂)]
 
-@[simp] theorem zip_replicate {a : α} {b : β} {m n : Nat} :
+@[simp, grind =] theorem zip_replicate {a : α} {b : β} {m n : Nat} :
     zip (replicate m a) (replicate n b) = replicate (min m n) (a, b) := by
   rw [zip_eq_zip_take_min]
   simp

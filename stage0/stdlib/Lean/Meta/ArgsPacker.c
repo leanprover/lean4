@@ -70,7 +70,6 @@ static lean_object* l_Lean_Meta_ArgsPacker_Unary_uncurryType___lambda__2___close
 LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_Mutual_uncurryWithType___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_ArgsPacker_curry___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Mutual_casesOn___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_GetElem_0__List_get_x21Internal___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Unary_curryType_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_ArgsPacker_Mutual_uncurryTypeND___spec__2___closed__1;
@@ -124,6 +123,7 @@ uint8_t l_Lean_Expr_isLambda(lean_object*);
 static lean_object* l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Mutual_unpackType___lambda__2___closed__2;
 lean_object* l_Lean_mkApp6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_curryProj___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_Mutual_uncurryND(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_ArgsPacker_Unary_packType___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Unary_casesOn___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -223,7 +223,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_Unary_pack(lean_object*, lean_ob
 static lean_object* l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Unary_casesOn___lambda__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_curry___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_ArgsPacker_Unary_uncurry___closed__3;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_ArgsPacker_Unary_uncurry___lambda__1___closed__3;
 static lean_object* l_Lean_Meta_ArgsPacker_Unary_pack_go___closed__11;
 static lean_object* l_Lean_Meta_ArgsPacker_Unary_pack_go___closed__5;
@@ -254,6 +253,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_pack(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_curryProj___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_Mutual_mkCodomain_go___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_ArgsPacker_Unary_uncurry___lambda__1___closed__2;
+lean_object* l_List_get_x21Internal___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Unary_curryType_go___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_uncurryWithType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_ArgsPacker_Unary_packType___spec__1___closed__1;
@@ -334,6 +334,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_Mutual_pack_go(lean_object*, lea
 static lean_object* l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Unary_curry___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_ArgsPacker_Mutual_uncurryTypeND___spec__1(size_t, size_t, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Mutual_casesOn___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_Unary_packType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedName;
@@ -384,7 +385,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacke
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_ArgsPacker_Mutual_pack_go___spec__1___closed__6;
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_curryType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_instantiateForallAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_Mutual_mkCodomain_go___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -817,7 +817,7 @@ x_2 = l_Lean_Meta_ArgsPacker_Unary_pack_go___closed__5;
 x_3 = lean_unsigned_to_nat(80u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Lean_Meta_ArgsPacker_Unary_pack_go___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -848,7 +848,7 @@ x_2 = l_Lean_Meta_ArgsPacker_Unary_pack_go___closed__5;
 x_3 = lean_unsigned_to_nat(84u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Lean_Meta_ArgsPacker_Unary_pack_go___closed__8;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1507,7 +1507,7 @@ x_2 = l_Lean_Meta_ArgsPacker_Unary_uncurryType___lambda__2___closed__3;
 x_3 = lean_unsigned_to_nat(132u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Lean_Meta_ArgsPacker_Unary_uncurryType___lambda__2___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -2287,7 +2287,7 @@ x_2 = l_Lean_Meta_ArgsPacker_Unary_uncurry___lambda__1___closed__1;
 x_3 = lean_unsigned_to_nat(174u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lean_Meta_ArgsPacker_Unary_uncurry___lambda__1___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -4042,7 +4042,7 @@ x_2 = l_Lean_Expr_withAppAux___at_Lean_Meta_ArgsPacker_Mutual_pack_go___spec__1_
 x_3 = lean_unsigned_to_nat(270u);
 x_4 = lean_unsigned_to_nat(8u);
 x_5 = l_Lean_Expr_withAppAux___at_Lean_Meta_ArgsPacker_Mutual_pack_go___spec__1___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -4741,7 +4741,7 @@ x_2 = l_Lean_Meta_ArgsPacker_Mutual_mkCodomain_go___closed__3;
 x_3 = lean_unsigned_to_nat(312u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Lean_Meta_ArgsPacker_Mutual_mkCodomain_go___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -6960,7 +6960,7 @@ x_2 = l_Lean_Meta_ArgsPacker_Mutual_uncurryWithType___lambda__1___closed__1;
 x_3 = lean_unsigned_to_nat(408u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_Meta_ArgsPacker_Unary_uncurry___lambda__1___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -7264,7 +7264,7 @@ x_2 = l_Lean_Meta_ArgsPacker_Mutual_uncurryND___lambda__1___closed__1;
 x_3 = lean_unsigned_to_nat(428u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_Meta_ArgsPacker_Unary_uncurry___lambda__1___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -7960,7 +7960,7 @@ x_2 = l_Lean_Meta_ArgsPacker_pack___closed__3;
 x_3 = lean_unsigned_to_nat(463u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Meta_ArgsPacker_pack___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -7991,7 +7991,7 @@ x_2 = l_Lean_Meta_ArgsPacker_pack___closed__3;
 x_3 = lean_unsigned_to_nat(464u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Meta_ArgsPacker_pack___closed__6;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -8047,7 +8047,7 @@ lean_inc(x_23);
 lean_dec(x_21);
 x_24 = l_Lean_instInhabitedExpr;
 lean_inc(x_3);
-x_25 = l___private_Init_GetElem_0__List_get_x21Internal___rarg(x_24, x_22, x_3);
+x_25 = l_List_get_x21Internal___rarg(x_24, x_22, x_3);
 lean_dec(x_22);
 x_26 = l_Lean_Meta_ArgsPacker_Unary_pack(x_25, x_4);
 lean_dec(x_25);
@@ -8746,7 +8746,7 @@ _start:
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; uint8_t x_18; lean_object* x_19; 
 x_13 = l_Lean_instInhabitedExpr;
 lean_inc(x_2);
-x_14 = l___private_Init_GetElem_0__List_get_x21Internal___rarg(x_13, x_1, x_2);
+x_14 = l_List_get_x21Internal___rarg(x_13, x_1, x_2);
 x_15 = l_Lean_Expr_bindingName_x21(x_3);
 lean_inc(x_2);
 x_16 = lean_alloc_closure((void*)(l_Lean_Meta_ArgsPacker_curryProj___lambda__1___boxed), 10, 4);
@@ -8936,7 +8936,7 @@ x_2 = l_Lean_Meta_ArgsPacker_curryProj___closed__1;
 x_3 = lean_unsigned_to_nat(529u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Lean_Meta_ArgsPacker_curryProj___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -9496,7 +9496,7 @@ x_24 = lean_array_get_size(x_5);
 lean_dec(x_5);
 x_25 = lean_nat_add(x_24, x_15);
 lean_dec(x_24);
-x_26 = l___private_Init_Data_Repr_0__Nat_reprFast(x_25);
+x_26 = l_Nat_reprFast(x_25);
 x_27 = lean_string_append(x_23, x_26);
 lean_dec(x_26);
 x_28 = lean_string_append(x_27, x_21);

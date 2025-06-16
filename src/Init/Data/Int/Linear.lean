@@ -12,9 +12,9 @@ import Init.Data.Int.Lemmas
 import Init.Data.Int.LemmasAux
 import Init.Data.Int.DivMod.Bootstrap
 import Init.Data.Int.Cooper
-import Init.Data.Int.Gcd
+import all Init.Data.Int.Gcd
 import Init.Data.RArray
-import Init.Data.AC
+import all Init.Data.AC
 
 namespace Int.Linear
 
@@ -282,7 +282,6 @@ attribute [local simp] Poly.denote_addConst
 theorem Poly.denote_insert (ctx : Context) (k : Int) (v : Var) (p : Poly) :
     (p.insert k v).denote ctx = p.denote ctx + k * v.denote ctx := by
   fun_induction p.insert k v <;>
-    simp only [insert, cond_true, cond_false, ↓reduceIte, *] <;>
     simp_all [← Int.add_mul]
 
 attribute [local simp] Poly.denote_insert
@@ -299,7 +298,6 @@ attribute [local simp] Poly.denote_append
 
 theorem Poly.denote_combine' (ctx : Context) (fuel : Nat) (p₁ p₂ : Poly) : (p₁.combine' fuel p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
   fun_induction p₁.combine' fuel p₂ <;>
-    simp +zetaDelta only [combine', cond_true, cond_false, *] <;>
     simp_all +zetaDelta [denote, ← Int.add_mul]
 
 theorem Poly.denote_combine (ctx : Context) (p₁ p₂ : Poly) : (p₁.combine p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
@@ -1667,7 +1665,7 @@ theorem natCast_sub (x y : Nat)
         (NatCast.natCast x : Int) + -1*NatCast.natCast y
       else
         (0 : Int) := by
-  show (↑(x - y) : Int) = if (↑y : Int) + (-1)*↑x ≤ 0 then ↑x + (-1)*↑y else 0
+  change (↑(x - y) : Int) = if (↑y : Int) + (-1)*↑x ≤ 0 then (↑x : Int) + (-1)*↑y else 0
   rw [Int.neg_mul, ← Int.sub_eq_add_neg, Int.one_mul]
   rw [Int.neg_mul, ← Int.sub_eq_add_neg, Int.one_mul]
   split

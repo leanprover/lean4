@@ -17,8 +17,9 @@ Build info is what is the data passed to a Lake build function to facilitate
 the build.
 -/
 
+open Lean
+
 namespace Lake
-open Lean (Name)
 
 /-- The type of Lake's build info. -/
 inductive BuildInfo
@@ -276,12 +277,6 @@ abbrev gitHubRelease (self : Package) : BuildInfo :=
 @[inherit_doc optGitHubReleaseFacet]
 abbrev optGitHubRelease (self : Package) : BuildInfo :=
   self.facetCore optGitHubReleaseFacet
-
-@[deprecated gitHubRelease (since := "2024-09-27")]
-abbrev release := @gitHubRelease
-
-@[deprecated optGitHubRelease (since := "2024-09-27")]
-abbrev optRelease := @optGitHubRelease
 
 @[inherit_doc extraDepFacet]
 abbrev extraDep (self : Package) : BuildInfo :=

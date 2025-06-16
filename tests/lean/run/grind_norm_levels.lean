@@ -11,8 +11,8 @@ def fallback : Fallback := do
 -- `grind` final state must contain only two `g`-applications
 set_option trace.Meta.debug true in
 /--
-info: [Meta.debug] [g (a, b), g (g (a, b))]
+trace: [Meta.debug] [g (a, b), g (g (a, b))]
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 example {β : Type v} {α : Type u} (a c : α) (b d : β) : g.{max u v + 1} (a, b) = (c, d) → g (g.{max (u+1) (v+1)} (a, b)) = (c, d) → False := by
   grind on_failure fallback

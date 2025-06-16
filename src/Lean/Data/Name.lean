@@ -137,9 +137,9 @@ def isInternalDetail : Name → Bool
   | .num _ _     => true
   | p            => p.isInternalOrNum
 where
-  /-- Check that a string begins with the given prefix, and then is only digit characters. -/
+  /-- Check that a string begins with the given prefix, and then is only digits/'_'. -/
   matchPrefix (s : String) (pre : String) :=
-    s.startsWith pre && (s |>.drop pre.length |>.all Char.isDigit)
+    s.startsWith pre && (s |>.drop pre.length |>.all fun c => c.isDigit || c == '_')
 
 /--
 Checks whether the name is an implementation-detail hypothesis name.

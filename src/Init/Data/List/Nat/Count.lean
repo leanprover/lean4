@@ -60,6 +60,25 @@ theorem count_replace [BEq α] [LawfulBEq α] {a b c : α} {l : List α} :
       if l.contains a then l.count c + (if b == c then 1 else 0) - (if a == c then 1 else 0) else l.count c := by
   simp [count_eq_countP, countP_replace]
 
+@[grind =] theorem count_insert [BEq α] [LawfulBEq α] {a b : α} {l : List α} :
+    count a (List.insert b l) = max (count a l) (if b == a then 1 else 0) := by
+  simp only [List.insert, contains_eq_mem, decide_eq_true_eq, beq_iff_eq]
+  split <;> rename_i h
+  · split <;> rename_i h'
+    · rw [Nat.max_def]
+      simp only [beq_iff_eq] at h'
+      split
+      · have := List.count_pos_iff.mpr (h' ▸ h)
+        omega
+      · rfl
+    · simp [h']
+  · rw [count_cons]
+    split <;> rename_i h'
+    · simp only [beq_iff_eq] at h'
+      rw [count_eq_zero.mpr (h' ▸ h)]
+      simp [h']
+    · simp
+
 /--
 The number of elements satisfying a predicate in a sublist is at least the number of elements satisfying the predicate in the list,
 minus the difference in the lengths.

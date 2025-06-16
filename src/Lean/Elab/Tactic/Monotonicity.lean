@@ -29,7 +29,15 @@ builtin_initialize monotoneExt :
     initial := {}
   }
 
-builtin_initialize registerBuiltinAttribute {
+/--
+Registers a monotonicity theorem for `partial_fixpoint`.
+
+Monotonicity theorems should have `Lean.Order.monotone ...` as a conclusion. They are used in the
+`monotonicity` tactic (scoped in the `Lean.Order` namespace) to automatically prove monotonicity
+for functions defined using `partial_fixpoint`.
+-/
+@[builtin_init, builtin_doc]
+private def init := registerBuiltinAttribute {
   name := `partial_fixpoint_monotone
   descr := "monotonicity theorem"
   add := fun decl _ kind => MetaM.run' do
@@ -57,7 +65,7 @@ private def defaultFailK (f : Expr) (monoThms : Array Name) : MetaM α :=
   throwError "Failed to prove monotonicity of:{indentExpr f}\n{extraMsg}"
 
 private def applyConst (goal : MVarId) (name : Name) : MetaM (List MVarId) := do
-  mapError (f := (m!"Could not apply {.ofConstName name}:{indentD ·}")) do
+  prependError m!"Could not apply {.ofConstName name}:" do
     goal.applyConst name (cfg := { synthAssignedInstances := false})
 
 /--
@@ -150,7 +158,7 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
         failK f #[]
       let b' := f.updateLambdaE! f.bindingDomain! b
       let p  ← mkAppOptM ``monotone_letFun #[α, β, γ, inst_α, inst_β, v, b']
-      let new_goals ← mapError (f := (m!"Could not apply {p}:{indentD ·}")) do
+      let new_goals ← prependError m!"Could not apply {p}:" do
         goal.apply p
       let [new_goal] := new_goals
           | throwError "Unexpected number of goals after {.ofConstName ``monotone_letFun}."

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.PtrSet
-// Imports: Init.Data.Hashable Lean.Data.HashSet Lean.Data.HashMap Std.Data.HashSet.Basic Std.Data.HashMap.Basic
+// Imports: Init.Data.Hashable Std.Data.HashSet.Basic Std.Data.HashMap.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22,10 +22,9 @@ LEAN_EXPORT lean_object* l_Lean_mkPtrMap(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqPtr(lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at_Lean_PtrSet_contains___spec__1(lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at_Lean_PtrMap_contains___spec__1___rarg___boxed(lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at_Lean_PtrSet_contains___spec__1___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at_Lean_PtrSet_insert___spec__1___rarg___boxed(lean_object*, lean_object*);
@@ -58,6 +57,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at_Lean_P
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_PtrSet_insert___spec__2___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PtrMap_insert(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqPtr___rarg___boxed(lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_PtrMap_insert___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_PtrMap_find_x3f___spec__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at_Lean_PtrMap_insert___spec__1___rarg___boxed(lean_object*, lean_object*);
@@ -1508,8 +1508,6 @@ return x_3;
 }
 }
 lean_object* initialize_Init_Data_Hashable(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_HashSet(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_HashMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_HashSet_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_HashMap_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -1518,12 +1516,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_Hashable(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_HashSet(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_HashMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_HashSet_Basic(builtin, lean_io_mk_world());

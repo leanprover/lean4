@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.SMap
-// Imports: Std.Data.HashMap.Basic Lean.Data.HashMap Lean.Data.PersistentHashMap
+// Imports: Std.Data.HashMap.Basic Lean.Data.PersistentHashMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -63,13 +63,12 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux___at_Lean_SMap_foldS
 lean_object* l_Lean_PersistentHashMap_foldlMAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Prod_repr___at_Lean_instReprSMap___spec__3___rarg___closed__5;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forM___at_Lean_SMap_instForInProd___spec__4___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_SMap_fold___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lean_SMap_instForInProd___spec__19(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_SMap_instForMProd___spec__3(lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_fold___at_Lean_SMap_toList___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_instForInProd___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_SMap_instForInProd___spec__25___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instReprSMap(lean_object*, lean_object*);
@@ -248,6 +247,7 @@ LEAN_EXPORT lean_object* l_List_repr___at_Lean_instReprSMap___spec__1___rarg(lea
 LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lean_SMap_instForInProd___spec__16(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_SMap_instForMProd___spec__3___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_repr___at_Lean_instReprSMap___spec__1(lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_SMap_fold___spec__9___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_SMap_instForInProd___spec__17___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_empty___rarg___boxed(lean_object*, lean_object*);
@@ -1415,7 +1415,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_SMap_find_x21___rarg___closed__1;
 x_2 = l_Lean_SMap_find_x21___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(62u);
+x_3 = lean_unsigned_to_nat(61u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_SMap_find_x21___rarg___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -7436,7 +7436,6 @@ return x_7;
 }
 }
 lean_object* initialize_Std_Data_HashMap_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_HashMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_PersistentHashMap(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_SMap(uint8_t builtin, lean_object* w) {
@@ -7444,9 +7443,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Std_Data_HashMap_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_HashMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_PersistentHashMap(builtin, lean_io_mk_world());

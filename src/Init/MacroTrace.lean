@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 Extra notation that depends on Init/Meta
 -/
 
+module
+
 prelude
 import Init.Data.ToString.Macro
 import Init.Meta

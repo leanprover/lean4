@@ -31,7 +31,12 @@ def rewriteRulesPass : Pass where
     let cfg ← PreProcessM.getConfig
 
     let simpCtx ← Simp.mkContext
-      (config := { failIfUnchanged := false, zetaDelta := true, maxSteps := cfg.maxSteps })
+      (config := {
+        failIfUnchanged := false,
+        zetaDelta := true,
+        implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
+        maxSteps := cfg.maxSteps,
+      })
       (simpTheorems := #[bvThms, sevalThms])
       (congrTheorems := (← getSimpCongrTheorems))
 
@@ -46,12 +51,12 @@ def rewriteRulesPass : Pass where
 
       let some (_, newGoal) := result? | return none
       newGoal.withContext do
-        (← newGoal.getNondepPropHyps).forM PreProcessM.rewriteFinished
+        (← getPropHyps).forM PreProcessM.rewriteFinished
       return newGoal
 where
   getHyps (goal : MVarId) : PreProcessM (Array FVarId) := do
     goal.withContext do
-      let mut hyps ← goal.getNondepPropHyps
+      let hyps ← getPropHyps
       let filter hyp := do
         return !(← PreProcessM.checkRewritten hyp)
       hyps.filterM filter

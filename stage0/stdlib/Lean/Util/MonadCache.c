@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.MonadCache
-// Imports: Init.Control.StateRef Lean.Data.HashMap Std.Data.HashMap.Basic
+// Imports: Init.Control.StateRef Std.Data.HashMap.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -33,9 +33,9 @@ LEAN_EXPORT lean_object* l_Lean_MonadCacheT_run___rarg(lean_object*, lean_object
 static lean_object* l_Lean_MonadCacheT_run___rarg___closed__3;
 lean_object* l_ReaderT_tryFinally___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMonadCacheReaderT___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadCacheT_instMonadFinally(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_MonadStateCacheT_run___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_MonadHashMapCacheAdapter_cache(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_checkCache___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -1471,7 +1471,6 @@ return x_6;
 }
 }
 lean_object* initialize_Init_Control_StateRef(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_HashMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_HashMap_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Util_MonadCache(uint8_t builtin, lean_object* w) {
@@ -1479,9 +1478,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Control_StateRef(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_HashMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_HashMap_Basic(builtin, lean_io_mk_world());

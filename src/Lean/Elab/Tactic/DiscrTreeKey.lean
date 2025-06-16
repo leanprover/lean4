@@ -23,13 +23,10 @@ private def mkKey (e : Expr) (simp : Bool) : MetaM (Array Key) := do
         mkPath lhs
       else if let some (lhs, _) := type.iff? then
         mkPath lhs
-      else if let some (_, lhs, _) := type.ne? then
-        mkPath lhs
+      else if let some (_, lhs, rhs) := type.ne? then
+        mkPath (← mkEq lhs rhs)
       else if let some p := type.not? then
-        match p.eq? with
-        | some (_, lhs, _) =>
-          mkPath lhs
-        | _ => mkPath p
+        mkPath p
       else
         mkPath type
   else

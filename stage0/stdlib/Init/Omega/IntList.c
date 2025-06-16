@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Omega.IntList
-// Imports: Init.Data.List.Zip Init.Data.Int.DivModLemmas Init.Data.Nat.Gcd
+// Imports: Init.Data.List.Zip Init.Data.Int.DivMod.Bootstrap Init.Data.Nat.Gcd
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -36,6 +36,7 @@ lean_object* l_List_find_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_mul___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instNeg;
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instAdd;
+lean_object* l___private_Init_GetElem_0__List_get_x3fInternal___rarg(lean_object*, lean_object*);
 lean_object* l_List_zipWithAll___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_bmod__dot__sub__dot__bmod(lean_object*, lean_object*, lean_object*);
@@ -92,7 +93,6 @@ LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Omega_IntList_smul___spec__
 static lean_object* l_Lean_Omega_IntList_instSub___closed__1;
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Omega_IntList_sdiv___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_dot(lean_object*, lean_object*);
-lean_object* l_List_get_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_set___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Omega_IntList_get___closed__1() {
 _start:
@@ -107,7 +107,7 @@ LEAN_EXPORT lean_object* l_Lean_Omega_IntList_get(lean_object* x_1, lean_object*
 _start:
 {
 lean_object* x_3; 
-x_3 = l_List_get_x3f___rarg(x_1, x_2);
+x_3 = l___private_Init_GetElem_0__List_get_x3fInternal___rarg(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; 
@@ -1246,7 +1246,7 @@ return x_9;
 }
 }
 lean_object* initialize_Init_Data_List_Zip(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Int_DivModLemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_DivMod_Bootstrap(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Gcd(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Omega_IntList(uint8_t builtin, lean_object* w) {
@@ -1256,7 +1256,7 @@ _G_initialized = true;
 res = initialize_Init_Data_List_Zip(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_DivModLemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Int_DivMod_Bootstrap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Gcd(builtin, lean_io_mk_world());

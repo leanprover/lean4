@@ -1,3 +1,4 @@
 2273.lean:9:8-9:14: error: failed to synthesize
   P 37
+
 Additional diagnostic information may be available using the `set_option diagnostics true` command.

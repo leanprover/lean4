@@ -31,7 +31,7 @@ theorem denote_blastSub (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Boo
             =
           (lhs - rhs).getLsbD idx := by
   intro idx hidx
-  rw [BitVec.sub_toAdd]
+  rw [BitVec.sub_eq_add_neg]
   unfold blastSub
   rw [denote_blastAdd]
   · intros

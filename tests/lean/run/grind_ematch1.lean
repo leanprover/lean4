@@ -1,3 +1,5 @@
+reset_grind_attrs%
+
 set_option trace.grind.ematch.pattern true
 
 attribute [grind =] Array.size_set
@@ -22,11 +24,11 @@ example (as bs : Array α) (v : α)
 
 set_option trace.grind.ematch.instance true
 
-attribute [grind =] Array.get_set_ne
+attribute [grind =] Array.getElem_set_ne
 
 /--
 info: [grind.ematch.instance] Array.size_set: (as.set i v ⋯).size = as.size
-[grind.ematch.instance] Array.get_set_ne: ∀ (hj : j < as.size), i ≠ j → (as.set i v ⋯)[j] = as[j]
+[grind.ematch.instance] Array.getElem_set_ne: ∀ (pj : j < as.size), i ≠ j → (as.set i v ⋯)[j] = as[j]
 -/
 #guard_msgs (info) in
 example (as bs cs : Array α) (v : α)
@@ -81,15 +83,25 @@ error: `@[grind →] theorem using_grind_fwd.StransBad` failed to find patterns 
 @[grind→] theorem StransBad (a b c d : Nat) : S a b ∨ R a b → S b c → S a c ∧ S b d := sorry
 
 
-set_option trace.grind.ematch.pattern.search true in
+set_option trace.grind.debug.ematch.pattern true in
 /--
-info: [grind.ematch.pattern.search] candidate: S a b
-[grind.ematch.pattern.search] found pattern: S #4 #3
-[grind.ematch.pattern.search] candidate: R a b
-[grind.ematch.pattern.search] skip, no new variables covered
-[grind.ematch.pattern.search] candidate: S b c
-[grind.ematch.pattern.search] found pattern: S #3 #2
-[grind.ematch.pattern.search] found full coverage
+info: [grind.debug.ematch.pattern] place: S a b ∨ R a b
+[grind.debug.ematch.pattern] collect: S a b ∨ R a b
+[grind.debug.ematch.pattern] arg: S a b, support: false
+[grind.debug.ematch.pattern] collect: S a b
+[grind.debug.ematch.pattern] candidate: S a b
+[grind.debug.ematch.pattern] found pattern: S #4 #3
+[grind.debug.ematch.pattern] arg: R a b, support: false
+[grind.debug.ematch.pattern] collect: R a b
+[grind.debug.ematch.pattern] candidate: R a b
+[grind.debug.ematch.pattern] skip, no new variables covered
+[grind.debug.ematch.pattern] arg: a, support: false
+[grind.debug.ematch.pattern] arg: b, support: false
+[grind.debug.ematch.pattern] place: S b c
+[grind.debug.ematch.pattern] collect: S b c
+[grind.debug.ematch.pattern] candidate: S b c
+[grind.debug.ematch.pattern] found pattern: S #3 #2
+[grind.debug.ematch.pattern] found full coverage
 [grind.ematch.pattern] Strans: [S #4 #3, S #3 #2]
 -/
 #guard_msgs (info) in
@@ -110,9 +122,7 @@ opaque P : Nat → Prop
 opaque Q : Nat → Prop
 opaque f : Nat → Nat → Nat
 
-/--
-info: [grind.ematch.pattern] pqf: [P (f #2 #1)]
--/
+/-- info: [grind.ematch.pattern] pqf: [f #2 #1] -/
 #guard_msgs (info) in
 @[grind←] theorem pqf : Q x → P (f x y) := sorry
 

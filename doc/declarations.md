@@ -590,9 +590,9 @@ This table should be read as follows:
  * No other proofs were attempted, either because the parameter has a type without a non-trivial ``WellFounded`` instance (parameter 3), or because it is already clear that no decreasing measure can be found.
 
 
-Lean will print the termination argument it found if ``set_option showInferredTerminationBy true`` is set.
+Lean will print the termination measure it found if ``set_option showInferredTerminationBy true`` is set.
 
-If Lean does not find the termination argument, or if you want to be explicit, you can append a `termination_by` clause to the function definition, after the function's body, but before the `where` clause if present. It is of the form
+If Lean does not find the termination measure, or if you want to be explicit, you can append a `termination_by` clause to the function definition, after the function's body, but before the `where` clause if present. It is of the form
 ```
 termination_by e
 ```
@@ -672,7 +672,7 @@ def num_consts_lst : List Term → Nat
 end
 ```
 
-In a set of mutually recursive function, either all or no functions must have an explicit termination argument (``termination_by``). A change of the default termination tactic (``decreasing_by``) only affects the proofs about the recursive calls of that function, not the other functions in the group.
+In a set of mutually recursive function, either all or no functions must have an explicit termination measure (``termination_by``). A change of the default termination tactic (``decreasing_by``) only affects the proofs about the recursive calls of that function, not the other functions in the group.
 
 ```
 mutual
@@ -764,11 +764,12 @@ Structures and Records
 The ``structure`` command in Lean is used to define an inductive data type with a single constructor and to define its projections at the same time. The syntax is as follows:
 
 ```
-structure Foo (a : α) extends Bar, Baz : Sort u :=
+structure Foo (a : α) : Sort u extends Bar, Baz :=
 constructor :: (field₁ : β₁) ... (fieldₙ : βₙ)
 ```
 
-Here ``(a : α)`` is a telescope, that is, the parameters to the inductive definition. The name ``constructor`` followed by the double colon is optional; if it is not present, the name ``mk`` is used by default. The keyword ``extends`` followed by a list of previously defined structures is also optional; if it is present, an instance of each of these structures is included among the fields to ``Foo``, and the types ``βᵢ`` can refer to their fields as well. The output type, ``Sort u``, can be omitted, in which case Lean infers to smallest non-``Prop`` sort possible. Finally, ``(field₁ : β₁) ... (fieldₙ : βₙ)`` is a telescope relative to ``(a : α)`` and the fields in ``bar`` and ``baz``.
+Here ``(a : α)`` is a telescope, that is, the parameters to the inductive definition. The name ``constructor`` followed by the double colon is optional; if it is not present, the name ``mk`` is used by default. The keyword ``extends`` followed by a list of previously defined structures is also optional; if it is present, an instance of each of these structures is included among the fields to ``Foo``, and the types ``βᵢ`` can refer to their fields as well. The output type, ``Sort u``, can be omitted, in which case Lean infers to smallest non-``Prop`` sort possible (unless all the fields are ``Prop``, in which case it infers ``Prop``).
+Finally, ``(field₁ : β₁) ... (fieldₙ : βₙ)`` is a telescope relative to ``(a : α)`` and the fields in ``bar`` and ``baz``.
 
 The declaration above is syntactic sugar for an inductive type declaration, and so results in the addition of the following constants to the environment:
 

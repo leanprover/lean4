@@ -159,7 +159,7 @@ with builtins; let
       dir=$(dirname $relpath)
       mkdir -p $dir $out/$dir $ilean/$dir $c/$dir
       if [ -d $src ]; then cp -r $src/. .; else cp $src $leanPath; fi
-      lean -o $out/$oleanPath -i $ilean/$ileanPath -c $c/$cPath $leanPath $leanFlags $leanPluginFlags $leanLoadDynlibFlags
+      lean -o $out/$oleanPath -i $out/$ileanPath -c $c/$cPath $leanPath $leanFlags $leanPluginFlags $leanLoadDynlibFlags
     '';
   }) // {
     inherit deps;
@@ -194,7 +194,7 @@ with builtins; let
   modCandidates = mapAttrs (mod: header:
     let
       deps = if header.errors == []
-             then map (m: m.module) header.imports
+             then map (m: m.module) header.result.imports
              else abort "errors while parsing imports of ${mod}:\n${lib.concatStringsSep "\n" header.errors}";
     in mkMod mod (map (dep: if modDepsMap ? ${dep} then modCandidates.${dep} else externalModMap.${dep}) deps)) modDepsMap;
   expandGlob = g:
@@ -206,7 +206,7 @@ with builtins; let
   # subset of `modCandidates` that is transitively reachable from `roots`
   mods' = listToAttrs (map (e: { name = e.key; value = modCandidates.${e.key}; }) (genericClosure {
     startSet = map (m: { key = m; }) (concatMap expandGlob roots);
-    operator = e: if modDepsMap ? ${e.key} then map (m: { key = m.module; }) (filter (m: modCandidates ? ${m.module}) modDepsMap.${e.key}.imports) else [];
+    operator = e: if modDepsMap ? ${e.key} then map (m: { key = m.module; }) (filter (m: modCandidates ? ${m.module}) modDepsMap.${e.key}.result.imports) else [];
   }));
   allLinkFlags = lib.foldr (shared: acc: acc ++ [ "-L${shared}" "-l${shared.linkName or shared.name}" ]) linkFlags allNativeSharedLibs;
 

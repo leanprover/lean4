@@ -1,4 +1,4 @@
-1235.lean:2:0-2:7: warning: declaration uses 'sorry'
 g : Nat → Nat
 h : f 1 = g
 ⊢ g 2 = f 2 1
+1235.lean:2:0-2:7: warning: declaration uses 'sorry'

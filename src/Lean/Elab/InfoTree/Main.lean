@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Wojciech Nawrocki, Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
+import Init.Task
 import Lean.Meta.PPGoal
 import Lean.ReservedNameAction
 
@@ -94,6 +95,13 @@ partial def InfoTree.substitute (tree : InfoTree) (assignment : PersistentHashMa
   | hole id  => match assignment.find? id with
     | none      => hole id
     | some tree => substitute tree assignment
+
+/-- Applies `s.lazyAssignment` to `s.trees`, asynchronously. -/
+def InfoState.substituteLazy (s : InfoState) : Task InfoState :=
+  Task.mapList (tasks := s.lazyAssignment.toList.map (·.2)) fun _ => { s with
+    trees := s.trees.map (·.substitute <| s.lazyAssignment.map (·.get))
+    lazyAssignment := {}
+  }
 
 /-- Embeds a `CoreM` action in `IO` by supplying the information stored in `info`. -/
 def ContextInfo.runCoreM (info : ContextInfo) (x : CoreM α) : IO α := do

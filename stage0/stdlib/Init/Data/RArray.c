@@ -18,15 +18,15 @@ LEAN_EXPORT lean_object* l_Lean_RArray_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instGetElemRArrayNatTrue___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_getImpl(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_getImpl___rarg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_RArray_0____private_Init_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_RArray_0____private_Init_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_size___rarg___boxed(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instGetElemRArrayNatTrue___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instGetElemRArrayNatTrue(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_size___rarg(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_RArray_0____private_Init_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -55,11 +55,11 @@ return x_9;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_RArray_0____private_Init_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l___private_Init_Data_RArray_0____private_Init_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter___rarg), 3, 0);
+x_3 = lean_alloc_closure((void*)(l___private_Init_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter___rarg), 3, 0);
 return x_3;
 }
 }

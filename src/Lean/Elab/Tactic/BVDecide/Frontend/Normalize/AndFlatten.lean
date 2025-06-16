@@ -43,7 +43,7 @@ partial def andFlatteningPass : Pass where
 where
   processGoal (goal : MVarId) : StateRefT AndFlattenState MetaM Unit := do
     goal.withContext do
-      let hyps ← goal.getNondepPropHyps
+      let hyps ← getPropHyps
       hyps.forM processFVar
 
   processFVar (fvar : FVarId) : StateRefT AndFlattenState MetaM Unit := do

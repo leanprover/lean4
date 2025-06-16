@@ -196,7 +196,7 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
 /-- `inductive Foo where | unused : Foo` -/
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
   stack.matches [`null, none, `null, none, ``Lean.Parser.Command.inductive] &&
-  (stack.get? 3 |>.any fun (stx, pos) =>
+  (stack[3]? |>.any fun (stx, pos) =>
     pos == 0 &&
     [``Lean.Parser.Command.optDeclSig, ``Lean.Parser.Command.declSig].any (stx.isOfKind ·)))
 
@@ -206,7 +206,7 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
 -/
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
   stack.matches [`null, none, `null, ``Lean.Parser.Command.optDeclSig, none] &&
-  (stack.get? 4 |>.any fun (stx, _) =>
+  (stack[4]? |>.any fun (stx, _) =>
     [``Lean.Parser.Command.ctor, ``Lean.Parser.Command.structSimpleBinder].any (stx.isOfKind ·)))
 
 /--
@@ -215,7 +215,7 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
 -/
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
   stack.matches [`null, none, `null, ``Lean.Parser.Command.declSig, none] &&
-  (stack.get? 4 |>.any fun (stx, _) =>
+  (stack[4]? |>.any fun (stx, _) =>
     [``Lean.Parser.Command.opaque, ``Lean.Parser.Command.axiom].any (stx.isOfKind ·)))
 
 /--
@@ -225,10 +225,10 @@ Definition with foreign definition
 -/
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
   stack.matches [`null, none, `null, none, none, ``Lean.Parser.Command.declaration] &&
-  (stack.get? 3 |>.any fun (stx, _) =>
+  (stack[3]? |>.any fun (stx, _) =>
     stx.isOfKind ``Lean.Parser.Command.optDeclSig ||
     stx.isOfKind ``Lean.Parser.Command.declSig) &&
-  (stack.get? 5 |>.any fun (stx, _) => match stx[0] with
+  (stack[5]? |>.any fun (stx, _) => match stx[0] with
     | `(Lean.Parser.Command.declModifiersT| $[$_:docComment]? @[$[$attrs:attr],*] $[$vis]? $[noncomputable]?) =>
       attrs.any (fun attr => attr.raw.isOfKind ``Parser.Attr.extern || attr matches `(attr| implemented_by $_))
     | _ => false))
@@ -247,8 +247,8 @@ Function argument in let declaration (when `linter.unusedVariables.funArgs` is f
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack opts =>
   !getLinterUnusedVariablesFunArgs opts &&
   stack.matches [`null, none, `null, ``Lean.Parser.Term.letIdDecl, none] &&
-  (stack.get? 3 |>.any fun (_, pos) => pos == 1) &&
-  (stack.get? 5 |>.any fun (stx, _) => !stx.isOfKind ``Lean.Parser.Term.structInstField))
+  (stack[3]? |>.any fun (_, pos) => pos == 1) &&
+  (stack[5]? |>.any fun (stx, _) => !stx.isOfKind ``Lean.Parser.Term.structInstField))
 
 /--
 Function argument in declaration signature (when `linter.unusedVariables.funArgs` is false)
@@ -257,7 +257,7 @@ Function argument in declaration signature (when `linter.unusedVariables.funArgs
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack opts =>
   !getLinterUnusedVariablesFunArgs opts &&
   stack.matches [`null, none, `null, none] &&
-  (stack.get? 3 |>.any fun (stx, pos) =>
+  (stack[3]? |>.any fun (stx, pos) =>
     pos == 0 &&
     [``Lean.Parser.Command.optDeclSig, ``Lean.Parser.Command.declSig].any (stx.isOfKind ·)))
 
@@ -364,17 +364,17 @@ structure References where
   the spans for `foo`, `bar`, and `baz`. Global definitions are always treated as used.
   (It would be nice to be able to detect unused global definitions but this requires more
   information than the linter framework can provide.) -/
-  constDecls : Std.HashSet String.Range := .empty
+  constDecls : Std.HashSet String.Range := ∅
   /-- The collection of all local declarations, organized by the span of the declaration.
   We collapse all declarations declared at the same position into a single record using
   `FVarDefinition.aliases`. -/
-  fvarDefs : Std.HashMap String.Range FVarDefinition := .empty
+  fvarDefs : Std.HashMap String.Range FVarDefinition := ∅
   /-- The set of `FVarId`s that are used directly. These may or may not be aliases. -/
-  fvarUses : Std.HashSet FVarId := .empty
+  fvarUses : Std.HashSet FVarId := ∅
   /-- A mapping from alias to original FVarId. We don't guarantee that the value is not itself
   an alias, but we use `followAliases` when adding new elements to try to avoid long chains. -/
   -- TODO: use a `UnionFind` data structure here
-  fvarAliases : Std.HashMap FVarId FVarId := .empty
+  fvarAliases : Std.HashMap FVarId FVarId := ∅
   /-- Collection of all `MetavarContext`s following the execution of a tactic. We trawl these
   if needed to find additional `fvarUses`. -/
   assignments : Array (PersistentHashMap MVarId Expr) := #[]
@@ -462,6 +462,12 @@ where
     else
       stx
 
+private def hasSorry (stx : Syntax) : Bool :=
+  stx.find? (fun
+    -- `@[unused_variables_ignore_fn]` can be used to extend this list
+    | `(sorry) | `(tactic| sorry) | `(tactic| admit) => true
+    | _ => false) |>.isSome
+
 /-- Reports unused variable warnings on each command. Use `linter.unusedVariables` to disable. -/
 def unusedVariables : Linter where
   run cmdStx := do
@@ -475,10 +481,12 @@ def unusedVariables : Linter where
     let some cmdStxRange := cmdStx.getRange?
       | return
 
-    let infoTrees := (← get).infoState.trees.toArray
-
-    if (← infoTrees.anyM (·.hasSorry)) then
+    -- We used to look for `sorry` on the `Expr` level, which is more robust, but just too expensive
+    -- on huge declarations (see e.g. `omega_stress` benchmark).
+    if hasSorry cmdStx then
       return
+
+    let infoTrees := (← get).infoState.trees.toArray
 
     -- Run the main collection pass, resulting in `s : References`.
     let (_, s) ← (collectReferences infoTrees cmdStxRange).run {}

@@ -2784,7 +2784,7 @@ static lean_object* _init_l_Lean_Meta_getBitVecValue_x3f___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("ofNatLt", 7, 7);
+x_1 = lean_mk_string_unchecked("ofNatLT", 7, 7);
 return x_1;
 }
 }

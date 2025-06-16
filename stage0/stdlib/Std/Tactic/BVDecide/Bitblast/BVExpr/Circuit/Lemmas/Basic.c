@@ -21,7 +21,7 @@ LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_BVExpr_Assignment_toAIGAssignment(lean
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_3 = lean_ctor_get(x_2, 1);
+x_3 = lean_ctor_get(x_2, 0);
 x_4 = l_Lean_RArray_getImpl___rarg(x_1, x_3);
 x_5 = lean_ctor_get(x_4, 1);
 lean_inc(x_5);

@@ -69,12 +69,12 @@ theorem go_denote_mem_prefix (aig : AIG α) (distance : Nat) (input : AIG.RefVec
     (curr : Nat) (hcurr : curr ≤ w) (s : AIG.RefVec aig curr) (start : Nat) (hstart) :
     ⟦
       (go aig input distance curr hcurr s).aig,
-      ⟨start, by apply Nat.lt_of_lt_of_le; exact hstart; apply go_le_size⟩,
+      ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply go_le_size⟩,
       assign
     ⟧
       =
-    ⟦aig, ⟨start, hstart⟩, assign⟧ := by
-  apply denote.eq_of_isPrefix (entry := ⟨aig, start,hstart⟩)
+    ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
+  apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
     apply go_decl_eq
@@ -295,7 +295,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
         simp [hmod]
       · simp only [BitVec.ushiftRight_eq', BitVec.toNat_twoPow, BitVec.getLsbD_ushiftRight,
         Bool.false_eq]
-        apply BitVec.getLsbD_ge
+        apply BitVec.getLsbD_of_ge
         omega
     · next hif1 =>
       simp only [Bool.not_eq_true] at hif1
@@ -309,7 +309,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
       rw [hleft]
       simp
   · have : rhs.getLsbD pow = false := by
-      apply BitVec.getLsbD_ge
+      apply BitVec.getLsbD_of_ge
       dsimp only
       omega
     simp only [this, Bool.false_eq_true, ↓reduceIte]
@@ -426,10 +426,10 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
       split
       · next hlt =>
         rw [hleft]
-        simp [hmod, BitVec.getLsbD_sshiftRight, hlt, hidx]
+        simp [hmod, BitVec.getElem_sshiftRight, hlt, hidx]
       · next hlt =>
         rw [hleft]
-        simp [BitVec.getLsbD_sshiftRight, hmod, hlt, hidx, BitVec.msb_eq_getLsbD_last]
+        simp [BitVec.getElem_sshiftRight, hmod, hlt, hidx, BitVec.msb_eq_getLsbD_last]
     · next hif1 =>
       simp only [Bool.not_eq_true] at hif1
       rw [← hg]
@@ -442,7 +442,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
       rw [hleft]
       simp
   · have : rhs.getLsbD pow = false := by
-      apply BitVec.getLsbD_ge
+      apply BitVec.getLsbD_of_ge
       dsimp only
       omega
     simp only [this, Bool.false_eq_true, ↓reduceIte]

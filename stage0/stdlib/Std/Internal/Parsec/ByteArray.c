@@ -17,7 +17,6 @@ static uint8_t l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_
 static lean_object* l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___closed__6;
 uint8_t lean_uint8_sub(uint8_t, uint8_t);
 lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_uint8_of_nat(lean_object*);
 uint8_t lean_uint32_to_uint8(uint32_t);
 uint8_t lean_byte_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lambda__4___boxed(lean_object*);
@@ -107,6 +106,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_Parsec_ByteArray_skipByte(uint8_t, lean_
 LEAN_EXPORT lean_object* l_ByteArray_forInUnsafe_loop___at_Std_Internal_Parsec_ByteArray_skipBytes___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* lean_byte_array_size(lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
+uint8_t lean_uint8_of_nat(lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs(lean_object*);
 static uint8_t l_Std_Internal_Parsec_ByteArray_hexDigit___closed__3;

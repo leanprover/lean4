@@ -18,7 +18,7 @@ private def ensureType (e : Expr) : MetaM Unit := do
   discard <| getLevel e
 
 private def checkConstant (constName : Name) (us : List Level) : MetaM Unit := do
-  let cinfo ← getConstInfo constName
+  let cinfo ← getConstVal constName
   unless us.length == cinfo.levelParams.length do
     throwIncorrectNumberOfLevels constName us
 
@@ -98,7 +98,7 @@ where
           -- That is to say, the arity might depend on the values of the arguments.
           -- We look for the first explicit argument that is different.
           -- Otherwise we look for the first implicit argument.
-          -- We try `isDefEq` on all arguments to get discretionary mvar assigments.
+          -- We try `isDefEq` on all arguments to get discretionary mvar assignments.
           let mut as := a.getAppArgs
           let mut bs := b.getAppArgs
           let mut aFnType ← inferType a.getAppFn

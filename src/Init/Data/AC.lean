@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dany Fabian
 -/
 
+module
+
 prelude
 import Init.Classical
 import Init.ByCases
@@ -39,7 +41,7 @@ class EvalInformation (α : Sort u) (β : Sort v) where
   evalVar : α → Nat → β
 
 def Context.var (ctx : Context α) (idx : Nat) : Variable ctx.op :=
-  ctx.vars.getD idx ⟨ctx.arbitrary, none⟩
+  ctx.vars[idx]?.getD ⟨ctx.arbitrary, none⟩
 
 instance : ContextInformation (Context α) where
   isNeutral ctx x := ctx.var x |>.neutral.isSome

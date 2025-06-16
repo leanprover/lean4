@@ -180,7 +180,7 @@ structure CtorInfo where
   size : Nat
   usize : Nat
   ssize : Nat
-  deriving Repr
+  deriving Inhabited, Repr
 
 def CtorInfo.beq : CtorInfo → CtorInfo → Bool
   | ⟨n₁, cidx₁, size₁, usize₁, ssize₁⟩, ⟨n₂, cidx₂, size₂, usize₂, ssize₂⟩ =>
@@ -223,6 +223,7 @@ inductive Expr where
   | lit (v : LitVal)
   /-- Return `1 : uint8` Iff `RC(x) > 1` -/
   | isShared (x : VarId)
+  deriving Inhabited
 
 @[export lean_ir_mk_ctor_expr]  def mkCtorExpr (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (ys : Array Arg) : Expr :=
   Expr.ctor ⟨n, cidx, size, usize, ssize⟩ ys

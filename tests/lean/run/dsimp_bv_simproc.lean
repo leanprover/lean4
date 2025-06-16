@@ -10,13 +10,13 @@ theorem write_simplify_test_0 (a x y : BitVec 64)
   simp only [setWidth_eq, BitVec.cast_eq]
 
 /--
-warning: declaration uses 'sorry'
----
 info: write : (n : Nat) → BitVec 64 → BitVec (n * 8) → Type → Type
 s aux : Type
 a x y : BitVec 64
 h : 128 = 128
 ⊢ write 16 a (x ++ y) s = aux
+---
+warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 example (a x y : BitVec 64)

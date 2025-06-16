@@ -12,23 +12,24 @@ import Lean.Elab.PreDefinition.Structural.RecArgInfo
 namespace Lean.Elab.Structural
 open Meta
 
-private def replaceIndPredRecApp (numFixed : Nat) (funType : Expr) (e : Expr) : M Expr := do
+private def replaceIndPredRecApp (fixedParamPerm : FixedParamPerm) (funType : Expr) (e : Expr) : M Expr := do
   withoutProofIrrelevance do
   withTraceNode `Elab.definition.structural (fun _ => pure m!"eliminating recursive call {e}") do
     -- We want to replace `e` with an expression of the same type
     let main ← mkFreshExprSyntheticOpaqueMVar (← inferType e)
-    let args : Array Expr := e.getAppArgs[numFixed:]
+    let args : Array Expr := e.getAppArgs
+    let ys := fixedParamPerm.pickVarying args
     let lctx ← getLCtx
     let r ← lctx.anyM fun localDecl => do
       if localDecl.isAuxDecl then return false
       let (mvars, _, t) ← forallMetaTelescope localDecl.type -- NB: do not reduce, we want to see the `funType`
       unless t.getAppFn == funType do return false
       withTraceNodeBefore `Elab.definition.structural (do pure m!"trying {mkFVar localDecl.fvarId} : {localDecl.type}") do
-        if args.size < t.getAppNumArgs then
-          trace[Elab.definition.structural] "too few arguments. Underapplied recursive call?"
+        if ys.size < t.getAppNumArgs then
+          trace[Elab.definition.structural] "too few arguments, expected {t.getAppNumArgs}, found {ys.size}. Underapplied recursive call?"
           return false
-        if (← (t.getAppArgs.zip args).allM (fun (t,s) => isDefEq t s)) then
-          main.mvarId!.assign (mkAppN (mkAppN localDecl.toExpr mvars) args[t.getAppNumArgs:])
+        if (← (t.getAppArgs.zip ys).allM (fun (t,s) => isDefEq t s)) then
+          main.mvarId!.assign (mkAppN (mkAppN localDecl.toExpr mvars) ys[t.getAppNumArgs:])
           return ← mvars.allM fun v => do
             unless (← v.mvarId!.isAssigned) do
               trace[Elab.definition.structural] "Cannot use {mkFVar localDecl.fvarId}: parameter {v} remains unassigned"
@@ -62,7 +63,7 @@ private partial def replaceIndPredRecApps (recArgInfo : RecArgInfo) (funType : E
       let processApp (e : Expr) : M Expr := do
         e.withApp fun f args => do
           if f.isConstOf recArgInfo.fnName then
-            replaceIndPredRecApp recArgInfo.numFixed funType e
+            replaceIndPredRecApp recArgInfo.fixedParamPerm funType e
           else
             return mkAppN (← loop f) (← args.mapM loop)
       match (← matchMatcherApp? e) with
@@ -100,7 +101,7 @@ def mkIndPredBRecOn (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
   lambdaTelescope value fun ys value => do
     let type  := (← inferType value).headBeta
     let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor ys
-    trace[Elab.definition.structural] "numFixed: {recArgInfo.numFixed}, indexMajorArgs: {indexMajorArgs}, otherArgs: {otherArgs}"
+    trace[Elab.definition.structural] "indexMajorArgs: {indexMajorArgs}, otherArgs: {otherArgs}"
     let funType ← mkLambdaFVars ys type
     withLetDecl `funType (← inferType funType) funType fun funType => do
       let motive ← mkForallFVars otherArgs (mkAppN funType ys)

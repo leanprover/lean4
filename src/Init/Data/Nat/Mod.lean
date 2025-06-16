@@ -3,6 +3,8 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Omega
 
@@ -57,11 +59,11 @@ theorem mod_mul_right_div_self (m n k : Nat) : m % (n * k) / n = m / n % k := by
 theorem mod_mul_left_div_self (m n k : Nat) : m % (k * n) / n = m / n % k := by
   rw [Nat.mul_comm k n, mod_mul_right_div_self]
 
-@[simp 1100]
+@[simp]
 theorem mod_mul_right_mod (a b c : Nat) : a % (b * c) % b = a % b :=
   Nat.mod_mod_of_dvd a (Nat.dvd_mul_right b c)
 
-@[simp 1100]
+@[simp]
 theorem mod_mul_left_mod (a b c : Nat) : a % (b * c) % c = a % c :=
   Nat.mod_mod_of_dvd a (Nat.mul_comm _ _ ▸ Nat.dvd_mul_left c b)
 

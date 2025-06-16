@@ -66,7 +66,10 @@ inductive MessageData where
   `alt` may nest any structured message,
   for example `ofGoal` to approximate a tactic state widget,
   and, if necessary, even other widget instances
-  (for which approximations are computed recursively). -/
+  (for which approximations are computed recursively).
+
+  Note that unlike with `Widget.savePanelWidgetInfo`,
+  the infoview will not pass any additional props to the widget instance. -/
   | ofWidget          : Widget.WidgetInstance → MessageData → MessageData
   /-- `withContext ctx d` specifies the pretty printing context `(env, mctx, lctx, opts)` for the nested expressions in `d`. -/
   | withContext       : MessageDataContext → MessageData → MessageData
@@ -220,6 +223,15 @@ where
   | trace _ msg msgs        => visit mctx? msg || msgs.any (visit mctx?)
   | _                       => false
 
+/--
+Maximum number of trace node children to display by default to prevent slowdowns from rendering. In
+the info view, more children can be expanded interactively.
+-/
+register_option maxTraceChildren : Nat := {
+  defValue := 50
+  descr := "Maximum number of trace node children to display"
+}
+
 partial def formatAux : NamingContext → Option MessageDataContext → MessageData → BaseIO Format
   | _,    _,         ofFormatWithInfos fmt    => return fmt.1
   | _,    none,      ofGoal mvarId            => return formatRawGoal mvarId
@@ -232,12 +244,21 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
   | nCtx, ctx,       compose d₁ d₂            => return (← formatAux nCtx ctx d₁) ++ (← formatAux nCtx ctx d₂)
   | nCtx, ctx,       group d                  => Format.group <$> formatAux nCtx ctx d
   | nCtx, ctx,       trace data header children => do
+    let childFmts ← children.mapM (formatAux nCtx ctx)
+    if data.cls.isAnonymous then
+      -- Sequence of top-level traces collected by `addTraceAsMessages`, do not indent.
+      return .joinSep childFmts.toList "\n"
+
     let mut msg := f!"[{data.cls}]"
     if data.startTime != 0 then
       msg := f!"{msg} [{data.stopTime - data.startTime}]"
     msg := f!"{msg} {(← formatAux nCtx ctx header).nest 2}"
-    let children ← children.mapM (formatAux nCtx ctx)
-    return .nest 2 (.joinSep (msg::children.toList) "\n")
+    let mut children := children
+    if let some maxNum := ctx.map (maxTraceChildren.get ·.opts) then
+      if maxNum > 0 && children.size > maxNum then
+        children := children.take maxNum |>.push <|
+          ofFormat f!"{children.size - maxNum} more entries... (increase `maxTraceChildren` to see more)"
+    return .nest 2 (.joinSep (msg::childFmts.toList) "\n")
   | nCtx, ctx?,      ofLazy pp _             => do
     let dyn ← pp (ctx?.map (mkPPContext nCtx))
     let some msg := dyn.get? MessageData
@@ -329,6 +350,12 @@ structure BaseMessage (α : Type u) where
   /-- If `true`, report range as given; see `msgToInteractiveDiagnostic`. -/
   keepFullRange : Bool := false
   severity      : MessageSeverity := .error
+  /--
+  If `true`, filter this message from non-language server output.
+  In the language server, silent messages are served as silent diagnostics.
+  See also `DiagnosticWith.isSilent?`.
+  -/
+  isSilent      : Bool := false
   caption       : String          := ""
   /-- The content of the message. -/
   data          : α
@@ -413,6 +440,8 @@ structure MessageLog where
 namespace MessageLog
 def empty : MessageLog := {}
 
+-- Despite having been deprecated, the archived `LeanInk` project (which CI still uses)
+-- relies on this name.
 @[deprecated "renamed to `unreported`; direct access should in general be avoided in favor of \
 using `MessageLog.toList/toArray`" (since := "2024-05-22")]
 def msgs : MessageLog → PersistentArray Message := unreported
@@ -448,6 +477,9 @@ def markAllReported (log : MessageLog) : MessageLog :=
 def errorsToWarnings (log : MessageLog) : MessageLog :=
   { unreported := log.unreported.map (fun m => match m.severity with | MessageSeverity.error => { m with severity := MessageSeverity.warning } | _ => m) }
 
+def errorsToInfos (log : MessageLog) : MessageLog :=
+  { unreported := log.unreported.map (fun m => match m.severity with | MessageSeverity.error => { m with severity := MessageSeverity.information } | _ => m) }
+
 def getInfoMessages (log : MessageLog) : MessageLog :=
   { unreported := log.unreported.filter fun m => match m.severity with | MessageSeverity.information => true | _ => false }
 
@@ -472,6 +504,10 @@ def indentD (msg : MessageData) : MessageData :=
 
 def indentExpr (e : Expr) : MessageData :=
   indentD e
+
+/-- Atom quotes -/
+def aquote (msg : MessageData) : MessageData :=
+  "「" ++ msg ++ "」"
 
 class AddMessageContext (m : Type → Type) where
   /--
@@ -537,12 +573,12 @@ macro_rules
 def toMessageList (msgs : Array MessageData) : MessageData :=
   indentD (MessageData.joinSep msgs.toList m!"\n\n")
 
-namespace KernelException
+namespace Kernel.Exception
 
 private def mkCtx (env : Environment) (lctx : LocalContext) (opts : Options) (msg : MessageData) : MessageData :=
-  MessageData.withContext { env := env, mctx := {}, lctx := lctx, opts := opts } msg
+  MessageData.withContext { env := .ofKernelEnv env, mctx := {}, lctx := lctx, opts := opts } msg
 
-def toMessageData (e : KernelException) (opts : Options) : MessageData :=
+def toMessageData (e : Kernel.Exception) (opts : Options) : MessageData :=
   match e with
   | unknownConstant env constName       => mkCtx env {} opts m!"(kernel) unknown constant '{constName}'"
   | alreadyDeclared env constName       => mkCtx env {} opts m!"(kernel) constant has already been declared '{.ofConstName constName true}'"
@@ -561,7 +597,7 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
   | letTypeMismatch  env lctx n _ _     => mkCtx env lctx opts m!"(kernel) let-declaration type mismatch '{n}'"
   | exprTypeMismatch env lctx e _       => mkCtx env lctx opts m!"(kernel) type mismatch at{indentExpr e}"
   | appTypeMismatch  env lctx e fnType argType =>
-    mkCtx env lctx opts m!"application type mismatch{indentExpr e}\nargument has type{indentExpr argType}\nbut function has type{indentExpr fnType}"
+    mkCtx env lctx opts m!"(kernel) application type mismatch{indentExpr e}\nargument has type{indentExpr argType}\nbut function has type{indentExpr fnType}"
   | invalidProj env lctx e              => mkCtx env lctx opts m!"(kernel) invalid projection{indentExpr e}"
   | thmTypeIsNotProp env constName type => mkCtx env {} opts m!"(kernel) type of theorem '{.ofConstName constName true}' is not a proposition{indentExpr type}"
   | other msg                           => m!"(kernel) {msg}"
@@ -570,5 +606,5 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
   | deepRecursion                       => "(kernel) deep recursion detected"
   | interrupted                         => "(kernel) interrupted"
 
-end KernelException
+end Kernel.Exception
 end Lean

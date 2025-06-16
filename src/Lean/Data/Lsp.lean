@@ -20,3 +20,4 @@ import Lean.Data.Lsp.Utf16
 import Lean.Data.Lsp.Workspace
 import Lean.Data.Lsp.Ipc
 import Lean.Data.Lsp.CodeActions
+import Lean.Data.Lsp.Window

@@ -100,8 +100,8 @@ std::string decl_to_string(decl const & d) {
     string_ref r(lean_ir_decl_to_string(d.to_obj_arg()));
     return r.to_std_string();
 }
-environment add_decl(environment const & env, decl const & d) {
-    return environment(lean_ir_add_decl(env.to_obj_arg(), d.to_obj_arg()));
+elab_environment add_decl(elab_environment const & env, decl const & d) {
+    return elab_environment(lean_ir_add_decl(env.to_obj_arg(), d.to_obj_arg()));
 }
 }
 
@@ -133,12 +133,13 @@ static ir::type to_ir_type(expr const & e) {
 }
 
 class to_ir_fn {
+    elab_environment    m_env;
     type_checker::state m_st;
     local_ctx           m_lctx;
     name                m_x{"x"};
     unsigned            m_next_idx{1};
 
-    environment const & env() const { return m_st.env(); }
+    elab_environment const & env() const { return m_env; }
 
     name_generator & ngen() { return m_st.ngen(); }
 
@@ -493,7 +494,7 @@ class to_ir_fn {
         return ir::mk_decl(fn, xs, type, b);
     }
 public:
-    to_ir_fn(environment const & env):m_st(env) {}
+    to_ir_fn(elab_environment const & env):m_env(env), m_st(env) {}
 
     ir::decl operator()(comp_decl const & d) { return to_ir_decl(d); }
 
@@ -520,7 +521,7 @@ public:
 };
 
 namespace ir {
-decl to_ir_decl(environment const & env, comp_decl const & d) {
+decl to_ir_decl(elab_environment const & env, comp_decl const & d) {
     return to_ir_fn(env)(d);
 }
 
@@ -528,7 +529,7 @@ decl to_ir_decl(environment const & env, comp_decl const & d) {
 @[export lean.ir.compile_core]
 def compile (env : Environment) (opts : Options) (decls : Array Decl) : Log × (Except String Environment) :=
 */
-environment compile(environment const & env, options const & opts, comp_decls const & decls) {
+elab_environment compile(elab_environment const & env, options const & opts, comp_decls const & decls) {
     buffer<decl> ir_decls;
     for (comp_decl const & decl : decls) {
         lean_trace(name({"compiler", "lambda_pure"}),
@@ -549,7 +550,7 @@ environment compile(environment const & env, options const & opts, comp_decls co
         dec_ref(r);
         throw exception(error.data());
     } else {
-        environment new_env(cnstr_get(v, 0), true);
+        elab_environment new_env(cnstr_get(v, 0), true);
         dec_ref(r);
         return new_env;
     }
@@ -560,28 +561,28 @@ environment compile(environment const & env, options const & opts, comp_decls co
 def addBoxedVersion (env : Environment) (decl : Decl) : Except String Environment :=
 */
 extern "C" object * lean_ir_add_boxed_version(object * env, object * decl);
-environment add_boxed_version(environment const & env, decl const & d) {
+elab_environment add_boxed_version(elab_environment const & env, decl const & d) {
     object * v = lean_ir_add_boxed_version(env.to_obj_arg(), d.to_obj_arg());
     if (cnstr_tag(v) == 0) {
         string_ref error(cnstr_get(v, 0), true);
         dec_ref(v);
         throw exception(error.data());
     } else {
-        environment new_env(cnstr_get(v, 0), true);
+        elab_environment new_env(cnstr_get(v, 0), true);
         dec_ref(v);
         return new_env;
     }
 }
 
-environment add_extern(environment const & env, name const & fn) {
+elab_environment add_extern(elab_environment const & env, name const & fn) {
     decl d = to_ir_fn(env)(fn);
-    environment new_env = ir::add_decl(env, d);
+    elab_environment new_env = ir::add_decl(env, d);
     return add_boxed_version(new_env, d);
 }
 
 extern "C" LEAN_EXPORT object* lean_add_extern(object * env, object * fn) {
     try {
-        environment new_env = add_extern(environment(env), name(fn));
+        elab_environment new_env = add_extern(elab_environment(env), name(fn));
         return mk_except_ok(new_env);
     } catch (exception & ex) {
         // throw; // We use to uncomment this line when debugging weird bugs in the Lean/C++ interface.
@@ -591,7 +592,7 @@ extern "C" LEAN_EXPORT object* lean_add_extern(object * env, object * fn) {
 
 extern "C" object * lean_ir_emit_c(object * env, object * mod_name);
 
-string_ref emit_c(environment const & env, name const & mod_name) {
+string_ref emit_c(elab_environment const & env, name const & mod_name) {
     object * r = lean_ir_emit_c(env.to_obj_arg(), mod_name.to_obj_arg());
     string_ref s(cnstr_get(r, 0), true);
     if (cnstr_tag(r) == 0) {
@@ -639,7 +640,7 @@ object_ref to_object_ref(cnstr_info const & info) {
 }
 
 extern "C" LEAN_EXPORT object * lean_ir_get_ctor_layout(object * env0, object * ctor_name0) {
-    environment const & env = TO_REF(environment, env0);
+    elab_environment const & env = TO_REF(elab_environment, env0);
     name const & ctor_name  = TO_REF(name, ctor_name0);
     type_checker::state st(env);
     try {

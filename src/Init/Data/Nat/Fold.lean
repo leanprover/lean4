@@ -3,6 +3,8 @@ Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Floris van Doorn, Leonardo de Moura, Kim Morrison
 -/
+module
+
 prelude
 import Init.Omega
 import Init.Data.List.FinRange
@@ -13,14 +15,30 @@ universe u
 namespace Nat
 
 /--
-`Nat.fold` evaluates `f` on the numbers up to `n` exclusive, in increasing order:
-* `Nat.fold f 3 init = init |> f 0 |> f 1 |> f 2`
+Iterates the application of a function `f` to a starting value `init`, `n` times. At each step, `f`
+is applied to the current value and to the next natural number less than `n`, in increasing order.
+
+Examples:
+* `Nat.fold 3 f init = (init |> f 0 (by simp) |> f 1 (by simp) |> f 2 (by simp))`
+* `Nat.fold 4 (fun i _ xs => xs.push i) #[] = #[0, 1, 2, 3]`
+* `Nat.fold 0 (fun i _ xs => xs.push i) #[] = #[]`
 -/
 @[specialize] def fold {α : Type u} : (n : Nat) → (f : (i : Nat) → i < n → α → α) → (init : α) → α
   | 0,      f, a => a
   | succ n, f, a => f n (by omega) (fold n (fun i h => f i (by omega)) a)
 
-/-- Tail-recursive version of `Nat.fold`. -/
+
+/--
+Iterates the application of a function `f` to a starting value `init`, `n` times. At each step, `f`
+is applied to the current value and to the next natural number less than `n`, in increasing order.
+
+This is a tail-recursive version of `Nat.fold` that's used at runtime.
+
+Examples:
+* `Nat.foldTR 3 f init = (init |> f 0 (by simp) |> f 1 (by simp) |> f 2 (by simp))`
+* `Nat.foldTR 4 (fun i _ xs => xs.push i) #[] = #[0, 1, 2, 3]`
+* `Nat.foldTR 0 (fun i _ xs => xs.push i) #[] = #[]`
+-/
 @[inline] def foldTR {α : Type u} (n : Nat) (f : (i : Nat) → i < n → α → α) (init : α) : α :=
   let rec @[specialize] loop : ∀ j, j ≤ n → α → α
     | 0,      h, a => a
@@ -28,31 +46,72 @@ namespace Nat
   loop n (by omega) init
 
 /--
-`Nat.foldRev` evaluates `f` on the numbers up to `n` exclusive, in decreasing order:
-* `Nat.foldRev f 3 init = f 0 <| f 1 <| f 2 <| init`
+Iterates the application of a function `f` to a starting value `init`, `n` times. At each step, `f`
+is applied to the current value and to the next natural number less than `n`, in decreasing order.
+
+Examples:
+* `Nat.foldRev 3 f init = (f 0 (by simp) <| f 1 (by simp) <| f 2 (by simp) init)`
+* `Nat.foldRev 4 (fun i _ xs => xs.push i) #[] = #[3, 2, 1, 0]`
+* `Nat.foldRev 0 (fun i _ xs => xs.push i) #[] = #[]`
 -/
 @[specialize] def foldRev {α : Type u} : (n : Nat) → (f : (i : Nat) → i < n → α → α) → (init : α) → α
   | 0,      f, a => a
   | succ n, f, a => foldRev n (fun i h => f i (by omega)) (f n (by omega) a)
 
-/-- `any f n = true` iff there is `i in [0, n-1]` s.t. `f i = true` -/
+/--
+Checks whether there is some number less that the given bound for which `f` returns `true`.
+
+Examples:
+ * `Nat.any 4 (fun i _ => i < 5) = true`
+ * `Nat.any 7 (fun i _ => i < 5) = true`
+ * `Nat.any 7 (fun i _ => i % 2 = 0) = true`
+ * `Nat.any 1 (fun i _ => i % 2 = 1) = false`
+-/
 @[specialize] def any : (n : Nat) → (f : (i : Nat) → i < n → Bool) → Bool
   | 0,      f => false
   | succ n, f => any n (fun i h => f i (by omega)) || f n (by omega)
 
-/-- Tail-recursive version of `Nat.any`. -/
+/--
+Checks whether there is some number less that the given bound for which `f` returns `true`.
+
+This is a tail-recursive equivalent of `Nat.any` that's used at runtime.
+
+Examples:
+ * `Nat.anyTR 4 (fun i _ => i < 5) = true`
+ * `Nat.anyTR 7 (fun i _ => i < 5) = true`
+ * `Nat.anyTR 7 (fun i _ => i % 2 = 0) = true`
+ * `Nat.anyTR 1 (fun i _ => i % 2 = 1) = false`
+-/
 @[inline] def anyTR (n : Nat) (f : (i : Nat) → i < n → Bool) : Bool :=
   let rec @[specialize] loop : (i : Nat) → i ≤ n → Bool
     | 0,      h => false
     | succ m, h => f (n - succ m) (by omega) || loop m (by omega)
   loop n (by omega)
 
-/-- `all f n = true` iff every `i in [0, n-1]` satisfies `f i = true` -/
+/--
+Checks whether `f` returns `true` for every number strictly less than a bound.
+
+Examples:
+ * `Nat.all 4 (fun i _ => i < 5) = true`
+ * `Nat.all 7 (fun i _ => i < 5) = false`
+ * `Nat.all 7 (fun i _ => i % 2 = 0) = false`
+ * `Nat.all 1 (fun i _ => i % 2 = 0) = true`
+-/
 @[specialize] def all : (n : Nat) → (f : (i : Nat) → i < n → Bool) → Bool
   | 0,      f => true
   | succ n, f => all n (fun i h => f i (by omega)) && f n (by omega)
 
-/-- Tail-recursive version of `Nat.all`. -/
+/--
+Checks whether `f` returns `true` for every number strictly less than a bound.
+
+This is a tail-recursive equivalent of `Nat.all` that's used at runtime.
+
+Examples:
+ * `Nat.allTR 4 (fun i _ => i < 5) = true`
+ * `Nat.allTR 7 (fun i _ => i < 5) = false`
+ * `Nat.allTR 7 (fun i _ => i % 2 = 0) = false`
+ * `Nat.allTR 1 (fun i _ => i % 2 = 0) = true`
+-/
 @[inline] def allTR (n : Nat) (f : (i : Nat) → i < n → Bool) : Bool :=
   let rec @[specialize] loop : (i : Nat) → i ≤ n   → Bool
     | 0,      h => true
@@ -191,25 +250,43 @@ end Nat
 namespace Prod
 
 /--
-`(start, stop).foldI f a` evaluates `f` on all the numbers
+Combines an initial value with each natural number from in a range, in increasing order.
+
+In particular, `(start, stop).foldI f init` applies `f`on all the numbers
 from `start` (inclusive) to `stop` (exclusive) in increasing order:
-* `(5, 8).foldI f init = init |> f 5 |> f 6 |> f 7`
+
+Examples:
+* `(5, 8).foldI (fun j _ _ xs => xs.push j) #[] = (#[] |>.push 5 |>.push 6 |>.push 7)`
+* `(5, 8).foldI (fun j _ _ xs => xs.push j) #[] = #[5, 6, 7]`
+* `(5, 8).foldI (fun j _ _ xs => toString j :: xs) [] = ["7", "6", "5"]`
 -/
-@[inline] def foldI {α : Type u} (i : Nat × Nat) (f : (j : Nat) → i.1 ≤ j → j < i.2 → α → α) (a : α) : α :=
-  (i.2 - i.1).fold (fun j _ => f (i.1 + j) (by omega) (by omega)) a
+@[inline] def foldI {α : Type u} (i : Nat × Nat) (f : (j : Nat) → i.1 ≤ j → j < i.2 → α → α) (init : α) : α :=
+  (i.2 - i.1).fold (fun j _ => f (i.1 + j) (by omega) (by omega)) init
 
 /--
-`(start, stop).anyI f a` returns true if `f` is true for some natural number
-from `start` (inclusive) to `stop` (exclusive):
-* `(5, 8).anyI f = f 5 || f 6 || f 7`
+Checks whether a predicate holds for any natural number in a range.
+
+In particular, `(start, stop).allI f` returns true if `f` is true for any natural number from
+`start` (inclusive) to `stop` (exclusive).
+
+Examples:
+ * `(5, 8).anyI (fun j _ _ => j == 6) = (5 == 6) || (6 == 6) || (7 == 6)`
+ * `(5, 8).anyI (fun j _ _ => j % 2 = 0) = true`
+ * `(6, 6).anyI (fun j _ _ => j % 2 = 0) = false`
 -/
 @[inline] def anyI (i : Nat × Nat) (f : (j : Nat) → i.1 ≤ j → j < i.2 → Bool) : Bool :=
   (i.2 - i.1).any (fun j _ => f (i.1 + j) (by omega) (by omega))
 
 /--
-`(start, stop).allI f a` returns true if `f` is true for all natural numbers
-from `start` (inclusive) to `stop` (exclusive):
-* `(5, 8).anyI f = f 5 && f 6 && f 7`
+Checks whether a predicate holds for all natural numbers in a range.
+
+In particular, `(start, stop).allI f` returns true if `f` is true for all natural numbers from
+`start` (inclusive) to `stop` (exclusive).
+
+Examples:
+ * `(5, 8).allI (fun j _ _ => j < 10) = (5 < 10) && (6 < 10) && (7 < 10)`
+ * `(5, 8).allI (fun j _ _ => j % 2 = 0) = false`
+ * `(6, 7).allI (fun j _ _ => j % 2 = 0) = true`
 -/
 @[inline] def allI (i : Nat × Nat) (f : (j : Nat) → i.1 ≤ j → j < i.2 → Bool) : Bool :=
   (i.2 - i.1).all (fun j _ => f (i.1 + j) (by omega) (by omega))

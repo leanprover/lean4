@@ -6,14 +6,15 @@ Authors: Leonardo de Moura
 prelude
 import Init.NotationExtra
 import Init.Data.ToString.Macro
-import Init.Data.Int.DivMod
+import Init.Data.Int.DivMod.Basic
+import Init.Data.Int.Linear
 import Init.Data.Nat.Gcd
 namespace Std
 namespace Internal
 
 /-!
   Rational numbers for implementing decision procedures.
-  We should not confuse them with the Mathlib rational numbers.
+  We should not confuse them with the Batteries rational numbers, also used by Mathlib.
 -/
 
 structure Rat where
@@ -101,15 +102,13 @@ protected def floor (a : Rat) : Int :=
   if a.den == 1 then
     a.num
   else
-    let r := a.num.tmod a.den
-    if a.num < 0 then r - 1 else r
+    a.num / a.den
 
 protected def ceil (a : Rat) : Int :=
   if a.den == 1 then
     a.num
   else
-    let r := a.num.tmod a.den
-    if a.num > 0 then r + 1 else r
+    Int.Linear.cdiv a.num a.den
 
 instance : LT Rat where
   lt a b := (Rat.lt a b) = true

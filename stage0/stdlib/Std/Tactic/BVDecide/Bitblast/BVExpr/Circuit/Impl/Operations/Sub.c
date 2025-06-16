@@ -37,7 +37,6 @@ lean_inc(x_10);
 lean_dec(x_8);
 lean_ctor_set(x_5, 1, x_10);
 x_11 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAdd___rarg(x_1, x_2, x_3, x_9, x_5);
-lean_dec(x_5);
 return x_11;
 }
 else
@@ -60,7 +59,6 @@ x_17 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_17, 0, x_12);
 lean_ctor_set(x_17, 1, x_16);
 x_18 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAdd___rarg(x_1, x_2, x_3, x_15, x_17);
-lean_dec(x_17);
 return x_18;
 }
 }

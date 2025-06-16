@@ -1,26 +1,7 @@
 {"textDocument": {"uri": "file:///completionFallback.lean"},
  "position": {"line": 14, "character": 14}}
 {"items":
- [{"sortText": "0",
-   "label": "down",
-   "kind": 4,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionFallback.lean"},
-     "position": {"line": 14, "character": 14}},
-    "id": {"const": {"declName": "Direction.down"}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "left",
-   "kind": 4,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionFallback.lean"},
-     "position": {"line": 14, "character": 14}},
-    "id": {"const": {"declName": "Direction.left"}},
-    "cPos": 0}},
-  {"sortText": "2",
-   "label": "noConfusionType",
+ [{"label": "noConfusionType",
    "kind": 3,
    "data":
    {"params":
@@ -28,17 +9,15 @@
      "position": {"line": 14, "character": 14}},
     "id": {"const": {"declName": "Direction.noConfusionType"}},
     "cPos": 0}},
-  {"sortText": "3",
-   "label": "right",
+  {"label": "left",
    "kind": 4,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionFallback.lean"},
      "position": {"line": 14, "character": 14}},
-    "id": {"const": {"declName": "Direction.right"}},
+    "id": {"const": {"declName": "Direction.left"}},
     "cPos": 0}},
-  {"sortText": "4",
-   "label": "toCtorIdx",
+  {"label": "toCtorIdx",
    "kind": 3,
    "data":
    {"params":
@@ -46,30 +25,43 @@
      "position": {"line": 14, "character": 14}},
     "id": {"const": {"declName": "Direction.toCtorIdx"}},
     "cPos": 0}},
-  {"sortText": "5",
-   "label": "up",
+  {"label": "right",
+   "kind": 4,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionFallback.lean"},
+     "position": {"line": 14, "character": 14}},
+    "id": {"const": {"declName": "Direction.right"}},
+    "cPos": 0}},
+  {"label": "up",
    "kind": 4,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionFallback.lean"},
      "position": {"line": 14, "character": 14}},
     "id": {"const": {"declName": "Direction.up"}},
+    "cPos": 0}},
+  {"label": "down",
+   "kind": 4,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionFallback.lean"},
+     "position": {"line": 14, "character": 14}},
+    "id": {"const": {"declName": "Direction.down"}},
     "cPos": 0}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionFallback.lean"},
  "position": {"line": 28, "character": 30}}
 {"items":
- [{"sortText": "0",
-   "label": "ha",
-   "kind": 23,
+ [{"label": "mk",
+   "kind": 4,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionFallback.lean"},
      "position": {"line": 28, "character": 30}},
-    "id": {"const": {"declName": "CustomAnd.ha"}},
+    "id": {"const": {"declName": "CustomAnd.mk"}},
     "cPos": 0}},
-  {"sortText": "1",
-   "label": "hb",
+  {"label": "hb",
    "kind": 23,
    "data":
    {"params":
@@ -77,13 +69,12 @@
      "position": {"line": 28, "character": 30}},
     "id": {"const": {"declName": "CustomAnd.hb"}},
     "cPos": 0}},
-  {"sortText": "2",
-   "label": "mk",
-   "kind": 4,
+  {"label": "ha",
+   "kind": 23,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionFallback.lean"},
      "position": {"line": 28, "character": 30}},
-    "id": {"const": {"declName": "CustomAnd.mk"}},
+    "id": {"const": {"declName": "CustomAnd.ha"}},
     "cPos": 0}}],
- "isIncomplete": true}
+ "isIncomplete": false}

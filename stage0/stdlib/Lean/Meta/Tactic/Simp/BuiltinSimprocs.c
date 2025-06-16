@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Simp.BuiltinSimprocs
-// Imports: Lean.Meta.Tactic.Simp.BuiltinSimprocs.Core Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat Lean.Meta.Tactic.Simp.BuiltinSimprocs.Fin Lean.Meta.Tactic.Simp.BuiltinSimprocs.UInt Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int Lean.Meta.Tactic.Simp.BuiltinSimprocs.Char Lean.Meta.Tactic.Simp.BuiltinSimprocs.String Lean.Meta.Tactic.Simp.BuiltinSimprocs.BitVec Lean.Meta.Tactic.Simp.BuiltinSimprocs.List Lean.Meta.Tactic.Simp.BuiltinSimprocs.Array
+// Imports: Lean.Meta.Tactic.Simp.BuiltinSimprocs.Core Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat Lean.Meta.Tactic.Simp.BuiltinSimprocs.Fin Lean.Meta.Tactic.Simp.BuiltinSimprocs.UInt Lean.Meta.Tactic.Simp.BuiltinSimprocs.SInt Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int Lean.Meta.Tactic.Simp.BuiltinSimprocs.Char Lean.Meta.Tactic.Simp.BuiltinSimprocs.String Lean.Meta.Tactic.Simp.BuiltinSimprocs.BitVec Lean.Meta.Tactic.Simp.BuiltinSimprocs.List Lean.Meta.Tactic.Simp.BuiltinSimprocs.Array
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,6 +17,7 @@ lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Core(uint8_t built
 lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Nat(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_UInt(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Char(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_String(uint8_t builtin, lean_object*);
@@ -38,6 +39,9 @@ res = initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Fin(builtin, lean_io_mk_w
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_UInt(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int(builtin, lean_io_mk_world());

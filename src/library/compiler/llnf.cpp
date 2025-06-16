@@ -247,7 +247,7 @@ cnstr_info::cnstr_info(unsigned cidx, list<field_info> const & finfo):
     }
 }
 
-unsigned get_llnf_arity(environment const & env, name const & n) {
+unsigned get_llnf_arity(elab_environment const & env, name const & n) {
     /* First, try to infer arity from `_cstage2` auxiliary definition. */
     name c = mk_cstage2_name(n);
     optional<constant_info> info = env.find(c);
@@ -334,6 +334,7 @@ class to_lambda_pure_fn {
     typedef name_hash_set name_set;
     typedef name_hash_map<cnstr_info> cnstr_info_cache;
     typedef name_hash_map<optional<unsigned>> enum_cache;
+    elab_environment      m_env;
     type_checker::state   m_st;
     local_ctx             m_lctx;
     buffer<expr>          m_fvars;
@@ -343,7 +344,7 @@ class to_lambda_pure_fn {
     unsigned              m_next_jp_idx{1};
     cnstr_info_cache      m_cnstr_info_cache;
 
-    environment const & env() const { return m_st.env(); }
+    elab_environment const & env() const { return m_env; }
 
     name_generator & ngen() { return m_st.ngen(); }
 
@@ -803,8 +804,8 @@ class to_lambda_pure_fn {
     }
 
 public:
-    to_lambda_pure_fn(environment const & env):
-        m_st(env), m_x("_x"), m_j("j") {
+    to_lambda_pure_fn(elab_environment const & env):
+        m_env(env), m_st(env), m_x("_x"), m_j("j") {
     }
 
     expr operator()(expr e) {
@@ -815,7 +816,7 @@ public:
     }
 };
 
-expr get_constant_ll_type(environment const & env, name const & c) {
+expr get_constant_ll_type(elab_environment const & env, name const & c) {
     if (optional<expr> type = get_extern_constant_ll_type(env, c)) {
         return *type;
     } else {
@@ -823,7 +824,7 @@ expr get_constant_ll_type(environment const & env, name const & c) {
     }
 }
 
-environment compile_ir(environment const & env, options const & opts, comp_decls const & ds) {
+elab_environment compile_ir(elab_environment const & env, options const & opts, comp_decls const & ds) {
     buffer<comp_decl> new_ds;
     for (comp_decl const & d : ds) {
         expr new_v = to_lambda_pure_fn(env)(d.snd());

@@ -84,7 +84,7 @@ info: "2024-08-16T01:28:00.000000000Z"
     ISO8601UTC.format t.toDateTime
 
 /--
-info: "0000-12-30T22:28:12.000000000+09:00"
+info: "0000-12-31T22:28:12.000000000+09:00"
 -/
 #guard_msgs in
 #eval
@@ -92,11 +92,11 @@ info: "0000-12-30T22:28:12.000000000+09:00"
     ISO8601UTC.format (t.toDateTime.convertTimeZone jpTZ)
 
 /--
-info: "0000-12-29T21:28:12.000000000-03:00"
+info: "0000-12-31T00:00:00.000000000-03:00"
 -/
 #guard_msgs in
 #eval
-    let t1 : ZonedDateTime := Time12Hour.parse! "12:28:12 AM"
+    let t1 : ZonedDateTime := Time12Hour.parse! "03:00:00 AM"
     ISO8601UTC.format (t1.toDateTime.convertTimeZone brTZ)
 
 /--

@@ -30,18 +30,22 @@ def canUnfold (info : ConstantInfo) : MetaM Bool := do
 
 /--
 Look up a constant name, returning the `ConstantInfo`
-if it should be unfolded at the current reducibility settings,
+if it is a def/theorem that should be unfolded at the current reducibility settings,
 or `none` otherwise.
 
 This is part of the implementation of `whnf`.
 External users wanting to look up names should be using `Lean.getConstInfo`.
 -/
 def getUnfoldableConst? (constName : Name) : MetaM (Option ConstantInfo) := do
-  match (← getEnv).find? constName with
-  | some (info@(.thmInfo _))  => getTheoremInfo info
-  | some (info@(.defnInfo _)) => if (← canUnfold info) then return info else return none
-  | some info                 => return some info
-  | none                      => throwUnknownConstant constName
+  let some ainfo := (← getEnv).findAsync? constName | throwUnknownConstant constName
+  match ainfo.kind with
+  | .thm =>
+    if (← shouldReduceAll) then
+      return some ainfo.toConstantInfo
+    else
+      return none
+  | .defn => if (← canUnfold ainfo.toConstantInfo) then return ainfo.toConstantInfo else return none
+  | _ => return none
 
 /--
 As with `getUnfoldableConst?` but return `none` instead of failing if the constant is not found.
@@ -50,7 +54,6 @@ def getUnfoldableConstNoEx? (constName : Name) : MetaM (Option ConstantInfo) := 
   match (← getEnv).find? constName with
   | some (info@(.thmInfo _))  => getTheoremInfo info
   | some (info@(.defnInfo _)) => if (← canUnfold info) then return info else return none
-  | some info                 => return some info
-  | none                      => return none
+  | _                         => return none
 
 end Meta

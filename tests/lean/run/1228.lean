@@ -20,7 +20,7 @@ namespace Foo
     match s' with
     | foo s' =>
       have: Bar s' := sorry
-      have hterm: sizeOf s' < sizeOf s := by simp_all_arith
+      have hterm: sizeOf s' < sizeOf s := by simp_all +arith
       exact ex₂ this
   termination_by sizeOf s
 

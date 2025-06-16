@@ -7,6 +7,8 @@ prelude
 import Lean.Elab.Tactic.Omega.Core
 import Lean.Elab.Tactic.FalseOrByContra
 import Lean.Elab.Tactic.Config
+import Lean.Elab.MutualDef
+import Lean.Meta.Closure
 
 /-!
 # Frontend to the `omega` tactic.
@@ -253,14 +255,14 @@ where
         mkAtomLinearCombo e
     | _ => match n.getAppFnArgs with
     | (``Nat.succ, #[n]) => rewrite e (.app (.const ``Int.ofNat_succ []) n)
-    | (``HAdd.hAdd, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_add []) a b)
+    | (``HAdd.hAdd, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.natCast_add []) a b)
     | (``HMul.hMul, #[_, _, _, _, a, b]) =>
       let (lc, prf, r) ← rewrite e (mkApp2 (.const ``Int.ofNat_mul []) a b)
       -- Add the fact that the multiplication is non-negative.
       pure (lc, prf, r.insert (mkApp2 (.const ``Int.ofNat_mul_nonneg []) a b))
-    | (``HDiv.hDiv, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_ediv []) a b)
+    | (``HDiv.hDiv, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.natCast_ediv []) a b)
     | (``OfNat.ofNat, #[_, n, _]) => rewrite e (.app (.const ``Int.natCast_ofNat []) n)
-    | (``HMod.hMod, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_emod []) a b)
+    | (``HMod.hMod, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.natCast_emod []) a b)
     | (``HSub.hSub, #[_, _, _, _, mkApp6 (.const ``HSub.hSub _) _ _ _ _ a b, c]) =>
       rewrite e (mkApp3 (.const ``Int.ofNat_sub_sub []) a b c)
     | (``HPow.hPow, #[_, _, _, _, a, b]) =>
@@ -585,24 +587,23 @@ where
       s!"{x} ≤ {e} ≤ {y}"
 
   prettyCoeffs (names : Array String) (coeffs : Coeffs) : String :=
-    coeffs.toList.enum
-      |>.filter (fun (_,c) => c ≠ 0)
-      |>.enum
-      |>.map (fun (j, (i,c)) =>
+    coeffs.toList.zipIdx
+      |>.filter (fun (c,_) => c ≠ 0)
+      |>.mapIdx (fun j (c,i) =>
         (if j > 0 then if c > 0 then " + " else " - " else if c > 0 then "" else "- ") ++
         (if Int.natAbs c = 1 then names[i]! else s!"{c.natAbs}*{names[i]!}"))
       |> String.join
 
   mentioned (atoms : Array Expr) (constraints : Std.HashMap Coeffs Fact) : MetaM (Array Bool) := do
-    let initMask := Array.mkArray atoms.size false
+    let initMask := .replicate atoms.size false
     return constraints.fold (init := initMask) fun mask coeffs _ =>
-      coeffs.enum.foldl (init := mask) fun mask (i, c) =>
+      coeffs.zipIdx.foldl (init := mask) fun mask (c, i) =>
         if c = 0 then mask else mask.set! i true
 
   prettyAtoms (names : Array String) (atoms : Array Expr) (mask : Array Bool) : MessageData :=
-    (Array.zip names atoms).toList.enum
-      |>.filter (fun (i, _) => mask.getD i false)
-      |>.map (fun (_, (n, a)) => m!" {n} := {a}")
+    (Array.zip names atoms).toList.zipIdx
+      |>.filter (fun (_, i) => mask.getD i false)
+      |>.map (fun ((n, a),_) => m!" {n} := {a}")
       |> m!"\n".joinSep
 
 mutual
@@ -671,12 +672,22 @@ open Lean Elab Tactic Parser.Tactic
 
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. -/
 def omegaTactic (cfg : OmegaConfig) : TacticM Unit := do
+  let declName? ← Term.getDeclName?
   liftMetaFinishingTactic fun g => do
-    let some g ← g.falseOrByContra | return ()
-    g.withContext do
-      let hyps := (← getLocalHyps).toList
-      trace[omega] "analyzing {hyps.length} hypotheses:\n{← hyps.mapM inferType}"
-      omega hyps g cfg
+    if debug.terminalTacticsAsSorry.get (← getOptions) then
+      g.admit
+    else
+      let some g ← g.falseOrByContra | return ()
+      g.withContext do
+        let type ← g.getType
+        let g' ← mkFreshExprSyntheticOpaqueMVar type
+        let hyps := (← getLocalHyps).toList
+        trace[omega] "analyzing {hyps.length} hypotheses:\n{← hyps.mapM inferType}"
+        omega hyps g'.mvarId! cfg
+        -- Omega proofs are typically rather large, so hide them in a separate definition
+        let e ← mkAuxTheorem (prefix? := declName?) type (← instantiateMVarsProfiling g') (zetaDelta := true)
+        g.assign e
+
 
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. This
 `TacticM Unit` frontend with default configuration can be used as an Aesop rule, for example via
@@ -685,11 +696,18 @@ def omegaDefault : TacticM Unit := omegaTactic {}
 
 @[builtin_tactic Lean.Parser.Tactic.omega]
 def evalOmega : Tactic
-  | `(tactic| omega $cfg:optConfig) => do
+  | `(tactic| omega%$tk $cfg:optConfig) => do
+    -- Call `assumption` first, to avoid constructing unnecessary proofs.
+    withReducibleAndInstances (evalAssumption tk) <|> do
     let cfg ← elabOmegaConfig cfg
     omegaTactic cfg
   | _ => throwUnsupportedSyntax
 
+builtin_initialize bitvec_to_nat : SimpExtension ←
+  registerSimpAttr `bitvec_to_nat
+    "simp lemmas converting `BitVec` goals to `Nat` goals"
+
+@[deprecated bitvec_to_nat (since := "2025-02-10")]
 builtin_initialize bvOmegaSimpExtension : SimpExtension ←
   registerSimpAttr `bv_toNat
     "simp lemmas converting `BitVec` goals to `Nat` goals, for the `bv_omega` preprocessor"

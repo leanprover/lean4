@@ -17,7 +17,7 @@ def getSimpMatchContext : MetaM Simp.Context := do
    Simp.mkContext
       (simpTheorems   := {})
       (congrTheorems := (← getSimpCongrTheorems))
-      (config        := { Simp.neutralConfig with dsimp := false })
+      (config        := { Simp.neutralConfig with dsimp := false, etaStruct := .none })
 
 def simpMatch (e : Expr) : MetaM Simp.Result := do
   let discharge? ← SplitIf.mkDischarge?

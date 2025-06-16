@@ -64,6 +64,7 @@ void lean_initialize();
   int main(int argc, char ** argv) {
   #if defined(WIN32) || defined(_WIN32)
   SetErrorMode(SEM_FAILCRITICALERRORS);
+  SetConsoleOutputCP(CP_UTF8);
   #endif
   lean_object* in; lean_object* res;
 lean_initialize();

@@ -9,7 +9,7 @@ example (h : y = 2) : f x = x + y := by
 def g (x : Nat) := x + x
 
 @[seval] theorem g_eq : g x = 2 * x := by
-  simp_arith [g]
+  simp +arith [g]
 
 example (h : y = 2) : g x + 2 = 2 * x + y := by
   fail_if_success simp

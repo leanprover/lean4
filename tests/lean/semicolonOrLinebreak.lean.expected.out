@@ -7,4 +7,5 @@ term has type
   Nat
 semicolonOrLinebreak.lean:20:2-20:9: error: failed to synthesize
   Singleton ?m Point
+
 Additional diagnostic information may be available using the `set_option diagnostics true` command.

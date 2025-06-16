@@ -14,13 +14,6 @@ class Inv (α : Type u) where
 
 postfix:max "⁻¹" => Inv.inv
 
-class One (α : Type u) where
-    one : α
-export One (one)
-
-instance [One α] : OfNat α (nat_lit 1) where
-    ofNat := one
-
 export Zero (zero)
 
 instance [Zero α] : OfNat α (nat_lit 0) where

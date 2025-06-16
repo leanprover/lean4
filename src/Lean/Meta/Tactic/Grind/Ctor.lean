@@ -20,7 +20,7 @@ private partial def propagateInjEqs (eqs : Expr) (proof : Expr) : GoalM Unit := 
   | HEq _ lhs _ rhs =>
     pushHEq (← shareCommon lhs) (← shareCommon rhs) proof
   | _ =>
-   reportIssue m!"unexpected injectivity theorem result type{indentExpr eqs}"
+   reportIssue! "unexpected injectivity theorem result type{indentExpr eqs}"
    return ()
 
 /--
@@ -40,7 +40,7 @@ def propagateCtor (a b : Expr) : GoalM Unit := do
     unless (← getEnv).contains injDeclName do return ()
     let info ← getConstInfo injDeclName
     let n := info.type.getForallArity
-    let mask : Array (Option Expr) := mkArray n none
+    let mask : Array (Option Expr) := .replicate n none
     let mask := mask.set! (n-1) (some (← mkEqProof a b))
     let injLemma ← mkAppOptM injDeclName mask
     propagateInjEqs (← inferType injLemma) injLemma

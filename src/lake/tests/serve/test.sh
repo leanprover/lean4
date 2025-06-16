@@ -1,14 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
-
-unamestr=`uname`
-if [ "$unamestr" = Darwin ] || [ "$unamestr" = FreeBSD ]; then
-  TAIL=gtail
-else
-  TAIL=tail
-fi
-
-LAKE=${LAKE:-../../.lake/build/bin/lake}
+source  ../common.sh
 
 INIT_REQ=$'Content-Length: 46\r\n\r\n{"jsonrpc":"2.0","method":"initialize","id":1}'
 INITD_NOT=$'Content-Length: 40\r\n\r\n{"jsonrpc":"2.0","method":"initialized"}'
@@ -24,19 +15,23 @@ echo "does not compile" > lakefile.lean
 # See https://github.com/leanprover/lake/issues/49
 # ---
 
+echo "# TEST 49"
 MSGS="$INIT_REQ$INITD_NOT$SD_REQ$EXIT_NOT"
-echo -n "$MSGS" | ${LAKE:-../../.lake/build/bin/lake} serve > serve.log
-echo "tested 49"
+echo -n "$MSGS" | $LAKE serve > serve.log
+echo "Test passed"
 
 # ---
 # Test that `lake setup-file` retains the error from `lake serve`
 # See https://github.com/leanprover/lake/issues/116
 # ---
 
+echo "# TEST 116"
+
 # Test that `lake setup-file` produces the error from `LAKE_INVALID_CONFIG`
 (LAKE_INVALID_CONFIG=$'foo\n' $LAKE setup-file ./Irrelevant.lean 2>&1 && exit 1 || true) | grep --color foo
 
-# Test that `lake serve` produces the `Invalid Lake configuration message`.
+# Test that `lake serve` produces the `Failed to configure` message.
 MSGS="$INIT_REQ$INITD_NOT$OPEN_REQ"
-grep -q "Invalid Lake configuration" <(set +e; (echo -n "$MSGS" && $TAIL --pid=$$ -f /dev/null) | timeout 30s $LAKE serve | tee serve.log)
-echo "tested 116"
+grep -q "Failed to configure the Lake workspace" <(set +e; (echo -n "$MSGS" && $TAIL --pid=$$ -f /dev/null) | timeout 30s $LAKE serve | tee serve.log)
+
+echo "Test passed"

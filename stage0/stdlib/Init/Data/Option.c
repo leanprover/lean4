@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Option
-// Imports: Init.Data.Option.Basic Init.Data.Option.BasicAux Init.Data.Option.Instances Init.Data.Option.Lemmas Init.Data.Option.Attach Init.Data.Option.List Init.Data.Option.Monadic
+// Imports: Init.Data.Option.Basic Init.Data.Option.BasicAux Init.Data.Option.Coe Init.Data.Option.Instances Init.Data.Option.Lemmas Init.Data.Option.Attach Init.Data.Option.List Init.Data.Option.Monadic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* initialize_Init_Data_Option_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Option_BasicAux(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Option_Coe(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Option_Instances(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Option_Attach(uint8_t builtin, lean_object*);
@@ -29,6 +30,9 @@ res = initialize_Init_Data_Option_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Option_BasicAux(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Option_Coe(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Option_Instances(builtin, lean_io_mk_world());

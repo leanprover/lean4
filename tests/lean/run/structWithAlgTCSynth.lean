@@ -85,16 +85,6 @@ end Quotient
 
 end Mathlib.Data.Quot
 
-section Mathlib.Init.ZeroOne
-
-class One (α : Type u) where
-  one : α
-
-instance One.toOfNat1 {α} [One α] : OfNat α (nat_lit 1) where
-  ofNat := ‹One α›.1
-
-section Mathlib.Init.ZeroOne
-
 section Mathlib.Logic.Function.Basic
 
 namespace Function
@@ -606,8 +596,8 @@ end Mathlib.Algebra.Quotient
 
 section Mathlib.Algebra.Module.Submodule.Basic
 
-structure Submodule (R : Type u) (M : Type v) [Semiring R] [AddCommMonoid M] [Module R M] extends
-  AddSubmonoid M : Type v
+structure Submodule (R : Type u) (M : Type v) [Semiring R] [AddCommMonoid M] [Module R M] : Type v
+  extends AddSubmonoid M
 
 def Submodule.toAddSubgroup [Ring R] [AddCommGroup M] {module_M : Module R M} (p : Submodule R M) : AddSubgroup M :=
   { p.toAddSubmonoid with }

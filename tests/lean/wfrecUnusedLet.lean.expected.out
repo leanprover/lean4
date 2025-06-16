@@ -1,5 +1,5 @@
 @[irreducible] def f : Nat → Nat :=
-f.proof_1.fix fun n a =>
+f._proof_1.fix fun n a =>
   if h : n = 0 then 1
   else
     let y := 42;

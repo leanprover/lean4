@@ -3,17 +3,21 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.SimpLemmas
 import Init.NotationExtra
 
 namespace Prod
 
+instance [BEq α] [BEq β] [ReflBEq α] [ReflBEq β] : ReflBEq (α × β) where
+  rfl {a} := by cases a; simp [BEq.beq]
+
 instance [BEq α] [BEq β] [LawfulBEq α] [LawfulBEq β] : LawfulBEq (α × β) where
   eq_of_beq {a b} (h : a.1 == b.1 && a.2 == b.2) := by
     cases a; cases b
     refine congr (congrArg _ (eq_of_beq ?_)) (eq_of_beq ?_) <;> simp_all
-  rfl {a} := by cases a; simp [BEq.beq, LawfulBEq.rfl]
 
 @[simp]
 protected theorem «forall» {p : α × β → Prop} : (∀ x, p x) ↔ ∀ a b, p (a, b) :=
@@ -43,7 +47,13 @@ theorem map_map (f : α → β) (f' : γ → δ) (g : β → ε) (g' : δ → ζ
     Prod.map g g' (Prod.map f f' x) = Prod.map (g ∘ f) (g' ∘ f') x :=
   rfl
 
-/-- Swap the factors of a product. `swap (a, b) = (b, a)` -/
+/--
+Swaps the elements in a pair.
+
+Examples:
+ * `(1, 2).swap = (2, 1)`
+ * `("orange", -87).swap = (-87, "orange")`
+-/
 def swap : α × β → β × α := fun p => (p.2, p.1)
 
 @[simp]

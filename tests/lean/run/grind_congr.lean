@@ -6,7 +6,7 @@ def g (a : Nat) := a + a
 -- Prints the equivalence class containing a `f` application
 open Lean Meta Grind in
 def fallback : Fallback := do
-  let #[n, _] ← filterENodes fun e => return e.self.isAppOf ``f | unreachable!
+  let #[n, _] ← filterENodes fun e => return e.self.isApp && e.self.isAppOf ``f | unreachable!
   let eqc ← getEqc n.self
   trace[Meta.debug] eqc
   (← get).mvarId.admit

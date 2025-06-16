@@ -1,4 +1,3 @@
-1856.lean:10:4-10:13: warning: declaration uses 'sorry'
 case h
 α : Type ?u
 inst✝ : DecidableEq α
@@ -7,3 +6,4 @@ i : α
 f : (j : α) → β j
 x : α
 ⊢ (if h : x = i then ⋯ ▸ f i else f x) = f x
+1856.lean:10:4-10:13: warning: declaration uses 'sorry'

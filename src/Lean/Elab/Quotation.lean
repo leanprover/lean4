@@ -190,7 +190,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
                 | $[some $ids:ident],* => $(quote inner)
                 | $[_%$ids],*          => Array.empty)
             | _ =>
-              let arr ← ids[:ids.size-1].foldrM (fun id arr => `(Array.zip $id:ident $arr)) ids.back!
+              let arr ← ids[:ids.size - 1].foldrM (fun id arr => `(Array.zip $id:ident $arr)) ids.back!
               `(Array.map (fun $(← mkTuple ids) => $(inner[0]!)) $arr)
           let arr ← if k == `sepBy then
             `(mkSepArray $arr $(getSepStxFromSplice arg))
@@ -411,7 +411,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
         let no ← no
         match k with
         | `optional =>
-          let nones := mkArray ids.size (← `(none))
+          let nones := .replicate ids.size (← `(none))
           `(let_delayed yes _ $ids* := $yes;
             if __discr.isNone then yes () $[ $nones]*
             else match __discr with

@@ -9,9 +9,10 @@ import Lake.Build
 import Lake.Util.MainM
 import Lean.Util.FileSetupInfo
 
-namespace Lake
 open Lean
 open System (FilePath)
+
+namespace Lake
 
 /-- Exit code to return if `setup-file` cannot find the config file. -/
 def noConfigFileCode : ExitCode := 2
@@ -21,6 +22,12 @@ Environment variable that is set when `lake serve` cannot parse the Lake configu
 and falls back to plain `lean --server`.
 -/
 def invalidConfigEnvVar := "LAKE_INVALID_CONFIG"
+
+private def mkLeanPaths (ws : Workspace) (deps : ModuleDeps) : LeanPaths where
+  oleanPath := ws.leanPath
+  srcPath := ws.leanSrcPath
+  loadDynlibPaths := deps.dynlibs.map (·.path)
+  pluginPaths := deps.plugins.map (·.path)
 
 /--
 Build a list of imports of a file and print the `.olean` and source directories
@@ -33,38 +40,45 @@ def setupFile
   (loadConfig : LoadConfig) (path : FilePath) (imports : List String := [])
   (buildConfig : BuildConfig := {})
 : MainM PUnit := do
-  if (← configFileExists loadConfig.configFile) then
-    if let some errLog := (← IO.getEnv invalidConfigEnvVar) then
-      IO.eprint errLog
-      IO.eprintln s!"Invalid Lake configuration.  Please restart the server after fixing the Lake configuration file."
-      exit 1
-    let outLv := buildConfig.verbosity.minLogLv
-    let ws ← MainM.runLoggerIO (minLv := outLv) (ansiMode := .noAnsi) do
-      loadWorkspace loadConfig
-    let imports := imports.foldl (init := #[]) fun imps imp =>
-      if let some mod := ws.findModule? imp.toName then imps.push mod else imps
-    let dynlibs ← MainM.runLogIO (minLv := outLv) (ansiMode := .noAnsi) do
-      ws.runBuild (buildImportsAndDeps path imports) buildConfig
-    let paths : LeanPaths := {
-      oleanPath := ws.leanPath
-      srcPath := ws.leanSrcPath
-      loadDynlibPaths := dynlibs
-      : LeanPaths
-    }
-    let setupOptions : LeanOptions ← do
-      let some moduleName ← searchModuleNameOfFileName path ws.leanSrcPath
-        | pure ⟨∅⟩
-      let some module := ws.findModule? moduleName
-        | pure ⟨∅⟩
-      let options := module.serverOptions.map fun opt => ⟨opt.name, opt.value⟩
-      pure ⟨Lean.RBMap.fromArray options Lean.Name.cmp⟩
-    IO.println <| Json.compress <| toJson {
-      paths,
-      setupOptions
-      : FileSetupInfo
-    }
-  else
+  let path ← resolvePath path
+  let configFile ← realConfigFile loadConfig.configFile
+  if configFile.toString.isEmpty then
     exit noConfigFileCode
+  else if configFile == path then do
+    let info : FileSetupInfo := {
+      paths := {
+        oleanPath := loadConfig.lakeEnv.leanPath
+        srcPath := loadConfig.lakeEnv.leanSrcPath
+        pluginPaths := #[loadConfig.lakeEnv.lake.sharedLib]
+      }
+      setupOptions := ⟨∅⟩
+    }
+    IO.println (toJson info).compress
+  else if let some errLog := (← IO.getEnv invalidConfigEnvVar) then
+    IO.eprint errLog
+    IO.eprintln s!"Failed to configure the Lake workspace. Please restart the server after fixing the error above."
+    exit 1
+  else
+    let some ws ← loadWorkspace loadConfig |>.toBaseIO buildConfig.outLv buildConfig.ansiMode
+      | error "failed to load workspace"
+    if let some mod := ws.findModuleBySrc? path then
+      let deps ← ws.runBuild (withRegisterJob s!"setup ({mod.name})" do mod.deps.fetch) buildConfig
+      let opts := mod.serverOptions.foldl (init := {}) fun opts opt =>
+        opts.insert opt.name opt.value
+      let info : FileSetupInfo := {
+        paths := mkLeanPaths ws deps
+        setupOptions := ⟨opts⟩
+      }
+      IO.println (toJson info).compress
+    else
+      let imports := imports.foldl (init := #[]) fun imps imp =>
+        if let some mod := ws.findModule? imp.toName then imps.push mod else imps
+      let deps ← ws.runBuild (buildImportsAndDeps path imports) buildConfig
+      let info : FileSetupInfo := {
+        paths := mkLeanPaths ws deps
+        setupOptions := ⟨∅⟩
+      }
+      IO.println (toJson info).compress
 
 /--
 Start the Lean LSP for the `Workspace` loaded from `config`

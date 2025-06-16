@@ -1,6 +1,6 @@
 mvarAtDefaultValue.lean:5:7-5:8: error: failed to infer default value for field 'x'
 mvarAtDefaultValue.lean:8:7-8:8: error: don't know how to synthesize placeholder
 context:
-toA : A
-x : Nat := toA.x
+x : Nat
+toA : A := { x := x }
 ⊢ Nat

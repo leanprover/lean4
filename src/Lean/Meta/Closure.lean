@@ -10,6 +10,7 @@ import Lean.AddDecl
 import Lean.Util.FoldConsts
 import Lean.Meta.Basic
 import Lean.Meta.Check
+import Lean.Meta.Tactic.AuxLemma
 
 /-!
 
@@ -391,36 +392,9 @@ def mkAuxDefinitionFor (name : Name) (value : Expr) (zetaDelta : Bool := false) 
 /--
   Create an auxiliary theorem with the given name, type and value. It is similar to `mkAuxDefinition`.
 -/
-def mkAuxTheorem (name : Name) (type : Expr) (value : Expr) (zetaDelta : Bool := false) : MetaM Expr := do
+def mkAuxTheorem (type : Expr) (value : Expr) (zetaDelta : Bool := false) (prefix? : Option Name) (cache := true) : MetaM Expr := do
   let result ← Closure.mkValueTypeClosure type value zetaDelta
-  let env ← getEnv
-  let decl :=
-    if env.hasUnsafe result.type || env.hasUnsafe result.value then
-      -- `result` contains unsafe code, thus we cannot use a theorem.
-      Declaration.defnDecl {
-        name
-        levelParams := result.levelParams.toList
-        type        := result.type
-        value       := result.value
-        hints       := ReducibilityHints.opaque
-        safety      := DefinitionSafety.unsafe
-      }
-    else
-      Declaration.thmDecl {
-        name
-        levelParams := result.levelParams.toList
-        type        := result.type
-        value       := result.value
-      }
-  addDecl decl
+  let name ← mkAuxLemma (prefix? := prefix?) (cache := cache) result.levelParams.toList result.type result.value
   return mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
-
-/--
-  Similar to `mkAuxTheorem`, but infers the type of `value`.
--/
-def mkAuxTheoremFor (name : Name) (value : Expr) (zetaDelta : Bool := false) : MetaM Expr := do
-  let type ← inferType value
-  let type := type.headBeta
-  mkAuxTheorem name type value zetaDelta
 
 end Lean.Meta

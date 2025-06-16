@@ -63,11 +63,11 @@ theorem mkFullAdder_denote_mem_prefix (aig : AIG α) (input : FullAdderInput aig
     (hstart) :
     ⟦
       (mkFullAdder aig input).aig,
-      ⟨start, Nat.lt_of_lt_of_le hstart (FullAdderOutput.hle _)⟩,
+      ⟨start, inv, Nat.lt_of_lt_of_le hstart (FullAdderOutput.hle _)⟩,
       assign
     ⟧
       =
-    ⟦aig, ⟨start, hstart⟩, assign⟧ := by
+    ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
   unfold mkFullAdder
   dsimp only
   rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderCarry)]
@@ -77,12 +77,12 @@ theorem go_denote_mem_prefix (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (c
     (s : AIG.RefVec aig curr) (lhs rhs : AIG.RefVec aig w) (start : Nat) (hstart) :
     ⟦
       (go aig lhs rhs curr hcurr cin s).aig,
-      ⟨start, by apply Nat.lt_of_lt_of_le; exact hstart; apply go_le_size⟩,
+      ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply go_le_size⟩,
       assign
     ⟧
       =
-    ⟦aig, ⟨start, hstart⟩, assign⟧ := by
-  apply denote.eq_of_isPrefix (entry := ⟨aig, start,hstart⟩)
+    ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
+  apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
     apply go_decl_eq
@@ -200,21 +200,20 @@ theorem go_denote_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref
   · omega
 termination_by w - curr
 
-end blastAdd
 
-theorem denote_blastAdd (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
+theorem denote_blast (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
       (input : BinaryRefVec aig w)
       (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign⟧ = lhs.getLsbD idx)
       (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign⟧ = rhs.getLsbD idx) :
       ∀ (idx : Nat) (hidx : idx < w),
-          ⟦(blastAdd aig input).aig, (blastAdd aig input).vec.get idx hidx, assign⟧
+          ⟦(blast aig input).aig, (blast aig input).vec.get idx hidx, assign⟧
             =
           (lhs + rhs).getLsbD idx := by
   intro idx hidx
   rw [BitVec.getLsbD_add]
   · rw [← hleft idx hidx]
     rw [← hright idx hidx]
-    unfold blastAdd
+    unfold blast
     dsimp only
     rw [blastAdd.go_denote_eq _ 0 (by omega) _ _ _ _ assign lhs rhs _ _]
     · simp only [BinaryRefVec.lhs_get_cast, Ref.cast_eq, BinaryRefVec.rhs_get_cast]
@@ -231,6 +230,24 @@ theorem denote_blastAdd (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Boo
       rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
       rw [hright]
   · assumption
+
+end blastAdd
+
+theorem denote_blastAdd (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
+      (input : BinaryRefVec aig w)
+      (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign⟧ = lhs.getLsbD idx)
+      (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign⟧ = rhs.getLsbD idx) :
+      ∀ (idx : Nat) (hidx : idx < w),
+        ⟦(blastAdd aig input).aig, (blastAdd aig input).vec.get idx hidx, assign⟧
+          =
+        (lhs + rhs).getLsbD idx := by
+  intro idx hidx
+  generalize hb : blastAdd aig input = res
+  unfold blastAdd at hb
+  dsimp only at hb
+  split at hb
+  · rw [← hb, blastAdd.denote_blast] <;> assumption
+  · rw [BitVec.add_comm, ← hb, blastAdd.denote_blast] <;> assumption
 
 end bitblast
 end BVExpr

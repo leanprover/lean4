@@ -140,7 +140,7 @@ lean_object * initialize_C(uint8_t builtin, lean_object *);
 ...
 
 lean_initialize_runtime_module();
-//lean_initialize();  // necessary if you (indirectly) access the `Lean` package
+//lean_initialize();  // necessary (and replaces `lean_initialize_runtime_module`) if you (indirectly) access the `Lean` package
 
 lean_object * res;
 // use same default as for Lean executables

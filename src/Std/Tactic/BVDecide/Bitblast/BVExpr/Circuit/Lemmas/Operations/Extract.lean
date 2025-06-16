@@ -91,8 +91,7 @@ theorem denote_blastExtract (aig : AIG α) (target : ExtractTarget aig newWidth)
       split
       · rw [RefVec.get_in_bound]
         rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
-        · congr 1
-        · assumption
+        congr 1
       · rw [RefVec.get_out_bound]
         · simp
         · omega

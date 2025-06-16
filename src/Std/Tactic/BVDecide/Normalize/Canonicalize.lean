@@ -5,6 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Init.Data.BitVec
+import Std.Tactic.BVDecide.Syntax
 
 /-!
 This contains theorems responsible for turning both `Bool` and `BitVec` goals into the
@@ -54,9 +55,8 @@ theorem Bool.and_to_and (a b : Bool) : ((a = true) ∧ (b = true)) = ((a && b) =
   simp
 
 @[bv_normalize]
-theorem Bool.iff_to_or (a b : Bool)
-    : ((a = true) ↔ (b = true)) = (((!a || b) && (!b || a)) = true) := by
-  revert a b
+theorem Bool.iff_to_beq :
+    ∀ (a b : Bool), ((a = true) ↔ (b = true)) = ((a == b) = true) := by
   decide
 
 @[bv_normalize]
@@ -67,10 +67,6 @@ theorem Bool.eq_false (a : Bool) : ((a = true) = False) = ((!a) = true) := by
 theorem Bool.decide_eq_true (a : Bool) : (decide (a = true)) = a := by
   simp
 
-@[bv_normalize]
-theorem Bool.eq_true_eq_true_eq (x y : Bool) : ((x = true) = (y = true)) ↔ ((x == y) = true) := by
-  simp
-
 attribute [bv_normalize] BitVec.getLsbD_cast
 attribute [bv_normalize] BitVec.testBit_toNat
 
@@ -78,6 +74,14 @@ attribute [bv_normalize] BitVec.testBit_toNat
 theorem BitVec.lt_ult (x y : BitVec w) : (x < y) = (BitVec.ult x y = true) := by
   rw [BitVec.ult]
   simp only [(· < ·)]
+  simp
+
+@[bv_normalize]
+theorem Bool.or_elim : ∀ (a b : Bool), (a || b) = !(!a && !b) := by decide
+
+@[bv_normalize]
+theorem BitVec.or_elim (x y : BitVec w) : x ||| y = ~~~(~~~x &&& ~~~y) := by
+  ext
   simp
 
 attribute [bv_normalize] BitVec.natCast_eq_ofNat
@@ -94,6 +98,9 @@ attribute [bv_normalize] BitVec.neg_eq
 attribute [bv_normalize] BitVec.mul_eq
 attribute [bv_normalize] BitVec.udiv_eq
 attribute [bv_normalize] BitVec.umod_eq
+attribute [bv_normalize ←] BitVec.shiftLeft_eq'
+attribute [bv_normalize ←] BitVec.sshiftRight_eq'
+attribute [bv_normalize ←] BitVec.ushiftRight_eq'
 
 end Normalize
 end Std.Tactic.BVDecide

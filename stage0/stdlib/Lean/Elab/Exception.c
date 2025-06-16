@@ -755,7 +755,7 @@ x_9 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
 x_10 = 0;
 x_11 = l_Lean_Elab_mkMessageCore___closed__1;
-x_12 = lean_alloc_ctor(0, 5, 2);
+x_12 = lean_alloc_ctor(0, 5, 3);
 lean_ctor_set(x_12, 0, x_1);
 lean_ctor_set(x_12, 1, x_7);
 lean_ctor_set(x_12, 2, x_9);
@@ -763,6 +763,7 @@ lean_ctor_set(x_12, 3, x_11);
 lean_ctor_set(x_12, 4, x_3);
 lean_ctor_set_uint8(x_12, sizeof(void*)*5, x_10);
 lean_ctor_set_uint8(x_12, sizeof(void*)*5 + 1, x_4);
+lean_ctor_set_uint8(x_12, sizeof(void*)*5 + 2, x_10);
 return x_12;
 }
 }

@@ -14,8 +14,10 @@ open Lean Elab Term Tactic Meta.Tactic.TryThis Parser.Tactic
   match stx with
   | `(tactic| show_term%$tk $t) => withMainContext do
     let g ← getMainGoal
+    let initialState ← saveState
     evalTactic t
-    addExactSuggestion tk (← instantiateMVars (mkMVar g)).headBeta (origSpan? := ← getRef)
+    let e := (← instantiateMVars (mkMVar g)).headBeta
+    addExactSuggestion tk e (origSpan? := ← getRef) (checkState? := initialState) (tacticErrorAsInfo := true)
   | _ => throwUnsupportedSyntax
 
 /-- Implementation of `show_term` term elaborator. -/

@@ -45,7 +45,7 @@ protected def bind (x : AsyncTask α) (f : α → AsyncTask β) : AsyncTask β :
 /--
 Create a new `AsyncTask` that will run after `x` has finished.
 If `x`:
-- errors, return an `AsyncTask` that reolves to the error.
+- errors, return an `AsyncTask` that resolves to the error.
 - succeeds, return an `AsyncTask` that resolves to `f x`.
 -/
 @[inline]
@@ -91,14 +91,14 @@ Create an `AsyncTask` that resolves to the value of `x`.
 -/
 @[inline]
 def ofPromise (x : IO.Promise (Except IO.Error α)) : AsyncTask α :=
-  x.result
+  x.result!
 
 /--
 Create an `AsyncTask` that resolves to the value of `x`.
 -/
 @[inline]
 def ofPurePromise (x : IO.Promise α) : AsyncTask α :=
-  x.result.map pure
+  x.result!.map pure
 
 /--
 Obtain the `IO.TaskState` of `x`.

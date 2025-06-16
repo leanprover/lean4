@@ -96,6 +96,8 @@ partial def InferType.compatibleTypesFull (a b : Expr) : InferTypeM Bool := do
           compatibleTypesFull (b₁.instantiate1 x) (b₂.instantiate1 x)
       | .sort u, .sort v => return Level.isEquiv u v
       | .const n us, .const m vs => return n == m && List.isEqv us vs Level.isEquiv
+      | .mdata _ e, _ => compatibleTypesFull e b
+      | _, .mdata _ e => compatibleTypesFull a e
       | _, _ =>
         if a.isLambda then
           let some b ← etaExpand? b | return false

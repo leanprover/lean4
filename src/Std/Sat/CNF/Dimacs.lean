@@ -10,19 +10,25 @@ import Std.Sat.CNF.RelabelFin
 namespace Std
 namespace Sat
 
-def Literal.dimacs (lit : Literal Nat) : String :=
-  let ⟨id, pol⟩ := lit
-  let id := id + 1 -- DIMACS does not allow 0 as identifier
-
-  if pol then
-    s!"{id}"
-  else
-    s!"-{id}"
-
 namespace CNF
 
-def Clause.dimacs (clause : Clause Nat) : String :=
-  clause.foldl (init := "") (· ++ ·.dimacs ++ " ") ++ "0"
+private structure DimacsState where
+  numClauses : Nat := 0
+  maxLit : Nat := 0
+
+private abbrev DimacsM := StateM DimacsState
+
+namespace DimacsM
+
+@[inline]
+private def handleLit (lit : Literal Nat) : DimacsM Unit := do
+  modify fun s => { s with maxLit := Nat.max s.maxLit lit.1 }
+
+@[inline]
+private def incrementClauses : DimacsM Unit := do
+  modify fun s => { s with numClauses := s.numClauses + 1 }
+
+end DimacsM
 
 /--
 This function turns `cnf` into a DIMACS `String`.
@@ -31,10 +37,18 @@ Note: This function will add `1` to all literal identifiers by default. This is 
 illegal identifier in the DIMACS format and we can avoid producing invalid DIMACs like this.
 -/
 def dimacs (cnf : CNF Nat) : String :=
-  let numClauses := cnf.length
-  let maxIdentifier := (cnf.maxLiteral |>.getD 0) + 1
-  let base := s!"p cnf {maxIdentifier} {numClauses}\n"
-  cnf.foldl (init := base) (· ++ ·.dimacs ++ "\n")
+  let (str, state) := go cnf |>.run {}
+  s!"p cnf {state.maxLit + 1} {state.numClauses}\n" ++ str
+where
+  go (cnf : CNF Nat) : DimacsM String := do
+    let foldLit acc lit := do
+      DimacsM.handleLit lit
+      let litStr := if lit.2 then s!"{lit.1 + 1}" else s!"-{lit.1 + 1}"
+      return acc ++ litStr |>.push ' '
+    let foldClause acc clause := do
+      DimacsM.incrementClauses
+      return (← clause.foldlM (init := acc) foldLit) |>.push '0' |>.push '\n'
+    cnf.foldlM (init := "") foldClause
 
 end CNF
 

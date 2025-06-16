@@ -361,4 +361,22 @@ inline expr update_constant(expr const & e, levels const & new_levels) { return 
     It also returns the meta-variable application found in \c e. */
 optional<expr> has_expr_metavar_strict(expr const & e);
 inline bool is_constant(expr const & e, name const & n) { return is_const(e, n); }
+
+/* Like `is_exclusive`, but also consider unique MT references as unshared, which ensures we get
+ * similar performance on the cmdline and server (more precisely, for either option value of
+ * `internal.cmdlineSnapshots`). Note that as `e` is merely *borrowed* (e.g. from the mctx in
+ * the case of `instantiate_mvars` where the performance issue resolved here manifested, #5614),
+ * it is in fact possible that another thread could simultaneously add a new direct reference to
+ * `e`, so it is not definitely unshared in all cases if the below check is true.
+ *
+ * However, as we use this predicate merely as a conservative heuristic for detecting
+ * expressions that are unshared *within the expression tree* at hand, the approximation is
+ * still correct in this case. Furthermore, as we only use it for deciding when to cache
+ * results, it ultimately does not affect the correctness of the overall procedure in any case.
+ * This should however be kept in mind if we start using `is_likely_unshared` in other contexts.
+ */
+inline bool is_likely_unshared(expr const & e) {
+    return e.raw()->m_rc == 1 || e.raw()->m_rc == -1;
+}
+
 }

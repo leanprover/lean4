@@ -3,6 +3,8 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner
 -/
+module
+
 prelude
 import Init.Data.Array.Basic
 import Init.Data.Array.QSort
@@ -23,3 +25,8 @@ import Init.Data.Array.FinRange
 import Init.Data.Array.Perm
 import Init.Data.Array.Find
 import Init.Data.Array.Lex
+import Init.Data.Array.Range
+import Init.Data.Array.Erase
+import Init.Data.Array.Zip
+import Init.Data.Array.InsertIdx
+import Init.Data.Array.Extract

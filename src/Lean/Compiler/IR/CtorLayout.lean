@@ -15,6 +15,7 @@ inductive CtorFieldInfo where
   | object (i : Nat)
   | usize  (i : Nat)
   | scalar (sz : Nat) (offset : Nat) (type : IRType)
+  deriving Inhabited
 
 namespace CtorFieldInfo
 

@@ -27,11 +27,11 @@ def heapifyDown (lt : α → α → Bool) (a : Array α) (i : Fin a.size) :
     if lt a[j.1] a[right] then ⟨⟨right, h⟩, right_le⟩ else j else j
   if h : i.1 = j then ⟨a, rfl⟩ else
     let a' := a.swap i j
-    let j' := ⟨j, by rw [a.size_swap i j]; exact j.1.2⟩
+    let j' := ⟨j, by rw [a.size_swap]; exact j.1.2⟩
     have : a'.size - j < a.size - i := by
-      rw [a.size_swap i j]; sorry
+      rw [a.size_swap]; sorry
     let ⟨a₂, h₂⟩ := heapifyDown lt a' j'
-    ⟨a₂, h₂.trans (a.size_swap i j)⟩
+    ⟨a₂, h₂.trans a.size_swap⟩
 termination_by a.size - i
 decreasing_by assumption
 
@@ -62,8 +62,8 @@ if i0 : i.1 = 0 then ⟨a, rfl⟩ else
   let j : Fin a.size := ⟨(i.1 - 1) / 2, Nat.lt_trans this i.2⟩
   if lt a[j] a[i] then
     let a' := a.swap i j
-    let ⟨a₂, h₂⟩ := heapifyUp lt a' ⟨j.1, by rw [a.size_swap i j]; exact j.2⟩
-    ⟨a₂, h₂.trans (a.size_swap i j)⟩
+    let ⟨a₂, h₂⟩ := heapifyUp lt a' ⟨j.1, by rw [a.size_swap]; exact j.2⟩
+    ⟨a₂, h₂.trans (a.size_swap)⟩
   else ⟨a, rfl⟩
 termination_by i.1
 decreasing_by assumption

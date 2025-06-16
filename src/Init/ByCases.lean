@@ -3,6 +3,8 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
+module
+
 prelude
 import Init.Classical
 
@@ -38,7 +40,8 @@ theorem apply_ite (f : α → β) (P : Prop) [Decidable P] (x y : α) :
   apply_dite f P (fun _ => x) (fun _ => y)
 
 /-- A `dite` whose results do not actually depend on the condition may be reduced to an `ite`. -/
-@[simp] theorem dite_eq_ite [Decidable P] : (dite P (fun _ => a) fun _ => b) = ite P a b := rfl
+@[simp] theorem dite_eq_ite [Decidable P] :
+  (dite P (fun _ => a) (fun _ => b)) = ite P a b := rfl
 
 @[deprecated "Use `ite_eq_right_iff`" (since := "2024-09-18")]
 theorem ite_some_none_eq_none [Decidable P] :

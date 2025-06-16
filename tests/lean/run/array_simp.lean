@@ -1,3 +1,5 @@
+attribute [-simp] Nat.default_eq_zero -- undo changes to simp set after this test was written
+
 #check_simp #[1,2,3,4,5][2]  ~> 3
 #check_simp #[1,2,3,4,5][2]? ~> some 3
 #check_simp #[1,2,3,4,5][7]? ~> none

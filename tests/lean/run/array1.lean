@@ -2,6 +2,8 @@
 
 def v : Array Nat := Array.mk [1, 2, 3, 4]
 
+#guard v == #[1, 2, 3, 4, ]
+
 def w : Array Nat :=
 (mkArray 9 1).push 3
 

@@ -11,6 +11,12 @@ import Lean.Meta.PPGoal
 
 namespace Lean.Meta
 
+register_builtin_option debug.terminalTacticsAsSorry : Bool := {
+  defValue := false
+  group    := "debug"
+  descr    := "when enabled, terminal tactics such as `grind` and `omega` are replaced with `sorry`. Useful for debugging and fixing bootstrapping issues"
+}
+
 /-- Get the user name of the given metavariable. -/
 def _root_.Lean.MVarId.getTag (mvarId : MVarId) : MetaM Name :=
   return (← mvarId.getDecl).userName

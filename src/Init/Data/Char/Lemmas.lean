@@ -3,6 +3,8 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Data.Char.Basic
 import Init.Data.UInt.Lemmas
@@ -70,5 +72,3 @@ theorem utf8Size_eq (c : Char) : c.utf8Size = 1 ∨ c.utf8Size = 2 ∨ c.utf8Siz
   rfl
 
 end Char
-
-@[deprecated Char.utf8Size (since := "2024-06-04")] abbrev String.csize := Char.utf8Size

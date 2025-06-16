@@ -15,15 +15,7 @@ def getDeclarationRange? [Monad m] [MonadFileMap m] (stx : Syntax) : m (Option D
   let some range := stx.getRange?
     | return none
   let fileMap ← getFileMap
-  --let range := fileMap.utf8RangeToLspRange
-  let pos    := fileMap.toPosition range.start
-  let endPos := fileMap.toPosition range.stop
-  return some {
-    pos          := pos
-    charUtf16    := fileMap.leanPosToLspPos pos |>.character
-    endPos       := endPos
-    endCharUtf16 := fileMap.leanPosToLspPos endPos |>.character
-  }
+  return some <| .ofStringPositions fileMap range.start range.stop
 
 /--
   For most builtin declarations, the selection range is just its name, which is stored in the second position.

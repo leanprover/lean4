@@ -483,6 +483,7 @@ x_19 = lean_ctor_get(x_16, 0);
 lean_inc(x_19);
 lean_dec(x_16);
 lean_inc(x_14);
+lean_inc(x_19);
 x_74 = l_Lean_isExtern(x_19, x_14);
 if (x_74 == 0)
 {
@@ -491,7 +492,6 @@ x_75 = l_Lean_instInhabitedName;
 x_76 = l_elabTestExtern___lambda__1___closed__19;
 lean_inc(x_14);
 x_77 = l_Lean_ParametricAttribute_getParam_x3f___rarg(x_75, x_76, x_19, x_14);
-lean_dec(x_19);
 if (lean_obj_tag(x_77) == 0)
 {
 lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; 

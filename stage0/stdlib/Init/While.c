@@ -17,7 +17,6 @@ static lean_object* l_Lean_doElemWhile___x3a__Do_____closed__3;
 static lean_object* l_Lean_doElemRepeat____Until_____closed__10;
 static lean_object* l_Lean_doElemWhile___x3a__Do_____closed__10;
 LEAN_EXPORT lean_object* l_Lean_Loop_toCtorIdx___boxed(lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_doElemRepeat_____closed__11;
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__8;
 static lean_object* l_Lean_doElemRepeat____Until_____closed__11;
@@ -149,6 +148,7 @@ static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemRepea
 static lean_object* l_Lean_doElemWhile___x3a__Do_____closed__15;
 lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Lean_doElemWhile__Do_____closed__4;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_doElemRepeat____Until_____closed__14;
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemWhile___x3a__Do____1___closed__14;
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn(lean_object*, lean_object*);

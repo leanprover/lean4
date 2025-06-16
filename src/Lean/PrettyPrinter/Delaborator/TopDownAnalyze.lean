@@ -31,7 +31,7 @@ open Meta SubExpr
 register_builtin_option pp.analyze : Bool := {
   defValue := false
   group    := "pp.analyze"
-  descr    := "(pretty printer analyzer) determine annotations sufficient to ensure round-tripping"
+  descr    := "(pretty printer analyzer) try to determine annotations sufficient to ensure round-tripping"
 }
 
 register_builtin_option pp.analyze.checkInstances : Bool := {
@@ -398,7 +398,7 @@ mutual
       let fType ← replaceLPsWithVars (← inferType f)
       let (mvars, bInfos, resultType) ← forallMetaBoundedTelescope fType args.size
       let rest := args.extract mvars.size args.size
-      let args := args.take mvars.size
+      let args := args.shrink mvars.size
 
       -- Unify with the expected type
       if (← read).knowsType then tryUnify (← inferType (mkAppN f args)) resultType
@@ -419,10 +419,10 @@ mutual
         || (getPPAnalyzeTrustSubtypeMk (← getOptions) && (← getExpr).isAppOfArity ``Subtype.mk 4)
 
       analyzeAppStagedCore { f, fType, args, mvars, bInfos, forceRegularApp } |>.run' {
-        bottomUps    := mkArray args.size false,
-        higherOrders := mkArray args.size false,
-        provideds    := mkArray args.size false,
-        funBinders   := mkArray args.size false
+        bottomUps    := .replicate args.size false,
+        higherOrders := .replicate args.size false,
+        provideds    := .replicate args.size false,
+        funBinders   := .replicate args.size false
       }
 
       if !rest.isEmpty then

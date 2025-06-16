@@ -17,7 +17,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_block___rarg(lean_obj
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_ofPurePromise___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_ofPurePromise(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_getState___rarg___boxed(lean_object*, lean_object*);
-lean_object* lean_io_promise_result(lean_object*);
 lean_object* lean_task_bind(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Std_Internal_IO_Async_AsyncTask_ofPurePromise___rarg___closed__1;
 lean_object* lean_task_pure(lean_object*);
@@ -33,13 +32,16 @@ lean_object* lean_io_map_task(lean_object*, lean_object*, lean_object*, uint8_t,
 extern lean_object* l_Task_Priority_default;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_getState(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_map(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_ofPurePromise___rarg___boxed(lean_object*);
 lean_object* lean_task_get_own(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_mapIO___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_bindIO(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_ofPromise___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_map___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_pure(lean_object*);
 lean_object* lean_io_get_task_state(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_getState___rarg(lean_object*, lean_object*);
+lean_object* l_IO_Promise_result_x21___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_mapIO(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_bindIO___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
@@ -613,7 +615,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_ofPromise___rarg(lean
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_io_promise_result(x_1);
+x_2 = l_IO_Promise_result_x21___rarg(x_1);
 return x_2;
 }
 }
@@ -621,7 +623,16 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_ofPromise(lean_object
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_AsyncTask_ofPromise___rarg), 1, 0);
+x_2 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_AsyncTask_ofPromise___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_ofPromise___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Internal_IO_Async_AsyncTask_ofPromise___rarg(x_1);
+lean_dec(x_1);
 return x_2;
 }
 }
@@ -637,7 +648,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_ofPurePromise___rarg(
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
-x_2 = lean_io_promise_result(x_1);
+x_2 = l_IO_Promise_result_x21___rarg(x_1);
 x_3 = l_Std_Internal_IO_Async_AsyncTask_ofPurePromise___rarg___closed__1;
 x_4 = l_Task_Priority_default;
 x_5 = 0;
@@ -649,7 +660,16 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_ofPurePromise(lean_ob
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_AsyncTask_ofPurePromise___rarg), 1, 0);
+x_2 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_AsyncTask_ofPurePromise___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_AsyncTask_ofPurePromise___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Internal_IO_Async_AsyncTask_ofPurePromise___rarg(x_1);
+lean_dec(x_1);
 return x_2;
 }
 }

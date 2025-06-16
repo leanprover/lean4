@@ -33,6 +33,7 @@ sh
    "range":
    {"start": {"line": 2, "character": 17}, "end": {"line": 3, "character": 0}},
    "message": "unsolved goals\n⊢ True",
+   "leanTags": [1],
    "fullRange":
    {"start": {"line": 2, "character": 17},
     "end": {"line": 6, "character": 18}}},
@@ -41,6 +42,7 @@ sh
    "range":
    {"start": {"line": 1, "character": 24}, "end": {"line": 2, "character": 0}},
    "message": "unsolved goals\nthis : True\n⊢ True",
+   "leanTags": [1],
    "fullRange":
    {"start": {"line": 1, "character": 24},
     "end": {"line": 6, "character": 18}}}]}
@@ -53,6 +55,7 @@ sh
    "range":
    {"start": {"line": 2, "character": 18}, "end": {"line": 3, "character": 0}},
    "message": "unsolved goals\n⊢ True",
+   "leanTags": [1],
    "fullRange":
    {"start": {"line": 2, "character": 18},
     "end": {"line": 6, "character": 18}}},
@@ -61,6 +64,7 @@ sh
    "range":
    {"start": {"line": 1, "character": 24}, "end": {"line": 2, "character": 0}},
    "message": "unsolved goals\nthis : True\n⊢ True",
+   "leanTags": [1],
    "fullRange":
    {"start": {"line": 1, "character": 24},
     "end": {"line": 6, "character": 18}}}]}

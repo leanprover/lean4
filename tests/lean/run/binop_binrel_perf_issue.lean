@@ -22,18 +22,6 @@ end Set
 
 end Mathlib.Init.Set
 
-section Mathlib.Init.ZeroOne
-
-set_option autoImplicit true
-
-class One (α : Type u) where
-  one : α
-
-instance (priority := 300) One.toOfNat1 {α} [One α] : OfNat α (nat_lit 1) where
-  ofNat := ‹One α›.1
-
-end Mathlib.Init.ZeroOne
-
 section Mathlib.Init.Function
 
 universe u₁ u₂
@@ -479,13 +467,13 @@ variable [AddZeroClass A] {t : Set A}
 
 structure Submonoid (M : Type _) [MulOneClass M] extends Subsemigroup M where
 
-class SubmonoidClass (S : Type _) (M : Type _) [MulOneClass M] [SetLike S M] extends
-  MulMemClass S M : Prop
+class SubmonoidClass (S : Type _) (M : Type _) [MulOneClass M] [SetLike S M] : Prop extends
+  MulMemClass S M
 
 structure AddSubmonoid (M : Type _) [AddZeroClass M] extends AddSubsemigroup M where
 
-class AddSubmonoidClass (S : Type _) (M : Type _) [AddZeroClass M] [SetLike S M] extends
-  AddMemClass S M : Prop
+class AddSubmonoidClass (S : Type _) (M : Type _) [AddZeroClass M] [SetLike S M] : Prop extends
+  AddMemClass S M
 
 namespace AddSubmonoid
 
@@ -806,8 +794,8 @@ universe u v
 
 variable {R : Type u} {M : Type v}
 
-structure Submodule (R : Type u) (M : Type v) [Mul R] [AddCommMonoid M] [SMul R M] extends
-  AddSubmonoid M : Type v
+structure Submodule (R : Type u) (M : Type v) [Mul R] [AddCommMonoid M] [SMul R M] : Type v
+  extends AddSubmonoid M
 
 instance setLike [Mul R] [AddCommMonoid M] [SMul R M] : SetLike (Submodule R M) M where
   coe s := s.carrier

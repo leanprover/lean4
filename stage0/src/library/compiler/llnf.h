@@ -5,11 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "kernel/environment.h"
+#include "library/elab_environment.h"
 #include "library/compiler/util.h"
 
 namespace lean {
-environment compile_ir(environment const & env, options const & opts, comp_decls const & ds);
+elab_environment compile_ir(elab_environment const & env, options const & opts, comp_decls const & ds);
 
 bool is_llnf_apply(expr const & e);
 bool is_llnf_closure(expr const & e);
@@ -49,8 +49,8 @@ inline bool is_llnf_uset(expr const & e) { unsigned d; return is_llnf_uset(e, d)
 inline bool is_llnf_box(expr const & e) { unsigned n; return is_llnf_box(e, n); }
 inline bool is_llnf_unbox(expr const & e) { unsigned n; return is_llnf_unbox(e, n); }
 
-expr get_constant_ll_type(environment const & env, name const & c);
-unsigned get_llnf_arity(environment const & env, name const & c);
+expr get_constant_ll_type(elab_environment const & env, name const & c);
+unsigned get_llnf_arity(elab_environment const & env, name const & c);
 
 struct field_info {
     /* Remark: the position of a scalar value in

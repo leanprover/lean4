@@ -1,14 +1,14 @@
-Inferred termination argument:
+Inferred termination measure:
 termination_by n - i
-Inferred termination argument:
+Inferred termination measure:
 termination_by xs.size - i
-Inferred termination argument:
+Inferred termination measure:
 termination_by xs.size - i
-Inferred termination argument:
+Inferred termination measure:
 termination_by (xs.size - i, ys.size - j)
-Inferred termination argument:
+Inferred termination measure:
 termination_by (xs.size - i, i - j)
-Inferred termination argument:
+Inferred termination measure:
 termination_by (xs.size - i, i)
 guessLexDiff.lean:84:4-84:11: error: fail to show termination for
   failure
@@ -22,7 +22,7 @@ Cannot use parameter i:
 
 
 Could not find a decreasing measure.
-The arguments relate at each recursive call as follows:
+The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
             i #1 #2 i + i
 1) 85:26-38 =  =  =     =
@@ -54,7 +54,7 @@ Cannot use parameters i of mutual_failure and i of mutual_failure2:
 
 
 Could not find a decreasing measure.
-The arguments relate at each recursive call as follows:
+The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
 Call from mutual_failure to mutual_failure2 at 104:4-24:
    i #1 #2

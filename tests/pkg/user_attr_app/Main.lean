@@ -12,5 +12,5 @@ def tst : MetaM Unit := do
 #eval tst
 
 unsafe def main : IO Unit := do
-  initSearchPath (← Lean.findSysroot) [".lake/build/lib"]
-  withImportModules #[{ module := `UserAttr.Tst : Import }] {} 0 fun env => pure ()
+  initSearchPath (← Lean.findSysroot)
+  withImportModules #[{ module := `UserAttr.Tst : Import }] {} fun env => pure ()

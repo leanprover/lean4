@@ -145,11 +145,13 @@ instance PartialOrder {ι : Type u} {α : ι → Type v} [∀ i, PartialOrder (�
   le_antisymm := sorry }
 
 instance semilatticeSup [∀ i, SemilatticeSup (α' i)] : SemilatticeSup (∀ i, α' i) where
+  sup x y i := x i ⊔ y i
   le_sup_left _ _ _ := SemilatticeSup.le_sup_left _ _
   le_sup_right _ _ _ := SemilatticeSup.le_sup_right _ _
   sup_le _ _ _ ac bc i := SemilatticeSup.sup_le _ _ _ (ac i) (bc i)
 
 instance semilatticeInf [∀ i, SemilatticeInf (α' i)] : SemilatticeInf (∀ i, α' i) where
+  inf x y i := x i ⊓ y i
   inf_le_left _ _ _ := SemilatticeInf.inf_le_left _ _
   inf_le_right _ _ _ := SemilatticeInf.inf_le_right _ _
   le_inf _ _ _ ac bc i := SemilatticeInf.le_inf _ _ _ (ac i) (bc i)

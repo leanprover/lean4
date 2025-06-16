@@ -5,7 +5,7 @@ Authors: Markus Himmel
 -/
 prelude
 import Std.Data.DHashMap.Internal.AssocList.Basic
-import Std.Data.DHashMap.Internal.List.Associative
+import Std.Data.Internal.List.Associative
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on
@@ -26,7 +26,8 @@ variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {
 
 namespace Std.DHashMap.Internal.AssocList
 
-open Internal.List
+open Std.Internal.List
+open Std.Internal
 
 @[simp] theorem toList_nil : (nil : AssocList α β).toList = [] := rfl
 @[simp] theorem toList_cons {l : AssocList α β} {a : α} {b : β a} :
@@ -199,6 +200,24 @@ theorem toList_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
     · exact (ih _).trans (by simpa using perm_middle.symm)
     · exact ih _
 
+theorem filterMap_eq_map {f : (a : α) → β a → γ a} {l : AssocList α β} :
+    l.filterMap (fun k v => some (f k v)) = l.map f := by
+  dsimp [filterMap, map]
+  generalize nil = l'
+  induction l generalizing l' with
+  | nil => rfl
+  | cons k v t ih => simp only [filterMap.go, map.go, ih]
+
+theorem filterMap_eq_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
+    l.filterMap (fun k => Option.guard (fun v => f k v)) = l.filter f := by
+  dsimp [filterMap, filter]
+  generalize nil = l'
+  induction l generalizing l' with
+  | nil => rfl
+  | cons k v t ih =>
+    simp only [filterMap.go, filter.go, ih, Option.guard, cond_eq_if]
+    symm; split <;> rfl
+
 theorem toList_alter [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
     {l : AssocList α β} :
     Perm (l.alter a f).toList (alterKey a f l.toList) := by
@@ -214,7 +233,7 @@ theorem modify_eq_alter [BEq α] [LawfulBEq α] {a : α} {f : β a → β a} {l 
     modify a f l = alter a (·.map f) l := by
   induction l
   · rfl
-  · next ih => simp only [modify, beq_iff_eq, alter, Option.map_some', ih]
+  · next ih => simp only [modify, beq_iff_eq, alter, Option.map_some, ih]
 
 namespace Const
 
@@ -234,7 +253,7 @@ theorem modify_eq_alter [BEq α] [EquivBEq α] {a : α} {f : β → β} {l : Ass
     modify a f l = alter a (·.map f) l := by
   induction l
   · rfl
-  · next ih => simp only [modify, beq_iff_eq, alter, Option.map_some', ih]
+  · next ih => simp only [modify, beq_iff_eq, alter, Option.map_some, ih]
 
 end Const
 

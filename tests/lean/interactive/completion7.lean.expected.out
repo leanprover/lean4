@@ -1,8 +1,7 @@
 {"textDocument": {"uri": "file:///completion7.lean"},
  "position": {"line": 6, "character": 10}}
 {"items":
- [{"sortText": "0",
-   "label": "And",
+ [{"label": "And",
    "kind": 22,
    "data":
    {"params":
@@ -10,21 +9,11 @@
      "position": {"line": 6, "character": 10}},
     "id": {"const": {"declName": "And"}},
     "cPos": 0}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///completion7.lean"},
  "position": {"line": 8, "character": 11}}
 {"items":
- [{"sortText": "0",
-   "label": "left",
-   "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion7.lean"},
-     "position": {"line": 8, "character": 11}},
-    "id": {"const": {"declName": "And.left"}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "mk",
+ [{"label": "mk",
    "kind": 4,
    "data":
    {"params":
@@ -32,8 +21,15 @@
      "position": {"line": 8, "character": 11}},
     "id": {"const": {"declName": "And.mk"}},
     "cPos": 0}},
-  {"sortText": "2",
-   "label": "right",
+  {"label": "left",
+   "kind": 5,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completion7.lean"},
+     "position": {"line": 8, "character": 11}},
+    "id": {"const": {"declName": "And.left"}},
+    "cPos": 0}},
+  {"label": "right",
    "kind": 5,
    "data":
    {"params":
@@ -41,4 +37,4 @@
      "position": {"line": 8, "character": 11}},
     "id": {"const": {"declName": "And.right"}},
     "cPos": 0}}],
- "isIncomplete": true}
+ "isIncomplete": false}

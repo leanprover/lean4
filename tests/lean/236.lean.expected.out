@@ -1,3 +1,3 @@
 { x := 10, b := true } : Foo
-Foo.mk (@OfNat.ofNat.{0} Nat 10 (instOfNatNat 10)) Bool.true : Foo
+Foo.mk (@OfNat.ofNat.{0} Nat (nat_lit 10) (instOfNatNat (nat_lit 10))) Bool.true : Foo
 { x := OfNat.ofNat 10, b := Bool.true : Foo } : Foo

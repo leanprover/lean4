@@ -231,7 +231,10 @@ def WidgetInstance.ofHash (hash : UInt64) (props : StateM Server.RpcObjectStore 
 
 /-- Save the data of a panel widget which will be displayed whenever the text cursor is on `stx`.
 
-`hash` must be as in `WidgetInstance.ofHash`. -/
+`hash` must be as in `WidgetInstance.ofHash`.
+
+For panel widgets, the Lean infoview appends additional fields to the `props` object:
+see https://github.com/leanprover/vscode-lean4/blob/master/lean4-infoview/src/infoview/userWidget.tsx#L145. -/
 def savePanelWidgetInfo (hash : UInt64) (props : StateM Server.RpcObjectStore Json) (stx : Syntax) :
     CoreM Unit := do
   let wi ← WidgetInstance.ofHash hash props
@@ -397,10 +400,10 @@ structure GetWidgetsResponse where
 
 open Lean Server RequestM in
 /-- Get the panel widgets present around a particular position. -/
-def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResponse)) := do
+def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask GetWidgetsResponse) := do
   let doc ← readDoc
   let filemap := doc.meta.text
-  mapTask (findInfoTreeAtPosWithTrailingWhitespace doc <| filemap.lspPosToUtf8Pos pos) fun
+  mapTaskCostly (findInfoTreeAtPos doc (filemap.lspPosToUtf8Pos pos) (includeStop := true)) fun
     | some infoTree@(.context (.commandCtx cc) _) =>
       ContextInfo.runMetaM { cc with } {} do
       let env ← getEnv

@@ -3,6 +3,8 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Data.Nat.Basic
 import Init.Data.Nat.Div.Basic
@@ -13,6 +15,12 @@ namespace Nat
 theorem bitwise_rec_lemma {n : Nat} (hNe : n ≠ 0) : n / 2 < n :=
   Nat.div_lt_self (Nat.zero_lt_of_ne_zero hNe) (Nat.lt_succ_self _)
 
+/--
+A helper for implementing bitwise operators on `Nat`.
+
+Each bit of the resulting `Nat` is the result of applying `f` to the corresponding bits of the input
+`Nat`s, up to the position of the highest set bit in either input.
+-/
 def bitwise (f : Bool → Bool → Bool) (n m : Nat) : Nat :=
   if n = 0 then
     if f false true then m else 0
@@ -30,16 +38,56 @@ def bitwise (f : Bool → Bool → Bool) (n m : Nat) : Nat :=
       r+r
 decreasing_by apply bitwise_rec_lemma; assumption
 
+/--
+Bitwise and. Usually accessed via the `&&&` operator.
+
+Each bit of the resulting value is set if the corresponding bit is set in both of the inputs.
+-/
 @[extern "lean_nat_land"]
 def land : @& Nat → @& Nat → Nat := bitwise and
+
+/--
+Bitwise or. Usually accessed via the `|||` operator.
+
+Each bit of the resulting value is set if the corresponding bit is set in at least one of the inputs.
+-/
 @[extern "lean_nat_lor"]
 def lor  : @& Nat → @& Nat → Nat := bitwise or
+
+/--
+Bitwise exclusive or. Usually accessed via the `^^^` operator.
+
+Each bit of the resulting value is set if the corresponding bit is set in exactly one of the inputs.
+-/
 @[extern "lean_nat_lxor"]
 def xor  : @& Nat → @& Nat → Nat := bitwise bne
+
+/--
+Shifts the binary representation of a value left by the specified number of bits. Usually accessed
+via the `<<<` operator.
+
+Examples:
+ * `1 <<< 2 = 4`
+ * `1 <<< 3 = 8`
+ * `0 <<< 3 = 0`
+ * `0xf1 <<< 4 = 0xf10`
+-/
 @[extern "lean_nat_shiftl"]
 def shiftLeft : @& Nat → @& Nat → Nat
   | n, 0 => n
   | n, succ m => shiftLeft (2*n) m
+
+/--
+Shifts the binary representation of a value right by the specified number of bits. Usually accessed
+via the `>>>` operator.
+
+Examples:
+ * `4 >>> 2 = 1`
+ * `8 >>> 2 = 2`
+ * `8 >>> 3 = 1`
+ * `0 >>> 3 = 0`
+ * `0xf13a >>> 8 = 0xf1`
+-/
 @[extern "lean_nat_shiftr"]
 def shiftRight : @& Nat → @& Nat → Nat
   | n, 0 => n
@@ -74,13 +122,19 @@ theorem shiftRight_eq_div_pow (m : Nat) : ∀ n, m >>> n = m / 2 ^ n
 theorem shiftRight_eq_zero (m n : Nat) (hn : m < 2^n) : m >>> n = 0 := by
   simp [Nat.shiftRight_eq_div_pow, Nat.div_eq_of_lt hn]
 
+theorem shiftRight_le (m n : Nat) : m >>> n ≤ m := by
+  simp only [shiftRight_eq_div_pow]
+  apply Nat.div_le_self
+
 /-!
 ### testBit
 We define an operation for testing individual bits in the binary representation
 of a number.
 -/
 
-/-- `testBit m n` returns whether the `(n+1)` least significant bit is `1` or `0`-/
+/--
+Returns `true` if the `(n+1)`th least significant bit is `1`, or `false` if it is `0`.
+-/
 def testBit (m n : Nat) : Bool :=
   -- `1 &&& n` is faster than `n &&& 1` for big `n`.
   1 &&& (m >>> n) != 0

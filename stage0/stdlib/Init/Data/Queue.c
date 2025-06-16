@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Queue
-// Imports: Init.Data.Array.Basic
+// Imports: Init.Data.List.Control
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Std_Queue_filterM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_enqueue___rarg(lean_object*, lean_object*);
 static lean_object* l_Std_Queue_empty___closed__1;
 LEAN_EXPORT lean_object* l_Std_Queue_empty(lean_object*);
@@ -22,13 +23,18 @@ LEAN_EXPORT lean_object* l_Std_Queue_enqueueAll___rarg(lean_object*, lean_object
 LEAN_EXPORT uint8_t l_Std_Queue_isEmpty___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_instEmptyCollection(lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
+lean_object* l_List_filterAuxM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_isEmpty(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_filterM___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_dequeue_x3f___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_filterM___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_enqueue(lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_filterM___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_toArray___rarg(lean_object*);
 static lean_object* l_Std_Queue_instEmptyCollection___closed__1;
 LEAN_EXPORT lean_object* l_Std_Queue_instInhabited(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_filterM(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_toArray(lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* lean_array_mk(lean_object*);
@@ -409,13 +415,126 @@ x_2 = lean_alloc_closure((void*)(l_Std_Queue_toArray___rarg), 1, 0);
 return x_2;
 }
 }
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_filterM___rarg___lambda__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec(x_1);
+x_4 = lean_ctor_get(x_3, 1);
+lean_inc(x_4);
+lean_dec(x_3);
+x_5 = l_List_reverse___rarg(x_2);
+x_6 = lean_apply_2(x_4, lean_box(0), x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Queue_filterM___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; 
+x_5 = l_List_isEmpty___rarg(x_1);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_dec(x_3);
+x_6 = lean_ctor_get(x_2, 0);
+lean_inc(x_6);
+lean_dec(x_2);
+x_7 = lean_ctor_get(x_6, 1);
+lean_inc(x_7);
+lean_dec(x_6);
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_4);
+lean_ctor_set(x_8, 1, x_1);
+x_9 = lean_apply_2(x_7, lean_box(0), x_8);
+return x_9;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_dec(x_1);
+x_10 = lean_ctor_get(x_2, 0);
+lean_inc(x_10);
+lean_dec(x_2);
+x_11 = lean_ctor_get(x_10, 1);
+lean_inc(x_11);
+lean_dec(x_10);
+x_12 = l_List_reverse___rarg(x_4);
+x_13 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_13, 0, x_3);
+lean_ctor_set(x_13, 1, x_12);
+x_14 = lean_apply_2(x_11, lean_box(0), x_13);
+return x_14;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_Queue_filterM___rarg___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+lean_dec(x_1);
+lean_inc(x_4);
+lean_inc(x_2);
+x_9 = l_List_filterAuxM___rarg(x_2, lean_box(0), x_3, x_8, x_4);
+lean_inc(x_5);
+x_10 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_9, x_6);
+x_11 = lean_alloc_closure((void*)(l_Std_Queue_filterM___rarg___lambda__2), 4, 3);
+lean_closure_set(x_11, 0, x_7);
+lean_closure_set(x_11, 1, x_2);
+lean_closure_set(x_11, 2, x_4);
+x_12 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_10, x_11);
+return x_12;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Queue_filterM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_5 = lean_ctor_get(x_1, 1);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_4, 1);
+lean_inc(x_6);
+x_7 = lean_box(0);
+lean_inc(x_3);
+lean_inc(x_1);
+x_8 = l_List_filterAuxM___rarg(x_1, lean_box(0), x_3, x_6, x_7);
+lean_inc(x_1);
+x_9 = lean_alloc_closure((void*)(l_Std_Queue_filterM___rarg___lambda__1), 2, 1);
+lean_closure_set(x_9, 0, x_1);
+lean_inc(x_5);
+lean_inc(x_9);
+x_10 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_8, x_9);
+lean_inc(x_5);
+x_11 = lean_alloc_closure((void*)(l_Std_Queue_filterM___rarg___lambda__3), 7, 6);
+lean_closure_set(x_11, 0, x_4);
+lean_closure_set(x_11, 1, x_1);
+lean_closure_set(x_11, 2, x_3);
+lean_closure_set(x_11, 3, x_7);
+lean_closure_set(x_11, 4, x_5);
+lean_closure_set(x_11, 5, x_9);
+x_12 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_10, x_11);
+return x_12;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Queue_filterM(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Std_Queue_filterM___rarg), 4, 0);
+return x_2;
+}
+}
+lean_object* initialize_Init_Data_List_Control(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Queue(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Control(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Queue_empty___closed__1 = _init_l_Std_Queue_empty___closed__1();

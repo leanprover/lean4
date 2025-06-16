@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/constants.h"
 #include "library/util.h"
+#include "library/elab_environment.h"
 
 namespace lean {
 /* Return the `some(n)` if `I` is the name of an inductive datatype that contains only constructors with 0-arguments,
@@ -35,19 +36,19 @@ bool is_lcnf_atom(expr const & e);
 
 expr elim_trivial_let_decls(expr const & e);
 
-bool has_inline_attribute(environment const & env, name const & n);
-bool has_noinline_attribute(environment const & env, name const & n);
-bool has_inline_if_reduce_attribute(environment const & env, name const & n);
-bool has_never_extract_attribute(environment const & env, name const & n);
+bool has_inline_attribute(elab_environment const & env, name const & n);
+bool has_noinline_attribute(elab_environment const & env, name const & n);
+bool has_inline_if_reduce_attribute(elab_environment const & env, name const & n);
+bool has_never_extract_attribute(elab_environment const & env, name const & n);
 
-expr unfold_macro_defs(environment const & env, expr const & e);
+expr unfold_macro_defs(elab_environment const & env, expr const & e);
 
 /* Return true if the given argument is mdata relevant to the compiler
 
    Remark: we currently don't keep any metadata in the compiler. */
 inline bool is_lc_mdata(expr const &) { return false; }
 
-bool is_cases_on_recursor(environment const & env, name const & n);
+bool is_cases_on_recursor(elab_environment const & env, name const & n);
 /* We defined the "arity" of a cases_on application as the sum:
    ```
      number of inductive parameters +
@@ -57,30 +58,30 @@ bool is_cases_on_recursor(environment const & env, name const & n);
      number of constructors // cases_on has a minor premise for each constructor
    ```
    \pre is_cases_on_recursor(env, c) */
-unsigned get_cases_on_arity(environment const & env, name const & c, bool before_erasure = true);
+unsigned get_cases_on_arity(elab_environment const & env, name const & c, bool before_erasure = true);
 /* Return the `inductive_val` for the cases_on constant `c`. */
-inline inductive_val get_cases_on_inductive_val(environment const & env, name const & c) {
+inline inductive_val get_cases_on_inductive_val(elab_environment const & env, name const & c) {
     lean_assert(is_cases_on_recursor(env, c));
     return env.get(c.get_prefix()).to_inductive_val();
 }
-inline inductive_val get_cases_on_inductive_val(environment const & env, expr const & c) {
+inline inductive_val get_cases_on_inductive_val(elab_environment const & env, expr const & c) {
     lean_assert(is_constant(c));
     return get_cases_on_inductive_val(env, const_name(c));
 }
-inline bool is_cases_on_app(environment const & env, expr const & e) {
+inline bool is_cases_on_app(elab_environment const & env, expr const & e) {
     expr const & fn = get_app_fn(e);
     return is_constant(fn) && is_cases_on_recursor(env, const_name(fn));
 }
 /* Return the major premise of a cases_on-application.
    \pre is_cases_on_app(env, c) */
-expr get_cases_on_app_major(environment const & env, expr const & c, bool before_erasure = true);
-unsigned get_cases_on_major_idx(environment const & env, name const & c, bool before_erasure = true);
+expr get_cases_on_app_major(elab_environment const & env, expr const & c, bool before_erasure = true);
+unsigned get_cases_on_major_idx(elab_environment const & env, name const & c, bool before_erasure = true);
 /* Return the pair `(b, e)` such that `i in [b, e)` is argument `i` in a `c` cases_on
    application is a minor premise.
    \pre is_cases_on_recursor(env, c) */
-pair<unsigned, unsigned> get_cases_on_minors_range(environment const & env, name const & c, bool before_erasure = true);
+pair<unsigned, unsigned> get_cases_on_minors_range(elab_environment const & env, name const & c, bool before_erasure = true);
 
-inline bool is_quot_primitive(environment const & env, name const & n) {
+inline bool is_quot_primitive(elab_environment const & env, name const & n) {
     optional<constant_info> info = env.find(n);
     return info && info->is_quot();
 }
@@ -119,7 +120,7 @@ expr replace_fvar(expr const & e, expr const & fvar, expr const & new_term);
 void sort_fvars(local_ctx const & lctx, buffer<expr> & fvars);
 
 /* Return the "code" size for `e` */
-unsigned get_lcnf_size(environment const & env, expr e);
+unsigned get_lcnf_size(elab_environment const & env, expr e);
 
 // =======================================
 // Auxiliary expressions for erasure.
@@ -165,9 +166,9 @@ void collect_used(expr const & e, name_hash_set & S);
 /* Return true iff `e` contains a free variable in `s` */
 bool depends_on(expr const & e, name_hash_set const & s);
 
-bool is_stage2_decl(environment const & env, name const & n);
-environment register_stage1_decl(environment const & env, name const & n, names const & ls, expr const & t, expr const & v);
-environment register_stage2_decl(environment const & env, name const & n, expr const & t, expr const & v);
+bool is_stage2_decl(elab_environment const & env, name const & n);
+elab_environment register_stage1_decl(elab_environment const & env, name const & n, names const & ls, expr const & t, expr const & v);
+elab_environment register_stage2_decl(elab_environment const & env, name const & n, expr const & t, expr const & v);
 
 /* Return `some n` iff `e` is of the forms `expr.lit (literal.nat n)` or `uint*.of_nat (expr.lit (literal.nat n))` */
 optional<nat> get_num_lit_ext(expr const & e);
@@ -181,8 +182,8 @@ optional<unsigned> is_fix_core(name const & c);
    Remark: this function assumes universe levels have already been erased. */
 optional<expr> mk_enf_fix_core(unsigned n);
 
-bool lcnf_check_let_decls(environment const & env, comp_decl const & d);
-bool lcnf_check_let_decls(environment const & env, comp_decls const & ds);
+bool lcnf_check_let_decls(elab_environment const & env, comp_decl const & d);
+bool lcnf_check_let_decls(elab_environment const & env, comp_decls const & ds);
 
 // =======================================
 /* Similar to `type_checker::eta_expand`, but preserves LCNF */
@@ -200,11 +201,11 @@ optional<unsigned> is_enum_type(environment const & env, expr const & type);
 
 extern "C" uint8 lean_is_matcher(object* env, object* n);
 
-inline bool is_matcher(environment const & env, name const & n) {
+inline bool is_matcher(elab_environment const & env, name const & n) {
     return lean_is_matcher(env.to_obj_arg(), n.to_obj_arg());
 }
 
-inline bool is_matcher_app(environment const & env, expr const & e) {
+inline bool is_matcher_app(elab_environment const & env, expr const & e) {
   expr const & f = get_app_fn(e);
   return is_constant(f) && is_matcher(env, const_name(f));
 }
@@ -213,7 +214,7 @@ inline bool is_matcher_app(environment const & env, expr const & e) {
   Return true if the given expression must be in eta-expanded form during compilation.
   Example: constructors, `casesOn` applications must always be in eta-expanded form.
 */
-bool must_be_eta_expanded(environment const & env, expr const & e);
+bool must_be_eta_expanded(elab_environment const & env, expr const & e);
 
 void initialize_compiler_util();
 void finalize_compiler_util();

@@ -20,7 +20,7 @@ set_option linter.all true
 `Ordinal` represents a bounded value for milliseconds, ranging from 0 to 999 milliseconds.
 -/
 def Ordinal := Bounded.LE 0 999
-  deriving Repr, BEq, LE, LT
+deriving Repr, DecidableEq, LE, LT
 
 instance : OfNat Ordinal n :=
   inferInstanceAs (OfNat (Bounded.LE 0 (0 + (999 : Nat))) n)
@@ -34,20 +34,32 @@ instance {x y : Ordinal} : Decidable (x ≤ y) :=
 instance {x y : Ordinal} : Decidable (x < y) :=
   inferInstanceAs (Decidable (x.val < y.val))
 
+instance : Ord Ordinal := inferInstanceAs <| Ord (Bounded.LE 0 _)
+
+instance : TransOrd Ordinal := inferInstanceAs <| TransOrd (Bounded.LE 0 _)
+
+instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 0 _)
+
 /--
 `Offset` represents a duration offset in milliseconds.
 -/
 def Offset : Type := UnitVal (1 / 1000)
-  deriving Repr, BEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
+deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
-instance { x y : Offset } : Decidable (x ≤ y) :=
+instance {x y : Offset} : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))
 
-instance { x y : Offset } : Decidable (x < y) :=
+instance {x y : Offset} : Decidable (x < y) :=
   inferInstanceAs (Decidable (x.val < y.val))
 
 instance : OfNat Offset n :=
   ⟨UnitVal.ofNat n⟩
+
+instance : Ord Offset := inferInstanceAs <| Ord (UnitVal _)
+
+instance : TransOrd Offset := inferInstanceAs <| TransOrd (UnitVal _)
+
+instance : LawfulEqOrd Offset := inferInstanceAs <| LawfulEqOrd (UnitVal _)
 
 namespace Offset
 

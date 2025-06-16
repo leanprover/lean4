@@ -205,7 +205,7 @@ def logException [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [
   match ex with
   | Exception.error ref msg => logErrorAt ref msg
   | Exception.internal id _ =>
-    unless isAbortExceptionId id || id == Core.interruptExceptionId do
+    unless isAbortExceptionId id || ex.isInterrupt do
       let name ← id.getName
       logError m!"internal exception: {name}"
 

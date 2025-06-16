@@ -275,7 +275,7 @@ def getObjVal? : Json → String → Except String Json
 
 def getArrVal? : Json → Nat → Except String Json
   | arr a, i =>
-    match a.get? i with
+    match a[i]? with
     | some v => return v
     | none => throw s!"index out of bounds: {i}"
   | _    , _ => throw "array expected"

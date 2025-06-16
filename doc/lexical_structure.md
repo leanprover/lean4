@@ -61,7 +61,7 @@ Parts of atomic names can be escaped by enclosing them in pairs of French double
    letterlike_symbols: [℀-⅏]
    escaped_ident_part: "«" [^«»\r\n\t]* "»"
    atomic_ident_rest: atomic_ident_start | [0-9'ⁿ] | subscript
-   subscript: [₀-₉ₐ-ₜᵢ-ᵪ]
+   subscript: [₀-₉ₐ-ₜᵢ-ᵪⱼ]
 ```
 
 String Literals

@@ -35,6 +35,11 @@ structure ElimInfo where
   motivePos  : Nat
   targetsPos : Array Nat := #[]
   altsInfo   : Array ElimAltInfo := #[]
+  /--
+  Extra arguments to the motive, after the targets, that are instantiated with
+  non-atomic expressions in the goal
+  -/
+  numComplexMotiveArgs : Nat
   deriving Repr, Inhabited
 
 
@@ -49,23 +54,23 @@ def altArity (motive : Expr) (n : Nat) : Expr → Nat × Bool
 def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : MetaM ElimInfo := do
   let elimType ← inferType elimExpr
   trace[Elab.induction] "eliminator {indentExpr elimExpr}\nhas type{indentExpr elimType}"
-  forallTelescopeReducing elimType fun xs type => do
-    let motive  := type.getAppFn
-    let targets := type.getAppArgs
-    unless motive.isFVar && targets.all (·.isFVar) && targets.size > 0 do
-      throwError "unexpected eliminator resulting type{indentExpr type}"
+  forallTelescopeReducing elimType fun xs type => type.withApp fun motive motiveArgs => do
+    unless motive.isFVar do
+      throwError "expected resulting type of eliminator to be an application of one of its parameters (the motive):{indentExpr type}"
+    let targets  := motiveArgs.takeWhile (·.isFVar)
+    let complexMotiveArgs := motiveArgs[targets.size:]
     let motiveType ← inferType motive
-    forallTelescopeReducing motiveType fun motiveArgs motiveResultType => do
-      unless motiveArgs.size == targets.size do
-        throwError "unexpected number of arguments at motive type{indentExpr motiveType}"
+    forallTelescopeReducing motiveType fun motiveParams motiveResultType => do
+      unless motiveParams.size == motiveArgs.size do
+        throwError "expecetd {motiveArgs.size} parameters at motive type, got {motiveParams.size}:{indentExpr motiveType}"
       unless motiveResultType.isSort do
         throwError "motive result type must be a sort{indentExpr motiveType}"
-    let some motivePos ← pure (xs.indexOf? motive) |
+    let some motivePos ← pure (xs.idxOf? motive) |
       throwError "unexpected eliminator type{indentExpr elimType}"
     let targetsPos ← targets.mapM fun target => do
-      match xs.indexOf? target with
+      match xs.idxOf? target with
       | none => throwError "unexpected eliminator type{indentExpr elimType}"
-      | some targetPos => pure targetPos.val
+      | some targetPos => pure targetPos
     let mut altsInfo := #[]
     let env ← getEnv
     for h : i in [:xs.size] do
@@ -80,7 +85,7 @@ def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : Me
             let altDeclName := base ++ name
             if env.contains altDeclName then some altDeclName else none
           altsInfo := altsInfo.push { name, declName?, numFields, provesMotive }
-    pure { elimExpr, elimType,  motivePos, targetsPos, altsInfo }
+    pure { elimExpr, elimType,  motivePos, targetsPos, altsInfo, numComplexMotiveArgs := complexMotiveArgs.size }
 
 def getElimInfo (elimName : Name) (baseDeclName? : Option Name := none) : MetaM ElimInfo := do
   getElimExprInfo (← mkConstWithFreshMVarLevels elimName) baseDeclName?
@@ -120,6 +125,8 @@ where
       else
         collect (b.instantiate1 (← mkFreshExprMVar d)) (argIdx+1) targetIdx implicits targets'
     | _ =>
+      unless targetIdx = targets.size do
+        throwError "extra targets for '{elimInfo.elimExpr}'"
       return (implicits, targets')
 
 structure CustomEliminator where

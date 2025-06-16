@@ -13,6 +13,10 @@ namespace Lean.Meta.Grind.Arith
 def isNatType (e : Expr) : Bool :=
   e.isConstOf ``Nat
 
+/-- Returns `true` if `e` is of the form `Int` -/
+def isIntType (e : Expr) : Bool :=
+  e.isConstOf ``Int
+
 /-- Returns `true` if `e` is of the form `@instHAdd Nat instAddNat` -/
 def isInstAddNat (e : Expr) : Bool :=
   let_expr instHAdd a b := e | false
@@ -49,54 +53,45 @@ def isNatNum? (e : Expr) : Option Nat := Id.run do
   let .lit (.natVal k) := k | none
   some k
 
-/-- Returns `some (a, k)` if `e` is of the form `a + k`.  -/
-def isNatOffset? (e : Expr) : Option (Expr × Nat) := Id.run do
-  let some (a, b) := isNatAdd? e | none
-  let some k := isNatNum? b | none
-  some (a, k)
+def isSupportedType (e : Expr) : Bool :=
+  isNatType e || isIntType e
 
-/-- An offset constraint. -/
-structure Offset.Cnstr (α : Type) where
-  u  : α
-  v  : α
-  k  : Int := 0
-  deriving Inhabited
-
-def Offset.Cnstr.neg : Cnstr α → Cnstr α
-  | { u, v, k } => { u := v, v := u, k := -k - 1 }
-
-example (c : Offset.Cnstr α) : c.neg.neg = c := by
-  cases c; simp [Offset.Cnstr.neg]; omega
-
-def Offset.toMessageData [inst : ToMessageData α] (c : Offset.Cnstr α) : MessageData :=
-  match c.k with
-  | .ofNat 0   => m!"{c.u} ≤ {c.v}"
-  | .ofNat k   => m!"{c.u} ≤ {c.v} + {k}"
-  | .negSucc k => m!"{c.u} + {k + 1} ≤ {c.v}"
-
-instance : ToMessageData (Offset.Cnstr Expr) where
-  toMessageData c := Offset.toMessageData c
-
-/--
-Returns `some cnstr` if `e` is offset constraint.
-Remark: `z` is `0` numeral. It is an extra argument because we
-want to be able to provide the one that has already been internalized.
--/
-def isNatOffsetCnstr? (e : Expr) (z : Expr) : Option (Offset.Cnstr Expr) :=
+partial def isRelevantPred (e : Expr) : Bool :=
   match_expr e with
-  | LE.le _ inst a b => if isInstLENat inst then go a b else none
-  | _ => none
-where
-  go (u v : Expr) :=
-    if let some (u, k) := isNatOffset? u then
-      some { u, k := - k, v }
-    else if let some (v, k) := isNatOffset? v then
-      some { u, v, k }
-    else if let some k := isNatNum? u then
-      some { u := z, v, k := - k }
-    else if let some k := isNatNum? v then
-      some { u, v := z, k }
-    else
-      some { u, v }
+  | Not p => isRelevantPred p
+  | LE.le α _ _ _ => isSupportedType α
+  | Eq α _ _ => isSupportedType α
+  | Dvd.dvd α _ _ _ => isSupportedType α
+  | _ => false
+
+def isArithTerm (e : Expr) : Bool :=
+  match_expr e with
+  | HAdd.hAdd _ _ _ _ _ _ => true
+  | HSub.hSub _ _ _ _ _ _ => true
+  | HMul.hMul _ _ _ _ _ _ => true
+  | HDiv.hDiv _ _ _ _ _ _ => true
+  | HMod.hMod _ _ _ _ _ _ => true
+  | HPow.hPow _ _ _ _ _ _ => true
+  | Neg.neg _ _ _ => true
+  | OfNat.ofNat _ _ _ => true
+  | _ => false
+
+/-- Quote `e` using `「` and `」` if `e` is an arithmetic term that is being treated as a variable. -/
+def quoteIfArithTerm (e : Expr) : MessageData :=
+  if isArithTerm e then
+    aquote e
+  else
+    e
+/--
+`gcdExt a b` returns the triple `(g, α, β)` such that
+- `g = gcd a b` (with `g ≥ 0`), and
+- `g = α * a + β * β`.
+-/
+partial def gcdExt (a b : Int) : Int × Int × Int :=
+  if b = 0 then
+    (a.natAbs, if a = 0 then 0 else a / a.natAbs, 0)
+  else
+    let (g, α, β) := gcdExt b (a % b)
+    (g, β, α - (a / b) * β)
 
 end Lean.Meta.Grind.Arith

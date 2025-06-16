@@ -3,6 +3,8 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 
 import Init.Data.Option.Attach
@@ -46,7 +48,7 @@ theorem forIn'_eq_pelim [Monad m] [LawfulMonad m]
       o.pelim (pure b) (fun a h => g a h b <$> f a h b) := by
   cases o <;> simp
 
-theorem forIn'_pure_yield_eq_pelim [Monad m] [LawfulMonad m]
+@[simp] theorem forIn'_pure_yield_eq_pelim [Monad m] [LawfulMonad m]
     (o : Option α) (f : (a : α) → a ∈ o → β → β) (b : β) :
     forIn' o b (fun a m b => pure (.yield (f a m b))) =
       pure (f := m) (o.pelim b (fun a h => f a h b)) := by
@@ -75,7 +77,7 @@ theorem forIn_eq_elim [Monad m] [LawfulMonad m]
       o.elim (pure b) (fun a => g a b <$> f a b) := by
   cases o <;> simp
 
-theorem forIn_pure_yield_eq_elim [Monad m] [LawfulMonad m]
+@[simp] theorem forIn_pure_yield_eq_elim [Monad m] [LawfulMonad m]
     (o : Option α) (f : (a : α) → β → β) (b : β) :
     forIn o b (fun a b => pure (.yield (f a b))) =
       pure (f := m) (o.elim b (fun a => f a b)) := by
@@ -91,5 +93,7 @@ theorem forIn_pure_yield_eq_elim [Monad m] [LawfulMonad m]
     (o : Option α) (g : α → β) (f : β → γ → m (ForInStep γ)) :
     forIn (o.map g) init f = forIn o init fun a y => f (g a) y := by
   cases o <;> simp
+
+@[simp] theorem mapA_eq_mapM : @Option.mapA = @Option.mapM := rfl
 
 end Option

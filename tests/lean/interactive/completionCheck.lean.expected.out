@@ -1,22 +1,20 @@
 {"textDocument": {"uri": "file:///completionCheck.lean"},
  "position": {"line": 6, "character": 33}}
 {"items":
- [{"sortText": "0",
-   "label": "AVerySpecificStructureName",
-   "kind": 22,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionCheck.lean"},
-     "position": {"line": 6, "character": 33}},
-    "id": {"const": {"declName": "AVerySpecificStructureName"}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "AVerySpecificStructureName2",
+ [{"label": "AVerySpecificStructureName2",
    "kind": 22,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionCheck.lean"},
      "position": {"line": 6, "character": 33}},
     "id": {"const": {"declName": "AVerySpecificStructureName2"}},
+    "cPos": 0}},
+  {"label": "AVerySpecificStructureName",
+   "kind": 22,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionCheck.lean"},
+     "position": {"line": 6, "character": 33}},
+    "id": {"const": {"declName": "AVerySpecificStructureName"}},
     "cPos": 0}}],
- "isIncomplete": true}
+ "isIncomplete": false}

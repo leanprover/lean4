@@ -1,4 +1,4 @@
-Inferred termination argument:
+Inferred termination measure:
 termination_by x1 x2 => (x1, x2, 0)
-Inferred termination argument:
+Inferred termination measure:
 termination_by x1 x2 => (x1, x2, 1)

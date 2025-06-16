@@ -1,8 +1,10 @@
 typeOf.lean:11:22-11:25: error: failed to synthesize
   HAdd Nat Nat Bool
+
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 typeOf.lean:12:0-12:5: error: failed to synthesize
   HAdd Bool Nat Nat
+
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 typeOf.lean:20:56-20:62: error: invalid reassignment, term has type
   Bool : Type

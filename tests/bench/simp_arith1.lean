@@ -26,4 +26,4 @@ set_option maxRecDepth 10000
 -- set_option trace.profiler true
 example : largeGoal% := by
   intros
-  simp_arith only
+  simp +arith +decide only

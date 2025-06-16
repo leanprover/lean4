@@ -5,7 +5,6 @@ Author: Leonardo de Moura
 -/
 prelude
 import Std.Data.HashSet.Basic
-import Lean.Data.HashSet
 import Lean.Data.RBMap
 import Lean.Data.RBTree
 import Lean.Data.SSet
@@ -81,7 +80,7 @@ end NameSSet
 def NameHashSet := Std.HashSet Name
 
 namespace NameHashSet
-@[inline] def empty : NameHashSet := Std.HashSet.empty
+@[inline] def empty : NameHashSet := (∅ : Std.HashSet Name)
 instance : EmptyCollection NameHashSet := ⟨empty⟩
 instance : Inhabited NameHashSet := ⟨{}⟩
 def insert (s : NameHashSet) (n : Name) := Std.HashSet.insert s n

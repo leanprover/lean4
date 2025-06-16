@@ -8,6 +8,7 @@ import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Core
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Fin
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.UInt
+import Lean.Meta.Tactic.Simp.BuiltinSimprocs.SInt
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Char
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.String

@@ -19,7 +19,7 @@ set_option linter.all true
 `Ordinal` represents a nanosecond value that is bounded between 0 and 999,999,999 nanoseconds.
 -/
 def Ordinal := Bounded.LE 0 999999999
-  deriving Repr, BEq, LE, LT
+deriving Repr, DecidableEq, LE, LT
 
 instance : OfNat Ordinal n where
   ofNat := Bounded.LE.ofFin (Fin.ofNat' _ n)
@@ -33,20 +33,32 @@ instance {x y : Ordinal} : Decidable (x ≤ y) :=
 instance {x y : Ordinal} : Decidable (x < y) :=
   inferInstanceAs (Decidable (x.val < y.val))
 
+instance : Ord Ordinal := inferInstanceAs <| Ord (Bounded.LE 0 _)
+
+instance : TransOrd Ordinal := inferInstanceAs <| TransOrd (Bounded.LE 0 _)
+
+instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 0 _)
+
 /--
 `Offset` represents a time offset in nanoseconds.
 -/
 def Offset : Type := UnitVal (1 / 1000000000)
-  deriving Repr, BEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
+deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
-instance { x y : Offset } : Decidable (x ≤ y) :=
+instance {x y : Offset} : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))
 
-instance { x y : Offset } : Decidable (x < y) :=
+instance {x y : Offset} : Decidable (x < y) :=
   inferInstanceAs (Decidable (x.val < y.val))
 
 instance : OfNat Offset n :=
   ⟨UnitVal.ofNat n⟩
+
+instance : Ord Offset := inferInstanceAs <| Ord (UnitVal _)
+
+instance : TransOrd Offset := inferInstanceAs <| TransOrd (UnitVal _)
+
+instance : LawfulEqOrd Offset := inferInstanceAs <| LawfulEqOrd (UnitVal _)
 
 namespace Offset
 
@@ -71,9 +83,21 @@ end Offset
 This can be used for operations that involve differences or adjustments within this range.
 -/
 def Span := Bounded.LE (-999999999) 999999999
-  deriving Repr, BEq, LE, LT
+deriving Repr, DecidableEq, LE, LT
 
 instance : Inhabited Span where default := Bounded.LE.mk 0 (by decide)
+
+instance {x y : Span} : Decidable (x ≤ y) :=
+  inferInstanceAs (Decidable (x.val ≤ y.val))
+
+instance {x y : Span} : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.val < y.val))
+
+instance : Ord Span := inferInstanceAs <| Ord (Bounded.LE _ _)
+
+instance : TransOrd Span := inferInstanceAs <| TransOrd (Bounded.LE _ _)
+
+instance : LawfulEqOrd Span := inferInstanceAs <| LawfulEqOrd (Bounded.LE _ _)
 
 namespace Span
 
@@ -91,7 +115,21 @@ namespace Ordinal
 `Ordinal` represents a bounded value for nanoseconds in a day, which ranges between 0 and 86400000000000.
 -/
 def OfDay := Bounded.LE 0 86400000000000
-  deriving Repr, BEq, LE, LT
+deriving Repr, DecidableEq, LE, LT
+
+instance : Inhabited OfDay where default := Bounded.LE.mk 0 (by decide)
+
+instance {x y : OfDay} : Decidable (x ≤ y) :=
+  inferInstanceAs (Decidable (x.val ≤ y.val))
+
+instance {x y : OfDay} : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.val < y.val))
+
+instance : Ord OfDay := inferInstanceAs <| Ord (Bounded.LE _ _)
+
+instance : TransOrd OfDay := inferInstanceAs <| TransOrd (Bounded.LE _ _)
+
+instance : LawfulEqOrd OfDay := inferInstanceAs <| LawfulEqOrd (Bounded.LE _ _)
 
 /--
 Creates an `Ordinal` from an integer, ensuring the value is within bounds.

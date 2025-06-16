@@ -7,6 +7,7 @@ prelude
 import Lean.Expr
 import Lean.ToLevel
 import Init.Data.BitVec.Basic
+import Init.Data.SInt.Basic
 universe u
 
 namespace Lean
@@ -96,6 +97,71 @@ instance : ToExpr USize where
     let r := mkRawNatLit a.toNat
     mkApp3 (.const ``OfNat.ofNat [0]) (mkConst ``USize) r
       (.app (.const ``USize.instOfNat []) r)
+
+instance : ToExpr Int8 where
+  toTypeExpr := mkConst ``Int8
+  toExpr i := if 0 ≤ i then
+    mkNat i.toNatClampNeg
+  else
+    mkApp3 (.const ``Neg.neg [0]) (.const ``Int8 []) (.const ``Int8.instNeg [])
+      (mkNat (-(i.toInt)).toNat)
+where
+  mkNat (n : Nat) : Expr :=
+    let r := mkRawNatLit n
+    mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Int8 []) r
+        (.app (.const ``Int8.instOfNat []) r)
+
+instance : ToExpr Int16 where
+  toTypeExpr := mkConst ``Int16
+  toExpr i := if 0 ≤ i then
+    mkNat i.toNatClampNeg
+  else
+    mkApp3 (.const ``Neg.neg [0]) (.const ``Int16 []) (.const ``Int16.instNeg [])
+      (mkNat (-(i.toInt)).toNat)
+where
+  mkNat (n : Nat) : Expr :=
+    let r := mkRawNatLit n
+    mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Int16 []) r
+        (.app (.const ``Int16.instOfNat []) r)
+
+instance : ToExpr Int32 where
+  toTypeExpr := mkConst ``Int32
+  toExpr i := if 0 ≤ i then
+    mkNat i.toNatClampNeg
+  else
+    mkApp3 (.const ``Neg.neg [0]) (.const ``Int32 []) (.const ``Int32.instNeg [])
+      (mkNat (-(i.toInt)).toNat)
+where
+  mkNat (n : Nat) : Expr :=
+    let r := mkRawNatLit n
+    mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Int32 []) r
+        (.app (.const ``Int32.instOfNat []) r)
+
+instance : ToExpr Int64 where
+  toTypeExpr := mkConst ``Int64
+  toExpr i := if 0 ≤ i then
+    mkNat i.toNatClampNeg
+  else
+    mkApp3 (.const ``Neg.neg [0]) (.const ``Int64 []) (.const ``Int64.instNeg [])
+      (mkNat (-(i.toInt)).toNat)
+where
+  mkNat (n : Nat) : Expr :=
+    let r := mkRawNatLit n
+    mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Int64 []) r
+        (.app (.const ``Int64.instOfNat []) r)
+
+instance : ToExpr ISize where
+  toTypeExpr := mkConst ``ISize
+  toExpr i := if 0 ≤ i then
+    mkNat i.toNatClampNeg
+  else
+    mkApp3 (.const ``Neg.neg [0]) (.const ``ISize []) (.const ``ISize.instNeg [])
+      (mkNat (-(i.toInt)).toNat)
+where
+  mkNat (n : Nat) : Expr :=
+    let r := mkRawNatLit n
+    mkApp3 (.const ``OfNat.ofNat [0]) (.const ``ISize []) r
+        (.app (.const ``ISize.instOfNat []) r)
 
 instance : ToExpr Bool where
   toExpr     := fun b => if b then mkConst ``Bool.true else mkConst ``Bool.false

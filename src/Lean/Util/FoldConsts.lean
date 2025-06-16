@@ -5,7 +5,8 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Expr
-import Lean.Environment
+import Lean.Util.PtrSet
+import Lean.Declaration
 
 namespace Lean
 namespace Expr
@@ -70,14 +71,4 @@ def getUsedConstantsAsSet (c : ConstantInfo) : NameSet :=
     | _ => {}
 
 end ConstantInfo
-
-def getMaxHeight (env : Environment) (e : Expr) : UInt32 :=
-  e.foldConsts 0 fun constName max =>
-    match env.find? constName with
-    | ConstantInfo.defnInfo val =>
-      match val.hints with
-      | ReducibilityHints.regular h => if h > max then h else max
-      | _                           => max
-    | _ => max
-
 end Lean

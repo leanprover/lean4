@@ -1,17 +1,7 @@
 {"textDocument": {"uri": "file:///completion3.lean"},
  "position": {"line": 7, "character": 9}}
 {"items":
- [{"sortText": "0",
-   "label": "b",
-   "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion3.lean"},
-     "position": {"line": 7, "character": 9}},
-    "id": {"const": {"declName": "S.b"}},
-    "cPos": 1}},
-  {"sortText": "1",
-   "label": "x",
+ [{"label": "x",
    "kind": 5,
    "data":
    {"params":
@@ -19,30 +9,27 @@
      "position": {"line": 7, "character": 9}},
     "id": {"const": {"declName": "S.x"}},
     "cPos": 1}},
-  {"sortText": "2",
-   "label": "y",
+  {"label": "y",
    "kind": 5,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completion3.lean"},
      "position": {"line": 7, "character": 9}},
     "id": {"const": {"declName": "S.y"}},
+    "cPos": 1}},
+  {"label": "b",
+   "kind": 5,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completion3.lean"},
+     "position": {"line": 7, "character": 9}},
+    "id": {"const": {"declName": "S.b"}},
     "cPos": 1}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///completion3.lean"},
  "position": {"line": 12, "character": 5}}
 {"items":
- [{"sortText": "0",
-   "label": "b",
-   "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion3.lean"},
-     "position": {"line": 12, "character": 5}},
-    "id": {"const": {"declName": "S.b"}},
-    "cPos": 1}},
-  {"sortText": "1",
-   "label": "x",
+ [{"label": "x",
    "kind": 5,
    "data":
    {"params":
@@ -50,30 +37,27 @@
      "position": {"line": 12, "character": 5}},
     "id": {"const": {"declName": "S.x"}},
     "cPos": 1}},
-  {"sortText": "2",
-   "label": "y",
+  {"label": "y",
    "kind": 5,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completion3.lean"},
      "position": {"line": 12, "character": 5}},
     "id": {"const": {"declName": "S.y"}},
+    "cPos": 1}},
+  {"label": "b",
+   "kind": 5,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completion3.lean"},
+     "position": {"line": 12, "character": 5}},
+    "id": {"const": {"declName": "S.b"}},
     "cPos": 1}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///completion3.lean"},
  "position": {"line": 16, "character": 5}}
 {"items":
- [{"sortText": "0",
-   "label": "b",
-   "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion3.lean"},
-     "position": {"line": 16, "character": 5}},
-    "id": {"const": {"declName": "S.b"}},
-    "cPos": 1}},
-  {"sortText": "1",
-   "label": "x",
+ [{"label": "x",
    "kind": 5,
    "data":
    {"params":
@@ -81,30 +65,27 @@
      "position": {"line": 16, "character": 5}},
     "id": {"const": {"declName": "S.x"}},
     "cPos": 1}},
-  {"sortText": "2",
-   "label": "y",
+  {"label": "y",
    "kind": 5,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completion3.lean"},
      "position": {"line": 16, "character": 5}},
     "id": {"const": {"declName": "S.y"}},
+    "cPos": 1}},
+  {"label": "b",
+   "kind": 5,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completion3.lean"},
+     "position": {"line": 16, "character": 5}},
+    "id": {"const": {"declName": "S.b"}},
     "cPos": 1}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///completion3.lean"},
  "position": {"line": 20, "character": 5}}
 {"items":
- [{"sortText": "0",
-   "label": "b",
-   "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion3.lean"},
-     "position": {"line": 20, "character": 5}},
-    "id": {"const": {"declName": "S.b"}},
-    "cPos": 1}},
-  {"sortText": "1",
-   "label": "x",
+ [{"label": "x",
    "kind": 5,
    "data":
    {"params":
@@ -112,13 +93,20 @@
      "position": {"line": 20, "character": 5}},
     "id": {"const": {"declName": "S.x"}},
     "cPos": 1}},
-  {"sortText": "2",
-   "label": "y",
+  {"label": "y",
    "kind": 5,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completion3.lean"},
      "position": {"line": 20, "character": 5}},
     "id": {"const": {"declName": "S.y"}},
+    "cPos": 1}},
+  {"label": "b",
+   "kind": 5,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completion3.lean"},
+     "position": {"line": 20, "character": 5}},
+    "id": {"const": {"declName": "S.b"}},
     "cPos": 1}}],
- "isIncomplete": true}
+ "isIncomplete": false}

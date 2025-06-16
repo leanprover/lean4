@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR
-// Imports: Lean.Compiler.IR.Basic Lean.Compiler.IR.Format Lean.Compiler.IR.CompilerM Lean.Compiler.IR.PushProj Lean.Compiler.IR.ElimDeadVars Lean.Compiler.IR.SimpCase Lean.Compiler.IR.ResetReuse Lean.Compiler.IR.NormIds Lean.Compiler.IR.Checker Lean.Compiler.IR.Borrow Lean.Compiler.IR.Boxing Lean.Compiler.IR.RC Lean.Compiler.IR.ExpandResetReuse Lean.Compiler.IR.UnboxResult Lean.Compiler.IR.ElimDeadBranches Lean.Compiler.IR.EmitC Lean.Compiler.IR.CtorLayout Lean.Compiler.IR.Sorry
+// Imports: Lean.Compiler.IR.Basic Lean.Compiler.IR.Format Lean.Compiler.IR.CompilerM Lean.Compiler.IR.PushProj Lean.Compiler.IR.ElimDeadVars Lean.Compiler.IR.SimpCase Lean.Compiler.IR.ResetReuse Lean.Compiler.IR.NormIds Lean.Compiler.IR.Checker Lean.Compiler.IR.Borrow Lean.Compiler.IR.Boxing Lean.Compiler.IR.RC Lean.Compiler.IR.ExpandResetReuse Lean.Compiler.IR.UnboxResult Lean.Compiler.IR.ElimDeadBranches Lean.Compiler.IR.EmitC Lean.Compiler.IR.CtorLayout Lean.Compiler.IR.Sorry Lean.Compiler.IR.LLVMBindings Lean.Compiler.IR.EmitLLVM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1197,7 +1197,6 @@ lean_object* x_6; lean_object* x_7; uint8_t x_8;
 x_6 = lean_ctor_get(x_4, 0);
 x_7 = lean_ctor_get(x_4, 1);
 x_8 = l_Lean_IR_ExplicitBoxing_requiresBoxedVersion(x_6, x_1);
-lean_dec(x_6);
 if (x_8 == 0)
 {
 lean_object* x_9; 
@@ -1358,7 +1357,6 @@ lean_inc(x_50);
 lean_inc(x_49);
 lean_dec(x_4);
 x_51 = l_Lean_IR_ExplicitBoxing_requiresBoxedVersion(x_49, x_1);
-lean_dec(x_49);
 if (x_51 == 0)
 {
 lean_object* x_52; lean_object* x_53; 
@@ -1525,6 +1523,8 @@ lean_object* initialize_Lean_Compiler_IR_ElimDeadBranches(uint8_t builtin, lean_
 lean_object* initialize_Lean_Compiler_IR_EmitC(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_IR_CtorLayout(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_IR_Sorry(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_IR_LLVMBindings(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_IR_EmitLLVM(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1582,6 +1582,12 @@ res = initialize_Lean_Compiler_IR_CtorLayout(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_Sorry(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_IR_LLVMBindings(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_IR_EmitLLVM(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_IR_initFn____x40_Lean_Compiler_IR___hyg_5____closed__1 = _init_l_Lean_IR_initFn____x40_Lean_Compiler_IR___hyg_5____closed__1();

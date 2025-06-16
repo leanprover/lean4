@@ -3,6 +3,8 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
 import Init.Omega.Coeffs
 import Init.Data.ToString.Macro
@@ -28,7 +30,7 @@ namespace LinearCombo
 
 instance : ToString LinearCombo where
   toString lc :=
-    s!"{lc.const}{String.join <| lc.coeffs.toList.enum.map fun ⟨i, c⟩ => s!" + {c} * x{i+1}"}"
+    s!"{lc.const}{String.join <| lc.coeffs.toList.zipIdx.map fun ⟨c, i⟩ => s!" + {c} * x{i+1}"}"
 
 instance : Inhabited LinearCombo := ⟨{const := 1}⟩
 

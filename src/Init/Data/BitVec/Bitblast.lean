@@ -1766,8 +1766,7 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
     have : x / -y ≠ intMin w := by
       intros h
       have : (x / -y).msb = (intMin w).msb := by simp only [h]
-      simp only [msb_intMin, show 0 < w by omega, decide_true] at this
-      rw [msb_udiv] at this
+      simp only [msb_intMin, show 0 < w by omega, decide_true, msb_udiv] at this
       simp only [and_eq_true, beq_iff_eq] at this
       obtain ⟨hcontra, _⟩ := this
       simp only [hcontra, true_eq_false] at hxmsb
@@ -1790,22 +1789,18 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
           simp only [hxy₁, decide_true, msb_neg, bne_iff_ne, ne_eq,
             bool_to_prop,
             bne_iff_ne, ne_eq, udiv_eq_zero_iff_eq_zero_or_lt, hy₁, _root_.false_or,
-            BitVec.not_lt, hxy₁, _root_.true_and, decide_not, not_eq_eq_eq_not, not_eq_not]
-          rw [msb_udiv, msb_neg]
+            BitVec.not_lt, hxy₁, _root_.true_and, decide_not, not_eq_eq_eq_not, not_eq_not, 
+            msb_udiv, msb_neg]
           simp only [bool_to_prop,
             bne_iff_ne, ne_eq, hx₁, not_false_eq_true, _root_.true_and, decide_not, hxmsb,
             bne_true, Bool.not_not, decide_eq_true_eq, beq_iff_eq]
           apply neg_udiv_eq_intmin_iff_eq_intmin_eq_one_of_msb_eq_true hxmsb hymsb
   ·  -- x:neg, y:neg
-    simp only [hxmsb, hymsb, Bool.not_true, Bool.and_true, ne_zero_of_msb_true, decide_false,
-    Bool.not_false, Bool.false_and, Bool.and_false, Bool.or_self, Bool.and_self, Bool.true_and,
-    Bool.false_or]
-    rw [msb_udiv, msb_neg]
-    simp only [hxmsb, bne_true, Bool.not_and]
+    simp only [msb_udiv, msb_neg, hxmsb, bne_true, Bool.not_and, Bool.not_true, Bool.and_true,
+      Bool.false_and, Bool.and_false, hymsb, ne_zero_of_msb_true, decide_false, Bool.not_false,
+      Bool.or_self, Bool.and_self, Bool.true_and, Bool.false_or]
     simp only [bool_to_prop]
-    simp only [not_eq_eq_eq_not, Bool.not_true, bne_eq_false_iff_eq, beq_iff_eq]
-    have hxne0 := BitVec.ne_zero_of_msb_true (x := x) hxmsb
-    simp [hxne0, neg_eq_iff_eq_neg]
+    simp [BitVec.ne_zero_of_msb_true (x := x) hxmsb, neg_eq_iff_eq_neg]
 
 theorem msb_umod_eq_false_of_left {x : BitVec w} (hx : x.msb = false) (y : BitVec w) : (x % y).msb = false := by
   rw [msb_eq_false_iff_two_mul_lt] at hx ⊢

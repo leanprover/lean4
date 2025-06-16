@@ -47,7 +47,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
     unfold go at hgo
     split at hgo
     · case isTrue h =>
-        simp at hgo
+        simp only [BitVec.natCast_eq_ofNat, BitVec.ofNat_eq_ofNat] at hgo
         rw [← hgo, go_denote_eq]
         · intro idx hidx
           rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]

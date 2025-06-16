@@ -169,4 +169,15 @@ def getNoZeroDivInst? (u : Level) (type : Expr) : MetaM (Option Expr) := do
   let noZeroDivType := mkApp3 (mkConst ``Grind.NoNatZeroDivisors [u]) type zeroInst hmulInst
   LOption.toOption <$> trySynthInstance noZeroDivType
 
+@[specialize] def split (cs : PArray α) (getCoeff : α → Int) : PArray α × Array (Int × α) := Id.run do
+  let mut cs' := {}
+  let mut todo := #[]
+  for c in cs do
+    let b := getCoeff c
+    if b == 0 then
+      cs' := cs'.push c
+    else
+      todo := todo.push (b, c)
+  return (cs', todo)
+
 end Lean.Meta.Grind.Arith

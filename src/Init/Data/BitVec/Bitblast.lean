@@ -1789,12 +1789,11 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
           simp only [hxy₁, decide_true, msb_neg, bne_iff_ne, ne_eq,
             bool_to_prop,
             bne_iff_ne, ne_eq, udiv_eq_zero_iff_eq_zero_or_lt, hy₁, _root_.false_or,
-            BitVec.not_lt, hxy₁, _root_.true_and, decide_not, not_eq_eq_eq_not, not_eq_not, 
+            BitVec.not_lt, hxy₁, _root_.true_and, decide_not, not_eq_eq_eq_not, not_eq_not,
             msb_udiv, msb_neg]
-          simp only [bool_to_prop,
-            bne_iff_ne, ne_eq, hx₁, not_false_eq_true, _root_.true_and, decide_not, hxmsb,
-            bne_true, Bool.not_not, decide_eq_true_eq, beq_iff_eq]
-          apply neg_udiv_eq_intmin_iff_eq_intmin_eq_one_of_msb_eq_true hxmsb hymsb
+          simp only [hx₁, not_false_eq_true, _root_.true_and, decide_not, hxmsb, not_eq_eq_eq_not,
+            Bool.not_true, decide_eq_false_iff_not, Decidable.not_not, beq_iff_eq]
+          rw [neg_udiv_eq_intmin_iff_eq_intmin_eq_one_of_msb_eq_true hxmsb hymsb]
   ·  -- x:neg, y:neg
     simp only [msb_udiv, msb_neg, hxmsb, bne_true, Bool.not_and, Bool.not_true, Bool.and_true,
       Bool.false_and, Bool.and_false, hymsb, ne_zero_of_msb_true, decide_false, Bool.not_false,

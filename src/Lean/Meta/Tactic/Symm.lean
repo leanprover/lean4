@@ -31,8 +31,8 @@ Tags symmetry lemmas to be used by the `symm` tactic.
 
 A symmetry lemma should be of the form `r x y → r y x` where `r` is an arbitrary relation.
 -/
-@[builtin_init, builtin_doc]
-private def initFn := registerBuiltinAttribute {
+@[builtin_doc]
+builtin_initialize registerBuiltinAttribute {
   name := `symm
   descr := "symmetric relation"
   add := fun decl _ kind => MetaM.run' do

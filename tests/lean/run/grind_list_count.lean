@@ -210,4 +210,13 @@ theorem filter_beq {l : List α} (a : α) : l.filter (· == a) = replicate (coun
   ext
   grind
 
+theorem count_flatten {α} [BEq α] {a : α} {l : List (List α)} : count a l.flatten = (l.map (count a)).sum := by
+  grind
+
+theorem count_concat_self {a : α} {l : List α} : count a (concat l a) = count a l + 1 := by grind
+
+theorem count_flatMap {α} [BEq β] {l : List α} {f : α → List β} {x : β} :
+    count x (l.flatMap f) = sum (map (count x ∘ f) l) := by
+  grind
+
 end count

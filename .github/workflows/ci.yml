@@ -164,7 +164,7 @@ jobs:
               {
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
+                "os": large && level < 2 ? "nscloud-ubuntu-22.04-amd64-4x16" : "ubuntu-latest",
                 "release": true,
                 "check-level": 2,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
@@ -176,7 +176,7 @@ jobs:
               },
               {
                 "name": "Linux Lake",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-8x8" : "ubuntu-latest",
+                "os": large && level < 2 ? "nscloud-ubuntu-22.04-amd64-8x16" : "ubuntu-latest",
                 "check-level": 0,
                 "test": true,
                 "check-rebootstrap": level >= 1,
@@ -215,7 +215,8 @@ jobs:
               },
               {
                 "name": "macOS aarch64",
-                "os": "macos-14",
+                // standard GH runner only comes with 7GB so use large runner if possible
+                "os": large ? "nscloud-macos-sonoma-arm64-6x14" : "macos-14",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "release": true,
                 "shell": "bash -euxo pipefail {0}",
@@ -246,7 +247,7 @@ jobs:
               },
               {
                 "name": "Linux aarch64",
-                "os": "nscloud-ubuntu-22.04-arm64-4x8",
+                "os": "nscloud-ubuntu-22.04-arm64-4x16",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-linux_aarch64",
                 "release": true,
                 "check-level": 2,

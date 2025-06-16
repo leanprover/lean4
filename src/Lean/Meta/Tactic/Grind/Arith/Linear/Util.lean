@@ -110,6 +110,11 @@ def setTermStructId (e : Expr) : LinearM Unit := do
     return ()
   modify' fun s => { s with exprToStructId := s.exprToStructId.insert { expr := e } structId }
 
+def getNoNatDivInst : LinearM Expr := do
+  let some inst := (← getStruct).noNatDivInst?
+    | throwError "`grind linarith` internal error, structure does not implement `NoNatZeroDivisors`"
+  return inst
+
 def getPreorderInst : LinearM Expr := do
   let some inst := (← getStruct).preorderInst?
     | throwError "`grind linarith` internal error, structure is not a preorder"
@@ -220,5 +225,47 @@ partial def _root_.Lean.Grind.Linarith.Poly.updateOccs (p : Poly) : LinearM Unit
     let .add _ x p := p | return ()
     addOcc x y; go p
   go p
+
+/--
+Given a polynomial `p`, returns `some (x, k, c)` if `p` contains the monomial `k*x`,
+and `x` has been eliminated using the equality `c`.
+-/
+def _root_.Lean.Grind.Linarith.Poly.findVarToSubst (p : Poly) : LinearM (Option (Int × Var × EqCnstr)) := do
+  match p with
+  | .nil => return none
+  | .add k x p =>
+    if let some c := (← getStruct).elimEqs[x]! then
+      return some (k, x, c)
+    else
+      findVarToSubst p
+
+def _root_.Lean.Grind.Linarith.Poly.gcdCoeffsAux : Poly → Nat → Nat
+  | .nil, k => k
+  | .add k' _ p, k => gcdCoeffsAux p (Int.gcd k' k)
+
+def _root_.Lean.Grind.Linarith.Poly.gcdCoeffs (p : Poly) : Nat :=
+  match p with
+  | .add k _ p => p.gcdCoeffsAux k.natAbs
+  | .nil => 1
+
+def _root_.Lean.Grind.Linarith.Poly.div (p : Poly) (k : Int) : Poly :=
+  match p with
+  | .add a x p => .add (a / k) x (p.div k)
+  | .nil => .nil
+
+/--
+Selects the variable in the given linear polynomial whose coefficient has the smallest absolute value.
+-/
+def _root_.Lean.Grind.Linarith.Poly.pickVarToElim? (p : Poly) : Option (Int × Var) :=
+  match p with
+  | .nil => none
+  | .add k x p => go k x p
+where
+  go (k : Int) (x : Var) (p : Poly) : Int × Var :=
+    if k == 1 || k == -1 then
+      (k, x)
+    else match p with
+      | .nil => (k, x)
+      | .add k' x' p => if k'.natAbs < k.natAbs then go k' x' p else go k x p
 
 end Lean.Meta.Grind.Arith.Linear

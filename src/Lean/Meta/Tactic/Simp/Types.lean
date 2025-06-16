@@ -244,6 +244,7 @@ structure Diagnostics where
 inductive LoopProtectionResult where
   | ok
   | loop (loop : Array SimpTheorem)
+deriving Inhabited
 
 structure LoopProtectionCache where
   map : PHashMap Expr LoopProtectionResult := {}

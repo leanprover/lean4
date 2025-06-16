@@ -1010,12 +1010,12 @@ theorem foldr_hom (f : β₁ → β₂) {g₁ : α → β₁ → β₁} {g₂ : 
 theorem foldl_rel {l : List α} {f g : β → α → β} {a b : β} {r : β → β → Prop}
     (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f c a) (g c' a)) :
     r (l.foldl (fun acc a => f acc a) a) (l.foldl (fun acc a => g acc a) b) := by
-  induction l generalizing a b with grind (ematch := 6)
+  induction l generalizing a b with grind
 
 theorem foldr_rel {l : List α} {f g : α → β → β} {a b : β} {r : β → β → Prop}
     (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f a c) (g a c')) :
     r (l.foldr (fun a acc => f a acc) a) (l.foldr (fun a acc => g a acc) b) := by
-  induction l generalizing a b with grind (ematch := 6)
+  induction l generalizing a b with grind
 
 /-! #### Further results about `getLast` and `getLast?` -/
 

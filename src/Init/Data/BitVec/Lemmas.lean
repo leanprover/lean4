@@ -5694,7 +5694,7 @@ theorem clzAux_eq_iff {x : BitVec w} {n : Nat} :
     · simp only [clzAux, hxn, reduceIte, Nat.right_eq_add, Nat.add_eq_zero, reduceCtorEq,
         and_false, false_iff, Classical.not_forall, not_imp, Bool.not_eq_false]
       exists n + 1, by omega
-    · simp only [clzAux, hxn, Bool.false_eq_true, ↓reduceIte,
+    · simp only [clzAux, hxn, Bool.false_eq_true, reduceIte,
         show 1 + x.clzAux n = n + 1 + 1 ↔ x.clzAux n = n + 1 by omega, ihn]
       constructor
       · intro hc i hin

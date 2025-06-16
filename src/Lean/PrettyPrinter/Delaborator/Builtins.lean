@@ -1031,7 +1031,7 @@ def delabLetE : Delab := do
   let Expr.letE n t v b nondep ← getExpr | unreachable!
   let n ← getUnusedName n b
   let stxV ← descend v 1 delab
-  let (stxN, stxB) ← withLetDecl n t v fun fvar => do
+  let (stxN, stxB) ← withLetDecl n t v (nondep := nondep) fun fvar => do
     let b := b.instantiate1 fvar
     return (← mkAnnotatedIdent n fvar, ← descend b 2 delab)
   if ← getPPOption getPPLetVarTypes <||> getPPOption getPPAnalysisLetVarType then
@@ -1305,7 +1305,7 @@ partial def delabDoElems : DelabM (List Syntax) := do
     let n ← getUnusedName n b
     let stxT ← descend t 0 delab
     let stxV ← descend v 1 delab
-    withLetDecl n t v fun fvar =>
+    withLetDecl n t v (nondep := nondep) fun fvar =>
       let b := b.instantiate1 fvar
       descend b 2 $
         if nondep then

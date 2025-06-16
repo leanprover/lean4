@@ -176,7 +176,8 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
         continue
       else
         match localDecl with
-        | LocalDecl.cdecl _index fvarId varName type _ _ =>
+        | LocalDecl.cdecl _index fvarId varName type ..
+        | LocalDecl.ldecl _index fvarId varName type (nondep := true) .. =>
           -- We rely on the fact that `withGoalCtx` runs `LocalContext.sanitizeNames`,
           -- so the `userName`s of local hypotheses are already pretty-printed
           -- and it suffices to simply `toString` them.
@@ -188,7 +189,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
             hyps ← pushPending varNames prevType? hyps
             varNames := #[(varName, fvarId)]
           prevType? := some type
-        | LocalDecl.ldecl _index fvarId varName type val _ _ => do
+        | LocalDecl.ldecl _index fvarId varName type val (nondep := false) .. => do
           let varName := toString varName
           hyps ← pushPending varNames prevType? hyps
           let type ← instantiateMVars type

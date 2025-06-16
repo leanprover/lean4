@@ -31,6 +31,11 @@ namespace Lean.Meta
       let val    := val.instantiateRevRange j fvars.size fvars
       let fvarId ← mkFreshFVarId
       let (n, s) ← mkName lctx n true s
+      /-
+      We have both dependent and non-dependent `let` expressions result in dependent `ldecl`s.
+      It is counterintuitive if `have` expressions are introduced with opaque values,
+      especially when we run transformations to aggressively turn `let`s into `have`s.
+      -/
       let lctx   := lctx.mkLetDecl fvarId n type val
       let fvar   := mkFVar fvarId
       let fvars  := fvars.push fvar

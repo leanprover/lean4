@@ -241,10 +241,12 @@ where
       loop param d
       withLocalDecl n c d fun x => do
         loop param (b.instantiate1 x)
-    | Expr.letE n type val body _ =>
+    | Expr.letE n type val body nondep =>
       loop param type
       loop param val
-      withLetDecl n type val fun x => do
+      -- Convert `have`s to `let`s if they aren't propositions so that the values of local declarations can be used.
+      let nondep ← pure nondep <&&> Meta.isProp type
+      withLetDecl n type val (nondep := nondep) fun x => do
         loop param (body.instantiate1 x)
     | Expr.mdata _d b =>
       if let some stx := getRecAppSyntax? e then

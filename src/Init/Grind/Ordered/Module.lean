@@ -103,11 +103,58 @@ theorem add_lt_right (a : M) {b c : M} (h : b < c) : a + b < a + c := by
   rw [add_comm a b, add_comm a c]
   exact add_lt_left h a
 
+theorem add_le_left_iff {a b : M} (c : M) : a ≤ b ↔ a + c ≤ b + c := by
+  constructor
+  · intro w
+    exact add_le_left w c
+  · intro w
+    have := add_le_left w (-c)
+    rwa [add_assoc, add_neg_cancel, add_zero, add_assoc, add_neg_cancel, add_zero] at this
+
+theorem add_le_right_iff {a b : M} (c : M) : a ≤ b ↔ c + a ≤ c + b := by
+  constructor
+  · intro w
+    exact add_le_right c w
+  · intro w
+    have := add_le_right (-c) w
+    rwa [← add_assoc, neg_add_cancel, zero_add, ← add_assoc, neg_add_cancel, zero_add] at this
+
+theorem add_lt_left_iff {a b : M} (c : M) : a < b ↔ a + c < b + c := by
+  constructor
+  · intro w
+    exact add_lt_left w c
+  · intro w
+    have := add_lt_left w (-c)
+    rwa [add_assoc, add_neg_cancel, add_zero, add_assoc, add_neg_cancel, add_zero] at this
+
+theorem add_lt_right_iff {a b : M} (c : M) : a < b ↔ c + a < c + b := by
+  constructor
+  · intro w
+    exact add_lt_right c w
+  · intro w
+    have := add_lt_right (-c) w
+    rwa [← add_assoc, neg_add_cancel, zero_add, ← add_assoc, neg_add_cancel, zero_add] at this
+
+theorem sub_nonneg_iff {a b : M} : 0 ≤ a - b ↔ b ≤ a := by
+  rw [add_le_left_iff b, zero_add, sub_add_cancel]
+
 theorem hmul_neg (k : Int) {a : M} (h : a < 0) : 0 < k ↔ k * a < 0 := by
   simpa [IntModule.hmul_neg, neg_pos_iff] using hmul_pos k (neg_pos_iff.mpr h)
 
 theorem hmul_nonpos {k : Int} {a : M} (hk : 0 ≤ k) (ha : a ≤ 0) : k * a ≤ 0 := by
   simpa [IntModule.hmul_neg, neg_nonneg_iff] using hmul_nonneg hk (neg_nonneg_iff.mpr ha)
+
+theorem hmul_le_hmul_of_le_of_le_of_nonneg_of_nonneg
+    {k₁ k₂ : Int} {x y : M} (hk : k₁ ≤ k₂) (h : x ≤ y) (w : 0 ≤ k₁) (w' : 0 ≤ x) :
+    k₁ * x ≤ k₂ * y := by
+  apply Preorder.le_trans
+  · have : 0 ≤ k₁ * (y - x) := hmul_nonneg w (sub_nonneg_iff.mpr h)
+    rwa [IntModule.hmul_sub, sub_nonneg_iff] at this
+  · have : 0 ≤ (k₂ - k₁) * y := hmul_nonneg (Int.sub_nonneg.mpr hk) (Preorder.le_trans w' h)
+    rwa [IntModule.sub_hmul, sub_nonneg_iff] at this
+
+theorem add_le_add {a b c d : M} (hab : a ≤ b) (hcd : c ≤ d) : a + c ≤ b + d :=
+  Preorder.le_trans (add_le_right a hcd) (add_le_left hab d)
 
 end IntModule.IsOrdered
 

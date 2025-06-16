@@ -260,7 +260,7 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
   | .core a b lhs rhs =>
     let h ← mkIntModThmPrefix ``Grind.Linarith.eq_norm
     return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue (← mkEqProof a b)
-  | .coreCommRing a b ra rb p lhs' => throwError "NIY"
+  | .coreCommRing _a _b _ra _rb _p _lhs' => throwError "NIY"
   | .neg c =>
     let h ← mkIntModThmPrefix ``Grind.Linarith.eq_neg
     return mkApp4 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)

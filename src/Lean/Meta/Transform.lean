@@ -113,10 +113,10 @@ partial def transformWithCache {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT
         | e => visitPost (← mkForallFVars (usedLetOnly := usedLetOnly) fvars (← visit (e.instantiateRev fvars)))
       let rec visitLet (fvars : Array Expr) (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
         match e with
-        | .letE n t v b _ =>
-          withLetDecl n (← visit (t.instantiateRev fvars)) (← visit (v.instantiateRev fvars)) fun x =>
+        | .letE n t v b nondep =>
+          withLetDecl n (← visit (t.instantiateRev fvars)) (← visit (v.instantiateRev fvars)) (nondep := nondep) fun x =>
             visitLet (fvars.push x) b
-        | e => visitPost (← mkLetFVars (usedLetOnly := usedLetOnly) fvars (← visit (e.instantiateRev fvars)))
+        | e => visitPost (← mkLetFVars (usedLetOnly := usedLetOnly) (generalizeNondepLet := false) fvars (← visit (e.instantiateRev fvars)))
       let visitApp (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
         e.withApp fun f args => do
           if skipConstInApp && f.isConst then

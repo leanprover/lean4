@@ -121,8 +121,8 @@ def withLetValue (x : m α) : m α := do
   descend v 1 x
 
 def withLetBody (x : m α) : m α := do
-  let Expr.letE n t v b _ ← getExpr | unreachable!
-  Meta.withLetDecl n t v fun fvar =>
+  let Expr.letE n t v b nondep ← getExpr | unreachable!
+  Meta.withLetDecl n t v (nondep := nondep) fun fvar =>
     let b := b.instantiate1 fvar
     descend b 2 x
 

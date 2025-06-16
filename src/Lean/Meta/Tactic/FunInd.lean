@@ -379,13 +379,13 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
           let body' ← foldAndCollect oldIH newIH isRecCall (body.instantiate1 x)
           mkForallFVars #[x] body'
 
-    | .letE n t v b _ =>
+    | .letE n t v b nondep =>
       let t' ← foldAndCollect oldIH newIH isRecCall t
       let v' ← foldAndCollect oldIH newIH isRecCall v
-      withLetDecl n t' v' fun x => do
-        M.localMapM (mkLetFVars (usedLetOnly := true) #[x] ·) do
+      withLetDecl n t' v' (nondep := nondep) fun x => do
+        M.localMapM (mkLetFVars (usedLetOnly := true) (generalizeNondepLet := false) #[x] ·) do
           let b' ← foldAndCollect oldIH newIH isRecCall (b.instantiate1 x)
-          mkLetFVars #[x] b'
+          mkLetFVars (generalizeNondepLet := false) #[x] b'
 
     | .mdata m b =>
       pure <| .mdata m (← foldAndCollect oldIH newIH isRecCall b)
@@ -474,6 +474,11 @@ where
       for localDecl in (← getLCtx) do
         if localDecl.index > index && (!firstPass || localDecl.userName.hasMacroScopes) then
           if localDecl.isLet then
+            if ← Meta.isProp localDecl.type then
+              if let some mvarId' ← observing? <| mvarId.clearValue localDecl.fvarId then
+                return some mvarId'
+              else
+                continue
             if let some mvarId' ← observing? <| mvarId.clear localDecl.fvarId then
               return some mvarId'
           if let some mvarId' ← substVar? mvarId localDecl.fvarId then
@@ -908,10 +913,10 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
   if let some (n, t, v, b) := e.letFun? then
     let t' ← foldAndCollect oldIH newIH isRecCall t
     let v' ← foldAndCollect oldIH newIH isRecCall v
-    return ← withLocalDeclD n t' fun x => M2.branch do
+    return ← withLetDecl n t' v' fun x => M2.branch do
       let b' ← withRewrittenMotiveArg goal (rwHaveWith x) fun goal' =>
         buildInductionBody toErase toClear goal' oldIH newIH isRecCall (b.instantiate1 x)
-      mkLetFun x v' b'
+      mkLetFVars #[x] b' (usedLetOnly := false)
 
   -- Special case for traversing the PProd’ed bodies in our encoding of structural mutual recursion
   if let .lam n t b bi := e then

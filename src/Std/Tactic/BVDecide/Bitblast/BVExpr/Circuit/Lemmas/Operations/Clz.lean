@@ -96,7 +96,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
                     show 2 ^ (1 + w) + w + (2 ^ (1 + w) - w) = 2 ^ (1 + w) +((2 ^ (1 + w) - w) + w) by omega,
                     Nat.sub_add_cancel (by rw [Nat.add_comm] at hlt'; omega),
                     Nat.add_mod_right,  Nat.mod_self]
-                · have hlt'' : curr + 1 < 2 ^ (1 + w) := by rw [Nat.add_comm 1 w]; omega
+                · have : curr + 1 < 2 ^ (1 + w) := by rw [Nat.add_comm 1 w]; omega
                   rw [Nat.add_comm,
                     show 2 ^ (1 + w) + w + (2 ^ (1 + w) - (curr + 1)) = 2 ^ (1 + w) + (2 ^ (1 + w) + (w - (curr + 1))) by omega,
                     Nat.add_mod_left, Nat.add_mod_left]

@@ -279,6 +279,7 @@ private def eraseFwdIfBwd (d : SimpTheorems) (e : SimpTheorem) : SimpTheorems :=
     d
 
 def addSimpTheoremEntry (d : SimpTheorems) (e : SimpTheorem) : SimpTheorems :=
+  -- TODO: Unerase here?
   let d := eraseFwdIfBwd d e
   if e.post then
     { d with post := d.post.insertCore e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
@@ -432,7 +433,8 @@ private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array 
       | none => throwError "unexpected kind of 'simp' theorem{indentExpr type}"
     return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl := (← isRflProof proof) }
 
-private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool) (prio : Nat) : MetaM (Array SimpTheorem) := do
+def mkSimpTheoremsFromConst (declName : Name) (post := true) (inv := false)
+    (prio : Nat := eval_prio default) : MetaM (Array SimpTheorem) := do
   let cinfo ← getConstVal declName
   let us := cinfo.levelParams.map mkLevelParam
   let origin := .decl declName post inv
@@ -471,15 +473,17 @@ def addSimpTheorem (ext : SimpExtension) (declName : Name) (post : Bool) (inv : 
   for simpThm in simpThms do
     ext.add (SimpEntry.thm simpThm) attrKind
 
+def SimpTheorems.addSimpEntry (d : SimpTheorems) (e : SimpEntry) : SimpTheorems :=
+  match e with
+  | .thm e => addSimpTheoremEntry d e
+  | .toUnfold n => d.addDeclToUnfoldCore n
+  | .toUnfoldThms n thms => d.registerDeclToUnfoldThms n thms
+
 def mkSimpExt (name : Name := by exact decl_name%) : IO SimpExtension :=
   registerSimpleScopedEnvExtension {
     name     := name
     initial  := {}
-    addEntry := fun d e =>
-      match e with
-      | .thm e => addSimpTheoremEntry d e
-      | .toUnfold n => d.addDeclToUnfoldCore n
-      | .toUnfoldThms n thms => d.registerDeclToUnfoldThms n thms
+    addEntry := fun d e => d.addSimpEntry e
   }
 
 abbrev SimpExtensionMap := Std.HashMap Name SimpExtension
@@ -512,10 +516,17 @@ private def preprocessProof (val : Expr) (inv : Bool) : MetaM (Array Expr) := do
   let ps ← preprocess val type inv (isGlobal := false)
   return ps.toArray.map fun (val, _) => val
 
-/-- Auxiliary method for creating simp theorems from a proof term `val`. -/
-private def mkSimpTheorems (id : Origin) (levelParams : Array Name) (proof : Expr) (post := true) (inv := false) (prio : Nat := eval_prio default) : MetaM (Array SimpTheorem) :=
-  withReducible do
-    (← preprocessProof proof inv).mapM fun val => mkSimpTheoremCore id val levelParams val post prio (noIndexAtArgs := true)
+def mkSimpTheoremsFromExpr (id : Origin) (levelParams : Array Name) (proof : Expr) (inv := false)
+    (post := true) (prio : Nat := eval_prio default) (config : ConfigWithKey := simpGlobalConfig) :
+    MetaM (Array SimpTheorem) := do
+  if proof.isConst then
+    -- Recall that we use `simpGlobalConfig` for processing global declarations.
+    mkSimpTheoremsFromConst proof.constName! post inv prio
+  else
+    withConfigWithKey config do
+      withReducible do
+        (← preprocessProof proof inv).mapM fun val =>
+          mkSimpTheoremCore id val levelParams val post prio (noIndexAtArgs := true)
 
 /--
 Reducible functions and projection functions should always be put in `toUnfold`, instead
@@ -545,15 +556,15 @@ def SimpTheorems.unfoldEvenWithEqns (declName : Name) : CoreM Bool := do
   unless (← isRecursiveDefinition declName) do return true
   return false
 
-def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM SimpTheorems := do
+def SimpTheorems.entriesOfDeclToUnfold (declName : Name) : MetaM (Array SimpEntry) := do
+  let mut entries : Array SimpEntry := #[]
   -- NOTE: the latter condition is only to preserve previous behavior where simp accepts even things
   -- that neither theorems nor unfoldable. This should likely be tightened up in the future.
   if !(← getConstInfo declName).isDefinition && getOriginalConstKind? (← getEnv) declName == some .defn then
     throwError "invalid 'simp', definition with exposed body expected: {.ofConstName declName}"
   if (← ignoreEquations declName) then
-    return d.addDeclToUnfoldCore declName
+    entries := entries.push (.toUnfold declName)
   else if let some eqns ← getEqnsFor? declName then
-    let mut d := d
     for h : i in [:eqns.size] do
       let eqn := eqns[i]
       /-
@@ -571,23 +582,20 @@ def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM Si
         if i + 1 = eqns.size then 0 else 1
       else
         100 - i
-      d ← SimpTheorems.addConst d eqn (prio := prio)
+      let thms ← mkSimpTheoremsFromConst eqn (prio := prio)
+      entries := entries ++ thms.map (.thm ·)
     if (← unfoldEvenWithEqns declName) then
-      d := d.addDeclToUnfoldCore declName
-    return d
+      entries := entries.push (.toUnfold declName)
   else
-    return d.addDeclToUnfoldCore declName
+    entries := entries.push (.toUnfold declName)
+  return entries
 
 /-- Auxiliary method for adding a local simp theorem to a `SimpTheorems` datastructure. -/
 def SimpTheorems.add (s : SimpTheorems) (id : Origin) (levelParams : Array Name) (proof : Expr)
         (inv := false) (post := true) (prio : Nat := eval_prio default)
-        (config : ConfigWithKey := simpGlobalConfig) : MetaM SimpTheorems := do
-  if proof.isConst then
-    -- Recall that we use `simpGlobalConfig` for processing global declarations.
-    s.addConst proof.constName! post inv prio
-  else
-    let simpThms ← withConfigWithKey config <| mkSimpTheorems id levelParams proof post inv prio
-    return simpThms.foldl addSimpTheoremEntry s
+        (config : ConfigWithKey) : MetaM SimpTheorems := do
+  let simpThms ← mkSimpTheoremsFromExpr id levelParams proof inv post prio config
+  return simpThms.foldl addSimpTheoremEntry s
 
 abbrev SimpTheoremsArray := Array SimpTheorems
 

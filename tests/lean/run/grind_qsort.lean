@@ -28,8 +28,6 @@ open List Vector
 
 -- These attributes still need to be moved to the standard library.
 
--- attribute [grind =] Vector.getElem_swap_of_ne -- Setting `(splits := 9)` means we don't need this
-
 -- set_option trace.grind.ematch.pattern true in
 -- attribute [grind] Vector.getElem?_eq_getElem -- This one requires some consideration! -- Probably not need, see Vector.Perm.extract' below.
 
@@ -127,7 +125,7 @@ private theorem getElem_qpartition_loop_snd_of_lt_lo
 private theorem getElem_qpartition_snd_of_lt_lo (as : Vector α n)
     (hhi : hi < n) (w : lo ≤ hi)
     (k : Nat) (h : k < lo) : (qpartition as lt lo hi).2[k] = as[k] := by
-  grind (splits := 9) [qpartition, getElem_qpartition_loop_snd_of_lt_lo]
+  grind [qpartition, getElem_qpartition_loop_snd_of_lt_lo]
 
 @[local grind] private theorem getElem_qsort_sort_of_lt_lo
     (as : Vector α n)
@@ -144,7 +142,7 @@ private theorem getElem_qpartition_loop_snd_of_hi_lt
 private theorem getElem_qpartition_snd_of_hi_lt (as : Vector α n)
     (hhi : hi < n) (w : lo ≤ hi)
     (k : Nat) (h : hi < k) (h' : k < n) : (qpartition as lt lo hi).2[k] = as[k] := by
-  grind (splits := 9) [qpartition, getElem_qpartition_loop_snd_of_hi_lt]
+  grind [qpartition, getElem_qpartition_loop_snd_of_hi_lt]
 
 @[local grind] private theorem getElem_qsort_sort_of_hi_lt
     (as : Vector α n) (w : lo ≤ hi)

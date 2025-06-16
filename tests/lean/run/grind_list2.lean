@@ -1089,11 +1089,7 @@ theorem dropLast_append {l₁ l₂ : List α} :
 theorem dropLast_append_cons : dropLast (l₁ ++ b :: l₂) = l₁ ++ dropLast (b :: l₂) := by
   grind +extAll
 
--- Failing with:
--- [issue] unexpected metavariable during internalization
---       ?α
---     `grind` is not supposed to be used in goals containing metavariables.
--- theorem dropLast_concat : dropLast (l₁ ++ [b]) = l₁ := by grind (gen := 6)
+-- theorem dropLast_concat : dropLast (l₁ ++ [b]) = l₁ := by grind
 
 theorem dropLast_replicate {n : Nat} {a : α} : dropLast (replicate n a) = replicate (n - 1) a := by
   grind +extAll

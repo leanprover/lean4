@@ -35,7 +35,7 @@ open scoped HashMap in
 example (m : HashMap Nat Nat) :
     (m.insert 1 2).filter (fun k _ => k > 1000) ~m m.filter fun k _ => k > 1000 := by
   apply HashMap.Equiv.of_forall_getElem?_eq
-  grind (gen := 6)
+  grind
 
 example [BEq α] [LawfulBEq α] [Hashable α] [LawfulHashable α]
   {m : HashMap α β} {f : α → β → γ} {k : α} :

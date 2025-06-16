@@ -235,9 +235,15 @@ inductive SimpLetCase where
   | nondep -- `let x := v; b` is equivalent to `(fun x => b) v`, and result type does not depend on `x`
 deriving Repr
 
-def getSimpLetCase (n : Name) (t : Expr) (b : Expr) : MetaM SimpLetCase := do
+def getSimpLetCase (n : Name) (t : Expr) (b : Expr) (nondep : Bool) : MetaM SimpLetCase := do
   withLocalDeclD n t fun x => do
     let bx := b.instantiate1 x
+    if nondep then
+      let bxType ← whnf (← inferType bx)
+      if (← dependsOn bxType x.fvarId!) then
+        return .nondepDepVar
+      else
+        return .nondep
     /- The following step is potentially very expensive when we have many nested let-decls.
        TODO: handle a block of nested let decls in a single pass if this becomes a performance problem. -/
     if (← isTypeCorrect bx) then
@@ -389,11 +395,13 @@ def simpForall (e : Expr) : SimpM Result := withParent e do
     return { expr := (← dsimp e) }
 
 def simpLet (e : Expr) : SimpM Result := do
-  let .letE n t v b _ := e | unreachable!
+  let .letE n t v b nondep := e | unreachable!
   if (← getConfig).zeta then
     return { expr := b.instantiate1 v }
+  else if !b.hasLooseBVars && (← getConfig).zetaUnused then
+    return { expr := b.lowerLooseBVars 1 1 }
   else
-    let simpLetCase ← getSimpLetCase n t b
+    let simpLetCase ← getSimpLetCase n t b nondep
     trace[Debug.Meta.Tactic.simp] "getSimpLetCase is {repr simpLetCase}:{indentExpr e}"
     match simpLetCase with
     | SimpLetCase.dep => return { expr := (← dsimp e) }
@@ -405,7 +413,7 @@ def simpLet (e : Expr) : SimpM Result := do
         let hb? ← match rbx.proof? with
           | none => pure none
           | some h => pure (some (← mkLambdaFVars #[x] h))
-        let e' := mkLet n t rv.expr (← rbx.expr.abstractM #[x])
+        let e' := mkLet n t rv.expr (← rbx.expr.abstractM #[x]) (nondep := true)
         match rv.proof?, hb? with
         | none,   none   => return { expr := e' }
         | some h, none   => return { expr := e', proof? := some (← mkLetValCongr (← mkLambdaFVars #[x] rbx.expr) h) }
@@ -415,7 +423,7 @@ def simpLet (e : Expr) : SimpM Result := do
       withLocalDeclD n t fun x => withNewLemmas #[x] do
         let bx := b.instantiate1 x
         let rbx ← simp bx
-        let e' := mkLet n t v' (← rbx.expr.abstractM #[x])
+        let e' := mkLet n t v' (← rbx.expr.abstractM #[x]) (nondep := true)
         match rbx.proof? with
         | none => return { expr := e' }
         | some h =>
@@ -721,8 +729,8 @@ def simpApp (e : Expr) : SimpM Result := do
   if isOfNatNatLit e || isOfScientificLit e || isCharLit e then
     -- Recall that we fold "orphan" kernel Nat literals `n` into `OfNat.ofNat n`
     return { expr := e }
-  else if isNonDepLetFun e then
-    simpNonDepLetFun e
+  else if let some (args, n, t, v, b) := e.letFunAppArgs? then
+    return { expr := mkAppN (Expr.letE n t v b true) args }
   else
     congr e
 

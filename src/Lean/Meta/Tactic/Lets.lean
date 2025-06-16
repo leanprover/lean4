@@ -17,17 +17,18 @@ namespace Lean.Meta
 /-!
 ### `let` extraction
 
-Extracting `let`s means to locate `let`/`letFun`s in a term and to extract them
+Extracting `let`s means to locate `let`/`have`s in a term and to extract them
 from the term, extending the local context with new declarations in the process.
-A related process is lifting `lets`, which means to move `let`/`letFun`s toward the root of a term.
+A related process is lifting `lets`, which means to move `let`/`have`s toward the root of a term.
 -/
 
 namespace ExtractLets
 
 structure LocalDecl' where
+  /-- An `ldecl` with `nondep := false`. -/
   decl : LocalDecl
   /--
-  If true, is a `let`, if false, is a `letFun`.
+  If true, is a `let`, if false, is a `have`.
   Used in `lift` mode.
   -/
   isLet : Bool
@@ -90,13 +91,13 @@ def isExtractableLet (fvars : List Expr) (n : Name) (t v : Expr) : M (Bool × Na
     if let some n ← nextNameForBinderName? n then
       return (true, n)
   -- In lift mode, we temporarily extract non-extractable lets, but we do not make use of `givenNames` for them.
-  -- These will be flushed as let/letFun expressions, and we wish to preserve the original binder name.
+  -- These will be flushed as let/have expressions, and we wish to preserve the original binder name.
   if (← read).lift then
     return (true, n)
   return (false, n)
 
 /--
-Adds the `decl` to the `decls` list. Assumes that `decl` is an ldecl.
+Adds the `decl` to the `decls` list. Assumes that `decl` is an ldecl with `nondep := false`.
 -/
 def addDecl (decl : LocalDecl) (isLet : Bool) : M Unit := do
   let cfg ← read
@@ -140,13 +141,9 @@ This should *not* be used when closing lets for new goal metavariables, since
 1. The goal contains the decls in its local context, violating the assumption.
 2. We need to use true `let`s in that case, since tactics may zeta-delta reduce these declarations.
 -/
-def mkLetDecls (decls : Array LocalDecl') (e : Expr) : MetaM Expr := do
-  withEnsuringDeclsInContext decls do
-    decls.foldrM (init := e) fun { decl, isLet } e => do
-      if isLet then
-        return .letE decl.userName decl.type decl.value (e.abstract #[decl.toExpr]) false
-      else
-        mkLetFun decl.toExpr decl.value e
+def mkLetDecls (decls : Array LocalDecl') (e : Expr) : Expr :=
+  decls.foldr (init := e) fun { decl, isLet } e =>
+    Expr.letE decl.userName decl.type decl.value (e.abstract #[decl.toExpr]) (nondep := !isLet)
 
 /--
 Makes sure the declaration for `fvarId` is marked with `isLet := true`.
@@ -227,7 +224,7 @@ partial def extractCore (fvars : List Expr) (e : Expr) (topLevel : Bool := false
       match e with
       | .bvar .. | .fvar .. | .mvar .. | .sort .. | .const .. | .lit .. => unreachable!
       | .mdata _ e'      => return e.updateMData! (← extractCore fvars e' (topLevel := topLevel))
-      | .letE n t v b _  => extractLetLike true n t v b (fun t v b => pure <| e.updateLetE! t v b) (topLevel := topLevel)
+      | .letE n t v b nondep  => extractLetLike (!nondep) n t v b (fun t v b => pure <| e.updateLetE! t v b) (topLevel := topLevel)
       | .app ..          =>
         if e.isLetFun then
           extractLetFun e (topLevel := topLevel)
@@ -244,7 +241,7 @@ where
         let b ← extractCore (x :: fvars) (b.instantiate1 x)
         if (← read).lift then
           let toFlush ← flushDecls x.fvarId!
-          let b ← mkLetDecls toFlush b
+          let b := mkLetDecls toFlush b
           return mk t (b.abstract #[x])
         else
           return mk t (b.abstract #[x])
@@ -326,7 +323,7 @@ private def extractLetsImp (es : Array Expr) (givenNames : List Name)
   withExistingLocalDecls decls.toList <| k (decls.map (·.fvarId)) es givenNames'
 
 /--
-Extracts `let` and `letFun` expressions into local definitions,
+Extracts `let` and `have` expressions into local definitions,
 evaluating `k` at the post-extracted expressions and the extracted fvarids, within a context containing those local declarations.
 - The `givenNames` is a list of explicit names to use for extracted local declarations.
   If a name is `_` (or if there is no provided given name and `config.onlyGivenNames` is true) then uses a hygienic name
@@ -337,11 +334,11 @@ def extractLets [Monad m] [MonadControlT MetaM m] (es : Array Expr) (givenNames 
   map3MetaM (fun k => extractLetsImp es givenNames k config) k
 
 /--
-Lifts `let` and `letFun` expressions in the given expression as far out as possible.
+Lifts `let` and `have` expressions in the given expression as far out as possible.
 -/
 def liftLets (e : Expr) (config : LiftLetsConfig := {}) : MetaM Expr := do
   let (es, st) ← ExtractLets.extract #[e] |>.run { config with onlyGivenNames := true } |>.run' {} |>.run { givenNames := [] }
-  ExtractLets.mkLetDecls st.decls es[0]!
+  return ExtractLets.mkLetDecls st.decls es[0]!
 
 end Lean.Meta
 
@@ -349,7 +346,7 @@ private def throwMadeNoProgress (tactic : Name) (mvarId : MVarId) : MetaM α :=
   throwTacticEx tactic mvarId m!"made no progress"
 
 /--
-Extracts `let` and `letFun` expressions from the target,
+Extracts `let` and `have` expressions from the target,
 returning `FVarId`s for the extracted let declarations along with the new goal.
 - The `givenNames` is a list of explicit names to use for extracted local declarations.
   If a name is `_` (or if there is no provided given name and `config.onlyGivenNames` is true) then uses a hygienic name
@@ -397,7 +394,7 @@ def Lean.MVarId.extractLetsLocalDecl (mvarId : MVarId) (fvarId : FVarId) (givenN
     | _ => throwTacticEx `extract_lets mvarId "unexpected auxiliary target"
 
 /--
-Lifts `let` and `letFun` expressions in target as far out as possible.
+Lifts `let` and `have` expressions in target as far out as possible.
 Throws an exception if nothing is lifted.
 
 Like `Lean.MVarId.extractLets`, but top-level lets are not added to the local context.

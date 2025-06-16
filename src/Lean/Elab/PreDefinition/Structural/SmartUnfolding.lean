@@ -32,8 +32,9 @@ where
     match e with
     | Expr.lam ..     => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← visit b)
     | Expr.forallE .. => forallTelescope e fun xs b => do mkForallFVars xs (← visit b)
-    | Expr.letE n type val body _ =>
-      withLetDecl n type (← visit val) fun x => do mkLetFVars #[x] (← visit (body.instantiate1 x))
+    | Expr.letE n type val body nondep =>
+      mapLetDecl n type (← visit val) (nondep := nondep) fun x => do
+        visit (body.instantiate1 x)
     | Expr.mdata d b     => return mkMData d (← visit b)
     | Expr.proj n i s    => return mkProj n i (← visit s)
     | Expr.app .. =>

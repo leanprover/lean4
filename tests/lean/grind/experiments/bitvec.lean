@@ -1,4 +1,3 @@
-set_option linter.missingDocs true
 
 open BitVec
 
@@ -6,20 +5,23 @@ set_option trace.grind.ematch.pattern true
 
 namespace BitVec'
 
-@[simp] theorem mk_zero : BitVec.ofFin (w := w) ⟨0, h⟩ = 0#w := rfl
-@[simp] theorem ofNatLT_zero : BitVec.ofNatLT (w := w) 0 h = 0#w := rfl
+@[simp, grind =] theorem mk_zero : BitVec.ofFin (w := w) ⟨0, h⟩ = 0#w := rfl
+@[simp, grind =] theorem ofNatLT_zero : BitVec.ofNatLT (w := w) 0 h = 0#w := rfl
 
-@[simp] theorem getLsbD_ofFin (x : Fin (2^n)) (i : Nat) :
+@[simp, grind =] theorem getLsbD_ofFin (x : Fin (2^n)) (i : Nat) :
     getLsbD (BitVec.ofFin x) i = x.val.testBit i := rfl
 
-@[simp] theorem getElem_ofFin (x : Fin (2^n)) (i : Nat) (h : i < n) :
+@[simp, grind =] theorem getElem_ofFin (x : Fin (2^n)) (i : Nat) (h : i < n) :
     (BitVec.ofFin x)[i] = x.val.testBit i := rfl
 
-@[simp] theorem getLsbD_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getLsbD x i = false := by
+grind_pattern Nat.pow_le_pow_right => i ≤ j, n ^ i
+grind_pattern Nat.pow_le_pow_right => i ≤ j, n ^ j
+
+@[simp, grind =] theorem getLsbD_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getLsbD x i = false := by
   let ⟨x, x_lt⟩ := x
   simp only [getLsbD_ofFin]
   apply Nat.testBit_lt_two_pow
-  have p : 2^w ≤ 2^i := Nat.pow_le_pow_right (by omega) ge
+  -- have p : 2^w ≤ 2^i := Nat.pow_le_pow_right (by omega) ge
   grind
 
 @[simp] theorem getMsbD_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getMsbD x i = false := by

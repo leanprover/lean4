@@ -37,6 +37,15 @@ class IntModule (M : Type u) extends Zero M, Add M, Neg M, Sub M, HMul Int M M w
   neg_add_cancel : ∀ a : M, -a + a = 0
   sub_eq_add_neg : ∀ a b : M, a - b = a + -b
 
+namespace NatModule
+
+variable {M : Type u} [NatModule M]
+
+theorem zero_add (a : M) : 0 + a = a := by
+  rw [add_comm, add_zero]
+
+end NatModule
+
 namespace IntModule
 
 attribute [instance 100] IntModule.toZero IntModule.toAdd IntModule.toNeg IntModule.toSub IntModule.toHMul

@@ -73,29 +73,17 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
               simp [BitVec.clzAuxRec, hx0, hacc]
           · split
             · next hx' =>
-              simp only at hx'
-              simp only [denote_blastConst,BitVec.clzAuxRec,
-                show x.getLsbD (curr + 1) = true by rw [hx] at hx'; exact hx', reduceIte]
+              have hxc : x.getLsbD (curr + 1) = true := by rw [hx] at hx'; exact hx'
+              have := Nat.lt_pow_self (n := curr + 1) (a := 2) (by omega)
+              have := Nat.pow_lt_pow_of_lt (a := 2) (n := curr + 1) (m := w) (by omega) (by omega)
+              simp only [denote_blastConst,BitVec.clzAuxRec, hxc, reduceIte]
               congr
-              rcases w with _|w
-              · simp [BitVec.of_length_zero]
-              · simp only [BitVec.ofNat_sub_ofNat, Nat.zero_lt_succ, Nat.one_mod_two_pow,
-                  Nat.add_one_sub_one]
-                have hlt := Nat.lt_pow_self (n := curr + 1) (a := 2) (by omega)
-                have hlt' := Nat.pow_lt_pow_of_lt (a := 2) (n := curr + 1) (m := w + 1) (by omega) (by omega)
-                rw [Nat.mod_eq_of_lt (a := curr + 1) (by omega),
-                  show 2 ^ (w + 1) - 1 + (w + 1) = 2 ^ (w + 1) + w by omega, Nat.add_comm]
-                simp only [BitVec.toNat_eq, BitVec.toNat_ofNat]
-                by_cases hcw : curr + 1 = w
-                · simp only [hcw, Nat.sub_self, Nat.zero_mod] at *
-                  rw [Nat.add_comm,
-                    show 2 ^ (1 + w) + w + (2 ^ (1 + w) - w) = 2 ^ (1 + w) +((2 ^ (1 + w) - w) + w) by omega,
-                    Nat.sub_add_cancel (by rw [Nat.add_comm] at hlt'; omega),
-                    Nat.add_mod_right,  Nat.mod_self]
-                · have : curr + 1 < 2 ^ (1 + w) := by rw [Nat.add_comm 1 w]; omega
-                  rw [Nat.add_comm,
-                    show 2 ^ (1 + w) + w + (2 ^ (1 + w) - (curr + 1)) = 2 ^ (1 + w) + (2 ^ (1 + w) + (w - (curr + 1))) by omega,
-                    Nat.add_mod_left, Nat.add_mod_left]
+              simp only [BitVec.ofNat_sub_ofNat, Nat.zero_lt_succ, Nat.one_mod_two_pow,
+                Nat.add_one_sub_one]
+              rw [BitVec.toNat_eq, BitVec.toNat_ofNat, Nat.mod_eq_of_lt (a := curr + 1) (by omega),
+                Nat.mod_eq_of_lt (a := 1) (by omega),
+                show 2 ^ w - (curr + 1) + (2 ^ w - 1 + w) = (2 ^ w) + (2 ^ w + (w - curr - 1 - 1)) by omega]
+              simp [Nat.add_mod_left, Nat.sub_add_eq, Nat.sub_right_comm]
             · next hx' =>
               simp only [Nat.add_eq_zero, Nat.succ_ne_self, and_false, reduceIte,
                 Nat.add_one_sub_one] at hacc

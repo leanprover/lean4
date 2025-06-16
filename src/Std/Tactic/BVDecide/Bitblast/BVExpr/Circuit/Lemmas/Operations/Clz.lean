@@ -54,7 +54,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
           · simp [hx]
           · simp [Ref.hgate]
         · intro idx hidx
-          simp only [Nat.add_eq_zero, Nat.succ_ne_self, and_false, ↓reduceIte, RefVec.get_cast,
+          simp only [Nat.add_eq_zero, Nat.succ_ne_self, and_false, reduceIte, RefVec.get_cast,
             Ref.cast_eq, Nat.add_one_sub_one]
           rw [RefVec.denote_ite]
           rcases curr with _|curr
@@ -71,15 +71,15 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
                 rw [Nat.mod_eq_of_lt hlt, show 2 ^ (w + 1) - 1 + (w + 1) = 2 ^ (w + 1) + w by omega]
                 simp
             · next hx' =>
-              simp only [↓reduceIte] at hacc
+              simp only [reduceIte] at hacc
               simp only [BitVec.clzAuxRec,
                 show x.getLsbD 0 = false by rw [hx] at hx'; simp at hx'; exact hx',
-                Bool.false_eq_true, ↓reduceIte, hacc]
+                Bool.false_eq_true, reduceIte, hacc]
           · split
             · next hx' =>
               simp only at hx'
               simp only [denote_blastConst,BitVec.clzAuxRec,
-                show x.getLsbD (curr + 1) = true by rw [hx] at hx'; exact hx', ↓reduceIte]
+                show x.getLsbD (curr + 1) = true by rw [hx] at hx'; exact hx', reduceIte]
               congr
               rcases w with _|w
               · simp [BitVec.of_length_zero]
@@ -101,7 +101,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
                     show 2 ^ (1 + w) + w + (2 ^ (1 + w) - (curr + 1)) = 2 ^ (1 + w) + (2 ^ (1 + w) + (w - (curr + 1))) by omega,
                     Nat.add_mod_left, Nat.add_mod_left]
             · next hx' =>
-              simp only [Nat.add_eq_zero, Nat.succ_ne_self, and_false, ↓reduceIte,
+              simp only [Nat.add_eq_zero, Nat.succ_ne_self, and_false, reduceIte,
                 Nat.add_one_sub_one] at hacc
               simp [hacc, BitVec.clzAuxRec, show x.getLsbD (curr + 1) = false by rw [hx] at hx'; simp at hx'; exact hx']
     · case isFalse h =>
@@ -130,7 +130,7 @@ theorem denote_blastClz (aig : AIG α) (xc : RefVec aig w) (x : BitVec w) (assig
   rw [← hb, blastClz.go_denote_eq (x := x) (w := w)]
   · exact hx
   · intro idx hidx
-    simp only [↓reduceIte, BitVec.natCast_eq_ofNat]
+    simp only [reduceIte, BitVec.natCast_eq_ofNat]
     rw [denote_blastConst]
 
 end bitblast

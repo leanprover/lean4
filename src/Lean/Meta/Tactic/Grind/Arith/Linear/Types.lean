@@ -25,7 +25,11 @@ structure EqCnstr where
   h      : EqCnstrProof
 
 inductive EqCnstrProof where
-  | rfl -- TODO
+  | core (a b : Expr) (lhs rhs : LinExpr)
+  | coreCommRing (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+  | neg (c : EqCnstr)
+  | coeff (k : Nat) (c : EqCnstr)
+  | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
 
 /-- An inequality constraint and its justification/proof. -/
 structure IneqCnstr where
@@ -47,6 +51,7 @@ inductive IneqCnstrProof where
     ofEq (a b : Expr) (la lb : LinExpr)
   | /-- `a ≤ b` from an equality `a = b` coming from the core. -/
     ofCommRingEq (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+  | subst (x : Var) (c₁ : EqCnstr) (c₂ : IneqCnstr)
 
 structure DiseqCnstr where
   p  : Poly
@@ -56,6 +61,9 @@ inductive DiseqCnstrProof where
   | core (a b : Expr) (lhs rhs : LinExpr)
   | coreCommRing (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
   | neg (c : DiseqCnstr)
+  | subst (k₁ k₂ : Int) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
+  | subst1 (k : Int) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
+  | oneNeZero
 
 inductive UnsatProof where
   | diseq (c : DiseqCnstr)
@@ -64,6 +72,9 @@ inductive UnsatProof where
 end
 
 instance : Inhabited DiseqCnstr where
+  default := { p := .nil, h := .core default default .zero .zero }
+
+instance : Inhabited EqCnstr where
   default := { p := .nil, h := .core default default .zero .zero }
 
 abbrev VarSet := RBTree Var compare
@@ -98,6 +109,10 @@ structure Struct where
   commRingInst?    : Option Expr
   /-- `Ring.IsOrdered` instance with `Preorder` -/
   ringIsOrdInst?   : Option Expr
+  /-- `Field` instance -/
+  fieldInst?       : Option Expr
+  /-- `IsCharP` instance for `type` if available. -/
+  charInst?        : Option (Expr × Nat)
   zero             : Expr
   ofNatZero        : Expr
   one?             : Option Expr

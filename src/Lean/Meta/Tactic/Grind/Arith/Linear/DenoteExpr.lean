@@ -59,6 +59,9 @@ private def denoteIneq (p : Poly) (strict : Bool) : M Expr := do
 def IneqCnstr.denoteExpr (c : IneqCnstr) : M Expr := do
   denoteIneq c.p c.strict
 
+def EqCnstr.denoteExpr (c : EqCnstr) : M Expr := do
+  mkEq (← c.p.denoteExpr) (← getStruct).ofNatZero
+
 private def denoteNum (k : Int) : LinearM Expr := do
   return mkApp2 (← getStruct).hmulFn (mkIntLit k) (← getOne)
 

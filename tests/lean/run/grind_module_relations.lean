@@ -22,6 +22,6 @@ example (a b c : R) (h : 2 * a + 2 * b = 4 * c) : 3 * a + c = 5 * c - b + (-b) +
 
 -- In a `RatModule` we can clear common divisors.
 example (a : R) (h : a + a = 0) : a = 0 := by grind
-example (a b c : R) (h : 2 * a + 2 * b = 4 * c) : 3 * a + c = 5 * c - 3 * b := by grind
+example (a b c : R) (h : 2 * a + 2 * b = 4 * c) : 3 * a + c = 7 * c - 3 * b := by grind
 
 end RatModule

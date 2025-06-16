@@ -1945,15 +1945,65 @@ theorem toNat_shiftLeftZeroExtend {x : BitVec w} :
 
 theorem toInt_shiftLeftZeroExtend {x : BitVec w} :
     (shiftLeftZeroExtend x n).toInt = x.toInt * 2 ^ n := by
-  rcases n with _|n
-  · simp [shiftLeftZeroExtend]
-  · simp only [shiftLeftZeroExtend_eq, toNat_shiftLeft, toNat_setWidth]
-
-    sorry
+  rcases w with _|w
+  · simp [of_length_zero, shiftLeftZeroExtend_eq]
+  · rcases n with _|n
+    · case zero => simp [shiftLeftZeroExtend_eq]
+    · case succ =>
+      simp [shiftLeftZeroExtend_eq]
+      have := Nat.pow_le_pow_of_le (a := 2) (n := w + 1) (m := w + 1 + (n + 1))
+      have : x.toNat < 2 ^ (w + 1 + (n + 1)) := by omega
+      have := Nat.pow_pos (a := 2) (n := n + 1) (by omega)
+      have : x.toNat <<< (n + 1) < 2 ^ (w + 1 + (n + 1)) := by rw [Nat.shiftLeft_eq, Nat.pow_add (a := 2) (m := w + 1) (n := n + 1), Nat.mul_lt_mul_right (by omega)]; omega
+      rw [Int.bmod_def]
+      by_cases hmsb : x.msb
+      · rw [Int.emod_eq_of_lt (by norm_cast; rw [Nat.shiftLeft_eq]; omega) (by omega)]
+        rw_mod_cast [← Nat.add_assoc]
+        simp [this, show (2 ^ (w + 1 + n + 1) + 1) / 2 = 2 ^ (w + 1 + n) by omega]
+        have hge := toNat_ge_of_msb_true hmsb
+        simp at hge
+        have : ¬ x.toNat <<< (n + 1) < 2 ^ (w + 1 + n) := by
+          rw [Nat.shiftLeft_eq]
+          rw [Nat.add_assoc]
+          rw [Nat.pow_add (a := 2) (m := w) (n := 1 + n)]
+          rw [Nat.add_comm 1 n]
+          rw [Nat.mul_lt_mul_right (by omega)]
+          omega
+        simp [this]
+        rw [Nat.shiftLeft_eq]
+        rw [toInt_eq_toNat_cond]
+        simp [show ¬ 2 * x.toNat < 2 ^ (w + 1) by
+          simp [Nat.add_comm w 1, Nat.pow_add]
+          exact hge
+          ]
+        norm_cast
+        simp [Int.sub_mul]
+        rw [show w + 1 + n + 1 = (w + 1) + (n + 1) by omega]
+        rw_mod_cast [Nat.pow_add]
+      · have hle := toNat_lt_of_msb_false (x := x) (by simp at hmsb; omega)
+        rw [Int.emod_eq_of_lt (by norm_cast; rw [Nat.shiftLeft_eq]; omega) (by omega)]
+        rw_mod_cast [← Nat.add_assoc]
+        simp [this, show (2 ^ (w + 1 + n + 1) + 1) / 2 = 2 ^ (w + 1 + n) by omega]
+        have : x.toNat <<< (n + 1) < 2 ^ (w + 1 + n) := by
+          rw [Nat.shiftLeft_eq]
+          rw [Nat.add_assoc]
+          rw [Nat.pow_add (a := 2) (m := w) (n := 1 + n)]
+          rw [Nat.add_comm 1 n]
+          rw [Nat.mul_lt_mul_right (by omega)]
+          simp at hle
+          omega
+        simp [this]
+        rw_mod_cast [Nat.shiftLeft_eq]
+        rw [toInt_eq_toNat_of_lt (by rw [Nat.pow_add, Nat.mul_comm]; simp; simp at hle; omega)]
+        simp
 
 theorem toFin_shiftLeftZeroExtend {x : BitVec w} :
     (shiftLeftZeroExtend x n).toFin = Fin.ofNat (2 ^ (w + n)) (x.toNat * 2 ^ n) := by
-  sorry
+  rcases w with _|w
+  · simp [of_length_zero, shiftLeftZeroExtend_eq]
+  · have := Nat.pow_le_pow_of_le (a := 2) (n := w + 1) (m := w + 1 + n) (by omega) (by omega)
+    simp [shiftLeftZeroExtend_eq]
+    rw [Nat.mod_eq_of_lt (by omega), Nat.shiftLeft_eq]
 
 @[simp] theorem getElem_shiftLeftZeroExtend {x : BitVec m} {n : Nat} (h : i < m + n) :
     (shiftLeftZeroExtend x n)[i] = if h' : i < n then false else x[i - n] := by

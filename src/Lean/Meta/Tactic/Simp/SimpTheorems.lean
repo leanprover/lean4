@@ -73,7 +73,7 @@ def Origin.ref : Origin → Syntax
 
 /-- The origin corresponding to the converse direction (`← thm` vs. `thm`) -/
 def Origin.converse : Origin → Option Origin
-  | .decl declName phase inv => some (.decl declName phase (not inv))
+  | .decl declName phase inv ref => some (.decl declName phase (not inv) ref)
   | _ => none
 
 instance : BEq Origin where

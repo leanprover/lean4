@@ -15,10 +15,74 @@ theorem exists_testBit_ne_of_ne {x y : Nat} (p : x ≠ y) : ∃ i, testBit x i �
 theorem exists_testBit_of_ne_zero {x : Nat} (xnz : x ≠ 0) : ∃ i, testBit x i := by
   grind
 
+example {a b : Nat}: b * (a / b) + a % b = a := by exact div_add_mod a b
+
+grind_pattern div_add_mod => m % n
+grind_pattern div_add_mod => m / n
+
+example {x i : Nat} (h : x / 2 ^ i % 2 = 1) : x / 2 ^ i ≥ 1 := by grind
+example {x i : Nat} (h : x / 2 ^ i % 2 = 1) : x ≥ 2 ^ i := by grind
+
+example {a b c d : Nat} (h : a = b + c * d) (w : 1 ≤ d) : a ≥ c := by
+  -- grind -- fails, but would be lovely
+  subst h
+  apply Nat.le_add_left_of_le
+  apply Nat.le_mul_of_pos_right
+  assumption
+
+example {a b c d : Int} (h : a = b + c * d) (hb : 0 ≤ b) (hc : 0 ≤ c) (w : 1 ≤ d) : a ≥ c := by
+  -- grind -- fails also
+  subst h
+  conv => rhs; rw [← Int.zero_add c]
+  apply Int.add_le_add
+  · assumption
+  · have : 0 ≤ c * (d - 1) := Int.mul_nonneg (by omega) (by omega)
+    rw [Int.mul_sub, Int.mul_one, Int.sub_nonneg] at this
+    exact this
+
+-- Note: if we can automate the `Int` version here, we can also automate the `Nat` version just by embedding in `Int`.
+
+open Lean Grind
+
+example {α : Type} [Lean.Grind.IntModule α] [Lean.Grind.Preorder α] [Lean.Grind.IntModule.IsOrdered α] {a b c : α} {d : Int}
+    (wb : 0 ≤ b) (wc : 0 ≤ c)
+    (h : a = b + d * c) (w : 1 ≤ d) : a ≥ c := by
+  subst h
+  conv => rhs; rw [←IntModule.zero_add c]
+  apply IntModule.IsOrdered.add_le_add
+  · exact wb
+  · have := IntModule.IsOrdered.hmul_le_hmul_of_le_of_le_of_nonneg_of_nonneg w (Preorder.le_refl c) (by decide) wc
+    rwa [IntModule.one_hmul] at this
+
+-- We can prove this directly in an ordered NatModule, from the axioms. (But shouldn't, see below.)
+example {α : Type} [Lean.Grind.NatModule α] [Lean.Grind.Preorder α] [Lean.Grind.NatModule.IsOrdered α] {a b c : α} {d : Nat}
+    (wb : 0 ≤ b) (wc : 0 ≤ c)
+    (h : a = b + d * c) (w : 1 ≤ d) : a ≥ c := by
+  -- horrific proof, sorry:
+  have p₁ : d * c ≤ a := by
+    rw [h]
+    conv => lhs; rw [← NatModule.zero_add (d * c)]
+    rw [← NatModule.IsOrdered.add_le_left_iff]
+    exact wb
+  have p₂ : 0 ≤ (d - 1) * c := by
+    apply NatModule.IsOrdered.hmul_nonneg
+    exact wc
+  have p₃ : c ≤ d * c := by
+    have : d = d - 1 + 1 := by omega
+    rw [this]
+    rw [NatModule.add_hmul]
+    rw [NatModule.one_hmul]
+    conv => lhs; rw [← NatModule.zero_add c]
+    rw [← NatModule.IsOrdered.add_le_left_iff]
+    exact p₂
+  exact Lean.Grind.Preorder.le_trans p₃ p₁
+
+-- The correct proof is to embed a NatModule in its IntModule envelope.
 
 theorem ge_two_pow_of_testBit {x : Nat} (p : testBit x i = true) : x ≥ 2^i := by
-  have : 1 ≤ x / 2 ^ i := sorry
-  have := Nat.mul_le_of_le_div _ _ _ this
+  have : 1 ≤ x / 2 ^ i := by grind?
+  have := div_add_mod x (2 ^ i)
+  have : 1 * 2 ^ i ≤ x := Nat.mul_le_of_le_div _ _ _ this
   grind
 theorem testBit_lt_two_pow {x i : Nat} (lt : x < 2^i) : x.testBit i = false := by
   grind

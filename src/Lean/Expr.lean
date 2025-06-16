@@ -513,7 +513,7 @@ def ctorName : Expr → String
   | mdata ..   => "mdata"
   | proj ..    => "proj"
 
-protected def hash (e : Expr) : UInt64 :=
+protected opaque hash (e : Expr) : UInt64 :=
   e.data.hash
 
 instance : Hashable Expr := ⟨Expr.hash⟩
@@ -522,28 +522,28 @@ instance : Hashable Expr := ⟨Expr.hash⟩
 Return `true` if `e` contains free variables.
 This is a constant time operation.
 -/
-def hasFVar (e : Expr) : Bool :=
+opaque hasFVar (e : Expr) : Bool :=
   e.data.hasFVar
 
 /--
 Return `true` if `e` contains expression metavariables.
 This is a constant time operation.
 -/
-def hasExprMVar (e : Expr) : Bool :=
+opaque hasExprMVar (e : Expr) : Bool :=
   e.data.hasExprMVar
 
 /--
 Return `true` if `e` contains universe (aka `Level`) metavariables.
 This is a constant time operation.
 -/
-def hasLevelMVar (e : Expr) : Bool :=
+opaque hasLevelMVar (e : Expr) : Bool :=
   e.data.hasLevelMVar
 
 /--
 Does the expression contain level (aka universe) or expression metavariables?
 This is a constant time operation.
 -/
-def hasMVar (e : Expr) : Bool :=
+opaque hasMVar (e : Expr) : Bool :=
   let d := e.data
   d.hasExprMVar || d.hasLevelMVar
 
@@ -551,7 +551,7 @@ def hasMVar (e : Expr) : Bool :=
 Return true if `e` contains universe level parameters.
 This is a constant time operation.
 -/
-def hasLevelParam (e : Expr) : Bool :=
+opaque hasLevelParam (e : Expr) : Bool :=
   e.data.hasLevelParam
 
 /--
@@ -559,7 +559,7 @@ Return the approximated depth of an expression. This information is used to comp
 the expression hash code, and speedup comparisons.
 This is a constant time operation. We say it is approximate because it maxes out at `255`.
 -/
-def approxDepth (e : Expr) : UInt32 :=
+opaque approxDepth (e : Expr) : UInt32 :=
   e.data.approxDepth.toUInt32
 
 /--
@@ -568,7 +568,7 @@ That is, bvars that are not bound by a binder.
 For example, `bvar i` has range `i + 1` and
 an expression with no loose bvars has range `0`.
 -/
-def looseBVarRange (e : Expr) : Nat :=
+opaque looseBVarRange (e : Expr) : Nat :=
   e.data.looseBVarRange.toNat
 
 /--

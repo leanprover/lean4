@@ -172,6 +172,7 @@ jobs:
                 //    Linux lake build and adds little value in the merge queue
                 // 3. To run it in release (obviously)
                 "check-level": isPr ? 0 : 2,
+                "secondary": isPr,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",

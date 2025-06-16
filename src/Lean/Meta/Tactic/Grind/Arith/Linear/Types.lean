@@ -25,7 +25,11 @@ structure EqCnstr where
   h      : EqCnstrProof
 
 inductive EqCnstrProof where
-  | rfl -- TODO
+  | core (a b : Expr) (lhs rhs : LinExpr)
+  | coreCommRing (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+  | neg (c : EqCnstr)
+  | coeff (k : Int) (c : EqCnstr)
+  | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
 
 /-- An inequality constraint and its justification/proof. -/
 structure IneqCnstr where

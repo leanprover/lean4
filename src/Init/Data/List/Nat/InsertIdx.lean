@@ -30,19 +30,20 @@ section InsertIdx
 
 variable {a : α}
 
-@[simp]
+@[simp, grind =]
 theorem insertIdx_zero {xs : List α} {x : α} : xs.insertIdx 0 x = x :: xs :=
   rfl
 
-@[simp]
+@[simp, grind =]
 theorem insertIdx_succ_nil {n : Nat} {a : α} : ([] : List α).insertIdx (n + 1) a = [] :=
   rfl
 
-@[simp]
+@[simp, grind =]
 theorem insertIdx_succ_cons {xs : List α} {hd x : α} {i : Nat} :
     (hd :: xs).insertIdx (i + 1) x = hd :: xs.insertIdx i x :=
   rfl
 
+@[grind =]
 theorem length_insertIdx : ∀ {i} {as : List α}, (as.insertIdx i a).length = if i ≤ as.length then as.length + 1 else as.length
   | 0, _ => by simp
   | n + 1, [] => by simp
@@ -56,14 +57,9 @@ theorem length_insertIdx_of_le_length (h : i ≤ length as) (a : α) : (as.inser
 theorem length_insertIdx_of_length_lt (h : length as < i) (a : α) : (as.insertIdx i a).length = as.length := by
   simp [length_insertIdx, h]
 
-@[simp]
-theorem eraseIdx_insertIdx {i : Nat} {l : List α} (a : α) : (l.insertIdx i a).eraseIdx i = l := by
-  rw [eraseIdx_eq_modifyTailIdx, insertIdx, modifyTailIdx_modifyTailIdx_self]
-  exact modifyTailIdx_id _ _
-
 theorem insertIdx_eraseIdx_of_ge :
-    ∀ {i m as},
-      i < length as → i ≤ m → (as.eraseIdx i).insertIdx m a = (as.insertIdx (m + 1) a).eraseIdx i
+    ∀ {i j as},
+      i < length as → i ≤ j → (as.eraseIdx i).insertIdx j a = (as.insertIdx (j + 1) a).eraseIdx i
   | 0, 0, [], has, _ => (Nat.lt_irrefl _ has).elim
   | 0, 0, _ :: as, _, _ => by simp [eraseIdx, insertIdx]
   | 0, _ + 1, _ :: _, _, _ => rfl
@@ -79,6 +75,15 @@ theorem insertIdx_eraseIdx_of_le :
     congrArg (cons a) <|
       insertIdx_eraseIdx_of_le (Nat.lt_of_succ_lt_succ has) (Nat.le_of_succ_le_succ hmn)
 
+@[grind =]
+theorem insertIdx_eraseIdx (h : i < length as) :
+    (as.eraseIdx i).insertIdx j a =
+      if i ≤ j then (as.insertIdx (j + 1) a).eraseIdx i else (as.insertIdx j a).eraseIdx (i + 1) := by
+  split <;> rename_i h'
+  · rw [insertIdx_eraseIdx_of_ge h h']
+  · rw [insertIdx_eraseIdx_of_le h (by omega)]
+
+@[grind =]
 theorem insertIdx_comm (a b : α) :
     ∀ {i j : Nat} {l : List α} (_ : i ≤ j) (_ : j ≤ length l),
       (l.insertIdx i a).insertIdx (j + 1) b = (l.insertIdx j b).insertIdx i a
@@ -109,6 +114,11 @@ theorem insertIdx_of_length_lt {l : List α} {x : α} {i : Nat} (h : l.length < 
     · simp at h
     · simp only [Nat.succ_lt_succ_iff, length] at h
       simpa using ih h
+
+@[simp, grind =]
+theorem eraseIdx_insertIdx_self {i : Nat} {l : List α} (a : α) : (l.insertIdx i a).eraseIdx i = l := by
+  rw [eraseIdx_eq_modifyTailIdx, insertIdx, modifyTailIdx_modifyTailIdx_self]
+  exact modifyTailIdx_id _ _
 
 @[simp]
 theorem insertIdx_length_self {l : List α} {x : α} : l.insertIdx l.length x = l ++ [x] := by
@@ -185,6 +195,7 @@ theorem getElem_insertIdx_of_gt {l : List α} {x : α} {i j : Nat} (hn : i < j)
 @[deprecated getElem_insertIdx_of_gt (since := "2025-02-04")]
 abbrev getElem_insertIdx_of_ge := @getElem_insertIdx_of_gt
 
+@[grind =]
 theorem getElem_insertIdx {l : List α} {x : α} {i j : Nat} (h : j < (l.insertIdx i x).length) :
     (l.insertIdx i x)[j] =
       if h₁ : j < i then
@@ -201,6 +212,7 @@ theorem getElem_insertIdx {l : List α} {x : α} {i j : Nat} (h : j < (l.insertI
       rw [getElem_insertIdx_self h]
     · rw [getElem_insertIdx_of_gt (by omega)]
 
+@[grind =]
 theorem getElem?_insertIdx {l : List α} {x : α} {i j : Nat} :
     (l.insertIdx i x)[j]? =
       if j < i then

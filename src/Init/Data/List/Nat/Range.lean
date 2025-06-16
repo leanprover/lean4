@@ -27,11 +27,12 @@ open Nat
 
 /-! ### range' -/
 
-@[simp] theorem mem_range'_1 : m ∈ range' s n ↔ s ≤ m ∧ m < s + n := by
+@[simp, grind =] theorem mem_range'_1 : m ∈ range' s n ↔ s ≤ m ∧ m < s + n := by
   simp [mem_range']; exact ⟨
     fun ⟨i, h, e⟩ => e ▸ ⟨Nat.le_add_right .., Nat.add_lt_add_left h _⟩,
     fun ⟨h₁, h₂⟩ => ⟨m - s, Nat.sub_lt_left_of_lt_add h₁ h₂, (Nat.add_sub_cancel' h₁).symm⟩⟩
 
+@[grind =]
 theorem getLast?_range' {n : Nat} : (range' s n).getLast? = if n = 0 then none else some (s + n - 1) := by
   induction n generalizing s with
   | zero => simp
@@ -43,7 +44,7 @@ theorem getLast?_range' {n : Nat} : (range' s n).getLast? = if n = 0 then none e
     · rw [if_neg h]
       simp
 
-@[simp] theorem getLast_range' {n : Nat} (h) : (range' s n).getLast h = s + n - 1 := by
+@[simp, grind =] theorem getLast_range' {n : Nat} (h) : (range' s n).getLast h = s + n - 1 := by
   cases n with
   | zero => simp at h
   | succ n => simp [getLast?_range', getLast_eq_iff_getLast?_eq_some]
@@ -187,7 +188,7 @@ theorem reverse_range' : ∀ {s n : Nat}, reverse (range' s n) = map (s + n - 1 
       show s + (n + 1) - 1 = s + n from rfl, map, map_map]
     simp [reverse_range', Nat.sub_right_comm, Nat.sub_sub]
 
-@[simp]
+@[simp, grind =]
 theorem mem_range {m n : Nat} : m ∈ range n ↔ m < n := by
   simp only [range_eq_range', mem_range'_1, Nat.zero_le, true_and, Nat.zero_add]
 
@@ -201,7 +202,7 @@ theorem pairwise_lt_range {n : Nat} : Pairwise (· < ·) (range n) := by
 theorem pairwise_le_range {n : Nat} : Pairwise (· ≤ ·) (range n) :=
   Pairwise.imp Nat.le_of_lt pairwise_lt_range
 
-@[simp] theorem take_range {i n : Nat} : take i (range n) = range (min i n) := by
+@[simp, grind =] theorem take_range {i n : Nat} : take i (range n) = range (min i n) := by
   apply List.ext_getElem
   · simp
   · simp +contextual [getElem_take, Nat.lt_min]
@@ -209,10 +210,11 @@ theorem pairwise_le_range {n : Nat} : Pairwise (· ≤ ·) (range n) :=
 theorem nodup_range {n : Nat} : Nodup (range n) := by
   simp +decide only [range_eq_range', nodup_range']
 
-@[simp] theorem find?_range_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
+@[simp, grind] theorem find?_range_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
     (range n).find? p = some i ↔ p i ∧ i ∈ range n ∧ ∀ j, j < i → !p j := by
   simp [range_eq_range']
 
+@[grind]
 theorem find?_range_eq_none {n : Nat} {p : Nat → Bool} :
     (range n).find? p = none ↔ ∀ i, i < n → !p i := by
   simp
@@ -374,15 +376,15 @@ end
 
 /-! ### zipIdx -/
 
-@[simp]
+@[simp, grind =]
 theorem zipIdx_singleton {x : α} {k : Nat} : zipIdx [x] k = [(x, k)] :=
   rfl
 
-@[simp] theorem head?_zipIdx {l : List α} {k : Nat} :
+@[simp, grind =] theorem head?_zipIdx {l : List α} {k : Nat} :
     (zipIdx l k).head? = l.head?.map fun a => (a, k) := by
   simp [head?_eq_getElem?]
 
-@[simp] theorem getLast?_zipIdx {l : List α} {k : Nat} :
+@[simp, grind =] theorem getLast?_zipIdx {l : List α} {k : Nat} :
     (zipIdx l k).getLast? = l.getLast?.map fun a => (a, k + l.length - 1) := by
   simp [getLast?_eq_getElem?]
   cases l <;> simp
@@ -405,6 +407,7 @@ to avoid the inequality and the subtraction. -/
 theorem mk_mem_zipIdx_iff_getElem? {i : Nat} {x : α} {l : List α} : (x, i) ∈ zipIdx l ↔ l[i]? = some x := by
   simp [mk_mem_zipIdx_iff_le_and_getElem?_sub]
 
+@[grind =]
 theorem mem_zipIdx_iff_le_and_getElem?_sub {x : α × Nat} {l : List α} {k : Nat} :
     x ∈ zipIdx l k ↔ k ≤ x.2 ∧ l[x.2 - k]? = some x.1 := by
   cases x
@@ -467,6 +470,7 @@ theorem zipIdx_map {l : List α} {k : Nat} {f : α → β} :
     rw [map_cons, zipIdx_cons', zipIdx_cons', map_cons, map_map, IH, map_map]
     rfl
 
+@[grind =]
 theorem zipIdx_append {xs ys : List α} {k : Nat} :
     zipIdx (xs ++ ys) k = zipIdx xs k ++ zipIdx ys (k + xs.length) := by
   induction xs generalizing ys k with

@@ -26,6 +26,7 @@ namespace List
 
 /-! ### dropLast -/
 
+@[grind _=_]
 theorem tail_dropLast {l : List α} : tail (dropLast l) = dropLast (tail l) := by
   ext1
   simp only [getElem?_tail, getElem?_dropLast, length_tail]
@@ -35,7 +36,7 @@ theorem tail_dropLast {l : List α} : tail (dropLast l) = dropLast (tail l) := b
   · omega
   · rfl
 
-@[simp] theorem dropLast_reverse {l : List α} : l.reverse.dropLast = l.tail.reverse := by
+@[simp, grind _=_] theorem dropLast_reverse {l : List α} : l.reverse.dropLast = l.tail.reverse := by
   apply ext_getElem
   · simp
   · intro i h₁ h₂
@@ -114,7 +115,7 @@ section intersperse
 
 variable {l : List α} {sep : α} {i : Nat}
 
-@[simp] theorem length_intersperse : (l.intersperse sep).length = 2 * l.length - 1 := by
+@[simp, grind =] theorem length_intersperse : (l.intersperse sep).length = 2 * l.length - 1 := by
   fun_induction intersperse <;> simp only [intersperse, length_cons, length_nil] at *
   rename_i h _
   have := length_pos_iff.mpr h

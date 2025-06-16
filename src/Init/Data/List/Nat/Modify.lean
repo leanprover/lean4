@@ -17,7 +17,7 @@ namespace List
 
 /-! ### modifyHead -/
 
-@[simp] theorem length_modifyHead {f : α → α} {l : List α} : (l.modifyHead f).length = l.length := by
+@[simp, grind =] theorem length_modifyHead {f : α → α} {l : List α} : (l.modifyHead f).length = l.length := by
   cases l <;> simp [modifyHead]
 
 theorem modifyHead_eq_set [Inhabited α] (f : α → α) (l : List α) :
@@ -26,9 +26,10 @@ theorem modifyHead_eq_set [Inhabited α] (f : α → α) (l : List α) :
 @[simp] theorem modifyHead_eq_nil_iff {f : α → α} {l : List α} :
     l.modifyHead f = [] ↔ l = [] := by cases l <;> simp [modifyHead]
 
-@[simp] theorem modifyHead_modifyHead {l : List α} {f g : α → α} :
+@[simp, grind =] theorem modifyHead_modifyHead {l : List α} {f g : α → α} :
     (l.modifyHead f).modifyHead g = l.modifyHead (g ∘ f) := by cases l <;> simp [modifyHead]
 
+@[grind =]
 theorem getElem_modifyHead {l : List α} {f : α → α} {i} (h : i < (l.modifyHead f).length) :
     (l.modifyHead f)[i] = if h' : i = 0 then f (l[0]'(by simp at h; omega)) else l[i]'(by simpa using h) := by
   cases l with
@@ -41,6 +42,7 @@ theorem getElem_modifyHead {l : List α} {f : α → α} {i} (h : i < (l.modifyH
 @[simp] theorem getElem_modifyHead_succ {l : List α} {f : α → α} {n} (h : n + 1 < (l.modifyHead f).length) :
     (l.modifyHead f)[n + 1] = l[n + 1]'(by simpa using h) := by simp [getElem_modifyHead]
 
+@[grind =]
 theorem getElem?_modifyHead {l : List α} {f : α → α} {i} :
     (l.modifyHead f)[i]? = if i = 0 then l[i]?.map f else l[i]? := by
   cases l with
@@ -53,19 +55,19 @@ theorem getElem?_modifyHead {l : List α} {f : α → α} {i} :
 @[simp] theorem getElem?_modifyHead_succ {l : List α} {f : α → α} {n} :
     (l.modifyHead f)[n + 1]? = l[n + 1]? := by simp [getElem?_modifyHead]
 
-@[simp] theorem head_modifyHead (f : α → α) (l : List α) (h) :
+@[simp, grind =] theorem head_modifyHead (f : α → α) (l : List α) (h) :
     (l.modifyHead f).head h = f (l.head (by simpa using h)) := by
   cases l with
   | nil => simp at h
   | cons hd tl => simp
 
-@[simp] theorem head?_modifyHead {l : List α} {f : α → α} :
+@[simp, grind =] theorem head?_modifyHead {l : List α} {f : α → α} :
     (l.modifyHead f).head? = l.head?.map f := by cases l <;> simp
 
-@[simp] theorem tail_modifyHead {f : α → α} {l : List α} :
+@[simp, grind =] theorem tail_modifyHead {f : α → α} {l : List α} :
     (l.modifyHead f).tail = l.tail := by cases l <;> simp
 
-@[simp] theorem take_modifyHead {f : α → α} {l : List α} {i} :
+@[simp, grind =] theorem take_modifyHead {f : α → α} {l : List α} {i} :
     (l.modifyHead f).take i = (l.take i).modifyHead f := by
   cases l <;> cases i <;> simp
 
@@ -73,6 +75,7 @@ theorem getElem?_modifyHead {l : List α} {f : α → α} {i} :
     (l.modifyHead f).drop i = l.drop i := by
   cases l <;> cases i <;> simp_all
 
+@[grind =]
 theorem eraseIdx_modifyHead_zero {f : α → α} {l : List α} :
     (l.modifyHead f).eraseIdx 0 = l.eraseIdx 0 := by simp
 
@@ -81,7 +84,7 @@ theorem eraseIdx_modifyHead_zero {f : α → α} {l : List α} :
 
 @[simp] theorem modifyHead_id : modifyHead (id : α → α) = id := by funext l; cases l <;> simp
 
-@[simp] theorem modifyHead_dropLast {l : List α} {f : α → α} :
+@[simp, grind _=_] theorem modifyHead_dropLast {l : List α} {f : α → α} :
     l.dropLast.modifyHead f = (l.modifyHead f).dropLast := by
   rcases l with _|⟨a, l⟩
   · simp
@@ -99,7 +102,7 @@ theorem eraseIdx_eq_modifyTailIdx : ∀ i (l : List α), eraseIdx l i = l.modify
   | _+1, [] => rfl
   | _+1, _ :: _ => congrArg (cons _) (eraseIdx_eq_modifyTailIdx _ _)
 
-@[simp] theorem length_modifyTailIdx (f : List α → List α) (H : ∀ l, (f l).length = l.length) :
+@[simp, grind =] theorem length_modifyTailIdx (f : List α → List α) (H : ∀ l, (f l).length = l.length) :
     ∀ (l : List α) i, (l.modifyTailIdx i f).length = l.length
   | _, 0 => H _
   | [], _+1 => rfl
@@ -142,13 +145,22 @@ theorem modifyTailIdx_modifyTailIdx_self {f g : List α → List α} (i : Nat) (
 
 /-! ### modify -/
 
-@[simp] theorem modify_nil (f : α → α) (i) : [].modify i f = [] := by cases i <;> rfl
+@[simp, grind =] theorem modify_nil (f : α → α) (i) : [].modify i f = [] := by cases i <;> rfl
 
 @[simp] theorem modify_zero_cons (f : α → α) (a : α) (l : List α) :
     (a :: l).modify 0 f = f a :: l := rfl
 
 @[simp] theorem modify_succ_cons (f : α → α) (a : α) (l : List α) (i) :
     (a :: l).modify (i + 1) f = a :: l.modify i f := rfl
+
+@[grind =]
+theorem modify_cons {f : α → α} {a : α} {l : List α} {i : Nat} :
+    (a :: l).modify i f =
+      if i = 0 then f a :: l else a :: l.modify (i - 1) f := by
+  split <;> rename_i h
+  · subst h
+    simp
+  · match i, h with | i + 1, _ => simp
 
 theorem modifyHead_eq_modify_zero (f : α → α) (l : List α) :
     l.modifyHead f = l.modify 0 f := by cases l <;> simp
@@ -200,6 +212,7 @@ theorem modify_eq_self {f : α → α} {i} {l : List α} (h : l.length ≤ i) :
     intro h
     omega
 
+@[grind =]
 theorem modify_modify_eq (f g : α → α) (i) (l : List α) :
     (l.modify i f).modify i g = l.modify i (g ∘ f) := by
   apply ext_getElem
@@ -245,7 +258,7 @@ theorem exists_of_modify (f : α → α) {i} {l : List α} (h : i < l.length) :
 @[simp] theorem modify_id (i) (l : List α) : l.modify i id = l := by
   simp [modify]
 
-@[grind =]
+@[grind _=_]
 theorem take_modify (f : α → α) (i j) (l : List α) :
     (l.modify i f).take j = (l.take j).modify i f := by
   induction j generalizing l i with

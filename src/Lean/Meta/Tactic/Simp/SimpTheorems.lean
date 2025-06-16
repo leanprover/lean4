@@ -32,8 +32,10 @@ An `Origin` is an identifier for simp theorems which indicates roughly
 what action the user took which lead to this theorem existing in the simp set.
 -/
 inductive Origin where
-  /-- A global declaration in the environment. -/
-  | decl (declName : Name) (post := true) (inv := false)
+  /-- A global declaration in the environment.
+  The `ref` field is set if this came from a simp argument, else `.missing`.
+  -/
+  | decl (declName : Name) (post := true) (inv := false) (ref : Syntax := .missing)
   /--
   A local hypothesis.
   When `contextual := true` is enabled, this fvar may exist in an extension
@@ -57,10 +59,17 @@ inductive Origin where
 
 /-- A unique identifier corresponding to the origin. -/
 def Origin.key : Origin → Name
-  | .decl declName _ _ => declName
+  | .decl declName _ _ _ => declName
   | .fvar fvarId => fvarId.name
   | .stx id _ => id
   | .other name => name
+
+/-- A unique identifier corresponding to the origin. -/
+def Origin.ref : Origin → Syntax
+  | .decl _ _ _ ref => ref
+  | .fvar _ => .missing
+  | .stx _ ref => ref
+  | .other _ => .missing
 
 /-- The origin corresponding to the converse direction (`← thm` vs. `thm`) -/
 def Origin.converse : Origin → Option Origin
@@ -69,7 +78,7 @@ def Origin.converse : Origin → Option Origin
 
 instance : BEq Origin where
   beq a b := match a, b with
-    | .decl declName₁ _ inv₁, .decl declName₂ _ inv₂ =>
+    | .decl declName₁ _ inv₁ _, .decl declName₂ _ inv₂ _=>
       /- Remark: we must distinguish `thm` from `←thm`. See issue #4290. -/
       declName₁ == declName₂ && inv₁ == inv₂
     | .decl .., _ => false
@@ -78,12 +87,12 @@ instance : BEq Origin where
 
 instance : Hashable Origin where
   hash a := match a with
-   | .decl declName _ true => mixHash (hash declName) 11
-   | .decl declName _ false => mixHash (hash declName) 13
+   | .decl declName _ true _ => mixHash (hash declName) 11
+   | .decl declName _ false _ => mixHash (hash declName) 13
    | a => hash a.key
 
 def Origin.lt : Origin → Origin → Bool
-  | .decl declName₁ _ inv₁, .decl declName₂ _ inv₂ =>
+  | .decl declName₁ _ inv₁ _, .decl declName₂ _ inv₂ _ =>
     Name.lt declName₁ declName₂ || (declName₁ == declName₂ && !inv₁ && inv₂)
   | .decl .., _ => false
   | _, .decl .. => true
@@ -199,7 +208,7 @@ instance : ToFormat SimpTheorem where
     name ++ prio ++ perm
 
 def ppOrigin [Monad m] [MonadEnv m] [MonadError m] : Origin → m MessageData
-  | .decl n post inv => do
+  | .decl n post inv _ref => do
     let r := MessageData.ofConstName n
     match post, inv with
     | true,  true  => return m!"← {r}"
@@ -432,10 +441,11 @@ private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array 
       | none => throwError "unexpected kind of 'simp' theorem{indentExpr type}"
     return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl := (← isRflProof proof) }
 
-def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool) (prio : Nat) : MetaM (Array SimpTheorem) := do
+def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool) (prio : Nat)
+    (ref : Syntax := .missing) : MetaM (Array SimpTheorem) := do
   let cinfo ← getConstVal declName
   let us := cinfo.levelParams.map mkLevelParam
-  let origin := .decl declName post inv
+  let origin := .decl declName post inv ref
   let val := mkConst declName us
   withSimpGlobalConfig do
     let type ← inferType val
@@ -490,9 +500,10 @@ def getSimpExtension? (attrName : Name) : IO (Option SimpExtension) :=
   return (← simpExtensionMapRef.get)[attrName]?
 
 /-- Auxiliary method for adding a global declaration to a `SimpTheorems` datastructure. -/
-def SimpTheorems.addConst (s : SimpTheorems) (declName : Name) (post := true) (inv := false) (prio : Nat := eval_prio default) : MetaM SimpTheorems := do
-  let s := { s with erased := s.erased.erase (.decl declName post inv) }
-  let simpThms ← mkSimpTheoremsFromConst declName post inv prio
+def SimpTheorems.addConst (s : SimpTheorems) (declName : Name) (post := true) (inv := false)
+    (prio : Nat := eval_prio default) (ref : Syntax := .missing) : MetaM SimpTheorems := do
+  let s := { s with erased := s.erased.erase (.decl declName post inv ref) }
+  let simpThms ← mkSimpTheoremsFromConst declName post inv prio ref
   return simpThms.foldl addSimpTheoremEntry s
 
 def SimpTheorem.getValue (simpThm : SimpTheorem) : MetaM Expr := do
@@ -513,9 +524,11 @@ private def preprocessProof (val : Expr) (inv : Bool) : MetaM (Array Expr) := do
   return ps.toArray.map fun (val, _) => val
 
 /-- Auxiliary method for creating simp theorems from a proof term `val`. -/
-private def mkSimpTheorems (id : Origin) (levelParams : Array Name) (proof : Expr) (post := true) (inv := false) (prio : Nat := eval_prio default) : MetaM (Array SimpTheorem) :=
+private def mkSimpTheorems (id : Origin) (levelParams : Array Name) (proof : Expr) (post := true)
+    (inv := false) (prio : Nat := eval_prio default) : MetaM (Array SimpTheorem) :=
   withReducible do
-    (← preprocessProof proof inv).mapM fun val => mkSimpTheoremCore id val levelParams val post prio (noIndexAtArgs := true)
+    (← preprocessProof proof inv).mapM fun val =>
+      mkSimpTheoremCore id val levelParams val post prio (noIndexAtArgs := true)
 
 /--
 Reducible functions and projection functions should always be put in `toUnfold`, instead
@@ -545,7 +558,7 @@ def SimpTheorems.unfoldEvenWithEqns (declName : Name) : CoreM Bool := do
   unless (← isRecursiveDefinition declName) do return true
   return false
 
-def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM SimpTheorems := do
+def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) (ref : Syntax := .missing) : MetaM SimpTheorems := do
   -- NOTE: the latter condition is only to preserve previous behavior where simp accepts even things
   -- that neither theorems nor unfoldable. This should likely be tightened up in the future.
   if !(← getConstInfo declName).isDefinition && getOriginalConstKind? (← getEnv) declName == some .defn then
@@ -571,7 +584,7 @@ def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM Si
         if i + 1 = eqns.size then 0 else 1
       else
         100 - i
-      d ← SimpTheorems.addConst d eqn (prio := prio)
+      d ← SimpTheorems.addConst d eqn (prio := prio) (ref := ref)
     if (← unfoldEvenWithEqns declName) then
       d := d.addDeclToUnfoldCore declName
     return d
@@ -584,7 +597,7 @@ def SimpTheorems.add (s : SimpTheorems) (id : Origin) (levelParams : Array Name)
         (config : ConfigWithKey := simpGlobalConfig) : MetaM SimpTheorems := do
   if proof.isConst then
     -- Recall that we use `simpGlobalConfig` for processing global declarations.
-    s.addConst proof.constName! post inv prio
+    s.addConst proof.constName! post inv prio (ref := id.ref)
   else
     let simpThms ← withConfigWithKey config <| mkSimpTheorems id levelParams proof post inv prio
     return simpThms.foldl addSimpTheoremEntry s

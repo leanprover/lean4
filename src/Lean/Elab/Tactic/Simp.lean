@@ -159,7 +159,7 @@ private def elabDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (id : Origin
     let declName := e.constName!
     let info ← getConstVal declName
     if (← isProp info.type) then
-      let thms ← mkSimpTheoremsFromConst declName (post := post) (inv := inv)
+      let thms ← mkSimpTheoremFromConst declName (post := post) (inv := inv)
       return .addEntries <| thms.map (SimpEntry.thm ·)
     else
       if inv then
@@ -167,12 +167,12 @@ private def elabDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (id : Origin
       if kind == .dsimp then
         return .addEntries #[.toUnfold declName]
       else
-        .addEntries <$> SimpTheorems.entriesOfDeclToUnfold declName
+        .addEntries <$> mkSimpEntryOfDeclToUnfold declName
   else if e.isFVar then
     let fvarId := e.fvarId!
     let decl ← fvarId.getDecl
     if (← isProp decl.type) then
-      let thms ← mkSimpTheoremsFromExpr id #[] e (post := post) (inv := inv) (config := config)
+      let thms ← mkSimpTheoremFromExpr id #[] e (post := post) (inv := inv) (config := config)
       return .addEntries <| thms.map (SimpEntry.thm ·)
     else if !decl.isLet then
       throwError "invalid argument, variable is not a proposition or let-declaration"
@@ -181,7 +181,7 @@ private def elabDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (id : Origin
     else
       return .addLetToUnfold fvarId
   else
-    let thms ← mkSimpTheoremsFromExpr id #[] e (post := post) (inv := inv) (config := config)
+    let thms ← mkSimpTheoremFromExpr id #[] e (post := post) (inv := inv) (config := config)
     return .addEntries <| thms.map (SimpEntry.thm ·)
 
 private def elabSimpTheorem (config : Meta.ConfigWithKey) (id : Origin) (stx : Syntax)
@@ -199,7 +199,7 @@ private def elabSimpTheorem (config : Meta.ConfigWithKey) (id : Origin) (stx : S
     else
       return some (#[], e)
   if let some (levelParams, proof) := thm? then
-    let thms ← mkSimpTheoremsFromExpr id levelParams proof (post := post) (inv := inv) (config := config)
+    let thms ← mkSimpTheoremFromExpr id levelParams proof (post := post) (inv := inv) (config := config)
     return .addEntries <| thms.map (SimpEntry.thm ·)
   else
     return .none

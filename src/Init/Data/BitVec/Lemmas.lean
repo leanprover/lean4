@@ -1951,9 +1951,8 @@ theorem toInt_shiftLeftZeroExtend {x : BitVec w} :
   rcases w with _|w
   · simp [of_length_zero, shiftLeftZeroExtend_eq]
   · rcases n with _|n
-    · case zero => simp [shiftLeftZeroExtend_eq]
-    · case succ =>
-      have := Nat.pow_pos (a := 2) (n := n + 1) (by omega)
+    · simp [shiftLeftZeroExtend_eq]
+    · have := Nat.pow_pos (a := 2) (n := n + 1) (by omega)
       have : x.toNat <<< (n + 1) < 2 ^ (w + 1 + (n + 1)) := by
         rw [Nat.shiftLeft_eq, Nat.pow_add (a := 2) (m := w + 1) (n := n + 1), Nat.mul_lt_mul_right (by omega)]
         omega

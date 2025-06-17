@@ -102,7 +102,6 @@ LEAN_EXPORT lean_object* l_IO_withStdin___at_Lake_ExternLib_recBuildStatic___spe
 LEAN_EXPORT lean_object* l_Lake_EquipT_bind___at_Lake_ExternLib_recBuildShared___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lake_ensureJob___at_Lake_ExternLib_recBuildStatic___spec__2___closed__4;
 lean_object* lean_io_map_task(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
-lean_object* l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__1(lean_object*);
 static lean_object* l_IO_FS_withIsolatedStreams___at_Lake_ExternLib_recBuildStatic___spec__3___closed__5;
 LEAN_EXPORT lean_object* l_Lake_ensureJob___at_Lake_ExternLib_recBuildStatic___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_withIsolatedStreams___at_Lake_buildSharedLib___spec__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -164,6 +163,7 @@ LEAN_EXPORT lean_object* l_Lake_ExternLib_recBuildStatic___lambda__1___boxed(lea
 static lean_object* l_Lake_buildLeanSharedLibOfStatic___lambda__6___closed__10;
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lake_mkRelPathString(lean_object*);
+lean_object* l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__5(lean_object*);
 lean_object* lean_get_set_stdin(lean_object*, lean_object*);
 static lean_object* l_Lake_buildLeanSharedLibOfStatic___lambda__6___closed__5;
 static lean_object* l_Lake_ExternLib_staticFacetConfig___closed__2;
@@ -4104,7 +4104,7 @@ x_17 = lean_unsigned_to_nat(0u);
 x_18 = lean_nat_dec_lt(x_17, x_16);
 lean_inc(x_1);
 x_19 = lean_array_to_list(x_1);
-x_20 = l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__1(x_19);
+x_20 = l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__5(x_19);
 lean_dec(x_19);
 x_21 = l_Lake_buildLeanSharedLibOfStatic___lambda__6___closed__5;
 x_22 = lean_string_append(x_21, x_20);

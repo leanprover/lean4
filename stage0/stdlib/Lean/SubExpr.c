@@ -121,7 +121,6 @@ LEAN_EXPORT lean_object* l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoalLo
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_root;
 static lean_object* l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoalsLocation____x40_Lean_SubExpr___hyg_1844____closed__7;
 static lean_object* l_Lean_SubExpr_Pos_depth___closed__1;
-lean_object* l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushLetValue___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_SubExpr_Pos_tail___spec__1(lean_object*);
 static lean_object* l_Lean_SubExpr_Pos_head___closed__4;
@@ -195,6 +194,7 @@ lean_object* l_Except_orElseLazy___rarg(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedSubExpr;
 static lean_object* l_Lean_instInhabitedSubExpr___closed__2;
+lean_object* l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__5(lean_object*);
 static lean_object* l_Lean_SubExpr_Pos_push___closed__2;
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 static lean_object* l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoalsLocation____x40_Lean_SubExpr___hyg_1844____closed__10;
@@ -1625,7 +1625,7 @@ lean_dec(x_1);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_8 = l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__1(x_7);
+x_8 = l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__5(x_7);
 x_9 = l_Lean_SubExpr_Pos_fromString_x3f___closed__2;
 x_10 = lean_string_append(x_9, x_8);
 lean_dec(x_8);
@@ -1649,7 +1649,7 @@ if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 lean_dec(x_15);
-x_18 = l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__1(x_7);
+x_18 = l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__5(x_7);
 lean_dec(x_7);
 x_19 = l_Lean_SubExpr_Pos_fromString_x3f___closed__2;
 x_20 = lean_string_append(x_19, x_18);
@@ -1729,7 +1729,7 @@ lean_dec(x_1);
 if (x_39 == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
-x_40 = l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__1(x_37);
+x_40 = l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__5(x_37);
 lean_dec(x_37);
 x_41 = l_Lean_SubExpr_Pos_fromString_x3f___closed__2;
 x_42 = lean_string_append(x_41, x_40);

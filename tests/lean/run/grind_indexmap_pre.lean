@@ -3,8 +3,6 @@
 
 import Std.Data.HashMap
 
-set_option grind.warning false
-
 open Std
 
 structure IndexMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where

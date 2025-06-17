@@ -166,7 +166,7 @@ jobs:
                 "name": "Linux release",
                 "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
                 "release": true,
-                "check-level": 0,
+                "check-level": 2,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
@@ -176,21 +176,13 @@ jobs:
               },
               {
                 "name": "Linux Lake",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-8x8" : "ubuntu-latest",
                 "check-level": 0,
-                // just a secondary build job for now until false positives can be excluded
-                "secondary": true,
-                "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
-                // TODO: importStructure is not compatible with .olean caching
-                // TODO: why does scopedMacros fail?
-                "CTEST_OPTIONS": "-E 'scopedMacros|importStructure'"
-              },
-              {
-                "name": "Linux",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
+                "test": true,
+                "check-rebootstrap": level >= 1,
                 "check-stage3": level >= 2,
                 "test-speedcenter": level >= 2,
-                "check-level": 1,
+                "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
               },
               {
                 "name": "Linux Reldebug",

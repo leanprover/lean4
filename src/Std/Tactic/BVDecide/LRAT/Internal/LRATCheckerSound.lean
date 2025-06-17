@@ -8,8 +8,6 @@ import Std.Tactic.BVDecide.LRAT.Internal.LRATChecker
 import Std.Tactic.BVDecide.LRAT.Internal.CNF
 import Std.Tactic.BVDecide.LRAT.Internal.Actions
 
-set_option grind.warning false
-
 namespace Std.Tactic.BVDecide
 namespace LRAT
 namespace Internal

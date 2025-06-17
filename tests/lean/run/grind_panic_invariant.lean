@@ -5,8 +5,6 @@
   | star_step : ∀ x y z, R x y → star R y z → star R x z
 
 set_option grind.debug true
-set_option grind.warning false
-
 inductive com: Type where
   | SKIP
   | ASSIGN

@@ -48,7 +48,22 @@ def add (declName : Name) (kind : AttributeKind) : CoreM Unit := do
   else
     throwError "invalid 'csimp' theorem, only constant replacement theorems (e.g., `@f = @g`) are currently supported."
 
-builtin_initialize
+/--
+Tags compiler simplification theorems, which allow one value to be replaced by another equal value
+in compiled code. This is typically used to replace a slow function whose definition is convenient
+in proofs with a faster equivalent or to make noncomputable functions computable. In particular,
+many operations on lists and arrays are replaced by tail-recursive equivalents.
+
+A compiler simplification theorem cannot take any parameters and must prove a statement `@f = @g`
+where `f` and `g` may be arbitrary constants. In functions defined after the theorem tagged
+`@[csimp]`, any occurrence of `f` is replaced with `g` in compiled code, but not in the type
+theory. In this sense, `@[csimp]` is a safer alternative to `@[implemented_by]`.
+
+However it is still possible to register unsound `@[csimp]` lemmas by using `unsafe` or unsound
+axioms (like `sorryAx`).
+-/
+@[builtin_init, builtin_doc]
+private def initFn :=
   registerBuiltinAttribute {
     name  := `csimp
     descr := "simplification theorem for the compiler"

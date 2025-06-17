@@ -162,6 +162,7 @@ def propagateNatLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   c.assert
 
 def propagateIfSupportedLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
+  unless (← getConfig).cutsat do return ()
   let_expr LE.le α _ _ _ := e | return ()
   if α.isConstOf ``Nat then
     propagateNatLe e eqTrue

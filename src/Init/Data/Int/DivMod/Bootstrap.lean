@@ -3,7 +3,6 @@ Copyright (c) 2016 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Avigad, Mario Carneiro
 -/
-
 module
 
 prelude
@@ -99,7 +98,7 @@ theorem ofNat_emod (m n : Nat) : (↑(m % n) : Int) = m % n := natCast_emod m n
 theorem emod_add_ediv : ∀ a b : Int, a % b + b * (a / b) = a
   | ofNat _, ofNat _ => congrArg ofNat <| Nat.mod_add_div ..
   | ofNat m, -[n+1] => by
-    show (m % succ n + -↑(succ n) * -↑(m / succ n) : Int) = m
+    change (m % succ n + -↑(succ n) * -↑(m / succ n) : Int) = m
     rw [Int.neg_mul_neg]; exact congrArg ofNat <| Nat.mod_add_div ..
   | -[_+1], 0 => by rw [emod_zero]; rfl
   | -[m+1], succ n => aux m n.succ
@@ -149,7 +148,7 @@ theorem add_mul_ediv_right (a b : Int) {c : Int} (H : c ≠ 0) : (a + b * c) / c
   fun {k n} => @fun
   | ofNat _ => congrArg ofNat <| Nat.add_mul_div_right _ _ k.succ_pos
   | -[m+1] => by
-    show ((n * k.succ : Nat) - m.succ : Int).ediv k.succ = n - (m / k.succ + 1 : Nat)
+    change ((n * k.succ : Nat) - m.succ : Int).ediv k.succ = n - (m / k.succ + 1 : Nat)
     by_cases h : m < n * k.succ
     · rw [← Int.ofNat_sub h, ← Int.ofNat_sub ((Nat.div_lt_iff_lt_mul k.succ_pos).2 h)]
       apply congrArg ofNat
@@ -158,7 +157,7 @@ theorem add_mul_ediv_right (a b : Int) {c : Int} (H : c ≠ 0) : (a + b * c) / c
       have H {a b : Nat} (h : a ≤ b) : (a : Int) + -((b : Int) + 1) = -[b - a +1] := by
         rw [negSucc_eq, Int.ofNat_sub h]
         simp only [Int.sub_eq_add_neg, Int.neg_add, Int.neg_neg, Int.add_left_comm, Int.add_assoc]
-      show ediv (↑(n * succ k) + -((m : Int) + 1)) (succ k) = n + -(↑(m / succ k) + 1 : Int)
+      change ediv (↑(n * succ k) + -((m : Int) + 1)) (succ k) = n + -(↑(m / succ k) + 1 : Int)
       rw [H h, H ((Nat.le_div_iff_mul_le k.succ_pos).2 h)]
       apply congrArg negSucc
       rw [Nat.mul_comm, Nat.sub_mul_div_of_le]; rwa [Nat.mul_comm]

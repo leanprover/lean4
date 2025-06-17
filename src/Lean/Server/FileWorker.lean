@@ -150,6 +150,10 @@ section Elab
     let param := { version := m.version, references }
     return { method, param }
 
+  private def mkInitialIleanInfoUpdateNotification (m : DocumentMeta)
+      (directImports : Array ImportInfo) : JsonRpc.Notification Lsp.LeanILeanHeaderInfoParams :=
+    { method := "$/lean/ileanHeaderInfo", param := { version := m.version, directImports } }
+
   private def mkIleanInfoUpdateNotification : DocumentMeta → Array Elab.InfoTree →
       BaseIO (JsonRpc.Notification Lsp.LeanIleanInfoParams) :=
     mkIleanInfoNotification "$/lean/ileanInfoUpdate"
@@ -380,6 +384,7 @@ def setupImports
     -- should not be visible to user as task is already canceled
     return .error { diagnostics := .empty, result? := none }
 
+  chanOut.sync.send <| mkInitialIleanInfoUpdateNotification doc <| collectImports stx
   let imports := Elab.headerToImports stx
   let fileSetupResult ← setupFile doc imports fun stderrLine => do
     let progressDiagnostic := {

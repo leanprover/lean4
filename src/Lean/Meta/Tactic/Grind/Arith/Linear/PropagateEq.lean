@@ -16,7 +16,7 @@ import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
 
 namespace Lean.Meta.Grind.Arith.Linear
 /-- Returns `some structId` if `a` and `b` are elements of the same structure. -/
-private def inSameStruct? (a b : Expr) : GoalM (Option Nat) := do
+def inSameStruct? (a b : Expr) : GoalM (Option Nat) := do
   let some structId ← getTermStructId? a | return none
   let some structId' ← getTermStructId? b | return none
   unless structId == structId' do return none -- This can happen when we have heterogeneous equalities
@@ -56,15 +56,51 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
   if isSameExpr a b then return () -- TODO: check why this is needed
   let some structId ← inSameStruct? a b | return ()
   LinearM.run structId do
+    -- TODO: support non ordered case
+    unless (← isOrdered) do return ()
     trace_goal[grind.linarith.assert] "{← mkEq a b}"
     if (← isCommRing) then
       processNewCommRingEq a b
     else
       processNewIntModuleEq a b
 
+def DiseqCnstr.assert (c : DiseqCnstr) : LinearM Unit := do
+  trace[grind.linarith.assert] "{← c.denoteExpr}"
+  match c.p with
+  | .nil =>
+    trace[grind.linarith.unsat] "{← c.denoteExpr}"
+    setInconsistent (.diseq c)
+  | .add _ x _ =>
+    trace[grind.linarith.assert.store] "{← c.denoteExpr}"
+    modifyStruct fun s => { s with diseqs := s.diseqs.modify x (·.push c) }
+    if (← c.satisfied) == .false then
+      resetAssignmentFrom x
+
+private def processNewCommRingDiseq (a b : Expr) : LinearM Unit := do
+  let some lhs ← withRingM <| CommRing.reify? a (skipVar := false) | return ()
+  let some rhs ← withRingM <| CommRing.reify? b (skipVar := false) | return ()
+  let gen := max (← getGeneration a) (← getGeneration b)
+  let p' := (lhs.sub rhs).toPoly
+  let lhs' ← p'.toIntModuleExpr gen
+  let some lhs' ← reify? lhs' (skipVar := false) | return ()
+  let p := lhs'.norm
+  let c : DiseqCnstr := { p, h := .coreCommRing a b lhs rhs p' lhs' }
+  c.assert
+
+private def processNewIntModuleDiseq (a b : Expr) : LinearM Unit := do
+  let some lhs ← reify? a (skipVar := false) | return ()
+  let some rhs ← reify? b (skipVar := false) | return ()
+  let p := (lhs.sub rhs).norm
+  let c : DiseqCnstr := { p, h := .core a b lhs rhs }
+  c.assert
+
 @[export lean_process_linarith_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
-  trace[grind.linarith.assert] "{a} ≠ {b}"
-  -- TODO
+  let some structId ← inSameStruct? a b | return ()
+  LinearM.run structId do
+    if (← isCommRing) then
+      processNewCommRingDiseq a b
+    else
+      processNewIntModuleDiseq a b
 
 end Lean.Meta.Grind.Arith.Linear

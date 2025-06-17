@@ -16,9 +16,16 @@ import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
 namespace Lean.Meta.Grind.Arith.Linear
 
 def isLeInst (struct : Struct) (inst : Expr) : Bool :=
-  isSameExpr struct.leFn.appArg! inst
+  if let some leFn := struct.leFn? then
+    isSameExpr leFn.appArg! inst
+  else
+    false
+
 def isLtInst (struct : Struct) (inst : Expr) : Bool :=
-  isSameExpr struct.ltFn.appArg! inst
+  if let some ltFn := struct.ltFn? then
+    isSameExpr ltFn.appArg! inst
+  else
+    false
 
 def IneqCnstr.assert (c : IneqCnstr) : LinearM Unit := do
   trace[grind.linarith.assert] "{← c.denoteExpr}"
@@ -59,7 +66,7 @@ def propagateCommRingIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : 
     c.assert
   else
     -- Negation for preorders is not supported
-    return ()
+    modifyStruct fun s => { s with ignored := s.ignored.push e }
 
 def propagateIntModuleIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : Bool) : LinearM Unit := do
   let some lhs ← reify? lhs (skipVar := false) | return ()
@@ -75,7 +82,7 @@ def propagateIntModuleIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue :
     c.assert
   else
     -- Negation for preorders is not supported
-    return ()
+    modifyStruct fun s => { s with ignored := s.ignored.push e }
 
 def propagateIneq (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   unless (← getConfig).linarith do return ()

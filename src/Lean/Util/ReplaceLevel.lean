@@ -47,7 +47,7 @@ unsafe def replaceUnsafeM (f? : Level → Option Level) (size : USize) (e : Expr
         | Expr.forallE _ d b _   => cache i e <| e.updateForallE! (← visit d) (← visit b)
         | Expr.lam _ d b _       => cache i e <| e.updateLambdaE! (← visit d) (← visit b)
         | Expr.mdata _ b         => cache i e <| e.updateMData! (← visit b)
-        | Expr.letE _ t v b _    => cache i e <| e.updateLet! (← visit t) (← visit v) (← visit b)
+        | Expr.letE _ t v b _    => cache i e <| e.updateLetE! (← visit t) (← visit v) (← visit b)
         | Expr.app f a           => cache i e <| e.updateApp! (← visit f) (← visit a)
         | Expr.proj _ _ b        => cache i e <| e.updateProj! (← visit b)
         | Expr.sort u            => cache i e <| e.updateSort! (u.replace f?)
@@ -69,7 +69,7 @@ partial def replaceLevel (f? : Level → Option Level) : Expr → Expr
   | e@(Expr.forallE _ d b _)   => let d := replaceLevel f? d; let b := replaceLevel f? b; e.updateForallE! d b
   | e@(Expr.lam _ d b _)       => let d := replaceLevel f? d; let b := replaceLevel f? b; e.updateLambdaE! d b
   | e@(Expr.mdata _ b)         => let b := replaceLevel f? b; e.updateMData! b
-  | e@(Expr.letE _ t v b _)    => let t := replaceLevel f? t; let v := replaceLevel f? v; let b := replaceLevel f? b; e.updateLet! t v b
+  | e@(Expr.letE _ t v b _)    => let t := replaceLevel f? t; let v := replaceLevel f? v; let b := replaceLevel f? b; e.updateLetE! t v b
   | e@(Expr.app f a)           => let f := replaceLevel f? f; let a := replaceLevel f? a; e.updateApp! f a
   | e@(Expr.proj _ _ b)        => let b := replaceLevel f? b; e.updateProj! b
   | e@(Expr.sort u)            => e.updateSort! (u.replace f?)

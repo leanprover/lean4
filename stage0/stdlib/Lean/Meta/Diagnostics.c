@@ -36,6 +36,7 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux___at_Lean_Meta_collectAboveThreshold___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_Meta_mkDiagSummary___spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkDiagSummary___closed__3;
+uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_185_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forIn___at_Lean_Meta_mkDiagSummary___spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_DiagSummary_isEmpty___boxed(lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
@@ -86,7 +87,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forIn___at_Lean_Meta_mkDiagSum
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_mkDiagSummary___spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkDiagSummary(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_log___at_Lean_Meta_reportDiag___spec__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_log___at_Lean_Meta_reportDiag___spec__1(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_collectAboveThreshold___at_Lean_Meta_mkDiagSummary___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkDiagSummaryForUnfolded(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_subCounters___spec__4(lean_object*);
@@ -94,7 +95,7 @@ lean_object* l_Lean_Option_get___at_Lean_profiler_threshold_getSecs___spec__1(le
 static lean_object* l_Lean_logAt___at_Lean_Meta_reportDiag___spec__2___closed__1;
 static lean_object* l_Lean_Meta_reportDiag___closed__14;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_Meta_mkDiagSynthPendingFailure___spec__6(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_log___at_Lean_Meta_reportDiag___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_log___at_Lean_Meta_reportDiag___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___at_Lean_Meta_reportDiag___spec__2___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_collectAboveThreshold___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux___at_Lean_Meta_mkDiagSummary___spec__4(lean_object*, lean_object*, lean_object*);
@@ -129,7 +130,6 @@ static lean_object* l_Lean_Meta_mkDiagSummaryForUsedInstances___closed__2;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 extern lean_object* l_Lean_warningAsError;
 uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
-uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_Meta_collectAboveThreshold___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_Meta_subCounters___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_reportDiag___closed__9;
@@ -4351,7 +4351,7 @@ _start:
 {
 lean_object* x_10; uint8_t x_185; uint8_t x_186; 
 x_185 = 2;
-x_186 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_3, x_185);
+x_186 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_185_(x_3, x_185);
 if (x_186 == 0)
 {
 lean_object* x_187; 
@@ -4392,7 +4392,7 @@ lean_dec(x_10);
 x_178 = lean_ctor_get(x_7, 2);
 lean_inc(x_178);
 x_179 = 1;
-x_180 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_3, x_179);
+x_180 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_185_(x_3, x_179);
 if (x_180 == 0)
 {
 lean_dec(x_178);
@@ -5095,15 +5095,14 @@ return x_176;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_log___at_Lean_Meta_reportDiag___spec__1(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l_Lean_log___at_Lean_Meta_reportDiag___spec__1(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-lean_object* x_8; uint8_t x_9; lean_object* x_10; 
-x_8 = lean_ctor_get(x_5, 5);
-lean_inc(x_8);
-x_9 = 0;
-x_10 = l_Lean_logAt___at_Lean_Meta_reportDiag___spec__2(x_8, x_1, x_2, x_9, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_8);
+lean_object* x_9; lean_object* x_10; 
+x_9 = lean_ctor_get(x_6, 5);
+lean_inc(x_9);
+x_10 = l_Lean_logAt___at_Lean_Meta_reportDiag___spec__2(x_9, x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+lean_dec(x_9);
 return x_10;
 }
 }
@@ -5505,7 +5504,7 @@ lean_ctor_set(x_92, 0, x_90);
 lean_ctor_set(x_92, 1, x_91);
 lean_ctor_set(x_92, 2, x_89);
 x_93 = 0;
-x_94 = l_Lean_log___at_Lean_Meta_reportDiag___spec__1(x_92, x_93, x_1, x_2, x_3, x_4, x_63);
+x_94 = l_Lean_log___at_Lean_Meta_reportDiag___spec__1(x_92, x_93, x_21, x_1, x_2, x_3, x_4, x_63);
 lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -5571,7 +5570,7 @@ lean_ctor_set(x_126, 0, x_124);
 lean_ctor_set(x_126, 1, x_125);
 lean_ctor_set(x_126, 2, x_123);
 x_127 = 0;
-x_128 = l_Lean_log___at_Lean_Meta_reportDiag___spec__1(x_126, x_127, x_1, x_2, x_3, x_4, x_97);
+x_128 = l_Lean_log___at_Lean_Meta_reportDiag___spec__1(x_126, x_127, x_21, x_1, x_2, x_3, x_4, x_97);
 lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -5848,17 +5847,19 @@ lean_dec(x_1);
 return x_12;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_log___at_Lean_Meta_reportDiag___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l_Lean_log___at_Lean_Meta_reportDiag___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-uint8_t x_8; lean_object* x_9; 
-x_8 = lean_unbox(x_2);
+uint8_t x_9; uint8_t x_10; lean_object* x_11; 
+x_9 = lean_unbox(x_2);
 lean_dec(x_2);
-x_9 = l_Lean_log___at_Lean_Meta_reportDiag___spec__1(x_1, x_8, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_6);
-lean_dec(x_4);
+x_10 = lean_unbox(x_3);
 lean_dec(x_3);
-return x_9;
+x_11 = l_Lean_log___at_Lean_Meta_reportDiag___spec__1(x_1, x_9, x_10, x_4, x_5, x_6, x_7, x_8);
+lean_dec(x_7);
+lean_dec(x_5);
+lean_dec(x_4);
+return x_11;
 }
 }
 lean_object* initialize_Lean_PrettyPrinter(uint8_t builtin, lean_object*);

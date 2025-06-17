@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 def f (a : Option Nat) (h : a ≠ none) : Nat :=
  match a with
  | some a => a

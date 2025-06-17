@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 def f (x : Option Nat) (h : x ≠ none) : Nat :=
   match x with
   | none => by contradiction

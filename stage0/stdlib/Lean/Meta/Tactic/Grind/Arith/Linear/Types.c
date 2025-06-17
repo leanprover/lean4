@@ -298,10 +298,11 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedDiseqCnstr___closed__3;
 x_2 = lean_box(0);
-x_3 = lean_alloc_ctor(0, 3, 0);
+x_3 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
+lean_ctor_set(x_3, 1, x_1);
 lean_ctor_set(x_3, 2, x_2);
+lean_ctor_set(x_3, 3, x_2);
 return x_3;
 }
 }
@@ -399,7 +400,7 @@ x_4 = lean_box(0);
 x_5 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedStruct___closed__4;
 x_6 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedStruct___closed__6;
 x_7 = 0;
-x_8 = lean_alloc_ctor(0, 31, 1);
+x_8 = lean_alloc_ctor(0, 32, 1);
 lean_ctor_set(x_8, 0, x_2);
 lean_ctor_set(x_8, 1, x_1);
 lean_ctor_set(x_8, 2, x_3);
@@ -431,7 +432,8 @@ lean_ctor_set(x_8, 27, x_5);
 lean_ctor_set(x_8, 28, x_5);
 lean_ctor_set(x_8, 29, x_1);
 lean_ctor_set(x_8, 30, x_6);
-lean_ctor_set_uint8(x_8, sizeof(void*)*31, x_7);
+lean_ctor_set(x_8, 31, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*32, x_7);
 return x_8;
 }
 }

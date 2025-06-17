@@ -339,7 +339,7 @@ protected theorem add_sub_assoc (a b c : Int) : a + b - c = a + (b - c) := by
   match m with
   | 0 => rfl
   | succ m =>
-    show ofNat (n - succ m) = subNatNat n (succ m)
+    change ofNat (n - succ m) = subNatNat n (succ m)
     rw [subNatNat, Nat.sub_eq_zero_of_le h]
 
 @[deprecated negSucc_eq (since := "2025-03-11")]

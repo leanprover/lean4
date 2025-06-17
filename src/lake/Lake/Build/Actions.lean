@@ -4,8 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone, Siddharth Bhat
 -/
 prelude
-import Lean.Setup
-import Lean.Data.Json
 import Lake.Config.Dynlib
 import Lake.Util.Proc
 import Lake.Util.NativeLib
@@ -23,30 +21,29 @@ namespace Lake
 
 def compileLeanModule
   (leanFile relLeanFile : FilePath)
-  (setup : ModuleSetup) (setupFile : FilePath)
-  (arts : ModuleArtifacts)
-  (leanArgs : Array String := #[])
-  (leanPath : SearchPath := [])
-  (rootDir : FilePath := ".")
-  (lean : FilePath := "lean")
+  (oleanFile? ileanFile? cFile? bcFile?: Option FilePath)
+  (leanPath : SearchPath := []) (rootDir : FilePath := ".")
+  (dynlibs plugins : Array Dynlib := #[])
+  (leanArgs : Array String := #[]) (lean : FilePath := "lean")
 : LogIO Unit := do
-  let mut args :=
-    leanArgs.push leanFile.toString ++ #["-R", rootDir.toString]
-  if let some oleanFile := arts.olean? then
+  let mut args := leanArgs ++
+    #[leanFile.toString, "-R", rootDir.toString]
+  if let some oleanFile := oleanFile? then
     createParentDirs oleanFile
     args := args ++ #["-o", oleanFile.toString]
-  if let some ileanFile := arts.ilean? then
+  if let some ileanFile := ileanFile? then
     createParentDirs ileanFile
     args := args ++ #["-i", ileanFile.toString]
-  if let some cFile := arts.c? then
+  if let some cFile := cFile? then
     createParentDirs cFile
     args := args ++ #["-c", cFile.toString]
-  if let some bcFile := arts.bc? then
+  if let some bcFile := bcFile? then
     createParentDirs bcFile
     args := args ++ #["-b", bcFile.toString]
-  createParentDirs setupFile
-  IO.FS.writeFile setupFile (toJson setup).pretty
-  args := args ++ #["--setup", setupFile.toString]
+  for dynlib in dynlibs do
+    args := args ++ #["--load-dynlib", dynlib.path.toString]
+  for plugin in plugins do
+    args := args ++ #["--plugin", plugin.path.toString]
   args := args.push "--json"
   withLogErrorPos do
   let out ← rawProc {

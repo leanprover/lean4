@@ -120,7 +120,7 @@ where
                     let type ← replaceExprFVars param.type subst (translator := true)
                     let paramNew ← mkAuxParam type
                     jpParams := jpParams.push paramNew
-                    subst := subst.insert param.fvarId (Expr.fvar paramNew.fvarId)
+                    subst := subst.insert param.fvarId (.fvar paramNew.fvarId)
                     jpArgs := jpArgs.push (Arg.fvar paramNew.fvarId)
                   let letDecl ← mkAuxLetDecl (.fvar f jpArgs)
                   let jpValue := .let letDecl (.jmp jpDecl.fvarId #[.fvar letDecl.fvarId])
@@ -568,33 +568,6 @@ where
           let result := .fvar auxDecl.fvarId
           mkOverApplication result args casesInfo.arity
 
-  visitCasesImplementedBy (casesInfo : CasesInfo) (f : Expr) (args : Array Expr) : M Arg := do
-    let mut args := args
-    let discr := args[casesInfo.discrPos]!
-    if discr matches .fvar _ then
-      let typeName := casesInfo.declName.getPrefix
-      let .inductInfo indVal ← getConstInfo typeName | unreachable!
-      args ← args.mapIdxM fun i arg => do
-        unless casesInfo.altsRange.start <= i && i < casesInfo.altsRange.stop do return arg
-        let altIdx := i - casesInfo.altsRange.start
-        let numParams := casesInfo.altNumParams[altIdx]!
-        let ctorName := indVal.ctors[altIdx]!
-
-        -- We simplify `casesOn` arguments that simply reconstruct the discriminant and replace
-        -- them with the actual discriminant. This is required for hash consing to work correctly,
-        -- and should eventually be fixed by changing the elaborated term to use the original
-        -- variable.
-        Meta.MetaM.run' <| Meta.lambdaBoundedTelescope arg numParams fun paramExprs body => do
-          let fn := body.getAppFn
-          let args := body.getAppArgs
-          let args := args.map fun arg =>
-            if arg.getAppFn.constName? == some ctorName && arg.getAppArgs == paramExprs then
-              discr
-            else
-              arg
-          Meta.mkLambdaFVars paramExprs (mkAppN fn args)
-    visitAppDefaultConst f args
-
   visitCtor (arity : Nat) (e : Expr) : M Arg :=
     etaIfUnderApplied e arity do
       visitAppDefaultConst e.getAppFn e.getAppArgs
@@ -698,7 +671,7 @@ where
 
   visitApp (e : Expr) : M Arg := do
     if let some (args, n, t, v, b) := e.letFunAppArgs? then
-      visitCore <| mkAppN (.letE n t v b (nonDep := true)) args
+      visitCore <| mkAppN (.letE n t v b (nondep := true)) args
     else if let .const declName us := CSimp.replaceConstants (← getEnv) e.getAppFn then
       if declName == ``Quot.lift then
         visitQuotLift e
@@ -715,10 +688,7 @@ where
       else if declName == ``False.rec || declName == ``Empty.rec || declName == ``False.casesOn || declName == ``Empty.casesOn then
         visitFalseRec e
       else if let some casesInfo ← getCasesInfo? declName then
-        if (getImplementedBy? (← getEnv) declName).isSome then
-          e.withApp (visitCasesImplementedBy casesInfo)
-        else
-          visitCases casesInfo e
+        visitCases casesInfo e
       else if let some arity ← getCtorArity? declName then
         visitCtor arity e
       else if isNoConfusion (← getEnv) declName then

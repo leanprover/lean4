@@ -1772,6 +1772,12 @@ instance decidableExistsLE' {p : (m : Nat) → m ≤ k → Prop} [I : ∀ m h, D
     intro
     exact ⟨fun ⟨h, w⟩ => ⟨le_of_lt_succ h, w⟩, fun ⟨h, w⟩ => ⟨lt_add_one_of_le h, w⟩⟩
 
+instance decidableExistsFin (P : Fin n → Prop) [DecidablePred P] : Decidable (∃ i, P i) :=
+  decidable_of_iff (∃ k, k < n ∧ ((h: k < n) → P ⟨k, h⟩))
+    ⟨fun ⟨k, a⟩ => Exists.intro ⟨k, a.left⟩ (a.right a.left),
+    fun ⟨i, e⟩ => Exists.intro i.val ⟨i.isLt, fun _ => e⟩⟩
+
+
 /-! ### Results about `List.sum` specialized to `Nat` -/
 
 protected theorem sum_pos_iff_exists_pos {l : List Nat} : 0 < l.sum ↔ ∃ x ∈ l, 0 < x := by

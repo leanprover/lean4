@@ -17,7 +17,7 @@ Local function declaration and join point being pulled.
 structure ToPull where
   isFun : Bool
   decl  : FunDecl
-  used  : FVarIdSet
+  used  : FVarIdHashSet
   deriving Inhabited
 
 /--

@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 open Lean.Grind
 
 example [IntModule α] [Preorder α] [IntModule.IsOrdered α] (a b : α)
@@ -143,3 +141,25 @@ example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b : α)
 example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b c : α)
     : a*b + c > 1 → c = b*a → a*b > 0 := by
   grind
+
+-- It must not internalize subterms `b + c + d` and `b + b + d`
+#guard_msgs (trace) in
+set_option trace.grind.linarith.internalize true
+example [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (a b c d : α)
+    : a < b + c + d → c = b → a < b + b + d := by
+  grind
+
+/--
+trace: [grind.linarith.assert] -3 * y + 2 * x + One.one ≤ 0
+[grind.linarith.assert] 2 * z + -4 * x + One.one ≤ 0
+[grind.linarith.assert] -1 * z + 3 * y + One.one ≤ 0
+[grind.linarith.assert] 6 * y + -4 * x + 3 * One.one ≤ 0
+[grind.linarith.assert] 15 * One.one ≤ 0
+[grind.linarith.assert] Zero.zero < 0
+-/
+#guard_msgs (trace) in
+set_option trace.grind.cutsat.assert true in -- cutsat should **not** process the following constraints
+set_option trace.grind.linarith.assert true in -- linarith should take over
+set_option trace.grind.linarith.assert.store false in
+example (x y z : Int) (h1 : 2 * x < 3 * y) (h2 : -4 * x + 2 * z < 0) : ¬ 12*y - 4* z < 0 := by
+  grind -cutsat

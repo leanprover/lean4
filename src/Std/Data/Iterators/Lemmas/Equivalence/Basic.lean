@@ -8,8 +8,8 @@ import Init.Control.Lawful.Basic
 import Init.Ext
 import Init.Internal.Order
 import Init.Core
-import Std.Data.Iterators.Basic
-import Std.Data.Iterators.PostConditionMonad
+import Init.Data.Iterators.Basic
+import Init.Data.Iterators.PostconditionMonad
 import Std.Data.Iterators.Lemmas.Equivalence.HetT
 
 namespace Std.Iterators

@@ -6,8 +6,8 @@ Authors: Paul Reichert
 prelude
 import Init.Data.Option.Lemmas
 import Std.Data.Iterators.Producers.Repeat
-import Std.Data.Iterators.Consumers.Access
-import Std.Data.Iterators.Consumers.Collect
+import Init.Data.Iterators.Consumers.Access
+import Init.Data.Iterators.Consumers.Collect
 import Std.Data.Iterators.Combinators.Take
 import Std.Data.Iterators.Lemmas.Combinators.Take
 
@@ -16,7 +16,7 @@ namespace Std.Iterators
 variable {α : Type w} {f : α → α} {init : α}
 
 theorem Iter.step_repeat :
-    (Iter.repeat f init).step = .yield (Iter.repeat f (f init)) init ⟨rfl, rfl⟩ := by
+    (Iter.repeat f init).step = .yield (Iter.repeat f (f init)) init ⟨rfl, f init, rfl, rfl⟩ := by
   rfl
 
 theorem Iter.atIdxSlow?_zero_repeat :
@@ -51,5 +51,21 @@ theorem Iter.isSome_atIdxSlow?_repeat {k : Nat} :
 theorem Iter.toList_take_repeat_succ {k : Nat} :
     ((Iter.repeat f init).take (k + 1)).toList = init :: ((Iter.repeat f (f init)).take k).toList := by
   rw [toList_eq_match_step, step_take, step_repeat]
+
+theorem RepeatIterator.Monadic.next_eq_some_of_isPlausibleSuccessorOf {f : α → Option α}
+    {it' it : IterM (α := RepeatIterator α f) Id α} (h : it'.IsPlausibleSuccessorOf it) :
+    f it.internalState.next = some it'.internalState.next := by
+  rcases h with ⟨step, h, h'⟩
+  cases step
+  · cases h
+    rcases h' with ⟨rfl, a, ha, h'⟩
+    simp_all [Iter.toIterM]
+  · cases h'
+  · cases h
+
+theorem RepeatIterator.next_eq_some_of_isPlausibleSuccessorOf {f : α → Option α}
+    {it' it : Iter (α := RepeatIterator α f) α} (h : it'.IsPlausibleSuccessorOf it) :
+    f it.internalState.next = some it'.internalState.next :=
+  RepeatIterator.Monadic.next_eq_some_of_isPlausibleSuccessorOf h
 
 end Std.Iterators

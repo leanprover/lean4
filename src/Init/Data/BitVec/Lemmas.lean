@@ -5570,10 +5570,12 @@ theorem msb_replicate {n w : Nat} {x : BitVec w} :
 
 /-! ### Count leading zeroes -/
 
+/-- The number of leading zeroes is 0 if and only if the first bit checked (`x.getLsbD n`) is `true` -/
 theorem clzAux_eq_zero_iff {x : BitVec w} {n : Nat} :
     clzAux x n = 0 ↔ x.getLsbD n = true := by
   cases n <;> simp [clzAux]
 
+/-- The number of leading zeroes can't be larger than the number of bits clzAux checks -/
 theorem clzAux_le {x : BitVec w} {n : Nat} :
     clzAux x n ≤ n + 1 := by
   induction n
@@ -5585,6 +5587,8 @@ theorem clzAux_le {x : BitVec w} {n : Nat} :
     · simp [clzAux, hxn]
     · simp [clzAux, hxn]; omega
 
+/-- The number of leading zeroes is equal to the numbers of bits checked if and only if all
+  the bits from the `n`-th to the `0`-th are `false`. -/
 theorem clzAux_eq_iff {x : BitVec w} {n : Nat} :
     clzAux x n = (n + 1) ↔ (∀ i, i < n + 1 → x.getLsbD i = false) := by
   induction n
@@ -5608,8 +5612,11 @@ theorem clzAux_eq_iff {x : BitVec w} {n : Nat} :
 @[simp]
 theorem clzAux_zero {x : BitVec w} : clzAux x 0 = if x.getLsbD 0 then 0 else 1 := by simp [clzAux]
 
+/-- If the number of leading zeroes is strictly smaller than the number of bits checked (i.e.,
+  not all bits are `false`), then there exists a `true` bit at a certain position `n - k` between
+  the `n`-th and the `0`-th bit, and all bits between `n` and that bit are `false` -/
 theorem clzAux_eq_iff_forall_of_clzAux_lt  {x : BitVec w} (hlt : (clzAux x n < n + 1)):
-    x.clzAux n = k ↔ ((∀ i, i < k → x.getLsbD (n - i) = false) ∧ ((x.getLsbD (n - k) = true))) := by
+    clzAux x n = k ↔ ((∀ i, i < k → x.getLsbD (n - i) = false) ∧ ((x.getLsbD (n - k) = true))) := by
   induction n generalizing k
   · case zero =>
     rcases k with _|k

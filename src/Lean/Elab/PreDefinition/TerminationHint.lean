@@ -152,12 +152,10 @@ def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) :
       | _ => pure none
       else pure none
     let terminationBy? : Option TerminationBy ← if let some t := t? then match t with
-      | `(terminationBy|termination_by partialFixpointursion) =>
-        pure (some {ref := t, structural := false, vars := #[], body := ⟨.missing⟩ : TerminationBy})
       | `(terminationBy|termination_by $[structural%$s]? => $_body) =>
         throwErrorAt t "no extra parameters bounds, please omit the `=>`"
       | `(terminationBy|termination_by $[structural%$s]? $vars* => $body) =>
-        pure (some {ref := t, structural := s.isSome, vars, body})
+        pure (some {ref := t, structural := s.isSome, vars, body : TerminationBy})
       | `(terminationBy|termination_by $[structural%$s]? $body:term) =>
         pure (some {ref := t, structural := s.isSome, vars := #[], body})
       | `(terminationBy?|termination_by?) => pure none

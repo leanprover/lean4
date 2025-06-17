@@ -1,4 +1,5 @@
 open Lean.Grind
+set_option grind.debug true
 
 variable (R : Type u) [Field R]
 

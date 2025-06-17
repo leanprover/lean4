@@ -6,9 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Grind.CommRing.Basic
+import Init.Grind.Ring.Basic
+import Init.GrindInstances.ToInt
 import all Init.Data.BitVec.Basic
-import Init.Data.BitVec.Lemmas
 
 namespace Lean.Grind
 

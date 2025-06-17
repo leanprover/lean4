@@ -126,6 +126,14 @@ private def mkIntModThmPrefix (declName : Name) : ProofM Expr := do
   return mkApp3 (mkConst declName [s.u]) s.type s.intModuleInst (← getContext)
 
 /--
+Returns the prefix of a theorem with name `declName` where the first three arguments are
+`{α} [IntModule α] [NoNatZeroDivisors α] (ctx : Context α)`
+-/
+private def mkIntModNoNatDivThmPrefix (declName : Name) : ProofM Expr := do
+  let s ← getStruct
+  return mkApp4 (mkConst declName [s.u]) s.type s.intModuleInst (← getNoNatDivInst) (← getContext)
+
+/--
 Returns the prefix of a theorem with name `declName` where the first four arguments are
 `{α} [IntModule α] [Preorder α] (ctx : Context α)`
 -/
@@ -222,7 +230,7 @@ partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' d
     let hNot := mkLambda `h .default (mkApp2 lt (← c₁.p.denoteExpr) (← getZero)) (hFalse.abstract #[mkFVar fvarId])
     let h ← mkIntModLinOrdThmPrefix ``Grind.Linarith.diseq_split_resolve
     return mkApp5 h (← mkPolyDecl c₁.p) (← mkPolyDecl c'.p) reflBoolTrue (← c₁.toExprProof) hNot
-  | _ => throwError "NIY"
+  | _ => throwError "not implemented yet"
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do
   match c'.h with
@@ -237,6 +245,32 @@ partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c'
   | .neg c =>
     let h ← mkIntModThmPrefix ``Grind.Linarith.diseq_neg
     return mkApp4 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
+  | .subst k₁ k₂ c₁ c₂ =>
+    let h ← mkIntModNoNatDivThmPrefix ``Grind.Linarith.eq_diseq_subst
+    return mkApp8 h (toExpr k₁) (toExpr k₂) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
+      reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+  | .subst1 k c₁ c₂ =>
+    let h ← mkIntModThmPrefix ``Grind.Linarith.eq_diseq_subst1
+    return mkApp7 h (toExpr k) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p) reflBoolTrue
+      (← c₁.toExprProof) (← c₂.toExprProof)
+  | .oneNeZero => throwError "not implemented yet"
+
+partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
+  match c'.h with
+  | .core a b lhs rhs =>
+    let h ← mkIntModThmPrefix ``Grind.Linarith.eq_norm
+    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue (← mkEqProof a b)
+  | .coreCommRing .. => throwError "not implemented yet"
+  | .neg c =>
+    let h ← mkIntModThmPrefix ``Grind.Linarith.eq_neg
+    return mkApp4 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
+  | .coeff k c =>
+    let h ← mkIntModNoNatDivThmPrefix ``Grind.Linarith.eq_coeff
+    return mkApp5 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) (toExpr k) reflBoolTrue (← c.toExprProof)
+  | .subst x c₁ c₂ =>
+    let h ← mkIntModThmPrefix ``Grind.Linarith.eq_eq_subst
+    return mkApp7 h (toExpr x) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p) reflBoolTrue
+      (← c₁.toExprProof) (← c₂.toExprProof)
 
 partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
   match h with
@@ -271,13 +305,21 @@ partial def IneqCnstr.collectDecVars (c' : IneqCnstr) : CollectDecVarsM Unit := 
   | .norm c₁ _ => c₁.collectDecVars
   | .dec h => markAsFound h
   | .ofDiseqSplit (decVars := decVars) .. => decVars.forM markAsFound
+  | .subst _ c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
 
 -- `DiseqCnstr` is currently mutually recursive with `IneqCnstr`, but it will be in the future.
 -- Actually, it cannot even contain decision variables in the current implementation.
 partial def DiseqCnstr.collectDecVars (c' : DiseqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .core .. | .coreCommRing .. => return ()
+  | .core .. | .coreCommRing .. | .oneNeZero => return ()
   | .neg c => c.collectDecVars
+  | .subst _ _ c₁ c₂ | .subst1 _ c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
+
+partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
+  match c'.h with
+  | .subst _ c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
+  | .core .. | .coreCommRing .. => return ()
+  | .neg c | .coeff _ c => c.collectDecVars
 
 end
 

@@ -164,9 +164,15 @@ jobs:
               {
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
+                "os": large && level < 2 ? "nscloud-ubuntu-22.04-amd64-4x16" : "ubuntu-latest",
                 "release": true,
-                "check-level": 2,
+                // Special handling for release jobs. We want:
+                // 1. To run it in PRs so developrs get PR toolchains (so secondary is sufficient)
+                // 2. To skip it in merge queues as it takes longer than the
+                //    Linux lake build and adds little value in the merge queue
+                // 3. To run it in release (obviously)
+                "check-level": isPr ? 0 : 2,
+                "secondary": isPr,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
@@ -176,12 +182,13 @@ jobs:
               },
               {
                 "name": "Linux Lake",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-8x8" : "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16" : "ubuntu-latest",
                 "check-level": 0,
                 "test": true,
                 "check-rebootstrap": level >= 1,
                 "check-stage3": level >= 2,
-                "test-speedcenter": level >= 2,
+                // NOTE: `test-speedcenter` currently seems to be broken on `ubuntu-latest`
+                "test-speedcenter": large && level >= 2,
                 "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
               },
               {
@@ -215,7 +222,8 @@ jobs:
               },
               {
                 "name": "macOS aarch64",
-                "os": "macos-14",
+                // standard GH runner only comes with 7GB so use large runner if possible
+                "os": large ? "nscloud-macos-sonoma-arm64-6x14" : "macos-14",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "release": true,
                 "shell": "bash -euxo pipefail {0}",
@@ -223,11 +231,7 @@ jobs:
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
-                // Special handling for MacOS aarch64, we want:
-                // 1. To run it in PRs so Mac devs get PR toolchains (so secondary is sufficient)
-                // 2. To skip it in merge queues as it takes longer than the Linux build and adds
-                //    little value in the merge queue
-                // 3. To run it in release (obviously)
+                // See above for release job levels
                 "check-level": isPr ? 0 : 2,
                 "secondary": isPr,
               },
@@ -246,7 +250,7 @@ jobs:
               },
               {
                 "name": "Linux aarch64",
-                "os": "nscloud-ubuntu-22.04-arm64-4x8",
+                "os": "nscloud-ubuntu-22.04-arm64-4x16",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-linux_aarch64",
                 "release": true,
                 "check-level": 2,

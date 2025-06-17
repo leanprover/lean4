@@ -467,7 +467,7 @@ theorem replace_takeWhile [BEq α] [LawfulBEq α] {l : List α} {p : α → Bool
 
 /-! ### splitAt -/
 
-@[simp] theorem splitAt_eq {i : Nat} {l : List α} : splitAt i l = (l.take i, l.drop i) := by
+@[simp, grind =] theorem splitAt_eq {i : Nat} {l : List α} : splitAt i l = (l.take i, l.drop i) := by
   rw [splitAt, splitAt_go, reverse_nil, nil_append]
   split <;> simp_all [take_of_length_le, drop_of_length_le]
 

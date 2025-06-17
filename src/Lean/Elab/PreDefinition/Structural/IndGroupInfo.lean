@@ -36,15 +36,14 @@ def IndGroupInfo.ofInductiveVal (indInfo : InductiveVal) : IndGroupInfo where
 def IndGroupInfo.numMotives (group : IndGroupInfo) : Nat :=
   group.all.size + group.numNested
 
-/-- Instantiates the right `.brecOn` or `.bInductionOn` for the given type former index,
+/-- Instantiates the right `.brecOn` for the given type former index,
 including universe parameters and fixed prefix.  -/
-partial def IndGroupInfo.brecOnName (info : IndGroupInfo) (ind : Bool) (idx : Nat) : Name :=
+partial def IndGroupInfo.brecOnName (info : IndGroupInfo) (idx : Nat) : Name :=
   if let .some n := info.all[idx]? then
-      if ind then mkBInductionOnName n
-      else        mkBRecOnName n
+      mkBRecOnName n
     else
       let j := idx - info.all.size + 1
-      info.brecOnName ind 0 |>.appendIndexAfter j
+      info.brecOnName 0 |>.appendIndexAfter j
 
 /--
 An instance of an mutually inductive group of inductives, identified by the `all` array
@@ -72,11 +71,11 @@ def IndGroupInst.isDefEq (igi1 igi2 : IndGroupInst) : MetaM Bool := do
   unless (← (igi1.params.zip igi2.params).allM (fun (e₁, e₂) => Meta.isDefEqGuarded e₁ e₂)) do return false
   return true
 
-/-- Instantiates the right `.brecOn` or `.bInductionOn` for the given type former index,
+/-- Instantiates the right `.brecOn` for the given type former index,
 including universe parameters and fixed prefix.  -/
-def IndGroupInst.brecOn (group : IndGroupInst) (ind : Bool) (lvl : Level) (idx : Nat) : Expr :=
-  let n := group.brecOnName ind idx
-  let us := if ind then group.levels else lvl :: group.levels
+def IndGroupInst.brecOn (group : IndGroupInst) (lvl : Level) (idx : Nat) : Expr :=
+  let n := group.brecOnName idx
+  let us := lvl :: group.levels
   mkAppN (.const n us) group.params
 
 /--

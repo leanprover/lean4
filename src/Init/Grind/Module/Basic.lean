@@ -11,6 +11,9 @@ import Init.Grind.ToInt
 
 namespace Lean.Grind
 
+class AddRightCancel (M : Type u) [Add M] where
+  add_right_cancel : ∀ a b c : M, a + c = b + c → a = b
+
 class NatModule (M : Type u) extends Zero M, Add M, HMul Nat M M where
   add_zero : ∀ a : M, a + 0 = a
   add_comm : ∀ a b : M, a + b = b + a
@@ -36,6 +39,15 @@ class IntModule (M : Type u) extends Zero M, Add M, Neg M, Sub M, HMul Int M M w
   mul_hmul : ∀ n m : Int, ∀ a : M, (n * m) * a = n * (m * a)
   neg_add_cancel : ∀ a : M, -a + a = 0
   sub_eq_add_neg : ∀ a b : M, a - b = a + -b
+
+namespace NatModule
+
+variable {M : Type u} [NatModule M]
+
+theorem zero_add (a : M) : 0 + a = a := by
+  rw [add_comm, add_zero]
+
+end NatModule
 
 namespace IntModule
 
@@ -104,6 +116,12 @@ theorem sub_eq_iff {a b c : M} : a - b = c ↔ a = c + b := by
 theorem sub_eq_zero_iff {a b : M} : a - b = 0 ↔ a = b := by
   simp [sub_eq_iff, zero_add]
 
+theorem add_sub_cancel {a b : M} : a + b - b = a := by
+  rw [sub_eq_add_neg, add_assoc, add_neg_cancel, add_zero]
+
+theorem sub_add_cancel {a b : M} : a - b + b = a := by
+  rw [sub_eq_add_neg, add_assoc, neg_add_cancel, add_zero]
+
 theorem neg_hmul (n : Int) (a : M) : (-n) * a = - (n * a) := by
   apply (add_left_inj (n * a)).mp
   rw [← add_hmul, Int.add_left_neg, zero_hmul, neg_add_cancel]
@@ -111,6 +129,12 @@ theorem neg_hmul (n : Int) (a : M) : (-n) * a = - (n * a) := by
 theorem hmul_neg (n : Int) (a : M) : n * (-a) = - (n * a) := by
   apply (add_left_inj (n * a)).mp
   rw [← hmul_add, neg_add_cancel, neg_add_cancel, hmul_zero]
+
+theorem hmul_sub (k : Int) (a b : M) : k * (a - b) = k * a - k * b := by
+  rw [sub_eq_add_neg, hmul_add, hmul_neg, ← sub_eq_add_neg]
+
+theorem sub_hmul (k₁ k₂ : Int) (a : M) : (k₁ - k₂) * a = k₁ * a - k₂ * a := by
+  rw [Int.sub_eq_add_neg, add_hmul, neg_hmul, ← sub_eq_add_neg]
 
 end IntModule
 

@@ -22,8 +22,8 @@ This allows the documentation of core Lean features to be visible without import
 are defined in. This is only useful during bootstrapping and should not be used outside of
 the Lean source code.
 -/
-@[builtin_init, builtin_doc]
-private def initFn :=
+@[builtin_doc]
+builtin_initialize
   registerBuiltinAttribute {
     name  := `builtin_doc
     descr := "make the docs and location of this declaration available as a builtin"

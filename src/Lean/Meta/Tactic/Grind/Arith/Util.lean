@@ -4,8 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Expr
-import Lean.Message
+import Init.Grind.Ring.Basic
+import Lean.Meta.SynthInstance
+import Lean.Meta.Basic
 import Std.Internal.Rat
 
 namespace Lean.Meta.Grind.Arith
@@ -150,5 +151,33 @@ def isIntModuleVirtualParent (parent? : Option Expr) : Bool :=
   match parent? with
   | none => false
   | some parent => parent == getIntModuleVirtualParent
+
+def getIsCharInst? (u : Level) (type : Expr) (ringInst : Expr) : MetaM (Option (Expr × Nat)) := do withNewMCtxDepth do
+  let n ← mkFreshExprMVar (mkConst ``Nat)
+  let charType := mkApp3 (mkConst ``Grind.IsCharP [u]) type ringInst n
+  let .some charInst ← trySynthInstance charType | pure none
+  let n ← instantiateMVars n
+  let some n ← evalNat n |>.run
+    | pure none
+  pure <| some (charInst, n)
+
+def getNoZeroDivInst? (u : Level) (type : Expr) : MetaM (Option Expr) := do
+  let zeroType := mkApp (mkConst ``Zero [u]) type
+  let .some zeroInst ← trySynthInstance zeroType | return none
+  let hmulType := mkApp3 (mkConst ``HMul [0, u, u]) (mkConst ``Nat []) type type
+  let .some hmulInst ← trySynthInstance hmulType | return none
+  let noZeroDivType := mkApp3 (mkConst ``Grind.NoNatZeroDivisors [u]) type zeroInst hmulInst
+  LOption.toOption <$> trySynthInstance noZeroDivType
+
+@[specialize] def split (cs : PArray α) (getCoeff : α → Int) : PArray α × Array (Int × α) := Id.run do
+  let mut cs' := {}
+  let mut todo := #[]
+  for c in cs do
+    let b := getCoeff c
+    if b == 0 then
+      cs' := cs'.push c
+    else
+      todo := todo.push (b, c)
+  return (cs', todo)
 
 end Lean.Meta.Grind.Arith

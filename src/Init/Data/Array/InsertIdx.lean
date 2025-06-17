@@ -47,10 +47,15 @@ theorem insertIdx_zero {xs : Array α} {x : α} : xs.insertIdx 0 x = #[x] ++ xs 
   simp at h
   simp [List.length_insertIdx, h]
 
-theorem eraseIdx_insertIdx {i : Nat} {xs : Array α} (h : i ≤ xs.size) :
+theorem eraseIdx_insertIdx_self {i : Nat} {xs : Array α} (h : i ≤ xs.size) :
     (xs.insertIdx i a).eraseIdx i (by simp; omega) = xs := by
   rcases xs with ⟨xs⟩
   simp_all
+
+@[deprecated eraseIdx_insertIdx_self (since := "2025-06-15")]
+theorem eraseIdx_insertIdx {i : Nat} {xs : Array α} (h : i ≤ xs.size) :
+    (xs.insertIdx i a).eraseIdx i (by simp; omega) = xs := by
+  simp [eraseIdx_insertIdx_self]
 
 theorem insertIdx_eraseIdx_of_ge {as : Array α}
     (w₁ : i < as.size) (w₂ : j ≤ (as.eraseIdx i).size) (h : i ≤ j) :
@@ -66,6 +71,18 @@ theorem insertIdx_eraseIdx_of_le {as : Array α}
   cases as
   simpa using List.insertIdx_eraseIdx_of_le (by simpa) (by simpa)
 
+@[grind =]
+theorem insertIdx_eraseIdx {as : Array α} (h₁ : i < as.size) (h₂ : j ≤ (as.eraseIdx i).size) :
+    (as.eraseIdx i).insertIdx j a =
+      if h : i ≤ j then
+        (as.insertIdx (j + 1) a (by simp_all; omega)).eraseIdx i (by simp_all; omega)
+      else
+        (as.insertIdx j a).eraseIdx (i + 1) (by simp_all) := by
+  split <;> rename_i h'
+  · rw [insertIdx_eraseIdx_of_ge] <;> omega
+  · rw [insertIdx_eraseIdx_of_le] <;> omega
+
+@[grind =]
 theorem insertIdx_comm (a b : α) {i j : Nat} {xs : Array α} (_ : i ≤ j) (_ : j ≤ xs.size) :
     (xs.insertIdx i a).insertIdx (j + 1) b (by simpa) =
       (xs.insertIdx j b).insertIdx i a (by simp; omega) := by
@@ -81,6 +98,7 @@ theorem insertIdx_size_self {xs : Array α} {x : α} : xs.insertIdx xs.size x = 
   rcases xs with ⟨xs⟩
   simp
 
+@[grind =]
 theorem getElem_insertIdx {xs : Array α} {x : α} {i k : Nat} (w : i ≤ xs.size) (h : k < (xs.insertIdx i x).size) :
     (xs.insertIdx i x)[k] =
       if h₁ : k < i then
@@ -106,6 +124,7 @@ theorem getElem_insertIdx_of_gt {xs : Array α} {x : α} {i k : Nat} (w : k ≤ 
   simp [getElem_insertIdx, w, h]
   rw [dif_neg (by omega), dif_neg (by omega)]
 
+@[grind =]
 theorem getElem?_insertIdx {xs : Array α} {x : α} {i k : Nat} (h : i ≤ xs.size) :
     (xs.insertIdx i x)[k]? =
       if k < i then

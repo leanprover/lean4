@@ -51,14 +51,9 @@ theorem not_insert_eq_empty [EquivBEq α] [LawfulHashable α] {k : α} {v : β k
 theorem mem_iff_contains [EquivBEq α] [LawfulHashable α] {a : α} : a ∈ m ↔ m.contains a :=
   Iff.rfl
 
-@[simp, grind =]
+@[simp, grind _=_]
 theorem contains_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} : m.contains a ↔ a ∈ m :=
   Iff.rfl
-
--- We need to specify the pattern for the reverse direction manually,
--- as the default heuristic leaves the `ExtDHashMap α β` argument as a wildcard.
-grind_pattern contains_iff_mem => @Membership.mem α (ExtDHashMap α β) _ m a
-
 
 theorem contains_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : m.contains a = m.contains b :=
   m.inductionOn fun _ => DHashMap.contains_congr hab

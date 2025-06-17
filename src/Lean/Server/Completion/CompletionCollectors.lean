@@ -565,14 +565,12 @@ def errorNameCompletion
     (params            : CompletionParams)
     (completionInfoPos : Nat)
     (ctx               : ContextInfo)
-    (stx               : Syntax)
+    (partialId         : Syntax)
     (caps              : ClientCapabilities)
     : IO (Array CompletionItem) :=
   ctx.runMetaM {} do
     let explanations := getErrorExplanationsRaw (← getEnv)
-    -- Per the invariant on `errorName` completion info, the identifier is the penultimate argument:
-    let errorNameStx := stx[stx.getNumArgs - 2]
-    return trailingDotCompletion explanations errorNameStx caps ctx fun name explan textEdit? => {
+    return trailingDotCompletion explanations partialId caps ctx fun name explan textEdit? => {
       label := name.toString,
       detail? := "error name",
       documentation? := some {

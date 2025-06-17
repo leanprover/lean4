@@ -34,7 +34,7 @@ where
       stx₁.eqWithInfo stx₂
     | .option stx₁, .option stx₂ =>
       stx₁.eqWithInfo stx₂
-    | .errorName stx₁, .errorName stx₂ =>
+    | .errorName stx₁ .., .errorName stx₂ .. =>
       stx₁.eqWithInfo stx₂
     | .endSection stx₁ scopeNames₁, .endSection stx₂ scopeNames₂ =>
       stx₁.eqWithInfo stx₂ && scopeNames₁ == scopeNames₂

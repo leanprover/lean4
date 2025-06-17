@@ -72,13 +72,15 @@ def elabCheckedNamedError : TermElab := fun stx expType? => do
     (stx[2], 5)
   else
     (stx[1], 4)
-  -- Remove the message term so the name is the penultimate argument per the `errorName` invariant.
-  -- If we have a trailing `.`, we fail to parse the message term and so leave `stx` unchanged.
+  -- Remove the message term from the span. If we have a trailing `.`, we fail to parse the message
+  -- term and so leave `stx` unchanged. The in-progress identifier will always be the penultimate
+  -- argument of `span`.
   let span := if stx.getNumArgs == numArgsExpected then
     stx.setArgs (stx.getArgs[0:stx.getNumArgs - 1])
   else
     stx
-  addCompletionInfo <| CompletionInfo.errorName span
+  let partialId := span[span.getNumArgs - 2]
+  addCompletionInfo <| CompletionInfo.errorName span partialId
   let name := id.getId.eraseMacroScopes
   pushInfoLeaf <| .ofErrorNameInfo { stx := id, errorName := name }
   if let some explan := getErrorExplanationRaw? (← getEnv) name then

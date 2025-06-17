@@ -94,11 +94,7 @@ inductive CompletionInfo where
   | fieldId (stx : Syntax) (id : Option Name) (lctx : LocalContext) (structName : Name)
   | namespaceId (stx : Syntax)
   | option (stx : Syntax)
-  /--
-  Carries the syntax for one of the named-error macros, with the invariant that the identifier
-  being completed is the syntax's penultimate argument.
-  -/
-  | errorName (stx : Syntax)
+  | errorName (stx partialId : Syntax)
   | endSection (stx : Syntax) (scopeNames : List String)
   | tactic (stx : Syntax)
 

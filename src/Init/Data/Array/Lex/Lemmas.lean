@@ -9,6 +9,7 @@ prelude
 import all Init.Data.Array.Lex.Basic
 import Init.Data.Array.Lemmas
 import Init.Data.List.Lex
+import Init.Data.Range.New.Lemmas
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -31,10 +32,43 @@ protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {xs ys
 @[simp] theorem lex_empty [BEq α] {lt : α → α → Bool} {xs : Array α} : xs.lex #[] lt = false := by
   simp [lex]
 
+@[congr] theorem forIn'_congr [Monad m] {as bs : ρ} {_ : Membership α ρ}
+    [ForIn' m ρ α inferInstance] (w : as = bs)
+    {b b' : β} (hb : b = b')
+    {f : (a' : α) → a' ∈ as → β → m (ForInStep β)}
+    {g : (a' : α) → a' ∈ bs → β → m (ForInStep β)}
+    (h : ∀ a m b, f a (by simpa [w] using m) b = g a m b) :
+    forIn' as b f = forIn' bs b' g := by
+  cases hb
+  cases w
+  have : f = g := by
+    ext a ha acc
+    apply h
+  cases this
+  rfl
+
 private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs ys : Array α} :
      (#[a] ++ xs).lex (#[b] ++ ys) lt =
        (lt a b || a == b && xs.lex ys lt) := by
-  simp only [lex]
+  simp only [lex, size_append]
+  simp only [List.size_toArray, List.length_cons, List.length_nil, Nat.zero_add,
+    Nat.add_min_add_left, Nat.add_lt_add_iff_left]
+  simp only [Std.PRange.forIn'_eq_forIn'_toList]
+  conv =>
+    lhs; congr; congr
+    rw [forIn'_congr Std.PRange.toList_eq rfl (fun _ _ _ => rfl)]
+    simp [SupportsUpperBound.IsSatisfied, if_pos (Nat.zero_lt_succ)]
+    rw [forIn'_congr (if_pos (by omega)) rfl (fun _ _ _ => rfl)]
+  simp
+  cases lt a b
+  · rw [bne]
+    cases h : a == b
+    · simp
+    · simp [h]
+      congr
+  · simp
+
+  simp only [Std.PRange.toList_eq]
   simp only [Std.Range.forIn'_eq_forIn'_range', size_append, List.size_toArray, List.length_singleton,
     Nat.add_comm 1]
   simp [Nat.add_min_add_right, List.range'_succ, getElem_append_left, List.range'_succ_left,

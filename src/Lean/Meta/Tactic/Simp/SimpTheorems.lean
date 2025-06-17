@@ -604,7 +604,7 @@ def SimpTheorems.entriesOfDeclToUnfold (declName : Name) : MetaM (Array SimpEntr
 /-- Auxiliary method for adding a local simp theorem to a `SimpTheorems` datastructure. -/
 def SimpTheorems.add (s : SimpTheorems) (id : Origin) (levelParams : Array Name) (proof : Expr)
         (inv := false) (post := true) (prio : Nat := eval_prio default)
-        (config : ConfigWithKey) : MetaM SimpTheorems := do
+        (config : ConfigWithKey := simpGlobalConfig) : MetaM SimpTheorems := do
   let simpThms ← mkSimpTheoremsFromExpr id levelParams proof inv post prio config
   return simpThms.foldl addSimpTheoremEntry s
 

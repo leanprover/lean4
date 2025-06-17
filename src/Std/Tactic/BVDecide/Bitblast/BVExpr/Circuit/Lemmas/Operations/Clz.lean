@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luisa Cicolini, Siddharth Bhat, Henrik Böving
 -/
 prelude
+import Init.Data.BitVec.Bitblast
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Clz
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const

@@ -12,6 +12,14 @@ open Std.Iterators
 
 variable {shape : RangeShape} {α : Type u}
 
+private theorem iterInternal_open_eq_of_isSome_succ? [UpwardEnumerable α]
+    [SupportsUpperBound su α] [FinitelyEnumerableRange su α]
+    [LawfulUpwardEnumerable α]
+    {lo : Bound .open α} {hi} (h : (UpwardEnumerable.succ? lo).isSome) :
+    (PRange.mk (shape := ⟨.open, su⟩) lo hi).iterInternal =
+      (PRange.mk (shape := ⟨.closed, su⟩) (UpwardEnumerable.succ? lo |>.get h) hi).iterInternal := by
+  simp [PRange.iterInternal, UpwardEnumerableRange.init]
+
 private theorem toList_eq_toList_iterInternal [UpwardEnumerable α]
     [UpwardEnumerableRange sl α] [SupportsUpperBound su α] [FinitelyEnumerableRange su α]
     [LawfulUpwardEnumerable α]
@@ -80,6 +88,14 @@ theorem toList_eq [UpwardEnumerable α] [UpwardEnumerableRange sl α]
     · simp only [List.cons.injEq, true_and, toList_eq_toList_iterInternal, PRange.iterInternal,
         UpwardEnumerableRange.init]
     · rfl
+
+private theorem toList_open_eq_of_isSome_succ? [UpwardEnumerable α]
+    [SupportsUpperBound su α] [FinitelyEnumerableRange su α]
+    [LawfulUpwardEnumerable α]
+    {lo : Bound .open α} {hi} (h : (UpwardEnumerable.succ? lo).isSome) :
+    (PRange.mk (shape := ⟨.open, su⟩) lo hi).toList =
+      (PRange.mk (shape := ⟨.closed, su⟩) (UpwardEnumerable.succ? lo |>.get h) hi).toList := by
+  simp [toList_eq_toList_iterInternal, iterInternal_open_eq_of_isSome_succ?, h]
 
 theorem toList_eq_nil_iff [UpwardEnumerable α]
     [SupportsUpperBound su α] [FinitelyEnumerableRange su α] [UpwardEnumerableRange sl α]
@@ -190,5 +206,48 @@ theorem forIn'_toList_eq_forIn' [UpwardEnumerable α]
     ForIn'.forIn' r.toList init f =
       ForIn'.forIn' r init (fun a ha acc => f a (mem_toList_iff_mem.mpr ha) acc) := by
   simp [forIn'_eq_forIn'_toList]
+
+theorem forIn'_eq_match [UpwardEnumerable α]
+    [SupportsUpperBound su α] [SupportsLowerBound sl α] [FinitelyEnumerableRange su α]
+    [UpwardEnumerableRange sl α] [LawfulUpwardEnumerable α]
+    [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
+    [SupportsLowerBound .open α] [LawfulUpwardEnumerableLowerBound .open α]
+    {r : PRange ⟨sl, su⟩ α}
+    {γ : Type u} {init : γ} {m : Type u → Type w} [Monad m] [LawfulMonad m]
+    {f : (a : α) → _ → γ → m (ForInStep γ)} :
+    ForIn'.forIn' r init f = match hi : UpwardEnumerableRange.init r.lower with
+      | none => pure init
+      | some a => if hu : SupportsUpperBound.IsSatisfied r.upper a then do
+        match ← f a ⟨by simp [LawfulUpwardEnumerableLowerBound.isValid_iff]; exact ⟨a, hi, 0, by simp [LawfulUpwardEnumerable.succMany?_zero]⟩, hu⟩ init with
+        | .yield c =>
+          ForIn'.forIn' (α := α) (β := γ) (PRange.mk (shape := ⟨.open, su⟩) a r.upper) c
+            (fun a ha acc => f a (by
+              simp only [Membership.mem] at ha ⊢
+              refine ⟨?_, ha.2⟩
+              simp only [LawfulUpwardEnumerableLowerBound.isValid_iff] at ha ⊢
+              obtain ⟨x, hx, n, hn⟩ := ha.1
+              refine ⟨_, hi, ?_⟩
+              simp only [UpwardEnumerableRange.init] at hx
+              refine ⟨n + 1, ?_⟩
+              rw [Nat.add_comm, UpwardEnumerable.succMany?_add,
+                LawfulUpwardEnumerable.succMany?_succ, LawfulUpwardEnumerable.succMany?_zero,
+                Option.bind_some, hx, Option.bind_some, hn]) acc)
+        | .done c => return c
+      else
+        return init := by
+  rw [forIn'_eq_forIn'_iterInternal, Iter.forIn'_eq_match_step]
+  simp only [Types.RangeIterator.step_eq_step, Types.RangeIterator.step, PRange.iterInternal]
+  apply Eq.symm
+  split <;> rename_i heq
+  · simp [heq]
+  · simp [heq]
+    split
+    · simp
+      apply bind_congr
+      intro step
+      split
+      · simp [forIn'_eq_forIn'_iterInternal, PRange.iterInternal, UpwardEnumerableRange.init]
+      · simp
+    · simp
 
 end Std.PRange

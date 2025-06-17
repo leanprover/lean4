@@ -34,6 +34,17 @@ theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
             f out acc) := by
   cases hl.lawful; rfl
 
+theorem Iter.forIn'_eq_forIn'_toIterM {α β : Type w} [Iterator α Id β]
+    [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
+    [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
+    {γ : Type w} {it : Iter (α := α) β} {init : γ}
+    {f : (out : β) → _ → γ → m (ForInStep γ)} :
+    ForIn'.forIn' it init f =
+      letI : MonadLift Id m := ⟨Std.Internal.idToMonad (α := _)⟩
+      ForIn'.forIn' it.toIterM init
+        (fun out h acc => f out (isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc) := by
+  rfl
+
 theorem Iter.forIn_eq_forIn_toIterM {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
     [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
@@ -43,6 +54,33 @@ theorem Iter.forIn_eq_forIn_toIterM {α β : Type w} [Iterator α Id β]
       letI : MonadLift Id m := ⟨Std.Internal.idToMonad (α := _)⟩
       ForIn.forIn it.toIterM init f := by
   rfl
+
+theorem Iter.forIn'_eq_match_step {α β : Type w} [Iterator α Id β]
+    [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
+    [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
+    {γ : Type w} {it : Iter (α := α) β} {init : γ}
+    {f : (out : β) → _ → γ → m (ForInStep γ)} :
+    ForIn'.forIn' it init f = (do
+      match it.step with
+      | .yield it' out h =>
+        match ← f out (.direct ⟨_, h⟩) init with
+        | .yield c =>
+          ForIn'.forIn' it' c
+            fun out h'' acc => f out (.indirect ⟨_, rfl, h⟩ h'') acc
+        | .done c => return c
+      | .skip it' h =>
+          ForIn'.forIn' it' init
+            fun out h' acc => f out (.indirect ⟨_, rfl, h⟩ h') acc
+      | .done _ => return init) := by
+  rw [Iter.forIn'_eq_forIn'_toIterM, @IterM.forIn'_eq_match_step, Iter.step]
+  simp only [liftM, monadLift, pure_bind]
+  generalize it.toIterM.step = step
+  cases step using PlausibleIterStep.casesOn
+  · apply bind_congr
+    intro forInStep
+    rfl
+  · rfl
+  · rfl
 
 theorem Iter.forIn_eq_match_step {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
@@ -66,6 +104,41 @@ theorem Iter.forIn_eq_match_step {α β : Type w} [Iterator α Id β]
     rfl
   · rfl
   · rfl
+
+private theorem Iter.forIn'_toList.aux {ρ : Type u} {α : Type v} {γ : Type w} {m : Type w → Type w'}
+    [Monad m] {_ : Membership α ρ} [ForIn' m ρ α inferInstance]
+    {r s : ρ} {init : γ} {f : (a : α) → _ → γ → m (ForInStep γ)} (h : r = s) :
+    forIn' r init f = forIn' s init (fun a h' acc => f a (h ▸ h') acc) := by
+  cases h; rfl
+
+theorem Iter.forIn'_toList {α β : Type w} [Iterator α Id β]
+    [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
+    [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {γ : Type w} {it : Iter (α := α) β} {init : γ}
+    {f : (out : β) → _ → γ → m (ForInStep γ)} :
+    ForIn'.forIn' it.toList init (fun out h acc => f out (isPlausibleIndirectOut) acc) = ForIn'.forIn' it init f := by
+  induction it using Iter.inductSteps generalizing init with case step it ihy ihs =>
+  have := it.toList_eq_match_step
+  generalize hs : it.step = step at this
+  rw [forIn'_toList.aux this]
+  rw [forIn'_eq_match_step]
+  rw [List.forIn'_eq_foldlM] at *
+  simp only [map_eq_pure_bind, List.foldlM_map, hs]
+  cases step using PlausibleIterStep.casesOn
+  · rename_i it' out h
+    simp only [List.attach_cons, List.foldlM_cons, bind_pure_comp, map_bind]
+    apply bind_congr
+    intro forInStep
+    cases forInStep
+    · induction it'.toList.attach <;> simp [*]
+    · simp only [ForIn.forIn, forIn', List.forIn', forIn'_eq_forIn'_toIterM] at ihy
+      simp [ihy h, forIn'_eq_forIn'_toIterM]
+      rw [← ihy h]
+  · rename_i it' h
+    simp only [bind_pure_comp]
+    rw [ihs h]
+  · simp
 
 theorem Iter.forIn_toList {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]

@@ -15,8 +15,8 @@ import Lean.Environment
 
 namespace Lean.IR
 
-open Lean.Compiler (LCNF.Alt LCNF.Arg LCNF.Code LCNF.Decl LCNF.DeclValue LCNF.LCtx LCNF.LetDecl
-                    LCNF.LetValue LCNF.LitValue LCNF.Param LCNF.getMonoDecl?)
+open Lean.Compiler (LCNF.Alt LCNF.Arg LCNF.CacheExtension LCNF.Code LCNF.Decl LCNF.DeclValue
+                    LCNF.LCtx LCNF.LetDecl LCNF.LetValue LCNF.LitValue LCNF.Param LCNF.getMonoDecl?)
 
 namespace ToIR
 
@@ -120,8 +120,17 @@ def lowerType (e : Lean.Expr) : M IRType := do
   | .forallE .. => return .object
   | _ => panic! "invalid type"
 
--- TODO: This should be cached.
+builtin_initialize ctorInfoExt : LCNF.CacheExtension Name (CtorInfo × (Array CtorFieldInfo)) ←
+  LCNF.CacheExtension.register
+
 def getCtorInfo (name : Name) : M (CtorInfo × (Array CtorFieldInfo)) := do
+  match (← ctorInfoExt.find? name) with
+  | some info => return info
+  | none =>
+    let info ← fillCache
+    ctorInfoExt.insert name info
+    return info
+where fillCache := do
   match getCtorLayout (← Lean.getEnv) name with
   | .ok ctorLayout =>
     return ⟨{

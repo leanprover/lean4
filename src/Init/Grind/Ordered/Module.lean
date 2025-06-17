@@ -14,13 +14,13 @@ namespace Lean.Grind
 
 class NatModule.IsOrdered (M : Type u) [Preorder M] [NatModule M] where
   add_le_left_iff : ∀ {a b : M} (c : M), a ≤ b ↔ a + c ≤ b + c
-  hmul_pos : ∀ (k : Nat) {a : M}, 0 < a → (0 < k ↔ 0 < k * a)
-  hmul_nonneg : ∀ {k : Nat} {a : M}, 0 ≤ a → 0 ≤ k * a
+  hmul_lt_hmul_iff : ∀ (k : Nat) {a b : M}, a < b → (k * a < k * b ↔ 0 < k)
+  hmul_le_hmul : ∀ {k : Nat} {a b : M}, a ≤ b → k * a ≤ k * b
 
 class IntModule.IsOrdered (M : Type u) [Preorder M] [IntModule M] where
   neg_le_iff : ∀ a b : M, -a ≤ b ↔ -b ≤ a
   add_le_left : ∀ {a b : M}, a ≤ b → (c : M) → a + c ≤ b + c
-  hmul_pos : ∀ (k : Int) {a : M}, 0 < a → (0 < k ↔ 0 < k * a)
+  hmul_pos_iff : ∀ (k : Int) {a : M}, 0 < a → (0 < k * a ↔ 0 < k)
   hmul_nonneg : ∀ {k : Int} {a : M}, 0 ≤ k → 0 ≤ a → 0 ≤ k * a
 
 namespace NatModule.IsOrdered
@@ -28,12 +28,12 @@ namespace NatModule.IsOrdered
 variable {M : Type u} [Preorder M] [NatModule M] [NatModule.IsOrdered M]
 
 theorem add_le_right_iff {a b : M} (c : M) : a ≤ b ↔ c + a ≤ c + b := by
-  rw [add_comm c a, add_comm c b,add_le_left_iff]
+  rw [add_comm c a, add_comm c b, add_le_left_iff]
 
 theorem add_le_left {a b : M} (h : a ≤ b) (c : M) : a + c ≤ b + c :=
   (add_le_left_iff c).mp h
 
-theorem add_le_right {a b : M} (h : a ≤ b) (c : M) : c + a ≤ c + b :=
+theorem add_le_right {a b : M} (c : M) (h : a ≤ b) : c + a ≤ c + b :=
   (add_le_right_iff c).mp h
 
 theorem add_lt_left {a b : M} (h : a < b) (c : M) : a + c < b + c := by
@@ -44,7 +44,7 @@ theorem add_lt_left {a b : M} (h : a < b) (c : M) : a + c < b + c := by
     apply h.2
     exact (add_le_left_iff c).mpr w
 
-theorem add_lt_right {a b : M} (h : a < b) (c : M) : c + a < c + b := by
+theorem add_lt_right {a b : M} (c : M) (h : a < b) : c + a < c + b := by
   rw [add_comm c a, add_comm c b]
   exact add_lt_left h c
 
@@ -60,6 +60,28 @@ theorem add_lt_left_iff {a b : M} (c : M) : a < b ↔ a + c < b + c := by
 
 theorem add_lt_right_iff {a b : M} (c : M) : a < b ↔ c + a < c + b := by
   rw [add_comm c a, add_comm c b, add_lt_left_iff]
+
+theorem hmul_pos_iff {k : Nat} {a : M} (h : 0 < a) : 0 < k * a ↔ 0 < k:= by
+  rw [← hmul_lt_hmul_iff k h, hmul_zero]
+
+theorem hmul_nonneg {k : Nat} {a : M} (h : 0 ≤ a) : 0 ≤ k * a := by
+  have := hmul_le_hmul (k := k) h
+  rwa [hmul_zero] at this
+
+theorem hmul_le_hmul_of_le_of_le_of_nonneg
+    {k₁ k₂ : Nat} {x y : M} (hk : k₁ ≤ k₂) (h : x ≤ y) (w : 0 ≤ x) :
+    k₁ * x ≤ k₂ * y := by
+  apply Preorder.le_trans
+  · change k₁ * x ≤ k₂ * x
+    obtain ⟨k', rfl⟩ := Nat.exists_eq_add_of_le hk
+    rw [add_hmul]
+    conv => lhs; rw [← add_zero (k₁ * x)]
+    rw [← add_le_right_iff]
+    exact hmul_nonneg w
+  · exact hmul_le_hmul h
+
+theorem add_le_add {a b c d : M} (hab : a ≤ b) (hcd : c ≤ d) : a + c ≤ b + d :=
+  Preorder.le_trans (add_le_right a hcd) (add_le_left hab d)
 
 end NatModule.IsOrdered
 
@@ -138,8 +160,8 @@ theorem add_lt_right_iff {a b : M} (c : M) : a < b ↔ c + a < c + b := by
 theorem sub_nonneg_iff {a b : M} : 0 ≤ a - b ↔ b ≤ a := by
   rw [add_le_left_iff b, zero_add, sub_add_cancel]
 
-theorem hmul_neg (k : Int) {a : M} (h : a < 0) : 0 < k ↔ k * a < 0 := by
-  simpa [IntModule.hmul_neg, neg_pos_iff] using hmul_pos k (neg_pos_iff.mpr h)
+theorem hmul_neg_iff (k : Int) {a : M} (h : a < 0) : k * a < 0 ↔ 0 < k := by
+  simpa [IntModule.hmul_neg, neg_pos_iff] using hmul_pos_iff k (neg_pos_iff.mpr h)
 
 theorem hmul_nonpos {k : Int} {a : M} (hk : 0 ≤ k) (ha : a ≤ 0) : k * a ≤ 0 := by
   simpa [IntModule.hmul_neg, neg_nonneg_iff] using hmul_nonneg hk (neg_nonneg_iff.mpr ha)

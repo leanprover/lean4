@@ -9,8 +9,8 @@ prelude
 import all Init.Data.Nat.Bitwise.Basic
 import all Init.Data.SInt.Basic
 import all Init.Data.BitVec.Basic
+import Init.Data.BitVec.Lemmas
 import Init.Data.BitVec.Bitblast
-import all Init.Data.BitVec.Lemmas
 import Init.Data.Int.LemmasAux
 import all Init.Data.UInt.Basic
 import Init.Data.UInt.Lemmas

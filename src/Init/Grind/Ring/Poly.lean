@@ -10,8 +10,8 @@ import Init.Data.Nat.Lemmas
 import Init.Data.Hashable
 import all Init.Data.Ord
 import Init.Data.RArray
-import Init.Grind.CommRing.Basic
-import Init.Grind.CommRing.Field
+import Init.Grind.Ring.Basic
+import Init.Grind.Ring.Field
 import Init.Grind.Ordered.Ring
 
 namespace Lean.Grind

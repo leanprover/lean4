@@ -182,12 +182,13 @@ jobs:
               },
               {
                 "name": "Linux Lake",
-                "os": large && level < 2 ? "nscloud-ubuntu-22.04-amd64-8x16" : "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16" : "ubuntu-latest",
                 "check-level": 0,
                 "test": true,
                 "check-rebootstrap": level >= 1,
                 "check-stage3": level >= 2,
-                "test-speedcenter": level >= 2,
+                // NOTE: `test-speedcenter` currently seems to be broken on `ubuntu-latest`
+                "test-speedcenter": large && level >= 2,
                 "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
               },
               {

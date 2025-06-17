@@ -231,8 +231,7 @@ def mkBRecOnF (recArgInfos : Array RecArgInfo) (positions : Positions)
       mkLambdaFVars (indicesMajorArgs ++ #[below] ++ otherArgs) valueNew
 
 /--
-Given the `motives`, figures out whether to use `.brecOn` or `.binductionOn`, pass
-the right universe levels, the parameters, and the motives.
+Given the `motives`, pass the right universe levels, the parameters, and the motives.
 It was already checked earlier in `checkCodomainsLevel` that the functions live in the same universe.
 -/
 def mkBRecOnConst (recArgInfos : Array RecArgInfo) (positions : Positions)
@@ -240,7 +239,7 @@ def mkBRecOnConst (recArgInfos : Array RecArgInfo) (positions : Positions)
   let indGroup := recArgInfos[0]!.indGroupInst
   let motive := motives[0]!
   let brecOnUniv ← lambdaTelescope motive fun _ type => getLevel type
-  let brecOnCons := fun idx => indGroup.brecOn false brecOnUniv idx
+  let brecOnCons := fun idx => indGroup.brecOn brecOnUniv idx
   -- Pick one as a prototype
   let brecOnAux := brecOnCons 0
   -- Infer the type of the packed motive arguments

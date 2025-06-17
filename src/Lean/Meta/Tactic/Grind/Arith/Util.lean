@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Grind.CommRing.Basic
+import Init.Grind.Ring.Basic
 import Lean.Meta.SynthInstance
 import Lean.Meta.Basic
 import Std.Internal.Rat

@@ -72,8 +72,17 @@ def lowerLitValue (v : LCNF.LitValue) : LitVal :=
   | .uint32 v => .num (UInt32.toNat v)
   | .uint64 v | .usize v => .num (UInt64.toNat v)
 
--- TODO: This should be cached.
+builtin_initialize scalarTypeExt : LCNF.CacheExtension Name (Option IRType) ←
+  LCNF.CacheExtension.register
+
 def lowerEnumToScalarType (name : Name) : M (Option IRType) := do
+  match (← scalarTypeExt.find? name) with
+  | some info? => return info?
+  | none =>
+    let info? ← fillCache
+    scalarTypeExt.insert name info?
+    return info?
+where fillCache : M (Option IRType) := do
   let env ← Lean.getEnv
   let some (.inductInfo inductiveVal) := env.find? name | return none
   let ctorNames := inductiveVal.ctors

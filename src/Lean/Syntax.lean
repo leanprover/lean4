@@ -622,7 +622,7 @@ where
   go (stack : Syntax.Stack) (stx : Syntax) : Option Syntax.Stack := Id.run do
     if accept stx then
       return (stx, 0) :: stack  -- the first index is arbitrary as there is no preceding element
-    for i in [0:stx.getNumArgs] do
+    for i in 0,,<stx.getNumArgs do
       if visit stx[i] then
         if let some stack := go ((stx, i) :: stack) stx[i] then
           return stack

@@ -1176,7 +1176,7 @@ def emitFnArgs (builder : LLVM.Builder llvmctx)
     (needsPackedArgs? : Bool)  (llvmfn : LLVM.Value llvmctx) (params : Array Param) : M llvmctx Unit := do
   if needsPackedArgs? then do
       let argsp ← LLVM.getParam llvmfn 0 -- lean_object **args
-      for h : i in [:params.size] do
+      for h : i in 0,,<params.size do
           let param := params[i]
           -- argsi := (args + i)
           let argsi ← LLVM.buildGEP2 builder (← LLVM.voidPtrType llvmctx) argsp #[← constIntUnsigned i] s!"packed_arg_{i}_slot"
@@ -1189,7 +1189,7 @@ def emitFnArgs (builder : LLVM.Builder llvmctx)
           addVartoState param.x alloca llvmty
   else
       let n ← LLVM.countParams llvmfn
-      for i in [:n.toNat] do
+      for i in 0,,<n.toNat do
         let param := params[i]!
         let llvmty ← toLLVMType param.ty
         let alloca ← buildPrologueAlloca builder  llvmty s!"arg_{i}"

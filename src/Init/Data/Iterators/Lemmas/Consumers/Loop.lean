@@ -111,13 +111,19 @@ private theorem Iter.forIn'_toList.aux {ρ : Type u} {α : Type v} {γ : Type w}
     forIn' r init f = forIn' s init (fun a h' acc => f a (h ▸ h') acc) := by
   cases h; rfl
 
+class LawfulPureIterator (α : Type w) [Iterator α Id β]
+    [Finite α Id] [IteratorCollect α Id Id] where
+  mem_toList_iff_isPlausibleIndirectOutput {it : Iter (α := α) β} {out : β} :
+    out ∈ it.toList ↔ it.IsPlausibleIndirectOutput out
+
 theorem Iter.forIn'_toList {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
     [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    [LawfulPureIterator α]
     {γ : Type w} {it : Iter (α := α) β} {init : γ}
     {f : (out : β) → _ → γ → m (ForInStep γ)} :
-    ForIn'.forIn' it.toList init (fun out h acc => f out (isPlausibleIndirectOut) acc) = ForIn'.forIn' it init f := by
+    ForIn'.forIn' it.toList init f = ForIn'.forIn' it init (fun out h acc => f out (LawfulPureIterator.mem_toList_iff_isPlausibleIndirectOutput.mpr h) acc) := by
   induction it using Iter.inductSteps generalizing init with case step it ihy ihs =>
   have := it.toList_eq_match_step
   generalize hs : it.step = step at this
@@ -132,13 +138,27 @@ theorem Iter.forIn'_toList {α β : Type w} [Iterator α Id β]
     intro forInStep
     cases forInStep
     · induction it'.toList.attach <;> simp [*]
-    · simp only [ForIn.forIn, forIn', List.forIn', forIn'_eq_forIn'_toIterM] at ihy
-      simp [ihy h, forIn'_eq_forIn'_toIterM]
-      rw [← ihy h]
+    · simp only [List.foldlM_map]
+      simp only [List.forIn'_eq_foldlM] at ihy
+      simp only at this
+      simp only [ihy h (f := fun out h acc => f out (by rw [this]; exact List.mem_cons_of_mem _ h) acc)]
   · rename_i it' h
     simp only [bind_pure_comp]
-    rw [ihs h]
+    simp only [List.forIn'_eq_foldlM] at ihs
+    simp only at this
+    simp only [ihs h (f := fun out h acc => f out (this ▸ h) acc)]
   · simp
+
+theorem Iter.forIn'_eq_forIn'_toList {α β : Type w} [Iterator α Id β]
+    [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
+    [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    [LawfulPureIterator α]
+    {γ : Type w} {it : Iter (α := α) β} {init : γ}
+    {f : (out : β) → _ → γ → m (ForInStep γ)} :
+    ForIn'.forIn' it init f = ForIn'.forIn' it.toList init (fun out h acc => f out (LawfulPureIterator.mem_toList_iff_isPlausibleIndirectOutput.mp h) acc) := by
+  simp only [forIn'_toList]
+  congr
 
 theorem Iter.forIn_toList {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]

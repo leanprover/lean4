@@ -297,12 +297,18 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
     let go := withMainContext do
       let zetaDeltaSet ← toZetaDeltaSet stx ctx
       withTrackingZetaDeltaSet zetaDeltaSet do
+        let mut starArg := false -- only after * we can erase local declarations
+        let mut args := #[]
+        for argStx in stx[1].getSepArgs do
+          let arg ← elabSimpArg ctx.indexConfig (eraseLocal || starArg) kind argStx
+          starArg := starArg || arg matches .star
+          args := args.push arg
+
         let mut thmsArray := ctx.simpTheorems
         let mut thms      := thmsArray[0]!
         let mut simprocs  := simprocs
-        let mut starArg   := false
-        for arg in stx[1].getSepArgs do
-          match (← elabSimpArg ctx.indexConfig (eraseLocal || starArg) kind arg) with
+        for ref in stx[1].getSepArgs, arg in args do
+          match arg with
           | .addEntries entries =>
             for entry in entries do
               thms := thms.uneraseSimpEntry entry
@@ -320,7 +326,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
             else if ctx.config.autoUnfold then
               thms := thms.eraseCore origin
             else
-              thms ← withRef arg <| thms.erase origin
+              thms ← withRef ref <| thms.erase origin
           | .eraseSimproc name =>
             simprocs := simprocs.erase name
           | .ext simpExt? simprocExt? _ =>
@@ -331,7 +337,9 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
           | .star => starArg := true
           | .none => pure ()
         let ctx := ctx.setZetaDeltaSet zetaDeltaSet (← getZetaDeltaFVarIds)
-        return { ctx := ctx.setSimpTheorems (thmsArray.set! 0 thms), simprocs, starArg }
+        let ctx := ctx.setSimpTheorems (thmsArray.set! 0 thms)
+
+        return { ctx, simprocs, starArg }
     -- If recovery is disabled, then we want simp argument elaboration failures to be exceptions.
     -- This affects `addSimpTheorem`.
     if (← read).recover then

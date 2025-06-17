@@ -205,7 +205,7 @@ private def elabSimpTheorem (config : Meta.ConfigWithKey) (id : Origin) (stx : S
     return .none
 
 private def elabSimpArg (indexConfig : Meta.ConfigWithKey) (eraseLocal : Bool) (kind : SimpKind)
-    (arg : Syntax) : TacticM ElabSimpArgResult := do
+    (arg : Syntax) : TacticM ElabSimpArgResult := withRef arg do
   try
     /-
     syntax simpPre := "↓"

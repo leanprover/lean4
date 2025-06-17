@@ -50,4 +50,13 @@ warning: 'a_thm' does not have [simp] attribute
 error: unsolved goals
 ⊢ 0 < f 0
 -/
-#guard_msgs in example : f 0 > 0 := by simp [-f, -a_thm]
+#guard_msgs in example : f 0 > 0 := by
+  simp [-f, -a_thm]
+
+
+/--
+error: invalid 'simp', proposition expected
+  Type 32
+-/
+#guard_msgs in
+example : True := by simp [Sort 32] -- mostly about error location, once guard_msgs shows that

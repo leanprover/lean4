@@ -1,5 +1,6 @@
 prelude
 import Init.Data.Range.New.Iteration
+import Init.Data.Nat.Lemmas
 
 instance : UpwardEnumerable Nat where
   succ? n := some (n + 1)

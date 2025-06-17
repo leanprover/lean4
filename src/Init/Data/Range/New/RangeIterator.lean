@@ -5,6 +5,7 @@ import Init.Data.Iterators.Internal.Termination
 import Init.Data.Iterators.Consumers.Loop
 import Init.Data.Iterators.Consumers.Collect
 import Init.Data.Range.New.Basic
+import Init.Data.List.Sublist
 
 open Std.Iterators
 

@@ -3,7 +3,7 @@ module
 prelude
 import Init.Core
 import Init.NotationExtra
-import Init.Data.Iterators
+import Init.Data.Iterators.Consumers
 import Init.Data.Range.New.Classes
 
 open Std.Iterators

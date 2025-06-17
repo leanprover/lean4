@@ -9,12 +9,12 @@ prelude
 import Init.Grind.Ring.Basic
 import all Init.Data.AC
 
-namespace Lean.Grind.CommRing
+namespace Lean.Grind.Ring
 
-namespace OfCommSemiring
+namespace OfSemiring
 variable (α : Type u)
 attribute [local instance] Semiring.natCast Ring.intCast
-variable [CommSemiring α]
+variable [Semiring α]
 
 -- Helper instance for `ac_rfl`
 local instance : Std.Associative (· + · : α → α → α) where
@@ -23,8 +23,6 @@ local instance : Std.Commutative (· + · : α → α → α) where
   comm := Semiring.add_comm
 local instance : Std.Associative (· * · : α → α → α) where
   assoc := Semiring.mul_assoc
-local instance : Std.Commutative (· * · : α → α → α) where
-  comm := CommSemiring.mul_comm
 
 @[local simp] private theorem exists_true : ∃ (_ : α), True := ⟨0, trivial⟩
 
@@ -53,7 +51,7 @@ theorem r_trans {a b c : α × α} : r α a b → r α b c → r α a c := by
   rw [haux₁, haux₂] at h₁
   exact h₁
 
-theorem mul_helper {α} [CommSemiring α]
+theorem mul_helper {α} [Semiring α]
     {a₁ b₁ a₂ b₂ a₃ b₃ a₄ b₄ k₁ k₂ : α}
     (h₁ : a₁ + b₃ + k₁ = b₁ + a₃ + k₁)
     (h₂ : a₂ + b₄ + k₂ = b₂ + a₄ + k₂)
@@ -183,12 +181,6 @@ theorem intCast_ofNat (n : Nat) : intCast (α := α) (OfNat.ofNat (α := Int) n)
 theorem ofNat_succ (a : Nat) : natCast (α := α) (a + 1) = add (natCast a) (natCast 1) := by
   simp; apply Quot.sound; simp [Semiring.natCast_add]
 
-theorem mul_comm (a b : Q α) : mul a b = mul b a := by
-  induction a using Quot.ind
-  induction b using Quot.ind
-  next a b =>
-  cases a; cases b; simp; apply Quot.sound; simp; refine ⟨0, ?_⟩; ac_rfl
-
 theorem mul_assoc (a b c : Q α) : mul (mul a b) c = mul a (mul b c) := by
   induction a using Quot.ind
   induction b using Quot.ind
@@ -238,19 +230,19 @@ private theorem pow_zero (a : Q α) : hPow a 0 = natCast 1 := rfl
 
 private theorem pow_succ (a : Q α) (n : Nat) : hPow a (n+1) = mul (hPow a n) a := rfl
 
-def ofCommSemiring : CommRing (Q α) := {
+def ofSemiring : Ring (Q α) := {
   ofNat   := fun n => ⟨natCast n⟩
   natCast := ⟨natCast⟩
   intCast := ⟨intCast⟩
   add, sub, mul, neg, hPow
   add_comm, add_assoc, add_zero
   neg_add_cancel, sub_eq_add_neg
-  mul_one, one_mul, zero_mul, mul_zero, mul_assoc, mul_comm,
+  mul_one, one_mul, zero_mul, mul_zero, mul_assoc,
   left_distrib, right_distrib, pow_zero, pow_succ,
   intCast_neg, ofNat_succ
 }
 
-attribute [local instance] ofCommSemiring
+attribute [local instance] ofSemiring
 
 @[local simp] def toQ (a : α) : Q α :=
   Q.mk (a, 0)
@@ -306,5 +298,40 @@ theorem toQ_inj [AddRightCancel α] (a b : α) : toQ a = toQ b → a = b := by
   obtain ⟨k, h₁⟩ := h₁
   exact AddRightCancel.add_right_cancel a b k h₁
 
+end OfSemiring
+end Lean.Grind.Ring
+
+open Lean.Grind.Ring
+
+namespace Lean.Grind.CommRing
+
+namespace OfCommSemiring
+
+variable (α : Type u) [CommSemiring α]
+
+local instance : Std.Associative (· + · : α → α → α) where
+  assoc := Semiring.add_assoc
+local instance : Std.Commutative (· + · : α → α → α) where
+  comm := Semiring.add_comm
+local instance : Std.Associative (· * · : α → α → α) where
+  assoc := Semiring.mul_assoc
+local instance : Std.Commutative (· * · : α → α → α) where
+  comm := CommSemiring.mul_comm
+
+variable {α}
+
+attribute [local simp] OfSemiring.Q.mk OfSemiring.Q.liftOn₂ Semiring.add_zero
+
+theorem mul_comm (a b : OfSemiring.Q α) : OfSemiring.mul a b = OfSemiring.mul b a := by
+  induction a using Quot.ind
+  induction b using Quot.ind
+  next a b =>
+  cases a; cases b; apply Quot.sound; refine ⟨0, ?_⟩; simp; ac_rfl
+
+def ofCommSemiring : CommRing (OfSemiring.Q α) :=
+  { OfSemiring.ofSemiring with
+    mul_comm := mul_comm }
+
 end OfCommSemiring
+
 end Lean.Grind.CommRing

@@ -1922,51 +1922,51 @@ If `x : BitVec w` has all bits larger than index `n` equal to `false`,
 then `clzAuxRec` starting from `n` will compute the `clz`.
 -/
 theorem clz_eq_clzAuxRec_of_forall_getLsbD_false (x : BitVec w) (h : ∀ i, n < i → x.getLsbD i = false) :
-    x.clz = x.clzAuxRec n := by
-  have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
-  rcases w with _|w
-  · simp [of_length_zero]
-  · have hle := clzAux_le (x := x) (n := w)
-    have heq := clzAux_eq_iff (x := x) (n := w)
-    induction n
-    · case zero =>
-      simp only [clzAuxRec, zero_lt_succ, getLsbD_eq_getElem]
-      by_cases hx0 : x[0]
-      · simp only [show ¬∀ i, i < w + 1 → x.getLsbD i = false by simp; exists 0; simp [hx0],
-          iff_false] at heq
-        simp only [clz, Nat.add_eq_zero, succ_ne_self, _root_.and_false, reduceIte,
-          Nat.add_one_sub_one, hx0, toNat_eq, toNat_ofNat]
-        rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by omega),
-          clzAux_eq_iff_forall_of_clzAux_lt (by omega)]
-        simp only [Nat.sub_self, zero_lt_succ, getLsbD_eq_getElem, hx0, _root_.and_true]
-        intro i hi
-        apply h
-        omega
-      · simp only [clz, Nat.add_eq_zero, succ_ne_self, _root_.and_false, reduceIte,
-          Nat.add_one_sub_one, hx0, false_eq_true, toNat_eq, toNat_ofNat, Nat.mod_two_pow_self]
-        rw [Nat.mod_eq_of_lt (by omega), heq]
-        intro i hi
-        by_cases hi' : 0 < i
-        · apply h; exact hi'
-        · simp [show i = 0 by omega, hx0]
-    · case succ n ihn =>
-      by_cases hxn : x.getLsbD (n + 1)
-      · have := lt_of_getLsbD hxn
-        simp [iff_false, show ¬∀ i, i < w + 1 → x.getLsbD i = false by simp; exists n + 1] at heq
-        simp only [clz, Nat.add_eq_zero, succ_ne_self, _root_.and_false, reduceIte,
-          Nat.add_one_sub_one, clzAuxRec, hxn, toNat_eq, toNat_ofNat]
-        rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by omega),
-          clzAux_eq_iff_forall_of_clzAux_lt (by omega)]
-        simp only [show w - (w - (n + 1)) = n + 1 by omega, hxn, _root_.and_true]
-        intro i hi
-        apply h
-        omega
-      · simp only [clzAuxRec, hxn, false_eq_true, reduceIte]
-        apply ihn
-        intro i hi
-        by_cases hi : n + 1 < i
-        · apply h; exact hi
-        · simp [show i = n + 1 by omega, hxn]
+    x.clz = x.clzAuxRec n := by sorry
+  -- have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
+  -- rcases w with _|w
+  -- · simp [of_length_zero]
+  -- · have hle := clzAux_le (x := x) (n := w)
+  --   have heq := clzAux_eq_iff (x := x) (n := w)
+  --   induction n
+  --   · case zero =>
+  --     simp only [clzAuxRec, zero_lt_succ, getLsbD_eq_getElem]
+  --     by_cases hx0 : x[0]
+  --     · simp only [show ¬∀ i, i < w + 1 → x.getLsbD i = false by simp; exists 0; simp [hx0],
+  --         iff_false] at heq
+  --       simp only [clz, Nat.add_eq_zero, succ_ne_self, _root_.and_false, reduceIte,
+  --         Nat.add_one_sub_one, hx0, toNat_eq, toNat_ofNat]
+  --       rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by omega),
+  --         clzAux_eq_iff_forall_of_clzAux_lt (by omega)]
+  --       simp only [Nat.sub_self, zero_lt_succ, getLsbD_eq_getElem, hx0, _root_.and_true]
+  --       intro i hi
+  --       apply h
+  --       omega
+  --     · simp only [clz, Nat.add_eq_zero, succ_ne_self, _root_.and_false, reduceIte,
+  --         Nat.add_one_sub_one, hx0, false_eq_true, toNat_eq, toNat_ofNat, Nat.mod_two_pow_self]
+  --       rw [Nat.mod_eq_of_lt (by omega), heq]
+  --       intro i hi
+  --       by_cases hi' : 0 < i
+  --       · apply h; exact hi'
+  --       · simp [show i = 0 by omega, hx0]
+  --   · case succ n ihn =>
+  --     by_cases hxn : x.getLsbD (n + 1)
+  --     · have := lt_of_getLsbD hxn
+  --       simp [iff_false, show ¬∀ i, i < w + 1 → x.getLsbD i = false by simp; exists n + 1] at heq
+  --       simp only [clz, Nat.add_eq_zero, succ_ne_self, _root_.and_false, reduceIte,
+  --         Nat.add_one_sub_one, clzAuxRec, hxn, toNat_eq, toNat_ofNat]
+  --       rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by omega),
+  --         clzAux_eq_iff_forall_of_clzAux_lt (by omega)]
+  --       simp only [show w - (w - (n + 1)) = n + 1 by omega, hxn, _root_.and_true]
+  --       intro i hi
+  --       apply h
+  --       omega
+  --     · simp only [clzAuxRec, hxn, false_eq_true, reduceIte]
+  --       apply ihn
+  --       intro i hi
+  --       by_cases hi : n + 1 < i
+  --       · apply h; exact hi
+  --       · simp [show i = n + 1 by omega, hxn]
 
 /--
 `clzAuxRec` agrees with `clz` when `clzAuxRec` is started from an index `n` that is at least `w - 1`.

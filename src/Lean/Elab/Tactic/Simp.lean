@@ -312,7 +312,15 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
           | .addSimproc declName post =>
             simprocs ← simprocs.add declName post
           | .erase origin =>
-            thms := thms.eraseCore origin
+            -- `thms.erase` checks if the erasure is effective.
+            -- We do not want this check for local hypotheses (they are added later based on `starArg`)
+            if origin matches .fvar _ then
+              thms := thms.eraseCore origin
+            -- Nor for decls to unfold when we do auto unfolding
+            else if ctx.config.autoUnfold then
+              thms := thms.eraseCore origin
+            else
+              thms ← withRef arg <| thms.erase origin
           | .eraseSimproc name =>
             simprocs := simprocs.erase name
           | .ext simpExt? simprocExt? _ =>

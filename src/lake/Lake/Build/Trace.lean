@@ -300,6 +300,7 @@ instance : NilTrace BuildTrace := ⟨nil⟩
     mtime := ← getMTime info
   }
 
+@[default_instance]
 instance
   [ToString α] [ComputeHash α m] [MonadLiftT m IO] [GetMTime α]
 : ComputeTrace α IO BuildTrace := ⟨compute⟩

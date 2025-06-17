@@ -411,8 +411,8 @@ It simply iterates using `IteratorLoopPartial` and counts the elements.
 For certain iterators, more efficient implementations are possible and should be used instead.
 -/
 @[always_inline, inline]
-instance IteratorSize.Partial.defaultImplementation {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α m β] [Finite α m] [IteratorLoopPartial α m m] :
+instance IteratorSizePartial.defaultImplementation {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoopPartial α m m] :
     IteratorSizePartial α m where
   size := IterM.DefaultConsumers.sizePartial
 
@@ -422,6 +422,10 @@ are caused by calling `size`, and if the monad is nondeterministic, it is also u
 returned value should be. The reference implementation, `IteratorSize.defaultImplementation`,
 simply iterates over the whole iterator monadically, counting the number of emitted values.
 An `IteratorSize` instance is considered lawful if it is equal to the reference implementation.
+
+**Performance**:
+
+Default performance is linear in the number of steps taken by the iterator.
 -/
 @[always_inline, inline]
 def IterM.size {α : Type} {m : Type → Type w'} {β : Type} [Iterator α m β] [Monad m]
@@ -439,6 +443,10 @@ An `IteratorSize` instance is considered lawful if it is equal to the reference 
 
 This is the partial version of `size`. It does not require a proof of finiteness and might loop
 forever. It is not possible to verify the behavior in Lean because it uses `partial`.
+
+**Performance**:
+
+Default performance is linear in the number of steps taken by the iterator.
 -/
 @[always_inline, inline]
 def IterM.Partial.size {α : Type} {m : Type → Type w'} {β : Type} [Iterator α m β] [Monad m]

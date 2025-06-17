@@ -125,4 +125,12 @@ instance {α : Type w} [Monad m] [Monad n] : IteratorLoop (ArrayIterator α) m n
 instance {α : Type w} [Monad m] [Monad n] : IteratorLoopPartial (ArrayIterator α) m n :=
   .defaultImplementation
 
+@[always_inline, inline]
+instance {α : Type w} [Monad m] : IteratorSize (ArrayIterator α) m :=
+  .defaultImplementation
+
+@[always_inline, inline]
+instance {α : Type w} [Monad m] : IteratorSizePartial (ArrayIterator α) m :=
+  .defaultImplementation
+
 end Std.Iterators

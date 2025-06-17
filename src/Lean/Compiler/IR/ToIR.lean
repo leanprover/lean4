@@ -110,7 +110,8 @@ def lowerType (e : Lean.Expr) : M IRType := do
       else
         return .object
   | .app f _ =>
-    if let .const name _ := f.headBeta then
+    -- All mono types are in headBeta form.
+    if let .const name _ := f then
       if let some scalarType ← lowerEnumToScalarType name then
         return scalarType
       else
@@ -278,6 +279,10 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
             return code
           else
             mkExpr (.fap name irArgs)
+        else if let some scalarType ← lowerEnumToScalarType ctorVal.name then
+          assert! args.isEmpty
+          let var ← bindVar decl.fvarId
+          return .vdecl var scalarType (.lit (.num ctorVal.cidx)) (← lowerCode k)
         else
           let ⟨ctorInfo, fields⟩ ← getCtorInfo name
           let args := args.extract (start := ctorVal.numParams)

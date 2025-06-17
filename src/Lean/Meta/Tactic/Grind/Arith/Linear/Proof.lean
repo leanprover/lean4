@@ -230,7 +230,7 @@ partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' d
     let hNot := mkLambda `h .default (mkApp2 lt (← c₁.p.denoteExpr) (← getZero)) (hFalse.abstract #[mkFVar fvarId])
     let h ← mkIntModLinOrdThmPrefix ``Grind.Linarith.diseq_split_resolve
     return mkApp5 h (← mkPolyDecl c₁.p) (← mkPolyDecl c'.p) reflBoolTrue (← c₁.toExprProof) hNot
-  | _ => throwError "NIY"
+  | _ => throwError "not implemented yet"
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do
   match c'.h with
@@ -253,14 +253,14 @@ partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c'
     let h ← mkIntModThmPrefix ``Grind.Linarith.eq_diseq_subst1
     return mkApp7 h (toExpr k) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p) reflBoolTrue
       (← c₁.toExprProof) (← c₂.toExprProof)
-  | .oneNeZero => throwError "NIY"
+  | .oneNeZero => throwError "not implemented yet"
 
 partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
   match c'.h with
   | .core a b lhs rhs =>
     let h ← mkIntModThmPrefix ``Grind.Linarith.eq_norm
     return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue (← mkEqProof a b)
-  | .coreCommRing _a _b _ra _rb _p _lhs' => throwError "NIY"
+  | .coreCommRing .. => throwError "not implemented yet"
   | .neg c =>
     let h ← mkIntModThmPrefix ``Grind.Linarith.eq_neg
     return mkApp4 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)

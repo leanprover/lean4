@@ -8,64 +8,93 @@ theorem ba : b = a := testSorry
 theorem aa : a = id a := testSorry
 
 /--
-warning: Ignoring looping simp theorem: aa
+warning: Possibly looping simp theorem: aa
 
-Note: These theorems may also play a role:
-      id
+Note: Not part of the loop, but potentially enabling it: id
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 
 Hint: You can disable this check using `simp -loopProtection`.
 ---
-error: unsolved goals
-⊢ a = 23
+error: tactic 'simp' failed, nested error:
+maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
 -/
 #guard_msgs in
-example : id a = 23 := by
-  simp -failIfUnchanged only [aa, id]
+example : id a = 23 := by simp -failIfUnchanged only [aa, id]
 
 /--
-warning: Ignoring jointly looping simp theorems: ab and ba
+warning:
+
+Note: It is jointly looping with ba
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 
 Hint: You can disable this check using `simp -loopProtection`.
 ---
-error: unsolved goals
-⊢ a = 23
+warning:
+
+Note: It is jointly looping with ab
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
+---
+error: tactic 'simp' failed, nested error:
+maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
 -/
 #guard_msgs in
-example : a = 23 := by
-  simp +loopProtection -failIfUnchanged [ab, ba]
+example : a = 23 := by simp +loopProtection -failIfUnchanged [ab, ba]
 
 /--
-warning: Ignoring jointly looping simp theorems: ab and ba
+warning:
+
+Note: It is jointly looping with ba
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 
 Hint: You can disable this check using `simp -loopProtection`.
 ---
-warning: Ignoring jointly looping simp theorems: ba and ab
+warning:
+
+Note: It is jointly looping with ab
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 
 Hint: You can disable this check using `simp -loopProtection`.
 ---
-error: unsolved goals
-⊢ a = 2 * b
+error: tactic 'simp' failed, nested error:
+maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
 -/
 #guard_msgs in
 example : a = 2*b := by simp +loopProtection -failIfUnchanged [ab, ba]
 
 /--
-warning: Ignoring jointly looping simp theorems: ← ba and ← ab
+warning:
+
+Note: It is jointly looping with ← ba
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 
 Hint: You can disable this check using `simp -loopProtection`.
 ---
-error: unsolved goals
-⊢ a = 23
+warning:
+
+Note: It is jointly looping with ← ab
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
+---
+error: tactic 'simp' failed, nested error:
+maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
 -/
 #guard_msgs in
 example : a = 23 := by simp +loopProtection -failIfUnchanged [← ab, ← ba]
@@ -90,23 +119,22 @@ opaque id' : Nat → Nat
 theorem id'_eq (n : Nat) : id' n = n := testSorry
 theorem id'_eq_bad (n : Nat) : id' n = id' (id' n) := testSorry
 
-/--
-trace: [Meta.Tactic.simp.loopProtection] loop-checking id'_eq:1000
-[Meta.Tactic.simp.loopProtection] loop-checking eq_self:1000
--/
+/-- trace: [Meta.Tactic.simp.loopProtection] loop-checking id'_eq:1000 -/
 #guard_msgs in
 set_option trace.Meta.Tactic.simp.loopProtection true in
 example : id' 1 + id' 2 = id' 3 := by simp +loopProtection -failIfUnchanged [id'_eq]
 
 /--
-warning: Ignoring looping simp theorem: id'_eq_bad
+warning: Possibly looping simp theorem: id'_eq_bad
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 
 Hint: You can disable this check using `simp -loopProtection`.
 ---
-error: unsolved goals
-⊢ id' 1 + id' 2 = id' 3
+error: tactic 'simp' failed, nested error:
+maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
 ---
 trace: [Meta.Tactic.simp.loopProtection] loop-checking id'_eq_bad:1000
   [Meta.Tactic.simp.loopProtection] loop-checking id'_eq_bad:1000
@@ -121,13 +149,26 @@ example : id' 1 + id' 2 = id' 3 := by simp +loopProtection -failIfUnchanged [id'
 
 variable (P : Nat → Prop)
 /--
-warning: Ignoring jointly looping simp theorems: Nat.add_assoc and (Nat.add_assoc _ _ _).symm
+warning:
+
+Note: It is jointly looping with (Nat.add_assoc _ _ _).symm
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 
 Hint: You can disable this check using `simp -loopProtection`.
 ---
-error: simp made no progress
+warning:
+
+Note: It is jointly looping with Nat.add_assoc
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
+---
+error: tactic 'simp' failed, nested error:
+maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
 -/
 #guard_msgs in
 example (a b c : Nat) : P (a + b + c) := by simp +loopProtection [Nat.add_assoc, (Nat.add_assoc _ _ _).symm]
@@ -138,13 +179,16 @@ def Tree.size (t : Tree α) := 1 + List.sum (t.children.attach.map (fun ⟨c,_�
 decreasing_by simp_wf; cases t; simp_all [Tree.children]; decreasing_trivial
 
 /--
-warning: Ignoring looping simp theorem: Tree.size.eq_1
+warning: Possibly looping simp theorem: Tree.size.eq_1
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 
 Hint: You can disable this check using `simp -loopProtection`.
 ---
-error: simp made no progress
+error: tactic 'simp' failed, nested error:
+maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
 -/
 #guard_msgs in
 example (t : Tree α) : 0 < t.size := by simp +loopProtection [Tree.size]
@@ -169,13 +213,26 @@ P : Nat → Prop
 example : a > 0 := by simp +loopProtection only [b1ab]
 
 /--
-warning: Ignoring jointly looping simp theorems: baab and baab
+warning:
+
+Note: It is jointly looping with baab
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 
 Hint: You can disable this check using `simp -loopProtection`.
 ---
-error: simp made no progress
+warning:
+
+Note: It is jointly looping with baab
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
+---
+error: tactic 'simp' failed, nested error:
+maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
 -/
 #guard_msgs in
 example : a > 0 := by simp +loopProtection only [baab]
@@ -210,56 +267,75 @@ def d := c
 def dc : d = c := rfl
 
 /--
-warning: Ignoring looping simp theorem: ac
+warning: Possibly looping simp theorem: ac
 
-Note: These theorems may also play a role:
-      c
+Note: Not part of the loop, but potentially enabling it: c
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 
 Hint: You can disable this check using `simp -loopProtection`.
 ---
-error: unsolved goals
-P : Nat → Prop
-⊢ a > 0
+error: tactic 'simp' failed, nested error:
+maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
 -/
 #guard_msgs in
 example : c > 0 := by simp only [c, ac]
 
 /--
-warning: Ignoring looping simp theorem: ac
+warning: Possibly looping simp theorem: ac
+
+Note: Not part of the loop, but potentially enabling it: c
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 
 Hint: You can disable this check using `simp -loopProtection`.
 ---
-error: unsolved goals
-P : Nat → Prop
-⊢ a > 0
+error: tactic 'simp' failed, nested error:
+maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
 -/
 #guard_msgs in
 example : d > 0 := by simp only [dc, c, ac]
 
 
 /--
-warning: Ignoring looping simp theorem: ac
+warning: Possibly looping simp theorem: ac
 
-Note: These theorems may also play a role:
-      c
+Note: Not part of the loop, but potentially enabling it: c
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 
 Hint: You can disable this check using `simp -loopProtection`.
 ---
-error: simp made no progress
+error: tactic 'simp' failed, nested error:
+maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
 -/
 #guard_msgs in
 example : a > 0 := by simp only [c, ac]
 
-/-!
-Check that we do not get warnings for theorems not actually encountered, because
-of a local theorem that prevents them from rewriting in the first place.
+/--
+warning:
+
+Note: It is jointly looping with ac
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
+---
+warning:
+
+Note: It is jointly looping with ca
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
 -/
+#guard_msgs in
 example (h : c = 1) : d > 0 := by simp only [dc, h, ca, ac, Nat.one_pos]
 
 
@@ -267,18 +343,49 @@ example (h : c = 1) : d > 0 := by simp only [dc, h, ca, ac, Nat.one_pos]
 Check that `simp?` does not leak the rewrites done during loop protection.
 -/
 /--
-warning: Ignoring jointly looping simp theorems: ca and ac
+warning:
+
+Note: It is jointly looping with ac
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 
 Hint: You can disable this check using `simp -loopProtection`.
 ---
-info: Try this: simp only [dc]
+warning:
+
+Note: It is jointly looping with ca
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
+---
+error: tactic 'simp' failed, nested error:
+maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
 -/
 #guard_msgs in
 example : d > 0 := by simp? only [dc, ca, ac]; exact testSorry
 
-/-- info: Try this: simp only [dc, h, Nat.one_pos] -/
+/--
+warning:
+
+Note: It is jointly looping with ac
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
+---
+warning:
+
+Note: It is jointly looping with ca
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+
+Hint: You can disable this check using `simp -loopProtection`.
+---
+info: Try this: simp only [dc, h, Nat.one_pos]
+-/
 #guard_msgs in
 example (h : c = 1) : d > 0 := by simp? only [dc, h, ca, ac, Nat.one_pos]
 
@@ -291,10 +398,9 @@ opaque f : Nat → Nat
 theorem fbfa : f b = f a := testSorry
 
 /--
-warning: Ignoring looping simp theorem: fbfa
+warning: Possibly looping simp theorem: fbfa
 
-Note: These theorems may also play a role:
-      ab
+Note: Not part of the loop, but potentially enabling it: ab
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 
@@ -302,7 +408,7 @@ Hint: You can disable this check using `simp -loopProtection`.
 ---
 error: unsolved goals
 P : Nat → Prop
-⊢ 0 < f b
+⊢ 0 < f a
 -/
 #guard_msgs in
 example : f b > 0 := by

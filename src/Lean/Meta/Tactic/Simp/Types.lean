@@ -248,7 +248,6 @@ deriving Inhabited
 
 structure LoopProtectionCache where
   map : PHashMap Expr LoopProtectionResult := {}
-  warnedSet : PHashSet Expr := {}
   deriving Inhabited
 
 def LoopProtectionCache.lookup? (c : LoopProtectionCache) (thm : SimpTheorem) : Option LoopProtectionResult :=
@@ -257,18 +256,12 @@ def LoopProtectionCache.lookup? (c : LoopProtectionCache) (thm : SimpTheorem) : 
 def LoopProtectionCache.insert (c : LoopProtectionCache) (thm : SimpTheorem) (r : LoopProtectionResult) : LoopProtectionCache :=
   { c with map := c.map.insert thm.proof r }
 
-def LoopProtectionCache.warned (c : LoopProtectionCache) (thm : SimpTheorem) : Bool :=
-  c.warnedSet.contains thm.proof
-
-def LoopProtectionCache.setWarned (c : LoopProtectionCache) (thm : SimpTheorem) : LoopProtectionCache :=
-  { c with warnedSet := c.warnedSet.insert thm.proof }
-
-
 structure State where
   cache               : Cache := {}
   congrCache          : CongrCache := {}
   dsimpCache          : ExprStructMap Expr := {}
   usedTheorems        : UsedSimps := {}
+  loopProtectionCache : LoopProtectionCache := {}
   numSteps            : Nat := 0
   diag                : Diagnostics := {}
 
@@ -327,8 +320,8 @@ opaque dsimp (e : Expr) : SimpM Expr
 
 @[inline] def modifyDiag (f : Diagnostics → Diagnostics) : SimpM Unit := do
   if (← isDiagnosticsEnabled) then
-    modify fun { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag } =>
-      { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag := f diag }
+    modify fun { cache, congrCache, dsimpCache, usedTheorems, loopProtectionCache, numSteps, diag } =>
+      { cache, congrCache, dsimpCache, usedTheorems,  loopProtectionCache, numSteps, diag := f diag }
 
 /--
 Result type for a simplification procedure. We have `pre` and `post` simplification procedures.

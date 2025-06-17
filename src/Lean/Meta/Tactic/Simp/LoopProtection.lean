@@ -35,17 +35,19 @@ def setLoopCacheLoop (loop : Array SimpTheorem): SimpM Unit := do
 
 def mkLoopWarningMsg (thms : Array SimpTheorem) : SimpM MessageData := do
   let mut msg := m!""
+  let thm := thms[0]!
   if thms.size = 1 then
-    msg := msg ++ m!"Ignoring looping simp theorem: {← ppOrigin thms[0]!.origin}"
-  else
-    msg := msg ++ m!"Ignoring jointly looping simp theorems: \
-      {.andList (← thms.mapM (ppOrigin ·.origin)).toList}"
+    msg := msg ++ m!"Possibly looping simp theorem: {← ppOrigin thm.origin}"
+  let rest : Array SimpTheorem := thms[1:]
+  unless rest.isEmpty do
+    msg := msg ++ .note m!"It is jointly looping with {.andList (← rest.mapM (ppOrigin ·.origin)).toList}"
+
   let mut others := #[]
   for other in (← get).usedTheorems.toArray do
     if thms.all (·.origin != other) then
       others := others.push other
   unless others.isEmpty do
-    msg := msg ++ .note m!"These theorems may also play a role:
+    msg := msg ++ .note m!"Not part of the loop, but potentially enabling it: \
       {.andList (← others.mapM (ppOrigin ·)).toList}"
 
   msg := msg ++ .hint' m!"You can disable a simp theorem from the default simp set by \
@@ -87,7 +89,7 @@ private def checkLoopCore (thm : SimpTheorem) : SimpM LoopProtectionResult := do
             -- rewriting, but it would be a too severe change to `simp`’s semantics
             let _ ← simp rhs
             -- If we made it this far without finding a loop, this theorem is not looping
-            -- Remember that to not try again
+            -- Remember that to not check it again
             setLoopCacheOkIfUnset thm
 
       -- No the cache should have been filled
@@ -107,18 +109,16 @@ It also used to be used to do lazy check of any rewritten theorem, but that was 
 be added as an option, though.
 -/
 def checkRewriteForLoops (thm : SimpTheorem) : SimpM Bool := do
-  let cfg ← getConfig
-  -- No loop checking when disabled or in single pass mode
-  if !cfg.loopProtection || cfg.singlePass then return true
+  -- No change in behavor if we aren't in the process of a loop check
+  if !(← currentlyLoopChecking) then
+    return true
 
-  -- Permutating and local theorems are never checked, so accept when starting
-  -- a loop check, and ignore when inside a loop check
+  -- When loop checking pretend that local theorems and permutating theorems do not exist
   if thm.perm || thm.proof.hasFVar then
-    return !(← currentlyLoopChecking)
+    return false
 
-  -- Now the cache tells us if this was looping
+  -- Do not rewrite with theorems found looping
   if let .loop _thms ← checkLoopCore thm then
-    -- Only when this is the starting point and we have not warned before: report the loop
     return false
   else
     return true

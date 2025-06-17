@@ -11,7 +11,7 @@ import all Init.Data.Iterators.Consumers.Monadic.Loop
 
 namespace Std.Iterators
 
-theorem IterM.DefaultConsumers.forIn'_eq_match_step {α β : Type w} {m : Type w → Type w'}
+theorem IterM.DefaultConsumers.forIn_eq_match_step {α β : Type w} {m : Type w → Type w'}
     [Iterator α m β]
     {n : Type w → Type w''} [Monad n]
     {lift : ∀ γ, m γ → n γ} {γ : Type w}
@@ -36,14 +36,6 @@ theorem IterM.DefaultConsumers.forIn'_eq_match_step {α β : Type w} {m : Type w
   intro step
   cases step using PlausibleIterStep.casesOn <;> rfl
 
-theorem IterM.forIn'_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m β] [Finite α m]
-    {n : Type w → Type w''} [Monad n] [IteratorLoop α m n] [hl : LawfulIteratorLoop α m n]
-    [MonadLiftT m n] {γ : Type w} {it : IterM (α := α) m β} {init : γ}
-    {f : (b : β) → γ → n (ForInStep γ)} :
-    ForIn.forIn it init f = IterM.DefaultConsumers.forIn (fun _ => monadLift) γ (fun _ _ _ => True)
-        IteratorLoop.wellFounded_of_finite it init ((⟨·, .intro⟩) <$> f · ·) := by
-  cases hl.lawful; rfl
-
 theorem IterM.forIn_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m β] [Finite α m]
     {n : Type w → Type w''} [Monad n] [IteratorLoop α m n] [hl : LawfulIteratorLoop α m n]
     [MonadLiftT m n] {γ : Type w} {it : IterM (α := α) m β} {init : γ}
@@ -65,7 +57,7 @@ theorem IterM.forIn_eq_match_step {α β : Type w} {m : Type w → Type w'} [Ite
         | .done c => return c
       | .skip it' _ => ForIn.forIn it' init f
       | .done _ => return init) := by
-  rw [IterM.forIn_eq, DefaultConsumers.forIn'_eq_match_step]
+  rw [IterM.forIn_eq, DefaultConsumers.forIn_eq_match_step]
   apply bind_congr
   intro step
   cases step using PlausibleIterStep.casesOn

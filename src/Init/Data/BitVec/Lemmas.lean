@@ -5612,11 +5612,16 @@ theorem clzAux_eq_iff {x : BitVec w} {n : Nat} :
 @[simp]
 theorem clzAux_zero {x : BitVec w} : clzAux x 0 = if x.getLsbD 0 then 0 else 1 := by simp [clzAux]
 
+<<<<<<< HEAD
 /-- If the number of leading zeroes is strictly smaller than the number of bits checked (i.e.,
   not all bits are `false`), then there exists a `true` bit at a certain position `n - k` between
   the `n`-th and the `0`-th bit, and all bits between `n` and that bit are `false` -/
 theorem clzAux_eq_iff_forall_of_clzAux_lt  {x : BitVec w} (hlt : (clzAux x n < n + 1)):
     clzAux x n = k ↔ ((∀ i, i < k → x.getLsbD (n - i) = false) ∧ ((x.getLsbD (n - k) = true))) := by
+=======
+theorem clzAux_eq_iff_forall_of_clzAux_lt  {x : BitVec w} (hlt : clzAux x n < n + 1):
+    x.clzAux n = k ↔ ((∀ i, i < k → x.getLsbD (n - i) = false) ∧ ((x.getLsbD (n - k) = true))) := by
+>>>>>>> 0743518018f9cbb69a953810b06ad9110363600c
   induction n generalizing k
   · case zero =>
     rcases k with _|k

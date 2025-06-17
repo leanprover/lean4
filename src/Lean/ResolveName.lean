@@ -102,19 +102,15 @@ private def containsDeclOrReserved (env : Environment) (declName : Name) : Bool 
 private partial def resolvePrivateName (env : Environment) (declName : Name) : Option Name := do
   if containsDeclOrReserved env (mkPrivateName env declName) then
     return mkPrivateName env declName
-  -- Under the module system, we assume the `import all` closure is small and enumerating it naively
-  -- is sufficient.
-  if !env.header.isModule then
-    failure
-  env.header.imports.findSome? goRec
-where goRec (i : Import) : Option Name := do
-  if !i.importAll then
-    failure
-  if containsDeclOrReserved env (mkPrivateNameCore i.module declName) then
-    return mkPrivateNameCore i.module declName
-  let modIdx ← env.getModuleIdx? i.module
-  let mod ← env.header.moduleData[modIdx]?
-  mod.imports.findSome? goRec
+  -- Under the module system, we assume there are at most a few `import all`s and we can just test
+  -- them on by one.
+  guard <| env.header.isModule
+  -- As `all` is not transitive, we only have to check the direct imports.
+  env.header.imports.findSome? fun i => do
+    guard i.importAll
+    let n := mkPrivateNameCore i.module declName
+    guard <| containsDeclOrReserved env n
+    return n
 
 /-- Check whether `ns ++ id` is a valid namespace name and/or there are aliases names `ns ++ id`. -/
 private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : List Name :=

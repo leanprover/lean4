@@ -73,6 +73,14 @@ theorem RangeIterator.mem_toList_iff_isPlausibleIndirectOutput
       simp only [ha.1, ha.2.1, ha.2.2.1]
       simp [← ha.2.2.2, h']
 
+instance [UpwardEnumerable α]
+    [SupportsLowerBound sl α] [SupportsUpperBound su α] [FinitelyEnumerableRange su α]
+    [LawfulUpwardEnumerable α] [UpwardEnumerableRange sl α]
+    [LawfulUpwardEnumerableUpperBound su α] [LawfulUpwardEnumerableLowerBound sl α] :
+    LawfulPureIterator (Types.RangeIterator ⟨sl, su⟩ α) where
+  mem_toList_iff_isPlausibleIndirectOutput :=
+    RangeIterator.mem_toList_iff_isPlausibleIndirectOutput
+
 theorem mem_toList_iff_mem [UpwardEnumerable α]
     [SupportsUpperBound su α] [SupportsLowerBound sl α] [FinitelyEnumerableRange su α]
     [UpwardEnumerableRange sl α] [LawfulUpwardEnumerable α]
@@ -123,9 +131,22 @@ theorem forIn'_eq_forIn'_toList [UpwardEnumerable α]
     [UpwardEnumerableRange sl α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
     {r : PRange ⟨sl, su⟩ α}
-    {γ : Type u} {init : γ} {m : Type u → Type w} [Monad m] {f : (a : α) → a ∈ r → γ → m (ForInStep γ)} :
+    {γ : Type u} {init : γ} {m : Type u → Type w} [Monad m] [LawfulMonad m]
+    {f : (a : α) → a ∈ r → γ → m (ForInStep γ)} :
     ForIn'.forIn' r init f =
       ForIn'.forIn' r.toList init (fun a ha acc => f a (mem_toList_iff_mem.mp ha) acc) := by
-  simp only [forIn'_eq_forIn'_iterInternal, toList_eq_toList_iterInternal]
+  simp [forIn'_eq_forIn'_iterInternal, toList_eq_toList_iterInternal,
+    Iter.forIn'_eq_forIn'_toList]
+
+theorem forIn'_toList_eq_forIn' [UpwardEnumerable α]
+    [SupportsUpperBound su α] [SupportsLowerBound sl α] [FinitelyEnumerableRange su α]
+    [UpwardEnumerableRange sl α] [LawfulUpwardEnumerable α]
+    [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
+    {r : PRange ⟨sl, su⟩ α}
+    {γ : Type u} {init : γ} {m : Type u → Type w} [Monad m] [LawfulMonad m]
+    {f : (a : α) → _ → γ → m (ForInStep γ)} :
+    ForIn'.forIn' r.toList init f =
+      ForIn'.forIn' r init (fun a ha acc => f a (mem_toList_iff_mem.mpr ha) acc) := by
+  simp [forIn'_eq_forIn'_toList]
 
 end Std.PRange

@@ -103,22 +103,14 @@ theorem Sublist.le_countP (s : l₁ <+ l₂) (p) : countP p l₂ - (l₂.length 
     have := s.length_le
     split <;> omega
 
-grind_pattern Sublist.le_countP => l₁ <+ l₂, countP p l₁, countP p l₂
-
 theorem IsPrefix.le_countP (s : l₁ <+: l₂) : countP p l₂ - (l₂.length - l₁.length) ≤ countP p l₁ :=
   s.sublist.le_countP _
-
-grind_pattern IsPrefix.le_countP => l₁ <+: l₂, countP p l₁, countP p l₂
 
 theorem IsSuffix.le_countP (s : l₁ <:+ l₂) : countP p l₂ - (l₂.length - l₁.length) ≤ countP p l₁ :=
   s.sublist.le_countP _
 
-grind_pattern IsSuffix.le_countP => l₁ <:+ l₂, countP p l₁, countP p l₂
-
 theorem IsInfix.le_countP (s : l₁ <:+: l₂) : countP p l₂ - (l₂.length - l₁.length) ≤ countP p l₁ :=
   s.sublist.le_countP _
-
-grind_pattern IsInfix.le_countP => l₁ <:+: l₂, countP p l₁, countP p l₂
 
 /--
 The number of elements satisfying a predicate in the tail of a list is
@@ -136,22 +128,14 @@ variable [BEq α]
 theorem Sublist.le_count (s : l₁ <+ l₂) (a : α) : count a l₂ - (l₂.length - l₁.length) ≤ count a l₁ :=
   s.le_countP _
 
-grind_pattern Sublist.le_count => l₁ <+ l₂, count a l₁, count a l₂
-
 theorem IsPrefix.le_count (s : l₁ <+: l₂) (a : α) : count a l₂ - (l₂.length - l₁.length) ≤ count a l₁ :=
   s.sublist.le_count _
-
-grind_pattern IsPrefix.le_count => l₁ <+: l₂, count a l₁, count a l₂
 
 theorem IsSuffix.le_count (s : l₁ <:+ l₂) (a : α) : count a l₂ - (l₂.length - l₁.length) ≤ count a l₁ :=
   s.sublist.le_count _
 
-grind_pattern IsSuffix.le_count => l₁ <:+ l₂, count a l₁, count a l₂
-
 theorem IsInfix.le_count (s : l₁ <:+: l₂) (a : α) : count a l₂ - (l₂.length - l₁.length) ≤ count a l₁ :=
   s.sublist.le_count _
-
-grind_pattern IsInfix.le_count => l₁ <:+: l₂, count a l₁, count a l₂
 
 theorem le_count_tail {a : α} {l : List α} : count a l - 1 ≤ count a l.tail :=
   le_countP_tail

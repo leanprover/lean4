@@ -19,6 +19,7 @@ import Init.Data.Int.LemmasAux
 import Init.Data.Int.Pow
 import Init.Data.Int.LemmasAux
 import Init.Data.BitVec.Bootstrap
+import Init.Grind
 
 set_option linter.missingDocs true
 
@@ -31,9 +32,7 @@ namespace BitVec
     (BitVec.ofFin x)[i] = x.val.testBit i := rfl
 
 @[simp] theorem getMsbD_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getMsbD x i = false := by
-  rw [getMsbD]
-  simp only [Bool.and_eq_false_imp, decide_eq_true_eq]
-  omega
+  grind [getMsbD]
 
 set_option linter.missingDocs false in
 @[deprecated getLsbD_of_ge (since := "2025-04-04")]
@@ -44,10 +43,7 @@ set_option linter.missingDocs false in
 abbrev getMsbD_ge := @getMsbD_of_ge
 
 theorem lt_of_getLsbD {x : BitVec w} {i : Nat} : getLsbD x i = true → i < w := by
-  if h : i < w then
-    simp [h]
-  else
-    simp [Nat.ge_of_not_lt h]
+  grind [BitVec.getLsbD_of_ge]
 
 theorem lt_of_getMsbD {x : BitVec w} {i : Nat} : getMsbD x i = true → i < w := by
   if h : i < w then

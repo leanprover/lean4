@@ -105,8 +105,8 @@ before `thm` is applied, and returns whether we should proceed.
 
 This is used to cut loops while doing a loop check for another theorem.
 
-It also used to be used to do lazy check of any rewritten theorem, but that was too expensive. Could
-be added as an option, though.
+It also used to be used to do a lazy check of any rewritten theorem, but that was too expensive.
+Could be added as an option, though.
 -/
 def checkRewriteForLoops (thm : SimpTheorem) : SimpM Bool := do
   -- No change in behavor if we aren't in the process of a loop check
@@ -125,9 +125,9 @@ def checkRewriteForLoops (thm : SimpTheorem) : SimpM Bool := do
 
 /--
 Main entry point to the loop protection mechanis: Checks if the given theorem is looping in the
-current simp set, and prints a warning if it does.
+current simp set, and logs a warning if it does.
 
-Assumes that `withRef` is set appropriately.
+Assumes that `withRef` is set appropriately for the warning.
 -/
 def checkLoops (ctxt : Simp.Context) (methods : Methods) (thm : SimpTheorem) : MetaM Unit := do
   -- No loop checking when disabled or in single pass mode

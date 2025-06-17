@@ -5565,7 +5565,7 @@ theorem msb_replicate {n w : Nat} {x : BitVec w} :
 /-! ### Inequalities (le / lt) -/
 
 theorem ule_eq_not_ult (x y : BitVec w) : x.ule y = !y.ult x := by
-  simp [BitVec.ule, BitVec.ult, ← decide_not]
+  simp [BitVec.ule, BitVec.ult, ← decide_not, -Classical.decide_not]
 
 /-- If two bitvectors have the same `msb`, then signed and unsigned comparisons coincide -/
 theorem slt_eq_ult_of_msb_eq {x y : BitVec w} (h : x.msb = y.msb) :

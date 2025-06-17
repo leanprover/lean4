@@ -7,7 +7,8 @@ module
 
 prelude
 import all Init.Data.Zero
-import Init.Grind.CommRing.Basic
+import Init.Grind.Ring.Basic
+import Init.GrindInstances.ToInt
 import Init.Data.Fin.Lemmas
 
 namespace Lean.Grind

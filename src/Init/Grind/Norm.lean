@@ -12,7 +12,7 @@ import Init.Classical
 import Init.ByCases
 import Init.Data.Int.Linear
 import Init.Data.Int.Pow
-import Init.Grind.CommRing.Field
+import Init.Grind.Ring.Field
 
 namespace Lean.Grind
 /-!

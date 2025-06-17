@@ -2,7 +2,6 @@
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joe Hendrix, Harun Khan, Alex Keizer, Abdalrhman M Mohamed, Siddharth Bhat
-
 -/
 module
 
@@ -19,6 +18,7 @@ import Init.Data.Int.Bitwise.Lemmas
 import Init.Data.Int.LemmasAux
 import Init.Data.Int.Pow
 import Init.Data.Int.LemmasAux
+import Init.Data.BitVec.Bootstrap
 
 set_option linter.missingDocs true
 
@@ -27,18 +27,8 @@ namespace BitVec
 @[simp] theorem mk_zero : BitVec.ofFin (w := w) ⟨0, h⟩ = 0#w := rfl
 @[simp] theorem ofNatLT_zero : BitVec.ofNatLT (w := w) 0 h = 0#w := rfl
 
-@[simp] theorem getLsbD_ofFin (x : Fin (2^n)) (i : Nat) :
-    getLsbD (BitVec.ofFin x) i = x.val.testBit i := rfl
-
 @[simp] theorem getElem_ofFin (x : Fin (2^n)) (i : Nat) (h : i < n) :
     (BitVec.ofFin x)[i] = x.val.testBit i := rfl
-
-@[simp] theorem getLsbD_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getLsbD x i = false := by
-  let ⟨x, x_lt⟩ := x
-  simp only [getLsbD_ofFin]
-  apply Nat.testBit_lt_two_pow
-  have p : 2^w ≤ 2^i := Nat.pow_le_pow_right (by omega) ge
-  omega
 
 @[simp] theorem getMsbD_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getMsbD x i = false := by
   rw [getMsbD]
@@ -127,10 +117,6 @@ This normalized a bitvec using `ofFin` to `ofNat`.
 theorem ofFin_eq_ofNat : @BitVec.ofFin w (Fin.mk x lt) = BitVec.ofNat w x := by
   simp only [BitVec.ofNat, Fin.ofNat, lt, Nat.mod_eq_of_lt]
 
-/-- Prove equality of bitvectors in terms of nat operations. -/
-theorem eq_of_toNat_eq {n} : ∀ {x y : BitVec n}, x.toNat = y.toNat → x = y
-  | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
-
 /-- Prove nonequality of bitvectors in terms of nat operations. -/
 theorem toNat_ne_iff_ne {n} {x y : BitVec n} : x.toNat ≠ y.toNat ↔ x ≠ y := by
   constructor
@@ -152,8 +138,6 @@ protected theorem toNat_lt_twoPow_of_le (h : m ≤ n) {x : BitVec m} :
   apply Nat.lt_of_lt_of_le x.isLt
   apply Nat.pow_le_pow_of_le
   <;> omega
-
-theorem testBit_toNat (x : BitVec w) : x.toNat.testBit i = x.getLsbD i := rfl
 
 theorem two_pow_le_toNat_of_getElem_eq_true {i : Nat} {x : BitVec w}
     (hi : i < w) (hx : x[i] = true) : 2^i ≤ x.toNat := by
@@ -245,21 +229,6 @@ theorem getMsbD_eq_getMsb?_getD (x : BitVec w) (i : Nat) :
       intros
       omega
 
-theorem eq_of_getLsbD_eq {x y : BitVec w}
-    (pred : ∀ i, i < w → x.getLsbD i = y.getLsbD i) : x = y := by
-  apply eq_of_toNat_eq
-  apply Nat.eq_of_testBit_eq
-  intro i
-  if i_lt : i < w then
-    exact pred i i_lt
-  else
-    have p : i ≥ w := Nat.le_of_not_gt i_lt
-    simp [testBit_toNat, getLsbD_of_ge _ _ p]
-
-@[ext] theorem eq_of_getElem_eq {x y : BitVec n} :
-        (∀ i (hi : i < n), x[i] = y[i]) → x = y :=
-  fun h => BitVec.eq_of_getLsbD_eq (h ↑·)
-
 theorem eq_of_getLsbD_eq_iff {w : Nat} {x y : BitVec w} :
     x = y ↔ ∀ (i : Nat), i < w → x.getLsbD i = y.getLsbD i := by
   have iff := @BitVec.eq_of_getElem_eq_iff w x y
@@ -346,9 +315,6 @@ open Fin.NatCast in
 @[simp, norm_cast] theorem toFin_natCast (n : Nat) : toFin (n : BitVec w) = (n : Fin (2^w)) := by
   rfl
 
-@[simp] theorem toNat_ofBool (b : Bool) : (ofBool b).toNat = b.toNat := by
-  cases b <;> rfl
-
 @[simp] theorem toInt_ofBool (b : Bool) : (ofBool b).toInt = -b.toInt := by
   cases b <;> simp
 
@@ -372,10 +338,6 @@ theorem ofBool_eq_iff_eq : ∀ {b b' : Bool}, BitVec.ofBool b = BitVec.ofBool b'
 @[simp] theorem ofBool_xor_ofBool : ofBool b ^^^ ofBool b' = ofBool (b ^^ b') := by
   cases b <;> cases b' <;> rfl
 
-@[simp, bitvec_to_nat] theorem toNat_ofFin (x : Fin (2^n)) : (BitVec.ofFin x).toNat = x.val := rfl
-
-@[simp] theorem toNat_ofNatLT (x : Nat) (p : x < 2^w) : (x#'p).toNat = x := rfl
-
 @[deprecated toNat_ofNatLT (since := "2025-02-13")]
 theorem toNat_ofNatLt (x : Nat) (p : x < 2^w) : (x#'p).toNat = x := rfl
 
@@ -394,9 +356,6 @@ theorem getLsbD_ofNatLt {n : Nat} (x : Nat) (lt : x < 2^n) (i : Nat) :
 @[deprecated getMsbD_ofNatLT (since := "2025-02-13")]
 theorem getMsbD_ofNatLt {n x i : Nat} (h : x < 2^n) :
     getMsbD (x#'h) i = (decide (i < n) && x.testBit (n - 1 - i)) := getMsbD_ofNatLT h
-
-@[simp, bitvec_to_nat] theorem toNat_ofNat (x w : Nat) : (BitVec.ofNat w x).toNat = x % 2^w := by
-  simp [BitVec.toNat, BitVec.ofNat, Fin.ofNat]
 
 theorem ofNatLT_eq_ofNat {w : Nat} {n : Nat} (hn) : BitVec.ofNatLT n hn = BitVec.ofNat w n :=
   eq_of_toNat_eq (by simp [Nat.mod_eq_of_lt hn])
@@ -585,7 +544,6 @@ theorem msb_eq_getMsbD_zero (x : BitVec w) : x.msb = x.getMsbD 0 := by
 
 /-! ### cast -/
 
-@[simp, bitvec_to_nat] theorem toNat_cast (h : w = v) (x : BitVec w) : (x.cast h).toNat = x.toNat := rfl
 @[simp] theorem toFin_cast (h : w = v) (x : BitVec w) :
     (x.cast h).toFin = x.toFin.cast (by rw [h]) :=
   rfl
@@ -909,20 +867,6 @@ theorem truncate_eq_setWidth {v : Nat} {x : BitVec w} :
 theorem zeroExtend_eq_setWidth {v : Nat} {x : BitVec w} :
   zeroExtend v x = setWidth v x := rfl
 
-@[simp, bitvec_to_nat] theorem toNat_setWidth' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
-    (setWidth' p x).toNat = x.toNat := by
-  simp [setWidth']
-
-@[simp, bitvec_to_nat] theorem toNat_setWidth (i : Nat) (x : BitVec n) :
-    BitVec.toNat (setWidth i x) = x.toNat % 2^i := by
-  let ⟨x, lt_n⟩ := x
-  simp only [setWidth]
-  if n_le_i : n ≤ i then
-    have x_lt_two_i : x < 2 ^ i := lt_two_pow_of_le lt_n n_le_i
-    simp [n_le_i, Nat.mod_eq_of_lt, x_lt_two_i]
-  else
-    simp [n_le_i, toNat_ofNat]
-
 @[simp] theorem toInt_setWidth (x : BitVec w) :
     (x.setWidth v).toInt = Int.bmod x.toNat (2^v) := by
   simp [toInt_eq_toNat_bmod, toNat_setWidth, Int.emod_bmod, -Int.natCast_pow]
@@ -940,10 +884,6 @@ theorem zeroExtend_eq_setWidth {v : Nat} {x : BitVec w} :
   apply eq_of_toNat_eq
   simp [toNat_setWidth]
 
-@[simp] theorem ofNat_toNat (m : Nat) (x : BitVec n) : BitVec.ofNat m x.toNat = setWidth m x := by
-  apply eq_of_toNat_eq
-  simp
-
 /-- Moves one-sided left toNat equality to BitVec equality. -/
 theorem toNat_eq_nat {x : BitVec w} {y : Nat}
   : (x.toNat = y) ↔ (y < 2^w ∧ (x = BitVec.ofNat w y)) := by
@@ -958,19 +898,6 @@ theorem nat_eq_toNat {x : BitVec w} {y : Nat}
   : (y = x.toNat) ↔ (y < 2^w ∧ (x = BitVec.ofNat w y)) := by
   rw [@eq_comm _ _ x.toNat]
   apply toNat_eq_nat
-
-theorem getElem_setWidth' (x : BitVec w) (i : Nat) (h : w ≤ v) (hi : i < v) :
-    (setWidth' h x)[i] = x.getLsbD i := by
-  rw [getElem_eq_testBit_toNat, toNat_setWidth', getLsbD]
-
-@[simp]
-theorem getElem_setWidth (m : Nat) (x : BitVec n) (i : Nat) (h : i < m) :
-    (setWidth m x)[i] = x.getLsbD i := by
-  rw [setWidth]
-  split
-  · rw [getElem_setWidth']
-  · simp [getElem_eq_testBit_toNat, getLsbD]
-    omega
 
 theorem getElem?_setWidth' (x : BitVec w) (i : Nat) (h : w ≤ v) :
     (setWidth' h x)[i]? = if i < v then some (x.getLsbD i) else none := by
@@ -2677,10 +2604,6 @@ theorem toFin_signExtend (x : BitVec w) :
 theorem append_def (x : BitVec v) (y : BitVec w) :
     x ++ y = (shiftLeftZeroExtend x w ||| setWidth' (Nat.le_add_left w v) y) := rfl
 
-@[simp] theorem toNat_append (x : BitVec m) (y : BitVec n) :
-    (x ++ y).toNat = x.toNat <<< n ||| y.toNat :=
-  rfl
-
 theorem getLsbD_append {x : BitVec n} {y : BitVec m} :
     getLsbD (x ++ y) i = if i < m then getLsbD y i else getLsbD x (i - m) := by
   simp only [append_def, getLsbD_or, getLsbD_shiftLeftZeroExtend, getLsbD_setWidth']
@@ -3065,11 +2988,6 @@ theorem getMsbD_rev (x : BitVec w) (i : Fin w) :
 
 /-! ### cons -/
 
-@[simp] theorem toNat_cons (b : Bool) (x : BitVec w) :
-    (cons b x).toNat = (b.toNat <<< w) ||| x.toNat := by
-  let ⟨x, _⟩ := x
-  simp [cons, toNat_append, toNat_ofBool]
-
 /-- Variant of `toNat_cons` using `+` instead of `|||`. -/
 theorem toNat_cons' {x : BitVec w} :
     (cons a x).toNat = (a.toNat <<< w) + x.toNat := by
@@ -3078,21 +2996,6 @@ theorem toNat_cons' {x : BitVec w} :
 theorem getLsbD_cons (b : Bool) {n} (x : BitVec n) (i : Nat) :
     getLsbD (cons b x) i = if i = n then b else getLsbD x i := by
   simp only [getLsbD, toNat_cons, Nat.testBit_or, Nat.testBit_shiftLeft, ge_iff_le]
-  rcases Nat.lt_trichotomy i n with i_lt_n | i_eq_n | n_lt_i
-  · have p1 : ¬(n ≤ i) := by omega
-    have p2 : i ≠ n := by omega
-    simp [p1, p2]
-  · simp only [i_eq_n, ge_iff_le, Nat.le_refl, decide_true, Nat.sub_self, Nat.testBit_zero,
-    Bool.true_and, testBit_toNat, getLsbD_of_ge, Bool.or_false, ↓reduceIte]
-    cases b <;> trivial
-  · have p1 : i ≠ n := by omega
-    have p2 : i - n ≠ 0 := by omega
-    simp [p1, p2, Nat.testBit_bool_to_nat]
-
-theorem getElem_cons {b : Bool} {n} {x : BitVec n} {i : Nat} (h : i < n + 1) :
-    (cons b x)[i] = if h : i = n then b else x[i] := by
-  simp only [getElem_eq_testBit_toNat, toNat_cons, Nat.testBit_or, getLsbD]
-  rw [Nat.testBit_shiftLeft]
   rcases Nat.lt_trichotomy i n with i_lt_n | i_eq_n | n_lt_i
   · have p1 : ¬(n ≤ i) := by omega
     have p2 : i ≠ n := by omega
@@ -3122,15 +3025,6 @@ theorem setWidth_succ (x : BitVec w) :
   else
     have j_lt : j < i := Nat.lt_of_le_of_ne (Nat.le_of_succ_le_succ h) j_eq
     simp [j_eq, j_lt]
-
-@[simp] theorem cons_msb_setWidth (x : BitVec (w+1)) : (cons x.msb (x.setWidth w)) = x := by
-  ext i
-  simp only [getElem_cons]
-  split <;> rename_i h
-  · simp [BitVec.msb, getMsbD, h]
-  · by_cases h' : i < w
-    · simp_all
-    · omega
 
 @[simp] theorem not_cons (x : BitVec w) (b : Bool) : ~~~(cons b x) = cons (!b) (~~~x) := by
   simp [cons]
@@ -3527,9 +3421,6 @@ theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = 
   rw [Nat.add_comm, Nat.add_sub_of_le]
   · simp
   · exact Nat.le_of_lt x.isLt
-
-@[simp, bitvec_to_nat] theorem toNat_neg (x : BitVec n) : (- x).toNat = (2^n - x.toNat) % 2^n := by
-  simp [Neg.neg, BitVec.neg]
 
 theorem toNat_neg_of_pos {x : BitVec n} (h : 0#n < x) :
     (- x).toNat = 2^n - x.toNat := by
@@ -5176,9 +5067,6 @@ theorem BitVec.setWidth_add_eq_mod {x y : BitVec w} : BitVec.setWidth i (x + y) 
 
 /-! ### intMin -/
 
-/-- The bitvector of width `w` that has the smallest value when interpreted as an integer. -/
-def intMin (w : Nat) := twoPow w (w - 1)
-
 theorem getLsbD_intMin (w : Nat) : (intMin w).getLsbD i = decide (i + 1 = w) := by
   simp only [intMin, getLsbD_twoPow, bool_to_prop]
   omega
@@ -5328,9 +5216,6 @@ theorem neg_le_intMin_of_msb_eq_true {x : BitVec w} (hx : x.msb = true) : -x ≤
     omega
 
 /-! ### intMax -/
-
-/-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/
-def intMax (w : Nat) := (twoPow w (w - 1)) - 1
 
 @[simp, bitvec_to_nat]
 theorem toNat_intMax : (intMax w).toNat = 2 ^ (w - 1) - 1 := by
@@ -5683,68 +5568,54 @@ theorem msb_replicate {n w : Nat} {x : BitVec w} :
   simp only [BitVec.msb, getMsbD_replicate, Nat.zero_mod]
   cases n <;> cases w <;> simp
 
-/-! ### Decidable quantifiers -/
 
-theorem forall_zero_iff {P : BitVec 0 → Prop} :
-    (∀ v, P v) ↔ P 0#0 := by
-  constructor
-  · intro h
-    apply h
-  · intro h v
-    obtain (rfl : v = 0#0) := (by ext i ⟨⟩)
-    apply h
+/-! ### Inequalities (le / lt) -/
 
-theorem forall_cons_iff {P : BitVec (n + 1) → Prop} :
-    (∀ v : BitVec (n + 1), P v) ↔ (∀ (x : Bool) (v : BitVec n), P (v.cons x)) := by
-  constructor
-  · intro h _ _
-    apply h
-  · intro h v
-    have w : v = (v.setWidth n).cons v.msb := by simp
-    rw [w]
-    apply h
+theorem ule_eq_not_ult (x y : BitVec w) : x.ule y = !y.ult x := by
+  simp [BitVec.ule, BitVec.ult, ← decide_not]
 
-instance instDecidableForallBitVecZero (P : BitVec 0 → Prop) :
-    ∀ [Decidable (P 0#0)], Decidable (∀ v, P v)
-  | .isTrue h => .isTrue fun v => by
-    obtain (rfl : v = 0#0) := (by ext i ⟨⟩)
-    exact h
-  | .isFalse h => .isFalse (fun w => h (w _))
+/-- If two bitvectors have the same `msb`, then signed and unsigned comparisons coincide -/
+theorem slt_eq_ult_of_msb_eq {x y : BitVec w} (h : x.msb = y.msb) :
+    x.slt y = x.ult y := by
+  simp only [BitVec.slt, toInt_eq_msb_cond, BitVec.ult, decide_eq_decide, h]
+  cases y.msb <;> simp
 
-instance instDecidableForallBitVecSucc (P : BitVec (n+1) → Prop) [DecidablePred P]
-    [Decidable (∀ (x : Bool) (v : BitVec n), P (v.cons x))] : Decidable (∀ v, P v) :=
-  decidable_of_iff' (∀ x (v : BitVec n), P (v.cons x)) forall_cons_iff
+/-- If two bitvectors have different `msb`s, then unsigned comparison is determined by this bit -/
+theorem ult_eq_msb_of_msb_neq {x y : BitVec w} (h : x.msb ≠ y.msb) :
+    x.ult y = y.msb := by
+  simp only [BitVec.ult, msb_eq_decide, ne_eq, decide_eq_decide] at *
+  omega
 
-instance instDecidableExistsBitVecZero (P : BitVec 0 → Prop) [Decidable (P 0#0)] :
-    Decidable (∃ v, P v) :=
-  decidable_of_iff (¬ ∀ v, ¬ P v) Classical.not_forall_not
+/-- If two bitvectors have different `msb`s, then signed and unsigned comparisons are opposites -/
+theorem slt_eq_not_ult_of_msb_neq {x y : BitVec w} (h : x.msb ≠ y.msb) :
+    x.slt y = !x.ult y := by
+  simp only [BitVec.slt, toInt_eq_msb_cond, Bool.eq_not_of_ne h, ult_eq_msb_of_msb_neq h]
+  cases y.msb <;> (simp [-Int.natCast_pow]; omega)
 
-instance instDecidableExistsBitVecSucc (P : BitVec (n+1) → Prop) [DecidablePred P]
-    [Decidable (∀ (x : Bool) (v : BitVec n), ¬ P (v.cons x))] : Decidable (∃ v, P v) :=
-  decidable_of_iff (¬ ∀ v, ¬ P v) Classical.not_forall_not
+theorem slt_eq_ult {x y : BitVec w} :
+    x.slt y = (x.msb != y.msb).xor (x.ult y) := by
+  by_cases h : x.msb = y.msb
+  · simp [h, slt_eq_ult_of_msb_eq]
+  · have h' : x.msb != y.msb := by simp_all
+    simp [slt_eq_not_ult_of_msb_neq h, h']
 
-/--
-For small numerals this isn't necessary (as typeclass search can use the above two instances),
-but for large numerals this provides a shortcut.
-Note, however, that for large numerals the decision procedure may be very slow,
-and you should use `bv_decide` if possible.
--/
-instance instDecidableForallBitVec :
-    ∀ (n : Nat) (P : BitVec n → Prop) [DecidablePred P], Decidable (∀ v, P v)
-  | 0, _, _ => inferInstance
-  | n + 1, _, _ =>
-    have := instDecidableForallBitVec n
-    inferInstance
+theorem sle_eq_not_slt {x y : BitVec w} : x.sle y = !y.slt x := by
+  simp only [BitVec.sle, BitVec.slt, ← decide_not, decide_eq_decide]; omega
 
-/--
-For small numerals this isn't necessary (as typeclass search can use the above two instances),
-but for large numerals this provides a shortcut.
-Note, however, that for large numerals the decision procedure may be very slow.
--/
-instance instDecidableExistsBitVec :
-    ∀ (n : Nat) (P : BitVec n → Prop) [DecidablePred P], Decidable (∃ v, P v)
-  | 0, _, _ => inferInstance
-  | _ + 1, _, _ => inferInstance
+theorem zero_sle_eq_not_msb {w : Nat} {x : BitVec w} : BitVec.sle 0#w x = !x.msb := by
+  rw [sle_eq_not_slt, BitVec.slt_zero_eq_msb]
+
+theorem zero_sle_iff_msb_eq_false {w : Nat} {x : BitVec w} : BitVec.sle 0#w x ↔ x.msb = false := by
+  simp [zero_sle_eq_not_msb]
+
+theorem toNat_toInt_of_sle {w : Nat} {x : BitVec w} (hx : BitVec.sle 0#w x) : x.toInt.toNat = x.toNat :=
+  toNat_toInt_of_msb x (zero_sle_iff_msb_eq_false.1 hx)
+
+theorem sle_eq_ule {x y : BitVec w} : x.sle y = (x.msb != y.msb ^^ x.ule y) := by
+  rw [sle_eq_not_slt, slt_eq_ult, ← Bool.xor_not, ← ule_eq_not_ult, bne_comm]
+
+theorem sle_eq_ule_of_msb_eq {x y : BitVec w} (h : x.msb = y.msb) : x.sle y = x.ule y := by
+  simp [BitVec.sle_eq_ule, h]
 
 /-! ### Deprecations -/
 

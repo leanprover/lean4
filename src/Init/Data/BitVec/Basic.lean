@@ -725,6 +725,12 @@ def twoPow (w : Nat) (i : Nat) : BitVec w := 1#w <<< i
 
 end bitwise
 
+/-- The bitvector of width `w` that has the smallest value when interpreted as an integer. -/
+def intMin (w : Nat) := twoPow w (w - 1)
+
+/-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/
+def intMax (w : Nat) := (twoPow w (w - 1)) - 1
+
 /--
 Computes a hash of a bitvector, combining 64-bit words using `mixHash`.
 -/

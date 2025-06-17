@@ -10,10 +10,9 @@ import all Init.Data.UInt.Basic
 import all Init.Data.UInt.BasicAux
 import Init.Data.Fin.Lemmas
 import all Init.Data.Fin.Bitwise
-import all Init.Data.BitVec.Basic
 import all Init.Data.BitVec.BasicAux
+import all Init.Data.BitVec.Basic
 import Init.Data.BitVec.Lemmas
-import Init.Data.BitVec.Bitblast
 import Init.Data.Nat.Div.Lemmas
 import Init.System.Platform
 

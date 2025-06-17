@@ -10,6 +10,7 @@ import all Init.Data.Array.Lex.Basic
 import Init.Data.Array.Lemmas
 import Init.Data.List.Lex
 import Init.Data.Range.New.Lemmas
+import Init.Data.Range.New.NatLemmas
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -30,9 +31,10 @@ protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {xs ys
   Decidable.not_not
 
 @[simp] theorem lex_empty [BEq α] {lt : α → α → Bool} {xs : Array α} : xs.lex #[] lt = false := by
-  simp [lex]
+  rw [lex, Std.PRange.forIn'_eq_match]
+  simp [SupportsUpperBound.IsSatisfied]
 
-@[congr] theorem forIn'_congr [Monad m] {as bs : ρ} {_ : Membership α ρ}
+@[congr] theorem forIn'_congr_aux [Monad m] {as bs : ρ} {_ : Membership α ρ}
     [ForIn' m ρ α inferInstance] (w : as = bs)
     {b b' : β} (hb : b = b')
     {f : (a' : α) → a' ∈ as → β → m (ForInStep β)}
@@ -56,35 +58,32 @@ private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs 
   simp only [Std.PRange.forIn'_eq_forIn'_toList]
   conv =>
     lhs; congr; congr
-    rw [forIn'_congr Std.PRange.toList_eq rfl (fun _ _ _ => rfl)]
+    rw [forIn'_congr_aux Std.PRange.toList_eq rfl (fun _ _ _ => rfl)]
     simp [SupportsUpperBound.IsSatisfied, if_pos (Nat.zero_lt_succ)]
-    rw [forIn'_congr (if_pos (by omega)) rfl (fun _ _ _ => rfl)]
-  simp
+    rw [forIn'_congr_aux (if_pos (by omega)) rfl (fun _ _ _ => rfl)]
+  simp [Std.PRange.toList_open_eq_of_isSome_succ? (lo := 0) (h := rfl), UpwardEnumerable.succ?,
+    Nat.add_comm 1, Std.PRange.Nat.ClosedOpen.toList_succ_succ]
   cases lt a b
   · rw [bne]
     cases h : a == b
     · simp
     · simp [h]
-      congr
-  · simp
-
-  simp only [Std.PRange.toList_eq]
-  simp only [Std.Range.forIn'_eq_forIn'_range', size_append, List.size_toArray, List.length_singleton,
-    Nat.add_comm 1]
-  simp [Nat.add_min_add_right, List.range'_succ, getElem_append_left, List.range'_succ_left,
-    getElem_append_right]
-  cases lt a b
-  · rw [bne]
-    cases a == b <;> simp
   · simp
 
 @[simp, grind =] theorem _root_.List.lex_toArray [BEq α] {lt : α → α → Bool} {l₁ l₂ : List α} :
     l₁.toArray.lex l₂.toArray lt = l₁.lex l₂ lt := by
   induction l₁ generalizing l₂ with
-  | nil => cases l₂ <;> simp [lex]
+  | nil =>
+    cases l₂
+    · rw [lex, Std.PRange.forIn'_eq_match]
+      simp [SupportsUpperBound.IsSatisfied]
+    · rw [lex, Std.PRange.forIn'_eq_match]
+      simp [SupportsUpperBound.IsSatisfied]
   | cons x l₁ ih =>
     cases l₂ with
-    | nil => simp [lex]
+    | nil =>
+      rw [lex, Std.PRange.forIn'_eq_match]
+      simp [SupportsUpperBound.IsSatisfied]
     | cons y l₂ =>
       rw [List.toArray_cons, List.toArray_cons y, cons_lex_cons, List.lex, ih]
 

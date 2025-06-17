@@ -5608,7 +5608,7 @@ theorem clzAux_eq_iff {x : BitVec w} {n : Nat} :
 @[simp]
 theorem clzAux_zero {x : BitVec w} : clzAux x 0 = if x.getLsbD 0 then 0 else 1 := by simp [clzAux]
 
-theorem clzAux_eq_iff_forall_of_clzAux_lt  {x : BitVec w} (hlt : (clzAux x n < n + 1)):
+theorem clzAux_eq_iff_forall_of_clzAux_lt  {x : BitVec w} (hlt : clzAux x n < n + 1):
     x.clzAux n = k ↔ ((∀ i, i < k → x.getLsbD (n - i) = false) ∧ ((x.getLsbD (n - k) = true))) := by
   induction n generalizing k
   · case zero =>

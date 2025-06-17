@@ -5,7 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Init.Data.Hashable
-import Init.Data.BitVec
+import Init.Data.BitVec.Lemmas
 import Init.Data.RArray
 import Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
 

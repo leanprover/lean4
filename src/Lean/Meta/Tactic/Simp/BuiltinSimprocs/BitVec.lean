@@ -8,7 +8,6 @@ import Lean.Meta.LitValues
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int
 import Init.Data.BitVec.Basic
-import Init.Data.BitVec.Lemmas
 
 namespace BitVec
 open Lean Meta Simp

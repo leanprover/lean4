@@ -74,25 +74,27 @@ section getXsb
 
 /--
 Returns the `i`th least significant bit.
-
-This will be renamed `getLsb` after the existing deprecated alias is removed.
 -/
-@[inline, expose] def getLsb' (x : BitVec w) (i : Fin w) : Bool := x.toNat.testBit i
+@[inline, expose] def getLsb (x : BitVec w) (i : Fin w) : Bool := x.toNat.testBit i
+
+@[deprecated getLsb (since := "2025-06-17"), inherit_doc getLsb]
+abbrev getLsb' := @getLsb
 
 /-- Returns the `i`th least significant bit, or `none` if `i ≥ w`. -/
 @[inline, expose] def getLsb? (x : BitVec w) (i : Nat) : Option Bool :=
-  if h : i < w then some (getLsb' x ⟨i, h⟩) else none
+  if h : i < w then some (getLsb x ⟨i, h⟩) else none
 
 /--
 Returns the `i`th most significant bit.
-
-This will be renamed `BitVec.getMsb` after the existing deprecated alias is removed.
 -/
-@[inline] def getMsb' (x : BitVec w) (i : Fin w) : Bool := x.getLsb' ⟨w-1-i, by omega⟩
+@[inline] def getMsb (x : BitVec w) (i : Fin w) : Bool := x.getLsb ⟨w-1-i, by omega⟩
+
+@[deprecated getMsb (since := "2025-06-17"), inherit_doc getMsb]
+abbrev getMsb' := @getMsb
 
 /-- Returns the `i`th most significant bit or `none` if `i ≥ w`. -/
 @[inline] def getMsb? (x : BitVec w) (i : Nat) : Option Bool :=
-  if h : i < w then some (getMsb' x ⟨i, h⟩) else none
+  if h : i < w then some (getMsb x ⟨i, h⟩) else none
 
 /-- Returns the `i`th least significant bit or `false` if `i ≥ w`. -/
 @[inline, expose] def getLsbD (x : BitVec w) (i : Nat) : Bool :=
@@ -110,11 +112,11 @@ end getXsb
 section getElem
 
 instance : GetElem (BitVec w) Nat Bool fun _ i => i < w where
-  getElem xs i h := xs.getLsb' ⟨i, h⟩
+  getElem xs i h := xs.getLsb ⟨i, h⟩
 
 /-- We prefer `x[i]` as the simp normal form for `getLsb'` -/
-@[simp] theorem getLsb'_eq_getElem (x : BitVec w) (i : Fin w) :
-    x.getLsb' i = x[i] := rfl
+@[simp] theorem getLsb_eq_getElem (x : BitVec w) (i : Fin w) :
+    x.getLsb i = x[i] := rfl
 
 /-- We prefer `x[i]?` as the simp normal form for `getLsb?` -/
 @[simp] theorem getLsb?_eq_getElem? (x : BitVec w) (i : Nat) :
@@ -722,6 +724,12 @@ From the bitwise point of view, it has the `i`th bit as `1` and all other bits a
 def twoPow (w : Nat) (i : Nat) : BitVec w := 1#w <<< i
 
 end bitwise
+
+/-- The bitvector of width `w` that has the smallest value when interpreted as an integer. -/
+def intMin (w : Nat) := twoPow w (w - 1)
+
+/-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/
+def intMax (w : Nat) := (twoPow w (w - 1)) - 1
 
 /--
 Computes a hash of a bitvector, combining 64-bit words using `mixHash`.

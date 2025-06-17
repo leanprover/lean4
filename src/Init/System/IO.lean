@@ -195,19 +195,32 @@ the value of an opaque constant.
 namespace BaseIO
 
 /--
-Runs `act` in a separate `Task`, with priority `prio`.
+Runs `act` in a separate `Task` with priority `prio`.
 
-Running the resulting `BaseIO` action causes the task to be started eagerly. Pure accesses to the
-`Task` do not influence the impure `act`.
-
-Unlike pure tasks created by `Task.spawn`, tasks created by this function will run even if the last
-reference to the task is dropped. The `act` should explicitly check for cancellation via
-`IO.checkCanceled` if it should be terminated or otherwise react to the last reference being
-dropped.
+Running the resulting `BaseIO` action causes the task to be started eagerly. Unlike pure tasks
+created by `Task.spawn`, tasks created by this function will run even if the last reference to the
+task is dropped. The `act` should explicitly check for cancellation via `IO.checkCanceled` if it
+should be terminated or otherwise react to the last reference being dropped.
 -/
 @[extern "lean_io_as_task"]
 opaque asTask (act : BaseIO α) (prio := Task.Priority.default) : BaseIO (Task α) :=
   Task.pure <$> act
+
+/--
+Runs `act` in a separate `Task` with priority `prio`.
+
+Unlike `BaseIO.asTask`, the `Task` produced by `act` is folded into the `Task` produced
+by this function. Thus, this is conceptually equivalent to `(← act.asTask prio).bind id`,
+but more efficient.
+
+Running the resulting `BaseIO` action causes the task to be started eagerly. Unlike pure tasks
+created by `Task.spawn`, tasks created by this function will run even if the last reference to the
+task is dropped. The `act` should explicitly check for cancellation via `IO.checkCanceled` if it
+should be terminated or otherwise react to the last reference being dropped.
+-/
+@[extern "lean_io_join_task"]
+opaque joinTask (act : BaseIO (Task α)) (prio := Task.Priority.default) : BaseIO (Task α) := do
+  return (← act.asTask prio).bind id
 
 /--
 Creates a new task that waits for `t` to complete and then runs the `BaseIO` action `f` on its

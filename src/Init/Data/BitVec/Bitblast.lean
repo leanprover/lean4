@@ -6,12 +6,14 @@ Authors: Harun Khan, Abdalrhman M Mohamed, Joe Hendrix, Siddharth Bhat
 module
 
 prelude
-import Init.Data.BitVec.Folds
 import all Init.Data.Nat.Bitwise.Basic
 import Init.Data.Nat.Mod
 import all Init.Data.Int.DivMod
 import Init.Data.Int.LemmasAux
-import all Init.Data.BitVec.Lemmas
+import all Init.Data.BitVec.Basic
+import Init.Data.BitVec.Decidable
+import Init.Data.BitVec.Lemmas
+import Init.Data.BitVec.Folds
 
 /-!
 # Bit blasting of bitvectors
@@ -517,9 +519,6 @@ theorem msb_neg {w : Nat} {x : BitVec w} :
   have : 2 * b.toInt ≠ -2 ^ w := by omega
   rw [(show w = w - 1 + 1 by omega), Int.pow_succ] at this
   omega
-
-@[simp] theorem setWidth_neg_of_le {x : BitVec v} (h : w ≤ v) : BitVec.setWidth w (-x) = -BitVec.setWidth w x := by
-  simp [← BitVec.signExtend_eq_setWidth_of_le _ h, BitVec.signExtend_neg_of_le h]
 
 /-! ### abs -/
 

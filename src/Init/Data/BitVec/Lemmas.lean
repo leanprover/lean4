@@ -161,16 +161,20 @@ theorem two_pow_le_toNat_of_getElem_eq_true {i : Nat} {x : BitVec w}
   rw [← getElem_eq_testBit_toNat x i hi]
   exact hx
 
-theorem getMsb'_eq_getLsb' (x : BitVec w) (i : Fin w) :
-    x.getMsb' i = x.getLsb' ⟨w - 1 - i, by omega⟩ := by
-  simp only [getMsb', getLsb']
+theorem getMsb_eq_getLsb (x : BitVec w) (i : Fin w) :
+    x.getMsb i = x.getLsb ⟨w - 1 - i, by omega⟩ := by
+  simp only [getMsb, getLsb]
 
 theorem getMsb?_eq_getLsb? (x : BitVec w) (i : Nat) :
     x.getMsb? i = if i < w then x.getLsb? (w - 1 - i) else none := by
   simp only [getMsb?, getLsb?_eq_getElem?]
-  split <;> simp [getMsb'_eq_getLsb']
+  split <;> simp [getMsb_eq_getLsb]
 
 theorem getMsbD_eq_getLsbD (x : BitVec w) (i : Nat) : x.getMsbD i = (decide (i < w) && x.getLsbD (w - 1 - i)) := by
+  rw [getMsbD, getLsbD]
+
+@[deprecated getMsb_eq_getLsb (since := "2025-06-17")]
+theorem getMsb'_eq_getLsb' (x : BitVec w) (i : Nat) : x.getMsbD i = (decide (i < w) && x.getLsbD (w - 1 - i)) := by
   rw [getMsbD, getLsbD]
 
 theorem getLsbD_eq_getMsbD (x : BitVec w) (i : Nat) : x.getLsbD i = (decide (i < w) && x.getMsbD (w - 1 - i)) := by

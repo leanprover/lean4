@@ -91,20 +91,19 @@ def elabSimpConfig (optConfig : Syntax) (kind : SimpKind) : TacticM Meta.Simp.Co
   | .simpAll => return (← elabSimpConfigCtxCore optConfig).toConfig
   | .dsimp   => return { (← elabDSimpConfigCore optConfig) with }
 
-private def addDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (thms : SimpTheorems)
-    (id : Origin) (e : Expr) (post : Bool) (inv : Bool) (kind : SimpKind) : MetaM SimpTheorems := do
+private def addDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (thms : SimpTheorems) (id : Origin) (e : Expr) (post : Bool) (inv : Bool) (kind : SimpKind) : MetaM SimpTheorems := do
   if e.isConst then
     let declName := e.constName!
     let info ← getConstVal declName
     if (← isProp info.type) then
-      thms.addConst declName (post := post) (inv := inv) (ref := id.ref)
+      thms.addConst declName (post := post) (inv := inv)
     else
       if inv then
         throwError "invalid '←' modifier, '{declName}' is a declaration name to be unfolded"
       if kind == .dsimp then
         return thms.addDeclToUnfoldCore declName
       else
-        thms.addDeclToUnfold declName (ref := id.ref)
+        thms.addDeclToUnfold declName
   else if e.isFVar then
     let fvarId := e.fvarId!
     let decl ← fvarId.getDecl
@@ -392,7 +391,7 @@ def mkSimpOnly (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Syntax := do
   let env ← getEnv
   for thm in usedSimps.toArray do
     match thm with
-    | .decl declName post inv _ref => -- global definitions in the environment
+    | .decl declName post inv => -- global definitions in the environment
       if env.contains declName
          && (inv || !simpOnlyBuiltins.contains declName)
          && !Match.isMatchEqnTheorem env declName then

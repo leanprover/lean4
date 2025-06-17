@@ -123,6 +123,7 @@ theorem testBit_div_two (x i : Nat) : testBit (x / 2) i = testBit x (i + 1) := b
 theorem testBit_div_two_pow (x i : Nat) : testBit (x / 2 ^ n) i = testBit x (i + n) :=
   testBit_add .. |>.symm
 
+@[grind =]
 theorem testBit_eq_decide_div_mod_eq {x : Nat} : testBit x i = decide (x / 2^i % 2 = 1) := by
   induction i generalizing x with
   | zero =>
@@ -323,6 +324,7 @@ theorem not_decide_mod_two_eq_one (x : Nat)
     : (!decide (x % 2 = 1)) = decide (x % 2 = 0) := by
   cases Nat.mod_two_eq_zero_or_one x <;> (rename_i p; simp [p])
 
+@[grind =]
 theorem testBit_two_pow_sub_succ (h₂ : x < 2 ^ n) (i : Nat) :
     testBit (2^n - (x + 1)) i = (decide (i < n) && ! testBit x i) := by
   induction i generalizing n x with
@@ -358,6 +360,7 @@ theorem testBit_one_eq_true_iff_self_eq_zero {i : Nat} :
     Nat.testBit 1 i = true ↔ i = 0 := by
   cases i <;> simp
 
+@[grind =]
 theorem testBit_two_pow {n m : Nat} : testBit (2 ^ n) m = decide (n = m) := by
   rw [testBit, shiftRight_eq_div_pow]
   by_cases h : n = m
@@ -735,6 +738,7 @@ theorem testBit_two_pow_mul_add (a : Nat) {b i : Nat} (b_lt : b < 2^i) (j : Nat)
 @[deprecated testBit_two_pow_mul_add (since := "2025-03-18")]
 abbrev testBit_mul_pow_two_add := @testBit_two_pow_mul_add
 
+@[grind =]
 theorem testBit_two_pow_mul :
     testBit (2 ^ i * a) j = (decide (j ≥ i) && testBit a (j-i)) := by
   have gen := testBit_two_pow_mul_add a (Nat.two_pow_pos i) j
@@ -742,6 +746,11 @@ theorem testBit_two_pow_mul :
   rw [gen]
   cases Nat.lt_or_ge j i with
   | _ p => simp [p, Nat.not_le_of_lt, Nat.not_lt_of_le]
+
+@[grind =] -- Ideally `grind` could do this just with `testBit_two_pow_mul`.
+theorem testBit_mul_two_pow (x j i : Nat) :
+    (x * 2 ^ i).testBit j = (decide (i ≤ j) && x.testBit (j - i)) := by
+  rw [Nat.mul_comm, testBit_two_pow_mul]
 
 @[deprecated testBit_two_pow_mul (since := "2025-03-18")]
 abbrev testBit_mul_pow_two := @testBit_two_pow_mul
@@ -777,10 +786,6 @@ abbrev mul_add_lt_is_or := @two_pow_add_eq_or_of_lt
   rw [mod_two_eq_one_iff_testBit_zero, testBit_shiftLeft]
   simp
 
-theorem testBit_mul_two_pow (x i n : Nat) :
-    (x * 2 ^ n).testBit i = (decide (n ≤ i) && x.testBit (i - n)) := by
-  rw [← testBit_shiftLeft, shiftLeft_eq]
-
 theorem bitwise_mul_two_pow (of_false_false : f false false = false := by rfl) :
     (bitwise f x y) * 2 ^ n = bitwise f (x * 2 ^ n) (y * 2 ^ n) := by
   apply Nat.eq_of_testBit_eq
@@ -790,6 +795,7 @@ theorem bitwise_mul_two_pow (of_false_false : f false false = false := by rfl) :
   · simp [hn]
   · simp [hn, of_false_false]
 
+@[grind _=_]
 theorem shiftLeft_bitwise_distrib {a b : Nat} (of_false_false : f false false = false := by rfl) :
     (bitwise f a b) <<< i = bitwise f (a <<< i) (b <<< i) := by
   simp [shiftLeft_eq, bitwise_mul_two_pow of_false_false]
@@ -811,6 +817,7 @@ theorem shiftLeft_xor_distrib {a b : Nat} : (a ^^^ b) <<< i = a <<< i ^^^ b <<< 
   simp only [testBit, one_and_eq_mod_two, mod_two_bne_zero]
   exact (Bool.beq_eq_decide_eq _ _).symm
 
+@[grind _=_]
 theorem shiftRight_bitwise_distrib {a b : Nat} (of_false_false : f false false = false := by rfl) :
     (bitwise f a b) >>> i = bitwise f (a >>> i) (b >>> i) := by
   simp [shiftRight_eq_div_pow, bitwise_div_two_pow of_false_false]

@@ -82,9 +82,24 @@ class IteratorLoopPartial (α : Type w) (m : Type w → Type w') {β : Type w} [
       (it : IterM (α := α) m β) → γ →
       ((b : β) → it.IsPlausibleIndirectOutput b → (c : γ) → n (ForInStep γ)) → n γ
 
+/--
+`IteratorSize α m` provides an implementation of the `IterM.size` function.
+
+This class is experimental and users of the iterator API should not explicitly depend on it.
+They can, however, assume that consumers that require an instance will work for all iterators
+provided by the standard library.
+-/
 class IteratorSize (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
   size : IterM (α := α) m β → m (ULift Nat)
 
+/--
+`IteratorSizePartial α m` provides an implementation of the `IterM.Partial.size` function that
+can be used as `it.allowTermination.size`.
+
+This class is experimental and users of the iterator API should not explicitly depend on it.
+They can, however, assume that consumers that require an instance will work for all iterators
+provided by the standard library.
+-/
 class IteratorSizePartial (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
   size : IterM (α := α) m β → m (ULift Nat)
 
@@ -112,7 +127,7 @@ private instance {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator 
 This is the loop implementation of the default instance `IteratorLoop.defaultImplementation`.
 -/
 @[specialize]
-def IterM.DefaultConsumers.forIn {m : Type w → Type w'} {α : Type w} {β : Type w}
+def IterM.DefaultConsumers.forIn' {m : Type w → Type w'} {α : Type w} {β : Type w}
     [Iterator α m β]
     {n : Type w → Type w''} [Monad n]
     (lift : ∀ γ, m γ → n γ) (γ : Type w)
@@ -127,11 +142,11 @@ def IterM.DefaultConsumers.forIn {m : Type w → Type w'} {α : Type w} {β : Ty
     | .yield it' out h =>
       match ← f out (.direct ⟨_, h⟩) init with
       | ⟨.yield c, _⟩ =>
-        IterM.DefaultConsumers.forIn lift _ plausible_forInStep wf it' c
+        IterM.DefaultConsumers.forIn' lift _ plausible_forInStep wf it' c
           (fun out h' acc => f out (.indirect ⟨_, rfl, h⟩ h') acc)
       | ⟨.done c, _⟩ => return c
     | .skip it' h =>
-      IterM.DefaultConsumers.forIn lift _ plausible_forInStep wf it' init
+      IterM.DefaultConsumers.forIn' lift _ plausible_forInStep wf it' init
         (fun out h' acc => f out (.indirect ⟨_, rfl, h⟩ h') acc)
     | .done _ => return init
 termination_by IteratorLoop.WFRel.mk wf it init
@@ -148,7 +163,7 @@ implementations are possible and should be used instead.
 def IteratorLoop.defaultImplementation {α : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
     [Monad n] [Iterator α m β] :
     IteratorLoop α m n where
-  forIn lift := IterM.DefaultConsumers.forIn lift
+  forIn lift := IterM.DefaultConsumers.forIn' lift
 
 /--
 Asserts that a given `IteratorLoop` instance is equal to `IteratorLoop.defaultImplementation`.
@@ -226,11 +241,23 @@ def IteratorLoop.finiteForIn' {m : Type w → Type w'} {n : Type w → Type w''}
       wellFounded_of_finite
       it init (fun out h acc => (⟨·, .intro⟩) <$> f out h acc)
 
-instance {m : Type w → Type w'} {n : Type w → Type w''}
+/--
+A `ForIn'` instance for iterators. Its generic membership relation is not easy to use,
+so this is not marked as `instance`. This way, more convenient instances can be built on top of it
+or future library improvements will make it more comfortable.
+-/
+def IterM.instForIn' {m : Type w → Type w'} {n : Type w → Type w''}
     {α : Type w} {β : Type w} [Iterator α m β] [Finite α m] [IteratorLoop α m n]
     [MonadLiftT m n] :
     ForIn' n (IterM (α := α) m β) β ⟨fun it out => it.IsPlausibleIndirectOutput out⟩ :=
   IteratorLoop.finiteForIn' (fun _ => monadLift)
+
+instance {m : Type w → Type w'} {n : Type w → Type w''}
+    {α : Type w} {β : Type w} [Iterator α m β] [Finite α m] [IteratorLoop α m n]
+    [MonadLiftT m n] :
+    ForIn n (IterM (α := α) m β) β :=
+  haveI : ForIn' n (IterM (α := α) m β) β _ := IterM.instForIn'
+  instForInOfForIn'
 
 instance {m : Type w → Type w'} {n : Type w → Type w''}
     {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoopPartial α m n] [MonadLiftT m n] :
@@ -348,35 +375,71 @@ def IterM.Partial.drain {α : Type w} {m : Type w → Type w'} [Monad m] {β : T
 
 section Size
 
+/--
+This is the implementation of the default instance `IteratorSize.defaultImplementation`.
+-/
 @[always_inline, inline]
 def IterM.DefaultConsumers.size {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
     [Iterator α m β] [IteratorLoop α m m] [Finite α m] (it : IterM (α := α) m β) :
     m (ULift Nat) :=
   it.fold (init := .up 0) fun acc _ => .up (acc.down + 1)
 
+/--
+This is the implementation of the default instance `IteratorSizePartial.defaultImplementation`.
+-/
 @[always_inline, inline]
 def IterM.DefaultConsumers.sizePartial {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
     [Iterator α m β] [IteratorLoopPartial α m m] (it : IterM (α := α) m β) :
     m (ULift Nat) :=
   it.allowNontermination.fold (init := .up 0) fun acc _ => .up (acc.down + 1)
 
+/--
+This is the default implementation of the `IteratorSize` class.
+It simply iterates using `IteratorLoop` and counts the elements.
+For certain iterators, more efficient implementations are possible and should be used instead.
+-/
 @[always_inline, inline]
-instance IteratorSize.defaultImplementation {α β : Type w} {m : Type w → Type w'} [Monad m]
+def IteratorSize.defaultImplementation {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] [Finite α m] [IteratorLoop α m m] :
     IteratorSize α m where
   size := IterM.DefaultConsumers.size
 
+
+/--
+This is the default implementation of the `IteratorSizePartial` class.
+It simply iterates using `IteratorLoopPartial` and counts the elements.
+For certain iterators, more efficient implementations are possible and should be used instead.
+-/
 @[always_inline, inline]
 instance IteratorSize.Partial.defaultImplementation {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] [Finite α m] [IteratorLoopPartial α m m] :
     IteratorSizePartial α m where
   size := IterM.DefaultConsumers.sizePartial
 
+/--
+Computes how many elements the iterator returns. In monadic situations, it is unclear which effects
+are caused by calling `size`, and if the monad is nondeterministic, it is also unclear what the
+returned value should be. The reference implementation, `IteratorSize.defaultImplementation`,
+simply iterates over the whole iterator monadically, counting the number of emitted values.
+An `IteratorSize` instance is considered lawful if it is equal to the reference implementation.
+-/
 @[always_inline, inline]
 def IterM.size {α : Type} {m : Type → Type w'} {β : Type} [Iterator α m β] [Monad m]
     (it : IterM (α := α) m β) [IteratorSize α m] : m Nat :=
   ULift.down <$> IteratorSize.size it
 
+/--
+Computes how many elements the iterator emits.
+
+With monadic iterators (`IterM`), it is unclear which effects
+are caused by calling `size`, and if the monad is nondeterministic, it is also unclear what the
+returned value should be. The reference implementation, `IteratorSize.defaultImplementation`,
+simply iterates over the whole iterator monadically, counting the number of emitted values.
+An `IteratorSize` instance is considered lawful if it is equal to the reference implementation.
+
+This is the partial version of `size`. It does not require a proof of finiteness and might loop
+forever. It is not possible to verify the behavior in Lean because it uses `partial`.
+-/
 @[always_inline, inline]
 def IterM.Partial.size {α : Type} {m : Type → Type w'} {β : Type} [Iterator α m β] [Monad m]
     (it : IterM.Partial (α := α) m β) [IteratorSizePartial α m] : m Nat :=

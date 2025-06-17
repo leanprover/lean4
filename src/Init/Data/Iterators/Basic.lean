@@ -372,6 +372,10 @@ def Iter.IsPlausibleStep {α : Type w} {β : Type w} [Iterator α Id β]
     (it : Iter (α := α) β) (step : IterStep (Iter (α := α) β) β) : Prop :=
   it.toIterM.IsPlausibleStep (step.mapIterator Iter.toIterM)
 
+/--
+Asserts that a certain iterator `it'` could plausibly be the directly succeeding iterator of another
+given iterator `it`.
+-/
 inductive IterM.IsPlausibleIndirectOutput {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
     : IterM (α := α) m β → β → Prop where
   | direct {it : IterM (α := α) m β} {out : β} : it.IsPlausibleOutput out →
@@ -436,6 +440,10 @@ def Iter.IsPlausibleSuccessorOf {α : Type w} {β : Type w} [Iterator α Id β]
     (it' it : Iter (α := α) β) : Prop :=
   it'.toIterM.IsPlausibleSuccessorOf it.toIterM
 
+/--
+Asserts that a certain iterator `it` could plausibly yield the value `out` after an arbitrary
+number of steps.
+-/
 inductive Iter.IsPlausibleIndirectOutput {α β : Type w} [Iterator α Id β] :
     Iter (α := α) β → β → Prop where
   | direct {it : Iter (α := α) β} {out : β} : it.IsPlausibleOutput out →

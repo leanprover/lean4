@@ -8,7 +8,7 @@ module
 prelude
 import Init.Data.Array.Basic
 import Init.Data.Nat.Lemmas
-import Init.Data.Range
+import Init.Data.Range.New.Nat
 import Init.Data.Iterators.Consumers
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
@@ -25,9 +25,9 @@ Specifically, `Array.lex as bs lt` is true if
 * there is an index `i` such that `lt as[i] bs[i]`, and for all `j < i`, `as[j] == bs[j]`.
 -/
 def lex [BEq α] (as bs : Array α) (lt : α → α → Bool := by exact (· < ·)) : Bool := Id.run do
-  for h : i in [0 : min as.size bs.size] do
+  for h : i in 0,,<(min as.size bs.size) do
     -- TODO: `omega` should be able to find this itself.
-    have : i < min as.size bs.size := Membership.get_elem_helper h rfl
+    have : i < min as.size bs.size := Range.get_elem_helper h rfl
     if lt as[i] bs[i] then
       return true
     else if as[i] != bs[i] then

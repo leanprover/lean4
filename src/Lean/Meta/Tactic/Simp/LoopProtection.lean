@@ -65,59 +65,89 @@ private def rotations (a : Array α) : Array (Array α) := Id.run do
     r := r.push (a[i:] ++ a[:i])
   return r
 
-def checkLoops (thm : SimpTheorem) : SimpM Bool := do
+/--
+Check `thm` for loops. Called by the two entry points below.
+-/
+private def checkLoopCore (thm : SimpTheorem) : SimpM LoopProtectionResult := do
+  -- Check or fill cache
+  if let some r ← getLoopCache thm then
+    return r
+  else
+    withTraceNode `Meta.Tactic.simp.loopProtection (fun _ => return m!"loop-checking {← ppSimpTheorem thm}") do
+      -- Checking for a loop
+      let seenThms := (← getContext).loopCheckStack
+      if let some idx := seenThms.idxOf? thm then
+        let loopThms := (seenThms.take (idx + 1)).toArray.reverse
+        assert! loopThms[0]! == thm
+        trace[Meta.Tactic.simp.loopProtection] "loop detected: {.andList (← loopThms.mapM (ppOrigin ·.origin)).toList}"
+        (rotations loopThms).forM setLoopCacheLoop
+      else
+        -- Check the right-hand side
+        withPushingLoopCheck thm do
+        withFreshCache do
+          let type ← inferType (← thm.getValue)
+          forallTelescopeReducing type fun _xs type => do
+            let rhs := (← whnf type).appArg!
+            -- We ignore the simp result.
+            -- A different design is possible where we use the simplified RHS to continue
+            -- rewriting, but it would be a too severe change to `simp`’s semantics
+            let _ ← simp rhs
+            -- If we made it this far without finding a loop, this theorem is not looping
+            -- Remember that to not try again
+            setLoopCacheOkIfUnset thm
+
+      -- No the cache should have been filled
+      if let some r ← getLoopCache thm then
+        return r
+      else
+        throwError "loop protection cache not filled for {(← ppOrigin thm.origin)}"
+
+
+/--
+Entry point into the loop protection mechanism from `Simp.Rewrite`: Called just
+before `thm` is applied, and returns whether we should proceed.
+
+This is used to cut loops while doing a loop check for another theorem.
+
+It also used to be used to do lazy check of any rewritten theorem, but that was too expensive. Could
+be added as an option, though.
+-/
+def checkRewriteForLoops (thm : SimpTheorem) : SimpM Bool := do
   let cfg ← getConfig
   -- No loop checking when disabled or in single pass mode
   if !cfg.loopProtection || cfg.singlePass then return true
-
 
   -- Permutating and local theorems are never checked, so accept when starting
   -- a loop check, and ignore when inside a loop check
   if thm.perm || thm.proof.hasFVar then
     return !(← currentlyLoopChecking)
 
-  -- Reset the used theorems upon first entry
-  if (← currentlyLoopChecking) then
-    go
-  else
-    withFreshUsedTheorems go
-
-where
-  go := do
-
-  -- Check cache
-  if (← getLoopCache thm).isNone then
-    withTraceNode `Meta.Tactic.simp.loopProtection (fun _ => return m!"loop-checking {← ppSimpTheorem thm}") do
-
-    -- Checking for a loop
-    let seenThms := (← getContext).loopCheckStack
-    if let some idx := seenThms.idxOf? thm then
-      let loopThms := (seenThms.take (idx + 1)).toArray.reverse
-      assert! loopThms[0]! == thm
-      trace[Meta.Tactic.simp.loopProtection] "loop detected: {.andList (← loopThms.mapM (ppOrigin ·.origin)).toList}"
-      (rotations loopThms).forM setLoopCacheLoop
-    else
-      -- Check the right-hand side
-      withPushingLoopCheck thm do
-      withFreshCache do
-        let type ← inferType (← thm.getValue)
-        forallTelescopeReducing type fun _xs type => do
-          let rhs := (← whnf type).appArg!
-          -- We ignore the result for now. We could return it to `tryTheoremCore` to avoid
-          -- re-simplifying the right-hand side, but that would require some more refactoring
-          let _ ← simp rhs
-          -- If we made it this far without finding a loop, this theorem is fine
-          setLoopCacheOkIfUnset thm
-
   -- Now the cache tells us if this was looping
-  if let some (.loop thms) ← getLoopCache thm then
+  if let .loop _thms ← checkLoopCore thm then
     -- Only when this is the starting point and we have not warned before: report the loop
-    unless (← currentlyLoopChecking) do
-      unlessWarnedBefore thm do
-        if let .stx _ ref := thm.origin then
-          logWarningAt ref (← mkLoopWarningMsg thms)
-        else
-          logWarning (← mkLoopWarningMsg thms)
     return false
   else
     return true
+
+/--
+Main entry point to the loop protection mechanis: Checks if the given theorem is looping in the
+current simp set, and prints a warning if it does.
+
+Assumes that `withRef` is set appropriately.
+-/
+def checkLoops (thm : SimpTheorem) : SimpM Unit := do
+  let cfg ← getConfig
+  -- No loop checking when disabled or in single pass mode
+  if !cfg.loopProtection || cfg.singlePass then return
+
+  -- Permutating and local theorems are never checked, so accept when starting
+  -- a loop check, and ignore when inside a loop check
+  if thm.perm || thm.proof.hasFVar then return
+
+  assert! !(← currentlyLoopChecking)
+
+  unlessWarnedBefore thm do -- TODO: Do we need this check anymore?
+    let r ← withFreshUsedTheorems do
+      checkLoopCore thm
+    if let .loop thms := r then
+      logWarning (← mkLoopWarningMsg thms)

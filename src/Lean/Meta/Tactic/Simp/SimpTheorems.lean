@@ -441,7 +441,7 @@ private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array 
       | none => throwError "unexpected kind of 'simp' theorem{indentExpr type}"
     return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl := (← isRflProof proof) }
 
-private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool) (prio : Nat)
+def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool) (prio : Nat)
     (ref : Syntax := .missing) : MetaM (Array SimpTheorem) := do
   let cinfo ← getConstVal declName
   let us := cinfo.levelParams.map mkLevelParam

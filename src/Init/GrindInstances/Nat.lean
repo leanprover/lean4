@@ -4,8 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
 module
-
 prelude
-import Init.GrindInstances.ToInt
-import Init.GrindInstances.Ring
-import Init.GrindInstances.Nat
+
+import Init.Grind.Module.Basic
+
+namespace Lean.Grind
+
+instance : AddRightCancel Nat where
+  add_right_cancel _ _ _ := Nat.add_right_cancel
+
+end Lean.Grind

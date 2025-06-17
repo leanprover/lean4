@@ -11,6 +11,9 @@ import Init.Grind.ToInt
 
 namespace Lean.Grind
 
+class AddRightCancel (M : Type u) [Add M] where
+  add_right_cancel : ∀ a b c : M, a + c = b + c → a = b
+
 class NatModule (M : Type u) extends Zero M, Add M, HMul Nat M M where
   add_zero : ∀ a : M, a + 0 = a
   add_comm : ∀ a b : M, a + b = b + a

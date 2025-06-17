@@ -3085,7 +3085,8 @@ theorem foldlM_start_stop {m} [Monad m] {xs : Array α} {f : β → α → m β}
   | zero =>
     simp only [Nat.zero_add] at w
     subst k
-    simp [foldlM.loop]
+    unfold foldlM.loop
+    simp
   | succ i ih =>
     unfold foldlM.loop
     rw [dif_pos (by omega), dif_pos (by omega)]

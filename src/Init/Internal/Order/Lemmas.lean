@@ -388,7 +388,8 @@ theorem monotone_foldlM_loop
     (hmono : monotone f) : monotone (fun x => Array.foldlM.loop (f x) xs stop h i j b) := by
   induction i, j, b using Array.foldlM.loop.induct (h := h) with
   | case1 =>
-    simp only [Array.foldlM.loop, ↓reduceDIte, *]
+    unfold Array.foldlM.loop
+    simp only [↓reduceDIte, *]
     apply monotone_const
   | case2 _ _ _ _ _ ih =>
     unfold Array.foldlM.loop

@@ -1932,6 +1932,7 @@ theorem shiftLeftZeroExtend_eq {x : BitVec w} :
     exact Nat.mul_lt_mul_of_pos_right x.isLt (Nat.two_pow_pos _)
   · omega
 
+@[simp]
 theorem toNat_shiftLeftZeroExtend {x : BitVec w} :
     (shiftLeftZeroExtend x n).toNat = x.toNat <<< n := by
   rcases n with _|n
@@ -1943,6 +1944,7 @@ theorem toNat_shiftLeftZeroExtend {x : BitVec w} :
       omega
     rw [Nat.mod_eq_of_lt (by rw [Nat.mod_eq_of_lt (by omega)]; omega), Nat.mod_eq_of_lt (by omega)]
 
+@[simp]
 theorem toInt_shiftLeftZeroExtend {x : BitVec w} :
     (shiftLeftZeroExtend x n).toInt = x.toInt * 2 ^ n := by
   rw [shiftLeftZeroExtend_eq]

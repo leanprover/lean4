@@ -35,19 +35,7 @@ example : P f := by dsimp only [trfl]; exact hP1
 #guard_msgs in
 example : P f := by dsimp only [trfl']; exact hP1
 
-/--
-error: unknown identifier 'trflprivate'
----
-error: dsimp made no progress
--/
-#guard_msgs in
 example : P f := by dsimp only [trflprivate]; exact hP1
-/--
-error: unknown identifier 'trflprivate''
----
-error: dsimp made no progress
--/
-#guard_msgs in
 example : P f := by dsimp only [trflprivate']; exact hP1
 
 
@@ -136,3 +124,11 @@ info: theorem f_exp_wfrec.induct_unfolding : ∀ (motive : Nat → Nat → Nat �
       ∀ (a a_1 : Nat), motive a a_1 (f_exp_wfrec a a_1)
 -/
 #guard_msgs(pass trace, all) in #print sig f_exp_wfrec.induct_unfolding
+
+/-! `import all` should allow access to private defs, privately. -/
+
+def pub := priv
+
+/-- error: unknown identifier 'priv' -/
+#guard_msgs in
+@[expose] def pub' := priv

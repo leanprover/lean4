@@ -20,7 +20,7 @@ def isProtected (env : Environment) (n : Name) : Bool :=
 def mkPrivateName (env : Environment) (n : Name) : Name :=
   -- If name is already private, remove previous suffix first. We need to ensure the resulting name
   -- is private to *this* module.
-  Name.mkNum (privateHeader ++ env.mainModule) 0 ++ privateToUserName n
+  mkPrivateNameCore env.mainModule <| privateToUserName n
 
 def isPrivateNameFromImportedModule (env : Environment) (n : Name) : Bool :=
   match privateToUserName? n with

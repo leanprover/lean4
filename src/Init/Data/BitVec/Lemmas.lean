@@ -5617,7 +5617,6 @@ theorem clzAux_zero {x : BitVec w} : clzAux x 0 = if x.getLsbD 0 then 0 else 1 :
   the `n`-th and the `0`-th bit, and all bits between `n` and that bit are `false` -/
 theorem clzAux_eq_iff_forall_of_clzAux_lt  {x : BitVec w} (hlt : (clzAux x n < n + 1)):
     clzAux x n = k ↔ ((∀ i, i < k → x.getLsbD (n - i) = false) ∧ ((x.getLsbD (n - k) = true))) := by
->>>>>>> 0743518018f9cbb69a953810b06ad9110363600c
   induction n generalizing k
   · case zero =>
     rcases k with _|k

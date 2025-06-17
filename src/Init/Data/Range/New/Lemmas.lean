@@ -180,6 +180,7 @@ theorem forIn'_eq_forIn'_iterInternal [UpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
     {r : PRange ⟨sl, su⟩ α}
     {γ : Type u} {init : γ} {m : Type u → Type w} [Monad m] {f : (a : α) → a ∈ r → γ → m (ForInStep γ)} :
+    haveI := Iter.instForIn' (α := Types.RangeIterator su α) (β := α) (n := m)
     ForIn'.forIn' r init f =
       ForIn'.forIn' r.iterInternal init (fun a ha acc => f a (RangeIterator.isPlausibleIndirectOutput_iff.mp ha) acc) := by
   rfl

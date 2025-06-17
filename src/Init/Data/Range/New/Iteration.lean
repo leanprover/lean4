@@ -161,6 +161,7 @@ instance [UpwardEnumerable α] [UpwardEnumerableRange sl α]
     ForIn' m (PRange ⟨sl, su⟩ α) α inferInstance where
   forIn' r init f := by
     haveI : MonadLift Id m := ⟨Std.Internal.idToMonad (α := _)⟩
+    haveI := Iter.instForIn' (α := Types.RangeIterator su α) (β := α) (n := m)
     refine ForIn'.forIn' (α := α) r.iterInternal init (fun a ha acc => f a ?_ acc)
     simp only [Membership.mem] at ha
     rwa [RangeIterator.isPlausibleIndirectOutput_iff] at ha

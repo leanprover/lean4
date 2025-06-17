@@ -608,6 +608,12 @@ def SimpTheorems.add (s : SimpTheorems) (id : Origin) (levelParams : Array Name)
   let simpThms ← mkSimpTheoremsFromExpr id levelParams proof inv post prio config
   return simpThms.foldl addSimpTheoremEntry s
 
+/--
+A `SimpTheoremsArray` is a collection of `SimpTheorems`. The first entry is the default simp set
+and possible extensions as simp args (`simp [thm]`), further entries are custom simp sets added
+a s simp arguments (`simp [my_simp_set]`). The array is scanned linear during rewriting.
+This avoids the need for efficiently merging the `SimpTheorems` data structure.
+-/
 abbrev SimpTheoremsArray := Array SimpTheorems
 
 def SimpTheoremsArray.addTheorem (thmsArray : SimpTheoremsArray) (id : Origin) (h : Expr) (config : ConfigWithKey := simpGlobalConfig) : MetaM SimpTheoremsArray :=

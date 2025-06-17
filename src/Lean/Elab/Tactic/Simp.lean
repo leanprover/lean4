@@ -298,7 +298,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
       let zetaDeltaSet ← toZetaDeltaSet stx ctx
       withTrackingZetaDeltaSet zetaDeltaSet do
         let mut starArg := false -- only after * we can erase local declarations
-        let mut args := #[]
+        let mut args : Array ElabSimpArgResult := #[]
         for argStx in stx[1].getSepArgs do
           let arg ← elabSimpArg ctx.indexConfig (eraseLocal || starArg) kind argStx
           starArg := starArg || arg matches .star
@@ -334,7 +334,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
               thmsArray := thmsArray.push (← simpExt.getTheorems)
             if let some simprocExt := simprocExt? then
               simprocs := simprocs.push (← simprocExt.getSimprocs)
-          | .star => starArg := true
+          | .star => pure ()
           | .none => pure ()
         let ctx := ctx.setZetaDeltaSet zetaDeltaSet (← getZetaDeltaFVarIds)
         let ctx := ctx.setSimpTheorems (thmsArray.set! 0 thms)
@@ -387,6 +387,22 @@ structure MkSimpContextResult where
   simprocs         : Simp.SimprocsArray
   dischargeWrapper : Simp.DischargeWrapper
 
+/-- Implements the effect of the `*` attribute. -/
+def MkSimpContextResult.addStar (r : MkSimpContextResult) : TacticM MkSimpContextResult := do
+  let ctx := r.ctx
+  let simprocs := r.simprocs
+  let mut simpTheorems := ctx.simpTheorems
+  /-
+  When using `zetaDelta := false`, we do not expand let-declarations when using `[*]`.
+  Users must explicitly include it in the list.
+  -/
+  let hs ← getPropHyps
+  for h in hs do
+    unless simpTheorems.isErased (.fvar h) do
+      simpTheorems ← simpTheorems.addTheorem (.fvar h) (← h.getDecl).toExpr (config := ctx.indexConfig)
+  let ctx := ctx.setSimpTheorems simpTheorems
+  return { r with ctx, simprocs }
+
 /--
    Create the `Simp.Context` for the `simp`, `dsimp`, and `simp_all` tactics.
    If `kind != SimpKind.simp`, the `discharge` option must be `none`
@@ -418,23 +434,12 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
      (config := (← elabSimpConfig stx[1] (kind := kind)))
      (simpTheorems := #[simpTheorems])
      congrTheorems
-  let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) (simprocs := #[simprocs]) ctx
-  if !r.starArg || ignoreStarArg then
-    return { r with dischargeWrapper }
+  let argsResult ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) (simprocs := #[simprocs]) ctx
+  let r := { argsResult with dischargeWrapper }
+  if !argsResult.starArg || ignoreStarArg then
+    return r
   else
-    let ctx := r.ctx
-    let simprocs := r.simprocs
-    let mut simpTheorems := ctx.simpTheorems
-    /-
-    When using `zetaDelta := false`, we do not expand let-declarations when using `[*]`.
-    Users must explicitly include it in the list.
-    -/
-    let hs ← getPropHyps
-    for h in hs do
-      unless simpTheorems.isErased (.fvar h) do
-        simpTheorems ← simpTheorems.addTheorem (.fvar h) (← h.getDecl).toExpr (config := ctx.indexConfig)
-    let ctx := ctx.setSimpTheorems simpTheorems
-    return { ctx, simprocs, dischargeWrapper }
+    r.addStar
 
 register_builtin_option tactic.simp.trace : Bool := {
   defValue := false

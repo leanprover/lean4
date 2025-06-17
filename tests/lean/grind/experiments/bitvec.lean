@@ -114,39 +114,29 @@ theorem two_pow_le_toNat_of_getElem_eq_true {i : Nat} {x : BitVec w}
   rw [← getElem_eq_testBit_toNat x i hi]
   exact hx
 
-theorem getMsb'_eq_getLsb' (x : BitVec w) (i : Fin w) :
-    x.getMsb' i = x.getLsb' ⟨w - 1 - i, by omega⟩ := by
-  simp only [getMsb', getLsb']
+@[grind =]
+theorem getMsb_eq_getLsb (x : BitVec w) (i : Fin w) :
+    x.getMsb i = x.getLsb ⟨w - 1 - i, by omega⟩ := by
+  simp only [getMsb, getLsb]
 
+@[grind =]
 theorem getMsb?_eq_getLsb? (x : BitVec w) (i : Nat) :
     x.getMsb? i = if i < w then x.getLsb? (w - 1 - i) else none := by
   simp only [getMsb?, getLsb?_eq_getElem?]
-  split <;> simp [getMsb'_eq_getLsb']
+  split <;> simp [getMsb_eq_getLsb]
 
+@[grind =]
 theorem getMsbD_eq_getLsbD (x : BitVec w) (i : Nat) : x.getMsbD i = (decide (i < w) && x.getLsbD (w - 1 - i)) := by
   rw [getMsbD, getLsbD]
 
 theorem getLsbD_eq_getMsbD (x : BitVec w) (i : Nat) : x.getLsbD i = (decide (i < w) && x.getMsbD (w - 1 - i)) := by
-  rw [getMsbD]
-  by_cases h₁ : i < w <;> by_cases h₂ : w - 1 - i < w <;>
-    simp only [h₁, h₂] <;> simp only [decide_true, decide_false, Bool.false_and, Bool.and_false, Bool.true_and, Bool.and_true]
-  · congr
-    omega
-  all_goals
-    apply getLsbD_of_ge
-    omega
+  grind
 
 @[simp] theorem getElem?_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : x[i]? = none := by
-  simp [ge]
+  grind
 
 @[simp] theorem getMsb?_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getMsb? x i = none := by
-  simp [getMsb?_eq_getLsb?]; omega
-
-set_option linter.missingDocs false in
-@[deprecated getElem?_of_ge (since := "2025-04-04")] abbrev getLsb?_ge := @getElem?_of_ge
-
-set_option linter.missingDocs false in
-@[deprecated getMsb?_of_ge (since := "2025-04-04")] abbrev getMsb?_ge := @getMsb?_of_ge
+  grind
 
 theorem lt_of_getElem?_eq_some (x : BitVec w) (i : Nat) : x[i]? = some b → i < w := by
   cases h : x[i]? with

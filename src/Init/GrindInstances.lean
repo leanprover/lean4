@@ -7,3 +7,4 @@ module
 
 prelude
 import Init.GrindInstances.ToInt
+import Init.GrindInstances.Ring

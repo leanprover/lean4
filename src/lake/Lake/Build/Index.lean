@@ -21,6 +21,7 @@ open System (FilePath)
 
 namespace Lake
 
+--set_option trace.compiler.ir.result true in
 /-- Recursive build function for anything in the Lake build index. -/
 def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) := do
   match info with

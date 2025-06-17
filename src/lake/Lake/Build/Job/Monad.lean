@@ -115,7 +115,7 @@ namespace Job
 : m (Job β) := return {self with task := ← f self.task, kind := inferInstance}
 
 /-- Spawn a job that asynchronously performs `act`. -/
-@[inline] protected def async
+@[nospecialize] protected def async
   [OptDataKind α] (act : JobM α) (prio := Task.Priority.default) (caption := "")
 : SpawnM (Job α) := fun fetch stack store ctx => .ofTask (caption := caption) <$> do
   BaseIO.asTask (prio := prio) do (withLoggedIO act) fetch stack store ctx {}
@@ -135,7 +135,7 @@ If an error occurred, return `none` and discarded any logs produced.
 Wait for a job to complete and return the produced value.
 Logs the job's log and throws if there was an error.
 -/
-@[inline] protected def await (self : Job α) : LogIO α := do
+protected def await (self : Job α) : LogIO α := do
   match (← self.wait) with
   | .error n {log, ..} => log.replay; throw n
   | .ok a {log, ..} => log.replay; pure a

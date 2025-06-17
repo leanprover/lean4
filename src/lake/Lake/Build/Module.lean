@@ -29,6 +29,7 @@ def recBuildExternDynlibs (pkgs : Array Package)
     jobs := jobs.append <| ← pkg.externLibs.mapM (·.dynlib.fetch)
   return (jobs, libDirs)
 
+--set_option trace.compiler.ir.result true in
 /-- Parse the header of a Lean file from its source. -/
 def Module.recFetchInput (mod : Module) : FetchM (Job ModuleInput) := Job.async (prio := .dedicated) do
   let path := mod.leanFile
@@ -68,6 +69,7 @@ def Module.recParseImports (mod : Module) : FetchM (Job (Array Module)) := do
 def Module.importsFacetConfig : ModuleFacetConfig importsFacet :=
   mkFacetJobConfig recParseImports (buildable := false)
 
+--set_option trace.compiler.ir.result true in
 private def computeAllImportsAux
   (leanFile : FilePath) (libName? : Option Name) (imports : Array Import)
 : FetchM (Job ModuleImports) := do
@@ -94,10 +96,13 @@ private def computeAllImportsAux
     return task
   return Job.ofTask task
 
-def Module.recComputeAllImports (self : Module) : FetchM (Job ModuleImports) := ensureJob do
+--set_option trace.compiler.ir.result true in
+def Module.recComputeAllImports (self : Module) : FetchM (Job ModuleImports) :=
+  ensureJob go -- ensures `go` is compiled as a separate function
+where go := do
   let headerJob ← self.header.fetch
   let header ← headerJob.await
-  ---headerJob.bindM fun header =>
+  --headerJob.bindM fun header =>
   computeAllImportsAux self.relLeanFile self.lib.name header.imports
 
 /-- The `ModuleFacetConfig` for the builtin `allImportsFacet`. -/
@@ -192,7 +197,9 @@ structure ModuleImportData where
 -/
 
 /-- Recursively compute a module's transitive imports. -/
-def Module.recComputeTransImports (mod : Module) : FetchM (Job (Array Module)) := ensureJob do
+def Module.recComputeTransImports (mod : Module) : FetchM (Job (Array Module)) :=
+  ensureJob go -- ensures `go` is compiled as a separate function
+where go := do
   -- collectTransImportsAux mod.leanFile (← (← mod.header.fetch).await)
   let impsJob ← mod.imports.fetch
   -- fun fetch stack store ctx log => do
@@ -223,7 +230,9 @@ def computePrecompileImportsAux
       (false, ·) <$> imp.precompileImports.fetch
 
 /-- Recursively compute a module's precompiled imports. -/
-def Module.recComputePrecompileImports (mod : Module) : FetchM (Job (Array Module)) := ensureJob do
+def Module.recComputePrecompileImports (mod : Module) : FetchM (Job (Array Module)) :=
+  ensureJob go -- ensures `go` is compiled as a separate function
+where go := do
   inline <| computePrecompileImportsAux mod.leanFile (← (← mod.imports.fetch).await)
   -- return (← mod.allImports.fetch).map (sync := true) fun imps =>
   --   if mod.shouldPrecompile then
@@ -352,13 +361,16 @@ where
       setTraceCaption mod.name.toString
       return {olean? := oe, oleanServer? := os, oleanPrivate? := op}
 
+--set_option trace.compiler.ir.result true in
 /--
 Recursively build a module's dependencies, including:
 * Transitive local imports
 * Shared libraries (e.g., `extern_lib` targets or precompiled modules)
 * `extraDepTargets` of its library
 -/
-def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob do
+def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) :=
+  ensureJob go -- ensures `go` is compiled as a separate function
+where go := do
   let extraDepJob ← mod.lib.extraDep.fetch
 
   let headerJob ← mod.header.fetch
@@ -528,7 +540,8 @@ Fetch its dependencies and then elaborate the Lean source file, producing
 all possible artifacts (e.g., `.olean`, `.ilean`, `.c`, `.bc`).
 -/
 def Module.recBuildLean (mod : Module) : FetchM (Job ModuleArtifacts) := do
-  withRegisterJob mod.name.toString do
+  withRegisterJob mod.name.toString go -- ensures `go` is compiled as a separate function
+where go := do
   (← mod.setup.fetch).mapM (prio := .dedicated) fun setup => do
     addLeanTrace
     let srcFile := mod.leanFile

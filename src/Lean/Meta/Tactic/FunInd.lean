@@ -171,8 +171,6 @@ differences:
   Despite its name, this function does *not* recognize the `.brecOn` of inductive *predicates*,
   which we also do not support at this point.
 
-  Since (for now) we only support `Prop` in the induction principle, we rewrite to `.binductionOn`.
-
 * The elaboration of structurally recursive function can handle extra arguments. We keep the
   `motive` parameters in the original order.
 
@@ -1320,7 +1318,7 @@ where doRealize inductName := do
         throwError "the indices and major argument of the brecOn application are not variables:{indentExpr body}"
       unless brecOnExtras.all (·.isFVar) do
         throwError "the extra arguments to the brecOn application are not variables:{indentExpr body}"
-      let lvl :: indLevels := us |throwError "Too few universe parameters in .brecOn application:{indentExpr body}"
+      let _ :: indLevels := us | throwError "Too few universe parameters in .brecOn application:{indentExpr body}"
 
       let group : Structural.IndGroupInst := { Structural.IndGroupInfo.ofInductiveVal indInfo with
         levels := indLevels, params := brecOnArgs }
@@ -1347,7 +1345,7 @@ where doRealize inductName := do
       let positions : Structural.Positions := .groupAndSort (·.indIdx) recArgInfos (Array.range indInfo.numTypeFormers)
 
       -- Below we'll need the types of the motive arguments (brecOn argument order)
-      let brecMotiveTypes ← inferArgumentTypesN recInfo.numMotives (group.brecOn true lvl 0)
+      let brecMotiveTypes ← inferArgumentTypesN recInfo.numMotives (group.brecOn 0 0)
       trace[Meta.FunInd] m!"brecMotiveTypes: {brecMotiveTypes}"
       assert! brecMotiveTypes.size = positions.size
 
@@ -1406,7 +1404,7 @@ where doRealize inductName := do
 
           -- Now we can calculate the expected types of the minor arguments
           let minorTypes ← inferArgumentTypesN recInfo.numMotives <|
-            mkAppN (group.brecOn true lvl 0) (packedMotives ++ brecOnTargets)
+            mkAppN (group.brecOn 0 0) (packedMotives ++ brecOnTargets)
           trace[Meta.FunInd] m!"minorTypes: {minorTypes}"
           -- So that we can transform them
           let (minors', mvars) ← M2.run do
@@ -1448,7 +1446,7 @@ where doRealize inductName := do
                 let some indIdx := positions.findIdx? (·.contains idx) | panic! "invalid positions"
                 let some pos := positions.find? (·.contains idx) | panic! "invalid positions"
                 let some packIdx := pos.findIdx? (· == idx) | panic! "invalid positions"
-                let e := group.brecOn true lvl indIdx -- unconditionally using binduction here
+                let e := group.brecOn 0 indIdx
                 let e := mkAppN e packedMotives
                 let e := mkAppN e indicesMajor
                 let e := mkAppN e minors'

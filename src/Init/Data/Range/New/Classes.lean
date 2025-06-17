@@ -64,6 +64,12 @@ theorem UpwardEnumerable.le_trans {α : Type u} [UpwardEnumerable α] [LawfulUpw
   refine ⟨hab.choose + hbc.choose, ?_⟩
   simp [succMany?_add, hab.choose_spec, hbc.choose_spec]
 
+theorem UpwardEnumerable.lt_of_lt_of_le {α : Type u} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    {a b c : α} (hab : UpwardEnumerable.lt a b) (hbc : UpwardEnumerable.le b c) :
+    UpwardEnumerable.lt a c := by
+  refine ⟨hab.choose + hbc.choose, ?_⟩
+  rw [Nat.add_right_comm, succMany?_add, hab.choose_spec, Option.bind_some, hbc.choose_spec]
+
 theorem UpwardEnumerable.not_gt_of_le {α : Type u} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     {a b : α} :
     UpwardEnumerable.le a b → ¬ UpwardEnumerable.lt b a := by

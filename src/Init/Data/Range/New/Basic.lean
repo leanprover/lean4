@@ -47,91 +47,79 @@ macro_rules
   | `(,,<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.open) PUnit.unit $b)
   | `($a<,,<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.open) $a $b)
 
-class HasRange (shape : RangeShape) (α : Type u) where
-  SatisfiesLowerBound : Bound shape.lower α → α → Prop
-  SatisfiesUpperBound : Bound shape.upper α → α → Prop
-  decidableSatisfiesLowerBound : DecidableRel SatisfiesLowerBound := by infer_instance
-  decidableSatisfiesUpperBound : DecidableRel SatisfiesUpperBound := by infer_instance
+class SupportsLowerBound (shape : BoundShape) (α : Type u) where
+  IsSatisfied : Bound shape α → α → Prop
+  decidableSatisfiesLowerBound : DecidableRel IsSatisfied := by infer_instance
 
-instance [i : HasRange shape α] : DecidableRel i.SatisfiesLowerBound :=
+instance : SupportsLowerBound .unbounded α where
+  IsSatisfied _ _ := True
+
+class SupportsUpperBound (shape : BoundShape) (α : Type u) where
+  IsSatisfied : Bound shape α → α → Prop
+  decidableSatisfiesUpperBound : DecidableRel IsSatisfied := by infer_instance
+
+instance : SupportsUpperBound .unbounded α where
+  IsSatisfied _ _ := True
+
+instance [i : SupportsLowerBound shape α] : DecidableRel i.IsSatisfied :=
   i.decidableSatisfiesLowerBound
 
-instance [i : HasRange shape α] : DecidableRel i.SatisfiesUpperBound :=
+instance [i : SupportsUpperBound shape α] : DecidableRel i.IsSatisfied :=
   i.decidableSatisfiesUpperBound
 
-instance [HasRange shape α] : Membership α (PRange shape α) where
-  mem r a := HasRange.SatisfiesLowerBound r.lower a ∧ HasRange.SatisfiesUpperBound r.upper a
+instance [SupportsLowerBound sl α] [SupportsUpperBound su α] :
+    Membership α (PRange ⟨sl, su⟩ α) where
+  mem r a := SupportsLowerBound.IsSatisfied r.lower a ∧ SupportsUpperBound.IsSatisfied r.upper a
 
-instance [HasRange shape α] (r : PRange shape α) : Decidable (a ∈ r) :=
+instance [SupportsLowerBound sl α] [SupportsUpperBound su α] (r : PRange ⟨sl, su⟩ α) :
+    Decidable (a ∈ r) :=
   inferInstanceAs <| Decidable (_ ∧ _)
 
-class FinitelyEnumerableRange (shape α) [HasRange shape α] where
-  enumeration : Bound shape.upper α → List α
-  mem_enumeration_of_satisfiesUpperBound : (u : Bound shape.upper α) → (a : α) →
-    HasRange.SatisfiesUpperBound u a → a ∈ enumeration u
+class FinitelyEnumerableRange (shape α) [SupportsUpperBound shape α] where
+  enumeration : Bound shape α → List α
+  mem_enumeration_of_satisfiesUpperBound : (u : Bound shape α) → (a : α) →
+    SupportsUpperBound.IsSatisfied u a → a ∈ enumeration u
 
-class UpwardEnumerableRange (shape : RangeShape) (α : Type u) where
-  init : Bound shape.lower α → Option α
+class UpwardEnumerableRange (lowerBoundShape : BoundShape) (α : Type u) where
+  init : Bound lowerBoundShape α → Option α
 
-class LawfulUpwardEnumerableRange (shape α) [HasRange shape α] [UpwardEnumerable α]
-    [UpwardEnumerableRange shape α] where
-  satisfiesUpperBound_of_le (u : Bound shape.upper α) (a b : α) :
-    HasRange.SatisfiesUpperBound u b → UpwardEnumerable.le a b → HasRange.SatisfiesUpperBound u a
-  satisfiesLowerBound_iff (a : α) (l : Bound shape.lower α) :
-    HasRange.SatisfiesLowerBound l a ↔
+class LawfulUpwardEnumerableLowerBound (sl α) [UpwardEnumerable α]
+    [SupportsLowerBound sl α] [UpwardEnumerableRange sl α] where
+  isValid_iff (a : α) (l : Bound sl α) :
+    SupportsLowerBound.IsSatisfied l a ↔
       ∃ init, UpwardEnumerableRange.init l = some init ∧ UpwardEnumerable.le init a
 
-theorem LawfulUpwardEnumerableRange.satisfiesLowerBound_of_le
-    [HasRange shape α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
-    [UpwardEnumerableRange shape α] [LawfulUpwardEnumerableRange shape α]
-    (l : Bound shape.lower α) (a b : α)
-    (ha : HasRange.SatisfiesLowerBound l a) (hle : UpwardEnumerable.le a b) :
-    HasRange.SatisfiesLowerBound l b := by
-  rw [LawfulUpwardEnumerableRange.satisfiesLowerBound_iff] at ⊢ ha
+class LawfulUpwardEnumerableUpperBound (su α) [UpwardEnumerable α] [SupportsUpperBound su α] where
+  isValid_of_le (u : Bound su α) (a b : α) :
+    SupportsUpperBound.IsSatisfied u b → UpwardEnumerable.le a b → SupportsUpperBound.IsSatisfied u a
+
+theorem LawfulUpwardEnumerableLowerBound.isValid_of_le [SupportsLowerBound sl α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [UpwardEnumerableRange sl α] [LawfulUpwardEnumerableLowerBound sl α]
+    (l : Bound sl α) (a b : α)
+    (ha : SupportsLowerBound.IsSatisfied l a) (hle : UpwardEnumerable.le a b) :
+    SupportsLowerBound.IsSatisfied l b := by
+  rw [LawfulUpwardEnumerableLowerBound.isValid_iff] at ⊢ ha
   obtain ⟨init, hi, ha⟩ := ha
   exact ⟨init, hi, UpwardEnumerable.le_trans ha hle⟩
 
-instance : HasRange ⟨.unbounded, .unbounded⟩ α where
-  SatisfiesUpperBound _ _ := True
-  SatisfiesLowerBound _ _ := True
+instance [LT α] [DecidableLT α] : SupportsLowerBound .open α where
+  IsSatisfied bound a := bound < a
 
-instance [LT α] [DecidableLT α] : HasRange ⟨.unbounded, .open⟩ α where
-  SatisfiesLowerBound _ _ := True
-  SatisfiesUpperBound upper a := a < upper
+instance [LT α] [DecidableLT α] : SupportsUpperBound .open α where
+  IsSatisfied bound a := a < bound
 
-instance [LE α] [DecidableLE α] : HasRange ⟨.unbounded, .closed⟩ α where
-  SatisfiesLowerBound _ _ := True
-  SatisfiesUpperBound upper a := a ≤ upper
+instance [LE α] [DecidableLE α] : SupportsLowerBound .closed α where
+  IsSatisfied bound a := bound ≤ a
 
-instance [LT α] [DecidableLT α] : HasRange ⟨.open, .unbounded⟩ α where
-  SatisfiesLowerBound lower a := lower < a
-  SatisfiesUpperBound _ _ := True
+instance [LE α] [DecidableLE α] : SupportsUpperBound .closed α where
+  IsSatisfied bound a := a ≤ bound
 
-instance [LT α] [DecidableLT α] : HasRange ⟨.open, .open⟩ α where
-  SatisfiesLowerBound lower a := lower < a
-  SatisfiesUpperBound upper a := a < upper
-
-instance [LT α] [LE α] [DecidableLT α] [DecidableLE α] : HasRange ⟨.open, .closed⟩ α where
-  SatisfiesLowerBound lower a := lower < a
-  SatisfiesUpperBound upper a := a ≤ upper
-
-instance [LE α] [DecidableLE α] : HasRange ⟨.closed, .unbounded⟩ α where
-  SatisfiesLowerBound lower a := lower ≤ a
-  SatisfiesUpperBound _ _ := True
-
-instance [LE α] [LT α] [DecidableLE α] [DecidableLT α] : HasRange ⟨.closed, .open⟩ α where
-  SatisfiesLowerBound lower a := lower ≤ a
-  SatisfiesUpperBound upper a := a < upper
-
-instance [LE α] [DecidableLE α] : HasRange ⟨.closed, .closed⟩ α where
-  SatisfiesLowerBound lower a := lower ≤ a
-  SatisfiesUpperBound upper a := a ≤ upper
-
-instance [Least? α] : UpwardEnumerableRange ⟨.unbounded, upperShape⟩ α where
+instance [Least? α] : UpwardEnumerableRange .unbounded α where
   init _ := Least?.least?
 
-instance [UpwardEnumerable α] : UpwardEnumerableRange ⟨.open, upperShape⟩ α where
+instance [UpwardEnumerable α] : UpwardEnumerableRange .open α where
   init lower := UpwardEnumerable.succ? lower
 
-instance : UpwardEnumerableRange ⟨.closed, upperShape⟩ α where
+instance : UpwardEnumerableRange .closed α where
   init lower := some lower

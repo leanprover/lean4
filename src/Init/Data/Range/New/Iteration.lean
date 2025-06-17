@@ -6,20 +6,22 @@ import Init.Data.Range.New.RangeIterator
 open Std.Iterators
 
 @[always_inline, inline]
-def PRange.iterInternal [UpwardEnumerable α] [HasRange shape α] [UpwardEnumerableRange shape α]
-    (r : PRange shape α) : Iter (α := Types.RangeIterator shape α) α :=
+def PRange.iterInternal [UpwardEnumerable α] [UpwardEnumerableRange sl α]
+    (r : PRange ⟨sl, su⟩ α) : Iter (α := Types.RangeIterator ⟨sl, su⟩ α) α :=
   ⟨⟨UpwardEnumerableRange.init r.lower, r.upper⟩⟩
 
 @[always_inline, inline]
-def PRange.size [UpwardEnumerable α] [HasRange shape α] [UpwardEnumerableRange shape α]
-    (r : PRange shape α) [IteratorSize (Types.RangeIterator shape α) Id] : Nat :=
+def PRange.size [UpwardEnumerable α] [UpwardEnumerableRange sl α]
+    [SupportsUpperBound su α] (r : PRange ⟨sl, su⟩ α)
+    [IteratorSize (Types.RangeIterator ⟨sl, su⟩ α) Id] : Nat :=
   r.iterInternal.size
 
 @[always_inline, inline]
-def PRange.toList [UpwardEnumerable α] [HasRange shape α] [UpwardEnumerableRange shape α]
-    (r : PRange shape α)
-    [Iterator (Types.RangeIterator shape α) Id α] [Finite (Types.RangeIterator shape α) Id]
-    [IteratorCollect (Types.RangeIterator shape α) Id Id] : List α :=
+def PRange.toList [UpwardEnumerable α] [UpwardEnumerableRange sl α]
+    [SupportsUpperBound su α]
+    (r : PRange ⟨sl, su⟩ α)
+    [Iterator (Types.RangeIterator ⟨sl, su⟩ α) Id α] [Finite (Types.RangeIterator ⟨sl, su⟩ α) Id]
+    [IteratorCollect (Types.RangeIterator ⟨sl, su⟩ α) Id Id] : List α :=
   r.iterInternal.toList
 
 -- instance [UpwardEnumerable α] [HasRange shape α] [UpwardEnumerableRange shape α]
@@ -39,10 +41,10 @@ section Iterator
 --     RepeatIterator.Monadic.next_eq_some_of_isPlausibleSuccessorOf
 
 private theorem RangeIterator.isPlausibleIndirectOutput_iff.aux
-    [UpwardEnumerable α] [HasRange shape α] [UpwardEnumerableRange shape α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableRange shape α]
-    {r : PRange shape α} {it : Iter (α := Types.RangeIterator shape α) α} {a : α}
-    (h : ∃ next, it.internalState.next = some next ∧ HasRange.SatisfiesLowerBound r.lower next)
+    [UpwardEnumerable α] [UpwardEnumerableRange sl α] [SupportsLowerBound sl α]
+    [SupportsUpperBound su α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLowerBound sl α]
+    {r : PRange ⟨sl, su⟩ α} {it : Iter (α := Types.RangeIterator ⟨sl, su⟩ α) α} {a : α}
+    (h : ∃ next, it.internalState.next = some next ∧ SupportsLowerBound.IsSatisfied r.lower next)
     (h' : it.IsPlausibleIndirectOutput a)
     (hu : it.internalState.upperBound = r.upper) :
     a ∈ r := by
@@ -63,7 +65,7 @@ private theorem RangeIterator.isPlausibleIndirectOutput_iff.aux
       obtain ⟨a, ha⟩ := ho'
       rw [ha] at h₂
       refine ⟨a, ha, ?_⟩
-      apply LawfulUpwardEnumerableRange.satisfiesLowerBound_of_le r.lower next a
+      apply LawfulUpwardEnumerableLowerBound.isValid_of_le r.lower next a
       · obtain ⟨_, hn', hl⟩ := h
         simp only [hn] at hn'
         cases hn'
@@ -73,12 +75,13 @@ private theorem RangeIterator.isPlausibleIndirectOutput_iff.aux
     · simp [*]
 
 theorem RangeIterator.isPlausibleIndirectOutput_iff'
-    [UpwardEnumerable α] [HasRange shape α] [UpwardEnumerableRange shape α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableRange shape α]
-    {it : Iter (α := Types.RangeIterator shape α) α} {out : α} :
+    [UpwardEnumerable α] [SupportsLowerBound sl α] [SupportsUpperBound su α]
+    [UpwardEnumerableRange sl α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableUpperBound su α]
+    {it : Iter (α := Types.RangeIterator ⟨sl, su⟩ α) α} {out : α} :
     it.IsPlausibleIndirectOutput out ↔
       ∃ n, it.internalState.next.bind (UpwardEnumerable.succMany? n ·) = some out ∧
-        HasRange.SatisfiesUpperBound it.internalState.upperBound out := by
+        SupportsUpperBound.IsSatisfied it.internalState.upperBound out := by
   constructor
   · intro h
     induction h
@@ -112,34 +115,52 @@ theorem RangeIterator.isPlausibleIndirectOutput_iff'
       refine Iter.IsPlausibleIndirectOutput.indirect ?_ ih
       rw [Types.RangeIterator.isPlausibleSuccessorOf_iff]
       refine ⟨a, ‹_›, ?_, hn', rfl⟩
-      apply LawfulUpwardEnumerableRange.satisfiesUpperBound_of_le _ a out
+      apply LawfulUpwardEnumerableUpperBound.isValid_of_le _ a out
       · exact hu
       · exact hle
 
-private theorem RangeIterator.isPlausibleIndirectOutput_iff
-    [UpwardEnumerable α] [HasRange shape α] [UpwardEnumerableRange shape α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableRange shape α]
-    {r : PRange shape α} {a : α} :
+-- TODO: private if it can be accessed via import all
+theorem RangeIterator.isPlausibleIndirectOutput_iff
+    [UpwardEnumerable α] [UpwardEnumerableRange sl α]
+    [SupportsLowerBound sl α] [SupportsUpperBound su α]
+    [LawfulUpwardEnumerable α]
+    [LawfulUpwardEnumerableUpperBound su α] [LawfulUpwardEnumerableLowerBound sl α]
+    {r : PRange ⟨sl, su⟩ α} {a : α} :
     r.iterInternal.IsPlausibleIndirectOutput a ↔ a ∈ r := by
   rw [isPlausibleIndirectOutput_iff']
   constructor
   · rintro ⟨n, hn, hu⟩
     refine ⟨?_, hu⟩
-    rw [LawfulUpwardEnumerableRange.satisfiesLowerBound_iff]
+    rw [LawfulUpwardEnumerableLowerBound.isValid_iff]
     cases hr : r.iterInternal.internalState.next
     · simp [hr] at hn
     rw [hr, Option.bind_some] at hn
     exact ⟨_, hr, n, hn⟩
   · rintro ⟨hl, hu⟩
-    rw [LawfulUpwardEnumerableRange.satisfiesLowerBound_iff] at hl
+    rw [LawfulUpwardEnumerableLowerBound.isValid_iff] at hl
     obtain ⟨_, hr, n, hn⟩ := hl
     exact ⟨n, by simp [PRange.iterInternal, hr, hn], hu⟩
 
+theorem RangeIterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
+    [UpwardEnumerable α] [SupportsLowerBound sl α] [SupportsUpperBound su α]
+    [UpwardEnumerableRange sl α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableUpperBound su α]
+    {it : Iter (α := Types.RangeIterator ⟨sl, su⟩ α) α} {out : α}
+    (hout : it.IsPlausibleIndirectOutput out) :
+    ∃ a, it.internalState.next = some a ∧ UpwardEnumerable.le a out := by
+  have ⟨a, ha⟩ := Option.isSome_iff_exists.mp <|
+    Types.RangeIterator.isSome_next_of_isPlausibleIndirectOutput hout
+  refine ⟨a, ha, ?_⟩
+  simp only [isPlausibleIndirectOutput_iff', ha, Option.bind_some, exists_and_right] at hout
+  exact hout.1
+
 @[no_expose]
-instance [UpwardEnumerable α] [HasRange shape α] [UpwardEnumerableRange shape α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableRange shape α]
-    [Monad m] [Finite (Types.RangeIterator shape α) Id] :
-    ForIn' m (PRange shape α) α inferInstance where
+instance [UpwardEnumerable α] [UpwardEnumerableRange sl α]
+    [SupportsLowerBound sl α] [SupportsUpperBound su α]
+    [LawfulUpwardEnumerable α]
+    [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
+    [Monad m] [Finite (Types.RangeIterator ⟨sl, su⟩ α) Id] :
+    ForIn' m (PRange ⟨sl, su⟩ α) α inferInstance where
   forIn' r init f := by
     haveI : MonadLift Id m := ⟨Std.Internal.idToMonad (α := _)⟩
     refine ForIn'.forIn' (α := α) r.iterInternal init (fun a ha acc => f a ?_ acc)

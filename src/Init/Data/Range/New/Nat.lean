@@ -41,74 +41,33 @@ instance : LawfulUpwardEnumerable Nat where
     rw [← LawfulUpwardEnumerableLT.lt_iff] at hlt
     exact Nat.ne_of_lt hlt
 
-instance : UpwardEnumerableRange ⟨.closed, .closed⟩ Nat where
-  init lowerBound := some lowerBound
+instance : LawfulUpwardEnumerableLowerBound .closed Nat where
+  isValid_iff a l := by
+    simp [← LawfulUpwardEnumerableLE.le_iff, UpwardEnumerableRange.init,
+      SupportsLowerBound.IsSatisfied]
 
-instance : LawfulUpwardEnumerableRange ⟨.closed, .closed⟩ Nat where
-  satisfiesUpperBound_of_le u a b hub hab := by
+instance : LawfulUpwardEnumerableUpperBound .closed Nat where
+  isValid_of_le u a b hub hab := by
     rw [← LawfulUpwardEnumerableLE.le_iff] at hab
     exact Nat.le_trans hab hub
-  satisfiesLowerBound_iff a l := by
-    simp [← LawfulUpwardEnumerableLE.le_iff, UpwardEnumerableRange.init,
-      HasRange.SatisfiesLowerBound]
 
-instance : LawfulUpwardEnumerableRange ⟨.open, .closed⟩ Nat where
-  satisfiesUpperBound_of_le u a b hub hab := by
-    rw [← LawfulUpwardEnumerableLE.le_iff] at hab
-    exact Nat.le_trans hab hub
-  satisfiesLowerBound_iff a l := by
+instance : LawfulUpwardEnumerableLowerBound .open Nat where
+  isValid_iff a l := by
     simp [← LawfulUpwardEnumerableLE.le_iff, UpwardEnumerableRange.init,
-      HasRange.SatisfiesLowerBound, UpwardEnumerable.succ?, Nat.lt_iff_add_one_le]
+      SupportsLowerBound.IsSatisfied, UpwardEnumerable.succ?, Nat.lt_iff_add_one_le]
 
-instance : LawfulUpwardEnumerableRange ⟨.unbounded, .closed⟩ Nat where
-  satisfiesUpperBound_of_le u a b hub hab := by
-    rw [← LawfulUpwardEnumerableLE.le_iff] at hab
-    exact Nat.le_trans hab hub
-  satisfiesLowerBound_iff a l := by
-    simp [← LawfulUpwardEnumerableLE.le_iff, UpwardEnumerableRange.init,
-      HasRange.SatisfiesLowerBound, Nat.lt_iff_add_one_le, Least?.least?]
-
-instance : LawfulUpwardEnumerableRange ⟨.closed, .open⟩ Nat where
-  satisfiesUpperBound_of_le u a b hub hab := by
+instance : LawfulUpwardEnumerableUpperBound .open Nat where
+  isValid_of_le u a b hub hab := by
     rw [← LawfulUpwardEnumerableLE.le_iff] at hab
     exact Nat.lt_of_le_of_lt hab hub
-  satisfiesLowerBound_iff a l := by
-    simp [← LawfulUpwardEnumerableLE.le_iff, UpwardEnumerableRange.init,
-      HasRange.SatisfiesLowerBound]
 
-instance : LawfulUpwardEnumerableRange ⟨.open, .open⟩ Nat where
-  satisfiesUpperBound_of_le u a b hub hab := by
-    rw [← LawfulUpwardEnumerableLE.le_iff] at hab
-    exact Nat.lt_of_le_of_lt hab hub
-  satisfiesLowerBound_iff a l := by
+instance : LawfulUpwardEnumerableLowerBound .unbounded Nat where
+  isValid_iff a l := by
     simp [← LawfulUpwardEnumerableLE.le_iff, UpwardEnumerableRange.init,
-      HasRange.SatisfiesLowerBound, UpwardEnumerable.succ?, Nat.lt_iff_add_one_le]
+      SupportsLowerBound.IsSatisfied, Nat.lt_iff_add_one_le, Least?.least?]
 
-instance : LawfulUpwardEnumerableRange ⟨.unbounded, .open⟩ Nat where
-  satisfiesUpperBound_of_le u a b hub hab := by
-    rw [← LawfulUpwardEnumerableLE.le_iff] at hab
-    exact Nat.lt_of_le_of_lt hab hub
-  satisfiesLowerBound_iff a l := by
-    simp [← LawfulUpwardEnumerableLE.le_iff, UpwardEnumerableRange.init,
-      HasRange.SatisfiesLowerBound, Nat.lt_iff_add_one_le, Least?.least?]
-
-instance : LawfulUpwardEnumerableRange ⟨.closed, .unbounded⟩ Nat where
-  satisfiesUpperBound_of_le u a b hub hab := .intro
-  satisfiesLowerBound_iff a l := by
-    simp [← LawfulUpwardEnumerableLE.le_iff, UpwardEnumerableRange.init,
-      HasRange.SatisfiesLowerBound]
-
-instance : LawfulUpwardEnumerableRange ⟨.open, .unbounded⟩ Nat where
-  satisfiesUpperBound_of_le u a b hub hab := .intro
-  satisfiesLowerBound_iff a l := by
-    simp [← LawfulUpwardEnumerableLE.le_iff, UpwardEnumerableRange.init,
-      HasRange.SatisfiesLowerBound, UpwardEnumerable.succ?, Nat.lt_iff_add_one_le]
-
-instance : LawfulUpwardEnumerableRange ⟨.unbounded, .unbounded⟩ Nat where
-  satisfiesUpperBound_of_le u a b hub hab := .intro
-  satisfiesLowerBound_iff a l := by
-    simp [← LawfulUpwardEnumerableLE.le_iff, UpwardEnumerableRange.init,
-      HasRange.SatisfiesLowerBound, Nat.lt_iff_add_one_le, Least?.least?]
+instance : LawfulUpwardEnumerableUpperBound .unbounded Nat where
+  isValid_of_le _ _ _ _ _ := .intro
 
 private def rangeRev (k : Nat) :=
   match k with
@@ -129,44 +88,16 @@ private theorem mem_rangeRev {k l : Nat} (h : l < k) : l ∈ rangeRev k := by
       apply List.mem_cons_of_mem
       exact ih this
 
-instance : FinitelyEnumerableRange ⟨.closed, .closed⟩ Nat where
+instance : FinitelyEnumerableRange .closed Nat where
   enumeration upperBound := rangeRev (upperBound + 1)
   mem_enumeration_of_satisfiesUpperBound upperBound a h := by
-    simp only [HasRange.SatisfiesUpperBound] at h
+    simp only [SupportsUpperBound.IsSatisfied] at h
     apply mem_rangeRev
     exact Nat.lt_succ_of_le h
 
-instance : FinitelyEnumerableRange ⟨.open, .closed⟩ Nat where
+instance : FinitelyEnumerableRange .open Nat where
   enumeration upperBound := rangeRev (upperBound + 1)
   mem_enumeration_of_satisfiesUpperBound upperBound a h := by
-    simp only [HasRange.SatisfiesUpperBound] at h
-    apply mem_rangeRev
-    exact Nat.lt_succ_of_le h
-
-instance : FinitelyEnumerableRange ⟨.unbounded, .closed⟩ Nat where
-  enumeration upperBound := rangeRev (upperBound + 1)
-  mem_enumeration_of_satisfiesUpperBound upperBound a h := by
-    simp only [HasRange.SatisfiesUpperBound] at h
-    apply mem_rangeRev
-    exact Nat.lt_succ_of_le h
-
-instance : FinitelyEnumerableRange ⟨.closed, .open⟩ Nat where
-  enumeration upperBound := rangeRev (upperBound + 1)
-  mem_enumeration_of_satisfiesUpperBound upperBound a h := by
-    simp only [HasRange.SatisfiesUpperBound] at h
-    apply mem_rangeRev
-    exact Nat.lt_succ_of_lt h
-
-instance : FinitelyEnumerableRange ⟨.open, .open⟩ Nat where
-  enumeration upperBound := rangeRev (upperBound + 1)
-  mem_enumeration_of_satisfiesUpperBound upperBound a h := by
-    simp only [HasRange.SatisfiesUpperBound] at h
-    apply mem_rangeRev
-    exact Nat.lt_succ_of_lt h
-
-instance : FinitelyEnumerableRange ⟨.unbounded, .open⟩ Nat where
-  enumeration upperBound := rangeRev (upperBound + 1)
-  mem_enumeration_of_satisfiesUpperBound upperBound a h := by
-    simp only [HasRange.SatisfiesUpperBound] at h
+    simp only [SupportsUpperBound.IsSatisfied] at h
     apply mem_rangeRev
     exact Nat.lt_succ_of_lt h

@@ -1765,8 +1765,7 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
       have : x / -y ≠ intMin (w + 1) := by
         intros h
         have : (x / -y).msb = (intMin (w + 1)).msb := by simp only [h]
-        simp only [msb_intMin, decide_true, msb_udiv, show 0 < w + 1 by omega] at this
-        simp at this
+        simp only [msb_udiv, msb_intMin, show 0 < w + 1 by omega, decide_true, and_eq_true, beq_iff_eq] at this
         obtain ⟨hcontra, _⟩ := this
         simp only [hcontra, true_eq_false] at hxmsb
       simp [this, hymsb, udiv_ne_zero_iff_ne_zero_and_le]

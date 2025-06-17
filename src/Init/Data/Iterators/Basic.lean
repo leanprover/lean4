@@ -510,8 +510,9 @@ theorem IterM.TerminationMeasures.Finite.rel_of_skip
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic|
   first
-  | apply IterM.TerminationMeasures.Finite.rel_of_yield ‹_›
-  | apply IterM.TerminationMeasures.Finite.rel_of_skip ‹_›)
+  | exact IterM.TerminationMeasures.Finite.rel_of_yield ‹_›
+  | exact IterM.TerminationMeasures.Finite.rel_of_skip ‹_›
+  | fail)
 
 @[inherit_doc IterM.finitelyManySteps, expose]
 def Iter.finitelyManySteps {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id]
@@ -537,8 +538,9 @@ theorem Iter.TerminationMeasures.Finite.rel_of_skip
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic|
   first
-  | apply Iter.TerminationMeasures.Finite.rel_of_yield ‹_›
-  | apply Iter.TerminationMeasures.Finite.rel_of_skip ‹_›)
+  | exact Iter.TerminationMeasures.Finite.rel_of_yield ‹_›
+  | exact Iter.TerminationMeasures.Finite.rel_of_skip ‹_›
+  | fail)
 
 theorem IterM.isPlausibleSuccessorOf_of_yield
     {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
@@ -609,7 +611,9 @@ theorem IterM.TerminationMeasures.Productive.rel_of_skip
   .single h
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic|
-  apply IterM.TerminationMeasures.Productive.rel_of_skip ‹_›)
+  first
+    | exact IterM.TerminationMeasures.Productive.rel_of_skip ‹_›
+    | fail)
 
 @[inherit_doc IterM.finitelyManySkips, expose]
 def Iter.finitelyManySkips {α : Type w} {β : Type w} [Iterator α Id β] [Productive α Id]
@@ -627,7 +631,9 @@ theorem Iter.TerminationMeasures.Productive.rel_of_skip
   IterM.TerminationMeasures.Productive.rel_of_skip h
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic|
-  apply Iter.TerminationMeasures.Productive.rel_of_skip ‹_›)
+  first
+    | exact Iter.TerminationMeasures.Productive.rel_of_skip ‹_›
+    | fail)
 
 instance [Iterator α m β] [Finite α m] : Productive α m where
   wf := by

@@ -89,7 +89,7 @@ theorem toList_eq [UpwardEnumerable α] [UpwardEnumerableRange sl α]
         UpwardEnumerableRange.init]
     · rfl
 
-private theorem toList_open_eq_of_isSome_succ? [UpwardEnumerable α]
+theorem toList_open_eq_of_isSome_succ? [UpwardEnumerable α]
     [SupportsUpperBound su α] [FinitelyEnumerableRange su α]
     [LawfulUpwardEnumerable α]
     {lo : Bound .open α} {hi} (h : (UpwardEnumerable.succ? lo).isSome) :

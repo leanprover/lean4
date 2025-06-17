@@ -1,3 +1,5 @@
+module
+
 prelude
 import Init.Data.Range.New.Iteration
 import Init.Data.Nat.Lemmas
@@ -89,6 +91,7 @@ private theorem mem_rangeRev {k l : Nat} (h : l < k) : l ∈ rangeRev k := by
       apply List.mem_cons_of_mem
       exact ih this
 
+@[no_expose]
 instance : FinitelyEnumerableRange .closed Nat where
   enumeration upperBound := rangeRev (upperBound + 1)
   mem_enumeration_of_satisfiesUpperBound upperBound a h := by
@@ -96,6 +99,7 @@ instance : FinitelyEnumerableRange .closed Nat where
     apply mem_rangeRev
     exact Nat.lt_succ_of_le h
 
+@[no_expose]
 instance : FinitelyEnumerableRange .open Nat where
   enumeration upperBound := rangeRev (upperBound + 1)
   mem_enumeration_of_satisfiesUpperBound upperBound a h := by

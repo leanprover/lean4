@@ -22,11 +22,11 @@ private theorem toList_eq_toList_iterInternal [UpwardEnumerable α]
 theorem toList_eq_match [UpwardEnumerable α]
     [SupportsUpperBound su α] [FinitelyEnumerableRange su α]
     [LawfulUpwardEnumerable α]
-    {it : Iter (α := Types.RangeIterator ⟨sl, su⟩ α) α} :
+    {it : Iter (α := Types.RangeIterator su α) α} :
     it.toList =  match it.internalState.next with
       | none => []
       | some a => if SupportsUpperBound.IsSatisfied it.internalState.upperBound a then
-          a :: (⟨⟨UpwardEnumerable.succ? a, it.internalState.upperBound⟩⟩ : Iter (α := Types.RangeIterator ⟨sl, su⟩ α) α).toList
+          a :: (⟨⟨UpwardEnumerable.succ? a, it.internalState.upperBound⟩⟩ : Iter (α := Types.RangeIterator su α) α).toList
         else
           [] := by
   rw [Iter.toList_eq_match_step, Types.RangeIterator.step_eq_step]
@@ -40,6 +40,47 @@ theorem toList_eq_match [UpwardEnumerable α]
     split at heq <;> cases heq
   · split at heq <;> simp_all
 
+theorem toList_eq_aux [UpwardEnumerable α]
+    [SupportsUpperBound su α] [FinitelyEnumerableRange su α]
+    [LawfulUpwardEnumerable α]
+    {r : PRange ⟨.open, su⟩ α} :
+    r.toList = match UpwardEnumerable.succ? r.lower with
+      | none => []
+      | some a => if SupportsUpperBound.IsSatisfied r.upper a then
+        a :: (PRange.mk (shape := ⟨.open, su⟩) a r.upper).toList
+      else
+        [] := by
+  simp only [PRange.toList_eq_toList_iterInternal,
+    show r.upper = r.iterInternal.internalState.upperBound by rfl,
+    show UpwardEnumerable.succ? r.lower = r.iterInternal.internalState.next by rfl]
+  generalize r.iterInternal = it
+  rw [toList_eq_match]
+  split
+  · simp_all
+  · rename_i heq
+    simp only [heq]
+    split <;> rfl
+
+theorem toList_eq [UpwardEnumerable α] [UpwardEnumerableRange sl α]
+    [SupportsUpperBound su α] [FinitelyEnumerableRange su α]
+    [LawfulUpwardEnumerable α]
+    {r : PRange ⟨sl, su⟩ α} :
+    r.toList = match UpwardEnumerableRange.init r.lower with
+      | none => []
+      | some a => if SupportsUpperBound.IsSatisfied r.upper a then
+        a :: (PRange.mk (shape := ⟨.open, su⟩) a r.upper).toList
+      else
+        [] := by
+  rw [toList_eq_toList_iterInternal, toList_eq_match,
+    show r.iterInternal.internalState.next = UpwardEnumerableRange.init r.lower by rfl,
+    show r.iterInternal.internalState.upperBound = r.upper by rfl]
+  split
+  · rfl
+  · split
+    · simp only [List.cons.injEq, true_and, toList_eq_toList_iterInternal, PRange.iterInternal,
+        UpwardEnumerableRange.init]
+    · rfl
+
 theorem toList_eq_nil_iff [UpwardEnumerable α]
     [SupportsUpperBound su α] [FinitelyEnumerableRange su α] [UpwardEnumerableRange sl α]
     [LawfulUpwardEnumerable α]
@@ -52,12 +93,12 @@ theorem toList_eq_nil_iff [UpwardEnumerable α]
   split <;> rename_i heq <;> simp [heq]
 
 theorem RangeIterator.mem_toList_iff_isPlausibleIndirectOutput
-    [UpwardEnumerable α] [UpwardEnumerableRange sl α]
-    [SupportsLowerBound sl α] [SupportsUpperBound su α]
+    [UpwardEnumerable α]
+    [SupportsUpperBound su α]
     [LawfulUpwardEnumerable α]
-    [LawfulUpwardEnumerableUpperBound su α] [LawfulUpwardEnumerableLowerBound sl α]
+    [LawfulUpwardEnumerableUpperBound su α]
     [FinitelyEnumerableRange su α]
-    {it : Iter (α := Types.RangeIterator ⟨sl, su⟩ α) α} :
+    {it : Iter (α := Types.RangeIterator su α) α} :
     out ∈ it.toList ↔ it.IsPlausibleIndirectOutput out := by
   constructor
   · apply Iter.isPlausibleIndirectOutput_of_mem_toList
@@ -75,10 +116,10 @@ theorem RangeIterator.mem_toList_iff_isPlausibleIndirectOutput
       simp [← ha.2.2.2, h']
 
 instance [UpwardEnumerable α]
-    [SupportsLowerBound sl α] [SupportsUpperBound su α] [FinitelyEnumerableRange su α]
-    [LawfulUpwardEnumerable α] [UpwardEnumerableRange sl α]
-    [LawfulUpwardEnumerableUpperBound su α] [LawfulUpwardEnumerableLowerBound sl α] :
-    LawfulPureIterator (Types.RangeIterator ⟨sl, su⟩ α) where
+    [SupportsUpperBound su α] [FinitelyEnumerableRange su α]
+    [LawfulUpwardEnumerable α]
+    [LawfulUpwardEnumerableUpperBound su α] :
+    LawfulPureIterator (Types.RangeIterator su α) where
   mem_toList_iff_isPlausibleIndirectOutput :=
     RangeIterator.mem_toList_iff_isPlausibleIndirectOutput
 

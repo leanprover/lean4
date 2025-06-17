@@ -297,7 +297,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
           let args := args.extract (start := ctorVal.numParams)
           let objArgs : Array Arg ← do
             let mut result : Array Arg := #[]
-            for i in [0:fields.size] do
+            for i in 0,,<fields.size do
               match args[i]! with
               | .fvar fvarId =>
                 if let some (.var varId) := (← get).fvars[fvarId]? then

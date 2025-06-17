@@ -51,6 +51,8 @@ trace: [grind.ematch.instance] pbind_some': ∀ (h : b = some a), (b.pbind fun a
       (b.pbind fun a h => some (a + f b ⋯)) = some (a + 3 * f b ⋯ + f b ⋯)
 [grind.ematch.instance] pbind_some': ∀ (h_2 : b = some (a + 4 * f b ⋯)),
       (b.pbind fun a h => some (a + f b ⋯)) = some (a + 4 * f b ⋯ + f b ⋯)
+[grind.ematch.instance] pbind_some': ∀ (h_3 : b = some (2 * a + f b ⋯)),
+      (b.pbind fun a h => some (a + f b ⋯)) = some (2 * a + f b ⋯ + f b ⋯)
 -/
 #guard_msgs (trace) in
 example (h : b = some a) : (b.pbind fun a h => some <| a + f b (by grind)) = some (a + a) := by
@@ -71,9 +73,9 @@ example (h : b = some a) : (b.pbind fun a h => some <| a + f b (by grind)) = som
   fail_if_success grind only [Option.pbind_some, f]
   sorry
 
-/-- trace: [grind.ematch.instance] pbind_some': (b.pbind fun a h => some (2 * a)) = some (2 * a) -/
+/-- trace: [grind.ematch.instance] pbind_some': (b.pbind fun a _h => some (2 * a)) = some (2 * a) -/
 #guard_msgs (trace) in
-example (a : Nat) (h : b = some a) : (b.pbind fun a h => some <| 2*a) = some (a + a) := by
+example (a : Nat) (h : b = some a) : (b.pbind fun a _h => some <| 2*a) = some (a + a) := by
   set_option trace.grind.ematch.instance true in
   grind only [= gen pbind_some']
 

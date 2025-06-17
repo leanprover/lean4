@@ -10,3 +10,4 @@ import Init.Grind.Ring.Basic
 import Init.Grind.Ring.Poly
 import Init.Grind.Ring.Field
 import Init.Grind.Ring.Envelope
+import Init.Grind.Ring.OfSemiring

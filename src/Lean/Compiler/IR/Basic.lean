@@ -571,7 +571,7 @@ def addParamsRename (ρ : IndexRenaming) (ps₁ ps₂ : Array Param) : Option In
     failure
   else
     let mut ρ := ρ
-    for i in [:ps₁.size] do
+    for i in 0,,<ps₁.size do
       ρ ← addParamRename ρ ps₁[i]! ps₂[i]!
     pure ρ
 

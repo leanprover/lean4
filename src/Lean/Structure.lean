@@ -491,9 +491,9 @@ where
   selectParent (resOrders : Array (Array Name)) : m (Bool × Name) := do
     -- Assumption: every resOrder is nonempty.
     -- `n'` is for relaxation, to stop paying attention to end of `resOrders` when finding a good parent.
-    for n' in [0 : resOrders.size] do
+    for n' in 0,,<resOrders.size do
       let hi := resOrders.size - n'
-      for i in [0 : hi] do
+      for i in 0,,<hi do
         let parent := resOrders[i]![0]!
         let consistent resOrder := resOrder[1:].all (· != parent)
         if resOrders[0:i].all consistent && resOrders[i+1:hi].all consistent then

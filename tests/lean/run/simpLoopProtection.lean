@@ -22,7 +22,7 @@ error: unsolved goals
 -/
 #guard_msgs in
 example : id a = 23 := by
-  simp +loopProtection -failIfUnchanged only [aa, id]
+  simp -failIfUnchanged only [aa, id]
 
 /--
 warning: Ignoring jointly looping simp theorems: ab and ba
@@ -35,7 +35,8 @@ error: unsolved goals
 ⊢ a = 23
 -/
 #guard_msgs in
-example : a = 23 := by simp +loopProtection -failIfUnchanged [ab, ba]
+example : a = 23 := by
+  simp +loopProtection -failIfUnchanged [ab, ba]
 
 /--
 warning: Ignoring jointly looping simp theorems: ab and ba

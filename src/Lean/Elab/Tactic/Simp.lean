@@ -153,6 +153,15 @@ inductive ElabSimpArgResult where
   | star
   | none -- used for example when elaboration fails
 
+def ElabSimpArgResult.simpTheorems : ElabSimpArgResult → Array SimpTheorem
+  | addEntries entries => Id.run do
+    let mut thms := #[]
+    for entry in entries do
+      if let .thm thm := entry then
+        thms := thms.push thm
+    return thms
+  | _ => #[]
+
 private def elabDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (id : Origin)
     (e : Expr) (post : Bool) (inv : Bool) (kind : SimpKind) : MetaM ElabSimpArgResult := do
   if e.isConst then
@@ -353,6 +362,11 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
         ctx := ctx.setSimpTheorems (thmsArray.set! 0 thms)
         if !ignoreStarArg && starArg then
           ctx ← elabStarArg ctx
+
+        for ref in stx[1].getSepArgs, arg in args do
+          for thm in arg.simpTheorems do
+            withRef ref do
+              Simp.checkLoops ctx (methods := Simp.mkDefaultMethodsCore simprocs) thm
 
         return { ctx, simprocs }
     -- If recovery is disabled, then we want simp argument elaboration failures to be exceptions.

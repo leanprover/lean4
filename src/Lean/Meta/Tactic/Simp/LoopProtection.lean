@@ -28,16 +28,10 @@ def setLoopCacheLoop (loop : Array SimpTheorem): SimpM Unit := do
   assert! loop.size > 0
   setLoopCache thm (.loop loop)
 
-def unlessWarnedBefore (thm : SimpTheorem) (k : SimpM Unit) : SimpM Unit := do
-  unless (← get).loopProtectionCache.warned thm do
-    modifyThe State fun s => { s with loopProtectionCache := s.loopProtectionCache.setWarned thm }
-    k
-
 @[inline] def withFreshUsedTheorems (x : SimpM α) : SimpM α := do
   let saved := (← get).usedTheorems
   modify fun s => { s with usedTheorems := {} }
   try x finally modify fun s => { s with usedTheorems := saved }
-
 
 def mkLoopWarningMsg (thms : Array SimpTheorem) : SimpM MessageData := do
   let mut msg := m!""
@@ -135,19 +129,14 @@ current simp set, and prints a warning if it does.
 
 Assumes that `withRef` is set appropriately.
 -/
-def checkLoops (thm : SimpTheorem) : SimpM Unit := do
-  let cfg ← getConfig
+def checkLoops (ctxt : Simp.Context) (methods : Methods) (thm : SimpTheorem) : MetaM Unit := do
   -- No loop checking when disabled or in single pass mode
-  if !cfg.loopProtection || cfg.singlePass then return
+  if !ctxt.config.loopProtection || ctxt.config.singlePass then return
 
   -- Permutating and local theorems are never checked, so accept when starting
   -- a loop check, and ignore when inside a loop check
   if thm.perm || thm.proof.hasFVar then return
 
-  assert! !(← currentlyLoopChecking)
-
-  unlessWarnedBefore thm do -- TODO: Do we need this check anymore?
-    let r ← withFreshUsedTheorems do
-      checkLoopCore thm
-    if let .loop thms := r then
+  let _ ← SimpM.run ctxt (s := {}) (methods := methods) do
+    if let .loop thms ← checkLoopCore thm then
       logWarning (← mkLoopWarningMsg thms)

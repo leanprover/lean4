@@ -258,7 +258,7 @@ theorem toQ_mul (a b : α) : toQ (a * b) = toQ a * toQ b := by
 theorem toQ_natCast (n : Nat) : toQ (natCast (α := α) n) = natCast n := by
   simp; apply Quot.sound; simp [natCast]; refine ⟨0, ?_⟩; rfl
 
-theorem toQ_ofNat (n : Nat) : toQ (OfNat.ofNat (α := α) n) = natCast n := by
+theorem toQ_ofNat (n : Nat) : toQ (OfNat.ofNat (α := α) n) = OfNat.ofNat (α := Q α) n := by
   simp; apply Quot.sound; rw [Semiring.ofNat_eq_natCast]; simp
 
 theorem toQ_pow (a : α) (n : Nat) : toQ (a ^ n) = toQ a ^ n := by
@@ -291,7 +291,7 @@ theorem Q.exact : Q.mk a = Q.mk b → r α a b := by
   constructor; exact r_rfl; exact r_sym; exact r_trans
 
 -- If the CommSemiring has the `AddRightCancel` property then `toQ` is injective
-theorem toQ_inj [AddRightCancel α] (a b : α) : toQ a = toQ b → a = b := by
+theorem toQ_inj [AddRightCancel α] {a b : α} : toQ a = toQ b → a = b := by
   simp; intro h₁
   replace h₁ := Q.exact h₁
   simp at h₁

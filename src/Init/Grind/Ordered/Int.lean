@@ -7,7 +7,7 @@ module
 
 prelude
 import Init.Grind.Ordered.Ring
-import Init.Grind.CommRing.Int
+import Init.GrindInstances.Ring.Int
 import Init.Omega
 
 /-!

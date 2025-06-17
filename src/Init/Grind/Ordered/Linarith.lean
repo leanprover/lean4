@@ -7,7 +7,7 @@ module
 prelude
 import Init.Grind.Ordered.Module
 import Init.Grind.Ordered.Ring
-import Init.Grind.CommRing.Field
+import Init.Grind.Ring.Field
 import all Init.Data.Ord
 import all Init.Data.AC
 import Init.Data.RArray

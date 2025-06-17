@@ -6,7 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Grind.CommRing.Basic
+import Init.Grind.Ring.Basic
+import Init.GrindInstances.ToInt
 import all Init.Data.BitVec.Basic
 import all Init.Data.SInt.Basic
 import Init.Data.SInt.Lemmas

@@ -273,8 +273,19 @@ The result of elaborating a full array of simp arguments and applying them to th
 structure ElabSimpArgsResult where
   ctx      : Simp.Context
   simprocs : Simp.SimprocsArray
-  starArg  : Bool := false
 
+/-- Implements the effect of the `*` attribute. -/
+def elabStarArg (ctx : Simp.Context) : MetaM Simp.Context := do
+  let mut simpTheorems := ctx.simpTheorems
+  /-
+  When using `zetaDelta := false`, we do not expand let-declarations when using `[*]`.
+  Users must explicitly include it in the list.
+  -/
+  let hs ← getPropHyps
+  for h in hs do
+    unless simpTheorems.isErased (.fvar h) do
+      simpTheorems ← simpTheorems.addTheorem (.fvar h) (← h.getDecl).toExpr (config := ctx.indexConfig)
+  return ctx.setSimpTheorems simpTheorems
 
 /--
   Elaborate extra simp theorems provided to `simp`. `stx` is of the form `"[" simpTheorem,* "]"`
@@ -283,7 +294,8 @@ structure ElabSimpArgsResult where
   When `recover := true`, try to recover from errors as much as possible so that users keep seeing
   the current goal.
 -/
-def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsArray) (eraseLocal : Bool) (kind : SimpKind) : TacticM ElabSimpArgsResult := do
+def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsArray) (eraseLocal : Bool)
+    (kind : SimpKind) (ignoreStarArg := false) : TacticM ElabSimpArgsResult := do
   if stx.isNone then
     return { ctx, simprocs }
   else
@@ -301,7 +313,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
         let mut args : Array ElabSimpArgResult := #[]
         for argStx in stx[1].getSepArgs do
           let arg ← elabSimpArg ctx.indexConfig (eraseLocal || starArg) kind argStx
-          starArg := starArg || arg matches .star
+          starArg := !ignoreStarArg && (starArg || arg matches .star)
           args := args.push arg
 
         let mut thmsArray := ctx.simpTheorems
@@ -336,10 +348,13 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
               simprocs := simprocs.push (← simprocExt.getSimprocs)
           | .star => pure ()
           | .none => pure ()
-        let ctx := ctx.setZetaDeltaSet zetaDeltaSet (← getZetaDeltaFVarIds)
-        let ctx := ctx.setSimpTheorems (thmsArray.set! 0 thms)
 
-        return { ctx, simprocs, starArg }
+        let mut ctx := ctx.setZetaDeltaSet zetaDeltaSet (← getZetaDeltaFVarIds)
+        ctx := ctx.setSimpTheorems (thmsArray.set! 0 thms)
+        if !ignoreStarArg && starArg then
+          ctx ← elabStarArg ctx
+
+        return { ctx, simprocs }
     -- If recovery is disabled, then we want simp argument elaboration failures to be exceptions.
     -- This affects `addSimpTheorem`.
     if (← read).recover then
@@ -387,22 +402,6 @@ structure MkSimpContextResult where
   simprocs         : Simp.SimprocsArray
   dischargeWrapper : Simp.DischargeWrapper
 
-/-- Implements the effect of the `*` attribute. -/
-def MkSimpContextResult.addStar (r : MkSimpContextResult) : TacticM MkSimpContextResult := do
-  let ctx := r.ctx
-  let simprocs := r.simprocs
-  let mut simpTheorems := ctx.simpTheorems
-  /-
-  When using `zetaDelta := false`, we do not expand let-declarations when using `[*]`.
-  Users must explicitly include it in the list.
-  -/
-  let hs ← getPropHyps
-  for h in hs do
-    unless simpTheorems.isErased (.fvar h) do
-      simpTheorems ← simpTheorems.addTheorem (.fvar h) (← h.getDecl).toExpr (config := ctx.indexConfig)
-  let ctx := ctx.setSimpTheorems simpTheorems
-  return { r with ctx, simprocs }
-
 /--
    Create the `Simp.Context` for the `simp`, `dsimp`, and `simp_all` tactics.
    If `kind != SimpKind.simp`, the `discharge` option must be `none`
@@ -434,12 +433,8 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
      (config := (← elabSimpConfig stx[1] (kind := kind)))
      (simpTheorems := #[simpTheorems])
      congrTheorems
-  let argsResult ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) (simprocs := #[simprocs]) ctx
-  let r := { argsResult with dischargeWrapper }
-  if !argsResult.starArg || ignoreStarArg then
-    return r
-  else
-    r.addStar
+  let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) (simprocs := #[simprocs]) (ignoreStarArg := ignoreStarArg) ctx
+  return { r with dischargeWrapper }
 
 register_builtin_option tactic.simp.trace : Bool := {
   defValue := false

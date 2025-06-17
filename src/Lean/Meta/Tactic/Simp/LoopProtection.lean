@@ -6,8 +6,14 @@ Authors: Joachim Breitner
 
 prelude
 import Lean.Meta.Tactic.Simp.Types
+import Lean.Linter.Basic
 
 namespace Lean.Meta.Simp
+
+register_builtin_option linter.simp.loopProtection : Bool := {
+  defValue := true
+  descr := "checks simp arguments for obviously looping theorems"
+}
 
 def currentlyLoopChecking : SimpM Bool := do
   return !(← getContext).loopCheckStack.isEmpty
@@ -33,26 +39,27 @@ def setLoopCacheLoop (loop : Array SimpTheorem): SimpM Unit := do
   modify fun s => { s with usedTheorems := {} }
   try x finally modify fun s => { s with usedTheorems := saved }
 
+private def ppOrigins (origins : Array Origin) : MetaM MessageData := do
+  return .andList (← origins.mapM (return m!"`{← ppOrigin ·}`")).toList
+
 def mkLoopWarningMsg (thms : Array SimpTheorem) : SimpM MessageData := do
   let mut msg := m!""
   let thm := thms[0]!
-  if thms.size = 1 then
-    msg := msg ++ m!"Possibly looping simp theorem: {← ppOrigin thm.origin}"
+  msg := msg ++ m!"Possibly looping simp theorem: `{← ppOrigin thm.origin}`"
+
   let rest : Array SimpTheorem := thms[1:]
   unless rest.isEmpty do
-    msg := msg ++ .note m!"It is jointly looping with {.andList (← rest.mapM (ppOrigin ·.origin)).toList}"
+    msg := msg ++ .note m!"It is jointly looping with {← ppOrigins (rest.map (·.origin))}"
 
   let mut others := #[]
   for other in (← get).usedTheorems.toArray do
     if thms.all (·.origin != other) then
       others := others.push other
   unless others.isEmpty do
-    msg := msg ++ .note m!"Not part of the loop, but potentially enabling it: \
-      {.andList (← others.mapM (ppOrigin ·)).toList}"
+    msg := msg ++ .note m!"Not part of the loop, but potentially enabling it: {← ppOrigins others}"
 
   msg := msg ++ .hint' m!"You can disable a simp theorem from the default simp set by \
     passing `- theoremName` to `simp`."
-  msg := msg ++ .hint' m!"You can disable this check using `simp -loopProtection`."
   pure msg
 
 private def rotations (a : Array α) : Array (Array α) := Id.run do
@@ -131,7 +138,7 @@ Assumes that `withRef` is set appropriately for the warning.
 -/
 def checkLoops (ctxt : Simp.Context) (methods : Methods) (thm : SimpTheorem) : MetaM Unit := do
   -- No loop checking when disabled or in single pass mode
-  if !ctxt.config.loopProtection || ctxt.config.singlePass then return
+  if !(linter.simp.loopProtection.get (← getOptions)) || ctxt.config.singlePass then return
 
   -- Permutating and local theorems are never checked, so accept when starting
   -- a loop check, and ignore when inside a loop check
@@ -139,4 +146,4 @@ def checkLoops (ctxt : Simp.Context) (methods : Methods) (thm : SimpTheorem) : M
 
   let _ ← SimpM.run ctxt (s := {}) (methods := methods) do
     if let .loop thms ← checkLoopCore thm then
-      logWarning (← mkLoopWarningMsg thms)
+      Linter.logLint linter.simp.loopProtection (← getRef) (← mkLoopWarningMsg thms)

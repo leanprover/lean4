@@ -27,7 +27,7 @@ termination_by _ n => n
 open Lean Meta Elab Tactic in
 elab "simp_foo_with_check" : tactic =>
   withOptions (fun o => diagnostics.set o true) do withMainContext do
-    let stx ← `(tactic|simp -loopProtection [foo])
+    let stx ← `(tactic|simp [foo])
     let { ctx, simprocs, dischargeWrapper } ← mkSimpContext stx (eraseLocal := false)
     let stats ← dischargeWrapper.with fun discharge? => do
       simpLocation ctx simprocs discharge? (expandOptLocation stx.raw[5])

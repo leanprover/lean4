@@ -273,16 +273,6 @@ structure Config where
   if they are non-dependent. This only applies when `zeta := false`.
   -/
   letToHave : Bool := true
-  /--
-  When `true` (default: `true`), simp will try to detect rewrite rules that are likely to loop.
-
-  Before applying a simp theorem, it simplifies the theorem's uninstantiated right-hand side.
-  If during that process, the theorem can be applied again, the theorem is considered to be
-  looping and (with a warning) ignored.
-
-  Local hypotheses and permutating theorems not considered during this process.
-  -/
-  loopProtection : Bool := true
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`

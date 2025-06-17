@@ -9,6 +9,7 @@ decreasing_by sorry
 set_option maxRecDepth 100  -- default takes ages in debug mode and triggers stack space threshold
 
 -- I meant to write `simp only [natPrintAux]`, but accidentally referenced the current theorem
+set_option linter.simp.loopProtection false in
 theorem natPrintAux_eq (n : Nat) (sink : List Char) :
         natPrintAux n sink = if n < 10 then (n.digitChar :: sink) else natPrintAux (n / 10) (Nat.digitChar (n % 10) :: sink) := by
-  simp -loopProtection only [natPrintAux_eq]
+  simp only [natPrintAux_eq]

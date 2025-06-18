@@ -20,7 +20,7 @@ namespace Async
 This module provides a layered approach to asynchronous programming, combining monadic types,
 type classes, and concrete task types that work together in a cohesive system.
 
-- **Monadic Type**: These types provide a good way to to chain and manipulate context. These
+- **Monadic Types**: These types provide a good way to to chain and manipulate context. These
   can contain a `Task`, enabling manipulation of both asynchronous and synchronous code.
 - **Concrete Task Types**: Concrete units of work that can be executed within these contexts.
 
@@ -144,10 +144,7 @@ Creates a new `ETask` that will run after `x` has finished. If `x`:
 -/
 @[inline]
 protected def map (f : α → β) (x : ETask ε α) : ETask ε β :=
-  Task.map (x := x) fun r =>
-    match r with
-    | .ok a => .ok (f a)
-    | .error e => .error e
+  Task.map (x := x) (f <$> ·)
 
 /--
 Creates a new `ETask` that will run after `x` has completed. If `x`:
@@ -156,8 +153,7 @@ Creates a new `ETask` that will run after `x` has completed. If `x`:
 -/
 @[inline]
 protected def bind (x : ETask ε α) (f : α → ETask ε β) : ETask ε β :=
-  Task.bind x fun r =>
-    match r with
+  Task.bind x fun
     | .ok a => f a
     | .error e => Task.pure <| .error e
 
@@ -167,8 +163,7 @@ Similar to `bind`, however `f` has access to the `EIO` monad. If `f` throws an e
 -/
 @[inline]
 protected def bindEIO (x : ETask ε α) (f : α → EIO ε (ETask ε β)) : EIO ε (ETask ε β) :=
-  EIO.bindTask x fun r =>
-    match r with
+  EIO.bindTask x fun
     | .ok a => f a
     | .error e => .error e
 
@@ -178,8 +173,7 @@ Similar to `bind`, however `f` has access to the `EIO` monad. If `f` throws an e
 -/
 @[inline]
 protected def mapEIO (f : α → EIO ε β) (x : ETask ε α) : BaseIO (ETask ε β) :=
-  EIO.mapTask (t := x) fun r =>
-    match r with
+  EIO.mapTask (t := x) fun
     | .ok a => f a
     | .error e => .error e
 
@@ -189,8 +183,7 @@ during execution.
 -/
 @[inline]
 def block (x : ETask ε α) : EIO ε α := do
-  let res := x.get
-  match res with
+  match x.get with
   | .ok a => return a
   | .error e => .error e
 
@@ -237,8 +230,7 @@ Similar to `map`, however `f` has access to the `IO` monad. If `f` throws an err
 -/
 @[inline]
 protected def mapIO (f : α → IO β) (x : AsyncTask α) : BaseIO (AsyncTask β) :=
-  EIO.mapTask (t := x) fun r =>
-    match r with
+  EIO.mapTask (t := x) fun
     | .ok a => f a
     | .error e => .error e
 
@@ -257,8 +249,7 @@ If `x`:
 -/
 @[inline]
 protected def bind (x : AsyncTask α) (f : α → AsyncTask β) : AsyncTask β :=
-  Task.bind x fun r =>
-    match r with
+  Task.bind x fun
     | .ok a => f a
     | .error e => Task.pure <| .error e
 
@@ -270,10 +261,7 @@ If `x`:
 -/
 @[inline]
 def map (f : α → β) (x : AsyncTask α) : AsyncTask β :=
-  Task.map (x := x) fun r =>
-    match r with
-    | .ok a => .ok (f a)
-    | .error e => .error e
+  Task.map (x := x) (f <$> ·)
 
 /--
 Similar to `bind`, however `f` has access to the `IO` monad. If `f` throws an error, the returned
@@ -281,8 +269,7 @@ Similar to `bind`, however `f` has access to the `IO` monad. If `f` throws an er
 -/
 @[inline]
 def bindIO (x : AsyncTask α) (f : α → IO (AsyncTask β)) : BaseIO (AsyncTask β) :=
-  EIO.bindTask x fun r =>
-    match r with
+  IO.bindTask x fun
     | .ok a => f a
     | .error e => .error e
 
@@ -292,17 +279,15 @@ Similar to `map`, however `f` has access to the `IO` monad. If `f` throws an err
 -/
 @[inline]
 def mapTaskIO (f : α → IO β) (x : AsyncTask α) : BaseIO (AsyncTask β) :=
-  EIO.mapTask (t := x) fun r =>
-    match r with
+  IO.mapTask (t := x) fun
     | .ok a => f a
     | .error e => .error e
 
 /--
 Block until the `AsyncTask` in `x` finishes.
 -/
-def block (x : AsyncTask α) : IO α := do
-  let res := x.get
-  match res with
+def block (x : AsyncTask α) : IO α :=
+  match x.get with
   | .ok a => return a
   | .error e => .error e
 
@@ -353,8 +338,7 @@ def toTask : MaybeTask α → Task α
 Gets the value of the `MaybeTask` by blocking.
 -/
 @[inline]
-def get {α : Type} (x : MaybeTask α) : α :=
-  match x with
+def get {α : Type} : MaybeTask α → α
   | .pure a => a
   | .ofTask t => t.get
 
@@ -362,8 +346,7 @@ def get {α : Type} (x : MaybeTask α) : α :=
 Maps a function over a `MaybeTask`.
 -/
 @[inline]
-def map (f : α → β) (t : MaybeTask α) : MaybeTask β :=
-  match t with
+def map (f : α → β) : MaybeTask α → MaybeTask β
   | .pure a => .pure <| f a
   | .ofTask t => .ofTask <| t.map f
 
@@ -427,7 +410,7 @@ Creates a new `BaseAsync` out of a `Task`.
 -/
 @[inline]
 protected def ofTask (x : Task α) : BaseAsync α :=
-  .mk (pure (MaybeTask.ofTask x))
+  .mk <| pure <| MaybeTask.ofTask x
 
 /--
 Creates a `BaseAsync` computation that immediately returns the given value.
@@ -475,15 +458,14 @@ Lifts a `BaseAsync` computation into a `Task` that can be awaited and joined.
 @[inline]
 protected def asTask (x : BaseAsync α) (prio := Task.Priority.default) : BaseIO (Task α) := do
   let res ← BaseIO.asTask (prio := prio) x.toRawBaseIO
-  let t := MaybeTask.joinTask res
-  pure t
+  return MaybeTask.joinTask res
 
 /--
 Creates a `BaseAsync` that awaits the completion of the given `Task α`.
 -/
 @[inline]
 def await (t : Task α) : BaseAsync α :=
-  BaseAsync.mk (pure <| MaybeTask.ofTask t)
+  .mk <| pure <| MaybeTask.ofTask t
 
 /--
 Returns the `BaseAsync` computation inside a `Task α`, so it can be awaited.
@@ -532,7 +514,7 @@ Creates a new `EAsync` out of a `RTask`.
 -/
 @[inline]
 protected def ofTask (x : ETask ε α) : EAsync ε α :=
-  .mk (pure (MaybeTask.ofTask x))
+  .mk <| pure <| MaybeTask.ofTask x
 
 /--
 Converts a `BaseAsync` to a `EIO ETask`.
@@ -546,7 +528,7 @@ Creates a new `EAsync` out of a `ETask`.
 -/
 @[inline]
 protected def ofETask (x : ETask ε α) : EAsync ε α :=
-  .mk (BaseAsync.ofTask x)
+  .mk <| BaseAsync.ofTask x
 
 /--
 Creates an `EAsync` computation that immediately returns the given value.
@@ -592,9 +574,8 @@ protected def wait (self : EAsync ε α) : EIO ε α := do
 Lifts an `EAsync` computation into an `ETask` that can be awaited and joined.
 -/
 @[inline]
-protected def asTask (x : EAsync ε α) (prio := Task.Priority.default) : EIO ε (ETask ε α) := do
-  let task ← x |> BaseAsync.asTask (prio := prio)
-  pure task
+protected def asTask (x : EAsync ε α) (prio := Task.Priority.default) : EIO ε (ETask ε α) :=
+  x |> BaseAsync.asTask (prio := prio)
 
 /--
 Raises an error of type `ε` within the `EAsync` monad.
@@ -618,13 +599,11 @@ Runs an action, ensuring that some other action always happens afterward.
 protected def tryFinally' (x : EAsync ε α) (f : Option α → EAsync ε β) : EAsync ε (α × β) :=
   .mk <| BaseAsync.bind x fun
     | .ok a => do
-      let result ← (f (some a))
-      match result with
+      match ← (f (some a)) with
       | .ok b => BaseAsync.pure (.ok (a, b))
       | .error e => BaseAsync.pure (.error e)
     | .error e => do
-      let result ← (f none)
-      match result with
+      match ← (f none) with
       | .ok _ => BaseAsync.pure (.error e)
       | .error e' => BaseAsync.pure (.error e')
 

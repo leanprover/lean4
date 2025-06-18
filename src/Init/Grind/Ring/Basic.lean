@@ -395,8 +395,7 @@ theorem natCast_eq_iff_of_lt {x y : Nat} (h₁ : x < p) (h₂ : y < p) :
 
 end IsCharP
 
--- TODO: This should be generalizable to any `IntModule α`, not just `Ring α`.
-theorem no_int_zero_divisors {α : Type u} [Ring α] [NoNatZeroDivisors α] {k : Int} {a : α}
+theorem no_int_zero_divisors {α : Type u} [IntModule α] [NoNatZeroDivisors α] {k : Int} {a : α}
     : k ≠ 0 → k * a = 0 → a = 0 := by
   match k with
   | (k : Nat) =>
@@ -405,10 +404,10 @@ theorem no_int_zero_divisors {α : Type u} [Ring α] [NoNatZeroDivisors α] {k :
     replace h₁ : k ≠ 0 := by intro h; simp [h] at h₁
     exact no_nat_zero_divisors k a h₁ h₂
   | -(k+1 : Nat) =>
-    rw [Int.natCast_add, ← Int.natCast_add, intCast_neg, intCast_natCast]
+    rw [Int.natCast_add, ← Int.natCast_add, IntModule.neg_hmul]
     intro _ h
     replace h := congrArg (-·) h; simp at h
-    rw [← neg_mul, neg_neg, neg_zero, ← hmul_eq_natCast_mul] at h
+    rw [IntModule.neg_neg, IntModule.neg_zero] at h
     exact no_nat_zero_divisors (k+1) a (Nat.succ_ne_zero _) h
 
 end Lean.Grind

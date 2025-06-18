@@ -50,7 +50,10 @@ def elabInitGrindNorm : CommandElab := fun stx =>
     Command.liftTermElabM do
       let pre ← pre.mapM fun id => realizeGlobalConstNoOverloadWithInfo id
       let post ← post.mapM fun id => realizeGlobalConstNoOverloadWithInfo id
-      Grind.registerNormTheorems pre post
+      -- Creates `Lean.Grind._simp_1` etc.. As we do not use this command in independent modules,
+      -- there is no chance of name conflicts.
+      withDeclNameForAuxNaming `Lean.Grind do
+        Grind.registerNormTheorems pre post
   | _ => throwUnsupportedSyntax
 
 def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.grindParam) (only : Bool) : MetaM Grind.Params := do

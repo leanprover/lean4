@@ -23,6 +23,7 @@ instance : HAdd Name Nat Level := ⟨fun l n => n.repeat Level.succ l⟩
 #guard !isEquiv `u `v
 #guard !isEquiv (`u + 3) (`u + 5)
 #guard isEquiv (imax (imax `u `v) (imax `u `v)) (imax `u `v)
+#guard isEquiv (max (imax `u `v) (max `u `v)) (max `u `v)
 
 example : Nat.imax (Nat.imax u v) v = Nat.imax u v := by
   grind [Nat.imax]

@@ -55,16 +55,25 @@ open Std.Internal.IO.Async.System
   setCwd cwd
 
 #eval do
+  if System.Platform.isWindows then
+    return
+
   let pid ← getId
   setPriority pid 3
   assert! (← getPriority pid) == 3
 
 #eval do
+  if System.Platform.isWindows then
+    return
+
   let pid ← getParentId
   setPriority pid 3
   assert! (← getPriority pid) == 3
 
 #eval do
+  if System.Platform.isWindows then
+    return
+
   let user ← getCurrentUser
   if System.Platform.isWindows then
     assert! user.userId == none
@@ -74,6 +83,9 @@ open Std.Internal.IO.Async.System
     assert! user.username != ""
 
 #eval do
+  if System.Platform.isWindows then
+    return
+
   assert! (← getGroup (GroupId.mk 240000)).isNone
 
 #eval do

@@ -156,6 +156,8 @@ builtin_dsimproc [simp, seval] reduceSMTSDiv ((smtSDiv _ _ : BitVec _)) := reduc
 builtin_dsimproc [simp, seval] reduceGetLsb (getLsbD _ _) := reduceGetBit ``getLsbD getLsbD
 /-- Simplification procedure for `getMsb` (most significant bit) on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceGetMsb (getMsbD _ _) := reduceGetBit ``getMsbD getMsbD
+/-- Simplification procedure for `clz` (count leading zeros) on `BitVec`. -/
+builtin_dsimproc [simp, seval] reduceClz (clz _) := reduceUnary ``BitVec.clz 2 BitVec.clz
 
 /-- Simplification procedure for `getElem`  on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceGetElem ((_ : BitVec _)[_]) := fun e => do

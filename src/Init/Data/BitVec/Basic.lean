@@ -850,4 +850,15 @@ treating `x` and `y` as 2's complement signed bitvectors.
 def smulOverflow {w : Nat} (x y : BitVec w) : Bool :=
   (x.toInt * y.toInt ≥ 2 ^ (w - 1)) || (x.toInt * y.toInt < - 2 ^ (w - 1))
 
+/-- Count the number of leading zeros downward from the `n`-th bit to the `0`-th bit for the bitblaster.
+  This builds a tree of `if-then-else` lookups whose length is linear in the bitwidth,
+  and an efficient circuit for bitblasting `clz`. -/
+def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
+  match n with
+  | 0 => if x.getLsbD 0 then BitVec.ofNat w (w - 1) else BitVec.ofNat w w
+  | n' + 1 => if x.getLsbD n then BitVec.ofNat w (w - 1 - n) else clzAuxRec x n'
+
+/-- Count the number of leading zeros. -/
+def clz (x : BitVec w) : BitVec w := clzAuxRec x (w - 1)
+
 end BitVec

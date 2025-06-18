@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
 import Init.Control.Lawful.Basic
 import Init.Data.Subtype
@@ -48,6 +50,7 @@ def PostconditionT.lift {α : Type w} {m : Type w → Type w'} [Functor m] (x : 
     PostconditionT m α :=
   ⟨fun _ => True, (⟨·, .intro⟩) <$> x⟩
 
+@[always_inline, inline]
 protected def PostconditionT.pure {m : Type w → Type w'} [Pure m] {α : Type w}
     (a : α) : PostconditionT m α :=
   ⟨fun y => a = y, pure <| ⟨a, rfl⟩⟩
@@ -117,16 +120,20 @@ instance {m : Type w → Type w'} [Monad m] : Monad (PostconditionT m) where
   pure := PostconditionT.pure
   bind := PostconditionT.bind
 
-@[simp]
-theorem PostconditionT.computation_pure {m : Type w → Type w'} [Monad m] {α : Type w}
-    {x : α} :
-    (pure x : PostconditionT m α).operation = pure ⟨x, rfl⟩ :=
+theorem PostconditionT.pure_eq_pure {m : Type w → Type w'} [Monad m] {α} {a : α} :
+    pure a = PostconditionT.pure (m := m) a :=
   rfl
 
 @[simp]
 theorem PostconditionT.property_pure {m : Type w → Type w'} [Monad m] {α : Type w}
     {x : α} :
-    (pure x : PostconditionT m α).Property = (x = ·) :=
+    (pure x : PostconditionT m α).Property = (x = ·) := by
+  rfl
+
+@[simp]
+theorem PostconditionT.operation_pure {m : Type w → Type w'} [Monad m] {α : Type w}
+    {x : α} :
+    (pure x : PostconditionT m α).operation = pure ⟨x, property_pure (m := m) ▸ rfl⟩ := by
   rfl
 
 theorem PostconditionT.ext {m : Type w → Type w'} [Monad m] [LawfulMonad m]
@@ -209,12 +216,19 @@ theorem PostconditionT.property_map {m : Type w → Type w'} [Functor m] {α : T
 @[simp]
 theorem PostconditionT.operation_map {m : Type w → Type w'} [Functor m] {α : Type w} {β : Type w}
     {x : PostconditionT m α} {f : α → β} :
-    (x.map f).operation = (fun a => ⟨_, a, rfl⟩) <$> x.operation :=
+    (x.map f).operation =
+      (fun a => ⟨_, (property_map (m := m)).mpr ⟨a.1, rfl, a.2⟩⟩) <$> x.operation := by
   rfl
 
 @[simp]
-theorem PostconditionT.operation_lift {m : Type w →Type w'} [Functor m] {α : Type w}
-    {x : m α} : (lift x : PostconditionT m α).operation = (⟨·, True.intro⟩) <$> x :=
+theorem PostconditionT.property_lift {m : Type w → Type w'} [Functor m] {α : Type w}
+    {x : m α} : (lift x : PostconditionT m α).Property = (fun _ => True) := by
+  rfl
+
+@[simp]
+theorem PostconditionT.operation_lift {m : Type w → Type w'} [Functor m] {α : Type w}
+    {x : m α} : (lift x : PostconditionT m α).operation =
+      (⟨·, property_lift (m := m) ▸ True.intro⟩) <$> x := by
   rfl
 
 end Std.Iterators

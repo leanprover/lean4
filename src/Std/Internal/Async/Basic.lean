@@ -363,7 +363,7 @@ Join the `MaybeTask` to an `Task`.
 -/
 @[inline]
 def joinTask (t : Task (MaybeTask α)) : Task α :=
-  t.bind fun
+  t.bind (sync := true) fun
     | .pure a => .pure a
     | .ofTask t => t
 

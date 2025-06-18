@@ -761,13 +761,17 @@ theorem one_emod {b : Int} : 1 % b = if b.natAbs = 1 then 0 else 1 := by
 
 /-! ### properties of `/` and `%` -/
 
-@[grind =]
 theorem mul_ediv_cancel_of_dvd {a b : Int} (H : b ∣ a) : b * (a / b) = a :=
   mul_ediv_cancel_of_emod_eq_zero (emod_eq_zero_of_dvd H)
 
-@[grind =]
+-- We only trigger this lemma if we've already seen `b | a`.
+grind_pattern mul_ediv_cancel_of_dvd => b * (a / b), b ∣ a
+
 theorem ediv_mul_cancel_of_dvd {a b : Int} (H : b ∣ a) : a / b * b = a :=
   ediv_mul_cancel_of_emod_eq_zero (emod_eq_zero_of_dvd H)
+
+-- We only trigger this lemma if we've already seen `b | a`.
+grind_pattern ediv_mul_cancel_of_dvd => a / b * b, b ∣ a
 
 theorem emod_two_eq (x : Int) : x % 2 = 0 ∨ x % 2 = 1 := by omega
 
@@ -1524,13 +1528,17 @@ theorem tdiv_dvd_tdiv : ∀ {a b c : Int}, a ∣ b → b ∣ c → b.tdiv a ∣ 
 
 -- Analogues of statements about `emod` and `ediv` from above.
 
-@[grind =]
 theorem mul_tdiv_cancel_of_dvd {a b : Int} (H : b ∣ a) : b * (a.tdiv b) = a :=
   mul_tdiv_cancel_of_tmod_eq_zero (tmod_eq_zero_of_dvd H)
 
-@[grind =]
+-- We only trigger this lemma if we've already seen `b | a`.
+grind_pattern mul_tdiv_cancel_of_dvd => b * (a.tdiv b), b ∣ a
+
 theorem tdiv_mul_cancel_of_dvd {a b : Int} (H : b ∣ a) : a.tdiv b * b = a :=
   tdiv_mul_cancel_of_tmod_eq_zero (tmod_eq_zero_of_dvd H)
+
+-- We only trigger this lemma if we've already seen `b | a`.
+grind_pattern mul_tdiv_cancel_of_dvd => b * (a.tdiv b), b ∣ a
 
 @[deprecated tdiv_mul_cancel_of_dvd (since := "2025-06-18")]
 protected theorem tdiv_mul_cancel {a b : Int} (H : b ∣ a) : a.tdiv b * b = a :=
@@ -2268,13 +2276,17 @@ theorem dvd_of_fmod_eq_zero {a b : Int} (H : b.fmod a = 0) : a ∣ b :=
 theorem dvd_iff_fmod_eq_zero {a b : Int} : a ∣ b ↔ b.fmod a = 0 :=
   ⟨fmod_eq_zero_of_dvd, dvd_of_fmod_eq_zero⟩
 
-@[grind =]
 theorem mul_fdiv_cancel_of_dvd {a b : Int} (H : b ∣ a) : b * (a.fdiv b) = a :=
   mul_fdiv_cancel_of_fmod_eq_zero (fmod_eq_zero_of_dvd H)
 
-@[grind =]
+-- We only trigger this lemma if we've already seen `b | a`.
+grind_pattern mul_fdiv_cancel_of_dvd => b * (a.fdiv b), b ∣ a
+
 theorem fdiv_mul_cancel_of_dvd {a b : Int} (H : b ∣ a) : a.fdiv b * b = a :=
   fdiv_mul_cancel_of_fmod_eq_zero (fmod_eq_zero_of_dvd H)
+
+-- We only trigger this lemma if we've already seen `b | a`.
+grind_pattern fdiv_mul_cancel_of_dvd => a.fdiv b * b, b ∣ a
 
 @[deprecated fdiv_mul_cancel_of_dvd (since := "2025-06-18")]
 protected theorem fdiv_mul_cancel {a b : Int} (H : b ∣ a) : a.fdiv b * b = a :=

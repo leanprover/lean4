@@ -15,8 +15,13 @@ namespace Nat
 
 @[simp, grind] protected theorem dvd_zero (a : Nat) : a ∣ 0 := ⟨0, by simp⟩
 
-@[grind] protected theorem dvd_mul_left (a b : Nat) : a ∣ b * a := ⟨b, Nat.mul_comm b a⟩
-@[grind] protected theorem dvd_mul_right (a b : Nat) : a ∣ a * b := ⟨b, rfl⟩
+protected theorem dvd_mul_left (a b : Nat) : a ∣ b * a := ⟨b, Nat.mul_comm b a⟩
+
+grind_pattern Nat.dvd_mul_left => a ∣ b * a
+
+protected theorem dvd_mul_right (a b : Nat) : a ∣ a * b := ⟨b, rfl⟩
+
+grind_pattern Nat.dvd_mul_right => a ∣ a * b
 
 protected theorem dvd_trans {a b c : Nat} (h₁ : a ∣ b) (h₂ : b ∣ c) : a ∣ c :=
   match h₁, h₂ with
@@ -97,8 +102,14 @@ protected theorem mul_div_cancel' {n m : Nat} (H : n ∣ m) : n * (m / n) = m :=
   have := mod_add_div m n
   rwa [mod_eq_zero_of_dvd H, Nat.zero_add] at this
 
+-- We only trigger this lemma if we've already seen `n | m`.
+grind_pattern Nat.mul_div_cancel' => n * (m / n), n ∣ m
+
 protected theorem div_mul_cancel {n m : Nat} (H : n ∣ m) : m / n * n = m := by
   rw [Nat.mul_comm, Nat.mul_div_cancel' H]
+
+-- We only trigger this lemma if we've already seen `n | m`.
+grind_pattern Nat.div_mul_cancel => m / n * n, n ∣ m
 
 @[simp, grind =] theorem mod_mod_of_dvd (a : Nat) (h : c ∣ b) : a % b % c = a % c := by
   rw (occs := [2]) [← mod_add_div a b]

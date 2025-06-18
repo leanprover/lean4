@@ -46,9 +46,13 @@ protected theorem dvd_trans : ∀ {a b c : Int}, a ∣ b → b ∣ c → a ∣ c
   Iff.intro (fun ⟨k, e⟩ => by rw [e, Int.zero_mul])
             (fun h => h.symm ▸ Int.dvd_refl _)
 
-@[simp, grind] protected theorem dvd_mul_right (a b : Int) : a ∣ a * b := ⟨_, rfl⟩
+@[simp] protected theorem dvd_mul_right (a b : Int) : a ∣ a * b := ⟨_, rfl⟩
 
-@[simp, grind] protected theorem dvd_mul_left (a b : Int) : b ∣ a * b := ⟨_, Int.mul_comm ..⟩
+grind_pattern Int.dvd_mul_right => b ∣ a * b
+
+@[simp] protected theorem dvd_mul_left (a b : Int) : b ∣ a * b := ⟨_, Int.mul_comm ..⟩
+
+grind_pattern Int.dvd_mul_left => a ∣ a * b
 
 @[simp, grind =] protected theorem neg_dvd {a b : Int} : -a ∣ b ↔ a ∣ b := by
   constructor <;> exact fun ⟨k, e⟩ =>
@@ -309,13 +313,17 @@ theorem sub_ediv_of_dvd (a : Int) {b c : Int}
   rw [Int.sub_eq_add_neg, Int.sub_eq_add_neg, Int.add_ediv_of_dvd_right (Int.dvd_neg.2 hcb)]
   congr; exact Int.neg_ediv_of_dvd hcb
 
-@[grind =]
 protected theorem ediv_mul_cancel {a b : Int} (H : b ∣ a) : a / b * b = a :=
   ediv_mul_cancel_of_emod_eq_zero (emod_eq_zero_of_dvd H)
 
-@[grind =]
+-- We only trigger this lemma if we've already seen `b | a`.
+grind_pattern Int.ediv_mul_cancel => a / b * b, b ∣ a
+
 protected theorem mul_ediv_cancel' {a b : Int} (H : a ∣ b) : a * (b / a) = b := by
   rw [Int.mul_comm, Int.ediv_mul_cancel H]
+
+-- We only trigger this lemma if we've already seen `a | b`.
+grind_pattern Int.mul_ediv_cancel' => a * (b / a), a ∣ b
 
 theorem emod_pos_of_not_dvd {a b : Int} (h : ¬ a ∣ b) : a = 0 ∨ 0 < b % a := by
   rw [dvd_iff_emod_eq_zero] at h

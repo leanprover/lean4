@@ -1,0 +1,8 @@
+6537.lean:3:22-3:25: error: invalid pattern variable, must be atomic
+6537.lean:7:22-7:25: error: invalid pattern variable, must be atomic
+6537.lean:11:22-11:25: error: type mismatch
+  x.y
+has type
+  Unit : Type
+but is expected to have type
+  Nat : Type

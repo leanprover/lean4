@@ -13,7 +13,6 @@ open Std Time
 namespace Std
 namespace Internal
 namespace IO
-namespace Async
 namespace Process
 
 /--
@@ -233,7 +232,6 @@ def availableMemory : IO UInt64 :=
   UV.System.availableMemory
 
 end Process
-end Async
 end IO
 end Internal
 end Std

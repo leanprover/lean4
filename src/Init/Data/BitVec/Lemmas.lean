@@ -5588,10 +5588,8 @@ theorem clzAuxRec_eq_clzAuxRec_of_le (x : BitVec w) (h : w - 1 ≤ n) :
   induction k
   · case zero => simp
   · case succ k ihk =>
-    rw [show w - 1 + (k + 1) = (w - 1 + k) + 1 by omega]
-    conv => lhs; unfold clzAuxRec
-    simp [show x.getLsbD (w - 1 + k + 1 ) = false by simp only [show w ≤ w - 1 + k + 1 by omega,
-      getLsbD_of_ge], ihk]
+    simp [show w - 1 + (k + 1) = (w - 1 + k) + 1 by omega, clzAuxRec_succ, ihk,
+      show x.getLsbD (w - 1 + k + 1 ) = false by simp only [show w ≤ w - 1 + k + 1 by omega, getLsbD_of_ge]]
 
 /-! ### Inequalities (le / lt) -/
 

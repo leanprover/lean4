@@ -1715,7 +1715,7 @@ theorem toInt_sdiv (a b : BitVec w) : (a.sdiv b).toInt = (a.toInt.tdiv b.toInt).
   · rw [← toInt_bmod_cancel]
     rw [BitVec.toInt_sdiv_of_ne_or_ne _ _ (by simpa only [Decidable.not_and_iff_not_or_not] using h)]
 
-private theorem neg_udiv_eq_intmin_iff_eq_intmin_eq_one_of_msb_eq_true
+private theorem neg_udiv_eq_intMin_iff_eq_intMin_eq_one_of_msb_eq_true
     {x y : BitVec w} (hx : x.msb = true) (hy : y.msb = false) :
     -x / y = intMin w ↔ (x = intMin w ∧ y = 1#w) := by
   constructor
@@ -1790,7 +1790,7 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
               msb_udiv, msb_neg]
             simp only [hx₁, not_false_eq_true, _root_.true_and, decide_not, hxmsb, not_eq_eq_eq_not,
               Bool.not_true, decide_eq_false_iff_not, Decidable.not_not, beq_iff_eq]
-            rw [neg_udiv_eq_intmin_iff_eq_intmin_eq_one_of_msb_eq_true hxmsb hymsb]
+            rw [neg_udiv_eq_intMin_iff_eq_intMin_eq_one_of_msb_eq_true hxmsb hymsb]
     · simp only [msb_udiv, msb_neg, hxmsb, bne_true, Bool.not_and, Bool.not_true, Bool.and_true,
         Bool.false_and, Bool.and_false, hymsb, ne_zero_of_msb_true, decide_false, Bool.not_false,
         Bool.or_self, Bool.and_self, Bool.true_and, Bool.false_or]

@@ -359,13 +359,31 @@ without being itself looping.
 
 opaque f : Nat → Nat
 theorem fbfa : f b = f a := testSorry
+theorem fbffa : f b = f (f a) := testSorry
 
+-- This one doesn't actually trigger because `simpLoop` does not recurse when
+-- the expression is the same after `post`. Also see issue #8864
 
--- set_option trace.Meta.Tactic.simp.loopProtection true
--- set_option trace.Meta.Tactic.simp true
--- set_option trace.Debug.Meta.Tactic.simp true
+/--
+error: unsolved goals
+P : Nat → Prop
+⊢ 0 < f a
+-/
 #guard_msgs in
-example : True:= by
-  simp -failIfUnchanged
-    [fbfa,
-    ab]
+example : 0 < f a := by simp -failIfUnchanged [fbfa, ab]
+
+/--
+warning: Possibly looping simp theorem: `fbffa`
+
+Note: Possibly caused by: `ab`
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+note: this linter can be disabled with `set_option linter.simp.loopProtection false`
+---
+error: tactic 'simp' failed, nested error:
+maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+-/
+#guard_msgs in
+example : 0 < f a := by simp -failIfUnchanged [fbffa, ab]

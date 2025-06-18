@@ -76,7 +76,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
               have hxc : x.getLsbD (curr + 1) = true := by rw [hx] at hx'; exact hx'
               have := Nat.lt_pow_self (n := curr + 1) (a := 2) (by omega)
               have := Nat.pow_lt_pow_of_lt (a := 2) (n := curr + 1) (m := w) (by omega) (by omega)
-              simp only [denote_blastConst,BitVec.clzAuxRec, hxc, reduceIte]
+              simp only [denote_blastConst, BitVec.clzAuxRec, hxc, reduceIte]
               congr
               simp only [BitVec.ofNat_sub_ofNat, Nat.zero_lt_succ, Nat.one_mod_two_pow,
                 Nat.add_one_sub_one]
@@ -88,12 +88,10 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
               simp only [Nat.add_eq_zero, Nat.succ_ne_self, and_false, reduceIte,
                 Nat.add_one_sub_one] at hacc
               simp [hacc, BitVec.clzAuxRec, show x.getLsbD (curr + 1) = false by rw [hx] at hx'; simp at hx'; exact hx']
-    · case isFalse h => sorry
-      -- rw [← hgo]
-      -- simp only [show ¬curr = 0 by omega, reduceIte] at hacc
-      -- simp [hacc,
-      --   ← BitVec.clz_eq_clzAuxRec_of_le (x := x) (n := curr - 1) (by omega),
-      --   ← BitVec.clz_eq_clzAuxRec_of_le (x := x) (n := w - 1) (by omega)]
+    · case isFalse h =>
+      rw [← hgo]
+      simp only [show ¬curr = 0 by omega, reduceIte] at hacc
+      simp only [hacc, BitVec.clzAuxRec_eq_clzAuxRec_of_le (x := x) (n := curr - 1) (by omega)]
 
 end blastClz
 

@@ -31,7 +31,7 @@ where
       let res := AIG.RefVec.ite aig ⟨x.get curr hc, lhs, acc⟩
       let aig := res.aig
       let acc := res.vec
-      have := by apply AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite)
+      have := AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite) ..
       let x : AIG.RefVec aig w := x.cast this
       go aig x (curr + 1) acc
     else

@@ -1,8 +1,8 @@
 import Std.Internal.Async.System
 import Std.Internal.Async.Process
 
-open Std.Internal.IO.Async.Process
 open Std.Internal.IO.Async.System
+open Std.Internal.IO.Process
 
 #eval do
   assert! (← getUpTime) > 0

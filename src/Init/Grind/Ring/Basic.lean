@@ -315,24 +315,40 @@ end CommSemiring
 
 open Semiring Ring CommSemiring CommRing
 
-class IsCharP (α : Type u) [Semiring α] (p : outParam Nat) where
+class IsCharP (α : Type u) [∀ n, OfNat α n] (p : outParam Nat) where
   ofNat_ext_iff (p) : ∀ {x y : Nat}, OfNat.ofNat (α := α) x = OfNat.ofNat (α := α) y ↔ x % p = y % p
 
 namespace IsCharP
 
-section Semiring
+section
 
-variable (p)  {α : Type u} [Semiring α] [IsCharP α p]
+variable (p) [∀ n, OfNat α n] [IsCharP α p]
 
-theorem ofNat_eq_zero_iff (x : Nat) : OfNat.ofNat (α := α) x = 0 ↔ x % p = 0 := by
+theorem ofNat_eq_zero_iff  (x : Nat) :
+    OfNat.ofNat (α := α) x = 0 ↔ x % p = 0 := by
   rw [ofNat_ext_iff p]
   simp
+
+theorem ofNat_ext {x y : Nat} (h : x % p = y % p) : OfNat.ofNat (α := α) x = OfNat.ofNat (α := α) y := (ofNat_ext_iff p).mpr h
+
+theorem ofNat_eq_zero_iff_of_lt {x : Nat} (h : x < p) : OfNat.ofNat (α := α) x = 0 ↔ x = 0 := by
+  rw [ofNat_eq_zero_iff p, Nat.mod_eq_of_lt h]
+
+theorem ofNat_eq_iff_of_lt {x y : Nat} (h₁ : x < p) (h₂ : y < p) :
+    OfNat.ofNat (α := α) x = OfNat.ofNat (α := α) y ↔ x = y := by
+  rw [ofNat_ext_iff p, Nat.mod_eq_of_lt h₁, Nat.mod_eq_of_lt h₂]
+
+end
+
+section Semiring
+
+variable (p)
+
+variable [Semiring α] [IsCharP α p]
 
 theorem natCast_eq_zero_iff (x : Nat) : (x : α) = 0 ↔ x % p = 0 := by
   rw [← ofNat_eq_natCast]
   exact ofNat_eq_zero_iff p x
-
-theorem ofNat_ext {x y : Nat} (h : x % p = y % p) : OfNat.ofNat (α := α) x = OfNat.ofNat (α := α) y := (ofNat_ext_iff p).mpr h
 
 theorem natCast_ext {x y : Nat} (h : x % p = y % p) : (x : α) = (y : α) := by
   rw [← ofNat_eq_natCast, ← ofNat_eq_natCast]
@@ -348,13 +364,6 @@ theorem natCast_emod (x : Nat) : ((x % p : Nat) : α) = (x : α) := by
 theorem ofNat_emod (x : Nat) : OfNat.ofNat (α := α) (x % p) = OfNat.ofNat x := by
   rw [ofNat_eq_natCast, ofNat_eq_natCast]
   exact natCast_emod p x
-
-theorem ofNat_eq_zero_iff_of_lt {x : Nat} (h : x < p) : OfNat.ofNat (α := α) x = 0 ↔ x = 0 := by
-  rw [ofNat_eq_zero_iff p, Nat.mod_eq_of_lt h]
-
-theorem ofNat_eq_iff_of_lt {x y : Nat} (h₁ : x < p) (h₂ : y < p) :
-    OfNat.ofNat (α := α) x = OfNat.ofNat (α := α) y ↔ x = y := by
-  rw [ofNat_ext_iff p, Nat.mod_eq_of_lt h₁, Nat.mod_eq_of_lt h₂]
 
 theorem natCast_eq_zero_iff_of_lt {x : Nat} (h : x < p) : (x : α) = 0 ↔ x = 0 := by
   rw [natCast_eq_zero_iff p, Nat.mod_eq_of_lt h]

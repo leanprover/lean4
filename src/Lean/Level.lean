@@ -106,18 +106,18 @@ deriving Inhabited, Repr
 
 namespace Level
 
-protected def hash (u : Level) : UInt64 :=
+protected opaque hash (u : Level) : UInt64 :=
   u.data.hash
 
 instance : Hashable Level := ⟨Level.hash⟩
 
-def depth (u : Level) : Nat :=
+opaque depth (u : Level) : Nat :=
   u.data.depth.toNat
 
-def hasMVar (u : Level) : Bool :=
+opaque hasMVar (u : Level) : Bool :=
   u.data.hasMVar
 
-def hasParam (u : Level) : Bool :=
+opaque hasParam (u : Level) : Bool :=
   u.data.hasParam
 
 @[export lean_level_hash] def hashEx (u : Level) : UInt32 := hash u |>.toUInt32

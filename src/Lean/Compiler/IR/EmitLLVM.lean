@@ -1491,9 +1491,8 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
 
   let argcval ← LLVM.getParam main 0
   let argvval ← LLVM.getParam main 1
-  let argcval ← LLVM.buildSextOrTrunc builder argcval (← LLVM.i32Type llvmctx)
-  let value ← callLeanSetupLibUV builder argcval argvval
-  LLVM.buildStore builder value argvval
+  let truncArgcval ← LLVM.buildSextOrTrunc builder argcval (← LLVM.i32Type llvmctx)
+  let argvval ← callLeanSetupLibUV builder truncArgcval argvval
 
   if usesLeanAPI then callLeanInitialize builder else callLeanInitializeRuntimeModule builder
     /- We disable panic messages because they do not mesh well with extracted closed terms.
@@ -1517,8 +1516,6 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
         let _ ← LLVM.buildStore builder inv inslot
         let ity ← LLVM.size_tType llvmctx
         let islot ← buildPrologueAlloca builder ity "islot"
-        let argcval ← LLVM.getParam main 0
-        let argvval ← LLVM.getParam main 1
         LLVM.buildStore builder argcval islot
         buildWhile_ builder "argv"
           (condcodegen := fun builder => do

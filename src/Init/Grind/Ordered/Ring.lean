@@ -11,7 +11,7 @@ import Init.Grind.Ordered.Module
 
 namespace Lean.Grind
 
-class Ring.IsOrdered (R : Type u) [Ring R] [Preorder R] extends IntModule.IsOrdered R where
+class Ring.IsOrdered (R : Type u) [Ring R] [Preorder R] extends NatModule.IsOrdered R where
   /-- In a strict ordered semiring, we have `0 < 1`. -/
   zero_lt_one : (0 : R) < 1
   /-- In a strict ordered semiring, we can multiply an inequality `a < b` on the left
@@ -31,7 +31,7 @@ variable [Preorder R] [Ring.IsOrdered R]
 
 theorem neg_one_lt_zero : (-1 : R) < 0 := by
   have h := zero_lt_one (R := R)
-  have := IntModule.IsOrdered.add_lt_left h (-1)
+  have := NatModule.IsOrdered.add_lt_left h (-1)
   rw [Semiring.zero_add, Ring.add_neg_cancel] at this
   assumption
 
@@ -41,7 +41,7 @@ theorem ofNat_nonneg (x : Nat) : (OfNat.ofNat x : R) ≥ 0 := by
   next n ih =>
     have := Ring.IsOrdered.zero_lt_one (R := R)
     rw [Semiring.ofNat_succ]
-    replace ih := IntModule.IsOrdered.add_le_left ih 1
+    replace ih := NatModule.IsOrdered.add_le_left ih 1
     rw [Semiring.zero_add] at ih
     have := Preorder.lt_of_lt_of_le this ih
     exact Preorder.le_of_lt this
@@ -72,7 +72,7 @@ end Preorder
 
 section PartialOrder
 
-variable [PartialOrder R] [Ring.IsOrdered R]
+variable [PartialOrder R] [i : Ring.IsOrdered R]
 
 theorem zero_le_one : (0 : R) ≤ 1 := Preorder.le_of_lt zero_lt_one
 

@@ -289,6 +289,10 @@ instance : IntModule α where
 
 theorem hmul_eq_intCast_mul {α} [Ring α] {k : Int} {a : α} : HMul.hMul (α := Int) k a = (k : α) * a := rfl
 
+example [Ring R] : (Semiring.instNatModule : NatModule R) = (IntModule.toNatModule R) := by
+  unfold Semiring.instNatModule IntModule.toNatModule
+  congr
+
 end Ring
 
 namespace CommSemiring

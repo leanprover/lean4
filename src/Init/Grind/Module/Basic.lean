@@ -28,8 +28,8 @@ class NatModule (M : Type u) extends Zero M, Add M, HMul Nat M M where
 attribute [instance 100] NatModule.toZero NatModule.toAdd NatModule.toHMul
 
 class IntModule (M : Type u) extends Zero M, Add M, Neg M, Sub M where
-  [hmulNat : HMul Nat M M]
-  [hmulInt : HMul Int M M]
+  hmulNat : HMul Nat M M
+  hmulInt : HMul Int M M
   add_zero : ∀ a : M, a + 0 = a
   add_comm : ∀ a b : M, a + b = b + a
   add_assoc : ∀ a b c : M, a + b + c = a + (b + c)

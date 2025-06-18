@@ -209,11 +209,20 @@ theorem add_lt_right_iff {a b : M} (c : M) : a < b ↔ c + a < c + b := by
 theorem sub_nonneg_iff {a b : M} : 0 ≤ a - b ↔ b ≤ a := by
   rw [add_le_left_iff b, zero_add, sub_add_cancel]
 
+theorem sub_pos_iff {a b : M} : 0 < a - b ↔ b < a := by
+  rw [add_lt_left_iff b, zero_add, sub_add_cancel]
+
 theorem hmul_neg_iff (k : Int) {a : M} (h : a < 0) : k * a < 0 ↔ 0 < k := by
   simpa [IntModule.hmul_neg, neg_pos_iff] using hmul_pos_iff k (neg_pos_iff.mpr h)
 
 theorem hmul_nonpos {k : Int} {a : M} (hk : 0 ≤ k) (ha : a ≤ 0) : k * a ≤ 0 := by
   simpa [IntModule.hmul_neg, neg_nonneg_iff] using hmul_nonneg hk (neg_nonneg_iff.mpr ha)
+
+theorem hmul_le_hmul {a b : M} {k : Int} (hk : 0 ≤ k) (h : a ≤ b) : k * a ≤ k * b := by
+  simpa [hmul_sub, sub_nonneg_iff] using hmul_nonneg hk (sub_nonneg_iff.mpr h)
+
+theorem hmul_lt_hmul_iff (k : Int) {a b : M} (h : a < b) : k * a < k * b ↔ 0 < k := by
+  simpa [hmul_sub, sub_pos_iff] using hmul_pos_iff k (sub_pos_iff.mpr h)
 
 theorem hmul_le_hmul_of_le_of_le_of_nonneg_of_nonneg
     {k₁ k₂ : Int} {x y : M} (hk : k₁ ≤ k₂) (h : x ≤ y) (w : 0 ≤ k₁) (w' : 0 ≤ x) :
@@ -226,6 +235,14 @@ theorem hmul_le_hmul_of_le_of_le_of_nonneg_of_nonneg
 
 theorem add_le_add {a b c d : M} (hab : a ≤ b) (hcd : c ≤ d) : a + c ≤ b + d :=
   Preorder.le_trans (add_le_right a hcd) (add_le_left hab d)
+
+instance : NatModule.IsOrdered M where
+  add_le_left_iff := add_le_left_iff
+  hmul_lt_hmul_iff k {a b} h := by
+    simpa [hmul_nat] using hmul_lt_hmul_iff k h
+  hmul_le_hmul {k a b} h := by
+    simpa [hmul_nat] using hmul_le_hmul (Int.natCast_nonneg k) h
+
 
 end IntModule.IsOrdered
 

@@ -157,6 +157,19 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
         return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
     return #[]
 
+  let locationLinksFromErrorNameInfo (eni : ErrorNameInfo) : MetaM (Array LocationLink) := do
+    let some explan := getErrorExplanationRaw? (← getEnv) eni.errorName | return #[]
+    let some (loc : DeclarationLocation) := explan.declLoc? | return #[]
+    let some targetUri ← documentUriFromModule? loc.module | return #[]
+    let targetRange := loc.range.toLspRange
+    let link : LocationLink := {
+      originSelectionRange? := (·.toLspRange text) <$> eni.stx.getRange? (canonicalOnly := true)
+      targetUri
+      targetRange
+      targetSelectionRange := targetRange
+    }
+    return #[link]
+
   let locationLinksFromTermInfo (ti : TermInfo) : RequestM (Array LocationLink) := do
     let mut expr := ti.expr
     if kind == type then
@@ -230,6 +243,8 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
       return ← ci.runMetaM i.lctx <| locationLinksFromDecl i fi.projName
   | .ofOptionInfo oi =>
     return ← ci.runMetaM i.lctx <| locationLinksFromDecl i oi.declName
+  | .ofErrorNameInfo eni =>
+    return ← ci.runMetaM i.lctx <| locationLinksFromErrorNameInfo eni
   | .ofCommandInfo ⟨`import, _⟩ =>
     if kind == definition || kind == declaration then
       return ← ci.runMetaM i.lctx <| locationLinksFromImport i

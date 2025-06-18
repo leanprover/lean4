@@ -8,6 +8,8 @@ import Lean.Message
 import Lean.InternalExceptionId
 import Lean.Data.Options
 import Lean.Util.MonadCache
+-- TODO: This import should be changed to `Lean.ErrorExplanations` once that module is added
+import Lean.ErrorExplanation
 
 namespace Lean
 

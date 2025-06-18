@@ -27,7 +27,9 @@ class NatModule (M : Type u) extends Zero M, Add M, HMul Nat M M where
 
 attribute [instance 100] NatModule.toZero NatModule.toAdd NatModule.toHMul
 
-class IntModule (M : Type u) extends Zero M, Add M, Neg M, Sub M, HMul Int M M where
+class IntModule (M : Type u) extends Zero M, Add M, Neg M, Sub M where
+  [hmulNat : HMul Nat M M]
+  [hmulInt : HMul Int M M]
   add_zero : ∀ a : M, a + 0 = a
   add_comm : ∀ a b : M, a + b = b + a
   add_assoc : ∀ a b c : M, a + b + c = a + (b + c)
@@ -39,6 +41,7 @@ class IntModule (M : Type u) extends Zero M, Add M, Neg M, Sub M, HMul Int M M w
   mul_hmul : ∀ n m : Int, ∀ a : M, (n * m) * a = n * (m * a)
   neg_add_cancel : ∀ a : M, -a + a = 0
   sub_eq_add_neg : ∀ a b : M, a - b = a + -b
+  hmul_nat : ∀ n : Nat, ∀ a : M, (n : Int) * a = n * a
 
 namespace NatModule
 
@@ -51,15 +54,18 @@ end NatModule
 
 namespace IntModule
 
-attribute [instance 100] IntModule.toZero IntModule.toAdd IntModule.toNeg IntModule.toSub IntModule.toHMul
+attribute [instance 100] IntModule.toZero IntModule.toAdd IntModule.toNeg IntModule.toSub IntModule.hmulInt
 
+attribute [local instance] IntModule.hmulNat in
 instance toNatModule (M : Type u) [i : IntModule M] : NatModule M :=
   { i with
-    hMul a x := (a : Int) * x
-    hmul_zero := by simp [IntModule.hmul_zero]
-    add_hmul := by simp [IntModule.add_hmul]
-    hmul_add := by simp [IntModule.hmul_add]
-    mul_hmul := by simp [IntModule.mul_hmul] }
+    hMul a x := a * x
+    zero_hmul := by simp [← hmul_nat, zero_hmul]
+    one_hmul := by simp [← hmul_nat, one_hmul]
+    hmul_zero := by simp [← hmul_nat, hmul_zero]
+    add_hmul := by simp [← hmul_nat, add_hmul]
+    hmul_add := by simp [← hmul_nat, hmul_add]
+    mul_hmul := by simp [← hmul_nat, mul_hmul] }
 
 variable {M : Type u} [IntModule M]
 

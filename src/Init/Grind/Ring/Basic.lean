@@ -270,7 +270,11 @@ theorem intCast_pow (x : Int) (k : Nat) : ((x ^ k : Int) : α) = (x : α) ^ k :=
   next k ih => simp [pow_succ, Int.pow_succ, intCast_mul, *]
 
 instance : IntModule α where
-  hMul a x := a * x
+  hmulInt := ⟨fun a x => a * x⟩
+  hmulNat := ⟨fun a x => a * x⟩
+  hmul_nat n x := by
+    change ((n : Int) : α) * x = (n : α) * x
+    rw [intCast_natCast]
   add_zero := by simp [add_zero]
   add_assoc := by simp [add_assoc]
   add_comm := by simp [add_comm]

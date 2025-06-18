@@ -17,6 +17,9 @@ class NatModule.IsOrdered (M : Type u) [Preorder M] [NatModule M] where
   hmul_lt_hmul_iff : ∀ (k : Nat) {a b : M}, a < b → (k * a < k * b ↔ 0 < k)
   hmul_le_hmul : ∀ {k : Nat} {a b : M}, a ≤ b → k * a ≤ k * b
 
+-- This class is actually redundant; it is available automatically when we have an
+-- `IntModule` satisfying `NatModule.IsOrdered`.
+-- Replace with a custom constructor?
 class IntModule.IsOrdered (M : Type u) [Preorder M] [IntModule M] where
   neg_le_iff : ∀ a b : M, -a ≤ b ↔ -b ≤ a
   add_le_left : ∀ {a b : M}, a ≤ b → (c : M) → a + c ≤ b + c
@@ -114,7 +117,7 @@ instance : IntModule.IsOrdered M where
     match k with
     | (k + 1 : Nat) => by
       intro h
-      simpa [NatModule.hmul_zero] using hmul_lt_hmul_iff (k := k + 1) h
+      simpa [hmul_zero, ← hmul_nat] using hmul_lt_hmul_iff (k := k + 1) h
     | (0 : Nat) => by simp [zero_hmul]; intro h; exact Preorder.lt_irrefl 0
     | -(k + 1 : Nat) => by
       intro h
@@ -125,10 +128,11 @@ instance : IntModule.IsOrdered M where
       simp
       intro h'
       rw [NatModule.IsOrdered.neg_le_iff, neg_zero]
-      simpa [NatModule.hmul_zero] using hmul_le_hmul (k := k + 1) (Preorder.le_of_lt h)
+      simpa [hmul_zero, ← hmul_nat] using hmul_le_hmul (k := k + 1) (Preorder.le_of_lt h)
   hmul_nonneg {k a} h :=
     match k, h with
-    | (k : Nat), _ => NatModule.IsOrdered.hmul_nonneg
+    | (k : Nat), _ => by
+      simpa [hmul_nat] using NatModule.IsOrdered.hmul_nonneg
 
 end
 

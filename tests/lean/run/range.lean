@@ -102,13 +102,13 @@ open Std.Iterators Types
 
 #eval "b" ∈ ("a".."c")
 
-#eval! (1 ..4).iter.toList
+#eval (1 ..4).iter.toList
 
-#eval! (1<..<4).iter.toList
+#eval (1<..<4).iter.toList
 
-#eval! (2<..<5).size
+#eval (2<..<5).size
 
-#eval! (..<5).iter.toList
+#eval (2 ..5).toList
 
 -- TODO: make 1..5 work
 #eval 1 ∈ (1 ..5)

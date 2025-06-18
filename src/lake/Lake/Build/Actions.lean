@@ -27,11 +27,9 @@ def compileLeanModule
   (arts : ModuleArtifacts)
   (leanArgs : Array String := #[])
   (leanPath : SearchPath := [])
-  (rootDir : FilePath := ".")
   (lean : FilePath := "lean")
 : LogIO Unit := do
-  let mut args := leanArgs ++
-    #[leanFile.toString, "-R", rootDir.toString]
+  let mut args := leanArgs.push leanFile.toString
   if let some oleanFile := arts.olean? then
     createParentDirs oleanFile
     args := args ++ #["-o", oleanFile.toString]

@@ -65,25 +65,23 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
             rw [hx] at h
             have : 1 < 2 ^ w := by exact Nat.one_lt_two_pow_iff.mpr (by omega)
             rcases curr with _|curr
-            · simp [denote_blastConst, BitVec.clzAuxRec, h, BitVec.ofNat_sub_ofNat_of_le (x := w) (y := 1) (by omega) (by omega)]
-            · unfold BitVec.clzAuxRec
-              have := Nat.lt_pow_self (n := curr + 1) (a := 2) (by omega)
+            · simp [denote_blastConst, BitVec.clzAuxRec_zero, h, BitVec.ofNat_sub_ofNat_of_le (x := w) (y := 1) (by omega) (by omega)]
+            · have := Nat.lt_pow_self (n := curr + 1) (a := 2) (by omega)
               have := Nat.pow_lt_pow_of_lt (a := 2) (n := curr + 1) (m := w) (by omega) (by omega)
-              simp only [denote_blastConst, h, reduceIte]
+              simp only [denote_blastConst, BitVec.clzAuxRec_succ, h, reduceIte]
               rw [BitVec.ofNat_sub_ofNat_of_le (x := w) (y := 1) (by omega) (by omega),
                   BitVec.ofNat_sub_ofNat_of_le (x := w - 1) (y := curr + 1) (by omega) (by omega)]
           · split at hacc
             · next hc hc' =>
               rw [hacc, hc']
               have hxc : x.getLsbD 0 = false := by rw [hx] at hc; simp [hc'] at hc; exact hc
-              simp [BitVec.clzAuxRec, hxc]
+              simp [BitVec.clzAuxRec_zero, hxc]
             · next h' h'' =>
               rw [hacc]
               obtain ⟨curr, hcurr⟩ : ∃ curr', curr = curr' + 1 := by apply Nat.exists_eq_add_one.mpr (by omega)
               subst hcurr
-              conv => rhs; unfold BitVec.clzAuxRec
               have hxc : x.getLsbD (curr + 1) = false := by rw [hx] at h'; simp at h'; exact h'
-              simp [hxc]
+              simp [BitVec.clzAuxRec_succ, hxc]
     · case isFalse h =>
       rw [← hgo]
       simp only [show ¬curr = 0 by omega, reduceIte] at hacc

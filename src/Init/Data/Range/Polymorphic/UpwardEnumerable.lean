@@ -91,9 +91,20 @@ class LawfulUpwardEnumerable (α : Type u) [UpwardEnumerable α] where
   succMany?_succ (n : Nat) (a : α) :
     UpwardEnumerable.succMany? (n + 1) a = (UpwardEnumerable.succMany? n a).bind UpwardEnumerable.succ?
 
+theorem UpwardEnumerable.succMany?_zero [UpwardEnumerable α] [LawfulUpwardEnumerable α] {a : α} :
+    UpwardEnumerable.succMany? 0 a = some a :=
+  LawfulUpwardEnumerable.succMany?_zero a
+
+theorem UpwardEnumerable.succMany?_succ [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    {n : Nat} {a : α} :
+    UpwardEnumerable.succMany? (n + 1) a =
+      (UpwardEnumerable.succMany? n a).bind UpwardEnumerable.succ? :=
+  LawfulUpwardEnumerable.succMany?_succ n a
+
 theorem UpwardEnumerable.succMany?_add [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     (m n : Nat) (a : α) :
-    UpwardEnumerable.succMany? (m + n) a = (UpwardEnumerable.succMany? m a).bind (UpwardEnumerable.succMany? n ·) := by
+    UpwardEnumerable.succMany? (m + n) a =
+      (UpwardEnumerable.succMany? m a).bind (UpwardEnumerable.succMany? n ·) := by
   induction n
   case zero => simp [LawfulUpwardEnumerable.succMany?_zero]
   case succ n ih=>

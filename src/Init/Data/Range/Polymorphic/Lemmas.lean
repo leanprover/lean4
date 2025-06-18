@@ -172,7 +172,7 @@ theorem pairwise_toList_upwardEnumerableLt [UpwardEnumerable α]
     simp only at ha
     have : UpwardEnumerable.lt a ha.choose := by
       refine ⟨0, ?_⟩
-      simp only [LawfulUpwardEnumerable.succMany?_succ, LawfulUpwardEnumerable.succMany?_zero,
+      simp only [UpwardEnumerable.succMany?_succ, UpwardEnumerable.succMany?_zero,
         Option.bind_some]
       exact ha.choose_spec.1
     exact UpwardEnumerable.lt_of_lt_of_le this ha.choose_spec.2
@@ -264,7 +264,7 @@ theorem forIn'_eq_match [UpwardEnumerable α]
               simp only [BoundedUpwardEnumerable.init?] at hx
               refine ⟨n + 1, ?_⟩
               rw [Nat.add_comm, UpwardEnumerable.succMany?_add,
-                LawfulUpwardEnumerable.succMany?_succ, LawfulUpwardEnumerable.succMany?_zero,
+                UpwardEnumerable.succMany?_succ, LawfulUpwardEnumerable.succMany?_zero,
                 Option.bind_some, hx, Option.bind_some, hn]) acc)
         | .done c => return c
       else

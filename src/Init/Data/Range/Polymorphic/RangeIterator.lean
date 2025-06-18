@@ -247,7 +247,7 @@ private def RangeIterator.instFinitenessRelation [UpwardEnumerable α] [Supports
       obtain ⟨a', ha', hle⟩ := h
       refine ⟨a, hn, UpwardEnumerable.le_trans ⟨1, ?_⟩ hle⟩
       rw [ha'] at hn'
-      rw [LawfulUpwardEnumerable.succMany?_succ, LawfulUpwardEnumerable.succMany?_zero,
+      rw [UpwardEnumerable.succMany?_succ, LawfulUpwardEnumerable.succMany?_zero,
         Option.bind_some, hn']
     · exact (HasFiniteRanges.mem_of_satisfiesUpperBound _).choose_spec _ hu
     · intro h
@@ -255,7 +255,7 @@ private def RangeIterator.instFinitenessRelation [UpwardEnumerable α] [Supports
       obtain ⟨x, hx, h⟩ := h
       rw [hx] at hn'
       have hlt : UpwardEnumerable.lt a x :=
-        ⟨0, by simp [LawfulUpwardEnumerable.succMany?_succ, LawfulUpwardEnumerable.succMany?_zero, hn']⟩
+        ⟨0, by simp [UpwardEnumerable.succMany?_succ, UpwardEnumerable.succMany?_zero, hn']⟩
       exact UpwardEnumerable.not_gt_of_le h hlt
     · simp only [decide_eq_true_eq]
       exact ⟨a, hn, UpwardEnumerable.le_refl _⟩

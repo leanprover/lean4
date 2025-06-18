@@ -402,12 +402,15 @@ theorem no_int_zero_divisors {α : Type u} [IntModule α] [NoNatZeroDivisors α]
     simp [intCast_natCast]
     intro h₁ h₂
     replace h₁ : k ≠ 0 := by intro h; simp [h] at h₁
+    rw [IntModule.hmul_nat] at h₂
     exact no_nat_zero_divisors k a h₁ h₂
   | -(k+1 : Nat) =>
-    rw [Int.natCast_add, ← Int.natCast_add, IntModule.neg_hmul]
+    rw [IntModule.neg_hmul]
     intro _ h
-    replace h := congrArg (-·) h; simp at h
+    replace h := congrArg (-·) h
+    dsimp only at h
     rw [IntModule.neg_neg, IntModule.neg_zero] at h
+    rw [IntModule.hmul_nat] at h
     exact no_nat_zero_divisors (k+1) a (Nat.succ_ne_zero _) h
 
 end Lean.Grind

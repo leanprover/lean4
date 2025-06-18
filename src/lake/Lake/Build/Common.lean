@@ -302,7 +302,7 @@ A build job for binary file that is expected to already exist (e.g., a data blob
 
 Any byte difference in a binary file will trigger a rebuild of its dependents.
 -/
-def inputBinFile (path : FilePath) : SpawnM (Job FilePath) := Job.async do
+def inputBinFile (path : FilePath) : SpawnM (Job FilePath) := Job.async (prio := .dedicated) do
   setTrace (← computeTrace path)
   return path
 
@@ -311,7 +311,7 @@ A build job for text file that is expected to already exist (e.g., a source file
 
 Text file traces have normalized line endings to avoid unnecessary rebuilds across platforms.
 -/
-def inputTextFile (path : FilePath) : SpawnM (Job FilePath) := Job.async do
+def inputTextFile (path : FilePath) : SpawnM (Job FilePath) := Job.async (prio := .dedicated) do
   setTrace (← computeTrace (TextFilePath.mk path))
   return path
 
@@ -338,7 +338,7 @@ rebuilds across platforms.
 def inputDir
   (path : FilePath) (text : Bool) (filter : FilePath → Bool)
 : SpawnM (Job (Array FilePath)) := do
-  let job ← Job.async do
+  let job ← Job.async (prio := .dedicated) do
     let fs ← path.readDir
     let ps := fs.filterMap fun f =>
       if filter f.path then some f.path else none
@@ -368,7 +368,7 @@ which will be computed in the resulting `Job` before building.
   (weakArgs traceArgs : Array String := #[]) (compiler : FilePath := "cc")
   (extraDepTrace : JobM _ := pure BuildTrace.nil)
 : SpawnM (Job FilePath) :=
-  srcJob.mapM fun srcFile => do
+  srcJob.mapM (prio := .dedicated) fun srcFile => do
     addPlatformTrace -- object files are platform-dependent artifacts
     addPureTrace traceArgs "traceArgs"
     addTrace (← extraDepTrace)
@@ -385,7 +385,7 @@ def buildLeanO
   (weakArgs traceArgs : Array String := #[])
   (leanIncludeDir? : Option FilePath := none)
 : SpawnM (Job FilePath) :=
-  srcJob.mapM fun srcFile => do
+  srcJob.mapM (prio := .dedicated) fun srcFile => do
     addLeanTrace
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- object files are platform-dependent artifacts
@@ -400,7 +400,7 @@ def buildLeanO
 def buildStaticLib
   (libFile : FilePath) (oFileJobs : Array (Job FilePath)) (thin :=  false)
 : SpawnM (Job FilePath) :=
-  (Job.collectArray oFileJobs "objs").mapM fun oFiles => do
+  (Job.collectArray oFileJobs "objs").mapM (prio := .dedicated) fun oFiles => do
     buildFileUnlessUpToDate' libFile do
       compileStaticLib libFile oFiles (← getLeanAr) thin
     return libFile
@@ -452,7 +452,7 @@ def buildSharedLib
   (plugin := false) (linkDeps := Platform.isWindows)
 : SpawnM (Job Dynlib) :=
   (Job.collectArray linkObjs "linkObjs").bindM (sync := true) fun objs => do
-  (Job.collectArray linkLibs "linkLibs").mapM fun libs => do
+  (Job.collectArray linkLibs "linkLibs").mapM (prio := .dedicated) fun libs => do
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- shared libraries are platform-dependent artifacts
     addTrace (← extraDepTrace)
@@ -473,7 +473,7 @@ def buildLeanSharedLib
   (linkDeps := Platform.isWindows)
 : SpawnM (Job Dynlib) :=
   (Job.collectArray linkObjs "linkObjs").bindM (sync := true) fun objs => do
-  (Job.collectArray linkLibs "linkLibs").mapM fun libs => do
+  (Job.collectArray linkLibs "linkLibs").mapM (prio := .dedicated) fun libs => do
     addLeanTrace
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- shared libraries are platform-dependent artifacts
@@ -495,7 +495,7 @@ def buildLeanExe
   (weakArgs traceArgs : Array String := #[]) (sharedLean : Bool := false)
 : SpawnM (Job FilePath) :=
   (Job.collectArray linkObjs "linkObjs").bindM (sync := true) fun objs => do
-  (Job.collectArray linkLibs "linkLibs").mapM fun libs => do
+  (Job.collectArray linkLibs "linkLibs").mapM (prio := .dedicated) fun libs => do
     addLeanTrace
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- executables are platform-dependent artifacts

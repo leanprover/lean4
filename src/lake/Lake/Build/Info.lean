@@ -161,6 +161,52 @@ and target facets.
 
 /-! #### Module Infos -/
 
+structure ModuleImports where
+  importMap : Std.HashMap Name Nat := {}
+  importData : Array Bool := #[]
+  localImports : Array Module := #[]
+  transImports : Array Module := #[]
+  publicImports : Array Module := #[]
+  libName? : Option Name := none
+  libSet : Std.HashSet Name :=
+    match libName? with
+    | some libName => .insert {} libName
+    | none => {}
+  libs : Array LeanLib := #[]
+
+def ModuleImports.insert
+  (self : ModuleImports) (mod : Module) (isPublic : Bool)
+: ModuleImports :=
+ if let some i := self.importMap.get? mod.name then
+    if isPublic && !self.importData[i]! then
+      {self with
+        importData := self.importData.set! i true
+        publicImports := self.publicImports.push mod
+      }
+    else
+      self
+  else
+    let self := {self with
+      importMap := self.importMap.insert mod.name self.transImports.size
+      importData := self.importData.push isPublic
+      transImports := self.transImports.push mod
+      publicImports := if isPublic then self.publicImports.push mod else self.publicImports
+    }
+    if self.libName? = some mod.lib.name then
+      {self with localImports := self.localImports.push mod}
+    else if self.libSet.contains mod.lib.name then
+      self
+    else
+      {self with
+        libSet := self.libSet.insert mod.lib.name
+        libs := self.libs.push mod.lib
+      }
+
+def ModuleImports.append (self other : ModuleImports) : ModuleImports :=
+  let self := other.transImports.size.fold (init := self) fun i _ imps =>
+    imps.insert other.transImports[i] other.importData[i]!
+  self
+
 /--
 Build info for applying the specified facet to the module.
 It is the user's obiligation to ensure the facet in question is a module facet.
@@ -176,7 +222,19 @@ abbrev Module.facet (facet : Name) (self : Module) : BuildInfo :=
 abbrev BuildInfo.moduleFacet (module : Module) (facet : Name) : BuildInfo :=
   module.facetCore facet
 
+/-- The computed imports of a Lean module. -/
+builtin_facet allImports : Module => ModuleImports
+
 namespace Module
+
+@[inherit_doc inputFacet] abbrev input (self : Module) :=
+  self.facetCore inputFacet
+
+@[inherit_doc leanFacet] abbrev lean (self : Module) :=
+  self.facetCore leanFacet
+
+@[inherit_doc headerFacet] abbrev header (self : Module) :=
+  self.facetCore headerFacet
 
 @[inherit_doc importsFacet] abbrev imports (self : Module) :=
   self.facetCore importsFacet
@@ -187,14 +245,26 @@ namespace Module
 @[inherit_doc precompileImportsFacet] abbrev precompileImports (self : Module) :=
   self.facetCore precompileImportsFacet
 
+@[inherit_doc allImportsFacet] abbrev allImports (self : Module) :=
+  self.facetCore allImportsFacet
+
+@[inherit_doc setupFacet] abbrev setup  (self : Module) :=
+  self.facetCore setupFacet
+
 @[inherit_doc depsFacet] abbrev deps  (self : Module) :=
   self.facetCore depsFacet
 
-@[inherit_doc leanArtsFacet] abbrev leanArts  (self : Module) :=
+@[inherit_doc leanArtsFacet] abbrev leanArts (self : Module) :=
   self.facetCore leanArtsFacet
 
 @[inherit_doc oleanFacet] abbrev olean (self : Module) :=
   self.facetCore oleanFacet
+
+@[inherit_doc oleanServerFacet] abbrev oleanServer (self : Module) :=
+  self.facetCore oleanServerFacet
+
+@[inherit_doc oleanPrivateFacet] abbrev oleanPrivate (self : Module) :=
+  self.facetCore oleanPrivateFacet
 
 @[inherit_doc ileanFacet] abbrev ilean (self : Module)  :=
   self.facetCore ileanFacet

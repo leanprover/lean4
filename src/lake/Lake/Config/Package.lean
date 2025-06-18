@@ -351,10 +351,7 @@ structure Package where
   testDriver : String := config.testDriver
   /-- The driver used for `lake lint` when this package is the workspace root. -/
   lintDriver : String := config.lintDriver
-
-instance : Nonempty Package :=
-  have : Inhabited Environment := Classical.inhabited_of_nonempty inferInstance
-  ⟨by constructor <;> exact default⟩
+  deriving Inhabited
 
 instance : Hashable Package where hash pkg := hash pkg.name
 instance : BEq Package where beq p1 p2 := p1.name == p2.name

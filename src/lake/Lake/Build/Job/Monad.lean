@@ -115,7 +115,7 @@ namespace Job
 : m (Job β) := return {self with task := ← f self.task, kind := inferInstance}
 
 /-- Spawn a job that asynchronously performs `act`. -/
-@[inline] protected def async
+@[nospecialize] protected def async
   [OptDataKind α] (act : JobM α) (prio := Task.Priority.default) (caption := "")
 : SpawnM (Job α) := fun fetch stack store ctx => .ofTask (caption := caption) <$> do
   BaseIO.asTask (prio := prio) do (withLoggedIO act) fetch stack store ctx {}
@@ -135,7 +135,7 @@ If an error occurred, return `none` and discarded any logs produced.
 Wait for a job to complete and return the produced value.
 Logs the job's log and throws if there was an error.
 -/
-@[inline] protected def await (self : Job α) : LogIO α := do
+protected def await (self : Job α) : LogIO α := do
   match (← self.wait) with
   | .error n {log, ..} => log.replay; throw n
   | .ok a {log, ..} => log.replay; pure a
@@ -237,7 +237,13 @@ def collectList (jobs : List (Job α)) (traceCaption := "<collection>") : Job (L
 def collectArray (jobs : Array (Job α)) (traceCaption := "<collection>") : Job (Array α) :=
   jobs.foldl (zipWith Array.push) (traceRoot (Array.mkEmpty jobs.size) traceCaption)
 
-/-- Merge a `NameMap` of jobs into one, collecting their outputs into an `NameMap`. -/
+/-- Merge a `Std.HashMap` of jobs into one, collecting their outputs into a `Std.HashMap`. -/
+@[inline] def collectHashMap [BEq α] [Hashable α]
+  (jobs : Std.HashMap α (Job β)) (traceCaption := "<collection>")
+: Job (Std.HashMap α β) :=
+  jobs.fold (fun s k v => s.zipWith (·.insert k) v) (traceRoot {} traceCaption)
+
+/-- Merge a `NameMap` of jobs into one, collecting their outputs into a `NameMap`. -/
 def collectNameMap (jobs : NameMap (Job α)) (traceCaption := "<collection>") : Job (NameMap α) :=
   jobs.fold (fun s k v => s.zipWith (·.insert k) v) (traceRoot {} traceCaption)
 

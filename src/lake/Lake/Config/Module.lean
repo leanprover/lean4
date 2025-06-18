@@ -21,6 +21,7 @@ structure Module where
   Used to create private modules (e.g., executable roots).
   -/
   keyName : Name := name
+  deriving Inhabited
 
 instance : ToText Module := ⟨(·.name.toString)⟩
 instance : ToJson Module := ⟨(toJson ·.name)⟩
@@ -91,6 +92,12 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def oleanFile (self : Module) : FilePath :=
   self.leanLibPath "olean"
 
+@[inline] def oleanServerFile (self : Module) : FilePath :=
+  self.leanLibPath "olean.server"
+
+@[inline] def oleanPrivateFile (self : Module) : FilePath :=
+  self.leanLibPath "olean.private"
+
 @[inline] def ileanFile (self : Module) : FilePath :=
   self.leanLibPath "ilean"
 
@@ -99,6 +106,9 @@ abbrev pkg (self : Module) : Package :=
 
 @[inline] def irPath (ext : String) (self : Module) : FilePath :=
   self.filePath self.pkg.irDir ext
+
+@[inline] def setupFile (self : Module) : FilePath :=
+  self.irPath "setup.json"
 
 @[inline] def cFile (self : Module) : FilePath :=
   self.irPath "c"
@@ -152,7 +162,7 @@ def dynlibSuffix := "-1"
   self.lib.leanOptions
 
 @[inline] def leanArgs (self : Module) : Array String :=
-  self.leanOptions.values.fold (fun s k v => s.push s!"-D{k}={v.asCliFlagValue}") self.lib.leanArgs
+  self.lib.leanArgs
 
 @[inline] def weakLeanArgs (self : Module) : Array String :=
   self.lib.weakLeanArgs

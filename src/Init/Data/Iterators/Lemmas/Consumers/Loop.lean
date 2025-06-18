@@ -7,8 +7,8 @@ module
 
 prelude
 import Init.Data.Iterators.Lemmas.Consumers.Collect
-import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
-import Init.Data.Iterators.Consumers.Loop
+import all Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
+import all Init.Data.Iterators.Consumers.Loop
 
 namespace Std.Iterators
 
@@ -86,14 +86,14 @@ theorem Iter.foldM_eq_forIn {α β γ : Type w} [Iterator α Id β] [Finite α I
     [Monad m] [IteratorLoop α Id m] {f : γ → β → m γ}
     {init : γ} {it : Iter (α := α) β} :
     it.foldM (init := init) f = ForIn.forIn it init (fun x acc => ForInStep.yield <$> f acc x) :=
-  rfl
+  (rfl)
 
 theorem Iter.foldM_eq_foldM_toIterM {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
     [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
     {γ : Type w} {it : Iter (α := α) β} {init : γ} {f : γ → β → m γ} :
     it.foldM (init := init) f = letI : MonadLift Id m := ⟨pure⟩; it.toIterM.foldM (init := init) f :=
-  rfl
+  (rfl)
 
 theorem Iter.forIn_yield_eq_foldM {α β γ δ : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m] [IteratorLoop α Id m]

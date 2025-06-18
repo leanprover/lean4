@@ -14,8 +14,9 @@ import Init.Grind.Propagator
 import Init.Grind.Util
 import Init.Grind.Offset
 import Init.Grind.PP
-import Init.Grind.CommRing
+import Init.Grind.Ring
 import Init.Grind.Module
 import Init.Grind.Ordered
 import Init.Grind.Ext
+import Init.Grind.ToInt
 import Init.Data.Int.OfNat -- This may not have otherwise been imported, breaking `grind` proofs.

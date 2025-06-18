@@ -14,7 +14,7 @@ import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Ext
-import Lean.Meta.Tactic.Grind.ENodeKey
+import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.AlphaShareCommon
 import Lean.Meta.Tactic.Grind.Attr
 import Lean.Meta.Tactic.Grind.ExtAttr
@@ -48,10 +48,40 @@ register_builtin_option grind.debug.proofs : Bool := {
 }
 
 register_builtin_option grind.warning : Bool := {
-  defValue := true
+  defValue := false
   group    := "debug"
-  descr    := "disable `grind` usage warning"
+  descr    := "generate a warning whenever `grind` is used"
 }
+
+/--
+Case-split source. That is, where it came from.
+We store the current source in the `grind` context.
+-/
+inductive SplitSource where
+  | /-- Generated while instantiating a theorem using E-matching. -/
+    ematch (origin : Origin)
+  | /-- Generated while instantiating an extensionality theorem with name `declName` -/
+    ext (declName : Name)
+  | /-- Model-based theory combination equality coming from the i-th argument of applications `a` and `b` -/
+    mbtc (a b : Expr) (i : Nat)
+  | /-- Beta-reduction. -/
+    beta (e : Expr)
+  | /-- Forall-propagator. -/
+    forallProp (e : Expr)
+  | /-- Exists-propagator. -/
+    existsProp (e : Expr)
+  | /-- Input goal -/
+    input
+  deriving Inhabited
+
+def SplitSource.toMessageData : SplitSource → MetaM MessageData
+  | .ematch origin => return m!"E-matching {← origin.pp}"
+  | .ext declName => return m!"Extensionality {declName}"
+  | .mbtc a b i => return m!"Model-based theory combination at argument #{i} of{indentExpr a}\nand{indentExpr b}"
+  | .beta e => return m!"Beta-reduction of{indentExpr e}"
+  | .forallProp e => return m!"Forall propagation at{indentExpr e}"
+  | .existsProp e => return m!"Exists propagation at{indentExpr e}"
+  | .input => return m!"Initial goal"
 
 /-- Context for `GrindM` monad. -/
 structure Context where
@@ -74,6 +104,13 @@ structure Context where
   user with "false-alarms". If the instantiation fails, we produce a more informative issue anyways.
   -/
   reportMVarIssue : Bool := true
+  /-- Current source of case-splits. -/
+  splitSource  : SplitSource := .input
+  trueExpr     : Expr
+  falseExpr    : Expr
+  natZExpr     : Expr
+  btrueExpr    : Expr
+  bfalseExpr   : Expr
 
 /-- Key for the congruence theorem cache. -/
 structure CongrTheoremCacheKey where
@@ -110,9 +147,19 @@ structure Counters where
   thm  : PHashMap Origin Nat := {}
   /-- Number of times a `cases` has been performed on an inductive type/predicate -/
   case : PHashMap Name Nat := {}
+  /-- Number of applications per function symbol. This information is only collected if `set_option diagnostics true` -/
+  apps : PHashMap Name Nat := {}
   deriving Inhabited
 
 private def emptySC : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCommon.State.mk _
+
+/-- Case-split diagnostic information -/
+structure SplitDiagInfo where
+  lctx        : LocalContext
+  c           : Expr
+  gen         : Nat
+  numCases    : Nat
+  splitSource : SplitSource
 
 /-- State for the `GrindM` monad. -/
 structure State where
@@ -125,11 +172,6 @@ structure State where
   -/
   congrThms  : PHashMap CongrTheoremCacheKey CongrTheorem := {}
   simp       : Simp.State := {}
-  trueExpr   : Expr
-  falseExpr  : Expr
-  natZExpr   : Expr
-  btrueExpr  : Expr
-  bfalseExpr : Expr
   /--
   Used to generate trace messages of the for `[grind] working on <tag>`,
   and implement the macro `trace_goal`.
@@ -144,6 +186,8 @@ structure State where
   trace      : Trace := {}
   /-- Performance counters -/
   counters   : Counters := {}
+  /-- Split diagnostic information. This information is only collected when `set_option diagnostics true` -/
+  splitDiags : PArray SplitDiagInfo := {}
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 private def MethodsRef : Type := MethodsRefPointed.type
@@ -161,29 +205,36 @@ See comment at `Grind.Context.reportMVarIssue` for additional details.
 def withoutReportingMVarIssues [MonadControlT GrindM m] [Monad m] : m α → m α :=
   mapGrindM <| withTheReader Grind.Context fun ctx => { ctx with reportMVarIssue := false }
 
+/--
+`withSplitSource s x` executes `x` and uses `s` as the split source for any case-split
+registered.
+-/
+def withSplitSource [MonadControlT GrindM m] [Monad m] (splitSource : SplitSource) : m α → m α :=
+  mapGrindM <| withTheReader Grind.Context fun ctx => { ctx with splitSource }
+
 /-- Returns the user-defined configuration options -/
 def getConfig : GrindM Grind.Config :=
   return (← readThe Context).config
 
 /-- Returns the internalized `True` constant.  -/
 def getTrueExpr : GrindM Expr := do
-  return (← get).trueExpr
+  return (← readThe Context).trueExpr
 
 /-- Returns the internalized `False` constant.  -/
 def getFalseExpr : GrindM Expr := do
-  return (← get).falseExpr
+  return (← readThe Context).falseExpr
 
 /-- Returns the internalized `Bool.true`.  -/
 def getBoolTrueExpr : GrindM Expr := do
-  return (← get).btrueExpr
+  return (← readThe Context).btrueExpr
 
 /-- Returns the internalized `Bool.false`.  -/
 def getBoolFalseExpr : GrindM Expr := do
-  return (← get).bfalseExpr
+  return (← readThe Context).bfalseExpr
 
 /-- Returns the internalized `0 : Nat` numeral.  -/
 def getNatZeroExpr : GrindM Expr := do
-  return (← get).natZExpr
+  return (← readThe Context).natZExpr
 
 def cheapCasesOnly : GrindM Bool :=
   return (← readThe Context).cheapCases
@@ -197,16 +248,17 @@ Returns `true` if `declName` is the name of a `match` equation or a `match` cong
 def isMatchEqLikeDeclName (declName : Name) : CoreM Bool := do
   return (← isMatchCongrEqDeclName declName) || Match.isMatchEqnTheorem (← getEnv) declName
 
-def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
+private def incCounter [Hashable α] [BEq α] (s : PHashMap α Nat) (k : α) : PHashMap α Nat :=
+  if let some n := s.find? k then
+      s.insert k (n+1)
+    else
+      s.insert k 1
+
+private def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
   if (← getConfig).trace then
     unless (← isMatchEqLikeDeclName thm.origin.key) do
       modify fun s => { s with trace.thms := s.trace.thms.insert { origin := thm.origin, kind := thm.kind } }
-  modify fun s => { s with
-    counters.thm := if let some n := s.counters.thm.find? thm.origin then
-      s.counters.thm.insert thm.origin (n+1)
-    else
-      s.counters.thm.insert thm.origin 1
-  }
+  modify fun s => { s with counters.thm := incCounter s.counters.thm thm.origin }
 
 def saveCases (declName : Name) (eager : Bool) : GrindM Unit := do
   if (← getConfig).trace then
@@ -214,12 +266,17 @@ def saveCases (declName : Name) (eager : Bool) : GrindM Unit := do
       modify fun s => { s with trace.eagerCases := s.trace.eagerCases.insert declName }
     else
       modify fun s => { s with trace.cases := s.trace.cases.insert declName }
-  modify fun s => { s with
-    counters.case := if let some n := s.counters.case.find? declName then
-      s.counters.case.insert declName (n+1)
-    else
-      s.counters.case.insert declName 1
-  }
+  modify fun s => { s with counters.case := incCounter s.counters.case declName }
+
+def saveAppOf (h : HeadIndex) : GrindM Unit := do
+  if (← isDiagnosticsEnabled) then
+    let .const declName := h | return ()
+    modify fun s => { s with counters.apps := incCounter s.counters.apps declName }
+
+def saveSplitDiagInfo (c : Expr) (gen : Nat) (numCases : Nat) (splitSource : SplitSource) : GrindM Unit := do
+  if (← isDiagnosticsEnabled) then
+    let lctx ← getLCtx
+    modify fun s => { s with splitDiags := s.splitDiags.push { c, gen, lctx, numCases, splitSource } }
 
 @[inline] def getMethodsRef : GrindM MethodsRef :=
   read
@@ -346,7 +403,12 @@ structure ENode where
   to the comm ring module. Its implementation is similar to the `offset?` field.
   -/
   ring? : Option Expr := none
-  -- Remark: we expect to have builtin support for offset constraints, cutsat, and comm ring.
+  /--
+  The `linarith?` field is used to propagate equalities from the `grind` congruence closure module
+  to the linarith module. Its implementation is similar to the `offset?` field.
+  -/
+  linarith? : Option Expr := none
+  -- Remark: we expect to have builtin support for offset constraints, cutsat, comm ring, and linarith.
   -- If the number of satellite solvers increases, we may add support for an arbitrary solvers like done in Z3.
   deriving Inhabited, Repr
 
@@ -361,7 +423,7 @@ inductive NewFact where
   | eq (lhs rhs proof : Expr) (isHEq : Bool)
   | fact (prop proof : Expr) (generation : Nat)
 
-abbrev ENodeMap := PHashMap ENodeKey ENode
+abbrev ENodeMap := PHashMap ExprPtr ENode
 
 /--
 Key for the congruence table.
@@ -446,7 +508,7 @@ abbrev CongrTable (enodeMap : ENodeMap) := PHashSet (CongrKey enodeMap)
 
 -- Remark: we cannot use pointer addresses here because we have to traverse the tree.
 abbrev ParentSet := Std.TreeSet Expr Expr.quickComp
-abbrev ParentMap := PHashMap ENodeKey ParentSet
+abbrev ParentMap := PHashMap ExprPtr ParentSet
 
 /--
 The E-matching module instantiates theorems using the `EMatchTheorem proof` and a (partial) assignment.
@@ -478,9 +540,11 @@ abbrev PreInstanceSet := PHashSet PreInstance
 
 /-- New raw fact to be preprocessed, and then asserted. -/
 structure NewRawFact where
-  proof      : Expr
-  prop       : Expr
-  generation : Nat
+  proof        : Expr
+  prop         : Expr
+  generation   : Nat
+  /-- `splitSource` to use when internalizing this fact. -/
+  splitSource  : SplitSource
   deriving Inhabited
 
 /-- Canonicalizer state. See `Canon.lean` for additional details. -/
@@ -492,9 +556,10 @@ structure Canon.State where
 
 /-- Trace information for a case split. -/
 structure CaseTrace where
-  expr : Expr
-  i    : Nat
-  num  : Nat
+  expr   : Expr
+  i      : Nat
+  num    : Nat
+  source : SplitSource
   deriving Inhabited
 
 /-- E-matching related fields for the `grind` goal. -/
@@ -527,38 +592,51 @@ inductive SplitInfo where
   | /--
     Term `e` may be an inductive predicate, `match`-expression, `if`-expression, implication, etc.
     -/
-    default (e : Expr)
+    default (e : Expr) (source : SplitSource)
   /-- `e` is an implication and we want to split on its antecedent. -/
-  | imp (e : Expr) (h : e.isForall)
+  | imp (e : Expr) (h : e.isForall) (source : SplitSource)
   | /--
     Given applications `a` and `b`, case-split on whether the corresponding
     `i`-th arguments are equal or not. The split is only performed if all other
     arguments are already known to be equal or are also tagged as split candidates.
     -/
-    arg (a b : Expr) (i : Nat) (eq : Expr)
-  deriving Hashable, Inhabited
+    arg (a b : Expr) (i : Nat) (eq : Expr) (source :SplitSource)
+  deriving Inhabited
+
+protected def SplitInfo.hash : SplitInfo → UInt64
+ | .default e _ => hash e
+ | .imp e _ _   => hash e
+ | .arg _ _ _ e _ => hash e
+
+instance : Hashable SplitInfo where
+  hash := SplitInfo.hash
 
 def SplitInfo.beq : SplitInfo → SplitInfo → Bool
- | .default e₁, .default e₂ => e₁ == e₂
- | .imp e₁ _, .imp e₂ _ => e₁ == e₂
- | .arg a₁ b₁ i₁ eq₁, arg a₂ b₂ i₂ eq₂ => a₁ == a₂ && b₁ == b₂ && i₁ == i₂ && eq₁ == eq₂
+ | .default e₁ _, .default e₂ _ => e₁ == e₂
+ | .imp e₁ _ _, .imp e₂ _ _=> e₁ == e₂
+ | .arg a₁ b₁ i₁ eq₁ _, arg a₂ b₂ i₂ eq₂ _ => a₁ == a₂ && b₁ == b₂ && i₁ == i₂ && eq₁ == eq₂
  | _, _ => false
 
 instance : BEq SplitInfo where
   beq := SplitInfo.beq
 
 def SplitInfo.getExpr : SplitInfo → Expr
-  | .default e => e
-  | .imp e h => e.forallDomain h
-  | .arg _ _ _ eq => eq
+  | .default e _ => e
+  | .imp e h _ => e.forallDomain h
+  | .arg _ _ _ eq _ => eq
+
+def SplitInfo.source : SplitInfo → SplitSource
+  | .default _ s   => s
+  | .imp _ _ s     => s
+  | .arg _ _ _ _ s => s
 
 def SplitInfo.lt : SplitInfo → SplitInfo → Bool
-  | .default e₁, .default e₂     => e₁.lt e₂
-  | .imp e₁ _, .imp e₂ _         => e₁.lt e₂
-  | .arg _ _ _ e₁, .arg _ _ _ e₂ => e₁.lt e₂
-  | .default .., _               => true
-  | .imp .., _                   => true
-  | _, _                         => false
+  | .default e₁ _, .default e₂ _     => e₁.lt e₂
+  | .imp e₁ _ _, .imp e₂ _ _         => e₁.lt e₂
+  | .arg _ _ _ e₁ _, .arg _ _ _ e₂ _ => e₁.lt e₂
+  | .default .., _                   => true
+  | .imp .., _                       => true
+  | _, _                             => false
 
 /-- Argument `arg : type` of an application `app` in `SplitInfo`. -/
 structure SplitArg where
@@ -577,7 +655,7 @@ structure Split.State where
   /-- Case-splits that have been inserted at `candidates` at some point. -/
   added        : Std.HashSet SplitInfo := {}
   /-- Case-splits that have already been performed, or that do not have to be performed anymore. -/
-  resolved     : PHashSet ENodeKey := {}
+  resolved     : PHashSet ExprPtr := {}
   /--
   Sequence of cases steps that generated this goal. We only use this information for diagnostics.
   Remark: `casesTrace.length ≥ numSplits` because we don't increase the counter for `cases`
@@ -634,7 +712,7 @@ structure Goal where
   /-- Asserted facts -/
   facts        : PArray Expr := {}
   /-- Cached extensionality theorems for types. -/
-  extThms      : PHashMap ENodeKey (Array Ext.ExtTheorem) := {}
+  extThms      : PHashMap ExprPtr (Array Ext.ExtTheorem) := {}
   /-- State of the E-matching module. -/
   ematch       : EMatch.State
   /-- State of the case-splitting module. -/
@@ -696,18 +774,18 @@ def markTheoremInstance (proof : Expr) (assignment : Array Expr) : GoalM Bool :=
   return true
 
 /-- Adds a new fact `prop` with proof `proof` to the queue for preprocessing and the assertion. -/
-def addNewRawFact (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
+def addNewRawFact (proof : Expr) (prop : Expr) (generation : Nat) (splitSource : SplitSource) : GoalM Unit := do
   if grind.debug.get (← getOptions) then
     unless (← withReducible <| isDefEq (← inferType proof) prop) do
       throwError "`grind` internal error, trying to assert{indentExpr prop}\n\
         with proof{indentExpr proof}\nwhich has type{indentExpr (← inferType proof)}\n\
         which is not definitionally equal with `reducible` transparency setting}"
-  modify fun s => { s with newRawFacts := s.newRawFacts.enqueue { proof, prop, generation } }
+  modify fun s => { s with newRawFacts := s.newRawFacts.enqueue { proof, prop, generation, splitSource } }
 
 /-- Adds a new theorem instance produced using E-matching. -/
 def addTheoremInstance (thm : EMatchTheorem) (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
   saveEMatchTheorem thm
-  addNewRawFact proof prop generation
+  addNewRawFact proof prop generation (.ematch thm.origin)
   modify fun s => { s with ematch.numInstances := s.ematch.numInstances + 1 }
 
 /-- Returns `true` if the maximum number of instances has been reached. -/
@@ -840,6 +918,10 @@ Otherwise, it pushes `HEq lhs rhs`.
 -/
 def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   if grind.debug.get (← getOptions) then
+    unless (← alreadyInternalized lhs) do
+      throwError "`grind` internal error, lhs of new equality has not been internalized{indentExpr lhs}"
+    unless (← alreadyInternalized rhs) do
+      throwError "`grind` internal error, rhs of new equality has not been internalized{indentExpr rhs}"
     unless proof == congrPlaceholderProof do
       let expectedType ← if isHEq then mkHEq lhs rhs else mkEq lhs rhs
       unless (← withReducible <| isDefEq (← inferType proof) expectedType) do
@@ -1108,6 +1190,53 @@ def markAsCommRingTerm (e : Expr) : GoalM Unit := do
     setENode root.self { root with ring? := some e }
     propagateCommRingDiseqs (← getParents root.self)
 
+/--
+Notifies the linarith module that `a = b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_linarith_eq"] -- forward definition
+opaque Arith.Linear.processNewEq (a b : Expr) : GoalM Unit
+
+/--
+Notifies the linarith module that `a ≠ b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_linarith_diseq"] -- forward definition
+opaque Arith.Linear.processNewDiseq (a b : Expr) : GoalM Unit
+
+/--
+Given `lhs` and `rhs` that are known to be disequal, checks whether
+`lhs` and `rhs` have linarith terms `e₁` and `e₂` attached to them,
+and invokes process `Arith.Linear.processNewDiseq e₁ e₂`
+-/
+def propagateLinarithDiseq (lhs rhs : Expr) : GoalM Unit := do
+  let some lhs ← get? lhs | return ()
+  let some rhs ← get? rhs | return ()
+  Arith.Linear.processNewDiseq lhs rhs
+where
+  get? (a : Expr) : GoalM (Option Expr) := do
+    return (← getRootENode a).linarith?
+
+/--
+Traverses disequalities in `parents`, and propagate the ones relevant to the
+linarith module.
+-/
+def propagateLinarithDiseqs (parents : ParentSet) : GoalM Unit := do
+  forEachDiseq parents propagateLinarithDiseq
+
+/--
+Marks `e` as a term of interest to the linarith module.
+If the root of `e`s equivalence class has already a term of interest,
+a new equality is propagated to the linarith module.
+-/
+def markAsLinarithTerm (e : Expr) : GoalM Unit := do
+  let root ← getRootENode e
+  if let some e' := root.linarith? then
+    Arith.Linear.processNewEq e e'
+  else
+    setENode root.self { root with linarith? := some e }
+    propagateLinarithDiseqs (← getParents root.self)
+
 /-- Returns `true` is `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do
   return (← getENode e).isCongrRoot
@@ -1282,30 +1411,46 @@ def applyFallback : GoalM Unit := do
   let fallback : GoalM Unit := (← getMethods).fallback
   fallback
 
+def Goal.getGeneration (goal : Goal) (e : Expr) : Nat :=
+  if let some n := goal.getENode? e then
+    n.generation
+  else
+    0
+
 /-- Returns expressions in the given expression equivalence class. -/
-partial def Goal.getEqc (goal : Goal) (e : Expr) : List Expr :=
-  go e e []
+partial def Goal.getEqc (goal : Goal) (e : Expr) (sort := false) : List Expr :=
+  let eqc := go e e #[]
+  if sort then
+    Array.toList <| eqc.qsort fun e₁ e₂ =>
+      let g₁ := goal.getGeneration e₁
+      let g₂ := goal.getGeneration e₂
+      if g₁ != g₂ then g₁ < g₂ else e₁.lt e₂
+  else
+    eqc.toList
 where
-  go (first : Expr) (e : Expr) (acc : List Expr) : List Expr := Id.run do
-    let some next ← goal.getNext? e | acc
-    let acc := e :: acc
+  go (first : Expr) (e : Expr) (acc : Array Expr) : Array Expr := Id.run do
+    let some next := goal.getNext? e | acc
+    let acc := acc.push e
     if isSameExpr first next then
       return acc
     else
       go first next acc
 
 @[inline, inherit_doc Goal.getEqc]
-partial def getEqc (e : Expr) : GoalM (List Expr) :=
-  return (← get).getEqc e
+partial def getEqc (e : Expr) (sort := false) : GoalM (List Expr) :=
+  return (← get).getEqc e sort
 
 /-- Returns all equivalence classes in the current goal. -/
-partial def Goal.getEqcs (goal : Goal) : List (List Expr) := Id.run do
- let mut r : List (List Expr) := []
+partial def Goal.getEqcs (goal : Goal) (sort := false) : List (List Expr) := Id.run do
+ let mut r : Array (Nat × Expr × List Expr) := #[]
  for e in goal.exprs do
     let some node := goal.getENode? e | pure ()
     if node.isRoot then
-      r := goal.getEqc node.self :: r
-  return r
+      let e :: es := goal.getEqc node.self sort | unreachable!
+      r := r.push (goal.getGeneration e, e, es)
+  if sort then
+    r := r.qsort fun (g₁, e₁, _) (g₂, e₂, _) => if g₁ != g₂ then g₁ < g₂ else e₁.lt e₂
+  return r.toList.map fun (_, e, es) => e::es
 
 @[inline, inherit_doc Goal.getEqcs]
 def getEqcs : GoalM (List (List Expr)) :=
@@ -1334,7 +1479,7 @@ def markCaseSplitAsResolved (e : Expr) : GoalM Unit := do
     modify fun s => { s with split.resolved := s.split.resolved.insert { expr := e } }
 
 private def updateSplitArgPosMap (sinfo : SplitInfo) : GoalM Unit := do
-  let .arg a b i _ := sinfo | return ()
+  let .arg a b i _ _ := sinfo | return ()
   let key := (a, b)
   let is := (← get).split.argPosMap[key]? |>.getD []
   modify fun s => { s with

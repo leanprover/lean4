@@ -62,7 +62,7 @@ Lean: Std
 
 Leanc: Lean
 ifneq "${STAGE}" "0"
-	+"${LEAN_BIN}/leanmake" -C "${CMAKE_BINARY_DIR}/leanc" lib PKG=Leanc $(LEANMAKE_OPTS) OUT="${CMAKE_LIBRARY_OUTPUT_DIRECTORY}" LIB_OUT="${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"
+	+"${LEAN_BIN}/leanmake" -C "${CMAKE_BINARY_DIR}/leanc" lib PKG=Leanc $(LEANMAKE_OPTS) OUT="${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}" LIB_OUT="${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}" OLEAN_OUT="${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}"
 endif
 
 Lake:
@@ -151,7 +151,7 @@ ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}: ${CMAKE_LIBRARY_OUTPUT_D
 
 lean: ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}
 
-${CMAKE_BINARY_DIR}/bin/leanc${CMAKE_EXECUTABLE_SUFFIX}: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libLeanc.a
+${CMAKE_BINARY_DIR}/bin/leanc${CMAKE_EXECUTABLE_SUFFIX}: ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/libLeanc.a
 	@echo "[    ] Building $@"
 # on Windows, must remove file before writing a new one (since the old one may be in use)
 	@rm -f $@

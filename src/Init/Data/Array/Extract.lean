@@ -46,7 +46,7 @@ theorem size_extract_of_le {as : Array α} {i j : Nat} (h : j ≤ as.size) :
   simp
   omega
 
-@[simp]
+@[simp, grind =]
 theorem extract_push {as : Array α} {b : α} {start stop : Nat} (h : stop ≤ as.size) :
     (as.push b).extract start stop = as.extract start stop := by
   ext i h₁ h₂
@@ -56,7 +56,7 @@ theorem extract_push {as : Array α} {b : α} {start stop : Nat} (h : stop ≤ a
     simp only [getElem_extract, getElem_push]
     rw [dif_pos (by omega)]
 
-@[simp]
+@[simp, grind =]
 theorem extract_eq_pop {as : Array α} {stop : Nat} (h : stop = as.size - 1) :
     as.extract 0 stop = as.pop := by
   ext i h₁ h₂
@@ -65,7 +65,7 @@ theorem extract_eq_pop {as : Array α} {stop : Nat} (h : stop = as.size - 1) :
   · simp only [size_extract, size_pop] at h₁ h₂
     simp [getElem_extract, getElem_pop]
 
-@[simp]
+@[simp, grind _=_]
 theorem extract_append_extract {as : Array α} {i j k : Nat} :
     as.extract i j ++ as.extract j k = as.extract (min i j) (max j k) := by
   ext l h₁ h₂
@@ -169,7 +169,7 @@ theorem getElem?_extract_of_succ {as : Array α} {j : Nat} :
   simp [getElem?_extract]
   omega
 
-@[simp] theorem extract_extract {as : Array α} {i j k l : Nat} :
+@[simp, grind =] theorem extract_extract {as : Array α} {i j k l : Nat} :
     (as.extract i j).extract k l = as.extract (i + k) (min (i + l) j) := by
   ext m h₁ h₂
   · simp
@@ -185,6 +185,7 @@ theorem ne_empty_of_extract_ne_empty {as : Array α} {i j : Nat} (h : as.extract
     as ≠ #[] :=
   mt extract_eq_empty_of_eq_empty h
 
+@[grind =]
 theorem extract_set {as : Array α} {i j k : Nat} (h : k < as.size) {a : α} :
     (as.set k a).extract i j =
       if _ : k < i then
@@ -211,13 +212,14 @@ theorem extract_set {as : Array α} {i j k : Nat} (h : k < as.size) {a : α} :
         simp [getElem_set]
         omega
 
+@[grind =]
 theorem set_extract {as : Array α} {i j k : Nat} (h : k < (as.extract i j).size) {a : α} :
     (as.extract i j).set k a = (as.set (i + k) a (by simp at h; omega)).extract i j := by
   ext l h₁ h₂
   · simp
   · simp_all [getElem_set]
 
-@[simp]
+@[simp, grind =]
 theorem extract_append {as bs : Array α} {i j : Nat} :
     (as ++ bs).extract i j = as.extract i j ++ bs.extract (i - as.size) (j - as.size) := by
   ext l h₁ h₂
@@ -242,14 +244,14 @@ theorem extract_append_right {as bs : Array α} :
     (as ++ bs).extract as.size (as.size + i) = bs.extract 0 i := by
   simp
 
-@[simp] theorem map_extract {as : Array α} {i j : Nat} :
+@[simp, grind =] theorem map_extract {as : Array α} {i j : Nat} :
     (as.extract i j).map f = (as.map f).extract i j := by
   ext l h₁ h₂
   · simp
   · simp only [size_map, size_extract] at h₁ h₂
     simp only [getElem_map, getElem_extract]
 
-@[simp] theorem extract_replicate {a : α} {n i j : Nat} :
+@[simp, grind =] theorem extract_replicate {a : α} {n i j : Nat} :
     (replicate n a).extract i j = replicate (min j n - i) a := by
   ext l h₁ h₂
   · simp
@@ -297,6 +299,7 @@ theorem set_eq_push_extract_append_extract {as : Array α} {i : Nat} (h : i < as
   simp at h
   simp [List.set_eq_take_append_cons_drop, h, List.take_of_length_le]
 
+@[grind =]
 theorem extract_reverse {as : Array α} {i j : Nat} :
     as.reverse.extract i j = (as.extract (as.size - j) (as.size - i)).reverse := by
   ext l h₁ h₂
@@ -307,6 +310,7 @@ theorem extract_reverse {as : Array α} {i j : Nat} :
     congr 1
     omega
 
+@[grind =]
 theorem reverse_extract {as : Array α} {i j : Nat} :
     (as.extract i j).reverse = as.reverse.extract (as.size - j) (as.size - i) := by
   rw [extract_reverse]

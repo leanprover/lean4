@@ -10,6 +10,7 @@ import Lean.Elab.BindersUtil
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.PreDefinition.TerminationHint
 import Lean.Elab.Match
+import Lean.Compiler.MetaAttr
 
 namespace Lean.Elab.Term
 open Meta
@@ -109,6 +110,7 @@ def declareTacticSyntax (tactic : Syntax) (name? : Option Name := none) : TermEl
     let decl := Declaration.defnDecl { name, levelParams := [], type, value, hints := .opaque,
                                        safety := DefinitionSafety.safe }
     addDecl decl
+    modifyEnv (addMeta · name)
     compileDecl decl
     return name
 

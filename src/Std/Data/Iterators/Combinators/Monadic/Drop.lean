@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
-import Std.Data.Iterators.Basic
-import Std.Data.Iterators.Consumers.Collect
-import Std.Data.Iterators.Consumers.Loop
-import Std.Data.Iterators.Internal.Termination
+import Init.Data.Iterators.Basic
+import Init.Data.Iterators.Consumers.Collect
+import Init.Data.Iterators.Consumers.Loop
+import Init.Data.Iterators.Internal.Termination
 
 /-!
 This file provides the iterator combinator `IterM.drop`.
@@ -51,6 +51,7 @@ it.drop 3   ------⊥
 Currently, this combinator incurs an additional O(1) cost with each output of `it`, even when the iterator
 does not drop any elements anymore.
 -/
+@[always_inline, inline]
 def IterM.drop (n : Nat) (it : IterM (α := α) m β) :=
   toIterM (Drop.mk n it) m β
 
@@ -163,6 +164,14 @@ instance Drop.instIteratorLoop [Monad m] [Monad n] [Iterator α m β] :
 
 instance Drop.instIteratorLoopPartial [Monad m] [Monad n] [Iterator α m β] :
     IteratorLoopPartial (Drop α m β) m n :=
+  .defaultImplementation
+
+instance {α : Type w} [Monad m] [Iterator α m β] [Finite α m] [IteratorLoop α m m] :
+    IteratorSize (Drop α m β) m :=
+  .defaultImplementation
+
+instance {α : Type w} [Monad m] [Iterator α m β] [IteratorLoopPartial α m m] :
+    IteratorSizePartial (Drop α m β) m :=
   .defaultImplementation
 
 end Std.Iterators

@@ -1,4 +1,3 @@
-set_option grind.warning false
 set_option grind.debug true
 
 open Lean.Grind
@@ -17,7 +16,6 @@ example (x : UInt8) : (x + 16)*(x - 16) = x^2 := by
 
 /--
 trace: [grind.ring] new ring: Int
-[grind.ring] characteristic: 0
 [grind.ring] NoNatZeroDivisors available: true
 -/
 #guard_msgs (trace) in
@@ -29,8 +27,9 @@ example (x : BitVec 8) : (x + 16)*(x - 16) = x^2 := by
   grind
 
 /--
-trace: [grind.ring] new ring: BitVec 8
-[grind.ring] characteristic: 256
+trace: [grind.ring] new ring: Int
+[grind.ring] NoNatZeroDivisors available: true
+[grind.ring] new ring: BitVec 8
 [grind.ring] NoNatZeroDivisors available: false
 -/
 #guard_msgs (trace) in
@@ -66,3 +65,30 @@ set_option trace.grind.ring.assert.queue true in
 example (x y : Int) : x + 16*y^2 - 7*x^2 = 0 → False := by
   fail_if_success grind
   sorry
+
+/--
+trace: [grind.debug.ring.basis] a ^ 2 * b + -1 = 0
+[grind.debug.ring.basis] a * b ^ 2 + -1 * b = 0
+[grind.debug.ring.basis] a * b + -1 * b = 0
+[grind.debug.ring.basis] b + -1 = 0
+[grind.debug.ring.basis] a + -1 = 0
+-/
+#guard_msgs (drop error, trace) in
+set_option trace.grind.debug.ring.basis true in
+example [CommRing α] (a b c : α)
+    : a^2*b = 1 → a*b^2 = b → False := by
+   grind
+
+
+/--
+trace: [grind.ring.assert.basis] a ^ 2 * b + -1 = 0
+[grind.ring.assert.basis] a * b ^ 2 + -1 * b = 0
+[grind.ring.assert.basis] a * b + -1 * b = 0
+[grind.ring.assert.basis] b + -1 = 0
+[grind.ring.assert.basis] a + -1 = 0
+-/
+#guard_msgs (drop error, trace) in
+set_option trace.grind.ring.assert.basis true in
+example [CommRing α] [Preorder α] [Ring.IsOrdered α] (a b c : α)
+    : a^2*b = 1 → a*b^2 = b → False := by
+   grind

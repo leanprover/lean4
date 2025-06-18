@@ -11,7 +11,6 @@ This module contains the verification of RUP-based clause adding for the default
 implementation.
 -/
 
-set_option grind.warning false -- I've only made a partial effort to use grind here so far.
 namespace Std.Tactic.BVDecide
 namespace LRAT
 namespace Internal
@@ -554,7 +553,6 @@ theorem reduce_postcondition {n : Nat} (c : DefaultClause n) (assignment : Array
         have idx_exists : ∃ idx : Fin c_arr.size, c_arr[idx] = (i, false) := by
           rcases List.get_of_mem pc1 with ⟨idx, hidx⟩
           simp only [List.get_eq_getElem] at hidx
-          -- grind -- FIXME: internal grind error
           exact Exists.intro idx hidx
         rcases idx_exists with ⟨idx, hidx⟩
         specialize h1 idx idx.2
@@ -565,7 +563,6 @@ theorem reduce_postcondition {n : Nat} (c : DefaultClause n) (assignment : Array
         have idx_exists : ∃ idx : Fin c_arr.size, c_arr[idx] = (i, true) := by
           rcases List.get_of_mem pc1 with ⟨idx, hidx⟩
           simp only [List.get_eq_getElem] at hidx
-          -- grind -- FIXME: internal grind error
           exact Exists.intro idx hidx
         rcases idx_exists with ⟨idx, hidx⟩
         specialize h1 idx idx.2

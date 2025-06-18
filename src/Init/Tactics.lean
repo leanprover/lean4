@@ -536,6 +536,12 @@ syntax (name := change) "change " term (location)? : tactic
 syntax (name := changeWith) "change " term " with " term (location)? : tactic
 
 /--
+`show t` finds the first goal whose target unifies with `t`. It makes that the main goal,
+performs the unification, and replaces the target with the unified version of `t`.
+-/
+syntax (name := «show») "show " term : tactic
+
+/--
 Extracts `let` and `let_fun` expressions from within the target or a local hypothesis,
 introducing new local definitions.
 
@@ -695,7 +701,7 @@ syntax (name := dsimp) "dsimp" optConfig (discharger)? (&" only")?
 A `simpArg` is either a `*`, `-lemma` or a simp lemma specification
 (which includes the `↑` `↓` `←` specifications for pre, post, reverse rewriting).
 -/
-def simpArg := simpStar.binary `orelse (simpErase.binary `orelse simpLemma)
+meta def simpArg := simpStar.binary `orelse (simpErase.binary `orelse simpLemma)
 
 /-- A simp args list is a list of `simpArg`. This is the main argument to `simp`. -/
 syntax simpArgs := " [" simpArg,* "]"
@@ -704,7 +710,7 @@ syntax simpArgs := " [" simpArg,* "]"
 A `dsimpArg` is similar to `simpArg`, but it does not have the `simpStar` form
 because it does not make sense to use hypotheses in `dsimp`.
 -/
-def dsimpArg := simpErase.binary `orelse simpLemma
+meta def dsimpArg := simpErase.binary `orelse simpLemma
 
 /-- A dsimp args list is a list of `dsimpArg`. This is the main argument to `dsimp`. -/
 syntax dsimpArgs := " [" dsimpArg,* "]"
@@ -864,11 +870,6 @@ The `let` tactic is for adding definitions to the local context of the main goal
   local variables `x : α`, `y : β`, and `z : γ`.
 -/
 macro "let " d:letDecl : tactic => `(tactic| refine_lift let $d:letDecl; ?_)
-/--
-`show t` finds the first goal whose target unifies with `t`. It makes that the main goal,
- performs the unification, and replaces the target with the unified version of `t`.
--/
-macro "show " e:term : tactic => `(tactic| refine_lift show $e from ?_) -- TODO: fix, see comment
 /-- `let rec f : t := e` adds a recursive definition `f` to the current goal.
 The syntax is the same as term-mode `let rec`. -/
 syntax (name := letrec) withPosition(atomic("let " &"rec ") letRecDecls) : tactic
@@ -1917,30 +1918,35 @@ syntax "‹" withoutPosition(term) "›" : term
 macro_rules | `(‹$type›) => `((by assumption : $type))
 
 /--
-`get_elem_tactic_trivial` is an extensible tactic automatically called
+`get_elem_tactic_extensible` is an extensible tactic automatically called
 by the notation `arr[i]` to prove any side conditions that arise when
 constructing the term (e.g. the index is in bounds of the array).
-The default behavior is to just try `trivial` (which handles the case
-where `i < arr.size` is in the context) and `simp +arith` and `omega`
+The default behavior is to try `simp +arith` and `omega`
 (for doing linear arithmetic in the index).
+
+(Note that the core tactic `get_elem_tactic` has already tried
+`done` and `assumption` before the extensible tactic is called.)
 -/
+syntax "get_elem_tactic_extensible" : tactic
+
+/-- `get_elem_tactic_trivial` has been deprecated in favour of `get_elem_tactic_extensible`. -/
 syntax "get_elem_tactic_trivial" : tactic
 
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| omega)
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| simp +arith; done)
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| trivial)
+macro_rules | `(tactic| get_elem_tactic_extensible) => `(tactic| omega)
+macro_rules | `(tactic| get_elem_tactic_extensible) => `(tactic| simp +arith; done)
+macro_rules | `(tactic| get_elem_tactic_extensible) => `(tactic| trivial)
 
 /--
 `get_elem_tactic` is the tactic automatically called by the notation `arr[i]`
 to prove any side conditions that arise when constructing the term
 (e.g. the index is in bounds of the array). It just delegates to
-`get_elem_tactic_trivial` and gives a diagnostic error message otherwise;
-users are encouraged to extend `get_elem_tactic_trivial` instead of this tactic.
+`get_elem_tactic_extensible` and gives a diagnostic error message otherwise;
+users are encouraged to extend `get_elem_tactic_extensible` instead of this tactic.
 -/
 macro "get_elem_tactic" : tactic =>
   `(tactic| first
       /-
-      Recall that `macro_rules` (namely, for `get_elem_tactic_trivial`) are tried in reverse order.
+      Recall that `macro_rules` (namely, for `get_elem_tactic_extensible`) are tried in reverse order.
       We first, however, try `done`, since the necessary proof may already have been
       found during unification, in which case there is no goal to solve (see #6999).
       If a goal is present, we want `assumption` to be tried first.
@@ -1953,15 +1959,15 @@ macro "get_elem_tactic" : tactic =>
       If `omega` is used to "fill" this proof, we will have a more complex proof term that
       cannot be inferred by unification.
       We hardcoded `assumption` here to ensure users cannot accidentally break this IF
-      they add new `macro_rules` for `get_elem_tactic_trivial`.
+      they add new `macro_rules` for `get_elem_tactic_extensible`.
 
       TODO: Implement priorities for `macro_rules`.
-      TODO: Ensure we have **high-priority** macro_rules for `get_elem_tactic_trivial` which are
+      TODO: Ensure we have **high-priority** macro_rules for `get_elem_tactic_extensible` which are
             just `done` and `assumption`.
       -/
     | done
     | assumption
-    | get_elem_tactic_trivial
+    | get_elem_tactic_extensible
     | fail "failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
   - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid

@@ -311,7 +311,7 @@ def Folder.mulShift [Literal α] [BEq α] (shiftLeft : Name) (pow2 : α → α) 
 -- TODO: add option for controlling the limit
 def natPowThreshold := 256
 
-def foldNatPow (args : Array Arg): FolderM (Option LetValue) := do
+def foldNatPow (args : Array Arg) : FolderM (Option LetValue) := do
   let #[.fvar fvarId₁, .fvar fvarId₂] := args | return none
   let some value₁ ← getNatLit fvarId₁ | return none
   let some value₂ ← getNatLit fvarId₂ | return none
@@ -323,12 +323,12 @@ def foldNatPow (args : Array Arg): FolderM (Option LetValue) := do
 /--
 Folder for ofNat operations on fixed-sized integer types.
 -/
-def Folder.ofNat (f : Nat → LitValue) (args : Array Arg): FolderM (Option LetValue) := do
+def Folder.ofNat (f : Nat → LitValue) (args : Array Arg) : FolderM (Option LetValue) := do
   let #[.fvar fvarId] := args | return none
   let some value ← getNatLit fvarId | return none
   return some (.lit (f value))
 
-def Folder.toNat (args : Array Arg): FolderM (Option LetValue) := do
+def Folder.toNat (args : Array Arg) : FolderM (Option LetValue) := do
   let #[.fvar fvarId] := args | return none
   let some (.lit lit) ← findLetValue? fvarId | return none
   match lit with
@@ -362,6 +362,7 @@ def arithmeticFolders : List (Name × Folder) := [
   (``UInt32.div,  Folder.first #[Folder.mkBinary UInt32.div, Folder.rightNeutral (1 : UInt32), Folder.divShift ``UInt32.shiftRight (UInt32.shiftLeft 1 ·) UInt32.log2]),
   (``UInt64.div,  Folder.first #[Folder.mkBinary UInt64.div, Folder.rightNeutral (1 : UInt64), Folder.divShift ``UInt64.shiftRight (UInt64.shiftLeft 1 ·) UInt64.log2]),
   (``Nat.pow, foldNatPow),
+  (``Nat.nextPowerOfTwo, Folder.mkUnary Nat.nextPowerOfTwo),
 ]
 
 def relationFolders : List (Name × Folder) := [
@@ -390,6 +391,7 @@ def conversionFolders : List (Name × Folder) := [
   (``UInt32.ofNat, Folder.ofNat (fun v => .uint32 (UInt32.ofNat v))),
   (``UInt64.ofNat, Folder.ofNat (fun v => .uint64 (UInt64.ofNat v))),
   (``USize.ofNat, Folder.ofNat (fun v => .usize (UInt64.ofNat v))),
+  (``Char.ofNat, Folder.ofNat (fun v => .uint32 (Char.ofNat v).val)),
   (``UInt8.toNat, Folder.toNat),
   (``UInt16.toNat, Folder.toNat),
   (``UInt32.toNat, Folder.toNat),

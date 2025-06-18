@@ -31,19 +31,19 @@ Examples:
 @[inline, expose]
 def uncurry : (α → β → φ) → α × β → φ := fun f a => f a.1 a.2
 
-@[simp]
+@[simp, grind]
 theorem curry_uncurry (f : α → β → φ) : curry (uncurry f) = f :=
   rfl
 
-@[simp]
+@[simp, grind]
 theorem uncurry_curry (f : α × β → φ) : uncurry (curry f) = f :=
   funext fun ⟨_a, _b⟩ => rfl
 
-@[simp]
+@[simp, grind]
 theorem uncurry_apply_pair {α β γ} (f : α → β → γ) (x : α) (y : β) : uncurry f (x, y) = f x y :=
   rfl
 
-@[simp]
+@[simp, grind]
 theorem curry_apply {α β γ} (f : α × β → γ) (x : α) (y : β) : curry f x y = f (x, y) :=
   rfl
 

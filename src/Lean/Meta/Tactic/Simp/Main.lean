@@ -800,14 +800,26 @@ where
   withTrackingZetaDeltaSet ctx.zetaDeltaSet <|
   withReducible x
 
-private def updateUsedSimpsWithZetaDeltaCore (s : UsedSimps) (usedZetaDelta : FVarIdSet) : UsedSimps :=
-  usedZetaDelta.fold (init := s) fun s fvarId =>
-    s.insert <| .fvar fvarId
+/--
+Adds the fvars from `usedZetaDelta` to `s` if they are present in
+the set `zetaDeltaSet` of fvars that are explicitly added to the simp context.
+
+*Note:* `usedZetaDelta` might contain fvars that are not in `zetaDeltaSet`,
+since within `withResetZetaDeltaFVarIds` it is possible for `whnf` to be run with different configurations,
+ones that allow zeta-delta reducing fvars not in `zetaDeltaSet` (e.g. `withInferTypeConfig` sets `zetaDelta := true`).
+This also means that `usedZetaDelta` set might be reporting fvars in `zetaDeltaSet` that weren't "used".
+-/
+private def updateUsedSimpsWithZetaDeltaCore (s : UsedSimps) (zetaDeltaSet : FVarIdSet) (usedZetaDelta : FVarIdSet) : UsedSimps :=
+  zetaDeltaSet.fold (init := s) fun s fvarId =>
+    if usedZetaDelta.contains fvarId then
+      s.insert <| .fvar fvarId
+    else
+      s
 
 private def updateUsedSimpsWithZetaDelta (ctx : Context) (stats : Stats) : MetaM Stats := do
   let used := stats.usedTheorems
-  let used := updateUsedSimpsWithZetaDeltaCore used ctx.initUsedZetaDelta
-  let used := updateUsedSimpsWithZetaDeltaCore used (← getZetaDeltaFVarIds)
+  let used := updateUsedSimpsWithZetaDeltaCore used ctx.zetaDeltaSet ctx.initUsedZetaDelta
+  let used := updateUsedSimpsWithZetaDeltaCore used ctx.zetaDeltaSet (← getZetaDeltaFVarIds)
   return { stats with usedTheorems := used }
 
 @[inline] def withCatchingRuntimeEx (x : SimpM α) : SimpM α := do

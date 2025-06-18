@@ -149,7 +149,7 @@ def checkDecl : SimpleHandler := fun stx => do
         if declModifiersPubNoDoc head then -- no doc string
           lintField rest[1][0] stx[1] "computed field"
   else if rest.getKind == ``«structure» then
-    unless rest[5][2].isNone do
+    unless rest[4][2].isNone do
       let redecls : Std.HashSet String.Pos :=
         (← get).infoState.trees.foldl (init := {}) fun s tree =>
           tree.foldInfo (init := s) fun _ info s =>
@@ -163,7 +163,7 @@ def checkDecl : SimpleHandler := fun stx => do
         if let some range := stx.getRange? then
           if redecls.contains range.start then return
         lintField parent stx "public field"
-      for stx in rest[5][2][0].getArgs do
+      for stx in rest[4][2][0].getArgs do
         let head := stx[0]
         if declModifiersPubNoDoc head then
           if stx.getKind == ``structSimpleBinder then

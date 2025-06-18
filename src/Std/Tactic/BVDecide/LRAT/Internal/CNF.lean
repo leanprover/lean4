@@ -6,8 +6,6 @@ Authors: Josh Clune
 prelude
 import Std.Tactic.BVDecide.LRAT.Internal.Formula.Class
 
-set_option grind.warning false
-
 namespace Std.Tactic.BVDecide
 namespace LRAT
 namespace Internal

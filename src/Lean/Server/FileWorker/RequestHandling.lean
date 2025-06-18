@@ -131,7 +131,7 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
     return #[]
 
   let locationLinksFromImport (i : Elab.Info) := do
-    let `(Parser.Module.import| $[private]? import $[all]? $mod) := i.stx
+    let `(Parser.Module.import| $[private]? $[meta]? import $[all]? $mod) := i.stx
       | return #[]
     if let some modUri ← documentUriFromModule? mod.getId then
       let range := { start := ⟨0, 0⟩, «end» := ⟨0, 0⟩ : Range }
@@ -156,6 +156,19 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
       if kind == definition && ci.env.contains ei.elaborator then
         return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
     return #[]
+
+  let locationLinksFromErrorNameInfo (eni : ErrorNameInfo) : MetaM (Array LocationLink) := do
+    let some explan := getErrorExplanationRaw? (← getEnv) eni.errorName | return #[]
+    let some (loc : DeclarationLocation) := explan.declLoc? | return #[]
+    let some targetUri ← documentUriFromModule? loc.module | return #[]
+    let targetRange := loc.range.toLspRange
+    let link : LocationLink := {
+      originSelectionRange? := (·.toLspRange text) <$> eni.stx.getRange? (canonicalOnly := true)
+      targetUri
+      targetRange
+      targetSelectionRange := targetRange
+    }
+    return #[link]
 
   let locationLinksFromTermInfo (ti : TermInfo) : RequestM (Array LocationLink) := do
     let mut expr := ti.expr
@@ -230,6 +243,8 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
       return ← ci.runMetaM i.lctx <| locationLinksFromDecl i fi.projName
   | .ofOptionInfo oi =>
     return ← ci.runMetaM i.lctx <| locationLinksFromDecl i oi.declName
+  | .ofErrorNameInfo eni =>
+    return ← ci.runMetaM i.lctx <| locationLinksFromErrorNameInfo eni
   | .ofCommandInfo ⟨`import, _⟩ =>
     if kind == definition || kind == declaration then
       return ← ci.runMetaM i.lctx <| locationLinksFromImport i
@@ -254,7 +269,7 @@ def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : ServerTask (
   let text := doc.meta.text
   findCmdParsedSnap doc hoverPos |>.bindCostly fun
     | some cmdParsed =>
-      let t := toSnapshotTree cmdParsed |>.foldSnaps [] fun snap oldGoals => Id.run do
+      let t := toSnapshotTree cmdParsed.elabSnap |>.foldSnaps [] fun snap oldGoals => Id.run do
         let some stx := snap.stx?
           | return .pure (oldGoals, .proceed (foldChildren := false))
         let some (pos, tailPos, trailingPos) := getPositions stx

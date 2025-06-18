@@ -82,6 +82,7 @@ LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Widget_diffInteractiveGoals___s
 static lean_object* l_Lean_Widget_diffInteractiveGoals___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Widget_exprDiffCore_piDiff___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_diffInteractiveGoal___closed__8;
+lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Lean_SubExpr_Pos_toString(lean_object*);
 lean_object* l_Array_zip___rarg(lean_object*, lean_object*);
@@ -117,7 +118,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_diffHypotheses_
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_diffInteractiveGoals___spec__3(uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_MVarIdMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_levelZero;
-lean_object* l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Widget_diffHypothesesBundle_withTypeDiff___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_diffInteractiveGoals___spec__3___at_Lean_Widget_diffInteractiveGoals___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Widget_diffInteractiveGoal___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -183,6 +183,7 @@ lean_object* l_Lean_LocalDecl_type(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiffTag_toString___boxed(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_addDiffTags___lambda__1(uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__5(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Widget_ExprDiff_isEmpty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_Diff___hyg_5_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instToStringExprDiff___boxed(lean_object*);
@@ -215,7 +216,6 @@ LEAN_EXPORT lean_object* l_Lean_RBMap_toList___at_Lean_Widget_instToStringExprDi
 lean_object* l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Widget_exprDiffCore_piDiff___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
-lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_addDiffTags___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_diffInteractiveGoals___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -851,7 +851,7 @@ x_2 = lean_ctor_get(x_1, 0);
 x_3 = l_Lean_RBMap_toList___at_Lean_Widget_instToStringExprDiff___spec__1(x_2);
 x_4 = lean_box(0);
 x_5 = l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3(x_3, x_4);
-x_6 = l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__1(x_5);
+x_6 = l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__5(x_5);
 lean_dec(x_5);
 x_7 = l_Lean_Widget_instToStringExprDiff___closed__1;
 x_8 = lean_string_append(x_7, x_6);
@@ -861,7 +861,7 @@ x_10 = lean_string_append(x_8, x_9);
 x_11 = lean_ctor_get(x_1, 1);
 x_12 = l_Lean_RBMap_toList___at_Lean_Widget_instToStringExprDiff___spec__1(x_11);
 x_13 = l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3(x_12, x_4);
-x_14 = l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__1(x_13);
+x_14 = l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__5(x_13);
 lean_dec(x_13);
 x_15 = lean_string_append(x_10, x_14);
 lean_dec(x_14);
@@ -4248,7 +4248,7 @@ lean_closure_set(x_50, 1, x_24);
 lean_closure_set(x_50, 2, x_16);
 lean_closure_set(x_50, 3, x_28);
 x_51 = 0;
-x_52 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_10, x_13, x_11, x_50, x_51, x_3, x_4, x_5, x_6, x_34);
+x_52 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_10, x_13, x_11, x_50, x_51, x_3, x_4, x_5, x_6, x_34);
 if (lean_obj_tag(x_52) == 0)
 {
 uint8_t x_53; 
@@ -4354,7 +4354,7 @@ lean_closure_set(x_79, 1, x_24);
 lean_closure_set(x_79, 2, x_16);
 lean_closure_set(x_79, 3, x_28);
 x_80 = 0;
-x_81 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_10, x_13, x_11, x_79, x_80, x_3, x_4, x_5, x_6, x_62);
+x_81 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_10, x_13, x_11, x_79, x_80, x_3, x_4, x_5, x_6, x_62);
 if (lean_obj_tag(x_81) == 0)
 {
 lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; 

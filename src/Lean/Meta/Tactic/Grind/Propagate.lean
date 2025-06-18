@@ -161,6 +161,7 @@ builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
       propagateBoolDiseq rhs
     propagateCutsatDiseq lhs rhs
     propagateCommRingDiseq lhs rhs
+    propagateLinarithDiseq lhs rhs
     let thms ← getExtTheorems α
     if !thms.isEmpty then
       /-

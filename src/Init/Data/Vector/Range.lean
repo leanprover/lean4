@@ -112,13 +112,24 @@ theorem range'_eq_append_iff : range' s (n + m) = xs ++ ys ↔ xs = range' s n �
   · rintro ⟨h₁, h₂⟩
     exact ⟨n, by omega, by simp_all⟩
 
-@[simp] theorem find?_range'_eq_some {s n : Nat} {i : Nat} {p : Nat → Bool} :
+@[simp, grind =] theorem find?_range'_eq_some {s n : Nat} {i : Nat} {p : Nat → Bool} :
     (range' s n).find? p = some i ↔ p i ∧ i ∈ range' s n ∧ ∀ j, s ≤ j → j < i → !p j := by
   simp [range'_eq_mk_range']
 
-@[simp] theorem find?_range'_eq_none {s n : Nat} {p : Nat → Bool} :
+@[simp, grind =] theorem find?_range'_eq_none {s n : Nat} {p : Nat → Bool} :
     (range' s n).find? p = none ↔ ∀ i, s ≤ i → i < s + n → !p i := by
   simp [range'_eq_mk_range']
+
+@[simp, grind =]
+theorem count_range' {a s n step} (h : 0 < step := by simp) :
+    count a (range' s n step) = if ∃ i, i < n ∧ a = s + step * i then 1 else 0 := by
+  rw [range'_eq_mk_range', count_mk, ← Array.count_range' h]
+
+@[simp, grind =]
+theorem count_range_1' {a s n} :
+    count a (range' s n) = if s ≤ a ∧ a < s + n then 1 else 0 := by
+  rw [range'_eq_mk_range', count_mk, ← Array.count_range_1']
+
 
 /-! ### range -/
 
@@ -171,9 +182,15 @@ theorem self_mem_range_succ {n : Nat} : n ∈ range (n + 1) := by simp
     (range n).find? p = none ↔ ∀ i, i < n → !p i := by
   simp [range_eq_range']
 
+@[simp, grind =]
+theorem count_range {a n} :
+    count a (range n) = if a < n then 1 else 0 := by
+  rw [range_eq_range', count_range_1']
+  simp
+
 /-! ### zipIdx -/
 
-@[simp]
+@[simp, grind =]
 theorem getElem?_zipIdx {xs : Vector α n} {i j} : (zipIdx xs i)[j]? = xs[j]?.map fun a => (a, i + j) := by
   simp [getElem?_def]
 
@@ -216,7 +233,7 @@ theorem zipIdx_eq_map_add {xs : Vector α n} {i : Nat} :
   simp only [zipIdx_mk, map_mk, eq_mk]
   rw [Array.zipIdx_eq_map_add]
 
-@[simp]
+@[simp, grind =]
 theorem zipIdx_singleton {x : α} {k : Nat} : zipIdx (#v[x]) k = #v[(x, k)] :=
   rfl
 
@@ -265,6 +282,7 @@ theorem zipIdx_map {f : α → β} {xs : Vector α n} {k : Nat} :
   rcases xs with ⟨xs, rfl⟩
   simp [Array.zipIdx_map]
 
+@[grind =]
 theorem zipIdx_append {xs : Vector α n} {ys : Vector α m} {k : Nat} :
     zipIdx (xs ++ ys) k = zipIdx xs k ++ zipIdx ys (k + n) := by
   rcases xs with ⟨xs, rfl⟩

@@ -74,25 +74,27 @@ section getXsb
 
 /--
 Returns the `i`th least significant bit.
-
-This will be renamed `getLsb` after the existing deprecated alias is removed.
 -/
-@[inline, expose] def getLsb' (x : BitVec w) (i : Fin w) : Bool := x.toNat.testBit i
+@[inline, expose] def getLsb (x : BitVec w) (i : Fin w) : Bool := x.toNat.testBit i
+
+@[deprecated getLsb (since := "2025-06-17"), inherit_doc getLsb]
+abbrev getLsb' := @getLsb
 
 /-- Returns the `i`th least significant bit, or `none` if `i ≥ w`. -/
 @[inline, expose] def getLsb? (x : BitVec w) (i : Nat) : Option Bool :=
-  if h : i < w then some (getLsb' x ⟨i, h⟩) else none
+  if h : i < w then some (getLsb x ⟨i, h⟩) else none
 
 /--
 Returns the `i`th most significant bit.
-
-This will be renamed `BitVec.getMsb` after the existing deprecated alias is removed.
 -/
-@[inline] def getMsb' (x : BitVec w) (i : Fin w) : Bool := x.getLsb' ⟨w-1-i, by omega⟩
+@[inline] def getMsb (x : BitVec w) (i : Fin w) : Bool := x.getLsb ⟨w-1-i, by omega⟩
+
+@[deprecated getMsb (since := "2025-06-17"), inherit_doc getMsb]
+abbrev getMsb' := @getMsb
 
 /-- Returns the `i`th most significant bit or `none` if `i ≥ w`. -/
 @[inline] def getMsb? (x : BitVec w) (i : Nat) : Option Bool :=
-  if h : i < w then some (getMsb' x ⟨i, h⟩) else none
+  if h : i < w then some (getMsb x ⟨i, h⟩) else none
 
 /-- Returns the `i`th least significant bit or `false` if `i ≥ w`. -/
 @[inline, expose] def getLsbD (x : BitVec w) (i : Nat) : Bool :=
@@ -110,11 +112,11 @@ end getXsb
 section getElem
 
 instance : GetElem (BitVec w) Nat Bool fun _ i => i < w where
-  getElem xs i h := xs.getLsb' ⟨i, h⟩
+  getElem xs i h := xs.getLsb ⟨i, h⟩
 
 /-- We prefer `x[i]` as the simp normal form for `getLsb'` -/
-@[simp] theorem getLsb'_eq_getElem (x : BitVec w) (i : Fin w) :
-    x.getLsb' i = x[i] := rfl
+@[simp] theorem getLsb_eq_getElem (x : BitVec w) (i : Fin w) :
+    x.getLsb i = x[i] := rfl
 
 /-- We prefer `x[i]?` as the simp normal form for `getLsb?` -/
 @[simp] theorem getLsb?_eq_getElem? (x : BitVec w) (i : Nat) :
@@ -174,7 +176,7 @@ recommended_spelling "zero" for "0#n" in [BitVec.ofNat, «term__#__»]
 recommended_spelling "one" for "1#n" in [BitVec.ofNat, «term__#__»]
 
 /-- Unexpander for bitvector literals. -/
-@[app_unexpander BitVec.ofNat] def unexpandBitVecOfNat : Lean.PrettyPrinter.Unexpander
+@[app_unexpander BitVec.ofNat] meta def unexpandBitVecOfNat : Lean.PrettyPrinter.Unexpander
   | `($(_) $n $i:num) => `($i:num#$n)
   | _ => throw ()
 
@@ -183,7 +185,7 @@ scoped syntax:max term:max noWs "#'" noWs term:max : term
 macro_rules | `($i#'$p) => `(BitVec.ofNatLT $i $p)
 
 /-- Unexpander for bitvector literals without truncation. -/
-@[app_unexpander BitVec.ofNatLT] def unexpandBitVecOfNatLt : Lean.PrettyPrinter.Unexpander
+@[app_unexpander BitVec.ofNatLT] meta def unexpandBitVecOfNatLt : Lean.PrettyPrinter.Unexpander
   | `($(_) $i $p) => `($i#'$p)
   | _ => throw ()
 
@@ -723,6 +725,12 @@ def twoPow (w : Nat) (i : Nat) : BitVec w := 1#w <<< i
 
 end bitwise
 
+/-- The bitvector of width `w` that has the smallest value when interpreted as an integer. -/
+def intMin (w : Nat) := twoPow w (w - 1)
+
+/-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/
+def intMax (w : Nat) := (twoPow w (w - 1)) - 1
+
 /--
 Computes a hash of a bitvector, combining 64-bit words using `mixHash`.
 -/
@@ -841,5 +849,16 @@ treating `x` and `y` as 2's complement signed bitvectors.
 
 def smulOverflow {w : Nat} (x y : BitVec w) : Bool :=
   (x.toInt * y.toInt ≥ 2 ^ (w - 1)) || (x.toInt * y.toInt < - 2 ^ (w - 1))
+
+/-- Count the number of leading zeros downward from the `n`-th bit to the `0`-th bit for the bitblaster.
+  This builds a tree of `if-then-else` lookups whose length is linear in the bitwidth,
+  and an efficient circuit for bitblasting `clz`. -/
+def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
+  match n with
+  | 0 => if x.getLsbD 0 then BitVec.ofNat w (w - 1) else BitVec.ofNat w w
+  | n' + 1 => if x.getLsbD n then BitVec.ofNat w (w - 1 - n) else clzAuxRec x n'
+
+/-- Count the number of leading zeros. -/
+def clz (x : BitVec w) : BitVec w := clzAuxRec x (w - 1)
 
 end BitVec

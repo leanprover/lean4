@@ -128,6 +128,16 @@ theorem erase_range' :
   simp only [← List.toArray_range', List.erase_toArray]
   simp [List.erase_range']
 
+@[simp, grind =]
+theorem count_range' {a s n step} (h : 0 < step := by simp) :
+    count a (range' s n step) = if ∃ i, i < n ∧ a = s + step * i then 1 else 0 := by
+  rw [← List.toArray_range', List.count_toArray, ← List.count_range' h]
+
+@[simp, grind =]
+theorem count_range_1' {a s n} :
+    count a (range' s n) = if s ≤ a ∧ a < s + n then 1 else 0 := by
+  rw [← List.toArray_range', List.count_toArray, ← List.count_range_1']
+
 /-! ### range -/
 
 @[grind _=_]
@@ -179,11 +189,11 @@ theorem self_mem_range_succ {n : Nat} : n ∈ range (n + 1) := by simp
 @[simp, grind =] theorem take_range {i n : Nat} : take (range n) i = range (min i n) := by
   ext <;> simp
 
-@[simp] theorem find?_range_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
+@[simp, grind =] theorem find?_range_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
     (range n).find? p = some i ↔ p i ∧ i ∈ range n ∧ ∀ j, j < i → !p j := by
   simp [range_eq_range']
 
-@[simp] theorem find?_range_eq_none {n : Nat} {p : Nat → Bool} :
+@[simp, grind =] theorem find?_range_eq_none {n : Nat} {p : Nat → Bool} :
     (range n).find? p = none ↔ ∀ i, i < n → !p i := by
   simp only [← List.toArray_range, List.find?_toArray, List.find?_range_eq_none]
 
@@ -191,6 +201,10 @@ theorem self_mem_range_succ {n : Nat} : n ∈ range (n + 1) := by simp
 theorem erase_range : (range n).erase i = range (min n i) ++ range' (i + 1) (n - (i + 1)) := by
   simp [range_eq_range', erase_range']
 
+@[simp, grind =]
+theorem count_range {a n} :
+    count a (range n) = if a < n then 1 else 0 := by
+  rw [← List.toArray_range, List.count_toArray, ← List.count_range]
 
 /-! ### zipIdx -/
 
@@ -199,7 +213,7 @@ theorem zipIdx_eq_empty_iff {xs : Array α} {i : Nat} : xs.zipIdx i = #[] ↔ xs
   cases xs
   simp
 
-@[simp]
+@[simp, grind =]
 theorem getElem?_zipIdx {xs : Array α} {i j} : (zipIdx xs i)[j]? = xs[j]?.map fun a => (a, i + j) := by
   simp [getElem?_def]
 
@@ -242,7 +256,7 @@ theorem zipIdx_eq_map_add {xs : Array α} {i : Nat} :
   simp only [zipIdx_toArray, List.map_toArray, mk.injEq]
   rw [List.zipIdx_eq_map_add]
 
-@[simp]
+@[simp, grind =]
 theorem zipIdx_singleton {x : α} {k : Nat} : zipIdx #[x] k = #[(x, k)] :=
   rfl
 
@@ -290,6 +304,7 @@ theorem zipIdx_map {xs : Array α} {k : Nat} {f : α → β} :
   cases xs
   simp [List.zipIdx_map]
 
+@[grind =]
 theorem zipIdx_append {xs ys : Array α} {k : Nat} :
     zipIdx (xs ++ ys) k = zipIdx xs k ++ zipIdx ys (k + xs.size) := by
   cases xs

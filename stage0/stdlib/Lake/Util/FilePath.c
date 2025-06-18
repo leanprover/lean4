@@ -25,6 +25,8 @@ uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_Lake_instHDivFilePathString__lake(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_relPathFrom(lean_object*, lean_object*);
+lean_object* l_String_dropPrefix_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Lake_modOfFilePath___spec__1(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_modOfFilePath_removeExts(lean_object*, lean_object*, lean_object*);
@@ -38,6 +40,7 @@ LEAN_EXPORT lean_object* l_Lake_instHDivFilePathString__lake___boxed(lean_object
 LEAN_EXPORT lean_object* l_Lake_joinRelative___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_mapAux___at_Lake_mkRelPathString___spec__1(lean_object*, lean_object*);
 extern uint32_t l_System_FilePath_pathSeparator;
+lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_joinRelative___closed__2;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
@@ -47,7 +50,46 @@ LEAN_EXPORT lean_object* l_Lake_mkRelPathString(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instDivFilePath__lake;
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
+lean_object* lean_nat_add(lean_object*, lean_object*);
 extern uint8_t l_System_Platform_isWindows;
+LEAN_EXPORT lean_object* l_Lake_relPathFrom(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+lean_inc(x_2);
+x_3 = l_String_dropPrefix_x3f(x_2, x_1);
+if (lean_obj_tag(x_3) == 0)
+{
+return x_2;
+}
+else
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+lean_dec(x_2);
+x_4 = lean_ctor_get(x_3, 0);
+lean_inc(x_4);
+lean_dec(x_3);
+x_5 = lean_ctor_get(x_4, 0);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_4, 1);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_4, 2);
+lean_inc(x_7);
+x_8 = lean_unsigned_to_nat(1u);
+x_9 = lean_unsigned_to_nat(0u);
+x_10 = l_Substring_nextn(x_4, x_8, x_9);
+lean_dec(x_4);
+x_11 = lean_nat_add(x_6, x_10);
+lean_dec(x_10);
+lean_dec(x_6);
+x_12 = lean_string_utf8_extract(x_5, x_11, x_7);
+lean_dec(x_7);
+lean_dec(x_11);
+lean_dec(x_5);
+return x_12;
+}
+}
+}
 LEAN_EXPORT lean_object* l_String_mapAux___at_Lake_mkRelPathString___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {

@@ -17,7 +17,6 @@ static lean_object* l_Array_groupByKey___at___private_Lean_Server_Completion_0__
 uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Lsp_beqCompletionItem____x40_Lean_Data_Lsp_LanguageFeatures___hyg_2520____spec__6(lean_object*, lean_object*);
 uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Lsp_beqCompletionItem____x40_Lean_Data_Lsp_LanguageFeatures___hyg_2520____spec__4(lean_object*, lean_object*);
 lean_object* l_instBEqOfDecidableEq___rarg(lean_object*, lean_object*, lean_object*);
-uint64_t l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6536_(lean_object*);
 static lean_object* l_Array_groupByKey___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__1___closed__30;
 static lean_object* l_Array_groupByKey___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__1___closed__11;
 static lean_object* l_Array_groupByKey___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__1___closed__31;
@@ -52,10 +51,11 @@ lean_object* l_instBEqProd___rarg(lean_object*, lean_object*, lean_object*, lean
 static lean_object* l_Std_DHashMap_Internal_AssocList_Const_alter___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__7___closed__1;
 static lean_object* l_Array_groupByKey___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__1___closed__19;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__2___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Server_Completion_errorNameCompletion(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instHashableArray___rarg___boxed(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
-uint64_t l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_hashCompletionItemKind____x40_Lean_Data_Lsp_LanguageFeatures___hyg_1175_(uint8_t);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Server_Completion_find_x3f___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+uint64_t l_Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6536_(lean_object*);
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 extern lean_object* l_Lean_Lsp_instHashableInsertReplaceEdit;
 lean_object* lean_nat_div(lean_object*, lean_object*);
@@ -63,6 +63,7 @@ static lean_object* l_Array_groupByKey___at___private_Lean_Server_Completion_0__
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Server_Completion_find_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Lsp_beqCompletionItem____x40_Lean_Data_Lsp_LanguageFeatures___hyg_2520____spec__1(lean_object*, lean_object*);
 static lean_object* l_Array_groupByKey___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__1___closed__12;
+uint64_t l_Lean_Lsp_hashCompletionItemKind____x40_Lean_Data_Lsp_LanguageFeatures___hyg_1175_(uint8_t);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Server_Completion_find_x3f___spec__1___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___boxed(lean_object*);
 extern lean_object* l_instHashableString;
@@ -112,7 +113,7 @@ lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__4(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_groupByKey___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__1___closed__17;
 static lean_object* l_Array_groupByKey___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__1___closed__14;
-uint64_t l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_hashInsertReplaceEdit____x40_Lean_Data_Lsp_LanguageFeatures___hyg_1716_(lean_object*);
+uint64_t l_Lean_Lsp_hashInsertReplaceEdit____x40_Lean_Data_Lsp_LanguageFeatures___hyg_1716_(lean_object*);
 static lean_object* l_Array_groupByKey___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__1___closed__32;
 size_t lean_usize_sub(size_t, size_t);
 lean_object* lean_array_mk(lean_object*);
@@ -418,7 +419,7 @@ lean_dec(x_26);
 x_130 = lean_ctor_get(x_124, 0);
 lean_inc(x_130);
 lean_dec(x_124);
-x_131 = l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_hashInsertReplaceEdit____x40_Lean_Data_Lsp_LanguageFeatures___hyg_1716_(x_130);
+x_131 = l_Lean_Lsp_hashInsertReplaceEdit____x40_Lean_Data_Lsp_LanguageFeatures___hyg_1716_(x_130);
 lean_dec(x_130);
 x_132 = 13;
 x_133 = lean_uint64_mix_hash(x_131, x_132);
@@ -511,7 +512,7 @@ lean_inc(x_110);
 lean_dec(x_104);
 x_111 = lean_unbox(x_110);
 lean_dec(x_110);
-x_112 = l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_hashCompletionItemKind____x40_Lean_Data_Lsp_LanguageFeatures___hyg_1175_(x_111);
+x_112 = l_Lean_Lsp_hashCompletionItemKind____x40_Lean_Data_Lsp_LanguageFeatures___hyg_1175_(x_111);
 x_113 = 13;
 x_114 = lean_uint64_mix_hash(x_112, x_113);
 x_115 = lean_ctor_get(x_109, 0);
@@ -546,7 +547,7 @@ x_40 = lean_ctor_get(x_34, 0);
 lean_inc(x_40);
 lean_dec(x_34);
 x_41 = 11;
-x_42 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6536_(x_40);
+x_42 = l_Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6536_(x_40);
 lean_dec(x_40);
 x_43 = 13;
 x_44 = lean_uint64_mix_hash(x_42, x_43);
@@ -591,7 +592,7 @@ lean_object* x_61; uint64_t x_62; uint64_t x_63; uint64_t x_64; uint64_t x_65; u
 x_61 = lean_ctor_get(x_34, 0);
 lean_inc(x_61);
 lean_dec(x_34);
-x_62 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6536_(x_61);
+x_62 = l_Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6536_(x_61);
 lean_dec(x_61);
 x_63 = lean_uint64_mix_hash(x_62, x_55);
 x_64 = l_Std_DHashMap_Internal_AssocList_foldlM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__6___closed__2;
@@ -629,7 +630,7 @@ lean_object* x_76; uint64_t x_77; uint64_t x_78; uint64_t x_79; uint64_t x_80; u
 x_76 = lean_ctor_get(x_34, 0);
 lean_inc(x_76);
 lean_dec(x_34);
-x_77 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6536_(x_76);
+x_77 = l_Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6536_(x_76);
 lean_dec(x_76);
 x_78 = lean_uint64_mix_hash(x_77, x_55);
 x_79 = l_Std_DHashMap_Internal_AssocList_foldlM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__6___closed__2;
@@ -669,7 +670,7 @@ lean_object* x_95; uint64_t x_96; uint64_t x_97; uint64_t x_98; uint64_t x_99; u
 x_95 = lean_ctor_get(x_34, 0);
 lean_inc(x_95);
 lean_dec(x_34);
-x_96 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6536_(x_95);
+x_96 = l_Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6536_(x_95);
 lean_dec(x_95);
 x_97 = lean_uint64_mix_hash(x_96, x_55);
 x_98 = lean_uint64_mix_hash(x_88, x_97);
@@ -1164,7 +1165,7 @@ lean_dec(x_65);
 x_169 = lean_ctor_get(x_163, 0);
 lean_inc(x_169);
 lean_dec(x_163);
-x_170 = l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_hashInsertReplaceEdit____x40_Lean_Data_Lsp_LanguageFeatures___hyg_1716_(x_169);
+x_170 = l_Lean_Lsp_hashInsertReplaceEdit____x40_Lean_Data_Lsp_LanguageFeatures___hyg_1716_(x_169);
 lean_dec(x_169);
 x_171 = 13;
 x_172 = lean_uint64_mix_hash(x_170, x_171);
@@ -1346,7 +1347,7 @@ lean_inc(x_149);
 lean_dec(x_143);
 x_150 = lean_unbox(x_149);
 lean_dec(x_149);
-x_151 = l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_hashCompletionItemKind____x40_Lean_Data_Lsp_LanguageFeatures___hyg_1175_(x_150);
+x_151 = l_Lean_Lsp_hashCompletionItemKind____x40_Lean_Data_Lsp_LanguageFeatures___hyg_1175_(x_150);
 x_152 = 13;
 x_153 = lean_uint64_mix_hash(x_151, x_152);
 x_154 = lean_ctor_get(x_148, 0);
@@ -1381,7 +1382,7 @@ x_79 = lean_ctor_get(x_73, 0);
 lean_inc(x_79);
 lean_dec(x_73);
 x_80 = 11;
-x_81 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6536_(x_79);
+x_81 = l_Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6536_(x_79);
 lean_dec(x_79);
 x_82 = 13;
 x_83 = lean_uint64_mix_hash(x_81, x_82);
@@ -1426,7 +1427,7 @@ lean_object* x_100; uint64_t x_101; uint64_t x_102; uint64_t x_103; uint64_t x_1
 x_100 = lean_ctor_get(x_73, 0);
 lean_inc(x_100);
 lean_dec(x_73);
-x_101 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6536_(x_100);
+x_101 = l_Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6536_(x_100);
 lean_dec(x_100);
 x_102 = lean_uint64_mix_hash(x_101, x_94);
 x_103 = l_Std_DHashMap_Internal_AssocList_foldlM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__6___closed__2;
@@ -1464,7 +1465,7 @@ lean_object* x_115; uint64_t x_116; uint64_t x_117; uint64_t x_118; uint64_t x_1
 x_115 = lean_ctor_get(x_73, 0);
 lean_inc(x_115);
 lean_dec(x_73);
-x_116 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6536_(x_115);
+x_116 = l_Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6536_(x_115);
 lean_dec(x_115);
 x_117 = lean_uint64_mix_hash(x_116, x_94);
 x_118 = l_Std_DHashMap_Internal_AssocList_foldlM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__6___closed__2;
@@ -1504,7 +1505,7 @@ lean_object* x_134; uint64_t x_135; uint64_t x_136; uint64_t x_137; uint64_t x_1
 x_134 = lean_ctor_get(x_73, 0);
 lean_inc(x_134);
 lean_dec(x_73);
-x_135 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6536_(x_134);
+x_135 = l_Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6536_(x_134);
 lean_dec(x_134);
 x_136 = lean_uint64_mix_hash(x_135, x_94);
 x_137 = lean_uint64_mix_hash(x_127, x_136);
@@ -2798,7 +2799,6 @@ lean_dec(x_57);
 lean_inc(x_2);
 lean_inc(x_1);
 x_168 = l_Lean_Server_Completion_optionCompletion(x_1, x_58, x_167, x_166, x_2, x_71);
-lean_dec(x_166);
 if (lean_obj_tag(x_168) == 0)
 {
 lean_object* x_169; lean_object* x_170; lean_object* x_171; 
@@ -2838,64 +2838,115 @@ goto block_52;
 }
 }
 }
-case 7:
+case 6:
 {
-lean_object* x_176; lean_object* x_177; 
-lean_dec(x_73);
-x_176 = lean_ctor_get(x_57, 1);
+lean_object* x_176; lean_object* x_177; lean_object* x_178; 
+x_176 = lean_ctor_get(x_73, 1);
 lean_inc(x_176);
+lean_dec(x_73);
+x_177 = lean_ctor_get(x_57, 1);
+lean_inc(x_177);
+lean_dec(x_57);
+lean_inc(x_2);
+lean_inc(x_1);
+x_178 = l_Lean_Server_Completion_errorNameCompletion(x_1, x_58, x_177, x_176, x_2, x_71);
+if (lean_obj_tag(x_178) == 0)
+{
+lean_object* x_179; lean_object* x_180; lean_object* x_181; 
+x_179 = lean_ctor_get(x_178, 0);
+lean_inc(x_179);
+x_180 = lean_ctor_get(x_178, 1);
+lean_inc(x_180);
+lean_dec(x_178);
+lean_inc(x_10);
+x_181 = lean_apply_4(x_72, x_9, x_179, x_10, x_180);
+x_12 = x_181;
+goto block_52;
+}
+else
+{
+uint8_t x_182; 
+lean_dec(x_9);
+x_182 = !lean_is_exclusive(x_178);
+if (x_182 == 0)
+{
+x_12 = x_178;
+goto block_52;
+}
+else
+{
+lean_object* x_183; lean_object* x_184; lean_object* x_185; 
+x_183 = lean_ctor_get(x_178, 0);
+x_184 = lean_ctor_get(x_178, 1);
+lean_inc(x_184);
+lean_inc(x_183);
+lean_dec(x_178);
+x_185 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_185, 0, x_183);
+lean_ctor_set(x_185, 1, x_184);
+x_12 = x_185;
+goto block_52;
+}
+}
+}
+case 8:
+{
+lean_object* x_186; lean_object* x_187; 
+lean_dec(x_73);
+x_186 = lean_ctor_get(x_57, 1);
+lean_inc(x_186);
 lean_dec(x_57);
 lean_inc(x_1);
-x_177 = l_Lean_Server_Completion_tacticCompletion(x_1, x_58, x_176, x_71);
-if (lean_obj_tag(x_177) == 0)
+x_187 = l_Lean_Server_Completion_tacticCompletion(x_1, x_58, x_186, x_71);
+if (lean_obj_tag(x_187) == 0)
 {
-lean_object* x_178; lean_object* x_179; lean_object* x_180; 
-x_178 = lean_ctor_get(x_177, 0);
-lean_inc(x_178);
-x_179 = lean_ctor_get(x_177, 1);
-lean_inc(x_179);
-lean_dec(x_177);
+lean_object* x_188; lean_object* x_189; lean_object* x_190; 
+x_188 = lean_ctor_get(x_187, 0);
+lean_inc(x_188);
+x_189 = lean_ctor_get(x_187, 1);
+lean_inc(x_189);
+lean_dec(x_187);
 lean_inc(x_10);
-x_180 = lean_apply_4(x_72, x_9, x_178, x_10, x_179);
-x_12 = x_180;
+x_190 = lean_apply_4(x_72, x_9, x_188, x_10, x_189);
+x_12 = x_190;
 goto block_52;
 }
 else
 {
-uint8_t x_181; 
+uint8_t x_191; 
 lean_dec(x_9);
-x_181 = !lean_is_exclusive(x_177);
-if (x_181 == 0)
+x_191 = !lean_is_exclusive(x_187);
+if (x_191 == 0)
 {
-x_12 = x_177;
+x_12 = x_187;
 goto block_52;
 }
 else
 {
-lean_object* x_182; lean_object* x_183; lean_object* x_184; 
-x_182 = lean_ctor_get(x_177, 0);
-x_183 = lean_ctor_get(x_177, 1);
-lean_inc(x_183);
-lean_inc(x_182);
-lean_dec(x_177);
-x_184 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_184, 0, x_182);
-lean_ctor_set(x_184, 1, x_183);
-x_12 = x_184;
+lean_object* x_192; lean_object* x_193; lean_object* x_194; 
+x_192 = lean_ctor_get(x_187, 0);
+x_193 = lean_ctor_get(x_187, 1);
+lean_inc(x_193);
+lean_inc(x_192);
+lean_dec(x_187);
+x_194 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_194, 0, x_192);
+lean_ctor_set(x_194, 1, x_193);
+x_12 = x_194;
 goto block_52;
 }
 }
 }
 default: 
 {
-lean_object* x_185; 
+lean_object* x_195; 
 lean_dec(x_73);
 lean_dec(x_58);
 lean_dec(x_57);
 lean_inc(x_10);
 lean_inc(x_3);
-x_185 = lean_apply_4(x_72, x_9, x_3, x_10, x_71);
-x_12 = x_185;
+x_195 = lean_apply_4(x_72, x_9, x_3, x_10, x_71);
+x_12 = x_195;
 goto block_52;
 }
 }

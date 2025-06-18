@@ -26,6 +26,12 @@ builtin_initialize symmExt :
     initial := {}
   }
 
+/--
+Tags symmetry lemmas to be used by the `symm` tactic.
+
+A symmetry lemma should be of the form `r x y → r y x` where `r` is an arbitrary relation.
+-/
+@[builtin_doc]
 builtin_initialize registerBuiltinAttribute {
   name := `symm
   descr := "symmetric relation"

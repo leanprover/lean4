@@ -59,6 +59,7 @@ static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusionType___lambda__1___clo
 LEAN_EXPORT lean_object* l_Lean_throwInterruptException___at_Lean_mkNoConfusionCore___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__6;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkNoConfusionCore___lambda__1___closed__7;
 LEAN_EXPORT lean_object* l_Lean_throwKernelException___at_Lean_mkNoConfusionCore___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__4;
@@ -149,7 +150,6 @@ size_t lean_usize_add(size_t, size_t);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkNoConfusionCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___at_Lean_NoConfusionLinear_mkWithCtorType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -2800,7 +2800,7 @@ lean_closure_set(x_33, 7, x_26);
 x_34 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__11;
 x_35 = 0;
 x_36 = 0;
-x_37 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_34, x_35, x_23, x_33, x_36, x_2, x_3, x_4, x_5, x_32);
+x_37 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_34, x_35, x_23, x_33, x_36, x_2, x_3, x_4, x_5, x_32);
 return x_37;
 }
 else
@@ -2857,7 +2857,7 @@ lean_closure_set(x_57, 7, x_49);
 x_58 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__11;
 x_59 = 0;
 x_60 = 0;
-x_61 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_58, x_59, x_46, x_57, x_60, x_2, x_3, x_4, x_5, x_56);
+x_61 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_58, x_59, x_46, x_57, x_60, x_2, x_3, x_4, x_5, x_56);
 return x_61;
 }
 }
@@ -3205,7 +3205,7 @@ lean_closure_set(x_15, 7, x_7);
 x_16 = l_Lean_mkNoConfusionEnum_mkNoConfusionType___lambda__2___closed__2;
 x_17 = 0;
 x_18 = 0;
-x_19 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_16, x_17, x_8, x_15, x_18, x_10, x_11, x_12, x_13, x_14);
+x_19 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_16, x_17, x_8, x_15, x_18, x_10, x_11, x_12, x_13, x_14);
 return x_19;
 }
 }
@@ -3226,7 +3226,7 @@ lean_closure_set(x_14, 7, x_7);
 x_15 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__11;
 x_16 = 0;
 x_17 = 0;
-x_18 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_15, x_16, x_7, x_14, x_17, x_9, x_10, x_11, x_12, x_13);
+x_18 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_15, x_16, x_7, x_14, x_17, x_9, x_10, x_11, x_12, x_13);
 return x_18;
 }
 }
@@ -3345,7 +3345,7 @@ lean_closure_set(x_25, 6, x_19);
 x_26 = l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__6;
 x_27 = 0;
 x_28 = 0;
-x_29 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_26, x_27, x_21, x_25, x_28, x_2, x_3, x_4, x_5, x_18);
+x_29 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_26, x_27, x_21, x_25, x_28, x_2, x_3, x_4, x_5, x_18);
 return x_29;
 }
 else
@@ -3930,7 +3930,7 @@ lean_closure_set(x_18, 8, x_8);
 x_19 = l_Lean_mkNoConfusionEnum_mkNoConfusion___lambda__2___closed__2;
 x_20 = 0;
 x_21 = 0;
-x_22 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_19, x_20, x_16, x_18, x_21, x_10, x_11, x_12, x_13, x_17);
+x_22 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_19, x_20, x_16, x_18, x_21, x_10, x_11, x_12, x_13, x_17);
 return x_22;
 }
 else
@@ -3986,7 +3986,7 @@ lean_closure_set(x_15, 7, x_7);
 x_16 = l_Lean_mkNoConfusionEnum_mkNoConfusionType___lambda__2___closed__2;
 x_17 = 1;
 x_18 = 0;
-x_19 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_16, x_17, x_8, x_15, x_18, x_10, x_11, x_12, x_13, x_14);
+x_19 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_16, x_17, x_8, x_15, x_18, x_10, x_11, x_12, x_13, x_14);
 return x_19;
 }
 }
@@ -4007,7 +4007,7 @@ lean_closure_set(x_14, 7, x_7);
 x_15 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__11;
 x_16 = 1;
 x_17 = 0;
-x_18 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_15, x_16, x_7, x_14, x_17, x_9, x_10, x_11, x_12, x_13);
+x_18 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_15, x_16, x_7, x_14, x_17, x_9, x_10, x_11, x_12, x_13);
 return x_18;
 }
 }
@@ -4099,7 +4099,7 @@ lean_closure_set(x_29, 6, x_20);
 x_30 = l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__6;
 x_31 = 1;
 x_32 = 0;
-x_33 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_30, x_31, x_22, x_29, x_32, x_2, x_3, x_4, x_5, x_19);
+x_33 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_30, x_31, x_22, x_29, x_32, x_2, x_3, x_4, x_5, x_19);
 return x_33;
 }
 else
@@ -4140,7 +4140,7 @@ lean_closure_set(x_46, 6, x_36);
 x_47 = l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__6;
 x_48 = 1;
 x_49 = 0;
-x_50 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_47, x_48, x_38, x_46, x_49, x_2, x_3, x_4, x_5, x_35);
+x_50 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_47, x_48, x_38, x_46, x_49, x_2, x_3, x_4, x_5, x_35);
 return x_50;
 }
 }

@@ -5,3 +5,4 @@ Authors: Paul Reichert
 -/
 prelude
 import Std.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+import Std.Data.Iterators.Lemmas.Consumers.Monadic.Loop

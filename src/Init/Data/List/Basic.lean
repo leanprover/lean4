@@ -9,6 +9,7 @@ prelude
 import Init.SimpLemmas
 import Init.Data.Nat.Basic
 import Init.Data.List.Notation
+import Init.Data.Nat.Div.Basic
 
 @[expose] section
 
@@ -672,7 +673,7 @@ instance : Std.Associative (α := List α) (· ++ ·) := ⟨append_assoc⟩
 theorem append_cons (as : List α) (b : α) (bs : List α) : as ++ b :: bs = as ++ [b] ++ bs := by
   simp
 
-@[simp] theorem concat_eq_append {as : List α} {a : α} : as.concat a = as ++ [a] := by
+@[simp, grind =] theorem concat_eq_append {as : List α} {a : α} : as.concat a = as ++ [a] := by
   induction as <;> simp [concat, *]
 
 theorem reverseAux_eq_append {as bs : List α} : reverseAux as bs = reverseAux as [] ++ bs := by
@@ -1624,8 +1625,8 @@ def find? (p : α → Bool) : List α → Option α
     | true  => some a
     | false => find? p as
 
-@[simp] theorem find?_nil : ([] : List α).find? p = none := rfl
-theorem find?_cons : (a::as).find? p = match p a with | true => some a | false => as.find? p :=
+@[simp, grind =] theorem find?_nil : ([] : List α).find? p = none := rfl
+@[grind =]theorem find?_cons : (a::as).find? p = match p a with | true => some a | false => as.find? p :=
   rfl
 
 /-! ### findSome? -/
@@ -1845,8 +1846,8 @@ def lookup [BEq α] : α → List (α × β) → Option β
     | true  => some b
     | false => lookup a as
 
-@[simp] theorem lookup_nil [BEq α] : ([] : List (α × β)).lookup a = none := rfl
-theorem lookup_cons [BEq α] {k : α} :
+@[simp, grind =] theorem lookup_nil [BEq α] : ([] : List (α × β)).lookup a = none := rfl
+@[grind =] theorem lookup_cons [BEq α] {k : α} :
     ((k, b)::as).lookup a = match a == k with | true => some b | false => as.lookup a :=
   rfl
 

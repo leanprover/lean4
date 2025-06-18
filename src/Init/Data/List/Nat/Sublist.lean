@@ -118,6 +118,7 @@ theorem suffix_iff_eq_append : l₁ <:+ l₂ ↔ take (length l₂ - length l₁
   ⟨by rintro ⟨r, rfl⟩; simp only [length_append, Nat.add_sub_cancel_right, take_left], fun e =>
     ⟨_, e⟩⟩
 
+@[grind =]
 theorem prefix_take_iff {xs ys : List α} {i : Nat} : xs <+: ys.take i ↔ xs <+: ys ∧ xs.length ≤ i := by
   constructor
   · intro h

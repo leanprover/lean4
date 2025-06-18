@@ -50,7 +50,7 @@ We'll use `v4.6.0` as the intended release version as a running example.
     - Re-running `script/release_checklist.py` will then create the tag `v4.6.0` from `master`/`main` and push it (unless `toolchain-tag: false` in the `release_repos.yml` file)
     - `script/release_checklist.py` will then merge the tag `v4.6.0` into the `stable` branch and push it (unless `stable-branch: false` in the `release_repos.yml` file).
   - Special notes on repositories with exceptional requirements:
-    - `doc-gen4` has addition dependencies which we do not update at each toolchain release, although occasionally these break and need to be updated manually.
+    - `doc-gen4` has additional dependencies which we do not update at each toolchain release, although occasionally these break and need to be updated manually.
     - `verso`:
       - The `subverso` dependency is unusual in that it needs to be compatible with _every_ Lean release simultaneously.
         Usually you don't need to do anything.
@@ -94,6 +94,8 @@ We'll use `v4.6.0` as the intended release version as a running example.
 
 This checklist walks you through creating the first release candidate for a version of Lean.
 
+For subsequent release candidates, the process is essentially the same, but we start out with the `releases/v4.7.0` branch already created.
+
 We'll use `v4.7.0-rc1` as the intended release version in this example.
 
 - Decide which nightly release you want to turn into a release candidate.
@@ -112,7 +114,7 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
     git fetch nightly tag nightly-2024-02-29
     git checkout nightly-2024-02-29
     git checkout -b releases/v4.7.0
-    git push --set-upstream origin releases/v4.18.0
+    git push --set-upstream origin releases/v4.7.0
     ```
 - In `src/CMakeLists.txt`,
   - verify that you see `set(LEAN_VERSION_MINOR 7)` (for whichever `7` is appropriate); this should already have been updated when the development cycle began.

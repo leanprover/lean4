@@ -89,6 +89,8 @@ theorem size_pos_of_mem {a : α} {xs : Array α} (h : a ∈ xs) : 0 < xs.size :=
   simp only [mem_toArray] at h
   simpa using List.length_pos_of_mem h
 
+grind_pattern size_pos_of_mem => a ∈ xs, xs.size
+
 theorem exists_mem_of_size_pos {xs : Array α} (h : 0 < xs.size) : ∃ a, a ∈ xs := by
   cases xs
   simpa using List.exists_mem_of_length_pos h
@@ -133,7 +135,6 @@ grind_pattern Array.getElem?_eq_none => xs.size ≤ i, xs[i]?
 theorem getElem?_eq_some_iff {xs : Array α} : xs[i]? = some b ↔ ∃ h : i < xs.size, xs[i] = b :=
   _root_.getElem?_eq_some_iff
 
-@[grind →]
 theorem getElem_of_getElem? {xs : Array α} : xs[i]? = some a → ∃ h : i < xs.size, xs[i] = a :=
   getElem?_eq_some_iff.mp
 
@@ -176,7 +177,7 @@ theorem getElem_push_lt {xs : Array α} {x : α} {i : Nat} (h : i < xs.size) :
   simp only [push, ← getElem_toList, List.concat_eq_append]
   rw [List.getElem_append_right] <;> simp [← getElem_toList, Nat.zero_lt_one]
 
-theorem getElem_push {xs : Array α} {x : α} {i : Nat} (h : i < (xs.push x).size) :
+@[grind =] theorem getElem_push {xs : Array α} {x : α} {i : Nat} (h : i < (xs.push x).size) :
     (xs.push x)[i] = if h : i < xs.size then xs[i] else x := by
   by_cases h' : i < xs.size
   · simp [getElem_push_lt, h']
@@ -954,6 +955,13 @@ theorem set_push {xs : Array α} {x y : α} {h} :
         · simp at h
           omega
 
+@[grind _=_]
+theorem set_pop {xs : Array α} {x : α} {i : Nat} (h : i < xs.pop.size) :
+    xs.pop.set i x h = (xs.set i x (by simp at h; omega)).pop := by
+  ext i h₁ h₂
+  · simp
+  · simp [getElem_set]
+
 @[simp] theorem set_eq_empty_iff {xs : Array α} {i : Nat} {a : α} {h : i < xs.size} :
     xs.set i a = #[] ↔ xs = #[] := by
   cases xs <;> cases i <;> simp [set]
@@ -1491,6 +1499,19 @@ grind_pattern Array.size_filter_le => (xs.filter p).size
 theorem forall_mem_filter {p : α → Bool} {xs : Array α} {P : α → Prop} :
     (∀ (i) (_ : i ∈ xs.filter p), P i) ↔ ∀ (j) (_ : j ∈ xs), p j → P j := by
   simp
+
+@[grind] theorem getElem_filter {xs : Array α} {p : α → Bool} {i : Nat} (h : i < (xs.filter p).size) :
+    p (xs.filter p)[i] :=
+  (mem_filter.mp (getElem_mem h)).2
+
+theorem getElem?_filter {xs : Array α} {p : α → Bool} {i : Nat} (h : i < (xs.filter p).size)
+    (w : (xs.filter p)[i]? = some a) : p a := by
+  rw [getElem?_eq_getElem] at w
+  simp only [Option.some.injEq] at w
+  rw [← w]
+  apply getElem_filter h
+
+grind_pattern getElem?_filter => (xs.filter p)[i]?, some a
 
 @[simp] theorem filter_filter {p q : α → Bool} {xs : Array α} :
     filter p (filter q xs) = filter (fun a => p a && q a) xs := by
@@ -3615,8 +3636,8 @@ We can prove that two folds over the same array are related (by some arbitrary r
 if we know that the initial elements are related and the folding function, for each element of the array,
 preserves the relation.
 -/
-theorem foldl_rel {xs : Array α} {f g : β → α → β} {a b : β} {r : β → β → Prop}
-    (h : r a b) (h' : ∀ (a : α), a ∈ xs → ∀ (c c' : β), r c c' → r (f c a) (g c' a)) :
+theorem foldl_rel {xs : Array α} {f : β → α → β} {g : γ → α → γ} {a : β} {b : γ} {r : β → γ → Prop}
+    (h : r a b) (h' : ∀ (a : α), a ∈ xs → ∀ (c : β) (c' : γ), r c c' → r (f c a) (g c' a)) :
     r (xs.foldl (fun acc a => f acc a) a) (xs.foldl (fun acc a => g acc a) b) := by
   rcases xs with ⟨xs⟩
   simpa using List.foldl_rel h (by simpa using h')
@@ -3626,8 +3647,8 @@ We can prove that two folds over the same array are related (by some arbitrary r
 if we know that the initial elements are related and the folding function, for each element of the array,
 preserves the relation.
 -/
-theorem foldr_rel {xs : Array α} {f g : α → β → β} {a b : β} {r : β → β → Prop}
-    (h : r a b) (h' : ∀ (a : α), a ∈ xs → ∀ (c c' : β), r c c' → r (f a c) (g a c')) :
+theorem foldr_rel {xs : Array α} {f : α → β → β} {g : α → γ → γ} {a : β} {b : γ} {r : β → γ → Prop}
+    (h : r a b) (h' : ∀ (a : α), a ∈ xs → ∀ (c : β) (c' : γ), r c c' → r (f a c) (g a c')) :
     r (xs.foldr (fun a acc => f a acc) a) (xs.foldr (fun a acc => g a acc) b) := by
   rcases xs with ⟨xs⟩
   simpa using List.foldr_rel h (by simpa using h')
@@ -4520,7 +4541,7 @@ abbrev contains_def [DecidableEq α] {a : α} {xs : Array α} : xs.contains a �
     (zip xs ys).size = min xs.size ys.size :=
   size_zipWith
 
-@[simp] theorem getElem_zipWith {xs : Array α} {ys : Array β} {f : α → β → γ} {i : Nat}
+@[simp, grind =] theorem getElem_zipWith {xs : Array α} {ys : Array β} {f : α → β → γ} {i : Nat}
     (hi : i < (zipWith f xs ys).size) :
     (zipWith f xs ys)[i] = f (xs[i]'(by simp at hi; omega)) (ys[i]'(by simp at hi; omega)) := by
   cases xs

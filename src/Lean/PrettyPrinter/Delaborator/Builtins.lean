@@ -93,32 +93,23 @@ Rather, it is called through the `app` delaborator.
 -/
 def delabConst : Delab := do
   let Expr.const c₀ ls ← getExpr | unreachable!
-  let mut c₀ := c₀
-  let mut c  := c₀
-  if let some n := privateToUserName? c₀ then
+  let unresolveName (n : Name) : DelabM Name := do
+    unresolveNameGlobalAvoidingLocals n (fullNames := ← getPPOption getPPFullNames)
+  let mut c := c₀
+  if isPrivateName c₀ then
     unless (← getPPOption getPPPrivateNames) do
-      if c₀ == mkPrivateName (← getEnv) n then
-        -- The name is defined in this module, so use `n` as the name and unresolve like any other name.
-        c₀ := n
-        c ← unresolveNameGlobal n (fullNames := ← getPPOption getPPFullNames)
-      else
-        -- The name is not defined in this module, so make inaccessible. Unresolving does not make sense to do.
+      c ← unresolveName c
+      if let some n := privateToUserName? c then
+        -- The private name could not be made non-private, so make the result inaccessible
         c ← withFreshMacroScope <| MonadQuotation.addMacroScope n
   else
-    c ← unresolveNameGlobal c (fullNames := ← getPPOption getPPFullNames)
+    c ← unresolveName c
   let stx ←
-    if ls.isEmpty || !(← getPPOption getPPUniverses) then
-      if (← getLCtx).usesUserName c then
-        -- `c` is also a local declaration
-        if c == c₀ && !(← read).inPattern then
-          -- `c` is the fully qualified named. So, we append the `_root_` prefix
-          c := `_root_ ++ c
-        else
-          c := c₀
-      pure <| mkIdent c
-    else
+    if !ls.isEmpty && (← getPPOption getPPUniverses) then
       let mvars ← getPPOption getPPMVarsLevels
       `($(mkIdent c).{$[$(ls.toArray.map (Level.quote · (prec := 0) (mvars := mvars)))],*})
+    else
+      pure <| mkIdent c
 
   let stx ← maybeAddBlockImplicit stx
   if (← getPPOption getPPTagAppFns) then
@@ -1037,7 +1028,7 @@ def delabForall : Delab := do
 
 @[builtin_delab letE]
 def delabLetE : Delab := do
-  let Expr.letE n t v b _ ← getExpr | unreachable!
+  let Expr.letE n t v b nondep ← getExpr | unreachable!
   let n ← getUnusedName n b
   let stxV ← descend v 1 delab
   let (stxN, stxB) ← withLetDecl n t v fun fvar => do
@@ -1045,8 +1036,14 @@ def delabLetE : Delab := do
     return (← mkAnnotatedIdent n fvar, ← descend b 2 delab)
   if ← getPPOption getPPLetVarTypes <||> getPPOption getPPAnalysisLetVarType then
     let stxT ← descend t 0 delab
-    `(let $stxN : $stxT := $stxV; $stxB)
-  else `(let $stxN := $stxV; $stxB)
+    if nondep then
+      `(have $stxN : $stxT := $stxV; $stxB)
+    else
+      `(let $stxN : $stxT := $stxV; $stxB)
+  else if nondep then
+    `(have $stxN := $stxV; $stxB)
+  else
+    `(let $stxN := $stxV; $stxB)
 
 @[builtin_delab app.Char.ofNat]
 def delabChar : Delab := do
@@ -1304,14 +1301,17 @@ partial def delabDoElems : DelabM (List Syntax) := do
             prependAndRec `(doElem|let _ ← $ma:term)
       | _ => failure
   else if e.isLet then
-    let Expr.letE n t v b _ ← getExpr | unreachable!
+    let Expr.letE n t v b nondep ← getExpr | unreachable!
     let n ← getUnusedName n b
     let stxT ← descend t 0 delab
     let stxV ← descend v 1 delab
     withLetDecl n t v fun fvar =>
       let b := b.instantiate1 fvar
       descend b 2 $
-        prependAndRec `(doElem|let $(mkIdent n) : $stxT := $stxV)
+        if nondep then
+          prependAndRec `(doElem|have $(mkIdent n) : $stxT := $stxV)
+        else
+          prependAndRec `(doElem|let $(mkIdent n) : $stxT := $stxV)
   else if e.isLetFun then
     -- letFun.{u, v} : {α : Sort u} → {β : α → Sort v} → (v : α) → ((x : α) → β x) → β v
     let stxT ← withNaryArg 0 delab

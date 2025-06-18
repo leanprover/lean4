@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.UInt.Lemmas
-// Imports: Init.Data.UInt.Basic Init.Data.UInt.BasicAux Init.Data.Fin.Lemmas Init.Data.Fin.Bitwise Init.Data.BitVec.Basic Init.Data.BitVec.BasicAux Init.Data.BitVec.Lemmas Init.Data.BitVec.Bitblast Init.Data.Nat.Div.Lemmas Init.System.Platform
+// Imports: Init.Data.UInt.Basic Init.Data.UInt.BasicAux Init.Data.Fin.Lemmas Init.Data.Fin.Bitwise Init.Data.BitVec.BasicAux Init.Data.BitVec.Basic Init.Data.BitVec.Lemmas Init.Data.Nat.Div.Lemmas Init.System.Platform
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14609,10 +14609,9 @@ lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_UInt_BasicAux(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Fin_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Fin_Bitwise(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BitVec_BasicAux(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BitVec_Bitblast(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Div_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_System_Platform(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -14632,16 +14631,13 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Fin_Bitwise(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_BitVec_BasicAux(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_BitVec_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Bitblast(builtin, lean_io_mk_world());
+res = initialize_Init_Data_BitVec_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Div_Lemmas(builtin, lean_io_mk_world());

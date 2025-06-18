@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Meta.Tactic.Grind.ENodeKey
+import Lean.Meta.Tactic.Grind.ExprPtr
 
 namespace Lean.Meta.Grind
 
@@ -58,7 +58,7 @@ instance : BEq AlphaKey where
   beq k₁ k₂ := alphaEq k₁.expr k₂.expr
 
 structure AlphaShareCommon.State where
-  map : PHashMap ENodeKey Expr := {}
+  map : PHashMap ExprPtr Expr := {}
   set : PHashSet AlphaKey := {}
 
 abbrev AlphaShareCommonM := StateM AlphaShareCommon.State

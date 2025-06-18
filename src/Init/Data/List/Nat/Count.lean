@@ -16,6 +16,7 @@ namespace List
 
 open Nat
 
+@[grind =]
 theorem countP_set {p : α → Bool} {l : List α} {i : Nat} {a : α} (h : i < l.length) :
     (l.set i a).countP p = l.countP p - (if p l[i] then 1 else 0) + (if p a then 1 else 0) := by
   induction l generalizing i with
@@ -29,10 +30,12 @@ theorem countP_set {p : α → Bool} {l : List α} {i : Nat} {a : α} (h : i < l
       have : (if p l[i] = true then 1 else 0) ≤ l.countP p := boole_getElem_le_countP (p := p) h
       omega
 
+@[grind =]
 theorem count_set [BEq α] {a b : α} {l : List α} {i : Nat} (h : i < l.length) :
     (l.set i a).count b = l.count b - (if l[i] == b then 1 else 0) + (if a == b then 1 else 0) := by
   simp [count_eq_countP, countP_set, h]
 
+@[grind =]
 theorem countP_replace [BEq α] [LawfulBEq α] {a b : α} {l : List α} {p : α → Bool} :
     (l.replace a b).countP p =
       if l.contains a then l.countP p + (if p b then 1 else 0) - (if p a then 1 else 0) else l.countP p := by
@@ -55,10 +58,30 @@ theorem countP_replace [BEq α] [LawfulBEq α] {a b : α} {l : List α} {p : α 
           omega
       · omega
 
+@[grind =]
 theorem count_replace [BEq α] [LawfulBEq α] {a b c : α} {l : List α} :
     (l.replace a b).count c =
       if l.contains a then l.count c + (if b == c then 1 else 0) - (if a == c then 1 else 0) else l.count c := by
   simp [count_eq_countP, countP_replace]
+
+@[grind =] theorem count_insert [BEq α] [LawfulBEq α] {a b : α} {l : List α} :
+    count a (List.insert b l) = max (count a l) (if b == a then 1 else 0) := by
+  simp only [List.insert, contains_eq_mem, decide_eq_true_eq, beq_iff_eq]
+  split <;> rename_i h
+  · split <;> rename_i h'
+    · rw [Nat.max_def]
+      simp only [beq_iff_eq] at h'
+      split
+      · have := List.count_pos_iff.mpr (h' ▸ h)
+        omega
+      · rfl
+    · simp [h']
+  · rw [count_cons]
+    split <;> rename_i h'
+    · simp only [beq_iff_eq] at h'
+      rw [count_eq_zero.mpr (h' ▸ h)]
+      simp [h']
+    · simp
 
 /--
 The number of elements satisfying a predicate in a sublist is at least the number of elements satisfying the predicate in the list,
@@ -98,6 +121,8 @@ theorem le_countP_tail {l} : countP p l - 1 ≤ countP p l.tail := by
   simp only [length_tail] at this
   omega
 
+grind_pattern le_countP_tail => countP p l.tail
+
 variable [BEq α]
 
 theorem Sublist.le_count (s : l₁ <+ l₂) (a : α) : count a l₂ - (l₂.length - l₁.length) ≤ count a l₁ :=
@@ -114,5 +139,7 @@ theorem IsInfix.le_count (s : l₁ <:+: l₂) (a : α) : count a l₂ - (l₂.le
 
 theorem le_count_tail {a : α} {l : List α} : count a l - 1 ≤ count a l.tail :=
   le_countP_tail
+
+grind_pattern le_count_tail => count a l.tail
 
 end List

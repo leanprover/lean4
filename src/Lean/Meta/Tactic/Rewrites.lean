@@ -44,11 +44,11 @@ private def addImport (name : Name) (constInfo : ConstantInfo) :
   if constInfo.isUnsafe then return #[]
   if !allowCompletion (←getEnv) name then return #[]
   -- We now remove some injectivity lemmas which are not useful to rewrite by.
-  if name matches .str _ "injEq" then return #[]
-  if name matches .str _ "sizeOf_spec" then return #[]
   match name with
-  | .str _ n => if n.endsWith "_inj" ∨ n.endsWith "_inj'" then return #[]
+  | .str _ n => if n = "injEq" ∨ n = "sizeOf_spec" ∨ n.endsWith "_inj" ∨ n.endsWith "_inj'" then return #[]
   | _ => pure ()
+  -- Don't report lemmas from metaprogramming namespaces.
+  if name.isMetaprogramming then return #[]
   withNewMCtxDepth do withReducible do
     forallTelescopeReducing constInfo.type fun _ type => do
       match type.getAppFnArgs with

@@ -54,16 +54,16 @@ A checkpoint in code generation to print all declarations in between
 compiler passes in order to ease debugging.
 The trace can be viewed with `set_option trace.Compiler.step true`.
 -/
-def checkpoint (stepName : Name) (decls : Array Decl) : CompilerM Unit := do
+def checkpoint (stepName : Name) (decls : Array Decl) (shouldCheck : Bool) : CompilerM Unit := do
   for decl in decls do
     trace[Compiler.stat] "{decl.name} : {decl.size}"
     withOptions (fun opts => opts.setBool `pp.motives.pi false) do
       let clsName := `Compiler ++ stepName
       if (← Lean.isTracingEnabledFor clsName) then
         Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl' decl}"
-      if compiler.check.get (← getOptions) then
+      if shouldCheck then
         decl.check
-  if compiler.check.get (← getOptions) then
+  if shouldCheck then
     checkDeadLocalDecls decls
 
 namespace PassManager
@@ -80,10 +80,11 @@ def run (declNames : Array Name) : CompilerM (Array IR.Decl) := withAtLeastMaxRe
   let mut decls ← declNames.mapM toDecl
   decls := markRecDecls decls
   let manager ← getPassManager
+  let isCheckEnabled := compiler.check.get (← getOptions)
   for pass in manager.passes do
     decls ← withTraceNode `Compiler (fun _ => return m!"new compiler phase: {pass.phase}, pass: {pass.name}") do
       withPhase pass.phase <| pass.run decls
-    withPhase pass.phaseOut <| checkpoint pass.name decls
+    withPhase pass.phaseOut <| checkpoint pass.name decls (isCheckEnabled || pass.shouldAlwaysRunCheck)
   if (← Lean.isTracingEnabledFor `Compiler.result) then
     for decl in decls do
       -- We display the declaration saved in the environment because the names have been normalized

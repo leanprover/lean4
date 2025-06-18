@@ -11,7 +11,7 @@ import Lean.Elab.Tactic.Config
 
 open Lean Meta Omega
 
-set_option maxHeartbeats 5000
+set_option maxHeartbeats 6000
 def pushNot (h P : Expr) : MetaM (Option Expr) := do
   let P ← whnfR P
   trace[omega] "pushing negation: {P}"

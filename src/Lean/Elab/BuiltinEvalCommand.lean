@@ -206,7 +206,7 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
           to '{.ofConstName ``IO}' or '{.ofConstName ``CommandElabM}'."
       addAndCompileExprForEval declName r (allowSorry := bang)
       -- `evalConst` may emit IO, but this is collected by `withIsolatedStreams` below.
-      let r ← toMessageData <$> evalConst t declName
+      let r ← toMessageData <$> evalConst t declName (checkMeta := !Elab.inServer.get (← getOptions))
       return { eval := pure r, printVal := some (← inferType e) }
   let (output, exOrRes) ← IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get (← getOptions)) do
     try

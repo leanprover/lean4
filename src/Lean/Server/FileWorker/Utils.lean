@@ -28,7 +28,7 @@ private partial def mkCmdSnaps (initSnap : Language.Lean.InitialSnapshot) :
     } <| .delayed <| headerSuccess.firstCmdSnap.task.asServerTask.bindCheap go
 where
   go cmdParsed :=
-    cmdParsed.resultSnap.task.asServerTask.mapCheap fun result =>
+    cmdParsed.elabSnap.resultSnap.task.asServerTask.mapCheap fun result =>
       .ok <| .cons {
         stx := cmdParsed.stx
         mpState := cmdParsed.parserState
@@ -43,7 +43,7 @@ reporter task has been started.
 -/
 structure EditableDocumentCore where
   /-- The document. -/
-  meta     : DocumentMeta
+  «meta»   : DocumentMeta
   /-- Initial processing snapshot. -/
   initSnap : Language.Lean.InitialSnapshot
   /-- Old representation for backward compatibility. -/

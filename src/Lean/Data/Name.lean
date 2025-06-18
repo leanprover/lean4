@@ -185,6 +185,11 @@ def anyS (n : Name) (f : String → Bool) : Bool :=
   | .num p _ => p.anyS f
   | _ => false
 
+/-- Return true if the name is in a namespace associated to metaprogramming. -/
+def isMetaprogramming (n : Name) : Bool :=
+  let components := n.components
+  components.head? == some `Lean || (components.any fun n => n == `Tactic || n == `Linter)
+
 end Name
 end Lean
 

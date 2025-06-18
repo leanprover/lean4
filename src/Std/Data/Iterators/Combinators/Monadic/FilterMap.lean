@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
-import Std.Data.Iterators.Basic
-import Std.Data.Iterators.Consumers.Collect
-import Std.Data.Iterators.Consumers.Loop
-import Std.Data.Iterators.PostConditionMonad
-import Std.Data.Iterators.Internal.Termination
+import Init.Data.Iterators.Basic
+import Init.Data.Iterators.Consumers.Collect
+import Init.Data.Iterators.Consumers.Loop
+import Init.Data.Iterators.PostconditionMonad
+import Init.Data.Iterators.Internal.Termination
 
 /-!
 
@@ -232,7 +232,7 @@ instance FilterMap.instIteratorLoop {α β γ : Type w} {m : Type w → Type w'}
 instance FilterMap.instIteratorLoopPartial {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type w → Type w'''}
     [Monad n] [Monad o] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
-    {f : β → PostconditionT n (Option γ)} [Finite α m] :
+    {f : β → PostconditionT n (Option γ)} :
     IteratorLoopPartial (FilterMap α m n lift f) n o :=
   .defaultImplementation
 
@@ -307,7 +307,7 @@ it.mapWithPostcondition     ---a'--b'--c'--d'-e'----⊥
 * `Productive` instance: only if `it` is productive
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
-no `Finite` (or `Productive`) instance is provided. For exaple, if `f` is an `ExceptT` monad and
+no `Finite` (or `Productive`) instance is provided. For example, if `f` is an `ExceptT` monad and
 will always fail, then `it.mapWithPostcondition` will be finite even if `it` isn't.
 
 In such situations, the missing instances can be proved manually if the postcondition bundled in
@@ -353,7 +353,7 @@ it.filterWithPostcondition     ---a-----c-------⊥
 * `Productive` instance: only if `it` is finite`
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
-no `Finite` (or `Productive`) instance is provided. For exaple, if `f` is an `ExceptT` monad and
+no `Finite` (or `Productive`) instance is provided. For example, if `f` is an `ExceptT` monad and
 will always fail, then `it.filterWithPostcondition` will be finite -- and productive -- even if `it`
 isn't.
 
@@ -441,7 +441,7 @@ it.mapM     ---a'--b'--c'--d'-e'----⊥
 * `Productive` instance: only if `it` is productive
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
-no `Finite` (or `Productive`) instance is provided. For exaple, if `f` is an `ExceptT` monad and
+no `Finite` (or `Productive`) instance is provided. For example, if `f` is an `ExceptT` monad and
 will always fail, then `it.mapM` will be finite even if `it` isn't.
 
 If that does not help, the more general combinator `it.mapWithPostcondition f` makes it possible to
@@ -480,7 +480,7 @@ it.filterM     ---a-----c-------⊥
 * `Productive` instance: only if `it` is finite`
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
-no `Finite` (or `Productive`) instance is provided. For exaple, if `f` is an `ExceptT` monad and
+no `Finite` (or `Productive`) instance is provided. For example, if `f` is an `ExceptT` monad and
 will always fail, then `it.filterWithPostcondition` will be finite -- and productive -- even if `it`
 isn't.
 
@@ -596,5 +596,17 @@ returned value.
 def IterM.filter {α β : Type w} {m : Type w → Type w'} [Iterator α m β] [Monad m]
     (f : β → Bool) (it : IterM (α := α) m β) :=
   (it.filterMap (fun b => if f b then some b else none) : IterM m β)
+
+instance {α β γ : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
+    {f : β → PostconditionT n (Option γ)} [Finite α m] :
+    IteratorSize (FilterMap α m n lift f) n :=
+  .defaultImplementation
+
+instance {α β γ : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
+    {f : β → PostconditionT n (Option γ)} :
+    IteratorSizePartial (FilterMap α m n lift f) n :=
+  .defaultImplementation
 
 end Std.Iterators

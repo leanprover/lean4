@@ -21,8 +21,7 @@ We prefer to pull `List.toArray` outwards past `Array` operations.
 -/
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- TODO: restore after an update-stage0
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Array
 
@@ -685,7 +684,7 @@ theorem replace_toArray [BEq α] [LawfulBEq α] (l : List α) (a b : α) :
         · rw [if_pos (by omega), if_pos, if_neg]
           · simp only [mem_take_iff_getElem, not_exists]
             intro k hk
-            simpa using h.2 ⟨k, by omega⟩ (by show k < i.1; omega)
+            simpa using h.2 ⟨k, by omega⟩ (by change k < i.1; omega)
           · subst h₃
             simpa using h.1
         · rw [if_neg (by omega)]

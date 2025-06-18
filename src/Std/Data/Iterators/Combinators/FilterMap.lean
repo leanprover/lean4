@@ -51,12 +51,12 @@ it                                ---a --b--c --d-e--⊥
 it.filterMapWithPostcondition     ---a'-----c'-------⊥
 ```
 
-(given that `f a = pure (some a)'`, `f c = pure (some c')` and `f b = f d = d e = pure none`)
+(given that `f a = pure (some a')`, `f c = pure (some c')` and `f b = f d = d e = pure none`)
 
 **Termination properties:**
 
 * `Finite` instance: only if `it` is finite
-* `Productive` instance: only if `it` is finite`
+* `Productive` instance: only if `it` is finite
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For example, if `f` never returns `none`, then
@@ -108,7 +108,7 @@ it.filterWithPostcondition     ---a-----c-------⊥
 * `Productive` instance: only if `it` is finite`
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
-no `Finite` (or `Productive`) instance is provided. For exaple, if `f` is an `ExceptT` monad and
+no `Finite` (or `Productive`) instance is provided. For example, if `f` is an `ExceptT` monad and
 will always fail, then `it.filterWithPostcondition` will be finite -- and productive -- even if `it`
 isn't.
 
@@ -153,7 +153,7 @@ it.mapWithPostcondition     ---a'--b'--c'--d'-e'----⊥
 * `Productive` instance: only if `it` is productive
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
-no `Finite` (or `Productive`) instance is provided. For exaple, if `f` is an `ExceptT` monad and
+no `Finite` (or `Productive`) instance is provided. For example, if `f` is an `ExceptT` monad and
 will always fail, then `it.mapWithPostcondition` will be finite even if `it` isn't.
 
 In such situations, the missing instances can be proved manually if the postcondition bundled in
@@ -231,7 +231,7 @@ it.filterM     ---a-----c-------⊥
 * `Productive` instance: only if `it` is finite`
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
-no `Finite` (or `Productive`) instance is provided. For exaple, if `f` is an `ExceptT` monad and
+no `Finite` (or `Productive`) instance is provided. For example, if `f` is an `ExceptT` monad and
 will always fail, then `it.filterWithPostcondition` will be finite -- and productive -- even if `it`
 isn't.
 
@@ -271,7 +271,7 @@ it.mapM     ---a'--b'--c'--d'-e'----⊥
 * `Productive` instance: only if `it` is productive
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
-no `Finite` (or `Productive`) instance is provided. For exaple, if `f` is an `ExceptT` monad and
+no `Finite` (or `Productive`) instance is provided. For example, if `f` is an `ExceptT` monad and
 will always fail, then `it.mapM` will be finite even if `it` isn't.
 
 If that does not help, the more general combinator `it.mapWithPostcondition f` makes it possible to

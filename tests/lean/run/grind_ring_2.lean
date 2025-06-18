@@ -1,4 +1,3 @@
-set_option grind.warning false
 set_option grind.debug true
 open Lean.Grind
 
@@ -126,7 +125,7 @@ example (a b c : Int) (f : Int → Nat)
     f (a^4 + b^4) + f (9 - c^4) ≠ 1 := by
   grind
 
-example [CommRing α] (a b c : α) (f : α → Nat)
+example [CommRing α] [NoNatZeroDivisors α] (a b c : α) (f : α → Nat)
   : a + b + c = 3 →
     a^2 + b^2 + c^2 = 5 →
     a^3 + b^3 + c^3 = 7 →

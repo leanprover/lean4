@@ -56,7 +56,7 @@ theorem eq_anonymous_of_isAnonymous {n : Name} : (h : n.isAnonymous) → n = .an
 
 @[simp] theorem isPrefixOf_append {n m : Name} : ¬ n.hasMacroScopes → ¬ m.hasMacroScopes → n.isPrefixOf (n ++ m) := by
   intro h1 h2
-  show n.isPrefixOf (n.append m)
+  change n.isPrefixOf (n.append m)
   simp_all [Name.append]
   clear h2; induction m <;> simp [*, Name.appendCore, isPrefixOf]
 

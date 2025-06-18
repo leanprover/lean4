@@ -213,8 +213,8 @@ theorem ofNat_nonneg [Field α] [LinearOrder α] [Ring.IsOrdered α] (x : Nat) :
     have := Preorder.lt_of_lt_of_le this ih
     exact Preorder.le_of_lt this
 
-instance [Field α] [LinearOrder α] [Ring.IsOrdered α] : IsCharP α 0 where
-  ofNat_eq_zero_iff := by
+instance [Field α] [LinearOrder α] [Ring.IsOrdered α] : IsCharP α 0 := IsCharP.mk' _ _
+  (ofNat_eq_zero_iff := by
     intro x
     simp only [Nat.mod_zero]; constructor
     next =>
@@ -233,6 +233,6 @@ instance [Field α] [LinearOrder α] [Ring.IsOrdered α] : IsCharP α 0 where
         have : (0 : α) < 0 := Preorder.lt_of_le_of_lt h₂ h₁
         simp
         exact (Preorder.lt_irrefl 0) this
-    next => intro h; rw [OfNat.ofNat, h]; rfl
+    next => intro h; rw [OfNat.ofNat, h]; rfl)
 
 end Lean.Grind

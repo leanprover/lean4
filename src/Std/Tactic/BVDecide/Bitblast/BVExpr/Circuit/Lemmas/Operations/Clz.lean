@@ -27,6 +27,9 @@ namespace BVExpr
 namespace bitblast
 namespace blastClz
 
+example (x : Nat) (hx : 0 < x) : ∃ y, x = y + 1 := by
+  exact Nat.exists_eq_add_one.mpr hx
+
 theorem go_denote_eq {w : Nat} (aig : AIG α)
     (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool)
     (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)
@@ -57,29 +60,30 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
           simp only [Nat.add_eq_zero, Nat.succ_ne_self, and_false, reduceIte, RefVec.get_cast,
             Ref.cast_eq, Nat.add_one_sub_one]
           rw [RefVec.denote_ite]
-          rcases curr with _|curr
-          · split
-            · next hx' =>
-              have hx0 : x.getLsbD 0 = true := by rw [hx] at hx'; exact hx'
-              have : 1 < 2 ^ w := by exact Nat.one_lt_two_pow_iff.mpr (by omega)
-              simp only [BitVec.sub_zero, denote_blastConst, BitVec.clzAuxRec, hx0, reduceIte]
-              rw [BitVec.ofNat_sub_ofNat_of_le (x := w) (y := 1) (by omega) (by omega)]
-            · next hx' =>
-              have hx0 : x.getLsbD 0 = false := by rw [hx, Bool.not_eq_true] at hx'; exact hx'
-              simp only [reduceIte] at hacc
-              simp [BitVec.clzAuxRec, hx0, hacc]
-          · split
-            · next hx' =>
-              have hxc : x.getLsbD (curr + 1) = true := by rw [hx] at hx'; exact hx'
+          split
+          · next h =>
+            rw [hx] at h
+            have : 1 < 2 ^ w := by exact Nat.one_lt_two_pow_iff.mpr (by omega)
+            rcases curr with _|curr
+            · simp [denote_blastConst, BitVec.clzAuxRec, h, BitVec.ofNat_sub_ofNat_of_le (x := w) (y := 1) (by omega) (by omega)]
+            · unfold BitVec.clzAuxRec
               have := Nat.lt_pow_self (n := curr + 1) (a := 2) (by omega)
               have := Nat.pow_lt_pow_of_lt (a := 2) (n := curr + 1) (m := w) (by omega) (by omega)
-              simp only [denote_blastConst, BitVec.clzAuxRec, hxc, reduceIte]
+              simp only [denote_blastConst, h, reduceIte]
               rw [BitVec.ofNat_sub_ofNat_of_le (x := w) (y := 1) (by omega) (by omega),
                   BitVec.ofNat_sub_ofNat_of_le (x := w - 1) (y := curr + 1) (by omega) (by omega)]
-            · next hx' =>
-              simp only [Nat.add_eq_zero, Nat.succ_ne_self, and_false, reduceIte,
-                Nat.add_one_sub_one] at hacc
-              simp [hacc, BitVec.clzAuxRec, show x.getLsbD (curr + 1) = false by rw [hx] at hx'; simp at hx'; exact hx']
+          · split at hacc
+            · next hc hc' =>
+              rw [hacc, hc']
+              have hxc : x.getLsbD 0 = false := by rw [hx] at hc; simp [hc'] at hc; exact hc
+              simp [BitVec.clzAuxRec, hxc]
+            · next h' h'' =>
+              rw [hacc]
+              obtain ⟨curr, hcurr⟩ : ∃ curr', curr = curr' + 1 := by apply Nat.exists_eq_add_one.mpr (by omega)
+              subst hcurr
+              conv => rhs; unfold BitVec.clzAuxRec
+              have hxc : x.getLsbD (curr + 1) = false := by rw [hx] at h'; simp at h'; exact h'
+              simp [hxc]
     · case isFalse h =>
       rw [← hgo]
       simp only [show ¬curr = 0 by omega, reduceIte] at hacc

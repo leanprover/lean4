@@ -457,7 +457,10 @@ private partial def FlatLevel.setNonzero (l : FlatLevel) (param : Name) : FlatLe
       l := l.merge l'
     else
       l := { l with extra := l.extra.push ⟨l', c⟩ }
-  return l
+  let off := l.paramOffs.find? param
+  match off with
+  | none => return l
+  | some off => return { l with constOff := Max.max l.constOff (off + 1) }
 
 private partial def FlatLevel.isEquiv (l₁ l₂ : FlatLevel) : Bool := Id.run do
   if l₁.constOff != l₂.constOff then

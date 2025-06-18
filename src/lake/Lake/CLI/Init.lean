@@ -506,9 +506,6 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
   if tmp = .math || tmp = .mathlibDep then
     () ← updateManifest { lakeEnv := env, wsDir := dir }
 
-  -- TODO: run `lake update` here.
-  -- TODO: add linter commands here.
-
 def validatePkgName (pkgName : String) : LogIO PUnit := do
   if pkgName.isEmpty || pkgName.all (· == '.') || pkgName.any (· ∈ ['/', '\\']) then
     error s!"illegal package name '{pkgName}'"

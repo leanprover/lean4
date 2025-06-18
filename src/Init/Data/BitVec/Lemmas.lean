@@ -878,7 +878,8 @@ theorem zeroExtend_eq_setWidth {v : Nat} {x : BitVec w} :
 @[simp] theorem setWidth_eq (x : BitVec n) : setWidth n x = x := by
   apply eq_of_toNat_eq
   let ⟨x, lt_n⟩ := x
-  simp [setWidth]
+  unfold setWidth
+  simp
 
 @[simp] theorem setWidth_zero (m n : Nat) : setWidth m 0#n = 0#m := by
   apply eq_of_toNat_eq

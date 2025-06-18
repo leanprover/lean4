@@ -823,6 +823,6 @@ theorem isSome_finIdxOf? [BEq α] [PartialEquivBEq α] {xs : Array α} {a : α} 
 theorem isNone_finIdxOf? [BEq α] [PartialEquivBEq α] {xs : Array α} {a : α} :
     (xs.finIdxOf? a).isNone = !xs.contains a := by
   rcases xs with ⟨xs⟩
-  simp [Array.size]
+  simp [Array.size, -length_toList]
 
 end Array

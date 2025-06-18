@@ -45031,7 +45031,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_addCompletionInfo___at_Lean_withSetOptionIn
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = lean_alloc_ctor(7, 1, 0);
+x_5 = lean_alloc_ctor(8, 1, 0);
 lean_ctor_set(x_5, 0, x_1);
 x_6 = l_Lean_Elab_pushInfoLeaf___at_Lean_withSetOptionIn___spec__3(x_5, x_2, x_3, x_4);
 return x_6;

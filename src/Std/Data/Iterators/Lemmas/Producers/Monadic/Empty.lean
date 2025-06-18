@@ -5,8 +5,8 @@ Authors: Paul Reichert
 -/
 prelude
 import Std.Data.Iterators.Producers.Monadic.Empty
-import Std.Data.Iterators.Lemmas.Consumers.Monadic
-import Std.Data.Iterators.Lemmas.Consumers.Monadic.Loop
+import Init.Data.Iterators.Lemmas.Consumers.Monadic
+import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 
 namespace Std.Iterators
 

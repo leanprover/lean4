@@ -382,7 +382,7 @@ def setupImports
     unless (← IO.checkCanceled) do
       IO.Process.exit 2  -- signal restart request to watchdog
     -- should not be visible to user as task is already canceled
-    return .error { diagnostics := .empty, result? := none }
+    return .error { diagnostics := .empty, result? := none, metaSnap := default }
 
   chanOut.sync.send <| mkInitialIleanInfoUpdateNotification doc <| collectImports stx
   let imports := Elab.headerToImports stx
@@ -404,11 +404,13 @@ def setupImports
         "Imports are out of date and must be rebuilt; \
           use the \"Restart File\" command in your editor.")
       result? := none
+      metaSnap := default
     }
   | .error msg =>
     return .error {
       diagnostics := (← diagnosticsOfHeaderError msg)
       result? := none
+      metaSnap := default
     }
   | _ => pure ()
 

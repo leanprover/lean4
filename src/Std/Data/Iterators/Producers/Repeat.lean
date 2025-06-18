@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
-import Std.Data.Iterators.Consumers.Monadic
-import Std.Data.Iterators.Internal.Termination
+import Init.Data.Iterators.Consumers.Monadic
+import Init.Data.Iterators.Internal.Termination
 
 /-!
 # Function-unfolding iterator

@@ -3468,6 +3468,11 @@ theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = 
   apply eq_of_toNat_eq
   simp [BitVec.ofNat, Fin.ofNat_sub]
 
+theorem ofNat_sub_ofNat_of_le (x y : Nat) (hy : y < 2 ^ w) (hlt : y ≤ x):
+    BitVec.ofNat w x - BitVec.ofNat w y = BitVec.ofNat w (x - y) := by
+  apply eq_of_toNat_eq
+  simp [Nat.mod_eq_of_lt hy, show 2 ^ w - y + x = 2 ^ w + (x - y) by omega, Nat.add_mod_left]
+
 @[simp] protected theorem sub_zero (x : BitVec n) : x - 0#n = x := by apply eq_of_toNat_eq ; simp
 
 @[simp] protected theorem zero_sub (x : BitVec n) : 0#n - x = -x := rfl
@@ -5625,6 +5630,23 @@ theorem msb_replicate {n w : Nat} {x : BitVec w} :
   simp only [BitVec.msb, getMsbD_replicate, Nat.zero_mod]
   cases n <;> cases w <;> simp
 
+/-! ### Count leading zeros -/
+
+theorem clzAuxRec_zero (x : BitVec w) :
+    x.clzAuxRec 0 = if x.getLsbD 0 then BitVec.ofNat w (w - 1) else BitVec.ofNat w w := by rfl
+
+theorem clzAuxRec_succ (x : BitVec w) :
+    x.clzAuxRec (n + 1) = if x.getLsbD (n + 1) then BitVec.ofNat w (w - 1 - (n + 1)) else BitVec.clzAuxRec x n := by rfl
+
+theorem clzAuxRec_eq_clzAuxRec_of_le (x : BitVec w) (h : w - 1 ≤ n) :
+    x.clzAuxRec n = x.clzAuxRec (w - 1) := by
+  let k := n - (w - 1)
+  rw [show n = (w - 1) + k by omega]
+  induction k
+  · case zero => simp
+  · case succ k ihk =>
+    simp [show w - 1 + (k + 1) = (w - 1 + k) + 1 by omega, clzAuxRec_succ, ihk,
+      show x.getLsbD (w - 1 + k + 1) = false by simp only [show w ≤ w - 1 + k + 1 by omega, getLsbD_of_ge]]
 
 /-! ### Inequalities (le / lt) -/
 

@@ -35282,7 +35282,7 @@ x_21 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_21, 0, x_19);
 lean_ctor_set(x_21, 1, x_20);
 lean_ctor_set(x_21, 2, x_18);
-x_22 = lean_alloc_ctor(10, 1, 0);
+x_22 = lean_alloc_ctor(11, 1, 0);
 lean_ctor_set(x_22, 0, x_21);
 x_23 = l_Lean_Elab_pushInfoLeaf___at___private_Lean_Elab_Term_0__Lean_Elab_Term_applyAttributesCore___spec__2(x_22, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 x_24 = lean_ctor_get(x_23, 1);

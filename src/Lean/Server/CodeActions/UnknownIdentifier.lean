@@ -25,7 +25,7 @@ def waitUnknownIdentifierRanges (doc : EditableDocument) (requestedRange : Strin
   let text := doc.meta.text
   let some parsedSnap := RequestM.findCmdParsedSnap doc requestedRange.start |>.get
     | return #[]
-  let msgLog := Language.toSnapshotTree parsedSnap |>.collectMessagesInRange requestedRange |>.get
+  let msgLog := Language.toSnapshotTree parsedSnap.elabSnap |>.collectMessagesInRange requestedRange |>.get
   let mut ranges := #[]
   for msg in msgLog.unreported do
     if ! msg.data.hasTag (· == unknownIdentifierMessageTag) then

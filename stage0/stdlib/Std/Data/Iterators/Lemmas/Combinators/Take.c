@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Lemmas.Combinators.Take
-// Imports: Std.Data.Iterators.Combinators.Take Std.Data.Iterators.Consumers.Access Std.Data.Iterators.Lemmas.Combinators.Monadic.Take Std.Data.Iterators.Lemmas.Consumers
+// Imports: Std.Data.Iterators.Combinators.Take Init.Data.Iterators.Consumers.Access Std.Data.Iterators.Lemmas.Combinators.Monadic.Take Init.Data.Iterators.Lemmas.Consumers
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -385,9 +385,9 @@ return x_6;
 }
 }
 lean_object* initialize_Std_Data_Iterators_Combinators_Take(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_Iterators_Consumers_Access(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Iterators_Consumers_Access(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_Monadic_Take(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_Iterators_Lemmas_Consumers(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Iterators_Lemmas_Consumers(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_Take(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -396,13 +396,13 @@ _G_initialized = true;
 res = initialize_Std_Data_Iterators_Combinators_Take(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Consumers_Access(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Iterators_Consumers_Access(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Lemmas_Combinators_Monadic_Take(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Lemmas_Consumers(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Iterators_Lemmas_Consumers(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

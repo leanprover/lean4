@@ -394,7 +394,7 @@ def findCmdDataAtPos
     (includeStop : Bool)
     : ServerTask (Option (Syntax × Elab.InfoTree)) :=
   findCmdParsedSnap doc hoverPos |>.bindCheap fun
-    | some cmdParsed => toSnapshotTree cmdParsed |>.findInfoTreeAtPos doc.meta.text hoverPos includeStop |>.bindCheap fun
+    | some cmdParsed => toSnapshotTree cmdParsed.elabSnap |>.findInfoTreeAtPos doc.meta.text hoverPos includeStop |>.bindCheap fun
       | some infoTree => .pure <| some (cmdParsed.stx, infoTree)
       | none          => cmdParsed.elabSnap.infoTreeSnap.task.asServerTask.mapCheap fun s =>
         assert! s.infoTree?.isSome

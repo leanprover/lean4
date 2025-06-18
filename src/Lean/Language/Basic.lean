@@ -218,7 +218,7 @@ partial def SnapshotTask.cancelRec [ToSnapshotTree α] (t : SnapshotTask α) : B
 
 /-- Snapshot type without child nodes. -/
 structure SnapshotLeaf extends Snapshot
-deriving Nonempty, TypeName
+deriving Inhabited, TypeName
 
 instance : ToSnapshotTree SnapshotLeaf where
   toSnapshotTree s := SnapshotTree.mk s.toSnapshot #[]

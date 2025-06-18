@@ -17,6 +17,9 @@ class NatModule.IsOrdered (M : Type u) [Preorder M] [NatModule M] where
   hmul_lt_hmul_iff : ∀ (k : Nat) {a b : M}, a < b → (k * a < k * b ↔ 0 < k)
   hmul_le_hmul : ∀ {k : Nat} {a b : M}, a ≤ b → k * a ≤ k * b
 
+-- This class is actually redundant; it is available automatically when we have an
+-- `IntModule` satisfying `NatModule.IsOrdered`.
+-- Replace with a custom constructor?
 class IntModule.IsOrdered (M : Type u) [Preorder M] [IntModule M] where
   neg_le_iff : ∀ a b : M, -a ≤ b ↔ -b ≤ a
   add_le_left : ∀ {a b : M}, a ≤ b → (c : M) → a + c ≤ b + c
@@ -24,6 +27,8 @@ class IntModule.IsOrdered (M : Type u) [Preorder M] [IntModule M] where
   hmul_nonneg : ∀ {k : Int} {a : M}, 0 ≤ k → 0 ≤ a → 0 ≤ k * a
 
 namespace NatModule.IsOrdered
+
+section
 
 variable {M : Type u} [Preorder M] [NatModule M] [NatModule.IsOrdered M]
 
@@ -83,9 +88,54 @@ theorem hmul_le_hmul_of_le_of_le_of_nonneg
 theorem add_le_add {a b c d : M} (hab : a ≤ b) (hcd : c ≤ d) : a + c ≤ b + d :=
   Preorder.le_trans (add_le_right a hcd) (add_le_left hab d)
 
+end
+
+section
+
+variable {M : Type u} [Preorder M] [IntModule M] [NatModule.IsOrdered M]
+
+theorem neg_le_iff {a b : M} : -a ≤ b ↔ -b ≤ a := by
+  rw [NatModule.IsOrdered.add_le_left_iff a, IntModule.neg_add_cancel]
+  conv => rhs; rw [NatModule.IsOrdered.add_le_left_iff b, IntModule.neg_add_cancel]
+  rw [add_comm]
+
+end
+
 end NatModule.IsOrdered
 
 namespace IntModule.IsOrdered
+
+section
+
+variable {M : Type u} [Preorder M] [IntModule M] [NatModule.IsOrdered M]
+
+open NatModule.IsOrdered in
+instance : IntModule.IsOrdered M where
+  neg_le_iff a b := NatModule.IsOrdered.neg_le_iff
+  add_le_left := NatModule.IsOrdered.add_le_left
+  hmul_pos_iff k x :=
+    match k with
+    | (k + 1 : Nat) => by
+      intro h
+      have := hmul_lt_hmul_iff (k := k + 1) h
+      simpa [NatModule.hmul_zero] using hmul_lt_hmul_iff (k := k + 1) h
+    | (0 : Nat) => by simp [zero_hmul]; intro h; exact Preorder.lt_irrefl 0
+    | -(k + 1 : Nat) => by
+      intro h
+      have : ¬ (k : Int) + 1 < 0 := by omega
+      simp [this]; clear this
+      rw [neg_hmul]
+      rw [Preorder.lt_iff_le_not_le]
+      simp
+      intro h'
+      rw [NatModule.IsOrdered.neg_le_iff, neg_zero]
+      simpa [NatModule.hmul_zero] using hmul_le_hmul (k := k + 1) (Preorder.le_of_lt h)
+  hmul_nonneg {k a} h :=
+    match k, h with
+    | (k : Nat), _ => by
+      simpa using NatModule.IsOrdered.hmul_nonneg
+
+end
 
 variable {M : Type u} [Preorder M] [IntModule M] [IntModule.IsOrdered M]
 
@@ -160,11 +210,20 @@ theorem add_lt_right_iff {a b : M} (c : M) : a < b ↔ c + a < c + b := by
 theorem sub_nonneg_iff {a b : M} : 0 ≤ a - b ↔ b ≤ a := by
   rw [add_le_left_iff b, zero_add, sub_add_cancel]
 
+theorem sub_pos_iff {a b : M} : 0 < a - b ↔ b < a := by
+  rw [add_lt_left_iff b, zero_add, sub_add_cancel]
+
 theorem hmul_neg_iff (k : Int) {a : M} (h : a < 0) : k * a < 0 ↔ 0 < k := by
   simpa [IntModule.hmul_neg, neg_pos_iff] using hmul_pos_iff k (neg_pos_iff.mpr h)
 
 theorem hmul_nonpos {k : Int} {a : M} (hk : 0 ≤ k) (ha : a ≤ 0) : k * a ≤ 0 := by
   simpa [IntModule.hmul_neg, neg_nonneg_iff] using hmul_nonneg hk (neg_nonneg_iff.mpr ha)
+
+theorem hmul_le_hmul {a b : M} {k : Int} (hk : 0 ≤ k) (h : a ≤ b) : k * a ≤ k * b := by
+  simpa [hmul_sub, sub_nonneg_iff] using hmul_nonneg hk (sub_nonneg_iff.mpr h)
+
+theorem hmul_lt_hmul_iff (k : Int) {a b : M} (h : a < b) : k * a < k * b ↔ 0 < k := by
+  simpa [hmul_sub, sub_pos_iff] using hmul_pos_iff k (sub_pos_iff.mpr h)
 
 theorem hmul_le_hmul_of_le_of_le_of_nonneg_of_nonneg
     {k₁ k₂ : Int} {x y : M} (hk : k₁ ≤ k₂) (h : x ≤ y) (w : 0 ≤ k₁) (w' : 0 ≤ x) :
@@ -177,6 +236,14 @@ theorem hmul_le_hmul_of_le_of_le_of_nonneg_of_nonneg
 
 theorem add_le_add {a b c d : M} (hab : a ≤ b) (hcd : c ≤ d) : a + c ≤ b + d :=
   Preorder.le_trans (add_le_right a hcd) (add_le_left hab d)
+
+instance : NatModule.IsOrdered M where
+  add_le_left_iff := add_le_left_iff
+  hmul_lt_hmul_iff k {a b} h := by
+    simpa using hmul_lt_hmul_iff k h
+  hmul_le_hmul {k a b} h := by
+    simpa using hmul_le_hmul (Int.natCast_nonneg k) h
+
 
 end IntModule.IsOrdered
 

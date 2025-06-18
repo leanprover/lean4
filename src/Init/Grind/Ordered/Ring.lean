@@ -24,6 +24,52 @@ class Ring.IsOrdered (R : Type u) [Ring R] [Preorder R] extends IntModule.IsOrde
 namespace Ring.IsOrdered
 
 variable {R : Type u} [Ring R]
+
+section Preorder
+
+variable [Preorder R] [Ring.IsOrdered R]
+
+theorem neg_one_lt_zero : (-1 : R) < 0 := by
+  have h := zero_lt_one (R := R)
+  have := IntModule.IsOrdered.add_lt_left h (-1)
+  rw [Semiring.zero_add, Ring.add_neg_cancel] at this
+  assumption
+
+theorem ofNat_nonneg (x : Nat) : (OfNat.ofNat x : R) ≥ 0 := by
+  induction x
+  next => simp [OfNat.ofNat, Zero.zero]; apply Preorder.le_refl
+  next n ih =>
+    have := Ring.IsOrdered.zero_lt_one (R := R)
+    rw [Semiring.ofNat_succ]
+    replace ih := IntModule.IsOrdered.add_le_left ih 1
+    rw [Semiring.zero_add] at ih
+    have := Preorder.lt_of_lt_of_le this ih
+    exact Preorder.le_of_lt this
+
+instance [Ring α] [Preorder α] [Ring.IsOrdered α] : IsCharP α 0 where
+  ofNat_eq_zero_iff := by
+    intro x
+    simp only [Nat.mod_zero]; constructor
+    next =>
+      intro h
+      cases x
+      next => rfl
+      next x =>
+        rw [Semiring.ofNat_succ] at h
+        replace h := congrArg (· - 1) h; simp at h
+        rw [Ring.sub_eq_add_neg, Semiring.add_assoc, Ring.add_neg_cancel,
+            Ring.sub_eq_add_neg, Semiring.zero_add, Semiring.add_zero] at h
+        have h₁ : (OfNat.ofNat x : α) < 0 := by
+          have := Ring.IsOrdered.neg_one_lt_zero (R := α)
+          rw [h]; assumption
+        have h₂ := Ring.IsOrdered.ofNat_nonneg (R := α) x
+        have : (0 : α) < 0 := Preorder.lt_of_le_of_lt h₂ h₁
+        simp
+        exact (Preorder.lt_irrefl 0) this
+    next => intro h; rw [OfNat.ofNat, h]; rfl
+
+end Preorder
+
 section PartialOrder
 
 variable [PartialOrder R] [Ring.IsOrdered R]

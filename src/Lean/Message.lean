@@ -40,6 +40,14 @@ inductive MessageSeverity where
   | information | warning | error
   deriving Inhabited, BEq, ToJson, FromJson
 
+def MessageSeverity.toString : MessageSeverity → String
+  | .information => "information"
+  | .warning => "warning"
+  | .error => "error"
+
+instance : ToString MessageSeverity where
+  toString := MessageSeverity.toString
+
 structure MessageDataContext where
   env  : Environment
   mctx : MetavarContext

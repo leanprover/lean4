@@ -29,6 +29,7 @@ static lean_object* l_Lean_Elab_Structural_reprRecArgInfo____x40_Lean_Elab_PreDe
 lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Elab_Structural_reprRecArgInfo____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo___hyg_80____closed__5;
+lean_object* l_Lean_Elab_Structural_reprIndGroupInst____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_298_(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_reprRecArgInfo____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo___hyg_80____closed__24;
 static lean_object* l_Lean_Elab_Structural_reprRecArgInfo____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo___hyg_80____closed__18;
 lean_object* l_Lean_Elab_FixedParamPerm_buildArgs___rarg(lean_object*, lean_object*, lean_object*);
@@ -51,7 +52,6 @@ static lean_object* l_Lean_Elab_Structural_reprRecArgInfo____x40_Lean_Elab_PreDe
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_RecArgInfo_indicesAndRecArgPos(lean_object*);
 static lean_object* l_Lean_Elab_Structural_instInhabitedRecArgInfo___closed__1;
 extern lean_object* l_Lean_instInhabitedExpr;
-lean_object* l_Lean_Elab_Structural_reprIndGroupInst____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_309_(lean_object*, lean_object*);
 lean_object* l_Array_Array_repr___at_Lean_Elab_reprFixedParamPerms____x40_Lean_Elab_PreDefinition_FixedParams___hyg_3094____spec__3(lean_object*);
 static lean_object* l_Lean_Elab_Structural_instInhabitedRecArgInfo___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_RecArgInfo_indName_x21(lean_object*);
@@ -536,7 +536,7 @@ lean_ctor_set(x_53, 0, x_52);
 lean_ctor_set(x_53, 1, x_18);
 x_54 = lean_ctor_get(x_1, 4);
 lean_inc(x_54);
-x_55 = l_Lean_Elab_Structural_reprIndGroupInst____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_309_(x_54, x_4);
+x_55 = l_Lean_Elab_Structural_reprIndGroupInst____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_298_(x_54, x_4);
 x_56 = l_Lean_Elab_Structural_reprRecArgInfo____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo___hyg_80____closed__21;
 x_57 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_57, 0, x_56);

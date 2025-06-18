@@ -74,7 +74,7 @@ _start:
 {
 lean_object* x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = l_Lean_initFn____x40_Lean_Compiler_MetaAttr___hyg_3____closed__3;
-x_3 = 2;
+x_3 = 3;
 x_4 = l_Lean_mkTagDeclarationExtension(x_2, x_3, x_1);
 return x_4;
 }

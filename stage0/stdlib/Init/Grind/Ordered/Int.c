@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Ordered.Int
-// Imports: Init.Grind.Ordered.Ring Init.Grind.CommRing.Int Init.Omega
+// Imports: Init.Grind.Ordered.Ring Init.GrindInstances.Ring.Int Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -38,7 +38,7 @@ return x_1;
 }
 }
 lean_object* initialize_Init_Grind_Ordered_Ring(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_CommRing_Int(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_GrindInstances_Ring_Int(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Omega(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_Ordered_Int(uint8_t builtin, lean_object* w) {
@@ -48,7 +48,7 @@ _G_initialized = true;
 res = initialize_Init_Grind_Ordered_Ring(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_CommRing_Int(builtin, lean_io_mk_world());
+res = initialize_Init_GrindInstances_Ring_Int(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Omega(builtin, lean_io_mk_world());

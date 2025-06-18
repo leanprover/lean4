@@ -1,10 +1,15 @@
+/-
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Paul Reichert
+-/
 module
 
 prelude
 import Init.Data.Iterators.Internal.Termination
 import Init.Data.Iterators.Consumers.Loop
 import Init.Data.Iterators.Consumers.Collect
-import Init.Data.Range.New.Basic
+import Init.Data.Range.Polymorphic.PRange
 import Init.Data.List.Sublist
 
 open Std.Iterators
@@ -257,12 +262,12 @@ private def List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a 
     exact this.2
 
 def RangeIterator.instFinitenessRelation [UpwardEnumerable α] [SupportsUpperBound su α]
-    [LawfulUpwardEnumerable α] [FinitelyEnumerableRange su α] :
+    [LawfulUpwardEnumerable α] [HasFiniteRanges su α] :
     FinitenessRelation (RangeIterator su α) Id where
   rel :=
     open Classical in
     InvImage WellFoundedRelation.rel
-      (fun it => FinitelyEnumerableRange.enumeration it.internalState.upperBound
+      (fun it => (HasFiniteRanges.mem_of_satisfiesUpperBound it.internalState.upperBound).choose
         |>.filter (∃ a, it.internalState.next = some a ∧ UpwardEnumerable.le a ·)
         |>.length)
   wf := InvImage.wf _ WellFoundedRelation.wf
@@ -280,7 +285,7 @@ def RangeIterator.instFinitenessRelation [UpwardEnumerable α] [SupportsUpperBou
       rw [ha'] at hn'
       rw [LawfulUpwardEnumerable.succMany?_succ, LawfulUpwardEnumerable.succMany?_zero,
         Option.bind_some, hn']
-    · exact FinitelyEnumerableRange.mem_enumeration_of_satisfiesUpperBound _ _ hu
+    · exact (HasFiniteRanges.mem_of_satisfiesUpperBound _).choose_spec _ hu
     · intro h
       simp only [decide_eq_true_eq] at h
       obtain ⟨x, hx, h⟩ := h
@@ -292,7 +297,7 @@ def RangeIterator.instFinitenessRelation [UpwardEnumerable α] [SupportsUpperBou
       exact ⟨a, hn, UpwardEnumerable.le_refl _⟩
 
 instance RangeIterator.instFinite [UpwardEnumerable α] [SupportsUpperBound su α]
-    [LawfulUpwardEnumerable α] [FinitelyEnumerableRange su α] :
+    [LawfulUpwardEnumerable α] [HasFiniteRanges su α] :
     Finite (RangeIterator su α) Id :=
   .of_finitenessRelation instFinitenessRelation
 

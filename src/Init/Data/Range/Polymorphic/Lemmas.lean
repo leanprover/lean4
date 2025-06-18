@@ -1,11 +1,16 @@
+/-
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Paul Reichert
+-/
 module
 
 prelude
 import Init.Data.Iterators
-import all Init.Data.Range.New.Basic
-import all Init.Data.Range.New.RangeIterator
-import all Init.Data.Range.New.Iteration
 import Init.Data.Iterators.Lemmas.Consumers.Collect
+import all Init.Data.Range.Polymorphic.PRange
+import all Init.Data.Range.Polymorphic.RangeIterator
+import all Init.Data.Range.Polymorphic.Basic
 
 namespace Std.PRange
 open Std.Iterators
@@ -13,22 +18,22 @@ open Std.Iterators
 variable {shape : RangeShape} {α : Type u}
 
 private theorem iterInternal_open_eq_of_isSome_succ? [UpwardEnumerable α]
-    [SupportsUpperBound su α] [FinitelyEnumerableRange su α]
+    [SupportsUpperBound su α] [HasFiniteRanges su α]
     [LawfulUpwardEnumerable α]
     {lo : Bound .open α} {hi} (h : (UpwardEnumerable.succ? lo).isSome) :
     (PRange.mk (shape := ⟨.open, su⟩) lo hi).iterInternal =
       (PRange.mk (shape := ⟨.closed, su⟩) (UpwardEnumerable.succ? lo |>.get h) hi).iterInternal := by
-  simp [PRange.iterInternal, UpwardEnumerableRange.init]
+  simp [PRange.iterInternal, BoundedUpwardEnumerable.init]
 
 private theorem toList_eq_toList_iterInternal [UpwardEnumerable α]
-    [UpwardEnumerableRange sl α] [SupportsUpperBound su α] [FinitelyEnumerableRange su α]
+    [BoundedUpwardEnumerable sl α] [SupportsUpperBound su α] [HasFiniteRanges su α]
     [LawfulUpwardEnumerable α]
     {r : PRange ⟨sl, su⟩ α} :
     r.toList = r.iterInternal.toList := by
   rfl
 
 theorem toList_eq_match [UpwardEnumerable α]
-    [SupportsUpperBound su α] [FinitelyEnumerableRange su α]
+    [SupportsUpperBound su α] [HasFiniteRanges su α]
     [LawfulUpwardEnumerable α]
     {it : Iter (α := Types.RangeIterator su α) α} :
     it.toList =  match it.internalState.next with
@@ -49,7 +54,7 @@ theorem toList_eq_match [UpwardEnumerable α]
   · split at heq <;> simp_all
 
 theorem toList_eq_aux [UpwardEnumerable α]
-    [SupportsUpperBound su α] [FinitelyEnumerableRange su α]
+    [SupportsUpperBound su α] [HasFiniteRanges su α]
     [LawfulUpwardEnumerable α]
     {r : PRange ⟨.open, su⟩ α} :
     r.toList = match UpwardEnumerable.succ? r.lower with
@@ -69,28 +74,28 @@ theorem toList_eq_aux [UpwardEnumerable α]
     simp only [heq]
     split <;> rfl
 
-theorem toList_eq [UpwardEnumerable α] [UpwardEnumerableRange sl α]
-    [SupportsUpperBound su α] [FinitelyEnumerableRange su α]
+theorem toList_eq [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
+    [SupportsUpperBound su α] [HasFiniteRanges su α]
     [LawfulUpwardEnumerable α]
     {r : PRange ⟨sl, su⟩ α} :
-    r.toList = match UpwardEnumerableRange.init r.lower with
+    r.toList = match BoundedUpwardEnumerable.init r.lower with
       | none => []
       | some a => if SupportsUpperBound.IsSatisfied r.upper a then
         a :: (PRange.mk (shape := ⟨.open, su⟩) a r.upper).toList
       else
         [] := by
   rw [toList_eq_toList_iterInternal, toList_eq_match,
-    show r.iterInternal.internalState.next = UpwardEnumerableRange.init r.lower by rfl,
+    show r.iterInternal.internalState.next = BoundedUpwardEnumerable.init r.lower by rfl,
     show r.iterInternal.internalState.upperBound = r.upper by rfl]
   split
   · rfl
   · split
     · simp only [List.cons.injEq, true_and, toList_eq_toList_iterInternal, PRange.iterInternal,
-        UpwardEnumerableRange.init]
+        BoundedUpwardEnumerable.init]
     · rfl
 
 private theorem toList_open_eq_of_isSome_succ? [UpwardEnumerable α]
-    [SupportsUpperBound su α] [FinitelyEnumerableRange su α]
+    [SupportsUpperBound su α] [HasFiniteRanges su α]
     [LawfulUpwardEnumerable α]
     {lo : Bound .open α} {hi} (h : (UpwardEnumerable.succ? lo).isSome) :
     (PRange.mk (shape := ⟨.open, su⟩) lo hi).toList =
@@ -98,11 +103,11 @@ private theorem toList_open_eq_of_isSome_succ? [UpwardEnumerable α]
   simp [toList_eq_toList_iterInternal, iterInternal_open_eq_of_isSome_succ?, h]
 
 theorem toList_eq_nil_iff [UpwardEnumerable α]
-    [SupportsUpperBound su α] [FinitelyEnumerableRange su α] [UpwardEnumerableRange sl α]
+    [SupportsUpperBound su α] [HasFiniteRanges su α] [BoundedUpwardEnumerable sl α]
     [LawfulUpwardEnumerable α]
     {r : PRange ⟨sl, su⟩ α} :
     r.toList = [] ↔
-      ¬ (∃ a, UpwardEnumerableRange.init r.lower = some a ∧ SupportsUpperBound.IsSatisfied r.upper a) := by
+      ¬ (∃ a, BoundedUpwardEnumerable.init r.lower = some a ∧ SupportsUpperBound.IsSatisfied r.upper a) := by
   rw [toList_eq_toList_iterInternal] --, Iter.toList_eq_match_step, Types.RangeIterator.step_eq_step]
   rw [toList_eq_match, PRange.iterInternal]
   simp only
@@ -113,7 +118,7 @@ theorem RangeIterator.mem_toList_iff_isPlausibleIndirectOutput
     [SupportsUpperBound su α]
     [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableUpperBound su α]
-    [FinitelyEnumerableRange su α]
+    [HasFiniteRanges su α]
     {it : Iter (α := Types.RangeIterator su α) α} :
     out ∈ it.toList ↔ it.IsPlausibleIndirectOutput out := by
   constructor
@@ -132,7 +137,7 @@ theorem RangeIterator.mem_toList_iff_isPlausibleIndirectOutput
       simp [← ha.2.2.2, h']
 
 instance [UpwardEnumerable α]
-    [SupportsUpperBound su α] [FinitelyEnumerableRange su α]
+    [SupportsUpperBound su α] [HasFiniteRanges su α]
     [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableUpperBound su α] :
     LawfulPureIterator (Types.RangeIterator su α) where
@@ -140,8 +145,8 @@ instance [UpwardEnumerable α]
     RangeIterator.mem_toList_iff_isPlausibleIndirectOutput
 
 theorem mem_toList_iff_mem [UpwardEnumerable α]
-    [SupportsUpperBound su α] [SupportsLowerBound sl α] [FinitelyEnumerableRange su α]
-    [UpwardEnumerableRange sl α] [LawfulUpwardEnumerable α]
+    [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
+    [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
     {r : PRange ⟨sl, su⟩ α}
     {a : α} : a ∈ r.toList ↔ a ∈ r := by
@@ -149,8 +154,8 @@ theorem mem_toList_iff_mem [UpwardEnumerable α]
     RangeIterator.isPlausibleIndirectOutput_iff]
 
 theorem pairwise_upwardEnumerableLt [UpwardEnumerable α]
-    [SupportsUpperBound su α] [SupportsLowerBound sl α] [FinitelyEnumerableRange su α]
-    [UpwardEnumerableRange sl α] [LawfulUpwardEnumerable α]
+    [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
+    [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
     {r : PRange ⟨sl, su⟩ α} :
     r.toList.Pairwise (fun a b => UpwardEnumerable.lt a b) := by
@@ -175,8 +180,8 @@ theorem pairwise_upwardEnumerableLt [UpwardEnumerable α]
     simp_all [Types.RangeIterator.isPlausibleStep_iff, Types.RangeIterator.step]
 
 theorem forIn'_eq_forIn'_iterInternal [UpwardEnumerable α]
-    [SupportsUpperBound su α] [SupportsLowerBound sl α] [FinitelyEnumerableRange su α]
-    [UpwardEnumerableRange sl α] [LawfulUpwardEnumerable α]
+    [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
+    [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
     {r : PRange ⟨sl, su⟩ α}
     {γ : Type u} {init : γ} {m : Type u → Type w} [Monad m] {f : (a : α) → a ∈ r → γ → m (ForInStep γ)} :
@@ -186,8 +191,8 @@ theorem forIn'_eq_forIn'_iterInternal [UpwardEnumerable α]
   rfl
 
 theorem forIn'_eq_forIn'_toList [UpwardEnumerable α]
-    [SupportsUpperBound su α] [SupportsLowerBound sl α] [FinitelyEnumerableRange su α]
-    [UpwardEnumerableRange sl α] [LawfulUpwardEnumerable α]
+    [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
+    [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
     {r : PRange ⟨sl, su⟩ α}
     {γ : Type u} {init : γ} {m : Type u → Type w} [Monad m] [LawfulMonad m]
@@ -198,8 +203,8 @@ theorem forIn'_eq_forIn'_toList [UpwardEnumerable α]
     Iter.forIn'_eq_forIn'_toList]
 
 theorem forIn'_toList_eq_forIn' [UpwardEnumerable α]
-    [SupportsUpperBound su α] [SupportsLowerBound sl α] [FinitelyEnumerableRange su α]
-    [UpwardEnumerableRange sl α] [LawfulUpwardEnumerable α]
+    [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
+    [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
     {r : PRange ⟨sl, su⟩ α}
     {γ : Type u} {init : γ} {m : Type u → Type w} [Monad m] [LawfulMonad m]
@@ -209,14 +214,14 @@ theorem forIn'_toList_eq_forIn' [UpwardEnumerable α]
   simp [forIn'_eq_forIn'_toList]
 
 theorem forIn'_eq_match [UpwardEnumerable α]
-    [SupportsUpperBound su α] [SupportsLowerBound sl α] [FinitelyEnumerableRange su α]
-    [UpwardEnumerableRange sl α] [LawfulUpwardEnumerable α]
+    [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
+    [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
     [SupportsLowerBound .open α] [LawfulUpwardEnumerableLowerBound .open α]
     {r : PRange ⟨sl, su⟩ α}
     {γ : Type u} {init : γ} {m : Type u → Type w} [Monad m] [LawfulMonad m]
     {f : (a : α) → _ → γ → m (ForInStep γ)} :
-    ForIn'.forIn' r init f = match hi : UpwardEnumerableRange.init r.lower with
+    ForIn'.forIn' r init f = match hi : BoundedUpwardEnumerable.init r.lower with
       | none => pure init
       | some a => if hu : SupportsUpperBound.IsSatisfied r.upper a then do
         match ← f a ⟨by simp [LawfulUpwardEnumerableLowerBound.isValid_iff]; exact ⟨a, hi, 0, by simp [LawfulUpwardEnumerable.succMany?_zero]⟩, hu⟩ init with
@@ -228,7 +233,7 @@ theorem forIn'_eq_match [UpwardEnumerable α]
               simp only [LawfulUpwardEnumerableLowerBound.isValid_iff] at ha ⊢
               obtain ⟨x, hx, n, hn⟩ := ha.1
               refine ⟨_, hi, ?_⟩
-              simp only [UpwardEnumerableRange.init] at hx
+              simp only [BoundedUpwardEnumerable.init] at hx
               refine ⟨n + 1, ?_⟩
               rw [Nat.add_comm, UpwardEnumerable.succMany?_add,
                 LawfulUpwardEnumerable.succMany?_succ, LawfulUpwardEnumerable.succMany?_zero,
@@ -247,7 +252,7 @@ theorem forIn'_eq_match [UpwardEnumerable α]
       apply bind_congr
       intro step
       split
-      · simp [forIn'_eq_forIn'_iterInternal, PRange.iterInternal, UpwardEnumerableRange.init]
+      · simp [forIn'_eq_forIn'_iterInternal, PRange.iterInternal, BoundedUpwardEnumerable.init]
       · simp
     · simp
 

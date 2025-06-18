@@ -1,30 +1,35 @@
+/-
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Paul Reichert
+-/
 module
 
 prelude
-import Init.Data.Range.New.RangeIterator
+import Init.Data.Range.Polymorphic.RangeIterator
 
 open Std.Iterators
 
 @[always_inline, inline]
-def PRange.iterInternal [UpwardEnumerable α] [UpwardEnumerableRange sl α]
+def PRange.iterInternal [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     (r : PRange ⟨sl, su⟩ α) : Iter (α := Types.RangeIterator su α) α :=
-  ⟨⟨UpwardEnumerableRange.init r.lower, r.upper⟩⟩
+  ⟨⟨BoundedUpwardEnumerable.init r.lower, r.upper⟩⟩
 
 @[always_inline, inline]
-def PRange.size [UpwardEnumerable α] [UpwardEnumerableRange sl α]
+def PRange.size [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [SupportsUpperBound su α] (r : PRange ⟨sl, su⟩ α)
     [IteratorSize (Types.RangeIterator su α) Id] : Nat :=
   r.iterInternal.size
 
 @[always_inline, inline]
-def PRange.toList [UpwardEnumerable α] [UpwardEnumerableRange sl α]
+def PRange.toList [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [SupportsUpperBound su α]
     (r : PRange ⟨sl, su⟩ α)
     [Iterator (Types.RangeIterator su α) Id α] [Finite (Types.RangeIterator su α) Id]
     [IteratorCollect (Types.RangeIterator su α) Id Id] : List α :=
   r.iterInternal.toList
 
--- instance [UpwardEnumerable α] [HasRange shape α] [UpwardEnumerableRange shape α]
+-- instance [UpwardEnumerable α] [HasRange shape α] [BoundedUpwardEnumerable shape α]
 --     [ForIn' m (Iter (α := Types.RangeIterator shape α) α) α inferInstance] :
 --     ForIn' m (PRange shape α) α where
 --   forIn r := forIn r.iter
@@ -41,7 +46,7 @@ section Iterator
 --     RepeatIterator.Monadic.next_eq_some_of_isPlausibleSuccessorOf
 
 private theorem RangeIterator.isPlausibleIndirectOutput_iff.aux
-    [UpwardEnumerable α] [UpwardEnumerableRange sl α] [SupportsLowerBound sl α]
+    [UpwardEnumerable α] [BoundedUpwardEnumerable sl α] [SupportsLowerBound sl α]
     [SupportsUpperBound su α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLowerBound sl α]
     {r : PRange ⟨sl, su⟩ α} {it : Iter (α := Types.RangeIterator su α) α} {a : α}
     (h : ∃ next, it.internalState.next = some next ∧ SupportsLowerBound.IsSatisfied r.lower next)
@@ -120,7 +125,7 @@ theorem RangeIterator.isPlausibleIndirectOutput_iff'
 
 -- TODO: private if it can be accessed via import all
 theorem RangeIterator.isPlausibleIndirectOutput_iff
-    [UpwardEnumerable α] [UpwardEnumerableRange sl α]
+    [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [SupportsLowerBound sl α] [SupportsUpperBound su α]
     [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableUpperBound su α] [LawfulUpwardEnumerableLowerBound sl α]
@@ -153,7 +158,7 @@ theorem RangeIterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
   exact hout.1
 
 @[no_expose]
-instance [UpwardEnumerable α] [UpwardEnumerableRange sl α]
+instance [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [SupportsLowerBound sl α] [SupportsUpperBound su α]
     [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]

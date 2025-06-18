@@ -1,9 +1,9 @@
 prelude
-import Init.Data.Range.New.RangeIterator
-import Init.Data.Range.New.Nat
-import Init.Data.Range.New.Iteration
+import Init.Data.Range.Polymorphic.Nat
+import Init.Data.Range.Polymorphic.Basic
 import Init.System.IO
 import Init.Data.Iterators
+import Init
 
 def ex1 : IO Unit := do
 IO.println "example 1"
@@ -100,28 +100,29 @@ open Std.Iterators Types
 
 -- #eval! it.toList
 
-#eval "b" ∈ ("a",,"c")
+#eval "b" ∈ ("a".."c")
 
-#eval! (1,,4).iter.toList
+#eval! (1 ..4).iter.toList
 
-#eval! (1<,,<4).iter.toList
+#eval! (1<..<4).iter.toList
 
-#eval! (2<,,<5).size
+#eval! (2<..<5).size
 
--- #eval (,,<5).iter.toList
+#eval! (..<5).iter.toList
 
-#eval 1 ∈ (1,,5)
+-- TODO: make 1..5 work
+#eval 1 ∈ (1 ..5)
 
 -- TODO:
 instance [Pure m] : MonadLiftT Id m where
   monadLift := pure
 
 def g : IO Unit := do
-  for h : x in ((2 : Nat),,8) do -- ugly: For some reason, we need a type hint here
+  for h : x in ((2 : Nat)..8) do -- ugly: For some reason, we need a type hint here
     IO.println x
 
-#synth ForIn IO (type_of% (2,,8)) _ -- Note that we don't need the type hint this time
+#synth ForIn IO (type_of% (2 ..8)) _ -- Note that we don't need the type hint this time
 
 /-- info: [2, 3, 4, 5, 6, 7, 8] -/
 #guard_msgs in
-#eval! (2,,8).toList
+#eval! (2 ..8).toList

@@ -384,6 +384,24 @@ inductive IterM.IsPlausibleIndirectOutput {α β : Type w} {m : Type w → Type 
       it'.IsPlausibleIndirectOutput out → it.IsPlausibleIndirectOutput out
 
 /--
+Asserts that an iterator `it'` could plausibly produce `it'` as a successor iterator after
+finitely many steps. This relation is reflexive.
+-/
+inductive IterM.IsPlausibleIndirectSuccessorOf {α β : Type w} {m : Type w → Type w'}
+    [Iterator α m β] : IterM (α := α) m β → IterM (α := α) m β → Prop where
+  | refl (it : IterM (α := α) m β) : it.IsPlausibleIndirectSuccessorOf it
+  | cons_right {it'' it' it : IterM (α := α) m β} (h' : it''.IsPlausibleIndirectSuccessorOf it')
+      (h : it'.IsPlausibleSuccessorOf it) : it''.IsPlausibleIndirectSuccessorOf it
+
+theorem IterM.IsPlausibleIndirectSuccessorOf.trans {α β : Type w} {m : Type w → Type w'}
+    [Iterator α m β] {it'' it' it : IterM (α := α) m β}
+    (h' : it''.IsPlausibleIndirectSuccessorOf it') (h : it'.IsPlausibleIndirectSuccessorOf it) :
+    it''.IsPlausibleIndirectSuccessorOf it := by
+  induction h
+  case refl => exact h'
+  case cons_right ih => exact IsPlausibleIndirectSuccessorOf.cons_right ih ‹_›
+
+/--
 The type of the step object returned by `Iter.step`, containing an `IterStep`
 and a proof that this is a plausible step for the given iterator.
 -/
@@ -472,11 +490,30 @@ theorem Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM {α
       replace h : it'.toIter.IsPlausibleSuccessorOf it.toIter := h
       exact .indirect (α := α) h ih
 
+/--
+Asserts that an iterator `it'` could plausibly produce `it'` as a successor iterator after
+finitely many steps. This relation is reflexive.
+-/
 inductive Iter.IsPlausibleIndirectSuccessorOf {α : Type w} {β : Type w} [Iterator α Id β] :
     Iter (α := α) β → Iter (α := α) β → Prop where
   | refl (it : Iter (α := α) β) : IsPlausibleIndirectSuccessorOf it it
   | cons_right {it'' it' it : Iter (α := α) β} (h' : it''.IsPlausibleIndirectSuccessorOf it')
       (h : it'.IsPlausibleSuccessorOf it) : it''.IsPlausibleIndirectSuccessorOf it
+
+theorem Iter.isPlausibleIndirectSuccessor_iff_isPlausibleIndirectSuccessor_toIterM {α β : Type w}
+    [Iterator α Id β] {it' it : Iter (α := α) β} :
+    it'.IsPlausibleIndirectSuccessorOf it ↔ it'.toIterM.IsPlausibleIndirectSuccessorOf it.toIterM := by
+  constructor
+  · intro h
+    induction h with
+    | refl => exact .refl _
+    | cons_right _ h ih => exact .cons_right ih h
+  · intro h
+    rw [← Iter.toIter_toIterM (it := it), ← Iter.toIter_toIterM (it := it')]
+    generalize it.toIterM = it at ⊢ h
+    induction h with
+    | refl => exact .refl _
+    | cons_right _ h ih => exact .cons_right ih h
 
 theorem Iter.IsPlausibleIndirectSuccessorOf.trans {α : Type w} {β : Type w} [Iterator α Id β]
     {it'' it' it : Iter (α := α) β} (h' : it''.IsPlausibleIndirectSuccessorOf it')

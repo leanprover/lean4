@@ -1,8 +1,13 @@
+/-
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Paul Reichert
+-/
 module
 
 prelude
-import Init.Data.Range.New.Iteration
 import Init.Data.Nat.Lemmas
+import Init.Data.Range.Polymorphic.Basic
 
 instance : UpwardEnumerable Nat where
   succ? n := some (n + 1)
@@ -46,7 +51,7 @@ instance : LawfulUpwardEnumerable Nat where
 
 instance : LawfulUpwardEnumerableLowerBound .closed Nat where
   isValid_iff a l := by
-    simp [← LawfulUpwardEnumerableLE.le_iff, UpwardEnumerableRange.init,
+    simp [← LawfulUpwardEnumerableLE.le_iff, BoundedUpwardEnumerable.init,
       SupportsLowerBound.IsSatisfied]
 
 instance : LawfulUpwardEnumerableUpperBound .closed Nat where
@@ -56,7 +61,7 @@ instance : LawfulUpwardEnumerableUpperBound .closed Nat where
 
 instance : LawfulUpwardEnumerableLowerBound .open Nat where
   isValid_iff a l := by
-    simp [← LawfulUpwardEnumerableLE.le_iff, UpwardEnumerableRange.init,
+    simp [← LawfulUpwardEnumerableLE.le_iff, BoundedUpwardEnumerable.init,
       SupportsLowerBound.IsSatisfied, UpwardEnumerable.succ?, Nat.lt_iff_add_one_le]
 
 instance : LawfulUpwardEnumerableUpperBound .open Nat where
@@ -66,7 +71,7 @@ instance : LawfulUpwardEnumerableUpperBound .open Nat where
 
 instance : LawfulUpwardEnumerableLowerBound .unbounded Nat where
   isValid_iff a l := by
-    simp [← LawfulUpwardEnumerableLE.le_iff, UpwardEnumerableRange.init,
+    simp [← LawfulUpwardEnumerableLE.le_iff, BoundedUpwardEnumerable.init,
       SupportsLowerBound.IsSatisfied, Nat.lt_iff_add_one_le, Least?.least?]
 
 instance : LawfulUpwardEnumerableUpperBound .unbounded Nat where
@@ -84,25 +89,20 @@ private theorem mem_rangeRev {k l : Nat} (h : l < k) : l ∈ rangeRev k := by
     rw [rangeRev]
     by_cases hl : l = k
     · simp [hl]
-    · have : l < k := by
-        apply Nat.lt_of_le_of_ne
-        · exact Nat.le_of_lt_succ h
-        · exact hl
-      apply List.mem_cons_of_mem
-      exact ih this
+    · apply List.mem_cons_of_mem
+      exact ih (Nat.lt_of_le_of_ne (Nat.le_of_lt_succ h) hl)
 
 @[no_expose]
-instance : FinitelyEnumerableRange .closed Nat where
-  enumeration upperBound := rangeRev (upperBound + 1)
-  mem_enumeration_of_satisfiesUpperBound upperBound a h := by
+instance : HasFiniteRanges .closed Nat where
+  mem_of_satisfiesUpperBound upperBound := by
+    refine ⟨rangeRev (upperBound + 1), fun a h => ?_⟩
     simp only [SupportsUpperBound.IsSatisfied] at h
-    apply mem_rangeRev
-    exact Nat.lt_succ_of_le h
+    exact mem_rangeRev (Nat.lt_succ_of_le h)
 
 @[no_expose]
-instance : FinitelyEnumerableRange .open Nat where
-  enumeration upperBound := rangeRev (upperBound + 1)
-  mem_enumeration_of_satisfiesUpperBound upperBound a h := by
+instance : HasFiniteRanges .open Nat where
+  mem_of_satisfiesUpperBound upperBound := by
+    refine ⟨rangeRev (upperBound + 1), fun a h => ?_⟩
     simp only [SupportsUpperBound.IsSatisfied] at h
     apply mem_rangeRev
     exact Nat.lt_succ_of_lt h

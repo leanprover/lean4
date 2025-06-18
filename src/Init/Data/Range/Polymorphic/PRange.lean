@@ -13,6 +13,8 @@ import Init.Data.Range.Polymorphic.UpwardEnumerable
 
 open Std.Iterators
 
+namespace Std.PRange
+
 /--
 The shape of a range's upper or lower bound: `open`, `closed` or `unbounded`.
 -/
@@ -62,7 +64,7 @@ may be inclusive, exclusive or absent.
 * `a<..` contains all elements above `a`, excluding `a`.
 * `..` contains all elements of `α`.
 -/
-structure PRange (shape : RangeShape) (α : Type u) where
+structure _root_.Std.PRange (shape : RangeShape) (α : Type u) where
   /-- The lower bound of the range. -/
   lower : Bound shape.lower α
   /-- The upper bound of the range. -/
@@ -89,7 +91,15 @@ macro_rules
   | `(..<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.open) PUnit.unit $b)
   | `($a<..<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.open) $a $b)
 
-/-- This typeclass provides decidable lower bound checks of the given shape. -/
+/--
+This typeclass provides decidable lower bound checks of the given shape.
+
+Instances are automatically provided in the following cases:
+
+* `shape` is `open` and there is an `LT α` instance
+* `shape` is `closed` and there is an `LE α` instance
+* `shape` is `.unbounded`
+-/
 class SupportsLowerBound (shape : BoundShape) (α : Type u) where
   IsSatisfied : Bound shape α → α → Prop
   decidableSatisfiesLowerBound : DecidableRel IsSatisfied := by infer_instance
@@ -97,7 +107,15 @@ class SupportsLowerBound (shape : BoundShape) (α : Type u) where
 instance : SupportsLowerBound .unbounded α where
   IsSatisfied _ _ := True
 
-/-- This typeclass provides decidable upper bound checks of the given shape. -/
+/--
+This typeclass provides decidable upper bound checks of the given shape.
+
+Instances are automatically provided in the following cases:
+
+* `shape` is `open` and there is an `LT α` instance
+* `shape` is `closed` and there is an `LE α` instance
+* `shape` is `.unbounded`
+-/
 class SupportsUpperBound (shape : BoundShape) (α : Type u) where
   IsSatisfied : Bound shape α → α → Prop
   decidableSatisfiesUpperBound : DecidableRel IsSatisfied := by infer_instance
@@ -130,6 +148,12 @@ class HasFiniteRanges (shape α) [SupportsUpperBound shape α] : Prop where
 /--
 This typeclass will usually be used together with `UpwardEnumerable α`. It provides the starting
 point from which to enumerate all the values above the given lower bound.
+
+Instances are automatically generated in the following cases:
+
+* `lowerBoundShape` is `.closed`
+* `lowerBoundShape` is `.open` and there is an `UpwardEnumerable α` instance
+* `lowerBoundShape` is `.unbounded` and there is a `Least? α` instance
 -/
 class BoundedUpwardEnumerable (lowerBoundShape : BoundShape) (α : Type u) where
   init? : Bound lowerBoundShape α → Option α
@@ -190,3 +214,5 @@ instance [UpwardEnumerable α] : BoundedUpwardEnumerable .open α where
 
 instance : BoundedUpwardEnumerable .closed α where
   init? lower := some lower
+
+end Std.PRange

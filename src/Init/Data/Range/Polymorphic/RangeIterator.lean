@@ -14,8 +14,9 @@ import Init.Data.List.Sublist
 
 open Std.Iterators
 
-namespace Std.Iterators.Types
+namespace Std.PRange
 
+/-- Internal state of the range iterators. Do not depend on its internals. -/
 @[unbox]
 structure RangeIterator (shape : BoundShape) (α : Type u) where
   next : Option α
@@ -23,6 +24,12 @@ structure RangeIterator (shape : BoundShape) (α : Type u) where
 
 variable {α : Type u}
 
+/--
+The pure function mapping a range iterator of type `IterM` to the next step of the iterator.
+
+This function is prefixed with `Monadic` in order to disambiguate it from the version for iterators
+of type `Iter`.
+-/
 @[always_inline, inline]
 def RangeIterator.Monadic.step [UpwardEnumerable α] [SupportsUpperBound su α]
     (it : IterM (α := RangeIterator su α) Id α) :
@@ -34,6 +41,9 @@ def RangeIterator.Monadic.step [UpwardEnumerable α] [SupportsUpperBound su α]
     else
       .done
 
+/--
+The pure function mapping a range iterator of type `Iter` to the next step of the iterator.
+-/
 @[always_inline, inline]
 def RangeIterator.step [UpwardEnumerable α] [SupportsUpperBound su α]
     (it : Iter (α := RangeIterator su α) α) :
@@ -92,21 +102,6 @@ instance RepeatIterator.instIteratorLoop [UpwardEnumerable α] [SupportsUpperBou
     {n : Type u → Type w} [Monad n] :
     IteratorLoop (RangeIterator su α) Id n :=
   .defaultImplementation
-  -- forIn lift γ plausible_forInStep wf it init f :=
-  --   let rec @[specialize] loop (a : α) (c : γ) : n γ := do
-  --     if P a then
-  --       match ← f a sorry c with
-  --       | ⟨.yield c', _⟩ => match (instSucc? a) with
-  --         | none => pure c'
-  --         | some a' => loop a' c'
-  --       | ⟨.done c', _⟩ => pure c'
-  --     else
-  --       return init
-  --   termination_by a
-  --   decreasing_by all_goals sorry
-  --   match it.internalState.next with
-  --   | none => pure init
-  --   | some a => loop a init
 
 instance RepeatIterator.instIteratorLoopPartial [UpwardEnumerable α] [SupportsUpperBound su α]
     {n : Type u → Type w} [Monad n] : IteratorLoopPartial (RangeIterator su α) Id n :=
@@ -119,37 +114,6 @@ instance RepeatIterator.instIteratorCollect [UpwardEnumerable α] [SupportsUpper
 instance RepeatIterator.instIteratorCollectPartial [UpwardEnumerable α] [SupportsUpperBound su α]
     {n : Type u → Type w} [Monad n] : IteratorCollectPartial (RangeIterator su α) Id n :=
   .defaultImplementation
-
--- TODO: very specific performance optimizations if needed
-
--- abbrev test : ForIn Id (Iter (α := RangeIterator α instSucc? p) α) α :=
---   inferInstance
-
--- @[always_inline, inline]
--- def test' : ForIn Id.{u} (Iter (α := RangeIterator α instSucc? P) α) α where
---   forIn {γ _} it init f :=
---     let rec @[specialize] loop (a : α) (c : γ) : Id γ := do
---       if P a then
---         match ← f a c with
---         | .yield c' => match instSucc?.succ? a with
---           | none => pure c'
---           | some a' => loop a' c'
---         | .done c' => pure c'
---       else
---         pure c
---     termination_by a
---     decreasing_by all_goals sorry
---     match it.internalState.next with
---     | none => pure init
---     | some a => loop a init
-
--- @[csimp]
--- theorem aaa : @test = @test' := sorry
-
--- @[always_inline, inline]
--- instance test'' :
---     ForIn Id.{u} (Iter (α := RangeIterator α instSucc? p) α) α :=
---   test
 
 theorem RangeIterator.Monadic.isPlausibleOutput_next
     [UpwardEnumerable α] [SupportsUpperBound su α]
@@ -198,7 +162,7 @@ theorem RangeIterator.Monadic.isPlausibleSuccessorOf_iff
         SupportsUpperBound.IsSatisfied it.internalState.upperBound a ∧
         UpwardEnumerable.succ? a = it'.internalState.next ∧
         it'.internalState.upperBound = it.internalState.upperBound := by
-  simp [IterM.IsPlausibleSuccessorOf]
+  simp only [IterM.IsPlausibleSuccessorOf]
   constructor
   · rintro ⟨step, h, h'⟩
     cases h'
@@ -206,13 +170,14 @@ theorem RangeIterator.Monadic.isPlausibleSuccessorOf_iff
     split at h
     · cases h
     · split at h
-      · simp [IterStep.successor] at h
+      · simp only [IterStep.successor, Option.some.injEq] at h
         cases h
         exact ⟨_, ‹_›, ‹_›, rfl, rfl⟩
       · cases h
   · rintro ⟨a, h, hP, h'⟩
     refine ⟨.yield it' a, rfl, ?_⟩
-    simp [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, RangeIterator.Monadic.step, h, hP]
+    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, step, h, hP, ↓reduceIte,
+      IterStep.yield.injEq, and_true]
     simp [h'.1, ← h'.2]
 
 theorem RangeIterator.isPlausibleSuccessorOf_iff
@@ -261,7 +226,7 @@ private def List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a 
     rw [← heq, List.mem_filter] at this
     exact this.2
 
-def RangeIterator.instFinitenessRelation [UpwardEnumerable α] [SupportsUpperBound su α]
+private def RangeIterator.instFinitenessRelation [UpwardEnumerable α] [SupportsUpperBound su α]
     [LawfulUpwardEnumerable α] [HasFiniteRanges su α] :
     FinitenessRelation (RangeIterator su α) Id where
   rel :=
@@ -280,8 +245,7 @@ def RangeIterator.instFinitenessRelation [UpwardEnumerable α] [SupportsUpperBou
     · intro u h
       simp only [decide_eq_true_eq] at ⊢ h
       obtain ⟨a', ha', hle⟩ := h
-      refine ⟨a, hn, UpwardEnumerable.le_trans ?_ hle⟩
-      refine ⟨1, ?_⟩
+      refine ⟨a, hn, UpwardEnumerable.le_trans ⟨1, ?_⟩ hle⟩
       rw [ha'] at hn'
       rw [LawfulUpwardEnumerable.succMany?_succ, LawfulUpwardEnumerable.succMany?_zero,
         Option.bind_some, hn']
@@ -296,9 +260,10 @@ def RangeIterator.instFinitenessRelation [UpwardEnumerable α] [SupportsUpperBou
     · simp only [decide_eq_true_eq]
       exact ⟨a, hn, UpwardEnumerable.le_refl _⟩
 
+@[no_expose]
 instance RangeIterator.instFinite [UpwardEnumerable α] [SupportsUpperBound su α]
     [LawfulUpwardEnumerable α] [HasFiniteRanges su α] :
     Finite (RangeIterator su α) Id :=
   .of_finitenessRelation instFinitenessRelation
 
-end Std.Iterators.Types
+end Std.PRange

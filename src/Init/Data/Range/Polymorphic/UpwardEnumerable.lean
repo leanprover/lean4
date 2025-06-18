@@ -12,6 +12,8 @@ import Init.Data.Nat.Basic
 import Init.Data.Option.Lemmas
 import Init.NotationExtra
 
+namespace Std.PRange
+
 /--
 This typeclass provides the function `succ? : α → Option α` that computes the successor of
 elements of `α`, or none if no successor exists.
@@ -161,3 +163,5 @@ a transitive successor of it.
 class LawfulUpwardEnumerableLeast? (α : Type u) [UpwardEnumerable α] [Least? α] where
   /--For nonempty `α`, `least?` has a value and every other value is a transitive successor of it. -/
   eq_succMany?_least? (a : α) : ∃ init, Least?.least? = some init ∧ UpwardEnumerable.le init a
+
+end Std.PRange

@@ -9,6 +9,8 @@ prelude
 import Init.Data.Nat.Lemmas
 import Init.Data.Range.Polymorphic.Basic
 
+namespace Std.PRange
+
 instance : UpwardEnumerable Nat where
   succ? n := some (n + 1)
   succMany? k n := some (n + k)
@@ -106,3 +108,5 @@ instance : HasFiniteRanges .open Nat where
     simp only [SupportsUpperBound.IsSatisfied] at h
     apply mem_rangeRev
     exact Nat.lt_succ_of_lt h
+
+end Std.PRange

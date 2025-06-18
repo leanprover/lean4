@@ -336,7 +336,7 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleArtifacts) := do
       let args := mod.weakLeanArgs ++ mod.leanArgs
       let relSrcFile := relPathFrom mod.pkg.dir srcFile
       compileLeanModule srcFile relSrcFile setup mod.setupFile arts args
-        (← getLeanPath) (← getLean)
+        (← getLeanPath) mod.rootDir (← getLean)
       mod.clearOutputHashes
     unless upToDate && (← getTrustHash) do
       mod.cacheOutputHashes

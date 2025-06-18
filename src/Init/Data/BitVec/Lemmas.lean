@@ -3411,6 +3411,11 @@ theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = 
   apply eq_of_toNat_eq
   simp [BitVec.ofNat, Fin.ofNat_sub]
 
+theorem ofNat_sub_ofNat_of_le (x y : Nat) (hy : y < 2 ^ w) (hlt : y ≤ x):
+    BitVec.ofNat w x - BitVec.ofNat w y = BitVec.ofNat w (x - y) := by
+  apply eq_of_toNat_eq
+  simp [Nat.mod_eq_of_lt hy, show 2 ^ w - y + x = 2 ^ w + (x - y) by omega, Nat.add_mod_left]
+
 @[simp] protected theorem sub_zero (x : BitVec n) : x - 0#n = x := by apply eq_of_toNat_eq ; simp
 
 @[simp] protected theorem zero_sub (x : BitVec n) : 0#n - x = -x := rfl

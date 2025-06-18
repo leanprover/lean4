@@ -63,10 +63,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
               have hx0 : x.getLsbD 0 = true := by rw [hx] at hx'; exact hx'
               have : 1 < 2 ^ w := by exact Nat.one_lt_two_pow_iff.mpr (by omega)
               simp only [BitVec.sub_zero, denote_blastConst, BitVec.clzAuxRec, hx0, reduceIte]
-              congr
-              rw [BitVec.toNat_eq, BitVec.ofNat_sub_ofNat, Nat.mod_eq_of_lt (by omega),
-                show 2 ^ w - 1 + w = 2 ^ w + (w - 1) by omega]
-              simp only [BitVec.toNat_ofNat, Nat.add_mod_left]
+              rw [BitVec.ofNat_sub_ofNat_of_le (x := w) (y := 1) (by omega) (by omega)]
             · next hx' =>
               have hx0 : x.getLsbD 0 = false := by rw [hx, Bool.not_eq_true] at hx'; exact hx'
               simp only [reduceIte] at hacc
@@ -77,13 +74,8 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
               have := Nat.lt_pow_self (n := curr + 1) (a := 2) (by omega)
               have := Nat.pow_lt_pow_of_lt (a := 2) (n := curr + 1) (m := w) (by omega) (by omega)
               simp only [denote_blastConst, BitVec.clzAuxRec, hxc, reduceIte]
-              congr
-              simp only [BitVec.ofNat_sub_ofNat, Nat.zero_lt_succ, Nat.one_mod_two_pow,
-                Nat.add_one_sub_one]
-              rw [BitVec.toNat_eq, BitVec.toNat_ofNat, Nat.mod_eq_of_lt (a := curr + 1) (by omega),
-                Nat.mod_eq_of_lt (a := 1) (by omega),
-                show 2 ^ w - (curr + 1) + (2 ^ w - 1 + w) = (2 ^ w) + (2 ^ w + (w - curr - 1 - 1)) by omega]
-              simp [Nat.add_mod_left, Nat.sub_add_eq, Nat.sub_right_comm]
+              rw [BitVec.ofNat_sub_ofNat_of_le (x := w) (y := 1) (by omega) (by omega),
+                  BitVec.ofNat_sub_ofNat_of_le (x := w - 1) (y := curr + 1) (by omega) (by omega)]
             · next hx' =>
               simp only [Nat.add_eq_zero, Nat.succ_ne_self, and_false, reduceIte,
                 Nat.add_one_sub_one] at hacc

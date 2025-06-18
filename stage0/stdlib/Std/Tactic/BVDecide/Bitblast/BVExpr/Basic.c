@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-// Imports: Init.Data.Hashable Init.Data.BitVec Init.Data.RArray Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
+// Imports: Init.Data.Hashable Init.Data.BitVec.Lemmas Init.Data.RArray Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3522,7 +3522,7 @@ return x_4;
 }
 }
 lean_object* initialize_Init_Data_Hashable(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BitVec(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_RArray(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BoolExpr_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -3533,7 +3533,7 @@ _G_initialized = true;
 res = initialize_Init_Data_Hashable(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BitVec(builtin, lean_io_mk_world());
+res = initialize_Init_Data_BitVec_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_RArray(builtin, lean_io_mk_world());

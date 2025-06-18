@@ -6639,7 +6639,7 @@ return x_56;
 else
 {
 lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; uint8_t x_61; 
-x_57 = lean_unsigned_to_nat(5u);
+x_57 = lean_unsigned_to_nat(4u);
 x_58 = l_Lean_Syntax_getArg(x_1, x_57);
 x_59 = lean_unsigned_to_nat(2u);
 x_60 = l_Lean_Syntax_getArg(x_58, x_59);

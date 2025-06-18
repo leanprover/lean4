@@ -5570,54 +5570,70 @@ theorem msb_replicate {n w : Nat} {x : BitVec w} :
 
 /-! ### Count leading zeroes -/
 
-/-- The number of leading zeroes is 0 if and only if the first bit checked (`x.getLsbD n`) is `true` -/
-theorem clzAux_eq_zero_iff {x : BitVec w} {n : Nat} (hw : 0 < w) :
-    clzAux x 0 = 0 ↔ x.getLsbD (w - 1) = true := by
-  sorry
+-- /-- The number of leading zeroes is 0 if and only if the first bit checked (`x.getLsbD n`) is `true` -/
+-- theorem clzAux_eq_zero_iff {x : BitVec w} {n : Nat} (hw : 0 < w) (h : ∀ i, (w - 1 - n) < i → x.getLsbD i = false) :
+--     clzAux x n = 0 ↔ x.getLsbD (w - 1 - n) = true := by
+--   induction n
+--   · case zero =>
+--     constructor
+--     · intro h
+--       simp
+--       unfold clzAux at h
+--       simp [hw] at h
+--       sorry
+--     sorry
+--   sorry
 
+-- /-- The number of leading zeroes can't be larger than the number of bits clzAux checks -/
+-- theorem clzAux_le (x : BitVec w) (n : Nat) (hw : 0 < w) :
+--     x.clzAux n ≤ w := by
+--   have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
+--   induction n
+--   · case zero =>
+--     unfold clzAux
+--     by_cases hx0 : x.getLsbD 0
+--     · simp [hx0, hw]
+--       sorry
+--     · simp [hx0, hw]
+--       sorry
+--   · case succ n ihn =>
+--     unfold clzAuxRec
+--     by_cases hxn : x.getLsbD (n + 1)
+--     · simp [hxn]
+--       rw [Nat.mod_eq_of_lt (by omega)]
+--       omega
+--     · simp [hxn, ihn]
 
-/-- The number of leading zeroes can't be larger than the number of bits clzAux checks -/
-theorem clzAux_le {x : BitVec w} {n : Nat} :
-    clzAux x 0 ≤ n + 1 := by sorry
-  -- induction n
-  -- · case zero =>
-  --   cases hx0 : x.getLsbD 0
-  --   <;> simp [clzAux, hx0]
-  -- · case succ n ihn =>
-  --   by_cases hxn : x.getLsbD (n + 1)
-  --   · simp [clzAux, hxn]
-  --   · simp [clzAux, hxn]; omega
-
-/-- The number of leading zeroes is equal to the numbers of bits checked if and only if all
-  the bits from the `n`-th to the `0`-th are `false`. -/
-theorem clzAux_eq_iff {x : BitVec w} {n : Nat} :
-    clzAux x 0 = (n + 1) ↔ (∀ i, i < n + 1 → x.getLsbD i = false) := by sorry
-  -- induction n
-  -- · case zero => simp [clzAux]
-  -- · case succ n ihn =>
-  --   by_cases hxn : x.getLsbD (n + 1)
-  --   · simp only [clzAux, hxn, reduceIte, Nat.right_eq_add, Nat.add_eq_zero, reduceCtorEq,
-  --       and_false, false_iff, Classical.not_forall, not_imp, Bool.not_eq_false]
-  --     exists n + 1, by omega
-  --   · simp only [clzAux, hxn, Bool.false_eq_true, reduceIte,
-  --       show 1 + x.clzAux n = n + 1 + 1 ↔ x.clzAux n = n + 1 by omega, ihn]
-  --     constructor
-  --     · intro hc i hin
-  --       by_cases hi : i ≤ n
-  --       · apply hc; omega
-  --       · simp [show i = n + 1 by omega, hxn]
-  --     · intro hc i hin
-  --       apply hc
-  --       omega
+-- /-- The number of leading zeroes is equal to the numbers of bits checked if and only if all
+--   the bits from the `n`-th to the `0`-th are `false`. -/
+-- theorem clzAux_eq_iff (x : BitVec w) (n : Nat) :
+--     x.clzAux n = w ↔ ∀ i, i ≤ n → x.getLsbD i = false := by sorry
+-- induction n
+-- · case zero => simp [clzAux]
+-- · case succ n ihn =>
+--   by_cases hxn : x.getLsbD (n + 1)
+--   · simp only [clzAux, hxn, reduceIte, Nat.right_eq_add, Nat.add_eq_zero, reduceCtorEq,
+--       and_false, false_iff, Classical.not_forall, not_imp, Bool.not_eq_false]
+--     exists n + 1, by omega
+--   · simp only [clzAux, hxn, Bool.false_eq_true, reduceIte,
+--       show 1 + x.clzAux n = n + 1 + 1 ↔ x.clzAux n = n + 1 by omega, ihn]
+--     constructor
+--     · intro hc i hin
+--       by_cases hi : i ≤ n
+--       · apply hc; omega
+--       · simp [show i = n + 1 by omega, hxn]
+--     · intro hc i hin
+--       apply hc
+--       omega
 
 -- @[simp]
 -- theorem clzAux_zero {x : BitVec w} : clzAux x 0 = if x.getLsbD 0 then 0 else 1 := by simp [clzAux]
 
-/-- If the number of leading zeroes is strictly smaller than the number of bits checked (i.e.,
-  not all bits are `false`), then there exists a `true` bit at a certain position `n - k` between
-  the `n`-th and the `0`-th bit, and all bits between `n` and that bit are `false` -/
-theorem clzAux_eq_iff_forall_of_clzAux_lt  {x : BitVec w} (hlt : (clzAux x n < n + 1)):
-    clzAux x 0 = k ↔ ((∀ i, i < k → x.getLsbD (w - 1 - i) = false) ∧ ((x.getLsbD (w - 1 - k) = true))) := by sorry
+-- /-- If the number of leading zeroes is strictly smaller than the number of bits checked (i.e.,
+--   not all bits are `false`), then there exists a `true` bit at a certain position `n - k` between
+--   the `n`-th and the `0`-th bit, and all bits between `n` and that bit are `false` -/
+-- theorem clzAux_eq_iff_forall_of_clzAux_lt  {x : BitVec w} (hlt : (clzAux x n < n + 1)):
+--     clzAux x 0 = k ↔ ((∀ i, i < k → x.getLsbD (w - 1 - i) = false) ∧ ((x.getLsbD (w - 1 - k) = true))) := by sorry
   -- induction n generalizing k
   -- · case zero =>
   --   rcases k with _|k

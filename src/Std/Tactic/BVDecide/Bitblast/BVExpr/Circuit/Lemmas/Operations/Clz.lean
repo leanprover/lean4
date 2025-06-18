@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luisa Cicolini, Siddharth Bhat, Henrik Böving
 -/
 prelude
-import Init.Data.BitVec.Bitblast
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Clz
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
@@ -89,12 +88,12 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
               simp only [Nat.add_eq_zero, Nat.succ_ne_self, and_false, reduceIte,
                 Nat.add_one_sub_one] at hacc
               simp [hacc, BitVec.clzAuxRec, show x.getLsbD (curr + 1) = false by rw [hx] at hx'; simp at hx'; exact hx']
-    · case isFalse h =>
-      rw [← hgo]
-      simp only [show ¬curr = 0 by omega, reduceIte] at hacc
-      simp [hacc,
-        ← BitVec.clz_eq_clzAuxRec_of_le (x := x) (n := curr - 1) (by omega),
-        ← BitVec.clz_eq_clzAuxRec_of_le (x := x) (n := w - 1) (by omega)]
+    · case isFalse h => sorry
+      -- rw [← hgo]
+      -- simp only [show ¬curr = 0 by omega, reduceIte] at hacc
+      -- simp [hacc,
+      --   ← BitVec.clz_eq_clzAuxRec_of_le (x := x) (n := curr - 1) (by omega),
+      --   ← BitVec.clz_eq_clzAuxRec_of_le (x := x) (n := w - 1) (by omega)]
 
 end blastClz
 

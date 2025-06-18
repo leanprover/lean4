@@ -163,7 +163,7 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
     let some targetUri ← documentUriFromModule? loc.module | return #[]
     let targetRange := loc.range.toLspRange
     let link : LocationLink := {
-      originSelectionRange? := (·.toLspRange text) <$> eni.stx.getRange?
+      originSelectionRange? := (·.toLspRange text) <$> eni.stx.getRange? (canonicalOnly := true)
       targetUri
       targetRange
       targetSelectionRange := targetRange

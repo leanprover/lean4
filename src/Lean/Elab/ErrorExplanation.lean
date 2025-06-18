@@ -128,16 +128,11 @@ open Command in
     throwErrorAt synth msg
   let (declLoc? : Option DeclarationLocation) ← do
     let map ← getFileMap
-    let start := map.toPosition <| id.raw.getPos?.getD 0
-    let fin := id.raw.getTailPos?.map map.toPosition |>.getD start
+    let start := id.raw.getPos?.getD 0
+    let fin := id.raw.getTailPos?.getD start
     pure <| some {
       module := (← getMainModule)
-      range := {
-        pos := start
-        endPos := fin
-        charUtf16 := (map.leanPosToLspPos start).character
-        endCharUtf16 := (map.leanPosToLspPos fin).character
-      }
+      range := .ofStringPositions map start fin
     }
   modifyEnv (errorExplanationExt.addEntry · (name, { metadata, doc, declLoc? }))
 | _ => throwUnsupportedSyntax

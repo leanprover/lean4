@@ -25,6 +25,8 @@ class IntModule.IsOrdered (M : Type u) [Preorder M] [IntModule M] where
 
 namespace NatModule.IsOrdered
 
+section
+
 variable {M : Type u} [Preorder M] [NatModule M] [NatModule.IsOrdered M]
 
 theorem add_le_right_iff {a b : M} (c : M) : a ≤ b ↔ c + a ≤ c + b := by
@@ -83,9 +85,52 @@ theorem hmul_le_hmul_of_le_of_le_of_nonneg
 theorem add_le_add {a b c d : M} (hab : a ≤ b) (hcd : c ≤ d) : a + c ≤ b + d :=
   Preorder.le_trans (add_le_right a hcd) (add_le_left hab d)
 
+end
+
+section
+
+variable {M : Type u} [Preorder M] [IntModule M] [NatModule.IsOrdered M]
+
+theorem neg_le_iff {a b : M} : -a ≤ b ↔ -b ≤ a := by
+  rw [NatModule.IsOrdered.add_le_left_iff a, IntModule.neg_add_cancel]
+  conv => rhs; rw [NatModule.IsOrdered.add_le_left_iff b, IntModule.neg_add_cancel]
+  rw [add_comm]
+
+end
+
 end NatModule.IsOrdered
 
 namespace IntModule.IsOrdered
+
+section
+
+variable {M : Type u} [Preorder M] [IntModule M] [NatModule.IsOrdered M]
+
+open NatModule.IsOrdered in
+instance : IntModule.IsOrdered M where
+  neg_le_iff a b := NatModule.IsOrdered.neg_le_iff
+  add_le_left := NatModule.IsOrdered.add_le_left
+  hmul_pos_iff k x :=
+    match k with
+    | (k + 1 : Nat) => by
+      intro h
+      simpa [NatModule.hmul_zero] using hmul_lt_hmul_iff (k := k + 1) h
+    | (0 : Nat) => by simp [zero_hmul]; intro h; exact Preorder.lt_irrefl 0
+    | -(k + 1 : Nat) => by
+      intro h
+      have : ¬ (k : Int) + 1 < 0 := by omega
+      simp [this]; clear this
+      rw [neg_hmul]
+      rw [Preorder.lt_iff_le_not_le]
+      simp
+      intro h'
+      rw [NatModule.IsOrdered.neg_le_iff, neg_zero]
+      simpa [NatModule.hmul_zero] using hmul_le_hmul (k := k + 1) (Preorder.le_of_lt h)
+  hmul_nonneg {k a} h :=
+    match k, h with
+    | (k : Nat), _ => NatModule.IsOrdered.hmul_nonneg
+
+end
 
 variable {M : Type u} [Preorder M] [IntModule M] [IntModule.IsOrdered M]
 

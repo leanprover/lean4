@@ -109,4 +109,10 @@ instance : HasFiniteRanges .open Nat where
     apply mem_rangeRev
     exact Nat.lt_succ_of_lt h
 
+instance : RangeSize .closed Nat where
+  size bound a := bound + 1 - a
+
+instance : RangeSize .open Nat where
+  size bound a := bound - a
+
 end Std.PRange

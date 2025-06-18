@@ -70,26 +70,26 @@ structure _root_.Std.PRange (shape : RangeShape) (α : Type u) where
   /-- The upper bound of the range. -/
   upper : Bound shape.upper α
 
-syntax:max (term ",," term) : term
-syntax:max (",," term) : term
-syntax:max (term ",,") : term
-syntax:max (",,") : term
-syntax:max (term "<,," term) : term
-syntax:max (term "<,,") : term
-syntax:max (term ",,<" term) : term
-syntax:max (",,<" term) : term
-syntax:max (term "<,,<" term) : term
+syntax:max (term "..." term) : term
+syntax:max ("..." term) : term
+syntax:max (term "...") : term
+syntax:max ("...") : term
+syntax:max (term "<..." term) : term
+syntax:max (term "<...") : term
+syntax:max (term "...<" term) : term
+syntax:max ("...<" term) : term
+syntax:max (term "<...<" term) : term
 
 macro_rules
-  | `($a,,$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.closed) $a $b)
-  | `(,,$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.closed) PUnit.unit $b)
-  | `($a,,) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.unbounded) $a PUnit.unit)
-  | `(,,) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.unbounded) PUnit.unit PUnit.unit)
-  | `($a<,,$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.closed) $a $b)
-  | `($a<,,) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.unbounded) $a PUnit.unit)
-  | `($a,,<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.open) $a $b)
-  | `(,,<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.open) PUnit.unit $b)
-  | `($a<,,<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.open) $a $b)
+  | `($a...$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.closed) $a $b)
+  | `(...$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.closed) PUnit.unit $b)
+  | `($a...) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.unbounded) $a PUnit.unit)
+  | `(...) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.unbounded) PUnit.unit PUnit.unit)
+  | `($a<...$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.closed) $a $b)
+  | `($a<...) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.unbounded) $a PUnit.unit)
+  | `($a...<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.open) $a $b)
+  | `(...<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.open) PUnit.unit $b)
+  | `($a<...<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.open) $a $b)
 
 /--
 This typeclass provides decidable lower bound checks of the given shape.
@@ -138,8 +138,8 @@ instance [SupportsLowerBound sl α] [SupportsUpperBound su α] (r : PRange ⟨sl
   inferInstanceAs <| Decidable (_ ∧ _)
 
 /--
-This typeclass ensures that ranges of the given shape are always finite. This is a prerequisite
-for many functions and instances, such as `PRange.toList` or `ForIn'`.
+This typeclass ensures that ranges with the given shape of upper bounds are always finite.
+This is a prerequisite for many functions and instances, such as `PRange.toList` or `ForIn'`.
 -/
 class HasFiniteRanges (shape α) [SupportsUpperBound shape α] : Prop where
   mem_of_satisfiesUpperBound (u : Bound shape α) :

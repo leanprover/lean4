@@ -28,6 +28,7 @@ In order to support ranges of a certain type `α`, the following instances need 
   `LawfulUpwardEnumerableLowerBound lowerBoundShape α` for iteration
 * `HasFiniteRanges upperBoundShape α` for termination of iteration
 * `Least? α` for iteration over lower-unbounded ranges
+* `RangeSize upperBoundShape α` for `PRange.size` support
 
 An example for how this plays out can be found in `Init.Data.Range.Polymorphic.Nat`.
 -/

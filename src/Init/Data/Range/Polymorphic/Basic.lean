@@ -22,16 +22,6 @@ def Internal.iter [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
   ⟨⟨BoundedUpwardEnumerable.init? r.lower, r.upper⟩⟩
 
 /--
-Returns the number of elements contained in the given range, given that ranges of the given
-type and shape support this function.
--/
-@[always_inline, inline]
-def size [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
-    [SupportsUpperBound su α] (r : PRange ⟨sl, su⟩ α)
-    [IteratorSize (RangeIterator su α) Id] : Nat :=
-  PRange.Internal.iter r |>.size
-
-/--
 Returns the elements of the given range as a list in ascending order, given that ranges of the given
 type and shape support this function and the range is finite.
 -/
@@ -42,6 +32,33 @@ def toList [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [Iterator (RangeIterator su α) Id α] [Finite (RangeIterator su α) Id]
     [IteratorCollect (RangeIterator su α) Id Id] : List α :=
   PRange.Internal.iter r |>.toList
+
+/--
+This typeclass provides support for the `PRange.size` function.
+It counts the number of elements betw
+
+The returned size should be equal to the number of elements returned by `toList`. This condition
+is captured by the typeclass `LawfulRangeSize`.
+-/
+class RangeSize (shape : BoundShape) (α : Type u) where
+  /-- Returns the number of elements starting from `init` that satisfy the given upper bound. -/
+  size : (upperBound : Bound shape α) → (init : α) → Nat
+
+instance [RangeSize su α] [UpwardEnumerable α] [SupportsUpperBound su α] :
+    IteratorSize (RangeIterator su α) Id where
+  size it := match it.internalState.next with
+    | none => pure (.up 0)
+    | some next => pure (.up (RangeSize.size it.internalState.upperBound next))
+
+/--
+Returns the number of elements contained in the given range, given that ranges of the given
+type and shape support this function.
+-/
+@[always_inline, inline]
+def size [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
+    [SupportsUpperBound su α] (r : PRange ⟨sl, su⟩ α)
+    [IteratorSize (RangeIterator su α) Id] : Nat :=
+  PRange.Internal.iter r |>.size
 
 section Iterator
 

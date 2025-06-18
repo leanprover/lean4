@@ -40,22 +40,20 @@ enabling manipulation of both asynchronous and synchronous code.
 These are the concrete computational units that exist within the monadic contexts. These types
 should not be created directly.
 
-- `Task`: A task that is pure, so it returns a
-- `ETask`: A task that may fail with an error of type `ε`
-- `AsyncTask`: A task that may fail with an `IO.Error` (alias for `ETask IO.Error`)
+- `Task`: A computation that will resolve to a value of type `α`,
+- `ETask`: A task that may fail with an error of type `ε`.
+- `AsyncTask`: A task that may fail with an `IO.Error` (alias for `ETask IO.Error`).
 
 ## Relation
 
-Concrete units of work that can be executed within these contexts.
-
 These types are related by two functions in the type classes `MonadAsync` and `MonadAwait`: `async`
-and `await`. The `async` function extracts a concrete asynchronous task from a computation inside
-the monadic context. In effect, it makes the computation run in the background and returns a
-task handle that can be awaited later. On the other side, the `await` function takes a task and
-re-inserts it into the monadic context, allowing the result to be composed using the monadic bind.
-This relation between `async` and `await` enables precise control over when a computation starts and
-when its result is actually used. You can spawn multiple asynchronous tasks using `async`, continue
-with other operations, and later rejoin the computation flow by awaiting their results.
+and `await`. The `async` function extracts a concrete asynchronous task from a computation within the
+monadic context. In effect, it runs the computation in the background and returns a task handle that
+can be awaited later. On the other hand, the `await` function takes a task and re-inserts it into the
+monadic context, allowing its result to be composed using monadic bind and also pausing to wait for that result.
+This relationship between `async` and `await` enables precise control over when a computation begins
+and when its result is used. You can spawn multiple asynchronous tasks using `async`, perform other
+operations in the meantime, and later rejoin the computation flow by awaiting their results.
 
 These functions should not be used directly. Instead, prefer higher-level combinators such as
 `race`, `raceAll`, `concurrently`, `background` and `concurrentlyAll`. The best way to think about

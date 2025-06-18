@@ -25,8 +25,21 @@ instance : HAdd Name Nat Level := ⟨fun l n => n.repeat Level.succ l⟩
 #guard isEquiv (imax (imax `u `v) (imax `u `v)) (imax `u `v)
 #guard isEquiv (max (imax `u `v) (max `u `v)) (max `u `v)
 
-example : Nat.imax (Nat.imax u v) v = Nat.imax u v := by
-  grind [Nat.imax]
+universe u v w
 
-example : Nat.max (Nat.imax u v) v = Nat.imax u v := by
-  grind [Nat.imax]
+example : Sort (max u v) = Sort (max v u) := rfl
+example : Sort (max 0 u) = Sort u := rfl
+example : Sort (imax 0 u) = Sort u := rfl
+example : Sort (imax 1 u) = Sort u := rfl
+example : Sort (imax u 0) = Sort 0 := rfl
+example : Sort (imax u (imax v w)) = Sort (imax (max u v) w) := rfl
+example : Sort (max (u + 2) (u + 3)) = Sort (u + 3) := rfl
+example : Sort (max (u + 2) v (u + 3)) = Sort (max v (u + 3)) := rfl
+example : Sort (max u (imax u v)) = Sort (max u v) := rfl
+example : Sort (imax u (max u v)) = Sort (max u v) := rfl
+example : Sort (imax (max u v) v) = Sort (imax u v) := rfl
+example : Sort (imax (max u v) u) = Sort (imax v u) := rfl
+example : Sort (imax u u) = Sort u := rfl
+example : Sort (imax u v v) = Sort (imax u v) := rfl
+example : Sort (imax (imax u v) (imax u v)) = Sort (imax u v) := rfl
+example : Sort (max (imax u v) (max u v)) = Sort (max u v) := rfl

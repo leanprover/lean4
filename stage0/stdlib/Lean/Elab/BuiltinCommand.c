@@ -4728,7 +4728,7 @@ lean_inc(x_22);
 lean_dec(x_19);
 x_23 = lean_box(0);
 x_24 = l_List_mapTR_loop___at_Lean_Elab_Command_elabEnd___spec__1(x_2, x_23);
-x_25 = lean_alloc_ctor(6, 2, 0);
+x_25 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_25, 0, x_3);
 lean_ctor_set(x_25, 1, x_24);
 x_26 = l_Lean_Elab_addCompletionInfo___at_Lean_withSetOptionIn___spec__2(x_25, x_5, x_6, x_7);

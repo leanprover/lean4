@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Lemmas.Producers.Monadic.List
-// Imports: Std.Data.Iterators.Producers.Monadic.List Std.Data.Iterators.Consumers Std.Data.Iterators.Lemmas.Consumers.Monadic Std.Data.Internal.LawfulMonadLiftFunction
+// Imports: Init.Data.Iterators.Consumers Init.Data.Iterators.Lemmas.Consumers.Monadic Init.Data.Iterators.Internal.LawfulMonadLiftFunction Std.Data.Iterators.Producers.Monadic.List Std.Data.Iterators.Lemmas.Equivalence.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -213,25 +213,29 @@ lean_dec(x_4);
 return x_5;
 }
 }
+lean_object* initialize_Init_Data_Iterators_Consumers(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Iterators_Lemmas_Consumers_Monadic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Iterators_Internal_LawfulMonadLiftFunction(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Producers_Monadic_List(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_Iterators_Consumers(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_Iterators_Lemmas_Consumers_Monadic(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_Internal_LawfulMonadLiftFunction(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_Iterators_Lemmas_Equivalence_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Lemmas_Producers_Monadic_List(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Data_Iterators_Consumers(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Lemmas_Consumers_Monadic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Internal_LawfulMonadLiftFunction(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Producers_Monadic_List(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Consumers(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Lemmas_Consumers_Monadic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Data_Internal_LawfulMonadLiftFunction(builtin, lean_io_mk_world());
+res = initialize_Std_Data_Iterators_Lemmas_Equivalence_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

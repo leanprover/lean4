@@ -190,6 +190,7 @@ static lean_object* l_BitVec_term_____x23_x27_______closed__7;
 LEAN_EXPORT lean_object* l_BitVec_shiftConcat(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_BitVec_intMax___boxed(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_clzAuxRec(lean_object*, lean_object*, lean_object*);
 static lean_object* l_BitVec_term_____x23_______closed__1;
 LEAN_EXPORT lean_object* l_BitVec_sdiv___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_ule(lean_object*);
@@ -232,6 +233,7 @@ lean_object* l_Int_shiftRight(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_cast(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_usubOverflow___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_toDigits(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_clz___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_BitVec_ssubOverflow(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instHShiftLeft(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_BitVec_term_____x23_______closed__9;
@@ -315,6 +317,7 @@ LEAN_EXPORT lean_object* l_BitVec_mul(lean_object*, lean_object*, lean_object*);
 static lean_object* l_BitVec___aux__Init__Data__BitVec__Basic______macroRules__BitVec__term_____x23______1___closed__3;
 LEAN_EXPORT lean_object* l_BitVec_sle___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_BitVec___aux__Init__Data__BitVec__Basic______macroRules__BitVec__term_____x23_x27______1___closed__5;
+LEAN_EXPORT lean_object* l_BitVec_clz(lean_object*, lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_concat___rarg(lean_object*, uint8_t);
 static lean_object* l_BitVec_term_____x23_______closed__19;
@@ -356,6 +359,7 @@ LEAN_EXPORT lean_object* l_BitVec_xor___rarg___boxed(lean_object*, lean_object*)
 LEAN_EXPORT lean_object* l_BitVec_BitVec_repr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instComplement(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_ofBool(uint8_t);
+LEAN_EXPORT lean_object* l_BitVec_clzAuxRec___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_nil;
 lean_object* lean_nat_lor(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instGetElemNatBoolLt___boxed(lean_object*);
@@ -4104,6 +4108,90 @@ x_4 = l_BitVec_smulOverflow(x_1, x_2, x_3);
 lean_dec(x_1);
 x_5 = lean_box(x_4);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_clzAuxRec(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+x_6 = lean_unsigned_to_nat(1u);
+x_7 = lean_nat_sub(x_3, x_6);
+x_8 = l_Nat_testBit(x_2, x_3);
+if (x_8 == 0)
+{
+lean_dec(x_3);
+x_3 = x_7;
+goto _start;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+lean_dec(x_7);
+x_10 = lean_nat_sub(x_1, x_6);
+x_11 = lean_nat_sub(x_10, x_3);
+lean_dec(x_3);
+lean_dec(x_10);
+x_12 = l_BitVec_ofNat(x_1, x_11);
+lean_dec(x_11);
+return x_12;
+}
+}
+else
+{
+uint8_t x_13; 
+lean_dec(x_3);
+x_13 = l_Nat_testBit(x_2, x_4);
+if (x_13 == 0)
+{
+lean_object* x_14; 
+x_14 = l_BitVec_ofNat(x_1, x_1);
+return x_14;
+}
+else
+{
+lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_15 = lean_unsigned_to_nat(1u);
+x_16 = lean_nat_sub(x_1, x_15);
+x_17 = l_BitVec_ofNat(x_1, x_16);
+lean_dec(x_16);
+return x_17;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_clzAuxRec___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_BitVec_clzAuxRec(x_1, x_2, x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_clz(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_unsigned_to_nat(1u);
+x_4 = lean_nat_sub(x_1, x_3);
+x_5 = l_BitVec_clzAuxRec(x_1, x_2, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_clz___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_BitVec_clz(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 lean_object* initialize_Init_Data_Fin_Basic(uint8_t builtin, lean_object*);

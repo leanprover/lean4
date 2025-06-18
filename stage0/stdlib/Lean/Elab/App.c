@@ -63207,7 +63207,7 @@ x_22 = lean_box(0);
 x_23 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
 lean_ctor_set(x_23, 1, x_16);
-x_24 = lean_alloc_ctor(13, 1, 0);
+x_24 = lean_alloc_ctor(14, 1, 0);
 lean_ctor_set(x_24, 0, x_23);
 x_25 = lean_alloc_closure((void*)(l___private_Lean_Elab_App_0__Lean_Elab_Term_mergeFailures___rarg___lambda__2___boxed), 9, 1);
 lean_closure_set(x_25, 0, x_24);

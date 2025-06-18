@@ -914,7 +914,7 @@ def Goal.getTarget? (goal : Goal) (e : Expr) : Option Expr := Id.run do
 
 /--
 If `isHEq` is `false`, it pushes `lhs = rhs` with `proof` to `newEqs`.
-Otherwise, it pushes `HEq lhs rhs`.
+Otherwise, it pushes `lhs ≍ rhs`.
 -/
 def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   if grind.debug.get (← getOptions) then
@@ -945,7 +945,7 @@ def hasSameType (a b : Expr) : MetaM Bool :=
 @[inline] def pushEq (lhs rhs proof : Expr) : GoalM Unit :=
   pushEqCore lhs rhs proof (isHEq := false)
 
-/-- Pushes `HEq lhs rhs` with `proof` to `newEqs`. -/
+/-- Pushes `lhs ≍ rhs` with `proof` to `newEqs`. -/
 @[inline] def pushHEq (lhs rhs proof : Expr) : GoalM Unit :=
   pushEqCore lhs rhs proof (isHEq := true)
 
@@ -1260,7 +1260,7 @@ It assumes `a` and `b` are in the same equivalence class, and have the same type
 opaque mkEqProof (a b : Expr) : GoalM Expr
 
 /--
-Returns a proof that `HEq a b`.
+Returns a proof that `a ≍ b`.
 It assumes `a` and `b` are in the same equivalence class.
 -/
 -- Forward definition
@@ -1276,7 +1276,7 @@ opaque internalize (e : Expr) (generation : Nat) (parent? : Option Expr := none)
 opaque processNewFacts : GoalM Unit
 
 /--
-Returns a proof that `a = b` if they have the same type. Otherwise, returns a proof of `HEq a b`.
+Returns a proof that `a = b` if they have the same type. Otherwise, returns a proof of `a ≍ b`.
 It assumes `a` and `b` are in the same equivalence class.
 -/
 def mkEqHEqProof (a b : Expr) : GoalM Expr := do

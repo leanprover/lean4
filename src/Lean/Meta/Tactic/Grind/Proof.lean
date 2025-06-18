@@ -35,7 +35,7 @@ private def mkTrans' (h₁ : Option Expr) (h₂ : Expr) (heq : Bool) : MetaM Exp
   mkTrans h₁ h₂ heq
 
 /--
-Given `h : HEq a b`, returns a proof `a = b` if `heq == false`.
+Given `h : a ≍ b`, returns a proof `a = b` if `heq == false`.
 Otherwise, it returns `h`.
 -/
 private def mkEqOfHEqIfNeeded (h : Expr) (heq : Bool) : MetaM Expr := do
@@ -94,7 +94,7 @@ private partial def isCongrDefaultProofTarget (lhs rhs : Expr) (f g : Expr) (num
 mutual
   /--
   Given `lhs` and `rhs` proof terms of the form `nestedProof p hp` and `nestedProof q hq`,
-  constructs a congruence proof for `HEq (nestedProof p hp) (nestedProof q hq)`.
+  constructs a congruence proof for `nestedProof p hp ≍ nestedProof q hq`.
   `p` and `q` are in the same equivalence class.
   -/
   private partial def mkNestedProofCongr (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
@@ -152,8 +152,8 @@ mutual
       /-
       `lhs` is of the form `f a_1 ... a_n`
       `rhs` is of the form `g b_1 ... b_n`
-      `proof : HEq (f a_1 ... a_n) (f b_1 ... b_n)`
-      We construct a proof for `HEq (f a_1 ... a_n) (g b_1 ... b_n)` using `Eq.ndrec`
+      `proof : f a_1 ... a_n ≍ f b_1 ... b_n`
+      We construct a proof for `f a_1 ... a_n ≍ g b_1 ... b_n` using `Eq.ndrec`
       -/
       let motive ← withLocalDeclD (← mkFreshUserName `x) (← inferType f) fun x => do
         mkLambdaFVars #[x] (← mkHEq lhs (mkAppN x rhs.getAppArgs))
@@ -226,7 +226,7 @@ mutual
     mkTrans' h' h heq
 
   /--
-  Returns a proof of `lhs = rhs` (`HEq lhs rhs`) if `heq = false` (`heq = true`).
+  Returns a proof of `lhs = rhs` (`lhs ≍ rhs`) if `heq = false` (`heq = true`).
   If `heq = false`, this function assumes that `lhs` and `rhs` have the same type.
   -/
   private partial def mkEqProofCore (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do

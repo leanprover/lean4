@@ -53,7 +53,7 @@ will not eliminate it. After we apply `simp`, we replace it with `MatchCond`.
 -/
 def PreMatchCond (p : Prop) : Prop := p
 
-theorem nestedProof_congr (p q : Prop) (h : p = q) (hp : p) (hq : q) : HEq (@nestedProof p hp) (@nestedProof q hq) := by
+theorem nestedProof_congr (p q : Prop) (h : p = q) (hp : p) (hq : q) : @nestedProof p hp ≍ @nestedProof q hq := by
   subst h; apply HEq.refl
 
 @[app_unexpander nestedProof]

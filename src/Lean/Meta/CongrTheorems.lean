@@ -28,7 +28,7 @@ inductive CongrArgKind where
   They correspond to arguments that are subsingletons/propositions. -/
   | cast
   /--
-  The lemma contains three parameters for this kind of argument `a_i`, `b_i` and `eq_i : HEq a_i b_i`.
+  The lemma contains three parameters for this kind of argument `a_i`, `b_i` and `eq_i : a_i ≍ b_i`.
   `a_i` and `b_i` represent the left and right hand sides, and `eq_i` is a proof for their heterogeneous equality. -/
   | heq
   /--

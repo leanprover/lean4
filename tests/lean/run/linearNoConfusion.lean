@@ -51,7 +51,7 @@ example : @Vec.noConfusionType.withCtor.{u_1,u} = @Vec.noConfusionType.withCtor'
 fun {α} {a} P x1 x2 =>
   Vec.casesOn x1
     (Vec.noConfusionType.withCtor' α (Sort u_1) 0 (fun _x => P → P) P a x2)
-    (fun {n} a_1 a_2 => Vec.noConfusionType.withCtor' α (Sort u_1) 1 (fun _x {n_1} a a_3 => (n = n_1 → a_1 = a → HEq a_2 a_3 → P) → P) P a x2)
+    (fun {n} a_1 a_2 => Vec.noConfusionType.withCtor' α (Sort u_1) 1 (fun _x {n_1} a a_3 => (n = n_1 → a_1 = a → a_2 ≍ a_3 → P) → P) P a x2)
 
 /--
 info: @[reducible] protected def Vec.noConfusionType.{u_1, u} : {α : Type} →

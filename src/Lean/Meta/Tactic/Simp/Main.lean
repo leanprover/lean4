@@ -746,25 +746,32 @@ def cacheResult (e : Expr) (cfg : Config) (r : Result) : SimpM Result := do
     modify fun s => { s with cache := s.cache.insert e r }
   return r
 
+
 partial def simpLoop (e : Expr) : SimpM Result := withIncRecDepth do
   let cfg ← getConfig
   if (← get).numSteps > cfg.maxSteps then
     throwError "simp failed, maximum number of steps exceeded"
   else
     checkSystem "simp"
+    trace[Debug.Meta.Tactic.simp] "simpLoop {e}"
     modify fun s => { s with numSteps := s.numSteps + 1 }
     match (← pre e) with
     | .done r  => cacheResult e cfg r
-    | .visit r => cacheResult e cfg (← r.mkEqTrans (← simpLoop r.expr))
+    | .visit r => visitPreAgain cfg r
     | .continue none => visitPreContinue cfg { expr := e }
     | .continue (some r) => visitPreContinue cfg r
 where
+  visitPreAgain (cfg : Config) (r : Result) : SimpM Result := do
+    let mut r := r
+    unless e == r.expr do
+      r ← r.mkEqTrans (← simpLoop r.expr)
+    cacheResult e cfg r
   visitPreContinue (cfg : Config) (r : Result) : SimpM Result := do
     let eNew ← reduceStep r.expr
     if eNew != r.expr then
       trace[Debug.Meta.Tactic.simp] "reduceStep (pre) {e} => {eNew}"
       let r := { r with expr := eNew }
-      cacheResult e cfg (← r.mkEqTrans (← simpLoop r.expr))
+      visitPreAgain cfg r
     else
       let r ← r.mkEqTrans (← simpStep r.expr)
       visitPost cfg r
@@ -775,9 +782,10 @@ where
     | .visit r' | .continue (some r') => visitPostContinue cfg (← r.mkEqTrans r')
   visitPostContinue (cfg : Config) (r : Result) : SimpM Result := do
     let mut r := r
-    unless cfg.singlePass || e == r.expr do
-      r ← r.mkEqTrans (← simpLoop r.expr)
-    cacheResult e cfg r
+    if cfg.singlePass then
+      cacheResult e cfg r
+    else
+      visitPreAgain cfg r
 
 @[export lean_simp]
 def simpImpl (e : Expr) : SimpM Result := withIncRecDepth do

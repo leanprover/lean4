@@ -149,8 +149,6 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
           trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, perm rejected {e} ==> {rhs}"
           return none
 
-      unless (← checkRewriteForLoops thm) do
-        return none
       trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}:{indentExpr e}\n==>{indentExpr rhs}"
       let rhs ← if type.hasBinderNameHint then rhs.resolveBinderNameHint else pure rhs
       recordSimpTheorem thm.origin
@@ -636,9 +634,6 @@ def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
   if isEqnThmHypothesis e then
     if let some r ← dischargeUsingAssumption? e then return some r
     if let some r ← dischargeEqnThmHypothesis? e then return some r
-  -- TODO: Should we really disable conditional simp theorems while loop checking?
-  if (←  currentlyLoopChecking) then
-    return none
   let r ← simp e
   if let some p ← dischargeRfl r.expr then
     return some (mkApp4 (mkConst ``Eq.mpr [levelZero]) e r.expr (← r.getProof) p)

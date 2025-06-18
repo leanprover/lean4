@@ -110,15 +110,6 @@ structure Context where
   transformations that presereve definitional equality.
   -/
   inDSimp : Bool := false
-  /--
-  Stack of simp theorems we are in the process of checking for loops.
-
-  We store the whole `SimpTheorem` here, not just the `Origin`, as
-  simp theorems that are conjunctions lead to different theorems
-  with the same origin, but different proofs.
-  -/
-  loopCheckStack : List SimpTheorem := []
-
   deriving Inhabited
 
 /--
@@ -293,9 +284,6 @@ abbrev SimpM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
   let (x, dsimpCache) ← withInDSimp (k dsimpCache)
   modify fun s => { s with dsimpCache }
   return x
-
-@[inline] def withPushingLoopCheck (thm : SimpTheorem) : SimpM α → SimpM α :=
-  withTheReader Context fun ctx => { ctx with loopCheckStack := thm :: ctx.loopCheckStack }
 
 /--
 Executes `x` using a `MetaM` configuration for indexing terms.

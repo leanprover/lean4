@@ -15,25 +15,6 @@ register_builtin_option linter.simp.loopProtection : Bool := {
   descr := "checks simp arguments for obviously looping theorems"
 }
 
-def currentlyLoopChecking : SimpM Bool := do
-  return !(← getContext).loopCheckStack.isEmpty
-
-def getLoopCache (thm : SimpTheorem) : SimpM (Option LoopProtectionResult) := do
-  return (← get).loopProtectionCache.lookup? thm
-
-def setLoopCache (thm : SimpTheorem) (r : LoopProtectionResult) : SimpM Unit := do
-  modifyThe State fun s => { s with loopProtectionCache := s.loopProtectionCache.insert thm r }
-
-def setLoopCacheOkIfUnset (thm : SimpTheorem) : SimpM Unit := do
-  unless (← getLoopCache thm).isSome do
-    setLoopCache thm .ok
-
-def setLoopCacheLoop (loop : Array SimpTheorem): SimpM Unit := do
-  let thm := loop[0]!
-  assert! (← getLoopCache thm).isNone
-  assert! loop.size > 0
-  setLoopCache thm (.loop loop)
-
 @[inline] def withFreshUsedTheorems (x : SimpM α) : SimpM α := do
   let saved := (← get).usedTheorems
   modify fun s => { s with usedTheorems := {} }
@@ -42,93 +23,20 @@ def setLoopCacheLoop (loop : Array SimpTheorem): SimpM Unit := do
 private def ppOrigins (origins : Array Origin) : MetaM MessageData := do
   return .andList (← origins.mapM (return m!"`{← ppOrigin ·}`")).toList
 
-def mkLoopWarningMsg (thms : Array SimpTheorem) : SimpM MessageData := do
+def mkLoopWarningMsg (thm : SimpTheorem) : SimpM MessageData := do
   let mut msg := m!""
-  let thm := thms[0]!
   msg := msg ++ m!"Possibly looping simp theorem: `{← ppOrigin thm.origin}`"
-
-  let rest : Array SimpTheorem := thms[1:]
-  unless rest.isEmpty do
-    msg := msg ++ .note m!"It is jointly looping with {← ppOrigins (rest.map (·.origin))}"
 
   let mut others := #[]
   for other in (← get).usedTheorems.toArray do
-    if thms.all (·.origin != other) then
+    if other != thm.origin  then
       others := others.push other
   unless others.isEmpty do
-    msg := msg ++ .note m!"Not part of the loop, but potentially enabling it: {← ppOrigins others}"
+    msg := msg ++ .note m!"Possibly caused by: {← ppOrigins others}"
 
   msg := msg ++ .hint' m!"You can disable a simp theorem from the default simp set by \
     passing `- theoremName` to `simp`."
   pure msg
-
-private def rotations (a : Array α) : Array (Array α) := Id.run do
-  let mut r : Array (Array α) := #[]
-  for i in [:a.size] do
-    r := r.push (a[i:] ++ a[:i])
-  return r
-
-/--
-Check `thm` for loops. Called by the two entry points below.
--/
-private def checkLoopCore (thm : SimpTheorem) : SimpM LoopProtectionResult := do
-  -- Check or fill cache
-  if let some r ← getLoopCache thm then
-    return r
-  else
-    withTraceNode `Meta.Tactic.simp.loopProtection (fun _ => return m!"loop-checking {← ppSimpTheorem thm}") do
-      -- Checking for a loop
-      let seenThms := (← getContext).loopCheckStack
-      if let some idx := seenThms.idxOf? thm then
-        let loopThms := (seenThms.take (idx + 1)).toArray.reverse
-        assert! loopThms[0]! == thm
-        trace[Meta.Tactic.simp.loopProtection] "loop detected: {.andList (← loopThms.mapM (ppOrigin ·.origin)).toList}"
-        (rotations loopThms).forM setLoopCacheLoop
-      else
-        -- Check the right-hand side
-        withPushingLoopCheck thm do
-        withFreshCache do
-          let type ← inferType (← thm.getValue)
-          forallTelescopeReducing type fun _xs type => do
-            let rhs := (← whnf type).appArg!
-            -- We ignore the simp result.
-            -- A different design is possible where we use the simplified RHS to continue
-            -- rewriting, but it would be a too severe change to `simp`’s semantics
-            let _ ← simp rhs
-            -- If we made it this far without finding a loop, this theorem is not looping
-            -- Remember that to not check it again
-            setLoopCacheOkIfUnset thm
-
-      -- No the cache should have been filled
-      if let some r ← getLoopCache thm then
-        return r
-      else
-        throwError "loop protection cache not filled for {(← ppOrigin thm.origin)}"
-
-
-/--
-Entry point into the loop protection mechanism from `Simp.Rewrite`: Called just
-before `thm` is applied, and returns whether we should proceed.
-
-This is used to cut loops while doing a loop check for another theorem.
-
-It also used to be used to do a lazy check of any rewritten theorem, but that was too expensive.
-Could be added as an option, though.
--/
-def checkRewriteForLoops (thm : SimpTheorem) : SimpM Bool := do
-  -- No change in behavor if we aren't in the process of a loop check
-  if !(← currentlyLoopChecking) then
-    return true
-
-  -- When loop checking pretend that local theorems and permutating theorems do not exist
-  if thm.perm || thm.proof.hasFVar then
-    return false
-
-  -- Do not rewrite with theorems found looping
-  if let .loop _thms ← checkLoopCore thm then
-    return false
-  else
-    return true
 
 /--
 Main entry point to the loop protection mechanis: Checks if the given theorem is looping in the
@@ -140,10 +48,19 @@ def checkLoops (ctxt : Simp.Context) (methods : Methods) (thm : SimpTheorem) : M
   -- No loop checking when disabled or in single pass mode
   if !(linter.simp.loopProtection.get (← getOptions)) || ctxt.config.singlePass then return
 
-  -- Permutating and local theorems are never checked, so accept when starting
-  -- a loop check, and ignore when inside a loop check
-  if thm.perm || thm.proof.hasFVar then return
+  -- Ignore theorems depending on the local context for nowPermutating and local theorems are never checked, so accept when starting
+  if thm.proof.hasFVar then return
 
-  let _ ← SimpM.run ctxt (s := {}) (methods := methods) do
-    if let .loop thms ← checkLoopCore thm then
-      Linter.logLint linter.simp.loopProtection (← getRef) (← mkLoopWarningMsg thms)
+  let type ← inferType (← thm.getValue)
+  forallTelescopeReducing type fun _xs type => do
+    let rhs := (← whnf type).appArg!
+
+      let _ ← SimpM.run ctxt (s := {}) (methods := methods) do
+        -- We ignore the simp result.
+        -- A different design is possible where we use the simplified RHS to continue
+        -- rewriting, but it would be a too severe change to `simp`’s semantics
+        tryCatchRuntimeEx do
+            let _ ← simp rhs
+          fun ex => do
+            trace[Meta.Tactic.simp.loopProtection] "loop protection for {← ppOrigin thm.origin}: got exception{indentD ex.toMessageData}"
+            Linter.logLint linter.simp.loopProtection (← getRef) (← mkLoopWarningMsg thm)

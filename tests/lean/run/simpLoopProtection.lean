@@ -10,7 +10,7 @@ theorem aa : a = id a := testSorry
 /--
 warning: Possibly looping simp theorem: `aa`
 
-Note: Not part of the loop, but potentially enabling it: `id`
+Note: Possibly caused by: `id`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 note: this linter can be disabled with `set_option linter.simp.loopProtection false`
@@ -36,14 +36,14 @@ example : id a = 23 := by simp -failIfUnchanged only [aa, id]
 /--
 warning: Possibly looping simp theorem: `ab`
 
-Note: It is jointly looping with `ba`
+Note: Possibly caused by: `ba`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 warning: Possibly looping simp theorem: `ba`
 
-Note: It is jointly looping with `ab`
+Note: Possibly caused by: `ab`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 note: this linter can be disabled with `set_option linter.simp.loopProtection false`
@@ -59,14 +59,14 @@ example : a = 23 := by simp -failIfUnchanged [ab, ba]
 /--
 warning: Possibly looping simp theorem: `ab`
 
-Note: It is jointly looping with `ba`
+Note: Possibly caused by: `ba`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 warning: Possibly looping simp theorem: `ba`
 
-Note: It is jointly looping with `ab`
+Note: Possibly caused by: `ab`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 note: this linter can be disabled with `set_option linter.simp.loopProtection false`
@@ -82,14 +82,14 @@ example : a = 2*b := by simp -failIfUnchanged [ab, ba]
 /--
 warning: Possibly looping simp theorem: `← ab`
 
-Note: It is jointly looping with `← ba`
+Note: Possibly caused by: `← ba`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 warning: Possibly looping simp theorem: `← ba`
 
-Note: It is jointly looping with `← ab`
+Note: Possibly caused by: `← ab`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 note: this linter can be disabled with `set_option linter.simp.loopProtection false`
@@ -102,9 +102,17 @@ use `set_option diagnostics true` to get diagnostic information
 #guard_msgs in
 example : a = 23 := by simp -failIfUnchanged [← ab, ← ba]
 
--- Local theorems are not considered during loop checking:
+-- Local theorems are not checked for loops,
+-- but are still applied when checking other rules
 
 /--
+warning: Possibly looping simp theorem: `ab`
+
+Note: Possibly caused by: `h`
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+note: this linter can be disabled with `set_option linter.simp.loopProtection false`
+---
 error: tactic 'simp' failed, nested error:
 maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit
@@ -113,54 +121,20 @@ use `set_option diagnostics true` to get diagnostic information
 #guard_msgs in
 example (h : b = a) : a = 23 := by simp -failIfUnchanged [ab, h]
 
--- ..but still are applied
-example (h : b = 23) : a = 23 := by simp -failIfUnchanged [ab, h]
-
-/-! Check that we cache the protection result (both positive and negative) -/
-
-opaque id' : Nat → Nat
-theorem id'_eq (n : Nat) : id' n = n := testSorry
-theorem id'_eq_bad (n : Nat) : id' n = id' (id' n) := testSorry
-
-/-- trace: [Meta.Tactic.simp.loopProtection] loop-checking id'_eq:1000 -/
-#guard_msgs in
-set_option trace.Meta.Tactic.simp.loopProtection true in
-example : id' 1 + id' 2 = id' 3 := by simp -failIfUnchanged [id'_eq]
-
-/--
-warning: Possibly looping simp theorem: `id'_eq_bad`
-
-Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
----
-error: tactic 'simp' failed, nested error:
-maximum recursion depth has been reached
-use `set_option maxRecDepth <num>` to increase limit
-use `set_option diagnostics true` to get diagnostic information
----
-trace: [Meta.Tactic.simp.loopProtection] loop-checking id'_eq_bad:1000
-  [Meta.Tactic.simp.loopProtection] loop-checking id'_eq_bad:1000
-    [Meta.Tactic.simp.loopProtection] loop detected: id'_eq_bad
--/
-#guard_msgs in
-set_option trace.Meta.Tactic.simp.loopProtection true in
-example : id' 1 + id' 2 = id' 3 := by simp -failIfUnchanged [id'_eq_bad]
-
-
 /-! Examples from the original RFC -/
 
 variable (P : Nat → Prop)
 /--
 warning: Possibly looping simp theorem: `Nat.add_assoc`
 
-Note: It is jointly looping with `(Nat.add_assoc _ _ _).symm`
+Note: Possibly caused by: `(Nat.add_assoc _ _ _).symm`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 warning: Possibly looping simp theorem: `(Nat.add_assoc _ _ _).symm`
 
-Note: It is jointly looping with `Nat.add_assoc`
+Note: Possibly caused by: `Nat.add_assoc`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 note: this linter can be disabled with `set_option linter.simp.loopProtection false`
@@ -180,6 +154,8 @@ decreasing_by simp_wf; cases t; simp_all [Tree.children]; decreasing_trivial
 
 /--
 warning: Possibly looping simp theorem: `Tree.size.eq_1`
+
+Note: Possibly caused by: `Tree.size`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 note: this linter can be disabled with `set_option linter.simp.loopProtection false`
@@ -214,14 +190,10 @@ example : a > 0 := by simp only [b1ab]
 /--
 warning: Possibly looping simp theorem: `baab`
 
-Note: It is jointly looping with `baab`
-
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 warning: Possibly looping simp theorem: `baab`
-
-Note: It is jointly looping with `baab`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 note: this linter can be disabled with `set_option linter.simp.loopProtection false`
@@ -264,9 +236,16 @@ def d := c
 def dc : d = c := rfl
 
 /--
+warning: Possibly looping simp theorem: `c.eq_1`
+
+Note: Possibly caused by: `ac` and `c`
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+note: this linter can be disabled with `set_option linter.simp.loopProtection false`
+---
 warning: Possibly looping simp theorem: `ac`
 
-Note: Not part of the loop, but potentially enabling it: `c`
+Note: Possibly caused by: `c`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 note: this linter can be disabled with `set_option linter.simp.loopProtection false`
@@ -280,9 +259,23 @@ use `set_option diagnostics true` to get diagnostic information
 example : c > 0 := by simp only [c, ac]
 
 /--
+warning: Possibly looping simp theorem: `dc`
+
+Note: Possibly caused by: `c` and `ac`
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+note: this linter can be disabled with `set_option linter.simp.loopProtection false`
+---
+warning: Possibly looping simp theorem: `c.eq_1`
+
+Note: Possibly caused by: `ac` and `c`
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+note: this linter can be disabled with `set_option linter.simp.loopProtection false`
+---
 warning: Possibly looping simp theorem: `ac`
 
-Note: Not part of the loop, but potentially enabling it: `c`
+Note: Possibly caused by: `c`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 note: this linter can be disabled with `set_option linter.simp.loopProtection false`
@@ -297,9 +290,16 @@ example : d > 0 := by simp only [dc, c, ac]
 
 
 /--
+warning: Possibly looping simp theorem: `c.eq_1`
+
+Note: Possibly caused by: `ac` and `c`
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+note: this linter can be disabled with `set_option linter.simp.loopProtection false`
+---
 warning: Possibly looping simp theorem: `ac`
 
-Note: Not part of the loop, but potentially enabling it: `c`
+Note: Possibly caused by: `c`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 note: this linter can be disabled with `set_option linter.simp.loopProtection false`
@@ -312,22 +312,6 @@ use `set_option diagnostics true` to get diagnostic information
 #guard_msgs in
 example : a > 0 := by simp only [c, ac]
 
-/--
-warning: Possibly looping simp theorem: `ca`
-
-Note: It is jointly looping with `ac`
-
-Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
----
-warning: Possibly looping simp theorem: `ac`
-
-Note: It is jointly looping with `ca`
-
-Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
--/
-#guard_msgs in
 example (h : c = 1) : d > 0 := by simp only [dc, h, ca, ac, Nat.one_pos]
 
 
@@ -335,16 +319,23 @@ example (h : c = 1) : d > 0 := by simp only [dc, h, ca, ac, Nat.one_pos]
 Check that `simp?` does not leak the rewrites done during loop protection.
 -/
 /--
+warning: Possibly looping simp theorem: `dc`
+
+Note: Possibly caused by: `ca` and `ac`
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+note: this linter can be disabled with `set_option linter.simp.loopProtection false`
+---
 warning: Possibly looping simp theorem: `ca`
 
-Note: It is jointly looping with `ac`
+Note: Possibly caused by: `ac`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 warning: Possibly looping simp theorem: `ac`
 
-Note: It is jointly looping with `ca`
+Note: Possibly caused by: `ca`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 note: this linter can be disabled with `set_option linter.simp.loopProtection false`
@@ -357,46 +348,24 @@ use `set_option diagnostics true` to get diagnostic information
 #guard_msgs in
 example : d > 0 := by simp? only [dc, ca, ac]; exact testSorry
 
-/--
-warning: Possibly looping simp theorem: `ca`
-
-Note: It is jointly looping with `ac`
-
-Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
----
-warning: Possibly looping simp theorem: `ac`
-
-Note: It is jointly looping with `ca`
-
-Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
----
-info: Try this: simp only [dc, h, Nat.one_pos]
--/
+/-- info: Try this: simp only [dc, h, Nat.one_pos] -/
 #guard_msgs in
 example (h : c = 1) : d > 0 := by simp? only [dc, h, ca, ac, Nat.one_pos]
 
 
 /-! An example where a second rewrite rules makes the looping rule looping,
-without being itself looping. Needs diagnostics to see it!
+without being itself looping.
 -/
 
 opaque f : Nat → Nat
 theorem fbfa : f b = f a := testSorry
 
-/--
-warning: Possibly looping simp theorem: `fbfa`
 
-Note: Not part of the loop, but potentially enabling it: `ab`
-
-Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
----
-error: unsolved goals
-P : Nat → Prop
-⊢ 0 < f a
--/
+-- set_option trace.Meta.Tactic.simp.loopProtection true
+-- set_option trace.Meta.Tactic.simp true
+-- set_option trace.Debug.Meta.Tactic.simp true
 #guard_msgs in
-example : f b > 0 := by
-  simp -failIfUnchanged [fbfa, ab]
+example : True:= by
+  simp -failIfUnchanged
+    [fbfa,
+    ab]

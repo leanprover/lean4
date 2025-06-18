@@ -138,17 +138,28 @@ instance [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
 
 end Iterator
 
-theorem PRange.mem.upper [LE α] [DecidableLE α] {i : α} {r : PRange ⟨.unbounded, .closed⟩ α} (h : i ∈ r) : i ≤ r.upper :=
+theorem le_upper_of_mem [LE α] [DecidableLE α] [SupportsLowerBound sl α]
+    {a : α} {r : PRange ⟨sl, .closed⟩ α} (h : a ∈ r) : a ≤ r.upper :=
   h.2
 
--- theorem Range.mem.lower [LE α] {i : α} {r : PRange ⟨.unbounded, .closed⟩ α} (h : i ∈ r) : r.lower ≤ i := h.1
+theorem lt_upper_of_mem [LT α] [DecidableLT α] [SupportsLowerBound sl α]
+    {a : α} {r : PRange ⟨sl, .open⟩ α} (h : a ∈ r) : a < r.upper :=
+  h.2
 
--- theorem Range.mem.step {i : Nat} {r : PRange shape α} (h : i ∈ r) : (i - r.start) % r.step = 0 := h.2.2
+theorem lower_le_of_mem [LE α] [DecidableLE α] [SupportsUpperBound su α]
+    {a : α} {r : PRange ⟨.closed, su⟩ α} (h : a ∈ r) : r.lower ≤ a :=
+  h.1
 
-theorem PRange.get_elem_helper {i n : Nat} {r : PRange ⟨.closed, .open⟩ Nat} (h₁ : i ∈ r) (h₂ : r.upper = n) :
-    i < n := h₂ ▸ h₁.2
+theorem lower_lt_of_mem [LT α] [DecidableLT α] [SupportsUpperBound su α]
+    {a : α} {r : PRange ⟨.open, su⟩ α} (h : a ∈ r) : r.lower < a :=
+  h.1
+
+theorem Internal.get_elem_helper_upper_open [SupportsLowerBound sl α] [LT α] [DecidableLT α]
+    {a n : α} {r : PRange ⟨sl, .open⟩ α} (h₁ : a ∈ r) (h₂ : r.upper = n) :
+    a < n := h₂ ▸ r.lt_upper_of_mem h₁
 
 macro_rules
-  | `(tactic| get_elem_tactic_extensible) => `(tactic| apply Range.get_elem_helper; assumption; rfl)
+  | `(tactic| get_elem_tactic_extensible) =>
+    `(tactic| apply Range.get_elem_helper_upper_open; assumption; rfl)
 
 end Std.PRange

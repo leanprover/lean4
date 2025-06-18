@@ -84,7 +84,7 @@ x: 7
 -- NEW
 
 
-open Std.Iterators Types
+open Std.Iterators
 
 -- def it := (⟨⟨some 0⟩⟩ : Iter (α := RangeIterator Nat inferInstance (· < 5)) Nat)
 

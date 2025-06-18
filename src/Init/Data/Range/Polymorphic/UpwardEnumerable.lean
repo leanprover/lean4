@@ -134,6 +134,11 @@ theorem UpwardEnumerable.not_gt_of_le {α : Type u} [UpwardEnumerable α] [Lawfu
     rw [Nat.add_assoc, UpwardEnumerable.succMany?_add, hle, Option.bind_some, hgt]
   exact LawfulUpwardEnumerable.ne_of_lt _ _ this rfl
 
+theorem UpwardEnumerable.ne_of_lt {α : Type w} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    {a b : α} :
+    UpwardEnumerable.lt a b → a ≠ b :=
+  LawfulUpwardEnumerable.ne_of_lt a b
+
 /--
 This typeclass ensures that an `UpwardEnumerable α` instance is compatible with `≤`.
 In this case, `UpwardEnumerable α` fully characterizes the `LE α` instance.

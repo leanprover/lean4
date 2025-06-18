@@ -25,14 +25,14 @@ private theorem Internal.iter_open_eq_of_isSome_succ? [UpwardEnumerable α]
       Internal.iter (PRange.mk (shape := ⟨.closed, su⟩) (UpwardEnumerable.succ? lo |>.get h) hi) := by
   simp [Internal.iter, BoundedUpwardEnumerable.init?]
 
-private theorem toList_eq_toList_internalIter [UpwardEnumerable α]
+private theorem Internal.toList_eq_toList_iter [UpwardEnumerable α]
     [BoundedUpwardEnumerable sl α] [SupportsUpperBound su α] [HasFiniteRanges su α]
     [LawfulUpwardEnumerable α]
     {r : PRange ⟨sl, su⟩ α} :
     r.toList = (Internal.iter r).toList := by
   rfl
 
-theorem toList_eq_match [UpwardEnumerable α]
+theorem RangeIterator.toList_eq_match [UpwardEnumerable α]
     [SupportsUpperBound su α] [HasFiniteRanges su α]
     [LawfulUpwardEnumerable α]
     {it : Iter (α := RangeIterator su α) α} :
@@ -63,11 +63,11 @@ theorem toList_eq_aux [UpwardEnumerable α]
         a :: (PRange.mk (shape := ⟨.open, su⟩) a r.upper).toList
       else
         [] := by
-  simp only [PRange.toList_eq_toList_internalIter,
+  simp only [Internal.toList_eq_toList_iter,
     show r.upper = (Internal.iter r).internalState.upperBound by rfl,
     show UpwardEnumerable.succ? r.lower = (Internal.iter r).internalState.next by rfl]
   generalize Internal.iter r = it
-  rw [toList_eq_match]
+  rw [RangeIterator.toList_eq_match]
   split
   · simp_all
   · rename_i heq
@@ -84,13 +84,13 @@ theorem toList_eq [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
         a :: (PRange.mk (shape := ⟨.open, su⟩) a r.upper).toList
       else
         [] := by
-  rw [toList_eq_toList_internalIter, toList_eq_match,
+  rw [Internal.toList_eq_toList_iter, RangeIterator.toList_eq_match,
     show (Internal.iter r).internalState.next = BoundedUpwardEnumerable.init? r.lower by rfl,
     show (Internal.iter r).internalState.upperBound = r.upper by rfl]
   split
   · rfl
   · split
-    · simp only [List.cons.injEq, true_and, toList_eq_toList_internalIter, Internal.iter,
+    · simp only [List.cons.injEq, true_and, Internal.toList_eq_toList_iter, Internal.iter,
         BoundedUpwardEnumerable.init?]
     · rfl
 
@@ -100,7 +100,7 @@ private theorem toList_open_eq_of_isSome_succ? [UpwardEnumerable α]
     {lo : Bound .open α} {hi} (h : (UpwardEnumerable.succ? lo).isSome) :
     (PRange.mk (shape := ⟨.open, su⟩) lo hi).toList =
       (PRange.mk (shape := ⟨.closed, su⟩) (UpwardEnumerable.succ? lo |>.get h) hi).toList := by
-  simp [toList_eq_toList_internalIter, Internal.iter_open_eq_of_isSome_succ?, h]
+  simp [Internal.toList_eq_toList_iter, Internal.iter_open_eq_of_isSome_succ?, h]
 
 theorem toList_eq_nil_iff [UpwardEnumerable α]
     [SupportsUpperBound su α] [HasFiniteRanges su α] [BoundedUpwardEnumerable sl α]
@@ -108,8 +108,8 @@ theorem toList_eq_nil_iff [UpwardEnumerable α]
     {r : PRange ⟨sl, su⟩ α} :
     r.toList = [] ↔
       ¬ (∃ a, BoundedUpwardEnumerable.init? r.lower = some a ∧ SupportsUpperBound.IsSatisfied r.upper a) := by
-  rw [toList_eq_toList_internalIter] --, Iter.toList_eq_match_step, RangeIterator.step_eq_step]
-  rw [toList_eq_match, Internal.iter]
+  rw [Internal.toList_eq_toList_iter] --, Iter.toList_eq_match_step, RangeIterator.step_eq_step]
+  rw [RangeIterator.toList_eq_match, Internal.iter]
   simp only
   split <;> rename_i heq <;> simp [heq]
 
@@ -150,19 +150,19 @@ theorem mem_toList_iff_mem [UpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
     {r : PRange ⟨sl, su⟩ α}
     {a : α} : a ∈ r.toList ↔ a ∈ r := by
-  rw [toList_eq_toList_internalIter, RangeIterator.mem_toList_iff_isPlausibleIndirectOutput,
+  rw [Internal.toList_eq_toList_iter, RangeIterator.mem_toList_iff_isPlausibleIndirectOutput,
     Internal.isPlausibleIndirectOutput_iter_iff]
 
-theorem pairwise_upwardEnumerableLt [UpwardEnumerable α]
+theorem pairwise_toList_upwardEnumerableLt [UpwardEnumerable α]
     [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
     [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
     {r : PRange ⟨sl, su⟩ α} :
     r.toList.Pairwise (fun a b => UpwardEnumerable.lt a b) := by
-  rw [PRange.toList_eq_toList_internalIter]
+  rw [Internal.toList_eq_toList_iter]
   generalize Internal.iter r = it
   induction it using Iter.inductSteps with | step it ihy ihs =>
-  rw [toList_eq_match]
+  rw [RangeIterator.toList_eq_match]
   repeat' split <;> (try exact .nil; done)
   rename_i a _ _
   apply List.Pairwise.cons
@@ -179,7 +179,34 @@ theorem pairwise_upwardEnumerableLt [UpwardEnumerable α]
   · apply ihy (out := a)
     simp_all [RangeIterator.isPlausibleStep_iff, RangeIterator.step]
 
-theorem forIn'_eq_forIn'_internalIter [UpwardEnumerable α]
+theorem pairwise_toList_ne [UpwardEnumerable α]
+    [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
+    [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
+    [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
+    {r : PRange ⟨sl, su⟩ α} :
+    r.toList.Pairwise (fun a b => a ≠ b) :=
+  List.Pairwise.imp (fun hlt => UpwardEnumerable.ne_of_lt hlt) pairwise_toList_upwardEnumerableLt
+
+theorem pairwise_toList_lt [LT α] [UpwardEnumerable α]
+    [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
+    [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
+    {r : PRange ⟨sl, su⟩ α} :
+    r.toList.Pairwise (fun a b => a < b) :=
+  List.Pairwise.imp
+    (fun hlt => (LawfulUpwardEnumerableLT.lt_iff ..).mpr hlt) pairwise_toList_upwardEnumerableLt
+
+theorem pairwise_toList_le [LE α] [UpwardEnumerable α]
+    [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
+    [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
+    {r : PRange ⟨sl, su⟩ α} :
+    r.toList.Pairwise (fun a b => a ≤ b) :=
+  pairwise_toList_upwardEnumerableLt
+    |> List.Pairwise.imp UpwardEnumerable.le_of_lt
+    |> List.Pairwise.imp (fun hle => (LawfulUpwardEnumerableLE.le_iff ..).mpr hle)
+
+theorem Internal.forIn'_eq_forIn'_iter [UpwardEnumerable α]
     [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
     [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
@@ -199,7 +226,7 @@ theorem forIn'_eq_forIn'_toList [UpwardEnumerable α]
     {f : (a : α) → a ∈ r → γ → m (ForInStep γ)} :
     ForIn'.forIn' r init f =
       ForIn'.forIn' r.toList init (fun a ha acc => f a (mem_toList_iff_mem.mp ha) acc) := by
-  simp [forIn'_eq_forIn'_internalIter, toList_eq_toList_internalIter,
+  simp [Internal.forIn'_eq_forIn'_iter, Internal.toList_eq_toList_iter,
     Iter.forIn'_eq_forIn'_toList]
 
 theorem forIn'_toList_eq_forIn' [UpwardEnumerable α]
@@ -228,6 +255,7 @@ theorem forIn'_eq_match [UpwardEnumerable α]
         | .yield c =>
           ForIn'.forIn' (α := α) (β := γ) (PRange.mk (shape := ⟨.open, su⟩) a r.upper) c
             (fun a ha acc => f a (by
+              -- TODO: extract mem lemma from this
               simp only [Membership.mem] at ha ⊢
               refine ⟨?_, ha.2⟩
               simp only [LawfulUpwardEnumerableLowerBound.isSatisfied_iff] at ha ⊢
@@ -241,18 +269,18 @@ theorem forIn'_eq_match [UpwardEnumerable α]
         | .done c => return c
       else
         return init := by
-  rw [forIn'_eq_forIn'_internalIter, Iter.forIn'_eq_match_step]
+  rw [Internal.forIn'_eq_forIn'_iter, Iter.forIn'_eq_match_step]
   simp only [RangeIterator.step_eq_step, RangeIterator.step, Internal.iter]
   apply Eq.symm
   split <;> rename_i heq
   · simp [heq]
   · simp [heq]
     split
-    · simp
+    · simp only
       apply bind_congr
       intro step
       split
-      · simp [forIn'_eq_forIn'_internalIter, Internal.iter, BoundedUpwardEnumerable.init?]
+      · simp [Internal.forIn'_eq_forIn'_iter, Internal.iter, BoundedUpwardEnumerable.init?]
       · simp
     · simp
 

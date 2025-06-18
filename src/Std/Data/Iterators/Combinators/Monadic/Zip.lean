@@ -392,4 +392,12 @@ instance Zip.instIteratorLoopPartial [Monad m] [Monad n] :
     IteratorLoopPartial (Zip α₁ m α₂ β₂) m n :=
   .defaultImplementation
 
+instance Zip.instIteratorSize [Monad m] [Finite (Zip α₁ m α₂ β₂) m] :
+    IteratorSize (Zip α₁ m α₂ β₂) m :=
+  .defaultImplementation
+
+instance Zip.instIteratorSizePartial [Monad m] :
+    IteratorSizePartial (Zip α₁ m α₂ β₂) m :=
+  .defaultImplementation
+
 end Std.Iterators

@@ -74,4 +74,12 @@ instance {α : Type w} [Monad m] [Monad n] : IteratorLoop (ListIterator α) m n 
 instance {α : Type w} [Monad m] [Monad n] : IteratorLoopPartial (ListIterator α) m n :=
   .defaultImplementation
 
+@[always_inline, inline]
+instance {α : Type w} [Monad m] : IteratorSize (ListIterator α) m :=
+  .defaultImplementation
+
+@[always_inline, inline]
+instance {α : Type w} [Monad m] : IteratorSizePartial (ListIterator α) m :=
+  .defaultImplementation
+
 end Std.Iterators

@@ -24,11 +24,24 @@ These operations are implemented using the `IteratorLoop` and `IteratorLoopParti
 
 namespace Std.Iterators
 
+/--
+A `ForIn'` instance for iterators. Its generic membership relation is not easy to use,
+so this is not marked as `instance`. This way, more convenient instances can be built on top of it
+or future library improvements will make it more comfortable.
+-/
+def Iter.instForIn' {α : Type w} {β : Type w} {n : Type w → Type w'} [Monad n]
+    [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] :
+    ForIn' n (Iter (α := α) β) β ⟨fun it out => it.IsPlausibleIndirectOutput out⟩ where
+  forIn' it init f :=
+    IteratorLoop.finiteForIn' (fun δ (c : Id δ) => pure c.run) |>.forIn' it.toIterM init
+        fun out h acc =>
+          f out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc
+
 instance (α : Type w) (β : Type w) (n : Type w → Type w') [Monad n]
     [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] :
-    ForIn n (Iter (α := α) β) β where
-  forIn it init f :=
-    IteratorLoop.finiteForIn (fun δ (c : Id δ) => pure c.run) |>.forIn it.toIterM init f
+    ForIn n (Iter (α := α) β) β :=
+  haveI : ForIn' n (Iter (α := α) β) β _ := Iter.instForIn'
+  instForInOfForIn'
 
 instance (α : Type w) (β : Type w) (n : Type w → Type w') [Monad n]
     [Iterator α Id β] [IteratorLoopPartial α Id n] :
@@ -112,5 +125,15 @@ def Iter.Partial.fold {α : Type w} {β : Type w} {γ : Type w} [Iterator α Id 
     [IteratorLoopPartial α Id Id] (f : γ → β → γ)
     (init : γ) (it : Iter.Partial (α := α) β) : γ :=
   ForIn.forIn (m := Id) it init (fun x acc => ForInStep.yield (f acc x))
+
+@[always_inline, inline, inherit_doc IterM.size]
+def Iter.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorSize α Id]
+    (it : Iter (α := α) β) : Nat :=
+  (IteratorSize.size it.toIterM).run.down
+
+@[always_inline, inline, inherit_doc IterM.Partial.size]
+def Iter.Partial.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorSizePartial α Id]
+    (it : Iter (α := α) β) : Nat :=
+  (IteratorSizePartial.size it.toIterM).run.down
 
 end Std.Iterators

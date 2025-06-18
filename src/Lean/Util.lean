@@ -29,6 +29,7 @@ import Lean.Util.SCC
 import Lean.Util.TestExtern
 import Lean.Util.OccursCheck
 import Lean.Util.HasConstCache
+import Lean.Util.Paths
 import Lean.Util.Heartbeats
 import Lean.Util.SearchPath
 import Lean.Util.SafeExponentiation

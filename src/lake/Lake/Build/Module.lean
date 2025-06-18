@@ -33,7 +33,7 @@ def recBuildExternDynlibs (pkgs : Array Package)
 def Module.recFetchInput (mod : Module) : FetchM (Job ModuleInput) := Job.async do
   let path := mod.leanFile
   let contents ← IO.FS.readFile path
-  setTrace <| .ofHash (.ofText contents) path.toString
+  setTrace {caption := path.toString, mtime := ← getMTime path, hash := .ofText contents}
   let header ← Lean.parseImports' contents path.toString
   return {path, header}
 

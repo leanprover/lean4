@@ -403,7 +403,7 @@ theorem no_int_zero_divisors {α : Type u} [IntModule α] [NoNatZeroDivisors α]
     intro h₁ h₂
     replace h₁ : k ≠ 0 := by intro h; simp [h] at h₁
     rw [IntModule.hmul_nat] at h₂
-    exact no_nat_zero_divisors k a h₁ h₂
+    exact NoNatZeroDivisors.eq_zero_of_mul_eq_zero h₁ h₂
   | -(k+1 : Nat) =>
     rw [IntModule.neg_hmul]
     intro _ h
@@ -411,6 +411,6 @@ theorem no_int_zero_divisors {α : Type u} [IntModule α] [NoNatZeroDivisors α]
     dsimp only at h
     rw [IntModule.neg_neg, IntModule.neg_zero] at h
     rw [IntModule.hmul_nat] at h
-    exact no_nat_zero_divisors (k+1) a (Nat.succ_ne_zero _) h
+    exact NoNatZeroDivisors.eq_zero_of_mul_eq_zero (Nat.succ_ne_zero _) h
 
 end Lean.Grind

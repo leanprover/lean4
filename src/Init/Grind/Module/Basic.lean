@@ -147,10 +147,27 @@ end IntModule
 /--
 Special case of Mathlib's `NoZeroSMulDivisors Nat α`.
 -/
-class NoNatZeroDivisors (α : Type u) [Zero α] [HMul Nat α α] where
-  no_nat_zero_divisors : ∀ (k : Nat) (a : α), k ≠ 0 → k * a = 0 → a = 0
+class NoNatZeroDivisors (α : Type u) [HMul Nat α α] where
+  no_nat_zero_divisors : ∀ (k : Nat) (a b : α), k ≠ 0 → k * a = k * b → a = b
 
 export NoNatZeroDivisors (no_nat_zero_divisors)
+
+namespace NoNatZeroDivisors
+
+def mk' {α} [IntModule α] (eq_zero_of_mul_eq_zero : ∀ (k : Nat) (a : α), k ≠ 0 → k * a = 0 → a = 0) : NoNatZeroDivisors α where
+  no_nat_zero_divisors k a b h₁ h₂ := by
+    rw [← IntModule.sub_eq_zero_iff] at h₂
+    erw [← IntModule.hmul_sub] at h₂
+    rw [← IntModule.sub_eq_zero_iff]
+    apply eq_zero_of_mul_eq_zero k (a - b) h₁ h₂
+
+theorem eq_zero_of_mul_eq_zero {α : Type u} [NatModule α] [NoNatZeroDivisors α] {k : Nat} {a : α}
+    : k ≠ 0 → k * a = 0 → a = 0 := by
+  intro h₁ h₂
+  replace h₁ : k ≠ 0 := by intro h; simp [h] at h₁
+  exact no_nat_zero_divisors k a 0 h₁ (by rwa [NatModule.hmul_zero])
+
+end NoNatZeroDivisors
 
 instance [ToInt α (some lo) (some hi)] [IntModule α] [ToInt.Zero α (some lo) (some hi)] [ToInt.Add α (some lo) (some hi)] : ToInt.Neg α (some lo) (some hi) where
   toInt_neg x := by

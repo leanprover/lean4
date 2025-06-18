@@ -120,6 +120,9 @@ theorem eraseIdx_insertIdx_self {i : Nat} {l : List α} (a : α) : (l.insertIdx 
   rw [eraseIdx_eq_modifyTailIdx, insertIdx, modifyTailIdx_modifyTailIdx_self]
   exact modifyTailIdx_id _ _
 
+@[deprecated eraseIdx_insertIdx_self (since := "2025-06-18")]
+abbrev eraseIdx_insertIdx := @eraseIdx_insertIdx_self
+
 @[simp]
 theorem insertIdx_length_self {l : List α} {x : α} : l.insertIdx l.length x = l ++ [x] := by
   induction l with

@@ -542,11 +542,11 @@ private def evalLeanFile
     if let some mod := ws.findModuleBySrc? path then
       let setup ← ws.runBuild (cfg := buildConfig) do
         withRegisterJob s!"{mod.name}:setup" do mod.setup.fetch
-      mkArgs path setup (some mod.rootDir) mod.leanArgs
+      mkArgs path setup mod.leanArgs
     else
       let setup ← mkModuleSetup
         ws leanFile.toString (← IO.FS.readFile path) ws.leanOptions buildConfig
-      mkArgs path setup none ws.root.moreLeanArgs
+      mkArgs path setup ws.root.moreLeanArgs
   let spawnArgs : IO.Process.SpawnArgs := {
     args := args ++ moreArgs
     cmd := ws.lakeEnv.lean.lean.toString
@@ -556,15 +556,13 @@ private def evalLeanFile
   let child ← IO.Process.spawn spawnArgs
   child.wait
 where
-  mkArgs leanFile setup rootDir? cfgArgs := do
-    let mut args := cfgArgs.push leanFile.toString
-    if let some rootDir := rootDir? then
-      args := args ++ #["-R", rootDir.toString]
+  mkArgs leanFile setup cfgArgs := do
+    let args := cfgArgs.push leanFile.toString
     let (h, setupFile) ← IO.FS.createTempFile
     let contents := (toJson setup).compress
     logVerbose s!"module setup: {contents}"
     h.putStr contents
-    args := args ++ #["--setup", setupFile.toString]
+    let args := args ++ #["--setup", setupFile.toString]
     return args
 
 protected def lean : CliM PUnit := do

@@ -57,7 +57,8 @@ lexicographic order lemmas and finally using `ts` to solve the base case. If it 
 it prints a message to help the user diagnose an ill-founded recursive definition. -/
 macro "decreasing_with " ts:tacticSeq : tactic =>
  `(tactic|
-   (try simp
+   (clean_wf -- remove after next stage0 update
+    try simp
     repeat (first | apply Prod.Lex.right | apply Prod.Lex.left)
     repeat (first | apply PSigma.Lex.right | apply PSigma.Lex.left)
     first

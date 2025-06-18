@@ -108,11 +108,11 @@ open Std.Iterators
 
 #eval (2<...<5).size
 
+-- TODO: make 2...5 work
 #eval (2 ...5).toList
 
 #eval (...5).toList
 
--- TODO: make 1...5 work
 #eval 1 ∈ (1 ...5)
 
 -- TODO:

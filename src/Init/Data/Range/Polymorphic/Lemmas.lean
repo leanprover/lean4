@@ -53,7 +53,7 @@ theorem RangeIterator.toList_eq_match [UpwardEnumerable α]
     split at heq <;> cases heq
   · split at heq <;> simp_all
 
-theorem toList_eq_aux [UpwardEnumerable α]
+private theorem toList_eq_aux [UpwardEnumerable α]
     [SupportsUpperBound su α] [HasFiniteRanges su α]
     [LawfulUpwardEnumerable α]
     {r : PRange ⟨.open, su⟩ α} :
@@ -206,7 +206,7 @@ theorem pairwise_toList_le [LE α] [UpwardEnumerable α]
     |> List.Pairwise.imp UpwardEnumerable.le_of_lt
     |> List.Pairwise.imp (fun hle => (LawfulUpwardEnumerableLE.le_iff ..).mpr hle)
 
-theorem Internal.forIn'_eq_forIn'_iter [UpwardEnumerable α]
+private theorem Internal.forIn'_eq_forIn'_iter [UpwardEnumerable α]
     [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
     [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
@@ -240,6 +240,32 @@ theorem forIn'_toList_eq_forIn' [UpwardEnumerable α]
       ForIn'.forIn' r init (fun a ha acc => f a (mem_toList_iff_mem.mpr ha) acc) := by
   simp [forIn'_eq_forIn'_toList]
 
+theorem mem_of_mem_open [UpwardEnumerable α]
+    [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
+    [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
+    [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
+    [SupportsLowerBound .open α] [LawfulUpwardEnumerableLowerBound .open α]
+    {r : PRange ⟨sl, su⟩ α} {a b : α}
+    (hrb : SupportsLowerBound.IsSatisfied r.lower b)
+    (hmem : a ∈ PRange.mk (shape := ⟨.open, su⟩) b r.upper) :
+    a ∈ r := by
+  refine ⟨?_, hmem.2⟩
+  have := hmem.1
+  simp only [LawfulUpwardEnumerableLowerBound.isSatisfied_iff,
+    BoundedUpwardEnumerable.init?] at this hrb ⊢
+  obtain ⟨init, hi⟩ := hrb
+  obtain ⟨b', hb'⟩ := this
+  refine ⟨init, hi.1, UpwardEnumerable.le_trans hi.2 (UpwardEnumerable.le_trans ?_ hb'.2)⟩
+  exact UpwardEnumerable.le_of_succ?_eq hb'.1
+
+theorem SupportsLowerBound.isSatisfied_init? [UpwardEnumerable α]
+    [SupportsLowerBound sl α] [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
+    [LawfulUpwardEnumerableLowerBound sl α]
+    {bound : Bound sl α} {a : α} (h : BoundedUpwardEnumerable.init? bound = some a) :
+    SupportsLowerBound.IsSatisfied bound a := by
+  simp only [LawfulUpwardEnumerableLowerBound.isSatisfied_iff]
+  exact ⟨a, h, UpwardEnumerable.le_refl _⟩
+
 theorem forIn'_eq_match [UpwardEnumerable α]
     [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
     [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
@@ -251,21 +277,10 @@ theorem forIn'_eq_match [UpwardEnumerable α]
     ForIn'.forIn' r init f = match hi : BoundedUpwardEnumerable.init? r.lower with
       | none => pure init
       | some a => if hu : SupportsUpperBound.IsSatisfied r.upper a then do
-        match ← f a ⟨by simp [LawfulUpwardEnumerableLowerBound.isSatisfied_iff]; exact ⟨a, hi, 0, by simp [LawfulUpwardEnumerable.succMany?_zero]⟩, hu⟩ init with
+        match ← f a ⟨SupportsLowerBound.isSatisfied_init? hi, hu⟩ init with
         | .yield c =>
           ForIn'.forIn' (α := α) (β := γ) (PRange.mk (shape := ⟨.open, su⟩) a r.upper) c
-            (fun a ha acc => f a (by
-              -- TODO: extract mem lemma from this
-              simp only [Membership.mem] at ha ⊢
-              refine ⟨?_, ha.2⟩
-              simp only [LawfulUpwardEnumerableLowerBound.isSatisfied_iff] at ha ⊢
-              obtain ⟨x, hx, n, hn⟩ := ha.1
-              refine ⟨_, hi, ?_⟩
-              simp only [BoundedUpwardEnumerable.init?] at hx
-              refine ⟨n + 1, ?_⟩
-              rw [Nat.add_comm, UpwardEnumerable.succMany?_add,
-                UpwardEnumerable.succMany?_succ, LawfulUpwardEnumerable.succMany?_zero,
-                Option.bind_some, hx, Option.bind_some, hn]) acc)
+            (fun a ha acc => f a (mem_of_mem_open (SupportsLowerBound.isSatisfied_init? hi) ha) acc)
         | .done c => return c
       else
         return init := by
@@ -274,7 +289,7 @@ theorem forIn'_eq_match [UpwardEnumerable α]
   apply Eq.symm
   split <;> rename_i heq
   · simp [heq]
-  · simp [heq]
+  · simp only [heq]
     split
     · simp only
       apply bind_congr

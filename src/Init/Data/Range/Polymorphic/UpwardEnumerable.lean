@@ -101,6 +101,10 @@ theorem UpwardEnumerable.succMany?_succ [UpwardEnumerable α] [LawfulUpwardEnume
       (UpwardEnumerable.succMany? n a).bind UpwardEnumerable.succ? :=
   LawfulUpwardEnumerable.succMany?_succ n a
 
+theorem UpwardEnumerable.succMany?_one [UpwardEnumerable α] [LawfulUpwardEnumerable α] {a : α} :
+    UpwardEnumerable.succMany? 1 a = UpwardEnumerable.succ? a := by
+  simp [UpwardEnumerable.succMany?_succ, UpwardEnumerable.succMany?_zero]
+
 theorem UpwardEnumerable.succMany?_add [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     (m n : Nat) (a : α) :
     UpwardEnumerable.succMany? (m + n) a =
@@ -129,6 +133,10 @@ theorem UpwardEnumerable.le_trans {α : Type u} [UpwardEnumerable α] [LawfulUpw
     UpwardEnumerable.le a c := by
   refine ⟨hab.choose + hbc.choose, ?_⟩
   simp [succMany?_add, hab.choose_spec, hbc.choose_spec]
+
+theorem UpwardEnumerable.le_of_succ?_eq {α : Type u} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    {a b : α} (hab : UpwardEnumerable.succ? a = some b) : UpwardEnumerable.le a b :=
+  ⟨1, by simp [UpwardEnumerable.succMany?_one, hab]⟩
 
 theorem UpwardEnumerable.lt_of_lt_of_le {α : Type u} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     {a b c : α} (hab : UpwardEnumerable.lt a b) (hbc : UpwardEnumerable.le b c) :

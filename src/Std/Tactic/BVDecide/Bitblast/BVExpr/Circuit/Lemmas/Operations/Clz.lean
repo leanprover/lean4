@@ -72,16 +72,14 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
               rw [BitVec.ofNat_sub_ofNat_of_le (x := w) (y := 1) (by omega) (by omega),
                   BitVec.ofNat_sub_ofNat_of_le (x := w - 1) (y := curr + 1) (by omega) (by omega)]
           · split at hacc
-            · next hc hc' =>
-              rw [hacc, hc']
-              have hxc : x.getLsbD 0 = false := by rw [hx] at hc; simp [hc'] at hc; exact hc
-              simp [BitVec.clzAuxRec_zero, hxc]
-            · next h' h'' =>
-              rw [hacc]
+            · next h1 h2 =>
+              have hxc : x.getLsbD 0 = false := by rw [hx] at h1; simp [h2] at h1; exact h1
+              simp [hacc, h2, BitVec.clzAuxRec_zero, hxc]
+            · next h1 h2 =>
               obtain ⟨curr, hcurr⟩ : ∃ curr', curr = curr' + 1 := by apply Nat.exists_eq_add_one.mpr (by omega)
               subst hcurr
-              have hxc : x.getLsbD (curr + 1) = false := by rw [hx] at h'; simp at h'; exact h'
-              simp [BitVec.clzAuxRec_succ, hxc]
+              have hxc : x.getLsbD (curr + 1) = false := by rw [hx] at h1; simp at h1; exact h1
+              simp [hacc, BitVec.clzAuxRec_succ, hxc]
     · case isFalse h =>
       rw [← hgo]
       simp only [show ¬curr = 0 by omega, reduceIte] at hacc

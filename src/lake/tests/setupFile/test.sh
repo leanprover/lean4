@@ -29,21 +29,21 @@ test_not_out '"plugins":[]' -f invalid.lean setup-file invalid.lean
 
 # Test that when a header is provided (via CLI or stdin),
 # it will be used instead of the file's header for an external module.
-test_out '"module":"Foo"' setup-file ImportFoo.lean
-HEADER_JSON='{"isModule":false,"imports":[]}'
-test_not_out '"module":"Foo"' setup-file ImportFoo.lean "$HEADER_JSON"
-echo "$HEADER_JSON" | test_not_out '"module":"Foo"' setup-file ImportFoo.lean -
+test_out '"isModule":false' setup-file ImportFoo.lean
+HEADER_JSON='{"isModule":true,"imports":[]}'
+test_out '"isModule":true' setup-file ImportFoo.lean "$HEADER_JSON"
+echo "$HEADER_JSON" | test_out '"isModule":true' setup-file ImportFoo.lean -
 BOGUS_JSON='{"isModule":false,"imports":[{"module":"Test.Bogus","isMeta":false,"isExported":true,"importAll":false}]}'
 test_err 'no such file or directory' setup-file ImportFoo.lean "$BOGUS_JSON"
 
 # Test that when a header is provided (via CLI or stdin),
-# its imports are used instead of the file's header for an internal module,
-# but those imports are not built.
-test_out '"module":"Init"' setup-file Test.lean
-test_not_out '"module":"Init"' setup-file Test.lean "$HEADER_JSON"
-echo "$HEADER_JSON" | test_not_out '"module":"Init"' setup-file Test.lean -
-# TODO: Build given imports (i.e., this should fail).
-test_out '"module":"Test.Bogus"' setup-file Test.lean "$BOGUS_JSON"
+# the header is *NOT* used for an internal module and its imports are not built.
+# TODO: Use the provided header.
+test_out '"isModule":false' setup-file Test.lean
+test_out '"isModule":false' setup-file Test.lean "$HEADER_JSON"
+echo "$HEADER_JSON" | test_out '"isModule":false' setup-file Test.lean -
+# If the provided import (Test.Bogus) was built, this would fail.
+test_run setup-file Test.lean "$BOGUS_JSON"
 
 # Cleanup
 rm -f produced.out

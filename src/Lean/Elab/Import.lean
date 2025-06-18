@@ -38,7 +38,7 @@ def processHeaderCore
     (startPos : String.Pos) (imports : Array Import) (isModule : Bool)
     (opts : Options) (messages : MessageLog) (inputCtx : Parser.InputContext)
     (trustLevel : UInt32 := 0) (plugins : Array System.FilePath := #[]) (leakEnv := false)
-    (mainModule := Name.anonymous) (arts : NameMap ModuleArtifacts := {})
+    (mainModule := Name.anonymous) (arts : NameMap ImportArtifacts := {})
     : IO (Environment × MessageLog) := do
   let level := if isModule then
     if Elab.inServer.get opts then

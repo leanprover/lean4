@@ -79,17 +79,17 @@ def FileSetupResult.ofSuccess (setup : ModuleSetup) : IO FileSetupResult := do r
 
 def FileSetupResult.ofNoLakefile (m : DocumentMeta) (header : ModuleHeader) : IO FileSetupResult := do return {
   kind          := FileSetupResultKind.noLakefile
-  setup         := {header with name := m.mod}
+  setup         := {name := m.mod, isModule := header.isModule}
 }
 
 def FileSetupResult.ofImportsOutOfDate (m : DocumentMeta) (header : ModuleHeader) : IO FileSetupResult := do return {
   kind          := FileSetupResultKind.importsOutOfDate
-  setup         := {header with name := m.mod}
+  setup         := {name := m.mod, isModule := header.isModule}
 }
 
 def FileSetupResult.ofError (m : DocumentMeta) (header : ModuleHeader) (msg : String) : IO FileSetupResult := do return {
   kind          := FileSetupResultKind.error msg
-  setup         := {header with name := m.mod}
+  setup         := {name := m.mod, isModule := header.isModule}
 }
 
 /-- Uses `lake setup-file` to compile dependencies on the fly and add them to `LEAN_PATH`.

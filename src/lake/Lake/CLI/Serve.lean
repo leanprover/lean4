@@ -30,8 +30,8 @@ def mkModuleSetup
   return {
     name := ← Lean.moduleNameOfFileName fileName none
     isModule := header.isModule
-    imports := header.imports
-    modules := {} -- TODO
+    imports? := none
+    importArts := {} -- TODO
     dynlibs := dynlibs.map (·.path.toString)
     plugins := plugins.map (·.path.toString)
     options := opts
@@ -57,12 +57,8 @@ def setupFile
   if configFile.toString.isEmpty then
     exit noConfigFileCode
   else if configFile == path then do
-    let header ← header?.getDM do
-      Lean.parseImports' (← IO.FS.readFile path) leanFile.toString
     let setup : ModuleSetup := {
       name := configModuleName
-      isModule := header.isModule
-      imports := header.imports
       plugins :=  #[loadConfig.lakeEnv.lake.sharedLib]
     }
     IO.println (toJson setup).compress
@@ -76,8 +72,6 @@ def setupFile
     if let some mod := ws.findModuleBySrc? path then
       let setup ← ws.runBuild (cfg := buildConfig) do
         withRegisterJob s!"{mod.name}:setup" do mod.setup.fetch
-      let setup : ModuleSetup :=
-        if let some header := header? then {header, setup with} else setup
       IO.println (toJson setup).compress
     else
       let header ← header?.getDM do

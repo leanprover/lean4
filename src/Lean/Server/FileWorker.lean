@@ -383,8 +383,9 @@ def setupImports
     -- should not be visible to user as task is already canceled
     return .error { diagnostics := .empty, result? := none }
 
+  let header := stx.toModuleHeader
   chanOut.sync.send <| mkInitialIleanInfoUpdateNotification doc <| collectImports stx
-  let fileSetupResult ← setupFile doc stx.toModuleHeader fun stderrLine => do
+  let fileSetupResult ← setupFile doc header fun stderrLine => do
     let progressDiagnostic := {
       range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
       -- make progress visible anywhere in the file
@@ -422,10 +423,10 @@ def setupImports
 
   return .ok {
     mainModuleName := doc.mod
-    isModule := setup.isModule
-    imports := setup.imports
+    isModule := strictOr setup.isModule header.isModule
+    imports := setup.imports?.getD header.imports
     opts
-    modules := setup.modules
+    importArts := setup.importArts
     plugins := setup.plugins
   }
 

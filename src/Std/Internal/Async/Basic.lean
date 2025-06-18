@@ -29,8 +29,7 @@ type classes, and concrete task types that work together in a cohesive system.
 These types provide a good way to to chain and manipulate context. These can contain a `Task`,
 enabling manipulation of both asynchronous and synchronous code.
 
-- `BaseAsync`: A monadic type for infallible asynchronous computations (alias for
-  `EAsync Empty`)
+- `BaseAsync`: A monadic type for infallible asynchronous computations
 - `EAsync`: A monadic type for asynchronous computations that may fail with an error of type
   `ε`
 - `Async`: A monadic type for IO-based asynchronous computations that may fail with `IO.Error`

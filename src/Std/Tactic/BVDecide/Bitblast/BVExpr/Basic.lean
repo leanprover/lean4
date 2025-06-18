@@ -140,7 +140,7 @@ inductive BVUnOp where
   -/
   | reverse
   /--
-  Count leading zeroes.
+  Count leading zeros.
   -/
   | clz
   deriving Hashable, DecidableEq

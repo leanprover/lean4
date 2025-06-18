@@ -5573,7 +5573,7 @@ theorem msb_replicate {n w : Nat} {x : BitVec w} :
   simp only [BitVec.msb, getMsbD_replicate, Nat.zero_mod]
   cases n <;> cases w <;> simp
 
-/-! ### Count leading zeroes -/
+/-! ### Count leading zeros -/
 
 theorem clzAuxRec_eq_clzAuxRec_of_le (x : BitVec w) (h : w - 1 ≤ n) :
     x.clzAuxRec n = x.clzAuxRec (w - 1) := by

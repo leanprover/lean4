@@ -11,12 +11,12 @@ import Init.Meta
 
 namespace Nat
 
-@[simp] protected theorem dvd_refl (a : Nat) : a ∣ a := ⟨1, by simp⟩
+@[simp, grind] protected theorem dvd_refl (a : Nat) : a ∣ a := ⟨1, by simp⟩
 
-@[simp] protected theorem dvd_zero (a : Nat) : a ∣ 0 := ⟨0, by simp⟩
+@[simp, grind] protected theorem dvd_zero (a : Nat) : a ∣ 0 := ⟨0, by simp⟩
 
-protected theorem dvd_mul_left (a b : Nat) : a ∣ b * a := ⟨b, Nat.mul_comm b a⟩
-protected theorem dvd_mul_right (a b : Nat) : a ∣ a * b := ⟨b, rfl⟩
+@[grind] protected theorem dvd_mul_left (a b : Nat) : a ∣ b * a := ⟨b, Nat.mul_comm b a⟩
+@[grind] protected theorem dvd_mul_right (a b : Nat) : a ∣ a * b := ⟨b, rfl⟩
 
 protected theorem dvd_trans {a b c : Nat} (h₁ : a ∣ b) (h₂ : b ∣ c) : a ∣ c :=
   match h₁, h₂ with
@@ -32,7 +32,7 @@ protected theorem dvd_mul_right_of_dvd {a b : Nat} (h : a ∣ b) (c : Nat) : a �
 protected theorem eq_zero_of_zero_dvd {a : Nat} (h : 0 ∣ a) : a = 0 :=
   let ⟨c, H'⟩ := h; H'.trans c.zero_mul
 
-@[simp] protected theorem zero_dvd {n : Nat} : 0 ∣ n ↔ n = 0 :=
+@[simp, grind =] protected theorem zero_dvd {n : Nat} : 0 ∣ n ↔ n = 0 :=
   ⟨Nat.eq_zero_of_zero_dvd, fun h => h.symm ▸ Nat.dvd_zero 0⟩
 
 protected theorem dvd_add {a b c : Nat} (h₁ : a ∣ b) (h₂ : a ∣ c) : a ∣ b + c :=
@@ -47,6 +47,7 @@ protected theorem dvd_add_iff_right {k m n : Nat} (h : k ∣ m) : k ∣ n ↔ k 
 protected theorem dvd_add_iff_left {k m n : Nat} (h : k ∣ n) : k ∣ m ↔ k ∣ m + n := by
   rw [Nat.add_comm]; exact Nat.dvd_add_iff_right h
 
+@[grind =]
 theorem dvd_mod_iff {k m n : Nat} (h: k ∣ n) : k ∣ m % n ↔ k ∣ m := by
   have := Nat.dvd_add_iff_left (m := m % n) <| Nat.dvd_trans h <| Nat.dvd_mul_right n (m / n)
   rwa [mod_add_div] at this
@@ -70,7 +71,7 @@ protected theorem dvd_antisymm : ∀ {m n : Nat}, m ∣ n → n ∣ m → m = n
 theorem pos_of_dvd_of_pos {m n : Nat} (H1 : m ∣ n) (H2 : 0 < n) : 0 < m :=
   Nat.pos_of_ne_zero fun m0 => Nat.ne_of_gt H2 <| Nat.eq_zero_of_zero_dvd (m0 ▸ H1)
 
-@[simp] protected theorem one_dvd (n : Nat) : 1 ∣ n := ⟨n, n.one_mul.symm⟩
+@[simp, grind] protected theorem one_dvd (n : Nat) : 1 ∣ n := ⟨n, n.one_mul.symm⟩
 
 theorem eq_one_of_dvd_one {n : Nat} (H : n ∣ 1) : n = 1 := Nat.dvd_antisymm H n.one_dvd
 
@@ -99,7 +100,7 @@ protected theorem mul_div_cancel' {n m : Nat} (H : n ∣ m) : n * (m / n) = m :=
 protected theorem div_mul_cancel {n m : Nat} (H : n ∣ m) : m / n * n = m := by
   rw [Nat.mul_comm, Nat.mul_div_cancel' H]
 
-@[simp] theorem mod_mod_of_dvd (a : Nat) (h : c ∣ b) : a % b % c = a % c := by
+@[simp, grind =] theorem mod_mod_of_dvd (a : Nat) (h : c ∣ b) : a % b % c = a % c := by
   rw (occs := [2]) [← mod_add_div a b]
   have ⟨x, h⟩ := h
   subst h
@@ -145,7 +146,7 @@ protected theorem mul_dvd_mul_left (a : Nat) (h : b ∣ c) : a * b ∣ a * c :=
 protected theorem mul_dvd_mul_right (h: a ∣ b) (c : Nat) : a * c ∣ b * c :=
   Nat.mul_dvd_mul h (Nat.dvd_refl c)
 
-@[simp] theorem dvd_one {n : Nat} : n ∣ 1 ↔ n = 1 :=
+@[simp, grind =] theorem dvd_one {n : Nat} : n ∣ 1 ↔ n = 1 :=
   ⟨eq_one_of_dvd_one, fun h => h.symm ▸ Nat.dvd_refl _⟩
 
 protected theorem mul_div_assoc (m : Nat) (H : k ∣ n) : m * n / k = m * (n / k) := by

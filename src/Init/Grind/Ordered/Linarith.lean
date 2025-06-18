@@ -476,7 +476,7 @@ def eq_coeff_cert (p₁ p₂ : Poly) (k : Nat) :=
 theorem eq_coeff {α} [IntModule α] [NoNatZeroDivisors α] (ctx : Context α) (p₁ p₂ : Poly) (k : Nat)
     : eq_coeff_cert p₁ p₂ k → p₁.denote' ctx = 0 → p₂.denote' ctx = 0 := by
   simp [eq_coeff_cert]; intro h _; subst p₁; simp [*, hmul_nat]
-  exact no_nat_zero_divisors k (p₂.denote ctx) h
+  exact NoNatZeroDivisors.eq_zero_of_mul_eq_zero h
 
 def coeff_cert (p₁ p₂ : Poly) (k : Nat) :=
   k > 0 && p₁ == p₂.mul k
@@ -521,7 +521,7 @@ theorem eq_diseq_subst {α} [IntModule α] [NoNatZeroDivisors α] (ctx : Context
       next h => rw [← h]; assumption
       next h => replace h := congrArg (- ·) h; simp at h; rw [← h, IntModule.neg_hmul, h₃, IntModule.neg_zero]
     simpa [hmul_nat] using this
-  have := no_nat_zero_divisors (k₁.natAbs) (p₂.denote ctx) hne this
+  have := NoNatZeroDivisors.eq_zero_of_mul_eq_zero hne this
   contradiction
 
 def eq_diseq_subst1_cert (k : Int) (p₁ p₂ p₃ : Poly) : Bool :=

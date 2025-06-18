@@ -18,6 +18,6 @@ namespace Std.PRange.Nat
 --       forIn' (List.range' r.lower r.size 1) init (fun a h => f a (mem_of_mem_range' h)) := by
 
 theorem ClosedClosed.toList_succ_succ  {m n : Nat} :
-    ((m+1),,(n+1)).toList = (m,,n).toList.map (· + 1) := sorry
+    ((m+1)..(n+1)).toList = (m..n).toList.map (· + 1) := sorry
 
 end Std.PRange.Nat

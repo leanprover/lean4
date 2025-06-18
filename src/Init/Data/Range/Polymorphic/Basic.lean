@@ -13,7 +13,7 @@ open Std.Iterators
 @[always_inline, inline]
 def PRange.iterInternal [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     (r : PRange ⟨sl, su⟩ α) : Iter (α := Types.RangeIterator su α) α :=
-  ⟨⟨BoundedUpwardEnumerable.init r.lower, r.upper⟩⟩
+  ⟨⟨BoundedUpwardEnumerable.init? r.lower, r.upper⟩⟩
 
 @[always_inline, inline]
 def PRange.size [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
@@ -70,7 +70,7 @@ private theorem RangeIterator.isPlausibleIndirectOutput_iff.aux
       obtain ⟨a, ha⟩ := ho'
       rw [ha] at h₂
       refine ⟨a, ha, ?_⟩
-      apply LawfulUpwardEnumerableLowerBound.isValid_of_le r.lower next a
+      apply LawfulUpwardEnumerableLowerBound.isSatisfied_of_le r.lower next a
       · obtain ⟨_, hn', hl⟩ := h
         simp only [hn] at hn'
         cases hn'
@@ -119,7 +119,7 @@ theorem RangeIterator.isPlausibleIndirectOutput_iff'
       refine Iter.IsPlausibleIndirectOutput.indirect ?_ ih
       rw [Types.RangeIterator.isPlausibleSuccessorOf_iff]
       refine ⟨a, ‹_›, ?_, hn', rfl⟩
-      apply LawfulUpwardEnumerableUpperBound.isValid_of_le _ a out
+      apply LawfulUpwardEnumerableUpperBound.isSatisfied_of_le _ a out
       · exact hu
       · exact hle
 
@@ -135,13 +135,13 @@ theorem RangeIterator.isPlausibleIndirectOutput_iff
   constructor
   · rintro ⟨n, hn, hu⟩
     refine ⟨?_, hu⟩
-    rw [LawfulUpwardEnumerableLowerBound.isValid_iff]
+    rw [LawfulUpwardEnumerableLowerBound.isSatisfied_iff]
     cases hr : r.iterInternal.internalState.next
     · simp [hr] at hn
     rw [hr, Option.bind_some] at hn
     exact ⟨_, hr, n, hn⟩
   · rintro ⟨hl, hu⟩
-    rw [LawfulUpwardEnumerableLowerBound.isValid_iff] at hl
+    rw [LawfulUpwardEnumerableLowerBound.isSatisfied_iff] at hl
     obtain ⟨_, hr, n, hn⟩ := hl
     exact ⟨n, by simp [PRange.iterInternal, hr, hn], hu⟩
 

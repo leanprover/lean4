@@ -119,30 +119,54 @@ instance [SupportsLowerBound sl α] [SupportsUpperBound su α] (r : PRange ⟨sl
     Decidable (a ∈ r) :=
   inferInstanceAs <| Decidable (_ ∧ _)
 
+/--
+This typeclass ensures that ranges of the given shape are always finite. This is a prerequisite
+for many functions and instances, such as `PRange.toList` or `ForIn'`.
+-/
 class HasFiniteRanges (shape α) [SupportsUpperBound shape α] : Prop where
   mem_of_satisfiesUpperBound (u : Bound shape α) :
     ∃ enumeration : List α, (a : α) → SupportsUpperBound.IsSatisfied u a → a ∈ enumeration
 
+/--
+This typeclass will usually be used together with `UpwardEnumerable α`. It provides the starting
+point from which to enumerate all the values above the given lower bound.
+-/
 class BoundedUpwardEnumerable (lowerBoundShape : BoundShape) (α : Type u) where
-  init : Bound lowerBoundShape α → Option α
+  init? : Bound lowerBoundShape α → Option α
 
+/--
+This typeclass ensures that the lower bound predicate from `SupportsLowerBound sl α`
+can be characterized in terms of `UpwardEnumerable α` and `BoundedUpwardEnumerable sl α`.
+-/
 class LawfulUpwardEnumerableLowerBound (sl α) [UpwardEnumerable α]
     [SupportsLowerBound sl α] [BoundedUpwardEnumerable sl α] where
-  isValid_iff (a : α) (l : Bound sl α) :
+  /--
+  An element `a` satisfies the lower bound `l` if and only if it is
+  `BoundedUpwardEnumerable.init? l` or one of its transitive successors.
+  -/
+  isSatisfied_iff (a : α) (l : Bound sl α) :
     SupportsLowerBound.IsSatisfied l a ↔
-      ∃ init, BoundedUpwardEnumerable.init l = some init ∧ UpwardEnumerable.le init a
+      ∃ init, BoundedUpwardEnumerable.init? l = some init ∧ UpwardEnumerable.le init a
 
+/--
+This typeclass ensures that if `b` is a transitive successor of `a` and `b` satisfies an upper bound
+of the given shape, then `a` also satisfies the upper bound.
+-/
 class LawfulUpwardEnumerableUpperBound (su α) [UpwardEnumerable α] [SupportsUpperBound su α] where
-  isValid_of_le (u : Bound su α) (a b : α) :
+  /--
+  If `b` is a transitive successor of `a` and `b` satisfies a certain upper bound, then
+  `a` also satisfies the upper bound.
+  -/
+  isSatisfied_of_le (u : Bound su α) (a b : α) :
     SupportsUpperBound.IsSatisfied u b → UpwardEnumerable.le a b → SupportsUpperBound.IsSatisfied u a
 
-theorem LawfulUpwardEnumerableLowerBound.isValid_of_le [SupportsLowerBound sl α]
+theorem LawfulUpwardEnumerableLowerBound.isSatisfied_of_le [SupportsLowerBound sl α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerableLowerBound sl α]
     (l : Bound sl α) (a b : α)
     (ha : SupportsLowerBound.IsSatisfied l a) (hle : UpwardEnumerable.le a b) :
     SupportsLowerBound.IsSatisfied l b := by
-  rw [LawfulUpwardEnumerableLowerBound.isValid_iff] at ⊢ ha
+  rw [LawfulUpwardEnumerableLowerBound.isSatisfied_iff] at ⊢ ha
   obtain ⟨init, hi, ha⟩ := ha
   exact ⟨init, hi, UpwardEnumerable.le_trans ha hle⟩
 
@@ -159,10 +183,10 @@ instance [LE α] [DecidableLE α] : SupportsUpperBound .closed α where
   IsSatisfied bound a := a ≤ bound
 
 instance [Least? α] : BoundedUpwardEnumerable .unbounded α where
-  init _ := Least?.least?
+  init? _ := Least?.least?
 
 instance [UpwardEnumerable α] : BoundedUpwardEnumerable .open α where
-  init lower := UpwardEnumerable.succ? lower
+  init? lower := UpwardEnumerable.succ? lower
 
 instance : BoundedUpwardEnumerable .closed α where
-  init lower := some lower
+  init? lower := some lower

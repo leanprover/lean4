@@ -50,32 +50,32 @@ instance : LawfulUpwardEnumerable Nat where
     exact Nat.ne_of_lt hlt
 
 instance : LawfulUpwardEnumerableLowerBound .closed Nat where
-  isValid_iff a l := by
-    simp [← LawfulUpwardEnumerableLE.le_iff, BoundedUpwardEnumerable.init,
+  isSatisfied_iff a l := by
+    simp [← LawfulUpwardEnumerableLE.le_iff, BoundedUpwardEnumerable.init?,
       SupportsLowerBound.IsSatisfied]
 
 instance : LawfulUpwardEnumerableUpperBound .closed Nat where
-  isValid_of_le u a b hub hab := by
+  isSatisfied_of_le u a b hub hab := by
     rw [← LawfulUpwardEnumerableLE.le_iff] at hab
     exact Nat.le_trans hab hub
 
 instance : LawfulUpwardEnumerableLowerBound .open Nat where
-  isValid_iff a l := by
-    simp [← LawfulUpwardEnumerableLE.le_iff, BoundedUpwardEnumerable.init,
+  isSatisfied_iff a l := by
+    simp [← LawfulUpwardEnumerableLE.le_iff, BoundedUpwardEnumerable.init?,
       SupportsLowerBound.IsSatisfied, UpwardEnumerable.succ?, Nat.lt_iff_add_one_le]
 
 instance : LawfulUpwardEnumerableUpperBound .open Nat where
-  isValid_of_le u a b hub hab := by
+  isSatisfied_of_le u a b hub hab := by
     rw [← LawfulUpwardEnumerableLE.le_iff] at hab
     exact Nat.lt_of_le_of_lt hab hub
 
 instance : LawfulUpwardEnumerableLowerBound .unbounded Nat where
-  isValid_iff a l := by
-    simp [← LawfulUpwardEnumerableLE.le_iff, BoundedUpwardEnumerable.init,
+  isSatisfied_iff a l := by
+    simp [← LawfulUpwardEnumerableLE.le_iff, BoundedUpwardEnumerable.init?,
       SupportsLowerBound.IsSatisfied, Nat.lt_iff_add_one_le, Least?.least?]
 
 instance : LawfulUpwardEnumerableUpperBound .unbounded Nat where
-  isValid_of_le _ _ _ _ _ := .intro
+  isSatisfied_of_le _ _ _ _ _ := .intro
 
 private def rangeRev (k : Nat) :=
   match k with

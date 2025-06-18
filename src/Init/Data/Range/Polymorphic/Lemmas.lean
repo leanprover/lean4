@@ -23,7 +23,7 @@ private theorem iterInternal_open_eq_of_isSome_succ? [UpwardEnumerable α]
     {lo : Bound .open α} {hi} (h : (UpwardEnumerable.succ? lo).isSome) :
     (PRange.mk (shape := ⟨.open, su⟩) lo hi).iterInternal =
       (PRange.mk (shape := ⟨.closed, su⟩) (UpwardEnumerable.succ? lo |>.get h) hi).iterInternal := by
-  simp [PRange.iterInternal, BoundedUpwardEnumerable.init]
+  simp [PRange.iterInternal, BoundedUpwardEnumerable.init?]
 
 private theorem toList_eq_toList_iterInternal [UpwardEnumerable α]
     [BoundedUpwardEnumerable sl α] [SupportsUpperBound su α] [HasFiniteRanges su α]
@@ -78,20 +78,20 @@ theorem toList_eq [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [SupportsUpperBound su α] [HasFiniteRanges su α]
     [LawfulUpwardEnumerable α]
     {r : PRange ⟨sl, su⟩ α} :
-    r.toList = match BoundedUpwardEnumerable.init r.lower with
+    r.toList = match BoundedUpwardEnumerable.init? r.lower with
       | none => []
       | some a => if SupportsUpperBound.IsSatisfied r.upper a then
         a :: (PRange.mk (shape := ⟨.open, su⟩) a r.upper).toList
       else
         [] := by
   rw [toList_eq_toList_iterInternal, toList_eq_match,
-    show r.iterInternal.internalState.next = BoundedUpwardEnumerable.init r.lower by rfl,
+    show r.iterInternal.internalState.next = BoundedUpwardEnumerable.init? r.lower by rfl,
     show r.iterInternal.internalState.upperBound = r.upper by rfl]
   split
   · rfl
   · split
     · simp only [List.cons.injEq, true_and, toList_eq_toList_iterInternal, PRange.iterInternal,
-        BoundedUpwardEnumerable.init]
+        BoundedUpwardEnumerable.init?]
     · rfl
 
 private theorem toList_open_eq_of_isSome_succ? [UpwardEnumerable α]
@@ -107,7 +107,7 @@ theorem toList_eq_nil_iff [UpwardEnumerable α]
     [LawfulUpwardEnumerable α]
     {r : PRange ⟨sl, su⟩ α} :
     r.toList = [] ↔
-      ¬ (∃ a, BoundedUpwardEnumerable.init r.lower = some a ∧ SupportsUpperBound.IsSatisfied r.upper a) := by
+      ¬ (∃ a, BoundedUpwardEnumerable.init? r.lower = some a ∧ SupportsUpperBound.IsSatisfied r.upper a) := by
   rw [toList_eq_toList_iterInternal] --, Iter.toList_eq_match_step, Types.RangeIterator.step_eq_step]
   rw [toList_eq_match, PRange.iterInternal]
   simp only
@@ -221,19 +221,19 @@ theorem forIn'_eq_match [UpwardEnumerable α]
     {r : PRange ⟨sl, su⟩ α}
     {γ : Type u} {init : γ} {m : Type u → Type w} [Monad m] [LawfulMonad m]
     {f : (a : α) → _ → γ → m (ForInStep γ)} :
-    ForIn'.forIn' r init f = match hi : BoundedUpwardEnumerable.init r.lower with
+    ForIn'.forIn' r init f = match hi : BoundedUpwardEnumerable.init? r.lower with
       | none => pure init
       | some a => if hu : SupportsUpperBound.IsSatisfied r.upper a then do
-        match ← f a ⟨by simp [LawfulUpwardEnumerableLowerBound.isValid_iff]; exact ⟨a, hi, 0, by simp [LawfulUpwardEnumerable.succMany?_zero]⟩, hu⟩ init with
+        match ← f a ⟨by simp [LawfulUpwardEnumerableLowerBound.isSatisfied_iff]; exact ⟨a, hi, 0, by simp [LawfulUpwardEnumerable.succMany?_zero]⟩, hu⟩ init with
         | .yield c =>
           ForIn'.forIn' (α := α) (β := γ) (PRange.mk (shape := ⟨.open, su⟩) a r.upper) c
             (fun a ha acc => f a (by
               simp only [Membership.mem] at ha ⊢
               refine ⟨?_, ha.2⟩
-              simp only [LawfulUpwardEnumerableLowerBound.isValid_iff] at ha ⊢
+              simp only [LawfulUpwardEnumerableLowerBound.isSatisfied_iff] at ha ⊢
               obtain ⟨x, hx, n, hn⟩ := ha.1
               refine ⟨_, hi, ?_⟩
-              simp only [BoundedUpwardEnumerable.init] at hx
+              simp only [BoundedUpwardEnumerable.init?] at hx
               refine ⟨n + 1, ?_⟩
               rw [Nat.add_comm, UpwardEnumerable.succMany?_add,
                 LawfulUpwardEnumerable.succMany?_succ, LawfulUpwardEnumerable.succMany?_zero,
@@ -252,7 +252,7 @@ theorem forIn'_eq_match [UpwardEnumerable α]
       apply bind_congr
       intro step
       split
-      · simp [forIn'_eq_forIn'_iterInternal, PRange.iterInternal, BoundedUpwardEnumerable.init]
+      · simp [forIn'_eq_forIn'_iterInternal, PRange.iterInternal, BoundedUpwardEnumerable.init?]
       · simp
     · simp
 

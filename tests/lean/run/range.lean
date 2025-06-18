@@ -3,7 +3,7 @@ import Init.Data.Range.Polymorphic.Nat
 import Init.Data.Range.Polymorphic.Basic
 import Init.System.IO
 import Init.Data.Iterators
-import Init
+import Std.Data.Iterators
 
 def ex1 : IO Unit := do
 IO.println "example 1"

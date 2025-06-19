@@ -145,11 +145,10 @@ theorem getMsb_eq_getLsb (x : BitVec w) (i : Fin w) :
 
 theorem getMsb?_eq_getLsb? (x : BitVec w) (i : Nat) :
     x.getMsb? i = if i < w then x.getLsb? (w - 1 - i) else none := by
-  simp only [getMsb?, getLsb?_eq_getElem?]
-  split <;> simp [getMsb_eq_getLsb] -- FIXME: replacing `simp` with `grind` gives a type mismatch error.
+  grind [getMsb?, getMsb_eq_getLsb]
 
 theorem getMsbD_eq_getLsbD (x : BitVec w) (i : Nat) : x.getMsbD i = (decide (i < w) && x.getLsbD (w - 1 - i)) := by
-  rw [getMsbD, getLsbD] -- FIXME: replacing `rw` with `grind` gives a type mismatch error.
+  grind [getMsbD]
 
 @[deprecated getMsb_eq_getLsb (since := "2025-06-17")]
 theorem getMsb'_eq_getLsb' (x : BitVec w) (i : Nat) : x.getMsbD i = (decide (i < w) && x.getLsbD (w - 1 - i)) := by
@@ -162,8 +161,7 @@ theorem getLsbD_eq_getMsbD (x : BitVec w) (i : Nat) : x.getLsbD i = (decide (i <
   · congr
     omega
   all_goals
-    apply getLsbD_of_ge
-    omega
+    grind
 
 @[simp] theorem getElem?_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : x[i]? = none := by
   simp [ge]

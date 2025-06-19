@@ -19,6 +19,7 @@ We use them to implement the arithmetic theories in `grind`
 
 abbrev Var := Nat
 abbrev Context := Lean.RArray Nat
+@[expose]
 def Var.denote (ctx : Context) (v : Var) : Nat :=
   ctx.get v
 
@@ -31,6 +32,7 @@ inductive Expr where
   | mod  (a b : Expr)
   deriving BEq
 
+@[expose]
 def Expr.denote (ctx : Context) : Expr → Nat
   | .num k    => k
   | .var v    => v.denote ctx
@@ -39,6 +41,7 @@ def Expr.denote (ctx : Context) : Expr → Nat
   | .div a b  => Nat.div (denote ctx a) (denote ctx b)
   | .mod a b  => Nat.mod (denote ctx a) (denote ctx b)
 
+@[expose]
 def Expr.denoteAsInt (ctx : Context) : Expr → Int
   | .num k    => Int.ofNat k
   | .var v    => Int.ofNat (v.denote ctx)

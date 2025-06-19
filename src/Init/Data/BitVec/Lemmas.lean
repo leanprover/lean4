@@ -4119,6 +4119,16 @@ theorem toInt_udiv_of_msb {x : BitVec w} (h : x.msb = false) (y : BitVec w) :
     (x / y).toInt = x.toNat / y.toNat := by
   simp [toInt_eq_msb_cond, msb_udiv_eq_false_of h]
 
+/-- Unsigned division is zero if and only if either the denominator is zero,
+or the numerator is unsigned less than the denominator -/
+theorem udiv_eq_zero_iff_eq_zero_or_lt {x y : BitVec w} :
+     x / y = 0#w ↔ (y = 0#w ∨ x < y) := by
+    simp [toNat_eq, toNat_udiv, toNat_ofNat, Nat.zero_mod, Nat.div_eq_zero_iff, BitVec.lt_def]
+
+theorem udiv_ne_zero_iff_ne_zero_and_le {x y : BitVec w} :
+     ¬ (x / y = 0#w) ↔ (y ≠ 0#w ∧ y ≤ x) := by
+  simp only [ne_eq, udiv_eq_zero_iff_eq_zero_or_lt, _root_.not_or, BitVec.not_lt]
+
 /-! ### umod -/
 
 theorem umod_def {x y : BitVec n} :

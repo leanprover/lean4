@@ -229,7 +229,6 @@ structure PrintImportsResult where
   imports : Array PrintImportResult
   deriving ToJson
 
-@[export lean_print_imports_json]
 def printImportsJson (fileNames : Array String) : IO Unit := do
   let rs ← fileNames.mapM fun fn => do
     try

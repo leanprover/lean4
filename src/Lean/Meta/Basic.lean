@@ -384,7 +384,7 @@ structure Cache where
   funInfo        : FunInfoCache := {}
   synthInstance  : SynthInstanceCache := {}
   whnf           : WhnfCache := {}
-  defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.
+  defEqTrans     : DefEqCache × Nat := ({}, 0) -- transient cache for terms containing mvars or using nonstandard configuration options, it is valid as long as the count matches `MetavarContext.numAssignments`.
   defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options
   deriving Inhabited
 
@@ -574,10 +574,15 @@ instance : AddMessageContext MetaM where
 protected def saveState : MetaM SavedState :=
   return { core := (← Core.saveState), «meta» := (← get) }
 
-/-- Restore backtrackable parts of the state. -/
-def SavedState.restore (b : SavedState) : MetaM Unit := do
+/-- Restore backtrackable parts of the state.
+If `transCache == true`, then also reset the tranient defEq cache -/
+def SavedState.restore (b : SavedState) (transCache : Bool := false) : MetaM Unit := do
   b.core.restore
-  modify fun s => { s with mctx := b.meta.mctx, zetaDeltaFVarIds := b.meta.zetaDeltaFVarIds, postponed := b.meta.postponed }
+  modify fun s => { s with
+    mctx := b.meta.mctx
+    zetaDeltaFVarIds := b.meta.zetaDeltaFVarIds
+    postponed := b.meta.postponed
+    cache.defEqTrans := if transCache then b.meta.cache.defEqTrans else s.cache.defEqTrans }
 
 @[specialize, inherit_doc Core.withRestoreOrSaveFull]
 def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState)) (act : MetaM α) :
@@ -639,8 +644,11 @@ def resetCache : MetaM Unit :=
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
   modifyCache fun ⟨ic, c1, c2, c3, c4, c5⟩ => ⟨f ic, c1, c2, c3, c4, c5⟩
 
-@[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5⟩
+@[inline] def modifyDefEqTransientCache (numAssignments : Nat) (f : DefEqCache → DefEqCache) : MetaM Unit :=
+  modifyCache fun c =>
+    let (transCache, numAssignmentsOld) := c.defEqTrans
+    let transCache := if numAssignments == numAssignmentsOld then transCache else {}
+    { c with defEqTrans := (f transCache, numAssignments) }
 
 @[inline] def modifyDefEqPermCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
   modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm⟩
@@ -657,6 +665,9 @@ def mkDefEqCacheKey (lhs rhs : Expr) : MetaM DefEqCacheKey := do
 
 def mkInfoCacheKey (expr : Expr) (nargs? : Option Nat) : MetaM InfoCacheKey :=
   return { expr, nargs?, configKey := (← read).configKey }
+
+@[inline] def resetDefEqTransientCache : MetaM Unit :=
+  modify fun s => { s with cache.defEqTrans := ({}, s.mctx.numAssignments) }
 
 @[inline] def resetDefEqPermCaches : MetaM Unit :=
   modifyDefEqPermCache fun _ => {}
@@ -2349,16 +2360,6 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
 -/
 @[specialize] def checkpointDefEq (x : MetaM Bool) (mayPostpone : Bool := true) : MetaM Bool := do
   let s ← saveState
-  /-
-    It is not safe to use the `isDefEq` cache between different `isDefEq` calls.
-    Reason: different configuration settings, and result depends on the state of the `MetavarContext`
-    We have tried in the past to track when the result was independent of the `MetavarContext` state
-    but it was not effective. It is more important to cache aggressively inside of a single `isDefEq`
-    call because some of the heuristics create many similar subproblems.
-    See issue #1102 for an example that triggers an exponential blowup if we don't use this more
-    aggressive form of caching.
-  -/
-  modifyDefEqTransientCache fun _ => {}
   let postponed ← getResetPostponed
   try
     if (← x) then
@@ -2367,10 +2368,14 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
         setPostponed (postponed ++ newPostponed)
         return true
       else
-        s.restore
+        -- The transient cache needs to be reverted if it assumes an assignments that is being reverted.
+        let invalidCache := s.meta.mctx.numAssignments < (← get).cache.defEqTrans.2
+        s.restore (transCache := invalidCache)
         return false
     else
-      s.restore
+      -- The transient cache needs to be reverted if it assumes an assignments that is being reverted.
+      let invalidCache := s.meta.mctx.numAssignments < (← get).cache.defEqTrans.2
+      s.restore (transCache := invalidCache)
       return false
   catch ex =>
     s.restore
@@ -2405,6 +2410,16 @@ def isExprDefEq (t s : Expr) : MetaM Bool :=
     Remark: the kernel does *not* update the type of variables in the local context.
     -/
     resetDefEqPermCaches
+    /-
+      It is not safe to use the transient `isDefEq` cache between different `isDefEq` calls.
+      Reason: different configuration settings, and result depends on the state of the `MetavarContext`
+      We have tried in the past to track when the result was independent of the `MetavarContext` state
+      but it was not effective. It is more important to cache aggressively inside of a single `isDefEq`
+      call because some of the heuristics create many similar subproblems.
+      See issue #1102 for an example that triggers an exponential blowup if we don't use this more
+      aggressive form of caching.
+    -/
+    resetDefEqTransientCache
     checkpointDefEq (mayPostpone := true) <| Meta.isExprDefEqAux t s
 
 /--

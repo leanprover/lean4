@@ -80,7 +80,7 @@ where
       if !isStructureLike (← getEnv) ctorVal.induct then
         trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
         return false
-      else if (← isDefEq (← inferType a) (← inferType b)) then
+      else if (← checkpointDefEq <| Meta.isExprDefEqAux (← inferType a) (← inferType b)) then
         checkpointDefEq do
           let args := b.getAppArgs
           let params := args[*...ctorVal.numParams].toArray
@@ -95,7 +95,7 @@ where
                 -- See comment at `isAbstractedUnassignedMVar`.
                 continue
             trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{j}], {proj} =?= {args[i]}"
-            unless (← isDefEq proj args[i]) do
+            unless (← Meta.isExprDefEqAux proj args[i]) do
               trace[Meta.isDefEq.eta.struct] "failed, unexpected arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]}"
               return false
           return true
@@ -316,7 +316,7 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     let info := finfo.paramInfo[i]!
     if info.isInstImplicit then
       unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do
-       return false
+        return false
     else
       unless (← Meta.isExprDefEqAux a₁ a₂) do
         return false
@@ -1240,7 +1240,7 @@ private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :
   ```
 -/
 private def processAssignment' (mvarApp : Expr) (v : Expr) : MetaM Bool := do
-  if (← processAssignment mvarApp v) then
+  if (← checkpointDefEq <| processAssignment mvarApp v) then
     return true
   else
     let vNew ← whnf v
@@ -1248,7 +1248,7 @@ private def processAssignment' (mvarApp : Expr) (v : Expr) : MetaM Bool := do
       if mvarApp == vNew then
         return true
       else
-        processAssignment mvarApp vNew
+        checkpointDefEq <| processAssignment mvarApp vNew
     else
       return false
 
@@ -1629,7 +1629,7 @@ private def isDefEqProofIrrel (t s : Expr) : MetaM LBool := do
 private def isDefEqMVarSelf (mvar : Expr) (args₁ args₂ : Array Expr) : MetaM Bool := do
   if args₁.size != args₂.size then
     pure false
-  else if (← isDefEqArgs mvar args₁ args₂) then
+  else if (← checkpointDefEq <| isDefEqArgs mvar args₁ args₂) then
     pure true
   else if !(← isAssignable mvar) then
     pure false
@@ -1861,8 +1861,8 @@ end
 
 private def isDefEqOnFailure (t s : Expr) : MetaM Bool := do
   withTraceNodeBefore `Meta.isDefEq.onFailure (return m!"{t} =?= {s}") do
-    unstuckMVar t (fun t => Meta.isExprDefEqAux t s) <|
-    unstuckMVar s (fun s => Meta.isExprDefEqAux t s) <|
+    unstuckMVar t (fun t => checkpointDefEq <| Meta.isExprDefEqAux t s) <|
+    unstuckMVar s (fun s => checkpointDefEq <| Meta.isExprDefEqAux t s) <|
     tryUnificationHints t s <||> tryUnificationHints s t
 
 /--
@@ -1940,11 +1940,11 @@ private def isDefEqProj : Expr → Expr → MetaM Bool
   | .proj m i t, .proj n j s => do
     if (← read).inTypeClassResolution then
       -- See comment at `inTypeClassResolution`
-      pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
+      pure (i == j && m == n) <&&> checkpointDefEq (Meta.isExprDefEqAux t s)
     else if !backward.isDefEq.lazyProjDelta.get (← getOptions) then
-      pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
+      pure (i == j && m == n) <&&> checkpointDefEq (Meta.isExprDefEqAux t s)
     else if i == j && m == n then
-      isDefEqProjDelta t s i
+      checkpointDefEq (isDefEqProjDelta t s i)
     else
       return false
   | .proj structName 0 s, v  => isDefEqSingleton structName s v
@@ -2061,12 +2061,12 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
       isDefEqOnFailure t s
 
 inductive DefEqCacheKind where
-  | transient -- problem has mvars or is using nonstandard configuration, we should use transient cache
+  | transient (numAssignments : Nat) -- problem has mvars or is using nonstandard configuration, we should use transient cache
   | permanent -- problem does not have mvars and we are using standard config, we can use one persistent cache.
 
 private def getDefEqCacheKind (t s : Expr) : MetaM DefEqCacheKind := do
   if t.hasMVar || s.hasMVar || (← read).canUnfold?.isSome then
-    return .transient
+    return .transient (← getMCtx).numAssignments
   else
     return .permanent
 
@@ -2084,7 +2084,12 @@ private def mkCacheKey (t s : Expr) : MetaM DefEqCacheKeyInfo := do
 
 private def getCachedResult (keyInfo : DefEqCacheKeyInfo) : MetaM LBool := do
   let cache ← match keyInfo.kind with
-    | .transient => pure (← get).cache.defEqTrans
+    | .transient numAssignments =>
+      let (cache, numAssignmentsCache) := (← get).cache.defEqTrans
+      if numAssignments == numAssignmentsCache then
+        pure cache
+      else
+        return .undef
     | .permanent => pure (← get).cache.defEqPerm
   match cache.find? keyInfo.key with
   | some val => return val.toLBool
@@ -2094,14 +2099,17 @@ private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Un
   let key := keyInfo.key
   match keyInfo.kind with
   | .permanent => modifyDefEqPermCache fun c => c.insert key result
-  | .transient =>
+  | .transient numAssignmentsOld =>
     /-
-    We must ensure that all assigned metavariables in the key are replaced by their current assignments.
-    Otherwise, the key is invalid after the assignment is "backtracked".
-    See issue #1870 for an example.
+    If the result is `false`, we cache it at `numAssignmentsOld`.
+    If the result is `true`, we check that the number of assignments hasn't increased.
     -/
-    let key ← mkDefEqCacheKey (← instantiateMVars key.lhs) (← instantiateMVars key.rhs)
-    modifyDefEqTransientCache fun c => c.insert key result
+    if !result then
+      modifyDefEqTransientCache numAssignmentsOld fun c => c.insert key result
+    else
+      let numAssignmentsNew := (← getMCtx).numAssignments
+      if numAssignmentsOld == numAssignmentsNew then
+        modifyDefEqTransientCache numAssignmentsNew fun c => c.insert key result
 
 private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
   if backward.isDefEq.lazyWhnfCore.get (← getOptions) then

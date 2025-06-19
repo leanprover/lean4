@@ -35,16 +35,6 @@ fun {motive_1} {motive_2} t =>
 #print Tree.below_1
 
 /--
-info: @[reducible] protected def Ex1.Tree.ibelow_1 : {motive_1 : Tree → Prop} →
-  {motive_2 : List.{0} Tree → Prop} → List.{0} Tree → Prop :=
-fun {motive_1} {motive_2} t =>
-  Tree.rec_1.{1} (fun a a_ih => And (motive_2 a) a_ih) True
-    (fun head tail head_ih tail_ih => And (And (motive_1 head) head_ih) (And (motive_2 tail) tail_ih)) t
--/
-#guard_msgs in
-#print Tree.ibelow_1
-
-/--
 info: Ex1.Tree.brecOn.{u} {motive_1 : Tree → Sort u} {motive_2 : List.{0} Tree → Sort u} (t : Tree)
   (F_1 : (t : Tree) → Tree.below.{u} t → motive_1 t) (F_2 : (t : List.{0} Tree) → Tree.below_1.{u} t → motive_2 t) :
   motive_1 t
@@ -59,14 +49,6 @@ info: Ex1.Tree.brecOn_1.{u} {motive_1 : Tree → Sort u} {motive_2 : List.{0} Tr
 -/
 #guard_msgs in
 #check Tree.brecOn_1
-
-/--
-info: Ex1.Tree.binductionOn_1 {motive_1 : Tree → Prop} {motive_2 : List.{0} Tree → Prop} (t : List.{0} Tree)
-  (F_1 : ∀ (t : Tree), Tree.ibelow t → motive_1 t) (F_2 : ∀ (t : List.{0} Tree), Tree.ibelow_1 t → motive_2 t) :
-  motive_2 t
--/
-#guard_msgs in
-#check Tree.binductionOn_1
 
 end Ex1
 
@@ -145,15 +127,6 @@ info: Ex2.Tree.brecOn_2.{u} {motive_1 : Tree → Sort u} {motive_2 : List.{0} (L
 #guard_msgs in
 #check Tree.brecOn_2
 
-/--
-info: Ex2.Tree.binductionOn_2 {motive_1 : Tree → Prop} {motive_2 : List.{0} (List.{0} Tree) → Prop}
-  {motive_3 : List.{0} Tree → Prop} (t : List.{0} Tree) (F_1 : ∀ (t : Tree), Tree.ibelow t → motive_1 t)
-  (F_2 : ∀ (t : List.{0} (List.{0} Tree)), Tree.ibelow_1 t → motive_2 t)
-  (F_3 : ∀ (t : List.{0} Tree), Tree.ibelow_2 t → motive_3 t) : motive_3 t
--/
-#guard_msgs in
-#check Tree.binductionOn_2
-
 end Ex2
 
 namespace Ex3
@@ -193,13 +166,5 @@ info: Ex3.Tree.brecOn_1.{u_1, u} {motive_1 : Tree.{u} → Sort u_1} {motive_2 : 
 -/
 #guard_msgs in
 #check Tree.brecOn_1
-
-/--
-info: Ex3.Tree.binductionOn_1.{u} {motive_1 : Tree.{u} → Prop} {motive_2 : List.{u} Tree.{u} → Prop} (t : List.{u} Tree.{u})
-  (F_1 : ∀ (t : Tree.{u}), Tree.ibelow.{u} t → motive_1 t)
-  (F_2 : ∀ (t : List.{u} Tree.{u}), Tree.ibelow_1.{u} t → motive_2 t) : motive_2 t
--/
-#guard_msgs in
-#check Tree.binductionOn_1
 
 end Ex3

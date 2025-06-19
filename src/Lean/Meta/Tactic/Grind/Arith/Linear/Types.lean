@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Std.Internal.Rat
-import Init.Grind.CommRing.Poly
+import Init.Grind.Ring.Poly
 import Init.Grind.Ordered.Linarith
 import Lean.Data.PersistentArray
 import Lean.Meta.Tactic.Grind.ExprPtr

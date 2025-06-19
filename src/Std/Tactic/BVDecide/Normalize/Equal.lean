@@ -5,7 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Init.Data.Bool
-import Init.Data.BitVec
+import Init.Data.BitVec.Lemmas
 
 /-!
 This module contains the equality simplifying part of the `bv_normalize` simp set.

@@ -82,6 +82,7 @@ LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Widget_diffInteractiveGoals___s
 static lean_object* l_Lean_Widget_diffInteractiveGoals___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Widget_exprDiffCore_piDiff___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_diffInteractiveGoal___closed__8;
+lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Lean_SubExpr_Pos_toString(lean_object*);
 lean_object* l_Array_zip___rarg(lean_object*, lean_object*);
@@ -215,7 +216,6 @@ LEAN_EXPORT lean_object* l_Lean_RBMap_toList___at_Lean_Widget_instToStringExprDi
 lean_object* l_Lean_throwError___at_Lean_Meta_instantiateForallWithParamInfos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Widget_exprDiffCore_piDiff___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
-lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_addDiffTags___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_diffInteractiveGoals___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4248,7 +4248,7 @@ lean_closure_set(x_50, 1, x_24);
 lean_closure_set(x_50, 2, x_16);
 lean_closure_set(x_50, 3, x_28);
 x_51 = 0;
-x_52 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_10, x_13, x_11, x_50, x_51, x_3, x_4, x_5, x_6, x_34);
+x_52 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_10, x_13, x_11, x_50, x_51, x_3, x_4, x_5, x_6, x_34);
 if (lean_obj_tag(x_52) == 0)
 {
 uint8_t x_53; 
@@ -4354,7 +4354,7 @@ lean_closure_set(x_79, 1, x_24);
 lean_closure_set(x_79, 2, x_16);
 lean_closure_set(x_79, 3, x_28);
 x_80 = 0;
-x_81 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_10, x_13, x_11, x_79, x_80, x_3, x_4, x_5, x_6, x_62);
+x_81 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_10, x_13, x_11, x_79, x_80, x_3, x_4, x_5, x_6, x_62);
 if (lean_obj_tag(x_81) == 0)
 {
 lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; 

@@ -2407,6 +2407,7 @@ default:
 lean_object* x_25; 
 lean_free_object(x_10);
 x_25 = l_Lean_Expr_letFun_x3f(x_16);
+lean_dec(x_16);
 if (lean_obj_tag(x_25) == 0)
 {
 lean_object* x_26; lean_object* x_27; uint8_t x_28; 
@@ -2564,6 +2565,7 @@ default:
 {
 lean_object* x_61; 
 x_61 = l_Lean_Expr_letFun_x3f(x_50);
+lean_dec(x_50);
 if (lean_obj_tag(x_61) == 0)
 {
 lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; 

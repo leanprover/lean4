@@ -60,27 +60,27 @@ theorem mapM'_eq_mapM [Monad m] [LawfulMonad m] {f : α → m β} {l : List α} 
     | [], acc => by simp [mapM.loop, mapM']
     | a::l, acc => by simp [go l, mapM.loop, mapM']
 
-@[simp] theorem mapM_nil [Monad m] {f : α → m β} : [].mapM f = pure [] := rfl
+@[simp, grind =] theorem mapM_nil [Monad m] {f : α → m β} : [].mapM f = pure [] := rfl
 
-@[simp] theorem mapM_cons [Monad m] [LawfulMonad m] {f : α → m β} :
+@[simp, grind =] theorem mapM_cons [Monad m] [LawfulMonad m] {f : α → m β} :
     (a :: l).mapM f = (return (← f a) :: (← l.mapM f)) := by simp [← mapM'_eq_mapM, mapM']
 
 @[simp] theorem mapM_pure [Monad m] [LawfulMonad m] {l : List α} {f : α → β} :
     l.mapM (m := m) (pure <| f ·) = pure (l.map f) := by
   induction l <;> simp_all
 
-@[simp] theorem idRun_mapM {l : List α} {f : α → Id β} : (l.mapM f).run = l.map (f · |>.run) :=
+@[simp, grind =] theorem idRun_mapM {l : List α} {f : α → Id β} : (l.mapM f).run = l.map (f · |>.run) :=
   mapM_pure
 
 @[deprecated idRun_mapM (since := "2025-05-21")]
 theorem mapM_id {l : List α} {f : α → Id β} : (l.mapM f).run = l.map (f · |>.run) :=
   mapM_pure
 
-@[simp] theorem mapM_map [Monad m] [LawfulMonad m] {f : α → β} {g : β → m γ} {l : List α} :
+@[simp, grind =] theorem mapM_map [Monad m] [LawfulMonad m] {f : α → β} {g : β → m γ} {l : List α} :
     (l.map f).mapM g = l.mapM (g ∘ f) := by
   induction l <;> simp_all
 
-@[simp] theorem mapM_append [Monad m] [LawfulMonad m] {f : α → m β} {l₁ l₂ : List α} :
+@[simp, grind =] theorem mapM_append [Monad m] [LawfulMonad m] {f : α → m β} {l₁ l₂ : List α} :
     (l₁ ++ l₂).mapM f = (return (← l₁.mapM f) ++ (← l₂.mapM f)) := by induction l₁ <;> simp [*]
 
 /-- Auxiliary lemma for `mapM_eq_reverse_foldlM_cons`. -/
@@ -106,7 +106,7 @@ theorem mapM_eq_reverse_foldlM_cons [Monad m] [LawfulMonad m] {f : α → m β} 
 
 /-! ### filterMapM -/
 
-@[simp] theorem filterMapM_nil [Monad m] {f : α → m (Option β)} : [].filterMapM f = pure [] := rfl
+@[simp, grind =] theorem filterMapM_nil [Monad m] {f : α → m (Option β)} : [].filterMapM f = pure [] := rfl
 
 theorem filterMapM_loop_eq [Monad m] [LawfulMonad m] {f : α → m (Option β)} {l : List α} {acc : List β} :
     filterMapM.loop f l acc = (acc.reverse ++ ·) <$> filterMapM.loop f l [] := by
@@ -121,7 +121,7 @@ theorem filterMapM_loop_eq [Monad m] [LawfulMonad m] {f : α → m (Option β)} 
     · rw [ih, ih (acc := [b])]
       simp
 
-@[simp] theorem filterMapM_cons [Monad m] [LawfulMonad m] {f : α → m (Option β)} :
+@[simp, grind =] theorem filterMapM_cons [Monad m] [LawfulMonad m] {f : α → m (Option β)} :
     (a :: l).filterMapM f = do
       match (← f a) with
       | none => filterMapM f l
@@ -137,7 +137,7 @@ theorem filterMapM_loop_eq [Monad m] [LawfulMonad m] {f : α → m (Option β)} 
 
 /-! ### flatMapM -/
 
-@[simp] theorem flatMapM_nil [Monad m] {f : α → m (List β)} : [].flatMapM f = pure [] := rfl
+@[simp, grind =] theorem flatMapM_nil [Monad m] {f : α → m (List β)} : [].flatMapM f = pure [] := rfl
 
 theorem flatMapM_loop_eq [Monad m] [LawfulMonad m] {f : α → m (List β)} {l : List α} {acc : List (List β)} :
     flatMapM.loop f l acc = (acc.reverse.flatten ++ ·) <$> flatMapM.loop f l [] := by
@@ -150,7 +150,7 @@ theorem flatMapM_loop_eq [Monad m] [LawfulMonad m] {f : α → m (List β)} {l :
     rw [ih, ih (acc := [bs])]
     simp
 
-@[simp] theorem flatMapM_cons [Monad m] [LawfulMonad m] {f : α → m (List β)} :
+@[simp, grind =] theorem flatMapM_cons [Monad m] [LawfulMonad m] {f : α → m (List β)} :
     (a :: l).flatMapM f = do
       let bs ← f a
       return (bs ++ (← l.flatMapM f)) := by
@@ -230,11 +230,11 @@ theorem forM_cons' [Monad m] :
     (a::as).forM f = (f a >>= fun _ => as.forM f : m PUnit) :=
   List.forM_cons
 
-@[simp] theorem forM_append [Monad m] [LawfulMonad m] {l₁ l₂ : List α} {f : α → m PUnit} :
+@[simp, grind =] theorem forM_append [Monad m] [LawfulMonad m] {l₁ l₂ : List α} {f : α → m PUnit} :
     forM (l₁ ++ l₂) f = (do forM l₁ f; forM l₂ f) := by
   induction l₁ <;> simp [*]
 
-@[simp] theorem forM_map [Monad m] [LawfulMonad m] {l : List α} {g : α → β} {f : β → m PUnit} :
+@[simp, grind =] theorem forM_map [Monad m] [LawfulMonad m] {l : List α} {g : α → β} {f : β → m PUnit} :
     forM (l.map g) f = forM l (fun a => f (g a)) := by
   induction l <;> simp [*]
 
@@ -257,7 +257,7 @@ theorem forIn'_loop_congr [Monad m] {as bs : List α}
       · simp
         rw [ih]
 
-@[simp] theorem forIn'_cons [Monad m] {a : α} {as : List α}
+@[simp, grind =] theorem forIn'_cons [Monad m] {a : α} {as : List α}
     (f : (a' : α) → a' ∈ a :: as → β → m (ForInStep β)) (b : β) :
     forIn' (a::as) b f = f a mem_cons_self b >>=
       fun | ForInStep.done b => pure b | ForInStep.yield b => forIn' as b fun a' m b => f a' (mem_cons_of_mem a m) b := by
@@ -270,7 +270,7 @@ theorem forIn'_loop_congr [Monad m] {as bs : List α}
     intros
     rfl
 
-@[simp] theorem forIn_cons [Monad m] (f : α → β → m (ForInStep β)) (a : α) (as : List α) (b : β) :
+@[simp, grind =] theorem forIn_cons [Monad m] (f : α → β → m (ForInStep β)) (a : α) (as : List α) (b : β) :
     forIn (a::as) b f = f a b >>= fun | ForInStep.done b => pure b | ForInStep.yield b => forIn as b f := by
   have := forIn'_cons (a := a) (as := as) (fun a' _ b => f a' b) b
   simpa only [forIn'_eq_forIn]
@@ -363,7 +363,7 @@ theorem forIn'_yield_eq_foldl
       l.attach.foldl (fun b ⟨a, h⟩ => f a h b) init :=
   forIn'_pure_yield_eq_foldl _ _
 
-@[simp] theorem forIn'_map [Monad m] [LawfulMonad m]
+@[simp, grind =] theorem forIn'_map [Monad m] [LawfulMonad m]
     {l : List α} (g : α → β) (f : (b : β) → b ∈ l.map g → γ → m (ForInStep γ)) :
     forIn' (l.map g) init f = forIn' l init fun a h y => f (g a) (mem_map_of_mem h) y := by
   induction l generalizing init <;> simp_all
@@ -422,7 +422,7 @@ theorem forIn_yield_eq_foldl
       l.foldl (fun b a => f a b) init :=
   forIn_pure_yield_eq_foldl _ _
 
-@[simp] theorem forIn_map [Monad m] [LawfulMonad m]
+@[simp, grind =] theorem forIn_map [Monad m] [LawfulMonad m]
     {l : List α} {g : α → β} {f : β → γ → m (ForInStep γ)} :
     forIn (l.map g) init f = forIn l init fun a y => f (g a) y := by
   induction l generalizing init <;> simp_all

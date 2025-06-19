@@ -98,14 +98,14 @@ structure Config where
   /-- If `trace` is `true`, `grind` records used E-matching theorems and case-splits. -/
   trace : Bool := false
   /-- Maximum number of case-splits in a proof search branch. It does not include splits performed during normalization. -/
-  splits : Nat := 8
+  splits : Nat := 9
   /-- Maximum number of E-matching (aka heuristic theorem instantiation) rounds before each case split. -/
   ematch : Nat := 5
   /--
   Maximum term generation.
   The input goal terms have generation 0. When we instantiate a theorem using a term from generation `n`,
   the new terms have generation `n+1`. Thus, this parameter limits the length of an instantiation chain. -/
-  gen : Nat := 5
+  gen : Nat := 8
   /-- Maximum number of theorem instances generated using E-matching in a proof search tree branch. -/
   instances : Nat := 1000
   /-- If `matchEqs` is `true`, `grind` uses `match`-equations as E-matching theorems. -/

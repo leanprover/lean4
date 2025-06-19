@@ -69,6 +69,7 @@ size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_MVarId_rewrite___lambda__3___closed__15;
 LEAN_EXPORT lean_object* l_Lean_MVarId_rewrite___lambda__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_MVarId_rewrite___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasBinderNameHint(lean_object*);
 static lean_object* l_Lean_MVarId_rewrite___lambda__2___closed__4;
 LEAN_EXPORT lean_object* l_Lean_MVarId_rewrite___lambda__3___boxed(lean_object**);
@@ -147,7 +148,6 @@ size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_rewrite___lambda__15___boxed(lean_object**);
 static lean_object* l_Lean_MVarId_rewrite___lambda__5___closed__2;
 static lean_object* l_Lean_MVarId_rewrite___lambda__3___closed__17;
-lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_rewrite___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_rewrite___lambda__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_rewrite___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1390,7 +1390,7 @@ lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_13);
 lean_inc(x_2);
-x_27 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_21, x_22, x_2, x_25, x_26, x_13, x_14, x_15, x_16, x_24);
+x_27 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_21, x_22, x_2, x_25, x_26, x_13, x_14, x_15, x_16, x_24);
 if (lean_obj_tag(x_27) == 0)
 {
 lean_object* x_28; uint8_t x_29; 
@@ -2820,7 +2820,7 @@ lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_13);
 lean_inc(x_2);
-x_27 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_21, x_22, x_2, x_25, x_26, x_13, x_14, x_15, x_16, x_24);
+x_27 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_21, x_22, x_2, x_25, x_26, x_13, x_14, x_15, x_16, x_24);
 if (lean_obj_tag(x_27) == 0)
 {
 lean_object* x_28; uint8_t x_29; 
@@ -4234,7 +4234,7 @@ lean_inc(x_16);
 lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_2);
-x_28 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_22, x_23, x_2, x_26, x_27, x_14, x_15, x_16, x_17, x_25);
+x_28 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_22, x_23, x_2, x_26, x_27, x_14, x_15, x_16, x_17, x_25);
 if (lean_obj_tag(x_28) == 0)
 {
 lean_object* x_29; uint8_t x_30; 
@@ -5658,7 +5658,7 @@ lean_inc(x_16);
 lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_2);
-x_28 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_22, x_23, x_2, x_26, x_27, x_14, x_15, x_16, x_17, x_25);
+x_28 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_22, x_23, x_2, x_26, x_27, x_14, x_15, x_16, x_17, x_25);
 if (lean_obj_tag(x_28) == 0)
 {
 lean_object* x_29; uint8_t x_30; 

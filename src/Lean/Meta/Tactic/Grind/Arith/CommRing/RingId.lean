@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Grind.CommRing.Field
+import Init.Grind.Ring.Field
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
 
@@ -129,7 +129,7 @@ where
     let commRing := mkApp (mkConst ``Grind.CommRing [u]) type
     let .some commRingInst ← trySynthInstance commRing | return none
     trace_goal[grind.ring] "new ring: {type}"
-    let charInst? ← getIsCharInst? u type ringInst
+    let charInst? ← getIsCharInst? u type semiringInst
     let noZeroDivInst? ← getNoZeroDivInst? u type
     trace_goal[grind.ring] "NoNatZeroDivisors available: {noZeroDivInst?.isSome}"
     let field := mkApp (mkConst ``Grind.Field [u]) type

@@ -950,10 +950,8 @@ private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
     if hasUnit then mkCasesOn n
     if hasUnit && hasEq && hasHEq then mkNoConfusion n
     if hasUnit && hasProd then mkBelow n
-    if hasUnit && hasProd then mkIBelow n
   for n in declNames do
     if hasUnit && hasProd then mkBRecOn n
-    if hasUnit && hasProd then mkBInductionOn n
 
 private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM FinalizeContext := do
   let view0 := elabs[0]!.view

@@ -263,7 +263,7 @@ def tryAllArgs (fnNames : Array Name) (fixedParamPerms : FixedParamPerms) (xs : 
           -- Check that the group actually has a brecOn (we used to check this in getRecArgInfo,
           -- but in the first phase we do not want to rule-out non-recursive types like `Array`, which
           -- are ok in a nested group. This logic can maybe simplified)
-          unless (← hasConst (group.brecOnName false 0)) do
+          unless (← hasConst (group.brecOnName 0)) do
             throwError "the type {group} does not have a `.brecOn` recursor"
           let r ← k comb
           trace[Elab.definition.structural] "tryAllArgs report:\n{report}"

@@ -9,8 +9,8 @@ prelude
 import all Init.Data.Array.Lex.Basic
 import Init.Data.Array.Lemmas
 import Init.Data.List.Lex
-import Init.Data.Range.New.Lemmas
-import Init.Data.Range.New.NatLemmas
+import Init.Data.Range.Polymorphic.Lemmas
+import Init.Data.Range.Polymorphic.NatLemmas
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.

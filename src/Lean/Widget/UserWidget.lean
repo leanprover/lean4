@@ -360,7 +360,7 @@ structure PanelWidgetInstance extends WidgetInstance where
   /-- The syntactic span in the Lean file at which the panel widget is displayed. -/
   range? : Option Lsp.Range := none
   /-- When present, the infoview will wrap the widget
-  in `<details><summary>{name}</summary>...</details>`.
+  in `<details><summary>{name}</summary>,,</details>`.
   This functionality is deprecated
   but retained for backwards compatibility
   with `UserWidgetDefinition`. -/

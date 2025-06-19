@@ -47,4 +47,22 @@ Returns `true` if `declName` is the name of a `match` equational theorem.
 def isMatchEqnTheorem (env : Environment) (declName : Name) : Bool := Id.run do
   matchEqnsExt.findStateAsync env declName |>.eqns.contains declName
 
+/- We generate the equations and splitter on demand, and do not save them on .olean files. -/
+builtin_initialize matchDiscrCongrExt : EnvExtension (PHashMap Name (Name × Array Bool)) ←
+  -- Using `local` allows us to use the extension in `realizeConst` without specifying `replay?`.
+  -- The resulting state can still be accessed on the generated declarations using `findStateAsync`;
+  -- see below
+  registerEnvExtension (pure {}) (asyncMode := .local)
+
+def registerDiscrCongr (matchDeclName : Name) (congrName : Name) (mask : Array Bool) : CoreM Unit := do
+  modifyEnv fun env => matchDiscrCongrExt.modifyState env fun map =>
+    map.insert matchDeclName (congrName, mask)
+
+/-
+Forward definition. We want to use `getDiscrCongr` in the simplifier but `getDiscrCongr` is
+defined in `Lean.Meta.Match.MatchEqns` which depends on the simplifier.
+-/
+@[extern "lean_get_match_discr_congr"]
+opaque getDiscrCongr (matchDeclName : Name) : MetaM (Name × Array Bool)
+
 end Lean.Meta.Match

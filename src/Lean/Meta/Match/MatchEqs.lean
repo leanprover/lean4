@@ -923,17 +923,6 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
       idx := idx + 1
     registerMatchcongrEqns matchDeclName eqnNames
 
-/- We generate the equations and splitter on demand, and do not save them on .olean files. -/
-builtin_initialize matchDiscrCongrExt : EnvExtension (PHashMap Name (Name × Array Bool)) ←
-  -- Using `local` allows us to use the extension in `realizeConst` without specifying `replay?`.
-  -- The resulting state can still be accessed on the generated declarations using `findStateAsync`;
-  -- see below
-  registerEnvExtension (pure {}) (asyncMode := .local)
-
-def registerDiscrCongr (matchDeclName : Name) (congrName : Name) (mask : Array Bool) : CoreM Unit := do
-  modifyEnv fun env => matchDiscrCongrExt.modifyState env fun map =>
-    map.insert matchDeclName (congrName, mask)
-
 /--
 Make an equality hypothesis for every discriminant where `mask` is `true`.
 -/
@@ -1039,6 +1028,7 @@ Generates the discriminant congruence principle for a matcher and returns its na
 The first arguments of the congruence principle are exactly the same as the parameters of the
 `match` application. The remaining arguments are (alternating) right-hand side discriminants and
 equalities relating them with left-hand side discriminants (i.e. `(a' : α) (ha : a = a') ...`).
+The result is a heterogenous equality of the match applications.
 
 However, not all discriminants have equalities associated to them, in particular proofs and values
 with (non-proof) forward dependencies. Which of the discriminants that is, is recorded in the
@@ -1048,7 +1038,8 @@ returned mask -- there is an equality associated to the `i`th discriminant (from
 This congruence principle is used by `simp` to implement discriminant congruence on `match`
 applications.
 -/
-def getDiscrCongr (matchDeclName : Name) : MetaM (Name × Array Bool) := do
+@[export lean_get_match_discr_congr]
+def getDiscrCongrImpl (matchDeclName : Name) : MetaM (Name × Array Bool) := do
   let baseName := mkPrivateName (← getEnv) matchDeclName
   let discrCongrName := .str baseName "discr_congr"
   realizeConst matchDeclName discrCongrName (go discrCongrName)

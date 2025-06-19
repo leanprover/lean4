@@ -35,7 +35,7 @@ s!"-- This module serves as the root of the `{libName}` library.
 import {libRoot}.Basic
 "
 
-def mathlibLibRootFileContents (libName : String) (libRoot : Name) :=
+def mathlibLibRootFileContents (libRoot : Name) :=
 s!"import {libRoot}.Basic
 "
 
@@ -441,7 +441,7 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
       IO.FS.createDirAll libDir
       IO.FS.writeFile basicFile basicFileContents
     let rootContents := if tmp = .mathlibDep then
-      mathlibLibRootFileContents root.toString root
+      mathlibLibRootFileContents root
     else
       libRootFileContents root.toString root
     IO.FS.writeFile rootFile rootContents

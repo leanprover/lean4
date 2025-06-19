@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.ACLt
+import Lean.Meta.Match.DiscrCongr
 import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.AppBuilder
 import Lean.Meta.SynthInstance

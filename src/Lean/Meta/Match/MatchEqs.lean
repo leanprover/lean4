@@ -1114,7 +1114,7 @@ private def isMatchEqName? (env : Environment) (n : Name) : Option (Name × EqnK
   let kind ←
     if isEqnReservedNameSuffix s || s == "splitter" then some EqnKind.eqn
     else if isCongrEqnReservedNameSuffix s then some EqnKind.congrEqn
-    else if s == "discr_congr" then some EqnKind.eqn
+    else if s == "discr_congr" then some EqnKind.discrCongr
     else none
   let p ← privateToUserName? p
   guard <| isMatcherCore env p

@@ -334,7 +334,7 @@ if at least of one of the discriminants has been simplified.
 -/
 def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := do
   let numArgs := e.getAppNumArgs
-  if numArgs < info.arity then
+  if numArgs != info.arity then
     return none
   let args := e.getAppArgs
   let fn := e.getAppFn

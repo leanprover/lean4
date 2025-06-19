@@ -150,5 +150,15 @@ popd
 echo "# TEST: init existing"
 test_err "package already initialized" -d hello_world init
 
+# Test that Mathlib-standard packages have the expected strict linter options.
+mkdir mathlib_standards
+pushd mathlib_standards
+test_run init mathlib_standards mathlib
+# '#'-commands are not allowed only when enabling the Mathlib standard linters.
+echo >MathlibStandards.lean "import Mathlib.Init"
+echo >>MathlibStandards.lean "#guard true"
+test_err 'note: this linter can be disabled with `set_option linter.hashCommand false`' build --wfail mathlib_standards
+popd
+
 # Cleanup
 rm -f produced.out

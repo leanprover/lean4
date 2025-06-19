@@ -504,7 +504,7 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
 
   -- Create a manifest file based on the dependencies.
   if tmp = .math || tmp = .mathlib then
-    () ← updateManifest { lakeEnv := env, wsDir := dir }
+    updateManifest { lakeEnv := env, wsDir := dir }
 
 def validatePkgName (pkgName : String) : LogIO PUnit := do
   if pkgName.isEmpty || pkgName.all (· == '.') || pkgName.any (· ∈ ['/', '\\']) then

@@ -483,22 +483,22 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
   [1]: https://github.com/leanprover/lean4/issues/2518
   -/
   let toolchainFile := dir / toolchainFileName
-  if env.toolchain.isEmpty then
-    -- Empty githash implies dev build
-    unless env.lean.githash.isEmpty do
-      unless (← toolchainFile.pathExists) do
-        logWarning <|
-          "could not create a `lean-toolchain` file for the new package; "  ++
-          "no known toolchain name for the current Elan/Lean/Lake"
+  if tmp = .math || tmp = .mathlib then
+    logInfo "downloading mathlib `lean-toolchain` file"
+    try
+      download mathToolchainBlobUrl toolchainFile
+    catch errPos =>
+      logError "failed to download mathlib 'lean-toolchain' file; \
+        you can manually copy it from:\n  {mathToolchainUrl}"
+      throw errPos
   else
-    if tmp = .math || tmp = .mathlib then
-      logInfo "downloading mathlib `lean-toolchain` file"
-      try
-        download mathToolchainBlobUrl toolchainFile
-      catch errPos =>
-        logError "failed to download mathlib 'lean-toolchain' file; \
-          you can manually copy it from:\n  {mathToolchainUrl}"
-        throw errPos
+    if env.toolchain.isEmpty then
+      -- Empty githash implies dev build
+      unless env.lean.githash.isEmpty do
+        unless (← toolchainFile.pathExists) do
+          logWarning <|
+            "could not create a `lean-toolchain` file for the new package; "  ++
+            "no known toolchain name for the current Elan/Lean/Lake"
     else
       IO.FS.writeFile toolchainFile <| env.toolchain ++ "\n"
 

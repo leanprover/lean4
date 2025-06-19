@@ -388,7 +388,7 @@ def simpMatch : Simproc := fun e => do
     | return .continue
   let some info ← getMatcherInfo? declName
     | return .continue
-  if let some r ← simpMatchDiscrs? info declName e then
+  if let some r ← simpMatchDiscrs? info e then
     return .visit r
   simpMatchCore declName e
 

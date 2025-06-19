@@ -61,7 +61,7 @@ void event_loop_init(event_loop_t * event_loop) {
     check_uv(uv_cond_init(&event_loop->cond_var), "Failed to initialize condition variable");
     check_uv(uv_async_init(event_loop->loop, &event_loop->async, NULL), "Failed to initialize async");
     event_loop->n_waiters = 0;
-    event_loop->thread_alive = true;
+    event_loop->thread_status = THREAD_DEAD;
 }
 
 // Locks the event loop for the side of the requesters.
@@ -84,14 +84,23 @@ void event_loop_unlock(event_loop_t * event_loop) {
 
 // Runs the loop and stops when it needs to register new requests.
 void event_loop_run_loop(event_loop_t * event_loop) {
-    while (uv_loop_alive(event_loop->loop)) {
+    event_loop->thread_status = THREAD_ALIVE;
+
+    while (event_loop->thread_status == THREAD_ALIVE) {
         uv_mutex_lock(&event_loop->mutex);
 
         while (event_loop->n_waiters != 0) {
             uv_cond_wait(&event_loop->cond_var, &event_loop->mutex);
         }
 
+        // Check status again after acquiring mutex in case it changed
+        if (event_loop->thread_status != THREAD_ALIVE) {
+            uv_mutex_unlock(&event_loop->mutex);
+            break;
+        }
+
         uv_run(event_loop->loop, UV_RUN_ONCE);
+
         /*
          * We leave `uv_run` only when `uv_stop` is called as there is always the `uv_async_t` so
          * we can never run out of things to wait on. `uv_stop` is only called from `async_callback`
@@ -102,7 +111,7 @@ void event_loop_run_loop(event_loop_t * event_loop) {
     }
 
     uv_mutex_lock(&event_loop->mutex);
-    event_loop->thread_alive = false;
+    event_loop->thread_status = THREAD_DEAD;
 
     uv_cond_signal(&event_loop->cond_var);
     uv_mutex_unlock(&event_loop->mutex);
@@ -110,6 +119,8 @@ void event_loop_run_loop(event_loop_t * event_loop) {
 
 void event_loop_destroy(event_loop_t * event_loop) {
     event_loop_lock(event_loop);
+
+    event_loop->thread_status = THREAD_STOPPING;
     uv_cond_signal(&event_loop->cond_var);
 
     uv_close((uv_handle_t*)&event_loop->async, nullptr);
@@ -133,7 +144,8 @@ void event_loop_destroy(event_loop_t * event_loop) {
 
     uv_cond_signal(&event_loop->cond_var);
 
-    while (event_loop->thread_alive) {
+    // Wait for thread to be completely dead
+    while (event_loop->thread_status != THREAD_DEAD) {
         uv_cond_wait(&event_loop->cond_var, &event_loop->mutex);
     }
 

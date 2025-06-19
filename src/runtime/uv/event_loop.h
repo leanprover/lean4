@@ -21,6 +21,10 @@ void finalize_libuv_loop();
 #ifndef LEAN_EMSCRIPTEN
 using namespace std;
 
+#define THREAD_ALIVE    2
+#define THREAD_STOPPING 1
+#define THREAD_DEAD     0
+
 // Event loop structure for managing asynchronous events and synchronization across multiple threads.
 typedef struct {
     uv_loop_t  * loop;      // The libuv event loop.
@@ -29,7 +33,7 @@ typedef struct {
     uv_async_t   async;     // Async handle to interrupt `loop`.
     _Atomic(int) n_waiters; // Atomic counter for managing waiters for `loop`.
 
-    bool thread_alive;      // Checks if the thread is alive
+    int thread_status;     // Thread status: THREAD_ALIVE, THREAD_STOPPING, or THREAD_DEAD
 } event_loop_t;
 
 // The multithreaded event loop object for all tasks in the task manager.

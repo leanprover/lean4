@@ -94,12 +94,12 @@ instance (n : Nat) [NeZero n] : CommRing (Fin n) where
   sub_eq_add_neg := Fin.sub_eq_add_neg
   intCast_neg := Fin.intCast_neg
 
-instance (n : Nat) [NeZero n] : IsCharP (Fin n) n where
-  ofNat_eq_zero_iff x := by
+instance (n : Nat) [NeZero n] : IsCharP (Fin n) n := IsCharP.mk' _ _
+  (ofNat_eq_zero_iff := fun x => by
     change Fin.ofNat _ _ = Fin.ofNat _ _ ↔ _
     simp only [Fin.ofNat]
     simp only [Nat.zero_mod]
-    simp only [Fin.mk.injEq]
+    simp only [Fin.mk.injEq])
 
 example [NeZero n] : ToInt.Neg (Fin n) (some 0) (some n) := inferInstance
 example [NeZero n] : ToInt.Sub (Fin n) (some 0) (some n) := inferInstance

@@ -164,6 +164,13 @@ theorem neg_eq_zero (a : α) : -a = 0 ↔ a = 0 :=
     simpa [neg_neg, neg_zero] using h,
    fun h => by rw [h, neg_zero]⟩
 
+theorem neg_eq_iff (a b : α) : -a = b ↔ a = -b := by
+  constructor
+  · intro h
+    rw [← neg_neg a, h]
+  · intro h
+    rw [← neg_neg b, h]
+
 theorem neg_add (a b : α) : -(a + b) = -a + -b := by
   rw [← add_left_inj (a + b), neg_add_cancel, add_assoc (-a), add_comm a b, ← add_assoc (-b),
     neg_add_cancel, zero_add, neg_add_cancel]
@@ -230,6 +237,14 @@ theorem intCast_add (x y : Int) : ((x + y : Int) : α) = ((x : α) + (y : α)) :
     rw [← Int.neg_add, intCast_neg, intCast_nat_add, neg_add, intCast_neg, intCast_neg, intCast_natCast, intCast_natCast]
 theorem intCast_sub (x y : Int) : ((x - y : Int) : α) = ((x : α) - (y : α)) := by
   rw [Int.sub_eq_add_neg, intCast_add, intCast_neg, sub_eq_add_neg]
+
+theorem ofNat_sub {x y : Nat} (h : y ≤ x) : OfNat.ofNat (α := α) (x - y) = OfNat.ofNat x - OfNat.ofNat y := by
+  rw [ofNat_eq_natCast, ← intCast_natCast, Int.ofNat_sub h]
+  rw [intCast_sub]
+  rw [intCast_natCast, intCast_natCast, ofNat_eq_natCast, ofNat_eq_natCast]
+
+theorem neg_ofNat_sub {x y : Nat} (h : y ≤ x) : -OfNat.ofNat (α := α) (x - y) = OfNat.ofNat y - OfNat.ofNat x := by
+  rw [neg_eq_iff, ofNat_sub h, neg_sub]
 
 theorem neg_eq_neg_one_mul (a : α) : -a = (-1) * a := by
   rw [← add_left_inj a, neg_add_cancel]
@@ -300,16 +315,108 @@ end CommSemiring
 
 open Semiring Ring CommSemiring CommRing
 
-class IsCharP (α : Type u) [Ring α] (p : outParam Nat) where
-  ofNat_eq_zero_iff (p) : ∀ (x : Nat), OfNat.ofNat (α := α) x = 0 ↔ x % p = 0
+class IsCharP (α : Type u) [Semiring α] (p : outParam Nat) where
+  ofNat_ext_iff (p) : ∀ {x y : Nat}, OfNat.ofNat (α := α) x = OfNat.ofNat (α := α) y ↔ x % p = y % p
 
 namespace IsCharP
 
-variable (p)  {α : Type u} [Ring α] [IsCharP α p]
+section
+
+variable (p) [Semiring α] [IsCharP α p]
+
+theorem ofNat_eq_zero_iff  (x : Nat) :
+    OfNat.ofNat (α := α) x = 0 ↔ x % p = 0 := by
+  rw [ofNat_ext_iff p]
+  simp
+
+theorem ofNat_ext {x y : Nat} (h : x % p = y % p) : OfNat.ofNat (α := α) x = OfNat.ofNat (α := α) y := (ofNat_ext_iff p).mpr h
+
+theorem ofNat_eq_zero_iff_of_lt {x : Nat} (h : x < p) : OfNat.ofNat (α := α) x = 0 ↔ x = 0 := by
+  rw [ofNat_eq_zero_iff p, Nat.mod_eq_of_lt h]
+
+theorem ofNat_eq_iff_of_lt {x y : Nat} (h₁ : x < p) (h₂ : y < p) :
+    OfNat.ofNat (α := α) x = OfNat.ofNat (α := α) y ↔ x = y := by
+  rw [ofNat_ext_iff p, Nat.mod_eq_of_lt h₁, Nat.mod_eq_of_lt h₂]
+
+end
+
+section Semiring
+
+variable (p)
+
+variable [Semiring α] [IsCharP α p]
 
 theorem natCast_eq_zero_iff (x : Nat) : (x : α) = 0 ↔ x % p = 0 := by
   rw [← ofNat_eq_natCast]
   exact ofNat_eq_zero_iff p x
+
+theorem natCast_ext {x y : Nat} (h : x % p = y % p) : (x : α) = (y : α) := by
+  rw [← ofNat_eq_natCast, ← ofNat_eq_natCast]
+  exact ofNat_ext p h
+
+theorem natCast_ext_iff {x y : Nat} : (x : α) = (y : α) ↔ x % p = y % p := by
+  rw [← ofNat_eq_natCast, ← ofNat_eq_natCast]
+  exact ofNat_ext_iff p
+
+theorem natCast_emod (x : Nat) : ((x % p : Nat) : α) = (x : α) := by
+  rw [natCast_ext_iff p, Nat.mod_mod]
+
+theorem ofNat_emod (x : Nat) : OfNat.ofNat (α := α) (x % p) = OfNat.ofNat x := by
+  rw [ofNat_eq_natCast, ofNat_eq_natCast]
+  exact natCast_emod p x
+
+theorem natCast_eq_zero_iff_of_lt {x : Nat} (h : x < p) : (x : α) = 0 ↔ x = 0 := by
+  rw [natCast_eq_zero_iff p, Nat.mod_eq_of_lt h]
+
+theorem natCast_eq_iff_of_lt {x y : Nat} (h₁ : x < p) (h₂ : y < p) :
+    (x : α) = (y : α) ↔ x = y := by
+  rw [natCast_ext_iff p, Nat.mod_eq_of_lt h₁, Nat.mod_eq_of_lt h₂]
+
+end Semiring
+
+section Ring
+
+variable (p)  {α : Type u} [Ring α] [IsCharP α p]
+
+private theorem mk'_aux {x y : Nat} (p : Nat) (h : y ≤ x) :
+    (x - y) % p = 0 ↔ ∃ k₁ k₂, x + k₁ * p = y + k₂ * p := by
+  rw [Nat.mod_eq_iff]
+  by_cases h : p = 0
+  · simp [h]
+    omega
+  · have h' : 0 < p := by omega
+    simp [h, h']
+    constructor
+    · rintro ⟨k, h⟩
+      refine ⟨0, k, ?_⟩
+      simp [Nat.mul_comm]
+      omega
+    · rintro ⟨k₁, k₂, h⟩
+      have : k₁ * p ≤ k₂ * p := by omega
+      have : k₁ ≤ k₂ := Nat.le_of_mul_le_mul_right this h'
+      refine ⟨k₂ - k₁, ?_⟩
+      simp [Nat.mul_sub, Nat.mul_comm p k₁, Nat.mul_comm p k₂]
+      omega
+
+/-- Alternative constructor when `α` is a `Ring`. -/
+def mk' (p : Nat) (α : Type u) [Ring α]
+    (ofNat_eq_zero_iff : ∀ (x : Nat), OfNat.ofNat (α := α) x = 0 ↔ x % p = 0) : IsCharP α p where
+  ofNat_ext_iff {x y} := by
+    rw [← sub_eq_zero_iff]
+    rw [Nat.mod_eq_mod_iff]
+    by_cases h : y ≤ x
+    · have : OfNat.ofNat (α := α) x - OfNat.ofNat y = OfNat.ofNat (x - y) := by rw [ofNat_sub h]
+      rw [this, ofNat_eq_zero_iff]
+      apply mk'_aux _ h
+    · have : OfNat.ofNat (α := α) x - OfNat.ofNat (α := α) y = - OfNat.ofNat (y - x) := by rw [neg_ofNat_sub (by omega)]
+      rw [this, neg_eq_zero, ofNat_eq_zero_iff]
+      rw [mk'_aux _ (by omega)]
+      rw [exists_comm]
+      apply exists_congr
+      intro k₁
+      apply exists_congr
+      intro k₂
+      simp [eq_comm]
 
 theorem intCast_eq_zero_iff (x : Int) : (x : α) = 0 ↔ x % p = 0 :=
   match x with
@@ -346,46 +453,10 @@ theorem intCast_ext_iff {x y : Int} : (x : α) = (y : α) ↔ x % p = y % p := b
     replace this := congrArg (· + (y : α)) this
     simpa [intCast_sub, zero_add, sub_eq_add_neg, add_assoc, neg_add_cancel, add_zero] using this
 
-theorem ofNat_ext_iff {x y : Nat} : OfNat.ofNat (α := α) x = OfNat.ofNat (α := α) y ↔ x % p = y % p := by
-  have := intCast_ext_iff (α := α) p (x := x) (y := y)
-  simp only [intCast_natCast, ← Int.natCast_emod] at this
-  simp only [ofNat_eq_natCast]
-  norm_cast at this
-
-theorem ofNat_ext {x y : Nat} (h : x % p = y % p) : OfNat.ofNat (α := α) x = OfNat.ofNat (α := α) y := (ofNat_ext_iff p).mpr h
-
-theorem natCast_ext {x y : Nat} (h : x % p = y % p) : (x : α) = (y : α) := by
-  rw [← ofNat_eq_natCast, ← ofNat_eq_natCast]
-  exact ofNat_ext p h
-
-theorem natCast_ext_iff {x y : Nat} : (x : α) = (y : α) ↔ x % p = y % p := by
-  rw [← ofNat_eq_natCast, ← ofNat_eq_natCast]
-  exact ofNat_ext_iff p
-
 theorem intCast_emod (x : Int) : ((x % p : Int) : α) = (x : α) := by
   rw [intCast_ext_iff p, Int.emod_emod]
 
-theorem natCast_emod (x : Nat) : ((x % p : Nat) : α) = (x : α) := by
-  simp only [← intCast_natCast]
-  rw [Int.natCast_emod, intCast_emod]
-
-theorem ofNat_emod (x : Nat) : OfNat.ofNat (α := α) (x % p) = OfNat.ofNat x := by
-  rw [ofNat_eq_natCast, ofNat_eq_natCast]
-  exact natCast_emod p x
-
-theorem ofNat_eq_zero_iff_of_lt {x : Nat} (h : x < p) : OfNat.ofNat (α := α) x = 0 ↔ x = 0 := by
-  rw [ofNat_eq_zero_iff p, Nat.mod_eq_of_lt h]
-
-theorem ofNat_eq_iff_of_lt {x y : Nat} (h₁ : x < p) (h₂ : y < p) :
-    OfNat.ofNat (α := α) x = OfNat.ofNat (α := α) y ↔ x = y := by
-  rw [ofNat_ext_iff p, Nat.mod_eq_of_lt h₁, Nat.mod_eq_of_lt h₂]
-
-theorem natCast_eq_zero_iff_of_lt {x : Nat} (h : x < p) : (x : α) = 0 ↔ x = 0 := by
-  rw [natCast_eq_zero_iff p, Nat.mod_eq_of_lt h]
-
-theorem natCast_eq_iff_of_lt {x y : Nat} (h₁ : x < p) (h₂ : y < p) :
-    (x : α) = (y : α) ↔ x = y := by
-  rw [natCast_ext_iff p, Nat.mod_eq_of_lt h₁, Nat.mod_eq_of_lt h₂]
+end Ring
 
 end IsCharP
 

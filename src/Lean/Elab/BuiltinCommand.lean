@@ -99,7 +99,7 @@ private def checkEndHeader : Name → List Scope → Option Name
   | _                        => throwUnsupportedSyntax
 
 /--
-Produces a `Name` composed of the names of at most the first `n` scopes in `ss`, truncating if an
+Produces a `Name` composed of the names of at most the innermost `n` scopes in `ss`, truncating if an
 empty scope is reached (so that we do not suggest names like `Foo.«».Bar`).
 
 If `n` is not specified, will use all scopes in `ss`.

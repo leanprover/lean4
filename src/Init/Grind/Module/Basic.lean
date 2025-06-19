@@ -23,7 +23,6 @@ class NatModule (M : Type u) extends Zero M, Add M, HMul Nat M M where
   add_hmul : ∀ n m : Nat, ∀ a : M, (n + m) * a = n * a + m * a
   hmul_zero : ∀ n : Nat, n * (0 : M) = 0
   hmul_add : ∀ n : Nat, ∀ a b : M, n * (a + b) = n * a + n * b
-  mul_hmul : ∀ n m : Nat, ∀ a : M, (n * m) * a = n * (m * a)
 
 attribute [instance 100] NatModule.toZero NatModule.toAdd NatModule.toHMul
 
@@ -38,7 +37,6 @@ class IntModule (M : Type u) extends Zero M, Add M, Neg M, Sub M where
   add_hmul : ∀ n m : Int, ∀ a : M, (n + m) * a = n * a + m * a
   hmul_zero : ∀ n : Int, n * (0 : M) = 0
   hmul_add : ∀ n : Int, ∀ a b : M, n * (a + b) = n * a + n * b
-  mul_hmul : ∀ n m : Int, ∀ a : M, (n * m) * a = n * (m * a)
   neg_add_cancel : ∀ a : M, -a + a = 0
   sub_eq_add_neg : ∀ a b : M, a - b = a + -b
   hmul_nat : ∀ n : Nat, ∀ a : M, (n : Int) * a = n * a
@@ -49,6 +47,12 @@ variable {M : Type u} [NatModule M]
 
 theorem zero_add (a : M) : 0 + a = a := by
   rw [add_comm, add_zero]
+
+theorem mul_hmul (n m : Nat) (a : M) : (n * m) * a = n * (m * a) := by
+  induction n with
+  | zero => simp [zero_hmul]
+  | succ n ih =>
+    rw [Nat.add_one_mul, add_hmul, ih, add_hmul, one_hmul]
 
 end NatModule
 
@@ -64,8 +68,7 @@ instance toNatModule (M : Type u) [i : IntModule M] : NatModule M :=
     one_hmul := by simp [← hmul_nat, one_hmul]
     hmul_zero := by simp [← hmul_nat, hmul_zero]
     add_hmul := by simp [← hmul_nat, add_hmul]
-    hmul_add := by simp [← hmul_nat, hmul_add]
-    mul_hmul := by simp [← hmul_nat, mul_hmul] }
+    hmul_add := by simp [← hmul_nat, hmul_add] }
 
 variable {M : Type u} [IntModule M]
 
@@ -141,6 +144,19 @@ theorem hmul_sub (k : Int) (a b : M) : k * (a - b) = k * a - k * b := by
 
 theorem sub_hmul (k₁ k₂ : Int) (a : M) : (k₁ - k₂) * a = k₁ * a - k₂ * a := by
   rw [Int.sub_eq_add_neg, add_hmul, neg_hmul, ← sub_eq_add_neg]
+
+private theorem nat_mul_hmul (n : Nat) (m : Int) (a : M) :
+    ((n : Int) * m) * a = (n : Int) * (m * a) := by
+  induction n with
+  | zero => simp [zero_hmul]
+  | succ n ih =>
+    rw [Int.natCast_add, Int.add_mul, add_hmul, Int.natCast_one,
+      Int.one_mul, add_hmul, one_hmul, ih]
+
+theorem mul_hmul (n m : Int) (a : M) : (n * m) * a = n * (m * a) := by
+  match n with
+  | (n : Nat) => exact nat_mul_hmul n m a
+  | -(n + 1 : Nat) => rw [Int.neg_mul, neg_hmul, nat_mul_hmul, neg_hmul]
 
 end IntModule
 

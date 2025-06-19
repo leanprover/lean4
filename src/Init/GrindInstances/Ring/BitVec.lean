@@ -31,8 +31,8 @@ instance : CommRing (BitVec w) where
   ofNat_succ x := BitVec.ofNat_add x 1
   intCast_neg _ := BitVec.ofInt_neg
 
-instance : IsCharP (BitVec w) (2 ^ w) where
-  ofNat_eq_zero_iff {x} := by simp [BitVec.ofInt, BitVec.toNat_eq]
+instance : IsCharP (BitVec w) (2 ^ w) := IsCharP.mk' _ _
+  (ofNat_eq_zero_iff := fun x => by simp [BitVec.ofInt, BitVec.toNat_eq])
 
 -- Verify we can derive the instances showing how `toInt` interacts with operations:
 example : ToInt.Add (BitVec w) (some 0) (some (2^w)) := inferInstance

@@ -115,17 +115,18 @@ instance : GetElem (BitVec w) Nat Bool fun _ i => i < w where
   getElem xs i h := xs.getLsb ⟨i, h⟩
 
 /-- We prefer `x[i]` as the simp normal form for `getLsb'` -/
-@[simp] theorem getLsb_eq_getElem (x : BitVec w) (i : Fin w) :
+@[simp, grind =] theorem getLsb_eq_getElem (x : BitVec w) (i : Fin w) :
     x.getLsb i = x[i] := rfl
 
 /-- We prefer `x[i]?` as the simp normal form for `getLsb?` -/
-@[simp] theorem getLsb?_eq_getElem? (x : BitVec w) (i : Nat) :
+@[simp, grind =] theorem getLsb?_eq_getElem? (x : BitVec w) (i : Nat) :
     x.getLsb? i = x[i]? := rfl
 
+@[grind =_] -- Activate when we see `x.toNat.testBit i`.
 theorem getElem_eq_testBit_toNat (x : BitVec w) (i : Nat) (h : i < w) :
   x[i] = x.toNat.testBit i := rfl
 
-@[simp]
+@[simp, grind =]
 theorem getLsbD_eq_getElem {x : BitVec w} {i : Nat} (h : i < w) :
     x.getLsbD i = x[i] := rfl
 

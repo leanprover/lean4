@@ -31,7 +31,7 @@ namespace BitVec
 @[simp] theorem getElem_ofFin (x : Fin (2^n)) (i : Nat) (h : i < n) :
     (BitVec.ofFin x)[i] = x.val.testBit i := rfl
 
-@[simp] theorem getMsbD_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getMsbD x i = false := by
+@[simp, grind] theorem getMsbD_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getMsbD x i = false := by
   grind [getMsbD]
 
 set_option linter.missingDocs false in
@@ -43,69 +43,70 @@ set_option linter.missingDocs false in
 abbrev getMsbD_ge := @getMsbD_of_ge
 
 theorem lt_of_getLsbD {x : BitVec w} {i : Nat} : getLsbD x i = true → i < w := by
-  grind [BitVec.getLsbD_of_ge]
+  grind
 
 theorem lt_of_getMsbD {x : BitVec w} {i : Nat} : getMsbD x i = true → i < w := by
-  if h : i < w then
-    simp [h]
-  else
-    simp [Nat.ge_of_not_lt h]
+  grind
 
 @[simp] theorem getElem?_eq_getElem {l : BitVec w} {n} (h : n < w) : l[n]? = some l[n] := by
-  simp only [getElem?_def, h, ↓reduceDIte]
+  grind
 
-theorem getElem?_eq_some_iff {l : BitVec w} : l[n]? = some a ↔ ∃ h : n < w, l[n] = a :=
-  _root_.getElem?_eq_some_iff
+-- TODO: when removing this deprecated theorem,
+-- remove the `_root_` prefixes appearing below.
+@[deprecated _root_.getElem?_eq_some_iff (since := "2025-06-19")]
+theorem getElem?_eq_some_iff {l : BitVec w} :
+    l[n]? = some a ↔ ∃ h : n < w, l[n] = a := by grind
 
-theorem some_eq_getElem?_iff {l : BitVec w} : some a = l[n]? ↔ ∃ h : n < w, l[n] = a :=
-  _root_.some_eq_getElem?_iff
+@[deprecated _root_.some_eq_getElem?_iff (since := "2025-06-19")]
+theorem some_eq_getElem?_iff {l : BitVec w} :
+    some a = l[n]? ↔ ∃ h : n < w, l[n] = a := by grind
 
-theorem getElem_of_getElem? {l : BitVec w} : l[n]? = some a → ∃ h : n < w, l[n] = a :=
-  getElem?_eq_some_iff.mp
+theorem getElem_of_getElem? {l : BitVec w} :
+    l[n]? = some a → ∃ h : n < w, l[n] = a := by grind
 
 set_option linter.missingDocs false in
 @[deprecated getElem?_eq_some_iff (since := "2025-02-17")]
-abbrev getElem?_eq_some := @getElem?_eq_some_iff
+abbrev getElem?_eq_some := @_root_.getElem?_eq_some_iff
 
 theorem getElem?_eq_none_iff {l : BitVec w} : l[n]? = none ↔ w ≤ n := by
-  simp
+  grind
 
 theorem none_eq_getElem?_iff {l : BitVec w} : none = l[n]? ↔ w ≤ n := by
-  simp
+  grind
 
-theorem getElem?_eq_none {l : BitVec w} (h : w ≤ n) : l[n]? = none := getElem?_eq_none_iff.mpr h
+theorem getElem?_eq_none {l : BitVec w} (h : w ≤ n) : l[n]? = none := by
+  grind
 
 theorem getElem?_eq (l : BitVec w) (i : Nat) :
     l[i]? = if h : i < w then some l[i] else none := by
-  split <;> simp_all
+  grind
 
 theorem some_getElem_eq_getElem? (l : BitVec w) (i : Nat) (h : i < w) :
     (some l[i] = l[i]?) ↔ True := by
-  simp
+  grind
 
 theorem getElem?_eq_some_getElem (l : BitVec w) (i : Nat) (h : i < w) :
     (l[i]? = some l[i]) ↔ True := by
-  simp
+  grind
 
 theorem getElem_eq_iff {l : BitVec w} {n : Nat} {h : n < w} : l[n] = x ↔ l[n]? = some x := by
-  simp only [getElem?_eq_some_iff]
-  exact ⟨fun w => ⟨h, w⟩, fun h => h.2⟩
+  grind
 
 theorem getElem_eq_getElem? (l : BitVec w) (i : Nat) (h : i < w) :
     l[i] = l[i]?.get (by simp [getElem?_eq_getElem, h]) := by
-  simp [getElem_eq_iff]
+  grind
 
 theorem getLsbD_eq_getElem?_getD {x : BitVec w} {i : Nat} :
     x.getLsbD i = x[i]?.getD false := by
   rw [getElem?_def]
   split
   · rfl
-  · simp_all
+  · grind
 
 @[simp]
 theorem getElem_of_getLsbD_eq_true {x : BitVec w} {i : Nat} (h : x.getLsbD i = true) :
     (x[i]'(lt_of_getLsbD h) = true) = True := by
-  simp [← BitVec.getLsbD_eq_getElem, h]
+  grind
 
 /--
 This normalized a bitvec using `ofFin` to `ofNat`.
@@ -115,31 +116,28 @@ theorem ofFin_eq_ofNat : @BitVec.ofFin w (Fin.mk x lt) = BitVec.ofNat w x := by
 
 /-- Prove nonequality of bitvectors in terms of nat operations. -/
 theorem toNat_ne_iff_ne {n} {x y : BitVec n} : x.toNat ≠ y.toNat ↔ x ≠ y := by
-  constructor
-  · rintro h rfl; apply h rfl
-  · intro h h_eq; apply h <| eq_of_toNat_eq h_eq
+  grind [eq_of_toNat_eq]
 
 @[simp] theorem val_toFin (x : BitVec w) : x.toFin.val = x.toNat := rfl
 
-@[bitvec_to_nat] theorem toNat_eq {x y : BitVec n} : x = y ↔ x.toNat = y.toNat :=
-  Iff.intro (congrArg BitVec.toNat) eq_of_toNat_eq
+@[bitvec_to_nat] theorem toNat_eq {x y : BitVec n} : x = y ↔ x.toNat = y.toNat := by
+  grind [eq_of_toNat_eq]
 
 theorem toNat_inj {x y : BitVec n} : x.toNat = y.toNat ↔ x = y := toNat_eq.symm
 
 @[bitvec_to_nat] theorem toNat_ne {x y : BitVec n} : x ≠ y ↔ x.toNat ≠ y.toNat := by
-  rw [Ne, toNat_eq]
+  grind [toNat_eq]
 
 protected theorem toNat_lt_twoPow_of_le (h : m ≤ n) {x : BitVec m} :
     x.toNat < 2 ^ n := by
   apply Nat.lt_of_lt_of_le x.isLt
   apply Nat.pow_le_pow_of_le
-  <;> omega
+  <;> grind
 
 theorem two_pow_le_toNat_of_getElem_eq_true {i : Nat} {x : BitVec w}
     (hi : i < w) (hx : x[i] = true) : 2^i ≤ x.toNat := by
   apply Nat.ge_two_pow_of_testBit
-  rw [← getElem_eq_testBit_toNat x i hi]
-  exact hx
+  grind
 
 theorem getMsb_eq_getLsb (x : BitVec w) (i : Fin w) :
     x.getMsb i = x.getLsb ⟨w - 1 - i, by omega⟩ := by
@@ -148,10 +146,10 @@ theorem getMsb_eq_getLsb (x : BitVec w) (i : Fin w) :
 theorem getMsb?_eq_getLsb? (x : BitVec w) (i : Nat) :
     x.getMsb? i = if i < w then x.getLsb? (w - 1 - i) else none := by
   simp only [getMsb?, getLsb?_eq_getElem?]
-  split <;> simp [getMsb_eq_getLsb]
+  split <;> simp [getMsb_eq_getLsb] -- FIXME: replacing `simp` with `grind` gives a type mismatch error.
 
 theorem getMsbD_eq_getLsbD (x : BitVec w) (i : Nat) : x.getMsbD i = (decide (i < w) && x.getLsbD (w - 1 - i)) := by
-  rw [getMsbD, getLsbD]
+  rw [getMsbD, getLsbD] -- FIXME: replacing `rw` with `grind` gives a type mismatch error.
 
 @[deprecated getMsb_eq_getLsb (since := "2025-06-17")]
 theorem getMsb'_eq_getLsb' (x : BitVec w) (i : Nat) : x.getMsbD i = (decide (i < w) && x.getLsbD (w - 1 - i)) := by

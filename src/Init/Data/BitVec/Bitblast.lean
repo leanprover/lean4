@@ -2156,7 +2156,6 @@ theorem shiftLeft_add_eq_shiftLeft_or {x y : BitVec w} :
   rw [BitVec.add_comm, add_shiftLeft_eq_or_shiftLeft, or_comm]
 
 /- ### fast circuit for unsigned overflow detection -/
-
 /-
   suppose x = 3#3, y = 2#3, w = 3
 
@@ -2341,8 +2340,6 @@ theorem le_toNat_iff (x : BitVec w) (hi : i < w ) :
         omega
       · simp [show w + 1 ≤ i + k by omega] at hk
 
-
-
 @[simp]
 theorem uppcRec_true_iff (x : BitVec w) (s : Nat) (h : s < w) :
     uppcRec x s h ↔ 2 ^ (w - 1 - (s - 1)) ≤ x.toNat := by
@@ -2394,91 +2391,97 @@ def aandRec (x y : BitVec w) (s : Nat) (hs : s < w) (hslt : 0 < s) : Bool :=
 /--
   Count the number of leading zeroes downward from the 'n'th bit to the '0'th bit.
 -/
-def clzAux {w : Nat} (x : BitVec w) (n : Nat) : Nat :=
-  match n with
-  | 0 => if x.getLsbD 0 then 0 else 1
-  | n' + 1 =>
-    if x.getLsbD n then 0
-      else 1 + clzAux x n'
 
-@[simp]
-theorem clzAux_zero {x : BitVec w} : clzAux x 0 = if x.getLsbD 0 then 0 else 1 := by simp [clzAux]
+-- @[simp]
+-- theorem clzAux_zero {x : BitVec w} : clzAux x 0 = if x.getLsbD 0 then 0 else 1 := by simp [clzAux]
 
-theorem clzAuz_eq_zero_iff {x : BitVec w} {n : Nat}:
-    clzAux x n = 0 ↔ x.getLsbD n = true := by
-  unfold clzAux
-  cases n <;> simp
+-- theorem clzAuz_eq_zero_iff {x : BitVec w} {n : Nat}:
+--     clzAux x n = 0 ↔ x.getLsbD n = true := by
+--   unfold clzAux
+--   cases n <;> simp
 
-theorem clzAux_le {x : BitVec w} {n : Nat} :
-    clzAux x n ≤ n + 1 := by
+-- theorem clzAux_le {x : BitVec w} {n : Nat} :
+--     clzAux x n ≤ n + 1 := by
+--   induction n
+--   · case zero =>
+--     simp [clzAux]
+--     by_cases hx0 : x.getLsbD 0
+--     <;> simp [hx0]
+--   · case succ n ihn =>
+--     unfold clzAux
+--     by_cases hn1 : x.getLsbD (n + 1)
+--     · simp [hn1]
+--     · simp [hn1]; omega
+
+-- theorem clzAuxRec_eq_iff {x : BitVec w} {n : Nat} :
+--     clzAuxRec x n = (n + 1) ↔ (∀ i, i < n + 1 → x.getLsbD i = false) := by
+--   induction n
+--   · case zero => simp [clzAux]
+--   · case succ n ihn =>
+--     unfold clzAux
+--     by_cases hn1 : x.getLsbD (n + 1)
+--     · simp [hn1]
+--       exists n + 1, by omega
+--     · simp [hn1]
+--       have h1 := clzAux_le (x := x) (n := n)
+--       have h2 := clzAux_le (x := x) (n := n + 1)
+--       have h3 : 1 + x.clzAux n = n + 1 + 1 ↔ x.clzAux n = n + 1 := by omega
+--       simp [h3]
+--       simp [ihn]
+--       constructor
+--       · intro h
+--         intros i hin
+--         by_cases hi : i ≤ n
+--         · apply h
+--           omega
+--         · simp at hn1
+--           simp [show i = n + 1 by omega, hn1]
+--       · intro h
+--         intros i hin
+--         apply h
+--         omega
+
+-- theorem clzAux_lt_iff {x : BitVec w} {n : Nat} :
+--     clzAux x n < (n + 1) ↔ (∃ i, i ≤ n ∧ x.getLsbD i = true) := by
+--   induction n
+--   · case zero => simp [clzAux]
+--   · case succ n ihn =>
+--     unfold clzAux
+--     by_cases hxn: x.getLsbD (n + 1)
+--     · simp [hxn]
+--       exists n + 1, by omega
+--     · simp [hxn]
+--       have h1 : 1 + x.clzAux n < n + 1 + 1 ↔ x.clzAux n < n + 1 := by omega
+--       simp [h1]
+--       simp [ihn]
+--       constructor
+--       · intro h
+--         obtain ⟨j, h2, h3⟩ := h
+--         exists j, by omega
+--       · intro h
+--         obtain ⟨j, h2, h3⟩ := h
+--         exists j
+--         by_cases hjn : j = n + 1
+--         · simp_all
+--         · simp [show j ≤ n by omega]
+--           exact h3
+
+
+theorem getLsbD_false_of_lt_clzAux {x : BitVec w} {n : Nat} (hw : 0 < w) (hn : ∀ i, n < i → x.getLsbD i = false) :
+
+  x.clzAuxRec n = k → ∀ j, w - 1 - k.toNat < j → x.getLsbD j = false := by
   induction n
   · case zero =>
-    simp [clzAux]
+    intro h
+    simp [clzAuxRec_zero] at h
     by_cases hx0 : x.getLsbD 0
-    <;> simp [hx0]
-  · case succ n ihn =>
-    unfold clzAux
-    by_cases hn1 : x.getLsbD (n + 1)
-    · simp [hn1]
-    · simp [hn1]; omega
+    · simp [hx0] at h
+      intro j hj
 
-theorem clzAux_eq_iff {x : BitVec w} {n : Nat} :
-    clzAux x n = (n + 1) ↔ (∀ i, i < n + 1 → x.getLsbD i = false) := by
-  induction n
-  · case zero => simp [clzAux]
-  · case succ n ihn =>
-    unfold clzAux
-    by_cases hn1 : x.getLsbD (n + 1)
-    · simp [hn1]
-      exists n + 1, by omega
-    · simp [hn1]
-      have h1 := clzAux_le (x := x) (n := n)
-      have h2 := clzAux_le (x := x) (n := n + 1)
-      have h3 : 1 + x.clzAux n = n + 1 + 1 ↔ x.clzAux n = n + 1 := by omega
-      simp [h3]
-      simp [ihn]
-      constructor
-      · intro h
-        intros i hin
-        by_cases hi : i ≤ n
-        · apply h
-          omega
-        · simp at hn1
-          simp [show i = n + 1 by omega, hn1]
-      · intro h
-        intros i hin
-        apply h
-        omega
-
-theorem clzAux_lt_iff {x : BitVec w} {n : Nat} :
-    clzAux x n < (n + 1) ↔ (∃ i, i ≤ n ∧ x.getLsbD i = true) := by
-  induction n
-  · case zero => simp [clzAux]
-  · case succ n ihn =>
-    unfold clzAux
-    by_cases hxn: x.getLsbD (n + 1)
-    · simp [hxn]
-      exists n + 1, by omega
-    · simp [hxn]
-      have h1 : 1 + x.clzAux n < n + 1 + 1 ↔ x.clzAux n < n + 1 := by omega
-      simp [h1]
-      simp [ihn]
-      constructor
-      · intro h
-        obtain ⟨j, h2, h3⟩ := h
-        exists j, by omega
-      · intro h
-        obtain ⟨j, h2, h3⟩ := h
-        exists j
-        by_cases hjn : j = n + 1
-        · simp_all
-        · simp [show j ≤ n by omega]
-          exact h3
+      sorry
 
 
 
-theorem getLsbD_false_of_lt_clzAux {x : BitVec w} {n : Nat} (hw : 0 < w) (hi : i < clzAux x n):
-  x.getLsbD (n - i) = false := by
   rcases w with _|w
   · omega
   · induction n generalizing i
@@ -2508,195 +2511,147 @@ theorem getLsbD_false_of_lt_clzAux {x : BitVec w} {n : Nat} (hw : 0 < w) (hi : i
           apply ihn
           omega
 
-theorem getLsbD_true_of_eq_clzAux_of_ne_zero {x : BitVec w} {n : Nat} (hw : 0 < w) :
-  x.getLsbD (n - clzAux x n) = true ∨ (clzAux x n = n + 1):= by
-  rcases w with _|w
-  · omega
-  · induction n
-    · case zero =>
-      have := clzAux_eq_iff (n := 0) (x := x)
-      have := clzAux_lt_iff (n := 0) (x := x)
-      simp_all
-    · case succ n ihn =>
-      unfold clzAux
-      by_cases hn : x.clzAux n = n + 1
-      · simp [hn]
-        by_cases hn' : x.getLsbD (n + 1) = true
-        · simp [hn']
-        · simp [hn']; omega
-      · have h1 := clzAux_lt_iff (n := n) (x := x)
-        have h2 := clzAux_le (x := x) (n := n)
-        simp [show x.clzAux n < n + 1 by omega] at h1
-        obtain ⟨i,hi,hi'⟩ := h1
-        simp [show ¬ n + 1 = x.clzAux n by omega] at ihn
-        by_cases hn' : x.getLsbD (n + 1) = true
-        · simp [hn']
-        · simp [hn']
-          rw [Nat.sub_add_eq]
-          rcases ihn with ihn|ihn
-          · simp [ihn]
-          · simp [ihn]
-            omega
+-- theorem clzAux_eq_iff_forall_of_clzAuz_lt  {x : BitVec w} (hw : 0 < w) (hlt : (clzAux x n < n + 1)):
+--     ((∀ i, i < k → x.getLsbD (n - i) = false) ∧ ((x.getLsbD (n - k) = true))) ↔ k = x.clzAux n := by
+--   induction n generalizing k
+--   · case zero =>
+--     induction k
+--     · case zero =>
+--       have := clzAuz_eq_zero_iff (x := x) (n := 0)
+--       by_cases hx0 : x.getLsbD 0
+--       · simp [hx0]
+--       · -- contra
+--         simp only [hx0]
+--         constructor
+--         · intro h
+--           simp [this]
+--           obtain ⟨h1, h2⟩ := h
+--           simp at hlt
+--           exact hlt
+--         · intro h
+--           simp at hlt
+--           simp at hx0
+--           simp [hx0] at hlt
+--     · case succ k ihk =>
+--       simp
+--       by_cases hx0 : x.getLsbD 0
+--       · simp [hx0]
+--         exists 0
+--         omega
+--       · simp [hx0]
+--         simp_all
+--   · case succ n ihn =>
+--     induction k
+--     · case zero =>
+--       simp [← clzAuz_eq_zero_iff]
+--       omega
+--     · case succ k ihk =>
+--       simp [ihk, ihn]
+--       unfold clzAux at hlt
+--       unfold clzAux
+--       by_cases hxn : x.getLsbD (n + 1)
+--       · simp [hxn] at hlt
+--         simp [hxn]
+--         intro i
+--         specialize i 0 (by omega)
+--         simp at i
+--         simp [i] at hxn
+--       · simp [hxn] at hlt
+--         simp [show x.clzAux n < n + 1 by omega] at ihn
+--         simp [hxn]
+--         simp [show k + 1 = 1 + x.clzAux n ↔ k = x.clzAux n by omega]
+--         specialize @ihn k
+--         simp [← ihn]
+--         intro h
+--         constructor
+--         · intro i j hj
+--           simp [h] at ihn
+--           specialize i (j + 1) (by omega)
+--           simpa using i
+--         · intro i
+--           intro j hj
+--           by_cases hj0 : j = 0
+--           · simp_all
+--           · specialize i (j - 1) (by omega)
+--             simp [show n - (j - 1) = n + 1 - j by omega] at i
+--             exact i
 
-theorem clzAux_eq_iff_forall_of_clzAuz_lt  {x : BitVec w} (hw : 0 < w) (hlt : (clzAux x n < n + 1)):
-    ((∀ i, i < k → x.getLsbD (n - i) = false) ∧ ((x.getLsbD (n - k) = true))) ↔ k = x.clzAux n := by
-  induction n generalizing k
-  · case zero =>
-    induction k
-    · case zero =>
-      have := clzAuz_eq_zero_iff (x := x) (n := 0)
-      by_cases hx0 : x.getLsbD 0
-      · simp [hx0]
-      · -- contra
-        simp only [hx0]
-        constructor
-        · intro h
-          simp [this]
-          obtain ⟨h1, h2⟩ := h
-          simp at hlt
-          exact hlt
-        · intro h
-          simp at hlt
-          simp at hx0
-          simp [hx0] at hlt
-    · case succ k ihk =>
-      simp
-      by_cases hx0 : x.getLsbD 0
-      · simp [hx0]
-        exists 0
-        omega
-      · simp [hx0]
-        simp_all
-  · case succ n ihn =>
-    induction k
-    · case zero =>
-      simp [← clzAuz_eq_zero_iff]
-      omega
-    · case succ k ihk =>
-      simp [ihk, ihn]
-      unfold clzAux at hlt
-      unfold clzAux
-      by_cases hxn : x.getLsbD (n + 1)
-      · simp [hxn] at hlt
-        simp [hxn]
-        intro i
-        specialize i 0 (by omega)
-        simp at i
-        simp [i] at hxn
-      · simp [hxn] at hlt
-        simp [show x.clzAux n < n + 1 by omega] at ihn
-        simp [hxn]
-        simp [show k + 1 = 1 + x.clzAux n ↔ k = x.clzAux n by omega]
-        specialize @ihn k
-        simp [← ihn]
-        intro h
-        constructor
-        · intro i j hj
-          simp [h] at ihn
-          specialize i (j + 1) (by omega)
-          simpa using i
-        · intro i
-          intro j hj
-          by_cases hj0 : j = 0
-          · simp_all
-          · specialize i (j - 1) (by omega)
-            simp [show n - (j - 1) = n + 1 - j by omega] at i
-            exact i
+-- theorem clzAux_eq_iff_forall  {x : BitVec w} (hw : 0 < w) :
+--     ∀ i, i < x.clzAux n → x.getLsbD (n - i) = false := by
+--   exact fun i a => getLsbD_false_of_lt_clzAux hw a
 
-theorem clzAux_eq_iff_forall  {x : BitVec w} (hw : 0 < w) :
-    ∀ i, i < x.clzAux n → x.getLsbD (n - i) = false := by
-  exact fun i a => getLsbD_false_of_lt_clzAux hw a
-
-/-- Count the number of leading zeroes. -/
-def clz {w : Nat} (x : BitVec w) : Nat := if w = 0 then 0 else clzAux x (w - 1)
 
 -- theorems about the exclusion of x = 0#w
 -- explain the hyoitheses
 -- y.clz = w ↔ y = 0#w (simp lemma)
 
+theorem clzAuxRec_le {x : BitVec w} (n : Nat) :
+    clzAuxRec x n ≤ w := by
+  have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
+  induction n
+  · case zero =>
+    by_cases hx0 : x.getLsbD 0
+    · simp only [clzAuxRec_zero, hx0, reduceIte, natCast_eq_ofNat, ofNat_le_ofNat, Nat.mod_two_pow_self, ge_iff_le]
+      rw [Nat.mod_eq_of_lt (by omega)]
+      omega
+    · simp [clzAuxRec_zero, hx0]
+  · case succ n ihn =>
+    rw [clzAuxRec_succ]
+    by_cases hxn : x.getLsbD (n + 1)
+    · simp only [hxn, ↓reduceIte, natCast_eq_ofNat, ofNat_le_ofNat, Nat.mod_two_pow_self, ge_iff_le]
+      rw [Nat.mod_eq_of_lt (by omega)]
+      omega
+    · simp only [hxn, false_eq_true, reduceIte, natCast_eq_ofNat, ge_iff_le]
+      exact ihn
+
 theorem clz_le {x : BitVec w} :
     clz x ≤ w := by
   unfold clz
   rcases w with _|w
-  · simp
-  · simp [clzAux_le]
+  · simp [of_length_zero]
+  · exact clzAuxRec_le (n := w)
 
-@[simp]
-theorem clz_of_zero : clz 0#w = w := by
+theorem clzAuxRec_eq_iff {x : BitVec w} (h : ∀ i, n < i → x.getLsbD i = false) :
+    x.clzAuxRec n = w ↔ ∀ j, j ≤ n → x.getLsbD j = false := by
   rcases w with _|w
-  · simp [clz]
-  · unfold clz
-    simp [clzAux_eq_iff]
-
-@[simp]
-theorem clz_eq_iff {x : BitVec w} :
-    clz x = w ↔ x = 0#w := by
-  rcases w with _|w
-  · simp [clz, of_length_zero]
-  · constructor
-    · intro h
-      simp [clz] at h
-      have := clzAux_eq_iff (x := x) (n := w)
-      simp [h] at this
-      ext i
-      simp
-      apply this
-      omega
-    · intro h
-      simp [h]
-
-theorem clz_eq_zero_iff {x : BitVec w} (hw : 0 < w):
-    clz x = 0 ↔ 2 ^ (w - 1) ≤ x.toNat := by
-  rcases w with _|w
-  · omega
-  · unfold clz clzAux
-    simp
-    cases w
-    · simp
-      constructor
-      · intro h
-        exact ge_two_pow_of_testBit h
-      · intro h
-        have := le_toNat_iff (x := x) (i := 0) (by omega)
-        simp [h] at this
-        obtain ⟨k,hk⟩ := this
-        by_cases k < 1
-        · rw [getLsbD_eq_getElem (by omega)] at hk
-          simp [show k = 0 by omega] at hk
-          exact hk
-        · simp [show k ≥ 0 + 1 by omega] at hk
-    · case succ w =>
-      simp
-      constructor
-      · intro h
-        exact ge_two_pow_of_testBit h
-      · intro h
-        have := le_toNat_iff (x := x) (i := w + 1) (by omega)
-        simp [h] at this
-        obtain ⟨k,hk⟩ := this
-        by_cases k < 1
-        · rw [getLsbD_eq_getElem (by omega)] at hk
-          simp [show k = 0 by omega] at hk
-          exact hk
-        · simp [show k ≥ 0 + 1 by omega] at hk
-
-theorem clz_lt_iff_ne_zero {x : BitVec w} :
-    clz x < w ↔ x ≠ 0#w := by
-  have := clz_le (x := x)
-  by_cases hx : x = 0#w
-  · simp [hx]
-  · simp [hx]
-    have := clz_eq_iff (x := x)
-    simp only [hx, iff_false] at this
-    omega
-
-theorem getLsbD_false_of_clz {x : BitVec w}:
-    ∀ i, i < x.clz → x.getLsbD (w - 1 - i) = false := by
-  rcases w with _|w
-  · simp
-  · intro i hi
-    simp
-    refine getLsbD_false_of_lt_clzAux (by omega) hi
+  · simp [of_length_zero]
+  · have := Nat.lt_pow_self (a := 2) (n := w + 1)
+    induction n
+    · case zero =>
+      simp [clzAuxRec_zero]
+      by_cases hx0 : x[0]
+      · simp [hx0, toNat_eq]
+        rw [Nat.mod_eq_of_lt (by omega)]
+        omega
+      · simp [hx0]
+    · case succ n ihn =>
+      simp [clzAuxRec_succ]
+      by_cases hxn : x.getLsbD (n + 1)
+      · simp [hxn]
+        have : ¬ ∀ (j : Nat), j ≤ n + 1 → x.getLsbD j = false := by
+          simp
+          exists n + 1, by omega
+        simp [this, toNat_eq]
+        rw [Nat.mod_eq_of_lt (by omega)]
+        omega
+      · simp [hxn]
+        have hforall : ∀ (i : Nat), n < i → x.getLsbD i = false := by
+          intro i hi
+          by_cases hi' : i = n + 1
+          · simp [hi', hxn]
+          · apply h; omega
+        specialize ihn hforall
+        simp at ihn
+        simp [ihn]
+        constructor
+        · intros h j hi
+          by_cases hj' : j  = n + 1
+          · simp [hj', hxn]
+          · apply h; omega
+        · intros h j hi
+          by_cases hj' : j  = n + 1
+          · simp [hj', hxn]
+          · apply h; omega
 
 theorem zero_iff_forall {x: BitVec w} :
     x = 0#w ↔ ∀ i, i ≤ (w - 1) → x.getLsbD i = false := by
@@ -2712,48 +2667,166 @@ theorem zero_iff_forall {x: BitVec w} :
       simp
       exact h
 
-theorem getLsbD_true_of_clz_of_ne_zero {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
-    x.getLsbD (w - 1 - clz x) = true := by
+@[simp]
+theorem clz_eq_iff {x : BitVec w} :
+    clz x = w ↔ x = 0#w := by
   rcases w with _|w
-  · omega
-  · unfold clz
-    simp [show ¬ w + 1 = 0 by omega]
-    have h := getLsbD_true_of_eq_clzAux_of_ne_zero (x := x) (n := w) hw
-    rcases h with h|h
-    · exact h
-    · simp [clzAux_eq_iff] at h
-      have := zero_iff_forall (x := x)
-      simp [h, hx] at this
-      obtain ⟨k,hk,hk'⟩ := this
-      specialize h k
-      simp only [show k < w + 1 by omega, forall_const] at h
-      simp [h] at hk'
+  · simp [clz, of_length_zero]
+  · constructor
+    · intro h
+      rw [BitVec.clz, clzAuxRec_eq_iff (by simp; intros i hi; simp [show w + 1 ≤ i by omega])] at h
+      rw [zero_iff_forall]
+      exact h
+    · intro h
+      rw [BitVec.clz, clzAuxRec_eq_iff (by simp; intros i hi; simp [show w + 1 ≤ i by omega])]
+      rw [← zero_iff_forall]
+      exact h
 
-theorem getLsbD_false_forall_lt {x : BitVec w} (hx : x ≠ 0#w) :
-    ∀ i, x.getLsbD (w - x.clz + i) = false := by
+
+theorem clzAuxRec_eq_zero_iff {x : BitVec w} (h : ∀ i, n < i → x.getLsbD i = false) (hw : 0 < w):
+    (x.clzAuxRec n).toNat = 0 ↔ x.getLsbD (w - 1) = true := by
+  have := Nat.lt_pow_self (a := 2) (n := w)
+  induction n
+  · case zero =>
+    simp [clzAuxRec_zero]
+    by_cases hx0 : x.getLsbD 0
+    · simp [hx0]
+      rw [Nat.mod_eq_of_lt (by omega)]
+      constructor
+      · intro h'
+        simp [h', hx0]
+      · intro h'
+        specialize h (w - 1)
+        simp_all
+    · simp [hx0, show ¬ w = 0 by omega]
+      by_cases hw1 : w = 1
+      · simp [getLsbD_eq_getElem (by omega)] at hx0
+        simp [hw1, hx0]
+      · apply h
+        omega
+  · case succ n ihn =>
+    simp [clzAuxRec_succ]
+    by_cases hxn : x.getLsbD (n + 1)
+    · simp [hxn]
+      rw [Nat.mod_eq_of_lt (by omega)]
+      constructor
+      · intro h'
+        have := lt_of_getLsbD hxn
+        simp [show w - 1 = n + 1 by omega]
+        exact hxn
+      · intro h'
+        specialize h (w - 1)
+        simp_all
+    · simp [hxn]
+      apply ihn
+      intro i hi
+      by_cases hi : i = n + 1
+      · simp [hi, hxn]
+      · apply h; omega
+
+theorem clz_eq_zero_iff {x : BitVec w} (hw : 0 < w) :
+    (clz x).toNat = 0 ↔ 2 ^ (w - 1) ≤ x.toNat := by
+  unfold clz
+  rw [clzAuxRec_eq_zero_iff (x := x) (n := w - 1) (by intro i hi; simp [show w ≤ i by omega]) hw]
+  constructor
+  · intro h
+    simp [getLsbD_eq_getMsbD, show w-1<w by omega] at h
+    exact two_pow_le_toNat_of_getElem_eq_true (x := x) (i := w - 1) (by omega) h
+  · intro h
+    simp only [← BitVec.msb_eq_getLsbD_last]
+    rw [msb_eq_true_iff_two_mul_ge (x := x)]
+    conv => rhs; rw [show w = (w - 1) + 1 by omega]
+    rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm]
+    simp [Nat.mul_le_mul_right_iff (k := 2)]
+    exact h
+
+theorem clz_lt_iff_ne_zero {x : BitVec w} :
+    clz x < w ↔ x ≠ 0#w := by
+  have hle := clz_le (x := x)
+  have heq := clz_eq_iff (x := x)
+  constructor
+  · intro h
+    simp [BitVec.ne_of_lt (x := x.clz) (y := BitVec.ofNat w w) h] at heq
+    simp [heq]
+  · intro h
+    simp [h] at heq
+    apply BitVec.lt_of_le_ne (x := x.clz) (y := BitVec.ofNat w w) hle heq
+
+theorem getLsbD_false_of_clz {x : BitVec w}:
+    ∀ i, i < x.clz.toNat → x.getLsbD (w - 1 - i) = false := by
   rcases w with _|w
-  · simp [of_length_zero]
-  · unfold clz
-    simp [show ¬ w + 1 = 0 by omega]
-    have := clzAux_eq_iff_forall (x := x) (n := w) (by omega)
-    intro i
-    apply Classical.byContradiction
-    intro hcontra
-    simp at hcontra
-    specialize this (x.clzAux w - i - 1)
-    by_cases hc0 : x.clzAux w = 0
-    · simp [hc0] at this hcontra
-    · simp [show x.clzAux w - i - 1 < x.clzAux w by omega] at this
-      have h2 : x.clzAux w < w + 1 := by
-        refine clzAux_lt_iff.mpr ?_
-        have := zero_iff_forall (x := x)
-        simp [hx] at this
-        exact this
-      by_cases hwk : w + 1 - x.clzAux w + i < w + 1
-      · have ho : w - (x.clzAux w - i - 1) = w + 1 - x.clzAux w + i := by omega
-        simp [ho] at this
-        simp [this] at hcontra
-      · simp [show w + 1 ≤ w + 1 - x.clzAux w + i by omega] at hcontra
+  · simp
+  · intro i hi
+    simp
+    refine getLsbD_false_of_lt_clzAux (by omega) hi
+
+theorem getLsbD_true_of_eq_clzAuxRec_of_ne_zero {x : BitVec w} (hx : ¬ x = 0#w) (hn : ∀ i, n < i → x.getLsbD i = false) :
+    x.getLsbD (w - 1 - (x.clzAuxRec n).toNat) = true := by
+  rcases w with _|w
+  · simp [of_length_zero] at hx
+  · have := Nat.lt_pow_self (a := 2) (n := w + 1)
+    induction n
+    · case zero =>
+      simp [clzAuxRec_zero]
+      by_cases hx0 : x[0]
+      · simp [hx0]
+        rw [Nat.mod_eq_of_lt (by omega), show w - w = 0 by omega]
+        exact hx0
+      · simp [hx0]
+        simp  [zero_iff_forall] at hx
+        obtain ⟨m,hm, hm'⟩ := hx
+        specialize hn m
+        by_cases hm0 : m = 0
+        · simp [hm0, hx0] at hm'
+        · simp [show 0 < m by omega, hm'] at hn
+    · case succ n ihn =>
+      simp [clzAuxRec_succ]
+      by_cases hxn : x.getLsbD (n + 1)
+      · simp [hxn]
+        have := lt_of_getLsbD hxn
+        rw [Nat.mod_eq_of_lt (by omega), show w - (w - (n + 1)) = n + 1 by omega]
+        exact hxn
+      · simp [hxn]
+        simp at ihn
+        apply ihn
+        intro j hj
+        by_cases hjn : j = n + 1
+        · simp [hjn, hxn]
+        · apply hn
+          omega
+
+theorem getLsbD_true_of_clz_of_ne_zero {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
+    x.getLsbD (w - 1 - (clz x).toNat) = true := by
+  unfold clz
+  apply getLsbD_true_of_eq_clzAuxRec_of_ne_zero (x := x) (n := w - 1) (by omega)
+  intro i hi
+  simp [show w ≤ i by omega]
+
+-- theorem getLsbD_false_forall_lt {x : BitVec w} (hx : x ≠ 0#w) :
+--     ∀ i, x.getLsbD (w - x.clz + i) = false := by
+--   rcases w with _|w
+--   · simp [of_length_zero]
+--   · unfold clz
+--     simp [show ¬ w + 1 = 0 by omega]
+--     have := clzAux_eq_iff_forall (x := x) (n := w) (by omega)
+--     intro i
+--     apply Classical.byContradiction
+--     intro hcontra
+--     simp at hcontra
+--     specialize this (x.clzAux w - i - 1)
+--     by_cases hc0 : x.clzAux w = 0
+--     · simp [hc0] at this hcontra
+--     · simp [show x.clzAux w - i - 1 < x.clzAux w by omega] at this
+--       have h2 : x.clzAux w < w + 1 := by
+--         refine clzAux_lt_iff.mpr ?_
+--         have := zero_iff_forall (x := x)
+--         simp [hx] at this
+--         exact this
+--       by_cases hwk : w + 1 - x.clzAux w + i < w + 1
+--       · have ho : w - (x.clzAux w - i - 1) = w + 1 - x.clzAux w + i := by omega
+--         simp [ho] at this
+--         simp [this] at hcontra
+--       · simp [show w + 1 ≤ w + 1 - x.clzAux w + i by omega] at hcontra
 
 theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
     x.toNat < 2 ^ i ↔ (∀ k, x.getLsbD (i + k) = false) := by
@@ -2774,16 +2847,18 @@ theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
     have := le_toNat_iff (x := x) (i := i) hi
     simp [this, h] at hcontra
 
+
+
 -- counterexample why we need hx:
 -- #eval 2 ^ (5 - clz (0#5) - 1) ≤ (0#5).toNat
 theorem toNat_le_of_clz {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
-    2 ^ (w - 1 - clz x) ≤ x.toNat := by
+    2 ^ (w - 1 - (clz x).toNat) ≤ x.toNat := by
   have : clz x < w := by exact clz_lt_iff_ne_zero.mpr hx
-  by_cases hc0 : x.clz = 0
+  by_cases hc0 : x.clz.toNat  = 0
   · simp [hc0]
-    simp [clz_eq_zero_iff (by omega)] at hc0
-    omega
-  · have : 0 < x.clz := by omega
+    rw [clz_eq_zero_iff (x := x) hw] at hc0
+    exact hc0
+  · have : 0 < x.clz.toNat := by omega
     have h2 := getLsbD_true_of_clz_of_ne_zero (x := x) hw hx
     rw [getLsbD_eq_getElem (by omega)] at h2
     have h3 := ge_two_pow_of_testBit h2
@@ -2791,15 +2866,16 @@ theorem toNat_le_of_clz {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
     exact h3
 
 theorem lt_toNat_of_clz {x : BitVec w} (hx : x ≠ 0#w) :
-    x.toNat < 2 ^ (w - clz x) := by
+    x.toNat < 2 ^ (w - (clz x).toNat) := by
   have : clz x < w := by exact clz_lt_iff_ne_zero.mpr hx
   by_cases hc0 : x.clz = 0
   · simp [hc0]
     simp [clz_eq_zero_iff (by exact zero_lt_succ w)] at hc0
     omega
-  · have : 1 ≤ x.clz := by omega
-    have h1 := toNat_lt_iff (x := x)
-    have h1' := h1 (w - x.clz) (by omega)
+  · have h1 := toNat_lt_iff (x := x)
+    have h1' := h1 (w - x.clz.toNat) (by
+
+      sorry)
     have h2 := getLsbD_false_of_clz (x := x)
     have h3 := getLsbD_false_forall_lt (x := x) hx
     simp [h3] at h1'
@@ -2887,22 +2963,22 @@ theorem getElem_of_lt_of_le {x : BitVec w} (hk' : k < w) (hlt: x.toNat < 2 ^ (k 
   · simp [show w ≤ k + k' by omega] at hk'
 
 theorem resRec_of_clz_le {x y : BitVec w} (hw : 1 < w) (hx : x ≠ 0#w) (hy : y ≠ 0#w):
-    clz x + clz y ≤ w - 2 → resRec x y (w - 1) (by omega) (by omega) (by omega) := by
+    (clz x).toNat + (clz y).toNat ≤ w - 2 → resRec x y (w - 1) (by omega) (by omega) (by omega) := by
   intro h
   have h1 := resRec_true_iff (x := x) (y := y) (s := w - 1) (by omega) (by omega) (by omega)
   have h2 := toNat_le_of_clz (x := x) (by omega) (by omega)
-  have h3 := lt_toNat_of_clz (x := x) (by omega)
-  have h4 := toNat_le_of_clz (x := y) (by omega) (by omega)
+  have h3 := toNat_le_of_clz (x := y) (by omega) (by omega)
+  have h4 := lt_toNat_of_clz (x := x) (by omega)
   have h5 := lt_toNat_of_clz (x := y) (by omega)
   rw [resRec_true_iff]
-  exists (w - 1 - y.clz)
+  exists (w - 1 - y.clz.toNat)
   exists (by omega), (by omega)
   unfold aandRec
-  by_cases hw0 : w - 1 - y.clz= 0
-  · have : y.clz < w := by exact clz_lt_iff_ne_zero.mpr (by omega)
+  by_cases hw0 : w - 1 - y.clz.toNat = 0
+  · have : y.clz.toNat < w := by have := clz_lt_iff_ne_zero.mpr (by omega); omega
     omega
-  · simp [hw0, getLsbD_true_of_clz_of_ne_zero (x := y) (by omega) (by omega), show w - 1 - (w - 1 - y.clz - 1) = y.clz + 1 by omega]
-    have := Nat.pow_le_pow_of_le (a := 2) (n := y.clz + 1) (m := w - 1 - x.clz) (by omega) (by omega)
+  · simp [hw0, getLsbD_true_of_clz_of_ne_zero (x := y) (by omega) (by omega), show w - 1 - (w - 1 - y.clz.toNat - 1) = y.clz.toNat + 1 by omega]
+    have := Nat.pow_le_pow_of_le (a := 2) (n := y.clz.toNat + 1) (m := w - 1 - x.clz.toNat) (by omega) (by omega)
     omega
 
 /--
@@ -2948,7 +3024,7 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
           have h2 := toNat_le_of_clz (x := y) (by omega) (by omega)
           have h3 := lt_toNat_of_clz (x := x) (by omega)
           have h4 := lt_toNat_of_clz (x := y) (by omega)
-          have h5 := Nat.mul_le_mul (n₁ := x.toNat) (m₁ := y.toNat) (n₂ := 2 ^ (w + 1 + 1 - x.clz) - 1) (m₂ := 2 ^ (w + 1 + 1 - y.clz) - 1)
+          have h5 := Nat.mul_le_mul (n₁ := x.toNat) (m₁ := y.toNat) (n₂ := 2 ^ (w + 1 + 1 - (x.clz).toNat) - 1) (m₂ := 2 ^ (w + 1 + 1 - (y.clz).toNat) - 1)
             (by
               simp [le_iff_lt_add_one]
               simp [sub_one_add_one]
@@ -2958,36 +3034,36 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
               simp [le_iff_lt_add_one]
               simp [sub_one_add_one]
               exact h4)
-          have h6 := Nat.mul_le_mul (n₁ := 2 ^ (w + 1 + 1 - 1 - x.clz)) (m₁ := 2 ^ (w + 1 + 1 - 1 - y.clz)) (n₂ := x.toNat) (m₂ := y.toNat) h1 h2
+          have h6 := Nat.mul_le_mul (n₁ := 2 ^ (w + 1 + 1 - 1 - x.clz.toNat)) (m₁ := 2 ^ (w + 1 + 1 - 1 - y.clz.toNat)) (n₂ := x.toNat) (m₂ := y.toNat) h1 h2
           have h7 := resRec_of_clz_le (x := x) (y := y) (by omega) (by omega) (by omega)
           simp at h7
           apply h7
-          by_cases hzxy : x.clz + y.clz ≤ w
+          by_cases hzxy : x.clz.toNat + y.clz.toNat ≤ w
           · omega
           · simp [← Nat.pow_add] at h6
-            by_cases h10 : w + 1 - y.clz = 0
+            by_cases h10 : w + 1 - y.clz.toNat = 0
             · -- show contra
               simp [h10] at h6
-              by_cases h11 : w + 1 + 1 - y.clz = 0
+              by_cases h11 : w + 1 + 1 - y.clz.toNat = 0
               · simp [h11] at h5
                 omega
               · simp_all
-                have h12 : w + 1 + 1 - y.clz = 1 := by omega
+                have h12 : w + 1 + 1 - y.clz.toNat = 1 := by omega
                 simp [h12] at h5
-                have := Nat.pow_lt_pow_of_lt (a := 2) (n := w + 1 + 1 - x.clz) (m := w + 1 + 1 + 1) (by omega) (by omega)
+                have := Nat.pow_lt_pow_of_lt (a := 2) (n := w + 1 + 1 - x.clz.toNat) (m := w + 1 + 1 + 1) (by omega) (by omega)
                 omega
-            · have h9 : w + 1 - x.clz + (w + 1 - y.clz) = w + 1 - x.clz + w + 1 - y.clz := by
+            · have h9 : w + 1 - x.clz.toNat + (w + 1 - y.clz.toNat) = w + 1 - x.clz.toNat + w + 1 - y.clz.toNat := by
                 omega
               simp [h9] at h6
-              by_cases hzyw : w + 1 < y.clz
-              · have h11 : w + 1 - x.clz + w + 1 - y.clz = w + 1 - (x.clz + y.clz) + w + 1 := by omega
+              by_cases hzyw : w + 1 < y.clz.toNat
+              · have h11 : w + 1 - x.clz.toNat + w + 1 - y.clz.toNat = w + 1 - (x.clz.toNat + y.clz.toNat) + w + 1 := by omega
                 simp [h11] at h6
                 omega
               · -- show contra
                 simp at h'
-                have h12 := Nat.mul_lt_mul'' (a := x.toNat) (b := y.toNat) (c := 2 ^ (w + 1 + 1 - x.clz)) (d := 2 ^ (w + 1 + 1 - y.clz)) (by omega) (by omega)
+                have h12 := Nat.mul_lt_mul'' (a := x.toNat) (b := y.toNat) (c := 2 ^ (w + 1 + 1 - x.clz.toNat)) (d := 2 ^ (w + 1 + 1 - y.clz.toNat)) (by omega) (by omega)
                 simp [← Nat.pow_add] at h12
-                have := Nat.pow_le_pow_of_le (a := 2) (n := w + 1 + 1 - x.clz + (w + 1 + 1 - y.clz)) (m := w + 1 + 1 + 1)
+                have := Nat.pow_le_pow_of_le (a := 2) (n := w + 1 + 1 - x.clz.toNat + (w + 1 + 1 - y.clz.toNat)) (m := w + 1 + 1 + 1)
                  (by omega) (by omega)
                 omega
     · intro h

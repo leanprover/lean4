@@ -210,4 +210,19 @@ theorem mod_mod_eq_mod_mod_mod_of_dvd {a b c : Nat} (hb : b ∣ c) :
   have : b < c := Nat.lt_of_le_of_ne (Nat.le_of_dvd hc hb) hb'
   rw [Nat.mod_mod_of_dvd' hb, Nat.mod_eq_of_lt this, Nat.mod_mod_of_dvd _ hb]
 
+theorem mod_eq_mod_iff {x y z : Nat} :
+    x % z = y % z ↔ ∃ k₁ k₂, x + k₁ * z = y + k₂ * z := by
+  constructor
+  · rw [Nat.mod_def, Nat.mod_def]
+    rw [Nat.sub_eq_iff_eq_add, Nat.add_comm, ← Nat.add_sub_assoc, eq_comm, Nat.sub_eq_iff_eq_add, eq_comm]
+    · intro h
+      refine ⟨(y / z), (x / z), ?_⟩
+      rwa [Nat.mul_comm z, Nat.add_comm _ y, Nat.mul_comm z] at h
+    · exact le_add_left_of_le (mul_div_le y z)
+    · exact mul_div_le y z
+    · exact mul_div_le x z
+  · rintro ⟨k₁, k₂, h⟩
+    replace h := congrArg (· % z) h
+    simpa using h
+
 end Nat

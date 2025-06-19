@@ -48,7 +48,6 @@ static lean_object* l_Lean_MVarId_falseOrByContra___closed__2;
 LEAN_EXPORT lean_object* l_panic___at_Lean_MVarId_falseOrByContra___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_elabFalseOrByContra___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_MVarId_elabFalseOrByContra___spec__1___rarg(lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_falseOrByContra___lambda__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_MVarId_elabFalseOrByContra___regBuiltin_Lean_MVarId_elabFalseOrByContra_declRange__3(lean_object*);
 static uint64_t l_Lean_MVarId_falseOrByContra___closed__7;
@@ -75,6 +74,7 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_elabFalseOrByContra(lean_object*, lean_ob
 static lean_object* l_Lean_MVarId_falseOrByContra___closed__6;
 static lean_object* l_Lean_MVarId_falseOrByContra___lambda__1___closed__6;
 static lean_object* l_Lean_MVarId_falseOrByContra___lambda__1___closed__8;
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_elabFalseOrByContra___regBuiltin_Lean_MVarId_elabFalseOrByContra_declRange__3___closed__3;
 lean_object* l_Lean_MVarId_applyConst(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -180,7 +180,7 @@ x_2 = l_Lean_MVarId_falseOrByContra___lambda__1___closed__6;
 x_3 = lean_unsigned_to_nat(62u);
 x_4 = lean_unsigned_to_nat(13u);
 x_5 = l_Lean_MVarId_falseOrByContra___lambda__1___closed__7;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -193,7 +193,7 @@ x_2 = l_Lean_MVarId_falseOrByContra___lambda__1___closed__6;
 x_3 = lean_unsigned_to_nat(57u);
 x_4 = lean_unsigned_to_nat(16u);
 x_5 = l_Lean_MVarId_falseOrByContra___lambda__1___closed__7;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

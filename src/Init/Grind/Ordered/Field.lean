@@ -6,7 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Grind.CommRing.Field
+import Init.Grind.Ring.Field
 import Init.Grind.Ordered.Ring
 
 namespace Lean.Grind

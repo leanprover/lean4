@@ -1665,7 +1665,7 @@ theorem natCast_sub (x y : Nat)
         (NatCast.natCast x : Int) + -1*NatCast.natCast y
       else
         (0 : Int) := by
-  show (↑(x - y) : Int) = if (↑y : Int) + (-1)*↑x ≤ 0 then ↑x + (-1)*↑y else 0
+  change (↑(x - y) : Int) = if (↑y : Int) + (-1)*↑x ≤ 0 then (↑x : Int) + (-1)*↑y else 0
   rw [Int.neg_mul, ← Int.sub_eq_add_neg, Int.one_mul]
   rw [Int.neg_mul, ← Int.sub_eq_add_neg, Int.one_mul]
   split

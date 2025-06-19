@@ -99,6 +99,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_etaStructReduce(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l_Lean_Meta_etaStruct_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_instantiateStructDefaultValueFn_x3f___rarg___lambda__5___closed__6;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_etaStruct_x3f___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -150,7 +151,6 @@ static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_mkProjections___sp
 static lean_object* l_Lean_Meta_instantiateStructDefaultValueFn_x3f___rarg___lambda__5___closed__3;
 static lean_object* l_Lean_Meta_mkProjections___lambda__5___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_etaStruct_x3f_sameParams___lambda__2(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_etaStructReduce___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_instantiateStructDefaultValueFn_x3f___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instantiateStructDefaultValueFn_x3f___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -224,6 +224,7 @@ static lean_object* l_Lean_Meta_instantiateStructDefaultValueFn_x3f___rarg___lam
 LEAN_EXPORT lean_object* l_Lean_Meta_etaStruct_x3f_getProjectedExpr___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfoInduct___at_Lean_Meta_mkProjections___spec__1___closed__2;
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instantiateStructDefaultValueFn_x3f_go_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_mkProjections___spec__7___boxed(lean_object**);
 extern lean_object* l_Lean_instInhabitedName;
@@ -240,7 +241,6 @@ static lean_object* l_Lean_Meta_mkProjections___lambda__3___closed__4;
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_instantiateStructDefaultValueFn_x3f___spec__2___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_etaStruct_x3f_sameParams___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_etaStructReduce___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_pure___at_Lean_Meta_etaStruct_x3f_sameParams___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkProjections___closed__1;
@@ -3082,7 +3082,7 @@ lean_object* x_22; uint8_t x_23; uint8_t x_24; lean_object* x_25;
 x_22 = l_Lean_Meta_mkProjections___lambda__2___closed__2;
 x_23 = 0;
 x_24 = 0;
-x_25 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_22, x_23, x_18, x_21, x_24, x_12, x_13, x_14, x_15, x_16);
+x_25 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_22, x_23, x_18, x_21, x_24, x_12, x_13, x_14, x_15, x_16);
 return x_25;
 }
 else
@@ -3091,7 +3091,7 @@ lean_object* x_26; uint8_t x_27; uint8_t x_28; lean_object* x_29;
 x_26 = l_Lean_Meta_mkProjections___lambda__2___closed__2;
 x_27 = 3;
 x_28 = 0;
-x_29 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_26, x_27, x_18, x_21, x_28, x_12, x_13, x_14, x_15, x_16);
+x_29 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_26, x_27, x_18, x_21, x_28, x_12, x_13, x_14, x_15, x_16);
 return x_29;
 }
 }
@@ -7282,7 +7282,7 @@ x_2 = l_Lean_Meta_instantiateStructDefaultValueFn_x3f___rarg___lambda__5___close
 x_3 = lean_unsigned_to_nat(200u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Meta_instantiateStructDefaultValueFn_x3f___rarg___lambda__5___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

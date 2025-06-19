@@ -9,3 +9,4 @@ prelude
 import Init.Control.Lawful.Basic
 import Init.Control.Lawful.Instances
 import Init.Control.Lawful.Lemmas
+import Init.Control.Lawful.MonadLift

@@ -172,6 +172,7 @@ def Info.stx : Info → Syntax
   | ofCommandInfo i        => i.stx
   | ofMacroExpansionInfo i => i.stx
   | ofOptionInfo i         => i.stx
+  | ofErrorNameInfo i      => i.stx
   | ofFieldInfo i          => i.stx
   | ofCompletionInfo i     => i.stx
   | ofCustomInfo i         => i.stx
@@ -229,9 +230,9 @@ def Info.occursInOrOnBoundary (i : Info) (hoverPos : String.Pos) : Bool := Id.ru
 def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextInfo × Info) :=
   let ts := t.deepestNodes fun ctx i _ => if p i then some (ctx, i) else none
 
-  let infos := ts.map fun (ci, i) =>
-    let diff := i.tailPos?.get! - i.pos?.get!
-    (diff, ci, i)
+  let infos := ts.filterMap fun (ci, i) => do
+    let diff := (← i.tailPos?) - (← i.pos?)
+    return (diff, ci, i)
 
   infos.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
 
@@ -240,7 +241,7 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
   let results := (← t.visitM (postNode := fun ctx info children results => do
     let mut results := results.flatMap (·.getD [])
     if omitAppFns && info.stx.isOfKind ``Parser.Term.app && info.stx[0].isIdent then
-        results := results.filter (·.2.info.stx != info.stx[0])
+      results := results.filter (·.2.info.stx != info.stx[0])
     if omitIdentApps && info.stx.isIdent then
       -- if an identifier stands for an application (e.g. in the case of a typeclass projection), prefer the application
       if let .ofTermInfo ti := info then
@@ -254,7 +255,7 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
     -/
     if info.stx.isOfKind nullKind || info.toElabInfo?.any (·.elaborator == `Lean.Elab.Tactic.evalWithAnnotateState) then
       return results
-    unless (info matches .ofFieldInfo _ | .ofOptionInfo _ || info.toElabInfo?.isSome) && info.contains hoverPos includeStop do
+    unless (info matches .ofFieldInfo _ | .ofOptionInfo _ | .ofErrorNameInfo _ || info.toElabInfo?.isSome) && info.contains hoverPos includeStop do
       return results
     let r := info.range?.get!
     let priority := (
@@ -303,11 +304,13 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
     if let some decl := (← getOptionDecls).find? oi.optionName then
       return decl.descr
     return none
+  | .ofErrorNameInfo eni => do
+    let some errorExplanation := getErrorExplanationRaw? (← getEnv) eni.errorName | return none
+    return errorExplanation.summaryWithSeverity
   | _ => pure ()
   if let some ei := i.toElabInfo? then
     return ← findDocString? env ei.stx.getKind <||> findDocString? env ei.elaborator
   return none
-
 
 /-- Construct a hover popup, if any, from an info node in a context.-/
 def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option FormatWithInfos) := do

@@ -19,13 +19,13 @@ lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Lean_FileMap_utf8RangeToLspRange(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_instInhabitedSuggestion___closed__1;
 double lean_float_mul(double, double);
-LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684_(lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_warning___closed__9;
 static double l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__6;
 static lean_object* l_Lean_Meta_Tactic_TryThis_Suggestion_toJsonAndInfoM___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_Suggestion_toJsonAndInfoM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__1;
+static lean_object* l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__5;
 lean_object* l_Lean_Json_mkObj(lean_object*);
+static lean_object* l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__1;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__3;
 static double l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error(uint8_t);
@@ -33,9 +33,11 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_success;
 static double l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionText_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static double l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__2;
+static lean_object* l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__4;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_warning___closed__11;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_asInaccessible___closed__2;
-static lean_object* l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__4;
+static lean_object* l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__2;
+static lean_object* l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__1;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_asHypothesis___closed__2;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__12;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_asInaccessible___closed__3;
@@ -58,31 +60,31 @@ static lean_object* l_Lean_Meta_Tactic_TryThis_getIndentAndColumn___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_getInputWidth(lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__12;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_success___closed__5;
+static lean_object* l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__6;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_warning___closed__8;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_Tactic_TryThis_processSuggestions___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__20;
 uint8_t l_instDecidableNot___rarg(uint8_t);
+static lean_object* l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__2;
+static lean_object* l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__7;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_getIndentAndColumn___lambda__1___boxed(lean_object*);
 lean_object* l_String_findLineStart(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_success___closed__2;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_warning___closed__10;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_asInaccessible___closed__4;
-static lean_object* l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__2;
 double lean_float_add(double, double);
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 lean_object* l_Lean_Option_get___at_Lean_profiler_threshold_getSecs___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_Suggestion_toJsonAndInfoM___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__6;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_Suggestion_toJsonAndInfoM___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_instInhabitedSuggestionText;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__9;
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
+static lean_object* l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_instInhabitedSuggestion;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_getIndentAndColumn___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_asHypothesis___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43_;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__10;
-static lean_object* l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__1;
 extern lean_object* l_Lean_instToJsonJson;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_processSuggestions___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static double l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__1;
@@ -92,21 +94,17 @@ static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__9
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__23;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_processSuggestions(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_instCoeStringSuggestionText(lean_object*);
-static lean_object* l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__2;
-static lean_object* l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__6;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_instCoeSuggestionTextSuggestion(lean_object*);
-static lean_object* l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_Suggestion_toJsonAndInfoM___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__16;
 double pow(double, double);
+static lean_object* l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_warning___boxed(lean_object*);
-static lean_object* l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__7;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__11;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__18;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__7;
-static lean_object* l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__4;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__26;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_asInaccessible;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_asInaccessible___closed__5;
@@ -128,6 +126,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_instToMessageDataSuggestion(
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_success___closed__4;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__25;
 lean_object* lean_float_to_string(double);
+static lean_object* l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__4;
 static lean_object* l_Lean_Meta_Tactic_TryThis_Suggestion_toJsonAndInfoM___closed__2;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_asHypothesis___closed__1;
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
@@ -150,10 +149,9 @@ uint8_t lean_float_decLe(double, double);
 lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_Tactic_TryThis_processSuggestions___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__17;
-static lean_object* l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_getInputWidth___boxed(lean_object*);
-static lean_object* l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__3;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49_;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__14;
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_Tactic_TryThis_processSuggestions___spec__2(size_t, size_t, lean_object*);
@@ -165,6 +163,7 @@ double round(double);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_Tactic_TryThis_processSuggestions___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_Suggestion_toJsonAndInfoM___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_Suggestion_toJsonAndInfoM___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static double l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionText_prettyExtra(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -172,10 +171,11 @@ static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__4
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_warning___closed__14;
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_warning___closed__2;
-static lean_object* l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__3;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_warning___closed__12;
 lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_5____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__24;
+static lean_object* l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__6;
+static lean_object* l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__3;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_Suggestion_toJsonAndInfoM___lambda__3___closed__1;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_warning___closed__1;
@@ -184,7 +184,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___boxe
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__17;
 double lean_float_sub(double, double);
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__13;
-static lean_object* _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__1() {
+static lean_object* _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -192,7 +192,7 @@ x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__2() {
+static lean_object* _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -200,7 +200,7 @@ x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__3() {
+static lean_object* _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -208,7 +208,7 @@ x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__4() {
+static lean_object* _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -216,7 +216,7 @@ x_1 = lean_mk_string_unchecked("TryThis", 7, 7);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__5() {
+static lean_object* _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -224,24 +224,24 @@ x_1 = lean_mk_string_unchecked("TryThisInfo", 11, 11);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__6() {
+static lean_object* _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__1;
-x_2 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__2;
-x_3 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__3;
-x_4 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__4;
-x_5 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__5;
+x_1 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__1;
+x_2 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__2;
+x_3 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__3;
+x_4 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__4;
+x_5 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__5;
 x_6 = l_Lean_Name_mkStr5(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43_() {
+static lean_object* _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49_() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__6;
+x_1 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__6;
 return x_1;
 }
 }
@@ -249,7 +249,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_instTypeNameTryThisInfo() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43_;
+x_1 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49_;
 return x_1;
 }
 }
@@ -1458,7 +1458,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__1() {
+static lean_object* _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1466,7 +1466,7 @@ x_1 = lean_mk_string_unchecked("format", 6, 6);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__2() {
+static lean_object* _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1474,17 +1474,17 @@ x_1 = lean_mk_string_unchecked("inputWidth", 10, 10);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__3() {
+static lean_object* _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__1;
-x_2 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__2;
+x_1 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__1;
+x_2 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__2;
 x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__4() {
+static lean_object* _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1492,7 +1492,7 @@ x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__5() {
+static lean_object* _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -1500,13 +1500,13 @@ x_1 = lean_mk_string_unchecked("ideal input width", 17, 17);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__6() {
+static lean_object* _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_unsigned_to_nat(100u);
-x_2 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__4;
-x_3 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__5;
+x_2 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__4;
+x_3 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__5;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -1514,27 +1514,27 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__7() {
+static lean_object* _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_1 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__1;
-x_2 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__2;
-x_3 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__3;
-x_4 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__4;
-x_5 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__1;
-x_6 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__2;
+x_1 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__1;
+x_2 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__2;
+x_3 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__3;
+x_4 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__4;
+x_5 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__1;
+x_6 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__2;
 x_7 = l_Lean_Name_mkStr6(x_1, x_2, x_3, x_4, x_5, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__3;
-x_3 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__6;
-x_4 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__7;
+x_2 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__3;
+x_3 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__6;
+x_4 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__7;
 x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_5____spec__1(x_2, x_3, x_4, x_1);
 return x_5;
 }
@@ -2194,7 +2194,7 @@ x_26 = l_Lean_Syntax_ofRange(x_2, x_25);
 x_27 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_27, 0, x_26);
 lean_ctor_set(x_27, 1, x_9);
-x_28 = lean_alloc_ctor(9, 1, 0);
+x_28 = lean_alloc_ctor(10, 1, 0);
 lean_ctor_set(x_28, 0, x_27);
 x_29 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_29, 0, x_17);
@@ -2217,7 +2217,7 @@ x_33 = l_Lean_Syntax_ofRange(x_31, x_32);
 x_34 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_34, 0, x_33);
 lean_ctor_set(x_34, 1, x_9);
-lean_ctor_set_tag(x_21, 9);
+lean_ctor_set_tag(x_21, 10);
 lean_ctor_set(x_21, 0, x_34);
 x_35 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_35, 0, x_17);
@@ -2237,7 +2237,7 @@ x_38 = l_Lean_Syntax_ofRange(x_36, x_37);
 x_39 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_39, 0, x_38);
 lean_ctor_set(x_39, 1, x_9);
-x_40 = lean_alloc_ctor(9, 1, 0);
+x_40 = lean_alloc_ctor(10, 1, 0);
 lean_ctor_set(x_40, 0, x_39);
 x_41 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_41, 0, x_17);
@@ -2278,7 +2278,7 @@ x_52 = l_Lean_Syntax_ofRange(x_2, x_51);
 x_53 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_53, 0, x_52);
 lean_ctor_set(x_53, 1, x_9);
-x_54 = lean_alloc_ctor(9, 1, 0);
+x_54 = lean_alloc_ctor(10, 1, 0);
 lean_ctor_set(x_54, 0, x_53);
 x_55 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_55, 0, x_42);
@@ -2308,10 +2308,10 @@ x_61 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_61, 0, x_60);
 lean_ctor_set(x_61, 1, x_9);
 if (lean_is_scalar(x_58)) {
- x_62 = lean_alloc_ctor(9, 1, 0);
+ x_62 = lean_alloc_ctor(10, 1, 0);
 } else {
  x_62 = x_58;
- lean_ctor_set_tag(x_62, 9);
+ lean_ctor_set_tag(x_62, 10);
 }
 lean_ctor_set(x_62, 0, x_61);
 x_63 = lean_alloc_ctor(0, 3, 0);
@@ -2401,7 +2401,7 @@ x_86 = l_Lean_Syntax_ofRange(x_2, x_85);
 x_87 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_87, 0, x_86);
 lean_ctor_set(x_87, 1, x_84);
-x_88 = lean_alloc_ctor(9, 1, 0);
+x_88 = lean_alloc_ctor(10, 1, 0);
 lean_ctor_set(x_88, 0, x_87);
 x_89 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_89, 0, x_74);
@@ -2435,10 +2435,10 @@ x_95 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_95, 0, x_94);
 lean_ctor_set(x_95, 1, x_84);
 if (lean_is_scalar(x_92)) {
- x_96 = lean_alloc_ctor(9, 1, 0);
+ x_96 = lean_alloc_ctor(10, 1, 0);
 } else {
  x_96 = x_92;
- lean_ctor_set_tag(x_96, 9);
+ lean_ctor_set_tag(x_96, 10);
 }
 lean_ctor_set(x_96, 0, x_95);
 x_97 = lean_alloc_ctor(0, 3, 0);
@@ -2543,20 +2543,20 @@ lean_dec_ref(res);
 res = initialize_Lean_PrettyPrinter(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__1 = _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__1();
-lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__1);
-l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__2 = _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__2();
-lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__2);
-l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__3 = _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__3();
-lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__3);
-l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__4 = _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__4();
-lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__4);
-l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__5 = _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__5();
-lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__5);
-l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__6 = _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__6();
-lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43____closed__6);
-l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43_ = _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43_();
-lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_43_);
+l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__1 = _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__1();
+lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__1);
+l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__2 = _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__2();
+lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__2);
+l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__3 = _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__3();
+lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__3);
+l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__4 = _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__4();
+lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__4);
+l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__5 = _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__5();
+lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__5);
+l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__6 = _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__6();
+lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49____closed__6);
+l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49_ = _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49_();
+lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_49_);
 l_Lean_Meta_Tactic_TryThis_instTypeNameTryThisInfo = _init_l_Lean_Meta_Tactic_TryThis_instTypeNameTryThisInfo();
 lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_instTypeNameTryThisInfo);
 l_Lean_Meta_Tactic_TryThis_instInhabitedSuggestionText___closed__1 = _init_l_Lean_Meta_Tactic_TryThis_instInhabitedSuggestionText___closed__1();
@@ -2717,21 +2717,21 @@ l_Lean_Meta_Tactic_TryThis_instInhabitedSuggestion = _init_l_Lean_Meta_Tactic_Tr
 lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_instInhabitedSuggestion);
 l_Lean_Meta_Tactic_TryThis_getIndentAndColumn___closed__1 = _init_l_Lean_Meta_Tactic_TryThis_getIndentAndColumn___closed__1();
 lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_getIndentAndColumn___closed__1);
-l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__1 = _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__1();
-lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__1);
-l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__2 = _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__2();
-lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__2);
-l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__3 = _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__3();
-lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__3);
-l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__4 = _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__4();
-lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__4);
-l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__5 = _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__5();
-lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__5);
-l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__6 = _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__6();
-lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__6);
-l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__7 = _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__7();
-lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684____closed__7);
-if (builtin) {res = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_684_(lean_io_mk_world());
+l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__1 = _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__1();
+lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__1);
+l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__2 = _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__2();
+lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__2);
+l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__3 = _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__3();
+lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__3);
+l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__4 = _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__4();
+lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__4);
+l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__5 = _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__5();
+lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__5);
+l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__6 = _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__6();
+lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__6);
+l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__7 = _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__7();
+lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707____closed__7);
+if (builtin) {res = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_TryThis___hyg_707_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Meta_Tactic_TryThis_format_inputWidth = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Meta_Tactic_TryThis_format_inputWidth);

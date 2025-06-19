@@ -31,7 +31,9 @@ Execute a registered reserved action for the given reserved name.
 Note that the handler can throw an exception.
 -/
 def executeReservedNameAction (name : Name) : CoreM Unit := do
-  let _ ← (← reservedNameActionsRef.get).anyM (· name)
+  discard <|
+    withTraceNode `ReservedNameAction (pure m!"{exceptBoolEmoji ·} executeReservedNameAction for {name}") do
+      (← reservedNameActionsRef.get).anyM (· name)
 
 /--
 Similar to `resolveGlobalName`, but also executes reserved name actions.
@@ -82,5 +84,9 @@ name's info on hover.
 -/
 def realizeGlobalConstNoOverload (id : Syntax) : CoreM Name := do
   ensureNonAmbiguous id (← realizeGlobalConst id)
+
+
+builtin_initialize
+  registerTraceClass `ReservedNameAction
 
 end Lean

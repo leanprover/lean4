@@ -4,7 +4,7 @@ inductive Foo1 : Sort (max 1 u) where
   | intro: (h : Nat → Foo1) → Foo1
 
 /--
-info: Foo1.below.{u_1, u} {motive : Foo1.{u} → Type u_1} (t : Foo1.{u}) : Sort (max (u_1 + 1) u)
+info: Foo1.below.{u_1, u} {motive : Foo1.{u} → Sort u_1} (t : Foo1.{u}) : Sort (max (max 1 u) u_1)
 -/
 #guard_msgs in
 #check Foo1.below
@@ -13,7 +13,7 @@ inductive Foo2 : Sort (max u 1) where
   | intro: (h : Nat → Foo2) → Foo2
 
 /--
-info: Foo2.below.{u_1, u} {motive : Foo2.{u} → Type u_1} (t : Foo2.{u}) : Sort (max (u_1 + 1) u 1)
+info: Foo2.below.{u_1, u} {motive : Foo2.{u} → Sort u_1} (t : Foo2.{u}) : Sort (max (max u 1) u_1)
 -/
 #guard_msgs in
 #check Foo2.below
@@ -21,7 +21,7 @@ info: Foo2.below.{u_1, u} {motive : Foo2.{u} → Type u_1} (t : Foo2.{u}) : Sort
 inductive Foo3 : Sort (u+1) where
   | intro: (h : Nat → Foo3) → Foo3
 
-/-- info: Foo3.below.{u_1, u} {motive : Foo3.{u} → Type u_1} (t : Foo3.{u}) : Type (max u_1 u) -/
+/-- info: Foo3.below.{u_1, u} {motive : Foo3.{u} → Sort u_1} (t : Foo3.{u}) : Sort (max (u + 1) u_1) -/
 #guard_msgs in
 #check Foo3.below
 

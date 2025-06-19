@@ -22,8 +22,14 @@ example (x : Nat) : P (id x.succ.succ).isZero := by
   dsimp [Nat.isZero]
   apply P_false
 
+/--
+trace: x : Nat
+⊢ P false
+-/
+#guard_msgs in
 example (x : Nat) : P (id x.succ.succ).isZero := by
   dsimp [Nat.isZero.eq_2]
+  trace_state
   apply P_false
 
 example (x : Nat) : P (id x.succ.succ).isZero := by

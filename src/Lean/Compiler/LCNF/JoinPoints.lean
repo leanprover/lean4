@@ -546,13 +546,13 @@ where
         let mut newArgs := knownArgs
         for (param, arg) in decl.params.zip args do
           if let some knownVal := newArgs[param.fvarId]? then
-            if arg.toExpr != knownVal then
+            if arg != knownVal then
               newArgs := newArgs.erase param.fvarId
         modify fun s => { s with jpJmpArgs := s.jpJmpArgs.insert fn newArgs }
       else
         let folder := fun acc (param, arg) => do
           if (← allFVarM (isInJpScope fn) arg) then
-            return acc.insert param.fvarId arg.toExpr
+            return acc.insert param.fvarId arg
           else
             return acc
         let interestingArgs ← decl.params.zip args |>.foldlM (init := {}) folder

@@ -76,6 +76,13 @@ instance : EmptyCollection (TreeSet α cmp) where
 instance : Inhabited (TreeSet α cmp) where
   default := ∅
 
+/-- Two tree sets are equivalent in the sense of Equiv iff all the values are equal. -/
+structure Equiv (m₁ m₂ : TreeSet α cmp) where
+  /-- Internal implementation detail of the tree map -/
+  inner : m₁.1.Equiv m₂.1
+
+@[inherit_doc] scoped infix:50 " ~m " => Equiv
+
 @[simp]
 theorem empty_eq_emptyc : (empty : TreeSet α cmp) = ∅ :=
   rfl

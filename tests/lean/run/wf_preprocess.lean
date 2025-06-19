@@ -339,15 +339,4 @@ theorem Tree.map2.eq_1.{u_1, u_2, u_3} : ∀ {α : Type u_1} {β : Type u_2} {γ
 #guard_msgs in
 #print equations Tree.map2
 
-/--
-info: equations:
-theorem Tree.map2._unary.eq_1.{u_1, u_2, u_3} : ∀ {α : Type u_1} {β : Type u_2} {γ : Type u_3} (f : α → β → γ)
-  (_x : (_ : Tree α) ×' Tree β),
-  Tree.map2._unary f _x =
-    PSigma.casesOn _x fun t1 t2 =>
-      { val := f t1.val t2.val, cs := List.zipWith (fun t1' t2' => Tree.map2._unary f ⟨t1', t2'⟩) t1.cs t2.cs }
--/
-#guard_msgs in
-#print equations Tree.map2._unary
-
 end Binary

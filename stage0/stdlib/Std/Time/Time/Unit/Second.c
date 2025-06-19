@@ -36,6 +36,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Second_instDecidableLeOrdinal___rarg___boxed
 LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofNat(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_toOffset___rarg___boxed(lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Std_Time_Second_instOffsetRepr___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_Second_instDecidableLtOrdinal(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Time_Second_instDecidableLtOrdinal___rarg___boxed(lean_object*, lean_object*);
@@ -109,7 +110,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_instOffsetInhabited;
 LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofNat___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofInt(uint8_t);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_instOffsetToString;
 LEAN_EXPORT lean_object* l_Std_Time_Second_instLTOrdinal(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Time_Second_instLEOrdinal(uint8_t x_1) {
@@ -228,7 +228,7 @@ if (x_3 == 0)
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_nat_abs(x_1);
-x_5 = l___private_Init_Data_Repr_0__Nat_reprFast(x_4);
+x_5 = l_Nat_reprFast(x_4);
 return x_5;
 }
 else
@@ -240,7 +240,7 @@ x_8 = lean_nat_sub(x_6, x_7);
 lean_dec(x_6);
 x_9 = lean_nat_add(x_8, x_7);
 lean_dec(x_8);
-x_10 = l___private_Init_Data_Repr_0__Nat_reprFast(x_9);
+x_10 = l_Nat_reprFast(x_9);
 x_11 = l_Std_Time_Second_instToStringOrdinal___rarg___closed__1;
 x_12 = lean_string_append(x_11, x_10);
 lean_dec(x_10);

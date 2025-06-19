@@ -38,12 +38,7 @@ where
       let s := s.push (input.get (distance + curr) (by omega))
       go aig input distance (curr + 1) (by omega) s
     else
-      let res := aig.mkConstCached false
-      let aig := res.aig
-      let zeroRef := res.ref
-      have hfinal := AIG.LawfulOperator.le_size (f := AIG.mkConstCached) ..
-      let s := s.cast hfinal
-      let input := input.cast hfinal
+      let zeroRef := aig.mkConstCached false
       let s := s.push zeroRef
       go aig input distance (curr + 1) (by omega) s
   else
@@ -58,10 +53,8 @@ theorem blastShiftRightConst.go_le_size (aig : AIG α) (distance : Nat) (input :
   split
   · dsimp only
     split
-    · refine Nat.le_trans ?_ (by apply go_le_size)
-      omega
-    · refine Nat.le_trans ?_ (by apply go_le_size)
-      apply AIG.LawfulOperator.le_size
+    · apply go_le_size
+    · apply go_le_size
   · simp
 termination_by w - curr
 
@@ -80,9 +73,6 @@ theorem blastShiftRightConst.go_decl_eq (aig : AIG α) (distance : Nat) (input :
     · rw [← hgo]
       intro idx h1 h2
       rw [blastShiftRightConst.go_decl_eq]
-      rw [AIG.LawfulOperator.decl_eq (f := AIG.mkConstCached)]
-      apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkConstCached)
-      assumption
   · simp [← hgo]
 termination_by w - curr
 

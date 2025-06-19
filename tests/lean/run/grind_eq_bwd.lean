@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 theorem dummy (x : Nat) : x = x :=
   rfl
 

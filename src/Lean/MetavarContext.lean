@@ -1052,7 +1052,7 @@ mutual
     | .proj _ _ s      => return e.updateProj! (← visit xs s)
     | .forallE _ d b _ => return e.updateForallE! (← visit xs d) (← visit xs b)
     | .lam _ d b _     => return e.updateLambdaE! (← visit xs d) (← visit xs b)
-    | .letE _ t v b _  => return e.updateLet! (← visit xs t) (← visit xs v) (← visit xs b)
+    | .letE _ t v b _  => return e.updateLetE! (← visit xs t) (← visit xs v) (← visit xs b)
     | .mdata _ b       => return e.updateMData! (← visit xs b)
     | .app ..          => e.withApp fun f args => elimApp xs f args
     | .mvar _          => elimApp xs e #[]
@@ -1385,7 +1385,7 @@ partial def main (e : Expr) : M Expr :=
       | .proj _ _ s      => return e.updateProj! (← main s)
       | .forallE _ d b _ => return e.updateForallE! (← main d) (← main b)
       | .lam _ d b _     => return e.updateLambdaE! (← main d) (← main b)
-      | .letE _ t v b _  => return e.updateLet! (← main t) (← main v) (← main b)
+      | .letE _ t v b _  => return e.updateLetE! (← main t) (← main v) (← main b)
       | .app ..          => e.withApp fun f args => visitApp f args
       | .mdata _ b       => return e.updateMData! (← main b)
       | .const _ us      => return e.updateConst! (← us.mapM visitLevel)

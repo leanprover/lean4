@@ -91,16 +91,25 @@ theorem Perm.mem_iff {a : α} {xs ys : Array α} (p : xs ~ ys) : a ∈ xs ↔ a 
   simp only [perm_iff_toList_perm] at p
   simpa using p.mem_iff
 
+grind_pattern Perm.mem_iff => xs ~ ys, a ∈ xs
+grind_pattern Perm.mem_iff => xs ~ ys, a ∈ ys
+
 theorem Perm.append {xs ys as bs : Array α} (p₁ : xs ~ ys) (p₂ : as ~ bs) :
     xs ++ as ~ ys ++ bs := by
   cases xs; cases ys; cases as; cases bs
   simp only [append_toArray, perm_iff_toList_perm] at p₁ p₂ ⊢
   exact p₁.append p₂
 
+grind_pattern Perm.append => xs ~ ys, as ~ bs, xs ++ as
+grind_pattern Perm.append => xs ~ ys, as ~ bs, ys ++ bs
+
 theorem Perm.push (x : α) {xs ys : Array α} (p : xs ~ ys) :
     xs.push x ~ ys.push x := by
   rw [push_eq_append_singleton]
   exact p.append .rfl
+
+grind_pattern Perm.push => xs ~ ys, xs.push x
+grind_pattern Perm.push => xs ~ ys, ys.push x
 
 theorem Perm.push_comm (x y : α) {xs ys : Array α} (p : xs ~ ys) :
     (xs.push x).push y ~ (ys.push y).push x := by

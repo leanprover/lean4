@@ -59,7 +59,7 @@ partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
         match e with
         | .forallE _ d b _ => visitPost (e.updateForallE! (← visit d) (← visit b))
         | .lam _ d b _     => visitPost (e.updateLambdaE! (← visit d) (← visit b))
-        | .letE _ t v b _  => visitPost (e.updateLet! (← visit t) (← visit v) (← visit b))
+        | .letE _ t v b _  => visitPost (e.updateLetE! (← visit t) (← visit v) (← visit b))
         | .app ..          => e.withApp fun f args => do visitPost (mkAppN (← visit f) (← args.mapM visit))
         | .mdata _ b       => visitPost (e.updateMData! (← visit b))
         | .proj _ _ b      => visitPost (e.updateProj! (← visit b))

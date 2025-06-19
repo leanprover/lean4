@@ -6,3 +6,4 @@ Authors: Paul Reichert
 prelude
 import Std.Data.Iterators.Lemmas.Consumers.Monadic
 import Std.Data.Iterators.Lemmas.Consumers.Collect
+import Std.Data.Iterators.Lemmas.Consumers.Loop

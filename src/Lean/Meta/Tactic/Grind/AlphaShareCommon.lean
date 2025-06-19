@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Meta.Tactic.Grind.ENodeKey
+import Lean.Meta.Tactic.Grind.ExprPtr
 
 namespace Lean.Meta.Grind
 
@@ -13,7 +13,7 @@ private def hashChild (e : Expr) : UInt64 :=
   | .bvar .. | .mvar .. | .const .. | .fvar .. | .sort .. | .lit .. =>
     hash e
   | .app .. | .letE .. | .forallE .. | .lam .. | .mdata .. | .proj .. =>
-    (unsafe ptrAddrUnsafe e).toUInt64
+    hashPtrExpr e
 
 private def alphaHash (e : Expr) : UInt64 :=
   match e with
@@ -58,7 +58,7 @@ instance : BEq AlphaKey where
   beq k₁ k₂ := alphaEq k₁.expr k₂.expr
 
 structure AlphaShareCommon.State where
-  map : PHashMap ENodeKey Expr := {}
+  map : PHashMap ExprPtr Expr := {}
   set : PHashSet AlphaKey := {}
 
 abbrev AlphaShareCommonM := StateM AlphaShareCommon.State

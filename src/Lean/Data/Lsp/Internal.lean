@@ -21,6 +21,32 @@ namespace Lean.Lsp
 /-! Most reference-related types have custom FromJson/ToJson implementations to
 reduce the size of the resulting JSON. -/
 
+/-- Information about a single import statement. -/
+structure ImportInfo where
+  /-- Name of the module that is imported. -/
+  module    : String
+  /-- Whether the module is being imported via `private import`. -/
+  isPrivate : Bool
+  /-- Whether the module is being imported via `import all`. -/
+  isAll     : Bool
+  /-- Whether the module is being imported via `meta import`. -/
+  isMeta    : Bool
+  deriving Inhabited
+
+instance : ToJson ImportInfo where
+  toJson info := Json.arr #[info.module, info.isPrivate, info.isAll, info.isMeta]
+
+instance : FromJson ImportInfo where
+  fromJson?
+    | .arr #[moduleJson, isPrivateJson, isAllJson, isMetaJson] => do
+      return {
+        module    := ← fromJson? moduleJson
+        isPrivate := ← fromJson? isPrivateJson
+        isAll     := ← fromJson? isAllJson
+        isMeta    := ← fromJson? isMetaJson
+      }
+    | _ => .error "Expected array, got other JSON type"
+
 /--
 Identifier of a reference.
 -/
@@ -174,14 +200,25 @@ instance : FromJson ModuleRefs where
       return m.insert (← RefIdent.fromJson? (← Json.parse k)) (← fromJson? v)
 
 /--
+Used in the `$/lean/ileanHeaderInfo` watchdog <- worker notifications.
+Contains the direct imports of the file managed by a worker.
+-/
+structure LeanILeanHeaderInfoParams where
+  /-- Version of the file these imports are from. -/
+  version       : Nat
+  /-- Direct imports of this file. -/
+  directImports : Array ImportInfo
+  deriving FromJson, ToJson
+
+/--
 Used in the `$/lean/ileanInfoUpdate` and `$/lean/ileanInfoFinal` watchdog <- worker notifications.
 Contains the definitions and references of the file managed by a worker.
 -/
 structure LeanIleanInfoParams where
   /-- Version of the file these references are from. -/
-  version    : Nat
+  version        : Nat
   /-- All references for the file. -/
-  references : ModuleRefs
+  references     : ModuleRefs
   deriving FromJson, ToJson
 
 /--

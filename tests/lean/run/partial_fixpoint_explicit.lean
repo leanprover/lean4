@@ -62,3 +62,15 @@ partial_fixpoint monotonicity by
   intro y
   apply Lean.Order.monotone_apply
   apply Lean.Order.monotone_id
+
+-- Mutual
+
+mutual
+
+def mutual1 (x : Nat) : Option Unit := mutual2 (x + 1)
+partial_fixpoint monotonicity fun _ _ a x => a.2 (x + 1)
+
+def mutual2 (x : Nat) : Option Unit := mutual1 (x + 1)
+partial_fixpoint monotonicity fun _ _ a x => a.1 (x + 1)
+
+end

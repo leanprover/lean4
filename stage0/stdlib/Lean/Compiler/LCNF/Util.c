@@ -70,7 +70,6 @@ LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_isCompilerRelevantMData(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfo___at___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f___spec__1___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__1;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getCtorArity_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__4;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__18;
@@ -106,6 +105,7 @@ static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__31;
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__24;
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
@@ -657,7 +657,7 @@ x_2 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2_
 x_3 = lean_unsigned_to_nat(61u);
 x_4 = lean_unsigned_to_nat(48u);
 x_5 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -1152,7 +1152,7 @@ x_2 = l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__4;
 x_3 = lean_unsigned_to_nat(68u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }

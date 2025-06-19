@@ -22,7 +22,7 @@ universe u v w
 
 variable {α : Type u} {β : Type v} {cmp : α → α → Ordering}
 
-namespace Std.TreeMap
+namespace Std.TreeSet
 
 /-!
 We do not provide `get*GE`, `get*GT`, `get*LE` and `get*LT` functions for the raw trees.
@@ -60,4 +60,4 @@ less than the given element.
 def getLT [TransCmp cmp] (t : TreeSet α cmp) (k : α) (h : ∃ a ∈ t, cmp a k = .lt) : α :=
   TreeMap.getKeyLT t.inner k h
 
-end Std.TreeMap
+end Std.TreeSet

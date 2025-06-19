@@ -29,6 +29,14 @@ builtin_initialize monotoneExt :
     initial := {}
   }
 
+/--
+Registers a monotonicity theorem for `partial_fixpoint`.
+
+Monotonicity theorems should have `Lean.Order.monotone ...` as a conclusion. They are used in the
+`monotonicity` tactic (scoped in the `Lean.Order` namespace) to automatically prove monotonicity
+for functions defined using `partial_fixpoint`.
+-/
+@[builtin_doc]
 builtin_initialize registerBuiltinAttribute {
   name := `partial_fixpoint_monotone
   descr := "monotonicity theorem"

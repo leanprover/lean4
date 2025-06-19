@@ -467,9 +467,6 @@ private def findCase (decVars : FVarIdSet) : SearchM Case := do
     trace[grind.debug.cutsat.search.backtrack] "skipping {case.fvarId.name}"
   unreachable!
 
-private def union (vs₁ vs₂ : FVarIdSet) : FVarIdSet :=
-  vs₁.fold (init := vs₂) (·.insert ·)
-
 def resolveConflict (h : UnsatProof) : SearchM Unit := do
   trace[grind.debug.cutsat.search.backtrack] "resolve conflict, decision stack: {(← get).cases.toList.map fun c => c.fvarId.name}"
   let decVars := h.collectDecVars.run (← get).decVars
@@ -490,7 +487,7 @@ def resolveConflict (h : UnsatProof) : SearchM Unit := do
     trace[grind.debug.cutsat.search.backtrack] "resolved diseq split: {← c'.pp}"
     c'.assert
   | .cooper pred hs decVars' =>
-    let decVars' := union decVars decVars'
+    let decVars' := decVars.union decVars'
     let n := pred.numCases
     let hs := hs.push (c.fvarId, h)
     trace[grind.debug.cutsat.search.backtrack] "cooper #{hs.size + 1}, {← pred.pp}, {hs.map fun p => p.1.name}"

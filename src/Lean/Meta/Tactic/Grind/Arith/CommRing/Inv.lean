@@ -29,12 +29,8 @@ private def checkPoly (p : Poly) : RingM Unit := do
 
 private def checkBasis : RingM Unit := do
   let mut x := 0
-  for cs in (← getRing).varToBasis do
-    for c in cs do
-      checkPoly c.p
-      let .add _ m _ := c.p | unreachable!
-      let .mult pw _ := m | unreachable!
-      assert! pw.x == x
+  for c in (← getRing).basis do
+    checkPoly c.p
     x := x + 1
 
 private def checkQueue : RingM Unit := do

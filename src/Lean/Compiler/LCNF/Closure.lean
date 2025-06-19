@@ -41,7 +41,7 @@ structure State where
   /--
   Set of already visited free variables.
   -/
-  visited : FVarIdSet := {}
+  visited : FVarIdHashSet := {}
   /--
   Free variables that must become new parameters of the code being specialized.
   -/

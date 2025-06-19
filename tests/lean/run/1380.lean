@@ -21,7 +21,10 @@ trace: [Meta.Tactic.simp.unify] eq_self:1000, failed to unify
         v₁ < v₂
       ==>
         True
-[Meta.Tactic.simp.rewrite] Nat.ne_of_gt:1000: v₂ = v₁ ==> False
+[Meta.Tactic.simp.rewrite] Nat.ne_of_gt:1000:
+      v₂ = v₁
+    ==>
+      False
 -/
 #guard_msgs in
 set_option trace.Meta.Tactic.simp true in

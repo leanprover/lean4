@@ -8,7 +8,7 @@ def wrongRem := 1
 theorem correct₁ : dividend / divisor = correctQuot := rfl
 theorem correct₂ : dividend = divisor * correctQuot + correctRem := rfl
 
-theorem wrong : dividend % divisor = wrongRem := rfl
+theorem wrong : dividend % divisor = wrongRem := (rfl)
 
 theorem unsound : False := by
   have : wrongRem = correctRem := by

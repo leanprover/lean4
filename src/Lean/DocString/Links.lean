@@ -23,7 +23,7 @@ If the environment variable `LEAN_MANUAL_ROOT` is set, it is used as the root. I
 root is pre-configured for the current Lean executable (typically true for releases), then it is
 used. If neither are true, then `https://lean-lang.org/doc/reference/latest/` is used.
 -/
-def manualRoot : BaseIO String := do
+builtin_initialize manualRoot : String ←
   let r ←
     if let some root := (← IO.getEnv "LEAN_MANUAL_ROOT") then
       pure root
@@ -34,6 +34,22 @@ def manualRoot : BaseIO String := do
       else
         pure root
   return if r.endsWith "/" then r else r ++ "/"
+
+/--
+The manual domain for error explanations.
+
+We expose this because it is used to populate the URL of the error message description widget.
+-/
+def errorExplanationManualDomain :=
+  "Manual.errorExplanation"
+
+-- TODO: we may wish to make this more general for domains that require additional arguments
+/-- Maps `lean-manual` URL paths to their corresponding manual domains. -/
+private def domainMap : Std.HashMap String String :=
+  Std.HashMap.ofList [
+    ("section", "Verso.Genre.Manual.section"),
+    ("errorExplanation", errorExplanationManualDomain)
+  ]
 
 /--
 Rewrites links from the internal Lean manual syntax to the correct URL. This rewriting is an
@@ -74,7 +90,7 @@ def rewriteManualLinksCore (s : String) : BaseIO (Array (String.Range × String)
         out := out.push c
         break
       | .ok path =>
-        out := out ++ (← manualRoot) ++ path
+        out := out ++ manualRoot ++ path
         out := out.push c'
         iter := iter'
         break
@@ -104,17 +120,19 @@ where
 
   rw (path : String) : Except String String := do
     match path.splitOn "/" with
-    | "section" :: args =>
-      if let [s] := args then
-        if s.isEmpty then
-          throw s!"Empty section ID"
-        return s!"find/?domain=Verso.Genre.Manual.section&name={s}"
-      else
-        throw s!"Expected one item after 'section', but got {args}"
     | [] | [""] =>
       throw "Missing documentation type"
-    | other :: _ =>
-      throw s!"Unknown documentation type '{other}'. Expected 'section'."
+    | kind :: args =>
+      if let some domain := domainMap.get? kind then
+        if let [s] := args then
+          if s.isEmpty then
+            throw s!"Empty {kind} ID"
+          return s!"find/?domain={domain}&name={s}"
+        else
+          throw s!"Expected one item after `{kind}`, but got {args}"
+      else
+        let acceptableKinds := ", ".intercalate <| domainMap.toList.map fun (k, _) => s!"`{k}`"
+        throw s!"Unknown documentation type `{kind}`. Expected one of the following: {acceptableKinds}"
 
 
 /--

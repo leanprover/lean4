@@ -39,6 +39,7 @@ lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
 static lean_object* l_Lean_Meta_mkFreshBinderNameForTactic___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_intro1P(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_getIntrosSize___boxed(lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Intro___hyg_867____closed__8;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_mkFreshBinderNameForTacticCore(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkFreshBinderNameForTactic___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -999,7 +1000,6 @@ return x_85;
 default: 
 {
 lean_object* x_86; 
-lean_inc(x_8);
 x_86 = l_Lean_Expr_letFun_x3f(x_8);
 if (lean_obj_tag(x_86) == 0)
 {
@@ -2249,8 +2249,6 @@ case 7:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = lean_ctor_get(x_1, 2);
-lean_inc(x_2);
-lean_dec(x_1);
 x_3 = l_Lean_Meta_getIntrosSize(x_2);
 x_4 = lean_unsigned_to_nat(1u);
 x_5 = lean_nat_add(x_3, x_4);
@@ -2261,8 +2259,6 @@ case 8:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = lean_ctor_get(x_1, 3);
-lean_inc(x_6);
-lean_dec(x_1);
 x_7 = l_Lean_Meta_getIntrosSize(x_6);
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_add(x_7, x_8);
@@ -2273,8 +2269,6 @@ case 10:
 {
 lean_object* x_10; 
 x_10 = lean_ctor_get(x_1, 1);
-lean_inc(x_10);
-lean_dec(x_1);
 x_1 = x_10;
 goto _start;
 }
@@ -2304,6 +2298,7 @@ x_17 = lean_ctor_get(x_16, 1);
 lean_inc(x_17);
 lean_dec(x_16);
 x_18 = l_Lean_Meta_getIntrosSize(x_17);
+lean_dec(x_17);
 x_19 = lean_unsigned_to_nat(1u);
 x_20 = lean_nat_add(x_18, x_19);
 lean_dec(x_18);
@@ -2311,6 +2306,15 @@ return x_20;
 }
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_getIntrosSize___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_getIntrosSize(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_MVarId_intros(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -2335,6 +2339,7 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint
 x_12 = lean_ctor_get(x_10, 0);
 x_13 = lean_ctor_get(x_10, 1);
 x_14 = l_Lean_Meta_getIntrosSize(x_12);
+lean_dec(x_12);
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = lean_nat_dec_eq(x_14, x_15);
 if (x_16 == 0)
@@ -2371,6 +2376,7 @@ lean_inc(x_23);
 lean_inc(x_22);
 lean_dec(x_10);
 x_24 = l_Lean_Meta_getIntrosSize(x_22);
+lean_dec(x_22);
 x_25 = lean_unsigned_to_nat(0u);
 x_26 = lean_nat_dec_eq(x_24, x_25);
 if (x_26 == 0)

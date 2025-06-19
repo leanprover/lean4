@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 example (x y : Int) : x / 2 + y = 3 → x = 5 → y = 1 := by
   grind
 

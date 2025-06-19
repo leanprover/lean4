@@ -41,11 +41,7 @@ where
       ⟨aig, h ▸ .empty⟩
     else
       have : 0 < w := by omega
-      let res := blastConst aig 0
-      let aig := res.aig
-      let zero := res.vec
-      have := AIG.LawfulVecOperator.le_size (f := blastConst) ..
-      let input := input.cast this
+      let zero := blastConst aig 0
       let ⟨lhs, rhs⟩ := input
       let res := AIG.RefVec.ite aig ⟨rhs.get 0 (by assumption), lhs, zero⟩
       let aig := res.aig
@@ -139,8 +135,7 @@ instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blast where
     · simp
     · dsimp only
       refine Nat.le_trans ?_ (by apply blastMul.go_le_size)
-      apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.ite)
-      apply AIG.LawfulVecOperator.le_size (f := blastConst)
+      apply AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite)
   decl_eq := by
     intros
     unfold blast
@@ -149,12 +144,8 @@ instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blast where
     · dsimp only
       rw [blastMul.go_decl_eq]
       rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
-      rw [AIG.LawfulVecOperator.decl_eq (f := blastConst)]
-      · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastConst)
-        assumption
-      · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
-        apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastConst)
-        assumption
+      apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
+      assumption
 
 end blastMul
 

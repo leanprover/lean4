@@ -35,6 +35,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_KeyTy_noConfusion(lean_object*);
 static lean_object* l_Lake_Toml_instToStringKeyTy___closed__1;
 uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_185_(uint8_t, uint8_t);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lake_Toml_elabHeaderKeys___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_elabKeyval___closed__7;
@@ -123,7 +124,6 @@ extern lean_object* l_Lean_warningAsError;
 static lean_object* l_Lake_Toml_elabStdTable___lambda__1___closed__1;
 uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Toml_KeyTy_isValidPrefix(uint8_t);
-uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Toml_elabStdTable___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_instInhabitedElabState___closed__1;
@@ -7174,7 +7174,7 @@ _start:
 {
 lean_object* x_9; uint8_t x_321; uint8_t x_322; 
 x_321 = 2;
-x_322 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_3, x_321);
+x_322 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_185_(x_3, x_321);
 if (x_322 == 0)
 {
 lean_object* x_323; 
@@ -7218,7 +7218,7 @@ lean_dec(x_9);
 x_314 = lean_ctor_get(x_6, 2);
 lean_inc(x_314);
 x_315 = 1;
-x_316 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_3, x_315);
+x_316 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_185_(x_3, x_315);
 if (x_316 == 0)
 {
 lean_dec(x_314);

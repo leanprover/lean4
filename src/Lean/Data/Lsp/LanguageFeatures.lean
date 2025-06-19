@@ -521,5 +521,73 @@ structure InlayHintOptions extends WorkDoneProgressOptions where
   resolveProvider? : Option Bool := none
   deriving FromJson, ToJson
 
+inductive ParameterInformationLabel
+  | name (name : String)
+  | range (startUtf16Offset endUtf16Offset : Nat)
+
+instance : FromJson ParameterInformationLabel where
+  fromJson?
+    | .str name => .ok <| .name name
+    | .arr #[startUtf16OffsetJson, endUtf16OffsetJson] => do
+      return .range (← fromJson? startUtf16OffsetJson) (← fromJson? endUtf16OffsetJson)
+    | _ => .error "unexpected JSON for `ParameterInformationLabel`"
+
+instance : ToJson ParameterInformationLabel where
+  toJson
+    | .name name => .str name
+    | .range startUtf16Offset endUtf16Offset => .arr #[startUtf16Offset, endUtf16Offset]
+
+structure ParameterInformation where
+  label : ParameterInformationLabel
+  documentation? : Option MarkupContent := none
+  deriving FromJson, ToJson
+
+structure SignatureInformation where
+  label : String
+  documentation? : Option MarkupContent := none
+  parameters? : Option (Array ParameterInformation) := none
+  activeParameter? : Option Nat := none
+  deriving FromJson, ToJson
+
+structure SignatureHelp where
+  signatures : Array SignatureInformation
+  activeSignature? : Option Nat := none
+  activeParameter? : Option Nat := none
+  deriving FromJson, ToJson
+
+inductive SignatureHelpTriggerKind where
+  | invoked
+  | triggerCharacter
+  | contentChange
+
+instance : FromJson SignatureHelpTriggerKind where
+  fromJson?
+    | (1 : Nat) => .ok .invoked
+    | (2 : Nat) => .ok .triggerCharacter
+    | (3 : Nat) => .ok .contentChange
+    | _ => .error "Unexpected JSON in `SignatureHelpTriggerKind`"
+
+instance : ToJson SignatureHelpTriggerKind where
+  toJson
+    | .invoked => 1
+    | .triggerCharacter => 2
+    | .contentChange => 3
+
+structure SignatureHelpContext where
+  triggerKind : SignatureHelpTriggerKind
+  triggerCharacter? : Option String := none
+  isRetrigger : Bool
+  activeSignatureHelp? : Option SignatureHelp := none
+  deriving FromJson, ToJson
+
+structure SignatureHelpParams extends TextDocumentPositionParams, WorkDoneProgressParams where
+  context? : Option SignatureHelpContext := none
+  deriving FromJson, ToJson
+
+structure SignatureHelpOptions extends WorkDoneProgressOptions where
+  triggerCharacters? : Option (Array String) := none
+  retriggerCharacters? : Option (Array String) := none
+  deriving FromJson, ToJson
+
 end Lsp
 end Lean

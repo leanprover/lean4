@@ -13,14 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT uint8_t l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_114_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_OfNat_Expr_denoteAsInt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_OfNat_0__Int_OfNat_Expr_denote_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_OfNat_Expr_denote___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_OfNat_Expr_denoteAsInt___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_RArray_getImpl___rarg(lean_object*, lean_object*);
 lean_object* lean_int_emod(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_114____boxed(lean_object*, lean_object*);
 static lean_object* l_Int_OfNat_instBEqExpr___closed__1;
 LEAN_EXPORT lean_object* l_Int_OfNat_Expr_denote(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
@@ -31,8 +29,10 @@ LEAN_EXPORT lean_object* l_Int_OfNat_Var_denote(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_OfNat_instBEqExpr;
 lean_object* lean_int_mul(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_137_(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_137____boxed(lean_object*, lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
 lean_object* lean_int_ediv(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -54,7 +54,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT uint8_t l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_114_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_137_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -101,7 +101,7 @@ x_11 = lean_ctor_get(x_1, 0);
 x_12 = lean_ctor_get(x_1, 1);
 x_13 = lean_ctor_get(x_2, 0);
 x_14 = lean_ctor_get(x_2, 1);
-x_15 = l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_114_(x_11, x_13);
+x_15 = l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_137_(x_11, x_13);
 if (x_15 == 0)
 {
 uint8_t x_16; 
@@ -131,7 +131,7 @@ x_19 = lean_ctor_get(x_1, 0);
 x_20 = lean_ctor_get(x_1, 1);
 x_21 = lean_ctor_get(x_2, 0);
 x_22 = lean_ctor_get(x_2, 1);
-x_23 = l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_114_(x_19, x_21);
+x_23 = l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_137_(x_19, x_21);
 if (x_23 == 0)
 {
 uint8_t x_24; 
@@ -161,7 +161,7 @@ x_27 = lean_ctor_get(x_1, 0);
 x_28 = lean_ctor_get(x_1, 1);
 x_29 = lean_ctor_get(x_2, 0);
 x_30 = lean_ctor_get(x_2, 1);
-x_31 = l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_114_(x_27, x_29);
+x_31 = l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_137_(x_27, x_29);
 if (x_31 == 0)
 {
 uint8_t x_32; 
@@ -191,7 +191,7 @@ x_35 = lean_ctor_get(x_1, 0);
 x_36 = lean_ctor_get(x_1, 1);
 x_37 = lean_ctor_get(x_2, 0);
 x_38 = lean_ctor_get(x_2, 1);
-x_39 = l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_114_(x_35, x_37);
+x_39 = l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_137_(x_35, x_37);
 if (x_39 == 0)
 {
 uint8_t x_40; 
@@ -215,11 +215,11 @@ return x_42;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_114____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_137____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_114_(x_1, x_2);
+x_3 = l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_137_(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -230,7 +230,7 @@ static lean_object* _init_l_Int_OfNat_instBEqExpr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_114____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_137____boxed), 2, 0);
 return x_1;
 }
 }

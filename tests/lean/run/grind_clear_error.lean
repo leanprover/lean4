@@ -1,6 +1,4 @@
 reset_grind_attrs%
-set_option grind.warning false
-
 attribute [grind] List.not_mem_nil
 
 /--

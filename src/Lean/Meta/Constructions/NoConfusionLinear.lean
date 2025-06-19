@@ -10,7 +10,7 @@ import Lean.Meta.CompletionName
 
 /-!
 This module produces a construction for the `noConfusionType` that is linear in size in the number of
-constructors of the inductive type. This is in contrast to the previous construction (definde in
+constructors of the inductive type. This is in contrast to the previous construction (defined in
 `no_confusion.cpp`), that is quadratic in size due to nested `.brecOn` applications.
 
 We still use the old construction when processing the prelude, for the few inductives that we need

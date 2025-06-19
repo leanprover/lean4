@@ -455,7 +455,7 @@ theorem toNat_lt (b : Bool) : b.toNat < 2 :=
 /--
 Converts `true` to `1` and `false` to `0`.
 -/
-def toInt (b : Bool) : Int := cond b 1 0
+@[expose] def toInt (b : Bool) : Int := cond b 1 0
 
 @[simp] theorem toInt_false : false.toInt = 0 := rfl
 

@@ -638,7 +638,7 @@ theorem toNat_of_nonneg {a : Int} (h : 0 ≤ a) : (toNat a : Int) = a := by
 @[simp] theorem toNat_natCast (n : Nat) : toNat ↑n = n := rfl
 
 @[deprecated toNat_natCast (since := "2025-04-16")]
-theorem toNat_ofNat (n : Nat) : toNat ↑n = n := toNat_natCast n
+theorem toNat_ofNat (n : Nat) : toNat ↑n = n := rfl
 
 @[simp] theorem toNat_negSucc (n : Nat) : (Int.negSucc n).toNat = 0 := by
   simp [toNat]

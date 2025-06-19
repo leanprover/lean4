@@ -1,6 +1,4 @@
 reset_grind_attrs%
-set_option grind.warning false
-
 namespace List
 
 attribute [local grind =] List.length_cons in

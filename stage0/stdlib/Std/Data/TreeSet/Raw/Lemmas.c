@@ -13,6 +13,23 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_Equiv_instTrans(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_Equiv_instTrans___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_Equiv_instTrans(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+return lean_box(0);
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_Equiv_instTrans___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_TreeSet_Raw_Equiv_instTrans(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
 lean_object* initialize_Std_Data_TreeMap_Raw_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_TreeSet_Raw_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;

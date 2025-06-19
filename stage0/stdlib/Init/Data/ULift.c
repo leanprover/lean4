@@ -14,10 +14,10 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_instDecidableEqULift(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_ULift_0__decEqULift____x40_Init_Data_ULift___hyg_3____rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_ULift_0__decEqULift____x40_Init_Data_ULift___hyg_3_(lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableEqULift___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_ULift_0__decEqULift____x40_Init_Data_ULift___hyg_3____rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_decEqULift____x40_Init_Data_ULift___hyg_3_(lean_object*);
+LEAN_EXPORT lean_object* l_decEqULift____x40_Init_Data_ULift___hyg_3____rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_decEqULift____x40_Init_Data_ULift___hyg_3____rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -25,11 +25,11 @@ x_4 = lean_apply_2(x_1, x_2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_ULift_0__decEqULift____x40_Init_Data_ULift___hyg_3_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_decEqULift____x40_Init_Data_ULift___hyg_3_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Init_Data_ULift_0__decEqULift____x40_Init_Data_ULift___hyg_3____rarg), 3, 0);
+x_2 = lean_alloc_closure((void*)(l_decEqULift____x40_Init_Data_ULift___hyg_3____rarg), 3, 0);
 return x_2;
 }
 }

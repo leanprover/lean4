@@ -111,7 +111,7 @@ theorem unsat_of_cons_none_unsat (clauses : List (Option (DefaultClause n))) :
   apply h assign
   simp only [Formula.formulaEntails_def, List.all_eq_true, decide_eq_true_eq] at *
   intro clause hclause
-  simp_all[DefaultFormula.ofArray, Formula.toList, DefaultFormula.toList]
+  simp_all [DefaultFormula.ofArray, Formula.toList, DefaultFormula.toList]
 
 theorem CNF.unsat_of_convertLRAT_unsat (cnf : CNF Nat) :
     Unsatisfiable (PosFin (cnf.numLiterals + 1)) (CNF.convertLRAT cnf)

@@ -94,7 +94,6 @@ lean_object* l_Lean_RBNode_setBlack___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Package_loadFromEnv___spec__20___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_mkTagMap___spec__4___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-lean_object* lean_eval_const(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_PackageDecl_loadFromEnv___closed__4;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Package_loadFromEnv___spec__1___at_Lake_Package_loadFromEnv___spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_PackageDecl_loadFromEnv___closed__5;
@@ -205,6 +204,7 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lake_mkTagMap___spec__2___rarg(l
 LEAN_EXPORT lean_object* l_Lake_mkOrdTagMap___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lake_mkTagMap___spec__3(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+lean_object* l_Lean_Environment_evalConst___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 extern lean_object* l_Lake_instTypeNamePackageDecl;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Package_loadFromEnv___spec__16(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_mkOrdTagMap___spec__1___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -358,21 +358,20 @@ return x_20;
 }
 else
 {
-lean_object* x_21; 
+uint8_t x_21; lean_object* x_22; 
 lean_dec(x_4);
-x_21 = lean_eval_const(x_1, x_2, x_5);
-lean_dec(x_5);
-lean_dec(x_1);
-return x_21;
+x_21 = 1;
+x_22 = l_Lean_Environment_evalConst___rarg(x_1, x_2, x_5, x_21);
+return x_22;
 }
 }
 else
 {
-lean_object* x_22; 
+lean_object* x_23; 
 lean_dec(x_17);
 lean_dec(x_1);
-x_22 = l_Lake_unsafeEvalConstCheck_throwUnexpectedType___rarg(x_4, x_5);
-return x_22;
+x_23 = l_Lake_unsafeEvalConstCheck_throwUnexpectedType___rarg(x_4, x_5);
+return x_23;
 }
 }
 }

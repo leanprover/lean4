@@ -75,7 +75,6 @@ lean_object* l_Lean_Expr_appFnCleanup(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Nat_simpCnstr_x3f___closed__9;
 lean_object* l_Nat_Linear_Poly_toExpr(lean_object*);
 extern lean_object* l_Lean_levelZero;
-uint8_t l_Nat_Linear_beqExpr____x40_Init_Data_Nat_Linear___hyg_121_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Nat_simpCnstr_x3f___closed__3;
 static lean_object* l_Lean_Meta_Simp_Arith_Nat_simpCnstrPos_x3f___lambda__1___closed__8;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -92,6 +91,7 @@ static lean_object* l_Lean_Meta_Simp_Arith_Nat_simpCnstrPos_x3f___lambda__1___cl
 static lean_object* l_Lean_Meta_Simp_Arith_Nat_simpCnstr_x3f___lambda__1___closed__3;
 lean_object* l_Lean_Meta_Simp_Arith_Nat_toLinearExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_Linear_Poly_norm(lean_object*);
+uint8_t l_Nat_Linear_beqExpr____x40_Init_Data_Nat_Linear___hyg_140_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Nat_simpCnstr_x3f___lambda__2___closed__2;
 lean_object* l_Lean_Meta_Simp_Arith_Nat_toContextExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_Nat_simpCnstr_x3f___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2311,7 +2311,7 @@ lean_dec(x_9);
 x_13 = l_Nat_Linear_Expr_toPoly(x_11);
 x_14 = l_Nat_Linear_Poly_norm(x_13);
 x_15 = l_Nat_Linear_Poly_toExpr(x_14);
-x_16 = l_Nat_Linear_beqExpr____x40_Init_Data_Nat_Linear___hyg_121_(x_15, x_11);
+x_16 = l_Nat_Linear_beqExpr____x40_Init_Data_Nat_Linear___hyg_140_(x_15, x_11);
 if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; 
@@ -2352,7 +2352,7 @@ lean_dec(x_20);
 x_24 = l_Nat_Linear_Expr_toPoly(x_22);
 x_25 = l_Nat_Linear_Poly_norm(x_24);
 x_26 = l_Nat_Linear_Poly_toExpr(x_25);
-x_27 = l_Nat_Linear_beqExpr____x40_Init_Data_Nat_Linear___hyg_121_(x_26, x_22);
+x_27 = l_Nat_Linear_beqExpr____x40_Init_Data_Nat_Linear___hyg_140_(x_26, x_22);
 if (x_27 == 0)
 {
 lean_object* x_28; lean_object* x_29; 

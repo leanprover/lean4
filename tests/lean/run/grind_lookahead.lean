@@ -1,4 +1,3 @@
-set_option grind.warning false
 reset_grind_attrs%
 
 attribute [grind] List.eq_nil_of_length_eq_zero

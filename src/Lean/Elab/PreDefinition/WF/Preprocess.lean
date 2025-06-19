@@ -117,7 +117,7 @@ builtin_dsimproc paramLet (_) := fun e => do
   let u ← getLevel e.letType!
   let body' := e.letBody!.instantiate1 <|
     mkApp2 (.const ``wfParam [u]) e.letType! (.bvar 0)
-  return .continue <| e.updateLet! e.letType! v body'
+  return .continue <| e.updateLetE! e.letType! v body'
 
 def preprocess (e : Expr) : MetaM Simp.Result := do
   unless wf.preprocess.get (← getOptions) do

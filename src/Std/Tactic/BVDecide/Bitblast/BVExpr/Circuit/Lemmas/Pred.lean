@@ -64,7 +64,7 @@ theorem bitblast_Inv_of_Inv (input : BVExpr.WithCache BVPred aig)
         exact hinv
   · dsimp only
     apply BVExpr.Cache.Inv_cast
-    · apply AIG.LawfulOperator.isPrefix_aig (f := blastGetLsbD)
+    · apply IsPrefix.rfl
     · apply BVExpr.bitblast_Inv_of_Inv
       exact hinv
 

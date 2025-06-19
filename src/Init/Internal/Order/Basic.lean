@@ -363,7 +363,7 @@ theorem chain_iterates {f : α → α} (hf : monotone f) : chain (iterates f) :=
       · left; apply hf; assumption
       · right; apply hf; assumption
     case sup c hchain hi ih2 =>
-      show f x ⊑ csup c ∨ csup c ⊑ f x
+      change f x ⊑ csup c ∨ csup c ⊑ f x
       by_cases h : ∃ z, c z ∧ f x ⊑ z
       · left
         obtain ⟨z, hz, hfz⟩ := h
@@ -380,7 +380,7 @@ theorem chain_iterates {f : α → α} (hf : monotone f) : chain (iterates f) :=
         next => contradiction
         next => assumption
   case sup c hchain hi ih =>
-    show rel (csup c) y ∨ rel y (csup c)
+    change rel (csup c) y ∨ rel y (csup c)
     by_cases h : ∃ z, c z ∧ rel y z
     · right
       obtain ⟨z, hz, hfz⟩ := h
@@ -914,7 +914,7 @@ instance ReverseImplicationOrder.instOrder : PartialOrder ReverseImplicationOrde
   rel_antisymm h₁ h₂ := propext ⟨h₂, h₁⟩
 
 -- This defines a complete lattice on `Prop`, used to define coinductive predicates
-def ReverseImplicationOrder.instCompleteLattice : CompleteLattice ReverseImplicationOrder where
+instance ReverseImplicationOrder.instCompleteLattice : CompleteLattice ReverseImplicationOrder where
   sup c := ∀ p, c p → p
   sup_spec := by
     intro x c

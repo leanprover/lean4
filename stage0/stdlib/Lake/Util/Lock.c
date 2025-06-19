@@ -21,6 +21,7 @@ LEAN_EXPORT lean_object* l_Lake_busyAcquireLockFile_busyLoop___lambda__1(lean_ob
 LEAN_EXPORT lean_object* l_Lake_withLockFile___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_IO_FS_createDirAll(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_withLockFile___rarg___lambda__3___boxed(lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_tryCatch___at_Lake_withLockFile___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_withLockFile___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_busyAcquireLockFile_busyLoop___boxed(lean_object*, lean_object*, lean_object*);
@@ -47,7 +48,6 @@ LEAN_EXPORT lean_object* l_Lake_busyAcquireLockFile_busyLoop(lean_object*, uint8
 lean_object* lean_io_process_get_pid(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_withLockFile___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_tryCatch___at_Lake_withLockFile___spec__1(lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_withLockFile___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_busyAcquireLockFile_busyLoop___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
@@ -86,7 +86,7 @@ lean_dec(x_8);
 x_11 = lean_unbox_uint32(x_9);
 lean_dec(x_9);
 x_12 = lean_uint32_to_nat(x_11);
-x_13 = l___private_Init_Data_Repr_0__Nat_reprFast(x_12);
+x_13 = l_Nat_reprFast(x_12);
 x_14 = l_IO_FS_Handle_putStrLn(x_6, x_13, x_10);
 lean_dec(x_6);
 return x_14;

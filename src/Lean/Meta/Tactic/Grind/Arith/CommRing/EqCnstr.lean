@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Meta.Tactic.Grind.ProveEq
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
@@ -48,15 +49,11 @@ then the leading coefficient of the equation must also divide `k`
 def _root_.Lean.Grind.CommRing.Mon.findSimp? (k : Int) (m : Mon) : RingM (Option EqCnstr) := do
   let checkCoeff ← checkCoeffDvd
   let noZeroDiv ← noZeroDivisors
-  let rec go : Mon → RingM (Option EqCnstr)
-    | .unit => return none
-    | .mult pw m' => do
-      for c in (← getRing).varToBasis[pw.x]! do
-        if !checkCoeff || noZeroDiv || (c.p.lc ∣ k) then
-        if c.p.divides m then
-          return some c
-      go m'
-  go m
+  for c in (← getRing).basis do
+    if !checkCoeff || noZeroDiv || (c.p.lc ∣ k) then
+    if c.p.divides m then
+      return some c
+  return none
 
 /--
 Returns `some c`, where `c` is an equation from the basis whose leading monomial divides some
@@ -127,8 +124,15 @@ def EqCnstr.checkConstant (c : EqCnstr) : RingM Bool := do
     trace_goal[grind.ring.assert.trivial] "{← c.denoteExpr}"
   else if (← hasChar) then
     c.setUnsat
+  else  if k.natAbs == 1 then
+    if (← isField) then
+      c.setUnsat
+    else
+      -- Remark: we currently don't do anything if the ring characteristic is not known.
+      -- TODO: we could set all terms of this ring `0` if `1 = 0`.
+      trace_goal[grind.ring.assert.discard] "{← c.denoteExpr}"
   else
-    -- Remark: we currently don't do anything if the characteristic is not known.
+    -- TODO: we could save the equation for and use it to simplify polynomials
     trace_goal[grind.ring.assert.discard] "{← c.denoteExpr}"
   return true
 
@@ -153,10 +157,9 @@ private def addSorted (c : EqCnstr) : List EqCnstr → List EqCnstr
       c' :: addSorted c cs
 
 def addToBasisCore (c : EqCnstr) : RingM Unit := do
-  let .add _ m _ := c.p | return ()
-  let .mult pw _ := m | return ()
+  trace[grind.debug.ring.basis] "{← c.denoteExpr}"
   modifyRing fun s => { s with
-    varToBasis := s.varToBasis.modify pw.x (addSorted c)
+    basis := addSorted c s.basis
     recheck := true
   }
 
@@ -168,18 +171,12 @@ def EqCnstr.addToQueue (c : EqCnstr) : RingM Unit := do
 def EqCnstr.superposeWith (c : EqCnstr) : RingM Unit := do
   if (← checkMaxSteps) then return ()
   let .add _ m _ := c.p | return ()
-  go m
-where
-  go : Mon → RingM Unit
-    | .unit => return ()
-    | .mult pw m => do
-      let x := pw.x
-      let cs := (← getRing).varToBasis[x]!
-      for c' in cs do
-        let r ← c.p.spolM c'.p
-        trace_goal[grind.ring.superpose] "{← c.denoteExpr}\nwith: {← c'.denoteExpr}\nresult: {← r.spol.denoteExpr} = 0"
-        addToQueue (← mkEqCnstr r.spol <| .superpose r.k₁ r.m₁ c r.k₂ r.m₂ c')
-      go m
+  for c' in (← getRing).basis do
+    let .add _ m' _ := c'.p | pure ()
+    if m.sharesVar m' then
+      let r ← c.p.spolM c'.p
+      trace_goal[grind.ring.superpose] "{← c.denoteExpr}\nwith: {← c'.denoteExpr}\nresult: {← r.spol.denoteExpr} = 0"
+      addToQueue (← mkEqCnstr r.spol <| .superpose r.k₁ r.m₁ c r.k₂ r.m₂ c')
 
 /--
 Tries to convert the leading monomial into a monic one.
@@ -215,25 +212,23 @@ def EqCnstr.toMonic (c : EqCnstr) : RingM EqCnstr := do
 def EqCnstr.simplifyBasis (c : EqCnstr) : RingM Unit := do
   trace[grind.debug.ring.simpBasis] "using: {← c.denoteExpr}"
   let .add _ m _ := c.p | return ()
-  let rec go (m' : Mon) : RingM Unit := do
-    match m' with
-    | .unit => return ()
-    | .mult pw m' => goVar m pw.x; go m'
-  go m
-where
-  goVar (m : Mon) (x : Var) : RingM Unit := do
-    let cs := (← getRing).varToBasis[x]!
-    if cs.isEmpty then return ()
-    modifyRing fun s => { s with varToBasis := s.varToBasis.set x {} }
-    for c' in cs do
-      trace[grind.debug.ring.simpBasis] "target: {← c'.denoteExpr}"
-      let .add _ m' _ := c'.p | pure ()
-      if m.divides m' then
-        let c'' ← c'.simplifyWithExhaustively c
-        trace[grind.debug.ring.simpBasis] "simplified: {← c''.denoteExpr}"
-        addToQueue c''
-      else
-        addToBasisCore c'
+  let rec go (basis : List EqCnstr) (acc : List EqCnstr) : RingM (List EqCnstr) := do
+    match basis with
+    | [] => return acc.reverse
+    | c' :: basis =>
+      match c'.p with
+      | .add _ m' _ =>
+        if m.divides m' then
+          let c'' ← c'.simplifyWithExhaustively c
+          trace[grind.debug.ring.simpBasis] "simplified: {← c''.denoteExpr}"
+          unless (← checkConstant c'') do
+            addToQueue c''
+          go basis acc
+        else
+          go basis (c' :: acc)
+      | _ => go basis (c' :: acc)
+  let basis ← go (← getRing).basis []
+  modifyRing fun s => { s with basis }
 
 def EqCnstr.addToBasisAfterSimp (c : EqCnstr) : RingM Unit := do
   let c ← c.toMonic
@@ -288,6 +283,36 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
     let p ← (ra.sub rb).toPolyM
     addNewEq (← mkEqCnstr p (.core a b ra rb))
 
+private def pre (e : Expr) : GoalM Expr := do
+  -- We must canonicalize because the instances generated by this module may not match
+  -- the ones selected by the canonicalizer
+  shareCommon (← canon e)
+
+private def diseqToEq (a b : Expr) : RingM Unit := do
+  -- Rabinowitsch transformation
+  let gen := max (← getGeneration a) (← getGeneration b)
+  let ring ← getRing
+  let some fieldInst := ring.fieldInst? | unreachable!
+  let e ← pre <| mkApp2 ring.subFn a b
+  modifyRing fun s => { s with invSet := s.invSet.insert e }
+  let eInv ← pre <| mkApp (← getRing).invFn?.get! e
+  let lhs ← pre <| mkApp2 ring.mulFn e eInv
+  internalize lhs gen none
+  trace[grind.debug.ring.rabinowitsch] "{lhs}"
+  pushEq lhs ring.one <| mkApp5 (mkConst ``Grind.CommRing.diseq_to_eq [ring.u]) ring.type fieldInst a b (← mkDiseqProof a b)
+
+private def diseqZeroToEq (a b : Expr) : RingM Unit := do
+  -- Rabinowitsch transformation for `b = 0` case
+  let gen ← getGeneration a
+  let ring ← getRing
+  let some fieldInst := ring.fieldInst? | unreachable!
+  modifyRing fun s => { s with invSet := s.invSet.insert a }
+  let aInv ← pre <| mkApp (← getRing).invFn?.get! a
+  let lhs ← pre <| mkApp2 ring.mulFn a aInv
+  internalize lhs gen none
+  trace[grind.debug.ring.rabinowitsch] "{lhs}"
+  pushEq lhs ring.one <| mkApp4 (mkConst ``Grind.CommRing.diseq0_to_eq [ring.u]) ring.type fieldInst a (← mkDiseqProof a b)
+
 @[export lean_process_ring_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
   let some ringId ← inSameRing? a b | return ()
@@ -296,6 +321,13 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
     let some ra ← toRingExpr? a | return ()
     let some rb ← toRingExpr? b | return ()
     let p ← (ra.sub rb).toPolyM
+    if (← isField) then
+      unless p matches .num _ do
+        if rb matches .num 0 then
+          diseqZeroToEq a b
+        else
+          diseqToEq a b
+        return ()
     addNewDiseq {
       lhs := a, rhs := b
       rlhs := ra, rrhs := rb

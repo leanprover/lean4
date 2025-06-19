@@ -210,7 +210,7 @@ protected def _root_.USize.repr (n : @& USize) : String :=
 private def reprArray : Array String := Id.run do
   List.range 128 |>.map (·.toUSize.repr) |> Array.mk
 
-private def reprFast (n : Nat) : String :=
+def reprFast (n : Nat) : String :=
   if h : n < Nat.reprArray.size then Nat.reprArray.getInternal n h else
   if h : n < USize.size then (USize.ofNatLT n h).repr
   else (toDigits 10 n).asString
@@ -342,11 +342,12 @@ instance : Repr Int where
 def hexDigitRepr (n : Nat) : String :=
   String.singleton <| Nat.digitChar n
 
-def Char.quoteCore (c : Char) : String :=
+def Char.quoteCore (c : Char) (inString : Bool := false) : String :=
   if       c = '\n' then "\\n"
   else if  c = '\t' then "\\t"
   else if  c = '\\' then "\\\\"
   else if  c = '\"' then "\\\""
+  else if !inString && c = '\'' then "\\\'"
   else if  c.toNat <= 31 ∨ c = '\x7f' then "\\x" ++ smallCharToHex c
   else String.singleton c
 where
@@ -383,7 +384,7 @@ Examples:
 -/
 def String.quote (s : String) : String :=
   if s.isEmpty then "\"\""
-  else s.foldl (fun s c => s ++ c.quoteCore) "\"" ++ "\""
+  else s.foldl (fun s c => s ++ c.quoteCore (inString := true)) "\"" ++ "\""
 
 instance : Repr String where
   reprPrec s _ := s.quote

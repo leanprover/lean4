@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 prelude
-import Init.Data.BitVec
+import Init.Data.BitVec.Lemmas
 import Std.Tactic.BVDecide.Syntax
 
 /-!

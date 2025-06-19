@@ -35,6 +35,7 @@ Examples:
 * `Int.gcd 0 5 = 5`
 * `Int.gcd (-7) 0 = 7`
 -/
+@[expose]
 def gcd (m n : Int) : Nat := m.natAbs.gcd n.natAbs
 
 theorem gcd_eq_natAbs_gcd_natAbs (m n : Int) : gcd m n = Nat.gcd m.natAbs n.natAbs := rfl
@@ -428,6 +429,7 @@ Examples:
  * `Int.lcm 0 3 = 0`
  * `Int.lcm (-3) 0 = 0`
 -/
+@[expose]
 def lcm (m n : Int) : Nat := m.natAbs.lcm n.natAbs
 
 theorem lcm_eq_natAbs_lcm_natAbs (m n : Int) : lcm m n = Nat.lcm m.natAbs n.natAbs := rfl

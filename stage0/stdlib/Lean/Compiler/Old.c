@@ -22,6 +22,7 @@ LEAN_EXPORT lean_object* lean_mk_eager_lambda_lifting_name(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lean_Compiler_getDeclNamesForCodeGen(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Compiler_checkIsDefinition___lambda__1(lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Compiler_isEagerLambdaLiftingName___closed__1;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_checkIsDefinition___closed__5;
@@ -37,7 +38,6 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t lean_is_eager_lambda_lifting_name(lean_object*);
 static lean_object* l_Lean_Compiler_checkIsDefinition___closed__3;
 lean_object* l_List_mapTR_loop___at_Lean_Declaration_getTopLevelNames___spec__1(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* _init_l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1() {
 _start:
 {
@@ -50,7 +50,7 @@ LEAN_EXPORT lean_object* lean_mk_eager_lambda_lifting_name(lean_object* x_1, lea
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = l___private_Init_Data_Repr_0__Nat_reprFast(x_2);
+x_3 = l_Nat_reprFast(x_2);
 x_4 = l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1;
 x_5 = lean_string_append(x_4, x_3);
 lean_dec(x_3);

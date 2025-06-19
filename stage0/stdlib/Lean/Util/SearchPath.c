@@ -30,6 +30,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___aux__Lean__Ut
 static lean_object* l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__14;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkStrLit(lean_object*);
+lean_object* l_Lean_log___at_Lean_Elab_Term_exceptionToSorry___spec__2(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__11;
 static lean_object* l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__4;
 static lean_object* l_termCompile__time__search__path_x25___closed__4;
@@ -52,7 +53,6 @@ extern lean_object* l_Lean_searchPathRef;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__10;
 LEAN_EXPORT lean_object* l_termCompile__time__search__path_x25;
-lean_object* l_Lean_logWarning___at___private_Lean_Elab_Term_0__Lean_Elab_Term_checkDeprecatedCore___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_ToExpr_0__Lean_List_toExprAux___at___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___spec__2___closed__5;
 static lean_object* l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__1;
 static lean_object* l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__3;
@@ -397,40 +397,42 @@ return x_12;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
+lean_object* x_13; uint8_t x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_13 = l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__3;
-x_14 = l_Lean_logWarning___at___private_Lean_Elab_Term_0__Lean_Elab_Term_checkDeprecatedCore___spec__4(x_13, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-x_15 = lean_ctor_get(x_14, 1);
-lean_inc(x_15);
-lean_dec(x_14);
-x_16 = l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__4;
-x_17 = lean_st_ref_get(x_16, x_15);
-x_18 = !lean_is_exclusive(x_17);
-if (x_18 == 0)
+x_14 = 1;
+x_15 = 0;
+x_16 = l_Lean_log___at_Lean_Elab_Term_exceptionToSorry___spec__2(x_13, x_14, x_15, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+x_17 = lean_ctor_get(x_16, 1);
+lean_inc(x_17);
+lean_dec(x_16);
+x_18 = l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__4;
+x_19 = lean_st_ref_get(x_18, x_17);
+x_20 = !lean_is_exclusive(x_19);
+if (x_20 == 0)
 {
-lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_19 = lean_ctor_get(x_17, 0);
-x_20 = l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__12;
-x_21 = l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__16;
-x_22 = l___private_Lean_ToExpr_0__Lean_List_toExprAux___at___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___spec__2(x_20, x_21, x_19);
-lean_ctor_set(x_17, 0, x_22);
-return x_17;
+lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+x_21 = lean_ctor_get(x_19, 0);
+x_22 = l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__12;
+x_23 = l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__16;
+x_24 = l___private_Lean_ToExpr_0__Lean_List_toExprAux___at___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___spec__2(x_22, x_23, x_21);
+lean_ctor_set(x_19, 0, x_24);
+return x_19;
 }
 else
 {
-lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
-x_23 = lean_ctor_get(x_17, 0);
-x_24 = lean_ctor_get(x_17, 1);
-lean_inc(x_24);
-lean_inc(x_23);
-lean_dec(x_17);
-x_25 = l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__12;
-x_26 = l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__16;
-x_27 = l___private_Lean_ToExpr_0__Lean_List_toExprAux___at___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___spec__2(x_25, x_26, x_23);
-x_28 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_28, 0, x_27);
-lean_ctor_set(x_28, 1, x_24);
-return x_28;
+lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+x_25 = lean_ctor_get(x_19, 0);
+x_26 = lean_ctor_get(x_19, 1);
+lean_inc(x_26);
+lean_inc(x_25);
+lean_dec(x_19);
+x_27 = l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__12;
+x_28 = l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__16;
+x_29 = l___private_Lean_ToExpr_0__Lean_List_toExprAux___at___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___spec__2(x_27, x_28, x_25);
+x_30 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_30, 0, x_29);
+lean_ctor_set(x_30, 1, x_26);
+return x_30;
 }
 }
 }

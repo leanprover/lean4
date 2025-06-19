@@ -24,15 +24,11 @@ trace: [grind.assert] (match as, bs with
 [grind.assert] a₁ :: f 0 = as
 [grind.assert] f 0 = a₂ :: f 1
 [grind.assert] ¬d = []
-[grind.assert] (match a₁ :: a₂ :: f 1, [] with
+[grind.assert] (match as, bs with
       | [], x => bs
       | head :: head_1 :: tail, [] => []
       | x :: xs, ys => x :: g xs ys) =
       []
-[grind.split.resolved] match as, bs with
-    | [], x => bs
-    | head :: head_1 :: tail, [] => []
-    | x :: xs, ys => x :: g xs ys
 -/
 #guard_msgs (trace) in
 example (f : Nat → List Nat) : g as bs = d → bs = [] → a₁ :: f 0 = as → f 0 = a₂ :: f 1 → d = [] := by

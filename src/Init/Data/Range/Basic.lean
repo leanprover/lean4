@@ -25,7 +25,7 @@ namespace Range
 universe u v
 
 /-- The number of elements in the range. -/
-@[simp] def size (r : Range) : Nat := (r.stop - r.start + r.step - 1) / r.step
+@[simp, expose] def size (r : Range) : Nat := (r.stop - r.start + r.step - 1) / r.step
 
 @[inline] protected def forIn' [Monad m] (range : Range) (init : β)
     (f : (i : Nat) → i ∈ range → β → m (ForInStep β)) : m β :=
@@ -85,4 +85,4 @@ theorem Membership.get_elem_helper {i n : Nat} {r : Std.Range} (h₁ : i ∈ r) 
     i < n := h₂ ▸ h₁.2.1
 
 macro_rules
-  | `(tactic| get_elem_tactic_trivial) => `(tactic| apply Membership.get_elem_helper; assumption; rfl)
+  | `(tactic| get_elem_tactic_extensible) => `(tactic| apply Membership.get_elem_helper; assumption; rfl)

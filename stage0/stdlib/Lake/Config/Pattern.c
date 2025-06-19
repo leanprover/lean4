@@ -127,7 +127,9 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Pattern_all(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Pattern_empty___elambda__1(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Config_Pattern_0__String_atEnd_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instEmptyCollectionPatternDescr(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Config_Pattern_0__String_atEnd_match__1_splitter(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_StrPat_none;
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lake_StrPatDescr_matches___spec__2(lean_object*, lean_object*, size_t, size_t);
 static lean_object* l_Lake_StrPat_verLike___closed__2;
@@ -2460,6 +2462,22 @@ lean_ctor_set(x_7, 0, x_4);
 lean_ctor_set(x_7, 1, x_6);
 lean_ctor_set(x_7, 2, x_5);
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lake_Config_Pattern_0__String_atEnd_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_apply_2(x_3, x_1, x_2);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lake_Config_Pattern_0__String_atEnd_match__1_splitter(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l___private_Lake_Config_Pattern_0__String_atEnd_match__1_splitter___rarg), 3, 0);
+return x_2;
 }
 }
 LEAN_EXPORT uint8_t l_Lake_isVerLike(lean_object* x_1) {

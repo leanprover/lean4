@@ -7,7 +7,7 @@ module
 
 prelude
 import Init.Grind.Ordered.Ring
-import Init.Grind.CommRing.Int
+import Init.GrindInstances.Ring.Int
 import Init.Omega
 
 /-!
@@ -24,7 +24,7 @@ instance : Preorder Int where
 instance : IntModule.IsOrdered Int where
   neg_le_iff := by omega
   add_le_left := by omega
-  hmul_pos k a ha := ⟨fun hk => Int.mul_pos hk ha, fun h => Int.pos_of_mul_pos_left h ha⟩
+  hmul_pos_iff k a ha := ⟨fun h => Int.pos_of_mul_pos_left h ha, fun hk => Int.mul_pos hk ha⟩
   hmul_nonneg hk ha := Int.mul_nonneg hk ha
 
 instance : Ring.IsOrdered Int where

@@ -70,8 +70,6 @@ theorem some_get! [Inhabited α] : (o : Option α) → o.isSome → some (o.get!
 
 theorem get!_eq_getD [Inhabited α] (o : Option α) : o.get! = o.getD default := rfl
 
-@[deprecated get!_eq_getD (since := "2024-11-18")] abbrev get!_eq_getD_default := @get!_eq_getD
-
 theorem get_congr {o o' : Option α} {ho : o.isSome} (h : o = o') :
     o.get ho = o'.get (h ▸ ho) := by
   cases h; rfl
@@ -1165,8 +1163,11 @@ end ite
 
 /-! ### pbind -/
 
-@[simp, grind] theorem pbind_none : pbind none f = none := rfl
-@[simp, grind] theorem pbind_some : pbind (some a) f = f a rfl := rfl
+@[simp] theorem pbind_none : pbind none f = none := rfl
+@[simp] theorem pbind_some : pbind (some a) f = f a rfl := rfl
+
+@[grind = gen] theorem pbind_none' (h : x = none) : pbind x f = none := by subst h; rfl
+@[grind = gen] theorem pbind_some' (h : x = some a) : pbind x f = f a h := by subst h; rfl
 
 @[simp, grind] theorem map_pbind {o : Option α} {f : (a : α) → o = some a → Option β}
     {g : β → γ} : (o.pbind f).map g = o.pbind (fun a h => (f a h).map g) := by
@@ -1229,11 +1230,17 @@ theorem get_pbind {o : Option α} {f : (a : α) → o = some a → Option β} {h
 
 /-! ### pmap -/
 
-@[simp, grind] theorem pmap_none {p : α → Prop} {f : ∀ (a : α), p a → β} {h} :
+@[simp] theorem pmap_none {p : α → Prop} {f : ∀ (a : α), p a → β} {h} :
     pmap f none h = none := rfl
 
-@[simp, grind] theorem pmap_some {p : α → Prop} {f : ∀ (a : α), p a → β} {h} :
+@[simp] theorem pmap_some {p : α → Prop} {f : ∀ (a : α), p a → β} {h} :
     pmap f (some a) h = some (f a (h a rfl)) := rfl
+
+@[grind = gen] theorem pmap_none' {p : α → Prop} {f : ∀ (a : α), p a → β} (he : x = none) {h} :
+    pmap f x h = none := by subst he; rfl
+
+@[grind = gen] theorem pmap_some' {p : α → Prop} {f : ∀ (a : α), p a → β} (he : x = some a) {h} :
+    pmap f x h = some (f a (h a he)) := by subst he; rfl
 
 @[simp] theorem pmap_eq_none_iff {p : α → Prop} {f : ∀ (a : α), p a → β} {h} :
     pmap f o h = none ↔ o = none := by
@@ -1317,8 +1324,11 @@ theorem get_pmap {p : α → Bool} {f : (x : α) → p x → β} {o : Option α}
 
 /-! ### pelim -/
 
-@[simp, grind] theorem pelim_none : pelim none b f = b := rfl
-@[simp, grind] theorem pelim_some : pelim (some a) b f = f a rfl := rfl
+@[simp] theorem pelim_none : pelim none b f = b := rfl
+@[simp] theorem pelim_some : pelim (some a) b f = f a rfl := rfl
+
+@[grind = gen] theorem pelim_none' (h : x = none) : pelim x b f = b := by subst h; rfl
+@[grind = gen] theorem pelim_some' (h : x = some a) : pelim x b f = f a h := by subst h; rfl
 
 @[simp] theorem pelim_eq_elim : pelim o b (fun a _ => f a) = o.elim b f := by
   cases o <;> simp

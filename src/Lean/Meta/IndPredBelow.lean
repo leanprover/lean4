@@ -568,7 +568,7 @@ def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat
       let (_, belowTy) ← belowType motive xs idx
       let below ← mkFreshExprSyntheticOpaqueMVar belowTy
       try
-        trace[Meta.IndPredBelow.match] "{←Meta.ppGoal below.mvarId!}"
+        trace[Meta.IndPredBelow.match] "{below.mvarId!}"
         if (← below.mvarId!.applyRules { backtracking := false, maxDepth := 1 } []).isEmpty then
           trace[Meta.IndPredBelow.match] "Found below term in the local context: {below}"
           if (← xs.anyM (isDefEq below)) then pure none else pure (below, idx)

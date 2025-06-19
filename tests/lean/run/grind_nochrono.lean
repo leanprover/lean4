@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 -- In the following test, the first 8 case-splits are irrelevant,
 -- and non-choronological backtracking is used to avoid searching
 -- (2^8 - 1) irrelevant branches

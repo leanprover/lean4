@@ -7,6 +7,7 @@ prelude
 import Init.SimpLemmas
 import Init.Data.Bool
 import Init.Data.BitVec.Lemmas
+import Init.Data.BitVec.Decidable
 
 /-!
 This module contains the `Bool` simplifying part of the `bv_normalize` simp set.
@@ -300,4 +301,3 @@ theorem Bool.and_right (lhs rhs : Bool) (h : (lhs && rhs) = true) : rhs = true :
 
 end Normalize
 end Std.Tactic.BVDecide
-

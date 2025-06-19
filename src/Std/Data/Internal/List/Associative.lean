@@ -25,7 +25,7 @@ set_option linter.missingDocs true
 set_option autoImplicit false
 set_option Elab.async false
 
-universe u v w
+universe u v w w'
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w}
 
@@ -2529,7 +2529,7 @@ theorem pairwise_fst_eq_false_map_toProd [BEq α] {β : Type v}
   simp [List.pairwise_map]
   assumption
 
-theorem foldlM_eq_foldlM_toProd {β : Type v} {δ : Type w} {m' : Type w → Type w} [Monad m']
+theorem foldlM_eq_foldlM_toProd {β : Type v} {δ : Type w} {m' : Type w → Type w'} [Monad m']
     [LawfulMonad m'] {l : List ((_ : α) × β)} {f : δ → (a : α) → β → m' δ} {init : δ} :
     l.foldlM (fun a b => f a b.fst b.snd) init =
       (l.map fun x => (x.1, x.2)).foldlM (fun a b => f a b.fst b.snd) init := by
@@ -2545,7 +2545,7 @@ theorem foldl_eq_foldl_toProd {β : Type v} {δ : Type w}
   | nil => simp
   | cons hd tl ih => simp [ih]
 
-theorem foldrM_eq_foldrM_toProd {β : Type v} {δ : Type w} {m' : Type w → Type w} [Monad m']
+theorem foldrM_eq_foldrM_toProd {β : Type v} {δ : Type w} {m' : Type w → Type w'} [Monad m']
     [LawfulMonad m'] {l : List ((_ : α) × β)} {f : (a : α) → β → δ → m' δ} {init : δ} :
     l.foldrM (fun a b => f a.1 a.2 b) init =
       (l.map fun x => (x.1, x.2)).foldrM (fun a b => f a.1 a.2 b) init := by
@@ -2553,7 +2553,7 @@ theorem foldrM_eq_foldrM_toProd {β : Type v} {δ : Type w} {m' : Type w → Typ
   | nil => simp
   | cons hd tl ih => simp [ih]
 
-theorem foldrM_eq_foldrM_toProd' {β : Type v} {δ : Type w} {m' : Type w → Type w} [Monad m']
+theorem foldrM_eq_foldrM_toProd' {β : Type v} {δ : Type w} {m' : Type w → Type w'} [Monad m']
     [LawfulMonad m'] {l : List ((_ : α) × β)} {f : δ → (a : α) → β → m' δ} {init : δ} :
     l.foldrM (fun a b => f b a.1 a.2) init =
       (l.map fun x => (x.1, x.2)).foldrM (fun a b => f b a.1 a.2) init := by
@@ -2577,14 +2577,14 @@ theorem foldr_eq_foldr_toProd' {β : Type v} {δ : Type w}
   | nil => simp
   | cons hd tl ih => simp [ih]
 
-theorem forM_eq_forM_toProd {β : Type v} {m' : Type w → Type w} [Monad m']
+theorem forM_eq_forM_toProd {β : Type v} {m' : Type w → Type w'} [Monad m']
     [LawfulMonad m'] {l : List ((_ : α) × β)} {f : (a : α) → β → m' PUnit} :
     forM l (fun a => f a.1 a.2) = forM (l.map (fun x => (x.1, x.2))) fun a => f a.1 a.2 := by
   cases l with
   | nil => simp
   | cons hd tl => simp
 
-theorem forIn_eq_forIn_toProd {β : Type v} {δ : Type w} {m' : Type w → Type w} [Monad m']
+theorem forIn_eq_forIn_toProd {β : Type v} {δ : Type w} {m' : Type w → Type w'} [Monad m']
     [LawfulMonad m'] {l : List ((_ : α) × β)} {f : (a : α) → β → δ → m' (ForInStep δ)} {init : δ} :
     ForIn.forIn l init (fun a d => f a.1 a.2 d) =
       ForIn.forIn (l.map (fun x => (x.1, x.2))) init fun a d => f a.1 a.2 d := by
@@ -2592,7 +2592,7 @@ theorem forIn_eq_forIn_toProd {β : Type v} {δ : Type w} {m' : Type w → Type 
   | nil => simp
   | cons hd tl => simp
 
-theorem foldlM_eq_foldlM_keys {δ : Type w} {m' : Type w → Type w} [Monad m'] [LawfulMonad m']
+theorem foldlM_eq_foldlM_keys {δ : Type w} {m' : Type w → Type w'} [Monad m'] [LawfulMonad m']
     {l : List ((a : α) × β a)} {f : δ → α → m' δ} {init : δ} :
     l.foldlM (fun a b => f a b.1) init = (keys l).foldlM f init := by
   induction l generalizing init with
@@ -2609,7 +2609,7 @@ theorem foldl_eq_foldl_keys {δ : Type w}
   | nil => simp
   | cons hd tl ih => simp [List.foldlM_cons, keys, ih]
 
-theorem foldrM_eq_foldrM_keys {δ : Type w} {m' : Type w → Type w} [Monad m'] [LawfulMonad m']
+theorem foldrM_eq_foldrM_keys {δ : Type w} {m' : Type w → Type w'} [Monad m'] [LawfulMonad m']
     {l : List ((a : α) × β a)} {f : α → δ → m' δ} {init : δ} :
     l.foldrM (fun a b => f a.1 b) init = (keys l).foldrM f init := by
   induction l generalizing init with
@@ -2617,7 +2617,7 @@ theorem foldrM_eq_foldrM_keys {δ : Type w} {m' : Type w → Type w} [Monad m'] 
   | cons hd tl ih =>
     simp [keys, ih]
 
-theorem foldrM_eq_foldrM_keys' {δ : Type w} {m' : Type w → Type w} [Monad m'] [LawfulMonad m']
+theorem foldrM_eq_foldrM_keys' {δ : Type w} {m' : Type w → Type w'} [Monad m'] [LawfulMonad m']
     {l : List ((a : α) × β a)} {f : δ → α → m' δ} {init : δ} :
     l.foldrM (fun a b => f b a.1) init = (keys l).foldrM (fun a b => f b a) init := by
   induction l generalizing init with
@@ -2639,7 +2639,7 @@ theorem foldr_eq_foldr_keys' {δ : Type w}
   | nil => simp
   | cons hd tl ih => simp [keys, ih]
 
-theorem forM_eq_forM_keys {m' : Type w → Type w} [Monad m'] [LawfulMonad m']
+theorem forM_eq_forM_keys {m' : Type w → Type w'} [Monad m'] [LawfulMonad m']
     {l : List ((a : α) × β a)} {f : α → m' PUnit} :
     l.forM (fun a => f a.1) = (keys l).forM f := by
   induction l with
@@ -2650,7 +2650,7 @@ theorem forM_eq_forM_keys {m' : Type w → Type w} [Monad m'] [LawfulMonad m']
     funext x
     apply ih
 
-theorem forIn_eq_forIn_keys {δ : Type w} {m' : Type w → Type w} [Monad m'] [LawfulMonad m']
+theorem forIn_eq_forIn_keys {δ : Type w} {m' : Type w → Type w'} [Monad m'] [LawfulMonad m']
     {f : α → δ → m' (ForInStep δ)} {init : δ} {l : List ((a : α) × β a)} :
     ForIn.forIn l init (fun a d => f a.fst d) = ForIn.forIn (keys l) init f := by
   induction l generalizing init with

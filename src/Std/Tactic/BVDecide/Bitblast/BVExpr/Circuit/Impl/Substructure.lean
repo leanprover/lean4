@@ -28,8 +28,7 @@ where
     match expr with
     | .literal var => BVPred.bitblast aig ⟨var, cache⟩
     | .const val =>
-      have := LawfulOperator.le_size (f := mkConstCached) ..
-      ⟨⟨aig.mkConstCached val, this⟩, cache.cast this⟩
+      ⟨⟨⟨aig, aig.mkConstCached val⟩, by simp⟩, cache⟩
     | .not expr =>
       let ⟨⟨⟨aig, exprRef⟩, hexpr⟩, cache⟩ := go aig expr cache
       let ret := aig.mkNotCached exprRef
@@ -120,9 +119,7 @@ theorem go_lt_size_of_lt_aig_size (aig : AIG BVBit) (expr : BVLogicalExpr)
 theorem go_decl_eq (idx) (aig : AIG BVBit) (cache : BVExpr.Cache aig) (h : idx < aig.decls.size) (hbounds) :
     (go aig expr cache).result.val.aig.decls[idx]'hbounds = aig.decls[idx] := by
   induction expr generalizing aig with
-  | const =>
-    simp only [go]
-    rw [AIG.LawfulOperator.decl_eq (f := mkConstCached)]
+  | const => simp [go]
   | literal =>
     simp only [go]
     rw [BVPred.bitblast_decl_eq]

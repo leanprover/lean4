@@ -16,7 +16,6 @@ def mkVar (e : Expr) : RingM Var := do
   modifyRing fun s => { s with
     vars       := s.vars.push e
     varMap     := s.varMap.insert { expr := e } var
-    varToBasis := s.varToBasis.push []
   }
   setTermRingId e
   markAsCommRingTerm e

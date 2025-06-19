@@ -57,11 +57,7 @@ def bitblast (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig) : Return ai
     -/
     let ⟨⟨⟨aig, refs⟩, hrefs⟩, cache⟩ := BVExpr.bitblast aig ⟨expr, cache⟩
     let res := blastGetLsbD aig ⟨refs, idx⟩
-    let cache := cache.cast (AIG.LawfulOperator.le_size (f := blastGetLsbD) ..)
-    have := by
-      apply AIG.LawfulOperator.le_size_of_le_aig_size (f := blastGetLsbD)
-      exact hrefs
-    ⟨⟨res, this⟩, cache⟩
+    ⟨⟨⟨aig, res⟩, hrefs⟩, cache⟩
 
 theorem bitblast_decl_eq (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig) :
     ∀ (idx : Nat) (h1) (h2), (bitblast aig input).result.val.aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
@@ -93,10 +89,7 @@ theorem bitblast_decl_eq (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig)
         assumption
   | getLsbD expr idx =>
     simp only [bitblast]
-    rw [AIG.LawfulOperator.decl_eq (f := blastGetLsbD)]
     rw [BVExpr.bitblast_decl_eq]
-    apply BVExpr.bitblast_lt_size_of_lt_aig_size
-    assumption
 
 theorem bitblast_le_size (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig) :
     aig.decls.size ≤ (bitblast aig input).result.val.aig.decls.size := by

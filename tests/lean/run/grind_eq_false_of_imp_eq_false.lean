@@ -1,5 +1,4 @@
 reset_grind_attrs%
-set_option grind.warning false
 open List
 
 attribute [grind] List.map_nil

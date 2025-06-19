@@ -6,7 +6,7 @@ Authors: Mac Malone
 prelude
 import Lake.Build.Fetch
 
-open System
+open System Lean
 
 /-! # Job Monad
 

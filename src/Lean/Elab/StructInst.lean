@@ -76,17 +76,20 @@ Structure instance notation makes use of the expected type.
     `(($stxNew : $expected))
 
 private def mkStructInstField (lval : TSyntax ``Parser.Term.structInstLVal) (binders : TSyntaxArray ``Parser.Term.structInstFieldBinder)
-    (type? : Option Term) (val : Term) : MacroM (TSyntax ``Parser.Term.structInstField) := do
+    (type? : Option Term) (isPrivate : Bool) (val : Term) : MacroM (TSyntax ``Parser.Term.structInstField) := do
   let mut val := val
   if let some type := type? then
     val ← `(($val : $type))
+  if isPrivate then
+    val ← `(Parser.Term.privateDecl| private_decl% $val)
   if !binders.isEmpty then
     -- HACK: this produces invalid syntax, but the fun elaborator supports structInstFieldBinder as well
     val ← `(fun $binders* => $val)
   `(Parser.Term.structInstField| $lval := $val)
 
 /--
-Takes an arbitrary `structInstField` and expands it to be a `structInstFieldDef` without any binders or type ascription.
+Takes an arbitrary `structInstField` and expands it to be a `structInstFieldDef` without any
+binders, type ascription, or `private` modifier.
 -/
 private def expandStructInstField (stx : Syntax) : MacroM (Option Syntax) := withRef stx do
   match stx with
@@ -95,17 +98,17 @@ private def expandStructInstField (stx : Syntax) : MacroM (Option Syntax) := wit
     return none
   | `(Parser.Term.structInstField| $lval:structInstLVal $[$binders]* $[: $ty?]? $decl:structInstFieldDecl) =>
     match decl with
-    | `(Parser.Term.structInstFieldDef| := $val) =>
-      mkStructInstField lval binders ty? val
-    | `(Parser.Term.structInstFieldEqns| $alts:matchAlts) =>
+    | `(Parser.Term.structInstFieldDef| := $[private%$privateTk?]? $val) =>
+      mkStructInstField lval binders ty? privateTk?.isSome val
+    | `(Parser.Term.structInstFieldEqns| $[private%$privateTk?]? $alts:matchAlts) =>
       let val ← expandMatchAltsIntoMatch stx alts (useExplicit := false)
-      mkStructInstField lval binders ty? val
+      mkStructInstField lval binders ty? privateTk?.isSome val
     | _ => Macro.throwUnsupported
   | `(Parser.Term.structInstField| $lval:structInstLVal) =>
     -- Abbreviation
     match lval with
     | `(Parser.Term.structInstLVal| $id:ident) =>
-      mkStructInstField lval #[] none id
+      mkStructInstField lval #[] none false id
     | _ =>
       Macro.throwErrorAt lval "unsupported structure instance field abbreviation, expecting identifier"
   | _ => Macro.throwUnsupported
@@ -237,7 +240,7 @@ private def elabModifyOp (stx modifyOp : Syntax) (sourcesView : SourcesView) (ex
     withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   let rest := modifyOp[0][1]
   if rest.isNone then
-    cont modifyOp[1][2][1]
+    cont modifyOp[1][2][2]
   else
     let s ← `(s)
     let valFirst  := rest[0]
@@ -336,7 +339,7 @@ Converts a `FieldView` back into syntax. Used to construct synthetic structure i
 private def FieldView.toSyntax : FieldView → TSyntax ``Parser.Term.structInstField
   | field =>
     let stx := field.ref
-    let stx := stx.setArg 1 <| stx[1].setArg 2 <| stx[1][2].setArg 1 field.val
+    let stx := stx.setArg 1 <| stx[1].setArg 2 <| stx[1][2].setArg 2 field.val
     match field.lhs with
     | first::rest => stx.setArg 0 <| mkNode ``Parser.Term.structInstLVal #[first.toSyntax true, mkNullNode <| rest.toArray.map (FieldLHS.toSyntax false) ]
     | _ => unreachable!

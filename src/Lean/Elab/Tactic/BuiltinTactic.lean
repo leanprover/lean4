@@ -344,40 +344,56 @@ where
         replaceMainGoal [mvarId]
   | _ => throwUnsupportedSyntax
 
-@[builtin_tactic Lean.Parser.Tactic.clearValue] def evalClearValue : Tactic := fun stx =>
-  match stx with
-  | `(tactic| clear_value $xs* $[with $hs*]?) => withMainContext do
-    let hs := hs.getD #[]
-    if xs.size < hs.size then throwErrorAt hs[xs.size]! "Too many binders provided."
+@[builtin_tactic Lean.Parser.Tactic.clearValue] def evalClearValue : Tactic := fun stx => do
+  let args : TSyntaxArray ``Parser.Tactic.clearValueArg := TSyntaxArray.mk stx[1].getArgs
+  withMainContext do
+    -- Elaboration phase
+    let mvarCounterSaved := (← getMCtx).mvarCounter
     let mut fvarIds : Array FVarId := #[]
     let mut hasStar := false
-    let mut newHyps : Array (FVarId × Name) := #[]
-    for i in [0:xs.size], x in xs do
-      if x.raw.isOfKind ``Parser.Tactic.clearValueStar then
-        if i < hs.size then
-          throwErrorAt hs[i]! "When using `*`, no binder may be provided for it."
+    let mut hypStxs : Array Syntax := #[]
+    let mut hyps : Array Hypothesis := #[]
+    let pushFVarId (fvarIds : Array FVarId) (x : Term) (fvarId : FVarId) : TacticM (Array FVarId) := do
+      unless ← fvarId.isLetVar do
+        throwErrorAt x "Hypothesis `{mkFVar fvarId}` is not a local definition."
+      if fvarIds.contains fvarId then
+        throwErrorAt x "Hypothesis `{mkFVar fvarId}` appears multiple times."
+      return fvarIds.push fvarId
+    for arg in args do
+      match arg with
+      | `(clearValueArg| *) =>
+        if hasStar then
+          throwErrorAt arg "Multiple `*` arguments provided."
         hasStar := true
-      else
+      | `(clearValueArg| ($h : $x = $v)) =>
         let fvarId ← getFVarId x
-        unless (← fvarId.isLetVar) do
-          throwErrorAt x "Hypothesis `{mkFVar fvarId}` is not a local definition."
-        if fvarIds.contains fvarId then
-          throwErrorAt x "Hypothesis `{mkFVar fvarId}` appears multiple times."
-        fvarIds := fvarIds.push fvarId
-        if let some h := hs[i]? then
-          let hName ←
-            match h with
-            | `(binderIdent| $n:ident) => pure n.raw.getId
-            | _ => mkFreshBinderNameForTactic `h
-          newHyps := newHyps.push (fvarId, hName)
+        fvarIds ← pushFVarId fvarIds x fvarId
+        let e := (← fvarId.getValue?).get!
+        let e' ← Tactic.elabTermEnsuringType v (← fvarId.getType)
+        unless ← withAssignableSyntheticOpaque <| isDefEq e e' do
+          let (e, e') ← addPPExplicitToExposeDiff e e'
+          throwErrorAt v "Provided term{indentExpr e'}\n\
+            is not definitionally equal to{indentD m!"{Expr.fvar fvarId} := {e}"}"
+        let mvars ← filterOldMVars (← getMVars e') mvarCounterSaved
+        logUnassignedAndAbort mvars
+        let userName ← match h with
+          | `(binderIdent| $n:ident) => pure n.raw.getId
+          | _ => mkFreshBinderNameForTactic `h
+        let type ← mkEq (Expr.fvar fvarId) e'
+        let value := mkExpectedPropHint (← mkEqRefl (Expr.fvar fvarId)) type
+        hyps := hyps.push { userName, type, value }
+        hypStxs := hypStxs.push h
+      | `(clearValueArg| $x:term) =>
+        let fvarId ← getFVarId x
+        fvarIds ← pushFVarId fvarIds x fvarId
+      | _ => throwUnsupportedSyntax
+    -- Clearing phase
     let mut g ← popMainGoal
-    unless newHyps.isEmpty do
-      let mut hyps : Array Hypothesis := #[]
-      for (fvarId, hName) in newHyps do
-        let type ← mkEq (mkFVar fvarId) (← fvarId.getValue?).get!
-        let value ← mkEqRefl (mkFVar fvarId)
-        hyps := hyps.push { userName := hName, type, value }
-      g ← Prod.snd <$> g.assertHypotheses hyps
+    let (hypFVarIds, g') ← g.assertHypotheses hyps
+    g := g'
+    g.withContext do
+      for hypStx in hypStxs, hypFVarId in hypFVarIds do
+        Term.addTermInfo' (isBinder := true) hypStx (Expr.fvar hypFVarId)
     let toClear ← g.withContext do
       if hasStar then pure <| (← getLocalHyps).map Expr.fvarId!
       else sortFVarIds fvarIds
@@ -392,7 +408,6 @@ where
     unless succeeded do
       g.withContext do throwError "Tactic `clear_value` failed to clear any values.\n{g}"
     pushGoal g
-  | _ => throwUnsupportedSyntax
 
 def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : TacticM Unit := do
   for h in hs do

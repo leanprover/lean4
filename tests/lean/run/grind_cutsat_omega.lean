@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 example (_ : (1 : Int) < (0 : Int)) : False := by grind
 example (_ : (0 : Int) < (0 : Int)) : False := by grind
 example (_ : (0 : Int) < (1 : Int)) : True := by grind

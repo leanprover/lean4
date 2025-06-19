@@ -147,8 +147,8 @@ See also `Lean.matchConstStructure` for a less restrictive version.
         | _ => failK ()
       | _ => failK ()
 
-unsafe def evalConst [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (α) (constName : Name) : m α := do
-  ofExcept <| (← getEnv).evalConst α (← getOptions) constName
+unsafe def evalConst [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (α) (constName : Name) (checkMeta := true) : m α := do
+  ofExcept <| (← getEnv).evalConst (checkMeta := checkMeta) α (← getOptions) constName
 
 unsafe def evalConstCheck [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (α) (typeName : Name) (constName : Name) : m α := do
   ofExcept <| (← getEnv).evalConstCheck α (← getOptions) typeName constName

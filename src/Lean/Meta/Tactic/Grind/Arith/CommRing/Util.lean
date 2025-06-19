@@ -124,6 +124,9 @@ def getCharInst : RingM (Expr × Nat) := do
     | throwError "`grind` internal error, ring does not have a characteristic"
   return c
 
+def isField : RingM Bool :=
+  return (← getRing).fieldInst?.isSome
+
 /--
 Converts the given ring expression into a multivariate polynomial.
 If the ring has a nonzero characteristic, it is used during normalization.

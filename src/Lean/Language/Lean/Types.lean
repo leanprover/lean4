@@ -36,12 +36,11 @@ deriving Nonempty
 instance : ToSnapshotTree CommandResultSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot, #[]⟩
 
-/-- State after a command has been parsed. -/
-structure CommandParsedSnapshot extends Snapshot where
-  /-- Syntax tree of the command. -/
-  stx : Syntax
-  /-- Resulting parser state. -/
-  parserState : Parser.ModuleParserState
+/--
+State before a command is elaborated. This is separate from `CommandParsedSnapshot` so that all
+snapshots belonging to a command are grouped below a task with the command's syntax tree.
+-/
+structure CommandElaboratingSnapshot extends Snapshot where
   /--
   Snapshot for incremental reporting and reuse during elaboration, type dependent on specific
   elaborator.
@@ -55,16 +54,30 @@ structure CommandParsedSnapshot extends Snapshot where
   infoTreeSnap : SnapshotTask SnapshotLeaf
   /-- Additional, untyped snapshots used for reporting, not reuse. -/
   reportSnap : SnapshotTask SnapshotTree
+deriving Nonempty
+instance : ToSnapshotTree CommandElaboratingSnapshot where
+  toSnapshotTree := go where
+    go s := ⟨s.toSnapshot,
+      #[s.elabSnap.map (sync := true) toSnapshotTree,
+        s.resultSnap.map (sync := true) toSnapshotTree,
+        s.infoTreeSnap.map (sync := true) toSnapshotTree,
+        s.reportSnap]⟩
+
+/-- State after a command has been parsed. -/
+structure CommandParsedSnapshot extends Snapshot where
+  /-- Syntax tree of the command. -/
+  stx : Syntax
+  /-- Resulting parser state. -/
+  parserState : Parser.ModuleParserState
+  /-- State before the command is elaborated. This snapshot is always fulfilled immediately. -/
+  elabSnap : CommandElaboratingSnapshot
   /-- Next command, unless this is a terminal command. -/
   nextCmdSnap? : Option (SnapshotTask CommandParsedSnapshot)
 deriving Nonempty
 partial instance : ToSnapshotTree CommandParsedSnapshot where
   toSnapshotTree := go where
     go s := ⟨s.toSnapshot,
-      #[s.elabSnap.map (sync := true) toSnapshotTree,
-        s.resultSnap.map (sync := true) toSnapshotTree,
-        s.infoTreeSnap.map (sync := true) toSnapshotTree,
-        s.reportSnap] |>
+      #[.finished s.stx (toSnapshotTree s.elabSnap)] |>
         pushOpt (s.nextCmdSnap?.map (·.map (sync := true) go))⟩
 
 /-- State after successful importing. -/
@@ -76,11 +89,16 @@ structure HeaderProcessedState where
 
 /-- State after the module header has been processed including imports. -/
 structure HeaderProcessedSnapshot extends Snapshot where
+  /--
+  Holds produced diagnostics and info tree. Separate snapshot so that it can be tagged with the
+  header syntax, which should not be done for this snapshot containing `firstCmdSnap`.
+  -/
+  metaSnap : SnapshotTask SnapshotLeaf
   /-- State after successful importing. -/
   result? : Option HeaderProcessedState
   isFatal := result?.isNone
 instance : ToSnapshotTree HeaderProcessedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, #[] |>
+  toSnapshotTree s := ⟨s.toSnapshot, #[s.metaSnap.map (sync := true) toSnapshotTree] |>
     pushOpt (s.result?.map (·.firstCmdSnap.map (sync := true) toSnapshotTree))⟩
 
 /-- State after successfully parsing the module header. -/
@@ -92,6 +110,11 @@ structure HeaderParsedState where
 
 /-- State after the module header has been parsed. -/
 structure HeaderParsedSnapshot extends Snapshot where
+  /--
+  Holds produced diagnostics. Separate snapshot so that it can be tagged with the header syntax,
+  which should not be done for this snapshot containing `firstCmdSnap`.
+  -/
+  metaSnap : SnapshotTask SnapshotLeaf
   /-- Parser input context supplied by the driver, stored here for incremental parsing. -/
   ictx : Parser.InputContext
   /-- Resulting syntax tree. -/
@@ -101,8 +124,8 @@ structure HeaderParsedSnapshot extends Snapshot where
   isFatal := result?.isNone
 
 instance : ToSnapshotTree HeaderParsedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot,
-    #[] |> pushOpt (s.result?.map (·.processedSnap.map (sync := true) toSnapshotTree))⟩
+  toSnapshotTree s := ⟨s.toSnapshot, #[s.metaSnap.map (sync := true) toSnapshotTree] |>
+    pushOpt (s.result?.map (·.processedSnap.map (sync := true) toSnapshotTree))⟩
 
 /-- Shortcut accessor to the final header state, if successful. -/
 def HeaderParsedSnapshot.processedResult (snap : HeaderParsedSnapshot) :

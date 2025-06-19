@@ -26,18 +26,16 @@ namespace blastUmod
 open blastUdiv
 
 theorem denote_go_eq_divRec_r (aig : AIG α) (assign : α → Bool) (curr : Nat) (lhs rhs rbv qbv : BitVec w)
-    (falseRef trueRef : AIG.Ref aig) (n d q r : AIG.RefVec aig w) (wn wr : Nat)
+    (n d q r : AIG.RefVec aig w) (wn wr : Nat)
     (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, n.get idx hidx, assign⟧ = lhs.getLsbD idx)
     (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, d.get idx hidx, assign⟧ = rhs.getLsbD idx)
     (hq : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, q.get idx hidx, assign⟧ = qbv.getLsbD idx)
     (hr : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, r.get idx hidx, assign⟧ = rbv.getLsbD idx)
-    (hfalse : ⟦aig, falseRef, assign⟧ = false)
-    (htrue : ⟦aig, trueRef, assign⟧ = true)
       :
     ∀ (idx : Nat) (hidx : idx < w),
       ⟦
-        (go aig curr falseRef trueRef n d wn wr q r).aig,
-        (go aig curr falseRef trueRef n d wn wr q r).r.get idx hidx,
+        (go aig curr n d wn wr q r).aig,
+        (go aig curr n d wn wr q r).r.get idx hidx,
         assign
       ⟧
         =
@@ -69,8 +67,6 @@ theorem denote_go_eq_divRec_r (aig : AIG α) (assign : α → Bool) (curr : Nat)
         · exact hright
         · exact hq
         · exact hr
-        · exact hfalse
-        · exact htrue
       · intro idx hidx
         rw [denote_blastDivSubtractShift_r (rbv := rbv) (qbv := qbv) (lhs := lhs) (rhs := rhs)]
         · rw [BitVec.divSubtractShift]
@@ -78,13 +74,6 @@ theorem denote_go_eq_divRec_r (aig : AIG α) (assign : α → Bool) (curr : Nat)
         · exact hleft
         · exact hright
         · exact hr
-        · exact hfalse
-      · rw [blastDivSubtractShift_denote_mem_prefix]
-        · simp [hfalse]
-        · simp [Ref.hgate]
-      · rw [blastDivSubtractShift_denote_mem_prefix]
-        · simp [htrue]
-        · simp [Ref.hgate]
     · next hdiscr =>
       rw [ih]
       · rfl
@@ -104,8 +93,6 @@ theorem denote_go_eq_divRec_r (aig : AIG α) (assign : α → Bool) (curr : Nat)
         · exact hright
         · exact hq
         · exact hr
-        · exact hfalse
-        · exact htrue
       · intro idx hidx
         rw [denote_blastDivSubtractShift_r (rbv := rbv) (qbv := qbv) (lhs := lhs) (rhs := rhs)]
         · rw [BitVec.divSubtractShift]
@@ -113,28 +100,19 @@ theorem denote_go_eq_divRec_r (aig : AIG α) (assign : α → Bool) (curr : Nat)
         · exact hleft
         · exact hright
         · exact hr
-        · exact hfalse
-      · rw [blastDivSubtractShift_denote_mem_prefix]
-        · simp [hfalse]
-        · simp [Ref.hgate]
-      · rw [blastDivSubtractShift_denote_mem_prefix]
-        · simp [htrue]
-        · simp [Ref.hgate]
 
 theorem denote_go (aig : AIG α) (assign : α → Bool) (lhs rhs : BitVec w)
-    (falseRef trueRef : AIG.Ref aig) (n d q r : AIG.RefVec aig w)
+    (n d q r : AIG.RefVec aig w)
     (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, n.get idx hidx, assign⟧ = lhs.getLsbD idx)
     (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, d.get idx hidx, assign⟧ = rhs.getLsbD idx)
     (hq : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, q.get idx hidx, assign⟧ = false)
     (hr : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, r.get idx hidx, assign⟧ = false)
-    (hfalse : ⟦aig, falseRef, assign⟧ = false)
-    (htrue : ⟦aig, trueRef, assign⟧ = true)
     (hzero : 0#w < rhs)
       :
     ∀ (idx : Nat) (hidx : idx < w),
       ⟦
-        (go aig w falseRef trueRef n d w 0 q r).aig,
-        (go aig w falseRef trueRef n d w 0 q r).r.get idx hidx,
+        (go aig w n d w 0 q r).aig,
+        (go aig w n d w 0 q r).r.get idx hidx,
         assign
       ⟧
         =
@@ -147,8 +125,6 @@ theorem denote_go (aig : AIG α) (assign : α → Bool) (lhs rhs : BitVec w)
   · exact hright
   · simp [hq]
   · simp [hr]
-  · exact hfalse
-  · exact htrue
 
 end blastUmod
 
@@ -172,24 +148,14 @@ theorem denote_blastUmod (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bo
       rw [hdiscr]
       rw [blastUdiv.go_denote_mem_prefix]
       rw [AIG.LawfulOperator.denote_mem_prefix (f := BVPred.mkEq)]
-      rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-      rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
       · simp [hleft]
       · simp [Ref.hgate]
     · intro idx hidx
-      rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-      rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
-      · simp [hright]
-      · simp [Ref.hgate]
+      simp [hright]
     · intro idx hidx
-      rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-      rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-      · simp only [RefVec.get_cast, Ref.cast_eq, BitVec.getLsbD_zero]
-        rw [denote_blastConst]
-        simp
-      · simp [Ref.hgate]
+      simp only [RefVec.get_cast, Ref.cast_eq, BitVec.getLsbD_zero]
+      rw [denote_blastConst]
+      simp
   · next hdiscr =>
     rw [blastUdiv.go_denote_mem_prefix] at hdiscr
     rw [BVPred.mkEq_denote_eq (lhs := rhs) (rhs := 0#w)] at hdiscr
@@ -199,54 +165,28 @@ theorem denote_blastUmod (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bo
       rw [blastUmod.denote_go (hzero := hzero)]
       · intro idx hidx
         rw [AIG.LawfulOperator.denote_mem_prefix (f := BVPred.mkEq)]
-        rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-        rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-        rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
         · simp [hleft]
         · simp [Ref.hgate]
       · intro idx hidx
         rw [AIG.LawfulOperator.denote_mem_prefix (f := BVPred.mkEq)]
-        rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-        rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-        rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
         · simp [hright]
         · simp [Ref.hgate]
       · intro idx hidx
         rw [AIG.LawfulOperator.denote_mem_prefix (f := BVPred.mkEq)]
-        rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-        rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
         · simp only [RefVec.get_cast, Ref.cast_eq]
           rw [denote_blastConst]
           simp
         · simp [Ref.hgate]
       · intro idx hidx
         rw [AIG.LawfulOperator.denote_mem_prefix (f := BVPred.mkEq)]
-        rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-        rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
         · simp only [RefVec.get_cast, Ref.cast_eq]
           rw [denote_blastConst]
           simp
         · simp [Ref.hgate]
-      · rw [AIG.LawfulOperator.denote_mem_prefix (f := BVPred.mkEq)]
-        rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-        · simp
-        · simp [Ref.hgate]
-      · rw [AIG.LawfulOperator.denote_mem_prefix (f := BVPred.mkEq)]
-        · simp
-        · simp [Ref.hgate]
     · intro idx hdix
-      rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-      rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
-      · simp [hright]
-      · simp [Ref.hgate]
+      simp [hright]
     · intro idx hdix
-      rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-      rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-      · simp only [RefVec.get_cast, Ref.cast_eq, BitVec.getLsbD_zero]
-        rw [denote_blastConst]
-        simp
-      · simp [Ref.hgate]
+      simp
 
 end bitblast
 end BVExpr

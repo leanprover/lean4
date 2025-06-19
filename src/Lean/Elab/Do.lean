@@ -221,7 +221,7 @@ inductive Code where
   /-- Recall that an if-then-else may declare a variable using `optIdent` for the branches `thenBranch` and `elseBranch`. We store the variable name at `var?`. -/
   | ite          (ref : Syntax) (h? : Option Var) (optIdent : Syntax) (cond : Syntax) (thenBranch : Code) (elseBranch : Code)
   | match        (ref : Syntax) (gen : Syntax) (discrs : Syntax) (optMotive : Syntax) (alts : Array (Alt Code))
-  | matchExpr    (ref : Syntax) (meta : Bool) (discr : Syntax) (alts : Array (AltExpr Code)) (elseBranch : Code)
+  | matchExpr    (ref : Syntax) («meta» : Bool) (discr : Syntax) (alts : Array (AltExpr Code)) (elseBranch : Code)
   | jmp          (ref : Syntax) (jpName : Name) (args : Array Syntax)
   deriving Inhabited
 
@@ -268,8 +268,8 @@ partial def CodeBlocl.toMessageData (codeBlock : CodeBlock) : MessageData :=
     | .match _ _ ds _ alts   =>
       m!"match {ds} with"
       ++ alts.foldl (init := m!"") fun acc alt => acc ++ m!"\n| {alt.patterns} => {loop alt.rhs}"
-    | .matchExpr _ meta d alts elseCode =>
-      let r := m!"match_expr {if meta then "" else "(meta := false)"} {d} with"
+    | .matchExpr _ «meta» d alts elseCode =>
+      let r := m!"match_expr {if «meta» then "" else "(meta := false)"} {d} with"
       let r := r ++ alts.foldl (init := m!"") fun acc alt =>
             let acc := acc ++ m!"\n| {if let some var := alt.var? then m!"{var}@" else ""}"
             let acc := acc ++ m!"{alt.funName}"
@@ -341,10 +341,10 @@ partial def convertTerminalActionIntoJmp (code : Code) (jp : Name) (xs : Array V
       return Code.jmp ref jp jmpArgs
     | .match ref g ds t alts =>
       return .match ref g ds t (← alts.mapM fun alt => do pure { alt with rhs := (← loop alt.rhs) })
-    | .matchExpr ref meta d alts e => do
+    | .matchExpr ref «meta» d alts e => do
       let alts ← alts.mapM fun alt => do pure { alt with rhs := (← loop alt.rhs) }
       let e ← loop e
-      return .matchExpr ref meta d alts e
+      return .matchExpr ref «meta» d alts e
     | c => return c
   loop code
 
@@ -430,10 +430,10 @@ partial def pullExitPointsAux (rs : VarSet) (c : Code) : StateRefT (Array JPDecl
   | .match ref g ds t alts =>
     let alts ← alts.mapM fun alt => do pure { alt with rhs := (← pullExitPointsAux (eraseVars rs alt.vars) alt.rhs) }
     return .match ref g ds t alts
-  | .matchExpr ref meta d alts e =>
+  | .matchExpr ref «meta» d alts e =>
     let alts ← alts.mapM fun alt => do pure { alt with rhs := (← pullExitPointsAux (eraseVars rs alt.vars) alt.rhs) }
     let e ← pullExitPointsAux rs e
-    return .matchExpr ref meta d alts e
+    return .matchExpr ref «meta» d alts e
 
 /--
 Auxiliary operation for adding new variables to the collection of updated variables in a CodeBlock.
@@ -502,14 +502,14 @@ partial def extendUpdatedVarsAux (c : Code) (ws : VarSet) : TermElabM Code :=
         pullExitPoints c
       else
         return .match ref g ds t (← alts.mapM fun alt => do pure { alt with rhs := (← update alt.rhs) })
-    | .matchExpr ref meta d alts e =>
+    | .matchExpr ref «meta» d alts e =>
       if alts.any fun alt => alt.vars.any fun x => ws.contains x.getId then
         -- If a pattern variable is shadowing a variable in ws, we `pullExitPoints`
         pullExitPoints c
       else
         let alts ← alts.mapM fun alt => do pure { alt with rhs := (← update alt.rhs) }
         let e ← update e
-        return .matchExpr ref meta d alts e
+        return .matchExpr ref «meta» d alts e
     | .ite ref none o c t e => return .ite ref none o c (← update t) (← update e)
     | .ite ref (some h) o cond t e =>
       if ws.contains h.getId then
@@ -623,7 +623,7 @@ def mkMatch (ref : Syntax) (genParam : Syntax) (discrs : Syntax) (optMotive : Sy
     return { ref := alt.ref, vars := alt.vars, patterns := alt.patterns, rhs := rhs.code : Alt Code }
   return { code := .match ref genParam discrs optMotive alts, uvars := ws }
 
-def mkMatchExpr (ref : Syntax) (meta : Bool) (discr : Syntax) (alts : Array (AltExpr CodeBlock)) (elseBranch : CodeBlock) : TermElabM CodeBlock := do
+def mkMatchExpr (ref : Syntax) («meta» : Bool) (discr : Syntax) (alts : Array (AltExpr CodeBlock)) (elseBranch : CodeBlock) : TermElabM CodeBlock := do
   -- nary version of homogenize
   let ws := alts.foldl (union · ·.rhs.uvars) {}
   let ws := union ws elseBranch.uvars
@@ -631,7 +631,7 @@ def mkMatchExpr (ref : Syntax) (meta : Bool) (discr : Syntax) (alts : Array (Alt
     let rhs ← extendUpdatedVars alt.rhs ws
     return { alt with rhs := rhs.code : AltExpr Code }
   let elseBranch ← extendUpdatedVars elseBranch ws
-  return { code := .matchExpr ref meta discr alts elseBranch.code, uvars := ws }
+  return { code := .matchExpr ref «meta» discr alts elseBranch.code, uvars := ws }
 
 /-- Return a code block that executes `terminal` and then `k` with the value produced by `terminal`.
    This method assumes `terminal` is a terminal -/
@@ -1148,7 +1148,7 @@ where
         termAlts := termAlts.push termAlt
       let termMatchAlts := mkNode ``Parser.Term.matchAlts #[mkNullNode termAlts]
       return mkNode ``Parser.Term.«match» #[mkAtomFrom ref "match", genParam, optMotive, discrs, mkAtomFrom ref "with", termMatchAlts]
-    | .matchExpr ref meta d alts elseBranch => withFreshMacroScope do
+    | .matchExpr ref «meta» d alts elseBranch => withFreshMacroScope do
       let d' ← `(discr)
       let mut termAlts := #[]
       for alt in alts do
@@ -1160,7 +1160,7 @@ where
       let elseBranch := mkNode ``Parser.Term.matchExprElseAlt #[mkAtomFrom ref "|", mkHole ref, mkAtomFrom ref "=>", (← toTerm elseBranch)]
       let termMatchExprAlts := mkNode ``Parser.Term.matchExprAlts #[mkNullNode termAlts, elseBranch]
       let body := mkNode ``Parser.Term.matchExpr #[mkAtomFrom ref "match_expr", d', mkAtomFrom ref "with", termMatchExprAlts]
-      if meta then
+      if «meta» then
         `(Bind.bind (instantiateMVarsIfMVarApp $d) fun discr => $body)
       else
         `(let discr := $d; $body)
@@ -1625,7 +1625,7 @@ mutual
   /-- Generate `CodeBlock` for `doMatchExpr; doElems` -/
   partial def doMatchExprToCode (doMatchExpr : Syntax) (doElems: List Syntax) : M CodeBlock := do
     let ref       := doMatchExpr
-    let meta      := doMatchExpr[1].isNone
+    let «meta»    := doMatchExpr[1].isNone
     let discr     := doMatchExpr[2]
     let alts      := doMatchExpr[4][0].getArgs -- Array of `doMatchExprAlt`
     let alts ← alts.mapM fun alt => do
@@ -1637,7 +1637,7 @@ mutual
       let rhs ← doSeqToCode (getDoSeqElems rhs)
       pure { ref, var?, funName, pvars, rhs }
     let elseBranch ← doSeqToCode (getDoSeqElems doMatchExpr[4][1][3])
-    let matchCode ← mkMatchExpr ref meta discr alts elseBranch
+    let matchCode ← mkMatchExpr ref «meta» discr alts elseBranch
     concatWith matchCode doElems
 
   /--

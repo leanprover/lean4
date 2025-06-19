@@ -38,7 +38,7 @@ theorem mapM_pure [Monad m] [LawfulMonad m] {xs : Vector α n} (f : α → β) :
   apply map_toArray_inj.mp
   simp
 
-@[simp] theorem mapM_map [Monad m] [LawfulMonad m] {f : α → β} {g : β → m γ} {xs : Vector α n} :
+@[simp, grind =] theorem mapM_map [Monad m] [LawfulMonad m] {f : α → β} {g : β → m γ} {xs : Vector α n} :
     (xs.map f).mapM g = xs.mapM (g ∘ f) := by
   apply map_toArray_inj.mp
   simp
@@ -55,7 +55,7 @@ theorem mapM_pure [Monad m] [LawfulMonad m] {xs : Vector α n} (f : α → β) :
   unfold mapM.go
   simp
 
-@[simp] theorem mapM_append [Monad m] [LawfulMonad m]
+@[simp, grind =] theorem mapM_append [Monad m] [LawfulMonad m]
     {f : α → m β} {xs : Vector α n} {ys : Vector α n'} :
     (xs ++ ys).mapM f = (return (← xs.mapM f) ++ (← ys.mapM f)) := by
   apply map_toArray_inj.mp
@@ -96,13 +96,13 @@ theorem foldrM_map [Monad m] [LawfulMonad m] {f : β₁ → β₂} {g : β₂ �
   cases as <;> cases bs
   simp_all
 
-@[simp] theorem forM_append [Monad m] [LawfulMonad m] {xs : Vector α n} {ys : Vector α n'} {f : α → m PUnit} :
+@[simp, grind =] theorem forM_append [Monad m] [LawfulMonad m] {xs : Vector α n} {ys : Vector α n'} {f : α → m PUnit} :
     forM (xs ++ ys) f = (do forM xs f; forM ys f) := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, rfl⟩
   simp
 
-@[simp] theorem forM_map [Monad m] [LawfulMonad m] {xs : Vector α n} {g : α → β} {f : β → m PUnit} :
+@[simp, grind =] theorem forM_map [Monad m] [LawfulMonad m] {xs : Vector α n} {g : α → β} {f : β → m PUnit} :
     forM (xs.map g) f = forM xs (fun a => f (g a)) := by
   rcases xs with ⟨xs, rfl⟩
   simp
@@ -161,7 +161,7 @@ theorem forIn'_yield_eq_foldl
       xs.attach.foldl (fun b ⟨a, h⟩ => f a h b) init :=
   forIn'_pure_yield_eq_foldl _ _
 
-@[simp] theorem forIn'_map [Monad m] [LawfulMonad m]
+@[simp, grind =] theorem forIn'_map [Monad m] [LawfulMonad m]
     {xs : Vector α n} (g : α → β) (f : (b : β) → b ∈ xs.map g → γ → m (ForInStep γ)) :
     forIn' (xs.map g) init f = forIn' xs init fun a h y => f (g a) (mem_map_of_mem h) y := by
   rcases xs with ⟨xs, rfl⟩
@@ -209,7 +209,7 @@ theorem forIn_yield_eq_foldl
       xs.foldl (fun b a => f a b) init :=
   forIn_pure_yield_eq_foldl _ _
 
-@[simp] theorem forIn_map [Monad m] [LawfulMonad m]
+@[simp, grind =] theorem forIn_map [Monad m] [LawfulMonad m]
     {xs : Vector α n} (g : α → β) (f : β → γ → m (ForInStep γ)) :
     forIn (xs.map g) init f = forIn xs init fun a y => f (g a) y := by
   rcases xs with ⟨xs, rfl⟩

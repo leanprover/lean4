@@ -25,13 +25,10 @@ def mkUlt (aig : AIG α) (pair : AIG.BinaryRefVec aig w) : AIG.Entrypoint α :=
   let res := BVExpr.bitblast.blastNot aig rhsRefs
   let aig := res.aig
   let rhsNotRefs := res.vec
-  let res := aig.mkConstCached true
+  let trueRef := aig.mkConstCached true
   let aig := res.aig
-  let trueRef := res.ref
   let lhsRefs := lhsRefs.cast <| by
-    apply AIG.LawfulOperator.le_size_of_le_aig_size (f := AIG.mkConstCached)
     apply AIG.LawfulVecOperator.le_size (f := BVExpr.bitblast.blastNot)
-  let rhsNotRefs := rhsNotRefs.cast <| AIG.LawfulOperator.le_size (f := AIG.mkConstCached) ..
   let res := BVExpr.bitblast.mkOverflowBit aig ⟨_, ⟨lhsRefs, rhsNotRefs⟩, trueRef⟩
   let aig := res.aig
   let overflowRef := res.ref
@@ -44,7 +41,6 @@ instance {w : Nat} : AIG.LawfulOperator α (AIG.BinaryRefVec · w) mkUlt where
     dsimp only
     apply AIG.LawfulOperator.le_size_of_le_aig_size (f := AIG.mkNotCached)
     apply AIG.LawfulOperator.le_size_of_le_aig_size (f := BVExpr.bitblast.mkOverflowBit)
-    apply AIG.LawfulOperator.le_size_of_le_aig_size (f := AIG.mkConstCached)
     apply AIG.LawfulVecOperator.le_size (f := BVExpr.bitblast.blastNot)
   decl_eq := by
     intros
@@ -52,15 +48,10 @@ instance {w : Nat} : AIG.LawfulOperator α (AIG.BinaryRefVec · w) mkUlt where
     dsimp only
     rw [AIG.LawfulOperator.decl_eq (f := AIG.mkNotCached)]
     rw [AIG.LawfulOperator.decl_eq (f := BVExpr.bitblast.mkOverflowBit)]
-    rw [AIG.LawfulOperator.decl_eq (f := AIG.mkConstCached)]
     rw [AIG.LawfulVecOperator.decl_eq (f := BVExpr.bitblast.blastNot)]
     · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast.blastNot)
       assumption
-    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkConstCached)
-      apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast.blastNot)
-      assumption
     · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast.mkOverflowBit)
-      apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkConstCached)
       apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast.blastNot)
       assumption
 

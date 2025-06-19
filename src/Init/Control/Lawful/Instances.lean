@@ -58,7 +58,7 @@ protected theorem bind_pure_comp [Monad m] (f : α → β) (x : ExceptT ε m α)
   intros; rfl
 
 protected theorem seqLeft_eq {α β ε : Type u} {m : Type u → Type v} [Monad m] [LawfulMonad m] (x : ExceptT ε m α) (y : ExceptT ε m β) : x <* y = const β <$> x <*> y := by
-  show (x >>= fun a => y >>= fun _ => pure a) = (const (α := α) β <$> x) >>= fun f => f <$> y
+  change (x >>= fun a => y >>= fun _ => pure a) = (const (α := α) β <$> x) >>= fun f => f <$> y
   rw [← ExceptT.bind_pure_comp]
   apply ext
   simp [run_bind]
@@ -70,7 +70,7 @@ protected theorem seqLeft_eq {α β ε : Type u} {m : Type u → Type v} [Monad 
     cases b <;> simp [comp, Except.map, const]
 
 protected theorem seqRight_eq [Monad m] [LawfulMonad m] (x : ExceptT ε m α) (y : ExceptT ε m β) : x *> y = const α id <$> x <*> y := by
-  show (x >>= fun _ => y) = (const α id <$> x) >>= fun f => f <$> y
+  change (x >>= fun _ => y) = (const α id <$> x) >>= fun f => f <$> y
   rw [← ExceptT.bind_pure_comp]
   apply ext
   simp [run_bind]
@@ -206,15 +206,15 @@ theorem run_bind_lift {α σ : Type u} [Monad m] [LawfulMonad m] (x : m α) (f :
     (monadMap @f x : StateT σ m α).run s = monadMap @f (x.run s) := rfl
 
 @[simp] theorem run_seq {α β σ : Type u} [Monad m] [LawfulMonad m] (f : StateT σ m (α → β)) (x : StateT σ m α) (s : σ) : (f <*> x).run s = (f.run s >>= fun fs => (fun (p : α × σ) => (fs.1 p.1, p.2)) <$> x.run fs.2) := by
-  show (f >>= fun g => g <$> x).run s = _
+  change (f >>= fun g => g <$> x).run s = _
   simp
 
 @[simp] theorem run_seqRight [Monad m] (x : StateT σ m α) (y : StateT σ m β) (s : σ) : (x *> y).run s = (x.run s >>= fun p => y.run p.2) := by
-  show (x >>= fun _ => y).run s = _
+  change (x >>= fun _ => y).run s = _
   simp
 
 @[simp] theorem run_seqLeft {α β σ : Type u} [Monad m] (x : StateT σ m α) (y : StateT σ m β) (s : σ) : (x <* y).run s = (x.run s >>= fun p => y.run p.2 >>= fun p' => pure (p.1, p'.2)) := by
-  show (x >>= fun a => y >>= fun _ => pure a).run s = _
+  change (x >>= fun a => y >>= fun _ => pure a).run s = _
   simp
 
 theorem seqRight_eq [Monad m] [LawfulMonad m] (x : StateT σ m α) (y : StateT σ m β) : x *> y = const α id <$> x <*> y := by

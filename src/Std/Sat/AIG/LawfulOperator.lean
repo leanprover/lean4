@@ -30,6 +30,11 @@ structure IsPrefix (decls1 decls2 : Array (Decl α)) : Prop where
     -/
     idx_eq : ∀ idx (h : idx < decls1.size), decls2[idx]'(by omega) = decls1[idx]'h
 
+theorem IsPrefix.rfl {decls : Array (Decl α)} : IsPrefix decls decls := by
+  apply IsPrefix.of
+  · simp
+  · simp
+
 @[simp]
 theorem IsPrefix_push {decls : Array (Decl α)} : IsPrefix decls (decls.push decl) := by
   apply IsPrefix.of

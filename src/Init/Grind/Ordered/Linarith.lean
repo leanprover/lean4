@@ -20,7 +20,7 @@ namespace Lean.Grind.Linarith
 abbrev Var := Nat
 open IntModule
 
-attribute [local simp] add_zero zero_add zero_hmul hmul_zero one_hmul
+attribute [local simp] add_zero zero_add zero_hmul nat_zero_hmul hmul_zero one_hmul
 
 inductive Expr where
   | zero
@@ -215,12 +215,13 @@ attribute [local simp] Poly.denote_combine
 theorem Expr.denote_toPoly'_go {α} [IntModule α] {k p} (ctx : Context α) (e : Expr)
     : (toPoly'.go k e p).denote ctx = k * e.denote ctx + p.denote ctx := by
   induction k, e using Expr.toPoly'.go.induct generalizing p <;> simp [toPoly'.go, denote, Poly.denote, *, hmul_add]
-  all_goals sorry
-  -- next => ac_rfl
-  -- next => rw [sub_eq_add_neg, neg_hmul, hmul_add, hmul_neg]; ac_rfl
-  -- next h => simp at h; subst h; simp
-  -- next ih => simp at ih; rw [ih, mul_hmul]
-  -- next => rw [hmul_neg, neg_hmul]
+  next => ac_rfl
+  next => rw [sub_eq_add_neg, neg_hmul, hmul_add, hmul_neg]; ac_rfl
+  next h => simp at h; subst h; simp
+  next ih => simp at ih; rw [ih, mul_hmul, IntModule.hmul_nat]
+  next ih => simp at ih; simp [ih]
+  next ih => simp at ih; rw [ih, mul_hmul]
+  next => rw [hmul_neg, neg_hmul]
 
 theorem Expr.denote_norm {α} [IntModule α] (ctx : Context α) (e : Expr) : e.norm.denote ctx = e.denote ctx := by
   simp [norm, toPoly', Expr.denote_toPoly'_go, Poly.denote]

@@ -145,6 +145,9 @@ theorem hmul_sub (k : Int) (a b : M) : k * (a - b) = k * a - k * b := by
 theorem sub_hmul (k₁ k₂ : Int) (a : M) : (k₁ - k₂) * a = k₁ * a - k₂ * a := by
   rw [Int.sub_eq_add_neg, add_hmul, neg_hmul, ← sub_eq_add_neg]
 
+theorem nat_zero_hmul (a : M) : (0 : Nat) * a = 0 := by
+  rw [← hmul_nat, Int.natCast_zero, zero_hmul]
+
 private theorem nat_mul_hmul (n : Nat) (m : Int) (a : M) :
     ((n : Int) * m) * a = (n : Int) * (m * a) := by
   induction n with

@@ -315,14 +315,14 @@ end CommSemiring
 
 open Semiring Ring CommSemiring CommRing
 
-class IsCharP (α : Type u) [∀ n, OfNat α n] (p : outParam Nat) where
+class IsCharP (α : Type u) [Semiring α] (p : outParam Nat) where
   ofNat_ext_iff (p) : ∀ {x y : Nat}, OfNat.ofNat (α := α) x = OfNat.ofNat (α := α) y ↔ x % p = y % p
 
 namespace IsCharP
 
 section
 
-variable (p) [∀ n, OfNat α n] [IsCharP α p]
+variable (p) [Semiring α] [IsCharP α p]
 
 theorem ofNat_eq_zero_iff  (x : Nat) :
     OfNat.ofNat (α := α) x = 0 ↔ x % p = 0 := by

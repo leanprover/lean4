@@ -367,9 +367,12 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
   unless modified do
     return none
   let heq ← inferType prf
-  let rhs := heq.appArg!
+  let mkApp4 (.const ``HEq us) α _ _ rhs := heq |
+    trace[Meta.Tactic.simp.congr] "unexpected result type in match discr congr {heq}"
+    return none
   let rhs := rhs.withApp fun r args => mkAppN r (args.map Expr.headBeta)
-  return some { expr := rhs, proof? := if refl then none else some prf }
+  let prf? := if refl then none else mkApp4 (.const ``eq_of_heq us) α e rhs prf
+  return some { expr := rhs, proof? := prf? }
 
 def simpMatchCore (matcherName : Name) (e : Expr) : SimpM Step := do
   for matchEq in (← Match.getEquationsFor matcherName).eqnNames do

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 prelude
-import Init.Data.Range.New.Nat
+import Init.Data.Range.Polymorphic.Nat
 
 namespace Array
 

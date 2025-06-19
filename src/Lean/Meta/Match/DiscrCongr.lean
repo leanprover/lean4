@@ -232,6 +232,7 @@ private def isDiscrCongrName? (env : Environment) (n : Name) : Option Name := do
   if "_aux_".isPrefixOf s && (s.drop "_aux_".length).isNat then
     let .str n' s' := n | none
     n := n'; s := s'
+  n ← privateToUserName? n
   guard <| s == "discr_congr" && isMatcherCore env n
   return n
 

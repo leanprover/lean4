@@ -161,5 +161,9 @@ def xyz (x : Nat) (h : x ≠ 0) (w : WithProof h) : Nat :=
   | 3, _, _ => 8
   | _, _, _ => 2
 
-example (h : x = 3) : xyz x h' w = 8 := by
+theorem t (h : x = 3) : xyz x h' w = 8 := by
   simp [xyz, h]
+
+#print t
+
+#print xyz.match_1.discr_congr

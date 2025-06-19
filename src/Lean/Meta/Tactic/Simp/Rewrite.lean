@@ -342,8 +342,7 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
   let (thmName, mask) ← Match.getDiscrCongr fn.constName!
   let motive := args[info.getMotivePos]!
   let motive := lamBody info.numDiscrs motive
-  let mut prf : Expr := .const thmName fn.constLevels!
-  prf := mkAppN prf (args.extract 0 info.arity)
+  let mut thmArgs := args.extract 0 info.arity
   let mut i := 0
   let mut modified := false
   let mut refl := true
@@ -352,21 +351,31 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
       let discr := args[info.getFirstDiscrPos + i]!
       if motive.hasLooseBVar (info.numDiscrs - i - 1) then
         -- motive depends on discriminant
-        prf := mkApp2 prf discr (← mkEqRefl discr)
+        let res ← dsimp discr
+        if res != discr then
+          modified := true
+        thmArgs := thmArgs.push res |>.push (← mkEqRefl discr)
       else
         let res ← simp discr
         if res.expr != discr then
           modified := true
           match res.proof? with
-          | none => prf := mkApp2 prf res.expr (← mkEqRefl discr)
+          | none => thmArgs := thmArgs.push res.expr |>.push (← mkEqRefl discr)
           | some h =>
-            prf := mkApp2 prf res.expr h
+            thmArgs := thmArgs.push res.expr |>.push h
             refl := false
         else
-          prf := mkApp2 prf discr (← mkEqRefl discr)
+          thmArgs := thmArgs.push discr |>.push (← mkEqRefl discr)
+    else
+      let discr := args[info.getFirstDiscrPos + i]!
+      let res ← dsimp discr
+      if res != discr then
+        modified := true
+        thmArgs := thmArgs.set! (info.getFirstDiscrPos + i) res
     i := i + 1
   unless modified do
     return none
+  let prf := mkAppN (.const thmName fn.constLevels!) thmArgs
   let heq ← inferType prf
   let mkApp4 (.const ``HEq us) α lhs _ rhs := heq |
     trace[Meta.Tactic.simp.congr] "unexpected result type in match discr congr {heq}"

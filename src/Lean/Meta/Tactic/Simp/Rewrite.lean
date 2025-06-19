@@ -334,7 +334,7 @@ if at least of one of the discriminants has been simplified.
 -/
 def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := do
   let numArgs := e.getAppNumArgs
-  if numArgs != info.arity then
+  if numArgs < info.arity then
     return none
   let args := e.getAppArgs
   let fn := e.getAppFn
@@ -342,7 +342,7 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
   let motive := args[info.getMotivePos]!
   let motive := lamBody info.numDiscrs motive
   let mut prf : Expr := .const thmName fn.constLevels!
-  prf := mkAppN prf args
+  prf := mkAppN prf (args.extract 0 info.arity)
   let mut i := 0
   let mut modified := false
   let mut refl := true
@@ -367,12 +367,16 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
   unless modified do
     return none
   let heq ← inferType prf
-  let mkApp4 (.const ``HEq us) α _ _ rhs := heq |
+  let mkApp4 (.const ``HEq us) α lhs _ rhs := heq |
     trace[Meta.Tactic.simp.congr] "unexpected result type in match discr congr {heq}"
     return none
   let rhs := rhs.withApp fun r args => mkAppN r (args.map Expr.headBeta)
-  let prf? := if refl then none else mkApp4 (.const ``eq_of_heq us) α e rhs prf
-  return some { expr := rhs, proof? := prf? }
+  let prf? := if refl then none else mkApp4 (.const ``eq_of_heq us) α lhs rhs prf
+  let mut r := { expr := rhs, proof? := prf? }
+  if numArgs > info.arity then
+    let fn : Expr := .lam `x (← inferType r.expr) (mkAppN (.bvar 0) (args.extract info.arity)) .default
+    r ← mkCongrArg fn r
+  return some r
 
 def simpMatchCore (matcherName : Name) (e : Expr) : SimpM Step := do
   for matchEq in (← Match.getEquationsFor matcherName).eqnNames do

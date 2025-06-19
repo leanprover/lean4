@@ -1,3 +1,9 @@
+/-!
+# `simp` on match discriminants
+
+Tests that `simp` can apply congruence to match discrimants.
+-/
+
 inductive Vec (α : Type u) : Nat → Type u
   | nil  : Vec α 0
   | cons : α → {n : Nat} → Vec α n → Vec α (n+1)
@@ -31,10 +37,17 @@ def foo [Add α] (v w : Vec α n) (f : α → α) (a : α) : α :=
   | _, Vec.nil,       Vec.nil       => a
   | _, Vec.cons a .., Vec.cons b .. => a + b
 
+/-!
+Test that `simp` does not try to apply congruence to parameters with forward dependencies
+(e.g. `n` in `map`).
+-/
+
 theorem ex1 (a b : Nat) (as : Vec Nat n) : foo (Vec.cons a as) (Vec.cons b as) id 0 = a + b := by
   simp [foo]
 
-#print ex1
+/-!
+Tests that `simp` can handle overapplications of match applications.
+-/
 
 def bla (b : Bool) (f g : α → β) (a : α) : β :=
   (match b with
@@ -43,4 +56,34 @@ def bla (b : Bool) (f g : α → β) (a : α) : β :=
 theorem ex2 (h : b = false) : bla b (fun x => x + 1) id 10 = 10 := by
   simp [bla, h]
 
-#print ex2
+/-!
+Tests that `simp` works with equations on the match discriminants.
+-/
+
+def test1 (n : Nat) : Nat :=
+  match _ : n with
+  | 0 => 32
+  | _ + 1 => 0
+
+example (h : a = 3) : test1 a = 0 := by
+  simp [test1, h]
+
+/-!
+Tests that `simp` works with proof parameters with backward dependencies (even if they have
+equations associated with them).
+-/
+
+def test2 (n : Nat) (h : n ≠ 0) : Nat :=
+  match _ : n, _ : h with
+  | k + 1, _ => k
+
+example (h : a = 3) : test2 a h' = 2 := by
+  simp [test2, h]
+
+/-!
+Tests that congruence also works in `dsimp`.
+-/
+
+example : test2 (id 3) h = 2 := by
+  unfold test2
+  dsimp only [id_eq]

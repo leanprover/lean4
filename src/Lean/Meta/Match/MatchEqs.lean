@@ -946,9 +946,10 @@ where
   termination_by ndiscrs - i
 
 /--
-Compute right-hand side discriminants.
+Compute right-hand side discriminants. Rewritten proofs are put into auxiliary theorems.
 -/
-private def mkDiscrParams (discrs : Array Expr) (cvars : Array (Option (Expr × Expr)))
+private def mkDiscrParams (decl : Name) (lparams : List Name) (params : Array Expr)
+    (discrs : Array Expr) (cvars : Array (Option (Expr × Expr)))
     (info : FunInfo) : MetaM (Array Expr) :=
   go 0 #[]
 where
@@ -958,21 +959,49 @@ where
       | some (var, _eq) => go (i + 1) (acc.push var)
       | none =>
         let info := info.paramInfo[i]!
-        if info.isProp && !info.backDeps.isEmpty then
-          go (i + 1) (acc.push (← info.backDeps.foldlM castProof discrs[i]!))
+        if info.isProp && info.backDeps.any (cvars[·]!.isSome) then
+          go (i + 1) (acc.push (← writeProof i info acc))
         else
           go (i + 1) (acc.push discrs[i]!)
     else
       return acc
   termination_by cvars.size - i
 
-  castProof (e : Expr) (dep : Nat) : MetaM Expr := do
-    let some (v', eq) := cvars[dep]! | return e
-    let v := discrs[dep]!
-    let t ← inferType v
-    let u ← getLevel t
-    let motive := .lam `x t ((← inferType e).abstract #[v]) .default
-    return mkApp6 (.const ``Eq.ndrec [levelZero, u]) t v motive e v' eq
+  solve (goal hyp : Expr) (deps : Array Nat) (i : Nat) : MetaM Expr := do
+    if h : i < deps.size then
+      Lean.logInfo m!"{(← mkFreshExprMVar goal).mvarId!}"
+      let dep := deps[i]
+      let some _ := cvars[dep]! | solve goal hyp deps (i + 1)
+      let .forallE _ _ (.forallE _ eq@(mkApp3 (.const _ [u]) α v _) b _) _ := goal | unreachable!
+      let motive := .lam `x α (.lam `h eq b .default) .default
+      let newGoal := b.instantiateRev #[v, mkApp2 (.const ``rfl [u]) α v]
+      let inner ← solve newGoal hyp deps (i + 1)
+      return mkApp4 (.const ``Eq.rec [levelZero, u]) α v motive inner
+    else
+      return hyp
+  termination_by deps.size - i
+
+  writeProof (i : Nat) (info : ParamInfo) (acc : Array Expr) : MetaM Expr := do
+    let hyp := discrs[i]!
+    let prevVars := info.backDeps.map (discrs[·]!)
+    let newVars := info.backDeps.map (acc[·]!)
+    let prevType ← inferType hyp
+    let newType := prevType.replaceFVars prevVars newVars
+    let depCVars := info.backDeps.flatMap (match cvars[·]! with | none => #[] | some (a, b) => #[a, b])
+    let newType ← mkForallFVars depCVars newType
+
+    let proof ← solve newType hyp info.backDeps 0
+
+    let allVars := params ++ info.backDeps.map (discrs[·]!) |>.push hyp
+    let auxThmName := decl ++ `_aux |>.appendIndexAfter (i + 1)
+    let type ← mkForallFVars allVars newType
+    let value ← mkLambdaFVars allVars proof
+    Lean.addDecl <| Declaration.thmDecl {
+      name := auxThmName
+      levelParams := lparams
+      type, value
+    }
+    return mkAppN (mkAppN (.const auxThmName (lparams.map Level.param)) allVars) depCVars
 
 /--
 Compute right-hand side alternatives.
@@ -1067,7 +1096,7 @@ where go discrCongrName := withConfig (fun c => { c with etaStruct := .none }) d
         mask := mask.push true
     withDiscrCongrEqs discrBody matcher.numDiscrs discrs mask fun cvars => do -- congruence vars
       let lhs := mkAppN matchBase fvars
-      let rhsDiscrs ← mkDiscrParams discrs cvars info
+      let rhsDiscrs ← mkDiscrParams discrCongrName cval.levelParams params.pop discrs cvars info
       let rhsType := mkAppN params.back! rhsDiscrs -- motive
       let rhsAlts ←
         if matcher.getNumDiscrEqs = 0 then
@@ -1109,12 +1138,16 @@ private inductive EqnKind where
   | congrEqn
   | discrCongr
 
+/-- Returns `true` if `s` is of the form `discr_congr_aux_<idx>` -/
+private def isDiscrCongrAuxName (s : String) : Bool :=
+  "discr_congr_aux_".isPrefixOf s && (s.drop "discr_congr_aux_".length).isNat
+
 private def isMatchEqName? (env : Environment) (n : Name) : Option (Name × EqnKind) := do
   let .str p s := n | failure
   let kind ←
     if isEqnReservedNameSuffix s || s == "splitter" then some EqnKind.eqn
     else if isCongrEqnReservedNameSuffix s then some EqnKind.congrEqn
-    else if s == "discr_congr" then some EqnKind.discrCongr
+    else if s == "discr_congr" || isDiscrCongrAuxName s then some EqnKind.discrCongr
     else none
   let p ← privateToUserName? p
   guard <| isMatcherCore env p

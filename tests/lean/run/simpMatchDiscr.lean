@@ -134,3 +134,32 @@ h : a = 3
 #guard_msgs in
 example (h : a = 3) : (abc' a).value = 3 := by
   simp [abc', h]
+
+/-!
+`simp` *does* apply congruence if the motive depends on one the discriminant but not another.
+-/
+
+def abc2 (x y : Nat) : Test x :=
+  match x, y with
+  | _, 0 => Test.mk 27
+  | _, 1 => Test.mk 5
+  | _, _ + 2 => Test.mk 3
+
+example (_h : a = 3) (h' : b = 3) : (abc2 a b).value = 3 := by
+  simp only [abc2]
+  fail_if_success simp only [_h]
+  simp only [h']
+
+/-!
+`simp` works when a proof depends on another proof.
+-/
+
+structure WithProof {p : Prop} (h : p) : Prop where
+
+def xyz (x : Nat) (h : x ≠ 0) (w : WithProof h) : Nat :=
+  match x, h, w with
+  | 3, _, _ => 8
+  | _, _, _ => 2
+
+example (h : x = 3) : xyz x h' w = 8 := by
+  simp [xyz, h]

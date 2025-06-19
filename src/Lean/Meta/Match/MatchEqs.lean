@@ -969,7 +969,6 @@ where
 
   solve (goal hyp : Expr) (deps : Array Nat) (i : Nat) : MetaM Expr := do
     if h : i < deps.size then
-      Lean.logInfo m!"{(← mkFreshExprMVar goal).mvarId!}"
       let dep := deps[i]
       let some _ := cvars[dep]! | solve goal hyp deps (i + 1)
       let .forallE _ _ (.forallE _ eq@(mkApp3 (.const _ [u]) α v _) b _) _ := goal | unreachable!

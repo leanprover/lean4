@@ -322,6 +322,12 @@ def simpArith (e : Expr) : SimpM Step := do
     return .visit { expr := e', proof? := h }
   return .continue
 
+private partial def lamBody : Nat → Expr → Expr
+  | 0, e => e
+  | k + 1, .lam _ _ b _ => lamBody k b
+  | k, .letE _ _ v b _ => lamBody k (b.instantiate1 v)
+  | k + 1, e => lamBody k (.app (e.liftLooseBVars 0 1) (.bvar 0))
+
 /--
 Given a match-application `e` with `MatcherInfo` `info`, return `some result`
 if at least of one of the discriminants has been simplified.
@@ -330,33 +336,40 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
   let numArgs := e.getAppNumArgs
   if numArgs < info.arity then
     return none
-  let prefixSize := info.numParams + 1 /- motive -/
-  let n     := numArgs - prefixSize
-  let f     := e.stripArgsN n
-  let infos := (← getFunInfoNArgs f n).paramInfo
-  let args  := e.getAppArgsN n
-  let mut r : Result := { expr := f }
+  let args := e.getAppArgs
+  let fn := e.getAppFn
+  let (thmName, mask) ← Match.getDiscrCongr fn.constName!
+  let motive := args[info.getMotivePos]!
+  let motive := lamBody info.numDiscrs motive
+  let mut prf : Expr := .const thmName fn.constLevels!
+  prf := mkAppN prf args
+  let mut i := 0
   let mut modified := false
-  for i in [0 : info.numDiscrs] do
-    let arg := args[i]!
-    if i < infos.size && !infos[i]!.hasFwdDeps then
-      let argNew ← simp arg
-      if argNew.expr != arg then modified := true
-      r ← mkCongr r argNew
-    else if (← whnfD (← inferType r.expr)).isArrow then
-      let argNew ← simp arg
-      if argNew.expr != arg then modified := true
-      r ← mkCongr r argNew
-    else
-      let argNew ← dsimp arg
-      if argNew != arg then modified := true
-      r ← mkCongrFun r argNew
+  let mut refl := true
+  while h : i < mask.size do
+    if mask[i] then
+      let discr := args[info.getFirstDiscrPos + i]!
+      if motive.hasLooseBVar (info.numDiscrs - i - 1) then
+        -- motive depends on discriminant
+        prf := mkApp2 prf discr (← mkEqRefl discr)
+      else
+        let res ← simp discr
+        if res.expr != discr then
+          modified := true
+          match res.proof? with
+          | none => prf := mkApp2 prf res.expr (← mkEqRefl discr)
+          | some h =>
+            prf := mkApp2 prf res.expr h
+            refl := false
+        else
+          prf := mkApp2 prf discr (← mkEqRefl discr)
+    i := i + 1
   unless modified do
     return none
-  for h : i in [info.numDiscrs : args.size] do
-    let arg := args[i]
-    r ← mkCongrFun r arg
-  return some r
+  let heq ← inferType prf
+  let rhs := heq.appArg!
+  let rhs := rhs.withApp fun r args => mkAppN r (args.map Expr.headBeta)
+  return some { expr := rhs, proof? := if refl then none else some prf }
 
 def simpMatchCore (matcherName : Name) (e : Expr) : SimpM Step := do
   for matchEq in (← Match.getEquationsFor matcherName).eqnNames do
@@ -375,7 +388,7 @@ def simpMatch : Simproc := fun e => do
     | return .continue
   let some info ← getMatcherInfo? declName
     | return .continue
-  if let some r ← simpMatchDiscrs? info e then
+  if let some r ← simpMatchDiscrs? info declName e then
     return .visit r
   simpMatchCore declName e
 

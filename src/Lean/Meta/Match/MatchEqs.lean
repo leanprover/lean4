@@ -1045,9 +1045,12 @@ def getDiscrCongrImpl (matchDeclName : Name) : MetaM (Name × Array Bool) := do
   realizeConst matchDeclName discrCongrName (go discrCongrName)
   return matchDiscrCongrExt.findStateAsync (← getEnv) discrCongrName |>.find! matchDeclName
 where go discrCongrName := withConfig (fun c => { c with etaStruct := .none }) do
-  let some matcher ← getMatcherInfo? matchDeclName | throwError "expected matcher"
-  let some elimPos := matcher.uElimPos? | throwError "prop match"
+  let some matcher ← getMatcherInfo? matchDeclName | throwError "'{matchDeclName}' is not a matcher function"
   let cval ← getConstVal matchDeclName
+  let uelim :=
+    match matcher.uElimPos? with
+    | none => levelZero
+    | some idx => .param cval.levelParams[idx]!
   forallBoundedTelescope cval.type matcher.getFirstDiscrPos fun params discrBody => -- params + motive
   forallTelescope discrBody fun fvars lhsType => do -- discrs + alts
     let discrs := fvars.extract 0 matcher.numDiscrs
@@ -1074,7 +1077,7 @@ where go discrCongrName := withConfig (fun c => { c with etaStruct := .none }) d
           -- special handling for equations
           alts.mapM (mkAltParam matcher.discrInfos rhsDiscrs cvars)
       let rhs := mkAppN (mkAppN matchBase rhsDiscrs) rhsAlts
-      let heq := mkApp4 (.const ``HEq [.param cval.levelParams[elimPos]!]) lhsType lhs rhsType rhs
+      let heq := mkApp4 (.const ``HEq [uelim]) lhsType lhs rhsType rhs
       let proof ← mkFreshExprSyntheticOpaqueMVar heq
       -- solve by induction on all equalities
       let mut goal := proof.mvarId!

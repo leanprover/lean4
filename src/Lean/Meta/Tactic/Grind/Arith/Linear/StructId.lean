@@ -130,6 +130,7 @@ where
     ensureToHomoFieldDefEq subInst intModuleInst ``Grind.IntModule.toSub ``instHSub
     ensureToFieldDefEq negInst intModuleInst ``Grind.IntModule.toNeg
     ensureToFieldDefEq hmulInst intModuleInst ``Grind.IntModule.hmulInt
+    ensureToFieldDefEq hmulNatInst intModuleInst ``Grind.IntModule.hmulNat
     let preorderInst? ← getInst? ``Grind.Preorder
     let isOrdInst? ← if let some preorderInst := preorderInst? then
       let isOrderedType := mkApp3 (mkConst ``Grind.IntModule.IsOrdered [u]) type preorderInst intModuleInst
@@ -184,7 +185,7 @@ where
     let getNoNatZeroDivInst? : GoalM (Option Expr) := do
       let hmulNat := mkApp3 (mkConst ``HMul [0, u, u]) Nat.mkType type type
       let .some hmulInst ← trySynthInstance hmulNat | return none
-      let noNatZeroDivType := mkApp3 (mkConst ``Grind.NoNatZeroDivisors [u]) type zeroInst hmulInst
+      let noNatZeroDivType := mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type hmulInst
       return LOption.toOption (← trySynthInstance noNatZeroDivType)
     let noNatDivInst? ← getNoNatZeroDivInst?
     let id := (← get').structs.size

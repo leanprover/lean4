@@ -864,7 +864,6 @@ def genMatchCongrEqns (matchDeclName : Name) : MetaM (Array Name) := do
   realizeConst matchDeclName firstEqnName (go baseName)
   return matchCongrEqnsExt.findStateAsync (← getEnv) firstEqnName |>.find! matchDeclName
 where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
-  withConfig (fun c => { c with etaStruct := .none }) do
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
   let some matchInfo ← getMatcherInfo? matchDeclName | throwError "'{matchDeclName}' is not a matcher function"
@@ -924,24 +923,218 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
       idx := idx + 1
     registerMatchcongrEqns matchDeclName eqnNames
 
+/- We generate the equations and splitter on demand, and do not save them on .olean files. -/
+builtin_initialize matchDiscrCongrExt : EnvExtension (PHashMap Name (Name × Array Bool)) ←
+  -- Using `local` allows us to use the extension in `realizeConst` without specifying `replay?`.
+  -- The resulting state can still be accessed on the generated declarations using `findStateAsync`;
+  -- see below
+  registerEnvExtension (pure {}) (asyncMode := .local)
+
+def registerDiscrCongr (matchDeclName : Name) (congrName : Name) (mask : Array Bool) : CoreM Unit := do
+  modifyEnv fun env => matchDiscrCongrExt.modifyState env fun map =>
+    map.insert matchDeclName (congrName, mask)
+
+/--
+Make an equality hypothesis for every discriminant where `mask` is `true`.
+-/
+private def withDiscrCongrEqs (discrBody : Expr) (ndiscrs : Nat)
+    (discrs : Array Expr) (mask : Array Bool)
+    (k : Array (Option (Expr × Expr)) → MetaM α) : MetaM α :=
+  go discrBody 0 #[]
+where
+  go (body : Expr) (i : Nat) (acc : Array (Option (Expr × Expr))) : MetaM α := do
+    if i < ndiscrs then
+      let .forallE nm t b bi := body | unreachable!
+      if mask[i]! = false then
+        go (b.instantiate1 discrs[i]!) (i + 1) (acc.push none)
+      else
+        withLocalDecl nm bi t fun var => do
+          let eqT := mkApp3 (.const ``Eq [← getLevel t]) t discrs[i]! var
+          withLocalDeclD `heq eqT fun eq => do
+            go b (i + 1) (acc.push (var, eq))
+    else
+      k acc
+  termination_by ndiscrs - i
+
+/--
+Compute right-hand side discriminants.
+-/
+private def mkDiscrParams (discrs : Array Expr) (cvars : Array (Option (Expr × Expr)))
+    (info : FunInfo) : MetaM (Array Expr) :=
+  go 0 #[]
+where
+  go (i : Nat) (acc : Array Expr) : MetaM (Array Expr) := do
+    if hi : i < cvars.size then
+      match cvars[i] with
+      | some (var, _eq) => go (i + 1) (acc.push var)
+      | none =>
+        let info := info.paramInfo[i]!
+        if info.isProp && !info.backDeps.isEmpty then
+          go (i + 1) (acc.push (← info.backDeps.foldlM castProof discrs[i]!))
+        else
+          go (i + 1) (acc.push discrs[i]!)
+    else
+      return acc
+  termination_by cvars.size - i
+
+  castProof (e : Expr) (dep : Nat) : MetaM Expr := do
+    let some (v', eq) := cvars[dep]! | return e
+    let v := discrs[dep]!
+    let t ← inferType v
+    let u ← getLevel t
+    let motive := .lam `x t ((← inferType e).abstract #[v]) .default
+    return mkApp6 (.const ``Eq.ndrec [levelZero, u]) t v motive e v' eq
+
+/--
+Compute right-hand side alternatives.
+-/
+private def mkAltParam (dInfos : Array DiscrInfo)
+    (newDiscrs : Array Expr)
+    (cvars : Array (Option (Expr × Expr)))
+    (alt : Expr) : MetaM Expr := do
+  let altType ← inferType alt
+  forallTelescope altType fun params _ => do
+    go params.size dInfos.size params params
+where
+  go (i j : Nat) (params : Array Expr) (fvars : Array Expr) : MetaM Expr := do
+    let j + 1 := j | mkLambdaFVars fvars (mkAppN alt params)
+    let some nm := dInfos[j]!.hName? | go i j params fvars
+    let i := i - 1
+    let heq := params[i]!
+    let type ← inferType heq
+    let v' := newDiscrs[j]!
+    if cvars[j]!.isNone ∧ v'.isFVar then
+      -- unchanged
+      go i j params fvars
+    else if let mkApp3 (.const ``Eq us) α v r := type then
+      let α' ← inferType v'
+      withLocalDeclD nm (mkApp3 (.const ``Eq us) α' v' r) fun heq' =>
+        let prf :=
+          match cvars[j]! with
+          | some (_, eq) => mkApp6 (.const ``Eq.trans us) α v v' r eq heq'
+          | none =>
+            -- apply proof irrelevance
+            mkApp3 (.const ``rfl us) α v r
+        let params := params.set! i prf
+        let fvars := fvars.set! i heq'
+        go i j params fvars
+    else
+      let mkApp4 (.const ``HEq us) α v β r := type |
+        throwError "unexpected hypothesis type {type}"
+      let α' ← inferType v'
+      withLocalDeclD nm (mkApp4 (.const ``HEq us) α' v' β r) fun heq' =>
+        let prf :=
+          match cvars[j]! with
+          | some (_, eq) => mkApp7 (.const ``heq_of_eq_of_heq us) α β v v' r eq heq'
+          | none =>
+            -- apply proof irrelevance
+            mkApp4 (mkConst ``proof_irrel_heq) α β v r
+        let params := params.set! i prf
+        let fvars := fvars.set! i heq'
+        go i j params fvars
+
+/--
+Generates the discriminant congruence principle for a matcher and returns its name and a mask.
+
+The first arguments of the congruence principle are exactly the same as the parameters of the
+`match` application. The remaining arguments are (alternating) right-hand side discriminants and
+equalities relating them with left-hand side discriminants (i.e. `(a' : α) (ha : a = a') ...`).
+
+However, not all discriminants have equalities associated to them, in particular proofs and values
+with (non-proof) forward dependencies. Which of the discriminants that is, is recorded in the
+returned mask -- there is an equality associated to the `i`th discriminant (from 0) exactly if
+`mask[i]` is `true`.
+
+This congruence principle is used by `simp` to implement discriminant congruence on `match`
+applications.
+-/
+def getDiscrCongr (matchDeclName : Name) : MetaM (Name × Array Bool) := do
+  let baseName := mkPrivateName (← getEnv) matchDeclName
+  let discrCongrName := .str baseName "discr_congr"
+  realizeConst matchDeclName discrCongrName (go discrCongrName)
+  return matchDiscrCongrExt.findStateAsync (← getEnv) discrCongrName |>.find! matchDeclName
+where go discrCongrName := withConfig (fun c => { c with etaStruct := .none }) do
+  let some matcher ← getMatcherInfo? matchDeclName | throwError "expected matcher"
+  let some elimPos := matcher.uElimPos? | throwError "prop match"
+  let cval ← getConstVal matchDeclName
+  forallBoundedTelescope cval.type matcher.getFirstDiscrPos fun params discrBody => -- params + motive
+  forallTelescope discrBody fun fvars lhsType => do -- discrs + alts
+    let discrs := fvars.extract 0 matcher.numDiscrs
+    let alts := fvars.extract matcher.numDiscrs
+    let matchBase := mkAppN (.const matchDeclName (cval.levelParams.map Level.param)) params
+    let info ← getFunInfoNArgs matchBase matcher.numDiscrs
+    let mut mask : Array Bool := #[]
+    for paramInfo in info.paramInfo do
+      if paramInfo.isProp then
+        mask := mask.push false
+      else
+        for dep in paramInfo.backDeps do
+          mask := mask.set! dep false
+        mask := mask.push true
+    withDiscrCongrEqs discrBody matcher.numDiscrs discrs mask fun cvars => do -- congruence vars
+      let lhs := mkAppN matchBase fvars
+      let rhsDiscrs ← mkDiscrParams discrs cvars info
+      let rhsType := mkAppN params.back! rhsDiscrs -- motive
+      let rhsAlts ←
+        if matcher.getNumDiscrEqs = 0 then
+          -- plain `match` without equations, most common, just forward alternatives
+          pure alts
+        else
+          -- special handling for equations
+          alts.mapM (mkAltParam matcher.discrInfos rhsDiscrs cvars)
+      let rhs := mkAppN (mkAppN matchBase rhsDiscrs) rhsAlts
+      let heq := mkApp4 (.const ``HEq [.param cval.levelParams[elimPos]!]) lhsType lhs rhsType rhs
+      let proof ← mkFreshExprSyntheticOpaqueMVar heq
+      -- solve by induction on all equalities
+      let mut goal := proof.mvarId!
+      for cvar in cvars do
+        match cvar with
+        | some (_, eq) =>
+          let #[subgoal] ← goal.induction eq.fvarId! ``Eq.rec |
+            throwError "unexpected amount of subgoals"
+          goal := subgoal.mvarId
+        | none => pure ()
+      goal.hrefl
+
+      let proof ← instantiateMVars proof
+      let allCVars := cvars.flatMap fun | none => #[] | some (a, b) => #[a, b]
+      let type ← mkForallFVars (params ++ fvars ++ allCVars) heq
+      let proof ← mkLambdaFVars (params ++ fvars ++ allCVars) proof
+      addDecl <| Declaration.thmDecl {
+        name := discrCongrName
+        levelParams := cval.levelParams
+        type
+        value := proof
+      }
+      registerDiscrCongr matchDeclName discrCongrName mask
+
 builtin_initialize registerTraceClass `Meta.Match.matchEqs
 
-private def isMatchEqName? (env : Environment) (n : Name) : Option (Name × Bool) := do
+private inductive EqnKind where
+  | eqn
+  | congrEqn
+  | discrCongr
+
+private def isMatchEqName? (env : Environment) (n : Name) : Option (Name × EqnKind) := do
   let .str p s := n | failure
-  guard <| isEqnReservedNameSuffix s || s == "splitter" || isCongrEqnReservedNameSuffix s
+  let kind ←
+    if isEqnReservedNameSuffix s || s == "splitter" then some EqnKind.eqn
+    else if isCongrEqnReservedNameSuffix s then some EqnKind.congrEqn
+    else if s == "discr_congr" then some EqnKind.eqn
+    else none
   let p ← privateToUserName? p
   guard <| isMatcherCore env p
-  return (p, isCongrEqnReservedNameSuffix s)
+  return (p, kind)
 
 builtin_initialize registerReservedNamePredicate (isMatchEqName? · · |>.isSome)
 
 builtin_initialize registerReservedNameAction fun name => do
-  let some (p, isGenEq) := isMatchEqName? (← getEnv) name |
+  let some (p, kind) := isMatchEqName? (← getEnv) name |
     return false
-  if isGenEq then
-    let _ ← MetaM.run' <| genMatchCongrEqns p
-  else
-    let _ ← MetaM.run' <| getEquationsFor p
+  match kind with
+  | .eqn => let _ ← MetaM.run' <| getEquationsFor p
+  | .congrEqn => let _ ← MetaM.run' <| genMatchCongrEqns p
+  | .discrCongr => let _ ← MetaM.run' <| getDiscrCongr p
   return true
 
 end Lean.Meta.Match

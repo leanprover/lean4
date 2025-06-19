@@ -38,15 +38,14 @@ def foo [Add α] (v w : Vec α n) (f : α → α) (a : α) : α :=
   | _, Vec.cons a .., Vec.cons b .. => a + b
 
 /-!
-Test that `simp` does not try to apply congruence to parameters with forward dependencies
-(e.g. `n` in `map`).
+`simp` does not try to apply congruence to parameters with forward dependencies (e.g. `n` in `map`).
 -/
 
 theorem ex1 (a b : Nat) (as : Vec Nat n) : foo (Vec.cons a as) (Vec.cons b as) id 0 = a + b := by
   simp [foo]
 
 /-!
-Test that `simp` can handle overapplications of match applications.
+`simp` can handle overapplications of match applications.
 -/
 
 def bla (b : Bool) (f g : α → β) (a : α) : β :=
@@ -57,7 +56,7 @@ theorem ex2 (h : b = false) : bla b (fun x => x + 1) id 10 = 10 := by
   simp [bla, h]
 
 /-!
-Test that `simp` works with equations on the match discriminants.
+`simp` works with equations on the match discriminants.
 -/
 
 def test1 (n : Nat) : Nat :=
@@ -69,8 +68,8 @@ example (h : a = 3) : test1 a = 0 := by
   simp [test1, h]
 
 /-!
-Test that `simp` works with proof parameters with backward dependencies (even if they have
-equations associated with them).
+`simp` works with proof parameters with backward dependencies (even if they have equations
+associated with them).
 -/
 
 def test2 (n : Nat) (h : n ≠ 0) : Nat :=
@@ -81,7 +80,7 @@ example (h : a = 3) : test2 a h' = 2 := by
   simp [test2, h]
 
 /-!
-Test that congruence also works in `dsimp`.
+Congruence also works in `dsimp`.
 -/
 
 example : test2 (id 3) h = 2 := by
@@ -92,7 +91,7 @@ structure Test (n : Nat) where
   value : Nat
 
 /-!
-Test that `simp` doesn't apply congruence if the motive depends on the discriminant.
+`simp` doesn't apply congruence if the motive depends on the discriminant.
 -/
 
 def abc (x : Nat) : Test x :=
@@ -122,6 +121,16 @@ Similar to previous test but eta-reduce motive.
 def abc' (x : Nat) : Test x :=
   abc.match_1 Test x (fun _ => Test.mk 27) (fun _ => Test.mk 5) (fun _ => Test.mk 3)
 
+/--
+error: unsolved goals
+a : Nat
+h : a = 3
+⊢ (match a with
+      | 0 => { value := 27 }
+      | 1 => { value := 5 }
+      | x.succ.succ => { value := 3 }).value =
+    3
+-/
 #guard_msgs in
 example (h : a = 3) : (abc' a).value = 3 := by
   simp [abc', h]

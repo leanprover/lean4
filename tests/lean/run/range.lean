@@ -108,6 +108,8 @@ open Std.Iterators
 
 #eval (2<...<5).size
 
+#eval (2<...<15).iter.stepSize 2 |>.toList
+
 -- TODO: make 2...5 work
 #eval (2 ...5).toList
 

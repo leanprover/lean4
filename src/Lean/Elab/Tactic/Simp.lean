@@ -519,23 +519,25 @@ def traceSimpCall (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Unit := do
 def warnUnusedSimpArgs (simpArgs : Array (Syntax × ElabSimpArgResult)) (usedSimps : Simp.UsedSimps) : MetaM Unit := do
   for h : i in [:simpArgs.size] do
     let (ref, arg) := simpArgs[i]
-    match arg with
-    | .addEntries entries =>
-      let used ← entries.anyM fun
-        | .thm thm => do
-          return usedSimps.contains (← usedThmIdOfSimpTheorem thm)
-        | .toUnfold declName => return usedSimps.contains (.decl declName)
-        | .toUnfoldThms _declName thms => return thms.any (usedSimps.contains <| .decl ·)
-      unless used do
-        warnUnused i ref
-    | .addLetToUnfold _
-    | .addSimproc _ _
-    | .erase _
-    | .eraseSimproc _
-    | .ext _ _ _
-    | .star
-    | .none
-    => pure () -- not supported yet
+    let used ←
+      match arg with
+      | .addEntries entries =>
+        entries.anyM fun
+          | .thm thm => return usedSimps.contains (← usedThmIdOfSimpTheorem thm)
+          | .toUnfold declName => return usedSimps.contains (.decl declName)
+          | .toUnfoldThms _declName thms => return thms.any (usedSimps.contains <| .decl ·)
+      | .addSimproc declName post =>
+        pure <| usedSimps.contains (.decl declName post)
+      | .addLetToUnfold fvarId =>
+        pure <| usedSimps.contains (.fvar fvarId)
+      | .erase _
+      | .eraseSimproc _
+      | .ext _ _ _
+      | .star
+      | .none
+      => pure true -- not supported yet
+    unless used do
+      warnUnused i ref
 where
   warnUnused (i : Nat) (ref : Syntax) : MetaM Unit := do
     let msg := m!"This simp argument is unused:{indentD ref}"

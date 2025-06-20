@@ -133,6 +133,8 @@ h : a = 1
 
 #guard_msgs in example (a : Nat) (h : a = 1) : 0 < a := by simp -failIfUnchanged [h]
 
+-- Local hyps
+
 /--
 warning: This simp argument is unused:
   _h
@@ -143,3 +145,39 @@ Hint: Omit it from the simp argument list.
 #guard_msgs in example (a : Nat) (_h : a = 1) : True := by simp -failIfUnchanged [_h]
 
 #guard_msgs in example (a : Nat) (_h : a = 1) : True := by simp -failIfUnchanged [*]
+
+
+-- Simprocs
+
+#guard_msgs in example : if true then True else False := by simp only [↓reduceIte]
+
+/--
+warning: This simp argument is unused:
+  ↓reduceIte
+
+Hint: Omit it from the simp argument list.
+  simp only [↓reduceI̵t̵e̵,̵ ̵↓̵r̵e̵d̵u̵c̵e̵DIte]
+-/
+#guard_msgs in example : if _ : true then True else False := by simp only [↓reduceIte, ↓reduceDIte]
+
+-- Lets
+
+/--
+error: unsolved goals
+x : Nat := 1
+⊢ 0 < x
+-/
+#guard_msgs in example : let x := 1; x > 0 := by intro x; simp
+
+#guard_msgs in example : let x := 1; x > 0 := by intro x; simp [x]
+
+#guard_msgs in example : let x := 1; True ∨ x > 0:= by intro x; simp [x]
+
+/--
+warning: This simp argument is unused:
+  x
+
+Hint: Omit it from the simp argument list.
+  simp ̵[̵x̵]̵
+-/
+#guard_msgs in example : let x := 1; True ∨ x > 0:= by intro x; left; simp [x]

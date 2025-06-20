@@ -55,7 +55,7 @@ static lean_object* _init_l_Lean_Grind_instCommRingInt___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instOfNat), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_instNatCastInt), 1, 0);
 return x_1;
 }
 }
@@ -63,7 +63,7 @@ static lean_object* _init_l_Lean_Grind_instCommRingInt___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instNatCastInt), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_instOfNat), 1, 0);
 return x_1;
 }
 }

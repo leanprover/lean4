@@ -152,10 +152,10 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_natCast___rarg(lean_object
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_3 = lean_ctor_get(x_1, 4);
+x_3 = lean_ctor_get(x_1, 3);
 lean_inc(x_3);
 x_4 = lean_apply_1(x_3, x_2);
-x_5 = lean_ctor_get(x_1, 3);
+x_5 = lean_ctor_get(x_1, 4);
 lean_inc(x_5);
 lean_dec(x_1);
 x_6 = lean_unsigned_to_nat(0u);
@@ -192,11 +192,11 @@ x_4 = lean_int_dec_lt(x_2, x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_5 = lean_ctor_get(x_1, 4);
+x_5 = lean_ctor_get(x_1, 3);
 lean_inc(x_5);
 x_6 = lean_nat_abs(x_2);
 x_7 = lean_apply_1(x_5, x_6);
-x_8 = lean_ctor_get(x_1, 3);
+x_8 = lean_ctor_get(x_1, 4);
 lean_inc(x_8);
 lean_dec(x_1);
 x_9 = lean_unsigned_to_nat(0u);
@@ -209,11 +209,11 @@ return x_11;
 else
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_12 = lean_ctor_get(x_1, 3);
+x_12 = lean_ctor_get(x_1, 4);
 lean_inc(x_12);
 x_13 = lean_unsigned_to_nat(0u);
 x_14 = lean_apply_1(x_12, x_13);
-x_15 = lean_ctor_get(x_1, 4);
+x_15 = lean_ctor_get(x_1, 3);
 lean_inc(x_15);
 lean_dec(x_1);
 x_16 = lean_nat_abs(x_2);
@@ -677,7 +677,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_toQ___rarg(lean_object* x_
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = lean_ctor_get(x_1, 3);
+x_3 = lean_ctor_get(x_1, 4);
 lean_inc(x_3);
 lean_dec(x_1);
 x_4 = lean_unsigned_to_nat(0u);

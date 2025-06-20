@@ -1078,7 +1078,7 @@ theorem isNone_findFinIdx? {l : List α} {p : α → Bool} :
     {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     l.findFinIdx? f = (l.unattach.findFinIdx? g).map (fun i => i.cast (by simp)) := by
   induction l with
-  | nil => simp [unattach]
+  | nil => simp [unattach, -map_subtype]
   | cons a l ih =>
     simp [hf, findFinIdx?_cons]
     split <;> simp [ih, Function.comp_def]

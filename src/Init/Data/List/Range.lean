@@ -28,7 +28,7 @@ open Nat
 /-! ### range' -/
 
 theorem range'_succ {s n step} : range' s (n + 1) step = s :: range' (s + step) n step := by
-  simp [range', Nat.add_succ, Nat.mul_succ]
+  simp [range']
 
 @[simp] theorem length_range' {s step} : ∀ {n : Nat}, length (range' s n step) = n
   | 0 => rfl

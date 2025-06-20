@@ -335,7 +335,9 @@ theorem lt_mul_ediv_self_add {x k : Int} (h : 0 < k) : x < k * (x / k) + k :=
 
 @[simp] theorem bmod_emod : bmod x m % m = x % m := by
   dsimp [bmod]
-  split <;> simp [Int.sub_emod]
+  split
+  · simp
+  · rw [Int.sub_emod]; simp
 
 theorem bmod_def (x : Int) (m : Nat) : bmod x m =
     if (x % m) < (m + 1) / 2 then

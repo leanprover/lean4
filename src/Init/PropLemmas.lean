@@ -386,10 +386,10 @@ theorem exists_comm {p : α → β → Prop} : (∃ a b, p a b) ↔ (∃ b a, p 
   ⟨fun ⟨a, b, h⟩ => ⟨b, a, h⟩, fun ⟨b, a, h⟩ => ⟨a, b, h⟩⟩
 
 @[simp] theorem forall_apply_eq_imp_iff {f : α → β} {p : β → Prop} :
-    (∀ b a, f a = b → p b) ↔ ∀ a, p (f a) := by simp [forall_comm]
+    (∀ b a, f a = b → p b) ↔ ∀ a, p (f a) := by rw [forall_comm]; simp
 
 @[simp] theorem forall_eq_apply_imp_iff {f : α → β} {p : β → Prop} :
-    (∀ b a, b = f a → p b) ↔ ∀ a, p (f a) := by simp [forall_comm]
+    (∀ b a, b = f a → p b) ↔ ∀ a, p (f a) := by rw [forall_comm]; simp
 
 @[simp] theorem forall_apply_eq_imp_iff₂ {f : α → β} {p : α → Prop} {q : β → Prop} :
     (∀ b a, p a → f a = b → q b) ↔ ∀ a, p a → q (f a) :=

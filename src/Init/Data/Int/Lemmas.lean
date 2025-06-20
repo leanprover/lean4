@@ -476,7 +476,7 @@ theorem negSucc_mul_subNatNat (m n k : Nat) :
   | inl h =>
     have h' : succ m * n < succ m * k := Nat.mul_lt_mul_of_pos_left h (Nat.succ_pos m)
     rw [subNatNat_of_lt h, subNatNat_of_le (Nat.le_of_lt h')]
-    simp [sub_one_add_one_eq_of_pos (Nat.sub_pos_of_lt h), Nat.mul_sub_left_distrib]
+    simp [sub_one_add_one_eq_of_pos (Nat.sub_pos_of_lt h), Nat.mul_sub_left_distrib, -natCast_mul]
   | inr h => cases Nat.lt_or_ge k n with
     | inl h' =>
       have h₁ : succ m * n > succ m * k := Nat.mul_lt_mul_of_pos_left h' (Nat.succ_pos m)
@@ -496,7 +496,7 @@ protected theorem mul_add : ∀ a b c : Int, a * (b + c) = a * b + a * c
   | -[m+1],  (n:Nat), -[k+1]  => by
     simp [negOfNat_eq_subNatNat_zero, -natCast_add, -natCast_mul]; rw [Int.add_comm, ← subNatNat_add]; rfl
   | -[m+1],  -[n+1],  (k:Nat) => by simp [negOfNat_eq_subNatNat_zero, -natCast_add, -natCast_mul]; rw [← subNatNat_add]; rfl
-  | -[m+1],  -[n+1],  -[k+1]  => by simp [← Nat.left_distrib, Nat.add_left_comm, Nat.add_assoc, -natCast_mul]
+  | -[m+1],  -[n+1],  -[k+1]  => by simp [← Nat.left_distrib, Nat.add_left_comm, Nat.add_assoc, -natCast_mul, -natCast_add]
 
 protected theorem add_mul (a b c : Int) : (a + b) * c = a * c + b * c := by
   simp [Int.mul_comm, Int.mul_add]

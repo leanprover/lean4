@@ -591,7 +591,7 @@ theorem anyM_loop_cons [Monad m] {p : α → m Bool} {a : α} {as : List α} {st
 @[simp, grind =] theorem anyM_toList [Monad m] {p : α → m Bool} {as : Array α} :
     as.toList.anyM p = as.anyM p :=
   match as with
-  | ⟨[]⟩  => by simp [anyM, anyM.loop]
+  | ⟨[]⟩  => by unfold anyM anyM.loop; simp
   | ⟨a :: as⟩ => by
     simp only [List.anyM, anyM, List.size_toArray, List.length_cons, Nat.le_refl, ↓reduceDIte]
     rw [anyM.loop, dif_pos (by omega)]
@@ -2644,7 +2644,7 @@ abbrev flatten_mkArray_replicate := @flatten_replicate_replicate
 
 theorem flatMap_replicate {f : α → Array β} : (replicate n a).flatMap f = (replicate n (f a)).flatten := by
   rw [← toList_inj]
-  simp [flatMap_toList, List.flatMap_replicate]
+  simp [List.flatMap_replicate, toList_flatMap]
 
 @[deprecated flatMap_replicate (since := "2025-03-18")]
 abbrev flatMap_mkArray := @flatMap_replicate
@@ -3087,7 +3087,8 @@ theorem foldlM_start_stop {m} [Monad m] {xs : Array α} {f : β → α → m β}
   | zero =>
     simp only [Nat.zero_add] at w
     subst k
-    simp [foldlM.loop]
+    unfold foldlM.loop
+    simp
   | succ i ih =>
     unfold foldlM.loop
     rw [dif_pos (by omega), dif_pos (by omega)]
@@ -4706,7 +4707,7 @@ namespace List
     simpa
   intro i
   induction i with
-  | zero => simp [firstM.go]
+  | zero => unfold firstM.go; simp
   | succ i ih =>
     unfold firstM.go
     split <;> rename_i h
@@ -4725,7 +4726,7 @@ end List
 namespace Array
 
 @[deprecated size_toArray (since := "2024-12-11")]
-theorem size_mk (as : List α) : (Array.mk as).size = as.length := by simp [size]
+theorem size_mk (as : List α) : (Array.mk as).size = as.length := by simp
 
 @[deprecated getElem?_eq_getElem (since := "2024-12-11")]
 theorem getElem?_lt

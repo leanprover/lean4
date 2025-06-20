@@ -43,16 +43,12 @@ theorem RangeIterator.toList_eq_match [UpwardEnumerable α]
           a :: (⟨⟨UpwardEnumerable.succ? a, it.internalState.upperBound⟩⟩ : Iter (α := RangeIterator su α) α).toList
         else
           [] := by
+  apply Eq.symm
   rw [Iter.toList_eq_match_step, RangeIterator.step_eq_step]
   simp only [RangeIterator.step, Internal.iter]
-  split <;> rename_i heq <;> simp only [Subtype.mk.injEq] at heq
-  · split at heq <;> rename_i heq'
-    · cases heq
-    · split at heq <;> rename_i hs <;> cases heq
-      simp [heq', hs]
-  · split at heq <;> rename_i heq' <;> (try cases heq)
-    split at heq <;> cases heq
-  · split at heq <;> simp_all
+  split <;> rename_i heq
+  · simp [*]
+  · split <;> rename_i heq' <;> simp [*]
 
 private theorem toList_eq_aux [UpwardEnumerable α]
     [SupportsUpperBound su α] [HasFiniteRanges su α]

@@ -13,6 +13,7 @@ warning: This simp argument is unused:
 
 Hint: Omit it from the simp argument list.
   simp ̵[̵i̵d̵_̵e̵q̵]̵
+note: this linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
 #guard_msgs in
 example : True := by simp [id_eq]
@@ -23,6 +24,7 @@ warning: This simp argument is unused:
 
 Hint: Omit it from the simp argument list.
   simp [i̵d̵_̵e̵q̵,̵ ̵and_self]
+note: this linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
 #guard_msgs in
 example : True ∧ True := by simp [id_eq, and_self]
@@ -36,6 +38,7 @@ warning: This simp argument is unused:
 
 Hint: Omit it from the simp argument list.
   simp ̵[̵s̵o̵m̵e̵_̵d̵e̵f̵]̵
+note: this linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
 #guard_msgs in example : True := by simp [some_def]
 
@@ -53,12 +56,14 @@ warning: This simp argument is unused:
 
 Hint: Omit it from the simp argument list.
   simp [some_def, some_def.eq_def,̵ ̵s̵o̵m̵e̵_̵d̵e̵f̵.̵e̵q̵_̵d̵e̵f̵]
+note: this linter can be disabled with `set_option linter.unusedSimpArgs false`
 ---
 warning: This simp argument is unused:
   some_def.eq_def
 
 Hint: Omit it from the simp argument list.
   simp [some_def, some_def.eq_def,̵ ̵s̵o̵m̵e̵_̵d̵e̵f̵.̵e̵q̵_̵d̵e̵f̵]
+note: this linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
 #guard_msgs in example : 0 < some_def := by simp [some_def, some_def.eq_def, some_def.eq_def]
 
@@ -68,12 +73,14 @@ warning: This simp argument is unused:
 
 Hint: Omit it from the simp argument list.
   simp [some_def, (̵some_def.eq_def)̵,̵ ̵s̵o̵m̵e̵_̵d̵e̵f̵.̵e̵q̵_̵d̵e̵f̵]
+note: this linter can be disabled with `set_option linter.unusedSimpArgs false`
 ---
 warning: This simp argument is unused:
   some_def.eq_def
 
 Hint: Omit it from the simp argument list.
   simp [some_def, (some_def.eq_def),̵ ̵s̵o̵m̵e̵_̵d̵e̵f̵.̵e̵q̵_̵d̵e̵f̵]
+note: this linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
 #guard_msgs in example : 0 < some_def := by simp [some_def, (some_def.eq_def), some_def.eq_def]
 
@@ -93,6 +100,7 @@ warning: This simp argument is unused:
 
 Hint: Omit it from the simp argument list.
   simp -failIfUnchanged ̵[̵s̵o̵m̵e̵_̵r̵d̵e̵f̵]̵
+note: this linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
 #guard_msgs in example : 0 < some_def := by simp -failIfUnchanged [some_rdef]
 
@@ -106,6 +114,7 @@ warning: This simp argument is unused:
 
 Hint: Omit it from the simp argument list.
   simp -failIfUnchanged [some_rdef,̵ ̵s̵o̵m̵e̵_̵r̵d̵e̵f̵.̵e̵q̵_̵d̵e̵f̵]
+note: this linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
 #guard_msgs in example : 0 < some_rdef 10 := by simp -failIfUnchanged [some_rdef, some_rdef.eq_def]
 
@@ -143,6 +152,7 @@ warning: This simp argument is unused:
 
 Hint: Omit it from the simp argument list.
   simp -failIfUnchanged ̵[̵_̵h̵]̵
+note: this linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
 #guard_msgs in example (a : Nat) (_h : a = 1) : True := by simp -failIfUnchanged [_h]
 
@@ -159,6 +169,7 @@ warning: This simp argument is unused:
 
 Hint: Omit it from the simp argument list.
   simp only [↓reduceI̵t̵e̵,̵ ̵↓̵r̵e̵d̵u̵c̵e̵DIte]
+note: this linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
 #guard_msgs in example : if _ : true then True else False := by simp only [↓reduceIte, ↓reduceDIte]
 
@@ -181,6 +192,7 @@ warning: This simp argument is unused:
 
 Hint: Omit it from the simp argument list.
   simp ̵[̵x̵]̵
+note: this linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
 #guard_msgs in example : let x := 1; True ∨ x > 0:= by intro x; left; simp [x]
 
@@ -188,14 +200,12 @@ Hint: Omit it from the simp argument list.
 -- Now the tests for multiple branches
 
 /--
-warning: unused variable `h3`
-note: this linter can be disabled with `set_option linter.unusedVariables false`
----
 warning: This simp argument is unused:
   h3
 
 Hint: Omit it from the simp argument list.
   simp [h1, h2,̵ ̵h̵3̵]
+note: this linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
 #guard_msgs in
 example (h1 : P) (h2 : Q) (h3 : R) : P ∧ (Q ∨ R) := by
@@ -207,12 +217,14 @@ warning: This simp argument is unused:
 
 Hint: Omit it from the simp argument list.
   simp [h1,̵ ̵h̵2̵]
+note: this linter can be disabled with `set_option linter.unusedSimpArgs false`
 ---
 warning: This simp argument is unused:
   h1
 
 Hint: Omit it from the simp argument list.
   simp [h1̵,̵ ̵h̵2]
+note: this linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
 #guard_msgs in
 example (h1 : P) (h2 : Q) : P ∧ Q := by
@@ -231,6 +243,7 @@ warning: This simp argument is unused:
 
 Hint: Omit it from the simp argument list.
   simp ̵[̵h̵]̵
+note: this linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
 #guard_msgs in
 example {P : Prop} (h : P) : True ∧ True := by constructor <;> simp [h]

@@ -27,12 +27,12 @@ private def warnUnused (stx : Syntax) (i : Nat) : CoreM Unit := do
   let suggestion : Meta.Hint.Suggestion := stx'
   let suggestion := { suggestion with span? := stx }
   let hint ← MessageData.hint "Omit it from the simp argument list." #[ suggestion ]
-  logWarningAt argStx (msg ++ hint)
+  logLint Tactic.linter.unusedSimpArgs argStx (msg ++ hint)
 
 def unusedSimpArgs : Linter where
   run cmdStx := do
-    let some cmdStxRange := cmdStx.getRange?
-      | return
+    if !Tactic.linter.unusedSimpArgs.get (← getOptions) then return
+    let some cmdStxRange := cmdStx.getRange?  | return
 
     let infoTrees := (← get).infoState.trees.toArray
     let masksMap : IO.Ref (Std.HashMap String.Range (Syntax × Array Bool)) ← IO.mkRef {}
@@ -41,7 +41,7 @@ def unusedSimpArgs : Linter where
       tree.visitM' (postNode := fun ci info _ => do
         match info with
         | .ofCustomInfo ci =>
-          if let some {mask} := ci.value.get? Tactic.SimpArgUsageMask then
+          if let some {mask} := ci.value.get? Tactic.UnusedSimpArgsInfo then
             let some range := info.range? | return
             let maskAcc ←
               if let some (_, maskAcc) := (← masksMap.get)[range]? then

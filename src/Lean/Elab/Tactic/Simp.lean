@@ -509,14 +509,18 @@ def traceSimpCall (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Unit := do
   logInfoAt stx[0] m!"Try this: {← mkSimpOnly stx usedSimps}"
 
 
-structure SimpArgUsageMask where
-  mask : Array Bool
-deriving TypeName
-
 register_builtin_option linter.unusedSimpArgs : Bool := {
   defValue := false, -- at least until we updated our own init
   descr := "enable the linter that warns when bound variable names are nullary constructor names"
 }
+structure UnusedSimpArgsInfo where
+  mask : Array Bool
+deriving TypeName
+
+def pushUnusedSimpArgsInfo [Monad m] [MonadInfoTree m] (simpStx : Syntax) (mask : Array Bool) : m Unit := do
+  pushInfoLeaf <| .ofCustomInfo {
+    stx := simpStx
+    value := .mk { mask := mask : UnusedSimpArgsInfo } }
 
 /--
 Checks the simp arguments for unused ones, and stores a bitmask of unused ones in the info tree,
@@ -547,11 +551,8 @@ def warnUnusedSimpArgs (simpArgs : Array (Syntax × ElabSimpArgResult)) (usedSim
       | .none
       => pure true -- not supported yet
     mask := mask.push used
-  pushInfoLeaf <| .ofCustomInfo {
-    stx := (← getRef)
-    value := .mk { mask := mask : SimpArgUsageMask } }
+  pushUnusedSimpArgsInfo (← getRef) mask
 where
-
   /--
   For equational theorems, usedTheorems record the declaration name. So if the user
   specified `foo.eq_1`, we get `foo` in `usedTheores`, but we still want to mark

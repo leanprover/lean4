@@ -19,5 +19,5 @@ theorem getLsbD_eq_getMsbD' (x : BitVec w) (i : Nat) : x.getLsbD i = (decide (i 
   rw [getMsbD]
   by_cases h₁ : i < w <;> by_cases h₂ : w - 1 - i < w <;> simp only [h₁, h₂]
   · -- FIXME `grind` panics here
-    grind
+    grind only [= getLsbD_eq_getElem, cases Or]
   all_goals sorry

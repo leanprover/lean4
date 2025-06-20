@@ -282,7 +282,7 @@ theorem toList_eq_of_mem_iff_mem [UpwardEnumerable α] [SupportsLowerBound sl α
   · simp [mem_toList_iff_mem, h]
   · exact ⟨fun _ _ => UpwardEnumerable.not_gt_of_lt⟩
 
-theorem ClosedOpen.toList_succ?_eq_map [UpwardEnumerable α] [SupportsLowerBound .closed α]
+theorem ClosedOpen.toList_succ_succ_eq_map [UpwardEnumerable α] [SupportsLowerBound .closed α]
     [LinearlyUpwardEnumerable α] [InfinitelyUpwardEnumerable α] [SupportsUpperBound .open α]
     [HasFiniteRanges .open α] [LawfulUpwardEnumerable α] [LawfulOpenUpperBound α]
     [LawfulUpwardEnumerableLowerBound .closed α] [LawfulUpwardEnumerableUpperBound .open α]

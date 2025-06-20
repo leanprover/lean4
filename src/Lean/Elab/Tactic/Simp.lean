@@ -570,7 +570,8 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
     try
       simpLocation ctx simprocs discharge? (expandOptLocation stx[5])
     catch e =>
-      checkLoops (force := true) r
+      if e.toMessageData.hasTag (· = `nested.runtime.maxRecDepth) then
+        checkLoops (force := true) r
       throw e
   checkLoops (force := false) r
   if tactic.simp.trace.get (← getOptions) then
@@ -578,11 +579,12 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
   return stats.diag
 
 @[builtin_tactic Lean.Parser.Tactic.simpAll] def evalSimpAll : Tactic := fun stx => withMainContext do withSimpDiagnostics do
-  let { ctx, simprocs, .. } ← mkSimpContext stx (eraseLocal := true) (kind := .simpAll) (ignoreStarArg := true)
+  let r@{ ctx, simprocs, .. } ← mkSimpContext stx (eraseLocal := true) (kind := .simpAll) (ignoreStarArg := true)
   let (result?, stats) ← simpAll (← getMainGoal) ctx (simprocs := simprocs)
   match result? with
   | none => replaceMainGoal []
   | some mvarId => replaceMainGoal [mvarId]
+  checkLoops (force := false) r
   if tactic.simp.trace.get (← getOptions) then
     traceSimpCall stx stats.usedTheorems
   return stats.diag

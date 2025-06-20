@@ -61,18 +61,7 @@ set_option linter.simp.loopProtection true in
 example : id b = 23 := by simp -failIfUnchanged only [aa, id]
 
 
--- Because it's hard to distinguish max recursion error from other errors,
--- the warning is generated always, even for `simp made no progress` errors
-
-/--
-warning: Possibly looping simp theorem: `aa`
-
-Note: Possibly caused by: `id`
-
-Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
----
-error: simp made no progress
--/
+/-- error: simp made no progress -/
 #guard_msgs in
 example : b = 23 := by simp only [aa, id]
 

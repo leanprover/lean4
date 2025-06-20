@@ -22,6 +22,8 @@ use `set_option diagnostics true` to get diagnostic information
 #guard_msgs in
 example : id a = 23 := by simp -failIfUnchanged only [aa, id]
 
+-- also simp_all
+
 /--
 warning: Possibly looping simp theorem: `aa`
 
@@ -35,8 +37,10 @@ use `set_option maxRecDepth <num>` to increase limit
 use `set_option diagnostics true` to get diagnostic information
 -/
 #guard_msgs in
-set_option linter.simp.loopProtection true in
-example : id a = 23 := by simp -failIfUnchanged only [aa, id]
+example : id a = 23 := by simp_all -failIfUnchanged only [aa, id]
+
+
+-- Other exceptions do not trigger the loop check
 
 /--
 error: unsolved goals

@@ -450,12 +450,28 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
   let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) (simprocs := #[simprocs]) (ignoreStarArg := ignoreStarArg) ctx
   return { r with dischargeWrapper }
 
-def checkLoops (force : Bool) (r : MkSimpContextResult) : MetaM Unit :=
-  let { ctx, simprocs, dischargeWrapper := _, simpArgs } := r
-  for (ref, arg) in simpArgs do
-    for thm in arg.simpTheorems do
-      withRef ref do
-        Simp.checkLoops (force := force) ctx (methods := Simp.mkDefaultMethodsCore simprocs) thm
+/--
+Runs the given action.
+If it throws a maxRecDepth exception (nested or not), run the loop checking.
+If it does not throw, run the loop checking only if explicitly enabled.
+-/
+def withLoopChecking [Monad m] [MonadExcept Exception m] [MonadLiftT MetaM m]
+    (r : MkSimpContextResult) (k : m α) : m α := do
+  let x ← try
+      k
+    catch e =>
+      if e.isMaxRecDepth || e.toMessageData.hasTag (· = `nested.runtime.maxRecDepth) then
+        go (force := true)
+      throw e
+  go (force := false)
+  pure x
+where
+  go force : m Unit := liftMetaM do
+    let { ctx, simprocs, dischargeWrapper := _, simpArgs } := r
+    for (ref, arg) in simpArgs do
+      for thm in arg.simpTheorems do
+        withRef ref do
+          Simp.checkLoops (force := force) ctx (methods := Simp.mkDefaultMethodsCore simprocs) thm
 
 register_builtin_option tactic.simp.trace : Bool := {
   defValue := false
@@ -567,24 +583,20 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
 @[builtin_tactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => withMainContext do withSimpDiagnostics do
   let r@{ ctx, simprocs, dischargeWrapper, simpArgs } ← mkSimpContext stx (eraseLocal := false)
   let stats ← dischargeWrapper.with fun discharge? =>
-    try
+    withLoopChecking r do
       simpLocation ctx simprocs discharge? (expandOptLocation stx[5])
-    catch e =>
-      if e.toMessageData.hasTag (· = `nested.runtime.maxRecDepth) then
-        checkLoops (force := true) r
-      throw e
-  checkLoops (force := false) r
   if tactic.simp.trace.get (← getOptions) then
     traceSimpCall stx stats.usedTheorems
   return stats.diag
 
 @[builtin_tactic Lean.Parser.Tactic.simpAll] def evalSimpAll : Tactic := fun stx => withMainContext do withSimpDiagnostics do
   let r@{ ctx, simprocs, .. } ← mkSimpContext stx (eraseLocal := true) (kind := .simpAll) (ignoreStarArg := true)
-  let (result?, stats) ← simpAll (← getMainGoal) ctx (simprocs := simprocs)
+  let (result?, stats) ←
+    withLoopChecking r do
+      simpAll (← getMainGoal) ctx (simprocs := simprocs)
   match result? with
   | none => replaceMainGoal []
   | some mvarId => replaceMainGoal [mvarId]
-  checkLoops (force := false) r
   if tactic.simp.trace.get (← getOptions) then
     traceSimpCall stx stats.usedTheorems
   return stats.diag

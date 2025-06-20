@@ -303,7 +303,7 @@ static lean_object* _init_l_Lean_Grind_instCommRingUInt8___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt8_instOfNat___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_UInt8_instNatCast___boxed), 1, 0);
 return x_1;
 }
 }
@@ -311,7 +311,7 @@ static lean_object* _init_l_Lean_Grind_instCommRingUInt8___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt8_instNatCast___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_UInt8_instOfNat___boxed), 1, 0);
 return x_1;
 }
 }
@@ -379,7 +379,7 @@ static lean_object* _init_l_Lean_Grind_instCommRingUInt16___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt16_instOfNat___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_UInt16_instNatCast___boxed), 1, 0);
 return x_1;
 }
 }
@@ -387,7 +387,7 @@ static lean_object* _init_l_Lean_Grind_instCommRingUInt16___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt16_instNatCast___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_UInt16_instOfNat___boxed), 1, 0);
 return x_1;
 }
 }
@@ -455,7 +455,7 @@ static lean_object* _init_l_Lean_Grind_instCommRingUInt32___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt32_instOfNat___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_UInt32_instNatCast___boxed), 1, 0);
 return x_1;
 }
 }
@@ -463,7 +463,7 @@ static lean_object* _init_l_Lean_Grind_instCommRingUInt32___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt32_instNatCast___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_UInt32_instOfNat___boxed), 1, 0);
 return x_1;
 }
 }
@@ -531,7 +531,7 @@ static lean_object* _init_l_Lean_Grind_instCommRingUInt64___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt64_instOfNat___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_UInt64_instNatCast___boxed), 1, 0);
 return x_1;
 }
 }
@@ -539,7 +539,7 @@ static lean_object* _init_l_Lean_Grind_instCommRingUInt64___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt64_instNatCast___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_UInt64_instOfNat___boxed), 1, 0);
 return x_1;
 }
 }
@@ -607,7 +607,7 @@ static lean_object* _init_l_Lean_Grind_instCommRingUSize___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_USize_instOfNat___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_USize_instNatCast___boxed), 1, 0);
 return x_1;
 }
 }
@@ -615,7 +615,7 @@ static lean_object* _init_l_Lean_Grind_instCommRingUSize___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_USize_instNatCast___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_USize_instOfNat___boxed), 1, 0);
 return x_1;
 }
 }

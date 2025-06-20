@@ -120,3 +120,26 @@ error: unsolved goals
 ⊢ 0 < some_rdef 10
 -/
 #guard_msgs in example : 0 < some_rdef 10 := by simp -failIfUnchanged
+
+
+
+/--
+error: unsolved goals
+a : Nat
+h : a = 1
+⊢ 0 < a
+-/
+#guard_msgs in example (a : Nat) (h : a = 1) : 0 < a := by simp -failIfUnchanged
+
+#guard_msgs in example (a : Nat) (h : a = 1) : 0 < a := by simp -failIfUnchanged [h]
+
+/--
+warning: This simp argument is unused:
+  _h
+
+Hint: Omit it from the simp argument list.
+  simp -failIfUnchanged ̵[̵_̵h̵]̵
+-/
+#guard_msgs in example (a : Nat) (_h : a = 1) : True := by simp -failIfUnchanged [_h]
+
+#guard_msgs in example (a : Nat) (_h : a = 1) : True := by simp -failIfUnchanged [*]

@@ -341,9 +341,9 @@ theorem Perm.foldr_eq' {f : α → β → β} {l₁ l₂ : List α} (p : l₁ ~ 
     intros; apply comm <;> apply p₁.symm.subset <;> assumption
 
 theorem Perm.rec_heq {β : List α → Sort _} {f : ∀ a l, β l → β (a :: l)} {b : β []} {l l' : List α}
-    (hl : l ~ l') (f_congr : ∀ {a l l' b b'}, l ~ l' → HEq b b' → HEq (f a l b) (f a l' b'))
-    (f_swap : ∀ {a a' l b}, HEq (f a (a' :: l) (f a' l b)) (f a' (a :: l) (f a l b))) :
-    HEq (@List.rec α β b f l) (@List.rec α β b f l') := by
+    (hl : l ~ l') (f_congr : ∀ {a l l' b b'}, l ~ l' → b ≍ b' → f a l b ≍ f a l' b')
+    (f_swap : ∀ {a a' l b}, f a (a' :: l) (f a' l b) ≍ f a' (a :: l) (f a l b)) :
+    @List.rec α β b f l ≍ @List.rec α β b f l' := by
   induction hl with
   | nil => rfl
   | cons a h ih => exact f_congr h ih

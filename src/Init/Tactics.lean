@@ -1170,7 +1170,7 @@ macro "exists " es:term,+ : tactic =>
   `(tactic| (refine ⟨$es,*, ?_⟩; try trivial))
 
 /--
-Apply congruence (recursively) to goals of the form `⊢ f as = f bs` and `⊢ HEq (f as) (f bs)`.
+Apply congruence (recursively) to goals of the form `⊢ f as = f bs` and `⊢ f as ≍ f bs`.
 The optional parameter is the depth of the recursive applications.
 This is useful when `congr` is too aggressive in breaking down the goal.
 For example, given `⊢ f (g (x + y)) = f (g (y + x))`,

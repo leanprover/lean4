@@ -234,7 +234,7 @@ Examples:
   intro xs; induction xs with intro acc
   | nil => simp [takeWhile, takeWhileTR.go]
   | cons x xs IH =>
-    simp only [takeWhileTR.go, Array.toListImpl_eq, takeWhile]
+    simp only [takeWhileTR.go, takeWhile]
     split
     · intro h; rw [IH] <;> simp_all
     · simp [*]

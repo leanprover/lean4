@@ -80,12 +80,12 @@ theorem ListIterator.stepAsHetT_iterM [LawfulMonad m] {l : List β} :
   · ext step
     cases step
     · cases l
-      · simp [Pure.pure, IterM.ext_iff, ListIterator.ext_iff]
+      · simp [Pure.pure]
       · simp only [List.cons.injEq, pure, HetT.property_pure, IterStep.yield.injEq, IterM.ext_iff,
         ListIterator.ext_iff]
         exact And.comm
-    · cases l <;> simp [Pure.pure, IterM.ext_iff, ListIterator.ext_iff]
-    · cases l <;> simp [Pure.pure, IterM.ext_iff, ListIterator.ext_iff]
+    · cases l <;> simp [Pure.pure]
+    · cases l <;> simp [Pure.pure]
   · intro β f
     simp only [IterM.step, Iterator.step, pure_bind]
     cases l <;> simp [Pure.pure, toIterM]

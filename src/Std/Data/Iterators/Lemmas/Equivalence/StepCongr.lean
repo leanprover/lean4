@@ -84,7 +84,7 @@ private theorem IterM.Equiv.step_eq.aux {α₁ α₂ : Type w} {m : Type w → T
     ((IterM.stepAsHetT ita).map IterStep.bundledQuotient).Property s →
       ∃ s' : itb.Step, s = s'.1.bundledQuotient := by
   intro h
-  simp only [HetT.property_map, forall_exists_index, and_imp] at h
+  simp only [HetT.property_map] at h
   rcases h with ⟨sa, rfl, hs⟩
   rcases IterM.Equiv.exists_step_of_step h ⟨sa, hs⟩ with ⟨sb, hsb⟩
   exact ⟨sb, hsb⟩
@@ -129,7 +129,7 @@ theorem IterM.Equiv.step_eq {α₁ α₂ : Type w} {m : Type w → Type w'} [Mon
       IterM.QuotStep.transportAlongEquiv h.symm <$> (Quot.mk _ : _ → itb.QuotStep) <$> itb.step := by
   have he := h
   simp only [IterM.Equiv, BundledIterM.ofIterM, BundledIterM.Equiv, BundledIterM.step,
-    Functor.map] at h
+    ] at h
   simp only [← HetT.comp_map, ← IterStep.mapIterator_comp] at h
   replace h : (IterM.stepAsHetT ita).map IterStep.bundledQuotient =
       (IterM.stepAsHetT itb).map IterStep.bundledQuotient := h

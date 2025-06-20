@@ -1084,27 +1084,27 @@ end Const
 @[grind =]
 theorem getKey?_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
     getKey? (m.insertIfNew k v) a = if k == a ∧ ¬k ∈ m then some k else getKey? m a := by
-  simp [← contains_iff_mem, contains_insertIfNew]
+  simp [← contains_iff_mem]
   exact Raw₀.getKey?_insertIfNew ⟨m.1, _⟩ m.2
 
 @[grind =]
 theorem getKey_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} {h₁} :
     getKey (m.insertIfNew k v) a h₁ =
       if h₂ : k == a ∧ ¬k ∈ m then k else getKey m a (mem_of_mem_insertIfNew' h₁ h₂) := by
-  simp [← contains_iff_mem, contains_insertIfNew]
+  simp [← contains_iff_mem]
   exact Raw₀.getKey_insertIfNew ⟨m.1, _⟩ m.2
 
 @[grind =]
 theorem getKey!_insertIfNew [EquivBEq α] [LawfulHashable α] [Inhabited α] {k a : α} {v : β k} :
     getKey! (m.insertIfNew k v) a = if k == a ∧ ¬k ∈ m then k else getKey! m a := by
-  simp [← contains_iff_mem, contains_insertIfNew]
+  simp [← contains_iff_mem]
   exact Raw₀.getKey!_insertIfNew ⟨m.1, _⟩ m.2
 
 @[grind =]
 theorem getKeyD_insertIfNew [EquivBEq α] [LawfulHashable α] {k a fallback : α} {v : β k} :
     getKeyD (m.insertIfNew k v) a fallback =
       if k == a ∧ ¬k ∈ m then k else getKeyD m a fallback := by
-  simp [← contains_iff_mem, contains_insertIfNew]
+  simp [← contains_iff_mem]
   exact Raw₀.getKeyD_insertIfNew ⟨m.1, _⟩ m.2
 
 @[simp, grind =]

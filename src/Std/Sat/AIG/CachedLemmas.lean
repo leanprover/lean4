@@ -97,7 +97,7 @@ The central equality theorem between `mkConstCached` and `mkConst`.
 @[simp]
 theorem denote_mkConstCached {aig : AIG α} :
     ⟦aig, aig.mkConstCached val, assign⟧ = val := by
-  simp only [mkConstCached, denote_mkConst]
+  simp only [mkConstCached]
   unfold denote denote.go
   split
   · simp

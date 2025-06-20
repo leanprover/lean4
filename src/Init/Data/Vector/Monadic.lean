@@ -80,13 +80,13 @@ theorem foldrM_map [Monad m] [LawfulMonad m] {f : β₁ → β₂} {g : β₂ �
     {xs : Vector α n} {q : α → Prop} (H : ∀ a, a ∈ xs → q a) {f : β → { x // q x} → m β} {b} :
     (xs.attachWith q H).foldlM f b = xs.attach.foldlM (fun b ⟨a, h⟩ => f b ⟨a, H _ h⟩) b := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.foldlM_map]
+  simp
 
 @[simp] theorem foldrM_attachWith [Monad m] [LawfulMonad m]
     {xs : Vector α n} {q : α → Prop} (H : ∀ a, a ∈ xs → q a) {f : { x // q x} → β → m β} {b} :
     (xs.attachWith q H).foldrM f b = xs.attach.foldrM (fun a acc => f ⟨a.1, H _ a.2⟩ acc) b := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.foldrM_map]
+  simp
 
 /-! ### forM -/
 
@@ -146,7 +146,7 @@ theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m]
     forIn' xs init (fun a m b => pure (.yield (f a m b))) =
       pure (f := m) (xs.attach.foldl (fun b ⟨a, h⟩ => f a h b) init) := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.forIn'_pure_yield_eq_foldl, Array.foldl_map]
+  simp [Array.forIn'_pure_yield_eq_foldl]
 
 theorem idRun_forIn'_yield_eq_foldl
     {xs : Vector α n} (f : (a : α) → a ∈ xs → β → Id β) (init : β) :
@@ -194,7 +194,7 @@ theorem forIn_eq_foldlM [Monad m] [LawfulMonad m]
     forIn xs init (fun a b => pure (.yield (f a b))) =
       pure (f := m) (xs.foldl (fun b a => f a b) init) := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.forIn_pure_yield_eq_foldl, Array.foldl_map]
+  simp [Array.forIn_pure_yield_eq_foldl]
 
 theorem idRun_forIn_yield_eq_foldl
     {xs : Vector α n} (f : α → β → Id β) (init : β) :

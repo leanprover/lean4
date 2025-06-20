@@ -211,7 +211,7 @@ theorem left_distrib (a b c : Q α) : mul a (add b c) = add (mul a b) (mul a c) 
   induction c using Quot.ind
   next a b c =>
   cases a; cases b; cases c; simp; apply Quot.sound
-  simp [Semiring.left_distrib, Semiring.right_distrib]; refine ⟨0, ?_⟩; ac_rfl
+  simp [Semiring.left_distrib]; refine ⟨0, ?_⟩; ac_rfl
 
 theorem right_distrib (a b c : Q α) : mul (add a b) c = add (mul a c) (mul b c) := by
   induction a using Quot.ind
@@ -219,7 +219,7 @@ theorem right_distrib (a b c : Q α) : mul (add a b) c = add (mul a c) (mul b c)
   induction c using Quot.ind
   next a b c =>
   cases a; cases b; cases c; simp; apply Quot.sound
-  simp [Semiring.left_distrib, Semiring.right_distrib]; refine ⟨0, ?_⟩; ac_rfl
+  simp [Semiring.right_distrib]; refine ⟨0, ?_⟩; ac_rfl
 
 def hPow (a : Q α) (n : Nat)  : Q α :=
   match n with
@@ -256,7 +256,7 @@ theorem toQ_mul (a b : α) : toQ (a * b) = toQ a * toQ b := by
   simp; apply Quot.sound; simp
 
 theorem toQ_natCast (n : Nat) : toQ (natCast (α := α) n) = natCast n := by
-  simp; apply Quot.sound; simp [natCast]; refine ⟨0, ?_⟩; rfl
+  simp; apply Quot.sound; simp; refine ⟨0, ?_⟩; rfl
 
 theorem toQ_ofNat (n : Nat) : toQ (OfNat.ofNat (α := α) n) = OfNat.ofNat (α := Q α) n := by
   simp; apply Quot.sound; rw [Semiring.ofNat_eq_natCast]; simp

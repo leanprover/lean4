@@ -313,7 +313,7 @@ theorem HetT.ext {m : Type w → Type w'} [Monad m] [LawfulMonad m]
   simp only [prun, bind_pure_comp] at h'
   let h'' : (USquash.deflate <| USquash.inflate ·) <$> _ = (USquash.deflate <| USquash.inflate ·) <$> _ := h'
   simp only [USquash.deflate_inflate, id_map'] at h''
-  simp [HetT.mk.injEq, h'']
+  simp [h'']
 
 theorem HetT.ext_iff {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {α : Type v} {x y : HetT m α} :
@@ -330,7 +330,7 @@ theorem HetT.ext_iff {m : Type w → Type w'} [Monad m] [LawfulMonad m]
 protected theorem HetT.map_eq_pure_bind {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {α : Type u} {β : Type v} {f : α → β} {x : HetT m α} :
     x.map f = x.bind (HetT.pure ∘ f) := by
-  simp [HetT.map, HetT.pmap, HetT.bind, Pure.pure, HetT.pure, HetT.ext_iff, prun]
+  simp [HetT.map, HetT.pmap, HetT.bind, HetT.pure, HetT.ext_iff, prun]
 
 @[simp]
 theorem HetT.property_pure {m : Type w → Type w'} {α : Type u} [Monad m] [LawfulMonad m] {x : α} :
@@ -412,7 +412,7 @@ protected theorem HetT.bind_assoc {m : Type w → Type w'} [Monad m] [LawfulMona
 protected theorem HetT.map_pure {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {α : Type u} {β : Type v} {f : α → β} {a : α} :
     (HetT.pure a : HetT m α).map f = HetT.pure (f a) := by
-  simp [ext_iff]
+  simp
 
 @[simp]
 protected theorem HetT.comp_map {m : Type w → Type w'} [Monad m] [LawfulMonad m]
@@ -461,7 +461,7 @@ protected theorem HetT.map_pmap {m : Type w → Type w'} [Monad m] [LawfulMonad 
     exact ⟨_, ⟨a, ha, rfl⟩, rfl⟩
 
 instance [Monad m] [LawfulMonad m] : LawfulMonad (HetT m) where
-  map_const {α β} := by ext a x; simp [Functor.mapConst, Function.const_apply, Functor.map]
+  map_const {α β} := by ext a x; simp [Functor.mapConst, Functor.map]
   id_map {α} x := by simp [Functor.map]
   comp_map {α β γ} g h := by intro x; simp [Functor.map, HetT.ext_iff];
   seqLeft_eq {α β} x y := by simp [SeqLeft.seqLeft, Functor.map, Seq.seq, HetT.ext_iff];

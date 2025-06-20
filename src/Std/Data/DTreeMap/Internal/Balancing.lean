@@ -312,7 +312,7 @@ def balance (k : α) (v : β k) (l r : Impl α β) (hl : Balanced l) (hr : Balan
           have := hl.one_le
           omega)
         | .leaf, _ => False.elim (by
-          simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff] at hr
+          simp only [balanced_inner_iff, size_leaf, balancedAtRoot_zero_iff] at hr
           simp only [delta] at h₁
           have := hl.one_le
           omega)
@@ -330,7 +330,7 @@ def balance (k : α) (v : β k) (l r : Impl α β) (hl : Balanced l) (hr : Balan
           have := hr.one_le
           omega)
         | .leaf, _ => False.elim (by
-          simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff] at hl
+          simp only [balanced_inner_iff, size_leaf, balancedAtRoot_zero_iff] at hl
           simp only [delta] at h₂
           have := hr.one_le
           omega)
@@ -566,18 +566,18 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
     omega
   · simp_all only [Std.Internal.tree_tac]
     rw [if_neg (by omega)]
-    simp only [Std.Internal.tree_tac, rotateR, or_false]
+    simp only [Std.Internal.tree_tac, rotateR]
     rw [if_pos (by omega), dif_neg (by omega), dif_pos (by omega)]
     simp only [inner.injEq, heq_eq_eq, and_self, and_true, true_and]
     omega
-  · simp_all only [Std.Internal.tree_tac, ite_true]
+  · simp_all only [Std.Internal.tree_tac]
     rw [if_neg]
     · repeat simp_all only [rotateL, dite_true, Std.Internal.tree_tac, if_true]
       omega
-    · simp only [balanced_inner_iff, Nat.not_le] at *
+    · simp only [Nat.not_le] at *
       omega
   · rw [rotateL]
-    repeat simp_all only [Std.Internal.tree_tac, dite_true, ite_false, ite_true, Nat.not_lt]
+    repeat simp_all only [Std.Internal.tree_tac, dite_true, Nat.not_lt]
     rw [if_neg (by omega), if_neg (by omega)]
     simp only [Std.Internal.tree_tac, Nat.add_right_cancel_iff] at *
     omega
@@ -587,7 +587,7 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
     have := hlb.one_le
     omega
   · exfalso
-    simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff] at hrb
+    simp only [balanced_inner_iff, size_leaf, balancedAtRoot_zero_iff] at hrb
     simp only [delta] at ‹delta * _ < _›
     have := hlb.one_le
     omega
@@ -595,7 +595,7 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
     rw [if_neg (by omega)]
     simp only [inner.injEq, heq_eq_eq, and_true, true_and]
     omega
-  · repeat simp_all only [balanced_inner_iff, ratio, size_inner, ite_false, dite_true, dite_false]
+  · repeat simp_all only [balanced_inner_iff, ratio, size_inner, dite_true, dite_false]
     rw [if_neg (by omega), rotateR, ratio, size_inner, size_inner, if_neg (by omega)]
     simp only [Std.Internal.tree_tac, Nat.reduceMul] at *
     omega
@@ -605,11 +605,11 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
     have := hrb.one_le
     omega
   · exfalso
-    simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff] at hlb
+    simp only [balanced_inner_iff, size_leaf, balancedAtRoot_zero_iff] at hlb
     simp only [delta] at ‹delta * _ < _›
     have := hrb.one_le
     omega
-  · repeat simp only [Std.Internal.tree_tac, dite_true, dite_false, *] at *
+  · repeat simp only [Std.Internal.tree_tac, dite_false, *] at *
     rw [if_neg (by omega)]
     ac_rfl
 

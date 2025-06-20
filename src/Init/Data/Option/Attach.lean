@@ -82,7 +82,7 @@ abbrev attach_map_coe := @attach_map_val
 
 theorem attachWith_map_val {p : α → Prop} (f : α → β) (o : Option α) (H : ∀ a, o = some a → p a) :
     ((o.attachWith p H).map fun (i : { i // p i}) => f i.val) = o.map f := by
-  cases o <;> simp [H]
+  cases o <;> simp
 
 @[deprecated attachWith_map_val (since := "2025-02-17")]
 abbrev attachWith_map_coe := @attachWith_map_val
@@ -202,7 +202,7 @@ theorem map_attachWith_eq_pmap {o : Option α} {P : α → Prop} {H : ∀ (a : �
 @[simp]
 theorem map_attach_eq_attachWith {o : Option α} {p : α → Prop} (f : ∀ a, o = some a → p a) :
     o.attach.map (fun x => ⟨x.1, f x.1 x.2⟩) = o.attachWith p f := by
-  cases o <;> simp_all [Function.comp_def]
+  cases o <;> simp_all
 
 @[grind =] theorem attach_bind {o : Option α} {f : α → Option β} :
     (o.bind f).attach =
@@ -289,7 +289,7 @@ theorem toArray_pmap {p : α → Prop} {o : Option α} {f : (a : α) → p a →
   cases o with
   | none => simp
   | some a =>
-    simp only [attach_some, eq_mp_eq_cast, id_eq, pbind_some]
+    simp only [attach_some, pbind_some]
     rw [attach_congr pfilter_some]
     split <;> simp [*]
 

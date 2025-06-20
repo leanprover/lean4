@@ -6,6 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
+import Init.Data.Iterators.Consumers.Collect
 import Init.Data.Iterators.Consumers.Monadic.Loop
 import Init.Data.Iterators.Consumers.Partial
 
@@ -135,5 +136,11 @@ def Iter.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorSize α I
 def Iter.Partial.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorSizePartial α Id]
     (it : Iter (α := α) β) : Nat :=
   (IteratorSizePartial.size it.toIterM).run.down
+
+class LawfulIteratorSize (α : Type w) {β : Type w} [Iterator α Id β] [Finite α Id]
+    [IteratorSize α Id] where
+    size_eq_size_toArray {it : Iter (α := α) β} : it.size =
+      haveI : IteratorCollect α Id Id := .defaultImplementation
+      it.toArray.size
 
 end Std.Iterators

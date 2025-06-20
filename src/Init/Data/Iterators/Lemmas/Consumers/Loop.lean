@@ -9,6 +9,7 @@ prelude
 import Init.Data.Iterators.Lemmas.Consumers.Collect
 import all Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 import all Init.Data.Iterators.Consumers.Loop
+import all Init.Data.Iterators.Consumers.Monadic.Collect
 
 namespace Std.Iterators
 
@@ -145,8 +146,8 @@ theorem Iter.mem_toList_iff_isPlausibleIndirectOutput {α β} [Iterator α Id β
   rw [toList_eq_match_step]
   constructor
   · intro h
-    split at h
-    · rename_i it' out hp hs
+    cases heq : it.step using PlausibleIterStep.casesOn <;> simp only [heq] at h
+    · rename_i it' out hp
       cases List.mem_cons.mp h <;> rename_i hmem
       · cases hmem
         simp only [Iter.IsPlausibleStep, IterStep.mapIterator_yield] at hp
@@ -165,7 +166,7 @@ theorem Iter.mem_toList_iff_isPlausibleIndirectOutput {α β} [Iterator α Id β
       obtain ⟨it', hp⟩ := hp
       split <;> simp_all
     · rename_i it' h₁ h₂
-      split <;> rename_i heq
+      cases heq : it.step using PlausibleIterStep.casesOn <;> simp only [heq]
       · apply List.mem_cons_of_mem
         simp only [Iter.isPlausibleSuccessorOf_iff_exists, Iter.isPlausibleStep_iff_step_eq] at h₁
         obtain ⟨step, h₁, rfl⟩ := h₁
@@ -349,5 +350,27 @@ theorem Iter.foldl_toList {α β γ : Type w} [Iterator α Id β] [Finite α Id]
     {f : γ → β → γ} {init : γ} {it : Iter (α := α) β} :
     it.toList.foldl (init := init) f = it.fold (init := init) f := by
   rw [fold_eq_foldM, List.foldl_eq_foldlM, ← Iter.foldlM_toList]
+
+theorem Iter.size_toArray_eq_size {α β : Type w} [Iterator α Id β] [Finite α Id]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    [IteratorSize α Id] [LawfulIteratorSize α]
+    {it : Iter (α := α) β} :
+    it.toArray.size = it.size := by
+  simp only [toArray_eq_toArray_toIterM, LawfulIteratorCollect.toArray_eq]
+  simp [← toArray_eq_toArray_toIterM, LawfulIteratorSize.size_eq_size_toArray]
+
+theorem Iter.length_toList_eq_size {α β : Type w} [Iterator α Id β] [Finite α Id]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    [IteratorSize α Id] [LawfulIteratorSize α]
+    {it : Iter (α := α) β} :
+    it.toList.length = it.size := by
+  rw [← toList_toArray, Array.length_toList, size_toArray_eq_size]
+
+theorem Iter.length_toListRev_eq_size {α β : Type w} [Iterator α Id β] [Finite α Id]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    [IteratorSize α Id] [LawfulIteratorSize α]
+    {it : Iter (α := α) β} :
+    it.toListRev.length = it.size := by
+  rw [toListRev_eq, List.length_reverse, length_toList_eq_size]
 
 end Std.Iterators

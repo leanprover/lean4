@@ -7,6 +7,8 @@ module
 
 prelude
 import Init.Data.Iterators.Consumers.Partial
+import Init.Data.Iterators.Consumers.Loop
+import Init.Data.Iterators.Consumers.Monadic.Access
 
 namespace Std.Iterators
 
@@ -50,5 +52,13 @@ partial def Iter.Partial.atIdxSlow? {α β} [Iterator α Id β] [Monad Id]
     | k + 1 => (⟨it'⟩ : Iter.Partial (α := α) β).atIdxSlow? k
   | .skip it' _ => (⟨it'⟩ : Iter.Partial (α := α) β).atIdxSlow? n
   | .done _ => none
+
+@[always_inline, inline]
+def Iter.atIdx? {α β} [Iterator α Id β] [Productive α Id] [IteratorAccess α Id]
+    (n : Nat) (it : Iter (α := α) β) : Option β :=
+  match (IteratorAccess.nextAtIdx? it.toIterM n).run.val with
+  | .yield _ out => some out
+  | .skip _ => none
+  | .done => none
 
 end Std.Iterators

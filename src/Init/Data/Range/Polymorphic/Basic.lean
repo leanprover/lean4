@@ -35,7 +35,6 @@ def toList [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
 
 /--
 This typeclass provides support for the `PRange.size` function.
-It counts the number of elements betw
 
 The returned size should be equal to the number of elements returned by `toList`. This condition
 is captured by the typeclass `LawfulRangeSize`.
@@ -43,6 +42,21 @@ is captured by the typeclass `LawfulRangeSize`.
 class RangeSize (shape : BoundShape) (α : Type u) where
   /-- Returns the number of elements starting from `init` that satisfy the given upper bound. -/
   size : (upperBound : Bound shape α) → (init : α) → Nat
+
+class LawfulRangeSize (su : BoundShape) (α : Type u) [UpwardEnumerable α]
+    [SupportsUpperBound su α] [RangeSize su α]
+    [LawfulUpwardEnumerable α] [HasFiniteRanges su α] where
+  size_eq_zero_of_not_satisfied (upperBound : Bound su α) (init : α)
+      (h : ¬ SupportsUpperBound.IsSatisfied upperBound init) :
+      RangeSize.size upperBound init = 0
+  size_eq_one_of_succ?_eq_none (upperBound : Bound su α) (init : α)
+      (h : SupportsUpperBound.IsSatisfied upperBound init)
+      (h' : UpwardEnumerable.succ? init = none) :
+      RangeSize.size upperBound init = 1
+  size_eq_succ_of_succ?_eq_some (upperBound : Bound su α) (init : α)
+      (h : SupportsUpperBound.IsSatisfied upperBound init)
+      (h' : UpwardEnumerable.succ? init = some a) :
+      RangeSize.size upperBound init = RangeSize.size upperBound a + 1
 
 instance [RangeSize su α] [UpwardEnumerable α] [SupportsUpperBound su α] :
     IteratorSize (RangeIterator su α) Id where

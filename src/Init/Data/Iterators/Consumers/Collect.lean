@@ -56,6 +56,4 @@ def Iter.Partial.toList {α : Type w} {β : Type w}
     [Iterator α Id β] [IteratorCollectPartial α Id Id] (it : Iter.Partial (α := α) β) : List β :=
   it.it.toIterM.allowNontermination.toList.run
 
-class LawfulIteratorSize (α := Type w)
-
 end Std.Iterators

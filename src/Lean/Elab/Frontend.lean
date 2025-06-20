@@ -158,10 +158,10 @@ def runFrontend
       return .ok {
         trustLevel
         mainModuleName := setup.name
-        isModule := setup.isModule
-        imports := setup.imports
+        isModule := strictOr setup.isModule stx.isModule
+        imports := setup.imports?.getD stx.imports
         plugins := plugins ++ setup.plugins
-        modules := setup.modules
+        importArts := setup.importArts
         -- override cmdline options with setup options
         opts := opts.mergeBy (fun _ _ hOpt => hOpt) setup.options.toOptions
       }

@@ -9,10 +9,8 @@
       "isMeta": false
     }
   ],
-  "modules": {
-    "Dep": {
-      "olean": "Dep.olean"
-    }
+  "importArts": {
+    "Dep": ["Dep.olean"]
   },
   "dynlibs": [],
   "plugins": [],

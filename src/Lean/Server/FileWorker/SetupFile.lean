@@ -6,7 +6,6 @@ Authors: Sebastian Ullrich, Marc Huisinga
 prelude
 import Init.System.IO
 import Lean.Server.Utils
-import Lean.Util.FileSetupInfo
 import Lean.Util.LakePath
 import Lean.LoadDynlib
 import Lean.Server.ServerTask
@@ -24,20 +23,22 @@ structure LakeSetupFileOutput where
 partial def runLakeSetupFile
     (m                 : DocumentMeta)
     (lakePath filePath : System.FilePath)
-    (imports           : Array Import)
+    (header            : ModuleHeader)
     (handleStderr      : String → IO Unit)
     : IO LakeSetupFileOutput := do
-  let mut args := #["setup-file", filePath.toString] ++ imports.map (toString ·.module)
+  let mut args := #["setup-file", filePath.toString, "-"]
   if m.dependencyBuildMode matches .never then
     args := args.push "--no-build" |>.push "--no-cache"
   let spawnArgs : Process.SpawnArgs := {
-    stdin  := Process.Stdio.null
+    stdin  := Process.Stdio.piped
     stdout := Process.Stdio.piped
     stderr := Process.Stdio.piped
     cmd    := lakePath.toString
     args
   }
   let lakeProc ← Process.spawn spawnArgs
+  let (stdin, lakeProc) ← lakeProc.takeStdin
+  stdin.putStrLn (toJson header).compress
 
   let rec processStderr (acc : String) : IO String := do
     let line ← lakeProc.stderr.getLine
@@ -68,61 +69,53 @@ inductive FileSetupResultKind where
 structure FileSetupResult where
   /-- Kind of outcome. -/
   kind        : FileSetupResultKind
-  /-- Additional options from successful setup, or else empty. -/
-  fileOptions : Options
-  /-- Lean plugins from successful setup, or else empty. -/
-  plugins     : Array System.FilePath
+  /-- Configuration from a successful setup, or else the default. -/
+  setup       : ModuleSetup
 
-def FileSetupResult.ofSuccess (fileOptions : Options)
-    (plugins : Array System.FilePath) : IO FileSetupResult := do return {
+def FileSetupResult.ofSuccess (setup : ModuleSetup) : IO FileSetupResult := do return {
   kind          := FileSetupResultKind.success
-  fileOptions, plugins
+  setup
 }
 
-def FileSetupResult.ofNoLakefile : IO FileSetupResult := do return {
+def FileSetupResult.ofNoLakefile (m : DocumentMeta) (header : ModuleHeader) : IO FileSetupResult := do return {
   kind          := FileSetupResultKind.noLakefile
-  fileOptions   := Options.empty
-  plugins       := #[]
+  setup         := {name := m.mod, isModule := header.isModule}
 }
 
-def FileSetupResult.ofImportsOutOfDate : IO FileSetupResult := do return {
+def FileSetupResult.ofImportsOutOfDate (m : DocumentMeta) (header : ModuleHeader) : IO FileSetupResult := do return {
   kind          := FileSetupResultKind.importsOutOfDate
-  fileOptions   := Options.empty
-  plugins       := #[]
+  setup         := {name := m.mod, isModule := header.isModule}
 }
 
-def FileSetupResult.ofError (msg : String) : IO FileSetupResult := do return {
+def FileSetupResult.ofError (m : DocumentMeta) (header : ModuleHeader) (msg : String) : IO FileSetupResult := do return {
   kind          := FileSetupResultKind.error msg
-  fileOptions   := Options.empty
-  plugins       := #[]
+  setup         := {name := m.mod, isModule := header.isModule}
 }
 
 /-- Uses `lake setup-file` to compile dependencies on the fly and add them to `LEAN_PATH`.
 Compilation progress is reported to `handleStderr`. Returns the search path for
 source files and the options for the file. -/
-partial def setupFile (m : DocumentMeta) (imports : Array Import) (handleStderr : String → IO Unit) : IO FileSetupResult := do
+partial def setupFile (m : DocumentMeta) (header : ModuleHeader) (handleStderr : String → IO Unit) : IO FileSetupResult := do
   let some filePath := System.Uri.fileUriToPath? m.uri
-    | return ← FileSetupResult.ofNoLakefile -- untitled files have no lakefile
+    | return ← FileSetupResult.ofNoLakefile m header -- untitled files have no lakefile
 
   let lakePath ← determineLakePath
   if !(← System.FilePath.pathExists lakePath) then
-    return ← FileSetupResult.ofNoLakefile
+    return ← FileSetupResult.ofNoLakefile m header
 
-  let result ← runLakeSetupFile m lakePath filePath imports handleStderr
+  let result ← runLakeSetupFile m lakePath filePath header handleStderr
 
   let cmdStr := " ".intercalate (toString result.spawnArgs.cmd :: result.spawnArgs.args.toList)
 
   match result.exitCode with
   | 0 =>
-    let Except.ok (info : FileSetupInfo) := Json.parse result.stdout >>= fromJson?
-      | return ← FileSetupResult.ofError s!"Invalid output from `{cmdStr}`:\n{result.stdout}\nstderr:\n{result.stderr}"
-    initSearchPath (← getBuildDir) info.paths.oleanPath
-    info.paths.loadDynlibPaths.forM loadDynlib
-    let pluginPaths ← info.paths.pluginPaths.mapM realPathNormalized
-    FileSetupResult.ofSuccess info.setupOptions.toOptions pluginPaths
+    let Except.ok (setup : ModuleSetup) := Json.parse result.stdout >>= fromJson?
+      | return ← FileSetupResult.ofError m header s!"Invalid output from `{cmdStr}`:\n{result.stdout}\nstderr:\n{result.stderr}"
+    setup.dynlibs.forM loadDynlib
+    FileSetupResult.ofSuccess setup
   | 2 => -- exit code for lake reporting that there is no lakefile
-    FileSetupResult.ofNoLakefile
+    FileSetupResult.ofNoLakefile m header
   | 3 => -- exit code for `--no-build`
-    FileSetupResult.ofImportsOutOfDate
+    FileSetupResult.ofImportsOutOfDate m header
   | _ =>
-    FileSetupResult.ofError s!"`{cmdStr}` failed:\n{result.stdout}\nstderr:\n{result.stderr}"
+    FileSetupResult.ofError m header s!"`{cmdStr}` failed:\n{result.stdout}\nstderr:\n{result.stderr}"

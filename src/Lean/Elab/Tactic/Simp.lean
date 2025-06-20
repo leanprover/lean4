@@ -446,14 +446,6 @@ register_builtin_option tactic.simp.trace : Bool := {
   descr    := "When tracing is enabled, calls to `simp` or `dsimp` will print an equivalent `simp only` call."
 }
 
-register_builtin_option tactic.simp.warnUnused : Bool := {
-  defValue := false
-  descr    := "When enabled, calls to `simp` will warn about unused simp arguments.\n\
-  \n\
-  This is off by default because it may report false positives when the `simp` invocation is run \
-  multiple times, e.g. inside `all_goals` or inside a macro."
-}
-
 /--
 If `stx` is the syntax of a `simp`, `simp_all` or `dsimp` tactic invocation, and
 `usedSimps` is the set of simp lemmas used by this invocation, then `mkSimpOnly`
@@ -516,7 +508,20 @@ def mkSimpOnly (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Syntax := do
 def traceSimpCall (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Unit := do
   logInfoAt stx[0] m!"Try this: {← mkSimpOnly stx usedSimps}"
 
+
+structure SimpArgUsageMask where
+  mask : Array Bool
+deriving TypeName
+
+/--
+Checks the simp arguments for unused ones, and stores a bitmask of unused ones in the info tree,
+to be picked up by the linter.
+(This indirection is necessary because the same `simp` syntax may be executed multiple times,
+and different simp arguments may be used in each step.)
+-/
 def warnUnusedSimpArgs (simpArgs : Array (Syntax × ElabSimpArgResult)) (usedSimps : Simp.UsedSimps) : MetaM Unit := do
+  if simpArgs.isEmpty then return
+  let mut mask : Array Bool := #[]
   for h : i in [:simpArgs.size] do
     let (ref, arg) := simpArgs[i]
     let used ←
@@ -536,18 +541,11 @@ def warnUnusedSimpArgs (simpArgs : Array (Syntax × ElabSimpArgResult)) (usedSim
       | .star
       | .none
       => pure true -- not supported yet
-    unless used do
-      warnUnused i ref
+    mask := mask.push used
+  pushInfoLeaf <| .ofCustomInfo {
+    stx := (← getRef)
+    value := .mk { mask := mask : SimpArgUsageMask } }
 where
-  warnUnused (i : Nat) (ref : Syntax) : MetaM Unit := do
-    let msg := m!"This simp argument is unused:{indentD ref}"
-    let simpStx : TSyntax `tactic := (← getRef)
-    let mut otherArgs : Array Syntax := #[]
-    for h : j in [:simpArgs.size] do if j != i then
-      otherArgs := otherArgs.push simpArgs[j].1
-    let stx := setSimpParams simpStx otherArgs
-    let hint ← MessageData.hint "Omit it from the simp argument list." #[ stx ]
-    logWarningAt ref (msg ++ hint)
 
   /--
   For equational theorems, usedTheorems record the declaration name. So if the user
@@ -602,6 +600,11 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
   let stats ← x
   Simp.reportDiag stats
 
+register_builtin_option linter.unusedSimpArgs : Bool := {
+  defValue := true,
+  descr := "enable the linter that warns when bound variable names are nullary constructor names"
+}
+
 /-
   "simp" optConfig (discharger)? (" only")? (" [" ((simpStar <|> simpErase <|> simpLemma),*,?) "]")?
   (location)?
@@ -612,7 +615,7 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
     simpLocation ctx simprocs discharge? (expandOptLocation stx[5])
   if tactic.simp.trace.get (← getOptions) then
     traceSimpCall stx stats.usedTheorems
-  else if tactic.simp.warnUnused.get (← getOptions) then
+  else if linter.unusedSimpArgs.get (← getOptions) then
     withRef stx do
       warnUnusedSimpArgs simpArgs stats.usedTheorems
   return stats.diag
@@ -625,7 +628,7 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
   | some mvarId => replaceMainGoal [mvarId]
   if tactic.simp.trace.get (← getOptions) then
     traceSimpCall stx stats.usedTheorems
-  else if tactic.simp.warnUnused.get (← getOptions) then
+  else if linter.unusedSimpArgs.get (← getOptions) then
     withRef stx do
       warnUnusedSimpArgs simpArgs stats.usedTheorems
   return stats.diag

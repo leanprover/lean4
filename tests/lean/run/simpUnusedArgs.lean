@@ -1,4 +1,4 @@
-set_option tactic.simp.warnUnused true
+set_option linter.unusedSimpArgs true
 
 def some_def := 1
 def some_rdef : Nat → Nat
@@ -83,14 +83,14 @@ Hint: Omit it from the simp argument list.
 #guard_msgs in example : 0 < some_def := by simp [some_rdef]
 
 /--
+error: unsolved goals
+⊢ 0 < some_def
+---
 warning: This simp argument is unused:
   some_rdef
 
 Hint: Omit it from the simp argument list.
   simp -failIfUnchanged ̵[̵s̵o̵m̵e̵_̵r̵d̵e̵f̵]̵
----
-error: unsolved goals
-⊢ 0 < some_def
 -/
 #guard_msgs in example : 0 < some_def := by simp -failIfUnchanged [some_rdef]
 
@@ -181,3 +181,39 @@ Hint: Omit it from the simp argument list.
   simp ̵[̵x̵]̵
 -/
 #guard_msgs in example : let x := 1; True ∨ x > 0:= by intro x; left; simp [x]
+
+
+-- Now the tests for multiple branches
+
+/--
+warning: unused variable `h3`
+note: this linter can be disabled with `set_option linter.unusedVariables false`
+---
+warning: This simp argument is unused:
+  h3
+
+Hint: Omit it from the simp argument list.
+  simp [h1, h2,̵ ̵h̵3̵]
+-/
+#guard_msgs in
+example (h1 : P) (h2 : Q) (h3 : R) : P ∧ (Q ∨ R) := by
+  constructor <;> ((try left); simp [h1, h2, h3])
+
+/--
+warning: This simp argument is unused:
+  h2
+
+Hint: Omit it from the simp argument list.
+  simp [h1,̵ ̵h̵2̵]
+---
+warning: This simp argument is unused:
+  h1
+
+Hint: Omit it from the simp argument list.
+  simp [h1̵,̵ ̵h̵2]
+-/
+#guard_msgs in
+example (h1 : P) (h2 : Q) : P ∧ Q := by
+  constructor
+  · simp [h1, h2]
+  · simp [h1, h2]

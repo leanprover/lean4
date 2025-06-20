@@ -61,7 +61,11 @@ be used in nested inductive types. For these use cases, `Std.DHashMap.Raw` and
 For a variant that is more convenient for use in proofs because of extensionalities, see
 `Std.ExtDHashMap` which is defined in the module `Std.Data.ExtDHashMap`.
 -/
-def DHashMap (α : Type u) (β : α → Type v) [BEq α] [Hashable α] := { m : DHashMap.Raw α β // m.WF }
+structure DHashMap (α : Type u) (β : α → Type v) [BEq α] [Hashable α] where
+  /-- Internal implementation detail of the hash map. -/
+  inner : DHashMap.Raw α β
+  /-- Internal implementation detail of the hash map. -/
+  wf : inner.WF
 
 namespace DHashMap
 

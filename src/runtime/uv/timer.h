@@ -16,6 +16,7 @@ namespace lean {
 
 static lean_external_class * g_uv_timer_external_class = NULL;
 void initialize_libuv_timer();
+void finalize_libuv_timer();
 
 #ifndef LEAN_EMSCRIPTEN
 using namespace std;

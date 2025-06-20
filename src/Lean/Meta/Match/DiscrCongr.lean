@@ -28,7 +28,7 @@ deriving Inhabited, Hashable, DecidableEq
 
 def discrCongrPrefix := "discr_congr"
 def discrCongrNondep := discrCongrPrefix ++ "_nd"
-def discrCongrDep := discrCongrPrefix ++ "_dep"
+def discrCongrDep := discrCongrPrefix
 
 def DiscrCongrKind.nameSuffix : DiscrCongrKind → String
   | .nondep => discrCongrNondep

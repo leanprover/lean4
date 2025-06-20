@@ -1,4 +1,5 @@
 open Lean Grind
+set_option grind.debug true
 
 example [Field α] [IsCharP α 0] (a b c : α) : a/3 = b → c = a/3 → a/2 + a/2 = b + 2*c  := by
   grind

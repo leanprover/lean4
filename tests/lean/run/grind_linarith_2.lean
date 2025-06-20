@@ -1,4 +1,5 @@
 open Lean Grind
+set_option grind.debug true
 
 example [IntModule α] [Preorder α] [IntModule.IsOrdered α] (a b : α)
     : a + b = b + a  := by

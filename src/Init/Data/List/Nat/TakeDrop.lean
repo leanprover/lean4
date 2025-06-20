@@ -99,6 +99,7 @@ theorem getLast_take {l : List α} (h : l.take i ≠ []) :
   · rw [getElem?_eq_none (by omega), getLast_eq_getElem]
     simp
 
+@[grind =]
 theorem take_take : ∀ {i j} {l : List α}, take i (take j l) = take (min i j) l
   | n, 0, l => by rw [Nat.min_zero, take_zero, take_nil]
   | 0, m, l => by rw [Nat.zero_min, take_zero, take_zero]
@@ -117,19 +118,19 @@ theorem take_set_of_le {a : α} {i j : Nat} {l : List α} (h : j ≤ i) :
 @[deprecated take_set_of_le (since := "2025-02-04")]
 abbrev take_set_of_lt := @take_set_of_le
 
-@[simp] theorem take_replicate {a : α} : ∀ {i n : Nat}, take i (replicate n a) = replicate (min i n) a
+@[simp, grind =] theorem take_replicate {a : α} : ∀ {i n : Nat}, take i (replicate n a) = replicate (min i n) a
   | n, 0 => by simp [Nat.min_zero]
   | 0, m => by simp [Nat.zero_min]
   | succ n, succ m => by simp [replicate_succ, succ_min_succ, take_replicate]
 
-@[simp] theorem drop_replicate {a : α} : ∀ {i n : Nat}, drop i (replicate n a) = replicate (n - i) a
+@[simp, grind =] theorem drop_replicate {a : α} : ∀ {i n : Nat}, drop i (replicate n a) = replicate (n - i) a
   | n, 0 => by simp
   | 0, m => by simp
   | succ n, succ m => by simp [replicate_succ, succ_sub_succ, drop_replicate]
 
 /-- Taking the first `i` elements in `l₁ ++ l₂` is the same as appending the first `i` elements
 of `l₁` to the first `n - l₁.length` elements of `l₂`. -/
-theorem take_append_eq_append_take {l₁ l₂ : List α} {i : Nat} :
+theorem take_append {l₁ l₂ : List α} {i : Nat} :
     take i (l₁ ++ l₂) = take i l₁ ++ take (i - l₁.length) l₂ := by
   induction l₁ generalizing i
   · simp
@@ -140,15 +141,18 @@ theorem take_append_eq_append_take {l₁ l₂ : List α} {i : Nat} :
       congr 1
       omega
 
+@[deprecated take_append (since := "2025-06-16")]
+abbrev take_append_eq_append_take := @take_append
+
 theorem take_append_of_le_length {l₁ l₂ : List α} {i : Nat} (h : i ≤ l₁.length) :
     (l₁ ++ l₂).take i = l₁.take i := by
-  simp [take_append_eq_append_take, Nat.sub_eq_zero_of_le h]
+  simp [take_append, Nat.sub_eq_zero_of_le h]
 
 /-- Taking the first `l₁.length + i` elements in `l₁ ++ l₂` is the same as appending the first
 `i` elements of `l₂` to `l₁`. -/
-theorem take_append {l₁ l₂ : List α} (i : Nat) :
+theorem take_length_add_append {l₁ l₂ : List α} (i : Nat) :
     take (l₁.length + i) (l₁ ++ l₂) = l₁ ++ take i l₂ := by
-  rw [take_append_eq_append_take, take_of_length_le (Nat.le_add_right _ _), Nat.add_sub_cancel_left]
+  rw [take_append, take_of_length_le (Nat.le_add_right _ _), Nat.add_sub_cancel_left]
 
 @[simp]
 theorem take_eq_take_iff :
@@ -162,11 +166,12 @@ theorem take_eq_take_iff :
 @[deprecated take_eq_take_iff (since := "2025-02-16")]
 abbrev take_eq_take := @take_eq_take_iff
 
+@[grind =]
 theorem take_add {l : List α} {i j : Nat} : l.take (i + j) = l.take i ++ (l.drop i).take j := by
   suffices take (i + j) (take i l ++ drop i l) = take i l ++ take j (drop i l) by
     rw [take_append_drop] at this
     assumption
-  rw [take_append_eq_append_take, take_of_length_le, append_right_inj]
+  rw [take_append, take_of_length_le, append_right_inj]
   · simp only [take_eq_take_iff, length_take, length_drop]
     omega
   apply Nat.le_trans (m := i)
@@ -236,7 +241,7 @@ dropping the first `i` elements. Version designed to rewrite from the small list
       exact Nat.add_lt_of_lt_sub (length_drop ▸ h)) := by
   rw [getElem_drop']
 
-@[simp]
+@[simp, grind =]
 theorem getElem?_drop {xs : List α} {i j : Nat} : (xs.drop i)[j]? = xs[i + j]? := by
   ext
   simp only [getElem?_eq_some_iff, getElem_drop]
@@ -285,7 +290,7 @@ theorem getLast?_drop {l : List α} : (l.drop i).getLast? = if l.length ≤ i th
     congr
     omega
 
-@[simp] theorem getLast_drop {l : List α} (h : l.drop i ≠ []) :
+@[simp, grind =] theorem getLast_drop {l : List α} (h : l.drop i ≠ []) :
     (l.drop i).getLast h = l.getLast (ne_nil_of_length_pos (by simp at h; omega)) := by
   simp only [ne_eq, drop_eq_nil_iff] at h
   apply Option.some_inj.1
@@ -306,7 +311,8 @@ theorem drop_length_cons {l : List α} (h : l ≠ []) (a : α) :
 
 /-- Dropping the elements up to `i` in `l₁ ++ l₂` is the same as dropping the elements up to `i`
 in `l₁`, dropping the elements up to `i - l₁.length` in `l₂`, and appending them. -/
-theorem drop_append_eq_append_drop {l₁ l₂ : List α} {i : Nat} :
+@[grind =]
+theorem drop_append {l₁ l₂ : List α} {i : Nat} :
     drop i (l₁ ++ l₂) = drop i l₁ ++ drop (i - l₁.length) l₂ := by
   induction l₁ generalizing i
   · simp
@@ -316,15 +322,18 @@ theorem drop_append_eq_append_drop {l₁ l₂ : List α} {i : Nat} :
       congr 1
       omega
 
+@[deprecated drop_append (since := "2025-06-16")]
+abbrev drop_append_eq_append_drop := @drop_append
+
 theorem drop_append_of_le_length {l₁ l₂ : List α} {i : Nat} (h : i ≤ l₁.length) :
     (l₁ ++ l₂).drop i = l₁.drop i ++ l₂ := by
-  simp [drop_append_eq_append_drop, Nat.sub_eq_zero_of_le h]
+  simp [drop_append, Nat.sub_eq_zero_of_le h]
 
 /-- Dropping the elements up to `l₁.length + i` in `l₁ + l₂` is the same as dropping the elements
 up to `i` in `l₂`. -/
 @[simp]
-theorem drop_append {l₁ l₂ : List α} (i : Nat) : drop (l₁.length + i) (l₁ ++ l₂) = drop i l₂ := by
-  rw [drop_append_eq_append_drop, drop_eq_nil_of_le] <;>
+theorem drop_length_add_append {l₁ l₂ : List α} (i : Nat) : drop (l₁.length + i) (l₁ ++ l₂) = drop i l₂ := by
+  rw [drop_append, drop_eq_nil_of_le] <;>
     simp [Nat.add_sub_cancel_left, Nat.le_add_right]
 
 theorem set_eq_take_append_cons_drop {l : List α} {i : Nat} {a : α} :
@@ -458,7 +467,7 @@ theorem false_of_mem_take_findIdx {xs : List α} {p : α → Bool} (h : x ∈ xs
   obtain ⟨i, h, rfl⟩ := h
   exact not_of_lt_findIdx (by omega)
 
-@[simp] theorem findIdx_take {xs : List α} {i : Nat} {p : α → Bool} :
+@[simp, grind =] theorem findIdx_take {xs : List α} {i : Nat} {p : α → Bool} :
     (xs.take i).findIdx p = min i (xs.findIdx p) := by
   induction xs generalizing i with
   | nil => simp
@@ -470,7 +479,7 @@ theorem false_of_mem_take_findIdx {xs : List α} {p : α → Bool} (h : x ∈ xs
       · simp
       · rw [Nat.add_min_add_right]
 
-@[simp] theorem min_findIdx_findIdx {xs : List α} {p q : α → Bool} :
+@[simp, grind =] theorem min_findIdx_findIdx {xs : List α} {p q : α → Bool} :
     min (xs.findIdx p) (xs.findIdx q) = xs.findIdx (fun a => p a || q a) := by
   induction xs with
   | nil => simp
@@ -512,7 +521,7 @@ theorem dropWhile_eq_drop_findIdx_not {xs : List α} {p : α → Bool} :
 
 /-! ### rotateLeft -/
 
-@[simp] theorem rotateLeft_replicate {n} {a : α} : rotateLeft (replicate m a) n = replicate m a := by
+@[simp, grind =] theorem rotateLeft_replicate {n} {a : α} : rotateLeft (replicate m a) n = replicate m a := by
   cases n with
   | zero => simp
   | succ n =>
@@ -525,7 +534,7 @@ theorem dropWhile_eq_drop_findIdx_not {xs : List α} {p : α → Bool} :
 
 /-! ### rotateRight -/
 
-@[simp] theorem rotateRight_replicate {n} {a : α} : rotateRight (replicate m a) n = replicate m a := by
+@[simp, grind =] theorem rotateRight_replicate {n} {a : α} : rotateRight (replicate m a) n = replicate m a := by
   cases n with
   | zero => simp
   | succ n =>

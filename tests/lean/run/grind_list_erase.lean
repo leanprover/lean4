@@ -28,4 +28,4 @@ theorem getLast_eraseP_mem {xs : List α} {p : α → Bool} (h) : (xs.eraseP p).
 theorem set_getElem_succ_eraseIdx_succ
     {xs : Array α} {i : Nat} (h : i + 1 < xs.size) :
     (xs.eraseIdx (i + 1)).set i xs[i + 1] (by grind) = xs.eraseIdx i := by
-  grind (splits := 9)
+  grind (splits := 10)

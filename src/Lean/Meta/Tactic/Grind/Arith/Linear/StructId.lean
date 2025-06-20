@@ -38,6 +38,23 @@ private def ensureDefEq (a b : Expr) : MetaM Unit := do
   unless (← withDefault <| isDefEq a b) do
     throwError (← mkExpectedDefEqMsg a b)
 
+private def addZeroLtOne (one : Var) : LinearM Unit := do
+  let p := Poly.add (-1) one .nil
+  modifyStruct fun s => { s with
+    lowers := s.lowers.modify one fun cs => cs.push { p, h := .oneGtZero, strict := true }
+  }
+
+private def addZeroNeOne (one : Var) : LinearM Unit := do
+  let p := Poly.add 1 one .nil
+  modifyStruct fun s => { s with
+    diseqs := s.diseqs.modify one fun cs => cs.push { p, h := .oneNeZero }
+  }
+
+private def isNonTrivialIsCharInst (isCharInst? : Option (Expr × Nat)) : Bool :=
+  match isCharInst? with
+  | some (_, c) => c != 1
+  | none => false
+
 def getStructId? (type : Expr) : GoalM (Option Nat) := do
   unless (← getConfig).linarith do return none
   if (← getConfig).cutsat && Cutsat.isSupportedType type then
@@ -144,6 +161,7 @@ where
     let hsmulNatFn? ← getHSMulNatFn?
     let ringId? ← CommRing.getRingId? type
     let ringInst? ← getInst? ``Grind.Ring
+    let fieldInst? ← getInst? ``Grind.Field
     let getOne? : GoalM (Option Expr) := do
       let some oneInst ← getInst? ``One | return none
       let one ← internalizeConst <| mkApp2 (mkConst ``One.one [u]) type oneInst
@@ -161,6 +179,7 @@ where
           return none
       return some inst
     let ringIsOrdInst? ← getRingIsOrdInst?
+    let charInst? ← if let some ringInst := ringInst? then getIsCharInst? u type ringInst else pure none
     let getNoNatZeroDivInst? : GoalM (Option Expr) := do
       let hmulNat := mkApp3 (mkConst ``HMul [0, u, u]) Nat.mkType type type
       let .some hmulInst ← trySynthInstance hmulNat | return none
@@ -171,17 +190,21 @@ where
     let struct : Struct := {
       id, type, u, intModuleInst, preorderInst?, isOrdInst?, partialInst?, linearInst?, noNatDivInst?
       leFn?, ltFn?, addFn, subFn, negFn, hmulFn, hmulNatFn, hsmulFn?, hsmulNatFn?, zero, one?
-      ringInst?, commRingInst?, ringIsOrdInst?, ringId?, ofNatZero
+      ringInst?, commRingInst?, ringIsOrdInst?, charInst?, ringId?, fieldInst?, ofNatZero
     }
     modify' fun s => { s with structs := s.structs.push struct }
     if let some one := one? then
       if ringInst?.isSome then LinearM.run id do
-        -- Create `1` variable, and assert strict lower bound `0 < 1`
-        let x ← mkVar one (mark := false)
-        let p := Poly.add (-1) x .nil
-        modifyStruct fun s => { s with
-          lowers := s.lowers.modify x fun cs => cs.push { p, h := .oneGtZero, strict := true }
-        }
+        if ringIsOrdInst?.isSome then
+          -- Create `1` variable, and assert strict lower bound `0 < 1` and `0 ≠ 1`
+          let x ← mkVar one (mark := false)
+          addZeroLtOne x
+          addZeroNeOne x
+        else if fieldInst?.isSome || isNonTrivialIsCharInst charInst? then
+          -- Create `1` variable, and assert `0 ≠ 1`
+          let x ← mkVar one (mark := false)
+          addZeroNeOne x
+
     return some id
 
 end Lean.Meta.Grind.Arith.Linear

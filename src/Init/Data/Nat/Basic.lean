@@ -406,6 +406,12 @@ theorem le_of_add_right_le {n m k : Nat} (h : n + k ≤ m) : n ≤ m :=
 theorem le_add_right_of_le {n m k : Nat} (h : n ≤ m) : n ≤ m + k :=
   Nat.le_trans h (le_add_right m k)
 
+theorem le_of_add_left_le {n m k : Nat} (h : k + n ≤ m) : n ≤ m :=
+  Nat.le_trans (le_add_left n k) h
+
+theorem le_add_left_of_le {n m k : Nat} (h : n ≤ m) : n ≤ k + m :=
+  Nat.le_trans h (le_add_left m k)
+
 theorem lt_of_add_one_le {n m : Nat} (h : n + 1 ≤ m) : n < m := h
 
 theorem add_one_le_of_lt {n m : Nat} (h : n < m) : n + 1 ≤ m := h

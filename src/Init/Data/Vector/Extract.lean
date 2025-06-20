@@ -28,19 +28,19 @@ set_option linter.indexVariables false
   rcases xs with ⟨as, rfl⟩
   simp [h]
 
-@[simp]
+@[simp, grind =]
 theorem extract_push {xs : Vector α n} {b : α} {start stop : Nat} (h : stop ≤ n) :
     (xs.push b).extract start stop = (xs.extract start stop).cast (by omega) := by
   rcases xs with ⟨xs, rfl⟩
   simp [h]
 
-@[simp]
+@[simp, grind =]
 theorem extract_eq_pop {xs : Vector α n} {stop : Nat} (h : stop = n - 1) :
     xs.extract 0 stop = xs.pop.cast (by omega) := by
   rcases xs with ⟨xs, rfl⟩
   simp [h]
 
-@[simp]
+@[simp, grind _=_]
 theorem extract_append_extract {xs : Vector α n} {i j k : Nat} :
     xs.extract i j ++ xs.extract j k =
       (xs.extract (min i j) (max j k)).cast (by omega) := by
@@ -79,11 +79,12 @@ theorem getElem?_extract_of_succ {xs : Vector α n} {j : Nat} :
   · rw [if_neg (by omega)]
     simp_all
 
-@[simp] theorem extract_extract {xs : Vector α n} {i j k l : Nat} :
+@[simp, grind =] theorem extract_extract {xs : Vector α n} {i j k l : Nat} :
     (xs.extract i j).extract k l = (xs.extract (i + k) (min (i + l) j)).cast (by omega) := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
+@[grind =]
 theorem extract_set {xs : Vector α n} {i j k : Nat} (h : k < n) {a : α} :
     (xs.set k a).extract i j =
       if _ : k < i then
@@ -97,12 +98,13 @@ theorem extract_set {xs : Vector α n} {i j k : Nat} (h : k < n) {a : α} :
   · simp
   · split <;> simp
 
+@[grind =]
 theorem set_extract {xs : Vector α n} {i j k : Nat} (h : k < min j n - i) {a : α} :
     (xs.extract i j).set k a = (xs.set (i + k) a).extract i j := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.set_extract]
 
-@[simp]
+@[simp, grind =]
 theorem extract_append {xs : Vector α n} {ys : Vector α m} {i j : Nat} :
     (xs ++ ys).extract i j =
       (xs.extract i j ++ ys.extract (i - n) (j - n)).cast (by omega) := by
@@ -128,12 +130,12 @@ theorem extract_append_left {xs : Vector α n} {ys : Vector α m} :
   congr 1
   omega
 
-@[simp] theorem map_extract {xs : Vector α n} {i j : Nat} :
+@[simp, grind =] theorem map_extract {xs : Vector α n} {i j : Nat} :
     (xs.extract i j).map f = (xs.map f).extract i j := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp] theorem extract_replicate {a : α} {n i j : Nat} :
+@[simp, grind =] theorem extract_replicate {a : α} {n i j : Nat} :
     (replicate n a).extract i j = replicate (min j n - i) a := by
   ext i h
   simp
@@ -161,6 +163,7 @@ theorem set_eq_push_extract_append_extract {xs : Vector α n} {i : Nat} (h : i <
   rcases xs with ⟨as, rfl⟩
   simp [Array.set_eq_push_extract_append_extract, h]
 
+@[grind =]
 theorem extract_reverse {xs : Vector α n} {i j : Nat} :
     xs.reverse.extract i j = (xs.extract (n - j) (n - i)).reverse.cast (by omega) := by
   ext i h
@@ -168,6 +171,7 @@ theorem extract_reverse {xs : Vector α n} {i j : Nat} :
   congr 1
   omega
 
+@[grind =]
 theorem reverse_extract {xs : Vector α n} {i j : Nat} :
     (xs.extract i j).reverse = (xs.reverse.extract (n - j) (n - i)).cast (by omega) := by
   rcases xs with ⟨xs, rfl⟩

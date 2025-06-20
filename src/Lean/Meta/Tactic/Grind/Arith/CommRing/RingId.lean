@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Grind.CommRing.Field
+import Init.Grind.Ring.Field
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
 
@@ -129,22 +129,8 @@ where
     let commRing := mkApp (mkConst ``Grind.CommRing [u]) type
     let .some commRingInst ← trySynthInstance commRing | return none
     trace_goal[grind.ring] "new ring: {type}"
-    let charInst? ← withNewMCtxDepth do
-      let n ← mkFreshExprMVar (mkConst ``Nat)
-      let charType := mkApp3 (mkConst ``Grind.IsCharP [u]) type ringInst n
-      let .some charInst ← trySynthInstance charType | pure none
-      let n ← instantiateMVars n
-      let some n ← evalNat n |>.run
-        | trace_goal[grind.ring] "found instance for{indentExpr charType}\nbut characteristic is not a natural number"; pure none
-      trace_goal[grind.ring] "characteristic: {n}"
-      pure <| some (charInst, n)
-    let noZeroDivInst? ← withNewMCtxDepth do
-      let zeroType := mkApp (mkConst ``Zero [u]) type
-      let .some zeroInst ← trySynthInstance zeroType | return none
-      let hmulType := mkApp3 (mkConst ``HMul [0, u, u]) (mkConst ``Nat []) type type
-      let .some hmulInst ← trySynthInstance hmulType | return none
-      let noZeroDivType := mkApp3 (mkConst ``Grind.NoNatZeroDivisors [u]) type zeroInst hmulInst
-      LOption.toOption <$> trySynthInstance noZeroDivType
+    let charInst? ← getIsCharInst? u type ringInst
+    let noZeroDivInst? ← getNoZeroDivInst? u type
     trace_goal[grind.ring] "NoNatZeroDivisors available: {noZeroDivInst?.isSome}"
     let field := mkApp (mkConst ``Grind.Field [u]) type
     let fieldInst? : Option Expr ← LOption.toOption <$> trySynthInstance field

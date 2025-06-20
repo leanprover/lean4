@@ -7,8 +7,7 @@ Reported in https://github.com/leanprover/lean4/issues/2199
 The `inferInstance` was failing due to metavariables introduced by `cases`.
 -/
 theorem exists_foo : ∃ T : Type, Nonempty T := ⟨Unit, ⟨()⟩⟩
-set_option pp.instantiateMVars false
-set_option trace.Meta.debug true
+
 example : True := by
   cases exists_foo
   rename_i T hT

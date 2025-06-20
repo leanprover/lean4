@@ -1356,6 +1356,7 @@ mutual
     if `maxFVars?` is `some max`, then we interrupt the telescope construction
     when `fvars.size == max`
 
+
     If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
 
     If `whnfIfReducing` is true, then in the `reducing == true` case, `k` is given the whnf of the type.
@@ -1416,7 +1417,7 @@ mutual
 
 
   /--
-  Helper method for `isClassExpensive?`. The type `type` is in whnf.
+  Helper method for `isClassExpensive?`. The type `type` is in WHNF.
   -/
   private partial def isClassApp? (type : Expr) : MetaM (Option Name) := do
     match type.getAppFn with

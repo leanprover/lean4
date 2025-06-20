@@ -16,13 +16,13 @@ extern "C" {
 lean_object* l_BitVec_instOfNat___boxed(lean_object*, lean_object*);
 lean_object* l_BitVec_ofNat___boxed(lean_object*, lean_object*);
 lean_object* l_BitVec_neg___boxed(lean_object*, lean_object*);
+lean_object* l_BitVec_instPowNat___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec(lean_object*);
 lean_object* l_BitVec_sub___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_instHAdd___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_add___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_BitVec_pow___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_mul___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_ofInt___boxed(lean_object*, lean_object*);
-lean_object* l_instHPow___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec(lean_object* x_1) {
 _start:
 {
@@ -34,9 +34,9 @@ lean_inc(x_1);
 x_3 = lean_alloc_closure((void*)(l_BitVec_mul___boxed), 3, 1);
 lean_closure_set(x_3, 0, x_1);
 lean_inc(x_1);
-x_4 = lean_alloc_closure((void*)(l_BitVec_pow___boxed), 3, 1);
+x_4 = lean_alloc_closure((void*)(l_BitVec_instPowNat___lam__0___boxed), 3, 1);
 lean_closure_set(x_4, 0, x_1);
-x_5 = lean_alloc_closure((void*)(l_instHPow___rarg), 3, 1);
+x_5 = lean_alloc_closure((void*)(l_instHAdd___redArg___lam__0), 3, 1);
 lean_closure_set(x_5, 0, x_4);
 lean_inc(x_1);
 x_6 = lean_alloc_closure((void*)(l_BitVec_ofNat___boxed), 2, 1);

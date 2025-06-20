@@ -79,6 +79,12 @@ instance : LawfulUpwardEnumerableLowerBound .unbounded Nat where
 instance : LawfulUpwardEnumerableUpperBound .unbounded Nat where
   isSatisfied_of_le _ _ _ _ _ := .intro
 
+instance : LinearlyUpwardEnumerable Nat where
+  eq_of_succ?_eq a b := by simp [UpwardEnumerable.succ?]
+
+instance : InfinitelyUpwardEnumerable Nat where
+  isSome_succ? a := by simp [UpwardEnumerable.succ?]
+
 private def rangeRev (k : Nat) :=
   match k with
   | 0 => []
@@ -114,5 +120,29 @@ instance : RangeSize .closed Nat where
 
 instance : RangeSize .open Nat where
   size bound a := bound - a
+
+instance : LawfulRangeSize .closed Nat where
+  size_eq_zero_of_not_satisfied upperBound init hu := by
+    simp only [SupportsUpperBound.IsSatisfied, RangeSize.size] at hu ⊢
+    omega
+  size_eq_one_of_succ?_eq_none upperBound init hu h := by
+    simp only [UpwardEnumerable.succ?] at h
+    cases h
+  size_eq_succ_of_succ?_eq_some upperBound init hu h := by
+    simp only [SupportsUpperBound.IsSatisfied, RangeSize.size, UpwardEnumerable.succ?,
+      Option.some.injEq] at hu h ⊢
+    omega
+
+instance : LawfulRangeSize .open Nat where
+  size_eq_zero_of_not_satisfied upperBound init hu := by
+    simp only [SupportsUpperBound.IsSatisfied, RangeSize.size] at hu ⊢
+    omega
+  size_eq_one_of_succ?_eq_none upperBound init hu h := by
+    simp only [UpwardEnumerable.succ?] at h
+    cases h
+  size_eq_succ_of_succ?_eq_some upperBound init hu h := by
+    simp only [SupportsUpperBound.IsSatisfied, RangeSize.size, UpwardEnumerable.succ?,
+      Option.some.injEq] at hu h ⊢
+    omega
 
 end Std.PRange

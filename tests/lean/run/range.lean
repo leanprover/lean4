@@ -1,9 +1,9 @@
-prelude
 import Init.Data.Range.Polymorphic.Nat
 import Init.Data.Range.Polymorphic.Basic
 import Init.System.IO
 import Init.Data.Iterators
 import Std.Data.Iterators
+import Init.Data.Range.Polymorphic.Basic
 
 def ex1 : IO Unit := do
 IO.println "example 1"
@@ -120,11 +120,11 @@ open Std.Iterators
 instance [Pure m] : MonadLiftT Id m where
   monadLift := pure
 
-def g : IO Unit := do
-  for h : x in ((2 : Nat)...=8) do -- ugly: For some reason, we need a type hint here
-    IO.println x
+def g (xs : Array Nat) : IO Unit := do
+  for h : i in (0...<xs.size) do
+    IO.println xs[i]
 
-#synth ForIn IO (type_of% (2...=8)) _ -- Note that we don't need the type hint this time
+#synth ForIn IO (type_of% (2...=8)) _ -- Note that we don't need the type hint this time, but we'd need one in a for loop
 
 /-- info: [2, 3, 4, 5, 6, 7, 8] -/
 #guard_msgs in

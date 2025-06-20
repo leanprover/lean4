@@ -153,6 +153,10 @@ theorem UpwardEnumerable.not_gt_of_le {α : Type u} [UpwardEnumerable α] [Lawfu
     rw [Nat.add_assoc, UpwardEnumerable.succMany?_add, hle, Option.bind_some, hgt]
   exact LawfulUpwardEnumerable.ne_of_lt _ _ this rfl
 
+theorem UpwardEnumerable.not_gt_of_lt {α : Type u} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    {a b : α} (h : UpwardEnumerable.lt a b) : ¬ UpwardEnumerable.lt b a :=
+  not_gt_of_le (le_of_lt h)
+
 theorem UpwardEnumerable.ne_of_lt {α : Type w} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     {a b : α} :
     UpwardEnumerable.lt a b → a ≠ b :=
@@ -169,8 +173,15 @@ abbrev UpwardEnumerable.succ {α : Type u} [UpwardEnumerable α] [InfinitelyUpwa
     (a : α) : α :=
   (UpwardEnumerable.succ? a).get (InfinitelyUpwardEnumerable.isSome_succ? _)
 
-@[always_inline, inline]
-abbrev InfinitelyUpwardEnumerable.isSome_succMany? {α : Type u} [UpwardEnumerable α]
+theorem LinearlyUpwardEnumerable.eq_of_succ_eq {α : Type u} [UpwardEnumerable α]
+    [InfinitelyUpwardEnumerable α] [LinearlyUpwardEnumerable α] :
+    ∀ a b : α, UpwardEnumerable.succ a = UpwardEnumerable.succ b → a = b := by
+  intro a b h
+  rw [UpwardEnumerable.succ, UpwardEnumerable.succ, ← Option.some.injEq, Option.some_get,
+    Option.some_get] at h
+  exact eq_of_succ?_eq _ _ h
+
+theorem InfinitelyUpwardEnumerable.isSome_succMany? {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α] {n : Nat} {a : α} :
     (UpwardEnumerable.succMany? n a).isSome := by
   induction n
@@ -185,6 +196,21 @@ abbrev UpwardEnumerable.succMany {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α]
     (n : Nat) (a : α) :=
   (UpwardEnumerable.succMany? n a).get InfinitelyUpwardEnumerable.isSome_succMany?
+
+theorem UpwardEnumerable.succMany_one {α : Type u} [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α] {a : α} :
+    succMany 1 a = succ a := by
+  simp [succMany, succ, succMany?_one]
+
+theorem UpwardEnumerable.succMany_add {α : Type u} [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α]
+    {m n : Nat} {a : α} : succMany (m + n) a = succMany n (succMany m a) := by
+  simp [succMany, succMany?_add]
+
+theorem UpwardEnumerable.succMany_add' {α : Type u} [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α]
+    {m n : Nat} {a : α} : succMany (m + n) a = succMany m (succMany n a) := by
+  rw [Nat.add_comm, succMany_add]
 
 theorem UpwardEnumerable.succ_le_succ_iff {α : Type w} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [LinearlyUpwardEnumerable α] [InfinitelyUpwardEnumerable α] {a b : α} :

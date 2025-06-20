@@ -190,7 +190,7 @@ private def withMotive (type : Expr) (kind : DiscrCongrKind) (ndiscrs : Nat)
     withLocalDecl nm bi t' fun motive => do
       let expr ← forallTelescope t fun vars _ => mkLambdaFVars vars motive
       k motive expr (reduceMotiveApps (b.instantiate1 expr) ndiscrs)
-  | .dep => withLocalDecl nm bi t fun motive => k motive motive (b.instantiate1 t)
+  | .dep => withLocalDecl nm bi t fun motive => k motive motive (b.instantiate1 motive)
 
 /--
 Generates the discriminant congruence principle for a matcher and returns its name and a mask.
@@ -226,6 +226,7 @@ where go discrCongrName := withConfig (fun c => { c with etaStruct := .none }) d
     let discrs := fvars.extract 0 matcher.numDiscrs
     let alts := fvars.extract matcher.numDiscrs
     let matchBase := mkAppN (.const matchDeclName (cval.levelParams.map Level.param)) params
+    let matchBase := .app matchBase motive
     let info ← getFunInfoNArgs matchBase matcher.numDiscrs
     let mut mask : Array Bool := #[]
     for paramInfo in info.paramInfo do

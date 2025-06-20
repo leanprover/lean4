@@ -139,6 +139,8 @@ Together with initialization of the Lean runtime, you should execute code like t
 ```c
 void lean_initialize_runtime_module();
 void lean_initialize();
+char ** lean_setup_libuv(int argc, char ** argv);
+
 lean_object * initialize_A_B(uint8_t builtin, lean_object *);
 lean_object * initialize_C(uint8_t builtin, lean_object *);
 ...

@@ -1790,6 +1790,307 @@ macro (name := bvNormalizeMacro) (priority:=low) "bv_normalize" optConfig : tact
   Macro.throwError "to use `bv_normalize`, please include `import Std.Tactic.BVDecide`"
 
 
+/--
+`massumption` is like `assumption`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (P Q : SPred σs) : Q ⊢ₛ P → Q := by
+  mintro _ _
+  massumption
+```
+-/
+macro (name := massumptionMacro) (priority:=low) "massumption" : tactic =>
+  Macro.throwError "to use `massumption`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mclear` is like `clear`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (P Q : SPred σs) : P ⊢ₛ Q → Q := by
+  mintro HP
+  mintro HQ
+  mclear HP
+  mexact HQ
+```
+-/
+macro (name := mclearMacro) (priority:=low) "mclear" : tactic =>
+  Macro.throwError "to use `mclear`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mconstructor` is like `constructor`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (Q : SPred σs) : Q ⊢ₛ Q ∧ Q := by
+  mintro HQ
+  mconstructor <;> mexact HQ
+```
+-/
+macro (name := mconstructorMacro) (priority:=low) "mconstructor" : tactic =>
+  Macro.throwError "to use `mconstructor`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mexact` is like `exact`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (Q : SPred σs) : Q ⊢ₛ Q := by
+  mstart
+  mintro HQ
+  mexact HQ
+```
+-/
+macro (name := mexactMacro) (priority:=low) "mexact" : tactic =>
+  Macro.throwError "to use `mexact`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mexfalso` is like `exfalso`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (P : SPred σs) : ⌜False⌝ ⊢ₛ P := by
+  mintro HP
+  mexfalso
+  mexact HP
+```
+-/
+macro (name := mexfalsoMacro) (priority:=low) "mexfalso" : tactic =>
+  Macro.throwError "to use `mexfalso`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mexists` is like `exists`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (ψ : Nat → SPred σs) : ψ 42 ⊢ₛ ∃ x, ψ x := by
+  mintro H
+  mexists 42
+```
+-/
+macro (name := mexistsMacro) (priority:=low) "mexists" : tactic =>
+  Macro.throwError "to use `mexists`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mframe` infers which hypotheses from the stateful context can be moved into the pure context.
+This is useful because pure hypotheses "survive" the next application of modus ponens
+(`Std.Do.SPred.mp`) and transitivity (`Std.Do.SPred.entails.trans`).
+
+It is used as part of the `mspec` tactic.
+
+```lean
+example (P Q : SPred σs) : ⊢ₛ ⌜p⌝ ∧ Q ∧ ⌜q⌝ ∧ ⌜r⌝ ∧ P ∧ ⌜s⌝ ∧ ⌜t⌝ → Q := by
+  mintro _
+  mframe
+  /- `h : p ∧ q ∧ r ∧ s ∧ t` in the pure context -/
+  mcases h with hP
+  mexact h
+```
+-/
+macro (name := mframeMacro) (priority:=low) "mframe" : tactic =>
+  Macro.throwError "to use `mframe`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mhave` is like `have`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (P Q : SPred σs) : P ⊢ₛ (P → Q) → Q := by
+  mintro HP HPQ
+  mhave HQ : Q := by mspecialize HPQ HP; mexact HPQ
+  mexact HQ
+```
+-/
+macro (name := mhaveMacro) (priority:=low) "mhave" : tactic =>
+  Macro.throwError "to use `mhave`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mreplace` is like `replace`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (P Q : SPred σs) : P ⊢ₛ (P → Q) → Q := by
+  mintro HP HPQ
+  mreplace HPQ : Q := by mspecialize HPQ HP; mexact HPQ
+  mexact HPQ
+```
+-/
+macro (name := mreplaceMacro) (priority:=low) "mreplace" : tactic =>
+  Macro.throwError "to use `mreplace`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mleft` is like `left`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (P Q : SPred σs) : P ⊢ₛ P ∨ Q := by
+  mintro HP
+  mleft
+  mexact HP
+```
+-/
+macro (name := mleftMacro) (priority:=low) "mleft" : tactic =>
+  Macro.throwError "to use `mleft`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mright` is like `right`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (P Q : SPred σs) : P ⊢ₛ Q ∨ P := by
+  mintro HP
+  mright
+  mexact HP
+```
+-/
+macro (name := mrightMacro) (priority:=low) "mright" : tactic =>
+  Macro.throwError "to use `mright`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mpure` moves a pure hypothesis from the stateful context into the pure context.
+```lean
+example (Q : SPred σs) (ψ : φ → ⊢ₛ Q): ⌜φ⌝ ⊢ₛ Q := by
+  mintro Hφ
+  mpure Hφ
+  mexact (ψ Hφ)
+```
+-/
+macro (name := mpureMacro) (priority:=low) "mpure" : tactic =>
+  Macro.throwError "to use `mpure`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mpure_intro` operates on a stateful `Std.Do.SPred` goal of the form `P ⊢ₛ ⌜φ⌝`.
+It leaves the stateful proof mode (thereby discarding `P`), leaving the regular goal `φ`.
+```lean
+theorem simple : ⊢ₛ (⌜True⌝ : SPred σs) := by
+  mpure_intro
+  exact True.intro
+```
+-/
+macro (name := mpureIntroMacro) (priority:=low) "mpure_intro" : tactic =>
+  Macro.throwError "to use `mpure_intro`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mrevert` is like `revert`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (P Q R : SPred σs) : P ∧ Q ∧ R ⊢ₛ P → R := by
+  mintro ⟨HP, HQ, HR⟩
+  mrevert HR
+  mrevert HP
+  mintro HP'
+  mintro HR'
+  mexact HR'
+```
+-/
+macro (name := mrevertMacro) (priority:=low) "mrevert" : tactic =>
+  Macro.throwError "to use `mrevert`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mspecialize` is like `specialize`, but operating on a stateful `Std.Do.SPred` goal.
+It specializes a hypothesis from the stateful context with hypotheses from either the pure
+or stateful context or pure terms.
+```lean
+example (P Q : SPred σs) : P ⊢ₛ (P → Q) → Q := by
+  mintro HP HPQ
+  mspecialize HPQ HP
+  mexact HPQ
+
+example (y : Nat) (P Q : SPred σs) (Ψ : Nat → SPred σs) (hP : ⊢ₛ P) : ⊢ₛ Q → (∀ x, P → Q → Ψ x) → Ψ (y + 1) := by
+  mintro HQ HΨ
+  mspecialize HΨ (y + 1) hP HQ
+  mexact HΨ
+```
+-/
+macro (name := mspecializeMacro) (priority:=low) "mspecialize" : tactic =>
+  Macro.throwError "to use `mspecialize`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mspecialize_pure` is like `mspecialize`, but it specializes a hypothesis from the
+*pure* context with hypotheses from either the pure or stateful context or pure terms.
+```lean
+example (y : Nat) (P Q : SPred σs) (Ψ : Nat → SPred σs) (hP : ⊢ₛ P) (hΨ : ∀ x, ⊢ₛ P → Q → Ψ x) : ⊢ₛ Q → Ψ (y + 1) := by
+  mintro HQ
+  mspecialize_pure (hΨ (y + 1)) hP HQ => HΨ
+  mexact HΨ
+```
+-/
+macro (name := mspecializePureMacro) (priority:=low) "mspecialize_pure" : tactic =>
+  Macro.throwError "to use `mspecialize_pure`, please include `import Std.Tactic.Do`"
+
+
+/--
+Start the stateful proof mode of `Std.Do.SPred`.
+This will transform a stateful goal of the form `H ⊢ₛ T` into `⊢ₛ H → T`
+upon which `mintro` can be used to re-introduce `H` and give it a name.
+It is often more convenient to use `mintro` directly, which will
+try `mstart` automatically if necessary.
+-/
+macro (name := mstartMacro) (priority:=low) "mstart" : tactic =>
+  Macro.throwError "to use `mstart`, please include `import Std.Tactic.Do`"
+
+
+/--
+Stops the stateful proof mode of `Std.Do.SPred`.
+This will simply forget all the names given to stateful hypotheses and pretty-print
+a bit differently.
+-/
+macro (name := mstopMacro) (priority:=low) "mstop" : tactic =>
+  Macro.throwError "to use `mstop`, please include `import Std.Tactic.Do`"
+
+
+/--
+Like `rcases`, but operating on stateful `Std.Do.SPred` goals.
+Example: Given a goal `h : (P ∧ (Q ∨ R) ∧ (Q → R)) ⊢ₛ R`,
+`mcases h with ⟨-, ⟨hq | hr⟩, hqr⟩` will yield two goals:
+`(hq : Q, hqr : Q → R) ⊢ₛ R` and `(hr : R) ⊢ₛ R`.
+
+That is, `mcases h with pat` has the following semantics, based on `pat`:
+* `pat=□h'` renames `h` to `h'` in the stateful context, regardless of whether `h` is pure
+* `pat=⌜h'⌝` introduces `h' : φ`  to the pure local context if `h : ⌜φ⌝`
+  (c.f. `Lean.Elab.Tactic.Do.ProofMode.IsPure`)
+* `pat=h'` is like `pat=⌜h'⌝` if `h` is pure
+  (c.f. `Lean.Elab.Tactic.Do.ProofMode.IsPure`), otherwise it is like `pat=□h'`.
+* `pat=_` renames `h` to an inaccessible name
+* `pat=-` discards `h`
+* `⟨pat₁, pat₂⟩` matches on conjunctions and existential quantifiers and recurses via
+  `pat₁` and `pat₂`.
+* `⟨pat₁ | pat₂⟩` matches on disjunctions, matching the left alternative via `pat₁` and the right
+  alternative via `pat₂`.
+-/
+macro (name := mcasesMacro) (priority:=low) "mcases" : tactic =>
+  Macro.throwError "to use `mcases`, please include `import Std.Tactic.Do`"
+
+
+/--
+Like `refine`, but operating on stateful `Std.Do.SPred` goals.
+```lean
+example (P Q R : SPred σs) : (P ∧ Q ∧ R) ⊢ₛ P ∧ R := by
+  mintro ⟨HP, HQ, HR⟩
+  mrefine ⟨HP, HR⟩
+
+example (ψ : Nat → SPred σs) : ψ 42 ⊢ₛ ∃ x, ψ x := by
+  mintro H
+  mrefine ⟨⌜42⌝, H⟩
+```
+-/
+macro (name := mrefineMacro) (priority:=low) "mrefine" : tactic =>
+  Macro.throwError "to use `mrefine`, please include `import Std.Tactic.Do`"
+
+
+/--
+Like `intro`, but introducing stateful hypotheses into the stateful context of the `Std.Do.SPred`
+proof mode.
+That is, given a stateful goal `(hᵢ : Hᵢ)* ⊢ₛ P → T`, `mintro h` transforms
+into `(hᵢ : Hᵢ)*, (h : P) ⊢ₛ T`.
+
+Furthermore, `mintro ∀s` is like `intro s`, but preserves the stateful goal.
+That is, `mintro ∀s` brings the topmost state variable `s:σ` in scope and transforms
+`(hᵢ : Hᵢ)* ⊢ₛ T` (where the entailment is in `Std.Do.SPred (σ::σs)`) into
+`(hᵢ : Hᵢ s)* ⊢ₛ T s` (where the entailment is in `Std.Do.SPred σs`).
+
+Beyond that, `mintro` supports the full syntax of `mcases` patterns
+(`mintro pat = (mintro h; mcases h with pat`), and can perform multiple
+introductions in sequence.
+-/
+macro (name := mintroMacro) (priority:=low) "mintro" : tactic =>
+  Macro.throwError "to use `mintro`, please include `import Std.Tactic.Do`"
+
 end Tactic
 
 namespace Attr

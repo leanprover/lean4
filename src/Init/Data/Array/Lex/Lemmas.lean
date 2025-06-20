@@ -32,7 +32,7 @@ protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {xs ys
 
 @[simp] theorem lex_empty [BEq α] {lt : α → α → Bool} {xs : Array α} : xs.lex #[] lt = false := by
   rw [lex, Std.PRange.forIn'_eq_match]
-  simp [SupportsUpperBound.IsSatisfied]
+  simp [Std.PRange.SupportsUpperBound.IsSatisfied]
 
 @[congr] theorem forIn'_congr_aux [Monad m] {as bs : ρ} {_ : Membership α ρ}
     [ForIn' m ρ α inferInstance] (w : as = bs)
@@ -58,11 +58,11 @@ private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs 
   simp only [Std.PRange.forIn'_eq_forIn'_toList]
   conv =>
     lhs; congr; congr
-    rw [forIn'_congr_aux Std.PRange.toList_eq rfl (fun _ _ _ => rfl)]
-    simp [SupportsUpperBound.IsSatisfied, if_pos (Nat.zero_lt_succ)]
+    rw [forIn'_congr_aux Std.PRange.toList_eq_match rfl (fun _ _ _ => rfl)]
+    simp [Std.PRange.SupportsUpperBound.IsSatisfied, if_pos (Nat.zero_lt_succ)]
     rw [forIn'_congr_aux (if_pos (by omega)) rfl (fun _ _ _ => rfl)]
-  simp [Std.PRange.toList_open_eq_of_isSome_succ? (lo := 0) (h := rfl), UpwardEnumerable.succ?,
-    Nat.add_comm 1, Std.PRange.Nat.ClosedOpen.toList_succ_succ]
+  simp [Std.PRange.toList_open_eq_of_isSome_succ? (lo := 0) (h := rfl),
+    Std.PRange.UpwardEnumerable.succ?, Nat.add_comm 1, Std.PRange.Nat.ClosedOpen.toList_succ_succ]
   cases lt a b
   · rw [bne]
     cases h : a == b
@@ -76,14 +76,14 @@ private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs 
   | nil =>
     cases l₂
     · rw [lex, Std.PRange.forIn'_eq_match]
-      simp [SupportsUpperBound.IsSatisfied]
+      simp [Std.PRange.SupportsUpperBound.IsSatisfied]
     · rw [lex, Std.PRange.forIn'_eq_match]
-      simp [SupportsUpperBound.IsSatisfied]
+      simp [Std.PRange.SupportsUpperBound.IsSatisfied]
   | cons x l₁ ih =>
     cases l₂ with
     | nil =>
       rw [lex, Std.PRange.forIn'_eq_match]
-      simp [SupportsUpperBound.IsSatisfied]
+      simp [Std.PRange.SupportsUpperBound.IsSatisfied]
     | cons y l₂ =>
       rw [List.toArray_cons, List.toArray_cons y, cons_lex_cons, List.lex, ih]
 

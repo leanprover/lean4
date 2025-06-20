@@ -14,28 +14,60 @@ namespace Lean.Grind
 class AddRightCancel (M : Type u) [Add M] where
   add_right_cancel : ∀ a b c : M, a + c = b + c → a = b
 
+/--
+A module over the natural numbers, i.e. a type with zero, addition, and scalar multiplication by natural numbers,
+satisfying appropriate compatibilities.
+
+Equivalently, an additive commutative monoid.
+
+Use `IntModule` if the type has negation.
+-/
 class NatModule (M : Type u) extends Zero M, Add M, HMul Nat M M where
+  /-- Zero is the right identity for addition. -/
   add_zero : ∀ a : M, a + 0 = a
+  /-- Addition is commutative. -/
   add_comm : ∀ a b : M, a + b = b + a
+  /-- Addition is associative. -/
   add_assoc : ∀ a b c : M, a + b + c = a + (b + c)
+  /-- Scalar multiplication by zero is zero. -/
   zero_hmul : ∀ a : M, 0 * a = 0
+  /-- Scalar multiplication by one is the identity. -/
   one_hmul : ∀ a : M, 1 * a = a
+  /-- Scalar multiplication is distributive over addition in the natural numbers. -/
   add_hmul : ∀ n m : Nat, ∀ a : M, (n + m) * a = n * a + m * a
+  /-- Scalar multiplication of zero is zero. -/
   hmul_zero : ∀ n : Nat, n * (0 : M) = 0
+  /-- Scalar multiplication is distributive over addition in the module. -/
   hmul_add : ∀ n : Nat, ∀ a b : M, n * (a + b) = n * a + n * b
 
 attribute [instance 100] NatModule.toZero NatModule.toAdd NatModule.toHMul
 
+/--
+A module over the integers, i.e. a type with zero, addition, negation, subtraction, and scalar multiplication by integers,
+satisfying appropriate compatibilities.
+
+Equivalently, an additive commutative group.
+-/
 class IntModule (M : Type u) extends Zero M, Add M, Neg M, Sub M, HMul Int M M where
+  /-- Zero is the right identity for addition. -/
   add_zero : ∀ a : M, a + 0 = a
+  /-- Addition is commutative. -/
   add_comm : ∀ a b : M, a + b = b + a
+  /-- Addition is associative. -/
   add_assoc : ∀ a b c : M, a + b + c = a + (b + c)
+  /-- Scalar multiplication by zero is zero. -/
   zero_hmul : ∀ a : M, (0 : Int) * a = 0
+  /-- Scalar multiplication by one is the identity. -/
   one_hmul : ∀ a : M, (1 : Int) * a = a
+  /-- Scalar multiplication is distributive over addition in the integers. -/
   add_hmul : ∀ n m : Int, ∀ a : M, (n + m) * a = n * a + m * a
+  /-- Scalar multiplication of zero is zero. -/
   hmul_zero : ∀ n : Int, n * (0 : M) = 0
+  /-- Scalar multiplication is distributive over addition in the module. -/
   hmul_add : ∀ n : Int, ∀ a b : M, n * (a + b) = n * a + n * b
+  /-- Negation is the left inverse of addition. -/
   neg_add_cancel : ∀ a : M, -a + a = 0
+  /-- Subtraction is addition of the negative. -/
   sub_eq_add_neg : ∀ a b : M, a - b = a + -b
 
 namespace NatModule
@@ -155,7 +187,10 @@ theorem mul_hmul (n m : Int) (a : M) : (n * m) * a = n * (m * a) := by
 end IntModule
 
 /--
-Special case of Mathlib's `NoZeroSMulDivisors Nat α`.
+We say a module has no natural number zero divisors if
+`k * a = 0` implies `k = 0` or `a = 0` (here `k` is a natural number and `a` is an element of the module).
+
+This is a special case of Mathlib's `NoZeroSMulDivisors Nat α`.
 -/
 class NoNatZeroDivisors (α : Type u) [Zero α] [HMul Nat α α] where
   no_nat_zero_divisors : ∀ (k : Nat) (a : α), k ≠ 0 → k * a = 0 → a = 0

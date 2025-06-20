@@ -12,18 +12,29 @@ import Init.Grind.Ordered.Order
 
 namespace Lean.Grind
 
+/--
+A module over the natural numbers which is also equipped with a preorder is considered an
+ordered module if addition is compatible with the preorder.
+-/
 class NatModule.IsOrdered (M : Type u) [Preorder M] [NatModule M] where
+  /-- `a + c ≤ b + c` iff `a ≤ b`. -/
   add_le_left_iff : ∀ {a b : M} (c : M), a ≤ b ↔ a + c ≤ b + c
-  hmul_lt_hmul_iff : ∀ (k : Nat) {a b : M}, a < b → (k * a < k * b ↔ 0 < k)
-  hmul_le_hmul : ∀ {k : Nat} {a b : M}, a ≤ b → k * a ≤ k * b
 
 -- This class is actually redundant; it is available automatically when we have an
 -- `IntModule` satisfying `NatModule.IsOrdered`.
 -- Replace with a custom constructor?
+/--
+A module over the integers which is also equipped with a preorder is considered an
+ordered module if addition and negation are compatible with the preorder.
+-/
 class IntModule.IsOrdered (M : Type u) [Preorder M] [IntModule M] where
+  /-- `-a ≤ b` iff `-b ≤ a`. -/
   neg_le_iff : ∀ a b : M, -a ≤ b ↔ -b ≤ a
+  /-- `a + c ≤ b + c` iff `a ≤ b`. -/
   add_le_left : ∀ {a b : M}, a ≤ b → (c : M) → a + c ≤ b + c
+  /-- -/
   hmul_pos_iff : ∀ (k : Int) {a : M}, 0 < a → (0 < k * a ↔ 0 < k)
+  /-- -/
   hmul_nonneg : ∀ {k : Int} {a : M}, 0 ≤ k → 0 ≤ a → 0 ≤ k * a
 
 namespace NatModule.IsOrdered
@@ -34,6 +45,13 @@ variable {M : Type u} [Preorder M] [NatModule M] [NatModule.IsOrdered M]
 
 theorem add_le_right_iff {a b : M} (c : M) : a ≤ b ↔ c + a ≤ c + b := by
   rw [add_comm c a, add_comm c b, add_le_left_iff]
+
+theorem hmul_le_hmul {k : Nat} {a b : M} (h : a ≤ b) : k * a ≤ k * b := by
+  induction k with
+  | zero => simp [zero_hmul, Preorder.le_refl]
+  | succ k ih =>
+    rw [add_hmul, one_hmul, add_hmul, one_hmul]
+    exact Preorder.le_trans ((add_le_left_iff a).mp ih) ((add_le_right_iff (k * b)).mp h)
 
 theorem add_le_left {a b : M} (h : a ≤ b) (c : M) : a + c ≤ b + c :=
   (add_le_left_iff c).mp h
@@ -65,6 +83,17 @@ theorem add_lt_left_iff {a b : M} (c : M) : a < b ↔ a + c < b + c := by
 
 theorem add_lt_right_iff {a b : M} (c : M) : a < b ↔ c + a < c + b := by
   rw [add_comm c a, add_comm c b, add_lt_left_iff]
+
+theorem hmul_lt_hmul_iff (k : Nat) {a b : M} (h : a < b) : k * a < k * b ↔ 0 < k := by
+  induction k with
+  | zero => simp [zero_hmul, Preorder.lt_irrefl]
+  | succ k ih =>
+    rw [add_hmul, one_hmul, add_hmul, one_hmul]
+    simp only [Nat.zero_lt_succ, iff_true]
+    by_cases hk : 0 < k
+    · simp only [hk, iff_true] at ih
+      exact Preorder.lt_trans ((add_lt_left_iff a).mp ih) ((add_lt_right_iff (k * b)).mp h)
+    · simp [Nat.eq_zero_of_not_pos hk, zero_hmul, zero_add, h]
 
 theorem hmul_pos_iff {k : Nat} {a : M} (h : 0 < a) : 0 < k * a ↔ 0 < k:= by
   rw [← hmul_lt_hmul_iff k h, hmul_zero]
@@ -239,11 +268,6 @@ theorem add_le_add {a b c d : M} (hab : a ≤ b) (hcd : c ≤ d) : a + c ≤ b +
 
 instance : NatModule.IsOrdered M where
   add_le_left_iff := add_le_left_iff
-  hmul_lt_hmul_iff k {a b} h := by
-    simpa using hmul_lt_hmul_iff k h
-  hmul_le_hmul {k a b} h := by
-    simpa using hmul_le_hmul (Int.natCast_nonneg k) h
-
 
 end IntModule.IsOrdered
 

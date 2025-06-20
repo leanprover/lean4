@@ -455,11 +455,13 @@ Runs the given action.
 If it throws a maxRecDepth exception (nested or not), run the loop checking.
 If it does not throw, run the loop checking only if explicitly enabled.
 -/
-def withLoopChecking [Monad m] [MonadExcept Exception m] [MonadLiftT MetaM m]
+@[inline] def withLoopChecking [Monad m] [MonadExcept Exception m] [MonadRuntimeException m] [MonadLiftT MetaM m]
     (r : MkSimpContextResult) (k : m α) : m α := do
-  let x ← try
+  -- We use tryCatchRuntimeEx here, normal try-catch would swallow the trace messages
+  -- from diagnostics
+  let x ← tryCatchRuntimeEx do
       k
-    catch e =>
+    fun e => do
       if e.isMaxRecDepth || e.toMessageData.hasTag (· = `nested.runtime.maxRecDepth) then
         go (force := true)
       throw e

@@ -28,7 +28,7 @@ open Lean Meta Elab Tactic in
 elab "simp_foo_with_check" : tactic =>
   withOptions (fun o => diagnostics.set o true) do withMainContext do
     let stx ← `(tactic|simp [foo])
-    let { ctx, simprocs, dischargeWrapper } ← mkSimpContext stx (eraseLocal := false)
+    let { ctx, simprocs, dischargeWrapper, .. } ← mkSimpContext stx (eraseLocal := false)
     let stats ← dischargeWrapper.with fun discharge? => do
       simpLocation ctx simprocs discharge? (expandOptLocation stx.raw[5])
     unless stats.diag.triedThmCounter.toList.any (fun (o, _n) => o.key = ``foo.eq_2) do

@@ -82,9 +82,9 @@ theorem iunfoldr_getLsbD' {f : Fin w → α → α × Bool} (state : Nat → α)
       simp only [getLsbD_cons]
       have hj2 : j.val ≤ w := by simp
       cases (Nat.lt_or_eq_of_le (Nat.lt_succ.mp i.isLt)) with
-      | inl h3 => simp [if_neg, (Nat.ne_of_lt h3)]
+      | inl h3 => simp [(Nat.ne_of_lt h3)]
                   exact (ih hj2).1 ⟨i.val, h3⟩
-      | inr h3 => simp [h3, if_pos]
+      | inr h3 => simp [h3]
                   cases (Nat.eq_zero_or_pos j.val) with
                   | inl hj3 => congr
                                rw [← (ih hj2).2]

@@ -22,14 +22,17 @@ def registerDiscrCongr (matchDeclName : Name) (congrName : Name) (mask : Array B
 
 /--
 Returns an expression of type `goal` if `goal` is of the form `∀ (b : α) (h : a = b) ..., P b ...`
-and `hyp : P a ...`.
+and `hyp : P a ...`. `neqs` represents the amount of equalities to substitute.
 -/
-private partial def solveBySubstitution (goal hyp : Expr) : Expr := Id.run do
-  let .forallE _ _ (.forallE _ eq@(mkApp3 (.const _ us) α v _) b _) _ := goal | return hyp
-  let motive := .lam `x α (.lam `h eq b .default) .default
-  let newGoal := b.instantiateRev #[v, mkApp2 (.const ``rfl us) α v]
-  let inner := solveBySubstitution newGoal hyp
-  return mkApp4 (.const ``Eq.rec (levelZero :: us)) α v motive inner
+private def solveBySubstitution (neqs : Nat) (goal hyp : Expr) : Expr := Id.run do
+  match neqs with
+  | 0 => return hyp
+  | neqs + 1 =>
+    let .forallE _ _ (.forallE _ eq@(mkApp3 (.const _ us) α v _) b _) _ := goal | unreachable!
+    let motive := .lam `x α (.lam `h eq b .default) .default
+    let newGoal := b.instantiateRev #[v, mkApp2 (.const ``rfl us) α v]
+    let inner := solveBySubstitution neqs newGoal hyp
+    return mkApp4 (.const ``Eq.rec (levelZero :: us)) α v motive inner
 
 /--
 Make an equality hypothesis for every discriminant where `mask` is `true`.
@@ -84,7 +87,7 @@ where
     let depCVars := info.backDeps.flatMap (match cvars[·]! with | none => #[] | some (a, b) => #[a, b])
     let newType ← mkForallFVars depCVars newType
 
-    let proof := solveBySubstitution newType hyp
+    let proof := solveBySubstitution (depCVars.size / 2) newType hyp
 
     let allVars := params ++ info.backDeps.map (discrs[·]!) |>.push hyp
     let auxThmName := decl ++ `_aux |>.appendIndexAfter (i + 1)
@@ -202,7 +205,8 @@ where go discrCongrName := withConfig (fun c => { c with etaStruct := .none }) d
       let heq := mkApp4 (.const ``HEq [uelim]) lhsType lhs rhsType rhs
       let allCVars := cvars.flatMap fun | none => #[] | some (a, b) => #[a, b]
       let goal ← mkForallFVars allCVars heq
-      let proof := solveBySubstitution goal (mkApp2 (.const ``HEq.rfl [uelim]) lhsType lhs)
+      let refl := mkApp2 (.const ``HEq.rfl [uelim]) lhsType lhs
+      let proof := solveBySubstitution (allCVars.size / 2) goal refl
       let type ← mkForallFVars (params ++ fvars) goal
       let proof ← mkLambdaFVars (params ++ fvars) proof
       addDecl <| Declaration.thmDecl {

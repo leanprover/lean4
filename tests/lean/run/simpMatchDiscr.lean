@@ -246,3 +246,13 @@ info: xyz.match_1.discr_congr.{u_1} (motive : (x : Nat) → (h : x ≠ 0) → Wi
 
 theorem t (h : x = 3) : xyz x h' w = 8 := by
   simp +singlePass only [xyz, h]
+
+namespace Option
+
+#print Option.pmap.match_1.discr_congr._aux_2
+#print Option.pmap.match_1.discr_congr
+
+theorem pmap_bind {α β γ} {x : Option α} {g : α → Option β} {p : β → Prop} {f : ∀ b, p b → γ} (H)
+    (H' : ∀ (a : α), ∀ b ∈ g a, b ∈ x >>= g) :
+    pmap f (x >>= g) H = x >>= fun a ↦ pmap f (g a) fun _ h ↦ H _ (H' a _ h) := by
+  cases x <;> simp only [pmap, bind_eq_bind, bind_none, bind_some]

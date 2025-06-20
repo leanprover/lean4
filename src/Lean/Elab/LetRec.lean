@@ -9,6 +9,7 @@ import Lean.Elab.Binders
 import Lean.Elab.DeclModifiers
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.DeclarationRange
+import Lean.Elab.MutualDef
 
 namespace Lean.Elab.Term
 open Meta
@@ -18,6 +19,7 @@ structure LetRecDeclView where
   attrs         : Array Attribute
   shortDeclName : Name
   declName      : Name
+  parentName?   : Option Name
   binderIds     : Array Syntax
   type          : Expr
   mvar          : Expr -- auxiliary metavariable used to lift the 'let rec'
@@ -43,8 +45,8 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
       unless declId.isIdent do
         throwErrorAt declId "'let rec' expressions must be named"
       let shortDeclName := declId.getId
-      let currDeclName? ← getDeclName?
-      let declName := currDeclName?.getD Name.anonymous ++ shortDeclName
+      let parentName? ← getDeclName?
+      let declName := parentName?.getD Name.anonymous ++ shortDeclName
       if decls.any fun decl => decl.declName == declName then
         withRef declId do
           throwError "'{declName}' has already been declared"
@@ -67,7 +69,7 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
         liftMacroM <| expandMatchAltsIntoMatch decl decl[3]
       let termination ← elabTerminationHints ⟨attrDeclStx[3]⟩
       decls := decls.push {
-        ref := declId, attrs, shortDeclName, declName,
+        ref := declId, attrs, shortDeclName, declName, parentName?,
         binderIds, type, mvar, valStx, termination
       }
     else
@@ -94,8 +96,8 @@ private def elabLetRecDeclValues (view : LetRecView) : TermElabM (Array Expr) :=
           (mkInfo := (pure <| .inl <| mkBodyInfo view.valStx ·))
           (mkInfoOnError := (pure <| mkBodyInfo view.valStx none))
           do
-             let value ← elabTermEnsuringType view.valStx type
-             mkLambdaFVars xs value
+            let value ← elabTermEnsuringType view.valStx type
+            mkLambdaFVars xs value
 
 private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array Expr) (values : Array Expr) : TermElabM Unit := do
   let letRecsToLiftCurr := (← get).letRecsToLift
@@ -115,13 +117,14 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
       attrs          := view.attrs
       shortDeclName  := view.shortDeclName
       declName       := view.declName
+      parentName?    := view.parentName?
       lctx
       localInstances
       type           := view.type
       val            := value
       mvarId         := view.mvar.mvarId!
-      termination    := termination
-      : LetRecToLift }
+      termination
+    }
   modify fun s => { s with letRecsToLift := toLift.toList ++ s.letRecsToLift }
 
 @[builtin_term_elab «letrec»] def elabLetRec : TermElab := fun stx expectedType? => do

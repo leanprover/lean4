@@ -247,12 +247,25 @@ info: xyz.match_1.discr_congr.{u_1} (motive : (x : Nat) → (h : x ≠ 0) → Wi
 theorem t (h : x = 3) : xyz x h' w = 8 := by
   simp +singlePass only [xyz, h]
 
-namespace Option
+/-!
+Congruence principle gets generated correctly even if a discriminant is a forall.
+-/
 
-#print Option.pmap.match_1.discr_congr._aux_2
-#print Option.pmap.match_1.discr_congr
+def a (x : Nat) (h : ∀ a : Nat, x = a) : Nat :=
+  match x, h with
+  | 0, _ => 3
+  | _ + 1, _ => 9
 
-theorem pmap_bind {α β γ} {x : Option α} {g : α → Option β} {p : β → Prop} {f : ∀ b, p b → γ} (H)
-    (H' : ∀ (a : α), ∀ b ∈ g a, b ∈ x >>= g) :
-    pmap f (x >>= g) H = x >>= fun a ↦ pmap f (g a) fun _ h ↦ H _ (H' a _ h) := by
-  cases x <;> simp only [pmap, bind_eq_bind, bind_none, bind_some]
+/--
+info: a.match_1.discr_congr.{u_1} (motive : (x : Nat) → (∀ (a : Nat), x = a) → Sort u_1) (x✝ : Nat) (h✝ : ∀ (a : Nat), x✝ = a)
+  (h_1 : (x : ∀ (a : Nat), 0 = a) → motive 0 x) (h_2 : (n : Nat) → (x : ∀ (a : Nat), n + 1 = a) → motive n.succ x)
+  (x✝¹ : Nat) (heq : x✝ = x✝¹) :
+  (match x✝, h✝ with
+    | 0, x => h_1 x
+    | n.succ, x => h_2 n x) ≍
+    match x✝¹, ⋯ with
+    | 0, x => h_1 x
+    | n.succ, x => h_2 n x
+-/
+#guard_msgs in
+#check a.match_1.discr_congr

@@ -14,19 +14,21 @@ namespace Std.Iterators
 
 @[unbox]
 structure Types.StepSizeIterator (α : Type w) (m : Type w → Type w') (β : Type w) where
+  nextIdx : Nat
   n : Nat
   inner : IterM (α := α) m β
 
 instance [Iterator α m β] [IteratorAccess α m] [Monad m] :
     Iterator (Types.StepSizeIterator α m β) m β where
+  -- TODO: this is not exhaustive
   IsPlausibleStep it step :=
-    it.internalState.inner.IsPlausibleNthOutput it.internalState.n
+    it.internalState.inner.IsPlausibleNthOutput it.internalState.nextIdx
       (step.mapIterator (Types.StepSizeIterator.inner ∘ IterM.internalState))
-  step it := (fun s => ⟨s.1.mapIterator (⟨⟨it.internalState.n, ·⟩⟩), by
+  step it := (fun s => ⟨s.1.mapIterator (⟨⟨it.internalState.n, it.internalState.n, ·⟩⟩), by
       simp only [IterStep.mapIterator_mapIterator]
       refine cast ?_ s.property
       rw (occs := [1]) [← IterStep.mapIterator_id (step := s.val)]
-      congr⟩) <$> it.internalState.inner.nextAtIdx? it.internalState.n
+      congr⟩) <$> it.internalState.inner.nextAtIdx? it.internalState.nextIdx
 
 def Types.StepSizeIterator.instFinitenessRelation [Iterator α m β] [IteratorAccess α m] [Monad m]
     [Finite α m] : FinitenessRelation (Types.StepSizeIterator α m β) m where
@@ -85,10 +87,18 @@ instance Types.StepSizeIterator.instProductive [Iterator α m β] [IteratorAcces
   .of_productivenessRelation instProductivenessRelation
 
 /--
-Produces an iterator that drops `n - 1` values of `it` and then emits one value, then drops `n - 1`
-values again, and so on. In other words, it emits every `n`-th value of `it`.
+Produces an iterator that elits one value of `it`, then drops `n - 1` elements, then emits another
+value, and so on. In other words, it emits every `n`-th value of `it`, starting with the first one.
 
 If `n = 0`, the iterator behaves like for `n = 1`: It emits all values of `it`.
+
+
+**Marble diagram:**
+
+```
+it               ---1----2----3---4----5
+it.stepSize 2    ---1---------3--------5
+```
 
 **Availability:**
 
@@ -104,7 +114,7 @@ such as `PRange.iter` range iterators.
 def IterM.stepSize [Iterator α m β] [IteratorAccess α m] [Monad m]
     (it : IterM (α := α) m β) (n : Nat) :
     IterM (α := Types.StepSizeIterator α m β) m β :=
-  ⟨⟨n - 1, it⟩⟩
+  ⟨⟨0, n - 1, it⟩⟩
 
 instance Types.StepSizeIterator.instIteratorCollect {m n} [Iterator α m β]
     [IteratorAccess α m] [Monad m] [Monad n] :

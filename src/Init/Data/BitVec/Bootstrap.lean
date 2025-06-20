@@ -40,7 +40,7 @@ theorem eq_of_getLsbD_eq {x y : BitVec w}
 @[simp, bitvec_to_nat] theorem toNat_ofNat (x w : Nat) : (BitVec.ofNat w x).toNat = x % 2^w := by
   simp [BitVec.toNat, BitVec.ofNat, Fin.ofNat]
 
-@[ext] theorem eq_of_getElem_eq {x y : BitVec n} :
+@[ext, grind ext] theorem eq_of_getElem_eq {x y : BitVec n} :
         (∀ i (hi : i < n), x[i] = y[i]) → x = y :=
   fun h => BitVec.eq_of_getLsbD_eq (h ↑·)
 

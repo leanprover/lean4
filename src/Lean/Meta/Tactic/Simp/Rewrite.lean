@@ -323,6 +323,11 @@ def simpArith (e : Expr) : SimpM Step := do
     return .visit { expr := e', proof? := h }
   return .continue
 
+/--
+Given the expression `e`, returns an open term `e'` (with up to `n` loose bound variables) such that
+`fun a1 a2 .. an => e'` is equivalent to `e`. In particular, the `i`th loose bound variable of `e'`
+corresponds to the `n - i - 1`th parameter of `e` (counted from 0).
+-/
 private partial def lamBody : Nat → Expr → Expr
   | 0, e => e
   | k + 1, .lam _ _ b _ => lamBody k b
@@ -339,9 +344,10 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
     return none
   let args := e.getAppArgs
   let fn := e.getAppFn
-  let (thmName, mask) ← Match.getDiscrCongr fn.constName!
   let motive := args[info.getMotivePos]!
   let motive := lamBody info.numDiscrs motive
+  let (thmName, mask) ← Match.getDiscrCongr fn.constName!
+    (if motive.hasLooseBVars then .dep else .nondep)
   let mut thmArgs := args.extract 0 info.arity
   let mut i := 0
   let mut modified := false
@@ -375,14 +381,25 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
     i := i + 1
   unless modified do
     return none
+  unless motive.hasLooseBVars do
+    thmArgs := thmArgs.set! info.getMotivePos motive
   let prf := mkAppN (.const thmName fn.constLevels!) thmArgs
   let heq ← inferType prf
-  let mkApp4 (.const ``HEq us) α lhs _ rhs := heq |
-    trace[Meta.Tactic.simp.congr] "unexpected result type in match discr congr {heq}"
-    return none
-  let rhs := rhs.withApp fun r args => mkAppN r (args.map Expr.headBeta)
-  let prf? := if refl then none else mkApp4 (.const ``eq_of_heq us) α lhs rhs prf
-  let mut r := { expr := rhs, proof? := prf? }
+  let r ←
+    if motive.hasLooseBVars then
+      let mkApp4 (.const ``HEq us) α lhs _ rhs := heq |
+        trace[Meta.Tactic.simp.congr] "unexpected result type in match discr congr {heq}"
+        return none
+      let rhs := rhs.withApp fun r args => mkAppN r (args.map Expr.headBeta)
+      let prf? := if refl then none else mkApp4 (.const ``eq_of_heq us) α lhs rhs prf
+      pure { expr := rhs, proof? := prf? }
+    else
+      let mkApp3 (.const ``Eq us) _ _ rhs := heq |
+        trace[Meta.Tactic.simp.congr] "unexpected result type in match discr congr {heq}"
+        return none
+      let prf? := if refl then none else prf
+      pure { expr := rhs, proof? := prf? }
+  let mut r := r
   if numArgs > info.arity then
     let fn : Expr := .lam `x (← inferType r.expr) (mkAppN (.bvar 0) (args.extract info.arity)) .default
     r ← mkCongrArg fn r

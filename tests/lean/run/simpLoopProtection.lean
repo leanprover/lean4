@@ -13,7 +13,6 @@ warning: Possibly looping simp theorem: `aa`
 Note: Possibly caused by: `id`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 error: tactic 'simp' failed, nested error:
 maximum recursion depth has been reached
@@ -24,14 +23,58 @@ use `set_option diagnostics true` to get diagnostic information
 example : id a = 23 := by simp -failIfUnchanged only [aa, id]
 
 /--
+warning: Possibly looping simp theorem: `aa`
+
+Note: Possibly caused by: `id`
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+---
 error: tactic 'simp' failed, nested error:
 maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit
 use `set_option diagnostics true` to get diagnostic information
 -/
 #guard_msgs in
-set_option linter.simp.loopProtection false in
+set_option linter.simp.loopProtection true in
 example : id a = 23 := by simp -failIfUnchanged only [aa, id]
+
+/--
+error: unsolved goals
+⊢ b = 23
+-/
+#guard_msgs in
+example : id b = 23 := by simp -failIfUnchanged only [aa, id]
+
+/--
+warning: Possibly looping simp theorem: `aa`
+
+Note: Possibly caused by: `id`
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+note: this linter can be disabled with `set_option linter.simp.loopProtection false`
+---
+error: unsolved goals
+⊢ b = 23
+-/
+#guard_msgs in
+set_option linter.simp.loopProtection true in
+example : id b = 23 := by simp -failIfUnchanged only [aa, id]
+
+
+-- Because it's hard to distinguish max recursion error from other errors,
+-- the warning is generated always, even for `simp made no progress` errors
+
+/--
+warning: Possibly looping simp theorem: `aa`
+
+Note: Possibly caused by: `id`
+
+Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
+---
+error: simp made no progress
+-/
+#guard_msgs in
+example : b = 23 := by simp only [aa, id]
 
 /--
 warning: Possibly looping simp theorem: `ab`
@@ -39,14 +82,12 @@ warning: Possibly looping simp theorem: `ab`
 Note: Possibly caused by: `ba`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 warning: Possibly looping simp theorem: `ba`
 
 Note: Possibly caused by: `ab`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 error: tactic 'simp' failed, nested error:
 maximum recursion depth has been reached
@@ -62,14 +103,12 @@ warning: Possibly looping simp theorem: `ab`
 Note: Possibly caused by: `ba`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 warning: Possibly looping simp theorem: `ba`
 
 Note: Possibly caused by: `ab`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 error: tactic 'simp' failed, nested error:
 maximum recursion depth has been reached
@@ -85,14 +124,12 @@ warning: Possibly looping simp theorem: `← ab`
 Note: Possibly caused by: `← ba`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 warning: Possibly looping simp theorem: `← ba`
 
 Note: Possibly caused by: `← ab`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 error: tactic 'simp' failed, nested error:
 maximum recursion depth has been reached
@@ -111,7 +148,6 @@ warning: Possibly looping simp theorem: `ab`
 Note: Possibly caused by: `h`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 error: tactic 'simp' failed, nested error:
 maximum recursion depth has been reached
@@ -130,14 +166,12 @@ warning: Possibly looping simp theorem: `Nat.add_assoc`
 Note: Possibly caused by: `(Nat.add_assoc _ _ _).symm`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 warning: Possibly looping simp theorem: `(Nat.add_assoc _ _ _).symm`
 
 Note: Possibly caused by: `Nat.add_assoc`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 error: tactic 'simp' failed, nested error:
 maximum recursion depth has been reached
@@ -158,7 +192,6 @@ warning: Possibly looping simp theorem: `Tree.size.eq_1`
 Note: Possibly caused by: `Tree.size`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 error: tactic 'simp' failed, nested error:
 maximum recursion depth has been reached
@@ -191,12 +224,10 @@ example : a > 0 := by simp only [b1ab]
 warning: Possibly looping simp theorem: `baab`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 warning: Possibly looping simp theorem: `baab`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 error: tactic 'simp' failed, nested error:
 maximum recursion depth has been reached
@@ -241,14 +272,12 @@ warning: Possibly looping simp theorem: `c.eq_1`
 Note: Possibly caused by: `ac` and `c`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 warning: Possibly looping simp theorem: `ac`
 
 Note: Possibly caused by: `c`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 error: tactic 'simp' failed, nested error:
 maximum recursion depth has been reached
@@ -264,21 +293,18 @@ warning: Possibly looping simp theorem: `dc`
 Note: Possibly caused by: `c` and `ac`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 warning: Possibly looping simp theorem: `c.eq_1`
 
 Note: Possibly caused by: `ac` and `c`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 warning: Possibly looping simp theorem: `ac`
 
 Note: Possibly caused by: `c`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 error: tactic 'simp' failed, nested error:
 maximum recursion depth has been reached
@@ -295,14 +321,12 @@ warning: Possibly looping simp theorem: `c.eq_1`
 Note: Possibly caused by: `ac` and `c`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 warning: Possibly looping simp theorem: `ac`
 
 Note: Possibly caused by: `c`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 error: tactic 'simp' failed, nested error:
 maximum recursion depth has been reached
@@ -316,30 +340,23 @@ example (h : c = 1) : d > 0 := by simp only [dc, h, ca, ac, Nat.one_pos]
 
 
 /-!
-Check that `simp?` does not leak the rewrites done during loop protection.
+Simp? does not print the warnings for now. Let’s see if users find that helpful or confusing.
 -/
+
 /--
-warning: Possibly looping simp theorem: `dc`
+error: tactic 'simp' failed, nested error:
+maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+-/
+#guard_msgs in
+example : d > 0 := by simp? only [dc, ca, ac]; exact testSorry
 
-Note: Possibly caused by: `ca` and `ac`
-
-Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
----
-warning: Possibly looping simp theorem: `ca`
-
-Note: Possibly caused by: `ac`
-
-Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
----
-warning: Possibly looping simp theorem: `ac`
-
-Note: Possibly caused by: `ca`
-
-Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
----
+/-!
+But we can turn it on:
+-/
+set_option linter.simp.loopProtection true in
+/--
 error: tactic 'simp' failed, nested error:
 maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit
@@ -378,7 +395,6 @@ warning: Possibly looping simp theorem: `fbffa`
 Note: Possibly caused by: `ab`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
 ---
 error: tactic 'simp' failed, nested error:
 maximum recursion depth has been reached

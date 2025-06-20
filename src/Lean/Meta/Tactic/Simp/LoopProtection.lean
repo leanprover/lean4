@@ -11,7 +11,7 @@ import Lean.Linter.Basic
 namespace Lean.Meta.Simp
 
 register_builtin_option linter.simp.loopProtection : Bool := {
-  defValue := true
+  defValue := false
   descr := "checks simp arguments for obviously looping theorems"
 }
 
@@ -38,17 +38,25 @@ def mkLoopWarningMsg (thm : SimpTheorem) : SimpM MessageData := do
     passing `- theoremName` to `simp`."
   pure msg
 
+def shouldCheckLoops (force : Bool) (ctxt : Simp.Context) : CoreM Bool := do
+  if ctxt.config.singlePass then return false
+  if force then return true
+  return linter.simp.loopProtection.get (← getOptions)
+
 /--
 Main entry point to the loop protection mechanis: Checks if the given theorem is looping in the
 current simp set, and logs a warning if it does.
 
 Assumes that `withRef` is set appropriately for the warning.
--/
-def checkLoops (ctxt : Simp.Context) (methods : Methods) (thm : SimpTheorem) : MetaM Unit := do
-  -- No loop checking when disabled or in single pass mode
-  if !(linter.simp.loopProtection.get (← getOptions)) || ctxt.config.singlePass then return
 
-  -- Ignore theorems depending on the local context for nowPermutating and local theorems are never checked, so accept when starting
+With `force := off`, only runs when `linter.simp.loopProtection` is enabled and presents it as a
+linter. With `force := on` (typically after `simp` threw an exception) it prints plain warnings.
+-/
+def checkLoops (force : Bool) (ctxt : Simp.Context) (methods : Methods) (thm : SimpTheorem) : MetaM Unit := do
+  -- No loop checking when disabled or in single pass mode
+  unless (← shouldCheckLoops force ctxt) do return
+
+  -- Ignore theorems depending on the local context for now
   if thm.proof.hasFVar then return
 
   let type ← inferType (← thm.getValue)
@@ -63,4 +71,7 @@ def checkLoops (ctxt : Simp.Context) (methods : Methods) (thm : SimpTheorem) : M
             let _ ← simp rhs
           fun ex => do
             trace[Meta.Tactic.simp.loopProtection] "loop protection for {← ppOrigin thm.origin}: got exception{indentD ex.toMessageData}"
-            Linter.logLint linter.simp.loopProtection (← getRef) (← mkLoopWarningMsg thm)
+            if force then
+              logWarning (← mkLoopWarningMsg thm)
+            else
+              Linter.logLint linter.simp.loopProtection (← getRef) (← mkLoopWarningMsg thm)

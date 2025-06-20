@@ -14,7 +14,6 @@ import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Simp.Arith
 import Lean.Meta.Tactic.Simp.Simproc
 import Lean.Meta.Tactic.Simp.Attr
-import Lean.Meta.Tactic.Simp.LoopProtection
 import Lean.Meta.BinderNameHint
 
 namespace Lean.Meta.Simp

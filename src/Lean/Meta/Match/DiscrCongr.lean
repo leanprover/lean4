@@ -22,7 +22,7 @@ def registerDiscrCongr (matchDeclName : Name) (congrName : Name) (mask : Array B
 
 /--
 Returns an expression of type `goal` if `goal` is of the form `∀ (b : α) (h : a = b) ..., P b ...`
-and `hyp : P a ...`. `neqs` represents the amount of equalities to substitute.
+and `hyp : P a ...`. `neqs` represents the number of equalities to substitute.
 -/
 private def solveBySubstitution (neqs : Nat) (goal hyp : Expr) : Expr := Id.run do
   match neqs with

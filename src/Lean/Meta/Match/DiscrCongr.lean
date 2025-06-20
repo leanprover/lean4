@@ -183,7 +183,7 @@ where go discrCongrName := withConfig (fun c => { c with etaStruct := .none }) d
         mask := mask.push true
     withDiscrCongrEqs discrBody matcher.numDiscrs discrs mask fun cvars => do -- congruence vars
       let lhs := mkAppN matchBase fvars
-      let rhsDiscrs ← mkDiscrParams discrCongrName cval.levelParams params.pop discrs cvars info
+      let rhsDiscrs ← mkDiscrParams discrs cvars info
       let rhsType := mkAppN params.back! rhsDiscrs -- motive
       let rhsAlts ←
         if matcher.getNumDiscrEqs = 0 then

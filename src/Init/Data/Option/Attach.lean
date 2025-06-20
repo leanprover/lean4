@@ -95,6 +95,7 @@ theorem attach_eq_some : ∀ (o : Option α) (x : {x // o = some x}), o.attach =
   | none, ⟨x, h⟩ => by simp at h
   | some a, ⟨x, h⟩ => by simpa using h
 
+@[grind]
 theorem mem_attach : ∀ (o : Option α) (x : {x // o = some x}), x ∈ o.attach :=
   attach_eq_some
 

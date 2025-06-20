@@ -8,8 +8,8 @@ import Init.Control.Lawful.Basic
 import Init.Data.Subtype
 import Init.PropLemmas
 import Init.Classical
-import Std.Data.Internal.LawfulMonadLiftFunction
-import Std.Data.Iterators.PostConditionMonad
+import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
+import Init.Data.Iterators.PostconditionMonad
 
 namespace Std.Internal
 

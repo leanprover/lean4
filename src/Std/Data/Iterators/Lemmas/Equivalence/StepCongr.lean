@@ -92,7 +92,7 @@ private theorem IterM.Equiv.step_eq.aux {α₁ α₂ : Type w} {m : Type w → T
 private theorem IterM.Equiv.step_eq.aux_subtypeMk_congr {α : Type u} {P Q R : α → Prop}
     {h₁ : ∀ a, P a → R a}
     {h₂ : ∀ a, Q a → R a} (h : P = Q) :
-    HEq (fun (a : α) (ha : P a) => Subtype.mk a (h₁ a ha))
+    (fun (a : α) (ha : P a) => Subtype.mk a (h₁ a ha)) ≍
       (fun (a : α) (ha : Q a) => Subtype.mk a (h₂ a ha)) := by
   cases h
   simp

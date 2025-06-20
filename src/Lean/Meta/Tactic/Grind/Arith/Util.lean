@@ -152,9 +152,9 @@ def isIntModuleVirtualParent (parent? : Option Expr) : Bool :=
   | none => false
   | some parent => parent == getIntModuleVirtualParent
 
-def getIsCharInst? (u : Level) (type : Expr) (ringInst : Expr) : MetaM (Option (Expr × Nat)) := do withNewMCtxDepth do
+def getIsCharInst? (u : Level) (type : Expr) (semiringInst : Expr) : MetaM (Option (Expr × Nat)) := do withNewMCtxDepth do
   let n ← mkFreshExprMVar (mkConst ``Nat)
-  let charType := mkApp3 (mkConst ``Grind.IsCharP [u]) type ringInst n
+  let charType := mkApp3 (mkConst ``Grind.IsCharP [u]) type semiringInst n
   let .some charInst ← trySynthInstance charType | pure none
   let n ← instantiateMVars n
   let some n ← evalNat n |>.run

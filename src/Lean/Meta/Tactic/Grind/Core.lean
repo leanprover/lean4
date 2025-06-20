@@ -353,7 +353,7 @@ private def addEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
 private def addEq (lhs rhs proof : Expr) : GoalM Unit := do
   addEqCore lhs rhs proof false
 
-/-- Adds a new heterogeneous equality `HEq lhs rhs`. It assumes `lhs` and `rhs` have already been internalized. -/
+/-- Adds a new heterogeneous equality `lhs ≍ rhs`. It assumes `lhs` and `rhs` have already been internalized. -/
 private def addHEq (lhs rhs proof : Expr) : GoalM Unit := do
   addEqCore lhs rhs proof true
 

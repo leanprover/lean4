@@ -160,6 +160,7 @@ where
     let hsmulFn? ← getHSMulFn?
     let hsmulNatFn? ← getHSMulNatFn?
     let ringId? ← CommRing.getRingId? type
+    let semiringInst? ← getInst? ``Grind.Semiring
     let ringInst? ← getInst? ``Grind.Ring
     let fieldInst? ← getInst? ``Grind.Field
     let getOne? : GoalM (Option Expr) := do
@@ -179,7 +180,7 @@ where
           return none
       return some inst
     let ringIsOrdInst? ← getRingIsOrdInst?
-    let charInst? ← if let some ringInst := ringInst? then getIsCharInst? u type ringInst else pure none
+    let charInst? ← if let some semiringInst := semiringInst? then getIsCharInst? u type semiringInst else pure none
     let getNoNatZeroDivInst? : GoalM (Option Expr) := do
       let hmulNat := mkApp3 (mkConst ``HMul [0, u, u]) Nat.mkType type type
       let .some hmulInst ← trySynthInstance hmulNat | return none

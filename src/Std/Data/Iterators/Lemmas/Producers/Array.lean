@@ -5,6 +5,8 @@ Authors: Paul Reichert
 -/
 prelude
 import Std.Data.Iterators.Lemmas.Consumers.Collect
+import Std.Data.Iterators.Producers.Array
+import Std.Data.Iterators.Producers.List
 import Std.Data.Iterators.Lemmas.Producers.Monadic.Array
 
 /-!

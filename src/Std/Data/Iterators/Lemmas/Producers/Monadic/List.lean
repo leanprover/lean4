@@ -4,10 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
+import Init.Data.Iterators.Consumers
+import Init.Data.Iterators.Lemmas.Consumers.Monadic
+import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 import Std.Data.Iterators.Producers.Monadic.List
-import Std.Data.Iterators.Consumers
-import Std.Data.Iterators.Lemmas.Consumers.Monadic
-import Std.Data.Internal.LawfulMonadLiftFunction
+import Std.Data.Iterators.Lemmas.Equivalence.Basic
 
 /-!
 # Lemmas about list iterators

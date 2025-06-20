@@ -41,6 +41,20 @@ def foo [Add α] (v w : Vec α n) (f : α → α) (a : α) : α :=
 `simp` does not try to apply congruence to parameters with forward dependencies (e.g. `n` in `map`).
 -/
 
+/--
+info: Vec.map.match_1.discr_congr.{u_1, u_2} {α : Type u_1} (motive : (n : Nat) → Vec α n → Sort u_2) (n✝ : Nat)
+  (v✝ : Vec α n✝) (h_1 : Unit → motive 0 Vec.nil)
+  (h_2 : (a : α) → (n : Nat) → (as : Vec α n) → motive (n + 1) (Vec.cons a as)) (v✝¹ : Vec α n✝) (heq : v✝ = v✝¹) :
+  (match n✝, v✝ with
+    | .(0), Vec.nil => h_1 ()
+    | .(n + 1), Vec.cons a as => h_2 a n as) ≍
+    match n✝, v✝¹ with
+    | .(0), Vec.nil => h_1 ()
+    | .(n + 1), Vec.cons a as => h_2 a n as
+-/
+#guard_msgs in
+#check Vec.map.match_1.discr_congr
+
 theorem ex1 (a b : Nat) (as : Vec Nat n) : foo (Vec.cons a as) (Vec.cons b as) id 0 = a + b := by
   simp [foo]
 
@@ -64,6 +78,19 @@ def test1 (n : Nat) : Nat :=
   | 0 => 32
   | _ + 1 => 0
 
+/--
+info: test1.match_1.discr_congr.{u_1} (motive : Nat → Sort u_1) (n✝ : Nat) (h_1 : n✝ = 0 → motive 0)
+  (h_2 : (n : Nat) → n✝ = n.succ → motive n.succ) (n✝¹ : Nat) (heq : n✝ = n✝¹) :
+  (match h : n✝ with
+    | 0 => h_1 h
+    | n.succ => h_2 n h) ≍
+    match h : n✝¹ with
+    | 0 => h_1 ⋯
+    | n.succ => h_2 n ⋯
+-/
+#guard_msgs in
+#check test1.match_1.discr_congr
+
 example (h : a = 3) : test1 a = 0 := by
   simp [test1, h]
 
@@ -75,6 +102,17 @@ associated with them).
 def test2 (n : Nat) (h : n ≠ 0) : Nat :=
   match _ : n, _ : h with
   | k + 1, _ => k
+
+/--
+info: test2.match_1.discr_congr.{u_1} (motive : (n : Nat) → n ≠ 0 → Sort u_1) (n✝ : Nat) (h✝ : n✝ ≠ 0)
+  (h_1 : (k : Nat) → (x : k + 1 ≠ 0) → n✝ = k.succ → h✝ ≍ x → motive k.succ x) (n✝¹ : Nat) (heq : n✝ = n✝¹) :
+  (match h : n✝, h : h✝ with
+    | k.succ, x => h_1 k x h h) ≍
+    match h : n✝¹, h : ⋯ with
+    | k.succ, x => h_1 k x ⋯ ⋯
+-/
+#guard_msgs in
+#check test2.match_1.discr_congr
 
 example (h : a = 3) : test2 a h' = 2 := by
   simp [test2, h]
@@ -99,6 +137,21 @@ def abc (x : Nat) : Test x :=
   | 0 => Test.mk 27
   | 1 => Test.mk 5
   | _ + 2 => Test.mk 3
+
+/--
+info: abc.match_1.discr_congr.{u_1} (motive : Nat → Sort u_1) (x✝ : Nat) (h_1 : Unit → motive 0) (h_2 : Unit → motive 1)
+  (h_3 : (n : Nat) → motive n.succ.succ) (x✝¹ : Nat) (heq : x✝ = x✝¹) :
+  (match x✝ with
+    | 0 => h_1 ()
+    | 1 => h_2 ()
+    | n.succ.succ => h_3 n) ≍
+    match x✝¹ with
+    | 0 => h_1 ()
+    | 1 => h_2 ()
+    | n.succ.succ => h_3 n
+-/
+#guard_msgs in
+#check abc.match_1.discr_congr
 
 /--
 error: unsolved goals
@@ -145,6 +198,22 @@ def abc2 (x y : Nat) : Test x :=
   | _, 1 => Test.mk 5
   | _, _ + 2 => Test.mk 3
 
+/--
+info: abc2.match_1.discr_congr.{u_1} (motive : Nat → Nat → Sort u_1) (x✝ y✝ : Nat) (h_1 : (x : Nat) → motive x 0)
+  (h_2 : (x : Nat) → motive x 1) (h_3 : (x n : Nat) → motive x n.succ.succ) (x✝¹ : Nat) (heq : x✝ = x✝¹) (y✝¹ : Nat) :
+  y✝ = y✝¹ →
+    (match x✝, y✝ with
+      | x, 0 => h_1 x
+      | x, 1 => h_2 x
+      | x, n.succ.succ => h_3 x n) ≍
+      match x✝¹, y✝¹ with
+      | x, 0 => h_1 x
+      | x, 1 => h_2 x
+      | x, n.succ.succ => h_3 x n
+-/
+#guard_msgs in
+#check abc2.match_1.discr_congr
+
 example (_h : a = 3) (h' : b = 3) : (abc2 a b).value = 3 := by
   simp only [abc2]
   fail_if_success simp only [_h]
@@ -161,9 +230,19 @@ def xyz (x : Nat) (h : x ≠ 0) (w : WithProof h) : Nat :=
   | 3, _, _ => 8
   | _, _, _ => 2
 
+/--
+info: xyz.match_1.discr_congr.{u_1} (motive : (x : Nat) → (h : x ≠ 0) → WithProof h → Sort u_1) (x✝ : Nat) (h✝ : x✝ ≠ 0)
+  (w✝ : WithProof h✝) (h_1 : (x : 3 ≠ 0) → (x_1 : WithProof x) → motive 3 x x_1)
+  (h_2 : (x : Nat) → (x_1 : x ≠ 0) → (x_2 : WithProof x_1) → motive x x_1 x_2) (x✝¹ : Nat) (heq : x✝ = x✝¹) :
+  (match x✝, h✝, w✝ with
+    | 3, x, x_1 => h_1 x x_1
+    | x, x_1, x_2 => h_2 x x_1 x_2) ≍
+    match x✝¹, ⋯, ⋯ with
+    | 3, x, x_1 => h_1 x x_1
+    | x, x_1, x_2 => h_2 x x_1 x_2
+-/
+#guard_msgs in
+#check xyz.match_1.discr_congr
+
 theorem t (h : x = 3) : xyz x h' w = 8 := by
-  simp [xyz, h]
-
-#print t
-
-#print xyz.match_1.discr_congr
+  simp +singlePass only [xyz, h]

@@ -273,6 +273,8 @@ The result of elaborating a full array of simp arguments and applying them to th
 structure ElabSimpArgsResult where
   ctx      : Simp.Context
   simprocs : Simp.SimprocsArray
+  /-- The elaborated simp arguments with syntax -/
+  simpArgs : Array (Syntax × ElabSimpArgResult)
 
 /-- Implements the effect of the `*` attribute. -/
 def elabStarArg (ctx : Simp.Context) : MetaM Simp.Context := do
@@ -297,7 +299,7 @@ def elabStarArg (ctx : Simp.Context) : MetaM Simp.Context := do
 def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsArray) (eraseLocal : Bool)
     (kind : SimpKind) (ignoreStarArg := false) : TacticM ElabSimpArgsResult := do
   if stx.isNone then
-    return { ctx, simprocs }
+    return { ctx, simprocs, simpArgs := #[] }
   else
     /-
     syntax simpPre := "↓"
@@ -310,16 +312,16 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
       let zetaDeltaSet ← toZetaDeltaSet stx ctx
       withTrackingZetaDeltaSet zetaDeltaSet do
         let mut starArg := false -- only after * we can erase local declarations
-        let mut args : Array ElabSimpArgResult := #[]
+        let mut args : Array (Syntax × ElabSimpArgResult) := #[]
         for argStx in stx[1].getSepArgs do
           let arg ← elabSimpArg ctx.indexConfig (eraseLocal || starArg) kind argStx
           starArg := !ignoreStarArg && (starArg || arg matches .star)
-          args := args.push arg
+          args := args.push (argStx, arg)
 
         let mut thmsArray := ctx.simpTheorems
         let mut thms      := thmsArray[0]!
         let mut simprocs  := simprocs
-        for ref in stx[1].getSepArgs, arg in args do
+        for (ref, arg) in args do
           match arg with
           | .addEntries entries =>
             for entry in entries do
@@ -354,7 +356,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
         if !ignoreStarArg && starArg then
           ctx ← elabStarArg ctx
 
-        return { ctx, simprocs }
+        return { ctx, simprocs, simpArgs := args}
     -- If recovery is disabled, then we want simp argument elaboration failures to be exceptions.
     -- This affects `addSimpTheorem`.
     if (← read).recover then
@@ -401,6 +403,8 @@ structure MkSimpContextResult where
   ctx              : Simp.Context
   simprocs         : Simp.SimprocsArray
   dischargeWrapper : Simp.DischargeWrapper
+  /-- The elaborated simp arguments with syntax -/
+  simpArgs         : Array (Syntax × ElabSimpArgResult) := #[]
 
 /--
    Create the `Simp.Context` for the `simp`, `dsimp`, and `simp_all` tactics.
@@ -544,7 +548,7 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
   (location)?
 -/
 @[builtin_tactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => withMainContext do withSimpDiagnostics do
-  let { ctx, simprocs, dischargeWrapper } ← mkSimpContext stx (eraseLocal := false)
+  let { ctx, simprocs, dischargeWrapper, .. } ← mkSimpContext stx (eraseLocal := false)
   let stats ← dischargeWrapper.with fun discharge? =>
     simpLocation ctx simprocs discharge? (expandOptLocation stx[5])
   if tactic.simp.trace.get (← getOptions) then

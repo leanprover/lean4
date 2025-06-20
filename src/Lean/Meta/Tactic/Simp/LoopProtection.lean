@@ -12,7 +12,16 @@ namespace Lean.Meta.Simp
 
 register_builtin_option linter.simp.loopProtection : Bool := {
   defValue := false
-  descr := "checks simp arguments for obviously looping theorems"
+  descr := "\
+    When enabled, `simp` will check if the theorems passed as simp arguments (`simp [thm1]`) \
+    are possibly looping in the current simp set.\n\
+    \n\
+    More precisely, it tries to simplify the right-hand side of the theorem and complains if \
+    that fails (typically because of) running out of recursion depth.\n\
+    \n\
+    This is a relatively expensive check, so it i disabled by default, and only run after \
+    a `simp` call actually failed with a recursion depth error."
+
 }
 
 @[inline] def withFreshUsedTheorems (x : SimpM α) : SimpM α := do

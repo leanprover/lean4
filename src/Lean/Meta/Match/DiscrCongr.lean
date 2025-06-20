@@ -203,7 +203,7 @@ where go discrCongrName := withConfig (fun c => { c with etaStruct := .none }) d
       let allCVars := cvars.flatMap fun | none => #[] | some (a, b) => #[a, b]
       let goal ← mkForallFVars allCVars heq
       let proof := solveBySubstitution goal (mkApp2 (.const ``HEq.rfl [uelim]) lhsType lhs)
-      let type ← mkForallFVars (params ++ fvars) heq
+      let type ← mkForallFVars (params ++ fvars) goal
       let proof ← mkLambdaFVars (params ++ fvars) proof
       addDecl <| Declaration.thmDecl {
         name := discrCongrName

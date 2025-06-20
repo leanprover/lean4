@@ -6,8 +6,8 @@ Authors: Paul Reichert
 prelude
 import Init.Data.Nat.Lemmas
 import Init.RCases
-import Std.Data.Iterators.Consumers
-import Std.Data.Iterators.Internal.Termination
+import Init.Data.Iterators.Consumers
+import Init.Data.Iterators.Internal.Termination
 
 /-!
 # Array iterator
@@ -123,6 +123,14 @@ instance {α : Type w} [Monad m] [Monad n] : IteratorLoop (ArrayIterator α) m n
 
 @[always_inline, inline]
 instance {α : Type w} [Monad m] [Monad n] : IteratorLoopPartial (ArrayIterator α) m n :=
+  .defaultImplementation
+
+@[always_inline, inline]
+instance {α : Type w} [Monad m] : IteratorSize (ArrayIterator α) m :=
+  .defaultImplementation
+
+@[always_inline, inline]
+instance {α : Type w} [Monad m] : IteratorSizePartial (ArrayIterator α) m :=
   .defaultImplementation
 
 end Std.Iterators

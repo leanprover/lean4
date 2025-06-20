@@ -1142,7 +1142,7 @@ return x_16;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_tryThisProvider___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-if (lean_obj_tag(x_4) == 9)
+if (lean_obj_tag(x_4) == 10)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_6 = lean_ctor_get(x_4, 0);

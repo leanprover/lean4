@@ -129,7 +129,7 @@ where
     let commRing := mkApp (mkConst ``Grind.CommRing [u]) type
     let .some commRingInst ← trySynthInstance commRing | return none
     trace_goal[grind.ring] "new ring: {type}"
-    let charInst? ← getIsCharInst? u type ringInst
+    let charInst? ← getIsCharInst? u type semiringInst
     let noZeroDivInst? ← getNoZeroDivInst? u type
     trace_goal[grind.ring] "NoNatZeroDivisors available: {noZeroDivInst?.isSome}"
     let field := mkApp (mkConst ``Grind.Field [u]) type

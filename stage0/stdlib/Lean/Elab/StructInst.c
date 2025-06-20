@@ -12156,7 +12156,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_addCompletionInfo___at___private_Lean_Elab_
 _start:
 {
 lean_object* x_7; lean_object* x_8; 
-x_7 = lean_alloc_ctor(7, 1, 0);
+x_7 = lean_alloc_ctor(8, 1, 0);
 lean_ctor_set(x_7, 0, x_1);
 x_8 = l_Lean_Elab_pushInfoLeaf___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_normalizeField___spec__4(x_7, x_2, x_3, x_4, x_5, x_6);
 return x_8;
@@ -29061,7 +29061,7 @@ lean_ctor_set(x_33, 1, x_13);
 lean_ctor_set(x_33, 2, x_31);
 lean_ctor_set(x_33, 3, x_2);
 lean_ctor_set(x_33, 4, x_12);
-lean_ctor_set_tag(x_27, 6);
+lean_ctor_set_tag(x_27, 7);
 lean_ctor_set(x_27, 0, x_33);
 x_34 = l_Lean_Elab_pushInfoLeaf___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_normalizeField___spec__4___closed__3;
 lean_ctor_set_tag(x_14, 1);
@@ -29088,7 +29088,7 @@ lean_ctor_set(x_39, 1, x_13);
 lean_ctor_set(x_39, 2, x_37);
 lean_ctor_set(x_39, 3, x_2);
 lean_ctor_set(x_39, 4, x_12);
-x_40 = lean_alloc_ctor(6, 1, 0);
+x_40 = lean_alloc_ctor(7, 1, 0);
 lean_ctor_set(x_40, 0, x_39);
 x_41 = l_Lean_Elab_pushInfoLeaf___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_normalizeField___spec__4___closed__3;
 lean_ctor_set_tag(x_14, 1);
@@ -29177,10 +29177,10 @@ lean_ctor_set(x_58, 2, x_56);
 lean_ctor_set(x_58, 3, x_2);
 lean_ctor_set(x_58, 4, x_12);
 if (lean_is_scalar(x_55)) {
- x_59 = lean_alloc_ctor(6, 1, 0);
+ x_59 = lean_alloc_ctor(7, 1, 0);
 } else {
  x_59 = x_55;
- lean_ctor_set_tag(x_59, 6);
+ lean_ctor_set_tag(x_59, 7);
 }
 lean_ctor_set(x_59, 0, x_58);
 x_60 = l_Lean_Elab_pushInfoLeaf___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_normalizeField___spec__4___closed__3;
@@ -29288,10 +29288,10 @@ lean_ctor_set(x_80, 2, x_78);
 lean_ctor_set(x_80, 3, x_2);
 lean_ctor_set(x_80, 4, x_12);
 if (lean_is_scalar(x_77)) {
- x_81 = lean_alloc_ctor(6, 1, 0);
+ x_81 = lean_alloc_ctor(7, 1, 0);
 } else {
  x_81 = x_77;
- lean_ctor_set_tag(x_81, 6);
+ lean_ctor_set_tag(x_81, 7);
 }
 lean_ctor_set(x_81, 0, x_80);
 x_82 = l_Lean_Elab_pushInfoLeaf___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_normalizeField___spec__4___closed__3;
@@ -48599,7 +48599,7 @@ lean_ctor_set(x_45, 1, x_7);
 lean_ctor_set(x_45, 2, x_25);
 lean_ctor_set(x_45, 3, x_41);
 lean_ctor_set(x_45, 4, x_8);
-lean_ctor_set_tag(x_32, 6);
+lean_ctor_set_tag(x_32, 7);
 lean_ctor_set(x_32, 0, x_45);
 x_46 = l_Lean_Elab_pushInfoLeaf___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_normalizeField___spec__4___closed__3;
 lean_ctor_set_tag(x_28, 1);
@@ -48628,7 +48628,7 @@ lean_ctor_set(x_52, 1, x_7);
 lean_ctor_set(x_52, 2, x_25);
 lean_ctor_set(x_52, 3, x_41);
 lean_ctor_set(x_52, 4, x_8);
-x_53 = lean_alloc_ctor(6, 1, 0);
+x_53 = lean_alloc_ctor(7, 1, 0);
 lean_ctor_set(x_53, 0, x_52);
 x_54 = l_Lean_Elab_pushInfoLeaf___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_normalizeField___spec__4___closed__3;
 lean_ctor_set_tag(x_28, 1);
@@ -48750,10 +48750,10 @@ lean_ctor_set(x_77, 2, x_25);
 lean_ctor_set(x_77, 3, x_73);
 lean_ctor_set(x_77, 4, x_8);
 if (lean_is_scalar(x_76)) {
- x_78 = lean_alloc_ctor(6, 1, 0);
+ x_78 = lean_alloc_ctor(7, 1, 0);
 } else {
  x_78 = x_76;
- lean_ctor_set_tag(x_78, 6);
+ lean_ctor_set_tag(x_78, 7);
 }
 lean_ctor_set(x_78, 0, x_77);
 x_79 = l_Lean_Elab_pushInfoLeaf___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_normalizeField___spec__4___closed__3;

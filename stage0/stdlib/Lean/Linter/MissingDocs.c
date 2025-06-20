@@ -5545,7 +5545,7 @@ return x_5;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Linter_MissingDocs_checkDecl___spec__11___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-if (lean_obj_tag(x_2) == 11)
+if (lean_obj_tag(x_2) == 12)
 {
 lean_object* x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_2, 0);

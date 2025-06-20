@@ -1,3 +1,5 @@
+set_option linter.unusedVariables false
+
 set_option linter.unusedSimpArgs true
 
 def some_def := 1
@@ -217,3 +219,20 @@ example (h1 : P) (h2 : Q) : P ∧ Q := by
   constructor
   · simp [h1, h2]
   · simp [h1, h2]
+
+-- Inside a macro?
+
+macro "mySimp" h:term : tactic =>
+  `(tactic| simp [$h:term, id_eq])
+
+/--
+warning: This simp argument is unused:
+  h
+
+Hint: Omit it from the simp argument list.
+  simp ̵[̵h̵]̵
+-/
+#guard_msgs in
+example {P : Prop} (h : P) : True ∧ True := by constructor <;> simp [h]
+
+example {P : Prop} (h : P) : True ∧ True := by constructor <;> mySimp h

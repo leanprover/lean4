@@ -4725,7 +4725,7 @@ end List
 namespace Array
 
 @[deprecated size_toArray (since := "2024-12-11")]
-theorem size_mk (as : List α) : (Array.mk as).size = as.length := by simp [size]
+theorem size_mk (as : List α) : (Array.mk as).size = as.length := by simp
 
 @[deprecated getElem?_eq_getElem (since := "2024-12-11")]
 theorem getElem?_lt

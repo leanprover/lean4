@@ -9,8 +9,6 @@ prelude
 import Init.Data.Vector.Lemmas
 import Init.Data.Array.Extract
 
-set_option maxHeartbeats 20000000
-
 /-!
 # Lemmas about `Vector.extract`
 -/

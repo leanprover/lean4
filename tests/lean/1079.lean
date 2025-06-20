@@ -2,7 +2,7 @@ theorem bad : ∀ (m n : Nat), (if m = n then Ordering.eq else Ordering.gt) = Or
   intros m n
   cases (Nat.decEq m n) with -- an error as expected: "Alternative `isFalse` has not bee provided"
   | isTrue h =>
-    set_option trace.Meta.Tactic.simp true in
+    set_option trace.Meta.Tactic.simp.rewrite true in
     simp [h]
 
 theorem bad' : ∀ (m n : Nat), (if m = n then Ordering.eq else Ordering.gt) = Ordering.lt → False := by

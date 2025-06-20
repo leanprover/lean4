@@ -711,13 +711,13 @@ theorem findFinIdx?_append {xs ys : Array α} {p : α → Bool} :
 theorem isSome_findFinIdx? {xs : Array α} {p : α → Bool} :
     (xs.findFinIdx? p).isSome = xs.any p := by
   rcases xs with ⟨xs⟩
-  simp [Array.size]
+  simp [Array.size, -length_toList]
 
 @[simp, grind =]
 theorem isNone_findFinIdx? {xs : Array α} {p : α → Bool} :
     (xs.findFinIdx? p).isNone = xs.all (fun x => ¬ p x) := by
   rcases xs with ⟨xs⟩
-  simp [Array.size]
+  simp [Array.size, -length_toList]
 
 @[simp] theorem findFinIdx?_subtype {p : α → Prop} {xs : Array { x // p x }}
     {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
@@ -726,7 +726,7 @@ theorem isNone_findFinIdx? {xs : Array α} {p : α → Bool} :
   simp only [List.findFinIdx?_toArray, hf, List.findFinIdx?_subtype]
   rw [findFinIdx?_congr List.unattach_toArray]
   simp only [Option.map_map, Function.comp_def, Fin.cast_trans]
-  simp [Array.size]
+  simp [Array.size, -length_toList]
 
 /-! ### idxOf
 
@@ -805,7 +805,7 @@ theorem idxOf?_eq_map_finIdxOf?_val [BEq α] {xs : Array α} {a : α} :
 @[simp, grind =] theorem finIdxOf?_eq_none_iff [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
     xs.finIdxOf? a = none ↔ a ∉ xs := by
   rcases xs with ⟨xs⟩
-  simp [List.finIdxOf?_eq_none_iff, Array.size]
+  simp [List.finIdxOf?_eq_none_iff, Array.size, -length_toList]
 
 @[simp] theorem finIdxOf?_eq_some_iff [BEq α] [LawfulBEq α] {xs : Array α} {a : α} {i : Fin xs.size} :
     xs.finIdxOf? a = some i ↔ xs[i] = a ∧ ∀ j (_ : j < i), ¬xs[j] = a := by
@@ -817,12 +817,12 @@ theorem idxOf?_eq_map_finIdxOf?_val [BEq α] {xs : Array α} {a : α} :
 theorem isSome_finIdxOf? [BEq α] [PartialEquivBEq α] {xs : Array α} {a : α} :
     (xs.finIdxOf? a).isSome = xs.contains a := by
   rcases xs with ⟨xs⟩
-  simp [Array.size]
+  simp [Array.size, -length_toList]
 
 @[simp, grind =]
 theorem isNone_finIdxOf? [BEq α] [PartialEquivBEq α] {xs : Array α} {a : α} :
     (xs.finIdxOf? a).isNone = !xs.contains a := by
   rcases xs with ⟨xs⟩
-  simp [Array.size]
+  simp [Array.size, -length_toList]
 
 end Array

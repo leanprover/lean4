@@ -25,6 +25,7 @@ builtin_initialize registerTraceClass `Meta.Tactic.simp.discharge (inherited := 
 builtin_initialize registerTraceClass `Meta.Tactic.simp.rewrite (inherited := true)
 builtin_initialize registerTraceClass `Meta.Tactic.simp.unify (inherited := true)
 builtin_initialize registerTraceClass `Meta.Tactic.simp.ground (inherited := true)
+builtin_initialize registerTraceClass `Meta.Tactic.simp.loopProtection (inherited := true)
 builtin_initialize registerTraceClass `Meta.Tactic.simp.numSteps
 builtin_initialize registerTraceClass `Meta.Tactic.simp.heads
 builtin_initialize registerTraceClass `Debug.Meta.Tactic.simp

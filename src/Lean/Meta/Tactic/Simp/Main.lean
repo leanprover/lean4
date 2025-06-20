@@ -742,6 +742,7 @@ def simpStep (e : Expr) : SimpM Result := do
   | .fvar ..     => return { expr := (← reduceFVar (← getConfig) (← getSimpTheorems) e) }
 
 def cacheResult (e : Expr) (cfg : Config) (r : Result) : SimpM Result := do
+  trace[Debug.Meta.Tactic.simp] "caching {e} ==> {r.expr}"
   if cfg.memoize && r.cache then
     modify fun s => { s with cache := s.cache.insert e r }
   return r
@@ -752,6 +753,7 @@ partial def simpLoop (e : Expr) : SimpM Result := withIncRecDepth do
     throwError "simp failed, maximum number of steps exceeded"
   else
     checkSystem "simp"
+    trace[Debug.Meta.Tactic.simp] "simpLoop {e}"
     modify fun s => { s with numSteps := s.numSteps + 1 }
     match (← pre e) with
     | .done r  => cacheResult e cfg r
@@ -795,33 +797,6 @@ where
     trace[Meta.Tactic.simp.heads] "{repr e.toHeadIndex}"
     simpLoop e
 
-@[inline] private def withSimpContext (ctx : Context) (x : MetaM α) : MetaM α := do
-  withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <|
-  withTrackingZetaDeltaSet ctx.zetaDeltaSet <|
-  withReducible x
-
-/--
-Adds the fvars from `usedZetaDelta` to `s` if they are present in
-the set `zetaDeltaSet` of fvars that are explicitly added to the simp context.
-
-*Note:* `usedZetaDelta` might contain fvars that are not in `zetaDeltaSet`,
-since within `withResetZetaDeltaFVarIds` it is possible for `whnf` to be run with different configurations,
-ones that allow zeta-delta reducing fvars not in `zetaDeltaSet` (e.g. `withInferTypeConfig` sets `zetaDelta := true`).
-This also means that `usedZetaDelta` set might be reporting fvars in `zetaDeltaSet` that weren't "used".
--/
-private def updateUsedSimpsWithZetaDeltaCore (s : UsedSimps) (zetaDeltaSet : FVarIdSet) (usedZetaDelta : FVarIdSet) : UsedSimps :=
-  zetaDeltaSet.fold (init := s) fun s fvarId =>
-    if usedZetaDelta.contains fvarId then
-      s.insert <| .fvar fvarId
-    else
-      s
-
-private def updateUsedSimpsWithZetaDelta (ctx : Context) (stats : Stats) : MetaM Stats := do
-  let used := stats.usedTheorems
-  let used := updateUsedSimpsWithZetaDeltaCore used ctx.zetaDeltaSet ctx.initUsedZetaDelta
-  let used := updateUsedSimpsWithZetaDeltaCore used ctx.zetaDeltaSet (← getZetaDeltaFVarIds)
-  return { stats with usedTheorems := used }
-
 @[inline] def withCatchingRuntimeEx (x : SimpM α) : SimpM α := do
   if (← getConfig).catchRuntime then
     tryCatchRuntimeEx x
@@ -835,30 +810,14 @@ private def updateUsedSimpsWithZetaDelta (ctx : Context) (stats : Stats) : MetaM
     x
 
 def mainCore (e : Expr) (ctx : Context) (s : State := {}) (methods : Methods := {}) : MetaM (Result × State) := do
-  let ctx ← ctx.setLctxInitIndices
-  withSimpContext ctx do
-    let (r, s) ← go e methods.toMethodsRef ctx |>.run s
-    trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
-    let stats ← updateUsedSimpsWithZetaDelta ctx { s with }
-    let s := { s with diag := stats.diag, usedTheorems := stats.usedTheorems }
-    return (r, s)
-where
-  go (e : Expr) : SimpM Result :=
-    withCatchingRuntimeEx (simp e)
+  SimpM.run ctx s methods <| withCatchingRuntimeEx <| simp e
 
 def main (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Result × Stats) := do
   let (r, s) ← mainCore e ctx { stats with } methods
   return (r, { s with })
 
 def dsimpMainCore (e : Expr) (ctx : Context) (s : State := {}) (methods : Methods := {}) : MetaM (Expr × State) := do
-  withSimpContext ctx do
-    let (r, s) ← go e methods.toMethodsRef ctx |>.run s
-    let stats ← updateUsedSimpsWithZetaDelta ctx { s with }
-    let s := { s with diag := stats.diag, usedTheorems := stats.usedTheorems}
-    pure (r, s)
-where
-  go (e : Expr) : SimpM Expr :=
-    withCatchingRuntimeEx (dsimp e)
+  SimpM.run ctx s methods <| withCatchingRuntimeEx <| dsimp e
 
 def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Expr × Stats) := do
   let (r, s) ← dsimpMainCore e ctx { stats with } methods

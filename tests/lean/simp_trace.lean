@@ -1,3 +1,4 @@
+set_option linter.simp.loopProtection false
 set_option tactic.simp.trace true
 set_option trace.Meta.Tactic.simp.rewrite true
 

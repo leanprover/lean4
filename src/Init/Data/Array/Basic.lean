@@ -1737,7 +1737,7 @@ decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 @[simp] theorem popWhile_empty {p : α → Bool} :
     popWhile p #[] = #[] := by
-  simp [popWhile]
+  rw [popWhile]; rfl
 
 /--
 Returns a new array that contains the longest prefix of elements that satisfy the predicate `p` from

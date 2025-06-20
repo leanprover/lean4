@@ -37,13 +37,12 @@ theorem RArray.get_ofFn {n : Nat} (f : Fin n → α) (h : 0 < n) (i : Fin n) :
   go 0 n h (Nat.le_refl _) (Nat.zero_le _) i.2
 where
   go lb ub h1 h2 (h3 : lb ≤ i.val) (h3 : i.val < ub) : (ofFn.go f lb ub h1 h2).get i = f i := by
-    induction lb, ub, h1, h2 using RArray.ofFn.go.induct (n := n)
+    fun_induction RArray.ofFn.go
     case case1 =>
-      simp [ofFn.go, RArray.get_eq_getImpl, RArray.getImpl]
+      simp only [get_eq_getImpl, getImpl]
       congr
       omega
     case case2 ih1 ih2 hiu =>
-      rw [ofFn.go]; simp only [↓reduceDIte, *]
       simp [RArray.get_eq_getImpl, RArray.getImpl] at *
       split
       · rw [ih1] <;> omega
@@ -55,9 +54,9 @@ theorem RArray.size_ofFn {n : Nat} (f : Fin n → α) (h : 0 < n) :
   go 0 n h (Nat.le_refl _)
 where
   go lb ub h1 h2 : (ofFn.go f lb ub h1 h2).size = ub - lb := by
-    induction lb, ub, h1, h2 using RArray.ofFn.go.induct (n := n)
-    case case1 => simp [ofFn.go, size]
-    case case2 ih1 ih2 hiu => rw [ofFn.go]; simp +zetaDelta [size, *]; omega
+    fun_induction ofFn.go
+    case case1 => simp [size]
+    case case2 ih1 ih2 hiu => simp[size]; omega
 
 open Meta in
 def RArray.toExpr (ty : Expr) (f : α → Expr) (a : RArray α) : MetaM Expr := do

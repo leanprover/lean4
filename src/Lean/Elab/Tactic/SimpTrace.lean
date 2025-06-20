@@ -30,7 +30,7 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
       `(tactic| simp!%$tk $cfg:optConfig $(discharger)? $[only%$o]? $[[$args,*]]? $(loc)?)
     else
       `(tactic| simp%$tk $cfg:optConfig $[$discharger]? $[only%$o]? $[[$args,*]]? $(loc)?)
-    let { ctx, simprocs, dischargeWrapper } ← mkSimpContext stx (eraseLocal := false)
+    let { ctx, simprocs, dischargeWrapper, ..} ← mkSimpContext stx (eraseLocal := false)
     let ctx := if bang.isSome then ctx.setAutoUnfold else ctx
     let stats ← dischargeWrapper.with fun discharge? =>
       simpLocation ctx (simprocs := simprocs) discharge? <|

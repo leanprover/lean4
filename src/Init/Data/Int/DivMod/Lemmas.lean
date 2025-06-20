@@ -2987,8 +2987,8 @@ theorem self_le_ediv_of_nonpos_of_nonneg {x y : Int} (hx : x ≤ 0) (hy : 0 ≤ 
   · simp [hx', zero_ediv]
   · by_cases hy : y = 0
     · simp [hy]; omega
-    · simp only [ge_iff_le, Int.le_ediv_iff_mul_le (c := y) (a := x) (b := x) (by omega),
-        show (x * y ≤ x) = (x * y ≤ x * 1) by rw [Int.mul_one], Int.mul_one]
+    · rw [Int.le_ediv_iff_mul_le (c := y) (a := x) (b := x) (by omega),
+          show (x * y ≤ x) = (x * y ≤ x * 1) by rw [Int.mul_one]]
       apply Int.mul_le_mul_of_nonpos_left (a := x) (b := y) (c  := (1 : Int)) (by omega) (by omega)
 
 theorem neg_self_le_ediv_of_nonneg_of_nonpos (x y : Int) (hx : 0 ≤ x) (hy : y ≤ 0) :

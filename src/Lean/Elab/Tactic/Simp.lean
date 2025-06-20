@@ -513,6 +513,11 @@ structure SimpArgUsageMask where
   mask : Array Bool
 deriving TypeName
 
+register_builtin_option linter.unusedSimpArgs : Bool := {
+  defValue := false, -- at least until we updated our own init
+  descr := "enable the linter that warns when bound variable names are nullary constructor names"
+}
+
 /--
 Checks the simp arguments for unused ones, and stores a bitmask of unused ones in the info tree,
 to be picked up by the linter.
@@ -599,11 +604,6 @@ where
 def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
   let stats ← x
   Simp.reportDiag stats
-
-register_builtin_option linter.unusedSimpArgs : Bool := {
-  defValue := true,
-  descr := "enable the linter that warns when bound variable names are nullary constructor names"
-}
 
 /-
   "simp" optConfig (discharger)? (" only")? (" [" ((simpStar <|> simpErase <|> simpLemma),*,?) "]")?

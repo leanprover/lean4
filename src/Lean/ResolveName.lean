@@ -99,6 +99,19 @@ private def containsDeclOrReserved (env : Environment) (declName : Name) : Bool 
   -- avoid blocking from `Environment.contains` if possible
   env.containsOnBranch declName || isReservedName env declName || env.contains declName
 
+private partial def resolvePrivateName (env : Environment) (declName : Name) : Option Name := do
+  if containsDeclOrReserved env (mkPrivateName env declName) then
+    return mkPrivateName env declName
+  -- Under the module system, we assume there are at most a few `import all`s and we can just test
+  -- them on by one.
+  guard <| env.header.isModule
+  -- As `all` is not transitive, we only have to check the direct imports.
+  env.header.imports.findSome? fun i => do
+    guard i.importAll
+    let n := mkPrivateNameCore i.module declName
+    guard <| containsDeclOrReserved env n
+    return n
+
 /-- Check whether `ns ++ id` is a valid namespace name and/or there are aliases names `ns ++ id`. -/
 private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : List Name :=
   let resolvedId    := ns ++ id
@@ -107,9 +120,7 @@ private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : L
   if (containsDeclOrReserved env resolvedId && (!id.isAtomic || !isProtected env resolvedId)) then
     resolvedId :: resolvedIds
   else
-    -- Check whether environment contains the private version. That is, `_private.<module_name>.ns.id`.
-    let resolvedIdPrv := mkPrivateName env resolvedId
-    if containsDeclOrReserved env resolvedIdPrv then resolvedIdPrv :: resolvedIds
+    if let some resolvedIdPrv := resolvePrivateName env resolvedId then resolvedIdPrv :: resolvedIds
     else resolvedIds
 
 /-- Check surrounding namespaces -/
@@ -129,9 +140,7 @@ private def resolveExact (env : Environment) (id : Name) : Option Name :=
     else
       -- We also allow `_root_` when accessing private declarations.
       -- If we change our minds, we should just replace `resolvedId` with `id`
-      let resolvedIdPrv := mkPrivateName env resolvedId
-      if containsDeclOrReserved env resolvedIdPrv then some resolvedIdPrv
-      else none
+      resolvePrivateName env resolvedId
 
 /-- Check `OpenDecl`s -/
 private def resolveOpenDecls (env : Environment) (id : Name) : List OpenDecl → List Name → List Name
@@ -178,8 +187,7 @@ def resolveGlobalName (env : Environment) (ns : Name) (openDecls : List OpenDecl
         | some newId => [(newId, projs)]
         | none =>
           let resolvedIds := if containsDeclOrReserved env id then [id] else []
-          let idPrv       := mkPrivateName env id
-          let resolvedIds := if containsDeclOrReserved env idPrv then [idPrv] ++ resolvedIds else resolvedIds
+          let resolvedIds := if let some idPrv := resolvePrivateName env id then [idPrv] ++ resolvedIds else resolvedIds
           let resolvedIds := resolveOpenDecls env id openDecls resolvedIds
           let resolvedIds := getAliases env id (skipProtected := id.isAtomic) ++ resolvedIds
           match resolvedIds with

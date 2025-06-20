@@ -70,7 +70,7 @@ theorem contains_emptyWithCapacity {a : α} {c} : (emptyWithCapacity c : DHashMa
   Raw₀.contains_emptyWithCapacity
 
 @[simp, grind] theorem not_mem_emptyWithCapacity {a : α} {c} : ¬a ∈ (emptyWithCapacity c : DHashMap α β) := by
-  simp [mem_iff_contains]
+  simp [← contains_iff_mem]
 
 @[simp, grind =] theorem contains_empty {a : α} : (∅ : DHashMap α β).contains a = false :=
   contains_emptyWithCapacity
@@ -2028,7 +2028,7 @@ theorem contains_ofList [EquivBEq α] [LawfulHashable α]
 theorem mem_ofList [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)} {k : α} :
     k ∈ ofList l ↔ (l.map Sigma.fst).contains k := by
-  simp [mem_iff_contains]
+  simp [← contains_iff_mem]
 
 theorem get?_ofList_of_contains_eq_false [LawfulBEq α]
     {l : List ((a : α) × β a)} {k : α}
@@ -2177,7 +2177,7 @@ theorem contains_ofList [EquivBEq α] [LawfulHashable α]
 theorem mem_ofList [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α} :
     k ∈ ofList l ↔ (l.map Prod.fst).contains k := by
-  simp [mem_iff_contains]
+  simp [← contains_iff_mem]
 
 theorem get?_ofList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α}
@@ -2320,7 +2320,7 @@ theorem contains_unitOfList [EquivBEq α] [LawfulHashable α]
 theorem mem_unitOfList [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} :
     k ∈ unitOfList l ↔ l.contains k := by
-  simp [mem_iff_contains]
+  simp [← contains_iff_mem]
 
 theorem getKey?_unitOfList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} (contains_eq_false : l.contains k = false) :

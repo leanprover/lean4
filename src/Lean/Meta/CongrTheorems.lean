@@ -381,11 +381,12 @@ builtin_initialize
         let info ← getConstInfo p
         let f := mkConst p (info.levelParams.map mkLevelParam)
         let congrThm ← mkHCongrWithArity f numArgs
-        addDecl <| Declaration.thmDecl {
-           name, type := congrThm.type, value := congrThm.proof
-           levelParams := info.levelParams
-        }
-        modifyEnv fun env => congrKindsExt.insert env name congrThm.argKinds
+        realizeConst p name do
+          addDecl <| Declaration.thmDecl {
+            name, type := congrThm.type, value := congrThm.proof
+            levelParams := info.levelParams
+          }
+          modifyEnv fun env => congrKindsExt.insert env name congrThm.argKinds
         return true
       catch _ => return false
     else if s == congrSimpSuffix then
@@ -395,11 +396,12 @@ builtin_initialize
         let info ← getFunInfo f
         let some congrThm ← mkCongrSimpCore? f info (← getCongrSimpKinds f info)
           | return false
-        addDecl <| Declaration.thmDecl {
-           name, type := congrThm.type, value := congrThm.proof
-           levelParams := cinfo.levelParams
-        }
-        modifyEnv fun env => congrKindsExt.insert env name congrThm.argKinds
+        realizeConst p name do
+          addDecl <| Declaration.thmDecl {
+            name, type := congrThm.type, value := congrThm.proof
+            levelParams := cinfo.levelParams
+          }
+          modifyEnv fun env => congrKindsExt.insert env name congrThm.argKinds
         return true
       catch _ => return false
     else

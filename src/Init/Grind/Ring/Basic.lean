@@ -31,37 +31,86 @@ theorem ofNat_eq_iff_of_lt {x y : Nat} (h₁ : x < p) (h₂ : y < p) :
 
 namespace Lean.Grind
 
+/--
+A semiring, i.e. a type equipped with addition, multiplication, and a map from the natural numbers,
+satisfying appropriate compatibilities.
+
+Use `Ring` instead if the type also has negation,
+`CommSemiring` if the multiplication is commutative,
+or `CommRing` if the type has negation and multiplication is commutative.
+-/
 class Semiring (α : Type u) extends Add α, Mul α, HPow α Nat α where
-  [ofNat : ∀ n, OfNat α n]
+  /--
+  In every semiring there is a canonical map from the natural numbers to the semiring,
+  providing the values of `0` and `1`. Note that this function need not be injective.
+  -/
   [natCast : NatCast α]
+  /--
+  Natural number numerals in the semiring.
+  The field `ofNat_eq_natCast` ensures that these are (propositionally) equal to the values of `natCast`.
+  -/
+  [ofNat : ∀ n, OfNat α n]
+  /-- Addition is associative. -/
   add_assoc : ∀ a b c : α, a + b + c = a + (b + c)
+  /-- Addition is commutative. -/
   add_comm : ∀ a b : α, a + b = b + a
+  /-- Zero is the right identity for addition. -/
   add_zero : ∀ a : α, a + 0 = a
+  /-- Multiplication is associative. -/
   mul_assoc : ∀ a b c : α, a * b * c = a * (b * c)
+  /-- One is the right identity for multiplication. -/
   mul_one : ∀ a : α, a * 1 = a
+  /-- One is the left identity for multiplication. -/
   one_mul : ∀ a : α, 1 * a = a
+  /-- Left distributivity of multiplication over addition. -/
   left_distrib : ∀ a b c : α, a * (b + c) = a * b + a * c
+  /-- Right distributivity of multiplication over addition. -/
   right_distrib : ∀ a b c : α, (a + b) * c = a * c + b * c
+  /-- Zero is right absorbing for multiplication. -/
   zero_mul : ∀ a : α, 0 * a = 0
+  /-- Zero is left absorbing for multiplication. -/
   mul_zero : ∀ a : α, a * 0 = 0
+  /-- The zeroth power of any element is one. -/
   pow_zero : ∀ a : α, a ^ 0 = 1
+  /-- The successor power law for exponentiation. -/
   pow_succ : ∀ a : α, ∀ n : Nat, a ^ (n + 1) = (a ^ n) * a
+  /-- Numerals are consistently defined with respect to addition. -/
   ofNat_succ : ∀ a : Nat, OfNat.ofNat (α := α) (a + 1) = OfNat.ofNat a + 1 := by intros; rfl
+  /-- Numerals are consistently defined with respect to the canonical map from natural numbers. -/
   ofNat_eq_natCast : ∀ n : Nat, OfNat.ofNat (α := α) n = Nat.cast n := by intros; rfl
 
+/--
+A ring, i.e. a type equipped with addition, negation, multiplication, and a map from the integers,
+satisfying appropriate compatibilities.
+
+Use `CommRing` if the multiplication is commutative.
+-/
 class Ring (α : Type u) extends Semiring α, Neg α, Sub α where
+  /-- In every ring there is a canonical map from the integers to the ring. -/
   [intCast : IntCast α]
+  /-- Negation is the left inverse of addition. -/
   neg_add_cancel : ∀ a : α, -a + a = 0
+  /-- Subtraction is addition of the negative. -/
   sub_eq_add_neg : ∀ a b : α, a - b = a + -b
+  /-- The canonical map from the integers is consistent with the canonical map from the natural numbers. -/
   intCast_ofNat : ∀ n : Nat, Int.cast (OfNat.ofNat (α := Int) n) = OfNat.ofNat (α := α) n := by intros; rfl
+  /-- The canonical map from the integers is consistent with negation. -/
   intCast_neg : ∀ i : Int, Int.cast (R := α) (-i) = -Int.cast i := by intros; rfl
 
+/--
+A commutative semiring, i.e. a semiring with commutative multiplication.
+
+Use `CommRing` if the type has negation.
+-/
 class CommSemiring (α : Type u) extends Semiring α where
   mul_comm : ∀ a b : α, a * b = b * a
   one_mul := by intro a; rw [mul_comm, mul_one]
   mul_zero := by intro a; rw [mul_comm, zero_mul]
   right_distrib := by intro a b c; rw [mul_comm, left_distrib, mul_comm c, mul_comm c]
 
+/--
+A commutative ring, i.e. a ring with commutative multiplication.
+-/
 class CommRing (α : Type u) extends Ring α, CommSemiring α
 
 -- We reduce the priority of these parent instances,
@@ -313,7 +362,16 @@ end CommSemiring
 
 open Semiring Ring CommSemiring CommRing
 
+/--
+A ring `α` has characteristic `p` if `OfNat.ofNat x = 0` iff `x % p = 0`.
+
+Note that for `p = 0`, we have `x % p = x`, so this says that `OfNat.ofNat` is injective from `Nat` to `α`.
+
+In the case of a semiring, we take the stronger condition that
+`OfNat.ofNat x = OfNat.ofNat y` iff `x % p = y % p`.
+-/
 class IsCharP (α : Type u) [Semiring α] (p : outParam Nat) where
+  /-- Two numerals in a semiring are equal iff they are congruent module `p` in the natural numbers. -/
   ofNat_ext_iff (p) : ∀ {x y : Nat}, OfNat.ofNat (α := α) x = OfNat.ofNat (α := α) y ↔ x % p = y % p
 
 namespace IsCharP

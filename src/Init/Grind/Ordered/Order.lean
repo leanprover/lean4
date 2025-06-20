@@ -12,9 +12,12 @@ namespace Lean.Grind
 
 /-- A preorder is a reflexive, transitive relation `≤` with `a < b` defined in the obvious way. -/
 class Preorder (α : Type u) extends LE α, LT α where
+  /-- The less-than-or-equal relation is reflexive. -/
   le_refl : ∀ a : α, a ≤ a
+  /-- The less-than-or-equal relation is transitive. -/
   le_trans : ∀ {a b c : α}, a ≤ b → b ≤ c → a ≤ c
   lt := fun a b => a ≤ b ∧ ¬b ≤ a
+  /-- The less-than relation is determined by the less-than-or-equal relation. -/
   lt_iff_le_not_le : ∀ {a b : α}, a < b ↔ a ≤ b ∧ ¬b ≤ a := by intros; rfl
 
 namespace Preorder
@@ -52,7 +55,9 @@ theorem not_gt_of_lt {a b : α} (h : a < b) : ¬a > b :=
 
 end Preorder
 
+/-- A partial order is a preorder with the additional property that `a ≤ b` and `b ≤ a` implies `a = b`. -/
 class PartialOrder (α : Type u) extends Preorder α where
+  /-- The less-than-or-equal relation is antisymmetric. -/
   le_antisymm : ∀ {a b : α}, a ≤ b → b ≤ a → a = b
 
 namespace PartialOrder
@@ -71,7 +76,9 @@ theorem le_iff_lt_or_eq {a b : α} : a ≤ b ↔ a < b ∨ a = b := by
 
 end PartialOrder
 
+/-- A linear order is a partial order with the additional property that every pair of elements is comparable. -/
 class LinearOrder (α : Type u) extends PartialOrder α where
+  /-- For every two elements `a` and `b`, either `a ≤ b` or `b ≤ a`. -/
   le_total : ∀ a b : α, a ≤ b ∨ b ≤ a
 
 namespace LinearOrder

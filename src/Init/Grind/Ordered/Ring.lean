@@ -11,6 +11,10 @@ import Init.Grind.Ordered.Module
 
 namespace Lean.Grind
 
+/--
+A ring which is also equipped with a preorder is considered a strict ordered ring if addition, negation,
+and multiplication are compatible with the preorder, and `0 < 1`.
+-/
 class Ring.IsOrdered (R : Type u) [Ring R] [Preorder R] extends IntModule.IsOrdered R where
   /-- In a strict ordered semiring, we have `0 < 1`. -/
   zero_lt_one : (0 : R) < 1

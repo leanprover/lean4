@@ -57,7 +57,7 @@ def Iter.Partial.toList {α : Type w} {β : Type w}
   it.it.toIterM.allowNontermination.toList.run
 
 /--
-This class charaterizes how the plausibility behavior (`IsPlausibleStep`) and the actual iteration
+This class characterizes how the plausibility behavior (`IsPlausibleStep`) and the actual iteration
 behavior (`it.step`) should relate to each other for pure iterators. Intuitively, a step should
 only be plausible if it is possible. For simplicity's sake, the actual definition is weaker but
 presupposes that the iterator is finite.

@@ -16,10 +16,33 @@ namespace lean {
 
 using namespace std;
 
+bool is_safe_ascii(const char *s) {
+    while (s && *s) {
+        char c = *s++;
+        if (!((c >= 'a' && c <= 'z') ||
+              (c >= 'A' && c <= 'Z') ||
+              (c >= '0' && c <= '9') ||
+              c == '-' || c == '_' || c == '.' ||
+              c == ':' || c == '/' || c == '+' ||
+              c == '~' || c == '@' || c == '=' ||
+              c == ',' || c == '%'))
+            return false;
+    }
+    return true;
+}
+
 // Std.Internal.IO.Async.DNS.getAddrInfo (host service : @& String) (family : UInt8) : IO (IO.Promise (Except IO.Error (Array IPAddr)))
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_arg service, uint8_t family, obj_arg /* w */) {
     char const * name_cstr = lean_string_cstr(name);
     char const * service_cstr = lean_string_cstr(service);
+
+    if (!is_safe_ascii(name_cstr)) {
+        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("name is not ASCII.")));
+    }
+
+    if (!is_safe_ascii(service_cstr)) {
+        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("service is not ASCII.")));
+    }
 
     lean_object* promise = lean_promise_new();
     mark_mt(promise);

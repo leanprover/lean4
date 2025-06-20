@@ -62,10 +62,23 @@ def runDNS : Async Unit := do
   unless infos.size > 0 do
     (throw <| IO.userError <| "No DNS results for google.com" : IO _)
 
+def runDNSNoAscii : Async Unit := do
+  let infos ← await <| (timeout (← DNS.getAddrInfo "google.com▸" "http") 10000)
+
+  unless infos.size > 0 do
+    (throw <| IO.userError <| "No DNS results for google.com" : IO _)
+
 def runReverseDNS : Async Unit := do
   let result ← await (DNS.getNameInfo (.v4 ⟨.ofParts 8 8 8 8, 53⟩))
   assertBEq result.service "domain"
   assertBEq result.host "dns.google"
 
 #eval runDNS.run >>= AsyncTask.block
+
+#eval
+  try do
+    runDNSNoAscii.run >>= AsyncTask.block
+    throw (IO.Error.userError "should have failed")
+  catch _ => pure ()
+
 #eval runReverseDNS.run >>= AsyncTask.block

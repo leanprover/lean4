@@ -220,7 +220,7 @@ where go discrCongrName := withConfig (fun c => { c with etaStruct := .none }) d
     match matcher.uElimPos? with
     | none => levelZero
     | some idx => .param cval.levelParams[idx]!
-  forallBoundedTelescope cval.type matcher.getFirstDiscrPos fun params body =>
+  forallBoundedTelescope cval.type matcher.numParams fun params body =>
   withMotive body kind matcher.numDiscrs fun motiveVar motive discrBody =>
   forallTelescope discrBody fun fvars lhsType => do -- discrs + alts
     let discrs := fvars.extract 0 matcher.numDiscrs

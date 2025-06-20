@@ -103,6 +103,7 @@ A commutative semiring, i.e. a semiring with commutative multiplication.
 Use `CommRing` if the type has negation.
 -/
 class CommSemiring (α : Type u) extends Semiring α where
+  /-- Multiplication is commutative. -/
   mul_comm : ∀ a b : α, a * b = b * a
   one_mul := by intro a; rw [mul_comm, mul_one]
   mul_zero := by intro a; rw [mul_comm, zero_mul]
@@ -486,11 +487,11 @@ theorem intCast_eq_zero_iff (x : Int) : (x : α) = 0 ↔ x % p = 0 :=
     rw [ofNat_eq_natCast] at this
     rw [this]
     simp only [Int.ofNat_dvd]
-    simp only [← Nat.dvd_iff_mod_eq_zero, Int.natAbs_natCast, 
+    simp only [← Nat.dvd_iff_mod_eq_zero, Int.natAbs_natCast,
       ite_eq_left_iff]
     by_cases h : p ∣ x + 1
     · simp [h]
-    · simp only [h, not_false_eq_true, 
+    · simp only [h, not_false_eq_true,
         forall_const, false_iff, ne_eq]
       by_cases w : p = 0
       · simp [w]

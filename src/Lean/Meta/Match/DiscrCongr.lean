@@ -21,6 +21,17 @@ def registerDiscrCongr (matchDeclName : Name) (congrName : Name) (mask : Array B
     map.insert matchDeclName (congrName, mask)
 
 /--
+Returns an expression of type `goal` if `goal` is of the form `∀ (b : α) (h : a = b) ..., P b ...`
+and `hyp : P a ...`.
+-/
+private partial def solveBySubstitution (goal hyp : Expr) : Expr := Id.run do
+  let .forallE _ _ (.forallE _ eq@(mkApp3 (.const _ us) α v _) b _) _ := goal | return hyp
+  let motive := .lam `x α (.lam `h eq b .default) .default
+  let newGoal := b.instantiateRev #[v, mkApp2 (.const ``rfl us) α v]
+  let inner := solveBySubstitution newGoal hyp
+  return mkApp4 (.const ``Eq.rec (levelZero :: us)) α v motive inner
+
+/--
 Make an equality hypothesis for every discriminant where `mask` is `true`.
 -/
 private def withDiscrCongrEqs (discrBody : Expr) (ndiscrs : Nat)
@@ -64,19 +75,6 @@ where
       return acc
   termination_by cvars.size - i
 
-  solve (goal hyp : Expr) (deps : Array Nat) (i : Nat) : MetaM Expr := do
-    if h : i < deps.size then
-      let dep := deps[i]
-      let some _ := cvars[dep]! | solve goal hyp deps (i + 1)
-      let .forallE _ _ (.forallE _ eq@(mkApp3 (.const _ [u]) α v _) b _) _ := goal | unreachable!
-      let motive := .lam `x α (.lam `h eq b .default) .default
-      let newGoal := b.instantiateRev #[v, mkApp2 (.const ``rfl [u]) α v]
-      let inner ← solve newGoal hyp deps (i + 1)
-      return mkApp4 (.const ``Eq.rec [levelZero, u]) α v motive inner
-    else
-      return hyp
-  termination_by deps.size - i
-
   writeProof (i : Nat) (info : ParamInfo) (acc : Array Expr) : MetaM Expr := do
     let hyp := discrs[i]!
     let prevVars := info.backDeps.map (discrs[·]!)
@@ -86,7 +84,7 @@ where
     let depCVars := info.backDeps.flatMap (match cvars[·]! with | none => #[] | some (a, b) => #[a, b])
     let newType ← mkForallFVars depCVars newType
 
-    let proof ← solve newType hyp info.backDeps 0
+    let proof := solveBySubstitution newType hyp
 
     let allVars := params ++ info.backDeps.map (discrs[·]!) |>.push hyp
     let auxThmName := decl ++ `_aux |>.appendIndexAfter (i + 1)
@@ -202,22 +200,11 @@ where go discrCongrName := withConfig (fun c => { c with etaStruct := .none }) d
           alts.mapM (mkAltParam matcher.discrInfos rhsDiscrs cvars)
       let rhs := mkAppN (mkAppN matchBase rhsDiscrs) rhsAlts
       let heq := mkApp4 (.const ``HEq [uelim]) lhsType lhs rhsType rhs
-      let proof ← mkFreshExprSyntheticOpaqueMVar heq
-      -- solve by induction on all equalities
-      let mut goal := proof.mvarId!
-      for cvar in cvars do
-        match cvar with
-        | some (_, eq) =>
-          let #[subgoal] ← goal.induction eq.fvarId! ``Eq.rec |
-            throwError "unexpected amount of subgoals"
-          goal := subgoal.mvarId
-        | none => pure ()
-      goal.hrefl
-
-      let proof ← instantiateMVars proof
       let allCVars := cvars.flatMap fun | none => #[] | some (a, b) => #[a, b]
-      let type ← mkForallFVars (params ++ fvars ++ allCVars) heq
-      let proof ← mkLambdaFVars (params ++ fvars ++ allCVars) proof
+      let goal ← mkForallFVars allCVars heq
+      let proof := solveBySubstitution goal (mkApp2 (.const ``HEq.rfl [uelim]) lhsType lhs)
+      let type ← mkForallFVars (params ++ fvars) heq
+      let proof ← mkLambdaFVars (params ++ fvars) proof
       addDecl <| Declaration.thmDecl {
         name := discrCongrName
         levelParams := cval.levelParams

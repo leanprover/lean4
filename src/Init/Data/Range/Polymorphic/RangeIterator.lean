@@ -332,4 +332,8 @@ instance RangeIterator.instIteratorAccess [UpwardEnumerable α] [SupportsUpperBo
             apply IterM.IsPlausibleNthOutput.done
             simp [Monadic.isPlausibleStep_iff, Monadic.step, heq', hout])⟩
 
+instance RangeIterator.instLawfulDeterministicIterator [UpwardEnumerable α] [SupportsUpperBound su α]
+    : LawfulDeterministicIterator (RangeIterator su α) Id where
+  isPlausibleStep_eq_eq it := ⟨Monadic.step it, rfl⟩
+
 end Std.PRange

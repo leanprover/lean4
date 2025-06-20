@@ -256,7 +256,7 @@ instance {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} 
     simp only [liftM_bind (m := n) (n := o), bind_assoc]
     apply bind_congr
     intro step
-    split
+    cases step using PlausibleIterStep.casesOn
     · simp only [bind_pure_comp, bind_map_left, ← ih_yield ‹_›]
       simp only [liftM_map, bind_map_left]
       apply bind_congr

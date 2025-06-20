@@ -130,3 +130,6 @@ def g : IO Unit := do
 /-- info: [2, 3, 4, 5, 6, 7, 8] -/
 #guard_msgs in
 #eval! (2 ...8).toList
+
+example : (1 ...2).size = 2 := by
+  decide

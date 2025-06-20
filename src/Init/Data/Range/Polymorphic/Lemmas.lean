@@ -11,6 +11,7 @@ import Init.Data.Iterators.Lemmas.Consumers.Collect
 import all Init.Data.Range.Polymorphic.PRange
 import all Init.Data.Range.Polymorphic.RangeIterator
 import all Init.Data.Range.Polymorphic.Basic
+import all Init.Data.Iterators.Consumers.Loop
 
 namespace Std.PRange
 open Std.Iterators
@@ -113,44 +114,13 @@ theorem toList_eq_nil_iff [UpwardEnumerable α]
   simp only
   split <;> rename_i heq <;> simp [heq]
 
-theorem RangeIterator.mem_toList_iff_isPlausibleIndirectOutput
-    [UpwardEnumerable α]
-    [SupportsUpperBound su α]
-    [LawfulUpwardEnumerable α]
-    [LawfulUpwardEnumerableUpperBound su α]
-    [HasFiniteRanges su α]
-    {it : Iter (α := RangeIterator su α) α} :
-    out ∈ it.toList ↔ it.IsPlausibleIndirectOutput out := by
-  constructor
-  · apply Iter.isPlausibleIndirectOutput_of_mem_toList
-  · intro h
-    induction h
-    · rename_i it out h
-      rw [RangeIterator.isPlausibleOutput_iff] at h
-      rw [toList_eq_match]
-      simp [h]
-    · rename_i it it' out h _ h'
-      rw [RangeIterator.isPlausibleSuccessorOf_iff] at h
-      obtain ⟨a, ha⟩ := h
-      rw [toList_eq_match]
-      simp only [ha.1, ha.2.1, ha.2.2.1]
-      simp [← ha.2.2.2, h']
-
-instance [UpwardEnumerable α]
-    [SupportsUpperBound su α] [HasFiniteRanges su α]
-    [LawfulUpwardEnumerable α]
-    [LawfulUpwardEnumerableUpperBound su α] :
-    LawfulPureIterator (RangeIterator su α) where
-  mem_toList_iff_isPlausibleIndirectOutput :=
-    RangeIterator.mem_toList_iff_isPlausibleIndirectOutput
-
 theorem mem_toList_iff_mem [UpwardEnumerable α]
     [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
     [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
     {r : PRange ⟨sl, su⟩ α}
     {a : α} : a ∈ r.toList ↔ a ∈ r := by
-  rw [Internal.toList_eq_toList_iter, RangeIterator.mem_toList_iff_isPlausibleIndirectOutput,
+  rw [Internal.toList_eq_toList_iter, Iter.mem_toList_iff_isPlausibleIndirectOutput,
     Internal.isPlausibleIndirectOutput_iter_iff]
 
 theorem pairwise_toList_upwardEnumerableLt [UpwardEnumerable α]
@@ -167,7 +137,7 @@ theorem pairwise_toList_upwardEnumerableLt [UpwardEnumerable α]
   rename_i a _ _
   apply List.Pairwise.cons
   · intro a' ha
-    rw [RangeIterator.mem_toList_iff_isPlausibleIndirectOutput] at ha
+    rw [Iter.mem_toList_iff_isPlausibleIndirectOutput] at ha
     replace ha := RangeIterator.upwardEnumerableLe_of_isPlausibleIndirectOutput ha
     simp only at ha
     have : UpwardEnumerable.lt a ha.choose := by
@@ -298,5 +268,43 @@ theorem forIn'_eq_match [UpwardEnumerable α]
       · simp [Internal.forIn'_eq_forIn'_iter, Internal.iter, BoundedUpwardEnumerable.init?]
       · simp
     · simp
+
+instance [UpwardEnumerable α] [SupportsUpperBound su α] [RangeSize su α]
+    [LawfulUpwardEnumerable α] [HasFiniteRanges su α] [LawfulRangeSize su α] :
+    LawfulIteratorSize (RangeIterator su α) where
+  size_eq_size_toArray {it} := by
+    simp only [Iter.size, IteratorSize.size, Iter.toIterM]
+    split <;> rename_i heq
+    · rw [Iter.toArray_eq_match_step, RangeIterator.step_eq_step]
+      simp [RangeIterator.step, heq]
+    · rename_i next
+      simp only [Id.run_pure]
+      induction h : RangeSize.size it.internalState.upperBound _ generalizing it next
+      · rw [Iter.toArray_eq_match_step, RangeIterator.step_eq_step]
+        simp only [RangeIterator.step, heq]
+        by_cases h : SupportsUpperBound.IsSatisfied it.internalState.upperBound next
+        · exfalso
+          cases hn : UpwardEnumerable.succ? next
+          · have := LawfulRangeSize.size_eq_one_of_succ?_eq_none _ _ h hn
+            simp [*] at this
+          · have := LawfulRangeSize.size_eq_succ_of_succ?_eq_some _ _ h hn
+            simp [*] at this
+        · simp [h]
+      · rename_i ih
+        by_cases h' : SupportsUpperBound.IsSatisfied it.internalState.upperBound next
+        · rw [Iter.toArray_eq_match_step, RangeIterator.step_eq_step]
+          simp only [RangeIterator.step, heq, h', ↓reduceIte, Array.size_append, List.size_toArray,
+            List.length_cons, List.length_nil, Nat.zero_add]
+          cases hn : UpwardEnumerable.succ? next
+          · rw [Iter.toArray_eq_match_step, RangeIterator.step_eq_step]
+            simp only [RangeIterator.step, Array.size_empty]
+            simp_all [LawfulRangeSize.size_eq_one_of_succ?_eq_none _ _ h' hn]
+          · rename_i next'
+            have := LawfulRangeSize.size_eq_succ_of_succ?_eq_some _ _ h' hn
+            simp only [this, Nat.add_right_cancel_iff] at h
+            specialize ih (it := ⟨⟨some next', it.internalState.upperBound⟩⟩) next' rfl h
+            rw [ih, Nat.add_comm]
+        · have := LawfulRangeSize.size_eq_zero_of_not_satisfied _ _ h'
+          simp [*] at this
 
 end Std.PRange

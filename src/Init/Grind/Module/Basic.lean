@@ -193,6 +193,7 @@ We say a module has no natural number zero divisors if
 This is a special case of Mathlib's `NoZeroSMulDivisors Nat α`.
 -/
 class NoNatZeroDivisors (α : Type u) [Zero α] [HMul Nat α α] where
+  /-- If `k * a = 0` (for `k : Nat` and `a : α`), then `k = 0` or `a = 0`. -/
   no_nat_zero_divisors : ∀ (k : Nat) (a : α), k ≠ 0 → k * a = 0 → a = 0
 
 export NoNatZeroDivisors (no_nat_zero_divisors)

@@ -230,7 +230,7 @@ private def shellMain
       pure setup.name
     else if let some fileName := fileName? then
       try moduleNameOfFileName fileName rootDir? catch e =>
-        if oleanFileName?.isNone && ileanFileName?.isNone then
+        if oleanFileName?.isNone && cFileName?.isNone then
           pure `_stdin
         else
           throw e

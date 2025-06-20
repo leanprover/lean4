@@ -71,7 +71,7 @@ private theorem toList_eq_aux [UpwardEnumerable α]
     simp only [heq]
     split <;> rfl
 
-theorem toList_eq [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
+theorem toList_eq_match [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [SupportsUpperBound su α] [HasFiniteRanges su α]
     [LawfulUpwardEnumerable α]
     {r : PRange ⟨sl, su⟩ α} :
@@ -91,7 +91,7 @@ theorem toList_eq [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
         BoundedUpwardEnumerable.init?]
     · rfl
 
-private theorem toList_open_eq_of_isSome_succ? [UpwardEnumerable α]
+theorem toList_open_eq_of_isSome_succ? [UpwardEnumerable α]
     [SupportsUpperBound su α] [HasFiniteRanges su α]
     [LawfulUpwardEnumerable α]
     {lo : Bound .open α} {hi} (h : (UpwardEnumerable.succ? lo).isSome) :
@@ -105,10 +105,60 @@ theorem toList_eq_nil_iff [UpwardEnumerable α]
     {r : PRange ⟨sl, su⟩ α} :
     r.toList = [] ↔
       ¬ (∃ a, BoundedUpwardEnumerable.init? r.lower = some a ∧ SupportsUpperBound.IsSatisfied r.upper a) := by
-  rw [Internal.toList_eq_toList_iter] --, Iter.toList_eq_match_step, RangeIterator.step_eq_step]
+  rw [Internal.toList_eq_toList_iter]
   rw [RangeIterator.toList_eq_match, Internal.iter]
   simp only
   split <;> rename_i heq <;> simp [heq]
+
+theorem BoundedUpwardEnumerable.Closed.init?_succ [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α] {lower lower' : Bound .closed α}
+    (h : UpwardEnumerable.succ? lower = some lower') :
+    BoundedUpwardEnumerable.init? lower' = (BoundedUpwardEnumerable.init? lower).bind UpwardEnumerable.succ? := by
+  cases h : init? lower <;> rename_i ilower <;> cases h' : init? lower' <;> rename_i ilower'
+  · simp
+  · simp [init?] at h
+  · simp [init?] at h'
+  · simp_all [init?]
+
+theorem ClosedOpen.succ_mem_succ_iff [UpwardEnumerable α]
+    [LinearlyUpwardEnumerable α] [InfinitelyUpwardEnumerable α] [SupportsUpperBound .open α]
+    [SupportsLowerBound .closed α] [LawfulUpwardEnumerableLowerBound .closed α]
+    [HasFiniteRanges .open α] [LawfulUpwardEnumerable α] [LawfulOpenUpperBound α]
+    {lower : Bound .closed α} {upper : Bound .open α} {a : α} :
+    UpwardEnumerable.succ a ∈
+        PRange.mk (shape := ⟨.closed, .open⟩) (UpwardEnumerable.succ lower) (UpwardEnumerable.succ upper) ↔
+      a ∈ PRange.mk (shape := ⟨.closed, .open⟩) lower upper := by
+  simp only [Membership.mem, LawfulUpwardEnumerableLowerBound.isSatisfied_iff,
+    BoundedUpwardEnumerable.init?, Option.some_get, LawfulOpenUpperBound.isSatisfied_iff_le,
+    UpwardEnumerable.succ_lt_succ_iff, Option.some.injEq, exists_eq_left', and_congr_left_iff]
+  rw [← Option.some_get (InfinitelyUpwardEnumerable.isSome_succ? _)]
+  simp only [Option.some.injEq, exists_eq_left', ← UpwardEnumerable.succ.eq_def,
+    UpwardEnumerable.succ_le_succ_iff, implies_true]
+
+theorem ClosedOpen.toList_succ?_eq_map [UpwardEnumerable α] [SupportsUpperBound .open α]
+    [HasFiniteRanges .open α] [LawfulUpwardEnumerable α] [LawfulOpenUpperBound α]
+    {lower lower' : Bound .closed α} {upper upper' : Bound .open α}
+    (hl : UpwardEnumerable.succ? lower = some lower') (hu : UpwardEnumerable.succ? upper = some upper') :
+    (PRange.mk (shape := ⟨.closed, .open⟩) lower' upper').toList =
+      (PRange.mk (shape := ⟨.closed, .open⟩) lower upper).toList.filterMap UpwardEnumerable.succ? := by
+  simp only [Internal.toList_eq_toList_iter]
+  generalize h : Internal.iter (PRange.mk (shape := ⟨.closed, .open⟩) lower' upper') = it
+  induction it using Iter.inductSteps generalizing lower lower' upper upper' with | step it ihy ihs =>
+  rw [Iter.toList_eq_match_step, Iter.toList_eq_match_step]
+  simp only [RangeIterator.step_eq_step, RangeIterator.step, ← h, Internal.iter]
+  split <;> rename_i heq
+  · split at heq <;> cases heq
+    rename_i hs
+    split <;> rename_i heq' <;> split at heq' <;> cases heq'
+    · simp [List.filterMap_cons, hl]
+      apply ihy
+      · sorry
+      ·
+    · exfalso
+      sorry
+  have : SupportsUpperBound.IsSatisfied upper' lower' ↔ _ :=
+    LawfulOpenUpperBound.isSatisfied_iff_le _ _
+  simp only [LawfulOpenUpperBound.isSatisfied_iff_le]
 
 theorem mem_toList_iff_mem [UpwardEnumerable α]
     [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]

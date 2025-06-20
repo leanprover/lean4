@@ -191,6 +191,9 @@ theorem Internal.get_elem_helper_upper_open [SupportsLowerBound sl α] [LT α] [
 
 macro_rules
   | `(tactic| get_elem_tactic_extensible) =>
-    `(tactic| apply Range.get_elem_helper_upper_open; assumption; rfl)
+    `(tactic|
+      first
+        | apply Std.PRange.Internal.get_elem_helper_upper_open ‹_› (by trivial)
+        | done)
 
 end Std.PRange

@@ -195,6 +195,21 @@ theorem LawfulUpwardEnumerableLowerBound.isSatisfied_of_le [SupportsLowerBound s
   obtain ⟨init, hi, ha⟩ := ha
   exact ⟨init, hi, UpwardEnumerable.le_trans ha hle⟩
 
+class LawfulClosedUpperBound (α : Type w) [SupportsUpperBound .closed α]
+    [UpwardEnumerable α] where
+  isSatisfied_iff_le (u : Bound .closed α) (a : α) :
+    SupportsUpperBound.IsSatisfied u a ↔ UpwardEnumerable.le a u
+
+class LawfulOpenUpperBound (α : Type w) [SupportsUpperBound .open α]
+    [UpwardEnumerable α] where
+  isSatisfied_iff_le (u : Bound .open α) (a : α) :
+    SupportsUpperBound.IsSatisfied u a ↔ UpwardEnumerable.lt a u
+
+class LawfulUnboundedUpperBound (α : Type w) [SupportsUpperBound .unbounded α]
+    [UpwardEnumerable α] where
+  isSatisfied (u : Bound .unbounded α) (a : α) :
+    SupportsUpperBound.IsSatisfied u a
+
 instance [LT α] [DecidableLT α] : SupportsLowerBound .open α where
   IsSatisfied bound a := bound < a
 
@@ -215,5 +230,16 @@ instance [UpwardEnumerable α] : BoundedUpwardEnumerable .open α where
 
 instance : BoundedUpwardEnumerable .closed α where
   init? lower := some lower
+
+instance [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerableLE α] :
+    LawfulClosedUpperBound α where
+  isSatisfied_iff_le u a := by simp [SupportsUpperBound.IsSatisfied, LawfulUpwardEnumerableLE.le_iff]
+
+instance [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerableLT α] :
+    LawfulOpenUpperBound α where
+  isSatisfied_iff_le u a := by simp [SupportsUpperBound.IsSatisfied, LawfulUpwardEnumerableLT.lt_iff]
+
+instance [UpwardEnumerable α] : LawfulUnboundedUpperBound α where
+  isSatisfied u a := by simp [SupportsUpperBound.IsSatisfied]
 
 end Std.PRange

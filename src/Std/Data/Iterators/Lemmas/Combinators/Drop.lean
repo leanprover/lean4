@@ -65,7 +65,7 @@ theorem List.drop_eq_extract {l : List α} {k : Nat} :
     match k with
     | 0 => simp
     | _ + 1 =>
-      simp only [List.drop_succ_cons, List.length_cons, Nat.reduceSubDiff, ih]
+      simp only [List.drop_succ_cons, List.length_cons, ih]
       simp only [List.extract_eq_drop_take, Nat.reduceSubDiff, List.drop_succ_cons]
 
 @[simp]

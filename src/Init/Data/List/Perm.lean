@@ -198,8 +198,8 @@ theorem Perm.filterMap (f : α → Option β) {l₁ l₂ : List α} (p : l₁ ~ 
     filterMap f l₁ ~ filterMap f l₂ := by
   induction p with
   | nil => simp
-  | cons x _p IH => cases h : f x <;> simp [h, filterMap_cons, IH, Perm.cons]
-  | swap x y l₂ => cases hx : f x <;> cases hy : f y <;> simp [hx, hy, filterMap_cons, swap]
+  | cons x _p IH => cases h : f x <;> simp [h, IH, Perm.cons]
+  | swap x y l₂ => cases hx : f x <;> cases hy : f y <;> simp [hx, hy, swap]
   | trans _p₁ _p₂ IH₁ IH₂ => exact IH₁.trans IH₂
 
 grind_pattern Perm.filterMap => l₁ ~ l₂, filterMap f l₁
@@ -442,7 +442,7 @@ grind_pattern Perm.count => l₁ ~ l₂, count a l₂
 
 theorem isPerm_iff : ∀ {l₁ l₂ : List α}, l₁.isPerm l₂ ↔ l₁ ~ l₂
   | [], [] => by simp [isPerm, isEmpty]
-  | [], _ :: _ => by simp [isPerm, isEmpty, Perm.nil_eq]
+  | [], _ :: _ => by simp [isPerm, isEmpty]
   | a :: l₁, l₂ => by simp [isPerm, isPerm_iff, cons_perm_iff_perm_erase]
 
 instance decidablePerm {α} [DecidableEq α] (l₁ l₂ : List α) : Decidable (l₁ ~ l₂) := decidable_of_iff _ isPerm_iff

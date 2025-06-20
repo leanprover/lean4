@@ -54,7 +54,7 @@ theorem IterM.step_intermediateDropWhileWithPostcondition {α m β} [Monad m] [I
       return .skip (IterM.Intermediate.dropWhileWithPostcondition P dropping it') (.skip h)
     | .done h =>
       return .done (.done h)) := by
-  simp only [dropWhileWithPostcondition, step, Iterator.step, internalState_toIterM]
+  simp only [step, Iterator.step]
   apply bind_congr
   intro step
   cases step using PlausibleIterStep.casesOn <;> rfl
@@ -145,8 +145,8 @@ theorem IterM.step_intermediateDropWhile {α m β} [Monad m] [LawfulMonad m] [It
   apply bind_congr
   intro step
   cases step using PlausibleIterStep.casesOn
-  · simp only [Function.comp_apply, PostconditionT.operation_lift, PlausibleIterStep.skip,
-    PlausibleIterStep.yield, bind_map_left]
+  · simp only [Function.comp_apply, PlausibleIterStep.skip,
+    PlausibleIterStep.yield]
     split
     · cases P _ <;> simp
     · rfl

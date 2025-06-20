@@ -65,7 +65,7 @@ def relabel (r : α → β) (aig : AIG α) : AIG β :=
     cache,
     hdag := by
       intro idx lhs rhs hbound hgate
-      simp +zetaDelta [decls] at hgate
+      simp +zetaDelta at hgate
       have := Decl.relabel_gate hgate
       apply aig.hdag
       assumption

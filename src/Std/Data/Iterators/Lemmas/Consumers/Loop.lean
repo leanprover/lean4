@@ -74,7 +74,7 @@ theorem Iter.forIn_toList {α β : Type w} [Iterator α Id β]
     intro forInStep
     cases forInStep
     · induction it'.toList <;> simp [*]
-    · simp only [ForIn.forIn, forIn', List.forIn'] at ihy
+    · simp only [ForIn.forIn] at ihy
       simp [ihy h, forIn_eq_forIn_toIterM]
   · rename_i it' h
     simp only [bind_pure_comp]

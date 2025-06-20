@@ -131,7 +131,7 @@ theorem IterM.step_filterM {f : β → n (ULift Bool)}
   intro step
   match step with
   | .yield it' out h =>
-    simp only [PostconditionT.lift, liftM, monadLift, MonadLift.monadLift, monadLift_self,
+    simp only [PostconditionT.lift, 
       PostconditionT.operation_map, Functor.map_map, PlausibleIterStep.skip,
       PlausibleIterStep.yield, bind_map_left]
     apply bind_congr
@@ -155,9 +155,9 @@ theorem IterM.step_mapM {γ : Type w} {f : β → n γ}
   intro step
   match step with
   | .yield it' out h =>
-    simp only [PostconditionT.operation_map, bind_map_left, bind_pure_comp]
-    simp only [PostconditionT.lift, Functor.map, Functor.map_map,
-      bind_map_left, bind_pure_comp]
+    simp only [bind_pure_comp]
+    simp only [PostconditionT.lift, Functor.map, 
+      ]
     simp only [PostconditionT.operation_map, Functor.map_map, PlausibleIterStep.skip,
       PlausibleIterStep.yield, bind_map_left, bind_pure_comp]
     rfl
@@ -257,7 +257,7 @@ instance {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} 
     apply bind_congr
     intro step
     split
-    · simp only [bind_pure_comp, bind_map_left, ← ih_yield ‹_›]
+    · simp only [bind_pure_comp]
       simp only [liftM_map, bind_map_left]
       apply bind_congr
       intro out'
@@ -285,7 +285,7 @@ theorem IterM.InternalConsumers.toList_filterMap {α β γ: Type w} {m : Type w 
   apply bind_congr
   intro step
   split
-  · simp only [List.filterMap_cons, bind_assoc, pure_bind, bind_pure]
+  · simp only [List.filterMap_cons, bind_assoc, pure_bind]
     split
     · split
       · simp only [bind_pure_comp, pure_bind]
@@ -313,7 +313,7 @@ theorem IterM.toList_filterMap {α β γ : Type w} {m : Type w → Type w'}
   apply bind_congr
   intro step
   split
-  · simp only [List.filterMap_cons, bind_assoc, pure_bind, bind_pure]
+  · simp only [List.filterMap_cons, bind_assoc, pure_bind]
     split
     · split
       · simp only [bind_pure_comp, pure_bind]

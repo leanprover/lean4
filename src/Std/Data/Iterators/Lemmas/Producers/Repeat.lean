@@ -45,7 +45,7 @@ theorem Iter.atIdxSlow?_repeat {n : Nat} :
 
 theorem Iter.isSome_atIdxSlow?_repeat {k : Nat} :
     ((Iter.repeat f init).atIdxSlow? k).isSome := by
-  induction k generalizing init <;> simp [*, atIdxSlow?_succ_repeat]
+  induction k generalizing init <;> simp [*]
 
 @[simp]
 theorem Iter.toList_take_repeat_succ {k : Nat} :

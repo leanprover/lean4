@@ -3330,7 +3330,7 @@ theorem mem_alter!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
 theorem contains_alter_of_not_compare_eq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} (he : ¬ compare k k' = .eq) :
     (t.alter k f h.balanced).1.contains k' = t.contains k' := by
-  simp only [contains_alter h, he, beq_iff_eq, reduceIte]
+  simp only [contains_alter h, he, reduceIte]
 
 theorem contains_alter!_of_not_compare_eq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} (he : ¬ compare k k' = .eq) :
@@ -3744,7 +3744,7 @@ theorem mem_alter!_of_compare_eq [TransOrd α] (h : t.WF) {k k': α} {f : Option
 @[simp]
 theorem contains_alter_self [TransOrd α] {k : α} (h : t.WF) {f : Option β → Option β} :
     (alter k f t h.balanced).1.contains k = (f (get? t k)).isSome := by
-  simp only [contains_alter h, beq_iff_eq, compare_self, reduceIte]
+  simp only [contains_alter h, compare_self, reduceIte]
 
 @[simp]
 theorem contains_alter!_self [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
@@ -3764,7 +3764,7 @@ theorem mem_alter!_self [TransOrd α] (h : t.WF) {k : α} {f : Option β → Opt
 theorem contains_alter_of_not_compare_eq [TransOrd α] (h : t.WF) {k k' : α}
     {f : Option β → Option β} (he : ¬ compare k k' = .eq) :
     (alter k f t h.balanced).1.contains k' = t.contains k' := by
-  simp only [contains_alter h, he, beq_iff_eq, reduceIte]
+  simp only [contains_alter h, he, reduceIte]
 
 theorem contains_alter!_of_not_compare_eq [TransOrd α] (h : t.WF) {k k' : α}
     {f : Option β → Option β} (he : ¬ compare k k' = .eq) :
@@ -3943,7 +3943,7 @@ theorem get!_alter! [TransOrd α] (h : t.WF) {k k' : α} [Inhabited β] {f : Opt
 @[simp]
 theorem get!_alter_self [TransOrd α] (h : t.WF) {k : α} [Inhabited β] {f : Option β → Option β} :
     get! (alter k f t h.balanced).1 k = (f (get? t k)).get! := by
-  simp [get!_alter h, Option.map_cast_apply]
+  simp [get!_alter h]
 
 @[simp]
 theorem get!_alter!_self [TransOrd α] (h : t.WF) {k : α} [Inhabited β] {f : Option β → Option β} :
@@ -3969,7 +3969,7 @@ theorem getD_alter! [TransOrd α] (h : t.WF) {k k' : α} {fallback : β} {f : Op
 @[simp]
 theorem getD_alter_self [TransOrd α] (h : t.WF) {k : α} {fallback : β} {f : Option β → Option β} :
     getD (alter k f t h.balanced).1 k fallback = (f (get? t k)).getD fallback := by
-  simp only [h, getD_alter, compare_self, beq_iff_eq, reduceIte]
+  simp only [h, getD_alter, compare_self, reduceIte]
 
 @[simp]
 theorem getD_alter!_self [TransOrd α] (h : t.WF) {k : α} {fallback : β} {f : Option β → Option β} :
@@ -6054,7 +6054,7 @@ theorem contains_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m
 
 theorem mem_iff [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
     k ∈ t₁ ↔ k ∈ t₂ := by
-  simp only [mem_iff_contains, Bool.coe_iff_coe, contains_eq h₁ h₂ h]
+  simp only [mem_iff_contains, contains_eq h₁ h₂ h]
 
 theorem size_eq (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.size = t₂.size := by
   simp_to_model [size] using List.Perm.length_eq h.1

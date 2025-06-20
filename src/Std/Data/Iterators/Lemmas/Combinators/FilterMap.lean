@@ -118,7 +118,7 @@ theorem Iter.step_mapWithPostcondition {f : β → PostconditionT n γ}
   generalize it.toIterM.step = step
   match step with
   | .yield it' out h =>
-    simp only [PostconditionT.operation_map, bind_map_left, bind_pure_comp]
+    simp only [bind_pure_comp]
     rfl
   | .skip it' h => rfl
   | .done h => rfl
@@ -142,7 +142,7 @@ theorem Iter.step_filterMapM {β' : Type w} {f : β → n (Option β')}
   generalize it.toIterM.step = step
   match step with
   | .yield it' out h =>
-    simp only [monadLift, MonadLift.monadLift, monadLift_self, bind_map_left]
+    simp only
     apply bind_congr
     intro step
     rcases step with _ | _ <;> rfl
@@ -168,7 +168,7 @@ theorem Iter.step_filterM {f : β → n (ULift Bool)}
   generalize it.toIterM.step = step
   match step with
   | .yield it' out h =>
-    simp [PostconditionT.lift, liftM, monadLift, MonadLift.monadLift]
+    simp [PostconditionT.lift]
     apply bind_congr
     intro step
     rcases step with _ | _ <;> rfl
@@ -191,9 +191,9 @@ theorem Iter.step_mapM {f : β → n γ}
   generalize it.toIterM.step = step
   match step with
   | .yield it' out h =>
-    simp only [PostconditionT.operation_map, bind_map_left, bind_pure_comp]
-    simp only [monadLift, MonadLift.monadLift, monadLift_self, Functor.map, Functor.map_map,
-      bind_map_left, bind_pure_comp]
+    simp only [bind_pure_comp]
+    simp only [Functor.map, 
+      ]
     rfl
   | .skip it' h => rfl
   | .done h => rfl
@@ -207,7 +207,7 @@ theorem Iter.step_filterMap {f : β → Option γ} :
       | .skip it' h => .skip (it'.filterMap f) (.skip h)
       | .done h => .done (.done h) := by
   simp only [filterMap_eq_toIter_filterMap_toIterM, toIterM_toIter, IterM.step_filterMap, step]
-  simp only [liftM, monadLift, pure_bind, Id.run_bind]
+  simp only [monadLift, Id.run_bind]
   generalize it.toIterM.step.run = step
   cases step using PlausibleIterStep.casesOn
   · simp only [IterM.Step.toPure_yield, toIter_toIterM, toIterM_toIter]

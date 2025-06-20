@@ -39,7 +39,7 @@ theorem range'_eq_mk_range' {start size step} :
 
 @[simp, grind =] theorem getElem_range' {start size step i} (h : i < size) :
    (range' start size step)[i] = start + step * i := by
-  simp [range', h]
+  simp [range']
 
 @[simp, grind =] theorem getElem?_range' {start size step i} :
    (range' start size step)[i]? = if i < size then some (start + step * i) else none := by
@@ -58,7 +58,7 @@ theorem range'_zero : range' s 0 step = #v[] := by
 
 @[simp] theorem range'_inj : range' s n = range' s' n ↔ (n = 0 ∨ s = s') := by
   rw [← toArray_inj]
-  simp [List.range'_inj]
+  simp
 
 @[grind =]
 theorem mem_range' {n} : m ∈ range' s n step ↔ ∃ i < n, m = s + step * i := by

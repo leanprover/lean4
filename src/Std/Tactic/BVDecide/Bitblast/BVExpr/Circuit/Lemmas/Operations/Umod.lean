@@ -138,8 +138,8 @@ theorem denote_blastUmod (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bo
         (lhs % rhs).getLsbD idx := by
   intro idx hidx
   unfold blastUmod
-  simp only [Ref.cast_eq, id_eq, Int.reduceNeg, RefVec.denote_ite,
-    LawfulVecOperator.denote_input_entry, RefVec.get_cast]
+  simp only [Ref.cast_eq, RefVec.denote_ite,
+    RefVec.get_cast]
   split
   · next hdiscr =>
     rw [blastUdiv.go_denote_mem_prefix] at hdiscr
@@ -153,7 +153,7 @@ theorem denote_blastUmod (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bo
     · intro idx hidx
       simp [hright]
     · intro idx hidx
-      simp only [RefVec.get_cast, Ref.cast_eq, BitVec.getLsbD_zero]
+      simp only [BitVec.getLsbD_zero]
       rw [denote_blastConst]
       simp
   · next hdiscr =>

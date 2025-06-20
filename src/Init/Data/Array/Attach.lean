@@ -153,7 +153,7 @@ theorem attachWith_congr {xs ys : Array α} (w : xs = ys) {P : α → Prop} {H :
     (xs.push a).attachWith P H =
       (xs.attachWith P (fun x h => by simp at H; exact H x (.inl h))).push ⟨a, H a (by simp)⟩ := by
   cases xs
-  simp [attachWith_congr (List.push_toArray _ _)]
+  simp
 
 theorem pmap_eq_map_attach {p : α → Prop} {f : ∀ a, p a → β} {xs : Array α} (H) :
     pmap f xs H = xs.attach.map fun x => f x.1 (H _ x.2) := by
@@ -337,7 +337,7 @@ theorem foldl_attach {xs : Array α} {f : β → α → β} {b : β} :
     xs.attach.foldl (fun acc t => f acc t.1) b = xs.foldl f b := by
   rcases xs with ⟨xs⟩
   simp only [List.attach_toArray, List.attachWith_mem_toArray, List.size_toArray,
-    List.length_pmap, List.foldl_toArray', mem_toArray, List.foldl_subtype]
+    List.foldl_toArray', mem_toArray, List.foldl_subtype]
   congr
   ext
   simpa using fun a => List.mem_of_getElem? a
@@ -356,7 +356,7 @@ theorem foldr_attach {xs : Array α} {f : α → β → β} {b : β} :
     xs.attach.foldr (fun t acc => f t.1 acc) b = xs.foldr f b := by
   rcases xs with ⟨xs⟩
   simp only [List.attach_toArray, List.attachWith_mem_toArray, List.size_toArray,
-    List.length_pmap, List.foldr_toArray', mem_toArray, List.foldr_subtype]
+    List.foldr_toArray', mem_toArray, List.foldr_subtype]
   congr
   ext
   simpa using fun a => List.mem_of_getElem? a
@@ -460,7 +460,7 @@ theorem pmap_append' {p : α → Prop} {f : ∀ a : α, p a → β} {xs ys : Arr
     {H : ∀ (a : α), a ∈ xs ++ ys → P a} :
     (xs ++ ys).attachWith P H = xs.attachWith P (fun a h => H a (mem_append_left ys h)) ++
       ys.attachWith P (fun a h => H a (mem_append_right xs h)) := by
-  simp [attachWith, attach_append, map_pmap, pmap_append]
+  simp [attachWith]
 
 @[simp] theorem pmap_reverse {P : α → Prop} {f : (a : α) → P a → β} {xs : Array α}
     (H : ∀ (a : α), a ∈ xs.reverse → P a) :
@@ -690,7 +690,7 @@ and simplifies these to the function directly taking the value.
     {f : { x // p x } → Array β} {g : α → Array β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     (xs.flatMap f) = xs.unattach.flatMap g := by
   cases xs
-  simp only [List.size_toArray, List.flatMap_toArray, List.unattach_toArray, List.length_unattach,
+  simp only [List.flatMap_toArray, List.unattach_toArray, 
     mk.injEq]
   rw [List.flatMap_subtype]
   simp [hf]

@@ -246,7 +246,7 @@ theorem Iter.atIdxSlow?_intermediateZip [Iterator α₁ Id β₁] [Iterator α�
       simp only at h
       split at h <;> cases h
       rename_i hs₁
-      simp [atIdxSlow?.eq_def (it := it₁), hs₁]
+      simp [hs₁]
     case some =>
       simp only at h
       split at h <;> cases h

@@ -54,7 +54,8 @@ theorem denote_blastShiftConcat_eq_shiftConcat (aig : AIG α) (target : ShiftCon
         =
       (BitVec.shiftConcat x b).getLsbD idx := by
   intro idx hidx
-  simp [BitVec.getLsbD_shiftConcat, hidx, denote_blastShiftConcat, hx, hb]
+  simp only [denote_blastShiftConcat, hb, hx, BitVec.getLsbD_shiftConcat, hidx, decide_true,
+    Bool.true_and]
 
 
 theorem blastDivSubtractShift_denote_mem_prefix (aig : AIG α)

@@ -449,6 +449,16 @@ def Iter.IsPlausibleOutput {α : Type w} {β : Type w} [Iterator α Id β]
     (it : Iter (α := α) β) (out : β) : Prop :=
   it.toIterM.IsPlausibleOutput out
 
+theorem Iter.isPlausibleOutput_iff_exists {α : Type w} {β : Type w} [Iterator α Id β]
+    {it : Iter (α := α) β} {out : β} :
+    it.IsPlausibleOutput out ↔ ∃ it', it.IsPlausibleStep (.yield it' out) := by
+  simp only [IsPlausibleOutput, IterM.IsPlausibleOutput]
+  constructor
+  · rintro ⟨it', h⟩
+    exact ⟨it'.toIter, h⟩
+  · rintro ⟨it', h⟩
+    exact ⟨it'.toIterM, h⟩
+
 /--
 Asserts that a certain iterator `it'` could plausibly be the directly succeeding iterator of another
 given iterator `it`.
@@ -457,6 +467,18 @@ given iterator `it`.
 def Iter.IsPlausibleSuccessorOf {α : Type w} {β : Type w} [Iterator α Id β]
     (it' it : Iter (α := α) β) : Prop :=
   it'.toIterM.IsPlausibleSuccessorOf it.toIterM
+
+theorem Iter.isPlausibleSuccessorOf_iff_exists {α : Type w} {β : Type w} [Iterator α Id β]
+    {it' it : Iter (α := α) β} :
+    it'.IsPlausibleSuccessorOf it ↔ ∃ step, step.successor = some it' ∧ it.IsPlausibleStep step := by
+  simp only [IsPlausibleSuccessorOf, IterM.IsPlausibleSuccessorOf]
+  constructor
+  · rintro ⟨step, h₁, h₂⟩
+    exact ⟨step.mapIterator IterM.toIter,
+      by cases step <;> simp_all [IterStep.successor, Iter.IsPlausibleStep]⟩
+  · rintro ⟨step, h₁, h₂⟩
+    exact ⟨step.mapIterator Iter.toIterM,
+      by cases step <;> simp_all [IterStep.successor, Iter.IsPlausibleStep]⟩
 
 /--
 Asserts that a certain iterator `it` could plausibly yield the value `out` after an arbitrary
@@ -743,6 +765,21 @@ instance [Iterator α m β] [Finite α m] : Productive α m where
     · exact Finite.wf
 
 end Productive
+
+/--
+This typeclass characterizes iterators that have deterministic return values. This typeclass does
+*not* guarantee that there are no monadic side effects such as exceptions.
+
+General monadic iterators can be nondeterministic, so that `it.IsPlausibleStep step` will be true
+for no or more than one choice of `step`. This typeclass ensures that there is exactly one such
+choice.
+
+This is an experimental instance and it should not be explicitly used downstream of the standard
+library.
+-/
+class LawfulDeterministicIterator (α : Type w) (m : Type w → Type w') [Iterator α m β]
+    where
+  isPlausibleStep_eq_eq : ∀ it : IterM (α := α) m β, ∃ step, it.IsPlausibleStep = (· = step)
 
 end Iterators
 

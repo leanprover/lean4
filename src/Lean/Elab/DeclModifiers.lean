@@ -42,7 +42,7 @@ def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] [MonadInfo
 
 /-- Declaration visibility modifier. That is, whether a declaration is regular, protected or private. -/
 inductive Visibility where
-  | regular | «protected» | «private»
+  | regular | «protected» | «private» | «public»
   deriving Inhabited
 
 instance : ToString Visibility where
@@ -50,6 +50,22 @@ instance : ToString Visibility where
     | .regular   => "regular"
     | .private   => "private"
     | .protected => "protected"
+    | .public    => "public"
+
+def Visibility.isPrivate : Visibility → Bool
+  | .private   => true
+  | _          => false
+
+def Visibility.isProtected : Visibility → Bool
+  | .protected => true
+  | _          => false
+
+def Visibility.isPublic : Visibility → Bool
+  | .public    => true
+  | _          => false
+
+def Visibility.isInferredPublic (env : Environment) (v : Visibility) : Bool :=
+  if env.isExporting || !env.header.isModule then !v.isPrivate else v.isPublic
 
 /-- Whether a declaration is default, partial or nonrec. -/
 inductive RecKind where
@@ -73,13 +89,11 @@ structure Modifiers where
   attrs           : Array Attribute := #[]
   deriving Inhabited
 
-def Modifiers.isPrivate : Modifiers → Bool
-  | { visibility := .private, .. } => true
-  | _                              => false
-
-def Modifiers.isProtected : Modifiers → Bool
-  | { visibility := .protected, .. } => true
-  | _                                => false
+def Modifiers.isPrivate (m : Modifiers) : Bool := m.visibility.isPrivate
+def Modifiers.isProtected (m : Modifiers) : Bool := m.visibility.isProtected
+def Modifiers.isPublic (m : Modifiers) : Bool := m.visibility.isPublic
+def Modifiers.isInferredPublic (env : Environment) (m : Modifiers) : Bool :=
+  m.visibility.isInferredPublic env
 
 def Modifiers.isPartial : Modifiers → Bool
   | { recKind := .partial, .. }  => true
@@ -123,8 +137,9 @@ instance : ToFormat Modifiers := ⟨fun m =>
      | none     => [])
     ++ (match m.visibility with
      | .regular   => []
+     | .private   => [f!"private"]
      | .protected => [f!"protected"]
-     | .private   => [f!"private"])
+     | .public    => [f!"public"])
     ++ (match m.computeKind with | .regular => [] | .meta => [f!"meta"] | .noncomputable => [f!"noncomputable"])
     ++ (match m.recKind with | RecKind.partial => [f!"partial"] | RecKind.nonrec => [f!"nonrec"] | _ => [])
     ++ (if m.isUnsafe then [f!"unsafe"] else [])
@@ -169,12 +184,13 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
       RecKind.nonrec
   let docString? := docCommentStx.getOptional?.map TSyntax.mk
   let visibility ← match visibilityStx.getOptional? with
-    | none   => pure Visibility.regular
+    | none   => pure .regular
     | some v =>
-      let kind := v.getKind
-      if kind == ``Parser.Command.private then pure Visibility.private
-      else if kind == ``Parser.Command.protected then pure Visibility.protected
-      else throwErrorAt v "unexpected visibility modifier"
+      match v with
+      | `(Parser.Command.visibility| private) => pure .private
+      | `(Parser.Command.visibility| protected) => pure .protected
+      | `(Parser.Command.visibility| public) => pure .public
+      | _ => throwErrorAt v "unexpected visibility modifier"
   let attrs ← match attrsStx.getOptional? with
     | none       => pure #[]
     | some attrs => elabDeclAttrs attrs
@@ -189,18 +205,13 @@ If `private`, return the updated name using our internal encoding for private na
 If `protected`, register `declName` as protected in the environment.
 -/
 def applyVisibility (visibility : Visibility) (declName : Name) : m Name := do
-  match visibility with
-  | .private =>
-    let declName := mkPrivateName (← getEnv) declName
-    checkNotAlreadyDeclared declName
-    return declName
-  | .protected =>
-    checkNotAlreadyDeclared declName
+  let mut declName := declName
+  if !visibility.isInferredPublic (← getEnv) then
+    declName := mkPrivateName (← getEnv) declName
+  checkNotAlreadyDeclared declName
+  if visibility matches .protected then
     modifyEnv fun env => addProtected env declName
-    return declName
-  | _ =>
-    checkNotAlreadyDeclared declName
-    pure declName
+  pure declName
 
 def checkIfShadowingStructureField (declName : Name) : m Unit := do
   match declName with

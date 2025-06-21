@@ -59,7 +59,8 @@ def optNamedPrio := optional namedPrio
 
 def «private»        := leading_parser "private "
 def «protected»      := leading_parser "protected "
-def visibility       := «private» <|> «protected»
+def «public»         := leading_parser "public "
+def visibility       := «private» <|> «protected» <|> «public»
 def «meta»           := leading_parser "meta "
 def «noncomputable»  := leading_parser "noncomputable "
 def «unsafe»         := leading_parser "unsafe "
@@ -69,7 +70,7 @@ def «nonrec»         := leading_parser "nonrec "
 /-- `declModifiers` is the collection of modifiers on a declaration:
 * a doc comment `/-- ... -/`
 * a list of attributes `@[attr1, attr2]`
-* a visibility specifier, `private` or `protected`
+* a visibility specifier, `private`, `protected`, or `public`
 * `noncomputable`
 * `unsafe`
 * `partial` or `nonrec`

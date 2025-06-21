@@ -22,10 +22,6 @@ def HeaderSyntax.imports (stx : HeaderSyntax) (includeInit : Bool := true) : Arr
   | `(Parser.Module.header| $[module%$moduleTk]? $[prelude%$preludeTk]? $importsStx*) =>
     let imports := if preludeTk.isNone && includeInit then #[{ module := `Init : Import }] else #[]
     imports ++ importsStx.map fun
-      -- TODO: delete together with `private` keyword
-      | `(Parser.Module.import| $[private%$privateTk]? $[meta%$metaTk]? import $[all%$allTk]? $n) =>
-        { module := n.getId, importAll := allTk.isSome, isExported := privateTk.isNone
-          isMeta := metaTk.isSome }
       | `(Parser.Module.import| $[public%$publicTk]? $[meta%$metaTk]? import $[all%$allTk]? $n) =>
         { module := n.getId, importAll := allTk.isSome
           isExported := publicTk.isSome || moduleTk.isNone

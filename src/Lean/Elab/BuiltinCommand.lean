@@ -27,13 +27,14 @@ namespace Lean.Elab.Command
   | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"
 
 private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name)
-    (isNoncomputable : Bool := false) (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) :
+    (isNoncomputable isPublic : Bool := false) (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) :
     CommandElabM Unit := do
   modify fun s => { s with
     env    := s.env.registerNamespace newNamespace,
     scopes := { s.scopes.head! with
       header := header, currNamespace := newNamespace
       isNoncomputable := s.scopes.head!.isNoncomputable || isNoncomputable
+      isPublic := s.scopes.head!.isPublic || isPublic
       attrs := s.scopes.head!.attrs ++ attrs
     } :: s.scopes
   }
@@ -41,7 +42,7 @@ private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : N
   if isNewNamespace then
     activateScoped newNamespace
 
-private def addScopes (header : Name) (isNewNamespace : Bool) (isNoncomputable : Bool := false)
+private def addScopes (header : Name) (isNewNamespace : Bool) (isNoncomputable isPublic : Bool := false)
     (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) : CommandElabM Unit :=
   go header
 where go
@@ -49,7 +50,7 @@ where go
   | .str p header => do
     go p
     let currNamespace ← getCurrNamespace
-    addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace) isNoncomputable attrs
+    addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace) isNoncomputable isPublic attrs
   | _ => throwError "invalid scope"
 
 private def addNamespace (header : Name) : CommandElabM Unit :=
@@ -93,9 +94,9 @@ private def checkEndHeader : Name → List Scope → Option Name
     else
       pure []
     if let some header := header? then
-      addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (attrs := attrs) header.getId
+      addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) header.getId
     else
-      addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (attrs := attrs) "" (← getCurrNamespace)
+      addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) "" (← getCurrNamespace)
   | _                        => throwUnsupportedSyntax
 
 /--

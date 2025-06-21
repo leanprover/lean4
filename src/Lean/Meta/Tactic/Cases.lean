@@ -252,9 +252,13 @@ private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenName
   let majorType ← inferType (mkFVar majorFVarId)
   let (us, params) ← getInductiveUniverseAndParams majorType
   let mut casesOn := mkCasesOnName ctx.inductiveVal.name
+  let mut ctors   := ctx.inductiveVal.ctors.toArray
   if useNatCasesAuxOn && ctx.inductiveVal.name == ``Nat && (← getEnv).contains ``Nat.casesAuxOn then
     casesOn := ``Nat.casesAuxOn
-  let ctors   := ctx.inductiveVal.ctors.toArray
+  else if useNatCasesAuxOn && ctx.inductiveVal.name == ``Decidable && (← getEnv).contains `Decidable.falseTrueCases then
+    -- hack: allow `byCasesDec` to use the normal `cases` frontend
+    casesOn := `Decidable.falseTrueCases
+    ctors := #[``Decidable.isFalse, ``Decidable.isTrue]
   let s ← mvarId.induction majorFVarId casesOn givenNames
   return toCasesSubgoals s ctors majorFVarId us params
 
@@ -351,7 +355,7 @@ Given `dec : Decidable p`, split the goal in two subgoals: one containing the hy
 def _root_.Lean.MVarId.byCasesDec (mvarId : MVarId) (p : Expr) (dec : Expr) (hName : Name := `h) : MetaM (ByCasesSubgoal × ByCasesSubgoal) := do
   let mvarId ← mvarId.assert `hByCases (mkApp (mkConst ``Decidable) p) dec
   let (fvarId, mvarId) ← mvarId.intro1
-  let #[s₁, s₂] ← mvarId.cases fvarId #[{ varNames := [hName] }, { varNames := [hName] }] |
+  let #[s₁, s₂] ← mvarId.cases fvarId #[{ varNames := [hName] }, { varNames := [hName] }] true |
     throwError "'byCasesDec' tactic failed, unexpected number of subgoals"
   -- We flip `s₁` and `s₂` because `isFalse` is the first constructor.
   return ((← toByCasesSubgoal s₂), (← toByCasesSubgoal s₁))

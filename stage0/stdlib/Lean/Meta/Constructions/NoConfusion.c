@@ -60,7 +60,6 @@ LEAN_EXPORT lean_object* l_Lean_mkNoConfusionCore___lam__0___boxed(lean_object*,
 lean_object* l_Lean_InductiveVal_numTypeFormers(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___Lean_mkNoConfusionEnum_mkToCtorIdx_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addProtected(lean_object*, lean_object*);
-static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0___closed__5;
 LEAN_EXPORT lean_object* l_Lean_isEnumType___at___Lean_mkNoConfusion_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkCasesOnName(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -165,7 +164,6 @@ static lean_object* l_initFn___closed__5____x40_Lean_Meta_Constructions_NoConfus
 static lean_object* l_initFn___closed__3____x40_Lean_Meta_Constructions_NoConfusion___hyg_4_;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
-static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0___closed__4;
 LEAN_EXPORT lean_object* l_Lean_mkNoConfusionCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__4;
@@ -3397,7 +3395,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0___clos
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
+x_1 = lean_unsigned_to_nat(6u);
 x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
@@ -3408,26 +3406,6 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0___closed__2;
-x_3 = lean_array_push(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0___closed__3;
-x_3 = lean_array_push(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0___closed__4;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -3474,7 +3452,7 @@ x_33 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_33, 0, x_3);
 x_34 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_34, 0, x_10);
-x_35 = l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0___closed__5;
+x_35 = l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0___closed__3;
 x_36 = lean_array_push(x_35, x_30);
 x_37 = lean_array_push(x_36, x_31);
 x_38 = lean_array_push(x_37, x_32);
@@ -4986,10 +4964,6 @@ l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0___closed__2 = _init_l_Lean_mkNoC
 lean_mark_persistent(l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0___closed__2);
 l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0___closed__3 = _init_l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0___closed__3();
 lean_mark_persistent(l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0___closed__3);
-l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0___closed__4 = _init_l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0___closed__4();
-lean_mark_persistent(l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0___closed__4);
-l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0___closed__5 = _init_l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0___closed__5();
-lean_mark_persistent(l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0___closed__5);
 l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__1___closed__0 = _init_l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__1___closed__0();
 lean_mark_persistent(l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__1___closed__0);
 l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__1___closed__1 = _init_l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__1___closed__1();

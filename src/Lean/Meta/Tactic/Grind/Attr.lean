@@ -20,29 +20,36 @@ inductive AttrKind where
 /-- Return theorem kind for `stx` of the form `Attr.grindThmMod` -/
 def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   match stx with
-  | `(Parser.Attr.grindMod| =) => return .ematch (.eqLhs false)
-  | `(Parser.Attr.grindMod| = gen) => return .ematch (.eqLhs true)
-  | `(Parser.Attr.grindMod| →)
-  | `(Parser.Attr.grindMod| ->) => return .ematch .fwd
-  | `(Parser.Attr.grindMod| ←)
-  | `(Parser.Attr.grindMod| <-) => return .ematch (.bwd false)
-  | `(Parser.Attr.grindMod| <- gen) => return .ematch (.bwd true)
-  | `(Parser.Attr.grindMod| =_) => return .ematch (.eqRhs false)
-  | `(Parser.Attr.grindMod| =_ gen) => return .ematch (.eqRhs true)
-  | `(Parser.Attr.grindMod| _=_) => return .ematch (.eqBoth false)
-  | `(Parser.Attr.grindMod| _=_ gen) => return .ematch (.eqBoth true)
-  | `(Parser.Attr.grindMod| ←=) => return .ematch .eqBwd
-  | `(Parser.Attr.grindMod| ⇒)
-  | `(Parser.Attr.grindMod| =>) => return .ematch .leftRight
-  | `(Parser.Attr.grindMod| ⇐)
-  | `(Parser.Attr.grindMod| <=) => return .ematch .rightLeft
-  | `(Parser.Attr.grindMod| usr) => return .ematch .user
-  | `(Parser.Attr.grindMod| gen) => return .ematch (.default true)
-  | `(Parser.Attr.grindMod| cases) => return .cases false
-  | `(Parser.Attr.grindMod| cases eager) => return .cases true
-  | `(Parser.Attr.grindMod| intro) => return .intro
-  | `(Parser.Attr.grindMod| ext) => return .ext
-  | _ => throwError "unexpected `grind` theorem kind: `{stx}`"
+  | `(Parser.Attr.grindMod|=) => return .ematch (.eqLhs false)
+  | `(Parser.Attr.grindMod|= gen) => return .ematch (.eqLhs true)
+  | `(Parser.Attr.grindMod|→)
+  | `(Parser.Attr.grindMod|->) => return .ematch .fwd
+  | `(Parser.Attr.grindMod|←)
+  | `(Parser.Attr.grindMod|<-) => return .ematch (.bwd false)
+  | `(Parser.Attr.grindMod|<- gen) => return .ematch (.bwd true)
+  | `(Parser.Attr.grindMod|=_) => return .ematch (.eqRhs false)
+  | `(Parser.Attr.grindMod|=_ gen) => return .ematch (.eqRhs true)
+  | `(Parser.Attr.grindMod|_=_) => return .ematch (.eqBoth false)
+  | `(Parser.Attr.grindMod|_=_ gen) => return .ematch (.eqBoth true)
+  | `(Parser.Attr.grindMod|←=) => return .ematch .eqBwd
+  | `(Parser.Attr.grindMod|⇒)
+  | `(Parser.Attr.grindMod|=>) => return .ematch .leftRight
+  | `(Parser.Attr.grindMod|⇐)
+  | `(Parser.Attr.grindMod|<=) => return .ematch .rightLeft
+  | `(Parser.Attr.grindMod|usr) => return .ematch .user
+  | `(Parser.Attr.grindMod|gen) => return .ematch (.default true)
+  | `(Parser.Attr.grindMod|cases) => return .cases false
+  | `(Parser.Attr.grindMod|cases eager) => return .cases true
+  | `(Parser.Attr.grindMod|intro) => return .intro
+  | `(Parser.Attr.grindMod|ext) => return .ext
+  | _ =>
+    -- TODO: remove after update stage0
+    let stx := stx[0]
+    if stx.isOfKind ``Parser.Attr.grindFwd then return .ematch .fwd
+    if stx.isOfKind ``Parser.Attr.grindBwd then return .ematch (.bwd false)
+    if stx.isOfKind ``Parser.Attr.grindRL then return .ematch .rightLeft
+    if stx.isOfKind ``Parser.Attr.grindLR then return .ematch .leftRight
+    throwError "unexpected `grind` theorem kind: `{stx}`"
 
 /-- Return theorem kind for `stx` of the form `(Attr.grindMod)?` -/
 def getAttrKindFromOpt (stx : Syntax) : CoreM AttrKind := do

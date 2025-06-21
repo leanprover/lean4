@@ -30,6 +30,7 @@ inductive Expr where
   | mul  (a b : Expr)
   | div  (a b : Expr)
   | mod  (a b : Expr)
+  | pow  (a : Expr) (k : Nat)
   deriving BEq
 
 @[expose]
@@ -40,6 +41,7 @@ def Expr.denote (ctx : Context) : Expr → Nat
   | .mul a b  => Nat.mul (denote ctx a) (denote ctx b)
   | .div a b  => Nat.div (denote ctx a) (denote ctx b)
   | .mod a b  => Nat.mod (denote ctx a) (denote ctx b)
+  | .pow a k  => Nat.pow (denote ctx a) k
 
 @[expose]
 def Expr.denoteAsInt (ctx : Context) : Expr → Int
@@ -49,6 +51,7 @@ def Expr.denoteAsInt (ctx : Context) : Expr → Int
   | .mul a b  => Int.mul (denoteAsInt ctx a) (denoteAsInt ctx b)
   | .div a b  => Int.ediv (denoteAsInt ctx a) (denoteAsInt ctx b)
   | .mod a b  => Int.emod (denoteAsInt ctx a) (denoteAsInt ctx b)
+  | .pow a k  => Int.pow (denoteAsInt ctx a) k
 
 theorem Expr.denoteAsInt_eq (ctx : Context) (e : Expr) : e.denoteAsInt ctx = e.denote ctx := by
   induction e <;> simp [denote, denoteAsInt, *] <;> rfl

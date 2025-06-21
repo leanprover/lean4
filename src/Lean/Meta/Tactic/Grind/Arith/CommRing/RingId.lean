@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Grind.Ring.Field
+import Init.Grind.Ring.Envelope
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
 
@@ -146,11 +147,51 @@ where
     else
       pure none
     let one ← shareCommon <| (← canon <| denoteNumCore u type semiringInst negFn 1)
+    let semiringId? := none
     let id := (← get').rings.size
     let ring : Ring := {
-      id, type, u, semiringInst, ringInst, commSemiringInst, commRingInst, charInst?, noZeroDivInst?, fieldInst?,
+      id, semiringId?, type, u, semiringInst, ringInst, commSemiringInst,
+      commRingInst, charInst?, noZeroDivInst?, fieldInst?,
       addFn, mulFn, subFn, negFn, powFn, intCastFn, natCastFn, invFn?, one }
     modify' fun s => { s with rings := s.rings.push ring }
+    return some id
+
+private def setSemiringId (ringId : Nat) (semiringId : Nat) : GoalM Unit := do
+  RingM.run ringId do modifyRing fun s => { s with semiringId? := some semiringId }
+
+def getSemiringId? (type : Expr) : GoalM (Option Nat) := do
+  if let some id? := (← get').stypeIdOf.find? { expr := type } then
+    return id?
+  else
+    let id? ← go?
+    modify' fun s => { s with stypeIdOf := s.stypeIdOf.insert { expr := type } id? }
+    return id?
+where
+  go? : GoalM (Option Nat) := do
+    let u ← getDecLevel type
+    let semiring := mkApp (mkConst ``Grind.Semiring [u]) type
+    let .some semiringInst ← trySynthInstance semiring | return none
+    let commSemiring := mkApp (mkConst ``Grind.CommSemiring [u]) type
+    let .some commSemiringInst ← trySynthInstance commSemiring | return none
+    let toQFn ← internalizeFn <| mkApp2 (mkConst ``Grind.Ring.OfSemiring.toQ [u]) type semiringInst
+    let addFn ← getAddFn type u
+    let mulFn ← getMulFn type u
+    let powFn ← getPowFn type u semiringInst
+    let natCastFn ← getNatCastFn type u semiringInst
+    let add := mkApp (mkConst ``Add [u]) type
+    let .some addInst ← trySynthInstance add | return none
+    let addRightCancel := mkApp2 (mkConst ``Grind.AddRightCancel [u]) type addInst
+    let addRightCancelInst? ← LOption.toOption <$> trySynthInstance addRightCancel
+    let q ← shareCommon (← canon (mkApp2 (mkConst ``Grind.Ring.OfSemiring.Q [u]) type semiringInst))
+    let some ringId ← getRingId? q
+      | throwError "`grind` unexpected failure, failure to initialize ring{indentExpr q}"
+    let id := (← get').semirings.size
+    let semiring : Semiring := {
+      id, type, ringId, u, semiringInst, commSemiringInst,
+      addFn, mulFn, powFn, natCastFn, toQFn, addRightCancelInst?
+    }
+    modify' fun s => { s with semirings := s.semirings.push semiring }
+    setSemiringId ringId id
     return some id
 
 end Lean.Meta.Grind.Arith.CommRing

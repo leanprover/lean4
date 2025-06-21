@@ -28,7 +28,7 @@ inductive Expr where
   | sub  (a b : Expr)
   | mul (a b : Expr)
   | pow (a : Expr) (k : Nat)
-  deriving Inhabited, BEq, Hashable
+  deriving Inhabited, BEq, Hashable, Repr
 
 abbrev Context (α : Type u) := RArray α
 
@@ -553,7 +553,7 @@ theorem Mon.denote_mul {α} [CommRing α] (ctx : Context α) (m₁ m₂ : Mon)
   unfold mul
   generalize hugeFuel = fuel
   fun_induction mul.go
-    <;> simp [denote, denote_concat, one_mul, 
+    <;> simp [denote, denote_concat, one_mul,
       mul_assoc, mul_left_comm, mul_comm, *]
   next h₁ h₂ _ =>
     have := eq_of_blt_false h₁ h₂

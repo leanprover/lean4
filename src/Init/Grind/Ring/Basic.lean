@@ -125,6 +125,9 @@ attribute [instance 100] Semiring.ofNat
 
 attribute [local instance] Semiring.natCast Ring.intCast
 
+-- Verify that the diamond from `CommRing` to `Semiring` via either `CommSemiring` or `Ring` is defeq.
+example [CommRing α] : (CommSemiring.toSemiring : Semiring α) = (Ring.toSemiring : Semiring α) := rfl
+
 namespace Semiring
 
 variable {α : Type u} [Semiring α]
@@ -352,6 +355,7 @@ instance : IntModule α where
 
 theorem hmul_eq_intCast_mul {α} [Ring α] {k : Int} {a : α} : HMul.hMul (α := Int) k a = (k : α) * a := rfl
 
+-- Verify that the diamond from `Ring` to `NatModule` via either `Semiring` or `IntModule` is defeq.
 example [Ring R] : (Semiring.instNatModule : NatModule R) = (IntModule.toNatModule R) := rfl
 
 end Ring

@@ -93,12 +93,12 @@ end NatModule
 
 namespace IntModule
 
-attribute [instance 100] IntModule.toZero IntModule.toAdd IntModule.toNeg IntModule.toSub IntModule.hmulInt
+attribute [instance 100] IntModule.toZero IntModule.toAdd IntModule.toNeg IntModule.toSub
+  IntModule.hmulNat IntModule.hmulInt
 
-attribute [local instance] IntModule.hmulNat in
 instance toNatModule (M : Type u) [i : IntModule M] : NatModule M :=
   { i with
-    hMul a x := a * x
+    hMul := i.hmulNat.hMul
     zero_hmul := by simp [← hmul_nat, zero_hmul]
     one_hmul := by simp [← hmul_nat, one_hmul]
     hmul_zero := by simp [← hmul_nat, hmul_zero]
@@ -106,12 +106,6 @@ instance toNatModule (M : Type u) [i : IntModule M] : NatModule M :=
     hmul_add := by simp [← hmul_nat, hmul_add] }
 
 variable {M : Type u} [IntModule M]
-
-instance (priority := 100) (M : Type u) [IntModule M] : SMul Nat M where
-  smul a x := (a : Int) * x
-
-instance (priority := 100) (M : Type u) [IntModule M] : SMul Int M where
-  smul a x := a * x
 
 theorem zero_add (a : M) : 0 + a = a := by
   rw [add_comm, add_zero]

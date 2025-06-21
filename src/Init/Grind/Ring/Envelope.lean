@@ -242,7 +242,7 @@ def ofSemiring : Ring (Q α) := {
   intCast_neg, ofNat_succ
 }
 
-attribute [local instance] ofSemiring
+attribute [instance] ofSemiring
 
 @[local simp] def toQ (a : α) : Q α :=
   Q.mk (a, 0)
@@ -369,6 +369,8 @@ theorem mul_comm (a b : OfSemiring.Q α) : OfSemiring.mul a b = OfSemiring.mul b
 def ofCommSemiring : CommRing (OfSemiring.Q α) :=
   { OfSemiring.ofSemiring with
     mul_comm := mul_comm }
+
+attribute [instance] ofCommSemiring
 
 end OfCommSemiring
 

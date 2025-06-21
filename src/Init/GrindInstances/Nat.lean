@@ -32,4 +32,12 @@ instance : CommSemiring Nat where
   pow_zero := Nat.pow_zero
   pow_succ := Nat.pow_succ
 
+instance : NoNatZeroDivisors Nat where
+  no_nat_zero_divisors := by
+    intro k a b h₁ h₂
+    exact Nat.mul_left_cancel (Nat.zero_lt_of_ne_zero h₁) h₂
+
+instance : IsCharP Nat 0 where
+  ofNat_ext_iff := by intro; simp [OfNat.ofNat]
+
 end Lean.Grind

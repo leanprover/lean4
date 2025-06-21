@@ -20,15 +20,8 @@ stands for the numbers at least `2` and smaller than `5`. Such ranges support it
 elements of the range.
 
 In order to support ranges of a certain type `α`, the following instances need to be implemented:
-
-* `LE α` and `DecidableLE α` for inclusive upper and lower bounds
-* `LT α` and `DecidableLT α` for exclusive upper and lower bounds
-* `UpwardEnumerable α` for iteration over the ranges
-* `LawfulUpwardEnumerableUpperBound upperBoundShape α` and
-  `LawfulUpwardEnumerableLowerBound lowerBoundShape α` for iteration
-* `HasFiniteRanges upperBoundShape α` for termination of iteration
-* `Least? α` for iteration over lower-unbounded ranges
-* `RangeSize upperBoundShape α` for `PRange.size` support
-
 An example for how this plays out can be found in `Init.Data.Range.Polymorphic.Nat`.
+
+The typeclass system is experimental and will change soon, so at this point it is not recommended
+to provide custom ranges outside of the standard library.
 -/

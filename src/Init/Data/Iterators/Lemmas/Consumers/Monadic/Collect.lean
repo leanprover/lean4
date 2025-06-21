@@ -131,11 +131,7 @@ theorem IterM.reverse_toListRev [Monad m] [LawfulMonad m] [Iterator α m β] [Fi
   rw [toListRev_eq_match_step, toList_eq_match_step, map_eq_pure_bind, bind_assoc]
   apply bind_congr
   intro step
-  split
-  all_goals
-    rename_i heq
-    have := heq ▸ step.property
-    simp (discharger := assumption) [ihy, ihs]
+  cases step using PlausibleIterStep.casesOn <;> simp (discharger := assumption) [ihy, ihs]
 
 theorem IterM.toListRev_eq [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
     [IteratorCollect α m m] [LawfulIteratorCollect α m m]

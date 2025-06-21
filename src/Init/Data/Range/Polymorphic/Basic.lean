@@ -43,21 +43,35 @@ class RangeSize (shape : BoundShape) (α : Type u) where
   /-- Returns the number of elements starting from `init` that satisfy the given upper bound. -/
   size : (upperBound : Bound shape α) → (init : α) → Nat
 
+/--
+This typeclass ensures that a `RangeSize` instance returns the correct size for all ranges.
+-/
 class LawfulRangeSize (su : BoundShape) (α : Type u) [UpwardEnumerable α]
     [SupportsUpperBound su α] [RangeSize su α]
     [LawfulUpwardEnumerable α] [HasFiniteRanges su α] where
+  /-- If the smallest value in the range is beyond the upper bound, the size is zero. -/
   size_eq_zero_of_not_satisfied (upperBound : Bound su α) (init : α)
       (h : ¬ SupportsUpperBound.IsSatisfied upperBound init) :
       RangeSize.size upperBound init = 0
+  /--
+  If the smallest value in the range satisfies the upper bound and has no successor, the size is
+  one.
+  -/
   size_eq_one_of_succ?_eq_none (upperBound : Bound su α) (init : α)
       (h : SupportsUpperBound.IsSatisfied upperBound init)
       (h' : UpwardEnumerable.succ? init = none) :
       RangeSize.size upperBound init = 1
+  /--
+  If the smallest value in the range satisfies the upper bound and has a successor, the size is
+  one larger than the size of the range starting at the successor. -/
   size_eq_succ_of_succ?_eq_some (upperBound : Bound su α) (init : α)
       (h : SupportsUpperBound.IsSatisfied upperBound init)
       (h' : UpwardEnumerable.succ? init = some a) :
       RangeSize.size upperBound init = RangeSize.size upperBound a + 1
 
+/--
+Iterators for ranges implementing `RangeSize` support the `size` function.
+-/
 instance [RangeSize su α] [UpwardEnumerable α] [SupportsUpperBound su α] :
     IteratorSize (RangeIterator su α) Id where
   size it := match it.internalState.next with
@@ -134,8 +148,8 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
     rw [LawfulUpwardEnumerableLowerBound.isSatisfied_iff]
     cases hr : (PRange.Internal.iter r).internalState.next
     · simp [hr] at hn
-    rw [hr, Option.bind_some] at hn
-    exact ⟨_, hr, n, hn⟩
+    · rw [hr, Option.bind_some] at hn
+      exact ⟨_, hr, n, hn⟩
   · rintro ⟨hl, hu⟩
     rw [LawfulUpwardEnumerableLowerBound.isSatisfied_iff] at hl
     obtain ⟨_, hr, n, hn⟩ := hl
@@ -155,8 +169,7 @@ theorem RangeIterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
 
 @[no_expose]
 instance [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
-    [SupportsLowerBound sl α] [SupportsUpperBound su α]
-    [LawfulUpwardEnumerable α]
+    [SupportsLowerBound sl α] [SupportsUpperBound su α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
     [Monad m] [Finite (RangeIterator su α) Id] :
     ForIn' m (PRange ⟨sl, su⟩ α) α inferInstance where

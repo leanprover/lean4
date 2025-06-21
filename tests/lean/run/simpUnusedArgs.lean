@@ -234,8 +234,8 @@ example (h1 : P) (h2 : Q) : P ∧ Q := by
 
 -- Inside a macro?
 
-macro "mySimp" h:term : tactic =>
-  `(tactic| simp [$h:term, id_eq])
+macro "mySimp" h:term : tactic => `(tactic| simp [$h:term, id_eq])
+macro tk:"mySimp'" h:term : tactic => `(tactic| simp%$tk [$h:term, id_eq])
 
 /--
 warning: This simp argument is unused:
@@ -249,3 +249,5 @@ note: this linter can be disabled with `set_option linter.unusedSimpArgs false`
 example {P : Prop} (h : P) : True ∧ True := by constructor <;> simp [h]
 
 example {P : Prop} (h : P) : True ∧ True := by constructor <;> mySimp h
+
+example {P : Prop} (h : P) : True ∧ True := by constructor <;> mySimp' h

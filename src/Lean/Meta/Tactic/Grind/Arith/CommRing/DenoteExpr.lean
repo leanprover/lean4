@@ -80,7 +80,7 @@ def DiseqCnstr.denoteExpr (c : DiseqCnstr) : M Expr := do
   return mkNot (← mkEq (← c.d.denoteExpr) (← denoteNum 0))
 
 def _root_.Lean.Grind.Ring.OfSemiring.Expr.denoteAsRingExpr (e : SemiringExpr) : SemiringM Expr := do
-  go e
+  shareCommon (← go e)
 where
   go : SemiringExpr → SemiringM Expr
   | .num k => denoteNum k

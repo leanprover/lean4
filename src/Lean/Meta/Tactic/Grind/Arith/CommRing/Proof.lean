@@ -151,6 +151,8 @@ partial def EqCnstr.toPreNullCert (c : EqCnstr) : ProofM PreNullCert := caching 
     let h ← mkEqProof a b
     modify fun s => { s with hyps := s.hyps.push { h, lhs, rhs } }
     return PreNullCert.unit i (i+1)
+  | .coreS _a _b _sa _sb _ra _rb =>
+    throwError "NIY"
   | .superpose k₁ m₁ c₁ k₂ m₂ c₂ => (← c₁.toPreNullCert).combine k₁ m₁ k₂ m₂ (← c₂.toPreNullCert)
   | .simp k₁ c₁ k₂ m₂ c₂ => (← c₁.toPreNullCert).combine k₁ .unit k₂ m₂ (← c₂.toPreNullCert)
   | .mul k c => (← c.toPreNullCert).mul k
@@ -358,6 +360,8 @@ partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCns
   | .core a b lhs rhs =>
     let h ← mkStepPrefix ``Stepwise.core ``Stepwise.coreC
     return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c.p) reflBoolTrue (← mkEqProof a b)
+  | .coreS _a _b _sa _sb _ra _rb =>
+    throwError "NIY"
   | .superpose k₁ m₁ c₁ k₂ m₂ c₂ =>
     let h ← mkStepPrefix ``Stepwise.superpose ``Stepwise.superposeC
     return mkApp10 h

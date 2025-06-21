@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Grind.Ring.OfSemiring
 import Lean.Data.PersistentArray
 import Lean.Data.RBTree
 import Lean.Meta.Tactic.Grind.ExprPtr
@@ -13,9 +14,9 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
 namespace Lean.Meta.Grind.Arith.CommRing
 export Lean.Grind.CommRing (Var Power Mon Poly)
 abbrev RingExpr := Grind.CommRing.Expr
+abbrev SemiringExpr := Grind.Ring.OfSemiring.Expr
 
 mutual
-
 structure EqCnstr where
   p     : Poly
   h     : EqCnstrProof
@@ -28,7 +29,6 @@ inductive EqCnstrProof where
   | simp (k₁ : Int) (c₁ : EqCnstr) (k₂ : Int) (m₂ : Mon) (c₂ : EqCnstr)
   | mul (k : Int) (e : EqCnstr)
   | div (k : Int) (e : EqCnstr)
-
 end
 
 instance : Inhabited EqCnstrProof where
@@ -187,6 +187,38 @@ structure Ring where
   invSet         : PHashSet Expr := {}
   deriving Inhabited
 
+/--
+State for each `CommSemiring` processed by this module.
+Recall that `CommSemiring` are processed using the envelop `OfCommSemiring.Q`
+-/
+structure Semiring where
+  id             : Nat
+  /-- Id for `OfCommSemiring.Q` -/
+  ringId         : Nat
+  type           : Expr
+  /-- Cached `getDecLevel type` -/
+  u              : Level
+  /-- `Semiring` instance for `type` -/
+  semiringInst   : Expr
+  /-- `CommSemiring` instance for `type` -/
+  commSemiringInst   : Expr
+  /-- `AddRightCancel` instance for `type` if available. -/
+  addRightCancelInst? : Option Expr
+  addFn          : Expr
+  mulFn          : Expr
+  powFn          : Expr
+  natCastFn      : Expr
+  /-- Mapping from Lean expressions to their representations as `SemiringExpr` -/
+  denote         : PHashMap ExprPtr SemiringExpr := {}
+  /--
+  Mapping from variables to their denotations.
+  Remark each variable can be in only one ring.
+  -/
+  vars           : PArray Expr := {}
+  /-- Mapping from `Expr` to a variable representing it. -/
+  varMap         : PHashMap ExprPtr Var := {}
+  deriving Inhabited
+
 /-- State for all `CommRing` types detected by `grind`. -/
 structure State where
   /--
@@ -200,6 +232,19 @@ structure State where
   typeIdOf : PHashMap ExprPtr (Option Nat) := {}
   /- Mapping from expressions/terms to their ring ids. -/
   exprToRingId : PHashMap ExprPtr Nat := {}
+  /-- Commutative semirings. We support them using the envelope `OfCommRing.Q` -/
+  semirings : Array Semiring := {}
+  /--
+  Mapping from types to its "semiring id". We cache failures using `none`.
+  `stypeIdOf[type]` is `some id`, then `id < semirings.size`.
+  If a type is in this map, it is not in `typeIdOf`.
+  -/
+  stypeIdOf : PHashMap ExprPtr (Option Nat) := {}
+  /-
+  Mapping from expressions/terms to their semiring ids.
+  If an expression is in this map, it is not in `exprToRingId`.
+  -/
+  exprToSemiringId : PHashMap ExprPtr Nat := {}
   steps := 0
   deriving Inhabited
 

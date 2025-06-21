@@ -150,5 +150,26 @@ popd
 echo "# TEST: init existing"
 test_err "package already initialized" -d hello_world init
 
+# Test that Mathlib-standard packages have the expected strict linter options.
+mkdir mathlib_standards
+pushd mathlib_standards
+test_run init mathlib_standards mathlib
+
+# Run via elan to make sure the version of Lean is compatible with the version of Mathlib.
+ELAN=${ELAN:-elan}
+
+# skip if no elan found
+echo "# Check if elan exists"
+if ! command -v $ELAN > /dev/null; then
+   echo "elan not found; skipping test"
+   exit 0
+fi
+
+# '#'-commands are not allowed only when enabling the Mathlib standard linters.
+echo >MathlibStandards.lean "import Mathlib.Init"
+echo >>MathlibStandards.lean "#guard true"
+test_cmd_out 'note: this linter can be disabled with `set_option linter.hashCommand false`' $ELAN run $(cat lean-toolchain) lake build mathlib_standards
+popd
+
 # Cleanup
 rm -f produced.out

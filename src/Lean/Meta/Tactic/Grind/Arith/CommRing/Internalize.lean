@@ -107,7 +107,7 @@ private def internalizeInv (e : Expr) : GoalM Bool := do
   | _ => return false
 
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
-  if !(← getConfig).ring && !(← getConfig).ringNull then return ()
+  if !(← getConfig).ring then return ()
   if isIntModuleVirtualParent parent? then
     -- `e` is an auxiliary term used to convert `CommRing` to `IntModule`
     return ()

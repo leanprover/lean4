@@ -42,14 +42,7 @@ def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   | `(Parser.Attr.grindMod|cases eager) => return .cases true
   | `(Parser.Attr.grindMod|intro) => return .intro
   | `(Parser.Attr.grindMod|ext) => return .ext
-  | _ =>
-    -- TODO: remove after update stage0
-    let stx := stx[0]
-    if stx.isOfKind ``Parser.Attr.grindFwd then return .ematch .fwd
-    if stx.isOfKind ``Parser.Attr.grindBwd then return .ematch (.bwd false)
-    if stx.isOfKind ``Parser.Attr.grindRL then return .ematch .rightLeft
-    if stx.isOfKind ``Parser.Attr.grindLR then return .ematch .leftRight
-    throwError "unexpected `grind` theorem kind: `{stx}`"
+  | _ => throwError "unexpected `grind` theorem kind: `{stx}`"
 
 /-- Return theorem kind for `stx` of the form `(Attr.grindMod)?` -/
 def getAttrKindFromOpt (stx : Syntax) : CoreM AttrKind := do

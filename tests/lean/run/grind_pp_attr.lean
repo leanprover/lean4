@@ -25,3 +25,35 @@ example :=
 -/
 #guard_msgs in
 run_cmd test (← `(@[grind _=_] example := 0))
+
+/--
+info: @[grind =_]
+example :=
+  0
+-/
+#guard_msgs in
+run_cmd test (← `(@[grind =_] example := 0))
+
+/--
+info: @[grind →]
+example :=
+  0
+-/
+#guard_msgs in
+run_cmd test (← `(@[grind →] example := 0))
+
+/--
+info: @[grind ←]
+example :=
+  0
+-/
+#guard_msgs in
+run_cmd test (← `(@[grind ←] example := 0))
+
+/--
+info: @[grind ←=]
+example :=
+  0
+-/
+#guard_msgs in
+run_cmd test (← `(@[grind ←=] example := 0))

@@ -9,4 +9,5 @@ import Std.Data.Iterators.Combinators.Monadic.TakeWhile
 import Std.Data.Iterators.Combinators.Monadic.Drop
 import Std.Data.Iterators.Combinators.Monadic.DropWhile
 import Std.Data.Iterators.Combinators.Monadic.FilterMap
+import Std.Data.Iterators.Combinators.Monadic.StepSize
 import Std.Data.Iterators.Combinators.Monadic.Zip

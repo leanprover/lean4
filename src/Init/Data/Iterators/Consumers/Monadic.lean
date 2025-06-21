@@ -6,6 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
+import Init.Data.Iterators.Consumers.Monadic.Access
 import Init.Data.Iterators.Consumers.Monadic.Collect
 import Init.Data.Iterators.Consumers.Monadic.Loop
 import Init.Data.Iterators.Consumers.Monadic.Partial

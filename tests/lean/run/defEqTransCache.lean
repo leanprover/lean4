@@ -2,11 +2,11 @@ import Lean
 /-!
 Previously, unification wouldn't be very careful with the `isDefEq` cache for terms containing metavariables.
 - This is mostly problematic because erasing the cache leads to exponential slowdowns (`test1` & `test2`)
-- but in some cases it leads to metavariable assignments leaking into places where they shouldn't be,
-  which either causes unification to fail where it should succeed (`test3`)
-  or to succeed where it is expected to fail.
-
+- but in some cases it lead to metavariable assignments leaking into places where they shouldn't be,
+  which either caused unification to fail where it should succeed (`test3`)
+  or to succeed where it is expected to fail (which happened in one mathlib proof).
 -/
+
 set_option maxHeartbeats 1000
 
 namespace test1
@@ -16,10 +16,10 @@ class A (n : Nat) where
 instance [A n] : A (n+1) where
   x := A.x n
 
-theorem test [A 0] : A.x 100 = sorry := sorry
+theorem test [A 0] : A.x 100 = 0 := sorry
 
--- Previously, this example was exponentially slow
-example [A 1] : A.x 100 = sorry := by
+-- This rewrite should fail. Previously, it failed exponentially slowly
+example [A 1] : A.x 100 = 0 := by
   fail_if_success rw [@test]
   sorry
 end test1
@@ -66,7 +66,7 @@ elab "unfold_head" e:term : term => do
   let e ← Elab.Term.elabTerm e none
   unfoldDefinition e
 
--- we use `unfold_head` in order to get the raw kernel projection `·.1` instead of the projection funtcion `A.x`.
+-- use `unfold_head` to get the raw kernel projection `·.1` instead of the projection funtcion `A.x`
 def test {α} (i : B α) : unfold_head i.toA.x := sorry
 
 -- Previously, in this example the unification failed,

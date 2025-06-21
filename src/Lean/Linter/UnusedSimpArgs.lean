@@ -42,6 +42,9 @@ def unusedSimpArgs : Linter where
         match info with
         | .ofCustomInfo ci =>
           if let some {mask} := ci.value.get? Tactic.UnusedSimpArgsInfo then
+            -- Only look at info with a range. This also happens to prevent the linter from
+            -- reporting about unused simp arguments inside macro, which we do not want to do
+            -- (we likely cannot see all uses of the macro, so the warning would be incomplete)
             let some range := info.range? | return
             let maskAcc ←
               if let some (_, maskAcc) := (← masksMap.get)[range]? then

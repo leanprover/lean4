@@ -507,9 +507,20 @@ def traceSimpCall (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Unit := do
 
 
 register_builtin_option linter.unusedSimpArgs : Bool := {
-  defValue := false, -- at least until we updated our own init
-  descr := "enable the linter that warns when bound variable names are nullary constructor names"
+  defValue := true,
+  descr := "enable the linter that warns when explicit `simp` arguments are unused.\n\
+    \n\
+    The linter suggests removing the unused arguments. This hint may not be correct in the case \
+    that `simp [← thm]` is given, when `thm` has the `@[simp]` attribute, and it is relevant that \
+    `thm` it disabled (which is a side-effect of specifying `← thm`). In that case, replace \
+    it with `simp [- thm]`.\n\
+    \n\
+    When one `simp` invocation is run multiple times (e.g. `all_goals simp [thm]`), it warns \
+    about simp arguments that are unused in all invocations. For this reason, the linter \
+    does not warn about uses of `simp` inside a macro, as there it is usually not possible to see \
+    all invocations."
 }
+
 structure UnusedSimpArgsInfo where
   mask : Array Bool
 deriving TypeName

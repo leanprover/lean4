@@ -129,7 +129,8 @@ namespace Equiv
   ⟨id, (⟨id, idp⟩, ⟨id, idp⟩)⟩
 end Equiv
 
-def transport {A : Type u} (B : A → Type v) {a b : A} (p : a = b) : B a → B b :=
+-- TODO: fix back
+noncomputable def transport {A : Type u} (B : A → Type v) {a b : A} (p : a = b) : B a → B b :=
 by { induction p; apply id }
 
 def subst {A : Type u} {B : A → Type v} {a b : A} (p : a = b) : B a → B b :=

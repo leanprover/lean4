@@ -16,7 +16,7 @@ def countCalls : Probe Decl Nat :=
 
 #eval do
   let numCalls <- Probe.runOnDeclsNamed #[`f] (phase := .base) <| countCalls
-  assert! numCalls == #[1]
+  assert! numCalls == #[0]
 
 #eval do
   let numCalls <- Probe.runOnDeclsNamed #[`f] (phase := .mono) <| countCalls

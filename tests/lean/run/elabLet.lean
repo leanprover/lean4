@@ -3,6 +3,8 @@ import Lean
 # Tests of the various `let` options
 -/
 
+set_option linter.unusedVariables false
+
 /-!
 No options.
 -/
@@ -44,12 +46,7 @@ info: let x := true;
 !x : Bool
 -/
 #guard_msgs in #check let +usedOnly x := true; !x
-/--
-info: !false : Bool
----
-warning: unused variable `x`
-note: this linter can be disabled with `set_option linter.unusedVariables false`
--/
+/-- info: !false : Bool -/
 #guard_msgs in #check let +usedOnly x := true; !false
 
 /-!

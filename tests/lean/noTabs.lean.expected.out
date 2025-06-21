@@ -1,3 +1,1 @@
-noTabs.lean:3:0: error: tabs are not allowed; please configure your editor to expand them
-let a := 1;
-sorry : ?m
+noTabs.lean:4:0: error: tabs are not allowed; please configure your editor to expand them

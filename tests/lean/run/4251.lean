@@ -1,6 +1,4 @@
-/--
-info: Try this: simp only [ha, Nat.reduceEqDiff, imp_self]
--/
+/-- info: Try this: simp only [ha] -/
 #guard_msgs in
 theorem foo₁ (a : Nat) (ha : a = 37) :
     (match h : a with | 42 => by simp_all | n => n) = 37 := by

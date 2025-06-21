@@ -84,7 +84,7 @@ noncomputable def div2Induction {motive : Nat → Sort u}
 @[simp, grind =] theorem zero_testBit (i : Nat) : testBit 0 i = false := by
   simp only [testBit, zero_shiftRight, and_zero, bne_self_eq_false]
 
-@[simp] theorem testBit_zero (x : Nat) : testBit x 0 = decide (x % 2 = 1) := by
+@[simp, grind =] theorem testBit_zero (x : Nat) : testBit x 0 = decide (x % 2 = 1) := by
   cases mod_two_eq_zero_or_one x with | _ p => simp [testBit, p]
 
 theorem mod_two_eq_one_iff_testBit_zero : (x % 2 = 1) ↔ x.testBit 0 = true := by
@@ -352,7 +352,7 @@ theorem testBit_two_pow_sub_succ (h₂ : x < 2 ^ n) (i : Nat) :
 theorem testBit_bool_to_nat (b : Bool) (i : Nat) :
     testBit (Bool.toNat b) i = (decide (i = 0) && b) := by
   cases b <;> cases i <;>
-  simp [testBit_eq_decide_div_mod_eq, 
+  simp [testBit_eq_decide_div_mod_eq,
         Nat.mod_eq_of_lt]
 
 /-- `testBit 1 i` is true iff the index `i` equals 0. -/

@@ -377,13 +377,8 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
 
 @[simp] theorem sub_toNat_mod_cancel_of_toNat {x : BitVec w} (h : x.toNat ≠ 0) :
     (2 ^ w - x.toNat) % 2 ^ w = 2 ^ w - x.toNat := by
-  by_cases h : w = 0
-  · -- FIXME: `grind` here causes a panic
-    subst h
-    simp [BitVec.eq_nil x] at h
   have := x.isLt
-  rw [Nat.mod_eq_of_lt]
-  omega
+  grind [Nat.mod_eq_of_lt]
 
 @[simp] theorem toNat_mod_cancel_of_lt {x : BitVec n} (h : n < m) : x.toNat % (2 ^ m) = x.toNat := by
   have : 2 ^ n < 2 ^ m := Nat.pow_lt_pow_of_lt (by omega) h
@@ -392,7 +387,7 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
 @[simp] theorem sub_sub_toNat_cancel {x : BitVec w} :
     2 ^ w - (2 ^ w - x.toNat) = x.toNat := by
   simp only [Nat.sub_sub_eq_min]
-  omega
+  omega -- TODO: why can't `grind` do this?
 
 @[simp] theorem sub_add_bmod_cancel {x y : BitVec w} :
     ((((2 ^ w : Nat) - y.toNat) : Int) + x.toNat).bmod (2 ^ w) =
@@ -428,21 +423,15 @@ theorem getElem?_zero_ofBool (b : Bool) : (ofBool b)[0]? = some b := by
 theorem getElem?_succ_ofBool (b : Bool) (i : Nat) : (ofBool b)[i + 1]? = none := by
   grind
 
-@[simp, grind =]
+@[simp]
 theorem getLsbD_ofBool (b : Bool) (i : Nat) : (ofBool b).getLsbD i = ((i = 0) && b) := by
-  -- FIXME `grind` causes a panic here
-  rcases b with rfl | rfl
-  · simp [ofBool]
-  · simp only [ofBool, ofNat_eq_ofNat, cond_true, getLsbD_ofNat, Bool.and_true]
-    by_cases hi : i = 0 <;> simp [hi] <;> omega
+  grind
 
 theorem getElem_ofBool_zero {b : Bool} : (ofBool b)[0] = b := by grind
 
 @[simp]
 theorem getElem_ofBool {b : Bool} {h : i < 1} : (ofBool b)[i] = b := by
-  -- FIXME `grind` causes a panic here
-  simp [← getLsbD_eq_getElem]
-  omega
+  grind
 
 @[simp] theorem getMsbD_ofBool (b : Bool) : (ofBool b).getMsbD i = (decide (i = 0) && b) := by
   grind
@@ -467,38 +456,33 @@ theorem getElem_ofBool {b : Bool} {h : i < 1} : (ofBool b)[i] = b := by
 
 @[simp] theorem msb_zero : (0#w).msb = false := by grind
 
-@[simp] theorem msb_one : (1#w).msb = decide (w = 1) := by
-  grind
+@[simp] theorem msb_one : (1#w).msb = decide (w = 1) := by grind
 
 theorem msb_eq_getLsbD_last (x : BitVec w) :
-    x.msb = x.getLsbD (w - 1) := by
-  simp only [BitVec.msb, getMsbD]
-  rcases w  with rfl | w
-  · grind
-  · -- FIXME `grind` causes a panic here
-    simp
+    x.msb = x.getLsbD (w - 1) := by grind
 
-@[bitvec_to_nat] theorem getLsbD_last (x : BitVec w) :
+@[bitvec_to_nat, grind =] theorem getLsbD_last (x : BitVec w) :
     x.getLsbD (w - 1) = decide (2 ^ (w - 1) ≤ x.toNat) := by
   rcases w with rfl | w
-  · simp [toNat_of_zero_length]
+  · grind
   · simp only [getLsbD, Nat.testBit_eq_decide_div_mod_eq, Nat.succ_sub_succ_eq_sub, Nat.sub_zero]
     rcases (Nat.lt_or_ge (BitVec.toNat x) (2 ^ w)) with h | h
-    · simp [Nat.div_eq_of_lt h, h]
+    · grind [Nat.div_eq_of_lt]
     · simp only [h]
       rw [Nat.div_eq_sub_div (Nat.two_pow_pos w) h, Nat.div_eq_of_lt]
-      · simp
-      · omega
+      · grind
+      · omega -- TODO: why can't `grind` do this?
 
 @[bitvec_to_nat] theorem getLsbD_succ_last (x : BitVec (w + 1)) :
     x.getLsbD w = decide (2 ^ w ≤ x.toNat) := getLsbD_last x
 
 @[bitvec_to_nat] theorem msb_eq_decide (x : BitVec w) : BitVec.msb x = decide (2 ^ (w - 1) ≤ x.toNat) := by
-  simp [msb_eq_getLsbD_last, getLsbD_last]
+  grind
 
 theorem toNat_ge_of_msb_true {x : BitVec n} (p : BitVec.msb x = true) : x.toNat ≥ 2 ^ (n - 1) := by
-  grind [msb_eq_decide]
+  grind
 
+@[grind _=_]
 theorem msb_eq_getMsbD_zero (x : BitVec w) : x.msb = x.getMsbD 0 := by
   grind [msb_eq_getLsbD_last]
 
@@ -509,16 +493,16 @@ theorem msb_eq_getMsbD_zero (x : BitVec w) : x.msb = x.getMsbD 0 := by
   rfl
 
 @[simp] theorem getLsbD_cast (h : w = v) (x : BitVec w) : (x.cast h).getLsbD i = x.getLsbD i := by
-  subst h; simp
+  grind
 
 @[simp] theorem getMsbD_cast (h : w = v) (x : BitVec w) : (x.cast h).getMsbD i = x.getMsbD i := by
-  subst h; simp
+  grind
 
-@[simp] theorem getElem_cast (h : w = v) (x : BitVec w) (p : i < v) : (x.cast h)[i] = x[i] := by
-  subst h; simp
+@[simp, grind =] theorem getElem_cast (h : w = v) (x : BitVec w) (p : i < v) : (x.cast h)[i] = x[i] := by
+  subst h; grind [cast_eq] -- TODO: I'm surprised `grind` doesn't do this; `cast_eq` is marked `@[grind =]`
 
 @[simp] theorem msb_cast (h : w = v) (x : BitVec w) : (x.cast h).msb = x.msb := by
-  simp [BitVec.msb]
+  grind
 
 /-! ### toInt/ofInt -/
 
@@ -533,46 +517,48 @@ theorem toInt_eq_toNat_cond (x : BitVec n) :
 
 theorem toInt_eq_toNat_of_lt {x : BitVec n} (h : 2 * x.toNat < 2^n) :
     x.toInt = x.toNat := by
-  simp [toInt_eq_toNat_cond, h]
+  grind [toInt_eq_toNat_cond]
 
 theorem msb_eq_false_iff_two_mul_lt {x : BitVec w} : x.msb = false ↔ 2 * x.toNat < 2^w := by
-  cases w <;> simp [Nat.pow_succ, Nat.mul_comm _ 2, msb_eq_decide, toNat_of_zero_length]
+  cases w <;> grind [Nat.pow_succ, msb_eq_decide]
+
+grind_pattern msb_eq_false_iff_two_mul_lt => x.msb, x.toNat
 
 theorem msb_eq_true_iff_two_mul_ge {x : BitVec w} : x.msb = true ↔ 2 * x.toNat ≥ 2^w := by
-  simp [← Bool.ne_false_iff, msb_eq_false_iff_two_mul_lt]
+  grind
 
 /-- Characterize `x.toInt` in terms of `x.msb`. -/
 theorem toInt_eq_msb_cond (x : BitVec w) :
     x.toInt = if x.msb then (x.toNat : Int) - (2^w : Nat) else (x.toNat : Int) := by
-  simp only [BitVec.toInt, ← msb_eq_false_iff_two_mul_lt]
-  cases x.msb <;> rfl
+  grind [BitVec.toInt]
 
 theorem toInt_eq_toNat_of_msb {x : BitVec w} (h : x.msb = false) :
     x.toInt = x.toNat := by
-  simp [toInt_eq_msb_cond, h]
+  grind [toInt_eq_msb_cond]
+
+-- Activate `toInt_eq_toNat_of_msb` if we have already seen both `x.toInt` and `x.toNat`
+grind_pattern toInt_eq_toNat_of_msb => x.toInt, x.toNat
 
 theorem toNat_toInt_of_msb {w : Nat} (b : BitVec w) (hb : b.msb = false) : b.toInt.toNat = b.toNat := by
-  simp [b.toInt_eq_toNat_of_msb hb]
+  grind
 
 theorem toInt_eq_toNat_bmod (x : BitVec n) : x.toInt = Int.bmod x.toNat (2^n) := by
   simp only [toInt_eq_toNat_cond]
   split
   next g =>
-    rw [Int.bmod_pos] <;> simp only [←Int.natCast_emod, toNat_mod_cancel]
-    omega
+    rw [Int.bmod_pos] <;> simp only [← Int.natCast_emod, toNat_mod_cancel]
+    grind
   next g =>
-    rw [Int.bmod_neg] <;> simp only [←Int.natCast_emod, toNat_mod_cancel]
-    omega
+    rw [Int.bmod_neg] <;> simp only [← Int.natCast_emod, toNat_mod_cancel]
+    grind
 
 theorem toInt_neg_of_msb_true {x : BitVec w} (h : x.msb = true) : x.toInt < 0 := by
   simp only [BitVec.toInt]
   have : 2 * x.toNat ≥ 2 ^ w := msb_eq_true_iff_two_mul_ge.mp h
-  omega
+  omega -- TODO: why can't `grind` do this?
 
 theorem toInt_nonneg_of_msb_false {x : BitVec w} (h : x.msb = false) : 0 ≤ x.toInt := by
-  simp only [BitVec.toInt]
-  have : 2 * x.toNat < 2 ^ w := msb_eq_false_iff_two_mul_lt.mp h
-  omega
+  grind
 
 @[simp] theorem toInt_one_of_lt {w : Nat} (h : 1 < w) : (1#w).toInt = 1 := by
   rw [toInt_eq_msb_cond]
@@ -580,26 +566,20 @@ theorem toInt_nonneg_of_msb_false {x : BitVec w} (h : x.msb = false) : 0 ≤ x.t
     toNat_ofNat, Int.natCast_emod]
   norm_cast
   apply Nat.mod_eq_of_lt
-  apply Nat.one_lt_two_pow (by omega)
+  apply Nat.one_lt_two_pow (by grind)
 
 /-- Prove equality of bitvectors in terms of integer operations. -/
 theorem eq_of_toInt_eq {x y : BitVec n} : x.toInt = y.toInt → x = y := by
-  intro eq
-  simp only [toInt_eq_toNat_cond] at eq
-  apply eq_of_toNat_eq
-  revert eq
-  have _xlt := x.isLt
-  have _ylt := y.isLt
-  split <;> split <;> omega
+  grind [toInt_eq_toNat_cond, eq_of_toNat_eq]
 
-theorem toInt_inj {x y : BitVec n} : x.toInt = y.toInt ↔ x = y :=
-  Iff.intro eq_of_toInt_eq (congrArg BitVec.toInt)
+theorem toInt_inj {x y : BitVec n} : x.toInt = y.toInt ↔ x = y := by
+  grind [eq_of_toInt_eq]
 
 theorem toInt_ne {x y : BitVec n} : x.toInt ≠ y.toInt ↔ x ≠ y  := by
   rw [Ne, toInt_inj]
 
 @[simp, bitvec_to_nat] theorem toNat_ofInt {n : Nat} (i : Int) :
-  (BitVec.ofInt n i).toNat = (i % (2^n : Nat)).toNat := by
+    (BitVec.ofInt n i).toNat = (i % (2^n : Nat)).toNat := by
   unfold BitVec.ofInt
   simp
 

@@ -246,8 +246,9 @@ def «structure»          := leading_parser
 @[builtin_command_parser] def «deriving»     := leading_parser
   "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover ident skip) ", "
 def sectionHeader := leading_parser
-  optional ("@[" >> nonReservedSymbol "expose" >> "]") >>
-  optional ("noncomputable")
+  optional ("public ") >>
+  optional ("@[" >> nonReservedSymbol "expose" >> "] ") >>
+  optional ("noncomputable ")
 /--
 A `section`/`end` pair delimits the scope of `variable`, `include, `open`, `set_option`, and `local`
 commands. Sections can be nested. `section <id>` provides a label to the section that has to appear

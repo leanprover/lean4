@@ -78,7 +78,7 @@ theorem bitblast_decl_eq (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig)
         apply BVExpr.bitblast_lt_size_of_lt_aig_size
         assumption
     | ult =>
-      simp only [bitblast]
+      simp only
       rw [AIG.LawfulOperator.decl_eq (f := mkUlt)]
       rw [BVExpr.bitblast_decl_eq]
       rw [BVExpr.bitblast_decl_eq]
@@ -88,7 +88,7 @@ theorem bitblast_decl_eq (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig)
         apply BVExpr.bitblast_lt_size_of_lt_aig_size
         assumption
   | getLsbD expr idx =>
-    simp only [bitblast]
+    simp only
     rw [BVExpr.bitblast_decl_eq]
 
 theorem bitblast_le_size (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig) :

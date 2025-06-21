@@ -5,6 +5,8 @@ Authors: Paul Reichert
 -/
 prelude
 import Std.Data.Iterators.Lemmas.Consumers.Collect
+import Std.Data.Iterators.Producers.Array
+import Std.Data.Iterators.Producers.List
 import Std.Data.Iterators.Lemmas.Producers.Monadic.Array
 
 /-!
@@ -72,7 +74,7 @@ theorem _root_.Array.toArray_iterFromIdx {array : Array β} {pos : Nat} :
 @[simp]
 theorem _root_.Array.toArray_toIter {array : Array β} :
     array.iter.toArray = array := by
-  simp [Array.iter_eq_iterFromIdx, Array.toArray_iterFromIdxM]
+  simp [Array.iter_eq_iterFromIdx]
 
 @[simp]
 theorem _root_.Array.toListRev_iterFromIdx {array : Array β} {pos : Nat} :

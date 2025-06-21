@@ -488,7 +488,7 @@ Converts `true` to `1` and `false` to `0`.
 
 @[simp] theorem ite_eq_true_else_eq_false {q : Prop} :
     (if b = true then q else b = false) ↔ (b = true → q) := by
-  cases b <;> simp [not_eq_self]
+  cases b <;> simp
 
 /-
 `not_ite_eq_true_eq_true` and related theorems below are added for

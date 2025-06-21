@@ -28,8 +28,8 @@ open Nat
 /-! ### take -/
 
 @[simp, grind =] theorem length_take : ∀ {i : Nat} {l : List α}, (take i l).length = min i l.length
-  | 0, l => by simp [Nat.zero_min]
-  | succ n, [] => by simp [Nat.min_zero]
+  | 0, l => by simp
+  | succ n, [] => by simp
   | succ n, _ :: l => by simp [Nat.succ_min_succ, length_take]
 
 theorem length_take_le (i) (l : List α) : length (take i l) ≤ i := by simp [Nat.min_le_left]
@@ -119,8 +119,8 @@ theorem take_set_of_le {a : α} {i j : Nat} {l : List α} (h : j ≤ i) :
 abbrev take_set_of_lt := @take_set_of_le
 
 @[simp, grind =] theorem take_replicate {a : α} : ∀ {i n : Nat}, take i (replicate n a) = replicate (min i n) a
-  | n, 0 => by simp [Nat.min_zero]
-  | 0, m => by simp [Nat.zero_min]
+  | n, 0 => by simp
+  | 0, m => by simp
   | succ n, succ m => by simp [replicate_succ, succ_min_succ, take_replicate]
 
 @[simp, grind =] theorem drop_replicate {a : α} : ∀ {i n : Nat}, drop i (replicate n a) = replicate (n - i) a
@@ -136,7 +136,7 @@ theorem take_append {l₁ l₂ : List α} {i : Nat} :
   · simp
   · cases i
     · simp [*]
-    · simp only [cons_append, take_succ_cons, length_cons, succ_eq_add_one, cons.injEq,
+    · simp only [cons_append, take_succ_cons, length_cons, cons.injEq,
         append_cancel_left_eq, true_and, *]
       congr 1
       omega
@@ -157,10 +157,10 @@ theorem take_length_add_append {l₁ l₂ : List α} (i : Nat) :
 @[simp]
 theorem take_eq_take_iff :
     ∀ {l : List α} {i j : Nat}, l.take i = l.take j ↔ min i l.length = min j l.length
-  | [], i, j => by simp [Nat.min_zero]
+  | [], i, j => by simp
   | _ :: xs, 0, 0 => by simp
-  | x :: xs, i + 1, 0 => by simp [Nat.zero_min, succ_min_succ]
-  | x :: xs, 0, j + 1 => by simp [Nat.zero_min, succ_min_succ]
+  | x :: xs, i + 1, 0 => by simp [succ_min_succ]
+  | x :: xs, 0, j + 1 => by simp [succ_min_succ]
   | x :: xs, i + 1, j + 1 => by simp [succ_min_succ, take_eq_take_iff]
 
 @[deprecated take_eq_take_iff (since := "2025-02-16")]
@@ -279,7 +279,7 @@ theorem mem_drop_iff_getElem {l : List α} {a : α} :
 @[simp] theorem head_drop {l : List α} {i : Nat} (h : l.drop i ≠ []) :
     (l.drop i).head h = l[i]'(by simp_all) := by
   have w : i < l.length := length_lt_of_drop_ne_nil h
-  simp [getElem?_eq_getElem, h, w, head_eq_iff_head?_eq_some]
+  simp [w, head_eq_iff_head?_eq_some]
 
 theorem getLast?_drop {l : List α} : (l.drop i).getLast? = if l.length ≤ i then none else l.getLast? := by
   rw [getLast?_eq_getElem?, getElem?_drop]
@@ -318,7 +318,7 @@ theorem drop_append {l₁ l₂ : List α} {i : Nat} :
   · simp
   · cases i
     · simp [*]
-    · simp only [cons_append, drop_succ_cons, length_cons, succ_eq_add_one, append_cancel_left_eq, *]
+    · simp only [cons_append, drop_succ_cons, length_cons, append_cancel_left_eq, *]
       congr 1
       omega
 
@@ -463,7 +463,7 @@ theorem drop_sub_one {l : List α} {i : Nat} (h : 0 < i) :
 
 theorem false_of_mem_take_findIdx {xs : List α} {p : α → Bool} (h : x ∈ xs.take (xs.findIdx p)) :
     p x = false := by
-  simp only [mem_take_iff_getElem, forall_exists_index] at h
+  simp only [mem_take_iff_getElem] at h
   obtain ⟨i, h, rfl⟩ := h
   exact not_of_lt_findIdx (by omega)
 
@@ -484,7 +484,7 @@ theorem false_of_mem_take_findIdx {xs : List α} {p : α → Bool} (h : x ∈ xs
   induction xs with
   | nil => simp
   | cons x xs ih =>
-    simp [findIdx_cons, cond_eq_if, Bool.not_eq_eq_eq_not, Bool.not_true]
+    simp [findIdx_cons, cond_eq_if]
     split <;> split <;> simp_all [Nat.add_min_add_right]
 
 /-! ### findIdx? -/
@@ -550,7 +550,7 @@ theorem dropWhile_eq_drop_findIdx_not {xs : List α} {p : α → Bool} :
 @[simp, grind =] theorem length_zipWith {f : α → β → γ} {l₁ : List α} {l₂ : List β} :
     length (zipWith f l₁ l₂) = min (length l₁) (length l₂) := by
   induction l₁ generalizing l₂ <;> cases l₂ <;>
-    simp_all [succ_min_succ, Nat.zero_min, Nat.min_zero]
+    simp_all [succ_min_succ]
 
 theorem lt_length_left_of_zipWith {f : α → β → γ} {i : Nat} {l : List α} {l' : List β}
     (h : i < (zipWith f l l').length) : i < l.length := by rw [length_zipWith] at h; omega

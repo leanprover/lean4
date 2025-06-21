@@ -172,6 +172,7 @@ def Info.stx : Info → Syntax
   | ofCommandInfo i        => i.stx
   | ofMacroExpansionInfo i => i.stx
   | ofOptionInfo i         => i.stx
+  | ofErrorNameInfo i      => i.stx
   | ofFieldInfo i          => i.stx
   | ofCompletionInfo i     => i.stx
   | ofCustomInfo i         => i.stx
@@ -254,7 +255,7 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
     -/
     if info.stx.isOfKind nullKind || info.toElabInfo?.any (·.elaborator == `Lean.Elab.Tactic.evalWithAnnotateState) then
       return results
-    unless (info matches .ofFieldInfo _ | .ofOptionInfo _ || info.toElabInfo?.isSome) && info.contains hoverPos includeStop do
+    unless (info matches .ofFieldInfo _ | .ofOptionInfo _ | .ofErrorNameInfo _ || info.toElabInfo?.isSome) && info.contains hoverPos includeStop do
       return results
     let r := info.range?.get!
     let priority := (
@@ -303,11 +304,13 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
     if let some decl := (← getOptionDecls).find? oi.optionName then
       return decl.descr
     return none
+  | .ofErrorNameInfo eni => do
+    let some errorExplanation := getErrorExplanationRaw? (← getEnv) eni.errorName | return none
+    return errorExplanation.summaryWithSeverity
   | _ => pure ()
   if let some ei := i.toElabInfo? then
     return ← findDocString? env ei.stx.getKind <||> findDocString? env ei.elaborator
   return none
-
 
 /-- Construct a hover popup, if any, from an info node in a context.-/
 def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option FormatWithInfos) := do

@@ -186,7 +186,7 @@ theorem mapFinIdx_eq_append_iff {xs : Vector α (n + m)} {f : (i : Nat) → α �
   rcases ys with ⟨ys, rfl⟩
   rcases zs with ⟨zs, rfl⟩
   simp only [mapFinIdx_mk, mk_append_mk, eq_mk, Array.mapFinIdx_eq_append_iff, toArray_mapFinIdx,
-    mk_eq, toArray_append, exists_and_left, exists_prop]
+    mk_eq, toArray_append]
   constructor
   · rintro ⟨ys', zs', rfl, h₁, h₂⟩
     have h₁' := congrArg Array.size h₁
@@ -290,7 +290,7 @@ theorem mapIdx_eq_push_iff {xs : Vector α (n + 1)} {b : β} :
     mapIdx f xs = ys.push b ↔
       ∃ (a : α) (zs : Vector α n), xs = zs.push a ∧ mapIdx f zs = ys ∧ f n a = b := by
   rw [mapIdx_eq_mapFinIdx, mapFinIdx_eq_push_iff]
-  simp only [mapFinIdx_eq_mapIdx, exists_and_left, exists_prop]
+  simp only [mapFinIdx_eq_mapIdx]
   constructor
   · rintro ⟨zs, a, rfl, rfl, rfl⟩
     exact ⟨a, zs, by simp⟩
@@ -327,7 +327,7 @@ theorem mapIdx_eq_iff {xs : Vector α n} {f : Nat → α → β} {ys : Vector β
     · specialize h' w
       simp_all
     · simp only [Nat.not_lt] at w
-      simp_all [Array.getElem?_eq_none_iff.mpr w]
+      simp_all
 
 theorem mapIdx_eq_mapIdx_iff {xs : Vector α n} :
     mapIdx f xs = mapIdx g xs ↔ ∀ (i : Nat) (h : i < n), f i xs[i] = g i xs[i] := by

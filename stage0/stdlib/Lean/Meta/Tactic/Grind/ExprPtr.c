@@ -13,20 +13,22 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instHashableExprPtr___boxed(lean_object*);
 size_t lean_usize_shift_right(size_t, size_t);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_isSameExpr_unsafe__1___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint64_t l_Lean_Meta_Grind_instHashableExprPtr(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instHashableExprPtr;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instHashableExprPtr___lam__0___boxed(lean_object*);
 size_t lean_ptr_addr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_hashPtrExpr_unsafe__1___boxed(lean_object*);
 uint64_t lean_usize_to_uint64(size_t);
+LEAN_EXPORT uint8_t l_Lean_Meta_Grind_instBEqExprPtr___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_isSameExpr___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_isSameExpr_unsafe__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instBEqExprPtr___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instBEqExprPtr___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_hashPtrExpr___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_isSameExpr(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_Grind_instBEqExprPtr(lean_object*, lean_object*);
+LEAN_EXPORT uint64_t l_Lean_Meta_Grind_instHashableExprPtr___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instBEqExprPtr;
 LEAN_EXPORT uint64_t l_Lean_Meta_Grind_hashPtrExpr_unsafe__1(lean_object*);
 LEAN_EXPORT uint64_t l_Lean_Meta_Grind_hashPtrExpr(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_isSameExpr_unsafe__1(lean_object* x_1, lean_object* x_2) {
@@ -108,7 +110,7 @@ x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT uint64_t l_Lean_Meta_Grind_instHashableExprPtr(lean_object* x_1) {
+LEAN_EXPORT uint64_t l_Lean_Meta_Grind_instHashableExprPtr___lam__0(lean_object* x_1) {
 _start:
 {
 uint64_t x_2; 
@@ -116,17 +118,25 @@ x_2 = l_Lean_Meta_Grind_hashPtrExpr_unsafe__1(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instHashableExprPtr___boxed(lean_object* x_1) {
+static lean_object* _init_l_Lean_Meta_Grind_instHashableExprPtr() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_instHashableExprPtr___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instHashableExprPtr___lam__0___boxed(lean_object* x_1) {
 _start:
 {
 uint64_t x_2; lean_object* x_3; 
-x_2 = l_Lean_Meta_Grind_instHashableExprPtr(x_1);
+x_2 = l_Lean_Meta_Grind_instHashableExprPtr___lam__0(x_1);
 lean_dec(x_1);
 x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Meta_Grind_instBEqExprPtr(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lean_Meta_Grind_instBEqExprPtr___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -134,11 +144,19 @@ x_3 = l_Lean_Meta_Grind_isSameExpr_unsafe__1(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instBEqExprPtr___boxed(lean_object* x_1, lean_object* x_2) {
+static lean_object* _init_l_Lean_Meta_Grind_instBEqExprPtr() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_instBEqExprPtr___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instBEqExprPtr___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_Meta_Grind_instBEqExprPtr(x_1, x_2);
+x_3 = l_Lean_Meta_Grind_instBEqExprPtr___lam__0(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -154,6 +172,10 @@ _G_initialized = true;
 res = initialize_Lean_Expr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lean_Meta_Grind_instHashableExprPtr = _init_l_Lean_Meta_Grind_instHashableExprPtr();
+lean_mark_persistent(l_Lean_Meta_Grind_instHashableExprPtr);
+l_Lean_Meta_Grind_instBEqExprPtr = _init_l_Lean_Meta_Grind_instBEqExprPtr();
+lean_mark_persistent(l_Lean_Meta_Grind_instBEqExprPtr);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

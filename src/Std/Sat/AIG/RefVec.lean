@@ -91,7 +91,7 @@ theorem get_push_ref_lt (s : RefVec aig len) (ref : AIG.Ref aig) (idx : Nat)
     (s.push ref).get idx (by omega) = s.get idx hidx := by
   simp only [get, push, Ref.mk.injEq]
   cases ref
-  simp only [Ref.mk.injEq]
+  simp only
   rw [Vector.getElem_push_lt]
   · simp
   · simp [hidx]

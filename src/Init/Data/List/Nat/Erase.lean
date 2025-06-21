@@ -29,7 +29,7 @@ theorem getElem?_eraseIdx {l : List α} {i : Nat} {j : Nat} :
     · simp only [length_take, Nat.min_def, Nat.not_lt] at h
       split at h
       · omega
-      · simp_all [getElem?_eq_none]
+      · simp_all
         omega
     · simp only [length_take]
       simp only [length_take, Nat.min_def, Nat.not_lt] at h
@@ -46,7 +46,7 @@ theorem getElem?_eraseIdx_of_lt {l : List α} {i : Nat} {j : Nat} (h : j < i) :
 theorem getElem?_eraseIdx_of_ge {l : List α} {i : Nat} {j : Nat} (h : i ≤ j) :
     (l.eraseIdx i)[j]? = l[j + 1]? := by
   rw [getElem?_eraseIdx]
-  simp only [dite_eq_ite, ite_eq_right_iff]
+  simp only [ite_eq_right_iff]
   intro h'
   omega
 

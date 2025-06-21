@@ -110,7 +110,7 @@ theorem forIn'_id_yield_eq_pelim
 
 theorem forIn'_join [Monad m] [LawfulMonad m] (b : β) (o : Option (Option α))
     (f : (a : α) → a ∈ o.join → β → m (ForInStep β)) :
-    forIn' o.join b f = forIn' o b (fun o' ho' b => ForInStep.yield <$> forIn' o' b (fun a ha b' => f a (by simp_all [join_eq_some_iff]) b')) := by
+    forIn' o.join b f = forIn' o b (fun o' ho' b => ForInStep.yield <$> forIn' o' b (fun a ha b' => f a (by simp_all) b')) := by
   cases o with
   | none => simp
   | some a => simpa using forIn'_congr rfl rfl (by simp)

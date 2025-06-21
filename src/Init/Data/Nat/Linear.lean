@@ -226,7 +226,7 @@ theorem Poly.denote_insert (ctx : Context) (k : Nat) (v : Var) (p : Poly) :
     · by_cases h₂ : Nat.beq v v'
       · simp only [insert, h₁, h₂, cond_false, cond_true]
         simp [Nat.eq_of_beq_eq_true h₂]
-      · simp only [insert, h₁, h₂, cond_false, cond_true]
+      · simp only [insert, h₁, h₂, cond_false]
         simp [denote_insert]
 
 attribute [local simp] Poly.denote_insert
@@ -253,7 +253,7 @@ attribute [local simp] Poly.denote_append
 theorem Poly.denote_cons (ctx : Context) (k : Nat) (v : Var) (p : Poly) : denote ctx ((k, v) :: p) = k * v.denote ctx + p.denote ctx := by
   match p with
   | []     => simp
-  | _ :: m => simp [denote_cons]
+  | _ :: m => simp
 
 attribute [local simp] Poly.denote_cons
 
@@ -434,13 +434,13 @@ theorem Expr.denote_toPoly_go (ctx : Context) (e : Expr) :
     simp [toPoly.go, h, Var.denote]
   | case3 k i => simp [toPoly.go]
   | case4 k a b iha ihb => simp [toPoly.go, iha, ihb]
-  | case5 k k' a h => simp [toPoly.go, h, eq_of_beq h]
+  | case5 k k' a h => simp [toPoly.go, eq_of_beq h]
   | case6 k a k' h ih =>
     simp only [toPoly.go, denote, mul_eq]
     simp [h, cond_false, ih, Nat.mul_assoc]
   | case7 k a k' h =>
     simp only [toPoly.go, denote, mul_eq]
-    simp [h, eq_of_beq h]
+    simp [eq_of_beq h]
   | case8 k a k' h ih =>
     simp only [toPoly.go, denote, mul_eq]
     simp [h, cond_false, ih, Nat.mul_assoc]

@@ -31,7 +31,7 @@ theorem denote_mkFullAdderOut (assign : α → Bool) (aig : AIG α) (input : Ful
     ((⟦aig, input.lhs, assign⟧ ^^ ⟦aig, input.rhs, assign⟧) ^^ ⟦aig, input.cin, assign⟧)
     := by
   simp only [mkFullAdderOut, Ref.cast_eq, denote_mkXorCached, denote_projected_entry, Bool.bne_assoc,
-    Bool.bne_left_inj]
+    ]
   rw [LawfulOperator.denote_mem_prefix (f := mkXorCached)]
 
 @[simp]
@@ -41,8 +41,8 @@ theorem denote_mkFullAdderCarry (assign : α → Bool) (aig : AIG α) (input : F
       ((⟦aig, input.lhs, assign⟧ ^^ ⟦aig, input.rhs, assign⟧) && ⟦aig, input.cin, assign⟧ ||
        ⟦aig, input.lhs, assign⟧ && ⟦aig, input.rhs, assign⟧)
     := by
-  simp only [mkFullAdderCarry, Ref.cast_eq, Int.reduceNeg, denote_mkOrCached,
-    LawfulOperator.denote_input_entry, denote_mkAndCached, denote_projected_entry',
+  simp only [mkFullAdderCarry, Ref.cast_eq, denote_mkOrCached,
+    LawfulOperator.denote_input_entry, denote_mkAndCached, 
     denote_mkXorCached, denote_projected_entry]
   congr 2
   · rw [LawfulOperator.denote_mem_prefix (f := mkXorCached) (h := input.cin.hgate)]
@@ -114,7 +114,7 @@ theorem go_get_aux (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref a
       · assumption
     · apply go_le_size
   · rw [← hgo]
-    simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
+    simp only [Nat.le_refl]
     obtain rfl : curr = w := by omega
     simp
 termination_by w - curr
@@ -189,7 +189,7 @@ theorem go_denote_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref
         · simp
         · simp [Ref.hgate]
       · unfold mkFullAdder
-        simp only [Ref.cast_eq, id_eq, Int.reduceNeg, denote_projected_entry, denote_mkFullAdderCarry,
+        simp only [Ref.cast_eq, denote_projected_entry, denote_mkFullAdderCarry,
           FullAdderInput.lhs_cast, FullAdderInput.rhs_cast, FullAdderInput.cin_cast,
           BitVec.carry_succ]
         rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderOut)]

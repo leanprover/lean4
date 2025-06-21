@@ -1701,8 +1701,7 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
      := by
   rcases w; decide +revert
   case succ w =>
-    simp only [
-      sdiv_eq, udiv_eq]
+    simp only [sdiv_eq, udiv_eq]
     rcases hxmsb : x.msb <;> rcases hymsb : y.msb
     · simp [hxmsb, msb_udiv_eq_false_of, Bool.not_false, Bool.and_false, Bool.false_and,
         Bool.and_true, Bool.or_self, Bool.and_self]

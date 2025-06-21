@@ -89,6 +89,9 @@ theorem mul_hmul (n m : Nat) (a : M) : (n * m) * a = n * (m * a) := by
   | succ n ih =>
     rw [Nat.add_one_mul, add_hmul, ih, add_hmul, one_hmul]
 
+instance (priority := 100) (M : Type u) [NatModule M] : SMul Nat M where
+  smul a x := a * x
+
 end NatModule
 
 namespace IntModule
@@ -104,6 +107,12 @@ instance toNatModule (M : Type u) [i : IntModule M] : NatModule M :=
     hmul_zero := by simp [← hmul_nat, hmul_zero]
     add_hmul := by simp [← hmul_nat, add_hmul]
     hmul_add := by simp [← hmul_nat, hmul_add] }
+
+instance (priority := 100) (M : Type u) [IntModule M] : SMul Nat M where
+  smul a x := a * x
+
+instance (priority := 100) (M : Type u) [IntModule M] : SMul Int M where
+  smul a x := a * x
 
 variable {M : Type u} [IntModule M]
 

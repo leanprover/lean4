@@ -474,13 +474,6 @@ theorem eq_neg {α} [IntModule α] (ctx : Context α) (p₁ p₂ : Poly)
 def eq_coeff_cert (p₁ p₂ : Poly) (k : Nat) :=
   k != 0 && p₁ == p₂.mul k
 
-theorem no_nat_zero_divisors' [IntModule α] [NoNatZeroDivisors α] (k : Nat) (a : α)
-    : k ≠ 0 → k * a = 0 → a = 0 := by
-  intro h₁ h₂
-  have : k * a = k * (0 : α) → a = 0 := no_nat_zero_divisors k a 0 h₁
-  rw [NatModule.hmul_zero] at this
-  exact this h₂
-
 theorem eq_coeff {α} [IntModule α] [NoNatZeroDivisors α] (ctx : Context α) (p₁ p₂ : Poly) (k : Nat)
     : eq_coeff_cert p₁ p₂ k → p₁.denote' ctx = 0 → p₂.denote' ctx = 0 := by
   simp [eq_coeff_cert]; intro h _; subst p₁; simp [*, hmul_nat]

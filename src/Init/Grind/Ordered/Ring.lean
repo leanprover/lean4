@@ -75,7 +75,7 @@ end Preorder
 
 section PartialOrder
 
-variable [PartialOrder R] [i : Ring.IsOrdered R]
+variable [PartialOrder R] [Ring.IsOrdered R]
 
 theorem zero_le_one : (0 : R) ≤ 1 := Preorder.le_of_lt zero_lt_one
 

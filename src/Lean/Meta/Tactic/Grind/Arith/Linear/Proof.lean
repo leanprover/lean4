@@ -183,8 +183,6 @@ private def mkCommRingLinOrdThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
   return mkApp5 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getLinearOrderInst) (← getRingIsOrdInst) (← getRingContext)
 
-instance : Repr LinExpr := inferInstanceAs (Repr (Lean.Grind.Linarith.Expr))
-
 mutual
 partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' do
   match c'.h with

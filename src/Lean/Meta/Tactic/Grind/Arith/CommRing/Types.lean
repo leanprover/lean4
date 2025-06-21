@@ -204,6 +204,7 @@ structure Semiring where
   commSemiringInst   : Expr
   /-- `AddRightCancel` instance for `type` if available. -/
   addRightCancelInst? : Option Expr
+  toQFn          : Expr
   addFn          : Expr
   mulFn          : Expr
   powFn          : Expr

@@ -168,6 +168,7 @@ where
     let .some semiringInst ← trySynthInstance semiring | return none
     let commSemiring := mkApp (mkConst ``Grind.CommSemiring [u]) type
     let .some commSemiringInst ← trySynthInstance commSemiring | return none
+    let toQFn ← internalizeFn <| mkApp2 (mkConst ``Grind.Ring.OfSemiring.toQ [u]) type semiringInst
     let addFn ← getAddFn type u
     let mulFn ← getMulFn type u
     let powFn ← getPowFn type u semiringInst
@@ -182,7 +183,7 @@ where
     let id := (← get').semirings.size
     let semiring : Semiring := {
       id, type, ringId, u, semiringInst, commSemiringInst,
-      addFn, mulFn, powFn, natCastFn, addRightCancelInst?
+      addFn, mulFn, powFn, natCastFn, toQFn, addRightCancelInst?
     }
     modify' fun s => { s with semirings := s.semirings.push semiring }
     return some id

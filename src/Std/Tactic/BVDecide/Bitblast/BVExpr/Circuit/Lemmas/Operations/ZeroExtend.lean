@@ -45,7 +45,7 @@ theorem go_get_aux (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWidth
       rw [AIG.RefVec.get_push_ref_lt]
   · dsimp only at hgo
     rw [← hgo]
-    simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
+    simp only [Nat.le_refl]
     have : curr = newWidth := by omega
     subst this
     simp

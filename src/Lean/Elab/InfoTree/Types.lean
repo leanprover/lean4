@@ -94,6 +94,7 @@ inductive CompletionInfo where
   | fieldId (stx : Syntax) (id : Option Name) (lctx : LocalContext) (structName : Name)
   | namespaceId (stx : Syntax)
   | option (stx : Syntax)
+  | errorName (stx partialId : Syntax)
   | endSection (stx : Syntax) (scopeNames : List String)
   | tactic (stx : Syntax)
 
@@ -102,6 +103,17 @@ structure OptionInfo where
   stx : Syntax
   optionName : Name
   declName : Name
+
+/--
+Info for an error name provided as an identifier to one of the named-error macros (`throwNamedError`
+or similar).
+
+Note that this is *not* added for `Name` terms passed to the underlying functions (e.g.,
+`Lean.throwNamedError`), though these functions generally should not be invoked directly anyway.
+-/
+structure ErrorNameInfo where
+  stx : Syntax
+  errorName : Name
 
 structure FieldInfo where
   /-- Name of the projection. -/
@@ -199,6 +211,7 @@ inductive Info where
   | ofCommandInfo (i : CommandInfo)
   | ofMacroExpansionInfo (i : MacroExpansionInfo)
   | ofOptionInfo (i : OptionInfo)
+  | ofErrorNameInfo (i : ErrorNameInfo)
   | ofFieldInfo (i : FieldInfo)
   | ofCompletionInfo (i : CompletionInfo)
   | ofUserWidgetInfo (i : UserWidgetInfo)

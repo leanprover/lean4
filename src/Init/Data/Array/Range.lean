@@ -219,7 +219,7 @@ theorem getElem?_zipIdx {xs : Array α} {i j} : (zipIdx xs i)[j]? = xs[j]?.map f
 
 theorem map_snd_add_zipIdx_eq_zipIdx {xs : Array α} {n k : Nat} :
     map (Prod.map id (· + n)) (zipIdx xs k) = zipIdx xs (n + k) :=
-  ext_getElem? fun i ↦ by simp [(· ∘ ·), Nat.add_comm, Nat.add_left_comm]; rfl
+  ext_getElem? fun i ↦ by simp [Nat.add_comm, Nat.add_left_comm]; rfl
 
 -- Arguments are explicit for parity with `zipIdx_map_fst`.
 @[simp]

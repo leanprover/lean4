@@ -194,14 +194,14 @@ theorem getElem_zip {as : Vector α n} {bs : Vector β n} {i : Nat} {h : i < n} 
 theorem zip_eq_zipWith {as : Vector α n} {bs : Vector β n} : zip as bs = zipWith Prod.mk as bs := by
   rcases as with ⟨as, rfl⟩
   rcases bs with ⟨bs, h⟩
-  simp [Array.zip_eq_zipWith, h]
+  simp [Array.zip_eq_zipWith]
 
 @[grind _=_]
 theorem zip_map {f : α → γ} {g : β → δ} {as : Vector α n} {bs : Vector β n} :
     zip (as.map f) (bs.map g) = (zip as bs).map (Prod.map f g) := by
   rcases as with ⟨as, rfl⟩
   rcases bs with ⟨bs, h⟩
-  simp [Array.zip_map, h]
+  simp [Array.zip_map]
 
 @[grind _=_]
 theorem zip_map_left {f : α → γ} {as : Vector α n} {bs : Vector β n} :
@@ -218,7 +218,7 @@ theorem zip_append {as : Vector α n} {bs : Vector β n} {as' : Vector α m} {bs
   rcases bs with ⟨bs, h⟩
   rcases as' with ⟨as', rfl⟩
   rcases bs' with ⟨bs', h'⟩
-  simp [Array.zip_append, h, h']
+  simp [Array.zip_append, h]
 
 @[grind =]
 theorem zip_map' {f : α → β} {g : α → γ} {xs : Vector α n} :
@@ -287,7 +287,7 @@ theorem unzip_snd : (unzip xs).snd = xs.map Prod.snd := by
 @[grind =]
 theorem unzip_eq_map {xs : Vector (α × β) n} : unzip xs = (xs.map Prod.fst, xs.map Prod.snd) := by
   cases xs
-  simp [List.unzip_eq_map]
+  simp
 
 -- The argument `xs` is explicit so we can rewrite from right to left.
 theorem zip_unzip (xs : Vector (α × β) n) : zip (unzip xs).1 (unzip xs).2 = xs := by
@@ -298,19 +298,19 @@ theorem unzip_zip_left {as : Vector α n} {bs : Vector β n}  :
     (unzip (zip as bs)).1 = as := by
   rcases as with ⟨as, rfl⟩
   rcases bs with ⟨bs, h⟩
-  simp [Array.unzip_zip_left, h, Array.map_fst_zip]
+  simp [h, Array.map_fst_zip]
 
 theorem unzip_zip_right {as : Vector α n} {bs : Vector β n} :
     (unzip (zip as bs)).2 = bs := by
   rcases as with ⟨as, rfl⟩
   rcases bs with ⟨bs, h⟩
-  simp [Array.unzip_zip_right, h, Array.map_snd_zip]
+  simp [h, Array.map_snd_zip]
 
 theorem unzip_zip {as : Vector α n} {bs : Vector β n} :
     unzip (zip as bs) = (as, bs) := by
   rcases as with ⟨as, rfl⟩
   rcases bs with ⟨bs, h⟩
-  simp [Array.unzip_zip, h, Array.map_fst_zip, Array.map_snd_zip]
+  simp [Array.unzip_zip, h]
 
 theorem zip_of_prod {as : Vector α n} {bs : Vector β n} {xs : Vector (α × β) n} (hl : xs.map Prod.fst = as)
     (hr : xs.map Prod.snd = bs) : xs = as.zip bs := by

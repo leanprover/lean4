@@ -23,20 +23,8 @@ structure ErrorExplanation.Metadata where
   summary : String
   sinceVersion : String
   severity : MessageSeverity     := .error
-  removedVersion : Option String := none
+  removedVersion? : Option String := none
   deriving FromJson, ToJson
-
-/--
-Describes the location where (the identifier for) an error explanation is declared.
-
-We want to avoid polluting the environment with dummy declarations for error explanations (since,
-outside of the manual, we care only about their names), but we still want jump-to-location
-functionality to work; we use these location values to facilitate that.
--/
-structure ErrorExplanation.Location where
-  uri        : String
-  rangeStart : Nat × Nat
-  rangeEnd   : Nat × Nat
 
 /--
 An explanation of a named error message.
@@ -47,9 +35,16 @@ the bottom of corresponding error messages thrown using `throwNamedError` or `th
 structure ErrorExplanation where
   doc : String
   metadata : ErrorExplanation.Metadata
-  declLoc? : Option ErrorExplanation.Location
+  declLoc? : Option DeclarationLocation
 
 namespace ErrorExplanation
+
+/--
+Returns the error explanation summary prepended with its severity. For use in completions and
+hovers.
+-/
+def summaryWithSeverity (explan : ErrorExplanation) : String :=
+  s!"({explan.metadata.severity}) {explan.metadata.summary}"
 
 /--
 The kind of a code block in an error explanation example. `broken` blocks raise the diagnostic being

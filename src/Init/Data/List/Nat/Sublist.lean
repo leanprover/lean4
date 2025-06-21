@@ -141,7 +141,7 @@ theorem suffix_iff_eq_drop : l₁ <:+ l₂ ↔ l₁ = drop (length l₂ - length
     xs.take i <+: xs.take j ↔ i ≤ j := by
   simp only [prefix_iff_eq_take, length_take]
   induction i generalizing xs j with
-  | zero => simp [Nat.min_eq_left, eq_self_iff_true, Nat.zero_le, take]
+  | zero => simp [Nat.min_eq_left, Nat.zero_le, take]
   | succ i IH =>
     cases xs with
     | nil => simp_all
@@ -150,7 +150,7 @@ theorem suffix_iff_eq_drop : l₁ <:+ l₂ ↔ l₁ = drop (length l₂ - length
       | zero =>
         simp
       | succ j =>
-        simp only [length_cons, Nat.succ_eq_add_one, Nat.add_lt_add_iff_right] at hm
+        simp only [length_cons, Nat.add_lt_add_iff_right] at hm
         simp [← @IH j xs hm, Nat.min_eq_left, Nat.le_of_lt hm]
 
 @[simp] theorem append_left_sublist_self {xs : List α} (ys : List α) : xs ++ ys <+ ys ↔ xs = [] := by
@@ -193,7 +193,7 @@ theorem append_sublist_of_sublist_right {xs ys zs : List α} (h : zs <+ ys) :
     have hl' := h'.length_le
     simp only [length_append] at hl'
     have : xs.length = 0 := by omega
-    simp_all only [Nat.zero_add, length_eq_zero_iff, true_and, append_nil]
+    simp_all only [Nat.zero_add, length_eq_zero_iff, true_and]
     exact Sublist.eq_of_length_le h' hl
   · rintro ⟨rfl, rfl⟩
     simp

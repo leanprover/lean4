@@ -29,7 +29,7 @@ namespace Array
   · simp
     omega
   · simp only [size_extract] at h₁ h₂
-    simp [h]
+    simp
 
 theorem size_extract_le {as : Array α} {i j : Nat} :
     (as.extract i j).size ≤ j - i := by
@@ -162,7 +162,7 @@ theorem extract_sub_one {as : Array α} {i j : Nat} (h : j < as.size) :
 @[simp]
 theorem getElem?_extract_of_lt {as : Array α} {i j k : Nat} (h : k < min j as.size - i) :
     (as.extract i j)[k]? = some (as[i + k]'(by omega)) := by
-  simp [getElem?_extract, h]
+  simp [h]
 
 theorem getElem?_extract_of_succ {as : Array α} {j : Nat} :
     (as.extract 0 (j + 1))[j]? = as[j]? := by

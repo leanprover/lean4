@@ -225,9 +225,6 @@ private def elabSimpArg (indexConfig : Meta.ConfigWithKey) (eraseLocal : Bool) (
         if let .ok declName ← observing (realizeGlobalConstNoOverloadWithInfo id) then
           if (← Simp.isSimproc declName) then
             return .eraseSimproc declName
-          -- TODO: What was this about ctx.config.autoUnfold and withRef?
-          -- else if ctx.config.autoUnfold then
-          --   return .erase (.decl declName)
           else
             return .erase (.decl declName)
         else
@@ -278,7 +275,7 @@ structure ElabSimpArgsResult where
   simpArgs : Array (Syntax × ElabSimpArgResult)
 
 /-- Implements the effect of the `*` attribute. -/
-def elabStarArg (ctx : Simp.Context) : MetaM Simp.Context := do
+private def applyStarArg (ctx : Simp.Context) : MetaM Simp.Context := do
   let mut simpTheorems := ctx.simpTheorems
   /-
   When using `zetaDelta := false`, we do not expand let-declarations when using `[*]`.
@@ -355,7 +352,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
         let mut ctx := ctx.setZetaDeltaSet zetaDeltaSet (← getZetaDeltaFVarIds)
         ctx := ctx.setSimpTheorems (thmsArray.set! 0 thms)
         if !ignoreStarArg && starArg then
-          ctx ← elabStarArg ctx
+          ctx ← applyStarArg ctx
 
         return { ctx, simprocs, simpArgs := args}
     -- If recovery is disabled, then we want simp argument elaboration failures to be exceptions.

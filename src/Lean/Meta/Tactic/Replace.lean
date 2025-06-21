@@ -171,6 +171,20 @@ def _root_.Lean.MVarId.withReverted (mvarId : MVarId) (fvarIds : Array FVarId)
   return (r, mvarId)
 
 /--
+Like `Lean.MVarId.withReverted`, but reverts all local variables starting from `fvarId`.
+-/
+def _root_.Lean.MVarId.withRevertedFrom (mvarId : MVarId) (fvarId : FVarId)
+    (k : MVarId → Array FVarId → MetaM (α × Array (Option FVarId) × MVarId)) : MetaM (α × MVarId) := do
+  let (xs, mvarId) ← mvarId.revertFrom fvarId
+  let (r, xs', mvarId) ← k mvarId xs
+  let (ys, mvarId) ← mvarId.introNP xs'.size
+  mvarId.withContext do
+    for x? in xs', y in ys do
+      if let some x := x? then
+        Elab.pushInfoLeaf (.ofFVarAliasInfo { id := y, baseId := x, userName := ← y.getUserName })
+  return (r, mvarId)
+
+/--
 Replaces the type of the free variable `fvarId` with `typeNew`.
 
 If `checkDefEq` is `true` then an error is thrown if `typeNew` is not definitionally
@@ -216,15 +230,16 @@ def _root_.Lean.MVarId.modifyTargetEqLHS (mvarId : MVarId) (f : Expr → MetaM E
      else
        throwTacticEx `modifyTargetEqLHS mvarId m!"equality expected{indentExpr target}"
 
-
 /--
 Clears the value of the local definition `fvarId`. Ensures that the resulting goal state
 is still type correct. Throws an error if it is a local hypothesis without a value.
+
+Preserves the order of the local context.
 -/
 def _root_.Lean.MVarId.clearValue (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId := do
   mvarId.checkNotAssigned `clear_value
   let tag ← mvarId.getTag
-  let (_, mvarId) ← mvarId.withReverted #[fvarId] fun mvarId' fvars => mvarId'.withContext do
+  let (_, mvarId) ← mvarId.withRevertedFrom fvarId fun mvarId' fvars => mvarId'.withContext do
     let tgt ← mvarId'.getType
     unless tgt.isLet do
       mvarId.withContext <|

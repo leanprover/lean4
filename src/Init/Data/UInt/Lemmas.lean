@@ -1765,7 +1765,7 @@ theorem USize.le_iff_toFin_le {a b : USize} : a ≤ b ↔ a.toFin ≤ b.toFin :=
   simp [lt_iff_toNat_lt, UInt32.lt_iff_toNat_lt]
 @[simp] theorem USize.toUInt32_lt {a b : USize} : a.toUInt32 < b.toUInt32 ↔ a % 4294967296 < b % 4294967296 := by
   rw [← UInt32.toUSize_lt, toUSize_toUInt32]
-  simp [lt_iff_toNat_lt, UInt32.lt_iff_toNat_lt]
+  simp [lt_iff_toNat_lt]
 
 @[simp] theorem UInt64.toUSize_lt {a b : UInt64} : a.toUSize < b.toUSize ↔ a % UInt64.ofNat USize.size < b % UInt64.ofNat USize.size := by
   simp only [USize.lt_iff_toNat_lt, toNat_toUSize, lt_iff_toNat_lt, UInt64.toNat_mod, toNat_ofNat', Nat.reducePow]
@@ -1815,10 +1815,10 @@ theorem USize.le_iff_toFin_le {a b : USize} : a ≤ b ↔ a.toFin ≤ b.toFin :=
   simp [le_iff_toNat_le, UInt32.le_iff_toNat_le]
 @[simp] theorem USize.toUInt32_le {a b : USize} : a.toUInt32 ≤ b.toUInt32 ↔ a % 4294967296 ≤ b % 4294967296 := by
   rw [← UInt32.toUSize_le, toUSize_toUInt32]
-  simp [le_iff_toNat_le, UInt32.le_iff_toNat_le]
+  simp [le_iff_toNat_le]
 
 @[simp] theorem UInt64.toUSize_le {a b : UInt64} : a.toUSize ≤ b.toUSize ↔ a % UInt64.ofNat USize.size ≤ b % UInt64.ofNat USize.size := by
-  simp only [USize.le_iff_toNat_le, toNat_toUSize, le_iff_toNat_le, UInt64.toNat_mod, UInt64.reduceToNat]
+  simp only [USize.le_iff_toNat_le, toNat_toUSize, le_iff_toNat_le, UInt64.toNat_mod]
   cases System.Platform.numBits_eq <;> simp_all [USize.size]
 
 @[simp] theorem UInt16.toUInt8_neg (a : UInt16) : (-a).toUInt8 = -a.toUInt8 := UInt8.toBitVec_inj.1 (by simp)
@@ -1927,7 +1927,7 @@ theorem USize.sub_eq_add_mul (a b : USize) : a - b = a + USize.ofNatLT (USize.si
 @[simp] theorem UInt16.ofNat_usizeSize_sub_one : UInt16.ofNat (USize.size - 1) = 65535 := UInt16.toNat.inj (by simp)
 @[simp] theorem UInt32.ofNat_usizeSize_sub_one : UInt32.ofNat (USize.size - 1) = 4294967295 := UInt32.toNat.inj (by simp)
 @[simp] theorem USize.ofNat_uInt64Size_sub_one : USize.ofNat (UInt64.size - 1) = USize.ofNatLT (USize.size - 1) (Nat.sub_one_lt (Nat.pos_iff_ne_zero.1 size_pos)) :=
-  USize.toNat.inj (by simp [USize.toNat_ofNat])
+  USize.toNat.inj (by simp)
 
 @[simp] theorem UInt16.toUInt8_sub (a b : UInt16) : (a - b).toUInt8 = a.toUInt8 - b.toUInt8 := by
   simp [UInt16.sub_eq_add_neg, UInt8.sub_eq_add_neg]
@@ -2093,11 +2093,11 @@ theorem USize.ofNat_eq_iff_mod_eq_toNat (a : Nat) (b : USize) : USize.ofNat a = 
 @[simp] theorem USize.ofInt_one : ofInt 1 = 1 := by
   rcases System.Platform.numBits_eq with h | h <;>
   · apply USize.toNat_inj.mp
-    simp_all [USize.ofInt, USize.ofNat, size, toNat]
+    simp_all [USize.ofInt, USize.ofNat, toNat]
 @[simp] theorem USize.ofInt_neg_one : ofInt (-1) = -1 := by
   rcases System.Platform.numBits_eq with h | h <;>
   · apply USize.toNat_inj.mp
-    simp_all [USize.ofInt, USize.ofNat, size, toNat]
+    simp_all [USize.ofInt, USize.ofNat, toNat]
 
 @[simp] theorem UInt8.ofNat_add (a b : Nat) : UInt8.ofNat (a + b) = UInt8.ofNat a + UInt8.ofNat b := by
   simp [UInt8.ofNat_eq_iff_mod_eq_toNat]

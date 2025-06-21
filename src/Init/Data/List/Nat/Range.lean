@@ -508,7 +508,7 @@ theorem zipIdx_eq_append_iff {l : List α} {k : Nat} :
   · rintro ⟨l₁', l₂', rfl, rfl, rfl⟩
     simp only [zipIdx_eq_zip_range']
     refine ⟨l₁', l₂', range' k l₁'.length, range' (k + l₁'.length) l₂'.length, ?_⟩
-    simp [Nat.add_comm]
+    simp
 
 /-! ### enumFrom -/
 
@@ -635,7 +635,7 @@ theorem enumFrom_eq_append_iff {l : List α} {n : Nat} :
   · rintro ⟨l₁', l₂', rfl, rfl, rfl⟩
     simp only [enumFrom_eq_zip_range']
     refine ⟨range' n l₁'.length, range' (n + l₁'.length) l₂'.length, l₁', l₂', ?_⟩
-    simp [Nat.add_comm]
+    simp
 
 end
 

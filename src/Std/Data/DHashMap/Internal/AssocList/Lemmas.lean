@@ -61,7 +61,7 @@ theorem getCast?_eq [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α} :
 @[simp]
 theorem contains_eq [BEq α] {l : AssocList α β} {a : α} :
     l.contains a = containsKey a l.toList := by
-  induction l <;> simp_all [contains, List.containsKey]
+  induction l <;> simp_all [contains]
 
 @[simp]
 theorem getCast_eq [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α} {h} :
@@ -242,7 +242,7 @@ variable {β : Type v}
 theorem toList_alter [BEq α] [EquivBEq α] {a : α} {f : Option β → Option β}
     {l : AssocList α (fun _ => β)} : Perm (alter a f l).toList (Const.alterKey a f l.toList) := by
   induction l
-  · simp only [alter, toList_nil, alterKey_nil]
+  · simp only [alter, toList_nil]
     split <;> simp_all
   · rw [toList]
     refine Perm.trans ?_ Const.alterKey_cons_perm.symm
@@ -253,7 +253,7 @@ theorem modify_eq_alter [BEq α] [EquivBEq α] {a : α} {f : β → β} {l : Ass
     modify a f l = alter a (·.map f) l := by
   induction l
   · rfl
-  · next ih => simp only [modify, beq_iff_eq, alter, Option.map_some, ih]
+  · next ih => simp only [modify, alter, Option.map_some, ih]
 
 end Const
 

@@ -716,7 +716,7 @@ theorem ISize.shiftLeft_or {a b c : ISize} : (a ||| b) <<< c = (a <<< c) ||| (b 
 @[simp] theorem Int32.neg_one_shiftLeft_or_shiftLeft {a b : Int32} :
     (-1) <<< b ||| a <<< b = (-1) <<< b := by simp [← Int32.shiftLeft_or]
 @[simp] theorem Int64.neg_one_shiftLeft_or_shiftLeft {a b : Int8} :
-    (-1) <<< b ||| a <<< b = (-1) <<< b := by simp [← Int64.shiftLeft_or]
+    (-1) <<< b ||| a <<< b = (-1) <<< b := by simp
 @[simp] theorem ISize.neg_one_shiftLeft_or_shiftLeft {a b : ISize} :
     (-1) <<< b ||| a <<< b = (-1) <<< b := by simp [← ISize.shiftLeft_or]
 

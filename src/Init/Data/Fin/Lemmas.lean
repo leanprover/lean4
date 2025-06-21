@@ -381,7 +381,7 @@ theorem zero_ne_one : (0 : Fin (n + 2)) ≠ 1 := Fin.ne_of_lt one_pos
 @[simp] theorem val_succ (j : Fin n) : (j.succ : Nat) = j + 1 := rfl
 
 @[simp] theorem succ_pos (a : Fin n) : (0 : Fin (n + 1)) < a.succ := by
-  simp [Fin.lt_def, Nat.succ_pos]
+  simp [Fin.lt_def]
 
 @[simp] theorem succ_le_succ_iff {a b : Fin n} : a.succ ≤ b.succ ↔ a ≤ b := Nat.succ_le_succ_iff
 
@@ -414,7 +414,7 @@ theorem one_lt_succ_succ (a : Fin n) : (1 : Fin (n + 2)) < a.succ.succ := by
   simp only [lt_def, val_add, val_last, Fin.ext_iff]
   let ⟨k, hk⟩ := k
   match Nat.eq_or_lt_of_le (Nat.le_of_lt_succ hk) with
-  | .inl h => cases h; simp [Nat.succ_pos]
+  | .inl h => cases h; simp
   | .inr hk' => simp [Nat.ne_of_lt hk', Nat.mod_eq_of_lt (Nat.succ_lt_succ hk'), Nat.le_succ]
 
 @[simp] theorem add_one_le_iff {n : Nat} : ∀ {k : Fin (n + 1)}, k + 1 ≤ k ↔ k = last _ := by
@@ -426,7 +426,7 @@ theorem one_lt_succ_succ (a : Fin n) : (1 : Fin (n + 2)) < a.succ.succ := by
     intro (k : Fin (n+2))
     rw [← add_one_lt_iff, lt_def, le_def, Nat.lt_iff_le_and_ne, and_iff_left]
     rw [val_add_one]
-    split <;> simp [*, (Nat.succ_ne_zero _).symm, Nat.ne_of_gt (Nat.lt_succ_self _)]
+    split <;> simp [*, Nat.ne_of_gt (Nat.lt_succ_self _)]
 
 @[simp] theorem last_le_iff {n : Nat} {k : Fin (n + 1)} : last n ≤ k ↔ k = last n := by
   rw [Fin.ext_iff, Nat.le_antisymm_iff, le_def, and_iff_right (by apply le_last)]
@@ -738,7 +738,7 @@ theorem pred_mk {n : Nat} (i : Nat) (h : i < n + 1) (w) : Fin.pred ⟨i, h⟩ w 
     ∀ {a b : Fin (n + 1)} {ha : a ≠ 0} {hb : b ≠ 0}, a.pred ha = b.pred hb ↔ a = b
   | ⟨0, _⟩, _, ha, _ => by simp only [mk_zero, ne_eq, not_true] at ha
   | ⟨i + 1, _⟩, ⟨0, _⟩, _, hb => by simp only [mk_zero, ne_eq, not_true] at hb
-  | ⟨i + 1, hi⟩, ⟨j + 1, hj⟩, ha, hb => by simp [Fin.ext_iff, Nat.succ.injEq]
+  | ⟨i + 1, hi⟩, ⟨j + 1, hj⟩, ha, hb => by simp [Fin.ext_iff]
 
 @[simp] theorem pred_one {n : Nat} :
     Fin.pred (1 : Fin (n + 2)) (Ne.symm (Fin.ne_of_lt one_pos)) = 0 := rfl
@@ -1117,7 +1117,7 @@ protected theorem mul_one [i : NeZero n] (k : Fin n) : k * 1 = k := by
   | n + 1, _ =>
     match n with
     | 0 => exact Subsingleton.elim (α := Fin 1) ..
-    | n+1 => simp [Fin.ext_iff, mul_def, Nat.mod_eq_of_lt (is_lt k)]
+    | n+1 => simp [mul_def, Nat.mod_eq_of_lt (is_lt k)]
 
 protected theorem mul_comm (a b : Fin n) : a * b = b * a :=
   Fin.ext <| by rw [mul_def, mul_def, Nat.mul_comm]

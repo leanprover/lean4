@@ -464,7 +464,7 @@ theorem Std.TransOrd.compareOfLessAndEq_of_lt_trans_of_lt_iff
     TransCmp (fun x y : α => compareOfLessAndEq x y) where
   eq_swap := compareOfLessAndEq_eq_swap_of_lt_iff_not_gt_and_ne h
   isLE_trans {x y z} h₁ h₂ := by
-    simp only [compare, compareOfLessAndEq, apply_ite Ordering.isLE,
+    simp only [compareOfLessAndEq, apply_ite Ordering.isLE,
       Ordering.isLE_lt, Ordering.isLE_eq, Ordering.isLE_gt] at h₁ h₂ ⊢
     simp only [Bool.if_true_left, Bool.or_false, Bool.or_eq_true, decide_eq_true_eq] at h₁ h₂ ⊢
     rcases h₁ with (h₁ | rfl)
@@ -638,7 +638,7 @@ instance [ReflCmp cmp] : ReflCmp (List.compareLex cmp) where
     induction a with
     | nil => rfl
     | cons x xs h =>
-      simp [List.compareLex_cons_cons, Ordering.then_eq_eq, ReflCmp.compare_self, h]
+      simp [List.compareLex_cons_cons, ReflCmp.compare_self, h]
 
 instance [LawfulEqCmp cmp] : LawfulEqCmp (List.compareLex cmp) where
   eq_of_compare {a b} h := by

@@ -42,7 +42,7 @@ theorem getElem?_eraseIdx_of_lt {xs : Vector α n} {i : Nat} (h : i < n) {j : Na
 theorem getElem?_eraseIdx_of_ge {xs : Vector α n} {i : Nat} (h : i < n) {j : Nat} (h' : i ≤ j) :
     (xs.eraseIdx i)[j]? = xs[j + 1]? := by
   rw [getElem?_eraseIdx]
-  simp only [dite_eq_ite, ite_eq_right_iff]
+  simp only [ite_eq_right_iff]
   intro h'
   omega
 

@@ -188,13 +188,10 @@ end IntModule
 
 /--
 We say a module has no natural number zero divisors if
-`k * a = 0` implies `k = 0` or `a = 0` (here `k` is a natural number and `a` is an element of the module).
-
-This is a special case of Mathlib's `NoZeroSMulDivisors Nat α`.
+`k ≠ 0` and `k * a = k * b` implies `a = b` (here `k` is a natural number and `a` and `b` are element of the module).
 -/
-class NoNatZeroDivisors (α : Type u) [Zero α] [HMul Nat α α] where
-  /-- If `k * a = 0` (for `k : Nat` and `a : α`), then `k = 0` or `a = 0`. -/
-  no_nat_zero_divisors : ∀ (k : Nat) (a : α), k ≠ 0 → k * a = 0 → a = 0
+class NoNatZeroDivisors (α : Type u) [HMul Nat α α] where
+  no_nat_zero_divisors : ∀ (k : Nat) (a b : α), k ≠ 0 → k * a = k * b → a = b
 
 export NoNatZeroDivisors (no_nat_zero_divisors)
 

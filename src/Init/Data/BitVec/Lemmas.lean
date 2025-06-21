@@ -261,10 +261,12 @@ theorem eq_of_zero_length (h : w = 0) {x y : BitVec w} : x = y := by
 theorem length_pos_of_ne {x y : BitVec w} (h : x ≠ y) : 0 < w := by
   grind
 
-@[grind =] -- FIXME use grind_pattern
 theorem ofFin_ofNat (n : Nat) :
     ofFin (no_index (OfNat.ofNat n : Fin (2^w))) = OfNat.ofNat n := by
   simp only [OfNat.ofNat, Fin.ofNat, BitVec.ofNat]
+
+-- We use a `grind_pattern` as `@[grind]` will not use the `no_index` term.
+grind_pattern ofFin_ofNat => ofFin (OfNat.ofNat n : Fin (2^w))
 
 @[simp] theorem ofFin_neg {x : Fin (2 ^ w)} : ofFin (-x) = -(ofFin x) := by
   rfl

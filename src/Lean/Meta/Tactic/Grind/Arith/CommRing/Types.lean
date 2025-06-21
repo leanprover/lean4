@@ -124,6 +124,11 @@ structure DiseqCnstr where
   rrhs : RingExpr
   /-- `lhs - rhs` simplification chain. If it becomes `0` we have an inconsistency. -/
   d : PolyDerivation
+  /--
+  If `lhs` and `rhs` are semiring expressions that have been adapted as ring ones.
+  The respective semiring reified expressions are stored here.
+  -/
+  ofSemiring? : Option (SemiringExpr × SemiringExpr)
 
 /-- State for each `CommRing` processed by this module. -/
 structure Ring where

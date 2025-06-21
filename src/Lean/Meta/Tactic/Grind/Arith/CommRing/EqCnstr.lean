@@ -347,8 +347,7 @@ private def diseqZeroToEq (a b : Expr) : RingM Unit := do
 
 @[export lean_process_ring_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
-  let some ringId ← inSameRing? a b | return ()
-  RingM.run ringId do
+  if let some ringId ← inSameRing? a b then RingM.run ringId do
     trace_goal[grind.ring.assert] "{mkNot (← mkEq a b)}"
     let some ra ← toRingExpr? a | return ()
     let some rb ← toRingExpr? b | return ()
@@ -364,7 +363,25 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
       lhs := a, rhs := b
       rlhs := ra, rrhs := rb
       d := .input p
+      ofSemiring? := none
     }
+  else if let some semiringId ← inSameSemiring? a b then SemiringM.run semiringId do
+    if (← getSemiring).addRightCancelInst?.isSome then
+    trace_goal[grind.ring.assert] "{mkNot (← mkEq a b)}"
+    let some sa ← toSemiringExpr? a | return ()
+    let some sb ← toSemiringExpr? b | return ()
+    let lhs ← sa.denoteAsRingExpr
+    let rhs ← sb.denoteAsRingExpr
+    RingM.run (← getSemiring).ringId do
+      let some ra ← reify? lhs (skipVar := false) (gen := (← getGeneration a)) | return ()
+      let some rb ← reify? rhs (skipVar := false) (gen := (← getGeneration b)) | return ()
+      let p ← (ra.sub rb).toPolyM
+      addNewDiseq {
+        lhs := a, rhs := b
+        rlhs := ra, rrhs := rb
+        d := .input p
+        ofSemiring? := some (sa, sb)
+      }
 
 /--
 Returns `true` if the todo queue is not empty or the `recheck` flag is set to `true`

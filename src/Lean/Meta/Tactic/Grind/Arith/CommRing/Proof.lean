@@ -387,10 +387,17 @@ private def getSemiringOf : RingM Semiring := do
   let some semiringId := (← getRing).semiringId? | throwError "`grind` internal error, semiring is not available"
   SemiringM.run semiringId do getSemiring
 
-private def mkSemiringBasicPrefix (declName : Name) : ProofM Expr := do
+private def mkSemiringPrefix (declName : Name) : ProofM Expr := do
   let sctx ← getSContext
   let semiring ← getSemiringOf
   return mkApp3 (mkConst declName [semiring.u]) semiring.type semiring.semiringInst sctx
+
+private def mkSemiringAddRightCancelPrefix (declName : Name) : ProofM Expr := do
+  let sctx ← getSContext
+  let semiring ← getSemiringOf
+  let some addRightCancelInst := semiring.addRightCancelInst?
+    | throwError "`grind` internal error, `AddRightCancel` instance is not available"
+  return mkApp4 (mkConst declName [semiring.u]) semiring.type semiring.semiringInst addRightCancelInst sctx
 
 open Lean.Grind.CommRing in
 partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCnstr) : ProofM Expr := caching c do
@@ -399,7 +406,7 @@ partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCns
     let h ← mkStepPrefix ``Stepwise.core ``Stepwise.coreC
     return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c.p) reflBoolTrue (← mkEqProof a b)
   | .coreS a b sa sb ra rb =>
-    let h' ← mkSemiringBasicPrefix ``Grind.Ring.OfSemiring.of_eq
+    let h' ← mkSemiringPrefix ``Grind.Ring.OfSemiring.of_eq
     let h' := mkApp3 h' (← mkSExprDecl sa) (← mkSExprDecl sb) (← mkEqProof a b)
     let h ← mkStepPrefix ``Stepwise.core ``Stepwise.coreC
     return mkApp5 h (← mkExprDecl ra) (← mkExprDecl rb) (← mkPolyDecl c.p) reflBoolTrue h'
@@ -502,9 +509,15 @@ def setEqUnsat (c : EqCnstr) : RingM Unit := do
   closeGoal h
 
 def setDiseqUnsat (c : DiseqCnstr) : RingM Unit := do
-  let heq ← withProofContext do
-    mkImpEqExprProof c.rlhs c.rrhs c.d
-  closeGoal <| mkApp (← mkDiseqProof c.lhs c.rhs) heq
+  let h ← withProofContext do
+    let heq ← mkImpEqExprProof c.rlhs c.rrhs c.d
+    let hne ← if let some (sa, sb) := c.ofSemiring? then
+      let h ← mkSemiringAddRightCancelPrefix ``Grind.Ring.OfSemiring.of_diseq
+      pure <| mkApp3 h (← mkSExprDecl sa) (← mkSExprDecl sb) (← mkDiseqProof c.lhs c.rhs)
+    else
+      mkDiseqProof c.lhs c.rhs
+    return mkApp hne heq
+  closeGoal h
 
 def propagateEq (a b : Expr) (ra rb : RingExpr) (d : PolyDerivation) : RingM Unit := do
   let heq ← withProofContext do

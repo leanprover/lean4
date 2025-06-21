@@ -24,11 +24,11 @@ but is expected to have type
   ?_ < ?_ : Prop
 ---
 error: unsolved goals
-case a
-⊢ Nat
-
 this : ?_ < ?_
 ⊢ True
+
+case a
+⊢ Nat
 -/
 #guard_msgs in
 def test : True := by

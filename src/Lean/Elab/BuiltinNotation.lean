@@ -121,19 +121,6 @@ open Meta
     elabTerm valNew expectedType?
   | _ => throwUnsupportedSyntax
 
-@[builtin_macro Lean.Parser.Term.have] def expandHave : Macro := fun stx =>
-  match stx with
-  | `(have $hy:hygieneInfo $bs* $[: $type]? := $val; $body) =>
-    `(have $(HygieneInfo.mkIdent hy `this (canonical := true)) $bs* $[: $type]? := $val; $body)
-  | `(have $hy:hygieneInfo $bs* $[: $type]? $alts; $body)   =>
-    `(have $(HygieneInfo.mkIdent hy `this (canonical := true)) $bs* $[: $type]? $alts; $body)
-  | `(have $x:ident $bs* $[: $type]? := $val; $body) => `(let_fun $x $bs* $[: $type]? := $val; $body)
-  | `(have $x:ident $bs* $[: $type]? $alts; $body)   => `(let_fun $x $bs* $[: $type]? $alts; $body)
-  | `(have _%$x     $bs* $[: $type]? := $val; $body) => `(let_fun _%$x $bs* $[: $type]? := $val; $body)
-  | `(have _%$x     $bs* $[: $type]? $alts; $body)   => `(let_fun _%$x $bs* $[: $type]? $alts; $body)
-  | `(have $pattern:term $[: $type]? := $val; $body) => `(let_fun $pattern:term $[: $type]? := $val; $body)
-  | _                                                => Macro.throwUnsupported
-
 @[builtin_macro Lean.Parser.Term.suffices] def expandSuffices : Macro
   | `(suffices%$tk $x:ident      : $type from $val; $body)   => `(have%$tk $x : $type := $body; $val)
   | `(suffices%$tk _%$x          : $type from $val; $body)   => `(have%$tk _%$x : $type := $body; $val)
@@ -542,30 +529,6 @@ def elabUnsafe : TermElab := fun stx expectedType? =>
         return ← tac expectedType?
     (← unsafe evalTerm (TermElabM Expr) (mkApp (Lean.mkConst ``TermElabM) (Lean.mkConst ``Expr))
       (← `(do $cmds)))
-  | _ => throwUnsupportedSyntax
-
-@[builtin_term_elab Lean.Parser.Term.haveI] def elabHaveI : TermElab := fun stx expectedType? => do
-  match stx with
-  | `(haveI $x:ident $bs* : $ty := $val; $body) =>
-    withExpectedType expectedType? fun expectedType => do
-      let (ty, val) ← elabBinders bs fun bs => do
-        let ty ← elabType ty
-        let val ← elabTermEnsuringType val ty
-        pure (← mkForallFVars bs ty, ← mkLambdaFVars bs val)
-      withLocalDeclD x.getId ty fun x => do
-        return (← (← elabTerm body expectedType).abstractM #[x]).instantiate #[val]
-  | _ => throwUnsupportedSyntax
-
-@[builtin_term_elab Lean.Parser.Term.letI] def elabLetI : TermElab := fun stx expectedType? => do
-  match stx with
-  | `(letI $x:ident $bs* : $ty := $val; $body) =>
-    withExpectedType expectedType? fun expectedType => do
-      let (ty, val) ← elabBinders bs fun bs => do
-        let ty ← elabType ty
-        let val ← elabTermEnsuringType val ty
-        pure (← mkForallFVars bs ty, ← mkLambdaFVars bs val)
-      withLetDecl x.getId ty val fun x => do
-        return (← (← elabTerm body expectedType).abstractM #[x]).instantiate #[val]
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Term

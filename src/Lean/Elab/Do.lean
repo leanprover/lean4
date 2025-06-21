@@ -648,11 +648,22 @@ def concat (terminal : CodeBlock) (kRef : Syntax) (y? : Option Var) (k : CodeBlo
   let terminal ← liftMacroM <| convertTerminalActionIntoJmp terminal.code jp xs
   return { code  := attachJP jpDecl terminal, uvars := k.uvars }
 
-def getLetIdDeclVars (letIdDecl : Syntax) : Array Var :=
-  if letIdDecl[0].isIdent then
-    #[letIdDecl[0]]
+def getLetIdVars (letId : Syntax) : Array Var :=
+  -- def letId := leading_parser binderIdent <|> hygieneInfo
+  if letId.isIdent then
+    -- TODO(kmill): Remove this case after stage0 update
+    #[letId]
+  else if letId[0].isIdent then
+    #[letId[0]]
+  else if letId[0].isOfKind hygieneInfoKind then
+    #[HygieneInfo.mkIdent letId[0] `this (canonical := true)]
   else
     #[]
+
+def getLetIdDeclVars (letIdDecl : Syntax) : Array Var :=
+  -- def letIdLhs : Parser := letId >> many (ppSpace >> letIdBinder) >> optType
+  -- def letIdDecl := leading_parser letIdLhs >> " := " >> termParser
+  getLetIdVars letIdDecl[0]
 
 -- support both regular and syntax match
 def getPatternVarsEx (pattern : Syntax) : TermElabM (Array Var) :=
@@ -664,22 +675,24 @@ def getPatternsVarsEx (patterns : Array Syntax) : TermElabM (Array Var) :=
   Quotation.getPatternsVars patterns
 
 def getLetPatDeclVars (letPatDecl : Syntax) : TermElabM (Array Var) := do
+  -- def letPatDecl := leading_parser termParser >> pushNone >> optType >> " := " >> termParser
   let pattern := letPatDecl[0]
   getPatternVarsEx pattern
 
 def getLetEqnsDeclVars (letEqnsDecl : Syntax) : Array Var :=
-  if letEqnsDecl[0].isIdent then
-    #[letEqnsDecl[0]]
-  else
-    #[]
+  -- def letIdLhs : Parser := letId >> many (ppSpace >> letIdBinder) >> optType
+  -- def letEqnsDecl := leading_parser letIdLhs >> matchAlts
+  getLetIdVars letEqnsDecl[0]
 
 def getLetDeclVars (letDecl : Syntax) : TermElabM (Array Var) := do
+  -- def letDecl := leading_parser letIdDecl <|> letPatDecl <|> letEqnsDecl
   let arg := letDecl[0]
-  if arg.getKind == ``Parser.Term.letIdDecl then
+  -- TODO(kmill): remove haveIdDecl and haveEqnsDecl after stage0 update
+  if arg.getKind == ``Parser.Term.letIdDecl || arg.getKind == ``Parser.Term.haveIdDecl then
     return getLetIdDeclVars arg
   else if arg.getKind == ``Parser.Term.letPatDecl then
     getLetPatDeclVars arg
-  else if arg.getKind == ``Parser.Term.letEqnsDecl then
+  else if arg.getKind == ``Parser.Term.letEqnsDecl || arg.getKind == ``Parser.Term.haveEqnsDecl then
     return getLetEqnsDeclVars arg
   else
     throwError "unexpected kind of let declaration"
@@ -688,15 +701,9 @@ def getDoLetVars (doLet : Syntax) : TermElabM (Array Var) :=
   -- leading_parser "let " >> optional "mut " >> letDecl
   getLetDeclVars doLet[2]
 
-def getDoHaveVars : Syntax → TermElabM (Array Var)
-  -- NOTE: `hygieneInfo` case should come first as `id` will match anything else
-  | `(doElem| have $info:hygieneInfo $_params* $[$_:typeSpec]? := $_val)
-  | `(doElem| have $info:hygieneInfo $_params* $[$_:typeSpec]? $_eqns:matchAlts) =>
-    return #[HygieneInfo.mkIdent info `this]
-  | `(doElem| have $id $_params* $[$_:typeSpec]? := $_val)
-  | `(doElem| have $id $_params* $[$_:typeSpec]? $_eqns:matchAlts) => return #[id]
-  | `(doElem| have $pat:letPatDecl) => getLetPatDeclVars pat
-  | _ => throwError "unexpected kind of have declaration"
+def getDoHaveVars (doHave : Syntax) : TermElabM (Array Var) :=
+  -- leading_parser "have" >> letDecl
+  getLetDeclVars doHave[1]
 
 def getDoLetRecVars (doLetRec : Syntax) : TermElabM (Array Var) := do
   -- letRecDecls is an array of `(group (optional attributes >> letDecl))`

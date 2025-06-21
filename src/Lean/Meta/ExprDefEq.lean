@@ -316,7 +316,7 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     let info := finfo.paramInfo[i]!
     if info.isInstImplicit then
       unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do
-        return false
+       return false
     else
       unless (← Meta.isExprDefEqAux a₁ a₂) do
         return false
@@ -2085,7 +2085,7 @@ private def mkCacheKey (t s : Expr) : MetaM DefEqCacheKeyInfo := do
 private def getCachedResult (keyInfo : DefEqCacheKeyInfo) : MetaM LBool := do
   let cache ← match keyInfo.kind with
     | .transient numAssignments =>
-      let (cache, numAssignmentsCache) := (← get).cache.defEqTrans
+      let ⟨cache, numAssignmentsCache⟩ := (← get).cache.defEqTrans
       if numAssignments == numAssignmentsCache then
         pure cache
       else
@@ -2102,14 +2102,14 @@ private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Un
   | .transient numAssignmentsOld =>
     /-
     If the result is `false`, we cache it at `numAssignmentsOld`.
-    If the result is `true`, we check that the number of assignments hasn't increased.
+    If the result is `true`, we only cache it if the number of assignments hasn't increase.
     -/
     if !result then
       modifyDefEqTransientCache numAssignmentsOld fun c => c.insert key result
     else
       let numAssignmentsNew := (← getMCtx).numAssignments
       if numAssignmentsOld == numAssignmentsNew then
-        modifyDefEqTransientCache numAssignmentsNew fun c => c.insert key result
+        modifyDefEqTransientCache numAssignmentsOld fun c => c.insert key result
 
 private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
   if backward.isDefEq.lazyWhnfCore.get (← getOptions) then

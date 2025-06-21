@@ -377,6 +377,18 @@ We should also investigate the impact on memory consumption.
 abbrev DefEqCache := PersistentHashMap DefEqCacheKey Bool
 
 /--
+A `DefEqTransCache` is a `DefEqCache` that is only valid in the original `MetavarContext`.
+It stores of the `numAssignments` from that original `MetavarContext`.
+If the `numAssignments` in the `MetavarContext` has increased, we invalidate this cache.
+And when we revert the metavariable context in `checkpointDefEq`, if the `numAssignments`
+in the original `MetavarContext` is smaller than in the cache, we revert the cache to its original.
+ -/
+structure DefEqTransCache where
+  cache : DefEqCache := {}
+  numAssignments : Nat := 0
+  deriving Inhabited
+
+/--
 Cache datastructures for type inference, type class resolution, whnf, and definitional equality.
 -/
 structure Cache where
@@ -384,7 +396,7 @@ structure Cache where
   funInfo        : FunInfoCache := {}
   synthInstance  : SynthInstanceCache := {}
   whnf           : WhnfCache := {}
-  defEqTrans     : DefEqCache × Nat := ({}, 0) -- transient cache for terms containing mvars or using nonstandard configuration options, it is valid as long as the count matches `MetavarContext.numAssignments`.
+  defEqTrans     : DefEqTransCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is valid as long as the count matches `MetavarContext.numAssignments`.
   defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options
   deriving Inhabited
 
@@ -646,9 +658,9 @@ def resetCache : MetaM Unit :=
 
 @[inline] def modifyDefEqTransientCache (numAssignments : Nat) (f : DefEqCache → DefEqCache) : MetaM Unit :=
   modifyCache fun c =>
-    let (transCache, numAssignmentsOld) := c.defEqTrans
+    let ⟨transCache, numAssignmentsOld⟩ := c.defEqTrans
     let transCache := if numAssignments == numAssignmentsOld then transCache else {}
-    { c with defEqTrans := (f transCache, numAssignments) }
+    { c with defEqTrans := ⟨f transCache, numAssignments⟩ }
 
 @[inline] def modifyDefEqPermCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
   modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm⟩
@@ -667,7 +679,7 @@ def mkInfoCacheKey (expr : Expr) (nargs? : Option Nat) : MetaM InfoCacheKey :=
   return { expr, nargs?, configKey := (← read).configKey }
 
 @[inline] def resetDefEqTransientCache : MetaM Unit :=
-  modify fun s => { s with cache.defEqTrans := ({}, s.mctx.numAssignments) }
+  modify fun s => { s with cache.defEqTrans := ⟨{}, s.mctx.numAssignments⟩ }
 
 @[inline] def resetDefEqPermCaches : MetaM Unit :=
   modifyDefEqPermCache fun _ => {}
@@ -2369,13 +2381,13 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
         return true
       else
         -- The transient cache needs to be reverted if it assumes an assignments that is being reverted.
-        let invalidCache := s.meta.mctx.numAssignments < (← get).cache.defEqTrans.2
-        s.restore (transCache := invalidCache)
+        let isInvalidCache := s.meta.mctx.numAssignments != (← get).cache.defEqTrans.numAssignments
+        s.restore (transCache := isInvalidCache)
         return false
     else
       -- The transient cache needs to be reverted if it assumes an assignments that is being reverted.
-      let invalidCache := s.meta.mctx.numAssignments < (← get).cache.defEqTrans.2
-      s.restore (transCache := invalidCache)
+      let isInvalidCache := s.meta.mctx.numAssignments != (← get).cache.defEqTrans.numAssignments
+      s.restore (transCache := isInvalidCache)
       return false
   catch ex =>
     s.restore
@@ -2416,8 +2428,8 @@ def isExprDefEq (t s : Expr) : MetaM Bool :=
       We have tried in the past to track when the result was independent of the `MetavarContext` state
       but it was not effective. It is more important to cache aggressively inside of a single `isDefEq`
       call because some of the heuristics create many similar subproblems.
-      See issue #1102 for an example that triggers an exponential blowup if we don't use this more
-      aggressive form of caching.
+      See issue #1102 and `tests/lean/run/defEqTransCache.lean` for examples that trigger an exponential blowup
+      if we don't use this more aggressive form of caching.
     -/
     resetDefEqTransientCache
     checkpointDefEq (mayPostpone := true) <| Meta.isExprDefEqAux t s

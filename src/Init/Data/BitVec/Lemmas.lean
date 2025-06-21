@@ -1880,14 +1880,14 @@ theorem toInt_shiftLeftZeroExtend {x : BitVec w} :
     (shiftLeftZeroExtend x n).toInt = x.toInt * 2 ^ n := by
   rw [shiftLeftZeroExtend_eq]
   rcases w with _|w
-  · simp [of_length_zero, shiftLeftZeroExtend_eq]
+  · simp [of_length_zero]
   · rcases n with _|n
-    · simp [shiftLeftZeroExtend_eq]
+    · simp
     · have := Nat.pow_pos (a := 2) (n := n + 1) (by omega)
       have : x.toNat <<< (n + 1) < 2 ^ (w + 1 + (n + 1)) := by
         rw [Nat.shiftLeft_eq, Nat.pow_add (a := 2) (m := w + 1) (n := n + 1), Nat.mul_lt_mul_right (by omega)]
         omega
-      simp only [shiftLeftZeroExtend_eq, toInt_shiftLeft, toNat_setWidth, Nat.lt_add_right_iff_pos,
+      simp only [toInt_shiftLeft, toNat_setWidth, Nat.lt_add_right_iff_pos,
         Nat.zero_lt_succ, toNat_mod_cancel_of_lt, Int.bmod_def]
       by_cases hmsb : x.msb
       · have hge := toNat_ge_of_msb_true hmsb
@@ -1902,7 +1902,7 @@ theorem toInt_shiftLeftZeroExtend {x : BitVec w} :
           show ¬2 * x.toNat < 2 ^ (w + 1) by simp [Nat.pow_add, Nat.mul_comm (2 ^ w) 2, hge]]
         norm_cast
         simp [Int.natCast_mul, Int.natCast_pow, Int.cast_ofNat_Int, Int.sub_mul,
-          Int.sub_right_inj, show w + (n + 1) + 1 = (w + 1) + (n + 1) by omega, Nat.pow_add]
+          show w + (n + 1) + 1 = (w + 1) + (n + 1) by omega, Nat.pow_add]
       · simp only [Bool.not_eq_true] at hmsb
         have hle := toNat_lt_of_msb_false (x := x) hmsb
         simp only [Nat.add_one_sub_one] at hle

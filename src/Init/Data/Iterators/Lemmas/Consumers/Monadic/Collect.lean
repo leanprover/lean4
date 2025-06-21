@@ -63,7 +63,7 @@ theorem IterM.toArray_eq_match_step [Monad m] [LawfulMonad m] [Iterator α m β]
       | .done _ => return #[]) := by
   simp only [IterM.toArray, LawfulIteratorCollect.toArrayMapped_eq]
   rw [IterM.DefaultConsumers.toArrayMapped_eq_match_step]
-  simp [bind_pure_comp, pure_bind, toArray]
+  simp [bind_pure_comp, pure_bind]
 
 theorem IterM.toList_toArray [Monad m] [Iterator α m β] [Finite α m] [IteratorCollect α m m]
     {it : IterM (α := α) m β} :

@@ -12,8 +12,8 @@ trace: [simp] Diagnostics
   [simp] used theorems (max: 50, num: 2):
     [simp] f_eq ↦ 50
     [simp] q_eq ↦ 50
-  [simp] tried theorems (max: 101, num: 2):
-    [simp] f_eq ↦ 101, succeeded: 50
+  [simp] tried theorems (max: 51, num: 2):
+    [simp] f_eq ↦ 51, succeeded: 50
     [simp] q_eq ↦ 50, succeeded: 50
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
@@ -33,13 +33,13 @@ def ack : Nat → Nat → Nat
 
 /--
 trace: [simp] Diagnostics
-  [simp] used theorems (max: 1201, num: 3):
-    [simp] ack.eq_3 ↦ 1201
-    [simp] Nat.reduceAdd (builtin simproc) ↦ 771
-    [simp] ack.eq_1 ↦ 768
-  [simp] tried theorems (max: 1973, num: 2):
-    [simp] ack.eq_3 ↦ 1973, succeeded: 1201
-    [simp] ack.eq_1 ↦ 768, succeeded: 768
+  [simp] used theorems (max: 1193, num: 3):
+    [simp] ack.eq_3 ↦ 1193
+    [simp] Nat.reduceAdd (builtin simproc) ↦ 508
+    [simp] ack.eq_1 ↦ 508
+  [simp] tried theorems (max: 1705, num: 2):
+    [simp] ack.eq_3 ↦ 1705, succeeded: 1193
+    [simp] ack.eq_1 ↦ 508, succeeded: 508
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---
 error: tactic 'simp' failed, nested error:

@@ -22,7 +22,7 @@ instance [Iterator α m β] [IteratorAccess α m] [Monad m] :
     Iterator (Types.StepSizeIterator α m β) m β where
   -- TODO: this is not exhaustive
   IsPlausibleStep it step :=
-    it.internalState.inner.IsPlausibleNthOutput it.internalState.nextIdx
+    it.internalState.inner.IsPlausibleNthOutputStep it.internalState.nextIdx
       (step.mapIterator (Types.StepSizeIterator.inner ∘ IterM.internalState))
   step it := (fun s => ⟨s.1.mapIterator (⟨⟨it.internalState.n, it.internalState.n, ·⟩⟩), by
       simp only [IterStep.mapIterator_mapIterator]

@@ -53,7 +53,7 @@ partial def Iter.Partial.atIdxSlow? {α β} [Iterator α Id β] [Monad Id]
   | .skip it' _ => (⟨it'⟩ : Iter.Partial (α := α) β).atIdxSlow? n
   | .done _ => none
 
-@[always_inline, inline]
+@[always_inline, inline, inherit_doc IterM.atIdx?]
 def Iter.atIdx? {α β} [Iterator α Id β] [Productive α Id] [IteratorAccess α Id]
     (n : Nat) (it : Iter (α := α) β) : Option β :=
   match (IteratorAccess.nextAtIdx? it.toIterM n).run.val with

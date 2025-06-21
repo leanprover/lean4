@@ -91,56 +91,6 @@ def elabSimpConfig (optConfig : Syntax) (kind : SimpKind) : TacticM Meta.Simp.Co
   | .simpAll => return (← elabSimpConfigCtxCore optConfig).toConfig
   | .dsimp   => return { (← elabDSimpConfigCore optConfig) with }
 
-private def addDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (thms : SimpTheorems) (id : Origin) (e : Expr) (post : Bool) (inv : Bool) (kind : SimpKind) : MetaM SimpTheorems := do
-  if e.isConst then
-    let declName := e.constName!
-    let info ← getConstVal declName
-    if (← isProp info.type) then
-      thms.addConst declName (post := post) (inv := inv)
-    else
-      if inv then
-        throwError "invalid '←' modifier, '{declName}' is a declaration name to be unfolded"
-      if kind == .dsimp then
-        return thms.addDeclToUnfoldCore declName
-      else
-        thms.addDeclToUnfold declName
-  else if e.isFVar then
-    let fvarId := e.fvarId!
-    let decl ← fvarId.getDecl
-    if (← isProp decl.type) then
-      thms.add id #[] e (post := post) (inv := inv) (config := config)
-    else if !decl.isLet then
-      throwError "invalid argument, variable is not a proposition or let-declaration"
-    else if inv then
-      throwError "invalid '←' modifier, '{e}' is a let-declaration name to be unfolded"
-    else
-      return thms.addLetDeclToUnfold fvarId
-  else
-    thms.add id #[] e (post := post) (inv := inv) (config := config)
-
-private def addSimpTheorem (config : Meta.ConfigWithKey) (thms : SimpTheorems) (id : Origin) (stx : Syntax) (post : Bool) (inv : Bool) : TermElabM SimpTheorems := do
-  let thm? ← Term.withoutModifyingElabMetaStateWithInfo <| withRef stx do
-    let e ← Term.elabTerm stx none
-    Term.synthesizeSyntheticMVars (postpone := .no) (ignoreStuckTC := true)
-    let e ← instantiateMVars e
-    if e.hasSyntheticSorry then
-      return none
-    let e := e.eta
-    if e.hasMVar then
-      let r ← abstractMVars e
-      return some (r.paramNames, r.expr)
-    else
-      return some (#[], e)
-  if let some (levelParams, proof) := thm? then
-    thms.add id levelParams proof (post := post) (inv := inv) (config := config)
-  else
-    return thms
-
-structure ElabSimpArgsResult where
-  ctx      : Simp.Context
-  simprocs : Simp.SimprocsArray
-  starArg  : Bool := false
-
 inductive ResolveSimpIdResult where
   | none
   | expr (e : Expr)
@@ -154,104 +104,8 @@ inductive ResolveSimpIdResult where
   -/
   | ext  (ext₁? : Option SimpExtension) (ext₂? : Option Simp.SimprocExtension) (h : ext₁?.isSome || ext₂?.isSome)
 
-/--
-  Elaborate extra simp theorems provided to `simp`. `stx` is of the form `"[" simpTheorem,* "]"`
-  If `eraseLocal == true`, then we consider local declarations when resolving names for erased theorems (`- id`),
-  this option only makes sense for `simp_all` or `*` is used.
-  When `recover := true`, try to recover from errors as much as possible so that users keep seeing
-  the current goal.
--/
-def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsArray) (eraseLocal : Bool) (kind : SimpKind) : TacticM ElabSimpArgsResult := do
-  if stx.isNone then
-    return { ctx, simprocs }
-  else
-    /-
-    syntax simpPre := "↓"
-    syntax simpPost := "↑"
-    syntax simpLemma := (simpPre <|> simpPost)? "← "? term
-
-    syntax simpErase := "-" ident
-    -/
-    let go := withMainContext do
-      let zetaDeltaSet ← toZetaDeltaSet stx ctx
-      withTrackingZetaDeltaSet zetaDeltaSet do
-        let mut thmsArray := ctx.simpTheorems
-        let mut thms      := thmsArray[0]!
-        let mut simprocs  := simprocs
-        let mut starArg   := false
-        for arg in stx[1].getSepArgs do
-          try -- like withLogging, but compatible with do-notation
-            if arg.getKind == ``Lean.Parser.Tactic.simpErase then
-              let fvar? ← if eraseLocal || starArg then Term.isLocalIdent? arg[1] else pure none
-              if let some fvar := fvar? then
-                -- We use `eraseCore` because the simp theorem for the hypothesis was not added yet
-                thms := thms.eraseCore (.fvar fvar.fvarId!)
-              else
-                let id := arg[1]
-                if let .ok declName ← observing (realizeGlobalConstNoOverloadWithInfo id) then
-                  if (← Simp.isSimproc declName) then
-                    simprocs := simprocs.erase declName
-                  else if ctx.config.autoUnfold then
-                    thms := thms.eraseCore (.decl declName)
-                  else
-                    thms ← withRef id <| thms.erase (.decl declName)
-                else
-                  -- If `id` could not be resolved, we should check whether it is a builtin simproc.
-                  -- before returning error.
-                  let name := id.getId.eraseMacroScopes
-                  if (← Simp.isBuiltinSimproc name) then
-                    simprocs := simprocs.erase name
-                  else
-                    throwUnknownConstantAt id name
-            else if arg.getKind == ``Lean.Parser.Tactic.simpLemma then
-              let post :=
-                if arg[0].isNone then
-                  true
-                else
-                  arg[0][0].getKind == ``Parser.Tactic.simpPost
-              let inv  := !arg[1].isNone
-              let term := arg[2]
-              match (← resolveSimpIdTheorem? term) with
-              | .expr e  =>
-                let name ← mkFreshId
-                thms ← addDeclToUnfoldOrTheorem ctx.indexConfig thms (.stx name arg) e post inv kind
-              | .simproc declName =>
-                simprocs ← simprocs.add declName post
-              | .ext (some ext₁) (some ext₂) _ =>
-                thmsArray := thmsArray.push (← ext₁.getTheorems)
-                simprocs  := simprocs.push (← ext₂.getSimprocs)
-              | .ext (some ext₁) none _ =>
-                thmsArray := thmsArray.push (← ext₁.getTheorems)
-              | .ext none (some ext₂) _ =>
-                simprocs  := simprocs.push (← ext₂.getSimprocs)
-              | .none    =>
-                let name ← mkFreshId
-                thms ← addSimpTheorem ctx.indexConfig thms (.stx name arg) term post inv
-            else if arg.getKind == ``Lean.Parser.Tactic.simpStar then
-              starArg := true
-            else
-              throwUnsupportedSyntax
-          catch ex =>
-            if (← read).recover then
-              logException ex
-            else
-              throw ex
-        let ctx := ctx.setZetaDeltaSet zetaDeltaSet (← getZetaDeltaFVarIds)
-        return { ctx := ctx.setSimpTheorems (thmsArray.set! 0 thms), simprocs, starArg }
-    -- If recovery is disabled, then we want simp argument elaboration failures to be exceptions.
-    -- This affects `addSimpTheorem`.
-    if (← read).recover then
-      go
-    else
-      Term.withoutErrToSorry go
-where
-  isSimproc? (e : Expr) : MetaM (Option Name) := do
-    let .const declName _ := e | return none
-    unless (← Simp.isSimproc declName) do return none
-    return some declName
-
-  resolveSimpIdTheorem? (simpArgTerm : Term) : TacticM ResolveSimpIdResult := do
-    let resolveExt (n : Name) : TacticM ResolveSimpIdResult := do
+private def resolveSimpIdTheorem? (simpArgTerm : Term) : TermElabM ResolveSimpIdResult := do
+    let resolveExt (n : Name) : TermElabM ResolveSimpIdResult := do
       let ext₁? ← getSimpExtension? n
       let ext₂? ← Simp.getSimprocExtension? n
       if h : ext₁?.isSome || ext₂?.isSome then
@@ -279,7 +133,234 @@ where
         return .expr e
       else
         return .none
+where
+  isSimproc? (e : Expr) : MetaM (Option Name) := do
+    let .const declName _ := e | return none
+    unless (← Simp.isSimproc declName) do return none
+    return some declName
 
+
+/--
+The result of elaborating a single `simp` argument
+-/
+inductive ElabSimpArgResult where
+  | addEntries (entries : Array SimpEntry)
+  | addSimproc («simproc» : Name) (post : Bool)
+  | addLetToUnfold (fvarId : FVarId)
+  | ext  (ext₁? : Option SimpExtension) (ext₂? : Option Simp.SimprocExtension) (h : ext₁?.isSome || ext₂?.isSome)
+  | erase (toErase : Origin)
+  | eraseSimproc (toErase : Name)
+  | star
+  | none -- used for example when elaboration fails
+
+private def elabDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (id : Origin)
+    (e : Expr) (post : Bool) (inv : Bool) (kind : SimpKind) : MetaM ElabSimpArgResult := do
+  if e.isConst then
+    let declName := e.constName!
+    let info ← getConstVal declName
+    if (← isProp info.type) then
+      let thms ← mkSimpTheoremFromConst declName (post := post) (inv := inv)
+      return .addEntries <| thms.map (SimpEntry.thm ·)
+    else
+      if inv then
+        throwError "invalid '←' modifier, '{declName}' is a declaration name to be unfolded"
+      if kind == .dsimp then
+        return .addEntries #[.toUnfold declName]
+      else
+        .addEntries <$> mkSimpEntryOfDeclToUnfold declName
+  else if e.isFVar then
+    let fvarId := e.fvarId!
+    let decl ← fvarId.getDecl
+    if (← isProp decl.type) then
+      let thms ← mkSimpTheoremFromExpr id #[] e (post := post) (inv := inv) (config := config)
+      return .addEntries <| thms.map (SimpEntry.thm ·)
+    else if !decl.isLet then
+      throwError "invalid argument, variable is not a proposition or let-declaration"
+    else if inv then
+      throwError "invalid '←' modifier, '{e}' is a let-declaration name to be unfolded"
+    else
+      return .addLetToUnfold fvarId
+  else
+    let thms ← mkSimpTheoremFromExpr id #[] e (post := post) (inv := inv) (config := config)
+    return .addEntries <| thms.map (SimpEntry.thm ·)
+
+private def elabSimpTheorem (config : Meta.ConfigWithKey) (id : Origin) (stx : Syntax)
+    (post : Bool) (inv : Bool) : TermElabM ElabSimpArgResult := do
+  let thm? ← Term.withoutModifyingElabMetaStateWithInfo <| withRef stx do
+    let e ← Term.elabTerm stx .none
+    Term.synthesizeSyntheticMVars (postpone := .no) (ignoreStuckTC := true)
+    let e ← instantiateMVars e
+    if e.hasSyntheticSorry then
+      return .none
+    let e := e.eta
+    if e.hasMVar then
+      let r ← abstractMVars e
+      return some (r.paramNames, r.expr)
+    else
+      return some (#[], e)
+  if let some (levelParams, proof) := thm? then
+    let thms ← mkSimpTheoremFromExpr id levelParams proof (post := post) (inv := inv) (config := config)
+    return .addEntries <| thms.map (SimpEntry.thm ·)
+  else
+    return .none
+
+private def elabSimpArg (indexConfig : Meta.ConfigWithKey) (eraseLocal : Bool) (kind : SimpKind)
+    (arg : Syntax) : TacticM ElabSimpArgResult := withRef arg do
+  try
+    /-
+    syntax simpPre := "↓"
+    syntax simpPost := "↑"
+    syntax simpLemma := (simpPre <|> simpPost)? "← "? term
+
+    syntax simpErase := "-" ident
+    -/
+    if arg.getKind == ``Lean.Parser.Tactic.simpErase then
+      let fvar? ← if eraseLocal then Term.isLocalIdent? arg[1] else pure none
+      if let some fvar := fvar? then
+        -- We use `eraseCore` because the simp theorem for the hypothesis was not added yet
+        return .erase (.fvar fvar.fvarId!)
+      else
+        let id := arg[1]
+        if let .ok declName ← observing (realizeGlobalConstNoOverloadWithInfo id) then
+          if (← Simp.isSimproc declName) then
+            return .eraseSimproc declName
+          else
+            return .erase (.decl declName)
+        else
+          -- If `id` could not be resolved, we should check whether it is a builtin simproc.
+          -- before returning error.
+          let name := id.getId.eraseMacroScopes
+          if (← Simp.isBuiltinSimproc name) then
+            return .eraseSimproc name
+          else
+            throwUnknownConstantAt id name
+    else if arg.getKind == ``Lean.Parser.Tactic.simpLemma then
+      let post :=
+        if arg[0].isNone then
+          true
+        else
+          arg[0][0].getKind == ``Parser.Tactic.simpPost
+      let inv  := !arg[1].isNone
+      let term := arg[2]
+      match (← resolveSimpIdTheorem? term) with
+      | .expr e  =>
+        let name ← mkFreshId
+        elabDeclToUnfoldOrTheorem indexConfig (.stx name arg) e post inv kind
+      | .simproc declName =>
+        return .addSimproc declName post
+      | .ext ext₁? ext₂? h =>
+        return .ext ext₁? ext₂? h
+      | .none    =>
+        let name ← mkFreshId
+        elabSimpTheorem indexConfig (.stx name arg) term post inv
+    else if arg.getKind == ``Lean.Parser.Tactic.simpStar then
+      return .star
+    else
+      throwUnsupportedSyntax
+  catch ex =>
+    if (← read).recover then
+      logException ex
+      return .none
+    else
+      throw ex
+
+/--
+The result of elaborating a full array of simp arguments and applying them to the simp context.
+-/
+structure ElabSimpArgsResult where
+  ctx      : Simp.Context
+  simprocs : Simp.SimprocsArray
+  /-- The elaborated simp arguments with syntax -/
+  simpArgs : Array (Syntax × ElabSimpArgResult)
+
+/-- Implements the effect of the `*` attribute. -/
+private def applyStarArg (ctx : Simp.Context) : MetaM Simp.Context := do
+  let mut simpTheorems := ctx.simpTheorems
+  /-
+  When using `zetaDelta := false`, we do not expand let-declarations when using `[*]`.
+  Users must explicitly include it in the list.
+  -/
+  let hs ← getPropHyps
+  for h in hs do
+    unless simpTheorems.isErased (.fvar h) do
+      simpTheorems ← simpTheorems.addTheorem (.fvar h) (← h.getDecl).toExpr (config := ctx.indexConfig)
+  return ctx.setSimpTheorems simpTheorems
+
+/--
+  Elaborate extra simp theorems provided to `simp`. `stx` is of the form `"[" simpTheorem,* "]"`
+  If `eraseLocal == true`, then we consider local declarations when resolving names for erased theorems (`- id`),
+  this option only makes sense for `simp_all` or `*` is used.
+  When `recover := true`, try to recover from errors as much as possible so that users keep seeing
+  the current goal.
+-/
+def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsArray) (eraseLocal : Bool)
+    (kind : SimpKind) (ignoreStarArg := false) : TacticM ElabSimpArgsResult := do
+  if stx.isNone then
+    return { ctx, simprocs, simpArgs := #[] }
+  else
+    /-
+    syntax simpPre := "↓"
+    syntax simpPost := "↑"
+    syntax simpLemma := (simpPre <|> simpPost)? "← "? term
+
+    syntax simpErase := "-" ident
+    -/
+    let go := withMainContext do
+      let zetaDeltaSet ← toZetaDeltaSet stx ctx
+      withTrackingZetaDeltaSet zetaDeltaSet do
+        let mut starArg := false -- only after * we can erase local declarations
+        let mut args : Array (Syntax × ElabSimpArgResult) := #[]
+        for argStx in stx[1].getSepArgs do
+          let arg ← elabSimpArg ctx.indexConfig (eraseLocal || starArg) kind argStx
+          starArg := !ignoreStarArg && (starArg || arg matches .star)
+          args := args.push (argStx, arg)
+
+        let mut thmsArray := ctx.simpTheorems
+        let mut thms      := thmsArray[0]!
+        let mut simprocs  := simprocs
+        for (ref, arg) in args do
+          match arg with
+          | .addEntries entries =>
+            for entry in entries do
+              thms := thms.uneraseSimpEntry entry
+              thms := thms.addSimpEntry entry
+          | .addLetToUnfold fvarId =>
+            thms := thms.addLetDeclToUnfold fvarId
+          | .addSimproc declName post =>
+            simprocs ← simprocs.add declName post
+          | .erase origin =>
+            -- `thms.erase` checks if the erasure is effective.
+            -- We do not want this check for local hypotheses (they are added later based on `starArg`)
+            if origin matches .fvar _ then
+              thms := thms.eraseCore origin
+            -- Nor for decls to unfold when we do auto unfolding
+            else if ctx.config.autoUnfold then
+              thms := thms.eraseCore origin
+            else
+              thms ← withRef ref <| thms.erase origin
+          | .eraseSimproc name =>
+            simprocs := simprocs.erase name
+          | .ext simpExt? simprocExt? _ =>
+            if let some simpExt := simpExt? then
+              thmsArray := thmsArray.push (← simpExt.getTheorems)
+            if let some simprocExt := simprocExt? then
+              simprocs := simprocs.push (← simprocExt.getSimprocs)
+          | .star => pure ()
+          | .none => pure ()
+
+        let mut ctx := ctx.setZetaDeltaSet zetaDeltaSet (← getZetaDeltaFVarIds)
+        ctx := ctx.setSimpTheorems (thmsArray.set! 0 thms)
+        if !ignoreStarArg && starArg then
+          ctx ← applyStarArg ctx
+
+        return { ctx, simprocs, simpArgs := args}
+    -- If recovery is disabled, then we want simp argument elaboration failures to be exceptions.
+    -- This affects `addSimpTheorem`.
+    if (← read).recover then
+      go
+    else
+      Term.withoutErrToSorry go
+where
   /-- If `zetaDelta := false`, create a `FVarId` set with all local let declarations in the `simp` argument list. -/
   toZetaDeltaSet (stx : Syntax) (ctx : Simp.Context) : TacticM FVarIdSet := do
     if ctx.config.zetaDelta then return {}
@@ -319,6 +400,8 @@ structure MkSimpContextResult where
   ctx              : Simp.Context
   simprocs         : Simp.SimprocsArray
   dischargeWrapper : Simp.DischargeWrapper
+  /-- The elaborated simp arguments with syntax -/
+  simpArgs         : Array (Syntax × ElabSimpArgResult) := #[]
 
 /--
    Create the `Simp.Context` for the `simp`, `dsimp`, and `simp_all` tactics.
@@ -351,23 +434,8 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
      (config := (← elabSimpConfig stx[1] (kind := kind)))
      (simpTheorems := #[simpTheorems])
      congrTheorems
-  let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) (simprocs := #[simprocs]) ctx
-  if !r.starArg || ignoreStarArg then
-    return { r with dischargeWrapper }
-  else
-    let ctx := r.ctx
-    let simprocs := r.simprocs
-    let mut simpTheorems := ctx.simpTheorems
-    /-
-    When using `zetaDelta := false`, we do not expand let-declarations when using `[*]`.
-    Users must explicitly include it in the list.
-    -/
-    let hs ← getPropHyps
-    for h in hs do
-      unless simpTheorems.isErased (.fvar h) do
-        simpTheorems ← simpTheorems.addTheorem (.fvar h) (← h.getDecl).toExpr (config := ctx.indexConfig)
-    let ctx := ctx.setSimpTheorems simpTheorems
-    return { ctx, simprocs, dischargeWrapper }
+  let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) (simprocs := #[simprocs]) (ignoreStarArg := ignoreStarArg) ctx
+  return { r with dischargeWrapper }
 
 register_builtin_option tactic.simp.trace : Bool := {
   defValue := false
@@ -477,7 +545,7 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
   (location)?
 -/
 @[builtin_tactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => withMainContext do withSimpDiagnostics do
-  let { ctx, simprocs, dischargeWrapper } ← mkSimpContext stx (eraseLocal := false)
+  let { ctx, simprocs, dischargeWrapper, .. } ← mkSimpContext stx (eraseLocal := false)
   let stats ← dischargeWrapper.with fun discharge? =>
     simpLocation ctx simprocs discharge? (expandOptLocation stx[5])
   if tactic.simp.trace.get (← getOptions) then

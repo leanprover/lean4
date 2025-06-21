@@ -42,9 +42,21 @@ extern "C" LEAN_EXPORT uint8 lean_system_platform_emscripten(obj_arg) {
 
 extern "C" object * lean_get_githash(obj_arg) { return lean_mk_string(LEAN_GITHASH); }
 
-extern "C" LEAN_EXPORT uint8_t lean_internal_has_llvm_backend(lean_obj_arg _unit) {
+extern "C" LEAN_EXPORT uint8 lean_internal_has_llvm_backend(obj_arg) {
 #ifdef LEAN_LLVM
     return 1;
+#else
+    return 0;
+#endif
+}
+
+extern "C" LEAN_EXPORT uint8 lean_internal_has_address_sanitizer(obj_arg) {
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+    return 1;
+#else
+    return 0;
+#endif
 #else
     return 0;
 #endif

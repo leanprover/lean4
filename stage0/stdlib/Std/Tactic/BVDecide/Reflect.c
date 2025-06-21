@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Reflect
-// Imports: Init.Data.BitVec Std.Tactic.BVDecide.LRAT.Checker Std.Tactic.BVDecide.LRAT.Parser Std.Tactic.BVDecide.Bitblast Std.Sat.AIG.CNF Std.Sat.AIG.RelabelNat
+// Imports: Std.Tactic.BVDecide.LRAT.Checker Std.Tactic.BVDecide.LRAT.Parser Std.Tactic.BVDecide.Bitblast Std.Sat.AIG.CNF Std.Sat.AIG.RelabelNat
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1193,7 +1193,6 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* initialize_Init_Data_BitVec(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Tactic_BVDecide_LRAT_Checker(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Tactic_BVDecide_LRAT_Parser(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Tactic_BVDecide_Bitblast(uint8_t builtin, lean_object*);
@@ -1204,9 +1203,6 @@ LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_Reflect(uint8_t builtin,
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_BitVec(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Std_Tactic_BVDecide_LRAT_Checker(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

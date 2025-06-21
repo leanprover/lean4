@@ -444,7 +444,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_callLeanAllocCtor___boxed(lean_objec
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_toCName(size_t);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitLhsSlot_____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_emitDeclAux___lambda__1___closed__2;
-uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_IR_IRType_beq___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_callLeanObjTag___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitSimpleExternalCall___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_llvm_opaque_pointer_type_in_context(size_t, uint64_t, lean_object*);
@@ -473,6 +472,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitSSet___lambda__1___boxed(lean_ob
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_ShouldForwardControlFlow_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_builderAppendBasicBlock(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_forM_loop___at_Lean_IR_EmitLLVM_emitPartialApp___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Name_isMetaprogramming___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_getModName___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_emitDeclInit___lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitMainFn___lambda__8(size_t, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -58008,7 +58008,7 @@ _start:
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_10 = l_Lean_Expr_constName_x3f(x_1);
 x_11 = l_Lean_IR_EmitLLVM_emitMainFn___lambda__4___closed__3;
-x_12 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_IR_IRType_beq___spec__1(x_10, x_11);
+x_12 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Name_isMetaprogramming___spec__1(x_10, x_11);
 lean_dec(x_10);
 if (x_12 == 0)
 {

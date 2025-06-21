@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Simp.BuiltinSimprocs.BitVec
-// Imports: Lean.Meta.LitValues Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int Init.Data.BitVec.Basic Init.Data.BitVec.Lemmas
+// Imports: Lean.Meta.LitValues Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int Init.Data.BitVec.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -29493,7 +29493,6 @@ lean_object* initialize_Lean_Meta_LitValues(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Nat(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -29509,9 +29508,6 @@ res = initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int(builtin, lean_io_mk_w
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_BitVec_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_BitVec_reprLiteral____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec___hyg_177____closed__1 = _init_l_BitVec_reprLiteral____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec___hyg_177____closed__1();

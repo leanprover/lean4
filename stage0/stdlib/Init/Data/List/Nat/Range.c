@@ -26,6 +26,7 @@ static lean_object* l___auto____x40_Init_Data_List_Nat_Range___hyg_141____closed
 static lean_object* l___auto____x40_Init_Data_List_Nat_Range___hyg_141____closed__5;
 static lean_object* l___auto____x40_Init_Data_List_Nat_Range___hyg_141____closed__16;
 LEAN_EXPORT lean_object* l___auto____x40_Init_Data_List_Nat_Range___hyg_201_;
+LEAN_EXPORT lean_object* l___auto____x40_Init_Data_List_Nat_Range___hyg_610_;
 static lean_object* l___auto____x40_Init_Data_List_Nat_Range___hyg_141____closed__22;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Nat_Range___hyg_141____closed__26;
@@ -393,6 +394,14 @@ x_1 = l___auto____x40_Init_Data_List_Nat_Range___hyg_141____closed__31;
 return x_1;
 }
 }
+static lean_object* _init_l___auto____x40_Init_Data_List_Nat_Range___hyg_610_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l___auto____x40_Init_Data_List_Nat_Range___hyg_141____closed__31;
+return x_1;
+}
+}
 lean_object* initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Range(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Pairwise(uint8_t builtin, lean_object*);
@@ -484,6 +493,8 @@ l___auto____x40_Init_Data_List_Nat_Range___hyg_141_ = _init_l___auto____x40_Init
 lean_mark_persistent(l___auto____x40_Init_Data_List_Nat_Range___hyg_141_);
 l___auto____x40_Init_Data_List_Nat_Range___hyg_201_ = _init_l___auto____x40_Init_Data_List_Nat_Range___hyg_201_();
 lean_mark_persistent(l___auto____x40_Init_Data_List_Nat_Range___hyg_201_);
+l___auto____x40_Init_Data_List_Nat_Range___hyg_610_ = _init_l___auto____x40_Init_Data_List_Nat_Range___hyg_610_();
+lean_mark_persistent(l___auto____x40_Init_Data_List_Nat_Range___hyg_610_);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

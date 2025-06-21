@@ -5,10 +5,10 @@ Authors: Paul Reichert
 -/
 prelude
 import Init.Data.Option.Lemmas
-import Std.Data.Iterators.Basic
-import Std.Data.Iterators.Consumers.Collect
-import Std.Data.Iterators.Consumers.Loop
-import Std.Data.Iterators.Internal.Termination
+import Init.Data.Iterators.Basic
+import Init.Data.Iterators.Consumers.Collect
+import Init.Data.Iterators.Consumers.Loop
+import Init.Data.Iterators.Internal.Termination
 
 /-!
 

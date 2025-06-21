@@ -131,7 +131,11 @@ Thus `[init]` functions are run iff their module is imported, regardless of whet
 
 The initializer for module `A.B` is called `initialize_A_B` and will automatically initialize any imported modules.
 Module initializers are idempotent (when run with the same `builtin` flag), but not thread-safe.
+
+**Important for process-related functionality**: If your application needs to use process-related functions from libuv, you must call `lean_setup_libuv(argc, argv)` before calling `lean_initialize()` or `lean_initialize_runtime_module()`. This ensures that libuv's process handling capabilities are properly configured with the command-line arguments, which is essential for certain system-level operations that Lean's runtime may depend on.
+
 Together with initialization of the Lean runtime, you should execute code like the following exactly once before accessing any Lean declarations:
+
 ```c
 void lean_initialize_runtime_module();
 void lean_initialize();
@@ -139,6 +143,7 @@ lean_object * initialize_A_B(uint8_t builtin, lean_object *);
 lean_object * initialize_C(uint8_t builtin, lean_object *);
 ...
 
+lean_setup_libuv(argc, argv); // if using process-related functionality
 lean_initialize_runtime_module();
 //lean_initialize();  // necessary (and replaces `lean_initialize_runtime_module`) if you (indirectly) access the `Lean` package
 

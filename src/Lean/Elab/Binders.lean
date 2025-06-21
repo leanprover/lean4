@@ -742,18 +742,12 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
       pure (type, val, binders)
   let kind := kindOfBinderName id.getId
   trace[Elab.let.decl] "{id.getId} : {type} := {val}"
-  let result ← if useLetExpr then
-    withLetDecl id.getId (kind := kind) type val fun x => do
+  let result ←
+    withLetDecl id.getId (kind := kind) type val (nondep := !useLetExpr) fun x => do
       addLocalVarInfo id x
       let body ← elabTermEnsuringType body expectedType?
       let body ← instantiateMVars body
-      mkLetFVars #[x] body (usedLetOnly := usedLetOnly)
-  else
-    withLocalDecl id.getId (kind := kind) .default type fun x => do
-      addLocalVarInfo id x
-      let body ← elabTermEnsuringType body expectedType?
-      let body ← instantiateMVars body
-      mkLetFun x val body
+      mkLetFVars #[x] body (usedLetOnly := usedLetOnly) (generalizeNondepLet := false)
   if elabBodyFirst then
     forallBoundedTelescope type binders.size fun xs type => do
       -- the original `fvars` from above are gone, so add back info manually

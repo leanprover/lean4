@@ -84,9 +84,9 @@ where
     | Expr.forallE n d b c =>
       withLocalDecl n c (← loop F d) fun x => do
         mkForallFVars #[x] (← loop F (b.instantiate1 x))
-    | Expr.letE n type val body _ =>
-      withLetDecl n (← loop F type) (← loop F val) fun x => do
-        mkLetFVars #[x] (← loop F (body.instantiate1 x)) (usedLetOnly := false)
+    | Expr.letE n type val body nondep =>
+      mapLetDecl n (← loop F type) (← loop F val) (nondep := nondep) (usedLetOnly := false) fun x => do
+        loop F (body.instantiate1 x)
     | Expr.mdata d b =>
       if let some stx := getRecAppSyntax? e then
         withRef stx <| loop F b

@@ -93,7 +93,7 @@ private partial def ensureNoUnassignedLevelMVarsAtPreDef (preDef : PreDefinition
           checkCache { val := e : ExprStructEq } fun _ => do
             match e with
             | .forallE n d b c | .lam n d b c => withExpr e do visit d; withLocalDecl n c d fun x => visit (b.instantiate1 x)
-            | .letE n t v b _ => withExpr e do visit t; visit v; withLetDecl n t v fun x => visit (b.instantiate1 x)
+            | .letE n t v b nondep => withExpr e do visit t; visit v; withLetDecl n t v (nondep := nondep) fun x => visit (b.instantiate1 x)
             | .mdata _ b     => withExpr e do visit b
             | .proj _ _ b    => withExpr e do visit b
             | .sort u        => visitLevel u (← read)

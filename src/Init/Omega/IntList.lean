@@ -153,7 +153,7 @@ theorem mul_distrib_left (xs ys zs : IntList) : (xs + ys) * zs = xs * zs + ys * 
     | cons _ _ =>
       cases zs with
       | nil => simp
-      | cons _ _ => simp_all [Int.add_mul]
+      | cons _ _ => simp_all
   | cons x xs ih₁ =>
     cases ys with
     | nil => simp_all
@@ -240,7 +240,7 @@ example : IntList.dot [a, b, c] [x, y, z] = IntList.dot [a, b, c] [x, y, z, w] :
       cases ys with
       | nil => simp
       | cons y ys =>
-        simp only [Nat.zero_eq, set_cons_zero, dot_cons₂, get_cons_zero, Int.sub_mul]
+        simp only [set_cons_zero, dot_cons₂, get_cons_zero, Int.sub_mul]
         rw [Int.add_right_comm, Int.add_comm (x * y), Int.sub_add_cancel]
     | succ i =>
       cases ys with

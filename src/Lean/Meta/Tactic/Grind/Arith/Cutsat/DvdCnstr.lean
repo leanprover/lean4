@@ -107,7 +107,7 @@ def propagateNatDvd (e : Expr) : GoalM Unit := do
   if (← isEqTrue e) then
     let c := { d, p, h := .coreNat e d b b' : DvdCnstr }
     c.assert
-  else
+  else if (← isEqFalse e) then
     let_expr Dvd.dvd _ _ a b ← e | return ()
     pushNewFact <| mkApp3 (mkConst ``Nat.emod_pos_of_not_dvd) a b (mkOfEqFalseCore e (← mkEqFalseProof e))
 

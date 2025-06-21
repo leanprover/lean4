@@ -96,7 +96,7 @@ theorem denote_mkIfCached {aig : AIG α} {input : TernaryInput aig} :
   rw [if_as_bool]
   unfold mkIfCached
   dsimp only
-  simp only [TernaryInput.cast, Ref.cast_eq, id_eq, Int.reduceNeg, denote_mkOrCached,
+  simp only [TernaryInput.cast, Ref.cast_eq, denote_mkOrCached,
     denote_projected_entry, denote_mkAndCached, denote_mkNotCached]
   congr 2
   · rw [LawfulOperator.denote_mem_prefix]
@@ -202,7 +202,7 @@ theorem go_get_aux {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (d
       · assumption
     · apply go_le_size
   · rw [← hgo]
-    simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
+    simp only [Nat.le_refl, get]
     have : curr = w := by omega
     subst this
     simp

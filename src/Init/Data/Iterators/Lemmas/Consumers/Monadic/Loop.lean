@@ -11,38 +11,76 @@ import all Init.Data.Iterators.Consumers.Monadic.Loop
 
 namespace Std.Iterators
 
-theorem IterM.DefaultConsumers.forIn_eq_match_step {α β : Type w} {m : Type w → Type w'}
+theorem IterM.DefaultConsumers.forIn'_eq_match_step {α β : Type w} {m : Type w → Type w'}
     [Iterator α m β]
     {n : Type w → Type w''} [Monad n]
     {lift : ∀ γ, m γ → n γ} {γ : Type w}
     {plausible_forInStep : β → γ → ForInStep γ → Prop}
     {wf : IteratorLoop.WellFounded α m plausible_forInStep}
     {it : IterM (α := α) m β} {init : γ}
-    {f : (b : β) → (c : γ) → n (Subtype (plausible_forInStep b c))} :
-    IterM.DefaultConsumers.forIn lift γ plausible_forInStep wf it init f = (do
+    {f : (b : β) → it.IsPlausibleIndirectOutput b → (c : γ) → n (Subtype (plausible_forInStep b c))} :
+    IterM.DefaultConsumers.forIn' lift γ plausible_forInStep wf it init f = (do
       match ← lift _ it.step with
-      | .yield it' out _ =>
-        match ← f out init with
+      | .yield it' out h =>
+        match ← f out (.direct ⟨_, h⟩) init with
         | ⟨.yield c, _⟩ =>
-          IterM.DefaultConsumers.forIn lift _ plausible_forInStep wf it' c
-            fun out acc => f out acc
+          IterM.DefaultConsumers.forIn' lift _ plausible_forInStep wf it' c
+            fun out h'' acc => f out (.indirect ⟨_, rfl, h⟩ h'') acc
         | ⟨.done c, _⟩ => return c
-      | .skip it' _ =>
-        IterM.DefaultConsumers.forIn lift _ plausible_forInStep wf it' init
-          fun out acc => f out acc
+      | .skip it' h =>
+        IterM.DefaultConsumers.forIn' lift _ plausible_forInStep wf it' init
+          fun out h' acc => f out (.indirect ⟨_, rfl, h⟩ h') acc
       | .done _ => return init) := by
-  rw [forIn]
+  rw [forIn']
   apply bind_congr
   intro step
   cases step using PlausibleIterStep.casesOn <;> rfl
+
+theorem IterM.forIn'_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m β] [Finite α m]
+    {n : Type w → Type w''} [Monad n] [IteratorLoop α m n] [hl : LawfulIteratorLoop α m n]
+    [MonadLiftT m n] {γ : Type w} {it : IterM (α := α) m β} {init : γ}
+    {f : (b : β) → it.IsPlausibleIndirectOutput b → γ → n (ForInStep γ)} :
+    letI : ForIn' n (IterM (α := α) m β) β _ := IterM.instForIn'
+    ForIn'.forIn' it init f = IterM.DefaultConsumers.forIn' (fun _ => monadLift) γ (fun _ _ _ => True)
+        IteratorLoop.wellFounded_of_finite it init ((⟨·, .intro⟩) <$> f · · ·) := by
+  cases hl.lawful; rfl
 
 theorem IterM.forIn_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m β] [Finite α m]
     {n : Type w → Type w''} [Monad n] [IteratorLoop α m n] [hl : LawfulIteratorLoop α m n]
     [MonadLiftT m n] {γ : Type w} {it : IterM (α := α) m β} {init : γ}
     {f : β → γ → n (ForInStep γ)} :
-    ForIn.forIn it init f = IterM.DefaultConsumers.forIn (fun _ => monadLift) γ (fun _ _ _ => True)
-        IteratorLoop.wellFounded_of_finite it init (fun out acc => (⟨·, .intro⟩) <$> f out acc) := by
+    ForIn.forIn it init f = IterM.DefaultConsumers.forIn' (fun _ => monadLift) γ (fun _ _ _ => True)
+        IteratorLoop.wellFounded_of_finite it init (fun out _ acc => (⟨·, .intro⟩) <$> f out acc) := by
   cases hl.lawful; rfl
+
+theorem IterM.forIn'_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] {n : Type w → Type w''} [Monad n] [LawfulMonad n]
+    [IteratorLoop α m n] [LawfulIteratorLoop α m n]
+    [MonadLiftT m n] {γ : Type w} {it : IterM (α := α) m β} {init : γ}
+    {f : (out : β) → _ → γ → n (ForInStep γ)} :
+    letI : ForIn' n (IterM (α := α) m β) β _ := IterM.instForIn'
+    ForIn'.forIn' it init f = (do
+      match ← it.step with
+      | .yield it' out h =>
+        match ← f out (.direct ⟨_, h⟩) init with
+        | .yield c =>
+          ForIn'.forIn' it' c
+            fun out h'' acc => f out (.indirect ⟨_, rfl, h⟩ h'') acc
+        | .done c => return c
+      | .skip it' h =>
+        ForIn'.forIn' it' init
+          fun out h' acc => f out (.indirect ⟨_, rfl, h⟩ h') acc
+      | .done _ => return init) := by
+  rw [IterM.forIn'_eq, DefaultConsumers.forIn'_eq_match_step]
+  apply bind_congr
+  intro step
+  cases step using PlausibleIterStep.casesOn
+  · simp only [map_eq_pure_bind, bind_assoc]
+    apply bind_congr
+    intro forInStep
+    cases forInStep <;> simp [IterM.forIn'_eq]
+  · simp [IterM.forIn'_eq]
+  · simp
 
 theorem IterM.forIn_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
     [Finite α m] {n : Type w → Type w''} [Monad n] [LawfulMonad n]
@@ -57,7 +95,7 @@ theorem IterM.forIn_eq_match_step {α β : Type w} {m : Type w → Type w'} [Ite
         | .done c => return c
       | .skip it' _ => ForIn.forIn it' init f
       | .done _ => return init) := by
-  rw [IterM.forIn_eq, DefaultConsumers.forIn_eq_match_step]
+  rw [IterM.forIn_eq, DefaultConsumers.forIn'_eq_match_step]
   apply bind_congr
   intro step
   cases step using PlausibleIterStep.casesOn

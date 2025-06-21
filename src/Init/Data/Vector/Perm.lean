@@ -44,7 +44,7 @@ theorem Perm.toList {as bs : Vector α n} : as ~ bs → as.toList ~ bs.toList :=
 
 @[simp] theorem perm_mk (as bs : Array α) (ha : as.size = n) (hb : bs.size = n) :
     mk as ha ~ mk bs hb ↔ as ~ bs := by
-  simp [perm_iff_toArray_perm, ha, hb]
+  simp [perm_iff_toArray_perm]
 
 theorem toArray_perm_iff (xs : Vector α n) (ys : Array α) : xs.toArray ~ ys ↔ ∃ h, xs ~ Vector.mk ys h := by
   constructor
@@ -112,7 +112,7 @@ theorem Perm.push_comm (x y : α) {xs ys : Vector α n} (p : xs ~ ys) :
 theorem swap_perm {xs : Vector α n} {i j : Nat} (h₁ : i < n) (h₂ : j < n) :
     xs.swap i j ~ xs := by
   rcases xs with ⟨xs, rfl⟩
-  simp only [swap, perm_iff_toList_perm, toList_set]
+  simp only [swap, perm_iff_toList_perm]
   apply set_set_perm
 
 namespace Perm

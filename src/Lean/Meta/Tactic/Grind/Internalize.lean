@@ -112,7 +112,7 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
   | _ => pure ()
 
 /--
-If `e` is a `cast`-like term (e.g., `cast h a`), add `HEq e a` to the to-do list.
+If `e` is a `cast`-like term (e.g., `cast h a`), add `e ≍ a` to the to-do list.
 It could be an E-matching theorem, but we want to ensure it is always applied since
 we want to rely on the fact that `cast h a` and `a` are in the same equivalence class.
 -/

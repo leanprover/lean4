@@ -421,7 +421,7 @@ theorem monotone_foldrM_fold
     apply monotone_const
   | case2  =>
     unfold Array.foldrM.fold
-    simp only [↓reduceIte, *]
+    simp only [*]
     apply monotone_const
   | case3 _ _ _ _ _ ih =>
     unfold Array.foldrM.fold

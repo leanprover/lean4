@@ -1,40 +1,38 @@
-
-[reset_reuse]
-def f (x_1 : obj) : obj :=
-  case x_1 : obj of
-  Prod.mk →
-    let x_2 : obj := proj[0] x_1;
-    let x_3 : obj := proj[1] x_1;
-    let x_5 : obj := reset[2] x_1;
-    let x_4 : obj := reuse x_5 in ctor_0[Prod.mk] x_3 x_2;
-    ret x_4
-
-[reset_reuse]
-def Sigma.toProd._rarg (x_1 : obj) : obj :=
-  case x_1 : obj of
-  Sigma.mk →
-    let x_2 : obj := proj[0] x_1;
-    let x_3 : obj := proj[1] x_1;
-    let x_5 : obj := reset[2] x_1;
-    let x_4 : obj := reuse x_5 in ctor_0[Prod.mk] x_2 x_3;
-    ret x_4
-def Sigma.toProd (x_1 : ◾) (x_2 : ◾) : obj :=
-  let x_3 : obj := pap Sigma.toProd._rarg;
-  ret x_3
-
-[reset_reuse]
-def foo (x_1 : obj) : obj :=
-  case x_1 : obj of
-  List.nil →
-    let x_2 : obj := ctor_0[List.nil];
-    ret x_2
-  List.cons →
-    let x_3 : obj := proj[0] x_1;
-    case x_3 : obj of
-    Prod.mk →
-      let x_4 : obj := proj[1] x_1;
-      let x_9 : obj := reset[2] x_1;
-      let x_5 : obj := proj[0] x_3;
-      let x_6 : obj := foo x_4;
-      let x_7 : obj := reuse x_9 in ctor_1[List.cons] x_5 x_6;
-      ret x_7
+[Compiler.IR] [reset_reuse]
+    def f (x_1 : obj) : obj :=
+      case x_1 : obj of
+      Prod.mk →
+        let x_2 : obj := proj[0] x_1;
+        let x_3 : obj := proj[1] x_1;
+        let x_5 : obj := reset[2] x_1;
+        let x_4 : obj := reuse x_5 in ctor_0[Prod.mk] x_3 x_2;
+        ret x_4
+[Compiler.IR] [reset_reuse]
+    def Sigma.toProd._redArg (x_1 : obj) : obj :=
+      case x_1 : obj of
+      Sigma.mk →
+        let x_2 : obj := proj[0] x_1;
+        let x_3 : obj := proj[1] x_1;
+        let x_5 : obj := reset[2] x_1;
+        let x_4 : obj := reuse x_5 in ctor_0[Prod.mk] x_2 x_3;
+        ret x_4
+    def Sigma.toProd (x_1 : ◾) (x_2 : ◾) (x_3 : obj) : obj :=
+      let x_4 : obj := Sigma.toProd._redArg x_3;
+      ret x_4
+[Compiler.IR] [reset_reuse]
+    def foo (x_1 : obj) : obj :=
+      case x_1 : obj of
+      List.nil →
+        let x_2 : obj := ctor_0[List.nil];
+        ret x_2
+      List.cons →
+        let x_3 : obj := proj[0] x_1;
+        case x_3 : obj of
+        Prod.mk →
+          let x_4 : obj := proj[1] x_1;
+          let x_10 : obj := reset[2] x_1;
+          let x_5 : obj := proj[0] x_3;
+          let x_6 : obj := proj[1] x_3;
+          let x_7 : obj := foo x_4;
+          let x_8 : obj := reuse x_10 in ctor_1[List.cons] x_5 x_7;
+          ret x_8

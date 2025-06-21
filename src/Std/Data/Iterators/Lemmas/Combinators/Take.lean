@@ -49,7 +49,7 @@ theorem Iter.atIdxSlow?_take {α β}
     simp only [atIdxSlow?.eq_def (it := it.take k), step_take, h']
     cases k <;> cases l <;> simp [ih]
   case case4 l it h h' =>
-    simp only [atIdxSlow?.eq_def (it := it.take k), atIdxSlow?.eq_def (it := it), step_take, h']
+    simp only [atIdxSlow?.eq_def (it := it.take k), step_take, h']
     cases k <;> cases l <;> simp
 
 @[simp]

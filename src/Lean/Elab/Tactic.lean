@@ -52,3 +52,4 @@ import Lean.Elab.Tactic.ExposeNames
 import Lean.Elab.Tactic.SimpArith
 import Lean.Elab.Tactic.Show
 import Lean.Elab.Tactic.Lets
+import Lean.Elab.Tactic.Do

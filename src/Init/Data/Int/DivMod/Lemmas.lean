@@ -217,7 +217,7 @@ theorem tdiv_eq_ediv {a b : Int} :
       negSucc_not_nonneg, sign_of_add_one]
     simp only [negSucc_emod_ofNat_succ_eq_zero_iff]
     norm_cast
-    simp only [subNat_eq_zero_iff, Nat.succ_eq_add_one, sign_negSucc, Int.sub_neg, false_or]
+    simp only [Nat.succ_eq_add_one, false_or]
     split <;> rename_i h
     · rw [Int.add_zero, neg_ofNat_eq_negSucc_iff]
       exact Nat.succ_div_of_mod_eq_zero h
@@ -1317,7 +1317,7 @@ protected theorem eq_tdiv_of_mul_eq_left {a b c : Int}
   | 0, n => by simp [Int.neg_zero]
   | succ _, (n:Nat) => by simp [tdiv, ← Int.negSucc_eq]
   | -[_+1], 0 | -[_+1], -[_+1] => by
-    simp only [tdiv, neg_negSucc, ← Int.natCast_succ, Int.neg_neg]
+    simp only [tdiv, neg_negSucc, Int.neg_neg]
   | succ _, -[_+1] | -[_+1], succ _ => (Int.neg_neg _).symm
 
 protected theorem neg_tdiv_neg (a b : Int) : (-a).tdiv (-b) = a.tdiv b := by
@@ -1408,7 +1408,7 @@ theorem mul_tmod (a b n : Int) : (a * b).tmod n = (a.tmod n * b.tmod n).tmod n :
   case inv => simp [Int.dvd_neg]
   induction m using wlog_sign
   case inv => simp
-  simp only [← Int.natCast_mul, ← ofNat_tmod]
+  simp only [← ofNat_tmod]
   norm_cast at h
   rw [Nat.mod_mod_of_dvd _ h]
 
@@ -1576,7 +1576,7 @@ theorem neg_mul_tmod_left (a b : Int) : (-(a * b)).tmod b = 0 := by
 
 @[simp] protected theorem tdiv_one : ∀ a : Int, a.tdiv 1 = a
   | (n:Nat) => congrArg ofNat (Nat.div_one _)
-  | -[n+1] => by simp [Int.tdiv, neg_ofNat_succ]; rfl
+  | -[n+1] => by simp [Int.tdiv]; rfl
 
 @[simp] theorem tmod_one (a : Int) : tmod a 1 = 0 := by
   simp [tmod_def, Int.tdiv_one, Int.one_mul, Int.sub_self]
@@ -1698,7 +1698,7 @@ theorem lt_ediv_iff_of_dvd_of_neg {a b c : Int} (hc : c < 0) (hcb : c ∣ b) :
 theorem ediv_le_ediv_iff_of_dvd_of_pos_of_pos {a b c d : Int} (hb : 0 < b) (hd : 0 < d)
     (hba : b ∣ a) (hdc : d ∣ c) : a / b ≤ c / d ↔ d * a ≤ c * b := by
   obtain ⟨⟨x, rfl⟩, y, rfl⟩ := hba, hdc
-  simp [*, Int.ne_of_lt, Int.ne_of_gt, d.mul_assoc, b.mul_comm]
+  simp [*, Int.ne_of_gt, d.mul_assoc, b.mul_comm]
 
 theorem ediv_le_ediv_iff_of_dvd_of_pos_of_neg {a b c d : Int} (hb : 0 < b) (hd : d < 0)
     (hba : b ∣ a) (hdc : d ∣ c) : a / b ≤ c / d ↔ c * b ≤ d * a := by
@@ -1713,12 +1713,12 @@ theorem ediv_le_ediv_iff_of_dvd_of_neg_of_pos {a b c d : Int} (hb : b < 0) (hd :
 theorem ediv_le_ediv_iff_of_dvd_of_neg_of_neg {a b c d : Int} (hb : b < 0) (hd : d < 0)
     (hba : b ∣ a) (hdc : d ∣ c) : a / b ≤ c / d ↔ d * a ≤ c * b := by
   obtain ⟨⟨x, rfl⟩, y, rfl⟩ := hba, hdc
-  simp [*, Int.ne_of_lt, Int.ne_of_gt, d.mul_assoc, b.mul_comm]
+  simp [*, Int.ne_of_lt, d.mul_assoc, b.mul_comm]
 
 theorem ediv_lt_ediv_iff_of_dvd_of_pos {a b c d : Int} (hb : 0 < b) (hd : 0 < d) (hba : b ∣ a)
     (hdc : d ∣ c) : a / b < c / d ↔ d * a < c * b := by
   obtain ⟨⟨x, rfl⟩, y, rfl⟩ := hba, hdc
-  simp [*, Int.ne_of_lt, Int.ne_of_gt, d.mul_assoc, b.mul_comm]
+  simp [*, Int.ne_of_gt, d.mul_assoc, b.mul_comm]
 
 theorem ediv_lt_ediv_iff_of_dvd_of_pos_of_neg {a b c d : Int} (hb : 0 < b) (hd : d < 0)
     (hba : b ∣ a) (hdc : d ∣ c) : a / b < c / d ↔ c * b < d * a := by
@@ -1733,7 +1733,7 @@ theorem ediv_lt_ediv_iff_of_dvd_of_neg_of_pos {a b c d : Int} (hb : b < 0) (hd :
 theorem ediv_lt_ediv_iff_of_dvd_of_neg_of_neg {a b c d : Int} (hb : b < 0) (hd : d < 0)
     (hba : b ∣ a) (hdc : d ∣ c) : a / b < c / d ↔ d * a < c * b := by
   obtain ⟨⟨x, rfl⟩, y, rfl⟩ := hba, hdc
-  simp [*, Int.ne_of_lt, Int.ne_of_gt, d.mul_assoc, b.mul_comm]
+  simp [*, Int.ne_of_lt, d.mul_assoc, b.mul_comm]
 
 /-! ### `tdiv` and ordering -/
 
@@ -2446,7 +2446,7 @@ theorem lt_mul_fdiv_self_add {x k : Int} (h : 0 < k) : x < k * (x.fdiv k) + k :=
 
 @[simp]
 theorem emod_bmod (x : Int) (n : Nat) : Int.bmod (x%n) n = Int.bmod x n := by
-  simp [bmod, Int.emod_emod]
+  simp [bmod]
 
 @[deprecated emod_bmod (since := "2025-04-11")]
 theorem emod_bmod_congr (x : Int) (n : Nat) : Int.bmod (x%n) n = Int.bmod x n :=
@@ -2987,7 +2987,7 @@ theorem self_le_ediv_of_nonpos_of_nonneg {x y : Int} (hx : x ≤ 0) (hy : 0 ≤ 
   · simp [hx', zero_ediv]
   · by_cases hy : y = 0
     · simp [hy]; omega
-    · simp only [ge_iff_le, Int.le_ediv_iff_mul_le (c := y) (a := x) (b := x) (by omega),
+    · simp only [Int.le_ediv_iff_mul_le (c := y) (a := x) (b := x) (by omega),
         show (x * y ≤ x) = (x * y ≤ x * 1) by rw [Int.mul_one], Int.mul_one]
       apply Int.mul_le_mul_of_nonpos_left (a := x) (b := y) (c  := (1 : Int)) (by omega) (by omega)
 

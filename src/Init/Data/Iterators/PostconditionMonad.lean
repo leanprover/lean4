@@ -188,10 +188,10 @@ protected theorem PostconditionT.bind_assoc {m : Type w → Type w'} [Monad m] [
 protected theorem PostconditionT.map_pure {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {α : Type w} {β : Type w} {f : α → β} {a : α} :
     (pure a : PostconditionT m α).map f = pure (f a) := by
-  apply PostconditionT.ext <;> simp [pure, Functor.map, PostconditionT.map, PostconditionT.pure]
+  apply PostconditionT.ext <;> simp [pure, PostconditionT.map, PostconditionT.pure]
 
 instance [Monad m] [LawfulMonad m] : LawfulMonad (PostconditionT m) where
-  map_const {α β} := by ext a x; simp [Functor.mapConst, Function.const_apply, Functor.map]
+  map_const {α β} := by ext a x; simp [Functor.mapConst, Functor.map]
   id_map {α} x := by simp [Functor.map]
   comp_map {α β γ} g h := by intro x; simp [Functor.map]; rfl
   seqLeft_eq {α β} x y := by simp [SeqLeft.seqLeft, Functor.map, Seq.seq]; rfl

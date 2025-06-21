@@ -183,7 +183,7 @@ grind_pattern Sublist.findSome?_isSome => l₁ <+ l₂, l₂.findSome? f
 
 theorem Sublist.findSome?_eq_none {l₁ l₂ : List α} (h : l₁ <+ l₂) :
     l₂.findSome? f = none → l₁.findSome? f = none := by
-  simp only [List.findSome?_eq_none_iff, Bool.not_eq_true]
+  simp only [List.findSome?_eq_none_iff]
   exact fun w x m => w x (Sublist.mem m h)
 
 theorem IsPrefix.findSome?_eq_some {l₁ l₂ : List α} {f : α → Option β} (h : l₁ <+: l₂) :
@@ -383,7 +383,7 @@ theorem find?_flatten_eq_some_iff {xs : List (List α)} {p : α → Bool} {a : �
       · simpa using h₂ x (by simpa using ⟨l, ma, m⟩)
       · specialize h₁ _ mb
         simp_all
-    · simp [h₁]
+    · simp
       refine ⟨as, bs, ?_⟩
       refine ⟨?_, ?_, ?_⟩
       · simp_all
@@ -592,7 +592,7 @@ theorem findIdx_eq_length {p : α → Bool} {xs : List α} :
   | cons x xs ih =>
     rw [findIdx_cons, length_cons]
     simp only [cond_eq_if]
-    split <;> simp_all [Nat.succ.injEq]
+    split <;> simp_all
 
 theorem findIdx_eq_length_of_false {p : α → Bool} {xs : List α} (h : ∀ x ∈ xs, p x = false) :
     xs.findIdx p = xs.length := by
@@ -737,7 +737,7 @@ theorem findIdx?_eq_none_iff {xs : List α} {p : α → Bool} :
   | nil => simp_all
   | cons x xs ih =>
     simp only [findIdx?_cons]
-    split <;> simp_all [cond_eq_if]
+    split <;> simp_all
 
 @[simp, grind =]
 theorem findIdx?_isSome {xs : List α} {p : α → Bool} :
@@ -799,13 +799,13 @@ theorem findIdx?_eq_some_iff_getElem {xs : List α} {p : α → Bool} {i : Nat} 
   induction xs generalizing i with
   | nil => simp
   | cons x xs ih =>
-    simp only [findIdx?_cons, Nat.zero_add]
+    simp only [findIdx?_cons]
     split
     · simp only [Option.some.injEq, Bool.not_eq_true, length_cons]
       cases i with
       | zero => simp_all
       | succ i =>
-        simp only [Bool.not_eq_true, zero_ne_add_one, getElem_cons_succ, false_iff, not_exists,
+        simp only [zero_ne_add_one, getElem_cons_succ, false_iff, not_exists,
           not_and, Classical.not_forall, Bool.not_eq_false]
         intros
         refine ⟨0, zero_lt_succ i, ‹_›⟩
@@ -830,8 +830,8 @@ theorem of_findIdx?_eq_some {xs : List α} {p : α → Bool} (w : xs.findIdx? p 
   induction xs generalizing i with
   | nil => simp_all
   | cons x xs ih =>
-    simp_all only [findIdx?_cons, Nat.zero_add]
-    split at w <;> cases i <;> simp_all [succ_inj]
+    simp_all only [findIdx?_cons]
+    split at w <;> cases i <;> simp_all
 
 @[deprecated of_findIdx?_eq_some (since := "2025-02-02")]
 abbrev findIdx?_of_eq_some := @of_findIdx?_eq_some
@@ -842,7 +842,7 @@ theorem of_findIdx?_eq_none {xs : List α} {p : α → Bool} (w : xs.findIdx? p 
   induction xs generalizing i with
   | nil => simp_all
   | cons x xs ih =>
-    simp_all only [Bool.not_eq_true, findIdx?_cons, Nat.zero_add]
+    simp_all only [Bool.not_eq_true, findIdx?_cons]
     cases i with
     | zero =>
       split at w <;> simp_all
@@ -888,7 +888,7 @@ theorem findIdx?_flatten {l : List (List α)} {p : α → Bool} :
   cases n with
   | zero => simp
   | succ n =>
-    simp only [replicate, findIdx?_cons, Nat.zero_add, zero_lt_succ, true_and]
+    simp only [replicate, findIdx?_cons, zero_lt_succ, true_and]
     split <;> simp_all
 
 theorem findIdx?_eq_findSome?_zipIdx {xs : List α} {p : α → Bool} :
@@ -899,7 +899,7 @@ theorem findIdx?_eq_findSome?_zipIdx {xs : List α} {p : α → Bool} :
     simp only [findIdx?_cons, Nat.zero_add, zipIdx]
     split
     · simp_all
-    · simp_all only [zipIdx_cons, ite_false, Option.isNone_none, findSome?_cons_of_isNone, reduceCtorEq]
+    · simp_all only [ite_false, Option.isNone_none, findSome?_cons_of_isNone, reduceCtorEq]
       rw [← map_snd_add_zipIdx_eq_zipIdx (n := 1) (k := 0)]
       simp [Function.comp_def, findSome?_map]
 
@@ -975,7 +975,7 @@ theorem findIdx_eq_getD_findIdx? {xs : List α} {p : α → Bool} :
   | nil => simp
   | cons x xs ih =>
     simp only [findIdx_cons, findIdx?_cons]
-    split <;> simp_all [ih]
+    split <;> simp_all
 
 @[simp] theorem findIdx?_subtype {p : α → Prop} {l : List { x // p x }}
     {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
@@ -985,7 +985,7 @@ theorem findIdx_eq_getD_findIdx? {xs : List α} {p : α → Bool} :
   | nil => simp
   | cons a l ih =>
     simp [hf, findIdx?_cons]
-    split <;> simp [ih, Function.comp_def]
+    split <;> simp [ih]
 
 /-! ### findFinIdx? -/
 
@@ -1078,7 +1078,7 @@ theorem isNone_findFinIdx? {l : List α} {p : α → Bool} :
     {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     l.findFinIdx? f = (l.unattach.findFinIdx? g).map (fun i => i.cast (by simp)) := by
   induction l with
-  | nil => simp [unattach]
+  | nil => simp
   | cons a l ih =>
     simp [hf, findFinIdx?_cons]
     split <;> simp [ih, Function.comp_def]
@@ -1136,7 +1136,7 @@ theorem idxOf_lt_length_of_mem [BEq α] [EquivBEq α] {l : List α} (h : a ∈ l
     simp only [mem_cons] at h
     obtain rfl | h := h
     · simp
-    · simp only [idxOf_cons, cond_eq_if, beq_iff_eq, length_cons]
+    · simp only [idxOf_cons, cond_eq_if, length_cons]
       specialize ih h
       split
       · exact zero_lt_succ xs.length

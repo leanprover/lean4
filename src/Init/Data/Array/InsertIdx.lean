@@ -109,19 +109,19 @@ theorem getElem_insertIdx {xs : Array α} {x : α} {i k : Nat} (w : i ≤ xs.siz
         else
           xs[k-1]'(by simp [size_insertIdx] at h; omega) := by
   cases xs
-  simp [List.getElem_insertIdx, w]
+  simp [List.getElem_insertIdx]
 
 theorem getElem_insertIdx_of_lt {xs : Array α} {x : α} {i k : Nat} (w : i ≤ xs.size) (h : k < i) :
     (xs.insertIdx i x)[k]'(by simp; omega) = xs[k] := by
-  simp [getElem_insertIdx, w, h]
+  simp [getElem_insertIdx, h]
 
 theorem getElem_insertIdx_self {xs : Array α} {x : α} {i : Nat} (w : i ≤ xs.size) :
     (xs.insertIdx i x)[i]'(by simp; omega) = x := by
-  simp [getElem_insertIdx, w]
+  simp [getElem_insertIdx]
 
 theorem getElem_insertIdx_of_gt {xs : Array α} {x : α} {i k : Nat} (w : k ≤ xs.size) (h : k > i) :
     (xs.insertIdx i x)[k]'(by simp; omega) = xs[k - 1]'(by omega) := by
-  simp [getElem_insertIdx, w, h]
+  simp [getElem_insertIdx]
   rw [dif_neg (by omega), dif_neg (by omega)]
 
 @[grind =]
@@ -135,7 +135,7 @@ theorem getElem?_insertIdx {xs : Array α} {x : α} {i k : Nat} (h : i ≤ xs.si
         else
           xs[k-1]? := by
   cases xs
-  simp [List.getElem?_insertIdx, h]
+  simp [List.getElem?_insertIdx]
 
 theorem getElem?_insertIdx_of_lt {xs : Array α} {x : α} {i k : Nat} (w : i ≤ xs.size) (h : k < i) :
     (xs.insertIdx i x)[k]? = xs[k]? := by

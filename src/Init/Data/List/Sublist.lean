@@ -276,7 +276,7 @@ grind_pattern Sublist.map => l₁ <+ l₂, map f l₂
 @[grind]
 protected theorem Sublist.filterMap (f : α → Option β) (s : l₁ <+ l₂) :
     filterMap f l₁ <+ filterMap f l₂ := by
-  induction s <;> simp [filterMap_cons] <;> split <;> simp [*, cons, cons₂]
+  induction s <;> simp [filterMap_cons] <;> split <;> simp [*, cons]
 
 grind_pattern Sublist.filterMap => l₁ <+ l₂, filterMap f l₁
 grind_pattern Sublist.filterMap => l₁ <+ l₂, filterMap f l₂
@@ -542,7 +542,7 @@ theorem sublist_flatten_of_mem {L : List (List α)} {l} (h : l ∈ L) : l <+ L.f
   | nil => cases h
   | cons l' L ih =>
     rcases mem_cons.1 h with (rfl | h)
-    · simp [h]
+    · simp
     · simp [ih h, flatten_cons, sublist_append_of_sublist_right]
 
 theorem sublist_flatten_iff {L : List (List α)} {l} :
@@ -914,7 +914,7 @@ theorem infix_cons_iff : l₁ <:+: a :: l₂ ↔ l₁ <+: a :: l₂ ∨ l₁ <:+
 theorem prefix_concat_iff {l₁ l₂ : List α} {a : α} :
     l₁ <+: l₂ ++ [a] ↔ l₁ = l₂ ++ [a] ∨ l₁ <+: l₂ := by
   simp only [← reverse_suffix, reverse_concat, suffix_cons_iff]
-  simp only [concat_eq_append, ← reverse_concat, reverse_eq_iff, reverse_reverse]
+  simp only [← reverse_concat, reverse_eq_iff, reverse_reverse]
 
 theorem suffix_concat_iff {l₁ l₂ : List α} {a : α} :
     l₁ <:+ l₂ ++ [a] ↔ l₁ = [] ∨ ∃ t, l₁ = t ++ [a] ∧ t <:+ l₂ := by
@@ -941,7 +941,7 @@ theorem prefix_iff_getElem? {l₁ l₂ : List α} :
     | nil =>
       simpa using ⟨0, by simp⟩
     | cons b l₂ =>
-      simp only [cons_append, cons_prefix_cons, ih]
+      simp only [cons_prefix_cons, ih]
       rw (occs := [2]) [← Nat.and_forall_add_one]
       simp [Nat.succ_lt_succ_iff, eq_comm]
 
@@ -964,7 +964,7 @@ theorem prefix_iff_getElem {l₁ l₂ : List α} :
       | nil =>
         exact nil_prefix
       | cons _ _ =>
-        simp only [length_cons, Nat.add_le_add_iff_right, Fin.getElem_fin] at hl h
+        simp only [length_cons, Nat.add_le_add_iff_right] at hl h
         simp only [cons_prefix_cons]
         exact ⟨h 0 (zero_lt_succ _), tail_ih hl fun a ha ↦ h a.succ (succ_lt_succ ha)⟩
 

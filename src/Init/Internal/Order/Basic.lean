@@ -234,7 +234,7 @@ theorem admissible_or (P Q : α → Prop)
     open Classical in
     apply Decidable.or_iff_not_imp_left.mpr
     intro h'
-    simp only [not_forall, not_imp, not_exists, not_and] at h'
+    simp only [not_forall, not_exists, not_and] at h'
     obtain ⟨x, hcx, hx⟩ := h'
     intro y hcy
     cases hchain x y hcx hcy  with

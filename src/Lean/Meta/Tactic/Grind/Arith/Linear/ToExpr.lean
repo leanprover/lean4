@@ -32,7 +32,8 @@ def ofLinExpr (e : Linarith.Expr) : Expr :=
   | .add a b => mkApp2 (mkConst ``Linarith.Expr.add) (ofLinExpr a) (ofLinExpr b)
   | .sub a b => mkApp2 (mkConst ``Linarith.Expr.sub) (ofLinExpr a) (ofLinExpr b)
   | .neg a => mkApp (mkConst ``Linarith.Expr.neg) (ofLinExpr a)
-  | .mul k a => mkApp2 (mkConst ``Linarith.Expr.mul) (toExpr k) (ofLinExpr a)
+  | .natMul k a => mkApp2 (mkConst ``Linarith.Expr.natMul) (toExpr k) (ofLinExpr a)
+  | .intMul k a => mkApp2 (mkConst ``Linarith.Expr.intMul) (toExpr k) (ofLinExpr a)
 
 instance : ToExpr Linarith.Expr where
   toExpr := ofLinExpr

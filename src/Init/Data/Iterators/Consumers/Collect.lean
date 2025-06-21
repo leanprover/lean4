@@ -56,4 +56,18 @@ def Iter.Partial.toList {α : Type w} {β : Type w}
     [Iterator α Id β] [IteratorCollectPartial α Id Id] (it : Iter.Partial (α := α) β) : List β :=
   it.it.toIterM.allowNontermination.toList.run
 
+/--
+This class charaterizes how the plausibility behavior (`IsPlausibleStep`) and the actual iteration
+behavior (`it.step`) should relate to each other for pure iterators. Intuitively, a step should
+only be plausible if it is possible. For simplicity's sake, the actual definition is weaker but
+presupposes that the iterator is finite.
+
+This is an experimental instance and it should not be explicitly used downstream of the standard
+library.
+-/
+class LawfulPureIterator (α : Type w) [Iterator α Id β]
+    [Finite α Id] [IteratorCollect α Id Id] where
+  mem_toList_iff_isPlausibleIndirectOutput {it : Iter (α := α) β} {out : β} :
+    out ∈ it.toList ↔ it.IsPlausibleIndirectOutput out
+
 end Std.Iterators

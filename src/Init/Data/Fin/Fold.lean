@@ -252,7 +252,7 @@ theorem foldl_succ_last (f : α → Fin (n+1) → α) (x) :
     foldl (n+1) f x = f (foldl n (f · ·.castSucc) x) (last n) := by
   rw [foldl_succ]
   induction n generalizing x with
-  | zero => simp [foldl_succ, Fin.last]
+  | zero => simp [Fin.last]
   | succ n ih => rw [foldl_succ, ih (f · ·.succ), foldl_succ]; simp
 
 theorem foldl_add (f : α → Fin (n + m) → α) (x) :

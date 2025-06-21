@@ -16,7 +16,7 @@ namespace lean {
 
 using namespace std;
 
-bool is_safe_ascii(const char *s) {
+bool is_safe_ascii_str(const char *s) {
     while (s && *s) {
         char c = *s++;
         if (!((c >= 'a' && c <= 'z') ||
@@ -36,11 +36,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
     char const * name_cstr = lean_string_cstr(name);
     char const * service_cstr = lean_string_cstr(service);
 
-    if (!is_safe_ascii(name_cstr)) {
+    if (!is_safe_ascii_str(name_cstr)) {
         return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("name is not ASCII.")));
     }
 
-    if (!is_safe_ascii(service_cstr)) {
+    if (!is_safe_ascii_str(service_cstr)) {
         return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("service is not ASCII.")));
     }
 

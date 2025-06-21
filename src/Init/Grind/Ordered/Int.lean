@@ -21,13 +21,10 @@ instance : Preorder Int where
   le_trans := Int.le_trans
   lt_iff_le_not_le := by omega
 
-instance : IntModule.IsOrdered Int where
-  neg_le_iff := by omega
-  add_le_left := by omega
-  hmul_pos_iff k a ha := ⟨fun h => Int.pos_of_mul_pos_left h ha, fun hk => Int.mul_pos hk ha⟩
-  hmul_nonneg hk ha := Int.mul_nonneg hk ha
+instance : OrderedAdd Int where
+  add_le_left_iff := by omega
 
-instance : Ring.IsOrdered Int where
+instance : OrderedRing Int where
   zero_lt_one := by omega
   mul_lt_mul_of_pos_left := Int.mul_lt_mul_of_pos_left
   mul_lt_mul_of_pos_right := Int.mul_lt_mul_of_pos_right

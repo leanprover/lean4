@@ -87,7 +87,7 @@ def isCommRing : LinearM Bool :=
   return (← getStruct).ringId?.isSome
 
 def isOrderedCommRing : LinearM Bool := do
-  return (← isCommRing) && (← getStruct).ringIsOrdInst?.isSome
+  return (← isCommRing) && (← getStruct).orderedRingInst?.isSome
 
 def isLinearOrder : LinearM Bool :=
   return (← getStruct).linearInst?.isSome
@@ -120,13 +120,13 @@ def getPreorderInst : LinearM Expr := do
     | throwError "`grind linarith` internal error, structure is not a preorder"
   return inst
 
-def getIsOrdInst : LinearM Expr := do
-  let some inst := (← getStruct).isOrdInst?
+def getOrderedAddInst : LinearM Expr := do
+  let some inst := (← getStruct).orderedAddInst?
     | throwError "`grind linarith` internal error, structure is not an ordered module"
   return inst
 
-def isOrdered : LinearM Bool :=
-  return (← getStruct).isOrdInst?.isSome
+def isOrderedAdd : LinearM Bool :=
+  return (← getStruct).orderedAddInst?.isSome
 
 def getLtFn [Monad m] [MonadError m] [MonadGetStruct m] : m Expr := do
   let some lt := (← getStruct).ltFn?
@@ -153,8 +153,8 @@ def getCommRingInst : LinearM Expr := do
     | throwError "`grind linarith` internal error, structure is not a commutative ring"
   return inst
 
-def getRingIsOrdInst : LinearM Expr := do
-  let some inst := (← getStruct).ringIsOrdInst?
+def getOrderedRingInst : LinearM Expr := do
+  let some inst := (← getStruct).orderedRingInst?
     | throwError "`grind linarith` internal error, structure is not an ordered ring"
   return inst
 

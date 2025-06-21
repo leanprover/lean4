@@ -132,12 +132,12 @@ where
     ensureToFieldDefEq hmulInst intModuleInst ``Grind.IntModule.hmulInt
     ensureToFieldDefEq hmulNatInst intModuleInst ``Grind.IntModule.hmulNat
     let preorderInst? ← getInst? ``Grind.Preorder
-    let isOrdInst? ← if let some preorderInst := preorderInst? then
-      let isOrderedType := mkApp3 (mkConst ``Grind.IntModule.IsOrdered [u]) type preorderInst intModuleInst
+    let orderedAddInst? ← if let some preorderInst := preorderInst? then
+      let isOrderedType := mkApp3 (mkConst ``Grind.OrderedAdd [u]) type addInst preorderInst
       pure <| LOption.toOption (← trySynthInstance isOrderedType)
     else
       pure none
-    let preorderInst? := if isOrdInst?.isNone then none else preorderInst?
+    let preorderInst? := if orderedAddInst?.isNone then none else preorderInst?
     let partialInst? ← checkToFieldDefEq? preorderInst? (← getInst? ``Grind.PartialOrder) ``Grind.PartialOrder.toPreorder
     let linearInst? ← checkToFieldDefEq? partialInst? (← getInst? ``Grind.LinearOrder) ``Grind.LinearOrder.toPartialOrder
     let (leFn?, ltFn?) ← if let some preorderInst := preorderInst? then
@@ -172,15 +172,15 @@ where
       return some one
     let one? ← getOne?
     let commRingInst? ← getInst? ``Grind.CommRing
-    let getRingIsOrdInst? : GoalM (Option Expr) := do
+    let getOrderedRingInst? : GoalM (Option Expr) := do
       let some ringInst := ringInst? | return none
       let some preorderInst := preorderInst? | return none
-      let isOrdType := mkApp3 (mkConst ``Grind.Ring.IsOrdered [u]) type ringInst preorderInst
+      let isOrdType := mkApp3 (mkConst ``Grind.OrderedRing [u]) type ringInst preorderInst
       let .some inst ← trySynthInstance isOrdType
-        | reportIssue! "type is an ordered `IntModule` and a `Ring`, but is not an ordered ring, failed to synthesize{indentExpr isOrdType}"
+        | reportIssue! "type has a `Preorder` and is a `Ring`, but is not an ordered ring, failed to synthesize{indentExpr isOrdType}"
           return none
       return some inst
-    let ringIsOrdInst? ← getRingIsOrdInst?
+    let orderedRingInst? ← getOrderedRingInst?
     let charInst? ← if let some semiringInst := semiringInst? then getIsCharInst? u type semiringInst else pure none
     let getNoNatZeroDivInst? : GoalM (Option Expr) := do
       let hmulNat := mkApp3 (mkConst ``HMul [0, u, u]) Nat.mkType type type
@@ -190,14 +190,14 @@ where
     let noNatDivInst? ← getNoNatZeroDivInst?
     let id := (← get').structs.size
     let struct : Struct := {
-      id, type, u, intModuleInst, preorderInst?, isOrdInst?, partialInst?, linearInst?, noNatDivInst?
+      id, type, u, intModuleInst, preorderInst?, orderedAddInst?, partialInst?, linearInst?, noNatDivInst?
       leFn?, ltFn?, addFn, subFn, negFn, hmulFn, hmulNatFn, hsmulFn?, hsmulNatFn?, zero, one?
-      ringInst?, commRingInst?, ringIsOrdInst?, charInst?, ringId?, fieldInst?, ofNatZero
+      ringInst?, commRingInst?, orderedRingInst?, charInst?, ringId?, fieldInst?, ofNatZero
     }
     modify' fun s => { s with structs := s.structs.push struct }
     if let some one := one? then
       if ringInst?.isSome then LinearM.run id do
-        if ringIsOrdInst?.isSome then
+        if orderedRingInst?.isSome then
           -- Create `1` variable, and assert strict lower bound `0 < 1` and `0 ≠ 1`
           let x ← mkVar one (mark := false)
           addZeroLtOne x

@@ -6,6 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
+import Init.GrindInstances.Ring.Nat
 import Init.GrindInstances.Ring.Int
 import Init.GrindInstances.Ring.UInt
 import Init.GrindInstances.Ring.SInt

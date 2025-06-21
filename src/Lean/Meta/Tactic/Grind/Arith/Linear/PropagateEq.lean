@@ -224,7 +224,7 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
   if isSameExpr a b then return () -- TODO: check why this is needed
   let some structId ← inSameStruct? a b | return ()
   LinearM.run structId do
-    if (← isOrdered) then
+    if (← isOrderedAdd) then
       trace_goal[grind.linarith.assert] "{← mkEq a b}"
       if (← isCommRing) then
         processNewCommRingEq' a b

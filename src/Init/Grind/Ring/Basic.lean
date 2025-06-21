@@ -530,24 +530,15 @@ theorem no_int_zero_divisors {α : Type u} [IntModule α] [NoNatZeroDivisors α]
     simp [intCast_natCast]
     intro h₁ h₂
     replace h₁ : k ≠ 0 := by intro h; simp [h] at h₁
-    -- TODO cleanup merge
-    -- rw [IntModule.hmul_nat] at h₂
-    -- exact NoNatZeroDivisors.eq_zero_of_mul_eq_zero h₁ h₂
-    replace h₂ : k * a = k * 0 := by simp [mul_zero, h₂]
-    exact no_nat_zero_divisors k a 0 h₁ h₂
+    rw [IntModule.hmul_nat] at h₂
+    exact NoNatZeroDivisors.eq_zero_of_mul_eq_zero h₁ h₂
   | -(k+1 : Nat) =>
     rw [IntModule.neg_hmul]
     intro _ h
-    -- TODO cleanup merge
-    -- replace h := congrArg (-·) h
-    -- dsimp only at h
-    -- rw [IntModule.neg_neg, IntModule.neg_zero] at h
-    -- rw [IntModule.hmul_nat] at h
-    -- exact NoNatZeroDivisors.eq_zero_of_mul_eq_zero (Nat.succ_ne_zero _) h
-    replace h := congrArg (-·) h; simp at h
-    rw [← neg_mul, neg_neg, neg_zero, ← hmul_eq_natCast_mul] at h
-    replace h : (k + 1 : Nat) * a = (k + 1 : Nat) * 0 := by
-      simp [mul_zero]; exact h
-    exact no_nat_zero_divisors (k+1) a 0 (Nat.succ_ne_zero _) h
+    replace h := congrArg (-·) h
+    dsimp only at h
+    rw [IntModule.neg_neg, IntModule.neg_zero] at h
+    rw [IntModule.hmul_nat] at h
+    exact NoNatZeroDivisors.eq_zero_of_mul_eq_zero (Nat.succ_ne_zero _) h
 
 end Lean.Grind

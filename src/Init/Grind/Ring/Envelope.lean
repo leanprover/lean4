@@ -298,6 +298,24 @@ theorem toQ_inj [AddRightCancel α] {a b : α} : toQ a = toQ b → a = b := by
   obtain ⟨k, h₁⟩ := h₁
   exact AddRightCancel.add_right_cancel a b k h₁
 
+instance [Semiring α] [AddRightCancel α] [NoNatZeroDivisors α] : NoNatZeroDivisors (OfSemiring.Q α) where
+  no_nat_zero_divisors := by
+    intro k a b h₁ h₂
+    replace h₂ : mul (natCast k) a = mul (natCast k) b := h₂
+    induction a using Quot.ind
+    induction b using Quot.ind
+    next a b =>
+    rcases a with ⟨a₁, a₂⟩
+    rcases b with ⟨b₁, b₂⟩
+    simp [mul] at h₂
+    replace h₂ := Q.exact h₂
+    simp [r] at h₂
+    rcases h₂ with ⟨k', h₂⟩
+    replace h₂ := AddRightCancel.add_right_cancel _ _ _ h₂
+    simp [← Semiring.left_distrib] at h₂
+    replace h₂ := NoNatZeroDivisors.no_nat_zero_divisors k (a₁ + b₂) (a₂ + b₁) h₁ h₂
+    apply Quot.sound; simp [r]; exists 0; simp [h₂]
+
 end OfSemiring
 end Lean.Grind.Ring
 

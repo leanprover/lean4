@@ -71,8 +71,8 @@ syntax grindEq     := "=" (grindGen)?
 syntax grindEqBoth := atomic("_" "=" "_") (grindGen)?
 syntax grindEqRhs  := atomic("=" "_") (grindGen)?
 syntax grindEqBwd  := atomic("←" "=") <|> atomic("<-" "=")
-syntax grindBwd    := ("←" <|> "<-") (grindGen)?
-syntax grindFwd    := "→" <|> "->"
+syntax grindBwd    := ("← " <|> "←" <|> "<-") (grindGen)? -- TODO remove "← " after update stage 0
+syntax grindFwd    := "→ " <|> "→" <|> "->" -- TODO remove "→ " after update stage 0
 syntax grindRL     := "⇐" <|> "<="
 syntax grindLR     := "⇒" <|> "=>"
 syntax grindUsr    := &"usr"

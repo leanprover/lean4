@@ -525,12 +525,15 @@ theorem no_int_zero_divisors {α : Type u} [Ring α] [NoNatZeroDivisors α] {k :
     simp [intCast_natCast]
     intro h₁ h₂
     replace h₁ : k ≠ 0 := by intro h; simp [h] at h₁
-    exact no_nat_zero_divisors k a h₁ h₂
+    replace h₂ : k * a = k * 0 := by simp [mul_zero, h₂]
+    exact no_nat_zero_divisors k a 0 h₁ h₂
   | -(k+1 : Nat) =>
     rw [Int.natCast_add, ← Int.natCast_add, intCast_neg, intCast_natCast]
     intro _ h
     replace h := congrArg (-·) h; simp at h
     rw [← neg_mul, neg_neg, neg_zero, ← hmul_eq_natCast_mul] at h
-    exact no_nat_zero_divisors (k+1) a (Nat.succ_ne_zero _) h
+    replace h : (k + 1 : Nat) * a = (k + 1 : Nat) * 0 := by
+      simp [mul_zero]; exact h
+    exact no_nat_zero_divisors (k+1) a 0 (Nat.succ_ne_zero _) h
 
 end Lean.Grind

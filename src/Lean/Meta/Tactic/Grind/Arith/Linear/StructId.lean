@@ -184,7 +184,7 @@ where
     let getNoNatZeroDivInst? : GoalM (Option Expr) := do
       let hmulNat := mkApp3 (mkConst ``HMul [0, u, u]) Nat.mkType type type
       let .some hmulInst ← trySynthInstance hmulNat | return none
-      let noNatZeroDivType := mkApp3 (mkConst ``Grind.NoNatZeroDivisors [u]) type zeroInst hmulInst
+      let noNatZeroDivType := mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type hmulInst
       return LOption.toOption (← trySynthInstance noNatZeroDivType)
     let noNatDivInst? ← getNoNatZeroDivInst?
     let id := (← get').structs.size

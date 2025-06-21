@@ -33,13 +33,9 @@ instance : IsCharP Int 0 := IsCharP.mk' _ _
   (ofNat_eq_zero_iff := fun x => by erw [Int.ofNat_eq_zero]; simp)
 
 instance : NoNatZeroDivisors Int where
-  no_nat_zero_divisors k a h₁ h₂ := by
-    cases Int.mul_eq_zero.mp h₂
-    next h =>
-      rw [← Int.natCast_zero] at h
-      have h : (k : Int).toNat = (↑0 : Int).toNat := congrArg Int.toNat h;
-      simp at h
-      contradiction
-    next => assumption
+  no_nat_zero_divisors k a b h₁ h₂ := by
+    replace h₁ : (k : Int) ≠ 0 := by simp [h₁]
+    cases Int.mul_eq_mul_left_iff h₁ |>.mp h₂
+    rfl
 
 end Lean.Grind

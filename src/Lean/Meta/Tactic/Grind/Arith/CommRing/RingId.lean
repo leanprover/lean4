@@ -147,12 +147,17 @@ where
     else
       pure none
     let one ← shareCommon <| (← canon <| denoteNumCore u type semiringInst negFn 1)
+    let semiringId? := none
     let id := (← get').rings.size
     let ring : Ring := {
-      id, type, u, semiringInst, ringInst, commSemiringInst, commRingInst, charInst?, noZeroDivInst?, fieldInst?,
+      id, semiringId?, type, u, semiringInst, ringInst, commSemiringInst,
+      commRingInst, charInst?, noZeroDivInst?, fieldInst?,
       addFn, mulFn, subFn, negFn, powFn, intCastFn, natCastFn, invFn?, one }
     modify' fun s => { s with rings := s.rings.push ring }
     return some id
+
+private def setSemiringId (ringId : Nat) (semiringId : Nat) : GoalM Unit := do
+  RingM.run ringId do modifyRing fun s => { s with semiringId? := some semiringId }
 
 def getSemiringId? (type : Expr) : GoalM (Option Nat) := do
   if let some id? := (← get').stypeIdOf.find? { expr := type } then
@@ -186,6 +191,7 @@ where
       addFn, mulFn, powFn, natCastFn, toQFn, addRightCancelInst?
     }
     modify' fun s => { s with semirings := s.semirings.push semiring }
+    setSemiringId ringId id
     return some id
 
 end Lean.Meta.Grind.Arith.CommRing

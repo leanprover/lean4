@@ -128,6 +128,11 @@ structure DiseqCnstr where
 /-- State for each `CommRing` processed by this module. -/
 structure Ring where
   id             : Nat
+  /--
+  If this is a `OfSemiring.Q α` ring, this field contain the
+  `semiringId` for `α`.
+  -/
+  semiringId?    : Option Nat
   type           : Expr
   /-- Cached `getDecLevel type` -/
   u              : Level

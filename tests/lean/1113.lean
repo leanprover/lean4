@@ -10,7 +10,7 @@ theorem t3 {f: Fin (n+1)}:
   foo f = 0 := by
   dsimp only [←Nat.succ_eq_add_one' n] at f -- use `dsimp` to ensure we don't copy `f`
   trace_state
-  simp only [←Nat.succ_eq_add_one' n, foo]
+  simp only [foo]
 
 example {n: Nat} {f: Fin (n+1)}:
   foo f = 0 := by

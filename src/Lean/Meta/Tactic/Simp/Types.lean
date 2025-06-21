@@ -204,6 +204,9 @@ structure UsedSimps where
   size : Nat := 0
   deriving Inhabited
 
+def UsedSimps.contains (s : UsedSimps) (thmId : Origin) : Bool :=
+  s.map.contains thmId
+
 def UsedSimps.insert (s : UsedSimps) (thmId : Origin) : UsedSimps :=
   if s.map.contains thmId then
     s

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Simp
 import Lean.Meta.Tactic.Replace
+import Lean.Meta.Hint
 import Lean.Elab.BuiltinNotation
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.ElabTerm
@@ -504,6 +505,79 @@ def mkSimpOnly (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Syntax := do
 def traceSimpCall (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Unit := do
   logInfoAt stx[0] m!"Try this: {← mkSimpOnly stx usedSimps}"
 
+
+register_builtin_option linter.unusedSimpArgs : Bool := {
+  defValue := true,
+  descr := "enable the linter that warns when explicit `simp` arguments are unused.\n\
+    \n\
+    The linter suggests removing the unused arguments. This hint may not be correct in the case \
+    that `simp [← thm]` is given, when `thm` has the `@[simp]` attribute, and it is relevant that \
+    `thm` it disabled (which is a side-effect of specifying `← thm`). In that case, replace \
+    it with `simp [- thm]`.\n\
+    \n\
+    When one `simp` invocation is run multiple times (e.g. `all_goals simp [thm]`), it warns \
+    about simp arguments that are unused in all invocations. For this reason, the linter \
+    does not warn about uses of `simp` inside a macro, as there it is usually not possible to see \
+    all invocations."
+}
+
+structure UnusedSimpArgsInfo where
+  mask : Array Bool
+deriving TypeName
+
+def pushUnusedSimpArgsInfo [Monad m] [MonadInfoTree m] (simpStx : Syntax) (mask : Array Bool) : m Unit := do
+  pushInfoLeaf <| .ofCustomInfo {
+    stx := simpStx
+    value := .mk { mask := mask : UnusedSimpArgsInfo } }
+
+/--
+Checks the simp arguments for unused ones, and stores a bitmask of unused ones in the info tree,
+to be picked up by the linter.
+(This indirection is necessary because the same `simp` syntax may be executed multiple times,
+and different simp arguments may be used in each step.)
+-/
+def warnUnusedSimpArgs (simpArgs : Array (Syntax × ElabSimpArgResult)) (usedSimps : Simp.UsedSimps) : MetaM Unit := do
+  if simpArgs.isEmpty then return
+  let mut mask : Array Bool := #[]
+  for h : i in [:simpArgs.size] do
+    let (ref, arg) := simpArgs[i]
+    let used ←
+      match arg with
+      | .addEntries entries =>
+        entries.anyM fun
+          | .thm thm => return usedSimps.contains (← usedThmIdOfSimpTheorem thm)
+          | .toUnfold declName => return usedSimps.contains (.decl declName)
+          | .toUnfoldThms _declName thms => return thms.any (usedSimps.contains <| .decl ·)
+      | .addSimproc declName post =>
+        pure <| usedSimps.contains (.decl declName post)
+      | .addLetToUnfold fvarId =>
+        pure <| usedSimps.contains (.fvar fvarId)
+      | .erase _
+      | .eraseSimproc _
+      | .ext _ _ _
+      | .star
+      | .none
+      => pure true -- not supported yet
+    mask := mask.push used
+  pushUnusedSimpArgsInfo (← getRef) mask
+where
+  /--
+  For equational theorems, usedTheorems record the declaration name. So if the user
+  specified `foo.eq_1`, we get `foo` in `usedTheores`, but we still want to mark
+  `foo.eq_1` as used.
+  (cf. `recordSimpTheorem`)
+  This may lead to unused, explicitly given `foo.eq_1` to not be warned about. Ok for now,
+  eventually `recordSimpTheorem` could record the actual theorem, and the logic for
+  treating `foo.eq_1` as `foo` be moved to `SimpTrace.lean`
+  -/
+  usedThmIdOfSimpTheorem (thm : SimpTheorem) : MetaM Origin := do
+    let thmId := thm.origin
+    if let .decl declName post false := thmId then
+      if let some declName ← isEqnThm? declName then
+        return (Origin.decl declName post false)
+    return thmId
+
+
 /--
 `simpLocation ctx discharge? varIdToLemmaId loc`
 runs the simplifier at locations specified by `loc`,
@@ -545,21 +619,27 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
   (location)?
 -/
 @[builtin_tactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => withMainContext do withSimpDiagnostics do
-  let { ctx, simprocs, dischargeWrapper, .. } ← mkSimpContext stx (eraseLocal := false)
+  let { ctx, simprocs, dischargeWrapper, simpArgs } ← mkSimpContext stx (eraseLocal := false)
   let stats ← dischargeWrapper.with fun discharge? =>
     simpLocation ctx simprocs discharge? (expandOptLocation stx[5])
   if tactic.simp.trace.get (← getOptions) then
     traceSimpCall stx stats.usedTheorems
+  else if linter.unusedSimpArgs.get (← getOptions) then
+    withRef stx do
+      warnUnusedSimpArgs simpArgs stats.usedTheorems
   return stats.diag
 
 @[builtin_tactic Lean.Parser.Tactic.simpAll] def evalSimpAll : Tactic := fun stx => withMainContext do withSimpDiagnostics do
-  let { ctx, simprocs, .. } ← mkSimpContext stx (eraseLocal := true) (kind := .simpAll) (ignoreStarArg := true)
+  let { ctx, simprocs, dischargeWrapper := _, simpArgs } ← mkSimpContext stx (eraseLocal := true) (kind := .simpAll) (ignoreStarArg := true)
   let (result?, stats) ← simpAll (← getMainGoal) ctx (simprocs := simprocs)
   match result? with
   | none => replaceMainGoal []
   | some mvarId => replaceMainGoal [mvarId]
   if tactic.simp.trace.get (← getOptions) then
     traceSimpCall stx stats.usedTheorems
+  else if linter.unusedSimpArgs.get (← getOptions) then
+    withRef stx do
+      warnUnusedSimpArgs simpArgs stats.usedTheorems
   return stats.diag
 
 def dsimpLocation (ctx : Simp.Context) (simprocs : Simp.SimprocsArray) (loc : Location) : TacticM Unit := do

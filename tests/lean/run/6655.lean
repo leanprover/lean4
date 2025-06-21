@@ -11,6 +11,8 @@ it would over-report local variables. This comes down to two kinds of issues:
 This file tests that it resets the tracking and filters the list.
 -/
 
+set_option linter.unusedSimpArgs false
+
 /-!
 Example from #6655. This used to suggest `simp only [e, d]`.
 -/

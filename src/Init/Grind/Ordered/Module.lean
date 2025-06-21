@@ -146,8 +146,7 @@ instance : IntModule.IsOrdered M where
     match k with
     | (k + 1 : Nat) => by
       intro h
-      have := hmul_lt_hmul_iff (k := k + 1) h
-      simpa [NatModule.hmul_zero] using hmul_lt_hmul_iff (k := k + 1) h
+      simpa [hmul_zero, ← hmul_nat] using hmul_lt_hmul_iff (k := k + 1) h
     | (0 : Nat) => by simp [zero_hmul]; intro h; exact Preorder.lt_irrefl 0
     | -(k + 1 : Nat) => by
       intro h
@@ -158,11 +157,11 @@ instance : IntModule.IsOrdered M where
       simp
       intro h'
       rw [NatModule.IsOrdered.neg_le_iff, neg_zero]
-      simpa [NatModule.hmul_zero] using hmul_le_hmul (k := k + 1) (Preorder.le_of_lt h)
+      simpa [hmul_zero, ← hmul_nat] using hmul_le_hmul (k := k + 1) (Preorder.le_of_lt h)
   hmul_nonneg {k a} h :=
     match k, h with
     | (k : Nat), _ => by
-      simpa using NatModule.IsOrdered.hmul_nonneg
+      simpa [hmul_nat] using NatModule.IsOrdered.hmul_nonneg
 
 end
 

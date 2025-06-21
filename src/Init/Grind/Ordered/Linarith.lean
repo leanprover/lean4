@@ -20,7 +20,7 @@ namespace Lean.Grind.Linarith
 abbrev Var := Nat
 open IntModule
 
-attribute [local simp] add_zero zero_add zero_hmul hmul_zero one_hmul
+attribute [local simp] add_zero zero_add zero_hmul nat_zero_hmul hmul_zero one_hmul
 
 inductive Expr where
   | zero
@@ -28,8 +28,9 @@ inductive Expr where
   | add  (a b : Expr)
   | sub  (a b : Expr)
   | neg  (a : Expr)
-  | mul  (k : Int) (a : Expr)
-  deriving Inhabited, BEq
+  | natMul  (k : Nat) (a : Expr)
+  | intMul  (k : Int) (a : Expr)
+  deriving Inhabited, BEq, Repr
 
 abbrev Context (α : Type u) := RArray α
 
@@ -41,13 +42,14 @@ def Expr.denote {α} [IntModule α] (ctx : Context α) : Expr → α
   | .var v    => v.denote ctx
   | .add a b  => denote ctx a + denote ctx b
   | .sub a b  => denote ctx a - denote ctx b
-  | .mul k a  => k * denote ctx a
+  | .natMul k a  => k * denote ctx a
+  | .intMul k a  => k * denote ctx a
   | .neg a    => -denote ctx a
 
 inductive Poly where
   | nil
   | add (k : Int) (v : Var) (p : Poly)
-  deriving BEq
+  deriving BEq, Repr
 
 def Poly.denote {α} [IntModule α] (ctx : Context α) (p : Poly) : α :=
   match p with
@@ -144,7 +146,8 @@ where
     | .var v    => (.add coeff v ·)
     | .add a b  => go coeff a ∘ go coeff b
     | .sub a b  => go coeff a ∘ go (-coeff) b
-    | .mul k a  => bif k == 0 then id else go (Int.mul coeff k) a
+    | .natMul k a  => bif k == 0 then id else go (Int.mul coeff k) a
+    | .intMul k a  => bif k == 0 then id else go (Int.mul coeff k) a
     | .neg a    => go (-coeff) a
 
 /-- Converts the given expression into a polynomial, and then normalizes it. -/
@@ -215,6 +218,8 @@ theorem Expr.denote_toPoly'_go {α} [IntModule α] {k p} (ctx : Context α) (e :
   next => ac_rfl
   next => rw [sub_eq_add_neg, neg_hmul, hmul_add, hmul_neg]; ac_rfl
   next h => simp at h; subst h; simp
+  next ih => simp at ih; rw [ih, mul_hmul, IntModule.hmul_nat]
+  next ih => simp at ih; simp [ih]
   next ih => simp at ih; rw [ih, mul_hmul]
   next => rw [hmul_neg, neg_hmul]
 
@@ -469,17 +474,10 @@ theorem eq_neg {α} [IntModule α] (ctx : Context α) (p₁ p₂ : Poly)
 def eq_coeff_cert (p₁ p₂ : Poly) (k : Nat) :=
   k != 0 && p₁ == p₂.mul k
 
-theorem no_nat_zero_divisors' [IntModule α] [NoNatZeroDivisors α] (k : Nat) (a : α)
-    : k ≠ 0 → k * a = 0 → a = 0 := by
-  intro h₁ h₂
-  have : k * a = (↑k : Int) * (0 : α) → a = 0 := no_nat_zero_divisors k a 0 h₁
-  rw [IntModule.hmul_zero] at this
-  exact this h₂
-
 theorem eq_coeff {α} [IntModule α] [NoNatZeroDivisors α] (ctx : Context α) (p₁ p₂ : Poly) (k : Nat)
     : eq_coeff_cert p₁ p₂ k → p₁.denote' ctx = 0 → p₂.denote' ctx = 0 := by
-  simp [eq_coeff_cert]; intro h _; subst p₁; simp [*]
-  exact no_nat_zero_divisors' k (p₂.denote ctx) h
+  simp [eq_coeff_cert]; intro h _; subst p₁; simp [*, hmul_nat]
+  exact NoNatZeroDivisors.eq_zero_of_mul_eq_zero h
 
 def coeff_cert (p₁ p₂ : Poly) (k : Nat) :=
   k > 0 && p₁ == p₂.mul k
@@ -523,8 +521,8 @@ theorem eq_diseq_subst {α} [IntModule α] [NoNatZeroDivisors α] (ctx : Context
       cases Int.natAbs_eq_iff.mp (Eq.refl k₁.natAbs)
       next h => rw [← h]; assumption
       next h => replace h := congrArg (- ·) h; simp at h; rw [← h, IntModule.neg_hmul, h₃, IntModule.neg_zero]
-    exact this
-  have := no_nat_zero_divisors' (k₁.natAbs) (p₂.denote ctx) hne this
+    simpa [hmul_nat] using this
+  have := NoNatZeroDivisors.eq_zero_of_mul_eq_zero hne this
   contradiction
 
 def eq_diseq_subst1_cert (k : Int) (p₁ p₂ p₃ : Poly) : Bool :=

@@ -125,6 +125,9 @@ attribute [instance 100] Semiring.ofNat
 
 attribute [local instance] Semiring.natCast Ring.intCast
 
+-- Verify that the diamond from `CommRing` to `Semiring` via either `CommSemiring` or `Ring` is defeq.
+example [CommRing α] : (CommSemiring.toSemiring : Semiring α) = (Ring.toSemiring : Semiring α) := rfl
+
 namespace Semiring
 
 variable {α : Type u} [Semiring α]
@@ -334,7 +337,11 @@ theorem intCast_pow (x : Int) (k : Nat) : ((x ^ k : Int) : α) = (x : α) ^ k :=
   next k ih => simp [pow_succ, Int.pow_succ, intCast_mul, *]
 
 instance : IntModule α where
-  hMul a x := a * x
+  hmulInt := ⟨fun a x => a * x⟩
+  hmulNat := ⟨fun a x => a * x⟩
+  hmul_nat n x := by
+    change ((n : Int) : α) * x = (n : α) * x
+    rw [intCast_natCast]
   add_zero := by simp [add_zero]
   add_assoc := by simp [add_assoc]
   add_comm := by simp [add_comm]
@@ -347,6 +354,9 @@ instance : IntModule α where
   sub_eq_add_neg := by simp [sub_eq_add_neg]
 
 theorem hmul_eq_intCast_mul {α} [Ring α] {k : Int} {a : α} : HMul.hMul (α := Int) k a = (k : α) * a := rfl
+
+-- Verify that the diamond from `Ring` to `NatModule` via either `Semiring` or `IntModule` is defeq.
+example [Ring R] : (Semiring.instNatModule : NatModule R) = (IntModule.toNatModule R) := rfl
 
 end Ring
 
@@ -517,23 +527,22 @@ end Ring
 
 end IsCharP
 
--- TODO: This should be generalizable to any `IntModule α`, not just `Ring α`.
-theorem no_int_zero_divisors {α : Type u} [Ring α] [NoNatZeroDivisors α] {k : Int} {a : α}
+theorem no_int_zero_divisors {α : Type u} [IntModule α] [NoNatZeroDivisors α] {k : Int} {a : α}
     : k ≠ 0 → k * a = 0 → a = 0 := by
   match k with
   | (k : Nat) =>
     simp [intCast_natCast]
     intro h₁ h₂
     replace h₁ : k ≠ 0 := by intro h; simp [h] at h₁
-    replace h₂ : k * a = k * 0 := by simp [mul_zero, h₂]
-    exact no_nat_zero_divisors k a 0 h₁ h₂
+    rw [IntModule.hmul_nat] at h₂
+    exact NoNatZeroDivisors.eq_zero_of_mul_eq_zero h₁ h₂
   | -(k+1 : Nat) =>
-    rw [Int.natCast_add, ← Int.natCast_add, intCast_neg, intCast_natCast]
+    rw [IntModule.neg_hmul]
     intro _ h
-    replace h := congrArg (-·) h; simp at h
-    rw [← neg_mul, neg_neg, neg_zero, ← hmul_eq_natCast_mul] at h
-    replace h : (k + 1 : Nat) * a = (k + 1 : Nat) * 0 := by
-      simp [mul_zero]; exact h
-    exact no_nat_zero_divisors (k+1) a 0 (Nat.succ_ne_zero _) h
+    replace h := congrArg (-·) h
+    dsimp only at h
+    rw [IntModule.neg_neg, IntModule.neg_zero] at h
+    rw [IntModule.hmul_nat] at h
+    exact NoNatZeroDivisors.eq_zero_of_mul_eq_zero (Nat.succ_ne_zero _) h
 
 end Lean.Grind

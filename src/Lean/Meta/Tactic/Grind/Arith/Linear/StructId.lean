@@ -129,7 +129,8 @@ where
     ensureToHomoFieldDefEq addInst intModuleInst ``Grind.IntModule.toAdd ``instHAdd
     ensureToHomoFieldDefEq subInst intModuleInst ``Grind.IntModule.toSub ``instHSub
     ensureToFieldDefEq negInst intModuleInst ``Grind.IntModule.toNeg
-    ensureToFieldDefEq hmulInst intModuleInst ``Grind.IntModule.toHMul
+    ensureToFieldDefEq hmulInst intModuleInst ``Grind.IntModule.hmulInt
+    ensureToFieldDefEq hmulNatInst intModuleInst ``Grind.IntModule.hmulNat
     let preorderInst? ← getInst? ``Grind.Preorder
     let isOrdInst? ← if let some preorderInst := preorderInst? then
       let isOrderedType := mkApp3 (mkConst ``Grind.IntModule.IsOrdered [u]) type preorderInst intModuleInst

@@ -48,7 +48,11 @@ satisfying appropriate compatibilities.
 
 Equivalently, an additive commutative group.
 -/
-class IntModule (M : Type u) extends Zero M, Add M, Neg M, Sub M, HMul Int M M where
+class IntModule (M : Type u) extends Zero M, Add M, Neg M, Sub M where
+  /-- Scalar multiplication by natural numbers. -/
+  [hmulNat : HMul Nat M M]
+  /-- Scalar multiplication by integers. -/
+  [hmulInt : HMul Int M M]
   /-- Zero is the right identity for addition. -/
   add_zero : ∀ a : M, a + 0 = a
   /-- Addition is commutative. -/
@@ -69,6 +73,8 @@ class IntModule (M : Type u) extends Zero M, Add M, Neg M, Sub M, HMul Int M M w
   neg_add_cancel : ∀ a : M, -a + a = 0
   /-- Subtraction is addition of the negative. -/
   sub_eq_add_neg : ∀ a b : M, a - b = a + -b
+  /-- Scalar multiplication by natural numbers is consistent with scalar multiplication by integers. -/
+  hmul_nat : ∀ n : Nat, ∀ a : M, (n : Int) * a = n * a
 
 namespace NatModule
 
@@ -83,26 +89,32 @@ theorem mul_hmul (n m : Nat) (a : M) : (n * m) * a = n * (m * a) := by
   | succ n ih =>
     rw [Nat.add_one_mul, add_hmul, ih, add_hmul, one_hmul]
 
+instance (priority := 100) (M : Type u) [NatModule M] : SMul Nat M where
+  smul a x := a * x
+
 end NatModule
 
 namespace IntModule
 
-attribute [instance 100] IntModule.toZero IntModule.toAdd IntModule.toNeg IntModule.toSub IntModule.toHMul
+attribute [instance 100] IntModule.toZero IntModule.toAdd IntModule.toNeg IntModule.toSub
+  IntModule.hmulNat IntModule.hmulInt
 
 instance toNatModule (M : Type u) [i : IntModule M] : NatModule M :=
   { i with
-    hMul a x := (a : Int) * x
-    hmul_zero := by simp [IntModule.hmul_zero]
-    add_hmul := by simp [IntModule.add_hmul]
-    hmul_add := by simp [IntModule.hmul_add] }
-
-variable {M : Type u} [IntModule M]
+    hMul := i.hmulNat.hMul
+    zero_hmul := by simp [← hmul_nat, zero_hmul]
+    one_hmul := by simp [← hmul_nat, one_hmul]
+    hmul_zero := by simp [← hmul_nat, hmul_zero]
+    add_hmul := by simp [← hmul_nat, add_hmul]
+    hmul_add := by simp [← hmul_nat, hmul_add] }
 
 instance (priority := 100) (M : Type u) [IntModule M] : SMul Nat M where
-  smul a x := (a : Int) * x
+  smul a x := a * x
 
 instance (priority := 100) (M : Type u) [IntModule M] : SMul Int M where
   smul a x := a * x
+
+variable {M : Type u} [IntModule M]
 
 theorem zero_add (a : M) : 0 + a = a := by
   rw [add_comm, add_zero]
@@ -171,6 +183,9 @@ theorem hmul_sub (k : Int) (a b : M) : k * (a - b) = k * a - k * b := by
 theorem sub_hmul (k₁ k₂ : Int) (a : M) : (k₁ - k₂) * a = k₁ * a - k₂ * a := by
   rw [Int.sub_eq_add_neg, add_hmul, neg_hmul, ← sub_eq_add_neg]
 
+theorem nat_zero_hmul (a : M) : (0 : Nat) * a = 0 := by
+  rw [← hmul_nat, Int.natCast_zero, zero_hmul]
+
 private theorem nat_mul_hmul (n : Nat) (m : Int) (a : M) :
     ((n : Int) * m) * a = (n : Int) * (m * a) := by
   induction n with
@@ -194,6 +209,23 @@ class NoNatZeroDivisors (α : Type u) [HMul Nat α α] where
   no_nat_zero_divisors : ∀ (k : Nat) (a b : α), k ≠ 0 → k * a = k * b → a = b
 
 export NoNatZeroDivisors (no_nat_zero_divisors)
+
+namespace NoNatZeroDivisors
+
+/-- Alternative constructor for `NoNatZeroDivisors` when we have an `IntModule`. -/
+def mk' {α} [IntModule α] (eq_zero_of_mul_eq_zero : ∀ (k : Nat) (a : α), k ≠ 0 → k * a = 0 → a = 0) : NoNatZeroDivisors α where
+  no_nat_zero_divisors k a b h₁ h₂ := by
+    rw [← IntModule.sub_eq_zero_iff, ← IntModule.hmul_nat, ← IntModule.hmul_nat, ← IntModule.hmul_sub, IntModule.hmul_nat] at h₂
+    rw [← IntModule.sub_eq_zero_iff]
+    apply eq_zero_of_mul_eq_zero k (a - b) h₁ h₂
+
+theorem eq_zero_of_mul_eq_zero {α : Type u} [NatModule α] [NoNatZeroDivisors α] {k : Nat} {a : α}
+    : k ≠ 0 → k * a = 0 → a = 0 := by
+  intro h₁ h₂
+  replace h₁ : k ≠ 0 := by intro h; simp [h] at h₁
+  exact no_nat_zero_divisors k a 0 h₁ (by rwa [NatModule.hmul_zero])
+
+end NoNatZeroDivisors
 
 instance [ToInt α (some lo) (some hi)] [IntModule α] [ToInt.Zero α (some lo) (some hi)] [ToInt.Add α (some lo) (some hi)] : ToInt.Neg α (some lo) (some hi) where
   toInt_neg x := by

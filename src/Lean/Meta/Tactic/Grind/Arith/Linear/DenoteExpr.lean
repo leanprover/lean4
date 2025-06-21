@@ -40,7 +40,8 @@ where
   | .var x => return (← getStruct).vars[x]!
   | .add a b => return mkApp2 (← getStruct).addFn (← go a) (← go b)
   | .sub a b => return mkApp2 (← getStruct).subFn (← go a) (← go b)
-  | .mul k a => return mkApp2 (← getStruct).hmulFn (mkIntLit k) (← go a)
+  | .natMul k a => return mkApp2 (← getStruct).hmulNatFn (mkNatLit k) (← go a)
+  | .intMul k a => return mkApp2 (← getStruct).hmulFn (mkIntLit k) (← go a)
   | .neg a => return mkApp (← getStruct).negFn (← go a)
 
 private def mkEq (a b : Expr) : M Expr := do

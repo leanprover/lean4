@@ -235,7 +235,6 @@ name mk_unsafe_rec_name(name const & n);
 optional<name> is_unsafe_rec_name(name const & n);
 
 LEAN_EXPORT std::string const & get_short_version_string();
-LEAN_EXPORT std::string const & get_version_string();
 
 expr const & extract_mdata(expr const &);
 

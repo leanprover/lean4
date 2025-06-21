@@ -88,6 +88,17 @@ def getSemiring : SemiringM Semiring := do
   else
     throwError "`grind` internal error, invalid semiringId"
 
+protected def SemiringM.getRing : SemiringM Ring := do
+  let s ← get'
+  let ringId := (← getSemiring).ringId
+  if h : ringId < s.rings.size then
+    return s.rings[ringId]
+  else
+    throwError "`grind` internal error, invalid ringId"
+
+instance : MonadGetRing SemiringM where
+  getRing := SemiringM.getRing
+
 @[inline] def modifySemiring (f : Semiring → Semiring) : SemiringM Unit := do
   let semiringId ← getSemiringId
   modify' fun s => { s with semirings := s.semirings.modify semiringId f }

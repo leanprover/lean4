@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Grind.Ring.OfSemiring
 import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.Arith.ProofUtil
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
@@ -22,6 +23,15 @@ def toContextExpr : RingM Expr := do
     RArray.toExpr ring.type id (RArray.ofFn (ring.vars[·]) h)
   else
     RArray.toExpr ring.type id (RArray.leaf (mkApp ring.natCastFn (toExpr 0)))
+
+/-- Similar to `toContextExpr`, but for semirings. -/
+private def toSContextExpr (semiringId : Nat) : RingM Expr := do
+  SemiringM.run semiringId do
+    let semiring ← getSemiring
+    if h : 0 < semiring.vars.size then
+      RArray.toExpr semiring.type id (RArray.ofFn (semiring.vars[·]) h)
+    else
+      RArray.toExpr semiring.type id (RArray.leaf (mkApp semiring.natCastFn (toExpr 0)))
 
 def throwNoNatZeroDivisors : RingM α := do
   throwError "`grind` internal error, `NoNatZeroDivisors` instance is needed, but it is not available for{indentExpr (← getRing).type}"
@@ -301,15 +311,27 @@ structure ProofM.State where
   polyMap     : Std.HashMap Poly Expr := {}
   monMap      : Std.HashMap Mon Expr := {}
   exprMap     : Std.HashMap RingExpr Expr := {}
+  sexprMap    : Std.HashMap SemiringExpr Expr := {}
 
 structure ProofM.Context where
-  ctx : Expr
+  ctx   : Expr
+  /-- Context for semiring variables if available -/
+  sctx? : Option Expr
 
 abbrev ProofM := ReaderT ProofM.Context (StateRefT ProofM.State RingM)
 
 /-- Returns a Lean expression representing the variable context used to construct `CommRing` proof steps. -/
 private abbrev getContext : ProofM Expr := do
   return (← read).ctx
+
+/--
+Returns a Lean expression representing the semiring variable context
+used to construct `CommRing` proof steps.
+-/
+private abbrev getSContext : ProofM Expr := do
+  let some sctx := (← read).sctx?
+    | throwError "`grind` internal error, semiring context is not available"
+  return sctx
 
 private abbrev caching (c : α) (k : ProofM Expr) : ProofM Expr := do
   let addr := unsafe (ptrAddrUnsafe c).toUInt64 >>> 2
@@ -334,6 +356,13 @@ def mkExprDecl (e : RingExpr) : ProofM Expr := do
   modify fun s => { s with exprMap := s.exprMap.insert e x }
   return x
 
+def mkSExprDecl (e : SemiringExpr) : ProofM Expr := do
+  if let some x := (← get).sexprMap[e]? then
+    return x
+  let x := mkFVar (← mkFreshFVarId)
+  modify fun s => { s with sexprMap := s.sexprMap.insert e x }
+  return x
+
 def mkMonDecl (m : Mon) : ProofM Expr := do
   if let some x := (← get).monMap[m]? then
     return x
@@ -354,14 +383,26 @@ private def mkStepPrefix (declName declNameC : Name) : ProofM Expr := do
   else
     mkStepBasicPrefix declName
 
+private def getSemiringOf : RingM Semiring := do
+  let some semiringId := (← getRing).semiringId? | throwError "`grind` internal error, semiring is not available"
+  SemiringM.run semiringId do getSemiring
+
+private def mkSemiringBasicPrefix (declName : Name) : ProofM Expr := do
+  let sctx ← getSContext
+  let semiring ← getSemiringOf
+  return mkApp3 (mkConst declName [semiring.u]) semiring.type semiring.semiringInst sctx
+
 open Lean.Grind.CommRing in
 partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCnstr) : ProofM Expr := caching c do
   match c.h with
   | .core a b lhs rhs =>
     let h ← mkStepPrefix ``Stepwise.core ``Stepwise.coreC
     return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c.p) reflBoolTrue (← mkEqProof a b)
-  | .coreS _a _b _sa _sb _ra _rb =>
-    throwError "NIY"
+  | .coreS a b sa sb ra rb =>
+    let h' ← mkSemiringBasicPrefix ``Grind.Ring.OfSemiring.of_eq
+    let h' := mkApp3 h' (← mkSExprDecl sa) (← mkSExprDecl sb) (← mkEqProof a b)
+    let h ← mkStepPrefix ``Stepwise.core ``Stepwise.coreC
+    return mkApp5 h (← mkExprDecl ra) (← mkExprDecl rb) (← mkPolyDecl c.p) reflBoolTrue h'
   | .superpose k₁ m₁ c₁ k₂ m₂ c₂ =>
     let h ← mkStepPrefix ``Stepwise.superpose ``Stepwise.superposeC
     return mkApp10 h
@@ -421,16 +462,26 @@ private def mkImpEqExprProof (lhs rhs : RingExpr) (d : PolyDerivation) : ProofM 
     pure <| mkApp2 (← mkStepPrefix ``Stepwise.imp_keq ``Stepwise.imp_keqC) nzInst (toExpr k)
   return mkApp6 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl p₀) (← mkPolyDecl d.p) reflBoolTrue h₁
 
+private abbrev withSemiringContext (k : Option Expr → RingM Expr) : RingM Expr := do
+  let some semiringId := (← getRing).semiringId? | k none
+  let sctx ← toSContextExpr semiringId
+  let semiring ← getSemiringOf
+  withLetDecl `sctx (mkApp (mkConst ``RArray [semiring.u]) semiring.type) sctx fun sctx =>
+  k (some sctx)
+
 private abbrev withProofContext (x : ProofM Expr) : RingM Expr := do
   let ring ← getRing
   withLetDecl `ctx (mkApp (mkConst ``RArray [ring.u]) ring.type) (← toContextExpr) fun ctx =>
-  go { ctx } |>.run' {}
+  withSemiringContext fun sctx? =>
+  go { ctx, sctx? } |>.run' {}
 where
   go : ProofM Expr := do
     let h ← x
     let h ← mkLetOfMap (← get).polyMap h `p (mkConst ``Grind.CommRing.Poly) toExpr
     let h ← mkLetOfMap (← get).monMap h `m (mkConst ``Grind.CommRing.Mon) toExpr
     let h ← mkLetOfMap (← get).exprMap h `e (mkConst ``Grind.CommRing.Expr) toExpr
+    let h ← mkLetOfMap (← get).sexprMap h `s (mkConst ``Grind.Ring.OfSemiring.Expr) toExpr
+    let h ← if let some sctx := (← read).sctx? then mkLetFVars #[sctx] h else pure h
     mkLetFVars #[(← getContext)] h
 
 open Lean.Grind.CommRing in

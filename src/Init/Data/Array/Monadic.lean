@@ -59,7 +59,7 @@ theorem mapM_eq_foldlM_push [Monad m] [LawfulMonad m] {f : α → m β} {xs : Ar
   rcases xs with ⟨xs⟩
   simp only [List.mapM_toArray, bind_pure_comp, List.size_toArray, List.foldlM_toArray']
   rw [List.mapM_eq_reverse_foldlM_cons]
-  simp only [bind_pure_comp, Functor.map_map]
+  simp only [Functor.map_map]
   suffices ∀ (l), (fun l' => l'.reverse.toArray) <$> List.foldlM (fun acc a => (fun a => a :: acc) <$> f a) l xs =
       List.foldlM (fun acc a => acc.push <$> f a) l.reverse.toArray xs by
     exact this []
@@ -234,14 +234,14 @@ theorem forIn_eq_foldlM [Monad m] [LawfulMonad m]
     forIn xs init (fun a b => (fun c => .yield (g a b c)) <$> f a b) =
       xs.foldlM (fun b a => g a b <$> f a b) init := by
   rcases xs with ⟨xs⟩
-  simp [List.foldlM_map]
+  simp
 
 @[simp] theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
     {xs : Array α} (f : α → β → β) (init : β) :
     forIn xs init (fun a b => pure (.yield (f a b))) =
       pure (f := m) (xs.foldl (fun b a => f a b) init) := by
   rcases xs with ⟨xs⟩
-  simp [List.forIn_pure_yield_eq_foldl, List.foldl_map]
+  simp [List.forIn_pure_yield_eq_foldl]
 
 theorem idRun_forIn_yield_eq_foldl
     {xs : Array α} (f : α → β → Id β) (init : β) :

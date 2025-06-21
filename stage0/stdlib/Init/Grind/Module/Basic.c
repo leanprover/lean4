@@ -13,88 +13,98 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_instSMulInt___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_instSMulNat___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_instSMulInt(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_instSMulNat(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_instSMulInt___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_instSMulNat___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_instSMulInt(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_instSMulNat(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_instSMulInt___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_ctor_get(x_1, 4);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_nat_to_int(x_2);
-x_6 = lean_apply_2(x_4, x_5, x_3);
-return x_6;
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_nat_to_int(x_2);
+x_5 = lean_apply_2(x_1, x_4, x_3);
+return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___rarg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
-x_4 = lean_alloc_closure((void*)(l_Lean_Grind_IntModule_toNatModule___rarg___lambda__1), 3, 1);
-lean_closure_set(x_4, 0, x_1);
-x_5 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_5, 0, x_2);
-lean_ctor_set(x_5, 1, x_3);
-lean_ctor_set(x_5, 2, x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Grind_IntModule_toNatModule___rarg), 1, 0);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_instSMulNat___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_1, 4);
 lean_inc(x_4);
 lean_dec(x_1);
-x_5 = lean_nat_to_int(x_2);
-x_6 = lean_apply_2(x_4, x_5, x_3);
+x_5 = lean_alloc_closure((void*)(l_Lean_Grind_IntModule_toNatModule___redArg___lam__0), 3, 1);
+lean_closure_set(x_5, 0, x_4);
+x_6 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_6, 0, x_2);
+lean_ctor_set(x_6, 1, x_3);
+lean_ctor_set(x_6, 2, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_instSMulNat(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Grind_IntModule_instSMulNat___rarg), 3, 0);
-return x_2;
+lean_object* x_3; 
+x_3 = l_Lean_Grind_IntModule_toNatModule___redArg(x_2);
+return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_instSMulInt___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_instSMulNat___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; 
-x_4 = lean_ctor_get(x_1, 4);
-lean_inc(x_4);
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_ctor_get(x_1, 4);
+lean_inc(x_2);
 lean_dec(x_1);
-x_5 = lean_apply_2(x_4, x_2, x_3);
-return x_5;
+x_3 = lean_alloc_closure((void*)(l_Lean_Grind_IntModule_toNatModule___redArg___lam__0), 3, 1);
+lean_closure_set(x_3, 0, x_2);
+return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_instSMulInt(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_instSMulNat(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Grind_IntModule_instSMulInt___rarg), 3, 0);
-return x_2;
+lean_object* x_3; 
+x_3 = l_Lean_Grind_IntModule_instSMulNat___redArg(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_instSMulInt___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_apply_2(x_1, x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_instSMulInt___redArg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_ctor_get(x_1, 4);
+lean_inc(x_2);
+lean_dec(x_1);
+x_3 = lean_alloc_closure((void*)(l_Lean_Grind_IntModule_instSMulInt___redArg___lam__0), 3, 1);
+lean_closure_set(x_3, 0, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_instSMulInt(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Grind_IntModule_instSMulInt___redArg(x_2);
+return x_3;
 }
 }
 lean_object* initialize_Init_Data_Int_Order(uint8_t builtin, lean_object*);

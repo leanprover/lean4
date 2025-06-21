@@ -184,7 +184,7 @@ theorem forM_eq_forM_toListModel {l: Raw α β} {m : Type w → Type w} [Monad m
     congr
     · simp [AssocList.forM]
       induction hd with
-      | nil => simp [AssocList.forM, AssocList.foldlM]
+      | nil => simp [AssocList.foldlM]
       | cons hda hdb tl ih =>
         simp only [AssocList.foldlM, AssocList.toList_cons, forM_cons]
         congr
@@ -226,8 +226,8 @@ set_option linter.missingDocs false in
 abbrev toListModel_buckets_empty := @toListModel_buckets_emptyWithCapacity
 
 theorem wfImp_emptyWithCapacity [BEq α] [Hashable α] {c} : Raw.WFImp (emptyWithCapacity c : Raw₀ α β).1 where
-  buckets_hash_self := by simp [Raw.emptyWithCapacity, Raw₀.emptyWithCapacity]
-  size_eq := by simp [Raw.emptyWithCapacity, Raw₀.emptyWithCapacity]
+  buckets_hash_self := by simp [Raw₀.emptyWithCapacity]
+  size_eq := by simp [Raw₀.emptyWithCapacity]
   distinct := by simp
 
 set_option linter.missingDocs false in

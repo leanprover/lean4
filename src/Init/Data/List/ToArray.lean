@@ -576,7 +576,7 @@ theorem flatMap_toArray_cons {β} (f : α → Array β) (a : α) (as : List α) 
   rw [Array.eraseIdx]
   split <;> rename_i h'
   · rw [eraseIdx_toArray]
-    simp only [swap_toArray, Fin.getElem_fin, toList_toArray, mk.injEq]
+    simp only [swap_toArray, toList_toArray, mk.injEq]
     rw [eraseIdx_set_gt (by simp), eraseIdx_set_eq]
     simp
   · simp at h h'
@@ -667,7 +667,7 @@ theorem replace_toArray [BEq α] [LawfulBEq α] (l : List α) (a b : α) :
     l.toArray.replace a b = (l.replace a b).toArray := by
   rw [Array.replace]
   split <;> rename_i i h
-  · simp only [finIdxOf?_toArray, finIdxOf?_eq_none_iff] at h
+  · simp only [finIdxOf?_toArray] at h
     rw [replace_of_not_mem]
     exact finIdxOf?_eq_none_iff.mp h
   · simp_all only [finIdxOf?_toArray, finIdxOf?_eq_some_iff, Fin.getElem_fin, set_toArray,

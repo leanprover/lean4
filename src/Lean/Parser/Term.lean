@@ -822,9 +822,22 @@ def «letrec» := leading_parser:leadPrec
   withPosition (group ("let " >> nonReservedSymbol "rec ") >> letRecDecls) >>
   optSemicolon termParser
 
+/--
+A named subsection of `where ... finally`. In the future, sections such as `decreasing_by` might become
+syntactic sugar for an `where ... finally` subsection `| decreasing => ...`.
+-/
+def whereFinallySubsection := leading_parser
+  ppLine >> "| " >> ident >> darrow >> Tactic.tacticSeq
+
+/--
+The `finally` section trailing a `where` opens a tactic block to fill in `?hole`s in the definition body.
+-/
+@[builtin_doc] def whereFinally := leading_parser
+  ppDedent ppLine >> "finally " >> optional Tactic.tacticSeqIndentGt >> manyIndent whereFinallySubsection
+
 @[run_builtin_parser_attribute_hooks]
 def whereDecls := leading_parser
-  ppDedent ppLine >> "where" >> sepBy1Indent (ppGroup letRecDecl) "; " (allowTrailingSep := true)
+  ppDedent ppLine >> "where" >> sepByIndent (ppGroup letRecDecl) "; " (allowTrailingSep := true) >> optional whereFinally
 
 @[run_builtin_parser_attribute_hooks]
 def matchAltsWhereDecls := leading_parser

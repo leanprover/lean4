@@ -242,7 +242,7 @@ def byEmod (b : Int) (i : Int) (hi : i > 0) : Bounded.LE 0 (i - 1) := by
     intro a
     simp_all [Int.lt_irrefl]
   · apply Int.le_of_lt_add_one
-    simp [Int.add_sub_assoc]
+    simp
     exact Int.emod_lt_of_pos b hi
 
 /--
@@ -471,11 +471,11 @@ def max (bounded : Bounded.LE n m) (val : Int) : Bounded.LE (Max.max n val) (Max
     simp [Int.max_def]
     split <;> split
 
-  next h => simp [h, Int.le_trans left h]
+  next h => simp
   next h h₁ => exact Int.le_of_lt <| Int.not_le.mp h₁
-  next h => simp [h, Int.le_trans left h]
+  next h => simp [Int.le_trans left h]
   next h h₁ => exact left
-  next h h₁ => simp [h, Int.le_trans left h]
+  next h h₁ => simp
   next h h₁ => exact Int.le_of_lt <| Int.not_le.mp h₁
   next h h₁ =>
     let h₃ := Int.lt_of_lt_of_le (Int.not_le.mp h) right

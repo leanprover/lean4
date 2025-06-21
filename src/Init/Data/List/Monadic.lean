@@ -90,8 +90,8 @@ theorem foldlM_cons_eq_append [Monad m] [LawfulMonad m] {f : α → m β} {as : 
   induction as generalizing b bs with
   | nil => simp
   | cons a as ih =>
-    simp only [bind_pure_comp] at ih
-    simp [ih, _root_.map_bind, Functor.map_map, Function.comp_def]
+    simp only at ih
+    simp [ih, _root_.map_bind, Functor.map_map]
 
 theorem mapM_eq_reverse_foldlM_cons [Monad m] [LawfulMonad m] {f : α → m β} {l : List α} :
     mapM f l = reverse <$> (l.foldlM (fun acc a => (· :: acc) <$> f a) []) := by
@@ -99,8 +99,8 @@ theorem mapM_eq_reverse_foldlM_cons [Monad m] [LawfulMonad m] {f : α → m β} 
   induction l with
   | nil => simp
   | cons a as ih =>
-    simp only [mapM'_cons, ih, bind_map_left, foldlM_cons, LawfulMonad.bind_assoc, pure_bind,
-      foldlM_cons_eq_append, _root_.map_bind, Functor.map_map, Function.comp_def, reverse_append,
+    simp only [mapM'_cons, ih, bind_map_left, foldlM_cons, 
+      foldlM_cons_eq_append, _root_.map_bind, Functor.map_map, reverse_append,
       reverse_cons, reverse_nil, nil_append, singleton_append]
     simp [bind_pure_comp]
 
@@ -144,7 +144,7 @@ theorem flatMapM_loop_eq [Monad m] [LawfulMonad m] {f : α → m (List β)} {l :
   induction l generalizing acc with
   | nil => simp [flatMapM.loop]
   | cons a l ih =>
-    simp only [flatMapM.loop, append_nil, _root_.map_bind]
+    simp only [flatMapM.loop, _root_.map_bind]
     congr
     funext bs
     rw [ih, ih (acc := [bs])]
@@ -381,7 +381,7 @@ theorem forIn_eq_foldlM [Monad m] [LawfulMonad m]
   induction l generalizing init with
   | nil => simp
   | cons a as ih =>
-    simp only [foldlM_cons, bind_pure_comp, forIn_cons, _root_.map_bind]
+    simp only [foldlM_cons, forIn_cons, _root_.map_bind]
     congr 1
     funext x
     match x with
@@ -444,7 +444,7 @@ theorem allM_eq_not_anyM_not [Monad m] [LawfulMonad m] {p : α → m Bool} {as :
   induction as with
   | nil => simp
   | cons a as ih =>
-    simp only [anyM, ih, pure_bind, all_cons]
+    simp only [anyM, ih, pure_bind]
     split <;> simp_all
 
 @[simp] theorem allM_pure [Monad m] [LawfulMonad m] {p : α → Bool} {as : List α} :
@@ -486,7 +486,7 @@ and simplifies these to the function directly taking the value.
   induction l generalizing x with
   | nil => simp
   | cons a l ih =>
-    simp [ih, hf, foldrM_cons]
+    simp [ih, foldrM_cons]
     congr
     funext b
     simp [hf]

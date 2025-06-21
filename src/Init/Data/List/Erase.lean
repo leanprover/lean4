@@ -146,7 +146,7 @@ theorem mem_of_mem_eraseP {l : List α} : a ∈ l.eraseP p → a ∈ l := (erase
 @[simp] theorem eraseP_eq_self_iff {p} {l : List α} : l.eraseP p = l ↔ ∀ a ∈ l, ¬ p a := by
   rw [← Sublist.length_eq eraseP_sublist, length_eraseP]
   split <;> rename_i h
-  · simp only [any_eq_true, length_eq_zero_iff] at h
+  · simp only [any_eq_true] at h
     constructor
     · intro; simp_all [Nat.sub_one_eq_self]
     · intro; obtain ⟨x, m, h⟩ := h; simp_all
@@ -287,9 +287,9 @@ theorem eraseP_comm {l : List α} (h : ∀ a ∈ l, ¬ p a ∨ ¬ q a) :
     by_cases h₁ : p a
     · by_cases h₂ : q a
       · simp_all
-      · simp [h₁, h₂, ih (fun b m => h b (mem_cons_of_mem _ m))]
+      · simp [h₁, h₂]
     · by_cases h₂ : q a
-      · simp [h₁, h₂, ih (fun b m => h b (mem_cons_of_mem _ m))]
+      · simp [h₁, h₂]
       · simp [h₁, h₂, ih (fun b m => h b (mem_cons_of_mem _ m))]
 
 theorem head_eraseP_mem {xs : List α} {p : α → Bool} (h) : (xs.eraseP p).head h ∈ xs :=
@@ -578,7 +578,7 @@ theorem eraseIdx_eq_take_drop_succ :
   match l, i with
   | [], _
   | a::l, 0
-  | a::l, i + 1 => simp [Nat.succ_inj]
+  | a::l, i + 1 => simp
 
 @[deprecated eraseIdx_eq_nil_iff (since := "2025-01-30")]
 abbrev eraseIdx_eq_nil := @eraseIdx_eq_nil_iff
@@ -587,7 +587,7 @@ theorem eraseIdx_ne_nil_iff {l : List α} {i : Nat} : eraseIdx l i ≠ [] ↔ 2 
   match l with
   | []
   | [a]
-  | a::b::l => simp [Nat.succ_inj]
+  | a::b::l => simp
 
 @[deprecated eraseIdx_ne_nil_iff (since := "2025-01-30")]
 abbrev eraseIdx_ne_nil := @eraseIdx_ne_nil_iff

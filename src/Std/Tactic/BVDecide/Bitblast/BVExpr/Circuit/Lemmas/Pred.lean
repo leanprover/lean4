@@ -104,7 +104,7 @@ theorem denote_bitblast (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig)
         apply BVExpr.bitblast_Inv_of_Inv
         exact hinv
   | getLsbD expr idx =>
-    simp only [bitblast, denote_projected_entry, denote_blastGetLsbD, eval_getLsbD]
+    simp only [bitblast, denote_blastGetLsbD, eval_getLsbD]
     split
     · rw [BVExpr.denote_bitblast]
       exact hinv

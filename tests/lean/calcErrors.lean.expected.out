@@ -14,8 +14,8 @@ calcErrors.lean:31:8-31:13: error: invalid 'calc' step, failed to synthesize `Tr
   Trans p p ?m
 
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
-calcErrors.lean:41:7-41:12: error: invalid 'calc' step, left-hand side is
+calcErrors.lean:40:7-40:12: error: invalid 'calc' step, left-hand side is
   γ : Sort u_1
 but previous right-hand side is
   b : β
-calcErrors.lean:61:18-61:19: error: unexpected token '['; expected command
+calcErrors.lean:60:18-60:19: error: unexpected token '['; expected command

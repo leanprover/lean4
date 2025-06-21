@@ -86,7 +86,7 @@ theorem countP_le_length : countP p l ≤ l.length := by
   simp only [countP_eq_length_filter, filter_append, length_append]
 
 @[simp] theorem countP_pos_iff {p} : 0 < countP p l ↔ ∃ a ∈ l, p a := by
-  simp only [countP_eq_length_filter, length_pos_iff_exists_mem, mem_filter, exists_prop]
+  simp only [countP_eq_length_filter, length_pos_iff_exists_mem, mem_filter]
 
 @[simp] theorem one_le_countP_iff {p} : 1 ≤ countP p l ↔ ∃ a ∈ l, p a :=
   countP_pos_iff
@@ -169,7 +169,7 @@ theorem length_filterMap_eq_countP {f : α → Option β} {l : List α} :
   | nil => rfl
   | cons x l ih =>
     simp only [filterMap_cons, countP_cons]
-    split <;> simp [ih, *]
+    split <;> simp [*]
 
 theorem countP_filterMap {p : β → Bool} {f : α → Option β} {l : List α} :
     countP p (filterMap f l) = countP (fun a => ((f a).map p).getD false) l := by

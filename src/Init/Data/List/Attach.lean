@@ -255,7 +255,7 @@ set_option linter.deprecated false in
 theorem get?_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h : ∀ a ∈ l, p a) (n : Nat) :
     get? (pmap f l h) n = Option.pmap f (get? l n) fun x H => h x (mem_of_get? H) := by
   simp only [get?_eq_getElem?]
-  simp [getElem?_pmap, h]
+  simp [getElem?_pmap]
 
 -- The argument `f` is explicit to allow rewriting from right to left.
 @[simp, grind =]
@@ -322,14 +322,14 @@ theorem getElem_attach {xs : List α} {i : Nat} (h : i < xs.attach.length) :
   | nil => simp
   | cons x xs ih =>
     simp at ih
-    simp [head?_pmap, ih]
+    simp
 
 @[simp, grind =] theorem head_pmap {P : α → Prop} {f : (a : α) → P a → β} {xs : List α}
     (H : ∀ (a : α), a ∈ xs → P a) (h : xs.pmap f H ≠ []) :
     (xs.pmap f H).head h = f (xs.head (by simpa using h)) (H _ (head_mem _)) := by
   induction xs with
   | nil => simp at h
-  | cons x xs ih => simp [head_pmap, ih]
+  | cons x xs ih => simp
 
 @[simp, grind =] theorem head?_attachWith {P : α → Prop} {xs : List α}
     (H : ∀ (a : α), a ∈ xs → P a) :
@@ -341,7 +341,7 @@ theorem getElem_attach {xs : List α} {i : Nat} (h : i < xs.attach.length) :
     (xs.attachWith P H).head h = ⟨xs.head (by simpa using h), H _ (head_mem _)⟩ := by
   cases xs with
   | nil => simp at h
-  | cons x xs => simp [head_attachWith, h]
+  | cons x xs => simp
 
 @[simp, grind =] theorem head?_attach {xs : List α} :
     xs.attach.head? = xs.head?.pbind (fun a h => some ⟨a, mem_of_head? h⟩) := by
@@ -351,7 +351,7 @@ theorem getElem_attach {xs : List α} {i : Nat} (h : i < xs.attach.length) :
     xs.attach.head h = ⟨xs.head (by simpa using h), head_mem (by simpa using h)⟩ := by
   cases xs with
   | nil => simp at h
-  | cons x xs => simp [head_attach, h]
+  | cons x xs => simp
 
 @[simp, grind =] theorem tail_pmap {P : α → Prop} {f : (a : α) → P a → β} {xs : List α}
     (H : ∀ (a : α), a ∈ xs → P a) :
@@ -472,7 +472,7 @@ theorem attach_filterMap {l : List α} {f : α → Option β} :
   induction l with
   | nil => rfl
   | cons x xs ih =>
-    simp only [filterMap_cons, attach_cons, ih, filterMap_map]
+    simp only [filterMap_cons, attach_cons, filterMap_map]
     split <;> rename_i h
     · simp only [Option.pbind_eq_none_iff, reduceCtorEq, exists_false,
         or_false] at h
@@ -554,7 +554,7 @@ theorem pmap_append' {p : α → Prop} {f : ∀ a : α, p a → β} {l₁ l₂ :
 @[simp, grind =] theorem attach_append {xs ys : List α} :
     (xs ++ ys).attach = xs.attach.map (fun ⟨x, h⟩ => ⟨x, mem_append_left ys h⟩) ++
       ys.attach.map fun ⟨x, h⟩ => ⟨x, mem_append_right xs h⟩ := by
-  simp only [attach, attachWith, pmap, map_pmap, pmap_append]
+  simp only [attach, attachWith, map_pmap, pmap_append]
   congr 1 <;>
   exact pmap_congr_left _ fun _ _ _ _ => rfl
 
@@ -562,7 +562,7 @@ theorem pmap_append' {p : α → Prop} {f : ∀ a : α, p a → β} {l₁ l₂ :
     {H : ∀ (a : α), a ∈ xs ++ ys → P a} :
     (xs ++ ys).attachWith P H = xs.attachWith P (fun a h => H a (mem_append_left ys h)) ++
       ys.attachWith P (fun a h => H a (mem_append_right xs h)) := by
-  simp only [attachWith, attach_append, map_pmap, pmap_append]
+  simp only [attachWith, pmap_append]
 
 @[simp, grind =] theorem pmap_reverse {P : α → Prop} {f : (a : α) → P a → β} {xs : List α}
     (H : ∀ (a : α), a ∈ xs.reverse → P a) :
@@ -625,7 +625,7 @@ theorem reverse_attach {xs : List α} :
 @[simp, grind =] theorem getLast_attachWith {P : α → Prop} {xs : List α}
     {H : ∀ (a : α), a ∈ xs → P a} (h : xs.attachWith P H ≠ []) :
     (xs.attachWith P H).getLast h = ⟨xs.getLast (by simpa using h), H _ (getLast_mem _)⟩ := by
-  simp only [getLast_eq_head_reverse, reverse_attachWith, head_attachWith, head_map]
+  simp only [getLast_eq_head_reverse, reverse_attachWith, head_attachWith]
 
 @[simp, grind =]
 theorem getLast?_attach {xs : List α} :
@@ -651,12 +651,12 @@ theorem countP_attachWith {p : α → Prop} {q : α → Bool} {l : List α} (H :
 @[simp]
 theorem count_attach [BEq α] {l : List α} {a : {x // x ∈ l}} :
     l.attach.count a = l.count ↑a :=
-  Eq.trans (countP_congr fun _ _ => by simp [Subtype.ext_iff]) <| countP_attach
+  Eq.trans (countP_congr fun _ _ => by simp) <| countP_attach
 
 @[simp, grind =]
 theorem count_attachWith [BEq α] {p : α → Prop} {l : List α} (H : ∀ a ∈ l, p a) {a : {x // p x}} :
     (l.attachWith p H).count a = l.count ↑a :=
-  Eq.trans (countP_congr fun _ _ => by simp [Subtype.ext_iff]) <| countP_attachWith _
+  Eq.trans (countP_congr fun _ _ => by simp) <| countP_attachWith _
 
 @[simp, grind =] theorem countP_pmap {p : α → Prop} {g : ∀ a, p a → β} {f : β → Bool} {l : List α} (H₁) :
     (l.pmap g H₁).countP f =
@@ -717,7 +717,7 @@ def unattach {α : Type _} {p : α → Prop} (l : List { x // p x }) : List α :
   unfold unattach
   induction l with
   | nil => simp
-  | cons a l ih => simp [ih, Function.comp_def]
+  | cons a l ih => simp [ih]
 
 @[simp] theorem getElem?_unattach {p : α → Prop} {l : List { x // p x }} (i : Nat) :
     l.unattach[i]? = l[i]?.map Subtype.val := by

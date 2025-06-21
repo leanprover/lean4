@@ -292,7 +292,7 @@ See however `foldl_subtype` below.
 theorem foldl_attach {xs : Vector α n} {f : β → α → β} {b : β} :
     xs.attach.foldl (fun acc t => f acc t.1) b = xs.foldl f b := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.foldl_attach]
+  simp
 
 /--
 If we fold over `l.attach` with a function that ignores the membership predicate,
@@ -307,7 +307,7 @@ See however `foldr_subtype` below.
 theorem foldr_attach {xs : Vector α n} {f : α → β → β} {b : β} :
     xs.attach.foldr (fun t acc => f t.1 acc) b = xs.foldr f b := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.foldr_attach]
+  simp
 
 @[grind =]
 theorem attach_map {xs : Vector α n} {f : α → β} :
@@ -378,7 +378,7 @@ theorem pmap_append' {p : α → Prop} {f : ∀ a : α, p a → β} {xs : Vector
     {H : ∀ (a : α), a ∈ xs ++ ys → P a} :
     (xs ++ ys).attachWith P H = xs.attachWith P (fun a h => H a (mem_append_left ys h)) ++
       ys.attachWith P (fun a h => H a (mem_append_right xs h)) := by
-  simp [attachWith, attach_append, map_pmap, pmap_append]
+  simp [attachWith]
 
 @[simp, grind =] theorem pmap_reverse {P : α → Prop} {f : (a : α) → P a → β} {xs : Vector α n}
     (H : ∀ (a : α), a ∈ xs.reverse → P a) :
@@ -439,7 +439,7 @@ theorem back?_attach {xs : Vector α n} :
 theorem countP_attach {xs : Vector α n} {p : α → Bool} :
     xs.attach.countP (fun a : {x // x ∈ xs} => p a) = xs.countP p := by
   cases xs
-  simp [Function.comp_def]
+  simp
 
 @[simp]
 theorem countP_attachWith {p : α → Prop} {q : α → Bool} {xs : Vector α n} {H : ∀ a ∈ xs, p a} :

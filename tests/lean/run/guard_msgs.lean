@@ -1,5 +1,7 @@
 import Lean.Elab.Command
 
+set_option guard_msgs.diff false
+
 #guard_msgs in
 /-- error: unknown identifier 'x' -/
 #guard_msgs in

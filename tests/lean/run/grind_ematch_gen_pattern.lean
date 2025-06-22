@@ -53,8 +53,6 @@ trace: [grind.ematch.instance] pbind_some': ∀ (h : b = some a), (b.pbind fun a
       (b.pbind fun a h => some (a + f b ⋯)) = some (a + 4 * f b ⋯ + f b ⋯)
 [grind.ematch.instance] pbind_some': ∀ (h_3 : b = some (a + 5 * f b ⋯)),
       (b.pbind fun a h => some (a + f b ⋯)) = some (a + 5 * f b ⋯ + f b ⋯)
-[grind.ematch.instance] pbind_some': ∀ (h_3 : b = some (2 * a + f b ⋯)),
-      (b.pbind fun a h => some (a + f b ⋯)) = some (2 * a + f b ⋯ + f b ⋯)
 [grind.ematch.instance] pbind_some': ∀ (h_3 : b = some (a + 6 * f b ⋯)),
       (b.pbind fun a h => some (a + f b ⋯)) = some (a + 6 * f b ⋯ + f b ⋯)
 [grind.ematch.instance] pbind_some': ∀ (h_3 : b = some (a + 7 * f b ⋯)),

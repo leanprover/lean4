@@ -188,7 +188,7 @@ theorem ClosedOpen.mem_succ_iff [UpwardEnumerable α]
     simp [UpwardEnumerable.succ_le_succ_iff, UpwardEnumerable.succ_lt_succ_iff]
     exact ⟨hl, hu⟩
 
-private theorem toList_eq_of_mem_iff_mem.aux {lt : α → α → Prop} [asymm : Asymm lt]
+private theorem eq_of_pairwise_lt_of_mem_iff_mem {lt : α → α → Prop} [asymm : Asymm lt]
     {l l' : List α} (hl : l.Pairwise lt) (hl' : l'.Pairwise lt)
     (h : ∀ a, a ∈ l ↔ a ∈ l') : l = l' := by
   induction l generalizing l'
@@ -240,17 +240,6 @@ private theorem toList_eq_of_mem_iff_mem.aux {lt : α → α → Prop} [asymm : 
           have hgt := hl.1 y ‹_›
           cases Asymm.asymm _ _ hlt hgt
 
-theorem toList_eq_of_mem_iff_mem [UpwardEnumerable α] [SupportsLowerBound sl α] [SupportsUpperBound su α]
-    [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLowerBound sl α]
-    [LawfulUpwardEnumerableUpperBound su α] [HasFiniteRanges su α]
-    {r s : PRange ⟨sl, su⟩ α} (h : ∀ a, a ∈ r ↔ a ∈ s) :
-    r.toList = s.toList := by
-  apply toList_eq_of_mem_iff_mem.aux (lt := UpwardEnumerable.lt) (asymm := _)
-  · apply pairwise_toList_upwardEnumerableLt
-  · apply pairwise_toList_upwardEnumerableLt
-  · simp [mem_toList_iff_mem, h]
-  · exact ⟨fun _ _ => UpwardEnumerable.not_gt_of_lt⟩
-
 theorem ClosedOpen.toList_succ_succ_eq_map [UpwardEnumerable α] [SupportsLowerBound .closed α]
     [LinearlyUpwardEnumerable α] [InfinitelyUpwardEnumerable α] [SupportsUpperBound .open α]
     [HasFiniteRanges .open α] [LawfulUpwardEnumerable α] [LawfulOpenUpperBound α]
@@ -258,7 +247,7 @@ theorem ClosedOpen.toList_succ_succ_eq_map [UpwardEnumerable α] [SupportsLowerB
     {lower : Bound .closed α} {upper : Bound .open α} :
     (PRange.mk (shape := ⟨.closed, .open⟩) (UpwardEnumerable.succ lower) (UpwardEnumerable.succ upper)).toList =
       (PRange.mk (shape := ⟨.closed, .open⟩) lower upper).toList.map UpwardEnumerable.succ := by
-  apply toList_eq_of_mem_iff_mem.aux (lt := UpwardEnumerable.lt) (asymm := ?_)
+  apply eq_of_pairwise_lt_of_mem_iff_mem (lt := UpwardEnumerable.lt) (asymm := ?_)
   · apply pairwise_toList_upwardEnumerableLt
   · apply List.Pairwise.map (R := UpwardEnumerable.lt) (S := UpwardEnumerable.lt)
     · intro a b

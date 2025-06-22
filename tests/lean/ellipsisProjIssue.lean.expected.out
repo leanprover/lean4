@@ -1,1 +1,1 @@
-ellipsisProjIssue.lean:1:17: error: unexpected `.` immediately after `..`
+ellipsisProjIssue.lean:1:18: error: unexpected identifier; expected command

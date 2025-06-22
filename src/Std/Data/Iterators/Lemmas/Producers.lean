@@ -9,3 +9,4 @@ import Std.Data.Iterators.Lemmas.Producers.Array
 import Std.Data.Iterators.Lemmas.Producers.Empty
 import Std.Data.Iterators.Lemmas.Producers.List
 import Std.Data.Iterators.Lemmas.Producers.Repeat
+import Std.Data.Iterators.Lemmas.Producers.Range

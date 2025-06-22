@@ -81,7 +81,7 @@ theorem find?_eq_findSome?_guard {xs : Array α} : find? p xs = findSome? (Optio
 
 @[simp, grind =] theorem getElem_zero_filterMap {f : α → Option β} {xs : Array α} (h) :
     (xs.filterMap f)[0] = (xs.findSome? f).get (by cases xs; simpa [List.length_filterMap_eq_countP] using h) := by
-  cases xs; simp [← List.head_eq_getElem, ← getElem?_zero_filterMap]
+  cases xs; simp [← getElem?_zero_filterMap]
 
 @[simp, grind =] theorem back?_filterMap {f : α → Option β} {xs : Array α} : (xs.filterMap f).back? = xs.findSomeRev? f := by
   cases xs; simp
@@ -122,7 +122,7 @@ theorem getElem_zero_flatten.proof {xss : Array (Array α)} (h : 0 < xss.flatten
 theorem getElem_zero_flatten {xss : Array (Array α)} (h) :
     (flatten xss)[0] = (xss.findSome? fun xs => xs[0]?).get (getElem_zero_flatten.proof h) := by
   have t := getElem?_zero_flatten xss
-  simp [getElem?_eq_getElem, h] at t
+  simp at t
   simp [← t]
 
 @[grind =]
@@ -308,7 +308,7 @@ abbrev find?_flatten_eq_some := @find?_flatten_eq_some_iff
 @[simp, grind =] theorem find?_flatMap {xs : Array α} {f : α → Array β} {p : β → Bool} :
     (xs.flatMap f).find? p = xs.findSome? (fun x => (f x).find? p) := by
   cases xs
-  simp [List.find?_flatMap, Array.flatMap_toArray]
+  simp [List.find?_flatMap]
 
 theorem find?_flatMap_eq_none_iff {xs : Array α} {f : α → Array β} {p : β → Bool} :
     (xs.flatMap f).find? p = none ↔ ∀ x ∈ xs, ∀ y ∈ f x, !p y := by
@@ -348,7 +348,7 @@ abbrev find?_mkArray_of_neg := @find?_replicate_of_neg
 -- This isn't a `@[simp]` lemma since there is already a lemma for `l.find? p = none` for any `l`.
 theorem find?_replicate_eq_none_iff {n : Nat} {a : α} {p : α → Bool} :
     (replicate n a).find? p = none ↔ n = 0 ∨ !p a := by
-  simp [← List.toArray_replicate, List.find?_replicate_eq_none_iff, Classical.or_iff_not_imp_left]
+  simp [← List.toArray_replicate, Classical.or_iff_not_imp_left]
 
 @[deprecated find?_replicate_eq_none_iff (since := "2025-03-18")]
 abbrev find?_mkArray_eq_none_iff := @find?_replicate_eq_none_iff
@@ -488,7 +488,7 @@ theorem findIdx_push {xs : Array α} {a : α} {p : α → Bool} :
   simp only [push_eq_append, findIdx_append]
   split <;> rename_i h
   · rfl
-  · simp [findIdx_singleton, Nat.add_comm]
+  · simp [Nat.add_comm]
 
 theorem findIdx_le_findIdx {xs : Array α} {p q : α → Bool} (h : ∀ x ∈ xs, p x → q x) : xs.findIdx q ≤ xs.findIdx p := by
   rcases xs with ⟨xs⟩
@@ -553,7 +553,7 @@ theorem findIdx?_eq_some_of_exists {xs : Array α} {p : α → Bool} (h : ∃ x,
 theorem findIdx?_eq_none_iff_findIdx_eq {xs : Array α} {p : α → Bool} :
     xs.findIdx? p = none ↔ xs.findIdx p = xs.size := by
   rcases xs with ⟨xs⟩
-  simp [List.findIdx?_eq_none_iff_findIdx_eq]
+  simp
 
 theorem findIdx?_eq_guard_findIdx_lt {xs : Array α} {p : α → Bool} :
     xs.findIdx? p = Option.guard (fun i => i < xs.size) (xs.findIdx p) := by
@@ -798,7 +798,7 @@ The lemmas below should be made consistent with those for `findFinIdx?` (and pro
 
 theorem idxOf?_eq_map_finIdxOf?_val [BEq α] {xs : Array α} {a : α} :
     xs.idxOf? a = (xs.finIdxOf? a).map (·.val) := by
-  simp [idxOf?, finIdxOf?, findIdx?_eq_map_findFinIdx?_val]
+  simp [idxOf?, finIdxOf?]
 
 @[grind =] theorem finIdxOf?_empty [BEq α] : (#[] : Array α).finIdxOf? a = none := by simp
 

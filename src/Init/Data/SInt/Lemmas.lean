@@ -1622,23 +1622,23 @@ theorem ISize.toInt_div_of_ne_right (a b : ISize) (h : b ≠ -1) : (a / b).toInt
   exact Or.inr (by simpa [← toBitVec_inj] using h)
 
 theorem Int8.toInt16_ne_minValue (a : Int8) : a.toInt16 ≠ Int16.minValue :=
-  have := a.le_toInt; by simp [← Int16.toInt_inj, Int16.toInt_minValue]; omega
+  have := a.le_toInt; by simp [← Int16.toInt_inj]; omega
 theorem Int8.toInt32_ne_minValue (a : Int8) : a.toInt32 ≠ Int32.minValue :=
-  have := a.le_toInt; by simp [← Int32.toInt_inj, Int32.toInt_minValue]; omega
+  have := a.le_toInt; by simp [← Int32.toInt_inj]; omega
 theorem Int8.toInt64_ne_minValue (a : Int8) : a.toInt64 ≠ Int64.minValue :=
-  have := a.le_toInt; by simp [← Int64.toInt_inj, Int64.toInt_minValue]; omega
+  have := a.le_toInt; by simp [← Int64.toInt_inj]; omega
 theorem Int8.toISize_ne_minValue (a : Int8) : a.toISize ≠ ISize.minValue :=
   have := a.le_toInt; have := ISize.toInt_minValue_le; by simp [← ISize.toInt_inj]; omega
 
 theorem Int16.toInt32_ne_minValue (a : Int16) : a.toInt32 ≠ Int32.minValue :=
-  have := a.le_toInt; by simp [← Int32.toInt_inj, Int32.toInt_minValue]; omega
+  have := a.le_toInt; by simp [← Int32.toInt_inj]; omega
 theorem Int16.toInt64_ne_minValue (a : Int16) : a.toInt64 ≠ Int64.minValue :=
-  have := a.le_toInt; by simp [← Int64.toInt_inj, Int64.toInt_minValue]; omega
+  have := a.le_toInt; by simp [← Int64.toInt_inj]; omega
 theorem Int16.toISize_ne_minValue (a : Int16) : a.toISize ≠ ISize.minValue :=
   have := a.le_toInt; have := ISize.toInt_minValue_le; by simp [← ISize.toInt_inj]; omega
 
 theorem Int32.toInt64_ne_minValue (a : Int32) : a.toInt64 ≠ Int64.minValue :=
-  have := a.le_toInt; by simp [← Int64.toInt_inj, Int64.toInt_minValue]; omega
+  have := a.le_toInt; by simp [← Int64.toInt_inj]; omega
 theorem Int32.toISize_ne_minValue (a : Int32) (ha : a ≠ minValue) : a.toISize ≠ ISize.minValue := by
   have := a.le_toInt
   have := ISize.toInt_minValue_le

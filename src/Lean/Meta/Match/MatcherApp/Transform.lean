@@ -246,7 +246,7 @@ def transform
       throwError "unexpected matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
     let mut motiveBody' ← onMotive motiveArgs motiveBody
 
-    -- Prepend `(x = e) →` or `(HEq x e) → ` to the motive when an equality is requested
+    -- Prepend `(x = e) →` or `(x ≍ e) → ` to the motive when an equality is requested
     -- and not already present, and remember whether we added an Eq or a HEq
     let mut addHEqualities : Array (Option Bool) := #[]
     for arg in motiveArgs, discr in discrs', di in matcherApp.discrInfos do

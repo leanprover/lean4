@@ -454,7 +454,7 @@ theorem negOfNat_eq_subNatNat_zero (n) : negOfNat n = subNatNat 0 n := by cases 
 theorem ofNat_mul_subNatNat (m n k : Nat) :
     m * subNatNat n k = subNatNat (m * n) (m * k) := by
   cases m with
-  | zero => simp [ofNat_zero, Int.zero_mul, Nat.zero_mul, subNatNat_self]
+  | zero => simp [Int.zero_mul, Nat.zero_mul, subNatNat_self]
   | succ m => cases n.lt_or_ge k with
     | inl h =>
       have h' : succ m * n < succ m * k := Nat.mul_lt_mul_of_pos_left h (Nat.succ_pos m)

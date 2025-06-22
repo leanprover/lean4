@@ -5,7 +5,7 @@ Authors: Paul Reichert
 -/
 prelude
 import Std.Data.Iterators.Combinators.Monadic.Zip
-import Std.Data.Iterators.Lemmas.Consumers.Monadic
+import Init.Data.Iterators.Lemmas.Consumers.Monadic
 
 namespace Std.Iterators
 
@@ -57,7 +57,7 @@ theorem IterM.step_intermediateZip [Monad m] [Iterator α₁ m β₁] [Iterator 
             (.skipRight rfl hp)
         | .done hp =>
           pure <| .done (.doneRight rfl hp)) := by
-  simp only [Intermediate.zip, step, Iterator.step, internalState_toIterM]
+  simp only [Intermediate.zip, step, Iterator.step]
   split
   · apply bind_congr
     intro step

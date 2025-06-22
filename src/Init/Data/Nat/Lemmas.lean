@@ -1044,7 +1044,7 @@ theorem div_le_iff_le_mul_of_dvd (hb : b ≠ 0) (hba : b ∣ a) : a / b ≤ c �
   exact ⟨mul_le_mul_right b, fun h ↦ Nat.le_of_mul_le_mul_right h (zero_lt_of_ne_zero hb)⟩
 
 protected theorem div_lt_div_right (ha : a ≠ 0) : a ∣ b → a ∣ c → (b / a < c / a ↔ b < c) := by
-  rintro ⟨d, rfl⟩ ⟨e, rfl⟩; simp [Nat.mul_div_cancel, Nat.pos_iff_ne_zero.2 ha]
+  rintro ⟨d, rfl⟩ ⟨e, rfl⟩; simp [Nat.pos_iff_ne_zero.2 ha]
 
 protected theorem div_lt_div_left (ha : a ≠ 0) (hba : b ∣ a) (hca : c ∣ a) :
     a / b < a / c ↔ c < b := by
@@ -1164,7 +1164,7 @@ protected theorem pow_le_pow_iff_right {a n m : Nat} (h : 1 < a) :
   constructor
   · apply Decidable.by_contra
     intros w
-    simp [Decidable.not_imp_iff_and_not] at w
+    simp at w
     apply Nat.lt_irrefl (a ^ n)
     exact Nat.lt_of_le_of_lt w.1 (Nat.pow_lt_pow_of_lt h w.2)
   · intro w
@@ -1320,7 +1320,7 @@ theorem le_log2 (h : n ≠ 0) : k ≤ n.log2 ↔ 2 ^ k ≤ n := by
   | k+1 =>
     rw [log2]; split
     · have n0 : 0 < n / 2 := (Nat.le_div_iff_mul_le (by decide)).2 ‹_›
-      simp only [Nat.add_le_add_iff_right, le_log2 (Nat.ne_of_gt n0), le_div_iff_mul_le,
+      simp only [Nat.add_le_add_iff_right, le_log2 (Nat.ne_of_gt n0), 
         Nat.pow_succ]
       exact Nat.le_div_iff_mul_le (by decide)
     · simp only [le_zero_eq, succ_ne_zero, false_iff]
@@ -1434,7 +1434,7 @@ theorem le_iff_ne_zero_of_dvd (ha : a ≠ 0) (hab : a ∣ b) : a ≤ b ↔ b ≠
 
 theorem div_ne_zero_iff_of_dvd (hba : b ∣ a) : a / b ≠ 0 ↔ a ≠ 0 ∧ b ≠ 0 := by
   obtain rfl | hb := Decidable.em (b = 0) <;>
-    simp [Nat.div_ne_zero_iff, Nat.le_iff_ne_zero_of_dvd, *]
+    simp [Nat.le_iff_ne_zero_of_dvd, *]
 
 theorem pow_mod (a b n : Nat) : a ^ b % n = (a % n) ^ b % n := by
   induction b with
@@ -1706,12 +1706,12 @@ theorem shiftRight_succ_inside : ∀m n, m >>> (n+1) = (m/2) >>> n
   rw [shiftRight_succ_inside _ k, shiftRight_succ]
 
 @[simp] theorem zero_shiftLeft : ∀ n, 0 <<< n = 0
-  | 0 => by simp [shiftLeft]
-  | n + 1 => by simp [shiftLeft, zero_shiftLeft n, shiftLeft_succ]
+  | 0 => by simp
+  | n + 1 => by simp [zero_shiftLeft n, shiftLeft_succ]
 
 @[simp] theorem zero_shiftRight : ∀ n, 0 >>> n = 0
-  | 0 => by simp [shiftRight]
-  | n + 1 => by simp [shiftRight, zero_shiftRight n, shiftRight_succ]
+  | 0 => by simp
+  | n + 1 => by simp [zero_shiftRight n, shiftRight_succ]
 
 theorem shiftLeft_add (m n : Nat) : ∀ k, m <<< (n + k) = (m <<< n) <<< k
   | 0 => rfl

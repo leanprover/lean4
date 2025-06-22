@@ -1,3 +1,3 @@
-example (f : α → α) (a b : α) (h : HEq a b) : f a = f b := by
+example (f : α → α) (a b : α) (h : a ≍ b) : f a = f b := by
   subst h
   rfl

@@ -201,8 +201,8 @@ theorem Perm.filterMap (f : α → Option β) {l₁ l₂ : List α} (p : l₁ ~ 
     filterMap f l₁ ~ filterMap f l₂ := by
   induction p with
   | nil => simp
-  | cons x _p IH => cases h : f x <;> simp [h, filterMap_cons, IH, Perm.cons]
-  | swap x y l₂ => cases hx : f x <;> cases hy : f y <;> simp [hx, hy, filterMap_cons, swap]
+  | cons x _p IH => cases h : f x <;> simp [h, IH, Perm.cons]
+  | swap x y l₂ => cases hx : f x <;> cases hy : f y <;> simp [hx, hy, swap]
   | trans _p₁ _p₂ IH₁ IH₂ => exact IH₁.trans IH₂
 
 grind_pattern Perm.filterMap => l₁ ~ l₂, filterMap f l₁
@@ -344,9 +344,9 @@ theorem Perm.foldr_eq' {f : α → β → β} {l₁ l₂ : List α} (p : l₁ ~ 
     intros; apply comm <;> apply p₁.symm.subset <;> assumption
 
 theorem Perm.rec_heq {β : List α → Sort _} {f : ∀ a l, β l → β (a :: l)} {b : β []} {l l' : List α}
-    (hl : l ~ l') (f_congr : ∀ {a l l' b b'}, l ~ l' → HEq b b' → HEq (f a l b) (f a l' b'))
-    (f_swap : ∀ {a a' l b}, HEq (f a (a' :: l) (f a' l b)) (f a' (a :: l) (f a l b))) :
-    HEq (@List.rec α β b f l) (@List.rec α β b f l') := by
+    (hl : l ~ l') (f_congr : ∀ {a l l' b b'}, l ~ l' → b ≍ b' → f a l b ≍ f a l' b')
+    (f_swap : ∀ {a a' l b}, f a (a' :: l) (f a' l b) ≍ f a' (a :: l) (f a l b)) :
+    @List.rec α β b f l ≍ @List.rec α β b f l' := by
   induction hl with
   | nil => rfl
   | cons a h ih => exact f_congr h ih
@@ -445,7 +445,7 @@ grind_pattern Perm.count => l₁ ~ l₂, count a l₂
 
 theorem isPerm_iff : ∀ {l₁ l₂ : List α}, l₁.isPerm l₂ ↔ l₁ ~ l₂
   | [], [] => by simp [isPerm, isEmpty]
-  | [], _ :: _ => by simp [isPerm, isEmpty, Perm.nil_eq]
+  | [], _ :: _ => by simp [isPerm, isEmpty]
   | a :: l₁, l₂ => by simp [isPerm, isPerm_iff, cons_perm_iff_perm_erase]
 
 instance decidablePerm {α} [DecidableEq α] (l₁ l₂ : List α) : Decidable (l₁ ~ l₂) := decidable_of_iff _ isPerm_iff

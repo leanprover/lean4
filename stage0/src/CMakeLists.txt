@@ -58,9 +58,6 @@ option(USE_GITHASH        "GIT_HASH"           ON)
 option(INSTALL_LICENSE "INSTALL_LICENSE" ON)
 # When ON we install a copy of cadical
 option(INSTALL_CADICAL "Install a copy of cadical" ON)
-# When ON thread storage is automatically finalized, it assumes platform support pthreads.
-# This option is important when using Lean as library that is invoked from a different programming language (e.g., Haskell).
-option(AUTO_THREAD_FINALIZATION "AUTO_THREAD_FINALIZATION" ON)
 
 # FLAGS for disabling optimizations and debugging
 option(FREE_VAR_RANGE_OPT  "FREE_VAR_RANGE_OPT"   ON)
@@ -180,10 +177,6 @@ if(NOT MULTI_THREAD)
   set(AUTO_THREAD_FINALIZATION OFF)
 else()
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_MULTI_THREAD")
-endif()
-
-if(AUTO_THREAD_FINALIZATION AND NOT MSVC)
-  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_AUTO_THREAD_FINALIZATION")
 endif()
 
 # Set Module Path

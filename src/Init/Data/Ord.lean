@@ -351,7 +351,7 @@ theorem compareOfLessAndEq_eq_swap_of_lt_iff_not_gt_and_ne {α : Type u} [LT α]
       simp only [h', this, ↓reduceIte, Ordering.swap_eq]
     · rename_i h' h''
       replace h' := (h y x).mpr ⟨h', Ne.symm h''⟩
-      simp only [h', Ne.symm h'', ↓reduceIte, Ordering.swap_lt]
+      simp only [h', ↓reduceIte, Ordering.swap_lt]
 
 theorem lt_iff_not_gt_and_ne_of_antisymm_of_total_of_not_le
     {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableEq α]

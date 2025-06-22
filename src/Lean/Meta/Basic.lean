@@ -1358,11 +1358,15 @@ mutual
 
 
     If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
+
+    If `whnfIfReducing` is true, then in the `reducing == true` case, `k` is given the whnf of the type.
+    This does not have any performance cost.
   -/
   private partial def forallTelescopeReducingAuxAux
       (reducing          : Bool) (maxFVars? : Option Nat)
       (type              : Expr)
-      (k                 : Array Expr → Expr → MetaM α) (cleanupAnnotations : Bool) : MetaM α := do
+      (k                 : Array Expr → Expr → MetaM α)
+      (cleanupAnnotations : Bool) (whnfTypeIfReducing : Bool) : MetaM α := do
     let rec process (lctx : LocalContext) (fvars : Array Expr) (j : Nat) (type : Expr) : MetaM α := do
       match type with
       | .forallE n d b bi =>
@@ -1387,43 +1391,47 @@ mutual
               let newType ← whnf type
               if newType.isForall then
                 process lctx fvars fvars.size newType
+              else if whnfTypeIfReducing then
+                k fvars newType
               else
                 k fvars type
             else
               k fvars type
     process (← getLCtx) #[] 0 type
 
-  private partial def forallTelescopeReducingAux (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations : Bool) : MetaM α := do
+  private partial def forallTelescopeReducingAux (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations : Bool) (whnfType : Bool) : MetaM α := do
     match maxFVars? with
-    | some 0 => k #[] type
+    | some 0 =>
+      if whnfType then
+        k #[] (← whnf type)
+      else
+        k #[] type
     | _ => do
       let newType ← whnf type
       if newType.isForall then
-        forallTelescopeReducingAuxAux true maxFVars? newType k cleanupAnnotations
+        forallTelescopeReducingAuxAux true maxFVars? newType k cleanupAnnotations whnfType
+      else if whnfType then
+        k #[] newType
       else
         k #[] type
 
 
-  -- Helper method for isClassExpensive?
-  private partial def isClassApp? (type : Expr) (instantiated := false) : MetaM (Option Name) := do
+  /--
+  Helper method for `isClassExpensive?`. The type `type` is in WHNF.
+  -/
+  private partial def isClassApp? (type : Expr) : MetaM (Option Name) := do
     match type.getAppFn with
     | .const c _ =>
       let env ← getEnv
       if isClass env c then
         return some c
       else
-        -- Use whnf to make sure abbreviations are unfolded
-        match (← whnf type).getAppFn with
-        | .const c _ => if isClass env c then return some c else return none
-        | _ => return none
-    | .mvar .. =>
-      if instantiated then return none
-      isClassApp? (← instantiateMVars type) true
+        return none
     | _ => return none
 
   private partial def isClassExpensive? (type : Expr) : MetaM (Option Name) :=
     withReducible do -- when testing whether a type is a type class, we only unfold reducible constants.
-      forallTelescopeReducingAux type none (cleanupAnnotations := false) fun _ type => isClassApp? type
+      forallTelescopeReducingAux type none (cleanupAnnotations := false) (whnfType := true) fun _ type => isClassApp? type
 
   private partial def isClassImp? (type : Expr) : MetaM (Option Name) := do
     match (← isClassQuick? type) with
@@ -1452,8 +1460,8 @@ private def withNewLocalInstancesImpAux (fvars : Array Expr) (j : Nat) : n α �
 partial def withNewLocalInstances (fvars : Array Expr) (j : Nat) : n α → n α :=
   mapMetaM <| withNewLocalInstancesImpAux fvars j
 
-@[inline] private def forallTelescopeImp (type : Expr) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations : Bool) : MetaM α := do
-  forallTelescopeReducingAuxAux (reducing := false) (maxFVars? := none) type k cleanupAnnotations
+@[inline] private def forallTelescopeImp (type : Expr) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations : Bool) (whnfType : Bool) : MetaM α := do
+  forallTelescopeReducingAuxAux (reducing := false) (maxFVars? := none) type k cleanupAnnotations whnfType
 
 /--
   Given `type` of the form `forall xs, A`, execute `k xs A`.
@@ -1463,7 +1471,7 @@ partial def withNewLocalInstances (fvars : Array Expr) (j : Nat) : n α → n α
   If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
 -/
 def forallTelescope (type : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
-  map2MetaM (fun k => forallTelescopeImp type k cleanupAnnotations) k
+  map2MetaM (fun k => forallTelescopeImp type k cleanupAnnotations (whnfType := false)) k
 
 /--
 Given a monadic function `f` that takes a type and a term of that type and produces a new term,
@@ -1482,29 +1490,34 @@ and then builds the lambda telescope term for the new term.
 def mapForallTelescope (f : Expr → MetaM Expr) (forallTerm : Expr) : MetaM Expr := do
   mapForallTelescope' (fun _ e => f e) forallTerm
 
-private def forallTelescopeReducingImp (type : Expr) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations : Bool) : MetaM α :=
-  forallTelescopeReducingAux type (maxFVars? := none) k cleanupAnnotations
+private def forallTelescopeReducingImp (type : Expr) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations : Bool) (whnfType : Bool) : MetaM α :=
+  forallTelescopeReducingAux type (maxFVars? := none) k cleanupAnnotations (whnfType := whnfType)
 
 /--
   Similar to `forallTelescope`, but given `type` of the form `forall xs, A`,
   it reduces `A` and continues building the telescope if it is a `forall`.
 
   If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
--/
-def forallTelescopeReducing (type : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
-  map2MetaM (fun k => forallTelescopeReducingImp type k cleanupAnnotations) k
 
-private def forallBoundedTelescopeImp (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations : Bool) : MetaM α :=
-  forallTelescopeReducingAux type maxFVars? k cleanupAnnotations
+  If `whnfType` is `true`, we give `k` the `whnf` of the resulting type. This is a free operation.
+-/
+def forallTelescopeReducing (type : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) (whnfType := false) : n α :=
+  map2MetaM (fun k => forallTelescopeReducingImp type k cleanupAnnotations (whnfType := whnfType)) k
+
+private def forallBoundedTelescopeImp (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations : Bool) (whnfType : Bool) : MetaM α :=
+  forallTelescopeReducingAux type maxFVars? k cleanupAnnotations (whnfType := whnfType)
 
 /--
   Similar to `forallTelescopeReducing`, stops constructing the telescope when
   it reaches size `maxFVars`.
 
   If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
+
+  If `whnfType` is `true`, we give `k` the `whnf` of the resulting type.
+  This is a free operation unless `maxFVars? == some 0`, in which case it computes the `whnf`.
 -/
-def forallBoundedTelescope (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
-  map2MetaM (fun k => forallBoundedTelescopeImp type maxFVars? k cleanupAnnotations) k
+def forallBoundedTelescope (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) (whnfType := false) : n α :=
+  map2MetaM (fun k => forallBoundedTelescopeImp type maxFVars? k cleanupAnnotations (whnfType := whnfType)) k
 
 private partial def lambdaTelescopeImp (e : Expr) (consumeLet : Bool) (maxFVars? : Option Nat)
     (k : Array Expr → Expr → MetaM α) (cleanupAnnotations := false) : MetaM α := do

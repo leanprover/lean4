@@ -53,7 +53,7 @@ will not eliminate it. After we apply `simp`, we replace it with `MatchCond`.
 -/
 def PreMatchCond (p : Prop) : Prop := p
 
-theorem nestedProof_congr (p q : Prop) (h : p = q) (hp : p) (hq : q) : HEq (@nestedProof p hp) (@nestedProof q hq) := by
+theorem nestedProof_congr (p q : Prop) (h : p = q) (hp : p) (hq : q) : @nestedProof p hp ≍ @nestedProof q hq := by
   subst h; apply HEq.refl
 
 @[app_unexpander nestedProof]
@@ -103,6 +103,7 @@ an alternative form `c'`, which `grind` may not recognize as equivalent to `¬c`
 As a result, `grind` could fail to propagate that `if c then a else b` simplifies to `b`
 in the `¬c` branch.
 -/
+@[expose]
 def alreadyNorm (p : Prop) : Prop := p
 
 /--

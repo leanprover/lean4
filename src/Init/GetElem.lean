@@ -180,12 +180,12 @@ instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (v
     [Inhabited elem] (c : cont) (i : idx) (h : dom c i) :
     c[i]! = c[i]'h := by
   have : Decidable (dom c i) := .isTrue h
-  simp [getElem!_def, getElem?_def, h]
+  simp [getElem!_def, h]
 
 @[simp, grind] theorem getElem!_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     [Inhabited elem] (c : cont) (i : idx) (h : ¬dom c i) : c[i]! = default := by
   have : Decidable (dom c i) := .isFalse h
-  simp [getElem!_def, getElem?_def, h]
+  simp [getElem!_def, h]
 
 @[simp, grind =] theorem get_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     (c : cont) (i : idx) [Decidable (dom c i)] (h) :

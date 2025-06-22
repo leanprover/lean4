@@ -30,7 +30,7 @@ states that two structures are equal if their fields are equal.
 
 Calls the continuation `k` with the list of parameters to the structure,
 two structure variables `x` and `y`, and a list of pairs `(field, ty)`
-where each `ty` is of the form `x.field = y.field` or `HEq x.field y.field`.
+where each `ty` is of the form `x.field = y.field` or `x.field ≍ y.field`.
 
 If `flat` parses to `true`, any fields inherited from parent structures
 are treated as fields of the given structure type.

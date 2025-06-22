@@ -415,7 +415,7 @@ def mkSimpTheoremFromExpr (id : Origin) (levelParams : Array Name) (proof : Expr
 
 /--
 A simp theorem or information about a declaration to unfold by simp.
-This is stored in the oleans to implement the `simp` attribute and user-defined simp set.
+This is stored in the oleans to implement the `simp` attribute and user-defined simp sets.
 -/
 inductive SimpEntry where
   | thm      : SimpTheorem → SimpEntry

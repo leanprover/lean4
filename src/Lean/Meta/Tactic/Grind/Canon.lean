@@ -38,7 +38,7 @@ but it does not solve all problems. For example, consider a situation where we h
 and `(b : BitVec m)`, along with instances `inst1 n : Add (BitVec n)` and `inst2 m : Add (BitVec m)` where `inst1`
 and `inst2` are structurally different. Now consider the terms `a + a` and `b + b`. After canonicalization, the two
 additions will still use structurally different (and definitionally different) instances: `inst1 n` and `inst2 m`.
-Furthermore, `grind` will not be able to infer that  `HEq (a + a) (b + b)` even if we add the assumptions `n = m` and `HEq a b`.
+Furthermore, `grind` will not be able to infer that  `a + a ≍ b + b` even if we add the assumptions `n = m` and `a ≍ b`.
 -/
 
 @[inline] private def get' : GoalM State :=

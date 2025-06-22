@@ -23,7 +23,7 @@ private theorem rel_of_isEqvAux
   induction i with
   | zero => contradiction
   | succ i ih =>
-    simp only [Array.isEqvAux, Bool.and_eq_true, decide_eq_true_eq] at heqv
+    simp only [Array.isEqvAux, Bool.and_eq_true] at heqv
     by_cases hj' : j < i
     next =>
       exact ih _ heqv.right hj'

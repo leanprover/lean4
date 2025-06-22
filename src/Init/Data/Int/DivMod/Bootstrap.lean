@@ -56,7 +56,7 @@ protected theorem dvd_trans : ∀ {a b c : Int}, a ∣ b → b ∣ c → a ∣ c
 
 @[simp] protected theorem dvd_neg {a b : Int} : a ∣ -b ↔ a ∣ b := by
   constructor <;> exact fun ⟨k, e⟩ =>
-    ⟨-k, by simp [← e, Int.neg_mul, Int.mul_neg, Int.neg_neg]⟩
+    ⟨-k, by simp [← e, Int.mul_neg, Int.neg_neg]⟩
 
 @[simp] theorem natAbs_dvd_natAbs {a b : Int} : natAbs a ∣ natAbs b ↔ a ∣ b := by
   refine ⟨fun ⟨k, hk⟩ => ?_, fun ⟨k, hk⟩ => ⟨natAbs k, hk.symm ▸ natAbs_mul a k⟩⟩

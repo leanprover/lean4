@@ -13,22 +13,21 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Lean_defaultMaxRecDepth;
-static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__4;
-static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__7;
 LEAN_EXPORT lean_object* l_Lean_maxRecDepth;
-LEAN_EXPORT lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__5;
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__3;
-LEAN_EXPORT lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_initFn___closed__4____x40_Lean_Util_RecDepth___hyg_5_;
+static lean_object* l_Lean_initFn___closed__3____x40_Lean_Util_RecDepth___hyg_5_;
+LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_RecDepth___hyg_5__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_initFn___closed__0____x40_Lean_Util_RecDepth___hyg_5_;
+static lean_object* l_Lean_initFn___closed__5____x40_Lean_Util_RecDepth___hyg_5_;
+LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_RecDepth___hyg_5__spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__1;
+static lean_object* l_Lean_initFn___closed__2____x40_Lean_Util_RecDepth___hyg_5_;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5_(lean_object*);
-static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__6;
-static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__2;
-LEAN_EXPORT lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+static lean_object* l_Lean_initFn___closed__6____x40_Lean_Util_RecDepth___hyg_5_;
+static lean_object* l_Lean_initFn___closed__1____x40_Lean_Util_RecDepth___hyg_5_;
+lean_object* l_Lean_Name_mkStr1(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_RecDepth___hyg_5__spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -104,7 +103,7 @@ return x_20;
 }
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__1() {
+static lean_object* _init_l_Lean_initFn___closed__0____x40_Lean_Util_RecDepth___hyg_5_() {
 _start:
 {
 lean_object* x_1; 
@@ -112,17 +111,16 @@ x_1 = lean_mk_string_unchecked("maxRecDepth", 11, 11);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__2() {
+static lean_object* _init_l_Lean_initFn___closed__1____x40_Lean_Util_RecDepth___hyg_5_() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_initFn___closed__0____x40_Lean_Util_RecDepth___hyg_5_;
+x_2 = l_Lean_Name_mkStr1(x_1);
+return x_2;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__3() {
+static lean_object* _init_l_Lean_initFn___closed__2____x40_Lean_Util_RecDepth___hyg_5_() {
 _start:
 {
 lean_object* x_1; 
@@ -130,7 +128,7 @@ x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__4() {
+static lean_object* _init_l_Lean_initFn___closed__3____x40_Lean_Util_RecDepth___hyg_5_() {
 _start:
 {
 lean_object* x_1; 
@@ -138,21 +136,21 @@ x_1 = lean_mk_string_unchecked("maximum recursion depth for many Lean procedures
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__5() {
+static lean_object* _init_l_Lean_initFn___closed__4____x40_Lean_Util_RecDepth___hyg_5_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_defaultMaxRecDepth;
-x_2 = l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__3;
-x_3 = l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__4;
+x_1 = l_Lean_initFn___closed__3____x40_Lean_Util_RecDepth___hyg_5_;
+x_2 = l_Lean_initFn___closed__2____x40_Lean_Util_RecDepth___hyg_5_;
+x_3 = lean_unsigned_to_nat(512u);
 x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
+lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__6() {
+static lean_object* _init_l_Lean_initFn___closed__5____x40_Lean_Util_RecDepth___hyg_5_() {
 _start:
 {
 lean_object* x_1; 
@@ -160,13 +158,13 @@ x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__7() {
+static lean_object* _init_l_Lean_initFn___closed__6____x40_Lean_Util_RecDepth___hyg_5_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__6;
-x_2 = l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__1;
-x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+x_1 = l_Lean_initFn___closed__0____x40_Lean_Util_RecDepth___hyg_5_;
+x_2 = l_Lean_initFn___closed__5____x40_Lean_Util_RecDepth___hyg_5_;
+x_3 = l_Lean_Name_mkStr2(x_2, x_1);
 return x_3;
 }
 }
@@ -174,18 +172,18 @@ LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5_(lean_o
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__2;
-x_3 = l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__5;
-x_4 = l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__7;
-x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____spec__1(x_2, x_3, x_4, x_1);
+x_2 = l_Lean_initFn___closed__1____x40_Lean_Util_RecDepth___hyg_5_;
+x_3 = l_Lean_initFn___closed__4____x40_Lean_Util_RecDepth___hyg_5_;
+x_4 = l_Lean_initFn___closed__6____x40_Lean_Util_RecDepth___hyg_5_;
+x_5 = l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_RecDepth___hyg_5__spec__0(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_RecDepth___hyg_5__spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____spec__1(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_RecDepth___hyg_5__spec__0(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 return x_5;
 }
@@ -199,20 +197,20 @@ _G_initialized = true;
 res = initialize_Lean_Data_Options(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__1 = _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__1();
-lean_mark_persistent(l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__1);
-l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__2 = _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__2();
-lean_mark_persistent(l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__2);
-l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__3 = _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__3();
-lean_mark_persistent(l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__3);
-l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__4 = _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__4();
-lean_mark_persistent(l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__4);
-l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__5 = _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__5();
-lean_mark_persistent(l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__5);
-l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__6 = _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__6();
-lean_mark_persistent(l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__6);
-l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__7 = _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__7();
-lean_mark_persistent(l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____closed__7);
+l_Lean_initFn___closed__0____x40_Lean_Util_RecDepth___hyg_5_ = _init_l_Lean_initFn___closed__0____x40_Lean_Util_RecDepth___hyg_5_();
+lean_mark_persistent(l_Lean_initFn___closed__0____x40_Lean_Util_RecDepth___hyg_5_);
+l_Lean_initFn___closed__1____x40_Lean_Util_RecDepth___hyg_5_ = _init_l_Lean_initFn___closed__1____x40_Lean_Util_RecDepth___hyg_5_();
+lean_mark_persistent(l_Lean_initFn___closed__1____x40_Lean_Util_RecDepth___hyg_5_);
+l_Lean_initFn___closed__2____x40_Lean_Util_RecDepth___hyg_5_ = _init_l_Lean_initFn___closed__2____x40_Lean_Util_RecDepth___hyg_5_();
+lean_mark_persistent(l_Lean_initFn___closed__2____x40_Lean_Util_RecDepth___hyg_5_);
+l_Lean_initFn___closed__3____x40_Lean_Util_RecDepth___hyg_5_ = _init_l_Lean_initFn___closed__3____x40_Lean_Util_RecDepth___hyg_5_();
+lean_mark_persistent(l_Lean_initFn___closed__3____x40_Lean_Util_RecDepth___hyg_5_);
+l_Lean_initFn___closed__4____x40_Lean_Util_RecDepth___hyg_5_ = _init_l_Lean_initFn___closed__4____x40_Lean_Util_RecDepth___hyg_5_();
+lean_mark_persistent(l_Lean_initFn___closed__4____x40_Lean_Util_RecDepth___hyg_5_);
+l_Lean_initFn___closed__5____x40_Lean_Util_RecDepth___hyg_5_ = _init_l_Lean_initFn___closed__5____x40_Lean_Util_RecDepth___hyg_5_();
+lean_mark_persistent(l_Lean_initFn___closed__5____x40_Lean_Util_RecDepth___hyg_5_);
+l_Lean_initFn___closed__6____x40_Lean_Util_RecDepth___hyg_5_ = _init_l_Lean_initFn___closed__6____x40_Lean_Util_RecDepth___hyg_5_();
+lean_mark_persistent(l_Lean_initFn___closed__6____x40_Lean_Util_RecDepth___hyg_5_);
 if (builtin) {res = l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_maxRecDepth = lean_io_result_get_value(res);

@@ -160,7 +160,7 @@ protected theorem le_iff_lt_or_eq [DecidableEq α] [LT α] [DecidableLT α]
     {xs ys : Vector α n} : lex xs ys = false ↔ ys ≤ xs := by
   cases xs
   cases ys
-  simp [Array.not_lt_iff_ge]
+  simp
 
 instance [DecidableEq α] [LT α] [DecidableLT α] : DecidableLT (Vector α n) :=
   fun xs ys => decidable_of_iff (lex xs ys = true) lex_eq_true_iff_lt
@@ -206,7 +206,7 @@ theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] (lt : α → α �
         (∃ (i : Nat) (h : i < n),(∀ j, (hj : j < i) → xs[j] == ys[j]) ∧ lt ys[i] xs[i]) := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, n₂⟩
-  simp_all [Array.lex_eq_false_iff_exists, n₂]
+  simp_all [Array.lex_eq_false_iff_exists]
 
 protected theorem lt_iff_exists [DecidableEq α] [LT α] [DecidableLT α] {xs ys : Vector α n} :
     xs < ys ↔

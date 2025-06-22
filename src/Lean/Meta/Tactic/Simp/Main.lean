@@ -749,6 +749,10 @@ def cacheResult (e : Expr) (cfg : Config) (r : Result) : SimpM Result := do
 
 partial def simpLoop (e : Expr) : SimpM Result := withIncRecDepth do
   let cfg ← getConfig
+  if cfg.memoize then
+    let cache := (← get).cache
+    if let some result := cache.find? e then
+      return result
   if (← get).numSteps > cfg.maxSteps then
     throwError "simp failed, maximum number of steps exceeded"
   else
@@ -786,16 +790,8 @@ def simpImpl (e : Expr) : SimpM Result := withIncRecDepth do
   checkSystem "simp"
   if (← isProof e) then
     return { expr := e }
-  go
-where
-  go : SimpM Result := do
-    let cfg ← getConfig
-    if cfg.memoize then
-      let cache := (← get).cache
-      if let some result := cache.find? e then
-        return result
-    trace[Meta.Tactic.simp.heads] "{repr e.toHeadIndex}"
-    simpLoop e
+  trace[Meta.Tactic.simp.heads] "{repr e.toHeadIndex}"
+  simpLoop e
 
 @[inline] def withCatchingRuntimeEx (x : SimpM α) : SimpM α := do
   if (← getConfig).catchRuntime then

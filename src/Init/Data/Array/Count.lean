@@ -223,7 +223,7 @@ theorem boole_getElem_le_count {xs : Array α} {i : Nat} {a : α} (h : i < xs.si
 @[grind =]
 theorem count_set {xs : Array α} {i : Nat} {a b : α} (h : i < xs.size) :
     (xs.set i a).count b = xs.count b - (if xs[i] == b then 1 else 0) + (if a == b then 1 else 0) := by
-  simp [count_eq_countP, countP_set, h]
+  simp [count_eq_countP, countP_set]
 
 variable [LawfulBEq α]
 
@@ -231,7 +231,7 @@ variable [LawfulBEq α]
   simp [count_push]
 
 @[simp] theorem count_push_of_ne {xs : Array α} (h : b ≠ a) : count a (xs.push b) = count a xs := by
-  simp_all [count_push, h]
+  simp_all [count_push]
 
 theorem count_singleton_self {a : α} : count a #[a] = 1 := by simp
 
@@ -292,17 +292,17 @@ abbrev mkArray_count_eq_of_count_eq_size := @replicate_count_eq_of_count_eq_size
 theorem count_le_count_map [BEq β] [LawfulBEq β] {xs : Array α} {f : α → β} {x : α} :
     count x xs ≤ count (f x) (map f xs) := by
   rcases xs with ⟨xs⟩
-  simp [List.count_le_count_map, countP_map]
+  simp [List.count_le_count_map]
 
 theorem count_filterMap {α} [BEq β] {b : β} {f : α → Option β} {xs : Array α} :
     count b (filterMap f xs) = countP (fun a => f a == some b) xs := by
   rcases xs with ⟨xs⟩
-  simp [List.count_filterMap, countP_filterMap]
+  simp [List.count_filterMap]
 
 theorem count_flatMap {α} [BEq β] {xs : Array α} {f : α → Array β} {x : β} :
     count x (xs.flatMap f) = sum (map (count x ∘ f) xs) := by
   rcases xs with ⟨xs⟩
-  simp [List.count_flatMap, countP_flatMap, Function.comp_def]
+  simp [List.count_flatMap, Function.comp_def]
 
 theorem countP_replace {a b : α} {xs : Array α} {p : α → Bool} :
     (xs.replace a b).countP p =

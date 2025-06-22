@@ -54,7 +54,7 @@ theorem assignmentsInvariant_of_strongAssignmentsInvariant {n : Nat} (f : Defaul
   apply Exists.intro hsize
   intro i b hb p pf
   specialize h i b hb
-  simp only [(· ⊨ ·), List.any_eq_true, Prod.exists, Bool.exists_bool,
+  simp only [(· ⊨ ·), 
     Bool.decide_coe, List.all_eq_true] at pf
   specialize pf (unit (i, b)) h
   simpa [(· ⊨ ·), Clause.eval, unit_eq, Clause.toList] using pf
@@ -71,7 +71,7 @@ theorem limplies_of_assignmentsInvariant {n : Nat} (f : DefaultFormula n)
   · next h =>
     specialize f_AssignmentsInvariant h p pf
     by_cases hpi : p i <;> simp [hpi, Entails.eval] at f_AssignmentsInvariant
-  · next h => simp_all [getElem!_def, i.2.2, decidableGetElem?]
+  · next h => simp_all [i.2.2]
 
 /--
 performRupAdd adds to f.rupUnits and then clears f.rupUnits. If f begins with some units in f.rupUnits,
@@ -153,7 +153,7 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
               simp only [Bool.not_eq_true] at b_eq_false
               simp only [hasAssignment, b_eq_false, ite_false, hasNeg_addPos, reduceCtorEq] at h
               specialize ih l false
-              simp only [hasAssignment, ite_false] at ih
+              simp only [hasAssignment] at ih
               rw [b_eq_false, Subtype.ext i_eq_l]
               exact ih h
           · next i_ne_l => grind
@@ -167,7 +167,7 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
             · next b_eq_true =>
               simp only [hasAssignment, b_eq_true, ite_true, hasPos_addNeg] at h
               specialize ih l true
-              simp only [hasAssignment, ite_false] at ih
+              simp only [hasAssignment] at ih
               rw [b_eq_true, Subtype.ext i_eq_l]
               grind
             · next b_eq_false =>

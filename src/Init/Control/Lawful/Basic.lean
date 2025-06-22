@@ -50,7 +50,7 @@ attribute [simp] id_map
   (comp_map _ _ _).symm
 
 theorem Functor.map_unit [Functor f] [LawfulFunctor f] {a : f PUnit} : (fun _ => PUnit.unit) <$> a = a := by
-  simp [map]
+  simp
 
 /--
 An applicative functor satisfies the laws of an applicative functor.

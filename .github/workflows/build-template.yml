@@ -104,7 +104,7 @@ jobs:
           # NOTE: must be in sync with `save` below
           path: |
             .ccache
-            ${{ matrix.name == 'Linux Lake' && 'build/stage1/**/*.trace
+            ${{ matrix.name == 'Linux Lake' && false && 'build/stage1/**/*.trace
             build/stage1/**/*.olean*
             build/stage1/**/*.ilean
             build/stage1/**/*.c
@@ -245,7 +245,7 @@ jobs:
           # NOTE: must be in sync with `restore` above
           path: |
             .ccache
-            ${{ matrix.name == 'Linux Lake' && 'build/stage1/**/*.trace
+            ${{ matrix.name == 'Linux Lake' && false && 'build/stage1/**/*.trace
             build/stage1/**/*.olean*
             build/stage1/**/*.ilean
             build/stage1/**/*.c

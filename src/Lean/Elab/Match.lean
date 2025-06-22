@@ -19,7 +19,7 @@ open Meta
 open Lean.Parser.Term
 
 private def expandSimpleMatch (stx : Syntax) (discr : Term) (lhsVar : Ident) (rhs : Term) (expectedType? : Option Expr) : TermElabM Expr := do
-  let newStx ← `(let $lhsVar := $discr; $rhs)
+  let newStx ← `(let $lhsVar:ident := $discr; $rhs)
   withMacroExpansion stx newStx <| elabTerm newStx expectedType?
 
 private def mkUserNameFor (e : Expr) : TermElabM Name := do
@@ -670,7 +670,7 @@ where
     match p with
     | .forallE n d b bi  => withLocalDecl n bi (← go d) fun x => do mkForallFVars #[x] (← go (b.instantiate1 x))
     | .lam n d b bi      => withLocalDecl n bi (← go d) fun x => do mkLambdaFVars #[x] (← go (b.instantiate1 x))
-    | .letE n t v b ..  => withLetDecl n (← go t) (← go v) fun x => do mkLetFVars #[x] (← go (b.instantiate1 x))
+    | .letE n t v b nondep => mapLetDecl n (← go t) (← go v) (nondep := nondep) fun x => go (b.instantiate1 x)
     | .app f a          => return mkApp (← go f) (← go a)
     | .proj _ _ b       => return p.updateProj! (← go b)
     | .mdata k b        =>

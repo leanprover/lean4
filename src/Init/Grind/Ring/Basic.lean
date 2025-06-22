@@ -531,7 +531,7 @@ theorem no_int_zero_divisors {α : Type u} [IntModule α] [NoNatZeroDivisors α]
     : k ≠ 0 → k * a = 0 → a = 0 := by
   match k with
   | (k : Nat) =>
-    simp [intCast_natCast]
+    simp only [ne_eq, Int.natCast_eq_zero]
     intro h₁ h₂
     replace h₁ : k ≠ 0 := by intro h; simp [h] at h₁
     rw [IntModule.hmul_nat] at h₂

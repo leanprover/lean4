@@ -21,4 +21,18 @@ def mkVar (e : Expr) : RingM Var := do
   markAsCommRingTerm e
   return var
 
+/-- Similar to `mkVar` but for `Semiring`s -/
+def mkSVar (e : Expr) : SemiringM Var := do
+  let s ← getSemiring
+  if let some var := s.varMap.find? { expr := e } then
+    return var
+  let var : Var := s.vars.size
+  modifySemiring fun s => { s with
+    vars       := s.vars.push e
+    varMap     := s.varMap.insert { expr := e } var
+  }
+  setTermSemiringId e
+  markAsCommRingTerm e
+  return var
+
 end Lean.Meta.Grind.Arith.CommRing

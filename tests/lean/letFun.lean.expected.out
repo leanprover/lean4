@@ -15,7 +15,8 @@ a b : Nat
 h : a > b
 ⊢ b < a
 have n := 5;
-⟨[], ⋯⟩ : { as // as.length ≤ 5 }
+⟨[], ⋯⟩ : have n := 5;
+{ as // as.length ≤ n }
 rfl : (have n := 5;
   n) =
   have n := 5;

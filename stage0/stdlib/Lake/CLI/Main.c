@@ -143,6 +143,7 @@ lean_object* l_Lake_OutStream_get(lean_object*, lean_object*);
 lean_object* l_Lake_serve(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
+uint8_t l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_265_(uint8_t, uint8_t);
 static lean_object* l_Lake_lakeCli___closed__21;
 static lean_object* l_Lake_LakeOptions_getLeanInstall___closed__0;
 LEAN_EXPORT lean_object* l_List_toJson___at_____private_Lake_CLI_Main_0__Lake_lake_toJsonReservoirConfig____x40_Lake_CLI_Main___hyg_7093__spec__0(lean_object*);
@@ -285,7 +286,6 @@ LEAN_EXPORT lean_object* l_Lake_lake_queryKind(lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lake_lake_script_help(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_setupFile(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_OutStream_logEntry(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*);
-uint8_t l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_267_(uint8_t, uint8_t);
 lean_object* l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_setConfigOpt(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_lake_exe___boxed__const__1;
@@ -31598,7 +31598,7 @@ x_204 = l_System_FilePath_normalize(x_197);
 x_205 = l_Lake_joinRelative(x_203, x_204);
 lean_dec(x_204);
 lean_ctor_set(x_117, 0, x_205);
-x_206 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_267_(x_198, x_200);
+x_206 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_265_(x_198, x_200);
 x_207 = lean_box(x_206);
 if (lean_obj_tag(x_207) == 2)
 {
@@ -31752,7 +31752,7 @@ x_250 = l_Lake_joinRelative(x_248, x_249);
 lean_dec(x_249);
 x_251 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_251, 0, x_250);
-x_252 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_267_(x_243, x_245);
+x_252 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_265_(x_243, x_245);
 x_253 = lean_box(x_252);
 if (lean_obj_tag(x_253) == 2)
 {
@@ -32085,7 +32085,7 @@ if (lean_is_scalar(x_303)) {
  x_343 = x_303;
 }
 lean_ctor_set(x_343, 0, x_342);
-x_344 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_267_(x_335, x_337);
+x_344 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_265_(x_335, x_337);
 x_345 = lean_box(x_344);
 if (lean_obj_tag(x_345) == 2)
 {

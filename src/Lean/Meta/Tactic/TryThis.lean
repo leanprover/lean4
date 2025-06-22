@@ -426,19 +426,19 @@ def addHaveSuggestion (ref : Syntax) (h? : Option Name) (t? : Option Expr) (e : 
       let tstx ← delabToRefinableSyntax t
       if prop then
         match h? with
-        | some h => pure (← `(tactic| have $(mkIdent h) : $tstx := $estx), m!"have {h} : {t} := {e}")
+        | some h => pure (← `(tactic| have $(mkIdent h):ident : $tstx := $estx), m!"have {h} : {t} := {e}")
         | none => pure (← `(tactic| have : $tstx := $estx), m!"have : {t} := {e}")
       else
         let h := h?.getD `_
-        pure (← `(tactic| let $(mkIdent h) : $tstx := $estx), m!"let {h} : {t} := {e}")
+        pure (← `(tactic| let $(mkIdent h):ident : $tstx := $estx), m!"let {h} : {t} := {e}")
     else
       if prop then
         match h? with
-        | some h => pure (← `(tactic| have $(mkIdent h) := $estx), m!"have {h} := {e}")
+        | some h => pure (← `(tactic| have $(mkIdent h):ident := $estx), m!"have {h} := {e}")
         | none => pure (← `(tactic| have := $estx), m!"have := {e}")
       else
         let h := h?.getD `_
-        pure (← `(tactic| let $(mkIdent h) := $estx), m!"let {h} := {e}")
+        pure (← `(tactic| let $(mkIdent h):ident := $estx), m!"let {h} := {e}")
     pure (tac, ← addMessageContext msg)
   if let some checkState := checkState? then
     let some (tac', msg') ← mkValidatedTactic tac msg checkState

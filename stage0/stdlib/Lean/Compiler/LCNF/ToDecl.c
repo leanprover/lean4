@@ -56,7 +56,7 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLetDeclImp___redArg(le
 lean_object* l_Lean_ConstantInfo_value_x3f(lean_object*, uint8_t);
 uint8_t l_Lean_hasInitAttr(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_inlineMatchers___closed__17;
-lean_object* l_Lean_Meta_forallBoundedTelescope___at___Lean_Meta_arrowDomainsN_spec__6___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_forallBoundedTelescope___at___Lean_Meta_arrowDomainsN_spec__6___redArg(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_toDecl___closed__5;
 static lean_object* l_Lean_Compiler_LCNF_inlineMatchers___closed__0;
 lean_object* lean_get_extern_attr_data(lean_object*, lean_object*);
@@ -747,7 +747,7 @@ lean_dec(x_10);
 lean_dec(x_1);
 x_20 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_20, 0, x_19);
-x_21 = l_Lean_Meta_forallBoundedTelescope___at___Lean_Meta_arrowDomainsN_spec__6___redArg(x_15, x_20, x_18, x_11, x_5, x_6, x_7, x_8, x_16);
+x_21 = l_Lean_Meta_forallBoundedTelescope___at___Lean_Meta_arrowDomainsN_spec__6___redArg(x_15, x_20, x_18, x_11, x_11, x_5, x_6, x_7, x_8, x_16);
 return x_21;
 }
 else
@@ -1449,7 +1449,7 @@ x_52 = lean_nat_sub(x_24, x_23);
 lean_dec(x_23);
 lean_dec(x_24);
 lean_ctor_set(x_11, 0, x_52);
-x_53 = l_Lean_Meta_forallBoundedTelescope___at___Lean_Meta_arrowDomainsN_spec__6___redArg(x_47, x_11, x_51, x_25, x_2, x_3, x_4, x_5, x_48);
+x_53 = l_Lean_Meta_forallBoundedTelescope___at___Lean_Meta_arrowDomainsN_spec__6___redArg(x_47, x_11, x_51, x_25, x_25, x_2, x_3, x_4, x_5, x_48);
 return x_53;
 }
 else
@@ -1613,7 +1613,7 @@ lean_dec(x_60);
 lean_dec(x_61);
 x_88 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_88, 0, x_87);
-x_89 = l_Lean_Meta_forallBoundedTelescope___at___Lean_Meta_arrowDomainsN_spec__6___redArg(x_82, x_88, x_86, x_62, x_2, x_3, x_4, x_5, x_83);
+x_89 = l_Lean_Meta_forallBoundedTelescope___at___Lean_Meta_arrowDomainsN_spec__6___redArg(x_82, x_88, x_86, x_62, x_62, x_2, x_3, x_4, x_5, x_83);
 return x_89;
 }
 else
@@ -1791,7 +1791,7 @@ if (lean_is_scalar(x_97)) {
  x_126 = x_97;
 }
 lean_ctor_set(x_126, 0, x_125);
-x_127 = l_Lean_Meta_forallBoundedTelescope___at___Lean_Meta_arrowDomainsN_spec__6___redArg(x_120, x_126, x_124, x_100, x_2, x_3, x_4, x_5, x_121);
+x_127 = l_Lean_Meta_forallBoundedTelescope___at___Lean_Meta_arrowDomainsN_spec__6___redArg(x_120, x_126, x_124, x_100, x_100, x_2, x_3, x_4, x_5, x_121);
 return x_127;
 }
 else

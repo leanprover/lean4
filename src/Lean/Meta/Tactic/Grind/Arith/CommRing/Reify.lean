@@ -29,13 +29,18 @@ private def reportAppIssue (e : Expr) : GoalM Unit := do
   reportIssue! "comm ring term with unexpected instance{indentExpr e}"
 
 /--
-Converts a Lean expression `e` in the `CommRing` with id `ringId` into
-a `CommRing.Expr` object.
+Converts a Lean expression `e` in the `CommRing` into a `CommRing.Expr` object.
 
 If `skipVar` is `true`, then the result is `none` if `e` is not an interpreted `CommRing` term.
 We use `skipVar := false` when processing inequalities, and `skipVar := true` for equalities and disequalities
 -/
-partial def reify? (e : Expr) (skipVar := true) : RingM (Option RingExpr) := do
+partial def reify? (e : Expr) (skipVar := true) (gen : Nat := 0) : RingM (Option RingExpr) := do
+  let mkVar (e : Expr) : RingM Var := do
+    if (← alreadyInternalized e) then
+      mkVar e
+    else
+      internalize e gen
+      mkVar e
   let toVar (e : Expr) : RingM RingExpr := do
     return .var (← mkVar e)
   let asVar (e : Expr) : RingM RingExpr := do
@@ -98,6 +103,61 @@ partial def reify? (e : Expr) (skipVar := true) : RingM (Option RingExpr) := do
       asTopVar e
   | NatCast.natCast _ i a =>
     if isNatCastInst (← getRing) i then
+      let some k ← getNatValue? a | toTopVar e
+      return some (.num k)
+    else
+      asTopVar e
+  | OfNat.ofNat _ n _ =>
+    let some k ← getNatValue? n | asTopVar e
+    return some (.num k)
+  | _ => toTopVar e
+
+private def reportSAppIssue (e : Expr) : GoalM Unit := do
+  reportIssue! "comm semiring term with unexpected instance{indentExpr e}"
+
+/--
+Similar to `reify?` but for `CommSemiring`
+-/
+partial def sreify? (e : Expr) : SemiringM (Option SemiringExpr) := do
+  let toVar (e : Expr) : SemiringM SemiringExpr := do
+    return .var (← mkSVar e)
+  let asVar (e : Expr) : SemiringM SemiringExpr := do
+    reportSAppIssue e
+    return .var (← mkSVar e)
+  let rec go (e : Expr) : SemiringM SemiringExpr := do
+    match_expr e with
+    | HAdd.hAdd _ _ _ i a b =>
+      if isSameExpr (← getSemiring).addFn.appArg! i then return .add (← go a) (← go b) else asVar e
+    | HMul.hMul _ _ _ i a b =>
+      if isSameExpr (← getSemiring).mulFn.appArg! i then return .mul (← go a) (← go b) else asVar e
+    | HPow.hPow _ _ _ i a b =>
+      let some k ← getNatValue? b | toVar e
+      if isSameExpr (← getSemiring).powFn.appArg! i then return .pow (← go a) k else asVar e
+    | NatCast.natCast _ i a =>
+      if isSameExpr (← getSemiring).natCastFn.appArg! i then
+        let some k ← getNatValue? a | toVar e
+        return .num k
+      else
+        asVar e
+    | OfNat.ofNat _ n _ =>
+      let some k ← getNatValue? n | toVar e
+      return .num k
+    | _ => toVar e
+  let toTopVar (e : Expr) : SemiringM (Option SemiringExpr) := do
+    return some (← toVar e)
+  let asTopVar (e : Expr) : SemiringM (Option SemiringExpr) := do
+    reportSAppIssue e
+    toTopVar e
+  match_expr e with
+  | HAdd.hAdd _ _ _ i a b =>
+    if isSameExpr (← getSemiring).addFn.appArg! i then return some (.add (← go a) (← go b)) else asTopVar e
+  | HMul.hMul _ _ _ i a b =>
+    if isSameExpr (← getSemiring).mulFn.appArg! i then return some (.mul (← go a) (← go b)) else asTopVar e
+  | HPow.hPow _ _ _ i a b =>
+    let some k ← getNatValue? b | return none
+    if isSameExpr (← getSemiring).powFn.appArg! i then return some (.pow (← go a) k) else asTopVar e
+  | NatCast.natCast _ i a =>
+    if isSameExpr (← getSemiring).natCastFn.appArg! i then
       let some k ← getNatValue? a | toTopVar e
       return some (.num k)
     else

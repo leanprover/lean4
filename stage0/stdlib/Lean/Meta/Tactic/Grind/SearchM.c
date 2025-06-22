@@ -60,7 +60,6 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_SearchM_0__Lean_Meta_Grin
 static lean_object* l___private_Lean_Meta_Tactic_Grind_SearchM_0__Lean_Meta_Grind_findMaxFVarIdx_x3f___closed__0;
 lean_object* l_instHashableInt___lam__0___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Grind_mkChoice___closed__1;
-lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_withCurrGoalContext___redArg___closed__3;
 static lean_object* l_Lean_Meta_Grind_instInhabitedChoice___closed__52;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_SearchM_run(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -317,6 +316,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_SearchM_0__Lean_Meta_Grin
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_nextGoal_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instMonadLiftGoalMSearchM;
 static lean_object* l_Lean_Meta_Grind_instInhabitedChoice___closed__61;
+lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_hash___override___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Grind_instInhabitedChoice___closed__38;
 size_t lean_usize_land(size_t, size_t);
@@ -1204,11 +1204,14 @@ x_1 = lean_box(0);
 x_2 = l_Lean_Meta_Grind_instInhabitedChoice___closed__44;
 x_3 = l_Lean_Meta_Grind_instInhabitedChoice___closed__73;
 x_4 = l_Lean_Meta_Grind_instInhabitedChoice___closed__9;
-x_5 = lean_alloc_ctor(0, 4, 0);
+x_5 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);
 lean_ctor_set(x_5, 2, x_2);
-lean_ctor_set(x_5, 3, x_1);
+lean_ctor_set(x_5, 3, x_4);
+lean_ctor_set(x_5, 4, x_3);
+lean_ctor_set(x_5, 5, x_2);
+lean_ctor_set(x_5, 6, x_1);
 return x_5;
 }
 }
@@ -15664,7 +15667,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_SearchM_0__Lean_Meta
 _start:
 {
 lean_object* x_8; uint8_t x_9; 
-x_8 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(x_1, x_4, x_7);
+x_8 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(x_1, x_4, x_7);
 x_9 = !lean_is_exclusive(x_8);
 if (x_9 == 0)
 {

@@ -107,19 +107,24 @@ private def internalizeInv (e : Expr) : GoalM Bool := do
   | _ => return false
 
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
-  if !(← getConfig).ring && !(← getConfig).ringNull then return ()
+  if !(← getConfig).ring then return ()
   if isIntModuleVirtualParent parent? then
     -- `e` is an auxiliary term used to convert `CommRing` to `IntModule`
     return ()
   if (← internalizeInv e) then return ()
   let some type := getType? e | return ()
   if isForbiddenParent parent? then return ()
-  let some ringId ← getRingId? type | return ()
-  RingM.run ringId do
+  if let some ringId ← getRingId? type then RingM.run ringId do
     let some re ← reify? e | return ()
     trace_goal[grind.ring.internalize] "[{ringId}]: {e}"
     setTermRingId e
     markAsCommRingTerm e
     modifyRing fun s => { s with denote := s.denote.insert { expr := e } re }
+  else if let some semiringId ← getSemiringId? type then SemiringM.run semiringId do
+    let some re ← sreify? e | return ()
+    trace_goal[grind.ring.internalize] "semiring [{semiringId}]: {e}"
+    setTermSemiringId e
+    markAsCommRingTerm e
+    modifySemiring fun s => { s with denote := s.denote.insert { expr := e } re }
 
 end Lean.Meta.Grind.Arith.CommRing

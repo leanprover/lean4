@@ -33,11 +33,25 @@ test_exp -d "$CACHE_DIR/artifacts"
 
 # Checked that the cached artifact is in the expected location
 # and equivalent to the standard artifact
-cached_art="$(LAKE_CACHE_DIR="$CACHE_DIR" $LAKE query +Test:o)"
-uncached_art="$(LAKE_CACHE_DIR= $LAKE query +Test:o)"
-test_exp "$(dirname -- "$cached_art")" = "$CACHE_DIR/artifacts"
-test_exp "$cached_art" != "$uncached_art"
-test_cmd cmp -s "$cached_art" "$uncached_art"
+local_art="$(LAKE_CACHE_DIR= $LAKE query +Test:o)"
+cache_art="$(LAKE_CACHE_DIR="$CACHE_DIR" $LAKE query +Test:o)"
+test_exp "$(dirname -- "$cache_art")" = "$CACHE_DIR/artifacts"
+test_exp "$cache_art" != "$local_art"
+test_cmd cmp -s "$cache_art" "$local_art"
+
+# Verify that things work properly if the cached artifact is removed
+test_cmd rm "$cache_art"
+LAKE_CACHE_DIR="$CACHE_DIR" test_out "⚠ [3/3] Replayed Test:c.o" build +Test:o -v --no-build
+test_exp -f "$cache_art" # artifact should be re-cached
+test_cmd rm "$CACHE_DIR/inputs/test.jsonl"
+LAKE_CACHE_DIR="$CACHE_DIR" test_out "Replayed Test:c.o" build +Test:o -v --no-build
+test_exp -f "$cache_art" # artifact should be re-cached
+
+# Verify that things work properly if the local artifact is removed
+test_cmd rm "$local_art"
+LAKE_CACHE_DIR="$CACHE_DIR" test_out "Replayed Test:c.o" build +Test:o -v --no-build
+test_cmd rm "$local_art.trace"
+LAKE_CACHE_DIR="$CACHE_DIR" test_out "Fetched Test:c.o" build +Test:o -v --no-build
 
 # Cleanup
 rm -f produced.out

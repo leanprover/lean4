@@ -27,7 +27,6 @@ lean_object* l_Lean_Json_mkObj(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodableSubexprInfo_enc____x40_Lean_Widget_InteractiveCode___hyg_292_(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instFromJsonDiffTag___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Widget_DiffTag_noConfusion___redArg(uint8_t, uint8_t);
-lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Widget_TaggedText_prettyTagged(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instRpcEncodableSubexprInfo___closed__2;
 static lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_toJsonDiffTag___closed__4____x40_Lean_Widget_InteractiveCode___hyg_11_;
@@ -141,6 +140,7 @@ LEAN_EXPORT lean_object* l_Lean_Widget_tagCodeInfos_go___lam__0(lean_object*, le
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 extern lean_object* l_Lean_Widget_instImpl____x40_Lean_Widget_Basic___hyg_5_;
 static lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonDiffTag___lam__5___closed__0____x40_Lean_Widget_InteractiveCode___hyg_68_;
+lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_toJsonDiffTag___closed__1____x40_Lean_Widget_InteractiveCode___hyg_11_;
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonDiffTag___lam__4____x40_Lean_Widget_InteractiveCode___hyg_68____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Widget_TaggedText_stripTags___redArg(lean_object*);
@@ -2227,7 +2227,7 @@ goto block_13;
 else
 {
 lean_object* x_71; lean_object* x_72; lean_object* x_73; 
-x_71 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(x_1, x_4, x_7);
+x_71 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(x_1, x_4, x_7);
 lean_dec(x_4);
 x_72 = lean_ctor_get(x_71, 0);
 lean_inc(x_72);

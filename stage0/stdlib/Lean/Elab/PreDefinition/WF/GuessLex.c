@@ -96,7 +96,6 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_WF_GuessL
 lean_object* l_Lean_Elab_Term_withoutErrToSorryImp___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_matchMatcherApp_x3f___at___Lean_Elab_WF_GuessLex_withRecApps_loop_spec__1___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_GuessLex_solve_go___redArg___lam__8(uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_withLCtx___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_filterPairsM___at___Lean_Elab_WF_GuessLex_filterSubsumed_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___Lean_Elab_WF_GuessLex_solve_go___at___Lean_Elab_WF_GuessLex_solve___at___Lean_Elab_WF_guessLex_spec__8_spec__8_spec__10___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -656,6 +655,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_WF_GuessLex_solve_go___redArg(lean_object*,
 lean_object* l_ReaderT_instMonadFunctor___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_GuessLex_isNatCmp___closed__1;
 lean_object* l_Array_forIn_x27Unsafe_loop___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+lean_object* l_Lean_Meta_withLCtx___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_TermElabM_run___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___Array_filterPairsM___at___Lean_Elab_WF_GuessLex_filterSubsumed_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_GuessLex_GuessLexRel_noConfusion___redArg___boxed(lean_object*, lean_object*);
@@ -8241,7 +8241,7 @@ lean_dec(x_1);
 x_11 = lean_alloc_closure((void*)(l_Lean_Elab_WF_GuessLex_SavedLocalContext_run___redArg___lam__0___boxed), 7, 2);
 lean_closure_set(x_11, 0, x_10);
 lean_closure_set(x_11, 1, x_2);
-x_12 = lean_alloc_closure((void*)(l_Lean_Meta_withLCtx___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1), 9, 4);
+x_12 = lean_alloc_closure((void*)(l_Lean_Meta_withLCtx___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__2), 9, 4);
 lean_closure_set(x_12, 0, lean_box(0));
 lean_closure_set(x_12, 1, x_8);
 lean_closure_set(x_12, 2, x_9);

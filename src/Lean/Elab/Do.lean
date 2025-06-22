@@ -649,6 +649,7 @@ def concat (terminal : CodeBlock) (kRef : Syntax) (y? : Option Var) (k : CodeBlo
   return { code  := attachJP jpDecl terminal, uvars := k.uvars }
 
 def getLetIdVars (letId : Syntax) : Array Var :=
+  assert! letId.isOfKind ``Parser.Term.letId
   -- def letId := leading_parser binderIdent <|> hygieneInfo
   if letId.isIdent then
     -- TODO(kmill): Remove this case after stage0 update
@@ -661,6 +662,7 @@ def getLetIdVars (letId : Syntax) : Array Var :=
     #[]
 
 def getLetIdDeclVars (letIdDecl : Syntax) : Array Var :=
+  assert! letIdDecl.isOfKind ``Parser.Term.letIdDecl
   -- def letIdLhs : Parser := letId >> many (ppSpace >> letIdBinder) >> optType
   -- def letIdDecl := leading_parser letIdLhs >> " := " >> termParser
   getLetIdVars letIdDecl[0]
@@ -680,6 +682,7 @@ def getLetPatDeclVars (letPatDecl : Syntax) : TermElabM (Array Var) := do
   getPatternVarsEx pattern
 
 def getLetEqnsDeclVars (letEqnsDecl : Syntax) : Array Var :=
+  assert! letEqnsDecl.isOfKind ``Parser.Term.letEqnsDecl
   -- def letIdLhs : Parser := letId >> many (ppSpace >> letIdBinder) >> optType
   -- def letEqnsDecl := leading_parser letIdLhs >> matchAlts
   getLetIdVars letEqnsDecl[0]
@@ -687,12 +690,11 @@ def getLetEqnsDeclVars (letEqnsDecl : Syntax) : Array Var :=
 def getLetDeclVars (letDecl : Syntax) : TermElabM (Array Var) := do
   -- def letDecl := leading_parser letIdDecl <|> letPatDecl <|> letEqnsDecl
   let arg := letDecl[0]
-  -- TODO(kmill): remove haveIdDecl and haveEqnsDecl after stage0 update
-  if arg.getKind == ``Parser.Term.letIdDecl || arg.getKind == `Lean.Parser.Term.haveIdDecl then
+  if arg.getKind == ``Parser.Term.letIdDecl then
     return getLetIdDeclVars arg
   else if arg.getKind == ``Parser.Term.letPatDecl then
     getLetPatDeclVars arg
-  else if arg.getKind == ``Parser.Term.letEqnsDecl || arg.getKind == `Lean.Parser.Term.haveEqnsDecl then
+  else if arg.getKind == ``Parser.Term.letEqnsDecl then
     return getLetEqnsDeclVars arg
   else
     throwError "unexpected kind of let declaration"
@@ -1082,12 +1084,22 @@ def declToTerm (decl : Syntax) (k : Syntax) : M Syntax := withRef decl <| withFr
     Macro.throwErrorAt decl "unexpected kind of `do` declaration"
 
 def reassignToTerm (reassign : Syntax) (k : Syntax) : MacroM Syntax := withRef reassign <| withFreshMacroScope do
-  match reassign with
-  | `(doElem| $x:ident := $rhs) => `(let $x:ident := ensure_type_of% $x $(quote "invalid reassignment, value") $rhs; $k)
-  | `(doElem| $e:term  := $rhs) => `(let $e:term  := ensure_type_of% $e $(quote "invalid reassignment, value") $rhs; $k)
-  | _ =>
+  -- TODO(kmill) Restore after stage0 update
+    if reassign.isOfKind ``Parser.Term.doReassign then
+      if reassign[0].isOfKind ``Parser.Term.letIdDecl then
+        let letId := reassign[0][0]
+        let x := if letId.isIdent then letId else letId[0]
+        if x.isIdent then
+          let rhs := reassign[0][4]
+          return ← `(let $x:ident := ensure_type_of% $x $(quote "invalid reassignment, value") $rhs; $k)
+      if let `(doElem| $e:term := $rhs) := reassign then
+        return ← `(let $e:term  := ensure_type_of% $e $(quote "invalid reassignment, value") $rhs; $k)
+  -- match reassign with
+  -- | `(doElem| $x:ident := $rhs) => `(let $x:ident := ensure_type_of% $x $(quote "invalid reassignment, value") $rhs; $k)
+  -- | `(doElem| $e:term  := $rhs) => `(let $e:term  := ensure_type_of% $e $(quote "invalid reassignment, value") $rhs; $k)
+  -- | _ =>
     -- Note that `doReassignArrow` is expanded by `doReassignArrowToCode
-    Macro.throwErrorAt reassign "unexpected kind of `do` reassignment"
+    Macro.throwErrorAt reassign s!"unexpected kind of `do` reassignment {reassign}"
 
 def mkIte (optIdent : Syntax) (cond : Syntax) (thenBranch : Syntax) (elseBranch : Syntax) : MacroM Syntax := do
   if optIdent.isNone then

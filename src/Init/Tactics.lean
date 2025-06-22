@@ -819,11 +819,6 @@ The `have` tactic is for adding hypotheses to the local context of the main goal
   hypotheses `h₁ : p`, `h₂ : q`, and `h₃ : r`.
 -/
 syntax "have " letDecl : tactic
--- TODO(kmill) Remove after stage0 update
-macro_rules (kind := Lean.Parser.Tactic.tacticHave_)
-  | stx =>
-    let letDecl := stx.getArg 1
-    `(tactic| refine_lift have $(⟨letDecl⟩):letDecl; ?_)
 macro_rules
   -- special case: when given a nested `by` block, move it outside of the `refine` to enable
   -- incrementality

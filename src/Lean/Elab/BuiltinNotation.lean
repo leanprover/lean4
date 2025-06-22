@@ -117,7 +117,7 @@ open Meta
     ```
     -/
     let thisId := mkIdentFrom stx `this
-    let valNew ← `(let_fun $thisId:ident : $(← exprToSyntax type) := $val; $thisId)
+    let valNew ← `(have $thisId:ident : $(← exprToSyntax type) := $val; $thisId)
     elabTerm valNew expectedType?
   | _ => throwUnsupportedSyntax
 

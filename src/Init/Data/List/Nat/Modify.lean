@@ -172,12 +172,12 @@ theorem modifyHead_eq_modify_zero (f : α → α) (l : List α) :
     ∀ i (l : List α) j, (l.modify i f)[j]? = (fun a => if i = j then f a else a) <$> l[j]?
   | n, l, 0 => by cases l <;> cases n <;> simp
   | n, [], _+1 => by cases n <;> rfl
-  | 0, _ :: l, j+1 => by cases h : l[j]? <;> simp [h, modify, j.succ_ne_zero.symm]
+  | 0, _ :: l, j+1 => by cases h : l[j]? <;> simp [h, modify]
   | i+1, a :: l, j+1 => by
     simp only [modify_succ_cons, getElem?_cons_succ, Nat.reduceEqDiff, Option.map_eq_map]
     refine (getElem?_modify f i l j).trans ?_
     cases h' : l[j]? <;> by_cases h : i = j <;>
-      simp [h, if_pos, if_neg, Option.map, mt Nat.succ.inj, not_false_iff, h']
+      simp [h, Option.map]
 
 @[simp, grind =] theorem length_modify (f : α → α) : ∀ (l : List α) i, (l.modify i f).length = l.length :=
   length_modifyTailIdx _ fun l => by cases l <;> rfl
@@ -226,7 +226,7 @@ theorem modify_modify_ne (f g : α → α) {i j} (l : List α) (h : i ≠ j) :
   apply ext_getElem
   · simp
   · intro m' h₁ h₂
-    simp only [getElem_modify, getElem_modify_ne, h₂]
+    simp only [getElem_modify]
     split <;> split <;> first | rfl | omega
 
 theorem modify_eq_set [Inhabited α] (f : α → α) (i) (l : List α) :
@@ -234,7 +234,7 @@ theorem modify_eq_set [Inhabited α] (f : α → α) (i) (l : List α) :
   apply ext_getElem
   · simp
   · intro m h₁ h₂
-    simp [getElem_modify, getElem_set, h₂]
+    simp [getElem_modify, getElem_set]
     split <;> rename_i h
     · subst h
       simp only [length_modify] at h₁
@@ -287,7 +287,7 @@ theorem drop_modify_of_ge (f : α → α) (i j) (l : List α) (h : i ≥ j) :
   apply ext_getElem
   · simp
   · intro m' h₁ h₂
-    simp [getElem_drop, getElem_modify, ite_eq_right_iff]
+    simp [getElem_drop, getElem_modify]
     split <;> split <;> first | rfl | omega
 
 theorem eraseIdx_modify_of_eq (f : α → α) (i) (l : List α) :

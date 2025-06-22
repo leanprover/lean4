@@ -29,6 +29,8 @@ example (x : BitVec 8) : (x + 16)*(x - 16) = x^2 := by
 /--
 trace: [grind.ring] new ring: Int
 [grind.ring] NoNatZeroDivisors available: true
+[grind.ring] new ring: Ring.OfSemiring.Q Nat
+[grind.ring] NoNatZeroDivisors available: true
 [grind.ring] new ring: BitVec 8
 [grind.ring] NoNatZeroDivisors available: false
 -/

@@ -350,7 +350,7 @@ theorem takeWhile_filterMap {f : α → Option β} {p : β → Bool} {l : List �
     · simp only [takeWhile_cons, h]
       split <;> simp_all
     · simp [takeWhile_cons, h, ih]
-      split <;> simp_all [filterMap_cons]
+      split <;> simp_all
 
 theorem dropWhile_filterMap {f : α → Option β} {p : β → Bool} {l : List α} :
     (l.filterMap f).dropWhile p = (l.dropWhile fun a => (f a).all p).filterMap f := by
@@ -362,7 +362,7 @@ theorem dropWhile_filterMap {f : α → Option β} {p : β → Bool} {l : List �
     · simp only [dropWhile_cons, h]
       split <;> simp_all
     · simp [dropWhile_cons, h, ih]
-      split <;> simp_all [filterMap_cons]
+      split <;> simp_all
 
 theorem takeWhile_filter {p q : α → Bool} {l : List α} :
     (l.filter p).takeWhile q = (l.takeWhile fun a => !p a || q a).filter p := by
@@ -393,7 +393,7 @@ theorem takeWhile_append {xs ys : List α} :
     (l₁ ++ l₂).takeWhile p = l₁ ++ l₂.takeWhile p := by
   induction l₁ with
   | nil => simp
-  | cons x xs ih => simp_all [takeWhile_cons]
+  | cons x xs ih => simp_all
 
 theorem dropWhile_append {xs ys : List α} :
     (xs ++ ys).dropWhile p =
@@ -408,7 +408,7 @@ theorem dropWhile_append {xs ys : List α} :
     (l₁ ++ l₂).dropWhile p = l₂.dropWhile p := by
   induction l₁ with
   | nil => simp
-  | cons x xs ih => simp_all [dropWhile_cons]
+  | cons x xs ih => simp_all
 
 @[simp] theorem takeWhile_replicate_eq_filter {p : α → Bool} :
     (replicate n a).takeWhile p = (replicate n a).filter p := by
@@ -440,7 +440,7 @@ theorem take_takeWhile {l : List α} {p : α → Bool} :
   induction l generalizing i with
   | nil => simp
   | cons x xs ih =>
-    by_cases h : p x <;> cases i <;> simp [takeWhile_cons, h, ih, take_succ_cons]
+    by_cases h : p x <;> cases i <;> simp [h, ih, take_succ_cons]
 
 @[simp] theorem all_takeWhile {l : List α} : (l.takeWhile p).all p = true := by
   induction l with
@@ -461,7 +461,7 @@ theorem replace_takeWhile [BEq α] [LawfulBEq α] {l : List α} {p : α → Bool
     simp only [takeWhile_cons, replace_cons]
     split <;> rename_i h₁ <;> split <;> rename_i h₂
     · simp_all
-    · simp [replace_cons, h₂, takeWhile_cons, h₁, ih]
+    · simp [replace_cons, h₂, h₁, ih]
     · simp_all
     · simp_all
 

@@ -353,10 +353,6 @@ def structFields         := leading_parser many (structExplicitBinder <|> struct
 def structCtor           := leading_parser try (declModifiers >> ident >> " :: ")
 -/
 def structureSyntaxToView (modifiers : Modifiers) (stx : Syntax) : TermElabM StructView := do
-  let stx := -- for bootstrap compatibility, remove this after stage0 update
-    if stx.getNumArgs == 7
-    then stx.setArgs #[stx[0], stx[1], .node .none ``Parser.Command.optDeclSig #[stx[2], stx[3]], stx[4], stx[5], stx[6]]
-    else stx
   checkValidInductiveModifier modifiers
   let isClass   := stx[0].getKind == ``Parser.Command.classTk
   let modifiers := if isClass then modifiers.addAttr { name := `class } else modifiers

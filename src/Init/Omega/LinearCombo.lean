@@ -168,13 +168,13 @@ def mul (l₁ l₂ : LinearCombo) : LinearCombo :=
 theorem mul_eval_of_const_left (l₁ l₂ : LinearCombo) (v : Coeffs) (w : l₁.coeffs.isZero) :
     (mul l₁ l₂).eval v = l₁.eval v * l₂.eval v := by
   have : Coeffs.dot l₁.coeffs v = 0 := IntList.dot_of_left_zero w
-  simp [mul, eval, this, Coeffs.sub_eq_add_neg, Coeffs.dot_distrib_left, Int.add_mul, Int.mul_add,
+  simp [mul, eval, this, Coeffs.sub_eq_add_neg, Coeffs.dot_distrib_left, Int.mul_add,
     Int.mul_comm]
 
 theorem mul_eval_of_const_right (l₁ l₂ : LinearCombo) (v : Coeffs) (w : l₂.coeffs.isZero) :
     (mul l₁ l₂).eval v = l₁.eval v * l₂.eval v := by
   have : Coeffs.dot l₂.coeffs v = 0 := IntList.dot_of_left_zero w
-  simp [mul, eval, this, Coeffs.sub_eq_add_neg, Coeffs.dot_distrib_left, Int.add_mul, Int.mul_add,
+  simp [mul, eval, this, Coeffs.sub_eq_add_neg, Coeffs.dot_distrib_left, Int.mul_add,
     Int.mul_comm]
 
 theorem mul_eval (l₁ l₂ : LinearCombo) (v : Coeffs) (w : l₁.coeffs.isZero ∨ l₂.coeffs.isZero) :

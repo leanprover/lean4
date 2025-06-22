@@ -20,6 +20,7 @@ import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Mul
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Udiv
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Umod
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Reverse
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Clz
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
 
 /-!
@@ -423,6 +424,12 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
     · rw [← hres]
       simp only [denote_blastReverse, eval_un, BVUnOp.eval_reverse, hidx, BitVec.getLsbD_eq_getElem,
         BitVec.getElem_reverse, BitVec.getMsbD_eq_getLsbD, decide_true, Bool.true_and]
+      rw [goCache_denote_eq]
+      exact hinv
+    · rw [← hres]
+      simp only [eval_un, BVUnOp.eval_clz, BitVec.clz]
+      rw [denote_blastClz]
+      intro idx hidx
       rw [goCache_denote_eq]
       exact hinv
   · next h =>

@@ -142,7 +142,7 @@ theorem foldTR_loop_congr {α : Type u} {n m : Nat} (w : n = m)
     | succ m, n, f => by
       have t : (m + 1) + n = m + (n + 1) := by omega
       rw [foldTR.loop]
-      simp only [succ_eq_add_one, Nat.add_sub_cancel]
+      simp only [succ_eq_add_one]
       rw [fold_congr t, foldTR_loop_congr t, go, fold]
       congr
       omega

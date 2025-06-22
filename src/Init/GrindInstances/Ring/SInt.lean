@@ -39,12 +39,12 @@ instance : CommRing Int8 where
   ofNat_succ x := Int8.ofNat_add x 1
   intCast_neg := Int8.ofInt_neg
 
-instance : IsCharP Int8 (2 ^ 8) where
-  ofNat_eq_zero_iff {x} := by
+instance : IsCharP Int8 (2 ^ 8) := IsCharP.mk' _ _
+  (ofNat_eq_zero_iff := fun x => by
     have : OfNat.ofNat x = Int8.ofInt x := rfl
     rw [this]
     simp [Int8.ofInt_eq_iff_bmod_eq_toInt,
-      ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
+      ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right])
 
 -- Verify we can derive the instances showing how `toInt` interacts with operations:
 example : ToInt.Add Int8 (some (-(2^7))) (some (2^7)) := inferInstance
@@ -75,12 +75,13 @@ instance : CommRing Int16 where
   pow_succ := Int16.pow_succ
   ofNat_succ x := Int16.ofNat_add x 1
   intCast_neg := Int16.ofInt_neg
-instance : IsCharP Int16 (2 ^ 16) where
-  ofNat_eq_zero_iff {x} := by
+
+instance : IsCharP Int16 (2 ^ 16) := IsCharP.mk' _ _
+  (ofNat_eq_zero_iff := fun x => by
     have : OfNat.ofNat x = Int16.ofInt x := rfl
     rw [this]
     simp [Int16.ofInt_eq_iff_bmod_eq_toInt,
-      ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
+      ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right])
 
 -- Verify we can derive the instances showing how `toInt` interacts with operations:
 example : ToInt.Add Int16 (some (-(2^15))) (some (2^15)) := inferInstance
@@ -111,12 +112,13 @@ instance : CommRing Int32 where
   pow_succ := Int32.pow_succ
   ofNat_succ x := Int32.ofNat_add x 1
   intCast_neg := Int32.ofInt_neg
-instance : IsCharP Int32 (2 ^ 32) where
-  ofNat_eq_zero_iff {x} := by
+
+instance : IsCharP Int32 (2 ^ 32) := IsCharP.mk' _ _
+  (ofNat_eq_zero_iff := fun x => by
     have : OfNat.ofNat x = Int32.ofInt x := rfl
     rw [this]
     simp [Int32.ofInt_eq_iff_bmod_eq_toInt,
-      ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
+      ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right])
 
 -- Verify we can derive the instances showing how `toInt` interacts with operations:
 example : ToInt.Add Int32 (some (-(2^31))) (some (2^31)) := inferInstance
@@ -147,12 +149,13 @@ instance : CommRing Int64 where
   pow_succ := Int64.pow_succ
   ofNat_succ x := Int64.ofNat_add x 1
   intCast_neg := Int64.ofInt_neg
-instance : IsCharP Int64 (2 ^ 64) where
-  ofNat_eq_zero_iff {x} := by
+
+instance : IsCharP Int64 (2 ^ 64) := IsCharP.mk' _ _
+  (ofNat_eq_zero_iff := fun x => by
     have : OfNat.ofNat x = Int64.ofInt x := rfl
     rw [this]
     simp [Int64.ofInt_eq_iff_bmod_eq_toInt,
-      ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
+      ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right])
 
 -- Verify we can derive the instances showing how `toInt` interacts with operations:
 example : ToInt.Add Int64 (some (-(2^63))) (some (2^63)) := inferInstance
@@ -185,12 +188,12 @@ instance : CommRing ISize where
   intCast_neg := ISize.ofInt_neg
 open System.Platform (numBits)
 
-instance : IsCharP ISize (2 ^ numBits) where
-  ofNat_eq_zero_iff {x} := by
+instance : IsCharP ISize (2 ^ numBits) := IsCharP.mk' _ _
+  (ofNat_eq_zero_iff := fun x => by
     have : OfNat.ofNat x = ISize.ofInt x := rfl
     rw [this]
     simp [ISize.ofInt_eq_iff_bmod_eq_toInt,
-      ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right]
+      ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right])
 
 -- Verify we can derive the instances showing how `toInt` interacts with operations:
 example : ToInt.Add ISize (some (-(2^(numBits-1)))) (some (2^(numBits-1))) := inferInstance

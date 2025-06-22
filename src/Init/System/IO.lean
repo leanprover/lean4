@@ -957,12 +957,14 @@ def Handle.readToEnd (h : Handle) : IO String := do
   | none => throw <| .userError s!"Tried to read from handle containing non UTF-8 data."
 
 /--
-Returns the contents of a UTF-8-encoded text file as an array of lines.
+Reads the entire remaining contents of the file handle as a UTF-8-encoded array of lines.
 
 Newline markers are not included in the lines.
+
+The underlying file is not automatically closed, and subsequent reads from the handle may block
+and/or return data.
 -/
-partial def lines (fname : FilePath) : IO (Array String) := do
-  let h ← Handle.mk fname Mode.read
+partial def Handle.lines (h : Handle) : IO (Array String) := do
   let rec read (lines : Array String) := do
     let line ← h.getLine
     if line.length == 0 then
@@ -974,6 +976,15 @@ partial def lines (fname : FilePath) : IO (Array String) := do
     else
       pure <| lines.push line
   read #[]
+
+/--
+Returns the contents of a UTF-8-encoded text file as an array of lines.
+
+Newline markers are not included in the lines.
+-/
+def lines (fname : FilePath) : IO (Array String) := do
+  let h ← Handle.mk fname Mode.read
+  h.lines
 
 /--
 Write the provided bytes to a binary file at the specified path.
@@ -1704,6 +1715,27 @@ def readToEnd (s : Stream) : IO String := do
   match String.fromUTF8? data with
   | some s => return s
   | none => throw <| .userError s!"Tried to read from stream containing non UTF-8 data."
+  
+/--
+Reads the entire remaining contents of the stream as a UTF-8-encoded array of lines.
+
+Newline markers are not included in the lines.
+
+The underlying stream is not automatically closed, and subsequent reads from the stream may block
+and/or return data.
+-/
+partial def lines (s : Stream) : IO (Array String) := do
+  let rec read (lines : Array String) := do
+    let line ← s.getLine
+    if line.length == 0 then
+      pure lines
+    else if line.back == '\n' then
+      let line := line.dropRight 1
+      let line := if line.back == '\r' then line.dropRight 1 else line
+      read <| lines.push line
+    else
+      pure <| lines.push line
+  read #[]
 
 end Stream
 

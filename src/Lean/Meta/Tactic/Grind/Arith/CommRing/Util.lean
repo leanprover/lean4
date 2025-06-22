@@ -69,6 +69,40 @@ instance : MonadGetRing RingM where
   let ringId ← getRingId
   modify' fun s => { s with rings := s.rings.modify ringId f }
 
+structure SemiringM.Context where
+  semiringId : Nat
+
+abbrev SemiringM := ReaderT SemiringM.Context GoalM
+
+abbrev SemiringM.run (semiringId : Nat) (x : SemiringM α) : GoalM α :=
+  x { semiringId }
+
+abbrev getSemiringId : SemiringM Nat :=
+  return (← read).semiringId
+
+def getSemiring : SemiringM Semiring := do
+  let s ← get'
+  let semiringId ← getSemiringId
+  if h : semiringId < s.semirings.size then
+    return s.semirings[semiringId]
+  else
+    throwError "`grind` internal error, invalid semiringId"
+
+protected def SemiringM.getRing : SemiringM Ring := do
+  let s ← get'
+  let ringId := (← getSemiring).ringId
+  if h : ringId < s.rings.size then
+    return s.rings[ringId]
+  else
+    throwError "`grind` internal error, invalid ringId"
+
+instance : MonadGetRing SemiringM where
+  getRing := SemiringM.getRing
+
+@[inline] def modifySemiring (f : Semiring → Semiring) : SemiringM Unit := do
+  let semiringId ← getSemiringId
+  modify' fun s => { s with semirings := s.semirings.modify semiringId f }
+
 abbrev withCheckCoeffDvd (x : RingM α) : RingM α :=
   withReader (fun ctx => { ctx with checkCoeffDvd := true }) x
 
@@ -85,6 +119,17 @@ def setTermRingId (e : Expr) : RingM Unit := do
       reportIssue! "expression in two different rings{indentExpr e}"
     return ()
   modify' fun s => { s with exprToRingId := s.exprToRingId.insert { expr := e } ringId }
+
+def getTermSemiringId? (e : Expr) : GoalM (Option Nat) := do
+  return (← get').exprToSemiringId.find? { expr := e }
+
+def setTermSemiringId (e : Expr) : SemiringM Unit := do
+  let semiringId ← getSemiringId
+  if let some semiringId' ← getTermSemiringId? e then
+    unless semiringId' == semiringId do
+      reportIssue! "expression in two different semirings{indentExpr e}"
+    return ()
+  modify' fun s => { s with exprToSemiringId := s.exprToSemiringId.insert { expr := e } semiringId }
 
 /-- Returns `some c` if the current ring has a nonzero characteristic `c`. -/
 def nonzeroChar? [Monad m] [MonadGetRing m] : m (Option Nat) := do

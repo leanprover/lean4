@@ -1,5 +1,4 @@
-import Lean
-open Lean
+set_option linter.unusedSimpArgs false
 
 #eval [1,2,3,]
 #eval (2,3,)

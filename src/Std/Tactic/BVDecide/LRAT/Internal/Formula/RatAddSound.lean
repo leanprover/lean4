@@ -29,16 +29,16 @@ theorem mem_of_necessary_assignment {n : Nat} {p : (PosFin n) → Bool} {c : Def
   rcases p_entails_c with ⟨v, ⟨v_in_c, pv⟩ | ⟨v_in_c, pv⟩⟩
   · specialize p'_not_entails_c v
     have h := p'_not_entails_c.1 v_in_c
-    simp only [Entails.eval, Bool.not_eq_false] at h
+    simp only [Bool.not_eq_false] at h
     split at h
     · next heq => simp [Literal.negate, ← heq, h, v_in_c]
-    · next hne => simp [(· ⊨ ·), h] at pv
+    · next hne => simp [h] at pv
   · specialize p'_not_entails_c v
     have h := p'_not_entails_c.2 v_in_c
-    simp only [(· ⊨ ·), Bool.not_eq_false] at h
+    simp only at h
     split at h
     · next heq => simp [Literal.negate, ← heq, h, v_in_c]
-    · next hne => simp [(· ⊨ ·), h] at pv
+    · next hne => simp [h] at pv
 
 theorem entails_of_irrelevant_assignment {n : Nat} {p : (PosFin n) → Bool} {c : DefaultClause n}
     {l : Literal (PosFin n)} (p_entails_cl : p ⊨ c.delete (Literal.negate l)) :
@@ -67,12 +67,12 @@ theorem assignmentsInvariant_insertRatUnits {n : Nat} (f : DefaultFormula n)
   intro i b hb p hp
   simp only [(· ⊨ ·), Clause.eval] at hp
   simp only [toList, List.append_assoc,
-    Entails.eval, List.any_eq_true, Prod.exists, Bool.exists_bool, Bool.decide_coe,
+    List.any_eq_true, Prod.exists, Bool.exists_bool, Bool.decide_coe,
     List.all_eq_true, List.mem_append, List.mem_filterMap, id_eq, exists_eq_right, List.mem_map] at hp
   have pf : p ⊨ f := by
     simp only [(· ⊨ ·), Clause.eval]
     simp only [toList, List.append_assoc,
-      Entails.eval, List.any_eq_true, Prod.exists, Bool.exists_bool,
+      List.any_eq_true, Prod.exists, Bool.exists_bool,
       Bool.decide_coe, List.all_eq_true, List.mem_append, List.mem_filterMap, id_eq, exists_eq_right, List.mem_map]
     intro c cf
     rcases cf with cf | cf | cf
@@ -118,7 +118,7 @@ theorem assignmentsInvariant_insertRatUnits {n : Nat} (f : DefaultFormula n)
             apply Array.getElem_mem_toList
           · rfl
       specialize hp j_unit ((Or.inr ∘ Or.inr) j_unit_in_insertRatUnits_res)
-      simp only [List.any_eq_true, Prod.exists, Bool.exists_bool, Bool.decide_coe, Fin.getElem_fin, List.find?, j_unit] at hp
+      simp only [Fin.getElem_fin, j_unit] at hp
       simp only [Fin.getElem_fin] at h1
       rcases hp with ⟨i', hp⟩
       simp only [h1, Clause.toList, unit_eq, List.mem_singleton, Prod.mk.injEq] at hp
@@ -167,12 +167,12 @@ theorem assignmentsInvariant_insertRatUnits {n : Nat} (f : DefaultFormula n)
       · rfl
     have hp1 := hp j1_unit ((Or.inr ∘ Or.inr) j1_unit_in_insertRatUnits_res)
     have hp2 := hp j2_unit ((Or.inr ∘ Or.inr) j2_unit_in_insertRatUnits_res)
-    simp only [List.any_eq_true, Prod.exists, Bool.exists_bool, Bool.decide_coe, Fin.getElem_fin, List.find?] at hp1 hp2
+    simp only at hp1 hp2
     rcases hp1 with ⟨i1, hp1⟩
     rcases hp2 with ⟨i2, hp2⟩
     simp only [Fin.getElem_fin] at h1 h2
-    simp only [(· ⊨ ·), h1, Clause.toList, unit_eq, List.mem_singleton, Prod.mk.injEq,
-      and_false, false_and, and_true, false_or, h2, or_false, j1_unit, j2_unit] at hp1 hp2
+    simp only [Clause.toList, unit_eq, List.mem_singleton, 
+      j1_unit, j2_unit] at hp1 hp2
     simp_all
     simp [hp2.1, ← hp1.1, hp1.2] at hp2
 
@@ -203,7 +203,7 @@ theorem sat_of_confirmRupHint_of_insertRat_fold {n : Nat} (f : DefaultFormula n)
     simp only [(· ⊨ ·), Clause.eval, List.any_eq_true, Prod.exists, Bool.exists_bool, not_exists,
       not_or, not_and, Bool.not_eq_true] at pc
     simp only [formulaEntails_def, List.all_eq_true, decide_eq_true_eq, Classical.not_forall,
-      not_imp] at fc_unsat
+      ] at fc_unsat
     rcases fc_unsat with ⟨unsat_c, unsat_c_in_fc, p_unsat_c⟩
     have unsat_c_in_fc := mem_of_insertRatUnits f (negate c) unsat_c unsat_c_in_fc
     simp only [List.mem_map, Prod.exists, Bool.exists_bool] at unsat_c_in_fc
@@ -268,7 +268,7 @@ theorem sat_of_insertRat {n : Nat} (f : DefaultFormula n)
       apply List.get_mem
     have ib_in_insertUnit_fold := mem_insertUnit_fold_units f.ratUnits f.assignments false (negate c) (i, b) ib_in_insertUnit_fold
     simp only [negate, Literal.negate, List.mem_map, Prod.mk.injEq, Prod.exists, Bool.exists_bool,
-      Bool.not_false, Bool.not_true, hf.1, List.toList_toArray, List.find?, List.not_mem_nil, or_false]
+      Bool.not_false, Bool.not_true, hf.1, List.toList_toArray, List.not_mem_nil, or_false]
       at ib_in_insertUnit_fold
     rw [hboth] at h2
     rcases ib_in_insertUnit_fold with ⟨i', ⟨i_false_in_c, i'_eq_i, b_eq_true⟩ | ⟨i_true_in_c, i'_eq_i, b_eq_false⟩⟩
@@ -315,13 +315,13 @@ theorem sat_of_insertRat {n : Nat} (f : DefaultFormula n)
       have i_rw : i = ⟨i.1, i.2⟩ := rfl
       rw [i_rw, ← h2]
       apply List.get_mem
-    simp only [hf.1, negate, Literal.negate] at i_true_in_insertUnit_fold i_false_in_insertUnit_fold
+    simp only [hf.1, negate] at i_true_in_insertUnit_fold i_false_in_insertUnit_fold
     have i_true_in_insertUnit_fold :=
       mem_insertUnit_fold_units #[] f.assignments false (c.clause.map Literal.negate) (i, true) i_true_in_insertUnit_fold
     have i_false_in_insertUnit_fold :=
       mem_insertUnit_fold_units #[] f.assignments false (c.clause.map Literal.negate) (i, false) i_false_in_insertUnit_fold
     simp only [Literal.negate, List.mem_map, Prod.mk.injEq, Bool.not_eq_true', Prod.exists,
-      exists_eq_right_right, exists_eq_right, List.toList_toArray, List.find?, List.not_mem_nil, or_false,
+      exists_eq_right_right, exists_eq_right, List.not_mem_nil, or_false,
       Bool.not_eq_false'] at i_true_in_insertUnit_fold i_false_in_insertUnit_fold
     have c_not_tautology := Clause.not_tautology c (i, true)
     simp only [Clause.toList] at c_not_tautology
@@ -479,21 +479,21 @@ theorem safe_insert_of_performRatCheck_fold_success {n : Nat} (f : DefaultFormul
   · intro h p pfc
     specialize h p
     simp only [(· ⊨ ·), List.all_eq_true, decide_eq_true_eq, Classical.not_forall,
-      exists_prop, nonempty_prop] at h pfc
+      exists_prop] at h pfc
     rcases h with ⟨c', c'_in_f, pc'⟩
     have c'_in_fc : c' ∈ toList (insert f c) := by rw [insert_iff]; exact Or.inr c'_in_f
     exact pc' <| pfc c' c'_in_fc
   · intro fc_unsat p pf
     by_cases pc : p ⊨ c
     · specialize fc_unsat p
-      simp only [(· ⊨ ·), List.any_eq_true, Prod.exists, Bool.exists_bool,
-        Bool.decide_coe, List.all_eq_true, Classical.not_forall, not_exists, exists_prop] at fc_unsat
+      simp only [(· ⊨ ·), 
+        Bool.decide_coe, List.all_eq_true, Classical.not_forall, exists_prop] at fc_unsat
       rcases fc_unsat with ⟨c', c'_in_fc, pc'⟩
       rw [insert_iff] at c'_in_fc
       rcases c'_in_fc with c'_eq_c | c'_in_f
-      · simp only [c'_eq_c, decide_eq_true_eq] at pc'
+      · simp only [c'_eq_c] at pc'
         exact pc' pc
-      · simp only [(· ⊨ ·), List.any_eq_true, Prod.exists, Bool.exists_bool,
+      · simp only [(· ⊨ ·), 
           Bool.decide_coe, List.all_eq_true] at pf
         exact pc' <| pf c' c'_in_f
     · rw [← Clause.limplies_iff_mem] at pivot_in_c
@@ -504,9 +504,9 @@ theorem safe_insert_of_performRatCheck_fold_success {n : Nat} (f : DefaultFormul
         exact pivot_in_c
       specialize fc_unsat p'
       simp only [formulaEntails_def, List.all_eq_true, decide_eq_true_eq, Classical.not_forall,
-        not_imp] at fc_unsat
+        ] at fc_unsat
       rcases fc_unsat with ⟨c', c'_in_fc, p'_not_entails_c'⟩
-      simp only [insert_iff, List.toList_toArray, List.mem_singleton] at c'_in_fc
+      simp only [insert_iff] at c'_in_fc
       rcases c'_in_fc with c'_eq_c | c'_in_f
       · rw [← c'_eq_c] at p'_entails_c
         exact p'_not_entails_c' p'_entails_c
@@ -551,14 +551,14 @@ theorem safe_insert_of_performRatCheck_fold_success {n : Nat} (f : DefaultFormul
               Bool.exists_bool, Bool.not_false, Bool.not_true] at c''_in_negc
             rcases c''_in_negc with ⟨l, ⟨l_in_negc, l_def⟩ | ⟨l_in_negc, l_def⟩⟩
             · apply Exists.intro l ∘ Or.inr
-              simp only [← l_def, Clause.unit_eq, List.mem_singleton, decide_eq_true_eq, true_and, (· ⊨ ·)]
+              simp only [← l_def, Clause.unit_eq, List.mem_singleton, true_and]
               have h := (pc l).1 l_in_negc
-              simp only [(· ⊨ ·), Bool.not_eq_false] at h
+              simp only [Bool.not_eq_false] at h
               assumption
             · apply Exists.intro l ∘ Or.inl
-              simp only [← l_def, Clause.unit_eq, List.mem_singleton, decide_eq_true_eq, true_and, (· ⊨ ·)]
+              simp only [← l_def, Clause.unit_eq, List.mem_singleton, true_and]
               have h := (pc l).2 l_in_negc
-              simp only [(· ⊨ ·), Bool.not_eq_true] at h
+              simp only [Bool.not_eq_true] at h
               assumption
           · simp only [(· ⊨ ·), Clause.eval] at pf
             simp only [List.any_eq_true, Prod.exists, Bool.exists_bool, Bool.decide_coe, List.all_eq_true] at pf

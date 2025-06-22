@@ -163,13 +163,13 @@ right : r
       [cases] source: Initial goal
 -/
 #guard_msgs (error) in
-example (a : α) (p q r : Prop) : (h₁ : HEq p a) → (h₂ : HEq q a) → (h₃ : p = r) → False := by
+example (a : α) (p q r : Prop) : (h₁ : p ≍ a) → (h₂ : q ≍ a) → (h₃ : p = r) → False := by
   grind
 
 example (a b : Nat) (f : Nat → Nat) : (h₁ : a = b) → (h₂ : f a ≠ f b) → False := by
   grind
 
-example (a : α) (p q r : Prop) : (h₁ : HEq p a) → (h₂ : HEq q a) → (h₃ : p = r) → q = r := by
+example (a : α) (p q r : Prop) : (h₁ : p ≍ a) → (h₂ : q ≍ a) → (h₃ : p = r) → q = r := by
   grind
 
 /--
@@ -182,7 +182,7 @@ trace: [grind.issues] found congruence between
 #guard_msgs (trace) in
 set_option trace.grind.issues true in
 set_option trace.grind.debug.proof false in
-example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : HEq f g → HEq a b → f a = g b := by
+example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : f ≍ g → a ≍ b → f a = g b := by
   fail_if_success grind
   sorry
 
@@ -215,5 +215,5 @@ h_2 : ¬f a = g b
       but functions have different types
 -/
 #guard_msgs (error) in
-example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : HEq f g → HEq a b → f a = g b := by
+example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : f ≍ g → a ≍ b → f a = g b := by
   grind

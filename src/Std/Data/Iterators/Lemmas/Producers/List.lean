@@ -4,8 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
-import Std.Data.Iterators.Consumers
-import Std.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.Iterators.Consumers
+import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Std.Data.Iterators.Producers.List
 import Std.Data.Iterators.Lemmas.Producers.Monadic.List
 
 /-!
@@ -27,7 +28,7 @@ theorem _root_.List.step_iter_nil :
 @[simp]
 theorem _root_.List.step_iter_cons {x : β} {xs : List β} :
     ((x :: xs).iter).step = ⟨.yield xs.iter x, rfl⟩ := by
-  simp only [List.iter, List.iterM, IterM.step, Iterator.step]; rfl
+  simp only [List.iter, List.iterM]; rfl
 
 @[simp]
 theorem _root_.List.toArray_iter {l : List β} :

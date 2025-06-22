@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Lemmas.Consumers.Monadic.Collect
-// Imports: Init.Data.Array.Lemmas Std.Data.Iterators.Consumers.Monadic.Collect Std.Data.Iterators.Lemmas.Monadic.Basic Std.Data.Iterators.Producers Std.Data.Iterators.Lemmas.Equivalence.StepCongr
+// Imports: Init.Data.Array.Lemmas Init.Data.Iterators.Consumers.Monadic.Collect Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect Init.Data.Iterators.Lemmas.Monadic.Basic Std.Data.Iterators.Lemmas.Equivalence.StepCongr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,250 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped__eq__match__step_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped__eq__match__step_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped__eq__match__step_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toListRev_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toListRev_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toList__eq__match__step_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toList__eq__match__step_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toListRev_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toList__eq__match__step_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-switch (lean_obj_tag(x_1)) {
-case 0:
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-lean_dec(x_4);
-lean_dec(x_3);
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-x_6 = lean_ctor_get(x_1, 1);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_3(x_2, x_5, x_6, lean_box(0));
-return x_7;
-}
-case 1:
-{
-lean_object* x_8; lean_object* x_9; 
-lean_dec(x_4);
-lean_dec(x_2);
-x_8 = lean_ctor_get(x_1, 0);
-lean_inc(x_8);
-lean_dec(x_1);
-x_9 = lean_apply_2(x_3, x_8, lean_box(0));
-return x_9;
-}
-default: 
-{
-lean_object* x_10; 
-lean_dec(x_3);
-lean_dec(x_2);
-x_10 = lean_apply_1(x_4, lean_box(0));
-return x_10;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = lean_alloc_closure((void*)(l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped_match__1_splitter___rarg), 4, 0);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped__eq__match__step_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-switch (lean_obj_tag(x_1)) {
-case 0:
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-lean_dec(x_4);
-lean_dec(x_3);
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-x_6 = lean_ctor_get(x_1, 1);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_3(x_2, x_5, x_6, lean_box(0));
-return x_7;
-}
-case 1:
-{
-lean_object* x_8; lean_object* x_9; 
-lean_dec(x_4);
-lean_dec(x_2);
-x_8 = lean_ctor_get(x_1, 0);
-lean_inc(x_8);
-lean_dec(x_1);
-x_9 = lean_apply_2(x_3, x_8, lean_box(0));
-return x_9;
-}
-default: 
-{
-lean_object* x_10; 
-lean_dec(x_3);
-lean_dec(x_2);
-x_10 = lean_apply_1(x_4, lean_box(0));
-return x_10;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped__eq__match__step_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = lean_alloc_closure((void*)(l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped__eq__match__step_match__1_splitter___rarg), 4, 0);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped__eq__match__step_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped__eq__match__step_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toList__eq__match__step_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-switch (lean_obj_tag(x_1)) {
-case 0:
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-lean_dec(x_4);
-lean_dec(x_3);
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-x_6 = lean_ctor_get(x_1, 1);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_3(x_2, x_5, x_6, lean_box(0));
-return x_7;
-}
-case 1:
-{
-lean_object* x_8; lean_object* x_9; 
-lean_dec(x_4);
-lean_dec(x_2);
-x_8 = lean_ctor_get(x_1, 0);
-lean_inc(x_8);
-lean_dec(x_1);
-x_9 = lean_apply_2(x_3, x_8, lean_box(0));
-return x_9;
-}
-default: 
-{
-lean_object* x_10; 
-lean_dec(x_3);
-lean_dec(x_2);
-x_10 = lean_apply_1(x_4, lean_box(0));
-return x_10;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toList__eq__match__step_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = lean_alloc_closure((void*)(l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toList__eq__match__step_match__1_splitter___rarg), 4, 0);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toList__eq__match__step_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toList__eq__match__step_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toListRev_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-switch (lean_obj_tag(x_1)) {
-case 0:
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-lean_dec(x_4);
-lean_dec(x_3);
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-x_6 = lean_ctor_get(x_1, 1);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_3(x_2, x_5, x_6, lean_box(0));
-return x_7;
-}
-case 1:
-{
-lean_object* x_8; lean_object* x_9; 
-lean_dec(x_4);
-lean_dec(x_2);
-x_8 = lean_ctor_get(x_1, 0);
-lean_inc(x_8);
-lean_dec(x_1);
-x_9 = lean_apply_2(x_3, x_8, lean_box(0));
-return x_9;
-}
-default: 
-{
-lean_object* x_10; 
-lean_dec(x_3);
-lean_dec(x_2);
-x_10 = lean_apply_1(x_4, lean_box(0));
-return x_10;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toListRev_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = lean_alloc_closure((void*)(l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toListRev_match__1_splitter___rarg), 4, 0);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toListRev_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l___private_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toListRev_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-return x_7;
-}
-}
 lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_Iterators_Consumers_Monadic_Collect(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_Iterators_Lemmas_Monadic_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_Iterators_Producers(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Collect(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Iterators_Lemmas_Consumers_Monadic_Collect(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Iterators_Lemmas_Monadic_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Equivalence_StepCongr(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Lemmas_Consumers_Monadic_Collect(uint8_t builtin, lean_object* w) {
@@ -266,13 +26,13 @@ _G_initialized = true;
 res = initialize_Init_Data_Array_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Consumers_Monadic_Collect(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Iterators_Consumers_Monadic_Collect(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Lemmas_Monadic_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Iterators_Lemmas_Consumers_Monadic_Collect(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Producers(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Iterators_Lemmas_Monadic_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Lemmas_Equivalence_StepCongr(builtin, lean_io_mk_world());

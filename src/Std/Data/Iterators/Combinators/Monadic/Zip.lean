@@ -5,10 +5,10 @@ Authors: Paul Reichert
 -/
 prelude
 import Init.Data.Option.Lemmas
-import Std.Data.Iterators.Basic
-import Std.Data.Iterators.Consumers.Collect
-import Std.Data.Iterators.Consumers.Loop
-import Std.Data.Iterators.Internal.Termination
+import Init.Data.Iterators.Basic
+import Init.Data.Iterators.Consumers.Collect
+import Init.Data.Iterators.Consumers.Loop
+import Init.Data.Iterators.Internal.Termination
 
 /-!
 
@@ -390,6 +390,14 @@ instance Zip.instIteratorLoop [Monad m] [Monad n] :
 
 instance Zip.instIteratorLoopPartial [Monad m] [Monad n] :
     IteratorLoopPartial (Zip α₁ m α₂ β₂) m n :=
+  .defaultImplementation
+
+instance Zip.instIteratorSize [Monad m] [Finite (Zip α₁ m α₂ β₂) m] :
+    IteratorSize (Zip α₁ m α₂ β₂) m :=
+  .defaultImplementation
+
+instance Zip.instIteratorSizePartial [Monad m] :
+    IteratorSizePartial (Zip α₁ m α₂ β₂) m :=
   .defaultImplementation
 
 end Std.Iterators

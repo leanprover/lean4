@@ -5,11 +5,5 @@ a✝ : x = x
 ⊢ x = x
 ---
 unknownTactic.lean:8:22: error: unknown tactic
-unknownTactic.lean:8:18-8:24: error: unsolved goals
-x : Nat
-⊢ x = x
 ---
 unknownTactic.lean:14:22: error: unknown tactic
-unknownTactic.lean:14:18-14:24: error: unsolved goals
-x : Nat
-⊢ x = x

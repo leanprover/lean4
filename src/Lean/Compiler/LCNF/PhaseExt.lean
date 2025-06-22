@@ -76,13 +76,11 @@ def Decl.save (decl : Decl) : CompilerM Unit := do
   match (← getPhase) with
   | .base => decl.saveBase
   | .mono => decl.saveMono
-  | _ => unreachable!
 
 def getDeclAt? (declName : Name) (phase : Phase) : CoreM (Option Decl) :=
   match phase with
   | .base => getBaseDecl? declName
   | .mono => getMonoDecl? declName
-  | _  => return none -- TODO
 
 def getDecl? (declName : Name) : CompilerM (Option Decl) := do
   getDeclAt? declName (← getPhase)
@@ -91,7 +89,6 @@ def getExt (phase : Phase) : DeclExt :=
   match phase with
   | .base => baseExt
   | .mono => monoExt
-  | _ => unreachable!
 
 def forEachDecl (f : Decl → CoreM Unit) (phase := Phase.base) : CoreM Unit := do
   let ext := getExt phase

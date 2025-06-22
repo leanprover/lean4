@@ -103,7 +103,7 @@ theorem shiftLeft_eq (a b : Nat) : a <<< b = a * 2 ^ b :=
   match b with
   | 0 => (Nat.mul_one _).symm
   | b+1 => (shiftLeft_eq _ b).trans <| by
-    simp [Nat.pow_succ, Nat.mul_assoc, Nat.mul_left_comm, Nat.mul_comm]
+    simp [Nat.pow_succ, Nat.mul_assoc, Nat.mul_comm]
 
 @[simp] theorem shiftRight_zero : n >>> 0 = n := rfl
 

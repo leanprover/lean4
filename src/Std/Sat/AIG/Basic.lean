@@ -222,7 +222,7 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
       | false =>
         exfalso
         apply hbounds
-        simp only [BEq.symm_false heq, cond_false] at hfound
+        simp only [BEq.symm_false heq] at hfound
         specialize ih _ hfound
         apply Array.lt_of_getElem
         assumption

@@ -6,11 +6,11 @@ Authors: Paul Reichert
 prelude
 import Init.Data.Nat.Lemmas
 import Init.RCases
-import Std.Data.Iterators.Basic
-import Std.Data.Iterators.Consumers.Monadic.Collect
-import Std.Data.Iterators.Consumers.Monadic.Loop
-import Std.Data.Iterators.Internal.Termination
-import Std.Data.Iterators.PostConditionMonad
+import Init.Data.Iterators.Basic
+import Init.Data.Iterators.Consumers.Monadic.Collect
+import Init.Data.Iterators.Consumers.Monadic.Loop
+import Init.Data.Iterators.Internal.Termination
+import Init.Data.Iterators.PostconditionMonad
 
 /-!
 # Monadic `dropWhile` iterator combinator
@@ -284,6 +284,14 @@ instance DropWhile.instIteratorLoop [Monad m] [Monad n] [Iterator α m β] :
 instance DropWhile.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]
     [IteratorLoopPartial α m n] [MonadLiftT m n] {P} :
     IteratorLoopPartial (DropWhile α m β P) m n :=
+  .defaultImplementation
+
+instance {α : Type w} [Monad m] [Iterator α m β] [Finite α m] [IteratorLoop α m m] {P} :
+    IteratorSize (DropWhile α m β P) m :=
+  .defaultImplementation
+
+instance {α : Type w} [Monad m] [Iterator α m β] [IteratorLoopPartial α m m] {P} :
+    IteratorSizePartial (DropWhile α m β P) m :=
   .defaultImplementation
 
 end Std.Iterators

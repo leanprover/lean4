@@ -68,7 +68,7 @@ theorem length_filterMap_pos_iff {xs : List α} {f : α → Option β} :
   | cons x xs ih =>
     simp only [filterMap, mem_cons, exists_prop, exists_eq_or_imp]
     split
-    · simp_all [ih]
+    · simp_all
     · simp_all
 
 @[simp]
@@ -116,7 +116,7 @@ section intersperse
 variable {l : List α} {sep : α} {i : Nat}
 
 @[simp, grind =] theorem length_intersperse : (l.intersperse sep).length = 2 * l.length - 1 := by
-  fun_induction intersperse <;> simp only [intersperse, length_cons, length_nil] at *
+  fun_induction intersperse <;> simp only [length_cons, length_nil] at *
   rename_i h _
   have := length_pos_iff.mpr h
   omega
@@ -194,7 +194,7 @@ theorem mem_eraseIdx_iff_getElem {x : α} :
   | a::l, 0 => by simp [mem_iff_getElem, Nat.succ_lt_succ_iff]
   | a::l, k+1 => by
     rw [← Nat.or_exists_add_one]
-    simp [mem_eraseIdx_iff_getElem, @eq_comm _ a, succ_inj, Nat.succ_lt_succ_iff]
+    simp [mem_eraseIdx_iff_getElem, @eq_comm _ a, Nat.succ_lt_succ_iff]
 
 theorem mem_eraseIdx_iff_getElem? {x : α} {l} {k} : x ∈ eraseIdx l k ↔ ∃ i ≠ k, l[i]? = some x := by
   simp only [mem_eraseIdx_iff_getElem, getElem_eq_iff, exists_and_left]

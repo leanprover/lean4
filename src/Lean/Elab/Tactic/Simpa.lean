@@ -34,7 +34,7 @@ deriving instance Repr for UseImplicitLambdaResult
   | `(tactic| simpa%$tk $[?%$squeeze]? $[!%$unfold]? $cfg:optConfig $(disch)? $[only%$only]?
         $[[$args,*]]? $[using $usingArg]?) => Elab.Tactic.focus do withSimpDiagnostics do
     let stx ← `(tactic| simp $cfg:optConfig $(disch)? $[only%$only]? $[[$args,*]]?)
-    let { ctx, simprocs, dischargeWrapper } ←
+    let { ctx, simprocs, dischargeWrapper, .. } ←
       withMainContext <| mkSimpContext stx (eraseLocal := false)
     let ctx := if unfold.isSome then ctx.setAutoUnfold else ctx
     -- TODO: have `simpa` fail if it doesn't use `simp`.

@@ -575,18 +575,25 @@ existent in the current context, or else fails.
 @[builtin_term_parser] def doubleQuotedName := leading_parser
   "`" >> checkNoWsBefore >> rawCh '`' (trailingWs := false) >> ident
 
+def letId := (leading_parser (withAnonymousAntiquot := false)
+  (ppSpace >> binderIdent >> notFollowedBy (checkNoWsBefore "" >> "[")
+    "space is required before instance '[...]' binders to distinguish them from array updates `let x[i] := e; ...`")
+  <|> hygieneInfo)
+  <|> -- TODO(kmill): remove after stage0 update
+    (withAntiquot (mkAntiquot "haveId" `Lean.Parser.Term.letId false)
+      (error "in bootstrapping parser for haveId"))
 def letIdBinder :=
   withAntiquot (mkAntiquot "letIdBinder" decl_name% (isPseudoKind := true)) <|
     binderIdent <|> bracketedBinder
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
 def letIdLhs    : Parser :=
-  binderIdent >> notFollowedBy (checkNoWsBefore "" >> "[")
-    "space is required before instance '[...]' binders to distinguish them from array updates `let x[i] := e; ...`" >>
-  many (ppSpace >> letIdBinder) >> optType
+  letId >> many (ppSpace >> letIdBinder) >> optType
 def letIdDecl   := leading_parser (withAnonymousAntiquot := false)
   atomic (letIdLhs >> " := ") >> termParser
-def letPatDecl  := leading_parser (withAnonymousAntiquot := false)
-  atomic (termParser >> pushNone >> optType >> " := ") >> termParser
+/- Remark: `requireParens` forces the pattern to have parentheses, for trying before `letIdDecl`.
+   We need this because for `let (rfl) := h`, which would parse as `letIdDecl` due to `hygieneInfo`. -/
+def letPatDecl (requireParens := false) := leading_parser (withAnonymousAntiquot := false)
+  atomic ((if requireParens then lookahead "(" >> paren else termParser) >> pushNone >> optType >> " := ") >> termParser
 /-
   Remark: the following `(" := " <|> matchAlts)` is a hack we use
   to produce a better error message at `letDecl`.
@@ -609,11 +616,49 @@ def letEqnsDecl := leading_parser (withAnonymousAntiquot := false)
 `let pat := e` (where `pat` is an arbitrary term) or `let f | pat1 => e1 | pat2 => e2 ...`
 (a pattern matching declaration), except for the `let` keyword itself.
 `let rec` declarations are not handled here. -/
-@[builtin_doc] def letDecl := leading_parser (withAnonymousAntiquot := false)
+@[builtin_doc] def letDecl := (leading_parser (withAnonymousAntiquot := false)
   -- Remark: we disable anonymous antiquotations here to make sure
   -- anonymous antiquotations (e.g., `$x`) are not `letDecl`
   notFollowedBy (nonReservedSymbol "rec") "rec" >>
-  (letIdDecl <|> letPatDecl <|> letEqnsDecl)
+  (letPatDecl true <|> letIdDecl <|> letPatDecl <|> letEqnsDecl))
+  <|> -- TODO(kmill): remove after stage0 update
+    (withAntiquot (mkAntiquot "haveDecl" `Lean.Parser.Term.letDecl false)
+      (error "in bootstrapping parser for haveDecl"))
+/--
+`+nondep` elaborates as a nondependent `let`, a `have` expression.
+-/
+@[builtin_doc] def letOptNondep := leading_parser
+  nonReservedSymbol "nondep"
+/--
+`+postponeValue` causes the body of the `let` to be elaborated before the value.
+-/
+@[builtin_doc] def letOptPostponeValue := leading_parser
+  nonReservedSymbol "postponeValue"
+/--
+`+usedOnly` causes unused `let`s bindings to be eliminated.
+-/
+@[builtin_doc] def letOptUsedOnly := leading_parser
+  nonReservedSymbol "usedOnly"
+/--
+`+zeta` immediately inlines the `let` value after elaboration (it zeta reduces the `let`).
+-/
+@[builtin_doc] def letOptZeta := leading_parser
+  nonReservedSymbol "zeta"
+def letOpts := leading_parser
+  letOptNondep <|> letOptPostponeValue <|> letOptUsedOnly <|> letOptZeta
+def letPosOpt := leading_parser (withAnonymousAntiquot := false)
+  " +" >> checkNoWsBefore >> letOpts
+def letNegOpt := leading_parser (withAnonymousAntiquot := false)
+  " -" >> checkNoWsBefore >> letOpts
+/--
+`let (eq := h) x := v; ...` adds the equality `h : x = v` to the context while elaborating the body.
+-/
+@[builtin_doc] def letOptEq := leading_parser (withAnonymousAntiquot := false)
+  atomic (" (" >> nonReservedSymbol "eq" >> " := ") >> binderIdent >> ")"
+def letConfigItem := letPosOpt <|> letNegOpt <|> letOptEq
+/-- Configuration options for tactics. -/
+def letConfig := leading_parser (withAnonymousAntiquot := false)
+  many letConfigItem
 /--
 `let` is used to declare a local definition. Example:
 ```
@@ -634,11 +679,21 @@ assume `p` has type `Nat × Nat`, then you can write
 let (x, y) := p
 x + y
 ```
+
+The *anaphoric let* `let := v` defines a variable called `this`.
 -/
 @[builtin_term_parser] def «let» := leading_parser:leadPrec
-  withPosition ("let " >> letDecl) >> optSemicolon termParser
+  withPosition ("let" >> letConfig >> letDecl) >> optSemicolon termParser
 /--
-`let_fun x := v; b` is syntax sugar for `(fun x => b) v`.
+`have` is used to declare local hypotheses and opaque local definitions.
+
+It has the same syntax as `let`, and it is equivalent to `let +nondep`,
+creating a *nondependent* let expression.
+-/
+@[builtin_term_parser] def «have» := leading_parser:leadPrec
+  withPosition ("have" >> letConfig >> letDecl) >> optSemicolon termParser
+/--
+`let_fun x := v; b` is syntax sugar for `letFun v (fun x => b)`.
 It is very similar to `let x := v; b`, but they are not equivalent.
 In `let_fun`, the value `v` has been abstracted away and cannot be accessed in `b`.
 -/
@@ -655,29 +710,19 @@ It is often used when building macros.
 -/
 @[builtin_term_parser] def «let_tmp» := leading_parser:leadPrec
   withPosition ("let_tmp " >> letDecl) >> optSemicolon termParser
-
-def haveId := leading_parser (withAnonymousAntiquot := false)
-  (ppSpace >> binderIdent) <|> hygieneInfo
-/- like `let_fun` but with optional name -/
-def haveIdLhs    :=
-  haveId >> many (ppSpace >> letIdBinder) >> optType
-def haveIdDecl   := leading_parser (withAnonymousAntiquot := false)
-  atomic (haveIdLhs >> " := ") >> termParser
-def haveEqnsDecl := leading_parser (withAnonymousAntiquot := false)
-  haveIdLhs >> matchAlts
-/-- `haveDecl` matches the body of a have declaration: `have := e`, `have f x1 x2 := e`,
-`have pat := e` (where `pat` is an arbitrary term) or `have f | pat1 => e1 | pat2 => e2 ...`
-(a pattern matching declaration), except for the `have` keyword itself. -/
-@[builtin_doc] def haveDecl := leading_parser (withAnonymousAntiquot := false)
-  haveIdDecl <|> (ppSpace >> letPatDecl) <|> haveEqnsDecl
-@[builtin_term_parser] def «have» := leading_parser:leadPrec
-  withPosition ("have" >> haveDecl) >> optSemicolon termParser
 /-- `haveI` behaves like `have`, but inlines the value instead of producing a `let_fun` term. -/
 @[builtin_term_parser] def «haveI» := leading_parser
-  withPosition ("haveI " >> haveDecl) >> optSemicolon termParser
+  withPosition ("haveI " >> letDecl) >> optSemicolon termParser
 /-- `letI` behaves like `let`, but inlines the value instead of producing a `let_fun` term. -/
 @[builtin_term_parser] def «letI» := leading_parser
-  withPosition ("letI " >> haveDecl) >> optSemicolon termParser
+  withPosition ("letI " >> letDecl) >> optSemicolon termParser
+
+-- TODO(kmill): remove these after stage0 update
+abbrev haveId := letId
+abbrev haveIdLhs := letIdLhs
+abbrev haveIdDecl := letIdDecl
+abbrev haveEqnsDecl := letEqnsDecl
+abbrev haveDecl := letDecl
 
 def «scoped» := leading_parser "scoped "
 def «local»  := leading_parser "local "
@@ -1164,7 +1209,7 @@ end Term
 open Term in
 builtin_initialize
   register_parser_alias letDecl
-  register_parser_alias haveDecl
+  register_parser_alias "haveDecl" letDecl
   register_parser_alias sufficesDecl
   register_parser_alias letRecDecls
   register_parser_alias hole

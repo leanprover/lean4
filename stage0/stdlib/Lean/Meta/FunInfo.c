@@ -75,6 +75,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at_____private_Lean_M
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__0(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1369____boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_checkFunInfoCache___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_collectDeps_visit(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Array_contains___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_collectDeps_visit_spec__3_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -95,7 +96,6 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_____private_Lean_Meta_F
 lean_object* l_Lean_FVarIdSet_insert(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1371____boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_whenHasVar(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -151,7 +151,7 @@ static lean_object* _init_l___private_Lean_Meta_FunInfo_0__Lean_Meta_checkFunInf
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1371____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1369____boxed), 2, 0);
 return x_1;
 }
 }

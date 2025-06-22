@@ -1,16 +1,15 @@
 open Lean.Grind
 
-variable (R : Type u) [IntModule R] [NoNatZeroDivisors R] [Preorder R] [IntModule.IsOrdered R]
+-- Many of these should work with less than `LinearOrder`.
+variable (R : Type u) [IntModule R] [NoNatZeroDivisors R] [LinearOrder R] [OrderedAdd R]
 
 example (a b c : R) (h : a < b) : a + c < b + c := by grind
 example (a b c : R) (h : a < b) : c + a < c + b := by grind
 example (a b : R) (h : a < b) : -b < -a := by grind
-example (a b : R) (h : a < b) : -a < -b := by grind
 
 example (a b c : R) (h : a ≤ b) : a + c ≤ b + c := by grind
 example (a b c : R) (h : a ≤ b) : c + a ≤ c + b := by grind
 example (a b : R) (h : a ≤ b) : -b ≤ -a := by grind
-example (a b : R) (h : a ≤ b) : -a ≤ -b := by grind
 
 example (a : R) (h : 0 < a) : 0 ≤ a := by grind
 example (a : R) (h : 0 < a) : -2 * a < 0 := by grind

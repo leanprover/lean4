@@ -1178,23 +1178,23 @@ theorem diseq_norm {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (p : P
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h; subst p; simp [Expr.denote_toPoly, Expr.denote]
   intro h; rw [sub_eq_zero_iff] at h; contradiction
 
-open IntModule.IsOrdered
+open OrderedAdd
 
-theorem le_norm {α} [CommRing α] [Preorder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+theorem le_norm {α} [CommRing α] [Preorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert lhs rhs p → lhs.denote ctx ≤ rhs.denote ctx → p.denoteAsIntModule ctx ≤ 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h; subst p; simp [Expr.denote_toPoly, Expr.denote]
   replace h := add_le_left h ((-1) * rhs.denote ctx)
   rw [neg_mul, ← sub_eq_add_neg, one_mul, ← sub_eq_add_neg, sub_self] at h
   assumption
 
-theorem lt_norm {α} [CommRing α] [Preorder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+theorem lt_norm {α} [CommRing α] [Preorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert lhs rhs p → lhs.denote ctx < rhs.denote ctx → p.denoteAsIntModule ctx < 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h; subst p; simp [Expr.denote_toPoly, Expr.denote]
   replace h := add_lt_left h ((-1) * rhs.denote ctx)
   rw [neg_mul, ← sub_eq_add_neg, one_mul, ← sub_eq_add_neg, sub_self] at h
   assumption
 
-theorem not_le_norm {α} [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+theorem not_le_norm {α} [CommRing α] [LinearOrder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert rhs lhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → p.denoteAsIntModule ctx < 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]
   replace h₁ := LinearOrder.lt_of_not_le h₁
@@ -1202,7 +1202,7 @@ theorem not_le_norm {α} [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (ctx
   simp [← sub_eq_add_neg, sub_self] at h₁
   assumption
 
-theorem not_lt_norm {α} [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+theorem not_lt_norm {α} [CommRing α] [LinearOrder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert rhs lhs p → ¬ lhs.denote ctx < rhs.denote ctx → p.denoteAsIntModule ctx ≤ 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]
   replace h₁ := LinearOrder.le_of_not_lt h₁
@@ -1210,14 +1210,14 @@ theorem not_lt_norm {α} [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (ctx
   simp [← sub_eq_add_neg, sub_self] at h₁
   assumption
 
-theorem not_le_norm' {α} [CommRing α] [Preorder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+theorem not_le_norm' {α} [CommRing α] [Preorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert lhs rhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → ¬ p.denoteAsIntModule ctx ≤ 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]; intro h
   replace h := add_le_right (rhs.denote ctx) h
   rw [sub_eq_add_neg, add_left_comm, ← sub_eq_add_neg, sub_self] at h; simp [add_zero] at h
   contradiction
 
-theorem not_lt_norm' {α} [CommRing α] [Preorder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+theorem not_lt_norm' {α} [CommRing α] [Preorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert lhs rhs p → ¬ lhs.denote ctx < rhs.denote ctx → ¬ p.denoteAsIntModule ctx < 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]; intro h
   replace h := add_lt_right (rhs.denote ctx) h

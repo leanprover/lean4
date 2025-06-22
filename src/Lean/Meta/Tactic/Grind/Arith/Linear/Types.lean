@@ -82,7 +82,7 @@ abbrev VarSet := RBTree Var compare
 /--
 State for each algebraic structure by this module.
 Each type must at least implement the instance `IntModule`.
-For being able to process inequalities, it must at least implement `Preorder`, and `IntModule.IsOrdered`
+For being able to process inequalities, it must at least implement `Preorder`, and `OrderedAdd`
 -/
 structure Struct where
   id               : Nat
@@ -95,8 +95,8 @@ structure Struct where
   intModuleInst    : Expr
   /-- `Preorder` instance if available -/
   preorderInst?    : Option Expr
-  /-- `IntModule.IsOrdered` instance with `Preorder` if available -/
-  isOrdInst?       : Option Expr
+  /-- `OrderedAdd` instance with `Preorder` if available -/
+  orderedAddInst?       : Option Expr
   /-- `PartialOrder` instance if available -/
   partialInst?     : Option Expr
   /-- `LinearOrder` instance if available -/
@@ -107,8 +107,8 @@ structure Struct where
   ringInst?        : Option Expr
   /-- `CommRing` instance -/
   commRingInst?    : Option Expr
-  /-- `Ring.IsOrdered` instance with `Preorder` -/
-  ringIsOrdInst?   : Option Expr
+  /-- `OrderedRing` instance with `Preorder` -/
+  orderedRingInst?   : Option Expr
   /-- `Field` instance -/
   fieldInst?       : Option Expr
   /-- `IsCharP` instance for `type` if available. -/

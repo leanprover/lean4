@@ -940,7 +940,7 @@ encountered.
 The underlying file is not automatically closed upon encountering an EOF, and subsequent reads from
 the handle may block and/or return data.
 -/
-partial def Handle.readBinToEnd (h : Handle) : IO ByteArray := do
+def Handle.readBinToEnd (h : Handle) : IO ByteArray := do
   h.readBinToEndInto .empty
 
 /--
@@ -1677,6 +1677,45 @@ def ofBuffer (r : Ref Buffer) : Stream where
     { b with data := data.copySlice 0 b.data b.pos data.size false, pos := b.pos + data.size }
   isTty   := pure false
 
+/--
+Reads the entire remaining contents of the stream until an end-of-file marker (EOF) is
+encountered.
+
+The underlying stream is not automatically closed upon encountering an EOF, and subsequent reads from
+the stream may block and/or return data.
+-/
+partial def readBinToEndInto (s : Stream) (buf : ByteArray) : IO ByteArray := do
+  let rec loop (acc : ByteArray) : IO ByteArray := do
+    let buf ← s.read 1024
+    if buf.isEmpty then
+      return acc
+    else
+      loop (acc ++ buf)
+  loop buf
+
+/--
+Reads the entire remaining contents of the stream until an end-of-file marker (EOF) is
+encountered.
+
+The underlying stream is not automatically closed upon encountering an EOF, and subsequent reads from
+the stream may block and/or return data.
+-/
+def readBinToEnd (s : Stream) : IO ByteArray := do
+  s.readBinToEndInto .empty
+
+/--
+Reads the entire remaining contents of the stream as a UTF-8-encoded string. An exception is
+thrown if the contents are not valid UTF-8.
+
+The underlying stream is not automatically closed, and subsequent reads from the stream may block
+and/or return data.
+-/
+def readToEnd (s : Stream) : IO String := do
+  let data ← s.readBinToEnd
+  match String.fromUTF8? data with
+  | some s => return s
+  | none => throw <| .userError s!"Tried to read from stream containing non UTF-8 data."
+  
 /--
 Reads the entire remaining contents of the stream as a UTF-8-encoded array of lines.
 

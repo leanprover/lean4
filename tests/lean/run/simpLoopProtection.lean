@@ -1,3 +1,5 @@
+set_option linter.unusedSimpArgs false
+
 axiom testSorry : α
 
 opaque a : Nat

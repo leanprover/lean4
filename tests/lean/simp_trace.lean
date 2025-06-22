@@ -1,4 +1,3 @@
-set_option linter.loopingSimpArgs false
 set_option tactic.simp.trace true
 set_option trace.Meta.Tactic.simp.rewrite true
 

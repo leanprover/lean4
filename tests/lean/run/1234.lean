@@ -6,6 +6,7 @@ theorem succ_pred_eq_of_pos        (_: 0 < v): v - 1 + 1 = v := testSorry
 
 set_option trace.Meta.Tactic.simp true
 set_option trace.Meta.Tactic.simp.loopProtection false
+set_option linter.unusedSimpArgs false
 --set_option trace.Debug.Meta.Tactic.simp true
 
 set_option Elab.async false -- for stable message ordering in #guard_msgs

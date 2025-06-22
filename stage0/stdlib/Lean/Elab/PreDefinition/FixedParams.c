@@ -85,6 +85,7 @@ uint64_t lean_uint64_lor(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___Std_Range_forIn_x27_loop___at___Lean_Elab_getFixedParamsInfo_spec__7_spec__7___redArg___lam__1___boxed(lean_object**);
 lean_object* l_panic___at___Lean_Meta_congrArg_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_getFixedParamsInfo___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1369__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_Elab_FixedParams_Info_format_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaBoundedTelescope___at___Lean_Elab_FixedParamPerm_instantiateLambda_go_spec__0___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_reprFixedParamPerms___redArg___closed__10____x40_Lean_Elab_PreDefinition_FixedParams___hyg_3094_;
@@ -420,7 +421,6 @@ LEAN_EXPORT lean_object* l_Array_Array_repr___at___Lean_Elab_reprFixedParamPerms
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Elab_FixedParamPerms_erase_spec__13(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_FixedParamPerm_instantiateForall_go___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_FixedParamPerms_erase___closed__8;
-uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1371__spec__0(lean_object*, lean_object*);
 uint64_t lean_uint64_shift_left(uint64_t, uint64_t);
 static lean_object* l_List_mapTR_loop___at___Lean_Elab_FixedParams_Info_format_spec__3___closed__1;
 lean_object* l_Lean_Meta_forallBoundedTelescope___at___Lean_Meta_setMVarUserNamesAt_spec__0___redArg(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -15821,7 +15821,7 @@ x_7 = lean_nat_sub(x_3, x_6);
 lean_dec(x_3);
 x_8 = lean_array_fget(x_1, x_7);
 x_9 = lean_array_fget(x_2, x_7);
-x_10 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1371__spec__0(x_8, x_9);
+x_10 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1369__spec__0(x_8, x_9);
 lean_dec(x_9);
 lean_dec(x_8);
 if (x_10 == 0)

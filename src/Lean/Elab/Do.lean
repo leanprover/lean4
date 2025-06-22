@@ -688,11 +688,11 @@ def getLetDeclVars (letDecl : Syntax) : TermElabM (Array Var) := do
   -- def letDecl := leading_parser letIdDecl <|> letPatDecl <|> letEqnsDecl
   let arg := letDecl[0]
   -- TODO(kmill): remove haveIdDecl and haveEqnsDecl after stage0 update
-  if arg.getKind == ``Parser.Term.letIdDecl || arg.getKind == ``Parser.Term.haveIdDecl then
+  if arg.getKind == ``Parser.Term.letIdDecl || arg.getKind == `Lean.Parser.Term.haveIdDecl then
     return getLetIdDeclVars arg
   else if arg.getKind == ``Parser.Term.letPatDecl then
     getLetPatDeclVars arg
-  else if arg.getKind == ``Parser.Term.letEqnsDecl || arg.getKind == ``Parser.Term.haveEqnsDecl then
+  else if arg.getKind == ``Parser.Term.letEqnsDecl || arg.getKind == `Lean.Parser.Term.haveEqnsDecl then
     return getLetEqnsDeclVars arg
   else
     throwError "unexpected kind of let declaration"
@@ -1074,7 +1074,7 @@ def declToTerm (decl : Syntax) (k : Syntax) : M Syntax := withRef decl <| withFr
     else
       Macro.throwErrorAt decl "unexpected kind of `do` declaration"
   else if kind == ``Parser.Term.doHave then
-    -- The `have` term is of the form  `"have " >> haveDecl >> optSemicolon termParser`
+    -- The `have` term is of the form  `"have " >> letDecl >> optSemicolon termParser`
     let args := decl.getArgs
     let args := args ++ #[mkNullNode /- optional ';' -/, k]
     return mkNode `Lean.Parser.Term.«have» args

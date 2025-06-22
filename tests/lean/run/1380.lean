@@ -1,3 +1,5 @@
+set_option linter.unusedSimpArgs false
+
 variable (n v₁ v₂) (hv₁: v₁ < n + 1) (hv₂: v₂ < n + 1)
 
 theorem foo (_: ¬ Fin.mk v₂ hv₂ = Fin.mk v₁ hv₁ ): True := trivial

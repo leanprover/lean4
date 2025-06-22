@@ -30,6 +30,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_FunInd_instEmptyCollectionSeenCalls___closed__4;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Meta_FunInd_SeenCalls_push_spec__1___redArg(lean_object*, lean_object*);
+uint8_t l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1735__spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FunInd_SeenCalls_uniques___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FunInd_SeenCalls_uniques(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FunInd_collect_unsafe__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -91,7 +92,6 @@ static lean_object* l_Lean_Meta_FunInd_instBEqCall___closed__0;
 uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Expr_FoldConstsImpl_fold_visit_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FunInd_SeenCalls_push___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FunInd_Collector_visitApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1737__spec__1___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 static lean_object* l_Lean_Meta_FunInd_instEmptyCollectionSeenCalls___closed__0;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Meta_FunInd_SeenCalls_push_spec__2(lean_object*, lean_object*);
@@ -727,7 +727,7 @@ goto _start;
 else
 {
 uint8_t x_19; 
-x_19 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1737__spec__1___redArg(x_11, x_13, x_15);
+x_19 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1735__spec__1___redArg(x_11, x_13, x_15);
 x_7 = x_19;
 goto block_9;
 }

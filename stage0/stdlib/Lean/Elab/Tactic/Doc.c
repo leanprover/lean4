@@ -138,6 +138,7 @@ lean_object* l_Lean_Parser_Tactic_Doc_getTacticExtensions(lean_object*, lean_obj
 lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Doc_elabTacticExtension___regBuiltin_Lean_Elab_Tactic_Doc_elabTacticExtension_declRange__3___closed__2;
 static lean_object* l_Lean_getDocStringText___at___Lean_Elab_Tactic_Doc_elabRegisterTacticTag_spec__0___closed__0;
+lean_object* l_Lean_RBNode_fold___at___Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_1583__spec__0(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_MetavarContext_findUserName_x3f_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Doc_elabRegisterTacticTag___regBuiltin_Lean_Elab_Tactic_Doc_elabRegisterTacticTag__1___closed__0;
 static lean_object* l___private_Lean_Elab_Tactic_Doc_0__Lean_Elab_Tactic_Doc_getFirstTk___closed__7;
@@ -270,7 +271,6 @@ static lean_object* l_Lean_Parser_Tactic_Doc_allTagsWithInfo___at___Lean_Elab_Ta
 static lean_object* l___private_Lean_Elab_Tactic_Doc_0__Lean_Elab_Tactic_Doc_showParserName___closed__2;
 LEAN_EXPORT lean_object* l_Lean_logInfo___at___Lean_Elab_Tactic_Doc_elabPrintTacTags_spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-lean_object* l_Lean_RBNode_fold___at___Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_1593__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at___Lean_Parser_Tactic_Doc_allTagsWithInfo___at___Lean_Elab_Tactic_Doc_elabPrintTacTags_spec__6_spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -4212,7 +4212,7 @@ lean_inc(x_44);
 lean_dec(x_42);
 x_45 = lean_unsigned_to_nat(0u);
 x_46 = l_Lean_Parser_Tactic_Doc_allTagsWithInfo___at___Lean_Elab_Tactic_Doc_elabPrintTacTags_spec__6___closed__2;
-x_47 = l_Lean_RBNode_fold___at___Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_1593__spec__0(x_46, x_43);
+x_47 = l_Lean_RBNode_fold___at___Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_1583__spec__0(x_46, x_43);
 lean_dec(x_43);
 x_48 = lean_array_get_size(x_47);
 x_49 = lean_nat_dec_eq(x_48, x_45);

@@ -1,3 +1,5 @@
+set_option linter.unusedSimpArgs false
+
 /-!
 Checks that `simp` removes the `binderNameHint` in the pre-phase, and does not spend time looking
 at its arguments.

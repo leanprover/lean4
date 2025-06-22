@@ -41,6 +41,7 @@ static lean_object* l_Lake_mkModuleSetup___closed__0;
 lean_object* l_Lake_OutStream_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_serve(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
+uint8_t l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_265_(uint8_t, uint8_t);
 LEAN_EXPORT uint32_t l_Lake_noConfigFileCode;
 lean_object* lean_io_process_child_wait(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Workspace_augmentedEnvVars(lean_object*);
@@ -66,7 +67,6 @@ LEAN_EXPORT lean_object* l_Lake_setupFile___boxed__const__2;
 LEAN_EXPORT lean_object* l_Lake_setupFile(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_OutStream_logEntry(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*);
 lean_object* l_Lake_BuildType_leanOptions(uint8_t);
-uint8_t l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_267_(uint8_t, uint8_t);
 lean_object* l_Lake_Job_renew___redArg(lean_object*);
 static lean_object* l_Lake_mkModuleSetup___closed__1;
 LEAN_EXPORT lean_object* l_Lake_setupFile___lam__0(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
@@ -1173,7 +1173,7 @@ x_196 = l___private_Lake_CLI_Serve_0__Lake_mkLeanPaths(x_54, x_188);
 lean_dec(x_188);
 lean_dec(x_54);
 x_197 = lean_box(0);
-x_232 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_267_(x_190, x_193);
+x_232 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_265_(x_190, x_193);
 x_233 = lean_box(x_232);
 if (lean_obj_tag(x_233) == 2)
 {
@@ -1414,7 +1414,7 @@ x_276 = l___private_Lake_CLI_Serve_0__Lake_mkLeanPaths(x_54, x_268);
 lean_dec(x_268);
 lean_dec(x_54);
 x_277 = lean_box(0);
-x_310 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_267_(x_270, x_273);
+x_310 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_265_(x_270, x_273);
 x_311 = lean_box(x_310);
 if (lean_obj_tag(x_311) == 2)
 {
@@ -2242,7 +2242,7 @@ x_546 = l___private_Lake_CLI_Serve_0__Lake_mkLeanPaths(x_435, x_538);
 lean_dec(x_538);
 lean_dec(x_435);
 x_547 = lean_box(0);
-x_580 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_267_(x_540, x_543);
+x_580 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_265_(x_540, x_543);
 x_581 = lean_box(x_580);
 if (lean_obj_tag(x_581) == 2)
 {
@@ -3075,7 +3075,7 @@ x_813 = l___private_Lake_CLI_Serve_0__Lake_mkLeanPaths(x_702, x_805);
 lean_dec(x_805);
 lean_dec(x_702);
 x_814 = lean_box(0);
-x_847 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_267_(x_807, x_810);
+x_847 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_265_(x_807, x_810);
 x_848 = lean_box(x_847);
 if (lean_obj_tag(x_848) == 2)
 {

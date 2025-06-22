@@ -28,6 +28,7 @@ test_out "hello" -d ../../examples/hello env printenv PATH
 # Test that `env` preserves the input environment for certain variables
 echo "# TEST: Setting variables for lake env"
 test_eq "foo" env env ELAN_TOOLCHAIN=foo $LAKE env printenv ELAN_TOOLCHAIN
+LAKE_CACHE_DIR=foo test_eq "foo" env printenv LAKE_CACHE_DIR
 LEAN_GITHASH=foo test_eq "foo" env printenv LEAN_GITHASH
 LEAN_AR=foo test_eq "foo" env printenv LEAN_AR
 LEAN_CC=foo test_eq "foo" env printenv LEAN_CC

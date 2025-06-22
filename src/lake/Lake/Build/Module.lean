@@ -435,6 +435,7 @@ def Module.recBuildLeanCToOExport (self : Module) : FetchM (Job FilePath) := do
   withRegisterJob s!"{self.name}:c.o{suffix}" do
   -- TODO: add option to pass a target triplet for cross compilation
   let leancArgs := self.leancArgs ++ #["-DLEAN_EXPORTING"]
+  withCurrPackage self.pkg do
   buildLeanO self.coExportFile (← self.c.fetch) self.weakLeancArgs leancArgs self.leanIncludeDir?
 
 /-- The `ModuleFacetConfig` for the builtin `coExportFacet`. -/

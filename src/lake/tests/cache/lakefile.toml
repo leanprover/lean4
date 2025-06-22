@@ -1,0 +1,5 @@
+name = "test"
+enableArtifactCache = true
+
+[[lean_lib]]
+name = "Test"

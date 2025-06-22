@@ -5,6 +5,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 prelude
 import Lake.Config.Defaults
+import Lake.Config.InputMap
 import Lake.Config.OutFormat
 import Lake.Config.WorkspaceConfig
 import Lake.Config.Dependency
@@ -283,8 +284,19 @@ configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig wh
   and will remove it if it was already there (when Reservoir is next updated).
   -/
   reservoir : Bool := true
+  /-
+  Enables Lake's local, offline artifact cache for the package.
 
-deriving Inhabited
+  Artifacts (i.e., build products) of packages will be shared across
+  local copies by storing them in a cache associated with the Lean toolchain.
+  This can significantly reduce initial build times and disk space usage when
+  working with multiple copies of large projects or large dependencies.
+
+  As a caveat, build targets which support the artifact cache will not be stored
+  in their usual location within the build directory. Thus, projects with custom build
+  scripts that rely on specific location of artifacts may wish to disable this feature.
+  -/
+  enableArtifactCache : Bool := false
 
 instance : EmptyCollection (PackageConfig n) := ⟨{}⟩
 
@@ -351,10 +363,13 @@ structure Package where
   testDriver : String := config.testDriver
   /-- The driver used for `lake lint` when this package is the workspace root. -/
   lintDriver : String := config.lintDriver
+  /--
+  Input-to-content map for artifacts of the package.
+  If `none`, the artifact cache is disabled for the package.
+  -/
+  inputMap? : Option (IO.Ref InputMap) := none
 
-instance : Nonempty Package :=
-  have : Inhabited Environment := Classical.inhabited_of_nonempty inferInstance
-  ⟨by constructor <;> exact default⟩
+deriving Inhabited
 
 instance : Hashable Package where hash pkg := hash pkg.name
 instance : BEq Package where beq p1 p2 := p1.name == p2.name
@@ -606,6 +621,15 @@ def nativeLibDir (self : Package) : FilePath :=
 /-- The package's `buildDir` joined with its `irDir` configuration. -/
 @[inline] def irDir (self : Package) : FilePath :=
   self.buildDir / self.config.irDir.normalize
+
+  /-- The package's `enableArtifactCache` configuration. -/
+@[inline] def enableArtifactCache (self : Package) : Bool :=
+  self.config.enableArtifactCache
+
+/-- The file where the package's input mapping is stored in the Lake cache directory. -/
+def inputsFile (cacheDir : FilePath) (self : Package) : FilePath :=
+  let pkgName := self.name.toString (escape := false)
+  cacheDir / "inputs" / s!"{pkgName}.jsonl"
 
 /-- Try to find a target configuration in the package with the given name. -/
 def findTargetDecl? (name : Name) (self : Package) : Option (NConfigDecl self.name name) :=

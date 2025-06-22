@@ -41,6 +41,22 @@ hydrate_opaque_type OpaqueWorkspace Workspace
 
 namespace Workspace
 
+/-- Whether the workspace supports a local Lake artifact cache. -/
+@[inline] def enableArtifactCache (ws : Workspace) : Bool :=
+  !ws.lakeEnv.cacheDir.toString.isEmpty
+
+/-- Artifact directory for the local Lake cache. -/
+def artifactDir (ws : Workspace) : FilePath :=
+  ws.lakeEnv.cacheDir / "artifacts"
+
+/--
+Returns the path to artifact in the local Lake cache with extension `ext`.
+
+Will not return a valid path if the artifact cache is disabled (c.f., `enableArtifactCache`).
+-/
+def artifactPath (contentHash : Hash) (ext := "art") (ws : Workspace) : FilePath :=
+  ws.artifactDir / s!"{contentHash}.{ext}"
+
 /-- The path to the workspace's directory (i.e., the directory of the root package). -/
 @[inline] def dir (self : Workspace) : FilePath :=
   self.root.dir

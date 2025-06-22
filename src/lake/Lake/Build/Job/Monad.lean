@@ -69,8 +69,8 @@ instance : MonadLift LogIO JobM := ⟨ELogT.takeAndRun⟩
 /-- The monad used to spawn asynchronous Lake build jobs. Lifts into `FetchM`. -/
 abbrev SpawnM := FetchT <| ReaderT BuildTrace <| BaseIO
 
-@[inline] def JobM.runSpawnM (x : SpawnM α) : JobM α := fun fn stack store ctx s =>
-  return .ok (← x fn stack store ctx s.trace) s
+@[inline] def JobM.runSpawnM (x : SpawnM α) : JobM α := fun fn pkg? stack store ctx s =>
+  return .ok (← x fn pkg? stack store ctx s.trace) s
 
 instance : MonadLift SpawnM JobM := ⟨JobM.runSpawnM⟩
 
@@ -83,8 +83,8 @@ Run a `JobM` action in `FetchM`.
 Generally, this should not be done, and instead a job action
 should be run asynchronously in a Job (e.g., via `Job.async`).
 -/
-@[inline] def FetchM.runJobM (x : JobM α) : FetchM α := fun fetch stack store ctx log => do
-  match (← x fetch stack store ctx {log}) with
+@[inline] def FetchM.runJobM (x : JobM α) : FetchM α := fun fetch pkg? stack store ctx log => do
+  match (← x fetch pkg? stack store ctx {log}) with
   | .ok a s => return .ok a s.log
   | .error e s => return .error e s.log
 
@@ -97,8 +97,8 @@ example : MonadLiftT JobM FetchM := inferInstance
 example : MonadLiftT SpawnM FetchM := inferInstance
 
 /-- Run a `FetchM` action in `JobM`. -/
-@[inline] def JobM.runFetchM (x : FetchM α) : JobM α := fun fetch stack store ctx s => do
-  match (← x fetch stack store ctx s.log) with
+@[inline] def JobM.runFetchM (x : FetchM α) : JobM α := fun fetch pkg? stack store ctx s => do
+  match (← x fetch pkg? stack store ctx s.log) with
   | .ok a log => return .ok a {s with log}
   | .error e log => return .error e {s with log}
 
@@ -117,8 +117,8 @@ namespace Job
 /-- Spawn a job that asynchronously performs `act`. -/
 @[inline] protected def async
   [OptDataKind α] (act : JobM α) (prio := Task.Priority.default) (caption := "")
-: SpawnM (Job α) := fun fetch stack store ctx => .ofTask (caption := caption) <$> do
-  BaseIO.asTask (prio := prio) do (withLoggedIO act) fetch stack store ctx {}
+: SpawnM (Job α) := fun fetch pkg? stack store ctx => .ofTask (caption := caption) <$> do
+  BaseIO.asTask (prio := prio) do (withLoggedIO act) fetch pkg? stack store ctx {}
 
 /-- Wait a the job to complete and return the result. -/
 @[inline] protected def wait (self : Job α) : BaseIO (JobResult α) := do
@@ -145,12 +145,12 @@ protected def mapM
   [kind : OptDataKind β] (self : Job α) (f : α → JobM β)
   (prio := Task.Priority.default) (sync := false)
 : SpawnM (Job β) :=
-  fun fetch stack store ctx trace => do
+  fun fetch pkg? stack store ctx trace => do
   self.bindTask fun task => do
   BaseIO.mapTask (t := task) (prio := prio) (sync := sync) fun
     | .ok a s =>
       let trace := mixTrace trace s.trace
-      withLoggedIO (f a) fetch stack store ctx {s with trace}
+      withLoggedIO (f a) fetch pkg? stack store ctx {s with trace}
     | .error n s => return .error n s
 
 @[deprecated Job.mapM (since := "2024-12-06")]
@@ -167,12 +167,12 @@ def bindM
   [kind : OptDataKind β] (self : Job α) (f : α → JobM (Job β))
   (prio := Task.Priority.default) (sync := false)
 : SpawnM (Job β) :=
-  fun fetch stack store ctx trace => do
+  fun fetch pkg? stack store ctx trace => do
   self.bindTask fun task => do
   BaseIO.bindTask task (prio := prio) (sync := sync) fun
     | .ok a sa => do
       let trace := mixTrace trace sa.trace
-      match (← withLoggedIO (f a) fetch stack store ctx {sa with trace}) with
+      match (← withLoggedIO (f a) fetch pkg? stack store ctx {sa with trace}) with
       | .ok job sa =>
         return job.task.map (prio := prio) (sync := true) fun
         | .ok b sb => .ok b {sa.merge sb with trace := sb.trace}

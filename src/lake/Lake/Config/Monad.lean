@@ -119,8 +119,12 @@ def findExternLib? (name : Name) : m (Option ExternLib) :=
   (·.augmentedSharedLibPath) <$> getWorkspace
 
 /-- Get the augmented environment variables set by the context's workspace. -/
-@[inline]  def getAugmentedEnv : m (Array (String × Option String)) :=
+@[inline] def getAugmentedEnv : m (Array (String × Option String)) :=
   (·.augmentedEnvVars) <$> getWorkspace
+
+@[inline, inherit_doc Workspace.artifactPath]
+def getArtifactPath [MonadWorkspace m] (contentHash : Hash) (ext := "art") : m FilePath :=
+  (·.artifactPath contentHash ext) <$> getWorkspace
 
 end
 

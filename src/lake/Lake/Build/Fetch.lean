@@ -26,13 +26,23 @@ namespace Lake
 @[deprecated "Deprecated without replacement." (since := "2025-02-22")]
 abbrev CoreBuildM := BuildT LogIO
 
+/-- A type alias for `Option Package` that assists monad type class synthesis. -/
+def CurrPackage := Option Package
+
+/-- Run the action `x` with `pkg` as the current package. -/
+@[inline] def withCurrPackage [MonadWithReader CurrPackage m] (pkg : Package) (x : m α): m α :=
+  withReader (fun _ => some pkg) x
+
+/-- Get the package of the context (if any). -/
+@[inline] def getCurrPackage? [MonadReaderOf CurrPackage m] : m (Option Package) := read
+
 /--
 A recursive build of a Lake build store that may encounter a cycle.
 
 An internal monad. **Not intended for user use.**
 -/
 abbrev RecBuildT (m : Type → Type) :=
-  CallStackT BuildKey <| StateRefT' IO.RealWorld BuildStore <| BuildT m
+  ReaderT CurrPackage <| CallStackT BuildKey <| StateRefT' IO.RealWorld BuildStore <| BuildT m
 
 /-- Log build cycle and error. -/
 @[specialize] def buildCycleError [MonadError m] (cycle : Cycle BuildKey) : m α :=
@@ -53,7 +63,7 @@ abbrev RecBuildM := RecBuildT LogIO
   [Monad m] [MonadLiftT (ST IO.RealWorld) m]
   (stack : CallStack BuildKey) (store : BuildStore) (build : RecBuildT m α)
 : BuildT m (α × BuildStore) :=
-  build stack |>.run store
+  build none stack |>.run store
 
 /-- Run a recursive build in a fresh build store. -/
 @[inline] def RecBuildT.run'

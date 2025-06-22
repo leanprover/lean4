@@ -856,11 +856,12 @@ def expandLetEqnsDecl (letDecl : Syntax) (useExplicit := true) : MacroM Syntax :
   return mkNode `Lean.Parser.Term.letIdDecl #[letDecl[0], letDecl[1], letDecl[2], mkAtomFrom ref " := ", val]
 
 def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (initConfig : LetConfig) : TermElabM Expr := do
-  let declIdx := stx.getNumArgs - 3
-  let letConfig := stx[1]
-  let config    ← mkLetConfig letConfig initConfig
+  let (config, declIdx) ← if stx[1].isOfKind ``Parser.Term.letConfig then
+    pure (← mkLetConfig stx[1] initConfig, 2)
+  else
+    pure (initConfig, 1)
   let letDecl   := stx[declIdx][0]
-  let body      := stx[stx.getNumArgs - 1]
+  let body      := stx[declIdx + 2]
   if letDecl.getKind == ``Lean.Parser.Term.letIdDecl then
     let { id, binders, type, value } := mkLetIdDeclView letDecl
     let id ← if id.isIdent then pure id else mkFreshIdent id (canonical := true)

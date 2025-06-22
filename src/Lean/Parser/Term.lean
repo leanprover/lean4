@@ -650,7 +650,7 @@ def letNegOpt := leading_parser (withAnonymousAntiquot := false)
 @[builtin_doc] def letOptEq := leading_parser (withAnonymousAntiquot := false)
   atomic (" (" >> nonReservedSymbol "eq" >> " := ") >> binderIdent >> ")"
 def letConfigItem := letPosOpt <|> letNegOpt <|> letOptEq
-/-- Configuration options for tactics. -/
+/-- Configuration options for `let` tactics. -/
 def letConfig := leading_parser (withAnonymousAntiquot := false)
   many letConfigItem
 /--
@@ -704,12 +704,12 @@ It is often used when building macros.
 -/
 @[builtin_term_parser] def «let_tmp» := leading_parser:leadPrec
   withPosition ("let_tmp " >> letDecl) >> optSemicolon termParser
-/-- `haveI` behaves like `have`, but inlines the value instead of producing a `let_fun` term. -/
+/-- `haveI` behaves like `have`, but inlines the value instead of producing a `have` term. -/
 @[builtin_term_parser] def «haveI» := leading_parser
-  withPosition ("haveI " >> letDecl) >> optSemicolon termParser
-/-- `letI` behaves like `let`, but inlines the value instead of producing a `let_fun` term. -/
+  withPosition ("haveI " >> letConfig >> letDecl) >> optSemicolon termParser
+/-- `letI` behaves like `let`, but inlines the value instead of producing a `let` term. -/
 @[builtin_term_parser] def «letI» := leading_parser
-  withPosition ("letI " >> letDecl) >> optSemicolon termParser
+  withPosition ("letI " >> letConfig >> letDecl) >> optSemicolon termParser
 
 def «scoped» := leading_parser "scoped "
 def «local»  := leading_parser "local "
@@ -1196,6 +1196,7 @@ end Term
 open Term in
 builtin_initialize
   register_parser_alias letDecl
+  register_parser_alias letConfig
   register_parser_alias sufficesDecl
   register_parser_alias letRecDecls
   register_parser_alias hole

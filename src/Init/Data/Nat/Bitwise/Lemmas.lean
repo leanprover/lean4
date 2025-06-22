@@ -349,11 +349,15 @@ theorem testBit_two_pow_sub_succ (h₂ : x < 2 ^ n) (i : Nat) :
   · simp
   · exact Nat.two_pow_pos _
 
-theorem testBit_bool_to_nat (b : Bool) (i : Nat) :
+@[grind =]
+theorem testBit_bool_toNat (b : Bool) (i : Nat) :
     testBit (Bool.toNat b) i = (decide (i = 0) && b) := by
   cases b <;> cases i <;>
   simp [testBit_eq_decide_div_mod_eq,
         Nat.mod_eq_of_lt]
+
+@[deprecated testBit_bool_toNat (since := "2025-06-22")]
+abbrev testBit_bool_to_nat := @testBit_bool_toNat
 
 /-- `testBit 1 i` is true iff the index `i` equals 0. -/
 theorem testBit_one_eq_true_iff_self_eq_zero {i : Nat} :
@@ -543,15 +547,12 @@ abbrev and_pow_two_sub_one_of_lt_two_pow := @and_two_pow_sub_one_of_lt_two_pow
   rw [testBit_and]
   simp
 
-@[grind _=_]
 theorem and_div_two_pow : (a &&& b) / 2 ^ n = a / 2 ^ n &&& b / 2 ^ n :=
   bitwise_div_two_pow
 
-@[grind _=_]
 theorem and_div_two : (a &&& b) / 2 = a / 2 &&& b / 2 :=
   and_div_two_pow (n := 1)
 
-@[grind _=_]
 theorem and_mod_two_pow : (a &&& b) % 2 ^ n = (a % 2 ^ n) &&& (b % 2 ^ n) :=
   bitwise_mod_two_pow
 
@@ -625,15 +626,12 @@ theorem or_lt_two_pow {x y n : Nat} (left : x < 2^n) (right : y < 2^n) : x ||| y
   rw [testBit_or]
   simp
 
-@[grind _=_]
 theorem or_div_two_pow : (a ||| b) / 2 ^ n = a / 2 ^ n ||| b / 2 ^ n :=
   bitwise_div_two_pow
 
-@[grind _=_]
 theorem or_div_two : (a ||| b) / 2 = a / 2 ||| b / 2 :=
   or_div_two_pow (n := 1)
 
-@[grind _=_]
 theorem or_mod_two_pow : (a ||| b) % 2 ^ n = a % 2 ^ n ||| b % 2 ^ n :=
   bitwise_mod_two_pow
 
@@ -693,15 +691,12 @@ theorem and_xor_distrib_left {a b c : Nat} : a &&& (b ^^^ c) = (a &&& b) ^^^ (a 
   rw [testBit_xor]
   simp
 
-@[grind _=_]
 theorem xor_div_two_pow : (a ^^^ b) / 2 ^ n = a / 2 ^ n ^^^ b / 2 ^ n :=
   bitwise_div_two_pow
 
-@[grind _=_]
 theorem xor_div_two : (a ^^^ b) / 2 = a / 2 ^^^ b / 2 :=
   xor_div_two_pow (n := 1)
 
-@[grind _=_]
 theorem xor_mod_two_pow : (a ^^^ b) % 2 ^ n = a % 2 ^ n ^^^ b % 2 ^ n :=
   bitwise_mod_two_pow
 

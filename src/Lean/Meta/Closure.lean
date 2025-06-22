@@ -288,6 +288,7 @@ partial def process : ClosureM Unit := do
       process
     | .ldecl _ _ userName type val nondep _ =>
       let zetaDeltaFVarIds ← getZetaDeltaFVarIds
+      -- Note: If `nondep` is true then `zetaDeltaFVarIds.contains fvarId` must be false.
       if nondep || !zetaDeltaFVarIds.contains fvarId then
         /- Non-dependent let-decl
 

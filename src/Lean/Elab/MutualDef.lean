@@ -871,6 +871,7 @@ private partial def mkClosureForAux (toProcess : Array FVarId) : StateRefT Closu
       mkClosureForAux toProcess
     | .ldecl _ _ userName type val nondep k =>
       let zetaDeltaFVarIds ← getZetaDeltaFVarIds
+      -- Note: If `nondep` is true then `zetaDeltaFVarIds.contains fvarId` must be false.
       if nondep || !zetaDeltaFVarIds.contains fvarId then
         /- Nondependent let-decl. See comment at src/Lean/Meta/Closure.lean -/
         let toProcess ← pushLocalDecl toProcess fvarId userName type .default k

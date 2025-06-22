@@ -728,6 +728,20 @@ mutual
     else
       let lctx := ctxMeta.lctx
       match lctx.findFVar? fvar with
+      /-
+      Recall: if `nondep := true`, then the ldecl is locally a cdecl, so the `value` field is not relevant.
+      In the following example, switching the indicated `have` for a `let` causes the unification to fail,
+      since then `v` depends on a variable not in `?mvar`'s local context.
+      ```
+      example : Nat → Nat :=
+        let f : Nat → Nat := ?mvar
+        let x : Nat := 2
+        -- if this is a `let`, then `refine rfl` fails.
+        have v := x
+        have : ?mvar v = v := by refine rfl
+        f
+      ```
+      -/
       | some (.ldecl (nondep := false) (value := v) ..) => check v
       | _ =>
         if ctx.fvars.contains fvar then pure fvar
@@ -917,6 +931,9 @@ unsafe def checkImpl
     | .fvar fvarId ..  =>
       if mvarDecl.lctx.contains fvarId then
         return true
+      /-
+      Recall: if `nondep := true` then the ldecl is locally a cdecl. See comment in `CheckAssignment.checkFVar`.
+      -/
       if let some (LocalDecl.ldecl (nondep := false) ..) := lctx.find? fvarId then
         return false -- need expensive CheckAssignment.check
       if fvars.any fun x => x.fvarId! == fvarId then

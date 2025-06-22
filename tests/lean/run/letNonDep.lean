@@ -4,6 +4,8 @@ import Lean
 
 This file exercises the Lean/C++ interface to make sure that the `nondep` field
 is successfully part of the data model.
+
+It also tests the metaprogramming API.
 -/
 
 open Lean
@@ -83,3 +85,22 @@ info: Lean.Expr.letE `n (Lean.Expr.const `Nat []) (Lean.Expr.const `Nat.zero [])
   let m ← Meta.mkFreshExprMVar none
   m.mvarId!.assign (mkConst ``Unit)
   Lean.instantiateMVars (Lean.mkLet `n (mkConst ``Nat) (mkConst ``Nat.zero) m true)
+
+namespace TestLambdaLetTelescope
+/-!
+Check that `lambdaLetTelescope` consumes `haves`. Also checks that `preserveNondepLet := false` turns `have`s into `let`s.
+-/
+def c : Nat → Nat → Bool := fun x => have y := 1; fun z => x == y + z
+/--
+info: #[false, true, false]
+#[false, false, false]
+-/
+#guard_msgs in
+open Lean Meta in
+run_meta do
+  let decl ← getConstInfo ``c
+  lambdaLetTelescope decl.value! fun xs _ => do
+    IO.println <| ← xs.mapM fun x => return (← x.fvarId!.getDecl).isNondep
+  lambdaLetTelescope decl.value! (preserveNondepLet := false) fun xs _ => do
+    IO.println <| ← xs.mapM fun x => return (← x.fvarId!.getDecl).isNondep
+end TestLambdaLetTelescope

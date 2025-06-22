@@ -238,12 +238,20 @@ deriving Repr
 def getSimpLetCase (n : Name) (t : Expr) (b : Expr) (nondep : Bool) : MetaM SimpLetCase := do
   withLocalDeclD n t fun x => do
     let bx := b.instantiate1 x
+    /-
+    If the let has `nondep := true`, then we know the body does not depend on the value already.
+    Then there are two cases, depending on whether or not the type of the body refers to the variable.
+    -/
     if nondep then
       let bxType ← whnf (← inferType bx)
       if (← dependsOn bxType x.fvarId!) then
         return .nondepDepVar
       else
         return .nondep
+    /-
+    Otherwise, we first detect whether `nondep := true` *should* have been set by checking type correctness of the body.
+    If that fails, the let is dependent.
+    -/
     /- The following step is potentially very expensive when we have many nested let-decls.
        TODO: handle a block of nested let decls in a single pass if this becomes a performance problem. -/
     if (← isTypeCorrect bx) then
@@ -730,6 +738,14 @@ def simpApp (e : Expr) : SimpM Result := do
     -- Recall that we fold "orphan" kernel Nat literals `n` into `OfNat.ofNat n`
     return { expr := e }
   else if let some (args, n, t, v, b) := e.letFunAppArgs? then
+    /-
+    Note: we will be removing `letFun`, and we want everything to be in terms of `nondep := true` lets.
+    This used to call `simpNonDepLetFun`, which is optimized for letFun telescopes.
+    Considerations:
+    - we will soon replace `simpNonDepLetFun` with a `let` version
+    - simp is now using the `nondep` flag to cache which `let`s are nondependent.
+    - even without the optimized version we still manage to pass the test suite for now without timing out.
+    -/
     return { expr := mkAppN (Expr.letE n t v b true) args }
   else
     congr e

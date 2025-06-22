@@ -65,12 +65,14 @@ inductive LocalDecl where
     Instead, `revert x` *must* produce the goal `⊢ ∀ x : α, b`.
     Furthermore, given a goal `⊢ have x : α := v; b`, the `intro x` tactic should yield a *dependent* `ldecl`,
     since users expect to be able to make use of the value of `x`,
-    and also the value creates a hidden source of dependencies on other local variables.
+    plus, as discussed, if `intro` yielded a nondep `ldecl` then `intro x; revert x` would convert the goal into a forall, not a `have`.
   - Also: `value` might not be type correct. Metaprograms may decide to pretend that all `nondep := true`
     `ldecl`s are `cdecl`s (for example, when reverting variables). As a consequence, nondep `ldecl`s may
     have type-incorrect values. This design decision allows metaprograms to not have to think about nondep `ldecl`s,
     so long as `LocalDecl` values are consumed through `LocalDecl.isLet` and `LocalDecl.value?` with `(allowNondep := false)`.
-    Rule: never use `(generalizeNondepLet := false)` in `mkBinding`-family functions within a local context you do not own.
+    **Rule:** never use `(generalizeNondepLet := false)` in `mkBinding`-family functions within a local context you do not own.
+  - Where then do nondep ldecls come from? Common functions are `Meta.mapLetDecl`, `Meta.withLetDecl`, and `Meta.letTelescope`.
+    The `have` term syntax makes use of a nondep ldecl as well.
 
   Therefore, `nondep := true` should be used with consideration.
   Its primary use is in metaprograms that enter `let`/`have` telescopes and wish to reconstruct them. -/
@@ -171,7 +173,20 @@ def setValue : LocalDecl → Expr → LocalDecl
   | ldecl idx id n t _ nd k, v => ldecl idx id n t v nd k
   | d, _                       => d
 
-/-- Sets the `nondep` flag of an `ldecl`, otherwise returns `cdecl`s unchanged. -/
+/--
+Sets the `nondep` flag of an `ldecl`, otherwise returns `cdecl`s unchanged.
+It is the responsibility of the caller to ensure that transitions are correct.
+
+Rules:
+- Setting `nondep := true` is a way to convert the ldecl into a cdecl.
+  - Caution: be sure any relevant caches are cleared so that the value does not leak.
+  - Caution: be sure that metavariables from before and after the transition are not mixed,
+    since unification does not check "`nondep`-compatibility" of local contexts when assigning metavariables.
+- If the declaration is for a variable whose dependencies are not completely under the caller's control,
+  then setting `nondep := false` must not be done.
+- Even if the caller does have complete control, setting `nondep := false` should not be done.
+  The cautions about caches and metavariables still apply.
+-/
 def setNondep : LocalDecl → Bool → LocalDecl
   | ldecl idx id n t v _ k, nd => ldecl idx id n t v nd k
   | d, _                       => d

@@ -55,15 +55,14 @@ warning: Possibly looping simp theorem: `aa`
 Note: Possibly caused by: `id`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.simp.loopProtection false`
+note: this linter can be disabled with `set_option linter.loopingSimpArgs false`
 ---
 error: unsolved goals
 ⊢ b = 23
 -/
 #guard_msgs in
-set_option linter.simp.loopProtection true in
+set_option linter.loopingSimpArgs true in
 example : id b = 23 := by simp -failIfUnchanged only [aa, id]
-
 
 /-- error: simp made no progress -/
 #guard_msgs in
@@ -348,7 +347,7 @@ example : d > 0 := by simp? only [dc, ca, ac]; exact testSorry
 /-!
 But we can turn it on:
 -/
-set_option linter.simp.loopProtection true in
+set_option linter.loopingSimpArgs true in
 /--
 error: tactic 'simp' failed, nested error:
 maximum recursion depth has been reached

@@ -10,14 +10,14 @@ import Lean.Linter.Basic
 
 namespace Lean.Meta.Simp
 
-register_builtin_option linter.simp.loopProtection : Bool := {
+register_builtin_option linter.loopingSimpArgs : Bool := {
   defValue := false
   descr := "\
     When enabled, `simp` will check if the theorems passed as simp arguments (`simp [thm1]`) \
     are possibly looping in the current simp set.\n\
     \n\
     More precisely, it tries to simplify the right-hand side of the theorem and complains if \
-    that fails (typically because of) running out of recursion depth.\n\
+    that fails, which it typically does because of running out of recursion depth.\n\
     \n\
     This is a relatively expensive check, so it i disabled by default, and only run after \
     a `simp` call actually failed with a recursion depth error."
@@ -50,7 +50,7 @@ def mkLoopWarningMsg (thm : SimpTheorem) : SimpM MessageData := do
 def shouldCheckLoops (force : Bool) (ctxt : Simp.Context) : CoreM Bool := do
   if ctxt.config.singlePass then return false
   if force then return true
-  return linter.simp.loopProtection.get (← getOptions)
+  return linter.loopingSimpArgs.get (← getOptions)
 
 /--
 Main entry point to the loop protection mechanis: Checks if the given theorem is looping in the
@@ -58,7 +58,7 @@ current simp set, and logs a warning if it does.
 
 Assumes that `withRef` is set appropriately for the warning.
 
-With `force := off`, only runs when `linter.simp.loopProtection` is enabled and presents it as a
+With `force := off`, only runs when `linter.loopingSimpArgs` is enabled and presents it as a
 linter. With `force := on` (typically after `simp` threw an exception) it prints plain warnings.
 -/
 def checkLoops (force : Bool) (ctxt : Simp.Context) (methods : Methods) (thm : SimpTheorem) : MetaM Unit := do
@@ -83,4 +83,4 @@ def checkLoops (force : Bool) (ctxt : Simp.Context) (methods : Methods) (thm : S
             if force then
               logWarning (← mkLoopWarningMsg thm)
             else
-              Linter.logLint linter.simp.loopProtection (← getRef) (← mkLoopWarningMsg thm)
+              Linter.logLint linter.loopingSimpArgs (← getRef) (← mkLoopWarningMsg thm)

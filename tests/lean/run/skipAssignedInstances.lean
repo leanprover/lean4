@@ -48,7 +48,7 @@ theorem IsEmpty.forall_iff [IsEmpty α] {p : α → Prop} : (∀ a, p a) ↔ Tru
 @[simp] theorem and_imp' : (a ∧ b → c) ↔ (a → b → c) := ⟨fun h ha hb => h ⟨ha, hb⟩, fun h ⟨ha, hb⟩ => h ha hb⟩
 @[simp] theorem not_and'' : ¬(a ∧ b) ↔ (a → ¬b) := and_imp'
 
-set_option linter.simp.loopProtection false in
+set_option linter.loopingSimpArgs false in
 set_option tactic.skipAssignedInstances false in
 /--
 error: simp made no progress

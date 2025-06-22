@@ -43,7 +43,7 @@ theorem f91_spec_low (n : Nat) (h₂ : n ≤ 100) : f91 n = some 91 := by
   · rw [f91_spec_high (n + 11) (by omega)]
     simp only [Nat.reduceSubDiff, Option.bind_some]
     by_cases h : n = 100
-    · set_option linter.simp.loopProtection false in
+    · set_option linter.loopingSimpArgs false in
       simp [*, f91]
     · exact f91_spec_low (n + 1) (by omega)
 

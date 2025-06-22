@@ -1292,23 +1292,23 @@ return x_3;
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_isInterpretedTerm(lean_object* x_1) {
 _start:
 {
-uint8_t x_2; uint8_t x_26; 
+uint8_t x_2; uint8_t x_29; 
 lean_inc(x_1);
-x_26 = l_Lean_Meta_Grind_isNatNum(x_1);
-if (x_26 == 0)
+x_29 = l_Lean_Meta_Grind_isNatNum(x_1);
+if (x_29 == 0)
 {
-uint8_t x_27; 
+uint8_t x_30; 
 lean_inc(x_1);
-x_27 = l_Lean_Meta_Grind_isIntNum(x_1);
-x_2 = x_27;
-goto block_25;
+x_30 = l_Lean_Meta_Grind_isIntNum(x_1);
+x_2 = x_30;
+goto block_28;
 }
 else
 {
-x_2 = x_26;
-goto block_25;
+x_2 = x_29;
+goto block_28;
 }
-block_25:
+block_28:
 {
 if (x_2 == 0)
 {
@@ -1368,8 +1368,39 @@ if (x_22 == 0)
 lean_object* x_23; uint8_t x_24; 
 x_23 = l_Lean_Meta_Grind_Arith_isInterpretedTerm___closed__29;
 x_24 = l_Lean_Expr_isAppOf(x_1, x_23);
+if (x_24 == 0)
+{
+if (lean_obj_tag(x_1) == 9)
+{
+lean_object* x_25; 
+x_25 = lean_ctor_get(x_1, 0);
+lean_inc(x_25);
+lean_dec(x_1);
+if (lean_obj_tag(x_25) == 0)
+{
+lean_object* x_26; uint8_t x_27; 
+lean_dec(x_25);
+x_26 = lean_box(1);
+x_27 = lean_unbox(x_26);
+return x_27;
+}
+else
+{
+lean_dec(x_25);
+return x_24;
+}
+}
+else
+{
 lean_dec(x_1);
 return x_24;
+}
+}
+else
+{
+lean_dec(x_1);
+return x_24;
+}
 }
 else
 {

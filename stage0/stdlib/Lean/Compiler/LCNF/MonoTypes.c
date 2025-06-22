@@ -45,7 +45,7 @@ uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__4;
 LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at___Lean_Compiler_LCNF_getRelevantCtorFields_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_reprTrivialStructureInfo____x40_Lean_Compiler_LCNF_MonoTypes___hyg_255____boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_getParamNames_spec__1___redArg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_getParamNames_spec__1___redArg(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___Lean_Compiler_LCNF_hasTrivialStructure_x3f_fillCache_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__22;
@@ -812,7 +812,7 @@ x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 if (lean_obj_tag(x_6) == 6)
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; uint8_t x_20; lean_object* x_21; 
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
 lean_dec(x_5);
@@ -839,79 +839,80 @@ lean_closure_set(x_16, 0, x_14);
 x_17 = lean_box(0);
 x_18 = l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__26;
 x_19 = lean_unbox(x_17);
+x_20 = lean_unbox(x_17);
 lean_inc(x_12);
-x_20 = l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_getParamNames_spec__1___redArg(x_15, x_16, x_19, x_18, x_12, x_2, x_3, x_13);
-if (lean_obj_tag(x_20) == 0)
+x_21 = l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_getParamNames_spec__1___redArg(x_15, x_16, x_19, x_20, x_18, x_12, x_2, x_3, x_13);
+if (lean_obj_tag(x_21) == 0)
 {
-lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
-x_21 = lean_ctor_get(x_20, 0);
-lean_inc(x_21);
-x_22 = lean_ctor_get(x_20, 1);
+lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
+x_22 = lean_ctor_get(x_21, 0);
 lean_inc(x_22);
-lean_dec(x_20);
-x_23 = lean_st_ref_get(x_12, x_22);
+x_23 = lean_ctor_get(x_21, 1);
+lean_inc(x_23);
+lean_dec(x_21);
+x_24 = lean_st_ref_get(x_12, x_23);
 lean_dec(x_12);
-x_24 = !lean_is_exclusive(x_23);
-if (x_24 == 0)
+x_25 = !lean_is_exclusive(x_24);
+if (x_25 == 0)
 {
-lean_object* x_25; 
-x_25 = lean_ctor_get(x_23, 0);
-lean_dec(x_25);
-lean_ctor_set(x_23, 0, x_21);
-return x_23;
+lean_object* x_26; 
+x_26 = lean_ctor_get(x_24, 0);
+lean_dec(x_26);
+lean_ctor_set(x_24, 0, x_22);
+return x_24;
 }
 else
 {
-lean_object* x_26; lean_object* x_27; 
-x_26 = lean_ctor_get(x_23, 1);
-lean_inc(x_26);
-lean_dec(x_23);
-x_27 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_27, 0, x_21);
-lean_ctor_set(x_27, 1, x_26);
-return x_27;
+lean_object* x_27; lean_object* x_28; 
+x_27 = lean_ctor_get(x_24, 1);
+lean_inc(x_27);
+lean_dec(x_24);
+x_28 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_28, 0, x_22);
+lean_ctor_set(x_28, 1, x_27);
+return x_28;
 }
 }
 else
 {
 lean_dec(x_12);
-return x_20;
+return x_21;
 }
 }
 else
 {
-lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 lean_dec(x_6);
-x_28 = lean_ctor_get(x_5, 1);
-lean_inc(x_28);
+x_29 = lean_ctor_get(x_5, 1);
+lean_inc(x_29);
 lean_dec(x_5);
-x_29 = l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__30;
-x_30 = l_panic___at___Lean_Compiler_LCNF_getRelevantCtorFields_spec__1(x_29, x_2, x_3, x_28);
-return x_30;
+x_30 = l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__30;
+x_31 = l_panic___at___Lean_Compiler_LCNF_getRelevantCtorFields_spec__1(x_30, x_2, x_3, x_29);
+return x_31;
 }
 }
 else
 {
-uint8_t x_31; 
+uint8_t x_32; 
 lean_dec(x_3);
 lean_dec(x_2);
-x_31 = !lean_is_exclusive(x_5);
-if (x_31 == 0)
+x_32 = !lean_is_exclusive(x_5);
+if (x_32 == 0)
 {
 return x_5;
 }
 else
 {
-lean_object* x_32; lean_object* x_33; lean_object* x_34; 
-x_32 = lean_ctor_get(x_5, 0);
-x_33 = lean_ctor_get(x_5, 1);
+lean_object* x_33; lean_object* x_34; lean_object* x_35; 
+x_33 = lean_ctor_get(x_5, 0);
+x_34 = lean_ctor_get(x_5, 1);
+lean_inc(x_34);
 lean_inc(x_33);
-lean_inc(x_32);
 lean_dec(x_5);
-x_34 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_34, 0, x_32);
-lean_ctor_set(x_34, 1, x_33);
-return x_34;
+x_35 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_35, 0, x_33);
+lean_ctor_set(x_35, 1, x_34);
+return x_35;
 }
 }
 }

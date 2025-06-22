@@ -9219,7 +9219,7 @@ lean_object* x_34; lean_object* x_35; uint8_t x_36;
 x_34 = lean_ctor_get(x_8, 2);
 lean_inc(x_34);
 lean_dec(x_8);
-x_35 = lean_ctor_get(x_34, 3);
+x_35 = lean_ctor_get(x_34, 6);
 lean_inc(x_35);
 lean_dec(x_34);
 x_36 = lean_nat_dec_le(x_13, x_35);

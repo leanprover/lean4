@@ -719,10 +719,10 @@ lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_10);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_11);
+lean_ctor_set(x_14, 1, x_9);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
-lean_ctor_set(x_15, 1, x_9);
+lean_ctor_set(x_15, 1, x_11);
 return x_15;
 }
 block_53:
@@ -763,9 +763,9 @@ lean_object* x_38; lean_object* x_39;
 lean_dec(x_36);
 x_38 = l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at_____private_Lake_Build_InputFile_0__Lake_InputFile_recFetch_spec__0_spec__0___redArg___closed__4;
 x_39 = l_panic___at___Lean_Name_getString_x21_spec__0(x_38);
-x_9 = x_35;
+x_9 = x_32;
 x_10 = x_31;
-x_11 = x_32;
+x_11 = x_35;
 x_12 = x_39;
 goto block_16;
 }
@@ -774,9 +774,9 @@ else
 lean_object* x_40; 
 x_40 = lean_string_from_utf8_unchecked(x_36);
 lean_dec(x_36);
-x_9 = x_35;
+x_9 = x_32;
 x_10 = x_31;
-x_11 = x_32;
+x_11 = x_35;
 x_12 = x_40;
 goto block_16;
 }

@@ -81,7 +81,7 @@ uint8_t l_Lean_Kernel_isDiagnosticsEnabled(lean_object*);
 static lean_object* l___private_Lean_DefEqAttrib_0__Lean_isRflProofCore___redArg___closed__2;
 static lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logError___at___Lean_inferDefEqAttr_spec__1_spec__1_spec__1___lam__0___closed__4;
 static lean_object* l_Lean_validateDefEqAttr___closed__14;
-lean_object* l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_getParamNames_spec__1___redArg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_getParamNames_spec__1___redArg(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_DefEqAttrib_0__Lean_isDefEqCareful___closed__0;
 static lean_object* l___private_Lean_DefEqAttrib_0__Lean_isDefEqCareful___closed__2;
 static lean_object* l_Lean_inferDefEqAttr___lam__1___closed__2;
@@ -2924,7 +2924,7 @@ lean_object* x_5;
 x_5 = l_Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_addConstInfo___at___Lean_Elab_realizeGlobalConstNoOverloadWithInfo_spec__0_spec__0_spec__0(x_1, x_2, x_3, x_4);
 if (lean_obj_tag(x_5) == 0)
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; uint8_t x_17; lean_object* x_18; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
@@ -2944,67 +2944,68 @@ x_13 = lean_alloc_closure((void*)(l_Lean_validateDefEqAttr___lam__1___boxed), 7,
 x_14 = lean_box(0);
 x_15 = l_Lean_validateDefEqAttr___closed__30;
 x_16 = lean_unbox(x_14);
+x_17 = lean_unbox(x_14);
 lean_inc(x_10);
-x_17 = l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_getParamNames_spec__1___redArg(x_12, x_13, x_16, x_15, x_10, x_2, x_3, x_11);
-if (lean_obj_tag(x_17) == 0)
+x_18 = l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_getParamNames_spec__1___redArg(x_12, x_13, x_16, x_17, x_15, x_10, x_2, x_3, x_11);
+if (lean_obj_tag(x_18) == 0)
 {
-lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
-x_18 = lean_ctor_get(x_17, 0);
-lean_inc(x_18);
-x_19 = lean_ctor_get(x_17, 1);
+lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
+x_19 = lean_ctor_get(x_18, 0);
 lean_inc(x_19);
-lean_dec(x_17);
-x_20 = lean_st_ref_get(x_10, x_19);
+x_20 = lean_ctor_get(x_18, 1);
+lean_inc(x_20);
+lean_dec(x_18);
+x_21 = lean_st_ref_get(x_10, x_20);
 lean_dec(x_10);
-x_21 = !lean_is_exclusive(x_20);
-if (x_21 == 0)
+x_22 = !lean_is_exclusive(x_21);
+if (x_22 == 0)
 {
-lean_object* x_22; 
-x_22 = lean_ctor_get(x_20, 0);
-lean_dec(x_22);
-lean_ctor_set(x_20, 0, x_18);
-return x_20;
+lean_object* x_23; 
+x_23 = lean_ctor_get(x_21, 0);
+lean_dec(x_23);
+lean_ctor_set(x_21, 0, x_19);
+return x_21;
 }
 else
 {
-lean_object* x_23; lean_object* x_24; 
-x_23 = lean_ctor_get(x_20, 1);
-lean_inc(x_23);
-lean_dec(x_20);
-x_24 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_24, 0, x_18);
-lean_ctor_set(x_24, 1, x_23);
-return x_24;
+lean_object* x_24; lean_object* x_25; 
+x_24 = lean_ctor_get(x_21, 1);
+lean_inc(x_24);
+lean_dec(x_21);
+x_25 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_25, 0, x_19);
+lean_ctor_set(x_25, 1, x_24);
+return x_25;
 }
 }
 else
 {
 lean_dec(x_10);
-return x_17;
+return x_18;
 }
 }
 else
 {
-uint8_t x_25; 
+uint8_t x_26; 
 lean_dec(x_3);
 lean_dec(x_2);
-x_25 = !lean_is_exclusive(x_5);
-if (x_25 == 0)
+x_26 = !lean_is_exclusive(x_5);
+if (x_26 == 0)
 {
 return x_5;
 }
 else
 {
-lean_object* x_26; lean_object* x_27; lean_object* x_28; 
-x_26 = lean_ctor_get(x_5, 0);
-x_27 = lean_ctor_get(x_5, 1);
+lean_object* x_27; lean_object* x_28; lean_object* x_29; 
+x_27 = lean_ctor_get(x_5, 0);
+x_28 = lean_ctor_get(x_5, 1);
+lean_inc(x_28);
 lean_inc(x_27);
-lean_inc(x_26);
 lean_dec(x_5);
-x_28 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_28, 0, x_26);
-lean_ctor_set(x_28, 1, x_27);
-return x_28;
+x_29 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_29, 0, x_27);
+lean_ctor_set(x_29, 1, x_28);
+return x_29;
 }
 }
 }

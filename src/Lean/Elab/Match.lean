@@ -19,7 +19,7 @@ open Meta
 open Lean.Parser.Term
 
 private def expandSimpleMatch (stx : Syntax) (discr : Term) (lhsVar : Ident) (rhs : Term) (expectedType? : Option Expr) : TermElabM Expr := do
-  let newStx ← `(let $lhsVar := $discr; $rhs)
+  let newStx ← `(let $lhsVar:ident := $discr; $rhs)
   withMacroExpansion stx newStx <| elabTerm newStx expectedType?
 
 private def mkUserNameFor (e : Expr) : TermElabM Name := do

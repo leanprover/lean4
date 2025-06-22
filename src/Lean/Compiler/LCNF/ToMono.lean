@@ -247,6 +247,37 @@ partial def casesStringToMono (c : Cases) (_ : c.typeName == ``String) : ToMonoM
   let k ← k.toMono
   return .let decl k
 
+/-- Eliminate `cases` for `Thunk. -/
+partial def casesThunkToMono (c : Cases) (_ : c.typeName == ``Thunk) : ToMonoM Code := do
+  assert! c.alts.size == 1
+  let .alt _ ps k := c.alts[0]! | unreachable!
+  eraseParams ps
+  let p := ps[0]!
+  let letValue := .const ``Thunk.get [] #[.erased, .fvar c.discr]
+  let letDecl ← mkLetDecl (← mkFreshBinderName `_x) anyExpr letValue
+  let paramType := .const `PUnit []
+  let decl := {
+    fvarId := p.fvarId
+    binderName := p.binderName
+    type := (← mkArrow paramType anyExpr)
+    params := #[← mkAuxParam paramType]
+    value := .let letDecl (.return letDecl.fvarId)
+  }
+  modifyLCtx fun lctx => lctx.addFunDecl decl
+  let k ← k.toMono
+  return .fun decl k
+
+/-- Eliminate `cases` for `Task. -/
+partial def casesTaskToMono (c : Cases) (_ : c.typeName == ``Task) : ToMonoM Code := do
+  assert! c.alts.size == 1
+  let .alt _ ps k := c.alts[0]! | unreachable!
+  eraseParams ps
+  let p := ps[0]!
+  let decl := { fvarId := p.fvarId, binderName := p.binderName, type := anyExpr, value := .const ``Task.get [] #[.erased, .fvar c.discr] }
+  modifyLCtx fun lctx => lctx.addLetDecl decl
+  let k ← k.toMono
+  return .let decl k
+
 /-- Eliminate `cases` for trivial structure. See `hasTrivialStructure?` -/
 partial def trivialStructToMono (info : TrivialStructureInfo) (c : Cases) : ToMonoM Code := do
   assert! c.alts.size == 1
@@ -294,6 +325,10 @@ partial def Code.toMono (code : Code) : ToMonoM Code := do
       casesFloatArrayToMono c h
     else if h : c.typeName == ``String then
       casesStringToMono c h
+    else if h : c.typeName == ``Thunk then
+      casesThunkToMono c h
+    else if h : c.typeName == ``Task then
+      casesTaskToMono c h
     else if let some info ← hasTrivialStructure? c.typeName then
       trivialStructToMono info c
     else

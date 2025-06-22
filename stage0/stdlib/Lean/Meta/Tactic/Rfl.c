@@ -53,7 +53,6 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_MVarId_applyRf
 static lean_object* l_Lean_Meta_Rfl_initFn___lam__4___closed__7____x40_Lean_Meta_Tactic_Rfl___hyg_88_;
 lean_object* l_Lean_ScopedEnvExtension_add___at___Lean_Meta_addGlobalInstance_spec__0___redArg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_instInhabited(lean_object*);
 LEAN_EXPORT lean_object* l_Array_binInsertM___at_____private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at___Lean_Meta_DiscrTree_insertCore___at___Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___hyg_5__spec__0_spec__0_spec__2___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_MVarId_applyRfl_spec__0_spec__0___closed__5;
@@ -268,6 +267,7 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsa
 LEAN_EXPORT lean_object* l_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___hyg_88_(lean_object*);
 static lean_object* l_Lean_Meta_Rfl_initFn___lam__4___closed__2____x40_Lean_Meta_Tactic_Rfl___hyg_88_;
 LEAN_EXPORT lean_object* l_Lean_Meta_Rfl_initFn___lam__3____x40_Lean_Meta_Tactic_Rfl___hyg_88____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNewMCtxDepth___at___Lean_Meta_matchesInstance_spec__0___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Rfl_initFn___regBuiltin_Lean_Meta_Rfl_initFn_docString__1___closed__9____x40_Lean_Meta_Tactic_Rfl___hyg_88_;
 lean_object* l_Lean_PersistentHashMap_find_x3f___at_____private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getStarResult_spec__0___redArg(lean_object*, lean_object*);
@@ -4633,7 +4633,7 @@ lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec(x_7);
-x_10 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(x_8, x_3, x_9);
+x_10 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(x_8, x_3, x_9);
 x_11 = !lean_is_exclusive(x_10);
 if (x_11 == 0)
 {

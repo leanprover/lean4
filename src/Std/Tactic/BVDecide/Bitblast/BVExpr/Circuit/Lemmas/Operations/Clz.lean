@@ -57,8 +57,8 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
           · simp [hx]
           · simp [Ref.hgate]
         · intro idx hidx
-          simp only [Nat.add_eq_zero, Nat.succ_ne_self, and_false, reduceIte, RefVec.get_cast,
-            Ref.cast_eq, Nat.add_one_sub_one]
+          simp only [Nat.add_eq_zero, Nat.succ_ne_self, and_false, reduceIte, 
+            Nat.add_one_sub_one]
           rw [RefVec.denote_ite]
           split
           · next h =>

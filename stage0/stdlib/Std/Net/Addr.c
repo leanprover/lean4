@@ -32,7 +32,6 @@ static lean_object* l_Std_Net_instInhabitedSocketAddressV6___closed__0;
 LEAN_EXPORT lean_object* l_Std_Net_IPv6Addr_ofParts(uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t);
 LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_toCtorIdx(uint8_t);
 lean_object* lean_mk_array(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Net_decEqInterfaceAddress____x40_Std_Net_Addr___hyg_1713____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_IPAddr_toString___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_decEqIPv6Addr____x40_Std_Net_Addr___hyg_450____boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Net_instDecidableEqMACAddr(lean_object*, lean_object*);
@@ -49,6 +48,7 @@ LEAN_EXPORT uint8_t l_Std_Net_decEqMACAddr____x40_Std_Net_Addr___hyg_33_(lean_ob
 LEAN_EXPORT uint8_t l_Std_Net_decEqSocketAddress____x40_Std_Net_Addr___hyg_992_(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Net_decEqIPv6Addr____x40_Std_Net_Addr___hyg_450_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_noConfusion___redArg(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_Std_Net_decEqInterfaceAddress____x40_Std_Net_Addr___hyg_1711____boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Net_decEqIPv4Addr____x40_Std_Net_Addr___hyg_151_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_instDecidableEqSocketAddress___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Net_SocketAddress_family(lean_object*);
@@ -78,6 +78,7 @@ LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_noConfusion___redArg___lam__0__
 LEAN_EXPORT lean_object* l_Std_Net_instInhabitedIPAddr;
 LEAN_EXPORT lean_object* l_Std_Net_SocketAddressV6_instCoeSocketAddress;
 uint8_t l_Array_instDecidableEq___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_Net_decEqInterfaceAddress____x40_Std_Net_Addr___hyg_1711_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_noConfusion___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Net_decEqSocketAddressV4____x40_Std_Net_Addr___hyg_277_(lean_object*, lean_object*);
 uint8_t lean_uint16_dec_eq(uint16_t, uint16_t);
@@ -126,7 +127,6 @@ LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_toCtorIdx___boxed(lean_object*)
 uint8_t lean_uint8_of_nat(lean_object*);
 lean_object* lean_uv_ntop_v4(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_decEqSocketAddressV4____x40_Std_Net_Addr___hyg_277____boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Std_Net_decEqInterfaceAddress____x40_Std_Net_Addr___hyg_1713_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_noConfusion___redArg___lam__0(lean_object*);
 static uint8_t _init_l_Std_Net_instInhabitedMACAddr___closed__0() {
 _start:
@@ -1275,7 +1275,7 @@ x_1 = l_Std_Net_instInhabitedInterfaceAddress___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Net_decEqInterfaceAddress____x40_Std_Net_Addr___hyg_1713_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Std_Net_decEqInterfaceAddress____x40_Std_Net_Addr___hyg_1711_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; uint8_t x_16; 
@@ -1345,11 +1345,11 @@ return x_14;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Net_decEqInterfaceAddress____x40_Std_Net_Addr___hyg_1713____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Net_decEqInterfaceAddress____x40_Std_Net_Addr___hyg_1711____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Std_Net_decEqInterfaceAddress____x40_Std_Net_Addr___hyg_1713_(x_1, x_2);
+x_3 = l_Std_Net_decEqInterfaceAddress____x40_Std_Net_Addr___hyg_1711_(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -1360,7 +1360,7 @@ LEAN_EXPORT uint8_t l_Std_Net_instDecidableEqInterfaceAddress(lean_object* x_1, 
 _start:
 {
 uint8_t x_3; 
-x_3 = l_Std_Net_decEqInterfaceAddress____x40_Std_Net_Addr___hyg_1713_(x_1, x_2);
+x_3 = l_Std_Net_decEqInterfaceAddress____x40_Std_Net_Addr___hyg_1711_(x_1, x_2);
 return x_3;
 }
 }

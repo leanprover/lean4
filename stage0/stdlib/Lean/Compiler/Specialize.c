@@ -85,7 +85,7 @@ LEAN_EXPORT lean_object* l_Array_qsort_sort___at_____private_Lean_Compiler_Speci
 static lean_object* l_Lean_Compiler_nospecializeAttr___regBuiltin_Lean_Compiler_nospecializeAttr_declRange__3___closed__3;
 static lean_object* l_Lean_Compiler_initFn___lam__2___closed__5____x40_Lean_Compiler_Specialize___hyg_750_;
 static lean_object* l_Lean_Compiler_initFn___closed__0____x40_Lean_Compiler_Specialize___hyg_1167_;
-lean_object* l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_getParamNames_spec__1___redArg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_getParamNames_spec__1___redArg(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Compiler_initFn___lam__2___closed__21____x40_Lean_Compiler_Specialize___hyg_750_;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
@@ -1900,7 +1900,7 @@ lean_closure_set(x_12, 0, x_2);
 lean_closure_set(x_12, 1, x_1);
 x_13 = l_Lean_ConstantInfo_type(x_10);
 lean_dec(x_10);
-x_14 = l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_getParamNames_spec__1___redArg(x_13, x_12, x_8, x_3, x_4, x_5, x_6, x_11);
+x_14 = l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_getParamNames_spec__1___redArg(x_13, x_12, x_8, x_8, x_3, x_4, x_5, x_6, x_11);
 return x_14;
 }
 else

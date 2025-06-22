@@ -3,6 +3,7 @@ theorem lt_of_succ_lt          (_: a + 1 < b): a < b := sorry
 theorem succ_pred_eq_of_pos        (_: 0 < v): v - 1 + 1 = v := sorry
 
 set_option trace.Meta.Tactic.simp true
+set_option linter.unusedSimpArgs false
 --set_option trace.Debug.Meta.Tactic.simp true
 
 set_option Elab.async false -- for stable message ordering in #guard_msgs

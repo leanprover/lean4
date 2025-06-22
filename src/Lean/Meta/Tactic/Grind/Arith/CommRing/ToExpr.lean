@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Grind.Ring.Poly
+import Init.Grind.Ring.OfSemiring
 import Lean.ToExpr
 
 namespace Lean.Meta.Grind.Arith.CommRing
@@ -62,5 +63,17 @@ def ofNullCert (nc : NullCert) : Expr :=
 instance : ToExpr CommRing.NullCert where
   toExpr := ofNullCert
   toTypeExpr := mkConst ``CommRing.NullCert
+
+def ofSemiringExpr (e : Ring.OfSemiring.Expr) : Expr :=
+  match e with
+  | .num k => mkApp (mkConst ``Ring.OfSemiring.Expr.num) (toExpr k)
+  | .var x => mkApp (mkConst ``Ring.OfSemiring.Expr.var) (toExpr x)
+  | .add a b => mkApp2 (mkConst ``Ring.OfSemiring.Expr.add) (ofSemiringExpr a) (ofSemiringExpr b)
+  | .mul a b => mkApp2 (mkConst ``Ring.OfSemiring.Expr.mul) (ofSemiringExpr a) (ofSemiringExpr b)
+  | .pow a k => mkApp2 (mkConst ``Ring.OfSemiring.Expr.pow) (ofSemiringExpr a) (toExpr k)
+
+instance : ToExpr Ring.OfSemiring.Expr where
+  toExpr := ofSemiringExpr
+  toTypeExpr := mkConst ``Ring.OfSemiring.Expr
 
 end Lean.Meta.Grind.Arith.CommRing

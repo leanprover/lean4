@@ -22,7 +22,6 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMCtxImp___redArg(lean_
 static lean_object* l_Lean_Elab_LibrarySearch_elabExact_x3fTerm___lam__2___closed__3;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_LibrarySearch_exact_x3f_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_LibrarySearch_evalExact___closed__1;
 static lean_object* l_Lean_Elab_LibrarySearch_exact_x3f___lam__3___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Meta_withMCtx___at___Lean_Elab_LibrarySearch_exact_x3f_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -127,6 +126,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Elab_LibrarySearch_e
 LEAN_EXPORT lean_object* l_Lean_Elab_LibrarySearch_elabExact_x3fTerm___lam__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_LibrarySearch_evalExact___closed__2;
 static lean_object* l_Lean_Elab_LibrarySearch_elabExact_x3fTerm___regBuiltin_Lean_Elab_LibrarySearch_elabExact_x3fTerm_declRange__3___closed__2;
+lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__0(size_t, size_t, lean_object*);
 lean_object* l_Lean_logError___at___Lean_Elab_logException___at___Lean_Elab_Tactic_closeUsingOrAdmit_spec__0_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_LibrarySearch_evalApply___regBuiltin_Lean_Elab_LibrarySearch_evalApply_declRange__3___closed__2;
@@ -345,7 +345,7 @@ _start:
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 lean_inc(x_2);
 x_8 = l_Lean_Expr_mvar___override(x_2);
-x_9 = lean_alloc_closure((void*)(l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___boxed), 6, 1);
+x_9 = lean_alloc_closure((void*)(l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___boxed), 6, 1);
 lean_closure_set(x_9, 0, x_8);
 x_10 = l_Lean_MVarId_withContext___at_____private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp_spec__1___redArg(x_2, x_9, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_10) == 0)

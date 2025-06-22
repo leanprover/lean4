@@ -211,7 +211,7 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_filterMapM___at___Lean_Elab_partialFixpoint_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_initFn___closed__7____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3265_;
 static lean_object* l_Lean_Elab_partialFixpoint___lam__3___closed__4;
-lean_object* l_Lean_Meta_forallBoundedTelescope___at___Lean_Elab_Term_addAutoBoundImplicits_x27_spec__1___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_forallBoundedTelescope___at___Lean_Elab_Term_addAutoBoundImplicits_x27_spec__1___redArg(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_mapTR_loop___at___Lean_Elab_partialFixpoint_spec__6___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__7___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_partialFixpoint___lam__3___closed__0;
@@ -7392,7 +7392,7 @@ lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
 lean_inc(x_14);
-x_40 = l_Lean_Meta_forallBoundedTelescope___at___Lean_Elab_Term_addAutoBoundImplicits_x27_spec__1___redArg(x_30, x_39, x_37, x_7, x_14, x_15, x_16, x_17, x_18, x_19, x_20);
+x_40 = l_Lean_Meta_forallBoundedTelescope___at___Lean_Elab_Term_addAutoBoundImplicits_x27_spec__1___redArg(x_30, x_39, x_37, x_7, x_7, x_14, x_15, x_16, x_17, x_18, x_19, x_20);
 if (lean_obj_tag(x_40) == 0)
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; 
@@ -7544,7 +7544,7 @@ lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
 lean_inc(x_14);
-x_40 = l_Lean_Meta_forallBoundedTelescope___at___Lean_Elab_Term_addAutoBoundImplicits_x27_spec__1___redArg(x_30, x_39, x_37, x_7, x_14, x_15, x_16, x_17, x_18, x_19, x_20);
+x_40 = l_Lean_Meta_forallBoundedTelescope___at___Lean_Elab_Term_addAutoBoundImplicits_x27_spec__1___redArg(x_30, x_39, x_37, x_7, x_7, x_14, x_15, x_16, x_17, x_18, x_19, x_20);
 if (lean_obj_tag(x_40) == 0)
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 

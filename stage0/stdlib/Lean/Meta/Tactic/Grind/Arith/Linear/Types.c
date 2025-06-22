@@ -216,50 +216,62 @@ x_23 = l_Lean_Meta_Grind_Arith_Linear_hashExpr____x40_Lean_Meta_Tactic_Grind_Ari
 x_24 = lean_uint64_mix_hash(x_22, x_23);
 return x_24;
 }
-default: 
+case 5:
 {
-lean_object* x_25; lean_object* x_26; uint64_t x_27; uint64_t x_28; lean_object* x_33; uint8_t x_34; 
+lean_object* x_25; lean_object* x_26; uint64_t x_27; uint64_t x_28; uint64_t x_29; uint64_t x_30; uint64_t x_31; 
 x_25 = lean_ctor_get(x_1, 0);
 x_26 = lean_ctor_get(x_1, 1);
 x_27 = 5;
-x_33 = l_Lean_Meta_Grind_Arith_Linear_hashPoly___closed__0____x40_Lean_Meta_Tactic_Grind_Arith_Linear_Types___hyg_10_;
-x_34 = lean_int_dec_lt(x_25, x_33);
-if (x_34 == 0)
-{
-lean_object* x_35; lean_object* x_36; lean_object* x_37; uint64_t x_38; 
-x_35 = lean_nat_abs(x_25);
-x_36 = lean_unsigned_to_nat(2u);
-x_37 = lean_nat_mul(x_36, x_35);
-lean_dec(x_35);
-x_38 = lean_uint64_of_nat(x_37);
-lean_dec(x_37);
-x_28 = x_38;
-goto block_32;
-}
-else
-{
-lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; uint64_t x_45; 
-x_39 = lean_nat_abs(x_25);
-x_40 = lean_unsigned_to_nat(1u);
-x_41 = lean_nat_sub(x_39, x_40);
-lean_dec(x_39);
-x_42 = lean_unsigned_to_nat(2u);
-x_43 = lean_nat_mul(x_42, x_41);
-lean_dec(x_41);
-x_44 = lean_nat_add(x_43, x_40);
-lean_dec(x_43);
-x_45 = lean_uint64_of_nat(x_44);
-lean_dec(x_44);
-x_28 = x_45;
-goto block_32;
-}
-block_32:
-{
-uint64_t x_29; uint64_t x_30; uint64_t x_31; 
+x_28 = lean_uint64_of_nat(x_25);
 x_29 = lean_uint64_mix_hash(x_27, x_28);
 x_30 = l_Lean_Meta_Grind_Arith_Linear_hashExpr____x40_Lean_Meta_Tactic_Grind_Arith_Linear_Types___hyg_68_(x_26);
 x_31 = lean_uint64_mix_hash(x_29, x_30);
 return x_31;
+}
+default: 
+{
+lean_object* x_32; lean_object* x_33; uint64_t x_34; uint64_t x_35; lean_object* x_40; uint8_t x_41; 
+x_32 = lean_ctor_get(x_1, 0);
+x_33 = lean_ctor_get(x_1, 1);
+x_34 = 6;
+x_40 = l_Lean_Meta_Grind_Arith_Linear_hashPoly___closed__0____x40_Lean_Meta_Tactic_Grind_Arith_Linear_Types___hyg_10_;
+x_41 = lean_int_dec_lt(x_32, x_40);
+if (x_41 == 0)
+{
+lean_object* x_42; lean_object* x_43; lean_object* x_44; uint64_t x_45; 
+x_42 = lean_nat_abs(x_32);
+x_43 = lean_unsigned_to_nat(2u);
+x_44 = lean_nat_mul(x_43, x_42);
+lean_dec(x_42);
+x_45 = lean_uint64_of_nat(x_44);
+lean_dec(x_44);
+x_35 = x_45;
+goto block_39;
+}
+else
+{
+lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; uint64_t x_52; 
+x_46 = lean_nat_abs(x_32);
+x_47 = lean_unsigned_to_nat(1u);
+x_48 = lean_nat_sub(x_46, x_47);
+lean_dec(x_46);
+x_49 = lean_unsigned_to_nat(2u);
+x_50 = lean_nat_mul(x_49, x_48);
+lean_dec(x_48);
+x_51 = lean_nat_add(x_50, x_47);
+lean_dec(x_50);
+x_52 = lean_uint64_of_nat(x_51);
+lean_dec(x_51);
+x_35 = x_52;
+goto block_39;
+}
+block_39:
+{
+uint64_t x_36; uint64_t x_37; uint64_t x_38; 
+x_36 = lean_uint64_mix_hash(x_34, x_35);
+x_37 = l_Lean_Meta_Grind_Arith_Linear_hashExpr____x40_Lean_Meta_Tactic_Grind_Arith_Linear_Types___hyg_68_(x_33);
+x_38 = lean_uint64_mix_hash(x_36, x_37);
+return x_38;
 }
 }
 }

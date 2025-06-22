@@ -21,7 +21,6 @@ lean_object* l_Lean_ConstantInfo_type(lean_object*);
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 uint64_t lean_uint64_lor(uint64_t, uint64_t);
 uint8_t l_Lean_Expr_isApp(lean_object*);
-lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 static lean_object* l_Lean_getConstInfoInduct___at_____private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_projInfo_spec__0___closed__3;
@@ -37,7 +36,7 @@ static lean_object* l_Lean_getConstInfoInduct___at_____private_Lean_PrettyPrinte
 LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_typeMatchesBaseName___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_testAppOf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_fieldNotationCandidate_x3f(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_forallBoundedTelescope___at___Lean_Meta_arrowDomainsN_spec__6___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_forallBoundedTelescope___at___Lean_Meta_arrowDomainsN_spec__6___redArg(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_testAppOf___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
@@ -100,6 +99,7 @@ uint8_t l_Lean_Exception_isRuntime(lean_object*);
 uint8_t lean_is_class(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_consumeMData(lean_object*);
 static uint64_t l___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_typeMatchesBaseName___closed__0;
+lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_getConstInfoInduct___at_____private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_projInfo_spec__0___closed__0() {
 _start:
@@ -2080,7 +2080,7 @@ lean_inc(x_29);
 x_30 = lean_ctor_get(x_28, 1);
 lean_inc(x_30);
 lean_dec(x_28);
-x_31 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(x_29, x_21, x_30);
+x_31 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(x_29, x_21, x_30);
 x_32 = lean_ctor_get(x_31, 0);
 lean_inc(x_32);
 x_33 = lean_ctor_get(x_31, 1);
@@ -2634,7 +2634,7 @@ lean_inc(x_29);
 x_30 = lean_ctor_get(x_28, 1);
 lean_inc(x_30);
 lean_dec(x_28);
-x_31 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(x_29, x_21, x_30);
+x_31 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(x_29, x_21, x_30);
 x_32 = lean_ctor_get(x_31, 0);
 lean_inc(x_32);
 x_33 = lean_ctor_get(x_31, 1);
@@ -2909,7 +2909,7 @@ x_20 = lean_array_get_size(x_2);
 lean_dec(x_2);
 x_21 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_21, 0, x_20);
-x_22 = l_Lean_Meta_forallBoundedTelescope___at___Lean_Meta_arrowDomainsN_spec__6___redArg(x_19, x_21, x_12, x_15, x_3, x_4, x_5, x_6, x_18);
+x_22 = l_Lean_Meta_forallBoundedTelescope___at___Lean_Meta_arrowDomainsN_spec__6___redArg(x_19, x_21, x_12, x_15, x_15, x_3, x_4, x_5, x_6, x_18);
 return x_22;
 }
 else

@@ -859,9 +859,7 @@ def mkLetIdDeclView (letIdDecl : Syntax) : LetIdDeclView :=
   -/
   let letId := letIdDecl[0]
   let id :=
-    if letId.isIdent then
-      letId
-    else if letId[0].isOfKind hygieneInfoKind then
+    if letId[0].isOfKind hygieneInfoKind then
       HygieneInfo.mkIdent letId[0] `this (canonical := true)
     else
       -- Assumed to be binderIdent
@@ -884,8 +882,7 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (initConfig : L
   let config    ← mkLetConfig letConfig initConfig
   let letDecl   := stx[declIdx][0]
   let body      := stx[stx.getNumArgs - 1]
-  -- TODO(kmill): remove `have` kinds
-  if letDecl.getKind == ``Lean.Parser.Term.letIdDecl || letDecl.getKind == `Lean.Parser.Term.haveIdDecl then
+  if letDecl.getKind == ``Lean.Parser.Term.letIdDecl then
     let { id, binders, type, value } := mkLetIdDeclView letDecl
     let id ← if id.isIdent then pure id else mkFreshIdent id (canonical := true)
     elabLetDeclAux id binders type value body expectedType? config
@@ -917,7 +914,7 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (initConfig : L
       else
         `(match $val:term with | $pat => $body)
       withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
-  else if letDecl.getKind == ``Lean.Parser.Term.letEqnsDecl || letDecl.getKind == `Lean.Parser.Term.haveEqnsDecl then
+  else if letDecl.getKind == ``Lean.Parser.Term.letEqnsDecl then
     let letDeclIdNew ← liftMacroM <| expandLetEqnsDecl letDecl
     let declNew := stx[declIdx].setArg 0 letDeclIdNew
     let stxNew  := stx.setArg declIdx declNew

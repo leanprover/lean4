@@ -44,7 +44,7 @@ def have : True := by
                 --^ sync
                 --^ insert: ".5"
   dbg_trace "h 3"
--- TODO(kmill) make sure extra h 1 is no longer in output
+
 /-!
 Updating the `have` header should update the unsolved goals position (and currently re-run the body)
 -/

@@ -251,3 +251,24 @@ example {P : Prop} (h : P) : True ∧ True := by constructor <;> simp [h]
 example {P : Prop} (h : P) : True ∧ True := by constructor <;> mySimp h
 
 example {P : Prop} (h : P) : True ∧ True := by constructor <;> mySimp' h
+
+
+-- Check option setting
+
+section
+set_option linter.unusedSimpArgs true
+
+#guard_msgs in
+set_option linter.unusedSimpArgs false in
+example : True := by
+  simp [not_false_eq_true]
+end
+
+section
+set_option linter.unusedSimpArgs true
+
+#guard_msgs in
+example : True := by
+  set_option linter.unusedSimpArgs false in
+  simp [not_false_eq_true]
+end

@@ -121,7 +121,7 @@ private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Exp
       | .forallE _ d _ _ => return d.consumeTypeAnnotations
       | _                => failed ()
 
-def throwTypeExcepted {α} (type : Expr) : MetaM α :=
+def throwTypeExpected {α} (type : Expr) : MetaM α :=
   throwError "type expected{indentExpr type}"
 
 def getLevel (type : Expr) : MetaM Level := do
@@ -131,12 +131,12 @@ def getLevel (type : Expr) : MetaM Level := do
   | Expr.sort lvl     => return lvl
   | Expr.mvar mvarId  =>
     if (← mvarId.isReadOnlyOrSyntheticOpaque) then
-      throwTypeExcepted type
+      throwTypeExpected type
     else
       let lvl ← mkFreshLevelMVar
       mvarId.assign (mkSort lvl)
       return lvl
-  | _ => throwTypeExcepted type
+  | _ => throwTypeExpected type
 
 private def inferForallType (e : Expr) : MetaM Expr :=
   forallTelescope e fun xs e => do
@@ -151,7 +151,7 @@ private def inferForallType (e : Expr) : MetaM Expr :=
 private def inferLambdaType (e : Expr) : MetaM Expr :=
   lambdaLetTelescope e fun xs e => do
     let type ← inferType e
-    mkForallFVars xs type
+    mkForallFVars (generalizeNondepLet := false) xs type
 
 def throwUnknownMVar {α} (mvarId : MVarId) : MetaM α :=
   throwError "unknown metavariable '?{mvarId.name}'"

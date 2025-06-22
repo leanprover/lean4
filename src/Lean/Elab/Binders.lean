@@ -785,54 +785,33 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
       pure (type, val, binders)
   let kind := kindOfBinderName id.getId
   trace[Elab.let.decl] "{id.getId} : {type} := {val}"
-  let elabBody : TermElabM Expr := do
-    let body ← elabTermEnsuringType body expectedType?
-    instantiateMVars body
   let result ←
-    if config.zeta then
-      let elabZetaCore (x : Expr) : TermElabM Expr := do
-        addLocalVarInfo id x
-        if let some h := config.eq? then
-          let hTy ← mkEq x val
-          withLocalDeclD h.getId hTy fun h' => do
-            addLocalVarInfo h h'
-            let body ← elabBody
-            pure <| (← body.abstractM #[x, h']).instantiateRev #[val, ← mkEqRefl val]
-        else
-          let body ← elabBody
+    withLetDecl id.getId (kind := kind) type val (nondep := config.nondep) fun x => do
+      let elabBody : TermElabM Expr :=
+        elabTermEnsuringType body expectedType? >>= instantiateMVars
+      addLocalVarInfo id x
+      match config.eq? with
+      | none =>
+        let body ← elabBody
+        if config.zeta then
           pure <| (← body.abstractM #[x]).instantiate1 val
-      if !config.nondep then
-        withLetDecl id.getId (kind := kind) type val elabZetaCore
-      else
-        withLocalDecl id.getId (kind := kind) .default type elabZetaCore
-    else
-      if !config.nondep then
-        withLetDecl id.getId (kind := kind) type val fun x => do
-          addLocalVarInfo id x
-          if let some h := config.eq? then
-            let hTy ← mkEq x val
-            withLocalDeclD h.getId hTy fun h' => do
-              addLocalVarInfo h h'
-              let body ← elabBody
-              let body := (← body.abstractM #[h']).instantiate1 (← mkEqRefl x)
-              mkLetFVars #[x] body (usedLetOnly := config.usedOnly)
+        else
+          mkLetFVars #[x] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
+      | some h =>
+        let hTy ← mkEq x val
+        withLetDecl h.getId hTy (← mkEqRefl x) (nondep := true) fun h' => do
+          addLocalVarInfo h h'
+          let body ← elabBody
+          if config.zeta then
+            pure <| (← body.abstractM #[x, h']).instantiateRev #[val, ← mkEqRefl val]
+          else if config.nondep then
+            -- TODO(kmill): Think more about how to encode this case.
+            -- Currently we produce `(fun (x : α) (h : x = val) => b) val rfl`.
+            -- N.B. the nondep lets become lambdas here.
+            let f ← mkLambdaFVars #[x, h'] body
+            return mkApp2 f val (← mkEqRefl val)
           else
-            let body ← elabBody
-            mkLetFVars #[x] body (usedLetOnly := config.usedOnly)
-      else
-        withLocalDecl id.getId (kind := kind) .default type fun x => do
-          addLocalVarInfo id x
-          if let some h := config.eq? then
-            -- TODO(kmill): Think about how to encode this case.
-            let hTy ← mkEq x val
-            withLocalDeclD h.getId hTy fun h' => do
-              addLocalVarInfo h h'
-              let body ← elabBody
-              let f ← mkLambdaFVars #[x, h'] body
-              return mkApp2 f val (← mkEqRefl val)
-          else
-            let body ← elabBody
-            mkLetFun x val body
+            mkLetFVars #[x, h'] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
   if config.postponeValue then
     forallBoundedTelescope type binders.size fun xs type => do
       -- the original `fvars` from above are gone, so add back info manually

@@ -426,7 +426,7 @@ private partial def mkLambdaFVarsWithLetDeps (xs : Array Expr) (v : Expr) : Meta
     mkLambdaFVars ys v (etaReduce := true)
 
 where
-  /-- Return true if there are let-declarions between `xs[0]` and `xs[xs.size-1]`.
+  /-- Return true if there are let-declarations between `xs[0]` and `xs[xs.size-1]`.
      We use it a quick-check to avoid the more expensive collection procedure. -/
   hasLetDeclsInBetween : MetaM Bool := do
     let check (lctx : LocalContext) : Bool := Id.run do
@@ -728,7 +728,21 @@ mutual
     else
       let lctx := ctxMeta.lctx
       match lctx.findFVar? fvar with
-      | some (.ldecl (value := v) ..) => check v
+      /-
+      Recall: if `nondep := true`, then the ldecl is locally a cdecl, so the `value` field is not relevant.
+      In the following example, switching the indicated `have` for a `let` causes the unification to fail,
+      since then `v` depends on a variable not in `?mvar`'s local context.
+      ```
+      example : Nat → Nat :=
+        let f : Nat → Nat := ?mvar
+        let x : Nat := 2
+        -- if this is a `let`, then `refine rfl` fails.
+        have v := x
+        have : ?mvar v = v := by refine rfl
+        f
+      ```
+      -/
+      | some (.ldecl (nondep := false) (value := v) ..) => check v
       | _ =>
         if ctx.fvars.contains fvar then pure fvar
         else
@@ -917,7 +931,10 @@ unsafe def checkImpl
     | .fvar fvarId ..  =>
       if mvarDecl.lctx.contains fvarId then
         return true
-      if let some (LocalDecl.ldecl ..) := lctx.find? fvarId then
+      /-
+      Recall: if `nondep := true` then the ldecl is locally a cdecl. See comment in `CheckAssignment.checkFVar`.
+      -/
+      if let some (LocalDecl.ldecl (nondep := false) ..) := lctx.find? fvarId then
         return false -- need expensive CheckAssignment.check
       if fvars.any fun x => x.fvarId! == fvarId then
         return true

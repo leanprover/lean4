@@ -286,9 +286,10 @@ partial def process : ClosureM Unit := do
       pushLocalDecl newFVarId userName type bi
       pushFVarArg (mkFVar fvarId)
       process
-    | .ldecl _ _ userName type val _ _ =>
+    | .ldecl _ _ userName type val nondep _ =>
       let zetaDeltaFVarIds ← getZetaDeltaFVarIds
-      if !zetaDeltaFVarIds.contains fvarId then
+      -- Note: If `nondep` is true then `zetaDeltaFVarIds.contains fvarId` must be false.
+      if nondep || !zetaDeltaFVarIds.contains fvarId then
         /- Non-dependent let-decl
 
             Recall that if `fvarId` is in `zetaDeltaFVarIds`, then we zetaDelta-expanded it
@@ -321,11 +322,11 @@ partial def process : ClosureM Unit := do
         Lean.mkLambda n bi ty b
       else
         Lean.mkForall n bi ty b
-    | .ldecl _ _ n ty val nonDep _ =>
+    | .ldecl _ _ n ty val nondep _ =>
       if b.hasLooseBVar 0 then
         let ty  := ty.abstractRange i xs
         let val := val.abstractRange i xs
-        mkLet n ty val b nonDep
+        mkLet n ty val b nondep
       else
         b.lowerLooseBVars 1 1
 

@@ -818,22 +818,21 @@ The `have` tactic is for adding hypotheses to the local context of the main goal
   For example, given `h : p ∧ q ∧ r`, `have ⟨h₁, h₂, h₃⟩ := h` produces the
   hypotheses `h₁ : p`, `h₂ : q`, and `h₃ : r`.
 -/
-syntax "have " haveDecl : tactic
+syntax "have " letDecl : tactic
 -- TODO(kmill) Remove after stage0 update
 macro_rules (kind := Lean.Parser.Tactic.tacticHave_)
   | stx =>
     let letDecl := stx.getArg 1
-    `(tactic| refine_lift have $(⟨letDecl⟩):haveDecl; ?_)
-/-
+    `(tactic| refine_lift have $(⟨letDecl⟩):letDecl; ?_)
 macro_rules
   -- special case: when given a nested `by` block, move it outside of the `refine` to enable
   -- incrementality
-  | `(tactic| have%$haveTk $id:haveId $bs* : $type := by%$byTk $tacs*) => do
+  | `(tactic| have%$haveTk $id:letId $bs* : $type := by%$byTk $tacs*) => do
     /-
     We want to create the syntax
     ```
     focus
-      refine no_implicit_lambda% (have $id:haveId $bs* : $type := ?body; ?_)
+      refine no_implicit_lambda% (have $id:letId $bs* : $type := ?body; ?_)
       case body => $tacs*
     ```
     However, we need to be very careful with the syntax infos involved:
@@ -852,10 +851,9 @@ macro_rules
     let tac ← `(tacticSeq| $tac:tactic)
     let tac ← Lean.withRef byTk `(tactic| case body => $(.mk tac):tacticSeq)
     Lean.withRef haveTk `(tactic| focus
-      refine no_implicit_lambda% (have $id:haveId $bs* : $type := ?body; ?_)
+      refine no_implicit_lambda% (have $id:letId $bs* : $type := ?body; ?_)
       $tac)
-  | `(tactic| have $d:haveDecl) => `(tactic| refine_lift have $d:haveDecl; ?_)
--/
+  | `(tactic| have $d:letDecl) => `(tactic| refine_lift have $d:letDecl; ?_)
 
 /--
 Given a main goal `ctx ⊢ t`, `suffices h : t' from e` replaces the main goal with `ctx ⊢ t'`,
@@ -886,7 +884,7 @@ macro_rules
 /-- Similar to `refine_lift`, but using `refine'` -/
 macro "refine_lift' " e:term : tactic => `(tactic| focus (refine' no_implicit_lambda% $e; rotate_right))
 /-- Similar to `have`, but using `refine'` -/
-macro "have' " d:haveDecl : tactic => `(tactic| refine_lift' have $(⟨d⟩):haveDecl; ?_)
+macro "have' " d:letDecl : tactic => `(tactic| refine_lift' have $d:letDecl; ?_)
 set_option linter.missingDocs false in -- OK, because `tactic_alt` causes inheritance of docs
 macro (priority := high) "have'" x:ident " := " p:term : tactic => `(tactic| have' $x:ident : _ := $p)
 attribute [tactic_alt tacticHave'_] «tacticHave'_:=_»
@@ -1262,7 +1260,7 @@ h : β
 
 This can be used to simulate the `specialize` and `apply at` tactics of Coq.
 -/
-syntax (name := replace) "replace" haveDecl : tactic
+syntax (name := replace) "replace" letDecl : tactic
 
 /-- `and_intros` applies `And.intro` until it does not make progress. -/
 syntax "and_intros" : tactic
@@ -1278,10 +1276,10 @@ syntax (name := substEqs) "subst_eqs" : tactic
 syntax (name := runTac) "run_tac " doSeq : tactic
 
 /-- `haveI` behaves like `have`, but inlines the value instead of producing a `let_fun` term. -/
-macro "haveI" d:haveDecl : tactic => `(tactic| refine_lift haveI $(⟨d⟩):haveDecl; ?_)
+macro "haveI" d:letDecl : tactic => `(tactic| refine_lift haveI $d:letDecl; ?_)
 
 /-- `letI` behaves like `let`, but inlines the value instead of producing a `let_fun` term. -/
-macro "letI" d:haveDecl : tactic => `(tactic| refine_lift letI $(⟨d⟩):haveDecl; ?_)
+macro "letI" d:letDecl : tactic => `(tactic| refine_lift letI $d:letDecl; ?_)
 
 /--
 Configuration for the `decide` tactic family.

@@ -575,13 +575,10 @@ existent in the current context, or else fails.
 @[builtin_term_parser] def doubleQuotedName := leading_parser
   "`" >> checkNoWsBefore >> rawCh '`' (trailingWs := false) >> ident
 
-def letId := (leading_parser (withAnonymousAntiquot := false)
+def letId := leading_parser (withAnonymousAntiquot := false)
   (ppSpace >> binderIdent >> notFollowedBy (checkNoWsBefore "" >> "[")
     "space is required before instance '[...]' binders to distinguish them from array updates `let x[i] := e; ...`")
-  <|> hygieneInfo)
-  <|> -- TODO(kmill): remove after stage0 update
-    (withAntiquot (mkAntiquot "haveId" `Lean.Parser.Term.letId false)
-      (error "in bootstrapping parser for haveId"))
+  <|> hygieneInfo
 def letIdBinder :=
   withAntiquot (mkAntiquot "letIdBinder" decl_name% (isPseudoKind := true)) <|
     binderIdent <|> bracketedBinder
@@ -616,14 +613,11 @@ def letEqnsDecl := leading_parser (withAnonymousAntiquot := false)
 `let pat := e` (where `pat` is an arbitrary term) or `let f | pat1 => e1 | pat2 => e2 ...`
 (a pattern matching declaration), except for the `let` keyword itself.
 `let rec` declarations are not handled here. -/
-@[builtin_doc] def letDecl := (leading_parser (withAnonymousAntiquot := false)
+@[builtin_doc] def letDecl := leading_parser (withAnonymousAntiquot := false)
   -- Remark: we disable anonymous antiquotations here to make sure
   -- anonymous antiquotations (e.g., `$x`) are not `letDecl`
   notFollowedBy (nonReservedSymbol "rec") "rec" >>
-  (letPatDecl true <|> letIdDecl <|> letPatDecl <|> letEqnsDecl))
-  <|> -- TODO(kmill): remove after stage0 update
-    (withAntiquot (mkAntiquot "haveDecl" `Lean.Parser.Term.letDecl false)
-      (error "in bootstrapping parser for haveDecl"))
+  (letPatDecl true <|> letIdDecl <|> letPatDecl <|> letEqnsDecl)
 /--
 `+nondep` elaborates as a nondependent `let`, a `have` expression.
 -/
@@ -716,13 +710,6 @@ It is often used when building macros.
 /-- `letI` behaves like `let`, but inlines the value instead of producing a `let_fun` term. -/
 @[builtin_term_parser] def «letI» := leading_parser
   withPosition ("letI " >> letDecl) >> optSemicolon termParser
-
--- TODO(kmill): remove these after stage0 update
-abbrev haveId := letId
-abbrev haveIdLhs := letIdLhs
-abbrev haveIdDecl := letIdDecl
-abbrev haveEqnsDecl := letEqnsDecl
-abbrev haveDecl := letDecl
 
 def «scoped» := leading_parser "scoped "
 def «local»  := leading_parser "local "
@@ -1209,7 +1196,6 @@ end Term
 open Term in
 builtin_initialize
   register_parser_alias letDecl
-  register_parser_alias "haveDecl" letDecl
   register_parser_alias sufficesDecl
   register_parser_alias letRecDecls
   register_parser_alias hole

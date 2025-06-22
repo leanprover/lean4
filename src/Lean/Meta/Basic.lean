@@ -979,9 +979,10 @@ def _root_.Lean.FVarId.getBinderInfo (fvarId : FVarId) : MetaM BinderInfo :=
   return (← fvarId.getDecl).binderInfo
 
 /--
-Returns `some value` if the given free variable is a let-declaration, and `none` otherwise.
+Returns `some value` if the given free let-variable has a visible local definition in the current local context
+(using `Lean.LocalDecl.value?`), and `none` otherwise.
 
-If `allowNondep := false` (the default) then returns `none` if it is a nondependent let-declaration.
+Setting `allowNondep := true` allows access of the normally hidden value of a nondependent let declaration.
 -/
 def _root_.Lean.FVarId.getValue? (fvarId : FVarId) (allowNondep : Bool := false) : MetaM (Option Expr) :=
   return (← fvarId.getDecl).value? allowNondep
@@ -991,9 +992,10 @@ def _root_.Lean.FVarId.getUserName (fvarId : FVarId) : MetaM Name :=
   return (← fvarId.getDecl).userName
 
 /--
-Returns `true` is the free variable is a let-variable.
+Returns `true` if the free variable is a let-variable with a visible local definition in the current local context
+(using `Lean.LocalDecl.isLet`).
 
-If `allowNondep := false` (the default) then returns `false` if it is a nondependent let-declaration.
+Setting `allowNondep := true` includes nondependent let declarations, whose values are normally hidden.
 -/
 def _root_.Lean.FVarId.isLetVar (fvarId : FVarId) (allowNondep : Bool := false) : MetaM Bool :=
   return (← fvarId.getDecl).isLet allowNondep

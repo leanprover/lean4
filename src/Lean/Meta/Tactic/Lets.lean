@@ -224,7 +224,7 @@ partial def extractCore (fvars : List Expr) (e : Expr) (topLevel : Bool := false
       match e with
       | .bvar .. | .fvar .. | .mvar .. | .sort .. | .const .. | .lit .. => unreachable!
       | .mdata _ e'      => return e.updateMData! (← extractCore fvars e' (topLevel := topLevel))
-      | .letE n t v b nondep  => extractLetLike (!nondep) n t v b (fun t v b => pure <| e.updateLetE! t v b) (topLevel := topLevel)
+      | .letE n t v b nondep  => extractLetLike !nondep n t v b (fun t v b => pure <| e.updateLetE! t v b) (topLevel := topLevel)
       | .app ..          =>
         if e.isLetFun then
           extractLetFun e (topLevel := topLevel)

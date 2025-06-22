@@ -122,13 +122,13 @@ private def numLetsWithValueNotIsWfParam (e : Expr) (acc := 0) : Nat :=
 
 private partial def processParamLet (e : Expr) : MetaM Expr := do
   if let .letE _ t v b _ := e then
-    if let some v := isWfParam? v then
+    if let some v' := isWfParam? v then
       if ← Meta.isProp t then
-        processParamLet <| e.updateLetE! t v b
+        processParamLet <| e.updateLetE! t v' b
       else
         let u ← getLevel t
         let b' := b.instantiate1 <| mkApp2 (.const ``wfParam [u]) t (.bvar 0)
-        processParamLet <| e.updateLetE! t v b'
+        processParamLet <| e.updateLetE! t v' b'
     else
       let num := numLetsWithValueNotIsWfParam e
       assert! num > 0

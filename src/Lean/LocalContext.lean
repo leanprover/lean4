@@ -71,6 +71,7 @@ inductive LocalDecl where
     have type-incorrect values. This design decision allows metaprograms to not have to think about nondep `ldecl`s,
     so long as `LocalDecl` values are consumed through `LocalDecl.isLet` and `LocalDecl.value?` with `(allowNondep := false)`.
     **Rule:** never use `(generalizeNondepLet := false)` in `mkBinding`-family functions within a local context you do not own.
+    See `LocalDecl.setNondep` for some additional discussion.
   - Where then do nondep ldecls come from? Common functions are `Meta.mapLetDecl`, `Meta.withLetDecl`, and `Meta.letTelescope`.
     The `have` term syntax makes use of a nondep ldecl as well.
 
@@ -91,7 +92,11 @@ def LocalDecl.binderInfoEx : LocalDecl → BinderInfo
   | _                   => BinderInfo.default
 namespace LocalDecl
 
-/-- Returns true if this is an `ldecl`. If `allowNondep` is false (the default), then requires that `nondep` be false. -/
+/--
+Returns true if this is an `ldecl` with a visible value.
+
+If `allowNondep` is true then includes `ldecl`s with `nondep := true`, whose values are normally hidden.
+-/
 def isLet : LocalDecl → (allowNondep : Bool := false) → Bool
   | cdecl .., _ => false
   | ldecl (nondep := false) .., _ => true
@@ -143,8 +148,9 @@ def isImplementationDetail (d : LocalDecl) : Bool :=
   d.kind != .default
 
 /--
-Returns the value of the `ldecl`,
-but if the `ldecl` is nondependent and `allowNondep` is false, returns `none`.
+Returns the value of the `ldecl` if it has a visible value.
+
+If `allowNondep` is true, then allows nondependent `ldecl`s, whose values are normally hidden.
 -/
 def value? : LocalDecl → (allowNondep : Bool := false) → Option Expr
   | ldecl (nondep := false) (value := v) .., _    => some v
@@ -152,8 +158,9 @@ def value? : LocalDecl → (allowNondep : Bool := false) → Option Expr
   | _,                                       _    => none
 
 /--
-Returns the value of the `ldecl`,
-but if the `ldecl` is nondependent and `allowNondep` is false, panics.
+Returns the value of the `ldecl` if it has a visible value.
+
+If `allowNondep` is true, then allows nondependent `ldecl`s, whose values are normally hidden.
 -/
 def value : LocalDecl → (allowNondep : Bool := false) → Expr
   | cdecl ..,                                _     => panic! "let declaration expected"
@@ -175,17 +182,36 @@ def setValue : LocalDecl → Expr → LocalDecl
 
 /--
 Sets the `nondep` flag of an `ldecl`, otherwise returns `cdecl`s unchanged.
-It is the responsibility of the caller to ensure that transitions are correct.
+
+This is a low-level function, and it is the responsibility of the caller to ensure that
+transitions of `nondep` are valid.
 
 Rules:
-- Setting `nondep := true` is a way to convert the ldecl into a cdecl.
-  - Caution: be sure any relevant caches are cleared so that the value does not leak.
-  - Caution: be sure that metavariables from before and after the transition are not mixed,
+- If the declaration is not under the caller's control, then setting `nondep := false` must not be done.
+  General nondependent `ldecl`s should be treated like `cdecl`s.
+  See also the docstring for `LocalDecl.ldecl` about the `value` not necessarily being type correct.
+- Setting `nondep := true` is usually fine.
+  - Caution: be sure any relevant caches are cleared so that the value associated to this `FVarId` does not leak.
+  - Caution: be sure that metavariables dependent on this declaration created before and after the transition are not mixed,
     since unification does not check "`nondep`-compatibility" of local contexts when assigning metavariables.
-- If the declaration is for a variable whose dependencies are not completely under the caller's control,
-  then setting `nondep := false` must not be done.
-- Even if the caller does have complete control, setting `nondep := false` should not be done.
-  The cautions about caches and metavariables still apply.
+
+For example, setting `nondep := false` is fine from within a telescope combinator, to update the local context
+right before calling `mkLetFVars`:
+```lean
+let lctx ← getLCtx
+letTelescope e fun xs b => do
+  let lctx' ← xs.foldlM (init := lctx) fun lctx' x => do
+    let decl ← x.fvarId!.getDecl
+    -- Clear the flag if it's not a prop.
+    let decl' := decl.setNondep <| ← pure decl.isNondep <&&> Meta.isProp decl.type
+    pure <| lctx'.addDecl decl'
+  withLCtx' lctx' do
+    mkLetFVars (usedLetOnly := false) (generalizeNondepLet := false) xs b
+```
+1. The declarations for `xs` are in the control of this metaprogram.
+2. `mkLetFVars` does make use of `MetaM` caches.
+3. Even if `e` has metavariables, these do not include `xs` in their contexts,
+   so the change of the `nondep` flag does not cause any issues in the `abstractM` system used by `mkLetFVars`.
 -/
 def setNondep : LocalDecl → Bool → LocalDecl
   | ldecl idx id n t v _ k, nd => ldecl idx id n t v nd k

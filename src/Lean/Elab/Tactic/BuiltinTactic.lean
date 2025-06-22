@@ -608,11 +608,11 @@ where
   -- TODO(kmill): restore after stage0 update
   -- match stx with
   -- | `(tactic| replace $decl:haveDecl) =>
-    let decl : TSyntax ``Parser.Term.haveDecl := ⟨stx[1]⟩
+    let decl : TSyntax ``Parser.Term.letDecl := ⟨stx[1]⟩
     withMainContext do
       let vars ← Elab.Term.Do.getLetDeclVars decl
       let origLCtx ← getLCtx
-      evalTactic $ ← `(tactic| have $decl:haveDecl)
+      evalTactic $ ← `(tactic| have $(⟨decl⟩):haveDecl)
       let mut toClear := #[]
       for fv in vars do
         if let some ldecl := origLCtx.findFromUserName? fv.getId then

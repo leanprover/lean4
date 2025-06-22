@@ -117,19 +117,19 @@ open Meta
     ```
     -/
     let thisId := mkIdentFrom stx `this
-    let valNew ← `(let_fun $thisId : $(← exprToSyntax type) := $val; $thisId)
+    let valNew ← `(let_fun $thisId:ident : $(← exprToSyntax type) := $val; $thisId)
     elabTerm valNew expectedType?
   | _ => throwUnsupportedSyntax
 
 @[builtin_macro Lean.Parser.Term.suffices] def expandSuffices : Macro
-  | `(suffices%$tk $x:ident      : $type from $val; $body)   => `(have%$tk $x : $type := $body; $val)
+  | `(suffices%$tk $x:ident      : $type from $val; $body)   => `(have%$tk $x:ident : $type := $body; $val)
   | `(suffices%$tk _%$x          : $type from $val; $body)   => `(have%$tk _%$x : $type := $body; $val)
   | `(suffices%$tk $hy:hygieneInfo $type from $val; $body)   => `(have%$tk $hy:hygieneInfo : $type := $body; $val)
   | `(suffices%$tk $x:ident      : $type $b:byTactic'; $body) =>
     -- Pass on `SourceInfo` of `b` to `have`. This is necessary to display the goal state in the
     -- trailing whitespace of `by` and sound since `byTactic` and `byTactic'` are identical.
     let b := ⟨b.raw.setKind `Lean.Parser.Term.byTactic⟩
-    `(have%$tk $x : $type := $body; $b:byTactic)
+    `(have%$tk $x:ident : $type := $body; $b:byTactic)
   | `(suffices%$tk _%$x          : $type $b:byTactic'; $body) =>
     let b := ⟨b.raw.setKind `Lean.Parser.Term.byTactic⟩
     `(have%$tk _%$x : $type := $body; $b:byTactic)

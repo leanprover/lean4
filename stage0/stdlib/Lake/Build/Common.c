@@ -64,7 +64,6 @@ LEAN_EXPORT lean_object* l_Lake_Job_mapM___at___Lake_buildSharedLib_spec__0(lean
 lean_object* l_Lake_compileSharedLib(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildUnlessUpToDate___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_as_task(lean_object*, lean_object*, lean_object*);
-uint8_t l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3215_(lean_object*, lean_object*);
 lean_object* l_Lake_Job_collectList___redArg(lean_object*, lean_object*);
 static lean_object* l_Lake_buildLeanO___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_Lake_inputTextFile___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -459,6 +458,7 @@ static lean_object* l_Prod_toJson___at___Array_toJson___at_____private_Lake_Buil
 LEAN_EXPORT lean_object* l_Lake_inputBinFile___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_cacheFileHash___closed__0;
 LEAN_EXPORT lean_object* l_Lake_clearFileHash(lean_object*, lean_object*);
+uint8_t l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3236_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_inputFile___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_inputDir___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildUnlessUpToDate_x3f___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6745,7 +6745,7 @@ x_6 = lean_ctor_get(x_4, 0);
 x_7 = lean_ctor_get(x_6, 1);
 lean_inc(x_7);
 lean_dec(x_6);
-x_8 = l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3215_(x_2, x_7);
+x_8 = l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3236_(x_2, x_7);
 lean_dec(x_7);
 x_9 = lean_box(x_8);
 if (lean_obj_tag(x_9) == 0)
@@ -6775,7 +6775,7 @@ lean_dec(x_4);
 x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
-x_15 = l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3215_(x_2, x_14);
+x_15 = l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3236_(x_2, x_14);
 lean_dec(x_14);
 x_16 = lean_box(x_15);
 if (lean_obj_tag(x_16) == 0)

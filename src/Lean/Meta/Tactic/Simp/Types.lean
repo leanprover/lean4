@@ -191,9 +191,6 @@ def Context.setFailIfUnchanged (c : Context) (flag : Bool) : Context :=
 def Context.setMemoize (c : Context) (flag : Bool) : Context :=
   { c with config.memoize := flag }
 
-def Context.setContextual (c : Context) (flag : Bool) : Context :=
-  { c with config.contextual := flag }
-
 def Context.setZetaDeltaSet (c : Context) (zetaDeltaSet : FVarIdSet) (initUsedZetaDelta : FVarIdSet) : Context :=
   { c with zetaDeltaSet, initUsedZetaDelta }
 
@@ -232,29 +229,13 @@ structure Diagnostics where
   thmsWithBadKeys : PArray SimpTheorem := {}
   deriving Inhabited
 
-inductive LoopProtectionResult where
-  | ok
-  | loop (loop : Array SimpTheorem)
-deriving Inhabited
-
-structure LoopProtectionCache where
-  map : PHashMap Expr LoopProtectionResult := {}
-  deriving Inhabited
-
-def LoopProtectionCache.lookup? (c : LoopProtectionCache) (thm : SimpTheorem) : Option LoopProtectionResult :=
-  c.map.find? thm.proof
-
-def LoopProtectionCache.insert (c : LoopProtectionCache) (thm : SimpTheorem) (r : LoopProtectionResult) : LoopProtectionCache :=
-  { c with map := c.map.insert thm.proof r }
-
 structure State where
-  cache               : Cache := {}
-  congrCache          : CongrCache := {}
-  dsimpCache          : ExprStructMap Expr := {}
-  usedTheorems        : UsedSimps := {}
-  loopProtectionCache : LoopProtectionCache := {}
-  numSteps            : Nat := 0
-  diag                : Diagnostics := {}
+  cache        : Cache := {}
+  congrCache   : CongrCache := {}
+  dsimpCache   : ExprStructMap Expr := {}
+  usedTheorems : UsedSimps := {}
+  numSteps     : Nat := 0
+  diag         : Diagnostics := {}
 
 structure Stats where
   usedTheorems : UsedSimps := {}
@@ -308,8 +289,7 @@ opaque dsimp (e : Expr) : SimpM Expr
 
 @[inline] def modifyDiag (f : Diagnostics → Diagnostics) : SimpM Unit := do
   if (← isDiagnosticsEnabled) then
-    modify fun { cache, congrCache, dsimpCache, usedTheorems, loopProtectionCache, numSteps, diag } =>
-      { cache, congrCache, dsimpCache, usedTheorems,  loopProtectionCache, numSteps, diag := f diag }
+    modify fun { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag } => { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag := f diag }
 
 /--
 Result type for a simplification procedure. We have `pre` and `post` simplification procedures.

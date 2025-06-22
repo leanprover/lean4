@@ -742,7 +742,6 @@ def simpStep (e : Expr) : SimpM Result := do
   | .fvar ..     => return { expr := (← reduceFVar (← getConfig) (← getSimpTheorems) e) }
 
 def cacheResult (e : Expr) (cfg : Config) (r : Result) : SimpM Result := do
-  trace[Debug.Meta.Tactic.simp] "caching {e} ==> {r.expr}"
   if cfg.memoize && r.cache then
     modify fun s => { s with cache := s.cache.insert e r }
   return r
@@ -757,7 +756,6 @@ partial def simpLoop (e : Expr) : SimpM Result := withIncRecDepth do
     throwError "simp failed, maximum number of steps exceeded"
   else
     checkSystem "simp"
-    trace[Debug.Meta.Tactic.simp] "simpLoop {e}"
     modify fun s => { s with numSteps := s.numSteps + 1 }
     match (← pre e) with
     | .done r  => cacheResult e cfg r

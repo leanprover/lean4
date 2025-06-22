@@ -799,18 +799,17 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
           mkLetFVars #[x] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
       | some h =>
         let hTy ← mkEq x val
-        let pf ← mkEqRefl x
-        withLetDecl h.getId hTy pf (nondep := true) fun h' => do
+        withLetDecl h.getId hTy (← mkEqRefl x) (nondep := true) fun h' => do
           addLocalVarInfo h h'
           let body ← elabBody
           if config.zeta then
-            pure <| (← body.abstractM #[x, h']).instantiateRev #[val, pf]
+            pure <| (← body.abstractM #[x, h']).instantiateRev #[val, ← mkEqRefl val]
           else if config.nondep then
             -- TODO(kmill): Think more about how to encode this case.
             -- Currently we produce `(fun (x : α) (h : x = val) => b) val rfl`.
             -- N.B. the nondep lets become lambdas here.
             let f ← mkLambdaFVars #[x, h'] body
-            return mkApp2 f val pf
+            return mkApp2 f val (← mkEqRefl val)
           else
             mkLetFVars #[x, h'] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
   if config.postponeValue then

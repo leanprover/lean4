@@ -1312,7 +1312,7 @@ theorem pow_eq_self_iff {a b : Nat} (ha : 1 < a) : a ^ b = a ↔ b = 1 := by
 
 @[simp]
 theorem log2_zero : Nat.log2 0 = 0 := by
-  unfold Nat.log2; simp
+  simp [Nat.log2]
 
 theorem le_log2 (h : n ≠ 0) : k ≤ n.log2 ↔ 2 ^ k ≤ n := by
   match k with
@@ -1439,7 +1439,7 @@ theorem div_ne_zero_iff_of_dvd (hba : b ∣ a) : a / b ≠ 0 ↔ a ≠ 0 ∧ b �
 theorem pow_mod (a b n : Nat) : a ^ b % n = (a % n) ^ b % n := by
   induction b with
   | zero => rfl
-  | succ b ih => rw [Nat.pow_succ, Nat.pow_succ, Nat.mul_mod]; simp [ih]
+  | succ b ih => simp [Nat.pow_succ, Nat.mul_mod, ih]
 
 theorem lt_of_pow_dvd_right (hb : b ≠ 0) (ha : 2 ≤ a) (h : a ^ n ∣ b) : n < b := by
   rw [← Nat.pow_lt_pow_iff_right (succ_le_iff.1 ha)]

@@ -193,7 +193,7 @@ theorem mapFinIdx_eq_ofFn {xs : Array α} {f : (i : Nat) → α → (h : i < xs.
     xs.mapFinIdx f = Array.ofFn fun i : Fin xs.size => f i xs[i] i.2 := by
   cases xs
   simp only [List.mapFinIdx_toArray, List.mapFinIdx_eq_ofFn, Fin.getElem_fin, List.getElem_toArray]
-  simp [Array.size, - length_toList]
+  simp [Array.size]
 
 @[grind =]
 theorem mapFinIdx_append {xs ys : Array α} {f : (i : Nat) → α → (h : i < (xs ++ ys).size) → β} :
@@ -202,7 +202,7 @@ theorem mapFinIdx_append {xs ys : Array α} {f : (i : Nat) → α → (h : i < (
         ys.mapFinIdx (fun i a h => f (i + xs.size) a (by simp; omega)) := by
   cases xs
   cases ys
-  simp [List.mapFinIdx_append, Array.size, - length_toList]
+  simp [List.mapFinIdx_append, Array.size]
 
 @[simp, grind =]
 theorem mapFinIdx_push {xs : Array α} {a : α} {f : (i : Nat) → α → (h : i < (xs.push a).size) → β} :
@@ -266,12 +266,12 @@ theorem mapFinIdx_eq_append_iff {xs : Array α} {f : (i : Nat) → α → (h : i
     toArray_eq_append_iff]
   constructor
   · rintro ⟨l₁, l₂, rfl, rfl, rfl⟩
-    refine ⟨l₁.toArray, l₂.toArray, by simp_all [Array.size, - length_toList]⟩
+    refine ⟨l₁.toArray, l₂.toArray, by simp_all [Array.size]⟩
   · rintro ⟨⟨l₁⟩, ⟨l₂⟩, rfl, h₁, h₂⟩
     simp [← toList_inj] at h₁ h₂
     obtain rfl := h₁
     obtain rfl := h₂
-    refine ⟨l₁, l₂, by simp_all [Array.size, -length_toList]⟩
+    refine ⟨l₁, l₂, by simp_all [Array.size]⟩
 
 theorem mapFinIdx_eq_push_iff {xs : Array α} {b : β} {f : (i : Nat) → α → (h : i < xs.size) → β} :
     xs.mapFinIdx f = ys.push b ↔
@@ -309,7 +309,7 @@ abbrev mapFinIdx_eq_mkArray_iff := @mapFinIdx_eq_replicate_iff
 @[simp, grind =] theorem mapFinIdx_reverse {xs : Array α} {f : (i : Nat) → α → (h : i < xs.reverse.size) → β} :
     xs.reverse.mapFinIdx f = (xs.mapFinIdx (fun i a h => f (xs.size - 1 - i) a (by simp; omega))).reverse := by
   rcases xs with ⟨l⟩
-  simp [List.mapFinIdx_reverse, Array.size, -length_toList]
+  simp [List.mapFinIdx_reverse, Array.size]
 
 /-! ### mapIdx -/
 

@@ -3068,11 +3068,11 @@ theorem getElem_push_last {xs : Vector α n} {x : α} : (xs.push x)[n] = x := by
 
 @[simp] theorem findRev?_eq_find?_reverse {f : α → Bool} {xs : Vector α n} :
     findRev? f xs = find? f xs.reverse := by
-  simp [findRev?, find?, -find?_toArray]
+  simp [findRev?, find?]
 
 @[simp] theorem findSomeRev?_eq_findSome?_reverse {f : α → Option β} {xs : Vector α n} :
     findSomeRev? f xs = findSome? f xs.reverse := by
-  simp [findSomeRev?, findSome?, -findSome?_toArray]
+  simp [findSomeRev?, findSome?]
 
 /-! ### zipWith -/
 

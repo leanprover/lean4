@@ -579,7 +579,7 @@ theorem msb_eq_false_iff_two_mul_lt {x : BitVec w} : x.msb = false ↔ 2 * x.toN
   cases w <;> simp [Nat.pow_succ, Nat.mul_comm _ 2, msb_eq_decide, toNat_of_zero_length]
 
 theorem msb_eq_true_iff_two_mul_ge {x : BitVec w} : x.msb = true ↔ 2 * x.toNat ≥ 2^w := by
-  simp [← Bool.ne_false_iff, msb_eq_false_iff_two_mul_lt, - Bool.not_eq_false]
+  simp [← Bool.ne_false_iff, msb_eq_false_iff_two_mul_lt]
 
 /-- Characterize `x.toInt` in terms of `x.msb`. -/
 theorem toInt_eq_msb_cond (x : BitVec w) :
@@ -878,8 +878,7 @@ theorem zeroExtend_eq_setWidth {v : Nat} {x : BitVec w} :
 @[simp] theorem setWidth_eq (x : BitVec n) : setWidth n x = x := by
   apply eq_of_toNat_eq
   let ⟨x, lt_n⟩ := x
-  unfold setWidth
-  simp
+  simp [setWidth]
 
 @[simp] theorem setWidth_zero (m n : Nat) : setWidth m 0#n = 0#m := by
   apply eq_of_toNat_eq
@@ -5655,7 +5654,7 @@ theorem clzAuxRec_eq_clzAuxRec_of_le (x : BitVec w) (h : w - 1 ≤ n) :
 /-! ### Inequalities (le / lt) -/
 
 theorem ule_eq_not_ult (x y : BitVec w) : x.ule y = !y.ult x := by
-  simp [BitVec.ule, BitVec.ult, ← decide_not, -Classical.decide_not]
+  simp [BitVec.ule, BitVec.ult, ← decide_not]
 
 /-- If two bitvectors have the same `msb`, then signed and unsigned comparisons coincide -/
 theorem slt_eq_ult_of_msb_eq {x y : BitVec w} (h : x.msb = y.msb) :

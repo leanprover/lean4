@@ -73,7 +73,7 @@ def ofFnM {n} [Monad m] (f : Fin n → m α) : m (Vector α n) :=
 
 @[simp, grind =]
 theorem ofFnM_zero [Monad m] {f : Fin 0 → m α} : Vector.ofFnM f = pure #v[] := by
-  unfold ofFnM ofFnM.go; simp
+  simp [ofFnM, ofFnM.go]
 
 private theorem ofFnM_go_succ {n} [Monad m] [LawfulMonad m] {f : Fin (n + 1) → m α}
     (hi : i ≤ n := by omega) {h : xs.size = i} :

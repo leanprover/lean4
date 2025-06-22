@@ -16,9 +16,6 @@ import Init.Data.BitVec.Lemmas
 import Init.Data.Nat.Div.Lemmas
 import Init.System.Platform
 
-#guard_msgs(drop error) in -- stage0 help
-set_option linter.simp.loopProtection false  -- due to simp [ ← Bool.or_assoc, Bool.or_comm]
-
 open Lean in
 set_option hygiene false in
 macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
@@ -130,7 +127,7 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
 
   open $typeName (eq_of_toBitVec_eq toFin) in
   protected theorem eq_of_toFin_eq {a b : $typeName} (h : a.toFin = b.toFin) : a = b := by
-    rcases a with ⟨⟨_⟩⟩; rcases b with ⟨⟨_⟩⟩; simp_all [toFin, -toFin_toBitVec]
+    rcases a with ⟨⟨_⟩⟩; rcases b with ⟨⟨_⟩⟩; simp_all [toFin]
   open $typeName (eq_of_toFin_eq) in
   @[deprecated eq_of_toFin_eq (since := "2025-02-12")]
   protected theorem eq_of_val_eq {a b : $typeName} (h : a.toFin = b.toFin) : a = b :=

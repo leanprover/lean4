@@ -617,7 +617,7 @@ and simplifies these to the function directly taking the value.
 
 @[simp] theorem unattach_replicate {p : α → Prop} {n : Nat} {x : { x // p x }} :
     (replicate n x).unattach = replicate n x.1 := by
-  simp [unattach, -map_subtype]
+  simp [unattach]
 
 @[deprecated unattach_replicate (since := "2025-03-18")]
 abbrev unattach_mkVector := @unattach_replicate

@@ -2154,7 +2154,7 @@ theorem flatMap_eq_foldl {f : α → List β} {l : List α} :
 
 /-- Variant of `replicate_succ` that concatenates `a` to the end of the list. -/
 theorem replicate_succ' : replicate (n + 1) a = replicate n a ++ [a] := by
-  induction n <;> simp_all [replicate_succ, ← cons_append, - cons_append_fun]
+  induction n <;> simp_all [replicate_succ, ← cons_append]
 
 @[simp, grind] theorem mem_replicate {a b : α} : ∀ {n}, b ∈ replicate n a ↔ n ≠ 0 ∧ b = a
   | 0 => by simp
@@ -2682,7 +2682,7 @@ theorem foldr_map_hom {g : α → β} {f : α → α → α} {f' : β → β →
 
 @[simp, grind] theorem foldl_reverse {l : List α} {f : β → α → β} {b : β} :
     l.reverse.foldl f b = l.foldr (fun x y => f y x) b := by
-  simp [foldl_eq_foldlM, foldr_eq_foldrM, -foldrM_pure, -foldlM_pure]
+  simp [foldl_eq_foldlM, foldr_eq_foldrM, -foldrM_pure]
 
 @[simp, grind] theorem foldr_reverse {l : List α} {f : α → β → β} {b : β} :
     l.reverse.foldr f b = l.foldl (fun x y => f y x) b :=
@@ -2870,7 +2870,7 @@ theorem getLast?_eq_some_iff {xs : List α} {a : α} : xs.getLast? = some a ↔ 
 
 @[simp, grind] theorem getLast_reverse {l : List α} (h : l.reverse ≠ []) :
     l.reverse.getLast h = l.head (by simp_all) := by
-  simp [getLast_eq_head_reverse, -head_reverse]
+  simp [getLast_eq_head_reverse]
 
 theorem head_eq_getLast_reverse {l : List α} (h : l ≠ []) :
     l.head h = l.reverse.getLast (by simp_all) := by
@@ -2931,7 +2931,7 @@ theorem getLast?_replicate {a : α} {n : Nat} : (replicate n a).getLast? = if n 
   simp only [← head?_reverse, reverse_replicate, head?_replicate]
 
 @[simp] theorem getLast_replicate (w : replicate n a ≠ []) : (replicate n a).getLast w = a := by
-  simp [getLast_eq_head_reverse, -head_reverse]
+  simp [getLast_eq_head_reverse]
 
 /-! ## Additional operations -/
 

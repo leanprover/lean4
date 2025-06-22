@@ -66,9 +66,7 @@ noncomputable def div2Induction {motive : Nat → Sort u}
     subst n0; decide
   else
     simp only [HAnd.hAnd, AndOp.and, land]
-    have : bitwise and 0 (n / 2) = 0 := by unfold bitwise; simp
-    cases mod_two_eq_zero_or_one n with | _ h =>
-      unfold bitwise; simp [n0, h, this]
+    cases mod_two_eq_zero_or_one n with | _ h => simp [bitwise, n0, h]
 
 @[simp, grind =] theorem and_one_is_mod (x : Nat) : x &&& 1 = x % 2 := by
   if xz : x = 0 then

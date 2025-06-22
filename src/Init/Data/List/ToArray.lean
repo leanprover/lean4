@@ -224,7 +224,7 @@ theorem findSomeRevM?_find_toArray [Monad m] [LawfulMonad m] (f : α → m (Opti
     (i : Nat) (h) :
     findSomeRevM?.find f l.toArray i h = (l.take i).reverse.findSomeM? f := by
   induction i generalizing l with
-  | zero => unfold Array.findSomeRevM?.find; simp
+  | zero => simp [Array.findSomeRevM?.find.eq_def]
   | succ i ih =>
     rw [size_toArray] at h
     rw [Array.findSomeRevM?.find, take_succ, getElem?_eq_getElem (by omega)]
@@ -493,7 +493,7 @@ theorem takeWhile_go_succ (p : α → Bool) (a : α) (l : List α) (i : Nat) :
 theorem takeWhile_go_toArray (p : α → Bool) (l : List α) (i : Nat) :
     Array.takeWhile.go p l.toArray i r = r ++ (takeWhile p (l.drop i)).toArray := by
   induction l generalizing i r with
-  | nil => rw [takeWhile.go]; simp
+  | nil => simp [takeWhile.go]
   | cons a l ih =>
     rw [takeWhile.go]
     cases i with

@@ -121,7 +121,6 @@ static lean_object* l_Lean_Meta_Monotonicity_initFn___lam__1___closed__3____x40_
 LEAN_EXPORT lean_object* l_Lean_Meta_Monotonicity_solveMonoCall___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Monotonicity_solveMonoStep___closed__1;
 lean_object* l_Lean_ScopedEnvExtension_add___at___Lean_Meta_addSimpCongrTheorem_spec__0___redArg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_mapTR_loop___at___Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2803__spec__7(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Monotonicity_solveMonoStep___lam__5___closed__3;
 static uint64_t l_Lean_Meta_Monotonicity_initFn___lam__4___closed__30____x40_Lean_Elab_Tactic_Monotonicity___hyg_245_;
 LEAN_EXPORT lean_object* l_Lean_Meta_Monotonicity_initFn___lam__3____x40_Lean_Elab_Tactic_Monotonicity___hyg_245_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -152,6 +151,7 @@ lean_object* l_panic___at___Lean_Expr_appFn_x21_spec__0(lean_object*);
 static lean_object* l_Lean_Meta_Monotonicity_solveMonoStep___lam__3___closed__2;
 static lean_object* l_Lean_Meta_Monotonicity_initFn___lam__1___closed__0____x40_Lean_Elab_Tactic_Monotonicity___hyg_245_;
 lean_object* l_Lean_MessageData_andList(lean_object*);
+lean_object* l_List_mapTR_loop___at___Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2793__spec__7(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Monotonicity_0__Lean_Meta_Monotonicity_defaultFailK(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_MatcherInfo_getFirstDiscrPos(lean_object*);
 static lean_object* l_Lean_Meta_Monotonicity_initFn___lam__4___closed__9____x40_Lean_Elab_Tactic_Monotonicity___hyg_245_;
@@ -3182,7 +3182,7 @@ lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean
 x_20 = l___private_Lean_Elab_Tactic_Monotonicity_0__Lean_Meta_Monotonicity_defaultFailK___redArg___closed__5;
 x_21 = lean_array_to_list(x_2);
 x_22 = lean_box(0);
-x_23 = l_List_mapTR_loop___at___Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2803__spec__7(x_21, x_22);
+x_23 = l_List_mapTR_loop___at___Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2793__spec__7(x_21, x_22);
 x_24 = l_Lean_MessageData_andList(x_23);
 x_25 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_25, 0, x_20);

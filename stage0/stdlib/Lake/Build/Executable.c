@@ -3222,13 +3222,13 @@ block_16:
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
-lean_ctor_set(x_13, 1, x_11);
+lean_ctor_set(x_13, 1, x_10);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
 lean_ctor_set(x_14, 1, x_9);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
-lean_ctor_set(x_15, 1, x_10);
+lean_ctor_set(x_15, 1, x_11);
 return x_15;
 }
 block_53:
@@ -3270,8 +3270,8 @@ lean_dec(x_36);
 x_38 = l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_LeanExe_recBuildExe_spec__21_spec__21___redArg___closed__4;
 x_39 = l_panic___at___Lean_Name_getString_x21_spec__0(x_38);
 x_9 = x_32;
-x_10 = x_35;
-x_11 = x_31;
+x_10 = x_31;
+x_11 = x_35;
 x_12 = x_39;
 goto block_16;
 }
@@ -3281,8 +3281,8 @@ lean_object* x_40;
 x_40 = lean_string_from_utf8_unchecked(x_36);
 lean_dec(x_36);
 x_9 = x_32;
-x_10 = x_35;
-x_11 = x_31;
+x_10 = x_31;
+x_11 = x_35;
 x_12 = x_40;
 goto block_16;
 }
@@ -3995,8 +3995,8 @@ if (x_157 == 0)
 {
 lean_dec(x_156);
 lean_dec(x_155);
-x_25 = x_138;
-x_26 = x_139;
+x_25 = x_139;
+x_26 = x_138;
 x_27 = x_154;
 x_28 = x_148;
 x_29 = x_153;
@@ -4010,8 +4010,8 @@ if (x_158 == 0)
 {
 lean_dec(x_156);
 lean_dec(x_155);
-x_25 = x_138;
-x_26 = x_139;
+x_25 = x_139;
+x_26 = x_138;
 x_27 = x_154;
 x_28 = x_148;
 x_29 = x_153;
@@ -4033,8 +4033,8 @@ lean_dec(x_161);
 x_164 = lean_ctor_get(x_162, 1);
 lean_inc(x_164);
 lean_dec(x_162);
-x_25 = x_138;
-x_26 = x_139;
+x_25 = x_139;
+x_26 = x_138;
 x_27 = x_154;
 x_28 = x_164;
 x_29 = x_163;
@@ -4346,8 +4346,8 @@ if (x_229 == 0)
 {
 lean_dec(x_228);
 lean_dec(x_227);
-x_25 = x_210;
-x_26 = x_211;
+x_25 = x_211;
+x_26 = x_210;
 x_27 = x_226;
 x_28 = x_220;
 x_29 = x_225;
@@ -4361,8 +4361,8 @@ if (x_230 == 0)
 {
 lean_dec(x_228);
 lean_dec(x_227);
-x_25 = x_210;
-x_26 = x_211;
+x_25 = x_211;
+x_26 = x_210;
 x_27 = x_226;
 x_28 = x_220;
 x_29 = x_225;
@@ -4384,8 +4384,8 @@ lean_dec(x_233);
 x_236 = lean_ctor_get(x_234, 1);
 lean_inc(x_236);
 lean_dec(x_234);
-x_25 = x_210;
-x_26 = x_211;
+x_25 = x_211;
+x_26 = x_210;
 x_27 = x_226;
 x_28 = x_236;
 x_29 = x_235;
@@ -4922,7 +4922,7 @@ lean_inc(x_22);
 lean_inc(x_21);
 lean_inc(x_20);
 lean_inc(x_19);
-x_32 = l_Array_forIn_x27Unsafe_loop___at___Lake_LeanExe_recBuildExe_spec__15(x_30, x_31, x_4, x_26, x_19, x_20, x_21, x_22, x_28, x_29);
+x_32 = l_Array_forIn_x27Unsafe_loop___at___Lake_LeanExe_recBuildExe_spec__15(x_30, x_31, x_4, x_25, x_19, x_20, x_21, x_22, x_28, x_29);
 lean_dec(x_30);
 x_33 = lean_ctor_get(x_32, 0);
 lean_inc(x_33);
@@ -4963,7 +4963,7 @@ x_50 = l_Lake_LeanExe_linkArgs(x_13);
 x_51 = l_System_Platform_isWindows;
 x_52 = lean_strict_and(x_51, x_7);
 x_53 = l_Lake_ensureJob___at___Lake_LeanExe_recBuildExe_spec__21___closed__2;
-x_54 = l_Lake_buildLeanExe(x_48, x_37, x_25, x_49, x_50, x_52, x_19, x_20, x_21, x_22, x_53, x_35);
+x_54 = l_Lake_buildLeanExe(x_48, x_37, x_26, x_49, x_50, x_52, x_19, x_20, x_21, x_22, x_53, x_35);
 lean_dec(x_37);
 x_55 = !lean_is_exclusive(x_54);
 if (x_55 == 0)
@@ -5021,7 +5021,7 @@ x_74 = l_Lake_LeanExe_linkArgs(x_13);
 x_75 = l_System_Platform_isWindows;
 x_76 = lean_strict_and(x_75, x_7);
 x_77 = l_Lake_ensureJob___at___Lake_LeanExe_recBuildExe_spec__21___closed__2;
-x_78 = l_Lake_buildLeanExe(x_72, x_60, x_25, x_73, x_74, x_76, x_19, x_20, x_21, x_22, x_77, x_35);
+x_78 = l_Lake_buildLeanExe(x_72, x_60, x_26, x_73, x_74, x_76, x_19, x_20, x_21, x_22, x_77, x_35);
 lean_dec(x_60);
 x_79 = lean_ctor_get(x_78, 0);
 lean_inc(x_79);
@@ -5051,7 +5051,7 @@ return x_83;
 else
 {
 uint8_t x_84; 
-lean_dec(x_25);
+lean_dec(x_26);
 lean_dec(x_22);
 lean_dec(x_21);
 lean_dec(x_20);

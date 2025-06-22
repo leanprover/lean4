@@ -42,6 +42,7 @@ lean_object* l_Lean_Expr_sort___override(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_871__spec__0___redArg___closed__5;
+uint8_t l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1735__spec__1___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_refl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_inferDefEqAttr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -90,7 +91,6 @@ lean_object* l_Lean_Meta_realizeConst(lean_object*, lean_object*, lean_object*, 
 static lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__0___closed__6;
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Meta_getConstUnfoldEqnFor_x3f_spec__0___closed__1;
-uint8_t l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1737__spec__1___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__1(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_871__spec__0___redArg___closed__2;
@@ -821,7 +821,7 @@ goto block_27;
 else
 {
 uint8_t x_61; 
-x_61 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1737__spec__1___redArg(x_57, x_5, x_58);
+x_61 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1735__spec__1___redArg(x_57, x_5, x_58);
 lean_dec(x_57);
 if (x_61 == 0)
 {

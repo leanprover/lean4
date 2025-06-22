@@ -1674,7 +1674,7 @@ private theorem neg_udiv_eq_intMin_iff_eq_intMin_eq_one_of_msb_eq_true
     obtain ⟨hx, hy⟩ := this
     simp only [beq_iff_eq] at hy
     subst hy
-    simp only [udiv_one, zero_lt_succ, neg_eq_intMin] at h
+    simp only [udiv_one, neg_eq_intMin] at h
     simp [h]
   · rintro ⟨hx, hy⟩
     subst hx hy
@@ -1701,10 +1701,9 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
      := by
   rcases w; decide +revert
   case succ w =>
-    simp only [decide_true, ne_eq, decide_and, decide_not, Bool.true_and,
-      sdiv_eq, udiv_eq]
+    simp only [sdiv_eq, udiv_eq]
     rcases hxmsb : x.msb <;> rcases hymsb : y.msb
-    · simp [hxmsb, hymsb, msb_udiv_eq_false_of, Bool.not_false, Bool.and_false, Bool.false_and,
+    · simp [hxmsb, msb_udiv_eq_false_of, Bool.not_false, Bool.and_false, Bool.false_and,
         Bool.and_true, Bool.or_self, Bool.and_self]
     · simp only [hxmsb, hymsb, msb_neg, msb_udiv_eq_false_of, bne_false, Bool.not_false,
         Bool.and_self, ne_zero_of_msb_true, decide_false, Bool.and_true, Bool.true_and, Bool.not_true,
@@ -1716,7 +1715,7 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
         obtain ⟨hcontra, _⟩ := this
         simp only [hcontra, true_eq_false] at hxmsb
       simp [this, hymsb, udiv_ne_zero_iff_ne_zero_and_le]
-    · simp only [hxmsb, hymsb, Bool.not_true, Bool.and_self, Bool.false_and, Bool.not_false,
+    · simp only [Bool.not_true, Bool.and_self, Bool.false_and, Bool.not_false,
         Bool.true_and, Bool.false_or, Bool.and_false, Bool.or_false]
       by_cases hx₁ : x = 0#(w + 1)
       · simp [hx₁, neg_zero, zero_udiv, msb_zero, le_zero_iff, Bool.and_not_self]
@@ -1725,12 +1724,12 @@ theorem msb_sdiv_eq_decide {x y : BitVec w} :
         · simp only [hy₁, decide_false, Bool.not_false, Bool.and_true]
           by_cases hxy₁ : (- x / y) = 0#(w + 1)
           · simp only [hxy₁, neg_zero, msb_zero, false_eq_decide_iff, BitVec.not_le,
-              decide_eq_true_eq, BitVec.not_le]
+              BitVec.not_le]
             simp only [udiv_eq_zero_iff_eq_zero_or_lt, hy₁, _root_.false_or] at hxy₁
             bv_omega
           · simp only [udiv_eq_zero_iff_eq_zero_or_lt, _root_.not_or, BitVec.not_lt,
               hy₁, not_false_eq_true, _root_.true_and] at hxy₁
-            simp only [hxy₁, decide_true, msb_neg, bne_iff_ne, ne_eq,
+            simp only [decide_true, msb_neg, bne_iff_ne, ne_eq,
               bool_to_prop,
               bne_iff_ne, ne_eq, udiv_eq_zero_iff_eq_zero_or_lt, hy₁, _root_.false_or,
               BitVec.not_lt, hxy₁, _root_.true_and, decide_not, not_eq_eq_eq_not, not_eq_not,

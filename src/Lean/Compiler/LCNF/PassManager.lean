@@ -14,7 +14,6 @@ namespace Lean.Compiler.LCNF
 def Phase.toNat : Phase → Nat
   | .base => 0
   | .mono => 1
-  | .impure => 2
 
 instance : LT Phase where
   lt l r := l.toNat < r.toNat
@@ -90,7 +89,6 @@ instance : ToString Phase where
   toString
     | .base => "base"
     | .mono => "mono"
-    | .impure => "impure"
 
 namespace Pass
 

@@ -61,7 +61,6 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_initFn___lam__0____x40
 static lean_object* l_Lean_PrettyPrinter_Delaborator_instMonadQuotationDelabM___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_instInhabitedDelabM(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_delabCore___redArg___closed__1;
-lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_checkSystem(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_OmissionReason_toString(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_attrApp__delab__;
@@ -461,6 +460,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_whenPPOption(lean_obje
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_delabCore___redArg___closed__14;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_failure___redArg(lean_object*);
+lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_initFn___closed__7____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_4664_;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_addTermInfo___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_addTermInfo_mkTermInfo(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10848,7 +10848,7 @@ goto block_116;
 else
 {
 lean_object* x_134; lean_object* x_135; lean_object* x_136; 
-x_134 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(x_118, x_122, x_128);
+x_134 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(x_118, x_122, x_128);
 x_135 = lean_ctor_get(x_134, 0);
 lean_inc(x_135);
 x_136 = lean_ctor_get(x_134, 1);
@@ -10924,7 +10924,7 @@ goto block_116;
 else
 {
 lean_object* x_152; lean_object* x_153; lean_object* x_154; 
-x_152 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(x_118, x_122, x_128);
+x_152 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(x_118, x_122, x_128);
 x_153 = lean_ctor_get(x_152, 0);
 lean_inc(x_153);
 x_154 = lean_ctor_get(x_152, 1);

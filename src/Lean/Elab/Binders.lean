@@ -687,13 +687,56 @@ open Lean.Elab.Term.Quotation in
       mkLambdaFVars xs e
   | _ => throwUnsupportedSyntax
 
+/--
+Configuration for `let` elaboration.
+-/
+structure LetConfig where
+  /-- Elaborate as a nondependent `let` (a `have`). -/
+  nondep : Bool := false
+  /-- Eliminate the `let` if it is unused by the body. -/
+  usedOnly : Bool := false
+  /-- Zeta reduces (inlines) the `let`. -/
+  zeta : Bool := false
+  /-- Postpone elaboration of the value until after the body is elaborated. -/
+  postponeValue : Bool := false
+  /-- For `let x := v; b`, adds `eq : x = v` to the context. -/
+  eq? : Option Ident := none
+
+def LetConfig.setFrom (config : LetConfig) (key : Syntax) (val : Bool) : LetConfig :=
+  if key.isOfKind ``Parser.Term.letOptNondep then
+    { config with nondep := val }
+  else if key.isOfKind ``Parser.Term.letOptUsedOnly then
+    { config with usedOnly := val }
+  else if key.isOfKind ``Parser.Term.letOptZeta then
+    { config with zeta := val }
+  else if key.isOfKind ``Parser.Term.letOptPostponeValue then
+    { config with postponeValue := val }
+  else
+    config
+
+/--
+Interprets a `Parser.Term.letConfig`.
+-/
+def mkLetConfig (letConfig : Syntax) (initConfig : LetConfig) : TermElabM LetConfig := do
+  let mut config := initConfig
+  unless letConfig.isOfKind ``Parser.Term.letConfig do
+    return config
+  for item in letConfig[0].getArgs do
+    match item with
+    | `(letPosOpt| +$opt:letOpts) => config := config.setFrom opt.raw[0] true
+    | `(letNegOpt| -$opt:letOpts) => config := config.setFrom opt.raw[0] false
+    | `(letOptEq| (eq := $n:ident)) => config := { config with eq? := n }
+    | `(letOptEq| (eq := $b)) => config := { config with eq? := mkIdentFrom b (canonical := true) (← mkFreshBinderNameForTactic `h) }
+    | _ => pure ()
+  return config
+
 /-- If `useLetExpr` is true, then a kernel let-expression `let x : type := val; body` is created.
    Otherwise, we create a term of the form `letFun val (fun (x : type) => body)`
 
    The default elaboration order is `binders`, `typeStx`, `valStx`, and `body`.
    If `elabBodyFirst == true`, then we use the order `binders`, `typeStx`, `body`, and `valStx`. -/
 def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (valStx : Syntax) (body : Syntax)
-    (expectedType? : Option Expr) (useLetExpr : Bool) (elabBodyFirst : Bool) (usedLetOnly : Bool) : TermElabM Expr := do
+    (expectedType? : Option Expr) (config : LetConfig) : TermElabM Expr := do
   let (type, val, binders) ← elabBindersEx binders fun xs => do
     let (binders, fvars) := xs.unzip
     /-
@@ -719,10 +762,10 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
     Recall that TC resolution does **not** produce synthetic opaque metavariables.
     -/
     let type ← withSynthesize (postpone := .partial) <| elabType typeStx
-    let letMsg := if useLetExpr then "let" else "have"
+    let letMsg := if config.nondep then "have" else "let"
     registerCustomErrorIfMVar type typeStx m!"failed to infer '{letMsg}' declaration type"
     registerLevelMVarErrorExprInfo type typeStx m!"failed to infer universe levels in '{letMsg}' declaration type"
-    if elabBodyFirst then
+    if config.postponeValue then
       let type ← mkForallFVars fvars type
       let val  ← mkFreshExprMVar type
       pure (type, val, binders)
@@ -742,19 +785,55 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
       pure (type, val, binders)
   let kind := kindOfBinderName id.getId
   trace[Elab.let.decl] "{id.getId} : {type} := {val}"
-  let result ← if useLetExpr then
-    withLetDecl id.getId (kind := kind) type val fun x => do
-      addLocalVarInfo id x
-      let body ← elabTermEnsuringType body expectedType?
-      let body ← instantiateMVars body
-      mkLetFVars #[x] body (usedLetOnly := usedLetOnly)
-  else
-    withLocalDecl id.getId (kind := kind) .default type fun x => do
-      addLocalVarInfo id x
-      let body ← elabTermEnsuringType body expectedType?
-      let body ← instantiateMVars body
-      mkLetFun x val body
-  if elabBodyFirst then
+  let elabBody : TermElabM Expr := do
+    let body ← elabTermEnsuringType body expectedType?
+    instantiateMVars body
+  let result ←
+    if config.zeta then
+      let elabZetaCore (x : Expr) : TermElabM Expr := do
+        addLocalVarInfo id x
+        if let some h := config.eq? then
+          let hTy ← mkEq x val
+          withLocalDeclD h.getId hTy fun h' => do
+            addLocalVarInfo h h'
+            let body ← elabBody
+            pure <| (← body.abstractM #[x, h']).instantiateRev #[val, ← mkEqRefl val]
+        else
+          let body ← elabBody
+          pure <| (← body.abstractM #[x]).instantiate1 val
+      if !config.nondep then
+        withLetDecl id.getId (kind := kind) type val elabZetaCore
+      else
+        withLocalDecl id.getId (kind := kind) .default type elabZetaCore
+    else
+      if !config.nondep then
+        withLetDecl id.getId (kind := kind) type val fun x => do
+          addLocalVarInfo id x
+          if let some h := config.eq? then
+            let hTy ← mkEq x val
+            withLocalDeclD h.getId hTy fun h' => do
+              addLocalVarInfo h h'
+              let body ← elabBody
+              let body := (← body.abstractM #[h']).instantiate1 (← mkEqRefl x)
+              mkLetFVars #[x] body (usedLetOnly := config.usedOnly)
+          else
+            let body ← elabBody
+            mkLetFVars #[x] body (usedLetOnly := config.usedOnly)
+      else
+        withLocalDecl id.getId (kind := kind) .default type fun x => do
+          addLocalVarInfo id x
+          if let some h := config.eq? then
+            -- TODO(kmill): Think about how to encode this case.
+            let hTy ← mkEq x val
+            withLocalDeclD h.getId hTy fun h' => do
+              addLocalVarInfo h h'
+              let body ← elabBody
+              let f ← mkLambdaFVars #[x, h'] body
+              return mkApp2 f val (← mkEqRefl val)
+          else
+            let body ← elabBody
+            mkLetFun x val body
+  if config.postponeValue then
     forallBoundedTelescope type binders.size fun xs type => do
       -- the original `fvars` from above are gone, so add back info manually
       for b in binders, x in xs do
@@ -772,8 +851,21 @@ structure LetIdDeclView where
   value   : Syntax
 
 def mkLetIdDeclView (letIdDecl : Syntax) : LetIdDeclView :=
-  -- `letIdDecl` is of the form `binderIdent >> many bracketedBinder >> optType >> " := " >> termParser
-  let id      := letIdDecl[0]
+  /-
+  def letId := leading_parser binderIdent <|> hygieneInfo
+  def letIdBinder := binderIdent <|> bracketedBinder
+  def letIdLhs := letId >> many letIdBinder >> optType
+  def letIdDecl := leading_parser letIdLhs >> " := " >> termParser
+  -/
+  let letId := letIdDecl[0]
+  let id :=
+    if letId.isIdent then
+      letId
+    else if letId[0].isOfKind hygieneInfoKind then
+      HygieneInfo.mkIdent letId[0] `this (canonical := true)
+    else
+      -- Assumed to be binderIdent
+      letId[0]
   let binders := letIdDecl[1].getArgs
   let optType := letIdDecl[2]
   let type    := expandOptType id optType
@@ -786,52 +878,73 @@ def expandLetEqnsDecl (letDecl : Syntax) (useExplicit := true) : MacroM Syntax :
   let val ← expandMatchAltsIntoMatch ref matchAlts (useExplicit := useExplicit)
   return mkNode `Lean.Parser.Term.letIdDecl #[letDecl[0], letDecl[1], letDecl[2], mkAtomFrom ref " := ", val]
 
-def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : Bool) (elabBodyFirst : Bool) (usedLetOnly : Bool) : TermElabM Expr := do
-  let letDecl := stx[1][0]
-  let body    := stx[3]
-  if letDecl.getKind == ``Lean.Parser.Term.letIdDecl then
+def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (initConfig : LetConfig) : TermElabM Expr := do
+  let declIdx := stx.getNumArgs - 3
+  let letConfig := stx[1]
+  let config    ← mkLetConfig letConfig initConfig
+  let letDecl   := stx[declIdx][0]
+  let body      := stx[stx.getNumArgs - 1]
+  -- TODO(kmill): remove `have` kinds
+  if letDecl.getKind == ``Lean.Parser.Term.letIdDecl || letDecl.getKind == ``Lean.Parser.Term.haveIdDecl then
     let { id, binders, type, value } := mkLetIdDeclView letDecl
     let id ← if id.isIdent then pure id else mkFreshIdent id (canonical := true)
-    elabLetDeclAux id binders type value body expectedType? useLetExpr elabBodyFirst usedLetOnly
+    elabLetDeclAux id binders type value body expectedType? config
   else if letDecl.getKind == ``Lean.Parser.Term.letPatDecl then
     -- node `Lean.Parser.Term.letPatDecl  $ try (termParser >> pushNone >> optType >> " := ") >> termParser
-    if elabBodyFirst then
-      throwError "'let_delayed' with patterns is not allowed"
     let pat     := letDecl[0]
     let optType := letDecl[2]
     let val     := letDecl[4]
     if pat.getKind == ``Parser.Term.hole then
-      -- `let _ := ...` should not be treated as a `letIdDecl`
+      -- `let _ := ...` should be treated as a `letIdDecl`
       let id   ← mkFreshIdent pat (canonical := true)
       let type := expandOptType id optType
-      elabLetDeclAux id #[] type val body expectedType? useLetExpr elabBodyFirst usedLetOnly
+      elabLetDeclAux id #[] type val body expectedType? config
     else
-      -- We are currently treating `let_fun` and `let` the same way when patterns are used.
-      let stxNew ← if optType.isNone then
-        `(match $val:term with | $pat => $body)
+      if config.postponeValue then
+        throwError "`+deferValue` with patterns is not allowed"
+      if config.usedOnly then
+        throwError "`+usedOnly` with patterns is not allowed"
+      if config.zeta then
+        throwError "`+zeta` with patterns is not allowed"
+      -- We are currently ignore `config.nondep` when patterns are used.
+      let val ← if optType.isNone then
+        `($val:term)
       else
         let type := optType[0][1]
-        `(match ($val:term : $type) with | $pat => $body)
+        `(($val:term : $type))
+      let stxNew ← if let some h := config.eq? then
+        `(match $h:ident : $val:term with | $pat => $body)
+      else
+        `(match $val:term with | $pat => $body)
       withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
-  else if letDecl.getKind == ``Lean.Parser.Term.letEqnsDecl then
+  else if letDecl.getKind == ``Lean.Parser.Term.letEqnsDecl || letDecl.getKind == ``Lean.Parser.Term.haveEqnsDecl then
     let letDeclIdNew ← liftMacroM <| expandLetEqnsDecl letDecl
-    let declNew := stx[1].setArg 0 letDeclIdNew
-    let stxNew  := stx.setArg 1 declNew
+    let declNew := stx[declIdx].setArg 0 letDeclIdNew
+    let stxNew  := stx.setArg declIdx declNew
     withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   else
     throwUnsupportedSyntax
 
 @[builtin_term_elab «let»] def elabLetDecl : TermElab :=
-  fun stx expectedType? => elabLetDeclCore stx expectedType? (useLetExpr := true) (elabBodyFirst := false) (usedLetOnly := false)
+  fun stx expectedType? => elabLetDeclCore stx expectedType? {}
+
+@[builtin_term_elab «have»] def elabHaveDecl : TermElab :=
+  fun stx expectedType? => elabLetDeclCore stx expectedType? { nondep := true }
 
 @[builtin_term_elab «let_fun»] def elabLetFunDecl : TermElab :=
-  fun stx expectedType? => elabLetDeclCore stx expectedType? (useLetExpr := false) (elabBodyFirst := false) (usedLetOnly := false)
+  fun stx expectedType? => elabLetDeclCore stx expectedType? { nondep := true }
 
 @[builtin_term_elab «let_delayed»] def elabLetDelayedDecl : TermElab :=
-  fun stx expectedType? => elabLetDeclCore stx expectedType? (useLetExpr := true) (elabBodyFirst := true) (usedLetOnly := false)
+  fun stx expectedType? => elabLetDeclCore stx expectedType? { postponeValue := true }
 
 @[builtin_term_elab «let_tmp»] def elabLetTmpDecl : TermElab :=
-  fun stx expectedType? => elabLetDeclCore stx expectedType? (useLetExpr := true) (elabBodyFirst := false) (usedLetOnly := true)
+  fun stx expectedType? => elabLetDeclCore stx expectedType? { usedOnly := true }
+
+@[builtin_term_elab «letI»] def elabLetIDecl : TermElab :=
+  fun stx expectedType? => elabLetDeclCore stx expectedType? { zeta := true }
+
+@[builtin_term_elab «haveI»] def elabHaveIDecl : TermElab :=
+  fun stx expectedType? => elabLetDeclCore stx expectedType? { zeta := true, nondep := true }
 
 builtin_initialize
   registerTraceClass `Elab.let

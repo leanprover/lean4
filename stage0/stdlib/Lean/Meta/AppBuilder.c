@@ -114,7 +114,6 @@ static lean_object* l_Lean_Meta_mkEqNDRec___closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_isAssignable___at___Lean_hasAssignableMVar___at_____private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppMFinal_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_withAppBuilderTrace___at___Lean_Meta_mkAppOptM_x27_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_withAppBuilderTrace___redArg___closed__22;
 static lean_object* l_Lean_Meta_mkNumeral___closed__1;
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -571,6 +570,7 @@ static lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppOptMAux__
 static lean_object* l_Lean_Meta_mkOfEqFalseCore___closed__3;
 static lean_object* l_Lean_Meta_initFn___closed__10____x40_Lean_Meta_AppBuilder___hyg_8433_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_withAppBuilderTrace___at___Lean_Meta_mkAppOptM_x27_spec__0___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkDecide___closed__2;
 static lean_object* l_Lean_Meta_mkProjection___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Meta_mkHEqSymm(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -9765,7 +9765,7 @@ block_56:
 {
 lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_11 = l_Lean_mkAppN(x_2, x_3);
-x_12 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(x_11, x_6, x_10);
+x_12 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(x_11, x_6, x_10);
 x_13 = !lean_is_exclusive(x_12);
 if (x_13 == 0)
 {

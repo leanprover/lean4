@@ -61,7 +61,6 @@ LEAN_EXPORT lean_object* l_List_foldl___at___List_max_x3f___at___Lean_Elab_InfoT
 static lean_object* l_Lean_Elab_Info_fmtHover_x3f___lam__1___closed__1;
 LEAN_EXPORT lean_object* l_List_max_x3f___at___Lean_Elab_InfoTree_goalsAt_x3f_spec__1(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_InfoTree_visitM_go___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_Elab_InfoTree_foldInfoTree_go_spec__0_spec__0_spec__0_spec__1___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_collectNodesBottomUpM___at___Lean_Elab_InfoTree_collectNodesBottomUp_spec__0___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -363,6 +362,7 @@ LEAN_EXPORT lean_object* l_List_flatMapTR_go___at___Lean_Elab_InfoTree_collectNo
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_collectNodesBottomUpM___at___Lean_Elab_InfoTree_collectNodesBottomUp_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_InfoTree_hoverableInfoAt_x3f___lam__0___closed__6;
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isSyntheticSorry(lean_object*);
 lean_object* l_Lean_LocalContext_findFVar_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Info_stx___boxed(lean_object*);
@@ -6924,7 +6924,7 @@ if (lean_is_exclusive(x_1)) {
 x_9 = lean_ctor_get(x_7, 3);
 lean_inc(x_9);
 lean_dec(x_7);
-x_10 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(x_9, x_3, x_6);
+x_10 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(x_9, x_3, x_6);
 x_11 = !lean_is_exclusive(x_10);
 if (x_11 == 0)
 {
@@ -6950,7 +6950,7 @@ lean_inc(x_16);
 x_17 = lean_ctor_get(x_15, 1);
 lean_inc(x_17);
 lean_dec(x_15);
-x_18 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(x_16, x_3, x_17);
+x_18 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(x_16, x_3, x_17);
 x_19 = lean_ctor_get(x_18, 0);
 lean_inc(x_19);
 x_20 = lean_ctor_get(x_18, 1);
@@ -7570,7 +7570,7 @@ lean_inc(x_142);
 x_143 = lean_ctor_get(x_141, 1);
 lean_inc(x_143);
 lean_dec(x_141);
-x_144 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(x_142, x_3, x_143);
+x_144 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(x_142, x_3, x_143);
 x_145 = lean_ctor_get(x_144, 0);
 lean_inc(x_145);
 x_146 = lean_ctor_get(x_144, 1);

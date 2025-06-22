@@ -819,6 +819,12 @@ The `have` tactic is for adding hypotheses to the local context of the main goal
   hypotheses `h₁ : p`, `h₂ : q`, and `h₃ : r`.
 -/
 syntax "have " haveDecl : tactic
+-- TODO(kmill) Remove after stage0 update
+macro_rules (kind := Lean.Parser.Tactic.tacticHave_)
+  | stx =>
+    let letDecl := stx.getArg 1
+    `(tactic| refine_lift have $(⟨letDecl⟩):haveDecl; ?_)
+/-
 macro_rules
   -- special case: when given a nested `by` block, move it outside of the `refine` to enable
   -- incrementality
@@ -849,6 +855,7 @@ macro_rules
       refine no_implicit_lambda% (have $id:haveId $bs* : $type := ?body; ?_)
       $tac)
   | `(tactic| have $d:haveDecl) => `(tactic| refine_lift have $d:haveDecl; ?_)
+-/
 
 /--
 Given a main goal `ctx ⊢ t`, `suffices h : t' from e` replaces the main goal with `ctx ⊢ t'`,
@@ -879,7 +886,7 @@ macro_rules
 /-- Similar to `refine_lift`, but using `refine'` -/
 macro "refine_lift' " e:term : tactic => `(tactic| focus (refine' no_implicit_lambda% $e; rotate_right))
 /-- Similar to `have`, but using `refine'` -/
-macro "have' " d:haveDecl : tactic => `(tactic| refine_lift' have $d:haveDecl; ?_)
+macro "have' " d:haveDecl : tactic => `(tactic| refine_lift' have $(⟨d⟩):haveDecl; ?_)
 set_option linter.missingDocs false in -- OK, because `tactic_alt` causes inheritance of docs
 macro (priority := high) "have'" x:ident " := " p:term : tactic => `(tactic| have' $x:ident : _ := $p)
 attribute [tactic_alt tacticHave'_] «tacticHave'_:=_»
@@ -1271,10 +1278,10 @@ syntax (name := substEqs) "subst_eqs" : tactic
 syntax (name := runTac) "run_tac " doSeq : tactic
 
 /-- `haveI` behaves like `have`, but inlines the value instead of producing a `let_fun` term. -/
-macro "haveI" d:haveDecl : tactic => `(tactic| refine_lift haveI $d:haveDecl; ?_)
+macro "haveI" d:haveDecl : tactic => `(tactic| refine_lift haveI $(⟨d⟩):haveDecl; ?_)
 
 /-- `letI` behaves like `let`, but inlines the value instead of producing a `let_fun` term. -/
-macro "letI" d:haveDecl : tactic => `(tactic| refine_lift letI $d:haveDecl; ?_)
+macro "letI" d:haveDecl : tactic => `(tactic| refine_lift letI $(⟨d⟩):haveDecl; ?_)
 
 /--
 Configuration for the `decide` tactic family.

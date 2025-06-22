@@ -130,7 +130,7 @@ theorem Iter.forIn'_toList {α β : Type w} [Iterator α Id β]
   rw [forIn'_toList.aux this]
   rw [forIn'_eq_match_step]
   rw [List.forIn'_eq_foldlM] at *
-  simp only [map_eq_pure_bind, List.foldlM_map, hs]
+  simp only [map_eq_pure_bind, hs]
   cases step using PlausibleIterStep.casesOn
   · rename_i it' out h
     simp only [List.attach_cons, List.foldlM_cons, bind_pure_comp, map_bind]
@@ -180,7 +180,7 @@ theorem Iter.forIn_toList {α β : Type w} [Iterator α Id β]
     intro forInStep
     cases forInStep
     · induction it'.toList <;> simp [*]
-    · simp only [ForIn.forIn, forIn', List.forIn'] at ihy
+    · simp only [ForIn.forIn] at ihy
       simp [ihy h, forIn_eq_forIn_toIterM]
   · rename_i it' h
     simp only [bind_pure_comp]

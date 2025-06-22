@@ -22,6 +22,7 @@ protected def toExpr (e : Expr) : Lean.Expr :=
   | .mul a b  => mkApp2 (mkConst ``mul) (OfNat.toExpr a) (OfNat.toExpr b)
   | .div a b  => mkApp2 (mkConst ``div) (OfNat.toExpr a) (OfNat.toExpr b)
   | .mod a b  => mkApp2 (mkConst ``mod) (OfNat.toExpr a) (OfNat.toExpr b)
+  | .pow a k  => mkApp2 (mkConst ``pow) (OfNat.toExpr a) (mkNatLit k)
 
 instance : ToExpr OfNat.Expr where
   toExpr a := OfNat.toExpr a
@@ -43,6 +44,7 @@ where
     | .mul a b  => mkIntMul (go a) (go b)
     | .div a b  => mkIntDiv (go a) (go b)
     | .mod a b  => mkIntMod (go a) (go b)
+    | .pow a b  => mkIntPowNat (go a) (mkNatLit b)
 
 partial def toOfNatExpr (e : Lean.Expr) : GoalM Expr := do
   let mkVar (e : Lean.Expr) : GoalM Expr := do
@@ -65,6 +67,10 @@ partial def toOfNatExpr (e : Lean.Expr) : GoalM Expr := do
     else mkVar e
   | HMod.hMod _ _ _ i a b =>
     if (← isInstHModNat i) then return .mod (← toOfNatExpr a) (← toOfNatExpr b)
+    else mkVar e
+  | HPow.hPow _ _ _ i a b =>
+    let some k ← getNatValue? b | mkVar e
+    if (← isInstHPowNat i) then return .pow (← toOfNatExpr a) k
     else mkVar e
   | _ => mkVar e
 

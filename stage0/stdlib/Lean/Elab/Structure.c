@@ -236,7 +236,6 @@ LEAN_EXPORT lean_object* l_Lean_instantiateLCtxMVars___at_____private_Lean_Elab_
 lean_object* l_Array_qsort_sort___at___Lean_Elab_sortDeclLevelParams_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_defaultCtorName___closed__1;
 lean_object* l_String_removeLeadingSpaces(lean_object*);
-lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_addDocStringCore___at___Lean_addDocStringCore_x27___at_____private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_withStructField_spec__2_spec__2___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_transformWithCache_visit_visitPost___at___Lean_Meta_transformWithCache_visit___at___Lean_Meta_transform___at_____private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_reduceFieldProjs_spec__3_spec__3_spec__4(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_inductiveElabAttr;
@@ -1635,6 +1634,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_____private_Lean_Elab_Stru
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___Lean_mergeStructureResolutionOrders_selectParent___at___Lean_mergeStructureResolutionOrders___at_____private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_resolveFieldDefaults_spec__1_spec__5_spec__10___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at_____private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_reduceFieldProjs_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_elabModifiers___at_____private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_expandCtor_spec__0___closed__4;
+lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_initFn___closed__2____x40_Lean_Elab_Structure___hyg_119_;
 uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(uint8_t, uint8_t);
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_Structure_withStruct___redArg___lam__1___closed__1;
@@ -56905,7 +56905,7 @@ goto block_18;
 block_182:
 {
 lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; uint8_t x_116; 
-x_110 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(x_107, x_8, x_109);
+x_110 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(x_107, x_8, x_109);
 x_111 = lean_ctor_get(x_110, 0);
 lean_inc(x_111);
 x_112 = lean_ctor_get(x_110, 1);
@@ -57677,7 +57677,7 @@ goto block_22;
 block_186:
 {
 lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; uint8_t x_120; 
-x_114 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(x_111, x_12, x_113);
+x_114 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(x_111, x_12, x_113);
 x_115 = lean_ctor_get(x_114, 0);
 lean_inc(x_115);
 x_116 = lean_ctor_get(x_114, 1);
@@ -74870,7 +74870,7 @@ lean_inc(x_123);
 x_124 = lean_ctor_get(x_122, 1);
 lean_inc(x_124);
 lean_dec(x_122);
-x_125 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(x_123, x_115, x_124);
+x_125 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(x_123, x_115, x_124);
 x_126 = !lean_is_exclusive(x_125);
 if (x_126 == 0)
 {
@@ -75255,7 +75255,7 @@ lean_inc(x_196);
 x_197 = lean_ctor_get(x_195, 1);
 lean_inc(x_197);
 lean_dec(x_195);
-x_198 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(x_196, x_9, x_197);
+x_198 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(x_196, x_9, x_197);
 if (x_182 == 0)
 {
 lean_object* x_199; lean_object* x_200; uint8_t x_201; uint8_t x_202; 

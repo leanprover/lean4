@@ -545,11 +545,14 @@ x_1 = lean_box(0);
 x_2 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__5;
 x_3 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__36;
 x_4 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__0;
-x_5 = lean_alloc_ctor(0, 4, 0);
+x_5 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);
 lean_ctor_set(x_5, 2, x_2);
-lean_ctor_set(x_5, 3, x_1);
+lean_ctor_set(x_5, 3, x_4);
+lean_ctor_set(x_5, 4, x_3);
+lean_ctor_set(x_5, 5, x_2);
+lean_ctor_set(x_5, 6, x_1);
 return x_5;
 }
 }

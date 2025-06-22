@@ -77,7 +77,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_instReprLabel;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Meta_NormCast_getSimpArgs_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_countCoes___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_getSimpArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_getParamNames_spec__1___redArg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_getParamNames_spec__1___redArg(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_NormCast_initFn___lam__2___closed__17____x40_Lean_Meta_Tactic_NormCast___hyg_2008_;
 static uint64_t l_Lean_Meta_NormCast_initFn___lam__2___closed__22____x40_Lean_Meta_Tactic_NormCast___hyg_2008_;
 static lean_object* l_Lean_Meta_NormCast_initFn___closed__4____x40_Lean_Meta_Tactic_NormCast___hyg_1584_;
@@ -2924,12 +2924,13 @@ return x_220;
 LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_classifyType(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; 
+lean_object* x_7; lean_object* x_8; uint8_t x_9; uint8_t x_10; lean_object* x_11; 
 x_7 = lean_alloc_closure((void*)(l_Lean_Meta_NormCast_classifyType___lam__0___boxed), 7, 0);
 x_8 = lean_box(0);
 x_9 = lean_unbox(x_8);
-x_10 = l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_getParamNames_spec__1___redArg(x_1, x_7, x_9, x_2, x_3, x_4, x_5, x_6);
-return x_10;
+x_10 = lean_unbox(x_8);
+x_11 = l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_getParamNames_spec__1___redArg(x_1, x_7, x_9, x_10, x_2, x_3, x_4, x_5, x_6);
+return x_11;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_classifyType___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {

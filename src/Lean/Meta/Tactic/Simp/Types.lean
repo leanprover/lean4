@@ -815,6 +815,44 @@ def Result.addForalls (r : Result) (xs : Array Expr) : MetaM Result := do
       mkForallCongr (← mkLambdaFVars #[x] h)
     return { expr := eNew, proof? := p }
 
+
+@[inline] private def withSimpContext (ctx : Context) (x : MetaM α) : MetaM α := do
+  withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <|
+  withTrackingZetaDeltaSet ctx.zetaDeltaSet <|
+  withReducible x
+
+/--
+Adds the fvars from `usedZetaDelta` to `s` if they are present in
+the set `zetaDeltaSet` of fvars that are explicitly added to the simp context.
+
+*Note:* `usedZetaDelta` might contain fvars that are not in `zetaDeltaSet`,
+since within `withResetZetaDeltaFVarIds` it is possible for `whnf` to be run with different configurations,
+ones that allow zeta-delta reducing fvars not in `zetaDeltaSet` (e.g. `withInferTypeConfig` sets `zetaDelta := true`).
+This also means that `usedZetaDelta` set might be reporting fvars in `zetaDeltaSet` that weren't "used".
+-/
+private def updateUsedSimpsWithZetaDeltaCore (s : UsedSimps) (zetaDeltaSet : FVarIdSet) (usedZetaDelta : FVarIdSet) : UsedSimps :=
+  zetaDeltaSet.fold (init := s) fun s fvarId =>
+    if usedZetaDelta.contains fvarId then
+      s.insert <| .fvar fvarId
+    else
+      s
+
+private def updateUsedSimpsWithZetaDelta (ctx : Context) (stats : Stats) : MetaM Stats := do
+  let used := stats.usedTheorems
+  let used := updateUsedSimpsWithZetaDeltaCore used ctx.zetaDeltaSet ctx.initUsedZetaDelta
+  let used := updateUsedSimpsWithZetaDeltaCore used ctx.zetaDeltaSet (← getZetaDeltaFVarIds)
+  return { stats with usedTheorems := used }
+
+
+def SimpM.run (ctx : Context) (s : State := {}) (methods : Methods := {}) (k : SimpM α) : MetaM (α × State) := do
+  let ctx ← ctx.setLctxInitIndices
+  withSimpContext ctx do
+    let (r, s) ← k methods.toMethodsRef ctx |>.run s
+    trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
+    let stats ← updateUsedSimpsWithZetaDelta ctx { s with }
+    let s := { s with diag := stats.diag, usedTheorems := stats.usedTheorems }
+    return (r, s)
+
 end Simp
 
 export Simp (SimpM Simprocs)

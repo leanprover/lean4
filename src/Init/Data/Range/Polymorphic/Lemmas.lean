@@ -394,4 +394,28 @@ instance [UpwardEnumerable α] [SupportsUpperBound su α] [RangeSize su α]
         · have := LawfulRangeSize.size_eq_zero_of_not_satisfied _ _ h'
           simp [*] at this
 
+theorem isEmpty_iff_forall_not_mem [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [BoundedUpwardEnumerable sl α] [SupportsLowerBound sl α] [SupportsUpperBound su α]
+    [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
+    {r : PRange ⟨sl, su⟩ α} :
+    r.isEmpty ↔ ∀ a, ¬ a ∈ r := by
+  simp only [PRange.isEmpty, Option.all_eq_true_iff_get]
+  constructor
+  · intro h a hmem
+    have hl := hmem.1
+    have hu := hmem.2
+    simp only [LawfulUpwardEnumerableLowerBound.isSatisfied_iff] at hl
+    obtain ⟨init, hi, hl⟩ := hl
+    have : SupportsUpperBound.IsSatisfied r.upper init :=
+      LawfulUpwardEnumerableUpperBound.isSatisfied_of_le r.upper _ a hu hl
+    simp only [Option.eq_some_iff_get_eq] at hi
+    specialize h hi.choose
+    simp [hi.choose_spec, this] at h
+  · intro h hi
+    simp only [Bool.not_eq_eq_eq_not, Bool.not_true, decide_eq_false_iff_not]
+    intro hu
+    have hl := SupportsLowerBound.isSatisfied_init? (bound := r.lower)
+      (Option.some_get hi).symm
+    exact h ((BoundedUpwardEnumerable.init? r.lower).get hi) ⟨hl, hu⟩
+
 end Std.PRange

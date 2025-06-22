@@ -88,6 +88,18 @@ def size [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [IteratorSize (RangeIterator su α) Id] : Nat :=
   PRange.Internal.iter r |>.size
 
+/--
+Checks whether the range contains any value.
+
+This function returns a meaningful value for all ranges types defined by the standard library
+and for all range types that satisfy the properties encoded in the `LawfulUpwardEnumerable`,
+`LawfulUpwardEnumerableLowerBound` and `LawfulUpwardEnumerableUpperBound` typeclasses.
+-/
+@[always_inline, inline]
+def isEmpty [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
+    [SupportsUpperBound su α] (r : PRange ⟨sl, su⟩ α) : Bool :=
+  (BoundedUpwardEnumerable.init? r.lower).all (! SupportsUpperBound.IsSatisfied r.upper ·)
+
 section Iterator
 
 theorem RangeIterator.isPlausibleIndirectOutput_iff

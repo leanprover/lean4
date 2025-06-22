@@ -132,3 +132,5 @@ def g (xs : Array Nat) : IO Unit := do
 
 example : (1...=2).size = 2 := by
   decide
+
+#eval (1...<0).isEmpty

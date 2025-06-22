@@ -25,7 +25,7 @@ inductive Tree (α : Type) where
 Unexpected resulting type for constructor 'Tree.node': Expected an application of
   Tree
 but found
-  ?m.448
+  ?m.22
 ```
 ```lean fixed
 inductive Tree (α : Type) where

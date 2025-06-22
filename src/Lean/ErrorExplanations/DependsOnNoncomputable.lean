@@ -31,7 +31,7 @@ def transformIfZero : Nat → Nat
   | n => n
 ```
 ```output
-failed to compile definition, consider marking it as 'noncomputable' because it depends on 'transform', and it does not have executable code
+axiom 'transform' not supported by code generator; consider marking definition as 'noncomputable'
 ```
 ```lean fixed
 axiom transform : Nat → Nat

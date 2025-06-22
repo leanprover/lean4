@@ -9,8 +9,8 @@ import Lean.ErrorExplanation
 /--
 This error occurs when an alternative in a pattern match can never be reached: any values that would
 match the provided patterns would also match some preceding alternative. Refer to the [Pattern
-Matching](lean-manual://section/pattern-matching)manual section for additional details about pattern
-matching.
+Matching](lean-manual://section/pattern-matching) manual section for additional details about
+pattern matching.
 
 This error may appear in any pattern matching expression, including `match` expressions, equational
 function definitions, `if let` bindings, and monadic `let` bindings with fallback clauses.
@@ -44,7 +44,9 @@ def seconds : List (List α) → List α
   | (_ :: x :: _) :: xss => x :: seconds xss
 ```
 ```output
-redundant alternative
+Redundant alternative: Any expression matching
+  (head✝ :: x :: tail✝) :: xss
+will match one of the preceding alternatives
 ```
 ```lean fixed
 def seconds : List (List α) → List α
@@ -66,7 +68,9 @@ example (p : Nat × Nat) : IO Nat := do
   return m + n
 ```
 ```output
-redundant alternative
+Redundant alternative: Any expression matching
+  x✝
+will match one of the preceding alternatives
 ```
 ```lean fixed
 example (p : Nat × Nat) : IO Nat := do
@@ -87,7 +91,9 @@ example (xs : List Nat) : Bool :=
   | _ => true
 ```
 ```output
-redundant alternative
+Redundant alternative: Any expression matching
+  x✝
+will match one of the preceding alternatives
 ```
 ```lean fixed
 example (xs : List Nat) : Bool :=

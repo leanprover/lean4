@@ -29,10 +29,14 @@ inductive Vec (α : Type) (n : Nat) : Type where
   | cons : α → Vec α n → Vec α (n + 1)
 ```
 ```output broken
-inductive datatype parameter mismatch
+Mismatched inductive type parameter in
+  Vec α 0
+The provided argument
   0
-expected
+is not definitionally equal to the expected parameter
   n
+
+Note: The value of parameter 'n' must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
 ```
 ```lean fixed
 inductive Vec (α : Type) : Nat → Type where

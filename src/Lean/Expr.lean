@@ -2280,6 +2280,9 @@ private def intDivFn : Expr :=
 private def intModFn : Expr :=
   mkApp4 (mkConst ``HMod.hMod [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHMod
 
+private def intPowNatFn : Expr :=
+  mkApp4 (mkConst ``HPow.hPow [0, 0, 0]) Int.mkType Nat.mkType Int.mkType Int.mkInstHPow
+
 private def intNatCastFn : Expr :=
   mkApp2 (mkConst ``NatCast.natCast [0]) Int.mkType Int.mkInstNatCast
 
@@ -2310,6 +2313,10 @@ def mkIntMod (a b : Expr) : Expr :=
 /-- Given `a : Int`, returns `NatCast.natCast a` -/
 def mkIntNatCast (a : Expr) : Expr :=
   mkApp intNatCastFn a
+
+/-- Given `a b : Int`, returns `a ^ b` -/
+def mkIntPowNat (a b : Expr) : Expr :=
+  mkApp2 intPowNatFn a b
 
 private def intLEPred : Expr :=
   mkApp2 (mkConst ``LE.le [0]) Int.mkType Int.mkInstLE

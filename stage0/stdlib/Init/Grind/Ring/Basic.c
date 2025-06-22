@@ -2227,7 +2227,7 @@ return x_6;
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_instIntModule___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
@@ -2237,52 +2237,32 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 3);
 lean_inc(x_5);
 lean_dec(x_1);
-x_6 = !lean_is_exclusive(x_2);
-if (x_6 == 0)
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_7 = lean_ctor_get(x_2, 0);
-x_8 = lean_ctor_get(x_2, 1);
+x_6 = lean_ctor_get(x_2, 0);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_2, 1);
+lean_inc(x_7);
+x_8 = lean_ctor_get(x_2, 3);
+lean_inc(x_8);
 x_9 = lean_ctor_get(x_2, 4);
-x_10 = lean_ctor_get(x_2, 3);
-lean_dec(x_10);
-x_11 = lean_ctor_get(x_2, 2);
-lean_dec(x_11);
-x_12 = lean_alloc_closure((void*)(l_Lean_Grind_Ring_instIntModule___redArg___lam__0), 4, 2);
-lean_closure_set(x_12, 0, x_5);
-lean_closure_set(x_12, 1, x_8);
-x_13 = lean_unsigned_to_nat(0u);
-x_14 = lean_apply_1(x_9, x_13);
-lean_ctor_set(x_2, 4, x_12);
-lean_ctor_set(x_2, 3, x_4);
-lean_ctor_set(x_2, 2, x_3);
-lean_ctor_set(x_2, 1, x_7);
-lean_ctor_set(x_2, 0, x_14);
-return x_2;
-}
-else
-{
-lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_15 = lean_ctor_get(x_2, 0);
-x_16 = lean_ctor_get(x_2, 1);
-x_17 = lean_ctor_get(x_2, 4);
-lean_inc(x_17);
-lean_inc(x_16);
-lean_inc(x_15);
+lean_inc(x_9);
 lean_dec(x_2);
-x_18 = lean_alloc_closure((void*)(l_Lean_Grind_Ring_instIntModule___redArg___lam__0), 4, 2);
-lean_closure_set(x_18, 0, x_5);
-lean_closure_set(x_18, 1, x_16);
-x_19 = lean_unsigned_to_nat(0u);
-x_20 = lean_apply_1(x_17, x_19);
-x_21 = lean_alloc_ctor(0, 5, 0);
-lean_ctor_set(x_21, 0, x_20);
-lean_ctor_set(x_21, 1, x_15);
-lean_ctor_set(x_21, 2, x_3);
-lean_ctor_set(x_21, 3, x_4);
-lean_ctor_set(x_21, 4, x_18);
-return x_21;
-}
+lean_inc(x_7);
+x_10 = lean_alloc_closure((void*)(l_Lean_Grind_Ring_instIntModule___redArg___lam__0), 4, 2);
+lean_closure_set(x_10, 0, x_5);
+lean_closure_set(x_10, 1, x_7);
+x_11 = lean_alloc_closure((void*)(l_Lean_Grind_Semiring_instNatModule___redArg___lam__0), 4, 2);
+lean_closure_set(x_11, 0, x_8);
+lean_closure_set(x_11, 1, x_7);
+x_12 = lean_unsigned_to_nat(0u);
+x_13 = lean_apply_1(x_9, x_12);
+x_14 = lean_alloc_ctor(0, 6, 0);
+lean_ctor_set(x_14, 0, x_13);
+lean_ctor_set(x_14, 1, x_6);
+lean_ctor_set(x_14, 2, x_3);
+lean_ctor_set(x_14, 3, x_4);
+lean_ctor_set(x_14, 4, x_11);
+lean_ctor_set(x_14, 5, x_10);
+return x_14;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_instIntModule(lean_object* x_1, lean_object* x_2) {

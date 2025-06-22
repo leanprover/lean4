@@ -124,7 +124,6 @@ LEAN_EXPORT lean_object* l_Lean_LocalDecl_hasValue___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalContext_anyM(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedLocalContext___closed__1;
 LEAN_EXPORT lean_object* l_Nat_foldRevM_loop___at___Lean_LocalContext_sanitizeNames_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint64_t l_Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_233_(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_LocalContext_addDecl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalContext_anyM___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at___Lean_LocalContext_contains_spec__0_spec__0___redArg(lean_object*, size_t, lean_object*);
@@ -232,6 +231,7 @@ LEAN_EXPORT lean_object* l_Lean_LocalDecl_setKind(lean_object*, uint8_t);
 lean_object* l_Lean_PersistentArray_set___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalDecl_fvarId___boxed(lean_object*);
 lean_object* l_Lean_Expr_letE___override(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_231____boxed(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalDeclKind_toCtorIdx___boxed(lean_object*);
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -393,6 +393,7 @@ size_t lean_usize_shift_left(size_t, size_t);
 LEAN_EXPORT lean_object* lean_local_ctx_num_indices(lean_object*);
 static lean_object* l_Lean_reprLocalDeclKind___closed__3____x40_Lean_LocalContext___hyg_18_;
 LEAN_EXPORT lean_object* l_Lean_LocalContext_usesUserName___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint64_t l_Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_231_(uint8_t);
 lean_object* l_Lean_RBNode_insert___at___Lean_FVarIdSet_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getLocalHyps___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_LocalDecl_binderInfoEx___boxed(lean_object*);
@@ -403,7 +404,6 @@ LEAN_EXPORT lean_object* l_Lean_LocalContext_sortFVarsByContextOrder(lean_object
 LEAN_EXPORT lean_object* l_Lean_LocalDecl_value_x3f(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalDecl_toExpr(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_233____boxed(lean_object*);
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_LocalContext_isSubPrefixOfAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -832,7 +832,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-LEAN_EXPORT uint64_t l_Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_233_(uint8_t x_1) {
+LEAN_EXPORT uint64_t l_Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_231_(uint8_t x_1) {
 _start:
 {
 switch (x_1) {
@@ -857,13 +857,13 @@ return x_4;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_233____boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_231____boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; uint64_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
 lean_dec(x_1);
-x_3 = l_Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_233_(x_2);
+x_3 = l_Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_231_(x_2);
 x_4 = lean_box_uint64(x_3);
 return x_4;
 }
@@ -872,7 +872,7 @@ static lean_object* _init_l_Lean_instHashableLocalDeclKind___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_233____boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_231____boxed), 1, 0);
 return x_1;
 }
 }

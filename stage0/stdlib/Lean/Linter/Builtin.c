@@ -29,7 +29,6 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Array_mapMUnsafe_map___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__2___closed__1;
 static lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___lam__0___closed__14;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Builtin___hyg_2304_(lean_object*);
 static lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___lam__0___closed__23;
 static lean_object* l_Lean_Linter_initFn___closed__3____x40_Lean_Linter_Builtin___hyg_5_;
 uint8_t l_Lean_Linter_getLinterValue(lean_object*, lean_object*);
@@ -108,6 +107,7 @@ static lean_object* l_Lean_Options_toLinterOptions___at___Lean_Linter_getLinterO
 static lean_object* l_Array_anyMUnsafe_any___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__4___closed__3;
 static lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___lam__0___closed__0;
 extern lean_object* l_Lean_Elab_Command_instInhabitedScope;
+LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Builtin___hyg_1966_(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__7_spec__7___closed__4;
 static lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___lam__0___closed__12;
@@ -2353,7 +2353,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Builtin___hyg_2304_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Builtin___hyg_1966_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -2496,7 +2496,7 @@ l_Lean_Linter_suspiciousUnexpanderPatterns___closed__0 = _init_l_Lean_Linter_sus
 lean_mark_persistent(l_Lean_Linter_suspiciousUnexpanderPatterns___closed__0);
 l_Lean_Linter_suspiciousUnexpanderPatterns = _init_l_Lean_Linter_suspiciousUnexpanderPatterns();
 lean_mark_persistent(l_Lean_Linter_suspiciousUnexpanderPatterns);
-if (builtin) {res = l_Lean_Linter_initFn____x40_Lean_Linter_Builtin___hyg_2304_(lean_io_mk_world());
+if (builtin) {res = l_Lean_Linter_initFn____x40_Lean_Linter_Builtin___hyg_1966_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }return lean_io_result_mk_ok(lean_box(0));

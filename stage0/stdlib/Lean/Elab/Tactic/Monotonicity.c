@@ -54,7 +54,6 @@ lean_object* l_Lean_Expr_sort___override(lean_object*);
 lean_object* l_Lean_MessageData_ofList(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___at___Array_binInsertM___at_____private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at___Lean_Meta_DiscrTree_insertCore___at___Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_162__spec__0_spec__0_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_instInhabited(lean_object*);
 static lean_object* l_Lean_Meta_Monotonicity_initFn___closed__4____x40_Lean_Elab_Tactic_Monotonicity___hyg_162_;
 static lean_object* l_Lean_Meta_Monotonicity_solveMonoCall___lam__1___closed__0;
@@ -122,7 +121,6 @@ static lean_object* l_Lean_Meta_Monotonicity_initFn___lam__1___closed__3____x40_
 LEAN_EXPORT lean_object* l_Lean_Meta_Monotonicity_solveMonoCall___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Monotonicity_solveMonoStep___closed__1;
 lean_object* l_Lean_ScopedEnvExtension_add___at___Lean_Meta_addSimpCongrTheorem_spec__0___redArg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_mapTR_loop___at___Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2803__spec__7(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Monotonicity_solveMonoStep___lam__5___closed__3;
 static uint64_t l_Lean_Meta_Monotonicity_initFn___lam__4___closed__30____x40_Lean_Elab_Tactic_Monotonicity___hyg_245_;
 LEAN_EXPORT lean_object* l_Lean_Meta_Monotonicity_initFn___lam__3____x40_Lean_Elab_Tactic_Monotonicity___hyg_245_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -153,6 +151,7 @@ lean_object* l_panic___at___Lean_Expr_appFn_x21_spec__0(lean_object*);
 static lean_object* l_Lean_Meta_Monotonicity_solveMonoStep___lam__3___closed__2;
 static lean_object* l_Lean_Meta_Monotonicity_initFn___lam__1___closed__0____x40_Lean_Elab_Tactic_Monotonicity___hyg_245_;
 lean_object* l_Lean_MessageData_andList(lean_object*);
+lean_object* l_List_mapTR_loop___at___Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2793__spec__7(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Monotonicity_0__Lean_Meta_Monotonicity_defaultFailK(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_MatcherInfo_getFirstDiscrPos(lean_object*);
 static lean_object* l_Lean_Meta_Monotonicity_initFn___lam__4___closed__9____x40_Lean_Elab_Tactic_Monotonicity___hyg_245_;
@@ -390,6 +389,7 @@ static lean_object* l_Lean_Meta_Monotonicity_evalMonotonicity___regBuiltin_Lean_
 static lean_object* l_Lean_Meta_Monotonicity_initFn___regBuiltin_Lean_Meta_Monotonicity_initFn_docString__1___closed__10____x40_Lean_Elab_Tactic_Monotonicity___hyg_245_;
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Monotonicity_0__Lean_Meta_Monotonicity_defaultFailK___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_binInsertM___at_____private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at___Lean_Meta_DiscrTree_insertCore___at___Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_162__spec__0_spec__0_spec__2___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_Monotonicity_initFn___lam__4___closed__12____x40_Lean_Elab_Tactic_Monotonicity___hyg_245_;
@@ -3182,7 +3182,7 @@ lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean
 x_20 = l___private_Lean_Elab_Tactic_Monotonicity_0__Lean_Meta_Monotonicity_defaultFailK___redArg___closed__5;
 x_21 = lean_array_to_list(x_2);
 x_22 = lean_box(0);
-x_23 = l_List_mapTR_loop___at___Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2803__spec__7(x_21, x_22);
+x_23 = l_List_mapTR_loop___at___Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2793__spec__7(x_21, x_22);
 x_24 = l_Lean_MessageData_andList(x_23);
 x_25 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_25, 0, x_20);
@@ -9896,7 +9896,7 @@ goto block_22;
 else
 {
 lean_object* x_501; lean_object* x_502; lean_object* x_503; lean_object* x_504; uint8_t x_505; 
-x_501 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f_spec__0___redArg(x_483, x_470, x_480);
+x_501 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(x_483, x_470, x_480);
 x_502 = lean_ctor_get(x_501, 0);
 lean_inc(x_502);
 x_503 = lean_ctor_get(x_501, 1);

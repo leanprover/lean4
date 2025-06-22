@@ -242,7 +242,7 @@ def ofSemiring : Ring (Q α) := {
   intCast_neg, ofNat_succ
 }
 
-attribute [local instance] ofSemiring
+attribute [instance] ofSemiring
 
 @[local simp] def toQ (a : α) : Q α :=
   Q.mk (a, 0)
@@ -316,6 +316,26 @@ instance [Semiring α] [AddRightCancel α] [NoNatZeroDivisors α] : NoNatZeroDiv
     replace h₂ := NoNatZeroDivisors.no_nat_zero_divisors k (a₁ + b₂) (a₂ + b₁) h₁ h₂
     apply Quot.sound; simp [r]; exists 0; simp [h₂]
 
+instance {p} [Semiring α] [AddRightCancel α] [IsCharP α p] : IsCharP (OfSemiring.Q α) p where
+  ofNat_ext_iff := by
+    intro x y
+    constructor
+    next =>
+      intro h
+      replace h : natCast x = natCast y := h; simp at h
+      replace h := Q.exact h; simp [r] at h
+      rcases h with ⟨k, h⟩
+      replace h : OfNat.ofNat (α := α) x = OfNat.ofNat y := by
+        replace h := AddRightCancel.add_right_cancel _ _ _ h
+        simp [Semiring.ofNat_eq_natCast, h]
+      have := IsCharP.ofNat_ext_iff p |>.mp h
+      simp at this; assumption
+    next =>
+      intro h
+      have := IsCharP.ofNat_ext_iff (α := α) p |>.mpr h
+      apply Quot.sound
+      exists 0; simp [← Semiring.ofNat_eq_natCast, this]
+
 end OfSemiring
 end Lean.Grind.Ring
 
@@ -349,6 +369,8 @@ theorem mul_comm (a b : OfSemiring.Q α) : OfSemiring.mul a b = OfSemiring.mul b
 def ofCommSemiring : CommRing (OfSemiring.Q α) :=
   { OfSemiring.ofSemiring with
     mul_comm := mul_comm }
+
+attribute [instance] ofCommSemiring
 
 end OfCommSemiring
 

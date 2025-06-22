@@ -465,7 +465,6 @@ lean_inc(x_7);
 lean_inc(x_31);
 lean_inc(x_21);
 x_32 = l_Lean_Meta_SimpTheoremsArray_addTheorem(x_5, x_21, x_31, x_30, x_7, x_8, x_9, x_10, x_29);
-lean_dec(x_30);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_60; lean_object* x_61; lean_object* x_62; uint8_t x_63; 
@@ -797,7 +796,6 @@ lean_inc(x_7);
 lean_inc(x_31);
 lean_inc(x_21);
 x_32 = l_Lean_Meta_SimpTheoremsArray_addTheorem(x_5, x_21, x_31, x_30, x_7, x_8, x_9, x_10, x_29);
-lean_dec(x_30);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_60; lean_object* x_61; lean_object* x_62; uint8_t x_63; 
@@ -2839,7 +2837,6 @@ x_118 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_118, 0, x_108);
 lean_inc(x_118);
 x_119 = l_Lean_Meta_SimpTheoremsArray_addTheorem(x_117, x_118, x_112, x_115, x_99, x_100, x_101, x_102, x_113);
-lean_dec(x_115);
 if (lean_obj_tag(x_119) == 0)
 {
 lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; uint8_t x_131; 
@@ -3192,7 +3189,6 @@ x_214 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_214, 0, x_204);
 lean_inc(x_214);
 x_215 = l_Lean_Meta_SimpTheoremsArray_addTheorem(x_213, x_214, x_208, x_211, x_195, x_196, x_197, x_198, x_209);
-lean_dec(x_211);
 if (lean_obj_tag(x_215) == 0)
 {
 lean_object* x_216; lean_object* x_217; lean_object* x_218; lean_object* x_219; lean_object* x_220; lean_object* x_221; lean_object* x_222; lean_object* x_223; lean_object* x_224; lean_object* x_225; lean_object* x_226; uint8_t x_227; 
@@ -3631,7 +3627,6 @@ x_299 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_299, 0, x_289);
 lean_inc(x_299);
 x_300 = l_Lean_Meta_SimpTheoremsArray_addTheorem(x_298, x_299, x_293, x_296, x_280, x_281, x_282, x_283, x_294);
-lean_dec(x_296);
 if (lean_obj_tag(x_300) == 0)
 {
 lean_object* x_301; lean_object* x_302; lean_object* x_303; lean_object* x_304; lean_object* x_305; lean_object* x_306; lean_object* x_307; lean_object* x_308; lean_object* x_309; lean_object* x_310; lean_object* x_311; uint8_t x_312; 
@@ -4105,7 +4100,6 @@ x_393 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_393, 0, x_383);
 lean_inc(x_393);
 x_394 = l_Lean_Meta_SimpTheoremsArray_addTheorem(x_392, x_393, x_387, x_390, x_374, x_375, x_376, x_377, x_388);
-lean_dec(x_390);
 if (lean_obj_tag(x_394) == 0)
 {
 lean_object* x_395; lean_object* x_396; lean_object* x_397; lean_object* x_398; lean_object* x_399; lean_object* x_400; lean_object* x_401; lean_object* x_402; lean_object* x_403; lean_object* x_404; lean_object* x_405; uint8_t x_406; 
@@ -4595,7 +4589,6 @@ x_489 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_489, 0, x_479);
 lean_inc(x_489);
 x_490 = l_Lean_Meta_SimpTheoremsArray_addTheorem(x_488, x_489, x_483, x_486, x_470, x_471, x_472, x_473, x_484);
-lean_dec(x_486);
 if (lean_obj_tag(x_490) == 0)
 {
 lean_object* x_491; lean_object* x_492; lean_object* x_493; lean_object* x_494; lean_object* x_495; lean_object* x_496; lean_object* x_497; lean_object* x_498; lean_object* x_499; lean_object* x_500; lean_object* x_501; uint8_t x_502; 
@@ -5103,7 +5096,6 @@ x_590 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_590, 0, x_580);
 lean_inc(x_590);
 x_591 = l_Lean_Meta_SimpTheoremsArray_addTheorem(x_589, x_590, x_584, x_587, x_571, x_572, x_573, x_574, x_585);
-lean_dec(x_587);
 if (lean_obj_tag(x_591) == 0)
 {
 lean_object* x_592; lean_object* x_593; lean_object* x_594; lean_object* x_595; lean_object* x_596; lean_object* x_597; lean_object* x_598; lean_object* x_599; lean_object* x_600; lean_object* x_601; lean_object* x_602; uint8_t x_603; 
@@ -5769,7 +5761,6 @@ x_733 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_733, 0, x_723);
 lean_inc(x_733);
 x_734 = l_Lean_Meta_SimpTheoremsArray_addTheorem(x_732, x_733, x_727, x_730, x_714, x_715, x_716, x_717, x_728);
-lean_dec(x_730);
 if (lean_obj_tag(x_734) == 0)
 {
 lean_object* x_735; lean_object* x_736; lean_object* x_737; lean_object* x_738; lean_object* x_739; lean_object* x_740; lean_object* x_741; lean_object* x_742; lean_object* x_743; lean_object* x_744; lean_object* x_745; uint8_t x_746; 
@@ -6533,7 +6524,6 @@ x_118 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_118, 0, x_108);
 lean_inc(x_118);
 x_119 = l_Lean_Meta_SimpTheoremsArray_addTheorem(x_117, x_118, x_112, x_115, x_99, x_100, x_101, x_102, x_113);
-lean_dec(x_115);
 if (lean_obj_tag(x_119) == 0)
 {
 lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; uint8_t x_131; 
@@ -6884,7 +6874,6 @@ x_214 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_214, 0, x_204);
 lean_inc(x_214);
 x_215 = l_Lean_Meta_SimpTheoremsArray_addTheorem(x_213, x_214, x_208, x_211, x_195, x_196, x_197, x_198, x_209);
-lean_dec(x_211);
 if (lean_obj_tag(x_215) == 0)
 {
 lean_object* x_216; lean_object* x_217; lean_object* x_218; lean_object* x_219; lean_object* x_220; lean_object* x_221; lean_object* x_222; lean_object* x_223; lean_object* x_224; lean_object* x_225; lean_object* x_226; uint8_t x_227; 
@@ -7320,7 +7309,6 @@ x_299 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_299, 0, x_289);
 lean_inc(x_299);
 x_300 = l_Lean_Meta_SimpTheoremsArray_addTheorem(x_298, x_299, x_293, x_296, x_280, x_281, x_282, x_283, x_294);
-lean_dec(x_296);
 if (lean_obj_tag(x_300) == 0)
 {
 lean_object* x_301; lean_object* x_302; lean_object* x_303; lean_object* x_304; lean_object* x_305; lean_object* x_306; lean_object* x_307; lean_object* x_308; lean_object* x_309; lean_object* x_310; lean_object* x_311; uint8_t x_312; 
@@ -7791,7 +7779,6 @@ x_393 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_393, 0, x_383);
 lean_inc(x_393);
 x_394 = l_Lean_Meta_SimpTheoremsArray_addTheorem(x_392, x_393, x_387, x_390, x_374, x_375, x_376, x_377, x_388);
-lean_dec(x_390);
 if (lean_obj_tag(x_394) == 0)
 {
 lean_object* x_395; lean_object* x_396; lean_object* x_397; lean_object* x_398; lean_object* x_399; lean_object* x_400; lean_object* x_401; lean_object* x_402; lean_object* x_403; lean_object* x_404; lean_object* x_405; uint8_t x_406; 
@@ -8278,7 +8265,6 @@ x_489 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_489, 0, x_479);
 lean_inc(x_489);
 x_490 = l_Lean_Meta_SimpTheoremsArray_addTheorem(x_488, x_489, x_483, x_486, x_470, x_471, x_472, x_473, x_484);
-lean_dec(x_486);
 if (lean_obj_tag(x_490) == 0)
 {
 lean_object* x_491; lean_object* x_492; lean_object* x_493; lean_object* x_494; lean_object* x_495; lean_object* x_496; lean_object* x_497; lean_object* x_498; lean_object* x_499; lean_object* x_500; lean_object* x_501; uint8_t x_502; 
@@ -8783,7 +8769,6 @@ x_590 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_590, 0, x_580);
 lean_inc(x_590);
 x_591 = l_Lean_Meta_SimpTheoremsArray_addTheorem(x_589, x_590, x_584, x_587, x_571, x_572, x_573, x_574, x_585);
-lean_dec(x_587);
 if (lean_obj_tag(x_591) == 0)
 {
 lean_object* x_592; lean_object* x_593; lean_object* x_594; lean_object* x_595; lean_object* x_596; lean_object* x_597; lean_object* x_598; lean_object* x_599; lean_object* x_600; lean_object* x_601; lean_object* x_602; uint8_t x_603; 
@@ -9445,7 +9430,6 @@ x_733 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_733, 0, x_723);
 lean_inc(x_733);
 x_734 = l_Lean_Meta_SimpTheoremsArray_addTheorem(x_732, x_733, x_727, x_730, x_714, x_715, x_716, x_717, x_728);
-lean_dec(x_730);
 if (lean_obj_tag(x_734) == 0)
 {
 lean_object* x_735; lean_object* x_736; lean_object* x_737; lean_object* x_738; lean_object* x_739; lean_object* x_740; lean_object* x_741; lean_object* x_742; lean_object* x_743; lean_object* x_744; lean_object* x_745; uint8_t x_746; 

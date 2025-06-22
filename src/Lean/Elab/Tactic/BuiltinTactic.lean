@@ -606,11 +606,11 @@ where
 
 @[builtin_tactic replace] def evalReplace : Tactic := fun stx => do
   match stx with
-  | `(tactic| replace $decl:haveDecl) =>
+  | `(tactic| replace $decl:letDecl) =>
     withMainContext do
-      let vars ← Elab.Term.Do.getDoHaveVars (← `(doElem| have $decl:haveDecl))
+      let vars ← Elab.Term.Do.getLetDeclVars decl
       let origLCtx ← getLCtx
-      evalTactic $ ← `(tactic| have $decl:haveDecl)
+      evalTactic $ ← `(tactic| have $decl:letDecl)
       let mut toClear := #[]
       for fv in vars do
         if let some ldecl := origLCtx.findFromUserName? fv.getId then

@@ -177,6 +177,7 @@ lean_inc(x_20);
 lean_inc(x_19);
 lean_inc(x_18);
 lean_inc(x_17);
+lean_inc(x_4);
 x_22 = l_Lean_Meta_SimpTheoremsArray_addTheorem(x_1, x_2, x_3, x_4, x_17, x_18, x_19, x_20, x_21);
 if (lean_obj_tag(x_22) == 0)
 {
@@ -898,6 +899,7 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
+lean_dec(x_4);
 x_178 = !lean_is_exclusive(x_22);
 if (x_178 == 0)
 {
@@ -1123,7 +1125,6 @@ lean_dec(x_6);
 x_24 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCircuitPass___lam__0(x_1, x_2, x_3, x_4, x_22, x_23, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
 lean_dec(x_16);
 lean_dec(x_15);
-lean_dec(x_4);
 return x_24;
 }
 }

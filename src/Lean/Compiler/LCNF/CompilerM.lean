@@ -19,8 +19,6 @@ inductive Phase where
   | base
   /-- In this phase polymorphism has been eliminated. -/
   | mono
-  /-- In this phase impure stuff such as RC or efficient BaseIO transformations happen. -/
-  | impure
   deriving Inhabited
 
 /--

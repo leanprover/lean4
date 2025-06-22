@@ -93,6 +93,7 @@ static lean_object* l_Lake_Module_initFacetConfigs___closed__9;
 lean_object* l_Array_foldlMUnsafe_fold___at___Lake_Package_findModule_x3f_spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_io_as_task(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Module_recComputeTransImports___closed__0;
+uint8_t l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3215_(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lake_Module_initFacetConfigs___closed__8;
 LEAN_EXPORT lean_object* l_Lake_ensureJob___at___Lake_Module_recBuildLean_spec__5___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -193,6 +194,7 @@ LEAN_EXPORT lean_object* l_Lake_Module_recFetchSetup___lam__6___boxed(lean_objec
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_appendArray___at___Lake_Module_recComputeTransImports_spec__1(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lake_BuildTrace_mix(lean_object*, lean_object*);
+uint8_t l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_265_(uint8_t, uint8_t);
 static lean_object* l___private_Lake_Build_Module_0__Lake_Module_fetchOLeanCore___lam__1___closed__0;
 uint8_t lean_string_validate_utf8(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_setupFacetConfig;
@@ -366,7 +368,6 @@ lean_object* l_Lake_EStateT_instMonad___redArg___lam__1(lean_object*, lean_objec
 static lean_object* l_Lake_Module_initFacetConfigs___closed__12;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lake_Module_recBuildLeanCToOExport___closed__1;
-uint8_t l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_267_(uint8_t, uint8_t);
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Module_0__Lake_traceOptions(lean_object*, lean_object*);
 static lean_object* l_Lean_RBNode_fold___at_____private_Lake_Build_Module_0__Lake_traceOptions_spec__0___closed__2;
@@ -485,7 +486,6 @@ static lean_object* l_Lake_Module_oleanFacetConfig___closed__1;
 static lean_object* l___private_Lake_Build_Module_0__Lake_mkLoadOrder___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Job_mapM___at___Lake_Module_recBuildLean_spec__3___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-uint8_t l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3217_(lean_object*, lean_object*);
 static lean_object* l_Lake_Module_cFacetConfig___lam__1___closed__1;
 static lean_object* l_Lake_recBuildExternDynlibs___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Module_headerFacetConfig___lam__0(lean_object*);
@@ -14183,7 +14183,7 @@ lean_inc(x_9);
 x_60 = l_Array_mapMUnsafe_map___at___Lake_Module_recFetchSetup_spec__4(x_9, x_59, x_10, x_53);
 x_61 = lean_array_size(x_54);
 x_62 = l_Array_mapMUnsafe_map___at___Lake_Module_recFetchSetup_spec__4(x_9, x_61, x_10, x_54);
-x_63 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_267_(x_11, x_12);
+x_63 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_265_(x_11, x_12);
 x_64 = lean_box(x_63);
 if (lean_obj_tag(x_64) == 2)
 {
@@ -17694,7 +17694,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; lean_object* x_8; 
 x_6 = lean_ctor_get(x_4, 0);
-x_7 = l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3217_(x_2, x_6);
+x_7 = l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3215_(x_2, x_6);
 lean_dec(x_6);
 x_8 = lean_box(x_7);
 if (lean_obj_tag(x_8) == 0)
@@ -17721,7 +17721,7 @@ x_12 = lean_ctor_get(x_4, 1);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_dec(x_4);
-x_13 = l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3217_(x_2, x_11);
+x_13 = l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3215_(x_2, x_11);
 lean_dec(x_11);
 x_14 = lean_box(x_13);
 if (lean_obj_tag(x_14) == 0)
@@ -20912,7 +20912,7 @@ x_151 = l_Lake_BuildTrace_mix(x_52, x_55);
 x_152 = l_Lake_Module_recBuildLean___lam__1___closed__1;
 x_153 = l___private_Lake_Build_Module_0__Lake_traceOptions(x_140, x_152);
 x_154 = l_Lake_BuildTrace_mix(x_151, x_153);
-x_230 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_267_(x_145, x_148);
+x_230 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_265_(x_145, x_148);
 x_231 = lean_box(x_230);
 if (lean_obj_tag(x_231) == 2)
 {
@@ -30074,7 +30074,7 @@ x_113 = l_Lake_Module_recBuildLeanCToOExport___closed__3;
 x_114 = lean_string_append(x_112, x_113);
 x_115 = lean_string_append(x_114, x_91);
 lean_dec(x_91);
-x_116 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_267_(x_104, x_107);
+x_116 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_265_(x_104, x_107);
 x_117 = lean_box(x_116);
 if (lean_obj_tag(x_117) == 2)
 {
@@ -30256,7 +30256,7 @@ x_36 = l_Lean_modToFilePath(x_35, x_3, x_31);
 lean_dec(x_35);
 x_37 = l_Array_append___redArg(x_27, x_30);
 lean_dec(x_30);
-x_59 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_267_(x_25, x_28);
+x_59 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_265_(x_25, x_28);
 x_60 = lean_box(x_59);
 if (lean_obj_tag(x_60) == 2)
 {
@@ -30814,7 +30814,7 @@ x_35 = l_Lean_modToFilePath(x_34, x_3, x_30);
 lean_dec(x_34);
 x_36 = l_Array_append___redArg(x_26, x_29);
 lean_dec(x_29);
-x_52 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_267_(x_24, x_27);
+x_52 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_265_(x_24, x_27);
 x_53 = lean_box(x_52);
 if (lean_obj_tag(x_53) == 2)
 {

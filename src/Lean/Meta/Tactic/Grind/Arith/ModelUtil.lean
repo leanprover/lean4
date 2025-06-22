@@ -56,6 +56,7 @@ def isInterpretedTerm (e : Expr) : Bool :=
   isNatNum e || isIntNum e || e.isAppOf ``HAdd.hAdd || e.isAppOf ``HMul.hMul || e.isAppOf ``HSub.hSub
   || e.isAppOf ``Neg.neg || e.isAppOf ``HDiv.hDiv || e.isAppOf ``HMod.hMod || e.isAppOf ``One.one || e.isAppOf ``Zero.zero
   || e.isAppOf ``NatCast.natCast || e.isIte || e.isDIte || e.isAppOf ``OfNat.ofNat
+  || e matches .lit (.natVal _)
 
 /--
 Adds the assignments `e' := v` to `a` for each `e'` in the equivalence class os `e`.

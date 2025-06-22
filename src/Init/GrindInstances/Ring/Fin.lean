@@ -37,7 +37,7 @@ theorem add_zero [NeZero n] (a : Fin n) : a + 0 = a := by
   next h => rw [Nat.mod_eq_of_lt h]
 
 theorem neg_add_cancel [NeZero n] (a : Fin n) : -a + a = 0 := by
-  cases a; simp [Fin.add_def, Fin.neg_def, Fin.sub_def]
+  cases a; simp [Fin.add_def, Fin.neg_def]
   next h => rw [Nat.sub_add_cancel (Nat.le_of_lt h), Nat.mod_self]
 
 theorem mul_assoc (a b c : Fin n) : a * b * c = a * (b * c) := by
@@ -63,7 +63,7 @@ theorem sub_eq_add_neg [NeZero n] (a b : Fin n) : a - b = a + -b := by
   cases a; cases b; simp [Fin.neg_def, Fin.sub_def, Fin.add_def, Nat.add_comm]
 
 private theorem neg_neg [NeZero n] (a : Fin n) : - - a = a := by
-  cases a; simp [Fin.neg_def, Fin.sub_def]
+  cases a; simp [Fin.neg_def]
   next a h => cases a; simp; next a =>
    rw [Nat.self_sub_mod n (a+1)]
    have : NeZero (n - (a + 1)) := ⟨by omega⟩
@@ -94,12 +94,12 @@ instance (n : Nat) [NeZero n] : CommRing (Fin n) where
   sub_eq_add_neg := Fin.sub_eq_add_neg
   intCast_neg := Fin.intCast_neg
 
-instance (n : Nat) [NeZero n] : IsCharP (Fin n) n where
-  ofNat_eq_zero_iff x := by
+instance (n : Nat) [NeZero n] : IsCharP (Fin n) n := IsCharP.mk' _ _
+  (ofNat_eq_zero_iff := fun x => by
     change Fin.ofNat _ _ = Fin.ofNat _ _ ↔ _
     simp only [Fin.ofNat]
     simp only [Nat.zero_mod]
-    simp only [Fin.mk.injEq]
+    simp only [Fin.mk.injEq])
 
 example [NeZero n] : ToInt.Neg (Fin n) (some 0) (some n) := inferInstance
 example [NeZero n] : ToInt.Sub (Fin n) (some 0) (some n) := inferInstance

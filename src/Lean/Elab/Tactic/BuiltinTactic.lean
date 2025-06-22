@@ -605,18 +605,20 @@ where
   liftMetaTactic (fun g => g.nthConstructor `right 1 (some 2))
 
 @[builtin_tactic replace] def evalReplace : Tactic := fun stx => do
-  match stx with
-  | `(tactic| replace $decl:haveDecl) =>
+  -- TODO(kmill): restore after stage0 update
+  -- match stx with
+  -- | `(tactic| replace $decl:haveDecl) =>
+    let decl : TSyntax ``Parser.Term.letDecl := ⟨stx[1]⟩
     withMainContext do
-      let vars ← Elab.Term.Do.getDoHaveVars (← `(doElem| have $decl:haveDecl))
+      let vars ← Elab.Term.Do.getLetDeclVars decl
       let origLCtx ← getLCtx
-      evalTactic $ ← `(tactic| have $decl:haveDecl)
+      evalTactic $ ← `(tactic| have $(⟨decl⟩):haveDecl)
       let mut toClear := #[]
       for fv in vars do
         if let some ldecl := origLCtx.findFromUserName? fv.getId then
           toClear := toClear.push ldecl.fvarId
       liftMetaTactic1 (·.tryClearMany toClear)
-  | _ => throwUnsupportedSyntax
+  -- | _ => throwUnsupportedSyntax
 
 @[builtin_tactic runTac] def evalRunTac : Tactic := fun stx => do
   match stx with

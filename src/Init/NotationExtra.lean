@@ -313,20 +313,22 @@ macro_rules
     `($mods:declModifiers class $id $params* $[: $ty:term]? extends $[$parents:term],*
       attribute [instance] $ctor)
 
+-- TODO(kmill): Delete after stage0 update
 macro_rules
   | `(haveI $hy:hygieneInfo $bs* $[: $ty]? := $val; $body) =>
-    `(haveI $(HygieneInfo.mkIdent hy `this (canonical := true)) $bs* $[: $ty]? := $val; $body)
+    `(haveI $(HygieneInfo.mkIdent hy `this (canonical := true)):ident $bs* $[: $ty]? := $val; $body)
   | `(haveI _ $bs* := $val; $body) => `(haveI x $bs* : _ := $val; $body)
   | `(haveI _ $bs* : $ty := $val; $body) => `(haveI x $bs* : $ty := $val; $body)
-  | `(haveI $x:ident $bs* := $val; $body) => `(haveI $x $bs* : _ := $val; $body)
+  | `(haveI $x:ident $bs* := $val; $body) => `(haveI $x:ident $bs* : _ := $val; $body)
   | `(haveI $_:ident $_* : $_ := $_; $_) => Lean.Macro.throwUnsupported -- handled by elab
 
+-- TODO(kmill): Delete after stage0 update
 macro_rules
   | `(letI $hy:hygieneInfo $bs* $[: $ty]? := $val; $body) =>
-    `(letI $(HygieneInfo.mkIdent hy `this (canonical := true)) $bs* $[: $ty]? := $val; $body)
+    `(letI $(HygieneInfo.mkIdent hy `this (canonical := true)):ident $bs* $[: $ty]? := $val; $body)
   | `(letI _ $bs* := $val; $body) => `(letI x $bs* : _ := $val; $body)
   | `(letI _ $bs* : $ty := $val; $body) => `(letI x $bs* : $ty := $val; $body)
-  | `(letI $x:ident $bs* := $val; $body) => `(letI $x $bs* : _ := $val; $body)
+  | `(letI $x:ident $bs* := $val; $body) => `(letI $x:ident $bs* : _ := $val; $body)
   | `(letI $_:ident $_* : $_ := $_; $_) => Lean.Macro.throwUnsupported -- handled by elab
 
 

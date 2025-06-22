@@ -135,7 +135,7 @@ abbrev getElem_zipWithIndex := @getElem_zipIdx
 
 @[simp, grind =] theorem zipIdx_toArray {l : List α} {k : Nat} :
     l.toArray.zipIdx k = (l.zipIdx k).toArray := by
-  ext i hi₁ hi₂ <;> simp [Nat.add_comm]
+  ext i hi₁ hi₂ <;> simp
 
 @[deprecated zipIdx_toArray (since := "2025-01-21")]
 abbrev zipWithIndex_toArray := @zipIdx_toArray

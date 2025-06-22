@@ -57,7 +57,7 @@ def mkEq (a b : Expr) : MetaM Expr := do
   let u ← getLevel aType
   return mkApp3 (mkConst ``Eq [u]) aType a b
 
-/-- Returns `HEq a b`. -/
+/-- Returns `a ≍ b`. -/
 def mkHEq (a b : Expr) : MetaM Expr := do
   let aType ← inferType a
   let bType ← inferType b
@@ -65,7 +65,7 @@ def mkHEq (a b : Expr) : MetaM Expr := do
   return mkApp4 (mkConst ``HEq [u]) aType a bType b
 
 /--
-  If `a` and `b` have definitionally equal types, returns `Eq a b`, otherwise returns `HEq a b`.
+  If `a` and `b` have definitionally equal types, returns `a = b`, otherwise returns `a ≍ b`.
 -/
 def mkEqHEq (a b : Expr) : MetaM Expr := do
   let aType ← inferType a
@@ -82,7 +82,7 @@ def mkEqRefl (a : Expr) : MetaM Expr := do
   let u ← getLevel aType
   return mkApp2 (mkConst ``Eq.refl [u]) aType a
 
-/-- Returns a proof of `HEq a a`. -/
+/-- Returns a proof of `a ≍ a`. -/
 def mkHEqRefl (a : Expr) : MetaM Expr := do
   let aType ← inferType a
   let u ← getLevel aType
@@ -148,7 +148,7 @@ def mkEqTrans? (h₁? h₂? : Option Expr) : MetaM (Option Expr) :=
   | some h, none     => return h
   | some h₁, some h₂ => mkEqTrans h₁ h₂
 
-/-- Given `h : HEq a b`, returns a proof of `HEq b a`.  -/
+/-- Given `h : a ≍ b`, returns a proof of `b ≍ a`.  -/
 def mkHEqSymm (h : Expr) : MetaM Expr := do
   if h.isAppOf ``HEq.refl then
     return h
@@ -161,7 +161,7 @@ def mkHEqSymm (h : Expr) : MetaM Expr := do
     | none =>
       throwAppBuilderException ``HEq.symm ("heterogeneous equality proof expected" ++ hasTypeMsg h hType)
 
-/-- Given `h₁ : HEq a b`, `h₂ : HEq b c`, returns a proof of `HEq a c`. -/
+/-- Given `h₁ : a ≍ b`, `h₂ : b ≍ c`, returns a proof of `a ≍ c`. -/
 def mkHEqTrans (h₁ h₂ : Expr) : MetaM Expr := do
   if h₁.isAppOf ``HEq.refl then
     return h₂
@@ -177,7 +177,7 @@ def mkHEqTrans (h₁ h₂ : Expr) : MetaM Expr := do
     | none, _ => throwAppBuilderException ``HEq.trans ("heterogeneous equality proof expected" ++ hasTypeMsg h₁ hType₁)
     | _, none => throwAppBuilderException ``HEq.trans ("heterogeneous equality proof expected" ++ hasTypeMsg h₂ hType₂)
 
-/-- Given `h : HEq a b` where `a` and `b` have the same type, returns a proof of `Eq a b`. -/
+/-- Given `h : a ≍ b` where `a` and `b` have the same type, returns a proof of `a = b`. -/
 def mkEqOfHEq (h : Expr) (check := true) : MetaM Expr := do
   let hType ← infer h
   match hType.heq? with
@@ -190,7 +190,7 @@ def mkEqOfHEq (h : Expr) (check := true) : MetaM Expr := do
   | _ =>
     throwAppBuilderException ``eq_of_heq m!"heterogeneous equality proof expected{indentExpr h}"
 
-/-- Given `h : Eq a b`, returns a proof of `HEq a b`. -/
+/-- Given `h : a = b`, returns a proof of `a ≍ b`. -/
 def mkHEqOfEq (h : Expr) : MetaM Expr := do
   let hType ← infer h
   let some (α, a, b) := hType.eq?

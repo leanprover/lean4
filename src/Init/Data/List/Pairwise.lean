@@ -59,7 +59,7 @@ theorem Pairwise.and (hR : Pairwise R l) (hS : Pairwise S l) :
   induction hR with
   | nil => simp only [Pairwise.nil]
   | cons R1 _ IH =>
-    simp only [Pairwise.nil, pairwise_cons] at hS ⊢
+    simp only [pairwise_cons] at hS ⊢
     exact ⟨fun b bl => ⟨R1 b bl, hS.1 b bl⟩, IH hS.2⟩
 
 theorem pairwise_and_iff : l.Pairwise (fun a b => R a b ∧ S a b) ↔ Pairwise R l ∧ Pairwise S l :=

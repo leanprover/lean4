@@ -13,51 +13,80 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastConst___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAdd___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastConst___redArg(lean_object*, lean_object*);
 lean_object* l_BitVec_ofNat(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg(lean_object*);
-lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNot___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAdd___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNot___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_object* x_6; uint8_t x_7; 
 lean_inc(x_2);
 lean_inc(x_1);
-x_6 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNot___rarg(x_1, x_2, x_3, x_4, x_5);
-x_7 = lean_ctor_get(x_6, 0);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_6, 1);
-lean_inc(x_8);
-lean_dec(x_6);
-x_9 = lean_unsigned_to_nat(1u);
-x_10 = l_BitVec_ofNat(x_3, x_9);
-x_11 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastConst___rarg(x_1, x_2, x_3, x_7, x_10);
-lean_dec(x_10);
-x_12 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_12, 0, x_8);
-lean_ctor_set(x_12, 1, x_11);
-x_13 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAdd___rarg(x_1, x_2, x_3, x_7, x_12);
+x_6 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNot___redArg(x_1, x_2, x_3, x_4, x_5);
+x_7 = !lean_is_exclusive(x_6);
+if (x_7 == 0)
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_8 = lean_ctor_get(x_6, 0);
+x_9 = lean_ctor_get(x_6, 1);
+x_10 = lean_unsigned_to_nat(1u);
+x_11 = l_BitVec_ofNat(x_3, x_10);
+x_12 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastConst___redArg(x_3, x_11);
+lean_dec(x_11);
+lean_ctor_set(x_6, 1, x_12);
+lean_ctor_set(x_6, 0, x_9);
+x_13 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAdd___redArg(x_1, x_2, x_3, x_8, x_6);
 return x_13;
 }
+else
+{
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+x_14 = lean_ctor_get(x_6, 0);
+x_15 = lean_ctor_get(x_6, 1);
+lean_inc(x_15);
+lean_inc(x_14);
+lean_dec(x_6);
+x_16 = lean_unsigned_to_nat(1u);
+x_17 = l_BitVec_ofNat(x_3, x_16);
+x_18 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastConst___redArg(x_3, x_17);
+lean_dec(x_17);
+x_19 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_19, 0, x_15);
+lean_ctor_set(x_19, 1, x_18);
+x_20 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAdd___redArg(x_1, x_2, x_3, x_14, x_19);
+return x_20;
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg(lean_object* x_1) {
+}
+}
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg___rarg___boxed), 5, 0);
-return x_2;
+lean_object* x_7; 
+x_7 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg___redArg(x_2, x_3, x_4, x_5, x_6);
+return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg___rarg(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg___redArg(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_3);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_4);
+return x_7;
 }
 }
 lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(uint8_t builtin, lean_object*);

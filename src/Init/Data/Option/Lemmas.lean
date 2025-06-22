@@ -275,7 +275,7 @@ theorem join_ne_none' : ¬x.join = none ↔ ∃ z, x = some (some z) :=
   join_ne_none
 
 theorem join_eq_none_iff : o.join = none ↔ o = none ∨ o = some none :=
-  match o with | none | some none | some (some _) => by simp [bind_id_eq_join]
+  match o with | none | some none | some (some _) => by simp
 
 @[deprecated join_eq_none_iff (since := "2025-04-10")]
 abbrev join_eq_none := @join_eq_none_iff
@@ -302,7 +302,7 @@ abbrev map_eq_some := @map_eq_some_iff
 abbrev map_eq_some' := @map_eq_some_iff
 
 @[simp] theorem map_eq_none_iff : x.map f = none ↔ x = none := by
-  cases x <;> simp [map_none, map_some, eq_self_iff_true]
+  cases x <;> simp [map_none, map_some]
 
 @[deprecated map_eq_none_iff (since := "2025-04-10")]
 abbrev map_eq_none := @map_eq_none_iff

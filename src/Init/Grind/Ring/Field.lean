@@ -71,20 +71,19 @@ theorem inv_eq_zero_iff {a : α} : a⁻¹ = 0 ↔ a = 0 := by
 theorem zero_eq_inv_iff {a : α} : 0 = a⁻¹ ↔ 0 = a := by
   rw [eq_comm, inv_eq_zero_iff, eq_comm]
 
-instance [IsCharP α 0] : NoNatZeroDivisors α where
-  no_nat_zero_divisors := by
-    intro a b h w
-    have := IsCharP.natCast_eq_zero_iff (α := α) 0 a
-    simp only [Nat.mod_zero, h, iff_false] at this
-    if h : b = 0 then
-      exact h
-    else
-      rw [Semiring.ofNat_eq_natCast] at w
-      replace w := congrArg (fun x => x * b⁻¹) w
-      dsimp only [] at w
-      rw [Semiring.hmul_eq_ofNat_mul, Semiring.mul_assoc, Field.mul_inv_cancel h, Semiring.mul_one,
-        Semiring.natCast_zero, Semiring.zero_mul, Semiring.ofNat_eq_natCast] at w
-      contradiction
+instance [IsCharP α 0] : NoNatZeroDivisors α := NoNatZeroDivisors.mk' <| by
+  intro a b h w
+  have := IsCharP.natCast_eq_zero_iff (α := α) 0 a
+  simp only [Nat.mod_zero, h, iff_false] at this
+  if h : b = 0 then
+    exact h
+  else
+    rw [Semiring.ofNat_eq_natCast] at w
+    replace w := congrArg (fun x => x * b⁻¹) w
+    dsimp only [] at w
+    rw [Semiring.hmul_eq_ofNat_mul, Semiring.mul_assoc, Field.mul_inv_cancel h, Semiring.mul_one,
+      Semiring.natCast_zero, Semiring.zero_mul, Semiring.ofNat_eq_natCast] at w
+    contradiction
 
 end Field
 

@@ -89,7 +89,7 @@ def letIdDeclNoBinders := node ``letIdDecl <|
 @[builtin_doElem_parser] def doReassignArrow := leading_parser
   notFollowedByRedefinedTermToken >> (doIdDecl <|> doPatDecl)
 @[builtin_doElem_parser] def doHave     := leading_parser
-  "have" >> Term.haveDecl
+  "have" >> Term.letDecl
 /-
 In `do` blocks, we support `if` without an `else`.
 Thus, we use indentation to prevent examples such as

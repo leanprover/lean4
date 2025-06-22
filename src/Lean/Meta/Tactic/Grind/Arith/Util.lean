@@ -152,9 +152,9 @@ def isIntModuleVirtualParent (parent? : Option Expr) : Bool :=
   | none => false
   | some parent => parent == getIntModuleVirtualParent
 
-def getIsCharInst? (u : Level) (type : Expr) (ringInst : Expr) : MetaM (Option (Expr × Nat)) := do withNewMCtxDepth do
+def getIsCharInst? (u : Level) (type : Expr) (semiringInst : Expr) : MetaM (Option (Expr × Nat)) := do withNewMCtxDepth do
   let n ← mkFreshExprMVar (mkConst ``Nat)
-  let charType := mkApp3 (mkConst ``Grind.IsCharP [u]) type ringInst n
+  let charType := mkApp3 (mkConst ``Grind.IsCharP [u]) type semiringInst n
   let .some charInst ← trySynthInstance charType | pure none
   let n ← instantiateMVars n
   let some n ← evalNat n |>.run
@@ -162,11 +162,9 @@ def getIsCharInst? (u : Level) (type : Expr) (ringInst : Expr) : MetaM (Option (
   pure <| some (charInst, n)
 
 def getNoZeroDivInst? (u : Level) (type : Expr) : MetaM (Option Expr) := do
-  let zeroType := mkApp (mkConst ``Zero [u]) type
-  let .some zeroInst ← trySynthInstance zeroType | return none
   let hmulType := mkApp3 (mkConst ``HMul [0, u, u]) (mkConst ``Nat []) type type
   let .some hmulInst ← trySynthInstance hmulType | return none
-  let noZeroDivType := mkApp3 (mkConst ``Grind.NoNatZeroDivisors [u]) type zeroInst hmulInst
+  let noZeroDivType := mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type hmulInst
   LOption.toOption <$> trySynthInstance noZeroDivType
 
 @[specialize] def split (cs : PArray α) (getCoeff : α → Int) : PArray α × Array (Int × α) := Id.run do

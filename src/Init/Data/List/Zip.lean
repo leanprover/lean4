@@ -184,7 +184,7 @@ theorem zipWith_eq_cons_iff {f : α → β → γ} {l₁ : List α} {l₂ : List
   | [], b :: l₂ => simp
   | a :: l₁, [] => simp
   | a' :: l₁, b' :: l₂ =>
-    simp only [zip_cons_cons, cons.injEq, Prod.mk.injEq]
+    simp only [cons.injEq]
     constructor
     · rintro ⟨⟨rfl, rfl⟩, rfl⟩
       refine ⟨a', l₁, b', l₂, by simp⟩

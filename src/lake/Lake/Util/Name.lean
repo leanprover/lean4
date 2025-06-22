@@ -67,10 +67,10 @@ theorem eq_anonymous_of_isAnonymous {n : Name} : (h : n.isAnonymous) → n = .an
 | .str .., .num .. => by simp [quickCmpAux]
 | .num p₁ n₁, .num p₂ n₂ => by
   simp only [quickCmpAux]; split <;>
-  simp_all [quickCmpAux_iff_eq, show ∀ p, (p → False) ↔ ¬ p from fun _ => .rfl]
+  simp_all [quickCmpAux_iff_eq]
 | .str p₁ s₁, .str p₂ s₂ => by
   simp only [quickCmpAux]; split <;>
-  simp_all [quickCmpAux_iff_eq, show ∀ p, (p → False) ↔ ¬ p from fun _ => .rfl]
+  simp_all [quickCmpAux_iff_eq]
 
 instance : LawfulCmpEq Name quickCmpAux where
   eq_of_cmp := quickCmpAux_iff_eq.mp

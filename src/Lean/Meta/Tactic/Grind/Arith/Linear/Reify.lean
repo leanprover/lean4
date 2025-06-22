@@ -75,18 +75,18 @@ where
   processHMul (i a b : Expr) : LinearM (Option LinExpr) := do
     if isHMulInst (← getStruct) i then
       let some k ← getIntValue? a | return none
-      return some (.mul k (← go b))
+      return some (.intMul k (← go b))
     else if isHMulNatInst (← getStruct) i then
       let some k ← getNatValue? a | return none
-      return some (.mul k (← go b))
+      return some (.natMul k (← go b))
     return none
   processHSMul (i a b : Expr) : LinearM (Option LinExpr) := do
     if isHSMulInst (← getStruct) i then
       let some k ← getIntValue? a | return none
-      return some (.mul k (← go b))
+      return some (.intMul k (← go b))
     else if isHSMulNatInst (← getStruct) i then
       let some k ← getNatValue? a | return none
-      return some (.mul k (← go b))
+      return some (.natMul k (← go b))
     return none
   go (e : Expr) : LinearM LinExpr := do
     match_expr e with

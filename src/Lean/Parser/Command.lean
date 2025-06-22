@@ -236,7 +236,7 @@ def «structure»          := leading_parser
     (structureTk <|> classTk) >>
     -- Note: no error recovery here due to clashing with the `class abbrev` syntax
     declId >>
-    ppIndent (many (ppSpace >> Term.bracketedBinder) >> Term.optType >> optional «extends») >>
+    ppIndent (optDeclSig >> optional «extends») >>
     optional ((symbol " := " <|> " where ") >> optional structCtor >> structFields) >>
     optDeriving
 @[builtin_command_parser] def declaration := leading_parser

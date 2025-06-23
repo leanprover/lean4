@@ -2967,7 +2967,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_isLevelMVarAssignable___at___Lean_hasAssignableLevelMVar___at___Lean_Meta_isLevelDefEqAuxImpl_spec__0_spec__0___closed__2;
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(425u);
+x_3 = lean_unsigned_to_nat(438u);
 x_4 = l_Lean_isLevelMVarAssignable___at___Lean_hasAssignableLevelMVar___at___Lean_Meta_isLevelDefEqAuxImpl_spec__0_spec__0___closed__1;
 x_5 = l_Lean_isLevelMVarAssignable___at___Lean_hasAssignableLevelMVar___at___Lean_Meta_isLevelDefEqAuxImpl_spec__0_spec__0___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

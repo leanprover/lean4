@@ -448,7 +448,7 @@ static lean_object* l_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitProjFn___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitNoConfusion___lam__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitMData___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at___Lean_Compiler_LCNF_ToLCNF_toLCNF_visitProjFn_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_mkAuxParam(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at___Lean_Compiler_LCNF_ToLCNF_toLCNF_visitCore_spec__0___closed__3;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -9570,7 +9570,7 @@ lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14;
 x_11 = l_Lean_mkAppN(x_1, x_4);
 x_12 = lean_box(1);
 x_13 = lean_unbox(x_12);
-x_14 = l_Lean_Meta_mkLambdaFVars(x_4, x_11, x_2, x_3, x_2, x_13, x_6, x_7, x_8, x_9, x_10);
+x_14 = l_Lean_Meta_mkLambdaFVars(x_4, x_11, x_2, x_3, x_2, x_3, x_13, x_6, x_7, x_8, x_9, x_10);
 return x_14;
 }
 }

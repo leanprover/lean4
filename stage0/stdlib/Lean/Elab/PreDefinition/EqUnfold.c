@@ -134,7 +134,7 @@ lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_871_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn___lam__0____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_871_(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
-lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_871__spec__0___redArg___closed__22;
 lean_object* l_Lean_mkConstWithLevelParams___at___Lean_Meta_registerCoercion_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_871__spec__0___redArg___closed__6;
@@ -602,7 +602,7 @@ x_15 = l_Array_forIn_x27Unsafe_loop___at___Lean_Meta_getConstUnfoldEqnFor_x3f_sp
 x_16 = lean_array_push(x_15, x_14);
 x_17 = lean_box(1);
 x_18 = lean_unbox(x_17);
-x_19 = l_Lean_Meta_mkLambdaFVars(x_16, x_6, x_1, x_2, x_1, x_18, x_7, x_8, x_9, x_10, x_11);
+x_19 = l_Lean_Meta_mkLambdaFVars(x_16, x_6, x_1, x_2, x_1, x_2, x_18, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
@@ -841,7 +841,7 @@ lean_object* x_62; uint8_t x_63; lean_object* x_64;
 lean_dec(x_1);
 x_62 = lean_box(1);
 x_63 = lean_unbox(x_62);
-x_64 = l_Lean_Meta_mkLambdaFVars(x_5, x_39, x_2, x_3, x_2, x_63, x_7, x_8, x_9, x_10, x_11);
+x_64 = l_Lean_Meta_mkLambdaFVars(x_5, x_39, x_2, x_3, x_2, x_3, x_63, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_64) == 0)
 {
 lean_object* x_65; lean_object* x_66; lean_object* x_67; 

@@ -634,7 +634,7 @@ lean_object* l_Lean_Meta_intro1Core(lean_object*, uint8_t, lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Meta_Simp_synthesizeArgs_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_postDefault___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logWarning___at___Lean_Meta_Simp_rewrite_x3f_rewriteUsingIndex_x3f_spec__2_spec__2_spec__2(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_seval___redArg___closed__7;
 static lean_object* l_Lean_Meta_ppOrigin___at___Lean_Meta_Simp_discharge_x3f_x27_spec__0___redArg___closed__0;
 uint64_t l_Lean_Meta_TransparencyMode_toUInt64(uint8_t);
@@ -8400,7 +8400,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_isLevelMVarAssignable___at___Lean_hasAssignableLevelMVar___at___Lean_hasAssignableMVar___at_____private_Lean_Meta_Tactic_Simp_Rewrite_0__Lean_Meta_Simp_tryTheoremCore_go_spec__1_spec__2_spec__2___closed__2;
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(425u);
+x_3 = lean_unsigned_to_nat(438u);
 x_4 = l_Lean_isLevelMVarAssignable___at___Lean_hasAssignableLevelMVar___at___Lean_hasAssignableMVar___at_____private_Lean_Meta_Tactic_Simp_Rewrite_0__Lean_Meta_Simp_tryTheoremCore_go_spec__1_spec__2_spec__2___closed__1;
 x_5 = l_Lean_isLevelMVarAssignable___at___Lean_hasAssignableLevelMVar___at___Lean_hasAssignableMVar___at_____private_Lean_Meta_Tactic_Simp_Rewrite_0__Lean_Meta_Simp_tryTheoremCore_go_spec__1_spec__2_spec__2___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -31538,7 +31538,7 @@ x_35 = lean_box(1);
 x_36 = lean_unbox(x_34);
 x_37 = lean_unbox(x_34);
 x_38 = lean_unbox(x_35);
-x_39 = l_Lean_Meta_mkLambdaFVars(x_1, x_33, x_36, x_20, x_37, x_38, x_21, x_22, x_23, x_24, x_28);
+x_39 = l_Lean_Meta_mkLambdaFVars(x_1, x_33, x_36, x_20, x_37, x_20, x_38, x_21, x_22, x_23, x_24, x_28);
 lean_dec(x_24);
 lean_dec(x_23);
 lean_dec(x_22);

@@ -196,7 +196,7 @@ lean_object* l_Lean_Meta_mkEqRefl(lean_object*, lean_object*, lean_object*, lean
 lean_object* l_Lean_indentExpr(lean_object*);
 lean_object* l_Lean_Meta_unfoldDefinition_x3f(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkForallFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkForallFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_reducePreMatchCond___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_abstractMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -454,7 +454,7 @@ _start:
 lean_object* x_10; uint8_t x_11; lean_object* x_12; 
 x_10 = lean_box(1);
 x_11 = lean_unbox(x_10);
-x_12 = l_Lean_Meta_mkForallFVars(x_3, x_4, x_1, x_2, x_11, x_5, x_6, x_7, x_8, x_9);
+x_12 = l_Lean_Meta_mkForallFVars(x_3, x_4, x_1, x_2, x_2, x_11, x_5, x_6, x_7, x_8, x_9);
 return x_12;
 }
 }

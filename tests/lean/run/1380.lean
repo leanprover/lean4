@@ -30,6 +30,8 @@ trace: [Meta.Tactic.simp.unify] eq_self:1000, failed to unify
 -/
 #guard_msgs in
 set_option trace.Meta.Tactic.simp true in
-example (hv: v₁ < v₂) : True := foo n v₁ v₂ ‹_› ‹_› (by simp (config := { decide := true }) only [hv, Fin.mk.injEq, Nat.ne_of_gt, Nat.lt_succ_iff])
+example (hv: v₁ < v₂) : True :=
+  foo n v₁ v₂ ‹_› ‹_›
+    (by simp +decide only [hv, Fin.mk.injEq, Nat.ne_of_gt, Nat.lt_succ_iff])
 
 #check Fin.mk.injEq

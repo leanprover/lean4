@@ -7,7 +7,7 @@ In module `WFRecFunInd` we check whether we can generate the
 funind theorem, which may have to unfold these proofs.
 -/
 
-def ackermann : Nat → Nat → Nat
+@[expose] def ackermann : Nat → Nat → Nat
 | 0, m => m+1
 | n + 1, 0 => ackermann n 1
 | n + 1, m + 1 => ackermann n (ackermann (n + 1) m)

@@ -273,7 +273,7 @@ register_error_explanation Lean.WorkingExample₂ {
 }
 
 /--
-Link: [`Lean.BinderTypeInferenceFailed`](lean-manual://errorExplanation/Lean.BinderTypeInferenceFailed)
+Link: [`lean.someErrorName`](lean-manual://errorExplanation/lean.someErrorName)
 
 # Examples
 
@@ -285,7 +285,7 @@ Link: [`Lean.BinderTypeInferenceFailed`](lean-manual://errorExplanation/Lean.Bin
 ```lean fixed
 ```
 
-Link: [`Lean.BinderTypeInferenceFailed`](lean-manual://errorExplanation/Lean.BinderTypeInferenceFailed)
+Link: [`lean.someErrorName`](lean-manual://errorExplanation/lean.someErrorName)
 
 -/
 register_error_explanation Lean.WorkingExample₃ {

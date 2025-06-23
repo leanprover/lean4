@@ -37,7 +37,7 @@ structure guidelines below) and is followed by the name of the
 explanation and a `Lean.ErrorExplanation.Metadata` structure
 describing the error. All errors have two-component names: the first
 identifies the package or "domain" to which the error belongs (in
-core, this will nearly always be `Lean`); the second identifies the
+core, this will nearly always be `lean`); the second identifies the
 error itself. Error names are written in upper camel case and should
 be descriptive but not excessively verbose. Abbreviations in error
 names are acceptable, but they should be reasonably clear (e.g.,

@@ -61,7 +61,7 @@ If the type of a constructor is annotated, the full type—including the resulti
 provided. Alternatively, constructor parameters can be written using named binders; this allows the
 omission of the constructor's resulting type because it contains no indices.
 -/
-register_error_explanation Lean.CtorResultingTypeMismatch {
+register_error_explanation lean.ctorResultingTypeMismatch {
   summary := "Resulting type of constructor was not the inductive type being declared."
   sinceVersion := "4.22.0"
 }

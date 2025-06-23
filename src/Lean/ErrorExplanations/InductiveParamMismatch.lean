@@ -51,7 +51,7 @@ parameter of the inductive declaration and must instead be an index, as in the c
 the other hand, `α` remains unchanged throughout all occurrences of `Vec` in the declaration and so
 is a valid parameter.
 -/
-register_error_explanation Lean.InductiveParamMismatch {
+register_error_explanation lean.inductiveParamMismatch {
   summary := "Invalid parameter in an occurrence of an inductive type in one of its constructors."
   sinceVersion := "4.22.0"
 }

@@ -109,7 +109,7 @@ warning at `nil`, indicating its similarity to a valid constructor name. Using d
 as shown in the fixed example, or specifying the full constructor name `List.nil` achieves the
 intended behavior.
 -/
-register_error_explanation Lean.RedundantMatchAlt {
+register_error_explanation lean.redundantMatchAlt {
   summary := "Match alternative will never be reached."
   sinceVersion := "4.22.0"
 }

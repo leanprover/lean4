@@ -60,7 +60,7 @@ the unspecified argument (`t`) must not be a parameter of the `RoseTree.All` pre
 index to the right of the colon in the header of `RoseTree.All` allows this partial application to
 succeed.
 -/
-register_error_explanation Lean.InductiveParamMissing {
+register_error_explanation lean.inductiveParamMissing {
   summary := "Parameter not present in an occurrence of an inductive type in one of its constructors."
   sinceVersion := "4.22.0"
 }

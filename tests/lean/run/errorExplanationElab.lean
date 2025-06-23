@@ -16,16 +16,16 @@ def dummyMetadata : ErrorExplanation.Metadata := {
 }
 
 /-- Example -/
-register_error_explanation Lean.Foo {
+register_error_explanation lean.foo {
   summary := "A removed error."
   sinceVersion := "4.0.0"
   removedVersion? := "4.21.0"
 }
 
-/-- error: Cannot add explanation: An error explanation already exists for `Lean.Foo` -/
+/-- error: Cannot add explanation: An error explanation already exists for `lean.foo` -/
 #guard_msgs in
 /-- Duplicate -/
-register_error_explanation Lean.Foo dummyMetadata
+register_error_explanation lean.foo dummyMetadata
 
 /--
 error: Invalid name `TopLevelName`: Error explanation names must have two components
@@ -45,16 +45,16 @@ error: Invalid name `Lean.MacroScoped✝`: Error explanations cannot have inacce
 register_bad_error_explanation
 
 /-- Example -/
-register_error_explanation Lean.Bar {
+register_error_explanation lean.bar {
   summary := "An error."
   sinceVersion := "4.21.0"
 }
 
-/-- warning: The error name `Lean.Foo` was removed in Lean version 4.21.0 and should not be used. -/
+/-- warning: The error name `lean.foo` was removed in Lean version 4.21.0 and should not be used. -/
 #guard_msgs in
-example : MetaM Unit := throwNamedError Lean.Foo "Error"
+example : MetaM Unit := throwNamedError lean.foo "Error"
 
-example : MetaM Unit := throwNamedError Lean.Bar "foo"
+example : MetaM Unit := throwNamedError lean.bar "foo"
 
 /-! ## Message data tests -/
 
@@ -72,34 +72,34 @@ def logErrorNames (x : MetaM Unit) : MetaM Unit := do
   Core.setMessageLog newLog
 
 /--
-error: (Lean.Bar) Logged error
+error: (lean.bar) Logged error
 ---
-error: (Lean.Bar) Logged error with ref
+error: (lean.bar) Logged error with ref
 ---
-warning: (Lean.Bar) Logged warning
+warning: (lean.bar) Logged warning
 ---
-warning: (Lean.Bar) Logged warning with ref
+warning: (lean.bar) Logged warning with ref
 -/
 #guard_msgs in
 run_meta logErrorNames do
-  logNamedError Lean.Bar m!"Logged error"
-  logNamedErrorAt (← getRef) Lean.Bar m!"Logged error with ref"
-  logNamedWarning Lean.Bar m!"Logged warning"
-  logNamedWarningAt (← getRef) Lean.Bar m!"Logged warning with ref"
+  logNamedError lean.bar m!"Logged error"
+  logNamedErrorAt (← getRef) lean.bar m!"Logged error with ref"
+  logNamedWarning lean.bar m!"Logged warning"
+  logNamedWarningAt (← getRef) lean.bar m!"Logged warning with ref"
 
-/-- error: (Lean.Bar) Thrown error -/
+/-- error: (lean.bar) Thrown error -/
 #guard_msgs in
 run_meta logErrorNames do
   try
-    throwNamedError Lean.Bar "Thrown error"
+    throwNamedError lean.bar "Thrown error"
   catch e =>
     logError e.toMessageData
 
-/-- error: (Lean.Bar) Thrown error with ref -/
+/-- error: (lean.bar) Thrown error with ref -/
 #guard_msgs in
 run_meta logErrorNames do
   try
-    throwNamedErrorAt (← getRef) Lean.Bar "Thrown error with ref"
+    throwNamedErrorAt (← getRef) lean.bar "Thrown error with ref"
   catch e =>
     logError e.toMessageData
 
@@ -120,11 +120,11 @@ def withReportedOutput (x : MetaM α) : MetaM Unit := do
   logInfo ("".intercalate dropped)
 
 /--
-info:  error(Lean.Bar): function is noncomputable
- warning(Lean.Bar): function is noncomputable
+info:  error(lean.bar): function is noncomputable
+ warning(lean.bar): function is noncomputable
 -/
 #guard_msgs in
 run_meta withReportedOutput do
   let msg := "function is noncomputable"
-  logNamedError Lean.Bar msg
-  logNamedWarning Lean.Bar msg
+  logNamedError lean.bar msg
+  logNamedWarning lean.bar msg

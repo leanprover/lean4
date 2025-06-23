@@ -1,196 +1,196 @@
 {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
- "position": {"line": 28, "character": 33}}
+ "position": {"line": 28, "character": 30}}
 {"items":
  [{"textEdit":
    {"replace":
     {"start": {"line": 28, "character": 23},
-     "end": {"line": 28, "character": 33}},
-    "newText": "TestDomain.Foo1",
+     "end": {"line": 28, "character": 30}},
+    "newText": "testPkg.bar",
     "insert":
     {"start": {"line": 28, "character": 23},
-     "end": {"line": 28, "character": 33}}},
-   "label": "TestDomain.Foo1",
-   "kind": 10,
-   "documentation": {"value": "(error) Error 1", "kind": "markdown"},
-   "detail": "error name",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
-     "position": {"line": 28, "character": 33}},
-    "cPos": 0}},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 28, "character": 23},
-     "end": {"line": 28, "character": 33}},
-    "newText": "TestDomain.Foo2",
-    "insert":
-    {"start": {"line": 28, "character": 23},
-     "end": {"line": 28, "character": 33}}},
-   "label": "TestDomain.Foo2",
-   "kind": 10,
-   "documentation": {"value": "(error) Error 2", "kind": "markdown"},
-   "detail": "error name",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
-     "position": {"line": 28, "character": 33}},
-    "cPos": 0}},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 28, "character": 23},
-     "end": {"line": 28, "character": 33}},
-    "newText": "TestDomain.Bar",
-    "insert":
-    {"start": {"line": 28, "character": 23},
-     "end": {"line": 28, "character": 33}}},
-   "label": "TestDomain.Bar",
+     "end": {"line": 28, "character": 30}}},
+   "label": "testPkg.bar",
    "kind": 10,
    "documentation": {"value": "(error) Error 0", "kind": "markdown"},
    "detail": "error name",
    "data":
    {"params":
     {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
-     "position": {"line": 28, "character": 33}},
+     "position": {"line": 28, "character": 30}},
+    "cPos": 0}},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 28, "character": 23},
+     "end": {"line": 28, "character": 30}},
+    "newText": "testPkg.foo2",
+    "insert":
+    {"start": {"line": 28, "character": 23},
+     "end": {"line": 28, "character": 30}}},
+   "label": "testPkg.foo2",
+   "kind": 10,
+   "documentation": {"value": "(error) Error 2", "kind": "markdown"},
+   "detail": "error name",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
+     "position": {"line": 28, "character": 30}},
+    "cPos": 0}},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 28, "character": 23},
+     "end": {"line": 28, "character": 30}},
+    "newText": "testPkg.foo1",
+    "insert":
+    {"start": {"line": 28, "character": 23},
+     "end": {"line": 28, "character": 30}}},
+   "label": "testPkg.foo1",
+   "kind": 10,
+   "documentation": {"value": "(error) Error 1", "kind": "markdown"},
+   "detail": "error name",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
+     "position": {"line": 28, "character": 30}},
     "cPos": 0}}],
  "isIncomplete": false}
 {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
- "position": {"line": 30, "character": 34}}
+ "position": {"line": 30, "character": 31}}
 {"items":
  [{"textEdit":
    {"replace":
     {"start": {"line": 30, "character": 23},
-     "end": {"line": 30, "character": 34}},
-    "newText": "TestDomain.Bar",
+     "end": {"line": 30, "character": 31}},
+    "newText": "testPkg.bar",
     "insert":
     {"start": {"line": 30, "character": 23},
-     "end": {"line": 30, "character": 34}}},
-   "label": "TestDomain.Bar",
+     "end": {"line": 30, "character": 31}}},
+   "label": "testPkg.bar",
    "kind": 10,
    "documentation": {"value": "(error) Error 0", "kind": "markdown"},
    "detail": "error name",
    "data":
    {"params":
     {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
-     "position": {"line": 30, "character": 34}},
+     "position": {"line": 30, "character": 31}},
     "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 30, "character": 23},
-     "end": {"line": 30, "character": 34}},
-    "newText": "TestDomain.Foo1",
+     "end": {"line": 30, "character": 31}},
+    "newText": "testPkg.foo2",
     "insert":
     {"start": {"line": 30, "character": 23},
-     "end": {"line": 30, "character": 34}}},
-   "label": "TestDomain.Foo1",
-   "kind": 10,
-   "documentation": {"value": "(error) Error 1", "kind": "markdown"},
-   "detail": "error name",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
-     "position": {"line": 30, "character": 34}},
-    "cPos": 0}},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 30, "character": 23},
-     "end": {"line": 30, "character": 34}},
-    "newText": "TestDomain.Foo2",
-    "insert":
-    {"start": {"line": 30, "character": 23},
-     "end": {"line": 30, "character": 34}}},
-   "label": "TestDomain.Foo2",
+     "end": {"line": 30, "character": 31}}},
+   "label": "testPkg.foo2",
    "kind": 10,
    "documentation": {"value": "(error) Error 2", "kind": "markdown"},
    "detail": "error name",
    "data":
    {"params":
     {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
-     "position": {"line": 30, "character": 34}},
+     "position": {"line": 30, "character": 31}},
+    "cPos": 0}},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 30, "character": 23},
+     "end": {"line": 30, "character": 31}},
+    "newText": "testPkg.foo1",
+    "insert":
+    {"start": {"line": 30, "character": 23},
+     "end": {"line": 30, "character": 31}}},
+   "label": "testPkg.foo1",
+   "kind": 10,
+   "documentation": {"value": "(error) Error 1", "kind": "markdown"},
+   "detail": "error name",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
+     "position": {"line": 30, "character": 31}},
     "cPos": 0}}],
  "isIncomplete": false}
 {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
- "position": {"line": 32, "character": 35}}
+ "position": {"line": 32, "character": 32}}
 {"items":
  [{"textEdit":
    {"replace":
     {"start": {"line": 32, "character": 23},
-     "end": {"line": 32, "character": 35}},
-    "newText": "TestDomain.Foo1",
+     "end": {"line": 32, "character": 32}},
+    "newText": "testPkg.foo2",
     "insert":
     {"start": {"line": 32, "character": 23},
-     "end": {"line": 32, "character": 35}}},
-   "label": "TestDomain.Foo1",
-   "kind": 10,
-   "documentation": {"value": "(error) Error 1", "kind": "markdown"},
-   "detail": "error name",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
-     "position": {"line": 32, "character": 35}},
-    "cPos": 0}},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 32, "character": 23},
-     "end": {"line": 32, "character": 35}},
-    "newText": "TestDomain.Foo2",
-    "insert":
-    {"start": {"line": 32, "character": 23},
-     "end": {"line": 32, "character": 35}}},
-   "label": "TestDomain.Foo2",
+     "end": {"line": 32, "character": 32}}},
+   "label": "testPkg.foo2",
    "kind": 10,
    "documentation": {"value": "(error) Error 2", "kind": "markdown"},
    "detail": "error name",
    "data":
    {"params":
     {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
-     "position": {"line": 32, "character": 35}},
+     "position": {"line": 32, "character": 32}},
+    "cPos": 0}},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 32, "character": 23},
+     "end": {"line": 32, "character": 32}},
+    "newText": "testPkg.foo1",
+    "insert":
+    {"start": {"line": 32, "character": 23},
+     "end": {"line": 32, "character": 32}}},
+   "label": "testPkg.foo1",
+   "kind": 10,
+   "documentation": {"value": "(error) Error 1", "kind": "markdown"},
+   "detail": "error name",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
+     "position": {"line": 32, "character": 32}},
     "cPos": 0}}],
  "isIncomplete": false}
 {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
- "position": {"line": 34, "character": 35}}
+ "position": {"line": 34, "character": 32}}
 {"items":
  [{"textEdit":
    {"replace":
     {"start": {"line": 34, "character": 23},
-     "end": {"line": 34, "character": 35}},
-    "newText": "TestDomain.Foo1",
+     "end": {"line": 34, "character": 32}},
+    "newText": "testPkg.foo1",
     "insert":
     {"start": {"line": 34, "character": 23},
-     "end": {"line": 34, "character": 35}}},
-   "label": "TestDomain.Foo1",
+     "end": {"line": 34, "character": 32}}},
+   "label": "testPkg.foo1",
    "kind": 10,
    "documentation": {"value": "(error) Error 1", "kind": "markdown"},
    "detail": "error name",
    "data":
    {"params":
     {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
-     "position": {"line": 34, "character": 35}},
+     "position": {"line": 34, "character": 32}},
     "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 34, "character": 23},
-     "end": {"line": 34, "character": 35}},
-    "newText": "TestDomain.Foo2",
+     "end": {"line": 34, "character": 32}},
+    "newText": "testPkg.foo2",
     "insert":
     {"start": {"line": 34, "character": 23},
-     "end": {"line": 34, "character": 35}}},
-   "label": "TestDomain.Foo2",
+     "end": {"line": 34, "character": 32}}},
+   "label": "testPkg.foo2",
    "kind": 10,
    "documentation": {"value": "(error) Error 2", "kind": "markdown"},
    "detail": "error name",
    "data":
    {"params":
     {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
-     "position": {"line": 34, "character": 35}},
+     "position": {"line": 34, "character": 32}},
     "cPos": 0}}],
  "isIncomplete": false}
 {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
- "position": {"line": 37, "character": 34}}
+ "position": {"line": 37, "character": 31}}
 {"range":
- {"start": {"line": 37, "character": 23}, "end": {"line": 37, "character": 38}},
+ {"start": {"line": 37, "character": 23}, "end": {"line": 37, "character": 35}},
  "contents": {"value": "(error) Error 2", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///errorExplanationInteractive.lean"},
- "position": {"line": 39, "character": 34}}
+ "position": {"line": 39, "character": 31}}
 {"range":
- {"start": {"line": 39, "character": 23}, "end": {"line": 39, "character": 38}},
+ {"start": {"line": 39, "character": 23}, "end": {"line": 39, "character": 35}},
  "contents": {"value": "(error) Error 2", "kind": "markdown"}}

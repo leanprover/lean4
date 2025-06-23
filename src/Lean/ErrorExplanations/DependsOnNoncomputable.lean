@@ -111,7 +111,7 @@ definition. In the above example, for instance, a `Decidable` instance for the p
 `∃ x, f x = y` is synthesized using a `Classical` decidability instance; therefore, `fromImage` must
 be marked `noncomputable`.
 -/
-register_error_explanation Lean.DependsOnNoncomputable {
+register_error_explanation lean.dependsOnNoncomputable {
   summary := "Declaration depends on noncomputable definitions but is not marked as noncomputable"
   sinceVersion := "4.22.0"
 }

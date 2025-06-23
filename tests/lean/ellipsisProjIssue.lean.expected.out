@@ -3,4 +3,3 @@ ellipsisProjIssue.lean:1:18-1:22: error: unknown identifier 'succ'
   upper :=
     sorry } : Std.PRange { lower := Std.PRange.BoundShape.closed, upper := Std.PRange.BoundShape.open }
   (Nat → Nat → Nat)
-ellipsisProjIssue.lean:1:18-1:22: error: unexpected identifier; expected command

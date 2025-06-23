@@ -135,12 +135,13 @@ inductive Tree : Type u where | node : List Tree → Tree
 
 /--
 info: @[reducible] protected def Ex3.Tree.below.{u_1, u} : {motive_1 : Tree.{u} → Sort u_1} →
-  {motive_2 : List.{u} Tree.{u} → Sort u_1} → Tree.{u} → Sort (max 1 u_1) :=
+  {motive_2 : List.{u} Tree.{u} → Sort u_1} → Tree.{u} → Sort (max (u + 1) u_1) :=
 fun {motive_1} {motive_2} t =>
-  Tree.rec.{(max 1 u_1) + 1, u} (fun a a_ih => PProd.{u_1, max 1 u_1} (motive_2 a) a_ih) PUnit.{max 1 u_1}
+  Tree.rec.{(max (u + 1) u_1) + 1, u} (fun a a_ih => PProd.{u_1, max (u + 1) u_1} (motive_2 a) a_ih)
+    PUnit.{max (u + 1) u_1}
     (fun head tail head_ih tail_ih =>
-      PProd.{max 1 u_1, max 1 u_1} (PProd.{u_1, max 1 u_1} (motive_1 head) head_ih)
-        (PProd.{u_1, max 1 u_1} (motive_2 tail) tail_ih))
+      PProd.{max (max 1 u_1) (u + 1) u_1, max (max 1 u_1) (u + 1) u_1}
+        (PProd.{u_1, max (u + 1) u_1} (motive_1 head) head_ih) (PProd.{u_1, max (u + 1) u_1} (motive_2 tail) tail_ih))
     t
 -/
 #guard_msgs in
@@ -148,12 +149,13 @@ fun {motive_1} {motive_2} t =>
 
 /--
 info: @[reducible] protected def Ex3.Tree.below_1.{u_1, u} : {motive_1 : Tree.{u} → Sort u_1} →
-  {motive_2 : List.{u} Tree.{u} → Sort u_1} → List.{u} Tree.{u} → Sort (max 1 u_1) :=
+  {motive_2 : List.{u} Tree.{u} → Sort u_1} → List.{u} Tree.{u} → Sort (max (u + 1) u_1) :=
 fun {motive_1} {motive_2} t =>
-  Tree.rec_1.{(max 1 u_1) + 1, u} (fun a a_ih => PProd.{u_1, max 1 u_1} (motive_2 a) a_ih) PUnit.{max 1 u_1}
+  Tree.rec_1.{(max (u + 1) u_1) + 1, u} (fun a a_ih => PProd.{u_1, max (u + 1) u_1} (motive_2 a) a_ih)
+    PUnit.{max (u + 1) u_1}
     (fun head tail head_ih tail_ih =>
-      PProd.{max 1 u_1, max 1 u_1} (PProd.{u_1, max 1 u_1} (motive_1 head) head_ih)
-        (PProd.{u_1, max 1 u_1} (motive_2 tail) tail_ih))
+      PProd.{max (max 1 u_1) (u + 1) u_1, max (max 1 u_1) (u + 1) u_1}
+        (PProd.{u_1, max (u + 1) u_1} (motive_1 head) head_ih) (PProd.{u_1, max (u + 1) u_1} (motive_2 tail) tail_ih))
     t
 -/
 #guard_msgs in

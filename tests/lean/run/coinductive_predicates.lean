@@ -174,3 +174,51 @@ info: language_equivalent.coind {Q A : Type} (automaton : DFA Q A) (x : Q → Q 
 -/
 #guard_msgs in
 #check language_equivalent.coind
+
+namespace mixed1
+  mutual
+    def tick : Prop :=
+      ¬tock
+    coinductive_fixpoint
+
+    def tock : Prop :=
+      ¬tick
+    inductive_fixpoint
+  end
+end mixed1
+
+namespace mixed2
+  mutual
+    def tick : Prop :=
+      ¬tock
+    inductive_fixpoint
+
+    def tock : Prop :=
+      ¬tick
+    coinductive_fixpoint
+  end
+end mixed2
+
+namespace mixed3
+  mutual
+    def tick : Prop :=
+      tock → tick
+    coinductive_fixpoint
+
+    def tock : Prop :=
+      tick → tock
+    inductive_fixpoint
+  end
+end mixed3
+
+namespace mixed4
+  mutual
+    def tick : Prop :=
+      tock → tick
+    inductive_fixpoint
+
+    def tock : Prop :=
+      tick → tock
+    coinductive_fixpoint
+  end
+end mixed4

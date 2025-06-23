@@ -28,20 +28,20 @@ inductive Foo3 : Sort (u+1) where
 inductive Foo4 : Sort (max 1 u) where
   | intro: Foo4 → Foo4
 
-/-- info: Foo4.below.{u_1, u} {motive : Foo4.{u} → Sort u_1} (t : Foo4.{u}) : Sort (max 1 u_1) -/
+/-- info: Foo4.below.{u_1, u} {motive : Foo4.{u} → Sort u_1} (t : Foo4.{u}) : Sort (max (max 1 u) u_1) -/
 #guard_msgs in
 #check Foo4.below
 
 inductive Foo5 : Sort (max u 1) where
   | intro: Foo5 → Foo5
 
-/-- info: Foo5.below.{u_1, u} {motive : Foo5.{u} → Sort u_1} (t : Foo5.{u}) : Sort (max 1 u_1) -/
+/-- info: Foo5.below.{u_1, u} {motive : Foo5.{u} → Sort u_1} (t : Foo5.{u}) : Sort (max (max u 1) u_1) -/
 #guard_msgs in
 #check Foo5.below
 
 inductive Foo6 : Sort (u+1) where
   | intro: Foo6 → Foo6
 
-/-- info: Foo6.below.{u_1, u} {motive : Foo6.{u} → Sort u_1} (t : Foo6.{u}) : Sort (max 1 u_1) -/
+/-- info: Foo6.below.{u_1, u} {motive : Foo6.{u} → Sort u_1} (t : Foo6.{u}) : Sort (max (u + 1) u_1) -/
 #guard_msgs in
 #check Foo6.below

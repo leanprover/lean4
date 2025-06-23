@@ -334,7 +334,7 @@ theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
     (h : x &&& y = 0#w) : x + y = x ||| y := by
   rw [add_eq_adc, adc, iunfoldr_replace (fun _ => false) (x ||| y)]
   · rfl
-  · simp only [adcb, atLeastTwo, Bool.and_false, Bool.or_false, bne_false, 
+  · simp only [adcb, atLeastTwo, Bool.and_false, Bool.or_false, bne_false,
     Prod.mk.injEq, and_eq_false_imp]
     intros i
     replace h : (x &&& y).getLsbD i = (0#w).getLsbD i := by rw [h]
@@ -620,7 +620,7 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow (x : BitVec w) (i
         simp [hik', hik'']
         omega
   · ext k
-    simp only [and_twoPow, 
+    simp only [and_twoPow,
       ]
     by_cases hi : x.getLsbD i <;> simp [hi] <;> omega
 
@@ -1973,16 +1973,21 @@ theorem getElem_smod {x y : BitVec w} (h : i < w) :
   by_cases hx : x.msb <;> by_cases hy : y.msb
   <;> simp [hx, hy]
 
+-- - x / y = x / (- y)
+
 theorem getLsbD_smod {x y : BitVec w} :
     (x.smod y).getLsbD i =
       match x.msb, y.msb with
       | false, false => (x % y).getLsbD i
-      | false, true => (if x % -y = 0#w then (x % -y) else (x % -y + y)).getLsbD i
-      | true, false => (if -x % y = 0#w then (-x % y) else (y - -x % y)).getLsbD i
+      | false, true => if x % -y = 0#w then false else (x % -y + y).getLsbD i
+      | true, false => if -x % y = 0#w then false else (y - -x % y).getLsbD i
       | true, true => (-(-x % -y)).getLsbD i := by
   simp only [smod, umod_eq, neg_eq, zero_eq, add_eq, sub_eq]
   by_cases hx : x.msb <;> by_cases hy : y.msb
-  <;> simp [hx, hy]
+  · simp [hx, hy]
+  · by_cases hxy : -x % y = 0#w <;> simp [hx, hy, hxy]
+  · by_cases hxy : x % -y = 0#w <;> simp [hx, hy, hxy]
+  · simp [hx, hy]
 
 theorem getMsbD_smod {x y : BitVec w} :
     (x.smod y).getMsbD i  =

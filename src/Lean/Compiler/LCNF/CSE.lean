@@ -67,8 +67,8 @@ where
         addEntry key decl.fvarId
         return code.updateLet! decl (← go k)
     | .fun decl k =>
+      let decl ← goFunDecl decl
       if shouldElimFunDecls then
-        let decl ← goFunDecl decl
         let value := decl.toExpr
         match (← get).map.find? value with
         | some fvarId' =>
@@ -78,7 +78,6 @@ where
           addEntry value decl.fvarId
           return code.updateFun! decl (← go k)
       else
-        let decl ← goFunDecl decl
         return code.updateFun! decl (← go k)
     | .jp decl k =>
       let decl ← goFunDecl decl

@@ -3,8 +3,10 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.Iterators.Combinators.Monadic.FilterMap
+import Init.Data.Iterators.Combinators.Monadic.FilterMap
 
 /-!
 
@@ -75,7 +77,7 @@ postcondition is `fun x => x.isSome`; if `f` always fails, a suitable postcondit
 For each value emitted by the base iterator `it`, this combinator calls `f` and matches on the
 returned `Option` value.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def Iter.filterMapWithPostcondition {α β γ : Type w} [Iterator α Id β] {m : Type w → Type w'}
     [Monad m] (f : β → PostconditionT m (Option γ)) (it : Iter (α := α) β) :=
   (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.filterMapWithPostcondition f : IterM m γ)
@@ -120,7 +122,7 @@ be `fun _ => False`.
 
 For each value emitted by the base iterator `it`, this combinator calls `f`.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def Iter.filterWithPostcondition {α β : Type w} [Iterator α Id β] {m : Type w → Type w'}
     [Monad m] (f : β → PostconditionT m (ULift Bool)) (it : Iter (α := α) β) :=
   (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.filterWithPostcondition f : IterM m β)
@@ -164,7 +166,7 @@ be `fun _ => False`.
 
 For each value emitted by the base iterator `it`, this combinator calls `f`.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def Iter.mapWithPostcondition {α β γ : Type w} [Iterator α Id β] {m : Type w → Type w'}
     [Monad m] (f : β → PostconditionT m γ) (it : Iter (α := α) β) :=
   (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.mapWithPostcondition f : IterM m γ)
@@ -205,7 +207,7 @@ possible to manually prove `Finite` and `Productive` instances depending on the 
 For each value emitted by the base iterator `it`, this combinator calls `f` and matches on the
 returned `Option` value.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def Iter.filterMapM {α β γ : Type w} [Iterator α Id β] {m : Type w → Type w'}
     [Monad m] (f : β → m (Option γ)) (it : Iter (α := α) β) :=
   (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.filterMapM f : IterM m γ)
@@ -242,7 +244,7 @@ manually prove `Finite` and `Productive` instances depending on the concrete cho
 
 For each value emitted by the base iterator `it`, this combinator calls `f`.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def Iter.filterM {α β : Type w} [Iterator α Id β] {m : Type w → Type w'}
     [Monad m] (f : β → m (ULift Bool)) (it : Iter (α := α) β) :=
   (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.filterM f : IterM m β)
@@ -281,22 +283,22 @@ manually prove `Finite` and `Productive` instances depending on the concrete cho
 
 For each value emitted by the base iterator `it`, this combinator calls `f`.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def Iter.mapM {α β γ : Type w} [Iterator α Id β] {m : Type w → Type w'}
     [Monad m] (f : β → m γ) (it : Iter (α := α) β) :=
   (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.mapM f : IterM m γ)
 
-@[always_inline, inline, inherit_doc IterM.filterMap]
+@[always_inline, inline, inherit_doc IterM.filterMap, expose]
 def Iter.filterMap {α : Type w} {β : Type w} {γ : Type w} [Iterator α Id β]
     (f : β → Option γ) (it : Iter (α := α) β) :=
   ((it.toIterM.filterMap f).toIter : Iter γ)
 
-@[always_inline, inline, inherit_doc IterM.filter]
+@[always_inline, inline, inherit_doc IterM.filter, expose]
 def Iter.filter {α : Type w} {β : Type w} [Iterator α Id β]
     (f : β → Bool) (it : Iter (α := α) β) :=
   ((it.toIterM.filter f).toIter : Iter β)
 
-@[always_inline, inline, inherit_doc IterM.map]
+@[always_inline, inline, inherit_doc IterM.map, expose]
 def Iter.map {α : Type w} {β : Type w} {γ : Type w} [Iterator α Id β]
     (f : β → γ) (it : Iter (α := α) β) :=
   ((it.toIterM.map f).toIter : Iter γ)

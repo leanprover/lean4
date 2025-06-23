@@ -7,3 +7,4 @@ module
 
 prelude
 import Init.Data.Iterators.Lemmas.Consumers
+import Init.Data.Iterators.Lemmas.Combinators

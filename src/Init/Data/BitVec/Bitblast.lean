@@ -334,7 +334,7 @@ theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
     (h : x &&& y = 0#w) : x + y = x ||| y := by
   rw [add_eq_adc, adc, iunfoldr_replace (fun _ => false) (x ||| y)]
   · rfl
-  · simp only [adcb, atLeastTwo, Bool.and_false, Bool.or_false, bne_false, 
+  · simp only [adcb, atLeastTwo, Bool.and_false, Bool.or_false, bne_false,
     Prod.mk.injEq, and_eq_false_imp]
     intros i
     replace h : (x &&& y).getLsbD i = (0#w).getLsbD i := by rw [h]
@@ -620,7 +620,7 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow (x : BitVec w) (i
         simp [hik', hik'']
         omega
   · ext k
-    simp only [and_twoPow, 
+    simp only [and_twoPow,
       ]
     by_cases hi : x.getLsbD i <;> simp [hi] <;> omega
 
@@ -1680,6 +1680,33 @@ private theorem neg_udiv_eq_intMin_iff_eq_intMin_eq_one_of_msb_eq_true
     subst hx hy
     simp
 
+theorem getElem_sdiv {x y : BitVec w} (h : i < w):
+  (x.sdiv y)[i] =
+   (match x.msb, y.msb with
+      | false, false => (udiv x y)
+      | false, true  => (- (udiv x (.neg y)))
+      | true,  false => (- (udiv (.neg x) y))
+      | true,  true  => (udiv (.neg x) (.neg y)))[i] := by
+  simp only [sdiv, udiv_eq, neg_eq]; rfl
+
+theorem getLsbD_sdiv {x y : BitVec w} :
+  (x.sdiv y).getLsbD i =
+   (match x.msb, y.msb with
+      | false, false => (udiv x y)
+      | false, true  => (- (udiv x (.neg y)))
+      | true,  false => (- (udiv (.neg x) y))
+      | true,  true  => (udiv (.neg x) (.neg y))).getLsbD i := by
+  simp only [sdiv, udiv_eq, neg_eq]; rfl
+
+theorem getMsbD_sdiv {x y : BitVec w} :
+  (x.sdiv y).getMsbD i  =
+   (match x.msb, y.msb with
+      | false, false => (udiv x y)
+      | false, true  => (- (udiv x (.neg y)))
+      | true,  false => (- (udiv (.neg x) y))
+      | true,  true  => (udiv (.neg x) (.neg y))).getMsbD i := by
+  simp only [sdiv, udiv_eq, neg_eq]; rfl
+
 /--
 the most significant bit of the signed division `x.sdiv y` can be computed
 by the following cases:
@@ -1757,6 +1784,33 @@ theorem msb_umod_of_le_of_ne_zero_of_le {x y : BitVec w}
   intro h
   rw [← intMin_le_iff_msb_eq_true (length_pos_of_ne hy)] at h
   rwa [BitVec.le_antisymm hx h]
+
+theorem getElem_srem {x y : BitVec w} (h : i < w):
+    (x.srem y)[i] =
+      (match x.msb, y.msb with
+      | false, false => umod x y
+      | false, true  => umod x (.neg y)
+      | true,  false => .neg (umod (.neg x) y)
+      | true,  true  => .neg (umod (.neg x) (.neg y)))[i] := by
+  simp only [umod_eq, neg_eq]; rfl
+
+theorem getLsbD_srem {x y : BitVec w} :
+    (x.srem y).getLsbD i =
+      (match x.msb, y.msb with
+      | false, false => umod x y
+      | false, true  => umod x (.neg y)
+      | true,  false => .neg (umod (.neg x) y)
+      | true,  true  => .neg (umod (.neg x) (.neg y))).getLsbD i := by
+  simp only [umod_eq, neg_eq]; rfl
+
+theorem getMsbD_srem {x y : BitVec w} :
+    (x.srem y).getMsbD i  =
+      (match x.msb, y.msb with
+      | false, false => umod x y
+      | false, true  => umod x (.neg y)
+      | true,  false => .neg (umod (.neg x) y)
+      | true,  true  => .neg (umod (.neg x) (.neg y))).getMsbD i := by
+  simp only [srem, umod_eq, neg_eq]; rfl
 
 @[simp]
 theorem toInt_srem (x y : BitVec w) : (x.srem y).toInt = x.toInt.tmod y.toInt := by
@@ -1895,6 +1949,45 @@ theorem toInt_smod {x y : BitVec w} :
       · rw [←Int.neg_inj, neg_toInt_neg_umod_eq_of_msb_true_msb_true hxmsb hymsb]
         simp [BitVec.toInt_eq_neg_toNat_neg_of_msb_true, hxmsb, hymsb,
           Int.fmod_eq_emod_of_nonneg _]
+
+theorem getElem_smod {x y : BitVec w} (h : i < w):
+    (x.smod y)[i] =
+      (match x.msb, y.msb with
+      | false, false => umod x y
+      | false, true =>
+        let u := umod x (.neg y)
+        (if u = .zero m then u else .add u y)
+      | true, false =>
+        let u := umod (.neg x) y
+        (if u = .zero m then u else .sub y u)
+      | true, true => .neg (umod (.neg x) (.neg y)))[i] := by
+  simp only [umod_eq, neg_eq, Function.const_apply, add_eq, sub_eq]; rfl
+
+theorem getLsbD_smod {x y : BitVec w} :
+    (x.smod y).getLsbD i =
+      (match x.msb, y.msb with
+      | false, false => umod x y
+      | false, true =>
+        let u := umod x (.neg y)
+        (if u = 0 then u else .add u y)
+      | true, false =>
+        let u := umod (.neg x) y
+        (if u = 0 then u else .sub y u)
+      | true, true => .neg (umod (.neg x) (.neg y))).getLsbD i := by
+  simp only [umod_eq, neg_eq, ofNat_eq_ofNat, add_eq, sub_eq]; rfl
+
+theorem getMsbD_smod {x y : BitVec w} :
+    (x.smod y).getMsbD i  =
+      (match x.msb, y.msb with
+      | false, false => umod x y
+      | false, true =>
+        let u := umod x (.neg y)
+        (if u = 0 then u else .add u y)
+      | true, false =>
+        let u := umod (.neg x) y
+        (if u = 0 then u else .sub y u)
+      | true, true => .neg (umod (.neg x) (.neg y))).getMsbD i := by
+  simp only [umod_eq, neg_eq, ofNat_eq_ofNat, add_eq, sub_eq]; rfl
 
 /-! ### Lemmas that use bit blasting circuits -/
 

@@ -7,6 +7,7 @@ prelude
 import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.ToExpr
 import Lean.Compiler.LCNF.PassManager
+import Lean.Compiler.NeverExtractAttr
 
 namespace Lean.Compiler.LCNF
 
@@ -44,6 +45,13 @@ def replaceFun (decl : FunDecl) (fvarId : FVarId) : M Unit := do
   eraseFunDecl decl
   addFVarSubst decl.fvarId fvarId
 
+def hasNeverExtract (v : LetValue) : CompilerM Bool :=
+  match v with
+  | .const declName .. =>
+    return hasNeverExtractAttribute (← getEnv) declName
+  | .lit _ | .erased | .proj .. | .fvar .. =>
+    return false
+
 partial def _root_.Lean.Compiler.LCNF.Code.cse (shouldElimFunDecls : Bool) (code : Code) : CompilerM Code :=
   go code |>.run' {}
 where
@@ -57,15 +65,18 @@ where
     match code with
     | .let decl k =>
       let decl ← normLetDecl decl
-      -- We only apply CSE to pure code
-      let key := decl.value.toExpr
-      match (← get).map.find? key with
-      | some fvarId =>
-        replaceLet decl fvarId
-        go k
-      | none =>
-        addEntry key decl.fvarId
+      if (← hasNeverExtract decl.value) then
         return code.updateLet! decl (← go k)
+      else
+        -- We only apply CSE to pure code
+        let key := decl.value.toExpr
+        match (← get).map.find? key with
+        | some fvarId =>
+          replaceLet decl fvarId
+          go k
+        | none =>
+          addEntry key decl.fvarId
+          return code.updateLet! decl (← go k)
     | .fun decl k =>
       let decl ← goFunDecl decl
       if shouldElimFunDecls then

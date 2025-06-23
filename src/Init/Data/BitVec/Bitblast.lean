@@ -1950,7 +1950,7 @@ theorem toInt_smod {x y : BitVec w} :
         simp [BitVec.toInt_eq_neg_toNat_neg_of_msb_true, hxmsb, hymsb,
           Int.fmod_eq_emod_of_nonneg _]
 
-theorem getElem_smod {x y : BitVec w} (h : i < w):
+theorem getElem_smod {x y : BitVec w} (h : i < w) :
     (x.smod y)[i] =
       (match x.msb, y.msb with
       | false, false => umod x y

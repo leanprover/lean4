@@ -3120,7 +3120,7 @@ theorem cons_append_append (x : BitVec w₁) (y : BitVec w₂) (z : BitVec w₃)
       by_cases h₂ : i - w₃ < w₂
       · simp [h₂]
       · simp [h₂, show i - w₃ - w₂ < w₁ by omega]
-  · simp only [show ¬i - w₃ - w₂ < w₁ by omega,
+  · simp only [show ¬i - w₃ - w₂ < w₁ by omega, 
       h₀]
     by_cases h₂ : i < w₃
     · simp [h₂]; omega

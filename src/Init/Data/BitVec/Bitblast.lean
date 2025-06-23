@@ -2166,8 +2166,8 @@ def uppcRec {w} (x : BitVec w) (s : Nat) (hs : s < w) : Bool :=
 
 /-- A bitvector interpreted as a natural number is greater than or equal to `2 ^ i` if and only if
   there exists at least one bit with `true` value at position `i` or higher. -/
-theorem le_toNat_iff (x : BitVec w) (hi : i < w ) :
-    (2 ^ i ≤ x.toNat) ↔ (∃ k, x.getLsbD (i + k) = true) := by
+theorem le_toNat_iff (x : BitVec w) (hi : i < w) :
+    (2 ^ i ≤ x.toNat) ↔ (∃ h : i + k < w, x[i + k] = true) := by
   rcases w with _|w
   · simp [of_length_zero]
   · constructor

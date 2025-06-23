@@ -1001,7 +1001,7 @@ theorem setWidth_one_eq_ofBool_getLsb_zero (x : BitVec w) :
 theorem setWidth_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v) :
     (BitVec.ofNat v 1).setWidth w = BitVec.ofNat w 1 := by
   ext i h
-  simp only [getElem_setWidth, getLsbD_ofNat, 
+  simp only [getElem_setWidth, getLsbD_ofNat,
     ]
   have hv := (@Nat.testBit_one_eq_true_iff_self_eq_zero i)
   by_cases h : Nat.testBit 1 i = true <;> simp_all
@@ -2276,7 +2276,7 @@ theorem sshiftRight_add {x : BitVec w} {m n : Nat} :
 theorem not_sshiftRight {b : BitVec w} :
     ~~~b.sshiftRight n = (~~~b).sshiftRight n := by
   ext i
-  simp only [getElem_not, getElem_sshiftRight, 
+  simp only [getElem_not, getElem_sshiftRight,
     msb_not]
   by_cases h : w ≤ i
   <;> by_cases h' : n + i < w
@@ -2453,7 +2453,7 @@ theorem signExtend_eq_setWidth_of_msb_false {x : BitVec w} {v : Nat} (hmsb : x.m
     x.signExtend v = x.setWidth v := by
   ext i
   by_cases hv : i < v
-  · simp only [signExtend, getLsbD, getElem_setWidth, 
+  · simp only [signExtend, getLsbD, getElem_setWidth,
       BitVec.toInt_eq_msb_cond, hmsb, ↓reduceIte, reduceCtorEq]
     simp [BitVec.testBit_toNat]
   · simp only [getElem_setWidth]
@@ -3120,7 +3120,7 @@ theorem cons_append_append (x : BitVec w₁) (y : BitVec w₂) (z : BitVec w₃)
       by_cases h₂ : i - w₃ < w₂
       · simp [h₂]
       · simp [h₂, show i - w₃ - w₂ < w₁ by omega]
-  · simp only [show ¬i - w₃ - w₂ < w₁ by omega, 
+  · simp only [show ¬i - w₃ - w₂ < w₁ by omega,
       h₀]
     by_cases h₂ : i < w₃
     · simp [h₂]; omega
@@ -4259,6 +4259,15 @@ theorem toNat_sdiv {x y : BitVec w} : (x.sdiv y).toNat =
   simp only [sdiv_eq]
   by_cases h : x.msb <;> by_cases h' : y.msb <;> simp [h, h']
 
+theorem toFin_sdiv {x y : BitVec w} : (x.sdiv y).toFin =
+    match x.msb, y.msb with
+    | false, false => (udiv x y).toFin
+    | false, true  =>  (- (x.udiv (- y))).toFin
+    | true,  false => (- ((- x).udiv y)).toFin
+    | true,  true  => ((- x).udiv (- y)).toFin := by
+  simp only [sdiv_eq]
+  by_cases h : x.msb <;> by_cases h' : y.msb <;> simp [h, h']
+
 @[simp]
 theorem zero_sdiv {x : BitVec w} : (0#w).sdiv x = 0#w := by
   simp only [sdiv_eq]
@@ -4435,6 +4444,38 @@ theorem srem_eq (x y : BitVec w) : srem x y =
 @[simp] theorem srem_self {x : BitVec w} : x.srem x = 0#w := by
   cases h : x.msb <;> simp [h, srem_eq]
 
+theorem toNat_srem {x y : BitVec w} : (x.srem y).toNat =
+    match x.msb, y.msb with
+    | false, false => (x.umod y).toNat
+    | false, true => (x.umod (-y)).toNat
+    | true, false => ((-x).umod y).toNat
+    | true, true => (- ((- x).umod (- y))).toNat := by
+  simp only [srem_eq, umod_eq, toNat_umod, toNat_neg]
+  by_cases hx : x.msb <;> by_cases hy : y.msb
+  · simp [hx, hy]
+  · by_cases hzero : -x % y = 0
+    · simp [hzero, hx, hy]
+      sorry
+    ·
+      sorry
+  · simp [hx, hy]
+  · simp [hx, hy]
+
+theorem toFin_srem {x y : BitVec w} : (x.srem y).toNat =
+    match x.msb, y.msb with
+    | false, false => (x.umod y).toFin
+    | false, true => (x.umod (-y)).toFin
+    | true, false => ((-x).umod y).toFin
+    | true, true => (- ((- x).umod (- y))).toFin := by
+  simp only [srem_eq, umod_eq, toFin_umod, Fin.mod_val, val_toFin, toFin_neg, Fin.val_ofNat,
+    toNat_umod, toNat_neg]
+  by_cases hx : x.msb <;> by_cases hy : y.msb
+  · simp [hx, hy]
+  · simp [hx, hy]
+    sorry
+  · sorry
+  · simp [hx, hy]
+
 /-! ### smod -/
 
 /-- Equation theorem for `smod` in terms of `umod`. -/
@@ -4462,6 +4503,23 @@ theorem toNat_smod {x y : BitVec w} : (x.smod y).toNat =
       let u := (-x).umod y
       (if u = 0#w then u.toNat else (y - u).toNat)
     | true, true => (- ((- x).umod (- y))).toNat := by
+  simp only [smod_eq]
+  by_cases h : x.msb <;> by_cases h' : y.msb
+  <;> by_cases h'' : (-x).umod y = 0#w <;> by_cases h''' : x.umod (-y) = 0#w
+  <;> simp only [h, h', h'', h''']
+  <;> simp only [umod, toNat_eq, toNat_ofNatLT, toNat_ofNat, Nat.zero_mod] at h'' h'''
+  <;> simp
+
+theorem toFin_smod {x y : BitVec w} : (x.smod y).toFin =
+    match x.msb, y.msb with
+    | false, false => (x.umod y).toFin
+    | false, true =>
+      let u := x.umod (- y)
+      (if u = 0#w then 0 else (u + y).toFin)
+    | true, false =>
+      let u := (-x).umod y
+      (if u = 0#w then 0 else (y - u).toFin)
+    | true, true => (- ((- x).umod (- y))).toFin := by
   simp only [smod_eq]
   by_cases h : x.msb <;> by_cases h' : y.msb
   <;> by_cases h'' : (-x).umod y = 0#w <;> by_cases h''' : x.umod (-y) = 0#w

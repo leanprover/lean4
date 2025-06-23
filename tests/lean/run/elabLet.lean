@@ -152,3 +152,52 @@ def f' (x : Nat) : IO Unit :=
       jp ()
     else
       jp ()
+
+/-!
+Testing `+generalize`
+-/
+/--
+trace: x y z : Nat
+⊢ z = y + x
+---
+warning: declaration uses 'sorry'
+-/
+#guard_msgs in
+example (x y : Nat) : x + y = y + x := by
+  refine have +generalize z := x + y; ?_
+  trace_state
+  sorry
+/--
+trace: x y z : Nat
+h : z = x + y
+⊢ z = y + x
+-/
+#guard_msgs in
+example (x y : Nat) : x + y = y + x := by
+  refine have +generalize (eq := h) z := x + y; ?_
+  trace_state
+  rwa [Nat.add_comm] at h
+
+/-!
+`+generalize` example with a numeric value.
+-/
+/--
+trace: x y z : Nat
+⊢ x ≤ x + z
+-/
+#guard_msgs in
+example (x y : Nat) : x ≤ x + 1 := by
+  refine have +generalize z := 1; ?_
+  trace_state
+  apply Nat.le_add_right
+
+/-!
+Motive checking with `+generalize`.
+-/
+/--
+error: failed to elaborate with `+generalize`, generalized expected type is not type correct:
+  0 = 0
+-/
+#guard_msgs in
+example (n : Nat) [NeZero n] : (0 : Fin n) = (0 : Fin n) := by
+  refine have +generalize z := n; ?_

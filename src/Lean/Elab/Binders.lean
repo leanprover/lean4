@@ -699,6 +699,8 @@ structure LetConfig where
   zeta : Bool := false
   /-- Postpone elaboration of the value until after the body is elaborated. -/
   postponeValue : Bool := false
+  /-- Generalize the value from the expected type when elaborating the body. -/
+  generalize : Bool := false
   /-- For `let x := v; b`, adds `eq : x = v` to the context. -/
   eq? : Option Ident := none
 
@@ -711,6 +713,8 @@ def LetConfig.setFrom (config : LetConfig) (key : Syntax) (val : Bool) : LetConf
     { config with zeta := val }
   else if key.isOfKind ``Parser.Term.letOptPostponeValue then
     { config with postponeValue := val }
+  else if key.isOfKind ``Parser.Term.letOptGeneralize then
+    { config with generalize := val }
   else
     config
 
@@ -730,13 +734,17 @@ def mkLetConfig (letConfig : Syntax) (initConfig : LetConfig) : TermElabM LetCon
     | _ => pure ()
   return config
 
-/-- If `useLetExpr` is true, then a kernel let-expression `let x : type := val; body` is created.
-   Otherwise, we create a term of the form `letFun val (fun (x : type) => body)`
-
-   The default elaboration order is `binders`, `typeStx`, `valStx`, and `body`.
-   If `elabBodyFirst == true`, then we use the order `binders`, `typeStx`, `body`, and `valStx`. -/
+/--
+The default elaboration order is `binders`, `typeStx`, `valStx`, and `body`.
+If `config.postponeValue == true`, then we use the order `binders`, `typeStx`, `body`, and `valStx`.
+If `config.generalize == true`, then the value is abstracted from the expected type when elaborating the body.
+-/
 def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (valStx : Syntax) (body : Syntax)
     (expectedType? : Option Expr) (config : LetConfig) : TermElabM Expr := do
+  if config.generalize then
+    if config.postponeValue then
+      throwError "`+postponeValue` and `+generalize` are incompatible"
+    tryPostponeIfNoneOrMVar expectedType?
   let (type, val, binders) ← elabBindersEx binders fun xs => do
     let (binders, fvars) := xs.unzip
     /-
@@ -787,7 +795,21 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
   trace[Elab.let.decl] "{id.getId} : {type} := {val}"
   let result ←
     withLetDecl id.getId (kind := kind) type val (nondep := config.nondep) fun x => do
-      let elabBody : TermElabM Expr :=
+      let elabBody : TermElabM Expr := do
+        let mut expectedType? := expectedType?
+        if config.generalize then
+          let throwNoType := throwError "failed to elaborate with `+generalize`, expected type is not available"
+          let some expectedType := expectedType? | throwNoType
+          let expectedType ← instantiateMVars expectedType
+          if expectedType.getAppFn.isMVar then throwNoType
+          let motiveBody ← kabstract expectedType (← instantiateMVars val)
+          let motive := motiveBody.instantiate1 x
+          -- When `config.nondep` is false, then `motive` will be definitionally equal to `expectedType`.
+          -- Type correctness only needs to be checked in the `nondep` case:
+          if config.nondep then
+            unless (← isTypeCorrect motive) do
+              throwError "failed to elaborate with `+generalize`, generalized expected type is not type correct:{indentD motive}"
+          expectedType? := motive
         elabTermEnsuringType body expectedType? >>= instantiateMVars
       addLocalVarInfo id x
       match config.eq? with
@@ -884,6 +906,7 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (initConfig : L
       if config.zeta then
         throwError "`+zeta` with patterns is not allowed"
       -- We are currently ignore `config.nondep` when patterns are used.
+      -- We are also currently ignoring `config.generalize`.
       let val ← if optType.isNone then
         `($val:term)
       else

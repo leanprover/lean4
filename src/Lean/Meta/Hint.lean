@@ -143,7 +143,7 @@ Produces a diff that splits either on characters, tokens, or not at all, dependi
 Guarantees that all actions in the output will be maximally grouped; that is, instead of returning
 `#[(.insert, "a"), (.insert, "b")]`, it will return `#[(.insert, "ab")]`.
 -/
-partial def readableDiff (s s' : String) (granularity : DiffGranularity) : Array (Diff.Action × String) :=
+partial def readableDiff (s s' : String) (granularity : DiffGranularity := .auto) : Array (Diff.Action × String) :=
   match granularity with
   | .char => charDiff
   | .word => wordDiff
@@ -151,7 +151,7 @@ partial def readableDiff (s s' : String) (granularity : DiffGranularity) : Array
   | .auto =>
     let minLength := min s.length s'.length
     -- The coefficients on these values can be tuned:
-    let maxCharDiffDistance := minLength / 2
+    let maxCharDiffDistance := minLength / 5
     let maxWordDiffDistance := minLength / 2 + (max s.length s'.length) / 2
 
     let charDiffRaw := Diff.diff (splitChars s) (splitChars s')
@@ -175,12 +175,13 @@ where
   whitespace and accurately previewing what will be inserted. We err on the side of the latter.
   Within a "run" of deletions or insertions, we maintain the whitespace from the deleted/inserted
   text and mark it as a deletion/insertion. After an unchanged word or a substitution (i.e., a
-  deletion and insertion without an intervening unchanged word), we use the whitespace from the
-  new version but mark it as unchanged, since there was also whitespace (of some possibly different
-  form) here originally too. Within a substitution, we omit whitespace entirely. After an insertion,
-  we show the new whitespace but mark it as an insertion; after a deletion, we render the old
-  whitespace as a deletion unless it contains a newline, in which case it is omitted (as rendering a
-  deleted newline still visually suggests a line break in the new output).
+  deletion and insertion without an intervening unchanged word), we show a whitespace diff iff the
+  old whitespace did not contain a line break (as rendering a deleted newline still visually
+  suggests a line break in the new output); otherwise, we use the whitespace from the new version
+  but mark it as unchanged, since there was also whitespace here originally too. Within a
+  substitution, we omit whitespace entirely. After an insertion, we show the new whitespace and mark
+  it as an insertion. After a deletion, we render the old whitespace as a deletion unless it
+  contains a newline, for the same reason mentioned previously.
   -/
   wordDiff := Id.run do
     let (words, wss) := splitWords s
@@ -195,33 +196,41 @@ where
       if let some (a₂, s₂) := diff[diffIdx + 1]? then
         match a₁, a₂ with
         | .skip, .delete =>
-          -- Unchanged word: use new whitespace unless this is followed by a deleted terminal
-          -- substring of the old, in which case use the old whitespace
-          if let some ws := wss'[wss'Idx]? then
-            withWs := withWs.push (.skip, ws)
+          -- Unchanged word: show whitespace diff unless this is followed by a deleted terminal
+          -- substring of the old, in which case show the old whitespace (since there is no new)
+          let ws := wss[wssIdx]!
+          let wsDiff := if let some ws' := wss'[wss'Idx]? then
+            mkWhitespaceDiff ws ws'
           else
-            let ws := wss[wssIdx]!
-            withWs := withWs.push (.delete, ws)
+            #[(.delete, ws)]
+          withWs := withWs ++ wsDiff
           wssIdx := wssIdx + 1
           wss'Idx := wss'Idx + 1
         | .skip, .skip | .skip, .insert =>
-          -- Unchanged word: new has white space here (use it); old does too so long as we haven't
-          -- reached an appended terminal new portion
-          let ws := wss'[wss'Idx]!
-          withWs := withWs.push (.skip, ws)
+          -- Unchanged word: inverse of the above case: new has whitespace here, and old does too so
+          -- long as we haven't reached an appended terminal new portion
+          let ws' := wss'[wss'Idx]!
+          let wsDiff := if let some ws := wss[wssIdx]? then
+            mkWhitespaceDiff ws ws'
+          else
+            #[(.insert, ws')]
+          withWs := withWs ++ wsDiff
           wssIdx := wssIdx + 1
           wss'Idx := wss'Idx + 1
         | .insert, .insert =>
-          -- Insertion separator: include, and mark it as inserted
+          -- Insertion separator: include whitespace, and mark it as inserted
           let ws := wss'[wss'Idx]!
           withWs := withWs.push (.insert, ws)
           wss'Idx := wss'Idx + 1
         | .insert, .skip =>
-          -- End of insertion: if this was a substitution, new and old have whitespace here, and we
-          -- take the new one; if it wasn't, only new has whitespace here
-          let ws := wss'[wss'Idx]!
-          let act := if inSubst then .skip else .insert
-          withWs := withWs.push (act, ws)
+          -- End of insertion: if this was a substitution, new and old have whitespace here; if it
+          -- wasn't, only new has whitespace here
+          let ws' := wss'[wss'Idx]!
+          let wsDiff := if inSubst then
+            mkWhitespaceDiff wss[wssIdx]! ws'
+          else
+            #[(.insert, ws')]
+          withWs := withWs ++ wsDiff
           wss'Idx := wss'Idx + 1
           if inSubst then wssIdx := wssIdx + 1
           inSubst := false
@@ -248,12 +257,20 @@ where
       |>.map fun (act, ss) => (act, ss.foldl (· ++ ·) "")
 
   charDiff :=
-    Diff.diff (splitChars s) (splitChars s')
-      |> joinEdits
-      |>.map fun (act, cs) => (act, String.mk cs.toList)
+    Diff.diff (splitChars s) (splitChars s') |> joinCharDiff
+
+  /-- Given a `Char` diff, produces an equivalent `String` diff, joining actions of the same kind. -/
+  joinCharDiff (d : Array (Diff.Action × Char)) :=
+    joinEdits d |>.map fun (act, cs) => (act, String.mk cs.toList)
 
   maxDiff :=
     #[(.delete, s), (.insert, s')]
+
+  mkWhitespaceDiff (oldWs newWs : String) :=
+    if !oldWs.contains '\n' then
+      Diff.diff oldWs.data.toArray newWs.data.toArray |> joinCharDiff
+    else
+      #[(.skip, newWs)]
 
   splitChars (s : String) : Array Char :=
     s.toList.toArray

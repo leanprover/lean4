@@ -2453,7 +2453,7 @@ theorem signExtend_eq_setWidth_of_msb_false {x : BitVec w} {v : Nat} (hmsb : x.m
     x.signExtend v = x.setWidth v := by
   ext i
   by_cases hv : i < v
-  · simp only [signExtend, getLsbD, getElem_setWidth,
+  · simp only [signExtend, getLsbD, getElem_setWidth, 
       BitVec.toInt_eq_msb_cond, hmsb, ↓reduceIte, reduceCtorEq]
     simp [BitVec.testBit_toNat]
   · simp only [getElem_setWidth]

@@ -2380,6 +2380,7 @@ theorem clzAuxRec_eq_zero_iff {x : BitVec w} (h : ∀ i, n < i → x.getLsbD i =
       · simp only [getLsbD_eq_getElem (by omega), not_eq_true] at hx0
         simp only [hw1, Nat.sub_self, Nat.lt_add_one, getLsbD_eq_getElem, hx0]
       · apply h
+        simp
         omega
   · case succ n ihn =>
     by_cases hxn : x.getLsbD (n + 1)
@@ -2391,8 +2392,11 @@ theorem clzAuxRec_eq_zero_iff {x : BitVec w} (h : ∀ i, n < i → x.getLsbD i =
         simp only [show w - 1 = n + 1 by omega]
         exact hxn
       · intro h'
-        specialize h (w - 1)
-        simp_all
+        by_cases hlt : n + 1 < w - 1
+        · specialize h (w - 1)
+          simp [hlt] at h
+          simp [h', show w - 1 < w by omega] at h
+        · omega
     · simp only [clzAuxRec_succ, hxn, false_eq_true, ↓reduceIte]
       apply ihn
       intro i hi
@@ -2409,7 +2413,7 @@ theorem clz_eq_zero_iff {x : BitVec w} (hw : 0 < w) :
     simp only [show w - 1 < w by omega, getLsbD_eq_getElem] at h
     exact two_pow_le_toNat_of_getElem_eq_true (x := x) (i := w - 1) (by omega) h
   · intro h
-    simp only [← BitVec.msb_eq_getLsbD_last]
+    simp only [← getLsbD_eq_getElem, ← BitVec.msb_eq_getLsbD_last]
     rw [msb_eq_true_iff_two_mul_ge (x := x)]
     conv => rhs; rw [show w = (w - 1) + 1 by omega]
     rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm]

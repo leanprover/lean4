@@ -1,5 +1,6 @@
+ellipsisProjIssue.lean:1:18-1:22: error: unknown identifier 'succ'
 { lower := Nat.add,
   upper :=
-    PUnit.unit } : Std.PRange { lower := Std.PRange.BoundShape.closed, upper := Std.PRange.BoundShape.unbounded }
+    sorry } : Std.PRange { lower := Std.PRange.BoundShape.closed, upper := Std.PRange.BoundShape.open }
   (Nat → Nat → Nat)
 ellipsisProjIssue.lean:1:18-1:22: error: unexpected identifier; expected command

@@ -346,7 +346,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
             let restArgs := irArgs.extract numParams irArgs.size
             mkPartialApp (.fap name firstArgs) restArgs
         else
-          throwError f!"axiom '{name}' not supported by code generator; consider marking definition as 'noncomputable'"
+          throwNamedError lean.dependsOnNoncomputable f!"axiom '{name}' not supported by code generator; consider marking definition as 'noncomputable'"
       | some (.quotInfo ..) =>
         if name == ``Quot.mk then
           match irArgs[2]! with

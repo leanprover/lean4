@@ -24,7 +24,7 @@ inductive1.lean:93:7-93:26: error: invalid inductive type, cannot mix unsafe and
 inductive1.lean:100:0-100:4: error: Missing resulting type for constructor 'T1.z2': Its resulting type must be specified because it is part of an inductive family declaration
 inductive1.lean:105:7-105:9: error: type expected, got
   (T1 : Nat → Type)
-inductive1.lean:108:7-108:10: error: Unexpected resulting type for constructor 'T1.z1': Expected an application of
+inductive1.lean:108:7-108:10: error(lean.ctorResultingTypeMismatch): Unexpected resulting type for constructor 'T1.z1': Expected an application of
   T1
 but found
   Nat

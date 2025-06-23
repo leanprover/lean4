@@ -30,7 +30,7 @@ def isTrivialConstructorApp? (declName : Name) (args : Array Arg) : ToMonoM (Opt
 
 def checkFVarUse (fvarId : FVarId) : ToMonoM Unit := do
   if let some declName := (← get).noncomputableVars.get? fvarId then
-    throwError f!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{declName}', which is 'noncomputable'"
+    throwNamedError lean.dependsOnNoncomputable f!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{declName}', which is 'noncomputable'"
 
 def checkFVarUseDeferred (resultFVar fvarId : FVarId) : ToMonoM Unit := do
   if let some declName := (← get).noncomputableVars.get? fvarId then

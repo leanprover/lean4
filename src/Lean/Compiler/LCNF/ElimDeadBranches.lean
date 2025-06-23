@@ -302,7 +302,7 @@ structure InterpState where
   `Value`s of functions in the `InterpContext` use during computation of
   the fixpoint. Afterwards they are stored into the `Environment`.
   -/
-  funVals     : PArray Value
+  funVals     : PArray (Option Value)
 
 /--
 The monad which powers the abstract interpreter.
@@ -318,12 +318,12 @@ def getAssignment : InterpM Assignment := do
 /--
 Get the `Value` of a certain function in the current block by index.
 -/
-def getFunVal (funIdx : Nat) : InterpM Value := do
+def getFunVal (funIdx : Nat) : InterpM (Option Value) := do
   return (← get).funVals[funIdx]!
 
 def findFunVal? (declName : Name) : InterpM (Option Value) := do
   match (← read).decls.findIdx? (·.name == declName) with
-  | some idx => return some (← getFunVal idx)
+  | some idx => return (← getFunVal idx)
   | none => return none
 
 /--
@@ -371,7 +371,7 @@ def updateCurrFnSummary (v : Value) : InterpM Unit := do
   let ctx ← read
   let env ← getEnv
   let currFnIdx := ctx.currFnIdx
-  modify fun s => { s with funVals := s.funVals.modify currFnIdx (fun v' => .widening env v v') }
+  modify fun s => { s with funVals := s.funVals.modify currFnIdx (·.map (.widening env v ·)) }
 
 /--
 Return true if the assignment of at least one parameter has been updated.
@@ -529,9 +529,6 @@ def inferStep : InterpM Bool := do
   let ctx ← read
   for h : idx in [0:ctx.decls.size] do
     let decl := ctx.decls[idx]
-    if !decl.safe then
-      continue
-
     let currentVal ← getFunVal idx
     withReader (fun ctx => { ctx with currFnIdx := idx }) do
       decl.params.forM fun p => updateVarAssignment p.fvarId .top
@@ -610,7 +607,7 @@ def Decl.elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
     the constructor that we inferred for them. For more information
     refer to the docstring of `Decl.safe`.
     -/
-    if decls[i]!.safe then .bot else .top
+    if decls[i]!.safe then some .bot else none
   let mut funVals := decls.size.fold (init := .empty) fun i _ p => p.push (initialVal i)
   let ctx := { decls }
   let mut state := { assignments, funVals }
@@ -619,9 +616,9 @@ def Decl.elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
   assignments := state.assignments
   modifyEnv fun e =>
     decls.size.fold (init := e) fun i _ env =>
-      addFunctionSummary env decls[i].name funVals[i]!
+      addFunctionSummary env decls[i].name (funVals[i]!.getD .top)
 
-  decls.mapIdxM fun i decl => if decl.safe then elimDead assignments[i]! decl else return decl
+  decls.mapIdxM fun i decl => elimDead assignments[i]! decl
 
 def elimDeadBranches : Pass :=
   { name := `elimDeadBranches, run := Decl.elimDeadBranches, phase := .mono }

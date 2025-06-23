@@ -1785,7 +1785,7 @@ theorem msb_umod_of_le_of_ne_zero_of_le {x y : BitVec w}
   rw [← intMin_le_iff_msb_eq_true (length_pos_of_ne hy)] at h
   rwa [BitVec.le_antisymm hx h]
 
-theorem getElem_srem {x y : BitVec w} (h : i < w):
+theorem getElem_srem {x y : BitVec w} (h : i < w) :
     (x.srem y)[i] =
       (match x.msb, y.msb with
       | false, false => umod x y

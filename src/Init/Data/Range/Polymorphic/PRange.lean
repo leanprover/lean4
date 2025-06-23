@@ -79,7 +79,6 @@ syntax:max (term "<..<" term) : term
 syntax:max (term "..=" term) : term
 syntax:max ("*..=" term) : term
 syntax:max (term "<..=" term) : term
-syntax:max (term "<.." term) : term
 
 macro_rules
   | `($a..=$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.closed) $a $b)

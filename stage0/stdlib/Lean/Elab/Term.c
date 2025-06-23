@@ -43749,7 +43749,7 @@ block_25:
 if (x_14 == 0)
 {
 lean_object* x_15; 
-x_15 = l___private_Lean_Elab_Term_0__Lean_Elab_Term_decorateErrorMessageWithLambdaImplicitVars(x_13, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_12);
+x_15 = l___private_Lean_Elab_Term_0__Lean_Elab_Term_decorateErrorMessageWithLambdaImplicitVars(x_12, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_13);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -43810,8 +43810,8 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 x_24 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_24, 0, x_13);
-lean_ctor_set(x_24, 1, x_12);
+lean_ctor_set(x_24, 0, x_12);
+lean_ctor_set(x_24, 1, x_13);
 return x_24;
 }
 }
@@ -43823,15 +43823,15 @@ if (x_28 == 0)
 {
 uint8_t x_29; 
 x_29 = l_Lean_Exception_isRuntime(x_26);
-x_12 = x_27;
-x_13 = x_26;
+x_12 = x_26;
+x_13 = x_27;
 x_14 = x_29;
 goto block_25;
 }
 else
 {
-x_12 = x_27;
-x_13 = x_26;
+x_12 = x_26;
+x_13 = x_27;
 x_14 = x_28;
 goto block_25;
 }

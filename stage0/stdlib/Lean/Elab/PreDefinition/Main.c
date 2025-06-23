@@ -223,7 +223,6 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_lo
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___Lean_Elab_addPreDefinitions_spec__9(lean_object*, size_t, size_t);
 lean_object* l_Lean_MessageData_andList(lean_object*);
 static lean_object* l_Lean_Elab_initFn___closed__14____x40_Lean_Elab_PreDefinition_Main___hyg_5276_;
-uint8_t l_Lean_Elab_isGreatest(uint8_t);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___Lean_Elab_shouldUseWF_spec__0(lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_logErrorAt___at___Lean_Elab_checkTerminationByHints_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Elab_checkTerminationByHints_spec__3_spec__3___lam__0___closed__2;
@@ -242,6 +241,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___Lean_Elab_addPreDefinitions_sp
 static lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Elab_addPreDefinitions_spec__8___redArg___closed__0;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_ensureNoUnassignedLevelMVarsAtPreDef_visit___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Elab_isPartialFixpoint(uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack___at_____private_Lean_Util_SCC_0__Lean_SCC_addSCC_add___at_____private_Lean_Util_SCC_0__Lean_SCC_addSCC___at_____private_Lean_Util_SCC_0__Lean_SCC_sccAux___at___Lean_SCC_scc___at_____private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs_spec__3_spec__4_spec__8_spec__8_spec__8(lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Elab_ensureFunIndReservedNamesAvailable_spec__2___closed__0;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Elab_addPreDefinitions_spec__13_spec__13___closed__5;
@@ -296,7 +296,6 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___Lean_Elab_shouldUsepartialFixp
 static lean_object* l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_ensureNoUnassignedLevelMVarsAtPreDef_visitLevel___closed__0;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Elab_checkTerminationByHints_spec__3_spec__3___lam__0(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_ensureNoUnassignedLevelMVarsAtPreDef_visitLevel___closed__1;
-uint8_t l_Lean_Elab_isPartial(uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_setLevelMVarsAtPreDef(lean_object*);
 lean_object* l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Elab_checkTerminationByHints_spec__3_spec__3___closed__14;
@@ -330,6 +329,7 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_lo
 extern lean_object* l_Lean_Core_instMonadQuotationCoreM;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Elab_addPreDefinitions_spec__13_spec__13___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDeclD___at_____private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_ensureNoUnassignedLevelMVarsAtPreDef_visit_spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Elab_isInductiveFixpoint(uint8_t);
 LEAN_EXPORT lean_object* l_List_forM___at_____private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_ensureNoUnassignedLevelMVarsAtPreDef_visit_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Array_anyMUnsafe_any___at___Lean_Elab_addPreDefinitions_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Elab_checkTerminationByHints_spec__3_spec__3___lam__0___closed__14;
@@ -404,7 +404,6 @@ static lean_object* l_Lean_Elab_initFn___closed__16____x40_Lean_Elab_PreDefiniti
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Array_anyMUnsafe_any___at_____private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_betaReduceLetRecApps_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_betaReduceLetRecApps___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Elab_isLeast(uint8_t);
 lean_object* l_List_reverse___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC_add___at_____private_Lean_Util_SCC_0__Lean_SCC_addSCC___at_____private_Lean_Util_SCC_0__Lean_SCC_sccAux___at___Lean_SCC_scc___at_____private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs_spec__3_spec__4_spec__8_spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logException___at___Lean_Elab_withLogging___at_____private_Lean_Elab_Term_0__Lean_Elab_Term_applyAttributesCore_spec__2_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -446,6 +445,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_addPreDefinitions___lam__0(lean_object*, le
 LEAN_EXPORT uint8_t l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_isNonRecursive(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_PreDefinition_Main___hyg_5276_(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_addPreDefinitions_spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Elab_isCoinductiveFixpoint(uint8_t);
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabTerminationByHints(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -8946,7 +8946,7 @@ static lean_object* _init_l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Uns
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(", which is not also marked as `least_fixpoint` or `greatest_fixpoint`, so this one cannot be either.", 100, 100);
+x_1 = lean_mk_string_unchecked(", which is not also marked as `inductive_fixpoint` or `coinductive_fixpoint`, so this one cannot be either.", 107, 107);
 return x_1;
 }
 }
@@ -8980,7 +8980,7 @@ static lean_object* _init_l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Uns
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Invalid `decreasing_by`; this function is marked as greatest_fixpoint, so no explicit termination proof is needed.", 114, 114);
+x_1 = lean_mk_string_unchecked("Invalid `decreasing_by`; this function is marked as coinductive_fixpoint, so no explicit termination proof is needed.", 117, 117);
 return x_1;
 }
 }
@@ -8997,7 +8997,7 @@ static lean_object* _init_l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Uns
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Invalid `decreasing_by`; this function is marked as least_fixpoint, so no explicit termination proof is needed.", 111, 111);
+x_1 = lean_mk_string_unchecked("Invalid `decreasing_by`; this function is marked as inductive_fixpoint, so no explicit termination proof is needed.", 115, 115);
 return x_1;
 }
 }
@@ -9031,7 +9031,7 @@ static lean_object* _init_l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Uns
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(", which is marked as `greatest_fixpoint` so this one also needs to be marked `least_fixpoint` or `greatest_fixpoint`.", 117, 117);
+x_1 = lean_mk_string_unchecked(", which is marked as `coinductive_fixpoint` so this one also needs to be marked `inductive_fixpoint` or `coinductive_fixpoint`.", 127, 127);
 return x_1;
 }
 }
@@ -9048,7 +9048,7 @@ static lean_object* _init_l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Uns
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(", which is marked as\n        `least_fixpoint` so this one also needs to be marked `least_fixpoint` or `greatest_fixpoint`.", 122, 122);
+x_1 = lean_mk_string_unchecked(", which is marked as\n        `inductive_fixpoint` so this one also needs to be marked `inductive_fixpoint` or `coinductive_fixpoint`.", 133, 133);
 return x_1;
 }
 }
@@ -9336,7 +9336,7 @@ x_65 = lean_ctor_get(x_64, 0);
 lean_inc(x_65);
 x_66 = lean_ctor_get_uint8(x_64, sizeof(void*)*2);
 lean_dec(x_64);
-x_67 = l_Lean_Elab_isPartial(x_66);
+x_67 = l_Lean_Elab_isPartialFixpoint(x_66);
 if (x_67 == 0)
 {
 lean_dec(x_65);
@@ -9970,7 +9970,7 @@ static lean_object* _init_l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Uns
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("conflicting annotations: this function cannot be both terminating and a greatest fixpoint", 89, 89);
+x_1 = lean_mk_string_unchecked("conflicting annotations: this function cannot be both terminating and a coinductive fixpoint", 92, 92);
 return x_1;
 }
 }
@@ -9987,7 +9987,7 @@ static lean_object* _init_l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Uns
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("conflicting annotations: this function cannot be both terminating and a least fixpoint", 86, 86);
+x_1 = lean_mk_string_unchecked("conflicting annotations: this function cannot be both terminating and an inductive fixpoint", 91, 91);
 return x_1;
 }
 }
@@ -10703,7 +10703,7 @@ x_65 = lean_ctor_get(x_64, 0);
 lean_inc(x_65);
 x_66 = lean_ctor_get_uint8(x_64, sizeof(void*)*2);
 lean_dec(x_64);
-x_67 = l_Lean_Elab_isPartial(x_66);
+x_67 = l_Lean_Elab_isPartialFixpoint(x_66);
 if (x_67 == 0)
 {
 lean_dec(x_65);
@@ -11690,7 +11690,7 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; 
 x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*2);
-x_3 = l_Lean_Elab_isPartial(x_2);
+x_3 = l_Lean_Elab_isPartialFixpoint(x_2);
 return x_3;
 }
 }
@@ -11699,7 +11699,7 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; 
 x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*2);
-x_3 = l_Lean_Elab_isLeast(x_2);
+x_3 = l_Lean_Elab_isInductiveFixpoint(x_2);
 return x_3;
 }
 }
@@ -11837,7 +11837,7 @@ x_37 = lean_ctor_get_uint8(x_36, sizeof(void*)*2);
 x_38 = l_Lean_Elab_checkTerminationByHints___lam__0(x_36);
 x_39 = l_Lean_Elab_checkTerminationByHints___lam__1(x_36);
 lean_dec(x_36);
-x_40 = l_Lean_Elab_isGreatest(x_37);
+x_40 = l_Lean_Elab_isCoinductiveFixpoint(x_37);
 x_18 = x_38;
 x_19 = x_39;
 x_20 = x_29;

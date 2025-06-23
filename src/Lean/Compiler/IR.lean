@@ -18,7 +18,6 @@ import Lean.Compiler.IR.Boxing
 import Lean.Compiler.IR.RC
 import Lean.Compiler.IR.ExpandResetReuse
 import Lean.Compiler.IR.UnboxResult
-import Lean.Compiler.IR.ElimDeadBranches
 import Lean.Compiler.IR.EmitC
 import Lean.Compiler.IR.CtorLayout
 import Lean.Compiler.IR.Sorry
@@ -39,9 +38,7 @@ register_builtin_option compiler.reuse : Bool := {
 private def compileAux (decls : Array Decl) : CompilerM Unit := do
   logDecls `init decls
   checkDecls decls
-  let mut decls ← elimDeadBranches decls
-  logDecls `elim_dead_branches decls
-  decls := decls.map Decl.pushProj
+  let mut decls := decls.map Decl.pushProj
   logDecls `push_proj decls
   if compiler.reuse.get (← read) then
     decls := decls.map Decl.insertResetReuse

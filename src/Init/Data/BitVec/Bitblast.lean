@@ -1681,8 +1681,8 @@ private theorem neg_udiv_eq_intMin_iff_eq_intMin_eq_one_of_msb_eq_true
     simp
 
 theorem getElem_sdiv {x y : BitVec w} (h : i < w):
-  (x.sdiv y)[i] =
-   (match x.msb, y.msb with
+    (x.sdiv y)[i] =
+      (match x.msb, y.msb with
       | false, false => (udiv x y)
       | false, true  => (- (udiv x (.neg y)))
       | true,  false => (- (udiv (.neg x) y))
@@ -1690,8 +1690,8 @@ theorem getElem_sdiv {x y : BitVec w} (h : i < w):
   simp only [sdiv, udiv_eq, neg_eq]; rfl
 
 theorem getLsbD_sdiv {x y : BitVec w} :
-  (x.sdiv y).getLsbD i =
-   (match x.msb, y.msb with
+    (x.sdiv y).getLsbD i =
+      (match x.msb, y.msb with
       | false, false => (udiv x y)
       | false, true  => (- (udiv x (.neg y)))
       | true,  false => (- (udiv (.neg x) y))
@@ -1699,8 +1699,8 @@ theorem getLsbD_sdiv {x y : BitVec w} :
   simp only [sdiv, udiv_eq, neg_eq]; rfl
 
 theorem getMsbD_sdiv {x y : BitVec w} :
-  (x.sdiv y).getMsbD i  =
-   (match x.msb, y.msb with
+    (x.sdiv y).getMsbD i  =
+      (match x.msb, y.msb with
       | false, false => (udiv x y)
       | false, true  => (- (udiv x (.neg y)))
       | true,  false => (- (udiv (.neg x) y))

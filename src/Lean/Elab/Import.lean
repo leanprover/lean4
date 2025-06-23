@@ -83,14 +83,12 @@ def parseImports (input : String) (fileName : Option String := none) : IO (Array
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
   pure (headerToImports header, inputCtx.fileMap.toPosition parserState.pos, messages)
 
-@[export lean_print_imports]
 def printImports (input : String) (fileName : Option String) : IO Unit := do
   let (deps, _, _) ← parseImports input fileName
   for dep in deps do
     let fname ← findOLean dep.module
     IO.println fname
 
-@[export lean_print_import_srcs]
 def printImportSrcs (input : String) (fileName : Option String) : IO Unit := do
   let sp ← getSrcSearchPath
   let (deps, _, _) ← parseImports input fileName

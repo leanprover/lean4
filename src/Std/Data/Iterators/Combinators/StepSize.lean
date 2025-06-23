@@ -6,6 +6,10 @@ Authors: Paul Reichert
 prelude
 import Std.Data.Iterators.Combinators.Monadic.StepSize
 
+/-!
+This module provides a combinator that only yields every `n`-th element of another iterator.
+-/
+
 namespace Std.Iterators
 
 @[always_inline, inline, inherit_doc IterM.stepSize]

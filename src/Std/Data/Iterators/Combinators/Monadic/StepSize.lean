@@ -10,6 +10,10 @@ import Init.Data.Iterators.Consumers.Monadic.Access
 import Init.Data.Iterators.Consumers.Monadic.Collect
 import Init.Data.Iterators.Consumers.Monadic.Loop
 
+/-!
+This module implements a combinator that only yields every `n`-th element of another iterator.
+-/
+
 namespace Std.Iterators
 
 @[unbox]
@@ -20,15 +24,24 @@ structure Types.StepSizeIterator (α : Type w) (m : Type w → Type w') (β : Ty
 
 instance [Iterator α m β] [IteratorAccess α m] [Monad m] :
     Iterator (Types.StepSizeIterator α m β) m β where
-  -- TODO: this is not exhaustive
   IsPlausibleStep it step :=
     it.internalState.inner.IsPlausibleNthOutputStep it.internalState.nextIdx
-      (step.mapIterator (Types.StepSizeIterator.inner ∘ IterM.internalState))
+        (step.mapIterator (Types.StepSizeIterator.inner ∘ IterM.internalState)) ∧
+      ∀ it' out, step = .yield it' out →
+        it'.internalState.n = it.internalState.n ∧ it'.internalState.nextIdx = it.internalState.n
   step it := (fun s => ⟨s.1.mapIterator (⟨⟨it.internalState.n, it.internalState.n, ·⟩⟩), by
       simp only [IterStep.mapIterator_mapIterator]
       refine cast ?_ s.property
       rw (occs := [1]) [← IterStep.mapIterator_id (step := s.val)]
-      congr⟩) <$> it.internalState.inner.nextAtIdx? it.internalState.nextIdx
+      congr, by
+      intro it' out
+      cases s.val
+      · simp only [IterStep.mapIterator_yield, IterStep.yield.injEq, and_imp]
+        rintro h _
+        simp [← h]
+      · simp
+      · simp
+      done⟩) <$> it.internalState.inner.nextAtIdx? it.internalState.nextIdx
 
 def Types.StepSizeIterator.instFinitenessRelation [Iterator α m β] [IteratorAccess α m] [Monad m]
     [Finite α m] : FinitenessRelation (Types.StepSizeIterator α m β) m where
@@ -43,6 +56,7 @@ def Types.StepSizeIterator.instFinitenessRelation [Iterator α m β] [IteratorAc
     obtain ⟨⟨n, it⟩⟩ := it
     simp only at ⊢ h
     generalize h' : step.mapIterator (Types.StepSizeIterator.inner ∘ IterM.internalState) = s at h
+    replace h := h.1
     induction h
     case zero_yield =>
       cases step <;> (try exfalso; simp at h'; done)
@@ -76,6 +90,7 @@ def Types.StepSizeIterator.instProductivenessRelation [Iterator α m β] [Iterat
     simp only [IterStep.mapIterator_skip, Function.comp_apply] at ⊢ h
     generalize h' : IterStep.skip _ = s at h
     exfalso
+    replace h := h.1
     induction h
     case zero_yield => cases h'
     case done => cases h'

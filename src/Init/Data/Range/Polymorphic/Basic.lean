@@ -91,7 +91,7 @@ def size [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
 /--
 Checks whether the range contains any value.
 
-This function returns a meaningful value for all ranges types defined by the standard library
+This function returns a meaningful value for all range types defined by the standard library
 and for all range types that satisfy the properties encoded in the `LawfulUpwardEnumerable`,
 `LawfulUpwardEnumerableLowerBound` and `LawfulUpwardEnumerableUpperBound` typeclasses.
 -/

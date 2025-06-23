@@ -54,15 +54,15 @@ abbrev Bound (shape : BoundShape) (α : Type u) : Type u :=
 A range of elements of some type `α`. It is characterized by its upper and lower bounds, which
 may be inclusive, exclusive or absent.
 
-* `a..b` contains all elements between `a` and `b`, including `a`.
-* `a<..b` contains all elements between `a` and `b`, excluding `a`.
-* `a..<b` contains all elements between `a` and `b`, excluding `b`.
-* `a<..<b` contains all elements between `a` and `b`, excluding both `a` and `b`.
-* `..b` contains all elements below `b`, including `b`.
-* `..<b` contains all elements below `b`, excluding `b`.
-* `a..` contains all elements above `a`, including `a`.
-* `a<..` contains all elements above `a`, excluding `a`.
-* `..` contains all elements of `α`.
+* `a...=b` contains all elements between `a` and `b`, including `a`.
+* `a<...=b` contains all elements between `a` and `b`, excluding `a`.
+* `a...<b` contains all elements between `a` and `b`, excluding `b`.
+* `a<...<b` contains all elements between `a` and `b`, excluding both `a` and `b`.
+* `...=b` contains all elements below `b`, including `b`.
+* `...<b` contains all elements below `b`, excluding `b`.
+* `a...` contains all elements above `a`, including `a`.
+* `a<...` contains all elements above `a`, excluding `a`.
+* `...` contains all elements of `α`.
 -/
 structure _root_.Std.PRange (shape : RangeShape) (α : Type u) where
   /-- The lower bound of the range. -/

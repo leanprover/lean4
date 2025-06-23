@@ -12,6 +12,16 @@ import Init.Data.Iterators.Consumers.Collect
 import Init.Data.Range.Polymorphic.PRange
 import Init.Data.List.Sublist
 
+/-!
+# Range iterator
+
+This module implements an iterator for ranges (`Std.PRange`).
+
+This iterator is publicly available via `PRange.iter` after importing
+`Std.Data.Iterators` and it internally powers many functions on ranges such as
+`PRange.toList`.
+-/
+
 open Std.Iterators
 
 namespace Std.PRange

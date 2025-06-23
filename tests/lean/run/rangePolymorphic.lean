@@ -1,9 +1,5 @@
-import Init.Data.Range.Polymorphic.Nat
-import Init.Data.Range.Polymorphic.Basic
-import Init.System.IO
-import Init.Data.Iterators
+import Init.Data.Range.Polymorphic
 import Std.Data.Iterators
-import Init.Data.Range.Polymorphic.Basic
 
 def ex1 : IO Unit := do
 IO.println "example 1"
@@ -124,4 +120,6 @@ def g (xs : Array Nat) : Nat := Id.run do
     sum := sum + xs[i]
   return sum
 
-#synth ForIn Id (type_of% (2...=8)) _ -- Note that we don't need the type hint this time, but we'd need one in a for loop
+/-- info: 6 -/
+#guard_msgs in
+#eval g #[1, 2, 3]

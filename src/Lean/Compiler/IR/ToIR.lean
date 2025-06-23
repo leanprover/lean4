@@ -197,9 +197,9 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
     match (← get).fvars[cases.discr]? with
     | some (.var varId) =>
       return .case cases.typeName
-                  varId
-                  (← lowerType cases.resultType)
-                  (← cases.alts.mapM (lowerAlt varId))
+                   varId
+                   (← lowerType cases.resultType)
+                   (← cases.alts.mapM (lowerAlt varId))
     | some (.joinPoint ..) | some .erased | none => panic! "unexpected value"
   | .return fvarId =>
     let arg := match (← get).fvars[fvarId]? with

@@ -64,16 +64,16 @@ test_run -d hello build Hello
 test -f hello/.lake/build/lib/lean/Hello.olean
 rm -rf hello
 
-# Test math template
+# Test math-lax template
 
-echo "# TEST: math template"
-test_run new qed math.lean || true # ignore toolchain download errors
+echo "# TEST: math-lax template"
+test_run new qed math-lax.lean || true # ignore toolchain download errors
 # Remove the require, since we do not wish to download mathlib during tests
 sed_i '/^require.*/{N;d;}' qed/lakefile.lean
 test_run -d qed build Qed
 test -f qed/.lake/build/lib/lean/Qed.olean
 rm -rf qed
-test_run new qed math.toml || true # ignore toolchain download errors
+test_run new qed math-lax.toml || true # ignore toolchain download errors
 # Remove the require, since we do not wish to download mathlib during tests
 sed_i '/^\[\[require\]\]/{N;N;N;d;}' qed/lakefile.toml
 test_run -d qed build Qed
@@ -153,7 +153,7 @@ test_err "package already initialized" -d hello_world init
 # Test that Mathlib-standard packages have the expected strict linter options.
 mkdir mathlib_standards
 pushd mathlib_standards
-test_run init mathlib_standards mathlib
+test_run init mathlib_standards math
 
 # Run via elan to make sure the version of Lean is compatible with the version of Mathlib.
 ELAN=${ELAN:-elan}

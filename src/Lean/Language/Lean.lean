@@ -291,7 +291,7 @@ structure SetupImportsResult where
   opts : Options
   /-- Kernel trust level. -/
   trustLevel : UInt32 := 0
-  /-- Pre-resolved artifacts of imported modules. -/
+  /-- Pre-resolved artifacts of transitively imported modules. -/
   importArts : NameMap ImportArtifacts := {}
   /-- Lean plugins to load as part of the environment setup. -/
   plugins : Array System.FilePath := #[]

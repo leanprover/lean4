@@ -93,7 +93,7 @@ structure ModuleSetup where
   If `none`, uses the imports from the module header.
   -/
   imports? : Option (Array Import) := none
-  /-- Pre-resolved artifacts of imported modules. -/
+  /-- Pre-resolved artifacts of transitively imported modules. -/
   importArts : NameMap ImportArtifacts := {}
   /-- Dynamic libraries to load with the module. -/
   dynlibs : Array System.FilePath := #[]

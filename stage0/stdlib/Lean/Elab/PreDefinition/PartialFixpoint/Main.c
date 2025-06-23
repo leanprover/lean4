@@ -3088,7 +3088,7 @@ static lean_object* _init_l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`greatest_fixpoint` can be only used to define predicates", 57, 57);
+x_1 = lean_mk_string_unchecked("`coinductive_fixpoint` can be only used to define predicates", 60, 60);
 return x_1;
 }
 }
@@ -3105,7 +3105,7 @@ static lean_object* _init_l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`least_fixpoint` can be only used to define predicates", 54, 54);
+x_1 = lean_mk_string_unchecked("`inductive_fixpoint` can be only used to define predicates", 58, 58);
 return x_1;
 }
 }

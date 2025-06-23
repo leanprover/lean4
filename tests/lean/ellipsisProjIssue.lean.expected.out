@@ -1,1 +1,5 @@
-ellipsisProjIssue.lean:1:17: error: unexpected `.` immediately after `..`
+{ lower := Nat.add,
+  upper :=
+    PUnit.unit } : Std.PRange { lower := Std.PRange.BoundShape.closed, upper := Std.PRange.BoundShape.unbounded }
+  (Nat → Nat → Nat)
+ellipsisProjIssue.lean:1:18-1:22: error: unexpected identifier; expected command

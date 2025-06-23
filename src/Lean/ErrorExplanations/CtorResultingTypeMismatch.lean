@@ -63,5 +63,5 @@ omission of the constructor's resulting type because it contains no indices.
 -/
 register_error_explanation Lean.CtorResultingTypeMismatch {
   summary := "Resulting type of constructor was not the inductive type being declared."
-  sinceVersion := "4.21.0"
+  sinceVersion := "4.22.0"
 }

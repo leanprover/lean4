@@ -40,10 +40,10 @@ noncomputable def transformIfZero : Nat → Nat
   | 0 => transform 0
   | n => n
 ```
-In this example, `transformifZero` depends on the axiom `transform`. Because `transform` is an
+In this example, `transformIfZero` depends on the axiom `transform`. Because `transform` is an
 axiom, it does not contain any executable code; although the value `transform 0` has type `Nat`,
 there is no way to compute its value. Thus, `transformIfZero` must be marked `noncomputable` because
-its exeuction would depend on this axiom.
+its execution would depend on this axiom.
 
 ## Noncomputable dependency can be made computable
 
@@ -113,5 +113,5 @@ be marked `noncomputable`.
 -/
 register_error_explanation Lean.DependsOnNoncomputable {
   summary := "Declaration depends on noncomputable definitions but is not marked as noncomputable"
-  sinceVersion := "4.21.0"
+  sinceVersion := "4.22.0"
 }

@@ -53,5 +53,5 @@ is a valid parameter.
 -/
 register_error_explanation Lean.InductiveParamMismatch {
   summary := "Invalid parameter in an occurrence of an inductive type in one of its constructors."
-  sinceVersion := "4.21.0"
+  sinceVersion := "4.22.0"
 }

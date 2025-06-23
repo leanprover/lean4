@@ -111,5 +111,5 @@ intended behavior.
 -/
 register_error_explanation Lean.RedundantMatchAlt {
   summary := "Match alternative will never be reached."
-  sinceVersion := "4.21.0"
+  sinceVersion := "4.22.0"
 }

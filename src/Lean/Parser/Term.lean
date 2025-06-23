@@ -638,8 +638,13 @@ def letEqnsDecl := leading_parser (withAnonymousAntiquot := false)
 -/
 @[builtin_doc] def letOptZeta := leading_parser
   nonReservedSymbol "zeta"
+/--
+`+generalize` directs `let`/`have` to generalize the value from the expected type before elaborating the body.
+-/
+@[builtin_doc] def letOptGeneralize := leading_parser
+  nonReservedSymbol "generalize"
 def letOpts := leading_parser
-  letOptNondep <|> letOptPostponeValue <|> letOptUsedOnly <|> letOptZeta
+  letOptNondep <|> letOptPostponeValue <|> letOptUsedOnly <|> letOptZeta <|> letOptGeneralize
 def letPosOpt := leading_parser (withAnonymousAntiquot := false)
   " +" >> checkNoWsBefore >> letOpts
 def letNegOpt := leading_parser (withAnonymousAntiquot := false)

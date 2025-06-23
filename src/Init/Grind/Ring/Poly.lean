@@ -1453,19 +1453,89 @@ theorem Poly.denoteS_combine {α} [CommSemiring α] (ctx : Context α) (p₁ p�
     simp [denoteS, ih h₁ h₂, add_left_comm, add_assoc]
 
 theorem Poly.mulConst_NonnegCoeffs {p : Poly} {k : Int} : k ≥ 0 → p.NonnegCoeffs → (p.mulConst k).NonnegCoeffs := by
-  sorry
+  simp [mulConst, cond_eq_if]; split
+  next => intros; constructor; decide
+  split; intros; assumption
+  fun_induction mulConst.go
+  next =>
+    intro h₁ h₂; cases h₂; constructor
+    apply Int.mul_nonneg <;> assumption
+  next =>
+    intro h₁ h₂; cases h₂; constructor
+    apply Int.mul_nonneg <;> assumption
+    next ih _ h => exact ih h₁ h
 
-theorem Poly.mulMon_NonnegCoeffs {p : Poly} {k : Int} (m : Mon) : k ≥ 0 → p.NonnegCoeffs → (p.mulMon k m).NonnegCoeffs :=
-  sorry
+theorem Poly.mulMon_NonnegCoeffs {p : Poly} {k : Int} (m : Mon) : k ≥ 0 → p.NonnegCoeffs → (p.mulMon k m).NonnegCoeffs := by
+  simp [mulMon, cond_eq_if]; split
+  next => intros; constructor; decide
+  split
+  next => intros; apply mulConst_NonnegCoeffs <;> assumption
+  fun_induction mulMon.go
+  next => intros; constructor; decide
+  next => intro _ h; cases h; constructor; apply Int.mul_nonneg <;> assumption; constructor; decide
+  next ih =>
+    intro h₁ h₂; cases h₂; constructor
+    apply Int.mul_nonneg <;> assumption
+    apply ih <;> assumption
 
-theorem Poly.combine_NonnegCoeffs {p₁ p₂ : Poly} : p₁.NonnegCoeffs → p₂.NonnegCoeffs → (p₁.combine p₂).NonnegCoeffs :=
-  sorry
+theorem Poly.addConst_NonnegCoeffs {p : Poly} {k : Int} : k ≥ 0 → p.NonnegCoeffs → (p.addConst k).NonnegCoeffs := by
+  simp [addConst, cond_eq_if]; split
+  next => intros; assumption
+  fun_induction addConst.go
+  next h _ => intro _ h; cases h; constructor; apply Int.add_nonneg <;> assumption
+  next ih => intro h₁ h₂; cases h₂; constructor; assumption; apply ih <;> assumption
 
-theorem Poly.mul_NonnegCoeffs {p₁ p₂ : Poly} : p₁.NonnegCoeffs → p₂.NonnegCoeffs → (p₁.mul p₂).NonnegCoeffs :=
-  sorry
+theorem Poly.concat_NonnegCoeffs {p₁ p₂ : Poly} : p₁.NonnegCoeffs → p₂.NonnegCoeffs → (p₁.concat p₂).NonnegCoeffs := by
+  fun_induction Poly.concat
+  next => intro h₁ h₂; cases h₁; apply addConst_NonnegCoeffs <;> assumption
+  next ih => intro h₁ h₂; cases h₁; constructor; assumption; apply ih <;> assumption
 
-theorem Poly.pow_NonnegCoeffs {p : Poly} (k : Nat) : p.NonnegCoeffs → (p.pow k).NonnegCoeffs :=
-  sorry
+theorem Poly.combine_NonnegCoeffs {p₁ p₂ : Poly} : p₁.NonnegCoeffs → p₂.NonnegCoeffs → (p₁.combine p₂).NonnegCoeffs := by
+  unfold combine; generalize hugeFuel = fuel
+  fun_induction combine.go
+  next => intros; apply Poly.concat_NonnegCoeffs <;> assumption
+  next => intro h₁ h₂; cases h₁; cases h₂; constructor; apply Int.add_nonneg <;> assumption
+  next => intro h₁ h₂; apply addConst_NonnegCoeffs; cases h₁; assumption; assumption
+  next => intro h₁ h₂; apply addConst_NonnegCoeffs; cases h₂; assumption; assumption
+  next ih => intro h₁ h₂; cases h₁; cases h₂; apply ih <;> assumption
+  next ih =>
+    simp +zetaDelta; intro h₁ h₂; cases h₁; cases h₂; constructor; apply Int.add_nonneg <;> assumption
+    apply ih <;> assumption
+  next ih =>
+    intro h₁ h₂; cases h₁; cases h₂; constructor; assumption
+    apply ih; assumption
+    constructor <;> assumption
+  next ih =>
+    intro h₁ h₂; cases h₁; cases h₂; constructor; assumption
+    apply ih
+    constructor <;> assumption
+    assumption
+
+theorem Poly.mul_go_NonnegCoeffs (p₁ p₂ acc : Poly)
+    : p₁.NonnegCoeffs → p₂.NonnegCoeffs → acc.NonnegCoeffs → (mul.go p₂ p₁ acc).NonnegCoeffs := by
+  fun_induction mul.go
+  next =>
+    intro h₁ h₂ h₃
+    cases h₁; next h₁ =>
+    have := mulConst_NonnegCoeffs h₁ h₂
+    apply combine_NonnegCoeffs <;> assumption
+  next ih =>
+    intro h₁ h₂ h₃
+    cases h₁
+    apply ih
+    assumption; assumption
+    apply Poly.combine_NonnegCoeffs; assumption
+    apply Poly.mulMon_NonnegCoeffs <;> assumption
+
+theorem Poly.mul_NonnegCoeffs {p₁ p₂ : Poly} : p₁.NonnegCoeffs → p₂.NonnegCoeffs → (p₁.mul p₂).NonnegCoeffs := by
+  unfold mul; intros; apply mul_go_NonnegCoeffs
+  assumption; assumption; constructor; decide
+
+theorem Poly.pow_NonnegCoeffs {p : Poly} (k : Nat) : p.NonnegCoeffs → (p.pow k).NonnegCoeffs := by
+  fun_induction Poly.pow
+  next => intros; constructor; decide
+  next => intros; assumption
+  next ih => intro h; apply mul_NonnegCoeffs; assumption; apply ih; assumption
 
 theorem Poly.num_zero_NonnegCoeffs : (num 0).NonnegCoeffs := by
   apply NonnegCoeffs.num; simp

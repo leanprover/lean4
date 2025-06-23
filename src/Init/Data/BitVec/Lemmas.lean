@@ -2315,7 +2315,7 @@ theorem toInt_append {x : BitVec n} {y : BitVec m} :
   · by_cases m0 : m = 0
     · subst m0
       simp [BitVec.eq_nil y, n0]
-    · simp only [beq_iff_eq, n0, ↓reduceIte]
+    · simp only [n0, ↓reduceIte]
       by_cases x.msb
       case pos h =>
         rw [toInt_eq_msb_cond]
@@ -2332,11 +2332,13 @@ theorem toInt_append {x : BitVec n} {y : BitVec m} :
         rw_mod_cast [toNat_append, ← Nat.shiftLeft_add_eq_or_of_lt (by omega), Nat.shiftLeft_eq,
           Nat.mul_comm]
 
+example (n m : Nat) (x : BitVec n) : n = 0 → 0 = 2 ^ m * x.toInt := by
+  grind only [two_mul_toInt_lt, le_two_mul_toInt, = toInt_zero_length]
+
 @[simp, grind =] theorem toInt_append_zero {n m : Nat} {x : BitVec n} :
     (x ++ 0#m).toInt = (2 ^ m) * x.toInt := by
-  simp only [toInt_append, beq_iff_eq, toInt_zero, toNat_ofNat, Nat.zero_mod, Int.cast_ofNat_Int, Int.add_zero,
+  simp only [toInt_append, toInt_zero, toNat_ofNat, Nat.zero_mod, Int.cast_ofNat_Int, Int.add_zero,
     ite_eq_right_iff]
-  -- grind -- FIXME: kernel type mismatch
   intros h
   subst h
   simp [BitVec.eq_nil x]

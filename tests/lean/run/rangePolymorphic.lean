@@ -13,7 +13,15 @@ open Std.Iterators
 
 /-- info: [2, 3] -/
 #guard_msgs in
-#eval (1<..<4).toList
+#eval (1<..4).toList
+
+/-- info: [1, 2, 3] -/
+#guard_msgs in
+#eval (1..4).toList
+
+/-- info: [1, 2, 3] -/
+#guard_msgs in
+#eval (1..<4).toList
 
 /-- info: [0, 1, 2, 3, 4] -/
 #guard_msgs in
@@ -21,7 +29,7 @@ open Std.Iterators
 
 /-- info: 2 -/
 #guard_msgs in
-#eval (1<..<4).size
+#eval (1<..4).size
 
 /-- info: true -/
 #guard_msgs in

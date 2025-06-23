@@ -24,7 +24,7 @@ open Std.Iterators
 
 variable {shape : RangeShape} {α : Type u}
 
-private theorem Internal.iter_open_eq_iter_closed_of_isSome_succ? [UpwardEnumerable α]
+private theorem Internal.iter_open_eq_iter_closed_of_isSome_succ? {su} [UpwardEnumerable α]
     [SupportsUpperBound su α] [HasFiniteRanges su α]
     [LawfulUpwardEnumerable α]
     {lo : Bound .open α} {hi} (h : (UpwardEnumerable.succ? lo).isSome) :
@@ -32,13 +32,13 @@ private theorem Internal.iter_open_eq_iter_closed_of_isSome_succ? [UpwardEnumera
       Internal.iter (PRange.mk (shape := ⟨.closed, su⟩) (UpwardEnumerable.succ? lo |>.get h) hi) := by
   simp [Internal.iter, BoundedUpwardEnumerable.init?]
 
-private theorem Internal.toList_eq_toList_iter [UpwardEnumerable α]
+private theorem Internal.toList_eq_toList_iter {sl su} [UpwardEnumerable α]
     [BoundedUpwardEnumerable sl α] [SupportsUpperBound su α] [HasFiniteRanges su α]
     [LawfulUpwardEnumerable α] {r : PRange ⟨sl, su⟩ α} :
     r.toList = (Internal.iter r).toList := by
   rfl
 
-theorem RangeIterator.toList_eq_match [UpwardEnumerable α]
+theorem RangeIterator.toList_eq_match {su} [UpwardEnumerable α]
     [SupportsUpperBound su α] [HasFiniteRanges su α]
     [LawfulUpwardEnumerable α]
     {it : Iter (α := RangeIterator su α) α} :
@@ -55,7 +55,7 @@ theorem RangeIterator.toList_eq_match [UpwardEnumerable α]
   · simp [*]
   · split <;> rename_i heq' <;> simp [*]
 
-theorem toList_eq_match [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
+theorem toList_eq_match {sl su} [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [SupportsUpperBound su α] [HasFiniteRanges su α]
     [LawfulUpwardEnumerable α]
     {r : PRange ⟨sl, su⟩ α} :
@@ -67,7 +67,7 @@ theorem toList_eq_match [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
         [] := by
   rw [Internal.toList_eq_toList_iter, RangeIterator.toList_eq_match]; rfl
 
-theorem toList_open_eq_toList_closed_of_isSome_succ? [UpwardEnumerable α]
+theorem toList_open_eq_toList_closed_of_isSome_succ? {su} [UpwardEnumerable α]
     [SupportsUpperBound su α] [HasFiniteRanges su α]
     [LawfulUpwardEnumerable α]
     {lo : Bound .open α} {hi} (h : (UpwardEnumerable.succ? lo).isSome) :
@@ -75,7 +75,7 @@ theorem toList_open_eq_toList_closed_of_isSome_succ? [UpwardEnumerable α]
       (PRange.mk (shape := ⟨.closed, su⟩) (UpwardEnumerable.succ? lo |>.get h) hi).toList := by
   simp [Internal.toList_eq_toList_iter, Internal.iter_open_eq_iter_closed_of_isSome_succ?, h]
 
-theorem toList_eq_nil_iff [UpwardEnumerable α]
+theorem toList_eq_nil_iff {sl su} [UpwardEnumerable α]
     [SupportsUpperBound su α] [HasFiniteRanges su α] [BoundedUpwardEnumerable sl α]
     [LawfulUpwardEnumerable α]
     {r : PRange ⟨sl, su⟩ α} :
@@ -86,7 +86,7 @@ theorem toList_eq_nil_iff [UpwardEnumerable α]
   simp only
   split <;> rename_i heq <;> simp [heq]
 
-theorem mem_toList_iff_mem [UpwardEnumerable α]
+theorem mem_toList_iff_mem {sl su} [UpwardEnumerable α]
     [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
     [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
@@ -105,7 +105,7 @@ theorem BoundedUpwardEnumerable.Closed.init?_succ [UpwardEnumerable α]
   · simp [init?] at h'
   · simp_all [init?]
 
-theorem pairwise_toList_upwardEnumerableLt [UpwardEnumerable α]
+theorem pairwise_toList_upwardEnumerableLt {sl su} [UpwardEnumerable α]
     [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
     [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
@@ -131,7 +131,7 @@ theorem pairwise_toList_upwardEnumerableLt [UpwardEnumerable α]
   · apply ihy (out := a)
     simp_all [RangeIterator.isPlausibleStep_iff, RangeIterator.step]
 
-theorem pairwise_toList_ne [UpwardEnumerable α]
+theorem pairwise_toList_ne {sl su} [UpwardEnumerable α]
     [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
     [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
@@ -139,7 +139,7 @@ theorem pairwise_toList_ne [UpwardEnumerable α]
     r.toList.Pairwise (fun a b => a ≠ b) :=
   List.Pairwise.imp (fun hlt => UpwardEnumerable.ne_of_lt hlt) pairwise_toList_upwardEnumerableLt
 
-theorem pairwise_toList_lt [LT α] [UpwardEnumerable α]
+theorem pairwise_toList_lt {sl su} [LT α] [UpwardEnumerable α]
     [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
     [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
@@ -148,7 +148,7 @@ theorem pairwise_toList_lt [LT α] [UpwardEnumerable α]
   List.Pairwise.imp
     (fun hlt => (LawfulUpwardEnumerableLT.lt_iff ..).mpr hlt) pairwise_toList_upwardEnumerableLt
 
-theorem pairwise_toList_le [LE α] [UpwardEnumerable α]
+theorem pairwise_toList_le {sl su} [LE α] [UpwardEnumerable α]
     [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
     [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
@@ -315,7 +315,7 @@ theorem mem_of_mem_open [UpwardEnumerable α]
   refine ⟨init, hi.1, UpwardEnumerable.le_trans hi.2 (UpwardEnumerable.le_trans ?_ hb'.2)⟩
   exact UpwardEnumerable.le_of_succ?_eq hb'.1
 
-theorem SupportsLowerBound.isSatisfied_init? [UpwardEnumerable α]
+theorem SupportsLowerBound.isSatisfied_init? {sl} [UpwardEnumerable α]
     [SupportsLowerBound sl α] [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α]
     {bound : Bound sl α} {a : α} (h : BoundedUpwardEnumerable.init? bound = some a) :
@@ -323,7 +323,7 @@ theorem SupportsLowerBound.isSatisfied_init? [UpwardEnumerable α]
   simp only [LawfulUpwardEnumerableLowerBound.isSatisfied_iff]
   exact ⟨a, h, UpwardEnumerable.le_refl _⟩
 
-theorem forIn'_eq_match [UpwardEnumerable α]
+theorem forIn'_eq_match {sl su} [UpwardEnumerable α]
     [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
     [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
@@ -356,7 +356,7 @@ theorem forIn'_eq_match [UpwardEnumerable α]
       · simp
     · simp
 
-instance [UpwardEnumerable α] [SupportsUpperBound su α] [RangeSize su α]
+instance {su} [UpwardEnumerable α] [SupportsUpperBound su α] [RangeSize su α]
     [LawfulUpwardEnumerable α] [HasFiniteRanges su α] [LawfulRangeSize su α] :
     LawfulIteratorSize (RangeIterator su α) where
   size_eq_size_toArray {it} := by
@@ -394,7 +394,7 @@ instance [UpwardEnumerable α] [SupportsUpperBound su α] [RangeSize su α]
         · have := LawfulRangeSize.size_eq_zero_of_not_satisfied _ _ h'
           simp [*] at this
 
-theorem isEmpty_iff_forall_not_mem [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+theorem isEmpty_iff_forall_not_mem {sl su} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [BoundedUpwardEnumerable sl α] [SupportsLowerBound sl α] [SupportsUpperBound su α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
     {r : PRange ⟨sl, su⟩ α} :

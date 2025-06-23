@@ -56,13 +56,13 @@ may be inclusive, exclusive or absent.
 
 * `a..=b` contains all elements between `a` and `b`, including `a`.
 * `a<..=b` contains all elements between `a` and `b`, excluding `a`.
-* `a..<b` contains all elements between `a` and `b`, excluding `b`.
-* `a<..<b` contains all elements between `a` and `b`, excluding both `a` and `b`.
-* `..=b` contains all elements below `b`, including `b`.
-* `..<b` contains all elements below `b`, excluding `b`.
-* `a..` contains all elements above `a`, including `a`.
-* `a<..` contains all elements above `a`, excluding `a`.
-* `..` contains all elements of `α`.
+* `a..b` or `a..<b` contains all elements between `a` and `b`, excluding `b`.
+* `a<..b` or `a<..<b` contains all elements between `a` and `b`, excluding both `a` and `b`.
+* `*..=b` contains all elements below `b`, including `b`.
+* `*..b` or `*..<b` contains all elements below `b`, excluding `b`.
+* `a..*` contains all elements above `a`, including `a`.
+* `a<..*` contains all elements above `a`, excluding `a`.
+* `*..*` contains all elements of `α`.
 -/
 structure _root_.Std.PRange (shape : RangeShape) (α : Type u) where
   /-- The lower bound of the range. -/
@@ -70,16 +70,52 @@ structure _root_.Std.PRange (shape : RangeShape) (α : Type u) where
   /-- The upper bound of the range. -/
   upper : Bound shape.upper α
 
+/-- `a..*` is the range of elements greater than or equal to `a`. See also `Std.PRange`. -/
 syntax:max (term "..*") : term
+/-- `*..*` is the range that is unbounded in both directions. See also `Std.PRange`. -/
 syntax:max ("*..*") : term
+/-- `a..*` is the range of elements greater than `a`. See also `Std.PRange`. -/
 syntax:max (term "<..*") : term
+/--
+`a..<b` is the range of elements greater than or equal to `a` and less than `b`.
+See also `Std.PRange`.
+-/
 syntax:max (term "..<" term) : term
+/--
+`a..b` is the range of elements greater than or equal to `a` and less than `b`.
+See also `Std.PRange`.
+-/
+syntax:max (term ".." term) : term
+/-- `*..<b` is the range of elements less than `b`. See also `Std.PRange`. -/
 syntax:max ("*..<" term) : term
+/-- `*..<b` is the range of elements less than `b`. See also `Std.PRange`. -/
+syntax:max ("*.." term) : term
+/--
+`a<..<b` is the range of elements greater than `a` and less than `b`.
+See also `Std.PRange`.
+-/
 syntax:max (term "<..<" term) : term
+/--
+`a<..b` is the range of elements greater than `a` and less than `b`.
+See also `Std.PRange`.
+-/
+syntax:max (term "<.." term) : term
+/--
+`a..=b` is the range of elements greater than or equal to `a` and less than or equal to `b`.
+See also `Std.PRange`.
+-/
 syntax:max (term "..=" term) : term
+/-- `*..=b` is the range of elements less than or equal to `b`. See also `Std.PRange`. -/
 syntax:max ("*..=" term) : term
+/--
+`a<..=b` is the range of elements greater than `a` and less than or equal to `b`.
+See also `Std.PRange`.
+-/
 syntax:max (term "<..=" term) : term
 
+/--
+doc2
+-/
 macro_rules
   | `($a..=$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.closed) $a $b)
   | `(*..=$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.closed) PUnit.unit $b)
@@ -88,8 +124,11 @@ macro_rules
   | `($a<..=$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.closed) $a $b)
   | `($a<..*) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.unbounded) $a PUnit.unit)
   | `($a..<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.open) $a $b)
+  | `($a..$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.open) $a $b)
   | `(*..<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.open) PUnit.unit $b)
+  | `(*..$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.open) PUnit.unit $b)
   | `($a<..<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.open) $a $b)
+  | `($a<..$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.open) $a $b)
 
 /--
 This typeclass provides decidable lower bound checks of the given shape.
@@ -120,20 +159,20 @@ class SupportsUpperBound (shape : BoundShape) (α : Type u) where
   IsSatisfied : Bound shape α → α → Prop
   decidableSatisfiesUpperBound : DecidableRel IsSatisfied := by infer_instance
 
-instance : SupportsUpperBound .unbounded α where
+instance {α} : SupportsUpperBound .unbounded α where
   IsSatisfied _ _ := True
 
-instance [i : SupportsLowerBound shape α] : DecidableRel i.IsSatisfied :=
+instance {shape α} [i : SupportsLowerBound shape α] : DecidableRel i.IsSatisfied :=
   i.decidableSatisfiesLowerBound
 
-instance [i : SupportsUpperBound shape α] : DecidableRel i.IsSatisfied :=
+instance {shape α} [i : SupportsUpperBound shape α] : DecidableRel i.IsSatisfied :=
   i.decidableSatisfiesUpperBound
 
-instance [SupportsLowerBound sl α] [SupportsUpperBound su α] :
+instance {sl su α} [SupportsLowerBound sl α] [SupportsUpperBound su α] :
     Membership α (PRange ⟨sl, su⟩ α) where
   mem r a := SupportsLowerBound.IsSatisfied r.lower a ∧ SupportsUpperBound.IsSatisfied r.upper a
 
-instance [SupportsLowerBound sl α] [SupportsUpperBound su α] (r : PRange ⟨sl, su⟩ α) :
+instance {sl su α a} [SupportsLowerBound sl α] [SupportsUpperBound su α] (r : PRange ⟨sl, su⟩ α) :
     Decidable (a ∈ r) :=
   inferInstanceAs <| Decidable (_ ∧ _)
 
@@ -209,36 +248,36 @@ class LawfulUnboundedUpperBound (α : Type w) [SupportsUpperBound .unbounded α]
   isSatisfied (u : Bound .unbounded α) (a : α) :
     SupportsUpperBound.IsSatisfied u a
 
-instance [LT α] [DecidableLT α] : SupportsLowerBound .open α where
+instance {α} [LT α] [DecidableLT α] : SupportsLowerBound .open α where
   IsSatisfied bound a := bound < a
 
-instance [LT α] [DecidableLT α] : SupportsUpperBound .open α where
+instance {α} [LT α] [DecidableLT α] : SupportsUpperBound .open α where
   IsSatisfied bound a := a < bound
 
-instance [LE α] [DecidableLE α] : SupportsLowerBound .closed α where
+instance {α} [LE α] [DecidableLE α] : SupportsLowerBound .closed α where
   IsSatisfied bound a := bound ≤ a
 
-instance [LE α] [DecidableLE α] : SupportsUpperBound .closed α where
+instance {α} [LE α] [DecidableLE α] : SupportsUpperBound .closed α where
   IsSatisfied bound a := a ≤ bound
 
-instance [Least? α] : BoundedUpwardEnumerable .unbounded α where
+instance {α} [Least? α] : BoundedUpwardEnumerable .unbounded α where
   init? _ := Least?.least?
 
-instance [UpwardEnumerable α] : BoundedUpwardEnumerable .open α where
+instance {α} [UpwardEnumerable α] : BoundedUpwardEnumerable .open α where
   init? lower := UpwardEnumerable.succ? lower
 
-instance : BoundedUpwardEnumerable .closed α where
+instance {α} : BoundedUpwardEnumerable .closed α where
   init? lower := some lower
 
-instance [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerableLE α] :
+instance {α} [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerableLE α] :
     LawfulClosedUpperBound α where
   isSatisfied_iff_le u a := by simp [SupportsUpperBound.IsSatisfied, LawfulUpwardEnumerableLE.le_iff]
 
-instance [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerableLT α] :
+instance {α} [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerableLT α] :
     LawfulOpenUpperBound α where
   isSatisfied_iff_le u a := by simp [SupportsUpperBound.IsSatisfied, LawfulUpwardEnumerableLT.lt_iff]
 
-instance [UpwardEnumerable α] : LawfulUnboundedUpperBound α where
+instance {α} [UpwardEnumerable α] : LawfulUnboundedUpperBound α where
   isSatisfied u a := by simp [SupportsUpperBound.IsSatisfied]
 
 end Std.PRange

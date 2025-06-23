@@ -17,7 +17,7 @@ Internal function that constructs an iterator for a `PRange`. This is an interna
 Use `PRange.iter` instead, which requires importing `Std.Data.Iterators`.
 -/
 @[always_inline, inline]
-def Internal.iter [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
+def Internal.iter {sl su α} [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     (r : PRange ⟨sl, su⟩ α) : Iter (α := RangeIterator su α) α :=
   ⟨⟨BoundedUpwardEnumerable.init? r.lower, r.upper⟩⟩
 
@@ -26,7 +26,7 @@ Returns the elements of the given range as a list in ascending order, given that
 type and shape support this function and the range is finite.
 -/
 @[always_inline, inline]
-def toList [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
+def toList {sl su α} [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [SupportsUpperBound su α]
     (r : PRange ⟨sl, su⟩ α)
     [Iterator (RangeIterator su α) Id α] [Finite (RangeIterator su α) Id]
@@ -83,7 +83,7 @@ Returns the number of elements contained in the given range, given that ranges o
 type and shape support this function.
 -/
 @[always_inline, inline]
-def size [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
+def size {sl su α} [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [SupportsUpperBound su α] (r : PRange ⟨sl, su⟩ α)
     [IteratorSize (RangeIterator su α) Id] : Nat :=
   PRange.Internal.iter r |>.size
@@ -96,13 +96,13 @@ and for all range types that satisfy the properties encoded in the `LawfulUpward
 `LawfulUpwardEnumerableLowerBound` and `LawfulUpwardEnumerableUpperBound` typeclasses.
 -/
 @[always_inline, inline]
-def isEmpty [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
+def isEmpty {sl su α} [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [SupportsUpperBound su α] (r : PRange ⟨sl, su⟩ α) : Bool :=
   (BoundedUpwardEnumerable.init? r.lower).all (! SupportsUpperBound.IsSatisfied r.upper ·)
 
 section Iterator
 
-theorem RangeIterator.isPlausibleIndirectOutput_iff
+theorem RangeIterator.isPlausibleIndirectOutput_iff {su α}
     [UpwardEnumerable α] [SupportsUpperBound su α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableUpperBound su α]
     {it : Iter (α := RangeIterator su α) α} {out : α} :
@@ -146,7 +146,7 @@ theorem RangeIterator.isPlausibleIndirectOutput_iff
       · exact hu
       · exact hle
 
-theorem Internal.isPlausibleIndirectOutput_iter_iff
+theorem Internal.isPlausibleIndirectOutput_iter_iff {sl su α}
     [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [SupportsLowerBound sl α] [SupportsUpperBound su α]
     [LawfulUpwardEnumerable α]
@@ -167,7 +167,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
     obtain ⟨_, hr, n, hn⟩ := hl
     exact ⟨n, by simp [PRange.Internal.iter, hr, hn], hu⟩
 
-theorem RangeIterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
+theorem RangeIterator.upwardEnumerableLe_of_isPlausibleIndirectOutput {su α}
     [UpwardEnumerable α] [SupportsUpperBound su α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableUpperBound su α]
     {it : Iter (α := RangeIterator su α) α} {out : α}
@@ -180,7 +180,7 @@ theorem RangeIterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
   exact hout.1
 
 @[no_expose]
-instance [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
+instance {sl su α m} [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [SupportsLowerBound sl α] [SupportsUpperBound su α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
     [Monad m] [Finite (RangeIterator su α) Id] :
@@ -194,23 +194,23 @@ instance [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
 
 end Iterator
 
-theorem le_upper_of_mem [LE α] [DecidableLE α] [SupportsLowerBound sl α]
+theorem le_upper_of_mem {sl α} [LE α] [DecidableLE α] [SupportsLowerBound sl α]
     {a : α} {r : PRange ⟨sl, .closed⟩ α} (h : a ∈ r) : a ≤ r.upper :=
   h.2
 
-theorem lt_upper_of_mem [LT α] [DecidableLT α] [SupportsLowerBound sl α]
+theorem lt_upper_of_mem {sl α} [LT α] [DecidableLT α] [SupportsLowerBound sl α]
     {a : α} {r : PRange ⟨sl, .open⟩ α} (h : a ∈ r) : a < r.upper :=
   h.2
 
-theorem lower_le_of_mem [LE α] [DecidableLE α] [SupportsUpperBound su α]
+theorem lower_le_of_mem {su α} [LE α] [DecidableLE α] [SupportsUpperBound su α]
     {a : α} {r : PRange ⟨.closed, su⟩ α} (h : a ∈ r) : r.lower ≤ a :=
   h.1
 
-theorem lower_lt_of_mem [LT α] [DecidableLT α] [SupportsUpperBound su α]
+theorem lower_lt_of_mem {su α} [LT α] [DecidableLT α] [SupportsUpperBound su α]
     {a : α} {r : PRange ⟨.open, su⟩ α} (h : a ∈ r) : r.lower < a :=
   h.1
 
-theorem Internal.get_elem_helper_upper_open [SupportsLowerBound sl α] [LT α] [DecidableLT α]
+theorem Internal.get_elem_helper_upper_open {sl α} [SupportsLowerBound sl α] [LT α] [DecidableLT α]
     {a n : α} {r : PRange ⟨sl, .open⟩ α} (h₁ : a ∈ r) (h₂ : r.upper = n) :
     a < n := h₂ ▸ r.lt_upper_of_mem h₁
 

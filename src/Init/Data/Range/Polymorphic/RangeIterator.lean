@@ -41,7 +41,7 @@ This function is prefixed with `Monadic` in order to disambiguate it from the ve
 of type `Iter`.
 -/
 @[always_inline, inline]
-def RangeIterator.Monadic.step [UpwardEnumerable α] [SupportsUpperBound su α]
+def RangeIterator.Monadic.step {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     (it : IterM (α := RangeIterator su α) Id α) :
     IterStep (IterM (α := RangeIterator su α) Id α) α :=
   match it.internalState.next with
@@ -55,7 +55,7 @@ def RangeIterator.Monadic.step [UpwardEnumerable α] [SupportsUpperBound su α]
 The pure function mapping a range iterator of type `Iter` to the next step of the iterator.
 -/
 @[always_inline, inline]
-def RangeIterator.step [UpwardEnumerable α] [SupportsUpperBound su α]
+def RangeIterator.step {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     (it : Iter (α := RangeIterator su α) α) :
     IterStep (Iter (α := RangeIterator su α) α) α :=
   match it.internalState.next with
@@ -65,7 +65,7 @@ def RangeIterator.step [UpwardEnumerable α] [SupportsUpperBound su α]
     else
       .done
 
-theorem RangeIterator.step_eq_monadicStep [UpwardEnumerable α] [SupportsUpperBound su α]
+theorem RangeIterator.step_eq_monadicStep {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     {it : Iter (α := RangeIterator su α) α} :
     RangeIterator.step it = (RangeIterator.Monadic.step it.toIterM).mapIterator IterM.toIter := by
   simp only [step, Monadic.step, Iter.toIterM]
@@ -74,22 +74,22 @@ theorem RangeIterator.step_eq_monadicStep [UpwardEnumerable α] [SupportsUpperBo
   · split <;> rfl
 
 @[always_inline, inline]
-instance [UpwardEnumerable α] [SupportsUpperBound su α] :
+instance {su} [UpwardEnumerable α] [SupportsUpperBound su α] :
     Iterator (RangeIterator su α) Id α where
   IsPlausibleStep it step := step = RangeIterator.Monadic.step it
   step it := pure ⟨RangeIterator.Monadic.step it, rfl⟩
 
-theorem RangeIterator.Monadic.isPlausibleStep_iff [UpwardEnumerable α] [SupportsUpperBound su α]
+theorem RangeIterator.Monadic.isPlausibleStep_iff {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     {it : IterM (α := RangeIterator su α) Id α} {step} :
     it.IsPlausibleStep step ↔ step = RangeIterator.Monadic.step it := by
   exact Iff.rfl
 
-theorem RangeIterator.Monadic.step_eq_step [UpwardEnumerable α] [SupportsUpperBound su α]
+theorem RangeIterator.Monadic.step_eq_step {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     {it : IterM (α := RangeIterator su α) Id α} :
     it.step = pure ⟨RangeIterator.Monadic.step it, isPlausibleStep_iff.mpr rfl⟩ := by
   simp [IterM.step, Iterator.step]
 
-theorem RangeIterator.isPlausibleStep_iff [UpwardEnumerable α] [SupportsUpperBound su α]
+theorem RangeIterator.isPlausibleStep_iff {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     {it : Iter (α := RangeIterator su α) α} {step} :
     it.IsPlausibleStep step ↔ step = RangeIterator.step it := by
   simp only [Iter.IsPlausibleStep, Monadic.isPlausibleStep_iff, step_eq_monadicStep]
@@ -102,37 +102,37 @@ theorem RangeIterator.isPlausibleStep_iff [UpwardEnumerable α] [SupportsUpperBo
   · rintro rfl
     simp only [IterStep.mapIterator_mapIterator, Iter.toIterM_comp_toIter, IterStep.mapIterator_id]
 
-theorem RangeIterator.step_eq_step [UpwardEnumerable α] [SupportsUpperBound su α]
+theorem RangeIterator.step_eq_step {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     {it : Iter (α := RangeIterator su α) α} :
     it.step = ⟨RangeIterator.step it, isPlausibleStep_iff.mpr rfl⟩ := by
   simp [Iter.step, step_eq_monadicStep, Monadic.step_eq_step, IterM.Step.toPure]
 
 @[always_inline, inline]
-instance RepeatIterator.instIteratorLoop [UpwardEnumerable α] [SupportsUpperBound su α]
+instance RepeatIterator.instIteratorLoop {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     {n : Type u → Type w} [Monad n] :
     IteratorLoop (RangeIterator su α) Id n :=
   .defaultImplementation
 
-instance RepeatIterator.instIteratorLoopPartial [UpwardEnumerable α] [SupportsUpperBound su α]
+instance RepeatIterator.instIteratorLoopPartial {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     {n : Type u → Type w} [Monad n] : IteratorLoopPartial (RangeIterator su α) Id n :=
   .defaultImplementation
 
-instance RepeatIterator.instIteratorCollect [UpwardEnumerable α] [SupportsUpperBound su α]
+instance RepeatIterator.instIteratorCollect {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     {n : Type u → Type w} [Monad n] : IteratorCollect (RangeIterator su α) Id n :=
   .defaultImplementation
 
-instance RepeatIterator.instIteratorCollectPartial [UpwardEnumerable α] [SupportsUpperBound su α]
+instance RepeatIterator.instIteratorCollectPartial {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     {n : Type u → Type w} [Monad n] : IteratorCollectPartial (RangeIterator su α) Id n :=
   .defaultImplementation
 
-theorem RangeIterator.Monadic.isPlausibleOutput_next
+theorem RangeIterator.Monadic.isPlausibleOutput_next {su a}
     [UpwardEnumerable α] [SupportsUpperBound su α]
     {it : IterM (α := RangeIterator su α) Id α} (h : it.internalState.next = some a)
     (hP : SupportsUpperBound.IsSatisfied it.internalState.upperBound a) :
     it.IsPlausibleOutput a := by
   simp [IterM.IsPlausibleOutput, Monadic.isPlausibleStep_iff, RangeIterator.Monadic.step, h, hP]
 
-theorem RangeIterator.Monadic.isPlausibleOutput_iff
+theorem RangeIterator.Monadic.isPlausibleOutput_iff {su a}
     [UpwardEnumerable α] [SupportsUpperBound su α]
     {it : IterM (α := RangeIterator su α) Id α} :
     it.IsPlausibleOutput a ↔
@@ -149,14 +149,14 @@ theorem RangeIterator.Monadic.isPlausibleOutput_iff
       simp only [heq', Option.some.injEq] at heq
       simp_all
 
-theorem RangeIterator.isPlausibleOutput_next
+theorem RangeIterator.isPlausibleOutput_next {su a}
     [UpwardEnumerable α] [SupportsUpperBound su α]
     {it : Iter (α := RangeIterator su α) α} (h : it.internalState.next = some a)
     (hP : SupportsUpperBound.IsSatisfied it.internalState.upperBound a) :
     it.IsPlausibleOutput a := by
   simp [Iter.IsPlausibleOutput, Monadic.isPlausibleOutput_iff, Iter.toIterM, h, hP]
 
-theorem RangeIterator.isPlausibleOutput_iff
+theorem RangeIterator.isPlausibleOutput_iff {su a}
     [UpwardEnumerable α] [SupportsUpperBound su α]
     {it : Iter (α := RangeIterator su α) α} :
     it.IsPlausibleOutput a ↔
@@ -164,7 +164,7 @@ theorem RangeIterator.isPlausibleOutput_iff
         SupportsUpperBound.IsSatisfied it.internalState.upperBound a := by
   simp [Iter.IsPlausibleOutput, Monadic.isPlausibleOutput_iff, Iter.toIterM]
 
-theorem RangeIterator.Monadic.isPlausibleSuccessorOf_iff
+theorem RangeIterator.Monadic.isPlausibleSuccessorOf_iff {su}
     [UpwardEnumerable α] [SupportsUpperBound su α]
     {it' it : IterM (α := RangeIterator su α) Id α} :
     it'.IsPlausibleSuccessorOf it ↔
@@ -190,7 +190,7 @@ theorem RangeIterator.Monadic.isPlausibleSuccessorOf_iff
       IterStep.yield.injEq, and_true]
     simp [h'.1, ← h'.2]
 
-theorem RangeIterator.isPlausibleSuccessorOf_iff
+theorem RangeIterator.isPlausibleSuccessorOf_iff {su}
     [UpwardEnumerable α] [SupportsUpperBound su α]
     {it' it : Iter (α := RangeIterator su α) α} :
     it'.IsPlausibleSuccessorOf it ↔
@@ -200,7 +200,7 @@ theorem RangeIterator.isPlausibleSuccessorOf_iff
         it'.internalState.upperBound = it.internalState.upperBound := by
   simp [Iter.IsPlausibleSuccessorOf, Monadic.isPlausibleSuccessorOf_iff, Iter.toIterM]
 
-theorem RangeIterator.isSome_next_of_isPlausibleIndirectOutput
+theorem RangeIterator.isSome_next_of_isPlausibleIndirectOutput {su}
     [UpwardEnumerable α] [SupportsUpperBound su α]
     {it : Iter (α := RangeIterator su α) α} {out : α}
     (h : it.IsPlausibleIndirectOutput out) :
@@ -271,12 +271,12 @@ private def RangeIterator.instFinitenessRelation [UpwardEnumerable α] [Supports
       exact ⟨a, hn, UpwardEnumerable.le_refl _⟩
 
 @[no_expose]
-instance RangeIterator.instFinite [UpwardEnumerable α] [SupportsUpperBound su α]
+instance RangeIterator.instFinite {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     [LawfulUpwardEnumerable α] [HasFiniteRanges su α] :
     Finite (RangeIterator su α) Id :=
   .of_finitenessRelation instFinitenessRelation
 
-instance RangeIterator.instIteratorAccess [UpwardEnumerable α] [SupportsUpperBound su α]
+instance RangeIterator.instIteratorAccess {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableUpperBound su α] :
     IteratorAccess (RangeIterator su α) Id where
   nextAtIdx? it n := ⟨match it.internalState.next.bind (UpwardEnumerable.succMany? n) with
@@ -342,7 +342,7 @@ instance RangeIterator.instIteratorAccess [UpwardEnumerable α] [SupportsUpperBo
             apply IterM.IsPlausibleNthOutputStep.done
             simp [Monadic.isPlausibleStep_iff, Monadic.step, heq', hout])⟩
 
-instance RangeIterator.instLawfulDeterministicIterator [UpwardEnumerable α] [SupportsUpperBound su α]
+instance RangeIterator.instLawfulDeterministicIterator {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     : LawfulDeterministicIterator (RangeIterator su α) Id where
   isPlausibleStep_eq_eq it := ⟨Monadic.step it, rfl⟩
 

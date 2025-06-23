@@ -54,15 +54,15 @@ abbrev Bound (shape : BoundShape) (α : Type u) : Type u :=
 A range of elements of some type `α`. It is characterized by its upper and lower bounds, which
 may be inclusive, exclusive or absent.
 
-* `a...=b` contains all elements between `a` and `b`, including `a`.
-* `a<...=b` contains all elements between `a` and `b`, excluding `a`.
-* `a...<b` contains all elements between `a` and `b`, excluding `b`.
-* `a<...<b` contains all elements between `a` and `b`, excluding both `a` and `b`.
-* `...=b` contains all elements below `b`, including `b`.
-* `...<b` contains all elements below `b`, excluding `b`.
-* `a...` contains all elements above `a`, including `a`.
-* `a<...` contains all elements above `a`, excluding `a`.
-* `...` contains all elements of `α`.
+* `a..=b` contains all elements between `a` and `b`, including `a`.
+* `a<..=b` contains all elements between `a` and `b`, excluding `a`.
+* `a..<b` contains all elements between `a` and `b`, excluding `b`.
+* `a<..<b` contains all elements between `a` and `b`, excluding both `a` and `b`.
+* `..=b` contains all elements below `b`, including `b`.
+* `..<b` contains all elements below `b`, excluding `b`.
+* `a..` contains all elements above `a`, including `a`.
+* `a<..` contains all elements above `a`, excluding `a`.
+* `..` contains all elements of `α`.
 -/
 structure _root_.Std.PRange (shape : RangeShape) (α : Type u) where
   /-- The lower bound of the range. -/
@@ -70,27 +70,27 @@ structure _root_.Std.PRange (shape : RangeShape) (α : Type u) where
   /-- The upper bound of the range. -/
   upper : Bound shape.upper α
 
-syntax:max (term "...") : term
-syntax:max ("...") : term
-syntax:max (term "<...") : term
-syntax:max (term "...<" term) : term
-syntax:max ("...<" term) : term
-syntax:max (term "<...<" term) : term
-syntax:max (term "...=" term) : term
-syntax:max ("...=" term) : term
-syntax:max (term "<...=" term) : term
-syntax:max (term "<...⊥" term) : term
+syntax:max (term "..*") : term
+syntax:max ("*..*") : term
+syntax:max (term "<..*") : term
+syntax:max (term "..<" term) : term
+syntax:max ("*..<" term) : term
+syntax:max (term "<..<" term) : term
+syntax:max (term "..=" term) : term
+syntax:max ("*..=" term) : term
+syntax:max (term "<..=" term) : term
+syntax:max (term "<.." term) : term
 
 macro_rules
-  | `($a...=$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.closed) $a $b)
-  | `(...=$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.closed) PUnit.unit $b)
-  | `($a...) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.unbounded) $a PUnit.unit)
-  | `(...) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.unbounded) PUnit.unit PUnit.unit)
-  | `($a<...=$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.closed) $a $b)
-  | `($a<...) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.unbounded) $a PUnit.unit)
-  | `($a...<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.open) $a $b)
-  | `(...<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.open) PUnit.unit $b)
-  | `($a<...<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.open) $a $b)
+  | `($a..=$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.closed) $a $b)
+  | `(*..=$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.closed) PUnit.unit $b)
+  | `($a..*) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.unbounded) $a PUnit.unit)
+  | `(*..*) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.unbounded) PUnit.unit PUnit.unit)
+  | `($a<..=$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.closed) $a $b)
+  | `($a<..*) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.unbounded) $a PUnit.unit)
+  | `($a..<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.open) $a $b)
+  | `(*..<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.open) PUnit.unit $b)
+  | `($a<..<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.open) $a $b)
 
 /--
 This typeclass provides decidable lower bound checks of the given shape.

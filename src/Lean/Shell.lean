@@ -72,6 +72,7 @@ private def shortVersionString : String :=
   else
     versionStringCore
 
+/-- The full Lean version header (i.e, what is printed by `lean --version`). -/
 private def versionHeader : String := Id.run do
   let mut ver := shortVersionString
   if Platform.target ≠ "" then
@@ -82,12 +83,12 @@ private def versionHeader : String := Id.run do
 
 /-- Print the Lean version header. -/
 @[export lean_display_header]
-private opaque displayHeader : IO Unit := do
+private def displayHeader : IO Unit := do
   IO.println versionHeader
 
 /-- Print the Lean CLI help message. -/
 @[export lean_display_help]
-private opaque displayHelp (useStderr : Bool) : IO Unit := do
+private def displayHelp (useStderr : Bool) : IO Unit := do
   let out ← if useStderr then IO.getStderr else IO.getStdout
   out.putStrLn    versionHeader
   out.putStrLn    "Miscellaneous"
@@ -132,27 +133,6 @@ private opaque displayHelp (useStderr : Bool) : IO Unit := do
     out.putStrLn  "      --debug=tag        enable assertions with the given tag"
   out.putStrLn    "      -D name=value      set a configuration option (see set_option command)"
 
-private partial def readStdinFileNames : IO (Array String) := do
-  let s ← IO.getStdin
-  let rec read fns := do
-    let fn ← s.getLine
-    if fn.length == 0 then
-      pure fns
-    else
-      read (fns.push fn.trim)
-  read #[]
-
-private partial def readStdinContents : IO String := do
-  let s ← IO.getStdin
-  let rec readBinToEndInto (acc : ByteArray) : IO ByteArray := do
-    let buf ← s.read 1024
-    if buf.isEmpty then
-      return acc
-    else
-      readBinToEndInto (acc ++ buf)
-  let data ← readBinToEndInto .empty
-  return decodeLossyUTF8 data
-
 @[export lean_shell_main]
 private def shellMain
     (args : List String)
@@ -176,7 +156,7 @@ private def shellMain
   if onlyDeps && depsJson then
     let fns ←
       if useStdin then
-        readStdinFileNames
+        (← IO.getStdin).lines
       else
         pure args.toArray
     printImportsJson fns
@@ -198,11 +178,11 @@ private def shellMain
       IO.eprintln "Expected exactly one file name"
       displayHelp (useStderr := true)
       return 1
-  let contents ←
+  let contents ← decodeLossyUTF8 <$> do
     if useStdin then
-      readStdinContents
+      (← IO.getStdin).readBinToEnd
     else
-      decodeLossyUTF8 <$> IO.FS.readBinFile fileName
+      IO.FS.readBinFile fileName
   if onlyDeps then
     Elab.printImports contents fileName
     return 0

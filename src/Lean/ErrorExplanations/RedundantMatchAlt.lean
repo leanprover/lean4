@@ -8,9 +8,9 @@ import Lean.ErrorExplanation
 
 /--
 This error occurs when an alternative in a pattern match can never be reached: any values that would
-match the provided patterns would also match some preceding alternative. Refer to the [Pattern
-Matching](lean-manual://section/pattern-matching) manual section for additional details about
-pattern matching.
+match the provided patterns would also match some preceding alternative. Refer to the
+[Pattern Matching](lean-manual://section/pattern-matching) manual section for additional details
+about pattern matching.
 
 This error may appear in any pattern matching expression, including `match` expressions, equational
 function definitions, `if let` bindings, and monadic `let` bindings with fallback clauses.

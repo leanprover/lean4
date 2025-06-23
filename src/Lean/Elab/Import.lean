@@ -5,7 +5,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Lean.Parser.Module
-import Lean.Util.Paths
 import Lean.CoreM
 
 namespace Lean.Elab
@@ -29,13 +28,17 @@ def HeaderSyntax.imports (stx : HeaderSyntax) (includeInit : Bool := true) : Arr
       | _ => unreachable!
   | _ => unreachable!
 
+def HeaderSyntax.toModuleHeader (stx : HeaderSyntax) : ModuleHeader where
+  isModule := stx.isModule
+  imports := stx.imports
+
 abbrev headerToImports := @HeaderSyntax.imports
 
 def processHeaderCore
     (startPos : String.Pos) (imports : Array Import) (isModule : Bool)
     (opts : Options) (messages : MessageLog) (inputCtx : Parser.InputContext)
     (trustLevel : UInt32 := 0) (plugins : Array System.FilePath := #[]) (leakEnv := false)
-    (mainModule := Name.anonymous) (arts : NameMap ModuleArtifacts := {})
+    (mainModule := Name.anonymous) (arts : NameMap ImportArtifacts := {})
     : IO (Environment × MessageLog) := do
   let level := if isModule then
     if Elab.inServer.get opts then

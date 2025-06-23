@@ -1876,18 +1876,6 @@ abbrev ImportStateM := StateRefT ImportState IO
 @[inline] nonrec def ImportStateM.run (x : ImportStateM α) (s : ImportState := {}) : IO (α × ImportState) :=
   x.run s
 
-def ModuleArtifacts.oleanParts (arts : ModuleArtifacts) : Array System.FilePath := Id.run do
-  let mut fnames := #[]
-  -- Opportunistically load all available parts.
-  -- Producer (e.g., Lake) should limit parts to the proper import level.
-  if let some mFile := arts.olean? then
-    fnames := fnames.push mFile
-    if let some sFile := arts.oleanServer? then
-      fnames := fnames.push sFile
-      if let some pFile := arts.oleanPrivate? then
-        fnames := fnames.push pFile
-  return fnames
-
 private def findOLeanParts (mod : Name) : IO (Array System.FilePath) := do
   let mFile ← findOLean mod
   unless (← mFile.pathExists) do
@@ -1904,7 +1892,7 @@ private def findOLeanParts (mod : Name) : IO (Array System.FilePath) := do
   return fnames
 
 partial def importModulesCore
-    (imports : Array Import) (isModule := false) (arts : NameMap ModuleArtifacts := {}) :
+    (imports : Array Import) (isModule := false) (arts : NameMap ImportArtifacts := {}) :
     ImportStateM Unit := do
   go imports (importAll := true) (isExported := isModule) (isMeta := false)
   if isModule then
@@ -1977,10 +1965,9 @@ where go (imports : Array Import) (importAll isExported isMeta : Bool) := do
       continue
     let fnames ←
       if let some arts := arts.find? i.module then
-        let fnames := arts.oleanParts
-        if fnames.isEmpty then
-          findOLeanParts i.module
-        else pure fnames
+        -- Opportunistically load all available parts.
+        -- Producer (e.g., Lake) should limit parts to the proper import level.
+        pure arts.oleanParts
       else
         findOLeanParts i.module
     let parts ← readModuleDataParts fnames
@@ -2146,7 +2133,7 @@ as if no `module` annotations were present in the imports.
 -/
 def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
     (plugins : Array System.FilePath := #[]) (leakEnv := false) (loadExts := false)
-    (level := OLeanLevel.private) (arts : NameMap ModuleArtifacts := {})
+    (level := OLeanLevel.private) (arts : NameMap ImportArtifacts := {})
     : IO Environment := profileitIO "import" opts do
   for imp in imports do
     if imp.module matches .anonymous then

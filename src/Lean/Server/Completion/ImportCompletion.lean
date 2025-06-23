@@ -5,7 +5,6 @@ Authors: Marc Huisinga
 -/
 prelude
 import Lean.Data.NameTrie
-import Lean.Util.Paths
 import Lean.Util.LakePath
 import Lean.Server.Completion.CompletionItemData
 import Lean.Parser.Module

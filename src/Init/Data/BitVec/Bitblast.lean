@@ -1680,7 +1680,7 @@ private theorem neg_udiv_eq_intMin_iff_eq_intMin_eq_one_of_msb_eq_true
     subst hx hy
     simp
 
-theorem getElem_sdiv {x y : BitVec w} (h : i < w):
+theorem getElem_sdiv {x y : BitVec w} (h : i < w) :
     (x.sdiv y)[i] =
       (match x.msb, y.msb with
       | false, false => (udiv x y)

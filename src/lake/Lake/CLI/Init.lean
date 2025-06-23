@@ -35,7 +35,7 @@ s!"-- This module serves as the root of the `{libName}` library.
 import {libRoot}.Basic
 "
 
-def mathlibLibRootFileContents (libRoot : Name) :=
+def mathLibRootFileContents (libRoot : Name) :=
 s!"import {libRoot}.Basic
 "
 
@@ -125,7 +125,7 @@ defaultTargets = [{repr libRoot}]
 name = {repr libRoot}
 "
 
-def mathLeanConfigFileContents (pkgName libRoot : String) :=
+def mathLaxLeanConfigFileContents (pkgName libRoot : String) :=
 s!"import Lake
 open Lake DSL
 
@@ -143,7 +143,7 @@ lean_lib {libRoot} where
   -- add any library configuration options here
 "
 
-def mathTomlConfigFileContents (pkgName libRoot : String) :=
+def mathLaxTomlConfigFileContents (pkgName libRoot : String) :=
 s!"name = {repr pkgName}
 version = \"0.1.0\"
 keywords = [\"math\"]
@@ -160,7 +160,7 @@ scope = \"leanprover-community\"
 name = {repr libRoot}
 "
 
-def mathlibLeanConfigFileContents (pkgName libRoot : String) :=
+def mathLeanConfigFileContents (pkgName libRoot : String) :=
 s!"import Lake
 open Lake DSL
 
@@ -182,7 +182,7 @@ lean_lib {libRoot} where
   -- add any library configuration options here
 "
 
-def mathlibTomlConfigFileContents (pkgName libRoot : String) :=
+def mathTomlConfigFileContents (pkgName libRoot : String) :=
 s!"name = {repr pkgName}
 version = \"0.1.0\"
 keywords = [\"math\"]
@@ -205,7 +205,7 @@ name = {repr libRoot}
 
 def readmeFileContents (pkgName : String) := s!"# {pkgName}"
 
-def mathlibReadmeFileContents (pkgName : String) := s!"# {pkgName}
+def mathReadmeFileContents (pkgName : String) := s!"# {pkgName}
 
 ## GitHub configuration
 
@@ -243,7 +243,7 @@ jobs:
       - uses: leanprover/lean-action@v1
 "
 
-def mathlibBuildActionWorkflowContents :=
+def mathBuildActionWorkflowContents :=
 "name: Lean Action CI
 
 on:
@@ -267,7 +267,7 @@ jobs:
       - uses: leanprover-community/docgen-action@v1
 "
 
-def mathlibUpdateActionWorkflowContents :=
+def mathUpdateActionWorkflowContents :=
 "name: Update Dependencies
 
 on:
@@ -338,7 +338,7 @@ jobs:
 
 /-- Lake package template identifier. -/
 inductive InitTemplate
-| std | exe | lib | math | mathlib
+| std | exe | lib | mathLax | math
 deriving Repr, DecidableEq
 
 instance : Inhabited InitTemplate := ⟨.std⟩
@@ -347,8 +347,8 @@ def InitTemplate.ofString? : String → Option InitTemplate
 | "std" => some .std
 | "exe" => some .exe
 | "lib" => some .lib
+| "math-lax" => some .mathLax
 | "math" => some .math
-| "mathlib" => some .mathlib
 | _ => none
 
 def escapeIdent (id : String) : String :=
@@ -372,10 +372,10 @@ def InitTemplate.configFileContents  (tmp : InitTemplate) (lang : ConfigLang) (p
   | .lib, .toml => libTomlConfigFileContents pkgNameStr root.toString
   | .exe, .lean => exeLeanConfigFileContents pkgNameStr pkgNameStr.toLower
   | .exe, .toml => exeTomlConfigFileContents pkgNameStr pkgNameStr.toLower
+  | .mathLax, .lean => mathLaxLeanConfigFileContents pkgNameStr (escapeName! root)
+  | .mathLax, .toml => mathLaxTomlConfigFileContents pkgNameStr root.toString
   | .math, .lean => mathLeanConfigFileContents pkgNameStr (escapeName! root)
   | .math, .toml => mathTomlConfigFileContents pkgNameStr root.toString
-  | .mathlib, .lean => mathlibLeanConfigFileContents pkgNameStr (escapeName! root)
-  | .mathlib, .toml => mathlibTomlConfigFileContents pkgNameStr root.toString
 
 def createLeanActionWorkflow (dir : FilePath) (tmp : InitTemplate) : LogIO PUnit := do
   logVerbose "creating lean-action CI workflow"
@@ -386,19 +386,19 @@ def createLeanActionWorkflow (dir : FilePath) (tmp : InitTemplate) : LogIO PUnit
   if (← workflowFile.pathExists) then
     logVerbose "lean-action CI workflow already exists"
     return
-  if tmp = .mathlib then
-    IO.FS.writeFile workflowFile mathlibBuildActionWorkflowContents
+  if tmp = .math then
+    IO.FS.writeFile workflowFile mathBuildActionWorkflowContents
   else
     IO.FS.writeFile workflowFile leanActionWorkflowContents
   logVerbose s!"created lean-action CI workflow at '{workflowFile}'"
 
-  if tmp = .mathlib then
+  if tmp = .math then
     -- A workflow for automatically creating update PRs/issues.
     let workflowFile := workflowDir / "update.yml"
     if (← workflowFile.pathExists) then
       logVerbose "Mathlib update CI workflow already exists"
       return
-    IO.FS.writeFile workflowFile mathlibUpdateActionWorkflowContents
+    IO.FS.writeFile workflowFile mathUpdateActionWorkflowContents
     logVerbose s!"created Mathlib update CI workflow at '{workflowFile}'"
     -- A workflow for tagging commits that bump the Lean toolchain version.
     let workflowFile := workflowDir / "create-release.yml"
@@ -440,8 +440,8 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
     unless (← basicFile.pathExists) do
       IO.FS.createDirAll libDir
       IO.FS.writeFile basicFile basicFileContents
-    let rootContents := if tmp = .mathlib then
-      mathlibLibRootFileContents root
+    let rootContents := if tmp = .math then
+      mathLibRootFileContents root
     else
       libRootFileContents root.toString root
     IO.FS.writeFile rootFile rootContents
@@ -456,8 +456,8 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
   -- Initialize a README.md file if none exists.
   let readmeFile := dir / "README.md"
   unless (← readmeFile.pathExists) do
-    let contents := if tmp = .mathlib then
-        mathlibReadmeFileContents <| dotlessName name
+    let contents := if tmp = .math then
+        mathReadmeFileContents <| dotlessName name
       else
         readmeFileContents <| dotlessName name
     IO.FS.writeFile readmeFile contents
@@ -483,7 +483,7 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
   [1]: https://github.com/leanprover/lean4/issues/2518
   -/
   let toolchainFile := dir / toolchainFileName
-  if tmp = .math || tmp = .mathlib then
+  if tmp = .mathLax || tmp = .math then
     logInfo "downloading mathlib `lean-toolchain` file"
     try
       download mathToolchainBlobUrl toolchainFile
@@ -503,7 +503,7 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
       IO.FS.writeFile toolchainFile <| env.toolchain ++ "\n"
 
   -- Create a manifest file based on the dependencies.
-  if tmp = .math || tmp = .mathlib then
+  if tmp = .mathLax || tmp = .math then
     updateManifest { lakeEnv := env, wsDir := dir }
 
 def validatePkgName (pkgName : String) : LogIO PUnit := do

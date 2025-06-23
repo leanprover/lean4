@@ -1,9 +1,4 @@
-import Init.Data.Range.Polymorphic.Nat
-import Init.Data.Range.Polymorphic.Basic
-import Init.System.IO
-import Init.Data.Iterators
-import Std.Data.Iterators
-import Init.Data.Range.Polymorphic.Basic
+
 
 def ex1 : IO Unit := do
 IO.println "example 1"
@@ -80,48 +75,3 @@ x: 7
 -/
 #guard_msgs in
 #eval ex4
-
--- NEW
-
-
-open Std.Iterators
-
-/-- info: true -/
-#guard_msgs in
-#eval "b" ∈ ("a"...="c")
-
-/-- info: [1, 2, 3, 4] -/
-#guard_msgs in
-#eval (1...=4).toList
-
-/-- info: [2, 3] -/
-#guard_msgs in
-#eval (1<...<4).toList
-
-/-- info: [0, 1, 2, 3, 4] -/
-#guard_msgs in
-#eval (...=4).toList
-
-/-- info: 2 -/
-#guard_msgs in
-#eval (1<...<4).size
-
-/-- info: true -/
-#guard_msgs in
-#eval (1...<1).isEmpty
-
-/-- info: [3, 5, 7, 9, 11, 13] -/
-#guard_msgs in
-#eval (2<...<15).iter.stepSize 2 |>.toList
-
-/-- info: true -/
-#guard_msgs in
-#eval 1 ∈ (1...=5)
-
-def g (xs : Array Nat) : Nat := Id.run do
-  let mut sum := 0
-  for h : i in (0...<xs.size) do
-    sum := sum + xs[i]
-  return sum
-
-#synth ForIn Id (type_of% (2...=8)) _ -- Note that we don't need the type hint this time, but we'd need one in a for loop

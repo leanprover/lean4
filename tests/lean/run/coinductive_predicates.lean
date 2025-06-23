@@ -176,3 +176,51 @@ info: language_equivalent.fixpoint_induct {Q A : Type} (automaton : DFA Q A) (x 
 -/
 #guard_msgs in
 #check language_equivalent.fixpoint_induct
+
+namespace mixed1
+  mutual
+    def tick : Prop :=
+      ¬tock
+    greatest_fixpoint
+
+    def tock : Prop :=
+      ¬tick
+    least_fixpoint
+  end
+end mixed1
+
+namespace mixed2
+  mutual
+    def tick : Prop :=
+      ¬tock
+    greatest_fixpoint
+
+    def tock : Prop :=
+      ¬tick
+    least_fixpoint
+  end
+end mixed2
+
+namespace mixed3
+  mutual
+    def tick : Prop :=
+      tock → tick
+    greatest_fixpoint
+
+    def tock : Prop :=
+      tick → tock
+    least_fixpoint
+  end
+end mixed3
+
+namespace mixed4
+  mutual
+    def tick : Prop :=
+      tock → tick
+    least_fixpoint
+
+    def tock : Prop :=
+      tick → tock
+    greatest_fixpoint
+  end
+end mixed4

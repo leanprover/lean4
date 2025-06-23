@@ -1,15 +1,24 @@
 import Std.Tactic.BVDecide
-import Init.System.IO
-open BitVec
--- (x % -y + y).getLsbD i
 
-def testabc : IO Unit :=
-  have w := 4
-  for xx in [0 : 2^w] do
-    for yy in [0 : 2^w] do
+theorem remAnd_a_thm (x : _root_.BitVec 32) :
+    x + x.sdiv 8#32 * 4294967288#32 &&& 1#32 = x &&& 1#32 := by
+  bv_decide
 
+theorem test21_thm (x : _root_.BitVec 8) :
+    x.sshiftRight 7 &&& 1#8 = x >>> 7 := by
+  bv_decide
 
-      IO.println ""
-    IO.println ""
+theorem bitvec_AndOrXor_1683_2 : ∀ (a b : BitVec 64), (b ≤ a) || (a != b) = true := by
+  intros; bv_decide
 
-#eval testabc
+theorem short_circuit_mul_right (x x_1 : BitVec 32) (h : ¬x_1 &&& 4096#32 == 0#32) :
+    (x ||| 4096#32) * (x ||| 4096#32) = (x ||| x_1 &&& 4096#32) * (x ||| 4096#32) := by
+  bv_decide +shortCircuit
+
+theorem short_circuit_mul_left (x x_1 : BitVec 32) (h : ¬x_1 &&& 4096#32 == 0#32) :
+    (x ||| 4096#32) * (x ||| 4096#32) = (x ||| 4096#32) * (x ||| x_1 &&& 4096#32) := by
+  bv_decide +shortCircuit
+
+theorem short_circuit_triple_mul (x x_1 x_2 : BitVec 32) (h : ¬x_2 &&& 4096#32 == 0#32) :
+    (x_1 ||| 4096#32) * x * (x_1 ||| 4096#32) = (x_1 ||| x_2 &&& 4096#32) * x * (x_1 ||| 4096#32) := by
+  bv_decide +acNf +shortCircuit

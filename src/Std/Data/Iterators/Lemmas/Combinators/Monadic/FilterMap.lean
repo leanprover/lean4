@@ -131,7 +131,7 @@ theorem IterM.step_filterM {f : β → n (ULift Bool)}
   intro step
   match step with
   | .yield it' out h =>
-    simp only [PostconditionT.lift, 
+    simp only [PostconditionT.lift,
       PostconditionT.operation_map, Functor.map_map, PlausibleIterStep.skip,
       PlausibleIterStep.yield, bind_map_left]
     apply bind_congr
@@ -156,7 +156,7 @@ theorem IterM.step_mapM {γ : Type w} {f : β → n γ}
   match step with
   | .yield it' out h =>
     simp only [bind_pure_comp]
-    simp only [PostconditionT.lift, Functor.map, 
+    simp only [PostconditionT.lift, Functor.map,
       ]
     simp only [PostconditionT.operation_map, Functor.map_map, PlausibleIterStep.skip,
       PlausibleIterStep.yield, bind_map_left, bind_pure_comp]
@@ -483,7 +483,7 @@ theorem IterM.Equiv.filterMapWithPostcondition {α₁ α₂ β γ : Type w}
     (h : IterM.Equiv ita itb) :
     IterM.Equiv (ita.filterMapWithPostcondition f) (itb.filterMapWithPostcondition f) := by
   rw [IterM.Equiv]
-  refine BundledIterM.Equiv.fixpoint_induct n γ ?R ?implies (.ofIterM _) (.ofIterM _) ?hR
+  refine BundledIterM.Equiv.coinduct n γ ?R ?implies (.ofIterM _) (.ofIterM _) ?hR
   case R =>
     intro ita' itb'
     exact ∃ (ita : IterM (α := α₁) m β) (itb : IterM (α := α₂) m β),

@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 example (as bs cs : Array α) (v : α)
         (i : Nat)
         (h₁ : i < as.size)
@@ -26,3 +24,9 @@ example (as bs cs : Array α) (v : α)
         (h₆ : j < as.size)
         : cs[j] = as[j] := by
   grind only [= Array.getElem_set_ne_abstracted, = Array.size_set] -- should work
+
+opaque p : (i : Nat) → i ≠ 10 → Prop
+
+example (h : ∀ i, (¬i > 0) ∨ ∀ h : i ≠ 10, p i h) : p 5 (by decide) := by
+  have := h 5; clear h
+  grind

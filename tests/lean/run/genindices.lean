@@ -25,7 +25,7 @@ pure ()
 set_option trace.Elab true
 
 /--
-info: [Elab] ⊢ ∀ (α : Type u) (xs : List (List α)) (h : Pred (List α) xs), xs ≠ [] → xs = xs
+trace: [Elab] ⊢ ∀ (α : Type u) (xs : List (List α)) (h : Pred (List α) xs), xs ≠ [] → xs = xs
 [Elab] α✝ : Type u
     xs✝ : List (List α✝)
     h✝ : Pred (List α✝) xs✝
@@ -36,7 +36,7 @@ info: [Elab] ⊢ ∀ (α : Type u) (xs : List (List α)) (h : Pred (List α) xs)
     α : Type u
     a✝ : List α
     h✝ : Pred α a✝
-    ⊢ List α✝ = α → HEq xs✝ a✝ → HEq h✝¹ h✝ → xs✝ ≠ [] → xs✝ = xs✝
+    ⊢ List α✝ = α → xs✝ ≍ a✝ → h✝¹ ≍ h✝ → xs✝ ≠ [] → xs✝ = xs✝
 -/
 #guard_msgs in
 #eval tst1

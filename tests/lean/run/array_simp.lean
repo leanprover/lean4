@@ -11,7 +11,6 @@ attribute [-simp] Nat.default_eq_zero -- undo changes to simp set after this tes
 variable {xs : Array α} in
 #check_simp xs.size = 0 ~> xs = #[]
 
-attribute [local simp] Id.run in
 #check_simp
   (Id.run do
     let mut s := 0
@@ -19,7 +18,6 @@ attribute [local simp] Id.run in
       s := s + i
     pure s) ~> 10
 
-attribute [local simp] Id.run in
 #check_simp
   (Id.run do
     let mut s := 0

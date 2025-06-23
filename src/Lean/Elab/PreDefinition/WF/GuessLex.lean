@@ -241,10 +241,10 @@ where
       loop param d
       withLocalDecl n c d fun x => do
         loop param (b.instantiate1 x)
-    | Expr.letE n type val body _ =>
+    | Expr.letE n type val body nondep =>
       loop param type
       loop param val
-      withLetDecl n type val fun x => do
+      withLetDecl n type val (nondep := nondep) fun x => do
         loop param (body.instantiate1 x)
     | Expr.mdata _d b =>
       if let some stx := getRecAppSyntax? e then
@@ -364,19 +364,22 @@ def collectRecCalls (unaryPreDef : PreDefinition) (fixedParamPerms : FixedParamP
       RecCallWithContext.create (← getRef) caller callerParams callee calleeArgs
 
 /-- Is the expression a `<`-like comparison of `Nat` expressions -/
-def isNatCmp (e : Expr) : MetaM (Option (Expr × Expr)) := withReducible do
-  let (α, e₁, e₂) ←
-    match_expr e with
-    | LT.lt α _ e₁ e₂ => pure (α, e₁, e₂)
-    | LE.le α _ e₁ e₂ => pure (α, e₁, e₂)
-    | GT.gt α _ e₁ e₂ => pure (α, e₂, e₁)
-    | GE.ge α _ e₁ e₂ => pure (α, e₂, e₁)
-    | _ => return none
+partial def isNatCmp (e : Expr) : MetaM (Option (Expr × Expr)) := withReducible do
+  match_expr e with
+  | Not e' => Option.map (Prod.swap) <$> isNatCmp e'
+  | _ =>
+    let (α, e₁, e₂) ←
+      match_expr e with
+      | LT.lt α _ e₁ e₂ => pure (α, e₁, e₂)
+      | LE.le α _ e₁ e₂ => pure (α, e₁, e₂)
+      | GT.gt α _ e₁ e₂ => pure (α, e₂, e₁)
+      | GE.ge α _ e₁ e₂ => pure (α, e₂, e₁)
+      | _ => return none
 
-  if (←isDefEq α (mkConst ``Nat)) then
-    return some (e₁, e₂)
-  else
-    return none
+    if (←isDefEq α (mkConst ``Nat)) then
+      return some (e₁, e₂)
+    else
+      return none
 
 def complexMeasures (preDefs : Array PreDefinition) (fixedParamPerms : FixedParamPerms)
     (userVarNamess : Array (Array Name)) (recCalls : Array RecCallWithContext) :

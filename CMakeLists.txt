@@ -5,7 +5,7 @@ option(USE_MIMALLOC "use mimalloc" ON)
 # store all variables passed on the command line into CL_ARGS so we can pass them to the stage builds
 # https://stackoverflow.com/a/48555098/161659
 # MUST be done before call to 'project'
-# Use standard release build (discarding LEAN_CXX_EXTRA_FLAGS etc.) for stage0 by default since it is assumed to be "good", but still pass through CMake platform arguments (compiler, toolchain file, ..).
+# Use standard release build (discarding LEAN_EXTRA_CXX_FLAGS etc.) for stage0 by default since it is assumed to be "good", but still pass through CMake platform arguments (compiler, toolchain file, ..).
 # Use `STAGE0_` prefix to pass variables to stage0 explicitly.
 get_cmake_property(vars CACHE_VARIABLES)
 foreach(var ${vars})
@@ -39,10 +39,14 @@ endif()
 
 # Don't do anything with cadical on wasm
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  # On CI Linux, we source cadical from Nix instead; see flake.nix
   find_program(CADICAL cadical)
   if(NOT CADICAL)
     set(CADICAL_CXX c++)
+    if (CADICAL_USE_CUSTOM_CXX)
+      set(CADICAL_CXX ${CMAKE_CXX_COMPILER})
+      set(CADICAL_CXXFLAGS "${LEAN_EXTRA_CXX_FLAGS}")
+      set(CADICAL_LDFLAGS "-Wl,-rpath=\\$$ORIGIN/../lib")
+    endif()
     find_program(CCACHE ccache)
     if(CCACHE)
       set(CADICAL_CXX "${CCACHE} ${CADICAL_CXX}")
@@ -57,8 +61,11 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
       GIT_REPOSITORY https://github.com/arminbiere/cadical
       GIT_TAG rel-2.1.2
       CONFIGURE_COMMAND ""
-      # https://github.com/arminbiere/cadical/blob/master/BUILD.md#manual-build
-      BUILD_COMMAND $(MAKE) -f ${CMAKE_SOURCE_DIR}/src/cadical.mk CMAKE_EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX} CXX=${CADICAL_CXX} CXXFLAGS=${CADICAL_CXXFLAGS}
+      BUILD_COMMAND $(MAKE) -f ${CMAKE_SOURCE_DIR}/src/cadical.mk
+        CMAKE_EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX}
+        CXX=${CADICAL_CXX}
+        CXXFLAGS=${CADICAL_CXXFLAGS}
+        LDFLAGS=${CADICAL_LDFLAGS}
       BUILD_IN_SOURCE ON
       INSTALL_COMMAND "")
     set(CADICAL ${CMAKE_BINARY_DIR}/cadical/cadical${CMAKE_EXECUTABLE_SUFFIX} CACHE FILEPATH "path to cadical binary" FORCE)

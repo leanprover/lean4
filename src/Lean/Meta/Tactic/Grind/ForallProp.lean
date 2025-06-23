@@ -37,13 +37,13 @@ def propagateForallPropUp (e : Expr) : GoalM Unit := do
 where
   propagateImpliesUp (a b : Expr) : GoalM Unit := do
     unless (← alreadyInternalized b) do return ()
-    if (← isEqFalse a) then
+    if (← isEqFalse a <&&> isProp b) then
       -- a = False → (a → b) = True
       pushEqTrue e <| mkApp3 (mkConst ``Grind.imp_eq_of_eq_false_left) a b (← mkEqFalseProof a)
-    else if (← isEqTrue a) then
+    else if (← isEqTrue a <&&> isProp b) then
       -- a = True → (a → b) = b
       pushEq e b <| mkApp3 (mkConst ``Grind.imp_eq_of_eq_true_left) a b (← mkEqTrueProof a)
-    else if (← isEqTrue b) then
+    else if (← isEqTrue b <&&> isProp a) then
       -- b = True → (a → b) = True
       pushEqTrue e <| mkApp3 (mkConst ``Grind.imp_eq_of_eq_true_right) a b (← mkEqTrueProof b)
     else if (← isEqFalse b <&&> isEqTrue e <&&> isProp a) then
@@ -78,7 +78,7 @@ private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   if let some thm ← mkEMatchTheoremWithKind'? origin proof .rightLeft then
     activateTheorem thm gen
   if (← get).ematch.newThms.size == size then
-    if let some thm ← mkEMatchTheoremWithKind'? origin proof .default then
+    if let some thm ← mkEMatchTheoremWithKind'? origin proof (.default false) then
       activateTheorem thm gen
   if (← get).ematch.newThms.size == size then
     reportIssue! "failed to create E-match local theorem for{indentExpr e}"
@@ -86,7 +86,7 @@ private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
 def propagateForallPropDown (e : Expr) : GoalM Unit := do
   let .forallE n a b bi := e | return ()
   if (← isEqFalse e) then
-    if b.hasLooseBVars then
+    if b.hasLooseBVars || !(← isProp a) then
       let α := a
       let p := b
       -- `e` is of the form `∀ x : α, p x`
@@ -94,7 +94,7 @@ def propagateForallPropDown (e : Expr) : GoalM Unit := do
       let u ← getLevel α
       let prop := mkApp2 (mkConst ``Exists [u]) α (mkLambda n bi α (mkNot p))
       let proof := mkApp3 (mkConst ``Grind.of_forall_eq_false [u]) α (mkLambda n bi α p) (← mkEqFalseProof e)
-      addNewRawFact proof prop (← getGeneration e)
+      addNewRawFact proof prop (← getGeneration e) (.forallProp e)
     else
       let h ← mkEqFalseProof e
       pushEqTrue a <| mkApp3 (mkConst ``Grind.eq_true_of_imp_eq_false) a b h
@@ -104,7 +104,7 @@ def propagateForallPropDown (e : Expr) : GoalM Unit := do
       trace_goal[grind.eqResolution] "{e}, {e'}"
       let h := mkOfEqTrueCore e (← mkEqTrueProof e)
       let h' := mkApp h' h
-      addNewRawFact h' e' (← getGeneration e)
+      addNewRawFact h' e' (← getGeneration e) (.forallProp e)
     else
       if b.hasLooseBVars then
         addLocalEMatchTheorems e
@@ -121,6 +121,6 @@ builtin_grind_propagator propagateExistsDown ↓Exists := fun e => do
     let notP := mkApp (mkConst ``Not) (mkApp p (.bvar 0) |>.headBeta)
     let prop := mkForall `x .default α notP
     let proof := mkApp3 (mkConst ``forall_not_of_not_exists u) α p (mkOfEqFalseCore e (← mkEqFalseProof e))
-    addNewRawFact proof prop (← getGeneration e)
+    addNewRawFact proof prop (← getGeneration e) (.existsProp e)
 
 end Lean.Meta.Grind

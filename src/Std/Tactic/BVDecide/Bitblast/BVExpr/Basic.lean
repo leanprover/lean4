@@ -5,7 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Init.Data.Hashable
-import Init.Data.BitVec
+import Init.Data.BitVec.Lemmas
 import Init.Data.RArray
 import Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
 
@@ -135,6 +135,14 @@ inductive BVUnOp where
   constant `Nat` value.
   -/
   | arithShiftRightConst (n : Nat)
+  /--
+  Reverse the bits in a bitvector.
+  -/
+  | reverse
+  /--
+  Count leading zeros.
+  -/
+  | clz
   deriving Hashable, DecidableEq
 
 namespace BVUnOp
@@ -144,6 +152,8 @@ def toString : BVUnOp → String
   | rotateLeft n => s!"rotL {n}"
   | rotateRight n => s!"rotR {n}"
   | arithShiftRightConst n => s!">>a {n}"
+  | reverse => "rev"
+  | clz => "clz"
 
 instance : ToString BVUnOp := ⟨toString⟩
 
@@ -155,6 +165,8 @@ def eval : BVUnOp → (BitVec w → BitVec w)
   | rotateLeft n => (BitVec.rotateLeft · n)
   | rotateRight n => (BitVec.rotateRight · n)
   | arithShiftRightConst n => (BitVec.sshiftRight · n)
+  | reverse =>  BitVec.reverse
+  | clz => BitVec.clz
 
 @[simp] theorem eval_not : eval .not = ((~~~ ·) : BitVec w → BitVec w) := by rfl
 
@@ -169,6 +181,10 @@ theorem eval_rotateRight : eval (rotateRight n) = ((BitVec.rotateRight · n) : B
 @[simp]
 theorem eval_arithShiftRightConst : eval (arithShiftRightConst n) = (BitVec.sshiftRight · n : BitVec w → BitVec w) := by
   rfl
+
+@[simp] theorem eval_reverse : eval .reverse = (BitVec.reverse : BitVec w → BitVec w) := by rfl
+
+@[simp] theorem eval_clz : eval .clz = (BitVec.clz : BitVec w → BitVec w) := by rfl
 
 end BVUnOp
 
@@ -244,7 +260,7 @@ namespace BVExpr
 instance : Hashable (BVExpr w) where
   hash expr := expr.hashCode _
 
-def decEq : DecidableEq (BVExpr w) := fun l r =>
+instance decEq : DecidableEq (BVExpr w) := fun l r =>
   withPtrEqDecEq l r fun _ =>
     if h : hash l ≠ hash r then
       .isFalse (ne_of_apply_ne hash h)
@@ -356,9 +372,6 @@ def decEq : DecidableEq (BVExpr w) := fun l r =>
             .isFalse (by simp [h1])
         | .const .. | .var .. | .extract .. | .bin .. | .un .. | .append .. | .replicate ..
         | .shiftRight .. | .shiftLeft .. => .isFalse (by simp)
-
-
-instance : DecidableEq (BVExpr w) := decEq
 
 def toString : BVExpr w → String
   | .var idx => s!"var{idx}"

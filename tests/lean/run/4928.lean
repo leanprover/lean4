@@ -46,8 +46,8 @@ end
 /--
 error: tactic 'fail' failed
 x : List Nat
-⊢ (invImage (fun x => PSum.casesOn x (fun x => x.length) fun x => x.length) instWellFoundedRelationOfSizeOf).1
-    (PSum.inr x.tail) (PSum.inl x)
+⊢ (invImage (fun x => PSum.casesOn x (fun x => x.length) fun x => x.length) sizeOfWFRel).1 (PSum.inr x.tail)
+    (PSum.inl x)
 -/
 #guard_msgs in
 set_option debug.rawDecreasingByGoal true in

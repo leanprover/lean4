@@ -53,7 +53,7 @@ do let d : DiscrTree Nat := {};
 set_option trace.Meta.debug true in
 set_option pp.mvars false in
 /--
-info: [Meta.debug] (Add.add => (node
+trace: [Meta.debug] (Add.add => (node
       (Nat => (node
         (* => (node (* => (node (10 => (node #[1])) (20 => (node #[4])))) (0 => (node (10 => (node #[2]))))))))))
     (* => (node #[5]))

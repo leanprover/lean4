@@ -12,6 +12,7 @@ import Init.Classical
 import Init.ByCases
 import Init.Data.Int.Linear
 import Init.Data.Int.Pow
+import Init.Grind.Ring.Field
 
 namespace Lean.Grind
 /-!
@@ -30,6 +31,11 @@ theorem not_eq_prop (p q : Prop) : (¬(p = q)) = (p = ¬q) := by
 -- Implication as a clause
 theorem imp_eq (p q : Prop) : (p → q) = (¬ p ∨ q) := by
   by_cases p <;> by_cases q <;> simp [*]
+
+-- Unless `+splitImp` is used, `grind` will not be able to do much with this kind of implication.
+-- Thus, this normalization step is enabled by default.
+theorem forall_imp_eq_or {α} (p : α → Prop) (q : Prop) : ((∀ a, p a) → q) = ((∃ a, ¬ p a) ∨ q) := by
+  rw [imp_eq]; simp
 
 theorem true_imp_eq (p : Prop) : (True → p) = p := by simp
 theorem false_imp_eq (p : Prop) : (False → p) = True := by simp
@@ -99,6 +105,26 @@ theorem flip_bool_eq (a b : Bool) : (a = b) = (b = a) := by
 theorem bool_eq_to_prop (a b : Bool) : (a = b) = ((a = true) = (b = true)) := by
   simp
 
+theorem forall_or_forall {α : Sort u} {β : α → Sort v} (p : α → Prop) (q : (a : α) → β a → Prop)
+    : (∀ a : α, p a ∨ ∀ b : β a, q a b) =
+      (∀ (a : α) (b : β a), p a ∨ q a b) := by
+  apply propext; constructor
+  · intro h a b; cases h a <;> simp [*]
+  · intro h a
+    apply Classical.byContradiction
+    intro h'; simp at h'; have ⟨h₁, b, h₂⟩ := h'
+    replace h := h a b; simp [h₁, h₂] at h
+
+theorem forall_forall_or {α : Sort u} {β : α → Sort v} (p : α → Prop) (q : (a : α) → β a → Prop)
+    : (∀ a : α, (∀ b : β a, q a b) ∨ p a) =
+      (∀ (a : α) (b : β a), q a b ∨ p a) := by
+  apply propext; constructor
+  · intro h a b; cases h a <;> simp [*]
+  · intro h a
+    apply Classical.byContradiction
+    intro h'; simp at h'; have ⟨⟨b, h₁⟩, h₂⟩ := h'
+    replace h := h a b; simp [h₁, h₂] at h
+
 init_grind_norm
   /- Pre theorems -/
   not_and not_or not_ite not_forall not_exists
@@ -108,6 +134,7 @@ init_grind_norm
   /- Post theorems -/
   Classical.not_not
   ne_eq iff_eq eq_self heq_eq_eq
+  forall_or_forall forall_forall_or
   -- Prop equality
   eq_true_eq eq_false_eq not_eq_prop
   -- True
@@ -125,6 +152,7 @@ init_grind_norm
   dite_eq_ite
   -- Forall
   forall_and forall_false forall_true
+  forall_imp_eq_or
   -- Exists
   exists_const exists_or exists_prop exists_and_left exists_and_right
   -- Bool cond
@@ -150,15 +178,16 @@ init_grind_norm
   Nat.add_eq Nat.sub_eq Nat.mul_eq Nat.zero_eq Nat.le_eq
   Nat.div_zero Nat.mod_zero Nat.div_one Nat.mod_one
   Nat.sub_sub Nat.pow_zero Nat.pow_one Nat.sub_self
+  Nat.one_pow
   -- Int
   Int.lt_eq
   Int.emod_neg Int.ediv_neg
   Int.ediv_zero Int.emod_zero
   Int.ediv_one Int.emod_one
-
+  Int.negSucc_eq
   natCast_eq natCast_div natCast_mod
   natCast_add natCast_mul
-
+  Int.one_pow
   Int.pow_zero Int.pow_one
   -- GT GE
   ge_eq gt_eq
@@ -170,5 +199,7 @@ init_grind_norm
   -- Function composition
   Function.const_apply Function.comp_apply Function.const_comp
   Function.comp_const Function.true_comp Function.false_comp
+  -- Field
+  Field.div_eq_mul_inv Field.inv_zero Field.inv_inv Field.inv_one Field.inv_neg
 
 end Lean.Grind

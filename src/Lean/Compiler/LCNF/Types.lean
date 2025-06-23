@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Compiler.BorrowedAnnotation
 import Lean.Meta.InferType
 
 namespace Lean.Compiler
@@ -150,7 +151,10 @@ where
     | .forallE n d b bi =>
       let d := d.instantiateRev xs
       withLocalDecl n bi d fun x => do
-        let d := (← toLCNFType d).abstract xs
+        let isBorrowed := isMarkedBorrowed d
+        let mut d := (← toLCNFType d).abstract xs
+        if isBorrowed then
+          d := markBorrowed d
         return .forallE n d (← visitForall b (xs.push x)) bi
     | _ =>
       let e ← toLCNFType (e.instantiateRev xs)

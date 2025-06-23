@@ -18,6 +18,11 @@ import Lean.Elab.RecAppSyntax
 namespace Lean.Elab.Term
 open Meta
 
+/--
+Instructs the elaborator to elaborate applications of the given declaration without an expected
+type. This may prevent the elaborator from incorrectly inferring implicit arguments.
+-/
+@[builtin_doc]
 builtin_initialize elabWithoutExpectedTypeAttr : TagAttribute ←
   registerTagAttribute `elab_without_expected_type "mark that applications of the given declaration should be elaborated without the expected type"
 
@@ -800,7 +805,7 @@ def getElabElimExprInfo (elimExpr : Expr) : MetaM ElabElimInfo := do
         throwError "unexpected number of arguments at motive type{indentExpr motiveType}"
       unless motiveResultType.isSort do
         throwError "motive result type must be a sort{indentExpr motiveType}"
-    let some motivePos ← pure (xs.idxOf? motive) |
+    let some motivePos := xs.idxOf? motive |
       throwError "unexpected eliminator type{indentExpr elimType}"
     /-
     Compute transitive closure of fvars appearing in arguments to the motive.
@@ -830,11 +835,67 @@ def getElabElimExprInfo (elimExpr : Expr) : MetaM ElabElimInfo := do
           majorsPos := majorsPos.push i
     trace[Elab.app.elab_as_elim] "motivePos: {motivePos}"
     trace[Elab.app.elab_as_elim] "majorsPos: {majorsPos}"
-    return { elimExpr, elimType,  motivePos, majorsPos }
+    return { elimExpr, elimType, motivePos, majorsPos }
 
 def getElabElimInfo (elimName : Name) : MetaM ElabElimInfo := do
   getElabElimExprInfo (← mkConstWithFreshMVarLevels elimName)
 
+
+/--
+Instructs the elaborator that applications of this function should be elaborated like an eliminator.
+
+An eliminator is a function that returns an application of a "motive" which is a parameter of the
+form `_ → ... → Sort _`, i.e. a function that takes in a certain amount of arguments (referred to
+as major premises) and returns a type in some universe. The `rec` and `casesOn` functions of
+inductive types are automatically treated as eliminators, for other functions this attribute needs
+to be used.
+
+Eliminator elaboration can be compared to the `induction` tactic: The expected type is used as the
+return value of the motive, with occurrences of the major premises replaced with the arguments.
+When more arguments are specified than necessary, the remaining arguments are reverted into the
+expected type.
+
+Examples:
+```lean example
+@[elab_as_elim]
+def evenOddRecOn {motive : Nat → Sort u}
+    (even : ∀ n, motive (n * 2)) (odd : ∀ n, motive (n * 2 + 1))
+    (n : Nat) : motive n := ...
+
+-- simple usage
+example (a : Nat) : (a * a) % 2 = a % 2 :=
+  evenOddRec _ _ a
+  /-
+  1. basic motive is `fun n => (a + 2) % 2 = a % 2`
+  2. major premise `a` substituted: `fun n => (n + 2) % 2 = n % 2`
+  3. now elaborate the other parameters as usual:
+    "even" (first hole): expected type `∀ n, ((n * 2) * (n * 2)) % 2 = (n * 2) % 2`,
+    "odd" (second hole): expected type `∀ n, ((n * 2 + 1) * (n * 2 + 1)) % 2 = (n * 2 + 1) % 2`
+  -/
+
+-- complex substitution
+example (a : Nat) (f : Nat → Nat) : (f a + 1) % 2 ≠ f a :=
+  evenOddRec _ _ (f a)
+  /-
+  Similar to before, except `f a` is substituted: `motive := fun n => (n + 1) % 2 ≠ n`.
+  Now the first hole has expected type `∀ n, (n * 2 + 1) % 2 ≠ n * 2`.
+  Now the second hole has expected type `∀ n, (n * 2 + 1 + 1) % 2 ≠ n * 2 + 1`.
+  -/
+
+-- more parameters
+example (a : Nat) (h : a % 2 = 1) : (a + 1) % 2 = 0 :=
+  evenOddRec _ _ a h
+  /-
+  Before substitution, `a % 2 = 1` is reverted: `motive := fun n => a % 2 = 0 → (a + 1) % 2 = 0`.
+  Substitution: `motive := fun n => n % 2 = 1 → (n + 1) % 2 = 0`
+  Now the first hole has expected type `∀ n, n * 2 % 2 = 1 → (n * 2) % 2 = 0`.
+  Now the second hole has expected type `∀ n, (n * 2 + 1) % 2 = 1 → (n * 2 + 1) % 2 = 0`.
+  -/
+```
+
+See also `@[induction_eliminator]` and `@[cases_eliminator]` for registering default eliminators.
+-/
+@[builtin_doc]
 builtin_initialize elabAsElim : TagAttribute ←
   registerTagAttribute `elab_as_elim
     "instructs elaborator that the arguments of the function application should be elaborated as were an eliminator"
@@ -1146,8 +1207,11 @@ inductive LValResolution where
   The `fullName` is the name of the recursive function, and `baseName` is the base name of the type to search for in the parameter list. -/
   | localRec (baseName : Name) (fullName : Name) (fvar : Expr)
 
-private def throwLValError (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
-  throwError "{msg}{indentExpr e}\nhas type{indentExpr eType}"
+private def throwLValErrorAt (ref : Syntax) (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
+  throwErrorAt ref "{msg}{indentExpr e}\nhas type{indentExpr eType}"
+
+private def throwLValError (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α := do
+  throwLValErrorAt (← getRef) e eType msg
 
 /--
 `findMethod? S fName` tries the for each namespace `S'` in the resolution order for `S` to resolve the name `S'.fname`.
@@ -1188,6 +1252,12 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       if (← getEnv).contains fullName then
         return LValResolution.const `Function `Function fullName
     | _ => pure ()
+  else if eType.getAppFn.isMVar then
+    let field :=
+      match lval with
+      |  .fieldName _ fieldName _ _ => toString fieldName
+      | .fieldIdx _ i => toString i
+    throwError "Invalid field notation: type of{indentExpr e}\nis not known; cannot resolve field '{field}'"
   match eType.getAppFn.constName?, lval with
   | some structName, LVal.fieldIdx _ idx =>
     if idx == 0 then
@@ -1206,7 +1276,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
           return LValResolution.projIdx structName (idx - 1)
       else
         throwLValError e eType m!"invalid projection, structure has only {numFields} field(s)"
-  | some structName, LVal.fieldName _ fieldName _ _ =>
+  | some structName, LVal.fieldName _ fieldName _ fullRef =>
     let env ← getEnv
     if isStructure env structName then
       if let some baseStructName := findField? env structName (Name.mkSimple fieldName) then
@@ -1223,10 +1293,10 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     if let some (baseStructName, fullName) ← findMethod? structName (.mkSimple fieldName) then
       return LValResolution.const baseStructName structName fullName
     let msg := mkUnknownIdentifierMessage m!"invalid field '{fieldName}', the environment does not contain '{Name.mkStr structName fieldName}'"
-    throwLValError e eType msg
-  | none, LVal.fieldName _ _ (some suffix) _ =>
+    throwLValErrorAt fullRef e eType msg
+  | none, LVal.fieldName _ _ (some suffix) fullRef =>
     if e.isConst then
-      throwUnknownConstant (e.constName! ++ suffix)
+      throwUnknownConstantAt fullRef (e.constName! ++ suffix)
     else
       throwInvalidFieldNotation e eType
   | _, _ => throwInvalidFieldNotation e eType
@@ -1503,15 +1573,19 @@ where
     let resultTypeFn := resultType.cleanupAnnotations.getAppFn
     try
       tryPostponeIfMVar resultTypeFn
-      let .const declName .. := resultTypeFn.cleanupAnnotations
-        | throwError "invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant{indentExpr expectedType}"
-      let idNew := declName ++ id.getId.eraseMacroScopes
-      if (← getEnv).contains idNew then
-        mkConst idNew
-      else if let some (fvar, []) ← resolveLocalName idNew then
-        return fvar
-      else
-        throwUnknownIdentifier m!"invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
+      match resultTypeFn.cleanupAnnotations with
+      | .const declName .. =>
+        let idNew := declName ++ id.getId.eraseMacroScopes
+        if (← getEnv).contains idNew then
+          mkConst idNew
+        else if let some (fvar, []) ← resolveLocalName idNew then
+          return fvar
+        else
+          throwUnknownIdentifierAt id m!"invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
+      | .sort .. =>
+        throwError "Invalid dotted identifier notation: not supported on type{indentExpr resultTypeFn}"
+      | _ =>
+        throwError "invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant{indentExpr expectedType}"
     catch
       | ex@(.error ..) =>
         match (← unfoldDefinition? resultType) with

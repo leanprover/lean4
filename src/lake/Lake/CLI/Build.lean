@@ -170,12 +170,14 @@ def resolveTargetInWorkspace
     throw <| CliError.unknownTarget target
 
 private def resolveTargetLikeSpec
-  (ws : Workspace) (spec : String) (facet : Name) (isMaybePath := false)
+  (ws : Workspace) (spec : String) (facet : Name) (isMaybePath explicit := false)
 : Except CliError (Array BuildSpec) := do
   match spec.splitOn "/" with
   | [spec] =>
     if spec.isEmpty then
       resolvePackageTarget ws ws.root facet
+    else if explicit then
+      resolvePackageTarget ws (← parsePackageSpec ws spec) facet
     else
       resolveTargetInWorkspace ws (stringToLegalOrSimpleName spec) facet
   | [pkgSpec, targetSpec] =>
@@ -201,7 +203,7 @@ def resolveTargetBaseSpec
 : EIO CliError (Array BuildSpec) := do
   if spec.startsWith "@" then
     let spec := spec.drop 1
-    resolveTargetLikeSpec ws spec facet
+    resolveTargetLikeSpec ws spec facet (explicit := true)
   else if spec.startsWith "+" then
     let mod := spec.drop 1 |>.toName
     if let some mod := ws.findTargetModule? mod then

@@ -72,7 +72,7 @@ Examples:
  * `0 <<< 3 = 0`
  * `0xf1 <<< 4 = 0xf10`
 -/
-@[extern "lean_nat_shiftl"]
+@[extern "lean_nat_shiftl", expose]
 def shiftLeft : @& Nat → @& Nat → Nat
   | n, 0 => n
   | n, succ m => shiftLeft (2*n) m
@@ -88,7 +88,7 @@ Examples:
  * `0 >>> 3 = 0`
  * `0xf13a >>> 8 = 0xf1`
 -/
-@[extern "lean_nat_shiftr"]
+@[extern "lean_nat_shiftr", expose]
 def shiftRight : @& Nat → @& Nat → Nat
   | n, 0 => n
   | n, succ m => shiftRight n m / 2
@@ -103,7 +103,7 @@ theorem shiftLeft_eq (a b : Nat) : a <<< b = a * 2 ^ b :=
   match b with
   | 0 => (Nat.mul_one _).symm
   | b+1 => (shiftLeft_eq _ b).trans <| by
-    simp [Nat.pow_succ, Nat.mul_assoc, Nat.mul_left_comm, Nat.mul_comm]
+    simp [Nat.pow_succ, Nat.mul_assoc, Nat.mul_comm]
 
 @[simp] theorem shiftRight_zero : n >>> 0 = n := rfl
 

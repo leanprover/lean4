@@ -194,21 +194,4 @@ theorem foldl_max [Max α] [Std.IdempotentOp (max : α → α → α)] [Std.Asso
     {l : List α} {a : α} : l.foldl (init := a) max = max a (l.max?.getD a) := by
   cases l <;> simp [max?, foldl_assoc, Std.IdempotentOp.idempotent]
 
-@[deprecated min?_nil (since := "2024-09-29")] abbrev minimum?_nil := @min?_nil
-@[deprecated min?_cons (since := "2024-09-29")] abbrev minimum?_cons := @min?_cons
-@[deprecated min?_eq_none_iff (since := "2024-09-29")] abbrev mininmum?_eq_none_iff := @min?_eq_none_iff
-@[deprecated min?_mem (since := "2024-09-29")] abbrev minimum?_mem := @min?_mem
-@[deprecated le_min?_iff (since := "2024-09-29")] abbrev le_minimum?_iff := @le_min?_iff
-@[deprecated min?_eq_some_iff (since := "2024-09-29")] abbrev minimum?_eq_some_iff := @min?_eq_some_iff
-@[deprecated min?_replicate (since := "2024-09-29")] abbrev minimum?_replicate := @min?_replicate
-@[deprecated min?_replicate_of_pos (since := "2024-09-29")] abbrev minimum?_replicate_of_pos := @min?_replicate_of_pos
-@[deprecated max?_nil (since := "2024-09-29")] abbrev maximum?_nil := @max?_nil
-@[deprecated max?_cons (since := "2024-09-29")] abbrev maximum?_cons := @max?_cons
-@[deprecated max?_eq_none_iff (since := "2024-09-29")] abbrev maximum?_eq_none_iff := @max?_eq_none_iff
-@[deprecated max?_mem (since := "2024-09-29")] abbrev maximum?_mem := @max?_mem
-@[deprecated max?_le_iff (since := "2024-09-29")] abbrev maximum?_le_iff := @max?_le_iff
-@[deprecated max?_eq_some_iff (since := "2024-09-29")] abbrev maximum?_eq_some_iff := @max?_eq_some_iff
-@[deprecated max?_replicate (since := "2024-09-29")] abbrev maximum?_replicate := @max?_replicate
-@[deprecated max?_replicate_of_pos (since := "2024-09-29")] abbrev maximum?_replicate_of_pos := @max?_replicate_of_pos
-
 end List

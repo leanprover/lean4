@@ -49,6 +49,36 @@ def CCPOProdProjs (n : Nat) (inst : Expr) : Array Expr := Id.run do
     insts := insts.push inst₂
   return insts
 
+/--
+Unfolds an appropriate `PartialOrder` instance on predicates to quantifications and implications.
+I.e. `ImplicationOrder.instPartialOrder.rel P Q` becomes
+`∀ x y, P x y → Q x y`.
+
+In the premise of the Park induction principle (`lfp_le_of_le_monotone`) we use a monotone map defining the predicate in the eta expanded form. In such a case, besides desugaring the predicate, we need to perform a weak head reduction.
+The optional parameter `reduceConclusion` (false by default) indicates whether we need to perform this reduction.
+-/
+def unfoldPredRel (predType : Expr) (body : Expr) (fixpointType : PartialFixpointType) (reduceConclusion : Bool := false) : MetaM Expr := do
+  match fixpointType with
+  | .partialFixpoint => throwError "Trying to apply lattice induction to a non-lattice fixpoint. Please report this issue."
+  | .leastFixpoint | .greatestFixpoint =>
+    unless body.isAppOfArity ``PartialOrder.rel 4 do
+      throwError "{body} is not an application of partial order"
+    let lhsTypes ← forallTelescope predType fun ts _ =>  ts.mapM inferType
+    let names ← lhsTypes.mapM fun _ => mkFreshUserName `x
+    let bodyArgs := body.getAppArgs
+    withLocalDeclsDND (names.zip lhsTypes) fun exprs => do
+      let mut applied  := match fixpointType with
+        | .leastFixpoint => (bodyArgs[2]!, bodyArgs[3]!)
+        | .greatestFixpoint => (bodyArgs[3]!, bodyArgs[2]!)
+        | .partialFixpoint => panic! "Cannot apply lattice induction to a non-lattice fixpoint"
+      for e in exprs do
+        applied := (mkApp applied.1 e, mkApp applied.2 e)
+      if reduceConclusion then
+        match fixpointType with
+        | .leastFixpoint => applied := ((←whnf applied.1), applied.2)
+        | .greatestFixpoint => applied := (applied.1, (←whnf applied.2))
+        | .partialFixpoint => throwError "Cannot apply lattice induction to a non-lattice fixpoint"
+      mkForallFVars exprs (←mkArrow applied.1 applied.2)
 
 /-- `maskArray mask xs` keeps those `x` where the corresponding entry in `mask` is `true` -/
 -- Worth having in the standard library?
@@ -66,12 +96,11 @@ private def numberNames (n : Nat) (base : String) : Array Name :=
 def deriveInduction (name : Name) : MetaM Unit :=
   let inductName := name ++ `fixpoint_induct
   realizeConst name inductName do
-  mapError (f := (m!"Cannot derive fixpoint induction principle (please report this issue)\n{indentD ·}")) do
+  trace[Elab.definition.partialFixpoint] "Called deriveInduction for {inductName}"
+  prependError m!"Cannot derive fixpoint induction principle (please report this issue)" do
     let some eqnInfo := eqnInfoExt.find? (← getEnv) name |
       throwError "{name} is not defined by partial_fixpoint"
-
     let infos ← eqnInfo.declNames.mapM getConstInfoDefn
-    -- First open up the fixed parameters everywhere
     let e' ← eqnInfo.fixedParamPerms.perms[0]!.forallTelescope infos[0]!.type fun xs => do
       -- Now look at the body of an arbitrary of the functions (they are essentially the same
       -- up to the final projections)
@@ -80,76 +109,131 @@ def deriveInduction (name : Name) : MetaM Unit :=
       -- The body should now be of the form of the form (fix … ).2.2.1
       -- We strip the projections (if present)
       let body' := PProdN.stripProjs body.eta -- TODO: Eta more carefully?
-      let some fixApp ← whnfUntil body' ``fix
-        | throwError "Unexpected function body {body}, could not whnfUntil fix"
-      let_expr fix α instCCPOα F hmono := fixApp
-        | throwError "Unexpected function body {body'}, not an application of fix"
+      if eqnInfo.fixpointType.all isLatticeTheoretic then
+        unless eqnInfo.declNames.size == 1 do
+          throwError "Mutual lattice (co)induction is not supported yet"
 
-      let instCCPOs := CCPOProdProjs infos.size instCCPOα
-      let types ← infos.mapIdxM (eqnInfo.fixedParamPerms.perms[·]!.instantiateForall ·.type xs)
-      let packedType ← PProdN.pack 0 types
-      let motiveTypes ← types.mapM (mkArrow · (.sort 0))
-      let motiveNames := numberNames motiveTypes.size "motive"
-      withLocalDeclsDND (motiveNames.zip motiveTypes) fun motives => do
-        let packedMotive ←
-          withLocalDeclD (← mkFreshUserName `x) packedType fun x => do
-            mkLambdaFVars #[x] <| ← PProdN.pack 0 <|
-              motives.mapIdx fun idx motive =>
-                mkApp motive (PProdN.proj motives.size idx packedType x)
+        -- We strip it until we reach an application of `lfp_montotone`
+        let some fixApp ← whnfUntil body' ``lfp_monotone
+          | throwError "Unexpected function body {body}, could not whnfUntil lfp_monotone"
+        let_expr lfp_monotone α instcomplete_lattice F hmono := fixApp
+          | throwError "Unexpected function body {body}, not an application of lfp_monotone"
+        let e' ← mkAppOptM ``lfp_le_of_le_monotone #[α, instcomplete_lattice, F, hmono]
 
-        let admTypes ← motives.mapIdxM fun i motive => do
-          mkAppOptM ``admissible #[types[i]!, instCCPOs[i]!, some motive]
-        let admNames := numberNames admTypes.size "adm"
-        withLocalDeclsDND (admNames.zip admTypes) fun adms => do
-          let adms' ← adms.mapIdxM fun i adm => mkAdmProj instCCPOα i adm
-          let packedAdm ← PProdN.genMk (mkAdmAnd α instCCPOα) adms'
-          let hNames := numberNames infos.size "h"
-          let hTypes_hmask : Array (Expr × Array Bool) ← infos.mapIdxM fun i _info => do
-            let approxNames := infos.map fun info =>
-              match info.name with
-                | .str _ n => .mkSimple n
-                | _ => `f
-            withLocalDeclsDND (approxNames.zip types) fun approxs => do
-              let ihTypes := approxs.mapIdx fun j approx => mkApp motives[j]! approx
-              withLocalDeclsDND (ihTypes.map (⟨`ih, ·⟩)) fun ihs => do
-                let f ← PProdN.mk 0 approxs
-                let Ff := F.beta #[f]
-                let Ffi := PProdN.proj motives.size i packedType Ff
-                let t := mkApp motives[i]! Ffi
-                let t ← PProdN.reduceProjs t
-                let mask := approxs.map fun approx => t.containsFVar approx.fvarId!
-                let t ← mkForallFVars (maskArray mask approxs ++ maskArray mask ihs) t
-                pure (t, mask)
-          let (hTypes, masks) := hTypes_hmask.unzip
-          withLocalDeclsDND (hNames.zip hTypes) fun hs => do
-            let packedH ←
-              withLocalDeclD `approx packedType fun approx =>
-                let packedIHType := packedMotive.beta #[approx]
-                withLocalDeclD `ih packedIHType fun ih => do
-                  let approxs := PProdN.projs motives.size packedType approx
-                  let ihs := PProdN.projs motives.size packedIHType ih
-                  let e ← PProdN.mk 0 <| hs.mapIdx fun i h =>
-                    let mask := masks[i]!
-                    mkAppN h (maskArray mask approxs ++ maskArray mask ihs)
-                  mkLambdaFVars #[approx, ih] e
-            let e' ← mkAppOptM ``fix_induct #[α, instCCPOα, F, hmono, packedMotive, packedAdm, packedH]
-            -- Should be the type of e', but with the function definitions folded
-            let packedConclusion ← PProdN.pack 0 <| ←
-              motives.mapIdxM fun i motive => do
-                let f ← mkConstWithLevelParams infos[i]!.name
-                let fEtaExpanded ← lambdaTelescope infos[i]!.value fun ys _ =>
-                  mkLambdaFVars ys (mkAppN f ys)
-                let fInst ← eqnInfo.fixedParamPerms.perms[i]!.instantiateLambda fEtaExpanded xs
-                let fInst := fInst.eta
-                return mkApp motive fInst
-            let e' ← mkExpectedTypeHint e' packedConclusion
-            let e' ← mkLambdaFVars hs e'
-            let e' ← mkLambdaFVars adms e'
-            let e' ← mkLambdaFVars motives e'
-            let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
-            let e' ← instantiateMVars e'
-            trace[Elab.definition.partialFixpoint.induction] "complete body of fixpoint induction principle:{indentExpr e'}"
-            pure e'
+        -- We get the type of the induction principle
+        let eTyp ← inferType e'
+        let f ← mkConstWithLevelParams infos[0]!.name
+        let fEtaExpanded ← lambdaTelescope infos[0]!.value fun ys _ =>
+            mkLambdaFVars ys (mkAppN f ys)
+        let fInst ← eqnInfo.fixedParamPerms.perms[0]!.instantiateLambda fEtaExpanded xs
+        let fInst := fInst.eta
+
+        -- Then, we change the conclusion so it doesn't mention the `lfp_monotone`, but rather the actual predicate.
+        let newTyp ← forallTelescope eTyp fun args econc =>
+          if econc.isAppOfArity ``PartialOrder.rel 4 then
+            let oldArgs := econc.getAppArgs
+            let newArgs := oldArgs.set! 2 fInst
+            let newBody := mkAppN econc.getAppFn newArgs
+            mkForallFVars args newBody
+          else
+            throwError "Unexpected conclusion of the fixpoint induction principle: {econc}"
+
+        -- Desugar partial order on predicates in premises and conclusion
+        let newTyp ← forallTelescope newTyp fun args conclusion => do
+          let predicate := args[0]!
+          let predicateType ← inferType predicate
+          let premise := args[1]!
+          let premiseType ← inferType premise
+          -- Besides unfolding the predicate, we need to perform a weak head reduction in the premise,
+          -- where the monotone map defining the fixpoint is in the eta expanded form.
+          -- We do this by setting the optional parameter `reduceConclusion` to true.
+          let premiseType ← unfoldPredRel predicateType premiseType eqnInfo.fixpointType[0]! (reduceConclusion := true)
+          let newConclusion ← unfoldPredRel predicateType conclusion eqnInfo.fixpointType[0]!
+          let abstracedNewConclusion ← mkForallFVars args newConclusion
+          withLocalDecl `y BinderInfo.default premiseType fun newPremise => do
+            let typeHint ← mkExpectedTypeHint newPremise premiseType
+            let argsForInst := args.set! 1 typeHint
+            let argsWithNewPremise := args.set! 1 newPremise
+            let instantiated ← instantiateForall abstracedNewConclusion argsForInst
+            mkForallFVars argsWithNewPremise instantiated
+
+        let e' ← mkExpectedTypeHint e' newTyp
+        let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
+
+        trace[Elab.definition.partialFixpoint.induction] "Complete body of (lattice-theoretic) fixpoint induction principle:{indentExpr e'}"
+
+        pure e'
+      else
+        let some fixApp ← whnfUntil body' ``fix
+          | throwError "Unexpected function body {body}, could not whnfUntil fix"
+        let_expr fix α instCCPOα F hmono := fixApp
+          | throwError "Unexpected function body {body'}, not an application of fix"
+
+        let instCCPOs := CCPOProdProjs infos.size instCCPOα
+        let types ← infos.mapIdxM (eqnInfo.fixedParamPerms.perms[·]!.instantiateForall ·.type xs)
+        let packedType ← PProdN.pack 0 types
+        let motiveTypes ← types.mapM (mkArrow · (.sort 0))
+        let motiveNames := numberNames motiveTypes.size "motive"
+        withLocalDeclsDND (motiveNames.zip motiveTypes) fun motives => do
+          let packedMotive ←
+            withLocalDeclD (← mkFreshUserName `x) packedType fun x => do
+              mkLambdaFVars #[x] <| ← PProdN.pack 0 <|
+                motives.mapIdx fun idx motive =>
+                  mkApp motive (PProdN.proj motives.size idx packedType x)
+
+          let admTypes ← motives.mapIdxM fun i motive => do
+            mkAppOptM ``admissible #[types[i]!, instCCPOs[i]!, some motive]
+          let admNames := numberNames admTypes.size "adm"
+          withLocalDeclsDND (admNames.zip admTypes) fun adms => do
+            let adms' ← adms.mapIdxM fun i adm => mkAdmProj instCCPOα i adm
+            let packedAdm ← PProdN.genMk (mkAdmAnd α instCCPOα) adms'
+            let hNames := numberNames infos.size "h"
+            let hTypes_hmask : Array (Expr × Array Bool) ← infos.mapIdxM fun i _info => do
+              let approxNames := infos.map fun info =>
+                match info.name with
+                  | .str _ n => .mkSimple n
+                  | _ => `f
+              withLocalDeclsDND (approxNames.zip types) fun approxs => do
+                let ihTypes := approxs.mapIdx fun j approx => mkApp motives[j]! approx
+                withLocalDeclsDND (ihTypes.map (⟨`ih, ·⟩)) fun ihs => do
+                  let f ← PProdN.mk 0 approxs
+                  let Ff := F.beta #[f]
+                  let Ffi := PProdN.proj motives.size i packedType Ff
+                  let t := mkApp motives[i]! Ffi
+                  let t ← PProdN.reduceProjs t
+                  let mask := approxs.map fun approx => t.containsFVar approx.fvarId!
+                  let t ← mkForallFVars (maskArray mask approxs ++ maskArray mask ihs) t
+                  pure (t, mask)
+            let (hTypes, masks) := hTypes_hmask.unzip
+            withLocalDeclsDND (hNames.zip hTypes) fun hs => do
+              let packedH ←
+                withLocalDeclD `approx packedType fun approx =>
+                  let packedIHType := packedMotive.beta #[approx]
+                  withLocalDeclD `ih packedIHType fun ih => do
+                    let approxs := PProdN.projs motives.size packedType approx
+                    let ihs := PProdN.projs motives.size packedIHType ih
+                    let e ← PProdN.mk 0 <| hs.mapIdx fun i h =>
+                      let mask := masks[i]!
+                      mkAppN h (maskArray mask approxs ++ maskArray mask ihs)
+                    mkLambdaFVars #[approx, ih] e
+              let e' ← mkAppOptM ``fix_induct #[α, instCCPOα, F, hmono, packedMotive, packedAdm, packedH]
+              -- Should be the type of e', but with the function definitions folded
+              let packedConclusion ← PProdN.pack 0 <| ←
+                motives.mapIdxM fun i motive => do
+                  let f ← mkConstWithLevelParams infos[i]!.name
+                  let fEtaExpanded ← lambdaTelescope infos[i]!.value fun ys _ =>
+                    mkLambdaFVars ys (mkAppN f ys)
+                  let fInst ← eqnInfo.fixedParamPerms.perms[i]!.instantiateLambda fEtaExpanded xs
+                  let fInst := fInst.eta
+                  return mkApp motive fInst
+              let e' ← mkExpectedTypeHint e' packedConclusion
+              let e' ← mkLambdaFVars hs e'
+              let e' ← mkLambdaFVars adms e'
+              let e' ← mkLambdaFVars motives e'
+              let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
+              let e' ← instantiateMVars e'
+              trace[Elab.definition.partialFixpoint.induction] "complete body of fixpoint induction principle:{indentExpr e'}"
+              pure e'
 
     let eTyp ← inferType e'
     let eTyp ← elimOptParam eTyp
@@ -230,7 +314,7 @@ def derivePartialCorrectness (name : Name) : MetaM Unit := do
   unless (← getEnv).contains fixpointInductThm do
     deriveInduction name
 
-  mapError (f := (m!"Cannot derive partial correctness theorem (please report this issue)\n{indentD ·}")) do
+  prependError m!"Cannot derive partial correctness theorem (please report this issue)" do
     let some eqnInfo := eqnInfoExt.find? (← getEnv) name |
       throwError "{name} is not defined by partial_fixpoint"
 

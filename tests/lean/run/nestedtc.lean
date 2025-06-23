@@ -3,11 +3,6 @@ variable {R : Type}
 
 class Zip (α : Type) -- represents `Zero`
 
-class SMul (R : Type) (α : Type) where
-  smul : R → α → α
-
-infixr:73 " • " => SMul.smul
-
 class MulAction (R : Type) (β : Type) extends SMul R β
 
 class SMulZeroClass (R α : Type) extends SMul R α where

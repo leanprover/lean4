@@ -6,11 +6,11 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro, Floris van Doorn
 module
 
 prelude
+import all Init.Data.Nat.Bitwise.Basic
 import Init.Data.Nat.MinMax
-import Init.Data.Nat.Log2
+import all Init.Data.Nat.Log2
 import Init.Data.Nat.Power2
 import Init.Data.Nat.Mod
-import Init.Omega
 
 /-! # Basic theorems about natural numbers
 
@@ -415,7 +415,7 @@ theorem succ_min_succ (x y) : min (succ x) (succ y) = succ (min x y) := by
   | inl h => rw [Nat.min_eq_left h, Nat.min_eq_left (Nat.succ_le_succ h)]
   | inr h => rw [Nat.min_eq_right h, Nat.min_eq_right (Nat.succ_le_succ h)]
 
-@[simp] protected theorem min_self (a : Nat) : min a a = a := Nat.min_eq_left (Nat.le_refl _)
+protected theorem min_self (a : Nat) : min a a = a := by simp
 instance : Std.IdempotentOp (α := Nat) min := ⟨Nat.min_self⟩
 
 @[simp] protected theorem min_assoc : ∀ (a b c : Nat), min (min a b) c = min a (min b c)
@@ -431,16 +431,14 @@ instance : Std.Associative (α := Nat) min := ⟨Nat.min_assoc⟩
 @[simp] protected theorem min_self_assoc' {m n : Nat} : min n (min m n) = min n m := by
   rw [Nat.min_comm m n, ← Nat.min_assoc, Nat.min_self]
 
-@[simp] theorem min_add_left_self {a b : Nat} : min a (b + a) = a := by
-  rw [Nat.min_def]
+theorem min_add_left_self {a b : Nat} : min a (b + a) = a := by
   simp
-@[simp] theorem min_add_right_self {a b : Nat} : min a (a + b) = a := by
-  rw [Nat.min_def]
+theorem min_add_right_self {a b : Nat} : min a (a + b) = a := by
   simp
-@[simp] theorem add_left_min_self {a b : Nat} : min (b + a) a = a := by
-  rw [Nat.min_comm, min_add_left_self]
-@[simp] theorem add_right_min_self {a b : Nat} : min (a + b) a = a := by
-  rw [Nat.min_comm, min_add_right_self]
+theorem add_left_min_self {a b : Nat} : min (b + a) a = a := by
+  simp
+theorem add_right_min_self {a b : Nat} : min (a + b) a = a := by
+  simp
 
 protected theorem sub_sub_eq_min : ∀ (a b : Nat), a - (a - b) = min a b
   | 0, _ => by rw [Nat.zero_sub, Nat.zero_min]
@@ -462,7 +460,7 @@ protected theorem succ_max_succ (x y) : max (succ x) (succ y) = succ (max x y) :
   | inl h => rw [Nat.max_eq_right h, Nat.max_eq_right (Nat.succ_le_succ h)]
   | inr h => rw [Nat.max_eq_left h, Nat.max_eq_left (Nat.succ_le_succ h)]
 
-@[simp] protected theorem max_self (a : Nat) : max a a = a := Nat.max_eq_right (Nat.le_refl _)
+protected theorem max_self (a : Nat) : max a a = a := by simp
 instance : Std.IdempotentOp (α := Nat) max := ⟨Nat.max_self⟩
 
 instance : Std.LawfulIdentity (α := Nat) max 0 where
@@ -476,16 +474,14 @@ instance : Std.LawfulIdentity (α := Nat) max 0 where
   | _+1, _+1, _+1 => by simp only [Nat.succ_max_succ]; exact congrArg succ <| Nat.max_assoc ..
 instance : Std.Associative (α := Nat) max := ⟨Nat.max_assoc⟩
 
-@[simp] theorem max_add_left_self {a b : Nat} : max a (b + a) = b + a := by
-  rw [Nat.max_def]
+theorem max_add_left_self {a b : Nat} : max a (b + a) = b + a := by
   simp
-@[simp] theorem max_add_right_self {a b : Nat} : max a (a + b) = a + b := by
-  rw [Nat.max_def]
+theorem max_add_right_self {a b : Nat} : max a (a + b) = a + b := by
   simp
-@[simp] theorem add_left_max_self {a b : Nat} : max (b + a) a = b + a := by
-  rw [Nat.max_comm, max_add_left_self]
-@[simp] theorem add_right_max_self {a b : Nat} : max (a + b) a = a + b := by
-  rw [Nat.max_comm, max_add_right_self]
+theorem add_left_max_self {a b : Nat} : max (b + a) a = b + a := by
+  simp
+theorem add_right_max_self {a b : Nat} : max (a + b) a = a + b := by
+  simp
 
 protected theorem sub_add_eq_max (a b : Nat) : a - b + b = max a b := by
   match Nat.le_total a b with
@@ -814,10 +810,8 @@ theorem sub_mul_mod {x k n : Nat} (h₁ : n*k ≤ x) : (x - n*k) % n = x % n := 
       simp [mul_succ, Nat.add_comm] at h₁; simp [h₁]
     rw [mul_succ, ← Nat.sub_sub, ← mod_eq_sub_mod h₄, sub_mul_mod h₂]
 
-@[simp] theorem mod_mod (a n : Nat) : (a % n) % n = a % n :=
-  match eq_zero_or_pos n with
-  | .inl n0 => by simp [n0, mod_zero]
-  | .inr npos => Nat.mod_eq_of_lt (mod_lt _ npos)
+theorem mod_mod (a n : Nat) : (a % n) % n = a % n := by
+  simp
 
 theorem mul_mod (a b n : Nat) : a * b % n = (a % n) * (b % n) % n := by
   rw (occs := [1]) [← mod_add_div a n]
@@ -1050,7 +1044,7 @@ theorem div_le_iff_le_mul_of_dvd (hb : b ≠ 0) (hba : b ∣ a) : a / b ≤ c �
   exact ⟨mul_le_mul_right b, fun h ↦ Nat.le_of_mul_le_mul_right h (zero_lt_of_ne_zero hb)⟩
 
 protected theorem div_lt_div_right (ha : a ≠ 0) : a ∣ b → a ∣ c → (b / a < c / a ↔ b < c) := by
-  rintro ⟨d, rfl⟩ ⟨e, rfl⟩; simp [Nat.mul_div_cancel, Nat.pos_iff_ne_zero.2 ha]
+  rintro ⟨d, rfl⟩ ⟨e, rfl⟩; simp [Nat.pos_iff_ne_zero.2 ha]
 
 protected theorem div_lt_div_left (ha : a ≠ 0) (hba : b ∣ a) (hca : c ∣ a) :
     a / b < a / c ↔ c < b := by
@@ -1170,7 +1164,7 @@ protected theorem pow_le_pow_iff_right {a n m : Nat} (h : 1 < a) :
   constructor
   · apply Decidable.by_contra
     intros w
-    simp [Decidable.not_imp_iff_and_not] at w
+    simp at w
     apply Nat.lt_irrefl (a ^ n)
     exact Nat.lt_of_le_of_lt w.1 (Nat.pow_lt_pow_of_lt h w.2)
   · intro w
@@ -1326,7 +1320,7 @@ theorem le_log2 (h : n ≠ 0) : k ≤ n.log2 ↔ 2 ^ k ≤ n := by
   | k+1 =>
     rw [log2]; split
     · have n0 : 0 < n / 2 := (Nat.le_div_iff_mul_le (by decide)).2 ‹_›
-      simp only [Nat.add_le_add_iff_right, le_log2 (Nat.ne_of_gt n0), le_div_iff_mul_le,
+      simp only [Nat.add_le_add_iff_right, le_log2 (Nat.ne_of_gt n0), 
         Nat.pow_succ]
       exact Nat.le_div_iff_mul_le (by decide)
     · simp only [le_zero_eq, succ_ne_zero, false_iff]
@@ -1440,7 +1434,7 @@ theorem le_iff_ne_zero_of_dvd (ha : a ≠ 0) (hab : a ∣ b) : a ≤ b ↔ b ≠
 
 theorem div_ne_zero_iff_of_dvd (hba : b ∣ a) : a / b ≠ 0 ↔ a ≠ 0 ∧ b ≠ 0 := by
   obtain rfl | hb := Decidable.em (b = 0) <;>
-    simp [Nat.div_ne_zero_iff, Nat.le_iff_ne_zero_of_dvd, *]
+    simp [Nat.le_iff_ne_zero_of_dvd, *]
 
 theorem pow_mod (a b n : Nat) : a ^ b % n = (a % n) ^ b % n := by
   induction b with
@@ -1712,12 +1706,12 @@ theorem shiftRight_succ_inside : ∀m n, m >>> (n+1) = (m/2) >>> n
   rw [shiftRight_succ_inside _ k, shiftRight_succ]
 
 @[simp] theorem zero_shiftLeft : ∀ n, 0 <<< n = 0
-  | 0 => by simp [shiftLeft]
-  | n + 1 => by simp [shiftLeft, zero_shiftLeft n, shiftLeft_succ]
+  | 0 => by simp
+  | n + 1 => by simp [zero_shiftLeft n, shiftLeft_succ]
 
 @[simp] theorem zero_shiftRight : ∀ n, 0 >>> n = 0
-  | 0 => by simp [shiftRight]
-  | n + 1 => by simp [shiftRight, zero_shiftRight n, shiftRight_succ]
+  | 0 => by simp
+  | n + 1 => by simp [zero_shiftRight n, shiftRight_succ]
 
 theorem shiftLeft_add (m n : Nat) : ∀ k, m <<< (n + k) = (m <<< n) <<< k
   | 0 => rfl
@@ -1773,8 +1767,16 @@ instance decidableExistsLT' {p : (m : Nat) → m < k → Prop} [I : ∀ m h, Dec
 /-- Dependent version of `decidableExistsLE`. -/
 instance decidableExistsLE' {p : (m : Nat) → m ≤ k → Prop} [I : ∀ m h, Decidable (p m h)] :
     Decidable (∃ m : Nat, ∃ h : m ≤ k, p m h) :=
-  decidable_of_iff (∃ m, ∃ h : m < k + 1, p m (by omega)) (exists_congr fun _ =>
-    ⟨fun ⟨h, w⟩ => ⟨le_of_lt_succ h, w⟩, fun ⟨h, w⟩ => ⟨lt_add_one_of_le h, w⟩⟩)
+  decidable_of_iff (∃ m, ∃ h : m < k + 1, p m (by omega)) <| by
+    apply exists_congr
+    intro
+    exact ⟨fun ⟨h, w⟩ => ⟨le_of_lt_succ h, w⟩, fun ⟨h, w⟩ => ⟨lt_add_one_of_le h, w⟩⟩
+
+instance decidableExistsFin (P : Fin n → Prop) [DecidablePred P] : Decidable (∃ i, P i) :=
+  decidable_of_iff (∃ k, k < n ∧ ((h: k < n) → P ⟨k, h⟩))
+    ⟨fun ⟨k, a⟩ => Exists.intro ⟨k, a.left⟩ (a.right a.left),
+    fun ⟨i, e⟩ => Exists.intro i.val ⟨i.isLt, fun _ => e⟩⟩
+
 
 /-! ### Results about `List.sum` specialized to `Nat` -/
 

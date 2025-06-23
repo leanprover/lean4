@@ -52,8 +52,8 @@ def fallback : Fallback := do
 
 set_option trace.Meta.debug true
 
-/-- info: [Meta.debug] [a * (b * c), b * c, d * (b * c)] -/
-#guard_msgs (info) in
+/-- trace: [Meta.debug] [a * (b * c), b * c, d * (b * c)] -/
+#guard_msgs (trace) in
 example (a b c d : Nat) : b * (a * c) = d * (b * c) → False := by
   rw [left_comm] -- Introduces a new (non-canonical) instance for `Mul Nat`
   grind on_failure fallback -- State should have only 3 `*`-applications
@@ -62,14 +62,14 @@ example (a b c d : Nat) : b * (a * c) = d * (b * c) → False := by
 set_option pp.notation false in
 set_option pp.explicit true in
 /--
-info: [Meta.debug] [@HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast.natCast Int instNatCastInt b)
+trace: [Meta.debug] [@HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast.natCast Int instNatCastInt b)
        (@NatCast.natCast Int instNatCastInt a),
      @HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast.natCast Int instNatCastInt b)
        (@NatCast.natCast Int instNatCastInt d),
      @HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) b a,
      @HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) b d]
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 example (a b c d : Nat) : b * a = d * b → False := by
   rw [CommMonoid.mul_comm d b] -- Introduces a new (non-canonical) instance for `Mul Nat`
   -- See target here

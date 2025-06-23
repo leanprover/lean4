@@ -76,7 +76,7 @@ inductive Expr
 | app     : Expr → Expr → Expr                        -- application
 | lam     : Name → BinderInfo → Expr → Expr → Expr    -- lambda abstraction
 | forallE : Name → BinderInfo → Expr → Expr → Expr    -- (dependent) arrow
-| letE    : Name → Expr → Expr → Expr → Expr          -- let expressions
+| letE    : Name → Expr → Expr → Expr → Bool → Expr   -- let expressions
 | lit     : Literal → Expr                            -- literals
 | mdata   : MData → Expr → Expr                       -- metadata
 | proj    : Name → Nat → Expr → Expr                  -- projection
@@ -221,7 +221,8 @@ inline expr mk_binding(expr_kind k, name const & n, expr const & t, expr const &
     return k == expr_kind::Pi ? mk_pi(n, t, e, bi) : mk_lambda(n, t, e, bi);
 }
 expr mk_arrow(expr const & t, expr const & e);
-expr mk_let(name const & n, expr const & t, expr const & v, expr const & b);
+expr mk_let(name const & n, expr const & t, expr const & v, expr const & b, bool nondep);
+inline expr mk_let(name const & n, expr const & t, expr const & v, expr const & b) { return mk_let(n, t, v, b, false); };
 expr mk_sort(level const & l);
 expr mk_Prop();
 expr mk_Type();
@@ -258,6 +259,13 @@ inline name const &    let_name(expr const & e)              { lean_assert(is_le
 inline expr const &    let_type(expr const & e)              { lean_assert(is_let(e)); return static_cast<expr const &>(cnstr_get_ref(e, 1)); }
 inline expr const &    let_value(expr const & e)             { lean_assert(is_let(e)); return static_cast<expr const &>(cnstr_get_ref(e, 2)); }
 inline expr const &    let_body(expr const & e)              { lean_assert(is_let(e)); return static_cast<expr const &>(cnstr_get_ref(e, 3)); }
+bool                   let_nondep_core(expr const & e);
+inline bool            let_nondep(expr const & e) {
+    lean_assert(is_let(e));
+    bool r = lean_ctor_get_uint8(e.raw(), 4*sizeof(object*) + sizeof(uint64_t));
+    lean_assert(r == let_nondep_core(e)); // ensure the C++ implementation matches the Lean one.
+    return r;
+}
 inline bool            is_shared(expr const & e)             { return !is_exclusive(e.raw()); }
 //
 

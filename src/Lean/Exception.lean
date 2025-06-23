@@ -8,6 +8,8 @@ import Lean.Message
 import Lean.InternalExceptionId
 import Lean.Data.Options
 import Lean.Util.MonadCache
+-- TODO: This import should be changed to `Lean.ErrorExplanations` once that module is added
+import Lean.ErrorExplanation
 
 namespace Lean
 
@@ -76,28 +78,64 @@ prompt the code action.
 -/
 def unknownIdentifierMessageTag : Name := `unknownIdentifier
 
+/-- Throw an error exception using the given message data and reference syntax. -/
+protected def throwErrorAt [Monad m] [MonadError m] (ref : Syntax) (msg : MessageData) : m α := do
+  withRef ref <| Lean.throwError msg
+
+/--
+Throw an error exception with the specified name, with position information from `getRef`.
+
+Note: Use the macro `throwNamedError`, which validates error names, instead of calling this function
+directly.
+-/
+protected def «throwNamedError» [Monad m] [MonadError m] (name : Name) (msg : MessageData) : m α := do
+  let ref ← getRef
+  let msg := msg.tagWithErrorName name
+  let (ref, msg) ← AddErrorMessageContext.add ref msg
+  throw <| Exception.error ref msg
+
+/--
+Throw an error exception with the specified name at the position `ref`.
+
+Note: Use the macro `throwNamedErrorAt`, which validates error names, instead of calling this
+function directly.
+-/
+protected def «throwNamedErrorAt» [Monad m] [MonadError m] (ref : Syntax) (name : Name) (msg : MessageData) : m α :=
+  withRef ref <| Lean.throwNamedError name msg
+
 /--
 Creates a `MessageData` that is tagged with `unknownIdentifierMessageTag`.
 This tag is used by the 'import unknown identifier' code action to detect messages that should
 prompt the code action.
+The end position of the range of an unknown identifier message should always point at the end of the
+unknown identifier.
 -/
 def mkUnknownIdentifierMessage (msg : MessageData) : MessageData :=
   MessageData.tagged unknownIdentifierMessageTag msg
 
 /--
 Throw an unknown identifier error message that is tagged with `unknownIdentifierMessageTag`.
+The end position of the range of `ref` should always point at the unknown identifier.
 See also `mkUnknownIdentifierMessage`.
 -/
-def throwUnknownIdentifier [Monad m] [MonadError m] (msg : MessageData) : m α :=
-  Lean.throwError <| mkUnknownIdentifierMessage msg
+def throwUnknownIdentifierAt [Monad m] [MonadError m] (ref : Syntax) (msg : MessageData) : m α :=
+  Lean.throwErrorAt ref <| mkUnknownIdentifierMessage msg
 
-/-- Throw an unknown constant error message. -/
-def throwUnknownConstant [Monad m] [MonadError m] (constName : Name) : m α :=
-  throwUnknownIdentifier m!"unknown constant '{.ofConstName constName}'"
+/--
+Throw an unknown constant error message.
+The end position of the range of `ref` should point at the unknown identifier.
+See also `mkUnknownIdentifierMessage`.
+-/
+def throwUnknownConstantAt [Monad m] [MonadError m] (ref : Syntax) (constName : Name) : m α := do
+  throwUnknownIdentifierAt ref m!"unknown constant '{.ofConstName constName}'"
 
-/-- Throw an error exception using the given message data and reference syntax. -/
-protected def throwErrorAt [Monad m] [MonadError m] (ref : Syntax) (msg : MessageData) : m α := do
-  withRef ref <| Lean.throwError msg
+/--
+Throw an unknown constant error message.
+The end position of the range of the current reference should point at the unknown identifier.
+See also `mkUnknownIdentifierMessage`.
+-/
+def throwUnknownConstant [Monad m] [MonadError m] (constName : Name) : m α := do
+  throwUnknownConstantAt (← getRef) constName
 
 /--
 Convert an `Except` into a `m` monadic action, where `m` is any monad that

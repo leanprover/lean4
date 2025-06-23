@@ -77,11 +77,8 @@ def lt (a b : JsonNumber) : Bool :=
     else if ae > be then false
     else am < bm
 
-def ltProp : LT JsonNumber :=
+instance ltProp : LT JsonNumber :=
   ⟨fun a b => lt a b = true⟩
-
-instance : LT JsonNumber :=
-  ltProp
 
 instance (a b : JsonNumber) : Decidable (a < b) :=
   inferInstanceAs (Decidable (lt a b = true))

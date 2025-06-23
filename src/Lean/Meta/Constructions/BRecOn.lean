@@ -13,14 +13,6 @@ import Lean.Meta.PProdN
 namespace Lean
 open Meta
 
-/-- Transforms `e : xᵢ → (t₁ ×' t₂)` into `(xᵢ → t₁) ×' (xᵢ → t₂) -/
-private def etaPProd (xs : Array Expr) (e : Expr) : MetaM Expr := do
-  if xs.isEmpty then return e
-  let r := mkAppN e xs
-  let r₁ ← mkLambdaFVars xs (← mkPProdFstM r)
-  let r₂ ← mkLambdaFVars xs (← mkPProdSndM r)
-  mkPProdMk r₁ r₂
-
 /--
 If `minorType` is the type of a minor premies of a recursor, such as
 ```
@@ -40,7 +32,6 @@ of type
 private def buildBelowMinorPremise (rlvl : Level) (motives : Array Expr) (minorType : Expr) : MetaM Expr :=
   forallTelescope minorType fun minor_args _ => do go #[] minor_args.toList
 where
-  ibelow := rlvl matches .zero
   go (prods : Array Expr) : List Expr → MetaM Expr
   | [] => PProdN.pack rlvl prods
   | arg::args => do
@@ -50,14 +41,13 @@ where
         let name ← arg.fvarId!.getUserName
         let type' ← forallTelescope argType fun args _ => mkForallFVars args (.sort rlvl)
         withLocalDeclD name type' fun arg' => do
-          let snd ← mkForallFVars arg_args (mkAppN arg' arg_args)
-          let e' ← mkPProd argType snd
+          let e' ← mkForallFVars arg_args <| ← mkPProd arg_type (mkAppN arg' arg_args)
           mkLambdaFVars #[arg'] (← go (prods.push e') args)
       else
         mkLambdaFVars #[arg] (← go prods args)
 
 /--
-Constructs the `.below` or `.ibelow` definition for a inductive predicate.
+Constructs the `.below` definition for a inductive predicate.
 
 For example for the `List` type, it constructs,
 ```
@@ -66,32 +56,16 @@ For example for the `List` type, it constructs,
 fun {α} {motive} t =>
   List.rec PUnit (fun head tail tail_ih => PProd (PProd (motive tail) tail_ih) PUnit) t
 ```
-and
-```
-@[reducible] protected def List.ibelow.{u} : {α : Type u} →
-  {motive : List α → Prop} → List α → Prop :=
-fun {α} {motive} t =>
-  List.rec True (fun head tail tail_ih => (motive tail ∧ tail_ih) ∧ True) t
-```
 -/
-private def mkBelowFromRec (recName : Name) (ibelow reflexive : Bool) (nParams : Nat)
+private def mkBelowFromRec (recName : Name) (reflexive : Bool) (nParams : Nat)
   (belowName : Name) : MetaM Unit := do
   -- The construction follows the type of `ind.rec`
   let .recInfo recVal ← getConstInfo recName
     | throwError "{recName} not a .recInfo"
   let lvl::lvls := recVal.levelParams.map (Level.param ·)
     | throwError "recursor {recName} has no levelParams"
-  let lvlParam := recVal.levelParams.head!
 
-  let refType :=
-    if ibelow then
-      recVal.type.instantiateLevelParams [lvlParam] [0]
-    else if reflexive then
-      recVal.type.instantiateLevelParams [lvlParam] [lvl.succ]
-    else
-      recVal.type
-
-  let decl ← forallTelescope refType fun refArgs _ => do
+  let decl ← forallTelescope recVal.type fun refArgs _ => do
     assert! refArgs.size > nParams + recVal.numMotives + recVal.numMinors
     let params  : Array Expr := refArgs[:nParams]
     let motives : Array Expr := refArgs[nParams:nParams + recVal.numMotives]
@@ -99,11 +73,6 @@ private def mkBelowFromRec (recName : Name) (ibelow reflexive : Bool) (nParams :
     let indices : Array Expr := refArgs[nParams + recVal.numMotives + recVal.numMinors:refArgs.size - 1]
     let major   : Expr       := refArgs[refArgs.size - 1]!
 
-    -- universe parameter names of ibelow/below
-    let blvls :=
-      -- For ibelow we instantiate the first universe parameter of `.rec` to `.zero`
-      if ibelow then recVal.levelParams.tail!
-                else recVal.levelParams
     -- universe parameter of the type fomer.
     -- same as `typeFormerTypeLevel indVal.type`, but we want to infer it from the
     -- type of the recursor, to be more robust when facing nested induction
@@ -113,15 +82,10 @@ private def mkBelowFromRec (recName : Name) (ibelow reflexive : Bool) (nParams :
 
     -- universe level of the resultant type
     let rlvl : Level :=
-      if ibelow then
-        0
-      else if reflexive then
-        if let .max 1 ilvl' := ilvl then
-          mkLevelMax' (.succ lvl) ilvl'
-        else
-          mkLevelMax' (.succ lvl) ilvl
+      if reflexive then
+        mkLevelMax ilvl lvl
       else
-        mkLevelMax' 1 lvl
+        mkLevelMax 1 lvl
 
     let mut val := .const recName (rlvl.succ :: lvls)
     -- add parameters
@@ -144,21 +108,21 @@ private def mkBelowFromRec (recName : Name) (ibelow reflexive : Bool) (nParams :
     let type ← mkForallFVars below_params (.sort rlvl)
     val ← mkLambdaFVars below_params val
 
-    mkDefinitionValInferrringUnsafe belowName blvls type val .abbrev
+    mkDefinitionValInferrringUnsafe belowName recVal.levelParams type val .abbrev
 
   addDecl (.defnDecl decl)
   setReducibleAttribute decl.name
   modifyEnv fun env => markAuxRecursor env decl.name
   modifyEnv fun env => addProtected env decl.name
 
-private def mkBelowOrIBelow (indName : Name) (ibelow : Bool) : MetaM Unit := do
+def mkBelow (indName : Name) : MetaM Unit := do
   let .inductInfo indVal ← getConstInfo indName | return
   unless indVal.isRec do return
   if ← isPropFormerType indVal.type then return
 
   let recName := mkRecName indName
-  let belowName := if ibelow then mkIBelowName indName else mkBelowName indName
-  mkBelowFromRec recName ibelow indVal.isReflexive indVal.numParams belowName
+  let belowName := mkBelowName indName
+  mkBelowFromRec recName indVal.isReflexive indVal.numParams belowName
 
   -- If this is the first inductive in a mutual group with nested inductives,
   -- generate the constructions for the nested inductives now
@@ -166,10 +130,7 @@ private def mkBelowOrIBelow (indName : Name) (ibelow : Bool) : MetaM Unit := do
     for i in [:indVal.numNested] do
       let recName := recName.appendIndexAfter (i + 1)
       let belowName := belowName.appendIndexAfter (i + 1)
-      mkBelowFromRec recName ibelow indVal.isReflexive indVal.numParams belowName
-
-def mkBelow (declName : Name) : MetaM Unit := mkBelowOrIBelow declName true
-def mkIBelow (declName : Name) : MetaM Unit := mkBelowOrIBelow declName false
+      mkBelowFromRec recName indVal.isReflexive indVal.numParams belowName
 
 /--
 If `minorType` is the type of a minor premies of a recursor, such as
@@ -207,14 +168,13 @@ private def buildBRecOnMinorPremise (rlvl : Level) (motives : Array Expr)
               let type' ← mkForallFVars arg_args
                 (← mkPProd arg_type (mkAppN belows[idx]! arg_type_args) )
               withLocalDeclD name type' fun arg' => do
-                let r ← etaPProd arg_args arg'
-                mkLambdaFVars #[arg'] (← go (prods.push r) args)
+                mkLambdaFVars #[arg'] (← go (prods.push arg') args)
             else
               mkLambdaFVars #[arg] (← go prods args)
     go #[] minor_args.toList
 
 /--
-Constructs the `.brecon` or `.binductionon` definition for a inductive predicate.
+Constructs the `.brecOn` definition for a inductive predicate.
 
 For example for the `List` type, it constructs,
 ```
@@ -227,36 +187,16 @@ fun {α} {motive} t (F_1 : (t : List α) → List.below t → motive t) => (
     t
   ).1
 ```
-and
-```
-@[reducible] protected def List.binductionOn.{u} : ∀ {α : Type u} {motive : List α → Prop}
-  (t : List α), (∀ (t : List α), List.ibelow t → motive t) → motive t :=
-fun {α} {motive} t F_1 => (
-  @List.rec α (fun t => And (motive t) (@List.ibelow α motive t))
-    ⟨F_1 [] True.intro, True.intro⟩
-    (fun head tail tail_ih => ⟨F_1 (head :: tail) ⟨tail_ih, True.intro⟩, ⟨tail_ih, True.intro⟩⟩)
-    t
-  ).1
-```
 -/
-private def mkBRecOnFromRec (recName : Name) (ind reflexive : Bool) (nParams : Nat)
+private def mkBRecOnFromRec (recName : Name) (reflexive : Bool) (nParams : Nat)
     (all : Array Name) (brecOnName : Name) : MetaM Unit := do
   let .recInfo recVal ← getConstInfo recName | return
   let lvl::lvls := recVal.levelParams.map (Level.param ·)
     | throwError "recursor {recName} has no levelParams"
-  let lvlParam := recVal.levelParams.head!
-  -- universe parameter names of brecOn/binductionOn
-  let blps := if ind then recVal.levelParams.tail!  else recVal.levelParams
+  -- universe parameter names of brecOn
+  let blps := recVal.levelParams
 
-  let refType :=
-    if ind then
-      recVal.type.instantiateLevelParams [lvlParam] [0]
-    else if reflexive then
-      recVal.type.instantiateLevelParams [lvlParam] [lvl.succ]
-    else
-      recVal.type
-
-  let decl ← forallTelescope refType fun refArgs refBody => do
+  let decl ← forallTelescope recVal.type fun refArgs refBody => do
     assert! refArgs.size > nParams + recVal.numMotives + recVal.numMinors
     let params  : Array Expr := refArgs[:nParams]
     let motives : Array Expr := refArgs[nParams:nParams + recVal.numMotives]
@@ -265,7 +205,7 @@ private def mkBRecOnFromRec (recName : Name) (ind reflexive : Bool) (nParams : N
     let major   : Expr       := refArgs[refArgs.size - 1]!
 
     let some idx := motives.idxOf? refBody.getAppFn
-      | throwError "result type of {refType} is not one of {motives}"
+      | throwError "result type of {recVal.type} is not one of {motives}"
 
     -- universe parameter of the type fomer.
     -- same as `typeFormerTypeLevel indVal.type`, but we want to infer it from the
@@ -276,25 +216,19 @@ private def mkBRecOnFromRec (recName : Name) (ind reflexive : Bool) (nParams : N
 
     -- universe level of the resultant type
     let rlvl : Level :=
-      if ind then
-        0
-      else if reflexive then
-        if let .max 1 ilvl' := ilvl then
-          mkLevelMax' (.succ lvl) ilvl'
-        else
-          mkLevelMax' (.succ lvl) ilvl
+      if reflexive then
+        mkLevelMax ilvl lvl
       else
-        mkLevelMax' 1 lvl
+        mkLevelMax 1 lvl
 
     -- One `below` for each motive, with the same motive parameters
-    let blvls := if ind then lvls else lvl::lvls
+    let blvls := lvl::lvls
     let belows := Array.ofFn (n := motives.size) fun ⟨i,_⟩ =>
       let belowName :=
         if let some n := all[i]? then
-          if ind then mkIBelowName n else mkBelowName n
+          mkBelowName n
         else
-          if ind then .str all[0]! s!"ibelow_{i-all.size + 1}"
-                 else .str all[0]! s!"below_{i-all.size + 1}"
+          .str all[0]! s!"below_{i-all.size + 1}"
       mkAppN (.const belowName blvls) (params ++ motives)
 
     -- create types of functionals (one for each motive)
@@ -342,14 +276,14 @@ private def mkBRecOnFromRec (recName : Name) (ind reflexive : Bool) (nParams : N
   modifyEnv fun env => markAuxRecursor env decl.name
   modifyEnv fun env => addProtected env decl.name
 
-def mkBRecOnOrBInductionOn (indName : Name) (ind : Bool) : MetaM Unit := do
+def mkBRecOn (indName : Name) : MetaM Unit := do
   let .inductInfo indVal ← getConstInfo indName | return
   unless indVal.isRec do return
   if ← isPropFormerType indVal.type then return
 
   let recName := mkRecName indName
-  let brecOnName := if ind then mkBInductionOnName indName else mkBRecOnName indName
-  mkBRecOnFromRec recName ind indVal.isReflexive indVal.numParams indVal.all.toArray brecOnName
+  let brecOnName := mkBRecOnName indName
+  mkBRecOnFromRec recName indVal.isReflexive indVal.numParams indVal.all.toArray brecOnName
 
   -- If this is the first inductive in a mutual group with nested inductives,
   -- generate the constructions for the nested inductives now.
@@ -357,8 +291,4 @@ def mkBRecOnOrBInductionOn (indName : Name) (ind : Bool) : MetaM Unit := do
     for i in [:indVal.numNested] do
       let recName := recName.appendIndexAfter (i + 1)
       let brecOnName := brecOnName.appendIndexAfter (i + 1)
-      mkBRecOnFromRec recName ind indVal.isReflexive indVal.numParams indVal.all.toArray brecOnName
-
-
-def mkBRecOn (declName : Name) : MetaM Unit := mkBRecOnOrBInductionOn declName false
-def mkBInductionOn (declName : Name) : MetaM Unit := mkBRecOnOrBInductionOn declName true
+      mkBRecOnFromRec recName indVal.isReflexive indVal.numParams indVal.all.toArray brecOnName

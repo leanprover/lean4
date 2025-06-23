@@ -36,7 +36,7 @@ open Std.Internal
 @[simp]
 theorem foldl_eq {f : δ → (a : α) → β a → δ} {init : δ} {l : AssocList α β} :
     l.foldl f init = l.toList.foldl (fun d p => f d p.1 p.2) init := by
-  induction l generalizing init <;> simp_all [foldl, Id.run, foldlM]
+  induction l generalizing init <;> simp_all [foldl, foldlM]
 
 @[simp]
 theorem length_eq {l : AssocList α β} : l.length = l.toList.length := by
@@ -61,7 +61,7 @@ theorem getCast?_eq [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α} :
 @[simp]
 theorem contains_eq [BEq α] {l : AssocList α β} {a : α} :
     l.contains a = containsKey a l.toList := by
-  induction l <;> simp_all [contains, List.containsKey]
+  induction l <;> simp_all [contains]
 
 @[simp]
 theorem getCast_eq [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α} {h} :
@@ -242,7 +242,7 @@ variable {β : Type v}
 theorem toList_alter [BEq α] [EquivBEq α] {a : α} {f : Option β → Option β}
     {l : AssocList α (fun _ => β)} : Perm (alter a f l).toList (Const.alterKey a f l.toList) := by
   induction l
-  · simp only [alter, toList_nil, alterKey_nil]
+  · simp only [alter, toList_nil]
     split <;> simp_all
   · rw [toList]
     refine Perm.trans ?_ Const.alterKey_cons_perm.symm
@@ -253,18 +253,18 @@ theorem modify_eq_alter [BEq α] [EquivBEq α] {a : α} {f : β → β} {l : Ass
     modify a f l = alter a (·.map f) l := by
   induction l
   · rfl
-  · next ih => simp only [modify, beq_iff_eq, alter, Option.map_some, ih]
+  · next ih => simp only [modify, alter, Option.map_some, ih]
 
 end Const
 
 theorem foldl_apply {l : AssocList α β} {acc : List δ} (f : (a : α) → β a → δ) :
     l.foldl (fun acc k v => f k v :: acc) acc =
       (l.toList.map (fun p => f p.1 p.2)).reverse ++ acc := by
-  induction l generalizing acc <;> simp_all [AssocList.foldl, AssocList.foldlM, Id.run]
+  induction l generalizing acc <;> simp_all [AssocList.foldl, AssocList.foldlM]
 
 theorem foldr_apply {l : AssocList α β} {acc : List δ} (f : (a : α) → β a → δ) :
     l.foldr (fun k v acc => f k v :: acc) acc =
       (l.toList.map (fun p => f p.1 p.2)) ++ acc := by
-  induction l generalizing acc <;> simp_all [AssocList.foldr, AssocList.foldrM, Id.run]
+  induction l generalizing acc <;> simp_all [AssocList.foldr, AssocList.foldrM]
 
 end Std.DHashMap.Internal.AssocList

@@ -19,9 +19,6 @@ Author: Markus Himmel, Sofia Rodrigues
 #include "runtime/object.h"
 
 namespace lean {
-#ifndef LEAN_EMSCRIPTEN
-#include <uv.h>
-#endif
 
 extern "C" void initialize_libuv();
 

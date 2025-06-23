@@ -20,13 +20,13 @@ set_option linter.unusedVariables false in
 def node_def (_ : Nat) {α : Sort u} {a : α} : NodeDef := .unit
 
 @[app_unexpander node_def]
-def nodeDefUnexpander : PrettyPrinter.Unexpander := fun stx => do
+meta def nodeDefUnexpander : PrettyPrinter.Unexpander := fun stx => do
   match stx with
   | `($_ $id:num) => return mkIdent <| Name.mkSimple $ "#" ++ toString id.getNat
   | _ => throw ()
 
 @[app_unexpander NodeDef]
-def NodeDefUnexpander : PrettyPrinter.Unexpander := fun _ => do
+meta def NodeDefUnexpander : PrettyPrinter.Unexpander := fun _ => do
   return mkIdent <| Name.mkSimple "NodeDef"
 
 end Lean.Grind

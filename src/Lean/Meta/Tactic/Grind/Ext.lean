@@ -35,7 +35,7 @@ def instantiateExtTheorem (thm : Ext.ExtTheorem) (e : Expr) : GoalM Unit := with
   if proof'.hasMVar || prop'.hasMVar then
     reportIssue! "failed to apply extensionality theorem `{thm.declName}` for {indentExpr e}\nresulting terms contain metavariables"
     return ()
-  trace[grind.ext] "{prop'}"
-  addNewRawFact proof' prop' ((← getGeneration e) + 1)
+  trace[grind.ext] "{thm.declName}: {prop'}"
+  addNewRawFact proof' prop' ((← getGeneration e) + 1) (.ext thm.declName)
 
 end Lean.Meta.Grind

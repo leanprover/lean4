@@ -1,7 +1,7 @@
 /--
-info: ⊢ 1.2 < 2
+trace: ⊢ 1.2 < 2
 ---
-info: ⊢ 1.2 < 2
+trace: ⊢ 1.2 < 2
 ---
 warning: declaration uses 'sorry'
 -/

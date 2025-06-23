@@ -39,7 +39,7 @@ The auto-bound implicit creates a new variable `A✝`, which comes from the argu
 (This has been the case well before the creation of this test.)
 -/
 /--
-info: A✝ : Sort u_1
+trace: A✝ : Sort u_1
 a : A✝
 _x : constUnit a
 ⊢ True
@@ -66,7 +66,7 @@ The duplication was because `runTermElabM` wasn't resetting the local context.
 The poor variable name was due to using `mkForallFVars` instead of `mkForallFVars'`.
 -/
 /--
-info: A✝ : Sort _
+trace: A✝ : Sort _
 a : A✝
 x : constUnit a
 ⊢ True
@@ -82,7 +82,7 @@ Checking that `#check` also has the improvement.
 /--
 info: 1 : Nat
 ---
-info: A✝ : Sort _
+trace: A✝ : Sort _
 a : A✝
 x : constUnit a
 ⊢ ?_

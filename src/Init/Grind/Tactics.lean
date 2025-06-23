@@ -8,6 +8,57 @@ module
 prelude
 import Init.Tactics
 
+namespace Lean.Grind
+/--
+Gadget for representing generalization steps `h : x = val` in patterns
+This gadget is used to represent patterns in theorems that have been generalized to reduce the
+number of casts introduced during E-matching based instantiation.
+
+For example, consider the theorem
+```
+Option.pbind_some {α1 : Type u_1} {a : α1} {α2 : Type u_2}
+    {f : (a_1 : α1) → some a = some a_1 → Option α2}
+    : (some a).pbind f = f a rfl
+```
+Now, suppose we have a goal containing the term `c.pbind g` and the equivalence class
+`{c, some b}`. The E-matching module generates the instance
+```
+(some b).pbind (cast ⋯ g)
+```
+The `cast` is necessary because `g`'s type contains `c` instead of `some b.
+This `cast` problematic because we don't have a systematic way of pushing casts over functions
+to its arguments. Moreover, heterogeneous equality is not effective because the following theorem
+is not provable in DTT:
+```
+theorem hcongr (h₁ : f ≍ g) (h₂ : a ≍ b)  : f a ≍ g b := ...
+```
+The standard solution is to generalize the theorem above and write it as
+```
+theorem Option.pbind_some'
+        {α1 : Type u_1} {a : α1} {α2 : Type u_2}
+        {x : Option α1}
+        {f : (a_1 : α1) → x = some a_1 → Option α2}
+        (h : x = some a)
+        : x.pbind f = f a h := by
+  subst h
+  apply Option.pbind_some
+```
+Internally, we use this gadget to mark the E-matching pattern as
+```
+(genPattern h x (some a)).pbind f
+```
+This pattern is matched in the same way we match `(some a).pbind f`, but it saves the proof
+for the actual term to the `some`-application in `f`, and the actual term in `x`.
+
+In the example above, `c.pbind g` also matches the pattern `(genPattern h x (some a)).pbind f`,
+and stores `c` in `x`, `b` in `a`, and the proof that `c = some b` in `h`.
+-/
+def genPattern {α : Sort u} (_h : Prop) (x : α) (_val : α) : α := x
+
+/-- Similar to `genPattern` but for the heterogeneous case -/
+def genHEqPattern {α β : Sort u} (_h : Prop) (x : α) (_val : β) : α := x
+end Lean.Grind
+
 namespace Lean.Parser
 /--
 Reset all `grind` attributes. This command is intended for testing purposes only and should not be used in applications.
@@ -15,21 +66,26 @@ Reset all `grind` attributes. This command is intended for testing purposes only
 syntax (name := resetGrindAttrs) "reset_grind_attrs%" : command
 
 namespace Attr
-syntax grindEq     := "= "
-syntax grindEqBoth := atomic("_" "=" "_ ")
-syntax grindEqRhs  := atomic("=" "_ ")
-syntax grindEqBwd  := atomic("←" "= ") <|> atomic("<-" "= ")
-syntax grindBwd    := "← " <|> "-> "
-syntax grindFwd    := "→ " <|> "<- "
-syntax grindRL     := "⇐ " <|> "<= "
-syntax grindLR     := "⇒ " <|> "=> "
-syntax grindUsr    := &"usr "
-syntax grindCases  := &"cases "
-syntax grindCasesEager := atomic(&"cases" &"eager ")
-syntax grindIntro  := &"intro "
-syntax grindExt    := &"ext "
-syntax grindMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager <|> grindCases <|> grindIntro <|> grindExt
-syntax (name := grind) "grind" (grindMod)? : attr
+syntax grindGen    := ppSpace &"gen"
+syntax grindEq     := "=" (grindGen)?
+syntax grindEqBoth := atomic("_" "=" "_") (grindGen)?
+syntax grindEqRhs  := atomic("=" "_") (grindGen)?
+syntax grindEqBwd  := atomic("←" "=") <|> atomic("<-" "=")
+syntax grindBwd    := ("←" <|> "<-") (grindGen)?
+syntax grindFwd    := "→" <|> "->"
+syntax grindRL     := "⇐" <|> "<="
+syntax grindLR     := "⇒" <|> "=>"
+syntax grindUsr    := &"usr"
+syntax grindCases  := &"cases"
+syntax grindCasesEager := atomic(&"cases" &"eager")
+syntax grindIntro  := &"intro"
+syntax grindExt    := &"ext"
+syntax grindMod :=
+    grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd
+    <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager
+    <|> grindCases <|> grindIntro <|> grindExt <|> grindGen
+syntax (name := grind) "grind" ppSpace (grindMod)? : attr
+syntax (name := grind?) "grind?" ppSpace (grindMod)? : attr
 end Attr
 end Lean.Parser
 
@@ -42,14 +98,14 @@ structure Config where
   /-- If `trace` is `true`, `grind` records used E-matching theorems and case-splits. -/
   trace : Bool := false
   /-- Maximum number of case-splits in a proof search branch. It does not include splits performed during normalization. -/
-  splits : Nat := 8
+  splits : Nat := 9
   /-- Maximum number of E-matching (aka heuristic theorem instantiation) rounds before each case split. -/
   ematch : Nat := 5
   /--
   Maximum term generation.
   The input goal terms have generation 0. When we instantiate a theorem using a term from generation `n`,
   the new terms have generation `n+1`. Thus, this parameter limits the length of an instantiation chain. -/
-  gen : Nat := 5
+  gen : Nat := 8
   /-- Maximum number of theorem instances generated using E-matching in a proof search tree branch. -/
   instances : Nat := 1000
   /-- If `matchEqs` is `true`, `grind` uses `match`-equations as E-matching theorems. -/
@@ -64,17 +120,21 @@ structure Config where
   splitIndPred : Bool := false
   /--
   If `splitImp` is `true`, then given an implication `p → q` or `(h : p) → q h`, `grind` splits on `p`
-  it the implication is true. Otherwise, it will split only if `p` is an arithmetic predicate.
+  if the implication is true. Otherwise, it will split only if `p` is an arithmetic predicate.
   -/
   splitImp : Bool := false
-  /-- By default, `grind` halts as soon as it encounters a sub-goal where no further progress can be made. -/
-  failures : Nat := 1
   /-- Maximum number of heartbeats (in thousands) the canonicalizer can spend per definitional equality test. -/
   canonHeartbeats : Nat := 1000
   /-- If `ext` is `true`, `grind` uses extensionality theorems that have been marked with `[grind ext]`. -/
   ext : Bool := true
   /-- If `extAll` is `true`, `grind` uses any extensionality theorems available in the environment. -/
   extAll : Bool := false
+  /--
+  If `etaStruct` is `true`, then for each term `t : S` such that `S` is a structure,
+  and is tagged with `[grind ext]`, `grind` adds the equation `t = ⟨t.1, ..., t.n⟩`
+  which holds by reflexivity. Moreover, the extensionality theorem for `S` is not used.
+  -/
+  etaStruct : Bool := true
   /--
   If `funext` is `true`, `grind` creates new opportunities for applying function extensionality by case-splitting
   on equalities between lambda expressions.
@@ -92,7 +152,7 @@ structure Config where
   This approach is cheaper but incomplete. -/
   qlia : Bool := false
   /--
-  If `mbtc` is `true`, `grind` will use model-based theory commbination for creating new case splits.
+  If `mbtc` is `true`, `grind` will use model-based theory combination for creating new case splits.
   See paper "Model-based Theory Combination" for details.
   -/
   mbtc : Bool := true
@@ -115,10 +175,24 @@ structure Config where
   -/
   zeta := true
   /--
-  When `true` (default: `false`), uses procedure for handling equalities over commutative rings.
+  When `true` (default: `true`), uses procedure for handling equalities over commutative rings.
   -/
-  ring := false
+  ring := true
   ringSteps := 10000
+  /--
+  When `true` (default: `false`), the commutative ring procedure in `grind` constructs stepwise
+  proof terms, instead of a single-step Nullstellensatz certificate
+  -/
+  ringNull := false
+  /--
+  When `true` (default: `true`), uses procedure for handling linear arithmetic for `IntModule`, and
+  `CommRing`.
+  -/
+  linarith := true
+  /--
+  When `true` (default: `true`), uses procedure for handling linear integer arithmetic for `Int` and `Nat`.
+  -/
+  cutsat := true
   deriving Inhabited, BEq
 
 end Lean.Grind
@@ -130,7 +204,7 @@ namespace Lean.Parser.Tactic
 -/
 
 syntax grindErase := "-" ident
-syntax grindLemma := (Attr.grindMod)? ident
+syntax grindLemma := (Attr.grindMod ppSpace)? ident
 syntax grindParam := grindErase <|> grindLemma
 
 syntax (name := grind)

@@ -6,7 +6,8 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Data.ByteArray
+import all Init.Data.ByteArray.Basic
+import all Init.Data.String.Basic
 import Init.Data.UInt.Lemmas
 
 namespace String
@@ -162,7 +163,7 @@ def toUTF8 (a : @& String) : ByteArray :=
 
 @[simp] theorem size_toUTF8 (s : String) : s.toUTF8.size = s.utf8ByteSize := by
   simp [toUTF8, ByteArray.size, Array.size, utf8ByteSize, List.flatMap]
-  induction s.data <;> simp [List.map, List.flatten, utf8ByteSize.go, Nat.add_comm, *]
+  induction s.data <;> simp [List.map, utf8ByteSize.go, Nat.add_comm, *]
 
 /--
 Accesses the indicated byte in the UTF-8 encoding of a string.
@@ -294,11 +295,11 @@ where
   termination_by text.utf8ByteSize - pos.byteIdx
   decreasing_by
     decreasing_with
-      show text.utf8ByteSize - (text.next (text.next pos)).byteIdx < text.utf8ByteSize - pos.byteIdx
+      change text.utf8ByteSize - (text.next (text.next pos)).byteIdx < text.utf8ByteSize - pos.byteIdx
       have k := Nat.gt_of_not_le <| mt decide_eq_true h
       exact Nat.sub_lt_sub_left k (Nat.lt_trans (String.lt_next text pos) (String.lt_next _ _))
     decreasing_with
-      show text.utf8ByteSize - (text.next pos).byteIdx < text.utf8ByteSize - pos.byteIdx
+      change text.utf8ByteSize - (text.next pos).byteIdx < text.utf8ByteSize - pos.byteIdx
       have k := Nat.gt_of_not_le <| mt decide_eq_true h
       exact Nat.sub_lt_sub_left k (String.lt_next _ _)
 

@@ -140,9 +140,46 @@ references to a hypothesis.
 syntax (name := clear) "clear" (ppSpace colGt term:max)+ : tactic
 
 /--
-`subst x...` substitutes each `x` with `e` in the goal if there is a hypothesis
-of type `x = e` or `e = x`.
-If `x` is itself a hypothesis of type `y = e` or `e = y`, `y` is substituted instead.
+Syntax for trying to clear the values of all local definitions.
+-/
+syntax clearValueStar := "*"
+/--
+Syntax for creating a hypothesis before clearing values.
+In `(hx : x = _)`, the value of `x` is unified with `_`.
+-/
+syntax clearValueHyp := "(" binderIdent " : " term:51 " = " term:51 ")"
+/--
+Argument for the `clear_value` tactic.
+-/
+syntax clearValueArg := clearValueStar <|> clearValueHyp <|> term:max
+/--
+* `clear_value x...` clears the values of the given local definitions.
+  A local definition `x : α := v` becomes a hypothesis `x : α`.
+
+* `clear_value (h : x = _)` adds a hypothesis `h : x = v` before clearing the value of `x`.
+  This is short for `have h : x = v := rfl; clear_value x`.
+  Any value definitionally equal to `v` can be used in place of `_`.
+
+* `clear_value *` clears values of all hypotheses that can be cleared.
+  Fails if none can be cleared.
+
+These syntaxes can be combined. For example, `clear_value x y *` ensures that `x` and `y` are cleared
+while trying to clear all other local definitions,
+and `clear_value (hx : x = _) y * with hx` does the same while first adding the `hx : x = v` hypothesis.
+-/
+syntax (name := clearValue) "clear_value" (ppSpace colGt clearValueArg)+ : tactic
+
+/--
+`subst x...` substitutes each hypothesis `x` with a definition found in the local context,
+then eliminates the hypothesis.
+- If `x` is a local definition, then its definition is used.
+- Otherwise, if there is a hypothesis of the form `x = e` or `e = x`,
+  then `e` is used for the definition of `x`.
+
+If `h : a = b`, then `subst h` may be used if either `a` or `b` unfolds to a local hypothesis.
+This is similar to the `cases h` tactic.
+
+See also: `subst_vars` for substituting all local hypotheses that have a defining equation.
 -/
 syntax (name := subst) "subst" (ppSpace colGt term:max)+ : tactic
 
@@ -499,6 +536,12 @@ syntax (name := change) "change " term (location)? : tactic
 syntax (name := changeWith) "change " term " with " term (location)? : tactic
 
 /--
+`show t` finds the first goal whose target unifies with `t`. It makes that the main goal,
+performs the unification, and replaces the target with the unified version of `t`.
+-/
+syntax (name := «show») "show " term : tactic
+
+/--
 Extracts `let` and `let_fun` expressions from within the target or a local hypothesis,
 introducing new local definitions.
 
@@ -658,7 +701,7 @@ syntax (name := dsimp) "dsimp" optConfig (discharger)? (&" only")?
 A `simpArg` is either a `*`, `-lemma` or a simp lemma specification
 (which includes the `↑` `↓` `←` specifications for pre, post, reverse rewriting).
 -/
-def simpArg := simpStar.binary `orelse (simpErase.binary `orelse simpLemma)
+meta def simpArg := simpStar.binary `orelse (simpErase.binary `orelse simpLemma)
 
 /-- A simp args list is a list of `simpArg`. This is the main argument to `simp`. -/
 syntax simpArgs := " [" simpArg,* "]"
@@ -667,7 +710,7 @@ syntax simpArgs := " [" simpArg,* "]"
 A `dsimpArg` is similar to `simpArg`, but it does not have the `simpStar` form
 because it does not make sense to use hypotheses in `dsimp`.
 -/
-def dsimpArg := simpErase.binary `orelse simpLemma
+meta def dsimpArg := simpErase.binary `orelse simpLemma
 
 /-- A dsimp args list is a list of `dsimpArg`. This is the main argument to `dsimp`. -/
 syntax dsimpArgs := " [" dsimpArg,* "]"
@@ -775,16 +818,16 @@ The `have` tactic is for adding hypotheses to the local context of the main goal
   For example, given `h : p ∧ q ∧ r`, `have ⟨h₁, h₂, h₃⟩ := h` produces the
   hypotheses `h₁ : p`, `h₂ : q`, and `h₃ : r`.
 -/
-syntax "have " haveDecl : tactic
+syntax "have " letDecl : tactic
 macro_rules
   -- special case: when given a nested `by` block, move it outside of the `refine` to enable
   -- incrementality
-  | `(tactic| have%$haveTk $id:haveId $bs* : $type := by%$byTk $tacs*) => do
+  | `(tactic| have%$haveTk $id:letId $bs* : $type := by%$byTk $tacs*) => do
     /-
     We want to create the syntax
     ```
     focus
-      refine no_implicit_lambda% (have $id:haveId $bs* : $type := ?body; ?_)
+      refine no_implicit_lambda% (have $id:letId $bs* : $type := ?body; ?_)
       case body => $tacs*
     ```
     However, we need to be very careful with the syntax infos involved:
@@ -803,9 +846,9 @@ macro_rules
     let tac ← `(tacticSeq| $tac:tactic)
     let tac ← Lean.withRef byTk `(tactic| case body => $(.mk tac):tacticSeq)
     Lean.withRef haveTk `(tactic| focus
-      refine no_implicit_lambda% (have $id:haveId $bs* : $type := ?body; ?_)
+      refine no_implicit_lambda% (have $id:letId $bs* : $type := ?body; ?_)
       $tac)
-  | `(tactic| have $d:haveDecl) => `(tactic| refine_lift have $d:haveDecl; ?_)
+  | `(tactic| have $d:letDecl) => `(tactic| refine_lift have $d:letDecl; ?_)
 
 /--
 Given a main goal `ctx ⊢ t`, `suffices h : t' from e` replaces the main goal with `ctx ⊢ t'`,
@@ -827,11 +870,6 @@ The `let` tactic is for adding definitions to the local context of the main goal
   local variables `x : α`, `y : β`, and `z : γ`.
 -/
 macro "let " d:letDecl : tactic => `(tactic| refine_lift let $d:letDecl; ?_)
-/--
-`show t` finds the first goal whose target unifies with `t`. It makes that the main goal,
- performs the unification, and replaces the target with the unified version of `t`.
--/
-macro "show " e:term : tactic => `(tactic| refine_lift show $e from ?_) -- TODO: fix, see comment
 /-- `let rec f : t := e` adds a recursive definition `f` to the current goal.
 The syntax is the same as term-mode `let rec`. -/
 syntax (name := letrec) withPosition(atomic("let " &"rec ") letRecDecls) : tactic
@@ -841,7 +879,7 @@ macro_rules
 /-- Similar to `refine_lift`, but using `refine'` -/
 macro "refine_lift' " e:term : tactic => `(tactic| focus (refine' no_implicit_lambda% $e; rotate_right))
 /-- Similar to `have`, but using `refine'` -/
-macro "have' " d:haveDecl : tactic => `(tactic| refine_lift' have $d:haveDecl; ?_)
+macro "have' " d:letDecl : tactic => `(tactic| refine_lift' have $d:letDecl; ?_)
 set_option linter.missingDocs false in -- OK, because `tactic_alt` causes inheritance of docs
 macro (priority := high) "have'" x:ident " := " p:term : tactic => `(tactic| have' $x:ident : _ := $p)
 attribute [tactic_alt tacticHave'_] «tacticHave'_:=_»
@@ -940,8 +978,8 @@ You can use `with` to provide the variables names for each constructor.
 syntax (name := cases) "cases " elimTarget,+ (" using " term)? (inductionAlts)? : tactic
 
 /--
-The `fun_induction` tactic is a convenience wrapper of the `induction` tactic when using a functional
-induction principle.
+The `fun_induction` tactic is a convenience wrapper around the `induction` tactic to use the the
+functional induction principle.
 
 The tactic invocation
 ```
@@ -949,10 +987,10 @@ fun_induction f x₁ ... xₙ y₁ ... yₘ
 ```
 where `f` is a function defined by non-mutual structural or well-founded recursion, is equivalent to
 ```
-induction y₁, ... yₘ using f.induct x₁ ... xₙ
+induction y₁, ... yₘ using f.induct_unfolding x₁ ... xₙ
 ```
-where the arguments of `f` are used as arguments to `f.induct` or targets of the induction, as
-appropriate.
+where the arguments of `f` are used as arguments to `f.induct_unfolding` or targets of the
+induction, as appropriate.
 
 The form
 ```
@@ -964,12 +1002,16 @@ become targets are free variables.
 
 The forms `fun_induction f x y generalizing z₁ ... zₙ` and
 `fun_induction f x y with | case1 => tac₁ | case2 x' ih => tac₂` work like with `induction.`
+
+Under `set_option tactic.fun_induction.unfolding true` (the default), `fun_induction` uses the
+`f.induct_unfolding` induction principle, which will try to automatically unfold the call to `f` in
+the goal. With `set_option tactic.fun_induction.unfolding false`, it uses `f.induct` instead.
 -/
 syntax (name := funInduction) "fun_induction " term
   (" generalizing" (ppSpace colGt term:max)+)? (inductionAlts)? : tactic
 
 /--
-The `fun_cass` tactic is a convenience wrapper of the `cases` tactic when using a functional
+The `fun_cases` tactic is a convenience wrapper of the `cases` tactic when using a functional
 cases principle.
 
 The tactic invocation
@@ -978,10 +1020,10 @@ fun_cases f x ... y ...`
 ```
 is equivalent to
 ```
-cases y, ... using f.fun_cases x ...
+cases y, ... using f.fun_cases_unfolding x ...
 ```
-where the arguments of `f` are used as arguments to `f.fun_cases` or targets of the case analysis, as
-appropriate.
+where the arguments of `f` are used as arguments to `f.fun_cases_unfolding` or targets of the case
+analysis, as appropriate.
 
 The form
 ```
@@ -992,6 +1034,10 @@ these arguments. An application of `f` is eligible if it is saturated and the ar
 become targets are free variables.
 
 The form `fun_cases f x y with | case1 => tac₁ | case2 x' ih => tac₂` works like with `cases`.
+
+Under `set_option tactic.fun_induction.unfolding true` (the default), `fun_induction` uses the
+`f.fun_cases_unfolding` theorem, which will try to automatically unfold the call to `f` in
+the goal. With `set_option tactic.fun_induction.unfolding false`, it uses `f.fun_cases` instead.
 -/
 syntax (name := funCases) "fun_cases " term (inductionAlts)? : tactic
 
@@ -1124,7 +1170,7 @@ macro "exists " es:term,+ : tactic =>
   `(tactic| (refine ⟨$es,*, ?_⟩; try trivial))
 
 /--
-Apply congruence (recursively) to goals of the form `⊢ f as = f bs` and `⊢ HEq (f as) (f bs)`.
+Apply congruence (recursively) to goals of the form `⊢ f as = f bs` and `⊢ f as ≍ f bs`.
 The optional parameter is the depth of the recursive applications.
 This is useful when `congr` is too aggressive in breaking down the goal.
 For example, given `⊢ f (g (x + y)) = f (g (y + x))`,
@@ -1209,7 +1255,7 @@ h : β
 
 This can be used to simulate the `specialize` and `apply at` tactics of Coq.
 -/
-syntax (name := replace) "replace" haveDecl : tactic
+syntax (name := replace) "replace" letDecl : tactic
 
 /-- `and_intros` applies `And.intro` until it does not make progress. -/
 syntax "and_intros" : tactic
@@ -1225,10 +1271,10 @@ syntax (name := substEqs) "subst_eqs" : tactic
 syntax (name := runTac) "run_tac " doSeq : tactic
 
 /-- `haveI` behaves like `have`, but inlines the value instead of producing a `let_fun` term. -/
-macro "haveI" d:haveDecl : tactic => `(tactic| refine_lift haveI $d:haveDecl; ?_)
+macro "haveI" d:letDecl : tactic => `(tactic| refine_lift haveI $d:letDecl; ?_)
 
 /-- `letI` behaves like `let`, but inlines the value instead of producing a `let_fun` term. -/
-macro "letI" d:haveDecl : tactic => `(tactic| refine_lift letI $d:haveDecl; ?_)
+macro "letI" d:letDecl : tactic => `(tactic| refine_lift letI $d:letDecl; ?_)
 
 /--
 Configuration for the `decide` tactic family.
@@ -1872,30 +1918,35 @@ syntax "‹" withoutPosition(term) "›" : term
 macro_rules | `(‹$type›) => `((by assumption : $type))
 
 /--
-`get_elem_tactic_trivial` is an extensible tactic automatically called
+`get_elem_tactic_extensible` is an extensible tactic automatically called
 by the notation `arr[i]` to prove any side conditions that arise when
 constructing the term (e.g. the index is in bounds of the array).
-The default behavior is to just try `trivial` (which handles the case
-where `i < arr.size` is in the context) and `simp +arith` and `omega`
+The default behavior is to try `simp +arith` and `omega`
 (for doing linear arithmetic in the index).
+
+(Note that the core tactic `get_elem_tactic` has already tried
+`done` and `assumption` before the extensible tactic is called.)
 -/
+syntax "get_elem_tactic_extensible" : tactic
+
+/-- `get_elem_tactic_trivial` has been deprecated in favour of `get_elem_tactic_extensible`. -/
 syntax "get_elem_tactic_trivial" : tactic
 
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| omega)
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| simp +arith; done)
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| trivial)
+macro_rules | `(tactic| get_elem_tactic_extensible) => `(tactic| omega)
+macro_rules | `(tactic| get_elem_tactic_extensible) => `(tactic| simp +arith; done)
+macro_rules | `(tactic| get_elem_tactic_extensible) => `(tactic| trivial)
 
 /--
 `get_elem_tactic` is the tactic automatically called by the notation `arr[i]`
 to prove any side conditions that arise when constructing the term
 (e.g. the index is in bounds of the array). It just delegates to
-`get_elem_tactic_trivial` and gives a diagnostic error message otherwise;
-users are encouraged to extend `get_elem_tactic_trivial` instead of this tactic.
+`get_elem_tactic_extensible` and gives a diagnostic error message otherwise;
+users are encouraged to extend `get_elem_tactic_extensible` instead of this tactic.
 -/
 macro "get_elem_tactic" : tactic =>
   `(tactic| first
       /-
-      Recall that `macro_rules` (namely, for `get_elem_tactic_trivial`) are tried in reverse order.
+      Recall that `macro_rules` (namely, for `get_elem_tactic_extensible`) are tried in reverse order.
       We first, however, try `done`, since the necessary proof may already have been
       found during unification, in which case there is no goal to solve (see #6999).
       If a goal is present, we want `assumption` to be tried first.
@@ -1908,15 +1959,15 @@ macro "get_elem_tactic" : tactic =>
       If `omega` is used to "fill" this proof, we will have a more complex proof term that
       cannot be inferred by unification.
       We hardcoded `assumption` here to ensure users cannot accidentally break this IF
-      they add new `macro_rules` for `get_elem_tactic_trivial`.
+      they add new `macro_rules` for `get_elem_tactic_extensible`.
 
       TODO: Implement priorities for `macro_rules`.
-      TODO: Ensure we have **high-priority** macro_rules for `get_elem_tactic_trivial` which are
+      TODO: Ensure we have **high-priority** macro_rules for `get_elem_tactic_extensible` which are
             just `done` and `assumption`.
       -/
     | done
     | assumption
-    | get_elem_tactic_trivial
+    | get_elem_tactic_extensible
     | fail "failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
   - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid

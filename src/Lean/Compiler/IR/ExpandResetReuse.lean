@@ -49,23 +49,11 @@ partial def consumed (x : VarId) : FnBody → Bool
   | e => !e.isTerminal && consumed x e.body
 
 abbrev Mask := Array (Option VarId)
-abbrev ProjCounts := Std.HashMap (VarId × Nat) Nat
-
-partial def computeProjCounts (bs : Array FnBody) : ProjCounts :=
-  let incrementCountIfProj r b :=
-    if let .vdecl _ _ (.proj i v) _ := b then
-      r.alter (v, i) fun
-      | some n => some (n + 1)
-      | none => some 1
-    else
-      r
-  bs.foldl incrementCountIfProj Std.HashMap.emptyWithCapacity
 
 /-- Auxiliary function for eraseProjIncFor -/
-partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (projCounts : ProjCounts)
-    (mask : Mask) (keep : Array FnBody) : Array FnBody × Mask :=
+partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (mask : Mask) (keep : Array FnBody) : Array FnBody × Mask :=
   let done (_ : Unit)        := (bs ++ keep.reverse, mask)
-  let keepInstr (b : FnBody) := eraseProjIncForAux y bs.pop projCounts mask (keep.push b)
+  let keepInstr (b : FnBody) := eraseProjIncForAux y bs.pop mask (keep.push b)
   if h : bs.size < 2 then done ()
   else
     let b := bs.back!
@@ -77,10 +65,7 @@ partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (projCounts : Pro
       let b' := bs[bs.size - 2]
       match b' with
       | .vdecl w _ (.proj i x) _ =>
-        -- We disable the inc optimization if there are multiple projections with the same base
-        -- and index, because the downstream transformations are incapable of correctly handling
-        -- the aliasing.
-        if w == z && y == x && projCounts[(x, i)]! == 1 then
+        if w == z && y == x then
           /- Found
              ```
              let z := proj[i] y
@@ -92,7 +77,7 @@ partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (projCounts : Pro
           let mask := mask.set! i (some z)
           let keep := keep.push b'
           let keep := if n == 1 then keep else keep.push (FnBody.inc z (n-1) c p FnBody.nil)
-          eraseProjIncForAux y bs projCounts mask keep
+          eraseProjIncForAux y bs mask keep
         else done ()
       | _ => done ()
     | _ => done ()
@@ -100,7 +85,7 @@ partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (projCounts : Pro
 /-- Try to erase `inc` instructions on projections of `y` occurring in the tail of `bs`.
    Return the updated `bs` and a bit mask specifying which `inc`s have been removed. -/
 def eraseProjIncFor (n : Nat) (y : VarId) (bs : Array FnBody) : Array FnBody × Mask :=
-  eraseProjIncForAux y bs (computeProjCounts bs) (.replicate n none) #[]
+  eraseProjIncForAux y bs (.replicate n none) #[]
 
 /-- Replace `reuse x ctor ...` with `ctor ...`, and remove `dec x` -/
 partial def reuseToCtor (x : VarId) : FnBody → FnBody

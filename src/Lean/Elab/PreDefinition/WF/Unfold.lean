@@ -73,9 +73,8 @@ private partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Un
         throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
 
 def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (wfPreprocessProof : Simp.Result) : MetaM Unit := do
-  let baseName := preDef.declName
-  let name := Name.str baseName unfoldThmSuffix
-  mapError (f := (m!"Cannot derive {name}{indentD ·}")) do
+  let name := mkEqLikeNameFor (← getEnv) preDef.declName unfoldThmSuffix
+  prependError m!"Cannot derive {name}" do
   withOptions (tactic.hygienic.set · false) do
     lambdaTelescope preDef.value fun xs body => do
       let us := preDef.levelParams.map mkLevelParam
@@ -97,6 +96,7 @@ def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (wfPreprocessPr
         name, type, value
         levelParams := preDef.levelParams
       }
+      inferDefEqAttr name
       trace[Elab.definition.wf] "mkUnfoldEq defined {.ofConstName name}"
 
 /--
@@ -106,10 +106,9 @@ theorem of `foo._unary` or `foo._binary`.
 It should just be a specialization of that one, due to defeq.
 -/
 def mkBinaryUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) : MetaM Unit := do
-  let baseName := preDef.declName
-  let name := Name.str baseName unfoldThmSuffix
-  let unaryEqName := Name.str unaryPreDefName unfoldThmSuffix
-  mapError (f := (m!"Cannot derive {name} from {unaryEqName}{indentD ·}")) do
+  let name := mkEqLikeNameFor (← getEnv) preDef.declName unfoldThmSuffix
+  let unaryEqName:= mkEqLikeNameFor (← getEnv) unaryPreDefName unfoldThmSuffix
+  prependError m!"Cannot derive {name} from {unaryEqName}" do
   withOptions (tactic.hygienic.set · false) do
     lambdaTelescope preDef.value fun xs body => do
       let us := preDef.levelParams.map mkLevelParam
@@ -129,6 +128,7 @@ def mkBinaryUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) : MetaM U
         name, type, value
         levelParams := preDef.levelParams
       }
+      inferDefEqAttr name
       trace[Elab.definition.wf] "mkBinaryUnfoldEq defined {.ofConstName name}"
 
 builtin_initialize

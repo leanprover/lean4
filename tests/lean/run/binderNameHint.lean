@@ -84,7 +84,7 @@ error: unsolved goals
 names : List String
 ⊢ (!names.any fun x => !"Waldo".isPrefixOf x) = true
 ---
-info: names : List String
+trace: names : List String
 ⊢ (!names.any fun x => binderNameHint x (fun name => "Waldo".isPrefixOf name) !"Waldo".isPrefixOf x) = true
 -/
 #guard_msgs in

@@ -13,6 +13,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Std_HashMap_Raw_Equiv_instTrans(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_HashMap_Raw_Equiv_instTrans(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+return lean_box(0);
+}
+}
 lean_object* initialize_Std_Data_DHashMap_RawLemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_HashMap_Raw(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;

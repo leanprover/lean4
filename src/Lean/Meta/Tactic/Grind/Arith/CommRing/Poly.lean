@@ -4,8 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Grind.CommRing.Poly
+import Init.Grind.Ring.Poly
 namespace Lean.Grind.CommRing
+
+/-- `sharesVar m₁ m₂` returns `true` if `m₁` and `m₂` shares at least one variable. -/
+def Mon.sharesVar : Mon → Mon → Bool
+  | .unit, _ => false
+  | _, .unit => false
+  | .mult pw₁ m₁, .mult pw₂ m₂ =>
+    match compare pw₁.x pw₂.x with
+    | .eq => true
+    | .lt => sharesVar m₁ (.mult pw₂ m₂)
+    | .gt => sharesVar (.mult pw₁ m₁) m₂
 
 /-- `lcm m₁ m₂` returns the least common multiple of the given monomials. -/
 def Mon.lcm : Mon → Mon → Mon
@@ -210,5 +220,17 @@ def Poly.divConst (p : Poly) (a : Int) : Poly :=
   match p with
   | .num k => .num (k / a)
   | .add k m p => .add (k / a) m (divConst p a)
+
+def Mon.size : Mon → Nat
+  | .unit => 0
+  | .mult _ m => m.size + 1
+
+def Poly.size : Poly → Nat
+  | .num _ => 1
+  | .add _ m p => m.size + 1 + p.size
+
+def Poly.length : Poly → Nat
+  | .num _ => 0
+  | .add _ _ p => 1 + p.length
 
 end Lean.Grind.CommRing

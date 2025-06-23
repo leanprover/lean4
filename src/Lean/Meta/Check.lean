@@ -84,6 +84,17 @@ where
       | _, .mdata _ b' =>
         let (a, b') ← visit a b'
         return (a, b.updateMData! b')
+      | .const nm _, .const nm' _ =>
+        if nm != nm' then
+          return (a, b)
+        else
+          return (a.setPPUniverses true, b.setPPUniverses true)
+      | .proj _ i a', .proj _ j b' =>
+        if i != j then
+          return (a, b)
+        else
+          let (a', b') ← visit a' b'
+          return (a.updateProj! a', b.updateProj! b')
       | .app .., .app .. =>
         if a.getAppNumArgs != b.getAppNumArgs then
           return (a, b)
@@ -172,10 +183,11 @@ where
 def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
   let lctx ← getLCtx
   match lctx.find? fvarId with
-  | some (LocalDecl.ldecl _ _ _ t v _ _) => do
+  | some (LocalDecl.ldecl _ _ _ t v nondep _) => do
     let vType ← inferType v
     let (vType, t) ← addPPExplicitToExposeDiff vType t
-    throwError "invalid let declaration, term{indentExpr v}\nhas type{indentExpr vType}\nbut is expected to have type{indentExpr t}"
+    let declKind := if nondep then "have" else "let"
+    throwError "invalid {declKind} declaration, term{indentExpr v}\nhas type{indentExpr vType}\nbut is expected to have type{indentExpr t}"
   | _ => unreachable!
 
 /--
@@ -198,7 +210,14 @@ def throwAppTypeMismatch (f a : Expr) : MetaM α := do
   unless binfo.isExplicit do
     e := e.setAppPPExplicit
   let aType ← inferType a
-  throwError "application type mismatch{indentExpr e}\nargument{indentExpr a}\n{← mkHasTypeButIsExpectedMsg aType expectedType}"
+  -- Clarify that `a` is "last" only if it may be confused with some preceding argument; otherwise,
+  -- avoid this wording because it may be misleading if more arguments follow `a`, e.g., if `f a` is
+  -- a subexpression of `f a b`
+  let argDescStr := if f.getAppArgs.any (· == a) then
+    m!"last{indentExpr a}\nargument "
+  else
+    m!"argument{indentExpr a}\n"
+  throwError "Application type mismatch: In the application{indentExpr e}\nthe {argDescStr}{← mkHasTypeButIsExpectedMsg aType expectedType}"
 
 def checkApp (f a : Expr) : MetaM Unit := do
   let fType ← inferType f

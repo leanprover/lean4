@@ -120,16 +120,8 @@ private def updateDvdCnstr (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM U
   let c' ← c'.applyEq a x c b
   c'.assert
 
-private def split (x : Var) (cs : PArray LeCnstr) : GoalM (PArray LeCnstr × Array (Int × LeCnstr)) := do
-  let mut cs' := {}
-  let mut todo := #[]
-  for c in cs do
-    let b := c.p.coeff x
-    if b == 0 then
-      cs' := cs'.push c
-    else
-      todo := todo.push (b, c)
-  return (cs', todo)
+private def splitLeCnstrs (x : Var) (cs : PArray LeCnstr) : PArray LeCnstr × Array (Int × LeCnstr) :=
+  split cs fun c => c.p.coeff x
 
 /--
 Given an equation `c₁` containing `a*x`, eliminate `x` from the inequalities in `todo`.
@@ -146,7 +138,7 @@ Given an equation `c₁` containing `a*x`, eliminate `x` from lower bound inequa
 -/
 private def updateLowers (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
   if (← inconsistent) then return ()
-  let (lowers', todo) ← split x (← get').lowers[y]!
+  let (lowers', todo) := splitLeCnstrs x (← get').lowers[y]!
   modify' fun s => { s with lowers := s.lowers.set y lowers' }
   updateLeCnstrs a x c todo
 
@@ -155,24 +147,16 @@ Given an equation `c₁` containing `a*x`, eliminate `x` from upper bound inequa
 -/
 private def updateUppers (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
   if (← inconsistent) then return ()
-  let (uppers', todo) ← split x (← get').uppers[y]!
+  let (uppers', todo) := splitLeCnstrs x (← get').uppers[y]!
   modify' fun s => { s with uppers := s.uppers.set y uppers' }
   updateLeCnstrs a x c todo
 
-private def splitDiseqs (x : Var) (cs : PArray DiseqCnstr) : GoalM (PArray DiseqCnstr × Array (Int × DiseqCnstr)) := do
-  let mut cs' := {}
-  let mut todo := #[]
-  for c in cs do
-    let b := c.p.coeff x
-    if b == 0 then
-      cs' := cs'.push c
-    else
-      todo := todo.push (b, c)
-  return (cs', todo)
+private def splitDiseqs (x : Var) (cs : PArray DiseqCnstr) : PArray DiseqCnstr × Array (Int × DiseqCnstr) :=
+  split cs fun c => c.p.coeff x
 
 private def updateDiseqs (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
   if (← inconsistent) then return ()
-  let (diseqs', todo) ← splitDiseqs x (← get').diseqs[y]!
+  let (diseqs', todo) := splitDiseqs x (← get').diseqs[y]!
   modify' fun s => { s with diseqs := s.diseqs.set y diseqs' }
   for (b, c₂) in todo do
     let c₂ ← c₂.applyEq a x c b
@@ -228,10 +212,10 @@ def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
     { d, p, h := .ofEq x c : DvdCnstr }.assert
 
 private def exprAsPoly (a : Expr) : GoalM Poly := do
-  if let some var := (← get').varMap.find? { expr := a } then
-    return .add 1 var (.num 0)
-  else if let some k ← getIntValue? a then
+  if let some k ← getIntValue? a then
     return .num k
+  else if let some var := (← get').varMap.find? { expr := a } then
+    return .add 1 var (.num 0)
   else
     throwError "internal `grind` error, expression is not relevant to cutsat{indentExpr a}"
 
@@ -254,27 +238,11 @@ private def processNewNatEq (a b : Expr) : GoalM Unit := do
 
 @[export lean_process_cutsat_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
+  unless (← getConfig).cutsat do return ()
   match (← foreignTerm? a), (← foreignTerm? b) with
   | none, none => processNewIntEq a b
   | some .nat, some .nat => processNewNatEq a b
   | _, _ => return ()
-
-private def processNewIntLitEq (a ke : Expr) : GoalM Unit := do
-  let some k ← getIntValue? ke | return ()
-  let p₁ ← exprAsPoly a
-  let c ← if k == 0 then
-    pure { p := p₁, h := .core0 a ke : EqCnstr }
-  else
-    let p₂ ← exprAsPoly ke
-    let p := p₁.combine (p₂.mul (-1))
-    pure { p, h := .core a ke p₁ p₂ : EqCnstr }
-  c.assert
-
-@[export lean_process_cutsat_eq_lit]
-def processNewEqLitImpl (a ke : Expr) : GoalM Unit := do
-  match (← foreignTerm? a) with
-  | none => processNewIntLitEq a ke
-  | some .nat => processNewNatEq a ke
 
 private def processNewIntDiseq (a b : Expr) : GoalM Unit := do
   let p₁ ← exprAsPoly a
@@ -298,6 +266,7 @@ private def processNewNatDiseq (a b : Expr) : GoalM Unit := do
 
 @[export lean_process_cutsat_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
+  unless (← getConfig).cutsat do return ()
   match (← foreignTerm? a), (← foreignTermOrLit? b) with
   | none, none => processNewIntDiseq a b
   | some .nat, some .nat => processNewNatDiseq a b
@@ -305,7 +274,7 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where
-  | add | mul | num | div | mod | sub | natAbs | toNat
+  | add | mul | num | div | mod | sub | pow | natAbs | toNat | natCast
   deriving BEq
 
 private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
@@ -315,12 +284,14 @@ private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
   | HMul.hMul α _ _ _ _ _ => some (.mul, α)
   | HDiv.hDiv α _ _ _ _ _ => some (.div, α)
   | HMod.hMod α _ _ _ _ _ => some (.mod, α)
+  | HPow.hPow α _ _ _ _ _ => some (.pow, α)
   | OfNat.ofNat α _ _ => some (.num, α)
   | Neg.neg α _ a =>
     let_expr OfNat.ofNat _ _ _ := a | none
     some (.num, α)
   | Int.natAbs _ => some (.natAbs, Nat.mkType)
   | Int.toNat _ => some (.toNat, Nat.mkType)
+  | NatCast.natCast α _ _ => some (.natCast, α)
   | _ => none
 
 private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : Bool := Id.run do
@@ -329,12 +300,14 @@ private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : 
   -- TODO: document `NatCast.natCast` case.
   -- Remark: we added it to prevent natCast_sub from being expanded twice.
   if declName == ``NatCast.natCast then return true
-  if k matches .div | .mod | .sub | .natAbs | .toNat then return false
+  if k matches .div | .mod | .sub | .pow | .natAbs | .toNat | .natCast then return false
   if declName == ``HAdd.hAdd || declName == ``LE.le || declName == ``Dvd.dvd then return true
   match k with
   | .add => return false
   | .mul => return declName == ``HMul.hMul
-  | .num => return declName == ``HMul.hMul || declName == ``Eq
+  | .num =>
+    -- Recall that we don't want to internalize numerals occurring at terms such as `x^3`.
+    return declName == ``HMul.hMul || declName == ``HPow.hPow
   | _ => unreachable!
 
 private def internalizeInt (e : Expr) : GoalM Unit := do
@@ -413,11 +386,12 @@ Internalizes an integer (and `Nat`) expression. Here are the different cases tha
 
 - `a + b` when `parent?` is not `+`, `≤`, or `∣`
 - `k * a` when `k` is a numeral and `parent?` is not `+`, `*`, `≤`, `∣`
-- numerals when `parent?` is not `+`, `*`, `≤`, `∣`, `=`.
+- numerals when `parent?` is not `+`, `*`, `≤`, `∣`.
   Recall that we must internalize numerals to make sure we can propagate equalities
   back to the congruence closure module. Example: we have `f 5`, `f x`, `x - y = 3`, `y = 2`.
 -/
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
+  unless (← getConfig).cutsat do return ()
   let some (k, type) := getKindAndType? e | return ()
   if isForbiddenParent parent? k then return ()
   trace[grind.debug.cutsat.internalize] "{e} : {type}"
@@ -425,7 +399,6 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     match k with
     | .div => propagateDiv e
     | .mod => propagateMod e
-    | .num => pure ()
     | _ => internalizeInt e
   else if type.isConstOf ``Nat then
     if (← hasForeignVar e) then return ()
@@ -434,7 +407,6 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     | .sub => propagateNatSub e
     | .natAbs => propagateNatAbs e
     | .toNat => propagateToNat e
-    | .num => pure ()
     | _ => internalizeNat e
 
 end Lean.Meta.Grind.Arith.Cutsat

@@ -6,7 +6,7 @@ example : ¬ true = false := by
 /-! Test `binop%` -/
 
 /--
-info: y x : Nat
+trace: y x : Nat
 h : y = 0
 ⊢ Add.add x y = x
 -/
@@ -15,11 +15,11 @@ example (h : y = 0) : x + y = x := by
   simp [(.+.)] -- Expands `HAdd.hAdd
   trace_state
   simp [Add.add]
-  simp [h, Nat.add]
+  simp [h]
   done
 
 /--
-info: y x : Nat
+trace: y x : Nat
 h : y = 0
 ⊢ Add.add x y = x
 -/
@@ -28,7 +28,7 @@ example (h : y = 0) : x + y = x := by
   simp [.+.]
   trace_state
   simp [Add.add]
-  simp [h, Nat.add]
+  simp [h]
   done
 
 /-! Test `binop%` variant `rightact%` as well -/

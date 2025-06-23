@@ -23,47 +23,60 @@ private def levelParamsToMessageData (levelParams : List Name) : MessageData :=
     return m ++ "}"
 
 private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (safety : DefinitionSafety) (sig : Bool := true) : CommandElabM MessageData := do
-  let m : MessageData :=
-    match (← getReducibilityStatus id) with
-    | ReducibilityStatus.irreducible => "@[irreducible] "
-    | ReducibilityStatus.reducible => "@[reducible] "
-    | ReducibilityStatus.semireducible => ""
-  let m :=
-    m ++
-    match safety with
-    | DefinitionSafety.unsafe  => "unsafe "
-    | DefinitionSafety.partial => "partial "
-    | DefinitionSafety.safe    => ""
-  let m := if isProtected (← getEnv) id then m ++ "protected " else m
-  let (m, id) := match privateToUserName? id with
-    | some id => (m ++ "private ", id)
-    | none    => (m, id)
+  let mut attrs := #[]
+  match (← getReducibilityStatus id) with
+  | ReducibilityStatus.irreducible =>   attrs := attrs.push m!"irreducible"
+  | ReducibilityStatus.reducible =>     attrs := attrs.push m!"reducible"
+  | ReducibilityStatus.semireducible => pure ()
+
+  if defeqAttr.hasTag (← getEnv) id then
+    attrs := attrs.push m!"defeq"
+
+  let mut m : MessageData := m!""
+  unless attrs.isEmpty do
+    m := m ++ "@[" ++ MessageData.joinSep attrs.toList ", " ++ "] "
+
+  match safety with
+  | DefinitionSafety.unsafe  => m := m ++ "unsafe "
+  | DefinitionSafety.partial => m := m ++ "partial "
+  | DefinitionSafety.safe    => pure ()
+
+  if isProtected (← getEnv) id then
+    m := m ++ "protected "
+
+  let id' ← match privateToUserName? id with
+    | some id' =>
+      m := m ++ "private "
+      pure id'
+    | none =>
+      pure id
+
   if sig then
-    return m!"{m}{kind} {id}{levelParamsToMessageData levelParams} : {type}"
+    return m!"{m}{kind} {id'}{levelParamsToMessageData levelParams} : {type}"
   else
     return m!"{m}{kind}"
-
-private def mkHeader' (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (isUnsafe : Bool) (sig : Bool := true) : CommandElabM MessageData :=
-  mkHeader kind id levelParams type (if isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe) (sig := sig)
 
 private def mkOmittedMsg : Option Expr → MessageData
   | none   => "<not imported>"
   | some e => e
 
-private def printDefLike (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (value? : Option Expr) (safety := DefinitionSafety.safe) : CommandElabM Unit := do
-  let m ← mkHeader kind id levelParams type safety
-  let m := m ++ " :=" ++ Format.line ++ mkOmittedMsg value?
-  logInfo m
+private def printAxiomLike (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (safety : DefinitionSafety) : CommandElabM Unit := do
+  logInfo (← mkHeader kind id levelParams type safety)
 
-private def printAxiomLike (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (isUnsafe := false) : CommandElabM Unit := do
-  logInfo (← mkHeader' kind id levelParams type isUnsafe)
+private def printDefLike (sigOnly : Bool) (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (value? : Option Expr) (safety := DefinitionSafety.safe) : CommandElabM Unit := do
+  if sigOnly then
+    printAxiomLike kind id levelParams type safety
+  else
+    let m ← mkHeader kind id levelParams type safety
+    let m := m ++ " :=" ++ Format.line ++ mkOmittedMsg value?
+    logInfo m
 
 private def printQuot (id : Name) (levelParams : List Name) (type : Expr) : CommandElabM Unit := do
-  printAxiomLike "Quotient primitive" id levelParams type
+  printAxiomLike "Quotient primitive" id levelParams type (safety := DefinitionSafety.safe)
 
 private def printInduct (id : Name) (levelParams : List Name) (numParams : Nat) (type : Expr)
     (ctors : List Name) (isUnsafe : Bool) : CommandElabM Unit := do
-  let mut m ← mkHeader' "inductive" id levelParams type isUnsafe
+  let mut m ← mkHeader "inductive" id levelParams type (if isUnsafe then .unsafe else .safe)
   m := m ++ Format.line ++ "number of parameters: " ++ toString numParams
   m := m ++ Format.line ++ "constructors:"
   for ctor in ctors do
@@ -89,7 +102,7 @@ private partial def printStructure (id : Name) (levelParams : List Name) (numPar
     (isUnsafe : Bool) : CommandElabM Unit := do
   let env ← getEnv
   let kind := if isClass env id then "class" else "structure"
-  let header ← mkHeader' kind id levelParams type isUnsafe (sig := false)
+  let header ← mkHeader kind id levelParams type (if isUnsafe then .unsafe else .safe) (sig := false)
   let levels := levelParams.map Level.param
   liftTermElabM <| forallTelescope (← getConstInfo id).type fun params _ =>
     let s := Expr.const id levels
@@ -158,20 +171,20 @@ private partial def printStructure (id : Name) (levelParams : List Name) (numPar
       withOptions (fun opts => opts.set pp.proofs.name false) do
         logInfo m
 
-private def printIdCore (id : Name) : CommandElabM Unit := do
+private def printIdCore (sigOnly : Bool) (id : Name) : CommandElabM Unit := do
   let env ← getEnv
   match env.find? id with
   | ConstantInfo.axiomInfo { levelParams := us, type := t, isUnsafe := u, .. } =>
     match getOriginalConstKind? env id with
-    | some .defn => printDefLike "def" id us t none (if u then .unsafe else .safe)
-    | some .thm => printDefLike "theorem" id us t none (if u then .unsafe else .safe)
-    | _  => printAxiomLike "axiom" id us t u
-  | ConstantInfo.defnInfo  { levelParams := us, type := t, value := v, safety := s, .. } => printDefLike "def" id us t v s
-  | ConstantInfo.thmInfo  { levelParams := us, type := t, value := v, .. } => printDefLike "theorem" id us t v
-  | ConstantInfo.opaqueInfo  { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "opaque" id us t u
+    | some .defn => printDefLike sigOnly "def" id us t none (if u then .unsafe else .safe)
+    | some .thm => printDefLike sigOnly "theorem" id us t none (if u then .unsafe else .safe)
+    | _  => printAxiomLike "axiom" id us t (if u then .unsafe else .safe)
+  | ConstantInfo.defnInfo  { levelParams := us, type := t, value := v, safety := s, .. } => printDefLike sigOnly "def" id us t v s
+  | ConstantInfo.thmInfo  { levelParams := us, type := t, value := v, .. } => printDefLike sigOnly "theorem" id us t v
+  | ConstantInfo.opaqueInfo  { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "opaque" id us t (if u then .unsafe else .safe)
   | ConstantInfo.quotInfo  { levelParams := us, type := t, .. } => printQuot id us t
-  | ConstantInfo.ctorInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "constructor" id us t u
-  | ConstantInfo.recInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "recursor" id us t u
+  | ConstantInfo.ctorInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "constructor" id us t (if u then .unsafe else .safe)
+  | ConstantInfo.recInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "recursor" id us t (if u then .unsafe else .safe)
   | ConstantInfo.inductInfo { levelParams := us, numParams, type := t, ctors, isUnsafe := u, .. } =>
     if isStructure env id then
       printStructure id us numParams t ctors[0]! u
@@ -182,12 +195,22 @@ private def printIdCore (id : Name) : CommandElabM Unit := do
 private def printId (id : Syntax) : CommandElabM Unit := do
   addCompletionInfo <| CompletionInfo.id id id.getId (danglingDot := false) {} none
   let cs ← liftCoreM <| realizeGlobalConstWithInfos id
-  cs.forM printIdCore
+  cs.forM (printIdCore (sigOnly := false) ·)
 
 @[builtin_command_elab «print»] def elabPrint : CommandElab
   | `(#print%$tk $id:ident) => withRef tk <| printId id
   | `(#print%$tk $s:str)    => logInfoAt tk s.getString
   | _                       => throwError "invalid #print command"
+
+private def printIdSig (id : Syntax) : CommandElabM Unit := do
+  addCompletionInfo <| CompletionInfo.id id id.getId (danglingDot := false) {} none
+  let cs ← liftCoreM <| realizeGlobalConstWithInfos id
+  cs.forM (printIdCore (sigOnly := true) ·)
+
+@[builtin_command_elab «printSig»] def elabPrintSig : CommandElab := fun stx =>
+  withRef stx[0] do
+    let id := stx[2]
+    printIdSig id
 
 private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
   let axioms ← collectAxioms constName
@@ -198,6 +221,10 @@ private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
 
 @[builtin_command_elab «printAxioms»] def elabPrintAxioms : CommandElab
   | `(#print%$tk axioms $id) => withRef tk do
+    if (← getEnv).header.isModule then
+      throwError "cannot use `#print axioms` in a `module`; consider temporarily removing the \
+        `module` header or placing the command in a separate file"
+
     let cs ← liftCoreM <| realizeGlobalConstWithInfos id
     cs.forM printAxiomsOf
   | _ => throwUnsupportedSyntax

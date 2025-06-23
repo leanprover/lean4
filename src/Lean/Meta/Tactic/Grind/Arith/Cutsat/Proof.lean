@@ -5,6 +5,8 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Diseq
+import Lean.Meta.Tactic.Grind.Arith.Util
+import Lean.Meta.Tactic.Grind.Arith.ProofUtil
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 
@@ -63,19 +65,6 @@ def mkNatExprDecl (e : Int.OfNat.Expr) : ProofM Expr := do
   let x := mkFVar (← mkFreshFVarId)
   modify fun s => { s with natExprMap := s.natExprMap.insert e x }
   return x
-
-private def mkLetOfMap {_ : Hashable α} {_ : BEq α} (m : Std.HashMap α Expr) (e : Expr)
-    (varPrefix : Name) (varType : Expr) (toExpr : α → Expr) : GoalM Expr := do
-  if m.isEmpty then
-    return e
-  else
-    let as := m.toArray
-    let mut e := e.abstract <| as.map (·.2)
-    let mut i := as.size
-    for (p, _) in as.reverse do
-      e := mkLet (varPrefix.appendIndexAfter i) varType (toExpr p) e
-      i := i - 1
-    return e
 
 private def toContextExprCore (vars : PArray Expr) (type : Expr) : MetaM Expr :=
   if h : 0 < vars.size then
@@ -396,20 +385,7 @@ A cutsat proof may depend on decision variables.
 We collect them and perform non chronological backtracking.
 -/
 
-structure CollectDecVars.State where
-  visited : Std.HashSet UInt64 := {}
-  found : FVarIdSet := {}
-abbrev CollectDecVarsM := ReaderT FVarIdSet (StateM CollectDecVars.State)
-
-private def alreadyVisited (c : α) : CollectDecVarsM Bool := do
-  let addr := unsafe (ptrAddrUnsafe c).toUInt64 >>> 2
-  if (← get).visited.contains addr then return true
-  modify fun s => { s with visited := s.visited.insert addr }
-  return false
-
-private def markAsFound (fvarId : FVarId) : CollectDecVarsM Unit := do
-  modify fun s => { s with found := s.found.insert fvarId }
-
+open CollectDecVars
 mutual
 partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
@@ -455,9 +431,5 @@ def UnsatProof.collectDecVars (h : UnsatProof) : CollectDecVarsM Unit := do
   match h with
   | .le c | .dvd c | .eq c | .diseq c => c.collectDecVars
   | .cooper c₁ c₂ c₃ => c₁.collectDecVars; c₂.collectDecVars; c₃.collectDecVars
-
-abbrev CollectDecVarsM.run (x : CollectDecVarsM Unit) (decVars : FVarIdSet) : FVarIdSet :=
-  let (_, s) := x decVars |>.run {}
-  s.found
 
 end Lean.Meta.Grind.Arith.Cutsat

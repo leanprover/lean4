@@ -5,7 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Init.Data.Bool
-import Init.Data.BitVec
+import Init.Data.BitVec.Lemmas
 
 /-!
 This module contains the equality simplifying part of the `bv_normalize` simp set.
@@ -13,10 +13,6 @@ This module contains the equality simplifying part of the `bv_normalize` simp se
 
 namespace Std.Tactic.BVDecide
 namespace Frontend.Normalize
-
-attribute [bv_normalize] eq_self
-attribute [bv_normalize] beq_self_eq_true
-attribute [bv_normalize] beq_self_eq_true'
 
 @[bv_normalize]
 theorem Bool.not_beq_not : ∀ (a b : Bool), ((!a) == (!b)) = (a == b) := by

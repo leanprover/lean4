@@ -14,7 +14,12 @@ namespace Module
 def moduleTk   := leading_parser "module"
 def «prelude»  := leading_parser "prelude"
 def «private»  := leading_parser (withAnonymousAntiquot := false) "private"
-def «import»   := leading_parser "import " >> optional «private» >> identWithPartialTrailingDot
+def «meta»     := leading_parser (withAnonymousAntiquot := false) "meta"
+def «all»      := leading_parser (withAnonymousAntiquot := false) "all"
+def «import»   := leading_parser
+  atomic (optional «private» >> optional «meta» >> "import ") >>
+  optional all >>
+  identWithPartialTrailingDot
 def header     := leading_parser optional (moduleTk >> ppLine >> ppLine) >>
   optional («prelude» >> ppLine) >>
   many («import» >> ppLine) >>
@@ -66,7 +71,7 @@ private partial def mkErrorMessage (c : InputContext) (pos : String.Pos) (stk : 
 where
   -- Error recovery might lead to there being some "junk" on the stack
   lastTrailing (s : SyntaxStack) : Option Substring :=
-    s.toSubarray.findSomeRevM? (m := Id) fun stx =>
+    Id.run <| s.toSubarray.findSomeRevM? fun stx =>
       if let .original (trailing := trailing) .. := stx.getTailInfo then pure (some trailing)
         else none
 

@@ -45,7 +45,7 @@ theorem em (p : Prop) : p ∨ ¬p :=
     | Or.inr h, _ => Or.inr h
     | _, Or.inr h => Or.inr h
     | Or.inl hut, Or.inl hvf =>
-      have hne : u ≠ v := by simp [hvf, hut, true_ne_false]
+      have hne : u ≠ v := by simp [hvf, hut]
       Or.inl hne
   have p_implies_uv : p → u = v :=
     fun hp =>
@@ -107,8 +107,8 @@ noncomputable def epsilon {α : Sort u} [h : Nonempty α] (p : α → Prop) : α
 theorem epsilon_spec_aux {α : Sort u} (h : Nonempty α) (p : α → Prop) : (∃ y, p y) → p (@epsilon α h p) :=
   (strongIndefiniteDescription p h).property
 
-theorem epsilon_spec {α : Sort u} {p : α → Prop} (hex : ∃ y, p y) : p (@epsilon α (nonempty_of_exists hex) p) :=
-  epsilon_spec_aux (nonempty_of_exists hex) p hex
+theorem epsilon_spec {α : Sort u} {p : α → Prop} (hex : ∃ y, p y) : p (@epsilon α hex.nonempty p) :=
+  epsilon_spec_aux hex.nonempty p hex
 
 theorem epsilon_singleton {α : Sort u} (x : α) : @epsilon α ⟨x⟩ (fun y => y = x) = x :=
   @epsilon_spec α (fun y => y = x) ⟨x, rfl⟩

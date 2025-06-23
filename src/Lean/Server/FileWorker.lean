@@ -150,6 +150,10 @@ section Elab
     let param := { version := m.version, references }
     return { method, param }
 
+  private def mkInitialIleanInfoUpdateNotification (m : DocumentMeta)
+      (directImports : Array ImportInfo) : JsonRpc.Notification Lsp.LeanILeanHeaderInfoParams :=
+    { method := "$/lean/ileanHeaderInfo", param := { version := m.version, directImports } }
+
   private def mkIleanInfoUpdateNotification : DocumentMeta → Array Elab.InfoTree →
       BaseIO (JsonRpc.Notification Lsp.LeanIleanInfoParams) :=
     mkIleanInfoNotification "$/lean/ileanInfoUpdate"
@@ -365,7 +369,7 @@ Callback from Lean language processor after parsing imports that requests necess
 Lake for processing imports.
 -/
 def setupImports
-    (meta        : DocumentMeta)
+    (doc         : DocumentMeta)
     (cmdlineOpts : Options)
     (chanOut     : Std.Channel JsonRpc.Message)
     (stx         : TSyntax ``Parser.Module.header)
@@ -378,20 +382,21 @@ def setupImports
     unless (← IO.checkCanceled) do
       IO.Process.exit 2  -- signal restart request to watchdog
     -- should not be visible to user as task is already canceled
-    return .error { diagnostics := .empty, result? := none }
+    return .error { diagnostics := .empty, result? := none, metaSnap := default }
 
+  chanOut.sync.send <| mkInitialIleanInfoUpdateNotification doc <| collectImports stx
   let imports := Elab.headerToImports stx
-  let fileSetupResult ← setupFile meta imports fun stderrLine => do
+  let fileSetupResult ← setupFile doc imports fun stderrLine => do
     let progressDiagnostic := {
       range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
       -- make progress visible anywhere in the file
-      fullRange? := some ⟨⟨0, 0⟩, meta.text.utf8PosToLspPos meta.text.source.endPos⟩
+      fullRange? := some ⟨⟨0, 0⟩, doc.text.utf8PosToLspPos doc.text.source.endPos⟩
       severity?  := DiagnosticSeverity.information
       message    := stderrLine
     }
-    chanOut.sync.send <| mkPublishDiagnosticsNotification meta #[progressDiagnostic]
+    chanOut.sync.send <| mkPublishDiagnosticsNotification doc #[progressDiagnostic]
   -- clear progress notifications in the end
-  chanOut.sync.send <| mkPublishDiagnosticsNotification meta #[]
+  chanOut.sync.send <| mkPublishDiagnosticsNotification doc #[]
   match fileSetupResult.kind with
   | .importsOutOfDate =>
     return .error {
@@ -399,11 +404,13 @@ def setupImports
         "Imports are out of date and must be rebuilt; \
           use the \"Restart File\" command in your editor.")
       result? := none
+      metaSnap := default
     }
   | .error msg =>
     return .error {
       diagnostics := (← diagnosticsOfHeaderError msg)
       result? := none
+      metaSnap := default
     }
   | _ => pure ()
 
@@ -416,14 +423,16 @@ def setupImports
   let opts := Elab.inServer.set opts true
 
   return .ok {
-    mainModuleName := meta.mod
+    mainModuleName := doc.mod
+    isModule := Elab.HeaderSyntax.isModule stx
+    imports
     opts
     plugins := fileSetupResult.plugins
   }
 
 /- Worker initialization sequence. -/
 section Initialization
-  def initializeWorker (meta : DocumentMeta) (o e : FS.Stream) (initParams : InitializeParams) (opts : Options)
+  def initializeWorker (doc : DocumentMeta) (o e : FS.Stream) (initParams : InitializeParams) (opts : Options)
       : IO (WorkerContext × WorkerState) := do
     let clientHasWidgets := initParams.initializationOptions?.bind (·.hasWidgets?) |>.getD false
     let maxDocVersionRef ← IO.mkRef 0
@@ -440,9 +449,9 @@ section Initialization
           -- Emit a refresh request after a file worker restart.
           pendingRefreshInfo? := some { lastRefreshTimestamp := timestamp, successiveRefreshAttempts := 0 }
         })
-    let processor := Language.Lean.process (setupImports meta opts chanOut)
+    let processor := Language.Lean.process (setupImports doc opts chanOut)
     let processor ← Language.mkIncrementalProcessor processor
-    let initSnap ← processor meta.mkInputContext
+    let initSnap ← processor doc.mkInputContext
     let _ ← ServerTask.IO.asTask do
       let importClosure := getImportClosure? initSnap
       let importClosure ← importClosure.filterMapM (documentUriFromModule? ·)
@@ -461,7 +470,7 @@ section Initialization
       stickyDiagnosticsRef
     }
     let doc : EditableDocumentCore := {
-      meta, initSnap
+      «meta» := doc, initSnap
       diagnosticsRef := (← IO.mkRef ∅)
     }
     let reporterCancelTk ← CancelToken.new
@@ -542,19 +551,19 @@ section Updates
     modify fun st => { st with pendingRequests := map st.pendingRequests }
 
   /-- Given the new document, updates editable doc state. -/
-  def updateDocument (meta : DocumentMeta) : WorkerM Unit := do
+  def updateDocument (doc : DocumentMeta) : WorkerM Unit := do
     (← get).reporterCancelTk.set
     let ctx ← read
-    let initSnap ← ctx.processor meta.mkInputContext
+    let initSnap ← ctx.processor doc.mkInputContext
     let doc : EditableDocumentCore := {
-      meta, initSnap
+      «meta» := doc, initSnap
       diagnosticsRef := (← IO.mkRef ∅)
     }
     let reporterCancelTk ← CancelToken.new
     let reporter ← reportSnapshots ctx doc reporterCancelTk
     modify fun st => { st with doc := { doc with reporter }, reporterCancelTk }
     -- we assume version updates are monotonous and that we are on the main thread
-    ctx.maxDocVersionRef.set meta.version
+    ctx.maxDocVersionRef.set doc.meta.version
 end Updates
 
 /- Notifications are handled in the main thread. They may change global worker state
@@ -678,7 +687,7 @@ section MessageHandling
     | none => ServerTask.IO.asTask do
       let availableImports ← ImportCompletion.collectAvailableImports
       let lastRequestTimestampMs ← IO.monoMsNow
-      let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
+      let completions := ImportCompletion.find text ⟨st.doc.initSnap.stx⟩ params availableImports
       ctx.chanOut.sync.send <| .response id (toJson completions)
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 
@@ -688,7 +697,7 @@ section MessageHandling
       if timestampNowMs - lastRequestTimestampMs >= 10000 then
         availableImports ← ImportCompletion.collectAvailableImports
       lastRequestTimestampMs := timestampNowMs
-      let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
+      let completions := ImportCompletion.find text ⟨st.doc.initSnap.stx⟩ params availableImports
       ctx.chanOut.sync.send <| .response id (toJson completions)
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 
@@ -706,7 +715,7 @@ section MessageHandling
       | "textDocument/completion" =>
         let params ← parseParams CompletionParams params
         -- Must not wait on import processing snapshot
-        if ! ImportCompletion.isImportCompletionRequest st.doc.meta.text st.doc.initSnap.stx params then
+        if ! ImportCompletion.isImportCompletionRequest st.doc.meta.text ⟨st.doc.initSnap.stx⟩ params then
           return false
         let importCachingTask ← handleImportCompletionRequest id params
         set { st with importCachingTask? := some importCachingTask }
@@ -767,8 +776,7 @@ section MessageHandling
       if data.providerName != importAllUnknownIdentifiersProvider then
         return none
       return some <| ← RequestM.asTask do
-        let fileRange := ⟨0, st.doc.meta.text.source.endPos⟩
-        let unknownIdentifierRanges ← waitUnknownIdentifierRanges st.doc fileRange
+        let unknownIdentifierRanges ← waitAllUnknownIdentifierRanges st.doc
         if unknownIdentifierRanges.isEmpty then
           return { response := toJson params, isComplete := true }
         let action? ← handleResolveImportAllUnknownIdentifiersCodeAction? id params unknownIdentifierRanges
@@ -788,7 +796,7 @@ section MessageHandling
         let isSourceAction := params.context.only?.any fun only =>
             only.contains "source" || only.contains "source.organizeImports"
         if isSourceAction then
-          let unknownIdentifierRanges ← waitUnknownIdentifierRanges doc ⟨0, doc.meta.text.source.endPos⟩
+          let unknownIdentifierRanges ← waitAllUnknownIdentifierRanges doc
           if unknownIdentifierRanges.isEmpty then
             return r
           let .ok (codeActions : Array CodeAction) := fromJson? r.response
@@ -806,7 +814,7 @@ section MessageHandling
           -- we only do it when the user has stopped typing for a second.
           IO.sleep 1000
           RequestM.checkCancelled
-          let unknownIdentifierCodeActions ← handleUnknownIdentifierCodeAction id params requestedRange unknownIdentifierRanges
+          let unknownIdentifierCodeActions ← handleUnknownIdentifierCodeAction id params requestedRange
           return { r with response := toJson <| codeActions ++ unknownIdentifierCodeActions }
     | _ =>
       return task
@@ -1010,7 +1018,7 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO Unit := do
   let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" LeanDidOpenTextDocumentParams
   let doc := param.textDocument
 
-  let meta : DocumentMeta := {
+  let doc : DocumentMeta := {
     uri := doc.uri
     mod := ← moduleFromDocumentUri doc.uri
     version := doc.version
@@ -1022,9 +1030,9 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO Unit := do
   let e := e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
   let (ctx, st) ← try
-    initializeWorker meta o e initParams.param opts
+    initializeWorker doc o e initParams.param opts
   catch err =>
-    writeErrorDiag meta err
+    writeErrorDiag doc err
     throw err
   StateRefT'.run' (s := st) <| ReaderT.run (r := ctx) do
     try
@@ -1037,10 +1045,10 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO Unit := do
       writeErrorDiag st.doc.meta err
       throw err
 where
-  writeErrorDiag (meta : DocumentMeta) (err : Error) : IO Unit := do
-    o.writeLspMessage <| mkPublishDiagnosticsNotification meta #[{
+  writeErrorDiag (doc : DocumentMeta) (err : Error) : IO Unit := do
+    o.writeLspMessage <| mkPublishDiagnosticsNotification doc #[{
       range := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩,
-      fullRange? := some ⟨⟨0, 0⟩, meta.text.utf8PosToLspPos meta.text.source.endPos⟩
+      fullRange? := some ⟨⟨0, 0⟩, doc.text.utf8PosToLspPos doc.text.source.endPos⟩
       severity? := DiagnosticSeverity.error
       message := err.toString }]
 

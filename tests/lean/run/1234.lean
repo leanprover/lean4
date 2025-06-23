@@ -1,8 +1,11 @@
-theorem le_of_not_lt {a b : Nat} (_: ¬ a < b): b ≤ a := sorry
-theorem lt_of_succ_lt          (_: a + 1 < b): a < b := sorry
-theorem succ_pred_eq_of_pos        (_: 0 < v): v - 1 + 1 = v := sorry
+axiom testSorry : α
+
+theorem le_of_not_lt {a b : Nat} (_: ¬ a < b): b ≤ a := testSorry
+theorem lt_of_succ_lt          (_: a + 1 < b): a < b := testSorry
+theorem succ_pred_eq_of_pos        (_: 0 < v): v - 1 + 1 = v := testSorry
 
 set_option trace.Meta.Tactic.simp true
+set_option linter.unusedSimpArgs false
 --set_option trace.Debug.Meta.Tactic.simp true
 
 set_option Elab.async false -- for stable message ordering in #guard_msgs
@@ -10,7 +13,7 @@ set_option Elab.async false -- for stable message ordering in #guard_msgs
 /--
 warning: declaration uses 'sorry'
 ---
-info: [Meta.Tactic.simp.rewrite] h₁:1000:
+trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       k ≤ v - 1
     ==>
       True
@@ -28,7 +31,10 @@ info: [Meta.Tactic.simp.rewrite] h₁:1000:
       if True then ⟨v, ⋯⟩ else ⟨v - 1, ⋯⟩
     ==>
       ⟨v, ⋯⟩
-[Meta.Tactic.simp.rewrite] eq_self:1000: ⟨v, ⋯⟩ = ⟨v, ⋯⟩ ==> True
+[Meta.Tactic.simp.rewrite] eq_self:1000:
+      ⟨v, ⋯⟩ = ⟨v, ⋯⟩
+    ==>
+      True
 -/
 #guard_msgs in
 example (h₁: k ≤ v - 1) (h₂: 0 < v):
@@ -47,7 +53,7 @@ example (h₁: k ≤ v - 1) (h₂: 0 < v):
 /--
 warning: declaration uses 'sorry'
 ---
-info: [Meta.Tactic.simp.rewrite] h₁:1000:
+trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       k ≤ v - 1
     ==>
       True
@@ -65,7 +71,10 @@ info: [Meta.Tactic.simp.rewrite] h₁:1000:
       if True then ⟨v, ⋯⟩ else ⟨v - 1, ⋯⟩
     ==>
       ⟨v, ⋯⟩
-[Meta.Tactic.simp.rewrite] eq_self:1000: ⟨v, ⋯⟩ = ⟨v, ⋯⟩ ==> True
+[Meta.Tactic.simp.rewrite] eq_self:1000:
+      ⟨v, ⋯⟩ = ⟨v, ⋯⟩
+    ==>
+      True
 -/
 #guard_msgs in
 example (h₁: k ≤ v - 1) (h₂: 0 < v):
@@ -82,7 +91,7 @@ example (h₁: k ≤ v - 1) (h₂: 0 < v):
 /--
 warning: declaration uses 'sorry'
 ---
-info: [Meta.Tactic.simp.rewrite] h₁:1000:
+trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       k ≤ v - 1
     ==>
       True
@@ -100,7 +109,10 @@ info: [Meta.Tactic.simp.rewrite] h₁:1000:
       if True then ⟨v, ⋯⟩ else ⟨v - 1, ⋯⟩
     ==>
       ⟨v, ⋯⟩
-[Meta.Tactic.simp.rewrite] eq_self:1000: ⟨v, ⋯⟩ = ⟨v, ⋯⟩ ==> True
+[Meta.Tactic.simp.rewrite] eq_self:1000:
+      ⟨v, ⋯⟩ = ⟨v, ⋯⟩
+    ==>
+      True
 -/
 #guard_msgs in
 example (h₁: k ≤ v - 1) (h₂: 0 < v):

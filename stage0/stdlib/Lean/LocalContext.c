@@ -6840,30 +6840,30 @@ goto block_44;
 block_19:
 {
 lean_object* x_17; 
-x_17 = l_Lean_LocalContext_setUserName(x_2, x_16, x_15);
+x_17 = l_Lean_LocalContext_setUserName(x_2, x_16, x_14);
 x_1 = x_12;
 x_2 = x_17;
-x_3 = x_13;
-x_4 = x_14;
+x_3 = x_15;
+x_4 = x_13;
 goto _start;
 }
 block_27:
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-lean_inc(x_21);
-x_22 = l_Lean_sanitizeName(x_21, x_4);
+lean_inc(x_20);
+x_22 = l_Lean_sanitizeName(x_20, x_4);
 x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);
 x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 lean_dec(x_22);
-x_25 = l_Lean_NameSet_insert(x_3, x_21);
-x_26 = lean_ctor_get(x_20, 1);
+x_25 = l_Lean_NameSet_insert(x_3, x_20);
+x_26 = lean_ctor_get(x_21, 1);
 lean_inc(x_26);
-lean_dec(x_20);
-x_13 = x_25;
-x_14 = x_24;
-x_15 = x_23;
+lean_dec(x_21);
+x_13 = x_24;
+x_14 = x_23;
+x_15 = x_25;
 x_16 = x_26;
 goto block_19;
 }
@@ -6872,8 +6872,8 @@ block_33:
 if (x_30 == 0)
 {
 lean_object* x_31; 
-lean_dec(x_28);
-x_31 = l_Lean_NameSet_insert(x_3, x_29);
+lean_dec(x_29);
+x_31 = l_Lean_NameSet_insert(x_3, x_28);
 x_1 = x_12;
 x_3 = x_31;
 goto _start;
@@ -6896,15 +6896,15 @@ x_37 = lean_ctor_get(x_34, 2);
 lean_inc(x_37);
 x_38 = l_Lean_NameSet_contains(x_3, x_37);
 lean_dec(x_37);
-x_28 = x_34;
-x_29 = x_35;
+x_28 = x_35;
+x_29 = x_34;
 x_30 = x_38;
 goto block_33;
 }
 else
 {
-x_20 = x_34;
-x_21 = x_35;
+x_20 = x_35;
+x_21 = x_34;
 goto block_27;
 }
 }
@@ -7047,8 +7047,8 @@ lean_dec(x_19);
 x_22 = lean_ctor_get(x_17, 1);
 lean_inc(x_22);
 lean_dec(x_17);
-x_10 = x_18;
-x_11 = x_21;
+x_10 = x_21;
+x_11 = x_18;
 x_12 = x_22;
 goto block_14;
 }
@@ -7057,13 +7057,13 @@ goto block_14;
 block_9:
 {
 uint8_t x_6; 
-x_6 = lean_name_eq(x_4, x_5);
+x_6 = lean_name_eq(x_3, x_5);
 lean_dec(x_5);
-lean_dec(x_4);
+lean_dec(x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; 
-lean_dec(x_3);
+lean_dec(x_4);
 x_7 = lean_box(0);
 return x_7;
 }
@@ -7071,18 +7071,18 @@ else
 {
 lean_object* x_8; 
 x_8 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_8, 0, x_3);
+lean_ctor_set(x_8, 0, x_4);
 return x_8;
 }
 }
 block_14:
 {
 lean_object* x_13; 
-x_13 = lean_ctor_get(x_11, 1);
+x_13 = lean_ctor_get(x_10, 1);
 lean_inc(x_13);
-lean_dec(x_11);
-x_3 = x_10;
-x_4 = x_12;
+lean_dec(x_10);
+x_3 = x_12;
+x_4 = x_11;
 x_5 = x_13;
 goto block_9;
 }

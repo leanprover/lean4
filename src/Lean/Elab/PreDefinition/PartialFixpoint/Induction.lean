@@ -53,14 +53,13 @@ def CCPOProdProjs (n : Nat) (inst : Expr) : Array Expr := Id.run do
 Unfolds an appropriate `PartialOrder` instance on predicates to quantifications and implications.
 I.e. `ImplicationOrder.instPartialOrder.rel P Q` becomes
 `∀ x y, P x y → Q x y`.
-
 In the premise of the Park induction principle (`lfp_le_of_le_monotone`) we use a monotone map defining the predicate in the eta expanded form. In such a case, besides desugaring the predicate, we need to perform a weak head reduction.
 The optional parameter `reduceConclusion` (false by default) indicates whether we need to perform this reduction.
 -/
 def unfoldPredRel (predType : Expr) (body : Expr) (fixpointType : PartialFixpointType) (reduceConclusion : Bool := false) : MetaM Expr := do
   match fixpointType with
   | .partialFixpoint => throwError "Trying to apply lattice induction to a non-lattice fixpoint. Please report this issue."
-  | .leastFixpoint | .greatestFixpoint =>
+  | .inductiveFixpoint | .coinductiveFixpoint =>
     unless body.isAppOfArity ``PartialOrder.rel 4 do
       throwError "{body} is not an application of partial order"
     let lhsTypes ← forallTelescope predType fun ts _ =>  ts.mapM inferType
@@ -68,15 +67,15 @@ def unfoldPredRel (predType : Expr) (body : Expr) (fixpointType : PartialFixpoin
     let bodyArgs := body.getAppArgs
     withLocalDeclsDND (names.zip lhsTypes) fun exprs => do
       let mut applied  := match fixpointType with
-        | .leastFixpoint => (bodyArgs[2]!, bodyArgs[3]!)
-        | .greatestFixpoint => (bodyArgs[3]!, bodyArgs[2]!)
+        | .inductiveFixpoint => (bodyArgs[2]!, bodyArgs[3]!)
+        | .coinductiveFixpoint => (bodyArgs[3]!, bodyArgs[2]!)
         | .partialFixpoint => panic! "Cannot apply lattice induction to a non-lattice fixpoint"
       for e in exprs do
         applied := (mkApp applied.1 e, mkApp applied.2 e)
       if reduceConclusion then
         match fixpointType with
-        | .leastFixpoint => applied := ((←whnf applied.1), applied.2)
-        | .greatestFixpoint => applied := (applied.1, (←whnf applied.2))
+        | .inductiveFixpoint => applied := ((←whnf applied.1), applied.2)
+        | .coinductiveFixpoint => applied := (applied.1, (←whnf applied.2))
         | .partialFixpoint => throwError "Cannot apply lattice induction to a non-lattice fixpoint"
       mkForallFVars exprs (←mkArrow applied.1 applied.2)
 
@@ -93,8 +92,18 @@ private def numberNames (n : Nat) (base : String) : Array Name :=
   .ofFn (n := n) fun ⟨i, _⟩ =>
     if n == 1 then .mkSimple base else .mkSimple s!"{base}_{i+1}"
 
-def deriveInduction (name : Name) : MetaM Unit :=
-  let inductName := name ++ `fixpoint_induct
+def getInductionPrinciplePostfix (name : Name) : MetaM Name := do
+  let some eqnInfo := eqnInfoExt.find? (← getEnv) name | throwError "{name} is not defined by partial_fixpoint, inductive_fixpoint, nor coinductive_fixpoint"
+  let idx := eqnInfo.declNames.idxOf name
+  let some res := eqnInfo.fixpointType[idx]? | throwError "Cannot get fixpoint type for {name}"
+  match res with
+  | .partialFixpoint => return `fixpoint_induct
+  | .inductiveFixpoint => return `induct
+  | .coinductiveFixpoint => return `coinduct
+
+def deriveInduction (name : Name) : MetaM Unit := do
+  let postFix ← getInductionPrinciplePostfix name
+  let inductName := name ++ postFix
   realizeConst name inductName do
   trace[Elab.definition.partialFixpoint] "Called deriveInduction for {inductName}"
   prependError m!"Cannot derive fixpoint induction principle (please report this issue)" do
@@ -250,7 +259,17 @@ def isInductName (env : Environment) (name : Name) : Bool := Id.run do
   match s with
   | "fixpoint_induct" =>
     if let some eqnInfo := eqnInfoExt.find? env p then
-      return p == eqnInfo.declNames[0]!
+      return p == eqnInfo.declNames[0]! && isPartialFixpoint (eqnInfo.fixpointType[0]!)
+    return false
+  | "coinduct" =>
+    if let some eqnInfo := eqnInfoExt.find? env p then
+      let idx := eqnInfo.declNames.idxOf p
+      return isCoinductiveFixpoint eqnInfo.fixpointType[idx]!
+    return false
+  | "induct" =>
+    if let some eqnInfo := eqnInfoExt.find? env p then
+      let idx := eqnInfo.declNames.idxOf p
+      return isInductiveFixpoint eqnInfo.fixpointType[idx]!
     return false
   | _ => return false
 

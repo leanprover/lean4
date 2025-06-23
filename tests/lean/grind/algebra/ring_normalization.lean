@@ -16,7 +16,7 @@ end Semiring
 
 section CommSemiring
 
-variable (R : Type u) [Semiring R]
+variable (R : Type u) [CommSemiring R]
 
 example (a b c : R) : a * (b + c) = a * c + b * a := by grind
 example (a b : R) : (a + b)^2 = a^2 + 2 * a * b + b^2 := by grind

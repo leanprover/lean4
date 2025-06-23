@@ -75,7 +75,7 @@ private def mkMonoPProd : (hmono₁ hmono₂ : Expr × Expr) → MetaM (Expr × 
   return (← inferType hmonoProof, hmonoProof)
 
 def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
-  -- We expect all functions in the clique to have `partial_fixpoint` or `greatest_fixpoint` syntax
+  -- We expect all functions in the clique to have `partial_fixpoint`, `inductive_fixpoint` or `coinductive_fixpoint` syntax
   let hints := preDefs.filterMap (·.termination.partialFixpoint?)
   assert! preDefs.size = hints.size
   -- We check if any fixpoints were defined lattice-theoretically
@@ -90,13 +90,13 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
       let type ← instantiateForall preDef.type xs
       let inst ←
         match hints[i]!.fixpointType with
-        | .greatestFixpoint =>
+        | .coinductiveFixpoint =>
           unless type.isProp do
-            throwError "`greatest_fixpoint` can be only used to define predicates"
+            throwError "`coinductive_fixpoint` can be only used to define predicates"
           pure (mkConst ``ReverseImplicationOrder.instCompleteLattice)
-        | .leastFixpoint =>
+        | .inductiveFixpoint =>
           unless type.isProp do
-            throwError "`least_fixpoint` can be only used to define predicates"
+            throwError "`inductive_fixpoint` can be only used to define predicates"
           pure (mkConst ``ImplicationOrder.instCompleteLattice)
         | .partialFixpoint => try
             synthInstance (← mkAppM ``CCPO #[type])

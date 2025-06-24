@@ -585,6 +585,10 @@ private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) :=
 Assuming `zeta` is enabled, zeta reduce lets. Does not take `zetaUnused` into account.
 We put unused logic into `consumeUnusedLet`, since `expandLet` works with expressions with loose bound variables,
 and thus determining whether a let variable is used isn't an O(1) operation.
+
+Note: since `expandLet` and `consumeUnusedLet` are separated like this, a consequence is that
+in the `+zeta -zetaHave +zetaUnused` configuration, then `whnfCore` has quadratic complexity
+when reducing a sequence of alternating `let`s and `have`s where the `let`s are used but the `have`s are unused.
 -/
 partial def expandLet (e : Expr) (vs : Array Expr) (zetaHave : Bool := true) : Expr :=
   if let .letE _ _ v b nondep  := e then

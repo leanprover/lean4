@@ -401,6 +401,20 @@ theorem IterM.IsPlausibleIndirectSuccessorOf.trans {α β : Type w} {m : Type w 
   case refl => exact h'
   case cons_right ih => exact IsPlausibleIndirectSuccessorOf.cons_right ih ‹_›
 
+theorem IterM.IsPlausibleIndirectSuccessorOf.single {α β : Type w} {m : Type w → Type w'}
+    [Iterator α m β] {it' it : IterM (α := α) m β}
+    (h : it'.IsPlausibleSuccessorOf it) :
+    it'.IsPlausibleIndirectSuccessorOf it :=
+  .cons_right (.refl _) h
+
+theorem IterM.IsPlausibleIndirectOutput.trans {α β : Type w} {m : Type w → Type w'}
+    [Iterator α m β]
+    {it' it : IterM (α := α) m β} {out : β} (h : it'.IsPlausibleIndirectSuccessorOf it)
+    (h' : it'.IsPlausibleIndirectOutput out) : it.IsPlausibleIndirectOutput out := by
+  induction h
+  case refl => exact h'
+  case cons_right ih => exact IsPlausibleIndirectOutput.indirect ‹_› ih
+
 /--
 The type of the step object returned by `Iter.step`, containing an `IterStep`
 and a proof that this is a plausible step for the given iterator.

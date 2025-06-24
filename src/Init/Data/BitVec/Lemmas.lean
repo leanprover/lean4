@@ -2276,7 +2276,7 @@ theorem sshiftRight_add {x : BitVec w} {m n : Nat} :
 theorem not_sshiftRight {b : BitVec w} :
     ~~~b.sshiftRight n = (~~~b).sshiftRight n := by
   ext i
-  simp only [getElem_not, getElem_sshiftRight,
+  simp only [getElem_not, getElem_sshiftRight, 
     msb_not]
   by_cases h : w ≤ i
   <;> by_cases h' : n + i < w

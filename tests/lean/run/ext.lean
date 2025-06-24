@@ -40,7 +40,8 @@ example (f g : Nat × Nat → Nat) : f = g := by
 -- Check that we generate a warning if there are too many patterns.
 /--
 warning: `ext` did not consume the patterns: [j]
-note: this linter can be disabled with `set_option linter.unusedRCasesPattern false`
+
+Note: This linter can be disabled with `set_option linter.unusedRCasesPattern false`
 -/
 #guard_msgs in
 example (f g : Nat → Nat) (h : f = g) : f = g := by

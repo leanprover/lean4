@@ -1001,7 +1001,7 @@ theorem setWidth_one_eq_ofBool_getLsb_zero (x : BitVec w) :
 theorem setWidth_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v) :
     (BitVec.ofNat v 1).setWidth w = BitVec.ofNat w 1 := by
   ext i h
-  simp only [getElem_setWidth, getLsbD_ofNat, 
+  simp only [getElem_setWidth, getLsbD_ofNat,
     ]
   have hv := (@Nat.testBit_one_eq_true_iff_self_eq_zero i)
   by_cases h : Nat.testBit 1 i = true <;> simp_all
@@ -2276,7 +2276,7 @@ theorem sshiftRight_add {x : BitVec w} {m n : Nat} :
 theorem not_sshiftRight {b : BitVec w} :
     ~~~b.sshiftRight n = (~~~b).sshiftRight n := by
   ext i
-  simp only [getElem_not, getElem_sshiftRight, 
+  simp only [getElem_not, getElem_sshiftRight,
     msb_not]
   by_cases h : w ≤ i
   <;> by_cases h' : n + i < w
@@ -2453,7 +2453,7 @@ theorem signExtend_eq_setWidth_of_msb_false {x : BitVec w} {v : Nat} (hmsb : x.m
     x.signExtend v = x.setWidth v := by
   ext i
   by_cases hv : i < v
-  · simp only [signExtend, getLsbD, getElem_setWidth, 
+  · simp only [signExtend, getLsbD, getElem_setWidth,
       BitVec.toInt_eq_msb_cond, hmsb, ↓reduceIte, reduceCtorEq]
     simp [BitVec.testBit_toNat]
   · simp only [getElem_setWidth]
@@ -3120,7 +3120,7 @@ theorem cons_append_append (x : BitVec w₁) (y : BitVec w₂) (z : BitVec w₃)
       by_cases h₂ : i - w₃ < w₂
       · simp [h₂]
       · simp [h₂, show i - w₃ - w₂ < w₁ by omega]
-  · simp only [show ¬i - w₃ - w₂ < w₁ by omega, 
+  · simp only [show ¬i - w₃ - w₂ < w₁ by omega,
       h₀]
     by_cases h₂ : i < w₃
     · simp [h₂]; omega
@@ -4266,7 +4266,7 @@ theorem toFin_sdiv {x y : BitVec w} : (x.sdiv y).toFin =
     | true, false => (-(-x / y)).toFin
     | true, true => (-x).toFin / (-y).toFin := by
   simp only [sdiv_eq]
-  by_cases h : x.msb <;> by_cases h' : y.msb <;> simp [h, h']
+  by_cases hx : x.msb <;> by_cases hy : y.msb <;> simp [hx, hy]
 
 @[simp]
 theorem zero_sdiv {x : BitVec w} : (0#w).sdiv x = 0#w := by
@@ -4499,8 +4499,8 @@ theorem toNat_smod {x y : BitVec w} : (x.smod y).toNat =
 theorem toFin_smod {x y : BitVec w} : (x.smod y).toFin =
     match x.msb, y.msb with
     | false, false => x.toFin % y.toFin
-    | false, true => if x % -y = 0#w then 0 else (x % -y + y).toFin
-    | true, false => if -x % y = 0#w then 0 else (y - -x % y).toFin
+    | false, true => if x % -y = 0#w then 0 else x.toFin % (-y).toFin + y.toFin
+    | true, false => if -x % y = 0#w then 0 else y.toFin - (-x).toFin % y.toFin
     | true, true => (-(-x % -y)).toFin := by
   simp only [smod_eq]
   by_cases hx : x.msb <;> by_cases hy : y.msb

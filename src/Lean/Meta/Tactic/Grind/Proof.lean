@@ -12,6 +12,25 @@ namespace Lean.Meta.Grind
 private def isEqProof (h : Expr) : MetaM Bool := do
   return (← whnfD (← inferType h)).isAppOf ``Eq
 
+/--
+Given two applications `a` and `b`, finds the common prefix.
+Returns `some (f, n)` if `a` and `b` are of the form
+- `f a_1 ... a_n`
+- `f b_1 ... b_n`
+
+and `none` otherwise.
+-/
+private partial def findCommonPrefix (a b : Expr) : Option (Expr × Nat) :=
+  if isSameExpr a b then
+    some (a, 0)
+  else if a.isApp && b.isApp then
+    if let some (f, n) := findCommonPrefix a.appFn! b.appFn! then
+      some (f, n+1)
+    else
+      none
+  else
+    none
+
 private def flipProof (h : Expr) (flipped : Bool) (heq : Bool) : MetaM Expr := do
   let mut h' := h
   if (← pure heq <&&> isEqProof h') then
@@ -128,38 +147,51 @@ mutual
     let r := (← loop lhs rhs).get!
     if heq then mkHEqOfEq r else return r
 
+  private partial def mkHCongrProofHelper (thm : CongrTheorem) (lhs rhs : Expr) (i : Nat) : GoalM Expr := do
+    if i > 0 then
+      let i := i - 1
+      let proof ← mkHCongrProofHelper thm lhs.appFn! rhs.appFn! i
+      let a₁  := lhs.appArg!
+      let a₂  := rhs.appArg!
+      let k   := thm.argKinds[i]!
+      return mkApp3 proof a₁ a₂ (← mkEqProofCore a₁ a₂ (k matches .heq))
+    else
+      return thm.proof
+
   private partial def mkHCongrProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
     let f := lhs.getAppFn
     let g := rhs.getAppFn
     let numArgs := lhs.getAppNumArgs
     assert! rhs.getAppNumArgs == numArgs
-    let thm ← mkHCongrWithArity f numArgs
-    assert! thm.argKinds.size == numArgs
-    let rec loop (lhs rhs : Expr) (i : Nat) : GoalM Expr := do
-      let i := i - 1
-      if lhs.isApp then
-        let proof ← loop lhs.appFn! rhs.appFn! i
-        let a₁  := lhs.appArg!
-        let a₂  := rhs.appArg!
-        let k   := thm.argKinds[i]!
-        return mkApp3 proof a₁ a₂ (← mkEqProofCore a₁ a₂ (k matches .heq))
-      else
-        return thm.proof
-    let proof ← loop lhs rhs numArgs
-    if isSameExpr f g then
+    let fInfo ← getFunInfo f
+    if fInfo.getArity < numArgs then
+      -- Function is over-applied. We try to find a common prefix between `lhs` and `rhs`
+      -- and compute the congruence theorem from there.
+      let throwUnsupported {α} : GoalM α :=
+        throwError "`grind` currently cannot build congruence proofs for over-applied terms such as{indentExpr lhs}\nand{indentExpr rhs}"
+      let some (f, numArgs) := findCommonPrefix lhs rhs
+        | throwUnsupported
+      let thm ← try mkHCongrWithArity f numArgs catch _ => throwUnsupported
+      let proof ← mkHCongrProofHelper thm lhs rhs numArgs
       mkEqOfHEqIfNeeded proof heq
     else
-      /-
-      `lhs` is of the form `f a_1 ... a_n`
-      `rhs` is of the form `g b_1 ... b_n`
-      `proof : f a_1 ... a_n ≍ f b_1 ... b_n`
-      We construct a proof for `f a_1 ... a_n ≍ g b_1 ... b_n` using `Eq.ndrec`
-      -/
-      let motive ← withLocalDeclD (← mkFreshUserName `x) (← inferType f) fun x => do
-        mkLambdaFVars #[x] (← mkHEq lhs (mkAppN x rhs.getAppArgs))
-      let fEq ← mkEqProofCore f g false
-      let proof ← mkEqNDRec motive proof fEq
-      mkEqOfHEqIfNeeded proof heq
+      let thm ← mkHCongrWithArity f numArgs
+      assert! thm.argKinds.size == numArgs
+      let proof ← mkHCongrProofHelper thm lhs rhs numArgs
+      if isSameExpr f g then
+        mkEqOfHEqIfNeeded proof heq
+      else
+        /-
+        `lhs` is of the form `f a_1 ... a_n`
+        `rhs` is of the form `g b_1 ... b_n`
+        `proof : f a_1 ... a_n ≍ f b_1 ... b_n`
+        We construct a proof for `f a_1 ... a_n ≍ g b_1 ... b_n` using `Eq.ndrec`
+        -/
+        let motive ← withLocalDeclD (← mkFreshUserName `x) (← inferType f) fun x => do
+          mkLambdaFVars #[x] (← mkHEq lhs (mkAppN x rhs.getAppArgs))
+        let fEq ← mkEqProofCore f g false
+        let proof ← mkEqNDRec motive proof fEq
+        mkEqOfHEqIfNeeded proof heq
 
   private partial def mkEqCongrProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
     let_expr f@Eq α₁ a₁ b₁ := lhs | unreachable!

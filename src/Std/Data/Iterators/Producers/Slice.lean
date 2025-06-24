@@ -1,0 +1,24 @@
+/-
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Paul Reichert
+-/
+prelude
+import Init.Data.Slice.Basic
+
+/-!
+# Slice iterator
+
+This module provides iterators over slices from `Std.Slice` via `Std.Slice.iter`.
+-/
+
+open Std.Slice
+
+/--
+Returns an iterator over the given slice. This iterator will emit the elements of the slice
+in increasing order of the indices.
+-/
+@[always_inline, inline]
+def Std.Slice.iter [Sliceable shape α β γ] [SliceIter shape α]
+    (s : Slice shape α) :=
+  Internal.iter s

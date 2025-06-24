@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Paul Reichert
+-/
 module
 
 prelude
@@ -8,6 +13,9 @@ import Init.Data.Iterators.Consumers.Loop
 
 namespace Std.Iterators.Types
 
+/--
+Internal state of the `attachWith` combinator. Do not depend on its internals.
+-/
 @[unbox]
 structure Attach (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
     (P : β → Prop) where
@@ -109,6 +117,15 @@ instance {α β : Type w} {m : Type w → Type w'} [Monad m]
 
 end Types
 
+/--
+“Attaches” individual proofs to an iterator of values that satisfy a predicate `P`, returning a list
+of iterators in the corresponding subtype `{ x // P x }`.
+
+**Termination properties:**
+
+* `Finite` instance: only if the base iterator is finite
+* `Productive` instance: only if the base iterator is productive
+-/
 @[always_inline, inline]
 def IterM.attachWith {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] (it : IterM (α := α) m β) (P : β → Prop)

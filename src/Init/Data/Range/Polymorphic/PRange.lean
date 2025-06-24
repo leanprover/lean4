@@ -299,6 +299,12 @@ instance {α} [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumer
 instance {α} [UpwardEnumerable α] : LawfulUnboundedUpperBound α where
   isSatisfied u a := by simp [SupportsUpperBound.IsSatisfied]
 
+/--
+This typeclass allows taking the intersection of ranges of the given shape and half-open ranges.
+
+An element should be contained in the intersection if and only if it is contained in both ranges.
+This is encoded in `LawfulClosedOpenIntersection`.
+-/
 class ClosedOpenIntersection (shape : RangeShape) (α : Type w) where
   intersection : PRange shape α → PRange ⟨.closed, .open⟩ α → PRange ⟨.closed, .open⟩ α
 

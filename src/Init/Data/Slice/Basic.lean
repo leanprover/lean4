@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Paul Reichert
+-/
 module
 
 prelude
@@ -8,6 +13,10 @@ open Std.Iterators
 
 namespace Std.Slice
 
+/--
+This marker typeclass signifies that the type `α` supports slice notation with index type `β`.
+The slices contain elements of type `γ`.
+-/
 class Sliceable (shape : RangeShape) (α : Type u) (β : outParam (Type v))
     (γ : outParam (Type w)) where
 
@@ -43,6 +52,7 @@ macro_rules
   | `($c[$a...=$b]) => `(Slice.mk $c $a..=$b)
   | `($c[$a<...=$b]) => `(Slice.mk $c $a..=$b)
 
+/-- This typeclass provides iterator support for slices of the given type and shape. -/
 class SliceIter (shape : RangeShape) (α : Type u) {β : Type v} {γ : Type w}
     [Sliceable shape α β γ] where
   State : Slice shape α → Type w
@@ -97,16 +107,18 @@ instance {shape : RangeShape} {α : Type u} {β : Type v} {γ : Type w}
     IteratorSizePartial (α := i.State slice) Id :=
   inferInstanceAs <| IteratorSizePartial (α := State slice) Id
 
+/--
+Internal function to obtain an iterator from a slice. Users should import `Std.Data.Iterators`
+and use `Std.Slice.iter` instead.
+-/
 @[always_inline, inline]
 def Internal.iter {shape} {α : Type u} {β : Type v} {γ : Type w} [Sliceable shape α β γ]
     [i : SliceIter shape α] (s : Slice shape α) :=
   i.iter s
 
-@[always_inline, inline]
-def iter {shape} {α : Type u} {β : Type v} {γ : Type w} [Sliceable shape α β γ]
-    [i : SliceIter shape α] (s : Slice shape α) :=
-  i.iter s
-
+/--
+Returns the number of elements -- not necessarily distinct -- in the given slice.
+-/
 @[always_inline, inline]
 def size {shape} {α : Type u} {β : Type v} {γ : Type w} [Sliceable shape α β γ]
     [i : SliceIter shape α] (s : Slice shape α) [Iterator (i.State s) Id γ]

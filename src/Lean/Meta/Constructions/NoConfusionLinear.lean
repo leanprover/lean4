@@ -46,8 +46,8 @@ register_builtin_option backwards.linearNoConfusionType : Bool := {
 /--
 List of constants that the linear `noConfusionType` construction depends on.
 -/
-def deps : Array Lean.Name :=
-  #[ ``Nat.lt, ``cond, ``Nat, ``PUnit, ``Eq, ``Not, ``dite, ``Nat.decEq, ``Nat.blt ]
+private def deps : Array Lean.Name :=
+  #[ ``cond, ``ULift, ``Eq.ndrec, ``Not, ``dite, ``Nat.decEq, ``Nat.blt ]
 
 def canUse (declName : Name) : MetaM Bool := do
   unless backwards.linearNoConfusionType.get (← getOptions) do return false

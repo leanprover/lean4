@@ -2,17 +2,17 @@ module
 
 prelude
 import Init.Data.Iterators.Combinators.Monadic.Attach
+import Init.Data.Iterators.Combinators.FilterMap
 
 namespace Std.Iterators
 
-instance {α β : Type w} [Membership β (IterM (α := α) Id β)] :
-    Membership β (Iter (α := α) β) where
-  mem it out := out ∈ it.toIterM
-
 @[always_inline, inline]
-def Iter.attach {α β : Type w}
-    [Iterator α Id β] [Membership β (IterM (α := α) Id β)] [LawfulIteratorMembership α Id]
-    (it : Iter (α := α) β) : Iter (α := Types.Attach it.toIterM) { out : β // out ∈ it } :=
-  it.toIterM.attach.toIter
+def Iter.attachWith {α β : Type w}
+    [Iterator α Id β]
+    (it : Iter (α := α) β) (P : β → Prop) (h : ∀ out, it.IsPlausibleIndirectOutput out → P out) :=
+  haveI h' : ∀ out, it.toIterM.IsPlausibleIndirectOutput out → P out := by
+    simp only [← isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM]
+    exact h
+  ((it.toIterM.attachWith P h').toIter : Iter { out : β // P out })
 
 end Std.Iterators

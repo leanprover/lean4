@@ -6,45 +6,38 @@ import Init.Data.Iterators.Internal.Termination
 import Init.Data.Iterators.Consumers.Collect
 import Init.Data.Iterators.Consumers.Loop
 
-namespace Std.Iterators
-
-class LawfulIteratorMembership (α : Type w) (m : Type w → Type w') {β : Type w}
-    [Iterator α m β] [Membership β (IterM (α := α) m β)] : Prop where
-  mem_iff_isPlausibleIndirectOutput {it : IterM (α := α) m β} {out : β} :
-    x ∈ it ↔ it.IsPlausibleIndirectOutput out
-
-namespace Types
+namespace Std.Iterators.Types
 
 @[unbox]
-structure Attach {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
-    (it : IterM (α := α) m β) where
+structure Attach (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
+    (P : β → Prop) where
   inner : IterM (α := α) m β
-  is_descendant : inner.IsPlausibleIndirectSuccessorOf it
+  invariant : ∀ out, inner.IsPlausibleIndirectOutput out → P out
 
 @[always_inline, inline]
 def Attach.modifyStep {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
-    [Membership β (IterM (α := α) m β)] [LawfulIteratorMembership α m]
-    {baseIt : IterM (α := α) m β} (it : IterM (α := Attach baseIt) m { out : β // out ∈ baseIt })
-    (step : it.internalState.inner.Step) :
-    IterStep (IterM (α := Attach baseIt) m { out : β // out ∈ baseIt }) { out : β // out ∈ baseIt } :=
+    {P : β → Prop}
+    (it : IterM (α := Attach α m P) m { out : β // P out })
+    (step : it.internalState.inner.Step (α := α) (m := m)) :
+    IterStep (IterM (α := Attach α m P) m { out : β // P out })
+        { out : β // P out } :=
   match step with
   | .yield it' out h =>
-    .yield ⟨it', .trans (.single ⟨_, rfl, h⟩) it.internalState.is_descendant⟩
-      ⟨out, LawfulIteratorMembership.mem_iff_isPlausibleIndirectOutput.mpr (.trans it.internalState.is_descendant (.direct ⟨_, h⟩))⟩
+    .yield ⟨it', fun out ho => it.internalState.invariant out (.indirect ⟨_, rfl, h⟩ ho)⟩
+      ⟨out, it.internalState.invariant out (.direct ⟨_, h⟩)⟩
   | .skip it' h =>
-    .skip ⟨it', .trans (.single ⟨_, rfl, h⟩) it.internalState.is_descendant⟩
+    .skip ⟨it', fun out ho => it.internalState.invariant out (.indirect ⟨_, rfl, h⟩ ho)⟩
   | .done _ => .done
 
 instance Attach.instIterator {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α m β] [Membership β (IterM (α := α) m β)] [LawfulIteratorMembership α m]
-    {it : IterM (α := α) m β} :
-    Iterator (Attach it) m { out : β // out ∈ it } where
+    [Iterator α m β] {P : β → Prop} :
+    Iterator (Attach α m P) m { out : β // P out } where
   IsPlausibleStep it step := ∃ step', modifyStep it step' = step
   step it := (fun step => ⟨modifyStep it step, step, rfl⟩) <$> it.internalState.inner.step
 
 def Attach.instFinitenessRelation {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α m β] [Membership β (IterM (α := α) m β)] [LawfulIteratorMembership α m]
-    [Finite α m] {it : IterM (α := α) m β} : FinitenessRelation (Attach it) m where
+    [Iterator α m β] [Finite α m] {P : β → Prop} :
+    FinitenessRelation (Attach α m P) m where
   rel := InvImage WellFoundedRelation.rel fun it => it.internalState.inner.finitelyManySteps
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
@@ -60,13 +53,12 @@ def Attach.instFinitenessRelation {α β : Type w} {m : Type w → Type w'} [Mon
     · simp [IterStep.successor, modifyStep, reduceCtorEq] at hs
 
 instance Attach.instFinite {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α m β] [Membership β (IterM (α := α) m β)] [LawfulIteratorMembership α m]
-    [Finite α m] {it : IterM (α := α) m β} : Finite (Attach it) m :=
+    [Iterator α m β] [Finite α m] {P : β → Prop} : Finite (Attach α m P) m :=
   .of_finitenessRelation instFinitenessRelation
 
 def Attach.instProductivenessRelation {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α m β] [Membership β (IterM (α := α) m β)] [LawfulIteratorMembership α m]
-    [Productive α m] {it : IterM (α := α) m β} : ProductivenessRelation (Attach it) m where
+    [Iterator α m β] [Productive α m] {P : β → Prop} :
+    ProductivenessRelation (Attach α m P) m where
   rel := InvImage WellFoundedRelation.rel fun it => it.internalState.inner.finitelyManySkips
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
@@ -81,52 +73,47 @@ def Attach.instProductivenessRelation {α β : Type w} {m : Type w → Type w'} 
     · simp [modifyStep] at hs
 
 instance Attach.instProductive {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α m β] [Membership β (IterM (α := α) m β)] [LawfulIteratorMembership α m]
-    [Productive α m] {it : IterM (α := α) m β} : Productive (Attach it) m :=
+    [Iterator α m β] [Productive α m] {P : β → Prop} :
+    Productive (Attach α m P) m :=
   .of_productivenessRelation instProductivenessRelation
 
 instance Attach.instIteratorCollect {α β : Type w} {m : Type w → Type w'} [Monad m] [Monad n]
-    {it : IterM (α := α) m β} [Iterator α m β] [Membership β (IterM (α := α) m β)]
-    [LawfulIteratorMembership α m] :
-    IteratorCollect (Attach it) m n :=
+    {P : β → Prop} [Iterator α m β] :
+    IteratorCollect (Attach α m P) m n :=
   .defaultImplementation
 
 instance Attach.instIteratorCollectPartial {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Monad n] {it : IterM (α := α) m β} [Iterator α m β] [Membership β (IterM (α := α) m β)]
-    [LawfulIteratorMembership α m] :
-    IteratorCollectPartial (Attach it) m n :=
+    [Monad n] {P : β → Prop} [Iterator α m β] :
+    IteratorCollectPartial (Attach α m P) m n :=
   .defaultImplementation
 
 instance Attach.instIteratorLoop {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Monad n] {it : IterM (α := α) m β} [Iterator α m β] [Membership β (IterM (α := α) m β)]
-    [LawfulIteratorMembership α m] [MonadLiftT m n] :
-    IteratorLoop (Attach it) m n :=
+    [Monad n] {P : β → Prop} [Iterator α m β] [MonadLiftT m n] :
+    IteratorLoop (Attach α m P) m n :=
   .defaultImplementation
 
 instance Attach.instIteratorLoopPartial {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Monad n] {it : IterM (α := α) m β} [Iterator α m β] [Membership β (IterM (α := α) m β)]
-    [LawfulIteratorMembership α m] [MonadLiftT m n] :
-    IteratorLoopPartial (Attach it) m n :=
+    [Monad n] {P : β → Prop} [Iterator α m β] [MonadLiftT m n] :
+    IteratorLoopPartial (Attach α m P) m n :=
   .defaultImplementation
 
 instance {α β : Type w} {m : Type w → Type w'} [Monad m]
-    {it : IterM (α := α) m β} [Iterator α m β] [Membership β (IterM (α := α) m β)]
-    [LawfulIteratorMembership α m] [IteratorSize α m] :
-    IteratorSize (Attach it) m where
+    {P : β → Prop} [Iterator α m β] [IteratorSize α m] :
+    IteratorSize (Attach α m P) m where
   size it := IteratorSize.size it.internalState.inner
 
 instance {α β : Type w} {m : Type w → Type w'} [Monad m]
-    {it : IterM (α := α) m β} [Iterator α m β] [Membership β (IterM (α := α) m β)]
-    [LawfulIteratorMembership α m] [IteratorSizePartial α m] :
-    IteratorSizePartial (Attach it) m where
+    {P : β → Prop} [Iterator α m β] [IteratorSizePartial α m] :
+    IteratorSizePartial (Attach α m P) m where
   size it := IteratorSizePartial.size it.internalState.inner
 
 end Types
 
 @[always_inline, inline]
-def IterM.attach {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α m β] [Membership β (IterM (α := α) m β)] [LawfulIteratorMembership α m]
-    (it : IterM (α := α) m β) : IterM (α := Types.Attach it) m { out : β // out ∈ it } :=
-  ⟨⟨it, .refl it⟩⟩
+def IterM.attachWith {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] (it : IterM (α := α) m β) (P : β → Prop)
+    (h : ∀ out, it.IsPlausibleIndirectOutput out → P out) :
+    IterM (α := Types.Attach α m P) m { out : β // P out } :=
+  ⟨⟨it, h⟩⟩
 
 end Std.Iterators

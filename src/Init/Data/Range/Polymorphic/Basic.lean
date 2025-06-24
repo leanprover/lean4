@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Data.Range.Polymorphic.RangeIterator
+import Init.Data.Iterators.Combinators.Attach
 
 open Std.Iterators
 

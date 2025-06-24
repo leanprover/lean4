@@ -299,4 +299,12 @@ instance {α} [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumer
 instance {α} [UpwardEnumerable α] : LawfulUnboundedUpperBound α where
   isSatisfied u a := by simp [SupportsUpperBound.IsSatisfied]
 
+class RangeClosedIntersection (shape : RangeShape) (α : Type w) where
+  intersection : PRange shape α → PRange ⟨.closed, .closed⟩ α → PRange ⟨.closed, .closed⟩ α
+
+class LawfulRangeClosedIntersection {sl su α} [RangeClosedIntersection ⟨sl, su⟩ α]
+    [LE α] [DecidableLE α] [SupportsLowerBound sl α] [SupportsUpperBound su α] where
+  mem_intersection_iff {a : α} {r : PRange ⟨sl, su⟩ α} {s : PRange ⟨.closed, .closed⟩ α} :
+    a ∈ RangeClosedIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
+
 end Std.PRange

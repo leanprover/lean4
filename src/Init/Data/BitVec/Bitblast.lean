@@ -1858,20 +1858,20 @@ theorem msb_srem (x y : BitVec w) : (x.srem y).msb =
   by_cases hx : x.msb <;> by_cases hy : y.msb
   · by_cases hsrem : x.srem y = 0#w <;> simp [hx, hy, hsrem]
   · simp only [toInt_srem, hy, Bool.false_and, decide_eq_false_iff_not, Int.not_lt, hx,
-    ofNat_eq_ofNat, ne_eq, decide_not, Bool.true_and, or_eq_true, decide_eq_true_eq,
-    not_eq_eq_eq_not, Bool.not_true]
+      ofNat_eq_ofNat, ne_eq, decide_not, Bool.true_and, or_eq_true, decide_eq_true_eq,
+      not_eq_eq_eq_not, Bool.not_true]
     by_cases hsrem : x.srem y = 0#w
-    · simp [hsrem]
-      simp [← toInt_inj] at hsrem
+    · simp only [← toInt_inj, toInt_srem, toInt_zero] at hsrem
       simp [hsrem]
     · simp [hsrem]
-  · by_cases hsrem : x.srem y = 0#w
-    · simp [hx, hy, hsrem]
-    · simp [hx, hy, hsrem]
-      apply Int.tmod_nonneg y.toInt (by exact toInt_nonneg_of_msb_false (by simp at hx; exact hx))
-  · simp [hx, hy, toInt_srem]
-    simp at hx hy
-    refine Int.tmod_nonneg y.toInt (by exact toInt_nonneg_of_msb_false hx)
+  · simp only [toInt_srem, hy, ne_zero_of_msb_true, decide_false, Bool.and_false,
+      decide_eq_false_iff_not, Int.not_lt, hx, ofNat_eq_ofNat, ne_eq, decide_not, Bool.false_and,
+      Bool.or_false, decide_eq_true_eq]
+    apply Int.tmod_nonneg y.toInt (by exact toInt_nonneg_of_msb_false (by simp at hx; exact hx))
+  · simp only [toInt_srem, hy, Bool.false_and, decide_eq_false_iff_not, Int.not_lt, hx,
+      ofNat_eq_ofNat, ne_eq, decide_not, Bool.or_false, decide_eq_true_eq]
+    simp only [not_eq_true] at hx hy
+    apply Int.tmod_nonneg y.toInt (by exact toInt_nonneg_of_msb_false hx)
 
 @[simp]
 theorem msb_intMin_umod_neg_of_msb_true {y : BitVec w} (hy : y.msb = true) :

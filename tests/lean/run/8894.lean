@@ -1,7 +1,5 @@
 open Lean.Order
 
-set_option trace.Elab.Tactic.monotonicity true
-
 def A : Type := Prop
 def B : Type := Prop
 
@@ -25,20 +23,28 @@ instance : Lean.Order.CCPO B where
   csup := sorry
   csup_spec := sorry
 
--- instance : Lean.Order.CCPO Lean.Order.ReverseImplicationOrder where
---   csup := ReverseImplicationOrder.instCompleteLattice.sup
---   csup_spec _ := ReverseImplicationOrder.instCompleteLattice.sup_spec
--- instance : Lean.Order.CCPO Lean.Order.ImplicationOrder where
---   csup := ImplicationOrder.instCompleteLattice.sup
---   csup_spec _ := ImplicationOrder.instCompleteLattice.sup_spec
-
-
+/--
+error: Could not prove 'tick' to be monotone in its recursive calls:
+  Cannot eliminate recursive call in
+    tock (n + 1)
+-/
+#guard_msgs in
 mutual
   def tick (n : Nat): A :=
     tock (n + 1)
   partial_fixpoint
 
-  def tock (n : Nat) : A :=
+  def tock (n : Nat) : B :=
     tick (n + 1)
+  partial_fixpoint
+end
+
+mutual
+  def tick2 (n : Nat): A :=
+    tock2 (n + 1)
+  partial_fixpoint
+
+  def tock2 (n : Nat) : A :=
+    tick2 (n + 1)
   partial_fixpoint
 end

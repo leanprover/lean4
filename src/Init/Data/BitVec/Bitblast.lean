@@ -1946,19 +1946,20 @@ theorem msb_srem (x y : BitVec w) : (x.srem y).msb =
     · have := toInt_neg_of_msb_true hx
       by_cases hdvd : y.toInt ∣ x.toInt
       · simp [BitVec.srem_zero_of_dvd x y hdvd] at hsrem
-      · simp [hdvd, hsrem, hx, Int.tmod_eq_emod, show ¬ 0 ≤ x.toInt by omega]
+      · simp only [toInt_srem, Int.tmod_eq_emod, show ¬0 ≤ x.toInt by omega, hdvd, _root_.or_self,
+          reduceIte, hx, ofNat_eq_ofNat, ne_eq, hsrem, not_false_eq_true, decide_true, Bool.and_self,
+          decide_eq_true_eq, gt_iff_lt]
         have hlt := Int.emod_lt (a := x.toInt) (b := y.toInt)
         by_cases hy0 : y = 0#w
         · simp [hy0]
           exact toInt_neg_of_msb_true hx
-        · simp [← toInt_inj] at hy0
-          simp [hy0] at hlt
+        · simp only [← toInt_inj, toInt_zero] at hy0
+          simp only [ne_eq, hy0, not_false_eq_true, forall_const] at hlt
           have := Int.le_natAbs (a := y.toInt)
           omega
   · simp only [toInt_srem, hx, ofNat_eq_ofNat, ne_eq, decide_not, Bool.false_and,
       decide_eq_false_iff_not, Int.not_lt]
     apply Int.tmod_nonneg y.toInt (by exact toInt_nonneg_of_msb_false (by simp at hx; exact hx))
-
 
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by

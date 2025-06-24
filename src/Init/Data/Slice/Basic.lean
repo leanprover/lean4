@@ -16,6 +16,33 @@ structure _root_.Std.Slice (shape : RangeShape) (α : Type u) {β : Type v}
   carrier : α
   range : PRange shape β
 
+syntax:max term "[" withoutPosition(term "...*") "]" : term
+syntax:max term "[" withoutPosition("*...*") "]" : term
+syntax:max term "[" withoutPosition(term "<...*") "]" : term
+syntax:max term "[" withoutPosition(term "...<" term) "]" : term
+syntax:max term "[" withoutPosition(term "<...<" term) "]" : term
+syntax:max term "[" withoutPosition("*...<" term) "]" : term
+syntax:max term "[" withoutPosition(term "...=" term) "]" : term
+syntax:max term "[" withoutPosition(term "<...=" term) "]" : term
+syntax:max term "[" withoutPosition("*...=" term) "]" : term
+syntax:max term "[" withoutPosition(term "..." term) "]" : term
+syntax:max term "[" withoutPosition(term "<..." term) "]" : term
+syntax:max term "[" withoutPosition("*..." term) "]" : term
+
+macro_rules
+  | `($c[*...*]) => `(Slice.mk $c *..*)
+  | `($c[$a...*]) => `(Slice.mk $c $a..*)
+  | `($c[$a<...*]) => `(Slice.mk $c $a..*)
+  | `($c[*...<$b]) => `(Slice.mk $c *..<$b)
+  | `($c[$a...<$b]) => `(Slice.mk $c $a..<$b)
+  | `($c[$a<...<$b]) => `(Slice.mk $c $a..<$b)
+  | `($c[*...$b]) => `(Slice.mk $c *..<$b)
+  | `($c[$a...$b]) => `(Slice.mk $c $a..<$b)
+  | `($c[$a<...$b]) => `(Slice.mk $c $a..<$b)
+  | `($c[*...=$b]) => `(Slice.mk $c *..=$b)
+  | `($c[$a...=$b]) => `(Slice.mk $c $a..=$b)
+  | `($c[$a<...=$b]) => `(Slice.mk $c $a..=$b)
+
 class SliceIter (shape : RangeShape) (α : Type u) {β : Type v} {γ : Type w}
     [Sliceable shape α β γ] where
   State : Slice shape α → Type w

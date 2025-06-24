@@ -334,7 +334,7 @@ theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
     (h : x &&& y = 0#w) : x + y = x ||| y := by
   rw [add_eq_adc, adc, iunfoldr_replace (fun _ => false) (x ||| y)]
   · rfl
-  · simp only [adcb, atLeastTwo, Bool.and_false, Bool.or_false, bne_false, 
+  · simp only [adcb, atLeastTwo, Bool.and_false, Bool.or_false, bne_false,
     Prod.mk.injEq, and_eq_false_imp]
     intros i
     replace h : (x &&& y).getLsbD i = (0#w).getLsbD i := by rw [h]
@@ -620,7 +620,7 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow (x : BitVec w) (i
         simp [hik', hik'']
         omega
   · ext k
-    simp only [and_twoPow, 
+    simp only [and_twoPow,
       ]
     by_cases hi : x.getLsbD i <;> simp [hi] <;> omega
 
@@ -2048,8 +2048,9 @@ theorem msb_smod {x y : BitVec w} :
       simp only [h, smod_zero]
       exact toInt_neg_of_msb_true hx
   · by_cases hsmod : x.smod y = 0#w <;> simp [hx, hy, hsmod]
-  · simp [hx, hy, toInt_smod]
-    simp at hx hy
+  · simp only [toInt_smod, hx, ofNat_eq_ofNat, Bool.false_and, decide_eq_false_iff_not, Int.not_lt,
+      hy, ne_eq, decide_not, Bool.or_false, decide_eq_true_eq]
+    simp only [not_eq_true] at hx hy
     apply Int.fmod_nonneg (by exact toInt_nonneg_of_msb_false hx) (by exact toInt_nonneg_of_msb_false hy)
 
 /-! ### Lemmas that use bit blasting circuits -/

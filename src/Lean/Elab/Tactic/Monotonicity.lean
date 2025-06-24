@@ -184,14 +184,12 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
     -- A recursive call
     if let some hmono ← solveMonoCall α inst_α e then
       trace[Elab.Tactic.monotonicity] "Found recursive call {e}:{indentExpr hmono}"
-      let goalAssigned ← goal.checkedAssign hmono
       let hmonoType ← inferType hmono
-      let agreeOnType ← isDefEq hmonoType type
-      unless goalAssigned && agreeOnType do
+      unless ← isDefEq hmonoType type do
         trace[Elab.Tactic.monotonicity] "Failed to assign {hmono} : {← inferType hmono} to goal"
         failK f #[]
+      goal.assign hmono
       return []
-
     let monoThms ← withLocalDeclD `f f.bindingDomain! fun f =>
       -- The discrimination tree does not like open terms
       findMonoThms (e.instantiate1 f)

@@ -37,11 +37,24 @@ namespace Lean.NoConfusionLinear
 
 open Meta
 
+
+register_builtin_option backwards.linearNoConfusionType : Bool := {
+  defValue := true
+  descr    := "use the linear-size construction for the `noConfusionType` declaration of an inductive type. Set to false to use the previous, simpler but quadratic-size construction. "
+}
+
 /--
 List of constants that the linear `noConfusionType` construction depends on.
 -/
 def deps : Array Lean.Name :=
   #[ ``Nat.lt, ``cond, ``Nat, ``PUnit, ``Eq, ``Not, ``dite, ``Nat.decEq, ``Nat.blt ]
+
+def canUse (declName : Name) : MetaM Bool := do
+  unless backwards.linearNoConfusionType.get (← getOptions) do return false
+  unless (← NoConfusionLinear.deps.allM (hasConst · (skipRealize := true))) do return false
+  -- Do not use this construction for inductive propositions
+  unless (← isTypeFormer (← mkConstWithLevelParams declName)) do return false
+  return true
 
 def mkNatLookupTable (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr := do
   let type ← inferType default
@@ -99,8 +112,8 @@ def mkWithCtorType (indName : Name) : MetaM Unit := do
   let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
   let indTyCon := mkConst indName us
   let indTyKind ← inferType indTyCon
-  let indLevel ← getKindLevel indTyKind
-  let resLevel := mkLevelMax indLevel v
+  let some indLevel ← typeFormerTypeLevel indTyKind | panic! s!"mkWithCtorType: {indName} is not a type former type"
+  let resLevel := mkLevelMax' indLevel v
   let e ← forallBoundedTelescope indTyKind info.numParams fun xs _ => do
     withLocalDeclD `P (mkSort v.succ) fun P => do
     withLocalDeclD `ctorIdx (mkConst ``Nat) fun ctorIdx => do

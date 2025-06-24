@@ -197,9 +197,9 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
     match (← get).fvars[cases.discr]? with
     | some (.var varId) =>
       return .case cases.typeName
-                  varId
-                  (← lowerType cases.resultType)
-                  (← cases.alts.mapM (lowerAlt varId))
+                   varId
+                   (← lowerType cases.resultType)
+                   (← cases.alts.mapM (lowerAlt varId))
     | some (.joinPoint ..) | some .erased | none => panic! "unexpected value"
   | .return fvarId =>
     let arg := match (← get).fvars[fvarId]? with
@@ -346,7 +346,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
             let restArgs := irArgs.extract numParams irArgs.size
             mkPartialApp (.fap name firstArgs) restArgs
         else
-          throwError f!"axiom '{name}' not supported by code generator; consider marking definition as 'noncomputable'"
+          throwNamedError lean.dependsOnNoncomputable f!"axiom '{name}' not supported by code generator; consider marking definition as 'noncomputable'"
       | some (.quotInfo ..) =>
         if name == ``Quot.mk then
           match irArgs[2]! with

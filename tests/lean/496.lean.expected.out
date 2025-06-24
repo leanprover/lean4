@@ -1,2 +1,2 @@
-496.lean:3:4-3:8: error: axiom 'foo' not supported by code generator; consider marking definition as 'noncomputable'
-496.lean:9:4-9:8: error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'bla1', which is 'noncomputable'
+496.lean:3:4-3:8: error(lean.dependsOnNoncomputable): axiom 'foo' not supported by code generator; consider marking definition as 'noncomputable'
+496.lean:9:4-9:8: error(lean.dependsOnNoncomputable): failed to compile definition, consider marking it as 'noncomputable' because it depends on 'bla1', which is 'noncomputable'

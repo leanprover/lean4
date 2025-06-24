@@ -19,6 +19,27 @@ def Tree.map (f : α → β) (t : Tree α) : Tree β :=
 termination_by t
 decreasing_by trace_state; cases t; decreasing_tactic
 
+/-!
+Checking that the attaches make their way through `let`s.
+-/
+/--
+trace: α : Type u_1
+t : Tree α
+cs : List (Tree α) := t.cs
+t' : Tree α
+h✝ : t' ∈ cs
+⊢ sizeOf t' < sizeOf t
+-/
+#guard_msgs(trace) in
+def Tree.map' (f : α → β) (t : Tree α) : Tree β :=
+  have n := 22
+  let v := t.val
+  let cs := t.cs
+  have : n = n := rfl
+  ⟨f v, cs.map (fun t' => t'.map' f)⟩
+termination_by t
+decreasing_by trace_state; cases t; decreasing_tactic
+
 /--
 info: equations:
 theorem Tree.map.eq_1.{u_1, u_2} : ∀ {α : Type u_1} {β : Type u_2} (f : α → β) (t : Tree α),

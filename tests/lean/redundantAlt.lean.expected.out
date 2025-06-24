@@ -1,6 +1,6 @@
-redundantAlt.lean:5:1-5:9: error: Redundant alternative: Any expression matching
+redundantAlt.lean:5:1-5:9: error(lean.redundantMatchAlt): Redundant alternative: Any expression matching
   2
 will match one of the preceding alternatives
-redundantAlt.lean:7:1-7:9: error: Redundant alternative: Any expression matching
+redundantAlt.lean:7:1-7:9: error(lean.redundantMatchAlt): Redundant alternative: Any expression matching
   3
 will match one of the preceding alternatives

@@ -18,33 +18,35 @@ static lean_object* l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg
 static lean_object* l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_78_;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_154_(lean_object*);
 static lean_object* l_Lean_initFn___closed__11____x40_Lean_Meta_Tactic_Simp___hyg_3_;
+static lean_object* l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_342_;
 static lean_object* l_Lean_initFn___closed__12____x40_Lean_Meta_Tactic_Simp___hyg_3_;
-static lean_object* l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_341_;
+static lean_object* l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_305_;
+static lean_object* l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_268_;
 static lean_object* l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_154_;
-static lean_object* l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_267_;
 static lean_object* l_Lean_initFn___closed__15____x40_Lean_Meta_Tactic_Simp___hyg_3_;
-static lean_object* l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_267_;
 static lean_object* l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_3_;
 static lean_object* l_Lean_initFn___closed__16____x40_Lean_Meta_Tactic_Simp___hyg_3_;
 static lean_object* l_Lean_initFn___closed__8____x40_Lean_Meta_Tactic_Simp___hyg_3_;
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_379_(lean_object*);
 lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_3_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_78_(lean_object*);
 static lean_object* l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_3_;
+static lean_object* l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_305_;
 static lean_object* l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_78_;
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_305_(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_116_;
-static lean_object* l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_304_;
 static lean_object* l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_3_;
 static lean_object* l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_154_;
-static lean_object* l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_341_;
 static lean_object* l_Lean_initFn___closed__17____x40_Lean_Meta_Tactic_Simp___hyg_3_;
 lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_116_(lean_object*);
+static lean_object* l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_379_;
+static lean_object* l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_268_;
 static lean_object* l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_192_;
 static lean_object* l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_40_;
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_304_(lean_object*);
 static lean_object* l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_40_;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_78_;
@@ -55,24 +57,26 @@ static lean_object* l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg
 static lean_object* l_Lean_initFn___closed__3____x40_Lean_Meta_Tactic_Simp___hyg_3_;
 static lean_object* l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_192_;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_192_(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_341_(lean_object*);
 static lean_object* l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_230_;
-static lean_object* l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_304_;
+static lean_object* l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_268_;
+static lean_object* l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_305_;
 static lean_object* l_Lean_initFn___closed__4____x40_Lean_Meta_Tactic_Simp___hyg_3_;
-static lean_object* l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_267_;
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_267_(lean_object*);
 static lean_object* l_Lean_initFn___closed__6____x40_Lean_Meta_Tactic_Simp___hyg_3_;
 static lean_object* l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_230_;
 static lean_object* l_Lean_initFn___closed__7____x40_Lean_Meta_Tactic_Simp___hyg_3_;
+static lean_object* l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_379_;
+static lean_object* l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_342_;
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_268_(lean_object*);
 static lean_object* l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_116_;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_230_(lean_object*);
 static lean_object* l_Lean_initFn___closed__13____x40_Lean_Meta_Tactic_Simp___hyg_3_;
-static lean_object* l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_304_;
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_342_(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_40_;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_40_(lean_object*);
 static lean_object* l_Lean_initFn___closed__14____x40_Lean_Meta_Tactic_Simp___hyg_3_;
 static lean_object* l_Lean_initFn___closed__10____x40_Lean_Meta_Tactic_Simp___hyg_3_;
+static lean_object* l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_342_;
 static lean_object* _init_l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_3_() {
 _start:
 {
@@ -464,7 +468,7 @@ static lean_object* _init_l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("numSteps", 8, 8);
+x_1 = lean_mk_string_unchecked("loopProtection", 14, 14);
 return x_1;
 }
 }
@@ -495,14 +499,56 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
 x_2 = l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_230_;
-x_3 = lean_box(0);
+x_3 = lean_box(1);
 x_4 = l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_230_;
 x_5 = lean_unbox(x_3);
 x_6 = l_Lean_registerTraceClass(x_2, x_5, x_4, x_1);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_267_() {
+static lean_object* _init_l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_268_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("numSteps", 8, 8);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_268_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_268_;
+x_2 = l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_3_;
+x_3 = l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_3_;
+x_4 = l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_3_;
+x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
+return x_5;
+}
+}
+static lean_object* _init_l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_268_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(268u);
+x_2 = l_Lean_initFn___closed__16____x40_Lean_Meta_Tactic_Simp___hyg_3_;
+x_3 = l_Lean_Name_num___override(x_2, x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_268_(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_2 = l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_268_;
+x_3 = lean_box(0);
+x_4 = l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_268_;
+x_5 = lean_unbox(x_3);
+x_6 = l_Lean_registerTraceClass(x_2, x_5, x_4, x_1);
+return x_6;
+}
+}
+static lean_object* _init_l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_305_() {
 _start:
 {
 lean_object* x_1; 
@@ -510,11 +556,11 @@ x_1 = lean_mk_string_unchecked("heads", 5, 5);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_267_() {
+static lean_object* _init_l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_305_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_267_;
+x_1 = l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_305_;
 x_2 = l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_3_;
 x_3 = l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_3_;
 x_4 = l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_3_;
@@ -522,29 +568,29 @@ x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_267_() {
+static lean_object* _init_l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_305_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(267u);
+x_1 = lean_unsigned_to_nat(305u);
 x_2 = l_Lean_initFn___closed__16____x40_Lean_Meta_Tactic_Simp___hyg_3_;
 x_3 = l_Lean_Name_num___override(x_2, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_267_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_305_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
-x_2 = l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_267_;
+x_2 = l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_305_;
 x_3 = lean_box(0);
-x_4 = l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_267_;
+x_4 = l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_305_;
 x_5 = lean_unbox(x_3);
 x_6 = l_Lean_registerTraceClass(x_2, x_5, x_4, x_1);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_304_() {
+static lean_object* _init_l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_342_() {
 _start:
 {
 lean_object* x_1; 
@@ -552,41 +598,41 @@ x_1 = lean_mk_string_unchecked("Debug", 5, 5);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_304_() {
+static lean_object* _init_l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_342_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_3_;
 x_2 = l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_3_;
 x_3 = l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_3_;
-x_4 = l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_304_;
+x_4 = l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_342_;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_304_() {
+static lean_object* _init_l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_342_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(304u);
+x_1 = lean_unsigned_to_nat(342u);
 x_2 = l_Lean_initFn___closed__16____x40_Lean_Meta_Tactic_Simp___hyg_3_;
 x_3 = l_Lean_Name_num___override(x_2, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_304_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_342_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
-x_2 = l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_304_;
+x_2 = l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_342_;
 x_3 = lean_box(0);
-x_4 = l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_304_;
+x_4 = l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_342_;
 x_5 = lean_unbox(x_3);
 x_6 = l_Lean_registerTraceClass(x_2, x_5, x_4, x_1);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_341_() {
+static lean_object* _init_l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_379_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -594,28 +640,28 @@ x_1 = l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_40_;
 x_2 = l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_3_;
 x_3 = l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_3_;
 x_4 = l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_3_;
-x_5 = l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_304_;
+x_5 = l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_342_;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_341_() {
+static lean_object* _init_l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_379_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(341u);
+x_1 = lean_unsigned_to_nat(379u);
 x_2 = l_Lean_initFn___closed__16____x40_Lean_Meta_Tactic_Simp___hyg_3_;
 x_3 = l_Lean_Name_num___override(x_2, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_341_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_379_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
-x_2 = l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_341_;
+x_2 = l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_379_;
 x_3 = lean_box(1);
-x_4 = l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_341_;
+x_4 = l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_379_;
 x_5 = lean_unbox(x_3);
 x_6 = l_Lean_registerTraceClass(x_2, x_5, x_4, x_1);
 return x_6;
@@ -767,29 +813,38 @@ lean_mark_persistent(l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hy
 if (builtin) {res = l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_230_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_267_ = _init_l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_267_();
-lean_mark_persistent(l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_267_);
-l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_267_ = _init_l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_267_();
-lean_mark_persistent(l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_267_);
-l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_267_ = _init_l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_267_();
-lean_mark_persistent(l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_267_);
-if (builtin) {res = l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_267_(lean_io_mk_world());
+}l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_268_ = _init_l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_268_();
+lean_mark_persistent(l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_268_);
+l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_268_ = _init_l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_268_();
+lean_mark_persistent(l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_268_);
+l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_268_ = _init_l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_268_();
+lean_mark_persistent(l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_268_);
+if (builtin) {res = l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_268_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_304_ = _init_l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_304_();
-lean_mark_persistent(l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_304_);
-l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_304_ = _init_l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_304_();
-lean_mark_persistent(l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_304_);
-l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_304_ = _init_l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_304_();
-lean_mark_persistent(l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_304_);
-if (builtin) {res = l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_304_(lean_io_mk_world());
+}l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_305_ = _init_l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_305_();
+lean_mark_persistent(l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_305_);
+l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_305_ = _init_l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_305_();
+lean_mark_persistent(l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_305_);
+l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_305_ = _init_l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_305_();
+lean_mark_persistent(l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_305_);
+if (builtin) {res = l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_305_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_341_ = _init_l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_341_();
-lean_mark_persistent(l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_341_);
-l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_341_ = _init_l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_341_();
-lean_mark_persistent(l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_341_);
-if (builtin) {res = l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_341_(lean_io_mk_world());
+}l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_342_ = _init_l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_342_();
+lean_mark_persistent(l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_342_);
+l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_342_ = _init_l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_342_();
+lean_mark_persistent(l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_342_);
+l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_342_ = _init_l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_342_();
+lean_mark_persistent(l_Lean_initFn___closed__2____x40_Lean_Meta_Tactic_Simp___hyg_342_);
+if (builtin) {res = l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_342_(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_379_ = _init_l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_379_();
+lean_mark_persistent(l_Lean_initFn___closed__0____x40_Lean_Meta_Tactic_Simp___hyg_379_);
+l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_379_ = _init_l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_379_();
+lean_mark_persistent(l_Lean_initFn___closed__1____x40_Lean_Meta_Tactic_Simp___hyg_379_);
+if (builtin) {res = l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_379_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }return lean_io_result_mk_ok(lean_box(0));

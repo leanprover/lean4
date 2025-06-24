@@ -127,7 +127,7 @@ static lean_object* _init_l_Lake_newInitHelp___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("If you are using Lake through Elan (which is standard), you can create a\npackage with a specific Lean version via the `+` option.\n\nThe initial configuration and starter files are based on the template:\n\n  std                   library and executable; default\n  exe                   executable only\n  lib                   library only\n  math                  library only with a mathlib dependency\n\nTemplates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML\nversion of the configuration file, respectively. The default is TOML.", 545, 545);
+x_1 = lean_mk_string_unchecked("If you are using Lake through Elan (which is standard), you can create a\npackage with a specific Lean version via the `+` option.\n\nThe initial configuration and starter files are based on the template:\n\n  std                   library and executable; default\n  exe                   executable only\n  lib                   library only\n  math-lax              library only with a Mathlib dependency\n  math                  library with Mathlib standards for linting and workflows\n\nTemplates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML\nversion of the configuration file, respectively. The default is TOML.", 626, 626);
 return x_1;
 }
 }
@@ -143,7 +143,7 @@ static lean_object* _init_l_Lake_helpNew___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Create a Lean package in a new directory\n\nUSAGE:\n  lake [+<lean-version>] new <name> [<template>][.<language>]\n\nIf you are using Lake through Elan (which is standard), you can create a\npackage with a specific Lean version via the `+` option.\n\nThe initial configuration and starter files are based on the template:\n\n  std                   library and executable; default\n  exe                   executable only\n  lib                   library only\n  math                  library only with a mathlib dependency\n\nTemplates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML\nversion of the configuration file, respectively. The default is TOML.", 657, 657);
+x_1 = lean_mk_string_unchecked("Create a Lean package in a new directory\n\nUSAGE:\n  lake [+<lean-version>] new <name> [<template>][.<language>]\n\nIf you are using Lake through Elan (which is standard), you can create a\npackage with a specific Lean version via the `+` option.\n\nThe initial configuration and starter files are based on the template:\n\n  std                   library and executable; default\n  exe                   executable only\n  lib                   library only\n  math-lax              library only with a Mathlib dependency\n  math                  library with Mathlib standards for linting and workflows\n\nTemplates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML\nversion of the configuration file, respectively. The default is TOML.", 738, 738);
 return x_1;
 }
 }
@@ -159,7 +159,7 @@ static lean_object* _init_l_Lake_helpInit___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Create a Lean package in the current directory\n\nUSAGE:\n  lake [+<lean-version>] init [<name>] [<template>][.<language>]\n\nIf you are using Lake through Elan (which is standard), you can create a\npackage with a specific Lean version via the `+` option.\n\nThe initial configuration and starter files are based on the template:\n\n  std                   library and executable; default\n  exe                   executable only\n  lib                   library only\n  math                  library only with a mathlib dependency\n\nTemplates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML\nversion of the configuration file, respectively. The default is TOML.\n\nYou can create a package with current directory's name via `lake init .`\nor a bare `lake init`.", 763, 763);
+x_1 = lean_mk_string_unchecked("Create a Lean package in the current directory\n\nUSAGE:\n  lake [+<lean-version>] init [<name>] [<template>][.<language>]\n\nIf you are using Lake through Elan (which is standard), you can create a\npackage with a specific Lean version via the `+` option.\n\nThe initial configuration and starter files are based on the template:\n\n  std                   library and executable; default\n  exe                   executable only\n  lib                   library only\n  math-lax              library only with a Mathlib dependency\n  math                  library with Mathlib standards for linting and workflows\n\nTemplates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML\nversion of the configuration file, respectively. The default is TOML.\n\nYou can create a package with current directory's name via `lake init .`\nor a bare `lake init`.", 844, 844);
 return x_1;
 }
 }

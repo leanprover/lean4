@@ -699,6 +699,8 @@ structure LetConfig where
   zeta : Bool := false
   /-- Postpone elaboration of the value until after the body is elaborated. -/
   postponeValue : Bool := false
+  /-- Generalize the value from the expected type when elaborating the body. -/
+  generalize : Bool := false
   /-- For `let x := v; b`, adds `eq : x = v` to the context. -/
   eq? : Option Ident := none
 
@@ -711,6 +713,8 @@ def LetConfig.setFrom (config : LetConfig) (key : Syntax) (val : Bool) : LetConf
     { config with zeta := val }
   else if key.isOfKind ``Parser.Term.letOptPostponeValue then
     { config with postponeValue := val }
+  else if key.isOfKind ``Parser.Term.letOptGeneralize then
+    { config with generalize := val }
   else
     config
 
@@ -730,13 +734,17 @@ def mkLetConfig (letConfig : Syntax) (initConfig : LetConfig) : TermElabM LetCon
     | _ => pure ()
   return config
 
-/-- If `useLetExpr` is true, then a kernel let-expression `let x : type := val; body` is created.
-   Otherwise, we create a term of the form `letFun val (fun (x : type) => body)`
-
-   The default elaboration order is `binders`, `typeStx`, `valStx`, and `body`.
-   If `elabBodyFirst == true`, then we use the order `binders`, `typeStx`, `body`, and `valStx`. -/
+/--
+The default elaboration order is `binders`, `typeStx`, `valStx`, and `body`.
+If `config.postponeValue == true`, then we use the order `binders`, `typeStx`, `body`, and `valStx`.
+If `config.generalize == true`, then the value is abstracted from the expected type when elaborating the body.
+-/
 def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (valStx : Syntax) (body : Syntax)
     (expectedType? : Option Expr) (config : LetConfig) : TermElabM Expr := do
+  if config.generalize then
+    if config.postponeValue then
+      throwError "`+postponeValue` and `+generalize` are incompatible"
+    tryPostponeIfNoneOrMVar expectedType?
   let (type, val, binders) ← elabBindersEx binders fun xs => do
     let (binders, fvars) := xs.unzip
     /-
@@ -785,54 +793,47 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
       pure (type, val, binders)
   let kind := kindOfBinderName id.getId
   trace[Elab.let.decl] "{id.getId} : {type} := {val}"
-  let elabBody : TermElabM Expr := do
-    let body ← elabTermEnsuringType body expectedType?
-    instantiateMVars body
   let result ←
-    if config.zeta then
-      let elabZetaCore (x : Expr) : TermElabM Expr := do
-        addLocalVarInfo id x
-        if let some h := config.eq? then
-          let hTy ← mkEq x val
-          withLocalDeclD h.getId hTy fun h' => do
-            addLocalVarInfo h h'
-            let body ← elabBody
-            pure <| (← body.abstractM #[x, h']).instantiateRev #[val, ← mkEqRefl val]
-        else
-          let body ← elabBody
+    withLetDecl id.getId (kind := kind) type val (nondep := config.nondep) fun x => do
+      let elabBody : TermElabM Expr := do
+        let mut expectedType? := expectedType?
+        if config.generalize then
+          let throwNoType := throwError "failed to elaborate with `+generalize`, expected type is not available"
+          let some expectedType := expectedType? | throwNoType
+          let expectedType ← instantiateMVars expectedType
+          if expectedType.getAppFn.isMVar then throwNoType
+          let motiveBody ← kabstract expectedType (← instantiateMVars val)
+          let motive := motiveBody.instantiate1 x
+          -- When `config.nondep` is false, then `motive` will be definitionally equal to `expectedType`.
+          -- Type correctness only needs to be checked in the `nondep` case:
+          if config.nondep then
+            unless (← isTypeCorrect motive) do
+              throwError "failed to elaborate with `+generalize`, generalized expected type is not type correct:{indentD motive}"
+          expectedType? := motive
+        elabTermEnsuringType body expectedType? >>= instantiateMVars
+      addLocalVarInfo id x
+      match config.eq? with
+      | none =>
+        let body ← elabBody
+        if config.zeta then
           pure <| (← body.abstractM #[x]).instantiate1 val
-      if !config.nondep then
-        withLetDecl id.getId (kind := kind) type val elabZetaCore
-      else
-        withLocalDecl id.getId (kind := kind) .default type elabZetaCore
-    else
-      if !config.nondep then
-        withLetDecl id.getId (kind := kind) type val fun x => do
-          addLocalVarInfo id x
-          if let some h := config.eq? then
-            let hTy ← mkEq x val
-            withLocalDeclD h.getId hTy fun h' => do
-              addLocalVarInfo h h'
-              let body ← elabBody
-              let body := (← body.abstractM #[h']).instantiate1 (← mkEqRefl x)
-              mkLetFVars #[x] body (usedLetOnly := config.usedOnly)
+        else
+          mkLetFVars #[x] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
+      | some h =>
+        let hTy ← mkEq x val
+        withLetDecl h.getId hTy (← mkEqRefl x) (nondep := true) fun h' => do
+          addLocalVarInfo h h'
+          let body ← elabBody
+          if config.zeta then
+            pure <| (← body.abstractM #[x, h']).instantiateRev #[val, ← mkEqRefl val]
+          else if config.nondep then
+            -- TODO(kmill): Think more about how to encode this case.
+            -- Currently we produce `(fun (x : α) (h : x = val) => b) val rfl`.
+            -- N.B. the nondep lets become lambdas here.
+            let f ← mkLambdaFVars #[x, h'] body
+            return mkApp2 f val (← mkEqRefl val)
           else
-            let body ← elabBody
-            mkLetFVars #[x] body (usedLetOnly := config.usedOnly)
-      else
-        withLocalDecl id.getId (kind := kind) .default type fun x => do
-          addLocalVarInfo id x
-          if let some h := config.eq? then
-            -- TODO(kmill): Think about how to encode this case.
-            let hTy ← mkEq x val
-            withLocalDeclD h.getId hTy fun h' => do
-              addLocalVarInfo h h'
-              let body ← elabBody
-              let f ← mkLambdaFVars #[x, h'] body
-              return mkApp2 f val (← mkEqRefl val)
-          else
-            let body ← elabBody
-            mkLetFun x val body
+            mkLetFVars #[x, h'] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
   if config.postponeValue then
     forallBoundedTelescope type binders.size fun xs type => do
       -- the original `fvars` from above are gone, so add back info manually
@@ -859,9 +860,7 @@ def mkLetIdDeclView (letIdDecl : Syntax) : LetIdDeclView :=
   -/
   let letId := letIdDecl[0]
   let id :=
-    if letId.isIdent then
-      letId
-    else if letId[0].isOfKind hygieneInfoKind then
+    if letId[0].isOfKind hygieneInfoKind then
       HygieneInfo.mkIdent letId[0] `this (canonical := true)
     else
       -- Assumed to be binderIdent
@@ -879,13 +878,13 @@ def expandLetEqnsDecl (letDecl : Syntax) (useExplicit := true) : MacroM Syntax :
   return mkNode `Lean.Parser.Term.letIdDecl #[letDecl[0], letDecl[1], letDecl[2], mkAtomFrom ref " := ", val]
 
 def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (initConfig : LetConfig) : TermElabM Expr := do
-  let declIdx := stx.getNumArgs - 3
-  let letConfig := stx[1]
-  let config    ← mkLetConfig letConfig initConfig
+  let (config, declIdx) ← if stx[1].isOfKind ``Parser.Term.letConfig then
+    pure (← mkLetConfig stx[1] initConfig, 2)
+  else
+    pure (initConfig, 1)
   let letDecl   := stx[declIdx][0]
-  let body      := stx[stx.getNumArgs - 1]
-  -- TODO(kmill): remove `have` kinds
-  if letDecl.getKind == ``Lean.Parser.Term.letIdDecl || letDecl.getKind == `Lean.Parser.Term.haveIdDecl then
+  let body      := stx[declIdx + 2]
+  if letDecl.getKind == ``Lean.Parser.Term.letIdDecl then
     let { id, binders, type, value } := mkLetIdDeclView letDecl
     let id ← if id.isIdent then pure id else mkFreshIdent id (canonical := true)
     elabLetDeclAux id binders type value body expectedType? config
@@ -907,6 +906,7 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (initConfig : L
       if config.zeta then
         throwError "`+zeta` with patterns is not allowed"
       -- We are currently ignore `config.nondep` when patterns are used.
+      -- We are also currently ignoring `config.generalize`.
       let val ← if optType.isNone then
         `($val:term)
       else
@@ -917,7 +917,7 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (initConfig : L
       else
         `(match $val:term with | $pat => $body)
       withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
-  else if letDecl.getKind == ``Lean.Parser.Term.letEqnsDecl || letDecl.getKind == `Lean.Parser.Term.haveEqnsDecl then
+  else if letDecl.getKind == ``Lean.Parser.Term.letEqnsDecl then
     let letDeclIdNew ← liftMacroM <| expandLetEqnsDecl letDecl
     let declNew := stx[declIdx].setArg 0 letDeclIdNew
     let stxNew  := stx.setArg declIdx declNew

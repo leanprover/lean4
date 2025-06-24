@@ -79,10 +79,15 @@ def doPatDecl  := leading_parser
 @[builtin_doElem_parser] def doLetArrow      := leading_parser
   withPosition ("let " >> optional "mut " >> (doIdDecl <|> doPatDecl))
 
--- We use `letIdDeclNoBinders` to define `doReassign`.
--- Motivation: we do not reassign functions, and avoid parser conflict
+/-
+We use `letIdDeclNoBinders` to define `doReassign`.
+Motivations:
+- we do not reassign functions,
+- we do not want `hygieneInfo` case, and
+- avoid parser conflict
+-/
 def letIdDeclNoBinders := node ``letIdDecl <|
-  atomic (ident >> pushNone >> optType >> " := ") >> termParser
+  atomic (node ``letId ident >> pushNone >> optType >> " := ") >> termParser
 
 @[builtin_doElem_parser] def doReassign      := leading_parser
   notFollowedByRedefinedTermToken >> (letIdDeclNoBinders <|> letPatDecl)

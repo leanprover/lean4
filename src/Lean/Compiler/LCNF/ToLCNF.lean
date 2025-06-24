@@ -13,6 +13,7 @@ import Lean.Compiler.LCNF.Types
 import Lean.Compiler.LCNF.Bind
 import Lean.Compiler.LCNF.InferType
 import Lean.Compiler.LCNF.Util
+import Lean.Compiler.NeverExtractAttr
 
 namespace Lean.Compiler.LCNF
 namespace ToLCNF
@@ -200,6 +201,11 @@ structure State where
   lctx : LocalContext := {}
   /-- Cache from Lean regular expression to LCNF argument. -/
   cache : PHashMap Expr Arg := {}
+  /--
+  Determines whether caching has been disabled due to finding a use of
+  a constant marked with `never_extract`.
+  -/
+  shouldCache : Bool := true
   /-- `toLCNFType` cache -/
   typeCache : Std.HashMap Expr Expr := {}
   /-- isTypeFormerType cache -/
@@ -433,7 +439,7 @@ where
       | .lit lit     => visitLit lit
       | .fvar fvarId => if (← get).toAny.contains fvarId then pure .erased else pure (.fvar fvarId)
       | .forallE .. | .mvar .. | .bvar .. | .sort ..  => unreachable!
-    modify fun s => { s with cache := s.cache.insert e r }
+    modify fun s => if s.shouldCache then { s with cache := s.cache.insert e r } else s
     return r
 
   visit (e : Expr) : M Arg := withIncRecDepth do
@@ -474,8 +480,11 @@ where
 
   /-- Giving `f` a constant `.const declName us`, convert `args` into `args'`, and return `.const declName us args'` -/
   visitAppDefaultConst (f : Expr) (args : Array Expr) : M Arg := do
-    let .const declName us := CSimp.replaceConstants (← getEnv) f | unreachable!
+    let env ← getEnv
+    let .const declName us := CSimp.replaceConstants env f | unreachable!
     let args ← args.mapM visitAppArg
+    if hasNeverExtractAttribute env declName then
+      modify fun s => {s with shouldCache := false }
     letValueToArg <| .const declName us args
 
   /-- Eta expand if under applied, otherwise apply k -/

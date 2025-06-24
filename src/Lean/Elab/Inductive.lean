@@ -249,7 +249,7 @@ where
               {indentExpr arg}\nis not definitionally equal to the expected parameter{indentExpr param}"
             let noteMsg := m!"The value of parameter '{param}' must be fixed throughout the inductive \
               declaration. Consider making this parameter an index if it must vary."
-            throwError msg ++ .note noteMsg
+            throwNamedError lean.inductiveParamMismatch (msg ++ .note noteMsg)
           args := args.set! i param
         unless args.size ≥ params.size do
           let expected := mkAppN f params
@@ -260,7 +260,7 @@ where
           let noteMsg :=
             m!"All occurrences of an inductive type in the types of its constructors must specify its \
               fixed parameters. Only indices can be omitted in a partial application of the type constructor."
-          throwError msg ++ .note noteMsg
+          throwNamedError lean.inductiveParamMissing (msg ++ .note noteMsg)
         return TransformStep.done (mkAppN f args)
       else
         modify fun es => e :: es
@@ -277,14 +277,14 @@ where
           if (← whnfD decl.type).isForall then
             return m!" an application of"
       return m!""
-    throwErrorAt ctorType "Unexpected resulting type for constructor '{declName}': \
+    throwNamedErrorAt ctorType lean.ctorResultingTypeMismatch "Unexpected resulting type for constructor '{declName}': \
       Expected{lazyAppMsg}{indentExpr indFVar}\nbut found{indentExpr resultingType}"
 
   throwUnexpectedResultingTypeNotType (resultingType : Expr) (declName : Name) (ctorType : Syntax) := do
     let lazyMsg := MessageData.ofLazyM do
       let resultingTypeType ← inferType resultingType
       return indentExpr resultingTypeType
-    throwErrorAt ctorType "Unexpected resulting type for constructor '{declName}': \
+    throwNamedErrorAt ctorType lean.ctorResultingTypeMismatch "Unexpected resulting type for constructor '{declName}': \
       Expected a type, but found{indentExpr resultingType}\nof type{lazyMsg}"
 
 @[builtin_inductive_elab Lean.Parser.Command.inductive, builtin_inductive_elab Lean.Parser.Command.classInductive]

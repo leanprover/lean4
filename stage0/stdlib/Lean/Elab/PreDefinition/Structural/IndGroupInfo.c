@@ -122,7 +122,7 @@ lean_object* l_Lean_Meta_isExprDefEqGuarded(lean_object*, lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_IndGroupInst_isDefEq___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_reprIndGroupInfo____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_116____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___Array_Array_repr___at___Lean_Elab_Structural_reprIndGroupInst____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_298__spec__0_spec__0(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkForallFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkForallFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instInhabitedMetaM___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
@@ -2040,7 +2040,7 @@ lean_dec(x_16);
 x_19 = lean_array_pop(x_3);
 x_20 = lean_box(1);
 x_21 = lean_unbox(x_20);
-x_22 = l_Lean_Meta_mkForallFVars(x_19, x_17, x_2, x_11, x_21, x_5, x_6, x_7, x_8, x_18);
+x_22 = l_Lean_Meta_mkForallFVars(x_19, x_17, x_2, x_11, x_11, x_21, x_5, x_6, x_7, x_8, x_18);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);

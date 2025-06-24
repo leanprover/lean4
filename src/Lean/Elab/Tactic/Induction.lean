@@ -412,7 +412,7 @@ where
           applyAltStx tacSnaps altStxs altStxIdx altStx alt
         alts := #[]
       else
-        throwErrorAt altStx (Term.mkRedundantAlternativeMsg altName none)
+        throwNamedErrorAt altStx lean.redundantMatchAlt (Term.mkRedundantAlternativeMsg altName none)
 
     -- now process remaining alternatives; these might either be unreachable or we're in `induction`
     -- without `with`. In all other cases, remaining alternatives are flagged as errors.

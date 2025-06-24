@@ -57,7 +57,7 @@ fun {α} {motive} t =>
   List.rec PUnit (fun head tail tail_ih => PProd (PProd (motive tail) tail_ih) PUnit) t
 ```
 -/
-private def mkBelowFromRec (recName : Name) (reflexive : Bool) (nParams : Nat)
+private def mkBelowFromRec (recName : Name) (nParams : Nat)
   (belowName : Name) : MetaM Unit := do
   -- The construction follows the type of `ind.rec`
   let .recInfo recVal ← getConstInfo recName
@@ -81,11 +81,7 @@ private def mkBelowFromRec (recName : Name) (reflexive : Bool) (nParams : Nat)
       | throwError "type of type of major premise {major} not a type former"
 
     -- universe level of the resultant type
-    let rlvl : Level :=
-      if reflexive then
-        mkLevelMax ilvl lvl
-      else
-        mkLevelMax 1 lvl
+    let rlvl : Level := mkLevelMax ilvl lvl
 
     let mut val := .const recName (rlvl.succ :: lvls)
     -- add parameters
@@ -122,7 +118,7 @@ def mkBelow (indName : Name) : MetaM Unit := do
 
   let recName := mkRecName indName
   let belowName := mkBelowName indName
-  mkBelowFromRec recName indVal.isReflexive indVal.numParams belowName
+  mkBelowFromRec recName indVal.numParams belowName
 
   -- If this is the first inductive in a mutual group with nested inductives,
   -- generate the constructions for the nested inductives now
@@ -130,7 +126,7 @@ def mkBelow (indName : Name) : MetaM Unit := do
     for i in [:indVal.numNested] do
       let recName := recName.appendIndexAfter (i + 1)
       let belowName := belowName.appendIndexAfter (i + 1)
-      mkBelowFromRec recName indVal.isReflexive indVal.numParams belowName
+      mkBelowFromRec recName indVal.numParams belowName
 
 /--
 If `minorType` is the type of a minor premies of a recursor, such as
@@ -188,7 +184,7 @@ fun {α} {motive} t (F_1 : (t : List α) → List.below t → motive t) => (
   ).1
 ```
 -/
-private def mkBRecOnFromRec (recName : Name) (reflexive : Bool) (nParams : Nat)
+private def mkBRecOnFromRec (recName : Name) (nParams : Nat)
     (all : Array Name) (brecOnName : Name) : MetaM Unit := do
   let .recInfo recVal ← getConstInfo recName | return
   let lvl::lvls := recVal.levelParams.map (Level.param ·)
@@ -215,11 +211,7 @@ private def mkBRecOnFromRec (recName : Name) (reflexive : Bool) (nParams : Nat)
       | throwError "type of type of major premise {major} not a type former"
 
     -- universe level of the resultant type
-    let rlvl : Level :=
-      if reflexive then
-        mkLevelMax ilvl lvl
-      else
-        mkLevelMax 1 lvl
+    let rlvl : Level := mkLevelMax ilvl lvl
 
     -- One `below` for each motive, with the same motive parameters
     let blvls := lvl::lvls
@@ -283,7 +275,7 @@ def mkBRecOn (indName : Name) : MetaM Unit := do
 
   let recName := mkRecName indName
   let brecOnName := mkBRecOnName indName
-  mkBRecOnFromRec recName indVal.isReflexive indVal.numParams indVal.all.toArray brecOnName
+  mkBRecOnFromRec recName indVal.numParams indVal.all.toArray brecOnName
 
   -- If this is the first inductive in a mutual group with nested inductives,
   -- generate the constructions for the nested inductives now.
@@ -291,4 +283,4 @@ def mkBRecOn (indName : Name) : MetaM Unit := do
     for i in [:indVal.numNested] do
       let recName := recName.appendIndexAfter (i + 1)
       let brecOnName := brecOnName.appendIndexAfter (i + 1)
-      mkBRecOnFromRec recName indVal.isReflexive indVal.numParams indVal.all.toArray brecOnName
+      mkBRecOnFromRec recName indVal.numParams indVal.all.toArray brecOnName

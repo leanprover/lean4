@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Simp
+import Lean.Meta.Tactic.Simp.LoopProtection
 import Lean.Meta.Tactic.Replace
 import Lean.Meta.Hint
 import Lean.Elab.BuiltinNotation
@@ -153,6 +154,15 @@ inductive ElabSimpArgResult where
   | eraseSimproc (toErase : Name)
   | star
   | none -- used for example when elaboration fails
+
+def ElabSimpArgResult.simpTheorems : ElabSimpArgResult → Array SimpTheorem
+  | addEntries entries => Id.run do
+    let mut thms := #[]
+    for entry in entries do
+      if let .thm thm := entry then
+        thms := thms.push thm
+    return thms
+  | _ => #[]
 
 private def elabDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (id : Origin)
     (e : Expr) (post : Bool) (inv : Bool) (kind : SimpKind) : MetaM ElabSimpArgResult := do
@@ -438,6 +448,31 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
   let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) (simprocs := #[simprocs]) (ignoreStarArg := ignoreStarArg) ctx
   return { r with dischargeWrapper }
 
+/--
+Runs the given action.
+If it throws a maxRecDepth exception (nested or not), run the loop checking.
+If it does not throw, run the loop checking only if explicitly enabled.
+-/
+@[inline] def withLoopChecking [Monad m] [MonadExcept Exception m] [MonadRuntimeException m] [MonadLiftT MetaM m]
+    (r : MkSimpContextResult) (k : m α) : m α := do
+  -- We use tryCatchRuntimeEx here, normal try-catch would swallow the trace messages
+  -- from diagnostics
+  let x ← tryCatchRuntimeEx do
+      k
+    fun e => do
+      if e.isMaxRecDepth || e.toMessageData.hasTag (· = `nested.runtime.maxRecDepth) then
+        go (force := true)
+      throw e
+  go (force := false)
+  pure x
+where
+  go force : m Unit := liftMetaM do
+    let { ctx, simprocs, dischargeWrapper := _, simpArgs } := r
+    for (ref, arg) in simpArgs do
+      for thm in arg.simpTheorems do
+        withRef ref do
+          Simp.checkLoops (force := force) ctx (methods := Simp.mkDefaultMethodsCore simprocs) thm
+
 register_builtin_option tactic.simp.trace : Bool := {
   defValue := false
   descr    := "When tracing is enabled, calls to `simp` or `dsimp` will print an equivalent `simp only` call."
@@ -619,9 +654,10 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
   (location)?
 -/
 @[builtin_tactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => withMainContext do withSimpDiagnostics do
-  let { ctx, simprocs, dischargeWrapper, simpArgs } ← mkSimpContext stx (eraseLocal := false)
+  let r@{ ctx, simprocs, dischargeWrapper, simpArgs } ← mkSimpContext stx (eraseLocal := false)
   let stats ← dischargeWrapper.with fun discharge? =>
-    simpLocation ctx simprocs discharge? (expandOptLocation stx[5])
+    withLoopChecking r do
+      simpLocation ctx simprocs discharge? (expandOptLocation stx[5])
   if tactic.simp.trace.get (← getOptions) then
     traceSimpCall stx stats.usedTheorems
   else if linter.unusedSimpArgs.get (← getOptions) then
@@ -630,8 +666,10 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
   return stats.diag
 
 @[builtin_tactic Lean.Parser.Tactic.simpAll] def evalSimpAll : Tactic := fun stx => withMainContext do withSimpDiagnostics do
-  let { ctx, simprocs, dischargeWrapper := _, simpArgs } ← mkSimpContext stx (eraseLocal := true) (kind := .simpAll) (ignoreStarArg := true)
-  let (result?, stats) ← simpAll (← getMainGoal) ctx (simprocs := simprocs)
+  let r@{ ctx, simprocs, dischargeWrapper := _, simpArgs } ← mkSimpContext stx (eraseLocal := true) (kind := .simpAll) (ignoreStarArg := true)
+  let (result?, stats) ←
+    withLoopChecking r do
+      simpAll (← getMainGoal) ctx (simprocs := simprocs)
   match result? with
   | none => replaceMainGoal []
   | some mvarId => replaceMainGoal [mvarId]

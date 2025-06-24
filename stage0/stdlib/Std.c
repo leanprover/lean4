@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std
-// Imports: Std.Classes Std.Data Std.Do Std.Sat Std.Sync Std.Time Std.Tactic Std.Internal Std.Net
+// Imports: Std.Classes Std.Data Std.Sat Std.Sync Std.Time Std.Tactic Std.Internal Std.Net
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* initialize_Std_Classes(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Do(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Sat(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Sync(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time(uint8_t builtin, lean_object*);
@@ -31,9 +30,6 @@ res = initialize_Std_Classes(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Do(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Sat(builtin, lean_io_mk_world());

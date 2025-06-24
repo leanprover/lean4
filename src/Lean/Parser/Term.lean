@@ -638,8 +638,13 @@ def letEqnsDecl := leading_parser (withAnonymousAntiquot := false)
 -/
 @[builtin_doc] def letOptZeta := leading_parser
   nonReservedSymbol "zeta"
+/--
+`+generalize` directs `let`/`have` to generalize the value from the expected type before elaborating the body.
+-/
+@[builtin_doc] def letOptGeneralize := leading_parser
+  nonReservedSymbol "generalize"
 def letOpts := leading_parser
-  letOptNondep <|> letOptPostponeValue <|> letOptUsedOnly <|> letOptZeta
+  letOptNondep <|> letOptPostponeValue <|> letOptUsedOnly <|> letOptZeta <|> letOptGeneralize
 def letPosOpt := leading_parser (withAnonymousAntiquot := false)
   " +" >> checkNoWsBefore >> letOpts
 def letNegOpt := leading_parser (withAnonymousAntiquot := false)
@@ -650,7 +655,7 @@ def letNegOpt := leading_parser (withAnonymousAntiquot := false)
 @[builtin_doc] def letOptEq := leading_parser (withAnonymousAntiquot := false)
   atomic (" (" >> nonReservedSymbol "eq" >> " := ") >> binderIdent >> ")"
 def letConfigItem := letPosOpt <|> letNegOpt <|> letOptEq
-/-- Configuration options for tactics. -/
+/-- Configuration options for `let` tactics. -/
 def letConfig := leading_parser (withAnonymousAntiquot := false)
   many letConfigItem
 /--
@@ -704,12 +709,12 @@ It is often used when building macros.
 -/
 @[builtin_term_parser] def «let_tmp» := leading_parser:leadPrec
   withPosition ("let_tmp " >> letDecl) >> optSemicolon termParser
-/-- `haveI` behaves like `have`, but inlines the value instead of producing a `let_fun` term. -/
+/-- `haveI` behaves like `have`, but inlines the value instead of producing a `have` term. -/
 @[builtin_term_parser] def «haveI» := leading_parser
-  withPosition ("haveI " >> letDecl) >> optSemicolon termParser
-/-- `letI` behaves like `let`, but inlines the value instead of producing a `let_fun` term. -/
+  withPosition ("haveI " >> letConfig >> letDecl) >> optSemicolon termParser
+/-- `letI` behaves like `let`, but inlines the value instead of producing a `let` term. -/
 @[builtin_term_parser] def «letI» := leading_parser
-  withPosition ("letI " >> letDecl) >> optSemicolon termParser
+  withPosition ("letI " >> letConfig >> letDecl) >> optSemicolon termParser
 
 def «scoped» := leading_parser "scoped "
 def «local»  := leading_parser "local "
@@ -797,9 +802,9 @@ The coinductive predicate is defined as the greatest fixed point of a monotone f
 By default, monotonicity is verified automatically. However, users can provide custom proofs
 of monotonicity if needed.
 -/
-def greatestFixpoint := leading_parser
+def coinductiveFixpoint := leading_parser
   withPosition (
-    "greatest_fixpoint" >>
+    "coinductive_fixpoint" >>
     optional (checkColGt "indentation" >> nonReservedSymbol "monotonicity " >>
               checkColGt "indented monotonicity proof" >> termParser))
 
@@ -814,9 +819,9 @@ The inductive predicate is defined as the least fixed point of a monotone functi
 By default, monotonicity is verified automatically. However, users can provide custom proofs
 of monotonicity if needed.
 -/
-def leastFixpoint := leading_parser
+def inductiveFixpoint := leading_parser
   withPosition (
-    "least_fixpoint" >>
+    "inductive_fixpoint" >>
     optional (checkColGt "indentation" >> nonReservedSymbol "monotonicity " >>
               checkColGt "indented monotonicity proof" >> termParser))
 
@@ -836,7 +841,7 @@ Forces the use of well-founded recursion and is hence incompatible with
 Termination hints are `termination_by` and `decreasing_by`, in that order.
 -/
 @[builtin_doc] def suffix := leading_parser
-  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy <|> partialFixpoint <|> greatestFixpoint <|> leastFixpoint)) >> optional decreasingBy
+  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy <|> partialFixpoint <|> coinductiveFixpoint <|> inductiveFixpoint)) >> optional decreasingBy
 
 end Termination
 namespace Term
@@ -1196,6 +1201,7 @@ end Term
 open Term in
 builtin_initialize
   register_parser_alias letDecl
+  register_parser_alias letConfig
   register_parser_alias sufficesDecl
   register_parser_alias letRecDecls
   register_parser_alias hole

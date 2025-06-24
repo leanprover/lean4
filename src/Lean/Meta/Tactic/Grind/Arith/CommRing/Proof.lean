@@ -24,14 +24,16 @@ def toContextExpr : RingM Expr := do
   else
     RArray.toExpr ring.type id (RArray.leaf (mkApp ring.natCastFn (toExpr 0)))
 
+private def toSContextExpr' : SemiringM Expr := do
+  let semiring ← getSemiring
+  if h : 0 < semiring.vars.size then
+    RArray.toExpr semiring.type id (RArray.ofFn (semiring.vars[·]) h)
+  else
+    RArray.toExpr semiring.type id (RArray.leaf (mkApp semiring.natCastFn (toExpr 0)))
+
 /-- Similar to `toContextExpr`, but for semirings. -/
 private def toSContextExpr (semiringId : Nat) : RingM Expr := do
-  SemiringM.run semiringId do
-    let semiring ← getSemiring
-    if h : 0 < semiring.vars.size then
-      RArray.toExpr semiring.type id (RArray.ofFn (semiring.vars[·]) h)
-    else
-      RArray.toExpr semiring.type id (RArray.leaf (mkApp semiring.natCastFn (toExpr 0)))
+  SemiringM.run semiringId do toSContextExpr'
 
 def throwNoNatZeroDivisors : RingM α := do
   throwError "`grind` internal error, `NoNatZeroDivisors` instance is needed, but it is not available for{indentExpr (← getRing).type}"
@@ -545,5 +547,17 @@ def propagateEq (a b : Expr) (ra rb : RingExpr) (d : PolyDerivation) : RingM Uni
     Null.propagateEq a b ra rb d
   else
     Stepwise.propagateEq a b ra rb d
+
+/--
+Given `a` and `b`, such that `a ≠ b` in the core and `sa` and `sb` their reified semiring
+terms s.t. `sa.toPoly == sb.toPoly`, close the goal.
+-/
+def setSemiringDiseqUnsat (a b : Expr) (sa sb : SemiringExpr) : SemiringM Unit := do
+  let ctx ← toSContextExpr'
+  let semiring ← getSemiring
+  let hne ← mkDiseqProof a b
+  let h := mkApp3 (mkConst ``Grind.Ring.OfSemiring.eq_normS [semiring.u]) semiring.type semiring.commSemiringInst ctx
+  let h := mkApp3 h (toExpr sa) (toExpr sb) reflBoolTrue
+  closeGoal (mkApp hne h)
 
 end Lean.Meta.Grind.Arith.CommRing

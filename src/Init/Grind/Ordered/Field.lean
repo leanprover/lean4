@@ -13,18 +13,19 @@ namespace Lean.Grind
 
 namespace Field.IsOrdered
 
-variable {R : Type u} [Field R] [LinearOrder R] [Ring.IsOrdered R]
+variable {R : Type u} [Field R] [LinearOrder R] [OrderedRing R]
 
-open Ring.IsOrdered
+open OrderedAdd
+open OrderedRing
 
 theorem pos_of_inv_pos {a : R} (h : 0 < a⁻¹) : 0 < a := by
   rcases LinearOrder.trichotomy 0 a with (h' | rfl | h')
   · exact h'
   · simpa [Field.inv_zero] using h
   · exfalso
-    have := Ring.IsOrdered.mul_neg_of_pos_of_neg h h'
+    have := OrderedRing.mul_neg_of_pos_of_neg h h'
     rw [inv_mul_cancel (Preorder.ne_of_lt h')] at this
-    exact Ring.IsOrdered.not_one_lt_zero this
+    exact OrderedRing.not_one_lt_zero this
 
 theorem inv_pos_iff {a : R} : 0 < a⁻¹ ↔ 0 < a := by
   constructor
@@ -36,7 +37,7 @@ theorem inv_pos_iff {a : R} : 0 < a⁻¹ ↔ 0 < a := by
 theorem inv_neg_iff {a : R} : a⁻¹ < 0 ↔ a < 0 := by
   have := inv_pos_iff (a := -a)
   rw [Field.inv_neg] at this
-  simpa [IntModule.IsOrdered.neg_pos_iff]
+  simpa [neg_pos_iff]
 
 theorem inv_nonneg_iff {a : R} : 0 ≤ a⁻¹ ↔ 0 ≤ a := by
   simp [PartialOrder.le_iff_lt_or_eq, inv_pos_iff, Field.zero_eq_inv_iff]
@@ -44,15 +45,15 @@ theorem inv_nonneg_iff {a : R} : 0 ≤ a⁻¹ ↔ 0 ≤ a := by
 theorem inv_nonpos_iff {a : R} : a⁻¹ ≤ 0 ↔ a ≤ 0 := by
   have := inv_nonneg_iff (a := -a)
   rw [Field.inv_neg] at this
-  simpa [IntModule.IsOrdered.neg_nonneg_iff] using this
+  simpa [neg_nonneg_iff] using this
 
 private theorem mul_le_of_le_mul_inv {a b c : R} (h : 0 < c) (h' : a ≤ b * c⁻¹) : a * c ≤ b := by
   simpa [Semiring.mul_assoc, Field.inv_mul_cancel (Preorder.ne_of_gt h), Semiring.mul_one] using
-    Ring.IsOrdered.mul_le_mul_of_nonneg_right h' (Preorder.le_of_lt h)
+    OrderedRing.mul_le_mul_of_nonneg_right h' (Preorder.le_of_lt h)
 
 private theorem le_mul_inv_of_mul_le {a b c : R} (h : 0 < b) (h' : a * b ≤ c) : a ≤ c * b⁻¹ := by
   simpa [Semiring.mul_assoc, Field.mul_inv_cancel (Preorder.ne_of_gt h), Semiring.mul_one] using
-    Ring.IsOrdered.mul_le_mul_of_nonneg_right h' (Preorder.le_of_lt (inv_pos_iff.mpr h))
+    OrderedRing.mul_le_mul_of_nonneg_right h' (Preorder.le_of_lt (inv_pos_iff.mpr h))
 
 theorem le_mul_inv_iff_mul_le (a b : R) {c : R} (h : 0 < c) : a ≤ b * c⁻¹ ↔ a * c ≤ b :=
   ⟨mul_le_of_le_mul_inv h, le_mul_inv_of_mul_le h⟩
@@ -63,11 +64,11 @@ private theorem mul_inv_le_iff_le_mul (a c : R) {b : R} (h : 0 < b) : a * b⁻¹
 
 private theorem mul_lt_of_lt_mul_inv {a b c : R} (h : 0 < c) (h' : a < b * c⁻¹) : a * c < b := by
   simpa [Semiring.mul_assoc, Field.inv_mul_cancel (Preorder.ne_of_gt h), Semiring.mul_one] using
-    Ring.IsOrdered.mul_lt_mul_of_pos_right h' h
+    OrderedRing.mul_lt_mul_of_pos_right h' h
 
 private theorem lt_mul_inv_of_mul_lt {a b c : R} (h : 0 < b) (h' : a * b < c) : a < c * b⁻¹ := by
   simpa [Semiring.mul_assoc, Field.mul_inv_cancel (Preorder.ne_of_gt h), Semiring.mul_one] using
-    Ring.IsOrdered.mul_lt_mul_of_pos_right h' (inv_pos_iff.mpr h)
+    OrderedRing.mul_lt_mul_of_pos_right h' (inv_pos_iff.mpr h)
 
 theorem lt_mul_inv_iff_mul_lt (a b : R) {c : R} (h : 0 < c) : a < b * c⁻¹ ↔ a * c < b :=
   ⟨mul_lt_of_lt_mul_inv h, lt_mul_inv_of_mul_lt h⟩
@@ -77,19 +78,19 @@ theorem mul_inv_lt_iff_lt_mul (a c : R) {b : R} (h : 0 < b) : a * b⁻¹ < c ↔
 
 private theorem le_mul_of_le_mul_inv {a b c : R} (h : c < 0) (h' : a ≤ b * c⁻¹) : b ≤ a * c := by
   simpa [Semiring.mul_assoc, Field.inv_mul_cancel (Preorder.ne_of_lt h), Semiring.mul_one] using
-    Ring.IsOrdered.mul_le_mul_of_nonpos_right h' (Preorder.le_of_lt h)
+    OrderedRing.mul_le_mul_of_nonpos_right h' (Preorder.le_of_lt h)
 
 private theorem mul_le_of_mul_inv_le {a b c : R} (h : b < 0) (h' : a * b⁻¹ ≤ c) : c * b ≤ a := by
   simpa [Semiring.mul_assoc, Field.inv_mul_cancel (Preorder.ne_of_lt h), Semiring.mul_one] using
-    Ring.IsOrdered.mul_le_mul_of_nonpos_right h' (Preorder.le_of_lt h)
+    OrderedRing.mul_le_mul_of_nonpos_right h' (Preorder.le_of_lt h)
 
 private theorem mul_inv_le_of_mul_le {a b c : R} (h : b < 0) (h' : a * b ≤ c) : c * b⁻¹ ≤ a := by
   simpa [Semiring.mul_assoc, Field.mul_inv_cancel (Preorder.ne_of_lt h), Semiring.mul_one] using
-    Ring.IsOrdered.mul_le_mul_of_nonpos_right h' (Preorder.le_of_lt (inv_neg_iff.mpr h))
+    OrderedRing.mul_le_mul_of_nonpos_right h' (Preorder.le_of_lt (inv_neg_iff.mpr h))
 
 private theorem le_mul_inv_of_le_mul {a b c : R} (h : c < 0) (h' : a ≤ b * c) : b ≤ a * c⁻¹ := by
   simpa [Semiring.mul_assoc, Field.mul_inv_cancel (Preorder.ne_of_lt h), Semiring.mul_one] using
-    Ring.IsOrdered.mul_le_mul_of_nonpos_right h' (Preorder.le_of_lt (inv_neg_iff.mpr h))
+    OrderedRing.mul_le_mul_of_nonpos_right h' (Preorder.le_of_lt (inv_neg_iff.mpr h))
 
 theorem le_mul_inv_iff_le_mul_of_neg (a b : R) {c : R} (h : c < 0) : a ≤ b * c⁻¹ ↔ b ≤ a * c :=
   ⟨le_mul_of_le_mul_inv h, le_mul_inv_of_le_mul h⟩
@@ -99,19 +100,19 @@ theorem mul_inv_le_iff_mul_le_of_neg (a c : R) {b : R} (h : b < 0) : a * b⁻¹ 
 
 private theorem lt_mul_of_lt_mul_inv {a b c : R} (h : c < 0) (h' : a < b * c⁻¹) : b < a * c := by
   simpa [Semiring.mul_assoc, Field.inv_mul_cancel (Preorder.ne_of_lt h), Semiring.mul_one] using
-    Ring.IsOrdered.mul_lt_mul_of_neg_right h' h
+    OrderedRing.mul_lt_mul_of_neg_right h' h
 
 private theorem mul_lt_of_mul_inv_lt {a b c : R} (h : b < 0) (h' : a * b⁻¹ < c) : c * b < a := by
   simpa [Semiring.mul_assoc, Field.inv_mul_cancel (Preorder.ne_of_lt h), Semiring.mul_one] using
-    Ring.IsOrdered.mul_lt_mul_of_neg_right h' h
+    OrderedRing.mul_lt_mul_of_neg_right h' h
 
 private theorem mul_inv_lt_of_mul_lt {a b c : R} (h : b < 0) (h' : a * b < c) : c * b⁻¹ < a := by
   simpa [Semiring.mul_assoc, Field.mul_inv_cancel (Preorder.ne_of_lt h), Semiring.mul_one] using
-    Ring.IsOrdered.mul_lt_mul_of_neg_right h' (inv_neg_iff.mpr h)
+    OrderedRing.mul_lt_mul_of_neg_right h' (inv_neg_iff.mpr h)
 
 private theorem lt_mul_inv_of_lt_mul {a b c : R} (h : c < 0) (h' : a < b * c) : b < a * c⁻¹ := by
   simpa [Semiring.mul_assoc, Field.mul_inv_cancel (Preorder.ne_of_lt h), Semiring.mul_one] using
-    Ring.IsOrdered.mul_lt_mul_of_neg_right h' (inv_neg_iff.mpr h)
+    OrderedRing.mul_lt_mul_of_neg_right h' (inv_neg_iff.mpr h)
 
 theorem lt_mul_inv_iff_lt_mul_of_neg (a b : R) {c : R} (h : c < 0) : a < b * c⁻¹ ↔ b < a * c :=
   ⟨lt_mul_of_lt_mul_inv h, lt_mul_inv_of_lt_mul h⟩

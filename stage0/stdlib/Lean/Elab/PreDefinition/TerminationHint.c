@@ -73,9 +73,9 @@ LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedTerminationHints;
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 static lean_object* l_Lean_Elab_TerminationBy_checkVars___closed__5;
-LEAN_EXPORT uint8_t l_Lean_Elab_isGreatest(uint8_t);
 static lean_object* l_Lean_Elab_instInhabitedTerminationHints___closed__0;
 static lean_object* l_Lean_Elab_elabTerminationHints___redArg___lam__20___closed__0;
+LEAN_EXPORT uint8_t l_Lean_Elab_isPartialFixpoint(uint8_t);
 static lean_object* l_Lean_Elab_elabTerminationHints___redArg___lam__3___closed__0;
 static lean_object* l_Lean_Elab_elabTerminationHints___redArg___lam__20___closed__2;
 static lean_object* l_Lean_Elab_instInhabitedDecreasingBy___closed__0;
@@ -89,8 +89,6 @@ static lean_object* l_Lean_Elab_TerminationBy_checkVars___closed__11;
 static lean_object* l_Lean_Elab_elabTerminationHints___redArg___lam__13___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Elab_TerminationBy_checkVars___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabTerminationHints___redArg___lam__6(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Elab_isPartial(uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Elab_isLeast___boxed(lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_TerminationHints_ensureNone___closed__6;
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
@@ -102,21 +100,21 @@ LEAN_EXPORT lean_object* l_Lean_Elab_elabTerminationHints___redArg___lam__3___bo
 LEAN_EXPORT lean_object* l_Lean_Elab_PartialFixpointType_noConfusion___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabTerminationHints___redArg___lam__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_isLatticeTheoretic___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Elab_isInductiveFixpoint(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_TerminationHints_none;
 LEAN_EXPORT lean_object* l_Lean_Elab_TerminationHints_rememberExtraParams(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabTerminationHints___redArg___lam__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedTerminationBy___closed__1;
 lean_object* lean_array_fget(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_isCoinductiveFixpoint___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_PartialFixpointType_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 static lean_object* l_Lean_Elab_TerminationHints_ensureNone___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Elab_isGreatest___boxed(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabTerminationHints___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_TerminationBy_checkVars___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_elabTerminationHints___redArg___lam__5(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_PartialFixpointType_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_isPartial___boxed(lean_object*);
 static lean_object* l_Lean_Elab_TerminationBy_checkVars___closed__3;
 static lean_object* l_Lean_Elab_TerminationBy_checkVars_parameters___closed__3;
 static lean_object* l_Lean_Elab_elabTerminationHints___redArg___lam__20___closed__4;
@@ -124,12 +122,13 @@ LEAN_EXPORT lean_object* l_Lean_Elab_TerminationHints_rememberExtraParams___boxe
 LEAN_EXPORT uint8_t l_Lean_Elab_elabTerminationHints___redArg___lam__1(uint8_t, lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 static lean_object* l_Lean_Elab_TerminationBy_checkVars___closed__1;
-LEAN_EXPORT uint8_t l_Lean_Elab_isLeast(uint8_t);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_elabTerminationHints___redArg___lam__13___closed__4;
 static lean_object* l_Lean_Elab_elabTerminationHints___redArg___lam__12___closed__1;
 static lean_object* l_Lean_Elab_elabTerminationHints___redArg___lam__13___closed__2;
+LEAN_EXPORT uint8_t l_Lean_Elab_isCoinductiveFixpoint(uint8_t);
 static lean_object* l_Lean_Elab_elabTerminationHints___redArg___lam__13___closed__7;
+LEAN_EXPORT lean_object* l_Lean_Elab_isPartialFixpoint___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabTerminationHints___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -141,6 +140,7 @@ uint8_t l_Lean_Name_isSuffixOf(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_TerminationBy_checkVars_parameters___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_TerminationBy_checkVars_parameters(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_isInductiveFixpoint___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedTerminationBy;
 LEAN_EXPORT lean_object* l_Lean_Elab_PartialFixpointType_noConfusion___redArg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
@@ -355,7 +355,7 @@ x_1 = l_Lean_Elab_instInhabitedTerminationHints___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Elab_isLeast(uint8_t x_1) {
+LEAN_EXPORT uint8_t l_Lean_Elab_isInductiveFixpoint(uint8_t x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -377,18 +377,18 @@ return x_6;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_isLeast___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Elab_isInductiveFixpoint___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
 lean_dec(x_1);
-x_3 = l_Lean_Elab_isLeast(x_2);
+x_3 = l_Lean_Elab_isInductiveFixpoint(x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Elab_isGreatest(uint8_t x_1) {
+LEAN_EXPORT uint8_t l_Lean_Elab_isCoinductiveFixpoint(uint8_t x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -410,18 +410,18 @@ return x_6;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_isGreatest___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Elab_isCoinductiveFixpoint___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
 lean_dec(x_1);
-x_3 = l_Lean_Elab_isGreatest(x_2);
+x_3 = l_Lean_Elab_isCoinductiveFixpoint(x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Elab_isPartial(uint8_t x_1) {
+LEAN_EXPORT uint8_t l_Lean_Elab_isPartialFixpoint(uint8_t x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -443,13 +443,13 @@ return x_6;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_isPartial___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Elab_isPartialFixpoint___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
 lean_dec(x_1);
-x_3 = l_Lean_Elab_isPartial(x_2);
+x_3 = l_Lean_Elab_isPartialFixpoint(x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -458,11 +458,11 @@ LEAN_EXPORT uint8_t l_Lean_Elab_isLatticeTheoretic(uint8_t x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = l_Lean_Elab_isLeast(x_1);
+x_2 = l_Lean_Elab_isInductiveFixpoint(x_1);
 if (x_2 == 0)
 {
 uint8_t x_3; 
-x_3 = l_Lean_Elab_isGreatest(x_1);
+x_3 = l_Lean_Elab_isCoinductiveFixpoint(x_1);
 return x_3;
 }
 else
@@ -577,7 +577,7 @@ static lean_object* _init_l_Lean_Elab_TerminationHints_ensureNone___closed__6() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unused `greatest_fixpoint`, function is ", 40, 40);
+x_1 = lean_mk_string_unchecked("unused `coinductive_fixpoint`, function is ", 43, 43);
 return x_1;
 }
 }
@@ -594,7 +594,7 @@ static lean_object* _init_l_Lean_Elab_TerminationHints_ensureNone___closed__8() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unused `least_fixpoint`, function is ", 37, 37);
+x_1 = lean_mk_string_unchecked("unused `inductive_fixpoint`, function is ", 41, 41);
 return x_1;
 }
 }
@@ -1626,7 +1626,7 @@ static lean_object* _init_l_Lean_Elab_elabTerminationHints___redArg___lam__12___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("greatestFixpoint", 16, 16);
+x_1 = lean_mk_string_unchecked("coinductiveFixpoint", 19, 19);
 return x_1;
 }
 }
@@ -1634,7 +1634,7 @@ static lean_object* _init_l_Lean_Elab_elabTerminationHints___redArg___lam__12___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("leastFixpoint", 13, 13);
+x_1 = lean_mk_string_unchecked("inductiveFixpoint", 17, 17);
 return x_1;
 }
 }
@@ -2340,8 +2340,8 @@ block_91:
 lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; 
 x_87 = lean_alloc_ctor(0, 3, 2);
 lean_ctor_set(x_87, 0, x_21);
-lean_ctor_set(x_87, 1, x_85);
-lean_ctor_set(x_87, 2, x_84);
+lean_ctor_set(x_87, 1, x_84);
+lean_ctor_set(x_87, 2, x_85);
 lean_ctor_set_uint8(x_87, sizeof(void*)*3, x_86);
 lean_ctor_set_uint8(x_87, sizeof(void*)*3 + 1, x_83);
 if (lean_is_scalar(x_22)) {
@@ -2438,8 +2438,8 @@ lean_dec(x_111);
 if (lean_obj_tag(x_101) == 0)
 {
 x_83 = x_112;
-x_84 = x_114;
-x_85 = x_115;
+x_84 = x_115;
+x_85 = x_114;
 x_86 = x_112;
 goto block_91;
 }
@@ -2447,8 +2447,8 @@ else
 {
 lean_dec(x_101);
 x_83 = x_112;
-x_84 = x_114;
-x_85 = x_115;
+x_84 = x_115;
+x_85 = x_114;
 x_86 = x_104;
 goto block_91;
 }

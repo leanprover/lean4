@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Parser.Tactic
-// Imports: Lean.Parser.Term Lean.Parser.Tactic.Doc Std.Tactic.Do.Syntax
+// Imports: Lean.Parser.Term Lean.Parser.Tactic.Doc
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2490,7 +2490,6 @@ return x_7;
 }
 lean_object* initialize_Lean_Parser_Term(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Tactic_Doc(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Tactic_Do_Syntax(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Parser_Tactic(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -2500,9 +2499,6 @@ res = initialize_Lean_Parser_Term(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Parser_Tactic_Doc(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Tactic_Do_Syntax(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Parser_Tactic_initFn___closed__0____x40_Lean_Parser_Tactic___hyg_5_ = _init_l_Lean_Parser_Tactic_initFn___closed__0____x40_Lean_Parser_Tactic___hyg_5_();

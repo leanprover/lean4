@@ -16,11 +16,11 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_Meta_traverseChildrenWithPos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Meta_traverseLambdaWithPos___redArg___closed__0;
-lean_object* l_Lean_Meta_mkForallFVars___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkForallFVars___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_traverseLetWithPos_visit___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_updateProj_x21Impl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_traverseForallWithPos_visit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkLambdaFVars___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkLambdaFVars___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_traverseLambdaWithPos_visit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_traverseLambdaWithPos_visit___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -39,10 +39,10 @@ LEAN_EXPORT lean_object* l_Lean_Meta_traverseLambdaWithPos___redArg(lean_object*
 lean_object* l_Lean_Meta_withLocalDecl___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_SubExpr_Pos_pushBindingDomain(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_traverseForall(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkLetFVars___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkLetFVars___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_traverseLetWithPos_visit___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_traverseLetWithPos_visit___redArg___lam__3(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_withLetDecl___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* l_Lean_Meta_withLetDecl___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t);
 lean_object* l_Lean_SubExpr_Pos_pushLetVarType(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_traverseLetWithPos_visit___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_traverseLambdaWithPos_visit___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -134,13 +134,14 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_box(0);
 x_5 = lean_box(1);
 x_6 = lean_box(1);
-x_7 = lean_alloc_closure((void*)(l_Lean_Meta_mkLambdaFVars___boxed), 11, 6);
+x_7 = lean_alloc_closure((void*)(l_Lean_Meta_mkLambdaFVars___boxed), 12, 7);
 lean_closure_set(x_7, 0, x_1);
 lean_closure_set(x_7, 1, x_3);
 lean_closure_set(x_7, 2, x_4);
 lean_closure_set(x_7, 3, x_5);
 lean_closure_set(x_7, 4, x_4);
-lean_closure_set(x_7, 5, x_6);
+lean_closure_set(x_7, 5, x_5);
+lean_closure_set(x_7, 6, x_6);
 x_8 = lean_apply_2(x_2, lean_box(0), x_7);
 return x_8;
 }
@@ -280,12 +281,13 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_box(0);
 x_5 = lean_box(1);
 x_6 = lean_box(1);
-x_7 = lean_alloc_closure((void*)(l_Lean_Meta_mkForallFVars___boxed), 10, 5);
+x_7 = lean_alloc_closure((void*)(l_Lean_Meta_mkForallFVars___boxed), 11, 6);
 lean_closure_set(x_7, 0, x_1);
 lean_closure_set(x_7, 1, x_3);
 lean_closure_set(x_7, 2, x_4);
 lean_closure_set(x_7, 3, x_5);
-lean_closure_set(x_7, 4, x_6);
+lean_closure_set(x_7, 4, x_5);
+lean_closure_set(x_7, 5, x_6);
 x_8 = lean_apply_2(x_2, lean_box(0), x_7);
 return x_8;
 }
@@ -402,11 +404,13 @@ return x_11;
 LEAN_EXPORT lean_object* l_Lean_Meta_traverseLetWithPos_visit___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; uint8_t x_8; lean_object* x_9; 
+lean_object* x_7; lean_object* x_8; uint8_t x_9; uint8_t x_10; lean_object* x_11; 
 x_7 = lean_box(0);
-x_8 = lean_unbox(x_7);
-x_9 = l_Lean_Meta_withLetDecl___redArg(x_1, x_2, x_3, x_4, x_6, x_5, x_8);
-return x_9;
+x_8 = lean_box(0);
+x_9 = lean_unbox(x_7);
+x_10 = lean_unbox(x_8);
+x_11 = l_Lean_Meta_withLetDecl___redArg(x_1, x_2, x_3, x_4, x_6, x_5, x_9, x_10);
+return x_11;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_traverseLetWithPos_visit___redArg___lam__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
@@ -429,16 +433,18 @@ return x_15;
 LEAN_EXPORT lean_object* l_Lean_Meta_traverseLetWithPos_visit___redArg___lam__3(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_box(0);
 x_5 = lean_box(1);
-x_6 = lean_alloc_closure((void*)(l_Lean_Meta_mkLetFVars___boxed), 9, 4);
-lean_closure_set(x_6, 0, x_1);
-lean_closure_set(x_6, 1, x_3);
-lean_closure_set(x_6, 2, x_4);
-lean_closure_set(x_6, 3, x_5);
-x_7 = lean_apply_2(x_2, lean_box(0), x_6);
-return x_7;
+x_6 = lean_box(1);
+x_7 = lean_alloc_closure((void*)(l_Lean_Meta_mkLetFVars___boxed), 10, 5);
+lean_closure_set(x_7, 0, x_1);
+lean_closure_set(x_7, 1, x_3);
+lean_closure_set(x_7, 2, x_4);
+lean_closure_set(x_7, 3, x_5);
+lean_closure_set(x_7, 4, x_6);
+x_8 = lean_apply_2(x_2, lean_box(0), x_7);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_traverseLetWithPos_visit___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {

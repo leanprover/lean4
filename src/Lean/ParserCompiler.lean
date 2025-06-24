@@ -61,7 +61,7 @@ variable {α} (ctx : Context α) (builtin : Bool) (force : Bool) in
 partial def compileParserExpr (e : Expr) : MetaM Expr := do
   let e ← whnfCore e
   match e with
-  | .lam ..  => lambdaLetTelescope e fun xs b => compileParserExpr b >>= mkLambdaFVars xs
+  | .lam ..  => mapLambdaLetTelescope e fun _ b => compileParserExpr b
   | .fvar .. => return e
   | _ => do
     let fn := e.getAppFn

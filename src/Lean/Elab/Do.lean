@@ -649,11 +649,9 @@ def concat (terminal : CodeBlock) (kRef : Syntax) (y? : Option Var) (k : CodeBlo
   return { code  := attachJP jpDecl terminal, uvars := k.uvars }
 
 def getLetIdVars (letId : Syntax) : Array Var :=
+  assert! letId.isOfKind ``Parser.Term.letId
   -- def letId := leading_parser binderIdent <|> hygieneInfo
-  if letId.isIdent then
-    -- TODO(kmill): Remove this case after stage0 update
-    #[letId]
-  else if letId[0].isIdent then
+  if letId[0].isIdent then
     #[letId[0]]
   else if letId[0].isOfKind hygieneInfoKind then
     #[HygieneInfo.mkIdent letId[0] `this (canonical := true)]
@@ -661,6 +659,7 @@ def getLetIdVars (letId : Syntax) : Array Var :=
     #[]
 
 def getLetIdDeclVars (letIdDecl : Syntax) : Array Var :=
+  assert! letIdDecl.isOfKind ``Parser.Term.letIdDecl
   -- def letIdLhs : Parser := letId >> many (ppSpace >> letIdBinder) >> optType
   -- def letIdDecl := leading_parser letIdLhs >> " := " >> termParser
   getLetIdVars letIdDecl[0]
@@ -680,6 +679,7 @@ def getLetPatDeclVars (letPatDecl : Syntax) : TermElabM (Array Var) := do
   getPatternVarsEx pattern
 
 def getLetEqnsDeclVars (letEqnsDecl : Syntax) : Array Var :=
+  assert! letEqnsDecl.isOfKind ``Parser.Term.letEqnsDecl
   -- def letIdLhs : Parser := letId >> many (ppSpace >> letIdBinder) >> optType
   -- def letEqnsDecl := leading_parser letIdLhs >> matchAlts
   getLetIdVars letEqnsDecl[0]
@@ -687,12 +687,11 @@ def getLetEqnsDeclVars (letEqnsDecl : Syntax) : Array Var :=
 def getLetDeclVars (letDecl : Syntax) : TermElabM (Array Var) := do
   -- def letDecl := leading_parser letIdDecl <|> letPatDecl <|> letEqnsDecl
   let arg := letDecl[0]
-  -- TODO(kmill): remove haveIdDecl and haveEqnsDecl after stage0 update
-  if arg.getKind == ``Parser.Term.letIdDecl || arg.getKind == `Lean.Parser.Term.haveIdDecl then
+  if arg.getKind == ``Parser.Term.letIdDecl then
     return getLetIdDeclVars arg
   else if arg.getKind == ``Parser.Term.letPatDecl then
     getLetPatDeclVars arg
-  else if arg.getKind == ``Parser.Term.letEqnsDecl || arg.getKind == `Lean.Parser.Term.haveEqnsDecl then
+  else if arg.getKind == ``Parser.Term.letEqnsDecl then
     return getLetEqnsDeclVars arg
   else
     throwError "unexpected kind of let declaration"

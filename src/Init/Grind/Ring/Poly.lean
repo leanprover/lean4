@@ -67,7 +67,7 @@ def Power.varLt (p₁ p₂ : Power) : Bool :=
   p₁.x.blt p₂.x
 
 @[expose]
-def Power.denote {α} [CommRing α] (ctx : Context α) : Power → α
+def Power.denote {α} [Semiring α] (ctx : Context α) : Power → α
   | {x, k} =>
     match k with
     | 0 => 1
@@ -91,7 +91,7 @@ instance : LawfulBEq Mon where
     assumption
 
 @[expose]
-def Mon.denote {α} [CommRing α] (ctx : Context α) : Mon → α
+def Mon.denote {α} [Semiring α] (ctx : Context α) : Mon → α
   | unit => 1
   | .mult p m => p.denote ctx * denote ctx m
 
@@ -229,7 +229,7 @@ instance : LawfulBEq Poly where
     simp [ih]
 
 @[expose]
-def Poly.denote [CommRing α] (ctx : Context α) (p : Poly) : α :=
+def Poly.denote [Ring α] (ctx : Context α) (p : Poly) : α :=
   match p with
   | .num k => Int.cast k
   | .add k m p => Int.cast k * m.denote ctx + denote ctx p
@@ -563,15 +563,15 @@ theorem denoteInt_eq {α} [CommRing α] (k : Int) : denoteInt (α := α) k = k :
   next h => rw [ofNat_eq_natCast, ← intCast_natCast, ← intCast_neg, ← Int.eq_neg_natAbs_of_nonpos (Int.le_of_lt h)]
   next h => rw [ofNat_eq_natCast, ← intCast_natCast, ← Int.eq_natAbs_of_nonneg (Int.le_of_not_gt h)]
 
-theorem Power.denote_eq {α} [CommRing α] (ctx : Context α) (p : Power)
+theorem Power.denote_eq {α} [Semiring α] (ctx : Context α) (p : Power)
     : p.denote ctx = p.x.denote ctx ^ p.k := by
   cases p <;> simp [Power.denote] <;> split <;> simp [pow_zero, pow_succ, one_mul]
 
-theorem Mon.denote_ofVar {α} [CommRing α] (ctx : Context α) (x : Var)
+theorem Mon.denote_ofVar {α} [Semiring α] (ctx : Context α) (x : Var)
     : denote ctx (ofVar x) = x.denote ctx := by
   simp [denote, ofVar, Power.denote_eq, pow_succ, pow_zero, one_mul, mul_one]
 
-theorem Mon.denote_concat {α} [CommRing α] (ctx : Context α) (m₁ m₂ : Mon)
+theorem Mon.denote_concat {α} [Semiring α] (ctx : Context α) (m₁ m₂ : Mon)
     : denote ctx (concat m₁ m₂) = m₁.denote ctx * m₂.denote ctx := by
   induction m₁ <;> simp [concat, denote, one_mul, *]
   next p₁ m₁ ih => rw [mul_assoc]
@@ -586,20 +586,20 @@ private theorem eq_of_blt_false {a b : Nat} : a.blt b = false → b.blt a = fals
   replace h₂ := le_of_blt_false h₂
   exact Nat.le_antisymm h₂ h₁
 
-theorem Mon.denote_mulPow {α} [CommRing α] (ctx : Context α) (p : Power) (m : Mon)
+theorem Mon.denote_mulPow {α} [CommSemiring α] (ctx : Context α) (p : Power) (m : Mon)
     : denote ctx (mulPow p m) = p.denote ctx * m.denote ctx := by
-  fun_induction mulPow <;> simp [denote, mul_assoc, mul_comm, mul_left_comm, *]
+  fun_induction mulPow <;> simp [denote, mul_left_comm, *]
   next h₁ h₂ =>
     have := eq_of_blt_false h₁ h₂
-    simp [Power.denote_eq, pow_add, this]
+    simp [Power.denote_eq, pow_add, mul_assoc, this]
 
-theorem Mon.denote_mul {α} [CommRing α] (ctx : Context α) (m₁ m₂ : Mon)
+theorem Mon.denote_mul {α} [CommSemiring α] (ctx : Context α) (m₁ m₂ : Mon)
     : denote ctx (mul m₁ m₂) = m₁.denote ctx * m₂.denote ctx := by
   unfold mul
   generalize hugeFuel = fuel
   fun_induction mul.go
     <;> simp [denote, denote_concat, one_mul,
-      mul_assoc, mul_left_comm, mul_comm, *]
+      mul_assoc, mul_left_comm, CommSemiring.mul_comm, *]
   next h₁ h₂ _ =>
     have := eq_of_blt_false h₁ h₂
     simp [Power.denote_eq, pow_add, this]
@@ -1257,23 +1257,23 @@ theorem diseq_norm {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (p : P
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h; subst p; simp [Expr.denote_toPoly, Expr.denote]
   intro h; rw [sub_eq_zero_iff] at h; contradiction
 
-open IntModule.IsOrdered
+open OrderedAdd
 
-theorem le_norm {α} [CommRing α] [Preorder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+theorem le_norm {α} [CommRing α] [Preorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert lhs rhs p → lhs.denote ctx ≤ rhs.denote ctx → p.denoteAsIntModule ctx ≤ 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h; subst p; simp [Expr.denote_toPoly, Expr.denote]
   replace h := add_le_left h ((-1) * rhs.denote ctx)
   rw [neg_mul, ← sub_eq_add_neg, one_mul, ← sub_eq_add_neg, sub_self] at h
   assumption
 
-theorem lt_norm {α} [CommRing α] [Preorder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+theorem lt_norm {α} [CommRing α] [Preorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert lhs rhs p → lhs.denote ctx < rhs.denote ctx → p.denoteAsIntModule ctx < 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h; subst p; simp [Expr.denote_toPoly, Expr.denote]
   replace h := add_lt_left h ((-1) * rhs.denote ctx)
   rw [neg_mul, ← sub_eq_add_neg, one_mul, ← sub_eq_add_neg, sub_self] at h
   assumption
 
-theorem not_le_norm {α} [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+theorem not_le_norm {α} [CommRing α] [LinearOrder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert rhs lhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → p.denoteAsIntModule ctx < 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]
   replace h₁ := LinearOrder.lt_of_not_le h₁
@@ -1281,7 +1281,7 @@ theorem not_le_norm {α} [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (ctx
   simp [← sub_eq_add_neg, sub_self] at h₁
   assumption
 
-theorem not_lt_norm {α} [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+theorem not_lt_norm {α} [CommRing α] [LinearOrder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert rhs lhs p → ¬ lhs.denote ctx < rhs.denote ctx → p.denoteAsIntModule ctx ≤ 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]
   replace h₁ := LinearOrder.le_of_not_lt h₁
@@ -1289,14 +1289,14 @@ theorem not_lt_norm {α} [CommRing α] [LinearOrder α] [Ring.IsOrdered α] (ctx
   simp [← sub_eq_add_neg, sub_self] at h₁
   assumption
 
-theorem not_le_norm' {α} [CommRing α] [Preorder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+theorem not_le_norm' {α} [CommRing α] [Preorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert lhs rhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → ¬ p.denoteAsIntModule ctx ≤ 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]; intro h
   replace h := add_le_right (rhs.denote ctx) h
   rw [sub_eq_add_neg, add_left_comm, ← sub_eq_add_neg, sub_self] at h; simp [add_zero] at h
   contradiction
 
-theorem not_lt_norm' {α} [CommRing α] [Preorder α] [Ring.IsOrdered α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
+theorem not_lt_norm' {α} [CommRing α] [Preorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert lhs rhs p → ¬ lhs.denote ctx < rhs.denote ctx → ¬ p.denoteAsIntModule ctx < 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]; intro h
   replace h := add_lt_right (rhs.denote ctx) h
@@ -1350,5 +1350,4 @@ theorem diseq0_to_eq {α} [Field α] (a : α) : a ≠ 0 → a*a⁻¹ = 1 := by
   exact Field.mul_inv_cancel
 
 end CommRing
-
 end Lean.Grind

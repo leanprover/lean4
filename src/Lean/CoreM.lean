@@ -68,7 +68,7 @@ def useDiagnosticMsg : MessageData :=
     if diagnostics.get ctx.opts then
       pure ""
     else
-      pure <| .note s!"Additional diagnostic information may be available using the `set_option {diagnostics.name} true` command."
+      pure <| .hint' s!"Additional diagnostic information may be available using the `set_option {diagnostics.name} true` command."
 
 /-- Name generator that creates user-accessible names. -/
 structure DeclNameGenerator where

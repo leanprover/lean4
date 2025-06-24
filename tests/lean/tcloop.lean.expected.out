@@ -4,6 +4,6 @@ tcloop.lean:14:2-14:15: error: failed to synthesize
 
 Note: Use `set_option synthInstance.maxHeartbeats <num>` to set the limit.
 
-Note: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 
-Note: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.

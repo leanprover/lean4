@@ -54,7 +54,7 @@ numerals are polymorphic in Lean, but the numeral `22` cannot be used in a conte
   α
 due to the absence of the instance above
 
-Note: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs(error) in
 example : α := 22
@@ -111,7 +111,7 @@ Lax whitespace
 error: failed to synthesize
   DecidableEq (Nat → Nat)
 
-Note: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs (whitespace := lax) in
 #synth DecidableEq (Nat → Nat)
@@ -120,7 +120,7 @@ Note: Additional diagnostic information may be available using the `set_option d
 error: failed to synthesize
   DecidableEq (Nat → Nat)
 
-Note: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs (whitespace := lax) in
 #synth DecidableEq (Nat → Nat)

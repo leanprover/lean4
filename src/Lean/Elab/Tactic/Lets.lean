@@ -65,4 +65,15 @@ declare_config_elab elabLiftLetsConfig LiftLetsConfig
       (atTarget := liftMetaTactic1 fun mvarId => mvarId.liftLets config)
       (failed := fun _ => throwError "'lift_lets' tactic failed")
 
+/-!
+### `let_to_have`
+-/
+
+@[builtin_tactic letToHave] elab_rules : tactic
+  | `(tactic| let_to_have $[$loc?:location]?) => do
+    withLocation (expandOptLocation (Lean.mkOptionalNode loc?))
+      (atLocal := fun h => liftMetaTactic1 fun mvarId => mvarId.letToHaveLocalDecl h)
+      (atTarget := liftMetaTactic1 fun mvarId => mvarId.letToHave)
+      (failed := fun _ => throwError "'let_to_have' tactic failed")
+
 end Lean.Elab.Tactic

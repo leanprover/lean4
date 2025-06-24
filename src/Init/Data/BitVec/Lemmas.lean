@@ -3062,7 +3062,7 @@ theorem getLsbD_cons (b : Bool) {n} (x : BitVec n) (i : Nat) :
     cases b <;> trivial
   · have p1 : i ≠ n := by omega
     have p2 : i - n ≠ 0 := by omega
-    simp [p1, p2, Nat.testBit_bool_to_nat]
+    simp [p1, p2, Nat.testBit_bool_toNat]
 
 @[simp] theorem msb_cons : (cons a x).msb = a := by
   simp [cons, msb_cast, msb_append]

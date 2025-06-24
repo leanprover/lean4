@@ -65,7 +65,7 @@ example [CommRing α] [Preorder α] [OrderedRing α] (a b c : α)
 
 -- Test misconfigured instances
 /--
-trace: [grind.issues] type has a `Preorder` and is a `Ring`, but is not an ordered ring, failed to synthesize
+trace: [grind.issues] type has a `Preorder` and is a `Semiring`, but is not an ordered ring, failed to synthesize
       OrderedRing α
 -/
 #guard_msgs (drop error, trace) in

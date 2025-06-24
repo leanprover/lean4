@@ -878,17 +878,17 @@ Examples:
 -/
 -- The universe variable `r` is written first so that `ULift.{r} α` can be used
 -- when `s` can be inferred from the type of `α`.
-structure ULift.{r, s} (α : Type s) : Type (max s r) where
+structure ULift.{r, s} (α : Sort s) : Sort (max s (r+1)) where
   /-- Wraps a value to increase its type's universe level. -/
   up ::
   /-- Extracts a wrapped value from a universe-lifted type. -/
   down : α
 
 /-- Bijection between `α` and `ULift.{v} α` -/
-theorem ULift.up_down {α : Type u} (b : ULift.{v} α) : Eq (up (down b)) b := rfl
+theorem ULift.up_down {α : Sort u} (b : ULift.{v} α) : Eq (up (down b)) b := rfl
 
 /-- Bijection between `α` and `ULift.{v} α` -/
-theorem ULift.down_up {α : Type u} (a : α) : Eq (down (up.{v} a)) a := rfl
+theorem ULift.down_up {α : Sort u} (a : α) : Eq (down (up.{v} a)) a := rfl
 
 /--
 Either a proof that `p` is true or a proof that `p` is false. This is equivalent to a `Bool` paired

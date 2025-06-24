@@ -432,10 +432,9 @@ with `-DLEAN_EXPORTING` set, which exports Lean symbols defined within the C fil
 -/
 def Module.recBuildLeanCToOExport (self : Module) : FetchM (Job FilePath) := do
   let suffix := if (← getIsVerbose) then " (with exports)" else ""
-  withRegisterJob s!"{self.name}:c.o{suffix}" do
+  withRegisterJob s!"{self.name}:c.o{suffix}" <| withCurrPackage self.pkg do
   -- TODO: add option to pass a target triplet for cross compilation
   let leancArgs := self.leancArgs ++ #["-DLEAN_EXPORTING"]
-  withCurrPackage self.pkg do
   buildLeanO self.coExportFile (← self.c.fetch) self.weakLeancArgs leancArgs self.leanIncludeDir?
 
 /-- The `ModuleFacetConfig` for the builtin `coExportFacet`. -/
@@ -448,7 +447,7 @@ This version does not export any Lean symbols.
 -/
 def Module.recBuildLeanCToONoExport (self : Module) : FetchM (Job FilePath) := do
   let suffix := if (← getIsVerbose) then " (without exports)" else ""
-  withRegisterJob s!"{self.name}:c.o{suffix}" do
+  withRegisterJob s!"{self.name}:c.o{suffix}" <| withCurrPackage self.pkg do
   -- TODO: add option to pass a target triplet for cross compilation
   buildLeanO self.coNoExportFile (← self.c.fetch) self.weakLeancArgs self.leancArgs self.leanIncludeDir?
 
@@ -463,7 +462,7 @@ def Module.coFacetConfig : ModuleFacetConfig coFacet :=
 
 /-- Recursively build the module's object file from its bitcode file produced by `lean`. -/
 def Module.recBuildLeanBcToO (self : Module) : FetchM (Job FilePath) := do
-  withRegisterJob s!"{self.name}:bc.o" do
+  withRegisterJob s!"{self.name}:bc.o" <| withCurrPackage self.pkg do
   -- TODO: add option to pass a target triplet for cross compilation
   buildLeanO self.bcoFile (← self.bc.fetch) self.weakLeancArgs self.leancArgs
 
@@ -497,7 +496,7 @@ Recursively build the shared library of a module
 (e.g., for `--load-dynlib` or `--plugin`).
 -/
 def Module.recBuildDynlib (mod : Module) : FetchM (Job Dynlib) :=
-  withRegisterJob s!"{mod.name}:dynlib" do
+  withRegisterJob s!"{mod.name}:dynlib" <| withCurrPackage mod.pkg do
   /-
   Fetch the module's object files.
 

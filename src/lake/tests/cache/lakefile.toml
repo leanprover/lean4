@@ -3,3 +3,7 @@ enableArtifactCache = true
 
 [[lean_lib]]
 name = "Test"
+
+[[lean_exe]]
+name = "test"
+root = "Main"

@@ -457,7 +457,7 @@ which will be computed in the resulting `Job` before building.
     addPlatformTrace -- object files are platform-dependent artifacts
     addPureTrace traceArgs "traceArgs"
     addTrace (← extraDepTrace)
-    buildArtifactUnlessUpToDate oFile do
+    buildArtifactUnlessUpToDate oFile (ext := "o") do
       compileO oFile srcFile (weakArgs ++ traceArgs) compiler
 
 /--
@@ -473,7 +473,7 @@ def buildLeanO
     addLeanTrace
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- object files are platform-dependent artifacts
-    buildArtifactUnlessUpToDate oFile do
+    buildArtifactUnlessUpToDate oFile (ext := "o") do
       let lean ← getLeanInstall
       let includeDir := leanIncludeDir?.getD lean.includeDir
       let args := #["-I", includeDir.toString] ++ lean.ccFlags ++ weakArgs ++ traceArgs
@@ -484,7 +484,7 @@ def buildStaticLib
   (libFile : FilePath) (oFileJobs : Array (Job FilePath)) (thin :=  false)
 : SpawnM (Job FilePath) :=
   (Job.collectArray oFileJobs "objs").mapM fun oFiles => do
-    buildArtifactUnlessUpToDate libFile do
+    buildArtifactUnlessUpToDate libFile (ext := "a") do
       compileStaticLib libFile oFiles (← getLeanAr) thin
 
 private def mkLinkObjArgs
@@ -538,7 +538,7 @@ def buildSharedLib
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- shared libraries are platform-dependent artifacts
     addTrace (← extraDepTrace)
-    let libFile ← buildArtifactUnlessUpToDate libFile do
+    let libFile ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) do
       let libs ← if linkDeps then mkLinkOrder libs else pure #[]
       let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs
       compileSharedLib libFile args linker
@@ -559,7 +559,7 @@ def buildLeanSharedLib
     addLeanTrace
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- shared libraries are platform-dependent artifacts
-    let libFile ← buildArtifactUnlessUpToDate libFile do
+    let libFile ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) do
       let lean ← getLeanInstall
       let libs ← if linkDeps then mkLinkOrder libs else pure #[]
       let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs ++
@@ -581,7 +581,7 @@ def buildLeanExe
     addLeanTrace
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- executables are platform-dependent artifacts
-    buildArtifactUnlessUpToDate exeFile do
+    buildArtifactUnlessUpToDate exeFile (ext := FilePath.exeExtension) do
       let lean ← getLeanInstall
       let libs ← mkLinkOrder libs
       let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs ++

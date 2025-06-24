@@ -28,7 +28,7 @@ LAKE_CACHE_DIR= test_run build Test:static --no-build
 # Verify the cache directory structure was created
 test_exp -d "$CACHE_DIR"
 test_exp -d "$CACHE_DIR/inputs"
-test_exp -n `cat "$CACHE_DIR/inputs/test.jsonl"`
+test_exp -s "$CACHE_DIR/inputs/test.jsonl"
 test_exp -d "$CACHE_DIR/artifacts"
 
 # Checked that the cached artifact is in the expected location
@@ -52,6 +52,14 @@ test_cmd rm "$local_art"
 LAKE_CACHE_DIR="$CACHE_DIR" test_out "Replayed Test:c.o" build +Test:o -v --no-build
 test_cmd rm "$local_art.trace"
 LAKE_CACHE_DIR="$CACHE_DIR" test_out "Fetched Test:c.o" build +Test:o -v --no-build
+
+# Verify supported artifacts end up in the cache directory
+LAKE_CACHE_DIR="$CACHE_DIR" test_run build test:exe Test:static Test:shared +Test:o.export +Test:o.noexport
+test_exp "$(dirname -- "$(LAKE_CACHE_DIR="$CACHE_DIR" $LAKE query test:exe)")" = "$CACHE_DIR/artifacts"
+test_exp "$(dirname -- "$(LAKE_CACHE_DIR="$CACHE_DIR" $LAKE query Test:static)")" = "$CACHE_DIR/artifacts"
+test_exp ! "$(dirname -- "$(LAKE_CACHE_DIR="$CACHE_DIR" $LAKE query Test:shared)")" = "$CACHE_DIR/artifacts"
+test_exp "$(dirname -- "$(LAKE_CACHE_DIR="$CACHE_DIR" $LAKE query +Test:o.export)")" = "$CACHE_DIR/artifacts"
+test_exp "$(dirname -- "$(LAKE_CACHE_DIR="$CACHE_DIR" $LAKE query +Test:o.noexport)")" = "$CACHE_DIR/artifacts"
 
 # Cleanup
 rm -f produced.out

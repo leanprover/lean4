@@ -29,9 +29,13 @@ abbrev CoreBuildM := BuildT LogIO
 /-- A type alias for `Option Package` that assists monad type class synthesis. -/
 def CurrPackage := Option Package
 
+/-- Run the action `x` with `pkg?` as the current package or no package if `none`. -/
+@[inline] def withCurrPackage? [MonadWithReader CurrPackage m] (pkg? : Option Package) (x : m α): m α :=
+  withReader (fun _ => pkg?) x
+
 /-- Run the action `x` with `pkg` as the current package. -/
 @[inline] def withCurrPackage [MonadWithReader CurrPackage m] (pkg : Package) (x : m α): m α :=
-  withReader (fun _ => some pkg) x
+  withCurrPackage? pkg x
 
 /-- Get the package of the context (if any). -/
 @[inline] def getCurrPackage? [MonadReaderOf CurrPackage m] : m (Option Package) := read

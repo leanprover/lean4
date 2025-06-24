@@ -150,6 +150,11 @@ popd
 echo "# TEST: init existing"
 test_err "package already initialized" -d hello_world init
 
+# Tests of the `math` template are usually disabled as they fail unless Mathlib
+# and Lean are synchronized. However, it remains here as it useful when testing
+# changes to the template.
+if false; then
+
 # Test that Mathlib-standard packages have the expected strict linter options.
 mkdir mathlib_standards
 pushd mathlib_standards
@@ -170,6 +175,8 @@ echo >MathlibStandards.lean "import Mathlib.Init"
 echo >>MathlibStandards.lean "#guard true"
 test_cmd_out 'note: this linter can be disabled with `set_option linter.hashCommand false`' $ELAN run $(cat lean-toolchain) lake build mathlib_standards
 popd
+
+fi
 
 # Cleanup
 rm -f produced.out

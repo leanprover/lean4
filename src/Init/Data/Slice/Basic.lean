@@ -25,20 +25,6 @@ structure _root_.Std.Slice (shape : RangeShape) (α : Type u) {β : Type v}
   carrier : α
   range : PRange shape β
 
--- syntax:max term noWs "[" withoutPosition("*...*") "]" : term
--- syntax:max term noWs "[" withoutPosition(term "...*") "]" : term
--- syntax:max term noWs "[" withoutPosition("*...*") "]" : term
--- syntax:max term noWs "[" withoutPosition(term "<...*") "]" : term
--- syntax:max term noWs "[" withoutPosition(term "...<" term) "]" : term
--- syntax:max term noWs "[" withoutPosition(term "<...<" term) "]" : term
--- syntax:max term noWs "[" withoutPosition("*...<" term) "]" : term
--- syntax:max term noWs "[" withoutPosition(term "...=" term) "]" : term
--- syntax:max term noWs "[" withoutPosition(term "<...=" term) "]" : term
--- syntax:max term noWs "[" withoutPosition("*...=" term) "]" : term
--- syntax:max term noWs "[" withoutPosition(term "..." term) "]" : term
--- syntax:max term noWs "[" withoutPosition(term "<..." term) "]" : term
--- syntax:max term noWs "[" withoutPosition("*..." term) "]" : term
-
 macro_rules
   | `($c[*...*]) => `(Slice.mk $c *...*)
   | `($c[$a...*]) => `(Slice.mk $c $a...*)

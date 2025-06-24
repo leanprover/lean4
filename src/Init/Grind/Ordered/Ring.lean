@@ -15,7 +15,7 @@ namespace Lean.Grind
 A ring which is also equipped with a preorder is considered a strict ordered ring if addition, negation,
 and multiplication are compatible with the preorder, and `0 < 1`.
 -/
-class OrderedRing (R : Type u) [Ring R] [Preorder R] extends OrderedAdd R where
+class OrderedRing (R : Type u) [Semiring R] [Preorder R] extends OrderedAdd R where
   /-- In a strict ordered semiring, we have `0 < 1`. -/
   zero_lt_one : (0 : R) < 1
   /-- In a strict ordered semiring, we can multiply an inequality `a < b` on the left

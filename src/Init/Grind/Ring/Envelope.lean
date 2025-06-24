@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Grind.Ring.Basic
+import Init.Grind.Ordered.Ring
 import all Init.Data.AC
 
 namespace Lean.Grind.Ring
@@ -97,6 +98,9 @@ def Q.liftOn₂ (q₁ q₂ : Q α)
   apply h; assumption; apply r_rfl
 
 attribute [local simp] Q.mk Q.liftOn₂
+
+def Q.ind {β : Q α → Prop} (mk : ∀ (a : α × α), β (Q.mk a)) (q : Q α) : β q :=
+  Quot.ind mk q
 
 @[local simp] def natCast (n : Nat) : Q α :=
   Q.mk (n, 0)
@@ -244,16 +248,26 @@ def ofSemiring : Ring (Q α) := {
 
 attribute [instance] ofSemiring
 
+@[local simp] private theorem mk_add_mk {a₁ a₂ b₁ b₂ : α} :
+    Q.mk (a₁, a₂) + Q.mk (b₁, b₂) = Q.mk (a₁ + b₁, a₂ + b₂) := by
+  rfl
+
+@[local simp] private theorem mk_mul_mk {a₁ a₂ b₁ b₂ : α} :
+    Q.mk (a₁, a₂) * Q.mk (b₁, b₂) = Q.mk (a₁*b₁ + a₂*b₂, a₁*b₂ + a₂*b₁) := by
+  rfl
+
 @[local simp] def toQ (a : α) : Q α :=
   Q.mk (a, 0)
+
+attribute [-simp] Q.mk
 
 /-! Embedding theorems -/
 
 theorem toQ_add (a b : α) : toQ (a + b) = toQ a + toQ b := by
-  simp; apply Quot.sound; simp
+  simp
 
 theorem toQ_mul (a b : α) : toQ (a * b) = toQ a * toQ b := by
-  simp; apply Quot.sound; simp
+  simp
 
 theorem toQ_natCast (n : Nat) : toQ (natCast (α := α) n) = natCast n := by
   simp; apply Quot.sound; simp; refine ⟨0, ?_⟩; rfl
@@ -335,6 +349,121 @@ instance {p} [Semiring α] [AddRightCancel α] [IsCharP α p] : IsCharP (OfSemir
       have := IsCharP.ofNat_ext_iff (α := α) p |>.mpr h
       apply Quot.sound
       exists 0; simp [← Semiring.ofNat_eq_natCast, this]
+
+instance [Preorder α] [OrderedAdd α] : LE (OfSemiring.Q α) where
+  le a b := Q.liftOn₂ a b (fun (a, b) (c, d) => a + d ≤ b + c)
+    (by intro (a₁, b₁) (a₂, b₂) (a₃, b₃) (a₄, b₄)
+        simp; intro k₁ h₁ k₂ h₂
+        rw [OrderedAdd.add_le_left_iff (b₃ + k₁)]
+        have : a₁ + b₂ + (b₃ + k₁) = a₁ + b₃ + k₁ + b₂ := by ac_rfl
+        rw [this, h₁]; clear this
+        rw [OrderedAdd.add_le_left_iff (a₄ + k₂)]
+        have : b₁ + a₃ + k₁ + b₂ + (a₄ + k₂) = b₂ + a₄ + k₂ + b₁ + a₃ + k₁ := by ac_rfl
+        rw [this, ← h₂]; clear this
+        have : a₂ + b₄ + k₂ + b₁ + a₃ + k₁ = a₃ + b₄ + (a₂ + b₁ + k₁ + k₂) := by ac_rfl
+        rw [this]; clear this
+        have : b₁ + a₂ + (b₃ + k₁) + (a₄ + k₂) = b₃ + a₄ + (a₂ + b₁ + k₁ + k₂) := by ac_rfl
+        rw [this]; clear this
+        rw [← OrderedAdd.add_le_left_iff])
+
+@[local simp] theorem mk_le_mk [Preorder α] [OrderedAdd α] {a₁ a₂ b₁ b₂ : α}  :
+    Q.mk (a₁, a₂) ≤ Q.mk (b₁, b₂) ↔ a₁ + b₂ ≤ a₂ + b₁ := by
+  rfl
+
+instance [Preorder α] [OrderedAdd α] : Preorder (OfSemiring.Q α) where
+  le_refl a := by
+    induction a using Quot.ind
+    next a =>
+    rcases a with ⟨a₁, a₂⟩
+    change Q.mk _ ≤ Q.mk _
+    simp only [mk_le_mk]
+    simp [Semiring.add_comm]; exact Preorder.le_refl (a₁ + a₂)
+  le_trans {a b c} h₁ h₂ := by
+    induction a using Q.ind
+    induction b using Q.ind
+    induction c using Q.ind
+    next a b c =>
+    rcases a with ⟨a₁, a₂⟩; rcases b with ⟨b₁, b₂⟩; rcases c with ⟨c₁, c₂⟩
+    simp only [mk_le_mk] at h₁ h₂ ⊢
+    rw [OrderedAdd.add_le_left_iff (b₁ + b₂)]
+    have : a₁ + c₂ + (b₁ + b₂) = a₁ + b₂ + (b₁ + c₂) := by ac_rfl
+    rw [this]; clear this
+    have : a₂ + c₁ + (b₁ + b₂) = a₂ + b₁ + (b₂ + c₁) := by ac_rfl
+    rw [this]; clear this
+    exact OrderedAdd.add_le_add h₁ h₂
+
+@[local simp] private theorem mk_lt_mk [Preorder α] [OrderedAdd α] {a₁ a₂ b₁ b₂ : α}  :
+    Q.mk (a₁, a₂) < Q.mk (b₁, b₂) ↔ a₁ + b₂ < a₂ + b₁ := by
+  simp [Preorder.lt_iff_le_not_le, Semiring.add_comm]
+
+@[local simp] private theorem mk_pos [Preorder α] [OrderedAdd α] {a₁ a₂ : α} :
+    0 < Q.mk (a₁, a₂) ↔ a₂ < a₁ := by
+  simp [← toQ_ofNat, toQ, mk_lt_mk, Semiring.zero_add]
+
+@[local simp]
+theorem toQ_le [Preorder α] [OrderedAdd α] {a b : α} : toQ a ≤ toQ b ↔ a ≤ b := by
+  simp
+
+@[local simp]
+theorem toQ_lt [Preorder α] [OrderedAdd α] {a b : α} : toQ a < toQ b ↔ a < b := by
+  simp [Preorder.lt_iff_le_not_le]
+
+instance [Preorder α] [OrderedAdd α] : OrderedAdd (OfSemiring.Q α) where
+  add_le_left_iff := by
+    intro a b c
+    induction a using Quot.ind
+    induction b using Quot.ind
+    induction c using Quot.ind
+    next a b c =>
+    rcases a with ⟨a₁, a₂⟩; rcases b with ⟨b₁, b₂⟩; rcases c with ⟨c₁, c₂⟩
+    change a₁ + b₂ ≤ a₂ + b₁ ↔ (a₁ + c₁) + _ ≤ _
+    have : a₁ + c₁ + (b₂ + c₂) = a₁ + b₂ + (c₁ + c₂) := by ac_rfl
+    rw [this]; clear this
+    have : a₂ + c₂ + (b₁ + c₁) = a₂ + b₁ + (c₁ + c₂) := by ac_rfl
+    rw [this]; clear this
+    rw [← OrderedAdd.add_le_left_iff]
+
+-- This perhaps works in more generality than `ExistsAddOfLT`?
+instance [Preorder α] [OrderedRing α] [ExistsAddOfLT α] : OrderedRing (OfSemiring.Q α) where
+  zero_lt_one := by
+    rw [← toQ_ofNat, ← toQ_ofNat, toQ_lt]
+    exact OrderedRing.zero_lt_one
+  mul_lt_mul_of_pos_left := by
+    intro a b c h₁ h₂
+    induction a using Q.ind
+    induction b using Q.ind
+    induction c using Q.ind
+    next a b c =>
+    rcases a with ⟨a₁, a₂⟩; rcases b with ⟨b₁, b₂⟩; rcases c with ⟨c₁, c₂⟩
+    simp at h₁ h₂ ⊢
+    obtain ⟨d, d_pos, rfl⟩ := ExistsAddOfLT.exists_add_of_le h₂
+    simp [Semiring.right_distrib]
+    have : c₂ * a₁ + d * a₁ + c₂ * a₂ + (c₂ * b₂ + d * b₂ + c₂ * b₁) =
+      c₂ * a₁ + c₂ * a₂ + c₂ * b₁ + c₂ * b₂ + (d * a₁ + d * b₂) := by ac_rfl
+    rw [this]; clear this
+    have : c₂ * a₂ + d * a₂ + c₂ * a₁ + (c₂ * b₁ + d * b₁ + c₂ * b₂) =
+      c₂ * a₁ + c₂ * a₂ + c₂ * b₁ + c₂ * b₂ + (d * a₂ + d * b₁) := by ac_rfl
+    rw [this]; clear this
+    rw [← OrderedAdd.add_lt_right_iff]
+    simpa [Semiring.left_distrib] using OrderedRing.mul_lt_mul_of_pos_left h₁ d_pos
+  mul_lt_mul_of_pos_right := by
+    intro a b c h₁ h₂
+    induction a using Q.ind
+    induction b using Q.ind
+    induction c using Q.ind
+    next a b c =>
+    rcases a with ⟨a₁, a₂⟩; rcases b with ⟨b₁, b₂⟩; rcases c with ⟨c₁, c₂⟩
+    simp at h₁ h₂ ⊢
+    obtain ⟨d, d_pos, rfl⟩ := ExistsAddOfLT.exists_add_of_le h₂
+    simp [Semiring.left_distrib]
+    have : a₁ * c₂ + a₁ * d + a₂ * c₂ + (b₁ * c₂ + (b₂ * c₂ + b₂ * d)) =
+      a₁ * c₂ + a₂ * c₂ + b₁ * c₂ + b₂ * c₂ + (a₁ * d + b₂ * d) := by ac_rfl
+    rw [this]; clear this
+    have : a₁ * c₂ + (a₂ * c₂ + a₂ * d) + (b₁ * c₂ + b₁ * d + b₂ * c₂) =
+      a₁ * c₂ + a₂ * c₂ + b₁ * c₂ + b₂ * c₂ + (a₂ * d + b₁ * d) := by ac_rfl
+    rw [this]; clear this
+    rw [← OrderedAdd.add_lt_right_iff]
+    simpa [Semiring.right_distrib] using OrderedRing.mul_lt_mul_of_pos_right h₁ d_pos
 
 end OfSemiring
 end Lean.Grind.Ring

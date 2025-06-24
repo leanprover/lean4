@@ -1930,6 +1930,13 @@ theorem toInt_sub_neg_umod {x y : BitVec w} (hxmsb : x.msb = true) (hymsb : y.ms
         Int.dvd_neg] at hdvd
       simp only [hdvd, ↓reduceIte, Int.natAbs_cast]
 
+theorem srem_zero_of_dvd (x y : BitVec w) (h : y.toInt ∣ x.toInt) :
+    x.srem y = 0#w := by
+  have := toInt_dvd_toInt_iff (x := x) (y := y)
+  by_cases hx : x.msb <;> by_cases hy : y.msb
+  <;> simp only [h, hx, reduceIte, hy, false_eq_true, true_iff] at this
+  <;> simp [srem, hx, hy, this]
+
 theorem msb_srem (x y : BitVec w) : (x.srem y).msb =
     (x.msb && decide (x.srem y ≠ 0)) := by
   rw [msb_eq_toInt]

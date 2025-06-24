@@ -3679,13 +3679,6 @@ theorem srem_eq (x y : BitVec w) : srem x y =
 @[simp] theorem srem_self {x : BitVec w} : x.srem x = 0#w := by
   cases h : x.msb <;> simp [h, srem_eq]
 
-theorem srem_zero_of_dvd (x y : BitVec w) (h : y.toInt ∣ x.toInt) :
-    x.srem y = 0#w := by
-  have := toInt_dvd_toInt_iff (x := x) (y := y)
-  by_cases hx : x.msb <;> by_cases hy : y.msb
-  <;> simp only [h, hx, reduceIte, hy, false_eq_true, true_iff] at this
-  <;> simp [srem, hx, hy, this]
-
 /-! ### smod -/
 
 /-- Equation theorem for `smod` in terms of `umod`. -/

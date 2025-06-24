@@ -529,7 +529,7 @@ bool is_geq_core(level l1, level l2) {
 }
 bool is_geq(level const & l1, level const & l2) {
     //return is_geq_core(normalize(l1), normalize(l2));
-    return lean_level_geq(lhs.to_obj_arg(), rhs.to_obj_arg());
+    return lean_level_geq(l1.to_obj_arg(), l2.to_obj_arg());
 }
 levels lparams_to_levels(names const & ps) {
     buffer<level> ls;

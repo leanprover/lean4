@@ -177,7 +177,7 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Meta_Try_Collector_visit_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_inCurrentModule___redArg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_LocalDecl_value_x3f(lean_object*);
+lean_object* l_Lean_LocalDecl_value_x3f(lean_object*, uint8_t);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Meta_Try_Collector_saveLibSearchCandidates_spec__1_spec__1___redArg(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -5296,7 +5296,7 @@ x_16 = l_Lean_LocalDecl_isAuxDecl(x_14);
 if (x_16 == 0)
 {
 lean_object* x_17; 
-x_17 = l_Lean_LocalDecl_value_x3f(x_14);
+x_17 = l_Lean_LocalDecl_value_x3f(x_14, x_16);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; 
@@ -6330,7 +6330,7 @@ x_16 = l_Lean_LocalDecl_isAuxDecl(x_14);
 if (x_16 == 0)
 {
 lean_object* x_17; 
-x_17 = l_Lean_LocalDecl_value_x3f(x_14);
+x_17 = l_Lean_LocalDecl_value_x3f(x_14, x_16);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; 

@@ -802,9 +802,9 @@ The coinductive predicate is defined as the greatest fixed point of a monotone f
 By default, monotonicity is verified automatically. However, users can provide custom proofs
 of monotonicity if needed.
 -/
-def greatestFixpoint := leading_parser
+def coinductiveFixpoint := leading_parser
   withPosition (
-    "greatest_fixpoint" >>
+    "coinductive_fixpoint" >>
     optional (checkColGt "indentation" >> nonReservedSymbol "monotonicity " >>
               checkColGt "indented monotonicity proof" >> termParser))
 
@@ -819,9 +819,9 @@ The inductive predicate is defined as the least fixed point of a monotone functi
 By default, monotonicity is verified automatically. However, users can provide custom proofs
 of monotonicity if needed.
 -/
-def leastFixpoint := leading_parser
+def inductiveFixpoint := leading_parser
   withPosition (
-    "least_fixpoint" >>
+    "inductive_fixpoint" >>
     optional (checkColGt "indentation" >> nonReservedSymbol "monotonicity " >>
               checkColGt "indented monotonicity proof" >> termParser))
 
@@ -841,7 +841,7 @@ Forces the use of well-founded recursion and is hence incompatible with
 Termination hints are `termination_by` and `decreasing_by`, in that order.
 -/
 @[builtin_doc] def suffix := leading_parser
-  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy <|> partialFixpoint <|> greatestFixpoint <|> leastFixpoint)) >> optional decreasingBy
+  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy <|> partialFixpoint <|> coinductiveFixpoint <|> inductiveFixpoint)) >> optional decreasingBy
 
 end Termination
 namespace Term

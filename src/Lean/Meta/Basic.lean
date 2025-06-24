@@ -1153,6 +1153,12 @@ def getZetaDeltaFVarIds : MetaM FVarIdSet :=
   return (← get).zetaDeltaFVarIds
 
 /--
+Inserts `fvarId` into the `zetaDeltaFVarIds` set.
+-/
+def addZetaDeltaFVarId (fvarId : FVarId) : MetaM Unit :=
+  modify fun s => { s with zetaDeltaFVarIds := s.zetaDeltaFVarIds.insert fvarId }
+
+/--
 `withResetZetaDeltaFVarIds x` executes `x` in a context where the `zetaDeltaFVarIds` is temporarily cleared.
 
 **Warning:** This does not reset the cache.

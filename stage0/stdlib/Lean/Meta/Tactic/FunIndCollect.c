@@ -128,7 +128,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_FunInd_hashCall____x40_Lean_Meta_Tactic_Fun
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_FunInd_instEmptyCollectionSeenCalls___closed__6;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Meta_FunInd_SeenCalls_push_spec__2_spec__2_spec__3___redArg(lean_object*, lean_object*);
-lean_object* l_Lean_LocalDecl_value_x3f(lean_object*);
+lean_object* l_Lean_LocalDecl_value_x3f(lean_object*, uint8_t);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -3553,7 +3553,7 @@ if (x_25 == 0)
 {
 lean_object* x_26; 
 lean_free_object(x_2);
-x_26 = l_Lean_LocalDecl_value_x3f(x_24);
+x_26 = l_Lean_LocalDecl_value_x3f(x_24, x_25);
 if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; 
@@ -3648,7 +3648,7 @@ x_43 = l_Lean_LocalDecl_isAuxDecl(x_42);
 if (x_43 == 0)
 {
 lean_object* x_44; 
-x_44 = l_Lean_LocalDecl_value_x3f(x_42);
+x_44 = l_Lean_LocalDecl_value_x3f(x_42, x_43);
 if (lean_obj_tag(x_44) == 0)
 {
 lean_object* x_45; 
@@ -4512,7 +4512,7 @@ if (x_25 == 0)
 {
 lean_object* x_26; 
 lean_free_object(x_2);
-x_26 = l_Lean_LocalDecl_value_x3f(x_24);
+x_26 = l_Lean_LocalDecl_value_x3f(x_24, x_25);
 if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; 
@@ -4607,7 +4607,7 @@ x_43 = l_Lean_LocalDecl_isAuxDecl(x_42);
 if (x_43 == 0)
 {
 lean_object* x_44; 
-x_44 = l_Lean_LocalDecl_value_x3f(x_42);
+x_44 = l_Lean_LocalDecl_value_x3f(x_42, x_43);
 if (lean_obj_tag(x_44) == 0)
 {
 lean_object* x_45; 

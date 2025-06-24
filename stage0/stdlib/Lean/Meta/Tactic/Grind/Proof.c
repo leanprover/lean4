@@ -199,7 +199,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Proof_0__Lean_Meta_G
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Proof_0__Lean_Meta_Grind_mkCongrProof___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Proof_0__Lean_Meta_Grind_mkEqProofCore___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Proof_0__Lean_Meta_Grind_mkEqProofCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_Meta_TransparencyMode_toUInt64(uint8_t);
 extern lean_object* l_Lean_Meta_Grind_congrPlaceholderProof;
 lean_object* l_Lean_mkApp5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5041,7 +5041,7 @@ x_25 = l___private_Lean_Meta_Tactic_Grind_Proof_0__Lean_Meta_Grind_mkHCongrProof
 x_26 = lean_array_push(x_25, x_6);
 x_27 = lean_box(1);
 x_28 = lean_unbox(x_27);
-x_29 = l_Lean_Meta_mkLambdaFVars(x_26, x_23, x_4, x_5, x_4, x_28, x_11, x_12, x_13, x_14, x_24);
+x_29 = l_Lean_Meta_mkLambdaFVars(x_26, x_23, x_4, x_5, x_4, x_5, x_28, x_11, x_12, x_13, x_14, x_24);
 lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);

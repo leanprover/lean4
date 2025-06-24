@@ -504,7 +504,7 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l___private_Lean_Elab_BuiltinEvalCommand_0__Lean_Elab_Command_mkFormat___closed__3;
 lean_object* l_IO_FS_withIsolatedStreams___at___Lean_Elab_Command_wrapAsyncAsSnapshot_spec__7___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnfCore_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabEvalCoreUnsafe___elam__1___redArg___closed__3;
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabEvalCoreUnsafe___elam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5874,7 +5874,7 @@ x_15 = l___private_Lean_Elab_BuiltinEvalCommand_0__Lean_Elab_Command_mkDeltaInst
 x_16 = lean_array_push(x_15, x_4);
 x_17 = lean_box(1);
 x_18 = lean_unbox(x_17);
-x_19 = l_Lean_Meta_mkLambdaFVars(x_16, x_13, x_2, x_3, x_2, x_18, x_7, x_8, x_9, x_10, x_14);
+x_19 = l_Lean_Meta_mkLambdaFVars(x_16, x_13, x_2, x_3, x_2, x_3, x_18, x_7, x_8, x_9, x_10, x_14);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);

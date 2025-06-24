@@ -134,7 +134,6 @@ def getSrcSearchPath : IO SearchPath := do
   return srcSearchPath ++ [srcPath / "lake", srcPath]
 
 /-- Infer module name of source file name. -/
-@[export lean_module_name_of_file]
 def moduleNameOfFileName (fname : FilePath) (rootDir : Option FilePath) : IO Name := do
   let fname ← IO.FS.realPath fname
   let rootDir ← match rootDir with

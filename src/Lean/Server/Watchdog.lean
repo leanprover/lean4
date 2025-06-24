@@ -11,8 +11,6 @@ import Std.Data.TreeMap
 import Init.Data.ByteArray
 import Lean.Data.RBMap
 
-import Lean.Util.Paths
-
 import Lean.Data.FuzzyMatching
 import Lean.Data.Json
 import Lean.Data.Lsp

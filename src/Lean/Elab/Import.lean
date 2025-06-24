@@ -5,7 +5,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Lean.Parser.Module
-import Lean.Util.Paths
 import Lean.CoreM
 
 namespace Lean.Elab
@@ -29,13 +28,17 @@ def HeaderSyntax.imports (stx : HeaderSyntax) (includeInit : Bool := true) : Arr
       | _ => unreachable!
   | _ => unreachable!
 
+def HeaderSyntax.toModuleHeader (stx : HeaderSyntax) : ModuleHeader where
+  isModule := stx.isModule
+  imports := stx.imports
+
 abbrev headerToImports := @HeaderSyntax.imports
 
 def processHeaderCore
     (startPos : String.Pos) (imports : Array Import) (isModule : Bool)
     (opts : Options) (messages : MessageLog) (inputCtx : Parser.InputContext)
     (trustLevel : UInt32 := 0) (plugins : Array System.FilePath := #[]) (leakEnv := false)
-    (mainModule := Name.anonymous) (arts : NameMap ModuleArtifacts := {})
+    (mainModule := Name.anonymous) (arts : NameMap ImportArtifacts := {})
     : IO (Environment × MessageLog) := do
   let level := if isModule then
     if Elab.inServer.get opts then
@@ -83,14 +86,12 @@ def parseImports (input : String) (fileName : Option String := none) : IO (Array
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
   pure (headerToImports header, inputCtx.fileMap.toPosition parserState.pos, messages)
 
-@[export lean_print_imports]
 def printImports (input : String) (fileName : Option String) : IO Unit := do
   let (deps, _, _) ← parseImports input fileName
   for dep in deps do
     let fname ← findOLean dep.module
     IO.println fname
 
-@[export lean_print_import_srcs]
 def printImportSrcs (input : String) (fileName : Option String) : IO Unit := do
   let sp ← getSrcSearchPath
   let (deps, _, _) ← parseImports input fileName

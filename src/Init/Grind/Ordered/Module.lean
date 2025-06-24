@@ -19,6 +19,9 @@ class OrderedAdd (M : Type u) [HAdd M M M] [Preorder M] where
   /-- `a + c ≤ b + c` iff `a ≤ b`. -/
   add_le_left_iff : ∀ {a b : M} (c : M), a ≤ b ↔ a + c ≤ b + c
 
+class ExistsAddOfLT (α : Type u) [LT α] [Zero α] [Add α] where
+  exists_add_of_le : ∀ {a b : α}, a < b → ∃ c, 0 < c ∧ b = a + c
+
 namespace OrderedAdd
 
 open NatModule

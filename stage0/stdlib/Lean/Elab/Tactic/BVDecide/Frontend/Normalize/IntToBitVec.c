@@ -250,7 +250,7 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_intToBitVecPa
 lean_object* l_ReaderT_instFunctorOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_intToBitVecPass_replaceSize___lam__4___closed__13;
-lean_object* l_Lean_Meta_mkForallFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkForallFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Meta_withLocalDeclsD___at___Lean_Meta_withLocalDeclsDND___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_intToBitVecPass_replaceSize_spec__5_spec__6_spec__6(size_t, size_t, lean_object*);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_intToBitVecPass_replaceSize___lam__2___closed__1;
@@ -320,7 +320,7 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* l_Lean_MetavarContext_revert(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_intToBitVecPass_replaceSize_spec__4(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Pi_instInhabited___redArg___lam__0(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_intToBitVecPass_replaceSize___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_withLocalDecls_loop___at___Lean_Meta_withLocalDecls___at___Lean_Meta_withLocalDeclsD___at___Lean_Meta_withLocalDeclsDND___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_intToBitVecPass_replaceSize_spec__5_spec__6_spec__7_spec__7___redArg___closed__1;
@@ -5511,7 +5511,7 @@ x_27 = lean_box(0);
 x_28 = lean_box(1);
 x_29 = lean_unbox(x_27);
 x_30 = lean_unbox(x_28);
-x_31 = l_Lean_Meta_mkForallFVars(x_8, x_26, x_29, x_4, x_30, x_10, x_11, x_12, x_13, x_23);
+x_31 = l_Lean_Meta_mkForallFVars(x_8, x_26, x_29, x_4, x_4, x_30, x_10, x_11, x_12, x_13, x_23);
 return x_31;
 }
 }
@@ -5575,7 +5575,7 @@ x_29 = lean_unbox(x_27);
 x_30 = lean_unbox(x_27);
 x_31 = lean_unbox(x_28);
 lean_inc(x_22);
-x_32 = l_Lean_Meta_mkLambdaFVars(x_26, x_22, x_29, x_7, x_30, x_31, x_11, x_12, x_13, x_14, x_23);
+x_32 = l_Lean_Meta_mkLambdaFVars(x_26, x_22, x_29, x_7, x_30, x_7, x_31, x_11, x_12, x_13, x_14, x_23);
 lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);

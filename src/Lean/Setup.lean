@@ -38,6 +38,26 @@ structure ModuleHeader where
   isModule : Bool
   deriving Repr, Inhabited, ToJson, FromJson
 
+/--
+Module data files used for an `import` statement.
+This structure is designed for efficient JSON serialization.
+-/
+structure ImportArtifacts where
+  oleanParts : Array System.FilePath
+  deriving Repr, Inhabited
+
+instance : ToJson ImportArtifacts := ⟨(toJson ·.oleanParts)⟩
+instance : FromJson ImportArtifacts := ⟨(.mk <$> fromJson? ·)⟩
+
+def ImportArtifacts.olean? (arts : ImportArtifacts) :=
+  arts.oleanParts[0]?
+
+def ImportArtifacts.oleanServer? (arts : ImportArtifacts) :=
+  arts.oleanParts[1]?
+
+def ImportArtifacts.oleanPrivate? (arts : ImportArtifacts) :=
+  arts.oleanParts[2]?
+
 /-- Files containing data for a single module. -/
 structure ModuleArtifacts where
   lean? : Option System.FilePath := none
@@ -49,19 +69,32 @@ structure ModuleArtifacts where
   bc? : Option System.FilePath := none
   deriving Repr, Inhabited, ToJson, FromJson
 
-/--
-A module's setup information as described by a JSON file.
-Supersedes the module's header when the `--setup` CLI option is used.
--/
+def ModuleArtifacts.oleanParts (arts : ModuleArtifacts) : Array System.FilePath := Id.run do
+  let mut fnames := #[]
+  if let some mFile := arts.olean? then
+    fnames := fnames.push mFile
+    if let some sFile := arts.oleanServer? then
+      fnames := fnames.push sFile
+      if let some pFile := arts.oleanPrivate? then
+        fnames := fnames.push pFile
+  return fnames
+
+/-- A module's setup information as described by a JSON file. -/
 structure ModuleSetup where
   /-- Name of the module. -/
   name : Name
-  /-- Whether the module is participating in the module system. -/
+  /--
+  Whether the module, by default, participates in the module system.
+  Even if `false`, a module can still choose to participate by using `module` in its header.
+  -/
   isModule : Bool := false
-  /-- The module's direct imports. -/
-  imports : Array Import := #[]
-  /-- Pre-resolved artifacts of related modules (e.g., this module's transitive imports). -/
-  modules : NameMap ModuleArtifacts := {}
+  /--
+  The module's direct imports.
+  If `none`, uses the imports from the module header.
+  -/
+  imports? : Option (Array Import) := none
+  /-- Pre-resolved artifacts of transitively imported modules. -/
+  importArts : NameMap ImportArtifacts := {}
   /-- Dynamic libraries to load with the module. -/
   dynlibs : Array System.FilePath := #[]
   /-- Plugins to initialize with the module. -/

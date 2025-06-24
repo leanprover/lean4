@@ -100,7 +100,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withNewMCtxDepth___at___Lean_Meta_Grind_instantiateExtTheorem_spec__3___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Meta_Grind_instantiateExtTheorem_spec__0___redArg___closed__5;
-lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_Meta_TransparencyMode_toUInt64(uint8_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkConstWithFreshMVarLevels(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3075,7 +3075,7 @@ x_86 = lean_box(1);
 x_87 = lean_unbox(x_85);
 x_88 = lean_unbox(x_85);
 x_89 = lean_unbox(x_86);
-x_90 = l_Lean_Meta_mkLambdaFVars(x_83, x_81, x_87, x_82, x_88, x_89, x_7, x_8, x_9, x_10, x_84);
+x_90 = l_Lean_Meta_mkLambdaFVars(x_83, x_81, x_87, x_82, x_88, x_82, x_89, x_7, x_8, x_9, x_10, x_84);
 if (lean_obj_tag(x_90) == 0)
 {
 lean_object* x_91; lean_object* x_92; lean_object* x_93; uint8_t x_94; 
@@ -4322,7 +4322,7 @@ x_557 = lean_box(1);
 x_558 = lean_unbox(x_556);
 x_559 = lean_unbox(x_556);
 x_560 = lean_unbox(x_557);
-x_561 = l_Lean_Meta_mkLambdaFVars(x_554, x_552, x_558, x_553, x_559, x_560, x_7, x_8, x_9, x_10, x_555);
+x_561 = l_Lean_Meta_mkLambdaFVars(x_554, x_552, x_558, x_553, x_559, x_553, x_560, x_7, x_8, x_9, x_10, x_555);
 if (lean_obj_tag(x_561) == 0)
 {
 lean_object* x_562; lean_object* x_563; lean_object* x_564; lean_object* x_565; lean_object* x_566; lean_object* x_567; lean_object* x_568; 

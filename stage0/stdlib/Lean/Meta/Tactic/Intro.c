@@ -174,7 +174,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_intro1Core(lean_object*, uint8_t, lean_obje
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_mkAuxNameImp_mkAuxNameWithoutGivenName(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_instMonadMCtxMetaM;
 lean_object* l_Lean_Expr_letFun_x3f(lean_object*);
-lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_getUnusedName(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___redArg___closed__7;
 LEAN_EXPORT lean_object* l_Lean_MVarId_intros(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -220,7 +220,7 @@ x_22 = lean_unbox(x_19);
 x_23 = lean_unbox(x_20);
 lean_inc(x_17);
 lean_inc(x_3);
-x_24 = l_Lean_Meta_mkLambdaFVars(x_3, x_17, x_21, x_4, x_22, x_23, x_6, x_7, x_8, x_9, x_18);
+x_24 = l_Lean_Meta_mkLambdaFVars(x_3, x_17, x_21, x_4, x_22, x_4, x_23, x_6, x_7, x_8, x_9, x_18);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
@@ -336,7 +336,7 @@ x_48 = lean_unbox(x_45);
 x_49 = lean_unbox(x_46);
 lean_inc(x_43);
 lean_inc(x_3);
-x_50 = l_Lean_Meta_mkLambdaFVars(x_3, x_43, x_47, x_4, x_48, x_49, x_6, x_7, x_8, x_9, x_44);
+x_50 = l_Lean_Meta_mkLambdaFVars(x_3, x_43, x_47, x_4, x_48, x_4, x_49, x_6, x_7, x_8, x_9, x_44);
 if (lean_obj_tag(x_50) == 0)
 {
 lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; 
@@ -6858,7 +6858,7 @@ x_21 = lean_unbox(x_18);
 x_22 = lean_unbox(x_19);
 lean_inc(x_16);
 lean_inc(x_3);
-x_23 = l_Lean_Meta_mkLambdaFVars(x_3, x_16, x_20, x_4, x_21, x_22, x_5, x_6, x_7, x_8, x_17);
+x_23 = l_Lean_Meta_mkLambdaFVars(x_3, x_16, x_20, x_4, x_21, x_4, x_22, x_5, x_6, x_7, x_8, x_17);
 lean_dec(x_5);
 if (lean_obj_tag(x_23) == 0)
 {
@@ -6940,7 +6940,7 @@ x_42 = lean_unbox(x_39);
 x_43 = lean_unbox(x_40);
 lean_inc(x_37);
 lean_inc(x_3);
-x_44 = l_Lean_Meta_mkLambdaFVars(x_3, x_37, x_41, x_4, x_42, x_43, x_5, x_6, x_7, x_8, x_38);
+x_44 = l_Lean_Meta_mkLambdaFVars(x_3, x_37, x_41, x_4, x_42, x_4, x_43, x_5, x_6, x_7, x_8, x_38);
 lean_dec(x_5);
 if (lean_obj_tag(x_44) == 0)
 {

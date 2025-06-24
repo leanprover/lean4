@@ -421,6 +421,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.RELEASE_INDEX_TOKEN }}
       - name: Update toolchain on mathlib4's nightly-testing branch
         run: |
-          gh workflow -R leanprover-community/mathlib4 run nightly_bump_toolchain.yml
+          gh workflow -R leanprover-community/mathlib4-nightly-testing run nightly_bump_toolchain.yml
         env:
           GITHUB_TOKEN: ${{ secrets.MATHLIB4_BOT }}

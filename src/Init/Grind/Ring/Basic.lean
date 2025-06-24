@@ -170,6 +170,11 @@ theorem pow_add (a : α) (k₁ k₂ : Nat) : a ^ (k₁ + k₂) = a^k₁ * a^k₂
   next => simp [pow_zero, mul_one]
   next k₂ ih => rw [Nat.add_succ, pow_succ, pow_succ, ih, mul_assoc]
 
+theorem natCast_pow (x : Nat) (k : Nat) : ((x ^ k : Nat) : α) = (x : α) ^ k := by
+  induction k
+  next => simp [pow_zero, Nat.pow_zero, natCast_one]
+  next k ih => simp [pow_succ, Nat.pow_succ, natCast_mul, *]
+
 instance : NatModule α where
   hMul a x := a * x
   add_zero := by simp [add_zero]

@@ -85,5 +85,6 @@ such that changing files in `Init` doesn't force a full rebuild of `Lean`.
 You can test a Lean PR against Mathlib and Batteries by rebasing your PR
 on to `nightly-with-mathlib` branch. (It is fine to force push after rebasing.)
 CI will generate a branch of Mathlib and Batteries called `lean-pr-testing-NNNN`
-that uses the toolchain for your PR, and will report back to the Lean PR with results from Mathlib CI.
+on the `leanprover-community/mathlib4-nightly-testing` fork of Mathlib.
+This branch uses the toolchain for your PR, and will report back to the Lean PR with results from Mathlib CI.
 See https://leanprover-community.github.io/contribute/tags_and_branches.html for more details.

@@ -140,7 +140,7 @@ static lean_object* l_dreduceDIte___regBuiltin_dreduceDIte_declare__1___closed__
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Core_0____regBuiltin_reduceIte_declare__4___closed__7____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Core___hyg_441_;
 LEAN_EXPORT lean_object* l_dreduceIte___regBuiltin_dreduceIte_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Core___hyg_1453_(lean_object*);
 static lean_object* l_reduceDIte___closed__11;
-lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_Meta_TransparencyMode_toUInt64(uint8_t);
 static lean_object* l_dreduceIte___closed__4;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Core_0____regBuiltin_reduceDIte_declare__9___closed__2____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Core___hyg_914_;
@@ -3609,7 +3609,7 @@ x_24 = l_reduceCtorEq___lam__2___closed__3;
 x_25 = lean_array_push(x_24, x_4);
 x_26 = lean_box(1);
 x_27 = lean_unbox(x_26);
-x_28 = l_Lean_Meta_mkLambdaFVars(x_25, x_22, x_1, x_2, x_1, x_27, x_8, x_9, x_10, x_11, x_23);
+x_28 = l_Lean_Meta_mkLambdaFVars(x_25, x_22, x_1, x_2, x_1, x_2, x_27, x_8, x_9, x_10, x_11, x_23);
 if (lean_obj_tag(x_28) == 0)
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; 

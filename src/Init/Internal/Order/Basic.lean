@@ -959,8 +959,47 @@ instance ReverseImplicationOrder.instCompleteLattice : CompleteLattice ReverseIm
     match h with
     | Or.inl hfx₁ => Or.inl (h₁ x y hxy hfx₁)
     | Or.inr hfx₂ => Or.inr (h₂ x y hxy hfx₂)
-
 end reverse_implication_order
+
+section antitone
+@[partial_fixpoint_monotone] theorem coind_not
+    {α} [PartialOrder α] (f₁ : α → Prop)
+    (h₁ : @monotone _ _ _ ReverseImplicationOrder.instOrder f₁) :
+    @monotone _ _ _ ImplicationOrder.instOrder (fun x => ¬f₁ x) := by
+  intro x y hxy hfx h
+  exact hfx (h₁ x y hxy h)
+
+@[partial_fixpoint_monotone] theorem ind_not
+    {α} [PartialOrder α] (f₁ : α → Prop)
+    (h₁ : @monotone _ _ _ ImplicationOrder.instOrder f₁) :
+    @monotone _ _ _ ReverseImplicationOrder.instOrder (fun x => ¬f₁ x) := by
+  intro x y hxy hfx h
+  exact hfx (h₁ x y hxy h)
+
+@[partial_fixpoint_monotone] theorem ind_impl
+    {α} [PartialOrder α] (f₁ : α → Prop) (f₂ : α → Prop)
+    (h₁ : @monotone _ _ _ ReverseImplicationOrder.instOrder f₁)
+    (h₂ : @monotone _ _ _ ImplicationOrder.instOrder f₂):
+    @monotone _ _ _ ImplicationOrder.instOrder (fun x => f₁ x → f₂ x) := by
+  intro x y hxy himp hf1
+  specialize h₁ x y hxy hf1
+  specialize h₂ x y hxy
+  apply h₂
+  apply himp
+  exact h₁
+
+@[partial_fixpoint_monotone] theorem coind_impl
+    {α} [PartialOrder α] (f₁ : α → Prop) (f₂ : α → Prop)
+    (h₁ : @monotone _ _ _ ImplicationOrder.instOrder f₁)
+    (h₂ : @monotone _ _ _ ReverseImplicationOrder.instOrder f₂):
+    @monotone _ _ _ ReverseImplicationOrder.instOrder (fun x => f₁ x → f₂ x) := by
+  intro x y hxy himp hf1
+  specialize h₁ x y hxy hf1
+  specialize h₂ x y hxy
+  apply h₂
+  apply himp
+  exact h₁
+end antitone
 
 namespace Example
 

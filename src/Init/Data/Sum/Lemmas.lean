@@ -42,15 +42,15 @@ theorem forall_sum {γ : α ⊕ β → Sort _} {p : (∀ ab, γ ab) → Prop} :
 
 section get
 
-@[simp] theorem inl_getLeft : ∀ (x : α ⊕ β) (h : x.isLeft), inl (x.getLeft h) = x
+@[simp, grind =] theorem inl_getLeft : ∀ (x : α ⊕ β) (h : x.isLeft), inl (x.getLeft h) = x
   | inl _, _ => rfl
-@[simp] theorem inr_getRight : ∀ (x : α ⊕ β) (h : x.isRight), inr (x.getRight h) = x
+@[simp, grind =] theorem inr_getRight : ∀ (x : α ⊕ β) (h : x.isRight), inr (x.getRight h) = x
   | inr _, _ => rfl
 
-@[simp] theorem getLeft?_eq_none_iff {x : α ⊕ β} : x.getLeft? = none ↔ x.isRight := by
+@[simp, grind =] theorem getLeft?_eq_none_iff {x : α ⊕ β} : x.getLeft? = none ↔ x.isRight := by
   cases x <;> simp only [getLeft?, isRight, eq_self_iff_true, reduceCtorEq]
 
-@[simp] theorem getRight?_eq_none_iff {x : α ⊕ β} : x.getRight? = none ↔ x.isLeft := by
+@[simp, grind =] theorem getRight?_eq_none_iff {x : α ⊕ β} : x.getRight? = none ↔ x.isLeft := by
   cases x <;> simp only [getRight?, isLeft, eq_self_iff_true, reduceCtorEq]
 
 theorem eq_left_getLeft_of_isLeft : ∀ {x : α ⊕ β} (h : x.isLeft), x = inl (x.getLeft h)
@@ -71,15 +71,19 @@ theorem eq_right_getRight_of_isRight : ∀ {x : α ⊕ β} (h : x.isRight), x = 
 @[simp] theorem getRight?_eq_some_iff : x.getRight? = some b ↔ x = inr b := by
   cases x <;> simp only [getRight?, Option.some.injEq, inr.injEq, reduceCtorEq]
 
-@[simp] theorem bnot_isLeft (x : α ⊕ β) : !x.isLeft = x.isRight := by cases x <;> rfl
+@[simp] theorem bnot_isLeft (x : α ⊕ β) : (!x.isLeft) = x.isRight := by cases x <;> rfl
 
 @[simp] theorem isLeft_eq_false {x : α ⊕ β} : x.isLeft = false ↔ x.isRight := by cases x <;> simp
 
+grind_pattern isLeft_eq_false => x.isLeft
+
 theorem not_isLeft {x : α ⊕ β} : ¬x.isLeft ↔ x.isRight := by simp
 
-@[simp] theorem bnot_isRight (x : α ⊕ β) : !x.isRight = x.isLeft := by cases x <;> rfl
+@[simp, grind =] theorem bnot_isRight (x : α ⊕ β) : (!x.isRight) = x.isLeft := by cases x <;> rfl
 
 @[simp] theorem isRight_eq_false {x : α ⊕ β} : x.isRight = false ↔ x.isLeft := by cases x <;> simp
+
+grind_pattern isRight_eq_false => x.isRight
 
 theorem not_isRight {x : α ⊕ β} : ¬x.isRight ↔ x.isLeft := by simp
 
@@ -122,7 +126,7 @@ theorem elim_eq_iff {u u' : α → γ} {v v' : β → γ} :
 
 /-! ### `Sum.map` -/
 
-@[simp] theorem map_map (f' : α' → α'') (g' : β' → β'') (f : α → α') (g : β → β') :
+@[simp, grind _=_] theorem map_map (f' : α' → α'') (g' : β' → β'') (f : α → α') (g : β → β') :
     ∀ x : Sum α β, (x.map f g).map f' g' = x.map (f' ∘ f) (g' ∘ g)
   | inl _ => rfl
   | inr _ => rfl
@@ -134,6 +138,7 @@ theorem elim_eq_iff {u u' : α → γ} {v v' : β → γ} :
 @[simp] theorem map_id_id : Sum.map (@id α) (@id β) = id :=
   funext fun x => Sum.recOn x (fun _ => rfl) fun _ => rfl
 
+@[grind _=_]
 theorem elim_map {f₁ : α → β} {f₂ : β → ε} {g₁ : γ → δ} {g₂ : δ → ε} {x} :
     Sum.elim f₂ g₂ (Sum.map f₁ g₁ x) = Sum.elim (f₂ ∘ f₁) (g₂ ∘ g₁) x := by
   cases x <;> rfl
@@ -142,34 +147,34 @@ theorem elim_comp_map {f₁ : α → β} {f₂ : β → ε} {g₁ : γ → δ} {
     Sum.elim f₂ g₂ ∘ Sum.map f₁ g₁ = Sum.elim (f₂ ∘ f₁) (g₂ ∘ g₁) :=
   funext fun _ => elim_map
 
-@[simp] theorem isLeft_map (f : α → β) (g : γ → δ) (x : α ⊕ γ) :
+@[simp, grind =] theorem isLeft_map (f : α → β) (g : γ → δ) (x : α ⊕ γ) :
     isLeft (x.map f g) = isLeft x := by
   cases x <;> rfl
 
-@[simp] theorem isRight_map (f : α → β) (g : γ → δ) (x : α ⊕ γ) :
+@[simp, grind =] theorem isRight_map (f : α → β) (g : γ → δ) (x : α ⊕ γ) :
     isRight (x.map f g) = isRight x := by
   cases x <;> rfl
 
-@[simp] theorem getLeft?_map (f : α → β) (g : γ → δ) (x : α ⊕ γ) :
+@[simp, grind =] theorem getLeft?_map (f : α → β) (g : γ → δ) (x : α ⊕ γ) :
     (x.map f g).getLeft? = x.getLeft?.map f := by
   cases x <;> rfl
 
-@[simp] theorem getRight?_map (f : α → β) (g : γ → δ) (x : α ⊕ γ) :
+@[simp, grind =] theorem getRight?_map (f : α → β) (g : γ → δ) (x : α ⊕ γ) :
     (x.map f g).getRight? = x.getRight?.map g := by cases x <;> rfl
 
 /-! ### `Sum.swap` -/
 
-@[simp] theorem swap_swap (x : α ⊕ β) : swap (swap x) = x := by cases x <;> rfl
+@[simp, grind =] theorem swap_swap (x : α ⊕ β) : swap (swap x) = x := by cases x <;> rfl
 
 @[simp] theorem swap_swap_eq : swap ∘ swap = @id (α ⊕ β) := funext <| swap_swap
 
-@[simp] theorem isLeft_swap (x : α ⊕ β) : x.swap.isLeft = x.isRight := by cases x <;> rfl
+@[simp, grind =] theorem isLeft_swap (x : α ⊕ β) : x.swap.isLeft = x.isRight := by cases x <;> rfl
 
-@[simp] theorem isRight_swap (x : α ⊕ β) : x.swap.isRight = x.isLeft := by cases x <;> rfl
+@[simp, grind =] theorem isRight_swap (x : α ⊕ β) : x.swap.isRight = x.isLeft := by cases x <;> rfl
 
-@[simp] theorem getLeft?_swap (x : α ⊕ β) : x.swap.getLeft? = x.getRight? := by cases x <;> rfl
+@[simp, grind =] theorem getLeft?_swap (x : α ⊕ β) : x.swap.getLeft? = x.getRight? := by cases x <;> rfl
 
-@[simp] theorem getRight?_swap (x : α ⊕ β) : x.swap.getRight? = x.getLeft? := by cases x <;> rfl
+@[simp, grind =] theorem getRight?_swap (x : α ⊕ β) : x.swap.getRight? = x.getLeft? := by cases x <;> rfl
 
 section LiftRel
 
@@ -192,7 +197,7 @@ protected theorem LiftRel.swap (h : LiftRel r s x y) : LiftRel s r x.swap y.swap
   · exact LiftRel.inr ‹_›
   · exact LiftRel.inl ‹_›
 
-@[simp] theorem liftRel_swap_iff : LiftRel s r x.swap y.swap ↔ LiftRel r s x y :=
+@[simp, grind =] theorem liftRel_swap_iff : LiftRel s r x.swap y.swap ↔ LiftRel r s x y :=
   ⟨fun h => by rw [← swap_swap x, ← swap_swap y]; exact h.swap, LiftRel.swap⟩
 
 end LiftRel
@@ -243,6 +248,7 @@ theorem lex_wf (ha : WellFounded r) (hb : WellFounded s) : WellFounded (Lex r s)
 
 end Lex
 
+@[grind =]
 theorem elim_const_const (c : γ) :
     Sum.elim (const _ c : α → γ) (const _ c : β → γ) = const _ c := by
   apply funext

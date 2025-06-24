@@ -65,7 +65,7 @@ x_6 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_6, 0, x_3);
 lean_ctor_set(x_6, 1, x_4);
 lean_ctor_set(x_6, 2, x_5);
-x_7 = lean_ctor_get(x_1, 7);
+x_7 = lean_ctor_get(x_1, 4);
 lean_inc(x_7);
 lean_dec(x_1);
 if (lean_obj_tag(x_7) == 0)
@@ -130,20 +130,23 @@ return x_28;
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_Utils_0__Lean_Server_FileWorker_mkCmdSnaps_go(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
 lean_inc(x_1);
 x_2 = lean_alloc_closure((void*)(l___private_Lean_Server_FileWorker_Utils_0__Lean_Server_FileWorker_mkCmdSnaps_go___lambda__1___boxed), 2, 1);
 lean_closure_set(x_2, 0, x_1);
-x_3 = lean_ctor_get(x_1, 4);
+x_3 = lean_ctor_get(x_1, 3);
 lean_inc(x_3);
 lean_dec(x_1);
-x_4 = lean_ctor_get(x_3, 3);
+x_4 = lean_ctor_get(x_3, 2);
 lean_inc(x_4);
 lean_dec(x_3);
-x_5 = l_Task_Priority_default;
-x_6 = 1;
-x_7 = lean_task_map(x_2, x_4, x_5, x_6);
-return x_7;
+x_5 = lean_ctor_get(x_4, 3);
+lean_inc(x_5);
+lean_dec(x_4);
+x_6 = l_Task_Priority_default;
+x_7 = 1;
+x_8 = lean_task_map(x_2, x_5, x_6, x_7);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_Utils_0__Lean_Server_FileWorker_mkCmdSnaps_go___lambda__1___boxed(lean_object* x_1, lean_object* x_2) {
@@ -178,7 +181,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_Utils_0__Lean_Server
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_ctor_get(x_3, 1);
+x_4 = lean_ctor_get(x_3, 2);
 lean_inc(x_4);
 lean_dec(x_3);
 if (lean_obj_tag(x_4) == 0)
@@ -195,7 +198,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_7 = lean_ctor_get(x_4, 0);
-x_8 = lean_ctor_get(x_1, 2);
+x_8 = lean_ctor_get(x_1, 3);
 x_9 = lean_ctor_get(x_2, 0);
 x_10 = lean_ctor_get(x_7, 0);
 lean_inc(x_10);
@@ -230,7 +233,7 @@ lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean
 x_21 = lean_ctor_get(x_4, 0);
 lean_inc(x_21);
 lean_dec(x_4);
-x_22 = lean_ctor_get(x_1, 2);
+x_22 = lean_ctor_get(x_1, 3);
 x_23 = lean_ctor_get(x_2, 0);
 x_24 = lean_ctor_get(x_21, 0);
 lean_inc(x_24);
@@ -267,7 +270,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_Utils_0__Lean_Server
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_ctor_get(x_1, 3);
+x_2 = lean_ctor_get(x_1, 4);
 lean_inc(x_2);
 if (lean_obj_tag(x_2) == 0)
 {

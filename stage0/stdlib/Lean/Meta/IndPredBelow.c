@@ -320,7 +320,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_IndPredBelow_mkInductiveType(lean_object*, 
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_IndPredBelow_mkCtorType_addHeaderVars___spec__3(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Meta_transform___at_Lean_Meta_IndPredBelow_mkCtorType_checkCount___spec__2___closed__1;
 lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
-uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_IR_IRType_beq___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_IndPredBelow_proveBrecOn_intros(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_IndPredBelow_mkCtorType_rebuild___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_IndPredBelow_mkContext_mkHeader___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -340,6 +339,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_IndPredBelow_mkCtorTyp
 uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_IndPredBelow_proveBrecOn_applyIH___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_IndPredBelow_mkBelowMatcher___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Name_isMetaprogramming___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_withLocalDecls_loop___at_Lean_Meta_IndPredBelow_mkCtorType_addMotives___spec__3___rarg___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_IndPredBelow_mkCtorType_modifyBinders___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_IndPredBelow_findBelowIdx___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -15759,7 +15759,7 @@ lean_dec(x_10);
 lean_inc(x_2);
 x_25 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_25, 0, x_2);
-x_26 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_IR_IRType_beq___spec__1(x_24, x_25);
+x_26 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_Lean_Name_isMetaprogramming___spec__1(x_24, x_25);
 lean_dec(x_25);
 lean_dec(x_24);
 if (x_26 == 0)

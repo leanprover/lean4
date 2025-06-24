@@ -86,6 +86,7 @@ static lean_object* l_Lean_Meta_substCore___lambda__21___closed__20;
 static lean_object* l_Lean_Meta_substCore___lambda__21___closed__18;
 LEAN_EXPORT lean_object* l_Lean_Meta_substCore___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_substVar___lambda__2___closed__1;
+lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_substCore___lambda__21___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_heqToEq___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -246,7 +247,6 @@ lean_object* l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(lean
 LEAN_EXPORT lean_object* l_Nat_foldM_loop___at_Lean_Meta_substCore___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mapTR_loop___at_Lean_compileDecls_doCompile___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_substVar___lambda__2___closed__4;
-lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_foldM_loop___at_Lean_Meta_substCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_substSomeVar_x3f___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_substVar___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2709,7 +2709,7 @@ lean_inc(x_18);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
-x_101 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_98, x_99, x_95, x_97, x_100, x_15, x_16, x_17, x_18, x_96);
+x_101 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_98, x_99, x_95, x_97, x_100, x_15, x_16, x_17, x_18, x_96);
 if (lean_obj_tag(x_101) == 0)
 {
 lean_object* x_102; lean_object* x_103; lean_object* x_104; 
@@ -3031,7 +3031,7 @@ lean_inc(x_18);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
-x_149 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_146, x_147, x_143, x_145, x_148, x_15, x_16, x_17, x_18, x_144);
+x_149 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_146, x_147, x_143, x_145, x_148, x_15, x_16, x_17, x_18, x_144);
 if (lean_obj_tag(x_149) == 0)
 {
 lean_object* x_150; lean_object* x_151; lean_object* x_152; 
@@ -3539,7 +3539,7 @@ lean_inc(x_18);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
-x_228 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_225, x_226, x_222, x_224, x_227, x_15, x_16, x_17, x_18, x_223);
+x_228 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_225, x_226, x_222, x_224, x_227, x_15, x_16, x_17, x_18, x_223);
 if (lean_obj_tag(x_228) == 0)
 {
 lean_object* x_229; lean_object* x_230; lean_object* x_231; 

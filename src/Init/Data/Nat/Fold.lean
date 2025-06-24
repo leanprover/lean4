@@ -205,7 +205,7 @@ theorem allTR_loop_congr {n m : Nat} (w : n = m) (f : (i : Nat) → i < n → Bo
 @[simp] theorem fold_succ {α : Type u} (n : Nat) (f : (i : Nat) → i < n + 1 → α → α) (init : α) :
     fold (n + 1) f init = f n (by omega) (fold n (fun i h => f i (by omega)) init) := by simp [fold]
 
-theorem fold_eq_finRange_foldl {α : Type u} (n : Nat) (f : (i : Nat) → i < n → α → α) (init : α) :
+@[grind =] theorem fold_eq_finRange_foldl {α : Type u} (n : Nat) (f : (i : Nat) → i < n → α → α) (init : α) :
     fold n f init = (List.finRange n).foldl (fun acc ⟨i, h⟩ => f i h acc) init := by
   induction n with
   | zero => simp
@@ -221,7 +221,7 @@ theorem fold_eq_finRange_foldl {α : Type u} (n : Nat) (f : (i : Nat) → i < n 
     foldRev (n + 1) f init = foldRev n (fun i h => f i (by omega)) (f n (by omega) init) := by
   simp [foldRev]
 
-theorem foldRev_eq_finRange_foldr {α : Type u} (n : Nat) (f : (i : Nat) → i < n → α → α) (init : α) :
+@[grind =] theorem foldRev_eq_finRange_foldr {α : Type u} (n : Nat) (f : (i : Nat) → i < n → α → α) (init : α) :
     foldRev n f init = (List.finRange n).foldr (fun ⟨i, h⟩ acc => f i h acc) init := by
   induction n generalizing init with
   | zero => simp
@@ -234,7 +234,7 @@ theorem foldRev_eq_finRange_foldr {α : Type u} (n : Nat) (f : (i : Nat) → i <
 @[simp] theorem any_succ {n : Nat} (f : (i : Nat) → i < n + 1 → Bool) :
     any (n + 1) f = (any n (fun i h => f i (by omega)) || f n (by omega)) := by simp [any]
 
-theorem any_eq_finRange_any {n : Nat} (f : (i : Nat) → i < n → Bool) :
+@[grind =] theorem any_eq_finRange_any {n : Nat} (f : (i : Nat) → i < n → Bool) :
     any n f = (List.finRange n).any (fun ⟨i, h⟩ => f i h) := by
   induction n with
   | zero => simp
@@ -247,7 +247,7 @@ theorem any_eq_finRange_any {n : Nat} (f : (i : Nat) → i < n → Bool) :
 @[simp] theorem all_succ {n : Nat} (f : (i : Nat) → i < n + 1 → Bool) :
     all (n + 1) f = (all n (fun i h => f i (by omega)) && f n (by omega)) := by simp [all]
 
-theorem all_eq_finRange_all {n : Nat} (f : (i : Nat) → i < n → Bool) :
+@[grind =] theorem all_eq_finRange_all {n : Nat} (f : (i : Nat) → i < n → Bool) :
     all n f = (List.finRange n).all (fun ⟨i, h⟩ => f i h) := by
   induction n with
   | zero => simp

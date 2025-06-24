@@ -15320,7 +15320,7 @@ x_20 = 0;
 x_21 = 1;
 x_22 = 0;
 lean_inc(x_18);
-x_23 = lean_alloc_ctor(0, 2, 21);
+x_23 = lean_alloc_ctor(0, 2, 23);
 lean_ctor_set(x_23, 0, x_18);
 lean_ctor_set(x_23, 1, x_19);
 lean_ctor_set_uint8(x_23, sizeof(void*)*2, x_20);
@@ -15344,6 +15344,8 @@ lean_ctor_set_uint8(x_23, sizeof(void*)*2 + 17, x_21);
 lean_ctor_set_uint8(x_23, sizeof(void*)*2 + 18, x_20);
 lean_ctor_set_uint8(x_23, sizeof(void*)*2 + 19, x_21);
 lean_ctor_set_uint8(x_23, sizeof(void*)*2 + 20, x_21);
+lean_ctor_set_uint8(x_23, sizeof(void*)*2 + 21, x_21);
+lean_ctor_set_uint8(x_23, sizeof(void*)*2 + 22, x_21);
 x_24 = l_Lean_Meta_Simp_mkContext(x_23, x_6, x_16, x_10, x_11, x_12, x_13, x_17);
 x_25 = !lean_is_exclusive(x_24);
 if (x_25 == 0)

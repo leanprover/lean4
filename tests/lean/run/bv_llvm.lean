@@ -22,33 +22,3 @@ theorem short_circuit_mul_left (x x_1 : BitVec 32) (h : ¬x_1 &&& 4096#32 == 0#3
 theorem short_circuit_triple_mul (x x_1 x_2 : BitVec 32) (h : ¬x_2 &&& 4096#32 == 0#32) :
     (x_1 ||| 4096#32) * x * (x_1 ||| 4096#32) = (x_1 ||| x_2 &&& 4096#32) * x * (x_1 ||| 4096#32) := by
   bv_decide +acNf +shortCircuit
-
-#check BitVec.zero_srem
-
-def msb_srem (x y : BitVec w) :=
-    (x.msb && decide (x.srem y ≠ 0)) -- if ¬ y.msb || (x.dvd y) then ¬ x.smod y, else true
-
--- def msb_smod (x y : BitVec w) :=
---   (x.msb && y = 0) || (y.msb && ¬ (x.smod y) = 0)
-#check BitVec.toFin_neg
-def test : IO Unit :=
-  have w := 4
-  for xx in [0 : 2^w] do
-    for yy in [0 : 2^w] do
-      have x := BitVec.ofNat w xx
-      have y := BitVec.ofNat w yy
-
-      IO.print f!"{x.toInt} srem {y.toInt} = {(x.srem y).toInt} "
-
-      if msb_srem x y ≠ (x.srem y).msb then
-        IO.println "FAIL"
-
-      if (msb_srem x y) then
-        IO.println "\t- "
-      else
-        IO.println "\t  "
-    IO.println ""
-
-#check BitVec.srem
-
-#eval test

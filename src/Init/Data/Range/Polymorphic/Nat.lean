@@ -145,4 +145,86 @@ instance : LawfulRangeSize .open Nat where
       Option.some.injEq] at hu h ⊢
     omega
 
+instance : ClosedOpenIntersection ⟨.open, .open⟩ Nat where
+  intersection r s := PRange.mk (max (r.lower + 1) s.lower) (min r.upper s.upper)
+
+example (h : b + 1 ≤ a) : b < a := by omega
+
+instance : LawfulClosedOpenIntersection ⟨.open, .open⟩ Nat where
+  mem_intersection_iff {a r s} := by
+    simp only [ClosedOpenIntersection.intersection, Membership.mem, SupportsLowerBound.IsSatisfied,
+      SupportsUpperBound.IsSatisfied, Nat.max_le, Nat.lt_min, Bound]
+    omega
+
+instance : ClosedOpenIntersection ⟨.open, .closed⟩ Nat where
+  intersection r s := PRange.mk (max (r.lower + 1) s.lower) (min (r.upper + 1) s.upper)
+
+instance : LawfulClosedOpenIntersection ⟨.open, .closed⟩ Nat where
+  mem_intersection_iff {a r s} := by
+    simp only [ClosedOpenIntersection.intersection, Membership.mem, SupportsLowerBound.IsSatisfied,
+      SupportsUpperBound.IsSatisfied, Nat.max_le, Nat.lt_min, Bound]
+    omega
+
+instance : ClosedOpenIntersection ⟨.open, .unbounded⟩ Nat where
+  intersection r s := PRange.mk (max (r.lower + 1) s.lower) s.upper
+
+instance : LawfulClosedOpenIntersection ⟨.open, .unbounded⟩ Nat where
+  mem_intersection_iff {a r s} := by
+    simp only [Membership.mem, SupportsLowerBound.IsSatisfied, Bound,
+      ClosedOpenIntersection.intersection, Nat.max_le, SupportsUpperBound.IsSatisfied, and_true]
+    omega
+
+instance : ClosedOpenIntersection ⟨.closed, .open⟩ Nat where
+  intersection r s := PRange.mk (max r.lower s.lower) (min r.upper s.upper)
+
+instance : LawfulClosedOpenIntersection ⟨.closed, .open⟩ Nat where
+  mem_intersection_iff {a r s} := by
+    simp only [ClosedOpenIntersection.intersection, Membership.mem, SupportsLowerBound.IsSatisfied,
+      SupportsUpperBound.IsSatisfied, Nat.max_le, Nat.lt_min, Bound]
+    omega
+
+instance : ClosedOpenIntersection ⟨.closed, .closed⟩ Nat where
+  intersection r s := PRange.mk (max r.lower s.lower) (min (r.upper + 1) s.upper)
+
+instance : LawfulClosedOpenIntersection ⟨.closed, .closed⟩ Nat where
+  mem_intersection_iff {a r s} := by
+    simp only [ClosedOpenIntersection.intersection, Membership.mem, SupportsLowerBound.IsSatisfied,
+      SupportsUpperBound.IsSatisfied, Nat.max_le, Nat.lt_min, Bound]
+    omega
+
+instance : ClosedOpenIntersection ⟨.closed, .unbounded⟩ Nat where
+  intersection r s := PRange.mk (max r.lower s.lower) s.upper
+
+instance : LawfulClosedOpenIntersection ⟨.closed, .unbounded⟩ Nat where
+  mem_intersection_iff {a r s} := by
+    simp only [Membership.mem, SupportsLowerBound.IsSatisfied, Bound,
+      ClosedOpenIntersection.intersection, Nat.max_le, SupportsUpperBound.IsSatisfied, and_true]
+    omega
+
+instance : ClosedOpenIntersection ⟨.unbounded, .open⟩ Nat where
+  intersection r s := PRange.mk s.lower (min r.upper s.upper)
+
+instance : LawfulClosedOpenIntersection ⟨.unbounded, .open⟩ Nat where
+  mem_intersection_iff {a r s} := by
+    simp only [Membership.mem, SupportsLowerBound.IsSatisfied, Bound,
+      ClosedOpenIntersection.intersection, SupportsUpperBound.IsSatisfied, true_and]
+    omega
+
+instance : ClosedOpenIntersection ⟨.unbounded, .closed⟩ Nat where
+  intersection r s := PRange.mk s.lower (min (r.upper + 1) s.upper)
+
+instance : LawfulClosedOpenIntersection ⟨.unbounded, .closed⟩ Nat where
+  mem_intersection_iff {a r s} := by
+    simp only [Membership.mem, SupportsLowerBound.IsSatisfied, Bound,
+      ClosedOpenIntersection.intersection, SupportsUpperBound.IsSatisfied, true_and]
+    omega
+
+instance : ClosedOpenIntersection ⟨.unbounded, .unbounded⟩ Nat where
+  intersection _ s := s
+
+instance : LawfulClosedOpenIntersection ⟨.unbounded, .unbounded⟩ Nat where
+  mem_intersection_iff {a r s} := by
+    simp [Membership.mem, SupportsLowerBound.IsSatisfied, Bound,
+      ClosedOpenIntersection.intersection, Nat.max_le, SupportsUpperBound.IsSatisfied, and_true]
+
 end Std.PRange

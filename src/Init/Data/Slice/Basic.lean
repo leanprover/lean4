@@ -41,3 +41,24 @@ instance {shape : RangeShape} {α : Type u} {β : Type v} {γ : Type w}
     letI i : SliceIter shape α := .of State iter
     Finite (α := i.State slice) Id :=
   inferInstanceAs <| Finite (α := State slice) Id
+
+instance {shape : RangeShape} {α : Type u} {β : Type v} {γ : Type w} {m} [Monad m]
+    [Sliceable shape α β γ] {slice : Slice shape α} {State : Slice shape α → Type w} {iter}
+    [Iterator (α := State slice) Id γ] [IteratorCollect (α := State slice) Id m] :
+    letI i : SliceIter shape α := .of State iter
+    IteratorCollect (α := i.State slice) Id m :=
+  inferInstanceAs <| IteratorCollect (α := State slice) Id m
+
+instance {shape : RangeShape} {α : Type u} {β : Type v} {γ : Type w} {m} [Monad m]
+    [Sliceable shape α β γ] {slice : Slice shape α} {State : Slice shape α → Type w} {iter}
+    [Iterator (α := State slice) Id γ] [IteratorCollectPartial (α := State slice) Id m] :
+    letI i : SliceIter shape α := .of State iter
+    IteratorCollectPartial (α := i.State slice) Id m :=
+  inferInstanceAs <| IteratorCollectPartial (α := State slice) Id m
+
+@[always_inline, inline]
+def iter {shape} {α : Type u} {β : Type v} {γ : Type w} [Sliceable shape α β γ]
+    [i : SliceIter shape α] (s : Slice shape α) :=
+  i.iter s
+
+end Std.Slice

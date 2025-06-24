@@ -13,8 +13,13 @@ open Std.Slice Std.PRange
 
 instance {shape} {α : Type u} : Sliceable shape (Array α) Nat α where
 
-instance : SliceIter ⟨.closed, .open⟩ (Array α) :=
+instance [ClosedOpenIntersection shape Nat] [SupportsLowerBound shape.lower Nat]
+    [SupportsUpperBound shape.upper Nat] [LawfulClosedOpenIntersection shape Nat] :
+    SliceIter shape (Array α) :=
   .of _ fun s =>
-    Internal.iter s.range
-      |>.attachWith (· < s.carrier.size) sorry
+    Internal.iter (ClosedOpenIntersection.intersection s.range (Std.PRange.mk 0 s.carrier.size))
+      |>.attachWith (· < s.carrier.size) (by
+        simp only [Internal.isPlausibleIndirectOutput_iter_iff,
+          LawfulClosedOpenIntersection.mem_intersection_iff]
+        simp [Membership.mem, SupportsUpperBound.IsSatisfied])
       |>.map fun i => s.carrier[i.1]

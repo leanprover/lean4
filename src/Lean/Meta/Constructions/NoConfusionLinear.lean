@@ -76,7 +76,7 @@ private partial def getKindLevel (indTyKind : Expr) : MetaM Level := do
 
 
 private def mkULift (r : Level) (t : Expr) : MetaM Expr := do
-  let s ← getDecLevel t
+  let s ← getLevel t
   return mkApp (mkConst ``ULift [r,s]) t
 
 private def withMkULiftUp (t : Expr) (k : Expr → MetaM Expr) : MetaM Expr := do

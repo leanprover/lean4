@@ -12,25 +12,28 @@ inductive S where
 
 /--
 info: @[reducible] protected def S.noConfusionType.withCtorType.{u_1, u, v} : Type u_1 →
-  Nat → Type (max (max u (v + 1)) u_1) :=
+  Nat → Type (max u_1 (max u (v + 1)) u_1) :=
 fun P ctorIdx =>
   bif Nat.blt ctorIdx 1 then
-    ULift.{max (max u (v + 1)) u_1, max (max u u_1) (v + 1)} ({α : Sort u} → {β : Type v} → (α → β) → P)
-  else ULift.{max (max u (v + 1)) u_1, u_1} P
+    ULift.{max (max u (v + 1)) u_1, max (max (u + 1) (u_1 + 1)) (v + 2)} ({α : Sort u} → {β : Type v} → (α → β) → P)
+  else ULift.{max (max u (v + 1)) u_1, u_1 + 1} P
 -/
 #guard_msgs in
 #print S.noConfusionType.withCtorType
 
--- Doesn't work yet:
+-- Didn't work
 
-/--
-error: invalid universe level, max (max (max (u+1) (u_1+1)) (v+1)) (imax u v) is not greater than 0
--/
-#guard_msgs in
 inductive T where
 | a {α : Sort u} {β : Sort v} (f : α → β)
 | b
 
-/-- error: unknown constant 'T.noConfusionType.withCtorType' -/
+/--
+info: @[reducible] protected def T.noConfusionType.withCtorType.{u_1, u, v} : Type u_1 → Nat → Type (max u_1 (max u v) u_1) :=
+fun P ctorIdx =>
+  bif Nat.blt ctorIdx 1 then
+    ULift.{max (max u v) u_1, max (max (max (u + 1) (u_1 + 1)) (v + 1)) (imax u v)}
+      ({α : Sort u} → {β : Sort v} → (α → β) → P)
+  else ULift.{max (max u v) u_1, u_1 + 1} P
+-/
 #guard_msgs in
 #print T.noConfusionType.withCtorType

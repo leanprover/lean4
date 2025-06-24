@@ -142,7 +142,6 @@ theorem Iter.step_filterMapM {β' : Type w} {f : β → n (Option β')}
   generalize it.toIterM.step = step
   match step with
   | .yield it' out h =>
-    simp only [monadLift, MonadLift.monadLift, monadLift_self, bind_map_left]
     apply bind_congr
     intro step
     rcases step with _ | _ <;> rfl

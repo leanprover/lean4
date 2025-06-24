@@ -11,6 +11,7 @@ import all Init.Control.Except
 import all Init.Control.ExceptCps
 import all Init.Control.StateRef
 import all Init.Control.StateCps
+import all Init.Control.Id
 import Init.Control.Lawful.MonadLift.Lemmas
 import Init.Control.Lawful.Instances
 
@@ -135,3 +136,11 @@ instance {ε : Type u} [Monad m] [LawfulMonad m] : LawfulMonadLift m (ExceptCpsT
     simp only [bind_assoc]
 
 end ExceptCpsT
+
+namespace Id
+
+instance [Monad m] [LawfulMonad m] : LawfulMonadLiftT Id m where
+  monadLift_pure a := by simp [monadLift]
+  monadLift_bind a f := by simp [monadLift]
+
+end Id

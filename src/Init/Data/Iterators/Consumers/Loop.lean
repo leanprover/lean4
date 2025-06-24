@@ -47,7 +47,6 @@ instance (α : Type w) (β : Type w) (n : Type w → Type w') [Monad n]
     [Iterator α Id β] [IteratorLoopPartial α Id n] :
     ForIn n (Iter.Partial (α := α) β) β where
   forIn it init f :=
-    letI : MonadLift Id n := ⟨pure⟩
     ForIn.forIn it.it.toIterM.allowNontermination init f
 
 instance {m : Type w → Type w'}

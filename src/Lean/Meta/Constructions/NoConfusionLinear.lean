@@ -79,11 +79,6 @@ private def mkULift (r : Level) (t : Expr) : MetaM Expr := do
   let s ← getDecLevel t
   return mkApp (mkConst ``ULift [r,s]) t
 
--- private def mkULiftUp (r : Level) (e : Expr) : MetaM Expr := do
---   let t ← inferType e
---   let s ← getDecLevel t
---   return mkApp2 (mkConst ``ULift.up [r,s]) t e
-
 private def withMkULiftUp (t : Expr) (k : Expr → MetaM Expr) : MetaM Expr := do
   match_expr (← whnf t) with
   | c@ULift t' =>
@@ -139,10 +134,6 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
   let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
   let indTyCon := mkConst indName us
   let indTyKind ← inferType indTyCon
-<<<<<<< HEAD
-=======
-  let indLevel ← getKindLevel indTyKind
->>>>>>> @{-1}
   let e ← forallBoundedTelescope indTyKind info.numParams fun xs t => do
     withLocalDeclD `P (mkSort v.succ) fun P => do
     withLocalDeclD `ctorIdx (mkConst ``Nat) fun ctorIdx => do

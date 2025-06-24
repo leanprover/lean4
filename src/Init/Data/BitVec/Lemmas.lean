@@ -1001,7 +1001,7 @@ let x' = x.extractLsb' 7 5  =   _ _ 9 8 7
       (decide (i < len) &&
       (decide (start + len - i ≤ w) &&
       x.getMsbD (w - (start + len - i)))) := by
-  grind (splits := 11)
+  grind (splits := 13)
 
 @[simp, grind =] theorem msb_extractLsb' {start len : Nat} {x : BitVec w} :
     (extractLsb' start len x).msb =
@@ -2330,7 +2330,7 @@ theorem extractLsb'_append_eq_ite {v w} {xhi : BitVec v} {xlo : BitVec w} {start
             extractLsb' start (w - start) xlo)).cast (by omega)
     else
       extractLsb' (start - w) len xhi := by
-  grind (splits := 20)
+  grind (splits := 21)
 
 /-- Extracting bits `[start..start+len)` from `(xhi ++ xlo)` equals extracting
 the bits from `xlo` when `start + len` is within `xlo`.

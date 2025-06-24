@@ -1,2 +1,15 @@
-invalidNamedArgs.lean:3:9-3:17: error: invalid argument name 'b' for function 'List.foldl'
-invalidNamedArgs.lean:9:4-9:18: error: invalid argument name 'flg' for function 'f'
+invalidNamedArgs.lean:3:9-3:17: error: Invalid argument name `b` for function `List.foldl`
+
+Note: This function has the following named arguments: `α`, `β`, `f`, and `init`
+invalidNamedArgs.lean:9:4-9:18: error: Invalid argument name `flg` for function `f`
+
+Note: This function has the following named arguments: `a` and `flag`
+invalidNamedArgs.lean:20:22-20:30: error: Invalid argument name `k` for function `h`
+
+Note: This function has the following named arguments: `n` and `x`
+invalidNamedArgs.lean:21:23-21:31: error: Invalid argument name `k` for function `h`
+
+Note: This function has the following named arguments: `n` and `y`
+invalidNamedArgs.lean:22:13-22:21: error: Invalid argument name `k` for function `h`
+
+Note: This function has the following named arguments: `n`

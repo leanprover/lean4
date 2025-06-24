@@ -574,6 +574,13 @@ example : (let x := 1; x) = 1 := by
 syntax (name := liftLets) "lift_lets " optConfig (location)? : tactic
 
 /--
+Transforms `let` expressions into `have` expressions when possible.
+- `let_to_have` transforms `let`s in the target.
+- `let_to_have at h` transforms `let`s in the given local hypothesis.
+-/
+syntax (name := letToHave) "let_to_have" (location)? : tactic
+
+/--
 If `thm` is a theorem `a = b`, then as a rewrite rule,
 * `thm` means to replace `a` with `b`, and
 * `← thm` means to replace `b` with `a`.

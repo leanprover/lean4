@@ -340,6 +340,12 @@ This is the conv mode version of the `lift_lets` tactic.
 syntax (name := liftLets) "lift_lets " optConfig : conv
 
 /--
+Transforms `let` expressions into `have` expressions within th etarget expression when possible.
+This is the conv mode version of the `let_to_have` tactic.
+-/
+syntax (name := letToHave) "let_to_have" : conv
+
+/--
 `conv => ...` allows the user to perform targeted rewriting on a goal or hypothesis,
 by focusing on particular subexpressions.
 

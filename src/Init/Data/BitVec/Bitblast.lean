@@ -1852,29 +1852,6 @@ theorem toInt_srem (x y : BitVec w) : (x.srem y).toInt = x.toInt.tmod y.toInt :=
         ((not_congr neg_eq_zero_iff).mpr hyz)]
       exact neg_le_intMin_of_msb_eq_true h'
 
-theorem msb_srem (x y : BitVec w) : (x.srem y).msb =
-    (x.msb && decide (x.srem y ≠ 0)) := by
-  rw [msb_eq_toInt]
-  by_cases hx : x.msb
-  · by_cases hsrem : x.srem y = 0#w
-    · simp [hsrem]
-    · simp [hsrem, hx]
-      simp [Int.tmod_eq_emod]
-      simp [show ¬ 0 ≤ x.toInt by sorry]
-      simp [show ¬ y.toInt ∣ x.toInt by sorry]
-      have hlt := Int.emod_lt (a := x.toInt) (b := y.toInt)
-      by_cases hy0 : y = 0#w
-      · simp [hy0]
-        exact toInt_neg_of_msb_true hx
-      · simp [← toInt_inj] at hy0
-        simp [hy0] at hlt
-        have := Int.le_natAbs (a := y.toInt)
-        omega
-  · simp only [toInt_srem, hx, ofNat_eq_ofNat, ne_eq, decide_not, Bool.false_and,
-    decide_eq_false_iff_not, Int.not_lt]
-    apply Int.tmod_nonneg y.toInt (by exact toInt_nonneg_of_msb_false (by simp at hx; exact hx))
-
-
 @[simp]
 theorem msb_intMin_umod_neg_of_msb_true {y : BitVec w} (hy : y.msb = true) :
     (intMin w % -y).msb = false := by
@@ -1952,6 +1929,36 @@ theorem toInt_sub_neg_umod {x y : BitVec w} (hxmsb : x.msb = true) (hymsb : y.ms
       simp only [toInt_eq_toNat_of_msb hymsb, BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb,
         Int.dvd_neg] at hdvd
       simp only [hdvd, ↓reduceIte, Int.natAbs_cast]
+
+theorem BitVec.srem_zero_of_dvd (x y : BitVec w) (h : y.toInt ∣ x.toInt) :
+    x.srem y = 0#w := by
+  have := toInt_dvd_toInt_iff (x := x) (y := y)
+  by_cases hx : x.msb <;> by_cases hy : y.msb
+  <;> simp only [h, hx, reduceIte, hy, false_eq_true, true_iff] at this
+  <;> simp [srem, hx, hy, this]
+
+theorem msb_srem (x y : BitVec w) : (x.srem y).msb =
+    (x.msb && decide (x.srem y ≠ 0)) := by
+  rw [msb_eq_toInt]
+  by_cases hx : x.msb
+  · by_cases hsrem : x.srem y = 0#w
+    · simp [hsrem]
+    · have := toInt_neg_of_msb_true hx
+      by_cases hdvd : y.toInt ∣ x.toInt
+      · simp [BitVec.srem_zero_of_dvd x y hdvd] at hsrem
+      · simp [hdvd, hsrem, hx, Int.tmod_eq_emod, show ¬ 0 ≤ x.toInt by omega]
+        have hlt := Int.emod_lt (a := x.toInt) (b := y.toInt)
+        by_cases hy0 : y = 0#w
+        · simp [hy0]
+          exact toInt_neg_of_msb_true hx
+        · simp [← toInt_inj] at hy0
+          simp [hy0] at hlt
+          have := Int.le_natAbs (a := y.toInt)
+          omega
+  · simp only [toInt_srem, hx, ofNat_eq_ofNat, ne_eq, decide_not, Bool.false_and,
+      decide_eq_false_iff_not, Int.not_lt]
+    apply Int.tmod_nonneg y.toInt (by exact toInt_nonneg_of_msb_false (by simp at hx; exact hx))
+
 
 theorem toInt_smod {x y : BitVec w} :
     (x.smod y).toInt = x.toInt.fmod y.toInt := by

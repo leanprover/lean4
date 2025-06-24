@@ -68,12 +68,34 @@ def mkWithCtorName (indName : Name) : Name :=
 def mkNoConfusionTypeName (indName : Name) : Name :=
   Name.str indName "noConfusionType"
 
-private def getKindLevel (indTyKind : Expr) : Level :=
+private def getKindLevel (indTyKind : Expr) : MetaM Level :=
   match indTyKind with
-  | .sort l => l
+  | .sort l => decLevel l
   | .forallE _ _ b _ => getKindLevel b
-  | _ => panic! "getLindLevel: unexpected kind"
+  | _ => throwError "getLindLevel: unexpected kind: {indTyKind}"
 
+
+private def mkULift (r : Level) (t : Expr) : MetaM Expr := do
+  let s ← getDecLevel t
+  return mkApp (mkConst ``ULift [r,s]) t
+
+-- private def mkULiftUp (r : Level) (e : Expr) : MetaM Expr := do
+--   let t ← inferType e
+--   let s ← getDecLevel t
+--   return mkApp2 (mkConst ``ULift.up [r,s]) t e
+
+private def withMkULiftUp (t : Expr) (k : Expr → MetaM Expr) : MetaM Expr := do
+  match_expr (← whnf t) with
+  | c@ULift t' =>
+    let e ← k t'
+    return mkApp2 (mkConst ``ULift.up c.constLevels!) t' e
+  | _ => throwError "withMkULiftUp: expected ULift type, got {t}"
+
+private def mkULiftDown (e : Expr) : MetaM Expr := do
+  let t ← whnf (← inferType e)
+  match_expr t with
+  | c@ULift t' => return mkApp2 (mkConst ``ULift.down c.constLevels!) t' e
+  | _ => throwError "mkULiftDown: expected ULift type, got {t}"
 
 def mkWithCtorType (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
@@ -82,17 +104,18 @@ def mkWithCtorType (indName : Name) : MetaM Unit := do
   let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
   let indTyCon := mkConst indName us
   let indTyKind ← inferType indTyCon
-  let indLevel := getKindLevel indTyKind
+  let indLevel ← getKindLevel indTyKind
+  let resLevel := mkLevelMax indLevel v
   let e ← forallBoundedTelescope indTyKind info.numParams fun xs _ => do
     withLocalDeclD `P (mkSort v.succ) fun P => do
     withLocalDeclD `ctorIdx (mkConst ``Nat) fun ctorIdx => do
-      let default ← mkArrow (mkConst ``PUnit [indLevel]) P
+      let default ← mkULift resLevel P
       let es ← info.ctors.toArray.mapM fun ctorName => do
         let ctor := mkAppN (mkConst ctorName us) xs
         let ctorType ← inferType ctor
         let argType ← forallTelescope ctorType fun ys _ =>
           mkForallFVars ys P
-        mkArrow (mkConst ``PUnit [indLevel]) argType
+        mkULift resLevel argType
       let e ← mkNatLookupTable ctorIdx es default
       mkLambdaFVars ((xs.push P).push ctorIdx) e
 
@@ -116,7 +139,6 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
   let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
   let indTyCon := mkConst indName us
   let indTyKind ← inferType indTyCon
-  let indLevel := getKindLevel indTyKind
   let e ← forallBoundedTelescope indTyKind info.numParams fun xs t => do
     withLocalDeclD `P (mkSort v.succ) fun P => do
     withLocalDeclD `ctorIdx (mkConst ``Nat) fun ctorIdx => do
@@ -141,7 +163,7 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
               let heq := mkApp3 (mkConst ``Eq [1]) (mkConst ``Nat) ctorIdx (mkRawNatLit i)
               let «then» ← withLocalDeclD `h heq fun h => do
                 let e ← mkEqNDRec (motive := withCtorTypeNameApp) k h
-                let e := mkApp e (mkConst ``PUnit.unit [indLevel])
+                let e ← mkULiftDown e
                 let e := mkAppN e zs
                 -- ``Eq.ndrec
                 mkLambdaFVars #[h] e
@@ -198,15 +220,16 @@ def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
                 let alt := mkAppN alt xs
                 let alt := mkApp alt PType
                 let alt := mkApp alt (mkRawNatLit i)
-                let k ← forallTelescopeReducing (← inferType alt).bindingDomain! fun zs2 _ => do
-                  let eqs ← (Array.zip zs1 zs2[1:]).filterMapM fun (z1,z2) => do
-                    if (← isProof z1) then
-                      return none
-                    else
-                      return some (← mkEqHEq z1 z2)
-                  let k ← mkArrowN eqs P
-                  let k ← mkArrow k P
-                  mkLambdaFVars zs2 k
+                let k ← withMkULiftUp (← inferType alt).bindingDomain! fun t =>
+                  forallTelescopeReducing t fun zs2 _ => do
+                    let eqs ← (Array.zip zs1 zs2).filterMapM fun (z1,z2) => do
+                      if (← isProof z1) then
+                        return none
+                      else
+                        return some (← mkEqHEq z1 z2)
+                    let k ← mkArrowN eqs P
+                    let k ← mkArrow k P
+                    mkLambdaFVars zs2 k
                 let alt := mkApp alt k
                 let alt := mkApp alt P
                 let alt := mkAppN alt ys

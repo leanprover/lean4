@@ -1973,8 +1973,6 @@ theorem getElem_smod {x y : BitVec w} (h : i < w) :
   by_cases hx : x.msb <;> by_cases hy : y.msb
   <;> simp [hx, hy]
 
--- - x / y = x / (- y)
-
 theorem getLsbD_smod {x y : BitVec w} :
     (x.smod y).getLsbD i =
       match x.msb, y.msb with

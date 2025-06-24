@@ -4261,10 +4261,10 @@ theorem toNat_sdiv {x y : BitVec w} : (x.sdiv y).toNat =
 
 theorem toFin_sdiv {x y : BitVec w} : (x.sdiv y).toFin =
     match x.msb, y.msb with
-    | false, false => (udiv x y).toFin
-    | false, true  =>  (- (x.udiv (- y))).toFin
-    | true,  false => (- ((- x).udiv y)).toFin
-    | true,  true  => ((- x).udiv (- y)).toFin := by
+    | false, false => x.toFin / y.toFin
+    | false, true => (-(x / -y)).toFin
+    | true, false => (-(-x / y)).toFin
+    | true, true => (-x).toFin / (-y).toFin := by
   simp only [sdiv_eq]
   by_cases h : x.msb <;> by_cases h' : y.msb <;> simp [h, h']
 
@@ -4446,35 +4446,21 @@ theorem srem_eq (x y : BitVec w) : srem x y =
 
 theorem toNat_srem {x y : BitVec w} : (x.srem y).toNat =
     match x.msb, y.msb with
-    | false, false => (x.umod y).toNat
-    | false, true => (x.umod (-y)).toNat
-    | true, false => ((-x).umod y).toNat
-    | true, true => (- ((- x).umod (- y))).toNat := by
-  simp only [srem_eq, umod_eq, toNat_umod, toNat_neg]
-  by_cases hx : x.msb <;> by_cases hy : y.msb
-  · simp [hx, hy]
-  · by_cases hzero : -x % y = 0
-    · simp [hzero, hx, hy]
-      sorry
-    ·
-      sorry
-  · simp [hx, hy]
-  · simp [hx, hy]
+    | false, false => x.toNat % y.toNat
+    | false, true => x.toNat % (-y).toNat
+    | true, false => (-(-x % y)).toNat
+    | true, true => (-(-x % -y)).toNat := by
+  simp only [srem_eq]
+  by_cases hx : x.msb <;> by_cases hy : y.msb <;> simp [hx, hy]
 
-theorem toFin_srem {x y : BitVec w} : (x.srem y).toNat =
+theorem toFin_srem {x y : BitVec w} : (x.srem y).toFin =
     match x.msb, y.msb with
-    | false, false => (x.umod y).toFin
-    | false, true => (x.umod (-y)).toFin
-    | true, false => ((-x).umod y).toFin
-    | true, true => (- ((- x).umod (- y))).toFin := by
-  simp only [srem_eq, umod_eq, toFin_umod, Fin.mod_val, val_toFin, toFin_neg, Fin.val_ofNat,
-    toNat_umod, toNat_neg]
-  by_cases hx : x.msb <;> by_cases hy : y.msb
-  · simp [hx, hy]
-  · simp [hx, hy]
-    sorry
-  · sorry
-  · simp [hx, hy]
+    | false, false => x.toFin % y.toFin
+    | false, true => x.toFin % (-y).toFin
+    | true, false => (-(-x % y)).toFin
+    | true, true => (-(-x % -y)).toFin := by
+  simp only [srem_eq, toFin_neg, toNat_umod, toNat_neg]
+  by_cases hx : x.msb <;> by_cases hy : y.msb <;> simp [hx, hy]
 
 /-! ### smod -/
 

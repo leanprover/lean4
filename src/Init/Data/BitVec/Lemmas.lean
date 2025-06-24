@@ -1001,7 +1001,7 @@ theorem setWidth_one_eq_ofBool_getLsb_zero (x : BitVec w) :
 theorem setWidth_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v) :
     (BitVec.ofNat v 1).setWidth w = BitVec.ofNat w 1 := by
   ext i h
-  simp only [getElem_setWidth, getLsbD_ofNat,
+  simp only [getElem_setWidth, getLsbD_ofNat, 
     ]
   have hv := (@Nat.testBit_one_eq_true_iff_self_eq_zero i)
   by_cases h : Nat.testBit 1 i = true <;> simp_all

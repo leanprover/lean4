@@ -3171,11 +3171,11 @@ block_32:
 if (x_29 == 0)
 {
 lean_object* x_30; lean_object* x_31; 
-lean_dec(x_26);
-x_30 = l_Lean_Meta_SavedState_restore___redArg(x_28, x_12, x_14, x_27);
+lean_dec(x_28);
+x_30 = l_Lean_Meta_SavedState_restore___redArg(x_26, x_12, x_14, x_27);
 lean_dec(x_14);
 lean_dec(x_12);
-lean_dec(x_28);
+lean_dec(x_26);
 x_31 = lean_ctor_get(x_30, 1);
 lean_inc(x_31);
 lean_dec(x_30);
@@ -3185,12 +3185,12 @@ goto block_21;
 }
 else
 {
-lean_dec(x_28);
 lean_dec(x_27);
+lean_dec(x_26);
 lean_dec(x_14);
 lean_dec(x_12);
 lean_dec(x_3);
-x_22 = x_26;
+x_22 = x_28;
 goto block_25;
 }
 }
@@ -3290,18 +3290,18 @@ if (x_55 == 0)
 uint8_t x_56; 
 x_56 = l_Lean_Exception_isRuntime(x_53);
 lean_dec(x_53);
-x_26 = x_52;
+x_26 = x_50;
 x_27 = x_54;
-x_28 = x_50;
+x_28 = x_52;
 x_29 = x_56;
 goto block_32;
 }
 else
 {
 lean_dec(x_53);
-x_26 = x_52;
+x_26 = x_50;
 x_27 = x_54;
-x_28 = x_50;
+x_28 = x_52;
 x_29 = x_55;
 goto block_32;
 }

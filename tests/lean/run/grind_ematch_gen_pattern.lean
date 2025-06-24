@@ -84,9 +84,9 @@ example (h : b = some a) : (b.pbind fun a h => some <| a + f b (by grind)) = som
   fail_if_success grind only [Option.pbind_some, f]
   sorry
 
-/-- trace: [grind.ematch.instance] pbind_some': (b.pbind fun a h => some (2 * a)) = some (2 * a) -/
+/-- trace: [grind.ematch.instance] pbind_some': (b.pbind fun a _h => some (2 * a)) = some (2 * a) -/
 #guard_msgs (trace) in
-example (a : Nat) (h : b = some a) : (b.pbind fun a h => some <| 2*a) = some (a + a) := by
+example (a : Nat) (h : b = some a) : (b.pbind fun a _h => some <| 2*a) = some (a + a) := by
   set_option trace.grind.ematch.instance true in
   grind only [= gen pbind_some']
 

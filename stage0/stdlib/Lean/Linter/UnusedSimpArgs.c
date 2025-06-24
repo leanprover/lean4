@@ -15,6 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at___Lean_Linter_unusedSimpArgs_spec__15___redArg___lam__0___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_unusedSimpArgs___closed__2;
+extern lean_object* l_Lean_Elab_Tactic_instImpl____x40_Lean_Elab_Tactic_Simp___hyg_9947_;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_panic___at___Lean_Elab_InfoTree_visitM_go___at___Lean_Elab_InfoTree_visitM_x27___at___Lean_Linter_unusedSimpArgs_spec__7_spec__7_spec__7___redArg___closed__2;
 static lean_object* l___private_Lean_Linter_UnusedSimpArgs_0__Lean_Linter_warnUnused___closed__5;
@@ -130,7 +131,6 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_unusedSimpArgs___lam__2___closed__2;
 static lean_object* l_Lean_Linter_logLint___at_____private_Lean_Linter_UnusedSimpArgs_0__Lean_Linter_warnUnused_spec__1___closed__7;
 static lean_object* l___private_Lean_Linter_UnusedSimpArgs_0__Lean_Linter_warnUnused___closed__11;
-extern lean_object* l_Lean_Elab_Tactic_instImpl____x40_Lean_Elab_Tactic_Simp___hyg_9373_;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Linter_unusedSimpArgs_spec__13_spec__13(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_toArray___redArg(lean_object*);
 extern lean_object* l_Lean_Elab_Tactic_linter_unusedSimpArgs;
@@ -4479,7 +4479,7 @@ static lean_object* _init_l_Lean_Linter_unusedSimpArgs() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Elab_Tactic_instImpl____x40_Lean_Elab_Tactic_Simp___hyg_9373_;
+x_1 = l_Lean_Elab_Tactic_instImpl____x40_Lean_Elab_Tactic_Simp___hyg_9947_;
 x_2 = lean_box(0);
 x_3 = lean_alloc_closure((void*)(l_Lean_Linter_unusedSimpArgs___lam__3___boxed), 6, 2);
 lean_closure_set(x_3, 0, x_1);

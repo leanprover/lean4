@@ -6,7 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Grind.Ring.Basic
+import Init.Grind.Ordered.Ring
 import Init.Data.Int.Lemmas
 
 namespace Lean.Grind
@@ -26,6 +26,17 @@ instance : CommSemiring Nat where
   pow_zero _ := by rfl
   pow_succ _ _ := by rfl
   ofNat_succ _ := by rfl
+
+instance : Preorder Nat where
+  le_refl := by omega
+  le_trans := by omega
+  lt_iff_le_not_le := by omega
+
+instance : OrderedRing Nat where
+  add_le_left_iff := by omega
+  zero_lt_one := by omega
+  mul_lt_mul_of_pos_left h₁ h₂ := Nat.mul_lt_mul_of_pos_left h₁ h₂
+  mul_lt_mul_of_pos_right h₁ h₂ := Nat.mul_lt_mul_of_pos_right h₁ h₂
 
 instance : IsCharP Nat 0 where
   ofNat_ext_iff {x y} := by simp [OfNat.ofNat]

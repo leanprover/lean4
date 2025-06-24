@@ -16,10 +16,12 @@ import Init.Omega
 
 namespace Lean.Grind
 
-instance : Preorder Int where
+instance : LinearOrder Int where
   le_refl := Int.le_refl
   le_trans := Int.le_trans
   lt_iff_le_not_le := by omega
+  le_antisymm := Int.le_antisymm
+  le_total := Int.le_total
 
 instance : OrderedAdd Int where
   add_le_left_iff := by omega

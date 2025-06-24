@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_Meta_beqDefEqCacheKey____x40_Lean_Meta_Basic___hyg_2012____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_mkCacheKey(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Core_instMonadTraceCoreM;
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
@@ -80,7 +81,6 @@ LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Expr
 lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqLeft___closed__2;
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkTypesAndAssign___lam__0___closed__7;
-lean_object* l_Lean_Meta_beqDefEqCacheKey____x40_Lean_Meta_Basic___hyg_2011____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_typeOccursCheckImp_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentHashMap_find_x3f___at_____private_Lean_Meta_ExprDefEq_0__Lean_Meta_getCachedResult_spec__0___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_____private_Lean_Meta_ExprDefEq_0__Lean_Meta_mkLambdaFVarsWithLetDeps_collectLetDeclsFrom_visit_spec__1___redArg(lean_object*);
@@ -50660,7 +50660,7 @@ static lean_object* _init_l_Lean_PersistentHashMap_find_x3f___at_____private_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_beqDefEqCacheKey____x40_Lean_Meta_Basic___hyg_2011____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_beqDefEqCacheKey____x40_Lean_Meta_Basic___hyg_2012____boxed), 2, 0);
 return x_1;
 }
 }

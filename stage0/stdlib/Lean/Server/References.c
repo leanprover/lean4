@@ -31,6 +31,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_ImportInfo_ofImport(lean_object*);
 LEAN_EXPORT lean_object* l_Array_groupByKey___at___Lean_Server_DirectImports_convertImportInfos_spec__4___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_References_updateWorkerImports(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Server_RefInfo_toLspRefInfo_spec__1___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_flatMapTR_go___at_____private_Lean_Setup_0__Lean_toJsonImport____x40_Lean_Setup___hyg_161__spec__0(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_panic___at___Lean_Elab_InfoTree_visitM_go___at___Lean_Elab_InfoTree_visitM_x27___at___Lean_Server_findReferences_spec__0_spec__0_spec__0___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Server_References_allRefsFor_spec__0___redArg___boxed(lean_object*, lean_object*);
@@ -288,7 +289,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_References_findAt___boxed(lean_object*, l
 static lean_object* l___private_Lean_Server_References_0__Lean_Server_fromJsonIlean___closed__18____x40_Lean_Server_References___hyg_1401_;
 LEAN_EXPORT uint8_t l_Lean_Lsp_RefInfo_findReferenceLocation_x3f_contains(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_groupByKey___at___Lean_Server_DirectImports_convertImportInfos_spec__4_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_flatMapTR_go___at_____private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_62__spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_ModuleRefs_findRange_x3f(lean_object*, lean_object*, uint8_t);
 lean_object* l_StateT_instMonad___redArg___lam__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_link2___redArg(lean_object*, lean_object*);
@@ -3054,7 +3054,7 @@ x_36 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_36, 0, x_13);
 lean_ctor_set(x_36, 1, x_35);
 x_37 = l___private_Lean_Server_References_0__Lean_Server_toJsonIlean___closed__0____x40_Lean_Server_References___hyg_1585_;
-x_38 = l_List_flatMapTR_go___at_____private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_62__spec__3(x_36, x_37);
+x_38 = l_List_flatMapTR_go___at_____private_Lean_Setup_0__Lean_toJsonImport____x40_Lean_Setup___hyg_161__spec__0(x_36, x_37);
 x_39 = l_Lean_Json_mkObj(x_38);
 return x_39;
 }

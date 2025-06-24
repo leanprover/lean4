@@ -35,11 +35,11 @@ structure DecreasingBy where
 
 inductive PartialFixpointType where
   | partialFixpoint
-  | greatestFixpoint
-  | leastFixpoint
+  | coinductiveFixpoint
+  | inductiveFixpoint
   deriving Inhabited
 
-/-- A single `partial_fixpoint`, `greatest_fixpoint` or `least_fixpoint` clause -/
+/-- A single `partial_fixpoint`, `inductive_fixpoint` or `coinductive_fixpoint` clause -/
 structure PartialFixpoint where
   ref               : Syntax
   term?             : Option Term
@@ -69,20 +69,20 @@ structure TerminationHints where
   extraParams : Nat
   deriving Inhabited
 
-def isLeast : PartialFixpointType → Bool
-  | .leastFixpoint => true
+def isInductiveFixpoint : PartialFixpointType → Bool
+  | .inductiveFixpoint => true
   | _ => false
 
-def isGreatest : PartialFixpointType → Bool
-  | .greatestFixpoint => true
+def isCoinductiveFixpoint : PartialFixpointType → Bool
+  | .coinductiveFixpoint => true
   | _ => false
 
-def isPartial : PartialFixpointType → Bool
+def isPartialFixpoint : PartialFixpointType → Bool
   | .partialFixpoint => true
   | _ => false
 
-def isLatticeTheoretic (p : PartialFixpointType ) : Bool :=
-  isLeast p ∨ isGreatest p
+def isLatticeTheoretic (p : PartialFixpointType) : Bool :=
+  isInductiveFixpoint p ∨ isCoinductiveFixpoint p
 
 def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none, .none, .none, 0⟩
 
@@ -99,8 +99,8 @@ def TerminationHints.ensureNone (hints : TerminationHints) (reason : String) : C
   | .none, .none, .none, .some partialFixpoint =>
     match partialFixpoint.fixpointType with
     | .partialFixpoint => logWarningAt partialFixpoint.ref m!"unused `partial_fixpoint`, function is {reason}"
-    | .greatestFixpoint => logWarningAt partialFixpoint.ref m!"unused `greatest_fixpoint`, function is {reason}"
-    | .leastFixpoint  => logWarningAt partialFixpoint.ref m!"unused `least_fixpoint`, function is {reason}"
+    | .coinductiveFixpoint => logWarningAt partialFixpoint.ref m!"unused `coinductive_fixpoint`, function is {reason}"
+    | .inductiveFixpoint  => logWarningAt partialFixpoint.ref m!"unused `inductive_fixpoint`, function is {reason}"
   | _, _, _, _=>
     logWarningAt hints.ref m!"unused termination hints, function is {reason}"
 
@@ -160,14 +160,14 @@ def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) :
         pure (some {ref := t, structural := s.isSome, vars := #[], body})
       | `(terminationBy?|termination_by?) => pure none
       | `(partialFixpoint|partial_fixpoint $[monotonicity $_]?) => pure none
-      | `(greatestFixpoint|greatest_fixpoint $[monotonicity $_]?) => pure none
-      | `(leastFixpoint|least_fixpoint $[monotonicity $_]?) => pure none
+      | `(coinductiveFixpoint|coinductive_fixpoint $[monotonicity $_]?) => pure none
+      | `(inductiveFixpoint|inductive_fixpoint $[monotonicity $_]?) => pure none
       | _ => throwErrorAt t "unexpected `termination_by` syntax"
       else pure none
     let partialFixpoint? : Option PartialFixpoint ← if let some t := t? then match t with
       | `(partialFixpoint|partial_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?, fixpointType := .partialFixpoint})
-      | `(greatestFixpoint|greatest_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?, fixpointType := .greatestFixpoint})
-      | `(leastFixpoint|least_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?, fixpointType := .leastFixpoint})
+      | `(coinductiveFixpoint|coinductive_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?, fixpointType := .coinductiveFixpoint})
+      | `(inductiveFixpoint|inductive_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?, fixpointType := .inductiveFixpoint})
       | _ => pure none
       else pure none
     let decreasingBy? ← d?.mapM fun d => match d with

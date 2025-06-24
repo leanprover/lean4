@@ -1320,7 +1320,7 @@ theorem le_log2 (h : n ≠ 0) : k ≤ n.log2 ↔ 2 ^ k ≤ n := by
   | k+1 =>
     rw [log2]; split
     · have n0 : 0 < n / 2 := (Nat.le_div_iff_mul_le (by decide)).2 ‹_›
-      simp only [Nat.add_le_add_iff_right, le_log2 (Nat.ne_of_gt n0), 
+      simp only [Nat.add_le_add_iff_right, le_log2 (Nat.ne_of_gt n0),
         Nat.pow_succ]
       exact Nat.le_div_iff_mul_le (by decide)
     · simp only [le_zero_eq, succ_ne_zero, false_iff]
@@ -1686,7 +1686,7 @@ theorem div_lt_div_of_lt_of_dvd {a b d : Nat} (hdb : d ∣ b) (h : a < b) : a / 
 
 /-! ### shiftLeft and shiftRight -/
 
-@[simp] theorem shiftLeft_zero : n <<< 0 = n := rfl
+@[simp, grind =] theorem shiftLeft_zero : n <<< 0 = n := rfl
 
 /-- Shiftleft on successor with multiple moved inside. -/
 theorem shiftLeft_succ_inside (m n : Nat) : m <<< (n+1) = (2*m) <<< n := rfl
@@ -1705,14 +1705,15 @@ theorem shiftRight_succ_inside : ∀m n, m >>> (n+1) = (m/2) >>> n
   rw [shiftRight_succ _ (k+1)]
   rw [shiftRight_succ_inside _ k, shiftRight_succ]
 
-@[simp] theorem zero_shiftLeft : ∀ n, 0 <<< n = 0
+@[simp, grind =] theorem zero_shiftLeft : ∀ n, 0 <<< n = 0
   | 0 => by simp
   | n + 1 => by simp [zero_shiftLeft n, shiftLeft_succ]
 
-@[simp] theorem zero_shiftRight : ∀ n, 0 >>> n = 0
+@[simp, grind =] theorem zero_shiftRight : ∀ n, 0 >>> n = 0
   | 0 => by simp
   | n + 1 => by simp [zero_shiftRight n, shiftRight_succ]
 
+@[grind _=_]
 theorem shiftLeft_add (m n : Nat) : ∀ k, m <<< (n + k) = (m <<< n) <<< k
   | 0 => rfl
   | k + 1 => by simp [← Nat.add_assoc, shiftLeft_add _ _ k, shiftLeft_succ]

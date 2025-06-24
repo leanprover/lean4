@@ -368,22 +368,29 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
     }
   else if let some semiringId ← inSameSemiring? a b then SemiringM.run semiringId do
     if (← getSemiring).addRightCancelInst?.isSome then
-    if (← getConfig).ringNull then return () -- TODO: remove after we add Nullstellensatz certificates for semiring adapter
-    trace_goal[grind.ring.assert] "{mkNot (← mkEq a b)}"
-    let some sa ← toSemiringExpr? a | return ()
-    let some sb ← toSemiringExpr? b | return ()
-    let lhs ← sa.denoteAsRingExpr
-    let rhs ← sb.denoteAsRingExpr
-    RingM.run (← getSemiring).ringId do
-      let some ra ← reify? lhs (skipVar := false) (gen := (← getGeneration a)) | return ()
-      let some rb ← reify? rhs (skipVar := false) (gen := (← getGeneration b)) | return ()
-      let p ← (ra.sub rb).toPolyM
-      addNewDiseq {
-        lhs := a, rhs := b
-        rlhs := ra, rrhs := rb
-        d := .input p
-        ofSemiring? := some (sa, sb)
-      }
+      if (← getConfig).ringNull then return () -- TODO: remove after we add Nullstellensatz certificates for semiring adapter
+      trace_goal[grind.ring.assert] "{mkNot (← mkEq a b)}"
+      let some sa ← toSemiringExpr? a | return ()
+      let some sb ← toSemiringExpr? b | return ()
+      let lhs ← sa.denoteAsRingExpr
+      let rhs ← sb.denoteAsRingExpr
+      RingM.run (← getSemiring).ringId do
+        let some ra ← reify? lhs (skipVar := false) (gen := (← getGeneration a)) | return ()
+        let some rb ← reify? rhs (skipVar := false) (gen := (← getGeneration b)) | return ()
+        let p ← (ra.sub rb).toPolyM
+        addNewDiseq {
+          lhs := a, rhs := b
+          rlhs := ra, rrhs := rb
+          d := .input p
+          ofSemiring? := some (sa, sb)
+        }
+    else
+      -- If semiring does not have `AddRightCancel`,
+      -- we may still normalize and check whether lhs and rhs are equal
+      let some sa ← toSemiringExpr? a | return ()
+      let some sb ← toSemiringExpr? b | return ()
+      if sa.toPoly == sb.toPoly then
+        setSemiringDiseqUnsat a b sa sb
 
 /--
 Returns `true` if the todo queue is not empty or the `recheck` flag is set to `true`

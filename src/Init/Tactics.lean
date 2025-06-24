@@ -574,6 +574,13 @@ example : (let x := 1; x) = 1 := by
 syntax (name := liftLets) "lift_lets " optConfig (location)? : tactic
 
 /--
+Transforms `let` expressions into `have` expressions when possible.
+- `let_to_have` transforms `let`s in the target.
+- `let_to_have at h` transforms `let`s in the given local hypothesis.
+-/
+syntax (name := letToHave) "let_to_have" (location)? : tactic
+
+/--
 If `thm` is a theorem `a = b`, then as a rewrite rule,
 * `thm` means to replace `a` with `b`, and
 * `← thm` means to replace `b` with `a`.
@@ -818,7 +825,7 @@ The `have` tactic is for adding hypotheses to the local context of the main goal
   For example, given `h : p ∧ q ∧ r`, `have ⟨h₁, h₂, h₃⟩ := h` produces the
   hypotheses `h₁ : p`, `h₂ : q`, and `h₃ : r`.
 -/
-syntax "have " letDecl : tactic
+syntax "have " letConfig letDecl : tactic
 macro_rules
   -- special case: when given a nested `by` block, move it outside of the `refine` to enable
   -- incrementality
@@ -848,7 +855,7 @@ macro_rules
     Lean.withRef haveTk `(tactic| focus
       refine no_implicit_lambda% (have $id:letId $bs* : $type := ?body; ?_)
       $tac)
-  | `(tactic| have $d:letDecl) => `(tactic| refine_lift have $d:letDecl; ?_)
+  | `(tactic| have $c:letConfig $d:letDecl) => `(tactic| refine_lift have $c:letConfig $d:letDecl; ?_)
 
 /--
 Given a main goal `ctx ⊢ t`, `suffices h : t' from e` replaces the main goal with `ctx ⊢ t'`,
@@ -858,6 +865,7 @@ The variant `suffices h : t' by tac` is a shorthand for `suffices h : t' from by
 If `h :` is omitted, the name `this` is used.
  -/
 macro "suffices " d:sufficesDecl : tactic => `(tactic| refine_lift suffices $d; ?_)
+
 /--
 The `let` tactic is for adding definitions to the local context of the main goal.
 * `let x : t := e` adds the definition `x : t := e` if `e` is a term of type `t`.
@@ -869,7 +877,8 @@ The `let` tactic is for adding definitions to the local context of the main goal
   For example, given `p : α × β × γ`, `let ⟨x, y, z⟩ := p` produces the
   local variables `x : α`, `y : β`, and `z : γ`.
 -/
-macro "let " d:letDecl : tactic => `(tactic| refine_lift let $d:letDecl; ?_)
+macro "let " c:letConfig d:letDecl : tactic => `(tactic| refine_lift let $c:letConfig $d:letDecl; ?_)
+
 /-- `let rec f : t := e` adds a recursive definition `f` to the current goal.
 The syntax is the same as term-mode `let rec`. -/
 syntax (name := letrec) withPosition(atomic("let " &"rec ") letRecDecls) : tactic
@@ -879,12 +888,12 @@ macro_rules
 /-- Similar to `refine_lift`, but using `refine'` -/
 macro "refine_lift' " e:term : tactic => `(tactic| focus (refine' no_implicit_lambda% $e; rotate_right))
 /-- Similar to `have`, but using `refine'` -/
-macro "have' " d:letDecl : tactic => `(tactic| refine_lift' have $d:letDecl; ?_)
+macro (name := tacticHave') "have' " c:letConfig d:letDecl : tactic => `(tactic| refine_lift' have $c:letConfig $d:letDecl; ?_)
 set_option linter.missingDocs false in -- OK, because `tactic_alt` causes inheritance of docs
 macro (priority := high) "have'" x:ident " := " p:term : tactic => `(tactic| have' $x:ident : _ := $p)
-attribute [tactic_alt tacticHave'_] «tacticHave'_:=_»
+attribute [tactic_alt tacticHave'] «tacticHave'_:=_»
 /-- Similar to `let`, but using `refine'` -/
-macro "let' " d:letDecl : tactic => `(tactic| refine_lift' let $d:letDecl; ?_)
+macro "let' " c:letConfig d:letDecl : tactic => `(tactic| refine_lift' let $c:letConfig $d:letDecl; ?_)
 
 /--
 The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`
@@ -1271,10 +1280,10 @@ syntax (name := substEqs) "subst_eqs" : tactic
 syntax (name := runTac) "run_tac " doSeq : tactic
 
 /-- `haveI` behaves like `have`, but inlines the value instead of producing a `let_fun` term. -/
-macro "haveI" d:letDecl : tactic => `(tactic| refine_lift haveI $d:letDecl; ?_)
+macro "haveI" c:letConfig d:letDecl : tactic => `(tactic| refine_lift haveI $c:letConfig $d:letDecl; ?_)
 
 /-- `letI` behaves like `let`, but inlines the value instead of producing a `let_fun` term. -/
-macro "letI" d:letDecl : tactic => `(tactic| refine_lift letI $d:letDecl; ?_)
+macro "letI" c:letConfig d:letDecl : tactic => `(tactic| refine_lift letI $c:letConfig $d:letDecl; ?_)
 
 /--
 Configuration for the `decide` tactic family.

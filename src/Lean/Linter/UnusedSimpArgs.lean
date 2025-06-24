@@ -46,6 +46,11 @@ def unusedSimpArgs : Linter where
             -- reporting about unused simp arguments inside macro, which we do not want to do
             -- (we likely cannot see all uses of the macro, so the warning would be incomplete)
             let some range := info.range? | return
+            let stx := ci.stx
+            -- Check that we have the expected syntax
+            unless stx.isOfKind ``Parser.Tactic.simpAll ||
+                   stx.isOfKind ``Parser.Tactic.simp do return
+
             let maskAcc ←
               if let some (_, maskAcc) := (← masksMap.get)[range]? then
                 unless mask.size = maskAcc.size do
@@ -53,7 +58,7 @@ def unusedSimpArgs : Linter where
                 pure <| Array.zipWith (· || ·) mask maskAcc
               else
                 pure mask
-            masksMap.modify fun m => m.insert range (ci.stx, maskAcc)
+            masksMap.modify fun m => m.insert range (stx, maskAcc)
         | _ => pure ())
 
     -- Sort the outputs by position

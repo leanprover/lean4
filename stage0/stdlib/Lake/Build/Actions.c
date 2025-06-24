@@ -73,7 +73,6 @@ static lean_object* l___private_Lake_Build_Actions_0__Lake_getMacOSXDeploymentEn
 static lean_object* l_Lake_tar___closed__8;
 LEAN_EXPORT lean_object* l_Lake_download___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_mkCmdLog(lean_object*);
-lean_object* l___private_Lean_Setup_0__Lean_toJsonModuleSetup____x40_Lean_Setup___hyg_1598_(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_compileStaticLib_spec__0(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkArgs(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_download___closed__9;
@@ -88,6 +87,7 @@ static lean_object* l_Lake_compileSharedLib___closed__0;
 static lean_object* l_Lake_compileLeanModule___closed__15;
 static lean_object* l_Lake_download___closed__4;
 lean_object* lean_io_prim_handle_mk(lean_object*, uint8_t, lean_object*);
+lean_object* l___private_Lean_Setup_0__Lean_toJsonModuleSetup____x40_Lean_Setup___hyg_1935_(lean_object*);
 static lean_object* l_Lake_compileLeanModule___closed__16;
 static lean_object* l_Lake_untar___closed__2;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_compileStaticLib_spec__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -857,7 +857,7 @@ lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean
 x_28 = lean_ctor_get(x_27, 1);
 lean_inc(x_28);
 lean_dec(x_27);
-x_29 = l___private_Lean_Setup_0__Lean_toJsonModuleSetup____x40_Lean_Setup___hyg_1598_(x_3);
+x_29 = l___private_Lean_Setup_0__Lean_toJsonModuleSetup____x40_Lean_Setup___hyg_1935_(x_3);
 x_30 = lean_unsigned_to_nat(80u);
 x_31 = l_Lean_Json_pretty(x_29, x_30);
 x_32 = l_IO_FS_writeFile(x_4, x_31, x_28);

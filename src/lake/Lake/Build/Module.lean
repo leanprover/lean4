@@ -266,8 +266,8 @@ def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob 
     return {
       name := mod.name
       isModule := header.isModule
-      imports := header.imports
-      modules := {} -- TODO: modules
+      imports? := none
+      importArts := {} -- TODO
       dynlibs := dynlibs.map (·.path.toString)
       plugins := plugins.map (·.path.toString)
       options := mod.leanOptions

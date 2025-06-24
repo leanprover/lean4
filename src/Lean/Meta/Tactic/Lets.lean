@@ -5,6 +5,7 @@ Authors: Kyle Miller
 -/
 prelude
 import Lean.Meta.Tactic.Replace
+import Lean.Meta.LetToHave
 
 /-!
 # Tactics to manipulate `let` expressions
@@ -432,3 +433,33 @@ def Lean.MVarId.liftLetsLocalDecl (mvarId : MVarId) (fvarId : FVarId) (config : 
         throwMadeNoProgress `lift_lets mvarId
       finalize (.letE n t' v' b ndep)
     | _ => throwTacticEx `lift_lets mvarId "unexpected auxiliary target"
+
+/-!
+### Let-to-have transformation
+
+A meta tactic version of `Lean.Meta.letToHave`.
+-/
+
+/--
+Transforms lets to haves in the target. Throws an error if no progress is made.
+-/
+def Lean.MVarId.letToHave (mvarId : MVarId) (failIfUnchanged := true) : MetaM MVarId :=
+  mvarId.withContext do
+    mvarId.checkNotAssigned `let_to_have
+    let ty ← mvarId.getType
+    let ty' ← Meta.letToHave ty
+    if failIfUnchanged && ty == ty' then
+      throwMadeNoProgress `let_to_have mvarId
+    mvarId.replaceTargetDefEq ty'
+
+/--
+Transforms lets to haves in the type of `fvarId`. Throws an error if no progress is made.
+-/
+def Lean.MVarId.letToHaveLocalDecl (mvarId : MVarId) (fvarId : FVarId) (failIfUnchanged := true) : MetaM MVarId := do
+  mvarId.withContext do
+    mvarId.checkNotAssigned `let_to_have
+    let ty ← fvarId.getType
+    let ty' ← Meta.letToHave ty
+    if failIfUnchanged && ty == ty' then
+      throwMadeNoProgress `let_to_have mvarId
+    mvarId.replaceLocalDeclDefEq fvarId ty'

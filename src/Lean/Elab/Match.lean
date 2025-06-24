@@ -1041,7 +1041,7 @@ def reportMatcherResultErrors (altLHSS : List AltLHS) (result : MatcherResult) :
         withRef alt.ref do withInPattern do withExistingLocalDecls alt.fvarDecls do
           let pats ← alt.patterns.mapM fun p => return toMessageData (← Pattern.toExpr p)
           let pats := MessageData.joinSep pats ", "
-          logError (mkRedundantAlternativeMsg none pats)
+          logNamedError lean.redundantMatchAlt (mkRedundantAlternativeMsg none pats)
       i := i + 1
 
 /--

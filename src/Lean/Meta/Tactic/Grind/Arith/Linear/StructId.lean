@@ -173,11 +173,11 @@ where
     let one? ← getOne?
     let commRingInst? ← getInst? ``Grind.CommRing
     let getOrderedRingInst? : GoalM (Option Expr) := do
-      let some ringInst := ringInst? | return none
+      let some semiringInst := semiringInst? | return none
       let some preorderInst := preorderInst? | return none
-      let isOrdType := mkApp3 (mkConst ``Grind.OrderedRing [u]) type ringInst preorderInst
+      let isOrdType := mkApp3 (mkConst ``Grind.OrderedRing [u]) type semiringInst preorderInst
       let .some inst ← trySynthInstance isOrdType
-        | reportIssue! "type has a `Preorder` and is a `Ring`, but is not an ordered ring, failed to synthesize{indentExpr isOrdType}"
+        | reportIssue! "type has a `Preorder` and is a `Semiring`, but is not an ordered ring, failed to synthesize{indentExpr isOrdType}"
           return none
       return some inst
     let orderedRingInst? ← getOrderedRingInst?

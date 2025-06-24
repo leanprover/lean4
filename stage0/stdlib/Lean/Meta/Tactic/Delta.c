@@ -44,6 +44,7 @@ lean_object* l_Lean_Expr_getAppFn(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_delta_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_betaRev(lean_object*, lean_object*, uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_MVarId_deltaLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_FVarId_getType___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_deltaExpand(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_delta_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -599,8 +600,9 @@ lean_object* x_11; lean_object* x_12;
 x_11 = lean_ctor_get(x_10, 1);
 lean_inc(x_11);
 lean_dec(x_10);
-lean_inc(x_1);
-x_12 = l_Lean_MVarId_getType(x_1, x_5, x_6, x_7, x_8, x_11);
+lean_inc(x_5);
+lean_inc(x_3);
+x_12 = l_Lean_FVarId_getType___redArg(x_3, x_5, x_7, x_8, x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
@@ -611,7 +613,7 @@ lean_inc(x_14);
 lean_dec(x_12);
 lean_inc(x_8);
 lean_inc(x_7);
-x_15 = l_Lean_Meta_deltaExpand(x_13, x_3, x_7, x_8, x_14);
+x_15 = l_Lean_Meta_deltaExpand(x_13, x_4, x_7, x_8, x_14);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; 
@@ -622,7 +624,7 @@ lean_inc(x_17);
 lean_dec(x_15);
 x_18 = lean_box(0);
 x_19 = lean_unbox(x_18);
-x_20 = l_Lean_MVarId_changeLocalDecl(x_1, x_4, x_16, x_19, x_5, x_6, x_7, x_8, x_17);
+x_20 = l_Lean_MVarId_changeLocalDecl(x_1, x_3, x_16, x_19, x_5, x_6, x_7, x_8, x_17);
 return x_20;
 }
 else
@@ -632,7 +634,7 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
+lean_dec(x_3);
 lean_dec(x_1);
 x_21 = !lean_is_exclusive(x_15);
 if (x_21 == 0)
@@ -724,8 +726,8 @@ lean_inc(x_1);
 x_10 = lean_alloc_closure((void*)(l_Lean_MVarId_deltaLocalDecl___lam__0), 9, 4);
 lean_closure_set(x_10, 0, x_1);
 lean_closure_set(x_10, 1, x_9);
-lean_closure_set(x_10, 2, x_3);
-lean_closure_set(x_10, 3, x_2);
+lean_closure_set(x_10, 2, x_2);
+lean_closure_set(x_10, 3, x_3);
 x_11 = l_Lean_MVarId_withContext___at_____private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp_spec__1___redArg(x_1, x_10, x_4, x_5, x_6, x_7, x_8);
 return x_11;
 }

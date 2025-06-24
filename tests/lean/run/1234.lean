@@ -1,6 +1,8 @@
-theorem le_of_not_lt {a b : Nat} (_: ¬ a < b): b ≤ a := sorry
-theorem lt_of_succ_lt          (_: a + 1 < b): a < b := sorry
-theorem succ_pred_eq_of_pos        (_: 0 < v): v - 1 + 1 = v := sorry
+axiom testSorry : α
+
+theorem le_of_not_lt {a b : Nat} (_: ¬ a < b): b ≤ a := testSorry
+theorem lt_of_succ_lt          (_: a + 1 < b): a < b := testSorry
+theorem succ_pred_eq_of_pos        (_: 0 < v): v - 1 + 1 = v := testSorry
 
 set_option trace.Meta.Tactic.simp true
 set_option linter.unusedSimpArgs false

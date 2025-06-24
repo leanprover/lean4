@@ -6,7 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Grind.Module.Basic
+import Init.Grind.Ordered.Module
 import all Init.Data.AC
 
 namespace Lean.Grind.IntModule
@@ -62,6 +62,9 @@ def Q.liftOn₂ (q₁ q₂ : Q α)
   apply h; assumption; apply r_rfl
 
 attribute [local simp] Q.mk Q.liftOn₂ NatModule.add_zero
+
+def Q.ind {β : Q α → Prop} (mk : ∀ (a : α × α), β (Q.mk a)) (q : Q α) : β q :=
+  Quot.ind mk q
 
 @[local simp] def hmulNat (n : Nat) (q : Q α) : (Q α) :=
   q.liftOn (fun (a, b) => Q.mk (n * a, n * b))
@@ -157,8 +160,8 @@ theorem hmul_zero (a : Int) : hmulInt a (zero : Q α) = zero := by
   simp
 
 theorem hmul_add (a : Int) (b c : Q α) : hmulInt a (add b c) = add (hmulInt a b) (hmulInt a c) := by
-  induction b using Quot.ind
-  induction c using Quot.ind
+  induction b using Q.ind
+  induction c using Q.ind
   next b c =>
   cases b; cases c; simp
   split <;>
@@ -168,14 +171,53 @@ theorem hmul_add (a : Int) (b c : Q α) : hmulInt a (add b c) = add (hmulInt a b
     ac_rfl
 
 theorem add_hmul (a b : Int) (c : Q α) : hmulInt (a + b) c = add (hmulInt a c) (hmulInt b c) := by
-  induction c using Quot.ind
+  induction c using Q.ind
   next c =>
-  cases c; simp; sorry -- apply Quot.sound
-  -- sorry
-  -- simp [Semiring.right_distrib]; refine ⟨0, ?_⟩; ac_rfl
+  rcases c with ⟨c₁, c₂⟩; simp
+  by_cases hb : b < 0
+  · simp only [if_pos hb]
+    by_cases ha : a < 0
+    · simp only [if_pos ha]
+      rw [if_pos (by omega)]
+      apply Quot.sound
+      refine ⟨0, ?_⟩
+      rw [Int.natAbs_add_of_nonpos (by omega) (by omega), NatModule.add_hmul, NatModule.add_hmul]
+      ac_rfl
+    · split
+      · apply Quot.sound
+        refine ⟨a.natAbs * c₁ + a.natAbs * c₂, ?_⟩
+        have : (a + b).natAbs + a.natAbs = b.natAbs := by omega
+        simp [← this]
+        ac_rfl
+      · apply Quot.sound
+        refine ⟨b.natAbs * c₁ + b.natAbs * c₂, ?_⟩
+        have : (a + b).natAbs + b.natAbs = a.natAbs := by omega
+        simp [← this]
+        ac_rfl
+  · simp only [if_neg hb]
+    by_cases ha : a < 0
+    · split
+      · apply Quot.sound
+        refine ⟨a.natAbs * c₁ + a.natAbs * c₂, ?_⟩
+        have : (a + b).natAbs + b.natAbs = a.natAbs := by omega
+        simp [← this]
+        ac_rfl
+      · apply Quot.sound
+        refine ⟨b.natAbs * c₁ + b.natAbs * c₂, ?_⟩
+        have : (a + b).natAbs + a.natAbs = b.natAbs := by omega
+        simp [← this]
+        ac_rfl
+    · simp only [if_neg ha]
+      rw [if_neg (by omega)]
+      apply Quot.sound
+      refine ⟨0, ?_⟩
+      rw [Int.natAbs_add_of_nonneg (by omega) (by omega), NatModule.add_hmul, NatModule.add_hmul]
+      ac_rfl
 
 theorem hmul_nat (n : Nat) (a : Q α) : hmulInt (n : Int) a = hmulNat n a := by
-  sorry
+  induction a using Q.ind
+  next a =>
+  rcases a with ⟨a₁, a₂⟩; simp; omega
 
 def ofNatModule : IntModule (Q α) := {
   hmulNat := ⟨hmulNat⟩,
@@ -246,6 +288,82 @@ instance [NatModule α] [AddRightCancel α] [NoNatZeroDivisors α] : NoNatZeroDi
     simp [← NatModule.hmul_add] at h₂
     replace h₂ := NoNatZeroDivisors.no_nat_zero_divisors k (a₁ + b₂) (a₂ + b₁) h₁ h₂
     apply Quot.sound; simp [r]; exists 0; simp [h₂]
+
+instance [Preorder α] [OrderedAdd α] : LE (OfNatModule.Q α) where
+  le a b := Q.liftOn₂ a b (fun (a, b) (c, d) => a + d ≤ b + c)
+    (by intro (a₁, b₁) (a₂, b₂) (a₃, b₃) (a₄, b₄)
+        simp; intro k₁ h₁ k₂ h₂
+        rw [OrderedAdd.add_le_left_iff (b₃ + k₁)]
+        have : a₁ + b₂ + (b₃ + k₁) = a₁ + b₃ + k₁ + b₂ := by ac_rfl
+        rw [this, h₁]; clear this
+        rw [OrderedAdd.add_le_left_iff (a₄ + k₂)]
+        have : b₁ + a₃ + k₁ + b₂ + (a₄ + k₂) = b₂ + a₄ + k₂ + b₁ + a₃ + k₁ := by ac_rfl
+        rw [this, ← h₂]; clear this
+        have : a₂ + b₄ + k₂ + b₁ + a₃ + k₁ = a₃ + b₄ + (a₂ + b₁ + k₁ + k₂) := by ac_rfl
+        rw [this]; clear this
+        have : b₁ + a₂ + (b₃ + k₁) + (a₄ + k₂) = b₃ + a₄ + (a₂ + b₁ + k₁ + k₂) := by ac_rfl
+        rw [this]; clear this
+        rw [← OrderedAdd.add_le_left_iff])
+
+@[local simp] theorem mk_le_mk [Preorder α] [OrderedAdd α] {a₁ a₂ b₁ b₂ : α}  :
+    Q.mk (a₁, a₂) ≤ Q.mk (b₁, b₂) ↔ a₁ + b₂ ≤ a₂ + b₁ := by
+  rfl
+
+instance [Preorder α] [OrderedAdd α] : Preorder (OfNatModule.Q α) where
+  le_refl a := by
+    induction a using Quot.ind
+    next a =>
+    rcases a with ⟨a₁, a₂⟩
+    change Q.mk _ ≤ Q.mk _
+    simp only [mk_le_mk]
+    simp [NatModule.add_comm]; exact Preorder.le_refl (a₁ + a₂)
+  le_trans {a b c} h₁ h₂ := by
+    induction a using Q.ind
+    induction b using Q.ind
+    induction c using Q.ind
+    next a b c =>
+    rcases a with ⟨a₁, a₂⟩; rcases b with ⟨b₁, b₂⟩; rcases c with ⟨c₁, c₂⟩
+    simp only [mk_le_mk] at h₁ h₂ ⊢
+    rw [OrderedAdd.add_le_left_iff (b₁ + b₂)]
+    have : a₁ + c₂ + (b₁ + b₂) = a₁ + b₂ + (b₁ + c₂) := by ac_rfl
+    rw [this]; clear this
+    have : a₂ + c₁ + (b₁ + b₂) = a₂ + b₁ + (b₂ + c₁) := by ac_rfl
+    rw [this]; clear this
+    exact OrderedAdd.add_le_add h₁ h₂
+
+attribute [-simp] Q.mk
+
+@[local simp] private theorem mk_lt_mk [Preorder α] [OrderedAdd α] {a₁ a₂ b₁ b₂ : α}  :
+    Q.mk (a₁, a₂) < Q.mk (b₁, b₂) ↔ a₁ + b₂ < a₂ + b₁ := by
+  simp [Preorder.lt_iff_le_not_le, NatModule.add_comm]
+
+@[local simp] private theorem mk_pos [Preorder α] [OrderedAdd α] {a₁ a₂ : α} :
+    0 < Q.mk (a₁, a₂) ↔ a₂ < a₁ := by
+  change Q.mk (0,0) < _ ↔ _
+  simp [mk_lt_mk, NatModule.zero_add]
+
+@[local simp]
+theorem toQ_le [Preorder α] [OrderedAdd α] {a b : α} : toQ a ≤ toQ b ↔ a ≤ b := by
+  simp
+
+@[local simp]
+theorem toQ_lt [Preorder α] [OrderedAdd α] {a b : α} : toQ a < toQ b ↔ a < b := by
+  simp [Preorder.lt_iff_le_not_le]
+
+instance [Preorder α] [OrderedAdd α] : OrderedAdd (OfNatModule.Q α) where
+  add_le_left_iff := by
+    intro a b c
+    induction a using Quot.ind
+    induction b using Quot.ind
+    induction c using Quot.ind
+    next a b c =>
+    rcases a with ⟨a₁, a₂⟩; rcases b with ⟨b₁, b₂⟩; rcases c with ⟨c₁, c₂⟩
+    change a₁ + b₂ ≤ a₂ + b₁ ↔ (a₁ + c₁) + _ ≤ _
+    have : a₁ + c₁ + (b₂ + c₂) = a₁ + b₂ + (c₁ + c₂) := by ac_rfl
+    rw [this]; clear this
+    have : a₂ + c₂ + (b₁ + c₁) = a₂ + b₁ + (c₁ + c₂) := by ac_rfl
+    rw [this]; clear this
+    rw [← OrderedAdd.add_le_left_iff]
 
 end OfNatModule
 end Lean.Grind.IntModule

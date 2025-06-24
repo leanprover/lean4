@@ -28,7 +28,7 @@ def mkModuleSetup
 : IO ModuleSetup := do
   let {dynlibs, plugins} ← ws.runBuild (buildImportsAndDeps fileName header.imports) buildConfig
   return {
-    name := ← Lean.moduleNameOfFileName fileName none
+    name := `_unknown
     isModule := header.isModule
     imports? := none
     importArts := {} -- TODO

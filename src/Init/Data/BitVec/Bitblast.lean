@@ -1937,7 +1937,7 @@ theorem srem_zero_of_dvd (x y : BitVec w) (h : y.toInt ∣ x.toInt) :
   <;> simp only [h, hx, reduceIte, hy, false_eq_true, true_iff] at this
   <;> simp [srem, hx, hy, this]
 
-theorem msb_srem (x y : BitVec w) : (x.srem y).msb =
+theorem msb_srem {x y : BitVec w} : (x.srem y).msb =
     (x.msb && decide (x.srem y ≠ 0)) := by
   rw [msb_eq_toInt]
   by_cases hx : x.msb

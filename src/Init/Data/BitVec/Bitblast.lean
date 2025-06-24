@@ -334,7 +334,7 @@ theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
     (h : x &&& y = 0#w) : x + y = x ||| y := by
   rw [add_eq_adc, adc, iunfoldr_replace (fun _ => false) (x ||| y)]
   · rfl
-  · simp only [adcb, atLeastTwo, Bool.and_false, Bool.or_false, bne_false, 
+  · simp only [adcb, atLeastTwo, Bool.and_false, Bool.or_false, bne_false,
     Prod.mk.injEq, and_eq_false_imp]
     intros i
     replace h : (x &&& y).getLsbD i = (0#w).getLsbD i := by rw [h]
@@ -620,7 +620,7 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow (x : BitVec w) (i
         simp [hik', hik'']
         omega
   · ext k
-    simp only [and_twoPow, 
+    simp only [and_twoPow,
       ]
     by_cases hi : x.getLsbD i <;> simp [hi] <;> omega
 
@@ -1929,13 +1929,6 @@ theorem toInt_sub_neg_umod {x y : BitVec w} (hxmsb : x.msb = true) (hymsb : y.ms
       simp only [toInt_eq_toNat_of_msb hymsb, BitVec.toInt_eq_neg_toNat_neg_of_msb_true hxmsb,
         Int.dvd_neg] at hdvd
       simp only [hdvd, ↓reduceIte, Int.natAbs_cast]
-
-theorem BitVec.srem_zero_of_dvd (x y : BitVec w) (h : y.toInt ∣ x.toInt) :
-    x.srem y = 0#w := by
-  have := toInt_dvd_toInt_iff (x := x) (y := y)
-  by_cases hx : x.msb <;> by_cases hy : y.msb
-  <;> simp only [h, hx, reduceIte, hy, false_eq_true, true_iff] at this
-  <;> simp [srem, hx, hy, this]
 
 theorem msb_srem (x y : BitVec w) : (x.srem y).msb =
     (x.msb && decide (x.srem y ≠ 0)) := by

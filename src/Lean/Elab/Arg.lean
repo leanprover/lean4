@@ -32,7 +32,7 @@ structure NamedArg where
   with the same name. -/
 def addNamedArg (namedArgs : Array NamedArg) (namedArg : NamedArg) : MetaM (Array NamedArg) := do
   if namedArgs.any (namedArg.name == ·.name) then
-    throwError "argument '{namedArg.name}' was already set"
+    throwErrorAt namedArg.ref "Argument `{namedArg.name}` was already set"
   return namedArgs.push namedArg
 
 partial def expandArgs (args : Array Syntax) : MetaM (Array NamedArg × Array Arg × Bool) := do

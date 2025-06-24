@@ -37,10 +37,15 @@ instance : ToString Arg where
 instance : ToString NamedArg where
   toString s := "(" ++ toString s.name ++ " := " ++ toString s.val ++ ")"
 
-def throwInvalidNamedArg (namedArg : NamedArg) (fn? : Option Name) : TermElabM α :=
+def throwInvalidNamedArg (namedArg : NamedArg) (fn? : Option Name) (validNames : Array Name) : TermElabM α :=
+  let hint := if validNames.size > 0 then
+    let namesMsg := MessageData.andList <| validNames.map (m!"`{·}`") |>.toList
+    MessageData.note m!"This function has the following named arguments: {namesMsg}"
+  else
+    .nil
   withRef namedArg.ref <| match fn? with
-    | some fn => throwError "invalid argument name '{namedArg.name}' for function '{fn}'"
-    | none    => throwError "invalid argument name '{namedArg.name}' for function"
+    | some fn => throwError m!"Invalid argument name `{namedArg.name}` for function `{.ofConstName fn}`" ++ hint
+    | none    => throwError m!"Invalid argument name `{namedArg.name}` for function" ++ hint
 
 private def ensureArgType (f : Expr) (arg : Expr) (expectedType : Expr) : TermElabM Expr := do
   try
@@ -164,6 +169,8 @@ structure State where
     See comment at `Context.resultIsOutParamSupport`
    -/
   resultTypeOutParam?  : Option MVarId := none
+  /-- Valid named arguments found while traversing the function's type. -/
+  foundNamedArgs : Array Name := #[]
 
 abbrev M := ReaderT Context (StateRefT State TermElabM)
 
@@ -195,6 +202,14 @@ def synthesizeAppInstMVars : M Unit := do
   Term.synthesizeAppInstMVars (← get).instMVars (← get).f
   modify ({ · with instMVars := #[] })
 
+/-- Record a valid named argument for the function. -/
+private def pushFoundNamedArg (name : Name) : M Unit := do
+  modify fun s => { s with foundNamedArgs := s.foundNamedArgs.push name }
+
+/-- Get the function's named arguments (which were found during elaboration). -/
+private def getFoundNamedArgs : M (Array Name) :=
+  return (← get).foundNamedArgs
+
 /-- fType may become a forallE after we synthesize pending metavariables. -/
 private def synthesizePendingAndNormalizeFunType : M Unit := do
   trySynthesizeAppInstMVars
@@ -210,10 +225,12 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
     else
       for namedArg in s.namedArgs do
         let f := s.f.getAppFn
-        if f.isConst then
-          throwInvalidNamedArg namedArg f.constName!
-        else
-          throwInvalidNamedArg namedArg none
+        withRef namedArg.ref do
+          let validNames ← getFoundNamedArgs
+          if f.isConst then
+            throwInvalidNamedArg namedArg f.constName! validNames
+          else
+            throwInvalidNamedArg namedArg none validNames
       throwError "function expected at{indentExpr s.f}\nterm has type{indentExpr fType}"
 
 /-- Normalize and return the function type. -/
@@ -645,7 +662,7 @@ mutual
           elabAndAddNewArg argName argNew
           main
       | false, _, some _ =>
-        throwError "invalid autoParam, argument must be a constant"
+        throwError "Internal error when elaborating function application: autoParam `{argName}` is not a constant"
       | _, _, _ =>
         if (← read).ellipsis then
           addImplicitArg argName
@@ -718,6 +735,8 @@ mutual
     let fType ← normalizeFunType
     if fType.isForall then
       let binderName := fType.bindingName!
+      unless binderName.hasMacroScopes do
+        pushFoundNamedArg binderName
       let binfo := fType.bindingInfo!
       let s ← get
       match findBinderName? s.namedArgs binderName with

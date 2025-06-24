@@ -13,13 +13,13 @@ inductive Vec.{u} (α : Type) : Nat → Type u where
   | cons {n} : α → Vec α n → Vec α (n + 1)
 
 @[reducible] protected def Vec.noConfusionType.withCtorType'.{u_1, u} :
-    Type → Type u_1 → Nat → Type (max (u + 1) u_1) := fun α P ctorIdx =>
+    Type → Type u_1 → Nat → Type (max u u_1) := fun α P ctorIdx =>
   bif Nat.blt ctorIdx 1
-  then PUnit.{u + 2} → P
-  else PUnit.{u + 2} → {n : Nat} → α → Vec.{u} α n → P
+  then PUnit.{u + 1} → P
+  else PUnit.{u + 1} → {n : Nat} → α → Vec.{u} α n → P
 
 /--
-info: @[reducible] protected def Vec.noConfusionType.withCtorType.{u_1, u} : Type → Type u_1 → Nat → Type (max (u + 1) u_1) :=
+info: @[reducible] protected def Vec.noConfusionType.withCtorType.{u_1, u} : Type → Type u_1 → Nat → Type (max u u_1) :=
 fun α P ctorIdx => bif ctorIdx.blt 1 then PUnit → P else PUnit → {n : Nat} → α → Vec α n → P
 -/
 #guard_msgs in

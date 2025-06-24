@@ -42,7 +42,6 @@ theorem Iter.forIn'_eq_forIn'_toIterM {α β : Type w} [Iterator α Id β]
     {f : (out : β) → _ → γ → m (ForInStep γ)} :
     letI : ForIn' m (Iter (α := α) β) β _ := Iter.instForIn'
     ForIn'.forIn' it init f =
-      letI : MonadLift Id m := ⟨Std.Internal.idToMonad (α := _)⟩
       letI : ForIn' m (IterM (α := α) Id β) β _ := IterM.instForIn'
       ForIn'.forIn' it.toIterM init
         (fun out h acc => f out (isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc) := by
@@ -54,7 +53,6 @@ theorem Iter.forIn_eq_forIn_toIterM {α β : Type w} [Iterator α Id β]
     {γ : Type w} {it : Iter (α := α) β} {init : γ}
     {f : β → γ → m (ForInStep γ)} :
     ForIn.forIn it init f =
-      letI : MonadLift Id m := ⟨Std.Internal.idToMonad (α := _)⟩
       ForIn.forIn it.toIterM init f := by
   rfl
 
@@ -197,7 +195,7 @@ theorem Iter.foldM_eq_foldM_toIterM {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
     [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
     {γ : Type w} {it : Iter (α := α) β} {init : γ} {f : γ → β → m γ} :
-    it.foldM (init := init) f = letI : MonadLift Id m := ⟨pure⟩; it.toIterM.foldM (init := init) f :=
+    it.foldM (init := init) f = it.toIterM.foldM (init := init) f :=
   (rfl)
 
 theorem Iter.forIn_yield_eq_foldM {α β γ δ : Type w} [Iterator α Id β]

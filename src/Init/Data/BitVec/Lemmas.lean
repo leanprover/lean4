@@ -4504,7 +4504,7 @@ theorem toFin_smod {x y : BitVec w} : (x.smod y).toFin =
     | true, true => (-(-x % -y)).toFin := by
   simp only [smod_eq]
   by_cases hx : x.msb <;> by_cases hy : y.msb
-  · simp  [hx, hy]
+  · simp [hx, hy]
   · by_cases hzero : -x % y = 0#w <;> simp [hx, hy, hzero]
   · by_cases hzero : x % -y = 0#w <;> simp [hx, hy, hzero]
   · simp  [hx, hy]

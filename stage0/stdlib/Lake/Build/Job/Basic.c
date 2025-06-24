@@ -41,6 +41,7 @@ LEAN_EXPORT lean_object* l_Lake_instInhabitedJob(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_ofTask___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_BuildTrace_mix(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_267____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_getTrace(lean_object*, lean_object*);
 static lean_object* l_Lake_JobAction_verb___closed__1;
 LEAN_EXPORT uint8_t l_Lake_instMaxJobAction___lam__0(uint8_t, uint8_t);
@@ -49,7 +50,7 @@ static lean_object* l_Lake_instOrdJobAction___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instMaxJobAction;
 LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_instFunctor___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_266_(uint8_t, uint8_t);
+LEAN_EXPORT uint8_t l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_267_(uint8_t, uint8_t);
 lean_object* lean_task_pure(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_map___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_Job_mapResult___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
@@ -65,7 +66,6 @@ LEAN_EXPORT lean_object* l_Lake_Job_nop(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_error___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_cast(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_ofTask(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_266____boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedJobState___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Job_map___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_JobState_merge(lean_object*, lean_object*);
@@ -603,7 +603,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-LEAN_EXPORT uint8_t l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_266_(uint8_t x_1, uint8_t x_2) {
+LEAN_EXPORT uint8_t l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_267_(uint8_t x_1, uint8_t x_2) {
 _start:
 {
 switch (x_1) {
@@ -708,7 +708,7 @@ return x_26;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_266____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_267____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
@@ -716,7 +716,7 @@ x_3 = lean_unbox(x_1);
 lean_dec(x_1);
 x_4 = lean_unbox(x_2);
 lean_dec(x_2);
-x_5 = l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_266_(x_3, x_4);
+x_5 = l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_267_(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -725,7 +725,7 @@ static lean_object* _init_l_Lake_instOrdJobAction___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_266____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_267____boxed), 2, 0);
 return x_1;
 }
 }
@@ -757,7 +757,7 @@ LEAN_EXPORT uint8_t l_Lake_instMinJobAction___lam__0(uint8_t x_1, uint8_t x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_266_(x_1, x_2);
+x_3 = l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_267_(x_1, x_2);
 x_4 = lean_box(x_3);
 if (lean_obj_tag(x_4) == 2)
 {
@@ -795,7 +795,7 @@ LEAN_EXPORT uint8_t l_Lake_instMaxJobAction___lam__0(uint8_t x_1, uint8_t x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_266_(x_1, x_2);
+x_3 = l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_267_(x_1, x_2);
 x_4 = lean_box(x_3);
 if (lean_obj_tag(x_4) == 2)
 {
@@ -833,7 +833,7 @@ LEAN_EXPORT uint8_t l_Lake_JobAction_merge(uint8_t x_1, uint8_t x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_266_(x_1, x_2);
+x_3 = l_Lake_ordJobAction____x40_Lake_Build_Job_Basic___hyg_267_(x_1, x_2);
 x_4 = lean_box(x_3);
 if (lean_obj_tag(x_4) == 2)
 {

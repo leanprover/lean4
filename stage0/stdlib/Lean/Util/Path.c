@@ -52,7 +52,7 @@ lean_object* lean_io_getenv(lean_object*, lean_object*);
 static lean_object* l_Lean_findOLean___closed__4;
 lean_object* l_IO_FS_DirEntry_path(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findOLean___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* lean_module_name_of_file(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_moduleNameOfFileName(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_modToFilePath_go___boxed(lean_object*, lean_object*);
 lean_object* l_System_FilePath_readDir___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_modToFilePath___boxed(lean_object*, lean_object*, lean_object*);
@@ -2365,7 +2365,7 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* lean_module_name_of_file(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_moduleNameOfFileName(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -2626,7 +2626,7 @@ x_10 = lean_ctor_get(x_4, 1);
 x_11 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_11, 0, x_9);
 lean_inc(x_1);
-x_12 = lean_module_name_of_file(x_1, x_11, x_6);
+x_12 = l_Lean_moduleNameOfFileName(x_1, x_11, x_6);
 if (lean_obj_tag(x_12) == 0)
 {
 uint8_t x_13; 
@@ -2699,7 +2699,7 @@ lean_dec(x_4);
 x_26 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_26, 0, x_24);
 lean_inc(x_1);
-x_27 = lean_module_name_of_file(x_1, x_26, x_6);
+x_27 = l_Lean_moduleNameOfFileName(x_1, x_26, x_6);
 if (lean_obj_tag(x_27) == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 

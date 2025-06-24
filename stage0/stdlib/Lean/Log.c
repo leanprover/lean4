@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Log
-// Imports: Lean.Util.Sorry Lean.Widget.Types Lean.Message Lean.DocString.Links Lean.ErrorExplanation
+// Imports: Lean.Util.Sorry Lean.Widget.Types Lean.Message Lean.DocString.Links Lean.ErrorExplanations
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1445,7 +1445,7 @@ lean_object* initialize_Lean_Util_Sorry(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Widget_Types(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Message(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_DocString_Links(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_ErrorExplanation(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_ErrorExplanations(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Log(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1463,7 +1463,7 @@ lean_dec_ref(res);
 res = initialize_Lean_DocString_Links(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ErrorExplanation(builtin, lean_io_mk_world());
+res = initialize_Lean_ErrorExplanations(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_initFn___closed__0____x40_Lean_Log___hyg_204_ = _init_l_Lean_initFn___closed__0____x40_Lean_Log___hyg_204_();

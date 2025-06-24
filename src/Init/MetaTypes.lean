@@ -123,7 +123,6 @@ structure Config where
   -/
   zetaUnused : Bool := true
   /--
-  (Unimplemented)
   When `false` (default: `true`), then disables zeta reduction of `have` expressions.
   If `zeta` is `false`, then this option has no effect.
   Unused `have`s are still removed if `zeta` or `zetaUnused` are true.
@@ -261,14 +260,12 @@ structure Config where
   -/
   catchRuntime : Bool := true
   /--
-  (Unimplemented)
   When `false` (default: `true`), then disables zeta reduction of `have` expressions.
   If `zeta` is `false`, then this option has no effect.
   Unused `have`s are still removed if `zeta` or `zetaUnused` are true.
   -/
   zetaHave : Bool := true
   /--
-  (Unimplemented)
   When `true` (default : `true`), then `simp` will attempt to transform `let`s into `have`s
   if they are non-dependent. This only applies when `zeta := false`.
   -/

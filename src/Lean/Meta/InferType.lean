@@ -189,10 +189,10 @@ because it overrides unrelated configurations.
 @[inline] def withInferTypeConfig (x : MetaM α) : MetaM α :=
   withAtLeastTransparency .default do
     let cfg ← getConfig
-    if cfg.beta && cfg.iota && cfg.zeta && cfg.zetaDelta && cfg.proj == .yesWithDelta then
+    if cfg.beta && cfg.iota && cfg.zeta && cfg.zetaHave && cfg.zetaDelta && cfg.proj == .yesWithDelta then
       x
     else
-      withConfig (fun cfg => { cfg with beta := true, iota := true, zeta := true, zetaDelta := true, proj := .yesWithDelta }) x
+      withConfig (fun cfg => { cfg with beta := true, iota := true, zeta := true, zetaHave := true, zetaDelta := true, proj := .yesWithDelta }) x
 
 @[export lean_infer_type]
 def inferTypeImp (e : Expr) : MetaM Expr :=

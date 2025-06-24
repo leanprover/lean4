@@ -158,8 +158,8 @@ structure Config where
   /-- Control projection reduction at `whnfCore`. -/
   proj : ProjReductionKind := .yesWithDelta
   /--
-  Zeta reduction: `let x := v; e[x]` reduces to `e[v]`.
-  We say a let-declaration `let x := v; e` is non dependent if it is equivalent to `(fun x => e) v`.
+  Zeta reduction: `let x := v; e[x]` and `have x := v; e[x]` reduce to `e[v]`.
+  We say a let-declaration `let x := v; e` is nondependent if it is equivalent to `(fun x => e) v`.
   Recall that
   ```
   fun x : BitVec 5 => let n := 5; fun y : BitVec n => x = y
@@ -169,6 +169,7 @@ structure Config where
   fun x : BitVec 5 => (fun n => fun y : BitVec n => x = y) 5
   ```
   is not.
+  See also `zetaHave`, for disabling the reduction nondependent lets (`have` expressions).
   -/
   zeta : Bool := true
   /--
@@ -178,8 +179,13 @@ structure Config where
   /--
   Zeta reduction for unused let-declarations: `let x := v; e` reduces to `e` when `x` does not occur
   in `e`.
+  This option takes precedence over `zeta` and `zetaHave`.
   -/
   zetaUnused : Bool := true
+  /--
+  When `zeta := true`, then `zetaHave := false` disables zeta reduction of `have` expressions.
+  -/
+  zetaHave : Bool := true
   deriving Inhabited, Repr
 
 /-- Convert `isDefEq` and `WHNF` relevant parts into a key for caching results -/
@@ -200,7 +206,8 @@ private def Config.toKey (c : Config) : UInt64 :=
   (c.zetaDelta.toUInt64 <<< 14) |||
   (c.univApprox.toUInt64 <<< 15) |||
   (c.etaStruct.toUInt64 <<< 16) |||
-  (c.proj.toUInt64 <<< 18)
+  (c.proj.toUInt64 <<< 18) |||
+  (c.zetaHave.toUInt64 <<< 20)
 
 /-- Configuration with key produced by `Config.toKey`. -/
 structure ConfigWithKey where

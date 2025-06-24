@@ -205,13 +205,16 @@ private def reduceStep (e : Expr) : SimpM Expr := do
     match (← reduceRecMatcher? e) with
     | some e => return e
     | none   => pure ()
-  if cfg.zeta then
-    if cfg.zetaHave then
-      if let some (args, _, _, v, b) := e.letFunAppArgs? then
-        return mkAppN (b.instantiate1 v) args
-    if let .letE _ _ v b nondep := e then
-      if !nondep || cfg.zetaHave then
-        return b.instantiate1 v
+  if let .letE _ _ v b nondep := e then
+    if cfg.zeta && (!nondep || cfg.zetaHave) then
+      return expandLet b #[v] (zetaHave := cfg.zetaHave)
+    else if cfg.zetaUnused && !b.hasLooseBVars then
+      return consumeUnusedLet b
+  if let some (args, _, _, v, b) := e.letFunAppArgs? then
+    if cfg.zeta && cfg.zetaHave then
+      return mkAppN (expandLet b #[v] (zetaHave := cfg.zetaHave)) args
+    else if cfg.zetaUnused && !b.hasLooseBVars then
+      return mkAppN (consumeUnusedLet b) args
   match (← unfold? e) with
   | some e' =>
     trace[Meta.Tactic.simp.rewrite] "unfold {.ofConst e.getAppFn}, {e} ==> {e'}"
@@ -462,7 +465,7 @@ where
 
 /--
 Computes which `have`s in the telescope are fixed and which are unused.
-The unused array might be too short: use `unused.getD i true`.
+The length of the unused array may be less than the number of `have`s: use `unused.getD i true`.
 -/
 def HaveTelescopeInfo.computeFixedUsed (info : HaveTelescopeInfo) (keepUnused : Bool) :
     MetaM (Std.HashSet Nat × Array Bool) := do
@@ -470,11 +473,10 @@ def HaveTelescopeInfo.computeFixedUsed (info : HaveTelescopeInfo) (keepUnused : 
     return (info.bodyTypeDeps, #[])
   let numHaves := info.haveInfo.size
   let updateArrayFromBackDeps (arr : Array Bool) (s : Std.HashSet Nat) : Array Bool :=
-    if s.isEmpty then arr
-    else s.fold (init := arr) fun arr idx => arr.set! idx true
+    s.fold (init := arr) fun arr idx => arr.set! idx true
   let mut used : Array Bool := Array.replicate numHaves false
   -- Initialize `used` with the body's dependencies.
-  -- There is no need to consider `info.bodyTypeDeps`.
+  -- There is no need to consider `info.bodyTypeDeps` in this computation.
   used := updateArrayFromBackDeps used info.bodyDeps
   -- For each used `have`, in reverse order, update `used`.
   for i in [0:numHaves] do
@@ -515,7 +517,9 @@ private def SimpHaveResult.toResult : SimpHaveResult → Result
   | { expr, proof, modified, .. } => { expr, proof? := if modified then some proof else none }
 
 /--
-Routine for simplifying `let` expressions.
+Routine for simplifying `have` telescopes. Used by `simpLet`.
+This is optimized to be able to handle deep `have` telescopes while avoiding quadratic complexity
+arising from the locally nameless expression representations.
 
 Consider a `have` telescope:
 ```
@@ -530,84 +534,38 @@ If `xᵢ` neither appears in `b` nor any `Tⱼ` nor any `vⱼ`, then its `have` 
 Unused `have`s can be eliminated, which we do if `cfg.zetaUnused` is true.
 Note that it is best to clear unused `have`s from the right,
 to eliminate any uses from unused `have`s.
+This is why we honor `zetaUnused` here even though `reduceStep` is also responsible for it.
 
-We assume that dependent `let`s are dependent.
-At the first `let` in a `let`/`have` telescope,
-we attempt to transform it into a `have` if `cfg.letToHave` is true.
-If that does not change it, then it is only `dsimp`ed.
+If `debug.simp.check` is enabled then we typecheck the resulting expression and proof.
 -/
-partial def simpLet (e : Expr) : SimpM Result := do
-  assert! e.isLet
-  trace[Debug.Meta.Tactic.simp] "let{indentExpr e}"
-  let cfg ← getConfig
-  /-
-  In `zeta` mode, we zeta reduce the whole telescope,
-  unless `zetaHave` is false, in which case we zeta reduce up to the first `have`.
-  The `if` makes sure that reduction will make progress.
-  -/
-  if cfg.zeta && (!e.letNondep! || cfg.zetaHave) then
-    let expandLet (e : Expr) (vs : Array Expr) : Expr :=
-      match e with
-      | .letE _ _ v b nondep =>
-        if !nondep || cfg.zetaHave then
-          expandLet b (vs.push v)
-        else
-          e.instantiateRev vs
-      | _ => e.instantiateRev vs
-    return { expr := expandLet e #[] }
-  else if !e.letNondep! then
-    /-
-    This is a `let` and not a `have`.
-    Ideally non-dependent `let`s have already been transformed to `have`s.
-    First, we can still respect `cfg.zetaUnused`:
-    -/
-    if cfg.zetaUnused && !e.letBody!.hasLooseBVars then
-      return ← simp e.letBody!
-    /-
-    When `cfg.letToHave` is true we apply the transformation, which we commit to only if
-    the head `let` becomes a `have`.
-    Note: we applied `cfg.zetaUnused` ourselves above even though `dsimp` does it so that we can avoid an unnecessary `letToHave`.
-    -/
-    if cfg.letToHave then
-      let e' ← letToHave e
-      if e'.isLet && e'.letNondep! then
-        trace[Debug.Meta.Tactic.simp] "let => have{indentExpr e'}"
-        return ← simpHaveTelescope e'
-    /-
-    At this point, this is (very likely) a dependent `let`.
-    We fall back to doing only definitional simplification.
-
-    Note that for `let x := v; b`, if we had a rewrite `h : b = b'` given `x := v` in the local context,
-    we could abstract `x` to get `(let x := v; h) : (let x := v; b = b')` and then use the fact that
-    this type is definitionally equal to `(let x := v; b) = (let x := v; b')`.
-    -/
-    return { expr := (← dsimp e) }
-  else
-    simpHaveTelescope e
-where
-  simpHaveTelescope (e : Expr) : SimpM Result := do
-    let cfg ← getConfig
+def simpHaveTelescope (e : Expr) : SimpM Result := do
+  Prod.fst <$> withTraceNode `Debug.Meta.Tactic.simp (fun
+      | .ok (_, used, fixed, modified) => pure m!"{checkEmoji} have telescope; used: {used}; fixed: {fixed.toArray}; modified: {modified}"
+      | .error ex => pure m!"{crossEmoji} {ex.toMessageData}") do
     let info ← getHaveTelescopeInfo e
     assert! !info.haveInfo.isEmpty
-    let (fixed, used) ← info.computeFixedUsed (keepUnused := !cfg.zetaUnused)
-    trace[Debug.Meta.Tactic.simp] "have telescope; used: {used}; fixed: {fixed.toArray}"
-    let sz := info.haveInfo.size
-    let r ← simpHaveTelescopeAux info fixed used e 0 (Array.mkEmpty sz)
-    trace[Debug.Meta.Tactic.simp] "have telescope; used: {used}; fixed: {fixed.toArray}; (modified: {r.modified})"
+    let (fixed, used) ← info.computeFixedUsed (keepUnused := !(← getConfig).zetaUnused)
+    let r ← simpHaveTelescopeAux info fixed used e 0 (Array.mkEmpty info.haveInfo.size)
     if r.modified && debug.simp.check.get (← getOptions) then
       check r.expr
       check r.proof
-    return r.toResult
+    return (r.toResult, used, fixed, r.modified)
+where
   /-
-  Re-enters the telescope in `info` while simplifying according to `fixed`/`used`.
+  Re-enters the telescope recorded in `info` using `withExistingLocalDecls` while simplifying according to `fixed`/`used`.
   Note that we must use the low-level `Expr` APIs because the expressions may contain loose bound variables.
+  Note also that we don't enter the body's local context all at once, since we need to be sure that
+  when we simplify values they have their correct local context.
   -/
   simpHaveTelescopeAux (info : HaveTelescopeInfo) (fixed : Std.HashSet Nat) (used : Array Bool) (e : Expr) (i : Nat) (xs : Array Expr) : SimpM SimpHaveResult := do
     if h : i < info.haveInfo.size then
       let hinfo := info.haveInfo[i]
+      -- `x` and `val` are the fvar and value with respect to the local context.
       let x := hinfo.decl.toExpr
       let val := hinfo.decl.value true
+      -- Invariant: `v == val.abstract xs`.
       let .letE n t v b true := e | unreachable!
+      -- Universe levels to use for each of the `have_*` theorems. It's the level of `val` and the level of the body.
       let us := [hinfo.level, info.level]
       if !used.getD i true then
         /-
@@ -618,7 +576,7 @@ where
         Complication: Unused `have`s might only be transitively unused.
         This means that `b.hasLooseBVar 0` might actually be true.
         This matters because `t` and `v` appear in the proof term.
-        We use a dummy `x` for debugging purposes. (Recall that `Expr.abstract` ignores non-fvar/mvars.)
+        We use a dummy `x` for debugging purposes. (Recall that `Expr.abstract` skips non-fvar/mvars.)
         -/
         let x := Expr.const `_simp_let_unused_dummy []
         let { expr, exprType, proof, modified } ← simpHaveTelescopeAux info fixed used b (i + 1) (xs.push x)
@@ -629,7 +587,7 @@ where
             (mkLambda n .default t proof)
           return { expr, exprType, proof, modified := true }
         else
-          -- If not modified, this must have been a truly unused `have`.
+          -- If not modified, this must have been a non-transitively unused `have`.
           let proof := mkApp6 (mkConst ``have_unused us) t exprType v expr expr
             (mkApp2 (mkConst ``Eq.refl [info.level]) exprType expr)
           return { expr, exprType, proof, modified := true }
@@ -698,6 +656,49 @@ where
         let expr := r.expr.abstract xs
         let proof := (← r.getProof).abstract xs
         return { expr, exprType, proof, modified := true }
+
+/--
+Routine for simplifying `let` expressions.
+
+If it is a `have`, we use `simpHaveTelescope` to simplify entire telescopes at once, to avoid quadratic behavior
+arising from locally nameless expression representations.
+
+We assume that dependent `let`s are dependent,
+but if `Config.letToHave` is enabled then we attempt to transform it into a `have`.
+If that does not change it, then it is only `dsimp`ed.
+-/
+def simpLet (e : Expr) : SimpM Result := do
+  withTraceNode `Debug.Meta.Tactic.simp (return m!"{exceptEmoji ·} let{indentExpr e}") do
+    assert! e.isLet
+    /-
+    Recall: `simpLet` is called after `reduceStep` is applied, so `simpLet` is not responsible for zeta reduction.
+    Hence, the expression is a `let` or `have` that is not reducible in the current configuration.
+    -/
+    if e.letNondep! then
+      simpHaveTelescope e
+    else
+      /-
+      When `cfg.letToHave` is true, we use `letToHave` to decide whether or not this `let` is dependent.
+      If it becomes a `have`, then we can jump right into simplifying the `have` telescope.
+      -/
+      let e ←
+        if (← getConfig).letToHave then
+          let eNew ← letToHave e
+          if eNew.isLet && eNew.letNondep! then
+            trace[Debug.Meta.Tactic.simp] "letToHave ==>{indentExpr eNew}"
+            return ← simpHaveTelescope eNew
+          pure eNew
+        else
+          pure e
+      /-
+      The `let` is dependent.
+      We fall back to doing only definitional simplification.
+
+      Note that for `let x := v; b`, if we had a rewrite `h : b = b'` given `x := v` in the local context,
+      we could abstract `x` to get `(let x := v; h) : (let x := v; b = b')` and then use the fact that
+      this type is definitionally equal to `(let x := v; b) = (let x := v; b')`.
+      -/
+      return { expr := (← dsimp e) }
 
 private def dsimpReduce : DSimproc := fun e => do
   let mut eNew ← reduce e

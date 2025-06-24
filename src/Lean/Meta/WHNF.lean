@@ -581,13 +581,38 @@ private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) :=
   else
     return none
 
-partial def expandLet (e : Expr) (vs : Array Expr) : Expr :=
-  if let .letE _ _ v b _  := e then
-    expandLet b (vs.push <| v.instantiateRev vs)
-  else if let some (#[], _, _, v, b) := e.letFunAppArgs? then
-    expandLet b (vs.push <| v.instantiateRev vs)
+/--
+Assuming `zeta` is enabled, zeta reduce lets. Does not take `zetaUnused` into account.
+We put unused logic into `consumeUnusedLet`, since `expandLet` works with expressions with loose bound variables,
+and thus determining whether a let variable is used isn't an O(1) operation.
+-/
+partial def expandLet (e : Expr) (vs : Array Expr) (zetaHave : Bool := true) : Expr :=
+  if let .letE _ _ v b nondep  := e then
+    if !nondep || zetaHave then
+      expandLet b (vs.push <| v.instantiateRev vs) zetaHave
+    else
+      e.instantiateRev vs
+  else if let some (_, _, v, b) := e.letFun? then
+    if zetaHave then
+      expandLet b (vs.push <| v.instantiateRev vs) zetaHave
+    else
+      e.instantiateRev vs
   else
     e.instantiateRev vs
+
+/--
+Assuming `zetaUnused` is enabled, consume unused `let`/`have`/`letFun`.
+If `consumeNondep` is false, then `have`s are not consumed.
+The `consumeNondep` flag is used by `isDefEqQuick`.
+-/
+partial def consumeUnusedLet (e : Expr) (consumeNondep : Bool := false) : Expr :=
+  match e with
+  | e@(.letE _ _ _ b nondep) => if b.hasLooseBVars || (nondep && !consumeNondep) then e else consumeUnusedLet b consumeNondep
+  | e =>
+    if let some (_, _, _, b) := e.letFun? then
+      if b.hasLooseBVars || !consumeNondep then e else consumeUnusedLet b consumeNondep
+    else
+      e
 
 /--
 Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
@@ -601,17 +626,22 @@ where
       trace[Meta.whnf] e
       match e with
       | .const ..  => pure e
-      | .letE _ _ v b _ =>
-        if (← getConfig).zeta then
-          go <| expandLet b #[v]
+      | .letE _ _ v b nondep =>
+        let cfg ← getConfig
+        if cfg.zeta && (!nondep || cfg.zetaHave) then
+          go <| expandLet b #[v] (zetaHave := cfg.zetaHave)
+        else if cfg.zetaUnused && !b.hasLooseBVars then
+          go <| consumeUnusedLet b
         else
           return e
       | .app f ..       =>
         let cfg ← getConfig
-        if cfg.zeta then
-          if let some (args, _, _, v, b) := e.letFunAppArgs? then
-            -- When zeta reducing enabled, always reduce `letFun` no matter the current reducibility level
-            return (← go <| mkAppN (expandLet b #[v]) args)
+        if let some (args, _, _, v, b) := e.letFunAppArgs? then
+          -- When zeta reducing enabled, always reduce `letFun` no matter the current reducibility level
+          if cfg.zeta && cfg.zetaHave then
+            return (← go <| mkAppN (expandLet b #[v] (zetaHave := cfg.zetaHave)) args)
+          else if cfg.zetaUnused && !b.hasLooseBVars then
+            return (← go <| mkAppN (consumeUnusedLet b) args)
         let f := f.getAppFn
         let f' ← go f
         /-

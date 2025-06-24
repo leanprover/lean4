@@ -252,6 +252,7 @@ structure Config where
   /--
   When `true` (default : `true`), then `simp` will remove unused `let` and `have` expressions:
   `let x := v; e` simplifies to `e` when `x` does not occur in `e`.
+  This option takes precedence over `zeta` and `zetaHave`.
   -/
   zetaUnused : Bool := true
   /--

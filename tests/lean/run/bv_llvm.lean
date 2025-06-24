@@ -26,8 +26,7 @@ theorem short_circuit_triple_mul (x x_1 x_2 : BitVec 32) (h : ¬x_2 &&& 4096#32 
 #check BitVec.zero_srem
 
 def msb_srem (x y : BitVec w) :=
-
-  (y.msb && decide (y = 0#w)) || (x.msb && decide (x.srem y ≠ 0)) -- if ¬ y.msb || (x.dvd y) then ¬ x.smod y, else true
+    (x.msb && decide (x.srem y ≠ 0)) -- if ¬ y.msb || (x.dvd y) then ¬ x.smod y, else true
 
 -- def msb_smod (x y : BitVec w) :=
 --   (x.msb && y = 0) || (y.msb && ¬ (x.smod y) = 0)

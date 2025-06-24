@@ -856,8 +856,6 @@ macro_rules
       refine no_implicit_lambda% (have $id:letId $bs* : $type := ?body; ?_)
       $tac)
   | `(tactic| have $c:letConfig $d:letDecl) => `(tactic| refine_lift have $c:letConfig $d:letDecl; ?_)
-/-- TODO(kmill): remove after stage0 update -/
-macro (priority := low) "have " d:letDecl : tactic => `(tactic| have $d:letDecl)
 
 /--
 Given a main goal `ctx ⊢ t`, `suffices h : t' from e` replaces the main goal with `ctx ⊢ t'`,
@@ -867,6 +865,7 @@ The variant `suffices h : t' by tac` is a shorthand for `suffices h : t' from by
 If `h :` is omitted, the name `this` is used.
  -/
 macro "suffices " d:sufficesDecl : tactic => `(tactic| refine_lift suffices $d; ?_)
+
 /--
 The `let` tactic is for adding definitions to the local context of the main goal.
 * `let x : t := e` adds the definition `x : t := e` if `e` is a term of type `t`.
@@ -879,8 +878,7 @@ The `let` tactic is for adding definitions to the local context of the main goal
   local variables `x : α`, `y : β`, and `z : γ`.
 -/
 macro "let " c:letConfig d:letDecl : tactic => `(tactic| refine_lift let $c:letConfig $d:letDecl; ?_)
-/-- TODO(kmill): remove after stage0 update -/
-macro (priority := low) "let " d:letDecl : tactic => `(tactic| let $d:letDecl)
+
 /-- `let rec f : t := e` adds a recursive definition `f` to the current goal.
 The syntax is the same as term-mode `let rec`. -/
 syntax (name := letrec) withPosition(atomic("let " &"rec ") letRecDecls) : tactic

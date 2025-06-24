@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Import
-// Imports: Lean.Parser.Module Lean.Util.Paths Lean.CoreM
+// Imports: Lean.Parser.Module Lean.CoreM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -26,7 +26,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_processHeader___boxed(lean_object*, lean_ob
 lean_object* l_Lean_Syntax_getId(lean_object*);
 static lean_object* l_Lean_Elab_processHeaderCore___closed__0;
 lean_object* lean_array_push(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* lean_print_imports(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_printImports(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Elab_HeaderSyntax_imports_spec__2_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
@@ -48,7 +48,7 @@ lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_HeaderSyntax_startPos(lean_object*);
 static lean_object* l_Lean_Elab_HeaderSyntax_imports___closed__4;
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
-LEAN_EXPORT lean_object* lean_print_import_srcs(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_printImportSrcs(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_getSrcSearchPath(lean_object*);
 lean_object* l_Lean_Name_getRoot(lean_object*);
@@ -59,6 +59,7 @@ lean_object* l_Lean_Environment_setMainModule(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_HeaderSyntax_isModule___boxed(lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Elab_HeaderSyntax_imports_spec__2_spec__2___redArg___closed__5;
 uint8_t lean_name_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_HeaderSyntax_toModuleHeader(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_printImportSrcs_spec__0(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_println___at___Lean_Elab_printImports_spec__0(lean_object*, lean_object*);
@@ -236,7 +237,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Elab_HeaderSyntax_imports_spec__2_spec__2___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(13u);
-x_3 = lean_unsigned_to_nat(29u);
+x_3 = lean_unsigned_to_nat(28u);
 x_4 = l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Elab_HeaderSyntax_imports_spec__2_spec__2___redArg___closed__1;
 x_5 = l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Elab_HeaderSyntax_imports_spec__2_spec__2___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -1024,7 +1025,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Elab_HeaderSyntax_imports_spec__2_spec__2___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(9u);
-x_3 = lean_unsigned_to_nat(30u);
+x_3 = lean_unsigned_to_nat(29u);
 x_4 = l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Elab_HeaderSyntax_imports_spec__2_spec__2___redArg___closed__1;
 x_5 = l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Elab_HeaderSyntax_imports_spec__2_spec__2___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -1396,6 +1397,22 @@ x_3 = lean_unbox(x_2);
 lean_dec(x_2);
 x_4 = l_Lean_Elab_HeaderSyntax_imports(x_1, x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_HeaderSyntax_toModuleHeader(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; uint8_t x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_2 = lean_box(1);
+x_3 = lean_unbox(x_2);
+lean_inc(x_1);
+x_4 = l_Lean_Elab_HeaderSyntax_imports(x_1, x_3);
+x_5 = l_Lean_Elab_HeaderSyntax_isModule(x_1);
+lean_dec(x_1);
+x_6 = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(x_6, 0, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*1, x_5);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_headerToImports(lean_object* x_1, uint8_t x_2) {
@@ -2188,7 +2205,7 @@ return x_22;
 }
 }
 }
-LEAN_EXPORT lean_object* lean_print_imports(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Elab_printImports(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -2363,7 +2380,7 @@ return x_23;
 }
 }
 }
-LEAN_EXPORT lean_object* lean_print_import_srcs(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Elab_printImportSrcs(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -2486,7 +2503,6 @@ return x_10;
 }
 }
 lean_object* initialize_Lean_Parser_Module(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Util_Paths(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_CoreM(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Import(uint8_t builtin, lean_object* w) {
@@ -2494,9 +2510,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Parser_Module(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Util_Paths(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_CoreM(builtin, lean_io_mk_world());

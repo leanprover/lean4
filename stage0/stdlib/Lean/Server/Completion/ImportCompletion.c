@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Completion.ImportCompletion
-// Imports: Lean.Data.NameTrie Lean.Util.Paths Lean.Util.LakePath Lean.Server.Completion.CompletionItemData Lean.Parser.Module
+// Imports: Lean.Data.NameTrie Lean.Util.LakePath Lean.Server.Completion.CompletionItemData Lean.Parser.Module
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -107,7 +107,6 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Array_anyMUnsafe_any___at
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___ImportCompletion_isImportCmdCompletionRequest_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
-uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Lsp_beqCompletionItem____x40_Lean_Data_Lsp_LanguageFeatures___hyg_2516__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_forEachModuleInDir___at___ImportCompletion_collectAvailableImportsFromSrcSearchPath_spec__0_spec__0(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_ImportCompletion_find___lam__0(uint8_t, lean_object*);
 lean_object* l_Array_fromJson_x3f___at_____private_Lean_Data_Lsp_Internal_0__Lean_Lsp_fromJsonOpenNamespace____x40_Lean_Data_Lsp_Internal___hyg_3107__spec__0(lean_object*);
@@ -144,6 +143,7 @@ static lean_object* l_Array_anyMUnsafe_any___at___Array_anyMUnsafe_any___at___Im
 LEAN_EXPORT lean_object* l_ImportCompletion_isImportNameCompletionRequest___boxed(lean_object*, lean_object*);
 lean_object* l_Substring_takeRightWhileAux___at___Lean_Syntax_isToken_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_ImportCompletion_isImportNameCompletionRequest___closed__2;
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_SearchPath_findAllWithExt_spec__0(lean_object*, lean_object*);
 static lean_object* l_ImportCompletion_collectAvailableImportsFromLake___closed__0;
 LEAN_EXPORT lean_object* l_ImportCompletion_AvailableImports_toImportTrie___boxed(lean_object*);
 lean_object* lean_io_read_dir(lean_object*, lean_object*);
@@ -1559,7 +1559,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___ImportCompletion_computePartialImportCompletions_spec__2_spec__2___redArg___lam__0___closed__2;
 x_2 = lean_unsigned_to_nat(10u);
-x_3 = lean_unsigned_to_nat(57u);
+x_3 = lean_unsigned_to_nat(56u);
 x_4 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___ImportCompletion_computePartialImportCompletions_spec__2_spec__2___redArg___lam__0___closed__1;
 x_5 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___ImportCompletion_computePartialImportCompletions_spec__2_spec__2___redArg___lam__0___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3377,7 +3377,7 @@ lean_inc(x_24);
 lean_dec(x_21);
 x_25 = l_System_FilePath_extension(x_20);
 x_26 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_forEachModuleInDir___at___ImportCompletion_collectAvailableImportsFromSrcSearchPath_spec__0_spec__0_spec__0___closed__1;
-x_27 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Lsp_beqCompletionItem____x40_Lean_Data_Lsp_LanguageFeatures___hyg_2516__spec__0(x_25, x_26);
+x_27 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_SearchPath_findAllWithExt_spec__0(x_25, x_26);
 lean_dec(x_25);
 if (x_27 == 0)
 {
@@ -3518,7 +3518,7 @@ lean_inc(x_24);
 lean_dec(x_21);
 x_25 = l_System_FilePath_extension(x_20);
 x_26 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_forEachModuleInDir___at___ImportCompletion_collectAvailableImportsFromSrcSearchPath_spec__0_spec__0_spec__0___closed__1;
-x_27 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Lsp_beqCompletionItem____x40_Lean_Data_Lsp_LanguageFeatures___hyg_2516__spec__0(x_25, x_26);
+x_27 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_SearchPath_findAllWithExt_spec__0(x_25, x_26);
 lean_dec(x_25);
 if (x_27 == 0)
 {
@@ -4575,7 +4575,6 @@ return x_5;
 }
 }
 lean_object* initialize_Lean_Data_NameTrie(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Util_Paths(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_LakePath(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_Completion_CompletionItemData(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Module(uint8_t builtin, lean_object*);
@@ -4585,9 +4584,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Data_NameTrie(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Util_Paths(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Util_LakePath(builtin, lean_io_mk_world());

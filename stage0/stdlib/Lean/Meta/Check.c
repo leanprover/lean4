@@ -45,7 +45,6 @@ lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, l
 size_t lean_uint64_to_usize(uint64_t);
 uint64_t lean_uint64_lor(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at___Lean_Meta_withLocalDeclD___at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__2_spec__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1369__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkConstant(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_addPPExplicitToExposeDiff_visit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -267,6 +266,7 @@ static lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkAux___closed__
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescope___at_____private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkForall_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkForall(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_decEqDeclarationLocation____x40_Lean_Data_DeclarationRange___hyg_617_(lean_object*, lean_object*);
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1370__spec__0(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkAux___closed__1;
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Lean_Meta_throwAppTypeMismatch_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2800,7 +2800,7 @@ else
 {
 lean_object* x_172; uint8_t x_173; 
 x_172 = l_Lean_Meta_addPPExplicitToExposeDiff_visit___closed__8;
-x_173 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1369__spec__0(x_145, x_172);
+x_173 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1370__spec__0(x_145, x_172);
 if (x_173 == 0)
 {
 lean_dec(x_140);
@@ -3257,7 +3257,7 @@ else
 {
 lean_object* x_260; uint8_t x_261; 
 x_260 = l_Lean_Meta_addPPExplicitToExposeDiff_visit___closed__8;
-x_261 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1369__spec__0(x_233, x_260);
+x_261 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1370__spec__0(x_233, x_260);
 if (x_261 == 0)
 {
 lean_dec(x_228);
@@ -3755,7 +3755,7 @@ else
 {
 lean_object* x_352; uint8_t x_353; 
 x_352 = l_Lean_Meta_addPPExplicitToExposeDiff_visit___closed__8;
-x_353 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1369__spec__0(x_325, x_352);
+x_353 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1370__spec__0(x_325, x_352);
 if (x_353 == 0)
 {
 lean_dec(x_320);

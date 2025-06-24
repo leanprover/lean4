@@ -167,7 +167,7 @@ jobs:
             echo "The merge base of this PR coincides with the nightly release"
 
             BATTERIES_REMOTE_TAGS="$(git ls-remote https://github.com/leanprover-community/batteries.git nightly-testing-"$MOST_RECENT_NIGHTLY")"
-            MATHLIB_REMOTE_TAGS="$(git ls-remote https://github.com/leanprover-community/mathlib4.git nightly-testing-"$MOST_RECENT_NIGHTLY")"
+            MATHLIB_REMOTE_TAGS="$(git ls-remote https://github.com/leanprover-community/mathlib4-nightly-testing.git nightly-testing-"$MOST_RECENT_NIGHTLY")"
 
             if [[ -n "$BATTERIES_REMOTE_TAGS" ]]; then
               echo "... and Batteries has a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
@@ -355,7 +355,7 @@ jobs:
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
         uses: actions/checkout@v4
         with:
-          repository: leanprover-community/mathlib4
+          repository: leanprover-community/mathlib4-nightly-testing
           token: ${{ secrets.MATHLIB4_BOT }}
           ref: nightly-testing
           fetch-depth: 0 # This ensures we check out all tags and branches.

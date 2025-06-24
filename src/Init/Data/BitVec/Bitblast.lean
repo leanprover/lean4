@@ -1855,7 +1855,25 @@ theorem toInt_srem (x y : BitVec w) : (x.srem y).toInt = x.toInt.tmod y.toInt :=
 theorem msb_srem (x y : BitVec w) : (x.srem y).msb =
     (x.msb && decide (x.srem y ≠ 0)) := by
   rw [msb_eq_toInt]
-  sorry
+  by_cases hx : x.msb
+  · by_cases hsrem : x.srem y = 0#w
+    · simp [hsrem]
+    · simp [hsrem, hx]
+      simp [Int.tmod_eq_emod]
+      simp [show ¬ 0 ≤ x.toInt by sorry]
+      simp [show ¬ y.toInt ∣ x.toInt by sorry]
+      have hlt := Int.emod_lt (a := x.toInt) (b := y.toInt)
+      by_cases hy0 : y = 0#w
+      · simp [hy0]
+        exact toInt_neg_of_msb_true hx
+      · simp [← toInt_inj] at hy0
+        simp [hy0] at hlt
+        have := Int.le_natAbs (a := y.toInt)
+        omega
+  · simp only [toInt_srem, hx, ofNat_eq_ofNat, ne_eq, decide_not, Bool.false_and,
+    decide_eq_false_iff_not, Int.not_lt]
+    apply Int.tmod_nonneg y.toInt (by exact toInt_nonneg_of_msb_false (by simp at hx; exact hx))
+
 
 @[simp]
 theorem msb_intMin_umod_neg_of_msb_true {y : BitVec w} (hy : y.msb = true) :

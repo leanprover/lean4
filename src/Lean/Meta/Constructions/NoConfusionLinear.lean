@@ -68,8 +68,8 @@ def mkWithCtorName (indName : Name) : Name :=
 def mkNoConfusionTypeName (indName : Name) : Name :=
   Name.str indName "noConfusionType"
 
-private def getKindLevel (indTyKind : Expr) : MetaM Level :=
-  match indTyKind with
+private partial def getKindLevel (indTyKind : Expr) : MetaM Level := do
+  match (← whnf indTyKind) with
   | .sort l => decLevel l
   | .forallE _ _ b _ => getKindLevel b
   | _ => throwError "getLindLevel: unexpected kind: {indTyKind}"
@@ -139,6 +139,10 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
   let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
   let indTyCon := mkConst indName us
   let indTyKind ← inferType indTyCon
+<<<<<<< HEAD
+=======
+  let indLevel ← getKindLevel indTyKind
+>>>>>>> @{-1}
   let e ← forallBoundedTelescope indTyKind info.numParams fun xs t => do
     withLocalDeclD `P (mkSort v.succ) fun P => do
     withLocalDeclD `ctorIdx (mkConst ``Nat) fun ctorIdx => do

@@ -42,14 +42,11 @@ set_option linter.missingDocs false in
 @[deprecated getMsbD_of_ge (since := "2025-04-04")]
 abbrev getMsbD_ge := @getMsbD_of_ge
 
-theorem lt_of_getLsbD {x : BitVec w} {i : Nat} : getLsbD x i = true → i < w := by
-  grind
+theorem lt_of_getLsbD {x : BitVec w} {i : Nat} : getLsbD x i = true → i < w := by grind
 
-theorem lt_of_getMsbD {x : BitVec w} {i : Nat} : getMsbD x i = true → i < w := by
-  grind
+theorem lt_of_getMsbD {x : BitVec w} {i : Nat} : getMsbD x i = true → i < w := by grind
 
-@[simp] theorem getElem?_eq_getElem {l : BitVec w} {n} (h : n < w) : l[n]? = some l[n] := by
-  grind
+@[simp] theorem getElem?_eq_getElem {l : BitVec w} {n} (h : n < w) : l[n]? = some l[n] := by grind
 
 -- TODO: when removing this deprecated theorem,
 -- remove the `_root_` prefixes appearing below.
@@ -68,33 +65,25 @@ set_option linter.missingDocs false in
 @[deprecated getElem?_eq_some_iff (since := "2025-02-17")]
 abbrev getElem?_eq_some := @_root_.getElem?_eq_some_iff
 
-theorem getElem?_eq_none_iff {l : BitVec w} : l[n]? = none ↔ w ≤ n := by
-  grind
+theorem getElem?_eq_none_iff {l : BitVec w} : l[n]? = none ↔ w ≤ n := by grind
 
-theorem none_eq_getElem?_iff {l : BitVec w} : none = l[n]? ↔ w ≤ n := by
-  grind
+theorem none_eq_getElem?_iff {l : BitVec w} : none = l[n]? ↔ w ≤ n := by grind
 
-theorem getElem?_eq_none {l : BitVec w} (h : w ≤ n) : l[n]? = none := by
-  grind
+theorem getElem?_eq_none {l : BitVec w} (h : w ≤ n) : l[n]? = none := by grind
 
 theorem getElem?_eq (l : BitVec w) (i : Nat) :
-    l[i]? = if h : i < w then some l[i] else none := by
-  grind
+    l[i]? = if h : i < w then some l[i] else none := by grind
 
 theorem some_getElem_eq_getElem? (l : BitVec w) (i : Nat) (h : i < w) :
-    (some l[i] = l[i]?) ↔ True := by
-  grind
+    (some l[i] = l[i]?) ↔ True := by grind
 
 theorem getElem?_eq_some_getElem (l : BitVec w) (i : Nat) (h : i < w) :
-    (l[i]? = some l[i]) ↔ True := by
-  grind
+    (l[i]? = some l[i]) ↔ True := by grind
 
-theorem getElem_eq_iff {l : BitVec w} {n : Nat} {h : n < w} : l[n] = x ↔ l[n]? = some x := by
-  grind
+theorem getElem_eq_iff {l : BitVec w} {n : Nat} {h : n < w} : l[n] = x ↔ l[n]? = some x := by grind
 
 theorem getElem_eq_getElem? (l : BitVec w) (i : Nat) (h : i < w) :
-    l[i] = l[i]?.get (by simp [h]) := by
-  grind
+    l[i] = l[i]?.get (by simp [h]) := by grind
 
 theorem getLsbD_eq_getElem?_getD {x : BitVec w} {i : Nat} :
     x.getLsbD i = x[i]?.getD false := by
@@ -105,8 +94,7 @@ theorem getLsbD_eq_getElem?_getD {x : BitVec w} {i : Nat} :
 
 @[simp]
 theorem getElem_of_getLsbD_eq_true {x : BitVec w} {i : Nat} (h : x.getLsbD i = true) :
-    (x[i]'(lt_of_getLsbD h) = true) = True := by
-  grind
+    (x[i]'(lt_of_getLsbD h) = true) = True := by grind
 
 /--
 This normalized a bitvec using `ofFin` to `ofNat`.
@@ -166,11 +154,9 @@ theorem getLsbD_eq_getMsbD (x : BitVec w) (i : Nat) : x.getLsbD i = (decide (i <
     grind
   all_goals grind
 
-@[simp] theorem getElem?_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : x[i]? = none := by
-  grind
+@[simp] theorem getElem?_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : x[i]? = none := by grind
 
-@[simp] theorem getMsb?_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getMsb? x i = none := by
-  grind
+@[simp] theorem getMsb?_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getMsb? x i = none := by grind
 
 set_option linter.missingDocs false in
 @[deprecated getElem?_of_ge (since := "2025-04-04")] abbrev getLsb?_ge := @getElem?_of_ge
@@ -178,17 +164,13 @@ set_option linter.missingDocs false in
 set_option linter.missingDocs false in
 @[deprecated getMsb?_of_ge (since := "2025-04-04")] abbrev getMsb?_ge := @getMsb?_of_ge
 
-theorem lt_of_getElem?_eq_some (x : BitVec w) (i : Nat) : x[i]? = some b → i < w := by
-  grind
+theorem lt_of_getElem?_eq_some (x : BitVec w) (i : Nat) : x[i]? = some b → i < w := by grind
 
-theorem lt_of_getMsb?_eq_some (x : BitVec w) (i : Nat) : getMsb? x i = some b → i < w := by
-  grind
+theorem lt_of_getMsb?_eq_some (x : BitVec w) (i : Nat) : getMsb? x i = some b → i < w := by grind
 
-theorem lt_of_isSome_getElem? (x : BitVec w) (i : Nat) : x[i]?.isSome → i < w := by
-  grind
+theorem lt_of_isSome_getElem? (x : BitVec w) (i : Nat) : x[i]?.isSome → i < w := by grind
 
-theorem lt_of_isSome_getMsb? (x : BitVec w) (i : Nat) : (getMsb? x i).isSome → i < w := by
-  grind
+theorem lt_of_isSome_getMsb? (x : BitVec w) (i : Nat) : (getMsb? x i).isSome → i < w := by grind
 
 set_option linter.missingDocs false in
 @[deprecated lt_of_getElem?_eq_some (since := "2025-04-04")]
@@ -203,8 +185,7 @@ set_option linter.missingDocs false in
 abbrev lt_of_getMsb?_isSome := @lt_of_isSome_getMsb?
 
 theorem getMsbD_eq_getMsb?_getD (x : BitVec w) (i : Nat) :
-    x.getMsbD i = (x.getMsb? i).getD false := by
-  grind
+    x.getMsbD i = (x.getMsb? i).getD false := by grind
 
 theorem eq_of_getLsbD_eq_iff {w : Nat} {x y : BitVec w} :
     x = y ↔ ∀ (i : Nat), i < w → x.getLsbD i = y.getLsbD i := by
@@ -249,17 +230,12 @@ theorem toNat_of_zero_length (h : w = 0) (x : BitVec w) : x.toNat = 0 := by
   subst h; simp [toNat_zero_length]
 theorem toInt_of_zero_length (h : w = 0) (x : BitVec w) : x.toInt = 0 := by
   subst h; simp [toInt_zero_length]
-theorem getLsbD_of_zero_length (h : w = 0) (x : BitVec w) : x.getLsbD i = false := by
-  grind
-theorem getMsbD_of_zero_length (h : w = 0) (x : BitVec w) : x.getMsbD i = false := by
-  grind
-theorem msb_of_zero_length (h : w = 0) (x : BitVec w) : x.msb = false := by
-  grind
-theorem eq_of_zero_length (h : w = 0) {x y : BitVec w} : x = y := by
-  grind
+theorem getLsbD_of_zero_length (h : w = 0) (x : BitVec w) : x.getLsbD i = false := by grind
+theorem getMsbD_of_zero_length (h : w = 0) (x : BitVec w) : x.getMsbD i = false := by grind
+theorem msb_of_zero_length (h : w = 0) (x : BitVec w) : x.msb = false := by grind
+theorem eq_of_zero_length (h : w = 0) {x y : BitVec w} : x = y := by grind
 
-theorem length_pos_of_ne {x y : BitVec w} (h : x ≠ y) : 0 < w := by
-  grind
+theorem length_pos_of_ne {x y : BitVec w} (h : x ≠ y) : 0 < w := by grind
 
 theorem ofFin_ofNat (n : Nat) :
     ofFin (no_index (OfNat.ofNat n : Fin (2^w))) = OfNat.ofNat n := by
@@ -311,8 +287,7 @@ theorem getLsbD_ofNatLt {n : Nat} (x : Nat) (lt : x < 2^n) (i : Nat) :
   getLsbD (x#'lt) i = x.testBit i := getLsbD_ofNatLT x lt i
 
 @[simp, grind =] theorem getMsbD_ofNatLT {n x i : Nat} (h : x < 2^n) :
-    getMsbD (x#'h) i = (decide (i < n) && x.testBit (n - 1 - i)) := by
-  grind
+    getMsbD (x#'h) i = (decide (i < n) && x.testBit (n - 1 - i)) := by grind
 
 @[deprecated getMsbD_ofNatLT (since := "2025-02-13")]
 theorem getMsbD_ofNatLt {n x i : Nat} (h : x < 2^n) :
@@ -359,8 +334,7 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
   grind [=_ getLsbD_eq_getElem]
 
 /-- The msb at index `w-1` is the least significant bit, and is true when the width is nonzero. -/
-@[simp] theorem getMsbD_one : (1#w).getMsbD i = (decide (i = w - 1) && decide (0 < w)) := by
-  grind
+@[simp] theorem getMsbD_one : (1#w).getMsbD i = (decide (i = w - 1) && decide (0 < w)) := by grind
 
 -- This is not a good `grind` lemma because we would have to index on `%`.
 @[simp] theorem toNat_mod_cancel (x : BitVec n) : x.toNat % 2^n = x.toNat :=
@@ -397,17 +371,13 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
 private theorem lt_two_pow_of_le {x m n : Nat} (lt : x < 2 ^ m) (le : m ≤ n) : x < 2 ^ n :=
   Nat.lt_of_lt_of_le lt (Nat.pow_le_pow_right (by trivial : 0 < 2) le)
 
-theorem getElem_zero_ofNat_zero (i : Nat) (h : i < w) : (BitVec.ofNat w 0)[i] = false := by
-  grind
+theorem getElem_zero_ofNat_zero (i : Nat) (h : i < w) : (BitVec.ofNat w 0)[i] = false := by grind
 
-theorem getElem_zero_ofNat_one (h : 0 < w) : (BitVec.ofNat w 1)[0] = true := by
-  grind
+theorem getElem_zero_ofNat_one (h : 0 < w) : (BitVec.ofNat w 1)[0] = true := by grind
 
-theorem getElem?_zero_ofNat_zero : (BitVec.ofNat (w+1) 0)[0]? = some false := by
-  grind
+theorem getElem?_zero_ofNat_zero : (BitVec.ofNat (w+1) 0)[0]? = some false := by grind
 
-theorem getElem?_zero_ofNat_one : (BitVec.ofNat (w+1) 1)[0]? = some true := by
-  grind
+theorem getElem?_zero_ofNat_one : (BitVec.ofNat (w+1) 1)[0]? = some true := by grind
 
 -- This does not need to be a `@[simp]` or `@[grind]` theorem as it is already handled by
 -- `getElem_zero_ofBool` and `getElem?_eq_getElem`.
@@ -420,24 +390,19 @@ theorem getElem?_zero_ofBool (b : Bool) : (ofBool b)[0]? = some b := by
 @[simp, grind =] theorem getElem_zero_ofBool (b : Bool) : (ofBool b)[0] = b := by
   grind [getElem?_zero_ofBool]
 
-theorem getElem?_succ_ofBool (b : Bool) (i : Nat) : (ofBool b)[i + 1]? = none := by
-  grind
+theorem getElem?_succ_ofBool (b : Bool) (i : Nat) : (ofBool b)[i + 1]? = none := by grind
 
 @[simp]
-theorem getLsbD_ofBool (b : Bool) (i : Nat) : (ofBool b).getLsbD i = ((i = 0) && b) := by
-  grind
+theorem getLsbD_ofBool (b : Bool) (i : Nat) : (ofBool b).getLsbD i = ((i = 0) && b) := by grind
 
 theorem getElem_ofBool_zero {b : Bool} : (ofBool b)[0] = b := by grind
 
 @[simp]
-theorem getElem_ofBool {b : Bool} {h : i < 1} : (ofBool b)[i] = b := by
-  grind
+theorem getElem_ofBool {b : Bool} {h : i < 1} : (ofBool b)[i] = b := by grind
 
-@[simp] theorem getMsbD_ofBool (b : Bool) : (ofBool b).getMsbD i = (decide (i = 0) && b) := by
-  grind
+@[simp] theorem getMsbD_ofBool (b : Bool) : (ofBool b).getMsbD i = (decide (i = 0) && b) := by grind
 
-@[simp] theorem msb_ofBool (b : Bool) : (ofBool b).msb = b := by
-  grind
+@[simp] theorem msb_ofBool (b : Bool) : (ofBool b).msb = b := by grind
 
 @[simp] theorem one_eq_zero_iff : 1#w = 0#w ↔ w = 0 := by
   constructor
@@ -476,11 +441,9 @@ theorem msb_eq_getLsbD_last (x : BitVec w) :
 @[bitvec_to_nat] theorem getLsbD_succ_last (x : BitVec (w + 1)) :
     x.getLsbD w = decide (2 ^ w ≤ x.toNat) := getLsbD_last x
 
-@[bitvec_to_nat] theorem msb_eq_decide (x : BitVec w) : BitVec.msb x = decide (2 ^ (w - 1) ≤ x.toNat) := by
-  grind
+@[bitvec_to_nat] theorem msb_eq_decide (x : BitVec w) : BitVec.msb x = decide (2 ^ (w - 1) ≤ x.toNat) := by grind
 
-theorem toNat_ge_of_msb_true {x : BitVec n} (p : BitVec.msb x = true) : x.toNat ≥ 2 ^ (n - 1) := by
-  grind
+theorem toNat_ge_of_msb_true {x : BitVec n} (p : BitVec.msb x = true) : x.toNat ≥ 2 ^ (n - 1) := by grind
 
 @[grind _=_]
 theorem msb_eq_getMsbD_zero (x : BitVec w) : x.msb = x.getMsbD 0 := by
@@ -492,17 +455,14 @@ theorem msb_eq_getMsbD_zero (x : BitVec w) : x.msb = x.getMsbD 0 := by
     (x.cast h).toFin = x.toFin.cast (by rw [h]) :=
   rfl
 
-@[simp] theorem getLsbD_cast (h : w = v) (x : BitVec w) : (x.cast h).getLsbD i = x.getLsbD i := by
-  grind
+@[simp] theorem getLsbD_cast (h : w = v) (x : BitVec w) : (x.cast h).getLsbD i = x.getLsbD i := by grind
 
-@[simp] theorem getMsbD_cast (h : w = v) (x : BitVec w) : (x.cast h).getMsbD i = x.getMsbD i := by
-  grind
+@[simp] theorem getMsbD_cast (h : w = v) (x : BitVec w) : (x.cast h).getMsbD i = x.getMsbD i := by grind
 
 @[simp, grind =] theorem getElem_cast (h : w = v) (x : BitVec w) (p : i < v) : (x.cast h)[i] = x[i] := by
   subst h; grind [cast_eq] -- TODO: I'm surprised `grind` doesn't do this; `cast_eq` is marked `@[grind =]`
 
-@[simp] theorem msb_cast (h : w = v) (x : BitVec w) : (x.cast h).msb = x.msb := by
-  grind
+@[simp] theorem msb_cast (h : w = v) (x : BitVec w) : (x.cast h).msb = x.msb := by grind
 
 /-! ### toInt/ofInt -/
 
@@ -524,8 +484,7 @@ theorem msb_eq_false_iff_two_mul_lt {x : BitVec w} : x.msb = false ↔ 2 * x.toN
 
 grind_pattern msb_eq_false_iff_two_mul_lt => x.msb, x.toNat
 
-theorem msb_eq_true_iff_two_mul_ge {x : BitVec w} : x.msb = true ↔ 2 * x.toNat ≥ 2^w := by
-  grind
+theorem msb_eq_true_iff_two_mul_ge {x : BitVec w} : x.msb = true ↔ 2 * x.toNat ≥ 2^w := by grind
 
 /-- Characterize `x.toInt` in terms of `x.msb`. -/
 theorem toInt_eq_msb_cond (x : BitVec w) :
@@ -539,8 +498,7 @@ theorem toInt_eq_toNat_of_msb {x : BitVec w} (h : x.msb = false) :
 -- Activate `toInt_eq_toNat_of_msb` if we have already seen both `x.toInt` and `x.toNat`
 grind_pattern toInt_eq_toNat_of_msb => x.toInt, x.toNat
 
-theorem toNat_toInt_of_msb {w : Nat} (b : BitVec w) (hb : b.msb = false) : b.toInt.toNat = b.toNat := by
-  grind
+theorem toNat_toInt_of_msb {w : Nat} (b : BitVec w) (hb : b.msb = false) : b.toInt.toNat = b.toNat := by grind
 
 theorem toInt_eq_toNat_bmod (x : BitVec n) : x.toInt = Int.bmod x.toNat (2^n) := by
   simp only [toInt_eq_toNat_cond]
@@ -559,8 +517,7 @@ theorem toInt_neg_of_msb_true {x : BitVec w} (h : x.msb = true) : x.toInt < 0 :=
   have : 2 * x.toNat ≥ 2 ^ w := msb_eq_true_iff_two_mul_ge.mp h
   omega -- TODO: why can't `grind` do this?
 
-theorem toInt_nonneg_of_msb_false {x : BitVec w} (h : x.msb = false) : 0 ≤ x.toInt := by
-  grind
+theorem toInt_nonneg_of_msb_false {x : BitVec w} (h : x.msb = false) : 0 ≤ x.toInt := by grind
 
 @[simp] theorem toInt_one_of_lt {w : Nat} (h : 1 < w) : (1#w).toInt = 1 := by
   rw [toInt_eq_msb_cond]
@@ -652,11 +609,9 @@ theorem toInt_one (h : 1 < w) : (1#w : BitVec w).toInt = 1 := by
   have := Nat.two_pow_pos (w-1)
   exact sub_toNat_mod_cancel_of_toNat (by grind)
 
-theorem toNat_lt_of_msb_false {w : Nat} {x : BitVec w} (h : x.msb = false) : x.toNat < 2 ^ (w - 1) := by
-  grind
+theorem toNat_lt_of_msb_false {w : Nat} {x : BitVec w} (h : x.msb = false) : x.toNat < 2 ^ (w - 1) := by grind
 
-theorem le_toNat_of_msb_true {w : Nat} {x : BitVec w} (h : x.msb = true) : 2 ^ (w - 1) ≤ x.toNat := by
-  grind
+theorem le_toNat_of_msb_true {w : Nat} {x : BitVec w} (h : x.msb = true) : 2 ^ (w - 1) ≤ x.toNat := by grind
 
 /--
 `x.toInt` is less than `2^(w-1)`.
@@ -823,11 +778,9 @@ theorem zeroExtend_eq_setWidth {v : Nat} {x : BitVec w} :
     (x.setWidth v).toFin = Fin.ofNat (2^v) x.toNat := by
   ext; grind
 
-@[simp] theorem setWidth_eq (x : BitVec n) : setWidth n x = x := by
-  grind
+@[simp] theorem setWidth_eq (x : BitVec n) : setWidth n x = x := by grind
 
-@[simp] theorem setWidth_zero (m n : Nat) : setWidth m 0#n = 0#m := by
-  grind
+@[simp] theorem setWidth_zero (m n : Nat) : setWidth m 0#n = 0#m := by grind
 
 /-- Moves one-sided left toNat equality to BitVec equality. -/
 theorem toNat_eq_nat {x : BitVec w} {y : Nat} :
@@ -844,24 +797,20 @@ theorem nat_eq_toNat {x : BitVec w} {y : Nat} :
   grind [toNat_eq_nat]
 
 theorem getElem?_setWidth' (x : BitVec w) (i : Nat) (h : w ≤ v) :
-    (setWidth' h x)[i]? = if i < v then some (x.getLsbD i) else none := by
-  grind
+    (setWidth' h x)[i]? = if i < v then some (x.getLsbD i) else none := by grind
 
 theorem getElem?_setWidth (m : Nat) (x : BitVec n) (i : Nat) :
-    (x.setWidth m)[i]? = if i < m then some (x.getLsbD i) else none := by
-  grind
+    (x.setWidth m)[i]? = if i < m then some (x.getLsbD i) else none := by grind
 
 @[simp] theorem getLsbD_setWidth' (ge : m ≥ n) (x : BitVec n) (i : Nat) :
-    getLsbD (setWidth' ge x) i = getLsbD x i := by
-  grind
+    getLsbD (setWidth' ge x) i = getLsbD x i := by grind
 
 @[simp, grind =] theorem getMsbD_setWidth' (ge : m ≥ n) (x : BitVec n) (i : Nat) :
     getMsbD (setWidth' ge x) i = (decide (m - n ≤ i) && getMsbD x (i + n - m)) := by
   grind (splits := 10)
 
 @[simp] theorem getLsbD_setWidth (m : Nat) (x : BitVec n) (i : Nat) :
-    getLsbD (setWidth m x) i = (decide (i < m) && getLsbD x i) := by
-  grind
+    getLsbD (setWidth m x) i = (decide (i < m) && getLsbD x i) := by grind
 
 @[simp, grind =] theorem getMsbD_setWidth {m : Nat} {x : BitVec n} {i : Nat} :
     getMsbD (setWidth m x) i = (decide (m - n ≤ i) && getMsbD x (i + n - m)) := by
@@ -882,30 +831,24 @@ theorem setWidth'_eq {x : BitVec w} (h : w ≤ v) : x.setWidth' h = x.setWidth v
   grind (splits := 12)
 
 @[simp] theorem cast_setWidth (h : v = v') (x : BitVec w) :
-    (x.setWidth v).cast h = x.setWidth v' := by
-  grind
+    (x.setWidth v).cast h = x.setWidth v' := by grind
 
 @[simp] theorem setWidth_setWidth_of_le (x : BitVec w) (h : k ≤ l) :
-    (x.setWidth l).setWidth k = x.setWidth k := by
-  grind
+    (x.setWidth l).setWidth k = x.setWidth k := by grind
 
-@[simp] theorem setWidth_cast {x : BitVec w} {h : w = v} : (x.cast h).setWidth k = x.setWidth k := by
-  grind
+@[simp] theorem setWidth_cast {x : BitVec w} {h : w = v} : (x.cast h).setWidth k = x.setWidth k := by grind
 
 @[grind =]
 theorem msb_setWidth (x : BitVec w) : (x.setWidth v).msb = (decide (0 < v) && x.getLsbD (v - 1)) := by
   grind [msb_eq_getLsbD_last]
 
-theorem msb_setWidth' (x : BitVec w) (h : w ≤ v) : (x.setWidth' h).msb = (decide (0 < v) && x.getLsbD (v - 1)) := by
-  grind
+theorem msb_setWidth' (x : BitVec w) (h : w ≤ v) : (x.setWidth' h).msb = (decide (0 < v) && x.getLsbD (v - 1)) := by grind
 
-theorem msb_setWidth'' (x : BitVec w) : (x.setWidth (k + 1)).msb = x.getLsbD k := by
-  grind
+theorem msb_setWidth'' (x : BitVec w) : (x.setWidth (k + 1)).msb = x.getLsbD k := by grind
 
 /-- zero extending a bitvector to width 1 equals the boolean of the lsb. -/
 theorem setWidth_one_eq_ofBool_getLsb_zero (x : BitVec w) :
-    x.setWidth 1 = BitVec.ofBool (x.getLsbD 0) := by
-  grind
+    x.setWidth 1 = BitVec.ofBool (x.getLsbD 0) := by grind
 
 /-- Zero extending `1#v` to `1#w` equals `1#w` when `v > 0`. -/
 theorem setWidth_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v) :
@@ -916,8 +859,7 @@ theorem setWidth_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v) :
 
 /-- Truncating to width 1 produces a bitvector equal to the least significant bit. -/
 theorem setWidth_one {x : BitVec w} :
-    x.setWidth 1 = ofBool (x.getLsbD 0) := by
-  grind
+    x.setWidth 1 = ofBool (x.getLsbD 0) := by grind
 
 @[simp, grind =]
 theorem setWidth_ofNat_of_le (h : v ≤ w) (x : Nat) : setWidth v (BitVec.ofNat w x) = BitVec.ofNat v x := by
@@ -934,20 +876,17 @@ and the second `setWidth` is a non-trivial extension.
 -- Note that in the special cases `v = u` or `v = w`,
 -- `simp` can discharge the side condition itself.
 @[simp] theorem setWidth_setWidth {x : BitVec u} {w v : Nat} (h : ¬ (v < u ∧ v < w)) :
-    setWidth w (setWidth v x) = setWidth w x := by
-  grind
+    setWidth w (setWidth v x) = setWidth w x := by grind
 
 @[simp] theorem msb_setWidth'_of_lt {m n : Nat} (p : m < n) {x : BitVec m} :
-    (setWidth' (by omega : m ≤ n) x).msb = false := by
-  grind
+    (setWidth' (by omega : m ≤ n) x).msb = false := by grind
 
 @[simp, grind =] theorem toInt_setWidth'_of_lt {m n : Nat} (p : m < n) {x : BitVec m} :
     (setWidth' (by omega : m ≤ n) x).toInt = x.toNat := by
   grind [toInt_eq_toNat_of_msb]
 
 theorem toInt_setWidth' {m n : Nat} (p : m ≤ n) {x : BitVec m} :
-    (setWidth' p x).toInt = if m = n then x.toInt else x.toNat := by
-  grind
+    (setWidth' p x).toInt = if m = n then x.toInt else x.toNat := by grind
 
 @[simp, grind =] theorem toFin_setWidth' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
     (setWidth' p x).toFin = x.toFin.castLE (Nat.pow_le_pow_right (by omega) (by omega)) := by
@@ -1076,12 +1015,10 @@ let x' = x.extractLsb' 7 5  =   _ _ 9 8 7
   grind [getElem_eq_testBit_toNat, getLsbD]
 
 @[simp] theorem getLsbD_extract (hi lo : Nat) (x : BitVec n) (i : Nat) :
-    getLsbD (extractLsb hi lo x) i = (i ≤ (hi-lo) && getLsbD x (lo+i)) := by
-  grind
+    getLsbD (extractLsb hi lo x) i = (i ≤ (hi-lo) && getLsbD x (lo+i)) := by grind
 
 @[simp] theorem getLsbD_extractLsb {hi lo : Nat} {x : BitVec n} {i : Nat} :
-    (extractLsb hi lo x).getLsbD i = (decide (i < hi - lo + 1) && x.getLsbD (lo + i)) := by
-  grind
+    (extractLsb hi lo x).getLsbD i = (decide (i < hi - lo + 1) && x.getLsbD (lo + i)) := by grind
 
 @[simp, grind =] theorem getMsbD_extractLsb {hi lo : Nat} {x : BitVec w} {i : Nat} :
     (extractLsb hi lo x).getMsbD i =
@@ -1095,12 +1032,10 @@ let x' = x.extractLsb' 7 5  =   _ _ 9 8 7
   simp [BitVec.msb]
 
 theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h : len > 0) :
-    x.extractLsb' start len = (x.extractLsb (len - 1 + start) start).cast (by omega) := by
-  grind
+    x.extractLsb' start len = (x.extractLsb (len - 1 + start) start).cast (by omega) := by grind
 
 /-- Extracting all the bits of a bitvector is an identity operation. -/
-@[simp] theorem extractLsb'_eq_self {x : BitVec w} : x.extractLsb' 0 w = x := by
-  grind
+@[simp] theorem extractLsb'_eq_self {x : BitVec w} : x.extractLsb' 0 w = x := by grind
 
 theorem getLsbD_eq_extractLsb' (x : BitVec w) (i : Nat) :
     x.getLsbD i = (x.extractLsb' i 1 == 1#1) := by
@@ -1112,13 +1047,11 @@ theorem getElem_eq_extractLsb' (x : BitVec w) (i : Nat) (h : i < w) :
   rw [← getLsbD_eq_getElem, getLsbD_eq_extractLsb']
 
 @[simp]
-theorem extractLsb'_zero {w start len : Nat} : (0#w).extractLsb' start len = 0#len := by
-  grind
+theorem extractLsb'_zero {w start len : Nat} : (0#w).extractLsb' start len = 0#len := by grind
 
 @[simp]
 theorem extractLsb'_eq_zero {x : BitVec w} {start : Nat} :
-    x.extractLsb' start 0 = 0#0 := by
-  grind
+    x.extractLsb' start 0 = 0#0 := by grind
 
 /-! ### allOnes -/
 
@@ -1138,8 +1071,7 @@ theorem extractLsb'_eq_zero {x : BitVec w} {start : Nat} :
 @[simp, grind =] theorem getLsbD_allOnes : (allOnes v).getLsbD i = decide (i < v) := by
   simp [allOnes]
 
-@[simp] theorem getMsbD_allOnes : (allOnes v).getMsbD i = decide (i < v) := by
-  grind
+@[simp] theorem getMsbD_allOnes : (allOnes v).getMsbD i = decide (i < v) := by grind
 
 @[simp, grind =] theorem getElem_allOnes (i : Nat) (h : i < v) : (allOnes v)[i] = true := by
   grind [getElem_eq_testBit_toNat]
@@ -1153,8 +1085,7 @@ theorem extractLsb'_eq_zero {x : BitVec w} {start : Nat} :
   rw [h, Nat.testBit_two_pow_sub_one]
   grind
 
-theorem msb_allOnes (hw : 0 < w) : (allOnes w).msb = true := by
-  grind
+theorem msb_allOnes (hw : 0 < w) : (allOnes w).msb = true := by grind
 
 /-! ### or -/
 
@@ -1175,64 +1106,50 @@ theorem msb_allOnes (hw : 0 < w) : (allOnes w).msb = true := by
 @[simp, grind =] theorem getLsbD_or {x y : BitVec v} : (x ||| y).getLsbD i = (x.getLsbD i || y.getLsbD i) := by
   grind [testBit_toNat, getLsbD]
 
-@[simp] theorem getMsbD_or {x y : BitVec w} : (x ||| y).getMsbD i = (x.getMsbD i || y.getMsbD i) := by
-  grind
+@[simp] theorem getMsbD_or {x y : BitVec w} : (x ||| y).getMsbD i = (x.getMsbD i || y.getMsbD i) := by grind
 
 @[simp, grind =] theorem getElem_or {x y : BitVec w} {i : Nat} (h : i < w) : (x ||| y)[i] = (x[i] || y[i]) := by
   grind [getElem_eq_testBit_toNat]
 
-@[simp] theorem msb_or {x y : BitVec w} : (x ||| y).msb = (x.msb || y.msb) := by
-  grind
+@[simp] theorem msb_or {x y : BitVec w} : (x ||| y).msb = (x.msb || y.msb) := by grind
 
 @[simp] theorem setWidth_or {x y : BitVec w} :
-    (x ||| y).setWidth k = x.setWidth k ||| y.setWidth k := by
-  grind
+    (x ||| y).setWidth k = x.setWidth k ||| y.setWidth k := by grind
 
 theorem or_assoc (x y z : BitVec w) :
-    x ||| y ||| z = x ||| (y ||| z) := by
-  grind
+    x ||| y ||| z = x ||| (y ||| z) := by grind
 instance : Std.Associative (α := BitVec n) (· ||| ·) := ⟨BitVec.or_assoc⟩
 
 theorem or_comm (x y : BitVec w) :
-    x ||| y = y ||| x := by
-  grind
+    x ||| y = y ||| x := by grind
 instance : Std.Commutative (fun (x y : BitVec w) => x ||| y) := ⟨BitVec.or_comm⟩
 
-@[simp] theorem or_self {x : BitVec w} : x ||| x = x := by
-  grind
+@[simp] theorem or_self {x : BitVec w} : x ||| x = x := by grind
 
 instance : Std.IdempotentOp (α := BitVec n) (· ||| · ) where
   idempotent _ := BitVec.or_self
 
-@[simp] theorem or_zero {x : BitVec w} : x ||| 0#w = x := by
-  grind
+@[simp] theorem or_zero {x : BitVec w} : x ||| 0#w = x := by grind
 
 instance : Std.LawfulCommIdentity (α := BitVec n) (· ||| · ) (0#n) where
   right_id _ := BitVec.or_zero
 
-@[simp] theorem zero_or {x : BitVec w} : 0#w ||| x = x := by
-  grind
+@[simp] theorem zero_or {x : BitVec w} : 0#w ||| x = x := by grind
 
-@[simp] theorem ofBool_or_ofBool : ofBool b ||| ofBool b' = ofBool (b || b') := by
-  grind
+@[simp] theorem ofBool_or_ofBool : ofBool b ||| ofBool b' = ofBool (b || b') := by grind
 
-@[simp] theorem or_allOnes {x : BitVec w} : x ||| allOnes w = allOnes w := by
-  grind
+@[simp] theorem or_allOnes {x : BitVec w} : x ||| allOnes w = allOnes w := by grind
 
-@[simp] theorem allOnes_or {x : BitVec w} : allOnes w ||| x = allOnes w := by
-  grind
+@[simp] theorem allOnes_or {x : BitVec w} : allOnes w ||| x = allOnes w := by grind
 
 @[simp]
-theorem or_eq_zero_iff {x y : BitVec w} : (x ||| y) = 0#w ↔ x = 0#w ∧ y = 0#w := by
-  grind
+theorem or_eq_zero_iff {x y : BitVec w} : (x ||| y) = 0#w ↔ x = 0#w ∧ y = 0#w := by grind
 
 theorem extractLsb'_or {x y : BitVec w} {start len : Nat} :
-   (x ||| y).extractLsb' start len = (x.extractLsb' start len) ||| (y.extractLsb' start len) := by
-  grind
+   (x ||| y).extractLsb' start len = (x.extractLsb' start len) ||| (y.extractLsb' start len) := by grind
 
 theorem extractLsb_or {x : BitVec w} {hi lo : Nat} :
-   (x ||| y).extractLsb lo hi = (x.extractLsb lo hi) ||| (y.extractLsb lo hi) := by
-  grind
+   (x ||| y).extractLsb lo hi = (x.extractLsb lo hi) ||| (y.extractLsb lo hi) := by grind
 
 @[simp, grind =]
 theorem ofNat_or {x y : Nat} : BitVec.ofNat w (x ||| y) = BitVec.ofNat w x ||| BitVec.ofNat w y :=
@@ -1257,65 +1174,51 @@ theorem ofNat_or {x y : Nat} : BitVec.ofNat w (x ||| y) = BitVec.ofNat w x ||| B
 @[simp, grind =] theorem getLsbD_and {x y : BitVec v} : (x &&& y).getLsbD i = (x.getLsbD i && y.getLsbD i) := by
   grind [testBit_toNat, getLsbD]
 
-@[simp] theorem getMsbD_and {x y : BitVec w} : (x &&& y).getMsbD i = (x.getMsbD i && y.getMsbD i) := by
-  grind
+@[simp] theorem getMsbD_and {x y : BitVec w} : (x &&& y).getMsbD i = (x.getMsbD i && y.getMsbD i) := by grind
 
 @[simp, grind =] theorem getElem_and {x y : BitVec w} {i : Nat} (h : i < w) : (x &&& y)[i] = (x[i] && y[i]) := by
   grind [getElem_eq_testBit_toNat]
 
-@[simp] theorem msb_and {x y : BitVec w} : (x &&& y).msb = (x.msb && y.msb) := by
-  grind
+@[simp] theorem msb_and {x y : BitVec w} : (x &&& y).msb = (x.msb && y.msb) := by grind
 
 @[simp] theorem setWidth_and {x y : BitVec w} :
-    (x &&& y).setWidth k = x.setWidth k &&& y.setWidth k := by
-  grind
+    (x &&& y).setWidth k = x.setWidth k &&& y.setWidth k := by grind
 
 theorem and_assoc (x y z : BitVec w) :
-    x &&& y &&& z = x &&& (y &&& z) := by
-  grind
+    x &&& y &&& z = x &&& (y &&& z) := by grind
 instance : Std.Associative (α := BitVec n) (· &&& ·) := ⟨BitVec.and_assoc⟩
 
 theorem and_comm (x y : BitVec w) :
-    x &&& y = y &&& x := by
-  grind
+    x &&& y = y &&& x := by grind
 instance : Std.Commutative (fun (x y : BitVec w) => x &&& y) := ⟨BitVec.and_comm⟩
 
-@[simp] theorem and_self {x : BitVec w} : x &&& x = x := by
-  grind
+@[simp] theorem and_self {x : BitVec w} : x &&& x = x := by grind
 
 instance : Std.IdempotentOp (α := BitVec n) (· &&& · ) where
   idempotent _ := BitVec.and_self
 
-@[simp] theorem and_zero {x : BitVec w} : x &&& 0#w = 0#w := by
-  grind
+@[simp] theorem and_zero {x : BitVec w} : x &&& 0#w = 0#w := by grind
 
-@[simp] theorem zero_and {x : BitVec w} : 0#w &&& x = 0#w := by
-  grind
+@[simp] theorem zero_and {x : BitVec w} : 0#w &&& x = 0#w := by grind
 
-@[simp] theorem ofBool_and_ofBool : ofBool b &&& ofBool b' = ofBool (b && b') := by
-  grind
+@[simp] theorem ofBool_and_ofBool : ofBool b &&& ofBool b' = ofBool (b && b') := by grind
 
-@[simp] theorem and_allOnes {x : BitVec w} : x &&& allOnes w = x := by
-  grind
+@[simp] theorem and_allOnes {x : BitVec w} : x &&& allOnes w = x := by grind
 
 instance : Std.LawfulCommIdentity (α := BitVec n) (· &&& · ) (allOnes n) where
   right_id _ := BitVec.and_allOnes
 
-@[simp] theorem allOnes_and {x : BitVec w} : allOnes w &&& x = x := by
-  grind
+@[simp] theorem allOnes_and {x : BitVec w} : allOnes w &&& x = x := by grind
 
 @[simp]
 theorem and_eq_allOnes_iff {x y : BitVec w} :
-    x &&& y = allOnes w ↔ x = allOnes w ∧ y = allOnes w := by
-  grind
+    x &&& y = allOnes w ↔ x = allOnes w ∧ y = allOnes w := by grind
 
 theorem extractLsb'_and {x y : BitVec w} {start len : Nat} :
-   (x &&& y).extractLsb' start len = (x.extractLsb' start len) &&& (y.extractLsb' start len) := by
-  grind
+   (x &&& y).extractLsb' start len = (x.extractLsb' start len) &&& (y.extractLsb' start len) := by grind
 
 theorem extractLsb_and {x : BitVec w} {hi lo : Nat} :
-   (x &&& y).extractLsb lo hi = (x.extractLsb lo hi) &&& (y.extractLsb lo hi) := by
-  grind
+   (x &&& y).extractLsb lo hi = (x.extractLsb lo hi) &&& (y.extractLsb lo hi) := by grind
 
 @[simp, grind =]
 theorem ofNat_and {x y : Nat} : BitVec.ofNat w (x &&& y) = BitVec.ofNat w x &&& BitVec.ofNat w y :=
@@ -1342,41 +1245,33 @@ theorem ofNat_and {x y : Nat} : BitVec.ofNat w (x &&& y) = BitVec.ofNat w x &&& 
   grind [testBit_toNat, getLsbD]
 
 @[simp] theorem getMsbD_xor {x y : BitVec w} :
-    (x ^^^ y).getMsbD i = (x.getMsbD i ^^ y.getMsbD i) := by
-  grind
+    (x ^^^ y).getMsbD i = (x.getMsbD i ^^ y.getMsbD i) := by grind
 
 @[simp, grind =] theorem getElem_xor {x y : BitVec w} {i : Nat} (h : i < w) : (x ^^^ y)[i] = (x[i] ^^ y[i]) := by
   grind [getElem_eq_testBit_toNat]
 
 @[simp] theorem msb_xor {x y : BitVec w} :
-    (x ^^^ y).msb = (x.msb ^^ y.msb) := by
-  grind
+    (x ^^^ y).msb = (x.msb ^^ y.msb) := by grind
 
 @[simp] theorem setWidth_xor {x y : BitVec w} :
-    (x ^^^ y).setWidth k = x.setWidth k ^^^ y.setWidth k := by
-  grind
+    (x ^^^ y).setWidth k = x.setWidth k ^^^ y.setWidth k := by grind
 
 theorem xor_assoc (x y z : BitVec w) :
-    x ^^^ y ^^^ z = x ^^^ (y ^^^ z) := by
-  grind
+    x ^^^ y ^^^ z = x ^^^ (y ^^^ z) := by grind
 instance : Std.Associative (fun (x y : BitVec w) => x ^^^ y) := ⟨BitVec.xor_assoc⟩
 
 theorem xor_comm (x y : BitVec w) :
-    x ^^^ y = y ^^^ x := by
-  grind
+    x ^^^ y = y ^^^ x := by grind
 instance : Std.Commutative (fun (x y : BitVec w) => x ^^^ y) := ⟨BitVec.xor_comm⟩
 
-@[simp] theorem xor_self {x : BitVec w} : x ^^^ x = 0#w := by
-  grind
+@[simp] theorem xor_self {x : BitVec w} : x ^^^ x = 0#w := by grind
 
-@[simp] theorem xor_zero {x : BitVec w} : x ^^^ 0#w = x := by
-  grind
+@[simp] theorem xor_zero {x : BitVec w} : x ^^^ 0#w = x := by grind
 
 instance : Std.LawfulCommIdentity (α := BitVec n) (· ^^^ · ) (0#n) where
   right_id _ := BitVec.xor_zero
 
-@[simp] theorem zero_xor {x : BitVec w} : 0#w ^^^ x = x := by
-  grind
+@[simp] theorem zero_xor {x : BitVec w} : 0#w ^^^ x = x := by grind
 
 @[simp]
 theorem xor_left_inj {x y : BitVec w} (z : BitVec w) : (x ^^^ z = y ^^^ z) ↔ x = y := by
@@ -1400,16 +1295,13 @@ theorem xor_eq_zero_iff {x y : BitVec w} : (x ^^^ y = 0#w) ↔ x = y := by
     grind
   · grind
 
-@[simp] theorem ofBool_xor_ofBool : ofBool b ^^^ ofBool b' = ofBool (b ^^ b') := by
-  grind
+@[simp] theorem ofBool_xor_ofBool : ofBool b ^^^ ofBool b' = ofBool (b ^^ b') := by grind
 
 theorem extractLsb'_xor {x y : BitVec w} {start len : Nat} :
-   (x ^^^ y).extractLsb' start len = (x.extractLsb' start len) ^^^ (y.extractLsb' start len) := by
-  grind
+   (x ^^^ y).extractLsb' start len = (x.extractLsb' start len) ^^^ (y.extractLsb' start len) := by grind
 
 theorem extractLsb_xor {x : BitVec w} {hi lo : Nat} :
-   (x ^^^ y).extractLsb lo hi = (x.extractLsb lo hi) ^^^ (y.extractLsb lo hi) := by
-  grind
+   (x ^^^ y).extractLsb lo hi = (x.extractLsb lo hi) ^^^ (y.extractLsb lo hi) := by grind
 
 @[simp, grind =] theorem ofNat_xor {x y : Nat} : BitVec.ofNat w (x ^^^ y) = BitVec.ofNat w x ^^^ BitVec.ofNat w y :=
   eq_of_toNat_eq (by simp [Nat.xor_mod_two_pow])
@@ -1470,8 +1362,7 @@ theorem toNat_not {x : BitVec v} : (~~~x).toNat = 2^v - 1 - x.toNat := by
   grind [not_def]
 
 @[simp] theorem getMsbD_not {x : BitVec v} :
-    (~~~x).getMsbD i = (decide (i < v) && ! x.getMsbD i) := by
-  grind
+    (~~~x).getMsbD i = (decide (i < v) && ! x.getMsbD i) := by grind
 
 @[simp, grind =] theorem getElem_not {x : BitVec w} {i : Nat} (h : i < w) : (~~~x)[i] = !x[i] := by
   grind [getElem_eq_testBit_toNat]
@@ -1496,26 +1387,20 @@ theorem not_not {b : BitVec w} : ~~~(~~~b) = b := by grind
 protected theorem not_inj {x y : BitVec w} : ~~~x = ~~~y ↔ x = y :=
   ⟨fun h => by rw [← @not_not w x, ← @not_not w y, h], congrArg _⟩
 
-@[simp] theorem and_not_self (x : BitVec w) : x &&& ~~~x = 0 := by
-  grind
+@[simp] theorem and_not_self (x : BitVec w) : x &&& ~~~x = 0 := by grind
 
-@[simp] theorem not_and_self (x : BitVec w) : ~~~x &&& x = 0 := by
-  grind
+@[simp] theorem not_and_self (x : BitVec w) : ~~~x &&& x = 0 := by grind
 
-@[simp] theorem or_not_self (x : BitVec w) : x ||| ~~~x = allOnes w := by
-  grind
+@[simp] theorem or_not_self (x : BitVec w) : x ||| ~~~x = allOnes w := by grind
 
-@[simp] theorem not_or_self (x : BitVec w) : ~~~x ||| x = allOnes w := by
-  grind
+@[simp] theorem not_or_self (x : BitVec w) : ~~~x ||| x = allOnes w := by grind
 
-theorem not_eq_comm {x y : BitVec w} : ~~~ x = y ↔ x = ~~~ y := by
-  grind
+theorem not_eq_comm {x y : BitVec w} : ~~~ x = y ↔ x = ~~~ y := by grind
 
 set_option linter.missingDocs false in
 @[deprecated getMsbD_not (since := "2025-04-04")] abbrev getMsb_not := @getMsbD_not
 
-@[simp] theorem msb_not {x : BitVec w} : (~~~x).msb = (decide (0 < w) && !x.msb) := by
-  grind
+@[simp] theorem msb_not {x : BitVec w} : (~~~x).msb = (decide (0 < w) && !x.msb) := by grind
 
 /--
 Negating `x` and then extracting [start..start+len) is the same as extracting and then negating,
@@ -1524,8 +1409,7 @@ See that if the index is out-of-bounds, then `extractLsb` will return `false`,
 which makes the operation not commute.
 -/
 theorem extractLsb'_not_of_lt {x : BitVec w} {start len : Nat} (h : start + len < w) :
-   (~~~ x).extractLsb' start len = ~~~ (x.extractLsb' start len) := by
-  grind
+   (~~~ x).extractLsb' start len = ~~~ (x.extractLsb' start len) := by grind
 
 /--
 Negating `x` and then extracting [lo:hi] is the same as extracting and then negating.
@@ -1535,8 +1419,7 @@ we need the range [lo:hi] to be a valid closed interval inside the bitvector:
 2. `hi < w`, for the interval to be contained inside the bitvector.
 -/
 theorem extractLsb_not_of_lt {x : BitVec w} {hi lo : Nat} (hlo : lo ≤ hi) (hhi : hi < w) :
-   (~~~ x).extractLsb hi lo = ~~~ (x.extractLsb hi lo) := by
-  grind
+   (~~~ x).extractLsb hi lo = ~~~ (x.extractLsb hi lo) := by grind
 
 @[simp]
 theorem ne_not_self {a : BitVec w} (h : 0 < w) : a ≠ ~~~a := by
@@ -1547,31 +1430,23 @@ theorem ne_not_self {a : BitVec w} (h : 0 < w) : a ≠ ~~~a := by
 theorem not_self_ne {a : BitVec w} (h : 0 < w) : ~~~a ≠ a := by
   grind [ne_not_self]
 
-theorem not_and {x y : BitVec w} : ~~~ (x &&& y) = ~~~ x ||| ~~~ y := by
-  grind
+theorem not_and {x y : BitVec w} : ~~~ (x &&& y) = ~~~ x ||| ~~~ y := by grind
 
-theorem not_or {x y : BitVec w} : ~~~ (x ||| y) = ~~~ x &&& ~~~ y := by
-  grind
+theorem not_or {x y : BitVec w} : ~~~ (x ||| y) = ~~~ x &&& ~~~ y := by grind
 
-theorem not_xor_left {x y : BitVec w} : ~~~ (x ^^^ y) = ~~~ x ^^^ y := by
-  grind
+theorem not_xor_left {x y : BitVec w} : ~~~ (x ^^^ y) = ~~~ x ^^^ y := by grind
 
-theorem not_xor_right {x y : BitVec w} : ~~~ (x ^^^ y) = x ^^^ ~~~ y := by
-  grind
+theorem not_xor_right {x y : BitVec w} : ~~~ (x ^^^ y) = x ^^^ ~~~ y := by grind
 
 /-! ### cast -/
 
-@[simp] theorem not_cast {x : BitVec w} (h : w = w') : ~~~(x.cast h) = (~~~x).cast h := by
-  grind
+@[simp] theorem not_cast {x : BitVec w} (h : w = w') : ~~~(x.cast h) = (~~~x).cast h := by grind
 
-@[simp] theorem and_cast {x y : BitVec w} (h : w = w') : x.cast h &&& y.cast h = (x &&& y).cast h := by
-  grind
+@[simp] theorem and_cast {x y : BitVec w} (h : w = w') : x.cast h &&& y.cast h = (x &&& y).cast h := by grind
 
-@[simp] theorem or_cast {x y : BitVec w} (h : w = w') : x.cast h ||| y.cast h = (x ||| y).cast h := by
-  grind
+@[simp] theorem or_cast {x y : BitVec w} (h : w = w') : x.cast h ||| y.cast h = (x ||| y).cast h := by grind
 
-@[simp] theorem xor_cast {x y : BitVec w} (h : w = w') : x.cast h ^^^ y.cast h = (x ^^^ y).cast h := by
-  grind
+@[simp] theorem xor_cast {x y : BitVec w} (h : w = w') : x.cast h ^^^ y.cast h = (x ^^^ y).cast h := by grind
 
 /-! ### shiftLeft -/
 
@@ -1605,20 +1480,16 @@ theorem zero_shiftLeft (n : Nat) : 0#w <<< n = 0#w := by
   grind [getElem_eq_testBit_toNat]
 
 theorem shiftLeft_xor_distrib (x y : BitVec w) (n : Nat) :
-    (x ^^^ y) <<< n = (x <<< n) ^^^ (y <<< n) := by
-  grind
+    (x ^^^ y) <<< n = (x <<< n) ^^^ (y <<< n) := by grind
 
 theorem shiftLeft_and_distrib (x y : BitVec w) (n : Nat) :
-    (x &&& y) <<< n = (x <<< n) &&& (y <<< n) := by
-  grind
+    (x &&& y) <<< n = (x <<< n) &&& (y <<< n) := by grind
 
 theorem shiftLeft_or_distrib (x y : BitVec w) (n : Nat) :
-    (x ||| y) <<< n = (x <<< n) ||| (y <<< n) := by
-  grind
+    (x ||| y) <<< n = (x <<< n) ||| (y <<< n) := by grind
 
 @[simp] theorem getMsbD_shiftLeft (x : BitVec w) (i) :
-    (x <<< i).getMsbD k = x.getMsbD (k + i) := by
-  grind
+    (x <<< i).getMsbD k = x.getMsbD (k + i) := by grind
 
 @[grind =]
 theorem shiftLeftZeroExtend_eq {x : BitVec w} :
@@ -1691,38 +1562,31 @@ theorem toFin_shiftLeftZeroExtend {x : BitVec w} :
     rw [shiftLeftZeroExtend_eq, toFin_shiftLeft, toNat_setWidth, Nat.mod_eq_of_lt (by omega), Nat.shiftLeft_eq]
 
 @[simp] theorem getElem_shiftLeftZeroExtend {x : BitVec m} {n : Nat} (h : i < m + n) :
-    (shiftLeftZeroExtend x n)[i] = if h' : i < n then false else x[i - n] := by
-  grind
+    (shiftLeftZeroExtend x n)[i] = if h' : i < n then false else x[i - n] := by grind
 
 @[simp] theorem getLsbD_shiftLeftZeroExtend (x : BitVec m) (n : Nat) :
-    getLsbD (shiftLeftZeroExtend x n) i = ((! decide (i < n)) && getLsbD x (i - n)) := by
-  grind
+    getLsbD (shiftLeftZeroExtend x n) i = ((! decide (i < n)) && getLsbD x (i - n)) := by grind
 
 @[simp, grind =] theorem getMsbD_shiftLeftZeroExtend (x : BitVec m) (n : Nat) :
     getMsbD (shiftLeftZeroExtend x n) i = getMsbD x i := by
   grind (splits := 11)
 
 @[simp] theorem msb_shiftLeftZeroExtend (x : BitVec w) (i : Nat) :
-    (shiftLeftZeroExtend x i).msb = x.msb := by
-  grind
+    (shiftLeftZeroExtend x i).msb = x.msb := by grind
 
 theorem shiftLeft_add {w : Nat} (x : BitVec w) (n m : Nat) :
-    x <<< (n + m) = (x <<< n) <<< m := by
-  grind
+    x <<< (n + m) = (x <<< n) <<< m := by grind
 
 @[simp]
 theorem allOnes_shiftLeft_and_shiftLeft {x : BitVec w} {n : Nat} :
-    BitVec.allOnes w <<< n &&& x <<< n = x <<< n := by
-  grind
+    BitVec.allOnes w <<< n &&& x <<< n = x <<< n := by grind
 
 @[simp]
 theorem allOnes_shiftLeft_or_shiftLeft {x : BitVec w} {n : Nat} :
-    BitVec.allOnes w <<< n ||| x <<< n = BitVec.allOnes w <<< n := by
-  grind
+    BitVec.allOnes w <<< n ||| x <<< n = BitVec.allOnes w <<< n := by grind
 
 @[simp] theorem setWidth_shiftLeft_of_le {x : BitVec w} {y : Nat} (hi : i ≤ w)  :
-    (x <<< y).setWidth i = x.setWidth i <<< y := by
-  grind
+    (x <<< y).setWidth i = x.setWidth i <<< y := by grind
 
 /-! ### shiftLeft reductions from BitVec to Nat -/
 
@@ -1736,15 +1600,12 @@ theorem shiftLeft_shiftLeft' {x : BitVec w₁} {y : BitVec w₂} {z : BitVec w�
   simp [shiftLeft_add]
 
 theorem getLsbD_shiftLeft' {x : BitVec w₁} {y : BitVec w₂} {i : Nat} :
-    (x <<< y).getLsbD i = (decide (i < w₁) && !decide (i < y.toNat) && x.getLsbD (i - y.toNat)) := by
-  grind
+    (x <<< y).getLsbD i = (decide (i < w₁) && !decide (i < y.toNat) && x.getLsbD (i - y.toNat)) := by grind
 
 theorem getElem_shiftLeft' {x : BitVec w₁} {y : BitVec w₂} {i : Nat} (h : i < w₁) :
-    (x <<< y)[i] = (!decide (i < y.toNat) && x[i - y.toNat]) := by
-  grind
+    (x <<< y)[i] = (!decide (i < y.toNat) && x[i - y.toNat]) := by grind
 
-@[simp] theorem shiftLeft_eq_zero {x : BitVec w} {n : Nat} (hn : w ≤ n) : x <<< n = 0#w := by
-  grind
+@[simp] theorem shiftLeft_eq_zero {x : BitVec w} {n : Nat} (hn : w ≤ n) : x <<< n = 0#w := by grind
 
 theorem shiftLeft_ofNat_eq {x : BitVec w} {k : Nat} : x <<< (BitVec.ofNat w k) = x <<< (k % 2^w) := rfl
 
@@ -1763,16 +1624,13 @@ theorem toNat_ushiftRight (x : BitVec n) (i : Nat) :
   grind [getElem_eq_testBit_toNat, getLsbD]
 
 theorem ushiftRight_xor_distrib (x y : BitVec w) (n : Nat) :
-    (x ^^^ y) >>> n = (x >>> n) ^^^ (y >>> n) := by
-  grind
+    (x ^^^ y) >>> n = (x >>> n) ^^^ (y >>> n) := by grind
 
 theorem ushiftRight_and_distrib (x y : BitVec w) (n : Nat) :
-    (x &&& y) >>> n = (x >>> n) &&& (y >>> n) := by
-  grind
+    (x &&& y) >>> n = (x >>> n) &&& (y >>> n) := by grind
 
 theorem ushiftRight_or_distrib (x y : BitVec w)  (n : Nat) :
-    (x ||| y) >>> n = (x >>> n) ||| (y >>> n) := by
-  grind
+    (x ||| y) >>> n = (x >>> n) ||| (y >>> n) := by grind
 
 @[simp, grind =]
 theorem ushiftRight_zero (x : BitVec w) : x >>> 0 = x := by
@@ -1850,12 +1708,10 @@ theorem getMsbD_ushiftRight {x : BitVec w} {i n : Nat} :
 
 @[simp]
 theorem msb_ushiftRight {x : BitVec w} {n : Nat} :
-    (x >>> n).msb = (!decide (0 < n) && x.msb) := by
-  grind
+    (x >>> n).msb = (!decide (0 < n) && x.msb) := by grind
 
 @[simp] theorem setWidth_ushiftRight {x : BitVec w} {y : Nat} (hi : w ≤ i) :
-    (x >>> y).setWidth i = x.setWidth i >>> y := by
-  grind
+    (x >>> y).setWidth i = x.setWidth i >>> y := by grind
 
 /-! ### ushiftRight reductions from BitVec to Nat -/
 
@@ -1916,8 +1772,7 @@ theorem sshiftRight_eq_of_msb_true {x : BitVec w} {s : Nat} (h : x.msb = true) :
 @[grind =]
 theorem getLsbD_sshiftRight (x : BitVec w) (s i : Nat) :
     getLsbD (x.sshiftRight s) i =
-      (!decide (w ≤ i) && if s + i < w then x.getLsbD (s + i) else x.msb) := by
-  grind
+      (!decide (w ≤ i) && if s + i < w then x.getLsbD (s + i) else x.msb) := by grind
 
 @[grind =]
 theorem getElem_sshiftRight {x : BitVec w} {s i : Nat} (h : i < w) :
@@ -1926,16 +1781,13 @@ theorem getElem_sshiftRight {x : BitVec w} {s i : Nat} (h : i < w) :
   grind
 
 theorem sshiftRight_xor_distrib (x y : BitVec w) (n : Nat) :
-    (x ^^^ y).sshiftRight n = (x.sshiftRight n) ^^^ (y.sshiftRight n) := by
-  grind
+    (x ^^^ y).sshiftRight n = (x.sshiftRight n) ^^^ (y.sshiftRight n) := by grind
 
 theorem sshiftRight_and_distrib (x y : BitVec w) (n : Nat) :
-    (x &&& y).sshiftRight n = (x.sshiftRight n) &&& (y.sshiftRight n) := by
-  grind
+    (x &&& y).sshiftRight n = (x.sshiftRight n) &&& (y.sshiftRight n) := by grind
 
 theorem sshiftRight_or_distrib (x y : BitVec w) (n : Nat) :
-    (x ||| y).sshiftRight n = (x.sshiftRight n) ||| (y.sshiftRight n) := by
-  grind
+    (x ||| y).sshiftRight n = (x.sshiftRight n) ||| (y.sshiftRight n) := by grind
 
 @[grind =]
 theorem sshiftRight'_ofNat_eq_sshiftRight {x : BitVec w} {k : Nat} :
@@ -1944,27 +1796,21 @@ theorem sshiftRight'_ofNat_eq_sshiftRight {x : BitVec w} {k : Nat} :
 /-- The msb after arithmetic shifting right equals the original msb. -/
 @[simp]
 theorem msb_sshiftRight {n : Nat} {x : BitVec w} :
-    (x.sshiftRight n).msb = x.msb := by
-  grind
+    (x.sshiftRight n).msb = x.msb := by grind
 
-@[simp] theorem sshiftRight_zero {x : BitVec w} : x.sshiftRight 0 = x := by
-  grind
+@[simp] theorem sshiftRight_zero {x : BitVec w} : x.sshiftRight 0 = x := by grind
 
-@[simp] theorem zero_sshiftRight {n : Nat} : (0#w).sshiftRight n = 0#w := by
-  grind
+@[simp] theorem zero_sshiftRight {n : Nat} : (0#w).sshiftRight n = 0#w := by grind
 
 theorem sshiftRight_add {x : BitVec w} {m n : Nat} :
-    x.sshiftRight (m + n) = (x.sshiftRight m).sshiftRight n := by
-  grind
+    x.sshiftRight (m + n) = (x.sshiftRight m).sshiftRight n := by grind
 
 theorem not_sshiftRight {b : BitVec w} :
-    ~~~b.sshiftRight n = (~~~b).sshiftRight n := by
-  grind
+    ~~~b.sshiftRight n = (~~~b).sshiftRight n := by grind
 
 @[simp]
 theorem not_sshiftRight_not {x : BitVec w} {n : Nat} :
-    ~~~((~~~x).sshiftRight n) = x.sshiftRight n := by
-  grind
+    ~~~((~~~x).sshiftRight n) = x.sshiftRight n := by grind
 
 @[simp, grind =]
 theorem getMsbD_sshiftRight {x : BitVec w} {i n : Nat} :
@@ -1990,20 +1836,17 @@ theorem le_toInt_shiftRight {x : BitVec w} {n : Nat} :
   grind
 
 theorem toNat_sshiftRight_of_msb_true {x : BitVec w} {n : Nat} (h : x.msb = true) :
-    (x.sshiftRight n).toNat = 2 ^ w - 1 - (2 ^ w - 1 - x.toNat) >>> n := by
-  grind
+    (x.sshiftRight n).toNat = 2 ^ w - 1 - (2 ^ w - 1 - x.toNat) >>> n := by grind
 
 theorem toNat_sshiftRight_of_msb_false {x : BitVec w} {n : Nat} (h : x.msb = false) :
-    (x.sshiftRight n).toNat = x.toNat >>> n := by
-  grind
+    (x.sshiftRight n).toNat = x.toNat >>> n := by grind
 
 theorem toNat_sshiftRight {x : BitVec w} {n : Nat} :
     (x.sshiftRight n).toNat =
       if x.msb then
         2 ^ w - 1 - (2 ^ w - 1 - x.toNat) >>> n
       else
-        x.toNat >>> n := by
-  grind
+        x.toNat >>> n := by grind
 
 theorem toFin_sshiftRight_of_msb_true {x : BitVec w} {n : Nat} (h : x.msb = true) :
     (x.sshiftRight n).toFin = Fin.ofNat (2^w) (2 ^ w - 1 - (2 ^ w - 1 - x.toNat) >>> n) := by
@@ -2078,24 +1921,20 @@ theorem toFin_sshiftRight' {x y : BitVec w} :
   rw [sshiftRight_eq', toFin_sshiftRight]
 
 theorem toInt_sshiftRight' {x y : BitVec w} :
-    (x.sshiftRight' y).toInt = x.toInt >>> y.toNat := by
-  grind
+    (x.sshiftRight' y).toInt = x.toInt >>> y.toNat := by grind
 
 -- This should not be a `@[simp]` lemma as the left hand side is not in simp normal form.
 theorem getLsbD_sshiftRight' {x y : BitVec w} {i : Nat} :
     getLsbD (x.sshiftRight' y) i =
-      (!decide (w ≤ i) && if y.toNat + i < w then x.getLsbD (y.toNat + i) else x.msb) := by
-  grind
+      (!decide (w ≤ i) && if y.toNat + i < w then x.getLsbD (y.toNat + i) else x.msb) := by grind
 
 -- This should not be a `@[simp]` lemma as the left hand side is not in simp normal form.
 theorem getElem_sshiftRight' {x y : BitVec w} {i : Nat} (h : i < w) :
-    (x.sshiftRight' y)[i] = (if h : y.toNat + i < w then x[y.toNat + i] else x.msb) := by
-  grind
+    (x.sshiftRight' y)[i] = (if h : y.toNat + i < w then x[y.toNat + i] else x.msb) := by grind
 
 theorem getMsbD_sshiftRight' {x y: BitVec w} {i : Nat} :
     (x.sshiftRight y.toNat).getMsbD i =
-      (decide (i < w) && if i < y.toNat then x.msb else x.getMsbD (i - y.toNat)) := by
-  grind
+      (decide (i < w) && if i < y.toNat then x.msb else x.getMsbD (i - y.toNat)) := by grind
 
 theorem msb_sshiftRight' {x y: BitVec w} :
     (x.sshiftRight' y).msb = x.msb := by simp
@@ -2160,16 +1999,14 @@ theorem msb_signExtend {x : BitVec w} :
 
 /-- Sign extending to a width smaller than the starting width is a truncation. -/
 theorem signExtend_eq_setWidth_of_le (x : BitVec w) {v : Nat} (hv : v ≤ w) :
-    x.signExtend v = x.setWidth v := by
-  grind
+    x.signExtend v = x.setWidth v := by grind
 
 @[deprecated signExtend_eq_setWidth_of_le (since := "2025-03-07")]
 theorem signExtend_eq_setWidth_of_lt (x : BitVec w) {v : Nat} (hv : v ≤ w) :
     x.signExtend v = x.setWidth v := signExtend_eq_setWidth_of_le x hv
 
 /-- Sign extending to the same bitwidth is a no op. -/
-@[simp] theorem signExtend_eq (x : BitVec w) : x.signExtend w = x := by
-  grind
+@[simp] theorem signExtend_eq (x : BitVec w) : x.signExtend w = x := by grind
 
 /-- Sign extending to a larger bitwidth depends on the msb.
 If the msb is false, then the result equals the original value.
@@ -2303,8 +2140,7 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
     (x ++ y).msb = if w = 0 then y.msb else x.msb := by
   grind (splits := 14) [append_def]
 
-@[simp] theorem append_zero_width (x : BitVec w) (y : BitVec 0) : x ++ y = x := by
-  grind
+@[simp] theorem append_zero_width (x : BitVec w) (y : BitVec 0) : x ++ y = x := by grind
 
 @[grind =]
 theorem toInt_append {x : BitVec n} {y : BitVec m} :
@@ -2370,47 +2206,37 @@ theorem toNat_shiftLeft_or_toNat_lt_two_pow_add {m n : Nat} (x : BitVec m) (y : 
   ext i ih
   simp [getElem_append, show i < v by omega]
 
-@[simp] theorem zero_append_zero : 0#v ++ 0#w = 0#(v + w) := by
-  grind
+@[simp] theorem zero_append_zero : 0#v ++ 0#w = 0#(v + w) := by grind
 
 @[simp] theorem cast_append_right (h : w + v = w + v') (x : BitVec w) (y : BitVec v) :
-    (x ++ y).cast h = x ++ y.cast (by omega) := by
-  grind
+    (x ++ y).cast h = x ++ y.cast (by omega) := by grind
 
 @[simp] theorem cast_append_left (h : w + v = w' + v) (x : BitVec w) (y : BitVec v) :
-    (x ++ y).cast h = x.cast (by omega) ++ y := by
-  grind
+    (x ++ y).cast h = x.cast (by omega) ++ y := by grind
 
 theorem setWidth_append {x : BitVec w} {y : BitVec v} :
-    (x ++ y).setWidth k = if h : k ≤ v then y.setWidth k else (x.setWidth (k - v) ++ y).cast (by omega) := by
-  grind
+    (x ++ y).setWidth k = if h : k ≤ v then y.setWidth k else (x.setWidth (k - v) ++ y).cast (by omega) := by grind
 
 @[simp] theorem setWidth_append_of_eq {x : BitVec v} {y : BitVec w} (h : w' = w) :
     setWidth (v' + w') (x ++ y) = setWidth v' x ++ setWidth w' y := by
   subst h
   grind
 
-@[simp] theorem setWidth_cons {x : BitVec w} : (cons a x).setWidth w = x := by
-  grind
+@[simp] theorem setWidth_cons {x : BitVec w} : (cons a x).setWidth w = x := by grind
 
-@[simp] theorem not_append {x : BitVec w} {y : BitVec v} : ~~~ (x ++ y) = (~~~ x) ++ (~~~ y) := by
-  grind
+@[simp] theorem not_append {x : BitVec w} {y : BitVec v} : ~~~ (x ++ y) = (~~~ x) ++ (~~~ y) := by grind
 
 @[simp] theorem and_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
-    (x₁ ++ y₁) &&& (x₂ ++ y₂) = (x₁ &&& x₂) ++ (y₁ &&& y₂) := by
-  grind
+    (x₁ ++ y₁) &&& (x₂ ++ y₂) = (x₁ &&& x₂) ++ (y₁ &&& y₂) := by grind
 
 @[simp] theorem or_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
-    (x₁ ++ y₁) ||| (x₂ ++ y₂) = (x₁ ||| x₂) ++ (y₁ ||| y₂) := by
-  grind
+    (x₁ ++ y₁) ||| (x₂ ++ y₂) = (x₁ ||| x₂) ++ (y₁ ||| y₂) := by grind
 
 @[simp] theorem xor_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
-    (x₁ ++ y₁) ^^^ (x₂ ++ y₂) = (x₁ ^^^ x₂) ++ (y₁ ^^^ y₂) := by
-  grind
+    (x₁ ++ y₁) ^^^ (x₂ ++ y₂) = (x₁ ^^^ x₂) ++ (y₁ ^^^ y₂) := by grind
 
 theorem shiftRight_add {w : Nat} (x : BitVec w) (n m : Nat) :
-    x >>> (n + m) = (x >>> n) >>> m:= by
-  grind
+    x >>> (n + m) = (x >>> n) >>> m:= by grind
 
 theorem shiftLeft_ushiftRight {x : BitVec w} {n : Nat}:
     x >>> n <<< n = x &&& BitVec.allOnes w <<< n := by
@@ -2418,8 +2244,7 @@ theorem shiftLeft_ushiftRight {x : BitVec w} {n : Nat}:
 
 @[simp]
 theorem msb_shiftLeft {x : BitVec w} {n : Nat} :
-    (x <<< n).msb = x.getMsbD n := by
-  grind
+    (x <<< n).msb = x.getMsbD n := by grind
 
 /--
 A `(x : BitVec v)` set to width `w` equals `(v - w)` zeros,
@@ -2435,8 +2260,7 @@ theorem setWidth_eq_append_extractLsb' {v : Nat} {x : BitVec v} {w : Nat} :
 A `(x : BitVec v)` set to a width `w ≥ v` equals `(w - v)` zeros, followed by `x`.
 -/
 theorem setWidth_eq_append {v : Nat} {x : BitVec v} {w : Nat} (h : v ≤ w) :
-    x.setWidth w = ((0#(w - v)) ++ x).cast (by omega) := by
-  grind
+    x.setWidth w = ((0#(w - v)) ++ x).cast (by omega) := by grind
 
 theorem setWidth_eq_extractLsb' {v : Nat} {x : BitVec v} {w : Nat} (h : w ≤ v) :
     x.setWidth w = x.extractLsb' 0 w := by
@@ -2446,12 +2270,10 @@ theorem setWidth_eq_extractLsb' {v : Nat} {x : BitVec v} {w : Nat} (h : w ≤ v)
   grind
 
 theorem ushiftRight_eq_extractLsb'_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
-    x >>> n = ((0#n) ++ (x.extractLsb' n (w - n))).cast (by omega) := by
-  grind
+    x >>> n = ((0#n) ++ (x.extractLsb' n (w - n))).cast (by omega) := by grind
 
 theorem shiftLeft_eq_concat_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
-    x <<< n = (x.extractLsb' 0 (w - n) ++ 0#n).cast (by omega) := by
-  grind
+    x <<< n = (x.extractLsb' 0 (w - n) ++ 0#n).cast (by omega) := by grind
 
 /-- Combine adjacent `extractLsb'` operations into a single `extractLsb'`. -/
 theorem extractLsb'_append_extractLsb'_eq_extractLsb' {x : BitVec w} (h : start₂ = start₁ + len₁) :
@@ -2478,8 +2300,7 @@ theorem signExtend_eq_append_extractLsb' {w v : Nat} {x : BitVec w} :
 equals high bits of either `0` or `1` depending on `x.msb`, followed by `x`. -/
 theorem signExtend_eq_append_of_le {w v : Nat} {x : BitVec w} (h : w ≤ v) :
     x.signExtend v =
-    ((if x.msb then allOnes (v - w) else 0#(v - w)) ++ x).cast (by omega) := by
-  grind
+    ((if x.msb then allOnes (v - w) else 0#(v - w)) ++ x).cast (by omega) := by grind
 
 /--
 The 'master theorem' for extracting bits from `(xhi ++ xlo)`,
@@ -2516,16 +2337,14 @@ the bits from `xlo` when `start + len` is within `xlo`.
 -/
 theorem extractLsb'_append_eq_of_add_le {v w} {xhi : BitVec v} {xlo : BitVec w}
     {start len : Nat} (h : start + len ≤ w) :
-    extractLsb' start len (xhi ++ xlo) = extractLsb' start len xlo := by
-  grind
+    extractLsb' start len (xhi ++ xlo) = extractLsb' start len xlo := by grind
 
 /-- Extracting bits `[start..start+len)` from `(xhi ++ xlo)` equals extracting
 the bits from `xhi` when `start` is outside `xlo`.
 -/
 theorem extractLsb'_append_eq_of_le {v w} {xhi : BitVec v} {xlo : BitVec w}
     {start len : Nat} (h : w ≤ start) :
-    extractLsb' start len (xhi ++ xlo) = extractLsb' (start - w) len xhi := by
-  grind
+    extractLsb' start len (xhi ++ xlo) = extractLsb' (start - w) len xhi := by grind
 
 /-! ### rev -/
 
@@ -2559,41 +2378,31 @@ theorem getLsbD_cons (b : Bool) {n} (x : BitVec n) (i : Nat) :
     getLsbD (cons b x) i = if i = n then b else getLsbD x i := by
   grind [cases Bool, testBit_toNat]
 
-@[simp] theorem msb_cons : (cons a x).msb = a := by
-  grind
+@[simp] theorem msb_cons : (cons a x).msb = a := by grind
 
-@[simp] theorem getMsbD_cons_zero : (cons a x).getMsbD 0 = a := by
-  grind
+@[simp] theorem getMsbD_cons_zero : (cons a x).getMsbD 0 = a := by grind
 
-@[simp] theorem getMsbD_cons_succ : (cons a x).getMsbD (i + 1) = x.getMsbD i := by
-  grind
+@[simp] theorem getMsbD_cons_succ : (cons a x).getMsbD (i + 1) = x.getMsbD i := by grind
 
 theorem setWidth_succ (x : BitVec w) :
-    setWidth (i+1) x = cons (getLsbD x i) (setWidth i x) := by
-  grind
+    setWidth (i+1) x = cons (getLsbD x i) (setWidth i x) := by grind
 
-@[simp] theorem not_cons (x : BitVec w) (b : Bool) : ~~~(cons b x) = cons (!b) (~~~x) := by
-  grind
+@[simp] theorem not_cons (x : BitVec w) (b : Bool) : ~~~(cons b x) = cons (!b) (~~~x) := by grind
 
 @[simp] theorem cons_or_cons (x y : BitVec w) (a b : Bool) :
-    (cons a x) ||| (cons b y) = cons (a || b) (x ||| y) := by
-  grind
+    (cons a x) ||| (cons b y) = cons (a || b) (x ||| y) := by grind
 
 @[simp] theorem cons_and_cons (x y : BitVec w) (a b : Bool) :
-    (cons a x) &&& (cons b y) = cons (a && b) (x &&& y) := by
-  grind
+    (cons a x) &&& (cons b y) = cons (a && b) (x &&& y) := by grind
 
 @[simp] theorem cons_xor_cons (x y : BitVec w) (a b : Bool) :
-    (cons a x) ^^^ (cons b y) = cons (a ^^ b) (x ^^^ y) := by
-  grind
+    (cons a x) ^^^ (cons b y) = cons (a ^^ b) (x ^^^ y) := by grind
 
 theorem cons_append (x : BitVec w₁) (y : BitVec w₂) (a : Bool) :
-    (cons a x) ++ y = (cons a (x ++ y)).cast (by omega) := by
-  grind
+    (cons a x) ++ y = (cons a (x ++ y)).cast (by omega) := by grind
 
 theorem cons_append_append (x : BitVec w₁) (y : BitVec w₂) (z : BitVec w₃) (a : Bool) :
-    (cons a x) ++ y ++ z = (cons a (x ++ y ++ z)).cast (by omega) := by
-  grind
+    (cons a x) ++ y ++ z = (cons a (x ++ y ++ z)).cast (by omega) := by grind
 
 /-! ### concat -/
 
@@ -2623,28 +2432,22 @@ theorem getElem_concat (x : BitVec w) (b : Bool) (i : Nat) (h : i < w + 1) :
   · simp [Nat.mod_eq_of_lt b.toNat_lt]
   · simp [Nat.div_eq_of_lt b.toNat_lt, Nat.testBit_add_one]
 
-@[simp] theorem getElem_concat_zero {x : BitVec w} : (concat x b)[0] = b := by
-  grind
+@[simp] theorem getElem_concat_zero {x : BitVec w} : (concat x b)[0] = b := by grind
 
-theorem getLsbD_concat_zero : (concat x b).getLsbD 0 = b := by
-  grind
+theorem getLsbD_concat_zero : (concat x b).getLsbD 0 = b := by grind
 
-@[simp] theorem getLsbD_concat_succ : (concat x b).getLsbD (i + 1) = x.getLsbD i := by
-  grind
+@[simp] theorem getLsbD_concat_succ : (concat x b).getLsbD (i + 1) = x.getLsbD i := by grind
 
 @[simp] theorem getElem_concat_succ {x : BitVec w} {i : Nat} (h : i + 1 < w + 1) :
-    (concat x b)[i + 1] = x[i] := by
-  grind
+    (concat x b)[i + 1] = x[i] := by grind
 
 @[simp]
 theorem getMsbD_concat {i w : Nat} {b : Bool} {x : BitVec w} :
-    (x.concat b).getMsbD i = if i < w then x.getMsbD i else decide (i = w) && b := by
-  grind
+    (x.concat b).getMsbD i = if i < w then x.getMsbD i else decide (i = w) && b := by grind
 
 @[simp]
 theorem msb_concat {w : Nat} {b : Bool} {x : BitVec w} :
-    (x.concat b).msb = if 0 < w then x.msb else b := by
-  grind
+    (x.concat b).msb = if 0 < w then x.msb else b := by grind
 
 @[simp, grind =] theorem toInt_concat (x : BitVec w) (b : Bool) :
     (concat x b).toInt = if w = 0 then -b.toInt else x.toInt * 2 + b.toInt := by
@@ -2661,23 +2464,18 @@ theorem msb_concat {w : Nat} {b : Bool} {x : BitVec w} :
     ) := by
   simp [← Fin.val_inj]
 
-@[simp] theorem not_concat (x : BitVec w) (b : Bool) : ~~~(concat x b) = concat (~~~x) !b := by
-  grind
+@[simp] theorem not_concat (x : BitVec w) (b : Bool) : ~~~(concat x b) = concat (~~~x) !b := by grind
 
 @[simp] theorem concat_or_concat (x y : BitVec w) (a b : Bool) :
-    (concat x a) ||| (concat y b) = concat (x ||| y) (a || b) := by
-  grind
+    (concat x a) ||| (concat y b) = concat (x ||| y) (a || b) := by grind
 
 @[simp] theorem concat_and_concat (x y : BitVec w) (a b : Bool) :
-    (concat x a) &&& (concat y b) = concat (x &&& y) (a && b) := by
-  grind
+    (concat x a) &&& (concat y b) = concat (x &&& y) (a && b) := by grind
 
 @[simp] theorem concat_xor_concat (x y : BitVec w) (a b : Bool) :
-    (concat x a) ^^^ (concat y b) = concat (x ^^^ y) (a ^^ b) := by
-  grind
+    (concat x a) ^^^ (concat y b) = concat (x ^^^ y) (a ^^ b) := by grind
 
-@[simp] theorem zero_concat_false : concat 0#w false = 0#(w + 1) := by
-  grind
+@[simp] theorem zero_concat_false : concat 0#w false = 0#(w + 1) := by grind
 
 /-! ### shiftConcat -/
 
@@ -2694,22 +2492,18 @@ theorem getElem_shiftConcat {x : BitVec w} {b : Bool} (h : i < w) :
 
 @[simp]
 theorem getElem_shiftConcat_zero {x : BitVec w} (b : Bool) (h : 0 < w) :
-    (x.shiftConcat b)[0] = b := by
-  grind
+    (x.shiftConcat b)[0] = b := by grind
 
 @[simp]
 theorem getElem_shiftConcat_succ {x : BitVec w} {b : Bool} (h : i + 1 < w) :
-    (x.shiftConcat b)[i+1] = x[i] := by
-  grind
+    (x.shiftConcat b)[i+1] = x[i] := by grind
 
 theorem getLsbD_shiftConcat_eq_decide (x : BitVec w) (b : Bool) (i : Nat) :
     (shiftConcat x b).getLsbD i =
-      (decide (i < w) && ((decide (i = 0) && b) || (decide (0 < i) && x.getLsbD (i - 1)))) := by
-  grind
+      (decide (i < w) && ((decide (i = 0) && b) || (decide (0 < i) && x.getLsbD (i - 1)))) := by grind
 
 theorem shiftRight_sub_one_eq_shiftConcat (n : BitVec w) (hwn : 0 < wn) :
-    n >>> (wn - 1) = (n >>> wn).shiftConcat (n.getLsbD (wn - 1)) := by
-  grind
+    n >>> (wn - 1) = (n >>> wn).shiftConcat (n.getLsbD (wn - 1)) := by grind
 
 @[simp, bitvec_to_nat, grind =]
 theorem toNat_shiftConcat {x : BitVec w} {b : Bool} :
@@ -3146,8 +2940,7 @@ theorem getLsbD_fill {w i : Nat} {v : Bool} :
 
 @[simp]
 theorem getMsbD_fill {w i : Nat} {v : Bool} :
-    (fill w v).getMsbD i = (v && decide (i < w)) := by
-  grind
+    (fill w v).getMsbD i = (v && decide (i < w)) := by grind
 
 @[simp, grind =]
 theorem getElem_fill {w i : Nat} {v : Bool} (h : i < w) :
@@ -3156,19 +2949,15 @@ theorem getElem_fill {w i : Nat} {v : Bool} (h : i < w) :
 
 @[simp]
 theorem msb_fill {w : Nat} {v : Bool} :
-    (fill w v).msb = (v && decide (0 < w)) := by
-  grind
+    (fill w v).msb = (v && decide (0 < w)) := by grind
 
-theorem fill_eq {w : Nat} {v : Bool} : fill w v = if v = true then allOnes w else 0#w := by
-  grind
+theorem fill_eq {w : Nat} {v : Bool} : fill w v = if v = true then allOnes w else 0#w := by grind
 
 @[simp]
-theorem fill_true {w : Nat} : fill w true = allOnes w := by
-  grind
+theorem fill_true {w : Nat} : fill w true = allOnes w := by grind
 
 @[simp]
-theorem fill_false {w : Nat} : fill w false = 0#w := by
-  grind
+theorem fill_false {w : Nat} : fill w false = 0#w := by grind
 
 @[simp, grind =] theorem fill_toNat {w : Nat} {v : Bool} :
     (fill w v).toNat = if v = true then 2^w - 1 else 0 := by
@@ -4100,8 +3889,7 @@ theorem getMsbD_rotateLeft {r n w : Nat} {x : BitVec w} :
 
 @[simp]
 theorem msb_rotateLeft {m w : Nat} {x : BitVec w} :
-    (x.rotateLeft m).msb = x.getMsbD (m % w) := by
-  grind
+    (x.rotateLeft m).msb = x.getMsbD (m % w) := by grind
 
 @[simp, grind =]
 theorem toNat_rotateLeft {x : BitVec w} {r : Nat} :
@@ -4317,8 +4105,7 @@ theorem getLsbD_twoPow (i j : Nat) : (twoPow w i).getLsbD j = ((i < w) && (i = j
 
 @[simp]
 theorem msb_twoPow {i w: Nat} :
-    (twoPow w i).msb = (decide (i < w) && decide (i = w - 1)) := by
-  grind
+    (twoPow w i).msb = (decide (i < w) && decide (i = w - 1)) := by grind
 
 @[grind =]
 theorem toInt_twoPow {w i : Nat} :
@@ -4347,16 +4134,13 @@ theorem getElem_twoPow {i j : Nat} (h : j < w) : (twoPow w i)[j] = decide (j = i
 
 @[simp]
 theorem getMsbD_twoPow {i j w: Nat} :
-    (twoPow w i).getMsbD j = (decide (i < w) && decide (j = w - i - 1)) := by
-  grind
+    (twoPow w i).getMsbD j = (decide (i < w) && decide (j = w - i - 1)) := by grind
 
 theorem and_twoPow (x : BitVec w) (i : Nat) :
-    x &&& (twoPow w i) = if x.getLsbD i then twoPow w i else 0#w := by
-  grind
+    x &&& (twoPow w i) = if x.getLsbD i then twoPow w i else 0#w := by grind
 
 theorem twoPow_and (x : BitVec w) (i : Nat) :
-    (twoPow w i) &&& x = if x.getLsbD i then twoPow w i else 0#w := by
-  grind
+    (twoPow w i) &&& x = if x.getLsbD i then twoPow w i else 0#w := by grind
 
 @[simp]
 theorem mul_twoPow_eq_shiftLeft (x : BitVec w) (i : Nat) :
@@ -4368,8 +4152,7 @@ theorem twoPow_mul_eq_shiftLeft (x : BitVec w) (i : Nat) :
     (twoPow w i) * x = x <<< i := by
   rw [BitVec.mul_comm, mul_twoPow_eq_shiftLeft]
 
-theorem twoPow_zero {w : Nat} : twoPow w 0 = 1#w := by
-  grind
+theorem twoPow_zero {w : Nat} : twoPow w 0 = 1#w := by grind
 
 theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
     x <<< n = x * (BitVec.twoPow w n) := by
@@ -4421,14 +4204,11 @@ theorem shiftLeft_neg {x : BitVec w} {y : Nat} :
 
 /- ### cons -/
 
-@[simp] theorem true_cons_zero : cons true 0#w = twoPow (w + 1) w := by
-  grind
+@[simp] theorem true_cons_zero : cons true 0#w = twoPow (w + 1) w := by grind
 
-@[simp] theorem false_cons_zero : cons false 0#w = 0#(w + 1) := by
-  grind
+@[simp] theorem false_cons_zero : cons false 0#w = 0#(w + 1) := by grind
 
-@[simp] theorem zero_concat_true : concat 0#w true = 1#(w + 1) := by
-  grind
+@[simp] theorem zero_concat_true : concat 0#w true = 1#(w + 1) := by grind
 
 /- ### setWidth, setWidth, and bitwise operations -/
 
@@ -4439,8 +4219,7 @@ keeping the lower `(i + 1)` bits of `x` equals keeping the lower `i` bits.
 theorem setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false
   {x : BitVec w} {i : Nat} (hx : x.getLsbD i = false) :
     setWidth w (x.setWidth (i + 1)) =
-      setWidth w (x.setWidth i) := by
-  grind
+      setWidth w (x.setWidth i) := by grind
 
 /--
 When the `(i+1)`th bit of `x` is true,
@@ -4450,17 +4229,14 @@ and then performing bitwise-or with `twoPow i = (1 << i)`,
 theorem setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true
     {x : BitVec w} {i : Nat} (hx : x.getLsbD i = true) :
     setWidth w (x.setWidth (i + 1)) =
-      setWidth w (x.setWidth i) ||| (twoPow w i) := by
-  grind
+      setWidth w (x.setWidth i) ||| (twoPow w i) := by grind
 
 /-- Bitwise and of `(x : BitVec w)` with `1#w` equals zero extending `x.lsb` to `w`. -/
 theorem and_one_eq_setWidth_ofBool_getLsbD {x : BitVec w} :
-    (x &&& 1#w) = setWidth w (ofBool (x.getLsbD 0)) := by
-  grind
+    (x &&& 1#w) = setWidth w (ofBool (x.getLsbD 0)) := by grind
 
 @[simp]
-theorem replicate_zero {x : BitVec w} : x.replicate 0 = 0#0 := by
-  grind
+theorem replicate_zero {x : BitVec w} : x.replicate 0 = 0#0 := by grind
 
 @[simp, grind =]
 theorem replicate_one {w : Nat} {x : BitVec w} :
@@ -4497,13 +4273,11 @@ theorem getElem_replicate {n w : Nat} {x : BitVec w} (h : i < w * n) :
 
 @[grind =]
 theorem append_assoc {x₁ : BitVec w₁} {x₂ : BitVec w₂} {x₃ : BitVec w₃} :
-    (x₁ ++ x₂) ++ x₃ = (x₁ ++ (x₂ ++ x₃)).cast (by omega) := by
-  grind
+    (x₁ ++ x₂) ++ x₃ = (x₁ ++ (x₂ ++ x₃)).cast (by omega) := by grind
 
 @[grind =]
 theorem append_assoc' {x₁ : BitVec w₁} {x₂ : BitVec w₂} {x₃ : BitVec w₃} :
-    (x₁ ++ (x₂ ++ x₃)) = ((x₁ ++ x₂) ++ x₃).cast (by omega) := by
-  grind
+    (x₁ ++ (x₂ ++ x₃)) = ((x₁ ++ x₂) ++ x₃).cast (by omega) := by grind
 
 theorem replicate_append_self {x : BitVec w} :
     x ++ x.replicate n = (x.replicate n ++ x).cast (by omega) := by
@@ -4538,8 +4312,7 @@ theorem getLsbD_intMin (w : Nat) : (intMin w).getLsbD i = decide (i + 1 = w) := 
   grind [intMin]
 
 theorem getMsbD_intMin {w i : Nat} :
-    (intMin w).getMsbD i = (decide (0 < w) && decide (i = 0)) := by
-  grind
+    (intMin w).getMsbD i = (decide (0 < w) && decide (i = 0)) := by grind
 
 /--
 The RHS is zero in case `w = 0` which is modeled by wrapping the expression in `... % 2 ^ w`.
@@ -4639,8 +4412,7 @@ theorem toInt_neg_eq_ite {x : BitVec w} :
     simp [hx, neg_intMin, toInt_neg_of_ne_intMin]
 
 @[grind =]
-theorem msb_intMin {w : Nat} : (intMin w).msb = decide (0 < w) := by
-  grind
+theorem msb_intMin {w : Nat} : (intMin w).msb = decide (0 < w) := by grind
 
 theorem ne_intMin_of_msb_eq_false (h : 0 < w) {n : BitVec w} (hn : n.msb = false) :
     n ≠ intMin w := by
@@ -4894,8 +4666,7 @@ theorem getElem_abs {i : Nat} {x : BitVec w} (h : i < w) :
   grind [BitVec.abs]
 
 theorem getMsbD_abs {i : Nat} {x : BitVec w} :
-    getMsbD (x.abs) i = if x.msb then getMsbD (-x) i else getMsbD x i := by
-  grind
+    getMsbD (x.abs) i = if x.msb then getMsbD (-x) i else getMsbD x i := by grind
 
 /-
 The absolute value of `x : BitVec w` is naively a case split on the sign of `x`.
@@ -4980,20 +4751,17 @@ theorem getElem_reverse (x : BitVec w) (h : i < w) :
   grind [=_ getLsbD_eq_getElem]
 
 theorem getMsbD_reverse {i : Nat} {x : BitVec w} :
-    (x.reverse).getMsbD i = x.getLsbD i := by
-  grind
+    (x.reverse).getMsbD i = x.getLsbD i := by grind
 
 theorem msb_reverse {x : BitVec w} :
     (x.reverse).msb = x.getLsbD 0 := by grind
 
 theorem reverse_append {x : BitVec w} {y : BitVec v} :
-    (x ++ y).reverse = (y.reverse ++ x.reverse).cast (by omega) := by
-  grind
+    (x ++ y).reverse = (y.reverse ++ x.reverse).cast (by omega) := by grind
 
 @[simp]
 theorem reverse_cast {w v : Nat} (h : w = v) (x : BitVec w) :
-    (x.cast h).reverse = x.reverse.cast h := by
-  grind
+    (x.cast h).reverse = x.reverse.cast h := by grind
 
 @[grind _=_]
 theorem reverse_replicate {n : Nat} {x : BitVec w} :

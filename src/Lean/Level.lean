@@ -477,13 +477,25 @@ private partial def FlatLevel.isEquiv (l₁ l₂ : FlatLevel) : Bool := Id.run d
       isEquiv (setNonzero l₁ nm) (setNonzero l₂ nm)
   return l₁.paramOffs.size == l₂.paramOffs.size && l₁.paramOffs.toArray == l₂.paramOffs.toArray
 
+@[inline]
+private def isEquivCore (u v : Level) : Bool :=
+  (flattenAux u 0 {}).isEquiv (flattenAux v 0 {})
+
+@[inline]
+private def geqCore (u v : Level) : Bool :=
+  let fu := flattenAux u 0 {}
+  let fv := flattenAux v 0 {}
+  fu.isEquiv (fu.merge fv)
+
 /--
 Return true if `u` and `v` denote the same level.
 Assumes that `u` and `v` don't contain meta-variables.
 -/
 @[export lean_level_is_equiv]
 def isEquiv (u v : Level) : Bool :=
-  u == v || (flattenAux u 0 {}).isEquiv (flattenAux v 0 {})
+  -- the first two (redundant) cases are the most common
+  -- only use the complete procedure if both others failed
+  u == v || u.normalize == v.normalize || isEquivCore u v
 
 end equiv
 
@@ -688,8 +700,9 @@ def getParamSubst : List Name → List Level → Name → Option Level
 def instantiateParams (u : Level) (paramNames : List Name) (vs : List Level) : Level :=
   u.substParams (getParamSubst paramNames vs)
 
+@[export lean_level_geq]
 def geq (u v : Level) : Bool :=
-  go u.normalize v.normalize
+  u == v || go u.normalize v.normalize || geqCore u v
 where
   go (u v : Level) : Bool :=
     u == v ||

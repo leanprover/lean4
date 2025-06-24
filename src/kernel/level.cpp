@@ -23,6 +23,7 @@ extern "C" unsigned lean_level_depth(obj_arg l);
 extern "C" uint8 lean_level_has_mvar(obj_arg l);
 extern "C" uint8 lean_level_has_param(obj_arg l);
 extern "C" uint8 lean_level_is_equiv(obj_arg l1, obj_arg l2);
+extern "C" uint8 lean_level_geq(obj_arg l1, obj_arg l2);
 
 extern "C" object * lean_level_mk_zero(object*);
 extern "C" object * lean_level_mk_succ(obj_arg);
@@ -527,7 +528,8 @@ bool is_geq_core(level l1, level l2) {
     return false;
 }
 bool is_geq(level const & l1, level const & l2) {
-    return is_geq_core(normalize(l1), normalize(l2));
+    //return is_geq_core(normalize(l1), normalize(l2));
+    return lean_level_geq(lhs.to_obj_arg(), rhs.to_obj_arg());
 }
 levels lparams_to_levels(names const & ps) {
     buffer<level> ls;

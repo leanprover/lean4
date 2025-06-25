@@ -1592,6 +1592,7 @@ gen_injective_theorems% MProd
 gen_injective_theorems% NonScalar
 gen_injective_theorems% Option
 gen_injective_theorems% PLift
+gen_injective_theorems% PULift
 gen_injective_theorems% PNonScalar
 gen_injective_theorems% PProd
 gen_injective_theorems% Prod

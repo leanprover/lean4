@@ -14,17 +14,17 @@ inductive Vec.{u} (α : Type) : Nat → Type u where
 
 
 @[reducible] protected def Vec.noConfusionType.withCtorType'.{u_1, u} :
-  Type → Type u_1 → Nat → Type (max u_1 (u + 1) (u_1 + 1)) :=
+  Type → Type u_1 → Nat → Type (max u_1 (max u u_1) 0) :=
 fun α P ctorIdx =>
-  bif Nat.blt ctorIdx 1 then ULift.{max u_1 (u + 1) (u_1 + 1)} P
-  else ULift.{max u_1 (u + 1) (u_1 + 1)} ({n : Nat} → α → Vec.{u} α n → P)
+  bif Nat.blt ctorIdx 1 then PULift.{max (u+1) (u_1+1)} P
+  else PULift.{max (u+1) (u_1+1)} ({n : Nat} → α → Vec.{u} α n → P)
 
 /--
 info: @[reducible] protected def Vec.noConfusionType.withCtorType.{u_1, u} : Type →
-  Type u_1 → Nat → Type (max u_1 (u + 1) (u_1 + 1)) :=
+  Type u_1 → Nat → Type (max u_1 (max u u_1) 0) :=
 fun α P ctorIdx =>
-  bif Nat.blt ctorIdx 1 then ULift.{max (u + 1) (u_1 + 1), u_1 + 1} P
-  else ULift.{max (u + 1) (u_1 + 1), max (u + 1) (u_1 + 1)} ({n : Nat} → α → Vec.{u} α n → P)
+  bif Nat.blt ctorIdx 1 then PULift.{max (u + 1) (u_1 + 1), u_1 + 1} P
+  else PULift.{max (u + 1) (u_1 + 1), max (u + 1) (u_1 + 1)} ({n : Nat} → α → Vec.{u} α n → P)
 -/
 #guard_msgs in
 set_option pp.universes true in
@@ -37,8 +37,8 @@ example : @Vec.noConfusionType.withCtorType.{u_1,u} = @Vec.noConfusionType.withC
   (P : Type u_1) → (ctorIdx : Nat) → Vec.noConfusionType.withCtorType' α P ctorIdx → P → (a : Nat) → Vec.{u} α a → P :=
 fun _α _P ctorIdx k k' _a x =>
   Vec.casesOn x
-    (if h : ctorIdx = 0 then ULift.down (Eq.ndrec k h) else k')
-    (fun a a_1 => if h : ctorIdx = 1 then ULift.down (Eq.ndrec k h) a a_1 else k')
+    (if h : ctorIdx = 0 then (Eq.ndrec k h).down else k')
+    (fun a a_1 => if h : ctorIdx = 1 then (Eq.ndrec k h).down a a_1 else k')
 
 /--
 info: @[reducible] protected def Vec.noConfusionType.withCtor.{u_1, u} : (α : Type) →

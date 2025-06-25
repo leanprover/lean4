@@ -82,27 +82,31 @@ def maxLevels (es : Array Expr) (default : Expr) : MetaM Level := do
     maxLevel := mkLevelMax' maxLevel l
   return maxLevel.normalize
 
-private def mkULift (r : Level) (t : Expr) : MetaM Expr := do
+private def mkPULift (r : Level) (t : Expr) : MetaM Expr := do
   let s ← getLevel t
-  return mkApp (mkConst ``ULift [r,s]) t
+  return mkApp (mkConst `PULift [r,s]) t
 
-private def withMkULiftUp (t : Expr) (k : Expr → MetaM Expr) : MetaM Expr := do
-  match_expr (← whnf t) with
-  | c@ULift t' =>
+private def withMkPULiftUp (t : Expr) (k : Expr → MetaM Expr) : MetaM Expr := do
+  let t  ← whnf t
+  if t.isAppOfArity `PULift 1 then
+    let t' := t.appArg!
     let e ← k t'
-    return mkApp2 (mkConst ``ULift.up c.constLevels!) t' e
-  | _ => throwError "withMkULiftUp: expected ULift type, got {t}"
+    return mkApp2 (mkConst `PULift.up (t.appFn!.constLevels!)) t' e
+  else
+    throwError "withMkPULiftUp: expected PULift type, got {t}"
 
-private def mkULiftDown (e : Expr) : MetaM Expr := do
+private def mkPULiftDown (e : Expr) : MetaM Expr := do
   let t ← whnf (← inferType e)
-  match_expr t with
-  | c@ULift t' => return mkApp2 (mkConst ``ULift.down c.constLevels!) t' e
-  | _ => throwError "mkULiftDown: expected ULift type, got {t}"
+  if t.isAppOfArity `PULift 1 then
+    let t' := t.appArg!
+    return mkApp2 (mkConst `PULift.down t.appFn!.constLevels!) t' e
+  else
+    throwError "mkULiftDown: expected ULift type, got {t}"
 
 def mkNatLookupTableLifting (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr := do
   let u ← maxLevels es default
-  let default ← mkULift u default
-  let es ← es.mapM (mkULift u)
+  let default ← mkPULift u default
+  let es ← es.mapM (mkPULift u)
   mkNatLookupTable n es default
 
 def mkWithCtorTypeName (indName : Name) : Name :=
@@ -176,7 +180,7 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
               let heq := mkApp3 (mkConst ``Eq [1]) (mkConst ``Nat) ctorIdx (mkRawNatLit i)
               let «then» ← withLocalDeclD `h heq fun h => do
                 let e ← mkEqNDRec (motive := withCtorTypeNameApp) k h
-                let e ← mkULiftDown e
+                let e ← mkPULiftDown e
                 let e := mkAppN e zs
                 -- ``Eq.ndrec
                 mkLambdaFVars #[h] e
@@ -233,7 +237,7 @@ def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
                 let alt := mkAppN alt xs
                 let alt := mkApp alt PType
                 let alt := mkApp alt (mkRawNatLit i)
-                let k ← withMkULiftUp (← inferType alt).bindingDomain! fun t =>
+                let k ← withMkPULiftUp (← inferType alt).bindingDomain! fun t =>
                   forallTelescopeReducing t fun zs2 _ => do
                     let eqs ← (Array.zip zs1 zs2).filterMapM fun (z1,z2) => do
                       if (← isProof z1) then

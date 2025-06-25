@@ -104,21 +104,21 @@ instance (n : Nat) [NeZero n] : IsCharP (Fin n) n := IsCharP.mk' _ _
     simp only [Nat.zero_mod]
     simp only [Fin.mk.injEq])
 
-example [NeZero n] : ToInt.Neg (Fin n) (some 0) (some n) := inferInstance
-example [NeZero n] : ToInt.Sub (Fin n) (some 0) (some n) := inferInstance
+example [NeZero n] : ToInt.Neg (Fin n) (.co 0 n) := inferInstance
+example [NeZero n] : ToInt.Sub (Fin n) (.co 0 n) := inferInstance
 
-instance [i : NeZero n] : ToInt.Pow (Fin n) (some 0) (some n) where
+instance [i : NeZero n] : ToInt.Pow (Fin n) (.co 0 n) where
   toInt_pow x k := by
     induction k with
     | zero =>
       match n, i with
       | 1, _ => rfl
       | (n + 2), _ =>
-        simp [ToInt.wrap, Int.sub_zero, Int.add_zero]
+        simp [IntInterval.wrap, Int.sub_zero, Int.add_zero]
         rw [Int.emod_eq_of_lt] <;> omega
     | succ k ih =>
       rw [pow_succ, ToInt.Mul.toInt_mul, ih, ← ToInt.wrap_toInt,
-        ← ToInt.wrap_mul, Int.pow_succ, ToInt.wrap_toInt]
+        ← IntInterval.wrap_mul (by simp), Int.pow_succ, ToInt.wrap_toInt]
 
 end Fin
 

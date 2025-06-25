@@ -9,6 +9,7 @@ prelude
 import Init.Grind.Ring.Basic
 import Init.GrindInstances.ToInt
 import all Init.Data.BitVec.Basic
+import all Init.Grind.ToInt
 
 namespace Lean.Grind
 
@@ -35,8 +36,15 @@ instance : IsCharP (BitVec w) (2 ^ w) := IsCharP.mk' _ _
   (ofNat_eq_zero_iff := fun x => by simp [BitVec.toNat_eq])
 
 -- Verify we can derive the instances showing how `toInt` interacts with operations:
-example : ToInt.Add (BitVec w) (some 0) (some (2^w)) := inferInstance
-example : ToInt.Neg (BitVec w) (some 0) (some (2^w)) := inferInstance
-example : ToInt.Sub (BitVec w) (some 0) (some (2^w)) := inferInstance
+example : ToInt.Add (BitVec w) (.uint w) := inferInstance
+example : ToInt.Neg (BitVec w) (.uint w) := inferInstance
+example : ToInt.Sub (BitVec w) (.uint w) := inferInstance
+
+instance [i : NeZero w] : ToInt.Pow (BitVec w) (.uint w) :=
+  ToInt.pow_of_semiring (by simp) (by
+    match w, i with
+    | w + 1, _ =>
+      have : 1 < 2 ^ (w + 1) := Nat.one_lt_two_pow' w
+      simpa [Int.pow_succ] using Int.ofNat_lt.mpr this)
 
 end Lean.Grind

@@ -541,8 +541,12 @@ theorem toInt_ne {x y : BitVec n} : x.toInt ≠ y.toInt ↔ x ≠ y  := by
   unfold BitVec.ofInt
   simp
 
-theorem toInt_ofNat {n : Nat} (x : Nat) : (BitVec.ofNat n x).toInt = (x : Int).bmod (2^n) := by
+theorem toInt_ofNat' {n : Nat} (x : Nat) : (BitVec.ofNat n x).toInt = (x : Int).bmod (2^n) := by
   simp [toInt_eq_toNat_bmod, -Int.natCast_pow]
+
+theorem toInt_ofNat {n : Nat} (x : Nat) :
+    (no_index (OfNat.ofNat (α := BitVec n) x)).toInt = (x : Int).bmod (2^n) :=
+  toInt_ofNat' x
 
 @[simp, grind =] theorem toInt_ofFin {w : Nat} (x : Fin (2^w)) :
     (BitVec.ofFin x).toInt = Int.bmod x (2^w) := by
@@ -915,7 +919,7 @@ theorem extractLsb_toNat (hi lo : Nat) (x : BitVec n) :
 @[simp, grind =]
 theorem toInt_extractLsb' {s m : Nat} {x : BitVec n} :
     (extractLsb' s m x).toInt = ((x.toNat >>> s) : Int).bmod (2 ^ m) := by
-  simp [extractLsb', toInt_ofNat]
+  simp [extractLsb', toInt_ofNat']
 
 @[simp, grind =]
 theorem toInt_extractLsb {hi lo : Nat} {x : BitVec n} :
@@ -1703,7 +1707,7 @@ theorem toFin_ushiftRight {x : BitVec w} {n : Nat} :
 @[simp, grind =]
 theorem getMsbD_ushiftRight {x : BitVec w} {i n : Nat} :
     (x >>> n).getMsbD i = (decide (i < w) && (!decide (i < n) && x.getMsbD (i - n))) := by
-  grind (splits := 10)
+  grind (splits := 11)
 
 @[simp]
 theorem msb_ushiftRight {x : BitVec w} {n : Nat} :
@@ -2105,7 +2109,7 @@ theorem toFin_signExtend (x : BitVec w) :
 
 @[simp, grind =] theorem signExtend_or {x y : BitVec w} :
     (x ||| y).signExtend v = (x.signExtend v) ||| (y.signExtend v) := by
-  grind (splits := 11)
+  grind (splits := 12)
 
 @[simp, grind =] theorem signExtend_xor {x y : BitVec w} :
     (x ^^^ y).signExtend v = (x.signExtend v) ^^^ (y.signExtend v) := by
@@ -2745,7 +2749,7 @@ theorem toNat_neg_of_pos {x : BitVec n} (h : 0#n < x) :
 theorem toInt_neg {x : BitVec w} :
     (-x).toInt = (-x.toInt).bmod (2 ^ w) := by
   rw [← BitVec.zero_sub, toInt_sub]
-  simp [BitVec.toInt_ofNat]
+  simp
 
 @[simp]
 theorem toInt_neg_of_not_negOverflow {x : BitVec w} (h : ¬ negOverflow x):
@@ -4619,7 +4623,7 @@ creating a bitvector from the the negative of that number.
 theorem neg_ofNat_eq_ofInt_neg {w : Nat} {x : Nat} :
     - BitVec.ofNat w x = BitVec.ofInt w (- x) := by
   apply BitVec.eq_of_toInt_eq
-  simp [BitVec.toInt_neg, BitVec.toInt_ofNat]
+  simp [BitVec.toInt_neg, BitVec.toInt_ofNat']
 
 @[simp]
 theorem neg_toInt_neg {x : BitVec w} (h : x.msb = false) :

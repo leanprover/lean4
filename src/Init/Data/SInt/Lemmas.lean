@@ -128,6 +128,28 @@ theorem ISize.toNat_toBitVec_ofNat_of_lt {n : Nat} (h : n < 2^32) :
 theorem ISize.toInt_ofInt {n : Int} : toInt (ofInt n) = n.bmod ISize.size := by
   rw [toInt, toBitVec_ofInt, BitVec.toInt_ofInt]
 
+@[simp] theorem Int8.toInt_ofNat' {n : Nat} : toInt (ofNat n) = (n : Int).bmod Int8.size := by
+  rw [toInt, toBitVec_ofNat', BitVec.toInt_ofNat']
+@[simp] theorem Int16.toInt_ofNat' {n : Nat} : toInt (ofNat n) = (n : Int).bmod Int16.size := by
+  rw [toInt, toBitVec_ofNat', BitVec.toInt_ofNat']
+@[simp] theorem Int32.toInt_ofNat' {n : Nat} : toInt (ofNat n) = (n : Int).bmod Int32.size := by
+  rw [toInt, toBitVec_ofNat', BitVec.toInt_ofNat']
+@[simp] theorem Int64.toInt_ofNat' {n : Nat} : toInt (ofNat n) = (n : Int).bmod Int64.size := by
+  rw [toInt, toBitVec_ofNat', BitVec.toInt_ofNat']
+@[simp] theorem ISize.toInt_ofNat' {n : Nat} : toInt (ofNat n) = (n : Int).bmod ISize.size := by
+  rw [toInt, toBitVec_ofNat', BitVec.toInt_ofNat']
+
+theorem Int8.toInt_ofNat {n : Nat} : toInt (no_index (OfNat.ofNat n)) = (n : Int).bmod Int8.size := by
+  rw [toInt, toBitVec_ofNat, BitVec.toInt_ofNat]
+theorem Int16.toInt_ofNat {n : Nat} : toInt (no_index (OfNat.ofNat n)) = (n : Int).bmod Int16.size := by
+  rw [toInt, toBitVec_ofNat, BitVec.toInt_ofNat]
+theorem Int32.toInt_ofNat {n : Nat} : toInt (no_index (OfNat.ofNat n)) = (n : Int).bmod Int32.size := by
+  rw [toInt, toBitVec_ofNat, BitVec.toInt_ofNat]
+theorem Int64.toInt_ofNat {n : Nat} : toInt (no_index (OfNat.ofNat n)) = (n : Int).bmod Int64.size := by
+  rw [toInt, toBitVec_ofNat, BitVec.toInt_ofNat]
+theorem ISize.toInt_ofNat {n : Nat} : toInt (no_index (OfNat.ofNat n)) = (n : Int).bmod ISize.size := by
+  rw [toInt, toBitVec_ofNat, BitVec.toInt_ofNat]
+
 theorem Int8.toInt_ofInt_of_le {n : Int} (hn : -2^7 ≤ n) (hn' : n < 2^7) : toInt (ofInt n) = n := by
   rw [toInt, toBitVec_ofInt, BitVec.toInt_ofInt_eq_self (by decide) hn hn']
 theorem Int16.toInt_ofInt_of_le {n : Int} (hn : -2^15 ≤ n) (hn' : n < 2^15) : toInt (ofInt n) = n := by
@@ -165,17 +187,6 @@ theorem Int16.ofInt_eq_ofNat {n : Nat} : ofInt n = ofNat n := toBitVec.inj (by s
 theorem Int32.ofInt_eq_ofNat {n : Nat} : ofInt n = ofNat n := toBitVec.inj (by simp)
 theorem Int64.ofInt_eq_ofNat {n : Nat} : ofInt n = ofNat n := toBitVec.inj (by simp)
 theorem ISize.ofInt_eq_ofNat {n : Nat} : ofInt n = ofNat n := toBitVec.inj (by simp)
-
-@[simp] theorem Int8.toInt_ofNat {n : Nat} : toInt (ofNat n) = (n : Int).bmod Int8.size := by
-  rw [← ofInt_eq_ofNat, toInt_ofInt]
-@[simp] theorem Int16.toInt_ofNat {n : Nat} : toInt (ofNat n) = (n : Int).bmod Int16.size := by
-  rw [← ofInt_eq_ofNat, toInt_ofInt]
-@[simp] theorem Int32.toInt_ofNat {n : Nat} : toInt (ofNat n) = (n : Int).bmod Int32.size := by
-  rw [← ofInt_eq_ofNat, toInt_ofInt]
-@[simp] theorem Int64.toInt_ofNat {n : Nat} : toInt (ofNat n) = (n : Int).bmod Int64.size := by
-  rw [← ofInt_eq_ofNat, toInt_ofInt]
-@[simp] theorem ISize.toInt_ofNat {n : Nat} : toInt (ofNat n) = (n : Int).bmod ISize.size := by
-  rw [← ofInt_eq_ofNat, toInt_ofInt]
 
 theorem Int8.neg_ofNat {n : Nat} : -ofNat n = ofInt (-n) := by
   rw [← neg_ofInt, ofInt_eq_ofNat]

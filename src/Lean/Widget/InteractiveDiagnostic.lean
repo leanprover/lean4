@@ -8,6 +8,8 @@ prelude
 import Lean.Linter.UnusedVariables
 import Lean.Server.Utils
 import Lean.Widget.InteractiveGoal
+import Init.Data.Slice.Basic
+import Init.Data.Slice.Array
 
 namespace Lean.Widget
 open Lsp Server
@@ -163,7 +165,7 @@ where
             | none     => child
         let blockSize := ctx.bind (maxTraceChildren.get? ·.opts)
           |>.getD maxTraceChildren.defValue
-        let children := chopUpChildren data.cls blockSize children.toSubarray
+        let children := chopUpChildren data.cls blockSize ↑children[*...*]
         pure (.lazy children)
       else
         pure (.strict (← children.mapM (go nCtx ctx)))
@@ -176,10 +178,10 @@ where
     go nCtx ctx? msg
 
   /-- Recursively moves child nodes after the first `blockSize` into a new "more" node. -/
-  chopUpChildren (cls : Name) (blockSize : Nat) (children : Subarray MessageData) :
+  chopUpChildren (cls : Name) (blockSize : Nat) (children : Std.Slice ⟨.closed, .open⟩ (Array MessageData)) :
       Array MessageData :=
     if blockSize > 0 && children.size > blockSize + 1 then  -- + 1 to make idempotent
-      let more := chopUpChildren cls blockSize children[blockSize:]
+      let more := chopUpChildren cls blockSize children.toArray[blockSize...*]
       children[:blockSize].toArray.push <|
         .trace { collapsed := true, cls }
           f!"{children.size - blockSize} more entries..." more

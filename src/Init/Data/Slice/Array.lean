@@ -14,7 +14,7 @@ import Init.Data.Slice.Basic
 import Init.Data.Iterators.Combinators.Attach
 import Init.Data.Iterators.Combinators.FilterMap
 
-open Std.Slice Std.PRange
+open Std Slice PRange
 
 instance {shape} {α : Type u} : Sliceable shape (Array α) Nat α where
 
@@ -22,9 +22,21 @@ instance [ClosedOpenIntersection shape Nat] [SupportsLowerBound shape.lower Nat]
     [SupportsUpperBound shape.upper Nat] [LawfulClosedOpenIntersection shape Nat] :
     SliceIter shape (Array α) :=
   .of _ fun s =>
-    Internal.iter (ClosedOpenIntersection.intersection s.range (Std.PRange.mk 0 s.carrier.size))
+    Internal.iter (ClosedOpenIntersection.intersection s.range ((0)...<s.carrier.size))
       |>.attachWith (· < s.carrier.size) (by
         simp only [Internal.isPlausibleIndirectOutput_iter_iff,
           LawfulClosedOpenIntersection.mem_intersection_iff]
         simp [Membership.mem, SupportsUpperBound.IsSatisfied])
       |>.map fun i => s.carrier[i.1]
+
+instance [ClosedOpenIntersection ⟨.unbounded, .unbounded⟩ Nat] :
+    Coe (Slice ⟨.unbounded, .unbounded⟩ (Array α))  (Slice ⟨.closed, .open⟩ (Array α)) where
+  coe s := Slice.mk s.carrier (ClosedOpenIntersection.intersection s.range ((0)...<s.carrier.size))
+
+instance [ClosedOpenIntersection ⟨.unbounded, su⟩ Nat] :
+    CoeOut (Slice ⟨.unbounded, su⟩ (Array α))  (Slice ⟨.closed, .open⟩ (Array α)) where
+  coe s := Slice.mk s.carrier (ClosedOpenIntersection.intersection s.range ((0)...<s.carrier.size))
+
+instance [ClosedOpenIntersection ⟨sl, .unbounded⟩ Nat] :
+    CoeOut (Slice ⟨sl, .unbounded⟩ (Array α))  (Slice ⟨.closed, .open⟩ (Array α)) where
+  coe s := Slice.mk s.carrier (ClosedOpenIntersection.intersection s.range ((0)...<s.carrier.size))

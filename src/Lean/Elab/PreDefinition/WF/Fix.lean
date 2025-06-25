@@ -50,7 +50,7 @@ where
       let r := mkApp F (← loop F args[fixedPrefixSize]!)
       let decreasingProp := (← whnf (← inferType r)).bindingDomain!
       let r := mkApp r (← mkDecreasingProof decreasingProp)
-      return mkAppN r (← args[fixedPrefixSize+1:].toArray.mapM (loop F))
+      return mkAppN r (← args[fixedPrefixSize<...*].toArray.mapM (loop F))
 
   processApp (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
     if e.isAppOf recFnName then
@@ -150,7 +150,7 @@ private partial def processPSigmaCasesOn (x F val : Expr) (k : (F : Expr) → (v
     let minor ← lambdaTelescope args[4]! fun xs body => do
         let a := xs[0]!
         let xNew := xs[1]!
-        let valNew ← mkLambdaFVars xs[2:] body
+        let valNew ← mkLambdaFVars xs[(2)...*] body
         let FTypeNew := FDecl.type.replaceFVar x (← mkAppOptM `PSigma.mk #[α, β, a, xNew])
         withLocalDeclD FDecl.userName FTypeNew fun FNew => do
           mkLambdaFVars #[a, xNew, FNew] (← processPSigmaCasesOn xNew FNew valNew k)

@@ -1783,7 +1783,7 @@ private def setImportedEntries (states : Array EnvExtensionState) (mods : Array 
   let mut states := states
   let extDescrs ← persistentEnvExtensionsRef.get
   /- For extensions starting at `startingAt`, ensure their `importedEntries` array have size `mods.size`. -/
-  for extDescr in extDescrs[startingAt:] do
+  for extDescr in extDescrs[startingAt...*] do
     -- safety: as in `modifyState`
     states := unsafe extDescr.toEnvExtension.modifyStateImpl states fun s =>
       { s with importedEntries := .replicate mods.size #[] }

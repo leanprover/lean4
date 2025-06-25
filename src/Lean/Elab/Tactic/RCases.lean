@@ -436,7 +436,7 @@ def generalizeExceptFVar (goal : MVarId) (args : Array GeneralizeArg) :
     else
       result := result.push (mkFVar fvarIdsNew[j]!)
       j := j+1
-  pure (result, fvarIdsNew[j:], goal)
+  pure (result, fvarIdsNew[j...*], goal)
 
 /--
 Given a list of targets of the form `e` or `h : e`, and a pattern, match all the targets

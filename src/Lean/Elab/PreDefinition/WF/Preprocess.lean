@@ -195,7 +195,7 @@ def preprocess (e : Expr) : MetaM Simp.Result := do
       e.withApp fun f as => do
         if f.isConstOf ``wfParam then
           if h : as.size ≥ 2 then
-            return .continue (mkAppN as[1] as[2:])
+            return .continue (mkAppN as[1] as[(2)...*])
         return .continue
 
     -- Transform `have`s to `let`s for non-propositions.

@@ -960,7 +960,7 @@ instance : MonadHashMapCacheAdapter ExprStructEq Expr M where
 /-- Return the local declaration of the free variable `x` in `xs` with the smallest index -/
 private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) : LocalDecl := Id.run do
   let mut d : LocalDecl := lctx.getFVar! xs[0]!
-  for x in xs[1:] do
+  for x in xs[(1)...*] do
     if x.isFVar then
       let curr := lctx.getFVar! x
       if curr.index < d.index then

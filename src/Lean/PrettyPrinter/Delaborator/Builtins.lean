@@ -273,11 +273,11 @@ def needsExplicit (f : Expr) (numArgs : Nat) (paramKinds : Array ParamKind) : Bo
     -- Error calculating ParamKinds, so return `true` to be safe
     paramKinds.size < numArgs
     -- One of the supplied parameters isn't explicit
-    || paramKinds[:numArgs].any (fun param => !param.bInfo.isExplicit)
+    || paramKinds[*...numArgs].any (fun param => !param.bInfo.isExplicit)
     -- The next parameter is implicit or inst implicit
     || (numArgs < paramKinds.size && paramKinds[numArgs]!.bInfo matches .implicit | .instImplicit)
     -- One of the parameters after the supplied parameters is explicit but not regular explicit.
-    || paramKinds[numArgs:].any (fun param => param.bInfo.isExplicit && !param.isRegularExplicit)
+    || paramKinds[numArgs...*].any (fun param => param.bInfo.isExplicit && !param.isRegularExplicit)
 
 /--
 Delaborates a function application in explicit mode.
@@ -382,7 +382,7 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
         else
           pure none
       if let some obj := obj? then
-        let isFirst := args[0:fieldIdx].all (· matches .skip)
+        let isFirst := args[*...fieldIdx].all (· matches .skip)
         -- Clear the `obj` argument from `args`.
         let args' := args.set! fieldIdx .skip
         let mut head : Term ← `($obj.$(mkIdentFrom fnStx field))
@@ -483,7 +483,7 @@ def useAppExplicit (numArgs : Nat) (paramKinds : Array ParamKind) : DelabM Bool 
 
   -- If any of the next parameters is explicit but has an optional value or is an autoparam, fall back to explicit mode.
   -- This is necessary since these are eagerly processed when elaborating.
-  if paramKinds[numArgs:].any fun param => param.bInfo.isExplicit && !param.isRegularExplicit then return true
+  if paramKinds[numArgs...*].any fun param => param.bInfo.isExplicit && !param.isRegularExplicit then return true
 
   return false
 
@@ -633,7 +633,7 @@ def delabStructureInstance : Delab := do
       from the same type family (think `Sigma`), but for now users can write a custom delaborator in such instances.
     -/
     let bis ← forallTelescope s.type fun xs _ => xs.mapM (·.fvarId!.getBinderInfo)
-    if explicit then guard <| bis[s.numParams:].all (·.isExplicit)
+    if explicit then guard <| bis[s.numParams...*].all (·.isExplicit)
     let (_, args) ← withBoundedAppFnArgs s.numFields
       (do return (0, #[]))
       (fun (i, args) => do
@@ -653,7 +653,7 @@ def delabStructureInstance : Delab := do
     -/
     let .const _ levels := (← getExpr).getAppFn | failure
     let args := (← getExpr).getAppArgs
-    let params := args[0:s.numParams]
+    let params := args[*...s.numParams]
     let (_, fields) ← collectStructFields s.induct levels params #[] {} s
     let tyStx? : Option Term ← withType do
       if ← getPPOption getPPStructureInstanceType then delab else pure none
@@ -795,7 +795,7 @@ partial def delabAppMatch : Delab := whenNotPPOption getPPExplicit <| whenPPOpti
         -- Need to reduce since there can be `let`s that are lifted into the matcher type
         forallTelescopeReducing (← getExpr) fun afterParams _ => do
           -- Skip motive and discriminators
-          let alts := Array.ofSubarray afterParams[1 + st.discrs.size:]
+          let alts := Array.ofSubarray afterParams[(1 + st.discrs.size)...*]
           -- Visit minor premises
           alts.mapIdxM fun idx alt => do
             let altTy ← inferType alt

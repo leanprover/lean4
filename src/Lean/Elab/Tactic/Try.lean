@@ -168,7 +168,7 @@ private def getTacsSolvedAll (tacs2 : Array (Array (TSyntax `tactic))) : Array (
   else
     let mut r := #[]
     for tac2 in tacs2[0]! do
-      if tacs2[1:].all (·.contains tac2) then
+      if tacs2[(1)...*].all (·.contains tac2) then
         r := r.push tac2
     return r
 
@@ -184,7 +184,7 @@ private def getKindsSolvedAll (tacss : Array (Array (TSyntax `tactic))) : Array 
     let mut r := #[]
     for tacs0 in tacss[0]! do
       let k := tacs0.raw.getKind
-      if tacss[1:].all fun tacs => tacs.any fun tac => tac.raw.getKind == k then
+      if tacss[(1)...*].all fun tacs => tacs.any fun tac => tac.raw.getKind == k then
         r := r.push k
     return r
 
@@ -582,7 +582,7 @@ def evalAndSuggest (tk : Syntax) (tac : TSyntax `tactic) (config : Try.Config :=
     evalSuggest tac |>.run { terminal := true, root := tac, config }
   catch _ =>
     throwEvalAndSuggestFailed config
-  let s := (getSuggestions tac')[:config.max].toArray
+  let s := (getSuggestions tac')[*...config.max].toArray
   if s.isEmpty then
     throwEvalAndSuggestFailed config
   else

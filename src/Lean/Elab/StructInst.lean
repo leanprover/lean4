@@ -246,7 +246,7 @@ private def elabModifyOp (stx modifyOp : Syntax) (sourcesView : SourcesView) (ex
     let valFirst  := rest[0]
     let valFirst  := if valFirst.getKind == ``Lean.Parser.Term.structInstArrayRef then valFirst else valFirst[1]
     let restArgs  := rest.getArgs
-    let valRest   := mkNullNode restArgs[1:restArgs.size]
+    let valRest   := mkNullNode restArgs[(1)...restArgs.size]
     let valField  := modifyOp.setArg 0 <| mkNode ``Parser.Term.structInstLVal #[valFirst, valRest]
     let valSource := mkSourcesWithSyntax #[s]
     let val       := stx.setArg 1 valSource
@@ -662,7 +662,7 @@ private def reduceFieldProjs (e : Expr) : StructInstM Expr := do
           if let some major := args[projInfo.numParams]? then
             if major.isAppOfArity projInfo.ctorName (cval.numParams + cval.numFields) then
               if let some arg := major.getAppArgs[projInfo.numParams + projInfo.i]? then
-                return TransformStep.visit <| mkAppN arg args[projInfo.numParams+1:]
+                return TransformStep.visit <| mkAppN arg args[projInfo.numParams<...*]
     return TransformStep.continue
   Meta.transform e (post := postVisit)
 

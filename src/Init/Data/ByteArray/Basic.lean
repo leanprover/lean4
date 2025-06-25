@@ -7,7 +7,6 @@ module
 
 prelude
 import Init.Data.Array.Basic
-import Init.Data.Array.Subarray
 import Init.Data.UInt.Basic
 import all Init.Data.UInt.BasicAux
 import Init.Data.Option.Basic

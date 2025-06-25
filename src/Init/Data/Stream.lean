@@ -8,6 +8,7 @@ module
 prelude
 import Init.Data.Array.Subarray
 import Init.Data.Range
+import Init.Data.Slice.Array
 
 /-!
 Remark: we considered using the following alternative design
@@ -67,7 +68,7 @@ instance : ToStream (List α) (List α) where
   toStream c := c
 
 instance : ToStream (Array α) (Subarray α) where
-  toStream a := a[:a.size]
+  toStream a := a[*...*]
 
 instance : ToStream (Subarray α) (Subarray α) where
   toStream a := a

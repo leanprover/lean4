@@ -334,7 +334,7 @@ private partial def eraseIndices (type : Expr) : MetaM Expr := do
   let type' ← whnfD type
   matchConstInduct type'.getAppFn (fun _ => return type) fun info _ => do
     let args := type'.getAppArgs
-    let params ← args[:info.numParams].toArray.mapM eraseIndices
+    let params ← args[*...info.numParams].toArray.mapM eraseIndices
     let result := mkAppN type'.getAppFn params
     let resultType ← inferType result
     let (newIndices, _, _) ← forallMetaTelescopeReducing resultType (some (args.size - info.numParams))

@@ -275,7 +275,7 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     let arg0 ← collect args[0]!
     let stateNew ← get
     let mut argsNew := #[arg0]
-    for arg in args[1:] do
+    for arg in args[(1)...*] do
       set stateSaved
       argsNew := argsNew.push (← collect arg)
       unless samePatternsVariables stateSaved.vars.size stateNew (← get) do

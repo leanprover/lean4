@@ -206,7 +206,7 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) :
         -- A matcher application is stuck if one of the discriminants has a metavariable
         let args := e.getAppArgs
         let start := matcherInfo.getFirstDiscrPos
-        for arg in args[ start : start + matcherInfo.numDiscrs ] do
+        for arg in args[start...(start + matcherInfo.numDiscrs)] do
           if arg.hasExprMVar then
             Meta.throwIsDefEqStuck
       else if (← isRec c) then

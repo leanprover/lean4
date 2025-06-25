@@ -221,7 +221,7 @@ private def shouldUseSimpMatch (e : Expr) : MetaM Bool := do
     root.forEach fun e => do
       if let some info := isMatcherAppCore? env e then
         let args := e.getAppArgs
-        for discr in args[info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
+        for discr in args[info.getFirstDiscrPos...(info.getFirstDiscrPos + info.numDiscrs)] do
           if (← Meta.isConstructorApp discr) then
             throwThe Unit ()
   return (← (find e).run) matches .error _

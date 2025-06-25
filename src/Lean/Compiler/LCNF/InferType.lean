@@ -180,7 +180,7 @@ mutual
         if structVal.numParams + structVal.numIndices != structTypeArgs.size then
           failed ()
         else do
-          let mut ctorType ← inferAppType (mkAppN (mkConst ctorVal.name structLvls) structTypeArgs[:structVal.numParams])
+          let mut ctorType ← inferAppType (mkAppN (mkConst ctorVal.name structLvls) structTypeArgs[*...structVal.numParams])
           for _ in [:idx] do
             match ctorType with
             | .forallE _ _ body _ =>
@@ -292,7 +292,7 @@ def mkCasesResultType (alts : Array Alt) : CompilerM Expr := do
   if alts.isEmpty then
     throwError "`Code.bind` failed, empty `cases` found"
   let mut resultType ← alts[0]!.inferType
-  for alt in alts[1:] do
+  for alt in alts[(1)...*] do
     resultType := joinTypes resultType (← alt.inferType)
   return resultType
 

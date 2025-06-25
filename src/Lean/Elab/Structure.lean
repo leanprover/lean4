@@ -506,7 +506,7 @@ private def reduceFieldProjs (e : Expr) (zetaDelta := true) : StructElabM Expr :
                 pure major
             if major.isAppOfArity projInfo.ctorName (cval.numParams + cval.numFields) then
               if let some arg := major.getAppArgs[projInfo.numParams + projInfo.i]? then
-                return TransformStep.visit <| mkAppN arg args[projInfo.numParams+1:]
+                return TransformStep.visit <| mkAppN arg args[(projInfo.numParams+1)...*]
     return TransformStep.continue
   Meta.transform e (post := postVisit)
 
@@ -1412,7 +1412,7 @@ private def addParentInstances (parents : Array StructureParentInfo) : MetaM Uni
   -- A parent is an ancestor of the others if it appears with index ≥ 1 in one of the resolution orders.
   let resOrders : Array (Array Name) ← instParents.mapM fun parent => getStructureResolutionOrder parent.structName
   let instParents := instParents.filter fun parent =>
-    !resOrders.any (fun resOrder => resOrder[1:].any (· == parent.structName))
+    !resOrders.any (fun resOrder => resOrder[(1)...*].any (· == parent.structName))
   for instParent in instParents do
     addInstance instParent.projFn AttributeKind.global (eval_prio default)
 

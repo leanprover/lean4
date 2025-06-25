@@ -67,10 +67,10 @@ private def mkBelowFromRec (recName : Name) (nParams : Nat)
 
   let decl ← forallTelescope recVal.type fun refArgs _ => do
     assert! refArgs.size > nParams + recVal.numMotives + recVal.numMinors
-    let params  : Array Expr := refArgs[:nParams]
-    let motives : Array Expr := refArgs[nParams:nParams + recVal.numMotives]
-    let minors  : Array Expr := refArgs[nParams + recVal.numMotives:nParams + recVal.numMotives + recVal.numMinors]
-    let indices : Array Expr := refArgs[nParams + recVal.numMotives + recVal.numMinors:refArgs.size - 1]
+    let params  : Array Expr := refArgs[*...nParams]
+    let motives : Array Expr := refArgs[nParams...(nParams + recVal.numMotives)]
+    let minors  : Array Expr := refArgs[(nParams + recVal.numMotives)...(nParams + recVal.numMotives + recVal.numMinors)]
+    let indices : Array Expr := refArgs[(nParams + recVal.numMotives + recVal.numMinors)...(refArgs.size - 1)]
     let major   : Expr       := refArgs[refArgs.size - 1]!
 
     -- universe parameter of the type fomer.
@@ -194,10 +194,10 @@ private def mkBRecOnFromRec (recName : Name) (nParams : Nat)
 
   let decl ← forallTelescope recVal.type fun refArgs refBody => do
     assert! refArgs.size > nParams + recVal.numMotives + recVal.numMinors
-    let params  : Array Expr := refArgs[:nParams]
-    let motives : Array Expr := refArgs[nParams:nParams + recVal.numMotives]
-    let minors  : Array Expr := refArgs[nParams + recVal.numMotives:nParams + recVal.numMotives + recVal.numMinors]
-    let indices : Array Expr := refArgs[nParams + recVal.numMotives + recVal.numMinors:refArgs.size - 1]
+    let params  : Array Expr := refArgs[*...nParams]
+    let motives : Array Expr := refArgs[nParams...(nParams + recVal.numMotives)]
+    let minors  : Array Expr := refArgs[(nParams + recVal.numMotives)...(nParams + recVal.numMotives + recVal.numMinors)]
+    let indices : Array Expr := refArgs[(nParams + recVal.numMotives + recVal.numMinors)...(refArgs.size - 1)]
     let major   : Expr       := refArgs[refArgs.size - 1]!
 
     let some idx := motives.idxOf? refBody.getAppFn

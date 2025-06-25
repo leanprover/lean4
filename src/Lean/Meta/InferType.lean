@@ -106,7 +106,7 @@ private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Exp
     if structVal.numParams + structVal.numIndices != structTypeArgs.size then
       failed ()
     else do
-      let mut ctorType ← inferAppType (mkConst ctorVal.name structLvls) structTypeArgs[:structVal.numParams]
+      let mut ctorType ← inferAppType (mkConst ctorVal.name structLvls) structTypeArgs[*...<structVal.numParams]
       for i in [:idx] do
         ctorType ← whnf ctorType
         match ctorType with

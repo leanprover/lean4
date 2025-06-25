@@ -40,7 +40,7 @@ instance : ToString NamedArg where
 def throwInvalidNamedArg (namedArg : NamedArg) (fn? : Option Name) (validNames : Array Name) : TermElabM α :=
   let hint := if validNames.size > 0 then
     let namesMsg := MessageData.andList <| validNames.map (m!"`{·}`") |>.toList
-    MessageData.note m!"This function has the following named arguments: {namesMsg}"
+    MessageData.note m!"This function has the following named parameters: {namesMsg}"
   else
     .nil
   withRef namedArg.ref <| match fn? with
@@ -1084,7 +1084,7 @@ def mkImplicitArg (argExpectedType : Expr) (bi : BinderInfo) : M Expr := do
     modify fun s => { s with instMVars := s.instMVars.push arg.mvarId! }
   return arg
 
-/-- Main loop of the `elimAsElab` procedure. -/
+/-- Main loop of the `elabAsElim` procedure. -/
 partial def main : M Expr := do
   let .forallE binderName binderType body binderInfo ← whnfForall (← get).fType |
     finalize

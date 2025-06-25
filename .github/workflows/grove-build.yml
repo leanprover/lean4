@@ -13,6 +13,9 @@ on:
         description: "Base reference for comparison"
         required: false
         type: string
+  workflow_run: # this is just for testing, do not merge!
+    workflows: [CI]
+    types: [completed]
 
 jobs:
   fetch-upstream:
@@ -64,7 +67,7 @@ jobs:
             exit 1
           fi
           echo "Extracted directory: $LEAN_DIR"
-          echo "lean-dir=$LEAN_DIR" >> $GITHUB_OUTPUT
+          echo "lean-dir=$LEAN_DIR" >> "$GITHUB_OUTPUT"
 
       - name: Build
         id: build

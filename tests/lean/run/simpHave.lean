@@ -611,6 +611,10 @@ example (n : Nat) (h : n = 190) : lp 20 0 = n := by
   simp only
   simp [h]
 
+-- set_option Elab.async false
+-- set_option profiler true
+-- set_option profiler.threshold 2
+-- #time
 set_option debug.simp.check false in
 example (n : Nat) (h : n = 4950) : lp 100 0 = n := by
   simp -zeta -zetaUnused only [lp]

@@ -74,6 +74,22 @@ theorem let_body_congr {α : Sort u} {β : α → Sort v} {b b' : (a : α) → �
     (a : α) (h : ∀ x, b x = b' x) : (let x := a; b x) = (let x := a; b' x) :=
   (funext h : b = b') ▸ rfl
 
+/-!
+Simp lemmas for `have` have kernel performance issues when stated using `have` directly.
+Illustration of the problem: the kernel infers that the type of
+`have_congr (fun x => b) (fun x => b') h₁ h₂`
+is
+`(have x := a; (fun x => b) x) = (have x := a'; (fun x => b') x)`
+rather than
+`(have x := a; b x) = (have x := a'; b' x)`
+That means the kernel will do `whnf_core` at every step of checking a sequence of these lemmas.
+Thus, we get quadratically many zeta reductions.
+
+For reference, we have the `have` versions of the theorems in the following comment,
+and then after that we have the versions that `simpHaveTelescope` actually uses,
+which avoid this issue.
+-/
+/-
 theorem have_unused {α : Sort u} {β : Sort v} (a : α) {b b' : β}
     (h : b = b') : (have _ := a; b) = b' := h
 
@@ -94,6 +110,29 @@ theorem have_body_congr_dep {α : Sort u} {β : α → Sort v} (a : α) {f f' : 
 
 theorem have_body_congr {α : Sort u} {β : Sort v} (a : α) {f f' : α → β}
     (h : ∀ x, f x = f' x) : (have x := a; f x) = (have x := a; f' x) :=
+  h a
+-/
+
+theorem have_unused' {α : Sort u} {β : Sort v} (a : α) {b b' : β}
+    (h : b = b') : (fun _ => b) a = b' := h
+
+theorem have_unused_dep' {α : Sort u} {β : Sort v} (a : α) {b : α → β} {b' : β}
+    (h : ∀ x, b x = b') : b a = b' := h a
+
+theorem have_congr' {α : Sort u} {β : Sort v} {a a' : α} {f f' : α → β}
+    (h₁ : a = a') (h₂ : ∀ x, f x = f' x) : f a = f' a' :=
+  @congr α β f f' a a' (funext h₂) h₁
+
+theorem have_val_congr' {α : Sort u} {β : Sort v} {a a' : α} {f : α → β}
+    (h : a = a') : f a = f a' :=
+  @congrArg α β a a' f h
+
+theorem have_body_congr_dep' {α : Sort u} {β : α → Sort v} (a : α) {f f' : (x : α) → β x}
+    (h : ∀ x, f x = f' x) : f a = f' a :=
+  h a
+
+theorem have_body_congr' {α : Sort u} {β : Sort v} (a : α) {f f' : α → β}
+    (h : ∀ x, f x = f' x) : f a = f' a :=
   h a
 
 theorem letFun_unused {α : Sort u} {β : Sort v} (a : α) {b b' : β} (h : b = b') : @letFun α (fun _ => β) a (fun _ => b) = b' :=

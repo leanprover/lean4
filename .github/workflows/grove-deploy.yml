@@ -77,6 +77,29 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: "1cacfa39-a11c-467c-99e7-2e01d7b4089e"
 
+      - name: Download comment
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        id: download-comment
+        uses: dawidd6/action-download-artifact@v7
+        with:
+          run_id: 15879213219
+          # run_id: ${{ github.event.workflow_run.id }}
+          name: "grove-frontend"
+          path: _comment
+          allow_forks: true
+
+      - name: Read comment file
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        id: read-comment
+        run: |
+          if [ -f "_comment/comment.txt" ]; then
+            echo "comment-content<<EOF" >> "$GITHUB_OUTPUT"
+            cat "_comment/comment.txt" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+          else
+            echo "comment-content=" >> "$GITHUB_OUTPUT"
+          fi
+
       # actions-netlify cannot add deploy links to a PR because it assumes a
       # pull_request context, not a workflow_run context, see
       # https://github.com/nwtgck/actions-netlify/issues/545
@@ -90,6 +113,8 @@ jobs:
           recreate: true
           message: |
             [Grove](${{ steps.deploy-draft.outputs.deploy-url }}) built with commit ${{ env.PR_HEADSHA }}.
+
+            ${{ steps.read-comment.outputs.comment-content }}
         env:
           PR_NUMBER: ${{ steps.workflow-info.outputs.pullRequestNumber }}
           PR_HEADSHA: ${{ steps.workflow-info.outputs.sourceHeadSha }}

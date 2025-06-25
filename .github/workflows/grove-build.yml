@@ -76,5 +76,6 @@ jobs:
           project-path: doc/std/grove
           script-name: grove-stdlib
           invalidated-facts-artifact-name: grove-invalidated-facts
+          comment-artifact-name: grove-comment
           toolchain-id: lean4
           toolchain-path: artifacts/${{ steps.unpack-toolchain.outputs.lean-dir }}

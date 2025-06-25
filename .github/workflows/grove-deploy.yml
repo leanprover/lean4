@@ -35,7 +35,7 @@ jobs:
         id: download-artifact
         uses: dawidd6/action-download-artifact@v7
         with:
-          run_id: 15879213219
+          run_id: 15881057086
           # run_id: ${{ github.event.workflow_run.id }}
           name: "grove-frontend"
           path: _out
@@ -82,9 +82,9 @@ jobs:
         id: download-comment
         uses: dawidd6/action-download-artifact@v7
         with:
-          run_id: 15879213219
+          run_id: 15881057086
           # run_id: ${{ github.event.workflow_run.id }}
-          name: "grove-frontend"
+          name: "grove-comment"
           path: _comment
           allow_forks: true
 
@@ -93,9 +93,11 @@ jobs:
         id: read-comment
         run: |
           if [ -f "_comment/comment.txt" ]; then
-            echo "comment-content<<EOF" >> "$GITHUB_OUTPUT"
-            cat "_comment/comment.txt" >> "$GITHUB_OUTPUT"
-            echo "EOF" >> "$GITHUB_OUTPUT"
+            {
+              echo "comment-content<<EOF"
+              cat "_comment/comment.txt"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
           else
             echo "comment-content=" >> "$GITHUB_OUTPUT"
           fi

@@ -50,7 +50,7 @@ theorem RangeIterator.toList_eq_match {su} [UpwardEnumerable α]
           [] := by
   apply Eq.symm
   rw [Iter.toList_eq_match_step, RangeIterator.step_eq_step]
-  simp only [RangeIterator.step, Internal.iter]
+  simp only [RangeIterator.step]
   split <;> rename_i heq
   · simp [*]
   · split <;> rename_i heq' <;> simp [*]

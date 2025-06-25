@@ -46,7 +46,7 @@ instance : LawfulUpwardEnumerableLT Nat where
 
 instance : LawfulUpwardEnumerable Nat where
   succMany?_zero := by simp [UpwardEnumerable.succMany?]
-  succMany?_succ := by simp [UpwardEnumerable.succMany?, UpwardEnumerable.succ?, Bind.bind, Nat.add_assoc]
+  succMany?_succ := by simp [UpwardEnumerable.succMany?, UpwardEnumerable.succ?, Nat.add_assoc]
   ne_of_lt a b hlt := by
     rw [← LawfulUpwardEnumerableLT.lt_iff] at hlt
     exact Nat.ne_of_lt hlt
@@ -74,7 +74,7 @@ instance : LawfulUpwardEnumerableUpperBound .open Nat where
 instance : LawfulUpwardEnumerableLowerBound .unbounded Nat where
   isSatisfied_iff a l := by
     simp [← LawfulUpwardEnumerableLE.le_iff, BoundedUpwardEnumerable.init?,
-      SupportsLowerBound.IsSatisfied, Nat.lt_iff_add_one_le, Least?.least?]
+      SupportsLowerBound.IsSatisfied, Least?.least?]
 
 instance : LawfulUpwardEnumerableUpperBound .unbounded Nat where
   isSatisfied_of_le _ _ _ _ _ := .intro

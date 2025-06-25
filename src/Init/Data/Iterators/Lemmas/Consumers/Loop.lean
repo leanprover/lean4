@@ -20,7 +20,7 @@ theorem Iter.forIn'_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
     letI : ForIn' m (Iter (α := α) β) β _ := Iter.instForIn'
     ForIn'.forIn' it init f =
       IterM.DefaultConsumers.forIn' (fun _ c => pure c.run) γ (fun _ _ _ => True)
-        IteratorLoop.wellFounded_of_finite it.toIterM init
+        IteratorLoop.wellFounded_of_finite it.toIterM init _ (fun _ => id)
           (fun out h acc => (⟨·, .intro⟩) <$>
             f out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc) := by
   cases hl.lawful; rfl
@@ -31,7 +31,7 @@ theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
     {f : (b : β) → γ → m (ForInStep γ)} :
     ForIn.forIn it init f =
       IterM.DefaultConsumers.forIn' (fun _ c => pure c.run) γ (fun _ _ _ => True)
-        IteratorLoop.wellFounded_of_finite it.toIterM init
+        IteratorLoop.wellFounded_of_finite it.toIterM init _ (fun _ => id)
           (fun out _ acc => (⟨·, .intro⟩) <$>
             f out acc) := by
   cases hl.lawful; rfl
@@ -166,7 +166,7 @@ theorem Iter.mem_toList_iff_isPlausibleIndirectOutput {α β} [Iterator α Id β
       obtain ⟨it', hp⟩ := hp
       split <;> simp_all
     · rename_i it' h₁ h₂
-      cases heq : it.step using PlausibleIterStep.casesOn <;> simp only [heq]
+      cases heq : it.step using PlausibleIterStep.casesOn <;> simp only
       · apply List.mem_cons_of_mem
         simp only [Iter.isPlausibleSuccessorOf_iff_exists, Iter.isPlausibleStep_iff_step_eq] at h₁
         obtain ⟨step, h₁, rfl⟩ := h₁

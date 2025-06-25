@@ -4,39 +4,31 @@ on:
   workflow_run: # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_run
     workflows: [Grove Build]
     types: [completed]
-  pull_request:
 
 permissions:
   pull-requests: write
 
 jobs:
   deploy:
-    # if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' && github.repository == 'leanprover/reference-manual'
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' && github.repository == 'leanprover/reference-manual'
     runs-on: ubuntu-latest
     steps:
-      # - name: Retrieve information about the original workflow
-      #   uses: potiuk/get-workflow-origin@v1_1 # https://github.com/marketplace/actions/get-workflow-origin
-      #   # This action is deprecated and archived, but it seems hard to find a
-      #   # better solution for getting the PR number
-      #   # see https://github.com/orgs/community/discussions/25220 for some discussion
-      #   id: workflow-info
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     sourceRunId: ${{ github.event.workflow_run.id }}
-
-      - name: Dummy workflow info for debugging
+      - name: Retrieve information about the original workflow
+        uses: potiuk/get-workflow-origin@v1_1 # https://github.com/marketplace/actions/get-workflow-origin
+        # This action is deprecated and archived, but it seems hard to find a
+        # better solution for getting the PR number
+        # see https://github.com/orgs/community/discussions/25220 for some discussion
         id: workflow-info
-        run: |
-          echo "pullRequestNumber=8997" >> "$GITHUB_OUTPUT"
-          echo "sourceHeadSha=debug-commit-sha" >> "$GITHUB_OUTPUT"
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
 
       - name: Download artifact
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: download-artifact
         uses: dawidd6/action-download-artifact@v7
         with:
-          run_id: 15881057086
-          # run_id: ${{ github.event.workflow_run.id }}
+          run_id: ${{ github.event.workflow_run.id }}
           name: "grove-frontend"
           path: _out
           allow_forks: true
@@ -82,8 +74,7 @@ jobs:
         id: download-comment
         uses: dawidd6/action-download-artifact@v7
         with:
-          run_id: 15881057086
-          # run_id: ${{ github.event.workflow_run.id }}
+          run_id: ${{ github.event.workflow_run.id }}
           name: "grove-comment"
           path: _comment
           allow_forks: true

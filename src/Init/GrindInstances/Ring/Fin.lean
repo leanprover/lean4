@@ -8,7 +8,7 @@ module
 prelude
 import all Init.Data.Zero
 import Init.Grind.Ring.Basic
-import Init.GrindInstances.ToInt
+import all Init.GrindInstances.ToInt
 import Init.Data.Fin.Lemmas
 
 namespace Lean.Grind
@@ -22,6 +22,9 @@ def npow [NeZero n] (x : Fin n) (y : Nat) : Fin n := npowRec y x
 
 instance [NeZero n] : HPow (Fin n) Nat (Fin n) where
   hPow := Fin.npow
+
+instance [NeZero n] : Pow (Fin n) Nat where
+  pow := Fin.npow
 
 @[simp] theorem pow_zero [NeZero n] (a : Fin n) : a ^ 0 = 1 := rfl
 @[simp] theorem pow_succ [NeZero n] (a : Fin n) (n : Nat) : a ^ (n+1) = a ^ n * a := rfl
@@ -103,6 +106,19 @@ instance (n : Nat) [NeZero n] : IsCharP (Fin n) n := IsCharP.mk' _ _
 
 example [NeZero n] : ToInt.Neg (Fin n) (some 0) (some n) := inferInstance
 example [NeZero n] : ToInt.Sub (Fin n) (some 0) (some n) := inferInstance
+
+instance [i : NeZero n] : ToInt.Pow (Fin n) (some 0) (some n) where
+  toInt_pow x k := by
+    induction k with
+    | zero =>
+      match n, i with
+      | 1, _ => rfl
+      | (n + 2), _ =>
+        simp [ToInt.wrap, Int.sub_zero, Int.add_zero]
+        rw [Int.emod_eq_of_lt] <;> omega
+    | succ k ih =>
+      rw [pow_succ, ToInt.Mul.toInt_mul, ih, ← ToInt.wrap_toInt,
+        ← ToInt.wrap_mul, Int.pow_succ, ToInt.wrap_toInt]
 
 end Fin
 

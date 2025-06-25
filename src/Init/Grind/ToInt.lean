@@ -25,10 +25,19 @@ These typeclasses are used solely in the `grind` tactic to lift linear inequalit
 
 namespace Lean.Grind
 
+/--
+`ToInt α lo? hi?` asserts that `α` can be embedded faithfully into the interval `[lo, hi)` in the integers,
+when `lo? = some lo` and `hi? = some hi`, and similarly can be embedded into a half-infinite or infinite interval when
+`lo? = none` or `hi? = none`.
+-/
 class ToInt (α : Type u) (lo? hi? : outParam (Option Int)) where
+  /-- The embedding function. -/
   toInt : α → Int
+  /-- The embedding function is injective. -/
   toInt_inj : ∀ x y, toInt x = toInt y → x = y
+  /-- The lower bound, if present, gives a lower bound on the embedding function. -/
   le_toInt : lo? = some lo → lo ≤ toInt x
+  /-- The upper bound, if present, gives an upper bound on the embedding function. -/
   toInt_lt : hi? = some hi → toInt x < hi
 
 @[simp]
@@ -37,30 +46,101 @@ def ToInt.wrap (lo? hi? : Option Int) (x : Int) : Int :=
   | some lo, some hi => (x - lo) % (hi - lo) + lo
   | _, _ => x
 
+/--
+The embedding into the integers takes `0` to `0`.
+-/
 class ToInt.Zero (α : Type u) [Zero α] (lo? hi? : outParam (Option Int)) [ToInt α lo? hi?] where
-  toInt_zero : toInt (0 : α) = wrap lo? hi? 0
+  /-- The embedding takes `0` to `0`. -/
+  toInt_zero : toInt (0 : α) = 0
 
+/--
+The embedding into the integers takes addition to addition, wrapped into the range interval.
+-/
 class ToInt.Add (α : Type u) [Add α] (lo? hi? : outParam (Option Int)) [ToInt α lo? hi?] where
+  /-- The embedding takes addition to addition, wrapped into the range interval. -/
   toInt_add : ∀ x y : α, toInt (x + y) = wrap lo? hi? (toInt x + toInt y)
 
+/--
+The embedding into the integers takes negation to negation, wrapped into the range interval.
+-/
 class ToInt.Neg (α : Type u) [Neg α] (lo? hi? : outParam (Option Int)) [ToInt α lo? hi?] where
+  /-- The embedding takes negation to negation, wrapped into the range interval. -/
   toInt_neg : ∀ x : α, toInt (-x) = wrap lo? hi? (-toInt x)
 
+/--
+The embedding into the integers takes subtraction to subtraction, wrapped into the range interval.
+-/
 class ToInt.Sub (α : Type u) [Sub α] (lo? hi? : outParam (Option Int)) [ToInt α lo? hi?] where
+  /-- The embedding takes subtraction to subtraction, wrapped into the range interval. -/
   toInt_sub : ∀ x y : α, toInt (x - y) = wrap lo? hi? (toInt x - toInt y)
 
+/--
+The embedding into the integers takes multiplication to multiplication, wrapped into the range interval.
+-/
+class ToInt.Mul (α : Type u) [Mul α] (lo? hi? : outParam (Option Int)) [ToInt α lo? hi?] where
+  /-- The embedding takes multiplication to multiplication, wrapped into the range interval. -/
+  toInt_mul : ∀ x y : α, toInt (x * y) = wrap lo? hi? (toInt x * toInt y)
+
+/--
+The embedding into the integers takes exponentiation to exponentiation, wrapped into the range interval.
+-/
+class ToInt.Pow (α : Type u) [Pow α Nat] (lo? hi? : outParam (Option Int)) [ToInt α lo? hi?] where
+  /-- The embedding takes exponentiation to exponentiation, wrapped into the range interval. -/
+  toInt_pow : ∀ x : α, ∀ n : Nat, toInt (x ^ n) = wrap lo? hi? (toInt x ^ n)
+
+/--
+The embedding into the integers takes modulo to modulo (without needing to wrap into the range interval).
+-/
 class ToInt.Mod (α : Type u) [Mod α] (lo? hi? : outParam (Option Int)) [ToInt α lo? hi?] where
-  /-- One might expect a `wrap` on the right hand side,
-  but in practice this stronger statement is usually true. -/
+  /--
+  The embedding takes modulo to modulo (without needing to wrap into the range interval).
+  One might expect a `wrap` on the right hand side,
+  but in practice this stronger statement is usually true.
+  -/
   toInt_mod : ∀ x y : α, toInt (x % y) = toInt x % toInt y
 
+/--
+The embedding into the integers takes division to division, wrapped into the range interval.
+-/
+class ToInt.Div (α : Type u) [Div α] (lo? hi? : outParam (Option Int)) [ToInt α lo? hi?] where
+  /--
+  The embedding takes division to division (without needing to wrap into the range interval).
+  One might expect a `wrap` on the right hand side,
+  but in practice this stronger statement is usually true.
+  -/
+  toInt_div : ∀ x y : α, toInt (x / y) = toInt x / toInt y
+
+/--
+The embedding into the integers is monotone.
+-/
 class ToInt.LE (α : Type u) [LE α] (lo? hi? : outParam (Option Int)) [ToInt α lo? hi?] where
+  /-- The embedding is monotone with respect to `≤`. -/
   le_iff : ∀ x y : α, x ≤ y ↔ toInt x ≤ toInt y
 
+/--
+The embedding into the integers is strictly monotone.
+-/
 class ToInt.LT (α : Type u) [LT α] (lo? hi? : outParam (Option Int)) [ToInt α lo? hi?] where
+  /-- The embedding is strictly monotone with respect to `<`. -/
   lt_iff : ∀ x y : α, x < y ↔ toInt x < toInt y
 
 /-! ## Helper theorems -/
+
+theorem ToInt.Zero.wrap_zero (lo? hi? : Option Int) [_root_.Zero α] [ToInt α lo? hi?] [ToInt.Zero α lo? hi?] :
+    ToInt.wrap lo? hi? (0 : Int) = 0 := by
+  match hlo : lo?, hhi : hi? with
+  | some lo, some hi =>
+    subst hlo hhi
+    have h := ToInt.Zero.toInt_zero (α := α)
+    have hlo:= ToInt.le_toInt (x := (0 : α)) (lo := lo) rfl
+    have hhi := ToInt.toInt_lt (x := (0 : α)) (hi := hi) rfl
+    simp only [h] at hlo hhi
+    unfold wrap
+    simp only [Int.zero_sub]
+    rw [Int.emod_eq_of_lt] <;> all_goals omega
+  | some lo, none
+  | none, some hi
+  | none, none => rfl
 
 theorem ToInt.wrap_add (lo? hi? : Option Int) (x y : Int) :
     ToInt.wrap lo? hi? (x + y) = ToInt.wrap lo? hi? (ToInt.wrap lo? hi? x + ToInt.wrap lo? hi? y) := by
@@ -76,6 +156,27 @@ theorem ToInt.wrap_add (lo? hi? : Option Int) (x y : Int) :
       omega
     rw [this]
     exact Int.mul_emod_right ..
+  · simp
+
+theorem ToInt.wrap_mul (lo? hi? : Option Int) (x y : Int) :
+    ToInt.wrap lo? hi? (x * y) = ToInt.wrap lo? hi? (ToInt.wrap lo? hi? x * ToInt.wrap lo? hi? y) := by
+  simp only [wrap]
+  split <;> rename_i lo hi
+  · dsimp
+    rw [Int.add_left_inj, Int.emod_eq_emod_iff_emod_sub_eq_zero, Int.emod_def (x - lo), Int.emod_def (y - lo)]
+    have : x - lo - (hi - lo) * ((x - lo) / (hi - lo)) + lo = x - (hi - lo) * ((x - lo) / (hi - lo)) := by omega
+    rw [this]; clear this
+    have : y - lo - (hi - lo) * ((y - lo) / (hi - lo)) + lo = y - (hi - lo) * ((y - lo) / (hi - lo)) := by omega
+    rw [this]; clear this
+    have : x * y - lo - ((x - (hi - lo) * ((x - lo) / (hi - lo))) * (y - (hi - lo) * ((y - lo) / (hi - lo))) - lo) =
+      x * y - (x - (hi - lo) * ((x - lo) / (hi - lo))) * (y - (hi - lo) * ((y - lo) / (hi - lo))) := by omega
+    rw [this]; clear this
+    have : (x - (hi - lo) * ((x - lo) / (hi - lo))) * (y - (hi - lo) * ((y - lo) / (hi - lo))) =
+        x * y - (hi - lo) * (x * ((y - lo) / (hi - lo)) + (x - lo) / (hi - lo) * (y - (hi - lo) * ((y - lo) / (hi - lo)))) := by
+      conv => lhs; rw [Int.sub_mul, Int.mul_sub, Int.mul_left_comm, Int.sub_sub, Int.mul_assoc, ← Int.mul_add]
+    rw [this]; clear this
+    rw [Int.sub_sub_self]
+    apply Int.mul_emod_right
   · simp
 
 @[simp]

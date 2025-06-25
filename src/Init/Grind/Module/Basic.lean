@@ -240,7 +240,7 @@ end NoNatZeroDivisors
 instance [ToInt α (some lo) (some hi)] [IntModule α] [ToInt.Zero α (some lo) (some hi)] [ToInt.Add α (some lo) (some hi)] : ToInt.Neg α (some lo) (some hi) where
   toInt_neg x := by
     have := (ToInt.Add.toInt_add (-x) x).symm
-    rw [IntModule.neg_add_cancel, ToInt.Zero.toInt_zero] at this
+    rw [IntModule.neg_add_cancel, ToInt.Zero.toInt_zero, ← ToInt.Zero.wrap_zero (α := α)] at this
     rw [ToInt.wrap_eq_wrap_iff] at this
     simp at this
     rw [← ToInt.wrap_toInt]

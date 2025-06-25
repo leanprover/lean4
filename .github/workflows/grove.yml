@@ -50,7 +50,7 @@ jobs:
       - name: Fetch upstream invalidated facts
         if: ${{ steps.should-run.outputs.should-run == 'true' && steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: fetch-upstream
-        uses: TwoFx/grove-action/fetch-upstream@master
+        uses: TwoFx/grove-action/fetch-upstream@v0
         with:
           artifact-name: grove-invalidated-facts
           base-ref: ${{ steps.workflow-info.outputs.targetCommitSha }}
@@ -94,7 +94,7 @@ jobs:
       - name: Build
         if: ${{ steps.should-run.outputs.should-run == 'true' }}
         id: build
-        uses: TwoFx/grove-action/build@master
+        uses: TwoFx/grove-action/build@v0
         with:
           project-path: doc/std/grove
           script-name: grove-stdlib

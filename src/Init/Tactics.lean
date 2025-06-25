@@ -2100,6 +2100,68 @@ introductions in sequence.
 macro (name := mintroMacro) (priority:=low) "mintro" : tactic =>
   Macro.throwError "to use `mintro`, please include `import Std.Tactic.Do`"
 
+/--
+`mspec` is an `apply`-like tactic that applies a Hoare triple specification to the target of the
+stateful goal.
+
+Given a stateful goal `H ⊢ₛ wp⟦prog⟧.apply Q'`, `mspec foo_spec` will instantiate
+`foo_spec : ... → ⦃P⦄ foo ⦃Q⦄`, match `foo` against `prog` and produce subgoals for
+the verification conditions `?pre : H ⊢ₛ P` and `?post : Q ⊢ₚ Q'`.
+
+* If `prog = x >>= f`, then `mspec Specs.bind` is tried first so that `foo` is matched against `x`
+  instead. Tactic `mspec_no_bind` does not attempt to do this decomposition.
+* If `?pre` or `?post` follow by `.rfl`, then they are discharged automatically.
+* `?post` is automatically simplified into constituent `⊢ₛ` entailments on
+  success and failure continuations.
+* `?pre` and `?post.*` goals introduce their stateful hypothesis as `h`.
+* Any uninstantiated MVar arising from instantiation of `foo_spec` becomes a new subgoal.
+* If the goal looks like `fun s => _ ⊢ₛ _` then `mspec` will first `mintro ∀s`.
+* If `P` has schematic variables that can be instantiated by doing `mintro ∀s`, for example
+  `foo_spec : ∀(n:Nat), ⦃⌜n = ‹Nat›ₛ⌝⦄ foo ⦃Q⦄`, then `mspec` will do `mintro ∀s` first to
+  instantiate `n = s`.
+* Right before applying the spec, the `mframe` tactic is used, which has the following effect:
+  Any hypothesis `Hᵢ` in the goal `h₁:H₁, h₂:H₂, ..., hₙ:Hₙ ⊢ₛ T` that is
+  pure (i.e., equivalent to some `⌜φᵢ⌝`) will be moved into the pure context as `hᵢ:φᵢ`.
+
+Additionally, `mspec` can be used without arguments or with a term argument:
+
+* `mspec` without argument will try and look up a spec for `x` registered with `@[spec]`.
+* `mspec (foo_spec blah ?bleh)` will elaborate its argument as a term with expected type
+  `⦃?P⦄ x ⦃?Q⦄` and introduce `?bleh` as a subgoal.
+  This is useful to pass an invariant to e.g., `Specs.forIn_list` and leave the inductive step
+  as a hole.
+-/
+macro (name := mspecMacro) (priority:=low) "mspec" : tactic =>
+  Macro.throwError "to use `mspec`, please include `import Std.Tactic.Do`"
+
+/--
+`mvcgen` will break down a Hoare triple proof goal like `⦃P⦄ prog ⦃Q⦄` into verification conditions,
+provided that all functions used in `prog` have specifications registered with `@[spec]`.
+
+A verification condition is an entailment in the stateful logic of `Std.Do.SPred`
+in which the original program `prog` no longer occurs.
+Verification conditions are introduced by the `mspec` tactic; see the `mspec` tactic for what they
+look like.
+When there's no applicable `mspec` spec, `mvcgen` will try and rewrite an application
+`prog = f a b c` with the simp set registered via `@[spec]`.
+
+When used like `mvcgen +noLetElim [foo_spec, bar_def, instBEqFloat]`, `mvcgen` will additionally
+
+* add a Hoare triple specification `foo_spec : ... → ⦃P⦄ foo ... ⦃Q⦄` to `spec` set for a
+  function `foo` occurring in `prog`,
+* unfold a definition `def bar_def ... := ...` in `prog`,
+* unfold any method of the `instBEqFloat : BEq Float` instance in `prog`.
+* it will no longer substitute away `let`-expressions that occur at most once in `P`, `Q` or `prog`.
+
+Furthermore, `mvcgen` tries to close trivial verification conditions by `SPred.entails.rfl` or
+the tactic sequence `try (mpure_intro; trivial)`. The variant `mvcgen_no_trivial` does not do this.
+
+For debugging purposes there is also `mvcgen_step 42` which will do at most 42 VC generation
+steps. This is useful for bisecting issues with the generated VCs.
+-/
+macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
+  Macro.throwError "to use `mvcgen`, please include `import Std.Tactic.Do`"
+
 end Tactic
 
 namespace Attr

@@ -5,3 +5,8 @@ Authors: Sebastian Graf
 -/
 prelude
 import Lean.Elab.Tactic.Do.ProofMode
+import Lean.Elab.Tactic.Do.Syntax
+import Lean.Elab.Tactic.Do.Attr
+import Lean.Elab.Tactic.Do.LetElim
+import Lean.Elab.Tactic.Do.Spec
+import Lean.Elab.Tactic.Do.VCGen

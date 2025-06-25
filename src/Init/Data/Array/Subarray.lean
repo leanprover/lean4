@@ -197,35 +197,6 @@ instance [∀ xs : Subarray α, ToIterator xs Id α] [∀ xs : Subarray α, ForI
   forIn xs init f := forIn (Std.Slice.Internal.iter xs) init f
 
 /--
-Folds a monadic operation from left to right over the elements in a subarray.
-
-An accumulator of type `β` is constructed by starting with `init` and monadically combining each
-element of the subarray with the current accumulator value in turn. The monad in question may permit
-early termination or repetition.
-
-Examples:
-```lean example
-#eval #["red", "green", "blue"].toSubarray.foldlM (init := "") fun acc x => do
-  let l ← Option.guard (· ≠ 0) x.length
-  return s!"{acc}({l}){x} "
-```
-```output
-some "(3)red (5)green (4)blue "
-```
-```lean example
-#eval #["red", "green", "blue"].toSubarray.foldlM (init := 0) fun acc x => do
-  let l ← Option.guard (· ≠ 5) x.length
-  return s!"{acc}({l}){x} "
-```
-```output
-none
-```
--/
-@[inline]
-def foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Subarray α) : m β :=
-  as.array.foldlM f (init := init) (start := as.start) (stop := as.stop)
-
-/--
 Folds a monadic operation from right to left over the elements in a subarray.
 
 An accumulator of type `β` is constructed by starting with `init` and monadically combining each
@@ -319,20 +290,6 @@ The elements are processed starting at the highest index and moving down.
 @[inline]
 def forRevM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Subarray α) : m PUnit :=
   as.array.forRevM f (start := as.stop) (stop := as.start)
-
-/--
-Folds an operation from left to right over the elements in a subarray.
-
-An accumulator of type `β` is constructed by starting with `init` and combining each
-element of the subarray with the current accumulator value in turn.
-
-Examples:
- * `#["red", "green", "blue"].toSubarray.foldl (· + ·.length) 0 = 12`
- * `#["red", "green", "blue"].toSubarray.popFront.foldl (· + ·.length) 0 = 9`
--/
-@[inline]
-def foldl {α : Type u} {β : Type v} (f : β → α → β) (init : β) (as : Subarray α) : β :=
-  Id.run <| as.foldlM (pure <| f · ·) (init := init)
 
 /--
 Folds an operation from right to left over the elements in a subarray.

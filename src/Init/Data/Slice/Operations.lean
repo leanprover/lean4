@@ -34,26 +34,40 @@ Returns the number of elements with distinct indices in the given slice.
 Example: `#[1, 1, 1][0...2].size = 2`.
 -/
 @[always_inline, inline]
-def size (s : Slice g) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
+def size (s : Slice γ) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
     [IteratorSize (ToIterator.State s Id) Id] :=
   Internal.iter s |>.size
 
 /-- Allocates a new array that contains the elements of the slice. -/
 @[always_inline, inline]
-def toArray (s : Slice g) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
+def toArray (s : Slice γ) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
     [IteratorCollect (ToIterator.State s Id) Id Id] [Finite (ToIterator.State s Id) Id] : Array β :=
   Internal.iter s |>.toArray
 
 /-- Allocates a new list that contains the elements of the slice. -/
 @[always_inline, inline]
-def toList (s : Slice g) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
+def toList (s : Slice γ) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
     [IteratorCollect (ToIterator.State s Id) Id Id] [Finite (ToIterator.State s Id) Id] : List β :=
   Internal.iter s |>.toList
 
 /-- Allocates a new list that contains the elements of the slice in reverse order. -/
 @[always_inline, inline]
-def toListRev (s : Slice g) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
+def toListRev (s : Slice γ) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
     [Finite (ToIterator.State s Id) Id] : List β :=
   Internal.iter s |>.toListRev
+
+@[always_inline, inline]
+def foldlM {γ : Type u} {β : Type w}
+    {δ : Type w} {m : Type w → Type w'} [Monad m] (f : δ → β → m δ) (init : δ)
+    (s : Slice γ) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
+    [IteratorLoop (ToIterator.State s Id) Id m] [Finite (ToIterator.State s Id) Id] : m δ :=
+  Internal.iter s |>.foldM f init
+
+@[always_inline, inline]
+def foldl {γ : Type u} {β : Type w}
+    {δ : Type w} (f : δ → β → δ) (init : δ)
+    (s : Slice γ) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
+    [IteratorLoop (ToIterator.State s Id) Id Id] [Finite (ToIterator.State s Id) Id] : δ :=
+  Internal.iter s |>.fold f init
 
 end Std.Slice

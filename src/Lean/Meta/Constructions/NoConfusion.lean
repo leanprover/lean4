@@ -24,7 +24,7 @@ def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   let recInfo ← getConstInfo (mkRecName declName)
   unless recInfo.levelParams.length > indVal.levelParams.length do return
 
-  let useLinear ← NoConfusionLinear.canUse declName
+  let useLinear ← NoConfusionLinear.canUse
 
   if useLinear then
     NoConfusionLinear.mkWithCtorType declName

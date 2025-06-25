@@ -49,11 +49,9 @@ List of constants that the linear `noConfusionType` construction depends on.
 private def deps : Array Lean.Name :=
   #[ ``cond, ``ULift, ``Eq.ndrec, ``Not, ``dite, ``Nat.decEq, ``Nat.blt ]
 
-def canUse (declName : Name) : MetaM Bool := do
+def canUse : MetaM Bool := do
   unless backwards.linearNoConfusionType.get (← getOptions) do return false
   unless (← NoConfusionLinear.deps.allM (hasConst · (skipRealize := true))) do return false
-  -- Do not use this construction for inductive propositions
-  unless (← isTypeFormer (← mkConstWithLevelParams declName)) do return false
   return true
 
 def mkNatLookupTable (n : Expr) (type : Expr) (es : Array Expr) (default : Expr) : MetaM Expr := do

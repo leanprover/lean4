@@ -18,6 +18,8 @@ namespace Lean.Grind
 -- These are no longer global instances, so we need to turn them on here.
 attribute [local instance] Semiring.natCast Ring.intCast
 namespace CommRing
+
+@[expose]
 abbrev Var := Nat
 
 inductive Expr where
@@ -56,7 +58,15 @@ def Expr.denote {α} [Ring α] (ctx : Context α) : Expr → α
 structure Power where
   x : Var
   k : Nat
-  deriving BEq, Repr, Inhabited, Hashable
+  deriving Repr, Inhabited, Hashable
+
+@[expose]
+def Power.beq : Power → Power → Bool
+  | ⟨x₁, k₁⟩, ⟨x₂, k₂⟩ => x₁ == x₂ && k₁ == k₂
+
+@[expose]
+instance : BEq Power where
+  beq := Power.beq
 
 instance : LawfulBEq Power where
   eq_of_beq {a} := by cases a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
@@ -77,7 +87,17 @@ def Power.denote {α} [Semiring α] (ctx : Context α) : Power → α
 inductive Mon where
   | unit
   | mult (p : Power) (m : Mon)
-  deriving BEq, Repr, Inhabited, Hashable
+  deriving Repr, Inhabited, Hashable
+
+@[expose]
+def Mon.beq : Mon → Mon → Bool
+  | .unit, .unit => true
+  | .mult p₁ m₁, .mult p₂ m₂ => p₁ == p₂ && beq m₁ m₂
+  | _, _ => false
+
+@[expose]
+instance : BEq Mon where
+  beq := Mon.beq
 
 instance : LawfulBEq Mon where
   eq_of_beq {a} := by
@@ -212,7 +232,17 @@ def Mon.grevlex (m₁ m₂ : Mon) : Ordering :=
 inductive Poly where
   | num (k : Int)
   | add (k : Int) (v : Mon) (p : Poly)
-  deriving BEq, Repr, Inhabited, Hashable
+  deriving Repr, Inhabited, Hashable
+
+@[expose]
+def Poly.beq : Poly → Poly → Bool
+    | .num k₁, .num k₂ => k₁ == k₂
+    | .add k₁ m₁ p₁, .add k₂ m₂ p₂ => k₁ == k₂ && m₁ == m₂ && beq p₁ p₂
+    | _, _ => false
+
+@[expose]
+instance : BEq Poly where
+  beq := Poly.beq
 
 instance : LawfulBEq Poly where
   eq_of_beq {a} := by

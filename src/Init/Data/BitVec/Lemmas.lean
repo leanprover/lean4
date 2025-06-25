@@ -2749,7 +2749,7 @@ theorem toNat_neg_of_pos {x : BitVec n} (h : 0#n < x) :
 theorem toInt_neg {x : BitVec w} :
     (-x).toInt = (-x.toInt).bmod (2 ^ w) := by
   rw [← BitVec.zero_sub, toInt_sub]
-  simp [BitVec.toInt_ofNat]
+  simp
 
 @[simp]
 theorem toInt_neg_of_not_negOverflow {x : BitVec w} (h : ¬ negOverflow x):

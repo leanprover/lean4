@@ -7,7 +7,7 @@ module
 
 prelude
 import Init.Data.Int.Order
-import Init.Grind.ToInt
+import all Init.Grind.ToInt
 
 namespace Lean.Grind
 
@@ -237,17 +237,17 @@ theorem eq_zero_of_mul_eq_zero {α : Type u} [NatModule α] [NoNatZeroDivisors �
 
 end NoNatZeroDivisors
 
-instance [ToInt α (some lo) (some hi)] [IntModule α] [ToInt.Zero α (some lo) (some hi)] [ToInt.Add α (some lo) (some hi)] : ToInt.Neg α (some lo) (some hi) where
+instance [ToInt α (IntInterval.co lo hi)] [IntModule α] [ToInt.Zero α (IntInterval.co lo hi)] [ToInt.Add α (IntInterval.co lo hi)] : ToInt.Neg α (IntInterval.co lo hi) where
   toInt_neg x := by
     have := (ToInt.Add.toInt_add (-x) x).symm
     rw [IntModule.neg_add_cancel, ToInt.Zero.toInt_zero, ← ToInt.Zero.wrap_zero (α := α)] at this
-    rw [ToInt.wrap_eq_wrap_iff] at this
+    rw [IntInterval.wrap_eq_wrap_iff] at this
     simp at this
     rw [← ToInt.wrap_toInt]
-    rw [ToInt.wrap_eq_wrap_iff]
+    rw [IntInterval.wrap_eq_wrap_iff]
     simpa
 
-instance [ToInt α (some lo) (some hi)] [IntModule α] [ToInt.Add α (some lo) (some hi)] [ToInt.Neg α (some lo) (some hi)] : ToInt.Sub α (some lo) (some hi) :=
-  ToInt.Sub.of_sub_eq_add_neg IntModule.sub_eq_add_neg
+instance [ToInt α (IntInterval.co lo hi)] [IntModule α] [ToInt.Add α (IntInterval.co lo hi)] [ToInt.Neg α (IntInterval.co lo hi)] : ToInt.Sub α (IntInterval.co lo hi) :=
+  ToInt.Sub.of_sub_eq_add_neg IntModule.sub_eq_add_neg (by simp)
 
 end Lean.Grind

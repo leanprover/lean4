@@ -25,14 +25,25 @@ These typeclasses are used solely in the `grind` tactic to lift linear inequalit
 
 namespace Lean.Grind
 
+/-- An interval in the integers (either finite, half-infinite, or infinite). -/
 inductive IntInterval : Type where
-  | co (lo hi : Int)
-  | ci (lo : Int)
-  | io (hi : Int)
-  | ii
+  | /-- The finite interval `[lo, hi)`. -/
+    co (lo hi : Int)
+  | /-- The half-infinite interval `[lo, ∞)`. -/
+    ci (lo : Int)
+  | /-- The half-infinite interval `(-∞, hi)`. -/
+    io (hi : Int)
+  | /-- The infinite interval `(-∞, ∞)`. -/
+    ii
 
 namespace IntInterval
 
+/-- The interval `[0, 2^n)`. -/
+abbrev uint (n : Nat) := IntInterval.co 0 (2 ^ n)
+/-- The interval `[-2^(n-1), 2^(n-1))`. -/
+abbrev sint (n : Nat) := IntInterval.co (-(2 ^ (n - 1))) (2 ^ (n - 1))
+
+/-- The lower bound of the interval, if finite. -/
 def lo? (i : IntInterval) : Option Int :=
   match i with
   | co lo _ => some lo
@@ -40,6 +51,7 @@ def lo? (i : IntInterval) : Option Int :=
   | io _ => none
   | ii => none
 
+/-- The upper bound of the interval, if finite. -/
 def hi? (i : IntInterval) : Option Int :=
   match i with
   | co _ hi => some hi
@@ -63,7 +75,6 @@ def isFinite (i : IntInterval) : Bool :=
   | io _
   | ii => false
 
-@[simp]
 def mem (i : IntInterval) (x : Int) : Prop :=
   match i with
   | co lo hi => lo ≤ x ∧ x < hi
@@ -71,13 +82,18 @@ def mem (i : IntInterval) (x : Int) : Prop :=
   | io hi => x < hi
   | ii => True
 
-@[simp]
 instance : Membership Int IntInterval where
   mem := mem
+
+@[simp] theorem mem_co (lo hi : Int) (x : Int) : x ∈ IntInterval.co lo hi ↔ lo ≤ x ∧ x < hi := by rfl
+@[simp] theorem mem_ci (lo : Int) (x : Int) : x ∈ IntInterval.ci lo ↔ lo ≤ x := by rfl
+@[simp] theorem mem_io (hi : Int) (x : Int) : x ∈ IntInterval.io hi ↔ x < hi := by rfl
+@[simp] theorem mem_ii (x : Int) : x ∈ IntInterval.ii ↔ True := by rfl
 
 theorem nonEmpty_of_mem {x : Int} {i : IntInterval} (h : x ∈ i) : i.nonEmpty := by
   cases i <;> simp_all <;> omega
 
+@[simp]
 def wrap (i : IntInterval) (x : Int) : Int :=
   match i with
   | co lo hi => (x - lo) % (hi - lo) + lo
@@ -230,6 +246,13 @@ The embedding into the integers takes `0` to `0`.
 class ToInt.Zero (α : Type u) [Zero α] (I : outParam IntInterval) [ToInt α I] where
   /-- The embedding takes `0` to `0`. -/
   toInt_zero : toInt (0 : α) = 0
+
+/--
+The embedding into the integers takes numerals in the range interval to themselves.
+-/
+class ToInt.OfNat (α : Type u) [∀ n, OfNat α n] (I : outParam IntInterval) [ToInt α I] where
+  /-- The embedding takes `OfNat` to `OfNat`. -/
+  toInt_ofNat : ∀ n : Nat, (n : Int) ∈ I → toInt (OfNat.ofNat n : α) = n
 
 /--
 The embedding into the integers takes addition to addition, wrapped into the range interval.

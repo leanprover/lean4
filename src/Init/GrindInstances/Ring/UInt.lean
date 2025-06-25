@@ -151,9 +151,9 @@ instance : IsCharP UInt8 256 := IsCharP.mk' _ _
     simp [this, UInt8.ofNat_eq_iff_mod_eq_toNat])
 
 -- Verify we can derive the instances showing how `toInt` interacts with operations:
-example : ToInt.Add UInt8 (some 0) (some (2^8)) := inferInstance
-example : ToInt.Neg UInt8 (some 0) (some (2^8)) := inferInstance
-example : ToInt.Sub UInt8 (some 0) (some (2^8)) := inferInstance
+example : ToInt.Add UInt8 (.uint 8) := inferInstance
+example : ToInt.Neg UInt8 (.uint 8) := inferInstance
+example : ToInt.Sub UInt8 (.uint 8) := inferInstance
 
 instance : CommRing UInt16 where
   add_assoc := UInt16.add_assoc
@@ -181,9 +181,9 @@ instance : IsCharP UInt16 65536 := IsCharP.mk' _ _
     simp [this, UInt16.ofNat_eq_iff_mod_eq_toNat])
 
 -- Verify we can derive the instances showing how `toInt` interacts with operations:
-example : ToInt.Add UInt16 (some 0) (some (2^16)) := inferInstance
-example : ToInt.Neg UInt16 (some 0) (some (2^16)) := inferInstance
-example : ToInt.Sub UInt16 (some 0) (some (2^16)) := inferInstance
+example : ToInt.Add UInt16 (.uint 16) := inferInstance
+example : ToInt.Neg UInt16 (.uint 16) := inferInstance
+example : ToInt.Sub UInt16 (.uint 16) := inferInstance
 
 instance : CommRing UInt32 where
   add_assoc := UInt32.add_assoc
@@ -211,9 +211,9 @@ instance : IsCharP UInt32 4294967296 := IsCharP.mk' _ _
     simp [this, UInt32.ofNat_eq_iff_mod_eq_toNat])
 
 -- Verify we can derive the instances showing how `toInt` interacts with operations:
-example : ToInt.Add UInt32 (some 0) (some (2^32)) := inferInstance
-example : ToInt.Neg UInt32 (some 0) (some (2^32)) := inferInstance
-example : ToInt.Sub UInt32 (some 0) (some (2^32)) := inferInstance
+example : ToInt.Add UInt32 (.uint 32) := inferInstance
+example : ToInt.Neg UInt32 (.uint 32) := inferInstance
+example : ToInt.Sub UInt32 (.uint 32) := inferInstance
 
 instance : CommRing UInt64 where
   add_assoc := UInt64.add_assoc
@@ -241,9 +241,9 @@ instance : IsCharP UInt64 18446744073709551616 := IsCharP.mk' _ _
     simp [this, UInt64.ofNat_eq_iff_mod_eq_toNat])
 
 -- Verify we can derive the instances showing how `toInt` interacts with operations:
-example : ToInt.Add UInt64 (some 0) (some (2^64)) := inferInstance
-example : ToInt.Neg UInt64 (some 0) (some (2^64)) := inferInstance
-example : ToInt.Sub UInt64 (some 0) (some (2^64)) := inferInstance
+example : ToInt.Add UInt64 (.uint 64) := inferInstance
+example : ToInt.Neg UInt64 (.uint 64) := inferInstance
+example : ToInt.Sub UInt64 (.uint 64) := inferInstance
 
 instance : CommRing USize where
   add_assoc := USize.add_assoc
@@ -273,8 +273,8 @@ instance : IsCharP USize (2 ^ numBits) := IsCharP.mk' _ _
     simp [this, USize.ofNat_eq_iff_mod_eq_toNat])
 
 -- Verify we can derive the instances showing how `toInt` interacts with operations:
-example : ToInt.Add USize (some 0) (some (2^numBits)) := inferInstance
-example : ToInt.Neg USize (some 0) (some (2^numBits)) := inferInstance
-example : ToInt.Sub USize (some 0) (some (2^numBits)) := inferInstance
+example : ToInt.Add USize (.uint numBits) := inferInstance
+example : ToInt.Neg USize (.uint numBits) := inferInstance
+example : ToInt.Sub USize (.uint numBits) := inferInstance
 
 end Lean.Grind

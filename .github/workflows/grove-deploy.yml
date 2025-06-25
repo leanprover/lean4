@@ -1,0 +1,98 @@
+name: Grove Deploy
+
+on:
+  workflow_run: # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_run
+    workflows: [Grove Build]
+    types: [completed]
+  pull_request:
+
+permissions:
+  pull-requests: write
+
+jobs:
+  deploy:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' && github.repository == 'leanprover/reference-manual'
+    runs-on: ubuntu-latest
+    steps:
+      # - name: Retrieve information about the original workflow
+      #   uses: potiuk/get-workflow-origin@v1_1 # https://github.com/marketplace/actions/get-workflow-origin
+      #   # This action is deprecated and archived, but it seems hard to find a
+      #   # better solution for getting the PR number
+      #   # see https://github.com/orgs/community/discussions/25220 for some discussion
+      #   id: workflow-info
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     sourceRunId: ${{ github.event.workflow_run.id }}
+
+      - name: Dummy workflow info for debugging
+        id: workflow-info
+        run: |
+          echo "pullRequestNumber=8997" >> $GITHUB_OUTPUT
+          echo "sourceHeadSha=debug-commit-sha" >> $GITHUB_OUTPUT
+
+      - name: Download artifact
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v7
+        with:
+          run_id: 15879213219
+          # run_id: ${{ github.event.workflow_run.id }}
+          name: "html"
+          path: _out
+          allow_forks: true
+
+      # deploy-alias computes a URL component for the PR preview. This
+      # is so we can have a stable name to use for feedback on draft
+      # material.
+      - id: deploy-alias
+        uses: actions/github-script@v7
+        name: Compute Alias
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        with:
+          result-encoding: string
+          script: |
+            if (process.env.PR) {
+                return `pr-${process.env.PR}`
+            } else {
+                return 'deploy-preview-main';
+            }
+        env:
+          PR: ${{ steps.workflow-info.outputs.pullRequestNumber }}
+
+      - name: Deploy to Netlify
+        id: deploy-draft
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        uses: nwtgck/actions-netlify@v2.0
+        with:
+          publish-dir: _out/
+          production-deploy: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: |
+            ${{ format('pr#{0}', steps.workflow-info.outputs.pullRequestNumber) }}
+          alias: ${{ steps.deploy-alias.outputs.result }}
+          enable-commit-comment: false
+          enable-pull-request-comment: false
+          github-deployment-environment: |
+            ${{ format('lean-ref-pr-#{0}', steps.workflow-info.outputs.pullRequestNumber) || 'lean-ref' }}
+          github-deployment-description: |
+            Grove standard library QA
+          fails-without-credentials: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: "1cacfa39-a11c-467c-99e7-2e01d7b4089e"
+
+      # actions-netlify cannot add deploy links to a PR because it assumes a
+      # pull_request context, not a workflow_run context, see
+      # https://github.com/nwtgck/actions-netlify/issues/545
+      # We work around by using a comment to post the latest link
+      - name: "Comment on PR with preview links"
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          number: ${{ env.PR_NUMBER }}
+          header: preview-comment
+          recreate: true
+          message: |
+            [Grove](${{ steps.deploy-draft.outputs.deploy-url }}) built with commit ${{ env.PR_HEADSHA }}.
+        env:
+          PR_NUMBER: ${{ steps.workflow-info.outputs.pullRequestNumber }}
+          PR_HEADSHA: ${{ steps.workflow-info.outputs.sourceHeadSha }}

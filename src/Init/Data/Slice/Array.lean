@@ -7,17 +7,19 @@ module
 
 prelude
 import Init.Core
-import Init.Data.Range.Polymorphic.Basic
-import Init.Data.Range.Polymorphic.Nat
-import all Init.Data.Range.Polymorphic.Basic
+import Init.Data.Array.Subarray
 import Init.Data.Iterators.Combinators.Attach
 import Init.Data.Iterators.Combinators.FilterMap
-import Init.Data.Array.Subarray
+import all Init.Data.Range.Polymorphic.Basic
+import Init.Data.Range.Polymorphic.Nat
 import Init.Data.Slice.Operations
 
-open Std Slice PRange
+/-!
+This module provides slice notation for array slices (a.k.a. `Subarray`) and implements an iterator
+for those slices.
+-/
 
-instance {α : Type u} : Self (Slice (SubarrayInternal α)) (Subarray α) where
+open Std Slice PRange
 
 instance {shape} {α : Type u} [ClosedOpenIntersection shape Nat] :
     Sliceable shape (Array α) Nat (Subarray α) where

@@ -15,14 +15,9 @@ set_option linter.missingDocs true
 universe u v w
 
 /--
-A region of some underlying array.
-
-A subarray contains an array together with the start and end indices of a region of interest.
-Subarrays can be used to avoid copying or allocating space, while being more convenient than
-tracking the bounds by hand. The region of interest consists of every index that is both greater
-than or equal to `start` and strictly less than `stop`.
+Internal representation of `Subarray`, which is an abbreviation for `Slice SubarrayData`.
 -/
-structure SubarrayInternal (α : Type u) where
+structure Std.Slice.Internal.SubarrayData (α : Type u) where
   /-- The underlying array. -/
   array : Array α
   /-- The starting index of the region of interest (inclusive). -/
@@ -43,26 +38,37 @@ structure SubarrayInternal (α : Type u) where
   -/
   stop_le_array_size : stop ≤ array.size
 
-@[inherit_doc SubarrayInternal]
-abbrev Subarray (α : Type u) := Std.Slice (SubarrayInternal α)
+open Std.Slice
 
-@[always_inline, inline, expose, inherit_doc SubarrayInternal.array]
+/--
+A region of some underlying array.
+
+A subarray contains an array together with the start and end indices of a region of interest.
+Subarrays can be used to avoid copying or allocating space, while being more convenient than
+tracking the bounds by hand. The region of interest consists of every index that is both greater
+than or equal to `start` and strictly less than `stop`.
+-/
+abbrev Subarray (α : Type u) := Std.Slice (Internal.SubarrayData α)
+
+instance {α : Type u} : Self (Std.Slice (Internal.SubarrayData α)) (Subarray α) where
+
+@[always_inline, inline, expose, inherit_doc Internal.SubarrayData.array]
 def Subarray.array (xs : Subarray α) : Array α :=
   xs.internalRepresentation.array
 
-@[always_inline, inline, expose, inherit_doc SubarrayInternal.start]
+@[always_inline, inline, expose, inherit_doc Internal.SubarrayData.start]
 def Subarray.start (xs : Subarray α) : Nat :=
   xs.internalRepresentation.start
 
-@[always_inline, inline, expose, inherit_doc SubarrayInternal.stop]
+@[always_inline, inline, expose, inherit_doc Internal.SubarrayData.stop]
 def Subarray.stop (xs : Subarray α) : Nat :=
   xs.internalRepresentation.stop
 
-@[always_inline, inline, expose, inherit_doc SubarrayInternal.start_le_stop]
+@[always_inline, inline, expose, inherit_doc Internal.SubarrayData.start_le_stop]
 def Subarray.start_le_stop (xs : Subarray α) : xs.start ≤ xs.stop :=
   xs.internalRepresentation.start_le_stop
 
-@[always_inline, inline, expose, inherit_doc SubarrayInternal.stop_le_array_size]
+@[always_inline, inline, expose, inherit_doc Internal.SubarrayData.stop_le_array_size]
 def Subarray.stop_le_array_size (xs : Subarray α) : xs.stop ≤ xs.array.size :=
   xs.internalRepresentation.stop_le_array_size
 

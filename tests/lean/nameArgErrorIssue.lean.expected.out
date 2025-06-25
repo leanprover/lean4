@@ -18,7 +18,7 @@ but is expected to have type
   Nat
 nameArgErrorIssue.lean:6:11-6:19: error: Invalid argument name `z` for function `bla`
 
-Note: This function has the following named arguments: `x` and `y`
+Note: This function has the following named parameters: `x` and `y`
 nameArgErrorIssue.lean:7:11-7:19: error: Invalid argument name `z` for function `bla`
 
-Note: This function has the following named arguments: `x` and `y`
+Note: This function has the following named parameters: `x` and `y`

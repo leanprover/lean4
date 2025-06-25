@@ -14,16 +14,17 @@ inductive Vec.{u} (α : Type) : Nat → Type u where
 
 
 @[reducible] protected def Vec.noConfusionType.withCtorType'.{u_1, u} :
-  Type → Type u_1 → Nat → Type (max u u_1) :=
+  Type → Sort u_1 → Nat → Sort (max 1 u_1 (imax (u+1) u_1)) :=
 fun α P ctorIdx =>
-  bif Nat.blt ctorIdx 1 then PULift.{max (u+1) (u_1+1)} P
-  else PULift.{max (u+1) (u_1+1)} ({n : Nat} → α → Vec.{u} α n → P)
+  bif Nat.blt ctorIdx 1 then PULift.{max u_1 (imax (u+1) u_1), u_1} P
+  else PULift.{max u_1 (imax (u+1) u_1),imax (u+1) u_1} ({n : Nat} → α → Vec.{u} α n → P)
 
 /--
-info: @[reducible] protected def Vec.noConfusionType.withCtorType.{u_1, u} : Type → Type u_1 → Nat → Type (max u u_1) :=
+info: @[reducible] protected def Vec.noConfusionType.withCtorType.{u_1, u} : Type →
+  Sort u_1 → Nat → Sort (max 1 u_1 (imax (u + 1) u_1)) :=
 fun α P ctorIdx =>
-  bif Nat.blt ctorIdx 1 then PULift.{max (u + 1) (u_1 + 1), u_1 + 1} P
-  else PULift.{max (u + 1) (u_1 + 1), max (u + 1) (u_1 + 1)} ({n : Nat} → α → Vec.{u} α n → P)
+  bif Nat.blt ctorIdx 1 then PULift.{max u_1 (imax (u + 1) u_1), u_1} P
+  else PULift.{max u_1 (imax (u + 1) u_1), imax (u + 1) u_1} ({n : Nat} → α → Vec.{u} α n → P)
 -/
 #guard_msgs in
 set_option pp.universes true in
@@ -33,7 +34,7 @@ example : @Vec.noConfusionType.withCtorType.{u_1,u} = @Vec.noConfusionType.withC
 
 
 @[reducible] protected noncomputable def Vec.noConfusionType.withCtor'.{u_1, u} : (α : Type) →
-  (P : Type u_1) → (ctorIdx : Nat) → Vec.noConfusionType.withCtorType' α P ctorIdx → P → (a : Nat) → Vec.{u} α a → P :=
+  (P : Sort u_1) → (ctorIdx : Nat) → Vec.noConfusionType.withCtorType' α P ctorIdx → P → (a : Nat) → Vec.{u} α a → P :=
 fun _α _P ctorIdx k k' _a x =>
   Vec.casesOn x
     (if h : ctorIdx = 0 then (Eq.ndrec k h).down else k')
@@ -41,7 +42,7 @@ fun _α _P ctorIdx k k' _a x =>
 
 /--
 info: @[reducible] protected def Vec.noConfusionType.withCtor.{u_1, u} : (α : Type) →
-  (P : Type u_1) → (ctorIdx : Nat) → Vec.noConfusionType.withCtorType α P ctorIdx → P → (a : Nat) → Vec α a → P :=
+  (P : Sort u_1) → (ctorIdx : Nat) → Vec.noConfusionType.withCtorType α P ctorIdx → P → (a : Nat) → Vec α a → P :=
 fun α P ctorIdx k k' a x =>
   Vec.casesOn x (if h : ctorIdx = 0 then (h ▸ k).down else k') fun {n} a a_1 =>
     if h : ctorIdx = 1 then (h ▸ k).down a a_1 else k'

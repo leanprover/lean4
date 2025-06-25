@@ -23,12 +23,6 @@ definition, rather than one for each constructor, using a `withCtorType` helper 
 See the `linearNoConfusion.lean` test for exemplary output of this translation (checked to be
 up-to-date).
 
-The `withCtor` functions could be generally useful, but for that they should probably eliminate into
-`Sort _` rather than `Type _`, and then writing the `withCtorType` function runs into universe level
-confusion, which may be solvable if the kernel had more complete univere level normalization.
-Until then we put these helper in the `noConfusionType` namespace to indicate that they are not
-general purpose.
-
 This module is written in a rather manual style, constructing the `Expr` directly. It's best
 read with the expected output to the side.
 -/
@@ -137,7 +131,7 @@ def mkWithCtorType (indName : Name) : MetaM Unit := do
   let indTyCon := mkConst indName us
   let indTyKind ← inferType indTyCon
   let e ← forallBoundedTelescope indTyKind info.numParams fun xs _ => do
-    withLocalDeclD `P (mkSort v.succ) fun P => do
+    withLocalDeclD `P (mkSort v) fun P => do
     withLocalDeclD `ctorIdx (mkConst ``Nat) fun ctorIdx => do
       let es ← info.ctors.toArray.mapM fun ctorName => do
         let ctor := mkAppN (mkConst ctorName us) xs
@@ -168,7 +162,7 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
   let indTyCon := mkConst indName us
   let indTyKind ← inferType indTyCon
   let e ← forallBoundedTelescope indTyKind info.numParams fun xs t => do
-    withLocalDeclD `P (mkSort v.succ) fun P => do
+    withLocalDeclD `P (mkSort v) fun P => do
     withLocalDeclD `ctorIdx (mkConst ``Nat) fun ctorIdx => do
       let withCtorTypeNameApp := mkAppN (mkConst withCtorTypeName (v :: us)) (xs.push P)
       let kType := mkApp withCtorTypeNameApp  ctorIdx
@@ -178,7 +172,7 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
         let t' ← whnfD t'
         assert! t'.isSort
         withLocalDeclD `x (mkAppN indTyCon (xs ++ ys)) fun x => do
-          let e := mkConst (mkCasesOnName indName) (v.succ :: us)
+          let e := mkConst (mkCasesOnName indName) (v :: us)
           let e := mkAppN e xs
           let motive ← mkLambdaFVars (ys.push x) P
           let e := mkApp e motive
@@ -197,7 +191,7 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
                 mkLambdaFVars #[h] e
               let «else» ← withLocalDeclD `h (mkNot heq) fun h =>
                 mkLambdaFVars #[h] k'
-              let alt := mkApp5 (mkConst ``dite [v.succ])
+              let alt := mkApp5 (mkConst ``dite [v])
                   P heq (mkApp2 (mkConst ``Nat.decEq) ctorIdx (mkRawNatLit i))
                   «then» «else»
               mkLambdaFVars zs alt
@@ -244,7 +238,7 @@ def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
             let alts' ← alts.mapIdxM fun i alt => do
               let altType ← inferType alt
               forallTelescope altType fun zs1 _ => do
-                let alt := mkConst (mkWithCtorName indName) (v :: us)
+                let alt := mkConst (mkWithCtorName indName) (v.succ :: us)
                 let alt := mkAppN alt xs
                 let alt := mkApp alt PType
                 let alt := mkApp alt (mkRawNatLit i)

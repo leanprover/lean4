@@ -24,10 +24,10 @@ specified, this error indicates that the specified pattern will always be matche
 binding in question can be replaced with a standard pattern-matching `let`.
 
 One common cause of this error is that a pattern that was intended to match a constructor was
-instead interpreted as a variable binding. This occurs, for instance, if an unprefixed constructor
-name (e.g., `cons`) is used outside of its namespace (`List`). The constructor-name-as-variable
-linter, enabled by default, will display a warning on any variable patterns that resemble
-constructor names.
+instead interpreted as a variable binding. This occurs, for instance, if a constructor
+name (e.g., `cons`) is written without its prefix (`List`) outside of that type's namespace. The
+constructor-name-as-variable linter, enabled by default, will display a warning on any variable
+patterns that resemble constructor names.
 
 This error nearly always indicates an issue with the code where it appears. If needed, however,
 `set_option match.ignoreUnusedAlts true` will disable the check for this error and allow pattern

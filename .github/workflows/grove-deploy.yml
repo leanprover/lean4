@@ -37,7 +37,7 @@ jobs:
         with:
           run_id: 15879213219
           # run_id: ${{ github.event.workflow_run.id }}
-          name: "grove_frontend"
+          name: "grove-frontend"
           path: _out
           allow_forks: true
 

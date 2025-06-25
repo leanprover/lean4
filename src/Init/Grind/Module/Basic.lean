@@ -11,7 +11,11 @@ import Init.Grind.ToInt
 
 namespace Lean.Grind
 
+/--
+A type where addition is right-cancellative, i.e. `a + c = b + c` implies `a = b`.
+-/
 class AddRightCancel (M : Type u) [Add M] where
+  /-- Addition is right-cancellative. -/
   add_right_cancel : ∀ a b c : M, a + c = b + c → a = b
 
 /--
@@ -204,8 +208,14 @@ end IntModule
 /--
 We say a module has no natural number zero divisors if
 `k ≠ 0` and `k * a = k * b` implies `a = b` (here `k` is a natural number and `a` and `b` are element of the module).
+
+For a module over the integersm this is equivalent to
+`k ≠ 0` and `k * a = 0` implies `a = 0`.
+(See the alternative constructor `NoNatZeroDivisors.mk'`,
+and the theorem `eq_zero_of_mul_eq_zero`.)
 -/
 class NoNatZeroDivisors (α : Type u) [HMul Nat α α] where
+  /-- If `k * a ≠ k * b` then `k ≠ 0` or `a ≠ b`.-/
   no_nat_zero_divisors : ∀ (k : Nat) (a b : α), k ≠ 0 → k * a = k * b → a = b
 
 export NoNatZeroDivisors (no_nat_zero_divisors)

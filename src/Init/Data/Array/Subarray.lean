@@ -8,11 +8,16 @@ module
 prelude
 import Init.Data.Array.Basic
 import Init.Data.Slice.Basic
+import Init.Data.Slice.Operations
+import Init.Data.Iterators.Consumers
+import Init.Data.Range.Polymorphic
 
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 set_option linter.missingDocs true
 
 universe u v w
+
+open Std.Iterators
 
 /--
 Internal representation of `Subarray`, which is an abbreviation for `Slice SubarrayData`.
@@ -184,8 +189,8 @@ The implementation of `ForIn.forIn` for `Subarray`, which allows it to be used w
 protected opaque forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
   pure b
 
-instance : ForIn m (Subarray α) α where
-  forIn := Subarray.forIn
+instance [∀ xs : Subarray α, ToIterator xs Id α] [∀ xs : Subarray α, ForIn m (Iter (α := (ToIterator.State xs Id)) α) α] : ForIn m (Subarray α) α where
+  forIn xs init f := forIn (Std.Slice.Internal.iter xs) init f
 
 /--
 Folds a monadic operation from left to right over the elements in a subarray.
@@ -462,18 +467,6 @@ def toSubarray (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : Suba
          start_le_stop := Nat.le_refl _,
          stop_le_array_size := Nat.le_refl _ }⟩
 
-/--
-Allocates a new array that contains the contents of the subarray.
--/
-@[coe]
-def ofSubarray (s : Subarray α) : Array α := Id.run do
-  let mut as := mkEmpty (s.stop - s.start)
-  for a in s do
-    as := as.push a
-  return as
-
-instance : Coe (Subarray α) (Array α) := ⟨ofSubarray⟩
-
 /-- A subarray with the provided bounds.-/
 syntax:max term noWs "[" withoutPosition(term ":" term) "]" : term
 /-- A subarray with the provided lower bound that extends to the rest of the array. -/
@@ -487,22 +480,3 @@ macro_rules
   | `($a[$start : ])      => `(let a := $a; Array.toSubarray a $start a.size)
 
 end Array
-
-@[inherit_doc Array.ofSubarray]
-def Subarray.toArray (s : Subarray α) : Array α :=
-  Array.ofSubarray s
-
-instance : Append (Subarray α) where
-  append x y :=
-   let a := x.toArray ++ y.toArray
-   a.toSubarray 0 a.size
-
-/-- `Subarray` representation. -/
-protected def Subarray.repr [Repr α] (s : Subarray α) : Std.Format :=
-  repr s.toArray ++ ".toSubarray"
-
-instance [Repr α] : Repr (Subarray α) where
-  reprPrec s  _ := Subarray.repr s
-
-instance [ToString α] : ToString (Subarray α) where
-  toString s := toString s.toArray

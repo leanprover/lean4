@@ -105,12 +105,14 @@ class IteratorSizePartial (α : Type w) (m : Type w → Type w') {β : Type w} [
 
 end Typeclasses
 
-private def IteratorLoop.WFRel {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+/-- Internal implementation detail of the iterator library. -/
+def IteratorLoop.WFRel {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     {γ : Type x} {plausible_forInStep : β → γ → ForInStep γ → Prop}
     (_wf : WellFounded α m plausible_forInStep) :=
   IterM (α := α) m β × γ
 
-private def IteratorLoop.WFRel.mk {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+/-- Internal implementation detail of the iterator library. -/
+def IteratorLoop.WFRel.mk {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     {γ : Type x} {plausible_forInStep : β → γ → ForInStep γ → Prop}
     (wf : WellFounded α m plausible_forInStep) (it : IterM (α := α) m β) (c : γ) :
     IteratorLoop.WFRel wf :=
@@ -134,20 +136,21 @@ def IterM.DefaultConsumers.forIn' {m : Type w → Type w'} {α : Type w} {β : T
     (plausible_forInStep : β → γ → ForInStep γ → Prop)
     (wf : IteratorLoop.WellFounded α m plausible_forInStep)
     (it : IterM (α := α) m β) (init : γ)
-    (f : (b : β) → it.IsPlausibleIndirectOutput b → (c : γ) → n (Subtype (plausible_forInStep b c))) : n γ :=
+    (P : β → Prop) (hP : ∀ b, it.IsPlausibleIndirectOutput b → P b)
+    (f : (b : β) → P b → (c : γ) → n (Subtype (plausible_forInStep b c))) : n γ :=
   haveI : WellFounded _ := wf
   letI : MonadLift m n := ⟨fun {γ} => lift γ⟩
   do
     match ← it.step with
     | .yield it' out h =>
-      match ← f out (.direct ⟨_, h⟩) init with
+      match ← f out (hP _ <| .direct ⟨_, h⟩) init with
       | ⟨.yield c, _⟩ =>
-        IterM.DefaultConsumers.forIn' lift _ plausible_forInStep wf it' c
-          (fun out h' acc => f out (.indirect ⟨_, rfl, h⟩ h') acc)
+        IterM.DefaultConsumers.forIn' lift _ plausible_forInStep wf it' c P
+          (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') f
       | ⟨.done c, _⟩ => return c
     | .skip it' h =>
-      IterM.DefaultConsumers.forIn' lift _ plausible_forInStep wf it' init
-        (fun out h' acc => f out (.indirect ⟨_, rfl, h⟩ h') acc)
+      IterM.DefaultConsumers.forIn' lift _ plausible_forInStep wf it' init P
+          (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') f
     | .done _ => return init
 termination_by IteratorLoop.WFRel.mk wf it init
 decreasing_by
@@ -163,7 +166,7 @@ implementations are possible and should be used instead.
 def IteratorLoop.defaultImplementation {α : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
     [Monad n] [Iterator α m β] :
     IteratorLoop α m n where
-  forIn lift := IterM.DefaultConsumers.forIn' lift
+  forIn lift γ Pl wf it init := IterM.DefaultConsumers.forIn' lift γ Pl wf it init _ (fun _ => id)
 
 /--
 Asserts that a given `IteratorLoop` instance is equal to `IteratorLoop.defaultImplementation`.
@@ -246,6 +249,7 @@ A `ForIn'` instance for iterators. Its generic membership relation is not easy t
 so this is not marked as `instance`. This way, more convenient instances can be built on top of it
 or future library improvements will make it more comfortable.
 -/
+@[always_inline, inline]
 def IterM.instForIn' {m : Type w → Type w'} {n : Type w → Type w''}
     {α : Type w} {β : Type w} [Iterator α m β] [Finite α m] [IteratorLoop α m n]
     [MonadLiftT m n] :

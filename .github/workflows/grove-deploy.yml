@@ -27,8 +27,8 @@ jobs:
       - name: Dummy workflow info for debugging
         id: workflow-info
         run: |
-          echo "pullRequestNumber=8997" >> $GITHUB_OUTPUT
-          echo "sourceHeadSha=debug-commit-sha" >> $GITHUB_OUTPUT
+          echo "pullRequestNumber=8997" >> "$GITHUB_OUTPUT"
+          echo "sourceHeadSha=debug-commit-sha" >> "$GITHUB_OUTPUT"
 
       - name: Download artifact
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
@@ -67,15 +67,9 @@ jobs:
           publish-dir: _out/
           production-deploy: false
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: |
-            ${{ format('pr#{0}', steps.workflow-info.outputs.pullRequestNumber) }}
           alias: ${{ steps.deploy-alias.outputs.result }}
           enable-commit-comment: false
           enable-pull-request-comment: false
-          github-deployment-environment: |
-            ${{ format('lean-ref-pr-#{0}', steps.workflow-info.outputs.pullRequestNumber) || 'lean-ref' }}
-          github-deployment-description: |
-            Grove standard library QA
           fails-without-credentials: true
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
@@ -87,6 +81,7 @@ jobs:
       # We work around by using a comment to post the latest link
       - name: "Comment on PR with preview links"
         uses: marocchino/sticky-pull-request-comment@v2
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         with:
           number: ${{ env.PR_NUMBER }}
           header: preview-comment

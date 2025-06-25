@@ -875,7 +875,7 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
     let motive := xs[matchInfo.getMotivePos]!
     let alts   := xs[(xs.size - matchInfo.numAlts)...*]
     let firstDiscrIdx := matchInfo.numParams + 1
-    let discrs := xs[firstDiscrIdx....(firstDiscrIdx + matchInfo.numDiscrs)]
+    let discrs := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
     let mut notAlts := #[]
     let mut idx := 1
     for i in [:alts.size] do

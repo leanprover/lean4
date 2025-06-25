@@ -111,22 +111,25 @@ structure Context where
   ctorVal?      : Option ConstructorVal -- It is `some`, if constructor application
   explicit      : Bool
   ellipsis      : Bool
-  paramDecls    : Array (Name × BinderInfo) -- parameters names and binder information
+  paramDecls    : Array (Name × BinderInfo) -- parameters' names and binder information
   paramDeclIdx  : Nat := 0
   namedArgs     : Array NamedArg
   args          : List Arg
   newArgs       : Array Term := #[]
   deriving Inhabited
 
-private def throwInvalidNamedArgs [Monad m] [MonadError m]
-    (namedArgs : Array NamedArg) (funId : Term) : m α :=
-  let names := (namedArgs.map fun narg => m!"'{narg.name}'").toList
+private def throwInvalidNamedArgs [Monad m] [MonadError m] (ctx : Context) : m α :=
+  let names := (ctx.namedArgs.map fun narg => m!"`{narg.name}`").toList
   let nameStr := if names.length == 1 then "name" else "names"
-  throwError m!"Invalid argument {nameStr} {.andList names} for function '{funId}'"
+  let validNames := ctx.paramDecls.filterMap fun (name, _) =>
+    if name.hasMacroScopes then none else some m!"`{name}`"
+  let validNamesMsg := MessageData.andList validNames.toList
+  let note := .note m!"This function has the following named parameters: {validNamesMsg}"
+  throwError m!"Invalid argument {nameStr} {.andList names} for function `{ctx.funId}`" ++ note
 
 private def throwWrongArgCount (ctx : Context) (tooMany : Bool) : M α := do
   if !ctx.namedArgs.isEmpty then
-    throwInvalidNamedArgs ctx.namedArgs ctx.funId
+    throwInvalidNamedArgs ctx
   let numExpectedArgs :=
     (if ctx.explicit then ctx.paramDecls else ctx.paramDecls.filter (·.2.isExplicit)).size
   let argKind := if ctx.explicit then "" else "explicit "
@@ -146,7 +149,7 @@ private def finalize (ctx : Context) : M Syntax := do
     let fStx ← `(@$(ctx.funId):ident)
     return Syntax.mkApp fStx ctx.newArgs
   else if ctx.args.isEmpty then
-    throwInvalidNamedArgs ctx.namedArgs ctx.funId
+    throwInvalidNamedArgs ctx
   else
     throwWrongArgCount ctx true
 

@@ -72,21 +72,15 @@ def mkNatLookupTable (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr 
   else
     go 0 es.size
 
-def mkWithCtorTypeName (indName : Name) : Name :=
-  Name.str indName "noConfusionType" |>.str "withCtorType"
-
-def mkWithCtorName (indName : Name) : Name :=
-  Name.str indName "noConfusionType" |>.str "withCtor"
-
-def mkNoConfusionTypeName (indName : Name) : Name :=
-  Name.str indName "noConfusionType"
-
-private partial def getKindLevel (indTyKind : Expr) : MetaM Level := do
-  match (← whnf indTyKind) with
-  | .sort l => decLevel l
-  | .forallE _ _ b _ => getKindLevel b
-  | _ => throwError "getLindLevel: unexpected kind: {indTyKind}"
-
+/--
+Takes the max of the levels of the given expressions.
+-/
+def maxLevels (es : Array Expr) (default : Expr) : MetaM Level := do
+  let mut maxLevel ← getLevel default
+  for e in es do
+    let l ← getLevel e
+    maxLevel := mkLevelMax' maxLevel l
+  return maxLevel.normalize
 
 private def mkULift (r : Level) (t : Expr) : MetaM Expr := do
   let s ← getLevel t
@@ -105,6 +99,21 @@ private def mkULiftDown (e : Expr) : MetaM Expr := do
   | c@ULift t' => return mkApp2 (mkConst ``ULift.down c.constLevels!) t' e
   | _ => throwError "mkULiftDown: expected ULift type, got {t}"
 
+def mkNatLookupTableLifting (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr := do
+  let u ← maxLevels es default
+  let default ← mkULift u default
+  let es ← es.mapM (mkULift u)
+  mkNatLookupTable n es default
+
+def mkWithCtorTypeName (indName : Name) : Name :=
+  Name.str indName "noConfusionType" |>.str "withCtorType"
+
+def mkWithCtorName (indName : Name) : Name :=
+  Name.str indName "noConfusionType" |>.str "withCtor"
+
+def mkNoConfusionTypeName (indName : Name) : Name :=
+  Name.str indName "noConfusionType"
+
 def mkWithCtorType (indName : Name) : MetaM Unit := do
   let ConstantInfo.inductInfo info ← getConstInfo indName | unreachable!
   let casesOnName := mkCasesOnName indName
@@ -112,19 +121,15 @@ def mkWithCtorType (indName : Name) : MetaM Unit := do
   let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
   let indTyCon := mkConst indName us
   let indTyKind ← inferType indTyCon
-  let some indLevel ← typeFormerTypeLevel indTyKind | panic! s!"mkWithCtorType: {indName} is not a type former type"
-  let resLevel := mkLevelMax' indLevel v
   let e ← forallBoundedTelescope indTyKind info.numParams fun xs _ => do
     withLocalDeclD `P (mkSort v.succ) fun P => do
     withLocalDeclD `ctorIdx (mkConst ``Nat) fun ctorIdx => do
-      let default ← mkULift resLevel P
       let es ← info.ctors.toArray.mapM fun ctorName => do
         let ctor := mkAppN (mkConst ctorName us) xs
         let ctorType ← inferType ctor
-        let argType ← forallTelescope ctorType fun ys _ =>
+        forallTelescope ctorType fun ys _ =>
           mkForallFVars ys P
-        mkULift resLevel argType
-      let e ← mkNatLookupTable ctorIdx es default
+      let e ← mkNatLookupTableLifting ctorIdx es P
       mkLambdaFVars ((xs.push P).push ctorIdx) e
 
   let declName := mkWithCtorTypeName indName

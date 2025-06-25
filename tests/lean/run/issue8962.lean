@@ -12,12 +12,12 @@ inductive S where
 
 /--
 info: @[reducible] protected def S.noConfusionType.withCtorType.{u_1, u, v} : Type u_1 →
-  Nat → Type (max u_1 (max (u + 1) (v + 2)) u_1) :=
+  Nat → Type (max u_1 (max (u + 1) (u_1 + 1)) (v + 2)) :=
 fun P ctorIdx =>
   bif Nat.blt ctorIdx 1 then
-    ULift.{max (max (u + 1) (v + 2)) u_1, max (max (u + 1) (u_1 + 1)) (v + 2)}
+    ULift.{max (max (u + 1) (u_1 + 1)) (v + 2), max (max (u + 1) (u_1 + 1)) (v + 2)}
       ({α : Sort u} → {β : Type v} → (α → β) → P)
-  else ULift.{max (max (u + 1) (v + 2)) u_1, u_1 + 1} P
+  else ULift.{max (max (u + 1) (u_1 + 1)) (v + 2), u_1 + 1} P
 -/
 #guard_msgs in
 #print S.noConfusionType.withCtorType
@@ -30,12 +30,12 @@ inductive T where
 
 /--
 info: @[reducible] protected def T.noConfusionType.withCtorType.{u_1, u, v} : Type u_1 →
-  Nat → Type (max u_1 (max (u + 1) (v + 1)) u_1) :=
+  Nat → Type (max u_1 (max (max (u + 1) (u_1 + 1)) (v + 1)) (imax u v)) :=
 fun P ctorIdx =>
   bif Nat.blt ctorIdx 1 then
-    ULift.{max (max (u + 1) (v + 1)) u_1, max (max (max (u + 1) (u_1 + 1)) (v + 1)) (imax u v)}
+    ULift.{max (max (max (u + 1) (u_1 + 1)) (v + 1)) (imax u v), max (max (max (u + 1) (u_1 + 1)) (v + 1)) (imax u v)}
       ({α : Sort u} → {β : Sort v} → (α → β) → P)
-  else ULift.{max (max (u + 1) (v + 1)) u_1, u_1 + 1} P
+  else ULift.{max (max (max (u + 1) (u_1 + 1)) (v + 1)) (imax u v), u_1 + 1} P
 -/
 #guard_msgs in
 #print T.noConfusionType.withCtorType

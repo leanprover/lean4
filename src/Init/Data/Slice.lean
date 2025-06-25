@@ -7,4 +7,6 @@ module
 
 prelude
 import Init.Data.Slice.Basic
+import Init.Data.Slice.Sliceable
+import Init.Data.Slice.Operations
 import Init.Data.Slice.Array

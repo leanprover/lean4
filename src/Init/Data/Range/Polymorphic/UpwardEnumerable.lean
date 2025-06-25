@@ -10,7 +10,6 @@ import Init.Classical
 import Init.Core
 import Init.Data.Nat.Basic
 import Init.Data.Option.Lemmas
-import Init.NotationExtra
 
 namespace Std.PRange
 

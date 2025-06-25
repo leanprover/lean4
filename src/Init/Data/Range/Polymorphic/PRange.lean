@@ -7,11 +7,7 @@ module
 
 prelude
 import Init.Core
-import Init.NotationExtra
-import Init.Data.Iterators.Consumers
 import Init.Data.Range.Polymorphic.UpwardEnumerable
-
-open Std.Iterators
 
 namespace Std.PRange
 

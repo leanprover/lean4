@@ -1951,7 +1951,7 @@ theorem msb_srem {x y : BitVec w} : (x.srem y).msb =
     · simp [hsrem]
     · have := toInt_neg_of_msb_true hx
       by_cases hdvd : y.toInt ∣ x.toInt
-      · simp [BitVec.srem_zero_of_dvd x y hdvd] at hsrem
+      · simp [BitVec.srem_zero_of_dvd hdvd] at hsrem
       · simp only [toInt_srem, Int.tmod_eq_emod, show ¬0 ≤ x.toInt by omega, hdvd, _root_.or_self,
           reduceIte, hx, ofNat_eq_ofNat, ne_eq, hsrem, not_false_eq_true, decide_true, Bool.and_self,
           decide_eq_true_eq, gt_iff_lt]

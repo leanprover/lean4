@@ -7,6 +7,9 @@ source ../common.sh
 # Test `setup-file` functionality
 #---
 
+# Test that setup-file works on a file outside the workspace and working directory
+test_out '"name":"_unknown"' setup-file ../../examples/hello/Hello.lean
+
 # Test that, by default, no plugins are used.
 test_out '"plugins":[]' setup-file ImportFoo.lean
 

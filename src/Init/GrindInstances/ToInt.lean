@@ -8,6 +8,7 @@ module
 prelude
 import all Init.Grind.ToInt
 import Init.Grind.Module.Basic
+import Init.Grind.Ring.ToInt
 import Init.Data.Int.DivMod.Basic
 import Init.Data.Int.Lemmas
 import Init.Data.Int.Order
@@ -165,6 +166,9 @@ instance : ToInt.Add UInt8 (.uint 8) where
 instance : ToInt.Mul UInt8 (.uint 8) where
   toInt_mul x y := by simp
 
+-- The `ToInt.Pow` instance is defined in `Init.GrindInstances.Ring.UInt`,
+-- as it is convenient to use the ring structure.
+
 instance : ToInt.Mod UInt8 (.uint 8) where
   toInt_mod x y := by simp
 
@@ -198,6 +202,9 @@ instance : ToInt.Add UInt16 (.uint 16) where
 
 instance : ToInt.Mul UInt16 (.uint 16) where
   toInt_mul x y := by simp
+
+-- The `ToInt.Pow` instance is defined in `Init.GrindInstances.Ring.UInt`,
+-- as it is convenient to use the ring structure.
 
 instance : ToInt.Mod UInt16 (.uint 16) where
   toInt_mod x y := by simp
@@ -233,6 +240,9 @@ instance : ToInt.Add UInt32 (.uint 32) where
 instance : ToInt.Mul UInt32 (.uint 32) where
   toInt_mul x y := by simp
 
+-- The `ToInt.Pow` instance is defined in `Init.GrindInstances.Ring.UInt`,
+-- as it is convenient to use the ring structure.
+
 instance : ToInt.Mod UInt32 (.uint 32) where
   toInt_mod x y := by simp
 
@@ -266,6 +276,9 @@ instance : ToInt.Add UInt64 (.uint 64) where
 
 instance : ToInt.Mul UInt64 (.uint 64) where
   toInt_mul x y := by simp
+
+-- The `ToInt.Pow` instance is defined in `Init.GrindInstances.Ring.UInt`,
+-- as it is convenient to use the ring structure.
 
 instance : ToInt.Mod UInt64 (.uint 64) where
   toInt_mod x y := by simp
@@ -309,6 +322,9 @@ instance : ToInt.Add USize (.uint System.Platform.numBits) where
 instance : ToInt.Mul USize (.uint System.Platform.numBits) where
   toInt_mul x y := by simp
 
+-- The `ToInt.Pow` instance is defined in `Init.GrindInstances.Ring.UInt`,
+-- as it is convenient to use the ring structure.
+
 instance : ToInt.Mod USize (.uint System.Platform.numBits) where
   toInt_mod x y := by simp
 
@@ -350,6 +366,9 @@ instance : ToInt.Mul Int8 (.sint 8) where
     simp [Int.bmod_eq_emod]
     split <;> · simp; omega
 
+-- The `ToInt.Pow` instance is defined in `Init.GrindInstances.Ring.SInt`,
+-- as it is convenient to use the ring structure.
+
 -- Note that we can not define `ToInt.Mod` instances for `Int8`,
 -- because the condition does not hold unless `0 ≤ x.toInt ∨ y.toInt ∣ x.toInt ∨ y = 0`.
 
@@ -388,6 +407,9 @@ instance : ToInt.Mul Int16 (.sint 16) where
     simp [Int.bmod_eq_emod]
     split <;> · simp; omega
 
+-- The `ToInt.Pow` instance is defined in `Init.GrindInstances.Ring.SInt`,
+-- as it is convenient to use the ring structure.
+
 instance : ToInt.LE Int16 (.sint 16) where
   le_iff x y := by simpa using Int16.le_iff_toInt_le
 
@@ -422,6 +444,9 @@ instance : ToInt.Mul Int32 (.sint 32) where
   toInt_mul x y := by
     simp [Int.bmod_eq_emod]
     split <;> · simp; omega
+
+-- The `ToInt.Pow` instance is defined in `Init.GrindInstances.Ring.SInt`,
+-- as it is convenient to use the ring structure.
 
 instance : ToInt.LE Int32 (.sint 32) where
   le_iff x y := by simpa using Int32.le_iff_toInt_le
@@ -458,6 +483,9 @@ instance : ToInt.Mul Int64 (.sint 64) where
     simp [Int.bmod_eq_emod]
     split <;> · simp; omega
 
+-- The `ToInt.Pow` instance is defined in `Init.GrindInstances.Ring.SInt`,
+-- as it is convenient to use the ring structure.
+
 instance : ToInt.LE Int64 (.sint 64) where
   le_iff x y := by simpa using Int64.le_iff_toInt_le
 
@@ -488,6 +516,9 @@ instance : ToInt.Add (BitVec v) (.uint v) where
 
 instance : ToInt.Mul (BitVec v) (.uint v) where
   toInt_mul x y := by simp
+
+-- The `ToInt.Pow` instance is defined in `Init.GrindInstances.Ring.BitVec`,
+-- as it is convenient to use the ring structure.
 
 instance : ToInt.Mod (BitVec v) (.uint v) where
   toInt_mod x y := by simp

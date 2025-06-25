@@ -285,7 +285,7 @@ class ToInt.Mul (α : Type u) [Mul α] (I : outParam IntInterval) [ToInt α I] w
 /--
 The embedding into the integers takes exponentiation to exponentiation, wrapped into the range interval.
 -/
-class ToInt.Pow (α : Type u) [Pow α Nat] (I : outParam IntInterval) [ToInt α I] where
+class ToInt.Pow (α : Type u) [HPow α Nat α] (I : outParam IntInterval) [ToInt α I] where
   /-- The embedding takes exponentiation to exponentiation, wrapped into the range interval. -/
   toInt_pow : ∀ x : α, ∀ n : Nat, toInt (x ^ n) = I.wrap (toInt x ^ n)
 

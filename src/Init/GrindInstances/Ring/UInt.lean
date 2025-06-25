@@ -187,7 +187,7 @@ example : ToInt.Add UInt16 (.uint 16) := inferInstance
 example : ToInt.Neg UInt16 (.uint 16) := inferInstance
 example : ToInt.Sub UInt16 (.uint 16) := inferInstance
 
-instance : ToInt.Pow UInt8 (.uint 8) := ToInt.pow_of_semiring (by simp) (by simp)
+instance : ToInt.Pow UInt16 (.uint 16) := ToInt.pow_of_semiring (by simp) (by simp)
 
 instance : CommRing UInt32 where
   add_assoc := UInt32.add_assoc
@@ -219,7 +219,7 @@ example : ToInt.Add UInt32 (.uint 32) := inferInstance
 example : ToInt.Neg UInt32 (.uint 32) := inferInstance
 example : ToInt.Sub UInt32 (.uint 32) := inferInstance
 
-instance : ToInt.Pow UInt8 (.uint 8) := ToInt.pow_of_semiring (by simp) (by simp)
+instance : ToInt.Pow UInt32 (.uint 32) := ToInt.pow_of_semiring (by simp) (by simp)
 
 instance : CommRing UInt64 where
   add_assoc := UInt64.add_assoc
@@ -251,7 +251,7 @@ example : ToInt.Add UInt64 (.uint 64) := inferInstance
 example : ToInt.Neg UInt64 (.uint 64) := inferInstance
 example : ToInt.Sub UInt64 (.uint 64) := inferInstance
 
-instance : ToInt.Pow UInt8 (.uint 8) := ToInt.pow_of_semiring (by simp) (by simp)
+instance : ToInt.Pow UInt64 (.uint 64) := ToInt.pow_of_semiring (by simp) (by simp)
 
 instance : CommRing USize where
   add_assoc := USize.add_assoc

@@ -90,6 +90,9 @@ instance : ToInt.Pow Nat (.ci 0) where
     simp only [toInt_nat, Int.natCast_pow]
     simp [toInt_nat, ← Int.natCast_pow]
 
+instance : ToInt.Sub Nat (.ci 0) where
+  toInt_sub x y := by simp; omega
+
 instance : ToInt.Mod Nat (.ci 0) where
   toInt_mod x y := by simp
 

@@ -56,8 +56,7 @@ def canUse (declName : Name) : MetaM Bool := do
   unless (← isTypeFormer (← mkConstWithLevelParams declName)) do return false
   return true
 
-def mkNatLookupTable (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr := do
-  let type ← inferType default
+def mkNatLookupTable (n : Expr) (type : Expr) (es : Array Expr) (default : Expr) : MetaM Expr := do
   let u ← getLevel type
   let rec go (start stop : Nat) (hstart : start < stop := by omega) (hstop : stop ≤ es.size := by omega) : MetaM Expr := do
     if h : start + 1 = stop then
@@ -72,6 +71,17 @@ def mkNatLookupTable (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr 
   else
     go 0 es.size
 
+-- Right-associates the top-most `max`s to work around #5695 for prettier code
+private def reassocMax (l : Level) : Level :=
+  let lvls := maxArgs l #[]
+  let last := lvls.back!
+  lvls.pop.foldr mkLevelMax last
+where
+  maxArgs (l : Level) (lvls : Array Level) : Array Level :=
+  match l with
+  | .max l1 l2 => maxArgs l2 (maxArgs l1 lvls)
+  | _ => lvls.push l
+
 /--
 Takes the max of the levels of the given expressions.
 -/
@@ -80,7 +90,7 @@ def maxLevels (es : Array Expr) (default : Expr) : MetaM Level := do
   for e in es do
     let l ← getLevel e
     maxLevel := mkLevelMax' maxLevel l
-  return maxLevel.normalize
+  return reassocMax maxLevel.normalize
 
 private def mkPULift (r : Level) (t : Expr) : MetaM Expr := do
   let s ← getLevel t
@@ -106,8 +116,9 @@ private def mkPULiftDown (e : Expr) : MetaM Expr := do
 def mkNatLookupTableLifting (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr := do
   let u ← maxLevels es default
   let default ← mkPULift u default
+  let u' := reassocMax (mkLevelMax' u 1).normalize
   let es ← es.mapM (mkPULift u)
-  mkNatLookupTable n es default
+  mkNatLookupTable n (.sort u') es default
 
 def mkWithCtorTypeName (indName : Name) : Name :=
   Name.str indName "noConfusionType" |>.str "withCtorType"

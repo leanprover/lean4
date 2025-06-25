@@ -1957,7 +1957,8 @@ theorem msb_srem {x y : BitVec w} : (x.srem y).msb =
           decide_eq_true_eq, gt_iff_lt]
         have hlt := Int.emod_lt (a := x.toInt) (b := y.toInt)
         by_cases hy0 : y = 0#w
-        · simp [hy0]
+        · simp only [hy0, toInt_zero, Int.emod_zero, Int.natAbs_zero, Int.cast_ofNat_Int,
+            Int.sub_zero, gt_iff_lt]
           exact toInt_neg_of_msb_true hx
         · simp only [← toInt_inj, toInt_zero] at hy0
           simp only [ne_eq, hy0, not_false_eq_true, forall_const] at hlt

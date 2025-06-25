@@ -42,7 +42,11 @@ def matchExplicitValid (n : Nat) :=
   | @Nat.zero => ()
   | _ => ()
 
-/-- error: Invalid argument names 'invalidName1' and 'invalidName2' for function 'List.cons' -/
+/--
+error: Invalid argument names `invalidName1` and `invalidName2` for function `List.cons`
+
+Note: This function has the following named parameters: `α`, `head`, and `tail`
+-/
 #guard_msgs in
 def invalidArgNames (xs : List Nat) :=
   match xs with

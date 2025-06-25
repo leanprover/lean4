@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   deploy:
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' && github.repository == 'leanprover/reference-manual'
+    # if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' && github.repository == 'leanprover/reference-manual'
     runs-on: ubuntu-latest
     steps:
       # - name: Retrieve information about the original workflow

@@ -13,7 +13,7 @@ on:
         description: "Base reference for comparison"
         required: false
         type: string
-  pull_request
+  pull_request:
 
 jobs:
   fetch-upstream:

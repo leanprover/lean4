@@ -89,7 +89,6 @@ inductive LetValue where
   | proj (typeName : Name) (idx : Nat) (struct : FVarId)
   | const (declName : Name) (us : List Level) (args : Array Arg)
   | fvar (fvarId : FVarId) (args : Array Arg)
-  -- TODO: add constructors for mono and impure phases
   deriving Inhabited, BEq, Hashable
 
 def Arg.toLetValue (arg : Arg) : LetValue :=

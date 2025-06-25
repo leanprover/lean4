@@ -62,7 +62,7 @@ jobs:
       - name: Deploy to Netlify
         id: deploy-draft
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: nwtgck/actions-netlify@v2.0
+        uses: nwtgck/actions-netlify@v3.0
         with:
           publish-dir: _out/
           production-deploy: false

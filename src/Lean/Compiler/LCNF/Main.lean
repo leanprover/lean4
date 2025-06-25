@@ -66,6 +66,19 @@ def checkpoint (stepName : Name) (decls : Array Decl) (shouldCheck : Bool) : Com
   if shouldCheck then
     checkDeadLocalDecls decls
 
+def isValidMainType (type : Expr) : Bool :=
+  let isValidResultName (name : Name) : Bool :=
+    name == ``UInt32 || name == ``Unit || name == ``PUnit
+  match type with
+  | .forallE _ d b _ =>
+    match d, b with
+    | .app (.const ``List _) (.const ``String _), .app (.const ``IO _) (.const resultName _) =>
+      isValidResultName resultName
+    | _, _ => false
+  | .app (.const ``IO _) (.const resultName _) =>
+    isValidResultName resultName
+  | _ => false
+
 namespace PassManager
 
 def run (declNames : Array Name) : CompilerM (Array IR.Decl) := withAtLeastMaxRecDepth 8192 do
@@ -77,6 +90,11 @@ def run (declNames : Array Name) : CompilerM (Array IR.Decl) := withAtLeastMaxRe
   -/
   let declNames ← declNames.filterM (shouldGenerateCode ·)
   if declNames.isEmpty then return #[]
+  for declName in declNames do
+    if declName == `main then
+      if let some info ← getDeclInfo? declName then
+        if !(isValidMainType info.type) then
+          throwError "`main` function must have type `(List String →)? IO (UInt32 | Unit | PUnit)`"
   let mut decls ← declNames.mapM toDecl
   decls := markRecDecls decls
   let manager ← getPassManager

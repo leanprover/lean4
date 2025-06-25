@@ -10,10 +10,17 @@ import Init.Grind.Ring.Basic
 
 namespace Lean.Grind
 
+/--
+A field is a commutative ring with inverses for all non-zero elements.
+-/
 class Field (α : Type u) extends CommRing α, Inv α, Div α where
+  /-- Division is multiplication by the inverse. -/
   div_eq_mul_inv : ∀ a b : α, a / b = a * b⁻¹
+  /-- Zero is not equal to one: fields are non trivial.-/
   zero_ne_one : (0 : α) ≠ 1
+  /-- The inverse of zero is zero. This is a "junk value" convention. -/
   inv_zero : (0 : α)⁻¹ = 0
+  /-- The inverse of a non-zero element is a right inverse. -/
   mul_inv_cancel : ∀ {a : α}, a ≠ 0 → a * a⁻¹ = 1
 
 attribute [instance 100] Field.toInv Field.toDiv

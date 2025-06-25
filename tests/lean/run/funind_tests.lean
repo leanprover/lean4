@@ -819,12 +819,7 @@ def nonmutual : Nat → Bool
 #guard_msgs in
 #check nonmutual.mutual_induct
 
-/--
-error: invalid field notation, type is not of the form (C ...) where C is a constant
-  id
-has type
-  ?_ → ?_
--/
+/-- error: unknown constant 'id.mutual_induct' -/
 #guard_msgs in
 set_option pp.mvars false in
 #check id.mutual_induct

@@ -13,30 +13,27 @@ import all Init.Data.Range.Polymorphic.Basic
 import Init.Data.Slice.Basic
 import Init.Data.Iterators.Combinators.Attach
 import Init.Data.Iterators.Combinators.FilterMap
+import Init.Data.Array.Subarray
 
 open Std Slice PRange
 
-instance {shape} {α : Type u} : Sliceable shape (Array α) Nat α where
+abbrev Std.Slice.Subarray' (α : Type u) := Slice (Subarray α)
 
-instance [ClosedOpenIntersection shape Nat] [SupportsLowerBound shape.lower Nat]
-    [SupportsUpperBound shape.upper Nat] [LawfulClosedOpenIntersection shape Nat] :
-    SliceIter shape (Array α) :=
-  .of _ fun s =>
-    Internal.iter (ClosedOpenIntersection.intersection s.range ((0)...<s.carrier.size))
-      |>.attachWith (· < s.carrier.size) (by
-        simp only [Internal.isPlausibleIndirectOutput_iter_iff,
-          LawfulClosedOpenIntersection.mem_intersection_iff]
-        simp [Membership.mem, SupportsUpperBound.IsSatisfied])
-      |>.map fun i => s.carrier[i.1]
+instance {α : Type u} : Self (Slice (Subarray α)) (Subarray' α) where
 
-instance [ClosedOpenIntersection ⟨.unbounded, .unbounded⟩ Nat] :
-    Coe (Slice ⟨.unbounded, .unbounded⟩ (Array α))  (Slice ⟨.closed, .open⟩ (Array α)) where
-  coe s := Slice.mk s.carrier (ClosedOpenIntersection.intersection s.range ((0)...<s.carrier.size))
+instance {shape} {α : Type u} [ClosedOpenIntersection shape Nat] :
+    Sliceable shape (Array α) Nat (Subarray' α) where
+  mkSlice xs range :=
+    let halfOpenRange := ClosedOpenIntersection.intersection range (0)...<xs.size
+    ⟨xs.toSubarray halfOpenRange.lower halfOpenRange.upper⟩
 
-instance [ClosedOpenIntersection ⟨.unbounded, su⟩ Nat] :
-    CoeOut (Slice ⟨.unbounded, su⟩ (Array α))  (Slice ⟨.closed, .open⟩ (Array α)) where
-  coe s := Slice.mk s.carrier (ClosedOpenIntersection.intersection s.range ((0)...<s.carrier.size))
-
-instance [ClosedOpenIntersection ⟨sl, .unbounded⟩ Nat] :
-    CoeOut (Slice ⟨sl, .unbounded⟩ (Array α))  (Slice ⟨.closed, .open⟩ (Array α)) where
-  coe s := Slice.mk s.carrier (ClosedOpenIntersection.intersection s.range ((0)...<s.carrier.size))
+instance {s : Subarray' α} : ToIterator s Id α :=
+  .of _
+    (PRange.Internal.iter (s.internalRepresentation.start...<s.internalRepresentation.stop)
+      |>.attachWith (· < s.internalRepresentation.array.size) (by
+        simp only [Internal.isPlausibleIndirectOutput_iter_iff, Membership.mem,
+          SupportsUpperBound.IsSatisfied, and_imp]
+        intro out _ h
+        have := s.internalRepresentation.stop_le_array_size
+        omega)
+      |>.map fun i => s.internalRepresentation.array[i.1])

@@ -19,6 +19,5 @@ Returns an iterator over the given slice. This iterator will emit the elements o
 in increasing order of the indices.
 -/
 @[always_inline, inline]
-def Std.Slice.iter [Sliceable shape α β γ] [SliceIter shape α]
-    (s : Slice shape α) :=
-  Internal.iter s
+def Std.Slice.iter (s : Slice γ) [ToIterator s Id β] :=
+  (Internal.iter s : Iter β)

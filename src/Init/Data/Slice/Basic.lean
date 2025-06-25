@@ -13,121 +13,141 @@ open Std.Iterators
 
 namespace Std.Slice
 
+structure _root_.Std.Slice (γ : Type u) where
+  internalRepresentation : γ
+
+class Self (α : Type u) (β : outParam (Type u)) where
+  eq : α = β := by rfl
+
 /--
-This marker typeclass signifies that the type `α` supports slice notation with index type `β`.
+This typeclass signifies that the type `α` supports slice notation with index type `β`.
 The slices contain elements of type `γ`.
 -/
 class Sliceable (shape : RangeShape) (α : Type u) (β : outParam (Type v))
     (γ : outParam (Type w)) where
+  mkSlice (carrier : α) (range : PRange shape β) : γ
 
-structure _root_.Std.Slice (shape : RangeShape) (α : Type u) {β : Type v}
-    {γ : Type w} [Sliceable shape α β γ] where
-  carrier : α
-  range : PRange shape β
-
-macro_rules
-  | `($c[*...*]) => `(Slice.mk $c *...*)
-  | `($c[$a...*]) => `(Slice.mk $c $a...*)
-  | `($c[$a<...*]) => `(Slice.mk $c $a...*)
-  | `($c[*...<$b]) => `(Slice.mk $c *...<$b)
-  | `($c[$a...<$b]) => `(Slice.mk $c $a...<$b)
-  | `($c[$a<...<$b]) => `(Slice.mk $c $a...<$b)
-  | `($c[*...$b]) => `(Slice.mk $c *...<$b)
-  | `($c[$a...$b]) => `(Slice.mk $c $a...<$b)
-  | `($c[$a<...$b]) => `(Slice.mk $c $a...<$b)
-  | `($c[*...=$b]) => `(Slice.mk $c *...=$b)
-  | `($c[$a...=$b]) => `(Slice.mk $c $a...=$b)
-  | `($c[$a<...=$b]) => `(Slice.mk $c $a...=$b)
-
-/-- This typeclass provides iterator support for slices of the given type and shape. -/
-class SliceIter (shape : RangeShape) (α : Type u) {β : Type v} {γ : Type w}
-    [Sliceable shape α β γ] where
-  State : Slice shape α → Type w
-  iter (slice : Slice shape α) : Iter (α := State slice) γ
+class ToIterator {γ : Type u} (x : γ) (m : Type w → Type w') (β : outParam (Type w)) where
+  State : Type w
+  iterMInternal : IterM (α := State) m β
 
 @[always_inline, inline, expose]
-def SliceIter.of [Sliceable shape α β γ] (State : Slice shape α → Type u)
-    (iter : (slice : Slice shape α) → Iter (α := State slice) γ) :
-    SliceIter shape α where
+def ToIterator.iterM (x : γ) [ToIterator x m β] : IterM (α := ToIterator.State x m) m β :=
+  ToIterator.iterMInternal (x := x)
+
+@[always_inline, inline, expose]
+def ToIterator.iter (x : γ) [ToIterator x Id β] : Iter (α := ToIterator.State x Id) β :=
+  ToIterator.iterM x |>.toIter
+
+@[always_inline, inline, expose]
+def ToIterator.ofM {x : γ} (State : Type w)
+    (iterM : IterM (α := State) m β) :
+    ToIterator x m β where
   State := State
-  iter := iter
+  iterMInternal := iterM
 
-instance {shape : RangeShape} {α : Type u} {β : Type v} {γ : Type w}
-    [Sliceable shape α β γ] {slice : Slice shape α} {State : Slice shape α → Type w} {iter}
-    [Iterator (α := State slice) Id γ] :
-    letI i : SliceIter shape α := .of State iter
-    Iterator (α := i.State slice) Id γ :=
-  inferInstanceAs <| Iterator (α := State slice) Id γ
+@[always_inline, inline, expose]
+def ToIterator.of {x : γ} (State : Type w)
+    (iter : Iter (α := State) β) :
+    ToIterator x Id β where
+  State := State
+  iterMInternal := iter.toIterM
 
-instance {shape : RangeShape} {α : Type u} {β : Type v} {γ : Type w}
-    [Sliceable shape α β γ] {slice : Slice shape α} {State : Slice shape α → Type w} {iter}
-    [Iterator (α := State slice) Id γ] [Finite (α := State slice) Id] :
-    letI i : SliceIter shape α := .of State iter
-    Finite (α := i.State slice) Id :=
-  inferInstanceAs <| Finite (α := State slice) Id
+instance {x : γ} {State : Type w} {iter}
+    [Iterator State m β] :
+    letI i : ToIterator x m β := .ofM State iter
+    Iterator (α := i.State) m β :=
+  inferInstanceAs <| Iterator State m β
 
-instance {shape : RangeShape} {α : Type u} {β : Type v} {γ : Type w} {m} [Monad m]
-    [Sliceable shape α β γ] {slice : Slice shape α} {State : Slice shape α → Type w} {iter}
-    [Iterator (α := State slice) Id γ] [IteratorCollect (α := State slice) Id m] :
-    letI i : SliceIter shape α := .of State iter
-    IteratorCollect (α := i.State slice) Id m :=
-  inferInstanceAs <| IteratorCollect (α := State slice) Id m
+instance {x : γ} {State : Type w} {iter}
+    [Iterator (α := State) m β] [Finite State m] :
+    letI i : ToIterator x m β := .ofM State iter
+    Finite (α := i.State) m :=
+  inferInstanceAs <| Finite (α := State) m
 
-instance {shape : RangeShape} {α : Type u} {β : Type v} {γ : Type w} {m} [Monad m]
-    [Sliceable shape α β γ] {slice : Slice shape α} {State : Slice shape α → Type w} {iter}
-    [Iterator (α := State slice) Id γ] [IteratorCollectPartial (α := State slice) Id m] :
-    letI i : SliceIter shape α := .of State iter
-    IteratorCollectPartial (α := i.State slice) Id m :=
-  inferInstanceAs <| IteratorCollectPartial (α := State slice) Id m
+instance {x : γ} {State : Type w} {iter}
+    [Iterator (α := State) m β] [IteratorCollect State m n] :
+    letI i : ToIterator x m β := .ofM State iter
+    IteratorCollect (α := i.State) m n :=
+  inferInstanceAs <| IteratorCollect (α := State) m n
 
-instance {shape : RangeShape} {α : Type u} {β : Type v} {γ : Type w}
-    [Sliceable shape α β γ] {slice : Slice shape α} {State : Slice shape α → Type w} {iter}
-    [Iterator (α := State slice) Id γ] [IteratorSize (α := State slice) Id] :
-    letI i : SliceIter shape α := .of State iter
-    IteratorSize (α := i.State slice) Id :=
-  inferInstanceAs <| IteratorSize (α := State slice) Id
+instance {x : γ} {State : Type w} {iter}
+    [Iterator (α := State) m β] [IteratorCollectPartial State m n] :
+    letI i : ToIterator x m β := .ofM State iter
+    IteratorCollectPartial (α := i.State) m n :=
+  inferInstanceAs <| IteratorCollectPartial (α := State) m n
 
-instance {shape : RangeShape} {α : Type u} {β : Type v} {γ : Type w}
-    [Sliceable shape α β γ] {slice : Slice shape α} {State : Slice shape α → Type w} {iter}
-    [Iterator (α := State slice) Id γ] [IteratorSizePartial (α := State slice) Id] :
-    letI i : SliceIter shape α := .of State iter
-    IteratorSizePartial (α := i.State slice) Id :=
-  inferInstanceAs <| IteratorSizePartial (α := State slice) Id
+instance {x : γ} {State : Type w} {iter}
+    [Iterator (α := State) m β] [IteratorLoop State m n] :
+    letI i : ToIterator x m β := .ofM State iter
+    IteratorLoop (α := i.State) m n :=
+  inferInstanceAs <| IteratorLoop (α := State) m n
+
+instance {x : γ} {State : Type w} {iter}
+    [Iterator (α := State) m β] [IteratorLoopPartial State m n] :
+    letI i : ToIterator x m β := .ofM State iter
+    IteratorLoopPartial (α := i.State) m n :=
+  inferInstanceAs <| IteratorLoopPartial (α := State) m n
+
+instance {x : γ} {State : Type w} {iter}
+    [Iterator (α := State) m β] [IteratorSize State m] :
+    letI i : ToIterator x m β := .ofM State iter
+    IteratorSize (α := i.State) m :=
+  inferInstanceAs <| IteratorSize (α := State) m
+
+instance {x : γ} {State : Type w} {iter}
+    [Iterator (α := State) m β] [IteratorSizePartial State m] :
+    letI i : ToIterator x m β := .ofM State iter
+    IteratorSizePartial (α := i.State) m :=
+  inferInstanceAs <| IteratorSizePartial (α := State) m
+
+instance {x : γ} [ToIterator x m β] : ToIterator (Slice.mk x) m β where
+  State := ToIterator.State x m
+  iterMInternal := ToIterator.iterMInternal
+
+macro_rules
+  | `($c[*...*]) => `(Sliceable.mkSlice $c *...*)
+  | `($c[$a...*]) => `(Sliceable.mkSlice $c $a...*)
+  | `($c[$a<...*]) => `(Sliceable.mkSlice $c $a...*)
+  | `($c[*...<$b]) => `(Sliceable.mkSlice $c *...<$b)
+  | `($c[$a...<$b]) => `(Sliceable.mkSlice $c $a...<$b)
+  | `($c[$a<...<$b]) => `(Sliceable.mkSlice $c $a...<$b)
+  | `($c[*...$b]) => `(Sliceable.mkSlice $c *...<$b)
+  | `($c[$a...$b]) => `(Sliceable.mkSlice $c $a...<$b)
+  | `($c[$a<...$b]) => `(Sliceable.mkSlice $c $a...<$b)
+  | `($c[*...=$b]) => `(Sliceable.mkSlice $c *...=$b)
+  | `($c[$a...=$b]) => `(Sliceable.mkSlice $c $a...=$b)
+  | `($c[$a<...=$b]) => `(Sliceable.mkSlice $c $a...=$b)
 
 /--
 Internal function to obtain an iterator from a slice. Users should import `Std.Data.Iterators`
 and use `Std.Slice.iter` instead.
 -/
 @[always_inline, inline]
-def Internal.iter {shape} {α : Type u} {β : Type v} {γ : Type w} [Sliceable shape α β γ]
-    [i : SliceIter shape α] (s : Slice shape α) :=
-  i.iter s
+def Internal.iter (s : Slice γ) [ToIterator s Id β] :=
+  ToIterator.iter s
 
 /--
 Returns the number of elements -- not necessarily distinct -- in the given slice.
 -/
 @[always_inline, inline]
-def size {shape} {α : Type u} {β : Type v} {γ : Type w} [Sliceable shape α β γ]
-    [i : SliceIter shape α] (s : Slice shape α) [Iterator (i.State s) Id γ]
-    [IteratorSize (i.State s) Id] :=
+def size (s : Slice γ) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
+    [IteratorSize (ToIterator.State s Id) Id] :=
   Internal.iter s |>.size
 
 @[always_inline, inline]
-def toArray {shape} {α : Type u} {β : Type v} {γ : Type w} [Sliceable shape α β γ]
-    [i : SliceIter shape α] (s : Slice shape α) [Iterator (i.State s) Id γ]
-    [Finite (i.State s) Id] [IteratorCollect (i.State s) Id Id] : Array γ :=
+def toArray (s : Slice β) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
+    [IteratorCollect (ToIterator.State s Id) Id Id] [Finite (ToIterator.State s Id) Id] : Array β :=
   Internal.iter s |>.toArray
 
 @[always_inline, inline]
-def toList {shape} {α : Type u} {β : Type v} {γ : Type w} [Sliceable shape α β γ]
-    [i : SliceIter shape α] (s : Slice shape α) [Iterator (i.State s) Id γ]
-    [Finite (i.State s) Id] [IteratorCollect (i.State s) Id Id] : List γ :=
+def toList (s : Slice β) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
+    [IteratorCollect (ToIterator.State s Id) Id Id] [Finite (ToIterator.State s Id) Id] : List β :=
   Internal.iter s |>.toList
 
 @[always_inline, inline]
-def toListRev {shape} {α : Type u} {β : Type v} {γ : Type w} [Sliceable shape α β γ]
-    [i : SliceIter shape α] (s : Slice shape α) [Iterator (i.State s) Id γ]
-    [Finite (i.State s) Id] : List γ :=
+def toListRev (s : Slice β) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
+    [IteratorCollect (ToIterator.State s Id) Id Id] [Finite (ToIterator.State s Id) Id] : List β :=
   Internal.iter s |>.toListRev
 
 end Std.Slice

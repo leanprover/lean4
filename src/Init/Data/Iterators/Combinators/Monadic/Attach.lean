@@ -74,7 +74,7 @@ def Attach.instProductivenessRelation {α β : Type w} {m : Type w → Type w'} 
     simp_wf
     obtain ⟨step, hs⟩ := h
     cases step using PlausibleIterStep.casesOn
-    · simp [IterStep.successor, modifyStep] at hs
+    · simp [modifyStep] at hs
     · simp only [modifyStep, IterStep.skip.injEq] at hs
       simp only [← hs]
       assumption

@@ -225,6 +225,6 @@ instance : ClosedOpenIntersection ⟨.unbounded, .unbounded⟩ Nat where
 instance : LawfulClosedOpenIntersection ⟨.unbounded, .unbounded⟩ Nat where
   mem_intersection_iff {a r s} := by
     simp [Membership.mem, SupportsLowerBound.IsSatisfied, Bound,
-      ClosedOpenIntersection.intersection, Nat.max_le, SupportsUpperBound.IsSatisfied, and_true]
+      ClosedOpenIntersection.intersection, SupportsUpperBound.IsSatisfied]
 
 end Std.PRange

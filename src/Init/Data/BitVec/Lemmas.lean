@@ -2173,10 +2173,10 @@ theorem toInt_append {x : BitVec n} {y : BitVec m} :
   simp only [toInt_append, toInt_zero, toNat_ofNat, Nat.zero_mod, Int.cast_ofNat_Int, Int.add_zero,
     ite_eq_right_iff]
   -- FIXME: fails because some definition is not exposed correctly. But which?
-  -- grind only [two_mul_toInt_lt, le_two_mul_toInt, = toInt_zero_length]
-  intros h
-  subst h
-  simp [BitVec.eq_nil x]
+  grind only [two_mul_toInt_lt, le_two_mul_toInt, = toInt_zero_length]
+  -- intros h
+  -- subst h
+  -- simp [BitVec.eq_nil x]
 
 @[simp, grind =] theorem toInt_zero_append {n m : Nat} {x : BitVec n} :
     (0#m ++ x).toInt = if m = 0 then x.toInt else x.toNat := by

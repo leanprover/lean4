@@ -110,6 +110,24 @@ Returns the number of elements -- not necessarily distinct -- in the given slice
 def size {shape} {α : Type u} {β : Type v} {γ : Type w} [Sliceable shape α β γ]
     [i : SliceIter shape α] (s : Slice shape α) [Iterator (i.State s) Id γ]
     [IteratorSize (i.State s) Id] :=
-  i.iter s |>.size
+  Internal.iter s |>.size
+
+@[always_inline, inline]
+def toArray {shape} {α : Type u} {β : Type v} {γ : Type w} [Sliceable shape α β γ]
+    [i : SliceIter shape α] (s : Slice shape α) [Iterator (i.State s) Id γ]
+    [Finite (i.State s) Id] [IteratorCollect (i.State s) Id Id] : Array γ :=
+  Internal.iter s |>.toArray
+
+@[always_inline, inline]
+def toList {shape} {α : Type u} {β : Type v} {γ : Type w} [Sliceable shape α β γ]
+    [i : SliceIter shape α] (s : Slice shape α) [Iterator (i.State s) Id γ]
+    [Finite (i.State s) Id] [IteratorCollect (i.State s) Id Id] : List γ :=
+  Internal.iter s |>.toList
+
+@[always_inline, inline]
+def toListRev {shape} {α : Type u} {β : Type v} {γ : Type w} [Sliceable shape α β γ]
+    [i : SliceIter shape α] (s : Slice shape α) [Iterator (i.State s) Id γ]
+    [Finite (i.State s) Id] : List γ :=
+  Internal.iter s |>.toListRev
 
 end Std.Slice

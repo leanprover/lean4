@@ -26,7 +26,7 @@ variable {shape : RangeShape} {α : Type u}
 instance [ClosedOpenIntersection shape Nat] :
     Sliceable shape (Array α) Nat (Subarray α) where
   mkSlice xs range :=
-    let halfOpenRange := ClosedOpenIntersection.intersection range (0)...<xs.size
+    let halfOpenRange := ClosedOpenIntersection.intersection range 0...<xs.size
     (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)
 
 instance {s : Subarray α} : ToIterator s Id α :=

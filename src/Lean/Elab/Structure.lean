@@ -1412,7 +1412,7 @@ private def addParentInstances (parents : Array StructureParentInfo) : MetaM Uni
   -- A parent is an ancestor of the others if it appears with index ≥ 1 in one of the resolution orders.
   let resOrders : Array (Array Name) ← instParents.mapM fun parent => getStructureResolutionOrder parent.structName
   let instParents := instParents.filter fun parent =>
-    !resOrders.any (fun resOrder => resOrder[(1)...*].any (· == parent.structName))
+    !resOrders.any (fun resOrder => resOrder[1...*].any (· == parent.structName))
   for instParent in instParents do
     addInstance instParent.projFn AttributeKind.global (eval_prio default)
 

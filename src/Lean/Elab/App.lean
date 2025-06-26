@@ -1242,7 +1242,7 @@ private partial def findMethod? (structName fieldName : Name) : MetaM (Option (N
   -- of the name resolving in the `structName` namespace.
   find? structName <||> do
     let resolutionOrder ← if isStructure env structName then getStructureResolutionOrder structName else pure #[structName]
-    for ns in resolutionOrder[(1)...resolutionOrder.size] do
+    for ns in resolutionOrder[1...resolutionOrder.size] do
       if let some res ← find? ns then
         return res
     return none

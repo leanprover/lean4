@@ -282,7 +282,7 @@ where
   extractApp (f : Expr) (args : Array Expr) : M Expr := do
     let cfg ← read
     if f.isConstOf ``letFun && args.size ≥ 4 then
-      extractApp (mkAppN f args[*...4]) args[(4)...*]
+      extractApp (mkAppN f args[*...4]) args[4...*]
     else
       let f' ← extractCore fvars f
       if cfg.implicits then

@@ -518,7 +518,7 @@ where
     -- If we find one we must extend `convertCastEqRec`.
     unless e.isAppOf ``Eq.ndrec do return false
     unless e.getAppNumArgs > 6 do return false
-    for arg in e.getAppArgs[(6)...*] do
+    for arg in e.getAppArgs[6...*] do
       if arg.isFVar && (← read).contains arg.fvarId! then
         return true
     return true

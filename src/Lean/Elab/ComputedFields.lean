@@ -116,7 +116,7 @@ def overrideCasesOn : M Unit := do
   mkCasesOn (name ++ `_impl)
   let value ←
     forallTelescope (← instantiateForall casesOn.type params) fun xs constMotive => do
-      let (indices, major, minors) := (xs[(1)...=numIndices].toArray,
+      let (indices, major, minors) := (xs[1...=numIndices].toArray,
         xs[numIndices+1]!, xs[(numIndices+2)...*].toArray)
       let majorImplTy := mkAppN (mkConst (name ++ `_impl) lparams) (params ++ indices)
       mkLambdaFVars (params ++ xs) <|

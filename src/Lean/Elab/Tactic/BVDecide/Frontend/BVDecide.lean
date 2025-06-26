@@ -373,7 +373,7 @@ def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
     error := error ++ "3. The original goal was reduced to False and is thus invalid."
     throwError error
   else
-    let sat := sats[(1)...*].foldl (init := sats[0]) SatAtBVLogical.and
+    let sat := sats[1...*].foldl (init := sats[0]) SatAtBVLogical.and
     return {
       bvExpr := ShareCommon.shareCommon sat.bvExpr,
       proveFalse := sat.proveFalse,

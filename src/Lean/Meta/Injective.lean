@@ -20,7 +20,7 @@ private def mkAnd? (args : Array Expr) : Option Expr := Id.run do
     return none
   else
     let mut result := args.back!
-    for arg in args.reverse[(1)...*] do
+    for arg in args.reverse[1...*] do
       result := mkApp2 (mkConst ``And) arg result
     return result
 

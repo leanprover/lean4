@@ -429,7 +429,7 @@ partial def mkBelowMatcher
     let xs : Array Expr :=
       -- special case: if we had no free vars, i.e. there was a unit added and no we do have free vars, we get rid of the unit.
       match oldFVars.size, fvars.size with
-      | 0, _+1 => xs[(1)...*].toArray
+      | 0, _+1 => xs[1...*].toArray
       | _, _ => xs
     let t := t.replaceFVars xs[*...oldFVars.size] fvars[*...oldFVars.size]
     trace[Meta.IndPredBelow.match] "xs = {xs}; oldFVars = {oldFVars.map (·.toExpr)}; fvars = {fvars}; new = {fvars[*...oldFVars.size] ++ xs[oldFVars.size...*] ++ fvars[oldFVars.size...*]}"

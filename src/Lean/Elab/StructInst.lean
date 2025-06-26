@@ -246,7 +246,7 @@ private def elabModifyOp (stx modifyOp : Syntax) (sourcesView : SourcesView) (ex
     let valFirst  := rest[0]
     let valFirst  := if valFirst.getKind == ``Lean.Parser.Term.structInstArrayRef then valFirst else valFirst[1]
     let restArgs  := rest.getArgs
-    let valRest   := mkNullNode restArgs[(1)...restArgs.size]
+    let valRest   := mkNullNode restArgs[1...restArgs.size]
     let valField  := modifyOp.setArg 0 <| mkNode ``Parser.Term.structInstLVal #[valFirst, valRest]
     let valSource := mkSourcesWithSyntax #[s]
     let val       := stx.setArg 1 valSource

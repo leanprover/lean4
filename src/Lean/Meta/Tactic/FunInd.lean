@@ -1023,7 +1023,7 @@ where doRealize (inductName : Name) := do
               throwError "expected recursor argument to take 2 parameters, got {xs}" else
             let targets : Array Expr := xs[*...1]
             let genIH := xs[1]!
-            let extraParams := xs[(2)...*]
+            let extraParams := xs[2...*]
             -- open body with the same arg
             let body ← instantiateLambda body targets
             lambdaTelescope1 body fun oldIH body => do
@@ -1142,7 +1142,7 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
       if 5 ≤ args.size then
         let scrut := args[3]!
         let k := args[4]!
-        let extra := args[(5)...*]
+        let extra := args[5...*]
         if scrut.isAppOfArity ``PSigma.mk 4 then
           let #[_, _, x, y] := scrut.getAppArgs | unreachable!
           let e' := (k.beta #[x, y]).beta extra
@@ -1151,7 +1151,7 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
     if f.isConstOf ``PSigma.fst then
       if h : 3 ≤ args.size then
         let scrut := args[2]
-        let extra := args[(3)...*]
+        let extra := args[3...*]
         if scrut.isAppOfArity ``PSigma.mk 4 then
           let #[_, _, x, _y] := scrut.getAppArgs | unreachable!
           let e' := x.beta extra
@@ -1159,7 +1159,7 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
     if f.isConstOf ``PSigma.snd then
       if h : 3 ≤ args.size then
         let scrut := args[2]
-        let extra := args[(3)...*]
+        let extra := args[3...*]
         if scrut.isAppOfArity ``PSigma.mk 4 then
           let #[_, _, _x, y] := scrut.getAppArgs | unreachable!
           let e' := y.beta extra
@@ -1177,7 +1177,7 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
         let scrut := args[3]!
         let k₁ := args[4]!
         let k₂ := args[5]!
-        let extra := args[(6)...*]
+        let extra := args[6...*]
         if scrut.isAppOfArity ``PSum.inl 3 then
           let e' := (k₁.beta #[scrut.appArg!]).beta extra
           return .visit e'
@@ -1547,13 +1547,13 @@ where
             for alt in args[matchInfo.getFirstAltPos...matchInfo.arity] do
               go xs alt
         if f.isConstOf ``letFun then
-          for arg in args[(3)...4] do
+          for arg in args[3...4] do
             go xs arg
         if f.isConstOf ``ite || f.isConstOf ``dite then
-          for arg in args[(3)...5] do
+          for arg in args[3...5] do
             go xs arg
         if f.isConstOf ``cond then
-          for arg in args[(2)...4] do
+          for arg in args[2...4] do
             go xs arg
 
 /--

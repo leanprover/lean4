@@ -145,6 +145,7 @@ jobs:
             // use large runners where available (original repo)
             let large = ${{ github.repository == 'leanprover/lean4' }};
             const isPr = "${{ github.event_name }}" == "pull_request";
+            const isPushToMaster = "${{ github.event_name }}" == "push" && "${{ github.ref_name }}" == "master";
             let matrix = [
               /* TODO: to be updated to new LLVM
               {
@@ -167,11 +168,13 @@ jobs:
                 "os": large && level < 2 ? "nscloud-ubuntu-22.04-amd64-4x16" : "ubuntu-latest",
                 "release": true,
                 // Special handling for release jobs. We want:
-                // 1. To run it in PRs so developrs get PR toolchains (so secondary is sufficient)
+                // 1. To run it in PRs so developers get PR toolchains (so secondary is sufficient)
                 // 2. To skip it in merge queues as it takes longer than the
                 //    Linux lake build and adds little value in the merge queue
                 // 3. To run it in release (obviously)
-                "check-level": isPr ? 0 : 2,
+                // 4. To run it for pushes to master so that pushes to master have a Linux toolchain
+                //    available as an artifact for Grove to use.
+                "check-level": (isPr || isPushToMaster) ? 0 : 2,
                 "secondary": isPr,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-linux-gnu.tar.zst",

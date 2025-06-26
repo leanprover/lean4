@@ -1,4 +1,3 @@
-import Lean
 /-!
 # String interpolation synthesis diagnostic spans
 

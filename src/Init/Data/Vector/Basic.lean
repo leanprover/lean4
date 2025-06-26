@@ -560,7 +560,7 @@ Lexicographic comparator for vectors.
 - there is an index `i` such that `lt v[i] w[i]`, and for all `j < i`, `v[j] == w[j]`.
 -/
 def lex [BEq α] (xs ys : Vector α n) (lt : α → α → Bool := by exact (· < ·)) : Bool := Id.run do
-  for h : i in 0,,<n do
+  for h : i in *...n do
     if lt xs[i] ys[i] then
       return true
     else if xs[i] != ys[i] then

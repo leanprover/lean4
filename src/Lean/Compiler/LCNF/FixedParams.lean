@@ -115,7 +115,7 @@ partial def evalApp (declName : Name) (args : Array Arg) : FixParamM Unit := do
   let main := (← read).main
   if declName == main.name then
     -- Recursive call to the function being analyzed
-    for h : i in 0,,<main.params.size do
+    for h : i in *...main.params.size do
       if _h : i < args.size then
         have : i < main.params.size := h.2
         let param := main.params[i]
@@ -133,7 +133,7 @@ partial def evalApp (declName : Name) (args : Array Arg) : FixParamM Unit := do
     if declName == decl.name then
       -- Call to another function in the same mutual block.
       let mut values := #[]
-      for i in 0,,<decl.params.size do
+      for i in *...decl.params.size do
         if h : i < args.size then
           values := values.push (← evalArg args[i])
         else
@@ -149,7 +149,7 @@ end
 
 def mkInitialValues (numParams : Nat) : Array AbsValue := Id.run do
   let mut values := #[]
-  for i in 0,,<numParams do
+  for i in *...numParams do
     values := values.push <| .val i
   return values
 

@@ -5,12 +5,12 @@ Authors: Paul Reichert
 -/
 prelude
 import Init.Data.List.Control
+import Init.Data.Iterators.Consumers.Collect
+import Init.Data.Iterators.Consumers.Loop
 import Init.Data.Iterators.Lemmas.Basic
 import Init.Data.Iterators.Lemmas.Consumers.Loop
 import Std.Data.Iterators.Lemmas.Consumers.Collect
 import Std.Data.Iterators.Lemmas.Consumers.Monadic.Loop
-import Init.Data.Iterators.Consumers.Collect
-import Init.Data.Iterators.Consumers.Loop
 
 namespace Std.Iterators
 

@@ -6,6 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
+import Init.Data.Iterators.Consumers.Collect
 import Init.Data.Iterators.Consumers.Monadic.Loop
 import Init.Data.Iterators.Consumers.Partial
 
@@ -29,6 +30,7 @@ A `ForIn'` instance for iterators. Its generic membership relation is not easy t
 so this is not marked as `instance`. This way, more convenient instances can be built on top of it
 or future library improvements will make it more comfortable.
 -/
+@[always_inline, inline]
 def Iter.instForIn' {α : Type w} {β : Type w} {n : Type w → Type w'} [Monad n]
     [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] :
     ForIn' n (Iter (α := α) β) β ⟨fun it out => it.IsPlausibleIndirectOutput out⟩ where
@@ -134,5 +136,19 @@ def Iter.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorSize α I
 def Iter.Partial.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorSizePartial α Id]
     (it : Iter (α := α) β) : Nat :=
   (IteratorSizePartial.size it.toIterM).run.down
+
+/--
+`LawfulIteratorSize α m` ensures that the `size` function of an iterator behaves as if it
+iterated over the whole iterator, counting its elements and causing all the monadic side effects
+of the iterations. This is a fairly strong condition for monadic iterators and it will be false
+for many efficient implementations of `size` that compute the size without actually iterating.
+
+This class is experimental and users of the iterator API should not explicitly depend on it.
+-/
+class LawfulIteratorSize (α : Type w) {β : Type w} [Iterator α Id β] [Finite α Id]
+    [IteratorSize α Id] where
+    size_eq_size_toArray {it : Iter (α := α) β} : it.size =
+      haveI : IteratorCollect α Id Id := .defaultImplementation
+      it.toArray.size
 
 end Std.Iterators

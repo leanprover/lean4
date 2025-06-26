@@ -252,7 +252,7 @@ The embedding into the integers takes numerals in the range interval to themselv
 -/
 class ToInt.OfNat (α : Type u) [∀ n, OfNat α n] (I : outParam IntInterval) [ToInt α I] where
   /-- The embedding takes `OfNat` to `OfNat`. -/
-  toInt_ofNat : ∀ n : Nat, (n : Int) ∈ I → toInt (OfNat.ofNat n : α) = n
+  toInt_ofNat : ∀ n : Nat, toInt (OfNat.ofNat n : α) = I.wrap n
 
 /--
 The embedding into the integers takes addition to addition, wrapped into the range interval.

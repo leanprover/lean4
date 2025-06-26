@@ -155,7 +155,7 @@ example : ToInt.Add UInt8 (.uint 8) := inferInstance
 example : ToInt.Neg UInt8 (.uint 8) := inferInstance
 example : ToInt.Sub UInt8 (.uint 8) := inferInstance
 
-instance : ToInt.Pow UInt8 (.uint 8) := ToInt.pow_of_semiring (by simp) (by simp)
+instance : ToInt.Pow UInt8 (.uint 8) := ToInt.pow_of_semiring (by simp)
 
 instance : CommRing UInt16 where
   add_assoc := UInt16.add_assoc
@@ -187,7 +187,7 @@ example : ToInt.Add UInt16 (.uint 16) := inferInstance
 example : ToInt.Neg UInt16 (.uint 16) := inferInstance
 example : ToInt.Sub UInt16 (.uint 16) := inferInstance
 
-instance : ToInt.Pow UInt16 (.uint 16) := ToInt.pow_of_semiring (by simp) (by simp)
+instance : ToInt.Pow UInt16 (.uint 16) := ToInt.pow_of_semiring (by simp)
 
 instance : CommRing UInt32 where
   add_assoc := UInt32.add_assoc
@@ -219,7 +219,7 @@ example : ToInt.Add UInt32 (.uint 32) := inferInstance
 example : ToInt.Neg UInt32 (.uint 32) := inferInstance
 example : ToInt.Sub UInt32 (.uint 32) := inferInstance
 
-instance : ToInt.Pow UInt32 (.uint 32) := ToInt.pow_of_semiring (by simp) (by simp)
+instance : ToInt.Pow UInt32 (.uint 32) := ToInt.pow_of_semiring (by simp)
 
 instance : CommRing UInt64 where
   add_assoc := UInt64.add_assoc
@@ -251,7 +251,7 @@ example : ToInt.Add UInt64 (.uint 64) := inferInstance
 example : ToInt.Neg UInt64 (.uint 64) := inferInstance
 example : ToInt.Sub UInt64 (.uint 64) := inferInstance
 
-instance : ToInt.Pow UInt64 (.uint 64) := ToInt.pow_of_semiring (by simp) (by simp)
+instance : ToInt.Pow UInt64 (.uint 64) := ToInt.pow_of_semiring (by simp)
 
 instance : CommRing USize where
   add_assoc := USize.add_assoc
@@ -286,10 +286,6 @@ example : ToInt.Neg USize (.uint numBits) := inferInstance
 example : ToInt.Sub USize (.uint numBits) := inferInstance
 
 instance : ToInt.Pow USize (.uint numBits) :=
-  ToInt.pow_of_semiring (by simp) (by
-    have := numBits_pos
-    have : numBits = numBits - 1 + 1 := by omega
-    have : 1 < 2 ^ numBits := by rw [this]; exact Nat.one_lt_two_pow' (numBits - 1)
-    simpa using Int.ofNat_lt.mpr this)
+  ToInt.pow_of_semiring (by simp)
 
 end Lean.Grind

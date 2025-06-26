@@ -536,6 +536,12 @@ syntax (name := change) "change " term (location)? : tactic
 syntax (name := changeWith) "change " term " with " term (location)? : tactic
 
 /--
+`show t` finds the first goal whose target unifies with `t`. It makes that the main goal,
+performs the unification, and replaces the target with the unified version of `t`.
+-/
+syntax (name := «show») "show " term : tactic
+
+/--
 Extracts `let` and `let_fun` expressions from within the target or a local hypothesis,
 introducing new local definitions.
 
@@ -566,6 +572,13 @@ example : (let x := 1; x) = 1 := by
 ```
 -/
 syntax (name := liftLets) "lift_lets " optConfig (location)? : tactic
+
+/--
+Transforms `let` expressions into `have` expressions when possible.
+- `let_to_have` transforms `let`s in the target.
+- `let_to_have at h` transforms `let`s in the given local hypothesis.
+-/
+syntax (name := letToHave) "let_to_have" (location)? : tactic
 
 /--
 If `thm` is a theorem `a = b`, then as a rewrite rule,
@@ -695,7 +708,7 @@ syntax (name := dsimp) "dsimp" optConfig (discharger)? (&" only")?
 A `simpArg` is either a `*`, `-lemma` or a simp lemma specification
 (which includes the `↑` `↓` `←` specifications for pre, post, reverse rewriting).
 -/
-def simpArg := simpStar.binary `orelse (simpErase.binary `orelse simpLemma)
+meta def simpArg := simpStar.binary `orelse (simpErase.binary `orelse simpLemma)
 
 /-- A simp args list is a list of `simpArg`. This is the main argument to `simp`. -/
 syntax simpArgs := " [" simpArg,* "]"
@@ -704,7 +717,7 @@ syntax simpArgs := " [" simpArg,* "]"
 A `dsimpArg` is similar to `simpArg`, but it does not have the `simpStar` form
 because it does not make sense to use hypotheses in `dsimp`.
 -/
-def dsimpArg := simpErase.binary `orelse simpLemma
+meta def dsimpArg := simpErase.binary `orelse simpLemma
 
 /-- A dsimp args list is a list of `dsimpArg`. This is the main argument to `dsimp`. -/
 syntax dsimpArgs := " [" dsimpArg,* "]"
@@ -812,16 +825,16 @@ The `have` tactic is for adding hypotheses to the local context of the main goal
   For example, given `h : p ∧ q ∧ r`, `have ⟨h₁, h₂, h₃⟩ := h` produces the
   hypotheses `h₁ : p`, `h₂ : q`, and `h₃ : r`.
 -/
-syntax "have " haveDecl : tactic
+syntax "have " letConfig letDecl : tactic
 macro_rules
   -- special case: when given a nested `by` block, move it outside of the `refine` to enable
   -- incrementality
-  | `(tactic| have%$haveTk $id:haveId $bs* : $type := by%$byTk $tacs*) => do
+  | `(tactic| have%$haveTk $id:letId $bs* : $type := by%$byTk $tacs*) => do
     /-
     We want to create the syntax
     ```
     focus
-      refine no_implicit_lambda% (have $id:haveId $bs* : $type := ?body; ?_)
+      refine no_implicit_lambda% (have $id:letId $bs* : $type := ?body; ?_)
       case body => $tacs*
     ```
     However, we need to be very careful with the syntax infos involved:
@@ -840,9 +853,9 @@ macro_rules
     let tac ← `(tacticSeq| $tac:tactic)
     let tac ← Lean.withRef byTk `(tactic| case body => $(.mk tac):tacticSeq)
     Lean.withRef haveTk `(tactic| focus
-      refine no_implicit_lambda% (have $id:haveId $bs* : $type := ?body; ?_)
+      refine no_implicit_lambda% (have $id:letId $bs* : $type := ?body; ?_)
       $tac)
-  | `(tactic| have $d:haveDecl) => `(tactic| refine_lift have $d:haveDecl; ?_)
+  | `(tactic| have $c:letConfig $d:letDecl) => `(tactic| refine_lift have $c:letConfig $d:letDecl; ?_)
 
 /--
 Given a main goal `ctx ⊢ t`, `suffices h : t' from e` replaces the main goal with `ctx ⊢ t'`,
@@ -852,6 +865,7 @@ The variant `suffices h : t' by tac` is a shorthand for `suffices h : t' from by
 If `h :` is omitted, the name `this` is used.
  -/
 macro "suffices " d:sufficesDecl : tactic => `(tactic| refine_lift suffices $d; ?_)
+
 /--
 The `let` tactic is for adding definitions to the local context of the main goal.
 * `let x : t := e` adds the definition `x : t := e` if `e` is a term of type `t`.
@@ -863,12 +877,8 @@ The `let` tactic is for adding definitions to the local context of the main goal
   For example, given `p : α × β × γ`, `let ⟨x, y, z⟩ := p` produces the
   local variables `x : α`, `y : β`, and `z : γ`.
 -/
-macro "let " d:letDecl : tactic => `(tactic| refine_lift let $d:letDecl; ?_)
-/--
-`show t` finds the first goal whose target unifies with `t`. It makes that the main goal,
- performs the unification, and replaces the target with the unified version of `t`.
--/
-macro "show " e:term : tactic => `(tactic| refine_lift show $e from ?_) -- TODO: fix, see comment
+macro "let " c:letConfig d:letDecl : tactic => `(tactic| refine_lift let $c:letConfig $d:letDecl; ?_)
+
 /-- `let rec f : t := e` adds a recursive definition `f` to the current goal.
 The syntax is the same as term-mode `let rec`. -/
 syntax (name := letrec) withPosition(atomic("let " &"rec ") letRecDecls) : tactic
@@ -878,12 +888,12 @@ macro_rules
 /-- Similar to `refine_lift`, but using `refine'` -/
 macro "refine_lift' " e:term : tactic => `(tactic| focus (refine' no_implicit_lambda% $e; rotate_right))
 /-- Similar to `have`, but using `refine'` -/
-macro "have' " d:haveDecl : tactic => `(tactic| refine_lift' have $d:haveDecl; ?_)
+macro (name := tacticHave') "have' " c:letConfig d:letDecl : tactic => `(tactic| refine_lift' have $c:letConfig $d:letDecl; ?_)
 set_option linter.missingDocs false in -- OK, because `tactic_alt` causes inheritance of docs
 macro (priority := high) "have'" x:ident " := " p:term : tactic => `(tactic| have' $x:ident : _ := $p)
-attribute [tactic_alt tacticHave'_] «tacticHave'_:=_»
+attribute [tactic_alt tacticHave'] «tacticHave'_:=_»
 /-- Similar to `let`, but using `refine'` -/
-macro "let' " d:letDecl : tactic => `(tactic| refine_lift' let $d:letDecl; ?_)
+macro "let' " c:letConfig d:letDecl : tactic => `(tactic| refine_lift' let $c:letConfig $d:letDecl; ?_)
 
 /--
 The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`
@@ -1169,7 +1179,7 @@ macro "exists " es:term,+ : tactic =>
   `(tactic| (refine ⟨$es,*, ?_⟩; try trivial))
 
 /--
-Apply congruence (recursively) to goals of the form `⊢ f as = f bs` and `⊢ HEq (f as) (f bs)`.
+Apply congruence (recursively) to goals of the form `⊢ f as = f bs` and `⊢ f as ≍ f bs`.
 The optional parameter is the depth of the recursive applications.
 This is useful when `congr` is too aggressive in breaking down the goal.
 For example, given `⊢ f (g (x + y)) = f (g (y + x))`,
@@ -1254,7 +1264,7 @@ h : β
 
 This can be used to simulate the `specialize` and `apply at` tactics of Coq.
 -/
-syntax (name := replace) "replace" haveDecl : tactic
+syntax (name := replace) "replace" letDecl : tactic
 
 /-- `and_intros` applies `And.intro` until it does not make progress. -/
 syntax "and_intros" : tactic
@@ -1270,10 +1280,10 @@ syntax (name := substEqs) "subst_eqs" : tactic
 syntax (name := runTac) "run_tac " doSeq : tactic
 
 /-- `haveI` behaves like `have`, but inlines the value instead of producing a `let_fun` term. -/
-macro "haveI" d:haveDecl : tactic => `(tactic| refine_lift haveI $d:haveDecl; ?_)
+macro "haveI" c:letConfig d:letDecl : tactic => `(tactic| refine_lift haveI $c:letConfig $d:letDecl; ?_)
 
 /-- `letI` behaves like `let`, but inlines the value instead of producing a `let_fun` term. -/
-macro "letI" d:haveDecl : tactic => `(tactic| refine_lift letI $d:haveDecl; ?_)
+macro "letI" c:letConfig d:letDecl : tactic => `(tactic| refine_lift letI $c:letConfig $d:letDecl; ?_)
 
 /--
 Configuration for the `decide` tactic family.

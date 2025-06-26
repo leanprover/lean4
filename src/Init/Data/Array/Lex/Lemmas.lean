@@ -162,7 +162,7 @@ instance [DecidableEq α] [LT α] [DecidableLT α]
     {xs ys : Array α} : lex xs ys = false ↔ ys ≤ xs := by
   cases xs
   cases ys
-  simp [List.not_lt_iff_ge]
+  simp
 
 instance [DecidableEq α] [LT α] [DecidableLT α] : DecidableLT (Array α) :=
   fun xs ys => decidable_of_iff (lex xs ys = true) lex_eq_true_iff_lt

@@ -112,7 +112,7 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
   | _ => pure ()
 
 /--
-If `e` is a `cast`-like term (e.g., `cast h a`), add `HEq e a` to the to-do list.
+If `e` is a `cast`-like term (e.g., `cast h a`), add `e ≍ a` to the to-do list.
 It could be an E-matching theorem, but we want to ensure it is always applied since
 we want to rely on the fact that `cast h a` and `a` are in the same equivalence class.
 -/
@@ -153,6 +153,28 @@ private def internalizeMatchCond (matchCond : Expr) (generation : Nat) : GoalM U
   trace_goal[grind.debug.matchCond.lambda] "(idx := {(← getENode e'.getAppFn).idx}) {e'.getAppFn}"
   trace_goal[grind.debug.matchCond.lambda] "auxiliary application{indentExpr e'}"
   pushEq matchCond e' (← mkEqRefl matchCond)
+  internalizeSimpleMatchCondImp
+where
+  /--
+  We say `MatchCond` is simple if its argument is an implication such as `x = 0 -> ...`
+  If that is the case, we also internalize the implication to ensure grind can split on the antecedents.
+  We added this extra case to make sure the user is not surprised by `grind` failing at
+  ```
+  example (x y : Nat)
+      : 0 < match x, y with
+            | 0, 0   => 1
+            | _, _ => x + y := by -- x or y must be greater than 0
+    grind
+  ```
+  We should try to find a better and more general approach for handling the example above.
+  -/
+  internalizeSimpleMatchCondImp : GoalM Unit := do
+    let_expr Grind.MatchCond e := matchCond | return ()
+    let .forallE _ d b _ := e | return ()
+    if b.hasLooseBVars then return ()
+    if (← isProp d) then
+      internalize e generation
+    pushEq matchCond e (← mkEqRefl matchCond)
 
 def activateTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM Unit := do
   -- Recall that we use the proof as part of the key for a set of instances found so far.

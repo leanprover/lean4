@@ -9,6 +9,7 @@ import Init.Grind.PP
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Arith.Model
 import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
+import Lean.Meta.Tactic.Grind.Arith.Linear.PP
 
 namespace Lean.Meta.Grind
 
@@ -147,6 +148,11 @@ private def ppCommRing : M Unit := do
   let some msg ← Arith.CommRing.pp? goal | return ()
   pushMsg msg
 
+private def ppLinarith : M Unit := do
+  let goal ← read
+  let some msg ← Arith.Linear.pp? goal | return ()
+  pushMsg msg
+
 private def ppThresholds (c : Grind.Config) : M Unit := do
   let goal ← read
   let maxGen := goal.exprs.foldl (init := 0) fun g e =>
@@ -194,6 +200,7 @@ where
     ppActiveTheoremPatterns
     ppOffset
     ppCutsat
+    ppLinarith
     ppCommRing
     ppThresholds config
 

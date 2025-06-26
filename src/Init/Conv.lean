@@ -9,7 +9,7 @@ module
 
 prelude
 import Init.Tactics
-import Init.Meta
+meta import Init.Meta
 
 namespace Lean.Parser.Tactic.Conv
 
@@ -338,6 +338,12 @@ Lifts `let` and `let_fun` expressions within the target expression as far out as
 This is the conv mode version of the `lift_lets` tactic.
 -/
 syntax (name := liftLets) "lift_lets " optConfig : conv
+
+/--
+Transforms `let` expressions into `have` expressions within th etarget expression when possible.
+This is the conv mode version of the `let_to_have` tactic.
+-/
+syntax (name := letToHave) "let_to_have" : conv
 
 /--
 `conv => ...` allows the user to perform targeted rewriting on a goal or hypothesis,

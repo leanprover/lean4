@@ -46,3 +46,5 @@ import Init.Data.NeZero
 import Init.Data.Function
 import Init.Data.RArray
 import Init.Data.Vector
+import Init.Data.Iterators
+import Init.Data.Range.Polymorphic

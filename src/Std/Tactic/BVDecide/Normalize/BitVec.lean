@@ -141,7 +141,7 @@ attribute [bv_normalize] BitVec.twoPow_eq
 @[bv_normalize]
 theorem BitVec.getElem_eq_getLsbD (a : BitVec w) (i : Nat) (h : i < w) :
     a[i]'h = a.getLsbD i := by
-  simp [BitVec.getLsbD_eq_getElem?_getD, BitVec.getElem?_eq, h]
+  simp [h]
 
 -- The side condition about being in bounds gets resolved if i and w are constant.
 attribute [bv_normalize] BitVec.getMsbD_eq_getLsbD
@@ -188,11 +188,11 @@ theorem BitVec.one_plus_not_eq_not_plus_one (x : BitVec w) : (1#w + ~~~x) = (~~~
 
 theorem BitVec.and_contra (a : BitVec w) : a &&& ~~~a = 0#w := by
   ext i h
-  simp [h]
+  simp
 
 theorem BitVec.and_contra' (a : BitVec w) : ~~~a &&& a = 0#w := by
   ext i h
-  simp [h]
+  simp
 
 theorem BitVec.add_not (a : BitVec w) : a + ~~~a = (-1#w) := by
   ext

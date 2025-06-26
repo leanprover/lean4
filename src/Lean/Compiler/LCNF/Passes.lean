@@ -31,6 +31,7 @@ def init : Pass where
     decls.forM (·.saveBase)
     return decls
   phase := .base
+  shouldAlwaysRunCheck := true
 
 -- Helper pass used for debugging purposes
 def trace (phase := Phase.base) : Pass where
@@ -38,11 +39,23 @@ def trace (phase := Phase.base) : Pass where
   run   := pure
   phase := phase
 
-def saveBase : Pass :=
-  .mkPerDeclaration `saveBase (fun decl => do (← normalizeFVarIds decl).saveBase; return decl) .base
+def saveBase : Pass where
+  occurrence := 0
+  phase := .base
+  name := `saveBase
+  run decls := decls.mapM fun decl => do
+    (← normalizeFVarIds decl).saveBase
+    return decl
+  shouldAlwaysRunCheck := true
 
-def saveMono : Pass :=
-  .mkPerDeclaration `saveMono (fun decl => do (← normalizeFVarIds decl).saveMono; return decl) .mono
+def saveMono : Pass where
+  occurrence := 0
+  phase := .mono
+  name := `saveMono
+  run decls := decls.mapM fun decl => do
+    (← normalizeFVarIds decl).saveMono
+    return decl
+  shouldAlwaysRunCheck := true
 
 def builtinPassManager : PassManager := {
   passes := #[
@@ -68,6 +81,7 @@ def builtinPassManager : PassManager := {
     toMono,
     simp (occurrence := 3) (phase := .mono),
     reduceJpArity (phase := .mono),
+    structProjCases,
     extendJoinPointContext (phase := .mono) (occurrence := 0),
     floatLetIn (phase := .mono) (occurrence := 1),
     reduceArity,
@@ -78,7 +92,6 @@ def builtinPassManager : PassManager := {
     lambdaLifting,
     extendJoinPointContext (phase := .mono) (occurrence := 1),
     simp (occurrence := 5) (phase := .mono),
-    structProjCases,
     cse (occurrence := 2) (phase := .mono),
     saveMono,  -- End of mono phase
     extractClosed

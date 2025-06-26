@@ -21,8 +21,7 @@ We prefer to pull `List.toArray` outwards past `Array` operations.
 -/
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- TODO: restore after an update-stage0
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Array
 
@@ -577,7 +576,7 @@ theorem flatMap_toArray_cons {β} (f : α → Array β) (a : α) (as : List α) 
   rw [Array.eraseIdx]
   split <;> rename_i h'
   · rw [eraseIdx_toArray]
-    simp only [swap_toArray, Fin.getElem_fin, toList_toArray, mk.injEq]
+    simp only [swap_toArray, toList_toArray, mk.injEq]
     rw [eraseIdx_set_gt (by simp), eraseIdx_set_eq]
     simp
   · simp at h h'
@@ -668,7 +667,7 @@ theorem replace_toArray [BEq α] [LawfulBEq α] (l : List α) (a b : α) :
     l.toArray.replace a b = (l.replace a b).toArray := by
   rw [Array.replace]
   split <;> rename_i i h
-  · simp only [finIdxOf?_toArray, finIdxOf?_eq_none_iff] at h
+  · simp only [finIdxOf?_toArray] at h
     rw [replace_of_not_mem]
     exact finIdxOf?_eq_none_iff.mp h
   · simp_all only [finIdxOf?_toArray, finIdxOf?_eq_some_iff, Fin.getElem_fin, set_toArray,
@@ -685,7 +684,7 @@ theorem replace_toArray [BEq α] [LawfulBEq α] (l : List α) (a b : α) :
         · rw [if_pos (by omega), if_pos, if_neg]
           · simp only [mem_take_iff_getElem, not_exists]
             intro k hk
-            simpa using h.2 ⟨k, by omega⟩ (by show k < i.1; omega)
+            simpa using h.2 ⟨k, by omega⟩ (by change k < i.1; omega)
           · subst h₃
             simpa using h.1
         · rw [if_neg (by omega)]

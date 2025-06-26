@@ -50,7 +50,7 @@ attribute [simp] id_map
   (comp_map _ _ _).symm
 
 theorem Functor.map_unit [Functor f] [LawfulFunctor f] {a : f PUnit} : (fun _ => PUnit.unit) <$> a = a := by
-  simp [map]
+  simp
 
 /--
 An applicative functor satisfies the laws of an applicative functor.
@@ -148,7 +148,7 @@ attribute [simp] pure_bind bind_assoc bind_pure_comp
 attribute [grind] pure_bind
 
 @[simp] theorem bind_pure [Monad m] [LawfulMonad m] (x : m α) : x >>= pure = x := by
-  show x >>= (fun a => pure (id a)) = x
+  change x >>= (fun a => pure (id a)) = x
   rw [bind_pure_comp, id_map]
 
 /--

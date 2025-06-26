@@ -19,7 +19,7 @@ import Lake.CLI.Serve
 -- # CLI
 
 open System
-open Lean (Json toJson fromJson? LeanPaths NameMap)
+open Lean (Json toJson fromJson? NameMap)
 
 namespace Lake
 
@@ -445,10 +445,14 @@ protected def setupFile : CliM PUnit := do
   let loadConfig ← mkLoadConfig opts
   let buildConfig := mkBuildConfig opts
   let filePath ← takeArg "file path"
-  -- Additional arguments (imports) are ignored
-  -- TODO: Forbid them once the language server is updated
-  -- noArgsRem do
-  setupFile loadConfig filePath buildConfig
+  let header? ← takeArg?
+  noArgsRem do
+  let header ← header?.mapM  fun header => do
+    let header ← if header == "-" then IO.getStdin >>= (·.getLine) else pure header
+    match Json.parse header >>= fromJson? with
+    | .ok header => pure header
+    | .error e => error s!"failed to parse header JSON: {e}"
+  setupFile loadConfig filePath header buildConfig
 
 protected def test : CliM PUnit := do
   processOptions lakeOption
@@ -542,11 +546,11 @@ private def evalLeanFile
     if let some mod := ws.findModuleBySrc? path then
       let setup ← ws.runBuild (cfg := buildConfig) do
         withRegisterJob s!"{mod.name}:setup" do mod.setup.fetch
-      mkArgs path setup (some mod.rootDir) mod.leanArgs
+      mkArgs path setup mod.leanArgs
     else
-      let setup ← mkModuleSetup
-        ws leanFile.toString (← IO.FS.readFile path) ws.leanOptions buildConfig
-      mkArgs path setup none ws.root.moreLeanArgs
+      let header ← Lean.parseImports' (← IO.FS.readFile path) leanFile.toString
+      let setup ← mkModuleSetup ws leanFile.toString header ws.leanOptions buildConfig
+      mkArgs path setup ws.root.moreLeanArgs
   let spawnArgs : IO.Process.SpawnArgs := {
     args := args ++ moreArgs
     cmd := ws.lakeEnv.lean.lean.toString
@@ -556,15 +560,13 @@ private def evalLeanFile
   let child ← IO.Process.spawn spawnArgs
   child.wait
 where
-  mkArgs leanFile setup rootDir? cfgArgs := do
-    let mut args := cfgArgs.push leanFile.toString
-    if let some rootDir := rootDir? then
-      args := args ++ #["-R", rootDir.toString]
+  mkArgs leanFile setup cfgArgs := do
+    let args := cfgArgs.push leanFile.toString
     let (h, setupFile) ← IO.FS.createTempFile
     let contents := (toJson setup).compress
     logVerbose s!"module setup: {contents}"
     h.putStr contents
-    args := args ++ #["--setup", setupFile.toString]
+    let args := args ++ #["--setup", setupFile.toString]
     return args
 
 protected def lean : CliM PUnit := do

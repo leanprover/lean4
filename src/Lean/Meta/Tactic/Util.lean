@@ -39,8 +39,17 @@ def throwTacticEx (tacticName : Name) (mvarId : MVarId) (msg? : Option MessageDa
   | none => throwError "tactic '{tacticName}' failed\n{mvarId}"
   | some msg => throwError "tactic '{tacticName}' failed, {msg}\n{mvarId}"
 
+/--
+Rethrows the error as a nested error with the given tactic name prepended.
+If the error was tagged, prepends `nested` to the tag and preserves it.
+-/
 def throwNestedTacticEx {α} (tacticName : Name) (ex : Exception) : MetaM α := do
-  throwError "tactic '{tacticName}' failed, nested error:\n{ex.toMessageData}"
+  let nestedMsg := ex.toMessageData
+  let msg := m!"tactic '{tacticName}' failed, nested error:\n{ex.toMessageData}"
+  let msg := if let .tagged tag _ := nestedMsg then
+    .tagged (`nested ++ tag) msg
+  else msg
+  throwError msg
 
 /-- Throw a tactic exception with given tactic name if the given metavariable is assigned. -/
 def _root_.Lean.MVarId.checkNotAssigned (mvarId : MVarId) (tacticName : Name) : MetaM Unit := do

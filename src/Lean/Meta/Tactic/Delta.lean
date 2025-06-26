@@ -38,6 +38,6 @@ Delta expand declarations that satisfy `p` at `fvarId` type.
 def _root_.Lean.MVarId.deltaLocalDecl (mvarId : MVarId) (fvarId : FVarId) (p : Name → Bool) : MetaM MVarId :=
   mvarId.withContext do
     mvarId.checkNotAssigned `delta
-    mvarId.changeLocalDecl fvarId (← deltaExpand (← mvarId.getType) p) (checkDefEq := false)
+    mvarId.changeLocalDecl fvarId (← deltaExpand (← fvarId.getType) p) (checkDefEq := false)
 
 end Lean.Meta

@@ -204,7 +204,7 @@ def main : Parser :=
   keywordCore "module" (fun _ s => s) (fun _ s => { s with isModule := true }) >>
   keywordCore "prelude" (fun _ s => s.pushImport `Init) (fun _ s => s) >>
   many (keywordCore "private" (setIsExported true) (setIsExported false) >>
-    keywordCore "meta" (setIsMeta true) (setIsMeta false) >>
+    keywordCore "meta" (setIsMeta false) (setIsMeta true) >>
     keyword "import" >>
     keywordCore "all" (setImportAll false) (setImportAll true) >>
     moduleIdent)
@@ -229,7 +229,6 @@ structure PrintImportsResult where
   imports : Array PrintImportResult
   deriving ToJson
 
-@[export lean_print_imports_json]
 def printImportsJson (fileNames : Array String) : IO Unit := do
   let rs ← fileNames.mapM fun fn => do
     try

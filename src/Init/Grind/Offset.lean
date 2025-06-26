@@ -55,7 +55,7 @@ theorem Nat.unsat_lo_ro (u v k₁ k₂ : Nat) : isLt k₂ k₁ = true → u + k�
 
 /-! Theorems for propagating constraints to `True` -/
 theorem Nat.lo_eq_true_of_lo (u v k₁ k₂ : Nat) : isLE k₂ k₁ = true → u + k₁ ≤ v → (u + k₂ ≤ v) = True :=
-  by simp [isLt]; omega
+  by simp; omega
 theorem Nat.le_eq_true_of_lo (u v k : Nat) : u + k ≤ v → (u ≤ v) = True :=
   by simp; omega
 theorem Nat.le_eq_true_of_le (u v : Nat) : u ≤ v → (u ≤ v) = True :=

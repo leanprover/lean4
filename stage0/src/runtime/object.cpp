@@ -48,7 +48,13 @@ Author: Leonardo de Moura
 #endif
 
 #if !defined(__STDC_VERSION_STDLIB_H__) || __STDC_VERSION_STDLIB_H__ < 202311L
-extern "C" LEAN_EXPORT __attribute__((weak)) void free_sized(void *ptr, size_t) {
+extern "C" LEAN_EXPORT
+#if defined(__GLIBC__) && (defined(__GNUC__) || defined(__clang__))
+// glibc tacks on `__attribute__((nothrow))` to its declarations. In C++ this requires either
+// `__attribute__((nothrow))` to be present or `noexcept`.
+__attribute__((nothrow))
+#endif
+__attribute__((weak)) void free_sized(void *ptr, size_t) {
     free(ptr);
 }
 #endif
@@ -1934,6 +1940,10 @@ extern "C" LEAN_EXPORT object * lean_mk_string(char const * s) {
 extern "C" LEAN_EXPORT object * lean_mk_ascii_string_unchecked(char const * s) {
     size_t len = strlen(s);
     return lean_mk_string_unchecked(s, len, len);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_decode_lossy_utf8(b_obj_arg a) {
+    return lean_mk_string_from_bytes(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_string_from_utf8_unchecked(b_obj_arg a) {

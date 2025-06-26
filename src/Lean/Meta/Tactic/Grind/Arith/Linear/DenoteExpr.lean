@@ -14,7 +14,7 @@ namespace Lean.Meta.Grind.Arith.Linear
 Helper functions for converting reified terms back into their denotations.
 -/
 
-variable [Monad M] [MonadGetStruct M]
+variable [Monad M] [MonadGetStruct M] [MonadError M]
 
 def _root_.Lean.Grind.Linarith.Poly.denoteExpr (p : Poly) : M Expr := do
   match p with
@@ -40,7 +40,8 @@ where
   | .var x => return (← getStruct).vars[x]!
   | .add a b => return mkApp2 (← getStruct).addFn (← go a) (← go b)
   | .sub a b => return mkApp2 (← getStruct).subFn (← go a) (← go b)
-  | .mul k a => return mkApp2 (← getStruct).hmulFn (mkIntLit k) (← go a)
+  | .natMul k a => return mkApp2 (← getStruct).hmulNatFn (mkNatLit k) (← go a)
+  | .intMul k a => return mkApp2 (← getStruct).hmulFn (mkIntLit k) (← go a)
   | .neg a => return mkApp (← getStruct).negFn (← go a)
 
 private def mkEq (a b : Expr) : M Expr := do
@@ -52,12 +53,15 @@ def DiseqCnstr.denoteExpr (c : DiseqCnstr) : M Expr := do
 
 private def denoteIneq (p : Poly) (strict : Bool) : M Expr := do
   if strict then
-    return mkApp2 (← getStruct).ltFn (← p.denoteExpr) (← getStruct).ofNatZero
+    return mkApp2 (← getLtFn) (← p.denoteExpr) (← getStruct).ofNatZero
   else
-    return mkApp2 (← getStruct).leFn (← p.denoteExpr) (← getStruct).ofNatZero
+    return mkApp2 (← getLeFn) (← p.denoteExpr) (← getStruct).ofNatZero
 
 def IneqCnstr.denoteExpr (c : IneqCnstr) : M Expr := do
   denoteIneq c.p c.strict
+
+def EqCnstr.denoteExpr (c : EqCnstr) : M Expr := do
+  mkEq (← c.p.denoteExpr) (← getStruct).ofNatZero
 
 private def denoteNum (k : Int) : LinearM Expr := do
   return mkApp2 (← getStruct).hmulFn (mkIntLit k) (← getOne)
@@ -70,7 +74,7 @@ def _root_.Lean.Grind.CommRing.Poly.denoteAsIntModuleExpr (p : Grind.CommRing.Po
 def _root_.Lean.Grind.CommRing.Poly.toIntModuleExpr (p : Grind.CommRing.Poly) (generation := 0) : LinearM Expr := do
   let e ← p.denoteAsIntModuleExpr
   let e ← preprocessLight e
-  internalize e generation none
+  internalize e generation (some getIntModuleVirtualParent)
   return e
 
 end Lean.Meta.Grind.Arith.Linear

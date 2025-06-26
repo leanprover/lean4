@@ -631,7 +631,7 @@ theorem lcm_mul_left_dvd_mul_lcm (k m n : Nat) : lcm (m * n) k ∣ lcm m k * lcm
   simpa [lcm_comm, Nat.mul_comm] using lcm_mul_right_dvd_mul_lcm _ _ _
 
 theorem lcm_dvd_mul_self_left_iff_dvd_mul {k n m : Nat} : lcm k n ∣ k * m ↔ n ∣ k * m := by
-  simp [← natAbs_dvd_natAbs, natAbs_mul, Nat.lcm_dvd_mul_self_left_iff_dvd_mul,
+  simp [Nat.lcm_dvd_mul_self_left_iff_dvd_mul,
     lcm_eq_natAbs_lcm_natAbs]
 
 theorem lcm_dvd_mul_self_right_iff_dvd_mul {k m n : Nat} : lcm n k ∣ m * k ↔ n ∣ m * k := by

@@ -82,7 +82,7 @@ and all using `apply_rfl` and `with_reducible apply_rfl`
 -- Syntactic equal
 
 example : true = true   := by apply_rfl
-example : HEq true true := by apply_rfl
+example : true ≍ true := by apply_rfl
 example : True ↔ True   := by apply_rfl
 example : P true true   := by apply_rfl
 example : Q true true   := by apply_rfl
@@ -100,7 +100,7 @@ error: tactic 'rfl' failed, no @[refl] lemma registered for relation
 #guard_msgs in example : R true true   := by apply_rfl -- Error
 
 example : true = true   := by with_reducible apply_rfl
-example : HEq true true := by with_reducible apply_rfl
+example : true ≍ true := by with_reducible apply_rfl
 example : True ↔ True   := by with_reducible apply_rfl
 example : P true true   := by with_reducible apply_rfl
 example : Q true true   := by with_reducible apply_rfl
@@ -125,7 +125,7 @@ abbrev true' := true
 abbrev True' := True
 
 example : true' = true   := by apply_rfl
-example : HEq true' true := by apply_rfl
+example : true' ≍ true := by apply_rfl
 example : True' ↔ True   := by apply_rfl
 example : P true' true   := by apply_rfl
 example : Q true' true   := by apply_rfl
@@ -145,7 +145,7 @@ error: tactic 'rfl' failed, no @[refl] lemma registered for relation
 example : R true' true   := by apply_rfl -- Error
 
 example : true' = true   := by with_reducible apply_rfl
-example : HEq true' true := by with_reducible apply_rfl
+example : true' ≍ true := by with_reducible apply_rfl
 example : True' ↔ True   := by with_reducible apply_rfl
 example : P true' true   := by with_reducible apply_rfl
 example : Q true' true   := by with_reducible apply_rfl -- NB: No error, Q and true' reducible
@@ -170,7 +170,7 @@ def true'' := true
 def True'' := True
 
 example : true'' = true   := by apply_rfl
-example : HEq true'' true := by apply_rfl
+example : true'' ≍ true := by apply_rfl
 example : True'' ↔ True   := by apply_rfl
 example : P true'' true   := by apply_rfl
 example : Q true'' true   := by apply_rfl
@@ -211,7 +211,7 @@ Note: The full type of 'HEq.refl' is
 ⊢ true'' ≍ true
 -/
 #guard_msgs in
-example : HEq true'' true := by with_reducible apply_rfl -- Error
+example : true'' ≍ true := by with_reducible apply_rfl -- Error
 /--
 error: tactic 'rfl' failed, the left-hand side
   True''
@@ -279,7 +279,7 @@ Note: The full type of 'HEq.refl' is
 ⊢ false ≍ true
 -/
 #guard_msgs in
-example : HEq false true := by apply_rfl -- Error
+example : false ≍ true := by apply_rfl -- Error
 /--
 error: tactic 'rfl' failed, the left-hand side
   False
@@ -346,7 +346,7 @@ Note: The full type of 'HEq.refl' is
 ⊢ false ≍ true
 -/
 #guard_msgs in
-example : HEq false true := by with_reducible apply_rfl -- Error
+example : false ≍ true := by with_reducible apply_rfl -- Error
 /--
 error: tactic 'rfl' failed, the left-hand side
   False
@@ -406,7 +406,7 @@ Note: The full type of 'HEq.refl' is
 ⊢ true ≍ 1
 -/
 #guard_msgs in
-example : HEq true 1 := by apply_rfl -- Error
+example : true ≍ 1 := by apply_rfl -- Error
 /--
 error: tactic 'apply' failed, could not unify the conclusion of 'HEq.refl'
   ?a ≍ ?a
@@ -418,7 +418,7 @@ Note: The full type of 'HEq.refl' is
 ⊢ true ≍ 1
 -/
 #guard_msgs in
-example : HEq true 1 := by with_reducible apply_rfl -- Error
+example : true ≍ 1 := by with_reducible apply_rfl -- Error
 
 -- Rfl lemma with side condition:
 -- Error message should show left-over goal

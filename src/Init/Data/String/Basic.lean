@@ -586,7 +586,7 @@ decreasing_by
   focus
     rename_i i₀ j₀ _ eq h'
     rw [show (s.next i₀ - sep.next j₀).1 = (i₀ - j₀).1 by
-      show (_ + Char.utf8Size _) - (_ + Char.utf8Size _) = _
+      change (_ + Char.utf8Size _) - (_ + Char.utf8Size _) = _
       rw [(beq_iff_eq ..).1 eq, Nat.add_sub_add_right]; rfl]
     right; exact Nat.sub_lt_sub_left
       (Nat.lt_of_le_of_lt (Nat.le_add_right ..) (Nat.gt_of_not_le (mt decide_eq_true h')))

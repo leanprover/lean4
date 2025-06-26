@@ -54,7 +54,7 @@ theorem Ordered.compare_left_not_beq_eq [Ord α] [TransOrd α] {k : α → Order
     [IsStrictCut compare k] {sz k' v' l r}
     (ho : (.inner sz k' v' l r : Impl α β).Ordered) (hcmp : (k k').isGE)
     (p) (hp : p ∈ l.toListModel) : ¬(k p.1 == .eq) := by
-  suffices k p.fst = .gt by simp [this, OrientedCmp.eq_comm (a := k)]
+  suffices k p.fst = .gt by simp [this]
   exact IsStrictCut.gt_of_isGE_of_gt hcmp (OrientedCmp.gt_of_lt (ho.compare_left hp))
 
 theorem Ordered.compare_right [Ord α] {sz k v l r}

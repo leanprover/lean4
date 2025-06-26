@@ -117,7 +117,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr + 1 ≤
     have : rexpr.getLsbD (curr + 1) = false := by
       apply BitVec.getLsbD_of_ge
       omega
-    simp [this]
+    simp
 termination_by w - curr
 
 theorem denote_blast (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
@@ -152,9 +152,9 @@ theorem denote_blast (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
       · simp [Ref.hgate]
     · intro idx hidx
       rw [BitVec.mulRec_zero_eq]
-      simp only [Nat.succ_eq_add_one, RefVec.denote_ite, BinaryRefVec.rhs_get_cast,
-        Ref.gate_cast, BinaryRefVec.lhs_get_cast, denote_blastConst,
-        BitVec.ofNat_eq_ofNat, eval_const, BitVec.getLsbD_zero, Bool.if_false_right,
+      simp only [Nat.succ_eq_add_one, RefVec.denote_ite, 
+        denote_blastConst,
+        BitVec.ofNat_eq_ofNat, BitVec.getLsbD_zero, Bool.if_false_right,
         Bool.decide_eq_true]
       split
       · next heq =>

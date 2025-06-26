@@ -13,10 +13,10 @@ trace: [diag] Diagnostics
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---
 trace: [simp] Diagnostics
-  [simp] used theorems (max: 59, num: 1):
-    [simp] ack.eq_3 ↦ 59
-  [simp] tried theorems (max: 59, num: 1):
-    [simp] ack.eq_3 ↦ 59, succeeded: 59
+  [simp] used theorems (max: 57, num: 1):
+    [simp] ack.eq_3 ↦ 57
+  [simp] tried theorems (max: 57, num: 1):
+    [simp] ack.eq_3 ↦ 57, succeeded: 57
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---
 trace: [diag] Diagnostics

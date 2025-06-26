@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Grind.CommRing.Poly
+import Init.Grind.Ring.Poly
 namespace Lean.Grind.CommRing
 
 /-- `sharesVar m₁ m₂` returns `true` if `m₁` and `m₂` shares at least one variable. -/

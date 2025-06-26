@@ -32,5 +32,5 @@ def elabAuxDef : CommandElab
     let id := id.replacePrefix ns Name.anonymous -- TODO: replace with def _root_.id
     elabCommand <|
       ← `($[$doc?:docComment]? $[$attrs?:attributes]?
-          def $(mkIdentFrom (mkNullNode suggestion) id (canonical := true)):ident : $ty := $body)
+          meta def $(mkIdentFrom (mkNullNode suggestion) id (canonical := true)):ident : $ty := $body)
   | _ => throwUnsupportedSyntax

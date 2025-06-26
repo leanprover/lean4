@@ -12,6 +12,7 @@ theorem ex₃ (a b c : Int) : a + b + c = 0 → a = c → b = 4 → c = -2 := by
 
 /--
 trace: [grind.cutsat.assert] -1*「a + -2 * b + -2 * c」 + a + -2*b + -2*c = 0
+[grind.cutsat.assert] -1*「1」 + 1 = 0
 [grind.cutsat.assert] -1*「0」 = 0
 [grind.cutsat.assert] 「a + -2 * b + -2 * c」 = 0
 [grind.cutsat.assert] -1*「a + -2 * b + -2 * d」 + a + -2*b + -2*d = 0

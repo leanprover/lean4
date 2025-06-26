@@ -46,7 +46,7 @@ We use this function to inline/specialize a partial application of a local funct
 def specializePartialApp (info : InlineCandidateInfo) : SimpM FunDecl := do
   let mut subst := {}
   for param in info.params, arg in info.args do
-    subst := subst.insert param.fvarId arg.toExpr
+    subst := subst.insert param.fvarId arg
   let mut paramsNew := #[]
   for param in info.params[info.args.size:] do
     let type ← replaceExprFVars param.type subst (translator := true)
@@ -201,7 +201,7 @@ partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
       | .ctor ctorVal ctorArgs =>
         let fields := ctorArgs[ctorVal.numParams:]
         for param in params, field in fields do
-          addSubst param.fvarId field.toExpr
+          addSubst param.fvarId field
         let k ← simp k
         eraseParams params
         return k
@@ -231,7 +231,7 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
     -- and `FVarId` rather than `Arg`, and the substitution will end up
     -- creating a new erased let decl in that case.
     if decl.type.isErased && decl.value != .erased then
-      modifySubst fun s => s.insert decl.fvarId (.const ``lcErased [])
+      addSubst decl.fvarId .erased
       eraseLetDecl decl
       simp k
     else if let some decls ← ConstantFold.foldConstants decl then

@@ -142,7 +142,7 @@ where
         subst m₂
         by_cases heq : k₁ + k₂ == 0 <;> simp! [heq, ih]
         · simp [← Nat.add_assoc, ← Nat.right_distrib, eq_of_beq heq]
-        · simp [Nat.right_distrib, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm]
+        · simp [Nat.right_distrib, Nat.add_assoc]
 
 theorem Poly.denote_insertSorted (ctx : Context) (k : Nat) (m : Mon) (p : Poly) : (p.insertSorted k m).denote ctx = p.denote ctx + k * m.denote ctx := by
   match p with

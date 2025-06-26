@@ -12,14 +12,14 @@ open Sum Subtype Nat
 open Std
 
 /--
-A typeclass that specifies the standard way of turning values of some type into `Format`.
+The standard way of turning values of some type into `Format`.
 
 When rendered this `Format` should be as close as possible to something that can be parsed as the
 input value.
 -/
 class Repr (α : Type u) where
   /--
-  Turn a value of type `α` into `Format` at a given precedence. The precedence value can be used
+  Turn a value of type `α` into a `Format` at a given precedence. The precedence value can be used
   to avoid parentheses if they are not necessary.
   -/
   reprPrec : α → Nat → Format
@@ -27,14 +27,27 @@ class Repr (α : Type u) where
 export Repr (reprPrec)
 
 /--
-Turn `a` into `Format` using its `Repr` instance. The precedence level is initially set to 0.
+Turns `a` into a `Format` using its `Repr` instance. The precedence level is initially set to 0.
 -/
 abbrev repr [Repr α] (a : α) : Format :=
   reprPrec a 0
 
+/--
+Turns `a` into a `String` using its `Repr` instance, rendering the `Format` at the default width of
+120 columns.
+
+The precedence level is initially set to 0.
+-/
 abbrev reprStr [Repr α] (a : α) : String :=
   reprPrec a 0 |>.pretty
 
+/--
+Turns `a` into a `Format` using its `Repr` instance, with the precedence level set to that of
+function application.
+
+Together with `Repr.addAppParen`, this can be used to correctly parenthesize function application
+syntax.
+-/
 abbrev reprArg [Repr α] (a : α) : Format :=
   reprPrec a max_prec
 
@@ -62,6 +75,13 @@ protected def Bool.repr : Bool → Nat → Format
 instance : Repr Bool where
   reprPrec := Bool.repr
 
+/--
+Adds parentheses to `f` if the precedence `prec` from the context is at least that of function
+application.
+
+Together with `reprArg`, this can be used to correctly parenthesize function application
+syntax.
+-/
 def Repr.addAppParen (f : Format) (prec : Nat) : Format :=
   if prec >= max_prec then
     Format.paren f
@@ -342,11 +362,12 @@ instance : Repr Int where
 def hexDigitRepr (n : Nat) : String :=
   String.singleton <| Nat.digitChar n
 
-def Char.quoteCore (c : Char) : String :=
+def Char.quoteCore (c : Char) (inString : Bool := false) : String :=
   if       c = '\n' then "\\n"
   else if  c = '\t' then "\\t"
   else if  c = '\\' then "\\\\"
   else if  c = '\"' then "\\\""
+  else if !inString && c = '\'' then "\\\'"
   else if  c.toNat <= 31 ∨ c = '\x7f' then "\\x" ++ smallCharToHex c
   else String.singleton c
 where
@@ -383,7 +404,7 @@ Examples:
 -/
 def String.quote (s : String) : String :=
   if s.isEmpty then "\"\""
-  else s.foldl (fun s c => s ++ c.quoteCore) "\"" ++ "\""
+  else s.foldl (fun s c => s ++ c.quoteCore (inString := true)) "\"" ++ "\""
 
 instance : Repr String where
   reprPrec s _ := s.quote

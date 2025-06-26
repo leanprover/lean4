@@ -29,20 +29,25 @@ def recBuildExternDynlibs (pkgs : Array Package)
     jobs := jobs.append <| ← pkg.externLibs.mapM (·.dynlib.fetch)
   return (jobs, libDirs)
 
-/-- The `ModuleFacetConfig` for the builtin `srcFacet`. -/
-def Module.srcFacetConfig : ModuleFacetConfig srcFacet :=
-  mkFacetJobConfig fun mod => inputFile mod.leanFile (text := true)
-
 /-- Parse the header of a Lean file from its source. -/
-def Module.recParseHeader (mod : Module) : FetchM (Job ModuleHeader) := do
-  (← mod.src.fetch).mapM fun srcFile => do
-    setTraceCaption s!"{mod.name}:header"
-    let contents ← IO.FS.readFile srcFile
-    Lean.parseImports' contents srcFile.toString
+def Module.recFetchInput (mod : Module) : FetchM (Job ModuleInput) := Job.async do
+  let path := mod.leanFile
+  let contents ← IO.FS.readFile path
+  setTrace {caption := path.toString, mtime := ← getMTime path, hash := .ofText contents}
+  let header ← Lean.parseImports' contents path.toString
+  return {path, header}
+
+/-- The `ModuleFacetConfig` for the builtin `inputFacet`. -/
+def Module.inputFacetConfig : ModuleFacetConfig inputFacet :=
+  mkFacetJobConfig recFetchInput
+
+/-- The `ModuleFacetConfig` for the builtin `leanFacet`. -/
+def Module.leanFacetConfig : ModuleFacetConfig leanFacet :=
+  mkFacetJobConfig fun mod => return (← mod.input.fetch).map (sync := true) (·.path)
 
 /-- The `ModuleFacetConfig` for the builtin `headerFacet`. -/
 def Module.headerFacetConfig : ModuleFacetConfig headerFacet :=
-  mkFacetJobConfig recParseHeader (buildable := false)
+   mkFacetJobConfig fun mod => return (← mod.input.fetch).map (sync := true) (·.header)
 
 /-- Compute an `Array` of a module's direct local imports from its header. -/
 def Module.recParseImports (mod : Module) : FetchM (Job (Array Module)) := do
@@ -55,55 +60,58 @@ def Module.recParseImports (mod : Module) : FetchM (Job (Array Module)) := do
 def Module.importsFacetConfig : ModuleFacetConfig importsFacet :=
   mkFacetJobConfig recParseImports (buildable := false)
 
-private def computeAllImportsAux
-  (leanFile : FilePath) (libName? : Option Name) (imports : Array Import)
-: FetchM (Job ModuleImports) := do
-  let task : JobTask ModuleImports := .pure (.ok {libName? := libName?} {})
-  let task ← imports.foldlM (init := task) fun task imp => do
-    let some mod ← findModule? imp.module
-      | return task
-    let impsJob ← mod.allImports.fetch
-    let task :=
-      task.bind (sync := true) fun r =>
-      impsJob.task.map (sync := true) fun
-      | .ok transImps _ =>
-        match r with
-        | .ok imps s => Id.run do
-          let imps := imps.append transImps
-          let imps := imps.insert mod imp.isExported
-          return .ok imps s
-        | .error e s => .error e s
-      | .error _ _ =>
-        let entry := LogEntry.error s!"{leanFile}: bad import '{mod.name}'"
-        match r with
-        | .ok _ s => .error 0 (s.logEntry entry)
-        | .error e s => .error e (s.logEntry entry)
-    return task
-  return Job.ofTask task
+structure ModuleImportData where
+  module : Module
+  transImports : Job (Array Module)
+  includeSelf : Bool
 
-def Module.recComputeAllImports (self : Module) : FetchM (Job ModuleImports) := do
-  (← self.header.fetch).bindM fun header =>
-    computeAllImportsAux self.relLeanFile self.lib.name header.imports
-
-/-- The `ModuleFacetConfig` for the builtin `allImportsFacet`. -/
-def Module.allImportsFacetConfig : ModuleFacetConfig allImportsFacet :=
-  mkFacetJobConfig recComputeAllImports (buildable := false)
+@[inline] def collectImportsAux
+  (leanFile : FilePath) (imports : Array Module)
+  (f : Module → FetchM (Bool × Job (Array Module)))
+: FetchM (Job (Array Module)) := do
+  let imps ← imports.mapM fun imp => do
+    let (includeSelf, transImports) ← f imp
+    return {module := imp, transImports, includeSelf : ModuleImportData}
+  let task : JobTask OrdModuleSet := imps.foldl (init := .pure (.ok .empty {})) fun r imp =>
+    r.bind (sync := true) fun r =>
+    imp.transImports.task.map (sync := true) fun
+    | .ok transImps _ =>
+      match r with
+      | .ok impSet s =>
+        let impSet := impSet.appendArray transImps
+        let impSet := if imp.includeSelf then impSet.insert imp.module else impSet
+        .ok impSet s
+      | .error e s => .error e s
+    | .error _ _ =>
+      let entry := LogEntry.error s!"{leanFile}: bad import '{imp.module.name}'"
+      match r with
+      | .ok _ s => .error 0 (s.logEntry entry)
+      | .error e s => .error e (s.logEntry entry)
+  return Job.ofTask <| task.map (sync := true) fun
+    | .ok impSet s => .ok impSet.toArray s
+    | .error e s => .error e s
 
 /-- Recursively compute a module's transitive imports. -/
 def Module.recComputeTransImports (mod : Module) : FetchM (Job (Array Module)) := ensureJob do
-  return (← mod.allImports.fetch).map (sync := true) (·.transImports)
+  collectImportsAux mod.leanFile (← (← mod.imports.fetch).await) fun imp =>
+    (true, ·) <$> imp.transImports.fetch
 
 /-- The `ModuleFacetConfig` for the builtin `transImportsFacet`. -/
 def Module.transImportsFacetConfig : ModuleFacetConfig transImportsFacet :=
   mkFacetJobConfig recComputeTransImports (buildable := false)
 
+def computePrecompileImportsAux
+  (leanFile : FilePath) (imports : Array Module)
+: FetchM (Job (Array Module)) := do
+  collectImportsAux leanFile imports fun imp =>
+    if imp.shouldPrecompile then
+      (true, ·) <$> imp.transImports.fetch
+    else
+      (false, ·) <$> imp.precompileImports.fetch
+
 /-- Recursively compute a module's precompiled imports. -/
 def Module.recComputePrecompileImports (mod : Module) : FetchM (Job (Array Module)) := ensureJob do
-  return (← mod.allImports.fetch).map (sync := true) fun imps =>
-    if mod.shouldPrecompile then
-      imps.transImports
-    else
-      imps.transImports.filter (·.shouldPrecompile)
+  inline <| computePrecompileImportsAux mod.leanFile (← (← mod.imports.fetch).await)
 
 /-- The `ModuleFacetConfig` for the builtin `precompileImportsFacet`. -/
 def Module.precompileImportsFacetConfig : ModuleFacetConfig precompileImportsFacet :=
@@ -129,6 +137,25 @@ private def Module.fetchImportLibs
     else
       return (libs, jobs)
   return jobs
+
+/--
+**For internal use.**
+
+Fetches the library dynlibs of a list of non-local imports.
+Modules are loaded as part of their whole library.
+-/
+def fetchImportLibs
+  (mods : Array Module) : FetchM (Job (Array Dynlib))
+:= do
+  let (_, jobs) ← mods.foldlM (init := (({} : NameSet), #[])) fun (libs, jobs) imp => do
+    if libs.contains imp.lib.name then
+      return (libs, jobs)
+    else if imp.shouldPrecompile then
+      let jobs ← jobs.push <$> imp.lib.shared.fetch
+      return (libs.insert imp.lib.name, jobs)
+    else
+      return (libs, jobs)
+  return Job.collectArray jobs "import dynlibs"
 
 /--
 Topologically sorts the library dependency tree by name.
@@ -182,30 +209,6 @@ private def computeModuleDeps
     plugins := plugins.push (← getLakeInstall).sharedDynlib
   return {dynlibs, plugins}
 
-private def Module.fetchOLeanArts
-  (mod : Module) (importAll : Bool := false)
-: FetchM (Job ModuleArtifacts) := do
-  let eJob ← mod.olean.fetch
-  if importAll then
-    fetchAll eJob
-  else
-    (← mod.header.fetch).bindM fun header => do
-      if header.isModule then
-        fetchAll eJob
-      else
-        newTrace mod.name.toString
-        eJob.mapM (sync := true) fun olean => do
-          return {olean? := olean}
-where
-  fetchAll eJob := do
-    let sJob ← mod.oleanServer.fetch
-    let pJob ← mod.oleanPrivate.fetch
-    eJob.bindM (sync := true) fun oe =>
-    sJob.bindM (sync := true) fun os =>
-    pJob.mapM (sync := true) fun op => do
-      setTraceCaption mod.name.toString
-      return {olean? := oe, oleanServer? := os, oleanPrivate? := op}
-
 /--
 Recursively build a module's dependencies, including:
 * Transitive local imports
@@ -214,51 +217,38 @@ Recursively build a module's dependencies, including:
 -/
 def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob do
   let extraDepJob ← mod.lib.extraDep.fetch
-
   let headerJob ← mod.header.fetch
-  let impsJob ← mod.allImports.fetch
-  let impArtsJob ←
-    headerJob.bindM fun header => do
-      let artsJobMap : NameMap (Job ModuleArtifacts) := {}
-      /-
-      Remark: Errors in the transitive import graph will prevent downstream builds.
-      Thus, we fetch the direct import artifacts first so they can still potentially
-      succeed even if the overall graph is erroneous.
-      -/
-      let artsJobMap ← header.imports.foldlM (init := artsJobMap) fun s imp => do
-        if s.contains imp.module then
-          return s
-        if mod.name = imp.module then
-          logError s!"{mod.relLeanFile}: module imports itself"
-          return s
-        let some mod ← findModule? imp.module
-          | return s
-        return s.insert mod.name (← mod.fetchOLeanArts imp.importAll)
-      impsJob.bindM fun imps => do
-        let artsJobMap ← imps.publicImports.foldlM (init := artsJobMap) fun s mod =>
-          if s.contains mod.name then
-            return s
-          else
-            return s.insert mod.name (← mod.fetchOLeanArts)
-        return Job.collectNameMap artsJobMap "import artifacts"
-  let impLibsJob ← impsJob.bindM fun imps => do
-    let jobs ←
-      if mod.shouldPrecompile then
-        let jobs := #[]
-        let jobs ← imps.localImports.foldlM (·.push <$> ·.dynlib.fetch) jobs
-        imps.libs.foldlM (·.push <$> ·.shared.fetch) jobs
-      else
-        imps.libs.foldlM (init := #[]) fun jobs lib =>
-          if lib.precompileModules then jobs.push <$> lib.shared.fetch else pure jobs
-    return Job.collectArray jobs "import dynlibs"
+
+  /-
+  Remark: We must build direct imports before we fetch the transitive
+  precompiled imports so that errors in the import block of transitive imports
+  will not kill this job before the direct imports are built.
+  -/
+  let directImports ← (← mod.imports.fetch).await
+  let importJobs ← directImports.mapM fun imp => do
+    if imp.name = mod.name then
+      logError s!"{mod.leanFile}: module imports itself"
+    imp.olean.fetch
+  let impArtsJob := Job.mixArray importJobs "import oleans"
+  /-
+  Remark: It should be possible to avoid transitive imports here when the module
+  itself is precompiled, but they are currently kept to preserve the "bad import" errors.
+  -/
+  let precompileImports ← if mod.shouldPrecompile then
+    mod.transImports.fetch else mod.precompileImports.fetch
+  let precompileImports ← precompileImports.await
+  let impLibsJob ← Job.collectArray (traceCaption := "import dynlibs") <$>
+    mod.fetchImportLibs precompileImports mod.shouldPrecompile
+
   let externLibsJob ← Job.collectArray (traceCaption := "package external libraries") <$>
     if mod.shouldPrecompile then mod.pkg.externLibs.mapM (·.dynlib.fetch) else pure #[]
   let dynlibsJob ← mod.dynlibs.fetchIn mod.pkg "module dynlibs"
   let pluginsJob ← mod.plugins.fetchIn mod.pkg "module plugins"
 
-  extraDepJob.bindM (sync := true) fun _ => do
   headerJob.bindM (sync := true) fun header => do
-  impArtsJob.bindM (sync := true) fun modules => do
+  newTrace
+  extraDepJob.bindM (sync := true) fun _ => do
+  impArtsJob.bindM (sync := true) fun _ => do
   let depTrace ← takeTrace
   impLibsJob.bindM (sync := true) fun impLibs => do
   externLibsJob.bindM (sync := true) fun externLibs => do
@@ -276,8 +266,8 @@ def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob 
     return {
       name := mod.name
       isModule := header.isModule
-      imports := header.imports
-      modules := modules
+      imports? := none
+      importArts := {} -- TODO
       dynlibs := dynlibs.map (·.path.toString)
       plugins := plugins.map (·.path.toString)
       options := mod.leanOptions
@@ -324,9 +314,11 @@ all possible artifacts (e.g., `.olean`, `.ilean`, `.c`, `.bc`).
 -/
 def Module.recBuildLean (mod : Module) : FetchM (Job ModuleArtifacts) := do
   withRegisterJob mod.name.toString do
-  (← mod.src.fetch).bindM fun srcFile => do
+  let setupJob ← mod.setup.fetch
+  let leanJob ← mod.lean.fetch
+  leanJob.bindM fun srcFile => do
   let srcTrace ← getTrace
-  (← mod.setup.fetch).mapM fun setup => do
+  setupJob.mapM fun setup => do
     addLeanTrace
     addTrace <| traceOptions setup.options "options"
     addPureTrace mod.leanArgs "Module.leanArgs"
@@ -344,7 +336,7 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleArtifacts) := do
       let args := mod.weakLeanArgs ++ mod.leanArgs
       let relSrcFile := relPathFrom mod.pkg.dir srcFile
       compileLeanModule srcFile relSrcFile setup mod.setupFile arts args
-        (← getLeanPath) mod.rootDir (← getLean)
+        (← getLeanPath) (← getLean)
       mod.clearOutputHashes
     unless upToDate && (← getTrustHash) do
       mod.cacheOutputHashes
@@ -362,11 +354,11 @@ def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=
         | error errMsg
       /-
       Avoid recompiling unchanged OLean files.
-      While OLean files transitively include their imports,
-      Lake also traverses this graph itself, so the transtive imports
-      are not included in this trace.
+      OLean files transitively include their imports.
+      Thus, they are also included in this trace.
       -/
       newTrace s!"{mod.name.toString}:{facet}"
+      addTrace (← mod.setup.fetch).getTrace.withoutInputs -- TODO: Replace w/ `ModuleSetup.modules`
       addTrace (← fetchFileTrace oleanFile)
       return oleanFile
 
@@ -536,12 +528,12 @@ Lake module facets (e.g., `imports`, `c`, `o`, `dynlib`).
 -/
 def Module.initFacetConfigs : DNameMap ModuleFacetConfig :=
   DNameMap.empty
-  |>.insert srcFacet srcFacetConfig
+  |>.insert inputFacet inputFacetConfig
+  |>.insert leanFacet leanFacetConfig
   |>.insert headerFacet headerFacetConfig
   |>.insert importsFacet importsFacetConfig
   |>.insert transImportsFacet transImportsFacetConfig
   |>.insert precompileImportsFacet precompileImportsFacetConfig
-  |>.insert allImportsFacet allImportsFacetConfig
   |>.insert setupFacet setupFacetConfig
   |>.insert depsFacet depsFacetConfig
   |>.insert leanArtsFacet leanArtsFacetConfig
@@ -583,16 +575,12 @@ def buildImportsAndDeps
     root.extraDep.fetch <&> (·.map fun _ => {})
   else
     -- build local imports from list
-    let modJob ← imports.foldlM (init := Job.pure ()) fun job imp => do
-      let some mod ← findModule? imp.module
-        | return job
-      job.mix <$> mod.fetchOLeanArts imp.importAll
-    let impsJob ← computeAllImportsAux leanFile none imports
+    let imports ← imports.filterMapM (findModule? ·.module)
+    let modJob := Job.mixArray <| ← imports.mapM (·.olean.fetch)
+    let precompileImports ← (← computePrecompileImportsAux leanFile imports).await
+    let impLibsJob ← fetchImportLibs precompileImports
     let externLibsJob ← Job.collectArray <$>
       if root.precompileModules then root.externLibs.mapM (·.dynlib.fetch) else pure #[]
-    let impLibsJob ← impsJob.bindM fun {libs, ..} =>
-      Job.collectArray <$> libs.foldlM (init := #[]) fun jobs lib =>
-        if lib.precompileModules then jobs.push <$> lib.shared.fetch else pure jobs
     let dynlibsJob ← root.dynlibs.fetchIn root
     let pluginsJob ← root.plugins.fetchIn root
     modJob.bindM (sync := true) fun _ =>

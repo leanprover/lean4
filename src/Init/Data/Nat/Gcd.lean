@@ -54,7 +54,7 @@ theorem gcd_def (x y : Nat) : gcd x y = if x = 0 then y else gcd (y % x) x := by
 
 @[simp] theorem gcd_zero_right (n : Nat) : gcd n 0 = n := by
   cases n with
-  | zero => simp [gcd_succ]
+  | zero => simp
   | succ n =>
     -- `simp [gcd_succ]` produces an invalid term unless `gcd_succ` is proved with `id rfl` instead
     rw [gcd_succ]

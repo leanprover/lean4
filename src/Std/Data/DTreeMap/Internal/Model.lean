@@ -87,7 +87,7 @@ theorem applyCell_eq_applyPartition [Ord α] (k : α) (l : Impl α β)
     · exact ih₁ _ _ _ _ (by simpa [contains', hcmp] using hL)
     · rfl
     · exact ih₂ _ _ _ _ (by simpa [contains', hcmp] using hL)
-  · simp [applyCell, applyPartition, applyPartition.go]
+  · simp [applyCell, applyPartition.go]
 
 variable (α β) in
 /--
@@ -484,7 +484,7 @@ theorem get?_eq_get?ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l :
 theorem get_eq_get? [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) {h} :
     some (l.get k h) = l.get? k := by
   induction l
-  · simp only [applyCell, get, get?]
+  · simp only [get, get?]
     split <;> simp_all
   · contradiction
 
@@ -520,7 +520,7 @@ theorem getKey?_eq_getKey?ₘ [Ord α] (k : α) (l : Impl α β) :
 theorem getKey_eq_getKey? [Ord α] (k : α) (l : Impl α β) {h} :
     some (l.getKey k h) = l.getKey? k := by
   induction l
-  · simp only [applyCell, getKey, getKey?]
+  · simp only [getKey, getKey?]
     split <;> simp_all
   · contradiction
 
@@ -737,7 +737,7 @@ theorem insert_eq_insertₘ [Ord α] {k : α} {v : β k} {l : Impl α β} {h} :
   induction l
   · simp only [insert, updateCell]
     split <;> split <;> simp_all [balanceL_eq_balance, balanceR_eq_balance]
-  · simp [insert, insertₘ, updateCell]
+  · simp [insert, updateCell]
 
 theorem insert!_eq_insertₘ [Ord α] {k : α} {v : β k} {l : Impl α β} (h : l.Balanced) :
     insert! k v l = insertₘ k v l h := by
@@ -820,13 +820,13 @@ theorem insertMin_eq_insertMin! [Ord α] {a b} {t : Impl α β} (htb) :
     (t.insertMin a b htb).impl = t.insertMin! a b := by
   fun_cases insertMin!
   · rfl
-  · simp only [insertMin!, insertMin, balanceL_eq_balanceL!, insertMin_eq_insertMin! htb.left]
+  · simp only [insertMin, balanceL_eq_balanceL!, insertMin_eq_insertMin! htb.left]
 
 theorem insertMax_eq_insertMax! [Ord α] {a b} {t : Impl α β} (htb) :
     (t.insertMax a b htb).impl = t.insertMax! a b := by
   fun_cases insertMax!
   · rfl
-  · simp only [insertMax!, insertMax, balanceR_eq_balanceR!, insertMax_eq_insertMax! htb.right]
+  · simp only [insertMax, balanceR_eq_balanceR!, insertMax_eq_insertMax! htb.right]
 
 theorem link_eq_link! [Ord α] {k v} {l r : Impl α β} (hlb hrb) :
     (link k v l r hlb hrb).impl = link! k v l r := by
@@ -990,7 +990,7 @@ theorem getEntryGT?.eq_go [Ord α] (k : α) (x) (t : Impl α β) :
     (getEntryGT? k t).or x = getEntryGT?.go k x t := by
   rw [getEntryGT?]
   induction t, x using tree_split_ind (compare k) <;>
-    simp only [go, Option.none_or, Option.some_or, *]
+    simp only [go, Option.none_or, *]
   case _ ih _ => rw [← ih, Option.or_assoc, Option.some_or]
 
 theorem getEntryLE?.eq_go [Ord α] (k : α) (x) (t : Impl α β) :
@@ -1004,7 +1004,7 @@ theorem getEntryLT?.eq_go [Ord α] (k : α) (x) (t : Impl α β) :
     (getEntryLT? k t).or x = getEntryLT?.go k x t := by
   rw [getEntryLT?]
   induction t, x using tree_split_ind (compare k) <;>
-    simp only [go, Option.none_or, Option.some_or, *]
+    simp only [go, Option.none_or, *]
   case _ ih _ => rw [← ih, Option.or_assoc, Option.some_or]
 
 theorem some_getEntryGE_eq_getEntryGE? [Ord α] [TransOrd α] (k : α) (t : Impl α β) {ho he} :

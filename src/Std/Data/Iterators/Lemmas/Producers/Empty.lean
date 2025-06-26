@@ -5,7 +5,7 @@ Authors: Paul Reichert
 -/
 prelude
 import Std.Data.Iterators.Lemmas.Producers.Monadic.Empty
-import Std.Data.Iterators.Lemmas.Consumers
+import Init.Data.Iterators.Lemmas.Consumers
 import Std.Data.Iterators.Producers.Empty
 
 namespace Std.Iterators
@@ -40,11 +40,6 @@ theorem Iter.forIn_empty {m β γ} [Monad m] [LawfulMonad m]
     {init : γ} {f} :
     ForIn.forIn (m := m) (Iter.empty β) init f = pure init := by
   simp [Iter.forIn_eq_forIn_toIterM]
-  letI : MonadLift Id m := ⟨Internal.idToMonad (α := _)⟩
-  letI := Internal.LawfulMonadLiftFunction.idToMonad (m := m)
-  haveI : LawfulMonadLiftT Id m := inferInstance
-  rw [IterM.forIn_empty]
-
 
 @[simp]
 theorem Iter.foldM_empty {m β γ} [Monad m] [LawfulMonad m]

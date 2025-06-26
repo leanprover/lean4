@@ -276,7 +276,7 @@ theorem getElem_append_right {as bs : List α} {i : Nat} (h₁ : as.length ≤ i
   induction as generalizing i with
   | nil => trivial
   | cons a as ih =>
-    cases i with simp [Nat.succ_sub_succ] <;> simp [Nat.succ_sub_succ] at h₁
+    cases i with simp [Nat.succ_sub_succ] <;> simp at h₁
     | succ i => apply ih; simp [h₁]
 
 @[deprecated "Deprecated without replacement." (since := "2025-02-13")]

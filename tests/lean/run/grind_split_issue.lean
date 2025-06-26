@@ -26,7 +26,7 @@ h_1 : ⋯ ≍ ⋯
     [cases] [1/2]: X c 0
       [cases] source: Initial goal
   [cutsat] Assignment satisfying linear constraints
-    [assign] c := 1
+    [assign] c := 2
     [assign] s := 0
 -/
 #guard_msgs (error) in

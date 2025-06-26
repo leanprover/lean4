@@ -235,9 +235,23 @@ inductive SimpLetCase where
   | nondep -- `let x := v; b` is equivalent to `(fun x => b) v`, and result type does not depend on `x`
 deriving Repr
 
-def getSimpLetCase (n : Name) (t : Expr) (b : Expr) : MetaM SimpLetCase := do
+def getSimpLetCase (n : Name) (t : Expr) (b : Expr) (nondep : Bool) : MetaM SimpLetCase := do
   withLocalDeclD n t fun x => do
     let bx := b.instantiate1 x
+    /-
+    If the let has `nondep := true`, then we know the body does not depend on the value already.
+    Then there are two cases, depending on whether or not the type of the body refers to the variable.
+    -/
+    if nondep then
+      let bxType ← whnf (← inferType bx)
+      if (← dependsOn bxType x.fvarId!) then
+        return .nondepDepVar
+      else
+        return .nondep
+    /-
+    Otherwise, we first detect whether `nondep := true` *should* have been set by checking type correctness of the body.
+    If that fails, the let is dependent.
+    -/
     /- The following step is potentially very expensive when we have many nested let-decls.
        TODO: handle a block of nested let decls in a single pass if this becomes a performance problem. -/
     if (← isTypeCorrect bx) then
@@ -389,11 +403,13 @@ def simpForall (e : Expr) : SimpM Result := withParent e do
     return { expr := (← dsimp e) }
 
 def simpLet (e : Expr) : SimpM Result := do
-  let .letE n t v b _ := e | unreachable!
+  let .letE n t v b nondep := e | unreachable!
   if (← getConfig).zeta then
     return { expr := b.instantiate1 v }
+  else if !b.hasLooseBVars && (← getConfig).zetaUnused then
+    return { expr := b.lowerLooseBVars 1 1 }
   else
-    let simpLetCase ← getSimpLetCase n t b
+    let simpLetCase ← getSimpLetCase n t b nondep
     trace[Debug.Meta.Tactic.simp] "getSimpLetCase is {repr simpLetCase}:{indentExpr e}"
     match simpLetCase with
     | SimpLetCase.dep => return { expr := (← dsimp e) }
@@ -405,7 +421,7 @@ def simpLet (e : Expr) : SimpM Result := do
         let hb? ← match rbx.proof? with
           | none => pure none
           | some h => pure (some (← mkLambdaFVars #[x] h))
-        let e' := mkLet n t rv.expr (← rbx.expr.abstractM #[x])
+        let e' := mkLet n t rv.expr (← rbx.expr.abstractM #[x]) (nondep := true)
         match rv.proof?, hb? with
         | none,   none   => return { expr := e' }
         | some h, none   => return { expr := e', proof? := some (← mkLetValCongr (← mkLambdaFVars #[x] rbx.expr) h) }
@@ -415,7 +431,7 @@ def simpLet (e : Expr) : SimpM Result := do
       withLocalDeclD n t fun x => withNewLemmas #[x] do
         let bx := b.instantiate1 x
         let rbx ← simp bx
-        let e' := mkLet n t v' (← rbx.expr.abstractM #[x])
+        let e' := mkLet n t v' (← rbx.expr.abstractM #[x]) (nondep := true)
         match rbx.proof? with
         | none => return { expr := e' }
         | some h =>
@@ -721,8 +737,16 @@ def simpApp (e : Expr) : SimpM Result := do
   if isOfNatNatLit e || isOfScientificLit e || isCharLit e then
     -- Recall that we fold "orphan" kernel Nat literals `n` into `OfNat.ofNat n`
     return { expr := e }
-  else if isNonDepLetFun e then
-    simpNonDepLetFun e
+  else if let some (args, n, t, v, b) := e.letFunAppArgs? then
+    /-
+    Note: we will be removing `letFun`, and we want everything to be in terms of `nondep := true` lets.
+    This used to call `simpNonDepLetFun`, which is optimized for letFun telescopes.
+    Considerations:
+    - we will soon replace `simpNonDepLetFun` with a `let` version
+    - simp is now using the `nondep` flag to cache which `let`s are nondependent.
+    - even without the optimized version we still manage to pass the test suite for now without timing out.
+    -/
+    return { expr := mkAppN (Expr.letE n t v b true) args }
   else
     congr e
 
@@ -748,6 +772,10 @@ def cacheResult (e : Expr) (cfg : Config) (r : Result) : SimpM Result := do
 
 partial def simpLoop (e : Expr) : SimpM Result := withIncRecDepth do
   let cfg ← getConfig
+  if cfg.memoize then
+    let cache := (← get).cache
+    if let some result := cache.find? e then
+      return result
   if (← get).numSteps > cfg.maxSteps then
     throwError "simp failed, maximum number of steps exceeded"
   else
@@ -784,31 +812,8 @@ def simpImpl (e : Expr) : SimpM Result := withIncRecDepth do
   checkSystem "simp"
   if (← isProof e) then
     return { expr := e }
-  go
-where
-  go : SimpM Result := do
-    let cfg ← getConfig
-    if cfg.memoize then
-      let cache := (← get).cache
-      if let some result := cache.find? e then
-        return result
-    trace[Meta.Tactic.simp.heads] "{repr e.toHeadIndex}"
-    simpLoop e
-
-@[inline] private def withSimpContext (ctx : Context) (x : MetaM α) : MetaM α := do
-  withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <|
-  withTrackingZetaDeltaSet ctx.zetaDeltaSet <|
-  withReducible x
-
-private def updateUsedSimpsWithZetaDeltaCore (s : UsedSimps) (usedZetaDelta : FVarIdSet) : UsedSimps :=
-  usedZetaDelta.fold (init := s) fun s fvarId =>
-    s.insert <| .fvar fvarId
-
-private def updateUsedSimpsWithZetaDelta (ctx : Context) (stats : Stats) : MetaM Stats := do
-  let used := stats.usedTheorems
-  let used := updateUsedSimpsWithZetaDeltaCore used ctx.initUsedZetaDelta
-  let used := updateUsedSimpsWithZetaDeltaCore used (← getZetaDeltaFVarIds)
-  return { stats with usedTheorems := used }
+  trace[Meta.Tactic.simp.heads] "{repr e.toHeadIndex}"
+  simpLoop e
 
 @[inline] def withCatchingRuntimeEx (x : SimpM α) : SimpM α := do
   if (← getConfig).catchRuntime then
@@ -823,30 +828,14 @@ private def updateUsedSimpsWithZetaDelta (ctx : Context) (stats : Stats) : MetaM
     x
 
 def mainCore (e : Expr) (ctx : Context) (s : State := {}) (methods : Methods := {}) : MetaM (Result × State) := do
-  let ctx ← ctx.setLctxInitIndices
-  withSimpContext ctx do
-    let (r, s) ← go e methods.toMethodsRef ctx |>.run s
-    trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
-    let stats ← updateUsedSimpsWithZetaDelta ctx { s with }
-    let s := { s with diag := stats.diag, usedTheorems := stats.usedTheorems }
-    return (r, s)
-where
-  go (e : Expr) : SimpM Result :=
-    withCatchingRuntimeEx (simp e)
+  SimpM.run ctx s methods <| withCatchingRuntimeEx <| simp e
 
 def main (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Result × Stats) := do
   let (r, s) ← mainCore e ctx { stats with } methods
   return (r, { s with })
 
 def dsimpMainCore (e : Expr) (ctx : Context) (s : State := {}) (methods : Methods := {}) : MetaM (Expr × State) := do
-  withSimpContext ctx do
-    let (r, s) ← go e methods.toMethodsRef ctx |>.run s
-    let stats ← updateUsedSimpsWithZetaDelta ctx { s with }
-    let s := { s with diag := stats.diag, usedTheorems := stats.usedTheorems}
-    pure (r, s)
-where
-  go (e : Expr) : SimpM Expr :=
-    withCatchingRuntimeEx (dsimp e)
+  SimpM.run ctx s methods <| withCatchingRuntimeEx <| dsimp e
 
 def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Expr × Stats) := do
   let (r, s) ← dsimpMainCore e ctx { stats with } methods

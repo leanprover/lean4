@@ -8,6 +8,9 @@ import Lean.Message
 import Lean.InternalExceptionId
 import Lean.Data.Options
 import Lean.Util.MonadCache
+-- This import is necessary to ensure that any users of the `throwNamedError` macros have access to
+-- all declared explanations:
+import Lean.ErrorExplanations
 
 namespace Lean
 

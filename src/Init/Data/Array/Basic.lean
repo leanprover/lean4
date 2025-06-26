@@ -246,7 +246,7 @@ def swap (xs : Array α) (i j : @& Nat) (hi : i < xs.size := by get_elem_tactic)
   xs'.set j v₁ (Nat.lt_of_lt_of_eq hj (size_set _).symm)
 
 @[simp] theorem size_swap {xs : Array α} {i j : Nat} {hi hj} : (xs.swap i j hi hj).size = xs.size := by
-  show ((xs.set i xs[j]).set j xs[i]
+  change ((xs.set i xs[j]).set j xs[i]
     (Nat.lt_of_lt_of_eq hj (size_set _).symm)).size = xs.size
   rw [size_set, size_set]
 
@@ -1788,7 +1788,7 @@ decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ h
   induction xs, i, h using Array.eraseIdx.induct with
   | @case1 xs i h h' xs' ih =>
     unfold eraseIdx
-    simp +zetaDelta [h', xs', ih]
+    simp +zetaDelta [h', ih]
   | case2 xs i h h' =>
     unfold eraseIdx
     simp [h']

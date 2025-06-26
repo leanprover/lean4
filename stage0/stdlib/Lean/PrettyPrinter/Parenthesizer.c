@@ -13121,51 +13121,51 @@ block_17:
 {
 if (x_12 == 0)
 {
-if (lean_obj_tag(x_9) == 0)
+if (lean_obj_tag(x_7) == 0)
 {
+lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
-return x_11;
+return x_6;
 }
 else
 {
 lean_object* x_13; uint8_t x_14; 
-x_13 = lean_ctor_get(x_9, 0);
+x_13 = lean_ctor_get(x_7, 0);
 lean_inc(x_13);
-lean_dec(x_9);
+lean_dec(x_7);
 x_14 = lean_nat_dec_eq(x_8, x_13);
 lean_dec(x_13);
 lean_dec(x_8);
 if (x_14 == 0)
 {
+lean_dec(x_11);
 lean_dec(x_10);
-lean_dec(x_7);
-lean_dec(x_6);
-return x_11;
+lean_dec(x_9);
+return x_6;
 }
 else
 {
 lean_object* x_15; lean_object* x_16; 
-lean_dec(x_11);
+lean_dec(x_6);
 x_15 = l_Lean_PrettyPrinter_parenthesize___closed__1;
-x_16 = l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2_spec__2___redArg(x_15, x_10, x_7, x_6);
-lean_dec(x_7);
+x_16 = l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2_spec__2___redArg(x_15, x_11, x_10, x_9);
 lean_dec(x_10);
+lean_dec(x_11);
 return x_16;
 }
 }
 }
 else
 {
+lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
-return x_11;
+return x_6;
 }
 }
 block_56:
@@ -13261,23 +13261,23 @@ if (x_48 == 0)
 {
 uint8_t x_49; 
 x_49 = l_Lean_Exception_isRuntime(x_45);
-x_6 = x_46;
-x_7 = x_19;
+x_6 = x_33;
+x_7 = x_45;
 x_8 = x_47;
-x_9 = x_45;
-x_10 = x_18;
-x_11 = x_33;
+x_9 = x_46;
+x_10 = x_19;
+x_11 = x_18;
 x_12 = x_49;
 goto block_17;
 }
 else
 {
-x_6 = x_46;
-x_7 = x_19;
+x_6 = x_33;
+x_7 = x_45;
 x_8 = x_47;
-x_9 = x_45;
-x_10 = x_18;
-x_11 = x_33;
+x_9 = x_46;
+x_10 = x_19;
+x_11 = x_18;
 x_12 = x_48;
 goto block_17;
 }
@@ -13301,23 +13301,23 @@ if (x_54 == 0)
 {
 uint8_t x_55; 
 x_55 = l_Lean_Exception_isRuntime(x_50);
-x_6 = x_51;
-x_7 = x_19;
+x_6 = x_53;
+x_7 = x_50;
 x_8 = x_52;
-x_9 = x_50;
-x_10 = x_18;
-x_11 = x_53;
+x_9 = x_51;
+x_10 = x_19;
+x_11 = x_18;
 x_12 = x_55;
 goto block_17;
 }
 else
 {
-x_6 = x_51;
-x_7 = x_19;
+x_6 = x_53;
+x_7 = x_50;
 x_8 = x_52;
-x_9 = x_50;
-x_10 = x_18;
-x_11 = x_53;
+x_9 = x_51;
+x_10 = x_19;
+x_11 = x_18;
 x_12 = x_54;
 goto block_17;
 }

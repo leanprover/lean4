@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Lawful.MonadLift.Instances
-// Imports: Init.Control.Option Init.Control.Except Init.Control.ExceptCps Init.Control.StateRef Init.Control.StateCps Init.Control.Lawful.MonadLift.Lemmas Init.Control.Lawful.Instances
+// Imports: Init.Control.Option Init.Control.Except Init.Control.ExceptCps Init.Control.StateRef Init.Control.StateCps Init.Control.Id Init.Control.Lawful.MonadLift.Lemmas Init.Control.Lawful.Instances
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -138,6 +138,7 @@ lean_object* initialize_Init_Control_Except(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Control_ExceptCps(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Control_StateRef(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Control_StateCps(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Control_Id(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Control_Lawful_MonadLift_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Control_Lawful_Instances(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -158,6 +159,9 @@ res = initialize_Init_Control_StateRef(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Control_StateCps(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_Id(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Control_Lawful_MonadLift_Lemmas(builtin, lean_io_mk_world());

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.GrindInstances.Ring.SInt
-// Imports: Init.Grind.Ring.Basic Init.GrindInstances.ToInt Init.Data.BitVec.Basic Init.Data.SInt.Basic Init.Data.SInt.Lemmas
+// Imports: Init.Grind.Ring.Basic Init.Grind.ToInt Init.GrindInstances.ToInt Init.Data.BitVec.Basic Init.Data.SInt.Basic Init.Data.SInt.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -985,6 +985,7 @@ return x_1;
 }
 }
 lean_object* initialize_Init_Grind_Ring_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_ToInt(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin, lean_object*);
@@ -995,6 +996,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Grind_Ring_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_ToInt(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_GrindInstances_ToInt(builtin, lean_io_mk_world());

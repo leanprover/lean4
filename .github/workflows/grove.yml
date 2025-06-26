@@ -51,7 +51,7 @@ jobs:
       - name: Fetch upstream invalidated facts
         if: ${{ steps.should-run.outputs.should-run == 'true' && steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: fetch-upstream
-        uses: TwoFx/grove-action/fetch-upstream@v0
+        uses: TwoFx/grove-action/fetch-upstream@v0.1
         with:
           artifact-name: grove-invalidated-facts
           base-ref: master
@@ -95,7 +95,7 @@ jobs:
       - name: Build
         if: ${{ steps.should-run.outputs.should-run == 'true' }}
         id: build
-        uses: TwoFx/grove-action/build@v0
+        uses: TwoFx/grove-action/build@v0.1
         with:
           project-path: doc/std/grove
           script-name: grove-stdlib
@@ -103,16 +103,6 @@ jobs:
           comment-artifact-name: grove-comment
           toolchain-id: lean4
           toolchain-path: artifacts/${{ steps.unpack-toolchain.outputs.lean-dir }}
-
-      - name: Download artifact
-        if: ${{ steps.should-run.outputs.should-run == 'true' }}
-        id: download-artifact
-        uses: dawidd6/action-download-artifact@v7
-        with:
-          run_id: ${{ github.event.workflow_run.id }}
-          name: "grove-frontend"
-          path: _out
-          allow_forks: true
 
       # deploy-alias computes a URL component for the PR preview. This
       # is so we can have a stable name to use for feedback on draft
@@ -137,7 +127,7 @@ jobs:
         id: deploy-draft
         uses: nwtgck/actions-netlify@v3.0
         with:
-          publish-dir: _out/
+          publish-dir: ${{ steps.build.outputs.out-path }}
           production-deploy: false
           github-token: ${{ secrets.GITHUB_TOKEN }}
           alias: ${{ steps.deploy-alias.outputs.result }}
@@ -149,30 +139,6 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: "1cacfa39-a11c-467c-99e7-2e01d7b4089e"
-
-      - name: Download comment
-        if: ${{ steps.should-run.outputs.should-run == 'true' && steps.workflow-info.outputs.pullRequestNumber != '' }}
-        id: download-comment
-        uses: dawidd6/action-download-artifact@v7
-        with:
-          run_id: ${{ github.event.workflow_run.id }}
-          name: "grove-comment"
-          path: _comment
-          allow_forks: true
-
-      - name: Read comment file
-        if: ${{ steps.should-run.outputs.should-run == 'true' && steps.workflow-info.outputs.pullRequestNumber != '' }}
-        id: read-comment
-        run: |
-          if [ -f "_comment/comment.txt" ]; then
-            {
-              echo "comment-content<<EOF"
-              cat "_comment/comment.txt"
-              echo "EOF"
-            } >> "$GITHUB_OUTPUT"
-          else
-            echo "comment-content=" >> "$GITHUB_OUTPUT"
-          fi
 
       # actions-netlify cannot add deploy links to a PR because it assumes a
       # pull_request context, not a workflow_run context, see
@@ -188,7 +154,7 @@ jobs:
           message: |
             [Grove](${{ steps.deploy-draft.outputs.deploy-url }}).
 
-            ${{ steps.read-comment.outputs.comment-content }}
+            ${{ steps.build.outputs.comment-text }}
         env:
           PR_NUMBER: ${{ steps.workflow-info.outputs.pullRequestNumber }}
           PR_HEADSHA: ${{ steps.workflow-info.outputs.sourceHeadSha }}

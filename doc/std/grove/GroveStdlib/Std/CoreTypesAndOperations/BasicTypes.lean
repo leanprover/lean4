@@ -7,7 +7,13 @@ import Grove.Framework
 
 open Grove.Framework Widget
 
-namespace GroveStdlib.Generated
+namespace GroveStdlib.Std.CoreTypesAndOperations
 
-def restoreState : RestoreStateM Unit := do
-  return ()
+namespace BasicTypes
+
+end BasicTypes
+
+def basicTypes : Node :=
+  .section "basic-types" "Basic types" #[]
+
+end GroveStdlib.Std.CoreTypesAndOperations

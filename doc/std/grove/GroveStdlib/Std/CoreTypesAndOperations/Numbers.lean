@@ -7,7 +7,13 @@ import Grove.Framework
 
 open Grove.Framework Widget
 
-namespace GroveStdlib.Generated
+namespace GroveStdlib.Std.CoreTypesAndOperations
 
-def restoreState : RestoreStateM Unit := do
-  return ()
+namespace Numbers
+
+end Numbers
+
+def numbers : Node :=
+  .section "numbers" "Numbers" #[]
+
+end GroveStdlib.Std.CoreTypesAndOperations

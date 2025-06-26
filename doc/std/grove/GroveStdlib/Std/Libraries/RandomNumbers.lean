@@ -7,7 +7,13 @@ import Grove.Framework
 
 open Grove.Framework Widget
 
-namespace GroveStdlib.Generated
+namespace GroveStdlib.Std.Libraries
 
-def restoreState : RestoreStateM Unit := do
-  return ()
+namespace RandomNumbers
+
+end RandomNumbers
+
+def randomNumbers : Node :=
+  .section "random-numbers" "Random numbers" #[]
+
+end GroveStdlib.Std.Libraries

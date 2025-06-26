@@ -6,7 +6,25 @@ Authors: Sebastian Graf
 prelude
 import Init.NotationExtra
 
-namespace Lean.Parser.Tactic
+
+namespace Lean.Parser
+
+namespace Attr
+
+/--
+Theorems tagged with the `spec` attribute are used by the `mspec` and `mvcgen` tactics.
+
+* When used on a theorem `foo_spec : Triple (foo a b c) P Q`, then `mspec` and `mvcgen` will use
+  `foo_spec` as a specification for calls to `foo`.
+* Otherwise, when used on a definition that `@[simp]` would work on, it is added to the internal
+  simp set of `mvcgen` that is used within `wp⟦·⟧` contexts to simplify match discriminants and
+  applications of constants.
+-/
+syntax (name := specAttr) "spec" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+
+end Attr
+
+namespace Tactic
 
 @[inherit_doc Lean.Parser.Tactic.massumptionMacro]
 syntax (name := massumption) "massumption" : tactic
@@ -152,3 +170,46 @@ syntax "∀" binderIdent : mintroPat
 
 @[inherit_doc Lean.Parser.Tactic.mintroMacro]
 syntax (name := mintro) "mintro" (ppSpace colGt mintroPat)+ : tactic
+
+@[inherit_doc Lean.Parser.Tactic.mspecMacro]
+syntax (name := mspec) "mspec" (ppSpace colGt term)? : tactic
+
+/--
+Like `mspec`, but does not attempt slight simplification and closing of trivial sub-goals.
+`mspec $spec` is roughly (the set of simp lemmas below might not be up to date)
+```
+mspec_no_simp $spec
+all_goals
+  ((try simp only [SPred.true_intro_simp, SPred.true_intro_simp_nil, SVal.curry_cons,
+                   SVal.uncurry_cons, SVal.getThe_here, SVal.getThe_there]);
+   (try mpure_intro; trivial))
+```
+-/
+syntax (name := mspecNoSimp) "mspec_no_simp" (ppSpace colGt term)? : tactic
+
+/--
+`mspec_no_simp $spec` first tries to decompose `Bind.bind`s before applying `$spec`.
+This variant of `mspec_no_simp` does not; `mspec_no_bind $spec` is defined as
+```
+try with_reducible mspec_no_bind Std.Do.Spec.bind
+mspec_no_bind $spec
+```
+-/
+syntax (name := mspecNoBind) "mspec_no_bind" (ppSpace colGt term)? : tactic
+
+@[inherit_doc Lean.Parser.Tactic.mvcgenMacro]
+syntax (name := mvcgen) "mvcgen" optConfig
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")? : tactic
+
+/--
+Like `mvcgen`, but does not attempt to prove trivial VCs via `mpure_intro; trivial`.
+-/
+syntax (name := mvcgenNoTrivial) "mvcgen_no_trivial" optConfig
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")? : tactic
+
+/--
+Like `mvcgen_no_trivial`, but `mvcgen_step 42` will only do 42 steps of the VC generation procedure.
+This is helpful for bisecting bugs in `mvcgen` and tracing its execution.
+-/
+syntax (name := mvcgenStep) "mvcgen_step" optConfig
+ (num)? (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")? : tactic

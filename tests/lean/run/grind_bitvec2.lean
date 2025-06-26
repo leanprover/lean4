@@ -4,6 +4,8 @@ set_option linter.missingDocs true
 
 open BitVec
 
+set_option trace.grind.ematch.pattern true
+
 namespace BitVec'
 
 @[simp] theorem mk_zero : BitVec.ofFin (w := w) ⟨0, h⟩ = 0#w := rfl
@@ -12,7 +14,7 @@ namespace BitVec'
 @[simp] theorem getElem_ofFin (x : Fin (2^n)) (i : Nat) (h : i < n) :
     (BitVec.ofFin x)[i] = x.val.testBit i := rfl
 
-@[simp, grind] theorem getMsbD_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getMsbD x i = false := by
+@[simp] theorem getMsbD_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getMsbD x i = false := by
   grind [getMsbD]
 
 set_option linter.missingDocs false in
@@ -1780,7 +1782,7 @@ theorem sshiftRight'_ofNat_eq_sshiftRight {x : BitVec w} {k : Nat} :
 /-- The msb after arithmetic shifting right equals the original msb. -/
 @[simp]
 theorem msb_sshiftRight {n : Nat} {x : BitVec w} :
-    (x.sshiftRight n).msb = x.msb := by grind (splits := 10)
+    (x.sshiftRight n).msb = x.msb := by grind (splits := 11)
 
 @[simp] theorem sshiftRight_zero {x : BitVec w} : x.sshiftRight 0 = x := by grind
 

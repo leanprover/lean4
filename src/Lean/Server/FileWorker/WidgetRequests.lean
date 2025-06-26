@@ -129,6 +129,7 @@ builtin_initialize
       let i := i.val
       let rc ← read
       let ls ← locationLinksOfInfo rc.doc.meta kind i
+      let ls := ls.map (·.toLocationLink)
       if !ls.isEmpty then return ls
       -- TODO(WN): unify handling of delab'd (infoview) and elab'd (editor) applications
       let .ofTermInfo ti := i.info | return #[]
@@ -142,7 +143,8 @@ builtin_initialize
         children := PersistentArray.empty
       }
       GoToM.run ctx i.ctx ti.lctx do
-        locationLinksFromDecl nm
+        let ls ← locationLinksFromDecl nm
+        return ls.map (·.toLocationLink)
 
 def lazyTraceChildrenToInteractive (children : WithRpcRef LazyTraceChildren) :
     RequestM (RequestTask (Array (TaggedText MsgEmbed))) :=

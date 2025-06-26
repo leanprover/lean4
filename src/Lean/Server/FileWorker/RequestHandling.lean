@@ -94,11 +94,13 @@ def handleHover (p : HoverParams)
         | none => pure none
 
       -- now try info tree
-      if let some ictx := snap.infoTree.hoverableInfoAt? hoverPos then
-        if let some range := ictx.info.range? then
+      if let some result := snap.infoTree.hoverableInfoAtM? (m := Id) hoverPos then
+        let ctx := result.ctx
+        let info := result.info
+        if let some range := info.range? then
           -- prefer info tree if at least as specific as parser docstring
           if stxDoc?.all fun (_, stxRange) => stxRange.includes range then
-            if let some hoverFmt ← ictx.info.fmtHover? ictx.ctx then
+            if let some hoverFmt ← info.fmtHover? ctx then
               return mkHover (toString hoverFmt.fmt) range
 
       if let some (doc, range) := stxDoc? then
@@ -107,17 +109,30 @@ def handleHover (p : HoverParams)
       return none
 
 open Elab GoToKind in
+-- The `LeanLocationLink`s in this request get converted to `LocationLink` by the Watchdog process.
+-- In doing so, it updates the position information in the location link using the .ilean data
+-- it has available (which includes .ilean update notifications, i.e. position information
+-- for the unsaved & unbuilt state of open files).
 def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
-    : RequestM (RequestTask (Array LocationLink)) := do
+    : RequestM (RequestTask (Array LeanLocationLink)) := do
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
 
   withWaitFindSnap doc (fun s => s.endPos >= hoverPos)
     (notFoundX := pure #[]) fun snap => do
-      if let some infoWithCtx := snap.infoTree.hoverableInfoAt? (omitIdentApps := true) (includeStop := true /- #767 -/) hoverPos then
-        locationLinksOfInfo doc.meta kind infoWithCtx snap.infoTree
-      else return #[]
+      let filter ctx info _ results := do
+        let .ofTermInfo ti := info
+          | return results
+        ctx.runMetaM info.lctx do
+          results.filterM fun (_, r) => do
+            let .ofTermInfo childTi := r.info
+              | return true
+            return ! (← isInstanceProjectionInfoFor kind ti childTi)
+      let some info ← snap.infoTree.hoverableInfoAtM? (m := IO) hoverPos
+          (includeStop := true) (filter := filter)
+        | return #[]
+      locationLinksOfInfo doc.meta kind info snap.infoTree
 
 open Language in
 def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : ServerTask (Option (List Elab.GoalsAtResult)) :=
@@ -480,17 +495,17 @@ builtin_initialize
   registerLspRequestHandler
     "textDocument/declaration"
     TextDocumentPositionParams
-    (Array LocationLink)
+    (Array LeanLocationLink)
     (handleDefinition GoToKind.declaration)
   registerLspRequestHandler
     "textDocument/definition"
     TextDocumentPositionParams
-    (Array LocationLink)
+    (Array LeanLocationLink)
     (handleDefinition GoToKind.definition)
   registerLspRequestHandler
     "textDocument/typeDefinition"
     TextDocumentPositionParams
-    (Array LocationLink)
+    (Array LeanLocationLink)
     (handleDefinition GoToKind.type)
   registerLspRequestHandler
     "textDocument/documentHighlight"

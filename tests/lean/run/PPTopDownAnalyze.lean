@@ -14,8 +14,9 @@ def checkDelab (e : Expr) (tgt? : Option Term) (name? : Option Name := none) : T
   let stx ← delab e
   match tgt? with
   | some tgt =>
-    if toString (← PrettyPrinter.ppTerm stx) != toString (← PrettyPrinter.ppTerm tgt?.get!) then
-      throwError "{pfix} missed target\n{← PrettyPrinter.ppTerm stx}\n!=\n{← PrettyPrinter.ppTerm tgt}\n\nExpr: {e}\nType: {← inferType e}"
+    let tgt := tgt.raw.rewriteBottomUp Syntax.unsetTrailing
+    if toString (← PrettyPrinter.ppTerm stx) != toString (← PrettyPrinter.ppTerm ⟨tgt⟩) then
+      throwError "{pfix} missed target\n{← PrettyPrinter.ppTerm stx}\n!=\n{← PrettyPrinter.ppTerm ⟨tgt⟩}\n\nExpr: {e}\nType: {← inferType e}"
   | _ => pure ()
 
   let e' ←

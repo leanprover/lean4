@@ -1,6 +1,6 @@
 
 
-set_option linter.missingDocs true
+set_option linter.unusedSimpArgs false
 
 open BitVec
 

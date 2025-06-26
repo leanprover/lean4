@@ -36,7 +36,7 @@ def filterPairsM {m} [Monad m] {α} (a : Array α) (f : α → α → m (Bool ×
     m (Array α) := do
   let mut removed := Array.replicate a.size false
   let mut numRemoved := 0
-  for h1 : i in 0,,<a.size do for h2 : j in (i+1),,<a.size do
+  for h1 : i in *...a.size do for h2 : j in (i+1)...a.size do
     unless removed[i]! || removed[j]! do
       let xi := a[i]
       let xj := a[j]
@@ -48,7 +48,7 @@ def filterPairsM {m} [Monad m] {α} (a : Array α) (f : α → α → m (Bool ×
         numRemoved := numRemoved + 1
         removed := removed.set! j true
   let mut a' := Array.mkEmpty numRemoved
-  for h : i in 0,,<a.size do
+  for h : i in *...a.size do
     unless removed[i]! do
       a' := a'.push a[i]
   return a'

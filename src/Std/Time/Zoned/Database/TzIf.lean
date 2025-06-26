@@ -194,7 +194,7 @@ private def toInt64 (bs : ByteArray) : Int64 :=
 
 private def manyN (n : Nat) (p : Parser α) : Parser (Array α) := do
   let mut result := #[]
-  for _ in 0,,<n do
+  for _ in *...n do
     let x ← p
     result := result.push x
   return result
@@ -242,7 +242,7 @@ private def parseAbbreviations (times : Array LocalTimeType) (n : UInt32) : Pars
   let mut chars ← manyN n.toNat pu8
 
   for time in times do
-    for indx in time.abbreviationIndex.toNat,,<n.toNat do
+    for indx in time.abbreviationIndex.toNat...n.toNat do
       let char := chars[indx]!
       if char = 0 then
         strings := strings.push current

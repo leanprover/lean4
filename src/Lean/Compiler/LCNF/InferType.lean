@@ -139,7 +139,7 @@ mutual
   partial def inferAppTypeCore (fType : Expr) (args : Array Arg) : InferTypeM Expr := do
     let mut j := 0
     let mut fType := fType
-    for i in 0,,<args.size do
+    for i in *...args.size do
       fType := fType.headBeta
       match fType with
       | .forallE _ _ b _ => fType := b
@@ -154,7 +154,7 @@ mutual
     let mut j := 0
     let mut fType ← inferType e.getAppFn
     let args := e.getAppArgs
-    for i in 0,,<args.size do
+    for i in *...args.size do
       fType := fType.headBeta
       match fType with
       | .forallE _ _ b _ => fType := b

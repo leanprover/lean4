@@ -194,6 +194,15 @@ private def expandWrap (a b : Expr) (h : Expr) : ToIntM (Expr × Expr) := do
     return (b', h)
   | _ => throwError "`grind cutsat`, `ToInt` interval not supported yet"
 
+/--
+Given `h : toInt a = b`, if `b` is of the form `i.wrap b'`,
+invokes `expandWrap a b' h`
+-/
+private def expandIfWrap (a b : Expr) (h : Expr) : ToIntM (Expr × Expr) := do
+  match isWrap b with
+  | none => return (b, h)
+  | some b => expandWrap a b h
+
 private def ToIntThms.mkResult (toIntThms : ToIntThms) (mkBinOp : Expr → Expr → Expr) (a b : Expr) (a' b' : Expr) (h₁ h₂ : Expr) : ToIntM (Expr × Expr) := do
   let f := toIntThms.c?.get!
   let mk (f : Expr) (a' b' : Expr) : ToIntM (Expr × Expr) := do
@@ -234,6 +243,8 @@ where
       | return (← toIntDef e)
     let (a', h₁) ← toInt a
     let (b', h₂) ← toInt b
+    let (a', h₁) ← expandIfWrap a a' h₁
+    let (b', h₂) ← expandIfWrap b b' h₂
     let r := if isDiv then mkIntDiv a' b' else mkIntMod a' b'
     let h := mkApp6 thm a b a' b' h₁ h₂
     return (r, h)

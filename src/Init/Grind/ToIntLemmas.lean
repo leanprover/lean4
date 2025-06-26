@@ -89,8 +89,45 @@ theorem mul_congr.wl {α i} [ToInt α i] [_root_.Mul α] [ToInt.Mul α i] (h : i
   have := i.wrap_eq_self_iff h' _ |>.mpr (ToInt.toInt_mem b)
   rw [h₂] at this; rw [← this] at h₂; apply mul_congr.ww h h₁ h₂
 
--- TODO: add theorems for other operations
+/-! Subtraction -/
 
+theorem sub_congr {α i} [ToInt α i] [_root_.Sub α] [ToInt.Sub α i] {a b : α} {a' b' : Int}
+    (h₁ : toInt a = a') (h₂ : toInt b = b') : toInt (a - b) = i.wrap (a' - b') := by
+  rw [ToInt.Sub.toInt_sub, h₁, h₂]
 
+/-! Negation -/
+
+theorem neg_congr {α i} [ToInt α i] [_root_.Neg α] [ToInt.Neg α i] {a : α} {a' : Int}
+    (h₁ : toInt a = a') : toInt (- a) = i.wrap (- a') := by
+  rw [ToInt.Neg.toInt_neg, h₁]
+
+/-! Power -/
+
+theorem pow_congr {α i} [ToInt α i] [HPow α Nat α] [ToInt.Pow α i] {a : α} (k : Nat) (a' : Int)
+    (h₁ : toInt a = a') : toInt (a ^ k) = i.wrap (a' ^ k) := by
+  rw [ToInt.Pow.toInt_pow, h₁]
+
+/-! Division -/
+
+theorem div_congr {α i} [ToInt α i] [_root_.Div α] [ToInt.Div α i] {a b : α} {a' b' : Int}
+    (h₁ : toInt a = a') (h₂ : toInt b = b') : toInt (a / b) = a' / b' := by
+  rw [ToInt.Div.toInt_div, h₁, h₂]
+
+/-! Modulo -/
+
+theorem mod_congr {α i} [ToInt α i] [_root_.Mod α] [ToInt.Mod α i] {a b : α} {a' b' : Int}
+    (h₁ : toInt a = a') (h₂ : toInt b = b') : toInt (a % b) = a' % b' := by
+  rw [ToInt.Mod.toInt_mod, h₁, h₂]
+
+/-! OfNat -/
+
+theorem ofNat_eq {α i} [ToInt α i] [∀ n, _root_.OfNat α n] [ToInt.OfNat α i] (n : Nat)
+    : toInt (OfNat.ofNat (α := α) n) = i.wrap n := by
+  apply ToInt.OfNat.toInt_ofNat
+
+/-! Zero -/
+
+theorem zero_eq {α i} [ToInt α i] [_root_.Zero α] [ToInt.Zero α i] : toInt (0 : α) = 0 := by
+  apply ToInt.Zero.toInt_zero
 
 end Lean.Grind.ToInt

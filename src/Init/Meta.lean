@@ -1436,7 +1436,7 @@ def expandInterpolatedStrChunks (chunks : Array Syntax) (mkAppend : Syntax → S
     if i == 0 then
       result := elem
     else
-      result ← withRef result <| mkAppend result elem
+      result ← mkAppend result elem
     i := i+1
   return result
 

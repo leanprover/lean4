@@ -9,6 +9,7 @@ import Std.Internal.UV.System
 import Std.Data.HashMap
 
 open Std Time
+open System
 
 namespace Std
 namespace Internal
@@ -23,12 +24,12 @@ structure ResourceUsageStats where
   /--
   CPU time spent in user mode (milliseconds)
   -/
-  cpuUserTimeMs : Time.Millisecond.Offset
+  cpuUserTime : Time.Millisecond.Offset
 
   /--
   CPU time spent in kernel mode (milliseconds)
   -/
-  cpuSystemTimeMs : Time.Millisecond.Offset
+  cpuSystemTime : Time.Millisecond.Offset
 
   /--
   Peak resident set size (max physical memory usage) in kilobytes
@@ -103,7 +104,7 @@ deriving Repr, Inhabited
 
 
 /--
-A process identifier, typically a numeric ID like in UNIX (e.g. 1001).
+A process identifier, represented by a numeric ID in UNIX systems (e.g. 1000).
 -/
 structure PId where
   /--
@@ -178,8 +179,8 @@ Retrieves resource usage statistics.
 def getResourceUsage : IO ResourceUsageStats :=
   UV.System.getrusage <&> fun rusage =>
     {
-      cpuUserTimeMs := .ofNat <| UInt64.toNat rusage.userTime
-      cpuSystemTimeMs := .ofNat <| UInt64.toNat rusage.systemTime
+      cpuUserTime := .ofNat <| UInt64.toNat rusage.userTime
+      cpuSystemTime := .ofNat <| UInt64.toNat rusage.systemTime
       peakResidentSetSizeKb := rusage.maxRSS
       sharedMemorySizeKb := rusage.ixRSS
       unsharedDataSizeKb := rusage.idRSS
@@ -200,8 +201,8 @@ def getResourceUsage : IO ResourceUsageStats :=
 Returns the absolute path of the current executable.
 -/
 @[inline]
-def getExecutablePath : IO String :=
-  UV.System.exePath
+def getExecutablePath : IO FilePath :=
+  FilePath.mk <$> UV.System.exePath
 
 /--
 Returns the amount of free system memory in bytes.

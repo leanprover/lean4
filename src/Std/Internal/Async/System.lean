@@ -22,7 +22,7 @@ namespace Async
 namespace System
 
 /--
-A group identifier, typically a numeric ID like in UNIX (e.g. 1000).
+A group identifier, represented by a numeric ID in UNIX systems (e.g. 1000).
 -/
 structure GroupId where
   /--
@@ -35,7 +35,7 @@ instance : Repr GroupId where
   reprPrec g := Repr.addAppParen ("GroupId.mk " ++ repr g.toNat)
 
 /--
-A user identifier, typically a numeric ID like in UNIX (e.g. 1001).
+A user identifier, represented by a numeric ID in UNIX systems  (e.g. 1001).
 -/
 structure UserId where
   /--

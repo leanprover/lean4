@@ -25,4 +25,4 @@ def test (x : ExtTreeMap Nat Nat) : StateM Nat Nat := do
 info: (11, 5)
 -/
 #guard_msgs in
-#eval (test2 {⟨4, 3⟩, ⟨7, 2⟩}).run 0
+#eval (test {⟨4, 3⟩, ⟨7, 2⟩}).run 0

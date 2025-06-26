@@ -382,6 +382,13 @@ private def internalizeNat (e : Expr) : GoalM Unit := do
   let c := { p := .add (-1) x p, h := .defnNat e' x e'' : EqCnstr }
   c.assert
 
+
+private def isToIntForbiddenParent (parent? : Option Expr) : Bool :=
+  if let some parent := parent? then
+    getKindAndType? parent |>.isSome
+  else
+    false
+
 /--
 Internalizes an integer (and `Nat`) expression. Here are the different cases that are handled.
 
@@ -394,14 +401,16 @@ Internalizes an integer (and `Nat`) expression. Here are the different cases tha
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).cutsat do return ()
   let some (k, type) := getKindAndType? e | return ()
-  if isForbiddenParent parent? k then return ()
-  trace[grind.debug.cutsat.internalize] "{e} : {type}"
   if type.isConstOf ``Int then
+    if isForbiddenParent parent? k then return ()
+    trace[grind.debug.cutsat.internalize] "{e} : {type}"
     match k with
     | .div => propagateDiv e
     | .mod => propagateMod e
     | _ => internalizeInt e
   else if type.isConstOf ``Nat then
+    if isForbiddenParent parent? k then return ()
+    trace[grind.debug.cutsat.internalize] "{e} : {type}"
     if (← hasForeignVar e) then return ()
     discard <| mkForeignVar e .nat
     match k with
@@ -410,6 +419,8 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     | .toNat => propagateToNat e
     | _ => internalizeNat e
   else if let some (e', h) ← toInt? e type then
+    if isToIntForbiddenParent parent? then return ()
+    trace[grind.debug.cutsat.internalize] "{e} : {type}"
     -- TODO: save `(e', h)`
     trace[grind.debug.cutsat.toInt] "{e} ==> {e'}"
     trace[grind.debug.cutsat.toInt] "{h} : {← inferType h}"

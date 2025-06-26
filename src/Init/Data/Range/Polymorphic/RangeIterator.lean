@@ -243,7 +243,7 @@ private def RangeIterator.instFinitenessRelation [UpwardEnumerable α] [Supports
     open Classical in
     InvImage WellFoundedRelation.rel
       (fun it => (HasFiniteRanges.mem_of_satisfiesUpperBound it.internalState.upperBound).choose
-        |>.filter (∃ a, it.internalState.next = some a ∧ UpwardEnumerable.le a ·)
+        |>.filter (∃ a, it.internalState.next = some a ∧ UpwardEnumerable.LE a ·)
         |>.length)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
@@ -264,7 +264,7 @@ private def RangeIterator.instFinitenessRelation [UpwardEnumerable α] [Supports
       simp only [decide_eq_true_eq] at h
       obtain ⟨x, hx, h⟩ := h
       rw [hx] at hn'
-      have hlt : UpwardEnumerable.lt a x :=
+      have hlt : UpwardEnumerable.LT a x :=
         ⟨0, by simp [UpwardEnumerable.succMany?_succ, UpwardEnumerable.succMany?_zero, hn']⟩
       exact UpwardEnumerable.not_gt_of_le h hlt
     · simp only [decide_eq_true_eq]
@@ -311,7 +311,7 @@ instance RangeIterator.instIteratorAccess {su} [UpwardEnumerable α] [SupportsUp
           · apply IterM.IsPlausibleNthOutputStep.done
             simp only [Monadic.isPlausibleStep_iff, Monadic.step, heq']
           · rename_i out
-            simp only [heq', Option.bind_some, LawfulUpwardEnumerable.succMany?_succ_eq_succ_bind_succMany] at heq
+            simp only [heq', Option.bind_some, LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?] at heq
             specialize ih ⟨⟨UpwardEnumerable.succ? out, it.internalState.upperBound⟩⟩
             simp only [heq] at ih
             by_cases heq'' : SupportsUpperBound.IsSatisfied it.internalState.upperBound out
@@ -326,8 +326,8 @@ instance RangeIterator.instIteratorAccess {su} [UpwardEnumerable α] [SupportsUp
           · simp [heq'] at heq
           rename_i out
           simp only [heq', Option.bind_some] at heq
-          have hle : UpwardEnumerable.le out _ := ⟨n + 1, heq⟩
-          simp only [LawfulUpwardEnumerable.succMany?_succ_eq_succ_bind_succMany] at heq
+          have hle : UpwardEnumerable.LE out _ := ⟨n + 1, heq⟩
+          simp only [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?] at heq
           specialize ih ⟨⟨UpwardEnumerable.succ? out, it.internalState.upperBound⟩⟩
           simp only [heq] at ih
           by_cases hout : SupportsUpperBound.IsSatisfied it.internalState.upperBound out
@@ -342,8 +342,8 @@ instance RangeIterator.instIteratorAccess {su} [UpwardEnumerable α] [SupportsUp
             apply IterM.IsPlausibleNthOutputStep.done
             simp [Monadic.isPlausibleStep_iff, Monadic.step, heq', hout])⟩
 
-instance RangeIterator.instLawfulDeterministicIterator {su} [UpwardEnumerable α] [SupportsUpperBound su α]
-    : LawfulDeterministicIterator (RangeIterator su α) Id where
+instance RangeIterator.instLawfulDeterministicIterator {su} [UpwardEnumerable α] [SupportsUpperBound su α] :
+    LawfulDeterministicIterator (RangeIterator su α) Id where
   isPlausibleStep_eq_eq it := ⟨Monadic.step it, rfl⟩
 
 end Std.PRange

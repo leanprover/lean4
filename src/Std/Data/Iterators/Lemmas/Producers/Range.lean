@@ -8,6 +8,7 @@ import Std.Data.Iterators.Producers.Range
 
 namespace Std.PRange
 
+@[simp]
 theorem toList_iter_eq_toList [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [SupportsUpperBound su α] [HasFiniteRanges su α] [LawfulUpwardEnumerable α]
     (r : PRange ⟨sl, su⟩ α) :

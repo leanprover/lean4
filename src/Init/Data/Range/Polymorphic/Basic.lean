@@ -120,7 +120,7 @@ theorem RangeIterator.isPlausibleIndirectOutput_iff {su α}
       obtain ⟨n, hn⟩ := ih
       obtain ⟨a, ha, h₁, h₂, h₃⟩ := h
       refine ⟨n + 1, ?_⟩
-      simp [ha, ← h₃, hn.2, LawfulUpwardEnumerable.succMany?_succ_eq_succ_bind_succMany, h₂, hn]
+      simp [ha, ← h₃, hn.2, LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?, h₂, hn]
   · rintro ⟨n, hn, hu⟩
     induction n generalizing it
     case zero =>
@@ -132,8 +132,8 @@ theorem RangeIterator.isPlausibleIndirectOutput_iff {su α}
       · simp [hn'] at hn
       rename_i a
       simp only [hn', Option.bind_some] at hn
-      have hle : UpwardEnumerable.le a out := ⟨_, hn⟩
-      rw [LawfulUpwardEnumerable.succMany?_succ_eq_succ_bind_succMany] at hn
+      have hle : UpwardEnumerable.LE a out := ⟨_, hn⟩
+      rw [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?] at hn
       cases hn' : UpwardEnumerable.succ? a
       · simp only [hn', Option.bind_none, reduceCtorEq] at hn
       rename_i a'
@@ -172,7 +172,7 @@ theorem RangeIterator.upwardEnumerableLe_of_isPlausibleIndirectOutput {su α}
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableUpperBound su α]
     {it : Iter (α := RangeIterator su α) α} {out : α}
     (hout : it.IsPlausibleIndirectOutput out) :
-    ∃ a, it.internalState.next = some a ∧ UpwardEnumerable.le a out := by
+    ∃ a, it.internalState.next = some a ∧ UpwardEnumerable.LE a out := by
   have ⟨a, ha⟩ := Option.isSome_iff_exists.mp <|
     RangeIterator.isSome_next_of_isPlausibleIndirectOutput hout
   refine ⟨a, ha, ?_⟩

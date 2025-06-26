@@ -102,7 +102,7 @@ instance Types.StepSizeIterator.instProductive [Iterator α m β] [IteratorAcces
   .of_productivenessRelation instProductivenessRelation
 
 /--
-Produces an iterator that elits one value of `it`, then drops `n - 1` elements, then emits another
+Produces an iterator that emits one value of `it`, then drops `n - 1` elements, then emits another
 value, and so on. In other words, it emits every `n`-th value of `it`, starting with the first one.
 
 If `n = 0`, the iterator behaves like for `n = 1`: It emits all values of `it`.

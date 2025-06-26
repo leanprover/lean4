@@ -110,7 +110,7 @@ theorem pairwise_toList_upwardEnumerableLt {sl su} [UpwardEnumerable α]
     [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
     {r : PRange ⟨sl, su⟩ α} :
-    r.toList.Pairwise (fun a b => UpwardEnumerable.lt a b) := by
+    r.toList.Pairwise (fun a b => UpwardEnumerable.LT a b) := by
   rw [Internal.toList_eq_toList_iter]
   generalize Internal.iter r = it
   induction it using Iter.inductSteps with | step it ihy ihs =>
@@ -122,7 +122,7 @@ theorem pairwise_toList_upwardEnumerableLt {sl su} [UpwardEnumerable α]
     rw [Iter.mem_toList_iff_isPlausibleIndirectOutput] at ha
     replace ha := RangeIterator.upwardEnumerableLe_of_isPlausibleIndirectOutput ha
     simp only at ha
-    have : UpwardEnumerable.lt a ha.choose := by
+    have : UpwardEnumerable.LT a ha.choose := by
       refine ⟨0, ?_⟩
       simp only [UpwardEnumerable.succMany?_succ, UpwardEnumerable.succMany?_zero,
         Option.bind_some]
@@ -247,9 +247,9 @@ theorem ClosedOpen.toList_succ_succ_eq_map [UpwardEnumerable α] [SupportsLowerB
     {lower : Bound .closed α} {upper : Bound .open α} :
     (PRange.mk (shape := ⟨.closed, .open⟩) (UpwardEnumerable.succ lower) (UpwardEnumerable.succ upper)).toList =
       (PRange.mk (shape := ⟨.closed, .open⟩) lower upper).toList.map UpwardEnumerable.succ := by
-  apply eq_of_pairwise_lt_of_mem_iff_mem (lt := UpwardEnumerable.lt) (asymm := ?_)
+  apply eq_of_pairwise_lt_of_mem_iff_mem (lt := UpwardEnumerable.LT) (asymm := ?_)
   · apply pairwise_toList_upwardEnumerableLt
-  · apply List.Pairwise.map (R := UpwardEnumerable.lt) (S := UpwardEnumerable.lt)
+  · apply List.Pairwise.map (R := UpwardEnumerable.LT) (S := UpwardEnumerable.LT)
     · intro a b
       exact UpwardEnumerable.succ_lt_succ_iff.mpr
     · apply pairwise_toList_upwardEnumerableLt

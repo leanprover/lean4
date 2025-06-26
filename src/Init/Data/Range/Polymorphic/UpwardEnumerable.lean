@@ -40,25 +40,25 @@ class UpwardEnumerable (α : Type u) where
   succMany? (n : Nat) (a : α) : Option α := Nat.repeat (· >>= succ?) n (some a)
 
 /--
-According to `UpwardEnumerable.le`, `a` is less than or equal to `b` if `b` is `a` or a transitive
+According to `UpwardEnumerable.LE`, `a` is less than or equal to `b` if `b` is `a` or a transitive
 successor of `a`.
 -/
 @[expose]
-def UpwardEnumerable.le {α : Type u} [UpwardEnumerable α] (a b : α) : Prop :=
+def UpwardEnumerable.LE {α : Type u} [UpwardEnumerable α] (a b : α) : Prop :=
   ∃ n, UpwardEnumerable.succMany? n a = some b
 
 /--
-According to `UpwardEnumerable.lt`, `a` is less than `b` if `b` is a proper transitive successor of
+According to `UpwardEnumerable.LT`, `a` is less than `b` if `b` is a proper transitive successor of
 `a`. 'Proper' means that `b` is the `n`-th successor of `a`, where `n > 0`.
 
 Given `LawfulUpwardEnumerable α`, no element of `α` is less than itself.
 -/
 @[expose]
-def UpwardEnumerable.lt {α : Type u} [UpwardEnumerable α] (a b : α) : Prop :=
+def UpwardEnumerable.LT {α : Type u} [UpwardEnumerable α] (a b : α) : Prop :=
   ∃ n, UpwardEnumerable.succMany? (n + 1) a = some b
 
 theorem UpwardEnumerable.le_of_lt {α : Type u} [UpwardEnumerable α] {a b : α}
-    (h : UpwardEnumerable.lt a b) : UpwardEnumerable.le a b :=
+    (h : UpwardEnumerable.LT a b) : UpwardEnumerable.LE a b :=
   ⟨h.choose + 1, h.choose_spec⟩
 
 /--
@@ -81,7 +81,7 @@ This typeclass ensures that an `UpwardEnumerable α` instance is well-behaved.
 -/
 class LawfulUpwardEnumerable (α : Type u) [UpwardEnumerable α] where
   /-- There is no cyclic chain of successors. -/
-  ne_of_lt (a b : α) : UpwardEnumerable.lt a b → a ≠ b
+  ne_of_lt (a b : α) : UpwardEnumerable.LT a b → a ≠ b
   /-- The `0`-th successor of `a` is `a` itself. -/
   succMany?_zero (a : α) : UpwardEnumerable.succMany? 0 a = some a
   /--
@@ -111,11 +111,11 @@ theorem UpwardEnumerable.succMany?_add [UpwardEnumerable α] [LawfulUpwardEnumer
       (UpwardEnumerable.succMany? m a).bind (UpwardEnumerable.succMany? n ·) := by
   induction n
   case zero => simp [LawfulUpwardEnumerable.succMany?_zero]
-  case succ n ih=>
+  case succ n ih =>
     rw [← Nat.add_assoc, LawfulUpwardEnumerable.succMany?_succ, ih, Option.bind_assoc]
     simp only [LawfulUpwardEnumerable.succMany?_succ]
 
-theorem LawfulUpwardEnumerable.succMany?_succ_eq_succ_bind_succMany
+theorem LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?
     [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     (n : Nat) (a : α) :
     UpwardEnumerable.succMany? (n + 1) a =
@@ -125,41 +125,41 @@ theorem LawfulUpwardEnumerable.succMany?_succ_eq_succ_bind_succMany
     LawfulUpwardEnumerable.succMany?_zero]
 
 theorem UpwardEnumerable.le_refl {α : Type u} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
-    (a : α) : UpwardEnumerable.le a a :=
+    (a : α) : UpwardEnumerable.LE a a :=
   ⟨0, LawfulUpwardEnumerable.succMany?_zero a⟩
 
 theorem UpwardEnumerable.le_trans {α : Type u} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
-    {a b c : α} (hab : UpwardEnumerable.le a b) (hbc : UpwardEnumerable.le b c) :
-    UpwardEnumerable.le a c := by
+    {a b c : α} (hab : UpwardEnumerable.LE a b) (hbc : UpwardEnumerable.LE b c) :
+    UpwardEnumerable.LE a c := by
   refine ⟨hab.choose + hbc.choose, ?_⟩
   simp [succMany?_add, hab.choose_spec, hbc.choose_spec]
 
 theorem UpwardEnumerable.le_of_succ?_eq {α : Type u} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
-    {a b : α} (hab : UpwardEnumerable.succ? a = some b) : UpwardEnumerable.le a b :=
+    {a b : α} (hab : UpwardEnumerable.succ? a = some b) : UpwardEnumerable.LE a b :=
   ⟨1, by simp [UpwardEnumerable.succMany?_one, hab]⟩
 
 theorem UpwardEnumerable.lt_of_lt_of_le {α : Type u} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
-    {a b c : α} (hab : UpwardEnumerable.lt a b) (hbc : UpwardEnumerable.le b c) :
-    UpwardEnumerable.lt a c := by
+    {a b c : α} (hab : UpwardEnumerable.LT a b) (hbc : UpwardEnumerable.LE b c) :
+    UpwardEnumerable.LT a c := by
   refine ⟨hab.choose + hbc.choose, ?_⟩
   rw [Nat.add_right_comm, succMany?_add, hab.choose_spec, Option.bind_some, hbc.choose_spec]
 
 theorem UpwardEnumerable.not_gt_of_le {α : Type u} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     {a b : α} :
-    UpwardEnumerable.le a b → ¬ UpwardEnumerable.lt b a := by
+    UpwardEnumerable.LE a b → ¬ UpwardEnumerable.LT b a := by
   rintro ⟨n, hle⟩ ⟨m, hgt⟩
-  have : UpwardEnumerable.lt a a := by
+  have : UpwardEnumerable.LT a a := by
     refine ⟨n + m, ?_⟩
     rw [Nat.add_assoc, UpwardEnumerable.succMany?_add, hle, Option.bind_some, hgt]
   exact LawfulUpwardEnumerable.ne_of_lt _ _ this rfl
 
 theorem UpwardEnumerable.not_gt_of_lt {α : Type u} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
-    {a b : α} (h : UpwardEnumerable.lt a b) : ¬ UpwardEnumerable.lt b a :=
+    {a b : α} (h : UpwardEnumerable.LT a b) : ¬ UpwardEnumerable.LT b a :=
   not_gt_of_le (le_of_lt h)
 
 theorem UpwardEnumerable.ne_of_lt {α : Type w} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     {a b : α} :
-    UpwardEnumerable.lt a b → a ≠ b :=
+    UpwardEnumerable.LT a b → a ≠ b :=
   LawfulUpwardEnumerable.ne_of_lt a b
 
 /--
@@ -256,8 +256,8 @@ theorem UpwardEnumerable.succMany_add {α : Type u} [UpwardEnumerable α]
 
 theorem UpwardEnumerable.succ_le_succ_iff {α : Type w} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [LinearlyUpwardEnumerable α] [InfinitelyUpwardEnumerable α] {a b : α} :
-    UpwardEnumerable.le (UpwardEnumerable.succ a) (UpwardEnumerable.succ b) ↔
-      UpwardEnumerable.le a b := by
+    UpwardEnumerable.LE (UpwardEnumerable.succ a) (UpwardEnumerable.succ b) ↔
+      UpwardEnumerable.LE a b := by
   constructor
   · rintro ⟨n, hn⟩
     simp only [succ] at hn
@@ -265,18 +265,18 @@ theorem UpwardEnumerable.succ_le_succ_iff {α : Type w} [UpwardEnumerable α] [L
     simp [succMany?_eq_some]
     apply eq_of_succ?_eq
     rw [← Option.bind_some (f := succMany? n), Option.some_get,
-      ← LawfulUpwardEnumerable.succMany?_succ_eq_succ_bind_succMany, Option.some_get] at hn
+      ← LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?, Option.some_get] at hn
     rw [← Option.bind_some (f := succ?), ← succMany?_eq_some, ← succMany?_succ, hn]
   · rintro ⟨n, hn⟩
     refine ⟨n, ?_⟩
     rw [succ_eq_get, succ_eq_get, ← Option.bind_some (f := succMany? n), Option.some_get,
-      Option.some_get, ← LawfulUpwardEnumerable.succMany?_succ_eq_succ_bind_succMany,
+      Option.some_get, ← LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?,
       succMany?_succ, hn, Option.bind_some]
 
 theorem UpwardEnumerable.succ_lt_succ_iff {α : Type w} [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [LinearlyUpwardEnumerable α] [InfinitelyUpwardEnumerable α] {a b : α} :
-    UpwardEnumerable.lt (UpwardEnumerable.succ a) (UpwardEnumerable.succ b) ↔
-      UpwardEnumerable.lt a b := by
+    UpwardEnumerable.LT (UpwardEnumerable.succ a) (UpwardEnumerable.succ b) ↔
+      UpwardEnumerable.LT a b := by
   constructor
   · rintro ⟨n, hn⟩
     simp only [succ] at hn
@@ -284,12 +284,12 @@ theorem UpwardEnumerable.succ_lt_succ_iff {α : Type w} [UpwardEnumerable α] [L
     rw [succMany?_eq_some_iff_succMany]
     apply eq_of_succ?_eq
     rw [← Option.bind_some (f := succMany? _), Option.some_get,
-      ← LawfulUpwardEnumerable.succMany?_succ_eq_succ_bind_succMany, Option.some_get] at hn
+      ← LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?, Option.some_get] at hn
     rw [← Option.bind_some (f := succ?), ← succMany?_eq_some, ← succMany?_succ, hn]
   · rintro ⟨n, hn⟩
     refine ⟨n, ?_⟩
     rw [succ_eq_get, succ_eq_get, ← Option.bind_some (f := succMany? _), Option.some_get,
-      Option.some_get, ← LawfulUpwardEnumerable.succMany?_succ_eq_succ_bind_succMany,
+      Option.some_get, ← LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?,
       succMany?_succ, hn, Option.bind_some]
 
 /--
@@ -301,7 +301,7 @@ class LawfulUpwardEnumerableLE (α : Type u) [UpwardEnumerable α] [LE α] where
   `a` is less than or equal to `b` if and only if `b` is either `a` or a transitive successor
   of `a`.
   -/
-  le_iff (a b : α) : a ≤ b ↔ UpwardEnumerable.le a b
+  le_iff (a b : α) : a ≤ b ↔ UpwardEnumerable.LE a b
 
 /--
 This typeclass ensures that an `UpwardEnumerable α` instance is compatible with `<`.
@@ -311,7 +311,7 @@ class LawfulUpwardEnumerableLT (α : Type u) [UpwardEnumerable α] [LT α] where
   /--
   `a` is less than `b` if and only if `b` is a proper transitive successor of `a`.
   -/
-  lt_iff (a b : α) : a < b ↔ UpwardEnumerable.lt a b
+  lt_iff (a b : α) : a < b ↔ UpwardEnumerable.LT a b
 
 /--
 This typeclass ensures that an `UpwardEnumerable α` instance is compatible with a `Least? α`
@@ -319,7 +319,7 @@ instance. For nonempty `α`, it ensures that `least?` has a value and that every
 a transitive successor of it.
 -/
 class LawfulUpwardEnumerableLeast? (α : Type u) [UpwardEnumerable α] [Least? α] where
-  /--For nonempty `α`, `least?` has a value and every other value is a transitive successor of it. -/
-  eq_succMany?_least? (a : α) : ∃ init, Least?.least? = some init ∧ UpwardEnumerable.le init a
+  /-- For nonempty `α`, `least?` has a value and every other value is a transitive successor of it. -/
+  eq_succMany?_least? (a : α) : ∃ init, Least?.least? = some init ∧ UpwardEnumerable.LE init a
 
 end Std.PRange

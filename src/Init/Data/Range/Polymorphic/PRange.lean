@@ -54,14 +54,14 @@ abbrev Bound (shape : BoundShape) (α : Type u) : Type u :=
 A range of elements of some type `α`. It is characterized by its upper and lower bounds, which
 may be inclusive, exclusive or absent.
 
-* `a...=b` contains all elements between `a` and `b`, including `a`.
-* `a<...=b` contains all elements between `a` and `b`, excluding `a`.
-* `a...b` or `a..<b` contains all elements between `a` and `b`, excluding `b`.
-* `a<...b` or `a<..<b` contains all elements between `a` and `b`, excluding both `a` and `b`.
-* `*...=b` contains all elements below `b`, including `b`.
-* `*...b` or `*..<b` contains all elements below `b`, excluding `b`.
-* `a...*` contains all elements above `a`, including `a`.
-* `a<...*` contains all elements above `a`, excluding `a`.
+* `a...=b` is the range of elements greater than or equal to `a` and less than or equal to `b`.
+* `a<...=b` is the range of elements greater than `a` and less than or equal to `b`.
+* `a...b` or `a...<b` is the range of elements greater than or equal to `a` and less than `b`.
+* `a<...b` or `a<...<b` is the range of elements greater than `a` and less than `b`.
+* `*...=b` is the range of elements less than or equal to `b`.
+* `*...b` or `*...<b` is the range of elements less than `b`.
+* `a...*` is the range of elements greater than or equal to `a`.
+* `a<...*` is the range of elements greater than `a`.
 * `*...*` contains all elements of `α`.
 -/
 structure _root_.Std.PRange (shape : RangeShape) (α : Type u) where
@@ -72,9 +72,9 @@ structure _root_.Std.PRange (shape : RangeShape) (α : Type u) where
 
 /-- `a...*` is the range of elements greater than or equal to `a`. See also `Std.PRange`. -/
 syntax:max (term "...*") : term
-/-- `*..*` is the range that is unbounded in both directions. See also `Std.PRange`. -/
+/-- `*...*` is the range that is unbounded in both directions. See also `Std.PRange`. -/
 syntax:max ("*...*") : term
-/-- `a..*` is the range of elements greater than `a`. See also `Std.PRange`. -/
+/-- `a<...*` is the range of elements greater than `a`. See also `Std.PRange`. -/
 syntax:max (term "<...*") : term
 /--
 `a...<b` is the range of elements greater than or equal to `a` and less than `b`.
@@ -88,7 +88,7 @@ See also `Std.PRange`.
 syntax:max (term "..." term) : term
 /-- `*...<b` is the range of elements less than `b`. See also `Std.PRange`. -/
 syntax:max ("*...<" term) : term
-/-- `*...<b` is the range of elements less than `b`. See also `Std.PRange`. -/
+/-- `*...b` is the range of elements less than `b`. See also `Std.PRange`. -/
 syntax:max ("*..." term) : term
 /--
 `a<...<b` is the range of elements greater than `a` and less than `b`.
@@ -105,7 +105,7 @@ syntax:max (term "<..." term) : term
 See also `Std.PRange`.
 -/
 syntax:max (term "...=" term) : term
-/-- `*..=b` is the range of elements less than or equal to `b`. See also `Std.PRange`. -/
+/-- `*...=b` is the range of elements less than or equal to `b`. See also `Std.PRange`. -/
 syntax:max ("*...=" term) : term
 /--
 `a<...=b` is the range of elements greater than `a` and less than or equal to `b`.
@@ -113,9 +113,6 @@ See also `Std.PRange`.
 -/
 syntax:max (term "<...=" term) : term
 
-/--
-doc2
--/
 macro_rules
   | `($a...=$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.closed) $a $b)
   | `(*...=$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.closed) PUnit.unit $b)
@@ -209,7 +206,7 @@ class LawfulUpwardEnumerableLowerBound (sl α) [UpwardEnumerable α]
   -/
   isSatisfied_iff (a : α) (l : Bound sl α) :
     SupportsLowerBound.IsSatisfied l a ↔
-      ∃ init, BoundedUpwardEnumerable.init? l = some init ∧ UpwardEnumerable.le init a
+      ∃ init, BoundedUpwardEnumerable.init? l = some init ∧ UpwardEnumerable.LE init a
 
 /--
 This typeclass ensures that if `b` is a transitive successor of `a` and `b` satisfies an upper bound
@@ -221,30 +218,52 @@ class LawfulUpwardEnumerableUpperBound (su α) [UpwardEnumerable α] [SupportsUp
   `a` also satisfies the upper bound.
   -/
   isSatisfied_of_le (u : Bound su α) (a b : α) :
-    SupportsUpperBound.IsSatisfied u b → UpwardEnumerable.le a b → SupportsUpperBound.IsSatisfied u a
+    SupportsUpperBound.IsSatisfied u b → UpwardEnumerable.LE a b → SupportsUpperBound.IsSatisfied u a
 
 theorem LawfulUpwardEnumerableLowerBound.isSatisfied_of_le [SupportsLowerBound sl α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerableLowerBound sl α]
     (l : Bound sl α) (a b : α)
-    (ha : SupportsLowerBound.IsSatisfied l a) (hle : UpwardEnumerable.le a b) :
+    (ha : SupportsLowerBound.IsSatisfied l a) (hle : UpwardEnumerable.LE a b) :
     SupportsLowerBound.IsSatisfied l b := by
   rw [LawfulUpwardEnumerableLowerBound.isSatisfied_iff] at ⊢ ha
   obtain ⟨init, hi, ha⟩ := ha
   exact ⟨init, hi, UpwardEnumerable.le_trans ha hle⟩
 
+/--
+This typeclass ensures that `SupportsUpperBound .closed α` and `UpwardEnumerable α` instances
+are compatible.
+-/
 class LawfulClosedUpperBound (α : Type w) [SupportsUpperBound .closed α]
     [UpwardEnumerable α] where
+  /--
+  A closed upper bound is satisfied for `a` if and only if it is greater than or equal to `a`
+  according to `UpwardEnumerable.LE`.
+  -/
   isSatisfied_iff_le (u : Bound .closed α) (a : α) :
-    SupportsUpperBound.IsSatisfied u a ↔ UpwardEnumerable.le a u
+    SupportsUpperBound.IsSatisfied u a ↔ UpwardEnumerable.LE a u
 
+/--
+This typeclass ensures that `SupportsUpperBound .open α` and `UpwardEnumerable α` instances
+are compatible.
+-/
 class LawfulOpenUpperBound (α : Type w) [SupportsUpperBound .open α]
     [UpwardEnumerable α] where
+  /--
+  An open upper bound is satisfied for `a` if and only if it is greater than to `a`
+  according to `UpwardEnumerable.LT`.
+  -/
   isSatisfied_iff_le (u : Bound .open α) (a : α) :
-    SupportsUpperBound.IsSatisfied u a ↔ UpwardEnumerable.lt a u
+    SupportsUpperBound.IsSatisfied u a ↔ UpwardEnumerable.LT a u
 
-class LawfulUnboundedUpperBound (α : Type w) [SupportsUpperBound .unbounded α]
-    [UpwardEnumerable α] where
+/--
+This typeclass ensures that according to `SupportsUpperBound .unbounded α`, every element is
+in bounds.
+-/
+class LawfulUnboundedUpperBound (α : Type w) [SupportsUpperBound .unbounded α] where
+  /--
+  An unbounded upper bound is satisfied for every element.
+  -/
   isSatisfied (u : Bound .unbounded α) (a : α) :
     SupportsUpperBound.IsSatisfied u a
 

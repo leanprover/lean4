@@ -501,7 +501,7 @@ def resolveConflict (h : UnsatProof) : SearchM Unit := do
     s.assert
 
 /-- Search for an assignment/model for the linear constraints. -/
-private def searchAssigmentMain : SearchM Unit := do
+private def searchAssignmentMain : SearchM Unit := do
   repeat
     trace[grind.debug.cutsat.search] "main loop"
     checkSystem "cutsat"
@@ -527,7 +527,7 @@ private def resetDecisionStack : SearchM Unit := do
 
 private def searchQLiaAssignment : GoalM Bool := do
   let go : SearchM Bool := do
-    searchAssigmentMain
+    searchAssignmentMain
     let precise := (← get).precise
     resetDecisionStack
     return precise
@@ -535,11 +535,11 @@ private def searchQLiaAssignment : GoalM Bool := do
 
 private def searchLiaAssignment : GoalM Unit := do
   let go : SearchM Unit := do
-    searchAssigmentMain
+    searchAssignmentMain
     resetDecisionStack
   go .int |>.run' {}
 
-def searchAssigment : GoalM Unit := do
+def searchAssignment : GoalM Unit := do
   let precise ← searchQLiaAssignment
   if (← isInconsistent) then return ()
   if !(← getConfig).qlia && !precise then
@@ -564,7 +564,7 @@ def check : GoalM Bool := do
   if (← hasAssignment) then
     return false
   else
-    searchAssigment
+    searchAssignment
     return true
 
 end Lean.Meta.Grind.Arith.Cutsat

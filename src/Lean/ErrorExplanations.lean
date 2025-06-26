@@ -8,4 +8,5 @@ import Lean.ErrorExplanations.CtorResultingTypeMismatch
 import Lean.ErrorExplanations.DependsOnNoncomputable
 import Lean.ErrorExplanations.InductiveParamMismatch
 import Lean.ErrorExplanations.InductiveParamMissing
+import Lean.ErrorExplanations.InvalidDottedIdent
 import Lean.ErrorExplanations.RedundantMatchAlt

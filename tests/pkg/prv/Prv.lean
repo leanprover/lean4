@@ -2,7 +2,7 @@ import Prv.Foo
 
 #check { name := "leo", val := 15 : Foo }
 #check { name := "leo", val := 15 : Foo }.name
-/-- error: field 'val' from structure 'Foo' is private -/
+/-- error: Field `val` from structure `Foo` is private -/
 #guard_msgs in
 #check { name := "leo", val := 15 : Foo }.val
 

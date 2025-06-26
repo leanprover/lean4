@@ -638,9 +638,24 @@ def inlineExpr (e : Expr) (maxInlineLength := 30) : MessageData :=
       if (← msg.formatLength ctx) > maxInlineLength then
         return indentD msg ++ "\n"
       else
-        return " " ++ msg ++ " ")
+        return " `" ++ msg ++ "` ")
     (fun mctx => instantiateMVarsCore mctx e |>.1.hasSyntheticSorry)
-    (fun () => return " " ++ MessageData.ofExpr e ++ " ")
+    (fun () => return " `" ++ MessageData.ofExpr e ++ "` ")
+
+/--
+See `Lean.inlineExpr`. This variation is to be used when the expression is the trailing element of a
+message; it does not append a newline or space after the expression.
+-/
+def inlineExprTrailing (e : Expr) (maxInlineLength := 30) : MessageData :=
+  .lazy
+    (fun ctx => do
+      let msg := MessageData.ofExpr e
+      if (← msg.formatLength ctx) > maxInlineLength then
+        return indentD msg
+      else
+        return " `" ++ msg ++ "`")
+    (fun mctx => instantiateMVarsCore mctx e |>.1.hasSyntheticSorry)
+    (fun () => return " `" ++ MessageData.ofExpr e ++ "`")
 
 /-- Atom quotes -/
 def aquote (msg : MessageData) : MessageData :=

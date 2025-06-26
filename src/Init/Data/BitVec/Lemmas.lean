@@ -146,7 +146,13 @@ theorem getMsb'_eq_getLsb' (x : BitVec w) (i : Nat) : x.getMsbD i = (decide (i <
   rw [getMsbD, getLsbD]
 
 theorem getLsbD_eq_getMsbD (x : BitVec w) (i : Nat) : x.getLsbD i = (decide (i < w) && x.getMsbD (w - 1 - i)) := by
-  grind
+  rw [getMsbD]
+  by_cases h₁ : i < w <;> by_cases h₂ : w - 1 - i < w <;>
+    simp only [h₁, h₂] <;> simp only [decide_true, decide_false, Bool.false_and, Bool.and_false, Bool.true_and]
+  · -- FIXME `grind` panics here
+    congr
+    grind
+  all_goals grind
 
 @[simp] theorem getElem?_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : x[i]? = none := by grind
 
@@ -196,15 +202,12 @@ theorem eq_of_getMsbD_eq {x y : BitVec w}
   else
     have w_pos : 0 < w := by grind
     have r : i ≤ w - 1 := by
-      -- FIXME: `grind` fails with a kernel type mismatch here
-      -- with a failure in reduction of `Lean.Grind.CommRing.Stepwise.imp_1eq_cert`
-      -- We need an `@[expose]` somewhere, but where?
+      -- FIXME: `grind` fails with a kernel type mismatch here:
       simp [Nat.le_sub_iff_add_le w_pos]
       grind
     have q_lt : w - 1 - i < w := by
       simp only [Nat.sub_sub]
-      -- FIXME: `grind` fails with a kernel type mismatch here
-      -- with a failure in reduction of `Lean.Grind.CommRing.Stepwise.imp_1eq_cert`
+      -- FIXME: `grind` fails with a kernel type mismatch here:
       apply Nat.sub_lt w_pos
       grind
     have q := pred (w - 1 - i) q_lt
@@ -222,8 +225,11 @@ theorem getLsbD_zero_length (x : BitVec 0) : x.getLsbD i = false := by grind
 theorem getMsbD_zero_length (x : BitVec 0) : x.getMsbD i = false := by grind
 theorem msb_zero_length (x : BitVec 0) : x.msb = false := by grind
 
-theorem toNat_of_zero_length (h : w = 0) (x : BitVec w) : x.toNat = 0 := by grind
-theorem toInt_of_zero_length (h : w = 0) (x : BitVec w) : x.toInt = 0 := by grind
+-- FIXME `grind` causes a panic here and in the next theorem
+theorem toNat_of_zero_length (h : w = 0) (x : BitVec w) : x.toNat = 0 := by
+  subst h; simp [toNat_zero_length]
+theorem toInt_of_zero_length (h : w = 0) (x : BitVec w) : x.toInt = 0 := by
+  subst h; simp [toInt_zero_length]
 theorem getLsbD_of_zero_length (h : w = 0) (x : BitVec w) : x.getLsbD i = false := by grind
 theorem getMsbD_of_zero_length (h : w = 0) (x : BitVec w) : x.getMsbD i = false := by grind
 theorem msb_of_zero_length (h : w = 0) (x : BitVec w) : x.msb = false := by grind
@@ -354,7 +360,8 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
 
 @[simp] theorem sub_sub_toNat_cancel {x : BitVec w} :
     2 ^ w - (2 ^ w - x.toNat) = x.toNat := by
-  grind
+  simp only [Nat.sub_sub_eq_min]
+  omega -- TODO: why can't `grind` do this?
 
 @[simp] theorem sub_add_bmod_cancel {x y : BitVec w} :
     ((((2 ^ w : Nat) - y.toNat) : Int) + x.toNat).bmod (2 ^ w) =
@@ -377,15 +384,7 @@ theorem getElem?_zero_ofNat_one : (BitVec.ofNat (w+1) 1)[0]? = some true := by g
 theorem getElem?_zero_ofBool (b : Bool) : (ofBool b)[0]? = some b := by
   simp only [ofBool, ofNat_eq_ofNat, cond_eq_if]
   split <;>
-    -- FIXME: `grind` gives a kernel type mismatch here:
-    -- (kernel) application type mismatch
-    --   forall_prop_domain_congr (Eq.trans (Lean.Grind.Nat.lt_eq 0 1) (eq_true_of_decide (Eq.refl true))) fun h =>
-    --     Eq.refl ((1#1)[0]? = some true)
-    -- argument has type
-    --   True → ((1#1)[0]? = some true) = ((1#1)[0]? = some true)
-    -- but function has type
-    --   (∀ (a : True), (fun h => (1#1)[0]? = some (1#1)[0]) ⋯ = (fun h => (1#1)[0]? = some true) a) →
-    --     (∀ (a : 0 < 1), (fun h => (1#1)[0]? = some (1#1)[0]) a) = ∀ (a : True), (fun h => (1#1)[0]? = some true) a
+    -- FIXME: `grind [getElem_one]` gives a kernel type mismatch
     simp_all
 
 @[simp, grind =] theorem getElem_zero_ofBool (b : Bool) : (ofBool b)[0] = b := by
@@ -437,7 +436,7 @@ theorem msb_eq_getLsbD_last (x : BitVec w) :
     · simp only [h]
       rw [Nat.div_eq_sub_div (Nat.two_pow_pos w) h, Nat.div_eq_of_lt]
       · grind
-      · omega -- TODO: `grind` can't do this because it doesn't know that `0 < 2^w` and `2^(w+1) = 2 * 2^w`.
+      · omega -- TODO: why can't `grind` do this?
 
 @[bitvec_to_nat] theorem getLsbD_succ_last (x : BitVec (w + 1)) :
     x.getLsbD w = decide (2 ^ w ≤ x.toNat) := getLsbD_last x
@@ -461,7 +460,7 @@ theorem msb_eq_getMsbD_zero (x : BitVec w) : x.msb = x.getMsbD 0 := by
 @[simp] theorem getMsbD_cast (h : w = v) (x : BitVec w) : (x.cast h).getMsbD i = x.getMsbD i := by grind
 
 @[simp, grind =] theorem getElem_cast (h : w = v) (x : BitVec w) (p : i < v) : (x.cast h)[i] = x[i] := by
-  subst h; grind
+  subst h; grind [cast_eq] -- TODO: I'm surprised `grind` doesn't do this; `cast_eq` is marked `@[grind =]`
 
 @[simp] theorem msb_cast (h : w = v) (x : BitVec w) : (x.cast h).msb = x.msb := by grind
 
@@ -514,7 +513,9 @@ theorem toInt_eq_toNat_bmod (x : BitVec n) : x.toInt = Int.bmod x.toNat (2^n) :=
 grind_pattern toInt_eq_toNat_bmod => x.toInt, x.toNat
 
 theorem toInt_neg_of_msb_true {x : BitVec w} (h : x.msb = true) : x.toInt < 0 := by
-  grind [BitVec.toInt]
+  simp only [BitVec.toInt]
+  have : 2 * x.toNat ≥ 2 ^ w := msb_eq_true_iff_two_mul_ge.mp h
+  omega -- TODO: why can't `grind` do this?
 
 theorem toInt_nonneg_of_msb_false {x : BitVec w} (h : x.msb = false) : 0 ≤ x.toInt := by grind
 
@@ -2175,8 +2176,7 @@ theorem toInt_append {x : BitVec n} {y : BitVec m} :
     (x ++ 0#m).toInt = (2 ^ m) * x.toInt := by
   simp only [toInt_append, toInt_zero, toNat_ofNat, Nat.zero_mod, Int.cast_ofNat_Int, Int.add_zero,
     ite_eq_right_iff]
-  -- FIXME: `grind` fails because of a reduction failure in`Lean.Grind.CommRing.Stepwise.d_step1_cert`.
-  -- Something needs `@[expose]`, but what?
+  -- FIXME: fails because some definition is not exposed correctly. But which?
   -- grind only [two_mul_toInt_lt, le_two_mul_toInt, = toInt_zero_length]
   intros h
   subst h

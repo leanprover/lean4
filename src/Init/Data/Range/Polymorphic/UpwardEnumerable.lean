@@ -10,7 +10,6 @@ import Init.Classical
 import Init.Core
 import Init.Data.Nat.Basic
 import Init.Data.Option.Lemmas
-import Init.NotationExtra
 
 namespace Std.PRange
 
@@ -67,7 +66,7 @@ The typeclass `Least? α` optionally provides a smallest element of `α`, `least
 The main use case of this typeclass is to use it in combination with `UpwardEnumerable` to
 obtain a (possibly infinite) ascending enumeration of all elements of `α`.
 -/
-class Least? (α : Type u) extends UpwardEnumerable α where
+class Least? (α : Type u) where
   /--
   Returns the smallest element of `α`, or none if `α` is empty.
 

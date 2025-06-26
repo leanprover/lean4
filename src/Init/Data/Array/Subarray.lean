@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Data.Array.Basic
+import Init.Data.Slice.Basic
 
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 set_option linter.missingDocs true
@@ -14,14 +15,9 @@ set_option linter.missingDocs true
 universe u v w
 
 /--
-A region of some underlying array.
-
-A subarray contains an array together with the start and end indices of a region of interest.
-Subarrays can be used to avoid copying or allocating space, while being more convenient than
-tracking the bounds by hand. The region of interest consists of every index that is both greater
-than or equal to `start` and strictly less than `stop`.
+Internal representation of `Subarray`, which is an abbreviation for `Slice SubarrayData`.
 -/
-structure Subarray (α : Type u) where
+structure Std.Slice.Internal.SubarrayData (α : Type u) where
   /-- The underlying array. -/
   array : Array α
   /-- The starting index of the region of interest (inclusive). -/
@@ -42,6 +38,40 @@ structure Subarray (α : Type u) where
   -/
   stop_le_array_size : stop ≤ array.size
 
+open Std.Slice
+
+/--
+A region of some underlying array.
+
+A subarray contains an array together with the start and end indices of a region of interest.
+Subarrays can be used to avoid copying or allocating space, while being more convenient than
+tracking the bounds by hand. The region of interest consists of every index that is both greater
+than or equal to `start` and strictly less than `stop`.
+-/
+abbrev Subarray (α : Type u) := Std.Slice (Internal.SubarrayData α)
+
+instance {α : Type u} : Self (Std.Slice (Internal.SubarrayData α)) (Subarray α) where
+
+@[always_inline, inline, expose, inherit_doc Internal.SubarrayData.array]
+def Subarray.array (xs : Subarray α) : Array α :=
+  xs.internalRepresentation.array
+
+@[always_inline, inline, expose, inherit_doc Internal.SubarrayData.start]
+def Subarray.start (xs : Subarray α) : Nat :=
+  xs.internalRepresentation.start
+
+@[always_inline, inline, expose, inherit_doc Internal.SubarrayData.stop]
+def Subarray.stop (xs : Subarray α) : Nat :=
+  xs.internalRepresentation.stop
+
+@[always_inline, inline, expose, inherit_doc Internal.SubarrayData.start_le_stop]
+def Subarray.start_le_stop (xs : Subarray α) : xs.start ≤ xs.stop :=
+  xs.internalRepresentation.start_le_stop
+
+@[always_inline, inline, expose, inherit_doc Internal.SubarrayData.stop_le_array_size]
+def Subarray.stop_le_array_size (xs : Subarray α) : xs.stop ≤ xs.array.size :=
+  xs.internalRepresentation.stop_le_array_size
+
 namespace Subarray
 
 /--
@@ -51,7 +81,7 @@ def size (s : Subarray α) : Nat :=
   s.stop - s.start
 
 theorem size_le_array_size {s : Subarray α} : s.size ≤ s.array.size := by
-  let {array, start, stop, start_le_stop, stop_le_array_size} := s
+  let ⟨{array, start, stop, start_le_stop, stop_le_array_size}⟩ := s
   simp [size]
   apply Nat.le_trans (Nat.sub_le stop start)
   assumption
@@ -102,7 +132,9 @@ Examples:
 -/
 def popFront (s : Subarray α) : Subarray α :=
   if h : s.start < s.stop then
-    { s with start := s.start + 1, start_le_stop := Nat.le_of_lt_succ (Nat.add_lt_add_right h 1) }
+    ⟨{ s.internalRepresentation with
+        start := s.start + 1,
+        start_le_stop := Nat.le_of_lt_succ (Nat.add_lt_add_right h 1) }⟩
   else
     s
 
@@ -111,12 +143,13 @@ The empty subarray.
 
 This empty subarray is backed by an empty array.
 -/
-protected def empty : Subarray α where
-  array := #[]
-  start := 0
-  stop := 0
-  start_le_stop := Nat.le_refl 0
-  stop_le_array_size := Nat.le_refl 0
+protected def empty : Subarray α := ⟨{
+    array := #[]
+    start := 0
+    stop := 0
+    start_le_stop := Nat.le_refl 0
+    stop_le_array_size := Nat.le_refl 0
+  }⟩
 
 instance : EmptyCollection (Subarray α) :=
   ⟨Subarray.empty⟩
@@ -410,24 +443,24 @@ Additionally, the starting index is clamped to the ending index.
 def toSubarray (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : Subarray α :=
   if h₂ : stop ≤ as.size then
     if h₁ : start ≤ stop then
-      { array := as, start := start, stop := stop,
-        start_le_stop := h₁, stop_le_array_size := h₂ }
+      ⟨{ array := as, start := start, stop := stop,
+         start_le_stop := h₁, stop_le_array_size := h₂ }⟩
     else
-      { array := as, start := stop, stop := stop,
-        start_le_stop := Nat.le_refl _, stop_le_array_size := h₂ }
+      ⟨{ array := as, start := stop, stop := stop,
+         start_le_stop := Nat.le_refl _, stop_le_array_size := h₂ }⟩
   else
     if h₁ : start ≤ as.size then
-      { array := as,
-        start := start,
-        stop := as.size,
-        start_le_stop := h₁,
-        stop_le_array_size := Nat.le_refl _ }
+      ⟨{ array := as,
+         start := start,
+         stop := as.size,
+         start_le_stop := h₁,
+         stop_le_array_size := Nat.le_refl _ }⟩
     else
-      { array := as,
-        start := as.size,
-        stop := as.size,
-        start_le_stop := Nat.le_refl _,
-        stop_le_array_size := Nat.le_refl _ }
+      ⟨{ array := as,
+         start := as.size,
+         stop := as.size,
+         start_le_stop := Nat.le_refl _,
+         stop_le_array_size := Nat.le_refl _ }⟩
 
 /--
 Allocates a new array that contains the contents of the subarray.

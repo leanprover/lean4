@@ -9,7 +9,9 @@ prelude
 import Init.Data.Iterators.Basic
 import Init.Data.Iterators.PostconditionMonad
 import Init.Data.Iterators.Consumers
+import Init.Data.Iterators.Combinators
 import Init.Data.Iterators.Lemmas
+import Init.Data.Iterators.ToIterator
 import Init.Data.Iterators.Internal
 
 /-!

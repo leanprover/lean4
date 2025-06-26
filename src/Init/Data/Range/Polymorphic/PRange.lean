@@ -7,11 +7,7 @@ module
 
 prelude
 import Init.Core
-import Init.NotationExtra
-import Init.Data.Iterators.Consumers
 import Init.Data.Range.Polymorphic.UpwardEnumerable
-
-open Std.Iterators
 
 namespace Std.PRange
 
@@ -298,5 +294,31 @@ instance {α} [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumer
 
 instance {α} [UpwardEnumerable α] : LawfulUnboundedUpperBound α where
   isSatisfied u a := by simp [SupportsUpperBound.IsSatisfied]
+
+/--
+This typeclass allows taking the intersection of ranges of the given shape and half-open ranges.
+
+An element should be contained in the intersection if and only if it is contained in both ranges.
+This is encoded in `LawfulClosedOpenIntersection`.
+-/
+class ClosedOpenIntersection (shape : RangeShape) (α : Type w) where
+  intersection : PRange shape α → PRange ⟨.closed, .open⟩ α → PRange ⟨.closed, .open⟩ α
+
+/--
+This typeclass ensures that the intersection according to `ClosedOpenIntersection shape α`
+of two ranges contains exactly those elements that are contained in both ranges.
+-/
+class LawfulClosedOpenIntersection (shape : RangeShape) (α : Type w)
+    [ClosedOpenIntersection shape α]
+    [SupportsLowerBound shape.lower α] [SupportsUpperBound shape.upper α]
+    [SupportsLowerBound .closed α]
+    [SupportsUpperBound .open α] where
+  /--
+  The intersection according to `ClosedOpenIntersection shapee α` of two ranges contains exactly
+  those elements that are contained in both ranges.
+  -/
+  mem_intersection_iff {a : α} {r : PRange ⟨shape.lower, shape.upper⟩ α}
+      {s : PRange ⟨.closed, .open⟩ α} :
+    a ∈ ClosedOpenIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
 
 end Std.PRange

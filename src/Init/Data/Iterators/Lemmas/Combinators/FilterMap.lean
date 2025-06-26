@@ -3,10 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
 import Init.Data.Iterators.Lemmas.Consumers
-import Std.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
-import Std.Data.Iterators.Combinators.FilterMap
+import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
+import Init.Data.Iterators.Combinators.FilterMap
 
 namespace Std.Iterators
 

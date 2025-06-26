@@ -37,7 +37,7 @@ instance natCastInst : NatCast (BitVec w) := ⟨BitVec.ofNat w⟩
 
 /-- Theorem for normalizing the bitvector literal representation. -/
 -- TODO: This needs more usage data to assess which direction the simp should go.
-@[simp, bitvec_to_nat, grind =] theorem ofNat_eq_ofNat : @OfNat.ofNat (BitVec n) i _ = .ofNat n i := rfl
+@[simp, bitvec_to_nat] theorem ofNat_eq_ofNat : @OfNat.ofNat (BitVec n) i _ = .ofNat n i := rfl
 
 -- Note. Mathlib would like this to go the other direction.
 @[simp] theorem natCast_eq_ofNat (w x : Nat) : @Nat.cast (BitVec w) _ x = .ofNat w x := rfl
@@ -115,18 +115,17 @@ instance : GetElem (BitVec w) Nat Bool fun _ i => i < w where
   getElem xs i h := xs.getLsb ⟨i, h⟩
 
 /-- We prefer `x[i]` as the simp normal form for `getLsb'` -/
-@[simp, grind =] theorem getLsb_eq_getElem (x : BitVec w) (i : Fin w) :
+@[simp] theorem getLsb_eq_getElem (x : BitVec w) (i : Fin w) :
     x.getLsb i = x[i] := rfl
 
 /-- We prefer `x[i]?` as the simp normal form for `getLsb?` -/
-@[simp, grind =] theorem getLsb?_eq_getElem? (x : BitVec w) (i : Nat) :
+@[simp] theorem getLsb?_eq_getElem? (x : BitVec w) (i : Nat) :
     x.getLsb? i = x[i]? := rfl
 
-@[grind =_] -- Activate when we see `x.toNat.testBit i`.
 theorem getElem_eq_testBit_toNat (x : BitVec w) (i : Nat) (h : i < w) :
   x[i] = x.toNat.testBit i := rfl
 
-@[simp, grind =]
+@[simp]
 theorem getLsbD_eq_getElem {x : BitVec w} {i : Nat} (h : i < w) :
     x.getLsbD i = x[i] := rfl
 
@@ -357,8 +356,8 @@ section bool
 @[expose]
 def ofBool (b : Bool) : BitVec 1 := cond b 1 0
 
-@[simp, grind =] theorem ofBool_false : ofBool false = 0 := by trivial
-@[simp, grind =] theorem ofBool_true  : ofBool true  = 1 := by trivial
+@[simp] theorem ofBool_false : ofBool false = 0 := by trivial
+@[simp] theorem ofBool_true  : ofBool true  = 1 := by trivial
 
 /-- Fills a bitvector with `w` copies of the bit `b`. -/
 def fill (w : Nat) (b : Bool) : BitVec w := bif b then -1 else 0
@@ -416,15 +415,15 @@ that can more consistently simplify `BitVec.cast` away.
 -/
 @[inline, expose] protected def cast (eq : n = m) (x : BitVec n) : BitVec m := .ofNatLT x.toNat (eq ▸ x.isLt)
 
-@[simp, grind =] theorem cast_ofNat {n m : Nat} (h : n = m) (x : Nat) :
+@[simp] theorem cast_ofNat {n m : Nat} (h : n = m) (x : Nat) :
     (BitVec.ofNat n x).cast h = BitVec.ofNat m x := by
   subst h; rfl
 
-@[simp, grind =] theorem cast_cast {n m k : Nat} (h₁ : n = m) (h₂ : m = k) (x : BitVec n) :
+@[simp] theorem cast_cast {n m k : Nat} (h₁ : n = m) (h₂ : m = k) (x : BitVec n) :
     (x.cast h₁).cast h₂ = x.cast (h₁ ▸ h₂) :=
   rfl
 
-@[simp, grind =] theorem cast_eq {n : Nat} (h : n = n) (x : BitVec n) : x.cast h = x := rfl
+@[simp] theorem cast_eq {n : Nat} (h : n = n) (x : BitVec n) : x.cast h = x := rfl
 
 /--
 Extracts the bits `start` to `start + len - 1` from a bitvector of size `n` to yield a
@@ -708,12 +707,10 @@ The new bit is the most significant bit.
 def cons {n} (msb : Bool) (lsbs : BitVec n) : BitVec (n+1) :=
   ((ofBool msb) ++ lsbs).cast (Nat.add_comm ..)
 
-@[grind =]
 theorem append_ofBool (msbs : BitVec w) (lsb : Bool) :
     msbs ++ ofBool lsb = concat msbs lsb :=
   rfl
 
-@[grind =]
 theorem ofBool_append (msb : Bool) (lsbs : BitVec w) :
     ofBool msb ++ lsbs = (cons msb lsbs).cast (Nat.add_comm ..) :=
   rfl
@@ -748,20 +745,20 @@ instance : Hashable (BitVec n) where
 
 section normalization_eqs
 /-! We add simp-lemmas that rewrite bitvector operations into the equivalent notation -/
-@[simp, grind =] theorem append_eq (x : BitVec w) (y : BitVec v) : BitVec.append x y = x ++ y        := rfl
-@[simp, grind =] theorem shiftLeft_eq (x : BitVec w) (n : Nat)     : BitVec.shiftLeft x n = x <<< n    := rfl
-@[simp, grind =] theorem ushiftRight_eq (x : BitVec w) (n : Nat)   : BitVec.ushiftRight x n = x >>> n  := rfl
-@[simp, grind =] theorem not_eq (x : BitVec w)                     : BitVec.not x = ~~~x               := rfl
-@[simp, grind =] theorem and_eq (x y : BitVec w)                   : BitVec.and x y = x &&& y          := rfl
-@[simp, grind =] theorem or_eq (x y : BitVec w)                    : BitVec.or x y = x ||| y           := rfl
-@[simp, grind =] theorem xor_eq (x y : BitVec w)                   : BitVec.xor x y = x ^^^ y          := rfl
-@[simp, grind =] theorem neg_eq (x : BitVec w)                     : BitVec.neg x = -x                 := rfl
-@[simp, grind =] theorem add_eq (x y : BitVec w)                   : BitVec.add x y = x + y            := rfl
-@[simp, grind =] theorem sub_eq (x y : BitVec w)                   : BitVec.sub x y = x - y            := rfl
-@[simp, grind =] theorem mul_eq (x y : BitVec w)                   : BitVec.mul x y = x * y            := rfl
-@[simp, grind =] theorem udiv_eq (x y : BitVec w)                  : BitVec.udiv x y = x / y           := rfl
-@[simp, grind =] theorem umod_eq (x y : BitVec w)                  : BitVec.umod x y = x % y           := rfl
-@[simp, grind =] theorem zero_eq                                   : BitVec.zero n = 0#n               := rfl
+@[simp] theorem append_eq (x : BitVec w) (y : BitVec v)   : BitVec.append x y = x ++ y        := rfl
+@[simp] theorem shiftLeft_eq (x : BitVec w) (n : Nat)     : BitVec.shiftLeft x n = x <<< n    := rfl
+@[simp] theorem ushiftRight_eq (x : BitVec w) (n : Nat)   : BitVec.ushiftRight x n = x >>> n  := rfl
+@[simp] theorem not_eq (x : BitVec w)                     : BitVec.not x = ~~~x               := rfl
+@[simp] theorem and_eq (x y : BitVec w)                   : BitVec.and x y = x &&& y          := rfl
+@[simp] theorem or_eq (x y : BitVec w)                    : BitVec.or x y = x ||| y           := rfl
+@[simp] theorem xor_eq (x y : BitVec w)                   : BitVec.xor x y = x ^^^ y          := rfl
+@[simp] theorem neg_eq (x : BitVec w)                     : BitVec.neg x = -x                 := rfl
+@[simp] theorem add_eq (x y : BitVec w)                   : BitVec.add x y = x + y            := rfl
+@[simp] theorem sub_eq (x y : BitVec w)                   : BitVec.sub x y = x - y            := rfl
+@[simp] theorem mul_eq (x y : BitVec w)                   : BitVec.mul x y = x * y            := rfl
+@[simp] theorem udiv_eq (x y : BitVec w)                  : BitVec.udiv x y = x / y           := rfl
+@[simp] theorem umod_eq (x y : BitVec w)                  : BitVec.umod x y = x % y           := rfl
+@[simp] theorem zero_eq                                   : BitVec.zero n = 0#n               := rfl
 end normalization_eqs
 
 /-- Converts a list of `Bool`s into a big-endian `BitVec`. -/

@@ -63,7 +63,7 @@ theorem mk_val (i : Fin n) : (⟨i, i.isLt⟩ : Fin n) = i := Fin.eta ..
     0 = (⟨a, ha⟩ : Fin n) ↔ a = 0 := by
   simp [eq_comm]
 
-@[simp, grind =] theorem val_ofNat (n : Nat) [NeZero n] (a : Nat) :
+@[simp] theorem val_ofNat (n : Nat) [NeZero n] (a : Nat) :
   (Fin.ofNat n a).val = a % n := rfl
 
 @[deprecated val_ofNat (since := "2025-05-28")] abbrev val_ofNat' := @val_ofNat
@@ -249,7 +249,7 @@ protected theorem le_antisymm_iff {x y : Fin n} : x = y ↔ x ≤ y ∧ y ≤ x 
 protected theorem le_antisymm {x y : Fin n} (h1 : x ≤ y) (h2 : y ≤ x) : x = y :=
   Fin.le_antisymm_iff.2 ⟨h1, h2⟩
 
-@[simp, grind =] theorem val_rev (i : Fin n) : rev i = n - (i + 1) := rfl
+@[simp] theorem val_rev (i : Fin n) : rev i = n - (i + 1) := rfl
 
 @[simp] theorem rev_rev (i : Fin n) : rev (rev i) = i := Fin.ext <| by
   rw [val_rev, val_rev, ← Nat.sub_sub, Nat.sub_sub_self (by exact i.2), Nat.add_sub_cancel]
@@ -445,7 +445,7 @@ theorem succ_succ_ne_one (a : Fin n) : Fin.succ (Fin.succ a) ≠ 1 :=
 @[simp] theorem castLT_mk (i n m : Nat) (hn : i < n) (hm : i < m) : castLT ⟨i, hn⟩ hm = ⟨i, hm⟩ :=
   rfl
 
-@[simp, grind =] theorem coe_castLE (h : n ≤ m) (i : Fin n) : (castLE h i : Nat) = i := rfl
+@[simp] theorem coe_castLE (h : n ≤ m) (i : Fin n) : (castLE h i : Nat) = i := rfl
 
 @[simp] theorem castLE_mk (i n m : Nat) (hn : i < n) (h : n ≤ m) :
     castLE h ⟨i, hn⟩ = ⟨i, Nat.lt_of_lt_of_le hn h⟩ := rfl

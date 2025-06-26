@@ -31,8 +31,6 @@ instance instOfNat : OfNat (BitVec n) i where ofNat := .ofNat n i
 /-- Return the bound in terms of toNat. -/
 theorem isLt (x : BitVec w) : x.toNat < 2^w := x.toFin.isLt
 
-grind_pattern isLt => x.toNat, 2^w
-
 end Nat
 
 section arithmetic

@@ -29,7 +29,7 @@ def Internal.iter (s : Slice γ) [ToIterator s Id β] :=
 /--
 Returns the number of elements with distinct indices in the given slice.
 
-Example: `#[1, 1, 1][0...2] = 2`.
+Example: `#[1, 1, 1][0...2].size = 2`.
 -/
 @[always_inline, inline]
 def size (s : Slice g) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]

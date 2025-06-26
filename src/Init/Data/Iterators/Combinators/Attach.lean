@@ -14,10 +14,12 @@ namespace Std.Iterators
 @[always_inline, inline, inherit_doc IterM.attachWith]
 def Iter.attachWith {α β : Type w}
     [Iterator α Id β]
-    (it : Iter (α := α) β) (P : β → Prop) (h : ∀ out, it.IsPlausibleIndirectOutput out → P out) :=
-  haveI h' : ∀ out, it.toIterM.IsPlausibleIndirectOutput out → P out := by
+    (it : Iter (α := α) β) (P : β → Prop) (h : ∀ out, it.IsPlausibleIndirectOutput out → P out) :
+  Iter (α := Types.Attach α Id P) { out : β // P out } :=
+  (it.toIterM.attachWith P ?h).toIter
+where finally
+  case h =>
     simp only [← isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM]
     exact h
-  ((it.toIterM.attachWith P h').toIter : Iter { out : β // P out })
 
 end Std.Iterators

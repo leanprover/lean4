@@ -15,7 +15,7 @@ converted into iterators.
 
 open Std.Iterators
 
-namespace Std.Slice
+namespace Std.Iterators
 
 /--
 This typeclass provides an iterator for the given element `x : γ`. Usually, instances are provided
@@ -107,4 +107,4 @@ instance {x : γ} {State : Type w} {iter}
     IteratorSizePartial (α := i.State) m :=
   inferInstanceAs <| IteratorSizePartial (α := State) m
 
-end Std.Slice
+end Std.Iterators

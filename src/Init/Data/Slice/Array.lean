@@ -19,7 +19,7 @@ This module provides slice notation for array slices (a.k.a. `Subarray`) and imp
 for those slices.
 -/
 
-open Std Slice PRange
+open Std Slice PRange Iterators
 
 instance {shape} {α : Type u} [ClosedOpenIntersection shape Nat] :
     Sliceable shape (Array α) Nat (Subarray α) where

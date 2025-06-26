@@ -118,8 +118,8 @@ instance {α β : Type w} {m : Type w → Type w'} [Monad m]
 end Types
 
 /--
-“Attaches” individual proofs to an iterator of values that satisfy a predicate `P`, returning a list
-of iterators in the corresponding subtype `{ x // P x }`.
+“Attaches” individual proofs to an iterator of values that satisfy a predicate `P`, returning an
+iterator with values in the corresponding subtype `{ x // P x }`.
 
 **Termination properties:**
 

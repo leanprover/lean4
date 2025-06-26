@@ -12,17 +12,6 @@ def assertBEq [BEq α] [ToString α] (actual expected : α) : IO Unit := do
     throw <| IO.userError <|
       s!"expected '{expected}', got '{actual}'"
 
-structure Async (α : Type) where
-  run : IO (AsyncTask α)
-
-namespace Async
-
-instance : Monad Async where
-  pure x := Async.mk (pure (AsyncTask.pure x))
-  bind ma f := Async.mk do
-    let task ← ma.run
-    task.bindIO fun a => (f a).run
-
 def baseSelector (asyncWaiter : AsyncTask α) : Selector α :=
  {
     tryFn := do
@@ -50,35 +39,29 @@ def timeout (a : AsyncTask α) (time : Std.Time.Millisecond.Offset) : IO (AsyncT
     | .ok res => Task.pure (.ok res)
     | .error _ => Task.pure (.error (IO.userError "Timeout."))
 
-def await (task : IO (AsyncTask α)) : Async α :=
-  Async.mk task
-
-instance : MonadLift IO Async where
-  monadLift io := Async.mk (io >>= (pure ∘ AsyncTask.pure))
-
 def runDNS : Async Unit := do
-  let infos ← await <| (timeout (← DNS.getAddrInfo "google.com" "http") 10000)
+  let infos ← await <| (← timeout (← DNS.getAddrInfo "google.com" "http") 10000)
 
   unless infos.size > 0 do
     (throw <| IO.userError <| "No DNS results for google.com" : IO _)
 
 def runDNSNoAscii : Async Unit := do
-  let infos ← await <| (timeout (← DNS.getAddrInfo "google.com▸" "http") 10000)
+  let infos ← await <| (← timeout (← DNS.getAddrInfo "google.com▸" "http") 10000)
 
   unless infos.size > 0 do
     (throw <| IO.userError <| "No DNS results for google.com" : IO _)
 
 def runReverseDNS : Async Unit := do
-  let result ← await (DNS.getNameInfo (.v4 ⟨.ofParts 8 8 8 8, 53⟩))
+  let result ← await (← DNS.getNameInfo (.v4 ⟨.ofParts 8 8 8 8, 53⟩))
   assertBEq result.service "domain"
   assertBEq result.host "dns.google"
 
-#eval runDNS.run >>= AsyncTask.block
+#eval runDNS.toIO >>= AsyncTask.block
 
 #eval
   try do
-    runDNSNoAscii.run >>= AsyncTask.block
+    runDNSNoAscii.toIO >>= AsyncTask.block
     throw (IO.Error.userError "should have failed")
   catch _ => pure ()
 
-#eval runReverseDNS.run >>= AsyncTask.block
+#eval runReverseDNS.toIO >>= AsyncTask.block

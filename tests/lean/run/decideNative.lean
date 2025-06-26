@@ -7,7 +7,7 @@ import Lean
 Simplest example.
 -/
 theorem ex1 : True := by native_decide
-/-- info: 'ex1' depends on axioms: [Lean.ofReduceBool] -/
+/-- info: 'ex1' depends on axioms: [Lean.ofReduceBool, Lean.trustCompiler] -/
 #guard_msgs in #print axioms ex1
 
 

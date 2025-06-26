@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
+import Lake.Config.Artifact
 import Lake.Config.FacetConfig
 import Lake.Config.TargetConfig
 import Lake.Config.Env
@@ -45,7 +46,11 @@ namespace Workspace
 @[inline] def enableArtifactCache (ws : Workspace) : Bool :=
   !ws.lakeEnv.cacheDir.toString.isEmpty
 
-/-- Artifact directory for the local Lake cache. -/
+/--
+Returns the artifact directory for the local Lake cache.
+
+Will not return a valid path if the artifact cache is disabled (c.f., `enableArtifactCache`).
+-/
 @[inline] def artifactDir (ws : Workspace) : FilePath :=
   ws.lakeEnv.cacheDir / "artifacts"
 
@@ -58,14 +63,16 @@ def artifactPath (contentHash : Hash) (ext := "art") (ws : Workspace) : FilePath
   ws.artifactDir / if ext.isEmpty then contentHash.toString else s!"{contentHash}.{ext}"
 
 /--
-Returns the path to artifact in the local Lake cache with extension `ext` if it exists.
+Returns the path to the artifact in the local Lake cache with extension `ext` if it exists.
 
 The behavior is undefined if the artifact cache is disabled (c.f., `enableArtifactCache`).
 -/
-@[inline] def getArtifact? (contentHash : Hash) (ext := "art") (ws : Workspace) : BaseIO (Option FilePath) := do
-  let art := ws.artifactPath contentHash ext
-  if (← art.pathExists) then
-    return some art
+def getArtifact? (contentHash : Hash) (ext := "art") (ws : Workspace) : BaseIO (Option Artifact) := do
+  let path := inline <| ws.artifactPath contentHash ext
+  if let .ok mtime ← getMTime path |>.toBaseIO then
+    return some {path, mtime, hash := contentHash}
+  else if (← path.pathExists) then
+    return some {path, mtime := 0, hash := contentHash}
   else
     return none
 

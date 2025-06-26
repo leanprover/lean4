@@ -127,7 +127,7 @@ def getArtifactPath (contentHash : Hash) (ext := "art") : m FilePath :=
   (·.artifactPath contentHash ext) <$> getWorkspace
 
 @[inline, inherit_doc Workspace.getArtifact?]
-def getArtifact? [Bind m] [MonadLiftT BaseIO m] (contentHash : Hash) (ext := "art") : m (Option FilePath) :=
+def getArtifact? [Bind m] [MonadLiftT BaseIO m] (contentHash : Hash) (ext := "art") : m (Option Artifact) :=
   getWorkspace >>= (·.getArtifact? contentHash ext)
 
 end

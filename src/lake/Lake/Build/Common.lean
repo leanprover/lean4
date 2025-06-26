@@ -21,6 +21,10 @@ namespace Lake
 
 /-! ## General Utilities -/
 
+instance : MonadWorkspace JobM := inferInstance
+
+scoped instance : ToJson PUnit := ⟨fun _ => Json.null⟩
+
 /-- Exit code to return if `--no-build` is set and a build is required. -/
 def noBuildCode : ExitCode := 3
 
@@ -56,6 +60,7 @@ which stores information about a (successful) build.
 structure BuildMetadata where
   depHash : Hash
   inputs : Array (String × Json)
+  outputs? : Option Json := none
   log : Log
   deriving ToJson
 
@@ -66,23 +71,35 @@ def BuildMetadata.fromJson? (json : Json) : Except String BuildMetadata := do
   let obj ← JsonObject.fromJson? json
   let depHash ← obj.get "depHash"
   let inputs ← obj.getD "inputs" {}
+  let outputs? ← obj.getD "outputs" none
   let log ← obj.getD "log" {}
-  return {depHash, inputs, log}
+  return {depHash, inputs, outputs?, log}
 
 instance : FromJson BuildMetadata := ⟨BuildMetadata.fromJson?⟩
 
+/-- The state of the trace file data saved on the file system. -/
+inductive SavedTrace
+| missing
+| invalid
+| ok (data : BuildMetadata)
+
 /-- Read persistent trace data from a file. -/
-def readTraceFile? (path : FilePath) : LogIO (Option BuildMetadata) := OptionT.run do
+def readTraceFile (path : FilePath) : LogIO SavedTrace := do
   match (← IO.FS.readFile path |>.toBaseIO) with
   | .ok contents =>
     if let some hash := Hash.ofString? contents.trim then
-      return .ofHash hash
+      return .ok <| .ofHash hash
     else
       match Json.parse contents >>= fromJson? with
-      | .ok contents => return contents
-      | .error e => logVerbose s!"{path}: invalid trace file: {e}"; failure
-  | .error (.noFileOrDirectory ..) => failure
-  | .error e => logWarning s!"{path}: read failed: {e}"; failure
+      | .ok contents => return .ok contents
+      | .error e => logVerbose s!"{path}: invalid trace file: {e}"; return .invalid
+  | .error (.noFileOrDirectory ..) => return .missing
+  | .error e => logWarning s!"{path}: read failed: {e}"; return .invalid
+
+/-- Read persistent trace data from a file. -/
+@[inline, deprecated readTraceFile (since := "2025-06-26")]
+def readTraceFile? (path : FilePath) : LogIO (Option BuildMetadata) := do
+  if let .ok data ← readTraceFile path then return some data else none
 
 private partial def serializeInputs (inputs : Array BuildTrace) : Array (String × Json) :=
   inputs.foldl (init := {}) fun r trace =>
@@ -94,14 +111,20 @@ private partial def serializeInputs (inputs : Array BuildTrace) : Array (String 
     r.push (trace.caption, val)
 
 /-- Write persistent trace data to a file. -/
-def writeTraceFile (path : FilePath) (depTrace : BuildTrace) (log : Log) := do
-  createParentDirs path
-  let data : BuildMetadata := {
-    inputs := serializeInputs depTrace.inputs
-    depHash := depTrace.hash
-    log
-  }
-  IO.FS.writeFile path (toJson data).pretty
+@[inline] def writeTraceFile
+  [ToJson α] (path : FilePath) (depTrace : BuildTrace) (outputs : α) (log : Log)
+: IO Unit :=
+  go path depTrace (toJson outputs) log
+where
+  go path depTrace outputs log := do
+    createParentDirs path
+    let data : BuildMetadata := {
+      inputs := serializeInputs depTrace.inputs
+      depHash := depTrace.hash
+      outputs? := outputs
+      log
+    }
+    IO.FS.writeFile path (toJson data).pretty
 
 /--
 Checks if the `info` is up-to-date by comparing `depTrace` with `depHash`.
@@ -121,28 +144,44 @@ as the point of comparison instead.
     return false
 
 /-- Checks whether `info` is up-to-date, and replays the log of the trace if available. -/
-@[specialize] def replayIfUpToDate
+@[specialize] def SavedTrace.replayIfUpToDate
   [CheckExists ι] [GetMTime ι]
-  (info : ι) (depTrace : BuildTrace) (traceFile : FilePath)
+  (info : ι) (depTrace : BuildTrace) (savedTrace : SavedTrace)
   (oldTrace := depTrace.mtime)
 : JobM Bool := do
-  if (← traceFile.pathExists) then
-    if let some data ← readTraceFile? traceFile then
-      if (← inline <| checkHashUpToDate info depTrace data.depHash oldTrace) then
-        updateAction .replay
-        data.log.replay
-        return true
-      else
-        return false
-    else if (← getIsOldMode) && (← oldTrace.checkUpToDate info) then
+  match savedTrace with
+  | .ok data =>
+    if (← inline <| checkHashUpToDate info depTrace data.depHash oldTrace) then
+      updateAction .replay
+      data.log.replay
       return true
     else
       return false
+  | .invalid =>
+    return (← getIsOldMode) && (← oldTrace.checkUpToDate info)
+  | .missing =>
+    depTrace.checkAgainstTime info
+
+/--
+Runs `build` as a build action of kind `action`.
+
+The build's input trace (`depTrace`), output hashes (the result of `build`),
+and log are saved to `traceFile`, if the build completes without a fatal error
+(i.e., it does not `throw`).
+-/
+@[specialize] def buildAction
+  [ToJson α] (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM α)
+  (action : JobAction := .build)
+: JobM α := do
+  if (← getNoBuild) then
+    IO.Process.exit noBuildCode.toUInt8
   else
-    if (← depTrace.checkAgainstTime info) then
-      return true
-    else
-      return false
+    updateAction action
+    let iniPos ← getLogPos
+    let outputs ← build -- fatal errors will abort here
+    let log := (← getLog).takeFrom iniPos
+    writeTraceFile traceFile depTrace outputs log
+    return outputs
 
 /--
 Checks whether `info` is up-to-date, and runs `build` to recreate it if not.
@@ -164,21 +203,12 @@ then `depTrace` / `oldTrace`. No log will be replayed.
   (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM PUnit)
   (action : JobAction := .build) (oldTrace := depTrace.mtime)
 : JobM Bool := do
-  if (← replayIfUpToDate info depTrace traceFile oldTrace) then
+  let savedTrace ← readTraceFile traceFile
+  if (← savedTrace.replayIfUpToDate info depTrace oldTrace) then
     return true
   else
-    go
-where
-  @[specialize] go := do
-    if (← getNoBuild) then
-      IO.Process.exit noBuildCode.toUInt8
-    else
-      updateAction action
-      let iniPos ← getLogPos
-      build -- fatal errors will not produce a trace (or cache their log)
-      let log := (← getLog).takeFrom iniPos
-      writeTraceFile traceFile depTrace log
-      return false
+    buildAction depTrace traceFile build action
+    return false
 
 /--
 Checks whether `info` is up-to-date, and runs `build` to recreate it if not.
@@ -276,29 +306,31 @@ abbrev buildFileUnlessUpToDate
   getTrace
 
 /--
-Saves `file` to the local Lake artifact cache with the file extension `ext`
-saves the hash of `file` to its `.hash` file.
+Copies `file` to the local Lake artifact cache with the file extension `ext`, and
+saves its hash in its `.hash` file.
 
 If `text := true`, `file` contents are hashed as a text file rather than a binary file.
 -/
-def cacheArtifact (file : FilePath) (text := false) (ext := "art") : JobM (FilePath × Hash) := do
+def cacheArtifact (file : FilePath) (ext := "art") (text := false) : JobM Artifact := do
   if text then
     let contents ← IO.FS.readFile file
     let normalized := contents.crlfToLf
-    let contentHash := Hash.ofString normalized
-    let art ← getArtifactPath contentHash ext
-    createParentDirs art
-    IO.FS.writeFile art normalized
-    writeFileHash file contentHash
-    return (art, contentHash)
+    let hash := Hash.ofString normalized
+    let path ← getArtifactPath hash ext
+    createParentDirs path
+    IO.FS.writeFile path normalized
+    writeFileHash file hash
+    let mtime := (← getMTime path |>.toBaseIO).toOption.getD 0
+    return {name := file.toString, path, mtime, hash}
   else
     let contents ← IO.FS.readBinFile file
-    let contentHash := Hash.ofByteArray contents
-    let art ← getArtifactPath contentHash ext
-    createParentDirs art
-    IO.FS.writeBinFile art contents
-    writeFileHash file contentHash
-    return (art, contentHash)
+    let hash := Hash.ofByteArray contents
+    let path ← getArtifactPath hash ext
+    createParentDirs path
+    IO.FS.writeBinFile path contents
+    writeFileHash file hash
+    let mtime := (← getMTime path |>.toBaseIO).toOption.getD 0
+    return {name := file.toString, path, mtime, hash}
 
 /--
 Computes the trace of a cached artifact.
@@ -310,13 +342,67 @@ def computeArtifactTrace
   let mtime := (← getMTime art |>.toBaseIO).toOption.getD 0
   return {caption := buildFile.toString, mtime, hash := contentHash}
 
-/-- Replays the log from `traceFile` if it exists. -/
-def replayIfTrace (traceFile : FilePath) : JobM Unit := do
-  if let some data ← readTraceFile? traceFile then
+/-- Replays the saved log from the trace if it exists. -/
+def SavedTrace.replayIfExists (savedTrace : SavedTrace) : JobM Unit := do
+  if let .ok data := savedTrace then
     updateAction .replay
     data.log.replay
   else
     updateAction .fetch
+
+class ResolveArtifacts (m : Type v → Type w) (α : Type u) (β : outParam $ Type v) where
+  resolveArtifacts? (contentHashes : α) : m (Option β)
+
+open ResolveArtifacts in
+/--
+Retrieve artifacts from the Lake cache using the the content hashes stored as `α`
+in either the saved trace file or in the cached input-to-content mapping.
+-/
+@[specialize] def resolveArtifactsUsing?
+  (α : Type u) [FromJson α] [ResolveArtifacts JobM α β]
+  (inputHash : Hash) (savedTrace : SavedTrace) (cache : IO.Ref InputMap)
+: JobM (Option β) := do
+  if let some out ← cache.modifyGet fun m => ((m.get? inputHash, m)) then
+    if let .ok (hashes : α) := fromJson? out then
+      if let some arts ← resolveArtifacts? hashes then
+        return some arts
+      else
+        logWarning s!"\
+          input '{inputHash.toString.take 7}' found in package artifact cache, \
+          but some output(s) were not"
+        return none
+    else
+      logWarning s!"\
+        input '{inputHash.toString.take 7}' found in package artifact cache, \
+        but output(s) were in an unexpected format"
+  if let .ok data := savedTrace then
+    if let some out := data.outputs? then
+      if let .ok (hashes : α) := fromJson? out then
+        if let some arts ← resolveArtifacts? hashes then
+          cache.modify (·.insert inputHash out)
+          return some arts
+  return none
+
+/-- The content hash of an artifact which is stored with extension `ext` in the Lake cache. -/
+structure FileOutputHash (ext : String) where
+  hash : Hash
+
+instance : ToJson (FileOutputHash ext) := ⟨(toJson ·.hash)⟩
+instance : FromJson (FileOutputHash ext) := ⟨(.mk <$> fromJson? ·)⟩
+
+instance
+  [MonadWorkspace m] [MonadLiftT BaseIO m] [Bind m]
+: ResolveArtifacts m (FileOutputHash ext) Artifact := ⟨(getArtifact? ·.hash ext)⟩
+
+/--
+Construct an artifact from a path outside the Lake artifact cache.
+
+If `text := true`, `file` is hashed as a text file rather than a binary file.
+-/
+def fetchLocalArtifact (path : FilePath) (text := false) : JobM Artifact := do
+  let hash ← fetchFileHash path text
+  let mtime := (← getMTime path |>.toBaseIO).toOption.getD 0
+  return {name := path.toString, path, mtime, hash}
 
 /--
 Uses the current job's trace to search Lake's local artifact cache for an artifact
@@ -334,33 +420,42 @@ def buildArtifactUnlessUpToDate
   (file : FilePath) (build : JobM PUnit)
   (text := false) (ext := "art") (restore := false)
 : JobM FilePath := do
+  let depTrace ← getTrace
+  let traceFile := FilePath.mk <| file.toString ++ ".trace"
+  let savedTrace ← readTraceFile traceFile
   if let some pkg ← getCurrPackage? then
+    let inputHash := depTrace.hash
     if let some ref := pkg.inputMap? then
-      let depTrace ← getTrace
-      let inputHash := depTrace.hash
-      let traceFile := FilePath.mk <| file.toString ++ ".trace"
-      if let some out ← ref.modifyGet fun m => ((m.get? inputHash, m)) then
-        if let .ok (contentHash : Hash) := fromJson? out then
-          if let some art ← getArtifact? contentHash ext then
-            if restore && !(← file.pathExists) then
-              copyFile art file
-              writeFileHash file contentHash
-            replayIfTrace traceFile
-            setTrace (← computeArtifactTrace file art contentHash)
-            return if restore then file else art
-          else
-            logWarning "input found in package artifact cache, but output was not"
-        else
-          logWarning "input found in package artifact cache, but output was in an unexpected format"
-      buildUnlessUpToDate file depTrace traceFile do
-        build
-        clearFileHash file
-      let (art, contentHash) ← cacheArtifact file text ext
-      ref.modify (·.insert inputHash (toJson contentHash))
-      setTrace (← computeArtifactTrace file art contentHash)
-      return if restore then file else art
-  buildFileUnlessUpToDate' file build text
-  return file
+      let art? ← resolveArtifactsUsing? (FileOutputHash ext) inputHash savedTrace ref
+      if let some art := art? then
+        if restore && !(← file.pathExists) then
+          logVerbose s!"restored artifact from cache to: {file}"
+          copyFile art.path file
+          writeFileHash file art.hash
+        savedTrace.replayIfExists
+        setTrace art.trace
+        return if restore then file else art.path
+      unless (← savedTrace.replayIfUpToDate file depTrace) do
+        discard <| doBuild depTrace traceFile
+      let art ← cacheArtifact file ext text
+      ref.modify (·.insert inputHash (toJson art.hash))
+      setTrace art.trace
+      return if restore then file else art.path
+  if (← savedTrace.replayIfUpToDate file depTrace) then
+    let contentHash ← fetchFileHash file text
+    setTrace (← computeArtifactTrace file file contentHash)
+    return file
+  else
+    let contentHash ← doBuild depTrace traceFile
+    writeFileHash file contentHash
+    setTrace (← computeArtifactTrace file file contentHash)
+    return file
+where
+  doBuild depTrace traceFile :=
+    inline <| buildAction depTrace traceFile do
+      build
+      clearFileHash file
+      computeFileHash file text
 
 /--
 Build `file` using `build` after `dep` completes if the dependency's

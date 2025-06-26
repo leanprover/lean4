@@ -15,15 +15,15 @@ test_exp ! -d "$CACHE_DIR"
 
 # Ensure a build runs properly with some artifacts cached
 LAKE_CACHE_DIR="$CACHE_DIR" test_run build Test:static
-LAKE_CACHE_DIR="$CACHE_DIR" test_run build Test:static --no-build
+LAKE_CACHE_DIR="$CACHE_DIR" test_run build Test:static --no-build --wfail
 
 # Test replay of a cached build
 LAKE_CACHE_DIR="$CACHE_DIR" test_out 'Replayed Test:c.o' build +Test:o -v
 
 # Verify that a rebuild with the cache disabled is a no-op
 touch .lake/build/ir/Test.c # avoid mod time fallback if trace is missing
-LAKE_CACHE_DIR= test_run build +Test:o --no-build
-LAKE_CACHE_DIR= test_run build Test:static --no-build
+LAKE_CACHE_DIR= test_run build +Test:o --no-build --wfail
+LAKE_CACHE_DIR= test_run build Test:static --no-build --wfail
 
 # Verify the cache directory structure was created
 test_exp -d "$CACHE_DIR"
@@ -60,6 +60,9 @@ test_cached +Test:olean !
 test_cached +Test:ilean !
 test_cached +Test:c
 
+# Verify no `.hash` files end up in the cache directory
+check_diff /dev/null <(ls -1 "$CACHE_DIR/*.hash" 2>/dev/null)
+
 # Verify module oleans and ileans are restored from the cache
 LAKE_CACHE_DIR="$CACHE_DIR" test_run build +Test --no-build
 test_cmd rm .lake/build/lib/lean/Test.olean .lake/build/lib/lean/Test.ilean
@@ -75,7 +78,7 @@ test_cmd rm "$CACHE_DIR/inputs/test.jsonl"
 LAKE_CACHE_DIR="$CACHE_DIR" test_out "Replayed Test:c.o" build +Test:o -v --no-build
 test_exp -f "$cache_art" # artifact should be re-cached
 
-# Verify that the whole input graph is restored
+# Verify that the upstream input graph is restored
 LAKE_CACHE_DIR="$CACHE_DIR" test_out "Replayed Test:c.o" build Test:static -v --no-build
 check_diff .lake/backup-inputs.json "$CACHE_DIR/inputs/test.jsonl"
 
@@ -84,6 +87,11 @@ test_cmd rm "$local_art"
 LAKE_CACHE_DIR="$CACHE_DIR" test_out "Replayed Test:c.o" build +Test:o -v --no-build
 test_cmd rm "$local_art.trace"
 LAKE_CACHE_DIR="$CACHE_DIR" test_out "Fetched Test:c.o" build +Test:o -v --no-build
+
+# Verify that if the input cache is missing,
+# the cached artifact is still used via the output hash in the trace
+test_cmd rm "$CACHE_DIR/inputs/test.jsonl" .lake/build/ir/Test.c
+LAKE_CACHE_DIR="$CACHE_DIR" test_run -v build +Test:c --no-build
 
 # Cleanup
 rm -f produced.out

@@ -38,7 +38,7 @@ appropriate namespace (`List`) in which to resolve this identifier.
 
 Note that this means that changing the return type of `reverseDuplicate` changes how `.reverse`
 resolves: if the return type is  `T`, then Lean will (attempt to) resolve `.reverse` to a function
-`T.reverse` whose return type is `T` —even if `T.reverse` does not take an argument of type
+`T.reverse` whose return type is `T`—even if `T.reverse` does not take an argument of type
 `List α`.
 
 ## Dotted identifier where type universe expected

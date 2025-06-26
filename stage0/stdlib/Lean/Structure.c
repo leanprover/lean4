@@ -5198,7 +5198,7 @@ return x_31;
 block_43:
 {
 uint8_t x_38; 
-x_38 = lean_nat_dec_lt(x_35, x_37);
+x_38 = lean_nat_dec_lt(x_34, x_37);
 if (x_38 == 0)
 {
 lean_dec(x_37);
@@ -5213,11 +5213,11 @@ goto block_32;
 else
 {
 size_t x_39; size_t x_40; lean_object* x_41; uint8_t x_42; 
-x_39 = lean_usize_of_nat(x_35);
-lean_dec(x_35);
+x_39 = lean_usize_of_nat(x_34);
+lean_dec(x_34);
 x_40 = lean_usize_of_nat(x_37);
 lean_dec(x_37);
-x_41 = l_Array_anyMUnsafe_any___redArg(x_36, x_33, x_34, x_39, x_40);
+x_41 = l_Array_anyMUnsafe_any___redArg(x_36, x_35, x_33, x_39, x_40);
 x_42 = lean_unbox(x_41);
 lean_dec(x_41);
 if (x_42 == 0)
@@ -5271,9 +5271,9 @@ x_56 = lean_nat_dec_le(x_51, x_55);
 if (x_56 == 0)
 {
 lean_dec(x_51);
-x_33 = x_54;
-x_34 = x_49;
-x_35 = x_50;
+x_33 = x_49;
+x_34 = x_50;
+x_35 = x_54;
 x_36 = x_19;
 x_37 = x_55;
 goto block_43;
@@ -5281,9 +5281,9 @@ goto block_43;
 else
 {
 lean_dec(x_55);
-x_33 = x_54;
-x_34 = x_49;
-x_35 = x_50;
+x_33 = x_49;
+x_34 = x_50;
+x_35 = x_54;
 x_36 = x_19;
 x_37 = x_51;
 goto block_43;

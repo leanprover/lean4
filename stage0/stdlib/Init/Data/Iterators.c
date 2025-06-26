@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators
-// Imports: Init.Data.Iterators.Basic Init.Data.Iterators.PostconditionMonad Init.Data.Iterators.Consumers Init.Data.Iterators.Lemmas Init.Data.Iterators.Internal
+// Imports: Init.Data.Iterators.Basic Init.Data.Iterators.PostconditionMonad Init.Data.Iterators.Consumers Init.Data.Iterators.Combinators Init.Data.Iterators.Lemmas Init.Data.Iterators.ToIterator Init.Data.Iterators.Internal
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,7 +16,9 @@ extern "C" {
 lean_object* initialize_Init_Data_Iterators_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_PostconditionMonad(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Consumers(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Iterators_Combinators(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Iterators_ToIterator(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Internal(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Iterators(uint8_t builtin, lean_object* w) {
@@ -32,7 +34,13 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Combinators(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Lemmas(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_ToIterator(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Internal(builtin, lean_io_mk_world());

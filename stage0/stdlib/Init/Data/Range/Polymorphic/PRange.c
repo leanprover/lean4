@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic.PRange
-// Imports: Init.Core Init.NotationExtra Init.Data.Iterators.Consumers Init.Data.Range.Polymorphic.UpwardEnumerable
+// Imports: Init.Core Init.Data.Range.Polymorphic.UpwardEnumerable
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4091,10 +4091,8 @@ return x_4;
 LEAN_EXPORT lean_object* l_Std_PRange_instBoundedUpwardEnumerableUnboundedOfLeast_x3f___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_ctor_get(x_1, 1);
-lean_inc(x_3);
-return x_3;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_PRange_instBoundedUpwardEnumerableUnboundedOfLeast_x3f___redArg(lean_object* x_1) {
@@ -4110,7 +4108,8 @@ LEAN_EXPORT lean_object* l_Std_PRange_instBoundedUpwardEnumerableUnboundedOfLeas
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_PRange_instBoundedUpwardEnumerableUnboundedOfLeast_x3f___redArg(x_2);
+x_3 = lean_alloc_closure((void*)(l_Std_PRange_instBoundedUpwardEnumerableUnboundedOfLeast_x3f___redArg___lam__0___boxed), 2, 1);
+lean_closure_set(x_3, 0, x_2);
 return x_3;
 }
 }
@@ -4170,8 +4169,6 @@ return x_2;
 }
 }
 lean_object* initialize_Init_Core(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_NotationExtra(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Consumers(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range_Polymorphic_UpwardEnumerable(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Range_Polymorphic_PRange(uint8_t builtin, lean_object* w) {
@@ -4179,12 +4176,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Core(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_NotationExtra(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Range_Polymorphic_UpwardEnumerable(builtin, lean_io_mk_world());

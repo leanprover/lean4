@@ -7,7 +7,13 @@ import Grove.Framework
 
 open Grove.Framework Widget
 
-namespace GroveStdlib.Generated
+namespace GroveStdlib.Std.OperatingSystemAbstractions
 
-def restoreState : RestoreStateM Unit := do
-  return ()
+namespace BasicIO
+
+end BasicIO
+
+def basicIO : Node :=
+  .section "basic-io" "Basic I/O" #[]
+
+end GroveStdlib.Std.OperatingSystemAbstractions

@@ -7,7 +7,13 @@ import Grove.Framework
 
 open Grove.Framework Widget
 
-namespace GroveStdlib.Generated
+namespace GroveStdlib.Std.LanguageConstructs
 
-def restoreState : RestoreStateM Unit := do
-  return ()
+namespace Monads
+
+end Monads
+
+def monads : Node :=
+  .section "monads" "Monads" #[]
+
+end GroveStdlib.Std.LanguageConstructs

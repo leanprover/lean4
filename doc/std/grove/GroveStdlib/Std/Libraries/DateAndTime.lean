@@ -7,7 +7,13 @@ import Grove.Framework
 
 open Grove.Framework Widget
 
-namespace GroveStdlib.Generated
+namespace GroveStdlib.Std.Libraries
 
-def restoreState : RestoreStateM Unit := do
-  return ()
+namespace DateAndTime
+
+end DateAndTime
+
+def dateAndTime : Node :=
+  .section "date-and-time" "Date and time" #[]
+
+end GroveStdlib.Std.Libraries

@@ -7,7 +7,13 @@ import Grove.Framework
 
 open Grove.Framework Widget
 
-namespace GroveStdlib.Generated
+namespace GroveStdlib.Std.OperatingSystemAbstractions
 
-def restoreState : RestoreStateM Unit := do
-  return ()
+namespace Locales
+
+end Locales
+
+def locales : Node :=
+  .section "locales" "Locales" #[]
+
+end GroveStdlib.Std.OperatingSystemAbstractions

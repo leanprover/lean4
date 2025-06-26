@@ -302,6 +302,118 @@ def Module.cacheOutputHashes (mod : Module) : IO PUnit := do
   if Lean.Internal.hasLLVMBackend () then
     cacheFileHash mod.bcFile
 
+structure ModuleOutputHashes where
+  olean : Hash := .nil
+  oleanServer? : Option Hash := none
+  oleanPrivate? : Option Hash := none
+  ilean : Hash := .nil
+  c : Hash := .nil
+  bc? : Option Hash := none
+
+def ModuleOutputHashes.oleanHashes (hashes : ModuleOutputHashes) : Array Hash := Id.run do
+  let mut oleanHashes := #[hashes.olean]
+  if let some hash := hashes.oleanServer? then
+    oleanHashes := oleanHashes.push hash
+  if let some hash := hashes.oleanPrivate? then
+    oleanHashes := oleanHashes.push hash
+  return oleanHashes
+
+protected def ModuleOutputHashes.toJson (hashes : ModuleOutputHashes) : Json := Id.run do
+  let mut obj : JsonObject := {}
+  obj := obj.insert "o" hashes.oleanHashes
+  obj := obj.insert "i" hashes.ilean
+  obj := obj.insert "c" hashes.c
+  if let some bc := hashes.bc? then
+    obj := obj.insert "bc" bc
+  return obj
+
+instance : ToJson ModuleOutputHashes := ⟨ModuleOutputHashes.toJson⟩
+
+protected def ModuleOutputHashes.fromJson? (val : Json) : Except String ModuleOutputHashes := do
+  let obj ← JsonObject.fromJson? val
+  let oleanHashes : Array Hash ← obj.get "o"
+  let some olean := oleanHashes[0]?
+    | throw "expected a least one 'o' (OLean) hash"
+  return {
+    olean := olean
+    oleanServer? := oleanHashes[1]?
+    oleanPrivate? := oleanHashes[2]?
+    ilean := ← obj.get "i"
+    c := ← obj.get "c"
+    bc? := ← obj.get? "b"
+  }
+
+instance : FromJson ModuleOutputHashes := ⟨ModuleOutputHashes.fromJson?⟩
+
+def ModuleOutputHashes.getArtifactsFrom?
+  (ws : Workspace) (hashes : ModuleOutputHashes)
+: BaseIO (Option ModuleArtifacts) := OptionT.run do
+  let mut arts : ModuleArtifacts := {}
+  arts := {arts with olean? := some (← ws.getArtifact? hashes.olean "olean")}
+  if let some hash := hashes.oleanServer? then
+    arts := {arts with oleanServer? := some (← ws.getArtifact? hash "olean.server")}
+  if let some hash := hashes.oleanPrivate? then
+    arts := {arts with oleanPrivate? := some (← ws.getArtifact? hash "olean.private")}
+  arts := {arts with ilean? := some (← ws.getArtifact? hashes.ilean "ilean")}
+  arts := {arts with c? := some (← ws.getArtifact? hashes.c "c")}
+  if Lean.Internal.hasLLVMBackend () then
+    arts := {arts with c? := some (← ws.getArtifact? (← hashes.bc?) "bc")}
+  return arts
+
+def ModuleOutputHashes.getArtifacts? (hashes : ModuleOutputHashes) : JobM (Option ModuleArtifacts) := do
+  hashes.getArtifactsFrom? (← getWorkspace)
+
+/-- Save module build artifacts to the local Lake cache. Requires the artifact cache to be enabled. -/
+def Module.cacheOutputArtifacts (mod : Module) : JobM (ModuleArtifacts × ModuleOutputHashes) := do
+  let mut arts : ModuleArtifacts := {}
+  let mut hashes : ModuleOutputHashes := {}
+  let (oleanFile, oleanHash) ← cacheArtifact mod.oleanFile (ext := "olean")
+  hashes := {hashes with olean := oleanHash}
+  arts := {arts with olean? := oleanFile}
+  if (← mod.oleanServerFile.pathExists) then
+    let (file, hash) ← cacheArtifact mod.oleanServerFile (ext := "olean.server")
+    hashes := {hashes with oleanServer? := hash}
+    arts := {arts with oleanServer? := file}
+  if (← mod.oleanPrivateFile.pathExists) then
+    let (file, hash) ← cacheArtifact mod.oleanPrivateFile (ext := "olean.private")
+    hashes := {hashes with oleanPrivate? := hash}
+    arts := {arts with oleanPrivate? := file}
+  let (ileanFile, ileanHash) ← cacheArtifact mod.ileanFile (ext := "ilean")
+  hashes := {hashes with ilean := ileanHash}
+  arts := {arts with ilean? := ileanFile}
+  let (cFile, cHash) ← cacheArtifact mod.cFile (ext := "c")
+  hashes := {hashes with c := cHash}
+  arts := {arts with c? := cFile}
+  if Lean.Internal.hasLLVMBackend () then
+    let (bcFile, bcHash) ← cacheArtifact mod.bcFile (ext := "bc")
+    hashes := {hashes with bc? := bcHash}
+    arts := {arts with bc? := bcFile}
+  return (arts, hashes)
+
+/--
+Some module build artifacts must be located in the build directory (e.g., OLeans, ILeans).
+This copies the required artifacts from the local Lake cache to the build directory and
+updates the data structure with the new paths.
+-/
+def Module.restoreArtifacts (mod : Module) (cached : ModuleArtifacts) : JobM ModuleArtifacts := do
+  restore mod.oleanFile cached.olean?
+  restore mod.oleanPrivateFile cached.oleanPrivate?
+  restore mod.oleanServerFile cached.oleanServer?
+  restore mod.ileanFile cached.ilean?
+  return {cached with
+    olean? := mod.oleanFile
+    oleanServer? := if cached.oleanServer?.isSome then mod.oleanServerFile else none
+    oleanPrivate? := if cached.oleanPrivate?.isSome then mod.oleanPrivateFile else none
+    ilean? := mod.ileanFile
+  }
+where
+  restore file art? :=
+    unless (← file.pathExists) do
+      if let some art := art? then
+        logVerbose s!"restored artifact from cache to: {file}"
+        copyFile art file
+        cacheFileHash file
+
 private def traceOptions (opts : LeanOptions) (caption := "opts") : BuildTrace :=
   opts.values.fold (init := .nil caption) fun t n v =>
     let opt := s!"-D{n}={v.asCliFlagValue}"
@@ -323,6 +435,7 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleArtifacts) := do
     addTrace <| traceOptions setup.options "options"
     addPureTrace mod.leanArgs "Module.leanArgs"
     setTraceCaption s!"{mod.name.toString}:leanArts"
+    let depTrace ← getTrace
     let arts : ModuleArtifacts := {
       lean? := srcFile
       olean? := mod.oleanFile
@@ -332,13 +445,29 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleArtifacts) := do
       c? := mod.cFile
       bc? := if Lean.Internal.hasLLVMBackend () then some mod.bcFile else none
     }
-    let upToDate ← buildUnlessUpToDate? (oldTrace := srcTrace.mtime) mod (← getTrace) mod.traceFile do
+    let inputHash := depTrace.hash
+    if let some ref := mod.pkg.inputMap? then
+      if let some out ← ref.modifyGet fun m => ((m.get? inputHash, m)) then
+        if let .ok (contentHashes : ModuleOutputHashes) := fromJson? out then
+          if let some arts ← contentHashes.getArtifacts? then
+            let arts ← mod.restoreArtifacts arts
+            replayIfTrace mod.traceFile
+            return arts
+          else
+            logWarning "input found in package artifact cache, but output was not"
+        else
+          logWarning "input found in package artifact cache, but output was in an unexpected format"
+    let upToDate ← buildUnlessUpToDate? (oldTrace := srcTrace.mtime) mod depTrace mod.traceFile do
       let args := mod.weakLeanArgs ++ mod.leanArgs
       let relSrcFile := relPathFrom mod.pkg.dir srcFile
       compileLeanModule srcFile relSrcFile setup mod.setupFile arts args
         (← getLeanPath) (← getLean)
       mod.clearOutputHashes
-    unless upToDate && (← getTrustHash) do
+    if let some ref := mod.pkg.inputMap? then
+      let (arts, contentHashes) ← mod.cacheOutputArtifacts
+      ref.modify (·.insert inputHash (toJson contentHashes))
+      return arts
+    else unless upToDate && (← getTrustHash) do
       mod.cacheOutputHashes
     return arts
 

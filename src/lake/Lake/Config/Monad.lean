@@ -123,8 +123,12 @@ def findExternLib? (name : Name) : m (Option ExternLib) :=
   (·.augmentedEnvVars) <$> getWorkspace
 
 @[inline, inherit_doc Workspace.artifactPath]
-def getArtifactPath [MonadWorkspace m] (contentHash : Hash) (ext := "art") : m FilePath :=
+def getArtifactPath (contentHash : Hash) (ext := "art") : m FilePath :=
   (·.artifactPath contentHash ext) <$> getWorkspace
+
+@[inline, inherit_doc Workspace.getArtifact?]
+def getArtifact? [Bind m] [MonadLiftT BaseIO m] (contentHash : Hash) (ext := "art") : m (Option FilePath) :=
+  getWorkspace >>= (·.getArtifact? contentHash ext)
 
 end
 

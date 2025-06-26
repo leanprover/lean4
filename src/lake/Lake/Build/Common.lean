@@ -276,7 +276,8 @@ abbrev buildFileUnlessUpToDate
   getTrace
 
 /--
-Saves `file` to Lake content-addressed cache with the file extension `ext`.
+Saves `file` to the local Lake artifact cache with the file extension `ext`
+saves the hash of `file` to its `.hash` file.
 
 If `text := true`, `file` contents are hashed as a text file rather than a binary file.
 -/
@@ -300,15 +301,38 @@ def cacheArtifact (file : FilePath) (text := false) (ext := "art") : JobM (FileP
     return (art, contentHash)
 
 /--
+Computes the trace of a cached artifact.
+`buildFile` is where the uncached artifact would be located.
+-/
+def computeArtifactTrace
+  (buildFile : FilePath) (art : FilePath) (contentHash : Hash)
+: BaseIO BuildTrace := do
+  let mtime := (← getMTime art |>.toBaseIO).toOption.getD 0
+  return {caption := buildFile.toString, mtime, hash := contentHash}
+
+/-- Replays the log from `traceFile` if it exists. -/
+def replayIfTrace (traceFile : FilePath) : JobM Unit := do
+  if let some data ← readTraceFile? traceFile then
+    updateAction .replay
+    data.log.replay
+  else
+    updateAction .fetch
+
+/--
 Uses the current job's trace to search Lake's local artifact cache for an artifact
-with a matching extension (`ext`) and content hash. If one is found, returns it.
+with a matching extension (`ext`) and content hash. If one is found, use it.
 Otherwise, builds `file` using `build` and saves it to the cache. If Lake's
 local artifact cache is not enabled, falls back to `buildFileUnlessUpToDate'`.
 
 If `text := true`, `file` is hashed as a text file rather than a binary file.
+
+If `restore := true`, if `file` is missing but the artifact is in the cache,
+it will be copied to the `file`. This function will also return `file` rather
+than the path to the cached artifact.
 -/
 def buildArtifactUnlessUpToDate
-  (file : FilePath) (build : JobM PUnit) (text := false) (ext := "art")
+  (file : FilePath) (build : JobM PUnit)
+  (text := false) (ext := "art") (restore := false)
 : JobM FilePath := do
   if let some pkg ← getCurrPackage? then
     if let some ref := pkg.inputMap? then
@@ -317,15 +341,13 @@ def buildArtifactUnlessUpToDate
       let traceFile := FilePath.mk <| file.toString ++ ".trace"
       if let some out ← ref.modifyGet fun m => ((m.get? inputHash, m)) then
         if let .ok (contentHash : Hash) := fromJson? out then
-          let art ← getArtifactPath contentHash ext
-          if (← art.pathExists) then
-            if let some data ← readTraceFile? traceFile then
-              updateAction .replay
-              data.log.replay
-            else
-              updateAction .fetch
-            setTrace {caption := file.toString, mtime := ← getMTime art, hash := contentHash}
-            return art
+          if let some art ← getArtifact? contentHash ext then
+            if restore && !(← file.pathExists) then
+              copyFile art file
+              writeFileHash file contentHash
+            replayIfTrace traceFile
+            setTrace (← computeArtifactTrace file art contentHash)
+            return if restore then file else art
           else
             logWarning "input found in package artifact cache, but output was not"
         else
@@ -335,11 +357,10 @@ def buildArtifactUnlessUpToDate
         clearFileHash file
       let (art, contentHash) ← cacheArtifact file text ext
       ref.modify (·.insert inputHash (toJson contentHash))
-      setTrace {caption := file.toString, mtime := ← getMTime art, hash := contentHash}
-      return art
+      setTrace (← computeArtifactTrace file art contentHash)
+      return if restore then file else art
   buildFileUnlessUpToDate' file build text
   return file
-
 
 /--
 Build `file` using `build` after `dep` completes if the dependency's
@@ -538,7 +559,9 @@ def buildSharedLib
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- shared libraries are platform-dependent artifacts
     addTrace (← extraDepTrace)
-    let libFile ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) do
+    -- `restore := plugin` because Lean plugins are required to have a specific name
+    -- and thus need to copied from the cache with that name
+    let libFile ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := plugin) do
       let libs ← if linkDeps then mkLinkOrder libs else pure #[]
       let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs
       compileSharedLib libFile args linker
@@ -559,7 +582,9 @@ def buildLeanSharedLib
     addLeanTrace
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- shared libraries are platform-dependent artifacts
-    let libFile ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) do
+    -- `restore := plugin` because Lean plugins are required to have a specific name
+    -- and thus need to copied from the cache with that name
+    let libFile ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := plugin) do
       let lean ← getLeanInstall
       let libs ← if linkDeps then mkLinkOrder libs else pure #[]
       let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs ++

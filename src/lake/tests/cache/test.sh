@@ -31,6 +31,9 @@ test_exp -d "$CACHE_DIR/inputs"
 test_exp -s "$CACHE_DIR/inputs/test.jsonl"
 test_exp -d "$CACHE_DIR/artifacts"
 
+# Copy the basic inputs for later
+cp "$CACHE_DIR/inputs/test.jsonl" .lake/backup-inputs.json
+
 # Checked that the cached artifact is in the expected location
 # and equivalent to the standard artifact
 local_art="$(LAKE_CACHE_DIR= $LAKE query +Test:o)"
@@ -38,6 +41,31 @@ cache_art="$(LAKE_CACHE_DIR="$CACHE_DIR" $LAKE query +Test:o)"
 test_exp "$(dirname -- "$cache_art")" = "$CACHE_DIR/artifacts"
 test_exp "$cache_art" != "$local_art"
 test_cmd cmp -s "$cache_art" "$local_art"
+
+# Verify supported artifacts end up in the cache directory
+LAKE_CACHE_DIR="$CACHE_DIR" test_run build test:exe Test:static Test:shared +Test:o.export +Test:o.noexport
+test_cached() {
+  target="$1"; shift
+  art="$(LAKE_CACHE_DIR="$CACHE_DIR" $LAKE query $target)"
+  echo "${1:-?} artifact cached: $target -> $art"
+  test ${1:-} "$(dirname -- "$art")" = "$CACHE_DIR/artifacts"
+}
+test_cached test:exe
+test_cached Test:static
+test_cached Test:shared !
+test_cached +Test:o.export
+test_cached +Test:o.noexport
+test_cached +Test:dynlib !
+test_cached +Test:olean !
+test_cached +Test:ilean !
+test_cached +Test:c
+
+# Verify module oleans and ileans are restored from the cache
+LAKE_CACHE_DIR="$CACHE_DIR" test_run build +Test --no-build
+test_cmd rm .lake/build/lib/lean/Test.olean .lake/build/lib/lean/Test.ilean
+LAKE_CACHE_DIR="$CACHE_DIR" test_out "restored artifact from cache" -v build +Test --no-build
+test_exp -f .lake/build/lib/lean/Test.olean
+test_exp -f .lake/build/lib/lean/Test.ilean
 
 # Verify that things work properly if the cached artifact is removed
 test_cmd rm "$cache_art"
@@ -47,19 +75,15 @@ test_cmd rm "$CACHE_DIR/inputs/test.jsonl"
 LAKE_CACHE_DIR="$CACHE_DIR" test_out "Replayed Test:c.o" build +Test:o -v --no-build
 test_exp -f "$cache_art" # artifact should be re-cached
 
+# Verify that the whole input graph is restored
+LAKE_CACHE_DIR="$CACHE_DIR" test_out "Replayed Test:c.o" build Test:static -v --no-build
+check_diff .lake/backup-inputs.json "$CACHE_DIR/inputs/test.jsonl"
+
 # Verify that things work properly if the local artifact is removed
 test_cmd rm "$local_art"
 LAKE_CACHE_DIR="$CACHE_DIR" test_out "Replayed Test:c.o" build +Test:o -v --no-build
 test_cmd rm "$local_art.trace"
 LAKE_CACHE_DIR="$CACHE_DIR" test_out "Fetched Test:c.o" build +Test:o -v --no-build
-
-# Verify supported artifacts end up in the cache directory
-LAKE_CACHE_DIR="$CACHE_DIR" test_run build test:exe Test:static Test:shared +Test:o.export +Test:o.noexport
-test_exp "$(dirname -- "$(LAKE_CACHE_DIR="$CACHE_DIR" $LAKE query test:exe)")" = "$CACHE_DIR/artifacts"
-test_exp "$(dirname -- "$(LAKE_CACHE_DIR="$CACHE_DIR" $LAKE query Test:static)")" = "$CACHE_DIR/artifacts"
-test_exp ! "$(dirname -- "$(LAKE_CACHE_DIR="$CACHE_DIR" $LAKE query Test:shared)")" = "$CACHE_DIR/artifacts"
-test_exp "$(dirname -- "$(LAKE_CACHE_DIR="$CACHE_DIR" $LAKE query +Test:o.export)")" = "$CACHE_DIR/artifacts"
-test_exp "$(dirname -- "$(LAKE_CACHE_DIR="$CACHE_DIR" $LAKE query +Test:o.noexport)")" = "$CACHE_DIR/artifacts"
 
 # Cleanup
 rm -f produced.out

@@ -57,6 +57,18 @@ Will not return a valid path if the artifact cache is disabled (c.f., `enableArt
 def artifactPath (contentHash : Hash) (ext := "art") (ws : Workspace) : FilePath :=
   ws.artifactDir / if ext.isEmpty then contentHash.toString else s!"{contentHash}.{ext}"
 
+/--
+Returns the path to artifact in the local Lake cache with extension `ext` if it exists.
+
+The behavior is undefined if the artifact cache is disabled (c.f., `enableArtifactCache`).
+-/
+@[inline] def getArtifact? (contentHash : Hash) (ext := "art") (ws : Workspace) : BaseIO (Option FilePath) := do
+  let art := ws.artifactPath contentHash ext
+  if (← art.pathExists) then
+    return some art
+  else
+    return none
+
 /-- The path to the workspace's directory (i.e., the directory of the root package). -/
 @[inline] def dir (self : Workspace) : FilePath :=
   self.root.dir

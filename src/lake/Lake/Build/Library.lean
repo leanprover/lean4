@@ -89,7 +89,7 @@ def LeanLib.staticExportFacetConfig : LibraryFacetConfig staticExportFacet :=
 /-! ## Build Shared Lib -/
 
 protected def LeanLib.recBuildShared (self : LeanLib) : FetchM (Job Dynlib) := do
-  withRegisterJob s!"{self.name}:shared" do
+  withRegisterJob s!"{self.name}:shared" <| withCurrPackage self.pkg do
   let mods ← (← self.modules.fetch).await
   let objJobs ← mods.flatMapM fun mod =>
     mod.nativeFacets true |>.mapM (·.fetch mod)
@@ -112,8 +112,6 @@ protected def LeanLib.recBuildShared (self : LeanLib) : FetchM (Job Dynlib) := d
     let jobs ← self.pkg.externLibs.foldlM
       (·.push <$> ·.dynlib.fetch) jobs
     return jobs
-  -- Plugins are required to have a specific name and thus cannot be in the hash-named cache.
-  withCurrPackage? (if self.isPlugin then none else some self.pkg) do
   buildLeanSharedLib self.libName self.sharedLibFile objJobs libJobs
     self.weakLinkArgs self.linkArgs self.isPlugin
 

@@ -12,11 +12,7 @@ inductive P : Nat → n > 0 → Prop
 /--
 error: Invalid projection: Index `2` is invalid for this structure; the only valid index is 1
 
-Note: The expression
-  h2
-has type
-  P m h'
-which has only 1 field
+Note: The expression `h2` has type `P m h'` which has only 1 field
 -/
 #guard_msgs in
 example (h1 : P n h) (h2 : P m h') := h1.1 = h2.2
@@ -24,11 +20,7 @@ example (h1 : P n h) (h2 : P m h') := h1.1 = h2.2
 /--
 error: Invalid projection: Index `3` is invalid for this structure; it must be between 1 and 2
 
-Note: The expression
-  x
-has type
-  Nat × Nat × Nat
-which has only 2 fields
+Note: The expression `x` has type `Nat × Nat × Nat` which has only 2 fields
 -/
 #guard_msgs in
 example (x : Nat × Nat × Nat) := x.3

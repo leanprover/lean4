@@ -209,7 +209,7 @@ end IntModule
 We say a module has no natural number zero divisors if
 `k ≠ 0` and `k * a = k * b` implies `a = b` (here `k` is a natural number and `a` and `b` are element of the module).
 
-For a module over the integersm this is equivalent to
+For a module over the integers this is equivalent to
 `k ≠ 0` and `k * a = 0` implies `a = 0`.
 (See the alternative constructor `NoNatZeroDivisors.mk'`,
 and the theorem `eq_zero_of_mul_eq_zero`.)

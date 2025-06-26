@@ -500,7 +500,7 @@ where
   Otherwise return
   ```
   let k := app
-  k args[arity:]
+  k args[arity...*]
   ```
   -/
   mkOverApplication (app : Arg) (args : Array Expr) (arity : Nat) : M Arg := do

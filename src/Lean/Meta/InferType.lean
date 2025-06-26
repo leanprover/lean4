@@ -10,7 +10,7 @@ import Lean.Meta.Basic
 namespace Lean
 
 /--
-Auxiliary function for instantiating the loose bound variables in `e` with `args[start:stop]`.
+Auxiliary function for instantiating the loose bound variables in `e` with `args[start...stop]`.
 This function is similar to `instantiateRevRange`, but it applies beta-reduction when
 we instantiate a bound variable with a lambda expression.
 Example: Given the term `#0 a`, and `start := 0, stop := 1, args := #[fun x => x]` the result is

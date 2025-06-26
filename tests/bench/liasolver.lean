@@ -341,7 +341,7 @@ def main (args : List String) : IO UInt32 := do
   let nEquations ← header.ithVal 0 "amount of equations"
   let nVars ← header.ithVal 1 "amount of variables"
   let mut equations : HashMap Nat Equation := ∅
-  for line in lines[1:] do
+  for line in lines[1...*] do
     let elems := line.splitOn.toArray
     let nTerms ← elems.ithVal 0 "amount of equation terms"
     let 0 ← elems.ithVal (elems.size - 1) "end of line symbol"

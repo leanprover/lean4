@@ -606,7 +606,7 @@ where
                 trace[Meta.Match.matchEqs] "altNew: {altNew} : {altTypeNew}"
                 -- Replace `rhs` with `x` (the lambda binder in the motive)
                 let mut altTypeNewAbst := (← kabstract altTypeNew rhs).instantiate1 x
-                -- Replace args[6:6+i] with `motiveTypeArgsNew`
+                -- Replace args[6...(6+i)] with `motiveTypeArgsNew`
                 for j in [:i] do
                   altTypeNewAbst := (← kabstract altTypeNewAbst argsNew[6+j]!).instantiate1 motiveTypeArgsNew[j]!
                 let localDecl ← motiveTypeArg.fvarId!.getDecl

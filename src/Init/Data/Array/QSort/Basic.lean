@@ -55,7 +55,7 @@ def qpartition {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat) (w
 /--
 In-place quicksort.
 
-`qsort as lt lo hi` sorts the subarray `as[lo:hi+1]` in-place using `lt` to compare elements.
+`qsort as lt lo hi` sorts the subarray `as[lo...=hi]` in-place using `lt` to compare elements.
 -/
 @[inline] def qsort (as : Array α) (lt : α → α → Bool := by exact (· < ·))
     (lo := 0) (hi := as.size - 1) : Array α :=

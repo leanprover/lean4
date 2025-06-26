@@ -1125,9 +1125,9 @@ private def assignConst (mvar : Expr) (numArgs : Nat) (v : Expr) : MetaM Bool :=
         checkTypesAndAssign mvar v
 
 /--
-  Auxiliary procedure for solving `?m args =?= v` when `args[:patternVarPrefix]` contains
+  Auxiliary procedure for solving `?m args =?= v` when `args[*...patternVarPrefix]` contains
   only pairwise distinct free variables.
-  Let `args[:patternVarPrefix] = #[a₁, ..., aₙ]`, and `args[patternVarPrefix:] = #[b₁, ..., bᵢ]`,
+  Let `args[*...patternVarPrefix] = #[a₁, ..., aₙ]`, and `args[patternVarPrefix...*] = #[b₁, ..., bᵢ]`,
   this procedure first reduces the constraint to
   ```
   ?m a₁ ... aₙ =?= fun x₁ ... xᵢ => v

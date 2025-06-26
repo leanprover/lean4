@@ -11,6 +11,7 @@ permissions:
 jobs:
   grove-build:
     runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success' && github.repository == 'leanprover/lean4'
 
     steps:
       - name: Retrieve information about the original workflow
@@ -53,7 +54,7 @@ jobs:
         uses: TwoFx/grove-action/fetch-upstream@v0
         with:
           artifact-name: grove-invalidated-facts
-          base-ref: ${{ steps.workflow-info.outputs.targetCommitSha }}
+          base-ref: master
 
       - name: Download toolchain for this commit
         if: ${{ steps.should-run.outputs.should-run == 'true' }}

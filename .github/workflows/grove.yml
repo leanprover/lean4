@@ -51,7 +51,7 @@ jobs:
       - name: Fetch upstream invalidated facts
         if: ${{ steps.should-run.outputs.should-run == 'true' && steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: fetch-upstream
-        uses: TwoFx/grove-action/fetch-upstream@v0.1
+        uses: TwoFx/grove-action/fetch-upstream@v0.3
         with:
           artifact-name: grove-invalidated-facts
           base-ref: master
@@ -95,7 +95,7 @@ jobs:
       - name: Build
         if: ${{ steps.should-run.outputs.should-run == 'true' }}
         id: build
-        uses: TwoFx/grove-action/build@v0.1
+        uses: TwoFx/grove-action/build@v0.3
         with:
           project-path: doc/std/grove
           script-name: grove-stdlib
@@ -103,6 +103,7 @@ jobs:
           comment-artifact-name: grove-comment
           toolchain-id: lean4
           toolchain-path: artifacts/${{ steps.unpack-toolchain.outputs.lean-dir }}
+          project-ref: ${{ steps.workflow-info.outputs.sourceHeadSha }}
 
       # deploy-alias computes a URL component for the PR preview. This
       # is so we can have a stable name to use for feedback on draft
@@ -152,7 +153,7 @@ jobs:
           header: preview-comment
           recreate: true
           message: |
-            [Grove](${{ steps.deploy-draft.outputs.deploy-url }}).
+            [Grove](${{ steps.deploy-draft.outputs.deploy-url }}) for revision ${{ steps.workflow-info.outputs.sourceHeadSha }}.
 
             ${{ steps.build.outputs.comment-text }}
         env:

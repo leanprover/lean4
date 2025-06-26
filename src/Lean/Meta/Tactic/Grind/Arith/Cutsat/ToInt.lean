@@ -203,11 +203,17 @@ private def expandIfWrap (a b : Expr) (h : Expr) : ToIntM (Expr × Expr) := do
   | none => return (b, h)
   | some b => expandWrap a b h
 
+private def mkWrap (a : Expr) : ToIntM Expr := do
+  return mkApp (← getInfo).wrap a
+
 private def ToIntThms.mkResult (toIntThms : ToIntThms) (mkBinOp : Expr → Expr → Expr) (a b : Expr) (a' b' : Expr) (h₁ h₂ : Expr) : ToIntM (Expr × Expr) := do
   let f := toIntThms.c?.get!
   let mk (f : Expr) (a' b' : Expr) : ToIntM (Expr × Expr) := do
+    -- If the appropriate `wrap` cancellation theorem is missing, we have to expand the nested wrap.
+    let (a', h₁) ← expandIfWrap a a' h₁
+    let (b', h₂) ← expandIfWrap b b' h₂
     let h := mkApp6 f a b a' b' h₁ h₂
-    let r := mkApp (← getInfo).wrap (mkBinOp a' b')
+    let r ← mkWrap (mkBinOp a' b')
     return (r, h)
   match isWrap a', isWrap b' with
   | none,     none     => mk f a' b'
@@ -229,6 +235,14 @@ partial def toInt (e : Expr) : ToIntM (Expr × Expr) := do
   | HMod.hMod α β γ _ a b =>
     unless isHomo α β γ do return (← toIntDef e)
     processDivMod (isDiv := false) a b
+  | HSub.hSub α β γ _ a b =>
+    unless isHomo α β γ do return (← toIntDef e)
+    processSub a b
+  | Neg.neg _ _ a =>
+    processNeg a
+  | HPow.hPow α β γ _ a b =>
+    unless isSameExpr α γ && β.isConstOf ``Nat do return (← toIntDef e)
+    processPow a b
   -- TODO: other operators
   | _ => toIntDef e
 where
@@ -238,15 +252,39 @@ where
     let (b', h₂) ← toInt b
     toIntOp.mkResult mkBinOp a b a' b' h₁ h₂
 
+  toIntAndExpandWrap (a : Expr) : ToIntM (Expr × Expr) := do
+    let (a', h₁) ← toInt a
+    expandIfWrap a a' h₁
+
   processDivMod (isDiv : Bool) (a b : Expr) : ToIntM (Expr × Expr) := do
     let some thm ← if isDiv then pure (← getInfo).divThm? else pure (← getInfo).modThm?
       | return (← toIntDef e)
-    let (a', h₁) ← toInt a
-    let (b', h₂) ← toInt b
-    let (a', h₁) ← expandIfWrap a a' h₁
-    let (b', h₂) ← expandIfWrap b b' h₂
+    let (a', h₁) ← toIntAndExpandWrap a
+    let (b', h₂) ← toIntAndExpandWrap b
     let r := if isDiv then mkIntDiv a' b' else mkIntMod a' b'
     let h := mkApp6 thm a b a' b' h₁ h₂
+    return (r, h)
+
+  processSub (a b : Expr) : ToIntM (Expr × Expr) := do
+    let some thm := (← getInfo).subThm? | return (← toIntDef e)
+    let (a', h₁) ← toIntAndExpandWrap a
+    let (b', h₂) ← toIntAndExpandWrap b
+    let r ← mkWrap (mkIntSub a' b')
+    let h := mkApp6 thm a b a' b' h₁ h₂
+    return (r, h)
+
+  processNeg (a : Expr) : ToIntM (Expr × Expr) := do
+    let some thm := (← getInfo).negThm? | return (← toIntDef e)
+    let (a', h₁) ← toIntAndExpandWrap a
+    let r ← mkWrap (mkIntNeg a')
+    let h := mkApp3 thm a a' h₁
+    return (r, h)
+
+  processPow (a b : Expr) : ToIntM (Expr × Expr) := do
+    let some thm := (← getInfo).powThm? | return (← toIntDef e)
+    let (a', h₁) ← toIntAndExpandWrap a
+    let r ← mkWrap (mkIntPowNat a' b)
+    let h := mkApp4 thm a b a' h₁
     return (r, h)
 
 def toInt? (a : Expr) (type : Expr) : GoalM (Option (Expr × Expr)) := do

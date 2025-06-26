@@ -62,6 +62,11 @@ structure ToIntInfo where
   ofNotLT?  : Option Expr
   addThms   : ToIntThms
   mulThms   : ToIntThms
+  subThm?   : Option Expr
+  negThm?   : Option Expr
+  divThm?   : Option Expr
+  modThm?   : Option Expr
+  powThm?   : Option Expr
   -- TODO: other operators
 
 end Lean.Meta.Grind.Arith.Cutsat

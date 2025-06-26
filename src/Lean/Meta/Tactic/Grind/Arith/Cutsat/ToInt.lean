@@ -19,16 +19,31 @@ private def checkDecl (declName : Name) : MetaM Unit := do
   unless (← getEnv).contains declName do
     throwMissingDecl declName
 
-private def mkBinOpThms (type : Expr) (u : Level) (toIntInst : Expr) (rangeExpr : Expr) (range : Grind.IntInterval) (opBaseName : Name) (thmName : Name) : MetaM ToIntThms := do
-  let op := mkApp (mkConst opBaseName [u]) type
-  let .some opInst ← trySynthInstance op | return {}
-  let toIntOpName := ``Grind.ToInt ++ opBaseName
+/-- Helper function for `mkSimpleOpThm?` and `mkPowThm?` -/
+private def mkSimpleOpThmCore? (type : Expr) (u : Level) (toIntInst : Expr) (rangeExpr : Expr) (op : Expr) (opSuffix : Name) (thmName : Name) : MetaM (Option Expr) := do
+  let .some opInst ← trySynthInstance op | return none
+  let toIntOpName := ``Grind.ToInt ++ opSuffix
   checkDecl toIntOpName
   let toIntOp := mkApp4 (mkConst toIntOpName [u]) type opInst rangeExpr toIntInst
   let .some toIntOpInst ← trySynthInstance toIntOp
-    | reportMissingToIntAdapter type toIntOp; return {}
+    | reportMissingToIntAdapter type toIntOp; return none
   checkDecl thmName
-  let c := mkApp5 (mkConst thmName [u]) type rangeExpr toIntInst opInst toIntOpInst
+  return mkApp5 (mkConst thmName [u]) type rangeExpr toIntInst opInst toIntOpInst
+
+/-- Simpler version of `mkBinOpThms` for operators that have only one congruence theorem. -/
+private def mkSimpleOpThm? (type : Expr) (u : Level) (toIntInst : Expr) (rangeExpr : Expr) (opBaseName : Name) (thmName : Name) : MetaM (Option Expr) := do
+  let op := mkApp (mkConst opBaseName [u]) type
+  mkSimpleOpThmCore? type u toIntInst rangeExpr op opBaseName thmName
+
+/-- Simpler version of `mkBinOpThms` for operators that have only one congruence theorem. -/
+private def mkPowThm? (type : Expr) (u : Level) (toIntInst : Expr) (rangeExpr : Expr) : MetaM (Option Expr) := do
+  let op := mkApp3 (mkConst ``HPow [u, 0, u]) type Nat.mkType type
+  mkSimpleOpThmCore? type u toIntInst rangeExpr op `Pow ``Grind.ToInt.pow_congr
+
+private def mkBinOpThms (type : Expr) (u : Level) (toIntInst : Expr) (rangeExpr : Expr) (range : Grind.IntInterval) (opBaseName : Name) (thmName : Name) : MetaM ToIntThms := do
+  let some c ← mkSimpleOpThm? type u toIntInst rangeExpr opBaseName thmName | return {}
+  let opInst := c.appFn!.appArg!
+  let toIntOpInst := c.appArg!
   let env ← getEnv
   let cwwName := thmName ++ `ww
   let cwlName := thmName ++ `wl
@@ -120,11 +135,19 @@ where
       pure (some ofLT, some ofNotLT)
     let mkBinOpThms (opBaseName : Name) (thmName : Name) :=
       mkBinOpThms type u toIntInst rangeExpr range opBaseName thmName
+    let mkSimpleOpThm? (opBaseName : Name) (thmName : Name) :=
+      mkSimpleOpThm? type u toIntInst rangeExpr opBaseName thmName
     let addThms ← mkBinOpThms ``Add ``Grind.ToInt.add_congr
     let mulThms ← mkBinOpThms ``Mul ``Grind.ToInt.mul_congr
+    let subThm? ← mkSimpleOpThm? ``Sub ``Grind.ToInt.sub_congr
+    let negThm? ← mkSimpleOpThm? ``Neg ``Grind.ToInt.neg_congr
+    let divThm? ← mkSimpleOpThm? ``Div ``Grind.ToInt.div_congr
+    let modThm? ← mkSimpleOpThm? ``Mod ``Grind.ToInt.mod_congr
+    let powThm? ← mkPowThm? type u toIntInst rangeExpr
     -- TODO: other operators
     return some {
-      type, u, toIntInst, rangeExpr, range, toInt, wrap, ofWrap0?, ofEq, ofDiseq, ofLE?, ofNotLE?, ofLT?, ofNotLT?, addThms, mulThms
+      type, u, toIntInst, rangeExpr, range, toInt, wrap, ofWrap0?, ofEq, ofDiseq, ofLE?, ofNotLE?, ofLT?, ofNotLT?, addThms, mulThms,
+      subThm?, negThm?, divThm?, modThm?, powThm?
     }
 
 structure ToIntM.Context where
@@ -171,7 +194,7 @@ private def expandWrap (a b : Expr) (h : Expr) : ToIntM (Expr × Expr) := do
     return (b', h)
   | _ => throwError "`grind cutsat`, `ToInt` interval not supported yet"
 
-private def mkToIntResult (toIntThms : ToIntThms) (mkBinOp : Expr → Expr → Expr) (a b : Expr) (a' b' : Expr) (h₁ h₂ : Expr) : ToIntM (Expr × Expr) := do
+private def ToIntThms.mkResult (toIntThms : ToIntThms) (mkBinOp : Expr → Expr → Expr) (a b : Expr) (a' b' : Expr) (h₁ h₂ : Expr) : ToIntM (Expr × Expr) := do
   let f := toIntThms.c?.get!
   let mk (f : Expr) (a' b' : Expr) : ToIntM (Expr × Expr) := do
     let h := mkApp6 f a b a' b' h₁ h₂
@@ -191,6 +214,12 @@ partial def toInt (e : Expr) : ToIntM (Expr × Expr) := do
   | HMul.hMul α β γ _ a b =>
     unless isHomo α β γ do return (← toIntDef e)
     toIntBin (← getInfo).mulThms mkIntMul a b
+  | HDiv.hDiv α β γ _ a b =>
+    unless isHomo α β γ do return (← toIntDef e)
+    processDivMod (isDiv := true) a b
+  | HMod.hMod α β γ _ a b =>
+    unless isHomo α β γ do return (← toIntDef e)
+    processDivMod (isDiv := false) a b
   -- TODO: other operators
   | _ => toIntDef e
 where
@@ -198,7 +227,16 @@ where
     unless toIntOp.c?.isSome do return (← toIntDef e)
     let (a', h₁) ← toInt a
     let (b', h₂) ← toInt b
-    mkToIntResult toIntOp mkBinOp a b a' b' h₁ h₂
+    toIntOp.mkResult mkBinOp a b a' b' h₁ h₂
+
+  processDivMod (isDiv : Bool) (a b : Expr) : ToIntM (Expr × Expr) := do
+    let some thm ← if isDiv then pure (← getInfo).divThm? else pure (← getInfo).modThm?
+      | return (← toIntDef e)
+    let (a', h₁) ← toInt a
+    let (b', h₂) ← toInt b
+    let r := if isDiv then mkIntDiv a' b' else mkIntMod a' b'
+    let h := mkApp6 thm a b a' b' h₁ h₂
+    return (r, h)
 
 def toInt? (a : Expr) (type : Expr) : GoalM (Option (Expr × Expr)) := do
   ToIntM.run? type do

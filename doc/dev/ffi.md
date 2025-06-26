@@ -143,7 +143,7 @@ lean_object * initialize_A_B(uint8_t builtin, lean_object *);
 lean_object * initialize_C(uint8_t builtin, lean_object *);
 ...
 
-lean_setup_libuv(argc, argv); // if using process-related functionality
+argv = lean_setup_libuv(argc, argv); // if using process-related functionality
 lean_initialize_runtime_module();
 //lean_initialize();  // necessary (and replaces `lean_initialize_runtime_module`) if you (indirectly) access the `Lean` package
 

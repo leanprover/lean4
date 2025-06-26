@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Grind.ToIntLemmas
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 
 namespace Lean.Meta.Grind.Arith.Cutsat
@@ -46,16 +47,16 @@ private def mkOpCongr (type : Expr) (u : Level) (toIntInst : Expr) (rangeExpr : 
     none
   return { c? := some c, c_ww?, c_wl?, c_wr? }
 
--- TODO: improve this
+-- TODO: improve this function
 private def evalInt? (e : Expr) : MetaM (Option Int) := do
   let e ← whnfD e
   match_expr e with
   | Int.ofNat a =>
-    let some a ← getNatValue? a | return none
+    let some a ← getNatValue? (← whnfD a) | return none
     return some (a : Int)
   | Int.negSucc a =>
-    let some a ← getNatValue? a | return none
-    return some (a - 1 : Int)
+    let some a ← getNatValue? (← whnfD a) | return none
+    return some (- (a : Int) - 1)
   | _ => return none
 
 def getToIntInfo? (type : Expr) : GoalM (Option ToIntInfo) := do

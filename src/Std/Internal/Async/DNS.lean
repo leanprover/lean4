@@ -36,7 +36,7 @@ Asynchronously resolves a hostname and service to an array of socket addresses.
 -/
 @[inline]
 def getAddrInfo (host : String) (service : String) (addressFamily : Option AddressFamily := none) :
-  IO (AsyncTask (Array IPAddr)) :=
+    IO (AsyncTask (Array IPAddr)) :=
   AsyncTask.ofPromise <$> UV.DNS.getAddrInfo host service
     (match addressFamily with
     | none => 0

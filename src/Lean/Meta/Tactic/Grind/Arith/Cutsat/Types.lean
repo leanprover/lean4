@@ -9,6 +9,7 @@ import Std.Internal.Rat
 import Lean.Data.PersistentArray
 import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.Arith.Util
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -306,6 +307,7 @@ structure State where
   - `Int.Linear.emod_le`
   -/
   divMod : PHashSet (Expr × Int) := {}
+  toIntInfos : PHashMap ExprPtr (Option ToIntInfo) := {}
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.Cutsat

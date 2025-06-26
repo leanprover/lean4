@@ -8,6 +8,7 @@ import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -274,7 +275,7 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where
-  | add | mul | num | div | mod | sub | pow | natAbs | toNat | natCast
+  | add | mul | num | div | mod | sub | pow | natAbs | toNat | natCast | neg
   deriving BEq
 
 private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
@@ -285,9 +286,9 @@ private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
   | HDiv.hDiv α _ _ _ _ _ => some (.div, α)
   | HMod.hMod α _ _ _ _ _ => some (.mod, α)
   | HPow.hPow α _ _ _ _ _ => some (.pow, α)
-  | OfNat.ofNat α _ _ => some (.num, α)
+  | OfNat.ofNat α _ _     => some (.num, α)
   | Neg.neg α _ a =>
-    let_expr OfNat.ofNat _ _ _ := a | none
+    let_expr OfNat.ofNat _ _ _ := a | some (.neg, α)
     some (.num, α)
   | Int.natAbs _ => some (.natAbs, Nat.mkType)
   | Int.toNat _ => some (.toNat, Nat.mkType)
@@ -300,7 +301,7 @@ private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : 
   -- TODO: document `NatCast.natCast` case.
   -- Remark: we added it to prevent natCast_sub from being expanded twice.
   if declName == ``NatCast.natCast then return true
-  if k matches .div | .mod | .sub | .pow | .natAbs | .toNat | .natCast then return false
+  if k matches .div | .mod | .sub | .pow | .neg | .natAbs | .toNat | .natCast then return false
   if declName == ``HAdd.hAdd || declName == ``LE.le || declName == ``Dvd.dvd then return true
   match k with
   | .add => return false
@@ -408,5 +409,10 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     | .natAbs => propagateNatAbs e
     | .toNat => propagateToNat e
     | _ => internalizeNat e
+  else if let some (e', h) ← toInt? e type then
+    -- TODO: save `(e', h)`
+    trace[grind.debug.cutsat.toInt] "{e} ==> {e'}"
+    trace[grind.debug.cutsat.toInt] "{h} : {← inferType h}"
+    check h
 
 end Lean.Meta.Grind.Arith.Cutsat

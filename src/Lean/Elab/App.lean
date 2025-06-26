@@ -1294,7 +1294,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
         else
           (m!"fields", m!"it must be between 1 and {numFields}")
         throwError m!"Invalid projection: Index `{idx}` is invalid for this structure; {bounds}"
-          ++ .note m!"The expression{indentExpr e}\nhas type{indentExpr eType}\nwhich has only {numFields} {fields}"
+          ++ .note m!"The expression{inlineExpr e}has type{inlineExpr eType}which has only {numFields} {fields}"
   | some structName, LVal.fieldName _ fieldName _ fullRef =>
     let env ← getEnv
     if isStructure env structName then

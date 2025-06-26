@@ -8,6 +8,9 @@ prelude
 import Lean.Data.Json.FromToJson
 import Lean.Util.Path
 import Lean.Server.Utils
+import Lean.Data.Lsp.Internal
+import Lean.Util.CollectFVars
+import Lean.Util.ForEachExpr
 
 namespace Lean.Server
 
@@ -17,6 +20,50 @@ open Elab
 inductive GoToKind
   | declaration | definition | type
   deriving BEq, ToJson, FromJson
+
+def GoToKind.determineTargetExprs (kind : GoToKind) (ti : TermInfo) : MetaM (Array Expr) := do
+  match kind with
+  | .type =>
+    let type ← instantiateMVars <| ← Meta.inferType ti.expr
+    let (_, targetExprs) ← StateT.run (s := #[]) <| type.forEach fun e =>
+      match e with
+      | .fvar ..
+      | .const .. =>
+        modify (·.push e)
+      | _ =>
+        pure ()
+    return targetExprs
+  | _ =>
+    return #[← instantiateMVars ti.expr]
+
+def getInstanceProjectionArg? (e : Expr) : MetaM (Option Expr) := do
+  let env ← getEnv
+  let .const n _ := e.getAppFn'
+    | return none
+  let some projInfo := env.getProjectionFnInfo? n
+    | return none
+  let instIdx := projInfo.numParams
+  let appArgs := e.getAppArgs
+  return appArgs[instIdx]?
+
+def isInstanceProjection (e : Expr) : MetaM Bool := do
+  return (← getInstanceProjectionArg? e).isSome
+
+/-- Checks whether `ti1` is an instance projection info that subsumes `ti2`. -/
+def isInstanceProjectionInfoFor (kind : GoToKind) (ti1 ti2 : TermInfo) : MetaM Bool := do
+  if kind == .type then
+    return false
+  let some startPos1 := ti1.stx.getPos? (canonicalOnly := true)
+    | return false
+  let some startPos2 := ti2.stx.getPos? (canonicalOnly := true)
+    | return false
+  if startPos1 != startPos2 then
+    return false
+  let e1 ← instantiateMVars ti1.expr
+  let e2 ← instantiateMVars ti2.expr
+  if ! (← isInstanceProjection e1) || (← isInstanceProjection e2) then
+    return false
+  return e1.getAppFn' == e2.getAppFn'
 
 structure GoToContext where
   doc : DocumentMeta
@@ -31,12 +78,12 @@ def GoToM.run (ctx : GoToContext) (ci : ContextInfo) (lctx : LocalContext) (act 
     IO α :=
   ci.runMetaM lctx <| ReaderT.run act ctx
 
-def locationLinksFromDecl (declName : Name) : GoToM (Array LocationLink) := do
+def locationLinksFromDecl (declName : Name) : GoToM (Array LeanLocationLink) := do
   let ctx ← read
   -- Potentially this name is a builtin that has not been imported yet:
   if ! (← getEnv).contains declName then
     return #[]
-  let some declModUri ← declModUri?
+  let some (declModName, declModUri) ← declMod?
     | return #[]
   let some ranges ← findDeclarationRanges? declName
     | return #[]
@@ -44,22 +91,28 @@ def locationLinksFromDecl (declName : Name) : GoToM (Array LocationLink) := do
     let i ← ctx.originInfo?
     let r ← i.range?
     return r.toLspRange ctx.doc.text
-  let ll : LocationLink := {
+  let ll : LeanLocationLink := {
     originSelectionRange?
     targetUri := declModUri
     targetRange := ranges.range.toLspRange
     targetSelectionRange := ranges.selectionRange.toLspRange
+    ident? := some ⟨declModName, declName.eraseMacroScopes⟩
+    isDefault := false
   }
   return #[ll]
 where
-  declModUri? : GoToM (Option DocumentUri) := do
+  declMod? : GoToM (Option (Name × DocumentUri)) := do
     let ctx ← read
     let declMod? ← findModuleOf? declName
     match declMod? with
-    | some declModName => documentUriFromModule? declModName
-    | none             => return some ctx.doc.uri
+    | some declModName =>
+      let some declModUri ← documentUriFromModule? declModName
+        | return none
+      return some (declModName, declModUri)
+    | none =>
+      return some (ctx.doc.mod, ctx.doc.uri)
 
-def locationLinksFromBinder (id : FVarId) : GoToM (Array LocationLink) := do
+def locationLinksFromBinder (id : FVarId) : GoToM (Array LeanLocationLink) := do
   let ctx ← read
   let doc := ctx.doc
   let some binderInfo ← binderInfo?
@@ -71,11 +124,13 @@ def locationLinksFromBinder (id : FVarId) : GoToM (Array LocationLink) := do
     let i ← ctx.originInfo?
     let r ← i.range?
     return r.toLspRange doc.text
-  let ll : LocationLink := {
+  let ll : LeanLocationLink := {
     originSelectionRange?
     targetUri := doc.uri
     targetRange := binderInfoRange
     targetSelectionRange := binderInfoRange
+    ident? := none
+    isDefault := false
   }
   return #[ll]
 where
@@ -87,7 +142,7 @@ where
       | .ofTermInfo { isBinder := true, expr := .fvar id' .., .. } => id' == id
       | _ => false
 
-def locationLinksFromImport (i : CommandInfo) : GoToM (Array LocationLink) := do
+def locationLinksFromImport (i : CommandInfo) : GoToM (Array LeanLocationLink) := do
   let ctx ← read
   let `(Parser.Module.import| $[public]? $[meta]? import $[all]? $mod) := i.stx
     | return #[]
@@ -97,35 +152,44 @@ def locationLinksFromImport (i : CommandInfo) : GoToM (Array LocationLink) := do
   let originSelectionRange? := do
     let r ← mod.raw.getRange? (canonicalOnly := true)
     return r.toLspRange ctx.doc.text
-  let ll : LocationLink := {
+  let ll : LeanLocationLink := {
     originSelectionRange?
     targetUri := modUri
     targetRange := range
     targetSelectionRange := range
+    ident? := none
+    isDefault := false
   }
   return #[ll]
 
-def locationLinksDefault : GoToM (Array LocationLink) := do
+def locationLinksDefault : GoToM (Array LeanLocationLink) := do
   -- If other location link resolutions fail, we try to show the elaborator or parser
-  let some defaultDeclName ← defaultDeclName?
-    | return #[]
-  locationLinksFromDecl defaultDeclName
+  let names ← defaultDeclNames
+  let mut ll := #[]
+  for name in names do
+    ll := ll ++ (← locationLinksFromDecl name)
+  return ll.map ({· with isDefault := true})
 where
-  defaultDeclName? : GoToM (Option Name) := do
+  defaultDeclNames : GoToM (Array Name) := do
     let ctx ← read
     let env ← getEnv
     let some originInfo := ctx.originInfo?
-      | return none
+      | return #[]
     let some ei := originInfo.toElabInfo?
-      | return none
+      | return #[]
+    let e := ei.elaborator
+    if e == `Delab then
+      return #[]
+    if e == `Lean.Elab.Term.elabApp || e == `Lean.Elab.Term.elabIdent then
+      return #[]
+    let mut names := #[]
+    if env.contains e then
+      names := names.push e
     if ctx.kind == .declaration && env.contains ei.stx.getKind then
-      return some ei.stx.getKind
-    else if ctx.kind == .definition && env.contains ei.elaborator then
-      return some ei.elaborator
-    else
-      return none
+      names := names.push ei.stx.getKind
+    return names
 
-def locationLinksFromErrorNameInfo (eni : ErrorNameInfo) : GoToM (Array LocationLink) := do
+def locationLinksFromErrorNameInfo (eni : ErrorNameInfo) : GoToM (Array LeanLocationLink) := do
   let ctx ← read
   let some explan := getErrorExplanationRaw? (← getEnv) eni.errorName
     | return #[]
@@ -137,47 +201,29 @@ def locationLinksFromErrorNameInfo (eni : ErrorNameInfo) : GoToM (Array Location
   let originSelectionRange? := do
     let r ← eni.stx.getRange? (canonicalOnly := true)
     return r.toLspRange ctx.doc.text
-  let link : LocationLink := {
+  let link : LeanLocationLink := {
     originSelectionRange?
     targetUri := modUri
     targetRange := range
     targetSelectionRange := range
+    ident? := none
+    isDefault := false
   }
   return #[link]
 
-def locationLinksFromInstanceProjection (e : Expr) : GoToM (Array LocationLink) := do
-  let ctx ← read
+def locationLinksFromInstanceProjection (e : Expr) : GoToM (Array LeanLocationLink) := do
   -- Go-to-definition on a projection application of a typeclass
   -- should return all instances generated by TC.
-  let env ← getEnv
-  -- Don't go-to-instance if this `TermInfo` didn't directly generate its `.expr`
-  if ctx.kind == .declaration || ! (← isExprGenerator e) then
-    return ← locationLinksDefault
   let .const n _ := e.getAppFn.consumeMData
-    | return ← locationLinksDefault
-  -- Also include constant along with instance results
-  let mut results ← locationLinksFromDecl n
-  let some projInfo := env.getProjectionFnInfo? n
-    | return results
-  let instIdx := projInfo.numParams
-  let appArgs := e.getAppArgs
-  let some instArg := appArgs[instIdx]?
-    | return results
+    | return #[]
+  let some instArg ← getInstanceProjectionArg? e
+    | return #[]
+  let mut results := #[]
   for inst in ← extractInstances instArg do
     results := results.append <| ← locationLinksFromDecl inst
-  results := results.append <| ← locationLinksFromElaborator
+  results := results.append <| ← locationLinksFromDecl n
   return results
 where
-  -- Check whether a `TermInfo` node is directly responsible for its `.expr`.
-  -- This is the case iff all of its children represent strictly smaller subexpressions;
-  -- it is sufficient to check this of all direct children of this node
-  -- (and that its elaborator didn't expand it as a macro)
-  isExprGenerator (e : Expr) : GoToM Bool := do
-    let ctx ← read
-    return ctx.children.all fun
-      | .node (Info.ofTermInfo info) _ => info.expr != e
-      | .node (Info.ofMacroExpansionInfo _) _ => false
-      | _ => true
   extractInstances (e : Expr) : GoToM (Array Name) := do
     match e with
     | .const declName _ =>
@@ -192,41 +238,24 @@ where
       extractInstances e
     | _ =>
       return #[]
-  locationLinksFromElaborator : GoToM (Array LocationLink) := do
-    let ctx ← read
-    let some originInfo := ctx.originInfo?
-      | return #[]
-    let some ei := originInfo.toElabInfo?
-      | return #[]
-    -- Prevents an error if this `TermInfo` came from the infoview
-    if ei.elaborator == `Delab then
-      return #[]
-    -- Don't include trivial elaborators
-    if ei.elaborator == `Lean.Elab.Term.elabApp
-        || ei.elaborator == `Lean.Elab.Term.elabIdent then
-      return #[]
-    return ← locationLinksFromDecl ei.elaborator
 
+def locationLinksFromTermInfo (ti : TermInfo) : GoToM (Array LeanLocationLink) := do
+  let ctx ← read
+  let mut ll := #[]
+  let exprs ← ctx.kind.determineTargetExprs ti
+  for expr in exprs do
+    let newLL ←
+      match expr.consumeMData with
+      | Expr.const n .. =>
+        locationLinksFromDecl n
+      | Expr.fvar id .. =>
+        locationLinksFromBinder id
+      | _ =>
+        locationLinksFromInstanceProjection expr
+    ll := ll ++ newLL
+  return ll
 
-def locationLinksFromTermInfo (ti : TermInfo) : GoToM (Array LocationLink) := do
-  let expr ← determineRelevantExpr
-  match expr.consumeMData with
-  | Expr.const n .. =>
-    return ← locationLinksFromDecl n
-  | Expr.fvar id .. =>
-    return ← locationLinksFromBinder id
-  | _ =>
-    return ← locationLinksFromInstanceProjection expr
-where
-  determineRelevantExpr : GoToM Expr := do
-    let ctx ← read
-    match ctx.kind with
-    | .type =>
-      return Expr.getAppFn <| ← instantiateMVars <| ← Meta.inferType ti.expr
-    | _ =>
-      return ← instantiateMVars ti.expr
-
-def locationLinksFromDelabTermInfo (dti : DelabTermInfo) : GoToM (Array LocationLink) := do
+def locationLinksFromDelabTermInfo (dti : DelabTermInfo) : GoToM (Array LeanLocationLink) := do
   let ctx ← read
   let { toTermInfo := ti, location?, .. } := dti
   let some location := location?
@@ -238,34 +267,36 @@ def locationLinksFromDelabTermInfo (dti : DelabTermInfo) : GoToM (Array Location
   let originSelectionRange? := do
     let r ← Info.ofDelabTermInfo dti |>.range?
     return r.toLspRange ctx.doc.text
-  let result : LocationLink := {
+  let result : LeanLocationLink := {
     originSelectionRange?
     targetUri
     targetRange := range
     targetSelectionRange := range
+    ident? := none
+    isDefault := false
   }
   return #[result]
 
-def locationLinksFromFieldInfo (fi : FieldInfo) : GoToM (Array LocationLink) := do
+def locationLinksFromFieldInfo (fi : FieldInfo) : GoToM (Array LeanLocationLink) := do
   let ctx ← read
   if ctx.kind != .type then
     return ← locationLinksFromDecl fi.projName
   let expr ← instantiateMVars (← Meta.inferType fi.val)
   let some n := expr.getAppFn.constName?
-    | return ← locationLinksDefault
+    | return #[]
   locationLinksFromDecl n
 
-def locationLinksFromOptionInfo (i : OptionInfo) : GoToM (Array LocationLink) :=
+def locationLinksFromOptionInfo (i : OptionInfo) : GoToM (Array LeanLocationLink) :=
   locationLinksFromDecl i.declName
 
-def locationLinksFromCommandInfo (i : CommandInfo) : GoToM (Array LocationLink) := do
+def locationLinksFromCommandInfo (i : CommandInfo) : GoToM (Array LeanLocationLink) := do
   let ctx ← read
   if ! (i matches ⟨`import, _⟩) || ctx.kind == .type then
-    return ← locationLinksDefault
+    return #[]
   locationLinksFromImport i
 
 def locationLinksOfInfo (doc : DocumentMeta) (kind : GoToKind) (ictx : InfoWithCtx)
-    (infoTree? : Option InfoTree := none) : IO (Array LocationLink) := do
+    (infoTree? : Option InfoTree := none) : IO (Array LeanLocationLink) := do
   let ctx : GoToContext := {
     doc
     kind
@@ -274,20 +305,24 @@ def locationLinksOfInfo (doc : DocumentMeta) (kind : GoToKind) (ictx : InfoWithC
     children := ictx.children
   }
   GoToM.run ctx ictx.ctx ictx.info.lctx do
-    match ictx.info with
-    | .ofTermInfo ti =>
-      locationLinksFromTermInfo ti
-    | .ofDelabTermInfo dti =>
-      locationLinksFromDelabTermInfo dti
-    | .ofFieldInfo fi =>
-      locationLinksFromFieldInfo fi
-    | .ofOptionInfo oi =>
-      locationLinksFromOptionInfo oi
-    | .ofCommandInfo cci =>
-      locationLinksFromCommandInfo cci
-    | .ofErrorNameInfo eni =>
-      locationLinksFromErrorNameInfo eni
-    | _ =>
-      locationLinksDefault
+    let ll ←
+      match ictx.info with
+      | .ofTermInfo ti =>
+        locationLinksFromTermInfo ti
+      | .ofDelabTermInfo dti =>
+        locationLinksFromDelabTermInfo dti
+      | .ofFieldInfo fi =>
+        locationLinksFromFieldInfo fi
+      | .ofOptionInfo oi =>
+        locationLinksFromOptionInfo oi
+      | .ofCommandInfo cci =>
+        locationLinksFromCommandInfo cci
+      | .ofErrorNameInfo eni =>
+        locationLinksFromErrorNameInfo eni
+      | _ =>
+        pure #[]
+    if kind == .declaration || ll.isEmpty then
+      return ll ++ (← locationLinksDefault)
+    return ll
 
 end Lean.Server

@@ -448,7 +448,7 @@ protected theorem le_max_left (a b : Int) : a ≤ max a b := by rw [Int.max_def]
 protected theorem le_max_right (a b : Int) : b ≤ max a b := Int.max_comm .. ▸ Int.le_max_left ..
 
 protected theorem max_eq_right {a b : Int} (h : a ≤ b) : max a b = b := by
-  simp [Int.max_def, h, Int.not_lt.2 h]
+  simp [Int.max_def, h]
 
 protected theorem max_eq_left {a b : Int} (h : b ≤ a) : max a b = a := by
   rw [← Int.max_comm b a]; exact Int.max_eq_right h
@@ -638,7 +638,7 @@ theorem toNat_of_nonneg {a : Int} (h : 0 ≤ a) : (toNat a : Int) = a := by
 @[simp] theorem toNat_natCast (n : Nat) : toNat ↑n = n := rfl
 
 @[deprecated toNat_natCast (since := "2025-04-16")]
-theorem toNat_ofNat (n : Nat) : toNat ↑n = n := toNat_natCast n
+theorem toNat_ofNat (n : Nat) : toNat ↑n = n := rfl
 
 @[simp] theorem toNat_negSucc (n : Nat) : (Int.negSucc n).toNat = 0 := by
   simp [toNat]

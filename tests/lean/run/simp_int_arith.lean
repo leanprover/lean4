@@ -319,8 +319,8 @@ fun a b =>
                       (Expr.mulL 3 ((Expr.var 1).add (Expr.mulL 2 (Expr.var 0))))).sub
                   (Expr.num 11))
                 2 (Poly.add 1 1 (Poly.add 2 0 (Poly.num 0))) 3 (Eq.refl true)))
-            Int.dvd_add_self_mul._proof_1))
-        Int.dvd_add_self_mul._proof_1)
+            Int.dvd_add_self_mul._simp_1))
+        Int.dvd_add_self_mul._simp_1)
       (iff_self (2 ∣ a)))
 -/
 #guard_msgs (info) in

@@ -372,8 +372,7 @@ end
   | .fvar fvarId   =>
     let decl ← fvarId.getDecl
     match decl with
-    | .cdecl .. => return e
-    | .ldecl (value := v) .. =>
+    | .ldecl (value := v) (nondep := false) .. =>
       -- Let-declarations marked as implementation detail should always be unfolded
       -- We initially added this feature for `simp`, and added it here for consistency.
       let cfg ← getConfig
@@ -381,8 +380,9 @@ end
         if !(← read).zetaDeltaSet.contains fvarId then
           return e
       if (← read).trackZetaDelta then
-        modify fun s => { s with zetaDeltaFVarIds := s.zetaDeltaFVarIds.insert fvarId }
+        addZetaDeltaFVarId fvarId
       whnfEasyCases v k
+    | _ => return e
   | .mvar mvarId   =>
     match (← getExprMVarAssignment? mvarId) with
     | some v => whnfEasyCases v k
@@ -485,7 +485,7 @@ def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
        || info.name == ``Char.ofNat   || info.name == ``Char.ofNatAux
        || info.name == ``String.decEq || info.name == ``List.hasDecEq
        || info.name == ``Fin.ofNat
-       || info.name == ``Fin.ofNat' -- It is used to define `BitVec` literals
+       || info.name == ``Fin.ofNat -- It is used to define `BitVec` literals
        || info.name == ``UInt8.ofNat  || info.name == ``UInt8.decEq
        || info.name == ``UInt16.ofNat || info.name == ``UInt16.decEq
        || info.name == ``UInt32.ofNat || info.name == ``UInt32.decEq
@@ -697,7 +697,7 @@ partial def smartUnfoldingReduce? (e : Expr) : MetaM (Option Expr) :=
 where
   go (e : Expr) : OptionT MetaM Expr := do
     match e with
-    | .letE n t v b _ => withLetDecl n t (← go v) fun x => do mkLetFVars #[x] (← go (b.instantiate1 x))
+    | .letE n t v b nondep => mapLetDecl n t (← go v) (nondep := nondep) fun x => go (b.instantiate1 x)
     | .lam .. => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← go b)
     | .app f a .. => return mkApp (← go f) (← go a)
     | .proj _ _ s => return e.updateProj! (← go s)

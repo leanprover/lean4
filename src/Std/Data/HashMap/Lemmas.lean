@@ -52,7 +52,7 @@ theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
 theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
   DHashMap.mem_iff_contains
 
-@[simp, grind]
+@[simp, grind _=_]
 theorem contains_iff_mem {a : α} : m.contains a ↔ a ∈ m :=
   DHashMap.contains_iff_mem
 
@@ -486,7 +486,7 @@ theorem contains_eq_isSome_getKey? [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = (m.getKey? a).isSome :=
   DHashMap.contains_eq_isSome_getKey?
 
-@[simp]
+@[simp, grind =]
 theorem isSome_getKey?_eq_contains [EquivBEq α] [LawfulHashable α] {a : α} :
     (m.getKey? a).isSome = m.contains a :=
   contains_eq_isSome_getKey?.symm
@@ -823,6 +823,10 @@ instance [EquivBEq α] [LawfulHashable α] : LawfulGetElem (HashMap α β) α β
     rw [getElem!_eq_get!_getElem?]
     split <;> simp_all
 
+theorem getElem?_eq_some_iff [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
+    m[k]? = some v ↔ ∃ h : k ∈ m, m[k] = v :=
+  _root_.getElem?_eq_some_iff
+
 @[simp, grind =]
 theorem length_keys [EquivBEq α] [LawfulHashable α] :
     m.keys.length = m.size :=
@@ -850,7 +854,7 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
     m.keys.Pairwise (fun a b => (a == b) = false) :=
   DHashMap.distinct_keys
 
-@[simp, grind =]
+@[simp, grind _=_]
 theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
     m.toList.map Prod.fst = m.keys :=
   DHashMap.Const.map_fst_toList_eq_keys
@@ -2326,7 +2330,7 @@ theorem getElem_filterMap' [LawfulBEq α] [LawfulHashable α]
     {f : α → β → Option γ} {k : α} {h} :
     (m.filterMap f)[k]'h =
       (f k (m[k]'(mem_of_mem_filterMap h))).get (by simpa using isSome_apply_of_mem_filterMap h) := by
-  simp [getElem_filterMap, h]
+  simp [getElem_filterMap]
 
 theorem getElem!_filterMap [EquivBEq α] [LawfulHashable α] [Inhabited γ]
     {f : α → β → Option γ} {k : α} :

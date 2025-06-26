@@ -102,7 +102,7 @@ theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v 
 theorem mem_iff_contains {m : Raw α β} {a : α} :
     a ∈ m ↔ m.contains a := Iff.rfl
 
-@[simp, grind]
+@[simp, grind _=_]
 theorem contains_iff_mem {m : Raw α β} {a : α} :
     m.contains a ↔ a ∈ m := Iff.rfl
 
@@ -118,7 +118,7 @@ theorem mem_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} (hab :
   simp_to_raw using Raw₀.contains_emptyWithCapacity
 
 @[simp, grind] theorem not_mem_emptyWithCapacity {a : α} {c} : ¬a ∈ (emptyWithCapacity c : Raw α β) := by
-  simp [mem_iff_contains]
+  simp [← contains_iff_mem]
 
 @[simp, grind =] theorem contains_empty {a : α} : (∅ : Raw α β).contains a = false :=
   contains_emptyWithCapacity
@@ -190,7 +190,7 @@ theorem contains_insert_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : �
 @[simp]
 theorem mem_insert_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β k} :
     k ∈ m.insert k v := by
-  simp [mem_iff_contains, contains_insert_self h]
+  simp [← contains_iff_mem, contains_insert_self h]
 
 @[grind =] theorem size_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β k} :
     (m.insert k v).size = if k ∈ m then m.size else m.size + 1 := by
@@ -779,7 +779,7 @@ theorem contains_eq_isSome_getKey? [EquivBEq α] [LawfulHashable α] (h : m.WF) 
     m.contains a = (m.getKey? a).isSome := by
   simp_to_raw using Raw₀.contains_eq_isSome_getKey?
 
-@[simp]
+@[simp, grind =]
 theorem isSome_getKey?_eq_contains [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     (m.getKey? a).isSome = m.contains a :=
   (contains_eq_isSome_getKey? h).symm
@@ -1226,7 +1226,7 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.keys.Pairwise (fun a b => (a == b) = false) := by
   simp_to_raw using Raw₀.distinct_keys ⟨m, h.size_buckets_pos⟩ h
 
-@[simp, grind =]
+@[simp, grind _=_]
 theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.map Sigma.fst = m.keys := by
   apply Raw₀.map_fst_toList_eq_keys ⟨m, h.size_buckets_pos⟩
@@ -1277,7 +1277,7 @@ namespace Const
 
 variable {β : Type v} {m : Raw α (fun _ => β)}
 
-@[simp, grind =]
+@[simp, grind _=_]
 theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     (Raw.Const.toList m).map Prod.fst = m.keys := by
   apply Raw₀.Const.map_fst_toList_eq_keys ⟨m, h.size_buckets_pos⟩
@@ -2138,7 +2138,7 @@ theorem contains_ofList [EquivBEq α] [LawfulHashable α]
 theorem mem_ofList [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)} {k : α} :
     k ∈ ofList l ↔ (l.map Sigma.fst).contains k := by
-  simp [mem_iff_contains]
+  simp [← contains_iff_mem]
 
 theorem get?_ofList_of_contains_eq_false [LawfulBEq α]
     {l : List ((a : α) × β a)} {k : α}
@@ -2290,7 +2290,7 @@ theorem contains_ofList [EquivBEq α] [LawfulHashable α]
 theorem mem_ofList [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α} :
     k ∈ (ofList l) ↔ (l.map Prod.fst).contains k := by
-  simp [mem_iff_contains]
+  simp [← contains_iff_mem]
 
 theorem get?_ofList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α}
@@ -2435,7 +2435,7 @@ theorem contains_unitOfList [EquivBEq α] [LawfulHashable α]
 theorem mem_unitOfList [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} :
     k ∈ unitOfList l ↔ l.contains k := by
-  simp [mem_iff_contains]
+  simp [← contains_iff_mem]
 
 theorem getKey?_unitOfList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} (contains_eq_false : l.contains k = false) :

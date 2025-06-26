@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 example (a b : Nat) : a  = a + b - b := by
   grind
 

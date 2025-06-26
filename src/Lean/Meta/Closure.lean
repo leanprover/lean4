@@ -193,7 +193,7 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
   | Expr.proj _ _ s      => return e.updateProj! (← collect s)
   | Expr.forallE _ d b _ => return e.updateForallE! (← collect d) (← collect b)
   | Expr.lam _ d b _     => return e.updateLambdaE! (← collect d) (← collect b)
-  | Expr.letE _ t v b _  => return e.updateLet! (← collect t) (← collect v) (← collect b)
+  | Expr.letE _ t v b _  => return e.updateLetE! (← collect t) (← collect v) (← collect b)
   | Expr.app f a         => return e.updateApp! (← collect f) (← collect a)
   | Expr.mdata _ b       => return e.updateMData! (← collect b)
   | Expr.sort u          => return e.updateSort! (← collectLevel u)
@@ -286,9 +286,10 @@ partial def process : ClosureM Unit := do
       pushLocalDecl newFVarId userName type bi
       pushFVarArg (mkFVar fvarId)
       process
-    | .ldecl _ _ userName type val _ _ =>
+    | .ldecl _ _ userName type val nondep _ =>
       let zetaDeltaFVarIds ← getZetaDeltaFVarIds
-      if !zetaDeltaFVarIds.contains fvarId then
+      -- Note: If `nondep` is true then `zetaDeltaFVarIds.contains fvarId` must be false.
+      if nondep || !zetaDeltaFVarIds.contains fvarId then
         /- Non-dependent let-decl
 
             Recall that if `fvarId` is in `zetaDeltaFVarIds`, then we zetaDelta-expanded it
@@ -321,11 +322,11 @@ partial def process : ClosureM Unit := do
         Lean.mkLambda n bi ty b
       else
         Lean.mkForall n bi ty b
-    | .ldecl _ _ n ty val nonDep _ =>
+    | .ldecl _ _ n ty val nondep _ =>
       if b.hasLooseBVar 0 then
         let ty  := ty.abstractRange i xs
         let val := val.abstractRange i xs
-        mkLet n ty val b nonDep
+        mkLet n ty val b nondep
       else
         b.lowerLooseBVars 1 1
 
@@ -343,7 +344,6 @@ structure MkValueTypeClosureResult where
   exprArgs    : Array Expr
 
 def mkValueTypeClosureAux (type : Expr) (value : Expr) : ClosureM (Expr × Expr) := do
-  resetZetaDeltaFVarIds
   withTrackingZetaDelta do
     let type  ← collectExpr type
     let value ← collectExpr value

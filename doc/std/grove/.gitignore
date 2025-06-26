@@ -1,0 +1,4 @@
+/.lake
+!lake-manifest.json
+metadata.json
+invalidated.json

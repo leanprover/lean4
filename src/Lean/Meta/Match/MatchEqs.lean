@@ -544,15 +544,15 @@ where
           (t₂ : Foo l₂) → ((s₁ : Foo l₂) → motive (Foo.cons s₁)) → ((x : Foo l₂) → motive x) → motive t₂ :=
     fun {l₂} t₂ motive t₂_1 h_1 h_2 =>
       (fun t₂_2 =>
-          Foo.casesOn (motive := fun a x => l₂ = a → HEq t₂_1 x → motive t₂_1) t₂_2
+          Foo.casesOn (motive := fun a x => l₂ = a → t₂_1 ≍ x → motive t₂_1) t₂_2
             (fun h =>
               Eq.ndrec (motive := fun {l₂} =>
                 (t₂ t₂ : Foo l₂) →
                   (motive : Foo l₂ → Sort u_1) →
-                    ((s₁ : Foo l₂) → motive (Foo.cons s₁)) → ((x : Foo l₂) → motive x) → HEq t₂ Foo.nil → motive t₂)
+                    ((s₁ : Foo l₂) → motive (Foo.cons s₁)) → ((x : Foo l₂) → motive x) → t₂ ≍ Foo.nil → motive t₂)
                 (fun t₂ t₂ motive h_1 h_2 h => Eq.symm (eq_of_heq h) ▸ h_2 Foo.nil) (Eq.symm h) t₂ t₂_1 motive h_1 h_2) --- HERE
             fun {l} t h =>
-            Eq.ndrec (motive := fun {l} => (t : Foo l) → HEq t₂_1 (Foo.cons t) → motive t₂_1)
+            Eq.ndrec (motive := fun {l} => (t : Foo l) → t₂_1 ≍ Foo.cons t → motive t₂_1)
               (fun t h => Eq.symm (eq_of_heq h) ▸ h_1 t) h t)
         t₂_1 (Eq.refl l₂) (HEq.refl t₂_1)
     ```
@@ -762,7 +762,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
     let mut altArgMasks := #[] -- masks produced by `forallAltTelescope`
     for i in [:alts.size] do
       let altNumParams := matchInfo.altNumParams[i]!
-      let thmName := baseName ++ ((`eq).appendIndexAfter idx)
+      let thmName := Name.str baseName eqnThmSuffixBase |>.appendIndexAfter idx
       eqnNames := eqnNames.push thmName
       let (notAlt, splitterAltType, splitterAltNumParam, argMask) ←
           forallAltTelescope (← inferType alts[i]!) altNumParams numDiscrEqs
@@ -833,7 +833,7 @@ def congrEqn1ThmSuffix := congrEqnThmSuffixBasePrefix ++ "1"
 example : congrEqn1ThmSuffix = "congr_eq_1" := rfl
 
 /-- Returns `true` if `s` is of the form `congr_eq_<idx>` -/
-def iscongrEqnReservedNameSuffix (s : String) : Bool :=
+def isCongrEqnReservedNameSuffix (s : String) : Bool :=
   congrEqnThmSuffixBasePrefix.isPrefixOf s && (s.drop congrEqnThmSuffixBasePrefix.length).isNat
 
 /- We generate the equations and splitter on demand, and do not save them on .olean files. -/
@@ -928,10 +928,10 @@ builtin_initialize registerTraceClass `Meta.Match.matchEqs
 
 private def isMatchEqName? (env : Environment) (n : Name) : Option (Name × Bool) := do
   let .str p s := n | failure
-  guard <| isEqnReservedNameSuffix s || s == "splitter" || iscongrEqnReservedNameSuffix s
+  guard <| isEqnReservedNameSuffix s || s == "splitter" || isCongrEqnReservedNameSuffix s
   let p ← privateToUserName? p
   guard <| isMatcherCore env p
-  return (p, iscongrEqnReservedNameSuffix s)
+  return (p, isCongrEqnReservedNameSuffix s)
 
 builtin_initialize registerReservedNamePredicate (isMatchEqName? · · |>.isSome)
 

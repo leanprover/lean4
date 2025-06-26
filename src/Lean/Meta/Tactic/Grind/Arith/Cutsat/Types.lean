@@ -7,8 +7,9 @@ prelude
 import Init.Data.Int.Linear
 import Std.Internal.Rat
 import Lean.Data.PersistentArray
-import Lean.Meta.Tactic.Grind.ENodeKey
+import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.Arith.Util
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -153,7 +154,7 @@ inductive DvdCnstrProof where
   /-- `c.c₃?` must be `some` -/
   | cooper₂ (c : CooperSplit)
 
-/-- An inequalirty constraint and its justification/proof. -/
+/-- An inequality constraint and its justification/proof. -/
 structure LeCnstr where
   p  : Poly
   h  : LeCnstrProof
@@ -197,7 +198,7 @@ inductive DiseqCnstrProof where
 
 /--
 A proof of `False`.
-Remark: We will later add support for a backtraking search inside of cutsat.
+Remark: We will later add support for a backtracking search inside of cutsat.
 -/
 inductive UnsatProof where
   | dvd (c : DvdCnstr)
@@ -231,18 +232,18 @@ structure State where
   /-- Mapping from variables to their denotations. -/
   vars : PArray Expr := {}
   /-- Mapping from `Expr` to a variable representing it. -/
-  varMap  : PHashMap ENodeKey Var := {}
+  varMap  : PHashMap ExprPtr Var := {}
   /--
   Mapping from foreign terms to their variable and type (e.g., `Nat`). They are also marked using `markAsCutsatTerm`.
   -/
-  foreignVarMap : PHashMap ENodeKey (Var × ForeignType) := {}
+  foreignVarMap : PHashMap ExprPtr (Var × ForeignType) := {}
   foreignVars : PHashMap ForeignType (PArray Expr) := {}
   /--
   Some foreign variables encode nested terms such as `b+1`.
   This is a mapping from this kind of variable to the integer variable
   representing `natCast (b+1)`.
   -/
-  foreignDef : PHashMap ENodeKey Var := {}
+  foreignDef : PHashMap ExprPtr Var := {}
   /--
   Mapping from variables to divisibility constraints. Recall that we keep the divisibility constraint in solved form.
   Thus, we have at most one divisibility per variable. -/
@@ -306,7 +307,7 @@ structure State where
   - `Int.Linear.emod_le`
   -/
   divMod : PHashSet (Expr × Int) := {}
-  /- TODO: Model-based theory combination. -/
+  toIntInfos : PHashMap ExprPtr (Option ToIntInfo) := {}
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.Cutsat

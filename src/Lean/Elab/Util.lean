@@ -123,6 +123,17 @@ unsafe def mkMacroAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute Macro) 
 @[implemented_by mkMacroAttributeUnsafe]
 opaque mkMacroAttribute (ref : Name) : IO (KeyedDeclsAttribute Macro)
 
+/--
+Registers a macro expander for a given syntax node kind.
+
+A macro expander should have type `Lean.Macro` (which is `Lean.Syntax → Lean.MacroM Lean.Syntax`),
+i.e. should take syntax of the given syntax node kind as a parameter and produce different syntax
+in the same syntax category.
+
+The `macro_rules` and `macro` commands should usually be preferred over using this attribute
+directly.
+-/
+@[builtin_doc]
 builtin_initialize macroAttribute : KeyedDeclsAttribute Macro ← mkMacroAttribute decl_name%
 
 /--

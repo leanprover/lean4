@@ -1,4 +1,3 @@
-set_option grind.warning false
 set_option grind.debug true
 
 /--
@@ -397,11 +396,6 @@ example (a : Nat) : a < 2 → a = 5 → False := by
   grind
 
 example (a : Nat) : a < 2 → a = b → b = c → c = 5 → False := by
-  grind
-
-#guard_msgs (trace) in -- none of the numerals should be internalized by the offset module
-set_option trace.grind.offset.internalize true in
-example (a b c d e : Nat) : a = 1 → b = 2 → c = 3 → d = 4 → e = 5 → a ≠ e := by
   grind
 
 example (a b : Nat) : a + 1 = b → b = 0 → False := by

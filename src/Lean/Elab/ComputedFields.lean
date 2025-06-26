@@ -33,6 +33,28 @@ This file implements the computed fields feature by simulating it via
 namespace Lean.Elab.ComputedFields
 open Meta
 
+/--
+Marks a function as a computed field of an inductive.
+
+Computed fields are specified in the with-block of an inductive type declaration. They can be used
+to allow certain values to be computed only once at the time of construction and then later be
+accessed immediately.
+
+Example:
+```
+inductive NatList where
+  | nil
+  | cons : Nat → NatList → NatList
+with
+  @[computed_field] sum : NatList → Nat
+  | .nil => 0
+  | .cons x l => x + l.sum
+  @[computed_field] length : NatList → Nat
+  | .nil => 0
+  | .cons _ l => l.length + 1 
+```
+-/
+@[builtin_doc]
 builtin_initialize computedFieldAttr : TagAttribute ←
   registerTagAttribute `computed_field "Marks a function as a computed field of an inductive" fun _ => do
     unless (← getOptions).getBool `elaboratingComputedFields do

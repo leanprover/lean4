@@ -29,21 +29,18 @@ theorem mkUlt_denote_eq (aig : AIG α) (lhs rhs : BitVec w) (input : BinaryRefVe
     ⟦mkUlt aig input, assign⟧ = BitVec.ult lhs rhs := by
   rw [BitVec.ult_eq_not_carry]
   unfold mkUlt
-  simp only [denote_projected_entry, denote_mkNotCached, denote_projected_entry']
+  simp only [denote_projected_entry, denote_mkNotCached]
   congr 1
   rw [BVExpr.bitblast.mkOverflowBit_eq_carry (input := ⟨w, _, _⟩) (lhs := lhs) (rhs := ~~~rhs)]
   · simp
   · dsimp only
     intro idx hidx
-    rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
     rw [AIG.LawfulVecOperator.denote_mem_prefix (f := BVExpr.bitblast.blastNot)]
     apply hleft
   · dsimp only
     intro idx hidx
-    rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-    · simp only [RefVec.get_cast, Ref.cast_eq, hidx, BitVec.getLsbD_eq_getElem, BitVec.getElem_not]
-      rw [BVExpr.bitblast.denote_blastNot, hright, BitVec.getLsbD_eq_getElem]
-    · simp [Ref.hgate]
+    simp only [hidx, BitVec.getLsbD_eq_getElem, BitVec.getElem_not]
+    rw [BVExpr.bitblast.denote_blastNot, hright, BitVec.getLsbD_eq_getElem]
 
 end BVPred
 

@@ -38,7 +38,7 @@ Examples:
  * `Ordering.eq.swap = Ordering.eq`
  * `Ordering.gt.swap = Ordering.lt`
 -/
-@[inline]
+@[inline, expose]
 def swap : Ordering → Ordering
   | .lt => .gt
   | .eq => .eq
@@ -96,7 +96,7 @@ Ordering.lt
 /--
 Checks whether the ordering is `eq`.
 -/
-@[inline]
+@[inline, expose]
 def isEq : Ordering → Bool
   | eq => true
   | _ => false
@@ -104,7 +104,7 @@ def isEq : Ordering → Bool
 /--
 Checks whether the ordering is not `eq`.
 -/
-@[inline]
+@[inline, expose]
 def isNe : Ordering → Bool
   | eq => false
   | _ => true
@@ -112,7 +112,7 @@ def isNe : Ordering → Bool
 /--
 Checks whether the ordering is `lt` or `eq`.
 -/
-@[inline]
+@[inline, expose]
 def isLE : Ordering → Bool
   | gt => false
   | _ => true
@@ -120,7 +120,7 @@ def isLE : Ordering → Bool
 /--
 Checks whether the ordering is `lt`.
 -/
-@[inline]
+@[inline, expose]
 def isLT : Ordering → Bool
   | lt => true
   | _ => false
@@ -128,7 +128,7 @@ def isLT : Ordering → Bool
 /--
 Checks whether the ordering is `gt`.
 -/
-@[inline]
+@[inline, expose]
 def isGT : Ordering → Bool
   | gt => true
   | _ => false
@@ -136,7 +136,7 @@ def isGT : Ordering → Bool
 /--
 Checks whether the ordering is `gt` or `eq`.
 -/
-@[inline]
+@[inline, expose]
 def isGE : Ordering → Bool
   | lt => false
   | _ => true
@@ -351,7 +351,7 @@ theorem compareOfLessAndEq_eq_swap_of_lt_iff_not_gt_and_ne {α : Type u} [LT α]
       simp only [h', this, ↓reduceIte, Ordering.swap_eq]
     · rename_i h' h''
       replace h' := (h y x).mpr ⟨h', Ne.symm h''⟩
-      simp only [h', Ne.symm h'', ↓reduceIte, Ordering.swap_lt]
+      simp only [h', ↓reduceIte, Ordering.swap_lt]
 
 theorem lt_iff_not_gt_and_ne_of_antisymm_of_total_of_not_le
     {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableEq α]
@@ -524,7 +524,7 @@ instance : Ord Ordering where
 
 namespace List
 
-@[specialize]
+@[specialize, expose]
 protected def compareLex {α} (cmp : α → α → Ordering) :
     List α → List α → Ordering
   | [], [] => .eq
@@ -696,6 +696,7 @@ end Array
 
 namespace Vector
 
+@[expose]
 protected def compareLex {α n} (cmp : α → α → Ordering) (a b : Vector α n) : Ordering :=
   Array.compareLex cmp a.toArray b.toArray
 

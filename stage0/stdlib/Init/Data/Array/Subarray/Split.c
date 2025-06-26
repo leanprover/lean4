@@ -13,18 +13,21 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Subarray_take___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Subarray_drop___rarg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Subarray_take___rarg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Subarray_take(lean_object*);
-LEAN_EXPORT lean_object* l_Subarray_drop___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_drop___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_take___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_drop___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_drop___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_take___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_split___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_split___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_take(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_split___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_take___redArg___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Subarray_drop(lean_object*);
-LEAN_EXPORT lean_object* l_Subarray_split(lean_object*);
-LEAN_EXPORT lean_object* l_Subarray_split___rarg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Subarray_split___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Subarray_split___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Subarray_drop(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_split(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_split___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -76,24 +79,33 @@ return x_16;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Subarray_split(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Subarray_split(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Subarray_split___rarg___boxed), 2, 0);
-return x_2;
+lean_object* x_4; 
+x_4 = l_Subarray_split___redArg(x_2, x_3);
+return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Subarray_split___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Subarray_split___redArg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Subarray_split___rarg(x_1, x_2);
+x_3 = l_Subarray_split___redArg(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Subarray_drop___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Subarray_split___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Subarray_split(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Subarray_drop___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -155,24 +167,33 @@ return x_14;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Subarray_drop(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Subarray_drop(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Subarray_drop___rarg___boxed), 2, 0);
-return x_2;
+lean_object* x_4; 
+x_4 = l_Subarray_drop___redArg(x_2, x_3);
+return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Subarray_drop___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Subarray_drop___redArg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Subarray_drop___rarg(x_1, x_2);
+x_3 = l_Subarray_drop___redArg(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Subarray_take___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Subarray_drop___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Subarray_drop(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Subarray_take___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -231,21 +252,30 @@ return x_14;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Subarray_take(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Subarray_take(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Subarray_take___rarg___boxed), 2, 0);
-return x_2;
+lean_object* x_4; 
+x_4 = l_Subarray_take___redArg(x_2, x_3);
+return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Subarray_take___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Subarray_take___redArg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Subarray_take___rarg(x_1, x_2);
+x_3 = l_Subarray_take___redArg(x_1, x_2);
 lean_dec(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Subarray_take___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Subarray_take(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
 }
 }
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);

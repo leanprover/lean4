@@ -58,9 +58,8 @@ protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {xs ys
   cases xs
   simp_all
 
-@[simp] theorem singleton_lex_singleton [BEq α] {lt : α → α → Bool} : #v[a].lex #v[b] lt = lt a b := by
-  simp only [lex, getElem_mk, List.getElem_toArray, List.getElem_singleton]
-  cases lt a b <;> cases a != b <;> simp
+theorem singleton_lex_singleton [BEq α] {lt : α → α → Bool} : #v[a].lex #v[b] lt = lt a b := by
+  simp
 
 protected theorem lt_irrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] (xs : Vector α n) : ¬ xs < xs :=
   Array.lt_irrefl xs.toArray
@@ -161,7 +160,7 @@ protected theorem le_iff_lt_or_eq [DecidableEq α] [LT α] [DecidableLT α]
     {xs ys : Vector α n} : lex xs ys = false ↔ ys ≤ xs := by
   cases xs
   cases ys
-  simp [Array.not_lt_iff_ge]
+  simp
 
 instance [DecidableEq α] [LT α] [DecidableLT α] : DecidableLT (Vector α n) :=
   fun xs ys => decidable_of_iff (lex xs ys = true) lex_eq_true_iff_lt
@@ -207,7 +206,7 @@ theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] (lt : α → α �
         (∃ (i : Nat) (h : i < n),(∀ j, (hj : j < i) → xs[j] == ys[j]) ∧ lt ys[i] xs[i]) := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, n₂⟩
-  simp_all [Array.lex_eq_false_iff_exists, n₂]
+  simp_all [Array.lex_eq_false_iff_exists]
 
 protected theorem lt_iff_exists [DecidableEq α] [LT α] [DecidableLT α] {xs ys : Vector α n} :
     xs < ys ↔

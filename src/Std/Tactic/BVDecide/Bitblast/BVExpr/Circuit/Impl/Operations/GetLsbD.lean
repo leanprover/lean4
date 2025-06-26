@@ -24,25 +24,11 @@ structure GetLsbDTarget (aig : AIG α) where
   vec : AIG.RefVec aig w
   idx : Nat
 
-def blastGetLsbD (aig : AIG α) (target : GetLsbDTarget aig) : AIG.Entrypoint α :=
+def blastGetLsbD (aig : AIG α) (target : GetLsbDTarget aig) : AIG.Ref aig :=
   if h : target.idx < target.w then
-    ⟨aig, target.vec.get target.idx h⟩
+    target.vec.get target.idx h
   else
-    AIG.mkConstCached aig false
-
-instance : AIG.LawfulOperator α GetLsbDTarget blastGetLsbD where
-  le_size := by
-    intros
-    unfold blastGetLsbD
-    split
-    · simp
-    · apply AIG.LawfulOperator.le_size (f := AIG.mkConstCached)
-  decl_eq := by
-    intros
-    unfold blastGetLsbD
-    split
-    · simp
-    · rw [AIG.LawfulOperator.decl_eq (f := AIG.mkConstCached)]
+    aig.mkConstCached false
 
 end BVPred
 

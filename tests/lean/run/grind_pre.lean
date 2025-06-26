@@ -1,5 +1,4 @@
 abbrev f (a : α) := a
-set_option grind.warning false
 set_option grind.debug true
 set_option grind.debug.proofs true
 
@@ -22,18 +21,18 @@ h_1 : b = false ∨ a = false
     [prop] q
     [prop] b = false ∨ a = false
   [eqc] True propositions
-    [prop] b = true ∨ c = true
     [prop] p
     [prop] q
     [prop] b = false ∨ a = false
+    [prop] b = true ∨ c = true
     [prop] b = false
     [prop] c = true
   [eqc] False propositions
     [prop] a = false
     [prop] b = true
   [eqc] Equivalence classes
-    [eqc] {b, false}
     [eqc] {a, c, true}
+    [eqc] {b, false}
 -/
 #guard_msgs (error) in
 theorem ex (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
@@ -64,8 +63,8 @@ h_3 : b = false
     [prop] p
     [prop] q
   [eqc] Equivalence classes
-    [eqc] {b, false}
     [eqc] {a, c, true}
+    [eqc] {b, false}
 [grind] Diagnostics
   [cases] Cases instances
     [cases] Or ↦ 3
@@ -119,10 +118,10 @@ tail_eq_1 : as = bs
     [prop] a₃ = b₃
     [prop] as = bs
   [eqc] Equivalence classes
-    [eqc] {as, bs}
-    [eqc] {a₃, b₃}
-    [eqc] {a₂, b₂}
     [eqc] {a₁, b₁}
+    [eqc] {a₂, b₂}
+    [eqc] {a₃, b₃}
+    [eqc] {as, bs}
 -/
 #guard_msgs (error) in
 theorem ex3 (h : a₁ :: { x := a₂, y := a₃ : Point } :: as = b₁ :: { x := b₂, y := b₃} :: bs) : False := by
@@ -140,36 +139,37 @@ case grind.1
 α : Type
 a : α
 p q r : Prop
-h₁ : HEq p a
-h₂ : HEq q a
+h₁ : p ≍ a
+h₂ : q ≍ a
 h₃ : p = r
 left : p
 right : r
 ⊢ False
 [grind] Goal diagnostics
   [facts] Asserted facts
-    [prop] HEq p a
-    [prop] HEq q a
+    [prop] p ≍ a
+    [prop] q ≍ a
     [prop] p = r
     [prop] p
     [prop] r
   [eqc] True propositions
-    [prop] p = r
     [prop] a
     [prop] p
     [prop] q
     [prop] r
+    [prop] p = r
   [cases] Case analyses
     [cases] [1/2]: p = r
+      [cases] source: Initial goal
 -/
 #guard_msgs (error) in
-example (a : α) (p q r : Prop) : (h₁ : HEq p a) → (h₂ : HEq q a) → (h₃ : p = r) → False := by
+example (a : α) (p q r : Prop) : (h₁ : p ≍ a) → (h₂ : q ≍ a) → (h₃ : p = r) → False := by
   grind
 
 example (a b : Nat) (f : Nat → Nat) : (h₁ : a = b) → (h₂ : f a ≠ f b) → False := by
   grind
 
-example (a : α) (p q r : Prop) : (h₁ : HEq p a) → (h₂ : HEq q a) → (h₃ : p = r) → q = r := by
+example (a : α) (p q r : Prop) : (h₁ : p ≍ a) → (h₂ : q ≍ a) → (h₃ : p = r) → q = r := by
   grind
 
 /--
@@ -182,7 +182,7 @@ trace: [grind.issues] found congruence between
 #guard_msgs (trace) in
 set_option trace.grind.issues true in
 set_option trace.grind.debug.proof false in
-example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : HEq f g → HEq a b → f a = g b := by
+example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : f ≍ g → a ≍ b → f a = g b := by
   fail_if_success grind
   sorry
 
@@ -193,23 +193,27 @@ f : Nat → Bool
 g : Int → Bool
 a : Nat
 b : Int
-h : HEq f g
-h_1 : HEq a b
+h : f ≍ g
+h_1 : a ≍ b
 h_2 : ¬f a = g b
 ⊢ False
 [grind] Goal diagnostics
   [facts] Asserted facts
-    [prop] HEq f g
-    [prop] HEq a b
+    [prop] f ≍ g
+    [prop] a ≍ b
     [prop] ¬f a = g b
   [eqc] False propositions
     [prop] f a = g b
   [eqc] Equivalence classes
-    [eqc] {a, b}
     [eqc] {f, g}
+    [eqc] {a, b}
 [grind] Issues
-  [issue] found congruence between g b and f a but functions have different types
+  [issue] found congruence between
+        g b
+      and
+        f a
+      but functions have different types
 -/
 #guard_msgs (error) in
-example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : HEq f g → HEq a b → f a = g b := by
+example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : f ≍ g → a ≍ b → f a = g b := by
   grind

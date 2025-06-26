@@ -17,7 +17,7 @@ See the docstring on the `#guard_msgs` command.
 open Lean Parser.Tactic Elab Command
 
 register_builtin_option guard_msgs.diff : Bool := {
-  defValue := false
+  defValue := true
   descr := "When true, show a diff between expected and actual messages if they don't match. "
 }
 
@@ -189,7 +189,7 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
       -- Failed. Put all the messages back on the message log and add an error
       modify fun st => { st with messages := initMsgs ++ msgs }
       let feedback :=
-        if (← getOptions).getBool `guard_msgs.diff false then
+        if guard_msgs.diff.get (← getOptions) then
           let diff := Diff.diff (expected.split (· == '\n')).toArray (res.split (· == '\n')).toArray
           Diff.linesToString diff
         else res

@@ -9,6 +9,7 @@ import Init.Grind.Lemmas
 import Lean.Meta.LitValues
 import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.MatchEqsExt
+import Lean.Meta.Match.MatchEqs
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Canon
@@ -17,14 +18,6 @@ import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Grind.Arith.Internalize
 
 namespace Lean.Meta.Grind
-
-/--
-A lighter version of `preprocess` which produces a definitionally equal term,
-but ensures assumptions made by `grind` are satisfied.
--/
-private def preprocessLight (e : Expr) : GoalM Expr := do
-  shareCommon (← canon (← normalizeLevels (← foldProjs (← eraseIrrelevantMData (← markNestedProofs (← unfoldReducible e))))))
-
 /-- Adds `e` to congruence table. -/
 def addCongrTable (e : Expr) : GoalM Unit := do
   if let some { e := e' } := (← get).congrTable.find? { e } then
@@ -57,6 +50,7 @@ private def updateAppMap (e : Expr) : GoalM Unit := do
     else
       s.appMap.insert key [e]
   }
+  saveAppOf key
 
 private def forbiddenSplitTypes := [``Eq, ``HEq, ``True, ``False]
 
@@ -65,15 +59,21 @@ def isMorallyIff (e : Expr) : Bool :=
   let_expr Eq α _ _ := e | false
   α.isProp
 
+private def mkDefaultSplitInfo (e : Expr) : GrindM SplitInfo :=
+  return .default e (← readThe Context).splitSource
+
+private def addDefaultSplitCandidate (e : Expr) : GoalM Unit := do
+  addSplitCandidate (← mkDefaultSplitInfo e)
+
 /-- Inserts `e` into the list of case-split candidates if applicable. -/
 private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
   match h : e with
   | .app .. =>
-    if (← getConfig).splitIte && (e.isIte || e.isDIte) then
-      addSplitCandidate (.default e)
+    if (← getConfig).splitIte && (isIte e || isDIte e) then
+      addDefaultSplitCandidate e
       return ()
     if isMorallyIff e then
-      addSplitCandidate (.default e)
+      addDefaultSplitCandidate e
       return ()
     if (← getConfig).splitMatch then
       if (← isMatcherApp e) then
@@ -82,7 +82,7 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
           -- and consequently don't need to be split.
           return ()
         else
-          addSplitCandidate (.default e)
+          addDefaultSplitCandidate e
           return ()
     let .const declName _  := e.getAppFn | return ()
       if forbiddenSplitTypes.contains declName then
@@ -90,28 +90,29 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
       unless (← isInductivePredicate declName) do
         return ()
       if (← get).split.casesTypes.isSplit declName then
-        addSplitCandidate (.default e)
+        addDefaultSplitCandidate e
       else if (← getConfig).splitIndPred then
-        addSplitCandidate (.default e)
+        addDefaultSplitCandidate e
   | .fvar .. =>
-    let .const declName _ := (← whnfD (← inferType e)).getAppFn | return ()
+    let .const declName _ := (← whnf (← inferType e)).getAppFn | return ()
     if (← get).split.casesTypes.isSplit declName then
-      addSplitCandidate (.default e)
+      addDefaultSplitCandidate e
   | .forallE _ d _ _ =>
+    let currSplitSource := (← readThe Context).splitSource
     if (← getConfig).splitImp then
       if (← isProp d) then
-        addSplitCandidate (.imp e (h ▸ rfl))
+        addSplitCandidate (.imp e (h ▸ rfl) currSplitSource)
     else if Arith.isRelevantPred d then
       -- TODO: should we keep lookahead after we implement non-chronological backtracking?
       if (← getConfig).lookahead then
-        addLookaheadCandidate (.imp e (h ▸ rfl))
+        addLookaheadCandidate (.imp e (h ▸ rfl) currSplitSource)
       -- We used to add the `split` only if `lookahead := false`, but it was counterintuitive
       -- to make `grind` "stronger" by disabling a feature.
-      addSplitCandidate (.imp e (h ▸ rfl))
+      addSplitCandidate (.imp e (h ▸ rfl) currSplitSource)
   | _ => pure ()
 
 /--
-If `e` is a `cast`-like term (e.g., `cast h a`), add `HEq e a` to the to-do list.
+If `e` is a `cast`-like term (e.g., `cast h a`), add `e ≍ a` to the to-do list.
 It could be an E-matching theorem, but we want to ensure it is always applied since
 we want to rely on the fact that `cast h a` and `a` are in the same equivalence class.
 -/
@@ -152,6 +153,28 @@ private def internalizeMatchCond (matchCond : Expr) (generation : Nat) : GoalM U
   trace_goal[grind.debug.matchCond.lambda] "(idx := {(← getENode e'.getAppFn).idx}) {e'.getAppFn}"
   trace_goal[grind.debug.matchCond.lambda] "auxiliary application{indentExpr e'}"
   pushEq matchCond e' (← mkEqRefl matchCond)
+  internalizeSimpleMatchCondImp
+where
+  /--
+  We say `MatchCond` is simple if its argument is an implication such as `x = 0 -> ...`
+  If that is the case, we also internalize the implication to ensure grind can split on the antecedents.
+  We added this extra case to make sure the user is not surprised by `grind` failing at
+  ```
+  example (x y : Nat)
+      : 0 < match x, y with
+            | 0, 0   => 1
+            | _, _ => x + y := by -- x or y must be greater than 0
+    grind
+  ```
+  We should try to find a better and more general approach for handling the example above.
+  -/
+  internalizeSimpleMatchCondImp : GoalM Unit := do
+    let_expr Grind.MatchCond e := matchCond | return ()
+    let .forallE _ d b _ := e | return ()
+    if b.hasLooseBVars then return ()
+    if (← isProp d) then
+      internalize e generation
+    pushEq matchCond e (← mkEqRefl matchCond)
 
 def activateTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM Unit := do
   -- Recall that we use the proof as part of the key for a set of instances found so far.
@@ -171,7 +194,8 @@ private def addMatchEqns (f : Expr) (generation : Nat) : GoalM Unit := do
   if !(← isMatcher declName) then return ()
   if (← get).ematch.matchEqNames.contains declName then return ()
   modify fun s => { s with ematch.matchEqNames := s.ematch.matchEqNames.insert declName }
-  for eqn in (← Match.getEquationsFor declName).eqnNames do
+  -- for eqn in (← Match.getEquationsFor declName).eqnNames do
+  for eqn in (← Match.genMatchCongrEqns declName) do
     -- We disable pattern normalization to prevent the `match`-expression to be reduced.
     activateTheorem (← mkEMatchEqTheorem eqn (normalizePattern := false)) generation
 
@@ -201,13 +225,13 @@ Recall that the `propagateUnitLike` was added because `isDefEq` implements it,
 and consequently the simplifier reduces terms of the form `a = ctor` to `True` using `eq_self`.
 This `isDefEq` feature was negatively affecting `grind` until we added an
 equivalent one here. For example, when splitting on a `match`-expression
-using Unit-like types, equalites about these types were being reduced to `True`
+using Unit-like types, equalities about these types were being reduced to `True`
 by `simp` (i.e., in the `grind` preprocessor), and `grind` would never see
 these facts.
 -/
 private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
   unless (← getConfig).etaStruct do return ()
-  let aType ← whnfD (← inferType a)
+  let aType ← whnf (← inferType a)
   matchConstStructureLike aType.getAppFn (fun _ => return ()) fun inductVal us ctorVal => do
     unless a.isAppOf ctorVal.name do
       -- TODO: remove ctorVal.numFields after update stage0
@@ -221,7 +245,9 @@ private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
           ctorApp := mkApp ctorApp proj
         ctorApp ← preprocessLight ctorApp
         internalize ctorApp generation
-        pushEq a ctorApp <| (← mkEqRefl a)
+        let u ← getLevel aType
+        let expectedProp := mkApp3 (mkConst ``Eq [u]) aType a ctorApp
+        pushEq a ctorApp <| mkExpectedPropHint (mkApp2 (mkConst ``Eq.refl [u]) aType a) expectedProp
 
 /-- Returns `true` if we can ignore `ext` for functions occurring as arguments of a `declName`-application. -/
 private def extParentsToIgnore (declName : Name) : Bool :=
@@ -276,7 +302,8 @@ where
         -- if (← getConfig).lookahead then
         --   addLookaheadCandidate (.arg other.app parent i eq)
         -- else
-        addSplitCandidate (.arg other.app parent i eq)
+        let currSplitSource := (← readThe Context).splitSource
+        addSplitCandidate (.arg other.app parent i eq currSplitSource)
     modify fun s => { s with split.argsAt := s.split.argsAt.insert (f, i) ({ arg, type, app := parent } :: others) }
     return ()
 
@@ -372,6 +399,7 @@ where
           let c := args[0]!
           internalizeImpl c generation e
           registerParent e c
+          pushEqTrue c <| mkApp2 (mkConst ``eq_true) c args[1]!
         else if f.isConstOf ``ite && args.size == 5 then
           let c := args[1]!
           internalizeImpl c generation e

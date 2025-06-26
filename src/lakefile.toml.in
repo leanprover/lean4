@@ -25,6 +25,10 @@ leanLibDir = "lib/lean"
 # Destination for static libraries
 nativeLibDir = "lib/lean"
 
+# Additional options derived from the CMake configuration
+# For example, CI will set `-DwarningAsError=true` through this
+moreLeanArgs = [${LEAN_EXTRA_OPTS_TOML}]
+
 [[lean_lib]]
 name = "Init"
 libName = "${LAKE_LIB_PREFIX}Init"

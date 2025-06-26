@@ -57,4 +57,17 @@ namespace Lean.Elab.Tactic.Conv
         throwTacticEx `lift_lets (← getMainGoal) m!"made no progress"
       changeLhs lhs'
 
+/-!
+### `let_to_have`
+-/
+
+@[builtin_tactic Lean.Parser.Tactic.Conv.letToHave] elab_rules : tactic
+  | `(conv| let_to_have) => do
+    withMainContext do
+      let lhs ← getLhs
+      let lhs' ← Meta.letToHave lhs
+      if lhs == lhs' then
+        throwTacticEx `let_to_have (← getMainGoal) m!"made no progress"
+      changeLhs lhs'
+
 end Lean.Elab.Tactic.Conv

@@ -183,10 +183,11 @@ where
 def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
   let lctx ← getLCtx
   match lctx.find? fvarId with
-  | some (LocalDecl.ldecl _ _ _ t v _ _) => do
+  | some (LocalDecl.ldecl _ _ _ t v nondep _) => do
     let vType ← inferType v
     let (vType, t) ← addPPExplicitToExposeDiff vType t
-    throwError "invalid let declaration, term{indentExpr v}\nhas type{indentExpr vType}\nbut is expected to have type{indentExpr t}"
+    let declKind := if nondep then "have" else "let"
+    throwError "invalid {declKind} declaration, term{indentExpr v}\nhas type{indentExpr vType}\nbut is expected to have type{indentExpr t}"
   | _ => unreachable!
 
 /--

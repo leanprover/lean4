@@ -37,7 +37,7 @@ theorem compare_eq_ite_le (a b : Nat) :
   · next hlt => simp [Nat.le_of_lt hlt, Nat.not_le.2 hlt]
   · next hge =>
     split
-    · next hgt => simp [Nat.le_of_lt hgt, Nat.not_le.2 hgt]
+    · next hgt => simp [Nat.not_le.2 hgt]
     · next hle => simp [Nat.not_lt.1 hge, Nat.not_lt.1 hle]
 
 @[deprecated compare_eq_ite_le (since := "2025-03_28")]

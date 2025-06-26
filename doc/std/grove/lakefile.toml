@@ -1,0 +1,18 @@
+name = "grovestdlib"
+version = "0.1.0"
+defaultTargets = ["grove-stdlib"]
+
+[[require]]
+name = "grove"
+git = "https://github.com/TwoFx/grove.git"
+rev = "master"
+subDir = "backend"
+
+[[lean_lib]]
+name = "GroveStdlib"
+root = "GroveStdlib"
+
+[[lean_exe]]
+name = "grove-stdlib"
+supportInterpreter = true
+root = "Main"

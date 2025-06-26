@@ -1,6 +1,6 @@
 x : Nat
 h : f (f x) = x
-⊢ (let y := x * x;
+⊢ (have y := x * x;
     if True then 1 else y + 1) =
     1
 theorem ex1 : ∀ (x : Nat),
@@ -19,7 +19,7 @@ fun x h =>
 x z : Nat
 h : f (f x) = x
 h' : z = x
-⊢ (let y := x;
+⊢ (have y := x;
     y) =
     z
 theorem ex2 : ∀ (x z : Nat),
@@ -37,7 +37,7 @@ x z : Nat
     id
 p : Prop
 h : p
-⊢ (let n := 10;
+⊢ (have n := 10;
     fun x => True) =
     fun z => p
 theorem ex4 : ∀ (p : Prop),

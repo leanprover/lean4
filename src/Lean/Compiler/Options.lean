@@ -10,7 +10,7 @@ import Lean.Data.Options
 namespace Lean.Compiler
 
 register_builtin_option compiler.check : Bool := {
-  defValue := true
+  defValue := false
   group    := "compiler"
   descr    := "type check code after each compiler step (this is useful for debugging purses)"
 }

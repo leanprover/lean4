@@ -20,15 +20,15 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 
 namespace Vector
 
-@[simp] theorem getElem_ofFn {α n} {f : Fin n → α} (h : i < n) :
+@[simp, grind =] theorem getElem_ofFn {α n} {f : Fin n → α} (h : i < n) :
     (Vector.ofFn f)[i] = f ⟨i, by simpa using h⟩ := by
   simp [ofFn]
 
-theorem getElem?_ofFn {α n} {f : Fin n → α} :
+@[simp, grind =] theorem getElem?_ofFn {α n} {f : Fin n → α} :
     (ofFn f)[i]? = if h : i < n then some (f ⟨i, h⟩) else none := by
   simp [getElem?_def]
 
-@[simp 500]
+@[simp 500, grind =]
 theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i = a := by
   constructor
   · intro w
@@ -37,7 +37,7 @@ theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i =
   · rintro ⟨i, rfl⟩
     apply mem_of_getElem (i := i) <;> simp
 
-theorem back_ofFn {n} [NeZero n] {f : Fin n → α} :
+@[grind =] theorem back_ofFn {n} [NeZero n] {f : Fin n → α} :
     (ofFn f).back = f ⟨n - 1, by have := NeZero.ne n; omega⟩ := by
   simp [back]
 
@@ -71,7 +71,7 @@ def ofFnM {n} [Monad m] (f : Fin n → m α) : m (Vector α n) :=
     else
       pure ⟨acc, by omega⟩
 
-@[simp]
+@[simp, grind =]
 theorem ofFnM_zero [Monad m] {f : Fin 0 → m α} : Vector.ofFnM f = pure #v[] := by
   simp [ofFnM, ofFnM.go]
 
@@ -114,13 +114,13 @@ theorem ofFnM_add {n m} [Monad m] [LawfulMonad m] {f : Fin (n + k) → m α} :
   | zero => simp
   | succ k ih => simp [ofFnM_succ, ih, ← push_append]
 
-@[simp, grind] theorem toArray_ofFnM [Monad m] [LawfulMonad m] {f : Fin n → m α} :
+@[simp, grind =] theorem toArray_ofFnM [Monad m] [LawfulMonad m] {f : Fin n → m α} :
     toArray <$> ofFnM f = Array.ofFnM f := by
   induction n with
   | zero => simp
   | succ n ih => simp [ofFnM_succ, Array.ofFnM_succ, ← ih]
 
-@[simp, grind] theorem toList_ofFnM [Monad m] [LawfulMonad m] {f : Fin n → m α} :
+@[simp, grind =] theorem toList_ofFnM [Monad m] [LawfulMonad m] {f : Fin n → m α} :
     toList <$> Vector.ofFnM f = List.ofFnM f := by
   unfold toList
   suffices Array.toList <$> (toArray <$> ofFnM f) = List.ofFnM f by

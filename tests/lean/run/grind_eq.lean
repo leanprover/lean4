@@ -62,19 +62,19 @@ opaque appV (xs : Vector α n) (ys : Vector α m) : Vector α (n + m) :=
 
 @[grind =]
 theorem appV_assoc (a : Vector α n) (b : Vector α m) (c : Vector α n') :
-        HEq (appV a (appV b c)) (appV (appV a b) c) := sorry
+        appV a (appV b c) ≍ appV (appV a b) c := sorry
 
 /--
 trace: [grind.assert] x1 = appV a_2 b
 [grind.assert] x2 = appV x1 c
 [grind.assert] x3 = appV b c
 [grind.assert] x4 = appV a_2 x3
-[grind.assert] ¬HEq x2 x4
-[grind.ematch.instance] appV_assoc: HEq (appV a_2 (appV b c)) (appV (appV a_2 b) c)
-[grind.assert] HEq (appV a_2 (appV b c)) (appV (appV a_2 b) c)
+[grind.assert] ¬x2 ≍ x4
+[grind.ematch.instance] appV_assoc: appV a_2 (appV b c) ≍ appV (appV a_2 b) c
+[grind.assert] appV a_2 (appV b c) ≍ appV (appV a_2 b) c
 -/
 #guard_msgs (trace) in
-example : x1 = appV a b → x2 = appV x1 c → x3 = appV b c → x4 = appV a x3 → HEq x2 x4 := by
+example : x1 = appV a b → x2 = appV x1 c → x3 = appV b c → x4 = appV a x3 → x2 ≍ x4 := by
   grind
 
 
@@ -84,4 +84,4 @@ info: appV_assoc': [@appV #6 #5 (@HAdd.hAdd `[Nat] `[Nat] `[Nat] `[instHAdd] #4 
 #guard_msgs (info) in
 @[grind? =]
 theorem appV_assoc' (a : Vector α n) (b : Vector α m) (c : Vector α n') :
-        HEq (appV a (appV b c)) (appV (appV a b) c) := sorry
+        appV a (appV b c) ≍ appV (appV a b) c := sorry

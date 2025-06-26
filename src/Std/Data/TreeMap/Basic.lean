@@ -15,7 +15,7 @@ Lemmas about the operations on `Std.TreeMap` will be available in the
 module `Std.Data.TreeMap.Lemmas`.
 
 See the module `Std.Data.TreeMap.Raw.Basic` for a variant of this type which is safe to use in
-nested inductive types.
+nested inductive types and `Std.Data.ExtTreeMap.Basic` for a variant with extensionality.
 -/
 
 set_option autoImplicit false
@@ -51,6 +51,10 @@ To avoid expensive copies, users should make sure that the tree map is used line
 Internally, the tree maps are represented as size-bounded trees, a type of self-balancing binary
 search tree with efficient order statistic lookups.
 
+For use in proofs, the type `Std.ExtTreeMap` of extensional tree maps should be preferred. This
+type comes with several extensionality lemmas and provides the same functions but requires a
+`TransCmp` instance to work with.
+
 These tree maps contain a bundled well-formedness invariant, which means that they cannot
 be used in nested inductive types. For these use cases, `Std.TreeMap.Raw` and
 `Std.TreeMap.Raw.WF` unbundle the invariant from the tree map. When in doubt, prefer
@@ -70,6 +74,13 @@ instance : EmptyCollection (TreeMap α β cmp) where
   emptyCollection := empty
 
 instance : Inhabited (TreeMap α β cmp) := ⟨∅⟩
+
+@[inherit_doc DTreeMap.Equiv]
+structure Equiv (m₁ m₂ : TreeMap α β cmp) where
+  /-- Internal implementation detail of the tree map -/
+  inner : m₁.1.Equiv m₂.1
+
+@[inherit_doc] scoped infix:50 " ~m " => Equiv
 
 @[simp]
 theorem empty_eq_emptyc : (empty : TreeMap α β cmp) = ∅ :=

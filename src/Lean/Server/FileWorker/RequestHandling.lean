@@ -8,6 +8,7 @@ prelude
 import Lean.Server.FileWorker.ExampleHover
 import Lean.Server.FileWorker.InlayHints
 import Lean.Server.FileWorker.SemanticHighlighting
+import Lean.Server.FileWorker.SignatureHelp
 import Lean.Server.Completion
 import Lean.Server.References
 
@@ -130,7 +131,7 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
     return #[]
 
   let locationLinksFromImport (i : Elab.Info) := do
-    let `(Parser.Module.import| $[private]? import $[all]? $mod) := i.stx
+    let `(Parser.Module.import| $[private]? $[meta]? import $[all]? $mod) := i.stx
       | return #[]
     if let some modUri ← documentUriFromModule? mod.getId then
       let range := { start := ⟨0, 0⟩, «end» := ⟨0, 0⟩ : Range }
@@ -155,6 +156,19 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
       if kind == definition && ci.env.contains ei.elaborator then
         return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
     return #[]
+
+  let locationLinksFromErrorNameInfo (eni : ErrorNameInfo) : MetaM (Array LocationLink) := do
+    let some explan := getErrorExplanationRaw? (← getEnv) eni.errorName | return #[]
+    let some (loc : DeclarationLocation) := explan.declLoc? | return #[]
+    let some targetUri ← documentUriFromModule? loc.module | return #[]
+    let targetRange := loc.range.toLspRange
+    let link : LocationLink := {
+      originSelectionRange? := (·.toLspRange text) <$> eni.stx.getRange? (canonicalOnly := true)
+      targetUri
+      targetRange
+      targetSelectionRange := targetRange
+    }
+    return #[link]
 
   let locationLinksFromTermInfo (ti : TermInfo) : RequestM (Array LocationLink) := do
     let mut expr := ti.expr
@@ -229,6 +243,8 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
       return ← ci.runMetaM i.lctx <| locationLinksFromDecl i fi.projName
   | .ofOptionInfo oi =>
     return ← ci.runMetaM i.lctx <| locationLinksFromDecl i oi.declName
+  | .ofErrorNameInfo eni =>
+    return ← ci.runMetaM i.lctx <| locationLinksFromErrorNameInfo eni
   | .ofCommandInfo ⟨`import, _⟩ =>
     if kind == definition || kind == declaration then
       return ← ci.runMetaM i.lctx <| locationLinksFromImport i
@@ -253,7 +269,7 @@ def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : ServerTask (
   let text := doc.meta.text
   findCmdParsedSnap doc hoverPos |>.bindCostly fun
     | some cmdParsed =>
-      let t := toSnapshotTree cmdParsed |>.foldSnaps [] fun snap oldGoals => Id.run do
+      let t := toSnapshotTree cmdParsed.elabSnap |>.foldSnaps [] fun snap oldGoals => Id.run do
         let some stx := snap.stx?
           | return .pure (oldGoals, .proceed (foldChildren := false))
         let some (pos, tailPos, trailingPos) := getPositions stx
@@ -346,7 +362,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
     let goal ← ci.runMetaM lctx' do
       Widget.goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
     let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
-    return some { goal with range, term := ⟨ti⟩ }
+    return some { goal with range, term := ← WithRpcRef.mk ti }
 
 def handlePlainTermGoal (p : PlainTermGoalParams)
     : RequestM (RequestTask (Option PlainTermGoal)) := do
@@ -562,6 +578,15 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
               endLine := endP.line
               kind? := some kind }
 
+def handleSignatureHelp (p : SignatureHelpParams) : RequestM (RequestTask (Option SignatureHelp)) := do
+  let doc ← readDoc
+  let text := doc.meta.text
+  let requestedPos := text.lspPosToUtf8Pos p.position
+  mapTaskCostly (findCmdDataAtPos doc requestedPos (includeStop := false)) fun cmdData? => do
+    let some (cmdStx, tree) := cmdData?
+      | return none
+    SignatureHelp.findSignatureHelp? text p.context? cmdStx tree requestedPos
+
 partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
     : RequestM (RequestTask WaitForDiagnostics) := do
   let rec waitLoop : RequestM EditableDocument := do
@@ -627,6 +652,11 @@ builtin_initialize
     FoldingRangeParams
     (Array FoldingRange)
     handleFoldingRange
+  registerLspRequestHandler
+    "textDocument/signatureHelp"
+    SignatureHelpParams
+    (Option SignatureHelp)
+    handleSignatureHelp
   registerLspRequestHandler
     "$/lean/plainGoal"
     PlainGoalParams

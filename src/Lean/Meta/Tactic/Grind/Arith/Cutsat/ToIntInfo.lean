@@ -10,10 +10,38 @@ import Lean.Meta.Tactic.Grind.Arith.Util
 namespace Lean.Meta.Grind.Arith.Cutsat
 open Lean Grind
 
-structure ToIntCongr where
+/--
+Theorems for operators that have support for `i.wrap` over `i.wrap` simplification.
+Currently only addition and multiplication have `wrap` cancellation theorems
+-/
+structure ToIntThms where
+  /--
+  Basic theorem of the form
+  ```
+  toInt a = a' → toInt b = b' → toInt (a ⊞ b) = i.wrap (a' ⊞ b')`
+  ```
+  -/
   c?    : Option Expr := none
+  /--
+  Left-right `wrap` cancellation theorem of the form
+  ```
+  toInt a = i.wrap a' → toInt b = i.wrap b' → toInt (a ⊞ b) = i.wrap (a' ⊞ b')
+  ```
+  -/
   c_ww? : Option Expr := none
+  /--
+  Left `wrap` cancellation theorem of the form
+  ```
+  toInt a = i.wrap a' → toInt b = b' → toInt (a ⊞ b) = i.wrap (a' ⊞ b')
+  ```
+  -/
   c_wl? : Option Expr := none
+  /--
+  Right `wrap` cancellation theorem of the form
+  ```
+  toInt a = a' → toInt b = i.wrap b' → toInt (a ⊞ b) = i.wrap (a' ⊞ b')
+  ```
+  -/
   c_wr? : Option Expr := none
 
 structure ToIntInfo where
@@ -32,8 +60,8 @@ structure ToIntInfo where
   ofNotLE?  : Option Expr
   ofLT?     : Option Expr
   ofNotLT?  : Option Expr
-  add       : ToIntCongr
-  mul       : ToIntCongr
+  addThms   : ToIntThms
+  mulThms   : ToIntThms
   -- TODO: other operators
 
 end Lean.Meta.Grind.Arith.Cutsat

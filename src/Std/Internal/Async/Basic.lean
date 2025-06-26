@@ -593,7 +593,10 @@ protected def tryCatch (x : EAsync ε α) (f : ε → EAsync ε α) (prio := Tas
 /--
 Runs an action, ensuring that some other action always happens afterward.
 -/
-protected def tryFinally' (x : EAsync ε α) (f : Option α → EAsync ε β) (prio := Task.Priority.default) (sync := false) : EAsync ε (α × β) :=
+protected def tryFinally'
+    (x : EAsync ε α) (f : Option α → EAsync ε β)
+    (prio := Task.Priority.default) (sync := false) :
+    EAsync ε (α × β) :=
   .mk <| BaseAsync.bind x (prio := prio) (sync := sync) fun
     | .ok a => do
       match ← (f (some a)) with
@@ -673,7 +676,11 @@ instance : MonadLift BaseAsync (EAsync ε) where
   monadLift x := .mk <| x.map (.ok)
 
 @[inline]
-protected partial def forIn {β : Type} [i : Inhabited ε] (init : β) (f : Unit → β → EAsync ε (ForInStep β)) (prio := Task.Priority.default) : EAsync ε β := do
+protected partial def forIn
+    {β : Type} [i : Inhabited ε] (init : β)
+    (f : Unit → β → EAsync ε (ForInStep β))
+    (prio := Task.Priority.default) :
+    EAsync ε β := do
   let promise ← IO.Promise.new
 
   let rec @[specialize] loop (b : β) : EAsync ε (ETask ε Unit) := async (prio := prio) do
@@ -731,15 +738,15 @@ Runs two computations concurrently and returns both results as a pair.
 -/
 @[inline, specialize]
 def concurrently
-  [Monad m] [MonadAwait t m] [MonadAsync t m]
-  (x : m α) (y : m β)
-  (prio := Task.Priority.default)
-  : m (α × β) := do
-    let taskX : t α ← async x (prio := prio)
-    let taskY : t β ← async y (prio := prio)
-    let resultX ← await taskX
-    let resultY ← await taskY
-    return (resultX, resultY)
+    [Monad m] [MonadAwait t m] [MonadAsync t m]
+    (x : m α) (y : m β)
+    (prio := Task.Priority.default) :
+    m (α × β) := do
+  let taskX : t α ← async x (prio := prio)
+  let taskY : t β ← async y (prio := prio)
+  let resultX ← await taskX
+  let resultY ← await taskY
+  return (resultX, resultY)
 
 /--
 Runs two computations concurrently and returns the result of the one that finishes first.
@@ -748,27 +755,27 @@ until the end.
 -/
 @[inline, specialize]
 def race
-  [MonadLiftT BaseIO m] [MonadAwait Task m] [MonadAsync t m] [MonadAwait t m]
-  [Monad m] [Inhabited α] (x : m α) (y : m α)
-  (prio := Task.Priority.default)
-  : m α := do
-    let promise ← IO.Promise.new
+    [MonadLiftT BaseIO m] [MonadAwait Task m] [MonadAsync t m] [MonadAwait t m]
+    [Monad m] [Inhabited α] (x : m α) (y : m α)
+    (prio := Task.Priority.default) :
+    m α := do
+  let promise ← IO.Promise.new
 
-    discard (async (t := t) (prio := prio) <| Bind.bind x (liftM ∘ promise.resolve))
-    discard (async (t := t) (prio := prio) <| Bind.bind y (liftM ∘ promise.resolve))
+  discard (async (t := t) (prio := prio) <| Bind.bind x (liftM ∘ promise.resolve))
+  discard (async (t := t) (prio := prio) <| Bind.bind y (liftM ∘ promise.resolve))
 
-    await promise.result!
+  await promise.result!
 
 /--
 Runs all computations in an `Array` concurrently and returns all results as an array.
 -/
 @[inline, specialize]
 def concurrentlyAll
-  [Monad m] [MonadAwait t m] [MonadAsync t m] (xs : Array (m α))
-  (prio := Task.Priority.default)
-  : m (Array α) := do
-    let tasks : Array (t α) ← xs.mapM (async (prio := prio))
-    tasks.mapM await
+    [Monad m] [MonadAwait t m] [MonadAsync t m] (xs : Array (m α))
+    (prio := Task.Priority.default) :
+    m (Array α) := do
+  let tasks : Array (t α) ← xs.mapM (async (prio := prio))
+  tasks.mapM await
 
 /--
 Runs all computations concurrently and returns the result of the first one to finish.
@@ -777,17 +784,17 @@ until the end.
 -/
 @[inline, specialize]
 def raceAll
-  [ForM m c (m α)] [MonadLiftT BaseIO m] [MonadAwait Task m]
-  [MonadAsync t m] [MonadAwait t m] [Monad m] [Inhabited α]
-  (xs : c)
-  (prio := Task.Priority.default)
-  : m α := do
-    let promise ← IO.Promise.new
+    [ForM m c (m α)] [MonadLiftT BaseIO m] [MonadAwait Task m]
+    [MonadAsync t m] [MonadAwait t m] [Monad m] [Inhabited α]
+    (xs : c)
+    (prio := Task.Priority.default) :
+    m α := do
+  let promise ← IO.Promise.new
 
-    ForM.forM xs fun x =>
-      discard (async (t := t) (prio := prio) <| Bind.bind x (liftM ∘ promise.resolve))
+  ForM.forM xs fun x =>
+    discard (async (t := t) (prio := prio) <| Bind.bind x (liftM ∘ promise.resolve))
 
-    await promise.result!
+  await promise.result!
 
 end Async
 end IO

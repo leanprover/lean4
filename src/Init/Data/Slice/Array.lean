@@ -30,10 +30,12 @@ instance {shape} {α : Type u} [ClosedOpenIntersection shape Nat] :
 instance {s : Subarray α} : ToIterator s Id α :=
   .of _
     (PRange.Internal.iter (s.internalRepresentation.start...<s.internalRepresentation.stop)
-      |>.attachWith (· < s.internalRepresentation.array.size) (by
-        simp only [Internal.isPlausibleIndirectOutput_iter_iff, Membership.mem,
-          SupportsUpperBound.IsSatisfied, and_imp]
-        intro out _ h
-        have := s.internalRepresentation.stop_le_array_size
-        omega)
+      |>.attachWith (· < s.internalRepresentation.array.size) ?h
       |>.map fun i => s.internalRepresentation.array[i.1])
+where finally
+  case h =>
+    simp only [Internal.isPlausibleIndirectOutput_iter_iff, Membership.mem,
+      SupportsUpperBound.IsSatisfied, and_imp]
+    intro out _ h
+    have := s.internalRepresentation.stop_le_array_size
+    omega

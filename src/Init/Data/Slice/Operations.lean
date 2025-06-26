@@ -27,23 +27,28 @@ def Internal.iter (s : Slice γ) [ToIterator s Id β] :=
   ToIterator.iter s
 
 /--
-Returns the number of elements -- not necessarily distinct -- in the given slice.
+Returns the number of elements with distinct indices in the given slice.
+
+Example: `#[1, 1, 1][0...2] = 2`.
 -/
 @[always_inline, inline]
 def size (s : Slice g) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
     [IteratorSize (ToIterator.State s Id) Id] :=
   Internal.iter s |>.size
 
+/-- Allocates a new array that contains the elements of the slice. -/
 @[always_inline, inline]
 def toArray (s : Slice g) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
     [IteratorCollect (ToIterator.State s Id) Id Id] [Finite (ToIterator.State s Id) Id] : Array β :=
   Internal.iter s |>.toArray
 
+/-- Allocates a new list that contains the elements of the slice. -/
 @[always_inline, inline]
 def toList (s : Slice g) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
     [IteratorCollect (ToIterator.State s Id) Id Id] [Finite (ToIterator.State s Id) Id] : List β :=
   Internal.iter s |>.toList
 
+/-- Allocates a new list that contains the elements of the slice in reverse order. -/
 @[always_inline, inline]
 def toListRev (s : Slice g) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
     [IteratorCollect (ToIterator.State s Id) Id Id] [Finite (ToIterator.State s Id) Id] : List β :=

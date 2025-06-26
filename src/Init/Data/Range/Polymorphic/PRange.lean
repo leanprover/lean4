@@ -304,11 +304,19 @@ This is encoded in `LawfulClosedOpenIntersection`.
 class ClosedOpenIntersection (shape : RangeShape) (α : Type w) where
   intersection : PRange shape α → PRange ⟨.closed, .open⟩ α → PRange ⟨.closed, .open⟩ α
 
+/--
+This typeclass ensures that the intersection according to `ClosedOpenIntersection shape α`
+of two ranges contains exactly those elements that are contained in both ranges.
+-/
 class LawfulClosedOpenIntersection (shape : RangeShape) (α : Type w)
     [ClosedOpenIntersection shape α]
     [SupportsLowerBound shape.lower α] [SupportsUpperBound shape.upper α]
     [SupportsLowerBound .closed α]
     [SupportsUpperBound .open α] where
+  /--
+  The intersection according to `ClosedOpenIntersection shapee α` of two ranges contains exactly
+  those elements that are contained in both ranges.
+  -/
   mem_intersection_iff {a : α} {r : PRange ⟨shape.lower, shape.upper⟩ α}
       {s : PRange ⟨.closed, .open⟩ α} :
     a ∈ ClosedOpenIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s

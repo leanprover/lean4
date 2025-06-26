@@ -58,10 +58,10 @@ def runReverseDNS : Async Unit := do
 
 #eval runDNS.toIO >>= AsyncTask.block
 
-#eval
-  try do
-    runDNSNoAscii.toIO >>= AsyncTask.block
-    throw (IO.userError "tests/run/async_dns.lean: DNS resolution for invalid hostname should have failed.")
-  catch _ => pure ()
+/--
+error: invalid argument (error code: 22, invalid argument)
+  file: name is not ASCII.
+-/
+#guard_msgs in #eval runDNSNoAscii.toIO >>= AsyncTask.block
 
 #eval runReverseDNS.toIO >>= AsyncTask.block

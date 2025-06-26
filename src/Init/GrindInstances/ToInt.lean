@@ -31,7 +31,7 @@ instance : ToInt.Zero Int .ii where
   toInt_zero := by simp
 
 instance : ToInt.OfNat Int .ii where
-  toInt_ofNat _ _ := rfl
+  toInt_ofNat _ := by simp; rfl
 
 instance : ToInt.Add Int .ii where
   toInt_add := by simp
@@ -71,7 +71,7 @@ instance : ToInt.Zero Nat (.ci 0) where
   toInt_zero := by simp
 
 instance : ToInt.OfNat Nat (.ci 0) where
-  toInt_ofNat _ _ := rfl
+  toInt_ofNat _ := by simp; rfl
 
 instance : ToInt.Add Nat (.ci 0) where
   toInt_add := by simp <;> omega
@@ -118,10 +118,7 @@ instance [NeZero n] : ToInt.Zero (Fin n) (.co 0 n) where
   toInt_zero := rfl
 
 instance [NeZero n] : ToInt.OfNat (Fin n) (.co 0 n) where
-  toInt_ofNat x h := by
-    simp at h
-    change ((x % n : Nat) : Int) = _
-    rw [Nat.mod_eq_of_lt h]
+  toInt_ofNat x := by simp; rfl
 
 instance : ToInt.Add (Fin n) (.co 0 n) where
   toInt_add x y := by rfl
@@ -158,10 +155,7 @@ instance : ToInt.Zero UInt8 (.uint 8) where
   toInt_zero := by simp
 
 instance : ToInt.OfNat UInt8 (.uint 8) where
-  toInt_ofNat x h := by
-    simp only [IntInterval.mem_co] at h
-    change ((x % 2^8 : Nat) : Int) = _
-    rw [Nat.mod_eq_of_lt (by omega)]
+  toInt_ofNat x := by simp; rfl
 
 instance : ToInt.Add UInt8 (.uint 8) where
   toInt_add x y := by simp
@@ -195,10 +189,7 @@ instance : ToInt.Zero UInt16 (.uint 16) where
   toInt_zero := by simp
 
 instance : ToInt.OfNat UInt16 (.uint 16) where
-  toInt_ofNat x h := by
-    simp only [IntInterval.mem_co] at h
-    change ((x % 2^16 : Nat) : Int) = _
-    rw [Nat.mod_eq_of_lt (by omega)]
+  toInt_ofNat x := by simp; rfl
 
 instance : ToInt.Add UInt16 (.uint 16) where
   toInt_add x y := by simp
@@ -232,10 +223,7 @@ instance : ToInt.Zero UInt32 (.uint 32) where
   toInt_zero := by simp
 
 instance : ToInt.OfNat UInt32 (.uint 32) where
-  toInt_ofNat x h := by
-    simp only [IntInterval.mem_co] at h
-    change ((x % 2^32 : Nat) : Int) = _
-    rw [Nat.mod_eq_of_lt (by omega)]
+  toInt_ofNat x := by simp; rfl
 
 instance : ToInt.Add UInt32 (.uint 32) where
   toInt_add x y := by simp
@@ -269,10 +257,7 @@ instance : ToInt.Zero UInt64 (.uint 64) where
   toInt_zero := by simp
 
 instance : ToInt.OfNat UInt64 (.uint 64) where
-  toInt_ofNat x h := by
-    simp only [IntInterval.mem_co] at h
-    change ((x % 2^64 : Nat) : Int) = _
-    rw [Nat.mod_eq_of_lt (by omega)]
+  toInt_ofNat x := by simp; rfl
 
 instance : ToInt.Add UInt64 (.uint 64) where
   toInt_add x y := by simp
@@ -310,14 +295,9 @@ instance : ToInt.Zero USize (.uint System.Platform.numBits) where
   toInt_zero := by simp
 
 instance : ToInt.OfNat USize (.uint System.Platform.numBits) where
-  toInt_ofNat x h := by
-    simp only [IntInterval.mem_co] at h
-    replace h : x < 2^System.Platform.numBits := by
-      suffices (x : Int) < ((2^System.Platform.numBits : Nat) : Int) by
-        exact Int.ofNat_lt.mp this
-      simpa using h.2
+  toInt_ofNat x := by
     change ((x % 2^System.Platform.numBits : Nat) : Int) = _
-    rw [Nat.mod_eq_of_lt (by omega)]
+    simp
 
 instance : ToInt.Add USize (.uint System.Platform.numBits) where
   toInt_add x y := by simp
@@ -354,10 +334,10 @@ instance : ToInt.Zero Int8 (.sint 8) where
     rw [Int8.toInt_zero]
 
 instance : ToInt.OfNat Int8 (.sint 8) where
-  toInt_ofNat x h := by
-    simp only [IntInterval.mem_co] at h
-    rw [toInt_int8, Int8.toInt_ofNat, Int8.size, Int.bmod_eq_emod, if_neg, Int.emod_eq_of_lt] <;>
-      omega
+  toInt_ofNat x := by
+    rw [toInt_int8, Int8.toInt_ofNat, Int8.size, Int.bmod_eq_emod, IntInterval.wrap]
+    simp
+    split <;> omega
 
 instance : ToInt.Add Int8 (.sint 8) where
   toInt_add x y := by
@@ -395,10 +375,10 @@ instance : ToInt.Zero Int16 (.sint 16) where
     rw [Int16.toInt_zero]
 
 instance : ToInt.OfNat Int16 (.sint 16) where
-  toInt_ofNat x h := by
-    simp only [IntInterval.mem_co] at h
-    rw [toInt_int16, Int16.toInt_ofNat, Int16.size, Int.bmod_eq_emod, if_neg, Int.emod_eq_of_lt] <;>
-      omega
+  toInt_ofNat x := by
+    rw [toInt_int16, Int16.toInt_ofNat, Int16.size, Int.bmod_eq_emod, IntInterval.wrap]
+    simp
+    split <;> omega
 
 instance : ToInt.Add Int16 (.sint 16) where
   toInt_add x y := by
@@ -433,10 +413,10 @@ instance : ToInt.Zero Int32 (.sint 32) where
     rw [Int32.toInt_zero]
 
 instance : ToInt.OfNat Int32 (.sint 32) where
-  toInt_ofNat x h := by
-    simp only [IntInterval.mem_co] at h
-    rw [toInt_int32, Int32.toInt_ofNat, Int32.size, Int.bmod_eq_emod, if_neg, Int.emod_eq_of_lt] <;>
-      omega
+  toInt_ofNat x := by
+    rw [toInt_int32, Int32.toInt_ofNat, Int32.size, Int.bmod_eq_emod, IntInterval.wrap]
+    simp
+    split <;> omega
 
 instance : ToInt.Add Int32 (.sint 32) where
   toInt_add x y := by
@@ -471,10 +451,10 @@ instance : ToInt.Zero Int64 (.sint 64) where
     rw [Int64.toInt_zero]
 
 instance : ToInt.OfNat Int64 (.sint 64) where
-  toInt_ofNat x h := by
-    simp only [IntInterval.mem_co] at h
-    rw [toInt_int64, Int64.toInt_ofNat, Int64.size, Int.bmod_eq_emod, if_neg, Int.emod_eq_of_lt] <;>
-      omega
+  toInt_ofNat x := by
+    rw [toInt_int64, Int64.toInt_ofNat, Int64.size, Int.bmod_eq_emod, IntInterval.wrap]
+    simp
+    split <;> omega
 
 instance : ToInt.Add Int64 (.sint 64) where
   toInt_add x y := by
@@ -507,12 +487,7 @@ instance : ToInt.Zero (BitVec v) (.uint v) where
   toInt_zero := by simp
 
 instance : ToInt.OfNat (BitVec v) (.uint v) where
-  toInt_ofNat x h := by
-    simp only [IntInterval.mem_co] at h
-    rw [toInt_bitVec]
-    simp only [BitVec.ofNat_eq_ofNat, BitVec.toNat_ofNat, Int.natCast_emod, Int.natCast_pow,
-      Int.cast_ofNat_Int]
-    rw [Int.emod_eq_of_lt] <;> omega
+  toInt_ofNat x := by simp
 
 instance : ToInt.Add (BitVec v) (.uint v) where
   toInt_add x y := by simp
@@ -547,19 +522,12 @@ instance : ToInt.Zero ISize (.sint System.Platform.numBits) where
     rw [toInt_isize, ISize.toInt_zero]
 
 instance : ToInt.OfNat ISize (.sint System.Platform.numBits) where
-  toInt_ofNat x h := by
-    simp only [IntInterval.mem_co] at h
+  toInt_ofNat x := by
     rw [toInt_isize]
-    simp only [ISize.toInt_ofNat, ISize.size]
-    have := System.Platform.numBits_pos
-    have : System.Platform.numBits - 1 + 1 = System.Platform.numBits := by omega
-    rw [Int.bmod_eq_of_le]
-    · simp
-      rw [← this, Int.pow_succ']
-      omega
-    · rw [← this, Nat.pow_succ']
-      simp
-      omega
+    simp only [ISize.toInt_ofNat, ISize.size, IntInterval.wrap, Int.sub_neg]
+    rcases System.Platform.numBits_eq with h | h <;>
+    · simp [h, Int.bmod_eq_emod]
+      split <;> omega
 
 instance : ToInt.Add ISize (.sint System.Platform.numBits) where
   toInt_add x y := by

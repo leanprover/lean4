@@ -40,11 +40,7 @@ example : ToInt.Add (BitVec w) (.uint w) := inferInstance
 example : ToInt.Neg (BitVec w) (.uint w) := inferInstance
 example : ToInt.Sub (BitVec w) (.uint w) := inferInstance
 
-instance [i : NeZero w] : ToInt.Pow (BitVec w) (.uint w) :=
-  ToInt.pow_of_semiring (by simp) (by
-    match w, i with
-    | w + 1, _ =>
-      have : 1 < 2 ^ (w + 1) := Nat.one_lt_two_pow' w
-      simpa [Int.pow_succ] using Int.ofNat_lt.mpr this)
+instance : ToInt.Pow (BitVec w) (.uint w) :=
+  ToInt.pow_of_semiring (by simp)
 
 end Lean.Grind

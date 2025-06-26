@@ -52,7 +52,7 @@ example : ToInt.Add Int8 (.sint 8) := inferInstance
 example : ToInt.Neg Int8 (.sint 8) := inferInstance
 example : ToInt.Sub Int8 (.sint 8) := inferInstance
 
-instance : ToInt.Pow Int8 (.sint 8) := ToInt.pow_of_semiring (by simp) (by simp)
+instance : ToInt.Pow Int8 (.sint 8) := ToInt.pow_of_semiring (by simp)
 
 instance : NatCast Int16 where
   natCast x := Int16.ofNat x
@@ -91,7 +91,7 @@ example : ToInt.Add Int16 (.sint 16) := inferInstance
 example : ToInt.Neg Int16 (.sint 16) := inferInstance
 example : ToInt.Sub Int16 (.sint 16) := inferInstance
 
-instance : ToInt.Pow Int16 (.sint 16) := ToInt.pow_of_semiring (by simp) (by simp)
+instance : ToInt.Pow Int16 (.sint 16) := ToInt.pow_of_semiring (by simp)
 
 instance : NatCast Int32 where
   natCast x := Int32.ofNat x
@@ -130,7 +130,7 @@ example : ToInt.Add Int32 (.sint 32) := inferInstance
 example : ToInt.Neg Int32 (.sint 32) := inferInstance
 example : ToInt.Sub Int32 (.sint 32) := inferInstance
 
-instance : ToInt.Pow Int32 (.sint 32) := ToInt.pow_of_semiring (by simp) (by simp)
+instance : ToInt.Pow Int32 (.sint 32) := ToInt.pow_of_semiring (by simp)
 
 instance : NatCast Int64 where
   natCast x := Int64.ofNat x
@@ -169,7 +169,7 @@ example : ToInt.Add Int64 (.sint 64) := inferInstance
 example : ToInt.Neg Int64 (.sint 64) := inferInstance
 example : ToInt.Sub Int64 (.sint 64) := inferInstance
 
-instance : ToInt.Pow Int64 (.sint 64) := ToInt.pow_of_semiring (by simp) (by simp)
+instance : ToInt.Pow Int64 (.sint 64) := ToInt.pow_of_semiring (by simp)
 
 instance : NatCast ISize where
   natCast x := ISize.ofNat x
@@ -210,8 +210,6 @@ example : ToInt.Neg ISize (.sint numBits) := inferInstance
 example : ToInt.Sub ISize (.sint numBits) := inferInstance
 
 instance : ToInt.Pow ISize (.sint numBits) :=
-  ToInt.pow_of_semiring (by simp) (by
-    rcases System.Platform.numBits_eq with h | h <;>
-    simp [h])
+  ToInt.pow_of_semiring (by simp)
 
 end Lean.Grind

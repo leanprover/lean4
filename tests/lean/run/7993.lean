@@ -7,6 +7,8 @@ Deprecation lints should indicate if an updated constant is in a different names
 different visibility, from the deprecated one.
 -/
 
+set_option linter.deprecated true
+
 abbrev Foo := Nat
 
 namespace Foo

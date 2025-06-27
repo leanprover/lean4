@@ -100,6 +100,7 @@ LEAN_EXPORT lean_object* l_Lake_foldlUtf8M___at___Lake_uriEscapeChar_spec__0___b
 static lean_object* l_Lake_Reservoir_pkgApiUrl___closed__1;
 static lean_object* l_Array_fromJson_x3f___at___Option_fromJson_x3f___at___Lake_RegistryPkg_fromJson_x3f_spec__1_spec__1___closed__0;
 static lean_object* l_Lake_RegistryPkg_fromJson_x3f___closed__9;
+lean_object* l_Option_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at_____private_Lean_Setup_0__Lean_fromJsonModuleArtifacts____x40_Lean_Setup___hyg_1191__spec__0_spec__0(lean_object*);
 static lean_object* l_Lake_RegistryPkg_gitSrc_x3f___closed__0;
 static lean_object* l_Lake_RegistrySrc_fromJson_x3f___closed__0;
 LEAN_EXPORT lean_object* l_Lake_foldlUtf8M(lean_object*, lean_object*, lean_object*, uint32_t, lean_object*, lean_object*);
@@ -198,7 +199,6 @@ LEAN_EXPORT lean_object* l_Option_fromJson_x3f___at___Lake_ReservoirResp_fromJso
 static lean_object* l_Lake_ReservoirResp_fromJson_x3f___redArg___closed__9;
 LEAN_EXPORT lean_object* l_Lake_Reservoir_pkgApiUrl___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RegistrySrc_toJson(lean_object*);
-lean_object* l_Option_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at_____private_Lean_Setup_0__Lean_fromJsonModuleArtifacts____x40_Lean_Setup___hyg_1155__spec__0_spec__0(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lake_RegistrySrc_fromJson_x3f___closed__10;
 lean_object* lean_array_get_size(lean_object*);
@@ -789,7 +789,7 @@ lean_object* x_36; lean_object* x_37;
 x_36 = lean_ctor_get(x_34, 0);
 lean_inc(x_36);
 lean_dec(x_34);
-x_37 = l_Option_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at_____private_Lean_Setup_0__Lean_fromJsonModuleArtifacts____x40_Lean_Setup___hyg_1155__spec__0_spec__0(x_36);
+x_37 = l_Option_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at_____private_Lean_Setup_0__Lean_fromJsonModuleArtifacts____x40_Lean_Setup___hyg_1191__spec__0_spec__0(x_36);
 if (lean_obj_tag(x_37) == 0)
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; 

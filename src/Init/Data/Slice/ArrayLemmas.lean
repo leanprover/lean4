@@ -29,6 +29,7 @@ theorem internalIter_eq {α : Type u} {s : Subarray α} :
 theorem toList_internalIter {α : Type u} {s : Subarray α} :
     (Internal.iter s).toList = (s.start...s.stop).toList.pmap sorry sorry := by
   rw [internalIter_eq]
+  rw [Iter.toList_map, Iter.toList_uLift]
   rw [Iter.toArray_map]
 
 theorem size_internalIter {α : Type u} {s : Subarray α} :

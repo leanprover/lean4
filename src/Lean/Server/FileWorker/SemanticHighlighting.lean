@@ -110,8 +110,8 @@ partial def collectSyntaxBasedSemanticTokens : (stx : Syntax) → Array LeanSema
         stx.getArgs.map collectSyntaxBasedSemanticTokens |>.flatten
     let Syntax.atom _ val := stx
       | return tokens
-    let isRegularKeyword := val.length > 0 && val.front.isAlpha
-    let isHashKeyword := val.length > 1 && val.front == '#' && (val.get ⟨1⟩).isAlpha
+    let isRegularKeyword := val.length > 0 && isIdFirst val.front
+    let isHashKeyword := val.length > 1 && val.front == '#' && isIdFirst (val.get ⟨1⟩)
     if ! isRegularKeyword && ! isHashKeyword then
       return tokens
     return tokens.push ⟨stx, keywordSemanticTokenMap.findD val .keyword⟩

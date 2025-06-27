@@ -65,7 +65,7 @@ def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
       if shouldExport then " (with exports)" else " (without exports)"
     else
       ""
-  withRegisterJob s!"{self.name}:static{suffix}" do
+  withRegisterJob s!"{self.name}:static{suffix}" <| withCurrPackage self.pkg do
   let mods ← (← self.modules.fetch).await
   let oJobs ← mods.flatMapM fun mod =>
     mod.nativeFacets shouldExport |>.mapM (·.fetch mod)
@@ -89,7 +89,7 @@ def LeanLib.staticExportFacetConfig : LibraryFacetConfig staticExportFacet :=
 /-! ## Build Shared Lib -/
 
 protected def LeanLib.recBuildShared (self : LeanLib) : FetchM (Job Dynlib) := do
-  withRegisterJob s!"{self.name}:shared" do
+  withRegisterJob s!"{self.name}:shared" <| withCurrPackage self.pkg do
   let mods ← (← self.modules.fetch).await
   let objJobs ← mods.flatMapM fun mod =>
     mod.nativeFacets true |>.mapM (·.fetch mod)

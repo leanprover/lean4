@@ -23,14 +23,14 @@ Examples:
 -/
 def finRange (n : Nat) : List (Fin n) := ofFn fun i => i
 
-@[simp] theorem length_finRange {n : Nat} : (List.finRange n).length = n := by
+@[simp, grind =] theorem length_finRange {n : Nat} : (List.finRange n).length = n := by
   simp [List.finRange]
 
-@[simp] theorem getElem_finRange {i : Nat} (h : i < (List.finRange n).length) :
+@[simp, grind =] theorem getElem_finRange {i : Nat} (h : i < (List.finRange n).length) :
     (finRange n)[i] = Fin.cast length_finRange ⟨i, h⟩ := by
   simp [List.finRange]
 
-@[simp] theorem finRange_zero : finRange 0 = [] := by simp [finRange]
+@[simp, grind =] theorem finRange_zero : finRange 0 = [] := by simp [finRange]
 
 theorem finRange_succ {n} : finRange (n+1) = 0 :: (finRange n).map Fin.succ := by
   apply List.ext_getElem; simp; intro i; cases i <;> simp
@@ -46,6 +46,7 @@ theorem finRange_succ_last {n} :
     · rfl
     · next h => exact Fin.eq_last_of_not_lt h
 
+@[grind _=_]
 theorem finRange_reverse {n} : (finRange n).reverse = (finRange n).map Fin.rev := by
   induction n with
   | zero => simp
@@ -61,7 +62,7 @@ end List
 
 namespace Fin
 
-theorem foldlM_eq_foldlM_finRange [Monad m] (f : α → Fin n → m α) (x : α) :
+@[grind =] theorem foldlM_eq_foldlM_finRange [Monad m] (f : α → Fin n → m α) (x : α) :
     foldlM n f x = (List.finRange n).foldlM f x := by
   induction n generalizing x with
   | zero => simp
@@ -71,21 +72,21 @@ theorem foldlM_eq_foldlM_finRange [Monad m] (f : α → Fin n → m α) (x : α)
     funext y
     simp [ih, List.foldlM_map]
 
-theorem foldrM_eq_foldrM_finRange [Monad m] [LawfulMonad m] (f : Fin n → α → m α) (x : α) :
+@[grind =] theorem foldrM_eq_foldrM_finRange [Monad m] [LawfulMonad m] (f : Fin n → α → m α) (x : α) :
     foldrM n f x = (List.finRange n).foldrM f x := by
   induction n generalizing x with
   | zero => simp
   | succ n ih =>
     simp [foldrM_succ, List.finRange_succ, ih, List.foldrM_map]
 
-theorem foldl_eq_finRange_foldl (f : α → Fin n → α) (x : α) :
+@[grind =] theorem foldl_eq_finRange_foldl (f : α → Fin n → α) (x : α) :
     foldl n f x = (List.finRange n).foldl f x := by
   induction n generalizing x with
   | zero => simp
   | succ n ih =>
     simp [foldl_succ, List.finRange_succ, ih, List.foldl_map]
 
-theorem foldr_eq_finRange_foldr (f : Fin n → α → α) (x : α) :
+@[grind =] theorem foldr_eq_finRange_foldr (f : Fin n → α → α) (x : α) :
     foldr n f x = (List.finRange n).foldr f x := by
   induction n generalizing x with
   | zero => simp

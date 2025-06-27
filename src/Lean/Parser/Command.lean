@@ -236,7 +236,7 @@ def «structure»          := leading_parser
     (structureTk <|> classTk) >>
     -- Note: no error recovery here due to clashing with the `class abbrev` syntax
     declId >>
-    ppIndent (many (ppSpace >> Term.bracketedBinder) >> Term.optType >> optional «extends») >>
+    ppIndent (optDeclSig >> optional «extends») >>
     optional ((symbol " := " <|> " where ") >> optional structCtor >> structFields) >>
     optDeriving
 @[builtin_command_parser] def declaration := leading_parser
@@ -857,6 +857,14 @@ builtin_initialize
   register_parser_alias                                                 optDeclSig
   register_parser_alias                                                 openDecl
   register_parser_alias                                                 docComment
+
+/--
+Registers an error explanation.
+
+Note that the error name is not relativized to the current namespace.
+-/
+@[builtin_command_parser] def registerErrorExplanationStx := leading_parser
+  docComment >> "register_error_explanation " >> ident >> termParser
 
 end Command
 

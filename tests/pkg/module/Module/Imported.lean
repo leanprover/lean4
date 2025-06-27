@@ -3,6 +3,15 @@ module
 prelude
 import Module.Basic
 
+/-! Definitions should be exported without their bodies by default -/
+
+/--
+info: def f : Nat :=
+<not imported>
+-/
+#guard_msgs in
+#print f
+
 /-! Theorems should be exported without their bodies -/
 
 /--
@@ -12,14 +21,31 @@ info: theorem t : f = 1 :=
 #guard_msgs in
 #print t
 
+/--
+info: theorem trfl : f = 1 :=
+<not imported>
+-/
+#guard_msgs in
+#print trfl
+
 /-- error: dsimp made no progress -/
 #guard_msgs in
-example : f = 1 := by dsimp only [t]
+example : P f := by dsimp only [t]; exact hP1
+example : P f := by simp only [t]; exact hP1
 
+/-- error: dsimp made no progress -/
+#guard_msgs in
+example : P f := by dsimp only [trfl]; exact hP1
+/-- error: dsimp made no progress -/
+#guard_msgs in
+example : P f := by dsimp only [trfl']; exact hP1
+
+example : P fexp := by dsimp only [fexp_trfl]; exact hP1
+example : P fexp := by dsimp only [fexp_trfl']; exact hP1
 example : t = t := by dsimp only [trfl]
 
 /--
-error: invalid field 'eq_def', the environment does not contain 'Nat.eq_def'
+error: Invalid field `eq_def`: The environment does not contain `Nat.eq_def`
   f
 has type
   Nat
@@ -28,7 +54,7 @@ has type
 #check f.eq_def
 
 /--
-error: invalid field 'eq_unfold', the environment does not contain 'Nat.eq_unfold'
+error: Invalid field `eq_unfold`: The environment does not contain `Nat.eq_unfold`
   f
 has type
   Nat

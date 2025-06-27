@@ -35,6 +35,9 @@ structure TrivialStructureInfo where
   fieldIdx  : Nat
   deriving Inhabited, Repr
 
+builtin_initialize trivialStructureInfoExt : CacheExtension Name (Option TrivialStructureInfo) ←
+  CacheExtension.register
+
 /--
 Return `some fieldIdx` if `declName` is the name of an inductive datatype s.t.
 - It does not have builtin support in the runtime.
@@ -42,6 +45,13 @@ Return `some fieldIdx` if `declName` is the name of an inductive datatype s.t.
 - This constructor has only one computationally relevant field.
 -/
 def hasTrivialStructure? (declName : Name) : CoreM (Option TrivialStructureInfo) := do
+  match (← trivialStructureInfoExt.find? declName) with
+  | some info? => return info?
+  | none =>
+    let info? ← fillCache
+    trivialStructureInfoExt.insert declName info?
+    return info?
+where fillCache : CoreM (Option TrivialStructureInfo) := do
   if isRuntimeBultinType declName then return none
   let .inductInfo info ← getConstInfo declName | return none
   if info.isUnsafe || info.isRec then return none
@@ -88,11 +98,7 @@ partial def toMonoType (type : Expr) : CoreM Expr := do
 where
   visitApp (f : Expr) (args : Array Expr) : CoreM Expr := do
     match f with
-    | .const ``lcErased _ =>
-      if args.all (·.isErased) then
-        return erasedExpr
-      else
-        return anyExpr
+    | .const ``lcErased _ => return erasedExpr
     | .const ``lcAny _ => return anyExpr
     | .const ``Decidable _ => return mkConst ``Bool
     | .const declName us =>
@@ -102,6 +108,7 @@ where
       else
         let mut result := mkConst declName
         let mut type ← getOtherDeclBaseType declName us
+        if type.isErased then return erasedExpr
         for arg in args do
           let .forallE _ d b _ := type.headBeta | unreachable!
           let arg := arg.headBeta

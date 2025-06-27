@@ -14,7 +14,6 @@ namespace Lean.Compiler.LCNF
 def Phase.toNat : Phase → Nat
   | .base => 0
   | .mono => 1
-  | .impure => 2
 
 instance : LT Phase where
   lt l r := l.toNat < r.toNat
@@ -48,6 +47,11 @@ structure Pass where
   -/
   phaseOut : Phase := phase
   phaseInv : phaseOut ≥ phase := by simp +arith +decide
+  /--
+  Whether IR validation checks should always run after this pass, regardless
+  of configuration options.
+  -/
+  shouldAlwaysRunCheck : Bool := false
   /--
   The name of the `Pass`
   -/
@@ -85,7 +89,6 @@ instance : ToString Phase where
   toString
     | .base => "base"
     | .mono => "mono"
-    | .impure => "impure"
 
 namespace Pass
 

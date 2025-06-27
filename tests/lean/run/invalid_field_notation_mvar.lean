@@ -6,37 +6,37 @@ def Foo.f4 (f : Foo) : Nat := f.n
 def Foo.f5 (f : Foo) : Nat := f.n
 
 /--
-error: Invalid field notation: type of
+error: Invalid field notation: Type of
   f
-is not known; cannot resolve field 'n'
+is not known; cannot resolve field `n`
 ---
-error: Invalid field notation: type of
+error: Invalid field notation: Type of
   g
-is not known; cannot resolve field 'n'
+is not known; cannot resolve field `n`
 ---
-error: Invalid field notation: type of
+error: Invalid field notation: Type of
   f
-is not known; cannot resolve field 'f1'
+is not known; cannot resolve field `f1`
 ---
-error: Invalid field notation: type of
+error: Invalid field notation: Type of
   g
-is not known; cannot resolve field 'f2'
+is not known; cannot resolve field `f2`
 ---
-error: Invalid field notation: type of
+error: Invalid field notation: Type of
   h
-is not known; cannot resolve field 'f3'
+is not known; cannot resolve field `f3`
 ---
-error: Invalid field notation: type of
+error: Invalid field notation: Type of
   f
-is not known; cannot resolve field 'f4'
+is not known; cannot resolve field `f4`
 ---
-error: Invalid field notation: type of
+error: Invalid field notation: Type of
   g
-is not known; cannot resolve field 'f5'
+is not known; cannot resolve field `f5`
 ---
-error: Invalid field notation: type of
+error: Invalid field notation: Type of
   h
-is not known; cannot resolve field 'f6'
+is not known; cannot resolve field `f6`
 -/
 #guard_msgs in
 example := (λ f g h =>
@@ -45,9 +45,9 @@ example := (λ f g h =>
   (λ f g h => f.f1 + g.f2 + h.f3 + f.f4 + g.f5 + h.f6) f g h)
 
 /--
-error: Invalid field notation: type of
+error: Invalid field notation: Type of
   id x
-is not known; cannot resolve field 'foo'
+is not known; cannot resolve field `foo`
 -/
 #guard_msgs in
 example := fun x => (id x).foo

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Compiler.ExternAttr
+import Lean.Compiler.ImplementedByAttr
 import Lean.Compiler.LCNF.MonoTypes
 import Lean.Compiler.LCNF.InferType
 import Lean.Compiler.NoncomputableAttr
@@ -29,28 +30,40 @@ def isTrivialConstructorApp? (declName : Name) (args : Array Arg) : ToMonoM (Opt
 
 def checkFVarUse (fvarId : FVarId) : ToMonoM Unit := do
   if let some declName := (← get).noncomputableVars.get? fvarId then
-    throwError f!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{declName}', which is 'noncomputable'"
+    throwNamedError lean.dependsOnNoncomputable f!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{declName}', which is 'noncomputable'"
 
-def argToMono (arg : Arg) : ToMonoM Arg := do
+def checkFVarUseDeferred (resultFVar fvarId : FVarId) : ToMonoM Unit := do
+  if let some declName := (← get).noncomputableVars.get? fvarId then
+    modify fun s => { s with noncomputableVars := s.noncomputableVars.insert resultFVar declName }
+
+@[inline]
+def argToMonoBase (check : FVarId → ToMonoM Unit) (arg : Arg) : ToMonoM Arg := do
   match arg with
   | .erased | .type .. => return .erased
   | .fvar fvarId =>
     if (← get).typeParams.contains fvarId then
       return .erased
     else
-      checkFVarUse fvarId
+      check fvarId
       return arg
 
-def ctorAppToMono (ctorInfo : ConstructorVal) (args : Array Arg) : ToMonoM LetValue := do
-  let argsNew : Array Arg ← args[:ctorInfo.numParams].toArray.mapM fun arg => do
+def argToMono (arg : Arg) : ToMonoM Arg := argToMonoBase checkFVarUse arg
+
+def argToMonoDeferredCheck (resultFVar : FVarId) (arg : Arg) : ToMonoM Arg :=
+  argToMonoBase (checkFVarUseDeferred resultFVar) arg
+
+def ctorAppToMono (resultFVar : FVarId) (ctorInfo : ConstructorVal) (args : Array Arg)
+    : ToMonoM LetValue := do
+  let argsNewParams : Array Arg ← args[:ctorInfo.numParams].toArray.mapM fun arg => do
     -- We only preserve constructor parameters that are types
     match arg with
     | .type type => return .type (← toMonoType type)
     | .fvar .. | .erased => return .erased
-  let argsNew := argsNew ++ (← args[ctorInfo.numParams:].toArray.mapM argToMono)
+  let argsNewFields ← args[ctorInfo.numParams:].toArray.mapM (argToMonoDeferredCheck resultFVar)
+  let argsNew := argsNewParams ++ argsNewFields
   return .const ctorInfo.name [] argsNew
 
-partial def LetValue.toMono (e : LetValue) (fvarId : FVarId) : ToMonoM LetValue := do
+partial def LetValue.toMono (e : LetValue) (resultFVar : FVarId) : ToMonoM LetValue := do
   match e with
   | .erased | .lit .. => return e
   | .const declName _ args =>
@@ -63,28 +76,28 @@ partial def LetValue.toMono (e : LetValue) (fvarId : FVarId) : ToMonoM LetValue 
       -- and Bool have the same runtime representation.
       return args[1]!.toLetValue
     else if let some e' ← isTrivialConstructorApp? declName args then
-      e'.toMono fvarId
+      e'.toMono resultFVar
     else if let some (.ctorInfo ctorInfo) := (← getEnv).find? declName then
-      ctorAppToMono ctorInfo args
+      ctorAppToMono resultFVar ctorInfo args
     else
       let env ← getEnv
       if isNoncomputable env declName && !(isExtern env declName) then
-        modify fun s => { s with noncomputableVars := s.noncomputableVars.insert fvarId declName }
-      return .const declName [] (← args.mapM argToMono)
+        modify fun s => { s with noncomputableVars := s.noncomputableVars.insert resultFVar declName }
+      return .const declName [] (← args.mapM (argToMonoDeferredCheck resultFVar))
   | .fvar fvarId args =>
     if (← get).typeParams.contains fvarId then
       return .erased
     else
-      checkFVarUse fvarId
-      return .fvar fvarId (← args.mapM argToMono)
-  | .proj structName fieldIdx fvarId =>
-    if (← get).typeParams.contains fvarId then
+      checkFVarUseDeferred resultFVar fvarId
+      return .fvar fvarId (← args.mapM (argToMonoDeferredCheck resultFVar))
+  | .proj structName fieldIdx baseFVar =>
+    if (← get).typeParams.contains baseFVar then
       return .erased
     else
-      checkFVarUse fvarId
+      checkFVarUseDeferred resultFVar baseFVar
       if let some info ← hasTrivialStructure? structName then
         if info.fieldIdx == fieldIdx then
-          return .fvar fvarId #[]
+          return .fvar baseFVar #[]
         else
           return .erased
       else
@@ -94,6 +107,24 @@ def LetDecl.toMono (decl : LetDecl) : ToMonoM LetDecl := do
   let type ← toMonoType decl.type
   let value ← decl.value.toMono decl.fvarId
   decl.update type value
+
+def mkFieldParamsForComputedFields (ctorType : Expr) (numParams : Nat) (numNewFields : Nat)
+    (oldFields : Array Param) : ToMonoM (Array Param) := do
+  let mut type := ctorType
+  for _ in [0:numParams] do
+    match type with
+    | .forallE _ _ body _ =>
+      type := body
+    | _ => unreachable!
+  let mut newFields := Array.emptyWithCapacity (oldFields.size + numNewFields)
+  for _ in [0:numNewFields] do
+    match type with
+    | .forallE name fieldType body _ =>
+      let param ← mkParam name (← toMonoType fieldType) false
+      newFields := newFields.push param
+      type := body
+    | _ => unreachable!
+  return newFields ++ oldFields
 
 mutual
 
@@ -216,6 +247,37 @@ partial def casesStringToMono (c : Cases) (_ : c.typeName == ``String) : ToMonoM
   let k ← k.toMono
   return .let decl k
 
+/-- Eliminate `cases` for `Thunk. -/
+partial def casesThunkToMono (c : Cases) (_ : c.typeName == ``Thunk) : ToMonoM Code := do
+  assert! c.alts.size == 1
+  let .alt _ ps k := c.alts[0]! | unreachable!
+  eraseParams ps
+  let p := ps[0]!
+  let letValue := .const ``Thunk.get [] #[.erased, .fvar c.discr]
+  let letDecl ← mkLetDecl (← mkFreshBinderName `_x) anyExpr letValue
+  let paramType := .const `PUnit []
+  let decl := {
+    fvarId := p.fvarId
+    binderName := p.binderName
+    type := (← mkArrow paramType anyExpr)
+    params := #[← mkAuxParam paramType]
+    value := .let letDecl (.return letDecl.fvarId)
+  }
+  modifyLCtx fun lctx => lctx.addFunDecl decl
+  let k ← k.toMono
+  return .fun decl k
+
+/-- Eliminate `cases` for `Task. -/
+partial def casesTaskToMono (c : Cases) (_ : c.typeName == ``Task) : ToMonoM Code := do
+  assert! c.alts.size == 1
+  let .alt _ ps k := c.alts[0]! | unreachable!
+  eraseParams ps
+  let p := ps[0]!
+  let decl := { fvarId := p.fvarId, binderName := p.binderName, type := anyExpr, value := .const ``Task.get [] #[.erased, .fvar c.discr] }
+  modifyLCtx fun lctx => lctx.addLetDecl decl
+  let k ← k.toMono
+  return .let decl k
+
 /-- Eliminate `cases` for trivial structure. See `hasTrivialStructure?` -/
 partial def trivialStructToMono (info : TrivialStructureInfo) (c : Cases) : ToMonoM Code := do
   assert! c.alts.size == 1
@@ -263,16 +325,37 @@ partial def Code.toMono (code : Code) : ToMonoM Code := do
       casesFloatArrayToMono c h
     else if h : c.typeName == ``String then
       casesStringToMono c h
+    else if h : c.typeName == ``Thunk then
+      casesThunkToMono c h
+    else if h : c.typeName == ``Task then
+      casesTaskToMono c h
     else if let some info ← hasTrivialStructure? c.typeName then
       trivialStructToMono info c
     else
-      -- TODO: `casesOn` `[implemented_by]` support
-      let type ← toMonoType c.resultType
-      let alts ← c.alts.mapM fun alt =>
-        match alt with
-        | .default k => return alt.updateCode (← k.toMono)
-        | .alt _ ps k => return alt.updateAlt! (← ps.mapM (·.toMono)) (← k.toMono)
-      return code.updateCases! type c.discr alts
+      let resultType ← toMonoType c.resultType
+      let env ← getEnv
+      let some (.inductInfo inductInfo) := env.find? c.typeName | panic! "expected inductive type"
+      let casesOnName := mkCasesOnName inductInfo.name
+      if (getImplementedBy? env casesOnName).isSome then
+        -- TODO: Enforce that this is only used for computed fields.
+        let typeName := c.typeName ++ `_impl
+        let alts ← c.alts.mapM fun alt => do
+          match alt with
+          | .default k => return alt.updateCode (← k.toMono)
+          | .alt ctorName ps k =>
+            let implCtorName := ctorName ++ `_impl
+            let some (.ctorInfo ctorInfo) := env.find? implCtorName | panic! "expected constructor"
+            let numNewFields := ctorInfo.numFields - ps.size
+            let ps ← mkFieldParamsForComputedFields ctorInfo.type ctorInfo.numParams numNewFields ps
+            let k ← k.toMono
+            return .alt implCtorName ps k
+        return .cases { discr := c.discr, resultType, typeName, alts }
+      else
+        let alts ← c.alts.mapM fun alt =>
+          match alt with
+          | .default k => return alt.updateCode (← k.toMono)
+          | .alt _ ps k => return alt.updateAlt! (← ps.mapM (·.toMono)) (← k.toMono)
+        return code.updateCases! resultType c.discr alts
 
 end
 
@@ -292,6 +375,7 @@ def toMono : Pass where
   run      := (·.mapM (·.toMono))
   phase    := .base
   phaseOut := .mono
+  shouldAlwaysRunCheck := true
 
 builtin_initialize
   registerTraceClass `Compiler.toMono (inherited := true)

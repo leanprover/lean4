@@ -50,7 +50,10 @@ def elabInitGrindNorm : CommandElab := fun stx =>
     Command.liftTermElabM do
       let pre ← pre.mapM fun id => realizeGlobalConstNoOverloadWithInfo id
       let post ← post.mapM fun id => realizeGlobalConstNoOverloadWithInfo id
-      Grind.registerNormTheorems pre post
+      -- Creates `Lean.Grind._simp_1` etc.. As we do not use this command in independent modules,
+      -- there is no chance of name conflicts.
+      withDeclNameForAuxNaming `Lean.Grind do
+        Grind.registerNormTheorems pre post
   | _ => throwUnsupportedSyntax
 
 def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.grindParam) (only : Bool) : MetaM Grind.Params := do
@@ -144,6 +147,7 @@ def grind
     let result ← Grind.main mvar'.mvarId! params fallback
     if result.hasFailed then
       throwError "`grind` failed\n{← result.toMessageData}"
+    trace[grind.debug.proof] "{← instantiateMVars mvar'}"
     -- `grind` proofs are often big
     let e ← if (← isProp type) then
       mkAuxTheorem type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
@@ -181,7 +185,7 @@ def evalGrindCore
   let only := only.isSome
   let params := if let some params := params then params.getElems else #[]
   if Grind.grind.warning.get (← getOptions) then
-    logWarningAt ref "The `grind` tactic is experimental and still under development. Avoid using it in production projects."
+    logWarningAt ref "The `grind` tactic is new and its behaviour may change in the future. This project has used `set_option grind.warning true` to discourage its use."
   withMainContext do
     let result ← grind (← getMainGoal) config only params fallback
     replaceMainGoal []

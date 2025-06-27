@@ -14,7 +14,7 @@ import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Ext
-import Lean.Meta.Tactic.Grind.ENodeKey
+import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.AlphaShareCommon
 import Lean.Meta.Tactic.Grind.Attr
 import Lean.Meta.Tactic.Grind.ExtAttr
@@ -48,9 +48,9 @@ register_builtin_option grind.debug.proofs : Bool := {
 }
 
 register_builtin_option grind.warning : Bool := {
-  defValue := true
+  defValue := false
   group    := "debug"
-  descr    := "disable `grind` usage warning"
+  descr    := "generate a warning whenever `grind` is used"
 }
 
 /--
@@ -403,7 +403,12 @@ structure ENode where
   to the comm ring module. Its implementation is similar to the `offset?` field.
   -/
   ring? : Option Expr := none
-  -- Remark: we expect to have builtin support for offset constraints, cutsat, and comm ring.
+  /--
+  The `linarith?` field is used to propagate equalities from the `grind` congruence closure module
+  to the linarith module. Its implementation is similar to the `offset?` field.
+  -/
+  linarith? : Option Expr := none
+  -- Remark: we expect to have builtin support for offset constraints, cutsat, comm ring, and linarith.
   -- If the number of satellite solvers increases, we may add support for an arbitrary solvers like done in Z3.
   deriving Inhabited, Repr
 
@@ -418,7 +423,7 @@ inductive NewFact where
   | eq (lhs rhs proof : Expr) (isHEq : Bool)
   | fact (prop proof : Expr) (generation : Nat)
 
-abbrev ENodeMap := PHashMap ENodeKey ENode
+abbrev ENodeMap := PHashMap ExprPtr ENode
 
 /--
 Key for the congruence table.
@@ -503,7 +508,7 @@ abbrev CongrTable (enodeMap : ENodeMap) := PHashSet (CongrKey enodeMap)
 
 -- Remark: we cannot use pointer addresses here because we have to traverse the tree.
 abbrev ParentSet := Std.TreeSet Expr Expr.quickComp
-abbrev ParentMap := PHashMap ENodeKey ParentSet
+abbrev ParentMap := PHashMap ExprPtr ParentSet
 
 /--
 The E-matching module instantiates theorems using the `EMatchTheorem proof` and a (partial) assignment.
@@ -650,7 +655,7 @@ structure Split.State where
   /-- Case-splits that have been inserted at `candidates` at some point. -/
   added        : Std.HashSet SplitInfo := {}
   /-- Case-splits that have already been performed, or that do not have to be performed anymore. -/
-  resolved     : PHashSet ENodeKey := {}
+  resolved     : PHashSet ExprPtr := {}
   /--
   Sequence of cases steps that generated this goal. We only use this information for diagnostics.
   Remark: `casesTrace.length ≥ numSplits` because we don't increase the counter for `cases`
@@ -707,7 +712,7 @@ structure Goal where
   /-- Asserted facts -/
   facts        : PArray Expr := {}
   /-- Cached extensionality theorems for types. -/
-  extThms      : PHashMap ENodeKey (Array Ext.ExtTheorem) := {}
+  extThms      : PHashMap ExprPtr (Array Ext.ExtTheorem) := {}
   /-- State of the E-matching module. -/
   ematch       : EMatch.State
   /-- State of the case-splitting module. -/
@@ -909,7 +914,7 @@ def Goal.getTarget? (goal : Goal) (e : Expr) : Option Expr := Id.run do
 
 /--
 If `isHEq` is `false`, it pushes `lhs = rhs` with `proof` to `newEqs`.
-Otherwise, it pushes `HEq lhs rhs`.
+Otherwise, it pushes `lhs ≍ rhs`.
 -/
 def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   if grind.debug.get (← getOptions) then
@@ -940,7 +945,7 @@ def hasSameType (a b : Expr) : MetaM Bool :=
 @[inline] def pushEq (lhs rhs proof : Expr) : GoalM Unit :=
   pushEqCore lhs rhs proof (isHEq := false)
 
-/-- Pushes `HEq lhs rhs` with `proof` to `newEqs`. -/
+/-- Pushes `lhs ≍ rhs` with `proof` to `newEqs`. -/
 @[inline] def pushHEq (lhs rhs proof : Expr) : GoalM Unit :=
   pushEqCore lhs rhs proof (isHEq := true)
 
@@ -1185,6 +1190,53 @@ def markAsCommRingTerm (e : Expr) : GoalM Unit := do
     setENode root.self { root with ring? := some e }
     propagateCommRingDiseqs (← getParents root.self)
 
+/--
+Notifies the linarith module that `a = b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_linarith_eq"] -- forward definition
+opaque Arith.Linear.processNewEq (a b : Expr) : GoalM Unit
+
+/--
+Notifies the linarith module that `a ≠ b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_linarith_diseq"] -- forward definition
+opaque Arith.Linear.processNewDiseq (a b : Expr) : GoalM Unit
+
+/--
+Given `lhs` and `rhs` that are known to be disequal, checks whether
+`lhs` and `rhs` have linarith terms `e₁` and `e₂` attached to them,
+and invokes process `Arith.Linear.processNewDiseq e₁ e₂`
+-/
+def propagateLinarithDiseq (lhs rhs : Expr) : GoalM Unit := do
+  let some lhs ← get? lhs | return ()
+  let some rhs ← get? rhs | return ()
+  Arith.Linear.processNewDiseq lhs rhs
+where
+  get? (a : Expr) : GoalM (Option Expr) := do
+    return (← getRootENode a).linarith?
+
+/--
+Traverses disequalities in `parents`, and propagate the ones relevant to the
+linarith module.
+-/
+def propagateLinarithDiseqs (parents : ParentSet) : GoalM Unit := do
+  forEachDiseq parents propagateLinarithDiseq
+
+/--
+Marks `e` as a term of interest to the linarith module.
+If the root of `e`s equivalence class has already a term of interest,
+a new equality is propagated to the linarith module.
+-/
+def markAsLinarithTerm (e : Expr) : GoalM Unit := do
+  let root ← getRootENode e
+  if let some e' := root.linarith? then
+    Arith.Linear.processNewEq e e'
+  else
+    setENode root.self { root with linarith? := some e }
+    propagateLinarithDiseqs (← getParents root.self)
+
 /-- Returns `true` is `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do
   return (← getENode e).isCongrRoot
@@ -1208,7 +1260,7 @@ It assumes `a` and `b` are in the same equivalence class, and have the same type
 opaque mkEqProof (a b : Expr) : GoalM Expr
 
 /--
-Returns a proof that `HEq a b`.
+Returns a proof that `a ≍ b`.
 It assumes `a` and `b` are in the same equivalence class.
 -/
 -- Forward definition
@@ -1224,7 +1276,7 @@ opaque internalize (e : Expr) (generation : Nat) (parent? : Option Expr := none)
 opaque processNewFacts : GoalM Unit
 
 /--
-Returns a proof that `a = b` if they have the same type. Otherwise, returns a proof of `HEq a b`.
+Returns a proof that `a = b` if they have the same type. Otherwise, returns a proof of `a ≍ b`.
 It assumes `a` and `b` are in the same equivalence class.
 -/
 def mkEqHEqProof (a b : Expr) : GoalM Expr := do

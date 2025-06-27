@@ -29,6 +29,14 @@ builtin_initialize monotoneExt :
     initial := {}
   }
 
+/--
+Registers a monotonicity theorem for `partial_fixpoint`.
+
+Monotonicity theorems should have `Lean.Order.monotone ...` as a conclusion. They are used in the
+`monotonicity` tactic (scoped in the `Lean.Order` namespace) to automatically prove monotonicity
+for functions defined using `partial_fixpoint`.
+-/
+@[builtin_doc]
 builtin_initialize registerBuiltinAttribute {
   name := `partial_fixpoint_monotone
   descr := "monotonicity theorem"
@@ -126,7 +134,7 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
       return [goal'.mvarId!]
 
     -- Handle let
-    if let .letE n t v b _nonDep := e then
+    if let .letE n t v b nondep := e then
       if t.hasLooseBVars || v.hasLooseBVars then
         -- We cannot float the let to the context, so just zeta-reduce.
         let b' := f.updateLambdaE! f.bindingDomain! (b.instantiate1 v)
@@ -135,10 +143,10 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
         return [goal'.mvarId!]
       else
         -- No recursive call in t or v, so float out
-        let goal' ← withLetDecl n t v fun x => do
+        let goal' ← withLetDecl n t v (nondep := nondep) fun x => do
           let b' := f.updateLambdaE! f.bindingDomain! (b.instantiate1 x)
           let goal' ← mkFreshExprSyntheticOpaqueMVar (mkApp type.appFn! b')
-          goal.assign (← mkLetFVars #[x] goal')
+          goal.assign (← mkLetFVars (generalizeNondepLet := false) #[x] goal')
           pure goal'
         return [goal'.mvarId!]
 

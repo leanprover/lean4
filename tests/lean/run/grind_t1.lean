@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 example (a b : List Nat) : a = [] → b = [2] → a = b → False := by
   grind
 
@@ -148,7 +146,7 @@ example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
         (h₂ : cast h₁ a₁ = b₁)
         (h₃ : a₁ = a₂)
         (h₄ : b₁ = b₂)
-        : HEq a₂ b₂ := by
+        : a₂ ≍ b₂ := by
   grind
 
 example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
@@ -156,7 +154,7 @@ example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
         (h₂ : h₁ ▸ a₁ = b₁)
         (h₃ : a₁ = a₂)
         (h₄ : b₁ = b₂)
-        : HEq a₂ b₂ := by
+        : a₂ ≍ b₂ := by
   grind
 
 example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
@@ -164,7 +162,7 @@ example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
         (h₂ : Eq.recOn h₁ a₁ = b₁)
         (h₃ : a₁ = a₂)
         (h₄ : b₁ = b₂)
-        : HEq a₂ b₂ := by
+        : a₂ ≍ b₂ := by
   grind
 
 example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
@@ -172,7 +170,7 @@ example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
         (h₂ : Eq.ndrec (motive := id) a₁ h₁ = b₁)
         (h₃ : a₁ = a₂)
         (h₄ : b₁ = b₂)
-        : HEq a₂ b₂ := by
+        : a₂ ≍ b₂ := by
   grind
 
 example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
@@ -180,7 +178,7 @@ example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
         (h₂ : Eq.rec (motive := fun x _ => x) a₁ h₁ = b₁)
         (h₃ : a₁ = a₂)
         (h₄ : b₁ = b₂)
-        : HEq a₂ b₂ := by
+        : a₂ ≍ b₂ := by
   grind
 
 /--
@@ -190,7 +188,6 @@ trace: [grind.assert] ∀ (a : α), a ∈ b → p a
 [grind.assert] w ∈ b
 [grind.assert] ¬p w
 [grind.ematch.instance] h₁: w ∈ b → p w
-[grind.ematch.instance] List.length_pos_of_mem: w ∈ b → 0 < b.length
 [grind.assert] w ∈ b → p w
 -/
 #guard_msgs (trace) in

@@ -13,6 +13,8 @@ import Init.MetaTypes
 import Init.Syntax
 import Init.Data.Array.GetLit
 import Init.Data.Option.BasicAux
+meta import Init.Data.Array.Basic
+meta import Init.Syntax
 
 namespace Lean
 
@@ -246,7 +248,7 @@ def appendBefore (n : Name) (pre : String) : Name :=
     | num p n => Name.mkNum (Name.mkStr p pre) n
 
 protected theorem beq_iff_eq {m n : Name} : m == n ↔ m = n := by
-  show m.beq n ↔ _
+  change m.beq n ↔ _
   induction m generalizing n <;> cases n <;> simp_all [Name.beq, And.comm]
 
 instance : LawfulBEq Name where
@@ -1428,7 +1430,7 @@ def expandInterpolatedStrChunks (chunks : Array Syntax) (mkAppend : Syntax → S
   let mut i := 0
   let mut result := Syntax.missing
   for elem in chunks do
-    let elem ← match elem.isInterpolatedStrLit? with
+    let elem ← withRef elem <| match elem.isInterpolatedStrLit? with
       | none     => mkElem elem
       | some str => mkElem (Syntax.mkStrLit str)
     if i == 0 then
@@ -1610,7 +1612,7 @@ macro (name := declareSimpLikeTactic) doc?:(docComment)?
     else
       pure (← `(``dsimp), ← `("dsimp"), ← `($[$doc?:docComment]? syntax (name := $tacName) $tacToken:str optConfig (discharger)? (&" only")? (" [" (simpErase <|> simpLemma),* "]")? (location)? : tactic))
   `($stx:command
-    @[macro $tacName] def expandSimp : Macro := fun s => do
+    @[macro $tacName] meta def expandSimp : Macro := fun s => do
       let cfg ← `(optConfig| $cfg)
       let s := s.setKind $kind
       let s := s.setArg 0 (mkAtomFrom s[0] $tkn (canonical := true))

@@ -76,6 +76,7 @@ n : Nat
 ⊢ P n
 -/
 #guard_msgs in
+set_option linter.unusedSimpArgs false in
 example : P (S.proj ⟨n⟩) := by simp [S.proj]; fail -- NB: reduces the projectino
 
 end structure_concrete

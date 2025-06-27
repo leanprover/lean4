@@ -1,0 +1,47 @@
+/-
+Copyright (c) 2022 Lars König. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Lars König, Mario Carneiro, Sebastian Graf
+-/
+prelude
+import Init.NotationExtra
+import Lean.Elab.BuiltinNotation
+import Std.Do.PostCond
+import Std.Do.Triple.Basic
+
+namespace Std.Do.Syntax
+
+open Lean Parser Meta Elab Term
+
+@[builtin_term_parser] def «totalPostCond» := leading_parser:maxPrec
+  ppAllowUngrouped >> "⇓" >> basicFun
+
+@[inherit_doc PostCond.total, builtin_doc, builtin_term_elab totalPostCond]
+private def elabTotalPostCond : TermElab
+  | `(totalPostCond| ⇓ $xs* => $e), ty? => do
+    elabTerm (← `(PostCond.total (by exact (fun $xs* => spred($e))))) ty?
+     -- NB: Postponement through by exact
+  | _, _ => throwUnsupportedSyntax
+
+@[inherit_doc Triple, builtin_doc, builtin_term_elab triple]
+private def elabTriple : TermElab
+  | `(⦃$P⦄ $x ⦃$Q⦄), _ => do
+    -- In a simple world, this would just be a macro expanding to
+    -- `Triple $x spred($P) spred($Q)`.
+    -- However, currently we need to help type inference for P and Q.
+    -- Specifically, if `x : StateT σ m α`, `[wp : WP m ps]` and `P : σ → Assertion ps`,
+    -- then `Triple x P _` will not elaborate because `σ → Assertion ps =?= Assertion ?ps` fails.
+    -- We must first instantiate `?ps` to `.arg σ ps` through the `outParam` of `WP`, hence this elaborator.
+    -- This is tracked in #8766, and #8074 might be a fix.
+    let x ← elabTerm x none
+    let ty ← inferType x
+    tryPostponeIfMVar ty
+    let ty ← instantiateMVars ty
+    let .app m α := ty.consumeMData | throwError "Not a type application {ty}"
+    let some u ← Level.dec <$> getLevel ty | throwError "Wrong level 0 {ty}"
+    let ps ← mkFreshExprMVar (mkConst ``PostShape)
+    let inst ← synthInstance (mkApp2 (mkConst ``WP [u]) m ps)
+    let P ← elabTerm (← `(spred($P))) (mkApp (mkConst ``Assertion) ps)
+    let Q ← elabTerm (← `(spred($Q))) (mkApp2 (mkConst ``PostCond) α ps)
+    return mkApp7 (mkConst ``Triple [u]) m ps inst α x P Q
+  | _, _ => throwUnsupportedSyntax

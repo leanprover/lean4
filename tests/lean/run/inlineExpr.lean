@@ -19,7 +19,7 @@ def runTest (e : Expr) : MetaM Unit := do
 def testShort : MetaM Unit := do
   runTest <| .app (.const ``shortFun []) (.const ``shortConst [])
 
-/-- info: Before shortFun shortConst After -/
+/-- info: Before `shortFun shortConst` After -/
 #guard_msgs in
 #eval testShort
 

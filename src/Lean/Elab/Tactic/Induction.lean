@@ -243,10 +243,10 @@ def setMotiveArg (mvarId : MVarId) (motiveArg : MVarId) (targets : Array FVarId)
       if (← isTypeCorrect absType') then
         absType := absType'
       else
-        trace[Elab.induction] "Not abstracing goal over {complexArg}, resulting term is not type correct:{indentExpr absType'} }"
+        trace[Elab.induction] "Not abstracting goal over {complexArg}, resulting term is not type correct:{indentExpr absType'} }"
         absType := .lam (← mkFreshUserName `x) complexArgType absType .default
     else
-      trace[Elab.induction] "Not abstracing goal over {complexArg}, its type {complexArgType} does not match the expected {exptComplexArgType}"
+      trace[Elab.induction] "Not abstracting goal over {complexArg}, its type {complexArgType} does not match the expected {exptComplexArgType}"
       absType := .lam (← mkFreshUserName `x) exptComplexArgType absType .default
 
   let motive ← mkLambdaFVars (targets.map mkFVar) absType
@@ -412,7 +412,7 @@ where
           applyAltStx tacSnaps altStxs altStxIdx altStx alt
         alts := #[]
       else
-        throwErrorAt altStx (Term.mkRedundantAlternativeMsg altName none)
+        throwNamedErrorAt altStx lean.redundantMatchAlt (Term.mkRedundantAlternativeMsg altName none)
 
     -- now process remaining alternatives; these might either be unreachable or we're in `induction`
     -- without `with`. In all other cases, remaining alternatives are flagged as errors.

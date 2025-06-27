@@ -29,6 +29,9 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
   | ReducibilityStatus.reducible =>     attrs := attrs.push m!"reducible"
   | ReducibilityStatus.semireducible => pure ()
 
+  if defeqAttr.hasTag (← getEnv) id then
+    attrs := attrs.push m!"defeq"
+
   let mut m : MessageData := m!""
   unless attrs.isEmpty do
     m := m ++ "@[" ++ MessageData.joinSep attrs.toList ", " ++ "] "

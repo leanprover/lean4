@@ -4,16 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
-import Lean.Util.Paths
 import Lake.Config.FacetConfig
 import Lake.Config.TargetConfig
 import Lake.Config.Env
 import Lake.Util.Log
 
 open System
+open Lean (Name LeanOptions)
 
 namespace Lake
-open Lean (Name)
 
 /-- A Lake workspace -- the top-level package directory. -/
 structure Workspace : Type where
@@ -42,6 +41,10 @@ hydrate_opaque_type OpaqueWorkspace Workspace
 
 namespace Workspace
 
+/-- The Lake cache. May be disabled. -/
+@[inline] def lakeCache (ws : Workspace) : Cache :=
+  ws.lakeEnv.lakeCache
+
 /-- The path to the workspace's directory (i.e., the directory of the root package). -/
 @[inline] def dir (self : Workspace) : FilePath :=
   self.root.dir
@@ -65,6 +68,14 @@ namespace Workspace
 /-- The workspace's `dir` joined with its `relPkgsDir`. -/
 @[inline] def pkgsDir (self : Workspace) : FilePath :=
   self.root.pkgsDir
+
+/-- Options to pass to `lean` for files outside a library (e.g., via `lake lean`). -/
+@[inline] def leanOptions (self : Workspace) : LeanOptions :=
+  self.root.leanOptions
+
+/-- Options to pass to the Lean server when editing Lean files outside a library. -/
+@[inline] def serverOptions (self : Workspace) : LeanOptions :=
+  self.root.moreServerOptions
 
 /-- The workspace's Lake manifest. -/
 @[inline] def manifestFile (self : Workspace) : FilePath :=

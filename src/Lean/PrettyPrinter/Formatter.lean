@@ -31,7 +31,7 @@ structure Context where
 structure State where
   stxTrav  : Syntax.Traverser
   /-- Textual content of `stack` up to the first whitespace (not enclosed in an escaped ident). We assume that the textual
-  content of `stack` is modified only by `pushText` and `pushLine`, so `leadWord` is adjusted there accordingly. -/
+  content of `stack` is modified only by `push` and `pushWhitespace`, so `leadWord` is adjusted there accordingly. -/
   leadWord : String := ""
   /-- When the `leadWord` is nonempty, whether it is an identifier. Identifiers get space inserted between them. -/
   leadWordIdent : Bool := false
@@ -58,13 +58,18 @@ instance {α} : OrElse (FormatterM α) := ⟨FormatterM.orElse⟩
 
 abbrev Formatter := FormatterM Unit
 
-unsafe def mkFormatterAttribute : IO (KeyedDeclsAttribute Formatter) :=
+/--
+Registers a formatter for a parser.
+
+`@[formatter k]` registers a declaration of type `Lean.PrettyPrinter.Formatter` to be used for
+formatting syntax of kind `k`.
+-/
+@[builtin_doc]
+unsafe builtin_initialize formatterAttribute : KeyedDeclsAttribute Formatter ←
   KeyedDeclsAttribute.init {
     builtinName := `builtin_formatter,
     name := `formatter,
-    descr := "Register a formatter for a parser.
-
-  [formatter k] registers a declaration of type `Lean.PrettyPrinter.Formatter` for the `SyntaxNodeKind` `k`.",
+    descr := "Register a formatter for a parser.",
     valueTypeName := `Lean.PrettyPrinter.Formatter,
     evalKey := fun builtin stx => do
       let env ← getEnv
@@ -77,19 +82,27 @@ unsafe def mkFormatterAttribute : IO (KeyedDeclsAttribute Formatter) :=
       if (← getEnv).contains id && (← Elab.getInfoState).enabled then
         Elab.addConstInfo stx id none
       pure id
-  } `Lean.PrettyPrinter.formatterAttribute
-@[builtin_init mkFormatterAttribute] opaque formatterAttribute : KeyedDeclsAttribute Formatter
+  }
 
-unsafe def mkCombinatorFormatterAttribute : IO ParserCompiler.CombinatorAttribute :=
+/--
+Registers a formatter for a parser combinator.
+
+`@[combinator_formatter c]` registers a declaration of type `Lean.PrettyPrinter.Formatter` for the
+`Parser` declaration `c`. Note that, unlike with `@[formatter]`, this is not a node kind since
+combinators usually do not introduce their own node kinds. The tagged declaration may optionally
+accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced with
+`Formatter` in the parameter types.
+-/
+@[builtin_doc]
+unsafe builtin_initialize combinatorFormatterAttribute : ParserCompiler.CombinatorAttribute ←
   ParserCompiler.registerCombinatorAttribute
     `combinator_formatter
-    "Register a formatter for a parser combinator.
+    "Register a formatter for a parser combinator"
+    `Lean.PrettyPrinter.mkCombinatorFormatterAttribute -- TODO (bootstrapping): remove if possible
 
-  [combinator_formatter c] registers a declaration of type `Lean.PrettyPrinter.Formatter` for the `Parser` declaration `c`.
-  Note that, unlike with [formatter], this is not a node kind since combinators usually do not introduce their own node kinds.
-  The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced
-  with `Formatter` in the parameter types."
-@[builtin_init mkCombinatorFormatterAttribute] opaque combinatorFormatterAttribute : ParserCompiler.CombinatorAttribute
+-- More details on TODO: Removing this would lead to an environment extension with a name that
+-- doesn't match what's saved in the oleans, so tests don't pass. Removing it will require a
+-- non-CI stage0 update, or careful work to keep the test working across updates.
 
 namespace Formatter
 
@@ -97,7 +110,7 @@ open Lean.Core
 open Lean.Parser
 
 def throwBacktrack {α} : FormatterM α :=
-throw $ Exception.internal backtrackExceptionId
+  throw $ Exception.internal backtrackExceptionId
 
 instance : Syntax.MonadTraverser FormatterM := ⟨{
   get       := State.stxTrav <$> get,
@@ -338,18 +351,21 @@ def parseToken (s : String) : FormatterM ParserState :=
   } ((← read).table) (Parser.mkParserState s)
 
 def pushToken (info : SourceInfo) (tk : String) (ident : Bool) : FormatterM Unit := do
-  match info with
-  | SourceInfo.original _ _ ss _ =>
-    -- preserve non-whitespace content (i.e. comments)
+  if let SourceInfo.original _ _ ss _ := info then
+    -- preserve non-whitespace content (comments)
     let ss' := ss.trim
-    if !ss'.isEmpty then
-      let ws := { ss with startPos := ss'.stopPos }
-      if ws.contains '\n' then
-        push s!"\n{ss'}"
+    unless ss'.isEmpty do
+      let preNL := Substring.contains { ss with stopPos := ss'.startPos } '\n'
+      let postNL := Substring.contains { ss with startPos := ss'.stopPos } '\n'
+      if postNL then
+        pushWhitespace "\n"
+      else if !(← get).leadWord.isEmpty then
+        pushLine
+      push ss'.toString
+      if preNL then
+        pushWhitespace "\n"
       else
-        push s!"  {ss'}"
-      modify fun st => { st with leadWord := "", leadWordIdent := false }
-  | _ => pure ()
+        pushLine
 
   let st ← get
   -- If there is no space between `tk` and the next word, see if we should insert a discretionary space.
@@ -387,21 +403,27 @@ def pushToken (info : SourceInfo) (tk : String) (ident : Bool) : FormatterM Unit
       push tk -- preserve special whitespace for tokens like ":=\n"
     modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "", leadWordIdent := ident }
 
-  match info with
-  | SourceInfo.original ss _ _ _ =>
-    -- preserve non-whitespace content (i.e. comments)
+  if let SourceInfo.original ss _ _ _ := info then
+    -- preserve non-whitespace content (comments)
     let ss' := ss.trim
-    if !ss'.isEmpty then
-      let ws := { ss with startPos := ss'.stopPos }
-      if ws.contains '\n' then do
-        -- Indentation is automatically increased when entering a category, but comments should be aligned
-        -- with the actual token, so dedent
-        indent (push s!"{ss'}\n") (some ((0:Int) - Std.Format.getIndent (← getOptions)))
-      else
-        pushLine
-        push ss'.toString
-      modify fun st => { st with leadWord := "" }
-  | _ => pure ()
+    unless ss'.isEmpty do
+      let preNL := Substring.contains { ss with stopPos := ss'.startPos } '\n'
+      let postNL := Substring.contains { ss with startPos := ss'.stopPos } '\n'
+      -- Indentation is automatically increased when entering a category, but comments should be aligned
+      -- with the actual token, so dedent
+      indent (indent := some (-Std.Format.getIndent (← getOptions))) do
+        if postNL then
+          pushWhitespace "\n"
+        else
+          pushLine
+        pushWhitespace ss'.toString
+        if preNL then
+          pushWhitespace "\n"
+        else
+          -- It is conceivable that the start of comment syntax could be misinterpreted as part of a token,
+          -- so add the beginning of it as the leadWord.
+          let ctk := ss' |>.takeWhile (!·.isWhitespace) |>.toString
+          modify fun st => { st with leadWord := ctk }
 
 @[combinator_formatter symbolNoAntiquot]
 def symbolNoAntiquot.formatter (sym : String) : Formatter := do

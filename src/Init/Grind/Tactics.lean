@@ -55,7 +55,7 @@ and stores `c` in `x`, `b` in `a`, and the proof that `c = some b` in `h`.
 -/
 def genPattern {α : Sort u} (_h : Prop) (x : α) (_val : α) : α := x
 
-/-- Similar to `genPattern` but for the heterogenous case -/
+/-- Similar to `genPattern` but for the heterogeneous case -/
 def genHEqPattern {α β : Sort u} (_h : Prop) (x : α) (_val : β) : α := x
 end Lean.Grind
 
@@ -66,26 +66,26 @@ Reset all `grind` attributes. This command is intended for testing purposes only
 syntax (name := resetGrindAttrs) "reset_grind_attrs%" : command
 
 namespace Attr
-syntax grindGen    := &"gen "
-syntax grindEq     := "= " (grindGen)?
-syntax grindEqBoth := atomic("_" "=" "_ ") (grindGen)?
-syntax grindEqRhs  := atomic("=" "_ ") (grindGen)?
-syntax grindEqBwd  := atomic("←" "= ") <|> atomic("<-" "= ")
-syntax grindBwd    := ("← " <|> "<- ") (grindGen)?
-syntax grindFwd    := "→ " <|> "-> "
-syntax grindRL     := "⇐ " <|> "<= "
-syntax grindLR     := "⇒ " <|> "=> "
-syntax grindUsr    := &"usr "
-syntax grindCases  := &"cases "
-syntax grindCasesEager := atomic(&"cases" &"eager ")
-syntax grindIntro  := &"intro "
-syntax grindExt    := &"ext "
+syntax grindGen    := ppSpace &"gen"
+syntax grindEq     := "=" (grindGen)?
+syntax grindEqBoth := atomic("_" "=" "_") (grindGen)?
+syntax grindEqRhs  := atomic("=" "_") (grindGen)?
+syntax grindEqBwd  := atomic("←" "=") <|> atomic("<-" "=")
+syntax grindBwd    := ("←" <|> "<-") (grindGen)?
+syntax grindFwd    := "→" <|> "->"
+syntax grindRL     := "⇐" <|> "<="
+syntax grindLR     := "⇒" <|> "=>"
+syntax grindUsr    := &"usr"
+syntax grindCases  := &"cases"
+syntax grindCasesEager := atomic(&"cases" &"eager")
+syntax grindIntro  := &"intro"
+syntax grindExt    := &"ext"
 syntax grindMod :=
     grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd
     <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager
     <|> grindCases <|> grindIntro <|> grindExt <|> grindGen
-syntax (name := grind) "grind" (grindMod)? : attr
-syntax (name := grind?) "grind?" (grindMod)? : attr
+syntax (name := grind) "grind" ppSpace (grindMod)? : attr
+syntax (name := grind?) "grind?" ppSpace (grindMod)? : attr
 end Attr
 end Lean.Parser
 
@@ -98,14 +98,14 @@ structure Config where
   /-- If `trace` is `true`, `grind` records used E-matching theorems and case-splits. -/
   trace : Bool := false
   /-- Maximum number of case-splits in a proof search branch. It does not include splits performed during normalization. -/
-  splits : Nat := 8
+  splits : Nat := 9
   /-- Maximum number of E-matching (aka heuristic theorem instantiation) rounds before each case split. -/
   ematch : Nat := 5
   /--
   Maximum term generation.
   The input goal terms have generation 0. When we instantiate a theorem using a term from generation `n`,
   the new terms have generation `n+1`. Thus, this parameter limits the length of an instantiation chain. -/
-  gen : Nat := 5
+  gen : Nat := 8
   /-- Maximum number of theorem instances generated using E-matching in a proof search tree branch. -/
   instances : Nat := 1000
   /-- If `matchEqs` is `true`, `grind` uses `match`-equations as E-matching theorems. -/
@@ -175,7 +175,7 @@ structure Config where
   -/
   zeta := true
   /--
-  When `true` (default: `false`), uses procedure for handling equalities over commutative rings.
+  When `true` (default: `true`), uses procedure for handling equalities over commutative rings.
   -/
   ring := true
   ringSteps := 10000
@@ -184,6 +184,15 @@ structure Config where
   proof terms, instead of a single-step Nullstellensatz certificate
   -/
   ringNull := false
+  /--
+  When `true` (default: `true`), uses procedure for handling linear arithmetic for `IntModule`, and
+  `CommRing`.
+  -/
+  linarith := true
+  /--
+  When `true` (default: `true`), uses procedure for handling linear integer arithmetic for `Int` and `Nat`.
+  -/
+  cutsat := true
   deriving Inhabited, BEq
 
 end Lean.Grind
@@ -195,7 +204,7 @@ namespace Lean.Parser.Tactic
 -/
 
 syntax grindErase := "-" ident
-syntax grindLemma := (Attr.grindMod)? ident
+syntax grindLemma := (Attr.grindMod ppSpace)? ident
 syntax grindParam := grindErase <|> grindLemma
 
 syntax (name := grind)

@@ -6,6 +6,7 @@ Authors: Mac Malone
 prelude
 import Lake.Build.Data
 import Lake.Build.Job.Basic
+import Lake.Build.ModuleArtifacts
 import Lake.Config.Dynlib
 
 /-!
@@ -43,12 +44,36 @@ instance (facet : ModuleFacet α) : FamilyDef FacetOut facet.name α :=
 instance [FamilyOut FacetOut facet α] : CoeDep Name facet (ModuleFacet α) :=
   ⟨facet, FamilyOut.fam_eq⟩
 
+/-- A module's source file path plus its parsed header. -/
+structure ModuleInput where
+  path : FilePath
+  header : ModuleHeader
+
+/--
+The module's processed Lean source file.
+Combines tracing the file with parsing its header.
+-/
+builtin_facet input : Module => ModuleInput
+
+/-- The module's Lean source file. -/
+builtin_facet lean : Module => FilePath
+
+/-- The parsed module header of the module's source file. -/
+builtin_facet header : Module => ModuleHeader
+
 /--
 The facet which builds all of a module's dependencies
 (i.e., transitive local imports and `--load-dynlib` shared libraries).
 Returns the list of shared libraries to load along with their search path.
 -/
-builtin_facet deps : Module => ModuleDeps
+builtin_facet setup : Module => ModuleSetup
+
+/--
+The facet which builds all of a module's dependencies
+(i.e., transitive local imports and `--load-dynlib` shared libraries).
+Returns the list of shared libraries to load along with their search path.
+-/
+builtin_facet deps : Module => Opaque
 
 /--
 The core build facet of a Lean file.
@@ -56,10 +81,16 @@ Elaborates the Lean file via `lean` and produces all the Lean artifacts
 of the module (i.e., `olean`, `ilean`, `c`).
 Its trace just includes its dependencies.
 -/
-builtin_facet leanArts : Module => Unit
+builtin_facet leanArts : Module => ModuleOutputArtifacts
 
 /-- The `olean` file produced by `lean`. -/
 builtin_facet olean : Module => FilePath
+
+/-- The `olean.server` file produced by `lean` (with the module system enabled). -/
+builtin_facet oleanServerFacet @ olean.server : Module => FilePath
+
+/-- The `olean.private` file produced by `lean` (with the module system enabled). -/
+builtin_facet oleanPrivateFacet @ olean.private : Module => FilePath
 
 /-- The `ilean` file produced by `lean`. -/
 builtin_facet ilean : Module => FilePath

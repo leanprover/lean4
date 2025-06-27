@@ -14,7 +14,6 @@ import Lean.Environment
 import Lean.Data.Lsp
 import Lean.Data.Json.FromToJson
 
-import Lean.Util.FileSetupInfo
 import Lean.LoadDynlib
 import Lean.Language.Lean
 
@@ -149,6 +148,10 @@ section Elab
     let references ← findModuleRefs m.text trees (localVars := true) |>.toLspModuleRefs
     let param := { version := m.version, references }
     return { method, param }
+
+  private def mkInitialIleanInfoUpdateNotification (m : DocumentMeta)
+      (directImports : Array ImportInfo) : JsonRpc.Notification Lsp.LeanILeanHeaderInfoParams :=
+    { method := "$/lean/ileanHeaderInfo", param := { version := m.version, directImports } }
 
   private def mkIleanInfoUpdateNotification : DocumentMeta → Array Elab.InfoTree →
       BaseIO (JsonRpc.Notification Lsp.LeanIleanInfoParams) :=
@@ -368,7 +371,7 @@ def setupImports
     (doc         : DocumentMeta)
     (cmdlineOpts : Options)
     (chanOut     : Std.Channel JsonRpc.Message)
-    (stx         : TSyntax ``Parser.Module.header)
+    (stx         : Elab.HeaderSyntax)
     : Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot SetupImportsResult) := do
   let importsAlreadyLoaded ← importsLoadedRef.modifyGet ((·, true))
   if importsAlreadyLoaded then
@@ -378,10 +381,11 @@ def setupImports
     unless (← IO.checkCanceled) do
       IO.Process.exit 2  -- signal restart request to watchdog
     -- should not be visible to user as task is already canceled
-    return .error { diagnostics := .empty, result? := none }
+    return .error { diagnostics := .empty, result? := none, metaSnap := default }
 
-  let imports := Elab.headerToImports stx
-  let fileSetupResult ← setupFile doc imports fun stderrLine => do
+  let header := stx.toModuleHeader
+  chanOut.sync.send <| mkInitialIleanInfoUpdateNotification doc <| collectImports stx
+  let fileSetupResult ← setupFile doc header fun stderrLine => do
     let progressDiagnostic := {
       range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
       -- make progress visible anywhere in the file
@@ -399,16 +403,20 @@ def setupImports
         "Imports are out of date and must be rebuilt; \
           use the \"Restart File\" command in your editor.")
       result? := none
+      metaSnap := default
     }
   | .error msg =>
     return .error {
       diagnostics := (← diagnosticsOfHeaderError msg)
       result? := none
+      metaSnap := default
     }
   | _ => pure ()
 
+  let setup := fileSetupResult.setup
+
   -- override cmdline options with file options
-  let opts := cmdlineOpts.mergeBy (fun _ _ fileOpt => fileOpt) fileSetupResult.fileOptions
+  let opts := cmdlineOpts.mergeBy (fun _ _ fileOpt => fileOpt) setup.options.toOptions
 
   -- default to async elaboration; see also `Elab.async` docs
   let opts := Elab.async.setIfNotSet opts true
@@ -417,10 +425,11 @@ def setupImports
 
   return .ok {
     mainModuleName := doc.mod
-    isModule := Elab.HeaderSyntax.isModule stx
-    imports
+    isModule := strictOr setup.isModule header.isModule
+    imports := setup.imports?.getD header.imports
     opts
-    plugins := fileSetupResult.plugins
+    importArts := setup.importArts
+    plugins := setup.plugins
   }
 
 /- Worker initialization sequence. -/

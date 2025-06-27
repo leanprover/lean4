@@ -18,7 +18,7 @@ These proofs can be obtained from `Std.Data.TreeSet.Raw.WF`.
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v w
+universe u v w w'
 
 namespace Std.TreeSet.Raw
 
@@ -444,7 +444,7 @@ theorem ordered_toList [TransCmp cmp] (h : t.WF) :
 
 section monadic
 
-variable {δ : Type w} {m : Type w → Type w}
+variable {δ : Type w} {m : Type w → Type w'}
 
 theorem foldlM_eq_foldlM_toList [Monad m] [LawfulMonad m]
     {f : δ → α → m δ} {init : δ} :
@@ -637,7 +637,7 @@ theorem contains_ofList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List α}
 @[simp, grind =]
 theorem mem_ofList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List α} {k : α} :
     k ∈ ofList l cmp ↔ l.contains k := by
-  simp [mem_iff_contains]
+  simp [← contains_iff_mem]
 
 theorem get?_ofList_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
     {l : List α} {k : α}
@@ -1316,5 +1316,255 @@ theorem maxD_eq_getLastD_toList [TransCmp cmp] (h : t.WF) {fallback} :
   TreeMap.Raw.maxKeyD_eq_getLastD_keys h
 
 end Max
+
+namespace Equiv
+
+variable {t₁ t₂ t₃ t₄ : Raw α cmp} {δ : Type w} {m : Type w → Type w'}
+
+@[refl, simp] theorem rfl : Equiv t t := ⟨.rfl⟩
+
+@[symm] theorem symm : Equiv t₁ t₂ → Equiv t₂ t₁
+  | ⟨h⟩ => ⟨h.symm⟩
+
+theorem trans : Equiv t₁ t₂ → Equiv t₂ t₃ → Equiv t₁ t₃
+  | ⟨h⟩, ⟨h'⟩ => ⟨h.trans h'⟩
+
+instance instTrans : @Trans (Raw α cmp) _ _ Equiv Equiv Equiv := ⟨trans⟩
+
+theorem comm : t₁ ~m t₂ ↔ t₂ ~m t₁ := ⟨symm, symm⟩
+theorem congr_left (h : t₁ ~m t₂) : t₁ ~m t₃ ↔ t₂ ~m t₃ := ⟨h.symm.trans, h.trans⟩
+theorem congr_right (h : t₁ ~m t₂) : t₃ ~m t₁ ↔ t₃ ~m t₂ :=
+  ⟨fun h' => h'.trans h, fun h' => h'.trans h.symm⟩
+
+-- congruence lemmas
+
+theorem isEmpty_eq (h : t₁ ~m t₂) : t₁.isEmpty = t₂.isEmpty :=
+  h.1.isEmpty_eq
+
+theorem contains_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.contains k = t₂.contains k :=
+  h.1.contains_eq h₁.1 h₂.1
+
+theorem mem_iff [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    k ∈ t₁ ↔ k ∈ t₂ :=
+  h.1.mem_iff h₁.1 h₂.1
+
+theorem size_eq (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.size = t₂.size :=
+  h.1.size_eq h₁.1 h₂.1
+
+theorem get?_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.get? k = t₂.get? k :=
+  h.1.getKey?_eq h₁.1 h₂.1
+
+theorem getKey_eq [TransCmp cmp] {k : α} {hk : k ∈ t₁} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.get k hk = t₂.get k ((h.mem_iff h₁ h₂).mp hk) :=
+  h.1.getKey_eq h₁.1 h₂.1
+
+theorem getKey!_eq [TransCmp cmp] [Inhabited α] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.get! k = t₂.get! k :=
+  h.1.getKey!_eq h₁.1 h₂.1
+
+theorem getKeyD_eq [TransCmp cmp] {k fallback : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getD k fallback = t₂.getD k fallback :=
+  h.1.getKeyD_eq h₁.1 h₂.1
+
+theorem toList_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.toList = t₂.toList :=
+  h.1.keys_eq h₁.1 h₂.1
+
+theorem toArray_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.toArray = t₂.toArray :=
+  h.1.keysArray_eq h₁.1 h₂.1
+
+theorem foldlM_eq [TransCmp cmp] [Monad m] [LawfulMonad m] {f : δ → α → m δ}
+    {init : δ} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.foldlM f init = t₂.foldlM f init :=
+  h.1.foldlM_eq h₁.1 h₂.1
+
+theorem foldl_eq [TransCmp cmp] {f : δ → α → δ} {init : δ} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) :
+    t₁.foldl f init = t₂.foldl f init :=
+  h.1.foldl_eq h₁.1 h₂.1
+
+theorem foldrM_eq [TransCmp cmp] [Monad m] [LawfulMonad m] {f : α → δ → m δ}
+    {init : δ} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.foldrM f init = t₂.foldrM f init :=
+  h.1.foldrM_eq h₁.1 h₂.1
+
+theorem foldr_eq [TransCmp cmp] {f : α → δ → δ} {init : δ} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) :
+    t₁.foldr f init = t₂.foldr f init :=
+  h.1.foldr_eq h₁.1 h₂.1
+
+theorem forIn_eq [TransCmp cmp] [Monad m] [LawfulMonad m]
+    {b : δ} {f : α → δ → m (ForInStep δ)} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    ForIn.forIn t₁ b f = ForIn.forIn t₂ b f :=
+  h.1.forIn_eq h₁.1 h₂.1 (f := fun x => f x.1)
+
+theorem forM_eq [TransCmp cmp] [Monad m] [LawfulMonad m] {f : α → m PUnit}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    ForM.forM t₁ f = ForM.forM t₂ f :=
+  h.1.forM_eq h₁.1 h₂.1 (f := fun x => f x.1)
+
+theorem any_eq [TransCmp cmp] {p : α → Bool} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.any p = t₂.any p :=
+  h.1.any_eq h₁.1 h₂.1
+
+theorem all_eq [TransCmp cmp] {p : α → Bool} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.all p = t₂.all p :=
+  h.1.all_eq h₁.1 h₂.1
+
+theorem min?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.min? = t₂.min? :=
+  h.1.minKey?_eq h₁.1 h₂.1
+
+theorem min!_eq [TransCmp cmp] [Inhabited α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.min! = t₂.min! :=
+  h.1.minKey!_eq h₁.1 h₂.1
+
+theorem minD_eq [TransCmp cmp] {fallback : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.minD fallback = t₂.minD fallback :=
+  h.1.minKeyD_eq h₁.1 h₂.1
+
+theorem max?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.max? = t₂.max? :=
+  h.1.maxKey?_eq h₁.1 h₂.1
+
+theorem max!_eq [TransCmp cmp] [Inhabited α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.max! = t₂.max! :=
+  h.1.maxKey!_eq h₁.1 h₂.1
+
+theorem maxD_eq [TransCmp cmp] {fallback : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.maxD fallback = t₂.maxD fallback :=
+  h.1.maxKeyD_eq h₁.1 h₂.1
+
+theorem atIdx?_eq [TransCmp cmp] {i : Nat} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.atIdx? i = t₂.atIdx? i :=
+  h.1.keyAtIdx?_eq h₁.1 h₂.1
+
+theorem atIdx!_eq [TransCmp cmp] [Inhabited α] {i : Nat} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : t₁.atIdx! i = t₂.atIdx! i :=
+  h.1.keyAtIdx!_eq h₁.1 h₂.1
+
+theorem atIdxD_eq [TransCmp cmp] {i : Nat} {fallback : α} (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : t₁ ~m t₂) : t₁.atIdxD i fallback = t₂.atIdxD i fallback :=
+  h.1.keyAtIdxD_eq h₁.1 h₂.1
+
+theorem getGE?_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getGE? k = t₂.getGE? k :=
+  h.1.getKeyGE?_eq h₁.1 h₂.1
+
+theorem getGE!_eq [TransCmp cmp] [Inhabited α] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getGE! k = t₂.getGE! k :=
+  h.1.getKeyGE!_eq h₁.1 h₂.1
+
+theorem getGED_eq [TransCmp cmp] {k fallback : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getGED k fallback = t₂.getGED k fallback :=
+  h.1.getKeyGED_eq h₁.1 h₂.1
+
+theorem getGT?_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getGT? k = t₂.getGT? k :=
+  h.1.getKeyGT?_eq h₁.1 h₂.1
+
+theorem getGT!_eq [TransCmp cmp] [Inhabited α] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getGT! k = t₂.getGT! k :=
+  h.1.getKeyGT!_eq h₁.1 h₂.1
+
+theorem getGTD_eq [TransCmp cmp] {k fallback : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getGTD k fallback = t₂.getGTD k fallback :=
+  h.1.getKeyGTD_eq h₁.1 h₂.1
+
+theorem getLE?_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getLE? k = t₂.getLE? k :=
+  h.1.getKeyLE?_eq h₁.1 h₂.1
+
+theorem getLE!_eq [TransCmp cmp] [Inhabited α] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getLE! k = t₂.getLE! k :=
+  h.1.getKeyLE!_eq h₁.1 h₂.1
+
+theorem getLED_eq [TransCmp cmp] {k fallback : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getLED k fallback = t₂.getLED k fallback :=
+  h.1.getKeyLED_eq h₁.1 h₂.1
+
+theorem getLT?_eq [TransCmp cmp] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getLT? k = t₂.getLT? k :=
+  h.1.getKeyLT?_eq h₁.1 h₂.1
+
+theorem getLT!_eq [TransCmp cmp] [Inhabited α] {k : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getLT! k = t₂.getLT! k :=
+  h.1.getKeyLT!_eq h₁.1 h₂.1
+
+theorem getLTD_eq [TransCmp cmp] {k fallback : α} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+    t₁.getLTD k fallback = t₂.getLTD k fallback :=
+  h.1.getKeyLTD_eq h₁.1 h₂.1
+
+theorem insert [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (k : α) :
+    t₁.insert k ~m t₂.insert k :=
+  ⟨h.1.insertIfNew h₁.1 h₂.1 k ()⟩
+
+theorem erase [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (k : α) :
+    t₁.erase k ~m t₂.erase k :=
+  ⟨h.1.erase h₁.1 h₂.1 k⟩
+
+theorem filter (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (f : α → Bool) :
+    t₁.filter f ~m t₂.filter f :=
+  ⟨h.1.filter h₁.1 h₂.1 _⟩
+
+theorem insertMany_list [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    (l : List α) : t₁.insertMany l ~m t₂.insertMany l :=
+  ⟨h.1.insertManyIfNewUnit_list h₁.1 h₂.1 l⟩
+
+theorem eraseMany_list [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (l : List α) :
+    t₁.eraseMany l ~m t₂.eraseMany l :=
+  ⟨h.1.eraseMany_list h₁.1 h₂.1 l⟩
+
+theorem merge [TransCmp cmp] [LawfulEqCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h₃ : t₃.WF) (h₄ : t₄.WF)
+    (h : t₁ ~m t₂) (h' : t₃ ~m t₄) :
+    t₁.merge t₃ ~m t₂.merge t₄ :=
+  ⟨h.1.mergeWith h₁.1 h₂.1 h₃.1 h₄.1 _ h'.1⟩
+
+-- extensionalities
+
+theorem of_forall_get?_eq [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h : ∀ k, t₁.get? k = t₂.get? k) : t₁ ~m t₂ :=
+  ⟨.of_forall_getKey?_unit_eq h₁.1 h₂.1 h⟩
+
+theorem of_forall_contains_eq [TransCmp cmp] [LawfulEqCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : ∀ k, t₁.contains k = t₂.contains k) : t₁ ~m t₂ :=
+  ⟨.of_forall_contains_unit_eq h₁.1 h₂.1 h⟩
+
+theorem of_forall_mem_iff [TransCmp cmp] [LawfulEqCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    (h : ∀ k, k ∈ t₁ ↔ k ∈ t₂) : t₁ ~m t₂ :=
+  ⟨.of_forall_mem_unit_iff h₁.1 h₂.1 h⟩
+
+end Equiv
+
+section Equiv
+
+variable {t₁ t₂ : Raw α cmp}
+
+private theorem equiv_iff : t₁ ~m t₂ ↔ t₁.1.Equiv t₂.1 :=
+  ⟨fun ⟨h⟩ => h, fun h => ⟨h⟩⟩
+
+theorem equiv_empty_iff_isEmpty : t ~m empty ↔ t.isEmpty :=
+  equiv_iff.trans TreeMap.Raw.equiv_empty_iff_isEmpty
+
+theorem empty_equiv_iff_isEmpty : empty ~m t ↔ t.isEmpty :=
+  equiv_iff.trans TreeMap.Raw.empty_equiv_iff_isEmpty
+
+theorem equiv_iff_toList_perm : t₁ ~m t₂ ↔ t₁.toList.Perm t₂.toList :=
+  equiv_iff.trans TreeMap.Raw.equiv_iff_keys_unit_perm
+
+theorem Equiv.of_toList_perm (h : t₁.toList.Perm t₂.toList) : t₁ ~m t₂ :=
+  ⟨.of_keys_unit_perm h⟩
+
+theorem equiv_iff_toList_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    t₁ ~m t₂ ↔ t₁.toList = t₂.toList :=
+  equiv_iff.trans (TreeMap.Raw.equiv_iff_keys_unit_eq h₁.1 h₂.1)
+
+end Equiv
 
 end Std.TreeSet.Raw

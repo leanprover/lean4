@@ -12,8 +12,6 @@ import Std.Tactic.BVDecide.LRAT.Internal.PosFin
 import Std.Tactic.BVDecide.LRAT.Internal.Assignment
 import Init.Grind
 
-set_option grind.warning false
-
 namespace Std.Tactic.BVDecide
 namespace LRAT
 namespace Internal
@@ -160,10 +158,8 @@ def ofArray (ls : Array (Literal (PosFin n))) : Option (DefaultClause n) :=
   match mapOption with
   | none => none
   | some map =>
-    -- FIXME: Commenting this out gives an unknown metavariable error in `grind`!
-    -- reported as https://github.com/leanprover/lean4/pull/8607
     have mapnodup := map.distinct_keys
-    some ⟨map.toList, by grind, by grind⟩
+    some { clause := map.toList }
 
 @[simp]
 theorem ofArray.foldl_folder_none_eq_none : List.foldl ofArray.folder none ls = none := by

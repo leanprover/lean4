@@ -23,10 +23,10 @@ Examples:
 -/
 protected def finRange (n : Nat) : Array (Fin n) := ofFn fun i => i
 
-@[simp] theorem size_finRange {n} : (Array.finRange n).size = n := by
+@[simp, grind =] theorem size_finRange {n} : (Array.finRange n).size = n := by
   simp [Array.finRange]
 
-@[simp] theorem getElem_finRange {i : Nat} (h : i < (Array.finRange n).size) :
+@[simp, grind =] theorem getElem_finRange {i : Nat} (h : i < (Array.finRange n).size) :
     (Array.finRange n)[i] = Fin.cast size_finRange ⟨i, h⟩ := by
   simp [Array.finRange]
 
@@ -49,6 +49,7 @@ theorem finRange_succ_last {n} :
     · simp_all
       omega
 
+@[grind _=_]
 theorem finRange_reverse {n} : (Array.finRange n).reverse = (Array.finRange n).map Fin.rev := by
   ext i h
   · simp

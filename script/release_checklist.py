@@ -53,6 +53,23 @@ def tag_exists(repo_url, tag_name, github_token):
     matching_tags = response.json()
     return any(tag["ref"] == f"refs/tags/{tag_name}" for tag in matching_tags)
 
+def commit_hash_for_tag(repo_url, tag_name, github_token):
+    # Use /git/matching-refs/tags/ to get all matching tags
+    api_url = repo_url.replace("https://github.com/", "https://api.github.com/repos/") + f"/git/matching-refs/tags/{tag_name}"
+    headers = {'Authorization': f'token {github_token}'} if github_token else {}
+    response = requests.get(api_url, headers=headers)
+
+    if response.status_code != 200:
+        return False
+
+    # Check if any of the returned refs exactly match our tag
+    matching_tags = response.json()
+    matching_commits = [tag["object"]["sha"] for tag in matching_tags if tag["ref"] == f"refs/tags/{tag_name}"]
+    if len(matching_commits) != 1:
+        return None
+    else:
+        return matching_commits[0]
+
 def release_page_exists(repo_url, tag_name, github_token):
     api_url = repo_url.replace("https://github.com/", "https://api.github.com/repos/") + f"/releases/tags/{tag_name}"
     headers = {'Authorization': f'token {github_token}'} if github_token else {}
@@ -286,6 +303,14 @@ def main():
         lean4_success = False
     else:
         print(f"  ✅ Tag {toolchain} exists")
+        commit_hash = commit_hash_for_tag(lean_repo_url, toolchain, github_token)
+        SHORT_HASH_LENGTH = 7 # Lake abbreviates the Lean commit to 7 characters.
+        if commit_hash is None:
+            print(f"  ❌ Could not resolve tag {toolchain} to a commit.")
+            lean4_success = False
+        elif commit_hash[0] == '0' and commit_hash[:SHORT_HASH_LENGTH].isnumeric():
+            print(f"  ❌ Short commit hash {commit_hash[:SHORT_HASH_LENGTH]} is numeric and starts with 0, causing issues for version parsing. Try regenerating the last commit to get a new hash.")
+            lean4_success = False
 
     if not release_page_exists(lean_repo_url, toolchain, github_token):
         print(f"  ❌ Release page for {toolchain} does not exist")

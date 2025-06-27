@@ -47,7 +47,7 @@ proof in the context using `have`, because `get_elem_tactic` tries
 
 The proof side-condition `valid xs i` is automatically dispatched by the
 `get_elem_tactic` tactic; this tactic can be extended by adding more clauses to
-`get_elem_tactic_trivial` using `macro_rules`.
+`get_elem_tactic_extensible` using `macro_rules`.
 
 `xs[i]?` and `xs[i]!` do not impose a proof obligation; the former returns
 an `Option elem`, with `none` signalling that the value isn't present, and
@@ -180,12 +180,12 @@ instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (v
     [Inhabited elem] (c : cont) (i : idx) (h : dom c i) :
     c[i]! = c[i]'h := by
   have : Decidable (dom c i) := .isTrue h
-  simp [getElem!_def, getElem?_def, h]
+  simp [getElem!_def, h]
 
 @[simp, grind] theorem getElem!_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     [Inhabited elem] (c : cont) (i : idx) (h : ¬dom c i) : c[i]! = default := by
   have : Decidable (dom c i) := .isFalse h
-  simp [getElem!_def, getElem?_def, h]
+  simp [getElem!_def, h]
 
 @[simp, grind =] theorem get_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     (c : cont) (i : idx) [Decidable (dom c i)] (h) :
@@ -281,7 +281,7 @@ instance [GetElem? cont Nat elem dom] [h : LawfulGetElem cont Nat elem dom] :
 @[simp, grind =] theorem getElem!_fin [GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n) [Inhabited Elem] : a[i]! = a[i.1]! := rfl
 
 macro_rules
-  | `(tactic| get_elem_tactic_trivial) => `(tactic| (with_reducible apply Fin.val_lt_of_le); get_elem_tactic_trivial; done)
+  | `(tactic| get_elem_tactic_extensible) => `(tactic| (with_reducible apply Fin.val_lt_of_le); get_elem_tactic_extensible; done)
 
 end Fin
 

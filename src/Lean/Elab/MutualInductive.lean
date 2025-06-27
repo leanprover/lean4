@@ -171,8 +171,15 @@ structure InductiveElabDescr where
   deriving Inhabited
 
 /--
-Environment extension to register inductive type elaborator commands.
+Registers an inductive type elaborator for the given syntax node kind.
+
+Commands registered using this attribute are allowed to be used together in mutual blocks with
+other inductive type commands. This attribute is mostly used internally for `inductive` and
+`structure`.
+
+An inductive type elaborator should have type `Lean.Elab.Command.InductiveElabDescr`.
 -/
+@[builtin_doc]
 builtin_initialize inductiveElabAttr : KeyedDeclsAttribute InductiveElabDescr ←
   unsafe KeyedDeclsAttribute.init {
     builtinName := `builtin_inductive_elab,
@@ -943,10 +950,8 @@ private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
     if hasUnit then mkCasesOn n
     if hasUnit && hasEq && hasHEq then mkNoConfusion n
     if hasUnit && hasProd then mkBelow n
-    if hasUnit && hasProd then mkIBelow n
   for n in declNames do
     if hasUnit && hasProd then mkBRecOn n
-    if hasUnit && hasProd then mkBInductionOn n
 
 private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM FinalizeContext := do
   let view0 := elabs[0]!.view

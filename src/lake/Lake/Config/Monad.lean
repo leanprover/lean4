@@ -119,7 +119,7 @@ def findExternLib? (name : Name) : m (Option ExternLib) :=
   (·.augmentedSharedLibPath) <$> getWorkspace
 
 /-- Get the augmented environment variables set by the context's workspace. -/
-@[inline]  def getAugmentedEnv : m (Array (String × Option String)) :=
+@[inline] def getAugmentedEnv : m (Array (String × Option String)) :=
   (·.augmentedEnvVars) <$> getWorkspace
 
 end
@@ -152,6 +152,14 @@ variable [Functor m]
 /-- Get the name of Elan toolchain for the Lake environment. Empty if none. -/
 @[inline] def getElanToolchain : m String :=
   (·.toolchain) <$> getLakeEnv
+
+/-- Returns the Lake cache for the environment. May be disabled. -/
+@[inline] def getLakeCache : m Cache :=
+  (·.lakeCache) <$> getLakeEnv
+
+@[inline, inherit_doc Cache.getArtifact?]
+def getArtifact? [Bind m] [MonadLiftT BaseIO m] (contentHash : Hash) (ext := "art") : m (Option Artifact) :=
+  getLakeEnv >>= (·.lakeCache.getArtifact? contentHash ext)
 
 /-! ### Search Path Helpers -/
 

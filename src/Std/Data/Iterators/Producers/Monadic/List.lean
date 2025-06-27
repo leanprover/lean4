@@ -6,8 +6,8 @@ Authors: Paul Reichert
 prelude
 import Init.Data.Nat.Lemmas
 import Init.RCases
-import Std.Data.Iterators.Consumers
-import Std.Data.Iterators.Internal.Termination
+import Init.Data.Iterators.Consumers
+import Init.Data.Iterators.Internal.Termination
 
 /-!
 # List iterator
@@ -23,6 +23,7 @@ variable {α : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
 The underlying state of a list iterator. Its contents are internal and should
 not be used by downstream users of the library.
 -/
+@[ext]
 structure ListIterator (α : Type w) where
   list : List α
 
@@ -71,6 +72,14 @@ instance {α : Type w} [Monad m] [Monad n] : IteratorLoop (ListIterator α) m n 
 
 @[always_inline, inline]
 instance {α : Type w} [Monad m] [Monad n] : IteratorLoopPartial (ListIterator α) m n :=
+  .defaultImplementation
+
+@[always_inline, inline]
+instance {α : Type w} [Monad m] : IteratorSize (ListIterator α) m :=
+  .defaultImplementation
+
+@[always_inline, inline]
+instance {α : Type w} [Monad m] : IteratorSizePartial (ListIterator α) m :=
   .defaultImplementation
 
 end Std.Iterators

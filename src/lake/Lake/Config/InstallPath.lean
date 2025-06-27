@@ -32,6 +32,26 @@ structure ElanInstall where
   toolchainsDir := home / "toolchains"
   deriving Inhabited, Repr
 
+/-- Convert an Elan toolchain name to an Elan toolchain directory name. -/
+@[inline] partial def toolchain2Dir (toolchain : String) : FilePath :=
+  go "" 0
+where
+  go (acc : String) (pos : String.Pos) : FilePath :=
+    if h : toolchain.atEnd pos then
+      FilePath.mk acc
+    else
+      let c := toolchain.get' pos h
+      let pos' := toolchain.next' pos h
+      if c = '/' then
+        go (acc ++ "--") pos'
+      else if c = ':'  then
+        go (acc ++ "---") pos'
+      else
+        go (acc.push c) pos'
+
+@[inline] def ElanInstall.toolchainDir (toolchain : String) (elan : ElanInstall) : FilePath :=
+  elan.toolchainsDir / toolchain2Dir toolchain
+
 /-- Standard path of `lean` in a Lean installation. -/
 def leanExe (sysroot : FilePath) :=
   sysroot / "bin" / "lean" |>.addExtension FilePath.exeExtension

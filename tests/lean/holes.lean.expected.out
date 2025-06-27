@@ -1,4 +1,4 @@
-holes.lean:4:4-4:7: error: placeholders '_' cannot be used where a function is expected
+holes.lean:4:4-4:7: error: A placeholder `_` cannot be used where a function is expected
 holes.lean:11:8-11:13: error: don't know how to synthesize placeholder
 context:
 case hole

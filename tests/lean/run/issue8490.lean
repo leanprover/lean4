@@ -10,7 +10,7 @@ def asimp_const : Aexp -> Aexp
 @[simp]
 def optimal' (a : Aexp) : Prop :=
   optimal' a ∧ True
-least_fixpoint
+inductive_fixpoint
 
 /-- info: Try this: simp_all only [asimp_const, reduceCtorEq] -/
 #guard_msgs in

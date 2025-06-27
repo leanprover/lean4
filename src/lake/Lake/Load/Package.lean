@@ -82,3 +82,11 @@ def loadPackageCore
 def loadPackage (config : LoadConfig) : LogIO Package := do
   Lean.searchPathRef.set config.lakeEnv.leanSearchPath
   (·.1) <$> loadPackageCore "[root]" config
+
+/-- Load the package's input-to-content mapping from the Lake cache (if enabled). -/
+protected def Package.loadInputsFrom (cache : Cache) (pkg : Package) : LogIO Package := do
+  if !pkg.enableArtifactCache || cache.isDisabled then
+    return pkg
+  else
+    let inputs ← CacheMap.load (pkg.inputsFileIn cache)
+    return {pkg with cacheRef? := ← IO.mkRef inputs}

@@ -91,37 +91,13 @@ theorem mkAtomCached_eval_eq_mkAtom_eval {aig : AIG α} :
     rw [denote_mkAtom_cached heq1]
   · simp [mkAtom, denote]
 
-theorem mkConstCached_aig (aig : AIG α) (val : Bool) : (aig.mkConstCached val).aig = aig := by
-  simp [mkConstCached]
-
-/--
-The AIG produced by `AIG.mkConstCached` agrees with the input AIG on all indices that are valid for
-both.
--/
-theorem mkConstCached_decl_eq (aig : AIG α) (val : Bool) (idx : Nat) {h : idx < aig.decls.size} :
-    (aig.mkConstCached val).aig.decls[idx]'h = aig.decls[idx] := by
-  simp [mkConstCached_aig]
-
-/--
-`AIG.mkConstCached` never shrinks the underlying AIG.
--/
-theorem mkConstCached_le_size (aig : AIG α) (val : Bool) :
-    aig.decls.size ≤ (aig.mkConstCached val).aig.decls.size := by
-  simp [mkConstCached_aig]
-
-instance : LawfulOperator α (fun _ => Bool) mkConstCached where
-  le_size := mkConstCached_le_size
-  decl_eq := by
-    intros
-    apply mkConstCached_decl_eq
-
 /--
 The central equality theorem between `mkConstCached` and `mkConst`.
 -/
 @[simp]
-theorem mkConstCached_eval_eq_mkConst_eval {aig : AIG α} :
-    ⟦aig.mkConstCached val, assign⟧ = ⟦aig.mkConst val, assign⟧ := by
-  simp only [mkConstCached, denote_mkConst]
+theorem denote_mkConstCached {aig : AIG α} :
+    ⟦aig, aig.mkConstCached val, assign⟧ = val := by
+  simp only [mkConstCached]
   unfold denote denote.go
   split
   · simp
@@ -150,18 +126,16 @@ theorem mkGateCached.go_le_size (aig : AIG α) (input : BinaryInput aig) :
   dsimp only [go]
   split
   · simp
-  · split <;> try simp [mkConstCached_le_size]
+  · split <;> try simp
     split
-    · split
-      · simp
-      · simp [mkConstCached_le_size]
+    · split <;> simp
     · simp
 
 /--
 `AIG.mkGateCached` never shrinks the underlying AIG.
 -/
-theorem mkGateCached_le_size (aig : AIG α) (input : BinaryInput aig)
-    : aig.decls.size ≤ (aig.mkGateCached input).aig.decls.size := by
+theorem mkGateCached_le_size (aig : AIG α) (input : BinaryInput aig) :
+    aig.decls.size ≤ (aig.mkGateCached input).aig.decls.size := by
   dsimp only [mkGateCached]
   split
   · apply mkGateCached.go_le_size
@@ -178,11 +152,9 @@ theorem mkGateCached.go_decl_eq (aig : AIG α) (input : BinaryInput aig) :
       simp
     · split at hres
       · rw [← hres]
-        intros
-        rw [LawfulOperator.decl_eq (f := AIG.mkConstCached)]
+        simp
       · rw [← hres]
-        intros
-        rw [LawfulOperator.decl_eq (f := AIG.mkConstCached)]
+        simp
       · rw [← hres]
         intros
         simp
@@ -196,7 +168,7 @@ theorem mkGateCached.go_decl_eq (aig : AIG α) (input : BinaryInput aig) :
             simp
           · rw [← hres]
             intros
-            rw [AIG.LawfulOperator.decl_eq (f := AIG.mkConstCached)]
+            simp
         · rw [← hres]
           dsimp only
           intro idx h1 h2

@@ -18,6 +18,11 @@ import Lean.Elab.RecAppSyntax
 namespace Lean.Elab.Term
 open Meta
 
+/--
+Instructs the elaborator to elaborate applications of the given declaration without an expected
+type. This may prevent the elaborator from incorrectly inferring implicit arguments.
+-/
+@[builtin_doc]
 builtin_initialize elabWithoutExpectedTypeAttr : TagAttribute ←
   registerTagAttribute `elab_without_expected_type "mark that applications of the given declaration should be elaborated without the expected type"
 
@@ -54,7 +59,8 @@ private def mkProjAndCheck (structName : Name) (idx : Nat) (e : Expr) : MetaM Ex
   if (← isProp eType) then
     let rType ← inferType r
     if !(← isProp rType) then
-      throwError "invalid projection, the expression{indentExpr e}\nis a proposition and has type{indentExpr eType}\nbut the projected value is not, it has type{indentExpr rType}"
+      throwError "Invalid projection: Cannot project a value of non-propositional type{indentExpr rType}\
+        \nfrom the expression{indentExpr e}\nwhich has propositional type{indentExpr eType}"
   return r
 
 def synthesizeAppInstMVars (instMVars : Array MVarId) (app : Expr) : TermElabM Unit :=
@@ -209,7 +215,12 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
           throwInvalidNamedArg namedArg f.constName!
         else
           throwInvalidNamedArg namedArg none
-      throwError "function expected at{indentExpr s.f}\nterm has type{indentExpr fType}"
+      -- Help users see if this is actually due to an indentation mismatch/other parsing mishaps:
+      let extra := if let some (arg : Arg) := s.args[0]? then
+        .note m!"Expected a function because this term is being applied to the argument\
+          {indentD <| toMessageData arg}"
+      else .nil
+      throwError "Function expected at{indentExpr s.f}\nbut this term has type{indentExpr fType}{extra}"
 
 /-- Normalize and return the function type. -/
 private def normalizeFunType : M Expr := do
@@ -800,7 +811,7 @@ def getElabElimExprInfo (elimExpr : Expr) : MetaM ElabElimInfo := do
         throwError "unexpected number of arguments at motive type{indentExpr motiveType}"
       unless motiveResultType.isSort do
         throwError "motive result type must be a sort{indentExpr motiveType}"
-    let some motivePos ← pure (xs.idxOf? motive) |
+    let some motivePos := xs.idxOf? motive |
       throwError "unexpected eliminator type{indentExpr elimType}"
     /-
     Compute transitive closure of fvars appearing in arguments to the motive.
@@ -830,11 +841,67 @@ def getElabElimExprInfo (elimExpr : Expr) : MetaM ElabElimInfo := do
           majorsPos := majorsPos.push i
     trace[Elab.app.elab_as_elim] "motivePos: {motivePos}"
     trace[Elab.app.elab_as_elim] "majorsPos: {majorsPos}"
-    return { elimExpr, elimType,  motivePos, majorsPos }
+    return { elimExpr, elimType, motivePos, majorsPos }
 
 def getElabElimInfo (elimName : Name) : MetaM ElabElimInfo := do
   getElabElimExprInfo (← mkConstWithFreshMVarLevels elimName)
 
+
+/--
+Instructs the elaborator that applications of this function should be elaborated like an eliminator.
+
+An eliminator is a function that returns an application of a "motive" which is a parameter of the
+form `_ → ... → Sort _`, i.e. a function that takes in a certain amount of arguments (referred to
+as major premises) and returns a type in some universe. The `rec` and `casesOn` functions of
+inductive types are automatically treated as eliminators, for other functions this attribute needs
+to be used.
+
+Eliminator elaboration can be compared to the `induction` tactic: The expected type is used as the
+return value of the motive, with occurrences of the major premises replaced with the arguments.
+When more arguments are specified than necessary, the remaining arguments are reverted into the
+expected type.
+
+Examples:
+```lean example
+@[elab_as_elim]
+def evenOddRecOn {motive : Nat → Sort u}
+    (even : ∀ n, motive (n * 2)) (odd : ∀ n, motive (n * 2 + 1))
+    (n : Nat) : motive n := ...
+
+-- simple usage
+example (a : Nat) : (a * a) % 2 = a % 2 :=
+  evenOddRec _ _ a
+  /-
+  1. basic motive is `fun n => (a + 2) % 2 = a % 2`
+  2. major premise `a` substituted: `fun n => (n + 2) % 2 = n % 2`
+  3. now elaborate the other parameters as usual:
+    "even" (first hole): expected type `∀ n, ((n * 2) * (n * 2)) % 2 = (n * 2) % 2`,
+    "odd" (second hole): expected type `∀ n, ((n * 2 + 1) * (n * 2 + 1)) % 2 = (n * 2 + 1) % 2`
+  -/
+
+-- complex substitution
+example (a : Nat) (f : Nat → Nat) : (f a + 1) % 2 ≠ f a :=
+  evenOddRec _ _ (f a)
+  /-
+  Similar to before, except `f a` is substituted: `motive := fun n => (n + 1) % 2 ≠ n`.
+  Now the first hole has expected type `∀ n, (n * 2 + 1) % 2 ≠ n * 2`.
+  Now the second hole has expected type `∀ n, (n * 2 + 1 + 1) % 2 ≠ n * 2 + 1`.
+  -/
+
+-- more parameters
+example (a : Nat) (h : a % 2 = 1) : (a + 1) % 2 = 0 :=
+  evenOddRec _ _ a h
+  /-
+  Before substitution, `a % 2 = 1` is reverted: `motive := fun n => a % 2 = 0 → (a + 1) % 2 = 0`.
+  Substitution: `motive := fun n => n % 2 = 1 → (n + 1) % 2 = 0`
+  Now the first hole has expected type `∀ n, n * 2 % 2 = 1 → (n * 2) % 2 = 0`.
+  Now the second hole has expected type `∀ n, (n * 2 + 1) % 2 = 1 → (n * 2 + 1) % 2 = 0`.
+  -/
+```
+
+See also `@[induction_eliminator]` and `@[cases_eliminator]` for registering default eliminators.
+-/
+@[builtin_doc]
 builtin_initialize elabAsElim : TagAttribute ←
   registerTagAttribute `elab_as_elim
     "instructs elaborator that the arguments of the function application should be elaborated as were an eliminator"
@@ -1167,9 +1234,9 @@ private partial def findMethod? (structName fieldName : Name) : MetaM (Option (N
     match candidates with
     | []          => return none
     | [fullName'] => return some (structName', fullName')
-    | _ => throwError "\
-      invalid field notation '{fieldName}', the name '{fullName}' is ambiguous, possible interpretations: \
-      {MessageData.joinSep (candidates.map (m!"'{.ofConstName ·}'")) ", "}"
+    | _ =>
+      let candidates := MessageData.joinSep (candidates.map (m!"`{.ofConstName ·}`")) ", "
+      throwError "Field name `{fieldName}` is ambiguous: `{fullName}` has possible interpretations {candidates}"
   -- Optimization: the first element of the resolution order is `structName`,
   -- so we can skip computing the resolution order in the common case
   -- of the name resolving in the `structName` namespace.
@@ -1181,28 +1248,36 @@ private partial def findMethod? (structName fieldName : Name) : MetaM (Option (N
     return none
 
 private def throwInvalidFieldNotation (e eType : Expr) : TermElabM α :=
-  throwLValError e eType "invalid field notation, type is not of the form (C ...) where C is a constant"
+  throwLValError e eType "Invalid field notation: Type is not of the form `C ...` where C is a constant"
 
 private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM LValResolution := do
   if eType.isForall then
     match lval with
-    | LVal.fieldName _ fieldName _ _ =>
+    | LVal.fieldName _ fieldName suffix? fullRef =>
       let fullName := Name.str `Function fieldName
       if (← getEnv).contains fullName then
         return LValResolution.const `Function `Function fullName
-    | _ => pure ()
+      else if suffix?.isNone then
+        /- If there's no suffix, this could only have been a field in the `Function` namespace, so
+           we needn't wait to check if this is actually a constant. If `suffix?` is non-`none`, we
+           prefer to throw the "unknown constant" error (because of monad namespaces like `IO` and
+           auxiliary declarations like `mutual_induct`) -/
+        throwLValErrorAt fullRef e eType <| mkUnknownIdentifierMessage m!"Invalid field `{fieldName}`: \
+          The environment does not contain `{Name.str `Function fieldName}`"
+    | .fieldIdx .. =>
+      throwLValError e eType "Invalid projection: Projections cannot be used on functions"
   else if eType.getAppFn.isMVar then
-    let field :=
+    let (kind, name) :=
       match lval with
-      |  .fieldName _ fieldName _ _ => toString fieldName
-      | .fieldIdx _ i => toString i
-    throwError "Invalid field notation: type of{indentExpr e}\nis not known; cannot resolve field '{field}'"
+      |  .fieldName _ fieldName _ _ => (m!"field notation", m!"field `{fieldName}`")
+      | .fieldIdx _ i => (m!"projection", m!"projection `{i}`")
+    throwError "Invalid {kind}: Type of{indentExpr e}\nis not known; cannot resolve {name}"
   match eType.getAppFn.constName?, lval with
   | some structName, LVal.fieldIdx _ idx =>
     if idx == 0 then
-      throwError "invalid projection, index must be greater than 0"
+      throwError "Invalid projection: Index must be greater than 0"
     let env ← getEnv
-    let failK _ := throwLValError e eType "invalid projection, structure expected"
+    let failK _ := throwLValError e eType "Invalid projection: Expected a value whose type is a structure"
     matchConstStructure eType.getAppFn failK fun _ _ ctorVal => do
       let numFields := ctorVal.numFields
       if idx - 1 < numFields then
@@ -1214,7 +1289,12 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
             So, we don't projection functions for it. Thus, we use `Expr.proj` -/
           return LValResolution.projIdx structName (idx - 1)
       else
-        throwLValError e eType m!"invalid projection, structure has only {numFields} field(s)"
+        let (fields, bounds) := if numFields == 1 then
+          (m!"field", m!"the only valid index is 1")
+        else
+          (m!"fields", m!"it must be between 1 and {numFields}")
+        throwError m!"Invalid projection: Index `{idx}` is invalid for this structure; {bounds}"
+          ++ .note m!"The expression{inlineExpr e}has type{inlineExpr eType}which has only {numFields} {fields}"
   | some structName, LVal.fieldName _ fieldName _ fullRef =>
     let env ← getEnv
     if isStructure env structName then
@@ -1231,11 +1311,13 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     -- Then search the environment
     if let some (baseStructName, fullName) ← findMethod? structName (.mkSimple fieldName) then
       return LValResolution.const baseStructName structName fullName
-    let msg := mkUnknownIdentifierMessage m!"invalid field '{fieldName}', the environment does not contain '{Name.mkStr structName fieldName}'"
+    let msg := mkUnknownIdentifierMessage m!"Invalid field `{fieldName}`: The environment does not contain `{Name.mkStr structName fieldName}`"
     throwLValErrorAt fullRef e eType msg
   | none, LVal.fieldName _ _ (some suffix) fullRef =>
-    if e.isConst then
-      throwUnknownConstantAt fullRef (e.constName! ++ suffix)
+    -- This may be a function constant whose implicit arguments have already been filled in:
+    let c := e.getAppFn
+    if c.isConst then
+      throwUnknownConstantAt fullRef (c.constName! ++ suffix)
     else
       throwInvalidFieldNotation e eType
   | _, _ => throwInvalidFieldNotation e eType
@@ -1288,7 +1370,7 @@ private def resolveLVal (e : Expr) (lval : LVal) (hasArgs : Bool) : TermElabM (E
 private partial def mkBaseProjections (baseStructName : Name) (structName : Name) (e : Expr) : TermElabM Expr := do
   let env ← getEnv
   match getPathToBaseStructure? env baseStructName structName with
-  | none => throwError "failed to access field in parent structure"
+  | none => throwError "Internal error: Failed to access field in parent structure"
   | some path =>
     let mut e := e
     for projFunName in path do
@@ -1355,10 +1437,7 @@ where
             /- If we can't add `e` to `args`, we try to add it using a named argument, but this is only possible
                if there isn't an argument with the same name occurring before it. -/
             if !allowNamed || unusableNamedArgs.contains xDecl.userName then
-              throwError "\
-                invalid field notation, function '{.ofConstName fullName}' has argument with the expected type\
-                {indentExpr xDecl.type}\n\
-                but it cannot be used"
+              throwUnusableParameter allowNamed xDecl
             else
               return (args, namedArgs.push { name := xDecl.userName, val := Arg.expr e })
         /- Advance `argIdx` and update seen named arguments. -/
@@ -1372,9 +1451,34 @@ where
         return ← go (mkAppN f xs) fType' argIdx remainingNamedArgs unusableNamedArgs allowNamed
       if let some f' ← coerceToFunction? (mkAppN f xs) then
         return ← go f' (← inferType f') argIdx remainingNamedArgs unusableNamedArgs false
-    throwError "\
-      invalid field notation, function '{.ofConstName fullName}' does not have argument with type ({.ofConstName baseName} ...) that can be used, \
-      it must be explicit or implicit with a unique name"
+    let tyCtorMsg := MessageData.ofLazyM do
+      let some decl := (← getEnv).find? baseName | return .ofConstName baseName
+      if decl.type.isForall then
+        return m!"{.ofConstName baseName} ..."
+      else
+        return .ofConstName baseName
+    throwError m!"Invalid field notation: Function `{.ofConstName fullName}` does not have a usable \
+      parameter of type `{tyCtorMsg}` for which to substitute{inlineExprTrailing e}"
+      ++ .note m!"Such a parameter must be explicit, or implicit with a unique name, to be used by field notation"
+
+  throwUnusableParameter (allowNamed : Bool) (xDecl : MetavarDecl) :=
+    let note : MessageData := if !allowNamed && !xDecl.userName.hasMacroScopes then
+      .note m!"Field notation cannot refer to parameter `{xDecl.userName}` of `{.ofConstName fullName}` \
+        by name because that constant was coerced to a function"
+    else if allowNamed then
+      let param := if xDecl.userName.hasMacroScopes then .nil else m!" `{xDecl.userName}`"
+      .note m!"The parameter{param} of `{.ofConstName fullName}` cannot be referred to by name \
+         because that function has a preceding parameter of the same name"
+    else .nil
+    -- Transforming field notation into direct application is too involved to offer a confident
+    -- concrete edit suggestion here
+    let hint := MessageData.hint' <|
+      m!"Consider rewriting this application without field notation (e.g., `C.f x` instead of `x.f`)" ++
+      if allowNamed then
+        m!" or changing the parameter names of `{.ofConstName fullName}` to avoid this conflict"
+      else .nil
+    throwError m!"Invalid field notation: `{.ofConstName fullName}` has a parameter with \
+      expected type{indentExpr xDecl.type}\nbut it cannot be used" ++ note ++ hint
 
 /-- Adds the `TermInfo` for the field of a projection. See `Lean.Parser.Term.identProjKind`. -/
 private def addProjTermInfo
@@ -1405,7 +1509,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
       let f ← mkBaseProjections baseStructName structName f
       let some info := getFieldInfo? (← getEnv) baseStructName fieldName | unreachable!
       if isPrivateNameFromImportedModule (← getEnv) info.projFn then
-        throwError "field '{fieldName}' from structure '{structName}' is private"
+        throwError "Field `{fieldName}` from structure `{structName}` is private"
       let projFn ← mkConst info.projFn
       let projFn ← addProjTermInfo lval.getRef projFn
       if lvals.isEmpty then
@@ -1495,7 +1599,7 @@ where
 private partial def resolveDotName (id : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   tryPostponeIfNoneOrMVar expectedType?
   let some expectedType := expectedType?
-    | throwError "invalid dotted identifier notation, expected type must be known"
+    | throwError "Invalid dotted identifier notation: Could not determine the expected type of `.{id}`"
   withForallBody expectedType fun resultType => do
     go resultType expectedType #[]
 where
@@ -1520,11 +1624,16 @@ where
         else if let some (fvar, []) ← resolveLocalName idNew then
           return fvar
         else
-          throwUnknownIdentifierAt id m!"invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
+          throwUnknownIdentifierAt id <| m!"Unknown identifier `{idNew}`"
+            ++ .note m!"Inferred this identifier from the expected type of `.{id}`:{indentExpr expectedType}"
       | .sort .. =>
-        throwError "Invalid dotted identifier notation: not supported on type{indentExpr resultTypeFn}"
+        throwNamedError lean.invalidDottedIdent "Invalid dotted identifier notation: Not supported on type universe{indentExpr resultTypeFn}"
       | _ =>
-        throwError "invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant{indentExpr expectedType}"
+        if expectedType.getAppFn.isMVar then
+          throwNamedError lean.invalidDottedIdent "Invalid dotted identifier notation: The expected type of `.{id}` could not be determined"
+        else
+          throwNamedError lean.invalidDottedIdent "Invalid dotted identifier notation: The expected type of `.{id}`{indentExpr expectedType}\n\
+            is not of the form `C ...` or `... → C ...` where C is a constant"
     catch
       | ex@(.error ..) =>
         match (← unfoldDefinition? resultType) with
@@ -1549,7 +1658,8 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
         LVal.fieldName comp comp.getId.getString! none f
       elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
     let elabFieldIdx (e idxStx : Syntax) (explicit : Bool) := do
-      let some idx := idxStx.isFieldIdx? | throwError "invalid field index"
+      let some idx := idxStx.isFieldIdx?
+        | throwError "Internal error: Unexpected field index syntax `{idxStx}`"
       elabAppFn e (LVal.fieldIdx idxStx idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
     match f with
     | `($(e).$idx:fieldIdx) => elabFieldIdx e idx explicit
@@ -1559,7 +1669,8 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `(@$(e).$idx:fieldIdx) => elabFieldIdx e idx (explicit := true)
     | `(@$(e).$field:ident) => elabFieldName e field (explicit := true)
     | `($_:ident@$_:term) =>
-      throwError "unexpected occurrence of named pattern"
+      throwError m!"Expected a function, but found the named pattern{indentD f}"
+        ++ .note m!"Named patterns `<identifier>@<term>` can only be used when pattern-matching"
     | `($id:ident) => do
       elabAppFnId id [] lvals namedArgs args expectedType? explicit ellipsis overloaded acc
     | `($id:ident.{$us,*}) => do
@@ -1570,7 +1681,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `(@$_:ident.{$_us,*}) =>
       elabAppFn (f.getArg 1) lvals namedArgs args expectedType? (explicit := true) ellipsis overloaded acc
     | `(@$_)     => throwUnsupportedSyntax -- invalid occurrence of `@`
-    | `(_)       => throwError "placeholders '_' cannot be used where a function is expected"
+    | `(_)       => throwError "A placeholder `_` cannot be used where a function is expected"
     | `(.$id:ident) =>
         addCompletionInfo <| CompletionInfo.dotId id id.getId (← getLCtx) expectedType?
         let fConst ← resolveDotName id expectedType?
@@ -1677,7 +1788,7 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
         match success with
         | .ok e s => withMCtx s.meta.meta.mctx <| withEnv s.meta.core.env do addMessageContext m!"{e} : {← inferType e}"
         | _       => unreachable!
-      throwErrorAt f "ambiguous, possible interpretations {toMessageList msgs}"
+      throwErrorAt f "Ambiguous term{indentD f}\nPossible interpretations:{toMessageList msgs}"
     else
       withRef f <| mergeFailures candidates
 

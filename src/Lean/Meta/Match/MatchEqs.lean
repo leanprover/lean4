@@ -544,15 +544,15 @@ where
           (t₂ : Foo l₂) → ((s₁ : Foo l₂) → motive (Foo.cons s₁)) → ((x : Foo l₂) → motive x) → motive t₂ :=
     fun {l₂} t₂ motive t₂_1 h_1 h_2 =>
       (fun t₂_2 =>
-          Foo.casesOn (motive := fun a x => l₂ = a → HEq t₂_1 x → motive t₂_1) t₂_2
+          Foo.casesOn (motive := fun a x => l₂ = a → t₂_1 ≍ x → motive t₂_1) t₂_2
             (fun h =>
               Eq.ndrec (motive := fun {l₂} =>
                 (t₂ t₂ : Foo l₂) →
                   (motive : Foo l₂ → Sort u_1) →
-                    ((s₁ : Foo l₂) → motive (Foo.cons s₁)) → ((x : Foo l₂) → motive x) → HEq t₂ Foo.nil → motive t₂)
+                    ((s₁ : Foo l₂) → motive (Foo.cons s₁)) → ((x : Foo l₂) → motive x) → t₂ ≍ Foo.nil → motive t₂)
                 (fun t₂ t₂ motive h_1 h_2 h => Eq.symm (eq_of_heq h) ▸ h_2 Foo.nil) (Eq.symm h) t₂ t₂_1 motive h_1 h_2) --- HERE
             fun {l} t h =>
-            Eq.ndrec (motive := fun {l} => (t : Foo l) → HEq t₂_1 (Foo.cons t) → motive t₂_1)
+            Eq.ndrec (motive := fun {l} => (t : Foo l) → t₂_1 ≍ Foo.cons t → motive t₂_1)
               (fun t h => Eq.symm (eq_of_heq h) ▸ h_1 t) h t)
         t₂_1 (Eq.refl l₂) (HEq.refl t₂_1)
     ```

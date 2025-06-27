@@ -8,6 +8,9 @@ import Lean.Message
 import Lean.InternalExceptionId
 import Lean.Data.Options
 import Lean.Util.MonadCache
+-- This import is necessary to ensure that any users of the `throwNamedError` macros have access to
+-- all declared explanations:
+import Lean.ErrorExplanations
 
 namespace Lean
 
@@ -79,6 +82,27 @@ def unknownIdentifierMessageTag : Name := `unknownIdentifier
 /-- Throw an error exception using the given message data and reference syntax. -/
 protected def throwErrorAt [Monad m] [MonadError m] (ref : Syntax) (msg : MessageData) : m α := do
   withRef ref <| Lean.throwError msg
+
+/--
+Throw an error exception with the specified name, with position information from `getRef`.
+
+Note: Use the macro `throwNamedError`, which validates error names, instead of calling this function
+directly.
+-/
+protected def «throwNamedError» [Monad m] [MonadError m] (name : Name) (msg : MessageData) : m α := do
+  let ref ← getRef
+  let msg := msg.tagWithErrorName name
+  let (ref, msg) ← AddErrorMessageContext.add ref msg
+  throw <| Exception.error ref msg
+
+/--
+Throw an error exception with the specified name at the position `ref`.
+
+Note: Use the macro `throwNamedErrorAt`, which validates error names, instead of calling this
+function directly.
+-/
+protected def «throwNamedErrorAt» [Monad m] [MonadError m] (ref : Syntax) (name : Name) (msg : MessageData) : m α :=
+  withRef ref <| Lean.throwNamedError name msg
 
 /--
 Creates a `MessageData` that is tagged with `unknownIdentifierMessageTag`.

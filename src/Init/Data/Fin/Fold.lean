@@ -183,10 +183,7 @@ theorem foldrM_loop [Monad m] [LawfulMonad m] (f : Fin (n+1) → α → m α) (x
   | zero =>
     rw [foldrM_loop_zero, foldrM_loop_succ, pure_bind]
     conv => rhs; rw [←bind_pure (f 0 x)]
-    congr
-    try  -- TODO: block can be deleted after bootstrapping
-      funext
-      simp [foldrM_loop_zero]
+    rfl
   | succ i ih =>
     rw [foldrM_loop_succ, foldrM_loop_succ, bind_assoc]
     congr; funext; exact ih ..
@@ -255,7 +252,7 @@ theorem foldl_succ_last (f : α → Fin (n+1) → α) (x) :
     foldl (n+1) f x = f (foldl n (f · ·.castSucc) x) (last n) := by
   rw [foldl_succ]
   induction n generalizing x with
-  | zero => simp [foldl_succ, Fin.last]
+  | zero => simp [Fin.last]
   | succ n ih => rw [foldl_succ, ih (f · ·.succ), foldl_succ]; simp
 
 theorem foldl_add (f : α → Fin (n + m) → α) (x) :

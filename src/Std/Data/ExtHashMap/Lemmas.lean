@@ -1880,7 +1880,7 @@ theorem getElem_filterMap' [LawfulBEq α] [LawfulHashable α]
     {f : α → β → Option γ} {k : α} {h} :
     (m.filterMap f)[k]'h =
       (f k (m[k]'(mem_of_mem_filterMap h))).get (by simpa using isSome_apply_of_mem_filterMap h) := by
-  simp [getElem_filterMap, h]
+  simp [getElem_filterMap]
 
 @[grind =] theorem getElem!_filterMap [EquivBEq α] [LawfulHashable α] [Inhabited γ]
     {f : α → β → Option γ} {k : α} :

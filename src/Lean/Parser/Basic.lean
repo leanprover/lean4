@@ -833,7 +833,10 @@ def decimalNumberFn (startPos : String.Pos) (c : ParserContext) : ParserState �
     mkNodeToken numLitKind startPos c s
   else
     let curr := input.get' i h
-    if curr == '.' || curr == 'e' || curr == 'E' then
+    let j := input.next i
+    if ∃ hj : ¬ input.atEnd j, curr = '.' && input.get' j hj = '.' then
+      mkNodeToken numLitKind startPos c s
+    else if curr == '.' || curr == 'e' || curr == 'E' then
       parseScientific s
     else
       mkNodeToken numLitKind startPos c s

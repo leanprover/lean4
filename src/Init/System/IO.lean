@@ -149,7 +149,7 @@ Because the resulting value is treated as a side-effect-free term, the compiler 
 duplicate, or delete calls to this function. The side effect may even be hoisted into a constant,
 causing the side effect to occur at initialization time, even if it would otherwise never be called.
 -/
-@[inline] unsafe def unsafeBaseIO (fn : BaseIO α) : α :=
+@[noinline] unsafe def unsafeBaseIO (fn : BaseIO α) : α :=
   match fn.run () with
   | EStateM.Result.ok a _ => a
 
@@ -567,7 +567,7 @@ def addHeartbeats (count : Nat) : BaseIO Unit := do
 /--
 Whether a file should be opened for reading, writing, creation and writing, or appending.
 
-A the operating system level, this translates to the mode of a file handle (i.e., a set of `open`
+At the operating system level, this translates to the mode of a file handle (i.e., a set of `open`
 flags and an `fdopen` mode).
 
 None of the modes represented by this datatype translate line endings (i.e. `O_BINARY` on Windows).
@@ -940,7 +940,7 @@ encountered.
 The underlying file is not automatically closed upon encountering an EOF, and subsequent reads from
 the handle may block and/or return data.
 -/
-partial def Handle.readBinToEnd (h : Handle) : IO ByteArray := do
+def Handle.readBinToEnd (h : Handle) : IO ByteArray := do
   h.readBinToEndInto .empty
 
 /--
@@ -957,12 +957,14 @@ def Handle.readToEnd (h : Handle) : IO String := do
   | none => throw <| .userError s!"Tried to read from handle containing non UTF-8 data."
 
 /--
-Returns the contents of a UTF-8-encoded text file as an array of lines.
+Reads the entire remaining contents of the file handle as a UTF-8-encoded array of lines.
 
 Newline markers are not included in the lines.
+
+The underlying file is not automatically closed, and subsequent reads from the handle may block
+and/or return data.
 -/
-partial def lines (fname : FilePath) : IO (Array String) := do
-  let h ← Handle.mk fname Mode.read
+partial def Handle.lines (h : Handle) : IO (Array String) := do
   let rec read (lines : Array String) := do
     let line ← h.getLine
     if line.length == 0 then
@@ -974,6 +976,15 @@ partial def lines (fname : FilePath) : IO (Array String) := do
     else
       pure <| lines.push line
   read #[]
+
+/--
+Returns the contents of a UTF-8-encoded text file as an array of lines.
+
+Newline markers are not included in the lines.
+-/
+def lines (fname : FilePath) : IO (Array String) := do
+  let h ← Handle.mk fname Mode.read
+  h.lines
 
 /--
 Write the provided bytes to a binary file at the specified path.
@@ -1665,6 +1676,66 @@ def ofBuffer (r : Ref Buffer) : Stream where
     let data := s.toUTF8
     { b with data := data.copySlice 0 b.data b.pos data.size false, pos := b.pos + data.size }
   isTty   := pure false
+
+/--
+Reads the entire remaining contents of the stream until an end-of-file marker (EOF) is
+encountered.
+
+The underlying stream is not automatically closed upon encountering an EOF, and subsequent reads from
+the stream may block and/or return data.
+-/
+partial def readBinToEndInto (s : Stream) (buf : ByteArray) : IO ByteArray := do
+  let rec loop (acc : ByteArray) : IO ByteArray := do
+    let buf ← s.read 1024
+    if buf.isEmpty then
+      return acc
+    else
+      loop (acc ++ buf)
+  loop buf
+
+/--
+Reads the entire remaining contents of the stream until an end-of-file marker (EOF) is
+encountered.
+
+The underlying stream is not automatically closed upon encountering an EOF, and subsequent reads from
+the stream may block and/or return data.
+-/
+def readBinToEnd (s : Stream) : IO ByteArray := do
+  s.readBinToEndInto .empty
+
+/--
+Reads the entire remaining contents of the stream as a UTF-8-encoded string. An exception is
+thrown if the contents are not valid UTF-8.
+
+The underlying stream is not automatically closed, and subsequent reads from the stream may block
+and/or return data.
+-/
+def readToEnd (s : Stream) : IO String := do
+  let data ← s.readBinToEnd
+  match String.fromUTF8? data with
+  | some s => return s
+  | none => throw <| .userError s!"Tried to read from stream containing non UTF-8 data."
+  
+/--
+Reads the entire remaining contents of the stream as a UTF-8-encoded array of lines.
+
+Newline markers are not included in the lines.
+
+The underlying stream is not automatically closed, and subsequent reads from the stream may block
+and/or return data.
+-/
+partial def lines (s : Stream) : IO (Array String) := do
+  let rec read (lines : Array String) := do
+    let line ← s.getLine
+    if line.length == 0 then
+      pure lines
+    else if line.back == '\n' then
+      let line := line.dropRight 1
+      let line := if line.back == '\r' then line.dropRight 1 else line
+      read <| lines.push line
+    else
+      pure <| lines.push line
+  read #[]
 
 end Stream
 

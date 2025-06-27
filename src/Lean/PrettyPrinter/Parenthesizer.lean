@@ -114,13 +114,18 @@ abbrev Parenthesizer := ParenthesizerM Unit
 
 instance : OrElse (ParenthesizerM α) := ⟨ParenthesizerM.orElse⟩
 
-unsafe def mkParenthesizerAttribute : IO (KeyedDeclsAttribute Parenthesizer) :=
+/--
+Registers a parenthesizer for a parser.
+
+`@[parenthesizer k]` registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` to be used
+for parenthesizing syntax of kind `k`.
+-/
+@[builtin_doc]
+unsafe builtin_initialize parenthesizerAttribute : KeyedDeclsAttribute Parenthesizer ←
   KeyedDeclsAttribute.init {
     builtinName := `builtin_parenthesizer,
     name := `parenthesizer,
-    descr := "Register a parenthesizer for a parser.
-
-  [parenthesizer k] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` for the `SyntaxNodeKind` `k`.",
+    descr := "Register a parenthesizer for a parser.",
     valueTypeName := `Lean.PrettyPrinter.Parenthesizer,
     evalKey := fun builtin stx => do
       let env ← getEnv
@@ -133,21 +138,25 @@ unsafe def mkParenthesizerAttribute : IO (KeyedDeclsAttribute Parenthesizer) :=
       if (← getEnv).contains id && (← Elab.getInfoState).enabled then
         Elab.addConstInfo stx id none
       pure id
-  } `Lean.PrettyPrinter.parenthesizerAttribute
-@[builtin_init mkParenthesizerAttribute] opaque parenthesizerAttribute : KeyedDeclsAttribute Parenthesizer
+  }
 
 abbrev CategoryParenthesizer := (prec : Nat) → Parenthesizer
 
-unsafe def mkCategoryParenthesizerAttribute : IO (KeyedDeclsAttribute CategoryParenthesizer) :=
+/--
+Registers a parenthesizer for a syntax category.
+
+`@[category_parenthesizer cat]` registers a declaration of type
+`Lean.PrettyPrinter.CategoryParenthesizer` for the syntax category `cat`, which is used when
+parenthesizing occurrences of `cat:prec` (`categoryParser cat prec`). Implementations should call
+`maybeParenthesize` with the precedence and `cat`. If no category parenthesizer is registered, the
+category will never be parenthesized, but still traversed for parenthesizing nested categories.
+-/
+@[builtin_doc]
+unsafe builtin_initialize categoryParenthesizerAttribute : KeyedDeclsAttribute CategoryParenthesizer ←
   KeyedDeclsAttribute.init {
     builtinName := `builtin_category_parenthesizer,
     name := `category_parenthesizer,
-    descr := "Register a parenthesizer for a syntax category.
-
-  [category_parenthesizer cat] registers a declaration of type `Lean.PrettyPrinter.CategoryParenthesizer` for the category `cat`,
-  which is used when parenthesizing calls of `categoryParser cat prec`. Implementations should call `maybeParenthesize`
-  with the precedence and `cat`. If no category parenthesizer is registered, the category will never be parenthesized,
-  but still be traversed for parenthesizing nested categories.",
+    descr := "Register a parenthesizer for a syntax category.",
     valueTypeName := `Lean.PrettyPrinter.CategoryParenthesizer,
     evalKey := fun _ stx => do
       let env ← getEnv
@@ -158,19 +167,23 @@ unsafe def mkCategoryParenthesizerAttribute : IO (KeyedDeclsAttribute CategoryPa
       if (← Elab.getInfoState).enabled && (← getEnv).contains cat.declName then
         Elab.addConstInfo stx cat.declName none
       pure id
-  } `Lean.PrettyPrinter.categoryParenthesizerAttribute
-@[builtin_init mkCategoryParenthesizerAttribute] opaque categoryParenthesizerAttribute : KeyedDeclsAttribute CategoryParenthesizer
+  }
 
-unsafe def mkCombinatorParenthesizerAttribute : IO ParserCompiler.CombinatorAttribute :=
+/--
+Registers a parenthesizer for a parser combinator.
+
+`@[combinator_parenthesizer c]` registers a declaration of type `Lean.PrettyPrinter.Parenthesizer`
+for the `Parser` declaration `c`. Note that, unlike with `@[parenthesizer]`, this is not a node kind
+since combinators usually do not introduce their own node kinds. The tagged declaration may
+optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is
+replaced with `Parenthesizer` in the parameter types.
+-/
+@[builtin_doc]
+unsafe builtin_initialize combinatorParenthesizerAttribute : ParserCompiler.CombinatorAttribute ←
   ParserCompiler.registerCombinatorAttribute
     `combinator_parenthesizer
-    "Register a parenthesizer for a parser combinator.
-
-  [combinator_parenthesizer c] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` for the `Parser` declaration `c`.
-  Note that, unlike with [parenthesizer], this is not a node kind since combinators usually do not introduce their own node kinds.
-  The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced
-  with `Parenthesizer` in the parameter types."
-@[builtin_init mkCombinatorParenthesizerAttribute] opaque combinatorParenthesizerAttribute : ParserCompiler.CombinatorAttribute
+    "Register a parenthesizer for a parser combinator."
+    `Lean.PrettyPrinter.mkCombinatorParenthesizerAttribute -- TODO (bootstrap): remove if possible
 
 namespace Parenthesizer
 

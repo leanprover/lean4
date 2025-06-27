@@ -189,16 +189,14 @@ builtin_initialize
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
     stack.matches [`null, none, `null, ``Lean.Parser.Command.variable])
 
-/-- `structure Foo where unused : Nat` -/
+/--
+* `structure Foo (unused : Nat)`
+* `inductive Foo (unused : Foo)`
+-/
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
-  stack.matches [`null, none, `null, ``Lean.Parser.Command.structure])
-
-/-- `inductive Foo where | unused : Foo` -/
-builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
-  stack.matches [`null, none, `null, none, ``Lean.Parser.Command.inductive] &&
-  (stack[3]? |>.any fun (stx, pos) =>
-    pos == 0 &&
-    [``Lean.Parser.Command.optDeclSig, ``Lean.Parser.Command.declSig].any (stx.isOfKind ·)))
+  stack.matches [`null, none, `null, ``Lean.Parser.Command.optDeclSig, none] &&
+  (stack[4]? |>.any fun (stx, _) =>
+    [``Lean.Parser.Command.structure, ``Lean.Parser.Command.inductive].any (stx.isOfKind ·)))
 
 /--
 * `structure Foo where foo (unused : Nat) : Nat`

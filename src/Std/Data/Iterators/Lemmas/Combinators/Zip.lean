@@ -6,10 +6,10 @@ Authors: Paul Reichert
 prelude
 import Std.Data.Iterators.Combinators.Take
 import Std.Data.Iterators.Combinators.Zip
-import Std.Data.Iterators.Consumers.Access
+import Init.Data.Iterators.Consumers.Access
 import Std.Data.Iterators.Lemmas.Combinators.Monadic.Zip
 import Std.Data.Iterators.Lemmas.Combinators.Take
-import Std.Data.Iterators.Lemmas.Consumers
+import Init.Data.Iterators.Lemmas.Consumers
 
 namespace Std.Iterators
 
@@ -246,7 +246,7 @@ theorem Iter.atIdxSlow?_intermediateZip [Iterator α₁ Id β₁] [Iterator α�
       simp only at h
       split at h <;> cases h
       rename_i hs₁
-      simp [atIdxSlow?.eq_def (it := it₁), hs₁]
+      simp [hs₁]
     case some =>
       simp only at h
       split at h <;> cases h

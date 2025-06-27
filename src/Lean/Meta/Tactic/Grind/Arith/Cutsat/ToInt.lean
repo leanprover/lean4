@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Grind.ToIntLemmas
+import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 
 namespace Lean.Meta.Grind.Arith.Cutsat
@@ -156,6 +157,7 @@ where
     let powThm? ← mkPowThm? type u toIntInst rangeExpr
     let zeroThm? ← mkSimpleOpThm? ``Zero ``Grind.ToInt.zero_eq
     let ofNatThm? ← mkOfNatThm? type u toIntInst rangeExpr
+    trace[grind.debug.cutsat.toInt] "registered toInt: {type}"
     return some {
       type, u, toIntInst, rangeExpr, range, toInt, wrap, ofWrap0?, ofEq, ofDiseq, ofLE?, ofNotLE?, ofLT?, ofNotLT?, addThms, mulThms,
       subThm?, negThm?, divThm?, modThm?, powThm?, zeroThm?, ofNatThm?
@@ -173,15 +175,33 @@ def ToIntM.run? (type : Expr) (x : ToIntM α) : GoalM (Option α) := do
   let some info ← getToIntInfo? type | return none
   return some (← x { info })
 
-private def isHomo (α β γ : Expr) : Bool :=
-  isSameExpr α β && isSameExpr α γ
+def ToIntM.run (type : Expr) (x : ToIntM Unit) : GoalM Unit := do
+  let some info ← getToIntInfo? type | return ()
+  x { info }
 
 private def intRfl := mkApp (mkConst ``Eq.refl [1]) Int.mkType
 
-private def toIntDef (e : Expr) : ToIntM (Expr × Expr) := do
-  let e' := mkApp (← getInfo).toInt e
-  let he := mkApp intRfl e'
-  return (e', he)
+def mkToIntVar (e : Expr) : ToIntM (Expr × Expr) := do
+  if let some info := (← get').toIntTermMap.find? { expr := e } then
+    return (info.eToInt, info.he)
+  let eToInt := mkApp (← getInfo).toInt e
+  let he := mkApp intRfl eToInt
+  let α := (← getInfo).type
+  modify' fun s => { s with
+    toIntTermMap := s.toIntTermMap.insert { expr := e } { eToInt, he, α }
+  }
+  markAsCutsatTerm e
+  return (eToInt, he)
+
+def getToIntTermType? (e : Expr) : GoalM (Option Expr) := do
+  let some info := (← get').toIntTermMap.find? { expr := e } | return none
+  return some info.α
+
+def isToIntTerm (e : Expr) : GoalM Bool :=
+  return (← get').toIntTermMap.contains { expr := e }
+
+private def isHomo (α β γ : Expr) : Bool :=
+  isSameExpr α β && isSameExpr α γ
 
 private def isWrap (e : Expr) : Option Expr :=
   match_expr e with
@@ -232,52 +252,52 @@ private def ToIntThms.mkResult (toIntThms : ToIntThms) (mkBinOp : Expr → Expr 
   | none,     some b'' => if let some f := toIntThms.c_wr? then mk f a' b'' else mk f a' b'
   | some a'', some b'' => if let some f := toIntThms.c_ww? then mk f a'' b'' else mk f a' b'
 
-partial def toInt (e : Expr) : ToIntM (Expr × Expr) := do
+private partial def toInt' (e : Expr) : ToIntM (Expr × Expr) := do
   match_expr e with
   | HAdd.hAdd α β γ _ a b =>
-    unless isHomo α β γ do return (← toIntDef e)
+    unless isHomo α β γ do return (← mkToIntVar e)
     toIntBin (← getInfo).addThms mkIntAdd a b
   | HMul.hMul α β γ _ a b =>
-    unless isHomo α β γ do return (← toIntDef e)
+    unless isHomo α β γ do return (← mkToIntVar e)
     toIntBin (← getInfo).mulThms mkIntMul a b
   | HDiv.hDiv α β γ _ a b =>
-    unless isHomo α β γ do return (← toIntDef e)
+    unless isHomo α β γ do return (← mkToIntVar e)
     processDivMod (isDiv := true) a b
   | HMod.hMod α β γ _ a b =>
-    unless isHomo α β γ do return (← toIntDef e)
+    unless isHomo α β γ do return (← mkToIntVar e)
     processDivMod (isDiv := false) a b
   | HSub.hSub α β γ _ a b =>
-    unless isHomo α β γ do return (← toIntDef e)
+    unless isHomo α β γ do return (← mkToIntVar e)
     processSub a b
   | Neg.neg _ _ a =>
     processNeg a
   | HPow.hPow α β γ _ a b =>
-    unless isSameExpr α γ && β.isConstOf ``Nat do return (← toIntDef e)
+    unless isSameExpr α γ && β.isConstOf ``Nat do return (← mkToIntVar e)
     processPow a b
   | Zero.zero _ _ =>
-    let some thm := (← getInfo).zeroThm? | toIntDef e
+    let some thm := (← getInfo).zeroThm? | mkToIntVar e
     return (mkIntLit 0, thm)
   | OfNat.ofNat _ n _ =>
-    let some thm := (← getInfo).ofNatThm? | toIntDef e
-    let some n ← getNatValue? n | toIntDef e
+    let some thm := (← getInfo).ofNatThm? | mkToIntVar e
+    let some n ← getNatValue? n | mkToIntVar e
     let r := mkIntLit ((← getInfo).range.wrap n)
     let h := mkApp thm (toExpr n)
     return (r, h)
-  | _ => toIntDef e
+  | _ => mkToIntVar e
 where
   toIntBin (toIntOp : ToIntThms) (mkBinOp : Expr → Expr → Expr) (a b : Expr) : ToIntM (Expr × Expr) := do
-    unless toIntOp.c?.isSome do return (← toIntDef e)
-    let (a', h₁) ← toInt a
-    let (b', h₂) ← toInt b
+    unless toIntOp.c?.isSome do return (← mkToIntVar e)
+    let (a', h₁) ← toInt' a
+    let (b', h₂) ← toInt' b
     toIntOp.mkResult mkBinOp a b a' b' h₁ h₂
 
   toIntAndExpandWrap (a : Expr) : ToIntM (Expr × Expr) := do
-    let (a', h₁) ← toInt a
+    let (a', h₁) ← toInt' a
     expandIfWrap a a' h₁
 
   processDivMod (isDiv : Bool) (a b : Expr) : ToIntM (Expr × Expr) := do
     let some thm ← if isDiv then pure (← getInfo).divThm? else pure (← getInfo).modThm?
-      | return (← toIntDef e)
+      | return (← mkToIntVar e)
     let (a', h₁) ← toIntAndExpandWrap a
     let (b', h₂) ← toIntAndExpandWrap b
     let r := if isDiv then mkIntDiv a' b' else mkIntMod a' b'
@@ -285,7 +305,7 @@ where
     return (r, h)
 
   processSub (a b : Expr) : ToIntM (Expr × Expr) := do
-    let some thm := (← getInfo).subThm? | return (← toIntDef e)
+    let some thm := (← getInfo).subThm? | return (← mkToIntVar e)
     let (a', h₁) ← toIntAndExpandWrap a
     let (b', h₂) ← toIntAndExpandWrap b
     let r ← mkWrap (mkIntSub a' b')
@@ -293,24 +313,37 @@ where
     return (r, h)
 
   processNeg (a : Expr) : ToIntM (Expr × Expr) := do
-    let some thm := (← getInfo).negThm? | return (← toIntDef e)
+    let some thm := (← getInfo).negThm? | return (← mkToIntVar e)
     let (a', h₁) ← toIntAndExpandWrap a
     let r ← mkWrap (mkIntNeg a')
     let h := mkApp3 thm a a' h₁
     return (r, h)
 
   processPow (a b : Expr) : ToIntM (Expr × Expr) := do
-    let some thm := (← getInfo).powThm? | return (← toIntDef e)
+    let some thm := (← getInfo).powThm? | return (← mkToIntVar e)
     let (a', h₁) ← toIntAndExpandWrap a
     let r ← mkWrap (mkIntPowNat a' b)
     let h := mkApp4 thm a b a' h₁
     return (r, h)
 
-def toInt? (a : Expr) (type : Expr) : GoalM (Option (Expr × Expr)) := do
-  ToIntM.run? type do
-    let (b, h) ← toInt a
-    match isWrap b with
+def toInt (a : Expr) : ToIntM (Expr × Expr) := do
+  let (b, h) ← toInt' a
+  let (b, h) ← match isWrap b with
     | some b' => expandWrap a b' h
-    | _ => return (b, h)
+    | _ => pure (b, h)
+  let r ← preprocess b
+  if let some proof := r.proof? then
+    return (r.expr, (← mkEqTrans h proof))
+  else
+    return (r.expr, h)
+
+def toInt? (a : Expr) (type : Expr) : GoalM (Option (Expr × Expr)) := do
+  ToIntM.run? type do toInt a
+
+def isSupportedType (type : Expr) : GoalM Bool := do
+  if type == Nat.mkType || type == Int.mkType then
+    return true
+  else
+    return (← getToIntInfo? type).isSome
 
 end Lean.Meta.Grind.Arith.Cutsat

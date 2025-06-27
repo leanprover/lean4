@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -160,12 +161,29 @@ def propagateNatLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   trace[grind.cutsat.assert.le] "{← c.pp}"
   c.assert
 
-def propagateIfSupportedLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
+def propagateToIntLe (e : Expr) (eqTrue : Bool) : ToIntM Unit := do
+  let some thm ← if eqTrue then pure (← getInfo).ofLE? else pure (← getInfo).ofNotLE? | return ()
+  let_expr LE.le _ _ a b := e | return ()
+  let gen ← getGeneration e
+  let (a', h₁) ← toInt a
+  let (b', h₂) ← toInt b
+  let thm := mkApp6 thm a b a' b' h₁ h₂
+  let (a', b') := if eqTrue then (a', b') else (mkIntAdd b' (mkIntLit 1), a')
+  let lhs ← toLinearExpr a' gen
+  let rhs ← toLinearExpr b' gen
+  let p := lhs.sub rhs |>.norm
+  let c := { p, h := .coreToInt e eqTrue thm lhs rhs : LeCnstr }
+  trace[grind.cutsat.assert.le] "{← c.pp}"
+  c.assert
+
+def propagateLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   unless (← getConfig).cutsat do return ()
   let_expr LE.le α _ _ _ := e | return ()
   if α.isConstOf ``Nat then
     propagateNatLe e eqTrue
-  else
+  else if α.isConstOf ``Int then
     propagateIntLe e eqTrue
+  else ToIntM.run α do
+    propagateToIntLe e eqTrue
 
 end Lean.Meta.Grind.Arith.Cutsat

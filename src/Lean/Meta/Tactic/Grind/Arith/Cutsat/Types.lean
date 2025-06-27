@@ -164,6 +164,7 @@ inductive LeCnstrProof where
   | coreNeg (e : Expr) (p : Poly)
   | coreNat (e : Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
   | coreNatNeg (e : Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
+  | coreToInt (e : Expr) (pos : Bool) (toIntThm : Expr) (lhs rhs : Int.Linear.Expr)
   | denoteAsIntNonneg (rhs : Int.OfNat.Expr) (rhs' : Int.Linear.Expr)
   | dec (h : FVarId)
   | norm (c : LeCnstr)
@@ -303,7 +304,16 @@ structure State where
   - `Int.Linear.emod_le`
   -/
   divMod : PHashSet (Expr × Int) := {}
+  /--
+  Mapping from a type `α` to its corresponding `ToIntInfo` object, which contains
+  the information needed to embed `α` terms into `Int` terms.
+  -/
   toIntInfos : PHashMap ExprPtr (Option ToIntInfo) := {}
+  /--
+  For each type `α` in `toIntInfos`, the mapping `toIntVarMap` contains a mapping
+  from a α-term `e` to the pair `(toInt e, α)`.
+  -/
+  toIntTermMap : PHashMap ExprPtr ToIntTermInfo := {}
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.Cutsat

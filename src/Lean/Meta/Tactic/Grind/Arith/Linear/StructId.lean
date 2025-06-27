@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Ordered.Module
 import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.Var
@@ -55,11 +55,16 @@ private def isNonTrivialIsCharInst (isCharInst? : Option (Expr × Nat)) : Bool :
   | some (_, c) => c != 1
   | none => false
 
+private def isCutsatType (type : Expr) : GoalM Bool := do
+  if (← getConfig).cutsat then
+    if (← Cutsat.isSupportedType type) then
+      -- If `type` is supported by cutsat, let it handle
+      return true
+  return false
+
 def getStructId? (type : Expr) : GoalM (Option Nat) := do
   unless (← getConfig).linarith do return none
-  if (← getConfig).cutsat && Cutsat.isSupportedType type then
-    -- If `type` is supported by cutsat, let it handle
-    return none
+  if (← isCutsatType type) then return none
   if let some id? := (← get').typeIdOf.find? { expr := type } then
     return id?
   else
@@ -150,11 +155,11 @@ where
       pure (some leFn, some ltFn)
     else
       pure (none, none)
-    let getHSMulFn? : GoalM (Option Expr) := do
+    let rec getHSMulFn? : GoalM (Option Expr) := do
       let smulType := mkApp3 (mkConst ``HSMul [0, u, u]) Int.mkType type type
       let .some smulInst ← trySynthInstance smulType | return none
       internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Int.mkType type smulInst smulInst
-    let getHSMulNatFn? : GoalM (Option Expr) := do
+    let rec getHSMulNatFn? : GoalM (Option Expr) := do
       let smulType := mkApp3 (mkConst ``HSMul [0, u, u]) Nat.mkType type type
       let .some smulInst ← trySynthInstance smulType | return none
       internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Nat.mkType type smulInst smulInst
@@ -164,7 +169,7 @@ where
     let semiringInst? ← getInst? ``Grind.Semiring
     let ringInst? ← getInst? ``Grind.Ring
     let fieldInst? ← getInst? ``Grind.Field
-    let getOne? : GoalM (Option Expr) := do
+    let rec getOne? : GoalM (Option Expr) := do
       let some oneInst ← getInst? ``One | return none
       let one ← internalizeConst <| mkApp2 (mkConst ``One.one [u]) type oneInst
       let one' ← mkNumeral type 1
@@ -182,7 +187,7 @@ where
       return some inst
     let orderedRingInst? ← getOrderedRingInst?
     let charInst? ← if let some semiringInst := semiringInst? then getIsCharInst? u type semiringInst else pure none
-    let getNoNatZeroDivInst? : GoalM (Option Expr) := do
+    let rec getNoNatZeroDivInst? : GoalM (Option Expr) := do
       let hmulNat := mkApp3 (mkConst ``HMul [0, u, u]) Nat.mkType type type
       let .some hmulInst ← trySynthInstance hmulNat | return none
       let noNatZeroDivType := mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type hmulInst

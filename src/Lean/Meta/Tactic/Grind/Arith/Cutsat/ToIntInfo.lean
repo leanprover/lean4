@@ -70,4 +70,14 @@ structure ToIntInfo where
   zeroThm?  : Option Expr
   ofNatThm? : Option Expr
 
+/--
+For each term `e` of type `α` which implements the `ToInt α i` class,
+we store its corresponding `Int` term `eToInt`, a proof `he : toInt e = eToInt`,
+and the type `α`.
+-/
+structure ToIntTermInfo where
+  eToInt : Expr
+  α      : Expr
+  he     : Expr
+
 end Lean.Meta.Grind.Arith.Cutsat

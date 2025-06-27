@@ -382,7 +382,6 @@ private def internalizeNat (e : Expr) : GoalM Unit := do
   let c := { p := .add (-1) x p, h := .defnNat e' x e'' : EqCnstr }
   c.assert
 
-
 private def isToIntForbiddenParent (parent? : Option Expr) : Bool :=
   if let some parent := parent? then
     getKindAndType? parent |>.isSome
@@ -410,20 +409,25 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     | _ => internalizeInt e
   else if type.isConstOf ``Nat then
     if isForbiddenParent parent? k then return ()
-    trace[grind.debug.cutsat.internalize] "{e} : {type}"
     if (← isNatTerm e) then return ()
+    trace[grind.debug.cutsat.internalize] "{e} : {type}"
     discard <| mkNatVar e
     match k with
     | .sub => propagateNatSub e
     | .natAbs => propagateNatAbs e
     | .toNat => propagateToNat e
     | _ => internalizeNat e
-  else if let some (e', h) ← toInt? e type then
+  else
     if isToIntForbiddenParent parent? then return ()
-    trace[grind.debug.cutsat.internalize] "{e} : {type}"
-    -- TODO: save `(e', h)`
-    trace[grind.debug.cutsat.toInt] "{e} ==> {e'}"
-    trace[grind.debug.cutsat.toInt] "{h} : {← inferType h}"
-    check h
+    -- Term has already been internalized
+    if (← isToIntTerm e) then return ()
+    if let some (eToInt, he) ← toInt? e type then
+      trace[grind.debug.cutsat.internalize] "{e} : {type}"
+      trace[grind.debug.cutsat.toInt] "{e} ==> {eToInt}"
+      let α := type
+      modify' fun s => { s with
+        toIntTermMap := s.toIntTermMap.insert { expr := e } { eToInt, he, α }
+      }
+      markAsCutsatTerm e
 
 end Lean.Meta.Grind.Arith.Cutsat

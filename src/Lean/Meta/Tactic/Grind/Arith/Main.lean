@@ -32,12 +32,12 @@ builtin_grind_propagator propagateLE ↓LE.le := fun e => do
   if (← isEqTrue e) then
     if let some c ← Offset.isCnstr? e then
       Offset.assertTrue c (← mkEqTrueProof e)
-    Cutsat.propagateIfSupportedLe e (eqTrue := true)
+    Cutsat.propagateLe e (eqTrue := true)
     Linear.propagateIneq e (eqTrue := true)
   else if (← isEqFalse e) then
     if let some c ← Offset.isCnstr? e then
       Offset.assertFalse c (← mkEqFalseProof e)
-    Cutsat.propagateIfSupportedLe e (eqTrue := false)
+    Cutsat.propagateLe e (eqTrue := false)
     Linear.propagateIneq e (eqTrue := false)
 
 builtin_grind_propagator propagateLT ↓LT.lt := fun e => do

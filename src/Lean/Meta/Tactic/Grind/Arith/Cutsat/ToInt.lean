@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Grind.ToIntLemmas
+import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 
 namespace Lean.Meta.Grind.Arith.Cutsat
@@ -156,6 +157,7 @@ where
     let powThm? ← mkPowThm? type u toIntInst rangeExpr
     let zeroThm? ← mkSimpleOpThm? ``Zero ``Grind.ToInt.zero_eq
     let ofNatThm? ← mkOfNatThm? type u toIntInst rangeExpr
+    trace[grind.debug.cutsat.toInt] "registered toInt: {type}"
     return some {
       type, u, toIntInst, rangeExpr, range, toInt, wrap, ofWrap0?, ofEq, ofDiseq, ofLE?, ofNotLE?, ofLT?, ofNotLT?, addThms, mulThms,
       subThm?, negThm?, divThm?, modThm?, powThm?, zeroThm?, ofNatThm?
@@ -172,6 +174,10 @@ def getInfo : ToIntM ToIntInfo :=
 def ToIntM.run? (type : Expr) (x : ToIntM α) : GoalM (Option α) := do
   let some info ← getToIntInfo? type | return none
   return some (← x { info })
+
+def ToIntM.run (type : Expr) (x : ToIntM Unit) : GoalM Unit := do
+  let some info ← getToIntInfo? type | return ()
+  x { info }
 
 private def intRfl := mkApp (mkConst ``Eq.refl [1]) Int.mkType
 
@@ -246,7 +252,7 @@ private def ToIntThms.mkResult (toIntThms : ToIntThms) (mkBinOp : Expr → Expr 
   | none,     some b'' => if let some f := toIntThms.c_wr? then mk f a' b'' else mk f a' b'
   | some a'', some b'' => if let some f := toIntThms.c_ww? then mk f a'' b'' else mk f a' b'
 
-partial def toInt (e : Expr) : ToIntM (Expr × Expr) := do
+private partial def toInt' (e : Expr) : ToIntM (Expr × Expr) := do
   match_expr e with
   | HAdd.hAdd α β γ _ a b =>
     unless isHomo α β γ do return (← mkToIntVar e)
@@ -281,12 +287,12 @@ partial def toInt (e : Expr) : ToIntM (Expr × Expr) := do
 where
   toIntBin (toIntOp : ToIntThms) (mkBinOp : Expr → Expr → Expr) (a b : Expr) : ToIntM (Expr × Expr) := do
     unless toIntOp.c?.isSome do return (← mkToIntVar e)
-    let (a', h₁) ← toInt a
-    let (b', h₂) ← toInt b
+    let (a', h₁) ← toInt' a
+    let (b', h₂) ← toInt' b
     toIntOp.mkResult mkBinOp a b a' b' h₁ h₂
 
   toIntAndExpandWrap (a : Expr) : ToIntM (Expr × Expr) := do
-    let (a', h₁) ← toInt a
+    let (a', h₁) ← toInt' a
     expandIfWrap a a' h₁
 
   processDivMod (isDiv : Bool) (a b : Expr) : ToIntM (Expr × Expr) := do
@@ -320,11 +326,18 @@ where
     let h := mkApp4 thm a b a' h₁
     return (r, h)
 
-def toInt? (a : Expr) (type : Expr) : GoalM (Option (Expr × Expr)) := do
-  ToIntM.run? type do
-    let (b, h) ← toInt a
-    match isWrap b with
+def toInt (a : Expr) : ToIntM (Expr × Expr) := do
+  let (b, h) ← toInt' a
+  let (b, h) ← match isWrap b with
     | some b' => expandWrap a b' h
-    | _ => return (b, h)
+    | _ => pure (b, h)
+  let r ← preprocess b
+  if let some proof := r.proof? then
+    return (r.expr, (← mkEqTrans h proof))
+  else
+    return (r.expr, h)
+
+def toInt? (a : Expr) (type : Expr) : GoalM (Option (Expr × Expr)) := do
+  ToIntM.run? type do toInt a
 
 end Lean.Meta.Grind.Arith.Cutsat

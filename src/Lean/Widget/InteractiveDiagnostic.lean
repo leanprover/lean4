@@ -8,7 +8,7 @@ prelude
 import Lean.Linter.UnusedVariables
 import Lean.Server.Utils
 import Lean.Widget.InteractiveGoal
-import Init.Data.Slice.Array
+import Init.Data.Slice.Array.Basic
 import Init.Data.Array.Subarray.Split
 
 namespace Lean.Widget

@@ -6,9 +6,9 @@ Authors: Sebastian Ullrich, Andrew Kent, Leonardo de Moura
 module
 
 prelude
-import Init.Data.Array.Subarray
 import Init.Data.Range
-import Init.Data.Slice.Array
+import Init.Data.Array.Subarray
+private import Init.Data.Slice.Array.Basic
 
 /-!
 Remark: we considered using the following alternative design
@@ -67,6 +67,7 @@ instance (priority := low) [Stream ρ α] : ForIn m ρ α where
 instance : ToStream (List α) (List α) where
   toStream c := c
 
+@[no_expose]
 instance : ToStream (Array α) (Subarray α) where
   toStream a := a[*...*]
 

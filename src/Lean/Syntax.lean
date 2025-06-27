@@ -5,7 +5,6 @@ Author: Sebastian Ullrich, Leonardo de Moura
 -/
 prelude
 import Init.Data.Range
-import Init.Data.Slice.Array
 import Init.Data.Hashable
 import Lean.Data.Name
 import Lean.Data.Format

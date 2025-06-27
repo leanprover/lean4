@@ -8,7 +8,6 @@ module
 prelude
 import Init.Data.Array.Basic
 import Init.Data.Slice.Basic
-import Init.Data.Range.Polymorphic
 
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 set_option linter.missingDocs true

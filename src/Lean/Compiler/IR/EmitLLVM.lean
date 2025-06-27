@@ -1375,7 +1375,7 @@ def callLeanInitialize (builder : LLVM.Builder llvmctx) : M llvmctx Unit := do
   let _ ← LLVM.buildCall2 builder fnty fn #[]
 
 def callLeanSetupLibUV (builder : LLVM.Builder llvmctx) (argc argv : LLVM.Value llvmctx) : M llvmctx (LLVM.Value llvmctx) := do
-  let fnName := "lean_setup_libuv"
+  let fnName := "lean_setup_args"
   let intTy ← LLVM.i32Type llvmctx
   let charPtrPtrTy ← LLVM.pointerType (← LLVM.pointerType (← LLVM.i8Type llvmctx))
   let argtys := #[intTy, charPtrPtrTy]

@@ -110,7 +110,7 @@ where
 
   go? : GoalM (Option ToIntInfo) := withNewMCtxDepth do
     let u' ← getLevel type
-    let u ← decLevel u'
+    let some u ← decLevel? u' | return none
     let rangeExpr ← mkFreshExprMVar (mkConst ``Grind.IntInterval)
     let toIntType := mkApp2 (mkConst ``Grind.ToInt [u]) type rangeExpr
     let .some toIntInst ← trySynthInstance toIntType |

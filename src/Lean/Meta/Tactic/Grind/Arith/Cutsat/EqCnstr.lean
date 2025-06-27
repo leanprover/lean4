@@ -237,6 +237,17 @@ private def processNewNatEq (a b : Expr) : GoalM Unit := do
   trace[grind.debug.cutsat.nat] "{← c.pp}"
   c.assert
 
+private def processNewToIntEq (a b : Expr) : ToIntM Unit := do
+  let gen := max (← getGeneration a) (← getGeneration b)
+  let (a', h₁) ← toInt a
+  let (b', h₂) ← toInt b
+  let thm := mkApp6 (← getInfo).ofEq a b a' b' h₁ h₂
+  let lhs ← toLinearExpr a' gen
+  let rhs ← toLinearExpr b' gen
+  let p := lhs.sub rhs |>.norm
+  let c := { p, h := .coreToInt a b thm lhs rhs : EqCnstr }
+  c.assert
+
 @[export lean_process_cutsat_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
   unless (← getConfig).cutsat do return ()
@@ -244,6 +255,11 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
     processNewNatEq a b
   else if (← isIntTerm a <&&> isIntTerm b) then
     processNewIntEq a b
+  else
+    let some α ← getToIntTermType? a | return ()
+    let some β ← getToIntTermType? b | return ()
+    unless isSameExpr α β do return ()
+    ToIntM.run α do processNewToIntEq a b
 
 private def processNewIntDiseq (a b : Expr) : GoalM Unit := do
   let p₁ ← exprAsPoly a
@@ -265,6 +281,17 @@ private def processNewNatDiseq (a b : Expr) : GoalM Unit := do
   let c := { p, h := .coreNat a b lhs rhs lhs' rhs' : DiseqCnstr }
   c.assert
 
+private def processNewToIntDiseq (a b : Expr) : ToIntM Unit := do
+  let gen := max (← getGeneration a) (← getGeneration b)
+  let (a', h₁) ← toInt a
+  let (b', h₂) ← toInt b
+  let thm := mkApp6 (← getInfo).ofDiseq a b a' b' h₁ h₂
+  let lhs ← toLinearExpr a' gen
+  let rhs ← toLinearExpr b' gen
+  let p := lhs.sub rhs |>.norm
+  let c := { p, h := .coreToInt a b thm lhs rhs : DiseqCnstr }
+  c.assert
+
 @[export lean_process_cutsat_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
   unless (← getConfig).cutsat do return ()
@@ -272,6 +299,11 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
     processNewNatDiseq a b
   else if (← isIntTerm a <&&> isIntTerm b) then
     processNewIntDiseq a b
+  else
+    let some α ← getToIntTermType? a | return ()
+    let some β ← getToIntTermType? b | return ()
+    unless isSameExpr α β do return ()
+    ToIntM.run α do processNewToIntDiseq a b
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where
@@ -388,6 +420,36 @@ private def isToIntForbiddenParent (parent? : Option Expr) : Bool :=
   else
     false
 
+private def internalizeIntTerm (e type : Expr) (parent? : Option Expr) (k : SupportedTermKind) : GoalM Unit := do
+  if isForbiddenParent parent? k then return ()
+  trace[grind.debug.cutsat.internalize] "{e} : {type}"
+  match k with
+  | .div => propagateDiv e
+  | .mod => propagateMod e
+  | _ => internalizeInt e
+
+private def internalizeNatTerm (e type : Expr) (parent? : Option Expr) (k : SupportedTermKind) : GoalM Unit := do
+  if isForbiddenParent parent? k then return ()
+  if (← isNatTerm e) then return ()
+  trace[grind.debug.cutsat.internalize] "{e} : {type}"
+  discard <| mkNatVar e
+  match k with
+  | .sub => propagateNatSub e
+  | .natAbs => propagateNatAbs e
+  | .toNat => propagateToNat e
+  | _ => internalizeNat e
+
+private def internalizeToIntTerm (e type : Expr) : GoalM Unit := do
+  if (← isToIntTerm e) then return () -- already internalized
+  if let some (eToInt, he) ← toInt? e type then
+    trace[grind.debug.cutsat.internalize] "{e} : {type}"
+    trace[grind.debug.cutsat.toInt] "{e} ==> {eToInt}"
+    let α := type
+    modify' fun s => { s with
+      toIntTermMap := s.toIntTermMap.insert { expr := e } { eToInt, he, α }
+    }
+    markAsCutsatTerm e
+
 /--
 Internalizes an integer (and `Nat`) expression. Here are the different cases that are handled.
 
@@ -399,35 +461,54 @@ Internalizes an integer (and `Nat`) expression. Here are the different cases tha
 -/
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).cutsat do return ()
-  let some (k, type) := getKindAndType? e | return ()
-  if type.isConstOf ``Int then
-    if isForbiddenParent parent? k then return ()
-    trace[grind.debug.cutsat.internalize] "{e} : {type}"
-    match k with
-    | .div => propagateDiv e
-    | .mod => propagateMod e
-    | _ => internalizeInt e
-  else if type.isConstOf ``Nat then
-    if isForbiddenParent parent? k then return ()
-    if (← isNatTerm e) then return ()
-    trace[grind.debug.cutsat.internalize] "{e} : {type}"
-    discard <| mkNatVar e
-    match k with
-    | .sub => propagateNatSub e
-    | .natAbs => propagateNatAbs e
-    | .toNat => propagateToNat e
-    | _ => internalizeNat e
+  if let some (k, type) := getKindAndType? e then
+    if type.isConstOf ``Int then
+      internalizeIntTerm e type parent? k
+    else if type.isConstOf ``Nat then
+      internalizeNatTerm e type parent? k
+    else
+      if isToIntForbiddenParent parent? then return ()
+      internalizeToIntTerm e type
   else
-    if isToIntForbiddenParent parent? then return ()
-    -- Term has already been internalized
-    if (← isToIntTerm e) then return ()
-    if let some (eToInt, he) ← toInt? e type then
-      trace[grind.debug.cutsat.internalize] "{e} : {type}"
-      trace[grind.debug.cutsat.toInt] "{e} ==> {eToInt}"
-      let α := type
-      modify' fun s => { s with
-        toIntTermMap := s.toIntTermMap.insert { expr := e } { eToInt, he, α }
-      }
-      markAsCutsatTerm e
+    /-
+    Remark: types implementing the `ToInt` class have a finite number
+    of elements. Thus, we must internalize all of them. Otherwise,
+    `grind` would fail to solve
+    ```
+    example (a : Fin 2) : a ≠ 0 → a ≠ 1 → False := by
+      grind
+    ```
+    It is not sufficient to internalize only the terms occurring in equalities and inequalities.
+    Here is an example where we must internalize `a`.
+    ```
+    example (a : Fin 2) (f : Fin 2 → Nat) : f 0 = 1 → f 1 = 1 → f a = 1 → False := by
+      grind
+    ```
+    Note that is not sufficient to internalize only the local declarations (e.g., `a`).
+    ```
+    example (g : Nat → Fin 2) (f : Fin 2 → Nat) : f 0 = 1 → f 1 = 1 → f (g 1) = 1 → False := by
+      grind
+    ```
+    That said, we currently do **not** support model-based theory combination for `ToInt` types.
+    Thus, we consider the extra terms occurring in equalities.
+
+    Recall that skip internalizing `Int` variables occurring in terms such as
+    ```
+    a = b
+    ```
+    is fine, because `Int` has an infinite number of elements, just using
+    the information in core, we can always find an assignment for them if even they have
+    not been internalized.
+
+    TODO: infer type and internalize all terms `a : α` s.t. `[ToInt α]` after we add
+    model-based theory combination for `ToInt`. One concern is performance, we will have
+    to use `inferType` again, and perform some form of canonicalization. Running
+    `ToInt` for them may be too expensive because the `ToInt` type class has output parameters.
+    Perhaps, we should have a `HasToInt` auxiliary class without output parameters.
+    -/
+    let_expr Eq α a b := e | return ()
+    unless (← getToIntInfo? α).isSome do return ()
+    internalizeToIntTerm a α
+    internalizeToIntTerm b α
 
 end Lean.Meta.Grind.Arith.Cutsat

@@ -42,3 +42,37 @@ example (a : UInt8) : a ≤ 255 := by
 
 example (a : Int8) : a ≥ -128 := by
   grind
+
+example (a b c : Fin 11) : c ≤ 9 → a ≤ b → b = c → a < c + 1 := by
+  grind
+
+example (a b c : Fin 11) : a = 2 → b = 3 → c = a + b → c ≤ 5 := by
+  grind
+
+example (a b c : Fin 11) : a ≤ 2 → b ≤ 3 → c = a + b → c ≤ 5 := by
+  grind
+
+-- TODO: too expensive
+-- example (a b c : UInt32) : a ≤ 2 → b ≤ 3 → c = a + b → c ≤ 5 := by
+--   grind
+
+example (a b : Fin 15) : a = 0 → b = 1 → a + b > 2 → False := by
+  grind
+
+example (a b c : UInt32) :
+    -a + -c > 1 →
+    a + 2*b = 0 →
+    -c + 2*b = 0 → False := by
+  grind
+
+example (a b : Fin 15) : a = 0 → b = 1 → a + b = 1 := by
+  grind
+
+example (a b : Fin 2) : a + b ≠ 0 → a + b ≠ 1 → False := by
+  grind
+
+example (a : Fin 4) : 1 < a → a ≠ 2 → a ≠ 3 → False := by
+  grind
+
+example (a : Fin 2) : a ≠ 0 → a ≠ 1 → False := by
+  grind

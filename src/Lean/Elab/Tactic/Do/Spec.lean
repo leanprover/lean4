@@ -77,7 +77,7 @@ partial def dischargePostEntails (α : Expr) (ps : Expr) (Q : Expr) (Q' : Expr) 
   if let some _fvarId := Q.fvarId? then
     return ← discharge (mkApp4 (mkConst ``PostCond.entails) α ps Q Q') (goalTag ++ `post)
   -- Otherwise decompose the conjunction
-  let prf₁ ← withLocalDeclD Name.anonymous α fun a => do
+  let prf₁ ← withLocalDeclD (← liftMetaM <| mkFreshUserName `r) α fun a => do
     let Q1a := (← mkProj' ``Prod 0 Q).betaRev #[a]
     let Q'1a := (← mkProj' ``Prod 0 Q').betaRev #[a]
     let σs := mkApp (mkConst ``PostShape.args) ps
@@ -102,7 +102,7 @@ partial def dischargeFailEntails (ps : Expr) (Q : Expr) (Q' : Expr) (goalTag : N
   if let some (ε, ps) := ps.app2? ``PostShape.except then
     let Q ← whnfR Q
     let Q' ← whnfR Q'
-    let prf₁ ← withLocalDeclD Name.anonymous ε fun e => do
+    let prf₁ ← withLocalDeclD (← liftMetaM <| mkFreshUserName `e) ε fun e => do
       let Q1e := (← mkProj' ``Prod 0 Q).betaRev #[e]
       let Q'1e := (← mkProj' ``Prod 0 Q').betaRev #[e]
       let σs := mkApp (mkConst ``PostShape.args) ps
@@ -139,9 +139,7 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n (SpecTheorem × List MVarId)
     unless T.getAppFn.constName! == ``PredTrans.apply do
       liftMetaM (throwError "target not a PredTrans.apply application {indentExpr T}")
     let wp := T.getArg! 2
-    liftMetaM <| do trace[Elab.Tactic.Do.spec] "before elabSpecAtWP {wp}"
     let (specThm, elabMVars) ← elabSpecAtWP wp
-    liftMetaM <| do trace[Elab.Tactic.Do.spec] "after elabSpecAtWP {specThm.proof} {wp}"
 
     -- The precondition of `specThm` might look like `⌜?n = ‹Nat›ₛ ∧ ?m = ‹Bool›ₛ⌝`, which expands to
     -- `SVal.curry (fun tuple => ?n = SVal.uncurry (getThe Nat tuple) ∧ ?m = SVal.uncurry (getThe Bool tuple))`.
@@ -164,13 +162,11 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n (SpecTheorem × List MVarId)
     let Q' := args[3]!
     let excessArgs := (args.extract 4 args.size).reverse
 
-    liftMetaM <| do trace[Elab.Tactic.Do.spec] "before WTF {wp} {spec} {specTy}"
     -- Actually instantiate the specThm using the expected type computed from `wp`.
     let_expr f@Triple m ps instWP α prog P Q := specTy | do liftMetaM (throwError "target not a Triple application {specTy}")
     let wp' := mkApp5 (mkConst ``WP.wp f.constLevels!) m ps instWP α prog
     unless (← withAssignableSyntheticOpaque <| isDefEq wp wp') do
       Term.throwTypeMismatchError none wp wp' spec
-    liftMetaM <| do trace[Elab.Tactic.Do.spec] "WTF {wp} {wp'} {spec} {specTy}"
 
     let P := P.betaRev excessArgs
     let spec := spec.betaRev excessArgs

@@ -3,8 +3,8 @@ Copyright (c) 2025 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
-import Lean.Elab.Tactic.Do
 import Std.Do
+import Std.Tactic.Do
 
 open Std.Do
 
@@ -22,7 +22,7 @@ theorem exact (Q : SPred σs) : Q ⊢ₛ Q := by
   mexact HQ
 
 theorem exact_pure (P Q : SPred σs) (hP : ⊢ₛ P): Q ⊢ₛ P := by
-  mintro _
+  mintro -
   mexact hP
 
 theorem clear (P Q : SPred σs) : P ⊢ₛ Q → Q := by

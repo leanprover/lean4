@@ -14,13 +14,6 @@ open Lean Elab Tactic Meta
 
 -- #synth ∀ {w x P Q y z}, HasFrame spred(⌜w = 2⌝ ∧ ⌜x = 3⌝ ∧ P ∧ ⌜y = 4⌝ ∧ Q ∧ ⌜z=6⌝) _ _
 
-theorem Frame.frame {σs : List Type} {P Q T : SPred σs} {φ : Prop} [HasFrame P Q φ]
-  (h : φ → Q ⊢ₛ T) : P ⊢ₛ T := by
-    apply SPred.pure_elim
-    · exact HasFrame.reassoc.mp.trans SPred.and_elim_r
-    · intro hp
-      exact HasFrame.reassoc.mp.trans (SPred.and_elim_l' (h hp))
-
 /-- If `P'` is a conjunction of unnamed hypotheses that are a subset of the named hypotheses of `P`,
 transfer the names of the hypotheses of `P` to the hypotheses of `P'`. -/
 partial def transferHypNames (P P' : Expr) : MetaM Expr := (·.snd) <$> label (collectHyps P) P'

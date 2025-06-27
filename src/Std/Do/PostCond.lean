@@ -182,7 +182,7 @@ theorem FailConds.and_eq_left {ps : PostShape} {p q : FailConds ps} (h : p ⊢�
 abbrev PostCond (α : Type) (s : PostShape) : Type :=
   (α → Assertion s) × FailConds s
 
-scoped macro:max "post⟨" handlers:term,+ "⟩" : term =>
+scoped macro:max "post⟨" handlers:term,+,? "⟩" : term =>
   `(by exact ⟨$handlers,*, ()⟩)
   -- NB: Postponement through by exact is the entire point of this macro
   -- until https://github.com/leanprover/lean4/pull/8074 lands

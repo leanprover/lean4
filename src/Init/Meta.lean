@@ -1430,7 +1430,7 @@ def expandInterpolatedStrChunks (chunks : Array Syntax) (mkAppend : Syntax → S
   let mut i := 0
   let mut result := Syntax.missing
   for elem in chunks do
-    let elem ← match elem.isInterpolatedStrLit? with
+    let elem ← withRef elem <| match elem.isInterpolatedStrLit? with
       | none     => mkElem elem
       | some str => mkElem (Syntax.mkStrLit str)
     if i == 0 then

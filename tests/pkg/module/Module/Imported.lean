@@ -45,7 +45,7 @@ example : P fexp := by dsimp only [fexp_trfl']; exact hP1
 example : t = t := by dsimp only [trfl]
 
 /--
-error: invalid field 'eq_def', the environment does not contain 'Nat.eq_def'
+error: Invalid field `eq_def`: The environment does not contain `Nat.eq_def`
   f
 has type
   Nat
@@ -54,7 +54,7 @@ has type
 #check f.eq_def
 
 /--
-error: invalid field 'eq_unfold', the environment does not contain 'Nat.eq_unfold'
+error: Invalid field `eq_unfold`: The environment does not contain `Nat.eq_unfold`
   f
 has type
   Nat

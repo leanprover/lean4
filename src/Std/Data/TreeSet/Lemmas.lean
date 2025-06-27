@@ -11,7 +11,7 @@ import Std.Data.TreeSet.AdditionalOperations
 /-!
 # Tree set lemmas
 
-This file contains lemmas about `Std.Data.TreeSet`. Most of the lemmas require
+This file contains lemmas about `Std.TreeSet`. Most of the lemmas require
 `TransCmp cmp` for the comparison function `cmp`.
 -/
 

@@ -1,7 +1,7 @@
 /--
-error: Invalid field notation: type of
+error: Invalid projection: Type of
   x✝
-is not known; cannot resolve field '1'
+is not known; cannot resolve projection `1`
 ---
 error: unsolved goals
 case refine'_1

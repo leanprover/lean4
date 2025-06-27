@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Joe Hendrix, Harun Khan, Alex Keizer, Abdalrhman M Mohamed, Siddharth Bhat
+Authors: Joe Hendrix, Harun Khan, Alex Keizer, Abdalrhman M Mohamed, Siddharth Bhat, Luisa Cicolini
 -/
 module
 
@@ -4312,6 +4312,15 @@ theorem toNat_sdiv {x y : BitVec w} : (x.sdiv y).toNat =
   simp only [sdiv_eq]
   by_cases h : x.msb <;> by_cases h' : y.msb <;> simp [h, h']
 
+theorem toFin_sdiv {x y : BitVec w} : (x.sdiv y).toFin =
+    match x.msb, y.msb with
+    | false, false => x.toFin / y.toFin
+    | false, true => (-(x / -y)).toFin
+    | true, false => (-(-x / y)).toFin
+    | true, true => (-x).toFin / (-y).toFin := by
+  simp only [sdiv_eq]
+  by_cases hx : x.msb <;> by_cases hy : y.msb <;> simp [hx, hy]
+
 @[simp]
 theorem zero_sdiv {x : BitVec w} : (0#w).sdiv x = 0#w := by
   simp only [sdiv_eq]
@@ -4488,6 +4497,24 @@ theorem srem_eq (x y : BitVec w) : srem x y =
 @[simp] theorem srem_self {x : BitVec w} : x.srem x = 0#w := by
   cases h : x.msb <;> simp [h, srem_eq]
 
+theorem toNat_srem {x y : BitVec w} : (x.srem y).toNat =
+    match x.msb, y.msb with
+    | false, false => x.toNat % y.toNat
+    | false, true => x.toNat % (-y).toNat
+    | true, false => (-(-x % y)).toNat
+    | true, true => (-(-x % -y)).toNat := by
+  simp only [srem_eq]
+  by_cases hx : x.msb <;> by_cases hy : y.msb <;> simp [hx, hy]
+
+theorem toFin_srem {x y : BitVec w} : (x.srem y).toFin =
+    match x.msb, y.msb with
+    | false, false => x.toFin % y.toFin
+    | false, true => x.toFin % (-y).toFin
+    | true, false => (-(-x % y)).toFin
+    | true, true => (-(-x % -y)).toFin := by
+  simp only [srem_eq, toFin_neg, toNat_umod, toNat_neg]
+  by_cases hx : x.msb <;> by_cases hy : y.msb <;> simp [hx, hy]
+
 /-! ### smod -/
 
 /-- Equation theorem for `smod` in terms of `umod`. -/
@@ -4521,6 +4548,19 @@ theorem toNat_smod {x y : BitVec w} : (x.smod y).toNat =
   <;> simp only [h, h', h'', h''']
   <;> simp only [umod, toNat_eq, toNat_ofNatLT, toNat_ofNat, Nat.zero_mod] at h'' h'''
   <;> simp
+
+theorem toFin_smod {x y : BitVec w} : (x.smod y).toFin =
+    match x.msb, y.msb with
+    | false, false => x.toFin % y.toFin
+    | false, true => if x % -y = 0#w then 0 else (x % -y + y).toFin
+    | true, false => if -x % y = 0#w then 0 else (y - (-x % y)).toFin
+    | true, true => (-(-x % -y)).toFin := by
+  simp only [smod_eq]
+  by_cases hx : x.msb <;> by_cases hy : y.msb
+  · simp [hx, hy]
+  · by_cases hzero : -x % y = 0#w <;> simp [hx, hy, hzero]
+  · by_cases hzero : x % -y = 0#w <;> simp [hx, hy, hzero]
+  · simp [hx, hy]
 
 @[simp]
 theorem smod_zero {x : BitVec w} : x.smod 0#w = x := by

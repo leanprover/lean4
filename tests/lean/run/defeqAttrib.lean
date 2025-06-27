@@ -22,7 +22,7 @@ theorem a_eq_c'' : a = c := Eq.refl _
 @[defeq] theorem a_eq_c''' : ac := by with_unfolding_all rfl
 @[defeq] theorem a_eq_d : a = d := by simp [d]
 
-/-- error: Not a definitional equality: the conclusion should be an equality, but is True -/
+/-- error: Not a definitional equality: the conclusion should be an equality, but is `True` -/
 #guard_msgs in
 @[defeq] def not_an_eq : True := trivial
 

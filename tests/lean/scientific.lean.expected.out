@@ -21,7 +21,9 @@ scientific.lean:22:9: error: missing exponent digits in scientific literal
 scientific.lean:23:9: error: missing exponent digits in scientific literal
 scientific.lean:24:9: error: missing exponent digits in scientific literal
 scientific.lean:25:9: error: missing exponent digits in scientific literal
-scientific.lean:26:7-26:8: error: invalid dotted identifier notation, unknown identifier `Nat.E` from expected type
+scientific.lean:26:7-26:8: error: Unknown identifier `Nat.E`
+
+Note: Inferred this identifier from the expected type of `.E`:
   Nat
 scientific.lean:27:7-27:9: error: unknown identifier 'E3'
 scientific.lean:28:7: error: missing exponent digits in scientific literal

@@ -77,7 +77,7 @@ warning: This simp argument is unused:
   (some_def.eq_def)
 
 Hint: Omit it from the simp argument list.
-  simp [some_def, (̵some_def.eq_def)̵,̵ ̵s̵o̵m̵e̵_̵d̵e̵f̵.̵e̵q̵_̵d̵e̵f̵]
+  simp [some_def, (̵s̵o̵m̵e̵_̵d̵e̵f̵.̵e̵q̵_̵d̵e̵f̵)̵,̵ ̵some_def.eq_def]
 
 Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 ---

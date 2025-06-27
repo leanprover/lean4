@@ -17166,12 +17166,12 @@ goto block_205;
 block_96:
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; uint8_t x_34; uint8_t x_35; uint8_t x_36; lean_object* x_37; 
-x_24 = lean_array_get_size(x_20);
+x_24 = lean_array_get_size(x_22);
 lean_inc(x_18);
-x_25 = l_Array_toSubarray___redArg(x_20, x_18, x_24);
+x_25 = l_Array_toSubarray___redArg(x_22, x_18, x_24);
 x_26 = l_Array_ofSubarray___redArg(x_25);
 lean_dec(x_25);
-x_27 = l_Array_append___redArg(x_22, x_26);
+x_27 = l_Array_append___redArg(x_20, x_26);
 lean_dec(x_26);
 x_28 = lean_array_get_size(x_17);
 x_29 = l_Array_toSubarray___redArg(x_17, x_18, x_28);
@@ -17420,9 +17420,9 @@ if (x_109 == 0)
 lean_free_object(x_100);
 lean_dec(x_13);
 x_19 = x_108;
-x_20 = x_98;
+x_20 = x_107;
 x_21 = x_99;
-x_22 = x_107;
+x_22 = x_98;
 x_23 = x_103;
 goto block_96;
 }
@@ -17505,9 +17505,9 @@ x_152 = lean_ctor_get(x_151, 1);
 lean_inc(x_152);
 lean_dec(x_151);
 x_19 = x_108;
-x_20 = x_98;
+x_20 = x_107;
 x_21 = x_99;
-x_22 = x_107;
+x_22 = x_98;
 x_23 = x_152;
 goto block_96;
 }
@@ -17538,9 +17538,9 @@ if (x_160 == 0)
 {
 lean_dec(x_13);
 x_19 = x_159;
-x_20 = x_98;
+x_20 = x_158;
 x_21 = x_99;
-x_22 = x_158;
+x_22 = x_98;
 x_23 = x_154;
 goto block_96;
 }
@@ -17623,9 +17623,9 @@ x_204 = lean_ctor_get(x_203, 1);
 lean_inc(x_204);
 lean_dec(x_203);
 x_19 = x_159;
-x_20 = x_98;
+x_20 = x_158;
 x_21 = x_99;
-x_22 = x_158;
+x_22 = x_98;
 x_23 = x_204;
 goto block_96;
 }
@@ -17799,12 +17799,12 @@ goto block_205;
 block_96:
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; uint8_t x_34; uint8_t x_35; uint8_t x_36; lean_object* x_37; 
-x_24 = lean_array_get_size(x_21);
+x_24 = lean_array_get_size(x_22);
 lean_inc(x_18);
-x_25 = l_Array_toSubarray___redArg(x_21, x_18, x_24);
+x_25 = l_Array_toSubarray___redArg(x_22, x_18, x_24);
 x_26 = l_Array_ofSubarray___redArg(x_25);
 lean_dec(x_25);
-x_27 = l_Array_append___redArg(x_22, x_26);
+x_27 = l_Array_append___redArg(x_21, x_26);
 lean_dec(x_26);
 x_28 = lean_array_get_size(x_17);
 x_29 = l_Array_toSubarray___redArg(x_17, x_18, x_28);
@@ -18054,8 +18054,8 @@ lean_free_object(x_100);
 lean_dec(x_13);
 x_19 = x_108;
 x_20 = x_99;
-x_21 = x_98;
-x_22 = x_107;
+x_21 = x_107;
+x_22 = x_98;
 x_23 = x_103;
 goto block_96;
 }
@@ -18139,8 +18139,8 @@ lean_inc(x_152);
 lean_dec(x_151);
 x_19 = x_108;
 x_20 = x_99;
-x_21 = x_98;
-x_22 = x_107;
+x_21 = x_107;
+x_22 = x_98;
 x_23 = x_152;
 goto block_96;
 }
@@ -18172,8 +18172,8 @@ if (x_160 == 0)
 lean_dec(x_13);
 x_19 = x_159;
 x_20 = x_99;
-x_21 = x_98;
-x_22 = x_158;
+x_21 = x_158;
+x_22 = x_98;
 x_23 = x_154;
 goto block_96;
 }
@@ -18257,8 +18257,8 @@ lean_inc(x_204);
 lean_dec(x_203);
 x_19 = x_159;
 x_20 = x_99;
-x_21 = x_98;
-x_22 = x_158;
+x_21 = x_158;
+x_22 = x_98;
 x_23 = x_204;
 goto block_96;
 }

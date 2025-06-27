@@ -1,5 +1,5 @@
 /--
-error: Invalid dotted identifier notation: not supported on type
+error: Invalid dotted identifier notation: Not supported on type universe
   Prop
 -/
 #guard_msgs in
@@ -10,7 +10,7 @@ def foo (n : Nat) : Nat :=
 
 set_option pp.mvars.anonymous false in
 /--
-error: Invalid dotted identifier notation: not supported on type
+error: Invalid dotted identifier notation: Not supported on type universe
   Sort _
 -/
 #guard_msgs in
@@ -21,7 +21,7 @@ def foo2 (n : Nat) : Nat :=
 def Prop.true := True
 
 /--
-error: Invalid dotted identifier notation: not supported on type
+error: Invalid dotted identifier notation: Not supported on type universe
   Prop
 -/
 #guard_msgs in

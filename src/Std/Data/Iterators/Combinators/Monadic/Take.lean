@@ -130,7 +130,7 @@ instance Take.instFinite [Monad m] [Iterator α m β] [Productive α m] :
     Finite (Take α m β) m :=
   Finite.of_finitenessRelation instFinitenessRelation
 
-instance Take.instIteratorCollect [Monad m] [Monad n] [Iterator α m β] [Productive α m] :
+instance Take.instIteratorCollect [Monad m] [Monad n] [Iterator α m β] :
     IteratorCollect (Take α m β) m n :=
   .defaultImplementation
 
@@ -139,12 +139,12 @@ instance Take.instIteratorCollectPartial [Monad m] [Monad n] [Iterator α m β] 
   .defaultImplementation
 
 instance Take.instIteratorLoop [Monad m] [Monad n] [Iterator α m β]
-    [IteratorLoop α m n] [MonadLiftT m n] :
+    [MonadLiftT m n] :
     IteratorLoop (Take α m β) m n :=
   .defaultImplementation
 
 instance Take.instIteratorLoopPartial [Monad m] [Monad n] [Iterator α m β]
-    [IteratorLoopPartial α m n] [MonadLiftT m n] :
+    [MonadLiftT m n] :
     IteratorLoopPartial (Take α m β) m n :=
   .defaultImplementation
 

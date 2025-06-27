@@ -11,7 +11,7 @@ import Std.Data.DTreeMap.AdditionalOperations
 /-!
 # Dependent tree map lemmas
 
-This file contains lemmas about `Std.Data.DTreeMap`. Most of the lemmas require
+This file contains lemmas about `Std.DTreeMap`. Most of the lemmas require
 `TransCmp cmp` for the comparison function `cmp`.
 -/
 
@@ -4769,6 +4769,16 @@ end Const
 end Equiv
 
 section Equiv
+
+/-- Implementation detail of the tree map -/
+def isSetoid (α : Type u) (β : α → Type v) (cmp : α → α → Ordering := by exact compare) :
+    Setoid (Std.DTreeMap α β cmp) where
+  r := Equiv
+  iseqv := {
+    refl _ := .rfl
+    symm := .symm
+    trans := .trans
+  }
 
 variable {t₁ t₂ : DTreeMap α β cmp}
 

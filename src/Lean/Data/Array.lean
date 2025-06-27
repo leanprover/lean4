@@ -5,6 +5,7 @@ Authors: Joachim Breitner
 -/
 prelude
 import Init.Data.Range.Polymorphic.Nat
+import Init.Data.Range.Polymorphic.Iterators
 
 namespace Array
 

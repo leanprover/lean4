@@ -140,7 +140,7 @@ def getSimpContext : MetaM Simp.Context := do
   Simp.mkContext
     (simpTheorems  := #[s])
     (congrTheorems := (← getSimpCongrTheorems))
-    (config        := { Simp.neutralConfig with dsimp := false })
+    (config        := { Simp.neutralConfig with dsimp := false, letToHave := true })
 
 /--
   Default `discharge?` function for `simpIf` methods.

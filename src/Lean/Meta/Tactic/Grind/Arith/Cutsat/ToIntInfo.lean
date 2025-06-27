@@ -67,6 +67,7 @@ structure ToIntInfo where
   divThm?   : Option Expr
   modThm?   : Option Expr
   powThm?   : Option Expr
-  -- TODO: other operators
+  zeroThm?  : Option Expr
+  ofNatThm? : Option Expr
 
 end Lean.Meta.Grind.Arith.Cutsat

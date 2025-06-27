@@ -19,6 +19,16 @@ private def checkDecl (declName : Name) : MetaM Unit := do
   unless (← getEnv).contains declName do
     throwMissingDecl declName
 
+private def mkOfNatThm? (type : Expr) (u : Level) (toIntInst : Expr) (rangeExpr : Expr) : MetaM (Option Expr) := do
+  -- ∀ n, OfNat α n
+  let ofNat := mkForall `n .default (mkConst ``Nat) (mkApp2 (mkConst ``OfNat [u]) type (mkBVar 0))
+  let .some ofNatInst ← trySynthInstance ofNat
+    | reportMissingToIntAdapter type ofNat; return none
+  let toIntOfNat := mkApp4 (mkConst ``Grind.ToInt.OfNat [u]) type ofNatInst rangeExpr toIntInst
+  let .some toIntOfNatInst ← trySynthInstance toIntOfNat
+    | reportMissingToIntAdapter type toIntOfNat; return none
+  return mkApp5 (mkConst ``Grind.ToInt.ofNat_eq [u]) type rangeExpr toIntInst ofNatInst toIntOfNatInst
+
 /-- Helper function for `mkSimpleOpThm?` and `mkPowThm?` -/
 private def mkSimpleOpThmCore? (type : Expr) (u : Level) (toIntInst : Expr) (rangeExpr : Expr) (op : Expr) (opSuffix : Name) (thmName : Name) : MetaM (Option Expr) := do
   let .some opInst ← trySynthInstance op | return none
@@ -144,10 +154,11 @@ where
     let divThm? ← mkSimpleOpThm? ``Div ``Grind.ToInt.div_congr
     let modThm? ← mkSimpleOpThm? ``Mod ``Grind.ToInt.mod_congr
     let powThm? ← mkPowThm? type u toIntInst rangeExpr
-    -- TODO: other operators
+    let zeroThm? ← mkSimpleOpThm? ``Zero ``Grind.ToInt.zero_eq
+    let ofNatThm? ← mkOfNatThm? type u toIntInst rangeExpr
     return some {
       type, u, toIntInst, rangeExpr, range, toInt, wrap, ofWrap0?, ofEq, ofDiseq, ofLE?, ofNotLE?, ofLT?, ofNotLT?, addThms, mulThms,
-      subThm?, negThm?, divThm?, modThm?, powThm?
+      subThm?, negThm?, divThm?, modThm?, powThm?, zeroThm?, ofNatThm?
     }
 
 structure ToIntM.Context where
@@ -243,7 +254,15 @@ partial def toInt (e : Expr) : ToIntM (Expr × Expr) := do
   | HPow.hPow α β γ _ a b =>
     unless isSameExpr α γ && β.isConstOf ``Nat do return (← toIntDef e)
     processPow a b
-  -- TODO: other operators
+  | Zero.zero _ _ =>
+    let some thm := (← getInfo).zeroThm? | toIntDef e
+    return (mkIntLit 0, thm)
+  | OfNat.ofNat _ n _ =>
+    let some thm := (← getInfo).ofNatThm? | toIntDef e
+    let some n ← getNatValue? n | toIntDef e
+    let r := mkIntLit ((← getInfo).range.wrap n)
+    let h := mkApp thm (toExpr n)
+    return (r, h)
   | _ => toIntDef e
 where
   toIntBin (toIntOp : ToIntThms) (mkBinOp : Expr → Expr → Expr) (a b : Expr) : ToIntM (Expr × Expr) := do

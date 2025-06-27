@@ -233,7 +233,7 @@ where
     | .app fn arg =>
       let fnInstances ← extractInstances fn
       let argInstances ← extractInstances arg
-      return fnInstances ++ argInstances
+      return argInstances ++ fnInstances
     | .mdata _ e =>
       extractInstances e
     | _ =>

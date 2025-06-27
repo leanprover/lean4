@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
-import Lake.Config.Artifact
 import Lake.Config.FacetConfig
 import Lake.Config.TargetConfig
 import Lake.Config.Env
@@ -42,39 +41,9 @@ hydrate_opaque_type OpaqueWorkspace Workspace
 
 namespace Workspace
 
-/-- Whether the workspace supports a local Lake artifact cache. -/
-@[inline] def enableArtifactCache (ws : Workspace) : Bool :=
-  !ws.lakeEnv.cacheDir.toString.isEmpty
-
-/--
-Returns the artifact directory for the local Lake cache.
-
-Will not return a valid path if the artifact cache is disabled (c.f., `enableArtifactCache`).
--/
-@[inline] def artifactDir (ws : Workspace) : FilePath :=
-  ws.lakeEnv.cacheDir / "artifacts"
-
-/--
-Returns the path to artifact in the local Lake cache with extension `ext`.
-
-Will not return a valid path if the artifact cache is disabled (c.f., `enableArtifactCache`).
--/
-def artifactPath (contentHash : Hash) (ext := "art") (ws : Workspace) : FilePath :=
-  ws.artifactDir / if ext.isEmpty then contentHash.toString else s!"{contentHash}.{ext}"
-
-/--
-Returns the path to the artifact in the local Lake cache with extension `ext` if it exists.
-
-The behavior is undefined if the artifact cache is disabled (c.f., `enableArtifactCache`).
--/
-def getArtifact? (contentHash : Hash) (ext := "art") (ws : Workspace) : BaseIO (Option Artifact) := do
-  let path := inline <| ws.artifactPath contentHash ext
-  if let .ok mtime ← getMTime path |>.toBaseIO then
-    return some {path, mtime, hash := contentHash}
-  else if (← path.pathExists) then
-    return some {path, mtime := 0, hash := contentHash}
-  else
-    return none
+/-- The Lake cache. May be disabled. -/
+@[inline] def lakeCache (ws : Workspace) : Cache :=
+  ws.lakeEnv.lakeCache
 
 /-- The path to the workspace's directory (i.e., the directory of the root package). -/
 @[inline] def dir (self : Workspace) : FilePath :=

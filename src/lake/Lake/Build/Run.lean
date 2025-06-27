@@ -202,10 +202,10 @@ def monitorJobs
 
 /-- Save input mappings to the local Lake artifact cache (if enabled). -/
 def Workspace.saveInputs (ws : Workspace) : LogIO Unit := do
-  if ws.enableArtifactCache then
+  unless ws.lakeCache.isDisabled do
     ws.packages.forM fun pkg => do
-      if let some ref := pkg.inputMap? then
-        let inputsFile := pkg.inputsFile ws.lakeEnv.cacheDir
+      if let some ref := pkg.cacheRef? then
+        let inputsFile := pkg.inputsFileIn ws.lakeCache
         (← ref.get).save inputsFile
 
 /--

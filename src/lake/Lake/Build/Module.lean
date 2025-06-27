@@ -303,25 +303,28 @@ def Module.cacheOutputHashes (mod : Module) : IO PUnit := do
     cacheFileHash mod.bcFile
 
 private def ModuleOutputHashes.getArtifactsFrom?
-  (ws : Workspace) (hashes : ModuleOutputHashes)
+  (cache : Cache) (hashes : ModuleOutputHashes)
 : BaseIO (Option ModuleOutputArtifacts) := OptionT.run do
   let mut arts : ModuleOutputArtifacts := {
-    olean := ← ws.getArtifact? hashes.olean "olean"
-    ilean := ← ws.getArtifact? hashes.ilean "ilean"
-    c :=← ws.getArtifact? hashes.c "c"
+    olean := ← cache.getArtifact? hashes.olean "olean"
+    ilean := ← cache.getArtifact? hashes.ilean "ilean"
+    c :=← cache.getArtifact? hashes.c "c"
   }
   if let some hash := hashes.oleanServer? then
-    arts := {arts with oleanServer? := some (← ws.getArtifact? hash "olean.server")}
+    arts := {arts with oleanServer? := some (← cache.getArtifact? hash "olean.server")}
   if let some hash := hashes.oleanPrivate? then
-    arts := {arts with oleanPrivate? := some (← ws.getArtifact? hash "olean.private")}
+    arts := {arts with oleanPrivate? := some (← cache.getArtifact? hash "olean.private")}
   if Lean.Internal.hasLLVMBackend () then
-    arts := {arts with bc? := some (← ws.getArtifact? (← hashes.bc?) "bc")}
+    arts := {arts with bc? := some (← cache.getArtifact? (← hashes.bc?) "bc")}
   return arts
 
-def ModuleOutputHashes.getArtifacts? (hashes : ModuleOutputHashes) : JobM (Option ModuleOutputArtifacts) := do
-  hashes.getArtifactsFrom? (← getWorkspace)
+@[inline] def ModuleOutputHashes.getArtifacts?
+  [MonadLakeEnv m] [MonadLiftT BaseIO m] [Monad m] (hashes : ModuleOutputHashes)
+: m (Option ModuleOutputArtifacts) := do hashes.getArtifactsFrom? (← getLakeCache)
 
-instance : ResolveArtifacts JobM ModuleOutputHashes ModuleOutputArtifacts := ⟨ ModuleOutputHashes.getArtifacts?⟩
+instance
+  [MonadLakeEnv m] [MonadLiftT BaseIO m] [Monad m]
+: ResolveArtifacts m ModuleOutputHashes ModuleOutputArtifacts := ⟨ ModuleOutputHashes.getArtifacts?⟩
 
 /-- Save module build artifacts to the local Lake cache. Requires the artifact cache to be enabled. -/
 private def Module.cacheOutputArtifacts (mod : Module) : JobM ModuleOutputArtifacts := do
@@ -394,7 +397,7 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifacts) := d
     }
     let inputHash := depTrace.hash
     let savedTrace ← readTraceFile mod.traceFile
-    if let some ref := mod.pkg.inputMap? then
+    if let some ref := mod.pkg.cacheRef? then
       if let some arts ← resolveArtifactsUsing? ModuleOutputHashes inputHash savedTrace ref then
         let arts ← mod.restoreArtifacts arts
         savedTrace.replayIfExists
@@ -416,9 +419,9 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifacts) := d
           bc? := ← if Lean.Internal.hasLLVMBackend () then some <$> computeFileHash mod.bcFile else pure none
           : ModuleOutputHashes
         }
-    if let some ref := mod.pkg.inputMap? then
+    if let some ref := mod.pkg.cacheRef? then
       let arts ← mod.cacheOutputArtifacts
-      ref.modify (·.insert inputHash (toJson arts.hashes))
+      ref.insert inputHash arts.hashes
       return arts
     else
       return {

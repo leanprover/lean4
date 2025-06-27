@@ -7,8 +7,10 @@ prelude
 import Lake.Util.Name
 import Lake.Util.NativeLib
 import Lake.Config.InstallPath
+import Lake.Config.Cache
 
-open System Lean
+open System
+open Lean hiding SearchPath
 
 /-! # Lake's Environment
 Definitions related to a Lake environment.
@@ -37,8 +39,8 @@ structure Env where
   Can be overridden on a per-command basis with`--try-cache`.
   -/
   noCache : Bool
-  /-- The directory of the local Lake artifact cache. If empty, the cache is disabled. -/
-  cacheDir : FilePath
+  /-- The directory of the Lake cache. If `none`, the cache is disabled. -/
+  lakeCache : Cache
   /-- The initial Elan toolchain of the environment (i.e., `ELAN_TOOLCHAIN`). -/
   initToolchain : String
   /-- The initial Lean library search path of the environment (i.e., `LEAN_PATH`). -/
@@ -97,7 +99,7 @@ def compute
     pkgUrlMap := ← computePkgUrlMap
     reservoirApiUrl := ← getUrlD "RESERVOIR_API_URL" s!"{reservoirBaseUrl}/v1"
     noCache := (noCache <|> (← IO.getEnv "LAKE_NO_CACHE").bind envToBool?).getD false
-    cacheDir := ← computeCacheDir toolchain
+    lakeCache := ← getCache? toolchain
     githashOverride := (← IO.getEnv "LEAN_GITHASH").getD ""
     toolchain
     initToolchain
@@ -107,15 +109,15 @@ def compute
     initPath := ← getSearchPath "PATH"
   }
 where
-  computeCacheDir toolchain := do
+  getCache? toolchain := do
     if let some cacheDir ← IO.getEnv "LAKE_CACHE_DIR" then
-      return cacheDir
+      return ⟨cacheDir⟩
     else if let some elan := elan? then
-      return elan.toolchainDir toolchain / "lake" / "cache"
+      return ⟨elan.toolchainDir toolchain / "lake" / "cache"⟩
     else if let some cacheHome ← getSystemCacheHome? then
-      return cacheHome
+      return ⟨cacheHome⟩
     else
-      return ""
+      return ⟨""⟩
   computePkgUrlMap := do
     let some urlMapStr ← IO.getEnv "LAKE_PKG_URL_MAP" | return {}
     match Json.parse urlMapStr |>.bind fromJson? with
@@ -200,7 +202,7 @@ def baseVars (env : Env) : Array (String × Option String)  :=
     ("LAKE", env.lake.lake.toString),
     ("LAKE_HOME", env.lake.home.toString),
     ("LAKE_PKG_URL_MAP", toJson env.pkgUrlMap |>.compress),
-    ("LAKE_CACHE_DIR", if env.cacheDir.toString.isEmpty then none else env.cacheDir.toString),
+    ("LAKE_CACHE_DIR", if env.lakeCache.isDisabled then none else env.lakeCache.dir.toString),
     ("LEAN", env.lean.lean.toString),
     ("LEAN_GITHASH", env.leanGithash),
     ("LEAN_SYSROOT", env.lean.sysroot.toString),

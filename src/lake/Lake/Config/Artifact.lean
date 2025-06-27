@@ -20,6 +20,7 @@ structure Artifact where
   mtime : MTime
   /-- The content hash of the artifact. -/
   hash : Hash
+  deriving Inhabited, Repr
 
 namespace Artifact
 

@@ -306,17 +306,21 @@ abbrev buildFileUnlessUpToDate
   getTrace
 
 /--
-Copies `file` to the local Lake artifact cache with the file extension `ext`, and
+Copies `file` to the Lake cache with the file extension `ext`, and
 saves its hash in its `.hash` file.
 
 If `text := true`, `file` contents are hashed as a text file rather than a binary file.
+
+If the Lake cache is disabled, the behavior of this function is undefined.
 -/
-def cacheArtifact (file : FilePath) (ext := "art") (text := false) : JobM Artifact := do
+def Cache.saveArtifact
+  (cache : Cache) (file : FilePath) (ext := "art") (text := false)
+: IO Artifact := do
   if text then
     let contents ← IO.FS.readFile file
     let normalized := contents.crlfToLf
     let hash := Hash.ofString normalized
-    let path ← getArtifactPath hash ext
+    let path := cache.artifactPath hash ext
     createParentDirs path
     IO.FS.writeFile path normalized
     writeFileHash file hash
@@ -325,12 +329,18 @@ def cacheArtifact (file : FilePath) (ext := "art") (text := false) : JobM Artifa
   else
     let contents ← IO.FS.readBinFile file
     let hash := Hash.ofByteArray contents
-    let path ← getArtifactPath hash ext
+    let path := cache.artifactPath hash ext
     createParentDirs path
     IO.FS.writeBinFile path contents
     writeFileHash file hash
     let mtime := (← getMTime path |>.toBaseIO).toOption.getD 0
     return {name := file.toString, path, mtime, hash}
+
+@[inline,  inherit_doc Cache.saveArtifact]
+def cacheArtifact
+  [MonadLakeEnv m] [MonadLiftT IO m] [Monad m]
+  (file : FilePath) (ext := "art") (text := false)
+: m Artifact := do (← getLakeCache).saveArtifact file ext text
 
 /--
 Computes the trace of a cached artifact.
@@ -360,9 +370,9 @@ in either the saved trace file or in the cached input-to-content mapping.
 -/
 @[specialize] def resolveArtifactsUsing?
   (α : Type u) [FromJson α] [ResolveArtifacts JobM α β]
-  (inputHash : Hash) (savedTrace : SavedTrace) (cache : IO.Ref InputMap)
+  (inputHash : Hash) (savedTrace : SavedTrace) (cache : CacheRef)
 : JobM (Option β) := do
-  if let some out ← cache.modifyGet fun m => ((m.get? inputHash, m)) then
+  if let some out ← cache.get? inputHash then
     if let .ok (hashes : α) := fromJson? out then
       if let some arts ← resolveArtifacts? hashes then
         return some arts
@@ -379,7 +389,7 @@ in either the saved trace file or in the cached input-to-content mapping.
     if let some out := data.outputs? then
       if let .ok (hashes : α) := fromJson? out then
         if let some arts ← resolveArtifacts? hashes then
-          cache.modify (·.insert inputHash out)
+          cache.insert inputHash out
           return some arts
   return none
 
@@ -391,7 +401,7 @@ instance : ToJson (FileOutputHash ext) := ⟨(toJson ·.hash)⟩
 instance : FromJson (FileOutputHash ext) := ⟨(.mk <$> fromJson? ·)⟩
 
 instance
-  [MonadWorkspace m] [MonadLiftT BaseIO m] [Bind m]
+  [MonadLakeEnv m] [MonadLiftT BaseIO m] [Monad m]
 : ResolveArtifacts m (FileOutputHash ext) Artifact := ⟨(getArtifact? ·.hash ext)⟩
 
 /--
@@ -425,8 +435,8 @@ def buildArtifactUnlessUpToDate
   let savedTrace ← readTraceFile traceFile
   if let some pkg ← getCurrPackage? then
     let inputHash := depTrace.hash
-    if let some ref := pkg.inputMap? then
-      let art? ← resolveArtifactsUsing? (FileOutputHash ext) inputHash savedTrace ref
+    if let some cache := pkg.cacheRef? then
+      let art? ← resolveArtifactsUsing? (FileOutputHash ext) inputHash savedTrace cache
       if let some art := art? then
         if restore && !(← file.pathExists) then
           logVerbose s!"restored artifact from cache to: {file}"
@@ -438,7 +448,7 @@ def buildArtifactUnlessUpToDate
       unless (← savedTrace.replayIfUpToDate file depTrace) do
         discard <| doBuild depTrace traceFile
       let art ← cacheArtifact file ext text
-      ref.modify (·.insert inputHash (toJson art.hash))
+      cache.insert inputHash art.hash
       setTrace art.trace
       return if restore then file else art.path
   if (← savedTrace.replayIfUpToDate file depTrace) then
@@ -469,8 +479,7 @@ If `text := true`, `file` is handled as a text file rather than a binary file.
 : SpawnM (Job FilePath) :=
   dep.mapM fun depInfo => do
     addTrace (← extraDepTrace)
-    buildFileUnlessUpToDate' file (build depInfo) text
-    return file
+    buildArtifactUnlessUpToDate file (build depInfo) text
 
 /--
 Build `file` using `build` after `deps` have built if any of their traces change.

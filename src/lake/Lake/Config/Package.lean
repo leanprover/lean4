@@ -5,12 +5,12 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 prelude
 import Lake.Config.Defaults
-import Lake.Config.InputMap
 import Lake.Config.OutFormat
 import Lake.Config.WorkspaceConfig
 import Lake.Config.Dependency
 import Lake.Config.ConfigDecl
 import Lake.Config.Script
+import Lake.Config.Cache
 import Lake.Load.Config
 import Lake.Util.DRBMap
 import Lake.Util.OrdHashSet
@@ -364,10 +364,10 @@ structure Package where
   /-- The driver used for `lake lint` when this package is the workspace root. -/
   lintDriver : String := config.lintDriver
   /--
-  Input-to-content map for artifacts of the package.
+  Input-to-content map for hashes of package artifacts.
   If `none`, the artifact cache is disabled for the package.
   -/
-  inputMap? : Option (IO.Ref InputMap) := none
+  cacheRef? : Option CacheRef := none
 
 deriving Inhabited
 
@@ -626,10 +626,10 @@ def nativeLibDir (self : Package) : FilePath :=
 @[inline] def enableArtifactCache (self : Package) : Bool :=
   self.config.enableArtifactCache
 
-/-- The file where the package's input mapping is stored in the Lake cache directory. -/
-def inputsFile (cacheDir : FilePath) (self : Package) : FilePath :=
+/-- The file where the package's input-to-content mapping is stored in the Lake cache. -/
+def inputsFileIn (cache : Cache) (self : Package) : FilePath :=
   let pkgName := self.name.toString (escape := false)
-  cacheDir / "inputs" / s!"{pkgName}.jsonl"
+  cache.inputsFile pkgName
 
 /-- Try to find a target configuration in the package with the given name. -/
 def findTargetDecl? (name : Name) (self : Package) : Option (NConfigDecl self.name name) :=

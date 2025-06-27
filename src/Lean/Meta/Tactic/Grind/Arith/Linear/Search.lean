@@ -266,7 +266,7 @@ The result is `false` if module for every structure already has an assignment.
 -/
 def check : GoalM Bool := do
   let mut progress := false
-  for structId in [:(← get').structs.size] do
+  for structId in *...(← get').structs.size do
     let r ← LinearM.run structId do
       if (← hasAssignment) then
         return false

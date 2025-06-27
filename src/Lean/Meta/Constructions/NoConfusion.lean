@@ -71,7 +71,7 @@ where
     let natType  := mkConst ``Nat
     let declType ← mkArrow enumType natType
     let mut minors := #[]
-    for i in [:numCtors] do
+    for i in *...numCtors do
       minors := minors.push <| mkNatLit i
     withLocalDeclD `x enumType fun x => do
       let motive ← mkLambdaFVars #[x] natType

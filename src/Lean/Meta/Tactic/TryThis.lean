@@ -106,7 +106,7 @@ apply the replacement.
     unless stxRange.start.line ≤ params.range.end.line do return result
     unless params.range.start.line ≤ stxRange.end.line do return result
     let mut result := result
-    for h : i in [:suggestionTexts.size] do
+    for h : i in *...suggestionTexts.size do
       let (newText, title?) := suggestionTexts[i]
       let title := title?.getD <| (codeActionPrefix?.getD "Try this: ") ++ newText
       result := result.push {

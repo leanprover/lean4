@@ -36,7 +36,7 @@ parserRecovery.lean:49:30-49:36: error: unexpected token; expected identifier
 parserRecovery.lean:50:9-50:11: error: unexpected token ')'; expected term
 parserRecovery.lean:69:16-69:17: error: unexpected token ']'; expected '|}'
 parserRecovery.lean:69:20: error: unexpected token at this precedence level; consider parenthesizing the term
-parserRecovery.lean:72:15-72:16: error: unexpected token ']'; expected ')', ',' or ':'
+parserRecovery.lean:72:15-72:16: error: unexpected token ']'; expected ')'
 parserRecovery.lean:100:3-101:1: error: unexpected token; expected identifier
 parserRecovery.lean:103:1-104:3: error: unexpected token 'def'; expected identifier
 parserRecovery.lean:105:0-105:1: error: unexpected token; expected identifier

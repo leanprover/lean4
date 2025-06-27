@@ -40,59 +40,27 @@ theorem IterM.DefaultConsumers.forIn'_eq_match_step {α β : Type w} {m : Type w
   cases step using PlausibleIterStep.casesOn <;> rfl
 
 theorem IterM.forIn'_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m β] [Finite α m]
-    {n : Type w → Type w''} [Monad n] [IteratorLoop α m n] [hl : LawfulIteratorLoop α m n]
-    [MonadLiftT m n] {γ : Type w} {it : IterM (α := α) m β} {init : γ}
+    {n : Type w → Type w''} [Monad m] [Monad n] [IteratorLoop α m n] [hl : LawfulIteratorLoop α m n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n] {γ : Type w} {it : IterM (α := α) m β} {init : γ}
     {f : (b : β) → it.IsPlausibleIndirectOutput b → γ → n (ForInStep γ)} :
     letI : ForIn' n (IterM (α := α) m β) β _ := IterM.instForIn'
     ForIn'.forIn' it init f = IterM.DefaultConsumers.forIn' (fun _ => monadLift) γ (fun _ _ _ => True)
         IteratorLoop.wellFounded_of_finite it init _ (fun _ => id) ((⟨·, .intro⟩) <$> f · · ·) := by
-  cases hl.lawful; rfl
+  simp [instForIn', ForIn'.forIn', IteratorLoop.finiteForIn', hl.lawful,
+    IteratorLoop.defaultImplementation, IteratorLoop.forIn]
 
 theorem IterM.forIn_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m β] [Finite α m]
-    {n : Type w → Type w''} [Monad n] [IteratorLoop α m n] [hl : LawfulIteratorLoop α m n]
-    [MonadLiftT m n] {γ : Type w} {it : IterM (α := α) m β} {init : γ}
+    {n : Type w → Type w''} [Monad m] [Monad n] [IteratorLoop α m n] [hl : LawfulIteratorLoop α m n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n] {γ : Type w} {it : IterM (α := α) m β} {init : γ}
     {f : β → γ → n (ForInStep γ)} :
     ForIn.forIn it init f = IterM.DefaultConsumers.forIn' (fun _ => monadLift) γ (fun _ _ _ => True)
         IteratorLoop.wellFounded_of_finite it init _ (fun _ => id) (fun out _ acc => (⟨·, .intro⟩) <$> f out acc) := by
-  cases hl.lawful; rfl
-
-theorem IterM.DefaultConsumers.forIn'_eq_forIn' {m : Type w → Type w'} {α : Type w} {β : Type w}
-    [Iterator α m β]
-    {n : Type w → Type w''} [Monad n]
-    {lift : ∀ γ, m γ → n γ} {γ : Type w}
-    {Pl : β → γ → ForInStep γ → Prop}
-    {wf : IteratorLoop.WellFounded α m Pl}
-    {it : IterM (α := α) m β} {init : γ}
-    {P : β → Prop} {hP : ∀ b, it.IsPlausibleIndirectOutput b → P b}
-    {Q : β → Prop} {hQ : ∀ b, it.IsPlausibleIndirectOutput b → Q b}
-    {f : (b : β) → P b → (c : γ) → n (Subtype (Pl b c))}
-    {g : (b : β) → Q b → (c : γ) → n (Subtype (Pl b c))}
-    (hfg : ∀ b c, (hPb : P b) → (hQb : Q b) → f b hPb c = g b hQb c) :
-    IterM.DefaultConsumers.forIn' lift γ Pl wf it init P hP f =
-      IterM.DefaultConsumers.forIn' lift γ Pl wf it init Q hQ g := by
-  rw [forIn', forIn']
-  apply bind_congr
-  intro step
-  split
-  · congr
-    · apply hfg
-    · ext
-      split
-      · apply IterM.DefaultConsumers.forIn'_eq_forIn'
-        assumption
-      · rfl
-  · apply IterM.DefaultConsumers.forIn'_eq_forIn'
-    assumption
-  · rfl
-termination_by IteratorLoop.WFRel.mk wf it init
-decreasing_by
-  · exact Or.inl ⟨_, ‹_›, ‹_›⟩
-  · exact Or.inr ⟨‹_›, rfl⟩
+  simp only [ForIn.forIn, forIn'_eq]
 
 theorem IterM.forIn'_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
-    [Finite α m] {n : Type w → Type w''} [Monad n] [LawfulMonad n]
+    [Finite α m] {n : Type w → Type w''} [Monad m] [Monad n] [LawfulMonad n]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
-    [MonadLiftT m n] {γ : Type w} {it : IterM (α := α) m β} {init : γ}
+    [MonadLiftT m n] [LawfulMonadLiftT m n] {γ : Type w} {it : IterM (α := α) m β} {init : γ}
     {f : (out : β) → _ → γ → n (ForInStep γ)} :
     letI : ForIn' n (IterM (α := α) m β) β _ := IterM.instForIn'
     ForIn'.forIn' it init f = (do
@@ -125,9 +93,9 @@ theorem IterM.forIn'_eq_match_step {α β : Type w} {m : Type w → Type w'} [It
   · simp
 
 theorem IterM.forIn_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
-    [Finite α m] {n : Type w → Type w''} [Monad n] [LawfulMonad n]
+    [Finite α m] {n : Type w → Type w''} [Monad m] [Monad n] [LawfulMonad n]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
-    [MonadLiftT m n] {γ : Type w} {it : IterM (α := α) m β} {init : γ}
+    [MonadLiftT m n] [LawfulMonadLiftT m n] {γ : Type w} {it : IterM (α := α) m β} {init : γ}
     {f : β → γ → n (ForInStep γ)} :
     ForIn.forIn it init f = (do
       match ← it.step with
@@ -142,7 +110,7 @@ theorem IterM.forIn_eq_match_step {α β : Type w} {m : Type w → Type w'} [Ite
   rfl
 
 theorem IterM.forM_eq_forIn {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
-    [Finite α m] {n : Type w → Type w''} [Monad n] [LawfulMonad n]
+    [Finite α m] {n : Type w → Type w''} [Monad m] [Monad n] [LawfulMonad n]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     [MonadLiftT m n] {it : IterM (α := α) m β}
     {f : β → n PUnit} :
@@ -150,9 +118,9 @@ theorem IterM.forM_eq_forIn {α β : Type w} {m : Type w → Type w'} [Iterator 
   rfl
 
 theorem IterM.forM_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
-    [Finite α m] {n : Type w → Type w''} [Monad n] [LawfulMonad n]
+    [Finite α m] {n : Type w → Type w''} [Monad m] [Monad n] [LawfulMonad n]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
-    [MonadLiftT m n] {it : IterM (α := α) m β}
+    [MonadLiftT m n] [LawfulMonadLiftT m n] {it : IterM (α := α) m β}
     {f : β → n PUnit} :
     ForM.forM it f = (do
       match ← it.step with
@@ -173,7 +141,7 @@ theorem IterM.foldM_eq_forIn {α β γ : Type w} {m : Type w → Type w'} [Itera
   (rfl)
 
 theorem IterM.forIn_yield_eq_foldM {α β γ δ : Type w} {m : Type w → Type w'} [Iterator α m β]
-    [Finite α m] {n : Type w → Type w''} [Monad n] [LawfulMonad n] [IteratorLoop α m n]
+    [Finite α m] {n : Type w → Type w''} [Monad m] [Monad n] [LawfulMonad n] [IteratorLoop α m n]
     [LawfulIteratorLoop α m n] [MonadLiftT m n] {f : β → γ → n δ} {g : β → γ → δ → γ} {init : γ}
     {it : IterM (α := α) m β} :
     ForIn.forIn it init (fun c b => (fun d => .yield (g c b d)) <$> f c b) =
@@ -181,8 +149,9 @@ theorem IterM.forIn_yield_eq_foldM {α β γ δ : Type w} {m : Type w → Type w
   simp [IterM.foldM_eq_forIn]
 
 theorem IterM.foldM_eq_match_step {α β γ : Type w} {m : Type w → Type w'} [Iterator α m β] [Finite α m]
-    {n : Type w → Type w''} [Monad n] [LawfulMonad n] [IteratorLoop α m n] [LawfulIteratorLoop α m n]
-    [MonadLiftT m n] {f : γ → β → n γ} {init : γ} {it : IterM (α := α) m β} :
+    {n : Type w → Type w''} [Monad m] [Monad n] [LawfulMonad n] [IteratorLoop α m n]
+    [LawfulIteratorLoop α m n] [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : γ → β → n γ} {init : γ} {it : IterM (α := α) m β} :
     it.foldM (init := init) f = (do
       match ← it.step with
       | .yield it' out _ => it'.foldM (init := ← f init out) f

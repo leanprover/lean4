@@ -1,7 +1,7 @@
 module
 
 prelude
-import Module.Basic
+public import Module.Basic
 
 /-! Definitions should be exported without their bodies by default -/
 

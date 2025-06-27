@@ -1,7 +1,7 @@
 module
 
 prelude
-import all Module.Basic
+public import all Module.Basic
 
 /-! `import all` should import private information, privately. -/
 
@@ -21,7 +21,7 @@ but is expected to have type
   Vector Unit f : Type
 -/
 #guard_msgs in
-theorem v (x : Vector Unit f) (y : Vector Unit 1) : x = y := sorry
+public theorem v (x : Vector Unit f) (y : Vector Unit 1) : x = y := sorry
 
 /-- error: dsimp made no progress -/
 #guard_msgs in
@@ -127,8 +127,8 @@ info: theorem f_exp_wfrec.induct_unfolding : ∀ (motive : Nat → Nat → Nat �
 
 /-! `import all` should allow access to private defs, privately. -/
 
-def pub := priv
+public def pub := priv
 
 /-- error: unknown identifier 'priv' -/
 #guard_msgs in
-@[expose] def pub' := priv
+@[expose] public def pub' := priv

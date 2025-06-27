@@ -1,5 +1,5 @@
-import Module.Basic
-import Lean
+public import Module.Basic
+public import Lean
 
 /-- info: @[defeq] theorem f.eq_def : f = 1 -/
 #guard_msgs in #print sig f.eq_def

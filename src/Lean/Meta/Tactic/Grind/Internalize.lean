@@ -236,7 +236,7 @@ private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
     unless a.isAppOf ctorVal.name do
       -- TODO: remove ctorVal.numFields after update stage0
       if (← isExtTheorem inductVal.name) || ctorVal.numFields == 0 then
-        let params := aType.getAppArgs[:inductVal.numParams]
+        let params := aType.getAppArgs[*...inductVal.numParams]
         let mut ctorApp := mkAppN (mkConst ctorVal.name us) params
         for j in [: ctorVal.numFields] do
           let mut proj ← mkProjFn ctorVal us params j a

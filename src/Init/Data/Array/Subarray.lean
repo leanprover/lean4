@@ -82,7 +82,7 @@ def size (s : Subarray α) : Nat :=
 
 theorem size_le_array_size {s : Subarray α} : s.size ≤ s.array.size := by
   let ⟨{array, start, stop, start_le_stop, stop_le_array_size}⟩ := s
-  simp [size]
+  simp only [size, ge_iff_le]
   apply Nat.le_trans (Nat.sub_le stop start)
   assumption
 
@@ -95,7 +95,7 @@ def get (s : Subarray α) (i : Fin s.size) : α :=
   have : s.start + i.val < s.array.size := by
    apply Nat.lt_of_lt_of_le _ s.stop_le_array_size
    have := i.isLt
-   simp [size] at this
+   simp only [size] at this
    rw [Nat.add_comm]
    exact Nat.add_lt_of_lt_sub this
   s.array[s.start + i.val]

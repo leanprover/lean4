@@ -372,7 +372,7 @@ private partial def visitProj (e : Expr) (structName : Name) (idx : Nat) (struct
     let structTypeArgs := structType.getAppArgs
     if structVal.numParams + structVal.numIndices != structTypeArgs.size then
       failed ()
-    let mut ctorType ← inferType <| mkAppN (mkConst ctorVal.name structLvls) structTypeArgs[:structVal.numParams]
+    let mut ctorType ← inferType <| mkAppN (mkConst ctorVal.name structLvls) structTypeArgs[*...structVal.numParams]
     let mut args := #[]
     let mut j := 0
     let mut lastFieldTy : Expr := default

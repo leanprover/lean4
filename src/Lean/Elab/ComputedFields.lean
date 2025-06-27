@@ -51,7 +51,7 @@ with
   | .cons x l => x + l.sum
   @[computed_field] length : NatList → Nat
   | .nil => 0
-  | .cons _ l => l.length + 1 
+  | .cons _ l => l.length + 1
 ```
 -/
 @[builtin_doc]
@@ -116,8 +116,8 @@ def overrideCasesOn : M Unit := do
   mkCasesOn (name ++ `_impl)
   let value ←
     forallTelescope (← instantiateForall casesOn.type params) fun xs constMotive => do
-      let (indices, major, minors) := (xs[1:numIndices+1].toArray,
-        xs[numIndices+1]!, xs[numIndices+2:].toArray)
+      let (indices, major, minors) := (xs[1...=numIndices].toArray,
+        xs[numIndices+1]!, xs[(numIndices+2)...*].toArray)
       let majorImplTy := mkAppN (mkConst (name ++ `_impl) lparams) (params ++ indices)
       mkLambdaFVars (params ++ xs) <|
         mkAppN (mkConst (mkCasesOnName (name ++ `_impl))
@@ -201,8 +201,8 @@ def mkComputedFieldOverrides (declName : Name) (compFields : Array Name) : MetaM
   let lparams := ind.levelParams.map mkLevelParam
   forallTelescope ind.type fun paramsIndices _ => do
   withLocalDeclD `x (mkAppN (mkConst ind.name lparams) paramsIndices) fun val => do
-    let params := paramsIndices[:ind.numParams].toArray
-    let indices := paramsIndices[ind.numParams:].toArray
+    let params := paramsIndices[*...ind.numParams].toArray
+    let indices := paramsIndices[ind.numParams...*].toArray
     let compFieldVars := compFields.map fun fieldDeclName =>
       (fieldDeclName.updatePrefix .anonymous,
         fun _ => do inferType (← mkAppM fieldDeclName (params ++ indices ++ #[val])))

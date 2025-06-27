@@ -97,7 +97,7 @@ algorithm uses different scores for the last operation (miss/match). This is
 necessary to give consecutive character matches a bonus. -/
 private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Array CharRole) : Option Int := Id.run do
   /- Flattened array where the value at index (i, j, k) represents the best possible score of a fuzzy match
-  between the substrings pattern[:i+1] and word[:j+1] assuming that pattern[i] misses at word[j] (k = 0, i.e.
+  between the substrings pattern[*...=i] and word[*...j] assuming that pattern[i] misses at word[j] (k = 0, i.e.
   it was matched earlier), or matches at word[j] (k = 1). A value of `none` corresponds to a score of -∞, and is used
   where no such match/miss is possible or for unneeded parts of the table. -/
   let mut result : Array (Option Int) := Array.replicate (pattern.length * word.length * 2) none

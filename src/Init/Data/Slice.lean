@@ -9,7 +9,8 @@ prelude
 import Init.Data.Slice.Basic
 import Init.Data.Slice.Notation
 import Init.Data.Slice.Operations
-import Init.Data.Slice.Array
+import Init.Data.Slice.Array.Basic
+import Init.Data.Slice.Array.Iterator
 
 /-!
 # Polymorphic slices

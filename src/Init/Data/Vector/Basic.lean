@@ -13,6 +13,7 @@ import Init.Data.Array.MapIdx
 import Init.Data.Array.InsertIdx
 import Init.Data.Array.Range
 import Init.Data.Range
+private import Init.Data.Slice.Array.Basic
 import Init.Data.Stream
 
 /-!
@@ -542,8 +543,9 @@ instance : ForM m (Vector α n) α where
 
 /-! ### ToStream instance -/
 
+@[no_expose]
 instance : ToStream (Vector α n) (Subarray α) where
-  toStream xs := xs.toArray[:n]
+  toStream xs := xs.toArray[*...*]
 
 /-! ### Lexicographic ordering -/
 

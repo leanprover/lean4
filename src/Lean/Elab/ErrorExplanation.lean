@@ -76,7 +76,7 @@ def elabCheckedNamedError : TermElab := fun stx expType? => do
   -- term and so leave `stx` unchanged. The in-progress identifier will always be the penultimate
   -- argument of `span`.
   let span := if stx.getNumArgs == numArgsExpected then
-    stx.setArgs (stx.getArgs[0:stx.getNumArgs - 1])
+    stx.setArgs (stx.getArgs[*...(stx.getNumArgs - 1)])
   else
     stx
   let partialId := span[span.getNumArgs - 2]

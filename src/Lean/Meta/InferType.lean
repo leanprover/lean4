@@ -10,7 +10,7 @@ import Lean.Meta.Basic
 namespace Lean
 
 /--
-Auxiliary function for instantiating the loose bound variables in `e` with `args[start:stop]`.
+Auxiliary function for instantiating the loose bound variables in `e` with `args[start...stop]`.
 This function is similar to `instantiateRevRange`, but it applies beta-reduction when
 we instantiate a bound variable with a lambda expression.
 Example: Given the term `#0 a`, and `start := 0, stop := 1, args := #[fun x => x]` the result is
@@ -106,7 +106,7 @@ private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Exp
     if structVal.numParams + structVal.numIndices != structTypeArgs.size then
       failed ()
     else do
-      let mut ctorType ← inferAppType (mkConst ctorVal.name structLvls) structTypeArgs[:structVal.numParams]
+      let mut ctorType ← inferAppType (mkConst ctorVal.name structLvls) structTypeArgs[*...<structVal.numParams]
       for i in [:idx] do
         ctorType ← whnf ctorType
         match ctorType with

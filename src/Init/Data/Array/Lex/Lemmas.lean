@@ -52,22 +52,20 @@ protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {xs ys
 private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs ys : Array α} :
      (#[a] ++ xs).lex (#[b] ++ ys) lt =
        (lt a b || a == b && xs.lex ys lt) := by
-  simp only [lex, size_append]
-  simp only [List.size_toArray, List.length_cons, List.length_nil, Nat.zero_add,
-    Nat.add_min_add_left, Nat.add_lt_add_iff_left]
-  simp only [Std.PRange.forIn'_eq_forIn'_toList]
+  simp only [lex, size_append, List.size_toArray, List.length_cons, List.length_nil, Nat.zero_add,
+    Nat.add_min_add_left, Nat.add_lt_add_iff_left, Std.PRange.forIn'_eq_forIn'_toList]
   conv =>
     lhs; congr; congr
     rw [forIn'_congr_aux Std.PRange.toList_eq_match rfl (fun _ _ _ => rfl)]
-    simp [Std.PRange.SupportsUpperBound.IsSatisfied, if_pos (Nat.zero_lt_succ)]
+    simp only [Std.PRange.SupportsUpperBound.IsSatisfied, bind_pure_comp, map_pure]
     rw [forIn'_congr_aux (if_pos (by omega)) rfl (fun _ _ _ => rfl)]
-  simp [Std.PRange.toList_open_eq_of_isSome_succ? (lo := 0) (h := rfl),
-    Std.PRange.UpwardEnumerable.succ?, Nat.add_comm 1, Std.PRange.Nat.ClosedOpen.toList_succ_succ]
+  simp only [Std.PRange.toList_open_eq_toList_closed_of_isSome_succ? (lo := 0) (h := rfl),
+    Std.PRange.UpwardEnumerable.succ?, Nat.add_comm 1, Std.PRange.Nat.ClosedOpen.toList_succ_succ,
+    Option.get_some, List.forIn'_cons, List.size_toArray, List.length_cons, List.length_nil,
+    Nat.lt_add_one, getElem_append_left, List.getElem_toArray, List.getElem_cons_zero]
   cases lt a b
   · rw [bne]
-    cases h : a == b
-    · simp
-    · simp [h]
+    cases a == b <;> simp
   · simp
 
 @[simp, grind =] theorem _root_.List.lex_toArray [BEq α] {lt : α → α → Bool} {l₁ l₂ : List α} :

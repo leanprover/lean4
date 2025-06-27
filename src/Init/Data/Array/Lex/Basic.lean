@@ -25,7 +25,7 @@ Specifically, `Array.lex as bs lt` is true if
 * there is an index `i` such that `lt as[i] bs[i]`, and for all `j < i`, `as[j] == bs[j]`.
 -/
 def lex [BEq α] (as bs : Array α) (lt : α → α → Bool := by exact (· < ·)) : Bool := Id.run do
-  for h : i in *...(min as.size bs.size) do
+  for h : i in 0...(min as.size bs.size) do
     -- TODO: `get_elem_tactic` should be able to find this itself.
     have : i < min as.size bs.size := Std.PRange.lt_upper_of_mem h
     if lt as[i] bs[i] then

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 prelude
+import Std.Tactic.Do.ProofMode
 import Std.Tactic.Do.Syntax
 
 /-!

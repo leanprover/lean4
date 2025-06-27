@@ -5,7 +5,7 @@ Authors: Sebastian Graf
 -/
 prelude
 import Lean.Elab.Tactic.Do.ProofMode.MGoal
-import Lean.Elab.Tactic.Do.ProofMode.Display
+import Lean.Elab.Tactic.Do.ProofMode.Delab
 import Lean.Elab.Tactic.Do.ProofMode.Basic
 import Lean.Elab.Tactic.Do.ProofMode.Clear
 import Lean.Elab.Tactic.Do.ProofMode.Intro

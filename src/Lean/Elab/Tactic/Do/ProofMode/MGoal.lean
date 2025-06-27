@@ -5,12 +5,13 @@ Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
 prelude
 import Std.Do.SPred.DerivedLaws
-
+import Std.Tactic.Do.ProofMode
 import Lean.Meta
-open Lean Elab Meta
 
 namespace Lean.Elab.Tactic.Do.ProofMode
-open Std.Do
+
+open Lean Elab Meta
+open Std.Do Std.Tactic.Do
 
 @[match_pattern] def nameAnnotation := `name
 @[match_pattern] def uniqAnnotation := `uniq
@@ -27,12 +28,6 @@ def parseHyp? : Expr → Option Hyp
 
 def Hyp.toExpr (hyp : Hyp) : Expr :=
   .mdata ⟨[(nameAnnotation, .ofName hyp.name), (uniqAnnotation, .ofName hyp.uniq)]⟩ hyp.p
-
-/-- An elaborator to create a new named hypothesis for an `MGoal` context. -/
-elab "mk_hyp " name:ident " := " e:term : term <= ty? => do
-  let e ← Lean.Elab.Term.elabTerm e ty?
-  let uniq ← mkFreshId
-  return (Hyp.mk name.getId uniq e).toExpr
 
 -- set_option pp.all true in
 -- #check ⌜True⌝
@@ -76,10 +71,6 @@ structure MGoal where
   target : Expr -- Q(SPred $σs)
   deriving Inhabited
 
-/-- This is the same as `SPred.entails`.
-This constant is used to detect `SPred` proof mode goals. -/
-abbrev MGoalEntails := @SPred.entails
-
 def parseMGoal? (expr : Expr) : Option MGoal := do
   let some (σs, hyps, target) := expr.consumeMData.app3? ``MGoalEntails | none
   some { σs, hyps, target }
@@ -109,7 +100,7 @@ partial def MGoal.findHyp? (goal : MGoal) (name : Name) : Option (SubExpr.Pos ×
         else
           none
       else if let some (_, lhs, rhs) := parseAnd? e then
-        -- NB: Need to prefer rhs over lhs, like the goal view (Lean.Elab.Tactic.Do.ProofMode.Display).
+        -- NB: Need to prefer rhs over lhs, like the goal view (Lean.Elab.Tactic.Do.ProofMode.Delab).
         go rhs (pushLeftConjunct p) <|> go lhs (pushRightConjunct p)
       else if let some _ := parseEmptyHyp? e then
         none
@@ -149,10 +140,6 @@ def dropStateList (σs : Expr) (n : Nat) : MetaM Expr := do
     σs := σs'
   return σs
 
-/-- This is only used for display purposes, so that we can render context variables that appear
-to have type `A : PROP` even though `PROP` is not a type. -/
-def HypMarker {σs : List Type} (_A : SPred σs) : Prop := True
-
 def addLocalVarInfo (stx : Syntax) (lctx : LocalContext)
     (expr : Expr) (expectedType? : Option Expr) (isBinder := false) : MetaM Unit := do
   Elab.withInfoContext' (pure ())
@@ -163,5 +150,5 @@ def addLocalVarInfo (stx : Syntax) (lctx : LocalContext)
 
 def addHypInfo (stx : Syntax) (σs : Expr) (hyp : Hyp) (isBinder := false) : MetaM Unit := do
   let lctx ← getLCtx
-  let ty := mkApp2 (mkConst ``HypMarker) σs hyp.p
+  let ty := mkApp2 (mkConst ``MGoalHypMarker) σs hyp.p
   addLocalVarInfo stx (lctx.mkLocalDecl ⟨hyp.uniq⟩ hyp.name ty) (.fvar ⟨hyp.uniq⟩) ty isBinder

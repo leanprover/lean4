@@ -226,7 +226,7 @@ private def addMVar (mvars : IO.Ref (List MVarId)) (goal : Expr) (name : Name) :
   return m
 
 @[builtin_tactic Lean.Parser.Tactic.mspecNoBind]
-def evalMSpecNoBind : Tactic
+def elabMSpecNoBind : Tactic
   | `(tactic| mspec_no_bind $[$spec]?) => do
     let (mvar, goal) ← mStartMVar (← getMainGoal)
     mvar.withContext do
@@ -237,10 +237,3 @@ def evalMSpecNoBind : Tactic
     if let [mvar'] := goals then mvar'.setTag (← mvar.getTag)
     replaceMainGoal (goals ++ specHoles)
   | _ => throwUnsupportedSyntax
-
--- TODO: Define the simp set as a list here and build `simpArgs` syntax from it
-macro_rules
-  | `(tactic| mspec_no_simp $[$spec]?) =>
-    `(tactic| ((try with_reducible mspec_no_bind $(mkIdent ``Std.Do.Spec.bind)); mspec_no_bind $[$spec]?))
-  | `(tactic| mspec $[$spec]?)         =>
-    `(tactic| mspec_no_simp $[$spec]?; open Std.Do in all_goals ((try simp only [SPred.true_intro_simp, SPred.true_intro_simp_nil, SVal.curry_cons, SVal.uncurry_cons, SVal.getThe_here, SVal.getThe_there]); (try mpure_intro; trivial)))

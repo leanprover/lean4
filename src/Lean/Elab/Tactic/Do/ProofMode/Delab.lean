@@ -8,14 +8,11 @@ import Lean.Elab.Tactic.Do.ProofMode.MGoal
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do
+open Std.Tactic.Do
 open Lean Expr Meta PrettyPrinter Delaborator SubExpr
 
-syntax mgoalHyp := ident " : " term
-
-syntax mgoalStx := ppDedent(ppLine mgoalHyp)* ppDedent(ppLine "⊢ₛ " term)
-
-@[app_delab MGoalEntails]
-partial def delabMGoal : Delab := do
+@[builtin_delab app.Std.Tactic.Do.MGoalEntails]
+private partial def delabMGoal : Delab := do
   let expr ← instantiateMVars <| ← getExpr
 
   -- extract environment
@@ -26,7 +23,7 @@ partial def delabMGoal : Delab := do
   let target ← SPred.Notation.unpack (← withAppArg <| delab)
 
   -- build syntax
-  return ⟨← `(mgoalStx| $hyps.reverse* ⊢ₛ $target:term)⟩
+  return ⟨← `(Std.Tactic.Do.mgoalStx| $hyps.reverse* ⊢ₛ $target:term)⟩
 where
   delabHypotheses (σs : Expr)
       (acc : NameMap Nat × Array (TSyntax ``mgoalHyp)) :
@@ -42,7 +39,7 @@ where
         else
           (0, hyp.name)
       let name' := mkIdent name'
-      let stx ← `(mgoalHyp| $name' : $(← SPred.Notation.unpack (← withMDataExpr <| delab)))
+      let stx ← `(Std.Tactic.Do.mgoalHyp| $name' : $(← SPred.Notation.unpack (← withMDataExpr <| delab)))
       return (map.insert hyp.name idx, lines.push stx)
     if (parseAnd? hyps).isSome then
       let acc_rhs ← withAppArg <| delabHypotheses σs acc
@@ -51,5 +48,5 @@ where
     else
       failure
 
-@[app_delab HypMarker]
-def delabHypMarker : Delab := do SPred.Notation.unpack (← withAppArg delab)
+@[builtin_delab app.Std.Tactic.Do.MGoalHypMarker]
+private def delabHypMarker : Delab := do SPred.Notation.unpack (← withAppArg delab)

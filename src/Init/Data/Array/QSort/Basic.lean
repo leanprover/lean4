@@ -65,7 +65,7 @@ In-place quicksort.
       let ⟨⟨mid, hmid⟩, as⟩ := qpartition as lt lo hi
       if h₂ : mid ≥ hi then
         -- This only occurs when `hi ≤ lo`,
-        -- and thus `as[lo:hi+1]` is trivially already sorted.
+        -- and thus `as[lo...(hi+1)]` is trivially already sorted.
         as
       else
         -- Otherwise, we recursively sort the two subarrays.

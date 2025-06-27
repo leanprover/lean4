@@ -10,6 +10,8 @@ prelude
 import Init.Data.List.TakeDrop
 import all Init.Data.Array.Basic
 
+public section
+
 /-!
 ## Bootstrapping theorems about arrays
 

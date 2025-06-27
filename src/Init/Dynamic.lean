@@ -9,6 +9,8 @@ module
 prelude
 import Init.Core
 
+public section
+
 open Lean
 
 -- Implementation detail of TypeName, since classes cannot be opaque

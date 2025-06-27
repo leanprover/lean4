@@ -9,6 +9,8 @@ prelude
 import Init.Data.Iterators.Combinators.Monadic.Attach
 import Init.Data.Iterators.Combinators.FilterMap
 
+public section
+
 namespace Std.Iterators
 
 @[always_inline, inline, expose, inherit_doc IterM.attachWith]

@@ -10,6 +10,8 @@ import Init.SizeOf
 import Init.MetaTypes
 import Init.WF
 
+public section
+
 /--
 Unfold definitions commonly used in well founded relation definitions.
 

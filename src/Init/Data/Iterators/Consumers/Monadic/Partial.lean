@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.Iterators.Basic
 
+public section
+
 namespace Std.Iterators
 
 /--

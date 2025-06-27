@@ -11,6 +11,8 @@ import Init.Data.Nat.Basic
 import Init.Data.List.Notation
 import Init.Data.Nat.Div.Basic
 
+public section
+
 @[expose] section
 
 /-!

@@ -10,6 +10,8 @@ module
 prelude
 import Init.Core
 
+public section
+
 universe u
 
 /--

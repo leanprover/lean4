@@ -7,3 +7,5 @@ module
 
 prelude
 import Init.Data.FloatArray.Basic
+
+public section

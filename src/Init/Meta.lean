@@ -16,6 +16,8 @@ import Init.Data.Option.BasicAux
 meta import Init.Data.Array.Basic
 meta import Init.Syntax
 
+public section
+
 namespace Lean
 
 @[extern "lean_version_get_major"]

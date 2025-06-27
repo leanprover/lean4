@@ -11,6 +11,8 @@ import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 import all Init.Data.Iterators.Consumers.Access
 import all Init.Data.Iterators.Consumers.Collect
 
+public section
+
 namespace Std.Iterators
 
 theorem Iter.toArray_eq_toArray_toIterM {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id]

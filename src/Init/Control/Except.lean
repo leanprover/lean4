@@ -12,6 +12,8 @@ import Init.Control.Basic
 import Init.Control.Id
 import Init.Coe
 
+public section
+
 namespace Except
 variable {ε : Type u}
 

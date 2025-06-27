@@ -10,6 +10,8 @@ import Init.Data.Option.Basic
 import Init.Control.Basic
 import Init.Control.Except
 
+public section
+
 set_option linter.missingDocs true
 
 universe u v

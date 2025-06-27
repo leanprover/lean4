@@ -9,6 +9,8 @@ module
 prelude
 import Init.Core
 
+public section
+
 namespace Function
 
 /--

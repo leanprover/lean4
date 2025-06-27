@@ -11,6 +11,8 @@ prelude
 import Init.Tactics
 meta import Init.Meta
 
+public section
+
 namespace Lean.Parser.Tactic.Conv
 
 /-- `conv` is the syntax category for a "conv tactic", where "conv" is short

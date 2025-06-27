@@ -10,6 +10,8 @@ import Init.Data.ToString.Macro
 import Init.TacticsExtra
 import Init.RCases
 
+public section
+
 namespace Lean
 namespace Parser.Attr
 

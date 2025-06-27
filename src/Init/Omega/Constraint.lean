@@ -9,6 +9,8 @@ prelude
 import Init.Omega.LinearCombo
 import Init.Omega.Int
 
+public section
+
 /-!
 A `Constraint` consists of an optional lower and upper bound (inclusive),
 constraining a value to a set of the form `∅`, `{x}`, `[x, y]`, `[x, ∞)`, `(-∞, y]`, or `(-∞, ∞)`.

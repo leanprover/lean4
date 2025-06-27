@@ -13,6 +13,8 @@ import Init.Data.Array.Attach
 import Init.Data.List.Attach
 import Init.BinderPredicates
 
+public section
+
 namespace Option
 
 instance {o : Option α} : Subsingleton { x // o = some x } where

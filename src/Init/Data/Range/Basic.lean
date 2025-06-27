@@ -9,6 +9,8 @@ prelude
 import Init.Meta
 import Init.Omega
 
+public section
+
 namespace Std
 -- We put `Range` in `Init` because we want the notation `[i:j]`  without importing `Std`
 -- We don't put `Range` in the top-level namespace to avoid collisions with user defined types

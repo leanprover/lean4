@@ -8,6 +8,8 @@ module
 prelude
 import Init.Control.Lawful.Basic
 
+public section
+
 set_option linter.missingDocs true
 
 /-!

@@ -8,6 +8,8 @@ module
 prelude
 import Init.Core
 
+public section
+
 /-!
 # Notation for `while` and `repeat` loops.
 -/

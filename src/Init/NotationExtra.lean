@@ -14,6 +14,8 @@ import Init.Meta
 import Init.While
 meta import Init.Data.Option.Basic
 
+public section
+
 namespace Lean
 
 -- Auxiliary parsers and functions for declaring notation with binders

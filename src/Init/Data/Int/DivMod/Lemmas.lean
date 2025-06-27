@@ -14,6 +14,8 @@ import Init.Data.Int.Lemmas
 import Init.Data.Nat.Dvd
 import Init.RCases
 
+public section
+
 /-!
 # Further lemmas about integer division, now that `omega` is available.
 -/

@@ -9,3 +9,5 @@ prelude
 import Init.Data.Int.DivMod.Basic
 import Init.Data.Int.DivMod.Bootstrap
 import Init.Data.Int.DivMod.Lemmas
+
+public section

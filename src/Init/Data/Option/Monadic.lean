@@ -11,6 +11,8 @@ import all Init.Data.Option.Instances
 import Init.Data.Option.Attach
 import Init.Control.Lawful.Basic
 
+public section
+
 namespace Option
 
 @[simp, grind] theorem bindM_none [Pure m] (f : α → m (Option β)) : none.bindM f = pure none := rfl

@@ -11,6 +11,8 @@ import Init.Data.Iterators.Consumers.Partial
 import Init.Data.Iterators.Consumers.Loop
 import Init.Data.Iterators.Consumers.Monadic.Access
 
+public section
+
 namespace Std.Iterators
 
 /--

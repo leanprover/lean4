@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.Int.Basic
 
+public section
+
 @[expose] section
 
 open Nat

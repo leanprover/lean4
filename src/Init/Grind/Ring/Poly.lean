@@ -14,6 +14,8 @@ import Init.Grind.Ring.Basic
 import Init.Grind.Ring.Field
 import Init.Grind.Ordered.Ring
 
+public section
+
 namespace Lean.Grind
 -- These are no longer global instances, so we need to turn them on here.
 attribute [local instance] Semiring.natCast Ring.intCast

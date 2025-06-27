@@ -11,6 +11,8 @@ import Init.Grind.Ring.Basic
 import all Init.GrindInstances.ToInt
 import Init.Data.Fin.Lemmas
 
+public section
+
 namespace Lean.Grind
 
 namespace Fin

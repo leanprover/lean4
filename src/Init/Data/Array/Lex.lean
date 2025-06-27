@@ -8,3 +8,5 @@ module
 prelude
 import Init.Data.Array.Lex.Basic
 import Init.Data.Array.Lex.Lemmas
+
+public section

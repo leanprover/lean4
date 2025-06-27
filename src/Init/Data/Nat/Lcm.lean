@@ -9,6 +9,8 @@ prelude
 import Init.Data.Nat.Gcd
 import Init.Data.Nat.Lemmas
 
+public section
+
 /-!
 # Lemmas about `Nat.lcm`
 

@@ -7,3 +7,5 @@ module
 
 prelude
 import Init.Data.Array.QSort.Basic
+
+public section

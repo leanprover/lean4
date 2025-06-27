@@ -10,6 +10,8 @@ prelude
 import Init.Data.List.Pairwise
 import Init.Data.List.Find
 
+public section
+
 /-!
 # Lemmas about `List.eraseP`, `List.erase`, and `List.eraseIdx`.
 -/

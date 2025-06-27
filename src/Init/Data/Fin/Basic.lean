@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.Nat.Bitwise.Basic
 
+public section
+
 @[expose] section
 
 open Nat

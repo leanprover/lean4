@@ -10,6 +10,8 @@ import Init.Tactics
 import Init.Conv
 import Init.NotationExtra
 
+public section
+
 namespace Lean.Parser
 
 /-- Reducible defeq matching for `guard_hyp` types -/

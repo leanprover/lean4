@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.Nat.Log2
 
+public section
+
 set_option linter.missingDocs true
 
 /--

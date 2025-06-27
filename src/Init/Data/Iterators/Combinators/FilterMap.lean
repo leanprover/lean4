@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.Iterators.Combinators.Monadic.FilterMap
 
+public section
+
 /-!
 
 # `filterMap`, `filter` and `map` combinators

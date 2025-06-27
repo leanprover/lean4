@@ -8,6 +8,8 @@ module
 prelude
 import Init.Control.Basic
 
+public section
+
 @[expose] section
 
 namespace Option

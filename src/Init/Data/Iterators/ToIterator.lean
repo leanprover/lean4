@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.Iterators.Consumers
 
+public section
+
 /-!
 This module provides the typeclass `ToIterator`, which is implemented by types that can be
 converted into iterators.

@@ -11,6 +11,8 @@ import all Init.Data.List.Sort.Basic
 import Init.Data.List.Nat.Range
 import Init.Data.Bool
 
+public section
+
 /-!
 # Basic properties of `mergeSort`.
 

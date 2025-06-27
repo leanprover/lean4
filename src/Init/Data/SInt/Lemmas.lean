@@ -16,6 +16,8 @@ import all Init.Data.UInt.Basic
 import Init.Data.UInt.Lemmas
 import Init.System.Platform
 
+public section
+
 open Lean in
 set_option hygiene false in
 macro "declare_int_theorems" typeName:ident _bits:term:arg : command => do

@@ -23,3 +23,5 @@ import Init.Data.Nat.Lcm
 import Init.Data.Nat.Compare
 import Init.Data.Nat.Simproc
 import Init.Data.Nat.Fold
+
+public section

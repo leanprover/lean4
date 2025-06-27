@@ -9,6 +9,8 @@ module
 prelude
 import Init.Notation
 
+public section
+
 namespace Lean.Order
 /--
 `monotonicity` performs one compositional step solving `monotone` goals,

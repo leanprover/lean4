@@ -10,3 +10,5 @@ import Init.Data.Format.Basic
 import Init.Data.Format.Macro
 import Init.Data.Format.Instances
 import Init.Data.Format.Syntax
+
+public section

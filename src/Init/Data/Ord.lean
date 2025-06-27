@@ -11,6 +11,8 @@ import Init.Data.Array.Basic
 import Init.Data.SInt.Basic
 import all Init.Data.Vector.Basic
 
+public section
+
 /--
 The result of a comparison according to a total order.
 

@@ -13,6 +13,8 @@ import all Init.Data.BitVec.Basic
 import all Init.Data.SInt.Basic
 import Init.Data.SInt.Lemmas
 
+public section
+
 namespace Lean.Grind
 
 instance : NatCast Int8 where

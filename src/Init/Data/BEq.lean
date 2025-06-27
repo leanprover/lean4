@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.Bool
 
+public section
+
 set_option linter.missingDocs true
 
 /-- `PartialEquivBEq α` says that the `BEq` implementation is a

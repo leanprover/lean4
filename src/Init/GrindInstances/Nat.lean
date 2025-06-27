@@ -9,6 +9,8 @@ prelude
 import Init.Grind.Ordered.Module
 import Init.Grind.Ring.Basic
 
+public section
+
 namespace Lean.Grind
 
 instance : AddRightCancel Nat where

@@ -11,6 +11,8 @@ import Init.Control.Lawful.Basic
 import Init.NotationExtra
 import Init.Control.Lawful.MonadLift
 
+public section
+
 /-!
 # Typeclass for lawful monad lifting functions
 

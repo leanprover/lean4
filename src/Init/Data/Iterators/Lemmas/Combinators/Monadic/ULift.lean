@@ -9,6 +9,8 @@ prelude
 import all Init.Data.Iterators.Combinators.Monadic.ULift
 import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 
+public section
+
 namespace Std.Iterators
 
 variable {α : Type u} {m : Type u → Type u'} {n : Type max u v → Type v'}

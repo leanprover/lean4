@@ -12,6 +12,8 @@ import Init.Classical
 import Init.ByCases
 import Init.Grind.Util
 
+public section
+
 namespace Lean.Grind
 
 theorem rfl_true : true = true :=

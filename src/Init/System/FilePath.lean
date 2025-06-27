@@ -9,6 +9,8 @@ prelude
 import Init.System.Platform
 import Init.Data.ToString.Basic
 
+public section
+
 namespace System
 open Platform
 

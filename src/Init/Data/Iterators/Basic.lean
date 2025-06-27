@@ -12,6 +12,8 @@ import Init.Ext
 import Init.NotationExtra
 import Init.TacticsExtra
 
+public section
+
 /-!
 ### Definition of iterators
 

@@ -9,6 +9,8 @@ prelude
 import Init.Data.List.Sublist
 import Init.Data.List.Attach
 
+public section
+
 /-!
 # Lemmas about `List.Pairwise` and `List.Nodup`.
 -/

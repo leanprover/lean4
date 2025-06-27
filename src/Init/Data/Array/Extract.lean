@@ -9,6 +9,8 @@ prelude
 import Init.Data.Array.Lemmas
 import Init.Data.List.Nat.TakeDrop
 
+public section
+
 /-!
 # Lemmas about `Array.extract`
 

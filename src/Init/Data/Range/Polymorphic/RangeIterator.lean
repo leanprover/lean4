@@ -13,6 +13,8 @@ import Init.Data.Iterators.Consumers.Collect
 import Init.Data.Range.Polymorphic.PRange
 import Init.Data.List.Sublist
 
+public section
+
 /-!
 # Range iterator
 

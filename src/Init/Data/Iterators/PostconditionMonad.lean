@@ -10,6 +10,8 @@ import Init.Control.Lawful.Basic
 import Init.Data.Subtype
 import Init.PropLemmas
 
+public section
+
 namespace Std.Iterators
 
 /--

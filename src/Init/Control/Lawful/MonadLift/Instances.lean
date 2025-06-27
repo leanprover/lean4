@@ -15,6 +15,8 @@ import all Init.Control.Id
 import Init.Control.Lawful.MonadLift.Lemmas
 import Init.Control.Lawful.Instances
 
+public section
+
 universe u v w x
 
 variable {m : Type u → Type v} {n : Type u → Type w} {o : Type u → Type x}

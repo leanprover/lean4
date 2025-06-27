@@ -7,6 +7,8 @@ module
 
 prelude
 import Init.System.IO
+
+public section
 universe u
 
 /-!

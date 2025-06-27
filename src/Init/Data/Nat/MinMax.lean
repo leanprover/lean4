@@ -8,6 +8,8 @@ module
 prelude
 import Init.ByCases
 
+public section
+
 namespace Nat
 
 /-! # min lemmas -/

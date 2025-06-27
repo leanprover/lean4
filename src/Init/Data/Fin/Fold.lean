@@ -10,6 +10,8 @@ import Init.Data.Nat.Linear
 import Init.Control.Lawful.Basic
 import Init.Data.Fin.Lemmas
 
+public section
+
 namespace Fin
 
 /--

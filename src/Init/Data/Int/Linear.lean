@@ -16,6 +16,8 @@ import all Init.Data.Int.Gcd
 import Init.Data.RArray
 import all Init.Data.AC
 
+public section
+
 namespace Int.Linear
 
 /-! Helper definitions and theorems for constructing linear arithmetic proofs. -/

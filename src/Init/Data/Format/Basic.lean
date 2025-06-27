@@ -10,6 +10,8 @@ import Init.Control.State
 import Init.Data.Int.Basic
 import Init.Data.String.Basic
 
+public section
+
 namespace Std
 
 /--

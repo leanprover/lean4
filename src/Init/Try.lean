@@ -8,6 +8,8 @@ module
 prelude
 import Init.Tactics
 
+public section
+
 namespace Lean.Try
 /--
 Configuration for `try?`.

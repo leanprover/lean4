@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.Range.Polymorphic.PRange
 
+public section
+
 namespace Std.PRange
 
 /--

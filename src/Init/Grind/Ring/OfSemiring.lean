@@ -11,6 +11,8 @@ import Init.Data.Hashable
 import Init.Data.RArray
 import all Init.Grind.Ring.Poly
 
+public section
+
 namespace Lean.Grind.Ring.OfSemiring
 /-!
 Helper definitions and theorems for converting `Semiring` expressions into `Ring` ones.

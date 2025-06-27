@@ -13,6 +13,8 @@ import Init.Data.Vector.Zip
 import Init.Data.Vector.MapIdx
 import Init.Data.Array.Range
 
+public section
+
 /-!
 # Lemmas about `Vector.range'`, `Vector.range`, and `Vector.zipIdx`
 

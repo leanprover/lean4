@@ -10,6 +10,8 @@ import Init.Data.Iterators.Basic
 import Init.Data.Iterators.Consumers.Partial
 import Init.Data.Iterators.Consumers.Monadic.Collect
 
+public section
+
 /-!
 # Collectors
 

@@ -10,6 +10,8 @@ import Init.Conv
 import Init.NotationExtra
 import Init.PropLemmas
 
+public section
+
 namespace Int
 
 open Nat

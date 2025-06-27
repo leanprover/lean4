@@ -8,6 +8,8 @@ module
 prelude
 import Init.Coe
 
+public section
+
 /-!
 # `NatCast`
 

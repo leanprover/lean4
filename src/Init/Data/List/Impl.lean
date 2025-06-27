@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.Array.Bootstrap
 
+public section
+
 /-!
 ## Tail recursive implementations for `List` definitions.
 

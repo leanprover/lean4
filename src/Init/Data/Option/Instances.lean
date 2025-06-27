@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.Option.Basic
 
+public section
+
 universe u v
 
 namespace Option

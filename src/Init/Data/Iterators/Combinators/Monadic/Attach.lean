@@ -11,6 +11,8 @@ import Init.Data.Iterators.Internal.Termination
 import Init.Data.Iterators.Consumers.Collect
 import Init.Data.Iterators.Consumers.Loop
 
+public section
+
 namespace Std.Iterators.Types
 
 /--

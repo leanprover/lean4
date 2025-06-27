@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.Iterators.Basic
 
+public section
+
 /-!
 This is an internal module used by iterator implementations.
 -/

@@ -11,6 +11,8 @@ import Init.Data.Array.Lemmas
 import Init.Data.List.Nat.Erase
 import Init.Data.List.Nat.Basic
 
+public section
+
 /-!
 # Lemmas about `Array.eraseP`, `Array.erase`, and `Array.eraseIdx`.
 -/

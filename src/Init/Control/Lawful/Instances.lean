@@ -12,6 +12,8 @@ import all Init.Control.State
 import Init.Control.StateRef
 import Init.Ext
 
+public section
+
 open Function
 
 /-! # ExceptT -/

@@ -12,6 +12,8 @@ import Init.Data.Array.Attach
 import Init.Data.Array.OfFn
 import all Init.Data.List.MapIdx
 
+public section
+
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 

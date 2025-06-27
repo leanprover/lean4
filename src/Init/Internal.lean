@@ -8,6 +8,8 @@ module
 prelude
 import Init.Internal.Order
 
+public section
+
 /-!
 This directory is used for components of the standard library that are either considered
 implementation details or not yet ready for public consumption, and that should be available

@@ -9,6 +9,8 @@ prelude
 import Init.Data.Nat.Lemmas
 import Init.Data.Range.Polymorphic.Basic
 
+public section
+
 namespace Std.PRange
 
 instance : UpwardEnumerable Nat where

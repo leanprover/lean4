@@ -8,6 +8,8 @@ module
 prelude
 meta import Init.Meta
 
+public section
+
 syntax:max "s!" interpolatedStr(term) : term
 
 macro_rules

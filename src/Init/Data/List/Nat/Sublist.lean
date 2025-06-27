@@ -11,6 +11,8 @@ import Init.Data.List.Nat.Basic
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.Nat.Lemmas
 
+public section
+
 /-!
 # Further lemmas about `List.IsSuffix` / `List.IsPrefix` / `List.IsInfix`.
 

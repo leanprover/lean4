@@ -9,6 +9,8 @@ prelude
 import Init.Grind.Ring.Basic
 import Init.Grind.Ordered.Module
 
+public section
+
 namespace Lean.Grind
 
 /--

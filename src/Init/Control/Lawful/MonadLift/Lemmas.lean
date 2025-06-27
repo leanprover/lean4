@@ -9,6 +9,8 @@ prelude
 import Init.Control.Lawful.Basic
 import Init.Control.Lawful.MonadLift.Basic
 
+public section
+
 universe u v w
 
 variable {m : Type u → Type v} {n : Type u → Type w} [Monad m] [Monad n] [MonadLiftT m n]

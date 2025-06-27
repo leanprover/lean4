@@ -9,6 +9,8 @@ prelude
 import Init.Data.Int.Lemmas
 import Init.Data.Nat.Lemmas
 
+public section
+
 namespace Int
 
 /-! # pow -/

@@ -10,6 +10,8 @@ import all Init.Data.Array.Basic
 import Init.Data.Array.Lemmas
 import Init.Data.List.Nat.TakeDrop
 
+public section
+
 /-!
 These lemmas are used in the internals of HashMap.
 They should find a new home and/or be reformulated.

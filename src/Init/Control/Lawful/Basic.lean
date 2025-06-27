@@ -10,6 +10,8 @@ import Init.Ext
 import Init.SimpLemmas
 import Init.Meta
 
+public section
+
 open Function
 
 @[simp] theorem monadLift_self {m : Type u → Type v} (x : m α) : monadLift x = x :=

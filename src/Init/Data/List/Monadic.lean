@@ -12,6 +12,8 @@ import Init.Data.List.OfFn
 import Init.Data.Array.Bootstrap
 import all Init.Data.List.Control
 
+public section
+
 /-!
 # Lemmas about `List.mapM` and `List.forM`.
 -/

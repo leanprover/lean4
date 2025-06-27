@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.Nat.Linear
 
+public section
+
 namespace Nat
 
 theorem nextPowerOfTwo_dec {n power : Nat} (h₁ : power > 0) (h₂ : power < n) : n - power * 2 < n - power := by

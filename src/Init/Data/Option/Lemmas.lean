@@ -12,6 +12,8 @@ import Init.Data.BEq
 import Init.Classical
 import Init.Ext
 
+public section
+
 namespace Option
 
 @[grind =] theorem default_eq_none : (default : Option α) = none := rfl

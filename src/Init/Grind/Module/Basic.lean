@@ -9,6 +9,8 @@ prelude
 import Init.Data.Int.Order
 import all Init.Grind.ToInt
 
+public section
+
 namespace Lean.Grind
 
 /--

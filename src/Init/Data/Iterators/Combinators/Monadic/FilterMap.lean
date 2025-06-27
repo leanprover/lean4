@@ -12,6 +12,8 @@ import Init.Data.Iterators.Consumers.Loop
 import Init.Data.Iterators.PostconditionMonad
 import Init.Data.Iterators.Internal.Termination
 
+public section
+
 /-!
 
 # Monadic `filterMap`, `filter` and `map` combinators

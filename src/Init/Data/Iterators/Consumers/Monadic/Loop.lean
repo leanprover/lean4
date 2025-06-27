@@ -10,6 +10,8 @@ import Init.RCases
 import Init.Data.Iterators.Basic
 import Init.Data.Iterators.Consumers.Monadic.Partial
 
+public section
+
 /-!
 # Loop-based consumers
 

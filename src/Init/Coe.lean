@@ -8,6 +8,8 @@ module
 prelude
 import Init.Prelude
 meta import Init.Prelude
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 /-!

@@ -9,6 +9,8 @@ prelude
 import Init.Data.Array.Basic
 import Init.Data.Int.DivMod.Lemmas
 import Init.Omega
+
+public section
 universe u v
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.

@@ -8,6 +8,8 @@ module
 prelude
 import all Init.Data.Slice.Operations
 
+public section
+
 namespace Std.Slice
 
 open Std.Iterators

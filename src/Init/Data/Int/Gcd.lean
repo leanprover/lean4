@@ -12,6 +12,8 @@ import Init.Data.Nat.Lcm
 import Init.Data.Int.DivMod.Lemmas
 import Init.Data.Int.Pow
 
+public section
+
 /-!
 Definition and lemmas for gcd and lcm over Int
 

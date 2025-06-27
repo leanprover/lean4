@@ -9,6 +9,8 @@ prelude
 import Init.Data.List.TakeDrop
 import Init.Data.Function
 
+public section
+
 /-!
 # Lemmas about `List.zip`, `List.zipWith`, `List.zipWithAll`, and `List.unzip`.
 -/

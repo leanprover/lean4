@@ -11,6 +11,8 @@ import Init.Data.List.Erase
 import Init.Data.List.Find
 import all Init.Data.List.Attach
 
+public section
+
 /-!
 # List Permutations
 

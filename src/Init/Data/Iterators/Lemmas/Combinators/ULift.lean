@@ -10,6 +10,8 @@ import all Init.Data.Iterators.Combinators.ULift
 import Init.Data.Iterators.Lemmas.Combinators.Monadic.ULift
 import Init.Data.Iterators.Lemmas.Consumers.Collect
 
+public section
+
 namespace Std.Iterators
 
 variable {α : Type u} {β : Type u}

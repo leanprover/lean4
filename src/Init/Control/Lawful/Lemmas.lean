@@ -10,6 +10,8 @@ import Init.Control.Lawful.Basic
 import Init.RCases
 import Init.ByCases
 
+public section
+
 -- Mapping by a function with a left inverse is injective.
 theorem map_inj_of_left_inverse [Functor m] [LawfulFunctor m] {f : α → β}
     (w : ∃ g : β → α, ∀ x, g (f x) = x) {x y : m α} :

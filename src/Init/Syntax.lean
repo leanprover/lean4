@@ -9,6 +9,8 @@ module
 prelude
 import Init.Data.Array.Set
 
+public section
+
 /-!
 # Helper functions for `Syntax`.
 

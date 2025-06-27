@@ -10,6 +10,8 @@ import Init.Data.Format.Basic
 import Init.Data.Array.Basic
 import Init.Data.ToString.Basic
 
+public section
+
 open Std
 
 instance (priority := low) [ToString α] : ToFormat α :=

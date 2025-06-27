@@ -7,3 +7,5 @@ module
 
 prelude
 import Init.Data.ByteArray.Basic
+
+public section

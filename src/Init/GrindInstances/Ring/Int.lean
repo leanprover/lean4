@@ -9,6 +9,8 @@ prelude
 import Init.Grind.Ring.Basic
 import Init.Data.Int.Lemmas
 
+public section
+
 namespace Lean.Grind
 
 instance : CommRing Int where

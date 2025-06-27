@@ -9,3 +9,5 @@ prelude
 import Init.Internal.Order.Basic
 import Init.Internal.Order.Lemmas
 import Init.Internal.Order.Tactic
+
+public section

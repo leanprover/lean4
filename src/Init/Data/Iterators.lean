@@ -14,6 +14,8 @@ import Init.Data.Iterators.Lemmas
 import Init.Data.Iterators.ToIterator
 import Init.Data.Iterators.Internal
 
+public section
+
 /-!
 # Iterators
 

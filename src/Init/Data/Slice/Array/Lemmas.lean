@@ -15,6 +15,8 @@ import Init.Data.Range.Polymorphic.Lemmas
 import Init.Data.Slice.Lemmas
 import Init.Data.Iterators.Lemmas
 
+public section
+
 open Std.Iterators Std.PRange
 
 namespace Std.Slice.Array

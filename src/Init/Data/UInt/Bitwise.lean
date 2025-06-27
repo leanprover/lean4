@@ -11,6 +11,8 @@ import all Init.Data.UInt.Basic
 import Init.Data.UInt.Lemmas
 import Init.Data.Fin.Bitwise
 
+public section
+
 set_option hygiene false in
 macro "declare_bitwise_uint_theorems" typeName:ident bits:term:arg : command =>
 `(

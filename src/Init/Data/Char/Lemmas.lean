@@ -9,6 +9,8 @@ prelude
 import all Init.Data.Char.Basic
 import Init.Data.UInt.Lemmas
 
+public section
+
 namespace Char
 
 @[ext] protected theorem ext : {a b : Char} → a.val = b.val → a = b

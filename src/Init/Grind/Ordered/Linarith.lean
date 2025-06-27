@@ -12,6 +12,8 @@ import all Init.Data.Ord
 import all Init.Data.AC
 import Init.Data.RArray
 
+public section
+
 /-!
 Support for the linear arithmetic module for `IntModule` in `grind`
 -/

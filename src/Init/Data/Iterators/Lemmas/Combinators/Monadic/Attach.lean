@@ -9,6 +9,8 @@ prelude
 import all Init.Data.Iterators.Combinators.Monadic.Attach
 import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 
+public section
+
 namespace Std.Iterators
 
 variable {α : Type w} {m : Type w → Type w'} {β : Type w} {P : β → Prop}

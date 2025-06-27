@@ -10,6 +10,8 @@ import Init.Data.Array.Lemmas
 import Init.Data.Iterators.Lemmas.Monadic.Basic
 import all Init.Data.Iterators.Consumers.Monadic.Collect
 
+public section
+
 namespace Std.Iterators
 
 variable {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}

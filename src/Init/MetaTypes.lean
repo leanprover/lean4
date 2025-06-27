@@ -8,6 +8,8 @@ module
 prelude
 import Init.Core
 
+public section
+
 namespace Lean
 
 structure NameGenerator where

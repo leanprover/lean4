@@ -9,6 +9,8 @@ prelude
 import Init.Grind.Ordered.Ring
 import Init.Data.Int.Lemmas
 
+public section
+
 namespace Lean.Grind
 
 instance : CommSemiring Nat where

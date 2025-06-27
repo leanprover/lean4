@@ -8,6 +8,8 @@ module
 prelude
 import all Init.Grind.ToInt
 
+public section
+
 namespace Lean.Grind.ToInt
 
 /-! Wrap -/

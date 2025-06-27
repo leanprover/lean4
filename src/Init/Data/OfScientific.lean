@@ -11,6 +11,8 @@ import Init.Data.Float
 import Init.Data.Float32
 import Init.Data.Nat.Log2
 
+public section
+
 /-- For decimal and scientific numbers (e.g., `1.23`, `3.12e10`).
    Examples:
    - `1.23` is syntax for `OfScientific.ofScientific (nat_lit 123) true (nat_lit 2)`

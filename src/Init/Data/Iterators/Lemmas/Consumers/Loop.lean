@@ -11,6 +11,8 @@ import all Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 import all Init.Data.Iterators.Consumers.Loop
 import all Init.Data.Iterators.Consumers.Monadic.Collect
 
+public section
+
 namespace Std.Iterators
 
 theorem Iter.forIn'_eq {α β : Type w} [Iterator α Id β] [Finite α Id]

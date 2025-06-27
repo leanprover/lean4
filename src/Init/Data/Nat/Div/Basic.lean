@@ -11,6 +11,8 @@ import Init.WFTactics
 import Init.Data.Nat.Basic
 meta import Init.MetaTypes
 
+public section
+
 @[expose] section
 
 namespace Nat

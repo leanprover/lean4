@@ -9,6 +9,8 @@ prelude
 import Init.Grind.Ring.Basic
 import Init.Grind.ToInt
 
+public section
+
 namespace Lean.Grind
 
 /-- A `ToInt` instance on a semiring preserves powers if it preserves numerals and multiplication. -/

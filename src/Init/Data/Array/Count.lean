@@ -10,6 +10,8 @@ import all Init.Data.Array.Basic
 import Init.Data.Array.Lemmas
 import Init.Data.List.Nat.Count
 
+public section
+
 /-!
 # Lemmas about `Array.countP` and `Array.count`.
 -/

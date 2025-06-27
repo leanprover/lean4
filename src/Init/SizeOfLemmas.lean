@@ -11,6 +11,8 @@ import Init.Meta
 import all Init.SizeOf
 import Init.Data.Nat.Linear
 
+public section
+
 @[simp] protected theorem Fin.sizeOf (a : Fin n) : sizeOf a = a.val + 1 := by
   cases a; simp +arith
 

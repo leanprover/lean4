@@ -9,6 +9,8 @@ module
 prelude
 import Init.Data.ToString.Basic
 
+public section
+
 /--
 Exceptions that may be thrown in the `IO` monad.
 

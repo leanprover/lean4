@@ -9,6 +9,8 @@ module
 prelude
 import Init.Data.BitVec.Bootstrap
 
+public section
+
 set_option linter.missingDocs true
 
 namespace BitVec

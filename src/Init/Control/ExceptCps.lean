@@ -8,6 +8,8 @@ module
 prelude
 import Init.Control.Lawful.Basic
 
+public section
+
 /-!
 The Exception monad transformer using CPS style.
 -/

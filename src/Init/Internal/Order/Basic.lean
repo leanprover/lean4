@@ -11,6 +11,8 @@ import Init.ByCases
 import Init.RCases
 import all Init.Control.Except  -- for `MonoBind` instance
 
+public section
+
 /-!
 This module contains some basic definitions and results from domain theory, intended to be used as
 the underlying construction of the `partial_fixpoint` feature. It is not meant to be used as a

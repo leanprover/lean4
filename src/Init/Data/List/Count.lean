@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.List.Sublist
 
+public section
+
 /-!
 # Lemmas about `List.countP` and `List.count`.
 

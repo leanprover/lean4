@@ -9,6 +9,8 @@ prelude
 import all Init.Data.List.Sort.Basic
 import Init.Data.List.Sort.Lemmas
 
+public section
+
 /-!
 # Replacing `merge` and `mergeSort` at runtime with tail-recursive and faster versions.
 

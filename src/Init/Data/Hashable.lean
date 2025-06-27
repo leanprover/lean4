@@ -9,6 +9,8 @@ prelude
 import Init.Data.UInt.Basic
 import Init.Data.String.Basic
 import Init.Data.ByteArray.Basic
+
+public section
 universe u
 
 instance : Hashable Nat where

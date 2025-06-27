@@ -9,6 +9,8 @@ prelude
 import Init.Data.Int.Basic
 import Init.Data.Nat.Bitwise.Basic
 
+public section
+
 namespace Int
 
 /-! ## bit operations -/

@@ -12,6 +12,8 @@ import Init.Data.Nat.Power2
 import Init.Data.Int.Bitwise
 import Init.Data.BitVec.BasicAux
 
+public section
+
 /-!
 We define the basic algebraic structure of bitvectors. We choose the `Fin` representation over
 others for its relative efficiency (Lean has special support for `Nat`),  and the fact that bitwise

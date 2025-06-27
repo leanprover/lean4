@@ -10,6 +10,8 @@ import Init.Data.Array.Basic
 import Init.Data.UInt.Basic
 import all Init.Data.UInt.BasicAux
 import Init.Data.Option.Basic
+
+public section
 universe u
 
 structure ByteArray where

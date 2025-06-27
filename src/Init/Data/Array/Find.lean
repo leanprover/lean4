@@ -12,6 +12,8 @@ import Init.Data.Array.Lemmas
 import Init.Data.Array.Attach
 import Init.Data.Array.Range
 
+public section
+
 /-!
 # Lemmas about `Array.findSome?`, `Array.find?, `Array.findIdx`, `Array.findIdx?`, `Array.idxOf`.
 -/

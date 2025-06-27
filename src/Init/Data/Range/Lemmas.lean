@@ -11,6 +11,8 @@ import Init.Data.List.Range
 import Init.Data.List.Monadic
 import Init.Data.Nat.Div.Lemmas
 
+public section
+
 /-!
 # Lemmas about `Std.Range`
 

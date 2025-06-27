@@ -12,6 +12,8 @@ import Init.Data.Array.Lemmas
 import Init.Data.Array.Attach
 import Init.Data.List.Monadic
 
+public section
+
 /-!
 # Lemmas about `Array.forIn'` and `Array.forIn`.
 -/

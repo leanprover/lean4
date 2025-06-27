@@ -8,6 +8,8 @@ module
 prelude
 import Init.Classical
 
+public section
+
 /-! # by_cases tactic and if-then-else support -/
 
 /--

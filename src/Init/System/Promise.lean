@@ -8,6 +8,8 @@ module
 prelude
 import Init.System.IO
 
+public section
+
 set_option linter.missingDocs true
 
 namespace IO

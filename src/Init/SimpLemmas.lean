@@ -9,6 +9,8 @@ module
 
 prelude
 import Init.Core
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 theorem of_eq_true (h : p = True) : p := h ▸ trivial

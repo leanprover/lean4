@@ -22,6 +22,8 @@ import Init.Data.Range.Lemmas
 import Init.TacticsExtra
 import Init.Data.List.ToArray
 
+public section
+
 /-!
 ## Theorems about `Array`.
 -/

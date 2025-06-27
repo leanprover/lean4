@@ -10,6 +10,8 @@ import Init.Classical
 import Init.Control.EState
 import Init.Control.Reader
 
+public section
+
 /--
 A restricted version of `IO` in which mutable state and exceptions are the only side effects.
 

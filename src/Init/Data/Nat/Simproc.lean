@@ -10,6 +10,8 @@ import Init.Data.Bool
 import Init.Data.Nat.Basic
 import Init.Data.Nat.Lemmas
 
+public section
+
 /-!
 This contains lemmas used by the Nat simprocs for simplifying arithmetic
 addition offsets.

@@ -16,6 +16,8 @@ import Init.Data.Range
 private import Init.Data.Slice.Array.Basic
 import Init.Data.Stream
 
+public section
+
 /-!
 # Vectors
 

@@ -10,6 +10,8 @@ import Init.Data.List.Zip
 import Init.Data.Int.DivMod.Bootstrap
 import Init.Data.Nat.Gcd
 
+public section
+
 @[expose] section
 
 namespace Lean.Omega

@@ -9,4 +9,6 @@ prelude
 import Init.Ext
 import Init.Grind.Tactics
 
+public section
+
 attribute [grind ext] funext Prod Subtype Sigma PSigma

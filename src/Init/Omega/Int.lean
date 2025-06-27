@@ -9,6 +9,8 @@ prelude
 import Init.Data.Int.DivMod.Bootstrap
 import Init.Data.Int.Order
 
+public section
+
 /-!
 # Lemmas about `Nat`, `Int`, and `Fin` needed internally by `omega`.
 

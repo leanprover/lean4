@@ -9,6 +9,8 @@ prelude
 import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 import all Init.Data.Iterators.Consumers.Monadic.Loop
 
+public section
+
 namespace Std.Iterators
 
 theorem IterM.DefaultConsumers.forIn'_eq_match_step {α β : Type w} {m : Type w → Type w'}

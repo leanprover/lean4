@@ -8,7 +8,10 @@ module
 prelude
 import Init.Data.Range
 import Init.Data.Array.Subarray
+
 private import Init.Data.Slice.Array.Basic
+
+public section
 
 /-!
 Remark: we considered using the following alternative design

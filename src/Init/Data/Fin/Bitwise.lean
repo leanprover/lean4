@@ -9,6 +9,8 @@ prelude
 import Init.Data.Nat.Bitwise
 import Init.Data.Fin.Basic
 
+public section
+
 namespace Fin
 
 @[simp] theorem and_val (a b : Fin n) : (a &&& b).val = a.val &&& b.val :=

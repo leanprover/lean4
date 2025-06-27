@@ -8,6 +8,8 @@ module
 prelude
 import Init.Core
 
+public section
+
 deriving instance DecidableEq for ULift
 
 instance [Subsingleton α] : Subsingleton (ULift α) where

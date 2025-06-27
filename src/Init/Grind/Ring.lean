@@ -12,3 +12,5 @@ import Init.Grind.Ring.Field
 import Init.Grind.Ring.Envelope
 import Init.Grind.Ring.OfSemiring
 import Init.Grind.Ring.ToInt
+
+public section

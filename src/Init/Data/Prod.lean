@@ -9,6 +9,8 @@ prelude
 import Init.SimpLemmas
 import Init.NotationExtra
 
+public section
+
 namespace Prod
 
 instance [BEq α] [BEq β] [ReflBEq α] [ReflBEq β] : ReflBEq (α × β) where

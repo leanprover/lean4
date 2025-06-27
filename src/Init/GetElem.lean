@@ -8,6 +8,8 @@ module
 prelude
 import Init.Util
 
+public section
+
 @[expose] section
 
 @[never_extract]

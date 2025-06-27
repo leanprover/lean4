@@ -9,6 +9,8 @@ prelude
 import Init.Data.List.Nat.Range
 import Init.Data.List.Find
 
+public section
+
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 

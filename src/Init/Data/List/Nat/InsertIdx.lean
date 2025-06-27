@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.List.Nat.Modify
 
+public section
+
 /-!
 # insertIdx
 

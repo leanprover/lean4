@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.Zero
 
+public section
+
 
 /-!
 # `NeZero` typeclass

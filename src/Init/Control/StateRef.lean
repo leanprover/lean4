@@ -10,6 +10,8 @@ module
 prelude
 import Init.System.ST
 
+public section
+
 set_option linter.missingDocs true
 
 /--

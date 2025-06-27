@@ -8,6 +8,8 @@ module
 prelude
 import Init.Omega
 
+public section
+
 /-!
 # Further results about `mod`.
 

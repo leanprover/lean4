@@ -10,6 +10,8 @@ import Init.Data.Nat.Bitwise.Lemmas
 import all Init.Data.Int.Bitwise.Basic
 import Init.Data.Int.DivMod.Lemmas
 
+public section
+
 namespace Int
 
 theorem shiftRight_eq (n : Int) (s : Nat) : n >>> s = Int.shiftRight n s := rfl

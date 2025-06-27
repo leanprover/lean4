@@ -10,6 +10,8 @@ import Init.Data.Iterators.Lemmas.Consumers
 import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
 import Init.Data.Iterators.Combinators.FilterMap
 
+public section
+
 namespace Std.Iterators
 
 variable {α β γ : Type w} [Iterator α Id β] {it : Iter (α := α) β}

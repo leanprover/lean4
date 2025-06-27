@@ -9,6 +9,8 @@ prelude
 import Init.Data.List.Impl
 import Init.Data.List.Nat.TakeDrop
 
+public section
+
 /-!
 # Definition of `merge` and `mergeSort`.
 

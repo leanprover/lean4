@@ -13,6 +13,8 @@ import Init.ByCases
 import Init.Conv
 import Init.Omega
 
+public section
+
 namespace Fin
 
 @[simp] theorem ofNat_zero (n : Nat) [NeZero n] : Fin.ofNat n 0 = 0 := rfl

@@ -9,3 +9,5 @@ prelude
 import Init.Data.String.Basic
 import Init.Data.String.Extra
 import Init.Data.String.Lemmas
+
+public section

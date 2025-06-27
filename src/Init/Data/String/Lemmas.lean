@@ -9,6 +9,8 @@ prelude
 import Init.Data.Char.Lemmas
 import Init.Data.List.Lex
 
+public section
+
 namespace String
 
 protected theorem data_eq_of_eq {a b : String} (h : a = b) : a.data = b.data :=

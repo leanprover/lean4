@@ -10,6 +10,8 @@ import Init.Data.Format.Macro
 import Init.Data.Format.Instances
 import Init.Meta
 
+public section
+
 namespace Lean.Syntax
 
 open Std

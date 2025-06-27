@@ -12,6 +12,8 @@ import Init.System.ST
 import Init.Data.Ord
 import Init.Data.String.Extra
 
+public section
+
 open System
 
 /--

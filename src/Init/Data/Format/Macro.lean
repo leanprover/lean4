@@ -9,6 +9,8 @@ prelude
 import Init.Data.Format.Basic
 import Init.Data.ToString.Macro
 
+public section
+
 namespace Std
 
 syntax:max "f!" interpolatedStr(term) : term

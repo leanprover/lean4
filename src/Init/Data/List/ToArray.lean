@@ -15,6 +15,8 @@ import Init.Data.Array.Lex.Basic
 import all Init.Data.Array.Basic
 import all Init.Data.Array.Set
 
+public section
+
 /-! ### Lemmas about `List.toArray`.
 
 We prefer to pull `List.toArray` outwards past `Array` operations.

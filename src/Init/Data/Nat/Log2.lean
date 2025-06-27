@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.Nat.Linear
 
+public section
+
 namespace Nat
 
 theorem log2_terminates : ∀ n, n ≥ 2 → n / 2 < n

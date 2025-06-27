@@ -10,6 +10,8 @@ import Init.Data.Slice.Basic
 import Init.Data.Slice.Notation
 import Init.Data.Iterators
 
+public section
+
 open Std.Iterators
 
 namespace Std.Slice

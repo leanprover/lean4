@@ -9,6 +9,8 @@ prelude
 import Init.Data.UInt.BasicAux
 import Init.Data.BitVec.Basic
 
+public section
+
 set_option linter.missingDocs true
 
 open Nat

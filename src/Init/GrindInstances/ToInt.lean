@@ -16,6 +16,8 @@ import Init.Data.Fin.Lemmas
 import Init.Data.UInt.Lemmas
 import Init.Data.SInt.Lemmas
 
+public section
+
 namespace Lean.Grind
 
 /-! ## Instances for concrete types-/

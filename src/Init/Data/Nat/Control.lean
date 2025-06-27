@@ -10,6 +10,8 @@ import Init.Control.Basic
 import Init.Data.Nat.Basic
 import Init.Omega
 
+public section
+
 set_option linter.missingDocs true
 
 namespace Nat

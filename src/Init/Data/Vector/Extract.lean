@@ -9,6 +9,8 @@ prelude
 import Init.Data.Vector.Lemmas
 import Init.Data.Array.Extract
 
+public section
+
 /-!
 # Lemmas about `Vector.extract`
 -/

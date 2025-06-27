@@ -10,6 +10,8 @@ import Init.Data.Fin.Lemmas
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Pairwise
 
+public section
+
 /-!
 # Lemmas about `List.Pairwise`
 -/

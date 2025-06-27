@@ -9,6 +9,8 @@ prelude
 import Init.Data.List.Pairwise
 import Init.Data.List.Zip
 
+public section
+
 /-!
 # Lemmas about `List.range` and `List.zipIdx`
 

@@ -11,6 +11,8 @@ import Init.Data.Int.Order
 import Init.Data.Nat.Dvd
 import Init.RCases
 
+public section
+
 /-!
 # Lemmas about integer division needed to bootstrap `omega`.
 -/

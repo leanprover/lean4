@@ -9,6 +9,8 @@ prelude
 import Init.Tactics
 import Init.NotationExtra
 
+public section
+
 /-!
 Extra tactics and implementation for some tactics defined at `Init/Tactic.lean`
 -/

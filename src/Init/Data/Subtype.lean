@@ -9,6 +9,8 @@ prelude
 import Init.Ext
 import Init.Core
 
+public section
+
 namespace Subtype
 
 universe u

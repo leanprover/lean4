@@ -9,6 +9,8 @@ prelude
 import Init.Data.Range.Polymorphic.Nat
 import Init.Data.Range.Polymorphic.Lemmas
 
+public section
+
 namespace Std.PRange.Nat
 
 theorem succ_eq {n : Nat} : UpwardEnumerable.succ n = n + 1 :=

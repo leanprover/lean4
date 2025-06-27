@@ -9,6 +9,8 @@ prelude
 import Init.Omega
 import Init.Data.List.FinRange
 
+public section
+
 set_option linter.missingDocs true -- keep it documented
 universe u
 

@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.Iterators.Combinators.Monadic.ULift
 
+public section
+
 namespace Std.Iterators
 
 universe v u v' u'

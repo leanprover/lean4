@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.UInt.BasicAux
 
+public section
+
 /-- Determines if the given integer is a valid [Unicode scalar value](https://www.unicode.org/glossary/#unicode_scalar_value).
 
 Note that values in `[0xd800, 0xdfff]` are reserved for [UTF-16 surrogate pairs](https://en.wikipedia.org/wiki/Universal_Character_Set_characters#Surrogates).

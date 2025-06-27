@@ -10,6 +10,8 @@ prelude
 import Init.Prelude
 import Init.Tactics
 
+public section
+
 set_option linter.unusedVariables false in
 /--
 The expression `binderNameHint v binder e` defined to be `e`.

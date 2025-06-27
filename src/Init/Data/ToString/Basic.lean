@@ -9,6 +9,8 @@ prelude
 import Init.Data.Repr
 import Init.Data.Option.Basic
 
+public section
+
 open Sum Subtype Nat
 
 open Std

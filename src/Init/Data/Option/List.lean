@@ -10,6 +10,8 @@ import Init.Data.List.Lemmas
 import all Init.Data.List.Control
 import all Init.Data.Option.Instances
 
+public section
+
 namespace Option
 
 @[simp, grind] theorem mem_toList {a : α} {o : Option α} : a ∈ o.toList ↔ o = some a := by

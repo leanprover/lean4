@@ -10,6 +10,8 @@ import Init.Data.Int.Order
 import Init.Grind.Module.Basic
 import Init.Grind.Ordered.Order
 
+public section
+
 namespace Lean.Grind
 
 /--

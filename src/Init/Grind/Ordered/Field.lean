@@ -9,6 +9,8 @@ prelude
 import Init.Grind.Ring.Field
 import Init.Grind.Ordered.Ring
 
+public section
+
 namespace Lean.Grind
 
 namespace Field.IsOrdered

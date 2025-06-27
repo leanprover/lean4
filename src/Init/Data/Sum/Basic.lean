@@ -8,6 +8,8 @@ module
 prelude
 import Init.PropLemmas
 
+public section
+
 /-!
 # Disjoint union of types
 

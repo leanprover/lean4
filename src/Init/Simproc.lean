@@ -8,6 +8,8 @@ module
 prelude
 import Init.NotationExtra
 
+public section
+
 namespace Lean.Parser
 /--
 A user-defined simplification procedure used by the `simp` tactic, and its variants.

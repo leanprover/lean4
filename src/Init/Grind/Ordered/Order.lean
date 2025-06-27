@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.Int.Order
 
+public section
+
 namespace Lean.Grind
 
 /-- A preorder is a reflexive, transitive relation `≤` with `a < b` defined in the obvious way. -/

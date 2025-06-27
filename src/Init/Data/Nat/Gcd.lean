@@ -10,6 +10,8 @@ import Init.Data.Nat.Dvd
 import Init.NotationExtra
 import Init.RCases
 
+public section
+
 namespace Nat
 
 /--

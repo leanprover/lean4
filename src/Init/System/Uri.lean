@@ -10,6 +10,8 @@ import Init.Data.String.Extra
 import Init.Data.Nat.Linear
 import Init.System.FilePath
 
+public section
+
 namespace System
 namespace Uri
 namespace UriEscape

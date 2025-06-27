@@ -10,6 +10,8 @@ import Init.Grind.Ring.Basic
 import Init.Grind.Ordered.Ring
 import all Init.Data.AC
 
+public section
+
 namespace Lean.Grind.Ring
 
 namespace OfSemiring

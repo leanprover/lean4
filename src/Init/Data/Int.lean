@@ -18,3 +18,5 @@ import Init.Data.Int.Pow
 import Init.Data.Int.Cooper
 import Init.Data.Int.Linear
 import Init.Data.Int.OfNat
+
+public section

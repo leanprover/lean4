@@ -13,6 +13,8 @@ import Init.Data.Array.MapIdx
 import Init.Data.Array.Zip
 import Init.Data.List.Nat.Range
 
+public section
+
 /-!
 # Lemmas about `Array.range'`, `Array.range`, and `Array.zipIdx`
 

@@ -9,6 +9,8 @@ prelude
 import all Init.Data.Sum.Basic
 import Init.Ext
 
+public section
+
 /-!
 # Disjoint union of types
 

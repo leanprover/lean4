@@ -11,6 +11,8 @@ import Init.Data.List.Find
 import Init.Data.List.MinMax
 import Init.Data.Nat.Lemmas
 
+public section
+
 /-!
 # Miscellaneous `List` lemmas, that require more `Nat` lemmas than are available in `Init.Data.List.Lemmas`.
 

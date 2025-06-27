@@ -9,6 +9,8 @@ prelude
 import Init.Data.Nat.Div.Basic
 import Init.Meta
 
+public section
+
 namespace Nat
 
 @[simp] protected theorem dvd_refl (a : Nat) : a ∣ a := ⟨1, by simp⟩

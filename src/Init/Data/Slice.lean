@@ -11,6 +11,8 @@ import Init.Data.Slice.Notation
 import Init.Data.Slice.Operations
 import Init.Data.Slice.Array
 
+public section
+
 /-!
 # Polymorphic slices
 

@@ -9,3 +9,5 @@ prelude
 import Init.GrindInstances.ToInt
 import Init.GrindInstances.Ring
 import Init.GrindInstances.Nat
+
+public section

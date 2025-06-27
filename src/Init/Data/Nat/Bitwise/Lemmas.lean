@@ -14,6 +14,8 @@ import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Simproc
 import Init.TacticsExtra
 
+public section
+
 /-
 This module defines properties of the bitwise operations on Natural numbers.
 

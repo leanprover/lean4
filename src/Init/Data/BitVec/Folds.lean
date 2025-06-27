@@ -11,6 +11,8 @@ import Init.Data.BitVec.Lemmas
 import Init.Data.Nat.Lemmas
 import Init.Data.Fin.Iterate
 
+public section
+
 set_option linter.missingDocs true
 
 namespace BitVec

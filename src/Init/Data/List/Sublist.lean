@@ -9,6 +9,8 @@ module
 prelude
 import Init.Data.List.TakeDrop
 
+public section
+
 /-!
 # Lemmas about `List.Subset`, `List.Sublist`, `List.IsPrefix`, `List.IsSuffix`, and `List.IsInfix`.
 -/

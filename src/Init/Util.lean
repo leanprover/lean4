@@ -9,6 +9,8 @@ prelude
 import Init.Data.String.Basic
 import Init.Data.ToString.Basic
 
+public section
+
 universe u v
 
 /-! # Debugging helper functions -/

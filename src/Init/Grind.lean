@@ -21,3 +21,5 @@ import Init.Grind.Ext
 import Init.Grind.ToInt
 import Init.Grind.ToIntLemmas
 import Init.Data.Int.OfNat -- This may not have otherwise been imported, breaking `grind` proofs.
+
+public section

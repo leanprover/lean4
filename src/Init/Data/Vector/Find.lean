@@ -13,6 +13,8 @@ import Init.Data.Vector.Attach
 import Init.Data.Vector.Range
 import Init.Data.Array.Find
 
+public section
+
 /-!
 # Lemmas about `Vector.findSome?`, `Vector.find?`, `Vector.findFinIdx?`.
 

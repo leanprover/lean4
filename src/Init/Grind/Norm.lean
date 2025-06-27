@@ -14,6 +14,8 @@ import Init.Data.Int.Linear
 import Init.Data.Int.Pow
 import Init.Grind.Ring.Field
 
+public section
+
 namespace Lean.Grind
 /-!
 Normalization theorems for the `grind` tactic.

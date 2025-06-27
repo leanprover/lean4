@@ -9,6 +9,8 @@ prelude
 import Init.Data.Vector.Lemmas
 import Init.Data.Array.Erase
 
+public section
+
 /-!
 # Lemmas about `Vector.eraseIdx`.
 -/

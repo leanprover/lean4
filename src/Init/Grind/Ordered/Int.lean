@@ -10,6 +10,8 @@ import Init.Grind.Ordered.Ring
 import Init.GrindInstances.Ring.Int
 import Init.Omega
 
+public section
+
 /-!
 # `grind` instances for `Int` as an ordered module.
 -/

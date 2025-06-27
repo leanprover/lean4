@@ -9,6 +9,8 @@ prelude
 import Init.Core
 import Init.Classical
 
+public section
+
 namespace Lean.Grind
 
 /-- A helper gadget for annotating nested proofs in goals. -/

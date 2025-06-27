@@ -8,6 +8,8 @@ module
 prelude
 import Init.NotationExtra
 
+public section
+
 namespace Lean
 
 /--

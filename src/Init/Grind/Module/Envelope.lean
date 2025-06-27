@@ -9,6 +9,8 @@ prelude
 import Init.Grind.Ordered.Module
 import all Init.Data.AC
 
+public section
+
 namespace Lean.Grind.IntModule
 
 namespace OfNatModule

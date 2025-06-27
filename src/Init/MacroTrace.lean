@@ -12,6 +12,8 @@ prelude
 import Init.Data.ToString.Macro
 import Init.Meta
 
+public section
+
 namespace Lean
 
 macro "Macro.trace[" id:ident "]" s:interpolatedStr(term) : term =>

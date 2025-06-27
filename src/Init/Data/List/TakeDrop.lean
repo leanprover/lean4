@@ -9,6 +9,8 @@ prelude
 import all Init.Data.List.Basic
 import Init.Data.List.Lemmas
 
+public section
+
 /-!
 # Lemmas about `List.take` and `List.drop`.
 -/

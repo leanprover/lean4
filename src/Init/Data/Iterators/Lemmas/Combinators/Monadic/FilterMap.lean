@@ -11,6 +11,8 @@ import Init.Data.Iterators.Combinators.Monadic.FilterMap
 import Init.Data.Iterators.Lemmas.Consumers.Monadic
 import all Init.Data.Iterators.Consumers.Monadic.Collect
 
+public section
+
 namespace Std.Iterators
 open Std.Internal
 

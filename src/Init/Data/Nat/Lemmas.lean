@@ -12,6 +12,8 @@ import all Init.Data.Nat.Log2
 import Init.Data.Nat.Power2
 import Init.Data.Nat.Mod
 
+public section
+
 /-! # Basic theorems about natural numbers
 
 The primary purpose of the theorems in this file is to assist with reasoning

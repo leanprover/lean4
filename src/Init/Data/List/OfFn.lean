@@ -9,6 +9,8 @@ prelude
 import Init.Data.List.Basic
 import Init.Data.Fin.Fold
 
+public section
+
 /-!
 # Theorems about `List.ofFn`
 -/

@@ -20,6 +20,8 @@ import Init.Data.Int.Pow
 import Init.Data.Int.LemmasAux
 import Init.Data.BitVec.Bootstrap
 
+public section
+
 set_option linter.missingDocs true
 
 namespace BitVec

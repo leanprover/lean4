@@ -11,6 +11,8 @@ import Init.Data.Range.Polymorphic.Basic
 import Init.Data.Iterators.Combinators.Attach
 import Init.Data.Stream
 
+public section
+
 open Std.Iterators
 
 namespace Std.PRange

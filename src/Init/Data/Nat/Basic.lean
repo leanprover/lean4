@@ -10,6 +10,8 @@ import Init.SimpLemmas
 import Init.Data.NeZero
 import Init.Grind.Tactics
 
+public section
+
 set_option linter.missingDocs true -- keep it documented
 universe u
 

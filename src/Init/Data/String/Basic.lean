@@ -9,6 +9,8 @@ prelude
 import Init.Data.List.Basic
 import Init.Data.Char.Basic
 
+public section
+
 universe u
 
 /--

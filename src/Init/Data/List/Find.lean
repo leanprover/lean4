@@ -14,6 +14,8 @@ import Init.Data.List.Impl
 import all Init.Data.List.Attach
 import Init.Data.Fin.Lemmas
 
+public section
+
 /-!
 Lemmas about `List.findSome?`, `List.find?`, `List.findIdx`, `List.findIdx?`, `List.idxOf`,
 and `List.lookup`.

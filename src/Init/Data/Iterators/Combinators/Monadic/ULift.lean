@@ -10,6 +10,8 @@ import Init.Data.Iterators.Basic
 import Init.Data.Iterators.Internal.Termination
 import Init.Data.Iterators.Consumers.Monadic
 
+public section
+
 namespace Std.Iterators
 
 universe v u v' u'

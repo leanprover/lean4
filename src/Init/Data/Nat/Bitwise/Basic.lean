@@ -10,6 +10,8 @@ import Init.Data.Nat.Basic
 import Init.Data.Nat.Div.Basic
 import Init.Coe
 
+public section
+
 namespace Nat
 
 theorem bitwise_rec_lemma {n : Nat} (hNe : n ≠ 0) : n / 2 < n :=

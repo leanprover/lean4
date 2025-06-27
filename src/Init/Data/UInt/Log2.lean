@@ -8,6 +8,8 @@ module
 prelude
 import Init.Data.Fin.Log2
 
+public section
+
 /--
 Base-two logarithm of 8-bit unsigned integers. Returns `⌊max 0 (log₂ a)⌋`.
 

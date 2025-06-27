@@ -9,6 +9,8 @@ prelude
 import Init.Tactics
 import Init.Meta
 
+public section
+
 
 /-!
 # Recursive cases (`rcases`) tactic and related tactics

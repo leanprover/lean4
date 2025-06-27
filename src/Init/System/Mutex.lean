@@ -9,6 +9,8 @@ prelude
 import Init.System.IO
 import Init.Control.StateRef
 
+public section
+
 
 set_option linter.deprecated false
 

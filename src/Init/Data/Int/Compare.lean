@@ -9,6 +9,8 @@ prelude
 import all Init.Data.Ord
 import Init.Data.Int.Order
 
+public section
+
 /-! # Basic lemmas about comparing integers
 
 This file introduces some basic lemmas about `compare` as applied to integers.

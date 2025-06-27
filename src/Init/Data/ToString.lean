@@ -8,3 +8,5 @@ module
 prelude
 import Init.Data.ToString.Basic
 import Init.Data.ToString.Macro
+
+public section

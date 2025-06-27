@@ -10,6 +10,8 @@ import Init.ByCases
 import Init.Data.Prod
 import Init.Data.RArray
 
+public section
+
 @[expose] section
 
 namespace Nat.Linear

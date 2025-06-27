@@ -9,6 +9,8 @@ prelude
 import Init.Data.Array.Basic
 import Init.Data.Float
 import Init.Data.Option.Basic
+
+public section
 universe u
 
 structure FloatArray where

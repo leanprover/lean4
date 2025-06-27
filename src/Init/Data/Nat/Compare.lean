@@ -8,6 +8,8 @@ module
 prelude
 import all Init.Data.Ord
 
+public section
+
 /-! # Basic lemmas about comparing natural numbers
 
 This file introduce some basic lemmas about compare as applied to natural

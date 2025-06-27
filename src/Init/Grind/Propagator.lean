@@ -8,6 +8,8 @@ module
 prelude
 import Init.NotationExtra
 
+public section
+
 namespace Lean.Parser
 
 /-- A user-defined propagator for the `grind` tactic. -/

@@ -8,6 +8,8 @@ module
 prelude
 import Init.NotationExtra
 
+public section
+
 namespace Lean.Grind
 /-!
 This is a hackish module for hovering node information in the `grind` tactic state.

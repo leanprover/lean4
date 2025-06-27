@@ -8,6 +8,8 @@ module
 prelude
 import Init.PropLemmas
 
+public section
+
 universe u v
 
 /-! # Classical reasoning support -/

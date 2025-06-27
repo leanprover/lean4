@@ -12,6 +12,8 @@ import Init.Data.Array.Monadic
 import Init.Data.List.OfFn
 import Init.Data.List.FinRange
 
+public section
+
 /-!
 # Theorems about `Array.ofFn`
 -/

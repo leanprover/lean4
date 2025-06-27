@@ -11,6 +11,8 @@ import Init.Data.Array.Zip
 import all Init.Data.Vector.Basic
 import Init.Data.Vector.Lemmas
 
+public section
+
 /-!
 # Lemmas about `Vector.zip`, `Vector.zipWith`, `Vector.zipWithAll`, and `Vector.unzip`.
 -/

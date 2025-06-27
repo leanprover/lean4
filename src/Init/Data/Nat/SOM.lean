@@ -9,6 +9,8 @@ prelude
 import Init.Data.Nat.Linear
 import Init.Data.List.BasicAux
 
+public section
+
 namespace Nat.SOM
 
 open Linear (Var hugeFuel Context Var.denote)

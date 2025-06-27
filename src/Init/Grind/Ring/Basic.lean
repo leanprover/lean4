@@ -12,6 +12,8 @@ import Init.Data.Int.Pow
 import Init.TacticsExtra
 import Init.Grind.Module.Basic
 
+public section
+
 /-!
 # A monolithic commutative ring typeclass for internal use in `grind`.
 

@@ -11,6 +11,8 @@ import Init.Data.Int.DivMod
 import Init.Data.Int.Linear
 import Init.Data.RArray
 
+public section
+
 namespace Int.OfNat
 /-!
 Helper definitions and theorems for converting `Nat` expressions into `Int` one.

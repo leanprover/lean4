@@ -9,6 +9,8 @@ prelude
 import Init.Util
 import Init.Data.UInt.Basic
 
+public section
+
 namespace ShareCommon
 /-
   The max sharing primitives are implemented internally.

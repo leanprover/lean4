@@ -13,6 +13,8 @@ import all Init.Data.Option.Basic
 import all Init.Data.Array.Basic
 import Init.Internal.Order.Basic
 
+public section
+
 /-!
 
 This file contains monotonicity lemmas for higher-order monadic operations (e.g. `mapM`) in the

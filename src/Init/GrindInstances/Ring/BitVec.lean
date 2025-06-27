@@ -11,6 +11,8 @@ import Init.GrindInstances.ToInt
 import all Init.Data.BitVec.Basic
 import all Init.Grind.ToInt
 
+public section
+
 namespace Lean.Grind
 
 instance : CommRing (BitVec w) where

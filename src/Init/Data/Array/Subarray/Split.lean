@@ -11,6 +11,8 @@ import Init.Data.Array.Basic
 import all Init.Data.Array.Subarray
 import Init.Omega
 
+public section
+
 /-
 This module contains splitting operations on subarrays that crucially rely on `omega` for proof
 automation. Placing them in another module breaks an import cycle, because `omega` itself uses the

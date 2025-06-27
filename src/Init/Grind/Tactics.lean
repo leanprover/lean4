@@ -8,6 +8,8 @@ module
 prelude
 import Init.Tactics
 
+public section
+
 namespace Lean.Grind
 /--
 Gadget for representing generalization steps `h : x = val` in patterns

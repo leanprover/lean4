@@ -11,6 +11,8 @@ import all Init.Data.Iterators.Combinators.Monadic.Attach
 import Init.Data.Iterators.Lemmas.Combinators.Monadic.Attach
 import Init.Data.Iterators.Lemmas.Consumers.Collect
 
+public section
+
 namespace Std.Iterators
 
 theorem Iter.unattach_eq_toIter_unattach_toIterM [Iterator α Id β] {it : Iter (α := α) β} {hP} :

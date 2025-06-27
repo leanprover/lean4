@@ -11,6 +11,8 @@ import all Init.GrindInstances.ToInt
 import all Init.Data.UInt.Basic
 import Init.Data.UInt.Lemmas
 
+public section
+
 namespace UInt8
 
 /-- Variant of `UInt8.ofNat_mod_size` replacing `2 ^ 8` with `256`.-/

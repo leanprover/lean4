@@ -11,6 +11,8 @@ import all Init.Data.Vector.Basic
 import Init.Data.Array.Attach
 import Init.Data.Array.Find
 
+public section
+
 /-!
 ## Vectors
 Lemmas about `Vector α n`

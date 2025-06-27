@@ -11,6 +11,8 @@ import Init.Data.Array.Subarray
 import Init.Data.Slice.Notation
 import Init.Data.Range.Polymorphic.Nat
 
+public section
+
 /-!
 This module provides slice notation for array slices (a.k.a. `Subarray`) and implements an iterator
 for those slices.

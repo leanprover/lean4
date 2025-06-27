@@ -11,6 +11,8 @@ prelude
 import Init.Core
 import Init.Data.List.Basic
 
+public section
+
 namespace Task
 
 /--

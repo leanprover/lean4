@@ -12,6 +12,8 @@ import Init.Data.List.Pairwise
 import Init.Data.List.Find
 import Init.Data.List.Erase
 
+public section
+
 /-!
 # Lemmas about `List.range` and `List.enum`
 -/

@@ -9,6 +9,8 @@ prelude
 import Init.Data.List.Lemmas
 import Init.Data.List.Pairwise
 
+public section
+
 /-!
 # Lemmas about `List.min?` and `List.max?.
 -/

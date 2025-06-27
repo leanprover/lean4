@@ -15,6 +15,8 @@ import Init.Data.BitVec.Decidable
 import Init.Data.BitVec.Lemmas
 import Init.Data.BitVec.Folds
 
+public section
+
 /-!
 # Bit blasting of bitvectors
 

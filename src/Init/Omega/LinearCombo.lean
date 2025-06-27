@@ -9,6 +9,8 @@ prelude
 import Init.Omega.Coeffs
 import Init.Data.ToString.Macro
 
+public section
+
 /-!
 # Linear combinations
 

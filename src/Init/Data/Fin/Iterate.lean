@@ -9,6 +9,8 @@ prelude
 import Init.PropLemmas
 import Init.Data.Fin.Basic
 
+public section
+
 namespace Fin
 
 /--

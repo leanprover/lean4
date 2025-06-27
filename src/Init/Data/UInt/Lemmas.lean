@@ -16,6 +16,8 @@ import Init.Data.BitVec.Lemmas
 import Init.Data.Nat.Div.Lemmas
 import Init.System.Platform
 
+public section
+
 open Lean in
 set_option hygiene false in
 macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do

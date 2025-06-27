@@ -11,6 +11,8 @@ module
 prelude
 import Init.Data.List.Control
 
+public section
+
 namespace Std
 
 /--

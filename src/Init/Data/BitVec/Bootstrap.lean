@@ -8,6 +8,8 @@ module
 prelude
 import all Init.Data.BitVec.Basic
 
+public section
+
 namespace BitVec
 
 theorem testBit_toNat (x : BitVec w) : x.toNat.testBit i = x.getLsbD i := rfl

@@ -12,6 +12,8 @@ import Init.Data.SInt.Float32
 import Init.Data.SInt.Lemmas
 import Init.Data.SInt.Bitwise
 
+public section
+
 /-!
 This module contains the definitions and basic theory about signed fixed width integer types.
 -/

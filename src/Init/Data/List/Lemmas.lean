@@ -14,6 +14,8 @@ import all Init.Data.List.Control
 import Init.Control.Lawful.Basic
 import Init.BinderPredicates
 
+public section
+
 /-! # Theorems about `List` operations.
 
 For each `List` operation, we would like theorems describing the following, when relevant:

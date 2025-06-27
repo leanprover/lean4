@@ -8,3 +8,5 @@ module
 prelude
 import Init.Data.Char.Basic
 import Init.Data.Char.Lemmas
+
+public section

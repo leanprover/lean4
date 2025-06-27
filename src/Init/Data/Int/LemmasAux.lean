@@ -11,6 +11,8 @@ import Init.Data.Int.Pow
 import Init.Data.Int.DivMod.Lemmas
 import Init.Omega
 
+public section
+
 
 /-!
 # Further lemmas about `Int` relying on `omega` automation.

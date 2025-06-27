@@ -11,6 +11,8 @@ import Init.Core
 import Init.Data.Nat.Basic
 import Init.Data.Option.Lemmas
 
+public section
+
 namespace Std.PRange
 
 /--

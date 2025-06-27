@@ -10,6 +10,8 @@ prelude
 import Init.Classical
 import Init.ByCases
 
+public section
+
 namespace Lean.Data.AC
 inductive Expr
   | var (x : Nat)

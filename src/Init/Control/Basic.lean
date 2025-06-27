@@ -9,6 +9,8 @@ prelude
 import Init.Core
 import Init.BinderNameHint
 
+public section
+
 universe u v w
 
 /--

@@ -9,6 +9,8 @@ prelude
 import Init.Core
 import Init.Data.Range.Polymorphic.UpwardEnumerable
 
+public section
+
 namespace Std.PRange
 
 /--

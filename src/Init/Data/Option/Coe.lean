@@ -8,6 +8,8 @@ module
 prelude
 import Init.Coe
 
+public section
+
 /-!
 In this file, we define the coercion `α → Option α`.
 

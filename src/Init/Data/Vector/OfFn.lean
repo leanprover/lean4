@@ -11,6 +11,8 @@ import Init.Data.Vector.Lemmas
 import Init.Data.Vector.Monadic
 import Init.Data.Array.OfFn
 
+public section
+
 /-!
 # Theorems about `Vector.ofFn`
 -/

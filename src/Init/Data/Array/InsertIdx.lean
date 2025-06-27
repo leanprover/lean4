@@ -9,6 +9,8 @@ prelude
 import Init.Data.Array.Lemmas
 import Init.Data.List.Nat.InsertIdx
 
+public section
+
 /-!
 # insertIdx
 

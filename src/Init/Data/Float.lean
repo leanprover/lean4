@@ -10,6 +10,8 @@ import Init.Core
 import Init.Data.Int.Basic
 import Init.Data.ToString.Basic
 
+public section
+
 structure FloatSpec where
   float : Type
   val   : float

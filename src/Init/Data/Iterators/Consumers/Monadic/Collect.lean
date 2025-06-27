@@ -9,6 +9,8 @@ prelude
 import Init.Data.Iterators.Consumers.Monadic.Partial
 import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 
+public section
+
 /-!
 # Collectors
 

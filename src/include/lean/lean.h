@@ -500,13 +500,22 @@ static inline void lean_inc_ref(lean_object * o) {
     lean_inc_ref_n(o, 1);
 }
 
-LEAN_EXPORT void lean_dec_ref_cold(lean_object * o);
+LEAN_EXPORT void lean_del(lean_object * o);
 
 static inline LEAN_ALWAYS_INLINE void lean_dec_ref(lean_object * o) {
-    if (LEAN_LIKELY(o->m_rc > 1)) {
-        o->m_rc--;
-    } else if (o->m_rc != 0) {
-        lean_dec_ref_cold(o);
+    if (LEAN_LIKELY(o->m_rc != 0)) {
+        if (LEAN_LIKELY(o->m_rc > 0)) {
+            o->m_rc--;
+        } else {
+#ifdef __cplusplus
+            std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_relaxed);
+#else
+            atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, memory_order_relaxed);
+#endif
+        }
+        if (LEAN_UNLIKELY(o->m_rc == 0)) {
+            lean_del(o);
+        }
     }
 }
 static inline void LEAN_ALWAYS_INLINE lean_inc(lean_object * o) { if (!lean_is_scalar(o)) lean_inc_ref(o); }

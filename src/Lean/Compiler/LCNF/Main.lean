@@ -34,7 +34,9 @@ def shouldGenerateCode (declName : Name) : CoreM Bool := do
   if (← isCompIrrelevant |>.run') then return false
   let env ← getEnv
   if isExtern env declName then return true
-  let some info ← getDeclInfo? declName | return false
+  -- Look up the decl in the kernel environment, since it will appear there
+  -- as an axiom (rather than a definition) in the case of a kernel error.
+  let some info := env.constants.find? declName | return false
   unless info.hasValue (allowOpaque := true) do return false
   if hasMacroInlineAttribute env declName then return false
   if (getImplementedBy? env declName).isSome then return false
@@ -52,17 +54,30 @@ A checkpoint in code generation to print all declarations in between
 compiler passes in order to ease debugging.
 The trace can be viewed with `set_option trace.Compiler.step true`.
 -/
-def checkpoint (stepName : Name) (decls : Array Decl) : CompilerM Unit := do
+def checkpoint (stepName : Name) (decls : Array Decl) (shouldCheck : Bool) : CompilerM Unit := do
   for decl in decls do
     trace[Compiler.stat] "{decl.name} : {decl.size}"
     withOptions (fun opts => opts.setBool `pp.motives.pi false) do
       let clsName := `Compiler ++ stepName
       if (← Lean.isTracingEnabledFor clsName) then
         Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl' decl}"
-      if compiler.check.get (← getOptions) then
+      if shouldCheck then
         decl.check
-  if compiler.check.get (← getOptions) then
+  if shouldCheck then
     checkDeadLocalDecls decls
+
+def isValidMainType (type : Expr) : Bool :=
+  let isValidResultName (name : Name) : Bool :=
+    name == ``UInt32 || name == ``Unit || name == ``PUnit
+  match type with
+  | .forallE _ d b _ =>
+    match d, b with
+    | .app (.const ``List _) (.const ``String _), .app (.const ``IO _) (.const resultName _) =>
+      isValidResultName resultName
+    | _, _ => false
+  | .app (.const ``IO _) (.const resultName _) =>
+    isValidResultName resultName
+  | _ => false
 
 namespace PassManager
 
@@ -75,13 +90,19 @@ def run (declNames : Array Name) : CompilerM (Array IR.Decl) := withAtLeastMaxRe
   -/
   let declNames ← declNames.filterM (shouldGenerateCode ·)
   if declNames.isEmpty then return #[]
+  for declName in declNames do
+    if declName == `main then
+      if let some info ← getDeclInfo? declName then
+        if !(isValidMainType info.type) then
+          throwError "`main` function must have type `(List String →)? IO (UInt32 | Unit | PUnit)`"
   let mut decls ← declNames.mapM toDecl
   decls := markRecDecls decls
   let manager ← getPassManager
+  let isCheckEnabled := compiler.check.get (← getOptions)
   for pass in manager.passes do
     decls ← withTraceNode `Compiler (fun _ => return m!"new compiler phase: {pass.phase}, pass: {pass.name}") do
       withPhase pass.phase <| pass.run decls
-    withPhase pass.phaseOut <| checkpoint pass.name decls
+    withPhase pass.phaseOut <| checkpoint pass.name decls (isCheckEnabled || pass.shouldAlwaysRunCheck)
   if (← Lean.isTracingEnabledFor `Compiler.result) then
     for decl in decls do
       -- We display the declaration saved in the environment because the names have been normalized

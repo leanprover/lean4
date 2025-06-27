@@ -372,8 +372,7 @@ end
   | .fvar fvarId   =>
     let decl ← fvarId.getDecl
     match decl with
-    | .cdecl .. => return e
-    | .ldecl (value := v) .. =>
+    | .ldecl (value := v) (nondep := false) .. =>
       -- Let-declarations marked as implementation detail should always be unfolded
       -- We initially added this feature for `simp`, and added it here for consistency.
       let cfg ← getConfig
@@ -381,8 +380,9 @@ end
         if !(← read).zetaDeltaSet.contains fvarId then
           return e
       if (← read).trackZetaDelta then
-        modify fun s => { s with zetaDeltaFVarIds := s.zetaDeltaFVarIds.insert fvarId }
+        addZetaDeltaFVarId fvarId
       whnfEasyCases v k
+    | _ => return e
   | .mvar mvarId   =>
     match (← getExprMVarAssignment? mvarId) with
     | some v => whnfEasyCases v k
@@ -485,7 +485,7 @@ def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
        || info.name == ``Char.ofNat   || info.name == ``Char.ofNatAux
        || info.name == ``String.decEq || info.name == ``List.hasDecEq
        || info.name == ``Fin.ofNat
-       || info.name == ``Fin.ofNat' -- It is used to define `BitVec` literals
+       || info.name == ``Fin.ofNat -- It is used to define `BitVec` literals
        || info.name == ``UInt8.ofNat  || info.name == ``UInt8.decEq
        || info.name == ``UInt16.ofNat || info.name == ``UInt16.decEq
        || info.name == ``UInt32.ofNat || info.name == ``UInt32.decEq
@@ -581,13 +581,52 @@ private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) :=
   else
     return none
 
-partial def expandLet (e : Expr) (vs : Array Expr) : Expr :=
-  if let .letE _ _ v b _  := e then
-    expandLet b (vs.push <| v.instantiateRev vs)
-  else if let some (#[], _, _, v, b) := e.letFunAppArgs? then
-    expandLet b (vs.push <| v.instantiateRev vs)
+/--
+Zeta reduces `let`s/`have`s.
+If `zetaHave` is false, then `have`s are not zeta reduced.
+
+Auxiliary function for `whnfCore` and `Simp.reduceStep`, to implement the `zeta` option.
+This function does not implement `zetaUnused` logic,
+which is instead the responsibility of `consumeUnusedLet`.
+The `expandLet` function works with expressions with loose bound variables,
+and thus determining whether a let variable is used isn't an O(1) operation.
+
+Note: since `expandLet` and `consumeUnusedLet` are separated like this, a consequence is that
+in the `+zeta -zetaHave +zetaUnused` configuration, then `whnfCore` has quadratic complexity
+when reducing a sequence of alternating `let`s and `have`s where the `let`s are used but the `have`s are unused.
+-/
+partial def expandLet (e : Expr) (vs : Array Expr) (zetaHave : Bool := true) : Expr :=
+  if let .letE _ _ v b nondep  := e then
+    if !nondep || zetaHave then
+      expandLet b (vs.push <| v.instantiateRev vs) zetaHave
+    else
+      e.instantiateRev vs
+  -- TODO(kmill): we are going to remove `letFun` support.
+  else if let some (_, _, v, b) := e.letFun? then
+    if zetaHave then
+      expandLet b (vs.push <| v.instantiateRev vs) zetaHave
+    else
+      e.instantiateRev vs
   else
     e.instantiateRev vs
+
+/--
+Consumes unused `let`s/`have`s.
+If `consumeNondep` is false, then `have`s are not consumed.
+
+Auxiliary function for `whnfCore`, `isDefEqQuick`, and `Simp.reduceStep`,
+to implement the `zetaUnused` option.
+In the case of `isDefEqQuick`, it is also used when `zeta` is set.
+-/
+partial def consumeUnusedLet (e : Expr) (consumeNondep : Bool := false) : Expr :=
+  match e with
+  | e@(.letE _ _ _ b nondep) => if b.hasLooseBVars || (nondep && !consumeNondep) then e else consumeUnusedLet b consumeNondep
+  | e =>
+    -- TODO(kmill): we are going to remove `letFun` support.
+    if let some (_, _, _, b) := e.letFun? then
+      if b.hasLooseBVars || !consumeNondep then e else consumeUnusedLet b consumeNondep
+    else
+      e
 
 /--
 Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
@@ -601,17 +640,23 @@ where
       trace[Meta.whnf] e
       match e with
       | .const ..  => pure e
-      | .letE _ _ v b _ =>
-        if (← getConfig).zeta then
-          go <| expandLet b #[v]
+      | .letE _ _ v b nondep =>
+        let cfg ← getConfig
+        if cfg.zeta && (!nondep || cfg.zetaHave) then
+          go <| expandLet b #[v] (zetaHave := cfg.zetaHave)
+        else if cfg.zetaUnused && !b.hasLooseBVars then
+          go <| consumeUnusedLet b
         else
           return e
       | .app f ..       =>
         let cfg ← getConfig
-        if cfg.zeta then
-          if let some (args, _, _, v, b) := e.letFunAppArgs? then
-            -- When zeta reducing enabled, always reduce `letFun` no matter the current reducibility level
-            return (← go <| mkAppN (expandLet b #[v]) args)
+        -- TODO(kmill): we are going to remove `letFun` support.
+        if let some (args, _, _, v, b) := e.letFunAppArgs? then
+          -- When zeta reducing enabled, always reduce `letFun` no matter the current reducibility level
+          if cfg.zeta && cfg.zetaHave then
+            return (← go <| mkAppN (expandLet b #[v] (zetaHave := cfg.zetaHave)) args)
+          else if cfg.zetaUnused && !b.hasLooseBVars then
+            return (← go <| mkAppN (consumeUnusedLet b) args)
         let f := f.getAppFn
         let f' ← go f
         /-
@@ -697,7 +742,7 @@ partial def smartUnfoldingReduce? (e : Expr) : MetaM (Option Expr) :=
 where
   go (e : Expr) : OptionT MetaM Expr := do
     match e with
-    | .letE n t v b _ => withLetDecl n t (← go v) fun x => do mkLetFVars #[x] (← go (b.instantiate1 x))
+    | .letE n t v b nondep => mapLetDecl n t (← go v) (nondep := nondep) fun x => go (b.instantiate1 x)
     | .lam .. => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← go b)
     | .app f a .. => return mkApp (← go f) (← go a)
     | .proj _ _ s => return e.updateProj! (← go s)

@@ -779,7 +779,7 @@ def isClosed (ch : Sync α) : BaseIO Bool := CloseableChannel.isClosed ch
 def tryRecv (ch : Sync α) : BaseIO (Option α) := CloseableChannel.tryRecv ch
 
 /--
-Receive a value from the channel, blocking unitl the transmission could be completed. Note that the
+Receive a value from the channel, blocking until the transmission could be completed. Note that the
 return value may be `none` if the channel was closed before it could be completed.
 -/
 def recv (ch : Sync α) : BaseIO (Option α) := do
@@ -909,7 +909,7 @@ def send (ch : Sync α) (v : α) : BaseIO Unit := do
 def tryRecv (ch : Sync α) : BaseIO (Option α) := Channel.tryRecv ch
 
 /--
-Receive a value from the channel, blocking unitl the transmission could be completed.
+Receive a value from the channel, blocking until the transmission could be completed.
 -/
 def recv [Inhabited α] (ch : Sync α) : BaseIO α := do
   IO.wait (← Channel.recv ch)

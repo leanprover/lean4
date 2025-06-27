@@ -134,6 +134,7 @@ private def mkIndexConfig (c : Config) : MetaM ConfigWithKey := do
     beta         := c.beta
     iota         := c.iota
     zeta         := c.zeta
+    zetaHave     := c.zetaHave
     zetaUnused   := c.zetaUnused
     zetaDelta    := c.zetaDelta
     etaStruct    := c.etaStruct
@@ -152,8 +153,9 @@ private def mkMetaConfig (c : Config) : MetaM ConfigWithKey := do
   let curr ← Meta.getConfig
   return { curr with
     beta         := c.beta
-    zeta         := c.zeta
     iota         := c.iota
+    zeta         := c.zeta
+    zetaHave     := c.zetaHave
     zetaUnused   := c.zetaUnused
     zetaDelta    := c.zetaDelta
     etaStruct    := c.etaStruct
@@ -204,6 +206,9 @@ structure UsedSimps where
   size : Nat := 0
   deriving Inhabited
 
+def UsedSimps.contains (s : UsedSimps) (thmId : Origin) : Bool :=
+  s.map.contains thmId
+
 def UsedSimps.insert (s : UsedSimps) (thmId : Origin) : UsedSimps :=
   if s.map.contains thmId then
     s
@@ -232,6 +237,7 @@ structure Diagnostics where
 structure State where
   cache        : Cache := {}
   congrCache   : CongrCache := {}
+  dsimpCache   : ExprStructMap Expr := {}
   usedTheorems : UsedSimps := {}
   numSteps     : Nat := 0
   diag         : Diagnostics := {}
@@ -258,6 +264,13 @@ abbrev SimpM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
 @[inline] def withInDSimp : SimpM α → SimpM α :=
   withTheReader Context (fun ctx => { ctx with inDSimp := true })
 
+@[inline] def withInDSimpWithCache (k : ExprStructMap Expr → SimpM (α × ExprStructMap Expr)) : SimpM α := do
+  -- replace the cache in the state to ensure the old cache is used linearly.
+  let dsimpCache ← modifyGet fun s => (s.dsimpCache, { s with dsimpCache := {} })
+  let (x, dsimpCache) ← withInDSimp (k dsimpCache)
+  modify fun s => { s with dsimpCache }
+  return x
+
 /--
 Executes `x` using a `MetaM` configuration for indexing terms.
 It is inferred from `Simp.Config`.
@@ -281,7 +294,7 @@ opaque dsimp (e : Expr) : SimpM Expr
 
 @[inline] def modifyDiag (f : Diagnostics → Diagnostics) : SimpM Unit := do
   if (← isDiagnosticsEnabled) then
-    modify fun { cache, congrCache, usedTheorems, numSteps, diag } => { cache, congrCache, usedTheorems, numSteps, diag := f diag }
+    modify fun { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag } => { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag := f diag }
 
 /--
 Result type for a simplification procedure. We have `pre` and `post` simplification procedures.
@@ -803,6 +816,44 @@ def Result.addForalls (r : Result) (xs : Array Expr) : MetaM Result := do
     let p ← xs.foldrM (init := h) fun x h => do
       mkForallCongr (← mkLambdaFVars #[x] h)
     return { expr := eNew, proof? := p }
+
+
+@[inline] private def withSimpContext (ctx : Context) (x : MetaM α) : MetaM α := do
+  withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <|
+  withTrackingZetaDeltaSet ctx.zetaDeltaSet <|
+  withReducible x
+
+/--
+Adds the fvars from `usedZetaDelta` to `s` if they are present in
+the set `zetaDeltaSet` of fvars that are explicitly added to the simp context.
+
+*Note:* `usedZetaDelta` might contain fvars that are not in `zetaDeltaSet`,
+since within `withResetZetaDeltaFVarIds` it is possible for `whnf` to be run with different configurations,
+ones that allow zeta-delta reducing fvars not in `zetaDeltaSet` (e.g. `withInferTypeConfig` sets `zetaDelta := true`).
+This also means that `usedZetaDelta` set might be reporting fvars in `zetaDeltaSet` that weren't "used".
+-/
+private def updateUsedSimpsWithZetaDeltaCore (s : UsedSimps) (zetaDeltaSet : FVarIdSet) (usedZetaDelta : FVarIdSet) : UsedSimps :=
+  zetaDeltaSet.fold (init := s) fun s fvarId =>
+    if usedZetaDelta.contains fvarId then
+      s.insert <| .fvar fvarId
+    else
+      s
+
+private def updateUsedSimpsWithZetaDelta (ctx : Context) (stats : Stats) : MetaM Stats := do
+  let used := stats.usedTheorems
+  let used := updateUsedSimpsWithZetaDeltaCore used ctx.zetaDeltaSet ctx.initUsedZetaDelta
+  let used := updateUsedSimpsWithZetaDeltaCore used ctx.zetaDeltaSet (← getZetaDeltaFVarIds)
+  return { stats with usedTheorems := used }
+
+
+def SimpM.run (ctx : Context) (s : State := {}) (methods : Methods := {}) (k : SimpM α) : MetaM (α × State) := do
+  let ctx ← ctx.setLctxInitIndices
+  withSimpContext ctx do
+    let (r, s) ← k methods.toMethodsRef ctx |>.run s
+    trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
+    let stats ← updateUsedSimpsWithZetaDelta ctx { s with }
+    let s := { s with diag := stats.diag, usedTheorems := stats.usedTheorems }
+    return (r, s)
 
 end Simp
 

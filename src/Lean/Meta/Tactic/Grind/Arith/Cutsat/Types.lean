@@ -7,8 +7,9 @@ prelude
 import Init.Data.Int.Linear
 import Std.Internal.Rat
 import Lean.Data.PersistentArray
-import Lean.Meta.Tactic.Grind.ENodeKey
+import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.Arith.Util
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -153,7 +154,7 @@ inductive DvdCnstrProof where
   /-- `c.c₃?` must be `some` -/
   | cooper₂ (c : CooperSplit)
 
-/-- An inequalirty constraint and its justification/proof. -/
+/-- An inequality constraint and its justification/proof. -/
 structure LeCnstr where
   p  : Poly
   h  : LeCnstrProof
@@ -163,6 +164,7 @@ inductive LeCnstrProof where
   | coreNeg (e : Expr) (p : Poly)
   | coreNat (e : Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
   | coreNatNeg (e : Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
+  | coreToInt (e : Expr) (pos : Bool) (toIntThm : Expr) (lhs rhs : Int.Linear.Expr)
   | denoteAsIntNonneg (rhs : Int.OfNat.Expr) (rhs' : Int.Linear.Expr)
   | dec (h : FVarId)
   | norm (c : LeCnstr)
@@ -197,7 +199,7 @@ inductive DiseqCnstrProof where
 
 /--
 A proof of `False`.
-Remark: We will later add support for a backtraking search inside of cutsat.
+Remark: We will later add support for a backtracking search inside of cutsat.
 -/
 inductive UnsatProof where
   | dvd (c : DvdCnstr)
@@ -222,27 +224,23 @@ instance : Inhabited CooperSplit where
 
 abbrev VarSet := RBTree Var compare
 
-inductive ForeignType where
-  | nat
-  deriving BEq, Hashable
-
 /-- State of the cutsat procedure. -/
 structure State where
   /-- Mapping from variables to their denotations. -/
   vars : PArray Expr := {}
   /-- Mapping from `Expr` to a variable representing it. -/
-  varMap  : PHashMap ENodeKey Var := {}
+  varMap  : PHashMap ExprPtr Var := {}
   /--
-  Mapping from foreign terms to their variable and type (e.g., `Nat`). They are also marked using `markAsCutsatTerm`.
+  Mapping from `Nat` terms to their variable. They are also marked using `markAsCutsatTerm`.
   -/
-  foreignVarMap : PHashMap ENodeKey (Var × ForeignType) := {}
-  foreignVars : PHashMap ForeignType (PArray Expr) := {}
+  natVarMap : PHashMap ExprPtr Var := {}
+  natVars : PArray Expr := {}
   /--
-  Some foreign variables encode nested terms such as `b+1`.
+  Some `Nat` variables encode nested terms such as `b+1`.
   This is a mapping from this kind of variable to the integer variable
   representing `natCast (b+1)`.
   -/
-  foreignDef : PHashMap ENodeKey Var := {}
+  natDef : PHashMap ExprPtr Var := {}
   /--
   Mapping from variables to divisibility constraints. Recall that we keep the divisibility constraint in solved form.
   Thus, we have at most one divisibility per variable. -/
@@ -306,7 +304,16 @@ structure State where
   - `Int.Linear.emod_le`
   -/
   divMod : PHashSet (Expr × Int) := {}
-  /- TODO: Model-based theory combination. -/
+  /--
+  Mapping from a type `α` to its corresponding `ToIntInfo` object, which contains
+  the information needed to embed `α` terms into `Int` terms.
+  -/
+  toIntInfos : PHashMap ExprPtr (Option ToIntInfo) := {}
+  /--
+  For each type `α` in `toIntInfos`, the mapping `toIntVarMap` contains a mapping
+  from a α-term `e` to the pair `(toInt e, α)`.
+  -/
+  toIntTermMap : PHashMap ExprPtr ToIntTermInfo := {}
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.Cutsat

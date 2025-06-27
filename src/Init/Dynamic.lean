@@ -67,7 +67,7 @@ value from `Dynamic` if it has some expected type.
 -/
 def Dynamic : Type := DynamicPointed.type
 
-instance : Nonempty Dynamic := DynamicPointed.property
+instance : Nonempty Dynamic := by exact DynamicPointed.property
 
 private unsafe def Dynamic.typeNameImpl (any : Dynamic) : Name :=
   (unsafeCast any : Name × NonScalar).1

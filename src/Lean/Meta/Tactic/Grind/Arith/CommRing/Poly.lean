@@ -4,8 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Grind.CommRing.Poly
+import Init.Grind.Ring.Poly
 namespace Lean.Grind.CommRing
+
+/-- `sharesVar m₁ m₂` returns `true` if `m₁` and `m₂` shares at least one variable. -/
+def Mon.sharesVar : Mon → Mon → Bool
+  | .unit, _ => false
+  | _, .unit => false
+  | .mult pw₁ m₁, .mult pw₂ m₂ =>
+    match compare pw₁.x pw₂.x with
+    | .eq => true
+    | .lt => sharesVar m₁ (.mult pw₂ m₂)
+    | .gt => sharesVar (.mult pw₁ m₁) m₂
 
 /-- `lcm m₁ m₂` returns the least common multiple of the given monomials. -/
 def Mon.lcm : Mon → Mon → Mon

@@ -13,6 +13,9 @@ import Std.Data.TreeSet
 import Std.Data.ExtDHashMap
 import Std.Data.ExtHashMap
 import Std.Data.ExtHashSet
+import Std.Data.ExtDTreeMap
+import Std.Data.ExtTreeMap
+import Std.Data.ExtTreeSet
 
 -- The imports above only import the modules needed to work with the version which bundles
 -- the well-formedness invariant, so we need to additionally import the files that deal with the
@@ -23,3 +26,5 @@ import Std.Data.HashSet.RawLemmas
 import Std.Data.DTreeMap.Raw
 import Std.Data.TreeMap.Raw
 import Std.Data.TreeSet.Raw
+
+import Std.Data.Iterators

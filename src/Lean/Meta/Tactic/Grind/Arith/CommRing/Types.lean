@@ -4,20 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Grind.Ring.OfSemiring
 import Lean.Data.PersistentArray
 import Lean.Data.RBTree
-import Lean.Meta.Tactic.Grind.ENodeKey
+import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
 
 namespace Lean.Meta.Grind.Arith.CommRing
 export Lean.Grind.CommRing (Var Power Mon Poly)
 abbrev RingExpr := Grind.CommRing.Expr
-
-deriving instance Repr for Power, Mon, Poly
+abbrev SemiringExpr := Grind.Ring.OfSemiring.Expr
 
 mutual
-
 structure EqCnstr where
   p     : Poly
   h     : EqCnstrProof
@@ -26,11 +25,11 @@ structure EqCnstr where
 
 inductive EqCnstrProof where
   | core (a b : Expr) (ra rb : RingExpr)
+  | coreS (a b : Expr) (sa sb : SemiringExpr) (ra rb : RingExpr)
   | superpose (k₁ : Int) (m₁ : Mon) (c₁ : EqCnstr) (k₂ : Int) (m₂ : Mon) (c₂ : EqCnstr)
   | simp (k₁ : Int) (c₁ : EqCnstr) (k₂ : Int) (m₂ : Mon) (c₂ : EqCnstr)
   | mul (k : Int) (e : EqCnstr)
   | div (k : Int) (e : EqCnstr)
-
 end
 
 instance : Inhabited EqCnstrProof where
@@ -123,21 +122,39 @@ structure DiseqCnstr where
   rlhs : RingExpr
   /-- Reified `rhs` -/
   rrhs : RingExpr
-  /-- `lhs - rhs` simplication chain. If it becomes `0` we have an inconsistency. -/
+  /-- `lhs - rhs` simplification chain. If it becomes `0` we have an inconsistency. -/
   d : PolyDerivation
+  /--
+  If `lhs` and `rhs` are semiring expressions that have been adapted as ring ones.
+  The respective semiring reified expressions are stored here.
+  -/
+  ofSemiring? : Option (SemiringExpr × SemiringExpr)
 
 /-- State for each `CommRing` processed by this module. -/
 structure Ring where
   id             : Nat
+  /--
+  If this is a `OfSemiring.Q α` ring, this field contain the
+  `semiringId` for `α`.
+  -/
+  semiringId?    : Option Nat
   type           : Expr
   /-- Cached `getDecLevel type` -/
   u              : Level
+  /-- `Semiring` instance for `type` -/
+  semiringInst   : Expr
+  /-- `Ring` instance for `type` -/
+  ringInst       : Expr
+  /-- `CommSemiring` instance for `type` -/
+  commSemiringInst   : Expr
   /-- `CommRing` instance for `type` -/
   commRingInst   : Expr
   /-- `IsCharP` instance for `type` if available. -/
-  charInst?      : Option (Expr × Nat) := .none
+  charInst?      : Option (Expr × Nat)
   /-- `NoNatZeroDivisors` instance for `type` if available. -/
-  noZeroDivInst? : Option Expr := .none
+  noZeroDivInst? : Option Expr
+  /-- `Field` instance for `type` if available. -/
+  fieldInst?     : Option Expr
   addFn          : Expr
   mulFn          : Expr
   subFn          : Expr
@@ -145,15 +162,18 @@ structure Ring where
   powFn          : Expr
   intCastFn      : Expr
   natCastFn      : Expr
+  /-- Inverse if `fieldInst?` is `some inst` -/
+  invFn?         : Option Expr
+  one            : Expr
   /--
   Mapping from variables to their denotations.
   Remark each variable can be in only one ring.
   -/
   vars           : PArray Expr := {}
   /-- Mapping from `Expr` to a variable representing it. -/
-  varMap         : PHashMap ENodeKey Var := {}
+  varMap         : PHashMap ExprPtr Var := {}
   /-- Mapping from Lean expressions to their representations as `RingExpr` -/
-  denote         : PHashMap ENodeKey RingExpr := {}
+  denote         : PHashMap ExprPtr RingExpr := {}
   /-- Next unique id for `EqCnstr`s. -/
   nextId         : Nat := 0
   /-- Number of "steps": simplification and superposition. -/
@@ -161,10 +181,11 @@ structure Ring where
   /-- Equations to process. -/
   queue          : Queue := {}
   /--
-  Mapping from variables `x` to equations such that the smallest variable
-  in the leading monomial is `x`.
+  The basis is currently just a list. If this is a performance bottleneck, we should use
+  a better data-structure. For examples, we could use a simple indexing for the linear case
+  where we map variable in the leading monomial to `EqCnstr`.
   -/
-  varToBasis     : PArray (List EqCnstr) := {}
+  basis          : List EqCnstr := {}
   /-- Disequalities. -/
   -- TODO: add indexing
   diseqs         : PArray DiseqCnstr := {}
@@ -173,6 +194,41 @@ structure Ring where
   disequalities and implied equalities.
   -/
   recheck        : Bool := false
+  /-- Inverse theorems that have been already asserted. -/
+  invSet         : PHashSet Expr := {}
+  deriving Inhabited
+
+/--
+State for each `CommSemiring` processed by this module.
+Recall that `CommSemiring` are processed using the envelop `OfCommSemiring.Q`
+-/
+structure Semiring where
+  id             : Nat
+  /-- Id for `OfCommSemiring.Q` -/
+  ringId         : Nat
+  type           : Expr
+  /-- Cached `getDecLevel type` -/
+  u              : Level
+  /-- `Semiring` instance for `type` -/
+  semiringInst   : Expr
+  /-- `CommSemiring` instance for `type` -/
+  commSemiringInst   : Expr
+  /-- `AddRightCancel` instance for `type` if available. -/
+  addRightCancelInst? : Option Expr
+  toQFn          : Expr
+  addFn          : Expr
+  mulFn          : Expr
+  powFn          : Expr
+  natCastFn      : Expr
+  /-- Mapping from Lean expressions to their representations as `SemiringExpr` -/
+  denote         : PHashMap ExprPtr SemiringExpr := {}
+  /--
+  Mapping from variables to their denotations.
+  Remark each variable can be in only one ring.
+  -/
+  vars           : PArray Expr := {}
+  /-- Mapping from `Expr` to a variable representing it. -/
+  varMap         : PHashMap ExprPtr Var := {}
   deriving Inhabited
 
 /-- State for all `CommRing` types detected by `grind`. -/
@@ -185,9 +241,22 @@ structure State where
   /--
   Mapping from types to its "ring id". We cache failures using `none`.
   `typeIdOf[type]` is `some id`, then `id < rings.size`. -/
-  typeIdOf : PHashMap ENodeKey (Option Nat) := {}
+  typeIdOf : PHashMap ExprPtr (Option Nat) := {}
   /- Mapping from expressions/terms to their ring ids. -/
-  exprToRingId : PHashMap ENodeKey Nat := {}
+  exprToRingId : PHashMap ExprPtr Nat := {}
+  /-- Commutative semirings. We support them using the envelope `OfCommRing.Q` -/
+  semirings : Array Semiring := {}
+  /--
+  Mapping from types to its "semiring id". We cache failures using `none`.
+  `stypeIdOf[type]` is `some id`, then `id < semirings.size`.
+  If a type is in this map, it is not in `typeIdOf`.
+  -/
+  stypeIdOf : PHashMap ExprPtr (Option Nat) := {}
+  /-
+  Mapping from expressions/terms to their semiring ids.
+  If an expression is in this map, it is not in `exprToRingId`.
+  -/
+  exprToSemiringId : PHashMap ExprPtr Nat := {}
   steps := 0
   deriving Inhabited
 

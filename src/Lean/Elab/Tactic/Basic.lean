@@ -11,10 +11,10 @@ namespace Lean.Elab
 open Meta
 
 /-- Assign `mvarId := sorry` -/
-def admitGoal (mvarId : MVarId) : MetaM Unit :=
+def admitGoal (mvarId : MVarId) (synthetic : Bool := true): MetaM Unit :=
   mvarId.withContext do
     let mvarType ← inferType (mkMVar mvarId)
-    mvarId.assign (← mkLabeledSorry mvarType (synthetic := true) (unique := true))
+    mvarId.assign (← mkLabeledSorry mvarType (synthetic := synthetic) (unique := true))
 
 def goalsToMessageData (goals : List MVarId) : MessageData :=
   MessageData.joinSep (goals.map MessageData.ofGoal) m!"\n\n"
@@ -127,10 +127,19 @@ def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
 protected def getCurrMacroScope : TacticM MacroScope := do pure (← readThe Core.Context).currMacroScope
 protected def getMainModule     : TacticM Name       := do pure (← getEnv).mainModule
 
-unsafe def mkTacticAttribute : IO (KeyedDeclsAttribute Tactic) :=
-  mkElabAttribute Tactic `builtin_tactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic" `Lean.Elab.Tactic.tacticElabAttribute
+/--
+Registers a tactic elaborator for the given syntax node kind.
 
-@[builtin_init mkTacticAttribute] opaque tacticElabAttribute : KeyedDeclsAttribute Tactic
+A tactic elaborator should have type `Lean.Elab.Tactic.Tactic` (which is
+`Lean.Syntax → Lean.Elab.Tactic.TacticM Unit`), i.e. should take syntax of the given syntax
+node kind as a parameter and alter the tactic state.
+
+The `elab_rules` and `elab` commands should usually be preferred over using this attribute
+directly.
+-/
+@[builtin_doc]
+unsafe builtin_initialize tacticElabAttribute : KeyedDeclsAttribute Tactic ←
+  mkElabAttribute Tactic `builtin_tactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic"
 
 def mkTacticInfo (mctxBefore : MetavarContext) (goalsBefore : List MVarId) (stx : Syntax) : TacticM Info :=
   return Info.ofTacticInfo {

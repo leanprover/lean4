@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Combinators
 import Lean.Meta.Tactic.Grind.Canon
 
 namespace Lean.Meta.Grind
@@ -28,7 +27,7 @@ structure MBTC.Context where
   /--
   `eqAssignment x y` returns `true` it the theory variables for `x` and `y` have the same
   interpretation/assignment in the target theory. For example, suppose we have the
-  constraint `x + y ≤ 0`, and cutsat satified it by assignining both `x` and `y` to
+  constraint `x + y ≤ 0`, and cutsat satisfied it by assignining both `x` and `y` to
   `0`. Then, `eqAssignment x y` must return `true`.
   -/
   eqAssignment : Expr → Expr → GoalM Bool
@@ -46,7 +45,7 @@ private def mkCandidate (a b : ArgInfo) (i : Nat) : GoalM SplitInfo := do
     (b.arg, a.arg)
   let eq ← mkEq lhs rhs
   let eq ← shareCommon (← canon eq)
-  return .arg a.app b.app i eq
+  return .arg a.app b.app i eq (.mbtc a.app b.app i)
 
 /-- Model-based theory combination. -/
 def mbtc (ctx : MBTC.Context) : GoalM Bool := do
@@ -85,7 +84,7 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
   let result ← result.filterMapM fun info => do
     if (← isKnownCaseSplit info) then
       return none
-    let .arg a b _ eq := info | return none
+    let .arg a b _ eq _ := info | return none
     internalize eq (Nat.max (← getGeneration a) (← getGeneration b))
     return some info
   if result.isEmpty then
@@ -93,12 +92,5 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
   for info in result do
     addSplitCandidate info
   return true
-
-def mbtcTac (ctx : MBTC.Context) : GrindTactic := fun goal => do
-  let (r, goal) ← GoalM.run goal do mbtc ctx
-  if r then
-    return some [goal]
-  else
-    return none
 
 end Lean.Meta.Grind

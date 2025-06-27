@@ -20,7 +20,7 @@ inductive Action where
   | delete
   /-- Leave the item in the source -/
   | skip
-deriving Repr, BEq, Hashable, Repr
+deriving Repr, BEq, Hashable, Inhabited
 
 instance : ToString Action where
   toString

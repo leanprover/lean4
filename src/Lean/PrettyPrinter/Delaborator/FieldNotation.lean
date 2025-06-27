@@ -5,6 +5,7 @@ Authors: Kyle Miller
 -/
 prelude
 import Lean.Meta.InferType
+import Lean.Meta.WHNF
 import Lean.PrettyPrinter.Delaborator.Attributes
 import Lean.PrettyPrinter.Delaborator.Options
 import Lean.Structure
@@ -17,29 +18,43 @@ namespace Lean.PrettyPrinter.Delaborator
 open Meta
 
 /--
-If this constant is a structure projection that could delaborate using dot notation,
-returns the field name, the number of parameters before the structure argument, and whether this is a parent projection.
-Otherwise it fails.
+If this constant is a structure projection that could delaborate using dot notation, returns
+- the field name,
+- the number of parameters before the structure argument,
+- whether this is a "true" projection (or else a non-subobject parent projection),
+- whether this is a parent projection, and
+- whether this is a class projection.
+Otherwise it returns `none`.
 -/
-private def projInfo (c : Name) : MetaM (Name × Nat × Bool) := do
-  let .str _ field := c | failure
-  let field := Name.mkSimple field
+private def projInfo (c : Name) : MetaM (Option (Name × Nat × Bool × Bool × Bool)) := do
   let env ← getEnv
-  let some info := env.getProjectionFnInfo? c | failure
-  -- Don't use projection notation for instances of classes.
-  guard <| !info.fromClass
-  let some (.ctorInfo cVal) := env.find? info.ctorName | failure
-  let isParentProj := (isSubobjectField? env cVal.induct field).isSome
-  return (field, info.numParams, isParentProj)
+  let .str s field := c | return none
+  let field := Name.mkSimple field
+  let some structInfo := getStructureInfo? env s | return none
+  let isFromClass := isClass env s
+  let info ← getConstInfoInduct s
+  if let some fieldInfo := getFieldInfo? env s field then
+    return (field, info.numParams, true, fieldInfo.subobject?.isSome, isFromClass)
+  else if structInfo.parentInfo.any (·.projFn == c) then
+    return (field, info.numParams, false, true, isFromClass)
+  else
+    return none
 
 /--
 Like `Lean.Elab.Term.typeMatchesBaseName` but does not use `Function` for pi types.
 -/
-private def typeMatchesBaseName (type : Expr) (baseName : Name) : MetaM Bool := do
-  if type.cleanupAnnotations.isAppOf baseName then
-    return true
-  else
-    return (← whnfR type).isAppOf baseName
+private partial def typeMatchesBaseName (type : Expr) (baseName : Name) : MetaM Bool := do
+  withReducibleAndInstances do
+    if type.cleanupAnnotations.isAppOf baseName then
+      return true
+    else
+      let type ← whnfCore type
+      if type.isAppOf baseName then
+        return true
+      else
+        match ← unfoldDefinition? type with
+        | some type' => typeMatchesBaseName type' baseName
+        | none => return false
 
 /--
 If this constant application could delaborate using generalized field notation with little confusion,
@@ -75,6 +90,12 @@ private def generalizedFieldInfo (c : Name) (args : Array Expr) : MetaM (Name ×
         guard !(← fvarId.getBinderInfo).isExplicit
     failure
 
+private def testAppOf (e : Expr) (c : Name) : MetaM Bool := do
+  if e.isAppOf c then
+    return true
+  else
+    return (← whnfD e).isAppOf c
+
 /--
 If `f` is a function that can be used for field notation,
 returns the field name to use and the argument index for the object of the field notation.
@@ -87,12 +108,12 @@ def fieldNotationCandidate? (f : Expr) (args : Array Expr) (useGeneralizedFieldN
   if hasPPNoDotAttribute env c then
     return none
   -- Handle structure projections
-  try
-    let (field, numParams, _) ← projInfo c
-    unless numParams + 1 ≤ args.size do return none
-    unless (← whnf <| ← inferType args[numParams]!).isAppOf c.getPrefix do return none
+  if let some (field, numParams, _isTrueProj, isParentProj, isFromClass) ← projInfo c then
+    -- Don't use field notation for classes, unless it is a parent projection.
+    unless !isFromClass || isParentProj do return none
+    unless numParams < args.size do return none
+    unless ← testAppOf (← inferType args[numParams]!) c.getPrefix do return none
     return (field, numParams)
-  catch _ => pure ()
   -- Handle generalized field notation
   if useGeneralizedFieldNotation then
     try
@@ -109,14 +130,11 @@ If `explicit` is `true`, then requires that the structure have no parameters.
 -/
 def parentProj? (explicit : Bool) (e : Expr) : MetaM (Option Name) := do
   unless e.isApp do return none
-  try
-    let .const c .. := e.getAppFn | failure
-    let (field, numParams, isParentProj) ← projInfo c
-    if isParentProj && (!explicit || numParams == 0) && e.getAppNumArgs == numParams + 1 then
-      return some field
-    else
-      return none
-  catch _ =>
+  let .const c .. := e.getAppFn | return none
+  let some (field, numParams, isTrueProj, isParentProj, _isFromClass) ← projInfo c | return none
+  if isTrueProj && isParentProj && (!explicit || numParams == 0) && e.getAppNumArgs == numParams + 1 then
+    return some field
+  else
     return none
 
 /--

@@ -9,6 +9,7 @@ prelude
 
 import Init.ByCases
 import Init.RCases
+import all Init.Control.Except  -- for `MonoBind` instance
 
 /-!
 This module contains some basic definitions and results from domain theory, intended to be used as
@@ -167,7 +168,7 @@ A function is monotone if it maps related elements to related elements.
 
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
-def monotone (f : α → β) : Prop := ∀ x y, x ⊑ y → f x ⊑ f y
+@[expose] def monotone (f : α → β) : Prop := ∀ x y, x ⊑ y → f x ⊑ f y
 
 theorem monotone_const (c : β) : monotone (fun (_ : α) => c) :=
   fun _ _ _ => PartialOrder.rel_refl
@@ -233,7 +234,7 @@ theorem admissible_or (P Q : α → Prop)
     open Classical in
     apply Decidable.or_iff_not_imp_left.mpr
     intro h'
-    simp only [not_forall, not_imp, not_exists, not_and] at h'
+    simp only [not_forall, not_exists, not_and] at h'
     obtain ⟨x, hcx, hx⟩ := h'
     intro y hcy
     cases hchain x y hcx hcy  with
@@ -362,7 +363,7 @@ theorem chain_iterates {f : α → α} (hf : monotone f) : chain (iterates f) :=
       · left; apply hf; assumption
       · right; apply hf; assumption
     case sup c hchain hi ih2 =>
-      show f x ⊑ csup c ∨ csup c ⊑ f x
+      change f x ⊑ csup c ∨ csup c ⊑ f x
       by_cases h : ∃ z, c z ∧ f x ⊑ z
       · left
         obtain ⟨z, hz, hfz⟩ := h
@@ -379,7 +380,7 @@ theorem chain_iterates {f : α → α} (hf : monotone f) : chain (iterates f) :=
         next => contradiction
         next => assumption
   case sup c hchain hi ih =>
-    show rel (csup c) y ∨ rel y (csup c)
+    change rel (csup c) y ∨ rel y (csup c)
     by_cases h : ∃ z, c z ∧ rel y z
     · right
       obtain ⟨z, hz, hfz⟩ := h
@@ -707,7 +708,7 @@ set_option linter.unusedVariables false in
 
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
-def FlatOrder {α : Sort u} (b : α) := α
+@[expose] def FlatOrder {α : Sort u} (b : α) := α
 
 variable {b : α}
 
@@ -842,7 +843,7 @@ end mono_bind
 
 section implication_order
 -- Partial order on `Prop` given by implication
-def ImplicationOrder := Prop
+@[expose] def ImplicationOrder := Prop
 
 instance ImplicationOrder.instOrder : PartialOrder ImplicationOrder where
   rel x y := x → y
@@ -876,6 +877,12 @@ instance ImplicationOrder.instCompleteLattice : CompleteLattice ImplicationOrder
     @monotone _ _ _ ImplicationOrder.instOrder (fun x => (Exists (f x))) :=
   fun x y hxy ⟨w, hw⟩ => ⟨w, monotone_apply w f h x y hxy hw⟩
 
+@[partial_fixpoint_monotone] theorem implication_order_monotone_forall
+    {α} [PartialOrder α] {β} (f : α → β → ImplicationOrder)
+    (h : monotone f) :
+    @monotone _ _ _ ImplicationOrder.instOrder (fun x => ∀ y, f x y) :=
+  fun x y hxy h₂ y₁ => monotone_apply y₁ f h x y hxy (h₂ y₁)
+
 @[partial_fixpoint_monotone] theorem implication_order_monotone_and
     {α} [PartialOrder α] (f₁ : α → ImplicationOrder) (f₂ : α → ImplicationOrder)
     (h₁ : @monotone _ _ _ ImplicationOrder.instOrder f₁)
@@ -897,7 +904,7 @@ end implication_order
 
 section reverse_implication_order
 
-def ReverseImplicationOrder := Prop
+@[expose] def ReverseImplicationOrder := Prop
 
 -- Partial order on `Prop` given by reverse implication
 instance ReverseImplicationOrder.instOrder : PartialOrder ReverseImplicationOrder where
@@ -907,7 +914,7 @@ instance ReverseImplicationOrder.instOrder : PartialOrder ReverseImplicationOrde
   rel_antisymm h₁ h₂ := propext ⟨h₂, h₁⟩
 
 -- This defines a complete lattice on `Prop`, used to define coinductive predicates
-def ReverseImplicationOrder.instCompleteLattice : CompleteLattice ReverseImplicationOrder where
+instance ReverseImplicationOrder.instCompleteLattice : CompleteLattice ReverseImplicationOrder where
   sup c := ∀ p, c p → p
   sup_spec := by
     intro x c
@@ -930,6 +937,12 @@ def ReverseImplicationOrder.instCompleteLattice : CompleteLattice ReverseImplica
     @monotone _ _ _ ReverseImplicationOrder.instOrder (fun x => Exists (f x)) :=
   fun x y hxy ⟨w, hw⟩ => ⟨w, monotone_apply w f h x y hxy hw⟩
 
+@[partial_fixpoint_monotone] theorem coind_monotone_forall
+    {α} [PartialOrder α] {β} (f : α → β → ReverseImplicationOrder)
+    (h : monotone f) :
+    @monotone _ _ _ ReverseImplicationOrder.instOrder (fun x => ∀ y, f x y) :=
+  fun x y hxy h₂ y₁ => monotone_apply y₁ f h x y hxy (h₂ y₁)
+
 @[partial_fixpoint_monotone] theorem coind_monotone_and
     {α} [PartialOrder α] (f₁ : α → Prop) (f₂ : α → Prop)
     (h₁ : @monotone _ _ _ ReverseImplicationOrder.instOrder f₁)
@@ -946,8 +959,47 @@ def ReverseImplicationOrder.instCompleteLattice : CompleteLattice ReverseImplica
     match h with
     | Or.inl hfx₁ => Or.inl (h₁ x y hxy hfx₁)
     | Or.inr hfx₂ => Or.inr (h₂ x y hxy hfx₂)
-
 end reverse_implication_order
+
+section antitone
+@[partial_fixpoint_monotone] theorem coind_not
+    {α} [PartialOrder α] (f₁ : α → Prop)
+    (h₁ : @monotone _ _ _ ReverseImplicationOrder.instOrder f₁) :
+    @monotone _ _ _ ImplicationOrder.instOrder (fun x => ¬f₁ x) := by
+  intro x y hxy hfx h
+  exact hfx (h₁ x y hxy h)
+
+@[partial_fixpoint_monotone] theorem ind_not
+    {α} [PartialOrder α] (f₁ : α → Prop)
+    (h₁ : @monotone _ _ _ ImplicationOrder.instOrder f₁) :
+    @monotone _ _ _ ReverseImplicationOrder.instOrder (fun x => ¬f₁ x) := by
+  intro x y hxy hfx h
+  exact hfx (h₁ x y hxy h)
+
+@[partial_fixpoint_monotone] theorem ind_impl
+    {α} [PartialOrder α] (f₁ : α → Prop) (f₂ : α → Prop)
+    (h₁ : @monotone _ _ _ ReverseImplicationOrder.instOrder f₁)
+    (h₂ : @monotone _ _ _ ImplicationOrder.instOrder f₂):
+    @monotone _ _ _ ImplicationOrder.instOrder (fun x => f₁ x → f₂ x) := by
+  intro x y hxy himp hf1
+  specialize h₁ x y hxy hf1
+  specialize h₂ x y hxy
+  apply h₂
+  apply himp
+  exact h₁
+
+@[partial_fixpoint_monotone] theorem coind_impl
+    {α} [PartialOrder α] (f₁ : α → Prop) (f₂ : α → Prop)
+    (h₁ : @monotone _ _ _ ImplicationOrder.instOrder f₁)
+    (h₂ : @monotone _ _ _ ReverseImplicationOrder.instOrder f₂):
+    @monotone _ _ _ ReverseImplicationOrder.instOrder (fun x => f₁ x → f₂ x) := by
+  intro x y hxy himp hf1
+  specialize h₁ x y hxy hf1
+  specialize h₂ x y hxy
+  apply h₂
+  apply himp
+  exact h₁
+end antitone
 
 namespace Example
 

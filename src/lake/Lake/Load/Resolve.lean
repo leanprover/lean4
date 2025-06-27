@@ -56,6 +56,7 @@ def loadDepPackage
     scope := dep.scope
     remoteUrl := dep.remoteUrl
   }
+  let pkg ← pkg.loadInputsFrom ws.lakeCache
   if let some env := env? then
     let ws ← IO.ofExcept <| ws.addFacetsFromEnv env leanOpts
     return (pkg, ws)
@@ -318,7 +319,7 @@ R
 |- C
 ```
 
-Lake follows the order `R`, `C`, `A`, `B`, `Y`, `X`.
+Lake follows the order `R`, `C`, `B`, `A`, `Y`, `X`.
 
 The reason for this is two-fold:
 1. Like targets, later requires should shadow earlier definitions.

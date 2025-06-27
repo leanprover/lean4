@@ -6,11 +6,11 @@ Authors: Leonardo de Moura
 prelude
 import Lean.AddDecl
 import Lean.Meta.Basic
+import Lean.DefEqAttrib
 
 namespace Lean.Meta
 
 structure AuxLemmas where
-  idx    : Nat := 1
   lemmas : PHashMap Expr (Name × List Name) := {}
   deriving Inhabited
 
@@ -28,11 +28,12 @@ builtin_initialize auxLemmasExt : EnvExtension AuxLemmas ←
   This method is useful for tactics (e.g., `simp`) that may perform preprocessing steps to lemmas provided by
   users. For example, `simp` preprocessor may convert a lemma into multiple ones.
 -/
-def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) (prefix? : Option Name := none) (cache := true) : MetaM Name := do
+def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) (kind? : Option Name := none)
+    (cache := true) (inferRfl := false) : MetaM Name := do
   let env ← getEnv
   let s := auxLemmasExt.getState env
   let mkNewAuxLemma := do
-    let auxName := prefix?.getD (env.asyncPrefix?.getD (mkPrivateName env .anonymous)) ++ `_proof |>.appendIndexAfter s.idx
+    let auxName ← mkAuxDeclName (kind := kind?.getD `_proof)
     let decl :=
       if env.hasUnsafe type || env.hasUnsafe value then
         -- `result` contains unsafe code, thus we cannot use a theorem.
@@ -48,7 +49,9 @@ def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) (prefix? :
           levelParams, type, value
         }
     addDecl decl
-    modifyEnv fun env => auxLemmasExt.modifyState env fun ⟨idx, lemmas⟩ => ⟨idx + 1, lemmas.insert type (auxName, levelParams)⟩
+    if inferRfl then
+      inferDefEqAttr auxName
+    modifyEnv fun env => auxLemmasExt.modifyState env fun ⟨lemmas⟩ => ⟨lemmas.insert type (auxName, levelParams)⟩
     return auxName
   if cache then
     if let some (name, levelParams') := s.lemmas.find? type then

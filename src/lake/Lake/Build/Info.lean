@@ -17,8 +17,9 @@ Build info is what is the data passed to a Lake build function to facilitate
 the build.
 -/
 
+open Lean
+
 namespace Lake
-open Lean (Name)
 
 /-- The type of Lake's build info. -/
 inductive BuildInfo
@@ -177,6 +178,15 @@ abbrev BuildInfo.moduleFacet (module : Module) (facet : Name) : BuildInfo :=
 
 namespace Module
 
+@[inherit_doc inputFacet] abbrev input (self : Module) :=
+  self.facetCore inputFacet
+
+@[inherit_doc leanFacet] abbrev lean (self : Module) :=
+  self.facetCore leanFacet
+
+@[inherit_doc headerFacet] abbrev header (self : Module) :=
+  self.facetCore headerFacet
+
 @[inherit_doc importsFacet] abbrev imports (self : Module) :=
   self.facetCore importsFacet
 
@@ -186,14 +196,23 @@ namespace Module
 @[inherit_doc precompileImportsFacet] abbrev precompileImports (self : Module) :=
   self.facetCore precompileImportsFacet
 
+@[inherit_doc setupFacet] abbrev setup  (self : Module) :=
+  self.facetCore setupFacet
+
 @[inherit_doc depsFacet] abbrev deps  (self : Module) :=
   self.facetCore depsFacet
 
-@[inherit_doc leanArtsFacet] abbrev leanArts  (self : Module) :=
+@[inherit_doc leanArtsFacet] abbrev leanArts (self : Module) :=
   self.facetCore leanArtsFacet
 
 @[inherit_doc oleanFacet] abbrev olean (self : Module) :=
   self.facetCore oleanFacet
+
+@[inherit_doc oleanServerFacet] abbrev oleanServer (self : Module) :=
+  self.facetCore oleanServerFacet
+
+@[inherit_doc oleanPrivateFacet] abbrev oleanPrivate (self : Module) :=
+  self.facetCore oleanPrivateFacet
 
 @[inherit_doc ileanFacet] abbrev ilean (self : Module)  :=
   self.facetCore ileanFacet
@@ -276,12 +295,6 @@ abbrev gitHubRelease (self : Package) : BuildInfo :=
 @[inherit_doc optGitHubReleaseFacet]
 abbrev optGitHubRelease (self : Package) : BuildInfo :=
   self.facetCore optGitHubReleaseFacet
-
-@[deprecated gitHubRelease (since := "2024-09-27")]
-abbrev release := @gitHubRelease
-
-@[deprecated optGitHubRelease (since := "2024-09-27")]
-abbrev optRelease := @optGitHubRelease
 
 @[inherit_doc extraDepFacet]
 abbrev extraDep (self : Package) : BuildInfo :=

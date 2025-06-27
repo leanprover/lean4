@@ -21,7 +21,7 @@ Note that we will stick exclusively to the sync interface for this as there is n
 reaped from async in this benchmark so we might as well just block.
 -/
 
-def MESSAGES : Nat := 1_000_000
+def MESSAGES : Nat := 100_000
 def THREADS : Nat := 4
 
 def seq (ch : Std.CloseableChannel.Sync Nat) (amount : Nat) : IO Unit := do

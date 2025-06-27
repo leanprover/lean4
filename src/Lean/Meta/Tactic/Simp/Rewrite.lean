@@ -218,10 +218,19 @@ where
     else
       let candidates := candidates.insertionSort fun e₁ e₂ => e₁.1.priority > e₂.1.priority
       for (thm, numExtraArgs) in candidates do
-        unless inErasedSet thm || (rflOnly && !thm.rfl) do
-          if let some result ← tryTheoremWithExtraArgs? e thm numExtraArgs then
-            trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"
-            return some result
+        if inErasedSet thm then continue
+        if rflOnly then
+          unless thm.rfl do
+            if debug.tactic.simp.checkDefEqAttr.get (← getOptions) &&
+               backward.dsimp.useDefEqAttr.get (← getOptions) then
+              let isRflOld ← withOptions (backward.dsimp.useDefEqAttr.set · false) do
+                isRflProof thm.proof
+              if isRflOld then
+                logWarning m!"theorem {thm.proof} is no longer rfl"
+            continue
+        if let some result ← tryTheoremWithExtraArgs? e thm numExtraArgs then
+          trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"
+          return some result
       return none
 
   /--

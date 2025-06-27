@@ -103,6 +103,13 @@ jobs:
             echo "Tag ${TAG_NAME} did not match SemVer regex."
           fi
 
+      - name: Check for custom releases (e.g., not in the main lean repository)
+        if: startsWith(github.ref, 'refs/tags/') && github.repository != 'leanprover/lean4'
+        id: set-release-custom
+        run: |
+          TAG_NAME="${GITHUB_REF##*/}"
+          echo "RELEASE_TAG=$TAG_NAME" >> "$GITHUB_OUTPUT"
+
       - name: Set check level
         id: set-level
         # We do not use github.event.pull_request.labels.*.name here because
@@ -111,7 +118,7 @@ jobs:
         run: |
           check_level=0
 
-          if [[ -n "${{ steps.set-nightly.outputs.nightly }}" || -n "${{ steps.set-release.outputs.RELEASE_TAG }}" ]]; then
+          if [[ -n "${{ steps.set-nightly.outputs.nightly }}" || -n "${{ steps.set-release.outputs.RELEASE_TAG }}" || -n "${{ steps.set-release-custom.outputs.RELEASE_TAG }}" ]]; then
             check_level=2
           elif [[ "${{ github.event_name }}" != "pull_request" ]]; then
             check_level=1
@@ -138,6 +145,7 @@ jobs:
             // use large runners where available (original repo)
             let large = ${{ github.repository == 'leanprover/lean4' }};
             const isPr = "${{ github.event_name }}" == "pull_request";
+            const isPushToMaster = "${{ github.event_name }}" == "push" && "${{ github.ref_name }}" == "master";
             let matrix = [
               /* TODO: to be updated to new LLVM
               {
@@ -157,9 +165,17 @@ jobs:
               {
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
+                "os": large && level < 2 ? "nscloud-ubuntu-22.04-amd64-4x16" : "ubuntu-latest",
                 "release": true,
-                "check-level": 0,
+                // Special handling for release jobs. We want:
+                // 1. To run it in PRs so developers get PR toolchains (so secondary is sufficient)
+                // 2. To skip it in merge queues as it takes longer than the
+                //    Linux lake build and adds little value in the merge queue
+                // 3. To run it in release (obviously)
+                // 4. To run it for pushes to master so that pushes to master have a Linux toolchain
+                //    available as an artifact for Grove to use.
+                "check-level": (isPr || isPushToMaster) ? 0 : 2,
+                "secondary": isPr,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
@@ -169,21 +185,14 @@ jobs:
               },
               {
                 "name": "Linux Lake",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16" : "ubuntu-latest",
                 "check-level": 0,
-                // just a secondary build job for now until false positives can be excluded
-                "secondary": true,
-                "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
-                // TODO: importStructure is not compatible with .olean caching
-                // TODO: why does scopedMacros fail?
-                "CTEST_OPTIONS": "-E 'scopedMacros|importStructure'"
-              },
-              {
-                "name": "Linux",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
+                "test": true,
+                "check-rebootstrap": level >= 1,
                 "check-stage3": level >= 2,
-                "test-speedcenter": level >= 2,
-                "check-level": 1,
+                // NOTE: `test-speedcenter` currently seems to be broken on `ubuntu-latest`
+                "test-speedcenter": large && level >= 2,
+                "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
               },
               {
                 "name": "Linux Reldebug",
@@ -216,7 +225,8 @@ jobs:
               },
               {
                 "name": "macOS aarch64",
-                "os": "macos-14",
+                // standard GH runner only comes with 7GB so use large runner if possible
+                "os": large ? "nscloud-macos-sonoma-arm64-6x14" : "macos-14",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "release": true,
                 "shell": "bash -euxo pipefail {0}",
@@ -224,11 +234,7 @@ jobs:
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
-                // Special handling for MacOS aarch64, we want:
-                // 1. To run it in PRs so Mac devs get PR toolchains (so secondary is sufficient)
-                // 2. To skip it in merge queues as it takes longer than the Linux build and adds
-                //    little value in the merge queue
-                // 3. To run it in release (obviously)
+                // See above for release job levels
                 "check-level": isPr ? 0 : 2,
                 "secondary": isPr,
               },
@@ -247,7 +253,7 @@ jobs:
               },
               {
                 "name": "Linux aarch64",
-                "os": "nscloud-ubuntu-22.04-arm64-4x8",
+                "os": "nscloud-ubuntu-22.04-arm64-4x16",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-linux_aarch64",
                 "release": true,
                 "check-level": 2,
@@ -357,7 +363,7 @@ jobs:
         with:
           path: artifacts
       - name: Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631
         with:
           files: artifacts/*/*
           fail_on_unmatched_files: true
@@ -401,7 +407,7 @@ jobs:
           echo -e "\n*Full commit log*\n" >> diff.md
           git log --oneline "$last_tag"..HEAD | sed 's/^/* /' >> diff.md
       - name: Release Nightly
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631
         with:
           body_path: diff.md
           prerelease: true
@@ -418,6 +424,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.RELEASE_INDEX_TOKEN }}
       - name: Update toolchain on mathlib4's nightly-testing branch
         run: |
-          gh workflow -R leanprover-community/mathlib4 run nightly_bump_toolchain.yml
+          gh workflow -R leanprover-community/mathlib4-nightly-testing run nightly_bump_toolchain.yml
         env:
           GITHUB_TOKEN: ${{ secrets.MATHLIB4_BOT }}

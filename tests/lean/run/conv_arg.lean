@@ -30,10 +30,10 @@ example (p q₁ q₂ : Prop) (h : q₁ ↔ q₂) : (p → q₁) ↔ (p → q₂)
 
 -- Dependent implications
 /--
-info: i✝ : Nat
+trace: i✝ : Nat
 | i✝ < 10
 ---
-info: a✝¹ : Nat
+trace: a✝¹ : Nat
 a✝ : a✝¹ < 10
 | ↑⟨a✝¹, ⋯⟩ = a✝¹
 -/

@@ -1,2 +1,2 @@
 docstringLinkValidation.lean:8:7-8:21: error: Missing documentation type
-docstringLinkValidation.lean:8:26-8:41: error: Unknown documentation type 'f'. Expected 'section'.
+docstringLinkValidation.lean:8:26-8:41: error: Unknown documentation type `f`. Expected one of the following: `section`, `errorExplanation`

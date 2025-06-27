@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 prelude
-import Init.Data.BitVec
 import Std.Tactic.BVDecide.LRAT.Checker
 import Std.Tactic.BVDecide.LRAT.Parser
 import Std.Tactic.BVDecide.Bitblast
@@ -114,6 +113,14 @@ theorem cond_true (discr : Bool) (lhs rhs : BitVec w) :
 theorem cond_false (discr : Bool) (lhs rhs : BitVec w) :
     (discr || ((bif discr then lhs else rhs) == rhs)) = true := by
   cases discr <;> simp
+
+theorem reverse_congr (w : Nat) (x x' : BitVec w) (h : x = x') :
+    BitVec.reverse x' = BitVec.reverse x := by
+  simp[*]
+
+theorem clz_congr (w : Nat) (x x' : BitVec w) (h : x = x') :
+    BitVec.clz x' = BitVec.clz x := by
+  simp [*]
 
 end BitVec
 

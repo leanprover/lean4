@@ -15,8 +15,8 @@ import Lean.Environment
 
 namespace Lean.IR
 
-open Lean.Compiler (LCNF.AltCore LCNF.Arg LCNF.Code LCNF.Decl LCNF.DeclValue LCNF.LCtx LCNF.LetDecl
-                    LCNF.LetValue LCNF.LitValue LCNF.Param LCNF.getMonoDecl?)
+open Lean.Compiler (LCNF.Alt LCNF.Arg LCNF.CacheExtension LCNF.Code LCNF.Decl LCNF.DeclValue
+                    LCNF.LCtx LCNF.LetDecl LCNF.LetValue LCNF.LitValue LCNF.Param LCNF.getMonoDecl?)
 
 namespace ToIR
 
@@ -29,7 +29,7 @@ structure BuilderState where
   fvars : Std.HashMap FVarId FVarClassification := {}
   nextId : Nat := 1
 
-abbrev M := StateT BuilderState CoreM
+abbrev M := StateRefT BuilderState CoreM
 
 def M.run (x : M α) : CoreM α := do
   x.run' {}
@@ -65,11 +65,24 @@ def addDecl (d : Decl) : M Unit :=
 
 def lowerLitValue (v : LCNF.LitValue) : LitVal :=
   match v with
-  | .natVal n => .num n
-  | .strVal s => .str s
+  | .nat n => .num n
+  | .str s => .str s
+  | .uint8 v => .num (UInt8.toNat v)
+  | .uint16 v => .num (UInt16.toNat v)
+  | .uint32 v => .num (UInt32.toNat v)
+  | .uint64 v | .usize v => .num (UInt64.toNat v)
 
--- TODO: This should be cached.
+builtin_initialize scalarTypeExt : LCNF.CacheExtension Name (Option IRType) ←
+  LCNF.CacheExtension.register
+
 def lowerEnumToScalarType (name : Name) : M (Option IRType) := do
+  match (← scalarTypeExt.find? name) with
+  | some info? => return info?
+  | none =>
+    let info? ← fillCache
+    scalarTypeExt.insert name info?
+    return info?
+where fillCache : M (Option IRType) := do
   let env ← Lean.getEnv
   let some (.inductInfo inductiveVal) := env.find? name | return none
   let ctorNames := inductiveVal.ctors
@@ -106,7 +119,8 @@ def lowerType (e : Lean.Expr) : M IRType := do
       else
         return .object
   | .app f _ =>
-    if let .const name _ := f.headBeta then
+    -- All mono types are in headBeta form.
+    if let .const name _ := f then
       if let some scalarType ← lowerEnumToScalarType name then
         return scalarType
       else
@@ -116,8 +130,17 @@ def lowerType (e : Lean.Expr) : M IRType := do
   | .forallE .. => return .object
   | _ => panic! "invalid type"
 
--- TODO: This should be cached.
+builtin_initialize ctorInfoExt : LCNF.CacheExtension Name (CtorInfo × (Array CtorFieldInfo)) ←
+  LCNF.CacheExtension.register
+
 def getCtorInfo (name : Name) : M (CtorInfo × (Array CtorFieldInfo)) := do
+  match (← ctorInfoExt.find? name) with
+  | some info => return info
+  | none =>
+    let info ← fillCache
+    ctorInfoExt.insert name info
+    return info
+where fillCache := do
   match getCtorLayout (← Lean.getEnv) name with
   | .ok ctorLayout =>
     return ⟨{
@@ -174,9 +197,9 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
     match (← get).fvars[cases.discr]? with
     | some (.var varId) =>
       return .case cases.typeName
-                  varId
-                  (← lowerType cases.resultType)
-                  (← cases.alts.mapM (lowerAlt varId))
+                   varId
+                   (← lowerType cases.resultType)
+                   (← cases.alts.mapM (lowerAlt varId))
     | some (.joinPoint ..) | some .erased | none => panic! "unexpected value"
   | .return fvarId =>
     let arg := match (← get).fvars[fvarId]? with
@@ -188,26 +211,27 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
   | .fun .. => panic! "all local functions should be λ-lifted"
 
 partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
-  let mkVar (v : VarId) : M FnBody := do
+  -- temporary fix: the old compiler inlines these too much as regular `let`s
+  let rec mkVar (v : VarId) : M FnBody := do
     bindVarToVarId decl.fvarId v
     lowerCode k
-  let mkExpr (e : Expr) : M FnBody := do
+  let rec mkExpr (e : Expr) : M FnBody := do
     let var ← bindVar decl.fvarId
     let type ← match e with
     | .ctor .. | .pap .. | .proj .. => pure <| .object
     | _ => lowerType decl.type
     return .vdecl var type e (← lowerCode k)
-  let mkErased (_ : Unit) : M FnBody := do
+  let rec mkErased (_ : Unit) : M FnBody := do
     bindErased decl.fvarId
     lowerCode k
-  let mkPartialApp (e : Expr) (restArgs : Array Arg) : M FnBody := do
+  let rec mkPartialApp (e : Expr) (restArgs : Array Arg) : M FnBody := do
     let var ← bindVar decl.fvarId
     let tmpVar ← newVar
     let type ← match e with
     | .ctor .. | .pap .. | .proj .. => pure <| .object
     | _ => lowerType decl.type
     return .vdecl tmpVar .object e (.vdecl var type (.ap tmpVar restArgs) (← lowerCode k))
-  let tryIrDecl? (name : Name) (args : Array Arg) : M (Option FnBody) := do
+  let rec tryIrDecl? (name : Name) (args : Array Arg) : M (Option FnBody) := do
     if let some decl ← LCNF.getMonoDecl? name then
       let numArgs := args.size
       let numParams := decl.params.size
@@ -223,7 +247,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
       return none
 
   match decl.value with
-  | .value litValue =>
+  | .lit litValue =>
     mkExpr (.lit (lowerLitValue litValue))
   | .proj typeName i fvarId =>
     match (← get).fvars[fvarId]? with
@@ -264,6 +288,10 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
             return code
           else
             mkExpr (.fap name irArgs)
+        else if let some scalarType ← lowerEnumToScalarType ctorVal.name then
+          assert! args.isEmpty
+          let var ← bindVar decl.fvarId
+          return .vdecl var scalarType (.lit (.num ctorVal.cidx)) (← lowerCode k)
         else
           let ⟨ctorInfo, fields⟩ ← getCtorInfo name
           let args := args.extract (start := ctorVal.numParams)
@@ -318,7 +346,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
             let restArgs := irArgs.extract numParams irArgs.size
             mkPartialApp (.fap name firstArgs) restArgs
         else
-          throwError f!"axiom '{name}' not supported by code generator; consider marking definition as 'noncomputable'"
+          throwNamedError lean.dependsOnNoncomputable f!"axiom '{name}' not supported by code generator; consider marking definition as 'noncomputable'"
       | some (.quotInfo ..) =>
         if name == ``Quot.mk then
           match irArgs[2]! with
@@ -345,7 +373,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
     | some (.joinPoint ..) | none => panic! "unexpected value"
   | .erased => mkErased ()
 
-partial def lowerAlt (discr : VarId) (a : LCNF.AltCore LCNF.Code) : M (AltCore FnBody) := do
+partial def lowerAlt (discr : VarId) (a : LCNF.Alt) : M Alt := do
   match a with
   | .alt ctorName params code =>
     let ⟨ctorInfo, fields⟩ ← getCtorInfo ctorName

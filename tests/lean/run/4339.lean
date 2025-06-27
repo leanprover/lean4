@@ -7,7 +7,7 @@ structure HH (A B : Nat) where
 set_option pp.explicit true
 
 /--
-info: S T f : Nat
+trace: S T f : Nat
 ⊢ @Eq (HH S T) (@HH.mk S T f trivial) (@id (HH S T) (@HH.mk S T f trivial))
 -/
 #guard_msgs in
@@ -18,7 +18,7 @@ example {S T : Nat} (f : Nat) :
   rfl
 
 /--
-info: S T f : Nat
+trace: S T f : Nat
 ⊢ @Eq (HH S T) (@HH.mk S T f trivial) (@id (HH S T) (@HH.mk S T f trivial))
 -/
 #guard_msgs in
@@ -29,7 +29,7 @@ example {S T : Nat} (f : Nat) :
   rfl
 
 /--
-info: S T f : Nat
+trace: S T f : Nat
 ⊢ @Eq (HH S T) (@HH.mk S T f trivial) (@id (HH S T) (@HH.mk S T f trivial))
 -/
 #guard_msgs in

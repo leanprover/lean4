@@ -15,7 +15,7 @@ Lemmas about the operations on `Std.DTreeMap` will be available in the
 module `Std.Data.DTreeMap.Lemmas`.
 
 See the module `Std.Data.DTreeMap.Raw.Basic` for a variant of this type which is safe to use in
-nested inductive types.
+nested inductive types and `Std.Data.ExtDTreeMap.Basic` for a variant with extensionality.
 -/
 
 set_option autoImplicit false
@@ -54,6 +54,10 @@ To avoid expensive copies, users should make sure that the tree map is used line
 Internally, the tree maps are represented as size-bounded trees, a type of self-balancing binary
 search tree with efficient order statistic lookups.
 
+For use in proofs, the type `Std.ExtDTreeMap` of extensional dependent tree maps should be
+preferred. This type comes with several extensionality lemmas and provides the same functions but
+requires a `TransCmp` instance to work with.
+
 These tree maps contain a bundled well-formedness invariant, which means that they cannot
 be used in nested inductive types. For these use cases, `Std.DTreeMap.Raw` and
 `Std.DTreeMap.Raw.WF` unbundle the invariant from the tree map. When in doubt, prefer
@@ -82,6 +86,13 @@ instance : EmptyCollection (DTreeMap α β cmp) where
 
 instance : Inhabited (DTreeMap α β cmp) where
   default := ∅
+
+@[inherit_doc Impl.Equiv]
+structure Equiv (m₁ m₂ : DTreeMap α β cmp) where
+  /-- Internal implementation detail of the tree map -/
+  inner : m₁.1.Equiv m₂.1
+
+@[inherit_doc] scoped infix:50 " ~m " => Equiv
 
 @[simp]
 theorem empty_eq_emptyc : (empty : DTreeMap α β cmp) = ∅ :=
@@ -500,7 +511,7 @@ def getEntryLE? (t : DTreeMap α β cmp) (k : α) : Option ((a : α) × β a) :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLE? k t.inner
 
 /--
-Tries to retrieve the key-value pair with the smallest key that is less than the given key,
+Tries to retrieve the key-value pair with the largest key that is less than the given key,
 returning `none` if no such pair exists.
 -/
 @[inline]
@@ -537,7 +548,7 @@ def getEntryLE! [Inhabited (Sigma β)] (t : DTreeMap α β cmp) (k : α) : (a : 
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLE! k t.inner
 
 /--
-Tries to retrieve the key-value pair with the smallest key that is less than the given key,
+Tries to retrieve the key-value pair with the largest key that is less than the given key,
 panicking if no such pair exists.
 -/
 @[inline]
@@ -569,7 +580,7 @@ def getEntryLED (t : DTreeMap α β cmp) (k : α) (fallback : Sigma β) : (a : �
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLED k t.inner fallback
 
 /--
-Tries to retrieve the key-value pair with the smallest key that is less than the given key,
+Tries to retrieve the key-value pair with the largest key that is less than the given key,
 returning `fallback` if no such pair exists.
 -/
 @[inline]
@@ -601,7 +612,7 @@ def getKeyLE? (t : DTreeMap α β cmp) (k : α) : Option α :=
   letI : Ord α := ⟨cmp⟩; t.inner.getKeyLE? k
 
 /--
-Tries to retrieve the smallest key that is less than the given key,
+Tries to retrieve the largest key that is less than the given key,
 returning `none` if no such key exists.
 -/
 @[inline]
@@ -638,7 +649,7 @@ def getKeyLE! [Inhabited α] (t : DTreeMap α β cmp) (k : α) : α :=
   letI : Ord α := ⟨cmp⟩; Impl.getKeyLE! k t.inner
 
 /--
-Tries to retrieve the smallest key that is less than the given key,
+Tries to retrieve the largest key that is less than the given key,
 panicking if no such key exists.
 -/
 @[inline]
@@ -670,7 +681,7 @@ def getKeyLED (t : DTreeMap α β cmp) (k : α) (fallback : α) : α :=
   letI : Ord α := ⟨cmp⟩; Impl.getKeyLED k t.inner fallback
 
 /--
-Tries to retrieve the smallest key that is less than the given key,
+Tries to retrieve the largest key that is less than the given key,
 returning `fallback` if no such key exists.
 -/
 @[inline]

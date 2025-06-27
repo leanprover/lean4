@@ -38,7 +38,7 @@ do print "----- tst1 -----";
    checkM $ isExprDefEq mvar (mkNatLit 10);
    pure ()
 
-/-- info: [Meta.debug] ----- tst1 ----- -/
+/-- trace: [Meta.debug] ----- tst1 ----- -/
 #guard_msgs in
 #eval tst1
 
@@ -49,7 +49,7 @@ do print "----- tst2 -----";
    checkM $ isExprDefEq mvar (mkNatLit 10);
    pure ()
 
-/-- info: [Meta.debug] ----- tst2 ----- -/
+/-- trace: [Meta.debug] ----- tst2 ----- -/
 #guard_msgs in
 #eval tst2
 
@@ -66,7 +66,7 @@ do print "----- tst3 -----";
    pure ()
 
 /--
-info: [Meta.debug] ----- tst3 -----
+trace: [Meta.debug] ----- tst3 -----
 [Meta.debug] fun x => x.add (Nat.add 10 x)
 -/
 #guard_msgs in
@@ -87,7 +87,7 @@ do print "----- tst4 -----";
    pure ()
 
 /--
-info: [Meta.debug] ----- tst4 -----
+trace: [Meta.debug] ----- tst4 -----
 [Meta.debug] fun x => x.add (Nat.add 10 x)
 -/
 #guard_msgs in
@@ -125,7 +125,7 @@ do print "----- tst5 -----";
    print y
 
 /--
-info: [Meta.debug] ----- tst5 -----
+trace: [Meta.debug] ----- tst5 -----
 [Meta.debug] (1, 2).fst
 [Meta.debug] 1
 [Meta.debug] 1
@@ -161,7 +161,7 @@ do print "----- tst6 -----";
      pure ()
 
 /--
-info: [Meta.debug] ----- tst6 -----
+trace: [Meta.debug] ----- tst6 -----
 [Meta.debug] x + 2
 [Meta.debug] 6
 -/
@@ -186,7 +186,7 @@ do print "----- tst7 -----";
 /--
 error: check failed
 ---
-info: [Meta.debug] ----- tst7 -----
+trace: [Meta.debug] ----- tst7 -----
 -/
 #guard_msgs in
 #eval tst7
@@ -199,7 +199,7 @@ do print "----- tst9 -----";
    pure ()
 
 /--
-info: [Meta.debug] ----- tst9 -----
+trace: [Meta.debug] ----- tst9 -----
 [Meta.debug] true
 [Meta.debug] false
 -/
@@ -218,7 +218,7 @@ do print "----- tst10 -----";
    pure ()
 
 /--
-info: [Meta.debug] ----- tst10 -----
+trace: [Meta.debug] ----- tst10 -----
 [Meta.debug] fun x => x.add (Nat.add 2 3)
 [Meta.debug] fun x => x.succ.succ.succ.succ.succ
 -/
@@ -243,7 +243,7 @@ do print "----- tst11 -----";
    pure ()
 
 /--
-info: [Meta.debug] ----- tst11 -----
+trace: [Meta.debug] ----- tst11 -----
 [Meta.debug] ∀ (x : Nat), x = 0
 -/
 #guard_msgs in
@@ -263,7 +263,7 @@ do print "----- tst12 -----";
    pure ()
 
 /--
-info: [Meta.debug] ----- tst12 -----
+trace: [Meta.debug] ----- tst12 -----
 [Meta.debug] fun x => Eq.refl x
 [Meta.debug] ∀ (x : Nat), x = x
 [Meta.debug] true
@@ -303,7 +303,7 @@ do print "----- tst14 -----";
    pure ()
 
 /--
-info: [Meta.debug] ----- tst14 -----
+trace: [Meta.debug] ----- tst14 -----
 [Meta.debug] StateM Nat
 [Meta.debug] #[@StateT.instMonad]
 -/
@@ -318,7 +318,7 @@ do print "----- tst15 -----";
    pure ()
 
 /--
-info: [Meta.debug] ----- tst15 -----
+trace: [Meta.debug] ----- tst15 -----
 [Meta.debug] instAddNat
 -/
 #guard_msgs in
@@ -335,7 +335,7 @@ do print "----- tst16 -----";
    pure ()
 
 /--
-info: [Meta.debug] ----- tst16 -----
+trace: [Meta.debug] ----- tst16 -----
 [Meta.debug] ToString (Nat × Nat)
 [Meta.debug] instToStringProd
 -/
@@ -353,7 +353,7 @@ do print "----- tst17 -----";
    pure ()
 
 /--
-info: [Meta.debug] ----- tst17 -----
+trace: [Meta.debug] ----- tst17 -----
 [Meta.debug] ToString (Bool × Nat × Nat)
 [Meta.debug] instToStringProd
 -/
@@ -368,7 +368,7 @@ do print "----- tst18 -----";
    pure ()
 
 /--
-info: [Meta.debug] ----- tst18 -----
+trace: [Meta.debug] ----- tst18 -----
 [Meta.debug] instDecidableEqNat
 -/
 #guard_msgs in
@@ -385,7 +385,7 @@ do print "----- tst19 -----";
    pure ()
 
 /--
-info: [Meta.debug] ----- tst19 -----
+trace: [Meta.debug] ----- tst19 -----
 [Meta.debug] StateM Nat
 [Meta.debug] Monad (StateM Nat)
 [Meta.debug] StateT.instMonad
@@ -404,7 +404,7 @@ do print "----- tst20 -----";
    pure ()
 
 /--
-info: [Meta.debug] ----- tst20 -----
+trace: [Meta.debug] ----- tst20 -----
 [Meta.debug] StateM Nat
 [Meta.debug] MonadState Nat (StateM Nat)
 [Meta.debug] instMonadStateOfMonadStateOf Nat (StateM Nat)
@@ -437,7 +437,7 @@ do print "----- tst21 -----";
    pure ()
 
 /--
-info: [Meta.debug] ----- tst21 -----
+trace: [Meta.debug] ----- tst21 -----
 [Meta.debug] congrArg (fun x => x.succ.succ) (Eq.symm (Eq.trans h₁ h₂))
 [Meta.debug] z.succ.succ = x.succ.succ
 [Meta.debug] x.succ = x.succ
@@ -458,7 +458,7 @@ do print "----- tst22 -----";
    pure ()
 
 /--
-info: [Meta.debug] ----- tst22 -----
+trace: [Meta.debug] ----- tst22 -----
 [Meta.debug] Add.add x y
 [Meta.debug] Add.add y x
 [Meta.debug] toString x
@@ -476,7 +476,7 @@ do print "----- tst23 -----";
    print v.headBeta
 
 /--
-info: [Meta.debug] ----- tst23 -----
+trace: [Meta.debug] ----- tst23 -----
 [Meta.debug] (fun x y => x + y) 0 1
 [Meta.debug] 0 + 1
 -/
@@ -493,7 +493,7 @@ checkM $ do { let b ← m1.mvarId!.isAssigned; pure (!b) };
 checkM $ m3.mvarId!.isAssigned;
 pure ()
 
-/-- info: [Meta.debug] ----- tst26 ----- -/
+/-- trace: [Meta.debug] ----- tst26 ----- -/
 #guard_msgs in
 #eval tst26
 
@@ -533,7 +533,7 @@ withLocalDeclD `z nat $ fun z => do
   pure ()
 
 /--
-info: [Meta.debug] ----- tst28 -----
+trace: [Meta.debug] ----- tst28 -----
 [Meta.debug] ∀ (z : Nat), Add.add z y = Add.add (Add.add x (Add.add x y)) (Add.add x (Add.add x y))
 [Meta.debug] ∀ (z : Nat), Add.add z y = Add.add #0 #0
 [Meta.debug] ∀ (z : Nat), Add.add z y = Add.add (Add.add x #0) (Add.add x #0)
@@ -568,7 +568,7 @@ print (norm m);
 pure ()
 
 /--
-info: [Meta.debug] ----- tst29 -----
+trace: [Meta.debug] ----- tst29 -----
 [Meta.debug] u+1
 [Meta.debug] u+1
 [Meta.debug] max (max 1 (u+2)) 2
@@ -596,7 +596,7 @@ withLocalDeclD `x nat $ fun x => do
   pure ()
 
 /--
-info: [Meta.debug] ----- tst30 -----
+trace: [Meta.debug] ----- tst30 -----
 [Meta.debug] Nat.succ (?_ x)
 [Meta.debug] Nat.succ ?_
 [Meta.debug] fun x => ?_
@@ -630,7 +630,7 @@ check r;
 pure ()
 
 /--
-info: [Meta.debug] ----- tst32 -----
+trace: [Meta.debug] ----- tst32 -----
 [Meta.debug] a.add a = a
 [Meta.debug] h2 ▸ h1
 [Meta.debug] a.add b = a
@@ -658,7 +658,7 @@ check r;
 pure ()
 
 /--
-info: [Meta.debug] ----- tst33 -----
+trace: [Meta.debug] ----- tst33 -----
 [Meta.debug] h2 ▸ h1
 [Meta.debug] a.add b = a
 -/
@@ -675,7 +675,7 @@ withLocalDeclD `α type $ fun α => do
   pure ()
 
 /--
-info: [Meta.debug] ----- tst34 -----
+trace: [Meta.debug] ----- tst34 -----
 [Meta.debug] fun α => ?_ α → ?_ α
 -/
 #guard_msgs in
@@ -699,7 +699,7 @@ withLocalDeclD `α type $ fun α => do
   pure ()
 
 /--
-info: [Meta.debug] ----- tst35 -----
+trace: [Meta.debug] ----- tst35 -----
 [Meta.debug] fun α => ?_ α → ?_ α
 [Meta.debug] fun α => α → α
 -/
@@ -718,7 +718,7 @@ withLocalDeclD `α type $ fun α => do
   checkM $ approxDefEq $ isDefEq m1 (mkConst `Id [levelZero]);
   pure ()
 
-/-- info: [Meta.debug] ----- tst36 ----- -/
+/-- trace: [Meta.debug] ----- tst36 ----- -/
 #guard_msgs in
 #eval tst36
 
@@ -735,7 +735,7 @@ withLocalDeclD `v nat $ fun v => do
   pure ()
 
 /--
-info: [Meta.debug] ----- tst37 -----
+trace: [Meta.debug] ----- tst37 -----
 [Meta.debug] ?_ v (?_ v)
 [Meta.debug] StateM Nat Nat
 -/
@@ -869,7 +869,7 @@ check t;
 | none => throwError "array lit expected")
 
 /--
-info: [Meta.debug] ----- tst42 -----
+trace: [Meta.debug] ----- tst42 -----
 [Meta.debug] [1, 2]
 [Meta.debug] #[1, 2]
 -/

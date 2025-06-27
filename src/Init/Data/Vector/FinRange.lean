@@ -17,7 +17,7 @@ namespace Vector
 /-- `finRange n` is the vector of all elements of `Fin n` in order. -/
 protected def finRange (n : Nat) : Vector (Fin n) n := ofFn fun i => i
 
-@[simp] theorem getElem_finRange {i : Nat} (h : i < n) :
+@[simp, grind =] theorem getElem_finRange {i : Nat} (h : i < n) :
     (Vector.finRange n)[i] = ⟨i, h⟩ := by
   simp [Vector.finRange]
 
@@ -39,6 +39,7 @@ theorem finRange_succ_last {n} :
     · simp_all
       omega
 
+@[grind _=_]
 theorem finRange_reverse {n} : (Vector.finRange n).reverse = (Vector.finRange n).map Fin.rev := by
   ext i h
   simp

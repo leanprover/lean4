@@ -137,9 +137,9 @@ def isInternalDetail : Name → Bool
   | .num _ _     => true
   | p            => p.isInternalOrNum
 where
-  /-- Check that a string begins with the given prefix, and then is only digit characters. -/
+  /-- Check that a string begins with the given prefix, and then is only digits/'_'. -/
   matchPrefix (s : String) (pre : String) :=
-    s.startsWith pre && (s |>.drop pre.length |>.all Char.isDigit)
+    s.startsWith pre && (s |>.drop pre.length |>.all fun c => c.isDigit || c == '_')
 
 /--
 Checks whether the name is an implementation-detail hypothesis name.
@@ -184,6 +184,11 @@ def anyS (n : Name) (f : String → Bool) : Bool :=
   | .str p s => f s || p.anyS f
   | .num p _ => p.anyS f
   | _ => false
+
+/-- Return true if the name is in a namespace associated to metaprogramming. -/
+def isMetaprogramming (n : Name) : Bool :=
+  let components := n.components
+  components.head? == some `Lean || (components.any fun n => n == `Tactic || n == `Linter)
 
 end Name
 end Lean

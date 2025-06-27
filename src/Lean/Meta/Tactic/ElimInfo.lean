@@ -62,7 +62,7 @@ def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : Me
     let motiveType ← inferType motive
     forallTelescopeReducing motiveType fun motiveParams motiveResultType => do
       unless motiveParams.size == motiveArgs.size do
-        throwError "expecetd {motiveArgs.size} parameters at motive type, got {motiveParams.size}:{indentExpr motiveType}"
+        throwError "expected {motiveArgs.size} parameters at motive type, got {motiveParams.size}:{indentExpr motiveType}"
       unless motiveResultType.isSort do
         throwError "motive result type must be a sort{indentExpr motiveType}"
     let some motivePos ← pure (xs.idxOf? motive) |
@@ -178,6 +178,38 @@ def addCustomEliminator (declName : Name) (attrKind : AttributeKind) (induction 
   let e ← mkCustomEliminator declName induction
   customEliminatorExt.add e attrKind
 
+/--
+Registers a custom eliminator for the `induction` tactic.
+
+Whenever the types of the targets in an `induction` call matches a custom eliminator, it is used
+instead of the recursor. This can be useful for redefining the default eliminator to a more useful
+one.
+
+Example:
+```lean example
+structure Three where
+  val : Fin 3
+
+example (x : Three) (p : Three → Prop) : p x := by
+  induction x
+  -- val : Fin 3 ⊢ p ⟨val⟩
+
+@[induction_eliminator, elab_as_elim]
+def Three.myRec {motive : Three → Sort u}
+    (zero : motive ⟨0⟩) (one : motive ⟨1⟩) (two : motive ⟨2⟩) :
+    ∀ x, motive x
+  | ⟨0⟩ => zero | ⟨1⟩ => one | ⟨2⟩ => two
+
+example (x : Three) (p : Three → Prop) : p x := by
+  induction x
+  -- ⊢ p ⟨0⟩
+  -- ⊢ p ⟨1⟩
+  -- ⊢ p ⟨2⟩
+```
+
+`@[cases_eliminator]` works similarly for the `cases` tactic.
+-/
+@[builtin_doc]
 builtin_initialize
   registerBuiltinAttribute {
     name  := `induction_eliminator
@@ -186,6 +218,38 @@ builtin_initialize
       discard <| addCustomEliminator declName attrKind (induction := true) |>.run {} {}
   }
 
+/--
+Registers a custom eliminator for the `cases` tactic.
+
+Whenever the types of the targets in an `cases` call matches a custom eliminator, it is used
+instead of the `casesOn` eliminator. This can be useful for redefining the default eliminator to a
+more useful one.
+
+Example:
+```lean example
+structure Three where
+  val : Fin 3
+
+example (x : Three) (p : Three → Prop) : p x := by
+  cases x
+  -- val : Fin 3 ⊢ p ⟨val⟩
+
+@[cases_eliminator, elab_as_elim]
+def Three.myRec {motive : Three → Sort u}
+    (zero : motive ⟨0⟩) (one : motive ⟨1⟩) (two : motive ⟨2⟩) :
+    ∀ x, motive x
+  | ⟨0⟩ => zero | ⟨1⟩ => one | ⟨2⟩ => two
+
+example (x : Three) (p : Three → Prop) : p x := by
+  cases x
+  -- ⊢ p ⟨0⟩
+  -- ⊢ p ⟨1⟩
+  -- ⊢ p ⟨2⟩
+```
+
+`@[induction_eliminator]` works similarly for the `induction` tactic.
+-/
+@[builtin_doc]
 builtin_initialize
   registerBuiltinAttribute {
     name  := `cases_eliminator

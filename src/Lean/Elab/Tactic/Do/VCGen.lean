@@ -232,7 +232,7 @@ where
   tryGoal (goal : Expr) (name : Name) : VCGenM Expr := do
     forallTelescope goal fun xs body => do
       let res ← try mStart body catch _ =>
-        return ← mkLambdaFVars xs (← emitVC goal name)
+        return ← mkLambdaFVars xs (← emitVC body name)
       let mut prf ← onGoal res.goal name
       -- logInfo m!"tryGoal: {res.goal.toExpr}"
       -- res.goal.checkProof prf
@@ -242,12 +242,19 @@ where
 
   assignMVars (mvars : List MVarId) : VCGenM PUnit := do
     for mvar in mvars do
-      -- trace[Elab.Tactics.Do.vcgen] "assignMVars {← mvar.getTag}, assigned: {← mvar.isAssigned}"
       if ← mvar.isAssigned then continue
-      -- I used to filter for `isProp` here and add any non-Props directly as subgoals,
-      -- but then we would get spurious instantiations of non-synthetic goals such as loop
-      -- invariants.
-      mvar.assign (← mvar.withContext <| tryGoal (← mvar.getType) (← mvar.getTag))
+      mvar.withContext <| do
+      -- trace[Elab.Tactic.Do.vcgen] "assignMVars {← mvar.getTag}, isDelayedAssigned: {← mvar.isDelayedAssigned}, type: {← mvar.getType}"
+      let ty ← mvar.getType
+      if (← isProp ty) || ty.isAppOf ``PostCond || ty.isAppOf ``SPred then
+        -- This code path will re-introduce `mvar` as a synthetic opaque goal upon discharge failure.
+        -- This is the right call for (previously natural) holes such as loop invariants, which
+        -- would otherwise lead to spurious instantiations.
+        -- But it's wrong for, e.g., schematic variables. The latter should never be PostConds or
+        -- SPreds, hence the condition.
+        mvar.assign (← tryGoal ty (← mvar.getTag))
+      else
+        addSubGoalAsVC mvar
 
   onGoal goal name : VCGenM Expr := do
     let T := goal.target

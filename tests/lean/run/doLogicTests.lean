@@ -509,11 +509,6 @@ theorem add_unfold [Monad m] [WPMonad m sh] :
   ⦃⇓ r => ⌜r = n ∧ #fst = n + 1 ∧ #snd = o⌝⦄ := by
   mvcgen [mkFreshNat]
 
--- TODO: This is not working, but it should be. Somehow delayed assigned MVars receive too many args?
-theorem mkFreshPair_triple : ⦃⌜True⌝⦄ (mkFreshNat : StateM AppState Nat) ⦃⇓ a => ⌜a ≠ 0⌝⦄ := by
-  mvcgen
-
--- TODO: This is not working, but it should be. Somehow delayed assigned MVars receive too many args?
 theorem mkFreshPair_triple : ⦃⌜True⌝⦄ mkFreshPair ⦃⇓ (a, b) => ⌜a ≠ b⌝⦄ := by
   mvcgen [mkFreshPair]
   simp_all [SPred.entails_elim_cons]

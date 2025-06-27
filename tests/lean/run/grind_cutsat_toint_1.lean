@@ -72,3 +72,6 @@ example (a b : Fin 2) : a + b ≠ 0 → a + b ≠ 1 → False := by
 
 example (a : Fin 4) : 1 < a → a ≠ 2 → a ≠ 3 → False := by
   grind
+
+example (a : Fin 2) : a ≠ 0 → a ≠ 1 → False := by
+  grind

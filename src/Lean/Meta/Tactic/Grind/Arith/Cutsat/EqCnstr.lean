@@ -440,7 +440,7 @@ private def internalizeNatTerm (e type : Expr) (parent? : Option Expr) (k : Supp
   | _ => internalizeNat e
 
 private def internalizeToIntTerm (e type : Expr) : GoalM Unit := do
-  if (← isToIntTerm e) then return ()
+  if (← isToIntTerm e) then return () -- already internalized
   if let some (eToInt, he) ← toInt? e type then
     trace[grind.debug.cutsat.internalize] "{e} : {type}"
     trace[grind.debug.cutsat.toInt] "{e} ==> {eToInt}"
@@ -469,5 +469,46 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     else
       if isToIntForbiddenParent parent? then return ()
       internalizeToIntTerm e type
+  else
+    /-
+    Remark: types implementing the `ToInt` class have a finite number
+    of elements. Thus, we must internalize all of them. Otherwise,
+    `grind` would fail to solve
+    ```
+    example (a : Fin 2) : a ≠ 0 → a ≠ 1 → False := by
+      grind
+    ```
+    It is not sufficient to internalize only the terms occurring in equalities and inequalities.
+    Here is an example where we must internalize `a`.
+    ```
+    example (a : Fin 2) (f : Fin 2 → Nat) : f 0 = 1 → f 1 = 1 → f a = 1 → False := by
+      grind
+    ```
+    Note that is not sufficient to internalize only the local declarations (e.g., `a`).
+    ```
+    example (g : Nat → Fin 2) (f : Fin 2 → Nat) : f 0 = 1 → f 1 = 1 → f (g 1) = 1 → False := by
+      grind
+    ```
+    That said, we currently do **not** support model-based theory combination for `ToInt` types.
+    Thus, we consider the extra terms occurring in equalities.
+
+    Recall that skip internalizing `Int` variables occurring in terms such as
+    ```
+    a = b
+    ```
+    is fine, because `Int` has an infinite number of elements, just using
+    the information in core, we can always find an assignment for them if even they have
+    not been internalized.
+
+    TODO: infer type and internalize all terms `a : α` s.t. `[ToInt α]` after we add
+    model-based theory combination for `ToInt`. One concern is performance, we will have
+    to use `inferType` again, and perform some form of canonicalization. Running
+    `ToInt` for them may be too expensive because the `ToInt` type class has output parameters.
+    Perhaps, we should have a `HasToInt` auxiliary class without output parameters.
+    -/
+    let_expr Eq α a b := e | return ()
+    unless (← getToIntInfo? α).isSome do return ()
+    internalizeToIntTerm a α
+    internalizeToIntTerm b α
 
 end Lean.Meta.Grind.Arith.Cutsat

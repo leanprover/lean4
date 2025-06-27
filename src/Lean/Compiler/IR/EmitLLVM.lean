@@ -1374,6 +1374,15 @@ def callLeanInitialize (builder : LLVM.Builder llvmctx) : M llvmctx Unit := do
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let _ ← LLVM.buildCall2 builder fnty fn #[]
 
+def callLeanSetupLibUV (builder : LLVM.Builder llvmctx) (argc argv : LLVM.Value llvmctx) : M llvmctx (LLVM.Value llvmctx) := do
+  let fnName := "lean_setup_args"
+  let intTy ← LLVM.i32Type llvmctx
+  let charPtrPtrTy ← LLVM.pointerType (← LLVM.pointerType (← LLVM.i8Type llvmctx))
+  let argtys := #[intTy, charPtrPtrTy]
+  let fnty ← LLVM.functionType charPtrPtrTy argtys
+  let fn ← getOrCreateFunctionPrototype (← getLLVMModule) intTy fnName argtys
+  LLVM.buildCall2 builder fnty fn #[argc, argv]
+
 def callLeanInitializeRuntimeModule (builder : LLVM.Builder llvmctx) : M llvmctx Unit := do
   let fnName :=  "lean_initialize_runtime_module"
   let retty ← LLVM.voidType llvmctx
@@ -1479,6 +1488,12 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
   let inslot ← buildPrologueAlloca builder (← LLVM.pointerType inty) "in"
   let resty ← LLVM.voidPtrType llvmctx
   let res ← buildPrologueAlloca builder (← LLVM.pointerType resty) "res"
+
+  let argcval ← LLVM.getParam main 0
+  let argvval ← LLVM.getParam main 1
+  let truncArgcval ← LLVM.buildSextOrTrunc builder argcval (← LLVM.i32Type llvmctx)
+  let argvval ← callLeanSetupLibUV builder truncArgcval argvval
+
   if usesLeanAPI then callLeanInitialize builder else callLeanInitializeRuntimeModule builder
     /- We disable panic messages because they do not mesh well with extracted closed terms.
         See issue #534. We can remove this workaround after we implement issue #467. -/
@@ -1501,8 +1516,6 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
         let _ ← LLVM.buildStore builder inv inslot
         let ity ← LLVM.size_tType llvmctx
         let islot ← buildPrologueAlloca builder ity "islot"
-        let argcval ← LLVM.getParam main 0
-        let argvval ← LLVM.getParam main 1
         LLVM.buildStore builder argcval islot
         buildWhile_ builder "argv"
           (condcodegen := fun builder => do

@@ -1641,20 +1641,14 @@ private def isDefEqMVarSelf (mvar : Expr) (args₁ args₂ : Array Expr) : MetaM
       pure false
 
 /--
-Removes unnecessary let-decls (both true `let`s and `let_fun`s).
+Consumes unused lets/haves, depending on the current configuration.
+- When `zetaUnused`, all unused lets may be consumed.
+- Otherwise, when `zeta` is true, then unused lets can be consumed, unless they are nondependent and `cfg.zetaHave` is false.
 -/
-private partial def consumeLet : Expr → Expr
-  | e@(.letE _ _ _ b _) => if b.hasLooseBVars then e else consumeLet b
-  | e =>
-    if let some (_, _, _, b) := e.letFun? then
-      if b.hasLooseBVars then e else consumeLet b
-    else
-      e
-
 private partial def consumeLetIfZeta (e : Expr) : MetaM Expr := do
   let cfg ← getConfig
   if cfg.zeta || cfg.zetaUnused then
-    return consumeLet e
+    return consumeUnusedLet e (consumeNondep := cfg.zetaUnused || cfg.zetaHave)
   else
     return e
 

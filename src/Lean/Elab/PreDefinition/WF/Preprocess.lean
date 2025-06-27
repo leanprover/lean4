@@ -176,6 +176,8 @@ private def nonPropHaveToLet (e : Expr) : MetaM Expr := do
 def preprocess (e : Expr) : MetaM Simp.Result := do
   unless wf.preprocess.get (← getOptions) do
     return { expr := e }
+  -- Transform `let`s to `have`s to enable `simp` entering let bodies.
+  let e ← letToHave e
   lambdaTelescope e fun xs _ => do
     -- Annotate all xs with `wfParam`
     let xs' ← xs.mapM mkWfParam

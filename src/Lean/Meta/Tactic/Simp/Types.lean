@@ -134,6 +134,7 @@ private def mkIndexConfig (c : Config) : MetaM ConfigWithKey := do
     beta         := c.beta
     iota         := c.iota
     zeta         := c.zeta
+    zetaHave     := c.zetaHave
     zetaUnused   := c.zetaUnused
     zetaDelta    := c.zetaDelta
     etaStruct    := c.etaStruct
@@ -152,8 +153,9 @@ private def mkMetaConfig (c : Config) : MetaM ConfigWithKey := do
   let curr ← Meta.getConfig
   return { curr with
     beta         := c.beta
-    zeta         := c.zeta
     iota         := c.iota
+    zeta         := c.zeta
+    zetaHave     := c.zetaHave
     zetaUnused   := c.zetaUnused
     zetaDelta    := c.zetaDelta
     etaStruct    := c.etaStruct

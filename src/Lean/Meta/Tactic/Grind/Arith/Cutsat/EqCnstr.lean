@@ -229,7 +229,7 @@ private def processNewIntEq (a b : Expr) : GoalM Unit := do
 private def processNewNatEq (a b : Expr) : GoalM Unit := do
   let (lhs, rhs) ← Int.OfNat.toIntEq a b
   let gen ← getGeneration a
-  let ctx ← getForeignVars .nat
+  let ctx ← getNatVars
   let lhs' ← toLinearExpr (← lhs.denoteAsIntExpr ctx) gen
   let rhs' ← toLinearExpr (← rhs.denoteAsIntExpr ctx) gen
   let p := lhs'.sub rhs' |>.norm
@@ -240,10 +240,10 @@ private def processNewNatEq (a b : Expr) : GoalM Unit := do
 @[export lean_process_cutsat_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
   unless (← getConfig).cutsat do return ()
-  match (← foreignTerm? a), (← foreignTerm? b) with
-  | none, none => processNewIntEq a b
-  | some .nat, some .nat => processNewNatEq a b
-  | _, _ => return ()
+  if (← isNatTerm a <&&> isNatTerm b) then
+    processNewNatEq a b
+  else if (← isIntTerm a <&&> isIntTerm b) then
+    processNewIntEq a b
 
 private def processNewIntDiseq (a b : Expr) : GoalM Unit := do
   let p₁ ← exprAsPoly a
@@ -258,7 +258,7 @@ private def processNewIntDiseq (a b : Expr) : GoalM Unit := do
 private def processNewNatDiseq (a b : Expr) : GoalM Unit := do
   let (lhs, rhs) ← Int.OfNat.toIntEq a b
   let gen ← getGeneration a
-  let ctx ← getForeignVars .nat
+  let ctx ← getNatVars
   let lhs' ← toLinearExpr (← lhs.denoteAsIntExpr ctx) gen
   let rhs' ← toLinearExpr (← rhs.denoteAsIntExpr ctx) gen
   let p := lhs'.sub rhs' |>.norm
@@ -268,10 +268,10 @@ private def processNewNatDiseq (a b : Expr) : GoalM Unit := do
 @[export lean_process_cutsat_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
   unless (← getConfig).cutsat do return ()
-  match (← foreignTerm? a), (← foreignTermOrLit? b) with
-  | none, none => processNewIntDiseq a b
-  | some .nat, some .nat => processNewNatDiseq a b
-  | _, _ => return ()
+  if (← isNatTerm a <&&> isNatTerm b) then
+    processNewNatDiseq a b
+  else if (← isIntTerm a <&&> isIntTerm b) then
+    processNewIntDiseq a b
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where
@@ -350,8 +350,8 @@ private def propagateMod (e : Expr) : GoalM Unit := do
 private def propagateNatSub (e : Expr) : GoalM Unit := do
   let_expr HSub.hSub _ _ _ inst a b := e | return ()
   unless (← isInstHSubNat inst) do return ()
-  discard <| mkForeignVar a .nat
-  discard <| mkForeignVar b .nat
+  discard <| mkNatVar a
+  discard <| mkNatVar b
   pushNewFact <| mkApp2 (mkConst ``Int.Linear.natCast_sub) a b
 
 private def propagateNatAbs (e : Expr) : GoalM Unit := do
@@ -365,7 +365,7 @@ private def propagateToNat (e : Expr) : GoalM Unit := do
 private def internalizeNat (e : Expr) : GoalM Unit := do
   let e' : Int.OfNat.Expr ← Int.OfNat.toOfNatExpr e
   let gen ← getGeneration e
-  let ctx ← getForeignVars .nat
+  let ctx ← getNatVars
   let e'' : Expr ← e'.denoteAsIntExpr ctx
   -- If `e''` is of the form `NatCast.natCast e`, then it is wasteful to
   -- assert an equality
@@ -378,7 +378,7 @@ private def internalizeNat (e : Expr) : GoalM Unit := do
   internalize natCast_e gen
   trace[grind.debug.cutsat.internalize] "{aquote natCast_e}:= {← p.pp}"
   let x ← mkVar natCast_e
-  modify' fun s => { s with foreignDef := s.foreignDef.insert { expr := e } x }
+  modify' fun s => { s with natDef := s.natDef.insert { expr := e } x }
   let c := { p := .add (-1) x p, h := .defnNat e' x e'' : EqCnstr }
   c.assert
 
@@ -411,8 +411,8 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   else if type.isConstOf ``Nat then
     if isForbiddenParent parent? k then return ()
     trace[grind.debug.cutsat.internalize] "{e} : {type}"
-    if (← hasForeignVar e) then return ()
-    discard <| mkForeignVar e .nat
+    if (← isNatTerm e) then return ()
+    discard <| mkNatVar e
     match k with
     | .sub => propagateNatSub e
     | .natAbs => propagateNatAbs e

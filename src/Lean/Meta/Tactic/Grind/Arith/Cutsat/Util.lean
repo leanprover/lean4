@@ -56,6 +56,9 @@ def getVar (x : Var) : GoalM Expr :=
 def hasVar (e : Expr) : GoalM Bool :=
   return (← get').varMap.contains { expr := e }
 
+def isIntTerm (e : Expr) : GoalM Bool :=
+  hasVar e
+
 /-- Returns `true` if `x` has been eliminated using an equality constraint. -/
 def eliminated (x : Var) : GoalM Bool :=
   return (← get').elimEqs[x]!.isSome

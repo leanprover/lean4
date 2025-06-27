@@ -27,7 +27,7 @@ line comment marker.
 private def addCommentAt (indent : Nat) (line : String) : String := Id.run do
   let s := "".pushn ' ' indent ++ "-- "
   let mut iter := line.iter
-  for _i in [0:indent] do
+  for _i in *...indent do
     if h : iter.hasNext then
       if iter.curr' h == ' ' then
         iter := iter.next' h

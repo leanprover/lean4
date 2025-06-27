@@ -63,7 +63,7 @@ where
     let ctorVal ← getConstInfoCtor ctorName
     let mut indArgs := #[]
     let mut binders := #[]
-    for i in [:indVal.numParams + indVal.numIndices] do
+    for i in *...indVal.numParams + indVal.numIndices do
       let arg := mkIdent (← mkFreshUserName `a)
       indArgs := indArgs.push arg
       let binder ← `(bracketedBinderF| { $arg:ident })
@@ -73,9 +73,9 @@ where
         binders := binders.push binder
     let type ← `(Inhabited (@$(mkIdent inductiveTypeName):ident $indArgs:ident*))
     let mut ctorArgs := #[]
-    for _ in [:ctorVal.numParams] do
+    for _ in *...ctorVal.numParams do
       ctorArgs := ctorArgs.push (← `(_))
-    for _ in [:ctorVal.numFields] do
+    for _ in *...ctorVal.numFields do
       ctorArgs := ctorArgs.push (← ``(Inhabited.default))
     let val ← `(⟨@$(mkIdent ctorName):ident $ctorArgs*⟩)
     `(instance $binders:bracketedBinder* : $type := $val)
@@ -86,7 +86,7 @@ where
       addLocalInstancesForParams xs[*...ctorVal.numParams] fun localInst2Index => do
         let mut usedInstIdxs := {}
         let mut ok := true
-        for h : i in [ctorVal.numParams:xs.size] do
+        for h : i in ctorVal.numParams...xs.size do
           let x := xs[i]
           let instType ← mkAppM `Inhabited #[(← inferType x)]
           trace[Elab.Deriving.inhabited] "checking {instType} for '{ctorName}'"

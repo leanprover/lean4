@@ -80,7 +80,7 @@ where
         checkpointDefEq do
           let args := b.getAppArgs
           let params := args[*...ctorVal.numParams].toArray
-          for h : i in [ctorVal.numParams : args.size] do
+          for h : i in ctorVal.numParams...args.size do
             let j := i - ctorVal.numParams
             let proj ← mkProjFn ctorVal us params j a
             if ← isProof proj then
@@ -255,7 +255,7 @@ private def isDefEqArgsFirstPass
     (paramInfo : Array ParamInfo) (args₁ args₂ : Array Expr) : MetaM DefEqArgsFirstPassResult := do
   let mut postponedImplicit := #[]
   let mut postponedHO := #[]
-  for h : i in [:paramInfo.size] do
+  for h : i in *...paramInfo.size do
     let info := paramInfo[i]
     let a₁ := args₁[i]!
     let a₂ := args₂[i]!
@@ -291,7 +291,7 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
   let finfo ← getFunInfoNArgs f args₁.size
   let .ok postponedImplicit postponedHO ← isDefEqArgsFirstPass finfo.paramInfo args₁ args₂ | pure false
   -- finfo.paramInfo.size may be smaller than args₁.size
-  for i in [finfo.paramInfo.size:args₁.size] do
+  for i in finfo.paramInfo.size...args₁.size do
     unless (← Meta.isExprDefEqAux args₁[i]! args₂[i]!) do
       return false
   for i in postponedImplicit do
@@ -432,7 +432,7 @@ where
     let check (lctx : LocalContext) : Bool := Id.run do
       let start := lctx.getFVar! xs[0]! |>.index
       let stop  := lctx.getFVar! xs.back! |>.index
-      for i in [start+1:stop] do
+      for i in (start+1)...stop do
         match lctx.getAt? i with
         | some localDecl =>
           if localDecl.isLet then
@@ -503,7 +503,7 @@ where
     let start := lctx.getFVar! xs[0]! |>.index
     let stop  := lctx.getFVar! xs.back! |>.index
     let mut ys := #[]
-    for i in [start:stop+1] do
+    for i in start...=stop do
       match lctx.getAt? i with
       | none => pure ()
       | some localDecl =>

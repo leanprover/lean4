@@ -56,7 +56,7 @@ where
       | .app .. => e.withApp fun f args => do
         let mut modified := false
         let mut args := args
-        for i in [:args.size] do
+        for i in *...args.size do
           let arg := args[i]!
           let arg' ← visit arg
           unless ptrEq arg arg' do

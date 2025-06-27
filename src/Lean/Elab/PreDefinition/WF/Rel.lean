@@ -26,7 +26,8 @@ This ensures the preconditions for `ArgsPacker.uncurryND`.
 def checkCodomains (names : Array Name) (fixedParamPerms : FixedParamPerms) (fixedArgs : Array Expr) (arities : Array Nat)
     (termMeasures : TerminationMeasures) : TermElabM Expr := do
   let mut codomains := #[]
-  for name in names, funIdx in [:names.size], arity in arities, termMeasure in termMeasures do
+  -- TODO: implement ToStream
+  for name in names, funIdx in Std.Range.mk 0 names.size 1 (by omega), arity in arities, termMeasure in termMeasures do
     let measureType ← inferType termMeasure.fn
     let measureType ← fixedParamPerms.perms[funIdx]!.instantiateForall measureType fixedArgs
     let codomain ← forallBoundedTelescope measureType arity fun xs codomain => do
@@ -40,7 +41,7 @@ def checkCodomains (names : Array Name) (fixedParamPerms : FixedParamPerms) (fix
     codomains := codomains.push codomain
 
   let codomain0 := codomains[0]!
-  for h : i in [1 : codomains.size] do
+  for h : i in 1...codomains.size do
     unless ← isDefEqGuarded codomain0 codomains[i] do
       throwErrorAt termMeasures[i]!.ref m!"The termination measures of mutually recursive functions " ++
         m!"must have the same return type, but the termination measure of {names[0]!} has type" ++

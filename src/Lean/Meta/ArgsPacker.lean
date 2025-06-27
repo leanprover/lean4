@@ -115,7 +115,7 @@ private def mkTupleElems (t : Expr) (arity : Nat) : Array Expr := Id.run do
   if arity = 0 then return #[]
   let mut result := #[]
   let mut t := t
-  for _ in [:arity - 1] do
+  for _ in *...(arity - 1 : Nat) do
     result := result.push (mkProj ``PSigma 0 t)
     t := mkProj ``PSigma 1 t
   result.push t
@@ -559,7 +559,7 @@ to produce an expression of the isomorphic type
 -/
 def curry (argsPacker : ArgsPacker) (e : Expr) : MetaM Expr := do
   let mut es := #[]
-  for i in [:argsPacker.numFuncs] do
+  for i in *...argsPacker.numFuncs do
     es := es.push (← argsPacker.curryProj e i)
   PProdN.mk 0 es
 

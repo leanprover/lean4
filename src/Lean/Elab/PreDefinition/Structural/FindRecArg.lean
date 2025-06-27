@@ -127,7 +127,7 @@ def getRecArgInfos (fnName : Name) (fixedParamPerm : FixedParamPerm) (xs : Array
       let mut recArgInfos := #[]
       let mut report : MessageData := m!""
       -- No `termination_by`, so try all, and remember the errors
-      for idx in [:args.size] do
+      for idx in *...args.size do
         try
           let recArgInfo ← getRecArgInfo fnName fixedParamPerm args idx
           recArgInfos := recArgInfos.push recArgInfo
@@ -192,7 +192,8 @@ def argsInGroup (group : IndGroupInst) (xs : Array Expr) (value : Expr)
     if nestedTypeFormers.isEmpty then return .none
     lambdaTelescope value fun ys _ => do
       let x := (xs++ys)[recArgInfo.recArgPos]!
-      for nestedTypeFormer in nestedTypeFormers, indIdx in [group.all.size : group.numMotives] do
+      -- TODO: ToStream
+      for nestedTypeFormer in nestedTypeFormers, indIdx in Std.Range.mk group.all.size group.numMotives 1 (by omega) do
         let xType ← whnfD (← inferType x)
         let (indIndices, _, type) ← forallMetaTelescope nestedTypeFormer
         if (← isDefEqGuarded type xType) then

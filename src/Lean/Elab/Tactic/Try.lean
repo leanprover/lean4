@@ -285,7 +285,7 @@ private def mergeAll? (tacs : Array (TSyntax `tactic)) : TryTacticM (Option (TSy
   if tacs.any fun tac => tac.raw.getKind != tac0.raw.getKind then
     return none
   let mut tac := tac0
-  for h : i in [1:tacs.size] do
+  for h : i in 1...tacs.size do
     let some tac' := merge? tac tacs[i]
       | return none
     tac := tac'
@@ -432,7 +432,7 @@ private def evalSuggestChain (tac1 tac2 : TSyntax `tactic) : TryTacticM (TSyntax
 private def evalSuggestSeq (tacs : Array (TSyntax `tactic)) : TryTacticM (TSyntax `tactic) := do
   if (← read).terminal then
     let mut result := #[]
-    for i in [:tacs.size - 1] do
+    for i in *...(tacs.size - 1 : Nat) do
       result := appendSeq result (← withNonTerminal <| evalSuggest tacs[i]!)
     let suggestions ← getSuggestionOfTactic (← evalSuggest tacs.back!) |>.mapM fun tac =>
       mkSeq (appendSeq result tac) (terminal := true)

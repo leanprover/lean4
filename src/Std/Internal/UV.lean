@@ -11,4 +11,5 @@ import Std.Internal.UV.Loop
 import Std.Internal.UV.Timer
 import Std.Internal.UV.TCP
 import Std.Internal.UV.UDP
+import Std.Internal.UV.System
 import Std.Internal.UV.DNS

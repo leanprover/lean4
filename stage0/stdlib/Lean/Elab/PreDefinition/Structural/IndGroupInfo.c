@@ -33,6 +33,7 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lean_Elab_Structural_reprIndGroupInfo___redArg___closed__4____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_116_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_reprIndGroupInst___redArg____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_298_(lean_object*);
 static lean_object* l_Array_Array_repr___at___Lean_Elab_Structural_reprIndGroupInfo____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_116__spec__0___closed__3;
+uint8_t l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1771__spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at___Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__0___closed__0;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__3_spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_reprIndGroupInst____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_298_(lean_object*, lean_object*);
@@ -45,7 +46,6 @@ lean_object* l_Array_back_x21___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Level_ofNat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_reprIndGroupInfo____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_116_(lean_object*, lean_object*);
 uint8_t l_Lean_Level_isEquiv(lean_object*, lean_object*);
-uint8_t l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1735__spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_reprIndGroupInst___redArg___closed__6____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_298_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_IndGroupInst_brecOn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_getParamNames_spec__1___redArg(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -186,7 +186,7 @@ return x_9;
 else
 {
 uint8_t x_10; 
-x_10 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1735__spec__0___redArg(x_3, x_5, x_7);
+x_10 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1771__spec__0___redArg(x_3, x_5, x_7);
 if (x_10 == 0)
 {
 return x_10;

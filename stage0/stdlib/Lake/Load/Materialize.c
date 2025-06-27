@@ -1821,8 +1821,8 @@ block_28:
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 x_21 = lean_alloc_ctor(1, 4, 0);
-lean_ctor_set(x_21, 0, x_16);
-lean_ctor_set(x_21, 1, x_19);
+lean_ctor_set(x_21, 0, x_19);
+lean_ctor_set(x_21, 1, x_18);
 lean_ctor_set(x_21, 2, x_9);
 lean_ctor_set(x_21, 3, x_10);
 x_22 = l_Lake_Dependency_materialize_mkDep___closed__0;
@@ -1842,7 +1842,7 @@ lean_ctor_set(x_25, 1, x_8);
 lean_ctor_set(x_25, 2, x_24);
 x_26 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
-lean_ctor_set(x_26, 1, x_18);
+lean_ctor_set(x_26, 1, x_16);
 x_27 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_27, 0, x_26);
 lean_ctor_set(x_27, 1, x_17);
@@ -1882,10 +1882,10 @@ lean_inc(x_38);
 x_39 = lean_ctor_get(x_36, 1);
 lean_inc(x_39);
 lean_dec(x_36);
-x_16 = x_30;
+x_16 = x_39;
 x_17 = x_37;
-x_18 = x_39;
-x_19 = x_38;
+x_18 = x_38;
+x_19 = x_30;
 x_20 = x_6;
 goto block_28;
 }
@@ -1904,10 +1904,10 @@ x_43 = lean_ctor_get(x_10, 0);
 lean_inc(x_43);
 x_44 = l_Lake_joinRelative(x_6, x_43);
 lean_dec(x_43);
-x_16 = x_30;
+x_16 = x_42;
 x_17 = x_40;
-x_18 = x_42;
-x_19 = x_41;
+x_18 = x_41;
+x_19 = x_30;
 x_20 = x_44;
 goto block_28;
 }

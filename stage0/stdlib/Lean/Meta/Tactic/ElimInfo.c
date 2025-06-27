@@ -120,6 +120,7 @@ static lean_object* l_Prod_repr___at___Prod_repr___at___List_repr___at___Lean_Me
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldl___at___Lean_SMap_fold___at___Lean_SMap_toList___at___Lean_Meta_reprCustomEliminators____x40_Lean_Meta_Tactic_ElimInfo___hyg_2434__spec__0_spec__0_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Meta_addImplicitTargets_spec__6___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1771__spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_reprCustomEliminator____x40_Lean_Meta_Tactic_ElimInfo___hyg_2314_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___Std_Range_forIn_x27_loop___at___Lean_Meta_mkCustomEliminator_spec__2_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ScopedEnvExtension_add___at___Lean_Meta_addCustomEliminator_spec__0___redArg___closed__4;
@@ -156,7 +157,6 @@ LEAN_EXPORT lean_object* l_Prod_repr___at___List_repr___at___Lean_Meta_reprCusto
 static lean_object* l_Lean_Meta_initFn___lam__0___closed__8____x40_Lean_Meta_Tactic_ElimInfo___hyg_3206_;
 static lean_object* l_Lean_Meta_addImplicitTargets_collect___closed__6;
 static lean_object* l_Lean_Meta_instReprElimAltInfo___closed__0;
-uint8_t l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1735__spec__0___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___Array_Array_repr___at___Lean_Meta_reprElimInfo____x40_Lean_Meta_Tactic_ElimInfo___hyg_233__spec__0_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_SMap_find_x3f___at___Lean_Meta_getCustomEliminator_x3f_spec__1_spec__2___redArg___boxed(lean_object*, lean_object*);
@@ -6878,7 +6878,7 @@ goto _start;
 else
 {
 uint8_t x_15; 
-x_15 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1735__spec__0___redArg(x_8, x_10, x_11);
+x_15 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1771__spec__0___redArg(x_8, x_10, x_11);
 if (x_15 == 0)
 {
 x_2 = x_6;
@@ -7317,7 +7317,7 @@ goto block_10;
 else
 {
 uint8_t x_18; 
-x_18 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1735__spec__0___redArg(x_12, x_14, x_15);
+x_18 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1771__spec__0___redArg(x_12, x_14, x_15);
 lean_dec(x_14);
 lean_dec(x_12);
 if (x_18 == 0)
@@ -9867,13 +9867,13 @@ return x_6;
 static lean_object* _init_l_Lean_Meta_initFn___lam__0___closed__19____x40_Lean_Meta_Tactic_ElimInfo___hyg_3206_() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; uint8_t x_9; uint8_t x_10; uint8_t x_11; uint8_t x_12; uint8_t x_13; uint8_t x_14; uint8_t x_15; uint8_t x_16; uint8_t x_17; uint8_t x_18; uint8_t x_19; uint8_t x_20; uint8_t x_21; uint8_t x_22; uint8_t x_23; uint8_t x_24; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; uint8_t x_9; uint8_t x_10; uint8_t x_11; uint8_t x_12; uint8_t x_13; uint8_t x_14; uint8_t x_15; uint8_t x_16; uint8_t x_17; uint8_t x_18; uint8_t x_19; uint8_t x_20; uint8_t x_21; uint8_t x_22; uint8_t x_23; uint8_t x_24; uint8_t x_25; 
 x_1 = lean_box(2);
 x_2 = lean_box(0);
 x_3 = lean_box(1);
 x_4 = lean_box(1);
 x_5 = lean_box(0);
-x_6 = lean_alloc_ctor(0, 0, 18);
+x_6 = lean_alloc_ctor(0, 0, 19);
 x_7 = lean_unbox(x_5);
 lean_ctor_set_uint8(x_6, 0, x_7);
 x_8 = lean_unbox(x_5);
@@ -9910,6 +9910,8 @@ x_23 = lean_unbox(x_4);
 lean_ctor_set_uint8(x_6, 16, x_23);
 x_24 = lean_unbox(x_4);
 lean_ctor_set_uint8(x_6, 17, x_24);
+x_25 = lean_unbox(x_4);
+lean_ctor_set_uint8(x_6, 18, x_25);
 return x_6;
 }
 }
@@ -10829,7 +10831,7 @@ goto _start;
 else
 {
 uint8_t x_15; 
-x_15 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1735__spec__0___redArg(x_8, x_10, x_11);
+x_15 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1771__spec__0___redArg(x_8, x_10, x_11);
 if (x_15 == 0)
 {
 x_2 = x_6;

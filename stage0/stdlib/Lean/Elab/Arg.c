@@ -34,12 +34,14 @@ static lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___a
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Lean_Elab_Term_addNamedArg_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Elab_Term_addNamedArg___closed__0;
+lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 lean_object* l_Lean_throwError___at___Lean_getConstInfo___at___Lean_Meta_mkConstWithFreshMVarLevels_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_addNamedArg___closed__1;
 static lean_object* l_Lean_Elab_Term_expandArgs___closed__0;
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 static lean_object* l_Lean_Elab_Term_addNamedArg___closed__3;
 lean_object* lean_array_pop(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_instToMessageDataArg;
 static lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_Elab_Term_expandArgs_spec__0_spec__0___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_Elab_Term_expandArgs_spec__0_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -49,8 +51,10 @@ static lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___a
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_Elab_Term_expandArgs_spec__0_spec__0___closed__2;
 static lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_Elab_Term_expandArgs_spec__0_spec__0___closed__7;
+lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_expandApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Elab_Term_expandArgs_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_instToMessageDataArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_addNamedArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_Elab_Term_expandArgs_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -108,6 +112,37 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Lean_Elab_Term_instInhabitedNamedArg___closed__0;
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_instToMessageDataArg___lam__0(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
+lean_dec(x_1);
+x_3 = l_Lean_MessageData_ofSyntax(x_2);
+return x_3;
+}
+else
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = l_Lean_MessageData_ofExpr(x_4);
+return x_5;
+}
+}
+}
+static lean_object* _init_l_Lean_Elab_Term_instToMessageDataArg() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Term_instToMessageDataArg___lam__0), 1, 0);
 return x_1;
 }
 }
@@ -1137,6 +1172,8 @@ l_Lean_Elab_Term_instInhabitedNamedArg___closed__0 = _init_l_Lean_Elab_Term_inst
 lean_mark_persistent(l_Lean_Elab_Term_instInhabitedNamedArg___closed__0);
 l_Lean_Elab_Term_instInhabitedNamedArg = _init_l_Lean_Elab_Term_instInhabitedNamedArg();
 lean_mark_persistent(l_Lean_Elab_Term_instInhabitedNamedArg);
+l_Lean_Elab_Term_instToMessageDataArg = _init_l_Lean_Elab_Term_instToMessageDataArg();
+lean_mark_persistent(l_Lean_Elab_Term_instToMessageDataArg);
 l_Lean_Elab_Term_addNamedArg___closed__0 = _init_l_Lean_Elab_Term_addNamedArg___closed__0();
 lean_mark_persistent(l_Lean_Elab_Term_addNamedArg___closed__0);
 l_Lean_Elab_Term_addNamedArg___closed__1 = _init_l_Lean_Elab_Term_addNamedArg___closed__1();

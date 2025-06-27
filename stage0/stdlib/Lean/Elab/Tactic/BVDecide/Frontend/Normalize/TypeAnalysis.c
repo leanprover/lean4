@@ -83,6 +83,7 @@ lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 static lean_object* l_Lean_getConstInfo___at___Lean_isEnumType___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_typeAnalysisPass_analyzeConst_spec__0_spec__0___closed__3;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_typeAnalysisPass___lam__0___closed__7;
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
+lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectLevelMVars_visitExpr_spec__1___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_isSupportedMatch_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_isSupportedMatch_trySimpleEnum_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_builtinTypes___closed__21;
@@ -299,7 +300,6 @@ LEAN_EXPORT lean_object* l_Lean_getConstInfo___at___Lean_isEnumType___at___Lean_
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_isSupportedMatch_verifySimpleEnum_spec__0___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfoCtor___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_typeAnalysisPass_analyzeStructure_spec__2___closed__1;
-lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectFVars_visit_spec__1___redArg(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_isSupportedMatch___lam__1___closed__0;
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -309,7 +309,6 @@ static lean_object* l_Lean_getConstInfoCtor___at___Lean_Elab_Tactic_BVDecide_Fro
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_typeAnalysisPass___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectFVars_visit_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___Std_Range_forIn_x27_loop___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_isSupportedMatch_verifyEnumWithDefault_spec__0_spec__0___boxed(lean_object**);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_builtinTypes___closed__12;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
@@ -327,6 +326,7 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_PersistentArra
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at___Lean_isEnumType___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_typeAnalysisPass_analyzeConst_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_typeAnalysisPass_checkContext_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectLevelMVars_visitExpr_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_List_mapTR_loop___at___Lean_compileDecls_doCompile_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_builtinTypes___closed__5;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_addDefaultTypeAnalysisLemmas_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -14547,7 +14547,7 @@ x_22 = lean_usize_sub(x_20, x_21);
 x_23 = lean_usize_land(x_19, x_22);
 x_24 = lean_array_uget(x_10, x_23);
 lean_dec(x_10);
-x_25 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectFVars_visit_spec__0___redArg(x_1, x_24);
+x_25 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectLevelMVars_visitExpr_spec__0___redArg(x_1, x_24);
 lean_dec(x_24);
 if (x_25 == 0)
 {
@@ -14581,7 +14581,7 @@ lean_dec(x_44);
 x_46 = lean_usize_sub(x_45, x_21);
 x_47 = lean_usize_land(x_19, x_46);
 x_48 = lean_array_uget(x_43, x_47);
-x_49 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectFVars_visit_spec__0___redArg(x_1, x_48);
+x_49 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectLevelMVars_visitExpr_spec__0___redArg(x_1, x_48);
 if (x_49 == 0)
 {
 uint8_t x_50; 
@@ -14614,7 +14614,7 @@ lean_dec(x_61);
 if (x_63 == 0)
 {
 lean_object* x_64; 
-x_64 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectFVars_visit_spec__1___redArg(x_57);
+x_64 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectLevelMVars_visitExpr_spec__1___redArg(x_57);
 lean_ctor_set(x_30, 1, x_64);
 lean_ctor_set(x_30, 0, x_55);
 x_32 = x_30;
@@ -14653,7 +14653,7 @@ lean_dec(x_73);
 if (x_75 == 0)
 {
 lean_object* x_76; lean_object* x_77; 
-x_76 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectFVars_visit_spec__1___redArg(x_69);
+x_76 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectLevelMVars_visitExpr_spec__1___redArg(x_69);
 x_77 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_77, 0, x_67);
 lean_ctor_set(x_77, 1, x_76);
@@ -14749,7 +14749,7 @@ x_93 = lean_usize_sub(x_91, x_92);
 x_94 = lean_usize_land(x_90, x_93);
 x_95 = lean_array_uget(x_81, x_94);
 lean_dec(x_81);
-x_96 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectFVars_visit_spec__0___redArg(x_1, x_95);
+x_96 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectLevelMVars_visitExpr_spec__0___redArg(x_1, x_95);
 lean_dec(x_95);
 if (x_96 == 0)
 {
@@ -14782,7 +14782,7 @@ lean_dec(x_113);
 x_115 = lean_usize_sub(x_114, x_92);
 x_116 = lean_usize_land(x_90, x_115);
 x_117 = lean_array_uget(x_112, x_116);
-x_118 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectFVars_visit_spec__0___redArg(x_1, x_117);
+x_118 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectLevelMVars_visitExpr_spec__0___redArg(x_1, x_117);
 if (x_118 == 0)
 {
 lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; uint8_t x_130; 
@@ -14815,7 +14815,7 @@ lean_dec(x_128);
 if (x_130 == 0)
 {
 lean_object* x_131; lean_object* x_132; 
-x_131 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectFVars_visit_spec__1___redArg(x_124);
+x_131 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectLevelMVars_visitExpr_spec__1___redArg(x_124);
 if (lean_is_scalar(x_119)) {
  x_132 = lean_alloc_ctor(0, 2, 0);
 } else {

@@ -28,6 +28,7 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass_processGoal_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass_splitAnds___redArg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectLevelMVars_visitExpr_spec__1___redArg(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass_trySplit___redArg___closed__1;
 lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass_trySplit___redArg___closed__10;
@@ -89,14 +90,12 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlattening
 size_t lean_usize_sub(size_t, size_t);
 lean_object* l_Lean_MVarId_tryClearMany(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass___closed__0;
-lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectFVars_visit_spec__1___redArg(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_FVarId_getDecl___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass_processGoal___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Expr_fvar___override(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass_trySplit___redArg___lam__0___closed__1;
-uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectFVars_visit_spec__0___redArg(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FVarId_getType___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
@@ -105,6 +104,7 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlattening
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass_processGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectLevelMVars_visitExpr_spec__0___redArg(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass_processGoal_spec__0___redArg(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -401,7 +401,7 @@ x_37 = lean_usize_sub(x_35, x_36);
 x_38 = lean_usize_land(x_34, x_37);
 x_39 = lean_array_uget(x_21, x_38);
 lean_dec(x_21);
-x_40 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectFVars_visit_spec__0___redArg(x_23, x_39);
+x_40 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectLevelMVars_visitExpr_spec__0___redArg(x_23, x_39);
 lean_dec(x_39);
 if (x_40 == 0)
 {
@@ -445,7 +445,7 @@ lean_dec(x_141);
 x_143 = lean_usize_sub(x_142, x_36);
 x_144 = lean_usize_land(x_34, x_143);
 x_145 = lean_array_uget(x_50, x_144);
-x_146 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectFVars_visit_spec__0___redArg(x_23, x_145);
+x_146 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectLevelMVars_visitExpr_spec__0___redArg(x_23, x_145);
 if (x_146 == 0)
 {
 uint8_t x_147; 
@@ -479,7 +479,7 @@ lean_dec(x_157);
 if (x_159 == 0)
 {
 lean_object* x_160; 
-x_160 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectFVars_visit_spec__1___redArg(x_153);
+x_160 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectLevelMVars_visitExpr_spec__1___redArg(x_153);
 lean_ctor_set(x_43, 1, x_160);
 lean_ctor_set(x_43, 0, x_152);
 x_51 = x_43;
@@ -519,7 +519,7 @@ lean_dec(x_168);
 if (x_170 == 0)
 {
 lean_object* x_171; lean_object* x_172; 
-x_171 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectFVars_visit_spec__1___redArg(x_164);
+x_171 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectLevelMVars_visitExpr_spec__1___redArg(x_164);
 x_172 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_172, 0, x_163);
 lean_ctor_set(x_172, 1, x_171);
@@ -1037,7 +1037,7 @@ x_192 = lean_usize_sub(x_190, x_191);
 x_193 = lean_usize_land(x_189, x_192);
 x_194 = lean_array_uget(x_176, x_193);
 lean_dec(x_176);
-x_195 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectFVars_visit_spec__0___redArg(x_178, x_194);
+x_195 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectLevelMVars_visitExpr_spec__0___redArg(x_178, x_194);
 lean_dec(x_194);
 if (x_195 == 0)
 {
@@ -1080,7 +1080,7 @@ lean_dec(x_254);
 x_256 = lean_usize_sub(x_255, x_191);
 x_257 = lean_usize_land(x_189, x_256);
 x_258 = lean_array_uget(x_205, x_257);
-x_259 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectFVars_visit_spec__0___redArg(x_178, x_258);
+x_259 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectLevelMVars_visitExpr_spec__0___redArg(x_178, x_258);
 if (x_259 == 0)
 {
 lean_object* x_260; lean_object* x_261; lean_object* x_262; lean_object* x_263; lean_object* x_264; lean_object* x_265; lean_object* x_266; lean_object* x_267; lean_object* x_268; lean_object* x_269; uint8_t x_270; 
@@ -1114,7 +1114,7 @@ lean_dec(x_268);
 if (x_270 == 0)
 {
 lean_object* x_271; lean_object* x_272; 
-x_271 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectFVars_visit_spec__1___redArg(x_264);
+x_271 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectLevelMVars_visitExpr_spec__1___redArg(x_264);
 if (lean_is_scalar(x_260)) {
  x_272 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -1456,7 +1456,7 @@ x_295 = lean_usize_sub(x_293, x_294);
 x_296 = lean_usize_land(x_292, x_295);
 x_297 = lean_array_uget(x_279, x_296);
 lean_dec(x_279);
-x_298 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectFVars_visit_spec__0___redArg(x_281, x_297);
+x_298 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectLevelMVars_visitExpr_spec__0___redArg(x_281, x_297);
 lean_dec(x_297);
 if (x_298 == 0)
 {
@@ -1500,7 +1500,7 @@ lean_dec(x_357);
 x_359 = lean_usize_sub(x_358, x_294);
 x_360 = lean_usize_land(x_292, x_359);
 x_361 = lean_array_uget(x_308, x_360);
-x_362 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectFVars_visit_spec__0___redArg(x_281, x_361);
+x_362 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectLevelMVars_visitExpr_spec__0___redArg(x_281, x_361);
 if (x_362 == 0)
 {
 lean_object* x_363; lean_object* x_364; lean_object* x_365; lean_object* x_366; lean_object* x_367; lean_object* x_368; lean_object* x_369; lean_object* x_370; lean_object* x_371; lean_object* x_372; lean_object* x_373; uint8_t x_374; 
@@ -1534,7 +1534,7 @@ lean_dec(x_372);
 if (x_374 == 0)
 {
 lean_object* x_375; lean_object* x_376; 
-x_375 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectFVars_visit_spec__1___redArg(x_368);
+x_375 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectLevelMVars_visitExpr_spec__1___redArg(x_368);
 if (lean_is_scalar(x_363)) {
  x_376 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -2164,7 +2164,7 @@ x_26 = lean_usize_sub(x_24, x_25);
 x_27 = lean_usize_land(x_23, x_26);
 x_28 = lean_array_uget(x_14, x_27);
 lean_dec(x_14);
-x_29 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectFVars_visit_spec__0___redArg(x_8, x_28);
+x_29 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectLevelMVars_visitExpr_spec__0___redArg(x_8, x_28);
 lean_dec(x_28);
 if (x_29 == 0)
 {

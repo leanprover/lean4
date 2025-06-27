@@ -227,6 +227,7 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_lambdaTelescopeImp___redAr
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_WF_Preprocess_0__Lean_Elab_WF_getSimpContext___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_initFn___closed__1____x40_Lean_Elab_PreDefinition_WF_Preprocess___hyg_44_;
+lean_object* l_Lean_Meta_letToHave(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_WF_Preprocess_0__Lean_Elab_WF_processParamLet(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_paramLet___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at___Lean_Elab_WF_paramMatcher_spec__1___redArg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7299,20 +7300,60 @@ return x_14;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; lean_object* x_21; 
-x_15 = lean_alloc_closure((void*)(l_Lean_Elab_WF_preprocess___lam__0___boxed), 6, 0);
-x_16 = l_Lean_Elab_WF_preprocess___closed__1;
-x_17 = lean_box(x_9);
-lean_inc(x_1);
-x_18 = lean_alloc_closure((void*)(l_Lean_Elab_WF_preprocess___lam__2___boxed), 11, 4);
-lean_closure_set(x_18, 0, x_17);
-lean_closure_set(x_18, 1, x_1);
-lean_closure_set(x_18, 2, x_15);
-lean_closure_set(x_18, 3, x_16);
-x_19 = lean_box(0);
-x_20 = lean_unbox(x_19);
-x_21 = l_Lean_Meta_lambdaTelescope___at___Lean_PrettyPrinter_Delaborator_returnsPi_spec__0___redArg(x_1, x_18, x_20, x_2, x_3, x_4, x_5, x_6);
-return x_21;
+lean_object* x_15; 
+lean_inc(x_5);
+lean_inc(x_4);
+lean_inc(x_3);
+lean_inc(x_2);
+x_15 = l_Lean_Meta_letToHave(x_1, x_2, x_3, x_4, x_5, x_6);
+if (lean_obj_tag(x_15) == 0)
+{
+lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; 
+x_16 = lean_ctor_get(x_15, 0);
+lean_inc(x_16);
+x_17 = lean_ctor_get(x_15, 1);
+lean_inc(x_17);
+lean_dec(x_15);
+x_18 = lean_alloc_closure((void*)(l_Lean_Elab_WF_preprocess___lam__0___boxed), 6, 0);
+x_19 = l_Lean_Elab_WF_preprocess___closed__1;
+x_20 = lean_box(x_9);
+lean_inc(x_16);
+x_21 = lean_alloc_closure((void*)(l_Lean_Elab_WF_preprocess___lam__2___boxed), 11, 4);
+lean_closure_set(x_21, 0, x_20);
+lean_closure_set(x_21, 1, x_16);
+lean_closure_set(x_21, 2, x_18);
+lean_closure_set(x_21, 3, x_19);
+x_22 = lean_box(0);
+x_23 = lean_unbox(x_22);
+x_24 = l_Lean_Meta_lambdaTelescope___at___Lean_PrettyPrinter_Delaborator_returnsPi_spec__0___redArg(x_16, x_21, x_23, x_2, x_3, x_4, x_5, x_17);
+return x_24;
+}
+else
+{
+uint8_t x_25; 
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+x_25 = !lean_is_exclusive(x_15);
+if (x_25 == 0)
+{
+return x_15;
+}
+else
+{
+lean_object* x_26; lean_object* x_27; lean_object* x_28; 
+x_26 = lean_ctor_get(x_15, 0);
+x_27 = lean_ctor_get(x_15, 1);
+lean_inc(x_27);
+lean_inc(x_26);
+lean_dec(x_15);
+x_28 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_28, 0, x_26);
+lean_ctor_set(x_28, 1, x_27);
+return x_28;
+}
+}
 }
 }
 }

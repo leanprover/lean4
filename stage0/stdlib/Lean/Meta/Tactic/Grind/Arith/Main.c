@@ -29,13 +29,13 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_check(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_isCnstr_x3f___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_propagateLE___regBuiltin_Lean_Meta_Grind_Arith_propagateLE_declare__1___closed__0____x40_Lean_Meta_Tactic_Grind_Arith_Main___hyg_459_;
 static lean_object* l_Lean_Meta_Grind_Arith_propagateLE___regBuiltin_Lean_Meta_Grind_Arith_propagateLE_declare__1___closed__1____x40_Lean_Meta_Tactic_Grind_Arith_Main___hyg_459_;
+lean_object* l_Lean_Meta_Grind_Arith_Cutsat_propagateLe(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_propagateLT___regBuiltin_Lean_Meta_Grind_Arith_propagateLT_declare__1___closed__2____x40_Lean_Meta_Tactic_Grind_Arith_Main___hyg_543_;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_assertTrue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_isEqFalse___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_assertFalse(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_Offset_get_x27___redArg(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_Arith_Cutsat_propagateIfSupportedLe(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkOfEqTrue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_propagateLT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_mkEqFalseProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -580,7 +580,7 @@ lean_inc(x_16);
 lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_1);
-x_24 = l_Lean_Meta_Grind_Arith_Cutsat_propagateIfSupportedLe(x_1, x_23, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22);
+x_24 = l_Lean_Meta_Grind_Arith_Cutsat_propagateLe(x_1, x_23, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_25; uint8_t x_26; lean_object* x_27; 
@@ -620,7 +620,7 @@ lean_inc(x_31);
 lean_inc(x_30);
 lean_inc(x_29);
 lean_inc(x_1);
-x_39 = l_Lean_Meta_Grind_Arith_Cutsat_propagateIfSupportedLe(x_1, x_38, x_29, x_30, x_31, x_32, x_33, x_34, x_35, x_36, x_37);
+x_39 = l_Lean_Meta_Grind_Arith_Cutsat_propagateLe(x_1, x_38, x_29, x_30, x_31, x_32, x_33, x_34, x_35, x_36, x_37);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; uint8_t x_41; lean_object* x_42; 

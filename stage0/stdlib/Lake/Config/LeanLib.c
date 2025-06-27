@@ -37,6 +37,7 @@ LEAN_EXPORT lean_object* l_Lake_LeanLib_libName___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_weakLeanArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_findLeanLib_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_config(lean_object*);
+uint8_t l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1771__spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_leanLibs(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_sharedLibFile(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_rootDir(lean_object*);
@@ -49,7 +50,6 @@ uint8_t l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_265_(uint8_t, ui
 LEAN_EXPORT lean_object* l_Lake_LeanLib_isLocalModule___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_leanArgs___boxed(lean_object*);
 lean_object* l_Lake_Package_findTargetDecl_x3f(lean_object*, lean_object*);
-uint8_t l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1735__spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_plugins(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lake_Package_leanLibs___closed__2;
@@ -769,7 +769,7 @@ return x_10;
 else
 {
 uint8_t x_11; 
-x_11 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1735__spec__0___redArg(x_4, x_7, x_8);
+x_11 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1771__spec__0___redArg(x_4, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_4);
 if (x_11 == 0)

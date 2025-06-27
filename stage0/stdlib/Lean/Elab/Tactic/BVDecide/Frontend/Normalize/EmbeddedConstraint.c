@@ -26,6 +26,7 @@ lean_object* l_Lean_Meta_simpGoal(lean_object*, lean_object*, lean_object*, lean
 lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass___lam__1___closed__0;
 LEAN_EXPORT lean_object* l_Lean_MVarId_withContext___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectLevelMVars_visitExpr_spec__1___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass_spec__0(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass;
 lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
@@ -71,18 +72,17 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConst
 size_t lean_usize_sub(size_t, size_t);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass___lam__1___closed__4;
 lean_object* l_Lean_MVarId_tryClearMany(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectFVars_visit_spec__1___redArg(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_FVarId_getDecl___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
-uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectFVars_visit_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_FVarId_getType___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass_spec__0___redArg___closed__3;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass___lam__1___closed__7;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_LocalDecl_toExpr(lean_object*);
+uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectLevelMVars_visitExpr_spec__0___redArg(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -299,7 +299,7 @@ x_81 = 1;
 x_82 = lean_usize_sub(x_80, x_81);
 x_83 = lean_usize_land(x_79, x_82);
 x_84 = lean_array_uget(x_70, x_83);
-x_85 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectFVars_visit_spec__0___redArg(x_58, x_84);
+x_85 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectLevelMVars_visitExpr_spec__0___redArg(x_58, x_84);
 if (x_85 == 0)
 {
 if (x_85 == 0)
@@ -334,7 +334,7 @@ lean_dec(x_97);
 if (x_99 == 0)
 {
 lean_object* x_100; 
-x_100 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectFVars_visit_spec__1___redArg(x_93);
+x_100 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectLevelMVars_visitExpr_spec__1___redArg(x_93);
 lean_ctor_set(x_26, 1, x_100);
 lean_ctor_set(x_26, 0, x_91);
 x_28 = x_26;
@@ -373,7 +373,7 @@ lean_dec(x_109);
 if (x_111 == 0)
 {
 lean_object* x_112; lean_object* x_113; 
-x_112 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectFVars_visit_spec__1___redArg(x_105);
+x_112 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectLevelMVars_visitExpr_spec__1___redArg(x_105);
 x_113 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_113, 0, x_103);
 lean_ctor_set(x_113, 1, x_112);

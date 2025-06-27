@@ -39,7 +39,6 @@ static lean_object* l_Lean_Elab_Structural_tryAllArgs___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Elab_Structural_inductiveGroups_spec__0(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___Lean_Elab_Structural_tryAllArgs_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instBEqOfDecidableEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_sortExprs_spec__1___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___Lean_Elab_Structural_tryAllArgs_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Elab_Structural_argsInGroup_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Structural_IndGroupInfo_numMotives(lean_object*);
@@ -246,6 +245,7 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsa
 lean_object* l_Lean_Meta_mapErrorImp___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addTrace___at___Lean_Elab_Structural_tryAllArgs_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
+uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Expr_CollectLooseBVars_main_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_Structural_tryAllArgs_spec__7___boxed(lean_object**);
 static lean_object* l_Lean_Elab_Structural_prettyParam___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_hasBadIndexDep_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -292,7 +292,6 @@ lean_object* l_Array_anyMUnsafe_any___redArg(lean_object*, lean_object*, lean_ob
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_Structural_prettyParameterSet_spec__0___closed__1;
 static lean_object* l_Lean_Elab_Structural_getRecArgInfo___closed__13;
 LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_allDiffAux___at___Array_allDiff___at___Lean_Elab_Structural_getRecArgInfo_spec__0_spec__0(lean_object*, lean_object*);
-uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Lean_sortExprs_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_getRecArgInfo___closed__21;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_dedup___redArg___lam__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_FixedParamPerm_pickVarying___redArg(lean_object*, lean_object*);
@@ -353,6 +352,7 @@ LEAN_EXPORT lean_object* l_Array_idxOf_x3f___at___Lean_Elab_Structural_getRecArg
 static lean_object* l_Lean_Elab_Structural_nonIndicesFirst___closed__5;
 static lean_object* l_Lean_Elab_Structural_getRecArgInfos___lam__2___closed__10;
 static lean_object* l_Lean_Elab_Structural_tryAllArgs___redArg___closed__7;
+lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Expr_CollectLooseBVars_main_spec__1___redArg(lean_object*);
 lean_object* l_Array_findIdx_x3f_loop___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Elab_Structural_argsInGroup_spec__0_spec__0(lean_object*, size_t, size_t, lean_object*);
@@ -5866,7 +5866,7 @@ x_24 = 1;
 x_25 = lean_usize_sub(x_23, x_24);
 x_26 = lean_usize_land(x_22, x_25);
 x_27 = lean_array_uget(x_12, x_26);
-x_28 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_sortExprs_spec__0___redArg(x_13, x_27);
+x_28 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Expr_CollectLooseBVars_main_spec__0___redArg(x_13, x_27);
 if (x_28 == 0)
 {
 uint8_t x_29; 
@@ -5899,7 +5899,7 @@ lean_dec(x_40);
 if (x_42 == 0)
 {
 lean_object* x_43; 
-x_43 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_sortExprs_spec__1___redArg(x_36);
+x_43 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Expr_CollectLooseBVars_main_spec__1___redArg(x_36);
 lean_ctor_set(x_4, 1, x_43);
 lean_ctor_set(x_4, 0, x_34);
 x_5 = x_4;
@@ -5938,7 +5938,7 @@ lean_dec(x_52);
 if (x_54 == 0)
 {
 lean_object* x_55; lean_object* x_56; 
-x_55 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_sortExprs_spec__1___redArg(x_48);
+x_55 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Expr_CollectLooseBVars_main_spec__1___redArg(x_48);
 x_56 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_56, 0, x_46);
 lean_ctor_set(x_56, 1, x_55);
@@ -6050,7 +6050,7 @@ x_28 = 1;
 x_29 = lean_usize_sub(x_27, x_28);
 x_30 = lean_usize_land(x_26, x_29);
 x_31 = lean_array_uget(x_13, x_30);
-x_32 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_sortExprs_spec__0___redArg(x_17, x_31);
+x_32 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Expr_CollectLooseBVars_main_spec__0___redArg(x_17, x_31);
 lean_dec(x_31);
 lean_dec(x_17);
 if (x_32 == 0)
@@ -6097,7 +6097,7 @@ x_50 = 1;
 x_51 = lean_usize_sub(x_49, x_50);
 x_52 = lean_usize_land(x_48, x_51);
 x_53 = lean_array_uget(x_35, x_52);
-x_54 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_sortExprs_spec__0___redArg(x_39, x_53);
+x_54 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Expr_CollectLooseBVars_main_spec__0___redArg(x_39, x_53);
 lean_dec(x_53);
 lean_dec(x_39);
 if (x_54 == 0)

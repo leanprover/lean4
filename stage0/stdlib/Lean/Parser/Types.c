@@ -155,6 +155,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_SyntaxStack_instHAppendArraySyntax___lam_
 static lean_object* l_Lean_Parser_initCacheForInput___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Parser_instInhabitedInputContext;
 LEAN_EXPORT lean_object* l_Lean_Parser_instInhabitedError;
+uint8_t l_List_beq___at___Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_2791__spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_initCacheForInput___closed__3;
 static lean_object* l_Lean_Parser_FirstTokens_toStr___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_instInhabitedParser;
@@ -181,7 +182,6 @@ LEAN_EXPORT lean_object* l_Lean_Parser_ParserState_setPos(lean_object*, lean_obj
 lean_object* l_List_eraseRepsBy___redArg(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_SyntaxNodeKindSet_insert(lean_object*, lean_object*);
-uint8_t l_List_beq___at___Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_2739__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_withResetCache(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_qsort_sort___at___Lean_Parser_Error_toString_spec__1___redArg___lam__0(lean_object*, lean_object*);
@@ -586,7 +586,7 @@ return x_10;
 else
 {
 uint8_t x_11; 
-x_11 = l_List_beq___at___Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_2739__spec__0(x_5, x_8);
+x_11 = l_List_beq___at___Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_2791__spec__0(x_5, x_8);
 lean_dec(x_8);
 lean_dec(x_5);
 return x_11;
@@ -881,7 +881,7 @@ block_46:
 {
 lean_object* x_37; uint8_t x_38; 
 x_37 = lean_box(0);
-x_38 = l_List_beq___at___Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_2739__spec__0(x_35, x_37);
+x_38 = l_List_beq___at___Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_2791__spec__0(x_35, x_37);
 if (x_38 == 0)
 {
 lean_object* x_39; lean_object* x_40; lean_object* x_41; uint8_t x_42; 

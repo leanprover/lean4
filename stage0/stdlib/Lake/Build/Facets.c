@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Facets
-// Imports: Lake.Build.Data Lake.Build.Job.Basic Lake.Config.Dynlib
+// Imports: Lake.Build.Data Lake.Build.Job.Basic Lake.Build.ModuleArtifacts Lake.Config.Dynlib
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1860,6 +1860,7 @@ return x_1;
 }
 lean_object* initialize_Lake_Build_Data(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Build_Job_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Build_ModuleArtifacts(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Dynlib(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Build_Facets(uint8_t builtin, lean_object* w) {
@@ -1870,6 +1871,9 @@ res = initialize_Lake_Build_Data(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Build_Job_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Build_ModuleArtifacts(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_Dynlib(builtin, lean_io_mk_world());

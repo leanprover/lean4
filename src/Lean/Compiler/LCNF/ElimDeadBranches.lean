@@ -608,7 +608,7 @@ def Decl.elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
     the constructor that we inferred for them. For more information
     refer to the docstring of `Decl.safe`.
     -/
-    if decls[i]!.safe then .bot else .top
+    if decls[i]!.safe then .bot else .bot
   let mut funVals := decls.size.fold (init := .empty) fun i _ p => p.push (initialVal i)
   let ctx := { decls }
   let mut state := { assignments, funVals }
@@ -619,7 +619,7 @@ def Decl.elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
     decls.size.fold (init := e) fun i _ env =>
       addFunctionSummary env decls[i].name funVals[i]!
 
-  decls.mapIdxM fun i decl => if decl.safe then elimDead assignments[i]! decl else return decl
+  decls.mapIdxM fun i decl => elimDead assignments[i]! decl
 
 def elimDeadBranches : Pass :=
   { name := `elimDeadBranches, run := Decl.elimDeadBranches, phase := .mono }

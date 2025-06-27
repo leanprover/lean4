@@ -14,6 +14,7 @@ manipulation.
 -/
 
 open Std Time
+open System
 
 namespace Std
 namespace Internal
@@ -272,15 +273,15 @@ def getEnv : IO Environment := do
 Gets the current user's home directory.
 -/
 @[inline]
-def getHomeDir : IO String :=
-  UV.System.osHomedir
+def getHomeDir : IO FilePath :=
+  FilePath.mk <$> UV.System.osHomedir
 
 /--
 Gets the temporary directory.
 -/
 @[inline]
-def getTmpDir : IO String := do
-  UV.System.osTmpdir
+def getTmpDir : IO FilePath := do
+  FilePath.mk <$> UV.System.osTmpdir
 
 /--
 Gets the current user by using `passwd`.

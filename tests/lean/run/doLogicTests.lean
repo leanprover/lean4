@@ -522,7 +522,7 @@ theorem sum_loop_spec :
   ⦃True⦄
   sum_loop
   ⦃⇓r => r < 30⦄ := by
-  -- cf. `Toy.sum_loop_spec`
+  -- cf. `ByHand.sum_loop_spec`
   mintro -
   mvcgen [sum_loop]
   case inv => exact (⇓ (r, xs) => (∀ x, x ∈ xs.suff → x ≤ 5) ∧ r + xs.suff.length * 5 ≤ 25)
@@ -828,3 +828,38 @@ theorem max_and_sum_spec (xs : Array Nat) :
 end MaxAndSum
 
 end VSTTE2010
+
+namespace RishsConstApproxBug
+
+@[spec]
+theorem Spec.get_StateT' [Monad m] [WPMonad m psm] :
+  ⦃fun s => Q.1 s s⦄ (MonadState.get : StateT σ m σ) ⦃Q⦄ := Spec.get_StateT
+
+@[inline] def test : StateM Unit Unit := do
+  let _ ← get
+  if True then
+    pure ()
+
+/--
+error: unsolved goals
+⊢ ∀ (s : Unit), True → ⦃fun s => True⦄ pure () ⦃⇓ x => ⌜True⌝⦄
+
+⊢ ∀ (s : Unit), ¬True → ⦃fun s => True⦄ pure PUnit.unit ⦃⇓ x => ⌜True⌝⦄
+-/
+#guard_msgs in
+theorem need_const_approx :
+   ⦃fun x => x = ()⦄
+   test
+   ⦃⇓ _ => ⌜True⌝⦄ := by
+  unfold test
+  mintro _
+  mspec
+  mspec
+
+theorem need_const_approx' :
+   ⦃fun x => x = ()⦄
+   test
+   ⦃⇓ _ => ⌜True⌝⦄ := by
+  mvcgen [test]
+
+end RishsConstApproxBug

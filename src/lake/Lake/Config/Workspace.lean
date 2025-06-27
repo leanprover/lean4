@@ -41,6 +41,10 @@ hydrate_opaque_type OpaqueWorkspace Workspace
 
 namespace Workspace
 
+/-- The Lake cache. May be disabled. -/
+@[inline] def lakeCache (ws : Workspace) : Cache :=
+  ws.lakeEnv.lakeCache
+
 /-- The path to the workspace's directory (i.e., the directory of the root package). -/
 @[inline] def dir (self : Workspace) : FilePath :=
   self.root.dir

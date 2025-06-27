@@ -302,6 +302,68 @@ def Module.cacheOutputHashes (mod : Module) : IO PUnit := do
   if Lean.Internal.hasLLVMBackend () then
     cacheFileHash mod.bcFile
 
+private def ModuleOutputHashes.getArtifactsFrom?
+  (cache : Cache) (hashes : ModuleOutputHashes)
+: BaseIO (Option ModuleOutputArtifacts) := OptionT.run do
+  let mut arts : ModuleOutputArtifacts := {
+    olean := ← cache.getArtifact? hashes.olean "olean"
+    ilean := ← cache.getArtifact? hashes.ilean "ilean"
+    c :=← cache.getArtifact? hashes.c "c"
+  }
+  if let some hash := hashes.oleanServer? then
+    arts := {arts with oleanServer? := some (← cache.getArtifact? hash "olean.server")}
+  if let some hash := hashes.oleanPrivate? then
+    arts := {arts with oleanPrivate? := some (← cache.getArtifact? hash "olean.private")}
+  if Lean.Internal.hasLLVMBackend () then
+    arts := {arts with bc? := some (← cache.getArtifact? (← hashes.bc?) "bc")}
+  return arts
+
+@[inline] def ModuleOutputHashes.getArtifacts?
+  [MonadLakeEnv m] [MonadLiftT BaseIO m] [Monad m] (hashes : ModuleOutputHashes)
+: m (Option ModuleOutputArtifacts) := do hashes.getArtifactsFrom? (← getLakeCache)
+
+instance
+  [MonadLakeEnv m] [MonadLiftT BaseIO m] [Monad m]
+: ResolveArtifacts m ModuleOutputHashes ModuleOutputArtifacts := ⟨ ModuleOutputHashes.getArtifacts?⟩
+
+/-- Save module build artifacts to the local Lake cache. Requires the artifact cache to be enabled. -/
+private def Module.cacheOutputArtifacts (mod : Module) : JobM ModuleOutputArtifacts := do
+  let mut arts : ModuleOutputArtifacts := {
+    olean := ← cacheArtifact mod.oleanFile "olean"
+    ilean := ← cacheArtifact mod.ileanFile "ilean"
+    c := ← cacheArtifact mod.cFile "c"
+  }
+  if (← mod.oleanServerFile.pathExists) then
+    let art ← cacheArtifact mod.oleanServerFile "olean.server"
+    arts := {arts with oleanServer? := art}
+  if (← mod.oleanPrivateFile.pathExists) then
+    let art ← cacheArtifact mod.oleanPrivateFile "olean.private"
+    arts := {arts with oleanPrivate? := art}
+  if Lean.Internal.hasLLVMBackend () then
+    let art ← cacheArtifact mod.bcFile "bc"
+    arts := {arts with bc? := art}
+  return arts
+
+/--
+Some module build artifacts must be located in the build directory (e.g., OLeans, ILeans).
+This copies the required artifacts from the local Lake cache to the build directory and
+updates the data structure with the new paths.
+-/
+private def Module.restoreArtifacts (mod : Module) (cached : ModuleOutputArtifacts) : JobM ModuleOutputArtifacts := do
+  return {cached with
+    olean := ← restore mod.oleanFile cached.olean
+    oleanServer? := ← cached.oleanServer?.mapM (restore mod.oleanServerFile)
+    oleanPrivate? := ← cached.oleanPrivate?.mapM (restore mod.oleanPrivateFile)
+    ilean := ← restore mod.ileanFile cached.ilean
+  }
+where
+  restore file art := do
+    unless (← file.pathExists) do
+      logVerbose s!"restored artifact from cache to: {file}"
+      copyFile art.path file
+      writeFileHash file art.hash
+    return art.useLocalFile file
+
 private def traceOptions (opts : LeanOptions) (caption := "opts") : BuildTrace :=
   opts.values.fold (init := .nil caption) fun t n v =>
     let opt := s!"-D{n}={v.asCliFlagValue}"
@@ -312,7 +374,7 @@ Recursively build a Lean module.
 Fetch its dependencies and then elaborate the Lean source file, producing
 all possible artifacts (e.g., `.olean`, `.ilean`, `.c`, `.bc`).
 -/
-def Module.recBuildLean (mod : Module) : FetchM (Job ModuleArtifacts) := do
+def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifacts) := do
   withRegisterJob mod.name.toString do
   let setupJob ← mod.setup.fetch
   let leanJob ← mod.lean.fetch
@@ -323,6 +385,7 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleArtifacts) := do
     addTrace <| traceOptions setup.options "options"
     addPureTrace mod.leanArgs "Module.leanArgs"
     setTraceCaption s!"{mod.name.toString}:leanArts"
+    let depTrace ← getTrace
     let arts : ModuleArtifacts := {
       lean? := srcFile
       olean? := mod.oleanFile
@@ -332,25 +395,53 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleArtifacts) := do
       c? := mod.cFile
       bc? := if Lean.Internal.hasLLVMBackend () then some mod.bcFile else none
     }
-    let upToDate ← buildUnlessUpToDate? (oldTrace := srcTrace.mtime) mod (← getTrace) mod.traceFile do
-      let args := mod.weakLeanArgs ++ mod.leanArgs
-      let relSrcFile := relPathFrom mod.pkg.dir srcFile
-      compileLeanModule srcFile relSrcFile setup mod.setupFile arts args
-        (← getLeanPath) (← getLean)
-      mod.clearOutputHashes
-    unless upToDate && (← getTrustHash) do
-      mod.cacheOutputHashes
-    return arts
+    let inputHash := depTrace.hash
+    let savedTrace ← readTraceFile mod.traceFile
+    if let some ref := mod.pkg.cacheRef? then
+      if let some arts ← resolveArtifactsUsing? ModuleOutputHashes inputHash savedTrace ref then
+        let arts ← mod.restoreArtifacts arts
+        savedTrace.replayIfExists
+        return arts
+    let upToDate ← savedTrace.replayIfUpToDate (oldTrace := srcTrace.mtime) mod depTrace
+    unless upToDate do
+      discard <| buildAction depTrace mod.traceFile do
+        let args := mod.weakLeanArgs ++ mod.leanArgs
+        let relSrcFile := relPathFrom mod.pkg.dir srcFile
+        compileLeanModule srcFile relSrcFile setup mod.setupFile arts args
+          (← getLeanPath) (← getLean)
+        mod.clearOutputHashes
+        return {
+          olean := ← computeFileHash mod.oleanFile
+          oleanServer? := ← if setup.isModule then some <$> computeFileHash mod.oleanServerFile else pure none
+          oleanPrivate? := ← if setup.isModule then some <$> computeFileHash mod.oleanPrivateFile else pure none
+          ilean := ← computeFileHash mod.ileanFile
+          c := ← computeFileHash mod.cFile
+          bc? := ← if Lean.Internal.hasLLVMBackend () then some <$> computeFileHash mod.bcFile else pure none
+          : ModuleOutputHashes
+        }
+    if let some ref := mod.pkg.cacheRef? then
+      let arts ← mod.cacheOutputArtifacts
+      ref.insert inputHash arts.hashes
+      return arts
+    else
+      return {
+        olean := ← fetchLocalArtifact mod.oleanFile
+        oleanServer? := ← if setup.isModule then some <$> fetchLocalArtifact mod.oleanServerFile else pure none
+        oleanPrivate? := ← if setup.isModule then some <$> fetchLocalArtifact mod.oleanPrivateFile else pure none
+        ilean := ← fetchLocalArtifact mod.ileanFile
+        c := ← fetchLocalArtifact mod.cFile
+        bc? := ← if Lean.Internal.hasLLVMBackend () then some <$> fetchLocalArtifact mod.bcFile else pure none
+      }
 
 /-- The `ModuleFacetConfig` for the builtin `leanArtsFacet`. -/
 def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=
   mkFacetJobConfig recBuildLean
 
 @[inline] private def Module.fetchOLeanCore
-  (facet : String) (f : ModuleArtifacts → Option FilePath) (errMsg : String) (mod : Module)
+  (facet : String) (f : ModuleOutputArtifacts → Option Artifact) (errMsg : String) (mod : Module)
 : FetchM (Job FilePath) := do
   (← mod.leanArts.fetch).mapM fun arts => do
-      let some oleanFile := f arts
+      let some art := f arts
         | error errMsg
       /-
       Avoid recompiling unchanged OLean files.
@@ -359,12 +450,12 @@ def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=
       -/
       newTrace s!"{mod.name.toString}:{facet}"
       addTrace (← mod.setup.fetch).getTrace.withoutInputs -- TODO: Replace w/ `ModuleSetup.modules`
-      addTrace (← fetchFileTrace oleanFile)
-      return oleanFile
+      addTrace art.trace
+      return art.path
 
 /-- The `ModuleFacetConfig` for the builtin `oleanFacet`. -/
 def Module.oleanFacetConfig : ModuleFacetConfig oleanFacet :=
-  mkFacetJobConfig <| fetchOLeanCore "olean" (·.olean?)
+  mkFacetJobConfig <| fetchOLeanCore "olean" (·.olean)
     "No olean generated. This is likely an error in Lean or Lake."
 
 /-- The `ModuleFacetConfig` for the builtin `oleanServerFacet`. -/
@@ -381,8 +472,7 @@ def Module.oleanPrivateFacetConfig : ModuleFacetConfig oleanPrivateFacet :=
 def Module.ileanFacetConfig : ModuleFacetConfig ileanFacet :=
   mkFacetJobConfig fun mod => do
     (← mod.leanArts.fetch).mapM fun arts => do
-      let some ileanFile := arts.ilean?
-        | error "No ilean generated. This is likely an error in Lean or Lake."
+      let art := arts.ilean
       /-
       Avoid recompiling unchanged Ilean files.
       Ilean files are assumed to only incorporate their own content
@@ -390,15 +480,14 @@ def Module.ileanFacetConfig : ModuleFacetConfig ileanFacet :=
       Lean also produces LF-only Ilean files, so no line ending normalization.
       -/
       newTrace s!"{mod.name.toString}:ilean"
-      addTrace (← fetchFileTrace ileanFile)
-      return ileanFile
+      addTrace art.trace
+      return art.path
 
 /-- The `ModuleFacetConfig` for the builtin `cFacet`. -/
 def Module.cFacetConfig : ModuleFacetConfig cFacet :=
   mkFacetJobConfig fun mod => do
     (← mod.leanArts.fetch).mapM fun arts => do
-      let some cFile := arts.c?
-        | error "No C file generated. This is likely an error in Lean or Lake."
+      let art := arts.c
       /-
       Avoid recompiling unchanged C files.
       C files are assumed to incorporate their own content
@@ -407,15 +496,15 @@ def Module.cFacetConfig : ModuleFacetConfig cFacet :=
       Lean also produces LF-only C files, so no line ending normalization.
       -/
       newTrace s!"{mod.name.toString}:c"
-      addTrace (← fetchFileTrace cFile)
+      addTrace art.trace
       addLeanTrace
-      return cFile
+      return art.path
 
 /-- The `ModuleFacetConfig` for the builtin `bcFacet`. -/
 def Module.bcFacetConfig : ModuleFacetConfig bcFacet :=
   mkFacetJobConfig fun mod => do
     (← mod.leanArts.fetch).mapM fun arts => do
-      let some bcFile := arts.bc?
+      let some art := arts.bc?
         | error "No LLVM bitcode generated. Ensure your Lean version supports the LLVM backend."
       /-
       Avoid recompiling unchanged bitcode files.
@@ -423,8 +512,8 @@ def Module.bcFacetConfig : ModuleFacetConfig bcFacet :=
       and not transitively on their inputs (e.g., imports).
       -/
       newTrace s!"{mod.name.toString}:bc"
-      addTrace (← fetchFileTrace bcFile)
-      return bcFile
+      addTrace art.trace
+      return art.path
 
 /--
 Recursively build the module's object file from its C file produced by `lean`
@@ -432,7 +521,7 @@ with `-DLEAN_EXPORTING` set, which exports Lean symbols defined within the C fil
 -/
 def Module.recBuildLeanCToOExport (self : Module) : FetchM (Job FilePath) := do
   let suffix := if (← getIsVerbose) then " (with exports)" else ""
-  withRegisterJob s!"{self.name}:c.o{suffix}" do
+  withRegisterJob s!"{self.name}:c.o{suffix}" <| withCurrPackage self.pkg do
   -- TODO: add option to pass a target triplet for cross compilation
   let leancArgs := self.leancArgs ++ #["-DLEAN_EXPORTING"]
   buildLeanO self.coExportFile (← self.c.fetch) self.weakLeancArgs leancArgs self.leanIncludeDir?
@@ -447,7 +536,7 @@ This version does not export any Lean symbols.
 -/
 def Module.recBuildLeanCToONoExport (self : Module) : FetchM (Job FilePath) := do
   let suffix := if (← getIsVerbose) then " (without exports)" else ""
-  withRegisterJob s!"{self.name}:c.o{suffix}" do
+  withRegisterJob s!"{self.name}:c.o{suffix}" <| withCurrPackage self.pkg do
   -- TODO: add option to pass a target triplet for cross compilation
   buildLeanO self.coNoExportFile (← self.c.fetch) self.weakLeancArgs self.leancArgs self.leanIncludeDir?
 
@@ -462,7 +551,7 @@ def Module.coFacetConfig : ModuleFacetConfig coFacet :=
 
 /-- Recursively build the module's object file from its bitcode file produced by `lean`. -/
 def Module.recBuildLeanBcToO (self : Module) : FetchM (Job FilePath) := do
-  withRegisterJob s!"{self.name}:bc.o" do
+  withRegisterJob s!"{self.name}:bc.o" <| withCurrPackage self.pkg do
   -- TODO: add option to pass a target triplet for cross compilation
   buildLeanO self.bcoFile (← self.bc.fetch) self.weakLeancArgs self.leancArgs
 
@@ -496,7 +585,7 @@ Recursively build the shared library of a module
 (e.g., for `--load-dynlib` or `--plugin`).
 -/
 def Module.recBuildDynlib (mod : Module) : FetchM (Job Dynlib) :=
-  withRegisterJob s!"{mod.name}:dynlib" do
+  withRegisterJob s!"{mod.name}:dynlib" <| withCurrPackage mod.pkg do
   /-
   Fetch the module's object files.
 

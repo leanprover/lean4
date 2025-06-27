@@ -6,6 +6,7 @@ Authors: Mac Malone
 prelude
 import Lake.Build.Data
 import Lake.Build.Job.Basic
+import Lake.Build.ModuleArtifacts
 import Lake.Config.Dynlib
 
 /-!
@@ -80,7 +81,7 @@ Elaborates the Lean file via `lean` and produces all the Lean artifacts
 of the module (i.e., `olean`, `ilean`, `c`).
 Its trace just includes its dependencies.
 -/
-builtin_facet leanArts : Module => ModuleArtifacts
+builtin_facet leanArts : Module => ModuleOutputArtifacts
 
 /-- The `olean` file produced by `lean`. -/
 builtin_facet olean : Module => FilePath

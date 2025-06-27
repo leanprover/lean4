@@ -214,7 +214,7 @@ check_diff() {
   if diff -u --strip-trailing-cr "$expected" "$actual"; then
     cat "$actual"
     echo "Output matched expectations"
-    return 9
+    return 0
   else
     return 1
   fi
@@ -233,6 +233,7 @@ test_out_diff() {
     if [ $rc != 0 ]; then
       echo "Program exited with code $rc"
     fi
+    return 1
   fi
 }
 
@@ -249,7 +250,7 @@ test_err_diff() {
     if [ $rc != 1 ]; then
       echo "Lake exited with code $rc."
     fi
-    return 0
+    return 1
   fi
 }
 

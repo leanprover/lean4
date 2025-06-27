@@ -13,6 +13,11 @@ namespace Lake
 def createParentDirs (path : System.FilePath) : IO Unit := do
   if let some dir := path.parent then IO.FS.createDirAll dir
 
+/-- Copy a file from `src` to `dst`. -/
+def copyFile (src dst : System.FilePath) : IO Unit := do
+  let contents ← IO.FS.readBinFile src
+  IO.FS.writeBinFile dst contents
+
 /-- Returns the normalized real path of a file if it exists. Otherwise, returns `""`. -/
 def resolvePath (path : System.FilePath) : BaseIO System.FilePath := do
   match (← (IO.FS.realPath path).toBaseIO) with

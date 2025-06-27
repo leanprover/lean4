@@ -696,7 +696,7 @@ private partial def go (pattern : Expr) (inSupport : Bool) (root : Bool) : M Exp
     saveSymbol f.toHeadIndex
   let mut args := pattern.getAppArgs.toVector
   let patternArgKinds ← getPatternArgKinds f args.size
-  for h : i in [:args.size] do
+  for h : i in *...args.size do
     let arg := args[i]
     let argKind := patternArgKinds[i]?.getD .relevant
     args := args.set i (← goArg arg (inSupport || argKind.isSupport) argKind)
@@ -831,7 +831,7 @@ private def checkCoverage (thmProof : Expr) (numParams : Nat) (bvarsFound : Std.
       if !modified then
         break
     let mut pos := #[]
-    for h : i in [:xs.size] do
+    for h : i in *...xs.size do
       let fvarId := xs[i].fvarId!
       unless fvarsFound.contains fvarId do
         pos := pos.push i
@@ -845,7 +845,7 @@ private def ppParamsAt (proof : Expr) (numParams : Nat) (paramPos : List Nat) : 
   forallBoundedTelescope (← inferType proof) numParams fun xs _ => do
     let mut msg := m!""
     let mut first := true
-    for h : i in [:xs.size] do
+    for h : i in *...xs.size do
       if paramPos.contains i then
         let x := xs[i]
         if first then first := false else msg := msg ++ "\n"

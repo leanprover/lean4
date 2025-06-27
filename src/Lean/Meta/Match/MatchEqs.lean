@@ -389,7 +389,7 @@ partial def proveCondEqThm (matchDeclName : Name) (type : Expr)
   let mut mvarId := mvar0.mvarId!
   if heqNum > 0 then
     mvarId := (← mvarId.introN heqPos).2
-    for _ in [:heqNum] do
+    for _ in *...heqNum do
       let (h, mvarId') ← mvarId.intro1
       mvarId ← subst mvarId' h
     trace[Meta.Match.matchEqs] "proveCondEqThm after subst{mvarId}"
@@ -571,7 +571,7 @@ where
     e.withApp fun f args => do
       let mut argsNew := args
       let mut isAlt := #[]
-      for i in [6:args.size] do
+      for i in 6...args.size do
         let arg := argsNew[i]!
         if arg.isFVar then
           match (← read).find? arg.fvarId! with
@@ -607,7 +607,7 @@ where
                 -- Replace `rhs` with `x` (the lambda binder in the motive)
                 let mut altTypeNewAbst := (← kabstract altTypeNew rhs).instantiate1 x
                 -- Replace args[6...(6+i)] with `motiveTypeArgsNew`
-                for j in [:i] do
+                for j in *...i do
                   altTypeNewAbst := (← kabstract altTypeNewAbst argsNew[6+j]!).instantiate1 motiveTypeArgsNew[j]!
                 let localDecl ← motiveTypeArg.fvarId!.getDecl
                 withLocalDecl localDecl.userName localDecl.binderInfo altTypeNewAbst fun motiveTypeArgNew =>
@@ -631,7 +631,7 @@ where
         let mut minorBodyNew := minor
         -- We have to extend the mapping to make sure `convertTemplate` can "fix" occurrences of the refined minor premises
         let mut m ← read
-        for h : i in [:isAlt.size] do
+        for h : i in *...isAlt.size do
           if isAlt[i] then
             -- `convertTemplate` will correct occurrences of the alternative
             let alt := args[6+i]! -- Recall that `Eq.ndrec` has 6 arguments
@@ -760,7 +760,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
     let mut splitterAltTypes := #[]
     let mut splitterAltNumParams := #[]
     let mut altArgMasks := #[] -- masks produced by `forallAltTelescope`
-    for i in [:alts.size] do
+    for i in *...alts.size do
       let altNumParams := matchInfo.altNumParams[i]!
       let thmName := Name.str baseName eqnThmSuffixBase |>.appendIndexAfter idx
       eqnNames := eqnNames.push thmName
@@ -878,7 +878,7 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
     let discrs := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
     let mut notAlts := #[]
     let mut idx := 1
-    for i in [:alts.size] do
+    for i in *...alts.size do
       let altNumParams := matchInfo.altNumParams[i]!
       let thmName := (Name.str baseName congrEqnThmSuffixBase).appendIndexAfter idx
       eqnNames := eqnNames.push thmName

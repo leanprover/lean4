@@ -80,7 +80,7 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
     let goal ← mkFreshExprSyntheticOpaqueMVar target
     mkEqnTypes info.declNames goal.mvarId!
   let mut thmNames := #[]
-  for h : i in [: eqnTypes.size] do
+  for h : i in *...eqnTypes.size do
     let type := eqnTypes[i]
     trace[Elab.definition.structural.eqns] "eqnType {i+1}: {type}"
     let name := mkEqLikeNameFor (← getEnv) info.declName s!"{eqnThmSuffixBasePrefix}{i+1}"

@@ -103,7 +103,7 @@ def getExt (phase : Phase) : DeclExt :=
 def forEachDecl (f : Decl → CoreM Unit) (phase := Phase.base) : CoreM Unit := do
   let ext := getExt phase
   let env ← getEnv
-  for modIdx in [:env.allImportedModuleNames.size] do
+  for modIdx in *...env.allImportedModuleNames.size do
     for decl in ext.getModuleEntries env modIdx do
       f decl
   ext.getState env |>.forM fun _ decl => f decl

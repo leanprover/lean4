@@ -45,7 +45,7 @@ protected def normalize : JsonNumber → Int × Nat × Int
       let mut mAbs := m.natAbs
       let nDigits := countDigits mAbs
       -- eliminate trailing zeros
-      for _ in [0:nDigits] do
+      for _ in *...nDigits do
         if mAbs % 10 = 0 then
           mAbs := mAbs / 10
         else

@@ -112,7 +112,7 @@ def PreNullCert.combine (k₁ : Int) (m₁ : Mon) (c₁ : PreNullCert) (k₂ : I
   let qs₂   := c₂.qs
   let n := Nat.max qs₁.size qs₂.size
   let mut qs : Vector Poly n := Vector.replicate n (.num 0)
-  for h : i in [:n] do
+  for h : i in *...n do
     if h₁ : i < qs₁.size then
       let q₁ ← qs₁[i].mulMonM k₁ m₁
       if h₂ : i < qs₂.size then
@@ -121,7 +121,7 @@ def PreNullCert.combine (k₁ : Int) (m₁ : Mon) (c₁ : PreNullCert) (k₂ : I
       else
         qs := qs.set i q₁
     else
-      have : i < n := h.upper
+      have : i < n := Std.PRange.lt_upper_of_mem h
       have : qs₁.size = n ∨ qs₂.size = n := by simp +zetaDelta only [Nat.max_def, right_eq_ite_iff]; split <;> simp [*]
       have : i < qs₂.size := by omega
       let q₂ ← qs₂[i].mulMonM k₂ m₂

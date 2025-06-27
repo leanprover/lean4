@@ -147,7 +147,8 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
     if let .const className .. := classTy.getAppFn then
       forallTelescopeReducing (← inferType classTy.getAppFn) fun args _ => do
       let mut pos := (getOutParamPositions? (← getEnv) className).getD #[]
-      for arg in args, i in [:args.size] do
+      -- TODO: ToStream instance!
+      for arg in args, i in Std.Range.mk 0 args.size 1 (by omega) do
         if (← inferType arg).isAppOf ``semiOutParam then
           pos := pos.push i
       return pos
@@ -173,7 +174,8 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
   -- These are assumed to not be mvars during TC search (or at least not assignable)
   let tyOutParams ← getSemiOutParamPositionsOf ty
   let tyArgs := ty.getAppArgs
-  for tyArg in tyArgs, i in [:tyArgs.size] do
+  -- TODO: ToStream instance!
+  for tyArg in tyArgs, i in Std.Range.mk 0 tyArgs.size 1 (by omega) do
     unless tyOutParams.contains i do
       assignMVarsIn tyArg
 
@@ -193,7 +195,7 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
       let argTy ← whnf argTy
       let argOutParams ← getSemiOutParamPositionsOf argTy
       let argTyArgs := argTy.getAppArgs
-      for i in [:argTyArgs.size], argTyArg in argTyArgs do
+      for i in *...argTyArgs.size, argTyArg in argTyArgs do
         if !argOutParams.contains i && argTyArg.hasExprMVar then
           return false
       return true

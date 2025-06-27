@@ -212,6 +212,7 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
     let ctx ← getNatContext
     let h := mkApp4 (mkConst ``Int.OfNat.of_not_le) ctx (← mkNatExprDecl lhs) (← mkNatExprDecl rhs) (mkOfEqFalseCore e (← mkEqFalseProof e))
     return mkApp6 (mkConst ``Int.Linear.not_le_norm_expr) (← getContext) (← mkExprDecl lhs') (← mkExprDecl rhs') (← mkPolyDecl c'.p) reflBoolTrue h
+  | .bound h => return h
   | .dec h =>
     return mkFVar h
   | .norm c =>
@@ -399,7 +400,7 @@ partial def DvdCnstr.collectDecVars (c' : DvdCnstr) : CollectDecVarsM Unit := do
 
 partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .core .. | .coreNeg .. | .coreNat .. | .coreNatNeg .. | .coreToInt .. | .denoteAsIntNonneg .. => return ()
+  | .core .. | .coreNeg .. | .coreNat .. | .coreNatNeg .. | .coreToInt .. | .denoteAsIntNonneg .. | .bound .. => return ()
   | .dec h => markAsFound h
   | .cooper c | .norm c | .divCoeffs c => c.collectDecVars
   | .dvdTight c₁ c₂ | .negDvdTight c₁ c₂

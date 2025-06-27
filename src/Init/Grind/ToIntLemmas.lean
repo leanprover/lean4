@@ -130,4 +130,18 @@ theorem ofNat_eq {α i} [ToInt α i] [∀ n, _root_.OfNat α n] [ToInt.OfNat α 
 theorem zero_eq {α i} [ToInt α i] [_root_.Zero α] [ToInt.Zero α i] : toInt (0 : α) = 0 := by
   apply ToInt.Zero.toInt_zero
 
+/-! Lower and upper bounds -/
+
+theorem ge_lower {α i} [ToInt α i] (lo : Int) (h : i.lo? == some lo) (a : α) : -1 * toInt a + lo ≤ 0 := by
+  have h' := ToInt.toInt_mem a
+  revert h h'; cases i <;> simp [IntInterval.lo?] <;> intro h <;> subst h <;> intros <;> omega
+
+theorem ge_lower0 {α i} [ToInt α i] (h : i.lo? == some 0) (a : α) : -1 * toInt a ≤ 0 := by
+  have h' := ToInt.toInt_mem a
+  revert h h'; cases i <;> simp [IntInterval.lo?] <;> intro h <;> subst h <;> intros <;> omega
+
+theorem le_upper {α i} [ToInt α i] (hi' : Int) (h : i.hi? == some (-hi' + 1)) (a : α) : toInt a + hi' ≤ 0 := by
+  have h' := ToInt.toInt_mem a
+  revert h h'; cases i <;> simp [IntInterval.hi?] <;> intro h <;> subst h <;> intros <;> omega
+
 end Lean.Grind.ToInt

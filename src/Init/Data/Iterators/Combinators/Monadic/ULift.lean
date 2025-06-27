@@ -29,6 +29,35 @@ instance {n : Type max u v → Type v'} [Monad n] : Monad.{u} (ULiftT n) where
   pure a := pure (f := n) (ULift.up a)
   bind x f := bind (m := n) (x : n _) fun a => f a.down
 
+@[no_expose]
+instance {n : Type max u v → Type v'} [Monad n] [LawfulMonad n] : LawfulMonad.{u} (ULiftT n) where
+  map_const := by simp [Functor.mapConst, Functor.map]
+  id_map := by simp [Functor.map]
+  seqLeft_eq := by simp [Seq.seq, SeqLeft.seqLeft, Functor.map]
+  seqRight_eq := by simp [Seq.seq, SeqRight.seqRight, Functor.map]
+  pure_seq := by simp [Seq.seq, Pure.pure, Functor.map]
+  bind_pure_comp := by simp [Bind.bind, Pure.pure, Functor.map]
+  bind_map := by simp [Bind.bind, Functor.map, Seq.seq]
+  pure_bind := by simp [Bind.bind, Pure.pure]
+  bind_assoc := by simp [Bind.bind]
+
+@[simp]
+theorem ULiftT.run_pure {n : Type max u v → Type v'} [Monad n] {α : Type u} {a : α} :
+    (pure a : ULiftT n α).run = pure (f := n) (ULift.up a) :=
+  (rfl)
+
+@[simp]
+theorem ULiftT.run_bind {n : Type max u v → Type v'} [Monad n] {α β : Type u}
+    {x : ULiftT n α} {f : α → ULiftT n β} :
+    (x >>= f).run = x.run >>= (fun a => (f a.down).run) :=
+  (rfl)
+
+@[simp]
+theorem ULiftT.run_map {n : Type max u v → Type v'} [Monad n] {α β : Type u}
+    {x : ULiftT n α} {f : α → β} :
+    (f <$> x).run = x.run >>= (fun a => pure <| .up (f a.down)) :=
+  (rfl)
+
 end ULiftT
 
 /-- Internal state of the `uLift` iterator combinator. Do not depend on its internals. -/
@@ -133,7 +162,7 @@ it.uLift n    ---.up a----.up b---.up c--.up d---⊥
 * `Finite`: only if the original iterator is finite
 * `Productive`: only if the original iterator is productive
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def IterM.uLift (it : IterM (α := α) m β) (n : Type max u v → Type v')
     [lift : MonadLiftT m (ULiftT n)] :
     IterM (α := Types.ULiftIterator α m n β (fun _ => lift.monadLift)) n (ULift β) :=

@@ -369,18 +369,18 @@ def genVCs (goal : MVarId) (ctx : Context) (fuel : Fuel) : TacticM (Array MVarId
   return vcs
 
 @[builtin_tactic Lean.Parser.Tactic.mvcgenStep]
-def evalMVCGenStep : Tactic := fun stx => withMainContext do
+def elabMVCGenStep : Tactic := fun stx => withMainContext do
   let ctx ← mkSpecContext stx[1] stx[3]
   let n := if stx[2].isNone then 1 else stx[2][0].toNat
   discard <| genVCs (← getMainGoal) ctx (fuel := .limited n)
 
 @[builtin_tactic Lean.Parser.Tactic.mvcgenNoTrivial]
-def evalMVCGenNoTrivial : Tactic := fun stx => withMainContext do
+def elabMVCGenNoTrivial : Tactic := fun stx => withMainContext do
   let ctx ← mkSpecContext stx[0] stx[1]
   discard <| genVCs (← getMainGoal) ctx (fuel := .unlimited)
 
 @[builtin_tactic Lean.Parser.Tactic.mvcgen]
-def evalMVCGen : Tactic := fun stx => withMainContext do
+def elabMVCGen : Tactic := fun stx => withMainContext do
   if mvcgen.warning.get (← getOptions) then
     logWarningAt stx "The `mvcgen` tactic is experimental and still under development. Avoid using it in production projects."
   -- I would like to define this simply as a macro

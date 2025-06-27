@@ -5,7 +5,6 @@ Authors: Sebastian Graf
 -/
 prelude
 import Std.Do.Triple.Basic
-import Std.Tactic.Do.Syntax
 import Std.Do.WP
 
 /-!
@@ -48,7 +47,7 @@ namespace Std.Do
 -- The reason is that the actual `Triple` notation is implemented as an elaborator in
 -- `Lean.Elab.Tactic.Do.Syntax` for reasons such as #8766. Perhaps #8074 will help.
 @[inherit_doc Std.Do.triple]
-local notation:lead "⦃" P "⦄ " x:lead " ⦃" Q "⦄" => Triple x (spred(P)) spred(Q)
+local notation:lead (priority := high) "⦃" P "⦄ " x:lead " ⦃" Q "⦄" => Triple x (spred(P)) spred(Q)
 
 /-! # If/Then/Else -/
 

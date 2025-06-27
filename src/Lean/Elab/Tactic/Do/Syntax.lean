@@ -9,33 +9,23 @@ import Lean.Elab.BuiltinNotation
 import Std.Do.PostCond
 import Std.Do.Triple.Basic
 
-namespace Std.Do
+namespace Std.Do.Syntax
 
 open Lean Parser Meta Elab Term
 
-def post_syntax := leading_parser
-  "post⟨" >> withoutPosition (withoutForbidden (sepBy termParser ", " (allowTrailingSep := true))) >> "⟩"
-scoped syntax:max "post⟨" term,+ "⟩" : term
-macro_rules | `(post⟨$handlers,*⟩) => `(by exact ⟨$handlers,*, ()⟩)
-  -- NB: Postponement through by exact is the entire point of this macro
-  -- until https://github.com/leanprover/lean4/pull/8074 lands
-example : PostCond Nat .pure := post⟨fun s => True⟩
-example : PostCond (Nat × Nat) (PostShape.except Nat (PostShape.arg Nat PostShape.pure)) :=
-  post⟨fun (r, xs) s => r ≤ 4 ∧ s = 4 ∧ r + xs > 4, fun e s => e = 42 ∧ s = 4⟩
+@[builtin_term_parser] def «totalPostCond» := leading_parser:maxPrec
+  ppAllowUngrouped >> "⇓" >> basicFun
 
-open Lean Parser Term in
-def funArrow : Parser := unicodeSymbol " ↦ " " => "
-@[inherit_doc PostCond.total]
-scoped macro "⇓" xs:Lean.Parser.Term.funBinder+ funArrow e:term : term =>
-  `(PostCond.total (by exact (fun $xs* => spred($e)))) -- NB: Postponement through by exact
+@[inherit_doc PostCond.total, builtin_doc, builtin_term_elab totalPostCond]
+private def elabTotalPostCond : TermElab
+  | `(totalPostCond| ⇓ $xs* => $e), ty? => do
+    elabTerm (← `(PostCond.total (by exact (fun $xs* => spred($e))))) ty?
+     -- NB: Postponement through by exact
+  | _, _ => throwUnsupportedSyntax
 
-@[app_unexpander PostCond.total]
-private def unexpandPostCondTotal : PrettyPrinter.Unexpander
-  | `($_ fun $xs* => $e) => do `(⇓ $xs* => $(← SPred.Notation.unpack e))
-  | _ => throw ()
-
-elab_rules : term
-  | `(⦃$P⦄ $x ⦃$Q⦄) => do
+@[inherit_doc Triple, builtin_doc, builtin_term_elab triple]
+private def elabTriple : TermElab
+  | `(⦃$P⦄ $x ⦃$Q⦄), _ => do
     -- In a simple world, this would just be a macro expanding to
     -- `Triple $x spred($P) spred($Q)`.
     -- However, currently we need to help type inference for P and Q.
@@ -54,9 +44,4 @@ elab_rules : term
     let P ← elabTerm (← `(spred($P))) (mkApp (mkConst ``Assertion) ps)
     let Q ← elabTerm (← `(spred($Q))) (mkApp2 (mkConst ``PostCond) α ps)
     return mkApp7 (mkConst ``Triple [u]) m ps inst α x P Q
-
-@[app_unexpander Triple]
-private def unexpandTriple : PrettyPrinter.Unexpander
-  | `($_ $x $P $Q) => do
-    `(⦃$(← SPred.Notation.unpack P)⦄ $x ⦃$Q⦄)
-  | _ => throw ()
+  | _, _ => throwUnsupportedSyntax

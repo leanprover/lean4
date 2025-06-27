@@ -420,6 +420,36 @@ private def isToIntForbiddenParent (parent? : Option Expr) : Bool :=
   else
     false
 
+private def internalizeIntTerm (e type : Expr) (parent? : Option Expr) (k : SupportedTermKind) : GoalM Unit := do
+  if isForbiddenParent parent? k then return ()
+  trace[grind.debug.cutsat.internalize] "{e} : {type}"
+  match k with
+  | .div => propagateDiv e
+  | .mod => propagateMod e
+  | _ => internalizeInt e
+
+private def internalizeNatTerm (e type : Expr) (parent? : Option Expr) (k : SupportedTermKind) : GoalM Unit := do
+  if isForbiddenParent parent? k then return ()
+  if (← isNatTerm e) then return ()
+  trace[grind.debug.cutsat.internalize] "{e} : {type}"
+  discard <| mkNatVar e
+  match k with
+  | .sub => propagateNatSub e
+  | .natAbs => propagateNatAbs e
+  | .toNat => propagateToNat e
+  | _ => internalizeNat e
+
+private def internalizeToIntTerm (e type : Expr) : GoalM Unit := do
+  if (← isToIntTerm e) then return ()
+  if let some (eToInt, he) ← toInt? e type then
+    trace[grind.debug.cutsat.internalize] "{e} : {type}"
+    trace[grind.debug.cutsat.toInt] "{e} ==> {eToInt}"
+    let α := type
+    modify' fun s => { s with
+      toIntTermMap := s.toIntTermMap.insert { expr := e } { eToInt, he, α }
+    }
+    markAsCutsatTerm e
+
 /--
 Internalizes an integer (and `Nat`) expression. Here are the different cases that are handled.
 
@@ -431,35 +461,13 @@ Internalizes an integer (and `Nat`) expression. Here are the different cases tha
 -/
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).cutsat do return ()
-  let some (k, type) := getKindAndType? e | return ()
-  if type.isConstOf ``Int then
-    if isForbiddenParent parent? k then return ()
-    trace[grind.debug.cutsat.internalize] "{e} : {type}"
-    match k with
-    | .div => propagateDiv e
-    | .mod => propagateMod e
-    | _ => internalizeInt e
-  else if type.isConstOf ``Nat then
-    if isForbiddenParent parent? k then return ()
-    if (← isNatTerm e) then return ()
-    trace[grind.debug.cutsat.internalize] "{e} : {type}"
-    discard <| mkNatVar e
-    match k with
-    | .sub => propagateNatSub e
-    | .natAbs => propagateNatAbs e
-    | .toNat => propagateToNat e
-    | _ => internalizeNat e
-  else
-    if isToIntForbiddenParent parent? then return ()
-    -- Term has already been internalized
-    if (← isToIntTerm e) then return ()
-    if let some (eToInt, he) ← toInt? e type then
-      trace[grind.debug.cutsat.internalize] "{e} : {type}"
-      trace[grind.debug.cutsat.toInt] "{e} ==> {eToInt}"
-      let α := type
-      modify' fun s => { s with
-        toIntTermMap := s.toIntTermMap.insert { expr := e } { eToInt, he, α }
-      }
-      markAsCutsatTerm e
+  if let some (k, type) := getKindAndType? e then
+    if type.isConstOf ``Int then
+      internalizeIntTerm e type parent? k
+    else if type.isConstOf ``Nat then
+      internalizeNatTerm e type parent? k
+    else
+      if isToIntForbiddenParent parent? then return ()
+      internalizeToIntTerm e type
 
 end Lean.Meta.Grind.Arith.Cutsat

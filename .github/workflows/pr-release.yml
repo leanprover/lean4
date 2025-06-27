@@ -295,7 +295,7 @@ jobs:
           fi
 
           if [[ -n "$MESSAGE" ]]; then
-            # Check if force-mathlib-ci label is present
+            # Check if force-manual-ci label is present
             LABELS="$(curl --retry 3 --location --silent \
                           -H "Authorization: token ${{ secrets.MANUAL_COMMENT_BOT }}" \
                           -H "Accept: application/vnd.github.v3+json" \
@@ -321,7 +321,7 @@ jobs:
                                     -H "Authorization: token ${{ secrets.MANUAL_COMMENT_BOT }}" \
                                     -H "Accept: application/vnd.github.v3+json" \
                                     "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments" \
-                                    | jq 'first(.[] | select(.body | test("^- . Mathlib") or startswith("Mathlib CI status")) | select(.user.login == "leanprover-bot"))')"
+                                    | jq 'first(.[] | select(.body | test("^- . Manual") or startswith("Reference manual CI status")) | select(.user.login == "leanprover-bot"))')"
             existing_comment_id="$(echo "$existing_comment" | jq -r .id)"
             existing_comment_body="$(echo "$existing_comment" | jq -r .body)"
 
@@ -531,14 +531,7 @@ jobs:
           ref: nightly-testing
           fetch-depth: 0 # This ensures we check out all tags and branches.
 
-      - name: install elan
-        run: |
-          set -o pipefail
-          curl -sSfL https://github.com/leanprover/elan/releases/download/v3.0.0/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
-          ./elan-init -y --default-toolchain none
-          echo "$HOME/.elan/bin" >> "${GITHUB_PATH}"
-
-      - name: Check if tag exists
+      - name: Check if tag in reference manual exists
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.reference-manual-ready.outputs.manual_ready == 'true'
         id: check_manual_tag
         run: |

@@ -21,9 +21,9 @@ register_builtin_option backward.dsimp.proofs : Bool := {
     descr    := "Let `dsimp` simplify proof terms"
   }
 
-register_builtin_option debug.simp.check : Bool := {
+register_builtin_option debug.simp.check.have : Bool := {
     defValue := false
-    descr    := "enable consistency checks in simp"
+    descr    := "(simp) enable consistency checks for `have` telescope simplification"
   }
 
 builtin_initialize congrHypothesisExceptionId : InternalExceptionId ←
@@ -210,6 +210,7 @@ private def reduceStep (e : Expr) : SimpM Expr := do
       return expandLet b #[v] (zetaHave := cfg.zetaHave)
     else if cfg.zetaUnused && !b.hasLooseBVars then
       return consumeUnusedLet b
+  -- TODO(kmill): we are going to remove `letFun` support.
   if let some (args, _, _, v, b) := e.letFunAppArgs? then
     if cfg.zeta && cfg.zetaHave then
       return mkAppN (expandLet b #[v] (zetaHave := cfg.zetaHave)) args
@@ -385,9 +386,11 @@ Information about a single `have` in a `have` telescope.
 Created by `getHaveTelescopeInfo`.
 -/
 structure HaveInfo where
-  /-- Previous `have`s that the type of this `have` depends on. -/
+  /-- Previous `have`s that the type of this `have` depends on, as indices into `HaveTelescopeInfo.haveInfo`.
+  Used in `computeFixedUsed` to compute used `have`s. -/
   typeBackDeps : Std.HashSet Nat
-  /-- Previous `have`s that the value of this `have` depends on. -/
+  /-- Previous `have`s that the value of this `have` depends on, as indices into `HaveTelescopeInfo.haveInfo`.
+  Used in `computeFixedUsed` to compute used `have`s. -/
   valueBackDeps : Std.HashSet Nat
   /-- The local decl for the `have`, so that the local context can be re-entered `have`-by-`have`.
   N.B. This stores the fvarid for the `have` as well as cached versions of the value and type
@@ -399,14 +402,35 @@ structure HaveInfo where
 
 /--
 Information about a `have` telescope.
-Created by `getHaveTelescopeInfo`.
+Created by `getHaveTelescopeInfo` and used in `simpHaveTelescope`.
+
+The data is used to avoid applying `Expr.abstract` more than once on any given subexpression
+when constructing terms and proofs during simplification. Abstraction is linear in the size `t` of a term,
+and so in a depth-`n` telescope it is `O(nt)`, quadratic in `n`, since `n ≤ t`.
+For example, given `have x₁ := v₁; ...; have xₙ := vₙ; b` and `h : b = b'`, we need to construct
+```lean
+have_body_congr (fun x₁ => ... have_body_congr (fun xₙ => h)))
+```
+We apply `Expr.abstract` to `h` *once* and then build the term, rather than
+using `mkLambdaFVars #[fvarᵢ] pfᵢ` at each step.
+
+As an additional optimization, we save the fvar-instantiated terms calculated by `getHaveTelescopeInfo`
+so that we don't have to compute them again. This is only saving a constant factor.
+
+It is also used for computing used `have`s in `computeFixedUsed`.
+In `have x₁ := v; have x₂ := x₁; ⋯; have xₙ := xₙ₋₁; b`, if `xₙ` is unused in `b`, then all the
+`have`s are unused. Without a global computation of used `have`s, the proof term would be quadratic
+in the number of `have`s (with `n` iterations of `simp`). Knowing which `have`s are transitively
+unused lets the proof term be linear in size.
 -/
 structure HaveTelescopeInfo where
   /-- Information about each `have` in the telescope. -/
   haveInfo : Array HaveInfo := #[]
-  /-- The set of `have`s that the body depends on. -/
+  /-- The set of `have`s that the body depends on, as indices into `haveInfo`.
+  Used in `computeFixedUsed` to compute used `have`s. -/
   bodyDeps : Std.HashSet Nat := {}
-  /-- The set of `have`s that the type of the body depends on. -/
+  /-- The set of `have`s that the type of the body depends on, as indices into `haveInfo`.
+  This is the set of fixed `have`s. -/
   bodyTypeDeps : Std.HashSet Nat := {}
   /-- A cached version of the telescope body, instantiated with fvars from each `HaveInfo.decl`. -/
   body : Expr := Expr.const `_have_telescope_info_dummy_ []
@@ -418,7 +442,8 @@ structure HaveTelescopeInfo where
 
 /--
 Efficiently collect dependency information for a `have` telescope.
-This is part of a scheme to avoid quadratic overhead from the locally nameless discipline.
+This is part of a scheme to avoid quadratic overhead from the locally nameless discipline
+(see `HaveTelescopeInfo` and `simpHaveTelescope`).
 
 The expression `e` must not have loose bvars.
 -/
@@ -489,6 +514,7 @@ def HaveTelescopeInfo.computeFixedUsed (info : HaveTelescopeInfo) (keepUnused : 
 
 /--
 Auxiliary structure used to represent the return value of `simpHaveTelescopeAux`.
+See `simpHaveTelescope` for an overview and `HaveTelescopeInfo` for an example.
 -/
 private structure SimpHaveResult where
   /--
@@ -527,11 +553,12 @@ private def SimpHaveResult.toResult (u : Level) (source : Expr) : SimpHaveResult
       proof? :=
         if modified then
           -- Add a type hint to convert back into `have` form.
-          some <| mkApp2 (mkConst ``id [levelZero]) (mkApp3 (mkConst ``Eq [u]) exprType source exprResult)
+          some <| mkExpectedPropHint (expectedProp := mkApp3 (mkConst ``Eq [u]) exprType source exprResult) <|
             -- Add in a second type hint, for use in an optimization to avoid zeta/beta reductions in the kernel
-            -- (see the base case in `simpHaveTelescopeAux`).
-            (mkApp2 (mkConst ``id [levelZero]) (mkApp3 (mkConst ``Eq [u]) exprType exprInit expr)
-              proof)
+            -- The base case in `simpHaveTelescopeAux` detects this construction and uses `exprType`/`exprInit`
+            -- to construct the `SimpHaveResult`.
+            -- If the kernel were to support `have` forms of the congruence lemmas this would not be necessary.
+            mkExpectedPropHint (expectedProp := mkApp3 (mkConst ``Eq [u]) exprType exprInit expr) proof
         else
           none }
 
@@ -559,7 +586,7 @@ This is why we honor `zetaUnused` here even though `reduceStep` is also responsi
 `reduceStep` can only eliminate unused `have`s at the start of a telescope.
 Eliminating all transitively unused `have`s at once like this also avoids quadratic complexity.
 
-If `debug.simp.check` is enabled then we typecheck the resulting expression and proof.
+If `debug.simp.check.have` is enabled then we typecheck the resulting expression and proof.
 
 ## Proof generation
 
@@ -567,6 +594,7 @@ There are two main complications with generating proofs.
 1. We work almost exclusively with expressions with loose bound variables,
    to avoid overhead from instantiating and abstracting free variables,
    which can lead to complexity quadratic in the telescope length.
+   (See `HaveTelescopeInfo`.)
 2. We want to avoid triggering zeta reductions in the kernel.
 
 Regarding this second point, the issue is that we cannot organize the proof using congruence theorems
@@ -597,7 +625,7 @@ def simpHaveTelescope (e : Expr) : SimpM Result := do
     assert! !info.haveInfo.isEmpty
     let (fixed, used) ← info.computeFixedUsed (keepUnused := !(← getConfig).zetaUnused)
     let r ← simpHaveTelescopeAux info fixed used e 0 (Array.mkEmpty info.haveInfo.size)
-    if r.modified && debug.simp.check.get (← getOptions) then
+    if r.modified && debug.simp.check.have.get (← getOptions) then
       check r.expr
       check r.proof
     return (r.toResult info.level e, used, fixed, r.modified)
@@ -629,11 +657,13 @@ where
         This matters because `t` and `v` appear in the proof term.
         We use a dummy `x` for debugging purposes. (Recall that `Expr.abstract` skips non-fvar/mvars.)
         -/
-        let x := Expr.const `_simp_let_unused_dummy []
+        let x := mkConst `_simp_let_unused_dummy
         let rb ← simpHaveTelescopeAux info fixed used b (i + 1) (xs.push x)
+        -- TODO(kmill): This is a source of quadratic complexity. It might be possible to avoid this,
+        -- but we will need to carefully re-review the logic (note that `rb.proof` still refers to `x`).
         let expr := rb.expr.lowerLooseBVars 1 1
         let exprType := rb.exprType.lowerLooseBVars 1 1
-        let exprInit := Expr.app (Expr.lam n t rb.exprInit .default) v
+        let exprInit := mkApp (mkLambda n .default t rb.exprInit) v
         let exprResult := rb.exprResult.lowerLooseBVars 1 1
         if rb.modified then
           let proof := mkApp6 (mkConst ``have_unused_dep' us) t exprType v (mkLambda n .default t rb.exprInit) expr
@@ -655,10 +685,10 @@ where
         let v' := if vModified then val'.abstract xs else v
         withExistingLocalDecls [hinfo.decl] <| withNewLemmas #[x] do
           let rb ← simpHaveTelescopeAux info fixed used b (i + 1) (xs.push x)
-          let expr := Expr.app (Expr.lam n t rb.expr .default) v'
-          let exprType := Expr.app (Expr.lam n t rb.exprType .default) v'
-          let exprInit := Expr.app (Expr.lam n t rb.exprInit .default) v
-          let exprResult := Expr.letE n t v' rb.exprResult true
+          let expr := mkApp (mkLambda n .default t rb.expr) v'
+          let exprType := mkApp (mkLambda n .default t rb.exprType) v'
+          let exprInit := mkApp (mkLambda n .default t rb.exprInit) v
+          let exprResult := mkHave n t v' rb.exprResult
           -- Note: if `vModified`, then the kernel will reduce the telescopes and potentially do an expensive defeq check.
           -- If this is a performance issue, we could try using a `letFun` encoding here make use of the `is_def_eq_args` optimization.
           -- Namely, to guide the defeqs via the sequence
@@ -685,10 +715,10 @@ where
           pure <| mkApp2 (mkConst `Eq.refl [hinfo.level]) t v
         withExistingLocalDecls [hinfo.decl] <| withNewLemmas #[x] do
           let rb ← simpHaveTelescopeAux info fixed used b (i + 1) (xs.push x)
-          let expr := Expr.app (Expr.lam n t rb.expr .default) v'
+          let expr := mkApp (mkLambda n .default t rb.expr) v'
           let exprType := rb.exprType.lowerLooseBVars 1 1
-          let exprInit := Expr.app (Expr.lam n t rb.exprInit .default) v
-          let exprResult := Expr.letE n t v' rb.exprResult true
+          let exprInit := mkApp (mkLambda n .default t rb.exprInit) v
+          let exprResult := mkHave n t v' rb.exprResult
           match valModified, rb.modified with
           | false, false =>
             let proof := mkApp2 (mkConst `Eq.refl [info.level]) exprType expr

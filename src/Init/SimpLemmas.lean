@@ -75,7 +75,7 @@ theorem let_body_congr {α : Sort u} {β : α → Sort v} {b b' : (a : α) → �
   (funext h : b = b') ▸ rfl
 
 /-!
-Simp lemmas for `have` have kernel performance issues when stated using `have` directly.
+Congruence lemmas for `have` have kernel performance issues when stated using `have` directly.
 Illustration of the problem: the kernel infers that the type of
 `have_congr (fun x => b) (fun x => b') h₁ h₂`
 is

@@ -582,8 +582,13 @@ private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) :=
     return none
 
 /--
-Assuming `zeta` is enabled, zeta reduce lets. Does not take `zetaUnused` into account.
-We put unused logic into `consumeUnusedLet`, since `expandLet` works with expressions with loose bound variables,
+Zeta reduces `let`s/`have`s.
+If `zetaHave` is false, then `have`s are not zeta reduced.
+
+Auxiliary function for `whnfCore` and `Simp.reduceStep`, to implement the `zeta` option.
+This function does not implement `zetaUnused` logic,
+which is instead the responsibility of `consumeUnusedLet`.
+The `expandLet` function works with expressions with loose bound variables,
 and thus determining whether a let variable is used isn't an O(1) operation.
 
 Note: since `expandLet` and `consumeUnusedLet` are separated like this, a consequence is that
@@ -596,6 +601,7 @@ partial def expandLet (e : Expr) (vs : Array Expr) (zetaHave : Bool := true) : E
       expandLet b (vs.push <| v.instantiateRev vs) zetaHave
     else
       e.instantiateRev vs
+  -- TODO(kmill): we are going to remove `letFun` support.
   else if let some (_, _, v, b) := e.letFun? then
     if zetaHave then
       expandLet b (vs.push <| v.instantiateRev vs) zetaHave
@@ -605,14 +611,18 @@ partial def expandLet (e : Expr) (vs : Array Expr) (zetaHave : Bool := true) : E
     e.instantiateRev vs
 
 /--
-Assuming `zetaUnused` is enabled, consume unused `let`/`have`/`letFun`.
+Consumes unused `let`s/`have`s.
 If `consumeNondep` is false, then `have`s are not consumed.
-The `consumeNondep` flag is used by `isDefEqQuick`.
+
+Auxiliary function for `whnfCore`, `isDefEqQuick`, and `Simp.reduceStep`,
+to implement the `zetaUnused` option.
+In the case of `isDefEqQuick`, it is also used when `zeta` is set.
 -/
 partial def consumeUnusedLet (e : Expr) (consumeNondep : Bool := false) : Expr :=
   match e with
   | e@(.letE _ _ _ b nondep) => if b.hasLooseBVars || (nondep && !consumeNondep) then e else consumeUnusedLet b consumeNondep
   | e =>
+    -- TODO(kmill): we are going to remove `letFun` support.
     if let some (_, _, _, b) := e.letFun? then
       if b.hasLooseBVars || !consumeNondep then e else consumeUnusedLet b consumeNondep
     else
@@ -640,6 +650,7 @@ where
           return e
       | .app f ..       =>
         let cfg ← getConfig
+        -- TODO(kmill): we are going to remove `letFun` support.
         if let some (args, _, _, v, b) := e.letFunAppArgs? then
           -- When zeta reducing enabled, always reduce `letFun` no matter the current reducibility level
           if cfg.zeta && cfg.zetaHave then

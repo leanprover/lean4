@@ -503,9 +503,20 @@ static inline void lean_inc_ref(lean_object * o) {
 LEAN_EXPORT void lean_dec_ref_cold(lean_object * o);
 
 static inline LEAN_ALWAYS_INLINE void lean_dec_ref(lean_object * o) {
-    if (LEAN_LIKELY(o->m_rc > 1)) {
-        o->m_rc--;
+    bool should_free = false;
+    if (LEAN_LIKELY(lean_is_st(o))) {
+        should_free = (o->m_rc--) == 1;
     } else if (o->m_rc != 0) {
+        should_free =
+#ifdef __cplusplus
+            std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel)
+#else
+            atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, memory_order_acq_rel)
+
+#endif
+            == -1;
+    }
+    if (should_free) {
         lean_dec_ref_cold(o);
     }
 }

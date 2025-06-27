@@ -14,6 +14,24 @@ universe v u v' u'
 
 variable {α : Type u} {β : Type u}
 
+/--
+Transforms an iterator with values in `β` into one with values in `ULift β`.
+
+Most other combinators like `map` cannot switch between universe levels. This combinators
+makes it possible to transition to a higher universe.
+
+**Marble diagram:**
+
+```
+it            ---a    ----b    ---c    --d    ---⊥
+it.uLift n    ---.up a----.up b---.up c--.up d---⊥
+```
+
+**Termination properties:**
+
+* `Finite`: only if the original iterator is finite
+* `Productive`: only if the original iterator is productive
+-/
 @[always_inline, inline]
 def Iter.uLift (it : Iter (α := α) β) :
     Iter (α := Types.ULiftIterator.{v} α Id Id β (fun _ => monadLift)) (ULift β) :=

@@ -14,8 +14,12 @@ namespace Std.Iterators
 
 universe v u v' u'
 
+section ULiftT
+
+/-- `ULiftT.{v, u}` shrinks a monad on `Type max u v` to a monad on `Type u`. -/
 def ULiftT (n : Type max u v → Type v') (α : Type u) := n (ULift.{v} α)
 
+/-- Returns the underlying `n`-monadic representation of a `ULiftT n α` value. -/
 @[always_inline, inline]
 def ULiftT.run {n : Type max u v → Type v'} {α : Type u} (x : ULiftT n α) : n (ULift.{v} α) :=
   x
@@ -25,6 +29,9 @@ instance {n : Type max u v → Type v'} [Monad n] : Monad.{u} (ULiftT n) where
   pure a := pure (f := n) (ULift.up a)
   bind x f := bind (m := n) (x : n _) fun a => f a.down
 
+end ULiftT
+
+/-- Internal state of the `uLift` iterator combinator. Do not depend on its internals. -/
 @[unbox]
 structure Types.ULiftIterator (α : Type u) (m : Type u → Type u') (n : Type max u v → Type v')
     (β : Type u) (lift : ∀ ⦃γ : Type u⦄, m γ → ULiftT n γ) : Type max u v where
@@ -33,9 +40,11 @@ structure Types.ULiftIterator (α : Type u) (m : Type u → Type u') (n : Type m
 variable {α : Type u} {m : Type u → Type u'} {n : Type max u v → Type v'}
     {β : Type u} {lift : ∀ ⦃γ : Type u⦄, m γ → ULiftT n γ}
 
+/--
+Transforms a step of the base iterator into a step of the `uLift` iterator.
+-/
 @[always_inline, inline]
-def Types.ULiftIterator.Monadic.modifyStep
-    (step : IterStep (IterM (α := α) m β) β) :
+def Types.ULiftIterator.Monadic.modifyStep (step : IterStep (IterM (α := α) m β) β) :
     IterStep (IterM (α := ULiftIterator.{v} α m n β lift) n (ULift.{v} β)) (ULift.{v} β) :=
   match step with
   | .yield it' out => .yield ⟨⟨it'⟩⟩ (.up out)
@@ -108,6 +117,22 @@ instance Types.ULiftIterator.instIteratorSizePartial [Monad n] [Iterator α m β
     IteratorSizePartial (ULiftIterator α m n β lift) n :=
   .defaultImplementation
 
+/--
+Transforms an `m`-monadic iterator with values in `β` into an `n`-monadic iterator with
+values in `ULift β`. Requires a `MonadLift m (ULiftT n)` instance.
+
+**Marble diagram:**
+
+```
+it            ---a    ----b    ---c    --d    ---⊥
+it.uLift n    ---.up a----.up b---.up c--.up d---⊥
+```
+
+**Termination properties:**
+
+* `Finite`: only if the original iterator is finite
+* `Productive`: only if the original iterator is productive
+-/
 @[always_inline, inline]
 def IterM.uLift (it : IterM (α := α) m β) (n : Type max u v → Type v')
     [lift : MonadLiftT m (ULiftT n)] :

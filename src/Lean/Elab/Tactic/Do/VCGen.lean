@@ -343,7 +343,7 @@ where
         try
           let specThm ← findSpec ctx.specThms wp
           trace[Elab.Tactics.Do.vcgen] "Candidate spec for {f.constName!}: {specThm.proof}"
-          let (prf, specHoles) ← mSpec goal (fun _wp  => return (specThm, [])) tryGoal name
+          let (prf, specHoles) ← mSpec goal (fun _wp  => return specThm) name
           assignMVars specHoles
           return prf
         catch ex =>

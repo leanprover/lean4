@@ -194,7 +194,6 @@ theorem beaking_loop_spec :
   dsimp only [breaking_loop, get, getThe, instMonadStateOfOfMonadLift, liftM, monadLift]
   mspec
   mspec
-  mspec
   case inv => exact (⇓ (r, xs) s => (r ≤ 4 ∧ r = xs.rpref.sum ∨ r > 4) ∧ s = 42)
   all_goals simp_all
   case post =>
@@ -511,12 +510,13 @@ theorem add_unfold [Monad m] [WPMonad m sh] :
   mvcgen [mkFreshNat]
 
 -- TODO: This is not working, but it should be. Somehow delayed assigned MVars receive too many args?
-/-
-theorem mkFreshPair_triple : ⦃⌜True⌝⦄ mkFreshPair ⦃⇓ (a, b) => ⌜a ≠ b⌝⦄ := by
-  unfold mkFreshPair
+theorem mkFreshPair_triple : ⦃⌜True⌝⦄ (mkFreshNat : StateM AppState Nat) ⦃⇓ a => ⌜a ≠ 0⌝⦄ := by
   mvcgen
+
+-- TODO: This is not working, but it should be. Somehow delayed assigned MVars receive too many args?
+theorem mkFreshPair_triple : ⦃⌜True⌝⦄ mkFreshPair ⦃⇓ (a, b) => ⌜a ≠ b⌝⦄ := by
+  mvcgen [mkFreshPair]
   simp_all [SPred.entails_elim_cons]
--/
 
 theorem sum_loop_spec :
   ⦃True⦄
@@ -536,11 +536,11 @@ theorem throwing_loop_spec :
   mvcgen [throwing_loop]
   case inv => exact post⟨fun (r, xs) s => r ≤ 4 ∧ s = 4 ∧ r + xs.suff.sum > 4,
                          fun e s => e = 42 ∧ s = 4⟩
-  · simp_all only [SVal.curry_nil, SPred.entails_nil]; decide
-  · simp_all only [List.sum_nil]; omega
-  · simp_all
-  · intro _; simp_all
-  · intro _; simp_all only [List.sum_cons, true_and, SPred.entails_nil]; omega
+  all_goals (try simp_all; done)
+  case pre1 => simp_all only [SVal.curry_nil, SPred.entails_nil]; decide
+  case post.success => grind
+  case ifTrue => intro _; simp_all
+  case ifFalse => intro _; simp_all only [SPred.entails_nil]; grind
 
 theorem test_loop_break :
   ⦃⌜‹Nat›ₛ = 42⌝⦄
@@ -572,12 +572,6 @@ theorem test_loop_early_return :
     simp at h
     omega
   case h_2 => simp_all
-
--- theorem returning_loop_spec :
---   ⦃fun s => s = 4⦄
---   returning_loop
---   ⦃⇓ r s => r = 42 ∧ s = 4⦄ := by
---   mvcgen [returning_loop]
 
 theorem unfold_to_expose_match_spec :
   ⦃fun s => ⌜s = 4⌝⦄

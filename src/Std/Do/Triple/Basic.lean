@@ -36,7 +36,7 @@ def Triple [WP m ps] {α} (x : m α) (P : Assertion ps) (Q : PostCond α ps) : P
 scoped syntax:lead (name := triple) "⦃" term "⦄ " term:lead " ⦃" term "⦄" : term
 
 @[app_unexpander Triple]
-private def unexpandTriple : Lean.PrettyPrinter.Unexpander
+private meta def unexpandTriple : Lean.PrettyPrinter.Unexpander
   | `($_ $x $P $Q) => do
     `(⦃$(← SPred.Notation.unpack P)⦄ $x ⦃$Q⦄)
   | _ => throw ()

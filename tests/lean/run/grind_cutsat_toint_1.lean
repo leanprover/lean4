@@ -63,3 +63,12 @@ example (a b c : UInt32) :
     a + 2*b = 0 →
     -c + 2*b = 0 → False := by
   grind
+
+example (a b : Fin 15) : a = 0 → b = 1 → a + b = 1 := by
+  grind
+
+example (a b : Fin 2) : a + b ≠ 0 → a + b ≠ 1 → False := by
+  grind
+
+example (a : Fin 4) : 1 < a → a ≠ 2 → a ≠ 3 → False := by
+  grind

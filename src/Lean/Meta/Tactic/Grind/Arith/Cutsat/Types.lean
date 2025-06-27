@@ -194,6 +194,7 @@ inductive DiseqCnstrProof where
     -/
     core (a b : Expr) (p₁ p₂ : Poly)
   | coreNat (a b : Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
+  | coreToInt (a b : Expr) (toIntThm : Expr) (lhs rhs : Int.Linear.Expr)
   | norm (c : DiseqCnstr)
   | divCoeffs (c : DiseqCnstr)
   | neg (c : DiseqCnstr)

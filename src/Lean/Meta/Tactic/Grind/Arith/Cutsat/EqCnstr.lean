@@ -281,6 +281,17 @@ private def processNewNatDiseq (a b : Expr) : GoalM Unit := do
   let c := { p, h := .coreNat a b lhs rhs lhs' rhs' : DiseqCnstr }
   c.assert
 
+private def processNewToIntDiseq (a b : Expr) : ToIntM Unit := do
+  let gen := max (← getGeneration a) (← getGeneration b)
+  let (a', h₁) ← toInt a
+  let (b', h₂) ← toInt b
+  let thm := mkApp6 (← getInfo).ofDiseq a b a' b' h₁ h₂
+  let lhs ← toLinearExpr a' gen
+  let rhs ← toLinearExpr b' gen
+  let p := lhs.sub rhs |>.norm
+  let c := { p, h := .coreToInt a b thm lhs rhs : DiseqCnstr }
+  c.assert
+
 @[export lean_process_cutsat_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
   unless (← getConfig).cutsat do return ()
@@ -288,6 +299,11 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
     processNewNatDiseq a b
   else if (← isIntTerm a <&&> isIntTerm b) then
     processNewIntDiseq a b
+  else
+    let some α ← getToIntTermType? a | return ()
+    let some β ← getToIntTermType? b | return ()
+    unless isSameExpr α β do return ()
+    ToIntM.run α do processNewToIntDiseq a b
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where

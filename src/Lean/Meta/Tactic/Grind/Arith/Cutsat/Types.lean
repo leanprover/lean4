@@ -223,10 +223,6 @@ instance : Inhabited CooperSplit where
 
 abbrev VarSet := RBTree Var compare
 
-inductive ForeignType where
-  | nat
-  deriving BEq, Hashable
-
 /-- State of the cutsat procedure. -/
 structure State where
   /-- Mapping from variables to their denotations. -/
@@ -234,16 +230,16 @@ structure State where
   /-- Mapping from `Expr` to a variable representing it. -/
   varMap  : PHashMap ExprPtr Var := {}
   /--
-  Mapping from foreign terms to their variable and type (e.g., `Nat`). They are also marked using `markAsCutsatTerm`.
+  Mapping from `Nat` terms to their variable. They are also marked using `markAsCutsatTerm`.
   -/
-  foreignVarMap : PHashMap ExprPtr (Var × ForeignType) := {}
-  foreignVars : PHashMap ForeignType (PArray Expr) := {}
+  natVarMap : PHashMap ExprPtr Var := {}
+  natVars : PArray Expr := {}
   /--
-  Some foreign variables encode nested terms such as `b+1`.
+  Some `Nat` variables encode nested terms such as `b+1`.
   This is a mapping from this kind of variable to the integer variable
   representing `natCast (b+1)`.
   -/
-  foreignDef : PHashMap ExprPtr Var := {}
+  natDef : PHashMap ExprPtr Var := {}
   /--
   Mapping from variables to divisibility constraints. Recall that we keep the divisibility constraint in solved form.
   Thus, we have at most one divisibility per variable. -/

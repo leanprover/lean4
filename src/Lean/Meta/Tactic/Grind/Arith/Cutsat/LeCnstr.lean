@@ -149,7 +149,7 @@ def propagateIntLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
 def propagateNatLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   let some (lhs, rhs) ← Int.OfNat.toIntLe? e | return ()
   let gen ← getGeneration e
-  let ctx ← getForeignVars .nat
+  let ctx ← getNatVars
   let lhs' ← toLinearExpr (← lhs.denoteAsIntExpr ctx) gen
   let rhs' ← toLinearExpr (← rhs.denoteAsIntExpr ctx) gen
   let p := lhs'.sub rhs' |>.norm

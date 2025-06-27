@@ -101,7 +101,7 @@ def propagateIntDvd (e : Expr) : GoalM Unit := do
 def propagateNatDvd (e : Expr) : GoalM Unit := do
   let some (d, b) ← Int.OfNat.toIntDvd? e | return ()
   let gen ← getGeneration e
-  let ctx ← getForeignVars .nat
+  let ctx ← getNatVars
   let b' ← toLinearExpr (← b.denoteAsIntExpr ctx) gen
   let p := b'.norm
   if (← isEqTrue e) then

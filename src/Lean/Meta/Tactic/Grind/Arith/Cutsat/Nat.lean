@@ -7,8 +7,28 @@ prelude
 import Init.Data.Int.OfNat
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Simp.Arith.Nat.Basic
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Foreign
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
+
+namespace Lean.Meta.Grind.Arith.Cutsat
+
+def mkNatVar (e : Expr) : GoalM Var := do
+  if let some x := (← get').natVarMap.find? { expr := e } then
+    return x
+  let x := (← get').natVars.size
+  modify' fun s => { s with
+    natVars := s.natVars.push e
+    natVarMap := s.natVarMap.insert { expr := e } x
+  }
+  markAsCutsatTerm e
+  return x
+
+def getNatVars : GoalM (PArray Expr) := do
+  return (← get').natVars
+
+def isNatTerm (e : Expr) : GoalM Bool := do
+  return (← get').natVarMap.contains { expr := e }
+
+end Lean.Meta.Grind.Arith.Cutsat
 
 namespace Int.OfNat
 open Lean
@@ -48,7 +68,7 @@ where
 
 partial def toOfNatExpr (e : Lean.Expr) : GoalM Expr := do
   let mkVar (e : Lean.Expr) : GoalM Expr := do
-    let x ← mkForeignVar e .nat
+    let x ← mkNatVar e
     return .var x
   match_expr e with
   | OfNat.ofNat _ _ _ =>
@@ -124,7 +144,7 @@ partial def ofDenoteAsIntExpr? (e : Lean.Expr) : OptionT GoalM Expr := do
   | _ =>
     let_expr NatCast.natCast _ inst a ← e | failure
     let_expr instNatCastInt := inst | failure
-    let x ← mkForeignVar a .nat
+    let x ← mkNatVar a
     return .var x
 
 end Int.OfNat
@@ -139,7 +159,7 @@ def assertDenoteAsIntNonneg (e : Expr) : GoalM Unit := withIncRecDepth do
   if e.isAppOf ``OfNat.ofNat then return () -- we don't want to propagate constraints such as `2 ≥ 0`
   let some rhs ← Int.OfNat.ofDenoteAsIntExpr? e |>.run | return ()
   let gen ← getGeneration e
-  let ctx ← getForeignVars .nat
+  let ctx ← getNatVars
   let lhs' : Int.Linear.Expr := .num 0
   let rhs' ← toLinearExpr (← rhs.denoteAsIntExpr ctx) gen
   let p := lhs'.sub rhs' |>.norm
@@ -154,8 +174,8 @@ def assertNatCast (e : Expr) (x : Var) : GoalM Unit := do
   let_expr NatCast.natCast _ inst a := e | return ()
   let_expr instNatCastInt := inst | return ()
   if a.isAppOf ``OfNat.ofNat then return () -- we don't want to propagate constraints such as `2 ≥ 0`
-  if (← get').foreignDef.contains { expr := a } then return ()
-  let n ← mkForeignVar a .nat
+  if (← get').natDef.contains { expr := a } then return ()
+  let n ← mkNatVar a
   let p := .add (-1) x (.num 0)
   let c := { p, h := .denoteAsIntNonneg (.var n) (.var x) : LeCnstr}
   c.assert

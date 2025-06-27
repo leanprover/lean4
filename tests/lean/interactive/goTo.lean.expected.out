@@ -269,17 +269,17 @@
  "position": {"line": 108, "character": 13}}
 [{"targetUri": "file:///goTo.lean",
   "targetSelectionRange":
-  {"start": {"line": 83, "character": 0}, "end": {"line": 83, "character": 8}},
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
   "targetRange":
-  {"start": {"line": 83, "character": 0}, "end": {"line": 83, "character": 8}},
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
   "originSelectionRange":
   {"start": {"line": 108, "character": 8},
    "end": {"line": 108, "character": 16}}},
  {"targetUri": "file:///goTo.lean",
   "targetSelectionRange":
-  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
+  {"start": {"line": 83, "character": 0}, "end": {"line": 83, "character": 8}},
   "targetRange":
-  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
+  {"start": {"line": 83, "character": 0}, "end": {"line": 83, "character": 8}},
   "originSelectionRange":
   {"start": {"line": 108, "character": 8},
    "end": {"line": 108, "character": 16}}},

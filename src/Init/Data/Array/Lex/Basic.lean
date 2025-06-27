@@ -8,6 +8,7 @@ module
 prelude
 import Init.Data.Array.Basic
 import Init.Data.Nat.Lemmas
+import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic.Nat
 import Init.Data.Iterators.Consumers
 

@@ -5,6 +5,7 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Init.Data.Range.Polymorphic.Nat
+import Init.Data.Range.Polymorphic.Iterators
 import Std.Internal.Parsec
 import Std.Internal.Parsec.ByteArray
 

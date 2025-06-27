@@ -69,6 +69,8 @@ structure ToIntInfo where
   powThm?   : Option Expr
   zeroThm?  : Option Expr
   ofNatThm? : Option Expr
+  lowerThm? : Option Expr
+  upperThm? : Option Expr
 
 /--
 For each term `e` of type `α` which implements the `ToInt α i` class,

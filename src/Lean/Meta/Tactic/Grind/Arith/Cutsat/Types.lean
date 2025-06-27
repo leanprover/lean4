@@ -166,6 +166,7 @@ inductive LeCnstrProof where
   | coreNatNeg (e : Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
   | coreToInt (e : Expr) (pos : Bool) (toIntThm : Expr) (lhs rhs : Int.Linear.Expr)
   | denoteAsIntNonneg (rhs : Int.OfNat.Expr) (rhs' : Int.Linear.Expr)
+  | bound (h : Expr)
   | dec (h : FVarId)
   | norm (c : LeCnstr)
   | divCoeffs (c : LeCnstr)

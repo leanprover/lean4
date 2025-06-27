@@ -21,7 +21,9 @@ for those slices.
 
 open Std Slice PRange Iterators
 
-instance {shape} {α : Type u} [ClosedOpenIntersection shape Nat] :
+variable {shape : RangeShape} {α : Type u}
+
+instance [ClosedOpenIntersection shape Nat] :
     Sliceable shape (Array α) Nat (Subarray α) where
   mkSlice xs range :=
     let halfOpenRange := ClosedOpenIntersection.intersection range (0)...<xs.size
@@ -31,7 +33,8 @@ instance {s : Subarray α} : ToIterator s Id α :=
   .of _
     (PRange.Internal.iter (s.internalRepresentation.start...<s.internalRepresentation.stop)
       |>.attachWith (· < s.internalRepresentation.array.size) ?h
-      |>.map fun i => s.internalRepresentation.array[i.1])
+      |>.uLift
+      |>.map fun | .up i => s.internalRepresentation.array[i.1])
 where finally
   case h =>
     simp only [Internal.isPlausibleIndirectOutput_iter_iff, Membership.mem,

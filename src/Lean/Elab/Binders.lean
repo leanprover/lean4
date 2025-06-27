@@ -215,7 +215,7 @@ private partial def elabBinderViews (binderViews : Array BinderView) (fvars : Ar
       registerFailedToInferBinderTypeInfo type binderView.type
       if binderView.bi.isInstImplicit && checkBinderAnnotations.get (← getOptions) then
         unless (← isClass? type).isSome do
-          throwErrorAt binderView.type "invalid binder annotation, type is not a class instance{indentExpr type}\nuse the command `set_option checkBinderAnnotations false` to disable the check"
+          throwErrorAt binderView.type (m!"invalid binder annotation, type is not a class instance{indentExpr type}" ++ .note "Use the command `set_option checkBinderAnnotations false` to disable the check")
         withRef binderView.type <| checkLocalInstanceParameters type
       let id := binderView.id.getId
       let kind := kindOfBinderName id

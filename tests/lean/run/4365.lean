@@ -38,7 +38,7 @@ numerals are polymorphic in Lean, but the numeral `1` cannot be used in a contex
   String
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
 #check (1 : String)
@@ -50,7 +50,7 @@ numerals are polymorphic in Lean, but the numeral `1` cannot be used in a contex
   Bool
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
 #check (1 : Bool)
@@ -62,7 +62,7 @@ numerals are polymorphic in Lean, but the numeral `1` cannot be used in a contex
   Bool → Nat
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
 #check (1 : Bool → Nat)
@@ -74,7 +74,7 @@ numerals are polymorphic in Lean, but the numeral `0` cannot be used in a contex
   String
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
 def foo : String :=

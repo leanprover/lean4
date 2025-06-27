@@ -645,6 +645,10 @@ theorem get_none_eq_iff_true {h} : (none : Option α).get h = a ↔ True := by
   simp only [guard]
   split <;> simp
 
+@[grind =] theorem getD_guard : (guard p a).getD b = if p a then a else b := by
+  simp only [guard]
+  split <;> simp
+
 @[grind]
 theorem guard_def (p : α → Bool) :
     Option.guard p = fun x => if p x then some x else none := rfl

@@ -340,4 +340,10 @@ def toInt (a : Expr) : ToIntM (Expr × Expr) := do
 def toInt? (a : Expr) (type : Expr) : GoalM (Option (Expr × Expr)) := do
   ToIntM.run? type do toInt a
 
+def isSupportedType (type : Expr) : GoalM Bool := do
+  if type == Nat.mkType || type == Int.mkType then
+    return true
+  else
+    return (← getToIntInfo? type).isSome
+
 end Lean.Meta.Grind.Arith.Cutsat

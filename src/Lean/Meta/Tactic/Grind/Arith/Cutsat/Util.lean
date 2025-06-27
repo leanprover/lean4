@@ -28,9 +28,6 @@ end Int.Linear
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
-def isSupportedType (type : Expr) : Bool :=
-  type == Nat.mkType || type == Int.mkType
-
 def get' : GoalM State := do
   return (← get).arith.cutsat
 

@@ -232,7 +232,7 @@ where
   tryGoal (goal : Expr) (name : Name) : VCGenM Expr := do
     forallTelescope goal fun xs body => do
       let res ← try mStart body catch _ =>
-        return ← mkLambdaFVars xs (← emitVC goal name)
+        return ← mkLambdaFVars xs (← emitVC body name)
       let mut prf ← onGoal res.goal name
       -- logInfo m!"tryGoal: {res.goal.toExpr}"
       -- res.goal.checkProof prf
@@ -242,12 +242,19 @@ where
 
   assignMVars (mvars : List MVarId) : VCGenM PUnit := do
     for mvar in mvars do
-      -- trace[Elab.Tactics.Do.vcgen] "assignMVars {← mvar.getTag}, assigned: {← mvar.isAssigned}"
       if ← mvar.isAssigned then continue
-      -- I used to filter for `isProp` here and add any non-Props directly as subgoals,
-      -- but then we would get spurious instantiations of non-synthetic goals such as loop
-      -- invariants.
-      mvar.assign (← mvar.withContext <| tryGoal (← mvar.getType) (← mvar.getTag))
+      mvar.withContext <| do
+      -- trace[Elab.Tactic.Do.vcgen] "assignMVars {← mvar.getTag}, isDelayedAssigned: {← mvar.isDelayedAssigned}, type: {← mvar.getType}"
+      let ty ← mvar.getType
+      if (← isProp ty) || ty.isAppOf ``PostCond || ty.isAppOf ``SPred then
+        -- This code path will re-introduce `mvar` as a synthetic opaque goal upon discharge failure.
+        -- This is the right call for (previously natural) holes such as loop invariants, which
+        -- would otherwise lead to spurious instantiations.
+        -- But it's wrong for, e.g., schematic variables. The latter should never be PostConds or
+        -- SPreds, hence the condition.
+        mvar.assign (← tryGoal ty (← mvar.getTag))
+      else
+        addSubGoalAsVC mvar
 
   onGoal goal name : VCGenM Expr := do
     let T := goal.target
@@ -284,7 +291,7 @@ where
     | c@WP.wp m ps instWP α e =>
       let e ← instantiateMVarsIfMVarApp e
       let e := e.headBeta
-      trace[Elab.Tactics.Do.vcgen] "Target: {e}"
+      trace[Elab.Tactic.Do.vcgen] "Target: {e}"
       let goalWithNewProg e' :=
         let wp' := mkApp5 c m ps instWP α e'
         let args' := args.set! 2 wp'
@@ -342,17 +349,17 @@ where
         burnOne
         try
           let specThm ← findSpec ctx.specThms wp
-          trace[Elab.Tactics.Do.vcgen] "Candidate spec for {f.constName!}: {specThm.proof}"
-          let (prf, specHoles) ← mSpec goal (fun _wp  => return (specThm, [])) tryGoal name
+          trace[Elab.Tactic.Do.vcgen] "Candidate spec for {f.constName!}: {specThm.proof}"
+          let (prf, specHoles) ← mSpec goal (fun _wp  => return specThm) name
           assignMVars specHoles
           return prf
         catch ex =>
-          trace[Elab.Tactics.Do.vcgen] "Failed to find spec. Trying simp. Reason: {ex.toMessageData}"
+          trace[Elab.Tactic.Do.vcgen] "Failed to find spec. Trying simp. Reason: {ex.toMessageData}"
         let res ← Simp.simp e
         unless res.expr != e do return ← onFail goal name
         burnOne
         if let .some heq := res.proof? then
-          trace[Elab.Tactics.Do.vcgen] "Simplified"
+          trace[Elab.Tactic.Do.vcgen] "Simplified"
           let prf ← onWPApp (goalWithNewProg res.expr) name
           let prf := mkApp10 (mkConst ``Triple.rewrite_program c.constLevels!) m ps α goal.hyps Q instWP e res.expr heq prf
           return prf

@@ -35,22 +35,20 @@ def findSpec (database : SpecTheorems) (wp : Expr) : MetaM SpecTheorem := do
   if specs.isEmpty then throwError m!"No specs found for {indentExpr prog}\nCandidates: {candidates.map (·.proof)}"
   return specs[0]!
 
-def elabTermIntoSpecTheorem (stx : TSyntax `term) (expectedTy : Expr) : TacticM (SpecTheorem × List MVarId) := do
+def elabTermIntoSpecTheorem (stx : TSyntax `term) (expectedTy : Expr) : TacticM SpecTheorem := do
   if stx.raw.isIdent then
     match ← Term.resolveId? stx.raw (withInfo := true) with
-    | some (.const declName _) => return (← mkSpecTheoremFromConst declName, [])
-    | some (.fvar fvarId) => return (← mkSpecTheoremFromLocal fvarId, [])
-    | _      => pure ()
-  try
-    let (prf, mvars) ← --Term.withSynthesize <|
-      elabTermWithHoles stx expectedTy `mspec (allowNaturalHoles := true)
-    let specThm ← mkSpecTheoremFromStx stx.raw prf
-    return (specThm, mvars)
+    | some (.const declName _) => mkSpecTheoremFromConst declName
+    | some (.fvar fvarId) => mkSpecTheoremFromLocal fvarId
+    | _      => throwError "invalid spec"
+  else try
+    let (prf, _mvars) ← elabTermWithHoles stx expectedTy `mspec (allowNaturalHoles := true)
+    mkSpecTheoremFromStx stx.raw prf
   catch e : Exception =>
     trace[Elab.Tactic.Do.spec] "Internal error. This happens for example when the head symbol of the spec is wrong. Message:\n  {e.toMessageData}"
     throw e
 
-def elabSpec (stx? : Option (TSyntax `term)) (wp : Expr) : TacticM (SpecTheorem × List MVarId) := do
+def elabSpec (stx? : Option (TSyntax `term)) (wp : Expr) : TacticM SpecTheorem := do
   let_expr f@WP.wp m ps instWP α prog := wp | throwError "target not a wp application {wp}"
   let P ← mkFreshExprMVar (mkApp (mkConst ``Assertion) ps) (userName := `P)
   let Q ← mkFreshExprMVar (mkApp2 (mkConst ``PostCond) α ps) (userName := `Q)
@@ -58,7 +56,7 @@ def elabSpec (stx? : Option (TSyntax `term)) (wp : Expr) : TacticM (SpecTheorem 
   trace[Elab.Tactic.Do.spec] "spec syntax: {stx?}"
   trace[Elab.Tactic.Do.spec] "expected type: {← instantiateMVars expectedTy}"
   match stx? with
-  | none => pure (← findSpec (← getSpecTheorems) wp, [])
+  | none => findSpec (← getSpecTheorems) wp
   | some stx => elabTermIntoSpecTheorem stx expectedTy
 
 variable {n} [Monad n] [MonadControlT MetaM n] [MonadLiftT MetaM n]
@@ -67,7 +65,7 @@ private def mkProj' (n : Name) (i : Nat) (Q : Expr) : MetaM Expr := do
   return (← projectCore? Q i).getD (mkProj n i Q)
 
 mutual
-partial def dischargePostEntails (α : Expr) (ps : Expr) (Q : Expr) (Q' : Expr) (goalTag : Name) (discharge : Expr → Name → n Expr) : n Expr := do
+partial def dischargePostEntails (α : Expr) (ps : Expr) (Q : Expr) (Q' : Expr) (goalTag : Name) : n Expr := do
   -- Often, Q' is fully instantiated while Q contains metavariables. Try refl
   if (← isDefEq Q Q') then
     return mkApp3 (mkConst ``PostCond.entails.refl) α ps Q'
@@ -75,7 +73,7 @@ partial def dischargePostEntails (α : Expr) (ps : Expr) (Q : Expr) (Q' : Expr) 
   let Q' ← whnfR Q'
   -- If Q (postcond of the spec) is just an fvar, we do not decompose further
   if let some _fvarId := Q.fvarId? then
-    return ← discharge (mkApp4 (mkConst ``PostCond.entails) α ps Q Q') (goalTag ++ `post)
+    return ← mkFreshExprSyntheticOpaqueMVar (mkApp4 (mkConst ``PostCond.entails) α ps Q Q') (goalTag ++ `post)
   -- Otherwise decompose the conjunction
   let prf₁ ← withLocalDeclD (← liftMetaM <| mkFreshUserName `r) α fun a => do
     let Q1a := (← mkProj' ``Prod 0 Q).betaRev #[a]
@@ -83,11 +81,11 @@ partial def dischargePostEntails (α : Expr) (ps : Expr) (Q : Expr) (Q' : Expr) 
     let σs := mkApp (mkConst ``PostShape.args) ps
     let uniq ← liftMetaM mkFreshId
     let goal := MGoal.mk σs (Hyp.mk `h uniq Q1a).toExpr Q'1a
-    mkLambdaFVars #[a] (← discharge goal.toExpr (goalTag ++ `success))
-  let prf₂ ← dischargeFailEntails ps (← mkProj' ``Prod 1 Q) (← mkProj' ``Prod 1 Q') (goalTag ++ `except) discharge
+    mkLambdaFVars #[a] (← mkFreshExprSyntheticOpaqueMVar goal.toExpr (goalTag ++ `success))
+  let prf₂ ← dischargeFailEntails ps (← mkProj' ``Prod 1 Q) (← mkProj' ``Prod 1 Q') (goalTag ++ `except)
   mkAppM ``And.intro #[prf₁, prf₂] -- This is just a bit too painful to construct by hand
 
-partial def dischargeFailEntails (ps : Expr) (Q : Expr) (Q' : Expr) (goalTag : Name) (discharge : Expr → Name → n Expr) : n Expr := do
+partial def dischargeFailEntails (ps : Expr) (Q : Expr) (Q' : Expr) (goalTag : Name) : n Expr := do
   if ps.isAppOf ``PostShape.pure then
     return mkConst ``True.intro
   if ← isDefEq Q Q' then
@@ -98,7 +96,7 @@ partial def dischargeFailEntails (ps : Expr) (Q : Expr) (Q' : Expr) (goalTag : N
     return mkApp2 (mkConst ``FailConds.entails_true) ps Q
   -- the remaining cases are recursive.
   if let some (_σ, ps) := ps.app2? ``PostShape.arg then
-    return ← dischargeFailEntails ps Q Q' goalTag discharge
+    return ← dischargeFailEntails ps Q Q' goalTag
   if let some (ε, ps) := ps.app2? ``PostShape.except then
     let Q ← whnfR Q
     let Q' ← whnfR Q'
@@ -108,17 +106,17 @@ partial def dischargeFailEntails (ps : Expr) (Q : Expr) (Q' : Expr) (goalTag : N
       let σs := mkApp (mkConst ``PostShape.args) ps
       let uniq ← liftMetaM mkFreshId
       let goal := MGoal.mk σs (Hyp.mk `h uniq Q1e).toExpr Q'1e
-      mkLambdaFVars #[e] (← discharge goal.toExpr (goalTag ++ `handle))
-    let prf₂ ← dischargeFailEntails ps (← mkProj' ``Prod 1 Q) (← mkProj' ``Prod 1 Q') (goalTag ++ `except) discharge
+      mkLambdaFVars #[e] (← mkFreshExprSyntheticOpaqueMVar goal.toExpr (goalTag ++ `handle))
+    let prf₂ ← dischargeFailEntails ps (← mkProj' ``Prod 1 Q) (← mkProj' ``Prod 1 Q') (goalTag ++ `except)
     return ← mkAppM ``And.intro #[prf₁, prf₂] -- This is just a bit too painful to construct by hand
   -- This case happens when decomposing with unknown `ps : PostShape`
-  discharge (mkApp3 (mkConst ``FailConds.entails) ps Q Q') goalTag
+  mkFreshExprSyntheticOpaqueMVar (mkApp3 (mkConst ``FailConds.entails) ps Q Q') goalTag
 end
 
-def dischargeMGoal (goal : MGoal) (goalTag : Name) (discharge : Expr → Name → n Expr) : n Expr := do
+def dischargeMGoal (goal : MGoal) (goalTag : Name) : n Expr := do
   -- controlAt MetaM (fun map => do trace[Elab.Tactic.Do.spec] "dischargeMGoal: {(← reduceProj? goal.target).getD goal.target}"; map (pure ()))
   -- simply try one of the assumptions for now. Later on we might want to decompose conjunctions etc; full xsimpl
-  let some prf ← liftMetaM goal.assumption | discharge goal.toExpr goalTag
+  let some prf ← liftMetaM goal.assumption | mkFreshExprSyntheticOpaqueMVar goal.toExpr goalTag
   return prf
 
 def mkPreTag (goalTag : Name) : Name := Id.run do
@@ -131,15 +129,16 @@ def mkPreTag (goalTag : Name) : Name := Id.run do
 /--
   Returns the proof and the list of new unassigned MVars.
 -/
-def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n (SpecTheorem × List MVarId)) (discharge : Expr → Name → n Expr) (goalTag : Name) (mkPreTag := mkPreTag) : n (Expr × List MVarId) := do
+def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name) (mkPreTag := mkPreTag) : n (Expr × List MVarId) := do
+  let mvarCounterSaved := (← liftMetaM getMCtx).mvarCounter
   -- First instantiate `fun s => ...` in the target via repeated `mintro ∀s`.
-  let (holes, prf) ← mIntroForallN goal goal.target.consumeMData.getNumHeadLambdas fun goal => do
+  let (_, prf) ← mIntroForallN goal goal.target.consumeMData.getNumHeadLambdas fun goal => do
     -- Elaborate the spec for the wp⟦e⟧ app in the target
     let T := goal.target.consumeMData
     unless T.getAppFn.constName! == ``PredTrans.apply do
       liftMetaM (throwError "target not a PredTrans.apply application {indentExpr T}")
     let wp := T.getArg! 2
-    let (specThm, elabMVars) ← elabSpecAtWP wp
+    let specThm ← elabSpecAtWP wp
 
     -- The precondition of `specThm` might look like `⌜?n = ‹Nat›ₛ ∧ ?m = ‹Bool›ₛ⌝`, which expands to
     -- `SVal.curry (fun tuple => ?n = SVal.uncurry (getThe Nat tuple) ∧ ?m = SVal.uncurry (getThe Bool tuple))`.
@@ -154,7 +153,7 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n (SpecTheorem × List MVarId)
     mTryFrame goal fun goal => do
 
     -- Fully instantiate the specThm without instantiating its MVars to `wp` yet
-    let (schematicMVars, _, spec, specTy) ← specThm.proof.instantiate
+    let (_, _, spec, specTy) ← specThm.proof.instantiate
 
     -- Apply the spec to the excess arguments of the `wp⟦e⟧ Q` application
     let T := goal.target.consumeMData
@@ -186,7 +185,7 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n (SpecTheorem × List MVarId)
       -- let P := (← reduceProjBeta? P).getD P
       -- Try to avoid creating a longer name if the postcondition does not need to create a goal
       let tag := if !QQ'Rfl then mkPreTag goalTag else goalTag
-      let HPPrf ← dischargeMGoal { goal with target := P } tag discharge
+      let HPPrf ← dischargeMGoal { goal with target := P } tag
       prePrf := mkApp6 (mkConst ``SPred.entails.trans) goal.σs goal.hyps P goal.target HPPrf
 
     -- Discharge the entailment on postconditions if not rfl
@@ -196,7 +195,7 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n (SpecTheorem × List MVarId)
       let tag := if !HPRfl then goalTag ++ `post else goalTag
       let wpApplyQ  := mkApp4 (mkConst ``PredTrans.apply) ps α wp Q  -- wp⟦x⟧.apply Q; that is, T without excess args
       let wpApplyQ' := mkApp4 (mkConst ``PredTrans.apply) ps α wp Q' -- wp⟦x⟧.apply Q'
-      let QQ' ← dischargePostEntails α ps Q Q' tag discharge
+      let QQ' ← dischargePostEntails α ps Q Q' tag
       let QQ'mono := mkApp6 (mkConst ``PredTrans.mono) ps α wp Q Q' QQ'
       postPrf := fun h =>
         mkApp6 (mkConst ``SPred.entails.trans) goal.σs P (wpApplyQ.betaRev excessArgs) (wpApplyQ'.betaRev excessArgs)
@@ -204,19 +203,16 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n (SpecTheorem × List MVarId)
 
     -- finally build the proof; HPPrf.trans (spec.trans QQ'mono)
     let prf := prePrf (postPrf spec)
-    let holes := elabMVars ++ schematicMVars.toList.map (·.mvarId!)
-    let holes ← liftMetaM <| holes.filterM fun mv => not <$> mv.isAssignedOrDelayedAssigned
-    return (holes, prf)
+    return ((), prf)
 
   -- (This is after closing the `mForallIntro` and `mTryFrame` blocks.)
   -- Functions like `mkForallFVars` etc. might have instantiated some of the MVar holes and in
   -- doing so have introduced new MVars in turn.
   -- Thus we try and instantiate all MVars and collect the MVars of the instantiated expressions.
-  let holes ← liftMetaM <| holes.flatMapM fun mv => do
-    let e ← instantiateMVars (mkMVar mv)
-    let mvs ← getMVars e
-    let mvs ← mvs.filterM fun mv => not <$> mv.isAssignedOrDelayedAssigned
-    return mvs.toList
+  let holes ← getMVarsNoDelayed prf
+  /- Filter out all mvars that were created prior to `k`. -/
+  let holes ← filterOldMVars holes mvarCounterSaved
+  let holes ← liftMetaM <| sortMVarIdsByIndex holes.toList
   return (prf, holes)
 
 private def addMVar (mvars : IO.Ref (List MVarId)) (goal : Expr) (name : Name) : MetaM Expr := do
@@ -229,10 +225,7 @@ def elabMSpecNoBind : Tactic
   | `(tactic| mspec_no_bind $[$spec]?) => do
     let (mvar, goal) ← mStartMVar (← getMainGoal)
     mvar.withContext do
-    let goals ← IO.mkRef []
-    let (prf, specHoles) ← mSpec goal (elabSpec spec) (fun goal name => liftMetaM (addMVar goals goal name)) (← getMainTag)
+    let (prf, goals) ← mSpec goal (elabSpec spec) (← getMainTag)
     mvar.assign prf
-    let goals ← goals.get
-    if let [mvar'] := goals then mvar'.setTag (← mvar.getTag)
-    replaceMainGoal (goals ++ specHoles)
+    replaceMainGoal goals
   | _ => throwUnsupportedSyntax

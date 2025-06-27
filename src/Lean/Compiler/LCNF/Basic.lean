@@ -638,11 +638,11 @@ def Decl.instantiateParamsLevelParams (decl : Decl) (us : List Level) : Array Pa
   decl.params.mapMono fun param => param.updateCore (param.type.instantiateLevelParamsNoCache decl.levelParams us)
 
 /--
-Return `true` if the arrow type contains an instance implicit argument.
+Return `true` if the arrow type contains a relevant instance implicit argument.
 -/
 def hasLocalInst (type : Expr) : Bool :=
   match type with
-  | .forallE _ _ b bi => bi.isInstImplicit || hasLocalInst b
+  | .forallE _ d b bi => (bi.isInstImplicit && !d.isErased) || hasLocalInst b
   | _ => false
 
 /--

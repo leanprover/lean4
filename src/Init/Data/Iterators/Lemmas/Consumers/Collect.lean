@@ -134,4 +134,12 @@ theorem Iter.isPlausibleIndirectOutput_of_mem_toList
   case done h =>
     simp
 
+theorem Iter.isPlausibleIndirectOutput_of_mem_toListRev
+    [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {it : Iter (α := α) β} {b : β} :
+    b ∈ it.toListRev → it.IsPlausibleIndirectOutput b := by
+  intro h
+  apply isPlausibleIndirectOutput_of_mem_toList
+  simpa [toListRev_eq] using h
+
 end Std.Iterators

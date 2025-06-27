@@ -19,16 +19,6 @@ theorem Iter.unattach_eq_toIter_unattach_toIterM [Iterator α Id β] {it : Iter 
           hP out (isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h))).toIter := by
   rfl
 
--- theorem Iter.step_attachWith [Iterator α Id β] {it : Iter (α := α) β} {hP} :
---     (it.attachWith P hP).step =
---       (⟨Types.Attach.modifyStep (it.attachWith P hP) it.step, it.step.toMonadic,
---         (by simp only [Types.Attach.modifyStep])⟩) := by
---   rw [Subtype.ext_iff]
---   simp only [attachWith, IterM.attachWith, step, IterM.Step.toPure, toIterM_toIter, IterM.step,
---     Iterator.step, Id.run_map, Types.Attach.modifyStep, Step.toMonadic, toIter_toIterM,
---     IterStep.mapIterator_mapIterator, toIterM_comp_toIter, IterStep.mapIterator_id]
---   rfl
-
 theorem Iter.unattach_toList_attachWith [Iterator α Id β]
     {it : Iter (α := α) β} {hP}
     [Finite α Id] [IteratorCollect α Id Id]

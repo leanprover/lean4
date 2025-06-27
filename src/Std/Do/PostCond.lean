@@ -197,12 +197,6 @@ abbrev PostCond.total (p : α → Assertion ps) : PostCond α ps :=
 -- The syntax `⇓ a b c => p` is defined as a builtin term parser in `Lean.Elab.Tactic.Do.Syntax`
 -- because the `basicFun` parser is not available in `Init`.
 
--- TODO: Uncomment after stage0 update
--- @[app_unexpander PostCond.total]
--- private def unexpandPostCondTotal : Lean.PrettyPrinter.Unexpander
---   | `($_ fun $xs* => $e) => do `(⇓ $xs* => $(← SPred.Notation.unpack e))
---   | _ => throw ()
-
 /-- A postcondition expressing partial correctness. -/
 abbrev PostCond.partial (p : α → Assertion ps) : PostCond α ps :=
   (p, FailConds.true)

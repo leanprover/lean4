@@ -168,14 +168,17 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n (SpecTheorem × List MVarId)
     unless (← withAssignableSyntheticOpaque <| isDefEq wp wp') do
       Term.throwTypeMismatchError none wp wp' spec
 
+    let P ← instantiateMVarsIfMVarApp P
+    let Q ← instantiateMVarsIfMVarApp Q
+
     let P := P.betaRev excessArgs
     let spec := spec.betaRev excessArgs
 
-    -- often P or Q are schematic (i.e. an MVar app). Try to solve by rfl.
-    let P ← instantiateMVarsIfMVarApp P
-    let Q ← instantiateMVarsIfMVarApp Q
-    let HPRfl ← withDefault <| withAssignableSyntheticOpaque <| isDefEqGuarded P goal.hyps
-    let QQ'Rfl ← withDefault <| withAssignableSyntheticOpaque <| isDefEqGuarded Q Q'
+    -- Often P or Q are schematic (i.e. an MVar app). Try to solve by rfl.
+    -- We do `fullApproxDefEq` here so that `constApprox` is active; this is useful in
+    -- `need_const_approx` of `doLogicTests.lean`.
+    let (HPRfl, QQ'Rfl) ← withDefault <| withAssignableSyntheticOpaque <| fullApproxDefEq <| do
+      return (← isDefEqGuarded P goal.hyps, ← isDefEqGuarded Q Q')
 
     -- Discharge the validity proof for the spec if not rfl
     let mut prePrf : Expr → Expr := id

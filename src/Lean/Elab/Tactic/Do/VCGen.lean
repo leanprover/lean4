@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 prelude
+import Init.Guard
 import Std.Do.WP
 import Std.Do.Triple
 import Lean.Elab.Tactic.Simp
@@ -12,6 +13,7 @@ import Lean.Elab.Tactic.Do.ProofMode.Basic
 import Lean.Elab.Tactic.Do.ProofMode.Intro
 import Lean.Elab.Tactic.Do.ProofMode.Cases
 import Lean.Elab.Tactic.Do.ProofMode.Specialize
+import Lean.Elab.Tactic.Do.ProofMode.Pure
 import Lean.Elab.Tactic.Do.LetElim
 import Lean.Elab.Tactic.Do.Spec
 import Lean.Elab.Tactic.Do.Attr
@@ -388,5 +390,5 @@ def elabMVCGen : Tactic := fun stx => withMainContext do
   -- but optConfig is not a leading_parser, and neither is the syntax for `lemmas`
   let ctx ← mkSpecContext stx[1] stx[2]
   let vcs ← genVCs (← getMainGoal) ctx (fuel := .unlimited)
-  let tac ← `(tactic| try (mpure_intro; trivial))
+  let tac ← `(tactic| try (apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro); trivial))
   for vc in vcs do discard <| runTactic vc tac

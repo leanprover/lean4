@@ -68,7 +68,8 @@ syntax (name := mleft) "mleft" : tactic
 syntax (name := mpure) "mpure" colGt ident : tactic
 
 @[inherit_doc Lean.Parser.Tactic.mpureIntroMacro]
-syntax (name := mpureIntro) "mpure_intro" : tactic
+macro (name := mpureIntro) "mpure_intro" : tactic =>
+  `(tactic| apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro))
 
 @[inherit_doc Lean.Parser.Tactic.mrevertMacro]
 syntax (name := mrevert) "mrevert" colGt ident : tactic
@@ -173,6 +174,15 @@ syntax "∀" binderIdent : mintroPat
 @[inherit_doc Lean.Parser.Tactic.mintroMacro]
 syntax (name := mintro) "mintro" (ppSpace colGt mintroPat)+ : tactic
 
+macro_rules
+  | `(tactic| mintro $pat₁ $pat₂ $pats:mintroPat*) => `(tactic| mintro $pat₁; mintro $pat₂ $pats*)
+  | `(tactic| mintro $pat:mintroPat) => do
+    match pat with
+    | `(mintroPat| $_:binderIdent) => Macro.throwUnsupported -- handled by a builtin elaborator
+    | `(mintroPat| ∀$_:binderIdent) => Macro.throwUnsupported -- handled by a builtin elaborator
+    | `(mintroPat| $pat:mcasesPat) => `(tactic| mintro h; mcases h with $pat)
+    | _ => Macro.throwUnsupported -- presently unreachable
+
 /--
 `mspec_no_simp $spec` first tries to decompose `Bind.bind`s before applying `$spec`.
 This variant of `mspec_no_simp` does not; `mspec_no_bind $spec` is defined as
@@ -197,12 +207,16 @@ all_goals
 macro (name := mspecNoSimp) "mspec_no_simp" spec:(ppSpace colGt term)? : tactic =>
   `(tactic| ((try with_reducible mspec_no_bind $(mkIdent ``Std.Do.Spec.bind)); mspec_no_bind $[$spec]?))
 
--- TODO: Define the simp set as a list here and build `simpArgs` syntax from it for better hygiene
 @[inherit_doc Lean.Parser.Tactic.mspecMacro]
 macro (name := mspec) "mspec" spec:(ppSpace colGt term)? : tactic =>
   `(tactic| (mspec_no_simp $[$spec]?
-             open Std.Do in
-             all_goals ((try simp only [SPred.true_intro_simp, SPred.true_intro_simp_nil, SVal.curry_cons, SVal.uncurry_cons, SVal.getThe_here, SVal.getThe_there])
+             all_goals ((try simp only [
+                          $(mkIdent ``Std.Do.SPred.true_intro_simp):term,
+                          $(mkIdent ``Std.Do.SPred.true_intro_simp_nil):term,
+                          $(mkIdent ``Std.Do.SVal.curry_cons):term,
+                          $(mkIdent ``Std.Do.SVal.uncurry_cons):term,
+                          $(mkIdent ``Std.Do.SVal.getThe_here):term,
+                          $(mkIdent ``Std.Do.SVal.getThe_there):term])
                         (try mpure_intro; trivial))))
 
 @[inherit_doc Lean.Parser.Tactic.mvcgenMacro]

@@ -278,3 +278,10 @@ instance (σs) (P Q : SPred σs) [HasFrame P Q ψ] : HasFrame (σs:=σs) spred(P
 -- The following instance comes last so that it gets the highest priority.
 -- It's the most efficient and best solution if valid
 instance {P : Prop} : HasFrame (σs:=[]) P ⌜True⌝ P where reassoc := true_and.symm
+
+theorem Frame.frame {σs : List Type} {P Q T : SPred σs} {φ : Prop} [HasFrame P Q φ]
+  (h : φ → Q ⊢ₛ T) : P ⊢ₛ T := by
+    apply SPred.pure_elim
+    · exact HasFrame.reassoc.mp.trans SPred.and_elim_r
+    · intro hp
+      exact HasFrame.reassoc.mp.trans (SPred.and_elim_l' (h hp))

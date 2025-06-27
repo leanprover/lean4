@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.ACLt
+import Lean.Meta.Match.DiscrCongr
 import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.AppBuilder
 import Lean.Meta.SynthInstance
@@ -323,6 +324,17 @@ def simpArith (e : Expr) : SimpM Step := do
   return .continue
 
 /--
+Given the expression `e`, returns an open term `e'` (with up to `n` loose bound variables) such that
+`fun a1 a2 .. an => e'` is equivalent to `e`. In particular, the `i`th loose bound variable of `e'`
+corresponds to the `n - i - 1`th parameter of `e` (counted from 0).
+-/
+private partial def lamBody : Nat → Expr → Expr
+  | 0, e => e
+  | k + 1, .lam _ _ b _ => lamBody k b
+  | k, .letE _ _ v b _ => lamBody k (b.instantiate1 v)
+  | k + 1, e => lamBody k (.app (e.liftLooseBVars 0 1) (.bvar 0))
+
+/--
 Given a match-application `e` with `MatcherInfo` `info`, return `some result`
 if at least of one of the discriminants has been simplified.
 -/
@@ -330,32 +342,55 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
   let numArgs := e.getAppNumArgs
   if numArgs < info.arity then
     return none
-  let prefixSize := info.numParams + 1 /- motive -/
-  let n     := numArgs - prefixSize
-  let f     := e.stripArgsN n
-  let infos := (← getFunInfoNArgs f n).paramInfo
-  let args  := e.getAppArgsN n
-  let mut r : Result := { expr := f }
+  let args := e.getAppArgs
+  let fn := e.getAppFn
+  let (thmName, mask) ← Match.getDiscrCongr fn.constName!
+  let motive := args[info.getMotivePos]!
+  let motive := lamBody info.numDiscrs motive
+  let mut thmArgs := args.extract 0 info.arity
+  let mut i := 0
   let mut modified := false
-  for i in [0 : info.numDiscrs] do
-    let arg := args[i]!
-    if i < infos.size && !infos[i]!.hasFwdDeps then
-      let argNew ← simp arg
-      if argNew.expr != arg then modified := true
-      r ← mkCongr r argNew
-    else if (← whnfD (← inferType r.expr)).isArrow then
-      let argNew ← simp arg
-      if argNew.expr != arg then modified := true
-      r ← mkCongr r argNew
+  let mut refl := true
+  while h : i < mask.size do
+    if mask[i] then
+      let discr := args[info.getFirstDiscrPos + i]!
+      if motive.hasLooseBVar (info.numDiscrs - i - 1) then
+        -- motive depends on discriminant
+        let res ← dsimp discr
+        if res != discr then
+          modified := true
+        thmArgs := thmArgs.push res |>.push (← mkEqRefl discr)
+      else
+        let res ← simp discr
+        if res.expr != discr then
+          modified := true
+          match res.proof? with
+          | none => thmArgs := thmArgs.push res.expr |>.push (← mkEqRefl discr)
+          | some h =>
+            thmArgs := thmArgs.push res.expr |>.push h
+            refl := false
+        else
+          thmArgs := thmArgs.push discr |>.push (← mkEqRefl discr)
     else
-      let argNew ← dsimp arg
-      if argNew != arg then modified := true
-      r ← mkCongrFun r argNew
+      let discr := args[info.getFirstDiscrPos + i]!
+      let res ← dsimp discr
+      if res != discr then
+        modified := true
+        thmArgs := thmArgs.set! (info.getFirstDiscrPos + i) res
+    i := i + 1
   unless modified do
     return none
-  for h : i in [info.numDiscrs : args.size] do
-    let arg := args[i]
-    r ← mkCongrFun r arg
+  let prf := mkAppN (.const thmName fn.constLevels!) thmArgs
+  let heq ← inferType prf
+  let mkApp4 (.const ``HEq us) α lhs _ rhs := heq |
+    trace[Meta.Tactic.simp.congr] "unexpected result type in match discr congr {heq}"
+    return none
+  let rhs := rhs.withApp fun r args => mkAppN r (args.map Expr.headBeta)
+  let prf? := if refl then none else mkApp4 (.const ``eq_of_heq us) α lhs rhs prf
+  let mut r := { expr := rhs, proof? := prf? }
+  if numArgs > info.arity then
+    let fn : Expr := .lam `x (← inferType r.expr) (mkAppN (.bvar 0) (args.extract info.arity)) .default
+    r ← mkCongrArg fn r
   return some r
 
 def simpMatchCore (matcherName : Name) (e : Expr) : SimpM Step := do

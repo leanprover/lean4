@@ -132,7 +132,7 @@ Thus `[init]` functions are run iff their module is imported, regardless of whet
 The initializer for module `A.B` is called `initialize_A_B` and will automatically initialize any imported modules.
 Module initializers are idempotent (when run with the same `builtin` flag), but not thread-safe.
 
-**Important for process-related functionality**: If your application needs to use process-related functions, such as `Std.Internal.IO.Process.getProcessTitle` and `Std.Internal.IO.Process.setProcessTitle`, you must call `lean_setup_args(argc, argv)` (which returns a potentially modified `argv` that must be used in place of the original) **before** calling `lean_initialize()` or `lean_initialize_runtime_module()`. This sets up process handling capabilities correctly, which is essential for certain system-level operations that Lean's runtime may depend on.
+**Important for process-related functionality**: If your application needs to use process-related functions from libuv, such as `Std.Internal.IO.Process.getProcessTitle` and `Std.Internal.IO.Process.setProcessTitle`, you must call `lean_setup_args(argc, argv)` (which returns a potentially modified `argv` that must be used in place of the original) **before** calling `lean_initialize()` or `lean_initialize_runtime_module()`. This sets up process handling capabilities correctly, which is essential for certain system-level operations that Lean's runtime may depend on.
 
 Together with initialization of the Lean runtime, you should execute code like the following exactly once before accessing any Lean declarations:
 

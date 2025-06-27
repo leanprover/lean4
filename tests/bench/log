@@ -1,0 +1,869 @@
+[Compiler] compiling new: [addALot] ▼
+  [] new compiler phase: base, pass: init
+  [init] size: 28
+      def addALot x a.1 : Nat × Nat :=
+        let _x.2 := Id.instMonad;
+        let _x.3 := @StateT.instMonad _ _ _x.2;
+        let _x.4 := _x.3 # 1;
+        let _x.5 := _x.4 # 0;
+        let _x.6 := @instMonadStateOfStateTOfMonad _ _ _x.2;
+        let _x.7 := _x.6 # 1;
+        let _x.8 := _x.7 x;
+        fun _f.9 x.10 : Nat → (fun type => type) (Nat × Nat) :=
+          let _x.11 := instMonadStateOfMonadStateOf _ _ _x.6;
+          let _x.12 := _x.11 # 2;
+          fun _f.13 y : PUnit × Nat :=
+            let _x.14 := ();
+            let _x.15 := instAddNat;
+            let _x.16 := @instHAdd _ _x.15;
+            let _x.17 := _x.16 # 0;
+            let _x.18 := _x.17 y x;
+            let _x.19 := @Prod.mk _ _ _x.14 _x.18;
+            return _x.19;
+          let _x.20 := _x.12 _ _f.13;
+          fun _f.21 x.22 : Nat → (fun type => type) (Nat × Nat) :=
+            fun _f.23 x.24 : Nat → (fun type => type) (Nat × Nat) :=
+              fun _f.25 x.26 : Nat → (fun type => type) (Nat × Nat) :=
+                fun _f.27 x.28 : Nat → (fun type => type) (Nat × Nat) :=
+                  fun _f.29 x.30 : Nat → (fun type => type) (Nat × Nat) :=
+                    let _x.31 := _x.11 # 0;
+                    fun _f.32 y : Nat → (fun type => type) (Nat × Nat) :=
+                      let _x.33 := _x.3 # 0;
+                      let _x.34 := _x.33 # 1;
+                      let _x.35 := _x.34 # 0;
+                      let _x.36 := _x.35 _ y;
+                      return _x.36;
+                    let _x.37 := _x.5 _ _ _x.31 _f.32;
+                    return _x.37;
+                  let _x.38 := _x.5 _ _ _x.20 _f.29;
+                  return _x.38;
+                let _x.39 := _x.5 _ _ _x.20 _f.27;
+                return _x.39;
+              let _x.40 := _x.5 _ _ _x.20 _f.25;
+              return _x.40;
+            let _x.41 := _x.5 _ _ _x.20 _f.23;
+            return _x.41;
+          let _x.42 := _x.5 _ _ _x.20 _f.21;
+          return _x.42;
+        let _x.43 := _x.5 _ _ _x.8 _f.9 a.1;
+        return _x.43
+  [] new compiler phase: base, pass: pullInstances
+  [pullInstances] size: 28
+      def addALot x a.1 : Nat × Nat :=
+        let _x.2 := Id.instMonad;
+        let _x.3 := @StateT.instMonad _ _ _x.2;
+        let _x.4 := _x.3 # 1;
+        let _x.5 := @instMonadStateOfStateTOfMonad _ _ _x.2;
+        let _x.6 := instMonadStateOfMonadStateOf _ _ _x.5;
+        let _x.7 := instAddNat;
+        let _x.8 := @instHAdd _ _x.7;
+        let _x.9 := _x.3 # 0;
+        let _x.10 := _x.9 # 1;
+        let _x.11 := _x.4 # 0;
+        let _x.12 := _x.5 # 1;
+        let _x.13 := _x.12 x;
+        fun _f.14 x.15 : Nat → (fun type => type) (Nat × Nat) :=
+          let _x.16 := _x.6 # 2;
+          fun _f.17 y : PUnit × Nat :=
+            let _x.18 := ();
+            let _x.19 := _x.8 # 0;
+            let _x.20 := _x.19 y x;
+            let _x.21 := @Prod.mk _ _ _x.18 _x.20;
+            return _x.21;
+          let _x.22 := _x.16 _ _f.17;
+          fun _f.23 x.24 : Nat → (fun type => type) (Nat × Nat) :=
+            fun _f.25 x.26 : Nat → (fun type => type) (Nat × Nat) :=
+              fun _f.27 x.28 : Nat → (fun type => type) (Nat × Nat) :=
+                fun _f.29 x.30 : Nat → (fun type => type) (Nat × Nat) :=
+                  fun _f.31 x.32 : Nat → (fun type => type) (Nat × Nat) :=
+                    let _x.33 := _x.6 # 0;
+                    fun _f.34 y : Nat → (fun type => type) (Nat × Nat) :=
+                      let _x.35 := _x.10 # 0;
+                      let _x.36 := _x.35 _ y;
+                      return _x.36;
+                    let _x.37 := _x.11 _ _ _x.33 _f.34;
+                    return _x.37;
+                  let _x.38 := _x.11 _ _ _x.22 _f.31;
+                  return _x.38;
+                let _x.39 := _x.11 _ _ _x.22 _f.29;
+                return _x.39;
+              let _x.40 := _x.11 _ _ _x.22 _f.27;
+              return _x.40;
+            let _x.41 := _x.11 _ _ _x.22 _f.25;
+            return _x.41;
+          let _x.42 := _x.11 _ _ _x.22 _f.23;
+          return _x.42;
+        let _x.43 := _x.11 _ _ _x.13 _f.14 a.1;
+        return _x.43
+  [] new compiler phase: base, pass: cse
+  [cse] size: 28
+      def addALot x a.1 : Nat × Nat :=
+        let _x.2 := Id.instMonad;
+        let _x.3 := @StateT.instMonad _ _ _x.2;
+        let _x.4 := _x.3 # 1;
+        let _x.5 := @instMonadStateOfStateTOfMonad _ _ _x.2;
+        let _x.6 := instMonadStateOfMonadStateOf _ _ _x.5;
+        let _x.7 := instAddNat;
+        let _x.8 := @instHAdd _ _x.7;
+        let _x.9 := _x.3 # 0;
+        let _x.10 := _x.9 # 1;
+        let _x.11 := _x.4 # 0;
+        let _x.12 := _x.5 # 1;
+        let _x.13 := _x.12 x;
+        fun _f.14 x.15 : Nat → (fun type => type) (Nat × Nat) :=
+          let _x.16 := _x.6 # 2;
+          fun _f.17 y : PUnit × Nat :=
+            let _x.18 := ();
+            let _x.19 := _x.8 # 0;
+            let _x.20 := _x.19 y x;
+            let _x.21 := @Prod.mk _ _ _x.18 _x.20;
+            return _x.21;
+          let _x.22 := _x.16 _ _f.17;
+          fun _f.23 x.24 : Nat → (fun type => type) (Nat × Nat) :=
+            fun _f.25 x.26 : Nat → (fun type => type) (Nat × Nat) :=
+              fun _f.27 x.28 : Nat → (fun type => type) (Nat × Nat) :=
+                fun _f.29 x.30 : Nat → (fun type => type) (Nat × Nat) :=
+                  fun _f.31 x.32 : Nat → (fun type => type) (Nat × Nat) :=
+                    let _x.33 := _x.6 # 0;
+                    fun _f.34 y : Nat → (fun type => type) (Nat × Nat) :=
+                      let _x.35 := _x.10 # 0;
+                      let _x.36 := _x.35 _ y;
+                      return _x.36;
+                    let _x.37 := _x.11 _ _ _x.33 _f.34;
+                    return _x.37;
+                  let _x.38 := _x.11 _ _ _x.22 _f.31;
+                  return _x.38;
+                let _x.39 := _x.11 _ _ _x.22 _f.29;
+                return _x.39;
+              let _x.40 := _x.11 _ _ _x.22 _f.27;
+              return _x.40;
+            let _x.41 := _x.11 _ _ _x.22 _f.25;
+            return _x.41;
+          let _x.42 := _x.11 _ _ _x.22 _f.23;
+          return _x.42;
+        let _x.43 := _x.11 _ _ _x.13 _f.14 a.1;
+        return _x.43
+  [] new compiler phase: base, pass: simp
+  [simp] size: 17
+      def addALot x a.1 : Nat × Nat :=
+        fun _f.2 y : PUnit × Nat :=
+          let _x.3 := PUnit.unit;
+          let _x.4 := Nat.add y x;
+          let _x.5 := @Prod.mk _ _ _x.3 _x.4;
+          return _x.5;
+        let _x.6 := _f.2 x;
+        cases _x.6 : Nat × Nat
+        | Prod.mk fst.7 snd.8 =>
+          let _x.9 := _f.2 snd.8;
+          cases _x.9 : Nat × Nat
+          | Prod.mk fst.10 snd.11 =>
+            let _x.12 := _f.2 snd.11;
+            cases _x.12 : Nat × Nat
+            | Prod.mk fst.13 snd.14 =>
+              let _x.15 := _f.2 snd.14;
+              cases _x.15 : Nat × Nat
+              | Prod.mk fst.16 snd.17 =>
+                let _x.18 := Nat.add snd.17 x;
+                let _x.19 := @Prod.mk _ _ _x.18 _x.18;
+                return _x.19
+  [] new compiler phase: base, pass: floatLetIn ▶
+  [floatLetIn] size: 17
+      def addALot x a.1 : Nat × Nat :=
+        fun _f.2 y : PUnit × Nat :=
+          let _x.3 := PUnit.unit;
+          let _x.4 := Nat.add y x;
+          let _x.5 := @Prod.mk _ _ _x.3 _x.4;
+          return _x.5;
+        let _x.6 := _f.2 x;
+        cases _x.6 : Nat × Nat
+        | Prod.mk fst.7 snd.8 =>
+          let _x.9 := _f.2 snd.8;
+          cases _x.9 : Nat × Nat
+          | Prod.mk fst.10 snd.11 =>
+            let _x.12 := _f.2 snd.11;
+            cases _x.12 : Nat × Nat
+            | Prod.mk fst.13 snd.14 =>
+              let _x.15 := _f.2 snd.14;
+              cases _x.15 : Nat × Nat
+              | Prod.mk fst.16 snd.17 =>
+                let _x.18 := Nat.add snd.17 x;
+                let _x.19 := @Prod.mk _ _ _x.18 _x.18;
+                return _x.19
+  [] new compiler phase: base, pass: findJoinPoints ▶
+  [findJoinPoints] size: 17
+      def addALot x a.1 : Nat × Nat :=
+        fun _f.2 y : PUnit × Nat :=
+          let _x.3 := PUnit.unit;
+          let _x.4 := Nat.add y x;
+          let _x.5 := @Prod.mk _ _ _x.3 _x.4;
+          return _x.5;
+        let _x.6 := _f.2 x;
+        cases _x.6 : Nat × Nat
+        | Prod.mk fst.7 snd.8 =>
+          let _x.9 := _f.2 snd.8;
+          cases _x.9 : Nat × Nat
+          | Prod.mk fst.10 snd.11 =>
+            let _x.12 := _f.2 snd.11;
+            cases _x.12 : Nat × Nat
+            | Prod.mk fst.13 snd.14 =>
+              let _x.15 := _f.2 snd.14;
+              cases _x.15 : Nat × Nat
+              | Prod.mk fst.16 snd.17 =>
+                let _x.18 := Nat.add snd.17 x;
+                let _x.19 := @Prod.mk _ _ _x.18 _x.18;
+                return _x.19
+  [] new compiler phase: base, pass: pullFunDecls
+  [pullFunDecls] size: 17
+      def addALot x a.1 : Nat × Nat :=
+        fun _f.2 y : PUnit × Nat :=
+          let _x.3 := PUnit.unit;
+          let _x.4 := Nat.add y x;
+          let _x.5 := @Prod.mk _ _ _x.3 _x.4;
+          return _x.5;
+        let _x.6 := _f.2 x;
+        cases _x.6 : Nat × Nat
+        | Prod.mk fst.7 snd.8 =>
+          let _x.9 := _f.2 snd.8;
+          cases _x.9 : Nat × Nat
+          | Prod.mk fst.10 snd.11 =>
+            let _x.12 := _f.2 snd.11;
+            cases _x.12 : Nat × Nat
+            | Prod.mk fst.13 snd.14 =>
+              let _x.15 := _f.2 snd.14;
+              cases _x.15 : Nat × Nat
+              | Prod.mk fst.16 snd.17 =>
+                let _x.18 := Nat.add snd.17 x;
+                let _x.19 := @Prod.mk _ _ _x.18 _x.18;
+                return _x.19
+  [] new compiler phase: base, pass: reduceJpArity
+  [reduceJpArity] size: 17
+      def addALot x a.1 : Nat × Nat :=
+        fun _f.2 y : PUnit × Nat :=
+          let _x.3 := PUnit.unit;
+          let _x.4 := Nat.add y x;
+          let _x.5 := @Prod.mk _ _ _x.3 _x.4;
+          return _x.5;
+        let _x.6 := _f.2 x;
+        cases _x.6 : Nat × Nat
+        | Prod.mk fst.7 snd.8 =>
+          let _x.9 := _f.2 snd.8;
+          cases _x.9 : Nat × Nat
+          | Prod.mk fst.10 snd.11 =>
+            let _x.12 := _f.2 snd.11;
+            cases _x.12 : Nat × Nat
+            | Prod.mk fst.13 snd.14 =>
+              let _x.15 := _f.2 snd.14;
+              cases _x.15 : Nat × Nat
+              | Prod.mk fst.16 snd.17 =>
+                let _x.18 := Nat.add snd.17 x;
+                let _x.19 := @Prod.mk _ _ _x.18 _x.18;
+                return _x.19
+  [] new compiler phase: base, pass: simp
+  [simp] size: 17
+      def addALot x a.1 : Nat × Nat :=
+        fun _f.2 y : PUnit × Nat :=
+          let _x.3 := PUnit.unit;
+          let _x.4 := Nat.add y x;
+          let _x.5 := @Prod.mk _ _ _x.3 _x.4;
+          return _x.5;
+        let _x.6 := _f.2 x;
+        cases _x.6 : Nat × Nat
+        | Prod.mk fst.7 snd.8 =>
+          let _x.9 := _f.2 snd.8;
+          cases _x.9 : Nat × Nat
+          | Prod.mk fst.10 snd.11 =>
+            let _x.12 := _f.2 snd.11;
+            cases _x.12 : Nat × Nat
+            | Prod.mk fst.13 snd.14 =>
+              let _x.15 := _f.2 snd.14;
+              cases _x.15 : Nat × Nat
+              | Prod.mk fst.16 snd.17 =>
+                let _x.18 := Nat.add snd.17 x;
+                let _x.19 := @Prod.mk _ _ _x.18 _x.18;
+                return _x.19
+  [] new compiler phase: base, pass: eagerLambdaLifting
+  [eagerLambdaLifting] size: 17
+      def addALot x a.1 : Nat × Nat :=
+        fun _f.2 y : PUnit × Nat :=
+          let _x.3 := PUnit.unit;
+          let _x.4 := Nat.add y x;
+          let _x.5 := @Prod.mk _ _ _x.3 _x.4;
+          return _x.5;
+        let _x.6 := _f.2 x;
+        cases _x.6 : Nat × Nat
+        | Prod.mk fst.7 snd.8 =>
+          let _x.9 := _f.2 snd.8;
+          cases _x.9 : Nat × Nat
+          | Prod.mk fst.10 snd.11 =>
+            let _x.12 := _f.2 snd.11;
+            cases _x.12 : Nat × Nat
+            | Prod.mk fst.13 snd.14 =>
+              let _x.15 := _f.2 snd.14;
+              cases _x.15 : Nat × Nat
+              | Prod.mk fst.16 snd.17 =>
+                let _x.18 := Nat.add snd.17 x;
+                let _x.19 := @Prod.mk _ _ _x.18 _x.18;
+                return _x.19
+  [] new compiler phase: base, pass: specialize
+  [specialize] size: 17
+      def addALot x a.1 : Nat × Nat :=
+        fun _f.2 y : PUnit × Nat :=
+          let _x.3 := PUnit.unit;
+          let _x.4 := Nat.add y x;
+          let _x.5 := @Prod.mk _ _ _x.3 _x.4;
+          return _x.5;
+        let _x.6 := _f.2 x;
+        cases _x.6 : Nat × Nat
+        | Prod.mk fst.7 snd.8 =>
+          let _x.9 := _f.2 snd.8;
+          cases _x.9 : Nat × Nat
+          | Prod.mk fst.10 snd.11 =>
+            let _x.12 := _f.2 snd.11;
+            cases _x.12 : Nat × Nat
+            | Prod.mk fst.13 snd.14 =>
+              let _x.15 := _f.2 snd.14;
+              cases _x.15 : Nat × Nat
+              | Prod.mk fst.16 snd.17 =>
+                let _x.18 := Nat.add snd.17 x;
+                let _x.19 := @Prod.mk _ _ _x.18 _x.18;
+                return _x.19
+  [] new compiler phase: base, pass: simp
+  [simp] size: 17
+      def addALot x a.1 : Nat × Nat :=
+        fun _f.2 y : PUnit × Nat :=
+          let _x.3 := PUnit.unit;
+          let _x.4 := Nat.add y x;
+          let _x.5 := @Prod.mk _ _ _x.3 _x.4;
+          return _x.5;
+        let _x.6 := _f.2 x;
+        cases _x.6 : Nat × Nat
+        | Prod.mk fst.7 snd.8 =>
+          let _x.9 := _f.2 snd.8;
+          cases _x.9 : Nat × Nat
+          | Prod.mk fst.10 snd.11 =>
+            let _x.12 := _f.2 snd.11;
+            cases _x.12 : Nat × Nat
+            | Prod.mk fst.13 snd.14 =>
+              let _x.15 := _f.2 snd.14;
+              cases _x.15 : Nat × Nat
+              | Prod.mk fst.16 snd.17 =>
+                let _x.18 := Nat.add snd.17 x;
+                let _x.19 := @Prod.mk _ _ _x.18 _x.18;
+                return _x.19
+  [] new compiler phase: base, pass: cse
+  [cse] size: 17
+      def addALot x a.1 : Nat × Nat :=
+        fun _f.2 y : PUnit × Nat :=
+          let _x.3 := PUnit.unit;
+          let _x.4 := Nat.add y x;
+          let _x.5 := @Prod.mk _ _ _x.3 _x.4;
+          return _x.5;
+        let _x.6 := _f.2 x;
+        cases _x.6 : Nat × Nat
+        | Prod.mk fst.7 snd.8 =>
+          let _x.9 := _f.2 snd.8;
+          cases _x.9 : Nat × Nat
+          | Prod.mk fst.10 snd.11 =>
+            let _x.12 := _f.2 snd.11;
+            cases _x.12 : Nat × Nat
+            | Prod.mk fst.13 snd.14 =>
+              let _x.15 := _f.2 snd.14;
+              cases _x.15 : Nat × Nat
+              | Prod.mk fst.16 snd.17 =>
+                let _x.18 := Nat.add snd.17 x;
+                let _x.19 := @Prod.mk _ _ _x.18 _x.18;
+                return _x.19
+  [] new compiler phase: base, pass: saveBase
+  [saveBase] size: 17
+      def addALot x a.1 : Nat × Nat :=
+        fun _f.2 y : PUnit × Nat :=
+          let _x.3 := PUnit.unit;
+          let _x.4 := Nat.add y x;
+          let _x.5 := @Prod.mk _ _ _x.3 _x.4;
+          return _x.5;
+        let _x.6 := _f.2 x;
+        cases _x.6 : Nat × Nat
+        | Prod.mk fst.7 snd.8 =>
+          let _x.9 := _f.2 snd.8;
+          cases _x.9 : Nat × Nat
+          | Prod.mk fst.10 snd.11 =>
+            let _x.12 := _f.2 snd.11;
+            cases _x.12 : Nat × Nat
+            | Prod.mk fst.13 snd.14 =>
+              let _x.15 := _f.2 snd.14;
+              cases _x.15 : Nat × Nat
+              | Prod.mk fst.16 snd.17 =>
+                let _x.18 := Nat.add snd.17 x;
+                let _x.19 := @Prod.mk _ _ _x.18 _x.18;
+                return _x.19
+  [] new compiler phase: base, pass: toMono
+  [toMono] size: 17
+      def addALot x a.1 : Prod Nat Nat :=
+        fun _f.2 y : Prod PUnit Nat :=
+          let _x.3 := PUnit.unit;
+          let _x.4 := Nat.add y x;
+          let _x.5 := Prod.mk _ _ _x.3 _x.4;
+          return _x.5;
+        let _x.6 := _f.2 x;
+        cases _x.6 : Prod Nat Nat
+        | Prod.mk fst.7 snd.8 =>
+          let _x.9 := _f.2 snd.8;
+          cases _x.9 : Prod Nat Nat
+          | Prod.mk fst.10 snd.11 =>
+            let _x.12 := _f.2 snd.11;
+            cases _x.12 : Prod Nat Nat
+            | Prod.mk fst.13 snd.14 =>
+              let _x.15 := _f.2 snd.14;
+              cases _x.15 : Prod Nat Nat
+              | Prod.mk fst.16 snd.17 =>
+                let _x.18 := Nat.add snd.17 x;
+                let _x.19 := Prod.mk _ _ _x.18 _x.18;
+                return _x.19
+  [] new compiler phase: mono, pass: simp
+  [simp] size: 17
+      def addALot x a.1 : Prod Nat Nat :=
+        fun _f.2 y : Prod PUnit Nat :=
+          let _x.3 := PUnit.unit;
+          let _x.4 := Nat.add y x;
+          let _x.5 := Prod.mk _ _ _x.3 _x.4;
+          return _x.5;
+        let _x.6 := _f.2 x;
+        cases _x.6 : Prod Nat Nat
+        | Prod.mk fst.7 snd.8 =>
+          let _x.9 := _f.2 snd.8;
+          cases _x.9 : Prod Nat Nat
+          | Prod.mk fst.10 snd.11 =>
+            let _x.12 := _f.2 snd.11;
+            cases _x.12 : Prod Nat Nat
+            | Prod.mk fst.13 snd.14 =>
+              let _x.15 := _f.2 snd.14;
+              cases _x.15 : Prod Nat Nat
+              | Prod.mk fst.16 snd.17 =>
+                let _x.18 := Nat.add snd.17 x;
+                let _x.19 := Prod.mk _ _ _x.18 _x.18;
+                return _x.19
+  [] new compiler phase: mono, pass: reduceJpArity
+  [reduceJpArity] size: 17
+      def addALot x a.1 : Prod Nat Nat :=
+        fun _f.2 y : Prod PUnit Nat :=
+          let _x.3 := PUnit.unit;
+          let _x.4 := Nat.add y x;
+          let _x.5 := Prod.mk _ _ _x.3 _x.4;
+          return _x.5;
+        let _x.6 := _f.2 x;
+        cases _x.6 : Prod Nat Nat
+        | Prod.mk fst.7 snd.8 =>
+          let _x.9 := _f.2 snd.8;
+          cases _x.9 : Prod Nat Nat
+          | Prod.mk fst.10 snd.11 =>
+            let _x.12 := _f.2 snd.11;
+            cases _x.12 : Prod Nat Nat
+            | Prod.mk fst.13 snd.14 =>
+              let _x.15 := _f.2 snd.14;
+              cases _x.15 : Prod Nat Nat
+              | Prod.mk fst.16 snd.17 =>
+                let _x.18 := Nat.add snd.17 x;
+                let _x.19 := Prod.mk _ _ _x.18 _x.18;
+                return _x.19
+  [] new compiler phase: mono, pass: structProjCases
+  [structProjCases] size: 17
+      def addALot x a.1 : Prod Nat Nat :=
+        fun _f.2 y : Prod PUnit Nat :=
+          let _x.3 := PUnit.unit;
+          let _x.4 := Nat.add y x;
+          let _x.5 := Prod.mk _ _ _x.3 _x.4;
+          return _x.5;
+        let _x.6 := _f.2 x;
+        cases _x.6 : Prod Nat Nat
+        | Prod.mk fst.7 snd.8 =>
+          let _x.9 := _f.2 snd.8;
+          cases _x.9 : Prod Nat Nat
+          | Prod.mk fst.10 snd.11 =>
+            let _x.12 := _f.2 snd.11;
+            cases _x.12 : Prod Nat Nat
+            | Prod.mk fst.13 snd.14 =>
+              let _x.15 := _f.2 snd.14;
+              cases _x.15 : Prod Nat Nat
+              | Prod.mk fst.16 snd.17 =>
+                let _x.18 := Nat.add snd.17 x;
+                let _x.19 := Prod.mk _ _ _x.18 _x.18;
+                return _x.19
+  [] new compiler phase: mono, pass: extendJoinPointContext
+  [extendJoinPointContext] size: 17
+      def addALot x a.1 : Prod Nat Nat :=
+        fun _f.2 y : Prod PUnit Nat :=
+          let _x.3 := PUnit.unit;
+          let _x.4 := Nat.add y x;
+          let _x.5 := Prod.mk _ _ _x.3 _x.4;
+          return _x.5;
+        let _x.6 := _f.2 x;
+        cases _x.6 : Prod Nat Nat
+        | Prod.mk fst.7 snd.8 =>
+          let _x.9 := _f.2 snd.8;
+          cases _x.9 : Prod Nat Nat
+          | Prod.mk fst.10 snd.11 =>
+            let _x.12 := _f.2 snd.11;
+            cases _x.12 : Prod Nat Nat
+            | Prod.mk fst.13 snd.14 =>
+              let _x.15 := _f.2 snd.14;
+              cases _x.15 : Prod Nat Nat
+              | Prod.mk fst.16 snd.17 =>
+                let _x.18 := Nat.add snd.17 x;
+                let _x.19 := Prod.mk _ _ _x.18 _x.18;
+                return _x.19
+  [] new compiler phase: mono, pass: floatLetIn ▶
+  [floatLetIn] size: 17
+      def addALot x a.1 : Prod Nat Nat :=
+        fun _f.2 y : Prod PUnit Nat :=
+          let _x.3 := PUnit.unit;
+          let _x.4 := Nat.add y x;
+          let _x.5 := Prod.mk _ _ _x.3 _x.4;
+          return _x.5;
+        let _x.6 := _f.2 x;
+        cases _x.6 : Prod Nat Nat
+        | Prod.mk fst.7 snd.8 =>
+          let _x.9 := _f.2 snd.8;
+          cases _x.9 : Prod Nat Nat
+          | Prod.mk fst.10 snd.11 =>
+            let _x.12 := _f.2 snd.11;
+            cases _x.12 : Prod Nat Nat
+            | Prod.mk fst.13 snd.14 =>
+              let _x.15 := _f.2 snd.14;
+              cases _x.15 : Prod Nat Nat
+              | Prod.mk fst.16 snd.17 =>
+                let _x.18 := Nat.add snd.17 x;
+                let _x.19 := Prod.mk _ _ _x.18 _x.18;
+                return _x.19
+  [] new compiler phase: mono, pass: reduceArity ▶
+  [reduceArity] size: 17
+      def addALot._redArg x : Prod Nat Nat :=
+        fun _f.1 y : Prod PUnit Nat :=
+          let _x.2 := PUnit.unit;
+          let _x.3 := Nat.add y x;
+          let _x.4 := Prod.mk _ _ _x.2 _x.3;
+          return _x.4;
+        let _x.5 := _f.1 x;
+        cases _x.5 : Prod Nat Nat
+        | Prod.mk fst.6 snd.7 =>
+          let _x.8 := _f.1 snd.7;
+          cases _x.8 : Prod Nat Nat
+          | Prod.mk fst.9 snd.10 =>
+            let _x.11 := _f.1 snd.10;
+            cases _x.11 : Prod Nat Nat
+            | Prod.mk fst.12 snd.13 =>
+              let _x.14 := _f.1 snd.13;
+              cases _x.14 : Prod Nat Nat
+              | Prod.mk fst.15 snd.16 =>
+                let _x.17 := Nat.add snd.16 x;
+                let _x.18 := Prod.mk _ _ _x.17 _x.17;
+                return _x.18
+  [reduceArity] size: 1
+      def addALot x a.1 : Prod Nat Nat :=
+        let _x.2 := addALot._redArg x;
+        return _x.2
+  [] new compiler phase: mono, pass: commonJoinPointArgs
+  [commonJoinPointArgs] size: 17
+      def addALot._redArg x : Prod Nat Nat :=
+        fun _f.1 y : Prod PUnit Nat :=
+          let _x.2 := PUnit.unit;
+          let _x.3 := Nat.add y x;
+          let _x.4 := Prod.mk _ _ _x.2 _x.3;
+          return _x.4;
+        let _x.5 := _f.1 x;
+        cases _x.5 : Prod Nat Nat
+        | Prod.mk fst.6 snd.7 =>
+          let _x.8 := _f.1 snd.7;
+          cases _x.8 : Prod Nat Nat
+          | Prod.mk fst.9 snd.10 =>
+            let _x.11 := _f.1 snd.10;
+            cases _x.11 : Prod Nat Nat
+            | Prod.mk fst.12 snd.13 =>
+              let _x.14 := _f.1 snd.13;
+              cases _x.14 : Prod Nat Nat
+              | Prod.mk fst.15 snd.16 =>
+                let _x.17 := Nat.add snd.16 x;
+                let _x.18 := Prod.mk _ _ _x.17 _x.17;
+                return _x.18
+  [commonJoinPointArgs] size: 1
+      def addALot x a.1 : Prod Nat Nat :=
+        let _x.2 := addALot._redArg x;
+        return _x.2
+  [] new compiler phase: mono, pass: simp
+  [simp] size: 17
+      def addALot._redArg x : Prod Nat Nat :=
+        fun _f.1 y : Prod PUnit Nat :=
+          let _x.2 := PUnit.unit;
+          let _x.3 := Nat.add y x;
+          let _x.4 := Prod.mk _ _ _x.2 _x.3;
+          return _x.4;
+        let _x.5 := _f.1 x;
+        cases _x.5 : Prod Nat Nat
+        | Prod.mk fst.6 snd.7 =>
+          let _x.8 := _f.1 snd.7;
+          cases _x.8 : Prod Nat Nat
+          | Prod.mk fst.9 snd.10 =>
+            let _x.11 := _f.1 snd.10;
+            cases _x.11 : Prod Nat Nat
+            | Prod.mk fst.12 snd.13 =>
+              let _x.14 := _f.1 snd.13;
+              cases _x.14 : Prod Nat Nat
+              | Prod.mk fst.15 snd.16 =>
+                let _x.17 := Nat.add snd.16 x;
+                let _x.18 := Prod.mk _ _ _x.17 _x.17;
+                return _x.18
+  [simp] size: 1
+      def addALot x a.1 : Prod Nat Nat :=
+        let _x.2 := addALot._redArg x;
+        return _x.2
+  [] new compiler phase: mono, pass: floatLetIn ▶
+  [] 32 more entries... ▼
+    [floatLetIn] size: 17
+        def addALot._redArg x : Prod Nat Nat :=
+          fun _f.1 y : Prod PUnit Nat :=
+            let _x.2 := PUnit.unit;
+            let _x.3 := Nat.add y x;
+            let _x.4 := Prod.mk _ _ _x.2 _x.3;
+            return _x.4;
+          let _x.5 := _f.1 x;
+          cases _x.5 : Prod Nat Nat
+          | Prod.mk fst.6 snd.7 =>
+            let _x.8 := _f.1 snd.7;
+            cases _x.8 : Prod Nat Nat
+            | Prod.mk fst.9 snd.10 =>
+              let _x.11 := _f.1 snd.10;
+              cases _x.11 : Prod Nat Nat
+              | Prod.mk fst.12 snd.13 =>
+                let _x.14 := _f.1 snd.13;
+                cases _x.14 : Prod Nat Nat
+                | Prod.mk fst.15 snd.16 =>
+                  let _x.17 := Nat.add snd.16 x;
+                  let _x.18 := Prod.mk _ _ _x.17 _x.17;
+                  return _x.18
+    [floatLetIn] size: 1
+        def addALot x a.1 : Prod Nat Nat :=
+          let _x.2 := addALot._redArg x;
+          return _x.2
+    [] new compiler phase: mono, pass: elimDeadBranches ▶
+    [elimDeadBranches] size: 17
+        def addALot._redArg x : Prod Nat Nat :=
+          fun _f.1 y : Prod PUnit Nat :=
+            let _x.2 := PUnit.unit;
+            let _x.3 := Nat.add y x;
+            let _x.4 := Prod.mk _ _ _x.2 _x.3;
+            return _x.4;
+          let _x.5 := _f.1 x;
+          cases _x.5 : Prod Nat Nat
+          | Prod.mk fst.6 snd.7 =>
+            let _x.8 := _f.1 snd.7;
+            cases _x.8 : Prod Nat Nat
+            | Prod.mk fst.9 snd.10 =>
+              let _x.11 := _f.1 snd.10;
+              cases _x.11 : Prod Nat Nat
+              | Prod.mk fst.12 snd.13 =>
+                let _x.14 := _f.1 snd.13;
+                cases _x.14 : Prod Nat Nat
+                | Prod.mk fst.15 snd.16 =>
+                  let _x.17 := Nat.add snd.16 x;
+                  let _x.18 := Prod.mk _ _ _x.17 _x.17;
+                  return _x.18
+    [elimDeadBranches] size: 1
+        def addALot x a.1 : Prod Nat Nat :=
+          let _x.2 := addALot._redArg x;
+          return _x.2
+    [] new compiler phase: mono, pass: lambdaLifting
+    [lambdaLifting] size: 3
+        def addALot._redArg._lam_0 x y : Prod PUnit Nat :=
+          let _x.1 := PUnit.unit;
+          let _x.2 := Nat.add y x;
+          let _x.3 := Prod.mk _ _ _x.1 _x.2;
+          return _x.3
+    [lambdaLifting] size: 15
+        def addALot._redArg x : Prod Nat Nat :=
+          let _f.1 := addALot._redArg._lam_0 x;
+          let _x.2 := _f.1 x;
+          cases _x.2 : Prod Nat Nat
+          | Prod.mk fst.3 snd.4 =>
+            let _x.5 := _f.1 snd.4;
+            cases _x.5 : Prod Nat Nat
+            | Prod.mk fst.6 snd.7 =>
+              let _x.8 := _f.1 snd.7;
+              cases _x.8 : Prod Nat Nat
+              | Prod.mk fst.9 snd.10 =>
+                let _x.11 := _f.1 snd.10;
+                cases _x.11 : Prod Nat Nat
+                | Prod.mk fst.12 snd.13 =>
+                  let _x.14 := Nat.add snd.13 x;
+                  let _x.15 := Prod.mk _ _ _x.14 _x.14;
+                  return _x.15
+    [lambdaLifting] size: 1
+        def addALot x a.1 : Prod Nat Nat :=
+          let _x.2 := addALot._redArg x;
+          return _x.2
+    [] new compiler phase: mono, pass: extendJoinPointContext
+    [extendJoinPointContext] size: 3
+        def addALot._redArg._lam_0 x y : Prod PUnit Nat :=
+          let _x.1 := PUnit.unit;
+          let _x.2 := Nat.add y x;
+          let _x.3 := Prod.mk _ _ _x.1 _x.2;
+          return _x.3
+    [extendJoinPointContext] size: 15
+        def addALot._redArg x : Prod Nat Nat :=
+          let _f.1 := addALot._redArg._lam_0 x;
+          let _x.2 := _f.1 x;
+          cases _x.2 : Prod Nat Nat
+          | Prod.mk fst.3 snd.4 =>
+            let _x.5 := _f.1 snd.4;
+            cases _x.5 : Prod Nat Nat
+            | Prod.mk fst.6 snd.7 =>
+              let _x.8 := _f.1 snd.7;
+              cases _x.8 : Prod Nat Nat
+              | Prod.mk fst.9 snd.10 =>
+                let _x.11 := _f.1 snd.10;
+                cases _x.11 : Prod Nat Nat
+                | Prod.mk fst.12 snd.13 =>
+                  let _x.14 := Nat.add snd.13 x;
+                  let _x.15 := Prod.mk _ _ _x.14 _x.14;
+                  return _x.15
+    [extendJoinPointContext] size: 1
+        def addALot x a.1 : Prod Nat Nat :=
+          let _x.2 := addALot._redArg x;
+          return _x.2
+    [] new compiler phase: mono, pass: simp
+    [simp] size: 3
+        def addALot._redArg._lam_0 x y : Prod PUnit Nat :=
+          let _x.1 := PUnit.unit;
+          let _x.2 := Nat.add y x;
+          let _x.3 := Prod.mk _ _ _x.1 _x.2;
+          return _x.3
+    [simp] size: 14
+        def addALot._redArg x : Prod Nat Nat :=
+          let _x.1 := addALot._redArg._lam_0 x x;
+          cases _x.1 : Prod Nat Nat
+          | Prod.mk fst.2 snd.3 =>
+            let _x.4 := addALot._redArg._lam_0 x snd.3;
+            cases _x.4 : Prod Nat Nat
+            | Prod.mk fst.5 snd.6 =>
+              let _x.7 := addALot._redArg._lam_0 x snd.6;
+              cases _x.7 : Prod Nat Nat
+              | Prod.mk fst.8 snd.9 =>
+                let _x.10 := addALot._redArg._lam_0 x snd.9;
+                cases _x.10 : Prod Nat Nat
+                | Prod.mk fst.11 snd.12 =>
+                  let _x.13 := Nat.add snd.12 x;
+                  let _x.14 := Prod.mk _ _ _x.13 _x.13;
+                  return _x.14
+    [simp] size: 1
+        def addALot x a.1 : Prod Nat Nat :=
+          let _x.2 := addALot._redArg x;
+          return _x.2
+    [] new compiler phase: mono, pass: cse
+    [cse] size: 3
+        def addALot._redArg._lam_0 x y : Prod PUnit Nat :=
+          let _x.1 := PUnit.unit;
+          let _x.2 := Nat.add y x;
+          let _x.3 := Prod.mk _ _ _x.1 _x.2;
+          return _x.3
+    [cse] size: 14
+        def addALot._redArg x : Prod Nat Nat :=
+          let _x.1 := addALot._redArg._lam_0 x x;
+          cases _x.1 : Prod Nat Nat
+          | Prod.mk fst.2 snd.3 =>
+            let _x.4 := addALot._redArg._lam_0 x snd.3;
+            cases _x.4 : Prod Nat Nat
+            | Prod.mk fst.5 snd.6 =>
+              let _x.7 := addALot._redArg._lam_0 x snd.6;
+              cases _x.7 : Prod Nat Nat
+              | Prod.mk fst.8 snd.9 =>
+                let _x.10 := addALot._redArg._lam_0 x snd.9;
+                cases _x.10 : Prod Nat Nat
+                | Prod.mk fst.11 snd.12 =>
+                  let _x.13 := Nat.add snd.12 x;
+                  let _x.14 := Prod.mk _ _ _x.13 _x.13;
+                  return _x.14
+    [cse] size: 1
+        def addALot x a.1 : Prod Nat Nat :=
+          let _x.2 := addALot._redArg x;
+          return _x.2
+    [] new compiler phase: mono, pass: saveMono
+    [saveMono] size: 3
+        def addALot._redArg._lam_0 x y : Prod PUnit Nat :=
+          let _x.1 := PUnit.unit;
+          let _x.2 := Nat.add y x;
+          let _x.3 := Prod.mk _ _ _x.1 _x.2;
+          return _x.3
+    [saveMono] size: 14
+        def addALot._redArg x : Prod Nat Nat :=
+          let _x.1 := addALot._redArg._lam_0 x x;
+          cases _x.1 : Prod Nat Nat
+          | Prod.mk fst.2 snd.3 =>
+            let _x.4 := addALot._redArg._lam_0 x snd.3;
+            cases _x.4 : Prod Nat Nat
+            | Prod.mk fst.5 snd.6 =>
+              let _x.7 := addALot._redArg._lam_0 x snd.6;
+              cases _x.7 : Prod Nat Nat
+              | Prod.mk fst.8 snd.9 =>
+                let _x.10 := addALot._redArg._lam_0 x snd.9;
+                cases _x.10 : Prod Nat Nat
+                | Prod.mk fst.11 snd.12 =>
+                  let _x.13 := Nat.add snd.12 x;
+                  let _x.14 := Prod.mk _ _ _x.13 _x.13;
+                  return _x.14
+    [saveMono] size: 1
+        def addALot x a.1 : Prod Nat Nat :=
+          let _x.2 := addALot._redArg x;
+          return _x.2
+    [] new compiler phase: mono, pass: extractClosed
+    [extractClosed] size: 3
+        def addALot._redArg._lam_0 x y : Prod PUnit Nat :=
+          let _x.1 := PUnit.unit;
+          let _x.2 := Nat.add y x;
+          let _x.3 := Prod.mk _ _ _x.1 _x.2;
+          return _x.3
+    [extractClosed] size: 14
+        def addALot._redArg x : Prod Nat Nat :=
+          let _x.1 := addALot._redArg._lam_0 x x;
+          cases _x.1 : Prod Nat Nat
+          | Prod.mk fst.2 snd.3 =>
+            let _x.4 := addALot._redArg._lam_0 x snd.3;
+            cases _x.4 : Prod Nat Nat
+            | Prod.mk fst.5 snd.6 =>
+              let _x.7 := addALot._redArg._lam_0 x snd.6;
+              cases _x.7 : Prod Nat Nat
+              | Prod.mk fst.8 snd.9 =>
+                let _x.10 := addALot._redArg._lam_0 x snd.9;
+                cases _x.10 : Prod Nat Nat
+                | Prod.mk fst.11 snd.12 =>
+                  let _x.13 := Nat.add snd.12 x;
+                  let _x.14 := Prod.mk _ _ _x.13 _x.13;
+                  return _x.14
+    [extractClosed] size: 1
+        def addALot x a.1 : Prod Nat Nat :=
+          let _x.2 := addALot._redArg x;
+          return _x.2
+    [result] size: 3
+        def addALot._redArg._lam_0 x y : Prod PUnit Nat :=
+          let _x.1 := PUnit.unit;
+          let _x.2 := Nat.add y x;
+          let _x.3 := Prod.mk _ _ _x.1 _x.2;
+          return _x.3
+    [result] size: 14
+        def addALot._redArg x : Prod Nat Nat :=
+          let _x.1 := addALot._redArg._lam_0 x x;
+          cases _x.1 : Prod Nat Nat
+          | Prod.mk fst.2 snd.3 =>
+            let _x.4 := addALot._redArg._lam_0 x snd.3;
+            cases _x.4 : Prod Nat Nat
+            | Prod.mk fst.5 snd.6 =>
+              let _x.7 := addALot._redArg._lam_0 x snd.6;
+              cases _x.7 : Prod Nat Nat
+              | Prod.mk fst.8 snd.9 =>
+                let _x.10 := addALot._redArg._lam_0 x snd.9;
+                cases _x.10 : Prod Nat Nat
+                | Prod.mk fst.11 snd.12 =>
+                  let _x.13 := Nat.add snd.12 x;
+                  let _x.14 := Prod.mk _ _ _x.13 _x.13;
+                  return _x.14
+    [result] size: 1
+        def addALot x a.1 : Prod Nat Nat :=
+          let _x.2 := addALot._redArg x;
+          return _x.2

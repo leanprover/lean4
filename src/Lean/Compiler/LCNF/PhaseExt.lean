@@ -33,7 +33,17 @@ def mkDeclExt (name : Name := by exact decl_name%) : IO DeclExt :=
     mkInitial := pure {},
     addImportedFn := fun _ => pure {},
     addEntryFn := fun s decl => s.insert decl.name decl
-    exportEntriesFn := sortedDecls
+    exportEntriesFnEx env s level := Id.run do
+      let mut entries := sortedDecls s
+      if level != .private then
+        entries := entries.map fun decl =>
+          if decl.isTemplateLikeCore env then
+            -- ensure templates are available to downstream modules
+            decl
+          else
+            -- hide body but not signature
+            { decl with value := .extern { arity? := decl.getArity, entries := [.opaque decl.name] } }
+      return entries
     statsFn := fun s =>
       let numEntries := s.foldl (init := 0) (fun count _ _ => count + 1)
       format "number of local entries: " ++ format numEntries

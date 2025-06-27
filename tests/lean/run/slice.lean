@@ -1,7 +1,6 @@
 import Std.Data.Iterators
 
-example : #[1, 2, 3][*...*].toList = [1, 2, 3] := by
-  simp [Std.Slice.toList, Std.Slice.Array.toList_internalIter]
+example : #[1, 2, 3][*...*].toList = [1, 2, 3] := by native_decide
 
 example : #[1, 2, 3][*...2].toList = [1, 2] := by native_decide
 

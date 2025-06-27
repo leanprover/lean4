@@ -6,13 +6,14 @@ Authors: Paul Reichert
 module
 
 prelude
+import all Init.Data.Array.Subarray
 import all Init.Data.Slice.Array
 import all Init.Data.Slice.Operations
 import Init.Data.Range.Polymorphic.Lemmas
 import Init.Data.Slice.Lemmas
 import Init.Data.Iterators.Lemmas
 
-open Std.Iterators
+open Std.Iterators Std.PRange
 
 namespace Std.Slice.Array
 
@@ -38,10 +39,5 @@ theorem toList_internalIter {α : Type u} {s : Subarray α} :
         |>.map fun i => s.array[i.1]) := by
   rw [internalIter_eq, Iter.toList_map, Iter.toList_uLift, Iter.toList_attachWith]
   simp [PRange.toList]
-
--- theorem size_internalIter {α : Type u} {s : Subarray α} :
---     (Internal.iter s).size = s.size := by
---   rw [internalIter_eq]
---   simp
 
 end Std.Slice.Array

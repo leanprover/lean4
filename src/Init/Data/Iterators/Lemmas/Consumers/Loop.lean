@@ -6,6 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
+public import Init.Control.Lawful.MonadLift.Instances
 public import Init.Data.Iterators.Lemmas.Consumers.Collect
 public import all Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 public import all Init.Data.Iterators.Consumers.Loop
@@ -39,7 +40,7 @@ theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
   cases hl.lawful; rfl
 
 theorem Iter.forIn'_eq_forIn'_toIterM {α β : Type w} [Iterator α Id β]
-    [Finite α Id] {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
     [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
     {γ : Type w} {it : Iter (α := α) β} {init : γ}
     {f : (out : β) → _ → γ → m (ForInStep γ)} :
@@ -51,13 +52,36 @@ theorem Iter.forIn'_eq_forIn'_toIterM {α β : Type w} [Iterator α Id β]
   simp [ForIn'.forIn', Iter.instForIn', IterM.instForIn', monadLift]
 
 theorem Iter.forIn_eq_forIn_toIterM {α β : Type w} [Iterator α Id β]
-    [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
+    [Finite α Id] {m : Type w → Type w''} [Monad m]
     [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
     {γ : Type w} {it : Iter (α := α) β} {init : γ}
     {f : β → γ → m (ForInStep γ)} :
     ForIn.forIn it init f =
       ForIn.forIn it.toIterM init f := by
   simp [forIn_eq_forIn', forIn'_eq_forIn'_toIterM, -forIn'_eq_forIn]
+
+theorem Iter.forIn'_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
+    {m : Type w → Type w''} [Monad m] [LawfulMonad m] [IteratorLoop α Id m]
+    [hl : LawfulIteratorLoop α Id m] {γ : Type w} {it : Iter (α := α) β} {init : γ}
+    {f : (b : β) → it.IsPlausibleIndirectOutput b → γ → m (ForInStep γ)} :
+    letI : ForIn' m (Iter (α := α) β) β _ := Iter.instForIn'
+    ForIn'.forIn' it init f =
+      IterM.DefaultConsumers.forIn' (fun _ => monadLift) γ (fun _ _ _ => True)
+        IteratorLoop.wellFounded_of_finite it.toIterM init _ (fun _ => id)
+          (fun out h acc => (⟨·, .intro⟩) <$>
+            f out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc) := by
+  simp [Iter.forIn'_eq_forIn'_toIterM, IterM.forIn'_eq]
+
+theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
+    {m : Type w → Type w''} [Monad m] [LawfulMonad m] [IteratorLoop α Id m]
+    [hl : LawfulIteratorLoop α Id m] {γ : Type w} {it : Iter (α := α) β} {init : γ}
+    {f : (b : β) → γ → m (ForInStep γ)} :
+    ForIn.forIn it init f =
+      IterM.DefaultConsumers.forIn' (fun _ => monadLift) γ (fun _ _ _ => True)
+        IteratorLoop.wellFounded_of_finite it.toIterM init _ (fun _ => id)
+          (fun out _ acc => (⟨·, .intro⟩) <$>
+            f out acc) := by
+  simp [Iter.forIn_eq_forIn_toIterM, IterM.forIn_eq]
 
 theorem Iter.forIn'_eq_match_step {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type x → Type x''} [Monad m] [LawfulMonad m]

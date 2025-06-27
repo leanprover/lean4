@@ -37,7 +37,7 @@ protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {xs ys
   rw [lex, Std.PRange.forIn'_eq_match]
   simp [Std.PRange.SupportsUpperBound.IsSatisfied]
 
-@[congr] theorem forIn'_congr_aux [Monad m] {as bs : ρ} {_ : Membership α ρ}
+private theorem cons_lex_cons.forIn'_congr_aux [Monad m] {as bs : ρ} {_ : Membership α ρ}
     [ForIn' m ρ α inferInstance] (w : as = bs)
     {b b' : β} (hb : b = b')
     {f : (a' : α) → a' ∈ as → β → m (ForInStep β)}
@@ -59,9 +59,9 @@ private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs 
     Nat.add_min_add_left, Nat.add_lt_add_iff_left, Std.PRange.forIn'_eq_forIn'_toList]
   conv =>
     lhs; congr; congr
-    rw [forIn'_congr_aux Std.PRange.toList_eq_match rfl (fun _ _ _ => rfl)]
+    rw [cons_lex_cons.forIn'_congr_aux Std.PRange.toList_eq_match rfl (fun _ _ _ => rfl)]
     simp only [Std.PRange.SupportsUpperBound.IsSatisfied, bind_pure_comp, map_pure]
-    rw [forIn'_congr_aux (if_pos (by omega)) rfl (fun _ _ _ => rfl)]
+    rw [cons_lex_cons.forIn'_congr_aux (if_pos (by omega)) rfl (fun _ _ _ => rfl)]
   simp only [Std.PRange.toList_open_eq_toList_closed_of_isSome_succ? (lo := 0) (h := rfl),
     Std.PRange.UpwardEnumerable.succ?, Nat.add_comm 1, Std.PRange.Nat.ClosedOpen.toList_succ_succ,
     Option.get_some, List.forIn'_cons, List.size_toArray, List.length_cons, List.length_nil,

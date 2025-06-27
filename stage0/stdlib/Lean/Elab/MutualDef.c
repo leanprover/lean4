@@ -46536,16 +46536,16 @@ block_58:
 {
 lean_object* x_55; uint8_t x_56; 
 x_55 = l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at_____private_Lean_Elab_MutualDef_0__Lean_Elab_Term_elabFunValues_spec__9_spec__9___lam__6___closed__1;
-x_56 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_50, x_55);
-lean_dec(x_50);
+x_56 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_47, x_55);
+lean_dec(x_47);
 if (x_56 == 0)
 {
 if (x_54 == 0)
 {
 lean_dec(x_2);
-x_39 = x_47;
-x_40 = x_48;
-x_41 = x_49;
+x_39 = x_48;
+x_40 = x_49;
+x_41 = x_50;
 x_42 = x_51;
 x_43 = x_52;
 x_44 = x_53;
@@ -46555,9 +46555,9 @@ else
 {
 lean_object* x_57; 
 lean_dec(x_53);
-lean_dec(x_47);
-x_57 = l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars___redArg(x_1, x_2, x_49, x_48, x_56, x_9, x_10, x_11, x_12, x_13, x_14, x_52);
-lean_dec(x_49);
+lean_dec(x_48);
+x_57 = l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_withHeaderSecVars___redArg(x_1, x_2, x_50, x_49, x_56, x_9, x_10, x_11, x_12, x_13, x_14, x_52);
+lean_dec(x_50);
 lean_dec(x_2);
 lean_dec(x_1);
 x_26 = x_51;
@@ -46568,9 +46568,9 @@ goto block_38;
 else
 {
 lean_dec(x_2);
-x_39 = x_47;
-x_40 = x_48;
-x_41 = x_49;
+x_39 = x_48;
+x_40 = x_49;
+x_41 = x_50;
 x_42 = x_51;
 x_43 = x_52;
 x_44 = x_53;
@@ -46681,10 +46681,10 @@ lean_object* x_99; uint8_t x_100;
 lean_dec(x_81);
 x_99 = lean_box(1);
 x_100 = lean_unbox(x_99);
-x_47 = x_64;
-x_48 = x_97;
-x_49 = x_68;
-x_50 = x_95;
+x_47 = x_95;
+x_48 = x_64;
+x_49 = x_97;
+x_50 = x_68;
 x_51 = x_63;
 x_52 = x_94;
 x_53 = x_75;
@@ -46696,10 +46696,10 @@ else
 if (x_98 == 0)
 {
 lean_dec(x_81);
-x_47 = x_64;
-x_48 = x_97;
-x_49 = x_68;
-x_50 = x_95;
+x_47 = x_95;
+x_48 = x_64;
+x_49 = x_97;
+x_50 = x_68;
 x_51 = x_63;
 x_52 = x_94;
 x_53 = x_75;
@@ -46714,10 +46714,10 @@ lean_dec(x_81);
 x_102 = l_Array_anyMUnsafe_any___at___Lean_Elab_Term_elabMutualDef_finishElab_spec__13(x_68, x_60, x_101);
 if (x_102 == 0)
 {
-x_47 = x_64;
-x_48 = x_97;
-x_49 = x_68;
-x_50 = x_95;
+x_47 = x_95;
+x_48 = x_64;
+x_49 = x_97;
+x_50 = x_68;
 x_51 = x_63;
 x_52 = x_94;
 x_53 = x_75;
@@ -46824,10 +46824,10 @@ lean_object* x_125; uint8_t x_126;
 lean_dec(x_106);
 x_125 = lean_box(1);
 x_126 = lean_unbox(x_125);
-x_47 = x_64;
-x_48 = x_123;
-x_49 = x_68;
-x_50 = x_121;
+x_47 = x_121;
+x_48 = x_64;
+x_49 = x_123;
+x_50 = x_68;
 x_51 = x_63;
 x_52 = x_120;
 x_53 = x_75;
@@ -46839,10 +46839,10 @@ else
 if (x_124 == 0)
 {
 lean_dec(x_106);
-x_47 = x_64;
-x_48 = x_123;
-x_49 = x_68;
-x_50 = x_121;
+x_47 = x_121;
+x_48 = x_64;
+x_49 = x_123;
+x_50 = x_68;
 x_51 = x_63;
 x_52 = x_120;
 x_53 = x_75;
@@ -46857,10 +46857,10 @@ lean_dec(x_106);
 x_128 = l_Array_anyMUnsafe_any___at___Lean_Elab_Term_elabMutualDef_finishElab_spec__13(x_68, x_60, x_127);
 if (x_128 == 0)
 {
-x_47 = x_64;
-x_48 = x_123;
-x_49 = x_68;
-x_50 = x_121;
+x_47 = x_121;
+x_48 = x_64;
+x_49 = x_123;
+x_50 = x_68;
 x_51 = x_63;
 x_52 = x_120;
 x_53 = x_75;

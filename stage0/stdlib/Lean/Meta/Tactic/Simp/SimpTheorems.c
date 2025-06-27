@@ -153,7 +153,6 @@ static lean_object* l___auto___closed__4____x40_Lean_Meta_Tactic_Simp_SimpTheore
 uint8_t l_Lean_Meta_hasSmartUnfoldingDecl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SimpExtension_getTheorems___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Meta_SimpTheorems_addConst_spec__0(lean_object*, size_t, size_t, lean_object*);
-uint8_t l_Lean_beqConstantKind____x40_Lean_Environment___hyg_1543_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_unfoldEvenWithEqns___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedSimpTheorem;
 LEAN_EXPORT lean_object* l_Lean_Meta_instBEqSimpTheorem;
@@ -468,6 +467,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_
 lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 static lean_object* l_Lean_Meta_instInhabitedSimpTheorems___closed__9;
 static lean_object* l___auto___closed__23____x40_Lean_Meta_Tactic_Simp_SimpTheorems___hyg_6914_;
+uint8_t l_Lean_beqConstantKind____x40_Lean_Environment___hyg_1557_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_initFn___closed__4____x40_Lean_Meta_Tactic_Simp_SimpTheorems___hyg_45_;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_insertCore___at___Lean_Meta_SimpTheorems_addSimpTheorem_spec__0(lean_object*, lean_object*, lean_object*);
@@ -10512,7 +10512,7 @@ x_11 = lean_unbox(x_9);
 lean_dec(x_9);
 x_12 = lean_unbox(x_10);
 lean_dec(x_10);
-x_13 = l_Lean_beqConstantKind____x40_Lean_Environment___hyg_1543_(x_11, x_12);
+x_13 = l_Lean_beqConstantKind____x40_Lean_Environment___hyg_1557_(x_11, x_12);
 return x_13;
 }
 }

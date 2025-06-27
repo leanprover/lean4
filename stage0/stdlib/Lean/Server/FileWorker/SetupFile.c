@@ -25,6 +25,7 @@ lean_object* l_Substring_takeWhileAux___at___Lean_Syntax_decodeStringGap_spec__0
 static lean_object* l_Lean_Server_FileWorker_runLakeSetupFile___closed__0;
 static lean_object* l_Lean_Server_FileWorker_runLakeSetupFile___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_FileSetupResult_ofError___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Setup_0__Lean_fromJsonModuleSetup____x40_Lean_Setup___hyg_2122_(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_io_process_child_take_stdin(lean_object*, lean_object*, lean_object*);
@@ -74,7 +75,6 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_load_dynlib(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-lean_object* l___private_Lean_Setup_0__Lean_fromJsonModuleSetup____x40_Lean_Setup___hyg_2047_(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_runLakeSetupFile___closed__1;
 lean_object* l_Lean_Json_parse(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_FileSetupResult_ofNoLakefile(lean_object*, lean_object*, lean_object*);
@@ -1090,7 +1090,7 @@ lean_object* x_60; lean_object* x_61;
 x_60 = lean_ctor_get(x_59, 0);
 lean_inc(x_60);
 lean_dec(x_59);
-x_61 = l___private_Lean_Setup_0__Lean_fromJsonModuleSetup____x40_Lean_Setup___hyg_2047_(x_60);
+x_61 = l___private_Lean_Setup_0__Lean_fromJsonModuleSetup____x40_Lean_Setup___hyg_2122_(x_60);
 if (lean_obj_tag(x_61) == 0)
 {
 lean_dec(x_61);
@@ -1330,7 +1330,7 @@ lean_object* x_126; lean_object* x_127;
 x_126 = lean_ctor_get(x_125, 0);
 lean_inc(x_126);
 lean_dec(x_125);
-x_127 = l___private_Lean_Setup_0__Lean_fromJsonModuleSetup____x40_Lean_Setup___hyg_2047_(x_126);
+x_127 = l___private_Lean_Setup_0__Lean_fromJsonModuleSetup____x40_Lean_Setup___hyg_2122_(x_126);
 if (lean_obj_tag(x_127) == 0)
 {
 lean_dec(x_127);

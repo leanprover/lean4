@@ -237,6 +237,17 @@ private def processNewNatEq (a b : Expr) : GoalM Unit := do
   trace[grind.debug.cutsat.nat] "{← c.pp}"
   c.assert
 
+private def processNewToIntEq (a b : Expr) : ToIntM Unit := do
+  let gen := max (← getGeneration a) (← getGeneration b)
+  let (a', h₁) ← toInt a
+  let (b', h₂) ← toInt b
+  let thm := mkApp6 (← getInfo).ofEq a b a' b' h₁ h₂
+  let lhs ← toLinearExpr a' gen
+  let rhs ← toLinearExpr b' gen
+  let p := lhs.sub rhs |>.norm
+  let c := { p, h := .coreToInt a b thm lhs rhs : EqCnstr }
+  c.assert
+
 @[export lean_process_cutsat_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
   unless (← getConfig).cutsat do return ()
@@ -244,6 +255,11 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
     processNewNatEq a b
   else if (← isIntTerm a <&&> isIntTerm b) then
     processNewIntEq a b
+  else
+    let some α ← getToIntTermType? a | return ()
+    let some β ← getToIntTermType? b | return ()
+    unless isSameExpr α β do return ()
+    ToIntM.run α do processNewToIntEq a b
 
 private def processNewIntDiseq (a b : Expr) : GoalM Unit := do
   let p₁ ← exprAsPoly a

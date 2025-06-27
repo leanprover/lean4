@@ -86,6 +86,7 @@ inductive EqCnstrProof where
     -/
     core (a b : Expr) (p₁ p₂ : Poly)
   | coreNat (a b : Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
+  | coreToInt (a b : Expr) (toIntThm : Expr) (lhs rhs : Int.Linear.Expr)
   | /-- `e` is `p` -/
     defn (e : Expr) (p : Poly)
   | defnNat (e : Int.OfNat.Expr) (x : Var) (e' : Int.Linear.Expr)

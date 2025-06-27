@@ -284,7 +284,7 @@ where
     | c@WP.wp m ps instWP α e =>
       let e ← instantiateMVarsIfMVarApp e
       let e := e.headBeta
-      trace[Elab.Tactics.Do.vcgen] "Target: {e}"
+      trace[Elab.Tactic.Do.vcgen] "Target: {e}"
       let goalWithNewProg e' :=
         let wp' := mkApp5 c m ps instWP α e'
         let args' := args.set! 2 wp'
@@ -342,17 +342,17 @@ where
         burnOne
         try
           let specThm ← findSpec ctx.specThms wp
-          trace[Elab.Tactics.Do.vcgen] "Candidate spec for {f.constName!}: {specThm.proof}"
+          trace[Elab.Tactic.Do.vcgen] "Candidate spec for {f.constName!}: {specThm.proof}"
           let (prf, specHoles) ← mSpec goal (fun _wp  => return specThm) name
           assignMVars specHoles
           return prf
         catch ex =>
-          trace[Elab.Tactics.Do.vcgen] "Failed to find spec. Trying simp. Reason: {ex.toMessageData}"
+          trace[Elab.Tactic.Do.vcgen] "Failed to find spec. Trying simp. Reason: {ex.toMessageData}"
         let res ← Simp.simp e
         unless res.expr != e do return ← onFail goal name
         burnOne
         if let .some heq := res.proof? then
-          trace[Elab.Tactics.Do.vcgen] "Simplified"
+          trace[Elab.Tactic.Do.vcgen] "Simplified"
           let prf ← onWPApp (goalWithNewProg res.expr) name
           let prf := mkApp10 (mkConst ``Triple.rewrite_program c.constLevels!) m ps α goal.hyps Q instWP e res.expr heq prf
           return prf

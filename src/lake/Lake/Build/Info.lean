@@ -205,6 +205,18 @@ namespace Module
 @[inherit_doc leanArtsFacet] abbrev leanArts (self : Module) :=
   self.facetCore leanArtsFacet
 
+@[inherit_doc importArtsFacet] abbrev importArts (self : Module) :=
+  self.facetCore importArtsFacet
+
+@[inherit_doc importAllArtsFacet] abbrev importAllArts (self : Module) :=
+  self.facetCore importAllArtsFacet
+
+@[inherit_doc directImportArtsFacet] abbrev directImportArts (self : Module) :=
+  self.facetCore directImportArtsFacet
+
+@[inherit_doc transImportTraceFacet] abbrev transImportTrace (self : Module) :=
+  self.facetCore transImportTraceFacet
+
 @[inherit_doc oleanFacet] abbrev olean (self : Module) :=
   self.facetCore oleanFacet
 

@@ -360,4 +360,15 @@ def Sub.of_sub_eq_add_neg {α : Type u} [_root_.Add α] [_root_.Neg α] [_root_.
 
 end ToInt
 
+/-
+Remark: `↑a` is notation for `ToInt.toInt a`.
+We want to hide `Lean.Grind.ToInt.toInt` applications in the counterexamples produced by
+the `cutsat` procedure in `grind`.
+-/
+@[app_unexpander ToInt.toInt]
+meta def toIntUnexpander : PrettyPrinter.Unexpander := fun stx => do
+  match stx with
+  | `($_ $a:term) => `(↑$a)
+  | _ => throw ()
+
 end Lean.Grind

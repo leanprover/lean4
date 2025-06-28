@@ -427,10 +427,10 @@ instance RangeIterator.instIteratorLoop {su} [UpwardEnumerable α] [SupportsUppe
             return acc'
         | none => return acc'
       | ⟨.done acc', _⟩ => return acc'
-    termination_by IteratorLoop.WithWF.mk ⟨⟨some next, upperBound⟩⟩ acc (hwf := wf)
+    termination_by IteratorLoop.WFRel.mk wf ⟨⟨some next, upperBound⟩⟩ acc
     decreasing_by
       simp [IteratorLoop.rel, RangeIterator.Monadic.isPlausibleStep_iff,
-        RangeIterator.Monadic.step, *]
+        RangeIterator.Monadic.step, IteratorLoop.WFRel.mk, *]
   finally
     case hf =>
       rw [RangeIterator.Monadic.isPlausibleIndirectOutput_iff]

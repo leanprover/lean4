@@ -87,7 +87,7 @@ def quoteIfArithTerm (e : Expr) : MessageData :=
 /--
 `gcdExt a b` returns the triple `(g, α, β)` such that
 - `g = gcd a b` (with `g ≥ 0`), and
-- `g = α * a + β * β`.
+- `g = α * a + β * b`.
 -/
 partial def gcdExt (a b : Int) : Int × Int × Int :=
   if b = 0 then

@@ -30,6 +30,8 @@ inductive EqCnstrProof where
   | simp (k₁ : Int) (c₁ : EqCnstr) (k₂ : Int) (m₂ : Mon) (c₂ : EqCnstr)
   | mul (k : Int) (e : EqCnstr)
   | div (k : Int) (e : EqCnstr)
+  | gcd (a b : Int) (c₁ c₂ : EqCnstr)
+  | numEq0 (k : Nat) (c₁ c₂ : EqCnstr)
 end
 
 instance : Inhabited EqCnstrProof where
@@ -196,6 +198,10 @@ structure Ring where
   recheck        : Bool := false
   /-- Inverse theorems that have been already asserted. -/
   invSet         : PHashSet Expr := {}
+  /--
+  An equality of the form `c = 0`. It is used to simplify polynomial coefficients.
+  -/
+  numEq0?        : Option EqCnstr := none
   deriving Inhabited
 
 /--

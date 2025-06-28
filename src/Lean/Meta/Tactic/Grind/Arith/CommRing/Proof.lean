@@ -169,6 +169,8 @@ partial def EqCnstr.toPreNullCert (c : EqCnstr) : ProofM PreNullCert := caching 
   | .simp k₁ c₁ k₂ m₂ c₂ => (← c₁.toPreNullCert).combine k₁ .unit k₂ m₂ (← c₂.toPreNullCert)
   | .mul k c => (← c.toPreNullCert).mul k
   | .div k c => (← c.toPreNullCert).div k
+  | .gcd .. | .numEq0 .. =>
+    throwError "NIY"
 
 def PolyDerivation.toPreNullCert (d : PolyDerivation) : ProofM PreNullCert := do
   match d with
@@ -432,6 +434,14 @@ partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCns
     let some nzInst ← noZeroDivisorsInst?
       | throwNoNatZeroDivisors
     return mkApp6 h nzInst (← mkPolyDecl c₁.p) (toExpr k) (← mkPolyDecl c.p) reflBoolTrue (← toExprProof c₁)
+  | .gcd a b c₁ c₂ =>
+    let h ← mkStepBasicPrefix ``Grind.CommRing.eq_gcd
+    return mkApp8 h (toExpr a) (toExpr b) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c.p)
+      reflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
+  | .numEq0 k c₁ c₂ =>
+    let h ← mkStepBasicPrefix ``Grind.CommRing.eq_normEq0
+    return mkApp7 h (toExpr k) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c.p)
+      reflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
 
 open Lean.Grind.CommRing in
 /--

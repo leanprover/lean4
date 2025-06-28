@@ -128,10 +128,16 @@ partial def EqCnstr.simplifyWithExhaustively (c₁ c₂ : EqCnstr) : RingM EqCns
   let some c ← c₁.simplifyWithCore c₂ | return c₁
   c.simplifyWithExhaustively c₂
 
+def EqCnstr.simplifyUsingNumEq0 (c : EqCnstr) : RingM EqCnstr := do
+  let some c' := (← getRing).numEq0? | return c
+  let .num k := c'.p | return c
+  return { c with p := c.p.normEq0 k.natAbs, h := .numEq0 k.natAbs c' c }
+
 /-- Simplify the given equation constraint using the current basis. -/
 def EqCnstr.simplify (c : EqCnstr) : RingM EqCnstr := do
   let mut c := c
   repeat
+    c ← simplifyUsingNumEq0 c
     if (← checkMaxSteps) then return c
     let some c' ← c.p.findSimp? |
       trace_goal[grind.debug.ring.simp] "simplified{indentD (← c.denoteExpr)}"
@@ -141,21 +147,25 @@ def EqCnstr.simplify (c : EqCnstr) : RingM EqCnstr := do
 
 /-- Returns `true` if `c.p` is the constant polynomial. -/
 def EqCnstr.checkConstant (c : EqCnstr) : RingM Bool := do
-  let .num k := c.p | return false
-  if k == 0 then
+  let .num n := c.p | return false
+  if n == 0 then
     trace_goal[grind.ring.assert.trivial] "{← c.denoteExpr}"
   else if (← hasChar) then
     c.setUnsat
-  else  if k.natAbs == 1 then
-    if (← isField) then
-      c.setUnsat
-    else
-      -- Remark: we currently don't do anything if the ring characteristic is not known.
-      -- TODO: we could set all terms of this ring `0` if `1 = 0`.
-      trace_goal[grind.ring.assert.discard] "{← c.denoteExpr}"
+  else if (← pure (n.natAbs == 1) <&&> isField) then
+    c.setUnsat
   else
-    -- TODO: we could save the equation for and use it to simplify polynomials
-    trace_goal[grind.ring.assert.discard] "{← c.denoteExpr}"
+    let mut c := c
+    let mut n := n
+    if n < 0 then
+      n := -n
+      c := { c with p := .num n, h := .mul (-1) c }
+    if let some c' := (← getRing).numEq0? then
+      let .num m := c'.p | unreachable!
+      let (g, a, b) := gcdExt n m
+      c := { c with p := .num g, h := .gcd a b c c' }
+    modifyRing fun s => { s with numEq0? := some c }
+    trace_goal[grind.ring.assert.store] "{← c.denoteExpr}"
   return true
 
 /--

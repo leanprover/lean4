@@ -35,7 +35,7 @@ protected def ModuleOutputHashes.toJson (hashes : ModuleOutputHashes) : Json := 
   obj := obj.insert "i" hashes.ilean
   obj := obj.insert "c" hashes.c
   if let some bc := hashes.bc? then
-    obj := obj.insert "bc" bc
+    obj := obj.insert "b" bc
   return obj
 
 instance : ToJson ModuleOutputHashes := ⟨ModuleOutputHashes.toJson⟩

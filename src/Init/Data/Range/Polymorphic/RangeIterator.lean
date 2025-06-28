@@ -277,6 +277,27 @@ instance RangeIterator.instFinite {su} [UpwardEnumerable α] [SupportsUpperBound
     Finite (RangeIterator su α) Id :=
   .of_finitenessRelation instFinitenessRelation
 
+private def RangeIterator.instProductivenessRelation [UpwardEnumerable α] [SupportsUpperBound su α]
+    [LawfulUpwardEnumerable α] :
+    ProductivenessRelation (RangeIterator su α) Id where
+  rel := emptyWf.rel
+  wf := emptyWf.wf
+  subrelation {it it'} h := by
+    exfalso
+    simp only [IterM.IsPlausibleSkipSuccessorOf, IterM.IsPlausibleStep,
+      Iterator.IsPlausibleStep, Monadic.step] at h
+    split at h
+    · cases h
+    · split at h
+      · cases h
+      · cases h
+
+@[no_expose]
+instance RangeIterator.instProductive {su} [UpwardEnumerable α] [SupportsUpperBound su α]
+    [LawfulUpwardEnumerable α] :
+    Productive (RangeIterator su α) Id :=
+  .of_productivenessRelation instProductivenessRelation
+
 instance RangeIterator.instIteratorAccess {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableUpperBound su α] :
     IteratorAccess (RangeIterator su α) Id where

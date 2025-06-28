@@ -7,7 +7,7 @@ module
 
 prelude
 import Init.Core
-import Init.Data.Slice.Array.Basic
+import Init.Data.Array.Subarray
 import Init.Data.Iterators.Combinators.Attach
 import Init.Data.Iterators.Combinators.FilterMap
 import all Init.Data.Range.Polymorphic.Basic
@@ -23,6 +23,12 @@ for those slices.
 open Std Slice PRange Iterators
 
 variable {shape : RangeShape} {α : Type u}
+
+instance [ClosedOpenIntersection shape Nat] :
+    Sliceable shape (Array α) Nat (Subarray α) where
+  mkSlice xs range :=
+    let halfOpenRange := ClosedOpenIntersection.intersection range (0)...<xs.size
+    (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)
 
 instance {s : Subarray α} : ToIterator s Id α :=
   .of _

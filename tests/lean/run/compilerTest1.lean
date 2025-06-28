@@ -3,9 +3,12 @@ import Lean
 import Lean.Meta.Constructions.CasesOn
 import Lean.Meta.Match.Match
 import Lean.Meta.Tactic.SolveByElim
+import Lean.Meta.IndPredBelowTest
 
 namespace Lean.Meta.IndPredBelow
 open Match
+
+-- Activating the following code makes it succeed!
 
 -- def mkBelow'' (declName : Name) : MetaM Unit := do
 --   if (← isInductivePredicate declName) then
@@ -26,4 +29,4 @@ open Match
 --     else trace[Meta.IndPredBelow] "Nested or not recursive"
 --   else trace[Meta.IndPredBelow] "Not inductive predicate"
 
-run_meta Lean.Compiler.compile #[``Lean.Elab.Structural.structuralRecursion, ``Lean.Elab.Command.elabInductives, ``Lean.Environment.displayStats, ``Lean.Meta.IndPredBelow.mkBelow', ``unexpandExists]
+run_meta Lean.Compiler.compile #[``Lean.Meta.IndPredBelow.mkBelow']

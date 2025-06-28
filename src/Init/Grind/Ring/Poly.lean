@@ -369,6 +369,13 @@ def Expr.toPoly : Expr → Poly
     | .var x => Poly.ofMon (.mult {x, k} .unit)
     | _ => a.toPoly.pow k
 
+def Poly.normEq0 (p : Poly) (c : Nat) : Poly :=
+  match p with
+  | .num a =>
+    if a % c == 0 then .num 0 else .num a
+  | .add a m p =>
+    if a % c == 0 then normEq0 p c else .add a m (.normEq0 p c)
+
 /-!
 **Definitions for the `IsCharP` case**
 
@@ -1348,6 +1355,68 @@ theorem diseq_to_eq {α} [Field α] (a b : α) : a ≠ b → (a - b)*(a - b)⁻�
 
 theorem diseq0_to_eq {α} [Field α] (a : α) : a ≠ 0 → a*a⁻¹ = 1 := by
   exact Field.mul_inv_cancel
+
+/-! normEq0 helper theorems -/
+
+private theorem of_mod_eq_0 {α} [CommRing α] {a : Int} {c : Nat} : Int.cast c = (0 : α) → a % c = 0 → (a : α) = 0 := by
+  intro h h'
+  have := Int.ediv_add_emod a ↑c
+  rw [h', Int.add_zero] at this
+  replace this := congrArg (Int.cast (R := α)) this
+  rw [Ring.intCast_mul] at this
+  rw [← Ring.intCast_ofNat] at h
+  rw [h, Ring.intCast_zero, Semiring.zero_mul] at this
+  rw [this]
+
+theorem Poly.normEq0_eq {α} [CommRing α] (ctx : Context α) (p : Poly) (c : Nat) (h : Int.cast c = (0 : α)) : (p.normEq0 c).denote ctx = p.denote ctx := by
+  induction p
+  next a =>
+    simp [denote, normEq0]; split <;> simp [denote]
+    next h' => rw [of_mod_eq_0 h h', Ring.intCast_zero]
+  next a m p ih =>
+    simp [denote, normEq0]; split <;> simp [denote, *]
+    next h' => rw [of_mod_eq_0 h h', Semiring.zero_mul, Semiring.zero_add]
+
+def eq_normEq0_cert (c : Nat) (p₁ p₂ p : Poly) : Bool :=
+  p₁ == .num c && p == p₂.normEq0 c
+
+theorem eq_normEq0 {α} [CommRing α] (ctx : Context α) (c : Nat) (p₁ p₂ p : Poly)
+    : eq_normEq0_cert c p₁ p₂ p → p₁.denote ctx = 0 → p₂.denote ctx = 0 → p.denote ctx = 0 := by
+  simp [eq_normEq0_cert]; intro _ _; subst p₁ p; simp [Poly.denote]; intro h₁ h₂
+  rw [p₂.normEq0_eq] <;> assumption
+
+theorem diseq_normEq0 {α} [CommRing α] (ctx : Context α) (c : Nat) (p₁ p₂ p : Poly)
+    : eq_normEq0_cert c p₁ p₂ p → p₁.denote ctx = 0 → p₂.denote ctx ≠ 0 → p.denote ctx ≠ 0 := by
+  simp [eq_normEq0_cert]; intro _ _; subst p₁ p; simp [Poly.denote]; intro h₁ h₂
+  rw [p₂.normEq0_eq] <;> assumption
+
+theorem gcd_eq_0 [CommRing α] (g n m a b : Int) (h : g = a * n + b * m)
+    (h₁ : Int.cast (R := α) n = 0) (h₂ : Int.cast (R := α) m = 0) : Int.cast (R := α) g = 0 := by
+  rw [← Ring.intCast_ofNat] at *
+  replace h₁ := congrArg (Int.cast (R := α) a * ·) h₁; simp at h₁
+  rw [← Ring.intCast_mul, Ring.intCast_zero, Semiring.mul_zero] at h₁
+  replace h₂ := congrArg (Int.cast (R := α) b * ·) h₂; simp at h₂
+  rw [← Ring.intCast_mul, Ring.intCast_zero, Semiring.mul_zero] at h₂
+  replace h₁ := congrArg (· + Int.cast (b * m)) h₁; simp at h₁
+  rw [← Ring.intCast_add, h₂, Semiring.zero_add, ← h] at h₁
+  rw [Ring.intCast_zero, h₁]
+
+def eq_gcd_cert (a b : Int) (p₁ p₂ p : Poly) : Bool :=
+  match p₁ with
+  | .add .. => false
+  | .num n =>
+  match p₂ with
+  | .add .. => false
+  | .num m =>
+  match p with
+  | .add .. => false
+  | .num g => g == a * n + b * m
+
+theorem eq_gcd {α} [CommRing α] (ctx : Context α) (a b : Int) (p₁ p₂ p : Poly)
+    : eq_gcd_cert a b p₁ p₂ p → p₁.denote ctx = 0 → p₂.denote ctx = 0 → p.denote ctx = 0 := by
+  simp [eq_gcd_cert]; cases p₁ <;> cases p₂ <;> cases p <;> simp [Poly.denote]
+  next n m g =>
+  apply gcd_eq_0 g n m a b
 
 end CommRing
 end Lean.Grind

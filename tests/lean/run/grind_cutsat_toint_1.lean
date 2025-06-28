@@ -52,9 +52,11 @@ example (a b c : Fin 11) : a = 2 → b = 3 → c = a + b → c ≤ 5 := by
 example (a b c : Fin 11) : a ≤ 2 → b ≤ 3 → c = a + b → c ≤ 5 := by
   grind
 
--- TODO: too expensive
--- example (a b c : UInt32) : a ≤ 2 → b ≤ 3 → c = a + b → c ≤ 5 := by
---   grind
+example (a b c : UInt32) : a ≤ 2 → b ≤ 3 → c = a + b → c ≤ 5 := by
+  grind
+
+example (a b c : UInt64) : a ≤ 2 → b ≤ 3 → c - a - b = 0 → c ≤ 5 := by
+  grind
 
 example (a b : Fin 15) : a = 0 → b = 1 → a + b > 2 → False := by
   grind

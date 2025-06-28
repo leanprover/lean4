@@ -107,6 +107,7 @@ LEAN_EXPORT lean_object* l_Lake_lake_script_doc(lean_object*, lean_object*, lean
 lean_object* l_System_FilePath_withExtension(lean_object*, lean_object*);
 static lean_object* l_Lake_lakeCli___closed__0;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_lake_queryKind_spec__1___boxed__const__1;
+lean_object* l_Array_toJson___at_____private_Lean_Elab_ParseImportsFast_0__Lean_toJsonPrintImportResult____x40_Lean_Elab_ParseImportsFast___hyg_1552__spec__1(lean_object*);
 lean_object* l_String_split___at___Lean_stringToMessageData_spec__0(lean_object*);
 static lean_object* l_Lake_lakeCli___closed__10;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Main_0__Lake_lake_evalLeanFile___elam__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -219,7 +220,6 @@ LEAN_EXPORT lean_object* l_Lake_lake_pack(lean_object*, lean_object*, lean_objec
 static lean_object* l_Lake_parseTemplateLangSpec___closed__1;
 LEAN_EXPORT lean_object* l_Lake_lake_serve___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Workspace_findScript_x3f(lean_object*, lean_object*);
-lean_object* l_Array_toJson___at_____private_Lean_Elab_ParseImportsFast_0__Lean_toJsonPrintImportResult____x40_Lean_Elab_ParseImportsFast___hyg_1540__spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_parseTemplateSpec(lean_object*);
 static lean_object* l_Lake_lake_script_list___closed__1;
 lean_object* l_Lake_stringToLegalOrSimpleName(lean_object*);
@@ -33676,7 +33676,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_array_mk(x_1);
-x_3 = l_Array_toJson___at_____private_Lean_Elab_ParseImportsFast_0__Lean_toJsonPrintImportResult____x40_Lean_Elab_ParseImportsFast___hyg_1540__spec__1(x_2);
+x_3 = l_Array_toJson___at_____private_Lean_Elab_ParseImportsFast_0__Lean_toJsonPrintImportResult____x40_Lean_Elab_ParseImportsFast___hyg_1552__spec__1(x_2);
 return x_3;
 }
 }
@@ -33871,7 +33871,7 @@ x_31 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_31, 0, x_30);
 lean_ctor_set(x_31, 1, x_17);
 x_32 = l___private_Lake_CLI_Main_0__Lake_lake_toJsonReservoirConfig___closed__4____x40_Lake_CLI_Main___hyg_7208_;
-x_33 = l_Array_toJson___at_____private_Lean_Elab_ParseImportsFast_0__Lean_toJsonPrintImportResult____x40_Lean_Elab_ParseImportsFast___hyg_1540__spec__1(x_6);
+x_33 = l_Array_toJson___at_____private_Lean_Elab_ParseImportsFast_0__Lean_toJsonPrintImportResult____x40_Lean_Elab_ParseImportsFast___hyg_1552__spec__1(x_6);
 x_34 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_34, 0, x_32);
 lean_ctor_set(x_34, 1, x_33);

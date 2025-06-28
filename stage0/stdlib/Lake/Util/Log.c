@@ -199,6 +199,7 @@ LEAN_EXPORT lean_object* l_Lake_AnsiMode_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lake_MonadLogT_instInhabitedOfPure___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Util_Log_0__Lake_toJsonLogEntry___closed__0____x40_Lake_Util_Log___hyg_1411_;
 LEAN_EXPORT lean_object* l_Lake_logError(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4129__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedLog;
 LEAN_EXPORT lean_object* l_Lake_LogT_run___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OutStream_logger___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -226,7 +227,6 @@ LEAN_EXPORT lean_object* l_Lake_instMonadLiftLogIOLoggerIO___lam__0(lean_object*
 LEAN_EXPORT lean_object* l_Lake_instMaxVerbosity;
 static lean_object* l_Lake_LogLevel_ofString_x3f___closed__5;
 LEAN_EXPORT lean_object* l_Lake_MonadLogT_instInhabitedOfPure___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4128__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ELogT_run(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_logInfo___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -3286,7 +3286,7 @@ x_39 = lean_ctor_get(x_3, 0);
 lean_inc(x_39);
 lean_dec(x_3);
 x_40 = l___private_Lake_Util_Log_0__Lake_toJsonLogEntry___closed__1____x40_Lake_Util_Log___hyg_1411_;
-x_41 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4128__spec__0(x_1, x_40);
+x_41 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4129__spec__0(x_1, x_40);
 if (lean_obj_tag(x_41) == 0)
 {
 uint8_t x_42; 

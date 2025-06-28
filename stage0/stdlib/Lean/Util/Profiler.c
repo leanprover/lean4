@@ -261,6 +261,7 @@ lean_object* l_Lean_Json_getStr_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Firefox_instToJsonMicroseconds;
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory___closed__0____x40_Lean_Util_Profiler___hyg_389_;
 LEAN_EXPORT lean_object* l_Lean_Firefox_Profile_export___lam__0___boxed(lean_object*);
+lean_object* l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4129__spec__0(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Firefox_Profile_export_spec__15___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonFrameTable___closed__30____x40_Lean_Util_Profiler___hyg_2936_;
@@ -288,7 +289,6 @@ static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonProfi
 static lean_object* l_Lean_Firefox_instInhabitedFrameTable___closed__0;
 lean_object* l_Lean_JsonNumber_fromInt(lean_object*);
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonStackTable___closed__13____x40_Lean_Util_Profiler___hyg_1342_;
-lean_object* l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4128__spec__0(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonFuncTable___closed__21____x40_Lean_Util_Profiler___hyg_2202_;
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___closed__3;
 static lean_object* l_Lean_Firefox_instToJsonMicroseconds___closed__0;
@@ -1434,7 +1434,7 @@ lean_inc(x_39);
 lean_dec(x_3);
 x_40 = l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonCategory___closed__8____x40_Lean_Util_Profiler___hyg_244_;
 lean_inc(x_1);
-x_41 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4128__spec__0(x_1, x_40);
+x_41 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4129__spec__0(x_1, x_40);
 if (lean_obj_tag(x_41) == 0)
 {
 uint8_t x_42; 
@@ -2026,7 +2026,7 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonSampleUnits___closed__0____x40_Lean_Util_Profiler___hyg_492_;
 lean_inc(x_1);
-x_3 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4128__spec__0(x_1, x_2);
+x_3 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4129__spec__0(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 
@@ -2087,7 +2087,7 @@ lean_inc(x_15);
 lean_dec(x_3);
 x_16 = l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonSampleUnits___closed__9____x40_Lean_Util_Profiler___hyg_492_;
 lean_inc(x_1);
-x_17 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4128__spec__0(x_1, x_16);
+x_17 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4129__spec__0(x_1, x_16);
 if (lean_obj_tag(x_17) == 0)
 {
 uint8_t x_18; 
@@ -2149,7 +2149,7 @@ x_29 = lean_ctor_get(x_17, 0);
 lean_inc(x_29);
 lean_dec(x_17);
 x_30 = l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonSampleUnits___closed__14____x40_Lean_Util_Profiler___hyg_492_;
-x_31 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4128__spec__0(x_1, x_30);
+x_31 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4129__spec__0(x_1, x_30);
 if (lean_obj_tag(x_31) == 0)
 {
 uint8_t x_32; 
@@ -3246,7 +3246,7 @@ lean_inc(x_57);
 lean_dec(x_45);
 x_58 = l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonProfileMeta___closed__24____x40_Lean_Util_Profiler___hyg_807_;
 lean_inc(x_1);
-x_59 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4128__spec__0(x_1, x_58);
+x_59 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4129__spec__0(x_1, x_58);
 if (lean_obj_tag(x_59) == 0)
 {
 uint8_t x_60; 
@@ -5727,7 +5727,7 @@ lean_inc(x_43);
 lean_dec(x_31);
 x_44 = l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonSamplesTable___closed__16____x40_Lean_Util_Profiler___hyg_1725_;
 lean_inc(x_1);
-x_45 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4128__spec__0(x_1, x_44);
+x_45 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4129__spec__0(x_1, x_44);
 if (lean_obj_tag(x_45) == 0)
 {
 uint8_t x_46; 
@@ -10792,7 +10792,7 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonCategory___closed__0____x40_Lean_Util_Profiler___hyg_244_;
 lean_inc(x_1);
-x_3 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4128__spec__0(x_1, x_2);
+x_3 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4129__spec__0(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 
@@ -10853,7 +10853,7 @@ lean_inc(x_15);
 lean_dec(x_3);
 x_16 = l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonProfileMeta___closed__19____x40_Lean_Util_Profiler___hyg_807_;
 lean_inc(x_1);
-x_17 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4128__spec__0(x_1, x_16);
+x_17 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4129__spec__0(x_1, x_16);
 if (lean_obj_tag(x_17) == 0)
 {
 uint8_t x_18; 

@@ -765,7 +765,7 @@ return x_15;
 LEAN_EXPORT lean_object* l_Lean_logAt___redArg___lam__2(lean_object* x_1, lean_object* x_2, uint8_t x_3, uint8_t x_4, uint8_t x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_12 = lean_box(x_3);
 x_13 = lean_box(x_4);
 x_14 = lean_box(x_5);
@@ -780,9 +780,10 @@ lean_closure_set(x_15, 5, x_14);
 lean_closure_set(x_15, 6, x_6);
 lean_closure_set(x_15, 7, x_7);
 lean_closure_set(x_15, 8, x_8);
-x_16 = lean_apply_1(x_9, x_10);
-x_17 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_16, x_15);
-return x_17;
+x_16 = l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(x_9);
+x_17 = lean_apply_1(x_10, x_16);
+x_18 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_17, x_15);
+return x_18;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_logAt___redArg___lam__3(lean_object* x_1, uint8_t x_2, uint8_t x_3, uint8_t x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
@@ -967,8 +968,8 @@ lean_closure_set(x_15, 1, x_5);
 lean_closure_set(x_15, 2, x_12);
 lean_closure_set(x_15, 3, x_13);
 lean_closure_set(x_15, 4, x_11);
-lean_closure_set(x_15, 5, x_3);
-lean_closure_set(x_15, 6, x_6);
+lean_closure_set(x_15, 5, x_6);
+lean_closure_set(x_15, 6, x_3);
 lean_closure_set(x_15, 7, x_14);
 lean_closure_set(x_15, 8, x_9);
 x_16 = lean_apply_4(x_11, lean_box(0), lean_box(0), x_4, x_15);

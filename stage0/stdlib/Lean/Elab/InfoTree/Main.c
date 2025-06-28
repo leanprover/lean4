@@ -11922,7 +11922,7 @@ static lean_object* _init_l_Lean_Elab_assignInfoHoleId___redArg___lam__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Elab.InfoTree.Main._hyg.4715.0 ).isNone\n  ", 83, 83);
+x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Elab.InfoTree.Main._hyg.4734.0 ).isNone\n  ", 83, 83);
 return x_1;
 }
 }

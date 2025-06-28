@@ -21,6 +21,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Attribu
 LEAN_EXPORT lean_object* l_Lean_getAttrParamOptPrio(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerTagAttribute___lam__7___closed__0;
 LEAN_EXPORT lean_object* l_Lean_ParametricAttribute_getParam_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_initFn___closed__3____x40_Lean_Attributes___hyg_4678_;
 lean_object* l_List_lengthTR___redArg(lean_object*);
 static lean_object* l_Lean_registerTagAttribute___lam__8___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Attribute_erase(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -41,7 +42,6 @@ lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Lean_SMap_insert__
 LEAN_EXPORT lean_object* l_Lean_ofExcept___at___Lean_Attribute_add_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Attributes_0__Lean_AttributeExtension_addImported___closed__1;
 static lean_object* l_Lean_AttributeImplCore_ref___autoParam___closed__10;
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_4488_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Attribute_Builtin_getPrio(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instToStringAttributeKind___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_EnumAttributes_setValue___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -71,6 +71,7 @@ static lean_object* l_Lean_registerBuiltinAttribute___closed__3;
 lean_object* l_Array_qpartition___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_registerTagAttribute___lam__8___closed__12;
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_4110_(lean_object*);
 static lean_object* l_Lean_Attribute_Builtin_ensureNoArgs___closed__4;
 static lean_object* l_Lean_Attribute_Builtin_getPrio___closed__1;
 static lean_object* l_Lean_instToStringAttributeKind___lam__0___closed__2;
@@ -88,11 +89,11 @@ LEAN_EXPORT lean_object* l_Lean_ofExcept___at___Lean_Attribute_add_spec__0___red
 static lean_object* l_Lean_registerTagAttribute___lam__8___closed__7;
 lean_object* l_Array_qsort_sort___at___Lean_mkTagDeclarationExtension_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerParametricAttribute___redArg___lam__1___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_4678_(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___Lean_registerTagAttribute_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Attributes_0__Lean_AttributeExtension_addImported_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerParametricAttribute___redArg___lam__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerEnumAttributes(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-static lean_object* l_Lean_initFn___closed__1____x40_Lean_Attributes___hyg_4488_;
 LEAN_EXPORT lean_object* l_Lean_EnumAttributes_getValue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_asyncPrefix_x3f(lean_object*);
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
@@ -123,11 +124,11 @@ uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Attributes_0__Lean_AttributeExtension_addImported(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerTagAttribute___lam__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerParametricAttribute___redArg(lean_object*, lean_object*);
-static lean_object* l_Lean_initFn___closed__0____x40_Lean_Attributes___hyg_4488_;
 LEAN_EXPORT lean_object* l_Lean_isAttribute___boxed(lean_object*, lean_object*);
 lean_object* l_id___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Attributes_0__Lean_AttributeExtension_addImported___closed__0;
 static lean_object* l_Lean_registerTagAttribute___lam__8___closed__1;
+static lean_object* l_Lean_initFn___closed__2____x40_Lean_Attributes___hyg_4678_;
 static lean_object* l_Lean_AttributeImplCore_ref___autoParam___closed__27;
 LEAN_EXPORT lean_object* l_Lean_registerTagAttribute___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedTagAttribute___lam__1___boxed(lean_object*, lean_object*);
@@ -152,6 +153,7 @@ LEAN_EXPORT lean_object* l_Lean_registerTagAttribute___lam__5___boxed(lean_objec
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Lean_updateEnvAttributesImpl_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at___Lean_registerParametricAttribute_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerTagAttribute___lam__8___closed__6;
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__0____x40_Lean_Attributes___hyg_4678____boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerTagAttribute___lam__8___closed__4;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean_registerTagAttribute___lam__8___closed__17;
@@ -160,6 +162,7 @@ static lean_object* l_Lean_registerBuiltinAttribute___closed__2;
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at___Lean_registerParametricAttribute_spec__0___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Attribute_Builtin_getIdent___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Attribute_Builtin_getIdent_x3f___closed__2;
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__0____x40_Lean_Attributes___hyg_4678_(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_registerEnumAttributes___redArg___lam__2___closed__1;
 static lean_object* l_Lean_Attribute_Builtin_ensureNoArgs___closed__0;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedTagAttribute___lam__3___boxed(lean_object*, lean_object*, lean_object*);
@@ -174,7 +177,6 @@ static lean_object* l_Lean_registerTagAttribute___lam__2___closed__0;
 LEAN_EXPORT lean_object* l_Lean_getAttributeNames(lean_object*);
 static lean_object* l_Lean_AttributeImplCore_ref___autoParam___closed__24;
 LEAN_EXPORT uint8_t l_Lean_TagAttribute_hasTag(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__2____x40_Lean_Attributes___hyg_4488_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AttributeKind_noConfusion___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_getAttrParamOptPrio___closed__0;
 lean_object* lean_nat_div(lean_object*, lean_object*);
@@ -193,6 +195,7 @@ lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 static lean_object* l_Lean_registerTagAttribute___lam__8___closed__18;
 LEAN_EXPORT lean_object* l_Lean_registerAttributeOfBuilder(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_EnumAttributes_setValue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___auto____x40_Lean_Attributes___hyg_3260_;
 LEAN_EXPORT lean_object* l_Lean_attributeExtension;
 LEAN_EXPORT lean_object* l_Lean_AttributeApplicationTime_noConfusion___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedTagAttribute___lam__4___boxed(lean_object*);
@@ -202,7 +205,6 @@ static lean_object* l_Lean_instToStringAttributeKind___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_Lean_registerEnumAttributes___redArg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParametricAttribute_setParam(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_updateEnvAttributesImpl_spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-static lean_object* l_Lean_initFn___closed__3____x40_Lean_Attributes___hyg_4488_;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_registerEnumAttributes___redArg___closed__0;
 static lean_object* l_Lean_EnumAttributes_setValue___redArg___closed__1;
@@ -212,7 +214,6 @@ LEAN_EXPORT lean_object* l_Lean_Attribute_Builtin_getIdent(lean_object*, lean_ob
 uint8_t l_Lean_Environment_asyncMayContain(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_291_(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__0____x40_Lean_Attributes___hyg_4488____boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_TagAttribute_setTag___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerTagAttribute___lam__2(lean_object*);
 static lean_object* l_Lean_registerTagAttribute___lam__2___closed__5;
@@ -221,7 +222,6 @@ LEAN_EXPORT lean_object* l_Lean_registerTagAttribute___lam__7(lean_object*, lean
 LEAN_EXPORT lean_object* l_Lean_instInhabitedAttributeImpl___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerParametricAttribute___redArg___lam__1___closed__2;
 static lean_object* l_Lean_ParametricAttribute_setParam___redArg___closed__1;
-LEAN_EXPORT lean_object* l___auto____x40_Lean_Attributes___hyg_3070_;
 LEAN_EXPORT lean_object* l_Lean_getBuiltinAttributeImpl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Attribute_add___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Attribute_Builtin_getIdent_x3f___closed__3;
@@ -259,6 +259,7 @@ LEAN_EXPORT uint8_t l_Lean_ParametricAttribute_setParam___redArg___lam__0(uint8_
 LEAN_EXPORT lean_object* l_Lean_instInhabitedTagAttribute___lam__2(lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Lean_AttributeImplCore_ref___autoParam___closed__1;
+static lean_object* l_Lean_initFn___closed__0____x40_Lean_Attributes___hyg_4678_;
 LEAN_EXPORT lean_object* lean_attribute_application_time(lean_object*, lean_object*);
 static lean_object* l_Lean_AttributeKind_noConfusion___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_getAttrParamOptPrio___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -269,6 +270,7 @@ LEAN_EXPORT lean_object* l_Lean_registerParametricAttribute___redArg___lam__2(le
 static lean_object* l_Lean_AttributeImplCore_ref___autoParam___closed__23;
 static lean_object* l_Lean_instInhabitedEnumAttributes___closed__5;
 LEAN_EXPORT lean_object* l_List_foldl___at___Lean_registerTagAttribute_spec__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__1____x40_Lean_Attributes___hyg_4678_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedTagAttribute___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*);
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
@@ -321,17 +323,17 @@ LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_registerEnumAttributes_sp
 static lean_object* l_Lean_instBEqAttributeApplicationTime___closed__0;
 static lean_object* l_Lean_AttributeImplCore_ref___autoParam___closed__28;
 uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Lean_NameHashSet_insert_spec__0___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__1____x40_Lean_Attributes___hyg_4488_(lean_object*);
 lean_object* l_Lean_Name_beq___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkAttributeImplOfConstantUnsafe___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___auto____x40_Lean_Attributes___hyg_1596_;
 LEAN_EXPORT lean_object* l___private_Lean_Attributes_0__Lean_AttributeExtension_addImported___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerTagAttribute___lam__5(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerParametricAttribute___redArg___closed__0;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_isAttribute(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__2____x40_Lean_Attributes___hyg_4678_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_Attribute_Builtin_ensureNoArgs_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_initFn___closed__2____x40_Lean_Attributes___hyg_4488_;
 static lean_object* l_Lean_ParametricAttribute_setParam___redArg___closed__0;
 lean_object* l_Array_binSearchAux___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn___closed__0____x40_Lean_Attributes___hyg_291_;
@@ -367,7 +369,6 @@ LEAN_EXPORT lean_object* l_Lean_TagAttribute_hasTag___boxed(lean_object*, lean_o
 lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 lean_object* l_Lean_RBMap_size___redArg(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_3920_(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerEnumAttributes___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ParametricAttribute_setParam___redArg___closed__2;
@@ -398,7 +399,6 @@ static lean_object* l_Lean_Attribute_Builtin_ensureNoArgs___closed__3;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedParametricAttribute___lam__2(lean_object*);
 static lean_object* l_Lean_registerAttributeImplBuilder___closed__0;
-LEAN_EXPORT lean_object* l___auto____x40_Lean_Attributes___hyg_1406_;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_registerEnumAttributes_spec__0___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -408,6 +408,7 @@ static lean_object* l_Lean_instInhabitedTagAttribute___closed__2;
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lean_ParametricAttribute_getParam_x3f___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Attribute_Builtin_getId_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_initFn___closed__1____x40_Lean_Attributes___hyg_4678_;
 LEAN_EXPORT lean_object* l_Lean_getAttributeImpl(lean_object*, lean_object*);
 static lean_object* l_Lean_mkAttributeImplOfConstantUnsafe___closed__2;
 lean_object* lean_array_get_size(lean_object*);
@@ -440,7 +441,6 @@ LEAN_EXPORT lean_object* l_Lean_registerEnumAttributes___redArg___lam__2___boxed
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_NameHashSet_insert_spec__1___redArg(lean_object*);
 static lean_object* l_Lean_mkAttributeImplOfConstantUnsafe___closed__3;
 LEAN_EXPORT lean_object* l_Lean_AttributeKind_toCtorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__0____x40_Lean_Attributes___hyg_4488_(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_registerBuiltinAttribute___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Lean_getBuiltinAttributeNames_spec__0___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_registerTagAttribute___lam__8___closed__10;
@@ -3122,7 +3122,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Attributes___hyg_1406_() {
+static lean_object* _init_l___auto____x40_Lean_Attributes___hyg_1596_() {
 _start:
 {
 lean_object* x_1; 
@@ -3701,10 +3701,10 @@ if (lean_obj_tag(x_46) == 0)
 {
 lean_object* x_47; 
 x_47 = l_Lean_registerTagAttribute___lam__8___closed__11;
-x_10 = x_45;
-x_11 = x_8;
-x_12 = x_7;
-x_13 = x_35;
+x_10 = x_7;
+x_11 = x_35;
+x_12 = x_8;
+x_13 = x_45;
 x_14 = x_47;
 goto block_19;
 }
@@ -3723,10 +3723,10 @@ x_52 = l_Lean_registerTagAttribute___lam__8___closed__17;
 x_53 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_53, 0, x_51);
 lean_ctor_set(x_53, 1, x_52);
-x_10 = x_45;
-x_11 = x_8;
-x_12 = x_7;
-x_13 = x_35;
+x_10 = x_7;
+x_11 = x_35;
+x_12 = x_8;
+x_13 = x_45;
 x_14 = x_53;
 goto block_19;
 }
@@ -3929,10 +3929,10 @@ if (lean_obj_tag(x_110) == 0)
 {
 lean_object* x_111; 
 x_111 = l_Lean_registerTagAttribute___lam__8___closed__11;
-x_10 = x_109;
-x_11 = x_8;
-x_12 = x_7;
-x_13 = x_98;
+x_10 = x_7;
+x_11 = x_98;
+x_12 = x_8;
+x_13 = x_109;
 x_14 = x_111;
 goto block_19;
 }
@@ -3951,10 +3951,10 @@ x_116 = l_Lean_registerTagAttribute___lam__8___closed__17;
 x_117 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_117, 0, x_115);
 lean_ctor_set(x_117, 1, x_116);
-x_10 = x_109;
-x_11 = x_8;
-x_12 = x_7;
-x_13 = x_98;
+x_10 = x_7;
+x_11 = x_98;
+x_12 = x_8;
+x_13 = x_109;
 x_14 = x_117;
 goto block_19;
 }
@@ -4178,10 +4178,10 @@ if (lean_obj_tag(x_177) == 0)
 {
 lean_object* x_178; 
 x_178 = l_Lean_registerTagAttribute___lam__8___closed__11;
-x_10 = x_176;
-x_11 = x_8;
-x_12 = x_7;
-x_13 = x_163;
+x_10 = x_7;
+x_11 = x_163;
+x_12 = x_8;
+x_13 = x_176;
 x_14 = x_178;
 goto block_19;
 }
@@ -4200,10 +4200,10 @@ x_183 = l_Lean_registerTagAttribute___lam__8___closed__17;
 x_184 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_184, 0, x_182);
 lean_ctor_set(x_184, 1, x_183);
-x_10 = x_176;
-x_11 = x_8;
-x_12 = x_7;
-x_13 = x_163;
+x_10 = x_7;
+x_11 = x_163;
+x_12 = x_8;
+x_13 = x_176;
 x_14 = x_184;
 goto block_19;
 }
@@ -4360,15 +4360,15 @@ block_19:
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_15 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_15, 0, x_10);
+lean_ctor_set(x_15, 0, x_13);
 lean_ctor_set(x_15, 1, x_14);
 x_16 = l_Lean_registerTagAttribute___lam__8___closed__0;
 x_17 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
-x_18 = l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_Attribute_Builtin_ensureNoArgs_spec__0_spec__0___redArg(x_17, x_12, x_11, x_13);
-lean_dec(x_11);
+x_18 = l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_Attribute_Builtin_ensureNoArgs_spec__0_spec__0___redArg(x_17, x_10, x_12, x_11);
 lean_dec(x_12);
+lean_dec(x_10);
 return x_18;
 }
 }
@@ -5626,8 +5626,8 @@ uint8_t x_51;
 x_51 = l_Lean_Exception_isRuntime(x_48);
 lean_dec(x_48);
 x_11 = x_31;
-x_12 = x_9;
-x_13 = x_47;
+x_12 = x_47;
+x_13 = x_9;
 x_14 = x_49;
 x_15 = x_51;
 goto block_17;
@@ -5636,8 +5636,8 @@ else
 {
 lean_dec(x_48);
 x_11 = x_31;
-x_12 = x_9;
-x_13 = x_47;
+x_12 = x_47;
+x_13 = x_9;
 x_14 = x_49;
 x_15 = x_50;
 goto block_17;
@@ -5707,8 +5707,8 @@ uint8_t x_70;
 x_70 = l_Lean_Exception_isRuntime(x_67);
 lean_dec(x_67);
 x_11 = x_31;
-x_12 = x_9;
-x_13 = x_66;
+x_12 = x_66;
+x_13 = x_9;
 x_14 = x_68;
 x_15 = x_70;
 goto block_17;
@@ -5717,8 +5717,8 @@ else
 {
 lean_dec(x_67);
 x_11 = x_31;
-x_12 = x_9;
-x_13 = x_66;
+x_12 = x_66;
+x_13 = x_9;
 x_14 = x_68;
 x_15 = x_69;
 goto block_17;
@@ -5812,8 +5812,8 @@ uint8_t x_92;
 x_92 = l_Lean_Exception_isRuntime(x_89);
 lean_dec(x_89);
 x_11 = x_31;
-x_12 = x_9;
-x_13 = x_88;
+x_12 = x_88;
+x_13 = x_9;
 x_14 = x_90;
 x_15 = x_92;
 goto block_17;
@@ -5822,8 +5822,8 @@ else
 {
 lean_dec(x_89);
 x_11 = x_31;
-x_12 = x_9;
-x_13 = x_88;
+x_12 = x_88;
+x_13 = x_9;
 x_14 = x_90;
 x_15 = x_91;
 goto block_17;
@@ -6008,8 +6008,8 @@ uint8_t x_132;
 x_132 = l_Lean_Exception_isRuntime(x_129);
 lean_dec(x_129);
 x_11 = x_104;
-x_12 = x_9;
-x_13 = x_128;
+x_12 = x_128;
+x_13 = x_9;
 x_14 = x_130;
 x_15 = x_132;
 goto block_17;
@@ -6018,8 +6018,8 @@ else
 {
 lean_dec(x_129);
 x_11 = x_104;
-x_12 = x_9;
-x_13 = x_128;
+x_12 = x_128;
+x_13 = x_9;
 x_14 = x_130;
 x_15 = x_131;
 goto block_17;
@@ -6088,17 +6088,17 @@ block_17:
 if (x_15 == 0)
 {
 lean_object* x_16; 
-lean_dec(x_13);
-x_16 = l_Lean_setEnv___at___Lean_compileDecls_doCompile_spec__7___redArg(x_11, x_12, x_14);
 lean_dec(x_12);
+x_16 = l_Lean_setEnv___at___Lean_compileDecls_doCompile_spec__7___redArg(x_11, x_13, x_14);
+lean_dec(x_13);
 return x_16;
 }
 else
 {
 lean_dec(x_14);
-lean_dec(x_12);
+lean_dec(x_13);
 lean_dec(x_11);
-return x_13;
+return x_12;
 }
 }
 }
@@ -6967,7 +6967,7 @@ x_2 = l_Lean_instInhabitedEnumAttributes___closed__6;
 return x_2;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Attributes___hyg_3070_() {
+static lean_object* _init_l___auto____x40_Lean_Attributes___hyg_3260_() {
 _start:
 {
 lean_object* x_1; 
@@ -8327,7 +8327,7 @@ x_6 = l_Lean_EnumAttributes_setValue___redArg(x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_3920_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_4110_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
@@ -10068,7 +10068,7 @@ return x_162;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__0____x40_Lean_Attributes___hyg_4488_(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__0____x40_Lean_Attributes___hyg_4678_(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -10080,7 +10080,7 @@ x_6 = lean_array_mk(x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__1____x40_Lean_Attributes___hyg_4488_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__1____x40_Lean_Attributes___hyg_4678_(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
@@ -10121,7 +10121,7 @@ return x_14;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__2____x40_Lean_Attributes___hyg_4488_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__2____x40_Lean_Attributes___hyg_4678_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -10133,7 +10133,7 @@ x_4 = lean_array_mk(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__0____x40_Lean_Attributes___hyg_4488_() {
+static lean_object* _init_l_Lean_initFn___closed__0____x40_Lean_Attributes___hyg_4678_() {
 _start:
 {
 lean_object* x_1; 
@@ -10141,17 +10141,17 @@ x_1 = lean_mk_string_unchecked("attributeExtension", 18, 18);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__1____x40_Lean_Attributes___hyg_4488_() {
+static lean_object* _init_l_Lean_initFn___closed__1____x40_Lean_Attributes___hyg_4678_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_initFn___closed__0____x40_Lean_Attributes___hyg_4488_;
+x_1 = l_Lean_initFn___closed__0____x40_Lean_Attributes___hyg_4678_;
 x_2 = l_Lean_AttributeImplCore_ref___autoParam___closed__0;
 x_3 = l_Lean_Name_mkStr2(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__2____x40_Lean_Attributes___hyg_4488_() {
+static lean_object* _init_l_Lean_initFn___closed__2____x40_Lean_Attributes___hyg_4678_() {
 _start:
 {
 lean_object* x_1; 
@@ -10159,7 +10159,7 @@ x_1 = lean_alloc_closure((void*)(l___private_Lean_Attributes_0__Lean_AttributeEx
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__3____x40_Lean_Attributes___hyg_4488_() {
+static lean_object* _init_l_Lean_initFn___closed__3____x40_Lean_Attributes___hyg_4678_() {
 _start:
 {
 lean_object* x_1; 
@@ -10167,17 +10167,17 @@ x_1 = lean_alloc_closure((void*)(l___private_Lean_Attributes_0__Lean_addAttrEntr
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_4488_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_4678_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; 
-x_2 = lean_alloc_closure((void*)(l_Lean_initFn___lam__0____x40_Lean_Attributes___hyg_4488____boxed), 3, 0);
-x_3 = lean_alloc_closure((void*)(l_Lean_initFn___lam__1____x40_Lean_Attributes___hyg_4488_), 1, 0);
-x_4 = lean_alloc_closure((void*)(l_Lean_initFn___lam__2____x40_Lean_Attributes___hyg_4488_), 1, 0);
-x_5 = l_Lean_initFn___closed__1____x40_Lean_Attributes___hyg_4488_;
+x_2 = lean_alloc_closure((void*)(l_Lean_initFn___lam__0____x40_Lean_Attributes___hyg_4678____boxed), 3, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_initFn___lam__1____x40_Lean_Attributes___hyg_4678_), 1, 0);
+x_4 = lean_alloc_closure((void*)(l_Lean_initFn___lam__2____x40_Lean_Attributes___hyg_4678_), 1, 0);
+x_5 = l_Lean_initFn___closed__1____x40_Lean_Attributes___hyg_4678_;
 x_6 = lean_alloc_closure((void*)(l___private_Lean_Attributes_0__Lean_AttributeExtension_mkInitial), 1, 0);
-x_7 = l_Lean_initFn___closed__2____x40_Lean_Attributes___hyg_4488_;
-x_8 = l_Lean_initFn___closed__3____x40_Lean_Attributes___hyg_4488_;
+x_7 = l_Lean_initFn___closed__2____x40_Lean_Attributes___hyg_4678_;
+x_8 = l_Lean_initFn___closed__3____x40_Lean_Attributes___hyg_4678_;
 x_9 = lean_box(2);
 x_10 = lean_box(0);
 x_11 = lean_alloc_ctor(0, 7, 1);
@@ -10197,13 +10197,13 @@ x_14 = l_Lean_registerPersistentEnvExtensionUnsafe___redArg(x_13, x_1);
 return x_14;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__0____x40_Lean_Attributes___hyg_4488____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__0____x40_Lean_Attributes___hyg_4678____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
 lean_dec(x_3);
-x_5 = l_Lean_initFn___lam__0____x40_Lean_Attributes___hyg_4488_(x_1, x_2, x_4);
+x_5 = l_Lean_initFn___lam__0____x40_Lean_Attributes___hyg_4678_(x_1, x_2, x_4);
 lean_dec(x_1);
 return x_5;
 }
@@ -11838,8 +11838,8 @@ l_Lean_instInhabitedTagAttribute___closed__2 = _init_l_Lean_instInhabitedTagAttr
 lean_mark_persistent(l_Lean_instInhabitedTagAttribute___closed__2);
 l_Lean_instInhabitedTagAttribute = _init_l_Lean_instInhabitedTagAttribute();
 lean_mark_persistent(l_Lean_instInhabitedTagAttribute);
-l___auto____x40_Lean_Attributes___hyg_1406_ = _init_l___auto____x40_Lean_Attributes___hyg_1406_();
-lean_mark_persistent(l___auto____x40_Lean_Attributes___hyg_1406_);
+l___auto____x40_Lean_Attributes___hyg_1596_ = _init_l___auto____x40_Lean_Attributes___hyg_1596_();
+lean_mark_persistent(l___auto____x40_Lean_Attributes___hyg_1596_);
 l_Lean_registerTagAttribute___lam__2___closed__0 = _init_l_Lean_registerTagAttribute___lam__2___closed__0();
 lean_mark_persistent(l_Lean_registerTagAttribute___lam__2___closed__0);
 l_Lean_registerTagAttribute___lam__2___closed__1 = _init_l_Lean_registerTagAttribute___lam__2___closed__1();
@@ -11946,8 +11946,8 @@ l_Lean_instInhabitedEnumAttributes___closed__5 = _init_l_Lean_instInhabitedEnumA
 lean_mark_persistent(l_Lean_instInhabitedEnumAttributes___closed__5);
 l_Lean_instInhabitedEnumAttributes___closed__6 = _init_l_Lean_instInhabitedEnumAttributes___closed__6();
 lean_mark_persistent(l_Lean_instInhabitedEnumAttributes___closed__6);
-l___auto____x40_Lean_Attributes___hyg_3070_ = _init_l___auto____x40_Lean_Attributes___hyg_3070_();
-lean_mark_persistent(l___auto____x40_Lean_Attributes___hyg_3070_);
+l___auto____x40_Lean_Attributes___hyg_3260_ = _init_l___auto____x40_Lean_Attributes___hyg_3260_();
+lean_mark_persistent(l___auto____x40_Lean_Attributes___hyg_3260_);
 l_Lean_registerEnumAttributes___redArg___lam__2___closed__0 = _init_l_Lean_registerEnumAttributes___redArg___lam__2___closed__0();
 lean_mark_persistent(l_Lean_registerEnumAttributes___redArg___lam__2___closed__0);
 l_Lean_registerEnumAttributes___redArg___lam__2___closed__1 = _init_l_Lean_registerEnumAttributes___redArg___lam__2___closed__1();
@@ -11972,7 +11972,7 @@ l_Lean_EnumAttributes_setValue___redArg___closed__2 = _init_l_Lean_EnumAttribute
 lean_mark_persistent(l_Lean_EnumAttributes_setValue___redArg___closed__2);
 l_Lean_EnumAttributes_setValue___redArg___closed__3 = _init_l_Lean_EnumAttributes_setValue___redArg___closed__3();
 lean_mark_persistent(l_Lean_EnumAttributes_setValue___redArg___closed__3);
-if (builtin) {res = l_Lean_initFn____x40_Lean_Attributes___hyg_3920_(lean_io_mk_world());
+if (builtin) {res = l_Lean_initFn____x40_Lean_Attributes___hyg_4110_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_attributeImplBuilderTableRef = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_attributeImplBuilderTableRef);
@@ -12003,15 +12003,15 @@ l___private_Lean_Attributes_0__Lean_AttributeExtension_addImported___closed__0 =
 lean_mark_persistent(l___private_Lean_Attributes_0__Lean_AttributeExtension_addImported___closed__0);
 l___private_Lean_Attributes_0__Lean_AttributeExtension_addImported___closed__1 = _init_l___private_Lean_Attributes_0__Lean_AttributeExtension_addImported___closed__1();
 lean_mark_persistent(l___private_Lean_Attributes_0__Lean_AttributeExtension_addImported___closed__1);
-l_Lean_initFn___closed__0____x40_Lean_Attributes___hyg_4488_ = _init_l_Lean_initFn___closed__0____x40_Lean_Attributes___hyg_4488_();
-lean_mark_persistent(l_Lean_initFn___closed__0____x40_Lean_Attributes___hyg_4488_);
-l_Lean_initFn___closed__1____x40_Lean_Attributes___hyg_4488_ = _init_l_Lean_initFn___closed__1____x40_Lean_Attributes___hyg_4488_();
-lean_mark_persistent(l_Lean_initFn___closed__1____x40_Lean_Attributes___hyg_4488_);
-l_Lean_initFn___closed__2____x40_Lean_Attributes___hyg_4488_ = _init_l_Lean_initFn___closed__2____x40_Lean_Attributes___hyg_4488_();
-lean_mark_persistent(l_Lean_initFn___closed__2____x40_Lean_Attributes___hyg_4488_);
-l_Lean_initFn___closed__3____x40_Lean_Attributes___hyg_4488_ = _init_l_Lean_initFn___closed__3____x40_Lean_Attributes___hyg_4488_();
-lean_mark_persistent(l_Lean_initFn___closed__3____x40_Lean_Attributes___hyg_4488_);
-if (builtin) {res = l_Lean_initFn____x40_Lean_Attributes___hyg_4488_(lean_io_mk_world());
+l_Lean_initFn___closed__0____x40_Lean_Attributes___hyg_4678_ = _init_l_Lean_initFn___closed__0____x40_Lean_Attributes___hyg_4678_();
+lean_mark_persistent(l_Lean_initFn___closed__0____x40_Lean_Attributes___hyg_4678_);
+l_Lean_initFn___closed__1____x40_Lean_Attributes___hyg_4678_ = _init_l_Lean_initFn___closed__1____x40_Lean_Attributes___hyg_4678_();
+lean_mark_persistent(l_Lean_initFn___closed__1____x40_Lean_Attributes___hyg_4678_);
+l_Lean_initFn___closed__2____x40_Lean_Attributes___hyg_4678_ = _init_l_Lean_initFn___closed__2____x40_Lean_Attributes___hyg_4678_();
+lean_mark_persistent(l_Lean_initFn___closed__2____x40_Lean_Attributes___hyg_4678_);
+l_Lean_initFn___closed__3____x40_Lean_Attributes___hyg_4678_ = _init_l_Lean_initFn___closed__3____x40_Lean_Attributes___hyg_4678_();
+lean_mark_persistent(l_Lean_initFn___closed__3____x40_Lean_Attributes___hyg_4678_);
+if (builtin) {res = l_Lean_initFn____x40_Lean_Attributes___hyg_4678_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_attributeExtension = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_attributeExtension);

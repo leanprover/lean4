@@ -6554,7 +6554,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Proof_0__Lean_Meta_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Meta.Tactic.Grind.Proof._hyg.1953.0 ).hasSameRoot a₁ b₂ && ( __do_lift._@.Lean.Meta.Tactic.Grind.Proof._hyg.1953.1 ).hasSameRoot b₁ a₂\n      ", 190, 182);
+x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Meta.Tactic.Grind.Proof._hyg.1954.0 ).hasSameRoot a₁ b₂ && ( __do_lift._@.Lean.Meta.Tactic.Grind.Proof._hyg.1954.1 ).hasSameRoot b₁ a₂\n      ", 190, 182);
 return x_1;
 }
 }
@@ -7793,7 +7793,7 @@ static lean_object* _init_l_Lean_Meta_Grind_mkEqProofImpl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Meta.Tactic.Grind.Proof._hyg.3527.0 )\n  ", 81, 81);
+x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Meta.Tactic.Grind.Proof._hyg.3528.0 )\n  ", 81, 81);
 return x_1;
 }
 }

@@ -72,6 +72,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta
 lean_object* l_Lean_Meta_LazyDiscrTree_InitEntry_fromExpr___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_LibrarySearch_instInhabitedDeclMod;
 static lean_object* l_Lean_Meta_LibrarySearch_initFn___closed__14____x40_Lean_Meta_Tactic_LibrarySearch___hyg_4_;
+static lean_object* l_Lean_Meta_LibrarySearch_initFn___closed__0____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1187_;
 static lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_librarySearchLemma___lam__0___closed__8;
 lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_requireUsingAll(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_interleaveWith___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -83,6 +84,7 @@ static lean_object* l_Lean_Meta_LibrarySearch_initFn___closed__7____x40_Lean_Met
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_mkLibrarySearchLemma(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_librarySearch_x27___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_LibrarySearch_initFn___closed__1____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1187_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_emoji___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Meta_LibrarySearch_librarySearchSymm_spec__0(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_librarySearchLemma___lam__0___closed__9;
@@ -132,7 +134,6 @@ static lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_Libr
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_addImport(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_extract___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_observing_x3f___at_____private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Tactic_Backtrack_Backtrack_run_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1185_(lean_object*);
 uint8_t l_Lean_Name_isMetaprogramming(lean_object*);
 static lean_object* l_Lean_Meta_LibrarySearch_initFn___closed__1____x40_Lean_Meta_Tactic_LibrarySearch___hyg_4_;
 static lean_object* l_Lean_Meta_LibrarySearch_initFn___closed__5____x40_Lean_Meta_Tactic_LibrarySearch___hyg_4_;
@@ -179,7 +180,6 @@ static lean_object* l_Lean_Meta_LibrarySearch_solveByElim___closed__1;
 LEAN_EXPORT uint8_t l_Lean_Meta_LibrarySearch_ordDeclMod____x40_Lean_Meta_Tactic_LibrarySearch___hyg_319_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_librarySearchSymm(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SavedState_restore___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_LibrarySearch_initFn___closed__1____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1185_;
 lean_object* l_Lean_Meta_saveState___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_initFn___lam__0____x40_Lean_Meta_Tactic_LibrarySearch___hyg_703_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_LibrarySearch_initFn___closed__2____x40_Lean_Meta_Tactic_LibrarySearch___hyg_4_;
@@ -227,6 +227,7 @@ static lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_Libr
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_DeclMod_toCtorIdx___boxed(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1187_(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* l_Lean_Meta_LazyDiscrTree_findMatches___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_LibrarySearch_initFn___closed__6____x40_Lean_Meta_Tactic_LibrarySearch___hyg_4_;
@@ -244,7 +245,6 @@ lean_object* l_Lean_Meta_mkConstWithFreshMVarLevels(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_abortSpeculationId;
 static lean_object* l_Lean_Meta_LibrarySearch_instHashableDeclMod___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_ordDeclMod____x40_Lean_Meta_Tactic_LibrarySearch___hyg_319____boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_LibrarySearch_initFn___closed__0____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1185_;
 static lean_object* l_Lean_Meta_LibrarySearch_mkLibrarySearchLemma___lam__1___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_tryOnEach(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_addImport___closed__0;
@@ -2151,7 +2151,7 @@ lean_dec(x_5);
 return x_8;
 }
 }
-static lean_object* _init_l_Lean_Meta_LibrarySearch_initFn___closed__0____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1185_() {
+static lean_object* _init_l_Lean_Meta_LibrarySearch_initFn___closed__0____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1187_() {
 _start:
 {
 lean_object* x_1; 
@@ -2159,11 +2159,11 @@ x_1 = lean_mk_string_unchecked("abortSpeculation", 16, 16);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_LibrarySearch_initFn___closed__1____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1185_() {
+static lean_object* _init_l_Lean_Meta_LibrarySearch_initFn___closed__1____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1187_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Meta_LibrarySearch_initFn___closed__0____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1185_;
+x_1 = l_Lean_Meta_LibrarySearch_initFn___closed__0____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1187_;
 x_2 = l_Lean_Meta_LibrarySearch_initFn___closed__7____x40_Lean_Meta_Tactic_LibrarySearch___hyg_4_;
 x_3 = l_Lean_Meta_LibrarySearch_initFn___closed__5____x40_Lean_Meta_Tactic_LibrarySearch___hyg_4_;
 x_4 = l_Lean_Meta_LibrarySearch_initFn___closed__3____x40_Lean_Meta_Tactic_LibrarySearch___hyg_4_;
@@ -2171,11 +2171,11 @@ x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1185_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1187_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Meta_LibrarySearch_initFn___closed__1____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1185_;
+x_2 = l_Lean_Meta_LibrarySearch_initFn___closed__1____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1187_;
 x_3 = l_Lean_registerInternalExceptionId(x_2, x_1);
 return x_3;
 }
@@ -5548,11 +5548,11 @@ l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_librarySea
 lean_mark_persistent(l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_librarySearchEmoji___redArg___closed__1);
 l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_librarySearchEmoji___redArg___closed__2 = _init_l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_librarySearchEmoji___redArg___closed__2();
 lean_mark_persistent(l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_librarySearchEmoji___redArg___closed__2);
-l_Lean_Meta_LibrarySearch_initFn___closed__0____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1185_ = _init_l_Lean_Meta_LibrarySearch_initFn___closed__0____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1185_();
-lean_mark_persistent(l_Lean_Meta_LibrarySearch_initFn___closed__0____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1185_);
-l_Lean_Meta_LibrarySearch_initFn___closed__1____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1185_ = _init_l_Lean_Meta_LibrarySearch_initFn___closed__1____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1185_();
-lean_mark_persistent(l_Lean_Meta_LibrarySearch_initFn___closed__1____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1185_);
-if (builtin) {res = l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1185_(lean_io_mk_world());
+l_Lean_Meta_LibrarySearch_initFn___closed__0____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1187_ = _init_l_Lean_Meta_LibrarySearch_initFn___closed__0____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1187_();
+lean_mark_persistent(l_Lean_Meta_LibrarySearch_initFn___closed__0____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1187_);
+l_Lean_Meta_LibrarySearch_initFn___closed__1____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1187_ = _init_l_Lean_Meta_LibrarySearch_initFn___closed__1____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1187_();
+lean_mark_persistent(l_Lean_Meta_LibrarySearch_initFn___closed__1____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1187_);
+if (builtin) {res = l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tactic_LibrarySearch___hyg_1187_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_abortSpeculationId = lean_io_result_get_value(res);
 lean_mark_persistent(l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_abortSpeculationId);

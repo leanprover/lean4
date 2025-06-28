@@ -4527,10 +4527,10 @@ goto block_30;
 block_12:
 {
 lean_object* x_10; 
-x_10 = l_Lean_IR_push(x_6, x_8);
+x_10 = l_Lean_IR_push(x_8, x_7);
 x_1 = x_9;
 x_2 = x_10;
-x_3 = x_7;
+x_3 = x_6;
 x_4 = x_5;
 goto _start;
 }
@@ -4547,9 +4547,9 @@ lean_object* x_18;
 x_18 = lean_ctor_get(x_13, 3);
 lean_inc(x_18);
 x_5 = x_16;
-x_6 = x_14;
-x_7 = x_15;
-x_8 = x_13;
+x_6 = x_15;
+x_7 = x_13;
+x_8 = x_14;
 x_9 = x_18;
 goto block_12;
 }
@@ -4559,9 +4559,9 @@ lean_object* x_19;
 x_19 = lean_ctor_get(x_13, 3);
 lean_inc(x_19);
 x_5 = x_16;
-x_6 = x_14;
-x_7 = x_15;
-x_8 = x_13;
+x_6 = x_15;
+x_7 = x_13;
+x_8 = x_14;
 x_9 = x_19;
 goto block_12;
 }
@@ -4571,9 +4571,9 @@ lean_object* x_20;
 x_20 = lean_ctor_get(x_13, 3);
 lean_inc(x_20);
 x_5 = x_16;
-x_6 = x_14;
-x_7 = x_15;
-x_8 = x_13;
+x_6 = x_15;
+x_7 = x_13;
+x_8 = x_14;
 x_9 = x_20;
 goto block_12;
 }
@@ -4583,9 +4583,9 @@ lean_object* x_21;
 x_21 = lean_ctor_get(x_13, 2);
 lean_inc(x_21);
 x_5 = x_16;
-x_6 = x_14;
-x_7 = x_15;
-x_8 = x_13;
+x_6 = x_15;
+x_7 = x_13;
+x_8 = x_14;
 x_9 = x_21;
 goto block_12;
 }
@@ -4595,9 +4595,9 @@ lean_object* x_22;
 x_22 = lean_ctor_get(x_13, 3);
 lean_inc(x_22);
 x_5 = x_16;
-x_6 = x_14;
-x_7 = x_15;
-x_8 = x_13;
+x_6 = x_15;
+x_7 = x_13;
+x_8 = x_14;
 x_9 = x_22;
 goto block_12;
 }
@@ -4607,9 +4607,9 @@ lean_object* x_23;
 x_23 = lean_ctor_get(x_13, 5);
 lean_inc(x_23);
 x_5 = x_16;
-x_6 = x_14;
-x_7 = x_15;
-x_8 = x_13;
+x_6 = x_15;
+x_7 = x_13;
+x_8 = x_14;
 x_9 = x_23;
 goto block_12;
 }
@@ -4619,9 +4619,9 @@ lean_object* x_24;
 x_24 = lean_ctor_get(x_13, 2);
 lean_inc(x_24);
 x_5 = x_16;
-x_6 = x_14;
-x_7 = x_15;
-x_8 = x_13;
+x_6 = x_15;
+x_7 = x_13;
+x_8 = x_14;
 x_9 = x_24;
 goto block_12;
 }
@@ -4631,9 +4631,9 @@ lean_object* x_25;
 x_25 = lean_ctor_get(x_13, 2);
 lean_inc(x_25);
 x_5 = x_16;
-x_6 = x_14;
-x_7 = x_15;
-x_8 = x_13;
+x_6 = x_15;
+x_7 = x_13;
+x_8 = x_14;
 x_9 = x_25;
 goto block_12;
 }
@@ -4643,9 +4643,9 @@ lean_object* x_26;
 x_26 = lean_ctor_get(x_13, 1);
 lean_inc(x_26);
 x_5 = x_16;
-x_6 = x_14;
-x_7 = x_15;
-x_8 = x_13;
+x_6 = x_15;
+x_7 = x_13;
+x_8 = x_14;
 x_9 = x_26;
 goto block_12;
 }
@@ -4655,9 +4655,9 @@ lean_object* x_27;
 x_27 = lean_ctor_get(x_13, 1);
 lean_inc(x_27);
 x_5 = x_16;
-x_6 = x_14;
-x_7 = x_15;
-x_8 = x_13;
+x_6 = x_15;
+x_7 = x_13;
+x_8 = x_14;
 x_9 = x_27;
 goto block_12;
 }
@@ -4665,9 +4665,9 @@ default:
 {
 lean_inc(x_13);
 x_5 = x_16;
-x_6 = x_14;
-x_7 = x_15;
-x_8 = x_13;
+x_6 = x_15;
+x_7 = x_13;
+x_8 = x_14;
 x_9 = x_13;
 goto block_12;
 }

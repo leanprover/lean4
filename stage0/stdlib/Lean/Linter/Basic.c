@@ -38,6 +38,7 @@ static lean_object* l_Lean_Linter_initFn___closed__2____x40_Lean_Linter_Basic___
 static lean_object* l_Lean_RBNode_fold___at___Lean_Linter_insertLinterSetEntry_spec__0___closed__0;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_Linter_initFn___closed__2____x40_Lean_Linter_Basic___hyg_39_;
+lean_object* l_Lean_MessageData_note(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_getLinterValue___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_LinterOptions_get_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___redArg(lean_object*, lean_object*);
@@ -73,7 +74,6 @@ LEAN_EXPORT uint8_t l_Lean_Linter_LinterOptions_get___at___Lean_Linter_getLinter
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_mkStateFromImportedEntries___at___Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_39__spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn___closed__5____x40_Lean_Linter_Basic___hyg_297_;
 LEAN_EXPORT lean_object* l_Lean_Linter_LinterOptions_get_x3f___at___Lean_Linter_getLinterValue_spec__0___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Linter_logLint___redArg___closed__6;
 LEAN_EXPORT lean_object* l_Lean_mkStateFromImportedEntries___at___Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_39__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_getLinterOptions___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_instLinterSetsInhabited;
@@ -102,7 +102,6 @@ size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Linter_logLint___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_mkStateFromImportedEntries___at___Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_39__spec__0_spec__0(lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -1267,7 +1266,7 @@ static lean_object* _init_l_Lean_Linter_logLint___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("note: this linter can be disabled with `set_option ", 51, 51);
+x_1 = lean_mk_string_unchecked("This linter can be disabled with `set_option ", 45, 45);
 return x_1;
 }
 }
@@ -1306,23 +1305,6 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Linter_logLint___redArg___closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\n", 1, 1);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Linter_logLint___redArg___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Linter_logLint___redArg___closed__5;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Linter_logLint___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -1344,20 +1326,20 @@ x_13 = l_Lean_Linter_logLint___redArg___closed__3;
 x_14 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_14, 0, x_5);
 lean_ctor_set(x_14, 1, x_13);
-x_15 = l_Lean_Linter_logLint___redArg___closed__4;
-x_16 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_7);
-x_17 = l_Lean_Linter_logLint___redArg___closed__6;
+x_15 = l_Lean_MessageData_note(x_14);
+x_16 = l_Lean_Linter_logLint___redArg___closed__4;
+x_17 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_17, 0, x_16);
+lean_ctor_set(x_17, 1, x_7);
 x_18 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_18, 0, x_16);
-lean_ctor_set(x_18, 1, x_17);
+lean_ctor_set(x_18, 0, x_17);
+lean_ctor_set(x_18, 1, x_16);
 x_19 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_19, 0, x_18);
-lean_ctor_set(x_19, 1, x_14);
+lean_ctor_set(x_19, 1, x_15);
 x_20 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_20, 0, x_19);
-lean_ctor_set(x_20, 1, x_15);
+lean_ctor_set(x_20, 1, x_16);
 x_21 = lean_alloc_ctor(8, 2, 0);
 lean_ctor_set(x_21, 0, x_9);
 lean_ctor_set(x_21, 1, x_20);
@@ -1380,20 +1362,20 @@ x_27 = l_Lean_Linter_logLint___redArg___closed__3;
 x_28 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
 lean_ctor_set(x_28, 1, x_27);
-x_29 = l_Lean_Linter_logLint___redArg___closed__4;
-x_30 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_30, 0, x_29);
-lean_ctor_set(x_30, 1, x_7);
-x_31 = l_Lean_Linter_logLint___redArg___closed__6;
+x_29 = l_Lean_MessageData_note(x_28);
+x_30 = l_Lean_Linter_logLint___redArg___closed__4;
+x_31 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_31, 0, x_30);
+lean_ctor_set(x_31, 1, x_7);
 x_32 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_32, 0, x_30);
-lean_ctor_set(x_32, 1, x_31);
+lean_ctor_set(x_32, 0, x_31);
+lean_ctor_set(x_32, 1, x_30);
 x_33 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_33, 0, x_32);
-lean_ctor_set(x_33, 1, x_28);
+lean_ctor_set(x_33, 1, x_29);
 x_34 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_34, 0, x_33);
-lean_ctor_set(x_34, 1, x_29);
+lean_ctor_set(x_34, 1, x_30);
 x_35 = lean_alloc_ctor(8, 2, 0);
 lean_ctor_set(x_35, 0, x_23);
 lean_ctor_set(x_35, 1, x_34);
@@ -1554,10 +1536,6 @@ l_Lean_Linter_logLint___redArg___closed__3 = _init_l_Lean_Linter_logLint___redAr
 lean_mark_persistent(l_Lean_Linter_logLint___redArg___closed__3);
 l_Lean_Linter_logLint___redArg___closed__4 = _init_l_Lean_Linter_logLint___redArg___closed__4();
 lean_mark_persistent(l_Lean_Linter_logLint___redArg___closed__4);
-l_Lean_Linter_logLint___redArg___closed__5 = _init_l_Lean_Linter_logLint___redArg___closed__5();
-lean_mark_persistent(l_Lean_Linter_logLint___redArg___closed__5);
-l_Lean_Linter_logLint___redArg___closed__6 = _init_l_Lean_Linter_logLint___redArg___closed__6();
-lean_mark_persistent(l_Lean_Linter_logLint___redArg___closed__6);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

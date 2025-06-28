@@ -924,8 +924,8 @@ if (lean_is_scalar(x_79)) {
  lean_ctor_set_tag(x_85, 3);
 }
 lean_ctor_set(x_85, 0, x_84);
-x_3 = x_80;
-x_4 = x_81;
+x_3 = x_81;
+x_4 = x_80;
 x_5 = x_85;
 goto block_12;
 }
@@ -943,8 +943,8 @@ if (lean_is_scalar(x_79)) {
 }
 lean_ctor_set(x_88, 0, x_87);
 x_89 = l_Repr_addAppParen(x_88, x_86);
-x_3 = x_80;
-x_4 = x_81;
+x_3 = x_81;
+x_4 = x_80;
 x_5 = x_89;
 goto block_12;
 }
@@ -998,10 +998,10 @@ block_12:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; 
 x_6 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_6, 0, x_4);
+lean_ctor_set(x_6, 0, x_3);
 lean_ctor_set(x_6, 1, x_5);
 x_7 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_7, 0, x_3);
+lean_ctor_set(x_7, 0, x_4);
 lean_ctor_set(x_7, 1, x_6);
 x_8 = lean_box(0);
 x_9 = lean_alloc_ctor(6, 1, 1);

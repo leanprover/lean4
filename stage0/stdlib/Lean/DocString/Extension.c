@@ -49,7 +49,6 @@ lean_object* l_Lean_registerSimplePersistentEnvExtension___redArg(lean_object*, 
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Extension_0__Lean_moduleDocExt;
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Extension_0__Lean_builtinDocStrings;
 static lean_object* l_Lean_initFn___closed__0____x40_Lean_DocString_Extension___hyg_382_;
-uint8_t l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9074_(uint8_t, uint8_t);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__2____x40_Lean_DocString_Extension___hyg_382_(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
@@ -112,6 +111,7 @@ static lean_object* l_Lean_initFn___closed__4____x40_Lean_DocString_Extension___
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__1____x40_Lean_DocString_Extension___hyg_382_(lean_object*);
 lean_object* l_Lean_throwErrorAt___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9077_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_DocString_Extension___hyg_3_(lean_object* x_1) {
 _start:
 {
@@ -569,7 +569,7 @@ _start:
 lean_object* x_5; uint8_t x_6; uint8_t x_7; lean_object* x_8; 
 x_5 = lean_box(1);
 x_6 = lean_unbox(x_5);
-x_7 = l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9074_(x_4, x_6);
+x_7 = l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9077_(x_4, x_6);
 x_8 = lean_box(x_7);
 if (lean_obj_tag(x_8) == 0)
 {

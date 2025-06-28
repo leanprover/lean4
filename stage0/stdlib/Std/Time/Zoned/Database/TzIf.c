@@ -1222,7 +1222,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_TZif_reprLeapSecond___redArg____x40_Std_Time_Zoned_Database_TzIf___hyg_409_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_48; lean_object* x_49; uint8_t x_50; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_48; lean_object* x_49; uint8_t x_50; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
@@ -1271,11 +1271,11 @@ if (lean_is_scalar(x_4)) {
  x_9 = x_4;
  lean_ctor_set_tag(x_9, 4);
 }
-lean_ctor_set(x_9, 0, x_7);
+lean_ctor_set(x_9, 0, x_6);
 lean_ctor_set(x_9, 1, x_8);
 x_10 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_10, 0, x_9);
-lean_ctor_set_uint8(x_10, sizeof(void*)*1, x_6);
+lean_ctor_set_uint8(x_10, sizeof(void*)*1, x_7);
 x_11 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_11, 0, x_5);
 lean_ctor_set(x_11, 1, x_10);
@@ -1293,7 +1293,7 @@ lean_ctor_set(x_17, 0, x_12);
 lean_ctor_set(x_17, 1, x_16);
 x_18 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_18, 0, x_17);
-lean_ctor_set_uint8(x_18, sizeof(void*)*1, x_6);
+lean_ctor_set_uint8(x_18, sizeof(void*)*1, x_7);
 return x_18;
 }
 block_47:
@@ -1338,8 +1338,8 @@ x_41 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_41, 0, x_40);
 x_42 = lean_unbox(x_25);
 x_5 = x_35;
-x_6 = x_42;
-x_7 = x_36;
+x_6 = x_36;
+x_7 = x_42;
 x_8 = x_41;
 goto block_19;
 }
@@ -1353,8 +1353,8 @@ lean_ctor_set(x_44, 0, x_43);
 x_45 = l_Repr_addAppParen(x_44, x_37);
 x_46 = lean_unbox(x_25);
 x_5 = x_35;
-x_6 = x_46;
-x_7 = x_36;
+x_6 = x_36;
+x_7 = x_46;
 x_8 = x_45;
 goto block_19;
 }

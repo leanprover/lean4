@@ -34,7 +34,6 @@ import Lean.Meta.UnificationHint
 import Lean.Meta.Inductive
 import Lean.Meta.SizeOf
 import Lean.Meta.IndPredBelow
-import Lean.Meta.IndPredBelowTest
 import Lean.Meta.Coe
 import Lean.Meta.CollectFVars
 import Lean.Meta.GeneralizeVars

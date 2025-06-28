@@ -94,6 +94,7 @@ inductive EqCnstrProof where
   | divCoeffs (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | ofLeGe (c₁ : LeCnstr) (c₂ : LeCnstr)
+  | reorder (c : EqCnstr)
 
 /-- A divisibility constraint and its justification/proof. -/
 structure DvdCnstr where
@@ -154,6 +155,7 @@ inductive DvdCnstrProof where
   | cooper₁ (c : CooperSplit)
   /-- `c.c₃?` must be `some` -/
   | cooper₂ (c : CooperSplit)
+  | reorder (c : DvdCnstr)
 
 /-- An inequality constraint and its justification/proof. -/
 structure LeCnstr where
@@ -179,6 +181,7 @@ inductive LeCnstrProof where
   | cooper (c : CooperSplit)
   | dvdTight (c₁ : DvdCnstr) (c₂ : LeCnstr)
   | negDvdTight (c₁ : DvdCnstr) (c₂ : LeCnstr)
+  | reorder (c : LeCnstr)
 
 /-- A disequality constraint and its justification/proof. -/
 structure DiseqCnstr where
@@ -199,6 +202,7 @@ inductive DiseqCnstrProof where
   | divCoeffs (c : DiseqCnstr)
   | neg (c : DiseqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
+  | reorder (c : DiseqCnstr)
 
 /--
 A proof of `False`.
@@ -233,6 +237,15 @@ structure State where
   vars : PArray Expr := {}
   /-- Mapping from `Expr` to a variable representing it. -/
   varMap  : PHashMap ExprPtr Var := {}
+  /--
+  `vars` before they were reordered.
+  This array is empty if the variables were not reordered.
+  We need them to generate the proof term because some
+  justification objects contain terms using variables before the reordering.
+  -/
+  vars' : PArray Expr := {}
+  /-- `varVap` before variables were reordered. -/
+  varMap' : PHashMap ExprPtr Var := {}
   /--
   Mapping from `Nat` terms to their variable. They are also marked using `markAsCutsatTerm`.
   -/

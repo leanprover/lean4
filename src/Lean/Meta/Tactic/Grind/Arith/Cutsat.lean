@@ -36,5 +36,7 @@ builtin_initialize registerTraceClass `grind.debug.cutsat.search.conflict (inher
 builtin_initialize registerTraceClass `grind.debug.cutsat.search.backtrack (inherited := true)
 builtin_initialize registerTraceClass `grind.debug.cutsat.internalize
 builtin_initialize registerTraceClass `grind.debug.cutsat.toInt
+builtin_initialize registerTraceClass `grind.debug.cutsat.search.cnstrs
+builtin_initialize registerTraceClass `grind.debug.cutsat.search.reorder
 
 end Lean

@@ -22,8 +22,15 @@ structure ProofM.State where
   natExprMap  : Std.HashMap Int.OfNat.Expr Expr := {}
 
 structure ProofM.Context where
-  ctx    : Expr
-  natCtx : Expr
+  ctx       : Expr
+  /-- Variables before reordering -/
+  ctx'      : Expr
+  natCtx    : Expr
+  /--
+  `unordered` is `true` if we entered a `.reorder c` justification. The variables in `c` and
+  its dependencies are unordered.
+  -/
+  unordered : Bool := false
 
 /-- Auxiliary monad for constructing cutsat proofs. -/
 abbrev ProofM := ReaderT ProofM.Context (StateRefT ProofM.State GoalM)
@@ -34,6 +41,19 @@ private abbrev getContext : ProofM Expr := do
 
 private abbrev getNatContext : ProofM Expr := do
   return (← read).natCtx
+
+/--
+Execute `k` with `unordered := true`, and the unordered variable context.
+We use this combinator to process `.reorder c` justifications.
+-/
+private abbrev withUnordered (k : ProofM α) : ProofM α := do
+  withReader (fun c => { c with ctx := c.ctx', unordered := true }) k
+
+private abbrev getVarMap : ProofM (PHashMap ExprPtr Var) := do
+  if (← read).unordered then
+    return (← get').varMap'
+  else
+    return (← get').varMap
 
 private abbrev caching (c : α) (k : ProofM Expr) : ProofM Expr := do
   let addr := unsafe (ptrAddrUnsafe c).toUInt64 >>> 2
@@ -74,20 +94,24 @@ private def toContextExprCore (vars : PArray Expr) (type : Expr) : MetaM Expr :=
 private def toContextExpr : GoalM Expr := do
   toContextExprCore (← getVars) Int.mkType
 
+private def toContextExpr' : GoalM Expr := do
+  toContextExprCore (← get').vars' Int.mkType
+
 private def toNatContextExpr : GoalM Expr := do
   toContextExprCore (← getNatVars) Nat.mkType
 
 private abbrev withProofContext (x : ProofM Expr) : GoalM Expr := do
   withLetDecl `ctx (mkApp (mkConst ``RArray [levelZero]) Int.mkType) (← toContextExpr) fun ctx => do
+  withLetDecl `ctx' (mkApp (mkConst ``RArray [levelZero]) Int.mkType) (← toContextExpr') fun ctx' => do
   withLetDecl `nctx (mkApp (mkConst ``RArray [levelZero]) Nat.mkType) (← toNatContextExpr) fun natCtx => do
-    go { ctx, natCtx } |>.run' {}
+    go { ctx, ctx', natCtx } |>.run' {}
 where
   go : ProofM Expr := do
     let h ← x
     let h ← mkLetOfMap (← get).polyMap h `p (mkConst ``Int.Linear.Poly) toExpr
     let h ← mkLetOfMap (← get).exprMap h `e (mkConst ``Int.Linear.Expr) toExpr
     let h ← mkLetOfMap (← get).natExprMap h `a (mkConst ``Int.OfNat.Expr) toExpr
-    mkLetFVars #[(← getContext), (← getNatContext)] h
+    mkLetFVars #[(← getContext), (← read).ctx', (← getNatContext)] h
 
 private def DvdCnstr.get_d_a (c : DvdCnstr) : GoalM (Int × Int) := do
   let d := c.d
@@ -111,7 +135,7 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
     let h := mkApp toIntThm (← mkEqProof a b)
     return mkApp6 (mkConst ``Int.Linear.eq_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue h
   | .defn e p =>
-    let some x := (← get').varMap.find? { expr := e } | throwError "`grind` internal error, missing cutsat variable{indentExpr e}"
+    let some x := (← getVarMap).find? { expr := e } | throwError "`grind` internal error, missing cutsat variable{indentExpr e}"
     return mkApp6 (mkConst ``Int.Linear.eq_def) (← getContext) (toExpr x) (← mkPolyDecl p) (← mkPolyDecl c'.p) reflBoolTrue (← mkEqRefl e)
   | .defnNat e x e' =>
     let h := mkApp2 (mkConst ``Int.OfNat.Expr.eq_denoteAsInt) (← getNatContext) (← mkNatExprDecl e)
@@ -129,6 +153,7 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
     return mkApp6 (mkConst ``Int.Linear.eq_of_le_ge)
       (← getContext) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p)
       reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+  | .reorder c => withUnordered <| c.toExprProof
 
 partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.cutsat.proof] "{← c'.pp}"
@@ -190,6 +215,7 @@ partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
     return mkApp10 (mkConst thmName)
       (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr c'.d) (← mkPolyDecl c'.p)
       (← s.toExprProof) reflBoolTrue
+  | .reorder c => withUnordered <| c.toExprProof
 
 partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.cutsat.proof] "{← c'.pp}"
@@ -275,6 +301,7 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
       let thmName := if left then ``Int.Linear.cooper_dvd_left_split_ineq else ``Int.Linear.cooper_dvd_right_split_ineq
       return mkApp10 (mkConst thmName)
         (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr coeff) (← mkPolyDecl c'.p) (← s.toExprProof) reflBoolTrue
+  | .reorder c => withUnordered <| c.toExprProof
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do
   match c'.h with
@@ -301,6 +328,7 @@ partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c'
     return mkApp8 (mkConst ``Int.Linear.eq_diseq_subst)
       (← getContext) (toExpr x) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
       reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+  | .reorder c => withUnordered <| c.toExprProof
 
 partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s do
   match s.h with
@@ -385,7 +413,7 @@ mutual
 partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
   | .core0 .. | .core .. | .coreNat .. | .defn .. | .defnNat .. | .coreToInt .. => return () -- Equalities coming from the core never contain cutsat decision variables
-  | .norm c | .divCoeffs c => c.collectDecVars
+  | .reorder c | .norm c | .divCoeffs c => c.collectDecVars
   | .subst _ c₁ c₂ | .ofLeGe c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
 
 partial def CooperSplit.collectDecVars (s : CooperSplit) : CollectDecVarsM Unit := do unless (← alreadyVisited s) do
@@ -401,14 +429,14 @@ partial def DvdCnstr.collectDecVars (c' : DvdCnstr) : CollectDecVarsM Unit := do
   match c'.h with
   | .core _ | .coreNat .. => return ()
   | .cooper₁ c | .cooper₂ c
-  | .norm c | .elim c | .divCoeffs c | .ofEq _ c => c.collectDecVars
+  | .reorder c | .norm c | .elim c | .divCoeffs c | .ofEq _ c => c.collectDecVars
   | .solveCombine c₁ c₂ | .solveElim c₁ c₂ | .subst _ c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
 
 partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
   | .core .. | .coreNeg .. | .coreNat .. | .coreNatNeg .. | .coreToInt .. | .denoteAsIntNonneg .. | .bound .. => return ()
   | .dec h => markAsFound h
-  | .cooper c | .norm c | .divCoeffs c => c.collectDecVars
+  | .reorder c | .cooper c | .norm c | .divCoeffs c => c.collectDecVars
   | .dvdTight c₁ c₂ | .negDvdTight c₁ c₂
   | .combine c₁ c₂ | .combineDivCoeffs c₁ c₂ _
   | .subst _ c₁ c₂ | .ofLeDiseq c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
@@ -417,7 +445,7 @@ partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do u
 partial def DiseqCnstr.collectDecVars (c' : DiseqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
   | .core0 .. | .core .. | .coreNat .. | .coreToInt .. => return () -- Disequalities coming from the core never contain cutsat decision variables
-  | .norm c | .divCoeffs c | .neg c => c.collectDecVars
+  | .reorder c | .norm c | .divCoeffs c | .neg c => c.collectDecVars
   | .subst _ c₁ c₂  => c₁.collectDecVars; c₂.collectDecVars
 
 end

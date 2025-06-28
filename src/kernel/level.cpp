@@ -22,6 +22,8 @@ extern "C" unsigned lean_level_hash(obj_arg l);
 extern "C" unsigned lean_level_depth(obj_arg l);
 extern "C" uint8 lean_level_has_mvar(obj_arg l);
 extern "C" uint8 lean_level_has_param(obj_arg l);
+extern "C" uint8 lean_level_is_equiv(obj_arg l1, obj_arg l2);
+extern "C" uint8 lean_level_geq(obj_arg l1, obj_arg l2);
 
 extern "C" object * lean_level_mk_zero(object*);
 extern "C" object * lean_level_mk_succ(obj_arg);
@@ -502,7 +504,8 @@ level normalize(level const & l) {
 
 bool is_equivalent(level const & lhs, level const & rhs) {
     check_system("level constraints");
-    return lhs == rhs || normalize(lhs) == normalize(rhs);
+    //return lhs == rhs || normalize(lhs) == normalize(rhs);
+    return lean_level_is_equiv(lhs.to_obj_arg(), rhs.to_obj_arg());
 }
 
 bool is_geq_core(level l1, level l2) {
@@ -525,7 +528,8 @@ bool is_geq_core(level l1, level l2) {
     return false;
 }
 bool is_geq(level const & l1, level const & l2) {
-    return is_geq_core(normalize(l1), normalize(l2));
+    //return is_geq_core(normalize(l1), normalize(l2));
+    return lean_level_geq(l1.to_obj_arg(), l2.to_obj_arg());
 }
 levels lparams_to_levels(names const & ps) {
     buffer<level> ls;

@@ -192,8 +192,7 @@ def argsInGroup (group : IndGroupInst) (xs : Array Expr) (value : Expr)
     if nestedTypeFormers.isEmpty then return .none
     lambdaTelescope value fun ys _ => do
       let x := (xs++ys)[recArgInfo.recArgPos]!
-      -- TODO: ToStream
-      for nestedTypeFormer in nestedTypeFormers, indIdx in Std.Range.mk group.all.size group.numMotives 1 (by omega) do
+      for nestedTypeFormer in nestedTypeFormers, indIdx in group.all.size...group.numMotives do
         let xType ← whnfD (← inferType x)
         let (indIndices, _, type) ← forallMetaTelescope nestedTypeFormer
         if (← isDefEqGuarded type xType) then

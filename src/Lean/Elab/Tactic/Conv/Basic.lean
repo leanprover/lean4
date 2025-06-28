@@ -100,8 +100,7 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
 
 /-- Evaluate `sepByIndent conv "; " -/
 def evalSepByIndentConv (stx : Syntax) : TacticM Unit := do
-  -- TODO: ToStream
-  for arg in stx.getArgs, i in Std.Range.mk 0 stx.getArgs.size 1 (by omega) do
+  for arg in stx.getArgs, i in *...stx.getArgs.size do
     if i % 2 == 0 then
       evalTactic arg
     else

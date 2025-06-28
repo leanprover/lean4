@@ -426,8 +426,7 @@ def deduplicateIHs (vals : Array Expr) : MetaM (Array Expr) := do
 
 def assertIHs (vals : Array Expr) (mvarid : MVarId) : MetaM MVarId := do
   let mut mvarid := mvarid
-  -- TODO: ToStream
-  for v in vals.reverse, i in Std.Range.mk 0 vals.size 1 (by omega) do
+  for v in vals.reverse, i in *...vals.size do
     mvarid ← mvarid.assert (.mkSimple s!"ih{i+1}") (← inferType v) v
   return mvarid
 
@@ -1059,8 +1058,7 @@ Given a realizer for `foo.mutual_induct`, defines `foo.induct`, `bar.induct` etc
 Used for well-founded and structural recursion.
 -/
 def projectMutualInduct (unfolding : Bool) (names : Array Name) (mutualInduct : MetaM Name) (finalizeFirstInd : MetaM Unit) : MetaM Unit := do
-  -- TODO: ToStream
-  for name in names, idx in Std.Range.mk 0 names.size 1 (by omega) do
+  for name in names, idx in *...names.size do
     let inductName := getFunInductName (unfolding := unfolding) name
     realizeConst names[0]! inductName do
       let ci ← getConstInfo (← mutualInduct)
@@ -1372,8 +1370,7 @@ where doRealize inductName := do
           -- Motives with parameters reordered, to put indices and major first,
           -- and (when unfolding) the result field instantiated
           let mut brecMotives := #[]
-          -- TODO: ToStream
-          for motive in motives, recArgInfo in recArgInfos, info in infos, funIdx in Std.Range.mk 0 motives.size 1 (by omega) do
+          for motive in motives, recArgInfo in recArgInfos, info in infos, funIdx in *...motives.size do
             let brecMotive ← forallTelescope (← inferType motive) fun ys _ => do
               let ys := if unfolding then ys.pop else ys
               let (indicesMajor, rest) := recArgInfo.pickIndicesMajor ys
@@ -1425,8 +1422,7 @@ where doRealize inductName := do
           -- terms when we have mutual induction.
           let e' ← withLetDecls `minor minorTypes minors' fun minors' => do
             let mut brecOnApps := #[]
-            -- TODO: ToStream
-            for info in infos, recArgInfo in recArgInfos, idx in Std.Range.mk 0 infos.size 1 (by omega) do
+            for info in infos, recArgInfo in recArgInfos, idx in *...infos.size do
               -- Take care to pick the `ys` from the type, to get the variable names expected
               -- by the user, but use the value arity
               let arity ← lambdaTelescope (← fixedParamPerms.perms[idx]!.instantiateLambda info.value xs) fun ys _ => pure ys.size

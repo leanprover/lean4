@@ -26,8 +26,7 @@ This ensures the preconditions for `ArgsPacker.uncurryND`.
 def checkCodomains (names : Array Name) (fixedParamPerms : FixedParamPerms) (fixedArgs : Array Expr) (arities : Array Nat)
     (termMeasures : TerminationMeasures) : TermElabM Expr := do
   let mut codomains := #[]
-  -- TODO: implement ToStream
-  for name in names, funIdx in Std.Range.mk 0 names.size 1 (by omega), arity in arities, termMeasure in termMeasures do
+  for name in names, funIdx in *...names.size, arity in arities, termMeasure in termMeasures do
     let measureType ← inferType termMeasure.fn
     let measureType ← fixedParamPerms.perms[funIdx]!.instantiateForall measureType fixedArgs
     let codomain ← forallBoundedTelescope measureType arity fun xs codomain => do

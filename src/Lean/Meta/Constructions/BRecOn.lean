@@ -227,8 +227,7 @@ private def mkBRecOnFromRec (recName : Name) (nParams : Nat)
     --   (F_1 : (t : List α) → (f : List.below t) → motive t)
     -- and bring parameters of that type into scope
     let mut fDecls : Array (Name × (Array Expr -> MetaM Expr)) := #[]
-    -- TODO: need `ToStream` instance!
-    for motive in motives, below in belows, i in Std.Range.mk 0 motives.size 1 (by omega) do
+    for motive in motives, below in belows, i in *...motives.size do
       let fType ← forallTelescope (← inferType motive) fun targs _ => do
         withLocalDeclD `f (mkAppN below targs) fun f =>
           mkForallFVars (targs.push f) (mkAppN motive targs)

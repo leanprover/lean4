@@ -75,14 +75,14 @@ def lowerLitValue (v : LCNF.LitValue) : LitVal :=
 builtin_initialize scalarTypeExt : LCNF.CacheExtension Name (Option IRType) ←
   LCNF.CacheExtension.register
 
-def lowerEnumToScalarType? (name : Name) : M (Option IRType) := do
+def lowerEnumToScalarType? (name : Name) : CoreM (Option IRType) := do
   match (← scalarTypeExt.find? name) with
   | some info? => return info?
   | none =>
     let info? ← fillCache
     scalarTypeExt.insert name info?
     return info?
-where fillCache : M (Option IRType) := do
+where fillCache : CoreM (Option IRType) := do
   let env ← Lean.getEnv
   let some (.inductInfo inductiveVal) := env.find? name | return none
   let ctorNames := inductiveVal.ctors
@@ -101,7 +101,7 @@ where fillCache : M (Option IRType) := do
   else
     none
 
-def lowerType (e : Lean.Expr) : M IRType := do
+def lowerType (e : Lean.Expr) : CoreM IRType := do
   match e with
   | .const name .. =>
     match name with
@@ -133,7 +133,7 @@ def lowerType (e : Lean.Expr) : M IRType := do
 builtin_initialize ctorInfoExt : LCNF.CacheExtension Name (CtorInfo × (Array CtorFieldInfo)) ←
   LCNF.CacheExtension.register
 
-def getCtorInfo (name : Name) : M (CtorInfo × (Array CtorFieldInfo)) := do
+def getCtorInfo (name : Name) : CoreM (CtorInfo × (Array CtorFieldInfo)) := do
   match (← ctorInfoExt.find? name) with
   | some info => return info
   | none =>

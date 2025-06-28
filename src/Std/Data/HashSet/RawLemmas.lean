@@ -251,7 +251,7 @@ theorem contains_eq_isSome_get? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a 
     m.contains a = (m.get? a).isSome :=
   HashMap.Raw.contains_eq_isSome_getKey? h.out
 
-@[simp]
+@[simp, grind =]
 theorem isSome_get?_eq_contains [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     (m.get? a).isSome = m.contains a :=
   (contains_eq_isSome_get? h).symm

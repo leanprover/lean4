@@ -302,7 +302,7 @@ theorem contains_eq_isSome_get? [LawfulBEq α] (h : m.WF) {a : α} :
     m.contains a = (m.get? a).isSome := by
   simp_to_raw using Raw₀.contains_eq_isSome_get?
 
-@[simp]
+@[simp, grind =]
 theorem isSome_get?_eq_contains [LawfulBEq α] (h : m.WF) {a : α} :
     (m.get? a).isSome = m.contains a :=
   (contains_eq_isSome_get? h).symm
@@ -364,7 +364,7 @@ theorem contains_eq_isSome_get? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a 
     m.contains a = (get? m a).isSome := by
   simp_to_raw using Raw₀.Const.contains_eq_isSome_get?
 
-@[simp]
+@[simp, grind =]
 theorem isSome_get?_eq_contains [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     (get? m a).isSome = m.contains a :=
   (contains_eq_isSome_get? h).symm

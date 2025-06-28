@@ -79,7 +79,7 @@ instance : EmptyCollection (ExtTreeMap α β cmp) where
 
 instance : Inhabited (ExtTreeMap α β cmp) := ⟨∅⟩
 
-@[simp]
+@[simp, grind =]
 theorem empty_eq_emptyc : (empty : ExtTreeMap α β cmp) = ∅ :=
   rfl
 

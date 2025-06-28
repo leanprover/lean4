@@ -236,7 +236,7 @@ theorem contains_eq_isSome_get? [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
     t.contains a = (t.get? a).isSome :=
   Impl.contains_eq_isSome_get? t.wf
 
-@[simp]
+@[simp, grind =]
 theorem isSome_get?_eq_contains [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
     (t.get? a).isSome = t.contains a :=
   contains_eq_isSome_get?.symm

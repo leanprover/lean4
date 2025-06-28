@@ -84,7 +84,7 @@ instance : EmptyCollection (ExtTreeSet α cmp) where
 instance : Inhabited (ExtTreeSet α cmp) where
   default := ∅
 
-@[simp]
+@[simp, grind =]
 theorem empty_eq_emptyc : (empty : ExtTreeSet α cmp) = ∅ :=
   rfl
 

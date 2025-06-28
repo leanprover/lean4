@@ -87,7 +87,7 @@ structure Equiv (m₁ m₂ : TreeSet α cmp) where
 
 @[inherit_doc] scoped infix:50 " ~m " => Equiv
 
-@[simp]
+@[simp, grind =]
 theorem empty_eq_emptyc : (empty : TreeSet α cmp) = ∅ :=
   rfl
 

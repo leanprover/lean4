@@ -255,7 +255,7 @@ theorem get?_insert_self [LawfulBEq α] {k : α} {v : β k} : (m.insert k v).get
 theorem contains_eq_isSome_get? [LawfulBEq α] {a : α} : m.contains a = (m.get? a).isSome :=
   Raw₀.contains_eq_isSome_get? ⟨m.1, _⟩ m.2
 
-@[simp]
+@[simp, grind =]
 theorem isSome_get?_eq_contains [LawfulBEq α] {a : α} : (m.get? a).isSome = m.contains a :=
   contains_eq_isSome_get?.symm
 
@@ -314,7 +314,7 @@ theorem contains_eq_isSome_get? [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = (get? m a).isSome :=
   Raw₀.Const.contains_eq_isSome_get? ⟨m.1, _⟩ m.2
 
-@[simp]
+@[simp, grind =]
 theorem isSome_get?_eq_contains [EquivBEq α] [LawfulHashable α] {a : α} :
     (get? m a).isSome = m.contains a :=
   contains_eq_isSome_get?.symm

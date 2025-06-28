@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.NotationExtra
+public import Init.NotationExtra
 
 public section
 

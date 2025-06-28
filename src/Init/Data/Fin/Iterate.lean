@@ -6,8 +6,8 @@ Authors: Joe Hendrix
 module
 
 prelude
-import Init.PropLemmas
-import Init.Data.Fin.Basic
+public import Init.PropLemmas
+public import Init.Data.Fin.Basic
 
 public section
 

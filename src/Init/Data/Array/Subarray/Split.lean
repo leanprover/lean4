@@ -7,9 +7,9 @@ Authors: David Thrane Christiansen
 module
 
 prelude
-import Init.Data.Array.Basic
-import all Init.Data.Array.Subarray
-import Init.Omega
+public import Init.Data.Array.Basic
+public import all Init.Data.Array.Subarray
+public import Init.Omega
 
 public section
 

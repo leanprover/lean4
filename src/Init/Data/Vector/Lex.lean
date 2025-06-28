@@ -6,10 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-import all Init.Data.Vector.Basic
-import Init.Data.Vector.Lemmas
-import all Init.Data.Array.Lex.Basic
-import Init.Data.Array.Lex.Lemmas
+public import all Init.Data.Vector.Basic
+public import Init.Data.Vector.Lemmas
+public import all Init.Data.Array.Lex.Basic
+public import Init.Data.Array.Lex.Lemmas
 
 public section
 

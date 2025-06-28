@@ -6,8 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Omega.Coeffs
-import Init.Data.ToString.Macro
+public import Init.Omega.Coeffs
+public import Init.Data.ToString.Macro
 
 public section
 

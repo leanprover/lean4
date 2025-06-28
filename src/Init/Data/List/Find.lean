@@ -7,12 +7,12 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.Lemmas
-import Init.Data.List.Sublist
-import Init.Data.List.Range
-import Init.Data.List.Impl
-import all Init.Data.List.Attach
-import Init.Data.Fin.Lemmas
+public import Init.Data.List.Lemmas
+public import Init.Data.List.Sublist
+public import Init.Data.List.Range
+public import Init.Data.List.Impl
+public import all Init.Data.List.Attach
+public import Init.Data.Fin.Lemmas
 
 public section
 

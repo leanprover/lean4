@@ -6,8 +6,8 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-import Init.System.Platform
-import Init.Data.ToString.Basic
+public import Init.System.Platform
+public import Init.Data.ToString.Basic
 
 public section
 

@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.Util
+public import Init.Util
 
 public section
 

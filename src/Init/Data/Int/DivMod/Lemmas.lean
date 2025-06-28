@@ -6,13 +6,13 @@ Authors: Jeremy Avigad, Mario Carneiro, Kim Morrison, Markus Himmel
 module
 
 prelude
-import Init.Data.Int.DivMod.Bootstrap
-import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Div.Lemmas
-import Init.Data.Int.Order
-import Init.Data.Int.Lemmas
-import Init.Data.Nat.Dvd
-import Init.RCases
+public import Init.Data.Int.DivMod.Bootstrap
+public import Init.Data.Nat.Lemmas
+public import Init.Data.Nat.Div.Lemmas
+public import Init.Data.Int.Order
+public import Init.Data.Int.Lemmas
+public import Init.Data.Nat.Dvd
+public import Init.RCases
 
 public section
 

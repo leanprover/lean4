@@ -6,7 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
-import Init.Data.Iterators.Internal.Termination
+public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
+public import Init.Data.Iterators.Internal.Termination
 
 public section

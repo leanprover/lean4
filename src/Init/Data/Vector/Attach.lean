@@ -6,8 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Vector.Lemmas
-import all Init.Data.Array.Attach
+public import Init.Data.Vector.Lemmas
+public import all Init.Data.Array.Attach
 
 public section
 

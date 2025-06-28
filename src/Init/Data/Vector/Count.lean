@@ -6,9 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-import all Init.Data.Array.Count
-import all Init.Data.Vector.Basic
-import Init.Data.Vector.Lemmas
+public import all Init.Data.Array.Count
+public import all Init.Data.Vector.Basic
+public import Init.Data.Vector.Lemmas
 
 public section
 

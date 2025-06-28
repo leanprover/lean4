@@ -6,8 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Core
-import Init.Data.Range.Polymorphic.UpwardEnumerable
+public import Init.Core
+public import Init.Data.Range.Polymorphic.UpwardEnumerable
 
 public section
 

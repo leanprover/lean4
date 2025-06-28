@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Array.Basic
-import Init.Data.Float
-import Init.Data.Option.Basic
+public import Init.Data.Array.Basic
+public import Init.Data.Float
+public import Init.Data.Option.Basic
 
 public section
 universe u

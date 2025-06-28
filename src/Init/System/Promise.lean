@@ -6,7 +6,7 @@ Authors: Gabriel Ebner
 module
 
 prelude
-import Init.System.IO
+public import Init.System.IO
 
 public section
 

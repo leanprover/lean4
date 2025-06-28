@@ -6,7 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Int.Order
+public import Init.Data.Int.Order
 
 public section
 

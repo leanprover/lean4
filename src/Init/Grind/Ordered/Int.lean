@@ -6,9 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Grind.Ordered.Ring
-import Init.GrindInstances.Ring.Int
-import Init.Omega
+public import Init.Grind.Ordered.Ring
+public import Init.GrindInstances.Ring.Int
+public import Init.Omega
 
 public section
 

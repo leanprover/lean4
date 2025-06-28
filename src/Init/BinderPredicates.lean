@@ -6,7 +6,7 @@ Authors: Gabriel Ebner
 module
 
 prelude
-import Init.NotationExtra
+public import Init.NotationExtra
 
 public section
 

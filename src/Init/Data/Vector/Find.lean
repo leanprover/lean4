@@ -6,12 +6,12 @@ Authors: Kim Morrison
 module
 
 prelude
-import all Init.Data.Array.Basic
-import all Init.Data.Vector.Basic
-import Init.Data.Vector.Lemmas
-import Init.Data.Vector.Attach
-import Init.Data.Vector.Range
-import Init.Data.Array.Find
+public import all Init.Data.Array.Basic
+public import all Init.Data.Vector.Basic
+public import Init.Data.Vector.Lemmas
+public import Init.Data.Vector.Attach
+public import Init.Data.Vector.Range
+public import Init.Data.Array.Find
 
 public section
 

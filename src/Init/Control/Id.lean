@@ -8,7 +8,7 @@ The identity Monad.
 module
 
 prelude
-import Init.Core
+public import Init.Core
 
 public section
 

@@ -6,10 +6,10 @@ Authors: Dany Fabian, Sebastian Ullrich
 module
 
 prelude
-import Init.Data.String.Basic
-import Init.Data.Array.Basic
-import Init.Data.SInt.Basic
-import all Init.Data.Vector.Basic
+public import Init.Data.String.Basic
+public import Init.Data.Array.Basic
+public import Init.Data.SInt.Basic
+public import all Init.Data.Vector.Basic
 
 public section
 

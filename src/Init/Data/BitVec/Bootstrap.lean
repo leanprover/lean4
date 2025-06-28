@@ -6,7 +6,7 @@ Authors: Joe Hendrix, Harun Khan, Alex Keizer, Abdalrhman M Mohamed, Siddharth B
 module
 
 prelude
-import all Init.Data.BitVec.Basic
+public import all Init.Data.BitVec.Basic
 
 public section
 

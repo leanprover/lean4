@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Format.Basic
-import Init.Data.ToString.Macro
+public import Init.Data.Format.Basic
+public import Init.Data.ToString.Macro
 
 public section
 

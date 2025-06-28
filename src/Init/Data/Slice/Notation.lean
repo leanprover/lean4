@@ -6,7 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Range.Polymorphic.PRange
+public import Init.Data.Range.Polymorphic.PRange
 
 public section
 

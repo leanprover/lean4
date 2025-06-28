@@ -6,10 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Grind.Ring.Basic
-import Init.GrindInstances.ToInt
-import all Init.Data.BitVec.Basic
-import all Init.Grind.ToInt
+public import Init.Grind.Ring.Basic
+public import Init.GrindInstances.ToInt
+public import all Init.Data.BitVec.Basic
+public import all Init.Grind.ToInt
 
 public section
 

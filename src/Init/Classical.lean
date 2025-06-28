@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.PropLemmas
+public import Init.PropLemmas
 
 public section
 

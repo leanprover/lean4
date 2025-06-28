@@ -6,8 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.List.Nat.TakeDrop
-import Init.Data.List.Perm
+public import Init.Data.List.Nat.TakeDrop
+public import Init.Data.List.Perm
 
 public section
 

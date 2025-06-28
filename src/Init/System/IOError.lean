@@ -7,7 +7,7 @@ Authors: Simon Hudon
 module
 
 prelude
-import Init.Data.ToString.Basic
+public import Init.Data.ToString.Basic
 
 public section
 

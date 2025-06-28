@@ -6,9 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Classical
-import Init.Control.EState
-import Init.Control.Reader
+public import Init.Classical
+public import Init.Control.EState
+public import Init.Control.Reader
 
 public section
 

@@ -6,8 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Slice.Array.Basic
-import Init.Data.Slice.Array.Iterator
-import Init.Data.Slice.Array.Lemmas
+public import Init.Data.Slice.Array.Basic
+public import Init.Data.Slice.Array.Iterator
+public import Init.Data.Slice.Array.Lemmas
 
 public section

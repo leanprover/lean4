@@ -6,10 +6,10 @@ Authors: Kim Morrison, Eric Wieser, François G. Dorais
 module
 
 prelude
-import Init.Data.List.Perm
-import all Init.Data.List.Sort.Basic
-import Init.Data.List.Nat.Range
-import Init.Data.Bool
+public import Init.Data.List.Perm
+public import all Init.Data.List.Sort.Basic
+public import Init.Data.List.Nat.Range
+public import Init.Data.Bool
 
 public section
 

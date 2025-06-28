@@ -6,10 +6,10 @@ Authors: Paul Reichert
 module
 
 prelude
-import all Init.Data.Iterators.Combinators.Attach
-import all Init.Data.Iterators.Combinators.Monadic.Attach
-import Init.Data.Iterators.Lemmas.Combinators.Monadic.Attach
-import Init.Data.Iterators.Lemmas.Consumers.Collect
+public import all Init.Data.Iterators.Combinators.Attach
+public import all Init.Data.Iterators.Combinators.Monadic.Attach
+public import Init.Data.Iterators.Lemmas.Combinators.Monadic.Attach
+public import Init.Data.Iterators.Lemmas.Consumers.Collect
 
 public section
 

@@ -7,7 +7,7 @@ Authors: Joachim Breitner
 module
 
 prelude
-import Init.Notation
+public import Init.Notation
 
 public section
 

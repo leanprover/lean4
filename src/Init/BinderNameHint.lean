@@ -7,8 +7,8 @@ Authors: Joachim Breitner
 module
 
 prelude
-import Init.Prelude
-import Init.Tactics
+public import Init.Prelude
+public import Init.Tactics
 
 public section
 

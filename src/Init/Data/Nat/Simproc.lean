@@ -6,9 +6,9 @@ Authors: Joe Hendrix
 module
 
 prelude
-import Init.Data.Bool
-import Init.Data.Nat.Basic
-import Init.Data.Nat.Lemmas
+public import Init.Data.Bool
+public import Init.Data.Nat.Basic
+public import Init.Data.Nat.Lemmas
 
 public section
 

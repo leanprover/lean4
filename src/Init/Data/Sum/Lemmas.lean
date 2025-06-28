@@ -6,8 +6,8 @@ Authors: Mario Carneiro, Yury G. Kudryashov
 module
 
 prelude
-import all Init.Data.Sum.Basic
-import Init.Ext
+public import all Init.Data.Sum.Basic
+public import Init.Ext
 
 public section
 

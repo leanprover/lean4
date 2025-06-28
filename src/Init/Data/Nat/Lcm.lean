@@ -6,8 +6,8 @@ Authors: Jeremy Avigad, Leonardo de Moura, Mario Carneiro, Markus Himmel
 module
 
 prelude
-import Init.Data.Nat.Gcd
-import Init.Data.Nat.Lemmas
+public import Init.Data.Nat.Gcd
+public import Init.Data.Nat.Lemmas
 
 public section
 

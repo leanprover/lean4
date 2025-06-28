@@ -6,9 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Basic
-import Init.Data.Iterators.Consumers.Partial
-import Init.Data.Iterators.Consumers.Monadic.Collect
+public import Init.Data.Iterators.Basic
+public import Init.Data.Iterators.Consumers.Partial
+public import Init.Data.Iterators.Consumers.Monadic.Collect
 
 public section
 

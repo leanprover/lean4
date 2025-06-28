@@ -6,7 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Consumers
+public import Init.Data.Iterators.Consumers
 
 public section
 

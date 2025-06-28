@@ -7,9 +7,9 @@ module
 
 prelude
 
-import all Init.Data.Option.Instances
-import Init.Data.Option.Attach
-import Init.Control.Lawful.Basic
+public import all Init.Data.Option.Instances
+public import Init.Data.Option.Attach
+public import Init.Control.Lawful.Basic
 
 public section
 

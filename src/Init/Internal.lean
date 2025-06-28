@@ -6,7 +6,7 @@ Authors: Joachim Breitner
 module
 
 prelude
-import Init.Internal.Order
+public import Init.Internal.Order
 
 public section
 

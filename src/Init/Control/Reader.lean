@@ -8,9 +8,9 @@ The Reader monad transformer for passing immutable State.
 module
 
 prelude
-import Init.Control.Basic
-import Init.Control.Id
-import Init.Control.Except
+public import Init.Control.Basic
+public import Init.Control.Id
+public import Init.Control.Except
 
 public section
 

@@ -6,8 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Range.Polymorphic.Nat
-import Init.Data.Range.Polymorphic.Lemmas
+public import Init.Data.Range.Polymorphic.Nat
+public import Init.Data.Range.Polymorphic.Lemmas
 
 public section
 

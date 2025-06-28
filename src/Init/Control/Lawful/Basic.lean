@@ -6,9 +6,9 @@ Authors: Sebastian Ullrich, Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.Ext
-import Init.SimpLemmas
-import Init.Meta
+public import Init.Ext
+public import Init.SimpLemmas
+public import Init.Meta
 
 public section
 

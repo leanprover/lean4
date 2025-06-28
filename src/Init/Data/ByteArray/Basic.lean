@@ -6,10 +6,10 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Array.Basic
-import Init.Data.UInt.Basic
-import all Init.Data.UInt.BasicAux
-import Init.Data.Option.Basic
+public import Init.Data.Array.Basic
+public import Init.Data.UInt.Basic
+public import all Init.Data.UInt.BasicAux
+public import Init.Data.Option.Basic
 
 public section
 universe u

@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.Tactics
+public import Init.Tactics
 
 public section
 

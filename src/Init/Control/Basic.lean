@@ -6,8 +6,8 @@ Author: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-import Init.Core
-import Init.BinderNameHint
+public import Init.Core
+public import Init.BinderNameHint
 
 public section
 

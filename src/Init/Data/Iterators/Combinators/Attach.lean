@@ -6,8 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Combinators.Monadic.Attach
-import Init.Data.Iterators.Combinators.FilterMap
+public import Init.Data.Iterators.Combinators.Monadic.Attach
+public import Init.Data.Iterators.Combinators.FilterMap
 
 public section
 

@@ -6,8 +6,8 @@ Authors: Gabriel Ebner
 module
 
 prelude
-import Init.System.IO
-import Init.Control.StateRef
+public import Init.System.IO
+public import Init.Control.StateRef
 
 public section
 

@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Control.Lawful.Basic
+public import Init.Control.Lawful.Basic
 
 public section
 

@@ -6,10 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Int.Order
-import Init.Data.Int.Pow
-import Init.Data.Int.DivMod.Lemmas
-import Init.Omega
+public import Init.Data.Int.Order
+public import Init.Data.Int.Pow
+public import Init.Data.Int.DivMod.Lemmas
+public import Init.Omega
 
 public section
 

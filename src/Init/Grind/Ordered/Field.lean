@@ -6,8 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Grind.Ring.Field
-import Init.Grind.Ordered.Ring
+public import Init.Grind.Ring.Field
+public import Init.Grind.Ordered.Ring
 
 public section
 

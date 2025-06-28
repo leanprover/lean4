@@ -6,8 +6,8 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.Tactics
-import Init.NotationExtra
+public import Init.Tactics
+public import Init.NotationExtra
 
 public section
 

@@ -6,14 +6,14 @@ Authors: Quang Dao, Paul Reichert
 module
 
 prelude
-import all Init.Control.Option
-import all Init.Control.Except
-import all Init.Control.ExceptCps
-import all Init.Control.StateRef
-import all Init.Control.StateCps
-import all Init.Control.Id
-import Init.Control.Lawful.MonadLift.Lemmas
-import Init.Control.Lawful.Instances
+public import all Init.Control.Option
+public import all Init.Control.Except
+public import all Init.Control.ExceptCps
+public import all Init.Control.StateRef
+public import all Init.Control.StateCps
+public import all Init.Control.Id
+public import Init.Control.Lawful.MonadLift.Lemmas
+public import Init.Control.Lawful.Instances
 
 public section
 

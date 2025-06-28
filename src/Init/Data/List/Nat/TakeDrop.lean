@@ -6,10 +6,10 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.Zip
-import Init.Data.List.Sublist
-import Init.Data.List.Find
-import Init.Data.Nat.Lemmas
+public import Init.Data.List.Zip
+public import Init.Data.List.Sublist
+public import Init.Data.List.Find
+public import Init.Data.Nat.Lemmas
 
 public section
 

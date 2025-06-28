@@ -6,21 +6,21 @@ Authors: Mario Carneiro, Kim Morrison
 module
 
 prelude
-import Init.Data.Nat.Lemmas
-import Init.Data.List.Range
-import all Init.Data.List.Control
-import Init.Data.List.Nat.TakeDrop
-import Init.Data.List.Nat.Modify
-import Init.Data.List.Nat.Basic
-import Init.Data.List.Monadic
-import Init.Data.List.OfFn
-import all Init.Data.Array.Bootstrap
-import Init.Data.Array.Mem
-import Init.Data.Array.DecidableEq
-import Init.Data.Array.Lex.Basic
-import Init.Data.Range.Lemmas
-import Init.TacticsExtra
-import Init.Data.List.ToArray
+public import Init.Data.Nat.Lemmas
+public import Init.Data.List.Range
+public import all Init.Data.List.Control
+public import Init.Data.List.Nat.TakeDrop
+public import Init.Data.List.Nat.Modify
+public import Init.Data.List.Nat.Basic
+public import Init.Data.List.Monadic
+public import Init.Data.List.OfFn
+public import all Init.Data.Array.Bootstrap
+public import Init.Data.Array.Mem
+public import Init.Data.Array.DecidableEq
+public import Init.Data.Array.Lex.Basic
+public import Init.Data.Range.Lemmas
+public import Init.TacticsExtra
+public import Init.Data.List.ToArray
 
 public section
 

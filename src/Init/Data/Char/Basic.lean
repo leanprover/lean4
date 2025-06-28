@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Data.UInt.BasicAux
+public import Init.Data.UInt.BasicAux
 
 public section
 

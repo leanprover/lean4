@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Core
+public import Init.Core
 
 public section
 

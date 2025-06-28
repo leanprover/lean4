@@ -7,7 +7,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.TakeDrop
+public import Init.Data.List.TakeDrop
 
 public section
 

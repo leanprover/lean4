@@ -6,8 +6,8 @@ Authors: Mario Carneiro
 module
 
 prelude
-import Init.Data.Int.Basic
-import Init.Data.Nat.Bitwise.Basic
+public import Init.Data.Int.Basic
+public import Init.Data.Nat.Bitwise.Basic
 
 public section
 

@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Option.Basic
+public import Init.Data.Option.Basic
 
 public section
 

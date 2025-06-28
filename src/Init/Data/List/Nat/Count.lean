@@ -6,8 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.List.Count
-import Init.Data.Nat.Lemmas
+public import Init.Data.List.Count
+public import Init.Data.Nat.Lemmas
 
 public section
 

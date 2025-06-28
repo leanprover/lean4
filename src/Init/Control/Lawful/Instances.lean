@@ -6,11 +6,11 @@ Authors: Sebastian Ullrich, Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.Control.Lawful.Basic
-import all Init.Control.Except
-import all Init.Control.State
-import Init.Control.StateRef
-import Init.Ext
+public import Init.Control.Lawful.Basic
+public import all Init.Control.Except
+public import all Init.Control.State
+public import Init.Control.StateRef
+public import Init.Ext
 
 public section
 

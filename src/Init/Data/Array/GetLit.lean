@@ -7,7 +7,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Array.Basic
+public import Init.Data.Array.Basic
 
 public section
 

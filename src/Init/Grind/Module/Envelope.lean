@@ -6,8 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Grind.Ordered.Module
-import all Init.Data.AC
+public import Init.Grind.Ordered.Module
+public import all Init.Data.AC
 
 public section
 

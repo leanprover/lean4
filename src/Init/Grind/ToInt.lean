@@ -6,7 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.Int.DivMod.Lemmas
 
 public section
 

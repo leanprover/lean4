@@ -6,11 +6,11 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.TakeDrop
-import Init.Data.List.Attach
-import Init.Data.List.OfFn
-import Init.Data.Array.Bootstrap
-import all Init.Data.List.Control
+public import Init.Data.List.TakeDrop
+public import Init.Data.List.Attach
+public import Init.Data.List.OfFn
+public import Init.Data.Array.Bootstrap
+public import all Init.Data.List.Control
 
 public section
 

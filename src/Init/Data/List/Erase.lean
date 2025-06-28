@@ -7,8 +7,8 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.Pairwise
-import Init.Data.List.Find
+public import Init.Data.List.Pairwise
+public import Init.Data.List.Find
 
 public section
 

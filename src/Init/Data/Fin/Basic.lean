@@ -6,7 +6,7 @@ Author: Leonardo de Moura, Robert Y. Lewis, Keeley Hoek, Mario Carneiro
 module
 
 prelude
-import Init.Data.Nat.Bitwise.Basic
+public import Init.Data.Nat.Bitwise.Basic
 
 public section
 

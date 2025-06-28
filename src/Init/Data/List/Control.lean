@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Control.Basic
-import Init.Control.Id
-import Init.Control.Lawful
+public import Init.Control.Basic
+public import Init.Control.Id
+public import Init.Control.Lawful
 
 public section
 

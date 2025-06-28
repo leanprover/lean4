@@ -6,9 +6,9 @@ Authors: Markus Himmel
 module
 
 prelude
-import all Init.Data.Array.Basic
-import Init.Data.Array.Lemmas
-import Init.Data.List.Nat.TakeDrop
+public import all Init.Data.Array.Basic
+public import Init.Data.Array.Lemmas
+public import Init.Data.List.Nat.TakeDrop
 
 public section
 

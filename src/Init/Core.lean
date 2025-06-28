@@ -8,8 +8,8 @@ notation, basic datatypes and type classes
 module
 
 prelude
-meta import Init.Prelude
-import Init.SizeOf
+public meta import Init.Prelude
+public import Init.SizeOf
 
 public section
 set_option linter.missingDocs true -- keep it documented

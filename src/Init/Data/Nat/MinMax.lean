@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 module
 
 prelude
-import Init.ByCases
+public import Init.ByCases
 
 public section
 

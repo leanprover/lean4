@@ -7,12 +7,12 @@ Authors: Joe Hendrix
 module
 
 prelude
-import Init.Data.Bool
-import Init.Data.Int.Pow
-import all Init.Data.Nat.Bitwise.Basic
-import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Simproc
-import Init.TacticsExtra
+public import Init.Data.Bool
+public import Init.Data.Int.Pow
+public import all Init.Data.Nat.Bitwise.Basic
+public import Init.Data.Nat.Lemmas
+public import Init.Data.Nat.Simproc
+public import Init.TacticsExtra
 
 public section
 

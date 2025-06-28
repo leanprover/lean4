@@ -8,7 +8,7 @@ Notation for operators defined at Prelude.lean
 module
 
 prelude
-import Init.Coe
+public import Init.Coe
 
 public section
 set_option linter.missingDocs true -- keep it documented

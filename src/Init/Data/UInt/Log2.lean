@@ -6,7 +6,7 @@ Authors: Henrik Böving
 module
 
 prelude
-import Init.Data.Fin.Log2
+public import Init.Data.Fin.Log2
 
 public section
 

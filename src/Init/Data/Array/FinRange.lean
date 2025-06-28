@@ -6,8 +6,8 @@ Authors: François G. Dorais
 module
 
 prelude
-import Init.Data.List.FinRange
-import Init.Data.Array.OfFn
+public import Init.Data.List.FinRange
+public import Init.Data.Array.OfFn
 
 public section
 

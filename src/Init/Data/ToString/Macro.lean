@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 module
 
 prelude
-meta import Init.Meta
+public meta import Init.Meta
 
 public section
 

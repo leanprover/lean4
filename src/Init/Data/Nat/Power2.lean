@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Nat.Linear
+public import Init.Data.Nat.Linear
 
 public section
 

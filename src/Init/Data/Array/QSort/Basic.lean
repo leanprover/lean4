@@ -6,8 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Vector.Basic
-import Init.Data.Ord
+public import Init.Data.Vector.Basic
+public import Init.Data.Ord
 
 public section
 

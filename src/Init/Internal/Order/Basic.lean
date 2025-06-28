@@ -7,9 +7,9 @@ module
 
 prelude
 
-import Init.ByCases
-import Init.RCases
-import all Init.Control.Except  -- for `MonoBind` instance
+public import Init.ByCases
+public import Init.RCases
+public import all Init.Control.Except  -- for `MonoBind` instance
 
 public section
 

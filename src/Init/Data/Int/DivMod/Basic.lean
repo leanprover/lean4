@@ -6,7 +6,7 @@ Authors: Jeremy Avigad, Mario Carneiro
 module
 
 prelude
-import Init.Data.Int.Basic
+public import Init.Data.Int.Basic
 
 public section
 

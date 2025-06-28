@@ -6,14 +6,14 @@ Authors: Harun Khan, Abdalrhman M Mohamed, Joe Hendrix, Siddharth Bhat
 module
 
 prelude
-import all Init.Data.Nat.Bitwise.Basic
-import Init.Data.Nat.Mod
-import all Init.Data.Int.DivMod
-import Init.Data.Int.LemmasAux
-import all Init.Data.BitVec.Basic
-import Init.Data.BitVec.Decidable
-import Init.Data.BitVec.Lemmas
-import Init.Data.BitVec.Folds
+public import all Init.Data.Nat.Bitwise.Basic
+public import Init.Data.Nat.Mod
+public import all Init.Data.Int.DivMod
+public import Init.Data.Int.LemmasAux
+public import all Init.Data.BitVec.Basic
+public import Init.Data.BitVec.Decidable
+public import Init.Data.BitVec.Lemmas
+public import Init.Data.BitVec.Folds
 
 public section
 

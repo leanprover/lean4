@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Control.State
-import Init.Data.Int.Basic
-import Init.Data.String.Basic
+public import Init.Control.State
+public import Init.Data.Int.Basic
+public import Init.Data.String.Basic
 
 public section
 

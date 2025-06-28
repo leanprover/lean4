@@ -6,10 +6,10 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.SimpLemmas
-import Init.Data.Nat.Basic
-import Init.Data.List.Notation
-import Init.Data.Nat.Div.Basic
+public import Init.SimpLemmas
+public import Init.Data.Nat.Basic
+public import Init.Data.List.Notation
+public import Init.Data.Nat.Div.Basic
 
 public section
 

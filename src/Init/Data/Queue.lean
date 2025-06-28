@@ -9,7 +9,7 @@ Note: this is only a temporary placeholder.
 module
 
 prelude
-import Init.Data.List.Control
+public import Init.Data.List.Control
 
 public section
 

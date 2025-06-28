@@ -6,8 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Core
-import Init.Omega
+public import Init.Core
+public import Init.Omega
 
 public section
 

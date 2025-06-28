@@ -6,8 +6,8 @@ Authors: François G. Dorais
 module
 
 prelude
-import all Init.Data.List.OfFn
-import Init.Data.List.Monadic
+public import all Init.Data.List.OfFn
+public import Init.Data.List.Monadic
 
 public section
 

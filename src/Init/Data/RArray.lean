@@ -7,7 +7,7 @@ Authors: Joachim Breitner
 module
 
 prelude
-import Init.PropLemmas
+public import Init.PropLemmas
 
 public section
 

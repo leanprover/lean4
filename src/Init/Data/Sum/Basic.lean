@@ -6,7 +6,7 @@ Authors: Mario Carneiro, Yury G. Kudryashov
 module
 
 prelude
-import Init.PropLemmas
+public import Init.PropLemmas
 
 public section
 

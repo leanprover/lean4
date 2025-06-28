@@ -6,8 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.List.Lemmas
-import Init.Data.List.Nat.TakeDrop
+public import Init.Data.List.Lemmas
+public import Init.Data.List.Nat.TakeDrop
 
 public section
 

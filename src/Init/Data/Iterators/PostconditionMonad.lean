@@ -6,9 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Control.Lawful.Basic
-import Init.Data.Subtype
-import Init.PropLemmas
+public import Init.Control.Lawful.Basic
+public import Init.Data.Subtype
+public import Init.PropLemmas
 
 public section
 

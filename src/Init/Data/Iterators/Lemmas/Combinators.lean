@@ -6,9 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Lemmas.Combinators.Attach
-import Init.Data.Iterators.Lemmas.Combinators.Monadic
-import Init.Data.Iterators.Lemmas.Combinators.FilterMap
-import Init.Data.Iterators.Lemmas.Combinators.ULift
+public import Init.Data.Iterators.Lemmas.Combinators.Attach
+public import Init.Data.Iterators.Lemmas.Combinators.Monadic
+public import Init.Data.Iterators.Lemmas.Combinators.FilterMap
+public import Init.Data.Iterators.Lemmas.Combinators.ULift
 
 public section

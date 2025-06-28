@@ -6,19 +6,19 @@ Authors: Joe Hendrix, Harun Khan, Alex Keizer, Abdalrhman M Mohamed, Siddharth B
 module
 
 prelude
-import Init.Data.Bool
-import all Init.Data.BitVec.Basic
-import all Init.Data.BitVec.BasicAux
-import Init.Data.Fin.Lemmas
-import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Div.Lemmas
-import Init.Data.Nat.Mod
-import Init.Data.Nat.Div.Lemmas
-import Init.Data.Int.Bitwise.Lemmas
-import Init.Data.Int.LemmasAux
-import Init.Data.Int.Pow
-import Init.Data.Int.LemmasAux
-import Init.Data.BitVec.Bootstrap
+public import Init.Data.Bool
+public import all Init.Data.BitVec.Basic
+public import all Init.Data.BitVec.BasicAux
+public import Init.Data.Fin.Lemmas
+public import Init.Data.Nat.Lemmas
+public import Init.Data.Nat.Div.Lemmas
+public import Init.Data.Nat.Mod
+public import Init.Data.Nat.Div.Lemmas
+public import Init.Data.Int.Bitwise.Lemmas
+public import Init.Data.Int.LemmasAux
+public import Init.Data.Int.Pow
+public import Init.Data.Int.LemmasAux
+public import Init.Data.BitVec.Bootstrap
 
 public section
 

@@ -6,15 +6,15 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.ByCases
-import Init.Data.Prod
-import Init.Data.Int.Lemmas
-import Init.Data.Int.LemmasAux
-import Init.Data.Int.DivMod.Bootstrap
-import Init.Data.Int.Cooper
-import all Init.Data.Int.Gcd
-import Init.Data.RArray
-import all Init.Data.AC
+public import Init.ByCases
+public import Init.Data.Prod
+public import Init.Data.Int.Lemmas
+public import Init.Data.Int.LemmasAux
+public import Init.Data.Int.DivMod.Bootstrap
+public import Init.Data.Int.Cooper
+public import all Init.Data.Int.Gcd
+public import Init.Data.RArray
+public import all Init.Data.AC
 
 public section
 

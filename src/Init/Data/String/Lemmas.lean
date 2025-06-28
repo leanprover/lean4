@@ -6,8 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Char.Lemmas
-import Init.Data.List.Lex
+public import Init.Data.Char.Lemmas
+public import Init.Data.List.Lex
 
 public section
 

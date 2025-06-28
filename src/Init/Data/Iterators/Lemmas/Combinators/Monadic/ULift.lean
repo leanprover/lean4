@@ -6,8 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-import all Init.Data.Iterators.Combinators.Monadic.ULift
-import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+public import all Init.Data.Iterators.Combinators.Monadic.ULift
+public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 
 public section
 

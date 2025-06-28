@@ -6,7 +6,7 @@ Authors: Gabriel Ebner, Mario Carneiro
 module
 
 prelude
-import Init.Core
+public import Init.Core
 
 public section
 

@@ -6,8 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-import all Init.Data.List.Sort.Basic
-import Init.Data.List.Sort.Lemmas
+public import all Init.Data.List.Sort.Basic
+public import Init.Data.List.Sort.Lemmas
 
 public section
 

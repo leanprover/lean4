@@ -6,8 +6,8 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.Sublist
-import Init.Data.List.Attach
+public import Init.Data.List.Sublist
+public import Init.Data.List.Attach
 
 public section
 

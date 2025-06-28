@@ -8,8 +8,8 @@ The integers, with addition, multiplication, and subtraction.
 module
 
 prelude
-import Init.Data.Cast
-import Init.Data.Nat.Div.Basic
+public import Init.Data.Cast
+public import Init.Data.Nat.Div.Basic
 
 public section
 

@@ -478,7 +478,7 @@ type, and casting `a` across the equality yields `b`, and vice versa.
 You should avoid using this type if you can. Heterogeneous equality does not
 have all the same properties as `Eq`, because the assumption that the types of
 `a` and `b` are equal is often too weak to prove theorems of interest. One
-important non-theorem is the analogue of `congr`: If `f ≍ g` and `x ≍ y`
+public important non-theorem is the analogue of `congr`: If `f ≍ g` and `x ≍ y`
 and `f x` and `g y` are well typed it does not follow that `f x ≍ g y`.
 (This does follow if you have `f = g` instead.) However if `a` and `b` have
 the same type then `a = b` and `a ≍ b` are equivalent.
@@ -594,7 +594,7 @@ theorem Or.neg_resolve_right (h : Or a (Not b)) (nb : b) : a := h.elim id (absur
 The Boolean values, `true` and `false`.
 
 Logically speaking, this is equivalent to `Prop` (the type of propositions). The distinction is
-important for programming: both propositions and their proofs are erased in the code generator,
+public important for programming: both propositions and their proofs are erased in the code generator,
 while `Bool` corresponds to the Boolean type in most programming languages and carries precisely one
 bit of run-time information.
 -/

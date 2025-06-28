@@ -6,9 +6,9 @@ Author: Kim Morrison
 module
 
 prelude
-import Init.Data.Array.Basic
-import Init.Data.Nat.Lemmas
-import Init.Data.Range
+public import Init.Data.Array.Basic
+public import Init.Data.Nat.Lemmas
+public import Init.Data.Range
 
 public section
 

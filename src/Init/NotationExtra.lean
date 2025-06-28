@@ -13,6 +13,7 @@ import Init.Conv
 import Init.Meta
 import Init.While
 meta import Init.Data.Option.Basic
+meta import Init.Data.Array.Subarray
 
 namespace Lean
 
@@ -286,8 +287,8 @@ macro_rules
         `(List.cons $x $k)
     else
       let m := x.size / 2
-      let y := x.drop m
-      let z := x.take m
+      let y := x[m:]
+      let z := x[:m]
       `(let y := %[ $[$y],* | $k ]
         %[ $[$z],* | y ])
 

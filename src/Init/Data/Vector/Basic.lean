@@ -13,7 +13,6 @@ import Init.Data.Array.MapIdx
 import Init.Data.Array.InsertIdx
 import Init.Data.Array.Range
 import Init.Data.Range
-private import Init.Data.Slice.Array.Basic
 import Init.Data.Stream
 
 /-!
@@ -543,9 +542,8 @@ instance : ForM m (Vector α n) α where
 
 /-! ### ToStream instance -/
 
-@[no_expose]
 instance : ToStream (Vector α n) (Subarray α) where
-  toStream xs := xs.toArray[*...*]
+  toStream xs := xs.toArray[:n]
 
 /-! ### Lexicographic ordering -/
 
@@ -560,7 +558,7 @@ Lexicographic comparator for vectors.
 - there is an index `i` such that `lt v[i] w[i]`, and for all `j < i`, `v[j] == w[j]`.
 -/
 def lex [BEq α] (xs ys : Vector α n) (lt : α → α → Bool := by exact (· < ·)) : Bool := Id.run do
-  for h : i in 0...n do
+  for h : i in [0 : n] do
     if lt xs[i] ys[i] then
       return true
     else if xs[i] != ys[i] then

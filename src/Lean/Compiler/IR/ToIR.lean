@@ -75,7 +75,7 @@ def lowerLitValue (v : LCNF.LitValue) : LitVal :=
 builtin_initialize scalarTypeExt : LCNF.CacheExtension Name (Option IRType) ←
   LCNF.CacheExtension.register
 
-def lowerEnumToScalarType (name : Name) : M (Option IRType) := do
+def lowerEnumToScalarType? (name : Name) : M (Option IRType) := do
   match (← scalarTypeExt.find? name) with
   | some info? => return info?
   | none =>
@@ -114,14 +114,14 @@ def lowerType (e : Lean.Expr) : M IRType := do
     | ``Float32 => return .float32
     | ``lcErased => return .irrelevant
     | _ =>
-      if let some scalarType ← lowerEnumToScalarType name then
+      if let some scalarType ← lowerEnumToScalarType? name then
         return scalarType
       else
         return .object
   | .app f _ =>
     -- All mono types are in headBeta form.
     if let .const name _ := f then
-      if let some scalarType ← lowerEnumToScalarType name then
+      if let some scalarType ← lowerEnumToScalarType? name then
         return scalarType
       else
         return .object
@@ -288,7 +288,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
             return code
           else
             mkExpr (.fap name irArgs)
-        else if let some scalarType ← lowerEnumToScalarType ctorVal.name then
+        else if let some scalarType ← lowerEnumToScalarType? ctorVal.name then
           assert! args.isEmpty
           let var ← bindVar decl.fvarId
           return .vdecl var scalarType (.lit (.num ctorVal.cidx)) (← lowerCode k)

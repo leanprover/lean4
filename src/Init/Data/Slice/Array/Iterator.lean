@@ -51,10 +51,6 @@ def ofSubarray [∀ xs : Subarray α, ToIterator xs Id α] [∀ xs : Subarray α
     as := as.push a
   return as
 
-@[inherit_doc Array.ofSubarray]
-def Subarray.toArray (s : Subarray α) : Array α :=
-  Array.ofSubarray s
-
 instance : Coe (Subarray α) (Array α) := ⟨ofSubarray⟩
 
 instance: Append (Subarray α) where

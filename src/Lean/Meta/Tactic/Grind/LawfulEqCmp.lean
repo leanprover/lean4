@@ -33,8 +33,8 @@ where
     let .forallE _ α b _ := opType | return none
     if b.hasLooseBVars then return none
     let .forallE _ α' b _ ← whnf b | return none
-    unless (← isDefEq α α') do return none
     unless b.isConstOf ``Ordering do return none
+    unless (← isDefEq α α') do return none
     let u ← getLevel α
     let some u ← decLevel? u | return none
     let lawfulEqCmp := mkApp2 (mkConst ``Std.LawfulEqCmp [u]) α op

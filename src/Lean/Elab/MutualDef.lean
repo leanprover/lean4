@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Parser.Term
 import Lean.Meta.Closure
-import Lean.Meta.Check
 import Lean.Meta.Transform
 import Lean.PrettyPrinter.Delaborator.Options
 import Lean.Elab.Command
@@ -839,9 +838,8 @@ private def pickMaxFVar? (lctx : LocalContext) (fvarIds : Array FVarId) : Option
 
 private def preprocess (e : Expr) : TermElabM Expr := do
   let e ← instantiateMVarsProfiling e
-  -- which let-decls are dependent. We say a let-decl is dependent if its lambda abstraction is type incorrect.
-  Meta.check e
-  pure e
+  -- Update which local context let-decls are dependent, while transforming any `let`s into `have`s. We say a let-decl is dependent if its lambda abstraction is type incorrect.
+  Meta.letToHaveWithTrackingLCtx e
 
 /-- Push free variables in `s` to `toProcess` if they are not already there. -/
 private def pushNewVars (toProcess : Array FVarId) (s : CollectFVars.State) : Array FVarId :=
@@ -1062,10 +1060,11 @@ def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mai
   let recFVarIds  := (letRecsToLift.map fun toLift => toLift.fvarId) ++ mainFVarIds
   withTrackingZetaDelta do
     -- By checking `toLift.type` and `toLift.val` we populate `zetaFVarIds`. See comments at `src/Lean/Meta/Closure.lean`.
+    -- We use `letToHaveWithTrackingLCtx` to transform `let`s to `have`s at the same time.
     let letRecsToLift ← letRecsToLift.mapM fun toLift => withLCtx toLift.lctx toLift.localInstances do
-      Meta.check toLift.type
-      Meta.check toLift.val
-      return { toLift with val := (← instantiateMVarsProfiling toLift.val), type := (← instantiateMVarsProfiling toLift.type) }
+      let type ← letToHaveWithTrackingLCtx (← instantiateMVarsProfiling toLift.type)
+      let val ← letToHaveWithTrackingLCtx (← instantiateMVarsProfiling toLift.val)
+      return { toLift with val, type }
     let letRecClosures ← mkLetRecClosures sectionVars mainFVarIds recFVarIds letRecsToLift
     -- mkLetRecClosures assign metavariables that were placeholders for the lifted declarations.
     let mainVals    ← mainVals.mapM (instantiateMVarsProfiling ·)

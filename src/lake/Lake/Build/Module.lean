@@ -247,32 +247,6 @@ where
     else
       return s
 
-private partial def addTransImpTrace
-  (imports : Array Module) (directImpArts : NameMap ImportArtifacts) (importAll : Bool)
-: JobM Unit := do
-  let queue ← imports.foldlM (init := #[]) fun q mod => do
-    let imports ← (← mod.imports.fetch).await
-    return imports.foldl Array.push q
-  let currTrace ← getTrace
-  newTrace "transDeps"
-  let s : Std.HashSet Name := directImpArts.fold (fun s k _ => s.insert k) {}
-  walk s queue
-  let subTrace ← takeTrace
-  setTrace (currTrace.mix subTrace)
-where
-  walk s queue := do
-    if h : 0 < queue.size then
-      let mod := queue.back
-      let queue := queue.pop
-      if s.contains mod.name then
-        walk s queue
-      else
-        addTrace (← mod.fetchImportArts importAll).getTrace
-        let s := s.insert mod.name
-        let imports ← (← mod.imports.fetch).await
-        let queue := imports.foldl Array.push queue
-        walk s queue
-
 private def Module.recFetchDirectImportArts
   (mod : Module) (header : ModuleHeader)
 : FetchM (Job (NameMap ImportArtifacts)) := do
@@ -304,8 +278,6 @@ Recursively build a module's dependencies, including:
 -/
 def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob do
   let extraDepJob ← mod.lib.extraDep.fetch
-  -- extraDepJob.bindM fun _ => do
-  -- let extraDepTrace ← takeTrace
   let headerJob ← mod.header.fetch
 
   /-
@@ -333,7 +305,6 @@ def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob 
 
   headerJob.bindM (sync := true) fun header => do
   newTrace
-  --addTrace extraDepTrace
   extraDepJob.bindM (sync := true) fun _ => do
   impArtsJob.bindM (sync := true) fun impArts => do
   let depTrace ← takeTrace
@@ -611,7 +582,6 @@ def Module.transImportTraceFacetConfig : ModuleFacetConfig transImportTraceFacet
       Thus, they are also included in this trace.
       -/
       newTrace s!"{mod.name.toString}:{facet}"
-      addTrace (← mod.setup.fetch).getTrace.withoutInputs -- TODO: Replace w/ `ModuleSetup.modules`
       addTrace art.trace
       return art.path
 

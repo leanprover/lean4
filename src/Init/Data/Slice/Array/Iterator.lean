@@ -37,3 +37,35 @@ where finally
     intro out _ h
     have := s.internalRepresentation.stop_le_array_size
     omega
+
+namespace Array
+
+/--
+Allocates a new array that contains the contents of the subarray.
+-/
+@[coe]
+def ofSubarray [∀ xs : Subarray α, ToIterator xs Id α] [∀ xs : Subarray α, ForIn Id (Iter (α := (ToIterator.State xs Id)) α) α]
+    (s : Subarray α) : Array α := Id.run do
+  let mut as := mkEmpty (s.stop - s.start)
+  for a in s do
+    as := as.push a
+  return as
+
+instance : Coe (Subarray α) (Array α) := ⟨ofSubarray⟩
+
+instance: Append (Subarray α) where
+  append x y :=
+   let a := x.toArray ++ y.toArray
+   a.toSubarray 0 a.size
+
+/-- `Subarray` representation. -/
+protected def Subarray.repr [Repr α] (s : Subarray α) : Std.Format :=
+  repr s.toArray ++ ".toSubarray"
+
+instance [Repr α] : Repr (Subarray α) where
+  reprPrec s  _ := Subarray.repr s
+
+instance [ToString α] : ToString (Subarray α) where
+  toString s := toString s.toArray
+
+end Array

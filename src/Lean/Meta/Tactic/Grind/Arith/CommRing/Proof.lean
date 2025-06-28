@@ -164,11 +164,13 @@ partial def EqCnstr.toPreNullCert (c : EqCnstr) : ProofM PreNullCert := caching 
     modify fun s => { s with hyps := s.hyps.push { h, lhs, rhs } }
     return PreNullCert.unit i (i+1)
   | .coreS _a _b _sa _sb _ra _rb =>
-    throwError "NIY"
+    throwError "`grind +ringNull` is not supported yet for this goal"
   | .superpose k₁ m₁ c₁ k₂ m₂ c₂ => (← c₁.toPreNullCert).combine k₁ m₁ k₂ m₂ (← c₂.toPreNullCert)
   | .simp k₁ c₁ k₂ m₂ c₂ => (← c₁.toPreNullCert).combine k₁ .unit k₂ m₂ (← c₂.toPreNullCert)
   | .mul k c => (← c.toPreNullCert).mul k
   | .div k c => (← c.toPreNullCert).div k
+  | .gcd .. | .numEq0 .. =>
+    throwError "`grind +ringNull` is not supported yet for this goal"
 
 def PolyDerivation.toPreNullCert (d : PolyDerivation) : ProofM PreNullCert := do
   match d with
@@ -177,6 +179,8 @@ def PolyDerivation.toPreNullCert (d : PolyDerivation) : ProofM PreNullCert := do
     -- Recall that _p = k₁*d.getPoly + k₂*m₂*c.p
     trace[grind.debug.ring.proof] ">> k₁: {k₁}, {(← d.toPreNullCert).d}, {(← c₂.toPreNullCert).d}"
     (← d.toPreNullCert).combine k₁ .unit (-k₂) m₂ (← c₂.toPreNullCert)
+  | .normEq0 .. =>
+    throwError "`grind +ringNull` is not supported yet for this goal"
 
 /-- Returns the multiplier `k` for the input polynomial. See comment at `PolyDerivation.step`. -/
 def PolyDerivation.getMultiplier (d : PolyDerivation) : Int :=
@@ -186,6 +190,7 @@ where
     match d with
     | .input _ => acc
     | .step _ k₁ d .. => go d (k₁ * acc)
+    | .normEq0 _ d .. => go d acc
 
 def EqCnstr.mkNullCertExt (c : EqCnstr) : RingM NullCertExt := do
   let (nc, s) ← c.toPreNullCert.run {}
@@ -432,6 +437,14 @@ partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCns
     let some nzInst ← noZeroDivisorsInst?
       | throwNoNatZeroDivisors
     return mkApp6 h nzInst (← mkPolyDecl c₁.p) (toExpr k) (← mkPolyDecl c.p) reflBoolTrue (← toExprProof c₁)
+  | .gcd a b c₁ c₂ =>
+    let h ← mkStepBasicPrefix ``Grind.CommRing.eq_gcd
+    return mkApp8 h (toExpr a) (toExpr b) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c.p)
+      reflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
+  | .numEq0 k c₁ c₂ =>
+    let h ← mkStepBasicPrefix ``Grind.CommRing.eq_normEq0
+    return mkApp7 h (toExpr k) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c.p)
+      reflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
 
 open Lean.Grind.CommRing in
 /--
@@ -455,6 +468,15 @@ private def derivToExprProof (d : PolyDerivation) : ProofM (Int × Poly × Expr)
       (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p) (← mkPolyDecl p)
       reflBoolTrue h₁ h₂
     return (k₁*k, p₀, h)
+  | .normEq0 p d c =>
+    let (k, p₀, h₁) ← derivToExprProof d
+    let h₂ ← c.toExprProof
+    let .num a := c.p | unreachable!
+    let h ← mkStepBasicPrefix ``Grind.CommRing.d_normEq0
+    let h := mkApp9 h
+      (toExpr k) (toExpr a.natAbs) (← mkPolyDecl p₀) (← mkPolyDecl d.p)
+      (← mkPolyDecl c.p) (← mkPolyDecl p) reflBoolTrue h₁ h₂
+    return (k, p₀, h)
 
 open Lean.Grind.CommRing in
 /--

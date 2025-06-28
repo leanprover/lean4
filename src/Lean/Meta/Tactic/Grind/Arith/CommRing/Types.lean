@@ -30,6 +30,8 @@ inductive EqCnstrProof where
   | simp (k₁ : Int) (c₁ : EqCnstr) (k₂ : Int) (m₂ : Mon) (c₂ : EqCnstr)
   | mul (k : Int) (e : EqCnstr)
   | div (k : Int) (e : EqCnstr)
+  | gcd (a b : Int) (c₁ c₂ : EqCnstr)
+  | numEq0 (k : Nat) (c₁ c₂ : EqCnstr)
 end
 
 instance : Inhabited EqCnstrProof where
@@ -109,10 +111,18 @@ inductive PolyDerivation where
     grind can deduce that `x+y+z = 0`
     -/
     step (p : Poly) (k₁ : Int) (d : PolyDerivation) (k₂ : Int) (m₂ : Mon) (c : EqCnstr)
+  | /--
+    Given `c.p == .num k`
+    ```
+    p = d.getPoly.normEq0 k
+    ```
+    -/
+    normEq0 (p : Poly) (d : PolyDerivation) (c : EqCnstr)
 
 def PolyDerivation.p : PolyDerivation → Poly
   | .input p   => p
   | .step p .. => p
+  | .normEq0 p .. => p
 
 /-- A disequality `lhs ≠ rhs` asserted by the core. -/
 structure DiseqCnstr where
@@ -196,6 +206,12 @@ structure Ring where
   recheck        : Bool := false
   /-- Inverse theorems that have been already asserted. -/
   invSet         : PHashSet Expr := {}
+  /--
+  An equality of the form `c = 0`. It is used to simplify polynomial coefficients.
+  -/
+  numEq0?        : Option EqCnstr := none
+  /-- Flag indicating whether `numEq0?` has been updated. -/
+  numEq0Updated  : Bool := false
   deriving Inhabited
 
 /--

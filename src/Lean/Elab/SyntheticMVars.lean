@@ -150,7 +150,7 @@ where
         -- Succeeded. Collect new TC problems
         trace[Elab.defaultInstance] "isDefEq worked {mkMVar mvarId} : {← inferType (mkMVar mvarId)} =?= {candidate} : {← inferType candidate}"
         let mut pending := []
-        for h : i in [:bis.size] do
+        for h : i in *...bis.size do
           if bis[i] == BinderInfo.instImplicit then
             pending := mvars[i]!.mvarId! :: pending
         synthesizePending pending
@@ -266,7 +266,7 @@ private def throwStuckAtUniverseCnstr : TermElabM Unit := do
     unless found.contains (lhs, rhs) do
       found := found.insert (lhs, rhs)
       uniqueEntries := uniqueEntries.push entry
-  for h : i in [1:uniqueEntries.size] do
+  for h : i in 1...uniqueEntries.size do
     logErrorAt uniqueEntries[i].ref (← mkLevelStuckErrorMessage uniqueEntries[i]!)
   throwErrorAt uniqueEntries[0]!.ref (← mkLevelStuckErrorMessage uniqueEntries[0]!)
 

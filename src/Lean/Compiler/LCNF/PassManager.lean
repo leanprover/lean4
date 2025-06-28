@@ -131,7 +131,7 @@ def withEachOccurrence (targetName : Name) (f : Nat → PassInstaller) : PassIns
   install passes := do
     let highestOccurrence ← PassManager.findHighestOccurrence targetName passes
     let mut passes := passes
-    for occurrence in [0:highestOccurrence+1] do
+    for occurrence in *...=highestOccurrence do
       passes ← f occurrence |>.install passes
     return passes
 

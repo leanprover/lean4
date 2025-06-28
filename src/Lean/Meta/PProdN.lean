@@ -104,7 +104,7 @@ def proj (n i : Nat) (t e : Expr) : Expr := Id.run <| do
   unless i < n do panic! "PProdN.proj: {i} not less than {n}"
   let mut t := t
   let mut value := e
-  for _ in [:i] do
+  for _ in *...i do
       value := mkPProdSnd t value
       t := mkTypeSnd t
   if i+1 < n then
@@ -119,7 +119,7 @@ def projs (n : Nat) (t e : Expr) : Array Expr :=
 /-- Given a value of type `t₁ ×' … ×' tᵢ ×' … ×' tₙ`, return a value of type `tᵢ` -/
 def projM (n i : Nat) (e : Expr) : MetaM Expr := do
   let mut value := e
-  for _ in [:i] do
+  for _ in *...i do
       value ← mkPProdSndM value
   if i+1 < n then
     mkPProdFstM value

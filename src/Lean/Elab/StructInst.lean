@@ -407,7 +407,7 @@ private def mkCtorHeader (ctorVal : ConstructorVal) (structureType? : Option Exp
   let mut type ← instantiateTypeLevelParams cinfo.toConstantVal us
   let mut params : Array Expr := #[]
   let mut instMVars : Array MVarId := #[]
-  for _ in [0 : ctorVal.numParams] do
+  for _ in *...ctorVal.numParams do
     let .forallE _ d b bi := type
       | throwError "unexpected constructor type"
     let param ←

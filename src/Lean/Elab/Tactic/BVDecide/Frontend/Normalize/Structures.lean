@@ -49,7 +49,7 @@ def addStructureSimpLemmas (simprocs : Simprocs) (lemmas : SimpTheoremsArray) :
       lemmas ← lemmas.addTheorem (.decl lemmaName) (mkConst lemmaName)
     let fields := (getStructureInfo env const).fieldNames.size
     let numParams := constInfo.numParams
-    for proj in [0:fields] do
+    for proj in *...fields do
       -- We use the simprocs with pre such that we push in projections eagerly in order to
       -- potentially not have to simplify complex structure expressions that we only project one
       -- element out of.

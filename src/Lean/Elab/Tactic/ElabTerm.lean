@@ -379,7 +379,7 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := wi
     if let some info ← getMatcherInfo? c then
       if inst.getAppNumArgs == info.arity then
         let args := inst.getAppArgs
-        for i in [0:info.numDiscrs] do
+        for i in *...info.numDiscrs do
           let inst' := args[info.numParams + 1 + i]!
           if (← Meta.isClass? (← inferType inst')) == ``Decidable then
             let inst'' ← whnf inst'

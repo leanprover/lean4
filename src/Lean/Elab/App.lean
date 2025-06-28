@@ -432,7 +432,7 @@ private def findNamedArgDependsOnCurrent? : M (Option NamedArg) := do
   else
     forallTelescopeReducing s.fType fun xs _ => do
       let curr := xs[0]!
-      for h : i in [1:xs.size] do
+      for h : i in 1...xs.size do
         let xDecl ← xs[i].fvarId!.getDecl
         if let some arg := s.namedArgs.find? fun arg => arg.name == xDecl.userName then
           /- Remark: a default value at `optParam` does not count as a dependency -/
@@ -826,7 +826,7 @@ def getElabElimExprInfo (elimExpr : Expr) : MetaM ElabElimInfo := do
         return s
     /- Collect the major parameter positions -/
     let mut majorsPos := #[]
-    for h : i in [:xs.size] do
+    for h : i in *...xs.size do
       let x := xs[i]
       unless motivePos == i do
         let xType ← x.fvarId!.getType

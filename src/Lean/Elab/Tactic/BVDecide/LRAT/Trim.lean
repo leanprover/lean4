@@ -196,7 +196,7 @@ def mapping : M (Array IntAction) := do
   let initialId ← M.getInitialId
   let mut nextMapped := initialId
   let mut newProof := #[]
-  for id in [initialId:emptyId+1] do
+  for id in initialId...=emptyId do
     if ← M.isUsed id then
       M.registerIdMap id nextMapped
       -- This should never panic as the use def analysis has already marked this step as being used

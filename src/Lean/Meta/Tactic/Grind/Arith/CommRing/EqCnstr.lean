@@ -505,7 +505,7 @@ def check : GoalM Bool := do
   let mut progress := false
   checkInvariants
   try
-    for ringId in [:(← get').rings.size] do
+    for ringId in *...(← get').rings.size do
       let r ← RingM.run ringId checkRing
       progress := progress || r
       if (← isInconsistent) then

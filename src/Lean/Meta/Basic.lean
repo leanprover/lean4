@@ -2088,7 +2088,7 @@ def instantiateForallWithParamInfos (e : Expr) (args : Array Expr) (cleanupAnnot
   let mut e := e
   let mut res := Array.mkEmpty args.size
   let mut j := 0
-  for i in [0:args.size] do
+  for i in *...args.size do
     unless e.isForall do
       e ← whnf (e.instantiateRevRange j i args)
       j := i
@@ -2117,7 +2117,7 @@ def instantiateLambdaWithParamInfos (e : Expr) (args : Array Expr) (cleanupAnnot
   let mut e := e
   let mut res := Array.mkEmpty args.size
   let mut j := 0
-  for i in [0:args.size] do
+  for i in *...args.size do
     unless e.isLambda do
       e ← whnf (e.instantiateRevRange j i args)
       j := i

@@ -158,7 +158,7 @@ def cases (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := mvarId.withConte
     let mut recursorType ← inferType recursor
     let mut mvarIdsNew := #[]
     let mut idx := 1
-    for _ in [:recursorInfo.numMinors] do
+    for _ in *...recursorInfo.numMinors do
       let .forallE _ targetNew recursorTypeNew _ ← whnf recursorType
         | throwTacticEx `grind.cases mvarId "unexpected recursor type"
       recursorType := recursorTypeNew

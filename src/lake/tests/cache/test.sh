@@ -64,7 +64,17 @@ test_cached +Test:c
 check_diff /dev/null <(ls -1 "$CACHE_DIR/*.hash" 2>/dev/null)
 
 # Verify that the executable has the right permissions to be run
-LAKE_CACHE_DIR="$CACHE_DIR" test_cmd lake exe test
+LAKE_CACHE_DIR="$CACHE_DIR" test_run exe test
+
+# Verify that fetching from the cache creates a trace file that does not replay
+touch Ignored.lean
+LAKE_CACHE_DIR="$CACHE_DIR" test_out "Fetched Ignored" -v build +Ignored
+test_exp -f .lake/build/lib/lean/Ignored.trace
+LAKE_CACHE_DIR="$CACHE_DIR" test_out "Fetched Ignored" -v build +Ignored
+
+# Verify that modifications invalidate the cache
+echo "def foo := ()" > Ignored.lean
+LAKE_CACHE_DIR="$CACHE_DIR" test_out "Built Ignored" -v build +Ignored
 
 # Verify module oleans and ileans are restored from the cache
 LAKE_CACHE_DIR="$CACHE_DIR" test_run build +Test --no-build

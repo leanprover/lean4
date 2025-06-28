@@ -398,10 +398,8 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifacts) := d
     let inputHash := depTrace.hash
     let savedTrace ← readTraceFile mod.traceFile
     if let some ref := mod.pkg.cacheRef? then
-      if let some arts ← resolveArtifactsUsing? ModuleOutputHashes inputHash savedTrace ref then
-        let arts ← mod.restoreArtifacts arts
-        savedTrace.replayIfExists
-        return arts
+      if let some arts ← resolveArtifactsUsing? ModuleOutputHashes inputHash mod.traceFile savedTrace ref then
+        return ← mod.restoreArtifacts arts
     let upToDate ← savedTrace.replayIfUpToDate (oldTrace := srcTrace.mtime) mod depTrace
     unless upToDate do
       discard <| buildAction depTrace mod.traceFile do

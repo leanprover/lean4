@@ -15,8 +15,8 @@ theorem succ_eq {n : Nat} : UpwardEnumerable.succ n = n + 1 :=
   rfl
 
 theorem ClosedOpen.toList_succ_succ  {m n : Nat} :
-    ((m+1)...(n+1)).toList =
-      (m...n).toList.map (· + 1) := by
+    (PRange.mk (shape := ⟨.closed, .open⟩) (m+1) (n+1)).toList =
+      (PRange.mk (shape := ⟨.closed, .open⟩) m n).toList.map (· + 1) := by
   simp only [← succ_eq]
   rw [Std.PRange.ClosedOpen.toList_succ_succ_eq_map]
 

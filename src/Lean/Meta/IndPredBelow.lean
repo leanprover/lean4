@@ -8,7 +8,6 @@ import Lean.Meta.Constructions.CasesOn
 import Lean.Meta.Match.Match
 import Lean.Meta.Tactic.SolveByElim
 import Init.Data.Range.Polymorphic.Nat
-import Init.Data.Range.Polymorphic.Iterators
 
 namespace Lean.Meta.IndPredBelow
 open Match

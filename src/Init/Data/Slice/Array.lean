@@ -12,7 +12,6 @@ import Init.Data.Iterators.Combinators.Attach
 import Init.Data.Iterators.Combinators.FilterMap
 import all Init.Data.Range.Polymorphic.Basic
 import Init.Data.Range.Polymorphic.Nat
-import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Slice.Operations
 
 /-!

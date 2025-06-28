@@ -10,7 +10,6 @@ import Init.Data.Iterators
 import Init.Data.Iterators.Lemmas.Consumers.Collect
 import all Init.Data.Range.Polymorphic.Basic
 import all Init.Data.Range.Polymorphic.RangeIterator
-import all Init.Data.Range.Polymorphic.Iterators
 import all Init.Data.Iterators.Consumers.Loop
 
 /-!

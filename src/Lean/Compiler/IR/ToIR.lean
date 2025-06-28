@@ -15,8 +15,8 @@ import Lean.Environment
 
 namespace Lean.IR
 
-open Lean.Compiler (LCNF.Alt LCNF.Arg LCNF.CacheExtension LCNF.Code LCNF.Decl LCNF.DeclValue
-                    LCNF.LCtx LCNF.LetDecl LCNF.LetValue LCNF.LitValue LCNF.Param LCNF.getMonoDecl?)
+open Lean.Compiler (LCNF.Alt LCNF.Arg LCNF.Code LCNF.Decl LCNF.DeclValue LCNF.LCtx LCNF.LetDecl
+                    LCNF.LetValue LCNF.LitValue LCNF.Param LCNF.getMonoDecl?)
 
 namespace ToIR
 
@@ -72,35 +72,6 @@ def lowerLitValue (v : LCNF.LitValue) : LitVal :=
   | .uint32 v => .num (UInt32.toNat v)
   | .uint64 v | .usize v => .num (UInt64.toNat v)
 
-builtin_initialize scalarTypeExt : LCNF.CacheExtension Name (Option IRType) ←
-  LCNF.CacheExtension.register
-
-def lowerEnumToScalarType? (name : Name) : CoreM (Option IRType) := do
-  match (← scalarTypeExt.find? name) with
-  | some info? => return info?
-  | none =>
-    let info? ← fillCache
-    scalarTypeExt.insert name info?
-    return info?
-where fillCache : CoreM (Option IRType) := do
-  let env ← Lean.getEnv
-  let some (.inductInfo inductiveVal) := env.find? name | return none
-  let ctorNames := inductiveVal.ctors
-  let numCtors := ctorNames.length
-  for ctorName in ctorNames do
-    let some (.ctorInfo ctorVal) := env.find? ctorName | panic! "expected valid constructor name"
-    if ctorVal.type.isForall then return none
-  return if numCtors == 1 then
-    none
-  else if numCtors < Nat.pow 2 8 then
-    some .uint8
-  else if numCtors < Nat.pow 2 16 then
-    some .uint16
-  else if numCtors < Nat.pow 2 32 then
-    some .uint32
-  else
-    none
-
 def lowerType (e : Lean.Expr) : CoreM IRType := do
   match e with
   | .const name .. =>
@@ -129,28 +100,6 @@ def lowerType (e : Lean.Expr) : CoreM IRType := do
       return .object
   | .forallE .. => return .object
   | _ => panic! "invalid type"
-
-builtin_initialize ctorInfoExt : LCNF.CacheExtension Name (CtorInfo × (Array CtorFieldInfo)) ←
-  LCNF.CacheExtension.register
-
-def getCtorInfo (name : Name) : CoreM (CtorInfo × (Array CtorFieldInfo)) := do
-  match (← ctorInfoExt.find? name) with
-  | some info => return info
-  | none =>
-    let info ← fillCache
-    ctorInfoExt.insert name info
-    return info
-where fillCache := do
-  match getCtorLayout (← Lean.getEnv) name with
-  | .ok ctorLayout =>
-    return ⟨{
-      name,
-      cidx := ctorLayout.cidx,
-      size := ctorLayout.numObjs,
-      usize := ctorLayout.numUSize,
-      ssize := ctorLayout.scalarSize
-    }, ctorLayout.fieldInfo.toArray⟩
-  | .error .. => panic! "unrecognized constructor"
 
 def lowerArg (a : LCNF.Arg) : M Arg := do
   match a with

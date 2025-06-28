@@ -7,8 +7,10 @@ module
 
 prelude
 import all Init.Data.Array.Subarray
-import all Init.Data.Slice.Array
+import all Init.Data.Slice.Array.Basic
+import all Init.Data.Slice.Array.Iterator
 import all Init.Data.Slice.Operations
+import all Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic.Lemmas
 import Init.Data.Slice.Lemmas
 import Init.Data.Iterators.Lemmas

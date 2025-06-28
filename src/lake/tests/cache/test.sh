@@ -70,7 +70,7 @@ test_cached Test:shared !
 test_cached +Test:o.export
 test_cached +Test:o.noexport
 test_cached +Test:dynlib !
-test_cached +Test:olean !
+test_cached +Test:olean
 test_cached +Test:ilean !
 test_cached +Test:c
 
@@ -90,16 +90,15 @@ LAKE_CACHE_DIR="$CACHE_DIR" test_out "Fetched Ignored" -v build +Ignored
 echo "def foo := ()" > Ignored.lean
 LAKE_CACHE_DIR="$CACHE_DIR" test_out "Built Ignored" -v build +Ignored
 
-# Verify module oleans and ileans are restored from the cache
+# Verify module ileans are restored from the cache
 LAKE_CACHE_DIR="$CACHE_DIR" test_run build +Test --no-build
-test_cmd rm .lake/build/lib/lean/Test.olean .lake/build/lib/lean/Test.ilean
+test_cmd rm .lake/build/lib/lean/Test.ilean
 LAKE_CACHE_DIR="$CACHE_DIR" test_out "restored artifact from cache" -v build +Test --no-build
-test_exp -f .lake/build/lib/lean/Test.olean
 test_exp -f .lake/build/lib/lean/Test.ilean
 
 # Verify that things work properly if the cached artifact is removed
 test_cmd rm "$cache_art"
-LAKE_CACHE_DIR="$CACHE_DIR" test_out "⚠ [3/3] Replayed Test:c.o" build +Test:o -v --no-build
+LAKE_CACHE_DIR="$CACHE_DIR" test_out "⚠ [4/4] Replayed Test:c.o" build +Test:o -v --no-build
 test_exp -f "$cache_art" # artifact should be re-cached
 test_cmd rm "$CACHE_DIR/inputs/test.jsonl"
 LAKE_CACHE_DIR="$CACHE_DIR" test_out "Replayed Test:c.o" build +Test:o -v --no-build
@@ -119,6 +118,11 @@ LAKE_CACHE_DIR="$CACHE_DIR" test_out "Fetched Test:c.o" build +Test:o -v --no-bu
 # the cached artifact is still used via the output hash in the trace
 test_cmd rm "$CACHE_DIR/inputs/test.jsonl" .lake/build/ir/Test.c
 LAKE_CACHE_DIR="$CACHE_DIR" test_run -v build +Test:c --no-build
+
+# Verify that the olean does need to be present in the build directory
+test_cmd rm .lake/build/lib/lean/Test.olean .lake/build/lib/lean/Test/Imported.olean
+LAKE_CACHE_DIR="$CACHE_DIR" test_run -v build +Test.Imported --no-build --wfail
+LAKE_CACHE_DIR="$CACHE_DIR" test_run -v build +Test
 
 # Cleanup
 rm -f produced.out Ignored.lean

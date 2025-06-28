@@ -447,15 +447,12 @@ private def Module.cacheOutputArtifacts (mod : Module) : JobM ModuleOutputArtifa
   return arts
 
 /--
-Some module build artifacts must be located in the build directory (e.g., OLeans, ILeans).
+Some module build artifacts must be located in the build directory (e.g., ILeans).
 This copies the required artifacts from the local Lake cache to the build directory and
 updates the data structure with the new paths.
 -/
 private def Module.restoreArtifacts (mod : Module) (cached : ModuleOutputArtifacts) : JobM ModuleOutputArtifacts := do
   return {cached with
-    olean := ← restore mod.oleanFile cached.olean
-    oleanServer? := ← cached.oleanServer?.mapM (restore mod.oleanServerFile)
-    oleanPrivate? := ← cached.oleanPrivate?.mapM (restore mod.oleanPrivateFile)
     ir? := ← cached.ir?.mapM (restore mod.irFile)
     ilean := ← restore mod.ileanFile cached.ilean
   }

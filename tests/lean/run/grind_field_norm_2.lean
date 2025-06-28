@@ -14,3 +14,9 @@ example [CommRing α] (a b : α) (h₁ : a + 6 = a) (h₂ : b + 9 = b) (h₂ : 3
 
 example [CommRing α] (a b : α) (h₁ : a + 6 = a) (h₂ : b + 9 = b) (h₂ : 3*b + a = 0) : a = 0 := by
   grind
+
+example [CommRing α] (a b : α) (h₁ : a + 2 = a) (h₂ : b = 0) : 4*a + b = 0 := by
+  grind
+
+example [CommRing α] (a b c : α) (h₁ : a + 6 = a) (h₂ : c = c + 9) (h : b + 3*c = 0) : 27*a + b = 0 := by
+  grind

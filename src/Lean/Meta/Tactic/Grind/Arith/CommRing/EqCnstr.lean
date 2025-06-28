@@ -164,7 +164,7 @@ def EqCnstr.checkConstant (c : EqCnstr) : RingM Bool := do
       let .num m := c'.p | unreachable!
       let (g, a, b) := gcdExt n m
       c := { c with p := .num g, h := .gcd a b c c' }
-    modifyRing fun s => { s with numEq0? := some c }
+    modifyRing fun s => { s with numEq0? := some c, numEq0Updated := true }
     trace_goal[grind.ring.assert.store] "{← c.denoteExpr}"
   return true
 
@@ -269,23 +269,39 @@ def EqCnstr.addToBasisAfterSimp (c : EqCnstr) : RingM Unit := do
   trace_goal[grind.ring.assert.basis] "{← c.denoteExpr}"
   addToBasisCore c
 
+private def checkNumEq0Updated : RingM Unit := do
+  if (← getRing).numEq0Updated then
+    -- `numEq0?` was updated, then we must move the basis back to the queue to be simplified.
+    let basis := (← getRing).basis
+    modifyRing fun s => { s with numEq0Updated := false, basis := {} }
+    for c in basis do
+      c.addToQueue
+
+abbrev withCheckingNumEq0 (k : RingM Unit) : RingM Unit := do
+  try
+    k
+  finally
+    checkNumEq0Updated
+
 def EqCnstr.addToBasis (c : EqCnstr) : RingM Unit := do
-  let some c ← c.simplifyAndCheck | return ()
-  c.addToBasisAfterSimp
+  withCheckingNumEq0 do
+    let some c ← c.simplifyAndCheck | return ()
+    c.addToBasisAfterSimp
 
 def addNewEq (c : EqCnstr) : RingM Unit := do
-  let some c ← c.simplifyAndCheck | return ()
-  if c.p.degree == 1 then
-    c.addToBasisAfterSimp
-  else
-    c.addToQueue
+  withCheckingNumEq0 do
+    let some c ← c.simplifyAndCheck | return ()
+    if c.p.degree == 1 then
+      c.addToBasisAfterSimp
+    else
+      c.addToQueue
 
 /-- Returns `true` if `c.d.p` is the constant polynomial. -/
 def DiseqCnstr.checkConstant (c : DiseqCnstr) : RingM Bool := do
   let .num k := c.d.p | return false
   if k == 0 then
     c.setUnsat
-  else
+  else if (← hasChar) then
     trace_goal[grind.ring.assert.trivial] "{← c.denoteExpr}"
   return true
 
@@ -302,6 +318,7 @@ def addNewDiseq (c : DiseqCnstr) : RingM Unit := do
   let c ← c.simplify
   if (← c.checkConstant) then
     return ()
+  trace[grind.ring.assert.store] "{← c.denoteExpr}"
   saveDiseq c
 
 @[export lean_process_ring_eq]
@@ -364,7 +381,7 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
     let some rb ← toRingExpr? b | return ()
     let p ← (ra.sub rb).toPolyM
     if (← isField) then
-      unless p matches .num _ do
+      if !(p matches .num _) || !(← hasChar) then
         if rb matches .num 0 then
           diseqZeroToEq a b
         else

@@ -202,6 +202,8 @@ structure Ring where
   An equality of the form `c = 0`. It is used to simplify polynomial coefficients.
   -/
   numEq0?        : Option EqCnstr := none
+  /-- Flag indicating whether `numEq0?` has been updated. -/
+  numEq0Updated  : Bool := false
   deriving Inhabited
 
 /--

@@ -14,6 +14,7 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 structure VarInfo where
   maxLowerCoeff : Nat := 0
   maxUpperCoeff : Nat := 0
+  maxDvdCoeff   : Nat := 0
   deriving Inhabited
 
 private abbrev CollectM := StateT (Array VarInfo) GoalM
@@ -27,6 +28,9 @@ private def updateUpper (a : Nat) (x : Var) : CollectM Unit := do
 private def updateVarCoeff (a : Int) (x : Var) : CollectM Unit := do
   if a < 0 then updateLower a.natAbs x else updateUpper a.natAbs x
 
+private def updateDvd (a : Nat) (x : Var) : CollectM Unit := do
+  modify fun infos => infos.modify x fun info => { info with maxDvdCoeff := max a info.maxDvdCoeff }
+
 private def collectVarInfo : GoalM (Array VarInfo) := do
   let (_, info) ← go |>.run (Array.replicate (← get').vars.size {})
   return info
@@ -39,23 +43,36 @@ where
           visitPoly c.p
         for c in s.uppers[x]! do
           visitPoly c.p
+        if let some c := s.dvds[x]! then
+          updateDvd c.d.natAbs x
 
   visitPoly : Poly → CollectM Unit
     | .num .. => return ()
     | .add a x p => do updateVarCoeff a x; visitPoly p
 
-private def cmpMin (infos : Array VarInfo) (x y : Var) : Ordering :=
-  let ix := infos[x]!
-  let iy := infos[y]!
-  compare (min ix.maxLowerCoeff ix.maxUpperCoeff) (min iy.maxLowerCoeff iy.maxUpperCoeff) |>.swap
+/-!
+We order variables in decreasing order of "cost".
+We use the lexicographical order of two different costs.
+The first one is the `max (min lowerCoeff upperCoeff) dvdCoeff`.
+Recall that we use cooper-left if the coefficient of the lower bound is smaller, and cooper-right otherwise.
+This is way we use the `min lowerCoeff upperCoeff`. The coefficient of the divisibility constraint also
+impacts the size of the search space.
+Then, we break ties using the max of all of them, and then the variable original order.
+-/
+def cost₁ (info : VarInfo) : Nat :=
+  max info.maxDvdCoeff (min info.maxLowerCoeff info.maxUpperCoeff)
 
-private def cmpMax (infos : Array VarInfo) (x y : Var) : Ordering :=
-  let ix := infos[x]!
-  let iy := infos[y]!
-  compare (max ix.maxLowerCoeff ix.maxUpperCoeff) (max iy.maxLowerCoeff iy.maxUpperCoeff) |>.swap
+private def cmp₁ (infos : Array VarInfo) (x y : Var) : Ordering :=
+  compare (cost₁ infos[x]!) (cost₁ infos[y]!) |>.swap
+
+def cost₂ (info : VarInfo) : Nat :=
+  max info.maxDvdCoeff (max info.maxLowerCoeff info.maxUpperCoeff)
+
+private def cmp₂ (infos : Array VarInfo) (x y : Var) : Ordering :=
+  compare (cost₂ infos[x]!) (cost₂ infos[y]!) |>.swap
 
 private def cmp (infos : Array VarInfo) (x y : Var) : Ordering :=
-  cmpMin infos x y |>.then (cmpMax infos x y) |>.then (compare x y)
+  cmp₁ infos x y |>.then (cmp₂ infos x y) |>.then (compare x y)
 
 private def sortVars : GoalM (Array Var) := do
   let infos ← collectVarInfo
@@ -102,7 +119,15 @@ def reorderDiseqSplits (m : PHashMap Poly FVarId) (old2new : Array Var) : PHashM
 def reorderVars : GoalM Unit := do
   let s ← get'
   if s.vars.isEmpty then return () -- nothing to reorder
-  unless s.vars'.isEmpty do return () -- we reorder variables at most once
+  /-
+  We currently reorder variables at most once.
+  It is feasible to implement dynamic variable reordering, but we would have to
+  store a trail of vars and varMaps.
+
+  The other option is change our representation and relax the assumption our polynomials are
+  sorted. It is unclear how it will impact performance.
+  -/
+  unless s.vars'.isEmpty do return ()
   checkInvariants
   let new2old ← sortVars
   let old2new := mkPermInv new2old

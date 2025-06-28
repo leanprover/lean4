@@ -1385,11 +1385,6 @@ theorem eq_normEq0 {α} [CommRing α] (ctx : Context α) (c : Nat) (p₁ p₂ p 
   simp [eq_normEq0_cert]; intro _ _; subst p₁ p; simp [Poly.denote]; intro h₁ h₂
   rw [p₂.normEq0_eq] <;> assumption
 
-theorem diseq_normEq0 {α} [CommRing α] (ctx : Context α) (c : Nat) (p₁ p₂ p : Poly)
-    : eq_normEq0_cert c p₁ p₂ p → p₁.denote ctx = 0 → p₂.denote ctx ≠ 0 → p.denote ctx ≠ 0 := by
-  simp [eq_normEq0_cert]; intro _ _; subst p₁ p; simp [Poly.denote]; intro h₁ h₂
-  rw [p₂.normEq0_eq] <;> assumption
-
 theorem gcd_eq_0 [CommRing α] (g n m a b : Int) (h : g = a * n + b * m)
     (h₁ : Int.cast (R := α) n = 0) (h₂ : Int.cast (R := α) m = 0) : Int.cast (R := α) g = 0 := by
   rw [← Ring.intCast_ofNat] at *

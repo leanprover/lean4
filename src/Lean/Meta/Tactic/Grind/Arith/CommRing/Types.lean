@@ -111,10 +111,18 @@ inductive PolyDerivation where
     grind can deduce that `x+y+z = 0`
     -/
     step (p : Poly) (k₁ : Int) (d : PolyDerivation) (k₂ : Int) (m₂ : Mon) (c : EqCnstr)
+  | /--
+    Given `c.p == .num k`
+    ```
+    p = d.getPoly.normEq0 k
+    ```
+    -/
+    normEq0 (p : Poly) (d : PolyDerivation) (c : EqCnstr)
 
 def PolyDerivation.p : PolyDerivation → Poly
   | .input p   => p
   | .step p .. => p
+  | .normEq0 p .. => p
 
 /-- A disequality `lhs ≠ rhs` asserted by the core. -/
 structure DiseqCnstr where

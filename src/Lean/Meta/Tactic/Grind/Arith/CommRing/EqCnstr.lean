@@ -96,10 +96,16 @@ def PolyDerivation.simplifyWith (d : PolyDerivation) (c : EqCnstr) : RingM PolyD
   trace_goal[grind.ring.simp] "{← r.p.denoteExpr}"
   return .step r.p r.k₁ d r.k₂ r.m₂ c
 
+def PolyDerivation.simplifyNumEq0 (d : PolyDerivation) : RingM PolyDerivation := do
+  let some numEq0 := (← getRing).numEq0? | return d
+  let .num k := numEq0.p | return d
+  return .normEq0 (d.p.normEq0 k.natAbs) d numEq0
+
 /-- Simplified `d.p` using the current basis, and returns the extended polynomial derivation. -/
 def PolyDerivation.simplify (d : PolyDerivation) : RingM PolyDerivation := do
   let mut d := d
   repeat
+    d ← d.simplifyNumEq0
     if (← checkMaxSteps) then return d
     let some c ← d.p.findSimp? |
       trace_goal[grind.debug.ring.simp] "simplified{indentD (← d.denoteExpr)}"

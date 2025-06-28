@@ -250,19 +250,26 @@ where
 private def Module.recFetchDirectImportArts
   (mod : Module) (header : ModuleHeader)
 : FetchM (Job (NameMap ImportArtifacts)) := do
-  let impArtsJobs ← header.imports.foldlM (init := ({} : NameMap (Job ImportArtifacts))) fun s imp => do
+  let (ok, impArtsJobs) ← header.imports.foldlM (init := (true, {})) fun (ok, s) imp => do
+    let leanFile := mod.relLeanFile
     if s.contains imp.module then
-      return s
+      return (ok, s)
     if mod.name = imp.module then
-      logError s!"{mod.relLeanFile}: module imports itself"
-      return s
+      logError s!"{leanFile}: module imports itself"
+      return (false, s)
     let some mod ← findModule? imp.module
-      | return s
+      | return (ok, s)
+    let .ok .. ← (← mod.header.fetch).wait
+      | logError s!"{leanFile}: bad import '{mod.name}'"
+        return (false, s)
     let arts ← mod.fetchImportArts (imp.importAll || !header.isModule)
     let transJob ← mod.transImportTrace.fetch
     let arts := {arts with task := transJob.task.bind (sync := true) fun _ => arts.task}
-    return s.insert mod.name arts
-  return Job.collectNameMap impArtsJobs s!"{mod.name}:directImportArts"
+    return (ok, s.insert mod.name arts)
+  if ok then
+    return Job.collectNameMap impArtsJobs s!"{mod.name}:directImportArts"
+  else
+    return .error
 
 /-- The `ModuleFacetConfig` for the builtin `directImportArtsFacet`. -/
 def Module.directImportArtsFacetConfig : ModuleFacetConfig directImportArtsFacet :=

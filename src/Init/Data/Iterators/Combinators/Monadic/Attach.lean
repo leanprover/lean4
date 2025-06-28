@@ -23,7 +23,7 @@ structure Attach (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator 
   invariant : ∀ out, inner.IsPlausibleIndirectOutput out → P out
 
 @[always_inline, inline]
-def Attach.modifyStep {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+def Attach.Monadic.modifyStep {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     {P : β → Prop}
     (it : IterM (α := Attach α m P) m { out : β // P out })
     (step : it.internalState.inner.Step (α := α) (m := m)) :
@@ -40,8 +40,8 @@ def Attach.modifyStep {α : Type w} {m : Type w → Type w'} {β : Type w} [Iter
 instance Attach.instIterator {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] {P : β → Prop} :
     Iterator (Attach α m P) m { out : β // P out } where
-  IsPlausibleStep it step := ∃ step', modifyStep it step' = step
-  step it := (fun step => ⟨modifyStep it step, step, rfl⟩) <$> it.internalState.inner.step
+  IsPlausibleStep it step := ∃ step', Monadic.modifyStep it step' = step
+  step it := (fun step => ⟨Monadic.modifyStep it step, step, rfl⟩) <$> it.internalState.inner.step
 
 def Attach.instFinitenessRelation {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] [Finite α m] {P : β → Prop} :
@@ -52,13 +52,13 @@ def Attach.instFinitenessRelation {α β : Type w} {m : Type w → Type w'} [Mon
     apply Relation.TransGen.single
     obtain ⟨_, hs, step, h', rfl⟩ := h
     cases step using PlausibleIterStep.casesOn
-    · simp only [IterStep.successor, modifyStep, Option.some.injEq] at hs
+    · simp only [IterStep.successor, Monadic.modifyStep, Option.some.injEq] at hs
       simp only [← hs]
       exact ⟨_, rfl, ‹_›⟩
-    · simp only [IterStep.successor, modifyStep, Option.some.injEq] at hs
+    · simp only [IterStep.successor, Monadic.modifyStep, Option.some.injEq] at hs
       simp only [← hs]
       exact ⟨_, rfl, ‹_›⟩
-    · simp [IterStep.successor, modifyStep, reduceCtorEq] at hs
+    · simp [IterStep.successor, Monadic.modifyStep, reduceCtorEq] at hs
 
 instance Attach.instFinite {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] [Finite α m] {P : β → Prop} : Finite (Attach α m P) m :=
@@ -74,11 +74,11 @@ def Attach.instProductivenessRelation {α β : Type w} {m : Type w → Type w'} 
     simp_wf
     obtain ⟨step, hs⟩ := h
     cases step using PlausibleIterStep.casesOn
-    · simp [modifyStep] at hs
-    · simp only [modifyStep, IterStep.skip.injEq] at hs
+    · simp [Monadic.modifyStep] at hs
+    · simp only [Monadic.modifyStep, IterStep.skip.injEq] at hs
       simp only [← hs]
       assumption
-    · simp [modifyStep] at hs
+    · simp [Monadic.modifyStep] at hs
 
 instance Attach.instProductive {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] [Productive α m] {P : β → Prop} :
@@ -126,7 +126,7 @@ iterator with values in the corresponding subtype `{ x // P x }`.
 * `Finite` instance: only if the base iterator is finite
 * `Productive` instance: only if the base iterator is productive
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def IterM.attachWith {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] (it : IterM (α := α) m β) (P : β → Prop)
     (h : ∀ out, it.IsPlausibleIndirectOutput out → P out) :

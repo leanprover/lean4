@@ -51,6 +51,16 @@ def ToIterator.of {x : γ} (State : Type w)
   State := State
   iterMInternal := iter.toIterM
 
+theorem ToIterator.iterM_eq {γ : Type u} {x : γ} {State : Type v} {β : Type v} {it} :
+    letI : ToIterator x Id β := .ofM State it
+    ToIterator.iterM x = it :=
+  rfl
+
+theorem ToIterator.iter_eq {γ : Type u} {x : γ} {State : Type v} {β : Type v} {it} :
+    letI : ToIterator x Id β := .ofM State it
+    ToIterator.iter x = it.toIter :=
+  rfl
+
 /-!
 ## Instance forwarding
 

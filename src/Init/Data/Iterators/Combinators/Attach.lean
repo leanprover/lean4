@@ -11,7 +11,7 @@ import Init.Data.Iterators.Combinators.FilterMap
 
 namespace Std.Iterators
 
-@[always_inline, inline, inherit_doc IterM.attachWith]
+@[always_inline, inline, expose, inherit_doc IterM.attachWith]
 def Iter.attachWith {α β : Type w}
     [Iterator α Id β]
     (it : Iter (α := α) β) (P : β → Prop) (h : ∀ out, it.IsPlausibleIndirectOutput out → P out) :

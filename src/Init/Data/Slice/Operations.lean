@@ -51,7 +51,7 @@ def toList (s : Slice g) [ToIterator s Id β] [Iterator (ToIterator.State s Id) 
 /-- Allocates a new list that contains the elements of the slice in reverse order. -/
 @[always_inline, inline]
 def toListRev (s : Slice g) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
-    [IteratorCollect (ToIterator.State s Id) Id Id] [Finite (ToIterator.State s Id) Id] : List β :=
+    [Finite (ToIterator.State s Id) Id] : List β :=
   Internal.iter s |>.toListRev
 
 end Std.Slice

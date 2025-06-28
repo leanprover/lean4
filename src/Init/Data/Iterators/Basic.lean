@@ -426,7 +426,7 @@ def Iter.Step {α : Type w} {β : Type w} [Iterator α Id β] (it : Iter (α := 
 /--
 Converts an `Iter.Step` into an `IterM.Step`.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def Iter.Step.toMonadic {α : Type w} {β : Type w} [Iterator α Id β] {it : Iter (α := α) β}
     (step : it.Step) : it.toIterM.Step :=
   ⟨step.val.mapIterator Iter.toIterM, step.property⟩

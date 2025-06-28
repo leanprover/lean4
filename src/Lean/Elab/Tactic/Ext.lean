@@ -78,7 +78,7 @@ def mkExtIffType (extThmName : Name) : MetaM Expr := withLCtx {} {} do
     unless xIdx + 1 == yIdx do
       throwError "expecting {x} and {y} to be consecutive arguments"
     let startIdx := yIdx + 1
-    let toRevert := args[startIdx...*].toArray
+    let toRevert := args[startIdx:].toArray
     let fvars ← toRevert.foldlM (init := {}) (fun st e => return collectFVars st (← inferType e))
     for fvar in toRevert do
       unless ← Meta.isProof fvar do
@@ -88,11 +88,11 @@ def mkExtIffType (extThmName : Name) : MetaM Expr := withLCtx {} {} do
     let conj := mkAndN (← toRevert.mapM (inferType ·)).toList
     -- Make everything implicit except for inst implicits
     let mut newBis := #[]
-    for fvar in args[*...startIdx] do
+    for fvar in args[0:startIdx] do
       if (← fvar.fvarId!.getBinderInfo) matches .default | .strictImplicit then
         newBis := newBis.push (fvar.fvarId!, .implicit)
     withNewBinderInfos newBis do
-      mkForallFVars args[*...startIdx] <| mkIff ty conj
+      mkForallFVars args[:startIdx] <| mkIff ty conj
 
 /--
 Ensures that the given structure has an ext theorem, without validating any pre-existing theorems.
@@ -308,8 +308,8 @@ def extCore (g : MVarId) (pats : List (TSyntax `rcasesPat))
     let (used, gs) ← extCore (← getMainGoal) pats.toList depth
     if RCases.linter.unusedRCasesPattern.get (← getOptions) then
       if used < pats.size then
-        Linter.logLint RCases.linter.unusedRCasesPattern (mkNullNode pats[used...*].toArray)
-          m!"`ext` did not consume the patterns: {pats[used...*]}"
+        Linter.logLint RCases.linter.unusedRCasesPattern (mkNullNode pats[used:].toArray)
+          m!"`ext` did not consume the patterns: {pats[used:]}"
     replaceMainGoal <| gs.map (·.1) |>.toList
   | _ => throwUnsupportedSyntax
 

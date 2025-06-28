@@ -117,7 +117,7 @@ where
                   let mut subst := {}
                   let mut jpArgs := #[]
                   /- Remark: `funDecl.params.size` may be greater than `args.size`. -/
-                  for param in funDecl.params[*...args.size] do
+                  for param in funDecl.params[:args.size] do
                     let type ← replaceExprFVars param.type subst (translator := true)
                     let paramNew ← mkAuxParam type
                     jpParams := jpParams.push paramNew
@@ -165,7 +165,7 @@ where
       | .unreach _ =>
         let type ← c.inferType
         eraseCode c
-        seq[*...i].forM fun
+        seq[:i].forM fun
           | .let decl => eraseLetDecl decl
           | .jp decl | .fun decl => eraseFunDecl decl
           | .cases _ cs => eraseCode (.cases cs)
@@ -500,7 +500,7 @@ where
   Otherwise return
   ```
   let k := app
-  k args[arity...*]
+  k args[arity:]
   ```
   -/
   mkOverApplication (app : Arg) (args : Array Expr) (arity : Nat) : M Arg := do
@@ -550,7 +550,7 @@ where
   visitCases (casesInfo : CasesInfo) (e : Expr) : M Arg :=
     etaIfUnderApplied e casesInfo.arity do
       let args := e.getAppArgs
-      let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args[*...casesInfo.arity]))
+      let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args[:casesInfo.arity]))
       if casesInfo.numAlts == 0 then
         /- `casesOn` of an empty type. -/
         mkUnreachable resultType
@@ -626,7 +626,7 @@ where
       let hb := mkLcProof args[1]!
       let minor := args[minorPos]!
       let minor := minor.beta #[ha, hb]
-      visit (mkAppN minor args[arity...*])
+      visit (mkAppN minor args[arity:])
 
   visitNoConfusion (e : Expr) : M Arg := do
     let .const declName _ := e.getAppFn | unreachable!
@@ -645,7 +645,7 @@ where
           etaIfUnderApplied e (arity+1) do
             let major := args[arity]!
             let major ← expandNoConfusionMajor major lhsCtorVal.numFields
-            let major := mkAppN major args[(arity+1)...*]
+            let major := mkAppN major args[arity+1:]
             visit major
         else
           let type ← toLCNFType (← liftMetaM <| Meta.inferType e)

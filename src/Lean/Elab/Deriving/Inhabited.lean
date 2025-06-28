@@ -83,7 +83,7 @@ where
   mkInstanceCmd? : TermElabM (Option Syntax) := do
     let ctorVal ← getConstInfoCtor ctorName
     forallTelescopeReducing ctorVal.type fun xs _ =>
-      addLocalInstancesForParams xs[*...ctorVal.numParams] fun localInst2Index => do
+      addLocalInstancesForParams xs[:ctorVal.numParams] fun localInst2Index => do
         let mut usedInstIdxs := {}
         let mut ok := true
         for h : i in [ctorVal.numParams:xs.size] do

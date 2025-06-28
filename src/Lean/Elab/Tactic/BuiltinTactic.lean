@@ -62,7 +62,7 @@ where
         let oldParsed := old.val.get
         oldInner? := oldParsed.inner? |>.map (⟨oldParsed.stx, ·⟩)
     -- compare `stx[0]` for `finished`/`next` reuse, focus on remainder of script
-    Term.withNarrowedTacticReuse (stx := stx) (fun stx => (stx[0], mkNullNode stx.getArgs[1...*])) fun stxs => do
+    Term.withNarrowedTacticReuse (stx := stx) (fun stx => (stx[0], mkNullNode stx.getArgs[1:])) fun stxs => do
       let some snap := (← readThe Term.Context).tacSnap?
         | do evalTactic tac; goOdd stxs
       let mut reusableResult? := none
@@ -118,7 +118,7 @@ where
       return
     saveTacticInfoForToken stx[0] -- add `TacticInfo` node for `;`
     -- disable further reuse on separator change as to not reuse wrong `TacticInfo`
-    Term.withNarrowedTacticReuse (fun stx => (stx[0], mkNullNode stx.getArgs[1...*])) goEven stx
+    Term.withNarrowedTacticReuse (fun stx => (stx[0], mkNullNode stx.getArgs[1:])) goEven stx
 
 @[builtin_tactic seq1] def evalSeq1 : Tactic := fun stx =>
   evalSepTactics stx[0]

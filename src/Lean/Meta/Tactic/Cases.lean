@@ -50,7 +50,7 @@ def generalizeTargetsEq (mvarId : MVarId) (motiveType : Expr) (targets : Array E
       forallTelescopeReducing motiveType fun targetsNew _ => do
         unless targetsNew.size ≥ targets.size do
           throwError "invalid number of targets #{targets.size}, motive only takes #{targetsNew.size}"
-        let targetsNewAtomic := targetsNew[*...targets.size]
+        let targetsNewAtomic := targetsNew[:targets.size]
         withNewEqs targets targetsNewAtomic fun eqs eqRefls => do
           let typeNew ← mvarId.getType
           let typeNew ← mkForallFVars eqs typeNew

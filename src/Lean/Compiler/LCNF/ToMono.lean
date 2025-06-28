@@ -54,12 +54,12 @@ def argToMonoDeferredCheck (resultFVar : FVarId) (arg : Arg) : ToMonoM Arg :=
 
 def ctorAppToMono (resultFVar : FVarId) (ctorInfo : ConstructorVal) (args : Array Arg)
     : ToMonoM LetValue := do
-  let argsNewParams : Array Arg ← args[*...ctorInfo.numParams].toArray.mapM fun arg => do
+  let argsNewParams : Array Arg ← args[:ctorInfo.numParams].toArray.mapM fun arg => do
     -- We only preserve constructor parameters that are types
     match arg with
     | .type type => return .type (← toMonoType type)
     | .fvar .. | .erased => return .erased
-  let argsNewFields ← args[ctorInfo.numParams...*].toArray.mapM (argToMonoDeferredCheck resultFVar)
+  let argsNewFields ← args[ctorInfo.numParams:].toArray.mapM (argToMonoDeferredCheck resultFVar)
   let argsNew := argsNewParams ++ argsNewFields
   return .const ctorInfo.name [] argsNew
 

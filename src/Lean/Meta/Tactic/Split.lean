@@ -146,12 +146,12 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
             let altNew ← lambdaTelescope alt fun xs body => do
               if xs.size < altNumParams || xs.size < numDiscrEqs then
                 throwError "internal error in `split` tactic: encountered an unexpected `match` expression alternative\nthis error typically occurs when the `match` expression has been constructed using meta-programming."
-              let body ← mkLambdaFVars xs[altNumParams...*] (← mkNewTarget body)
-              let ys  := xs[*...(altNumParams - numDiscrEqs)]
+              let body ← mkLambdaFVars xs[altNumParams:] (← mkNewTarget body)
+              let ys  := xs[:altNumParams - numDiscrEqs]
               if numDiscrEqs == 0 then
                 mkLambdaFVars ys body
               else
-                let altEqs := xs[(altNumParams - numDiscrEqs)...altNumParams]
+                let altEqs := xs[altNumParams - numDiscrEqs : altNumParams]
                 withNewAltEqs matcherInfo eqs altEqs fun altEqsNew subst => do
                   let body := body.replaceFVars altEqs subst
                   mkLambdaFVars (ys++altEqsNew) body

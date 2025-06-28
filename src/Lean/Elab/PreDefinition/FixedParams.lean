@@ -422,12 +422,12 @@ where
         if _ : j < varyingArgs.size then
           go (i + 1) (j + 1) (xs.push varyingArgs[j])
         else
-          if perm[i...*].all Option.isNone then
+          if perm[i:].all Option.isNone then
             xs -- Under-application
           else
             panic! "FixedParams.buildArgs: too few varying args"
     else
-      xs ++ varyingArgs[j...*] -- (Possibly) over-application
+      xs ++ varyingArgs[j:] -- (Possibly) over-application
 
 /--
 Are all fixed parameters a non-reordered prefix?

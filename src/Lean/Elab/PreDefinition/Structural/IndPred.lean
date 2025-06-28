@@ -29,7 +29,7 @@ private def replaceIndPredRecApp (fixedParamPerm : FixedParamPerm) (funType : Ex
           trace[Elab.definition.structural] "too few arguments, expected {t.getAppNumArgs}, found {ys.size}. Underapplied recursive call?"
           return false
         if (← (t.getAppArgs.zip ys).allM (fun (t,s) => isDefEq t s)) then
-          main.mvarId!.assign (mkAppN (mkAppN localDecl.toExpr mvars) ys[t.getAppNumArgs...*])
+          main.mvarId!.assign (mkAppN (mkAppN localDecl.toExpr mvars) ys[t.getAppNumArgs:])
           return ← mvars.allM fun v => do
             unless (← v.mvarId!.isAssigned) do
               trace[Elab.definition.structural] "Cannot use {mkFVar localDecl.fvarId}: parameter {v} remains unassigned"

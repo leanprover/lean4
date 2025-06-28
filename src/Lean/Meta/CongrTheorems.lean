@@ -301,13 +301,13 @@ where
                 go (i+1) (rhss.push rhs) (eqs.push eq) (hyps.push rhs |>.push eq)
             | .fixed => go (i+1) (rhss.push lhss[i]!) (eqs.push none) hyps
             | .cast =>
-              let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[*...rhss.size]) rhss
+              let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[:rhss.size]) rhss
               let rhs ← mkCast lhss[i]! rhsType info.paramInfo[i]!.backDeps eqs
               go (i+1) (rhss.push rhs) (eqs.push none) hyps
             | .subsingletonInst =>
               -- The `lhs` does not need to instance implicit since it can be inferred from the LHS
               withNewBinderInfos #[(lhss[i]!.fvarId!, .implicit)] do
-                let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[*...rhss.size]) rhss
+                let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[:rhss.size]) rhss
                 let rhsBi   := if subsingletonInstImplicitRhs then .instImplicit else .implicit
                 withLocalDecl (← lhss[i]!.fvarId!.getDecl).userName rhsBi rhsType fun rhs =>
                   go (i+1) (rhss.push rhs) (eqs.push none) (hyps.push rhs)

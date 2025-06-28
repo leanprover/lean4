@@ -935,8 +935,8 @@ def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Resul
   let mut extraArgs := #[]
   if e.getAppNumArgs > numArgs then
     let args := e.getAppArgs
-    e := mkAppN e.getAppFn args[*...numArgs]
-    extraArgs := args[numArgs...*].toArray
+    e := mkAppN e.getAppFn args[:numArgs]
+    extraArgs := args[numArgs:].toArray
   if (← withSimpMetaConfig <| isDefEq lhs e) then
     let mut modified := false
     for i in c.hypothesesPos do

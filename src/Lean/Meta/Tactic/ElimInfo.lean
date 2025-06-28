@@ -58,7 +58,7 @@ def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : Me
     unless motive.isFVar do
       throwError "expected resulting type of eliminator to be an application of one of its parameters (the motive):{indentExpr type}"
     let targets  := motiveArgs.takeWhile (·.isFVar)
-    let complexMotiveArgs := motiveArgs[targets.size...*]
+    let complexMotiveArgs := motiveArgs[targets.size:]
     let motiveType ← inferType motive
     forallTelescopeReducing motiveType fun motiveParams motiveResultType => do
       unless motiveParams.size == motiveArgs.size do

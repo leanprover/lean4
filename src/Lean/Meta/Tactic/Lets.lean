@@ -169,7 +169,7 @@ def withDeclInContext (fvarId : FVarId) (k : M α) : M α := do
     -- Is either pre-existing or already added.
     k
   else if let some idx := decls.findIdx? (·.decl.fvarId == fvarId) then
-    withEnsuringDeclsInContext decls[*...(idx+1)] k
+    withEnsuringDeclsInContext decls[0:idx+1] k
   else
     k
 
@@ -282,7 +282,7 @@ where
   extractApp (f : Expr) (args : Array Expr) : M Expr := do
     let cfg ← read
     if f.isConstOf ``letFun && args.size ≥ 4 then
-      extractApp (mkAppN f args[*...4]) args[4...*]
+      extractApp (mkAppN f args[0:4]) args[4:]
     else
       let f' ← extractCore fvars f
       if cfg.implicits then

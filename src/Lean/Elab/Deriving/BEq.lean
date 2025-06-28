@@ -67,7 +67,7 @@ where
                 rhs ← `($(mkIdent auxFunName):ident $a:ident $b:ident && $rhs)
             /- If `x` appears in the type of another field, use `eq_of_beq` to
                unify the types of the subsequent variables -/
-            else if ← xs[(pos+1)...*].anyM
+            else if ← xs[pos+1:].anyM
                 (fun fvar => (Expr.containsFVar · x.fvarId!) <$> (inferType fvar)) then
               rhs ← `(if h : $a:ident == $b:ident then by
                         cases (eq_of_beq h)

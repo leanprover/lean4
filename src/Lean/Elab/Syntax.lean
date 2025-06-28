@@ -25,7 +25,7 @@ private def mkParserSeq (ds : Array (Term × Nat)) : TermElabM (Term × Nat) := 
     pure ds[0]
   else
     let mut (r, stackSum) := ds[0]
-    for (d, stackSz) in ds[1...ds.size] do
+    for (d, stackSz) in ds[1:ds.size] do
       r ← `(ParserDescr.binary `andthen $r $d)
       stackSum := stackSum + stackSz
     return (r, stackSum)

@@ -207,14 +207,14 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
       throwError "Internal error in mkElimApp: Expected application of {motive}:{indentExpr s.fType}"
     -- Sanity-checking that the motive is applied to the targets.
     -- NB: The motive can take them in a different order than the eliminator itself
-    for motiveArg in motiveArgs[*...targets.size] do
+    for motiveArg in motiveArgs[:targets.size] do
       unless targets.contains motiveArg do
         throwError "Internal error in mkElimApp: Expected first {targets.size} arguments of motive \
           in conclusion to be one of the targets:{indentExpr s.fType}"
-    pure motiveArgs[targets.size...*]
+    pure motiveArgs[targets.size:]
   let elimApp ← instantiateMVars s.f
   -- `elimArgs` is the argument list that the offsets in `elimInfo` work with
-  let elimArgs := elimApp.getAppArgs[elimInfo.elimExpr.getAppNumArgs...*]
+  let elimArgs := elimApp.getAppArgs[elimInfo.elimExpr.getAppNumArgs:]
   return { elimApp, elimArgs, alts, others, motive, complexArgs }
 
 /--
@@ -586,7 +586,7 @@ private def withAltsOfOptInductionAlts (optInductionAlts : Syntax)
       let altStxs := optInductionAlts[0].getArg 2
       let inner := if altStxs.getNumArgs > 0 then altStxs else optInductionAlts[0][0]
       -- `with` and tactic applied to all branches must be unchanged for reuse
-      (mkNullNode optInductionAlts[0].getArgs[*...2], inner))
+      (mkNullNode optInductionAlts[0].getArgs[:2], inner))
     (fun alts? =>
       if optInductionAlts.isNone then      -- no `with` clause
         cont none
@@ -832,10 +832,10 @@ def elabElimTargets (targets : Array Syntax) : TacticM (Array Expr × Array (Ide
             j := j + 1
           else
             result := result.push info.expr
-        -- note: `fvarIdsNew[j...*]` contains all the `h` variables
+        -- note: `fvarIdsNew[j:]` contains all the `h` variables
         let hIdents := infos.filterMap (·.view.hIdent?)
         assert! hIdents.size + j == fvarIdsNew.size
-        return ((result, hIdents.zip fvarIdsNew[j...*]), [mvarId])
+        return ((result, hIdents.zip fvarIdsNew[j:]), [mvarId])
 
 /--
 Generalize targets in `fun_induction` and `fun_cases`. Should behave like `elabCasesTargets` with

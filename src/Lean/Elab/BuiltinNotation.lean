@@ -67,9 +67,9 @@ open Meta
             else if numExplicitFields == 0 then
               throwError "invalid constructor ⟨...⟩, insufficient number of arguments, constructs '{ctor}' does not have explicit fields, but #{args.size} provided"
             else
-              let extra := args[(numExplicitFields-1)...args.size]
+              let extra := args[numExplicitFields-1:args.size]
               let newLast ← `(⟨$[$extra],*⟩)
-              let newArgs := args[*...(numExplicitFields-1)].toArray.push newLast
+              let newArgs := args[0:numExplicitFields-1].toArray.push newLast
               `($(mkCIdentFrom stx ctor (canonical := true)) $(newArgs)*)
             withMacroExpansion stx newStx $ elabTerm newStx expectedType?
           | _ => throwError "invalid constructor ⟨...⟩, expected type must be an inductive type with only one constructor {indentExpr expectedType}")

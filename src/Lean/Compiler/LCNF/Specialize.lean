@@ -243,7 +243,7 @@ where
         -- Keep the parameter
         let param := { param with type := param.type.instantiateLevelParamsNoCache decl.levelParams us }
         params := params.push (← internalizeParam param)
-    for param in decl.params[argMask.size...*] do
+    for param in decl.params[argMask.size:] do
       let param := { param with type := param.type.instantiateLevelParamsNoCache decl.levelParams us }
       params := params.push (← internalizeParam param)
     let code := code.instantiateValueLevelParams decl.levelParams us
@@ -266,7 +266,7 @@ def getRemainingArgs (paramsInfo : Array SpecParamInfo) (args : Array Arg) : Arr
   for info in paramsInfo, arg in args do
     if info matches .other then
       result := result.push arg
-  return result ++ args[paramsInfo.size...*]
+  return result ++ args[paramsInfo.size:]
 
 def paramsToGroundVars (params : Array Param) : CompilerM FVarIdSet :=
   params.foldlM (init := {}) fun r p => do

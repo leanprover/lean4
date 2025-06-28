@@ -156,7 +156,7 @@ private def reorderCtorArgs (ctorType : Expr) : MetaM Expr := do
        -/
       let C := type.getAppFn
       let binderNames := getArrowBinderNames (← instantiateMVars (← inferType C))
-      return replaceArrowBinderNames r binderNames[*...bsPrefix.size]
+      return replaceArrowBinderNames r binderNames[:bsPrefix.size]
 
 /--
   Elaborate constructor types.

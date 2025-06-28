@@ -393,7 +393,7 @@ def updateFunDeclParamsAssignment (params : Array Param) (args : Array Arg) : In
   to top.
   -/
   if params.size != args.size then
-    for param in params[args.size...*] do
+    for param in params[args.size:] do
       ret := (← findVarValue param.fvarId) == .bot
       updateVarAssignment param.fvarId .top
   return ret
@@ -475,7 +475,7 @@ where
           return .top
       | none =>
         let some (.ctorInfo info) := env.find? declName | return .top
-        let args := args[info.numParams...*].toArray
+        let args := args[info.numParams:].toArray
         if info.numFields == args.size then
           return .ctor declName (← args.mapM findArgValue)
         else

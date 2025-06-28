@@ -165,10 +165,10 @@ def count : Probe α Nat := fun data => return #[data.size]
 def sum : Probe Nat Nat := fun data => return #[data.foldl (init := 0) (·+·)]
 
 @[inline]
-def tail (n : Nat) : Probe α α := fun data => return data[(data.size - n)...*]
+def tail (n : Nat) : Probe α α := fun data => return data[data.size - n:]
 
 @[inline]
-def head (n : Nat) : Probe α α := fun data => return data[*...n]
+def head (n : Nat) : Probe α α := fun data => return data[:n]
 
 def runOnDeclsNamed (declNames : Array Name) (probe : Probe Decl β) (phase : Phase := Phase.base): CoreM (Array β) := do
   let ext := getExt phase

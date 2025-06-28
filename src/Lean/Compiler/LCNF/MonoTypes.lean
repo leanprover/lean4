@@ -20,7 +20,7 @@ def getRelevantCtorFields (ctorName : Name) : CoreM (Array Bool) := do
   Meta.MetaM.run' do
     Meta.forallTelescopeReducing info.type fun xs _ => do
       let mut result := #[]
-      for x in xs[info.numParams...*] do
+      for x in xs[info.numParams:] do
         let type ← Meta.inferType x
         result := result.push !(← Meta.isProp type <||> Meta.isTypeFormerType type)
       return result
@@ -104,7 +104,7 @@ where
     | .const declName us =>
       if let some info ← hasTrivialStructure? declName then
         let ctorType ← getOtherDeclBaseType info.ctorName []
-        toMonoType (getParamTypes (← instantiateForall ctorType args[*...info.numParams]))[info.fieldIdx]!
+        toMonoType (getParamTypes (← instantiateForall ctorType args[:info.numParams]))[info.fieldIdx]!
       else
         let mut result := mkConst declName
         let mut type ← getOtherDeclBaseType declName us

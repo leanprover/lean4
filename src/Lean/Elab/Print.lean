@@ -125,7 +125,7 @@ private partial def printStructure (id : Name) (levelParams : List Name) (numPar
       let flatCtorName := mkFlatCtorOfStructCtorName ctor
       let flatCtorInfo ← getConstInfo flatCtorName
       let autoParams : NameMap Syntax ← forallTelescope flatCtorInfo.type fun args _ =>
-        args[numParams...*].foldlM (init := {}) fun set arg => do
+        args[numParams:].foldlM (init := {}) fun set arg => do
           let decl ← arg.fvarId!.getDecl
           if let some (.const tacticDecl _) := decl.type.getAutoParamTactic? then
             let tacticSyntax ← ofExcept <| evalSyntaxConstant (← getEnv) (← getOptions) tacticDecl

@@ -24,7 +24,7 @@ partial def collectMVars (e : Expr) : StateRefT CollectMVars.State MetaM Unit :=
   let resultSavedSize := s.result.size
   let s := e.collectMVars s
   set s
-  for mvarId in s.result[resultSavedSize...*] do
+  for mvarId in s.result[resultSavedSize:] do
     match (← getDelayedMVarAssignment? mvarId) with
     | none   => pure ()
     | some d => collectMVars (mkMVar d.mvarIdPending)

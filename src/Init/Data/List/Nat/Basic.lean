@@ -6,10 +6,12 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.Count
-import Init.Data.List.Find
-import Init.Data.List.MinMax
-import Init.Data.Nat.Lemmas
+public import Init.Data.List.Count
+public import Init.Data.List.Find
+public import Init.Data.List.MinMax
+public import Init.Data.Nat.Lemmas
+
+public section
 
 /-!
 # Miscellaneous `List` lemmas, that require more `Nat` lemmas than are available in `Init.Data.List.Lemmas`.

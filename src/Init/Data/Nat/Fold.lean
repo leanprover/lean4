@@ -6,8 +6,10 @@ Authors: Floris van Doorn, Leonardo de Moura, Kim Morrison
 module
 
 prelude
-import Init.Omega
-import Init.Data.List.FinRange
+public import Init.Omega
+public import Init.Data.List.FinRange
+
+public section
 
 set_option linter.missingDocs true -- keep it documented
 universe u

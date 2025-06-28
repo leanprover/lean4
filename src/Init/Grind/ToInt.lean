@@ -6,7 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.Int.DivMod.Lemmas
+
+public section
 
 /-!
 # Typeclasses for types that can be embedded into an interval of `Int`.

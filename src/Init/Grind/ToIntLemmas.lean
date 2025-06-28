@@ -6,7 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import all Init.Grind.ToInt
+public import all Init.Grind.ToInt
+
+public section
 
 namespace Lean.Grind.ToInt
 

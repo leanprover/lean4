@@ -6,7 +6,9 @@ Authors: Joe Hendrix, Wojciech Nawrocki, Leonardo de Moura, Mario Carneiro, Alex
 module
 
 prelude
-import Init.Data.Fin.Basic
+public import Init.Data.Fin.Basic
+
+public section
 
 set_option linter.missingDocs true
 

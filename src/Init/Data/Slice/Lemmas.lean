@@ -6,7 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-import all Init.Data.Slice.Operations
+public import all Init.Data.Slice.Operations
+
+public section
 
 namespace Std.Slice
 

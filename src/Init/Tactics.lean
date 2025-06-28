@@ -6,7 +6,9 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.Notation
+public import Init.Notation
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 namespace Lean.Parser.Tactic

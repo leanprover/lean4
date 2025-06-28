@@ -6,11 +6,13 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Range.Polymorphic.Basic
-import Init.Data.Range.Polymorphic.Iterators
-import Init.Data.Range.Polymorphic.Lemmas
-import Init.Data.Range.Polymorphic.Nat
-import Init.Data.Range.Polymorphic.NatLemmas
+public import Init.Data.Range.Polymorphic.Basic
+public import Init.Data.Range.Polymorphic.Iterators
+public import Init.Data.Range.Polymorphic.Lemmas
+public import Init.Data.Range.Polymorphic.Nat
+public import Init.Data.Range.Polymorphic.NatLemmas
+
+public section
 
 /-!
 # Polymorphic ranges

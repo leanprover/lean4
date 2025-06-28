@@ -6,8 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Core
-import Init.Grind.Tactics
+public import Init.Core
+public import Init.Grind.Tactics
+
+public section
 
 attribute [grind cases eager] And Prod False Empty True PUnit Exists Subtype
 attribute [grind cases] Or

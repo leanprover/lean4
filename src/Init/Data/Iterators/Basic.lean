@@ -6,11 +6,13 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Core
-import Init.Classical
-import Init.Ext
-import Init.NotationExtra
-import Init.TacticsExtra
+public import Init.Core
+public import Init.Classical
+public import Init.Ext
+public import Init.NotationExtra
+public import Init.TacticsExtra
+
+public section
 
 /-!
 ### Definition of iterators

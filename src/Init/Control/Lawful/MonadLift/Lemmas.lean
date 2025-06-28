@@ -6,8 +6,10 @@ Authors: Quang Dao
 module
 
 prelude
-import Init.Control.Lawful.Basic
-import Init.Control.Lawful.MonadLift.Basic
+public import Init.Control.Lawful.Basic
+public import Init.Control.Lawful.MonadLift.Basic
+
+public section
 
 universe u v w
 

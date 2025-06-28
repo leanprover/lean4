@@ -6,8 +6,10 @@ Authors: Kim Morrison
 module
 prelude
 
-import Init.Grind.Ordered.Module
-import Init.Grind.Ring.Basic
+public import Init.Grind.Ordered.Module
+public import Init.Grind.Ring.Basic
+
+public section
 
 namespace Lean.Grind
 

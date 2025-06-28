@@ -6,9 +6,11 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Basic
-import Init.Data.Iterators.Internal.Termination
-import Init.Data.Iterators.Consumers.Monadic
+public import Init.Data.Iterators.Basic
+public import Init.Data.Iterators.Internal.Termination
+public import Init.Data.Iterators.Consumers.Monadic
+
+public section
 
 namespace Std.Iterators
 

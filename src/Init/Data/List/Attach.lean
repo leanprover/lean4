@@ -6,10 +6,12 @@ Authors: Mario Carneiro
 module
 
 prelude
-import all Init.Data.List.Lemmas  -- for dsimping with `getElem?_cons_succ`
-import Init.Data.List.Count
-import Init.Data.Subtype
-import Init.BinderNameHint
+public import all Init.Data.List.Lemmas  -- for dsimping with `getElem?_cons_succ`
+public import Init.Data.List.Count
+public import Init.Data.Subtype
+public import Init.BinderNameHint
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.

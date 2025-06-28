@@ -6,13 +6,15 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Nat.Lemmas
-import Init.Data.Hashable
-import all Init.Data.Ord
-import Init.Data.RArray
-import Init.Grind.Ring.Basic
-import Init.Grind.Ring.Field
-import Init.Grind.Ordered.Ring
+public import Init.Data.Nat.Lemmas
+public import Init.Data.Hashable
+public import all Init.Data.Ord
+public import Init.Data.RArray
+public import Init.Grind.Ring.Basic
+public import Init.Grind.Ring.Field
+public import Init.Grind.Ordered.Ring
+
+public section
 
 namespace Lean.Grind
 -- These are no longer global instances, so we need to turn them on here.

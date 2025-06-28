@@ -6,10 +6,12 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import all Init.Data.Zero
-import Init.Grind.Ring.Basic
-import all Init.GrindInstances.ToInt
-import Init.Data.Fin.Lemmas
+public import all Init.Data.Zero
+public import Init.Grind.Ring.Basic
+public import all Init.GrindInstances.ToInt
+public import Init.Data.Fin.Lemmas
+
+public section
 
 namespace Lean.Grind
 

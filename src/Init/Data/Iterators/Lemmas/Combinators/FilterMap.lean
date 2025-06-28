@@ -6,9 +6,11 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Lemmas.Consumers
-import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
-import Init.Data.Iterators.Combinators.FilterMap
+public import Init.Data.Iterators.Lemmas.Consumers
+public import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
+public import Init.Data.Iterators.Combinators.FilterMap
+
+public section
 
 namespace Std.Iterators
 

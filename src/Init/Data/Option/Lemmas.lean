@@ -6,11 +6,13 @@ Authors: Mario Carneiro
 module
 
 prelude
-import all Init.Data.Option.BasicAux
-import all Init.Data.Option.Instances
-import Init.Data.BEq
-import Init.Classical
-import Init.Ext
+public import all Init.Data.Option.BasicAux
+public import all Init.Data.Option.Instances
+public import Init.Data.BEq
+public import Init.Classical
+public import Init.Ext
+
+public section
 
 namespace Option
 

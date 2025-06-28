@@ -6,8 +6,10 @@ Author: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.Data.List.Basic
-import Init.Data.Char.Basic
+public import Init.Data.List.Basic
+public import Init.Data.Char.Basic
+
+public section
 
 universe u
 

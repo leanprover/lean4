@@ -8,11 +8,13 @@ Extra notation that depends on Init/Meta
 module
 
 prelude
-import Init.Data.ToString.Basic
-import Init.Conv
-import Init.Meta
-import Init.While
-meta import Init.Data.Option.Basic
+public import Init.Data.ToString.Basic
+public import Init.Conv
+public import Init.Meta
+public import Init.While
+public meta import Init.Data.Option.Basic
+
+public section
 
 namespace Lean
 

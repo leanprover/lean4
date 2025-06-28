@@ -7,8 +7,10 @@ Authors: Mario Carneiro
 module
 
 prelude
-import Init.Data.List.TakeDrop
-import all Init.Data.Array.Basic
+public import Init.Data.List.TakeDrop
+public import all Init.Data.Array.Basic
+
+public section
 
 /-!
 ## Bootstrapping theorems about arrays

@@ -6,11 +6,13 @@ Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich, Mac Ma
 module
 
 prelude
-import Init.System.IOError
-import Init.System.FilePath
-import Init.System.ST
-import Init.Data.Ord
-import Init.Data.String.Extra
+public import Init.System.IOError
+public import Init.System.FilePath
+public import Init.System.ST
+public import Init.Data.Ord
+public import Init.Data.String.Extra
+
+public section
 
 open System
 

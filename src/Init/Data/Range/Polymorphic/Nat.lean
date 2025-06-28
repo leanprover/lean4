@@ -6,8 +6,10 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Nat.Lemmas
-import Init.Data.Range.Polymorphic.Basic
+public import Init.Data.Nat.Lemmas
+public import Init.Data.Range.Polymorphic.Basic
+
+public section
 
 namespace Std.PRange
 

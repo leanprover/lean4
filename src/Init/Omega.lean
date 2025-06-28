@@ -6,8 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Omega.Int
-import Init.Omega.IntList
-import Init.Omega.LinearCombo
-import Init.Omega.Constraint
-import Init.Omega.Logic
+public import Init.Omega.Int
+public import Init.Omega.IntList
+public import Init.Omega.LinearCombo
+public import Init.Omega.Constraint
+public import Init.Omega.Logic
+
+public section

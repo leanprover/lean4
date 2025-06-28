@@ -6,9 +6,11 @@ Authors: Floris van Doorn, Leonardo de Moura
 module
 
 prelude
-import Init.SimpLemmas
-import Init.Data.NeZero
-import Init.Grind.Tactics
+public import Init.SimpLemmas
+public import Init.Data.NeZero
+public import Init.Grind.Tactics
+
+public section
 
 set_option linter.missingDocs true -- keep it documented
 universe u

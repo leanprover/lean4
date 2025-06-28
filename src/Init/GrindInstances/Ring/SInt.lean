@@ -6,12 +6,14 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Grind.Ring.Basic
-import all Init.Grind.ToInt
-import Init.GrindInstances.ToInt
-import all Init.Data.BitVec.Basic
-import all Init.Data.SInt.Basic
-import Init.Data.SInt.Lemmas
+public import Init.Grind.Ring.Basic
+public import all Init.Grind.ToInt
+public import Init.GrindInstances.ToInt
+public import all Init.Data.BitVec.Basic
+public import all Init.Data.SInt.Basic
+public import Init.Data.SInt.Lemmas
+
+public section
 
 namespace Lean.Grind
 

@@ -6,9 +6,11 @@ Authors: Siddharth Bhat, Jeremy Avigad
 module
 
 prelude
-import Init.Data.Nat.Bitwise.Lemmas
-import all Init.Data.Int.Bitwise.Basic
-import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.Nat.Bitwise.Lemmas
+public import all Init.Data.Int.Bitwise.Basic
+public import Init.Data.Int.DivMod.Lemmas
+
+public section
 
 namespace Int
 

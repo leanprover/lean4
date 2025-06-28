@@ -7,8 +7,10 @@ Authors: Joachim Breitner
 module
 
 prelude
-import Init.Prelude
-import Init.Tactics
+public import Init.Prelude
+public import Init.Tactics
+
+public section
 
 set_option linter.unusedVariables false in
 /--

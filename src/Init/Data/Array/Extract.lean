@@ -6,8 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Array.Lemmas
-import Init.Data.List.Nat.TakeDrop
+public import Init.Data.Array.Lemmas
+public import Init.Data.List.Nat.TakeDrop
+
+public section
 
 /-!
 # Lemmas about `Array.extract`

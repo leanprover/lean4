@@ -6,14 +6,16 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Core
-import Init.Data.Slice.Array.Basic
-import Init.Data.Iterators.Combinators.Attach
-import Init.Data.Iterators.Combinators.FilterMap
-import all Init.Data.Range.Polymorphic.Basic
-import Init.Data.Range.Polymorphic.Nat
-import Init.Data.Range.Polymorphic.Iterators
-import Init.Data.Slice.Operations
+public import Init.Core
+public import Init.Data.Slice.Array.Basic
+public import Init.Data.Iterators.Combinators.Attach
+public import Init.Data.Iterators.Combinators.FilterMap
+public import all Init.Data.Range.Polymorphic.Basic
+public import Init.Data.Range.Polymorphic.Nat
+public import Init.Data.Range.Polymorphic.Iterators
+public import Init.Data.Slice.Operations
+
+public section
 
 /-!
 This module provides slice notation for array slices (a.k.a. `Subarray`) and implements an iterator

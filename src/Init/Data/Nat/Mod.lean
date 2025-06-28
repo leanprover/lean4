@@ -6,7 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Omega
+public import Init.Omega
+
+public section
 
 /-!
 # Further results about `mod`.

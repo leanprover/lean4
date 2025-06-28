@@ -6,7 +6,9 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Format.Basic
+public import Init.Data.Format.Basic
+
+public section
 open Sum Subtype Nat
 
 open Std

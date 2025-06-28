@@ -6,10 +6,12 @@ Authors: Markus Himmel, Mac Malone
 module
 
 prelude
-import all Init.Data.BitVec.Basic
-import all Init.Data.UInt.Basic
-import Init.Data.UInt.Lemmas
-import Init.Data.Fin.Bitwise
+public import all Init.Data.BitVec.Basic
+public import all Init.Data.UInt.Basic
+public import Init.Data.UInt.Lemmas
+public import Init.Data.Fin.Bitwise
+
+public section
 
 set_option hygiene false in
 macro "declare_bitwise_uint_theorems" typeName:ident bits:term:arg : command =>

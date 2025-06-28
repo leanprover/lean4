@@ -6,10 +6,12 @@ Authors: Jeremy Avigad, Mario Carneiro
 module
 
 prelude
-import Init.Data.Int.DivMod.Basic
-import Init.Data.Int.Order
-import Init.Data.Nat.Dvd
-import Init.RCases
+public import Init.Data.Int.DivMod.Basic
+public import Init.Data.Int.Order
+public import Init.Data.Nat.Dvd
+public import Init.RCases
+
+public section
 
 /-!
 # Lemmas about integer division needed to bootstrap `omega`.

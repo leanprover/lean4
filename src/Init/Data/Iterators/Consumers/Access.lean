@@ -6,10 +6,12 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Stream
-import Init.Data.Iterators.Consumers.Partial
-import Init.Data.Iterators.Consumers.Loop
-import Init.Data.Iterators.Consumers.Monadic.Access
+public import Init.Data.Stream
+public import Init.Data.Iterators.Consumers.Partial
+public import Init.Data.Iterators.Consumers.Loop
+public import Init.Data.Iterators.Consumers.Monadic.Access
+
+public section
 
 namespace Std.Iterators
 

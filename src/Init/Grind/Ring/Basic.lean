@@ -6,11 +6,13 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Zero
-import Init.Data.Int.DivMod.Lemmas
-import Init.Data.Int.Pow
-import Init.TacticsExtra
-import Init.Grind.Module.Basic
+public import Init.Data.Zero
+public import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.Int.Pow
+public import Init.TacticsExtra
+public import Init.Grind.Module.Basic
+
+public section
 
 /-!
 # A monolithic commutative ring typeclass for internal use in `grind`.

@@ -6,10 +6,12 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Grind.Ring.Envelope
-import Init.Data.Hashable
-import Init.Data.RArray
-import all Init.Grind.Ring.Poly
+public import Init.Grind.Ring.Envelope
+public import Init.Data.Hashable
+public import Init.Data.RArray
+public import all Init.Grind.Ring.Poly
+
+public section
 
 namespace Lean.Grind.Ring.OfSemiring
 /-!

@@ -8,7 +8,9 @@ notation, basic datatypes and type classes
 module
 
 prelude
-import Init.Core
+public import Init.Core
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 theorem of_eq_true (h : p = True) : p := h ▸ trivial

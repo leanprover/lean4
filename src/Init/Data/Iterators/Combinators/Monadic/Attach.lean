@@ -6,10 +6,12 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Basic
-import Init.Data.Iterators.Internal.Termination
-import Init.Data.Iterators.Consumers.Collect
-import Init.Data.Iterators.Consumers.Loop
+public import Init.Data.Iterators.Basic
+public import Init.Data.Iterators.Internal.Termination
+public import Init.Data.Iterators.Consumers.Collect
+public import Init.Data.Iterators.Consumers.Loop
+
+public section
 
 namespace Std.Iterators.Types
 

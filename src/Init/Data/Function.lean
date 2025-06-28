@@ -7,7 +7,9 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Core
+public import Init.Core
+
+public section
 
 namespace Function
 

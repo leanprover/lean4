@@ -6,8 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Int.Order
-import all Init.Grind.ToInt
+public import Init.Data.Int.Order
+public import all Init.Grind.ToInt
+
+public section
 
 namespace Lean.Grind
 

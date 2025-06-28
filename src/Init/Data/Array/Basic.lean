@@ -6,15 +6,17 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.WFTactics
-import Init.Data.Nat.Basic
-import Init.Data.Fin.Basic
-import Init.Data.UInt.BasicAux
-import Init.Data.Repr
-import Init.Data.ToString.Basic
-import Init.GetElem
-import all Init.Data.List.ToArrayImpl
-import all Init.Data.Array.Set
+public import Init.WFTactics
+public import Init.Data.Nat.Basic
+public import Init.Data.Fin.Basic
+public import Init.Data.UInt.BasicAux
+public import Init.Data.Repr
+public import Init.Data.ToString.Basic
+public import Init.GetElem
+public import all Init.Data.List.ToArrayImpl
+public import all Init.Data.Array.Set
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.

@@ -6,8 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Fin.Basic
-import Init.Data.BitVec.BasicAux
+public import Init.Data.Fin.Basic
+public import Init.Data.BitVec.BasicAux
+
+public section
 
 @[expose] section
 

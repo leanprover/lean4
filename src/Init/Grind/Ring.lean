@@ -6,9 +6,11 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Grind.Ring.Basic
-import Init.Grind.Ring.Poly
-import Init.Grind.Ring.Field
-import Init.Grind.Ring.Envelope
-import Init.Grind.Ring.OfSemiring
-import Init.Grind.Ring.ToInt
+public import Init.Grind.Ring.Basic
+public import Init.Grind.Ring.Poly
+public import Init.Grind.Ring.Field
+public import Init.Grind.Ring.Envelope
+public import Init.Grind.Ring.OfSemiring
+public import Init.Grind.Ring.ToInt
+
+public section

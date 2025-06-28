@@ -6,7 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Combinators.Monadic.ULift
+public import Init.Data.Iterators.Combinators.Monadic.ULift
+
+public section
 
 namespace Std.Iterators
 

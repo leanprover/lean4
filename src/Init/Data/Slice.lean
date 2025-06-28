@@ -6,10 +6,12 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Slice.Basic
-import Init.Data.Slice.Notation
-import Init.Data.Slice.Operations
-import Init.Data.Slice.Array
+public import Init.Data.Slice.Basic
+public import Init.Data.Slice.Notation
+public import Init.Data.Slice.Operations
+public import Init.Data.Slice.Array
+
+public section
 
 /-!
 # Polymorphic slices

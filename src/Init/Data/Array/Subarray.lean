@@ -6,8 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Array.Basic
-import Init.Data.Slice.Basic
+public import Init.Data.Array.Basic
+public import Init.Data.Slice.Basic
+
+public section
 
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 set_option linter.missingDocs true

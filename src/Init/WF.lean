@@ -6,9 +6,11 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.SizeOf
-import Init.BinderNameHint
-import Init.Data.Nat.Basic
+public import Init.SizeOf
+public import Init.BinderNameHint
+public import Init.Data.Nat.Basic
+
+public section
 
 @[expose] section
 

@@ -6,11 +6,13 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro, Floris van Doorn
 module
 
 prelude
-import all Init.Data.Nat.Bitwise.Basic
-import Init.Data.Nat.MinMax
-import all Init.Data.Nat.Log2
-import Init.Data.Nat.Power2
-import Init.Data.Nat.Mod
+public import all Init.Data.Nat.Bitwise.Basic
+public import Init.Data.Nat.MinMax
+public import all Init.Data.Nat.Log2
+public import Init.Data.Nat.Power2
+public import Init.Data.Nat.Mod
+
+public section
 
 /-! # Basic theorems about natural numbers
 

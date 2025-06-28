@@ -6,9 +6,11 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Slice.Basic
-import Init.Data.Slice.Notation
-import Init.Data.Iterators
+public import Init.Data.Slice.Basic
+public import Init.Data.Slice.Notation
+public import Init.Data.Iterators
+
+public section
 
 open Std.Iterators
 

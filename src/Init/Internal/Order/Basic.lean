@@ -7,9 +7,11 @@ module
 
 prelude
 
-import Init.ByCases
-import Init.RCases
-import all Init.Control.Except  -- for `MonoBind` instance
+public import Init.ByCases
+public import Init.RCases
+public import all Init.Control.Except  -- for `MonoBind` instance
+
+public section
 
 /-!
 This module contains some basic definitions and results from domain theory, intended to be used as

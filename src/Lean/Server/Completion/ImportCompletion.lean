@@ -52,7 +52,7 @@ def computePartialImportCompletions
   let `(Parser.Module.header| $[module]? $[prelude]? $importsStx*) := headerStx
     | return #[]
   let some (completePrefix, incompleteSuffix) := importsStx.findSome? fun importStx => do
-      let `(Parser.Module.«import»| $[private]? $[meta]? import $[all]? $importId $[.%$trailingDotTk?$_]?) := importStx
+      let `(Parser.Module.«import»| $[public]? $[meta]? import $[all]? $importId $[.%$trailingDotTk?$_]?) := importStx
         | unreachable!
       match trailingDotTk? with
       | none =>

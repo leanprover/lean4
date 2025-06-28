@@ -6,10 +6,12 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Range.Polymorphic.RangeIterator
-import Init.Data.Range.Polymorphic.Basic
-import Init.Data.Iterators.Combinators.Attach
-import Init.Data.Stream
+public import Init.Data.Range.Polymorphic.RangeIterator
+public import Init.Data.Range.Polymorphic.Basic
+public import Init.Data.Iterators.Combinators.Attach
+public import Init.Data.Stream
+
+public section
 
 open Std.Iterators
 

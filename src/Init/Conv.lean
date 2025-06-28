@@ -8,8 +8,10 @@ Notation for operators defined at Prelude.lean
 module
 
 prelude
-import Init.Tactics
-meta import Init.Meta
+public import Init.Tactics
+public meta import Init.Meta
+
+public section
 
 namespace Lean.Parser.Tactic.Conv
 

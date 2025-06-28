@@ -5,12 +5,14 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-import Init.Grind.Ordered.Module
-import Init.Grind.Ordered.Ring
-import Init.Grind.Ring.Field
-import all Init.Data.Ord
-import all Init.Data.AC
-import Init.Data.RArray
+public import Init.Grind.Ordered.Module
+public import Init.Grind.Ordered.Ring
+public import Init.Grind.Ring.Field
+public import all Init.Data.Ord
+public import all Init.Data.AC
+public import Init.Data.RArray
+
+public section
 
 /-!
 Support for the linear arithmetic module for `IntModule` in `grind`

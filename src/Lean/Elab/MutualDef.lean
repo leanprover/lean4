@@ -1219,10 +1219,11 @@ where
     Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
-  finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars =>
+  finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars => do
+    let env ← getEnv
     withExporting (isExporting :=
       !headers.all (fun header =>
-        header.modifiers.isPrivate || header.modifiers.attrs.any (·.name == `no_expose)) &&
+        !header.modifiers.isInferredPublic env || header.modifiers.attrs.any (·.name == `no_expose)) &&
       (isExporting ||
        headers.all (fun header => (header.kind matches .abbrev | .instance)) ||
        (headers.all (·.kind == .def) && sc.attrs.any (· matches `(attrInstance| expose))) ||

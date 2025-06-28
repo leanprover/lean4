@@ -152,27 +152,25 @@ def expandNamespacedDeclaration : Macro := fun stx => do
   | none => Macro.throwUnsupported
 
 @[builtin_command_elab declaration, builtin_incremental]
-def elabDeclaration : CommandElab := fun stx =>
-  -- We assume by default that data from declarations will be exported. Specific elaborators can
-  -- then nest inside `withoutExporting` for non-exported parts.
-  withExporting do
+def elabDeclaration : CommandElab := fun stx => do
+  withExporting (isExporting := (← getScope).isPublic) do
+  let modifiers : TSyntax ``Parser.Command.declModifiers := ⟨stx[0]⟩
   let decl     := stx[1]
   let declKind := decl.getKind
   if isDefLike decl then
     -- only case implementing incrementality currently
     elabMutualDef #[stx]
   else withoutCommandIncrementality true do
-    let modifiers : TSyntax ``Parser.Command.declModifiers := ⟨stx[0]⟩
-    if declKind == ``Lean.Parser.Command.«axiom» then
-      let modifiers ← elabModifiers modifiers
-      elabAxiom modifiers decl
-    else if declKind == ``Lean.Parser.Command.«inductive»
-        || declKind == ``Lean.Parser.Command.classInductive
-        || declKind == ``Lean.Parser.Command.«structure» then
-      let modifiers ← elabModifiers modifiers
-      elabInductive modifiers decl
-    else
-      throwError "unexpected declaration"
+    let modifiers ← elabModifiers modifiers
+    withExporting (isExporting := modifiers.isInferredPublic (← getEnv)) do
+      if declKind == ``Lean.Parser.Command.«axiom» then
+        elabAxiom modifiers decl
+      else if declKind == ``Lean.Parser.Command.«inductive»
+          || declKind == ``Lean.Parser.Command.classInductive
+          || declKind == ``Lean.Parser.Command.«structure» then
+        elabInductive modifiers decl
+      else
+        throwError "unexpected declaration"
 
 /-- Return true if all elements of the mutual-block are definitions/theorems/abbrevs. -/
 private def isMutualDef (stx : Syntax) : Bool :=
@@ -273,6 +271,7 @@ def expandMutualPreamble : Macro := fun stx =>
 
 @[builtin_command_elab «mutual», builtin_incremental]
 def elabMutual : CommandElab := fun stx => do
+  withExporting (isExporting := (← getScope).isPublic) do
   if isMutualDef stx then
     -- only case implementing incrementality currently
     elabMutualDef stx[1].getArgs

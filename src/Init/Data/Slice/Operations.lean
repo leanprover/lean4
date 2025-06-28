@@ -56,6 +56,30 @@ def toListRev (s : Slice γ) [ToIterator s Id β] [Iterator (ToIterator.State s 
     [Finite (ToIterator.State s Id) Id] : List β :=
   Internal.iter s |>.toListRev
 
+/--
+Folds a monadic operation from left to right over the elements in a slice.
+An accumulator of type `β` is constructed by starting with `init` and monadically combining each
+element of the slice with the current accumulator value in turn. The monad in question may permit
+early termination or repetition.
+
+Examples for the special case of subarrays:
+```lean example
+#eval #["red", "green", "blue"].toSubarray.foldlM (init := "") fun acc x => do
+  let l ← Option.guard (· ≠ 0) x.length
+  return s!"{acc}({l}){x} "
+```
+```output
+some "(3)red (5)green (4)blue "
+```
+```lean example
+#eval #["red", "green", "blue"].toSubarray.foldlM (init := 0) fun acc x => do
+  let l ← Option.guard (· ≠ 5) x.length
+  return s!"{acc}({l}){x} "
+```
+```output
+none
+```
+-/
 @[always_inline, inline]
 def foldlM {γ : Type u} {β : Type w}
     {δ : Type w} {m : Type w → Type w'} [Monad m] (f : δ → β → m δ) (init : δ)
@@ -63,6 +87,14 @@ def foldlM {γ : Type u} {β : Type w}
     [IteratorLoop (ToIterator.State s Id) Id m] [Finite (ToIterator.State s Id) Id] : m δ :=
   Internal.iter s |>.foldM f init
 
+/--
+Folds an operation from left to right over the elements in a slice.
+An accumulator of type `β` is constructed by starting with `init` and combining each
+element of the slice with the current accumulator value in turn.
+Examples for the special case of subarrays:
+ * `#["red", "green", "blue"].toSubarray.foldl (· + ·.length) 0 = 12`
+ * `#["red", "green", "blue"].toSubarray.popFront.foldl (· + ·.length) 0 = 9`
+-/
 @[always_inline, inline]
 def foldl {γ : Type u} {β : Type w}
     {δ : Type w} (f : δ → β → δ) (init : δ)

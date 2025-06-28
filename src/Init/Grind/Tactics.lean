@@ -209,12 +209,156 @@ syntax grindErase := "-" ident
 syntax grindLemma := (Attr.grindMod ppSpace)? ident
 syntax grindParam := grindErase <|> grindLemma
 
+/--
+`grind` is a tactic inspired by modern SMT solvers.
+**Picture a virtual white‑board:** every time `grind` discovers a new equality, inequality,
+or Boolean literal it writes that fact on the board, merges equivalent terms into buckets,
+and invites each engine to read from, and add back to, the same workspace.
+The cooperating engines are: congruence closure, constraint propagation, E‑matching,
+guided case analysis, and a suite of satellite theory solvers (linear integer arithmetic,
+commutative rings, ...).
+
+`grind` is *not* designed for goals whose search space explodes combinatorially,
+think large pigeonhole instances, graph‑coloring reductions, high‑order N‑queens boards,
+or a 200‑variable Sudoku encoded as Boolean constraints.  Such encodings require
+ thousands (or millions) of case‑splits that overwhelm `grind`’s branching search.
+
+For **bit‑level or combinatorial problems**, consider using **`bv_decide`**.
+`bv_decide` calls a state‑of‑the‑art SAT solver (CaDiCaL) and then returns a
+*compact, machine‑checkable certificate*.
+
+E-matching is a mechanism used by `grind` to instantiate theorems efficiently.
+It is especially effective when combined with congruence closure, enabling
+`grind` to discover non-obvious consequences of equalities and annotated theorems
+automatically. The theorem instantiation process is interrupted using the `generation` threshold.
+Terms occurring in the input goal have `generation` zero. When `grind` instantiates
+a theorem using terms with generation `≤ n`, the new generated terms have generation `n+1`.
+
+Consider the following functions and theorems:
+```lean
+def f (a : Nat) : Nat :=
+  a + 1
+
+def g (a : Nat) : Nat :=
+  a - 1
+
+@[grind =]
+theorem gf (x : Nat) : g (f x) = x := by
+  simp [f, g]
+```
+The theorem `gf` asserts that `g (f x) = x` for all natural numbers `x`.
+The attribute `[grind =]` instructs `grind` to use the left-hand side of the equation,
+`g (f x)`, as a pattern for heuristic instantiation via E-matching.
+Suppose we now have a goal involving:
+```lean
+example {a b} (h : f b = a) : g a = b := by
+  grind
+```
+Although `g a` is not an instance of the pattern `g (f x)`,
+it becomes one modulo the equation `f b = a`. By substituting `a`
+with `f b` in `g a`, we obtain the term `g (f b)`,
+which matches the pattern `g (f x)` with the assignment `x := b`.
+Thus, the theorem `gf` is instantiated with `x := b`,
+and the new equality `g (f b) = b` is asserted.
+`grind` then uses congruence closure to derive the implied equality
+`g a = g (f b)` and completes the proof.
+
+The pattern used to instantiate theorems affects the effectiveness of `grind`.
+For example, the pattern `g (f x)` is too restrictive in the following case:
+the theorem `gf` will not be instantiated because the goal does not even
+contain the function symbol `g`.
+
+```lean (error := true)
+example (h₁ : f b = a) (h₂ : f c = a) : b = c := by
+  grind
+```
+
+You can use the command `grind_pattern` to manually select a pattern for a given theorem.
+In the following example, we instruct `grind` to use `f x` as the pattern,
+allowing it to solve the goal automatically:
+```lean
+grind_pattern gf => f x
+
+example {a b c} (h₁ : f b = a) (h₂ : f c = a) : b = c := by
+  grind
+```
+You can enable the option `trace.grind.ematch.instance` to make `grind` print a
+trace message for each theorem instance it generates.
+
+Instead of using `grind_pattern` to explicitly specify a pattern,
+you can use the `@[grind]` attribute or one of its variants, which will use a heuristic to
+generate a (multi-)pattern. The complete list is available in the reference manual. The main ones are:
+
+- `@[grind →]` will select a multi-pattern from the hypotheses of the theorem (i.e. it will use the theorem for forwards reasoning).
+  In more detail, it will traverse the hypotheses of the theorem from left-to-right, and each time it encounters a minimal indexable
+  (i.e. has a constant as its head) subexpression which "covers" (i.e. fixes the value of) an argument which was not
+  previously covered, it will add that subexpression as a pattern, until all arguments have been covered.
+- `@[grind ←]` will select a multi-pattern from the conclusion of theorem (i.e. it will use the theorem for backwards reasoning).
+  This may fail if not all the arguments to the theorem appear in the conclusion.
+- `@[grind]` will traverse the conclusion and then the hypotheses left-to-right, adding patterns as they increase the coverage,
+  stopping when all arguments are covered.
+- `@[grind =]` checks that the conclusion of the theorem is an equality, and then uses the left-hand-side of the equality as a pattern.
+  This may fail if not all of the arguments appear in the left-hand-side.
+
+Main configuration options:
+
+- `grind (splits := <num>)` caps the *depth* of the search tree.  Once a branch performs `num` splits
+  `grind` stops splitting further in that branch.
+- `grind -splitIte` disables case splitting on if-then-else expressions.
+- `grind -splitMatch` disables case splitting on `match` expressions.
+- `grind +splitImp` instructs `grind` to split on any hypothesis `A → B` whose antecedent `A` is **propositional**.
+- `grind (ematch := <num>)` controls the number of E-matching rounds.
+- `grind [<name>, ...]` instructs `grind` to use the declaration `name` during E-matching.
+- `grind only [<name>, ...]` is like `grind [<name>, ...]` but does not use theorems tagged with `@[grind]`.
+- `grind (gen := <num>)` sets the maximum generation.
+- `grind -ring` disables the ring solver based on Gröbner basis.
+- `grind (ringSteps := <num>)` limits the number of steps performed by ring solver.
+- `grind -cutsat` disables the linear integer arithmetic solver based on the cutsat procedure.
+- `grind -linarith` disables the linear arithmetic solver for (ordered) modules and rings.
+
+Examples:
+```
+example {a b} {as bs : List α} : (as ++ bs ++ [b]).getLastD a = b := by
+  grind
+
+example (x : BitVec (w+1)) : (BitVec.cons x.msb (x.setWidth w)) = x := by
+  grind
+
+example (a b c : UInt64) : a ≤ 2 → b ≤ 3 → c - a - b = 0 → c ≤ 5 := by
+  grind
+
+example [Field α] (a : α) : (2 : α) ≠ 0 → 1 / a + 1 / (2 * a) = 3 / (2 * a) := by
+  grind
+
+example (as : Array α) (lo hi i j : Nat) :
+    lo ≤ i → i < j → j ≤ hi → j < as.size → min lo (as.size - 1) ≤ i := by
+  grind
+
+example [CommRing α] [NoNatZeroDivisors α] (a b c : α)
+    : a + b + c = 3 →
+      a^2 + b^2 + c^2 = 5 →
+      a^3 + b^3 + c^3 = 7 →
+      a^4 + b^4 = 9 - c^4 := by
+  grind
+
+example (x y : Int) :
+    27 ≤ 11*x + 13*y →
+    11*x + 13*y ≤ 45 →
+    -10 ≤ 7*x - 9*y →
+    7*x - 9*y ≤ 4 → False := by
+  grind
+```
+-/
 syntax (name := grind)
   "grind" optConfig (&" only")?
   (" [" withoutPosition(grindParam,*) "]")?
   ("on_failure " term)? : tactic
 
-
+/--
+`grind?` takes the same arguments as `grind`, but reports an equivalent call to `grind only`
+that would be sufficient to close the goal. This is useful for reducing the size of the `grind`
+theorems in a local invocation.
+-/
 syntax (name := grindTrace)
   "grind?" optConfig (&" only")?
   (" [" withoutPosition(grindParam,*) "]")?

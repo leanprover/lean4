@@ -22,8 +22,13 @@ def HeaderSyntax.imports (stx : HeaderSyntax) (includeInit : Bool := true) : Arr
   | `(Parser.Module.header| $[module%$moduleTk]? $[prelude%$preludeTk]? $importsStx*) =>
     let imports := if preludeTk.isNone && includeInit then #[{ module := `Init : Import }] else #[]
     imports ++ importsStx.map fun
+      -- TODO: delete together with `private` keyword
       | `(Parser.Module.import| $[private%$privateTk]? $[meta%$metaTk]? import $[all%$allTk]? $n) =>
         { module := n.getId, importAll := allTk.isSome, isExported := privateTk.isNone
+          isMeta := metaTk.isSome }
+      | `(Parser.Module.import| $[public%$publicTk]? $[meta%$metaTk]? import $[all%$allTk]? $n) =>
+        { module := n.getId, importAll := allTk.isSome
+          isExported := publicTk.isSome || moduleTk.isNone
           isMeta := metaTk.isSome }
       | _ => unreachable!
   | _ => unreachable!
@@ -53,8 +58,6 @@ def processHeaderCore
         throw <| .userError "cannot use `import all` without `module`"
       if i.importAll && mainModule.getRoot != i.module.getRoot then
         throw <| .userError "cannot use `import all` across module path roots"
-      if !isModule && !i.isExported then
-        throw <| .userError "cannot use `private import` without `module`"
     let env ←
       importModules (leakEnv := leakEnv) (loadExts := true) (level := level)
         imports opts trustLevel plugins arts

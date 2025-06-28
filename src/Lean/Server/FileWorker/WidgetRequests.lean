@@ -128,14 +128,23 @@ builtin_initialize
     fun ⟨kind, i⟩ => RequestM.pureTask do
       let i := i.val
       let rc ← read
-      let ls ← FileWorker.locationLinksOfInfo kind i
+      let ls ← locationLinksOfInfo rc.doc.meta kind i
+      let ls := ls.map (·.toLocationLink)
       if !ls.isEmpty then return ls
       -- TODO(WN): unify handling of delab'd (infoview) and elab'd (editor) applications
       let .ofTermInfo ti := i.info | return #[]
       let .app _ _ := ti.expr | return #[]
       let some nm := ti.expr.getAppFn.constName? | return #[]
-      i.ctx.runMetaM ti.lctx <|
-        locationLinksFromDecl rc.doc.meta.uri nm none
+      let ctx : GoToContext := {
+        doc := rc.doc.meta
+        kind
+        infoTree? := none
+        originInfo? := none
+        children := PersistentArray.empty
+      }
+      GoToM.run ctx i.ctx ti.lctx do
+        let ls ← locationLinksFromDecl nm
+        return ls.map (·.toLocationLink)
 
 def lazyTraceChildrenToInteractive (children : WithRpcRef LazyTraceChildren) :
     RequestM (RequestTask (Array (TaggedText MsgEmbed))) :=

@@ -111,6 +111,7 @@ structure Context where
   natZExpr     : Expr
   btrueExpr    : Expr
   bfalseExpr   : Expr
+  ordEqExpr    : Expr -- `Ordering.eq`
 
 /-- Key for the congruence theorem cache. -/
 structure CongrTheoremCacheKey where
@@ -188,6 +189,11 @@ structure State where
   counters   : Counters := {}
   /-- Split diagnostic information. This information is only collected when `set_option diagnostics true` -/
   splitDiags : PArray SplitDiagInfo := {}
+  /--
+  Mapping from binary functions `f` to a theorem `thm : ∀ a b, f a b = .eq → a = b`
+  if it implements the `LawfulEqCmp` type class.
+  -/
+  lawfulEqCmpMap : PHashMap ExprPtr (Option Expr) := {}
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 private def MethodsRef : Type := MethodsRefPointed.type
@@ -235,6 +241,10 @@ def getBoolFalseExpr : GrindM Expr := do
 /-- Returns the internalized `0 : Nat` numeral.  -/
 def getNatZeroExpr : GrindM Expr := do
   return (← readThe Context).natZExpr
+
+/-- Returns the internalized `Ordering.eq`.  -/
+def getOrderingEqExpr : GrindM Expr := do
+  return (← readThe Context).ordEqExpr
 
 def cheapCasesOnly : GrindM Bool :=
   return (← readThe Context).cheapCases

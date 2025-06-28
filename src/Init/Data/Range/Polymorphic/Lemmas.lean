@@ -274,29 +274,6 @@ private theorem Internal.forIn'_eq_forIn'_iter [UpwardEnumerable α]
       ForIn'.forIn' (Internal.iter r) init (fun a ha acc => f a (Internal.isPlausibleIndirectOutput_iter_iff.mp ha) acc) := by
   rfl
 
-theorem forIn'_eq_forIn'_toList [UpwardEnumerable α]
-    [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
-    [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
-    [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
-    {r : PRange ⟨sl, su⟩ α}
-    {γ : Type u} {init : γ} {m : Type u → Type w} [Monad m] [LawfulMonad m]
-    {f : (a : α) → a ∈ r → γ → m (ForInStep γ)} :
-    ForIn'.forIn' r init f =
-      ForIn'.forIn' r.toList init (fun a ha acc => f a (mem_toList_iff_mem.mp ha) acc) := by
-  simp [Internal.forIn'_eq_forIn'_iter, Internal.toList_eq_toList_iter,
-    Iter.forIn'_eq_forIn'_toList]
-
-theorem forIn'_toList_eq_forIn' [UpwardEnumerable α]
-    [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
-    [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
-    [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
-    {r : PRange ⟨sl, su⟩ α}
-    {γ : Type u} {init : γ} {m : Type u → Type w} [Monad m] [LawfulMonad m]
-    {f : (a : α) → _ → γ → m (ForInStep γ)} :
-    ForIn'.forIn' r.toList init f =
-      ForIn'.forIn' r init (fun a ha acc => f a (mem_toList_iff_mem.mpr ha) acc) := by
-  simp [forIn'_eq_forIn'_toList]
-
 theorem mem_of_mem_open [UpwardEnumerable α]
     [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
     [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
@@ -322,39 +299,6 @@ theorem SupportsLowerBound.isSatisfied_init? {sl} [UpwardEnumerable α]
     SupportsLowerBound.IsSatisfied bound a := by
   simp only [LawfulUpwardEnumerableLowerBound.isSatisfied_iff]
   exact ⟨a, h, UpwardEnumerable.le_refl _⟩
-
-theorem forIn'_eq_match {sl su} [UpwardEnumerable α]
-    [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
-    [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
-    [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
-    [SupportsLowerBound .open α] [LawfulUpwardEnumerableLowerBound .open α]
-    {r : PRange ⟨sl, su⟩ α}
-    {γ : Type u} {init : γ} {m : Type u → Type w} [Monad m] [LawfulMonad m]
-    {f : (a : α) → _ → γ → m (ForInStep γ)} :
-    ForIn'.forIn' r init f = match hi : BoundedUpwardEnumerable.init? r.lower with
-      | none => pure init
-      | some a => if hu : SupportsUpperBound.IsSatisfied r.upper a then do
-        match ← f a ⟨SupportsLowerBound.isSatisfied_init? hi, hu⟩ init with
-        | .yield c =>
-          ForIn'.forIn' (α := α) (β := γ) (PRange.mk (shape := ⟨.open, su⟩) a r.upper) c
-            (fun a ha acc => f a (mem_of_mem_open (SupportsLowerBound.isSatisfied_init? hi) ha) acc)
-        | .done c => return c
-      else
-        return init := by
-  rw [Internal.forIn'_eq_forIn'_iter, Iter.forIn'_eq_match_step]
-  simp only [RangeIterator.step_eq_step, RangeIterator.step, Internal.iter]
-  apply Eq.symm
-  split <;> rename_i heq
-  · simp [heq]
-  · simp only [heq]
-    split
-    · simp only
-      apply bind_congr
-      intro step
-      split
-      · simp [Internal.forIn'_eq_forIn'_iter, Internal.iter, BoundedUpwardEnumerable.init?]
-      · simp
-    · simp
 
 instance {su} [UpwardEnumerable α] [SupportsUpperBound su α] [RangeSize su α]
     [LawfulUpwardEnumerable α] [HasFiniteRanges su α] [LawfulRangeSize su α] :

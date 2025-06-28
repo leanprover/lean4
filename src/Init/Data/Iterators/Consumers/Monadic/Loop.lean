@@ -37,6 +37,7 @@ Relation that needs to be well-formed in order for a loop over an iterator to te
 It is assumed that the `plausible_forInStep` predicate relates the input and output of the
 stepper function.
 -/
+@[expose]
 def IteratorLoop.rel (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
     {γ : Type x} (plausible_forInStep : β → γ → ForInStep γ → Prop)
     (p' p : IterM (α := α) m β × γ) : Prop :=
@@ -46,6 +47,7 @@ def IteratorLoop.rel (α : Type w) (m : Type w → Type w') {β : Type w} [Itera
 /--
 Asserts that `IteratorLoop.rel` is well-founded.
 -/
+@[expose]
 def IteratorLoop.WellFounded (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
     {γ : Type x} (plausible_forInStep : β → γ → ForInStep γ → Prop) : Prop :=
     _root_.WellFounded (IteratorLoop.rel α m plausible_forInStep)
@@ -106,19 +108,21 @@ class IteratorSizePartial (α : Type w) (m : Type w → Type w') {β : Type w} [
 end Typeclasses
 
 /-- Internal implementation detail of the iterator library. -/
+@[expose]
 def IteratorLoop.WFRel {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     {γ : Type x} {plausible_forInStep : β → γ → ForInStep γ → Prop}
     (_wf : WellFounded α m plausible_forInStep) :=
   IterM (α := α) m β × γ
 
 /-- Internal implementation detail of the iterator library. -/
+@[expose]
 def IteratorLoop.WFRel.mk {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     {γ : Type x} {plausible_forInStep : β → γ → ForInStep γ → Prop}
     (wf : WellFounded α m plausible_forInStep) (it : IterM (α := α) m β) (c : γ) :
     IteratorLoop.WFRel wf :=
   (it, c)
 
-private instance {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+instance {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     {γ : Type x} {plausible_forInStep : β → γ → ForInStep γ → Prop}
     (wf : IteratorLoop.WellFounded α m plausible_forInStep) :
     WellFoundedRelation (IteratorLoop.WFRel wf) where

@@ -43,11 +43,6 @@ theorem mem_iff_contains [TransCmp cmp] {k : α} : k ∈ t ↔ t.contains k :=
 theorem contains_iff_mem [TransCmp cmp] {k : α} : t.contains k ↔ k ∈ t :=
   Iff.rfl
 
--- We need to specify the pattern for the reverse direction manually,
--- as the default heuristic leaves the `ExtDTreeMap α β` argument as a wildcard.
-grind_pattern contains_iff_mem => @Membership.mem α (ExtDTreeMap α β cmp) _ t k
-
-
 theorem contains_congr [TransCmp cmp] {k k' : α} (hab : cmp k k' = .eq) :
     t.contains k = t.contains k' :=
   t.inductionOn (fun _ hab => DTreeMap.contains_congr hab) hab
@@ -221,7 +216,7 @@ theorem contains_eq_isSome_get? [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
     t.contains a = (t.get? a).isSome :=
   t.inductionOn fun _ => DTreeMap.contains_eq_isSome_get?
 
-@[simp]
+@[simp, grind =]
 theorem isSome_get?_eq_contains [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
     (t.get? a).isSome = t.contains a :=
   t.inductionOn fun _ => DTreeMap.isSome_get?_eq_contains

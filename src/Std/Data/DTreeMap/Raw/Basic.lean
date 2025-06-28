@@ -99,7 +99,7 @@ structure Equiv (m₁ m₂ : Raw α β cmp) where
 
 @[inherit_doc] scoped infix:50 " ~m " => Equiv
 
-@[simp]
+@[simp, grind =]
 theorem empty_eq_emptyc : (empty : Raw α β cmp) = ∅ :=
   rfl
 

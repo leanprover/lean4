@@ -6,6 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
+import Init.Data.Stream
 import Init.Data.Iterators.Consumers.Partial
 import Init.Data.Iterators.Consumers.Loop
 import Init.Data.Iterators.Consumers.Monadic.Access
@@ -60,5 +61,16 @@ def Iter.atIdx? {α β} [Iterator α Id β] [Productive α Id] [IteratorAccess �
   | .yield _ out => some out
   | .skip _ => none
   | .done => none
+
+instance {α β} [Iterator α Id β] [Productive α Id] [IteratorAccess α Id] :
+    Stream (Iter (α := α) β) β where
+  next? it := match (it.toIterM.nextAtIdx? 0).run with
+    | .yield it' out _ => some (out, it'.toIter)
+    | .skip _ h => False.elim ?noskip
+    | .done _ => none
+  where finally
+    case noskip =>
+      revert h
+      exact IterM.not_isPlausibleNthOutputStep_yield
 
 end Std.Iterators

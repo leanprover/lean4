@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Data.Range.Polymorphic.Basic
+import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic.Lemmas
 import Init.Data.Range.Polymorphic.Nat
 import Init.Data.Range.Polymorphic.NatLemmas

@@ -204,6 +204,8 @@ def main : Parser :=
   keywordCore "module" (fun _ s => s) (fun _ s => { s with isModule := true }) >>
   keywordCore "prelude" (fun _ s => s.pushImport `Init) (fun _ s => s) >>
   many (keywordCore "private" (setIsExported true) (setIsExported false) >>
+    -- TODO: unset exported when absent and remove `private`
+    keywordCore "public" (setIsExported true) (setIsExported true) >>
     keywordCore "meta" (setIsMeta false) (setIsMeta true) >>
     keyword "import" >>
     keywordCore "all" (setImportAll false) (setImportAll true) >>

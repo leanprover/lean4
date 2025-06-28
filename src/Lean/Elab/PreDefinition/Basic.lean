@@ -24,7 +24,7 @@ open Term
 
 register_builtin_option cleanup.letToHave : Bool := {
   defValue := true
-  descr    := "Enables transforming `let`s to `have`s when elaborating a declaration."
+  descr    := "Enables transforming `let`s to `have`s after elaborating declarations."
 }
 
 /--

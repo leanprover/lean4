@@ -20,6 +20,7 @@ import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.Solve
 import Lean.Meta.Tactic.Grind.SimpUtil
 import Lean.Meta.Tactic.Grind.Cases
+import Lean.Meta.Tactic.Grind.LawfulEqCmp
 
 namespace Lean.Meta.Grind
 
@@ -49,6 +50,7 @@ def mkMethods (fallback : Fallback) : CoreM Methods := do
        prop e
     propagateDown := fun e => do
      propagateForallPropDown e
+     propagateLawfulEqCmp e
      let .const declName _ := e.getAppFn | return ()
      if let some prop := builtinPropagators.down[declName]? then
        prop e
@@ -72,11 +74,12 @@ def GrindM.run (x : GrindM α) (params : Params) (fallback : Fallback) : MetaM �
   let (bfalseExpr, scState) := shareCommonAlpha (mkConst ``Bool.false) scState
   let (btrueExpr, scState)  := shareCommonAlpha (mkConst ``Bool.true) scState
   let (natZExpr, scState)   := shareCommonAlpha (mkNatLit 0) scState
+  let (ordEqExpr, scState)  := shareCommonAlpha (mkConst ``Ordering.eq) scState
   let simprocs := params.normProcs
   let simpMethods := Simp.mkMethods simprocs discharge? (wellBehavedDischarge := true)
   let simp := params.norm
   let config := params.config
-  x (← mkMethods fallback).toMethodsRef { config, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr }
+  x (← mkMethods fallback).toMethodsRef { config, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr }
     |>.run' { scState }
 
 private def mkCleanState (mvarId : MVarId) (params : Params) : MetaM Clean.State := mvarId.withContext do
@@ -93,6 +96,7 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
   let btrueExpr ← getBoolTrueExpr
   let bfalseExpr ← getBoolFalseExpr
   let natZeroExpr ← getNatZeroExpr
+  let ordEqExpr ← getOrderingEqExpr
   let thmMap := params.ematch
   let casesTypes := params.casesTypes
   let clean ← mkCleanState mvarId params
@@ -102,6 +106,7 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
     mkENodeCore btrueExpr (interpreted := false) (ctor := true) (generation := 0)
     mkENodeCore bfalseExpr (interpreted := false) (ctor := true) (generation := 0)
     mkENodeCore natZeroExpr (interpreted := true) (ctor := false) (generation := 0)
+    mkENodeCore ordEqExpr (interpreted := false) (ctor := true) (generation := 0)
     for thm in params.extra do
       activateTheorem thm 0
 

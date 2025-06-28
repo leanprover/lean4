@@ -333,8 +333,8 @@ where
   mkType : MetaM Expr :=
     forallTelescopeReducing ctx.headers[idx]! fun xs _ => do
     let params := xs[:ctx.numParams]
-    let motives := xs[ctx.numParams:(ctx.numParams + ctx.motives.size)].toArray
-    let indices := xs[(ctx.numParams + ctx.motives.size):]
+    let motives := xs[ctx.numParams:ctx.numParams + ctx.motives.size].toArray
+    let indices := xs[ctx.numParams + ctx.motives.size:]
     let motiveBinders ← ctx.motives.mapIdxM $ mkIH params motives
     withLocalDeclsD motiveBinders fun ys => do
     mkForallFVars (xs ++ ys) (mkAppN motives[idx]! indices)
@@ -427,10 +427,10 @@ partial def mkBelowMatcher
     lambdaTelescope alt fun xs t => do
     let oldFVars := oldLhs.fvarDecls.toArray
     let fvars := lhs.fvarDecls.toArray.map (·.toExpr)
-    let xs : Array Expr :=
+    let xs :=
       -- special case: if we had no free vars, i.e. there was a unit added and no we do have free vars, we get rid of the unit.
       match oldFVars.size, fvars.size with
-      | 0, _+1 => xs[1:].toArray
+      | 0, _+1 => xs[1:]
       | _, _ => xs
     let t := t.replaceFVars xs[:oldFVars.size] fvars[:oldFVars.size]
     trace[Meta.IndPredBelow.match] "xs = {xs}; oldFVars = {oldFVars.map (·.toExpr)}; fvars = {fvars}; new = {fvars[:oldFVars.size] ++ xs[oldFVars.size:] ++ fvars[oldFVars.size:]}"

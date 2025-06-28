@@ -314,7 +314,7 @@ If `text := true`, `file` contents are hashed as a text file rather than a binar
 If the Lake cache is disabled, the behavior of this function is undefined.
 -/
 def Cache.saveArtifact
-  (cache : Cache) (file : FilePath) (ext := "art") (text := false)
+  (cache : Cache) (file : FilePath) (ext := "art") (text := false) (exe := false)
 : IO Artifact := do
   if text then
     let contents ← IO.FS.readFile file
@@ -332,6 +332,9 @@ def Cache.saveArtifact
     let path := cache.artifactPath hash ext
     createParentDirs path
     IO.FS.writeBinFile path contents
+    if exe then
+      let r := ⟨true, true, true⟩
+      IO.setAccessRights path ⟨r, r, r⟩  -- 777
     writeFileHash file hash
     let mtime := (← getMTime path |>.toBaseIO).toOption.getD 0
     return {name := file.toString, path, mtime, hash}
@@ -339,8 +342,8 @@ def Cache.saveArtifact
 @[inline,  inherit_doc Cache.saveArtifact]
 def cacheArtifact
   [MonadLakeEnv m] [MonadLiftT IO m] [Monad m]
-  (file : FilePath) (ext := "art") (text := false)
-: m Artifact := do (← getLakeCache).saveArtifact file ext text
+  (file : FilePath) (ext := "art") (text := false) (exe := false)
+: m Artifact := do (← getLakeCache).saveArtifact file ext text exe
 
 /--
 Computes the trace of a cached artifact.
@@ -428,7 +431,7 @@ than the path to the cached artifact.
 -/
 def buildArtifactUnlessUpToDate
   (file : FilePath) (build : JobM PUnit)
-  (text := false) (ext := "art") (restore := false)
+  (text := false) (ext := "art") (restore := false) (exe := false)
 : JobM FilePath := do
   let depTrace ← getTrace
   let traceFile := FilePath.mk <| file.toString ++ ".trace"
@@ -441,13 +444,16 @@ def buildArtifactUnlessUpToDate
         if restore && !(← file.pathExists) then
           logVerbose s!"restored artifact from cache to: {file}"
           copyFile art.path file
+          if exe then
+            let r := ⟨true, true, true⟩
+            IO.setAccessRights file ⟨r, r, r⟩  -- 777
           writeFileHash file art.hash
         savedTrace.replayIfExists
         setTrace art.trace
         return if restore then file else art.path
       unless (← savedTrace.replayIfUpToDate file depTrace) do
         discard <| doBuild depTrace traceFile
-      let art ← cacheArtifact file ext text
+      let art ← cacheArtifact file ext text exe
       cache.insert inputHash art.hash
       setTrace art.trace
       return if restore then file else art.path
@@ -710,7 +716,7 @@ def buildLeanExe
     addLeanTrace
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- executables are platform-dependent artifacts
-    buildArtifactUnlessUpToDate exeFile (ext := FilePath.exeExtension) do
+    buildArtifactUnlessUpToDate exeFile (ext := FilePath.exeExtension) (exe := true) do
       let lean ← getLeanInstall
       let libs ← mkLinkOrder libs
       let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs ++

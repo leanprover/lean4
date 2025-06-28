@@ -63,6 +63,9 @@ test_cached +Test:c
 # Verify no `.hash` files end up in the cache directory
 check_diff /dev/null <(ls -1 "$CACHE_DIR/*.hash" 2>/dev/null)
 
+# Verify that the executable has the right permissions to be run
+LAKE_CACHE_DIR="$CACHE_DIR" test_cmd lake exe test
+
 # Verify module oleans and ileans are restored from the cache
 LAKE_CACHE_DIR="$CACHE_DIR" test_run build +Test --no-build
 test_cmd rm .lake/build/lib/lean/Test.olean .lake/build/lib/lean/Test.ilean

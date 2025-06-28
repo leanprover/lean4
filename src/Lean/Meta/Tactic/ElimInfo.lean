@@ -45,14 +45,10 @@ structure ElimInfo where
 
 /-- Given the type `t` of an alternative, determines the number of parameters
 (.forall and .let)-bound, and whether the conclusion is a `motive`-application.  -/
-partial def altArity (motive : Expr) (n : Nat) : Expr → Nat × Bool
+def altArity (motive : Expr) (n : Nat) : Expr → Nat × Bool
   | .forallE _ _ b _ => altArity motive (n+1) b
   | .letE _ _ _ b _ => altArity motive (n+1) b
-  | conclusion =>
-    if let some (_, _, _, b) := conclusion.letFun? then
-      altArity motive (n+1) b
-    else
-      (n, conclusion.getAppFn == motive)
+  | conclusion => (n, conclusion.getAppFn == motive)
 
 
 def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : MetaM ElimInfo := do

@@ -179,7 +179,8 @@ where doRealize name info := do
   lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
     let lhs := mkAppN (mkConst info.name <| info.levelParams.map mkLevelParam) xs
     let type  ← mkForallFVars xs (← mkEq lhs body)
-    -- let type  ← letToHave type
+    -- Note: if this definition was added using `def`, then `letToHave` has already been applied to the body.
+    let type  ← letToHave type
     let value ← mkLambdaFVars xs (← mkEqRefl lhs)
     addDecl <| Declaration.thmDecl {
       name, type, value

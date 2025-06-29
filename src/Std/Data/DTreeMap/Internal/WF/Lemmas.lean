@@ -11,7 +11,7 @@ public import Init.Data.Array.Bootstrap
 public import Std.Classes.Ord.Basic
 public import Std.Data.DTreeMap.Internal.Model
 public import Std.Data.Internal.Cut
-public import Std.Data.Internal.List.Associative
+import all Std.Data.Internal.List.Associative
 
 @[expose] public section
 
@@ -33,9 +33,9 @@ set_option linter.all true
 universe u v w w'
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 namespace Std.DTreeMap.Internal.Impl
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 open Std.Internal
 
 /-!

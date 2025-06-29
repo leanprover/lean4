@@ -29,7 +29,7 @@ universe u v
 namespace Std.DTreeMap.Raw.WF
 
 variable {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} {t : Raw α β cmp}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 theorem empty : (empty : Raw α β cmp).WF :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.WF.empty⟩

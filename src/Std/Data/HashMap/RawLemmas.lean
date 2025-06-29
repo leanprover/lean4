@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Data.DHashMap.RawLemmas
 public import Std.Data.HashMap.Raw
+import all Std.Data.DHashMap.Raw
 
 @[expose] public section
 

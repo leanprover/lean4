@@ -25,9 +25,9 @@ set_option linter.all true
 universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 namespace Std.DTreeMap.Internal
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 namespace Impl
 

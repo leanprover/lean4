@@ -832,7 +832,7 @@ def mergeWith! [Ord α] [LawfulEqOrd α] (mergeFn : (a : α) → β a → β a �
 namespace Const
 
 variable {β : Type v}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 /--
 Changes the mapping of the key `k` by applying the function `f` to the current mapped value

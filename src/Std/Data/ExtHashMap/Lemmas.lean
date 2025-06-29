@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Data.ExtHashMap.Basic
+import all Std.Data.ExtDHashMap.Basic
 public import Std.Data.ExtDHashMap.Lemmas
 
 @[expose] public section

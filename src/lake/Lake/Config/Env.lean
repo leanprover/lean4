@@ -193,7 +193,6 @@ def noToolchainVars : Array (String × Option String) :=
     ("LAKE", none),
     ("LAKE_OVERRIDE_LEAN", none),
     ("LAKE_HOME", none),
-    ("LAKE_CACHE_DIR", none),
     ("LEAN", none),
     ("LEAN_GITHASH", none),
     ("LEAN_SYSROOT", none),

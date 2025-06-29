@@ -28,7 +28,7 @@ inductive CongrArgKind where
   They correspond to arguments that are subsingletons/propositions. -/
   | cast
   /--
-  The lemma contains three parameters for this kind of argument `a_i`, `b_i` and `eq_i : HEq a_i b_i`.
+  The lemma contains three parameters for this kind of argument `a_i`, `b_i` and `eq_i : a_i ≍ b_i`.
   `a_i` and `b_i` represent the left and right hand sides, and `eq_i` is a proof for their heterogeneous equality. -/
   | heq
   /--
@@ -61,7 +61,7 @@ partial def mkHCongrWithArity (f : Expr) (numArgs : Nat) : MetaM CongrTheorem :=
   forallBoundedTelescope fType numArgs (cleanupAnnotations := true) fun xs _ =>
   forallBoundedTelescope fType numArgs (cleanupAnnotations := true) fun ys _ => do
     if xs.size != numArgs then
-      throwError "failed to generate hcongr theorem, insufficient number of arguments"
+      throwError "failed to generate `hcongr` theorem: expected {numArgs} arguments, but got {xs.size} for{indentExpr f}"
     else
       let lctx := addPrimeToFVarUserNames ys (← getLCtx) |> setBinderInfosD ys |> setBinderInfosD xs
       withLCtx lctx (← getLocalInstances) do
@@ -301,13 +301,13 @@ where
                 go (i+1) (rhss.push rhs) (eqs.push eq) (hyps.push rhs |>.push eq)
             | .fixed => go (i+1) (rhss.push lhss[i]!) (eqs.push none) hyps
             | .cast =>
-              let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[:rhss.size]) rhss
+              let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[*...rhss.size]) rhss
               let rhs ← mkCast lhss[i]! rhsType info.paramInfo[i]!.backDeps eqs
               go (i+1) (rhss.push rhs) (eqs.push none) hyps
             | .subsingletonInst =>
               -- The `lhs` does not need to instance implicit since it can be inferred from the LHS
               withNewBinderInfos #[(lhss[i]!.fvarId!, .implicit)] do
-                let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[:rhss.size]) rhss
+                let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[*...rhss.size]) rhss
                 let rhsBi   := if subsingletonInstImplicitRhs then .instImplicit else .implicit
                 withLocalDecl (← lhss[i]!.fvarId!.getDecl).userName rhsBi rhsType fun rhs =>
                   go (i+1) (rhss.push rhs) (eqs.push none) (hyps.push rhs)
@@ -381,11 +381,12 @@ builtin_initialize
         let info ← getConstInfo p
         let f := mkConst p (info.levelParams.map mkLevelParam)
         let congrThm ← mkHCongrWithArity f numArgs
-        addDecl <| Declaration.thmDecl {
-           name, type := congrThm.type, value := congrThm.proof
-           levelParams := info.levelParams
-        }
-        modifyEnv fun env => congrKindsExt.insert env name congrThm.argKinds
+        realizeConst p name do
+          addDecl <| Declaration.thmDecl {
+            name, type := congrThm.type, value := congrThm.proof
+            levelParams := info.levelParams
+          }
+          modifyEnv fun env => congrKindsExt.insert env name congrThm.argKinds
         return true
       catch _ => return false
     else if s == congrSimpSuffix then
@@ -395,11 +396,12 @@ builtin_initialize
         let info ← getFunInfo f
         let some congrThm ← mkCongrSimpCore? f info (← getCongrSimpKinds f info)
           | return false
-        addDecl <| Declaration.thmDecl {
-           name, type := congrThm.type, value := congrThm.proof
-           levelParams := cinfo.levelParams
-        }
-        modifyEnv fun env => congrKindsExt.insert env name congrThm.argKinds
+        realizeConst p name do
+          addDecl <| Declaration.thmDecl {
+            name, type := congrThm.type, value := congrThm.proof
+            levelParams := cinfo.levelParams
+          }
+          modifyEnv fun env => congrKindsExt.insert env name congrThm.argKinds
         return true
       catch _ => return false
     else
@@ -414,10 +416,10 @@ def mkHCongrWithArityForConst? (declName : Name) (levels : List Level) (numArgs 
     let suffix := hcongrThmSuffixBasePrefix ++ toString numArgs
     let thmName := Name.str declName suffix
     unless (← getEnv).contains thmName do
-      executeReservedNameAction thmName
+      let _ ← executeReservedNameAction thmName
     let proof := mkConst thmName levels
     let type ← inferType proof
-    let some argKinds := congrKindsExt.getState (← getEnv) |>.find? thmName
+    let some argKinds := congrKindsExt.find? (← getEnv) thmName
       | unreachable!
     return some { proof, type, argKinds }
   catch _ =>
@@ -431,10 +433,10 @@ def mkCongrSimpForConst? (declName : Name) (levels : List Level) : MetaM (Option
   try
     let thmName := Name.str declName congrSimpSuffix
     unless (← getEnv).contains thmName do
-      executeReservedNameAction thmName
+      let _ ← executeReservedNameAction thmName
     let proof := mkConst thmName levels
     let type ← inferType proof
-    let some argKinds := congrKindsExt.getState (← getEnv) |>.find? thmName
+    let some argKinds := congrKindsExt.find? (← getEnv) thmName
       | unreachable!
     return some { proof, type, argKinds }
   catch _ =>

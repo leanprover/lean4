@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "kernel/environment.h"
+#include "library/elab_environment.h"
 
 namespace lean {
 /* Insert `S.casesOn` applications for a structure `S` when
@@ -50,5 +50,5 @@ namespace lean {
    The missing definitional equalities is problematic. For example, the whole algebraic hierarchy
    in Lean relies on them.
 */
-expr struct_cases_on(environment const & env, expr const & e);
+expr struct_cases_on(elab_environment const & env, expr const & e);
 }

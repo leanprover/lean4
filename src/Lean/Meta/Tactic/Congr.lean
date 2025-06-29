@@ -74,7 +74,7 @@ def MVarId.congrImplies? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
     return [mvarId₁, mvarId₂]
 
 /--
-Given a goal of the form `⊢ f as = f bs`, `⊢ (p → q) = (p' → q')`, or `⊢ HEq (f as) (f bs)`, try to apply congruence.
+Given a goal of the form `⊢ f as = f bs`, `⊢ (p → q) = (p' → q')`, or `⊢ f as ≍ f bs`, try to apply congruence.
 It takes proof irrelevance into account, and the fact that `Decidable p` is a subsingleton.
 -/
 def MVarId.congrCore (mvarId : MVarId) : MetaM (List MVarId) := do
@@ -88,7 +88,7 @@ def MVarId.congrCore (mvarId : MVarId) : MetaM (List MVarId) := do
     throwTacticEx `congr mvarId "failed to apply congruence"
 
 /--
-Given a goal of the form `⊢ f as = f bs`, `⊢ (p → q) = (p' → q')`, or `⊢ HEq (f as) (f bs)`, try to apply congruence.
+Given a goal of the form `⊢ f as = f bs`, `⊢ (p → q) = (p' → q')`, or `⊢ f as ≍ f bs`, try to apply congruence.
 It takes proof irrelevance into account, and the fact that `Decidable p` is a subsingleton.
 
 * Applies `congr` recursively up to depth `depth`.

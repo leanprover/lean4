@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-set -exo pipefail
-
-LAKE=${LAKE:-../../.lake/build/bin/lake}
+source ../common.sh
 
 ./clean.sh
 
@@ -10,18 +8,23 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 # ---
 
 # Test `run_io`
-$LAKE resolve-deps -R 2>&1 | grep --color impure
-$LAKE resolve-deps 2>&1 | (grep --color impure && exit 1 || true)
+echo "# TEST: run_io"
+test_out "impure" resolve-deps -R
+test_not_out "impure" resolve-deps
 
 # Test `meta if` and command `do`
-$LAKE resolve-deps -R 2>&1 | (grep --color -E "foo|bar|baz|1|2" && exit 1 || true)
-$LAKE resolve-deps -R -Kbaz 2>&1 | grep --color baz
-$LAKE resolve-deps -R -Kenv=foo 2>&1 | grep --color foo
-$LAKE run print_env 2>&1 | grep --color foo
-$LAKE resolve-deps -R -Kenv=bar 2>&1 | grep --color bar
-$LAKE run print_env 2>&1 | grep --color bar
+echo "# TEST: meta if"
+test_not_pat "foo|bar|baz|lorem|ipsum"  resolve-deps -R
+test_out "baz" resolve-deps -R -Kbaz
+test_out "foo" resolve-deps -R -Kenv=foo
+test_out "foo" run print_env
+test_out "bar" resolve-deps -R -Kenv=bar
+test_out "bar" run print_env
 
 # Test environment extension filtering
 # https://github.com/leanprover/lean4/issues/2632
 
-$LAKE run print_elab 2>&1 | grep --color elabbed-string
+test_out "elabbed-string" run print_elab
+
+# cleanup
+rm -f produced.out

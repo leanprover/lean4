@@ -159,7 +159,12 @@ def addClass (env : Environment) (clsName : Name) : Except MessageData Environme
   let outParams ← checkOutParam 0 #[] #[] decl.type
   return classExtension.addEntry env { name := clsName, outParams }
 
-builtin_initialize
+/--
+Registers an inductive type or structure as a type class. Using `class` or `class inductive` is
+generally preferred over using `@[class] structure` or `@[class] inductive` directly.
+-/
+@[builtin_init, builtin_doc]
+private def init :=
   registerBuiltinAttribute {
     name  := `class
     descr := "type class"

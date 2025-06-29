@@ -96,13 +96,14 @@ where
     if args.isEmpty then
       return f
     else
-      let mut r := f
+      let mut r := m!""
       for arg in args do
-        r := r ++ m!" {arg}"
+        r := r ++ Format.line ++ arg
+      r := f ++ .nest 2 r
       if parenIfNonAtomic then
-        return m!"({r})"
+        return .paren r
       else
-        return r
+        return .group r
 
   go (parenIfNonAtomic := true) : StateRefT (List Key) CoreM MessageData := do
     let some key ← next? | return .nil
@@ -534,7 +535,7 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
       else if let some matcherInfo := isMatcherAppCore? (← getEnv) e then
         -- A matcher application is stuck is one of the discriminants has a metavariable
         let args := e.getAppArgs
-        for arg in args[matcherInfo.getFirstDiscrPos: matcherInfo.getFirstDiscrPos + matcherInfo.numDiscrs] do
+        for arg in args[matcherInfo.getFirstDiscrPos...(matcherInfo.getFirstDiscrPos + matcherInfo.numDiscrs)] do
           if arg.hasExprMVar then
             Meta.throwIsDefEqStuck
       else if (← isRec c) then
@@ -794,7 +795,7 @@ Fold the values stored in a `Trie`.
 -/
 @[inline]
 def foldValues (f : σ → α → σ) (init : σ) (t : Trie α) : σ :=
-  Id.run <| t.foldValuesM (init := init) f
+  Id.run <| t.foldValuesM (init := init) (pure <| f · ·)
 
 /--
 The number of values stored in a `Trie`.
@@ -834,7 +835,7 @@ Fold over the values stored in a `DiscrTree`.
 -/
 @[inline]
 def foldValues (f : σ → α → σ) (init : σ) (t : DiscrTree α) : σ :=
-  Id.run <| t.foldValuesM (init := init) f
+  Id.run <| t.foldValuesM (init := init) (pure <| f · ·)
 
 /--
 Check for the presence of a value satisfying a predicate.

@@ -7,10 +7,13 @@ prelude
 import Lean.ProjFns
 import Lean.Meta.CtorRecognizer
 import Lean.Compiler.BorrowedAnnotation
+import Lean.Compiler.CSimpAttr
+import Lean.Compiler.ImplementedByAttr
 import Lean.Compiler.LCNF.Types
 import Lean.Compiler.LCNF.Bind
 import Lean.Compiler.LCNF.InferType
 import Lean.Compiler.LCNF.Util
+import Lean.Compiler.NeverExtractAttr
 
 namespace Lean.Compiler.LCNF
 namespace ToLCNF
@@ -114,11 +117,11 @@ where
                   let mut subst := {}
                   let mut jpArgs := #[]
                   /- Remark: `funDecl.params.size` may be greater than `args.size`. -/
-                  for param in funDecl.params[:args.size] do
+                  for param in funDecl.params[*...args.size] do
                     let type ← replaceExprFVars param.type subst (translator := true)
                     let paramNew ← mkAuxParam type
                     jpParams := jpParams.push paramNew
-                    subst := subst.insert param.fvarId (Expr.fvar paramNew.fvarId)
+                    subst := subst.insert param.fvarId (.fvar paramNew.fvarId)
                     jpArgs := jpArgs.push (Arg.fvar paramNew.fvarId)
                   let letDecl ← mkAuxLetDecl (.fvar f jpArgs)
                   let jpValue := .let letDecl (.jmp jpDecl.fvarId #[.fvar letDecl.fvarId])
@@ -162,7 +165,7 @@ where
       | .unreach _ =>
         let type ← c.inferType
         eraseCode c
-        seq[:i].forM fun
+        seq[*...i].forM fun
           | .let decl => eraseLetDecl decl
           | .jp decl | .fun decl => eraseFunDecl decl
           | .cases _ cs => eraseCode (.cases cs)
@@ -198,6 +201,11 @@ structure State where
   lctx : LocalContext := {}
   /-- Cache from Lean regular expression to LCNF argument. -/
   cache : PHashMap Expr Arg := {}
+  /--
+  Determines whether caching has been disabled due to finding a use of
+  a constant marked with `never_extract`.
+  -/
+  shouldCache : Bool := true
   /-- `toLCNFType` cache -/
   typeCache : Std.HashMap Expr Expr := {}
   /-- isTypeFormerType cache -/
@@ -301,7 +309,7 @@ are type formers. This can happen when we have a field whose type is, for exampl
 def applyToAny (type : Expr) : M Expr := do
   let toAny := (← get).toAny
   return type.replace fun
-    | .fvar fvarId => if toAny.contains fvarId then some erasedExpr else none
+    | .fvar fvarId => if toAny.contains fvarId then some anyExpr else none
     | _ => none
 
 def toLCNFType (type : Expr) : M Expr := do
@@ -405,8 +413,8 @@ partial def etaReduceImplicit (e : Expr) : Expr :=
 
 def litToValue (lit : Literal) : LitValue :=
   match lit with
-  | .natVal val => .natVal val
-  | .strVal val => .strVal val
+  | .natVal val => .nat val
+  | .strVal val => .str val
 
 /--
 Put the given expression in `LCNF`.
@@ -431,7 +439,7 @@ where
       | .lit lit     => visitLit lit
       | .fvar fvarId => if (← get).toAny.contains fvarId then pure .erased else pure (.fvar fvarId)
       | .forallE .. | .mvar .. | .bvar .. | .sort ..  => unreachable!
-    modify fun s => { s with cache := s.cache.insert e r }
+    modify fun s => if s.shouldCache then { s with cache := s.cache.insert e r } else s
     return r
 
   visit (e : Expr) : M Arg := withIncRecDepth do
@@ -451,7 +459,7 @@ where
     visitCore e
 
   visitLit (lit : Literal) : M Arg :=
-    letValueToArg (.value (litToValue lit))
+    letValueToArg (.lit (litToValue lit))
 
   visitAppArg (e : Expr) : M Arg := do
     if isLCProof e then
@@ -472,8 +480,11 @@ where
 
   /-- Giving `f` a constant `.const declName us`, convert `args` into `args'`, and return `.const declName us args'` -/
   visitAppDefaultConst (f : Expr) (args : Array Expr) : M Arg := do
-    let .const declName us := f | unreachable!
+    let env ← getEnv
+    let .const declName us := CSimp.replaceConstants env f | unreachable!
     let args ← args.mapM visitAppArg
+    if hasNeverExtractAttribute env declName then
+      modify fun s => {s with shouldCache := false }
     letValueToArg <| .const declName us args
 
   /-- Eta expand if under applied, otherwise apply k -/
@@ -489,7 +500,7 @@ where
   Otherwise return
   ```
   let k := app
-  k args[arity:]
+  k args[arity...*]
   ```
   -/
   mkOverApplication (app : Arg) (args : Array Expr) (arity : Nat) : M Arg := do
@@ -539,7 +550,7 @@ where
   visitCases (casesInfo : CasesInfo) (e : Expr) : M Arg :=
     etaIfUnderApplied e casesInfo.arity do
       let args := e.getAppArgs
-      let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args[:casesInfo.arity]))
+      let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args[*...casesInfo.arity]))
       if casesInfo.numAlts == 0 then
         /- `casesOn` of an empty type. -/
         mkUnreachable resultType
@@ -615,7 +626,7 @@ where
       let hb := mkLcProof args[1]!
       let minor := args[minorPos]!
       let minor := minor.beta #[ha, hb]
-      visit (mkAppN minor args[arity:])
+      visit (mkAppN minor args[arity...*])
 
   visitNoConfusion (e : Expr) : M Arg := do
     let .const declName _ := e.getAppFn | unreachable!
@@ -634,7 +645,7 @@ where
           etaIfUnderApplied e (arity+1) do
             let major := args[arity]!
             let major ← expandNoConfusionMajor major lhsCtorVal.numFields
-            let major := mkAppN major args[arity+1:]
+            let major := mkAppN major args[(arity+1)...*]
             visit major
         else
           let type ← toLCNFType (← liftMetaM <| Meta.inferType e)
@@ -669,13 +680,13 @@ where
 
   visitApp (e : Expr) : M Arg := do
     if let some (args, n, t, v, b) := e.letFunAppArgs? then
-      visitCore <| mkAppN (.letE n t v b (nonDep := true)) args
-    else if let .const declName _ := e.getAppFn then
+      visitCore <| mkAppN (.letE n t v b (nondep := true)) args
+    else if let .const declName us := CSimp.replaceConstants (← getEnv) e.getAppFn then
       if declName == ``Quot.lift then
         visitQuotLift e
       else if declName == ``Quot.mk then
         visitCtor 3 e
-      else if declName == ``Eq.casesOn || declName == ``Eq.rec || declName == ``Eq.ndrec then
+      else if declName == ``Eq.casesOn || declName == ``Eq.rec || declName == ``Eq.recOn || declName == ``Eq.ndrec then
         visitEqRec e
       else if declName == ``HEq.casesOn || declName == ``HEq.rec || declName == ``HEq.ndrec then
         visitHEqRec e

@@ -179,7 +179,7 @@ local macro "have_eq " lhs:term:max rhs:term:max : tactic =>
   `(tactic|
     (have h : $lhs = $rhs :=
        -- TODO: replace with linarith
-       by simp_arith at *; apply Nat.le_antisymm <;> assumption
+       by simp +arith at *; apply Nat.le_antisymm <;> assumption
      try subst $lhs))
 
 /-!

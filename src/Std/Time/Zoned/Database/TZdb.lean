@@ -60,12 +60,12 @@ Extracts a timezone ID from a file path.
 -/
 def idFromPath (path : System.FilePath) : Option String := do
   let res := path.components.toArray
-  let last ← res.get? (res.size - 1)
-  let last₁ ← res.get? (res.size - 2)
+  let last ← res[res.size - 1]?
+  let last₁ ← res[res.size - 2]?
 
-  if last₁ = some "zoneinfo"
-    then last.trim
-    else last₁.trim ++ "/" ++ last.trim
+  if last₁ = "zoneinfo"
+    then some <| last.trim
+    else some <| last₁.trim ++ "/" ++ last.trim
 
 /--
 Retrieves the timezone rules from the local timezone data file.

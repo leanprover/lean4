@@ -1,8 +1,7 @@
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
  "position": {"line": 10, "character": 17}}
 {"items":
- [{"sortText": "0",
-   "label": "bar",
+ [{"label": "barfoo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -10,8 +9,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 10, "character": 17}},
     "cPos": 0}},
-  {"sortText": "1",
-   "label": "barfoo",
+  {"label": "foobar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -19,8 +17,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 10, "character": 17}},
     "cPos": 0}},
-  {"sortText": "2",
-   "label": "foo",
+  {"label": "bar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -28,8 +25,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 10, "character": 17}},
     "cPos": 0}},
-  {"sortText": "3",
-   "label": "foobar",
+  {"label": "foo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -41,8 +37,7 @@
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
  "position": {"line": 13, "character": 18}}
 {"items":
- [{"sortText": "0",
-   "label": "bar",
+ [{"label": "barfoo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -50,8 +45,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 13, "character": 18}},
     "cPos": 0}},
-  {"sortText": "1",
-   "label": "barfoo",
+  {"label": "foobar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -59,8 +53,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 13, "character": 18}},
     "cPos": 0}},
-  {"sortText": "2",
-   "label": "foo",
+  {"label": "bar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -68,8 +61,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 13, "character": 18}},
     "cPos": 0}},
-  {"sortText": "3",
-   "label": "foobar",
+  {"label": "foo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -81,8 +73,7 @@
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
  "position": {"line": 17, "character": 2}}
 {"items":
- [{"sortText": "0",
-   "label": "bar",
+ [{"label": "barfoo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -90,8 +81,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 17, "character": 2}},
     "cPos": 0}},
-  {"sortText": "1",
-   "label": "barfoo",
+  {"label": "foobar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -99,8 +89,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 17, "character": 2}},
     "cPos": 0}},
-  {"sortText": "2",
-   "label": "foo",
+  {"label": "bar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -108,8 +97,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 17, "character": 2}},
     "cPos": 0}},
-  {"sortText": "3",
-   "label": "foobar",
+  {"label": "foo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -121,8 +109,7 @@
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
  "position": {"line": 21, "character": 3}}
 {"items":
- [{"sortText": "0",
-   "label": "foo",
+ [{"label": "barfoo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -130,8 +117,15 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 21, "character": 3}},
     "cPos": 0}},
-  {"sortText": "1",
-   "label": "foobar",
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+     "position": {"line": 21, "character": 3}},
+    "cPos": 0}},
+  {"label": "foo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -139,12 +133,11 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 21, "character": 3}},
     "cPos": 0}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
  "position": {"line": 25, "character": 5}}
 {"items":
- [{"sortText": "0",
-   "label": "foo",
+ [{"label": "barfoo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -152,8 +145,15 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 25, "character": 5}},
     "cPos": 0}},
-  {"sortText": "1",
-   "label": "foobar",
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+     "position": {"line": 25, "character": 5}},
+    "cPos": 0}},
+  {"label": "foo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -161,7 +161,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 25, "character": 5}},
     "cPos": 0}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
  "position": {"line": 29, "character": 9}}
 {"items": [], "isIncomplete": true}
@@ -171,8 +171,7 @@
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
  "position": {"line": 39, "character": 2}}
 {"items":
- [{"sortText": "0",
-   "label": "bar",
+ [{"label": "barfoo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -180,8 +179,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 39, "character": 2}},
     "cPos": 0}},
-  {"sortText": "1",
-   "label": "barfoo",
+  {"label": "foobar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -189,8 +187,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 39, "character": 2}},
     "cPos": 0}},
-  {"sortText": "2",
-   "label": "foo",
+  {"label": "bar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -198,8 +195,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 39, "character": 2}},
     "cPos": 0}},
-  {"sortText": "3",
-   "label": "foobar",
+  {"label": "foo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -211,8 +207,7 @@
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
  "position": {"line": 43, "character": 12}}
 {"items":
- [{"sortText": "0",
-   "label": "bar",
+ [{"label": "barfoo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -220,8 +215,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 43, "character": 12}},
     "cPos": 0}},
-  {"sortText": "1",
-   "label": "barfoo",
+  {"label": "foobar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -229,8 +223,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 43, "character": 12}},
     "cPos": 0}},
-  {"sortText": "2",
-   "label": "foo",
+  {"label": "bar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -238,8 +231,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 43, "character": 12}},
     "cPos": 0}},
-  {"sortText": "3",
-   "label": "foobar",
+  {"label": "foo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -251,8 +243,7 @@
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
  "position": {"line": 46, "character": 17}}
 {"items":
- [{"sortText": "0",
-   "label": "bar",
+ [{"label": "barfoo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -260,8 +251,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 46, "character": 17}},
     "cPos": 0}},
-  {"sortText": "1",
-   "label": "barfoo",
+  {"label": "foobar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -269,8 +259,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 46, "character": 17}},
     "cPos": 0}},
-  {"sortText": "2",
-   "label": "foo",
+  {"label": "bar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -278,8 +267,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 46, "character": 17}},
     "cPos": 0}},
-  {"sortText": "3",
-   "label": "foobar",
+  {"label": "foo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -291,8 +279,7 @@
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
  "position": {"line": 50, "character": 2}}
 {"items":
- [{"sortText": "0",
-   "label": "bar",
+ [{"label": "barfoo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -300,8 +287,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 50, "character": 2}},
     "cPos": 0}},
-  {"sortText": "1",
-   "label": "barfoo",
+  {"label": "foobar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -309,8 +295,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 50, "character": 2}},
     "cPos": 0}},
-  {"sortText": "2",
-   "label": "foo",
+  {"label": "bar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -318,8 +303,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 50, "character": 2}},
     "cPos": 0}},
-  {"sortText": "3",
-   "label": "foobar",
+  {"label": "foo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -331,8 +315,7 @@
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
  "position": {"line": 55, "character": 3}}
 {"items":
- [{"sortText": "0",
-   "label": "foo",
+ [{"label": "barfoo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -340,8 +323,15 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 55, "character": 3}},
     "cPos": 1}},
-  {"sortText": "1",
-   "label": "foobar",
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+     "position": {"line": 55, "character": 3}},
+    "cPos": 1}},
+  {"label": "foo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -349,12 +339,11 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 55, "character": 3}},
     "cPos": 1}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
  "position": {"line": 60, "character": 5}}
 {"items":
- [{"sortText": "0",
-   "label": "foo",
+ [{"label": "barfoo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -362,8 +351,15 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 60, "character": 5}},
     "cPos": 1}},
-  {"sortText": "1",
-   "label": "foobar",
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+     "position": {"line": 60, "character": 5}},
+    "cPos": 1}},
+  {"label": "foo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -371,15 +367,14 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 60, "character": 5}},
     "cPos": 1}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
  "position": {"line": 66, "character": 4}}
 {"items": [], "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
  "position": {"line": 72, "character": 2}}
 {"items":
- [{"sortText": "0",
-   "label": "bar",
+ [{"label": "barfoo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -387,8 +382,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 72, "character": 2}},
     "cPos": 0}},
-  {"sortText": "1",
-   "label": "barfoo",
+  {"label": "foobar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -396,8 +390,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 72, "character": 2}},
     "cPos": 0}},
-  {"sortText": "2",
-   "label": "foo",
+  {"label": "bar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -405,8 +398,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 72, "character": 2}},
     "cPos": 0}},
-  {"sortText": "3",
-   "label": "foobar",
+  {"label": "foo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -418,8 +410,7 @@
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
  "position": {"line": 78, "character": 4}}
 {"items":
- [{"sortText": "0",
-   "label": "bar",
+ [{"label": "barfoo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -427,8 +418,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 78, "character": 4}},
     "cPos": 0}},
-  {"sortText": "1",
-   "label": "barfoo",
+  {"label": "foobar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -436,8 +426,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 78, "character": 4}},
     "cPos": 0}},
-  {"sortText": "2",
-   "label": "foo",
+  {"label": "bar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -445,8 +434,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 78, "character": 4}},
     "cPos": 0}},
-  {"sortText": "3",
-   "label": "foobar",
+  {"label": "foo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -458,8 +446,7 @@
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
  "position": {"line": 82, "character": 27}}
 {"items":
- [{"sortText": "0",
-   "label": "bar",
+ [{"label": "barfoo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -467,8 +454,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 82, "character": 27}},
     "cPos": 0}},
-  {"sortText": "1",
-   "label": "barfoo",
+  {"label": "foobar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -476,8 +462,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 82, "character": 27}},
     "cPos": 0}},
-  {"sortText": "2",
-   "label": "foo",
+  {"label": "bar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -485,8 +470,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 82, "character": 27}},
     "cPos": 0}},
-  {"sortText": "3",
-   "label": "foobar",
+  {"label": "foo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -498,8 +482,7 @@
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
  "position": {"line": 85, "character": 32}}
 {"items":
- [{"sortText": "0",
-   "label": "bar",
+ [{"label": "barfoo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -507,8 +490,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 85, "character": 32}},
     "cPos": 0}},
-  {"sortText": "1",
-   "label": "barfoo",
+  {"label": "foobar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -516,8 +498,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 85, "character": 32}},
     "cPos": 0}},
-  {"sortText": "2",
-   "label": "foo",
+  {"label": "bar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -525,8 +506,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 85, "character": 32}},
     "cPos": 0}},
-  {"sortText": "3",
-   "label": "foobar",
+  {"label": "foo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -538,8 +518,7 @@
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
  "position": {"line": 88, "character": 32}}
 {"items":
- [{"sortText": "0",
-   "label": "bar",
+ [{"label": "barfoo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -547,8 +526,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 88, "character": 32}},
     "cPos": 0}},
-  {"sortText": "1",
-   "label": "barfoo",
+  {"label": "foobar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -556,8 +534,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 88, "character": 32}},
     "cPos": 0}},
-  {"sortText": "2",
-   "label": "foo",
+  {"label": "bar",
    "kind": 5,
    "detail": "field",
    "data":
@@ -565,8 +542,7 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 88, "character": 32}},
     "cPos": 0}},
-  {"sortText": "3",
-   "label": "foobar",
+  {"label": "foo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -578,8 +554,7 @@
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
  "position": {"line": 91, "character": 33}}
 {"items":
- [{"sortText": "0",
-   "label": "foo",
+ [{"label": "barfoo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -587,8 +562,15 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 91, "character": 33}},
     "cPos": 0}},
-  {"sortText": "1",
-   "label": "foobar",
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+     "position": {"line": 91, "character": 33}},
+    "cPos": 0}},
+  {"label": "foo",
    "kind": 5,
    "detail": "field",
    "data":
@@ -596,12 +578,11 @@
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 91, "character": 33}},
     "cPos": 0}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
  "position": {"line": 96, "character": 52}}
 {"items":
- [{"sortText": "0",
-   "label": "aLongUniqueIdentifier",
+ [{"label": "aLongUniqueIdentifier",
    "kind": 21,
    "data":
    {"params":
@@ -609,4 +590,4 @@
      "position": {"line": 96, "character": 52}},
     "id": {"const": {"declName": "aLongUniqueIdentifier"}},
     "cPos": 0}}],
- "isIncomplete": true}
+ "isIncomplete": false}

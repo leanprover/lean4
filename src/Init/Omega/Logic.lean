@@ -3,8 +3,12 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.PropLemmas
+public import Init.PropLemmas
+
+public section
 /-!
 # Specializations of basic logic lemmas
 

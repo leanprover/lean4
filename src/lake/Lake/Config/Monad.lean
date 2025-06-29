@@ -28,6 +28,7 @@ abbrev LakeEnvT := ReaderT Lake.Env
 
 /-- A monad equipped with a (read-only) Lake `Workspace`. -/
 class MonadWorkspace (m : Type → Type u) where
+  /-- Gets the current Lake workspace. -/
   getWorkspace : m Workspace
 
 export MonadWorkspace (getWorkspace)
@@ -118,7 +119,7 @@ def findExternLib? (name : Name) : m (Option ExternLib) :=
   (·.augmentedSharedLibPath) <$> getWorkspace
 
 /-- Get the augmented environment variables set by the context's workspace. -/
-@[inline]  def getAugmentedEnv : m (Array (String × Option String)) :=
+@[inline] def getAugmentedEnv : m (Array (String × Option String)) :=
   (·.augmentedEnvVars) <$> getWorkspace
 
 end
@@ -128,6 +129,9 @@ variable [MonadLakeEnv m]
 
 /-! ## Environment Helpers -/
 
+/--
+Gets the current Lake environment.
+-/
 @[inline] def getLakeEnv : m Lake.Env :=
   read
 
@@ -148,6 +152,14 @@ variable [Functor m]
 /-- Get the name of Elan toolchain for the Lake environment. Empty if none. -/
 @[inline] def getElanToolchain : m String :=
   (·.toolchain) <$> getLakeEnv
+
+/-- Returns the Lake cache for the environment. May be disabled. -/
+@[inline] def getLakeCache : m Cache :=
+  (·.lakeCache) <$> getLakeEnv
+
+@[inline, inherit_doc Cache.getArtifact?]
+def getArtifact? [Bind m] [MonadLiftT BaseIO m] (contentHash : Hash) (ext := "art") : m (Option Artifact) :=
+  getLakeEnv >>= (·.lakeCache.getArtifact? contentHash ext)
 
 /-! ### Search Path Helpers -/
 
@@ -226,6 +238,10 @@ variable [Functor m]
 /-- Get the optional `LEAN_CC` compiler override of the detected Lean installation. -/
 @[inline] def getLeanCc? : m (Option String) :=
   (·.leanCc?) <$> getLeanInstall
+
+/-- Get the flags required to link shared libraries using the detected Lean installation. -/
+@[inline] def getLeanLinkSharedFlags : m (Array String) :=
+  (·.ccLinkSharedFlags) <$> getLeanInstall
 
 /-! ### Lake Install Helpers -/
 

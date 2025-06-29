@@ -104,7 +104,7 @@ Otherwise executes `failK`.
 -- ===========================
 
 private def getFirstCtor (d : Name) : MetaM (Option Name) := do
-  let some (ConstantInfo.inductInfo { ctors := ctor::_, ..}) ← getUnfoldableConstNoEx? d |
+  let some (ConstantInfo.inductInfo { ctors := ctor::_, ..}) := (← getEnv).find? d |
     return none
   return some ctor
 
@@ -112,7 +112,7 @@ private def mkNullaryCtor (type : Expr) (nparams : Nat) : MetaM (Option Expr) :=
   let .const d lvls := type.getAppFn
     | return none
   let (some ctor) ← getFirstCtor d | pure none
-  return mkAppN (mkConst ctor lvls) (type.getAppArgs.take nparams)
+  return mkAppN (mkConst ctor lvls) (type.getAppArgs.shrink nparams)
 
 private def getRecRuleFor (recVal : RecursorVal) (major : Expr) : Option RecursorRule :=
   match major.getAppFn with
@@ -125,7 +125,7 @@ private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
   let majorTypeI := majorType.getAppFn
   if !majorTypeI.isConstOf recVal.getMajorInduct then
     return major
-  else if majorType.hasExprMVar && majorType.getAppArgs[recVal.numParams:].any Expr.hasExprMVar then
+  else if majorType.hasExprMVar && majorType.getAppArgs[recVal.numParams...*].any Expr.hasExprMVar then
     return major
   else do
     let (some newCtorApp) ← mkNullaryCtor majorType recVal.numParams | pure major
@@ -180,7 +180,7 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
       else
         let some ctorName ← getFirstCtor d | pure major
         let ctorInfo ← getConstInfoCtor ctorName
-        let params := majorType.getAppArgs.take ctorInfo.numParams
+        let params := majorType.getAppArgs.shrink ctorInfo.numParams
         let mut result := mkAppN (mkConst ctorName us) params
         for i in [:ctorInfo.numFields] do
           result := mkApp result (← mkProjFn ctorInfo us params i major)
@@ -258,7 +258,7 @@ private def reduceQuotRec (recVal  : QuotVal) (recArgs : Array Expr) (failK : Un
       let major ← whnf major
       match major with
       | Expr.app (Expr.app (Expr.app (Expr.const majorFn _) _) _) majorArg => do
-        let some (ConstantInfo.quotInfo { kind := QuotKind.ctor, .. }) ← getUnfoldableConstNoEx? majorFn | failK ()
+        let some (ConstantInfo.quotInfo { kind := QuotKind.ctor, .. }) := (← getEnv).find? majorFn | failK ()
         let f := recArgs[argPos]!
         let r := mkApp f majorArg
         let recArity := majorPos + 1
@@ -321,7 +321,7 @@ mutual
         | .mvar mvarId => return some mvarId
         | _ => getStuckMVar? e
       | .const fName _ =>
-        match (← getUnfoldableConstNoEx? fName) with
+        match (← getEnv).find? fName with
         | some <| .recInfo recVal  => isRecStuck? recVal e.getAppArgs
         | some <| .quotInfo recVal => isQuotRecStuck? recVal e.getAppArgs
         | _  =>
@@ -332,7 +332,7 @@ mutual
           unless projInfo.fromClass do return none
           let args := e.getAppArgs
           -- First check whether `e`s instance is stuck.
-          if let some major := args.get? projInfo.numParams then
+          if let some major := args[projInfo.numParams]? then
             if let some mvarId ← getStuckMVar? major then
               return mvarId
           /-
@@ -372,8 +372,7 @@ end
   | .fvar fvarId   =>
     let decl ← fvarId.getDecl
     match decl with
-    | .cdecl .. => return e
-    | .ldecl (value := v) .. =>
+    | .ldecl (value := v) (nondep := false) .. =>
       -- Let-declarations marked as implementation detail should always be unfolded
       -- We initially added this feature for `simp`, and added it here for consistency.
       let cfg ← getConfig
@@ -381,8 +380,9 @@ end
         if !(← read).zetaDeltaSet.contains fvarId then
           return e
       if (← read).trackZetaDelta then
-        modify fun s => { s with zetaDeltaFVarIds := s.zetaDeltaFVarIds.insert fvarId }
+        addZetaDeltaFVarId fvarId
       whnfEasyCases v k
+    | _ => return e
   | .mvar mvarId   =>
     match (← getExprMVarAssignment? mvarId) with
     | some v => whnfEasyCases v k
@@ -485,7 +485,7 @@ def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
        || info.name == ``Char.ofNat   || info.name == ``Char.ofNatAux
        || info.name == ``String.decEq || info.name == ``List.hasDecEq
        || info.name == ``Fin.ofNat
-       || info.name == ``Fin.ofNat' -- It is used to define `BitVec` literals
+       || info.name == ``Fin.ofNat -- It is used to define `BitVec` literals
        || info.name == ``UInt8.ofNat  || info.name == ``UInt8.decEq
        || info.name == ``UInt16.ofNat || info.name == ``UInt16.decEq
        || info.name == ``UInt32.ofNat || info.name == ``UInt32.decEq
@@ -523,7 +523,7 @@ def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
   let mut f ← instantiateValueLevelParams constInfo declLevels
   if (← getTransparency) matches .instances | .reducible then
     f ← unfoldNestedDIte f
-  let auxApp := mkAppN f args[0:prefixSz]
+  let auxApp := mkAppN f args[*...prefixSz]
   let auxAppType ← inferType auxApp
   forallBoundedTelescope auxAppType info.numAlts fun hs _ => do
     let auxApp ← whnfMatcher (mkAppN auxApp hs)
@@ -532,7 +532,7 @@ def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
     for h in hs do
       if auxAppFn == h then
         let result := mkAppN args[i]! auxApp.getAppArgs
-        let result := mkAppN result args[prefixSz + info.numAlts:args.size]
+        let result := mkAppN result args[(prefixSz + info.numAlts)...args.size]
         return ReduceMatcherResult.reduced result.headBeta
       i := i + 1
     return ReduceMatcherResult.stuck auxApp
@@ -582,6 +582,53 @@ private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) :=
     return none
 
 /--
+Zeta reduces `let`s/`have`s.
+If `zetaHave` is false, then `have`s are not zeta reduced.
+
+Auxiliary function for `whnfCore` and `Simp.reduceStep`, to implement the `zeta` option.
+This function does not implement `zetaUnused` logic,
+which is instead the responsibility of `consumeUnusedLet`.
+The `expandLet` function works with expressions with loose bound variables,
+and thus determining whether a let variable is used isn't an O(1) operation.
+
+Note: since `expandLet` and `consumeUnusedLet` are separated like this, a consequence is that
+in the `+zeta -zetaHave +zetaUnused` configuration, then `whnfCore` has quadratic complexity
+when reducing a sequence of alternating `let`s and `have`s where the `let`s are used but the `have`s are unused.
+-/
+partial def expandLet (e : Expr) (vs : Array Expr) (zetaHave : Bool := true) : Expr :=
+  if let .letE _ _ v b nondep  := e then
+    if !nondep || zetaHave then
+      expandLet b (vs.push <| v.instantiateRev vs) zetaHave
+    else
+      e.instantiateRev vs
+  -- TODO(kmill): we are going to remove `letFun` support.
+  else if let some (_, _, v, b) := e.letFun? then
+    if zetaHave then
+      expandLet b (vs.push <| v.instantiateRev vs) zetaHave
+    else
+      e.instantiateRev vs
+  else
+    e.instantiateRev vs
+
+/--
+Consumes unused `let`s/`have`s.
+If `consumeNondep` is false, then `have`s are not consumed.
+
+Auxiliary function for `whnfCore`, `isDefEqQuick`, and `Simp.reduceStep`,
+to implement the `zetaUnused` option.
+In the case of `isDefEqQuick`, it is also used when `zeta` is set.
+-/
+partial def consumeUnusedLet (e : Expr) (consumeNondep : Bool := false) : Expr :=
+  match e with
+  | e@(.letE _ _ _ b nondep) => if b.hasLooseBVars || (nondep && !consumeNondep) then e else consumeUnusedLet b consumeNondep
+  | e =>
+    -- TODO(kmill): we are going to remove `letFun` support.
+    if let some (_, _, _, b) := e.letFun? then
+      if b.hasLooseBVars || !consumeNondep then e else consumeUnusedLet b consumeNondep
+    else
+      e
+
+/--
 Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
 expand let-expressions, expand assigned meta-variables.
 -/
@@ -593,13 +640,23 @@ where
       trace[Meta.whnf] e
       match e with
       | .const ..  => pure e
-      | .letE _ _ v b _ => if (← getConfig).zeta then go <| b.instantiate1 v else return e
+      | .letE _ _ v b nondep =>
+        let cfg ← getConfig
+        if cfg.zeta && (!nondep || cfg.zetaHave) then
+          go <| expandLet b #[v] (zetaHave := cfg.zetaHave)
+        else if cfg.zetaUnused && !b.hasLooseBVars then
+          go <| consumeUnusedLet b
+        else
+          return e
       | .app f ..       =>
         let cfg ← getConfig
-        if cfg.zeta then
-          if let some (args, _, _, v, b) := e.letFunAppArgs? then
-            -- When zeta reducing enabled, always reduce `letFun` no matter the current reducibility level
-            return (← go <| mkAppN (b.instantiate1 v) args)
+        -- TODO(kmill): we are going to remove `letFun` support.
+        if let some (args, _, _, v, b) := e.letFunAppArgs? then
+          -- When zeta reducing enabled, always reduce `letFun` no matter the current reducibility level
+          if cfg.zeta && cfg.zetaHave then
+            return (← go <| mkAppN (expandLet b #[v] (zetaHave := cfg.zetaHave)) args)
+          else if cfg.zetaUnused && !b.hasLooseBVars then
+            return (← go <| mkAppN (consumeUnusedLet b) args)
         let f := f.getAppFn
         let f' ← go f
         /-
@@ -625,17 +682,18 @@ where
           | .partialApp   => pure e
           | .stuck _      => pure e
           | .notMatcher   =>
-            matchConstAux f' (fun _ => return e) fun cinfo lvls =>
-              match cinfo with
-              | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
-              | .quotInfo rec   => reduceQuotRec rec e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
-              | c@(.defnInfo _) => do
-                if (← isAuxDef c.name) then
-                  recordUnfold c.name
-                  deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
-                else
-                  return e
-              | _ => return e
+            let .const cname lvls := f' | return e
+            let some cinfo := (← getEnv).find? cname | return e
+            match cinfo with
+            | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
+            | .quotInfo rec   => reduceQuotRec rec e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
+            | c@(.defnInfo _) => do
+              if (← isAuxDef c.name) then
+                recordUnfold c.name
+                deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
+              else
+                return e
+            | _ => return e
       | .proj _ i c =>
         let k (c : Expr) := do
           match (← projectCore? c i) with
@@ -684,7 +742,7 @@ partial def smartUnfoldingReduce? (e : Expr) : MetaM (Option Expr) :=
 where
   go (e : Expr) : OptionT MetaM Expr := do
     match e with
-    | .letE n t v b _ => withLetDecl n t (← go v) fun x => do mkLetFVars #[x] (← go (b.instantiate1 x))
+    | .letE n t v b nondep => mapLetDecl n t (← go v) (nondep := nondep) fun x => go (b.instantiate1 x)
     | .lam .. => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← go b)
     | .app f a .. => return mkApp (← go f) (← go a)
     | .proj _ _ s => return e.updateProj! (← go s)
@@ -759,7 +817,7 @@ mutual
             else
               return none
           if smartUnfolding.get (← getOptions) then
-            match ((← getEnv).find? (mkSmartUnfoldingNameFor fInfo.name)) with
+            match ((← getEnv).find? (skipRealize := true) (mkSmartUnfoldingNameFor fInfo.name)) with
             | some fAuxInfo@(.defnInfo _) =>
               -- We use `preserveMData := true` to make sure the smart unfolding annotation are not erased in an over-application.
               deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs (preserveMData := true) (fun _ => pure none) fun e₁ => do
@@ -860,7 +918,9 @@ def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
     return none
   else match (← reduceMatcher? e) with
     | .reduced e => return e
-    | _ => matchConstAux e.getAppFn (fun _ => pure none) fun cinfo lvls => do
+    | _ =>
+      let .const cname lvls := e.getAppFn | return none
+      let some cinfo := (← getEnv).find? cname | return none
       match cinfo with
       | .recInfo «rec»  => reduceRec «rec» lvls e.getAppArgs (fun _ => pure none) (fun e => do recordUnfold cinfo.name; pure (some e))
       | .quotInfo «rec» => reduceQuotRec «rec» e.getAppArgs (fun _ => pure none) (fun e => do recordUnfold cinfo.name; pure (some e))

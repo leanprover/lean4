@@ -98,6 +98,7 @@ static bool depends_on_fvar(local_ctx const & lctx, buffer<expr> const & params,
    Remark: we also skip this transformation for definitions marked as `[inline]` or `[instance]`.
 */
 class eager_lambda_lifting_fn {
+    elab_environment    m_env;
     type_checker::state m_st;
     csimp_cfg           m_cfg;
     local_ctx           m_lctx;
@@ -108,7 +109,7 @@ class eager_lambda_lifting_fn {
     name_set            m_nonterminal_lambdas;
     unsigned            m_next_idx{1};
 
-    environment const & env() const { return m_st.env(); }
+    elab_environment const & env() const { return m_env; }
 
     name_generator & ngen() { return m_st.ngen(); }
 
@@ -234,12 +235,13 @@ class eager_lambda_lifting_fn {
             }
             expr type = cheap_beta_reduce(type_checker(m_st).infer(code));
             name n    = next_name();
-            /* We add the auxiliary declaration `n` as a "meta" axiom to the environment.
+            /* We add the auxiliary declaration `n` as a "meta" axiom to the elab_environment.
                This is a hack to make sure we can use `csimp` to simplify `code` and
                other definitions that use `n`.
                We used a similar hack at `specialize.cpp`. */
             declaration aux_ax = mk_axiom(n, names(), type, true /* meta */);
-            m_st.env() = env().add(aux_ax, false);
+            m_env = m_env.add(aux_ax, false);
+            m_st.env() = m_env;
             m_new_decls.push_back(comp_decl(n, code));
             return mk_app(mk_constant(n), new_params);
         } catch (exception &) {
@@ -398,10 +400,10 @@ class eager_lambda_lifting_fn {
     }
 
 public:
-    eager_lambda_lifting_fn(environment const & env, csimp_cfg const & cfg):
-        m_st(env), m_cfg(cfg) {}
+    eager_lambda_lifting_fn(elab_environment const & env, csimp_cfg const & cfg):
+        m_env(env), m_st(env), m_cfg(cfg) {}
 
-    pair<environment, comp_decls> operator()(comp_decl const & cdecl) {
+    pair<elab_environment, comp_decls> operator()(comp_decl const & cdecl) {
         m_base_name = cdecl.fst();
         expr r = visit(cdecl.snd(), true);
         comp_decl new_cdecl(cdecl.fst(), r);
@@ -410,7 +412,7 @@ public:
     }
 };
 
-pair<environment, comp_decls> eager_lambda_lifting(environment env, comp_decls const & ds, csimp_cfg const & cfg) {
+pair<elab_environment, comp_decls> eager_lambda_lifting(elab_environment env, comp_decls const & ds, csimp_cfg const & cfg) {
     comp_decls r;
     for (comp_decl const & d : ds) {
         if (has_inline_attribute(env, d.fst()) || is_instance(env, d.fst())) {

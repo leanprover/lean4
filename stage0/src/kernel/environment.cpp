@@ -19,16 +19,9 @@ Author: Leonardo de Moura
 
 namespace lean {
 extern "C" object* lean_environment_add(object*, object*);
-extern "C" object* lean_mk_empty_environment(uint32, object*);
 extern "C" object* lean_environment_find(object*, object*);
-extern "C" uint32 lean_environment_trust_level(object*);
 extern "C" object* lean_environment_mark_quot_init(object*);
 extern "C" uint8 lean_environment_quot_init(object*);
-extern "C" object* lean_register_extension(object*);
-extern "C" object* lean_get_extension(object*, object*);
-extern "C" object* lean_set_extension(object*, object*, object*);
-extern "C" object* lean_environment_set_main_module(object*, object*);
-extern "C" object* lean_environment_main_module(object*);
 extern "C" object* lean_kernel_record_unfold (object*, object*);
 extern "C" object* lean_kernel_get_diag(object*);
 extern "C" object* lean_kernel_set_diag(object*, object*);
@@ -62,32 +55,12 @@ environment scoped_diagnostics::update(environment const & env) const {
         return env;
 }
 
-environment mk_empty_environment(uint32 trust_lvl) {
-    return get_io_result<environment>(lean_mk_empty_environment(trust_lvl, io_mk_world()));
-}
-
-environment::environment(unsigned trust_lvl):
-    object_ref(mk_empty_environment(trust_lvl)) {
-}
-
 diagnostics environment::get_diag() const {
     return diagnostics(lean_kernel_get_diag(to_obj_arg()));
 }
 
 environment environment::set_diag(diagnostics const & diag) const {
     return environment(lean_kernel_set_diag(to_obj_arg(), diag.to_obj_arg()));
-}
-
-void environment::set_main_module(name const & n) {
-    m_obj = lean_environment_set_main_module(m_obj, n.to_obj_arg());
-}
-
-name environment::get_main_module() const {
-    return name(lean_environment_main_module(to_obj_arg()));
-}
-
-unsigned environment::trust_lvl() const {
-    return lean_environment_trust_level(to_obj_arg());
 }
 
 bool environment::is_quot_initialized() const {
@@ -297,7 +270,7 @@ environment environment::add(declaration const & d, bool check) const {
 }
 /*
 addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
-  (cancelTk? : @& Option IO.CancelToken) : Except KernelException Environment
+  (cancelTk? : @& Option IO.CancelToken) : Except Kernel.Exception Environment
 */
 extern "C" LEAN_EXPORT object * lean_add_decl(object * env, size_t max_heartbeat, object * decl,
     object * opt_cancel_tk) {
@@ -319,12 +292,6 @@ void environment::for_each_constant(std::function<void(constant_info const & d)>
             constant_info cinfo(v, true);
             f(cinfo);
         });
-}
-
-extern "C" obj_res lean_display_stats(obj_arg env, obj_arg w);
-
-void environment::display_stats() const {
-    dec_ref(lean_display_stats(to_obj_arg(), io_mk_world()));
 }
 
 void initialize_environment() {

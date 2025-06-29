@@ -10,6 +10,7 @@ import Lean.Meta.KAbstract
 import Lean.Meta.Check
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Apply
+import Lean.Meta.BinderNameHint
 
 namespace Lean.Meta
 
@@ -43,6 +44,7 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
           -- construct rewrite proof
           let eNew := eAbst.instantiate1 rhs
           let eNew ← instantiateMVars eNew
+          let eNew ← if rhs.hasBinderNameHint then eNew.resolveBinderNameHint else pure eNew
           let eType ← inferType e
           let motive := Lean.mkLambda `_a BinderInfo.default α eAbst
           try

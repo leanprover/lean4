@@ -54,7 +54,7 @@ Remark: We use this method when simplifying projections and cases-constructor.
 -/
 def findCtor? (fvarId : FVarId) : DiscrM (Option CtorInfo) := do
   match (← findLetDecl? fvarId) with
-  | some { value := .value (.natVal n), .. } =>
+  | some { value := .lit (.nat n), .. } =>
     return some <| .natVal n
   | some { value := .const declName _ args, .. } =>
     let some (.ctorInfo val) := (← getEnv).find? declName | return none
@@ -74,7 +74,7 @@ def getIndInfo? (type : Expr) : CoreM (Option (List Level × Array Arg)) := do
   let .const declName us := type.getAppFn | return none
   let .inductInfo info ← getConstInfo declName | return none
   unless type.getAppNumArgs >= info.numParams do return none
-  let args := type.getAppArgs[:info.numParams].toArray.map fun
+  let args := type.getAppArgs[*...info.numParams].toArray.map fun
     | .fvar fvarId => .fvar fvarId
     | e => if e.isErased then .erased else .type e
   return some (us, args)
@@ -98,7 +98,7 @@ where
       return { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctorInfo, ctorDiscrMap := ctx.ctorDiscrMap.insert ctor.toExpr discr }
     else
       -- For the discrCtor map, the constructor parameters are irrelevant for optimizations that use this information
-      let ctorInfo := .ctor ctorVal (mkArray ctorVal.numParams Arg.erased ++ fieldArgs)
+      let ctorInfo := .ctor ctorVal (.replicate ctorVal.numParams Arg.erased ++ fieldArgs)
       return { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctorInfo }
 
 @[inline, inherit_doc withDiscrCtorImp] def withDiscrCtor [MonadFunctorT DiscrM m] (discr : FVarId) (ctorName : Name) (ctorFields : Array Param) : m α → m α :=

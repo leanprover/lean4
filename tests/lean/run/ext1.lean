@@ -20,7 +20,7 @@ example (a b : C n) : a = b := by
   ext
   guard_target = a.a = b.a; exact mySorry
   guard_target = a.b = b.b; exact mySorry
-  guard_target = HEq a.i b.i; exact mySorry
+  guard_target = a.i ≍ b.i; exact mySorry
   guard_target = a.c = b.c; exact mySorry
 
 @[ext (flat := false)] structure C' (n) extends B n where

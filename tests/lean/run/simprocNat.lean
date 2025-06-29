@@ -2,7 +2,7 @@ variable (a b : Nat)
 
 /- bitwise operation tests -/
 
-#check_simp (3 : Nat) &&& (1 : Nat) ~> 1
+#check_simp (4 : Nat) &&& (5 : Nat) ~> 4
 #check_simp (3 : Nat) ^^^ (1 : Nat) ~> 2
 #check_simp (2 : Nat) ||| (1 : Nat) ~> 3
 #check_simp (3 : Nat) <<< (2 : Nat) ~> 12

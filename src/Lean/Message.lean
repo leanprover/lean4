@@ -15,15 +15,38 @@ import Lean.Util.Sorry
 
 namespace Lean
 
-def mkErrorStringWithPos (fileName : String) (pos : Position) (msg : String) (endPos : Option Position := none) : String :=
+/--
+Creates a string describing an error message `msg` produced at `pos`, optionally ending at `endPos`,
+in `fileName`.
+
+Additional optional arguments can be used to prepend a label `kind` describing the severity of
+the error (e.g., `"warning"` or `"error"`) and a bracketed `name` label displaying the name of the
+error if it has one.
+-/
+def mkErrorStringWithPos (fileName : String) (pos : Position) (msg : String)
+    (endPos : Option Position := none) (kind : Option String := none) (name : Option Name := none)
+    : String :=
   let endPos := match endPos with
     | some endPos => s!"-{endPos.line}:{endPos.column}"
     | none        => ""
-  s!"{fileName}:{pos.line}:{pos.column}{endPos}: {msg}"
+  let label := if name.isSome || kind.isSome then
+    let name := name.map (s!"({·})")
+    s!" {kind.getD ""}{name.getD ""}:"
+  else
+    ""
+  s!"{fileName}:{pos.line}:{pos.column}{endPos}:{label} {msg}"
 
 inductive MessageSeverity where
   | information | warning | error
   deriving Inhabited, BEq, ToJson, FromJson
+
+def MessageSeverity.toString : MessageSeverity → String
+  | .information => "information"
+  | .warning => "warning"
+  | .error => "error"
+
+instance : ToString MessageSeverity where
+  toString := MessageSeverity.toString
 
 structure MessageDataContext where
   env  : Environment
@@ -66,7 +89,10 @@ inductive MessageData where
   `alt` may nest any structured message,
   for example `ofGoal` to approximate a tactic state widget,
   and, if necessary, even other widget instances
-  (for which approximations are computed recursively). -/
+  (for which approximations are computed recursively).
+
+  Note that unlike with `Widget.savePanelWidgetInfo`,
+  the infoview will not pass any additional props to the widget instance. -/
   | ofWidget          : Widget.WidgetInstance → MessageData → MessageData
   /-- `withContext ctx d` specifies the pretty printing context `(env, mctx, lctx, opts)` for the nested expressions in `d`. -/
   | withContext       : MessageDataContext → MessageData → MessageData
@@ -104,11 +130,12 @@ Lazy message data production, with access to the context as given by
 a surrounding `MessageData.withContext` (which is expected to exist).
 -/
 def lazy (f : PPContext → BaseIO MessageData)
-    (hasSyntheticSorry : MetavarContext → Bool := fun _ => false) : MessageData :=
+    (hasSyntheticSorry : MetavarContext → Bool := fun _ => false)
+    (onMissingContext : Unit → BaseIO MessageData :=
+      fun _ => pure (.ofFormat "(invalid MessageData.lazy, missing context)")) : MessageData :=
   .ofLazy (hasSyntheticSorry := hasSyntheticSorry) fun ctx? => do
     let msg ← match ctx? with
-      | .none =>
-        pure (.ofFormat "(invalid MessageData.lazy, missing context)") -- see `addMessageContext`
+      | .none => onMissingContext ()
       | .some ctx => f ctx
     return Dynamic.mk msg
 
@@ -142,6 +169,23 @@ def kind : MessageData → Name
   | withNamingContext _ msg => kind msg
   | tagged n _              => n
   | _                       => .anonymous
+
+def isTrace : MessageData → Bool
+  | withContext _ msg       => msg.isTrace
+  | withNamingContext _ msg => msg.isTrace
+  | tagged _ msg            => msg.isTrace
+  | .trace _ _ _            => true
+  | _                       => false
+
+/--
+`composePreservingKind msg msg'` appends the contents of `msg'` to the end of `msg` but ensures that
+the resulting message preserves the kind (as given by `MessageData.kind`) of `msg`.
+-/
+def composePreservingKind : MessageData → MessageData → MessageData
+  | withContext ctx msg     , msg' => withContext ctx (composePreservingKind msg msg')
+  | withNamingContext nc msg, msg' => withNamingContext nc (composePreservingKind msg msg')
+  | tagged t msg            , msg' => tagged t (compose msg msg')
+  | msg                     , msg' => compose msg msg'
 
 /-- An empty message. -/
 def nil : MessageData :=
@@ -220,6 +264,15 @@ where
   | trace _ msg msgs        => visit mctx? msg || msgs.any (visit mctx?)
   | _                       => false
 
+/--
+Maximum number of trace node children to display by default to prevent slowdowns from rendering. In
+the info view, more children can be expanded interactively.
+-/
+register_option maxTraceChildren : Nat := {
+  defValue := 50
+  descr := "Maximum number of trace node children to display"
+}
+
 partial def formatAux : NamingContext → Option MessageDataContext → MessageData → BaseIO Format
   | _,    _,         ofFormatWithInfos fmt    => return fmt.1
   | _,    none,      ofGoal mvarId            => return formatRawGoal mvarId
@@ -232,12 +285,21 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
   | nCtx, ctx,       compose d₁ d₂            => return (← formatAux nCtx ctx d₁) ++ (← formatAux nCtx ctx d₂)
   | nCtx, ctx,       group d                  => Format.group <$> formatAux nCtx ctx d
   | nCtx, ctx,       trace data header children => do
+    let childFmts ← children.mapM (formatAux nCtx ctx)
+    if data.cls.isAnonymous then
+      -- Sequence of top-level traces collected by `addTraceAsMessages`, do not indent.
+      return .joinSep childFmts.toList "\n"
+
     let mut msg := f!"[{data.cls}]"
     if data.startTime != 0 then
       msg := f!"{msg} [{data.stopTime - data.startTime}]"
     msg := f!"{msg} {(← formatAux nCtx ctx header).nest 2}"
-    let children ← children.mapM (formatAux nCtx ctx)
-    return .nest 2 (.joinSep (msg::children.toList) "\n")
+    let mut children := children
+    if let some maxNum := ctx.map (maxTraceChildren.get ·.opts) then
+      if maxNum > 0 && children.size > maxNum then
+        children := children.take maxNum |>.push <|
+          ofFormat f!"{children.size - maxNum} more entries... (increase `maxTraceChildren` to see more)"
+    return .nest 2 (.joinSep (msg::childFmts.toList) "\n")
   | nCtx, ctx?,      ofLazy pp _             => do
     let dyn ← pp (ctx?.map (mkPPContext nCtx))
     let some msg := dyn.get? MessageData
@@ -292,22 +354,42 @@ def ofList : List MessageData → MessageData
 def ofArray (msgs : Array MessageData) : MessageData :=
   ofList msgs.toList
 
-/-- Puts `MessageData` into a comma-separated list with `"or"` at the back (no Oxford comma).
-Best used on non-empty lists; returns `"– none –"` for an empty list.  -/
+/--
+Puts `MessageData` into a comma-separated list with `"or"` at the back (with the serial comma).
+
+Best used on non-empty lists; returns `"– none –"` for an empty list.
+-/
 def orList (xs : List MessageData) : MessageData :=
   match xs with
   | [] => "– none –"
-  | [x] => "'" ++ x ++ "'"
-  | _ => joinSep (xs.dropLast.map (fun x => "'" ++ x ++ "'")) ", " ++ " or '" ++ xs.getLast! ++ "'"
+  | [x] => x
+  | [x₀, x₁] => x₀ ++ " or " ++ x₁
+  | _ => joinSep xs.dropLast ", " ++ ", or " ++ xs.getLast!
 
-/-- Puts `MessageData` into a comma-separated list with `"and"` at the back (no Oxford comma).
-Best used on non-empty lists; returns `"– none –"` for an empty list.  -/
+/--
+Puts `MessageData` into a comma-separated list with `"and"` at the back (with the serial comma).
+
+Best used on non-empty lists; returns `"– none –"` for an empty list.
+-/
 def andList (xs : List MessageData) : MessageData :=
   match xs with
   | [] => "– none –"
   | [x] => x
-  | _ => joinSep xs.dropLast ", " ++ " and " ++ xs.getLast!
+  | [x₀, x₁] => x₀ ++ " and " ++ x₁
+  | _ => joinSep xs.dropLast ", " ++ ", and " ++ xs.getLast!
 
+/--
+Produces a labeled note that can be appended to an error message.
+-/
+def note (note : MessageData) : MessageData :=
+  Format.line ++ Format.line ++ "Note: " ++ note
+
+/--
+Produces a labeled hint without an associated code action (non-monadic variant of
+`MessageData.hint`).
+-/
+def hint' (hint : MessageData) : MessageData :=
+  Format.line ++ Format.line ++ "Hint: " ++ hint
 
 instance : Coe (List MessageData) MessageData := ⟨ofList⟩
 instance : Coe (List Expr) MessageData := ⟨fun es => ofList <| es.map ofExpr⟩
@@ -329,6 +411,12 @@ structure BaseMessage (α : Type u) where
   /-- If `true`, report range as given; see `msgToInteractiveDiagnostic`. -/
   keepFullRange : Bool := false
   severity      : MessageSeverity := .error
+  /--
+  If `true`, filter this message from non-language server output.
+  In the language server, silent messages are served as silent diagnostics.
+  See also `DiagnosticWith.isSilent?`.
+  -/
+  isSilent      : Bool := false
   caption       : String          := ""
   /-- The content of the message. -/
   data          : α
@@ -346,6 +434,45 @@ structure SerialMessage extends BaseMessage String where
   kind          : Name
   deriving ToJson, FromJson
 
+/--
+A suffix added to diagnostic name-containing tags to indicate that they should be used as an error
+code.
+-/
+def errorNameSuffix := "_namedError"
+
+/--
+Produces a `MessageData` tagged with an identifier for error `name`.
+
+Note: this function generally should not be called directly; instead, use the macros `logNamedError`
+and `throwNamedError`.
+-/
+def MessageData.tagWithErrorName (msg : MessageData) (name : Name) : MessageData :=
+  .tagged (.str name errorNameSuffix) msg
+
+/--
+If the provided name is labeled as a diagnostic name, removes the label and returns the
+corresponding diagnostic name.
+
+Note: we use this labeling mechanism so that we can have error kinds that are not intended to be
+shown to the user, without having to validate the presence of an error explanation at runtime.
+-/
+def errorNameOfKind? : Name → Option Name
+  | .str p last => if last == errorNameSuffix then some p else none
+  | _ => none
+
+/--
+Returns the error name with which `msg` is tagged, if one exists.
+
+Note that this is distinct from `msg.kind`: the `kind` of a named-error message is not equal to its
+name, and there exist message kinds that are not error-name kinds.
+-/
+def MessageData.errorName? (msg : MessageData) : Option Name :=
+  errorNameOfKind? msg.kind
+
+@[inherit_doc MessageData.errorName?]
+def Message.errorName? (msg : Message) : Option Name :=
+  msg.data.errorName?
+
 namespace SerialMessage
 
 @[inline] def toMessage (msg : SerialMessage) : Message :=
@@ -358,8 +485,10 @@ protected def toString (msg : SerialMessage) (includeEndPos := false) : String :
     str := msg.caption ++ ":\n" ++ str
   match msg.severity with
   | .information => pure ()
-  | .warning     => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "warning: " ++ str
-  | .error       => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "error: " ++ str
+  | .warning     =>
+    str := mkErrorStringWithPos msg.fileName msg.pos str endPos "warning" (errorNameOfKind? msg.kind)
+  | .error       =>
+    str := mkErrorStringWithPos msg.fileName msg.pos str endPos "error" (errorNameOfKind? msg.kind)
   if str.isEmpty || str.back != '\n' then
     str := str ++ "\n"
   return str
@@ -372,6 +501,9 @@ namespace Message
 
 @[inherit_doc MessageData.kind] abbrev kind (msg : Message) :=
   msg.data.kind
+
+def isTrace (msg : Message) : Bool :=
+  msg.data.isTrace
 
 /-- Serializes the message, converting its data into a string and saving its kind. -/
 @[inline] def serialize (msg : Message) : BaseIO SerialMessage := do
@@ -413,6 +545,8 @@ structure MessageLog where
 namespace MessageLog
 def empty : MessageLog := {}
 
+-- Despite having been deprecated, the archived `LeanInk` project (which CI still uses)
+-- relies on this name.
 @[deprecated "renamed to `unreported`; direct access should in general be avoided in favor of \
 using `MessageLog.toList/toArray`" (since := "2024-05-22")]
 def msgs : MessageLog → PersistentArray Message := unreported
@@ -448,6 +582,9 @@ def markAllReported (log : MessageLog) : MessageLog :=
 def errorsToWarnings (log : MessageLog) : MessageLog :=
   { unreported := log.unreported.map (fun m => match m.severity with | MessageSeverity.error => { m with severity := MessageSeverity.warning } | _ => m) }
 
+def errorsToInfos (log : MessageLog) : MessageLog :=
+  { unreported := log.unreported.map (fun m => match m.severity with | MessageSeverity.error => { m with severity := MessageSeverity.information } | _ => m) }
+
 def getInfoMessages (log : MessageLog) : MessageLog :=
   { unreported := log.unreported.filter fun m => match m.severity with | MessageSeverity.information => true | _ => false }
 
@@ -472,6 +609,57 @@ def indentD (msg : MessageData) : MessageData :=
 
 def indentExpr (e : Expr) : MessageData :=
   indentD e
+
+/--
+Returns the character length of the message when rendered.
+
+Note: this is a potentially expensive operation that is only relevant to message data that are
+actually rendered. Consider using this function in lazy message data to avoid unnecessary
+computation for messages that are not displayed.
+-/
+private def MessageData.formatLength (ctx : PPContext) (msg : MessageData) : BaseIO Nat := do
+  let { env, mctx, lctx, opts, ..} := ctx
+  let fmt ← msg.format (some { env, mctx, lctx, opts })
+  return fmt.pretty.length
+
+
+/--
+Renders an expression `e` inline in a message unless it will exceed `maxInlineLength` characters, in
+which case the expression is indented on a new line.
+
+Note that the output of this function is formatted with preceding and trailing space included. Thus,
+in `m₁ ++ inlineExpr e ++ m₂`, `m₁` should not end with a space or new line, nor should `m₂` begin
+with one.
+-/
+def inlineExpr (e : Expr) (maxInlineLength := 30) : MessageData :=
+  .lazy
+    (fun ctx => do
+      let msg := MessageData.ofExpr e
+      if (← msg.formatLength ctx) > maxInlineLength then
+        return indentD msg ++ "\n"
+      else
+        return " `" ++ msg ++ "` ")
+    (fun mctx => instantiateMVarsCore mctx e |>.1.hasSyntheticSorry)
+    (fun () => return " `" ++ MessageData.ofExpr e ++ "` ")
+
+/--
+See `Lean.inlineExpr`. This variation is to be used when the expression is the trailing element of a
+message; it does not append a newline or space after the expression.
+-/
+def inlineExprTrailing (e : Expr) (maxInlineLength := 30) : MessageData :=
+  .lazy
+    (fun ctx => do
+      let msg := MessageData.ofExpr e
+      if (← msg.formatLength ctx) > maxInlineLength then
+        return indentD msg
+      else
+        return " `" ++ msg ++ "`")
+    (fun mctx => instantiateMVarsCore mctx e |>.1.hasSyntheticSorry)
+    (fun () => return " `" ++ MessageData.ofExpr e ++ "`")
+
+/-- Atom quotes -/
+def aquote (msg : MessageData) : MessageData :=
+  "「" ++ msg ++ "」"
 
 class AddMessageContext (m : Type → Type) where
   /--
@@ -537,12 +725,12 @@ macro_rules
 def toMessageList (msgs : Array MessageData) : MessageData :=
   indentD (MessageData.joinSep msgs.toList m!"\n\n")
 
-namespace KernelException
+namespace Kernel.Exception
 
 private def mkCtx (env : Environment) (lctx : LocalContext) (opts : Options) (msg : MessageData) : MessageData :=
-  MessageData.withContext { env := env, mctx := {}, lctx := lctx, opts := opts } msg
+  MessageData.withContext { env := .ofKernelEnv env, mctx := {}, lctx := lctx, opts := opts } msg
 
-def toMessageData (e : KernelException) (opts : Options) : MessageData :=
+def toMessageData (e : Kernel.Exception) (opts : Options) : MessageData :=
   match e with
   | unknownConstant env constName       => mkCtx env {} opts m!"(kernel) unknown constant '{constName}'"
   | alreadyDeclared env constName       => mkCtx env {} opts m!"(kernel) constant has already been declared '{.ofConstName constName true}'"
@@ -561,7 +749,7 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
   | letTypeMismatch  env lctx n _ _     => mkCtx env lctx opts m!"(kernel) let-declaration type mismatch '{n}'"
   | exprTypeMismatch env lctx e _       => mkCtx env lctx opts m!"(kernel) type mismatch at{indentExpr e}"
   | appTypeMismatch  env lctx e fnType argType =>
-    mkCtx env lctx opts m!"application type mismatch{indentExpr e}\nargument has type{indentExpr argType}\nbut function has type{indentExpr fnType}"
+    mkCtx env lctx opts m!"(kernel) application type mismatch{indentExpr e}\nargument has type{indentExpr argType}\nbut function has type{indentExpr fnType}"
   | invalidProj env lctx e              => mkCtx env lctx opts m!"(kernel) invalid projection{indentExpr e}"
   | thmTypeIsNotProp env constName type => mkCtx env {} opts m!"(kernel) type of theorem '{.ofConstName constName true}' is not a proposition{indentExpr type}"
   | other msg                           => m!"(kernel) {msg}"
@@ -570,5 +758,10 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
   | deepRecursion                       => "(kernel) deep recursion detected"
   | interrupted                         => "(kernel) interrupted"
 
-end KernelException
+end Kernel.Exception
+
+/-- Helper functions for creating a `MessageData` with the given header and elements. -/
+def toTraceElem [ToMessageData α] (e : α) (cls : Name := Name.mkSimple "_") : MessageData :=
+  .trace { cls } (toMessageData e) #[]
+
 end Lean

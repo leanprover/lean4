@@ -243,7 +243,7 @@ private def parseAbbreviations (times : Array LocalTimeType) (n : UInt32) : Pars
 
   for time in times do
     for indx in [time.abbreviationIndex.toNat:n.toNat] do
-      let char := chars.get! indx
+      let char := chars[indx]!
       if char = 0 then
         strings := strings.push current
         current := ""
@@ -292,7 +292,7 @@ private def parseFooter : Parser (Option String) := do
   for byte in tzString do
     str := str.push (Char.ofUInt8 byte)
 
-  return str
+  return some str
 
 private def parseTZifV2 : Parser (Option TZifV2) := optional do
   let header ← parseHeader

@@ -4,8 +4,8 @@ scalar#1@0:u8
 obj@2
 ---
 scalar#4@0:u32
-scalar#1@4:u8
 obj@0
+scalar#1@4:u8
 obj@1
 obj@2
 obj@3

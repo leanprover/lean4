@@ -9,6 +9,7 @@ import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural
 import Lean.Elab.PreDefinition.WF.Main
 import Lean.Elab.PreDefinition.MkInhabitant
+import Lean.Elab.PreDefinition.PartialFixpoint
 
 namespace Lean.Elab
 open Meta
@@ -92,7 +93,7 @@ private partial def ensureNoUnassignedLevelMVarsAtPreDef (preDef : PreDefinition
           checkCache { val := e : ExprStructEq } fun _ => do
             match e with
             | .forallE n d b c | .lam n d b c => withExpr e do visit d; withLocalDecl n c d fun x => visit (b.instantiate1 x)
-            | .letE n t v b _ => withExpr e do visit t; visit v; withLetDecl n t v fun x => visit (b.instantiate1 x)
+            | .letE n t v b nondep => withExpr e do visit t; visit v; withLetDecl n t v (nondep := nondep) fun x => visit (b.instantiate1 x)
             | .mdata _ b     => withExpr e do visit b
             | .proj _ _ b    => withExpr e do visit b
             | .sort u        => visitLevel u (← read)
@@ -138,14 +139,25 @@ private def betaReduceLetRecApps (preDefs : Array PreDefinition) : MetaM (Array 
     else
       return preDef
 
-private def addAsAxioms (preDefs : Array PreDefinition) : TermElabM Unit := do
+private def addSorried (preDefs : Array PreDefinition) : TermElabM Unit := do
   for preDef in preDefs do
-    let decl := Declaration.axiomDecl {
-      name        := preDef.declName,
-      levelParams := preDef.levelParams,
-      type        := preDef.type,
-      isUnsafe    := preDef.modifiers.isUnsafe
-    }
+    let value ← mkSorry (synthetic := true) preDef.type
+    let decl := if preDef.kind.isTheorem then
+      Declaration.thmDecl {
+        name        := preDef.declName,
+        levelParams := preDef.levelParams,
+        type        := preDef.type,
+        value
+      }
+    else
+      Declaration.defnDecl {
+        name        := preDef.declName,
+        levelParams := preDef.levelParams,
+        type        := preDef.type,
+        hints       := .abbrev
+        safety      := .safe
+        value
+      }
     addDecl decl
     withSaveInfoContext do  -- save new env
       addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
@@ -162,51 +174,125 @@ def ensureFunIndReservedNamesAvailable (preDefs : Array PreDefinition) : MetaM U
 Checks consistency of a clique of TerminationHints:
 
 * If not all have a hint, the hints are ignored (log error)
-* If one has `structural`, check that all have it, (else throw error)
+* None have both `termination_by` and `partial_fixpoint` (throw error)
+* If one has `structural` or `partial_fixpoint`, check that all have it (else throw error)
 * A `structural` should not have a `decreasing_by` (else log error)
 
 -/
 def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do
-  let some preDefWith := preDefs.find? (·.termination.terminationBy?.isSome) | return
+  let some preDefWith := preDefs.find? (·.termination.isNotNone) | return
   let preDefsWithout := preDefs.filter (·.termination.terminationBy?.isNone)
   let structural :=
     preDefWith.termination.terminationBy? matches some {structural := true, ..}
+  -- Information whether the current one is partial, inductive or coinductive
+  let partialFixpoint := preDefWith.termination.partialFixpoint?.any fun x => isPartialFixpoint x.fixpointType
+  let inductiveFixpoint := preDefWith.termination.partialFixpoint?.any fun x => isInductiveFixpoint x.fixpointType
+  let coinductiveFixpoint := preDefWith.termination.partialFixpoint?.any fun x => isCoinductiveFixpoint x.fixpointType
   for preDef in preDefs do
+    -- if some has at termination by clause
     if let .some termBy := preDef.termination.terminationBy? then
-      if !structural && !preDefsWithout.isEmpty then
+      -- but something in the clique is partial/inductive/coinductive, then we report error
+      if let .some partialFixpointStx := preDef.termination.partialFixpoint? then
+        match partialFixpointStx.fixpointType with
+        | .partialFixpoint => throwErrorAt partialFixpointStx.ref m!"conflicting annotations: this function cannot \
+          be both terminating and a partial fixpoint"
+        | .inductiveFixpoint => throwErrorAt partialFixpointStx.ref m!"conflicting annotations: this function cannot \
+          be both terminating and an inductive fixpoint"
+        | .coinductiveFixpoint => throwErrorAt partialFixpointStx.ref m!"conflicting annotations: this function cannot \
+          be both terminating and a coinductive fixpoint"
+
+      -- if has no annotations
+      if !structural && !partialFixpoint && !inductiveFixpoint && !coinductiveFixpoint && !preDefsWithout.isEmpty then
         let m := MessageData.andList (preDefsWithout.toList.map (m!"{·.declName}"))
         let doOrDoes := if preDefsWithout.size = 1 then "does" else "do"
-        logErrorAt termBy.ref (m!"incomplete set of `termination_by` annotations:\n"++
-          m!"This function is mutually with {m}, which {doOrDoes} not have " ++
-          m!"a `termination_by` clause.\n" ++
-          m!"The present clause is ignored.")
+        logErrorAt termBy.ref m!"incomplete set of termination hints:\n\
+          This function is mutually recursive with {m}, which {doOrDoes} not have \
+          a termination hint.\n\
+          The present clause is ignored."
 
-      if structural && ! termBy.structural then
-        throwErrorAt termBy.ref (m!"Invalid `termination_by`; this function is mutually " ++
-          m!"recursive with {preDefWith.declName}, which is marked as `termination_by " ++
-          m!"structural` so this one also needs to be marked `structural`.")
-      if ! structural && termBy.structural then
-        throwErrorAt termBy.ref (m!"Invalid `termination_by`; this function is mutually " ++
-          m!"recursive with {preDefWith.declName}, which is not marked as `structural` " ++
-          m!"so this one cannot be `structural` either.")
+      if structural && !termBy.structural then
+        throwErrorAt termBy.ref m!"Incompatible termination hint; this function is mutually \
+          recursive with {preDefWith.declName}, which is marked as `termination_by \
+          structural` so this one also needs to be marked `structural`."
+      if !structural && termBy.structural then
+        throwErrorAt termBy.ref m!"Incompatible termination hint; this function is mutually \
+          recursive with {preDefWith.declName}, which is not marked as `structural` \
+         so this one cannot be `structural` either."
       if termBy.structural then
         if let .some decr := preDef.termination.decreasingBy? then
-          logErrorAt decr.ref (m!"Invalid `decreasing_by`; this function is marked as " ++
-            m!"structurally recursive, so no explicit termination proof is needed.")
+          logErrorAt decr.ref m!"Incompatible termination hint; this function is marked as \
+            structurally recursive, so no explicit termination proof is needed."
+
+    -- If one is partial, but others are not
+    if partialFixpoint && !preDef.termination.partialFixpoint?.any fun x => isPartialFixpoint x.fixpointType then
+      throwErrorAt preDef.ref m!"Incompatible termination hint; this function is mutually \
+        recursive with {preDefWith.declName}, which is marked as \
+        `partial_fixpoint` so this one also needs to be marked \
+        `partial_fixpoint`."
+
+    -- If one is least, but others are not
+    if inductiveFixpoint && !preDef.termination.partialFixpoint?.any fun x => isLatticeTheoretic x.fixpointType then
+      throwErrorAt preDef.ref m!"Incompatible termination hint; this function is mutually \
+        recursive with {preDefWith.declName}, which is marked as
+        `inductive_fixpoint` so this one also needs to be marked \
+        `inductive_fixpoint` or `coinductive_fixpoint`."
+
+    -- If one is greatest, but others are not
+    if coinductiveFixpoint && !preDef.termination.partialFixpoint?.any fun x => isLatticeTheoretic x.fixpointType then
+      throwErrorAt preDef.ref m!"Incompatible termination hint; this function is mutually \
+        recursive with {preDefWith.declName}, which is marked as \
+        `coinductive_fixpoint` so this one also needs to be marked \
+        `inductive_fixpoint` or `coinductive_fixpoint`."
+
+    -- checking for unnecessary `decreasing_by` clause
+    if preDef.termination.partialFixpoint?.any fun x => isPartialFixpoint x.fixpointType then
+        if let .some decr := preDef.termination.decreasingBy? then
+          logErrorAt decr.ref m!"Invalid `decreasing_by`; this function is marked as \
+            partial_fixpoint, so no explicit termination proof is needed."
+
+    if preDef.termination.partialFixpoint?.any fun x => isInductiveFixpoint x.fixpointType then
+      if let .some decr := preDef.termination.decreasingBy? then
+        logErrorAt decr.ref m!"Invalid `decreasing_by`; this function is marked as \
+          inductive_fixpoint, so no explicit termination proof is needed."
+
+    if preDef.termination.partialFixpoint?.any fun x => isInductiveFixpoint x.fixpointType then
+      if let .some decr := preDef.termination.decreasingBy? then
+        logErrorAt decr.ref m!"Invalid `decreasing_by`; this function is marked as \
+          coinductive_fixpoint, so no explicit termination proof is needed."
+
+    -- if the selected one is not marked as partial fixpoint
+    if !partialFixpoint then
+      if let some stx := preDef.termination.partialFixpoint? then
+        if isPartialFixpoint stx.fixpointType then
+          throwErrorAt stx.ref m!"Incompatible termination hint; this function is mutually \
+            recursive with {preDefWith.declName}, which is not also marked as \
+            `partial_fixpoint`, so this one cannot be either."
+
+    -- if the selected one is not marked as partial fixpoint
+    unless inductiveFixpoint || coinductiveFixpoint do
+      if let some stx := preDef.termination.partialFixpoint? then
+        if isLatticeTheoretic stx.fixpointType then
+          throwErrorAt stx.ref m!"Incompatible termination hint; this function is mutually \
+            recursive with {preDefWith.declName}, which is not also marked as \
+            `inductive_fixpoint` or `coinductive_fixpoint`, so this one cannot be either."
 
 /--
-Elaborates the `TerminationHint` in the clique to `TerminationArguments`
+Elaborates the `TerminationHint` in the clique to `TerminationMeasures`
 -/
-def elabTerminationByHints (preDefs : Array PreDefinition) : TermElabM (Array (Option TerminationArgument)) := do
+def elabTerminationByHints (preDefs : Array PreDefinition) : TermElabM (Array (Option TerminationMeasure)) := do
   preDefs.mapM fun preDef => do
     let arity ← lambdaTelescope preDef.value fun xs _ => pure xs.size
     let hints := preDef.termination
     hints.terminationBy?.mapM
-      (TerminationArgument.elab preDef.declName preDef.type arity hints.extraParams ·)
+      (TerminationMeasure.elab preDef.declName preDef.type arity hints.extraParams ·)
 
 def shouldUseStructural (preDefs : Array PreDefinition) : Bool :=
   preDefs.any fun preDef =>
     preDef.termination.terminationBy? matches some {structural := true, ..}
+
+def shouldUsepartialFixpoint (preDefs : Array PreDefinition) : Bool :=
+  preDefs.any fun preDef =>
+    preDef.termination.partialFixpoint?.isSome
 
 def shouldUseWF (preDefs : Array PreDefinition) : Bool :=
   preDefs.any fun preDef =>
@@ -240,27 +326,38 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
         else if preDefs.any (·.modifiers.isUnsafe) then
           addAndCompileUnsafe preDefs
           preDefs.forM (·.termination.ensureNone "unsafe")
-        else if preDefs.any (·.modifiers.isPartial) then
-          for preDef in preDefs do
-            if preDef.modifiers.isPartial && !(← whnfD preDef.type).isForall then
-              withRef preDef.ref <| throwError "invalid use of 'partial', '{preDef.declName}' is not a function{indentExpr preDef.type}"
-          addAndCompilePartial preDefs
-          preDefs.forM (·.termination.ensureNone "partial")
         else
+          if preDefs.any (·.modifiers.isInferredPartial) then
+            let mut isPartial := true
+            for preDef in preDefs do
+              if !(← whnfD preDef.type).isForall then
+                if preDef.modifiers.isPartial then
+                  withRef preDef.ref <| throwError "invalid use of 'partial', '{preDef.declName}' is not a function{indentExpr preDef.type}"
+                else
+                  -- `meta` should not imply `partial` in this case
+                  isPartial := false
+
+            if isPartial then
+              addAndCompilePartial preDefs
+              preDefs.forM (·.termination.ensureNone "partial")
+              continue
+
           ensureFunIndReservedNamesAvailable preDefs
           try
             checkCodomainsLevel preDefs
             checkTerminationByHints preDefs
-            let termArg?s ← elabTerminationByHints preDefs
+            let termMeasures?s ← elabTerminationByHints preDefs
             if shouldUseStructural preDefs then
-              structuralRecursion preDefs termArg?s
+              structuralRecursion preDefs termMeasures?s
+            else if shouldUsepartialFixpoint preDefs then
+              partialFixpoint preDefs
             else if shouldUseWF preDefs then
-              wfRecursion preDefs termArg?s
+              wfRecursion preDefs termMeasures?s
             else
               withRef (preDefs[0]!.ref) <| mapError
                 (orelseMergeErrors
-                  (structuralRecursion preDefs termArg?s)
-                  (wfRecursion preDefs termArg?s))
+                  (structuralRecursion preDefs termMeasures?s)
+                  (wfRecursion preDefs termMeasures?s))
                 (fun msg =>
                   let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
                   m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
@@ -270,14 +367,15 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
             try
               if preDefs.all fun preDef => (preDef.kind matches DefKind.def | DefKind.instance) || preDefs.all fun preDef => preDef.kind == DefKind.abbrev then
                 -- try to add as partial definition
-                try
-                  addAndCompilePartial preDefs (useSorry := true)
-                catch _ =>
-                  -- Compilation failed try again just as axiom
-                  s.restore
-                  addAsAxioms preDefs
+                withOptions (Elab.async.set · false) do
+                  try
+                    addAndCompilePartial preDefs (useSorry := true)
+                  catch _ =>
+                    -- Compilation failed try again just as axiom
+                    s.restore
+                    addSorried preDefs
               else if preDefs.all fun preDef => preDef.kind == DefKind.theorem then
-                addAsAxioms preDefs
+                addSorried preDefs
             catch _ => s.restore
 
 builtin_initialize

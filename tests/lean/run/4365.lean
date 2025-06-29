@@ -26,7 +26,7 @@ info: fun {α} => id (id sorry) : {α : Sort u} → α
 
 /--
 error: numerals are data in Lean, but the expected type is a proposition
-  Nat → True : Prop
+  ∀ (n : Nat), True : Prop
 -/
 #guard_msgs in
 #check (1 : ∀ (n : Nat), True)
@@ -37,7 +37,8 @@ error: failed to synthesize
 numerals are polymorphic in Lean, but the numeral `1` cannot be used in a context where the expected type is
   String
 due to the absence of the instance above
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
 #check (1 : String)
@@ -48,7 +49,8 @@ error: failed to synthesize
 numerals are polymorphic in Lean, but the numeral `1` cannot be used in a context where the expected type is
   Bool
 due to the absence of the instance above
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
 #check (1 : Bool)
@@ -59,7 +61,8 @@ error: failed to synthesize
 numerals are polymorphic in Lean, but the numeral `1` cannot be used in a context where the expected type is
   Bool → Nat
 due to the absence of the instance above
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
 #check (1 : Bool → Nat)
@@ -70,7 +73,8 @@ error: failed to synthesize
 numerals are polymorphic in Lean, but the numeral `0` cannot be used in a context where the expected type is
   String
 due to the absence of the instance above
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
 def foo : String :=

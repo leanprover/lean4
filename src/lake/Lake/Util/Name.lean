@@ -35,22 +35,18 @@ abbrev OrdNameMap α := RBArray Name α Name.quickCmp
 abbrev DNameMap α := DRBMap Name α Name.quickCmp
 @[inline] def DNameMap.empty : DNameMap α := DRBMap.empty
 
-instance [ToJson α] : ToJson (NameMap α) where
-  toJson m := Json.obj <| m.fold (fun n k v => n.insert compare k.toString (toJson v)) .leaf
-
-instance [FromJson α] : FromJson (NameMap α) where
-  fromJson? j := do
-    (← j.getObj?).foldM (init := {}) fun m k v =>
-      let k := k.toName
-      if k.isAnonymous then
-        throw "expected name"
-      else
-        return m.insert k (← fromJson? v)
-
 /-! # Name Helpers -/
 
 namespace Name
 open Lean.Name
+
+def eraseHead : Name → Name
+| .anonymous | .str .anonymous _  | .num .anonymous _  => .anonymous
+| .str p s => .str (eraseHead p) s
+| .num p s => .num (eraseHead p) s
+
+theorem eq_anonymous_of_isAnonymous {n : Name} : (h : n.isAnonymous) → n = .anonymous := by
+  cases n <;> simp [Name.isAnonymous]
 
 @[simp] protected theorem beq_false (m n : Name) : (m == n) = false ↔ ¬ (m = n) := by
   rw [← beq_iff_eq (a := m) (b := n)]; cases m == n <;> simp +decide
@@ -60,7 +56,7 @@ open Lean.Name
 
 @[simp] theorem isPrefixOf_append {n m : Name} : ¬ n.hasMacroScopes → ¬ m.hasMacroScopes → n.isPrefixOf (n ++ m) := by
   intro h1 h2
-  show n.isPrefixOf (n.append m)
+  change n.isPrefixOf (n.append m)
   simp_all [Name.append]
   clear h2; induction m <;> simp [*, Name.appendCore, isPrefixOf]
 
@@ -71,10 +67,10 @@ open Lean.Name
 | .str .., .num .. => by simp [quickCmpAux]
 | .num p₁ n₁, .num p₂ n₂ => by
   simp only [quickCmpAux]; split <;>
-  simp_all [quickCmpAux_iff_eq, show ∀ p, (p → False) ↔ ¬ p from fun _ => .rfl]
+  simp_all [quickCmpAux_iff_eq]
 | .str p₁ s₁, .str p₂ s₂ => by
   simp only [quickCmpAux]; split <;>
-  simp_all [quickCmpAux_iff_eq, show ∀ p, (p → False) ↔ ¬ p from fun _ => .rfl]
+  simp_all [quickCmpAux_iff_eq]
 
 instance : LawfulCmpEq Name quickCmpAux where
   eq_of_cmp := quickCmpAux_iff_eq.mp
@@ -95,5 +91,7 @@ instance : LawfulCmpEq Name Name.quickCmp where
   cmp_rfl := quickCmp_rfl
 
 open Syntax in
-def quoteFrom (ref : Syntax) (n : Name) : Term :=
-  ⟨copyHeadTailInfoFrom (quote n : Term) ref⟩
+def quoteFrom (ref : Syntax) (n : Name) (canonical := false) : Term :=
+  let ref := ref.setHeadInfo (SourceInfo.fromRef ref canonical)
+  let stx := copyHeadTailInfoFrom (quote n : Term) ref
+  ⟨stx⟩

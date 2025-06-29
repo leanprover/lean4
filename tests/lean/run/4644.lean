@@ -1,4 +1,4 @@
--- NB: well-founded recursion, so irreducible
+@[semireducible]
 def sorted_from_var [x: LE α] [DecidableRel x.le] (a: Array α) (i: Nat): Bool :=
   if h: i + 1 < a.size then
     have : i < a.size := Nat.lt_of_succ_lt h
@@ -6,6 +6,8 @@ def sorted_from_var [x: LE α] [DecidableRel x.le] (a: Array α) (i: Nat): Bool 
   else
     true
 termination_by a.size - i
+
+attribute [irreducible] sorted_from_var
 
 def check_sorted [x: LE α] [DecidableRel x.le] (a: Array α): Bool :=
   sorted_from_var a 0

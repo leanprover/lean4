@@ -59,7 +59,9 @@ def optNamedPrio := optional namedPrio
 
 def «private»        := leading_parser "private "
 def «protected»      := leading_parser "protected "
-def visibility       := «private» <|> «protected»
+def «public»         := leading_parser "public "
+def visibility       := «private» <|> «protected» <|> «public»
+def «meta»           := leading_parser "meta "
 def «noncomputable»  := leading_parser "noncomputable "
 def «unsafe»         := leading_parser "unsafe "
 def «partial»        := leading_parser "partial "
@@ -68,7 +70,7 @@ def «nonrec»         := leading_parser "nonrec "
 /-- `declModifiers` is the collection of modifiers on a declaration:
 * a doc comment `/-- ... -/`
 * a list of attributes `@[attr1, attr2]`
-* a visibility specifier, `private` or `protected`
+* a visibility specifier, `private`, `protected`, or `public`
 * `noncomputable`
 * `unsafe`
 * `partial` or `nonrec`
@@ -82,7 +84,7 @@ such as inductive constructors, structure projections, and `let rec` / `where` d
   optional docComment >>
   optional (Term.«attributes» >> if inline then skip else ppDedent ppLine) >>
   optional visibility >>
-  optional «noncomputable» >>
+  optional («meta» <|> «noncomputable») >>
   optional «unsafe» >>
   optional («partial» <|> «nonrec»)
 /-- `declId` matches `foo` or `foo.{u,v}`: an identifier possibly followed by a list of universe names -/
@@ -226,13 +228,16 @@ def structureTk          := leading_parser
   "structure "
 def classTk              := leading_parser
   "class "
+def structParent        := leading_parser
+  optional (atomic (ident >> " : ")) >> termParser
 def «extends»            := leading_parser
-  " extends " >> sepBy1 termParser ", "
+  -- The optType is to catch code that uses the old order for optType and extends.
+  " extends " >> sepBy1 structParent ", " >> Term.optType
 def «structure»          := leading_parser
     (structureTk <|> classTk) >>
     -- Note: no error recovery here due to clashing with the `class abbrev` syntax
     declId >>
-    ppIndent (many (ppSpace >> Term.bracketedBinder) >> optional «extends» >> Term.optType) >>
+    ppIndent (optDeclSig >> optional «extends») >>
     optional ((symbol " := " <|> " where ") >> optional structCtor >> structFields) >>
     optDeriving
 @[builtin_command_parser] def declaration := leading_parser
@@ -241,8 +246,10 @@ def «structure»          := leading_parser
    «inductive» <|> classInductive <|> «structure»)
 @[builtin_command_parser] def «deriving»     := leading_parser
   "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover ident skip) ", "
-@[builtin_command_parser] def noncomputableSection := leading_parser
-  "noncomputable " >> "section" >> optional (ppSpace >> checkColGt >> ident)
+def sectionHeader := leading_parser
+  optional ("public ") >>
+  optional ("@[" >> nonReservedSymbol "expose" >> "] ") >>
+  optional ("noncomputable ")
 /--
 A `section`/`end` pair delimits the scope of `variable`, `include, `open`, `set_option`, and `local`
 commands. Sections can be nested. `section <id>` provides a label to the section that has to appear
@@ -250,7 +257,7 @@ with the matching `end`. In either case, the `end` can be omitted, in which case
 closed at the end of the file.
 -/
 @[builtin_command_parser] def «section»      := leading_parser
-  "section" >> optional (ppSpace >> checkColGt >> ident)
+  sectionHeader >> "section" >> optional (ppSpace >> checkColGt >> ident)
 /--
 `namespace <id>` opens a section with label `<id>` that influences naming and name resolution inside
 the section:
@@ -494,6 +501,8 @@ See also: `#reduce e` for evaluation by term reduction.
   "#exit"
 @[builtin_command_parser] def print          := leading_parser
   "#print " >> (ident <|> strLit)
+@[builtin_command_parser] def printSig       := leading_parser
+  "#print " >> nonReservedSymbol "sig " >> ident
 @[builtin_command_parser] def printAxioms    := leading_parser
   "#print " >> nonReservedSymbol "axioms " >> ident
 @[builtin_command_parser] def printEqns      := leading_parser
@@ -513,6 +522,15 @@ and options set with `set_option`.
 /-- Shows the current Lean version. Prints `Lean.versionString`. -/
 @[builtin_command_parser] def version        := leading_parser
   "#version"
+/--
+Debugging command. Runs the following command in an exported context just like elaboration of
+declaration signatures.
+-/
+@[builtin_command_parser] def withExporting  := leading_parser
+  "#with_exporting " >> commandParser
+/-- Debugging command: Prints the result of `Environment.dumpAsyncEnvState`. -/
+@[builtin_command_parser] def dumpAsyncEnvState := leading_parser
+  "#dump_async_env_state"
 @[builtin_command_parser] def «init_quot»    := leading_parser
   "init_quot"
 def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit
@@ -736,7 +754,7 @@ Documentation can only be added to declarations in the same module.
   docComment >> "add_decl_doc " >> ident
 
 /--
-Register a tactic tag, saving its user-facing name and docstring.
+Registers a tactic tag, saving its user-facing name and docstring.
 
 Tactic tags can be used by documentation generation tools to classify related tactics.
 -/
@@ -745,7 +763,7 @@ Tactic tags can be used by documentation generation tools to classify related ta
   "register_tactic_tag " >> ident >> strLit
 
 /--
-Add more documentation as an extension of the documentation for a given tactic.
+Adds more documentation as an extension of the documentation for a given tactic.
 
 The extended documentation is placed in the command's docstring. It is shown as part of a bulleted
 list, so it should be brief.
@@ -754,6 +772,47 @@ list, so it should be brief.
   optional (docComment >> ppLine) >>
   "tactic_extension " >> ident
 
+/--
+Documents a recommended spelling for a notation in identifiers.
+
+Theorems should generally be systematically named after their statement, rather than creatively.
+Non-identifier notations should be referred to consistently by their recommended spelling.
+
+```
+/-- some additional info -/
+recommended_spelling "and" for "∧" in [And, «term_∧_»]
+```
+
+will do the following:
+* Adds the sentence "The recommended spelling of `∧` in identifiers is `and` (some additional info)."
+  to the end of the docstring for `And` and for `∧`. If the additional info is more than a single
+  line, it will be placed below the sentence instead of in parentheses.
+* Registers this information in an environment extension, so that it will later be possible to
+  generate a table with all recommended spellings.
+
+You can add attach the recommended spelling to as many declarations as you want. It is recommended
+to attach the recommended spelling to all relevant parsers as well as the declaration the parsers
+refer to (if such a declaration exists). Note that the `inherit_doc` attribute does *not* copy
+recommended spellings, so even though the parser for `∧` uses `@[inherit_doc And]`, we have to
+attach the recommended spelling to both `And` and `«term_∧_»`.
+
+The `syntax`, `macro`, `elab` and `notation` commands accept a `(name := parserName)` option to
+assign a name to the created parser so that you do not have to guess the automatically generated
+name. The `syntax`, `macro` and `elab` commands can be hovered to see the name of the parser.
+
+For complex notations which enclose identifiers, the convention is to use example identifiers rather
+than other placeholders. This is an example following the convention:
+```
+recommended_spelling "singleton" for "[a]" in [List.cons, «term[_]»]
+```
+Using `[·]` or `[⋯]` or `[…]` instead of `[a]` would be against the convention. When attaching a
+recommended spelling to a notation whose docstring already has an example, try to reuse the
+identifier names chosen in the docstring for consistency.
+-/
+@[builtin_command_parser] def «recommended_spelling» := leading_parser
+  optional (docComment >> ppLine) >>
+  "recommended_spelling " >> strLit >> " for " >> strLit >> " in " >>
+    "[" >> sepBy1 ident ", " >> "]"
 
 /--
   This is an auxiliary command for generation constructor injectivity theorems for
@@ -769,7 +828,7 @@ conditionally including variables based on use in the theorem header. Other comm
 not affected. `include` is usually followed by `in theorem ...` to limit the inclusion
 to the subsequent declaration.
 -/
-@[builtin_command_parser] def «include» := leading_parser "include " >> many1 ident
+@[builtin_command_parser] def «include» := leading_parser "include" >> many1 (ppSpace >> checkColGt >> ident)
 
 /--
 `omit` instructs Lean to not include a variable previously `include`d. Apart from variable names, it
@@ -777,8 +836,8 @@ can also refer to typeclass instance variables by type using the syntax `omit [T
 which case all instance variables that unify with the given type are omitted. `omit` should usually
 only be used in conjunction with `in` in order to keep the section structure simple.
 -/
-@[builtin_command_parser] def «omit» := leading_parser "omit " >>
-  many1 (ident <|> Term.instBinder)
+@[builtin_command_parser] def «omit» := leading_parser "omit" >>
+  many1 (ppSpace >> checkColGt >> (ident <|> Term.instBinder))
 
 /-- No-op parser used as syntax kind for attaching remaining whitespace at the end of the input. -/
 @[run_builtin_parser_attribute_hooks] def eoi : Parser := leading_parser ""
@@ -800,6 +859,14 @@ builtin_initialize
   register_parser_alias                                                 optDeclSig
   register_parser_alias                                                 openDecl
   register_parser_alias                                                 docComment
+
+/--
+Registers an error explanation.
+
+Note that the error name is not relativized to the current namespace.
+-/
+@[builtin_command_parser] def registerErrorExplanationStx := leading_parser
+  docComment >> "register_error_explanation " >> ident >> termParser
 
 end Command
 

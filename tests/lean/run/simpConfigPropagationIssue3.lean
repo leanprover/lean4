@@ -1,12 +1,3 @@
-namespace Ordering
-
-@[simp] theorem swap_swap {o : Ordering} : o.swap.swap = o := by cases o <;> rfl
-
-@[simp] theorem swap_inj {o₁ o₂ : Ordering} : o₁.swap = o₂.swap ↔ o₁ = o₂ :=
-  ⟨fun h => by simpa using congrArg swap h, congrArg _⟩
-
-end Ordering
-
 /-- `OrientedCmp cmp` asserts that `cmp` is determined by the relation `cmp x y = .lt`. -/
 class OrientedCmp (cmp : α → α → Ordering) : Prop where
   /-- The comparator operation is symmetric, in the sense that if `cmp x y` equals `.lt` then
@@ -21,7 +12,7 @@ theorem cmp_eq_gt [OrientedCmp cmp] : cmp x y = .gt ↔ cmp y x = .lt := by
 end OrientedCmp
 
 /-- `TransCmp cmp` asserts that `cmp` induces a transitive relation. -/
-class TransCmp (cmp : α → α → Ordering) extends OrientedCmp cmp : Prop where
+class TransCmp (cmp : α → α → Ordering) : Prop extends OrientedCmp cmp where
   /-- The comparator operation is transitive. -/
   le_trans : cmp x y ≠ .gt → cmp y z ≠ .gt → cmp x z ≠ .gt
 

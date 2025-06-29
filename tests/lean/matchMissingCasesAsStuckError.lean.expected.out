@@ -1,2 +1,2 @@
-matchMissingCasesAsStuckError.lean:2:2-2:7: error: missing cases:
+matchMissingCasesAsStuckError.lean:2:2-2:7: error: Missing cases:
 none

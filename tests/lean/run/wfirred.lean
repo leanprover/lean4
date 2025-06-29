@@ -58,11 +58,29 @@ section Unsealed
 
 unseal foo
 
-example : foo 0 = 0 := rfl
-example : foo 0 = 0 := by rfl
+-- unsealing works, but does not have the desired effect
 
+/--
+error: type mismatch
+  rfl
+has type
+  ?_ = ?_ : Prop
+but is expected to have type
+  foo 0 = 0 : Prop
+-/
+#guard_msgs in
+example : foo 0 = 0 := rfl
+
+/--
+error: type mismatch
+  rfl
+has type
+  ?_ = ?_ : Prop
+but is expected to have type
+  foo (n + 1) = foo n : Prop
+-/
+#guard_msgs in
 example : foo (n+1) = foo n := rfl
-example : foo (n+1) = foo n := by rfl
 
 end Unsealed
 
@@ -86,6 +104,7 @@ def bar : Nat → Nat
 termination_by n => n
 
 -- Once unsealed, the full internals are visible. This allows one to prove, for example
+-- an equality like the following
 
 /--
 error: type mismatch
@@ -97,7 +116,6 @@ but is expected to have type
 -/
 #guard_msgs in
 example : foo = bar := rfl
-
 
 unseal foo bar in
 example : foo = bar := rfl

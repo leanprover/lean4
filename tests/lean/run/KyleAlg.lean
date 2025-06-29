@@ -9,18 +9,7 @@ class Add (α : Type u) where
   add : α → α → α
 -/
 
-class Inv (α : Type u) where
-    inv : α → α
-
-postfix:max "⁻¹" => Inv.inv
-
-class One (α : Type u) where
-    one : α
 export One (one)
-
-instance [One α] : OfNat α (nat_lit 1) where
-    ofNat := one
-
 export Zero (zero)
 
 class MulComm (α : Type u) [Mul α] : Prop where
@@ -227,7 +216,7 @@ unsafe def Expr.dagSizeUnsafe (e : Expr) : IO Nat := do
   let (_, s) ← visit e |>.run ({}, 0)
   return s.2
 where
-  visit (e : Expr) : StateRefT (HashSet USize × Nat) IO Unit := do
+  visit (e : Expr) : StateRefT (Std.HashSet USize × Nat) IO Unit := do
     let addr := ptrAddrUnsafe e
     unless (← get).1.contains addr do
       modify fun (s, c) => (s.insert addr, c+1)

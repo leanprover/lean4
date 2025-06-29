@@ -103,10 +103,15 @@
                          { type := Lean.Widget.TaggedText.tag
                                      { subexprPos := "/", diffStatus? := none }
                                      (Lean.Widget.TaggedText.append
-                                       #[Lean.Widget.TaggedText.tag
+                                       #[Lean.Widget.TaggedText.text "∀ (",
+                                         Lean.Widget.TaggedText.tag
+                                           { subexprPos := "/", diffStatus? := none }
+                                           (Lean.Widget.TaggedText.text "a"),
+                                         Lean.Widget.TaggedText.text " : ",
+                                         Lean.Widget.TaggedText.tag
                                            { subexprPos := "/0", diffStatus? := none }
                                            (Lean.Widget.TaggedText.text "α"),
-                                         Lean.Widget.TaggedText.text " → ",
+                                         Lean.Widget.TaggedText.text "), ",
                                          Lean.Widget.TaggedText.tag
                                            { subexprPos := "/1", diffStatus? := none }
                                            (Lean.Widget.TaggedText.append
@@ -154,10 +159,15 @@
                          { type := Lean.Widget.TaggedText.tag
                                      { subexprPos := "/", diffStatus? := none }
                                      (Lean.Widget.TaggedText.append
-                                       #[Lean.Widget.TaggedText.tag
+                                       #[Lean.Widget.TaggedText.text "∀ (",
+                                         Lean.Widget.TaggedText.tag
+                                           { subexprPos := "/", diffStatus? := none }
+                                           (Lean.Widget.TaggedText.text "a"),
+                                         Lean.Widget.TaggedText.text " : ",
+                                         Lean.Widget.TaggedText.tag
                                            { subexprPos := "/0", diffStatus? := none }
                                            (Lean.Widget.TaggedText.text "α"),
-                                         Lean.Widget.TaggedText.text " → ",
+                                         Lean.Widget.TaggedText.text "), ",
                                          Lean.Widget.TaggedText.tag
                                            { subexprPos := "/1", diffStatus? := none }
                                            (Lean.Widget.TaggedText.append

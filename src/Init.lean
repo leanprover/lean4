@@ -3,6 +3,8 @@ Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
 import Init.Prelude
 import Init.Notation
@@ -35,6 +37,10 @@ import Init.Ext
 import Init.Omega
 import Init.MacroTrace
 import Init.Grind
+import Init.GrindInstances
 import Init.While
 import Init.Syntax
 import Init.Internal
+import Init.Try
+import Init.BinderNameHint
+import Init.Task

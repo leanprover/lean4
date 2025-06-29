@@ -2,6 +2,7 @@ import Lean
 
 set_option linter.missingDocs false
 set_option linter.all true
+set_option linter.unusedSimpArgs false
 
 def explicitlyUsedVariable (x : Nat) : Nat :=
   x
@@ -244,6 +245,7 @@ example (a : Nat) : Nat := _
 example (a : Nat) : Nat := sorry
 example (a : sorry) : Nat := 0
 example (a : Nat) : Nat := by
+theorem async (a : Nat) : Nat := by skip
 
 theorem Fin.eqq_of_val_eq {n : Nat} : ∀ {x y : Fin n}, x.val = y.val → x = y
   | ⟨_, _⟩, _, rfl => rfl

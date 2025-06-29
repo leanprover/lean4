@@ -44,19 +44,19 @@ static name get_real_name(name const & n) {
         return n;
 }
 
-static comp_decls to_comp_decls(environment const & env, names const & cs) {
+static comp_decls to_comp_decls(elab_environment const & env, names const & cs) {
     bool allow_opaque = true;
     return map2<comp_decl>(cs, [&](name const & n) {
             return comp_decl(get_real_name(n), env.get(n).get_value(allow_opaque));
         });
 }
 
-static expr eta_expand(environment const & env, expr const & e) {
-    return type_checker(env).eta_expand(e);
+static expr eta_expand(elab_environment const & env, expr const & e) {
+    return type_checker(env.to_kernel_env()).eta_expand(e);
 }
 
 template<typename F>
-comp_decls apply(F && f, environment const & env, comp_decls const & ds) {
+comp_decls apply(F && f, elab_environment const & env, comp_decls const & ds) {
     return map(ds, [&](comp_decl const & d) { return comp_decl(d.fst(), f(env, d.snd())); });
 }
 
@@ -75,7 +75,7 @@ void trace_comp_decls(comp_decls const & ds) {
     }
 }
 
-static environment cache_stage1(environment env, comp_decls const & ds) {
+static elab_environment cache_stage1(elab_environment env, comp_decls const & ds) {
     for (comp_decl const & d : ds) {
         name n = d.fst();
         expr v = d.snd();
@@ -94,7 +94,7 @@ static expr ensure_arity(expr const & t, unsigned arity) {
     return update_binding(t, binding_domain(t), ensure_arity(binding_body(t), arity-1));
 }
 
-static environment cache_stage2(environment env, comp_decls const & ds, bool only_new_ones = false) {
+static elab_environment cache_stage2(elab_environment env, comp_decls const & ds, bool only_new_ones = false) {
     buffer<expr> ts;
     ll_infer_type(env, ds, ts);
     lean_assert(ts.size() == length(ds));
@@ -116,11 +116,11 @@ static environment cache_stage2(environment env, comp_decls const & ds, bool onl
 }
 
 /* Cache the declarations in `ds` that have not already been cached. */
-static environment cache_new_stage2(environment env, comp_decls const & ds) {
+static elab_environment cache_new_stage2(elab_environment env, comp_decls const & ds) {
     return cache_stage2(env, ds, true);
 }
 
-bool is_main_fn(environment const & env, name const & n) {
+bool is_main_fn(elab_environment const & env, name const & n) {
     if (n == "main") return true;
     if (optional<name> c = get_export_name_for(env, n)) {
         return *c == "main";
@@ -160,15 +160,15 @@ bool is_main_fn_type(expr const & type) {
 
 extern "C" object* lean_csimp_replace_constants(object* env, object* n);
 
-expr csimp_replace_constants(environment const & env, expr const & e) {
+expr csimp_replace_constants(elab_environment const & env, expr const & e) {
     return expr(lean_csimp_replace_constants(env.to_obj_arg(), e.to_obj_arg()));
 }
 
-bool is_matcher(environment const & env, comp_decls const & ds) {
+bool is_matcher(elab_environment const & env, comp_decls const & ds) {
     return length(ds) == 1 && is_matcher(env, head(ds).fst());
 }
 
-environment compile(environment const & env, options const & opts, names cs) {
+elab_environment compile(elab_environment const & env, options const & opts, names cs) {
     /* Do not generate code for irrelevant decls */
     cs = filter(cs, [&](name const & c) { return !is_irrelevant_type(env, env.get(c).get_type());});
     if (empty(cs)) return env;
@@ -202,8 +202,8 @@ environment compile(environment const & env, options const & opts, names cs) {
     csimp_cfg cfg(opts);
     // Use the following line to see compiler intermediate steps
     // scope_traces_as_string trace_scope;
-    auto simp  = [&](environment const & env, expr const & e) { return csimp(env, e, cfg); };
-    auto esimp = [&](environment const & env, expr const & e) { return cesimp(env, e, cfg); };
+    auto simp  = [&](elab_environment const & env, expr const & e) { return csimp(env, e, cfg); };
+    auto esimp = [&](elab_environment const & env, expr const & e) { return cesimp(env, e, cfg); };
     trace_compiler(name({"compiler", "input"}), ds);
     ds = apply(eta_expand, env, ds);
     trace_compiler(name({"compiler", "eta_expand"}), ds);
@@ -218,7 +218,7 @@ environment compile(environment const & env, options const & opts, names cs) {
     ds = apply(simp, env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);
     // trace(ds);
-    environment new_env = env;
+    elab_environment new_env = env;
     std::tie(new_env, ds) = eager_lambda_lifting(new_env, ds, cfg);
     trace_compiler(name({"compiler", "eager_lambda_lifting"}), ds);
     ds = apply(max_sharing, ds);
@@ -274,8 +274,8 @@ environment compile(environment const & env, options const & opts, names cs) {
 }
 
 extern "C" LEAN_EXPORT object * lean_compile_decls(object * env, object * opts, object * decls) {
-    return catch_kernel_exceptions<environment>([&]() {
-            return compile(environment(env), options(opts, true), names(decls, true));
+    return catch_kernel_exceptions<elab_environment>([&]() {
+            return compile(elab_environment(env), options(opts, true), names(decls, true));
         });
 }
 

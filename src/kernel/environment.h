@@ -24,10 +24,6 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-class environment_extension {
-public:
-    virtual ~environment_extension() {}
-};
 
 /* Wrapper for `Kernel.Diagnostics` */
 class diagnostics : public object_ref {
@@ -41,7 +37,7 @@ public:
 };
 
 /*
-Store `Kernel.Diagnostics` stored in environment extension in `m_diag` IF
+Store `Kernel.Diagnostics` (to be stored in `Kernel.Environment.diagnostics`) in `m_diag` IF
 - `Kernel.Diagnostics.enable = true`
 - `collect = true`. This is a minor optimization.
 
@@ -59,6 +55,7 @@ public:
     diagnostics * get() const { return m_diag; }
 };
 
+/* Wrapper for `Lean.Kernel.Environment` */
 class LEAN_EXPORT environment : public object_ref {
     friend class add_inductive_fn;
 
@@ -76,7 +73,6 @@ class LEAN_EXPORT environment : public object_ref {
     environment add_quot() const;
     environment add_inductive(declaration const & d) const;
 public:
-    environment(unsigned trust_lvl = 0);
     environment(environment const & other):object_ref(other) {}
     environment(environment && other):object_ref(other) {}
     explicit environment(b_obj_arg o, bool b):object_ref(o, b) {}
@@ -89,14 +85,7 @@ public:
     diagnostics get_diag() const;
     environment set_diag(diagnostics const & diag) const;
 
-    /** \brief Return the trust level of this environment. */
-    unsigned trust_lvl() const;
-
     bool is_quot_initialized() const;
-
-    void set_main_module(name const & n);
-
-    name get_main_module() const;
 
     /** \brief Return information for the constant with name \c n (if it is defined in this environment). */
     optional<constant_info> find(name const & n) const;
@@ -114,8 +103,6 @@ public:
     friend bool is_eqp(environment const & e1, environment const & e2) {
         return e1.raw() == e2.raw();
     }
-
-    void display_stats() const;
 };
 
 void check_no_metavar_no_fvar(environment const & env, name const & n, expr const & e);

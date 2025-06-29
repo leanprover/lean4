@@ -59,7 +59,7 @@ partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
         match e with
         | .forallE _ d b _ => visitPost (e.updateForallE! (← visit d) (← visit b))
         | .lam _ d b _     => visitPost (e.updateLambdaE! (← visit d) (← visit b))
-        | .letE _ t v b _  => visitPost (e.updateLet! (← visit t) (← visit v) (← visit b))
+        | .letE _ t v b _  => visitPost (e.updateLetE! (← visit t) (← visit v) (← visit b))
         | .app ..          => e.withApp fun f args => do visitPost (mkAppN (← visit f) (← args.mapM visit))
         | .mdata _ b       => visitPost (e.updateMData! (← visit b))
         | .proj _ _ b      => visitPost (e.updateProj! (← visit b))
@@ -74,20 +74,22 @@ end Core
 namespace Meta
 
 /--
-  Similar to `Core.transform`, but terms provided to `pre` and `post` do not contain loose bound variables.
-  So, it is safe to use any `MetaM` method at `pre` and `post`.
+Similar to `Meta.transform`, but allows the use of a pre-existing cache.
 
-  If `skipConstInApp := true`, then for an expression `mkAppN (.const f) args`, the subexpression
-  `.const f` is not visited again. Put differently: every `.const f` is visited once, with its
-  arguments if present, on its own otherwise.
- -/
-partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
+Warnings:
+- For the cache to be valid, it must always use the same `pre` and `post` functions.
+- It is important that there are no other references to `cache` when it is passed to
+  `transformWithCache`, to avoid unnecessary copying of the hash map.
+-/
+@[inline]
+partial def transformWithCache {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
     (input : Expr)
+    (cache : Std.HashMap ExprStructEq Expr)
     (pre   : Expr → m TransformStep := fun _ => return .continue)
     (post  : Expr → m TransformStep := fun e => return .done e)
     (usedLetOnly := false)
     (skipConstInApp := false)
-    : m Expr := do
+    : m (Expr × Std.HashMap ExprStructEq Expr) :=
   let _ : STWorld IO.RealWorld m := ⟨⟩
   let _ : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := MetaM) (liftM (m := ST IO.RealWorld) x) }
   let rec visit (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
@@ -111,10 +113,10 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
         | e => visitPost (← mkForallFVars (usedLetOnly := usedLetOnly) fvars (← visit (e.instantiateRev fvars)))
       let rec visitLet (fvars : Array Expr) (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
         match e with
-        | .letE n t v b _ =>
-          withLetDecl n (← visit (t.instantiateRev fvars)) (← visit (v.instantiateRev fvars)) fun x =>
+        | .letE n t v b nondep =>
+          withLetDecl n (← visit (t.instantiateRev fvars)) (← visit (v.instantiateRev fvars)) (nondep := nondep) fun x =>
             visitLet (fvars.push x) b
-        | e => visitPost (← mkLetFVars (usedLetOnly := usedLetOnly) fvars (← visit (e.instantiateRev fvars)))
+        | e => visitPost (← mkLetFVars (usedLetOnly := usedLetOnly) (generalizeNondepLet := false) fvars (← visit (e.instantiateRev fvars)))
       let visitApp (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
         e.withApp fun f args => do
           if skipConstInApp && f.isConst then
@@ -134,7 +136,28 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
         | .mdata _ b     => visitPost (e.updateMData! (← visit b))
         | .proj _ _ b    => visitPost (e.updateProj! (← visit b))
         | _              => visitPost e
-  visit input |>.run
+  StateRefT'.run (visit input) cache
+
+/--
+Similar to `Core.transform`, but terms provided to `pre` and `post` do not contain loose bound variables.
+So, it is safe to use any `MetaM` method at `pre` and `post`.
+
+Warning: `pre` and `post` should not depend on variables in the local context introduced by `transform`.
+This is in order to allow aggressive caching.
+
+If `skipConstInApp := true`, then for an expression `mkAppN (.const f) args`, the subexpression
+`.const f` is not visited again. Put differently: every `.const f` is visited once, with its
+arguments if present, on its own otherwise.
+-/
+def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
+    (input : Expr)
+    (pre   : Expr → m TransformStep := fun _ => return .continue)
+    (post  : Expr → m TransformStep := fun e => return .done e)
+    (usedLetOnly := false)
+    (skipConstInApp := false)
+    : m Expr := do
+  let (e, _) ← transformWithCache input {} pre post usedLetOnly skipConstInApp
+  return e
 
 -- TODO: add options to distinguish zeta and zetaDelta reduction
 def zetaReduce (e : Expr) : MetaM Expr := do

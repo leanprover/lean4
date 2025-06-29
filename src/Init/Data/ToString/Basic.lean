@@ -3,15 +3,26 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Repr
-import Init.Data.Option.Basic
+public import Init.Data.Repr
+public import Init.Data.Option.Basic
+
+public section
 
 open Sum Subtype Nat
 
 open Std
 
+/--
+Types that can be converted into a string for display.
+
+There is no expectation that the resulting string can be parsed back to the original data (see
+`Repr` for a similar class with this expectation).
+-/
 class ToString (α : Type u) where
+  /-- Converts a value into a string. -/
   toString : α → String
 
 export ToString (toString)
@@ -40,6 +51,20 @@ instance {p : Prop} : ToString (Decidable p) := ⟨fun h =>
   | Decidable.isTrue _  => "true"
   | Decidable.isFalse _ => "false"⟩
 
+/--
+Converts a list into a string, using `ToString.toString` to convert its elements.
+
+The resulting string resembles list literal syntax, with the elements separated by `", "` and
+enclosed in square brackets.
+
+The resulting string may not be valid Lean syntax, because there's no such expectation for
+`ToString` instances.
+
+Examples:
+* `[1, 2, 3].toString = "[1, 2, 3]"`
+* `["cat", "dog"].toString = "[cat, dog]"`
+* `["cat", "dog", ""].toString = "[cat, dog, ]"`
+-/
 protected def List.toString [ToString α] : List α → String
   | [] => "[]"
   | [x] => "[" ++ toString x ++ "]"
@@ -114,6 +139,28 @@ instance {α : Type u} {β : α → Type v} [ToString α] [∀ x, ToString (β x
 instance {α : Type u} {p : α → Prop} [ToString α] : ToString (Subtype p) := ⟨fun s =>
   toString (val s)⟩
 
+/--
+Interprets a string as the decimal representation of an integer, returning it. Returns `none` if
+the string does not contain a decimal integer.
+
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally `-` in front. Leading `+` characters are not allowed.
+
+Use `String.isInt` to check whether `String.toInt?` would return `some`. `String.toInt!` is an
+alternative that panics instead of returning `none` when the string is not an integer.
+
+Examples:
+ * `"".toInt? = none`
+ * `"-".toInt? = none`
+ * `"0".toInt? = some 0`
+ * `"5".toInt? = some 5`
+ * `"-5".toInt? = some (-5)`
+ * `"587".toInt? = some 587`
+ * `"-587".toInt? = some (-587)`
+ * `" 5".toInt? = none`
+ * `"2-3".toInt? = none`
+ * `"0xff".toInt? = none`
+-/
 def String.toInt? (s : String) : Option Int := do
   if s.get 0 = '-' then do
     let v ← (s.toSubstring.drop 1).toNat?;
@@ -121,12 +168,49 @@ def String.toInt? (s : String) : Option Int := do
   else
    Int.ofNat <$> s.toNat?
 
+/--
+Checks whether the string can be interpreted as the decimal representation of an integer.
+
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally `-` in front. Leading `+` characters are not allowed.
+
+Use `String.toInt?` or `String.toInt!` to convert such a string to an integer.
+
+Examples:
+ * `"".isInt = false`
+ * `"-".isInt = false`
+ * `"0".isInt = true`
+ * `"-0".isInt = true`
+ * `"5".isInt = true`
+ * `"587".isInt = true`
+ * `"-587".isInt = true`
+ * `"+587".isInt = false`
+ * `" 5".isInt = false`
+ * `"2-3".isInt = false`
+ * `"0xff".isInt = false`
+-/
 def String.isInt (s : String) : Bool :=
   if s.get 0 = '-' then
     (s.toSubstring.drop 1).isNat
   else
     s.isNat
 
+/--
+Interprets a string as the decimal representation of an integer, returning it. Panics if the string
+does not contain a decimal integer.
+
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally `-` in front. Leading `+` characters are not allowed.
+
+Use `String.isInt` to check whether `String.toInt!` would return a value. `String.toInt?` is a safer
+alternative that returns `none` instead of panicking when the string is not an integer.
+
+Examples:
+ * `"0".toInt! = 0`
+ * `"5".toInt! = 5`
+ * `"587".toInt! = 587`
+ * `"-587".toInt! = -587`
+-/
 def String.toInt! (s : String) : Int :=
   match s.toInt? with
   | some v => v

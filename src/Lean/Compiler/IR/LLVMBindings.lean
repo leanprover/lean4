@@ -63,6 +63,7 @@ structure Module (ctx : Context) where
   private mk :: ptr : USize
 instance : Nonempty (Module ctx) := ⟨{ ptr := default }⟩
 
+/-
 structure PassManager (ctx : Context) where
   private mk :: ptr : USize
 instance : Nonempty (PassManager ctx) := ⟨{ ptr := default }⟩
@@ -70,6 +71,7 @@ instance : Nonempty (PassManager ctx) := ⟨{ ptr := default }⟩
 structure PassManagerBuilder (ctx : Context) where
   private mk :: ptr : USize
 instance : Nonempty (PassManagerBuilder ctx) := ⟨{ ptr := default }⟩
+-/
 
 structure Target (ctx : Context) where
   private mk :: ptr : USize
@@ -313,6 +315,7 @@ opaque createTargetMachine (target : Target ctx) (tripleStr : @&String) (cpu : @
 @[extern "lean_llvm_target_machine_emit_to_file"]
 opaque targetMachineEmitToFile (targetMachine : TargetMachine ctx) (module : Module ctx) (filepath : @&String) (codegenType : LLVM.CodegenFileType) : BaseIO Unit
 
+/-
 @[extern "lean_llvm_create_pass_manager"]
 opaque createPassManager : BaseIO (PassManager ctx)
 
@@ -333,6 +336,7 @@ opaque PassManagerBuilder.setOptLevel (pmb : PassManagerBuilder ctx) (optLevel :
 
 @[extern "lean_llvm_pass_manager_builder_populate_module_pass_manager"]
 opaque PassManagerBuilder.populateModulePassManager (pmb : PassManagerBuilder ctx) (pm : PassManager ctx): BaseIO Unit
+-/
 
 @[extern "lean_llvm_dispose_target_machine"]
 opaque disposeTargetMachine (tm : TargetMachine ctx) : BaseIO Unit

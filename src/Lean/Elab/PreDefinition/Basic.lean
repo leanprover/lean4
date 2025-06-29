@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.ShareCommon
+import Lean.Compiler.MetaAttr
 import Lean.Compiler.NoncomputableAttr
 import Lean.Util.CollectLevelParams
 import Lean.Util.NumObjs
@@ -87,11 +88,13 @@ def applyAttributesOf (preDefs : Array PreDefinition) (applicationTime : Attribu
   for preDef in preDefs do
     applyAttributesAt preDef.declName preDef.modifiers.attrs applicationTime
 
-def abstractNestedProofs (preDef : PreDefinition) : MetaM PreDefinition := withRef preDef.ref do
+def abstractNestedProofs (preDef : PreDefinition) (cache := true) : MetaM PreDefinition := withRef preDef.ref do
   if preDef.kind.isTheorem || preDef.kind.isExample then
     pure preDef
   else do
-    let value ← Meta.abstractNestedProofs preDef.declName preDef.value
+    let value ←
+      withDeclNameForAuxNaming preDef.declName do
+        Meta.abstractNestedProofs (cache := cache) preDef.value
     pure { preDef with value := value }
 
 /-- Auxiliary method for (temporarily) adding pre definition as an axiom -/
@@ -102,15 +105,8 @@ def addAsAxiom (preDef : PreDefinition) : MetaM Unit := do
 private def shouldGenCodeFor (preDef : PreDefinition) : Bool :=
   !preDef.kind.isTheorem && !preDef.modifiers.isNoncomputable
 
-private def compileDecl (decl : Declaration) : TermElabM Bool := do
-  try
-    Lean.compileDecl decl
-  catch ex =>
-    if (← read).isNoncomputableSection then
-      return false
-    else
-      throw ex
-  return true
+private def compileDecl (decl : Declaration) : TermElabM Unit := do
+  Lean.compileDecl (logErrors := !(← read).isNoncomputableSection) decl
 
 register_builtin_option diagnostics.threshold.proofSize : Nat := {
   defValue := 16384
@@ -128,9 +124,23 @@ private def reportTheoremDiag (d : TheoremVal) : TermElabM Unit := do
       -- let info
       logInfo <| MessageData.trace { cls := `theorem } m!"{d.name}" (#[sizeMsg] ++ constOccsMsg)
 
-private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) : TermElabM Unit :=
+-- TODO: should become part of the compiler to deal with erasure
+private def checkMeta (preDef : PreDefinition) : TermElabM Unit := do
+  preDef.value.forEach' fun e => do
+    if e.isAutoParam then
+      return false
+    if let .const c .. := e then
+      match getIRPhases (← getEnv) c, preDef.modifiers.isMeta with
+      | .runtime, true =>
+        throwError "Invalid meta definition, '{.ofConstName c}' must be `meta` to access"
+      | .comptime, false =>
+        throwError "Invalid definition, may not access `meta` declaration '{.ofConstName c}'"
+      | _, _ => pure ()
+    return true
+
+private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) (cacheProofs := true) : TermElabM Unit :=
   withRef preDef.ref do
-    let preDef ← abstractNestedProofs preDef
+    let preDef ← abstractNestedProofs (cache := cacheProofs) preDef
     let mkDefDecl : TermElabM Declaration :=
       return Declaration.defnDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
@@ -163,19 +173,23 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List N
     withSaveInfoContext do  -- save new env
       addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
-    if preDef.modifiers.isNoncomputable then
-      modifyEnv fun env => addNoncomputable env preDef.declName
+    match preDef.modifiers.computeKind with
+    | .meta          => modifyEnv (addMeta · preDef.declName)
+    | .noncomputable => modifyEnv (addNoncomputable · preDef.declName)
+    | _              => pure ()
+    checkMeta preDef
     if compile && shouldGenCodeFor preDef then
-      discard <| compileDecl decl
+      compileDecl decl
     if applyAttrAfterCompilation then
+      enableRealizationsForConst preDef.declName
       generateEagerEqns preDef.declName
       applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
 def addAndCompileNonRec (preDef : PreDefinition) (all : List Name := [preDef.declName]) : TermElabM Unit := do
   addNonRecAux preDef (compile := true) (all := all)
 
-def addNonRec (preDef : PreDefinition) (applyAttrAfterCompilation := true) (all : List Name := [preDef.declName]) : TermElabM Unit := do
-  addNonRecAux preDef (compile := false) (applyAttrAfterCompilation := applyAttrAfterCompilation) (all := all)
+def addNonRec (preDef : PreDefinition) (applyAttrAfterCompilation := true) (all : List Name := [preDef.declName]) (cacheProofs := true) : TermElabM Unit := do
+  addNonRecAux preDef (compile := false) (applyAttrAfterCompilation := applyAttrAfterCompilation) (all := all) (cacheProofs := cacheProofs)
 
 /--
   Eliminate recursive application annotations containing syntax. These annotations are used by the well-founded recursion module
@@ -206,7 +220,7 @@ def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSaf
       for preDef in preDefs do
         addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf preDefs AttributeApplicationTime.afterTypeChecking
-    discard <| compileDecl decl
+    compileDecl decl
     applyAttributesOf preDefs AttributeApplicationTime.afterCompilation
     return ()
 

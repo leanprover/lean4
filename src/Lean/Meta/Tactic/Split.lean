@@ -17,7 +17,7 @@ def getSimpMatchContext : MetaM Simp.Context := do
    Simp.mkContext
       (simpTheorems   := {})
       (congrTheorems := (← getSimpCongrTheorems))
-      (config        := { Simp.neutralConfig with dsimp := false })
+      (config        := { Simp.neutralConfig with dsimp := false, etaStruct := .none, letToHave := true })
 
 def simpMatch (e : Expr) : MetaM Simp.Result := do
   let discharge? ← SplitIf.mkDischarge?
@@ -146,12 +146,12 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
             let altNew ← lambdaTelescope alt fun xs body => do
               if xs.size < altNumParams || xs.size < numDiscrEqs then
                 throwError "internal error in `split` tactic: encountered an unexpected `match` expression alternative\nthis error typically occurs when the `match` expression has been constructed using meta-programming."
-              let body ← mkLambdaFVars xs[altNumParams:] (← mkNewTarget body)
-              let ys  := xs[:altNumParams - numDiscrEqs]
+              let body ← mkLambdaFVars xs[altNumParams...*] (← mkNewTarget body)
+              let ys  := xs[*...(altNumParams - numDiscrEqs)]
               if numDiscrEqs == 0 then
                 mkLambdaFVars ys body
               else
-                let altEqs := xs[altNumParams - numDiscrEqs : altNumParams]
+                let altEqs := xs[(altNumParams - numDiscrEqs)...altNumParams]
                 withNewAltEqs matcherInfo eqs altEqs fun altEqsNew subst => do
                   let body := body.replaceFVars altEqs subst
                   mkLambdaFVars (ys++altEqsNew) body
@@ -248,9 +248,7 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
     let splitter := mkAppN (mkApp splitter motive) discrsNew
     check splitter
     trace[split.debug] "after check splitter"
-    let mvarIds ← mvarId.apply splitter
-    unless mvarIds.length == matchEqns.size do
-      throwError "internal error in `split` tactic: unexpected number of goals created after applying splitter auxiliary theorem `{matchEqns.splitterName}` for `{matcherDeclName}`"
+    let mvarIds ← mvarId.applyN splitter matchEqns.size
     let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
       let numParams := matchEqns.splitterAltNumParams[i]!
       let (_, mvarId) ← mvarId.introN numParams

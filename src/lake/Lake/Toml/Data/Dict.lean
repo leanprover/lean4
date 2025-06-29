@@ -117,3 +117,9 @@ instance : Append (RBDict α β cmp) := ⟨RBDict.append⟩
 
 @[inline] def filterMap (f : α → β → Option γ) (t : RBDict α β cmp) : RBDict α γ cmp :=
   t.items.foldl (init := {}) fun t ⟨k, v⟩ => if let some v := f k v then t.push k v else t
+
+@[inline] def foldM [Monad m] (f : σ → α → β → m σ) (init : σ) (t : RBDict α β cmp) : m σ :=
+  t.items.foldlM (init := init) fun s ⟨k, v⟩ => f s k v
+
+@[inline] def fold (f : σ → α → β → σ) (init : σ) (t : RBDict α β cmp) : σ :=
+  Id.run <| t.foldM f init

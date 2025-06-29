@@ -1,4 +1,4 @@
-1027.lean:1:0-1:7: warning: declaration uses 'sorry'
 x : Nat
 h : ¬x = 0
 ⊢ Unit
+1027.lean:1:0-1:7: warning: declaration uses 'sorry'

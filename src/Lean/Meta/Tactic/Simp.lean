@@ -15,6 +15,7 @@ import Lean.Meta.Tactic.Simp.BuiltinSimprocs
 import Lean.Meta.Tactic.Simp.RegisterCommand
 import Lean.Meta.Tactic.Simp.Attr
 import Lean.Meta.Tactic.Simp.Diagnostics
+import Lean.Meta.Tactic.Simp.Arith
 
 namespace Lean
 
@@ -24,6 +25,7 @@ builtin_initialize registerTraceClass `Meta.Tactic.simp.discharge (inherited := 
 builtin_initialize registerTraceClass `Meta.Tactic.simp.rewrite (inherited := true)
 builtin_initialize registerTraceClass `Meta.Tactic.simp.unify (inherited := true)
 builtin_initialize registerTraceClass `Meta.Tactic.simp.ground (inherited := true)
+builtin_initialize registerTraceClass `Meta.Tactic.simp.loopProtection (inherited := true)
 builtin_initialize registerTraceClass `Meta.Tactic.simp.numSteps
 builtin_initialize registerTraceClass `Meta.Tactic.simp.heads
 builtin_initialize registerTraceClass `Debug.Meta.Tactic.simp

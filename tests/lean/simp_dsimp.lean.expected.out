@@ -1,8 +1,8 @@
-simp_dsimp.lean:4:0-4:7: warning: declaration uses 'sorry'
 x : Nat
 a : A (x + 0)
 ⊢ f x a = x
-simp_dsimp.lean:9:0-9:7: warning: declaration uses 'sorry'
+simp_dsimp.lean:4:0-4:7: warning: declaration uses 'sorry'
 x : Nat
 a : A (x + 0)
 ⊢ f (x + 0) a = x
+simp_dsimp.lean:9:0-9:7: warning: declaration uses 'sorry'

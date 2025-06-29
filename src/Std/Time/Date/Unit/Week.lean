@@ -19,7 +19,7 @@ set_option linter.all true
 `Ordinal` represents a bounded value for weeks, which ranges between 1 and 53.
 -/
 def Ordinal := Bounded.LE 1 53
-  deriving Repr, BEq, LE, LT
+deriving Repr, DecidableEq, LE, LT
 
 instance : OfNat Ordinal n :=
   inferInstanceAs (OfNat (Bounded.LE 1 (1 + (52 : Nat))) n)
@@ -33,11 +33,17 @@ instance {x y : Ordinal} : Decidable (x < y) :=
 instance : Inhabited Ordinal where
   default := 1
 
+instance : Ord Ordinal := inferInstanceAs <| Ord (Bounded.LE 1 _)
+
+instance : TransOrd Ordinal := inferInstanceAs <| TransOrd (Bounded.LE 1 _)
+
+instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 1 _)
+
 /--
 `Offset` represents an offset in weeks.
 -/
 def Offset : Type := UnitVal (86400 * 7)
-  deriving Repr, BEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
+deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
 instance {x y : Offset} : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))
@@ -46,6 +52,12 @@ instance {x y : Offset} : Decidable (x < y) :=
   inferInstanceAs (Decidable (x.val < y.val))
 
 instance : OfNat Offset n := ⟨UnitVal.ofNat n⟩
+
+instance : Ord Offset := inferInstanceAs <| Ord (UnitVal _)
+
+instance : TransOrd Offset := inferInstanceAs <| TransOrd (UnitVal _)
+
+instance : LawfulEqOrd Offset := inferInstanceAs <| LawfulEqOrd (UnitVal _)
 
 namespace Ordinal
 
@@ -61,7 +73,18 @@ def ofInt (data : Int) (h : 1 ≤ data ∧ data ≤ 53) : Ordinal :=
 correct bounds—either 1 to 6, representing the possible weeks in a month.
 -/
 def OfMonth := Bounded.LE 1 6
-  deriving Repr
+deriving Repr, DecidableEq
+
+instance : OfNat OfMonth n := inferInstanceAs (OfNat (Bounded.LE 1 (1 + (5 : Nat))) n)
+
+instance : Inhabited OfMonth where
+  default := 1
+
+instance : Ord OfMonth := inferInstanceAs <| Ord (Bounded.LE 1 _)
+
+instance : TransOrd OfMonth := inferInstanceAs <| TransOrd (Bounded.LE 1 _)
+
+instance : LawfulEqOrd OfMonth := inferInstanceAs <| LawfulEqOrd (Bounded.LE 1 _)
 
 /--
 Creates an `Ordinal` from a natural number, ensuring the value is within bounds.

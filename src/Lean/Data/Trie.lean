@@ -7,6 +7,7 @@ A string trie data structure, used for tokenizing the Lean language
 -/
 prelude
 import Lean.Data.Format
+import Init.Data.Option.Coe
 
 namespace Lean
 namespace Data
@@ -119,7 +120,7 @@ partial def find? (t : Trie α) (s : String) : Option α :=
         let c := s.getUtf8Byte i h
         match cs.findIdx? (· == c) with
         | none   => none
-        | some idx => loop (i + 1) (ts.get! idx)
+        | some idx => loop (i + 1) ts[idx]!
       else
         val
   loop 0 t
@@ -155,7 +156,7 @@ partial def findPrefix (t : Trie α) (pre : String) : Array α := go t 0
         | node _val cs ts =>
           match cs.findIdx? (· == c) with
           | none   => .empty
-          | some idx => go (ts.get! idx) (i + 1)
+          | some idx => go ts[idx]! (i + 1)
       else
         t.values
 
@@ -180,7 +181,7 @@ partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : Option α 
         let c := s.getUtf8Byte i h
         match cs.findIdx? (· == c) with
         | none => res
-        | some idx => loop (ts.get! idx) (i + 1) res
+        | some idx => loop ts[idx]! (i + 1) res
       else
         res
   loop t i.byteIdx none

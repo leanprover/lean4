@@ -37,15 +37,16 @@ where
     let resValExpr := lhs
     let lemmaName := ``Std.Tactic.BVDecide.Reflect.BitVec.cond_true
 
-
     let notDiscrExpr := mkApp (mkConst ``Bool.not) discrExpr
-    let notDiscr ← ReifiedBVLogical.mkNot discr discrExpr
+    let notDiscr ← ReifiedBVLogical.mkNot discr discrExpr notDiscrExpr
 
     let eqBVExpr ← mkAppM ``BEq.beq #[atomExpr, resExpr]
-    let some eqBVPred ← ReifiedBVPred.mkBinPred atom resValExpr atomExpr resExpr .eq | return none
+    let some eqBVPred ← ReifiedBVPred.mkBinPred atom resValExpr atomExpr resExpr .eq eqBVExpr
+      | return none
     let eqBV ← ReifiedBVLogical.ofPred eqBVPred
 
-    let imp ← ReifiedBVLogical.mkGate notDiscr eqBV notDiscrExpr eqBVExpr .or
+    let orExpr := mkApp2 (mkConst ``Bool.or) notDiscrExpr eqBVExpr
+    let imp ← ReifiedBVLogical.mkGate notDiscr eqBV notDiscrExpr eqBVExpr .or orExpr
 
     let proof := do
       let evalExpr ← ReifiedBVLogical.mkEvalExpr imp.expr
@@ -70,10 +71,12 @@ where
     let lemmaName := ``Std.Tactic.BVDecide.Reflect.BitVec.cond_false
 
     let eqBVExpr ← mkAppM ``BEq.beq #[atomExpr, resExpr]
-    let some eqBVPred ← ReifiedBVPred.mkBinPred atom resValExpr atomExpr resExpr .eq | return none
+    let some eqBVPred ← ReifiedBVPred.mkBinPred atom resValExpr atomExpr resExpr .eq eqBVExpr
+      | return none
     let eqBV ← ReifiedBVLogical.ofPred eqBVPred
 
-    let imp ← ReifiedBVLogical.mkGate discr eqBV discrExpr eqBVExpr .or
+    let orExpr := mkApp2 (mkConst ``Bool.or) discrExpr eqBVExpr
+    let imp ← ReifiedBVLogical.mkGate discr eqBV discrExpr eqBVExpr .or orExpr
 
     let proof := do
       let evalExpr ← ReifiedBVLogical.mkEvalExpr imp.expr

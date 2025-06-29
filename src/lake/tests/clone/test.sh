@@ -1,19 +1,12 @@
 #!/usr/bin/env bash
-set -exo pipefail
-
-LAKE=${LAKE:-../../../.lake/build/bin/lake}
-
-unamestr=`uname`
-if [ "$unamestr" = Darwin ] || [ "$unamestr" = FreeBSD ]; then
-  sed_i() { sed -i '' "$@"; }
-else
-  sed_i() { sed -i "$@"; }
-fi
+source ../common.sh
 
 ./clean.sh
 
 # Test Lake's management of a single Git-cloned dependency.
 
+echo "# SETUP"
+set -x
 mkdir hello
 pushd hello
 $LAKE init hello
@@ -26,41 +19,50 @@ git config user.email test@example.com
 git add --all
 git commit -m "initial commit"
 popd
+set +x
 
 HELLO_MAP="{\"hello\" : \"file://$(pwd)/hello\"}"
 
 cd test
 
+echo "# TESTS"
+
 # test that `LAKE_PKG_URL_MAP` properly overwrites the config-specified Git URL
-LAKE_PKG_URL_MAP=$HELLO_MAP $LAKE update 2>&1 | grep --color "file://"
+LAKE_PKG_URL_MAP=$HELLO_MAP test_out "file://" update
 # test that a second `lake update` is a no-op (with URLs)
 # see https://github.com/leanprover/lean4/commit/6176fdba9e5a888225a23e5d558a005e0d1eb2f6#r125905901
-LAKE_PKG_URL_MAP=$HELLO_MAP $LAKE update --keep-toolchain 2>&1 | diff - /dev/null
+LAKE_PKG_URL_MAP=$HELLO_MAP test_no_out update --keep-toolchain
 rm -rf .lake/packages
 
 # Test that Lake produces no warnings on a `lake build` after a `lake update`
 # See https://github.com/leanprover/lean4/issues/2427
 
-$LAKE update
+echo "# TEST: lake build after update"
+
+test_run update
 # test that a second `lake update` is a no-op (with file paths)
-$LAKE update --keep-toolchain 2>&1 | diff - /dev/null
+test_no_out update --keep-toolchain
 test -d .lake/packages/hello
 # test that Lake produces no warnings
-$LAKE build 3>&1 1>&2 2>&3 | diff - /dev/null
-./.lake/build/bin/test | grep --color "Hello, world"
+test_no_warn build
+test_cmd_eq "Hello, world!" ./.lake/build/bin/test
 
 # Test that Lake produces a warning if local changes are made to a dependency
 # See https://github.com/leanprover/lake/issues/167
 
+echo "# TEST: Local changes"
+
 sed_i "s/world/changes/" .lake/packages/hello/Hello/Basic.lean
-git -C .lake/packages/hello diff --exit-code && exit 1 || true
-$LAKE build 3>&1 1>&2 2>&3 | grep --color "has local changes"
-./.lake/build/bin/test | grep --color "Hello, changes"
-git -C .lake/packages/hello reset --hard
-$LAKE build 3>&1 1>&2 2>&3 | diff - /dev/null
+test_cmd_fails git -C .lake/packages/hello diff --exit-code
+test_out "has local changes" build
+test_cmd_eq "Hello, changes!" ./.lake/build/bin/test
+test_cmd git -C .lake/packages/hello reset --hard
+test_no_warn build
 
 # Test no `git fetch` on a `lake build` if already on the proper revision
 # See https://github.com/leanprover/lake/issues/104
+
+echo "# TEST: No fetch"
 
 TEST_URL=https://example.com/hello.git
 TEST_MAP="{\"hello\" : \"$TEST_URL\"}"
@@ -69,4 +71,7 @@ TEST_MAP="{\"hello\" : \"$TEST_URL\"}"
 git -C .lake/packages/hello remote set-url origin $TEST_URL
 # build should succeed (do nothing) despite the invalid remote because
 # the remote should not be fetched; Lake should also not produce any warnings
-LAKE_PKG_URL_MAP=$TEST_MAP $LAKE build 3>&1 1>&2 2>&3 | diff - /dev/null
+LAKE_PKG_URL_MAP=$TEST_MAP test_no_warn build
+
+# Cleanup
+rm -f produced.out

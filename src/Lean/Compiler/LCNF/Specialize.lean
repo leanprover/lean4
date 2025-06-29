@@ -32,6 +32,9 @@ builtin_initialize specCacheExt : SimplePersistentEnvExtension CacheEntry Cache 
   registerSimplePersistentEnvExtension {
     addEntryFn    := addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries addEntry {} es).switch
+    asyncMode     := .sync
+    replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
+      (!·.contains ·.key) addEntry
   }
 
 def cacheSpec (key : Expr) (declName : Name) : CoreM Unit :=
@@ -74,6 +77,13 @@ def isGround [TraverseFVar α] (e : α) : SpecializeM Bool := do
 
 @[inline] def withLetDecl (decl : LetDecl) (x : SpecializeM α) : SpecializeM α := do
   let grd ← isGround decl.value
+  let fvarId := decl.fvarId
+  withReader (fun { scope, ground, declName } => { declName, scope := scope.insert fvarId, ground := if grd then ground.insert fvarId else ground }) x
+
+@[inline] def withFunDecl (decl : FunDecl) (x : SpecializeM α) : SpecializeM α := do
+  let ctx ← read
+  let grd := allFVar (x := decl.value) fun fvarId =>
+    !(ctx.scope.contains fvarId) || ctx.ground.contains fvarId
   let fvarId := decl.fvarId
   withReader (fun { scope, ground, declName } => { declName, scope := scope.insert fvarId, ground := if grd then ground.insert fvarId else ground }) x
 
@@ -208,7 +218,7 @@ Specialize `decl` using
 - `levelParamsNew`: the universe level parameters for the new declaration.
 -/
 def mkSpecDecl (decl : Decl) (us : List Level) (argMask : Array (Option Arg)) (params : Array Param) (decls : Array CodeDecl) (levelParamsNew : List Name) : SpecializeM Decl := do
-  let nameNew := decl.name ++ `_at_ ++ (← read).declName.eraseMacroScopes ++ (`spec).appendIndexAfter (← get).decls.size
+  let nameNew := decl.name.appendCore `_at_ |>.appendCore (← read).declName |>.appendCore `spec |>.appendIndexAfter (← get).decls.size
   /-
   Recall that we have just retrieved `decl` using `getDecl?`, and it may have free variable identifiers that overlap with the free-variables
   in `params` and `decls` (i.e., the "closure").
@@ -228,12 +238,12 @@ where
     for param in decl.params, arg in argMask do
       if let some arg := arg then
         let arg ← normArg arg
-        modify fun s => s.insert param.fvarId arg.toExpr
+        modify fun s => s.insert param.fvarId arg
       else
         -- Keep the parameter
         let param := { param with type := param.type.instantiateLevelParamsNoCache decl.levelParams us }
         params := params.push (← internalizeParam param)
-    for param in decl.params[argMask.size:] do
+    for param in decl.params[argMask.size...*] do
       let param := { param with type := param.type.instantiateLevelParamsNoCache decl.levelParams us }
       params := params.push (← internalizeParam param)
     let code := code.instantiateValueLevelParams decl.levelParams us
@@ -256,7 +266,14 @@ def getRemainingArgs (paramsInfo : Array SpecParamInfo) (args : Array Arg) : Arr
   for info in paramsInfo, arg in args do
     if info matches .other then
       result := result.push arg
-  return result ++ args[paramsInfo.size:]
+  return result ++ args[paramsInfo.size...*]
+
+def paramsToGroundVars (params : Array Param) : CompilerM FVarIdSet :=
+  params.foldlM (init := {}) fun r p => do
+    if isTypeFormerType p.type || (← isArrowClass? p.type).isSome then
+      return r.insert p.fvarId
+    else
+      return r
 
 mutual
   /--
@@ -292,7 +309,8 @@ mutual
       specDecl.saveBase
       let specDecl ← specDecl.simp {}
       let specDecl ← specDecl.simp { etaPoly := true, inlinePartial := true, implementedBy := true }
-      let value ← withReader (fun _ => { declName := specDecl.name }) do
+      let ground ← paramsToGroundVars specDecl.params
+      let value ← withReader (fun _ => { declName := specDecl.name, ground }) do
          withParams specDecl.params <| specDecl.value.mapCodeM visitCode
       let specDecl := { specDecl with value }
       modify fun s => { s with decls := s.decls.push specDecl }
@@ -310,7 +328,11 @@ mutual
         decl ← decl.updateValue value
       let k ← withLetDecl decl <| visitCode k
       return code.updateLet! decl k
-    | .fun decl k | .jp decl k =>
+    | .fun decl k =>
+      let decl ← visitFunDecl decl
+      let k ← withFunDecl decl <| visitCode k
+      return code.updateFun! decl k
+    | .jp decl k =>
       let decl ← visitFunDecl decl
       let k ← withFVar decl.fvarId <| visitCode k
       return code.updateFun! decl k
@@ -334,7 +356,8 @@ def main (decl : Decl) : SpecializeM Decl := do
 end Specialize
 
 partial def Decl.specialize (decl : Decl) : CompilerM (Array Decl) := do
-  let (decl, s) ← Specialize.main decl |>.run { declName := decl.name } |>.run {}
+  let ground ← Specialize.paramsToGroundVars decl.params
+  let (decl, s) ← Specialize.main decl |>.run { declName := decl.name, ground } |>.run {}
   return s.decls.push decl
 
 def specialize : Pass where

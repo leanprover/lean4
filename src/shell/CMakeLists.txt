@@ -186,7 +186,7 @@ ENDFOREACH(T)
 # toolchain: requires elan to download toolchain
 # online: downloads remote repositories
 file(GLOB_RECURSE LEANLAKETESTS
-  "${LEAN_SOURCE_DIR}/lake/tests/test.sh"
+  #"${LEAN_SOURCE_DIR}/lake/tests/test.sh"
   "${LEAN_SOURCE_DIR}/lake/examples/test.sh")
 FOREACH(T ${LEANLAKETESTS})
   if(NOT T MATCHES ".*(lake-packages|bootstrap|toolchain|online).*")

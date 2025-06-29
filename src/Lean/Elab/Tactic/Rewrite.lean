@@ -15,6 +15,8 @@ open Meta
 def rewriteTarget (stx : Syntax) (symm : Bool) (config : Rewrite.Config := {}) : TacticM Unit := do
   Term.withSynthesize <| withMainContext do
     let e ← elabTerm stx none true
+    if e.hasSyntheticSorry then
+      throwAbortTactic
     let r ← (← getMainGoal).rewrite (← getMainTarget) e symm (config := config)
     let mvarId' ← (← getMainGoal).replaceTargetEq r.eNew r.eqProof
     replaceMainGoal (mvarId' :: r.mvarIds)
@@ -25,6 +27,8 @@ def rewriteLocalDecl (stx : Syntax) (symm : Bool) (fvarId : FVarId) (config : Re
   -- See issues #2711 and #2727.
   let rwResult ← Term.withSynthesize <| withMainContext do
     let e ← elabTerm stx none true
+    if e.hasSyntheticSorry then
+      throwAbortTactic
     let localDecl ← fvarId.getDecl
     (← getMainGoal).rewrite localDecl.type e symm (config := config)
   let replaceResult ← (← getMainGoal).replaceLocalDecl fvarId rwResult.eNew rwResult.eqProof
@@ -47,7 +51,7 @@ def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) 
         let term := rule[1]
         let processId (id : Syntax) : TacticM Unit := do
           -- See if we can interpret `id` as a hypothesis first.
-          if (← optional <| getFVarId id).isSome then
+          if (← withMainContext <| Term.isLocalIdent? id).isSome then
             x symm term
           else
             -- Try to get equation theorems for `id`.
@@ -57,11 +61,9 @@ def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) 
               m!" Try rewriting with '{Name.str declName unfoldThmSuffix}'."
             let rec go : List Name →  TacticM Unit
               | [] => throwError "failed to rewrite using equation theorems for '{declName}'.{hint}"
-              -- Remark: we prefix `eqThm` with `_root_` to ensure it is resolved correctly.
-              -- See test: `rwPrioritizesLCtxOverEnv.lean`
-              | eqThm::eqThms => (x symm (mkIdentFrom id (`_root_ ++ eqThm))) <|> go eqThms
-            go eqThms.toList
+              | eqThm::eqThms => (x symm (mkCIdentFrom id eqThm)) <|> go eqThms
             discard <| Term.addTermInfo id (← mkConstWithFreshMVarLevels declName) (lctx? := ← getLCtx)
+            go eqThms.toList
         match term with
         | `($id:ident)  => processId id
         | `(@$id:ident) => processId id

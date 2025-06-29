@@ -93,12 +93,12 @@ Errors for `structure` talk about parent projection fields too.
 structure A' where
   α : Type
 /--
-error: invalid universe level for field 'toA'', has type
-  A'
+error: invalid universe level for field 'α', has type
+  Type
 at universe level
   2
 which is not less than or equal to the structure's resulting universe level
   1
 -/
 #guard_msgs in
-structure B extends A' : Type
+structure B : Type extends A'

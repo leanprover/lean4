@@ -2,7 +2,7 @@
   2 * a
 
 /--
-info: case h
+trace: case h
 x : Nat
 ⊢ 2 * x = x + x
 -/
@@ -13,13 +13,13 @@ by
   funext x
   simp -- unfolds `foo`
   trace_state
-  simp_arith
+  simp +arith
 
 @[simp] def boo : Nat → Nat
   | a => 2 * a
 
 /--
-info: case h
+trace: case h
 x : Nat
 ⊢ 2 * x = x + x
 -/
@@ -30,4 +30,4 @@ by
   funext x
   simp -- unfolds `boo`
   trace_state
-  simp_arith
+  simp +arith

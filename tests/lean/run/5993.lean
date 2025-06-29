@@ -13,7 +13,10 @@ No field notation notation here. Used to print `refine ?_.succ` and `refine ?_.s
 /--
 info: Try this: refine Nat.succ ?_
 ---
-info: Try this: refine Prod.snd ?_
+info: found a partial proof, but the corresponding tactic failed:
+  (expose_names; refine Prod.snd ?_)
+
+It may be possible to correct this proof by adding type annotations, explicitly specifying implicit arguments, or eliminating unnecessary function abstractions.
 -/
 #guard_msgs in
 example : Nat := by

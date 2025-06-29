@@ -1,5 +1,5 @@
 import Lean
-
+--^ waitForILeans
 example : True := by
   apply True.intro
       --^ textDocument/hover

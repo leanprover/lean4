@@ -8,6 +8,7 @@ import Init.Data.Range
 import Init.Data.Hashable
 import Lean.Data.Name
 import Lean.Data.Format
+import Init.Data.Option.Coe
 
 /--
 A position range inside a string. This type is mostly in combination with syntax trees,
@@ -21,8 +22,29 @@ protected structure String.Range where
 def String.Range.contains (r : String.Range) (pos : String.Pos) (includeStop := false) : Bool :=
   r.start <= pos && (if includeStop then pos <= r.stop else pos < r.stop)
 
-def String.Range.includes (super sub : String.Range) : Bool :=
-  super.start <= sub.start && super.stop >= sub.stop
+/--
+Checks whether `sub` is contained in `super`.
+`includeSuperStop` and `includeSubStop` control whether `super` and `sub` have
+an inclusive upper bound.
+-/
+def String.Range.includes (super sub : String.Range)
+    (includeSuperStop := false) (includeSubStop := false) : Bool :=
+  super.start <= sub.start && (
+    if includeSuperStop && !includeSubStop then
+      sub.stop.byteIdx <= super.stop.byteIdx + 1
+    else if !includeSuperStop && includeSubStop then
+      sub.stop < super.stop
+    else
+      sub.stop <= super.stop
+  )
+
+def String.Range.overlaps (first second : String.Range)
+    (includeFirstStop := false) (includeSecondStop := false) : Bool :=
+  (if includeFirstStop then second.start <= first.stop else second.start < first.stop) &&
+    (if includeSecondStop then first.start <= second.stop else first.start < second.stop)
+
+def String.Range.bsize (r : String.Range) : Nat :=
+  r.stop.byteIdx - r.start.byteIdx
 
 namespace Lean
 
@@ -32,6 +54,9 @@ def SourceInfo.updateTrailing (trailing : Substring) : SourceInfo → SourceInfo
 
 def SourceInfo.getRange? (canonicalOnly := false) (info : SourceInfo) : Option String.Range :=
   return ⟨(← info.getPos? canonicalOnly), (← info.getTailPos? canonicalOnly)⟩
+
+def SourceInfo.getRangeWithTrailing? (canonicalOnly := false) (info : SourceInfo) : Option String.Range :=
+  return ⟨← info.getPos? canonicalOnly, ← info.getTrailingTailPos? canonicalOnly⟩
 
 /--
 Converts an `original` or `synthetic (canonical := true)` `SourceInfo` to a
@@ -79,7 +104,7 @@ namespace SyntaxNode
   withArgs n fun args => args.size
 
 @[inline] def getArg (n : SyntaxNode) (i : Nat) : Syntax :=
-  withArgs n fun args => args.get! i
+  withArgs n fun args => args[i]!
 
 @[inline] def getArgs (n : SyntaxNode) : Array Syntax :=
   withArgs n fun args => args
@@ -210,7 +235,7 @@ partial def hasIdent (id : Name) : Syntax → Bool
   | stx => fn stx
 
 @[inline] def rewriteBottomUp (fn : Syntax → Syntax) (stx : Syntax) : Syntax :=
-  Id.run <| stx.rewriteBottomUpM fn
+  Id.run <| stx.rewriteBottomUpM (pure <| fn ·)
 
 private def updateInfo : SourceInfo → String.Pos → String.Pos → SourceInfo
   | SourceInfo.original lead pos trail endPos, leadStart, trailStop =>
@@ -354,7 +379,7 @@ partial def reprint (stx : Syntax) : Option String := do
         -- this visit the first arg twice, but that should hardly be a problem
         -- given that choice nodes are quite rare and small
         let s0 ← reprint args[0]!
-        for arg in args[1:] do
+        for arg in args[1...*] do
           let s' ← reprint arg
           guard (s0 == s')
     | _ => pure ()
@@ -379,6 +404,9 @@ def getRange? (stx : Syntax) (canonicalOnly := false) : Option String.Range :=
   match stx.getPos? canonicalOnly, stx.getTailPos? canonicalOnly with
   | some start, some stop => some { start, stop }
   | _,          _         => none
+
+def getRangeWithTrailing? (stx : Syntax) (canonicalOnly := false) : Option String.Range :=
+  return ⟨← stx.getPos? canonicalOnly, ← stx.getTrailingTailPos? canonicalOnly⟩
 
 /-- Returns a synthetic Syntax which has the specified `String.Range`. -/
 def ofRange (range : String.Range) (canonical := true) : Lean.Syntax :=
@@ -495,7 +523,7 @@ def getCanonicalAntiquot (stx : Syntax) : Syntax :=
     stx
 
 def mkAntiquotNode (kind : Name) (term : Syntax) (nesting := 0) (name : Option String := none) (isPseudoKind := false) : Syntax :=
-  let nesting := mkNullNode (mkArray nesting (mkAtom "$"))
+  let nesting := mkNullNode (.replicate nesting (mkAtom "$"))
   let term :=
     if term.isIdent then term
     else if term.isOfKind `Lean.Parser.Term.hole then term[0]
@@ -558,7 +586,7 @@ def getAntiquotSpliceSuffix (stx : Syntax) : Syntax :=
     stx[1]
 
 def mkAntiquotSpliceNode (kind : SyntaxNodeKind) (contents : Array Syntax) (suffix : String) (nesting := 0) : Syntax :=
-  let nesting := mkNullNode (mkArray nesting (mkAtom "$"))
+  let nesting := mkNullNode (.replicate nesting (mkAtom "$"))
   mkNode (kind ++ `antiquot_splice) #[mkAtom "$", nesting, mkAtom "[", mkNullNode contents, mkAtom "]", mkAtom suffix]
 
 -- `$x,*` etc.

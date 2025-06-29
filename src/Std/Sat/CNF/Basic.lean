@@ -140,7 +140,7 @@ theorem not_exists_mem : (¬ ∃ v, Mem v f) ↔ ∃ n, f = List.replicate n [] 
     simp only [List.not_mem_nil, List.isEmpty_iff, false_implies, forall_const, true_iff]
     exact ⟨0, rfl⟩
   | cons c f ih =>
-    simp_all [ih, List.isEmpty_iff]
+    simp_all [List.isEmpty_iff]
     constructor
     · rintro ⟨rfl, n, rfl⟩
       exact ⟨n+1, rfl⟩

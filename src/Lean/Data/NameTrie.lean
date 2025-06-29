@@ -54,6 +54,10 @@ instance : EmptyCollection (NameTrie β) where
 def NameTrie.find? (t : NameTrie β) (k : Name) : Option β :=
   PrefixTree.find? t (toKey k)
 
+@[inline, inherit_doc PrefixTree.findLongestPrefix?]
+def NameTrie.findLongestPrefix? (t : NameTrie β) (k : Name) : Option β :=
+  PrefixTree.findLongestPrefix? t (toKey k)
+
 @[inline]
 def NameTrie.foldMatchingM [Monad m] (t : NameTrie β) (k : Name) (init : σ) (f : β → σ → m σ) : m σ :=
   PrefixTree.foldMatchingM t (toKey k) init f
@@ -71,9 +75,9 @@ def NameTrie.forM [Monad m] (t : NameTrie β) (f : β → m Unit) : m Unit :=
   t.forMatchingM Name.anonymous f
 
 def NameTrie.matchingToArray (t : NameTrie β) (k : Name) : Array β :=
-  Id.run <| t.foldMatchingM k #[] fun v acc => acc.push v
+  Id.run <| t.foldMatchingM k #[] fun v acc => return acc.push v
 
 def NameTrie.toArray (t : NameTrie β) : Array β :=
-  Id.run <| t.foldM #[] fun v acc => acc.push v
+  Id.run <| t.foldM #[] fun v acc => return acc.push v
 
 end Lean

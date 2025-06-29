@@ -21,6 +21,7 @@ set_option linter.all true
 `PlainDate` represents a date in the Year-Month-Day (YMD) format. It encapsulates the year, month,
 and day components, with validation to ensure the date is valid.
 -/
+@[ext]
 structure PlainDate where
 
   /-- The year component of the date. It is represented as an `Offset` type from `Year`. -/
@@ -34,13 +35,27 @@ structure PlainDate where
 
   /-- Validates the date by ensuring that the year, month, and day form a correct and valid date. -/
   valid : year.Valid month day
-  deriving Repr
+deriving Repr, DecidableEq
 
 instance : Inhabited PlainDate where
   default := ⟨1, 1, 1, by decide⟩
 
-instance : BEq PlainDate where
-  beq x y := x.day == y.day && x.month == y.month && x.year == y.year
+instance : Ord PlainDate where
+  compare := compareLex (compareOn (·.year)) <| compareLex (compareOn (·.month)) (compareOn (·.day))
+
+theorem PlainDate.compare_def :
+    compare (α := PlainDate) =
+      compareLex (compareOn (·.year)) (compareLex (compareOn (·.month)) (compareOn (·.day))) := rfl
+
+instance : TransOrd PlainDate := inferInstanceAs <| TransCmp (compareLex _ _)
+
+instance : LawfulEqOrd PlainDate where
+  eq_of_compare {a b} h := by
+    simp only [PlainDate.compare_def, compareLex_eq_eq] at h
+    ext
+    · exact LawfulEqOrd.eq_of_compare h.1
+    · exact LawfulEqOrd.eq_of_compare h.2.1
+    · exact LawfulEqOrd.eq_of_compare h.2.2
 
 namespace PlainDate
 

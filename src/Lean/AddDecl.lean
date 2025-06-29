@@ -5,30 +5,174 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.CoreM
+import Lean.Namespace
+import Lean.Util.CollectAxioms
 
 namespace Lean
 
-register_builtin_option debug.skipKernelTC : Bool := {
-  defValue := false
-  group    := "debug"
-  descr    := "skip kernel type checker. WARNING: setting this option to true may compromise soundness because your proofs will not be checked by the Lean kernel"
-}
-
-def Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration)
-    (cancelTk? : Option IO.CancelToken := none) : Except KernelException Environment :=
+/-- Adds given declaration to the environment, respecting `debug.skipKernelTC`. -/
+def Kernel.Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration)
+    (cancelTk? : Option IO.CancelToken := none) : Except Exception Environment :=
   if debug.skipKernelTC.get opts then
     addDeclWithoutChecking env decl
   else
     addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl cancelTk?
 
+private def Environment.addDeclAux (env : Environment) (opts : Options) (decl : Declaration)
+    (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment :=
+  env.addDeclCore (Core.getMaxHeartbeats opts).toUSize decl cancelTk? (!debug.skipKernelTC.get opts)
+
+@[deprecated "use `Lean.addDecl` instead to ensure new namespaces are registered" (since := "2024-12-03")]
+def Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration)
+    (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment :=
+  Environment.addDeclAux env opts decl cancelTk?
+
+private def isNamespaceName : Name → Bool
+  | .str .anonymous _ => true
+  | .str p _          => isNamespaceName p
+  | _                 => false
+
+private def registerNamePrefixes (env : Environment) (name : Name) : Environment :=
+  match name with
+    | .str _ s =>
+      if s.get 0 == '_' then
+        -- Do not register namespaces that only contain internal declarations.
+        env
+      else
+        go env name
+    | _ => env
+where go env
+  | .str p _ => if isNamespaceName p then go (env.registerNamespace p) p else env
+  | _        => env
+
+private builtin_initialize privateConstKindsExt : MapDeclarationExtension ConstantKind ←
+  mkMapDeclarationExtension
+
+/--
+Returns the kind of the declaration as originally declared instead of as exported. This information
+is stored by `Lean.addDecl` and may be inaccurate if that function was circumvented. Returns `none`
+if the declaration was not found.
+-/
+def getOriginalConstKind? (env : Environment) (declName : Name) : Option ConstantKind := do
+  privateConstKindsExt.find? env declName <|>
+    (env.setExporting false |>.findAsync? declName).map (·.kind)
+
+/--
+Checks whether the declaration was originally declared as a theorem; see also
+`Lean.getOriginalConstKind?`. Returns `false` if the declaration was not found.
+-/
+def wasOriginallyTheorem (env : Environment) (declName : Name) : Bool :=
+  getOriginalConstKind? env declName |>.map (· matches .thm) |>.getD false
+
+private def looksLikeRelevantTheoremProofType (type : Expr) : Bool :=
+  if let .forallE _ _ type _ := type then
+    looksLikeRelevantTheoremProofType type
+  else
+    type.isAppOfArity ``WellFounded 2
+
 def addDecl (decl : Declaration) : CoreM Unit := do
-  profileitM Exception "type checking" (← getOptions) do
-    withTraceNode `Kernel (fun _ => return m!"typechecking declaration") do
-      if !(← MonadLog.hasErrors) && decl.hasSorry then
-        logWarning "declaration uses 'sorry'"
-      match (← getEnv).addDecl (← getOptions) decl (← read).cancelTk? with
-      | .ok    env => setEnv env
-      | .error ex  => throwKernelException ex
+  -- register namespaces for newly added constants; this used to be done by the kernel itself
+  -- but that is incompatible with moving it to a separate task
+  -- NOTE: we do not use `getTopLevelNames` here so that inductive types are registered as
+  -- namespaces
+  modifyEnv (decl.getNames.foldl registerNamePrefixes)
+
+  -- convert `Declaration` to `ConstantInfo` to use as a preliminary value in the environment until
+  -- kernel checking has finished; not all cases are supported yet
+  let mut exportedInfo? := none
+  let (name, info, kind) ← match decl with
+    | .thmDecl thm =>
+      let exportProof := !(← getEnv).header.isModule ||
+        -- TODO: this is horrible...
+        looksLikeRelevantTheoremProofType thm.type
+      if !exportProof then
+        exportedInfo? := some <| .axiomInfo { thm with isUnsafe := false }
+      pure (thm.name, .thmInfo thm, .thm)
+    | .defnDecl defn | .mutualDefnDecl [defn] =>
+      if (← getEnv).header.isModule && !(← getEnv).isExporting then
+        exportedInfo? := some <| .axiomInfo { defn with isUnsafe := defn.safety == .unsafe }
+      pure (defn.name, .defnInfo defn, .defn)
+    | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
+    | _ => return (← doAdd)
+
+  if decl.getTopLevelNames.all isPrivateName then
+    exportedInfo? := none
+  else
+    -- preserve original constant kind in extension if different from exported one
+    if exportedInfo?.isSome then
+      modifyEnv (privateConstKindsExt.insert · name kind)
+    else
+      exportedInfo? := some info
+
+  -- no environment extension changes to report after kernel checking; ensures we do not
+  -- accidentally wait for this snapshot when querying extension states
+  let env ← getEnv
+  let async ← env.addConstAsync (reportExts := false) name kind
+    (exportedKind? := exportedInfo?.map (.ofConstantInfo))
+  -- report preliminary constant info immediately
+  async.commitConst async.asyncEnv (some info) (exportedInfo? <|> info)
+  setEnv async.mainEnv
+
+  let doAddAndCommit := do
+    setEnv async.asyncEnv
+    try
+      doAdd
+    finally
+      async.commitCheckEnv (← getEnv)
+
+  if Elab.async.get (← getOptions) then
+    let cancelTk ← IO.CancelToken.new
+    let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => doAddAndCommit
+    let t ← BaseIO.mapTask checkAct env.checked
+    let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
+    Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
+  else
+    try
+      doAddAndCommit
+    finally
+      setEnv async.mainEnv
+where
+  doAdd := do
+    profileitM Exception "type checking" (← getOptions) do
+      withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
+        if !(← MonadLog.hasErrors) && decl.hasSorry then
+          logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
+        try
+          let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
+            |> ofExceptKernelException
+          setEnv env
+        catch ex =>
+          -- avoid follow-up errors by (trying to) add broken decl as axiom
+          addAsAxiom
+          throw ex
+  addAsAxiom := do
+    -- try to add as axiom with given type for def/theorem
+    match decl with
+    | .defnDecl d | .thmDecl d =>
+      let fallbackDecl := .axiomDecl {
+        name := d.name, levelParams := d.levelParams, type := d.type, isUnsafe := false
+      }
+      try
+        let env ← (← getEnv).addDeclAux (← getOptions) fallbackDecl (← read).cancelTk?
+          |> ofExceptKernelException
+        setEnv env
+        return
+      catch _ => pure ()
+    | _ => pure ()
+
+    -- otherwise, add as axiom with type `sorry`
+    for n in decl.getNames do
+      let fallbackDecl := .axiomDecl {
+        name := n, levelParams := []
+        type := mkApp2 (mkConst ``sorryAx [1]) (mkSort 0) (mkConst ``true), isUnsafe := false
+      }
+      try
+        let env ← (← getEnv).addDeclAux (← getOptions) fallbackDecl (← read).cancelTk?
+          |> ofExceptKernelException
+        setEnv env
+        return
+      catch _ => pure ()
+
 
 def addAndCompile (decl : Declaration) : CoreM Unit := do
   addDecl decl

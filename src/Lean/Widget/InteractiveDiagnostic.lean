@@ -8,6 +8,8 @@ prelude
 import Lean.Linter.UnusedVariables
 import Lean.Server.Utils
 import Lean.Widget.InteractiveGoal
+import Init.Data.Slice.Array.Basic
+import Init.Data.Array.Subarray.Split
 
 namespace Lean.Widget
 open Lsp Server
@@ -65,10 +67,6 @@ where
       | .trace ..,     _ => .text "(trace)"
     tt.stripTags
 
-/-- Compares interactive diagnostics modulo `TaggedText` tags and traces. -/
-def compareAsDiagnostics (a b : InteractiveDiagnostic) : Ordering :=
-  compareByUserVisible a.toDiagnostic b.toDiagnostic
-
 end InteractiveDiagnostic
 
 private def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext := {
@@ -108,15 +106,6 @@ private inductive EmbedFmt
   deriving Inhabited
 
 private abbrev MsgFmtM := StateT (Array EmbedFmt) IO
-
-/--
-Number of trace node children to display by default in the info view in order to prevent slowdowns
-from rendering.
--/
-register_option infoview.maxTraceChildren : Nat := {
-  defValue := 50
-  descr := "Number of trace node children to display by default"
-}
 
 open MessageData in
 private partial def msgToInteractiveAux (msgData : MessageData) : IO (Format × Array EmbedFmt) :=
@@ -158,6 +147,12 @@ where
   | ctx,      compose d₁ d₂            => do let d₁ ← go nCtx ctx d₁; let d₂ ← go nCtx ctx d₂; pure $ d₁ ++ d₂
   | ctx,      group d                  => Format.group <$> go nCtx ctx d
   | ctx,      .trace data header children => do
+    if data.cls.isAnonymous then
+      -- Sequence of top-level traces collected by `addTraceAsMessages`, do not indent.
+      -- As with nested sibling nodes, we do not separate them with newlines but rely on the client
+      -- to never put trace nodes on the same line.
+      return .join (← children.mapM (go nCtx ctx)).toList
+
     let mut header := (← go nCtx ctx header).nest 4
     if data.startTime != 0 then
       header := f!"[{data.stopTime - data.startTime}] {header}"
@@ -168,9 +163,9 @@ where
             match ctx with
             | some ctx => MessageData.withContext ctx child
             | none     => child
-        let blockSize := ctx.bind (infoview.maxTraceChildren.get? ·.opts)
-          |>.getD infoview.maxTraceChildren.defValue
-        let children := chopUpChildren data.cls blockSize children.toSubarray
+        let blockSize := ctx.bind (maxTraceChildren.get? ·.opts)
+          |>.getD maxTraceChildren.defValue
+        let children := chopUpChildren data.cls blockSize children[*...*]
         pure (.lazy children)
       else
         pure (.strict (← children.mapM (go nCtx ctx)))
@@ -185,9 +180,9 @@ where
   /-- Recursively moves child nodes after the first `blockSize` into a new "more" node. -/
   chopUpChildren (cls : Name) (blockSize : Nat) (children : Subarray MessageData) :
       Array MessageData :=
-    if children.size > blockSize + 1 then  -- + 1 to make idempotent
-      let more := chopUpChildren cls blockSize children[blockSize:]
-      children[:blockSize].toArray.push <|
+    if blockSize > 0 && children.size > blockSize + 1 then  -- + 1 to make idempotent
+      let more := chopUpChildren cls blockSize (children.drop blockSize)
+      (children.take blockSize).toArray.push <|
         .trace { collapsed := true, cls }
           f!"{children.size - blockSize} more entries..." more
     else children
@@ -199,8 +194,8 @@ partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent
   let rec fmtToTT (fmt : Format) (indent : Nat) : IO (TaggedText MsgEmbed) :=
     (TaggedText.prettyTagged fmt indent).rewriteM fun (n, col) tt =>
       match embeds[n]! with
-        | .code ctx infos =>
-          return .tag (.expr (tagCodeInfos ctx infos tt)) default
+        | .code ctx infos => do
+          return .tag (.expr (← tagCodeInfos ctx infos tt)) default
         | .goal ctx lctx g =>
           ctx.runMetaM lctx do
             return .tag (.goal (← goalToInteractive g)) default
@@ -212,7 +207,10 @@ partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent
           let col := indent + col
           let children ←
             match children with
-              | .lazy children => pure <| .lazy ⟨{indent := col+2, children := children.map .mk}⟩
+              | .lazy children => pure <| .lazy <| ← WithRpcRef.mk {
+                  indent := col+2
+                  children := ← children.mapM (WithRpcRef.mk ·)
+                }
               | .strict children => pure <| .strict (← children.mapM (fmtToTT · (col+2)))
           return .tag (.trace indent cls (← fmtToTT msg col) collapsed children) default
         | .ignoreTags => return .text tt.stripTags
@@ -237,14 +235,20 @@ def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool
     | .information => .information
     | .warning     => .warning
     | .error       => .error
+  let isSilent? := if m.isSilent then some true else none
   let source? := some "Lean 4"
   let tags? :=
     if m.data.isDeprecationWarning then some #[.deprecated]
     else if m.data.isUnusedVariableWarning then some #[.unnecessary]
     else none
+  let leanTags? :=
+    if m.data.hasTag (· == `Tactic.unsolvedGoals) then some #[.unsolvedGoals]
+    else if m.data.hasTag (· == `goalsAccomplished) then some #[.goalsAccomplished]
+    else none
   let message := match (← msgToInteractive m.data hasWidgets |>.toBaseIO) with
     | .ok msg => msg
     | .error ex => TaggedText.text s!"[error when printing message: {ex.toString}]"
-  pure { range, fullRange? := some fullRange, severity?, source?, message, tags? }
+  let code? := (errorNameOfKind? m.kind).map (.string ·.toString)
+  pure { range, fullRange? := some fullRange, severity?, source?, message, tags?, leanTags?, isSilent?, code? }
 
 end Lean.Widget

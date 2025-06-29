@@ -70,7 +70,7 @@ def visitArg (arg : Arg) : FindUsedM Unit := do
 
 def visitLetValue (e : LetValue) : FindUsedM Unit := do
   match e with
-  | .erased | .value .. => return ()
+  | .erased | .lit .. => return ()
   | .proj _ _ fvarId => visitFVar fvarId
   | .fvar fvarId args => visitFVar fvarId; args.forM visitArg
   | .const declName _ args =>
@@ -83,10 +83,10 @@ def visitLetValue (e : LetValue) : FindUsedM Unit := do
             visitFVar fvarId
         | .erased | .type .. => pure ()
       -- over-application
-      for arg in args[decl.params.size:] do
+      for arg in args[decl.params.size...*] do
         visitArg arg
       -- partial-application
-      for param in decl.params[args.size:] do
+      for param in decl.params[args.size...*] do
         -- If recursive function is partially applied, we assume missing parameters are used because we don't want to eta-expand.
         visitFVar param.fvarId
     else
@@ -149,8 +149,10 @@ def Decl.reduceArity (decl : Decl) : CompilerM (Array Decl) := do
   match decl.value with
   | .code code =>
     let used ← collectUsedParams decl
-    if used.size == decl.params.size then
-      return #[decl] -- Declarations uses all parameters
+    if used.size == decl.params.size || used.size == 0 then
+      -- Do nothing if all params were used, or if no params were used. In the latter case,
+      -- this would promote the decl to a constant, which could execute unreachable code.
+      return #[decl]
     else
       trace[Compiler.reduceArity] "{decl.name}, used params: {used.toList.map mkFVar}"
       let mask   := decl.params.map fun param => used.contains param.fvarId

@@ -66,8 +66,8 @@ private partial def mkCongrThm (origTag : Name) (f : Expr) (args : Array Expr) (
     if congrThm.argKinds.size == 0 then
       throwError "'congr' conv tactic failed to create congruence theorem"
     let (proof', mvarIdsNew', mvarIdsNewInsts') ←
-      mkCongrThm origTag eNew args[funInfo.getArity:] addImplicitArgs nameSubgoals
-    for arg in args[funInfo.getArity:] do
+      mkCongrThm origTag eNew args[funInfo.getArity...*] addImplicitArgs nameSubgoals
+    for arg in args[funInfo.getArity...*] do
       proof ← Meta.mkCongrFun proof arg
     proof ← mkEqTrans proof proof'
     mvarIdsNew := mvarIdsNew ++ mvarIdsNew'
@@ -144,7 +144,7 @@ private partial def mkCongrArgZeroThm (tacticName : String) (origTag : Name) (f 
       proof := mkApp proof rhs
       mvarIdsNewInsts := mvarIdsNewInsts.push rhs.mvarId!
     | .heq | .fixedNoParam => unreachable!
-  let proof' ← args[congrThm.argKinds.size:].foldlM (init := proof) mkCongrFun
+  let proof' ← args[congrThm.argKinds.size...*].foldlM (init := proof) mkCongrFun
   return (proof', mvarIdNew?.get!, mvarIdsNewInsts)
 
 /--
@@ -202,7 +202,7 @@ where
       if i < 0 || i ≥ xs.size then
         throwError "invalid '{tacticName}' tactic, application has {xs.size} argument(s) but the index is out of bounds"
       let idx := i.natAbs
-      return (mkAppN f xs[0:idx], xs[idx:])
+      return (mkAppN f xs[*...idx], xs[idx...*])
     else
       let mut fType ← inferType f
       let mut j := 0
@@ -219,7 +219,7 @@ where
       if i < 0 || i ≥ explicitIdxs.size then
         throwError "invalid '{tacticName}' tactic, application has {explicitIdxs.size} explicit argument(s) but the index is out of bounds"
       let idx := explicitIdxs[i.natAbs]!
-      return (mkAppN f xs[0:idx], xs[idx:])
+      return (mkAppN f xs[*...idx], xs[idx...*])
 
 def evalArg (tacticName : String) (i : Int) (explicit : Bool) : TacticM Unit := do
   if i == 0 then
@@ -318,7 +318,11 @@ private def ext (userName? : Option Name) : TacticM Unit := do
     ext none
   else
     for id in ids do
-      withRef id <| ext id.getId
+      let userName? :=
+        match id with
+        | `(binderIdent| $id:ident) => some id.getId
+        | _ => none
+      withRef id <| ext userName?
 
 -- syntax (name := enter) "enter" " [" enterArg,+ "]" : conv
 @[builtin_tactic Lean.Parser.Tactic.Conv.enter] def evalEnter : Tactic := fun stx => do
@@ -334,8 +338,8 @@ private def ext (userName? : Option Name) : TacticM Unit := do
     -- show state up to (incl.) next `,` and show errors on `enterArg`
     withTacticInfoContext (mkNullNode #[enterArg, sep]) <| withRef enterArg do
       match enterArg with
-      | `(Parser.Tactic.Conv.enterArg| $arg:argArg) => evalTactic (← `(conv| arg $arg))
-      | `(Parser.Tactic.Conv.enterArg| $id:ident)   => evalTactic (← `(conv| ext $id))
+      | `(Parser.Tactic.Conv.enterArg| $arg:argArg)     => evalTactic (← `(conv| arg $arg))
+      | `(Parser.Tactic.Conv.enterArg| $id:binderIdent) => evalTactic (← `(conv| ext $id))
       | _ => pure ()
 
 end Lean.Elab.Tactic.Conv

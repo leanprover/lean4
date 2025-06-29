@@ -4,7 +4,7 @@ macro "mymacro1 " h:ident : tactic =>
   `(tactic| {
       cases $h:ident with
       | zero => decide
-      | succ => simp_arith [f]
+      | succ => simp +arith [f]
   })
 
 example : f n > 0 := by
@@ -14,7 +14,7 @@ macro "mymacro2 " h:ident : tactic =>
   `(tactic| {
       cases $h:ident
       case zero => decide
-      case succ => simp_arith [f]
+      case succ => simp +arith [f]
   })
 
 example : f n > 0 := by

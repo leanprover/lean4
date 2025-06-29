@@ -1,20 +1,13 @@
 #!/usr/bin/env bash
-set -exo pipefail
-
-LAKE=${LAKE:-../../.lake/build/bin/lake}
-
-unamestr=`uname`
-if [ "$unamestr" = Darwin ] || [ "$unamestr" = FreeBSD ]; then
-  sed_i() { sed -i '' "$@"; }
-else
-  sed_i() { sed -i "$@"; }
-fi
+source ../common.sh
 
 ./clean.sh
 
 # Since committing a Git repository to a Git repository is not well-supported,
 # We reinitialize the bar repository on each test. This requires updating the
 # locked manifest to the new hash to ensure things work properly.
+echo "# SETUP"
+set -x
 pushd bar
 git init
 git checkout -b master
@@ -24,15 +17,15 @@ git add --all
 git commit -m "initial commit"
 GIT_REV=`git rev-parse HEAD`
 popd
+set +x
 
-LATEST_VER=v1.1.0
 LOCKED_REV='0538596b94a0510f55dc820cabd3bde41ad93c3e'
 
 # Test an update produces the expected manifest of the latest version
 test_update() {
-  $LAKE update
+  test_run update
   sed_i "s/$GIT_REV/$LOCKED_REV/g" lake-manifest.json
-  diff --strip-trailing-cr lake-manifest-$LATEST_VER.json lake-manifest.json
+  diff --strip-trailing-cr lake-manifest-latest.json lake-manifest.json
 }
 
 # ---
@@ -41,10 +34,10 @@ test_update() {
 
 # Test loading of a V4 manifest fails
 cp lake-manifest-v4.json lake-manifest.json
-($LAKE resolve-deps 2>&1 && exit 1 || true) | grep --color "incompatible manifest version '0.4.0'"
+test_err "incompatible manifest version '0.4.0'" resolve-deps
 
 # Test package update fails as well
-($LAKE update bar 2>&1 && exit 1 || true) | grep --color "incompatible manifest version '0.4.0'"
+test_err "incompatible manifest version '0.4.0'" update bar
 
 # Test bare update works
 test_update
@@ -58,7 +51,7 @@ rm -rf .lake
 test_manifest() {
   cp lake-manifest-$1.json lake-manifest.json
   sed_i "s/$LOCKED_REV/$GIT_REV/g" lake-manifest.json
-  $LAKE resolve-deps
+  test_run resolve-deps
   test_update
 }
 
@@ -67,3 +60,6 @@ test_manifest v6
 test_manifest v7
 test_manifest v1.0.0
 test_manifest v1.1.0
+
+# cleanup
+rm -f produced.out

@@ -19,19 +19,26 @@ set_option linter.all true
 /--
 Represents an exact point in time as a UNIX Epoch timestamp.
 -/
+@[ext]
 structure Timestamp where
 
   /--
   Duration since the unix epoch.
   -/
   val : Duration
-  deriving Repr, BEq, Inhabited
+deriving Repr, DecidableEq, Inhabited
 
 instance : LE Timestamp where
   le x y := x.val ≤ y.val
 
 instance { x y : Timestamp } : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))
+
+instance : LT Timestamp where
+  lt x y := x.val < y.val
+
+instance { x y : Timestamp } : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.val < y.val))
 
 instance : OfNat Timestamp n where
   ofNat := ⟨OfNat.ofNat n⟩
@@ -41,6 +48,20 @@ instance : ToString Timestamp where
 
 instance : Repr Timestamp where
   reprPrec s := Repr.addAppParen ("Timestamp.ofNanosecondsSinceUnixEpoch " ++ repr s.val.toNanoseconds)
+
+instance : Ord Timestamp where
+  compare := compareOn (·.val)
+
+theorem Timestamp.compare_def :
+    compare (α := Timestamp) = compareOn (·.val) := rfl
+
+instance : TransOrd Timestamp := inferInstanceAs <| TransCmp (compareOn _)
+
+instance : LawfulEqOrd Timestamp where
+  eq_of_compare {a b} h := by
+    simp only [Timestamp.compare_def] at h
+    apply Timestamp.ext
+    exact LawfulEqOrd.eq_of_compare h
 
 namespace Timestamp
 

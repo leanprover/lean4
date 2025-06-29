@@ -1,13 +1,5 @@
 universe u
 
-class One (α : Type u) where
-  one : α
-
-instance (priority := 300) One.toOfNat1 {α} [One α] : OfNat α (nat_lit 1) where
-  ofNat := ‹One α›.1
-instance (priority := 200) One.ofOfNat1 {α} [OfNat α (nat_lit 1)] : One α where
-  one := 1
-
 @[match_pattern] def bit0 {α : Type u} [Add α] (a : α) : α := a + a
 
 @[match_pattern] def bit1 {α : Type u} [One α] [Add α] (a : α) : α := bit0 a + 1

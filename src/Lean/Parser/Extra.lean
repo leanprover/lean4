@@ -91,8 +91,8 @@ around an `.ident` which is `Name.anonymous` but with macro scopes like a regula
 This is used to implement `have := ...` syntax: the `hygieneInfo` between the `have` and `:=`
 substitutes for the identifier which would normally go there as in `have x :=`, so that we
 can expand `have :=` to `have this :=` while retaining the usual macro name resolution behavior.
-See [doc/macro_overview.md](https://github.com/leanprover/lean4/blob/master/doc/macro_overview.md)
-for more information about macro hygiene.
+See [the language reference](lean-manual://section/macro-hygiene) for more information about
+macro hygiene.
 
 This parser has arity 1: it produces a `Syntax.ident` node containing the parsed identifier.
 You can use `TSyntax.getHygieneInfo` to extract the name from the resulting syntax object. -/

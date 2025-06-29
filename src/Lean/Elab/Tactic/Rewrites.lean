@@ -46,7 +46,8 @@ def evalExact : Tactic := fun stx => do
         throwError "Could not find any lemmas which can rewrite the hypothesis {← f.getUserName}"
       for r in results do withMCtx r.mctx do
         Tactic.TryThis.addRewriteSuggestion tk [(r.expr, r.symm)]
-          r.result.eNew (loc? := .some (.fvar f)) (origSpan? := ← getRef)
+          (type? := .some r.result.eNew) (loc? := .some (.fvar f))
+          (origSpan? := ← getRef) (checkState? := (← saveState))
       if let some r := results[0]? then
         setMCtx r.mctx
         let replaceResult ← goal.replaceLocalDecl f r.result.eNew r.result.eqProof
@@ -58,12 +59,16 @@ def evalExact : Tactic := fun stx => do
       reportOutOfHeartbeats `rewrites tk
       if results.isEmpty then
         throwError "Could not find any lemmas which can rewrite the goal"
-      results.forM (·.addSuggestion tk)
+      let mut state ← saveState
       if let some r := results[0]? then
         setMCtx r.mctx
+        -- We must save the state after setting the metavar context so we can instantiate
+        -- mvars in the expected type
+        state ← saveState
         replaceMainGoal
           ((← goal.replaceTargetEq r.result.eNew r.result.eqProof) :: r.result.mvarIds)
         evalTactic (← `(tactic| try rfl))
+      results.forM (·.addSuggestion tk (checkState? := state))
     (fun _ => throwError "Failed to find a rewrite for some location")
 
 end Lean.Elab.Rewrites

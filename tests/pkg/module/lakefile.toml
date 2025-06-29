@@ -1,0 +1,6 @@
+name = "module"
+defaultTargets = ["Module"]
+
+[[lean_lib]]
+name = "Module"
+leanOptions = { experimental.module = true }

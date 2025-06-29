@@ -1,8 +1,7 @@
 {"textDocument": {"uri": "file:///completion.lean"},
  "position": {"line": 3, "character": 22}}
 {"items":
- [{"sortText": "0",
-   "label": "foo",
+ [{"label": "foo",
    "kind": 5,
    "data":
    {"params":
@@ -10,12 +9,11 @@
      "position": {"line": 3, "character": 22}},
     "id": {"const": {"declName": "Foo.foo"}},
     "cPos": 1}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///completion.lean"},
  "position": {"line": 5, "character": 23}}
 {"items":
- [{"sortText": "0",
-   "label": "foo",
+ [{"label": "foo",
    "kind": 5,
    "data":
    {"params":
@@ -23,12 +21,11 @@
      "position": {"line": 5, "character": 23}},
     "id": {"const": {"declName": "Foo.foo"}},
     "cPos": 1}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///completion.lean"},
  "position": {"line": 7, "character": 28}}
 {"items":
- [{"sortText": "0",
-   "label": "foo",
+ [{"label": "foo",
    "kind": 5,
    "data":
    {"params":
@@ -36,12 +33,11 @@
      "position": {"line": 7, "character": 28}},
     "id": {"const": {"declName": "Foo.foo"}},
     "cPos": 0}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///completion.lean"},
  "position": {"line": 9, "character": 29}}
 {"items":
- [{"sortText": "0",
-   "label": "foo",
+ [{"label": "foo",
    "kind": 5,
    "data":
    {"params":
@@ -49,4 +45,4 @@
      "position": {"line": 9, "character": 29}},
     "id": {"const": {"declName": "Foo.foo"}},
     "cPos": 0}}],
- "isIncomplete": true}
+ "isIncomplete": false}

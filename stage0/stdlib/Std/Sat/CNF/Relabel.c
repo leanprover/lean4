@@ -13,23 +13,23 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabel(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Std_Sat_CNF_Clause_relabel___spec__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Std_Sat_CNF_Clause_relabel___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabel___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Std_Sat_CNF_relabel___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_relabel___rarg(lean_object*, lean_object*);
-lean_object* l_List_reverse___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Std_Sat_CNF_relabel___spec__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_relabel(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Std_Sat_CNF_Clause_relabel___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabel(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabel___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Std_Sat_CNF_Clause_relabel_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Std_Sat_CNF_relabel_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_relabel___redArg(lean_object*, lean_object*);
+lean_object* l_List_reverse___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Std_Sat_CNF_relabel_spec__0___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Std_Sat_CNF_Clause_relabel_spec__0___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_relabel(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Std_Sat_CNF_Clause_relabel_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_4; 
 lean_dec(x_1);
-x_4 = l_List_reverse___rarg(x_3);
+x_4 = l_List_reverse___redArg(x_3);
 return x_4;
 }
 else
@@ -122,39 +122,39 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Std_Sat_CNF_Clause_relabel___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Std_Sat_CNF_Clause_relabel_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_List_mapTR_loop___at_Std_Sat_CNF_Clause_relabel___spec__1___rarg), 3, 0);
-return x_3;
+lean_object* x_6; 
+x_6 = l_List_mapTR_loop___at___Std_Sat_CNF_Clause_relabel_spec__0___redArg(x_3, x_4, x_5);
+return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_relabel___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_relabel___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_box(0);
-x_4 = l_List_mapTR_loop___at_Std_Sat_CNF_Clause_relabel___spec__1___rarg(x_1, x_2, x_3);
+x_4 = l_List_mapTR_loop___at___Std_Sat_CNF_Clause_relabel_spec__0___redArg(x_1, x_2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_relabel(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_relabel(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_Sat_CNF_Clause_relabel___rarg), 2, 0);
-return x_3;
+lean_object* x_5; 
+x_5 = l_Std_Sat_CNF_Clause_relabel___redArg(x_3, x_4);
+return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Std_Sat_CNF_relabel___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Std_Sat_CNF_relabel_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_4; 
 lean_dec(x_1);
-x_4 = l_List_reverse___rarg(x_3);
+x_4 = l_List_reverse___redArg(x_3);
 return x_4;
 }
 else
@@ -167,7 +167,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_6 = lean_ctor_get(x_2, 0);
 x_7 = lean_ctor_get(x_2, 1);
 lean_inc(x_1);
-x_8 = l_Std_Sat_CNF_Clause_relabel___rarg(x_1, x_6);
+x_8 = lean_apply_1(x_1, x_6);
 lean_ctor_set(x_2, 1, x_3);
 lean_ctor_set(x_2, 0, x_8);
 {
@@ -187,7 +187,7 @@ lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_2);
 lean_inc(x_1);
-x_12 = l_Std_Sat_CNF_Clause_relabel___rarg(x_1, x_10);
+x_12 = lean_apply_1(x_1, x_10);
 x_13 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_3);
@@ -198,29 +198,33 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Std_Sat_CNF_relabel___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Std_Sat_CNF_relabel_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_List_mapTR_loop___at_Std_Sat_CNF_relabel___spec__1___rarg), 3, 0);
-return x_3;
+lean_object* x_6; 
+x_6 = l_List_mapTR_loop___at___Std_Sat_CNF_relabel_spec__0___redArg(x_3, x_4, x_5);
+return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabel___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabel___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_box(0);
-x_4 = l_List_mapTR_loop___at_Std_Sat_CNF_relabel___spec__1___rarg(x_1, x_2, x_3);
-return x_4;
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_alloc_closure((void*)(l_Std_Sat_CNF_Clause_relabel), 4, 3);
+lean_closure_set(x_3, 0, lean_box(0));
+lean_closure_set(x_3, 1, lean_box(0));
+lean_closure_set(x_3, 2, x_1);
+x_4 = lean_box(0);
+x_5 = l_List_mapTR_loop___at___Std_Sat_CNF_relabel_spec__0___redArg(x_3, x_2, x_4);
+return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabel(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabel(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_Sat_CNF_relabel___rarg), 2, 0);
-return x_3;
+lean_object* x_5; 
+x_5 = l_Std_Sat_CNF_relabel___redArg(x_3, x_4);
+return x_5;
 }
 }
 lean_object* initialize_Std_Sat_CNF_Basic(uint8_t builtin, lean_object*);

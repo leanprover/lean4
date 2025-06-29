@@ -266,7 +266,7 @@ def evalConvNormCast : Tactic :=
 
 @[builtin_tactic pushCast]
 def evalPushCast : Tactic := fun stx => do
-  let { ctx, simprocs, dischargeWrapper } ← withMainContext do
+  let { ctx, simprocs, dischargeWrapper, .. } ← withMainContext do
     mkSimpContext (simpTheorems := pushCastExt.getTheorems) stx (eraseLocal := false)
   let ctx := ctx.setFailIfUnchanged false
   dischargeWrapper.with fun discharge? =>

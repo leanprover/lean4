@@ -71,21 +71,33 @@ def InfoTree.visitM' [Monad m]
 
 /--
   Visit nodes bottom-up, passing in a surrounding context (the innermost one) and the union of nested results (empty at leaves). -/
+def InfoTree.collectNodesBottomUpM [Monad m] (p : ContextInfo → Info → PersistentArray InfoTree → List α → m (List α)) (i : InfoTree) : m (List α) :=
+  (·.getD []) <$> i.visitM (m := m) (postNode := fun ci i cs as => do p ci i cs (as.filterMap id).flatten)
+
+/--
+  Visit nodes bottom-up, passing in a surrounding context (the innermost one) and the union of nested results (empty at leaves). -/
 def InfoTree.collectNodesBottomUp (p : ContextInfo → Info → PersistentArray InfoTree → List α → List α) (i : InfoTree) : List α :=
-  i.visitM (m := Id) (postNode := fun ci i cs as => p ci i cs (as.filterMap id).flatten) |>.getD []
+  Id.run <| i.collectNodesBottomUpM (pure <| p · · · ·)
+
+/--
+  For every branch of the `InfoTree`, find the deepest node in that branch for which `p` returns
+  `some _`  and return the union of all such nodes. The visitor `p` is given a node together with
+  its innermost surrounding `ContextInfo`. -/
+partial def InfoTree.deepestNodesM [Monad m] (p : ContextInfo → Info → PersistentArray InfoTree → m (Option α)) (infoTree : InfoTree) : m (List α) :=
+  infoTree.collectNodesBottomUpM fun ctx i cs rs => do
+    if rs.isEmpty then
+      match ← p ctx i cs with
+      | some r => return [r]
+      | none   => return []
+    else
+      return rs
 
 /--
   For every branch of the `InfoTree`, find the deepest node in that branch for which `p` returns
   `some _`  and return the union of all such nodes. The visitor `p` is given a node together with
   its innermost surrounding `ContextInfo`. -/
 partial def InfoTree.deepestNodes (p : ContextInfo → Info → PersistentArray InfoTree → Option α) (infoTree : InfoTree) : List α :=
-  infoTree.collectNodesBottomUp fun ctx i cs rs =>
-    if rs.isEmpty then
-      match p ctx i cs with
-      | some r => [r]
-      | none   => []
-    else
-      rs
+  Id.run <| infoTree.deepestNodesM (pure <| p · · ·)
 
 partial def InfoTree.foldInfo (f : ContextInfo → Info → α → α) (init : α) : InfoTree → α :=
   go none init
@@ -97,6 +109,17 @@ where go ctx? a
       | some ctx => f ctx i a
     ts.foldl (init := a) (go <| i.updateContext? ctx?)
   | hole _ => a
+
+partial def InfoTree.foldInfoM [Monad m] (f : ContextInfo → Info → α → m α) (init : α) : InfoTree → m α :=
+  go none init
+where go ctx? a
+  | context ctx t => go (ctx.mergeIntoOuter? ctx?) a t
+  | node i ts => do
+    let a ← match ctx? with
+      | none => pure a
+      | some ctx => f ctx i a
+    ts.foldlM (init := a) (go <| i.updateContext? ctx?)
+  | hole _ => pure a
 
 /--
 Fold an info tree as follows, while ensuring that the correct `ContextInfo` is supplied at each stage:
@@ -119,6 +142,15 @@ where
     ts.foldl (init := a) (go <| i.updateContext? ctx?)
   | hole _ => a
 
+def InfoTree.collectTermInfoM [Monad m] (t : InfoTree) (f : ContextInfo → TermInfo → m (Option α)) : m (List α) :=
+  t.foldInfoM (init := []) fun ctx info result =>
+    match info with
+    | Info.ofTermInfo ti => do
+      match ← f ctx ti with
+      | some a => return a :: result
+      | none => return result
+    | _ => return result
+
 def Info.isTerm : Info → Bool
   | ofTermInfo _ => true
   | _ => false
@@ -140,6 +172,7 @@ def Info.stx : Info → Syntax
   | ofCommandInfo i        => i.stx
   | ofMacroExpansionInfo i => i.stx
   | ofOptionInfo i         => i.stx
+  | ofErrorNameInfo i      => i.stx
   | ofFieldInfo i          => i.stx
   | ofCompletionInfo i     => i.stx
   | ofCustomInfo i         => i.stx
@@ -197,18 +230,18 @@ def Info.occursInOrOnBoundary (i : Info) (hoverPos : String.Pos) : Bool := Id.ru
 def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextInfo × Info) :=
   let ts := t.deepestNodes fun ctx i _ => if p i then some (ctx, i) else none
 
-  let infos := ts.map fun (ci, i) =>
-    let diff := i.tailPos?.get! - i.pos?.get!
-    (diff, ci, i)
+  let infos := ts.filterMap fun (ci, i) => do
+    let diff := (← i.tailPos?) - (← i.pos?)
+    return (diff, ci, i)
 
   infos.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
 
 /-- Find an info node, if any, which should be shown on hover/cursor at position `hoverPos`. -/
 partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (includeStop := false) (omitAppFns := false) (omitIdentApps := false) : Option InfoWithCtx := Id.run do
-  let results := t.visitM (m := Id) (postNode := fun ctx info children results => do
+  let results := (← t.visitM (postNode := fun ctx info children results => do
     let mut results := results.flatMap (·.getD [])
     if omitAppFns && info.stx.isOfKind ``Parser.Term.app && info.stx[0].isIdent then
-        results := results.filter (·.2.info.stx != info.stx[0])
+      results := results.filter (·.2.info.stx != info.stx[0])
     if omitIdentApps && info.stx.isIdent then
       -- if an identifier stands for an application (e.g. in the case of a typeclass projection), prefer the application
       if let .ofTermInfo ti := info then
@@ -222,7 +255,7 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
     -/
     if info.stx.isOfKind nullKind || info.toElabInfo?.any (·.elaborator == `Lean.Elab.Tactic.evalWithAnnotateState) then
       return results
-    unless (info matches .ofFieldInfo _ | .ofOptionInfo _ || info.toElabInfo?.isSome) && info.contains hoverPos includeStop do
+    unless (info matches .ofFieldInfo _ | .ofOptionInfo _ | .ofErrorNameInfo _ || info.toElabInfo?.isSome) && info.contains hoverPos includeStop do
       return results
     let r := info.range?.get!
     let priority := (
@@ -235,7 +268,7 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
       Int.negOfNat (r.stop - r.start).byteIdx,
       -- prefer results for constants over variables (which overlap at declaration names)
       if info matches .ofTermInfo { expr := .fvar .., .. } then 0 else 1)
-    [(priority, {ctx, info, children})]) |>.getD []
+    [(priority, {ctx, info, children})])) |>.getD []
   -- sort results by lexicographical priority
   let maxPrio? :=
     let _ := @lexOrd
@@ -271,11 +304,13 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
     if let some decl := (← getOptionDecls).find? oi.optionName then
       return decl.descr
     return none
+  | .ofErrorNameInfo eni => do
+    let some errorExplanation := getErrorExplanationRaw? (← getEnv) eni.errorName | return none
+    return errorExplanation.summaryWithSeverity
   | _ => pure ()
   if let some ei := i.toElabInfo? then
     return ← findDocString? env ei.stx.getKind <||> findDocString? env ei.elaborator
   return none
-
 
 /-- Construct a hover popup, if any, from an info node in a context.-/
 def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option FormatWithInfos) := do
@@ -411,24 +446,5 @@ where
 partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos) : Option InfoWithCtx :=
   -- In the case `f a b`, where `f` is an identifier, the term goal at `f` should be the goal for the full application `f a b`.
   hoverableInfoAt? t hoverPos (includeStop := true) (omitAppFns := true)
-
-partial def InfoTree.hasSorry : InfoTree → IO Bool :=
-  go none
-where go ci?
-  | .context ci t => go (ci.mergeIntoOuter? ci?) t
-  | .node i cs =>
-    match ci?, i with
-    | some ci, .ofTermInfo ti
-    | some ci, .ofDelabTermInfo ti => do
-      -- NOTE: `instantiateMVars` can potentially be expensive but we rely on the elaborator
-      -- creating a fully instantiated `MutualDef.body` term info node which has the implicit effect
-      -- of making the `instantiateMVars` here a no-op and avoids further recursing into the body
-      let expr ← ti.runMetaM ci (instantiateMVars ti.expr)
-      return expr.hasSorry
-      -- we assume that `cs` are subterms of `ti.expr` and
-      -- thus do not have to be checked as well
-    | _, _ =>
-      cs.anyM (go ci?)
-  | _ => return false
 
 end Lean.Elab

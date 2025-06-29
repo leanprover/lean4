@@ -3,10 +3,14 @@ Copyright (c) 2023 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joe Hendrix
 -/
+module
+
 prelude
-import Init.Data.Bool
-import Init.Data.Nat.Basic
-import Init.Data.Nat.Lemmas
+public import Init.Data.Bool
+public import Init.Data.Nat.Basic
+public import Init.Data.Nat.Lemmas
+
+public section
 
 /-!
 This contains lemmas used by the Nat simprocs for simplifying arithmetic

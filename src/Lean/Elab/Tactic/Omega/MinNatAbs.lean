@@ -121,7 +121,7 @@ theorem nonzeroMininum_map_le_nonzeroMinimum (f : α → β) (p : α → Nat) (q
     have := nonzeroMinimum_eq_of_nonzero z
     simp only [mem_map] at this
     obtain ⟨x, ⟨a, m, rfl⟩, eq⟩ := this
-    refine .inr ⟨q (f a), List.mem_map_of_mem _ (List.mem_map_of_mem _ m), ?_, ?_⟩
+    refine .inr ⟨q (f a), List.mem_map_of_mem (List.mem_map_of_mem m), ?_, ?_⟩
     · rw [eq] at z ⊢
       apply w _ m z
     · rwa [Ne, ← h _ m, ← eq]

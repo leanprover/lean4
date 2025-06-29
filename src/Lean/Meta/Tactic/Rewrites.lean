@@ -44,11 +44,11 @@ private def addImport (name : Name) (constInfo : ConstantInfo) :
   if constInfo.isUnsafe then return #[]
   if !allowCompletion (←getEnv) name then return #[]
   -- We now remove some injectivity lemmas which are not useful to rewrite by.
-  if name matches .str _ "injEq" then return #[]
-  if name matches .str _ "sizeOf_spec" then return #[]
   match name with
-  | .str _ n => if n.endsWith "_inj" ∨ n.endsWith "_inj'" then return #[]
+  | .str _ n => if n = "injEq" ∨ n = "sizeOf_spec" ∨ n.endsWith "_inj" ∨ n.endsWith "_inj'" then return #[]
   | _ => pure ()
+  -- Don't report lemmas from metaprogramming namespaces.
+  if name.isMetaprogramming then return #[]
   withNewMCtxDepth do withReducible do
     forallTelescopeReducing constInfo.type fun _ type => do
       match type.getAppFnArgs with
@@ -269,14 +269,18 @@ def rewriteCandidates (hyps : Array (Expr × Bool × Nat))
   pure <| hyps ++ lemmas
 
 def RewriteResult.newGoal (r : RewriteResult) : Option Expr :=
-  if r.rfl? = true then
-    some (Expr.lit (.strVal "no goals"))
+  if r.rfl? then
+    none
   else
     some r.result.eNew
 
-def RewriteResult.addSuggestion (ref : Syntax) (r : RewriteResult) : Elab.TermElabM Unit := do
+open Elab Tactic in
+def RewriteResult.addSuggestion (ref : Syntax) (r : RewriteResult)
+    (checkState? : Option Tactic.SavedState := .none) : TacticM Unit := do
   withMCtx r.mctx do
-    Tactic.TryThis.addRewriteSuggestion ref [(r.expr, r.symm)] (type? := r.newGoal) (origSpan? := ← getRef)
+    Tactic.TryThis.addRewriteSuggestion ref [(r.expr, r.symm)]
+      (type? := r.newGoal.toLOption) (origSpan? := ← getRef)
+      (checkState? := checkState?.getD (← saveState))
 
 structure RewriteResultConfig where
   stopAtRfl : Bool

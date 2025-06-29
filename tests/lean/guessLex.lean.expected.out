@@ -1,62 +1,62 @@
-Inferred termination argument:
+Inferred termination measure:
 termination_by (n, m)
-Inferred termination argument:
+Inferred termination measure:
 termination_by (m, n)
-Inferred termination argument:
+Inferred termination measure:
 termination_by (n, m)
-Inferred termination argument:
+Inferred termination measure:
 termination_by x1 x2 => (x2, x1)
-Inferred termination argument:
+Inferred termination measure:
 termination_by x1 => x1
-Inferred termination argument:
+Inferred termination measure:
 termination_by x1 => x1
-Inferred termination argument:
+Inferred termination measure:
 termination_by x1 => x1
-Inferred termination argument:
+Inferred termination measure:
 termination_by x1 => x1
-Inferred termination argument:
+Inferred termination measure:
 termination_by x1 => (x1, 0)
-Inferred termination argument:
+Inferred termination measure:
 termination_by (n, 1)
-Inferred termination argument:
+Inferred termination measure:
 termination_by (m, n)
-Inferred termination argument:
+Inferred termination measure:
 termination_by x1 x2 x3 x4 x5 x6 x7 x8 => (x8, x7, x6, x5, x4, x3, x2, x1)
-Inferred termination argument:
+Inferred termination measure:
 termination_by x1 => x1
-Inferred termination argument:
+Inferred termination measure:
 termination_by x1 => sizeOf x1
-Inferred termination argument:
+Inferred termination measure:
 termination_by n m => (n, sizeOf m)
-Inferred termination argument:
+Inferred termination measure:
 termination_by m => m
-Inferred termination argument:
+Inferred termination measure:
 termination_by (sizeOf a, 1)
-Inferred termination argument:
+Inferred termination measure:
 termination_by (sizeOf a, 0)
-Inferred termination argument:
+Inferred termination measure:
 termination_by x2' => x2'
-Inferred termination argument:
+Inferred termination measure:
 termination_by x2 => x2
-Inferred termination argument:
+Inferred termination measure:
 termination_by _ x2 => x2
-Inferred termination argument:
+Inferred termination measure:
 termination_by x1 => sizeOf x1
-Inferred termination argument:
+Inferred termination measure:
 termination_by x2 => SizeOf.sizeOf x2
-Inferred termination argument:
+Inferred termination measure:
 termination_by x1 => SizeOf.sizeOf x1
-Inferred termination argument:
+Inferred termination measure:
 termination_by x2 => SizeOf.sizeOf x2
-Inferred termination argument:
+Inferred termination measure:
 termination_by x1 => x1
-Inferred termination argument:
+Inferred termination measure:
 termination_by x1 => sizeOf x1
-Inferred termination argument:
+Inferred termination measure:
 termination_by x1 => x1
-Inferred termination argument:
+Inferred termination measure:
 termination_by sizeOf o
-Inferred termination argument:
+Inferred termination measure:
 termination_by x1 => x1
-Inferred termination argument:
+Inferred termination measure:
 termination_by x1 => sizeOf x1

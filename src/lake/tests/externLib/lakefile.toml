@@ -1,0 +1,13 @@
+name = "test"
+
+[[require]]
+name = "ffi"
+path = "ffi"
+
+[[lean_lib]]
+name = "Test"
+precompileModules = true
+
+[[lean_exe]]
+name = "test"
+root = "Main"

@@ -1,0 +1,5 @@
+name = "tests"
+
+# Allow `module` in tests when opened in the language server.
+# Enabled during actual test runs in the respective test_single.sh.
+moreGlobalServerArgs = ["-Dexperimental.module=true"]

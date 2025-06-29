@@ -10,10 +10,10 @@ meta if get_config? baz |>.isSome then #print "baz"
 
 meta if get_config? env = some "foo" then do
   #print "foo"
-  #print "1"
+  #print "lorem"
 else meta if get_config? env = some "bar" then do
   #print "bar"
-  #print "2"
+  #print "ipsum"
 
 script print_env do
   IO.eprintln <| get_config? env |>.getD "none"

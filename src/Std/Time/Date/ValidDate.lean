@@ -25,6 +25,20 @@ def ValidDate (leap : Bool) := { val : Month.Ordinal × Day.Ordinal // Valid lea
 instance : Inhabited (ValidDate l) where
   default := ⟨⟨1, 1⟩, (by cases l <;> decide)⟩
 
+instance : DecidableEq (ValidDate leap) := Subtype.instDecidableEq
+
+instance : Ord (ValidDate leap) where
+  compare a b := compare a.val b.val
+
+instance : OrientedOrd (ValidDate leap) where
+  eq_swap := OrientedOrd.eq_swap (α := Month.Ordinal × Day.Ordinal)
+
+instance : TransOrd (ValidDate leap) where
+  isLE_trans := TransOrd.isLE_trans (α := Month.Ordinal × Day.Ordinal)
+
+instance : LawfulEqOrd (ValidDate leap) where
+  eq_of_compare := Subtype.ext ∘ LawfulEqOrd.eq_of_compare (α := Month.Ordinal × Day.Ordinal)
+
 namespace ValidDate
 
 /--

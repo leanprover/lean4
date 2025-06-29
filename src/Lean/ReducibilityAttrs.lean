@@ -31,6 +31,7 @@ builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × Reducib
       let r : Array (Name × ReducibilityStatus) := m.fold (fun a n p => a.push (n, p)) #[]
       r.qsort (fun a b => Name.quickLt a.1 b.1)
     statsFn         := fun s => "reducibility attribute core extension" ++ Format.line ++ "number of local entries: " ++ format s.size
+    asyncMode       := .async
   }
 
 builtin_initialize reducibilityExtraExt : SimpleScopedEnvExtension (Name × ReducibilityStatus) (SMap Name ReducibilityStatus) ←
@@ -51,7 +52,7 @@ def getReducibilityStatusCore (env : Environment) (declName : Name) : Reducibili
     match (reducibilityCoreExt.getModuleEntries env modIdx).binSearch (declName, .semireducible) (fun a b => Name.quickLt a.1 b.1) with
     | some (_, status) => status
     | none => .semireducible
-  | none => (reducibilityCoreExt.getState env).find? declName |>.getD .semireducible
+  | none => (reducibilityCoreExt.findStateAsync env declName).find? declName |>.getD .semireducible
 
 private def setReducibilityStatusCore (env : Environment) (declName : Name) (status : ReducibilityStatus) (attrKind : AttributeKind) (currNamespace : Name) : Environment :=
   if attrKind matches .global then
@@ -60,7 +61,8 @@ private def setReducibilityStatusCore (env : Environment) (declName : Name) (sta
       -- Trying to set the attribute of a declaration defined in an imported module.
       reducibilityExtraExt.addEntry env (declName, status)
     | none =>
-      --
+      let _ : Inhabited Environment := ⟨env⟩
+      assert! env.asyncMayContain declName
       reducibilityCoreExt.addEntry env (declName, status)
   else
     -- `scoped` and `local` must be handled by `reducibilityExtraExt`
@@ -95,37 +97,37 @@ register_builtin_option allowUnsafeReducibility : Bool := {
 }
 
 private def validate (declName : Name) (status : ReducibilityStatus) (attrKind : AttributeKind) : CoreM Unit := do
-  let suffix := "use `set_option allowUnsafeReducibility true` to override reducibility status validation"
+  let suffix := .note "Use `set_option allowUnsafeReducibility true` to override reducibility status validation"
   unless allowUnsafeReducibility.get (← getOptions) do
     match (← getConstInfo declName) with
     | .defnInfo _ =>
       let statusOld := getReducibilityStatusCore (← getEnv) declName
       match attrKind with
       | .scoped =>
-        throwError "failed to set reducibility status for `{declName}`, the `scoped` modifier is not recommended for this kind of attribute\n{suffix}"
+        throwError "failed to set reducibility status for `{declName}`, the `scoped` modifier is not recommended for this kind of attribute{suffix}"
       | .global =>
         if (← getEnv).getModuleIdxFor? declName matches some _ then
-          throwError "failed to set reducibility status, `{declName}` has not been defined in this file, consider using the `local` modifier\n{suffix}"
+          throwError "failed to set reducibility status, `{declName}` has not been defined in this file, consider using the `local` modifier{suffix}"
         match status with
         | .reducible =>
           unless statusOld matches .semireducible do
-            throwError "failed to set `[reducible]`, `{declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`\n{suffix}"
+            throwError "failed to set `[reducible]`, `{declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`{suffix}"
         | .irreducible =>
           unless statusOld matches .semireducible do
-            throwError "failed to set `[irreducible]`, `{declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`\n{suffix}"
+            throwError "failed to set `[irreducible]`, `{declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`{suffix}"
         | .semireducible =>
-          throwError "failed to set `[semireducible]` for `{declName}`, declarations are `[semireducible]` by default\n{suffix}"
+          throwError "failed to set `[semireducible]` for `{declName}`, declarations are `[semireducible]` by default{suffix}"
       | .local =>
         match status with
         | .reducible =>
-          throwError "failed to set `[local reducible]` for `{declName}`, recall that `[reducible]` affects the term indexing datastructures used by `simp` and type class resolution\n{suffix}"
+          throwError "failed to set `[local reducible]` for `{declName}`, recall that `[reducible]` affects the term indexing datastructures used by `simp` and type class resolution{suffix}"
         | .irreducible =>
           unless statusOld matches .semireducible do
-            throwError "failed to set `[local irreducible]`, `{declName}` is currently `{statusOld.toAttrString}`, `[semireducible]` expected\n{suffix}"
+            throwError "failed to set `[local irreducible]`, `{declName}` is currently `{statusOld.toAttrString}`, `[semireducible]` expected{suffix}"
         | .semireducible =>
           unless statusOld matches .irreducible do
-            throwError "failed to set `[local semireducible]`, `{declName}` is currently `{statusOld.toAttrString}`, `[irreducible]` expected\n{suffix}"
-    | _ => throwError "failed to set reducibility status, `{declName}` is not a definition\n{suffix}"
+            throwError "failed to set `[local semireducible]`, `{declName}` is currently `{statusOld.toAttrString}`, `[irreducible]` expected{suffix}"
+    | _ => throwError "failed to set reducibility status, `{declName}` is not a definition{suffix}"
 
 private def addAttr (status : ReducibilityStatus) (declName : Name) (stx : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
   Attribute.Builtin.ensureNoArgs stx

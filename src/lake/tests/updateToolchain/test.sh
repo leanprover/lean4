@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-set -euxo pipefail
-
-LAKE=${LAKE:-../../.lake/build/bin/lake}
+source ../common.sh
 
 # Ensure Lake thinks there is a elan environment configured
 export ELAN_HOME=
@@ -11,16 +9,16 @@ export ELAN_HOME=
 RESTART_CODE=4
 
 test_update(){
-   ELAN=true $LAKE update 2>&1 | grep --color "updating toolchain to '$1'"
+   ELAN=true test_out "updating toolchain to '$1'" update
    cat lean-toolchain | diff - <(echo -n "$1")
 }
 
 # Test toolchain version API
-$LAKE lean test.lean
+test_run lean test.lean
 
 # Test no toolchain information
 ./clean.sh
-$LAKE update 2>&1 | grep --color "toolchain not updated; no toolchain information found"
+test_out "toolchain not updated; no toolchain information found" update
 
 # Test a single unknown candidate
 ./clean.sh
@@ -49,20 +47,23 @@ test_update leanprover/lean4:nightly-2024-10-01
 echo v4.4.0 > a/lean-toolchain
 echo v4.8.0 > b/lean-toolchain
 echo v4.10.0 > lean-toolchain
-$LAKE update 2>&1 | grep --color "toolchain not updated; already up-to-date"
+test_out "toolchain not updated; already up-to-date" update
 
 # Test multiple candidates
 ./clean.sh
 echo lean-a > a/lean-toolchain
 echo lean-b > b/lean-toolchain
-$LAKE update 2>&1 | grep --color "toolchain not updated; multiple toolchain candidates"
+test_out "toolchain not updated; multiple toolchain candidates" update
 
 # Test manual restart
 ./clean.sh
 echo lean-a > a/lean-toolchain
-ELAN= $LAKE update 2>&1 && exit 1 || [ $? = $RESTART_CODE ]
+ELAN= test_status $RESTART_CODE update
 
 # Test elan restart
 ./clean.sh
 echo lean-a > a/lean-toolchain
-ELAN=echo $LAKE update | grep --color "run --install lean-a lake update"
+ELAN=echo test_out "run --install lean-a lake update" update
+
+# Cleanup
+rm -f produced.out

@@ -105,12 +105,13 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
     let scopeLevelNames ← Term.getLevelNames
     let ⟨shortName, declName, allUserLevelNames⟩ ← Term.expandDeclId (← getCurrNamespace) scopeLevelNames declId modifiers
     addDeclarationRangesForBuiltin declName modifiers.stx stx
+    Term.withAutoBoundImplicit do
     Term.withAutoBoundImplicitForbiddenPred (fun n => shortName == n) do
     Term.withDeclName declName <| Term.withLevelNames allUserLevelNames <| Term.elabBinders binders.getArgs fun xs => do
       Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.beforeElaboration
       let type ← Term.elabType typeStx
       Term.synthesizeSyntheticMVarsNoPostponing
-      let xs ← Term.addAutoBoundImplicits xs
+      let xs ← Term.addAutoBoundImplicits xs (declId.getTailPos? (canonicalOnly := true))
       let type ← instantiateMVars type
       let type ← mkForallFVars xs type
       let type ← mkForallFVars vars type (usedOnly := true)
@@ -152,23 +153,24 @@ def expandNamespacedDeclaration : Macro := fun stx => do
 
 @[builtin_command_elab declaration, builtin_incremental]
 def elabDeclaration : CommandElab := fun stx => do
+  withExporting (isExporting := (← getScope).isPublic) do
+  let modifiers : TSyntax ``Parser.Command.declModifiers := ⟨stx[0]⟩
   let decl     := stx[1]
   let declKind := decl.getKind
   if isDefLike decl then
     -- only case implementing incrementality currently
     elabMutualDef #[stx]
   else withoutCommandIncrementality true do
-    let modifiers : TSyntax ``Parser.Command.declModifiers := ⟨stx[0]⟩
-    if declKind == ``Lean.Parser.Command.«axiom» then
-      let modifiers ← elabModifiers modifiers
-      elabAxiom modifiers decl
-    else if declKind == ``Lean.Parser.Command.«inductive»
-        || declKind == ``Lean.Parser.Command.classInductive
-        || declKind == ``Lean.Parser.Command.«structure» then
-      let modifiers ← elabModifiers modifiers
-      elabInductive modifiers decl
-    else
-      throwError "unexpected declaration"
+    let modifiers ← elabModifiers modifiers
+    withExporting (isExporting := modifiers.isInferredPublic (← getEnv)) do
+      if declKind == ``Lean.Parser.Command.«axiom» then
+        elabAxiom modifiers decl
+      else if declKind == ``Lean.Parser.Command.«inductive»
+          || declKind == ``Lean.Parser.Command.classInductive
+          || declKind == ``Lean.Parser.Command.«structure» then
+        elabInductive modifiers decl
+      else
+        throwError "unexpected declaration"
 
 /-- Return true if all elements of the mutual-block are definitions/theorems/abbrevs. -/
 private def isMutualDef (stx : Syntax) : Bool :=
@@ -192,7 +194,7 @@ private partial def splitMutualPreamble (elems : Array Syntax) : Option (Array S
       else if i == 0 then
         none -- `mutual` block does not contain any preamble commands
       else
-        some (elems[0:i], elems[i:elems.size])
+        some (elems[*...i], elems[i...elems.size])
     else
       none -- a `mutual` block containing only preamble commands is not a valid `mutual` block
   loop 0
@@ -269,6 +271,7 @@ def expandMutualPreamble : Macro := fun stx =>
 
 @[builtin_command_elab «mutual», builtin_incremental]
 def elabMutual : CommandElab := fun stx => do
+  withExporting (isExporting := (← getScope).isPublic) do
   if isMutualDef stx then
     -- only case implementing incrementality currently
     elabMutualDef stx[1].getArgs
@@ -307,7 +310,7 @@ def elabMutual : CommandElab := fun stx => do
         if (← Simp.isBuiltinSimproc name) then
           pure [name]
         else
-          throwUnknownConstant name
+          throwUnknownConstantAt ident name
     let declName ← ensureNonAmbiguous ident declNames
     Term.applyAttributes declName attrs
     for attrName in toErase do
@@ -331,9 +334,11 @@ def elabMutual : CommandElab := fun stx => do
         $[unsafe%$unsafe?]? def initFn : IO $type := with_decl_name% $(mkIdent fullId) do $doSeq
         $defStx:command))
     else
-      let `(Parser.Command.declModifiersT| $[$doc?:docComment]? ) := declModifiers
+      let `(Parser.Command.declModifiersT| $[$doc?:docComment]? $[@[$attrs?,*]]? $(_)? $[unsafe%$unsafe?]?) := declModifiers
         | throwErrorAt declModifiers "invalid initialization command, unexpected modifiers"
-      elabCommand (← `($[$doc?:docComment]? @[$attrId:ident] def initFn : IO Unit := do $doSeq))
+      let attrs := (attrs?.map (·.getElems)).getD #[]
+      let attrs := attrs.push (← `(Lean.Parser.Term.attrInstance| $attrId:ident))
+      elabCommand (← `($[$doc?:docComment]? @[$[$attrs],*] $[unsafe%$unsafe?]? def initFn : IO Unit := do $doSeq))
   | _ => throwUnsupportedSyntax
 
 builtin_initialize

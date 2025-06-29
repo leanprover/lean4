@@ -5,9 +5,7 @@ Authors: Mac Malone
 -/
 prelude
 import Lake.Load.Resolve
-import Lake.Build.Module
-import Lake.Build.Package
-import Lake.Build.Library
+import Lake.Build.InitFacets
 
 /-! # Workspace Loader
 
@@ -25,13 +23,12 @@ Does not resolve dependencies.
 def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
   Lean.searchPathRef.set config.lakeEnv.leanSearchPath
   let (root, env?) ← loadPackageCore "[root]" config
+  let root ← root.loadInputsFrom config.lakeEnv.lakeCache
   let ws : Workspace := {
     root
     lakeEnv := config.lakeEnv
     lakeArgs? := config.lakeArgs?
-    moduleFacetConfigs := initModuleFacetConfigs
-    packageFacetConfigs := initPackageFacetConfigs
-    libraryFacetConfigs := initLibraryFacetConfigs
+    facetConfigs := initFacetConfigs
   }
   if let some env := env? then
     IO.ofExcept <| ws.addFacetsFromEnv env config.leanOpts

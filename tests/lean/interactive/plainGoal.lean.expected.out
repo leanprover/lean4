@@ -82,9 +82,9 @@
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 55, "character": 3}}
 {"rendered":
- "```lean\nα : Sort u_1\np : α → Prop\na b : α\ninst✝ : DecidablePred p\nh : ∀ {p : α → Prop} [inst : DecidablePred p], p a → p b\n⊢ p a\n```",
+ "```lean\nα : Sort u_1\np : α → Prop\na b : α\ninst✝ : DecidablePred p\nh : ∀ {p : α → Prop} [DecidablePred p], p a → p b\n⊢ p a\n```",
  "goals":
- ["α : Sort u_1\np : α → Prop\na b : α\ninst✝ : DecidablePred p\nh : ∀ {p : α → Prop} [inst : DecidablePred p], p a → p b\n⊢ p a"]}
+ ["α : Sort u_1\np : α → Prop\na b : α\ninst✝ : DecidablePred p\nh : ∀ {p : α → Prop} [DecidablePred p], p a → p b\n⊢ p a"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 61, "character": 3}}
 {"rendered": "```lean\ncase left\n⊢ True\n```", "goals": ["case left\n⊢ True"]}

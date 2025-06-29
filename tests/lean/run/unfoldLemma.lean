@@ -4,8 +4,8 @@ def Option_map (f : α → β) : Option α → Option β
 
 /--
 info: equations:
-theorem Option_map.eq_1.{u_1, u_2} : ∀ {α : Type u_1} {β : Type u_2} (f : α → β), Option_map f none = none
-theorem Option_map.eq_2.{u_1, u_2} : ∀ {α : Type u_1} {β : Type u_2} (f : α → β) (x_1 : α),
+@[defeq] theorem Option_map.eq_1.{u_1, u_2} : ∀ {α : Type u_1} {β : Type u_2} (f : α → β), Option_map f none = none
+@[defeq] theorem Option_map.eq_2.{u_1, u_2} : ∀ {α : Type u_1} {β : Type u_2} (f : α → β) (x_1 : α),
   Option_map f (some x_1) = some (f x_1)
 -/
 #guard_msgs in

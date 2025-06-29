@@ -43,15 +43,20 @@ def loadDepPackage
   (leanOpts : Options) (reconfigure : Bool)
 : StateT Workspace LogIO Package := fun ws => do
   let name := dep.name.toString (escape := false)
+  let pkgDir := ws.dir / dep.relPkgDir
+  let some pkgDir ← resolvePath? pkgDir
+    | error s!"{name}: package directory not found: {pkgDir}"
   let (pkg, env?) ← loadPackageCore name {
     lakeEnv := ws.lakeEnv
     wsDir := ws.dir
+    pkgDir
     relPkgDir := dep.relPkgDir
     relConfigFile := dep.configFile
     lakeOpts, leanOpts, reconfigure
     scope := dep.scope
     remoteUrl := dep.remoteUrl
   }
+  let pkg ← pkg.loadInputsFrom ws.lakeCache
   if let some env := env? then
     let ws ← IO.ofExcept <| ws.addFacetsFromEnv env leanOpts
     return (pkg, ws)
@@ -77,7 +82,7 @@ abbrev DepStackT m := CallStackT Name m
 
 /-- Log dependency cycle and error. -/
 @[specialize] def depCycleError [MonadError m] (cycle : Cycle Name) : m α :=
-  error s!"dependency cycle detected:\n{"\n".intercalate <| cycle.map (s!"  {·}")}"
+  error s!"dependency cycle detected:\n{formatCycle cycle}"
 
 instance [Monad m] [MonadError m] : MonadCycleOf Name (DepStackT m) where
   throwCycle := depCycleError
@@ -314,7 +319,7 @@ R
 |- C
 ```
 
-Lake follows the order `R`, `C`, `A`, `B`, `Y`, `X`.
+Lake follows the order `R`, `C`, `B`, `A`, `Y`, `X`.
 
 The reason for this is two-fold:
 1. Like targets, later requires should shadow earlier definitions.

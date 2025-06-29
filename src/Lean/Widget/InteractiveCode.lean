@@ -59,38 +59,29 @@ def SubexprInfo.withDiffTag (tag : DiffTag) (c : SubexprInfo) : SubexprInfo :=
 
 /-- Tags pretty-printed code with infos from the delaborator. -/
 partial def tagCodeInfos (ctx : Elab.ContextInfo) (infos : SubExpr.PosMap Elab.Info) (tt : TaggedText (Nat × Nat))
-    : CodeWithInfos :=
+    : BaseIO CodeWithInfos :=
   go tt
 where
-  go (tt : TaggedText (Nat × Nat)) :=
-    tt.rewrite fun (n, _) subTt =>
+  go (tt : TaggedText (Nat × Nat)) : BaseIO (TaggedText SubexprInfo) :=
+    tt.rewriteM fun (n, _) subTt => do
       match infos.find? n with
       | none   => go subTt
       | some i =>
         let t : SubexprInfo := {
-          info := WithRpcRef.mk { ctx, info := i, children := .empty }
+          info := ← WithRpcRef.mk { ctx, info := i, children := .empty }
           subexprPos := n
         }
-        TaggedText.tag t (go subTt)
+        return TaggedText.tag t (← go subTt)
 
-def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := do
+open PrettyPrinter Delaborator in
+/--
+Pretty prints the expression `e` using delaborator `delab`, returning an object that represents
+the pretty printed syntax paired with information needed to support hovers.
+-/
+def ppExprTagged (e : Expr) (delab : Delab := Delaborator.delab) : MetaM CodeWithInfos := do
   if pp.raw.get (← getOptions) then
-    return .text (toString (← instantiateMVars e))
-  let delab := open PrettyPrinter.Delaborator in
-    if explicit then
-      withOptionAtCurrPos pp.tagAppFns.name true do
-      withOptionAtCurrPos pp.explicit.name true do
-      withOptionAtCurrPos pp.mvars.anonymous.name true do
-        delabApp
-    else
-      withOptionAtCurrPos pp.proofs.name true do
-      withOptionAtCurrPos pp.sorrySource.name true do
-        delab
-  let mut e := e
-  -- When hovering over a metavariable, we want to see its value, even if `pp.instantiateMVars` is false.
-  if explicit && e.isMVar then
-    if let some e' ← getExprMVarAssignment? e.mvarId! then
-      e := e'
+    let e ← if getPPInstantiateMVars (← getOptions) then instantiateMVars e else pure e
+    return .text (toString e)
   let ⟨fmt, infos⟩ ← PrettyPrinter.ppExprWithInfos e (delab := delab)
   let tt := TaggedText.prettyTagged fmt
   let ctx := {
@@ -102,6 +93,6 @@ def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := 
     fileMap       := default
     ngen          := (← getNGen)
   }
-  return tagCodeInfos ctx infos tt
+  tagCodeInfos ctx infos tt
 
 end Lean.Widget

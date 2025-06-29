@@ -66,7 +66,7 @@ partial def getAux [Inhabited α] : PersistentArrayNode α → USize → USize �
 
 def get! [Inhabited α] (t : PersistentArray α) (i : Nat) : α :=
   if i >= t.tailOff then
-    t.tail.get! (i - t.tailOff)
+    t.tail[i - t.tailOff]!
   else
     getAux t.root (USize.ofNat i) t.shift
 
@@ -175,8 +175,8 @@ def pop (t : PersistentArray α) : PersistentArray α :=
       let last       := last.pop
       let newSize    := t.size - 1
       let newTailOff := newSize - last.size
-      if newRoots.size == 1 && (newRoots.get! 0).isNode then
-        { root    := newRoots.get! 0,
+      if h : ∃ _ : newRoots.size = 1, newRoots[0].isNode then
+        { root    := newRoots[0]'(have := h.1; by omega),
           shift   := t.shift - initShift,
           size    := newSize,
           tail    := last,
@@ -199,7 +199,7 @@ variable {β : Type v}
 @[specialize] private partial def foldlFromMAux (f : β → α → m β) : PersistentArrayNode α → USize → USize → β → m β
   | node cs, i, shift, b => do
     let j    := (div2Shift i shift).toNat
-    let b ← foldlFromMAux f (cs.get! j) (mod2Shift i shift) (shift - initShift) b
+    let b ← foldlFromMAux f cs[j]! (mod2Shift i shift) (shift - initShift) b
     cs.foldlM (init := b) (start := j+1) fun b c => foldlMAux f c b
   | leaf vs, i, _, b => vs.foldlM (init := b) (start := i.toNat) f
 
@@ -281,10 +281,10 @@ instance : ForIn m (PersistentArray α) α where
 end
 
 @[inline] def foldl (t : PersistentArray α) (f : β → α → β) (init : β) (start : Nat := 0) : β :=
-  Id.run <| t.foldlM f init start
+  Id.run <| t.foldlM (pure <| f · ·) init start
 
 @[inline] def foldr (t : PersistentArray α) (f : α → β → β) (init : β) : β :=
-  Id.run <| t.foldrM f init
+  Id.run <| t.foldrM (pure <| f · ·) init
 
 @[inline] def filter (as : PersistentArray α) (p : α → Bool) : PersistentArray α :=
   as.foldl (init := {}) fun asNew a => if p a then asNew.push a else asNew
@@ -301,10 +301,10 @@ def append (t₁ t₂ : PersistentArray α) : PersistentArray α :=
 instance : Append (PersistentArray α) := ⟨append⟩
 
 @[inline] def findSome? {β} (t : PersistentArray α) (f : α → (Option β)) : Option β :=
-  Id.run $ t.findSomeM? f
+  Id.run $ t.findSomeM? (pure <| f ·)
 
 @[inline] def findSomeRev? {β} (t : PersistentArray α) (f : α → (Option β)) : Option β :=
-  Id.run $ t.findSomeRevM? f
+  Id.run $ t.findSomeRevM? (pure <| f ·)
 
 def toList (t : PersistentArray α) : List α :=
   (t.foldl (init := []) fun xs x => x :: xs).reverse
@@ -325,7 +325,7 @@ variable {m : Type → Type w} [Monad m]
 end
 
 @[inline] def any (a : PersistentArray α) (p : α → Bool) : Bool :=
-  Id.run $ anyM a p
+  Id.run $ anyM a (pure <| p ·)
 
 @[inline] def all (a : PersistentArray α) (p : α → Bool) : Bool :=
   !any a fun v => !p v
@@ -346,7 +346,7 @@ variable {β : Type u}
 end
 
 @[inline] def map {β} (f : α → β) (t : PersistentArray α) : PersistentArray β :=
-  Id.run $ t.mapM f
+  Id.run $ t.mapM (pure <| f ·)
 
 structure Stats where
   numNodes : Nat
@@ -381,6 +381,9 @@ end Lean
 
 open Lean (PersistentArray)
 
+/--
+Converts a list to a persistent array.
+-/
 def List.toPArray' {α : Type u} (xs : List α) : PersistentArray α :=
   let rec loop : List α → PersistentArray α → PersistentArray α
   | [],    t => t

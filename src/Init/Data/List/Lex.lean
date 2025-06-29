@@ -3,19 +3,26 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Data.List.Lemmas
-import Init.Data.List.Nat.TakeDrop
+public import Init.Data.List.Lemmas
+public import Init.Data.List.Nat.TakeDrop
+
+public section
+
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace List
 
 /-! ### Lexicographic ordering -/
 
-@[simp] theorem lex_lt [LT α] (l₁ l₂ : List α) : Lex (· < ·) l₁ l₂ ↔ l₁ < l₂ := Iff.rfl
-@[simp] theorem not_lex_lt [LT α] (l₁ l₂ : List α) : ¬ Lex (· < ·) l₁ l₂ ↔ l₂ ≤ l₁ := Iff.rfl
+@[simp] theorem lex_lt [LT α] {l₁ l₂ : List α} : Lex (· < ·) l₁ l₂ ↔ l₁ < l₂ := Iff.rfl
+@[simp] theorem not_lex_lt [LT α] {l₁ l₂ : List α} : ¬ Lex (· < ·) l₁ l₂ ↔ l₂ ≤ l₁ := Iff.rfl
 
-protected theorem not_lt_iff_ge [LT α] (l₁ l₂ : List α) : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
-protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] (l₁ l₂ : List α) :
+protected theorem not_lt_iff_ge [LT α] {l₁ l₂ : List α} : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
+protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {l₁ l₂ : List α} :
     ¬ l₁ ≤ l₂ ↔ l₂ < l₁ :=
   Decidable.not_not
 
@@ -46,9 +53,11 @@ instance ltIrrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] : Std.Irre
   · rintro rfl
     exact not_lex_nil
 
-@[simp] theorem le_nil [LT α] (l : List α) : l ≤ [] ↔ l = [] := not_nil_lex_iff
+@[simp] theorem le_nil [LT α] {l : List α} : l ≤ [] ↔ l = [] := not_nil_lex_iff
 
-@[simp] theorem nil_lex_cons : Lex r [] (a :: l) := Lex.nil
+-- This is named with a prime to avoid conflict with `lex [] (b :: bs) lt = true`.
+-- Better naming for the `Lex` vs `lex` distinction would be welcome.
+@[simp] theorem nil_lex_cons' : Lex r [] (a :: l) := Lex.nil
 
 @[simp] theorem nil_lt_cons [LT α] (a : α) (l : List α) : [] < a :: l := Lex.nil
 
@@ -165,7 +174,7 @@ protected theorem lt_of_le_of_lt [DecidableEq α] [LT α] [DecidableLT α]
   induction h₂ generalizing l₁ with
   | nil => simp_all
   | rel hab =>
-    rename_i a b
+    rename_i a xs
     cases l₁ with
     | nil => simp_all
     | cons c l₁ =>
@@ -276,7 +285,7 @@ protected theorem le_iff_lt_or_eq [DecidableEq α] [LT α] [DecidableLT α]
     · exact List.le_of_lt h
     · exact List.le_refl l₁
 
-theorem lex_eq_decide_lex [DecidableEq α] (lt : α → α → Bool) :
+theorem lex_eq_decide_lex [BEq α] [LawfulBEq α] [DecidableEq α] (lt : α → α → Bool) :
     lex l₁ l₂ lt = decide (Lex (fun x y => lt x y) l₁ l₂) := by
   induction l₁ generalizing l₂ with
   | nil =>
@@ -290,21 +299,22 @@ theorem lex_eq_decide_lex [DecidableEq α] (lt : α → α → Bool) :
       simp [lex, ih, cons_lex_cons_iff, Bool.beq_eq_decide_eq]
 
 /-- Variant of `lex_eq_true_iff` using an arbitrary comparator. -/
-@[simp] theorem lex_eq_true_iff_lex [DecidableEq α] (lt : α → α → Bool) :
+@[simp] theorem lex_eq_true_iff_lex [BEq α] [LawfulBEq α] (lt : α → α → Bool) :
     lex l₁ l₂ lt = true ↔ Lex (fun x y => lt x y) l₁ l₂ := by
+  have : DecidableEq α := instDecidableEqOfLawfulBEq
   simp [lex_eq_decide_lex]
 
 /-- Variant of `lex_eq_false_iff` using an arbitrary comparator. -/
-@[simp] theorem lex_eq_false_iff_not_lex [DecidableEq α] (lt : α → α → Bool) :
+@[simp] theorem lex_eq_false_iff_not_lex [BEq α] [LawfulBEq α] (lt : α → α → Bool) :
     lex l₁ l₂ lt = false ↔ ¬ Lex (fun x y => lt x y) l₁ l₂ := by
   simp [Bool.eq_false_iff, lex_eq_true_iff_lex]
 
-@[simp] theorem lex_eq_true_iff_lt [DecidableEq α] [LT α] [DecidableLT α]
+@[simp] theorem lex_eq_true_iff_lt [BEq α] [LawfulBEq α] [LT α] [DecidableLT α]
     {l₁ l₂ : List α} : lex l₁ l₂ = true ↔ l₁ < l₂ := by
   simp only [lex_eq_true_iff_lex, decide_eq_true_eq]
   exact Iff.rfl
 
-@[simp] theorem lex_eq_false_iff_ge [DecidableEq α] [LT α] [DecidableLT α]
+@[simp] theorem lex_eq_false_iff_ge [BEq α] [LawfulBEq α] [LT α] [DecidableLT α]
     {l₁ l₂ : List α} : lex l₁ l₂ = false ↔ l₂ ≤ l₁ := by
   simp only [lex_eq_false_iff_not_lex, decide_eq_true_eq]
   exact Iff.rfl
@@ -333,7 +343,7 @@ theorem lex_eq_true_iff_exists [BEq α] (lt : α → α → Bool) :
     cases l₂ with
     | nil => simp [lex]
     | cons b l₂ =>
-      simp [lex_cons_cons, Bool.or_eq_true, Bool.and_eq_true, ih, isEqv, length_cons]
+      simp [cons_lex_cons, Bool.or_eq_true, Bool.and_eq_true, ih, isEqv, length_cons]
       constructor
       · rintro (hab | ⟨hab, ⟨h₁, h₂⟩ | ⟨i, h₁, h₂, w₁, w₂⟩⟩)
         · exact .inr ⟨0, by simp [hab]⟩
@@ -376,7 +386,7 @@ This formulation requires that `==` and `lt` are compatible in the following sen
 - `==` is symmetric
   (we unnecessarily further assume it is transitive, to make use of the existing typeclasses)
 - `lt` is irreflexive with respect to `==` (i.e. if `x == y` then `lt x y = false`
-- `lt` is asymmmetric  (i.e. `lt x y = true → lt y x = false`)
+- `lt` is asymmetric  (i.e. `lt x y = true → lt y x = false`)
 - `lt` is antisymmetric with respect to `==` (i.e. `lt x y = false → lt y x = false → x == y`)
 -/
 theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] (lt : α → α → Bool)
@@ -397,7 +407,7 @@ theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] (lt : α → α �
     cases l₂ with
     | nil => simp [lex]
     | cons b l₂ =>
-      simp [lex_cons_cons, Bool.or_eq_false_iff, Bool.and_eq_false_imp, ih, isEqv,
+      simp [cons_lex_cons, Bool.or_eq_false_iff, Bool.and_eq_false_imp, ih, isEqv,
         Bool.and_eq_true, length_cons]
       constructor
       · rintro ⟨hab, h⟩

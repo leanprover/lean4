@@ -3,8 +3,6 @@ universe v v₁ v₂ v₃ u u₁ u₂ u₃
 
 namespace CategoryTheory
 
-macro "cat_tac" : tactic => `(tactic| (intros; (try ext); grind))
-
 class Category (obj : Type u) : Type max u (v + 1) where
   Hom : obj → obj → Type v
   /-- The identity morphism on an object. -/
@@ -12,11 +10,11 @@ class Category (obj : Type u) : Type max u (v + 1) where
   /-- Composition of morphisms in a category, written `f ≫ g`. -/
   comp : ∀ {X Y Z : obj}, (Hom X Y) → (Hom Y Z) → (Hom X Z)
   /-- Identity morphisms are left identities for composition. -/
-  id_comp : ∀ {X Y : obj} (f : Hom X Y), comp (id X) f = f := by cat_tac
+  id_comp : ∀ {X Y : obj} (f : Hom X Y), comp (id X) f = f := by grind
   /-- Identity morphisms are right identities for composition. -/
-  comp_id : ∀ {X Y : obj} (f : Hom X Y), comp f (id Y) = f := by cat_tac
+  comp_id : ∀ {X Y : obj} (f : Hom X Y), comp f (id Y) = f := by grind
   /-- Composition in a category is associative. -/
-  assoc : ∀ {W X Y Z : obj} (f : Hom W X) (g : Hom X Y) (h : Hom Y Z), comp (comp f g) h = comp f (comp g h) := by cat_tac
+  assoc : ∀ {W X Y Z : obj} (f : Hom W X) (g : Hom X Y) (h : Hom Y Z), comp (comp f g) h = comp f (comp g h) := by grind
 
 infixr:10 " ⟶ " => Category.Hom
 scoped notation "𝟙" => Category.id  -- type as \b1
@@ -33,9 +31,9 @@ structure Functor (C : Type u₁) [Category.{v₁} C] (D : Type u₂) [Category.
   /-- The action of a functor on morphisms. -/
   map : ∀ {X Y : C}, (X ⟶ Y) → ((obj X) ⟶ (obj Y))
   /-- A functor preserves identity morphisms. -/
-  map_id : ∀ X : C, map (𝟙 X) = 𝟙 (obj X) := by cat_tac
+  map_id : ∀ X : C, map (𝟙 X) = 𝟙 (obj X) := by grind
   /-- A functor preserves composition. -/
-  map_comp : ∀ {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z), map (f ≫ g) = (map f) ≫ (map g) := by cat_tac
+  map_comp : ∀ {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z), map (f ≫ g) = (map f) ≫ (map g) := by grind
 
 infixr:26 " ⥤ " => Functor
 
@@ -68,7 +66,9 @@ structure NatTrans [Category.{v₁, u₁} C] [Category.{v₂, u₂} D] (F G : Fu
   /-- The component of a natural transformation. -/
   app : ∀ X : C, F.obj X ⟶ G.obj X
   /-- The naturality square for a given morphism. -/
-  naturality : ∀ ⦃X Y : C⦄ (f : X ⟶ Y), F.map f ≫ app Y = app X ≫ G.map f := by cat_tac
+  naturality : ∀ ⦃X Y : C⦄ (f : X ⟶ Y), F.map f ≫ app Y = app X ≫ G.map f := by grind
+
+attribute [grind ext] NatTrans.ext
 
 attribute [simp, grind =] NatTrans.naturality
 
@@ -110,11 +110,11 @@ theorem comp_app {F G H : Functor C D} (α : F ⟶ G) (β : G ⟶ H) (X : C) :
 
 theorem app_naturality {F G : Functor C (Functor D E)} (T : F ⟶ G) (X : C) {Y Z : D} (f : Y ⟶ Z) :
     (F.obj X).map f ≫ (T.app X).app Z = (T.app X).app Y ≫ (G.obj X).map f := by
-  cat_tac
+  grind
 
 theorem naturality_app {F G : Functor C (Functor D E)} (T : F ⟶ G) (Z : D) {X Y : C} (f : X ⟶ Y) :
     (F.map f).app Z ≫ (T.app Y).app Z = (T.app X).app Z ≫ (G.map f).app Z := by
-  cat_tac -- this is done manually in Mathlib!
+  grind -- this is done manually in Mathlib!
   -- rw [← comp_app]
   -- rw [T.naturality f]
   -- rw [comp_app]
@@ -127,13 +127,11 @@ def hcomp {H I : Functor D E} (α : F ⟶ G) (β : H ⟶ I) : F.comp H ⟶ G.com
   -- rw [Functor.comp_map, Functor.comp_map, ← assoc, naturality, assoc, ← I.map_comp, naturality,
   --   map_comp, assoc]
 
-
-
 structure Iso {C : Type u} [Category.{v} C] (X Y : C) where
   hom : X ⟶ Y
   inv : Y ⟶ X
-  hom_inv_id : hom ≫ inv = 𝟙 X := by cat_tac
-  inv_hom_id : inv ≫ hom = 𝟙 Y := by cat_tac
+  hom_inv_id : hom ≫ inv = 𝟙 X := by grind
+  inv_hom_id : inv ≫ hom = 𝟙 Y := by grind
 
 attribute [grind =] Iso.hom_inv_id Iso.inv_hom_id
 
@@ -146,12 +144,7 @@ namespace Iso
 
 @[ext]
 theorem ext ⦃α β : X ≅ Y⦄ (w : α.hom = β.hom) : α = β :=
-  suffices α.inv = β.inv by
-    cases α
-    cases β
-    cases w
-    cases this
-    rfl
+  suffices α.inv = β.inv by grind [Iso]
   calc
     α.inv = α.inv ≫ β.hom ≫ β.inv   := by grind
     _     = β.inv                    := by grind
@@ -182,7 +175,7 @@ attribute [local grind] Function.LeftInverse in
 def homToEquiv (α : X ≅ Y) {Z : C} : (Z ⟶ X) ≃ (Z ⟶ Y) where
   toFun f := f ≫ α.hom
   invFun g := g ≫ α.inv
-  left_inv := by cat_tac
+  left_inv := by grind
   right_inv := sorry
 
 end Iso
@@ -197,10 +190,10 @@ class Functorial (F : C → D) : Type max v₁ v₂ u₁ u₂ where
   /-- A functorial map extends to an action on morphisms. -/
   map' : ∀ {X Y : C}, (X ⟶ Y) → (F X ⟶ F Y)
   /-- A functorial map preserves identities. -/
-  map_id' : ∀ X : C, map' (𝟙 X) = 𝟙 (F X) := by cat_tac
+  map_id' : ∀ X : C, map' (𝟙 X) = 𝟙 (F X) := by grind
   /-- A functorial map preserves composition of morphisms. -/
   map_comp' : ∀ {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z), map' (f ≫ g) = map' f ≫ map' g := by
-    cat_tac
+    grind
 
 def map (F : C → D) [Functorial.{v₁, v₂} F] {X Y : C} (f : X ⟶ Y) : F X ⟶ F Y :=
   Functorial.map'.{v₁, v₂} f
@@ -244,68 +237,13 @@ instance functorial_id : Functorial.{v₁, v₁} (id : C → C) where map' f := 
 namespace Ex1
 variable {E : Type u₃} [Category.{v₃} E]
 
-/--
-info: [grind.issues] the following implicit arguments (which are not type class instances or types) are definitionally equal with `default` transparency but not with a more restrictive transparency
-      G (F X)
-    and
-      (G ∘ F) X
-[grind.issues] the following implicit arguments (which are not type class instances or types) are definitionally equal with `default` transparency but not with a more restrictive transparency
-      G (F Y)
-    and
-      (G ∘ F) Y
-[grind.issues] the following implicit arguments (which are not type class instances or types) are definitionally equal with `default` transparency but not with a more restrictive transparency
-      G (F Z)
-    and
-      (G ∘ F) Z
--/
-#guard_msgs (info) in
 def functorial_comp (F : C → D) [Functorial.{v₁, v₂} F] (G : D → E) [Functorial.{v₂, v₃} G] :
     Functorial.{v₁, v₃} (G ∘ F) :=
   { Functor.of F ⋙ Functor.of G with
     map' := fun f => map G (map F f)
     map_id' := sorry
-    map_comp' := by
-      set_option trace.grind.issues true in
-      fail_if_success grind
-      sorry
+    map_comp' := by grind
   }
 end Ex1
-
-namespace Ex2
-variable {E : Type u₃} [Category.{v₃} E]
-
--- Since in the trace above, `Function.comp` generated problems because it is not `reducible`,
--- we can fix the issue by instructing `grind` to unfold it.
-attribute [local grind] Function.comp
-
-
-def functorial_comp (F : C → D) [Functorial.{v₁, v₂} F] (G : D → E) [Functorial.{v₂, v₃} G] :
-    Functorial.{v₁, v₃} (G ∘ F) :=
-  { Functor.of F ⋙ Functor.of G with
-    map' := fun f => map G (map F f)
-    map_id' := sorry
-    map_comp' := by grind
-  }
-
-end Ex2
-
-namespace Ex3
-variable {E : Type u₃} [Category.{v₃} E]
-
--- Since in the trace above, `Function.comp` generated problems because it is not `reducible`,
--- we set it to reducible.
-set_option allowUnsafeReducibility true
-attribute [reducible] Function.comp
-
-def functorial_comp (F : C → D) [Functorial.{v₁, v₂} F] (G : D → E) [Functorial.{v₂, v₃} G] :
-    Functorial.{v₁, v₃} (G ∘ F) :=
-  { Functor.of F ⋙ Functor.of G with
-    map' := fun f => map G (map F f)
-    map_id' := sorry
-    map_comp' := by grind
-  }
-
-end Ex3
-
 
 end CategoryTheory

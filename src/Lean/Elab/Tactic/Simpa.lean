@@ -24,7 +24,7 @@ namespace Lean.Elab.Tactic.Simpa
 open Lean Parser.Tactic Elab Meta Term Tactic Simp Linter
 
 /-- Gets the value of the `linter.unnecessarySimpa` option. -/
-def getLinterUnnecessarySimpa (o : Options) : Bool :=
+def getLinterUnnecessarySimpa (o : LinterOptions) : Bool :=
   getLinterValue linter.unnecessarySimpa o
 
 deriving instance Repr for UseImplicitLambdaResult
@@ -34,7 +34,7 @@ deriving instance Repr for UseImplicitLambdaResult
   | `(tactic| simpa%$tk $[?%$squeeze]? $[!%$unfold]? $cfg:optConfig $(disch)? $[only%$only]?
         $[[$args,*]]? $[using $usingArg]?) => Elab.Tactic.focus do withSimpDiagnostics do
     let stx ← `(tactic| simp $cfg:optConfig $(disch)? $[only%$only]? $[[$args,*]]?)
-    let { ctx, simprocs, dischargeWrapper } ←
+    let { ctx, simprocs, dischargeWrapper, .. } ←
       withMainContext <| mkSimpContext stx (eraseLocal := false)
     let ctx := if unfold.isSome then ctx.setAutoUnfold else ctx
     -- TODO: have `simpa` fail if it doesn't use `simp`.
@@ -42,7 +42,7 @@ deriving instance Repr for UseImplicitLambdaResult
     dischargeWrapper.with fun discharge? => do
       let (some (_, g), stats) ← simpGoal (← getMainGoal) ctx (simprocs := simprocs)
           (simplifyTarget := true) (discharge? := discharge?)
-        | if getLinterUnnecessarySimpa (← getOptions) then
+        | if getLinterUnnecessarySimpa (← getLinterOptions) then
             logLint linter.unnecessarySimpa (← getRef) "try 'simp' instead of 'simpa'"
           return {}
       g.withContext do
@@ -78,7 +78,7 @@ deriving instance Repr for UseImplicitLambdaResult
             logUnassignedAndAbort (← filterOldMVars (← getMVars e) mvarCounterSaved)
             closeMainGoal `simpa (checkUnassigned := false) h
         | none =>
-          if getLinterUnnecessarySimpa (← getOptions) then
+          if getLinterUnnecessarySimpa (← getLinterOptions) then
             if let .fvar h := e then
               if (← getLCtx).getRoundtrippingUserName? h |>.isSome then
                 logLint linter.unnecessarySimpa (← getRef)

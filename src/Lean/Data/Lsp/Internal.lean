@@ -7,6 +7,8 @@ Authors: Joscha Mennicken
 prelude
 import Lean.Expr
 import Lean.Data.Lsp.Basic
+import Lean.Data.JsonRpc
+import Std.Data.TreeMap
 
 set_option linter.missingDocs true -- keep it documented
 
@@ -19,6 +21,32 @@ namespace Lean.Lsp
 /-! Most reference-related types have custom FromJson/ToJson implementations to
 reduce the size of the resulting JSON. -/
 
+/-- Information about a single import statement. -/
+structure ImportInfo where
+  /-- Name of the module that is imported. -/
+  module    : String
+  /-- Whether the module is being imported via `private import`. -/
+  isPrivate : Bool
+  /-- Whether the module is being imported via `import all`. -/
+  isAll     : Bool
+  /-- Whether the module is being imported via `meta import`. -/
+  isMeta    : Bool
+  deriving Inhabited
+
+instance : ToJson ImportInfo where
+  toJson info := Json.arr #[info.module, info.isPrivate, info.isAll, info.isMeta]
+
+instance : FromJson ImportInfo where
+  fromJson?
+    | .arr #[moduleJson, isPrivateJson, isAllJson, isMetaJson] => do
+      return {
+        module    := ← fromJson? moduleJson
+        isPrivate := ← fromJson? isPrivateJson
+        isAll     := ← fromJson? isAllJson
+        isMeta    := ← fromJson? isMetaJson
+      }
+    | _ => .error "Expected array, got other JSON type"
+
 /--
 Identifier of a reference.
 -/
@@ -29,7 +57,7 @@ inductive RefIdent where
   | const (moduleName : String) (identName : String) : RefIdent
   /-- Unnamed identifier. These are used for all local references. -/
   | fvar (moduleName : String) (id : String) : RefIdent
-  deriving BEq, Hashable, Inhabited
+  deriving BEq, Hashable, Inhabited, Ord
 
 namespace RefIdent
 
@@ -154,7 +182,13 @@ instance : FromJson RefInfo where
     pure { definition?, usages }
 
 /-- References from a single module/file -/
-def ModuleRefs := Std.HashMap RefIdent RefInfo
+def ModuleRefs := Std.TreeMap RefIdent RefInfo
+  deriving EmptyCollection
+
+instance : ForIn m ModuleRefs (RefIdent × RefInfo) where
+  forIn map init f :=
+    let map : Std.TreeMap RefIdent RefInfo := map
+    forIn map init f
 
 instance : ToJson ModuleRefs where
   toJson m := Json.mkObj <| m.toList.map fun (ident, info) => (ident.toJson.compress, toJson info)
@@ -162,8 +196,19 @@ instance : ToJson ModuleRefs where
 instance : FromJson ModuleRefs where
   fromJson? j := do
     let node ← j.getObj?
-    node.foldM (init := Std.HashMap.empty) fun m k v =>
+    node.foldM (init := ∅) fun m k v =>
       return m.insert (← RefIdent.fromJson? (← Json.parse k)) (← fromJson? v)
+
+/--
+Used in the `$/lean/ileanHeaderInfo` watchdog <- worker notifications.
+Contains the direct imports of the file managed by a worker.
+-/
+structure LeanILeanHeaderInfoParams where
+  /-- Version of the file these imports are from. -/
+  version       : Nat
+  /-- Direct imports of this file. -/
+  directImports : Array ImportInfo
+  deriving FromJson, ToJson
 
 /--
 Used in the `$/lean/ileanInfoUpdate` and `$/lean/ileanInfoFinal` watchdog <- worker notifications.
@@ -171,9 +216,9 @@ Contains the definitions and references of the file managed by a worker.
 -/
 structure LeanIleanInfoParams where
   /-- Version of the file these references are from. -/
-  version    : Nat
+  version        : Nat
   /-- All references for the file. -/
-  references : ModuleRefs
+  references     : ModuleRefs
   deriving FromJson, ToJson
 
 /--
@@ -193,5 +238,63 @@ structure LeanStaleDependencyParams where
   /-- The dependency that is stale. -/
   staleDependency : DocumentUri
   deriving FromJson, ToJson
+
+/-- LSP type for `Lean.OpenDecl`. -/
+inductive OpenNamespace
+  /-- All declarations in `«namespace»` are opened, except for `exceptions`. -/
+  | allExcept («namespace» : Name) (exceptions : Array Name)
+  /-- The declaration `«from»` is renamed to `to`. -/
+  | renamed («from» : Name) (to : Name)
+  deriving FromJson, ToJson
+
+/-- Query in the `$/lean/queryModule` watchdog <- worker request. -/
+structure LeanModuleQuery where
+  /-- Identifier (potentially partial) to query. -/
+  identifier : String
+  /--
+  Namespaces that are open at the position of `identifier`.
+  Used for accurately matching declarations against `identifier` in context.
+  -/
+  openNamespaces : Array OpenNamespace
+  deriving FromJson, ToJson
+
+/--
+Used in the `$/lean/queryModule` watchdog <- worker request, which is used by the worker to
+extract information from the .ilean information in the watchdog.
+-/
+structure LeanQueryModuleParams where
+  /--
+  The request ID in the context of which this worker -> watchdog request was emitted.
+  Used for cancelling this request in the watchdog.
+  -/
+  sourceRequestID : JsonRpc.RequestID
+  /-- Module queries for extracting .ilean information in the watchdog. -/
+  queries : Array LeanModuleQuery
+  deriving FromJson, ToJson
+
+/-- Result entry of a module query. -/
+structure LeanIdentifier where
+  /-- Module that `decl` is defined in. -/
+  module : Name
+  /-- Full name of the declaration that matches the query. -/
+  decl : Name
+  /-- Whether this `decl` matched the query exactly. -/
+  isExactMatch : Bool
+  deriving FromJson, ToJson
+
+/--
+Result for a single module query.
+Identifiers in the response are sorted descendingly by how well they match the query.
+-/
+abbrev LeanQueriedModule := Array LeanIdentifier
+
+/-- Response for the `$/lean/queryModule` watchdog <- worker request. -/
+structure LeanQueryModuleResponse where
+  /--
+  Results for each query in `LeanQueryModuleParams`.
+  Positions correspond to `queries` in the parameter of the request.
+  -/
+  queryResults : Array LeanQueriedModule
+  deriving FromJson, ToJson, Inhabited
 
 end Lean.Lsp

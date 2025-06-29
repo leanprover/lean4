@@ -2,6 +2,6 @@ wf2.lean:3:8-3:17: error: failed to prove termination, possible solutions:
   - Use `have`-expressions to prove the remaining goals
   - Use `termination_by` to specify a different well-founded relation
   - Use `decreasing_by` to specify your own tactic for discharging this kind of goal
-x y : Nat
+y x : Nat
 h✝ : x < y
 ⊢ x - 1 < x

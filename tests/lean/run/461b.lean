@@ -10,5 +10,10 @@ structure BarS extends FooS where
 def f (x : Nat) : BarS :=
   { x,  y := x, h' := rfl }
 
+/-- error: cannot synthesize placeholder for field 'h' -/
+#guard_msgs in
+example (x : Nat) : BarS :=
+  { x, h' := rfl, .. }
+
 def f1 (x : Nat) : BarS :=
-  { x,  h' := rfl }
+  { x, h' := rfl, y := _ }

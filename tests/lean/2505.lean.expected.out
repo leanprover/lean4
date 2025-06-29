@@ -1,3 +1,3 @@
-2505.lean:14:0-14:7: warning: declaration uses 'sorry'
 target : A (OfNat.ofNat.{0} Nat 1 (instOfNatNat 1))
 target' : A (OfNat.ofNat.{0} Nat 1 (instOfNatNat 1))
+2505.lean:14:0-14:7: warning: declaration uses 'sorry'

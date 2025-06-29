@@ -6,6 +6,11 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Arith.Offset
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
+import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
+import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
+import Lean.Meta.Tactic.Grind.Arith.Linear.Search
 
 namespace Lean.Meta.Grind.Arith
 
@@ -27,8 +32,30 @@ builtin_grind_propagator propagateLE ↓LE.le := fun e => do
   if (← isEqTrue e) then
     if let some c ← Offset.isCnstr? e then
       Offset.assertTrue c (← mkEqTrueProof e)
-  if (← isEqFalse e) then
+    Cutsat.propagateLe e (eqTrue := true)
+    Linear.propagateIneq e (eqTrue := true)
+  else if (← isEqFalse e) then
     if let some c ← Offset.isCnstr? e then
       Offset.assertFalse c (← mkEqFalseProof e)
+    Cutsat.propagateLe e (eqTrue := false)
+    Linear.propagateIneq e (eqTrue := false)
+
+builtin_grind_propagator propagateLT ↓LT.lt := fun e => do
+  if (← isEqTrue e) then
+    Linear.propagateIneq e (eqTrue := true)
+    Cutsat.propagateLt e (eqTrue := true)
+  else if (← isEqFalse e) then
+    Linear.propagateIneq e (eqTrue := false)
+    Cutsat.propagateLt e (eqTrue := false)
+
+def check : GoalM Bool := do
+  let c₁ ← Cutsat.check
+  let c₂ ← CommRing.check
+  let c₃ ← Linear.check
+  if c₁ || c₂ || c₃ then
+    processNewFacts
+    return true
+  else
+    return false
 
 end Lean.Meta.Grind.Arith

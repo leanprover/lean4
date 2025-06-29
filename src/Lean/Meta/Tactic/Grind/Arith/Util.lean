@@ -4,14 +4,20 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Expr
-import Lean.Message
+import Init.Grind.Ring.Basic
+import Lean.Meta.SynthInstance
+import Lean.Meta.Basic
+import Std.Internal.Rat
 
 namespace Lean.Meta.Grind.Arith
 
 /-- Returns `true` if `e` is of the form `Nat` -/
 def isNatType (e : Expr) : Bool :=
   e.isConstOf ``Nat
+
+/-- Returns `true` if `e` is of the form `Int` -/
+def isIntType (e : Expr) : Bool :=
+  e.isConstOf ``Int
 
 /-- Returns `true` if `e` is of the form `@instHAdd Nat instAddNat` -/
 def isInstAddNat (e : Expr) : Bool :=
@@ -32,6 +38,16 @@ def isNatAdd? (e : Expr) : Option (Expr × Expr) :=
   let_expr HAdd.hAdd _ _ _ i a b := e | none
   if isInstAddNat i then some (a, b) else none
 
+/--
+Returns `true` if `e` is of the form
+```
+@HAdd.hAdd Nat Nat Nat (instHAdd Nat instAddNat) _ _
+```
+-/
+def isNatAdd (e : Expr) : Bool :=
+  let_expr HAdd.hAdd _ _ _ i _ _ := e | false
+  isInstAddNat i
+
 /-- Returns `some k` if `e` `@OfNat.ofNat Nat _ (instOfNatNat k)` -/
 def isNatNum? (e : Expr) : Option Nat := Id.run do
   let_expr OfNat.ofNat _ _ inst := e | none
@@ -39,51 +55,127 @@ def isNatNum? (e : Expr) : Option Nat := Id.run do
   let .lit (.natVal k) := k | none
   some k
 
-/-- Returns `some (a, k)` if `e` is of the form `a + k`.  -/
-def isNatOffset? (e : Expr) : Option (Expr × Nat) := Id.run do
-  let some (a, b) := isNatAdd? e | none
-  let some k := isNatNum? b | none
-  some (a, k)
+def isSupportedType (e : Expr) : Bool :=
+  isNatType e || isIntType e
 
-/-- An offset constraint. -/
-structure Offset.Cnstr (α : Type) where
-  u  : α
-  v  : α
-  k  : Int := 0
-  le : Bool := true
-  deriving Inhabited
-
-def Offset.Cnstr.neg : Cnstr α → Cnstr α
-  | { u, v, k, le } => { u := v, v := u, le, k := -k - 1 }
-
-example (c : Offset.Cnstr α) : c.neg.neg = c := by
-  cases c; simp [Offset.Cnstr.neg]; omega
-
-def Offset.toMessageData [inst : ToMessageData α] (c : Offset.Cnstr α) : MessageData :=
-  match c.k, c.le with
-  | .ofNat 0,   true  => m!"{c.u} ≤ {c.v}"
-  | .ofNat 0,   false => m!"{c.u} = {c.v}"
-  | .ofNat k,   true  => m!"{c.u} ≤ {c.v} + {k}"
-  | .ofNat k,   false => m!"{c.u} = {c.v} + {k}"
-  | .negSucc k, true  => m!"{c.u} + {k + 1} ≤ {c.v}"
-  | .negSucc k, false => m!"{c.u} + {k + 1} = {c.v}"
-
-instance : ToMessageData (Offset.Cnstr Expr) where
-  toMessageData c := Offset.toMessageData c
-
-/-- Returns `some cnstr` if `e` is offset constraint. -/
-def isNatOffsetCnstr? (e : Expr) : Option (Offset.Cnstr Expr) :=
+partial def isRelevantPred (e : Expr) : Bool :=
   match_expr e with
-  | LE.le _ inst a b => if isInstLENat inst then go a b true else none
-  | Eq α a b => if isNatType α then go a b false else none
-  | _ => none
+  | Not p => isRelevantPred p
+  | LE.le α _ _ _ => isSupportedType α
+  | Eq α _ _ => isSupportedType α
+  | Dvd.dvd α _ _ _ => isSupportedType α
+  | _ => false
+
+def isArithTerm (e : Expr) : Bool :=
+  match_expr e with
+  | HAdd.hAdd _ _ _ _ _ _ => true
+  | HSub.hSub _ _ _ _ _ _ => true
+  | HMul.hMul _ _ _ _ _ _ => true
+  | HDiv.hDiv _ _ _ _ _ _ => true
+  | HMod.hMod _ _ _ _ _ _ => true
+  | HPow.hPow _ _ _ _ _ _ => true
+  | Neg.neg _ _ _ => true
+  | OfNat.ofNat _ _ _ => true
+  | _ => false
+
+/-- Quote `e` using `「` and `」` if `e` is an arithmetic term that is being treated as a variable. -/
+def quoteIfArithTerm (e : Expr) : MessageData :=
+  if isArithTerm e then
+    aquote e
+  else
+    e
+/--
+`gcdExt a b` returns the triple `(g, α, β)` such that
+- `g = gcd a b` (with `g ≥ 0`), and
+- `g = α * a + β * b`.
+-/
+partial def gcdExt (a b : Int) : Int × Int × Int :=
+  if b = 0 then
+    (a.natAbs, if a = 0 then 0 else a / a.natAbs, 0)
+  else
+    let (g, α, β) := gcdExt b (a % b)
+    (g, β, α - (a / b) * β)
+
+open Std.Internal
+
+-- TODO: PArray.shrink and PArray.resize
+partial def shrink (a : PArray Rat) (sz : Nat) : PArray Rat :=
+  if a.size > sz then shrink a.pop sz else a
+
+partial def resize (a : PArray Rat) (sz : Nat) : PArray Rat :=
+  if a.size > sz then shrink a sz else go a
 where
-  go (u v : Expr) (le : Bool) :=
-    if let some (u, k) := isNatOffset? u then
-      some { u, k := - k, v, le }
-    else if let some (v, k) := isNatOffset? v then
-      some { u, v, k := k, le }
+  go (a : PArray Rat) : PArray Rat :=
+    if a.size < sz then go (a.push 0) else a
+
+namespace CollectDecVars
+/-! Helper monad for collecting decision variables in `linarith` and `cutsat` -/
+
+structure State where
+  visited : Std.HashSet UInt64 := {}
+  found : FVarIdSet := {}
+
+abbrev CollectDecVarsM := ReaderT FVarIdSet $ StateM State
+
+def alreadyVisited (c : α) : CollectDecVarsM Bool := do
+  let addr := unsafe (ptrAddrUnsafe c).toUInt64 >>> 2
+  if (← get).visited.contains addr then return true
+  modify fun s => { s with visited := s.visited.insert addr }
+  return false
+
+def markAsFound (fvarId : FVarId) : CollectDecVarsM Unit := do
+  modify fun s => { s with found := s.found.insert fvarId }
+
+abbrev CollectDecVarsM.run (x : CollectDecVarsM Unit) (decVars : FVarIdSet) : FVarIdSet :=
+  let (_, s) := x decVars |>.run {}
+  s.found
+
+end CollectDecVars
+
+export CollectDecVars (CollectDecVarsM)
+
+private def ____intModuleMarker____ : Bool := true
+
+/--
+Return auxiliary expression used as "virtual" parent when
+internalizing auxiliary expressions created by `toIntModuleExpr`.
+The function `toIntModuleExpr` converts a `CommRing` polynomial into
+a `IntModule` expression. We don't want this auxiliary expression to be
+internalized by the `CommRing` module since it uses a nonstandard encoding
+with `@HMul.hMul Int α α`, a virtual `One.one` constant, etc.
+ -/
+def getIntModuleVirtualParent : Expr :=
+  mkConst ``____intModuleMarker____
+
+def isIntModuleVirtualParent (parent? : Option Expr) : Bool :=
+  match parent? with
+  | none => false
+  | some parent => parent == getIntModuleVirtualParent
+
+def getIsCharInst? (u : Level) (type : Expr) (semiringInst : Expr) : MetaM (Option (Expr × Nat)) := do withNewMCtxDepth do
+  let n ← mkFreshExprMVar (mkConst ``Nat)
+  let charType := mkApp3 (mkConst ``Grind.IsCharP [u]) type semiringInst n
+  let .some charInst ← trySynthInstance charType | pure none
+  let n ← instantiateMVars n
+  let some n ← evalNat n |>.run
+    | pure none
+  pure <| some (charInst, n)
+
+def getNoZeroDivInst? (u : Level) (type : Expr) : MetaM (Option Expr) := do
+  let hmulType := mkApp3 (mkConst ``HMul [0, u, u]) (mkConst ``Nat []) type type
+  let .some hmulInst ← trySynthInstance hmulType | return none
+  let noZeroDivType := mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type hmulInst
+  LOption.toOption <$> trySynthInstance noZeroDivType
+
+@[specialize] def split (cs : PArray α) (getCoeff : α → Int) : PArray α × Array (Int × α) := Id.run do
+  let mut cs' := {}
+  let mut todo := #[]
+  for c in cs do
+    let b := getCoeff c
+    if b == 0 then
+      cs' := cs'.push c
     else
-      some { u, v, le }
+      todo := todo.push (b, c)
+  return (cs', todo)
 
 end Lean.Meta.Grind.Arith

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include "library/util.h"
+#include "library/elab_environment.h"
 
 namespace lean {
 enum class reducible_status { Reducible, Semireducible, Irreducible };
@@ -20,10 +21,10 @@ enum class reducible_status { Reducible, Semireducible, Irreducible };
     "Reducible" definitions can be freely unfolded by automation (i.e., elaborator, simplifier, etc).
     We should view it as a hint to automation.
 */
-environment set_reducible(environment const & env, name const & n, reducible_status s, bool persistent);
+elab_environment set_reducible(elab_environment const & env, name const & n, reducible_status s, bool persistent);
 
-reducible_status get_reducible_status(environment const & env, name const & n);
+reducible_status get_reducible_status(elab_environment const & env, name const & n);
 
-inline bool is_reducible(environment const & env, name const & n) { return get_reducible_status(env, n) == reducible_status::Reducible; }
-inline bool is_semireducible(environment const & env, name const & n) { return get_reducible_status(env, n) == reducible_status::Semireducible; }
+inline bool is_reducible(elab_environment const & env, name const & n) { return get_reducible_status(env, n) == reducible_status::Reducible; }
+inline bool is_semireducible(elab_environment const & env, name const & n) { return get_reducible_status(env, n) == reducible_status::Semireducible; }
 }

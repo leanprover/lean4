@@ -100,4 +100,10 @@ instance : FileSource RpcKeepAliveParams where
 instance : FileSource CodeActionParams where
   fileSource p := fileSource p.textDocument
 
+instance : FileSource InlayHintParams where
+  fileSource p := fileSource p.textDocument
+
+instance : FileSource SignatureHelpParams where
+  fileSource p := fileSource p.textDocument
+
 end Lean.Lsp

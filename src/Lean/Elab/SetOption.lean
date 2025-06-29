@@ -8,14 +8,13 @@ import Lean.Log
 import Lean.Elab.InfoTree
 namespace Lean.Elab
 
-variable [Monad m] [MonadOptions m] [MonadExceptOf Exception m] [MonadRef m]
-variable [AddErrorMessageContext m] [MonadLiftT (EIO Exception) m] [MonadInfoTree m]
+variable [Monad m] [MonadOptions m] [MonadError m] [MonadLiftT (EIO Exception) m] [MonadInfoTree m]
 
 def elabSetOption (id : Syntax) (val : Syntax) : m Options := do
   let ref ← getRef
   -- For completion purposes, we discard `val` and any later arguments.
   -- We include the first argument (the keyword) for position information in case `id` is `missing`.
-  addCompletionInfo <| CompletionInfo.option (ref.setArgs (ref.getArgs[0:3]))
+  addCompletionInfo <| CompletionInfo.option (ref.setArgs (ref.getArgs[*...3]))
   let optionName := id.getId.eraseMacroScopes
   let decl ← IO.toEIO (fun (ex : IO.Error) => Exception.error ref ex.toString) (getOptionDecl optionName)
   pushInfoLeaf <| .ofOptionInfo { stx := id, optionName, declName := decl.declName }

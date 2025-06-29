@@ -12,7 +12,7 @@ elab "foo" t:term : tactic => do
 #check (∃ f : Nat → Nat, ∀ x, f x = 0) -- works fine
 
 /--
-info: [debug] canonicalizing ∃ f, ∀ (x : Nat), f x = 0
+trace: [debug] canonicalizing ∃ f, ∀ (x : Nat), f x = 0
 [debug] canonicalized it to ∃ f, ∀ (x : Nat), f x = 0
 -/
 #guard_msgs in

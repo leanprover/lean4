@@ -212,7 +212,7 @@ See comment at `updateFunDeclInfo`.
 def betaReduce (params : Array Param) (code : Code) (args : Array Arg) (mustInline := false) : SimpM Code := do
   let mut subst := {}
   for param in params, arg in args do
-    subst := subst.insert param.fvarId arg.toExpr
+    subst := subst.insert param.fvarId arg
   let code ← code.internalize subst
   updateFunDeclInfo code mustInline
   return code

@@ -79,6 +79,11 @@ register_builtin_option pp.piBinderTypes : Bool := {
   group    := "pp"
   descr    := "(pretty printer) display types of pi parameters"
 }
+register_builtin_option pp.foralls : Bool := {
+  defValue := true
+  group    := "pp"
+  descr    := "(pretty printer) display pi types that are propositions using `∀` notation rather than with dependent arrows"
+}
 register_builtin_option pp.letVarTypes : Bool := {
   defValue := false
   group    := "pp"
@@ -143,6 +148,11 @@ register_builtin_option pp.structureInstances.flatten : Bool := {
   defValue := true
   group    := "pp"
   descr    := "(pretty printer) flatten nested structure instances for parent projections"
+}
+register_builtin_option pp.structureInstances.defaults : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) if false, omit structure instance fields that equal their default values"
 }
 register_builtin_option pp.fieldNotation : Bool := {
   defValue := true
@@ -263,6 +273,7 @@ def getPPNatLit (o : Options) : Bool := o.get pp.natLit.name (getPPNumericTypes 
 def getPPCoercions (o : Options) : Bool := o.get pp.coercions.name (!getPPAll o)
 def getPPCoercionsTypes (o : Options) : Bool := o.get pp.coercions.types.name pp.coercions.types.defValue
 def getPPExplicit (o : Options) : Bool := o.get pp.explicit.name (getPPAll o)
+def getPPForalls (o : Options) : Bool := o.get pp.foralls.name pp.foralls.defValue
 def getPPNotation (o : Options) : Bool := o.get pp.notation.name (!getPPAll o)
 def getPPParens (o : Options) : Bool := o.get pp.parens.name pp.parens.defValue
 def getPPUnicodeFun (o : Options) : Bool := o.get pp.unicode.fun.name false
@@ -272,6 +283,7 @@ def getPPFieldNotation (o : Options) : Bool := o.get pp.fieldNotation.name (!get
 def getPPFieldNotationGeneralized (o : Options) : Bool := o.get pp.fieldNotation.generalized.name pp.fieldNotation.generalized.defValue
 def getPPStructureInstances (o : Options) : Bool := o.get pp.structureInstances.name (!getPPAll o)
 def getPPStructureInstancesFlatten (o : Options) : Bool := o.get pp.structureInstances.flatten.name pp.structureInstances.flatten.defValue
+def getPPStructureInstancesDefaults (o : Options) : Bool := o.get pp.structureInstances.defaults.name pp.structureInstances.defaults.defValue
 def getPPStructureInstanceType (o : Options) : Bool := o.get pp.structureInstanceTypes.name (getPPAll o)
 def getPPTagAppFns (o : Options) : Bool := o.get pp.tagAppFns.name (getPPAll o)
 def getPPUniverses (o : Options) : Bool := o.get pp.universes.name (getPPAll o)

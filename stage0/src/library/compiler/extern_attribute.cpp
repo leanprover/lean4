@@ -23,15 +23,15 @@ Authors: Leonardo de Moura
 namespace lean {
 extern "C" object* lean_get_extern_attr_data(object* env, object* n);
 
-optional<extern_attr_data_value> get_extern_attr_data(environment const & env, name const & fn) {
+optional<extern_attr_data_value> get_extern_attr_data(elab_environment const & env, name const & fn) {
     return to_optional<extern_attr_data_value>(lean_get_extern_attr_data(env.to_obj_arg(), fn.to_obj_arg()));
 }
 
-bool is_extern_constant(environment const & env, name const & c) {
+bool is_extern_constant(elab_environment const & env, name const & c) {
     return static_cast<bool>(get_extern_attr_data(env, c));
 }
 
-bool is_extern_or_init_constant(environment const & env, name const & c) {
+bool is_extern_or_init_constant(elab_environment const & env, name const & c) {
     if (is_extern_constant(env, c)) {
         return true;
     } else if (auto info = env.find(c)) {
@@ -44,7 +44,7 @@ bool is_extern_or_init_constant(environment const & env, name const & c) {
 
 extern "C" object * lean_get_extern_const_arity(object* env, object*, object* w);
 
-optional<unsigned> get_extern_constant_arity(environment const & env, name const & c) {
+optional<unsigned> get_extern_constant_arity(elab_environment const & env, name const & c) {
     auto arity = get_io_result<option_ref<nat>>(lean_get_extern_const_arity(env.to_obj_arg(), c.to_obj_arg(), lean_io_mk_world()));
     if (optional<nat> aux = arity.get()) {
         return optional<unsigned>(aux->get_small_value());
@@ -53,7 +53,7 @@ optional<unsigned> get_extern_constant_arity(environment const & env, name const
     }
 }
 
-bool get_extern_borrowed_info(environment const & env, name const & c, buffer<bool> & borrowed_args, bool & borrowed_res) {
+bool get_extern_borrowed_info(elab_environment const & env, name const & c, buffer<bool> & borrowed_args, bool & borrowed_res) {
     if (is_extern_constant(env, c)) {
         /* Extract borrowed info from type */
         expr type = env.get(c).get_type();
@@ -80,7 +80,7 @@ bool get_extern_borrowed_info(environment const & env, name const & c, buffer<bo
     return false;
 }
 
-optional<expr> get_extern_constant_ll_type(environment const & env, name const & c) {
+optional<expr> get_extern_constant_ll_type(elab_environment const & env, name const & c) {
     if (is_extern_or_init_constant(env, c)) {
         unsigned arity = 0;
         expr type = env.get(c).get_type();

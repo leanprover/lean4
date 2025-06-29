@@ -1,0 +1,5 @@
+{"textDocument": {"uri": "file:///1018unknowMVarIssue.lean"},
+ "position": {"line": 11, "character": 18}}
+{"range":
+ {"start": {"line": 11, "character": 18}, "end": {"line": 11, "character": 19}},
+ "goal": "α✝ β : Type\nx : Fam2 α✝ β\nα : Type\na : α\n⊢ α"}

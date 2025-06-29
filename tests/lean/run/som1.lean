@@ -7,7 +7,7 @@ elab tk:"#R[" ts:term,* "]" : term => do
   let ts : Array Lean.Syntax := ts
   let es ← ts.mapM fun stx => Lean.Elab.Term.elabTerm stx none
   if h : 0 < es.size then
-    return (Lean.RArray.toExpr (← Lean.Meta.inferType es[0]!) id (Lean.RArray.ofArray es h))
+    Lean.RArray.toExpr (← Lean.Meta.inferType es[0]!) id (Lean.RArray.ofArray es h)
   else
     throwErrorAt tk "RArray cannot be empty"
 

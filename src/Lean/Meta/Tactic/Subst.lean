@@ -117,7 +117,7 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
           m!"invalid equality proof, it is not of the form {eqMsg}{indentExpr hLocalDecl.type}\nafter WHNF, variable expected, but obtained{indentExpr a}"
 
 /--
-  Given `h : HEq α a α b` in the given goal, produce a new goal where `h : Eq α a b`.
+  Given `h : @HEq α a α b` in the given goal, produce a new goal where `h : @Eq α a b`.
   If `h` is not of the give form, then just return `(h, mvarId)`
 -/
 def heqToEq (mvarId : MVarId) (fvarId : FVarId) (tryToClear : Bool := true) : MetaM (FVarId × MVarId) :=

@@ -71,13 +71,13 @@ private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
     unless numIndParams + numTypeFormers < args.size do
       trace[Elab.definition.structural] "unexpected 'below' type{indentExpr belowType}"
       throwToBelowFailed
-    let params := args[:numIndParams]
-    let finalArgs := args[numIndParams+numTypeFormers:]
+    let params := args[*...numIndParams]
+    let finalArgs := args[(numIndParams+numTypeFormers)...*]
     let pre := mkAppN f params
     let motiveTypes ← inferArgumentTypesN numTypeFormers pre
     let numMotives : Nat := positions.numIndices
     trace[Elab.definition.structural] "numMotives: {numMotives}"
-    let mut CTypes := Array.mkArray numMotives (.sort 37) -- dummy value
+    let mut CTypes := Array.replicate numMotives (.sort 37) -- dummy value
     for poss in positions, motiveType in motiveTypes do
       for pos in poss do
         CTypes := CTypes.set! pos motiveType
@@ -133,9 +133,9 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
     | Expr.forallE n d b c =>
       withLocalDecl n c (← loop below d) fun x => do
         mkForallFVars #[x] (← loop below (b.instantiate1 x))
-    | Expr.letE n type val body _ =>
-      withLetDecl n (← loop below type) (← loop below val) fun x => do
-        mkLetFVars #[x] (← loop below (body.instantiate1 x)) (usedLetOnly := false)
+    | Expr.letE n type val body nondep =>
+      mapLetDecl n (← loop below type) (← loop below val) (nondep := nondep) (usedLetOnly := false) fun x => do
+        loop below (body.instantiate1 x)
     | Expr.mdata d b =>
       if let some stx := getRecAppSyntax? e then
         withRef stx <| loop below b
@@ -155,7 +155,8 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
               try toBelow below recArgInfo.indGroupInst.params.size positions fnIdx recArg
               catch _ => throwError "failed to eliminate recursive application{indentExpr e}"
             -- We don't pass the fixed parameters, the indices and the major arg to `f`, only the rest
-            let (_, fArgs) := recArgInfo.pickIndicesMajor args[recArgInfo.numFixed:]
+            let ys := recArgInfo.fixedParamPerm.pickVarying args
+            let (_, fArgs) := recArgInfo.pickIndicesMajor ys
             let fArgs ← fArgs.mapM (replaceRecApps recArgInfos positions below ·)
             return mkAppN f fArgs
           else
@@ -230,8 +231,7 @@ def mkBRecOnF (recArgInfos : Array RecArgInfo) (positions : Positions)
       mkLambdaFVars (indicesMajorArgs ++ #[below] ++ otherArgs) valueNew
 
 /--
-Given the `motives`, figures out whether to use `.brecOn` or `.binductionOn`, pass
-the right universe levels, the parameters, and the motives.
+Given the `motives`, pass the right universe levels, the parameters, and the motives.
 It was already checked earlier in `checkCodomainsLevel` that the functions live in the same universe.
 -/
 def mkBRecOnConst (recArgInfos : Array RecArgInfo) (positions : Positions)
@@ -239,14 +239,7 @@ def mkBRecOnConst (recArgInfos : Array RecArgInfo) (positions : Positions)
   let indGroup := recArgInfos[0]!.indGroupInst
   let motive := motives[0]!
   let brecOnUniv ← lambdaTelescope motive fun _ type => getLevel type
-  let indInfo ← getConstInfoInduct indGroup.all[0]!
-  let useBInductionOn := indInfo.isReflexive && brecOnUniv == levelZero
-  let brecOnUniv ←
-    if indInfo.isReflexive && brecOnUniv != levelZero then
-      decLevel brecOnUniv
-    else
-      pure brecOnUniv
-  let brecOnCons := fun idx => indGroup.brecOn useBInductionOn brecOnUniv idx
+  let brecOnCons := fun idx => indGroup.brecOn brecOnUniv idx
   -- Pick one as a prototype
   let brecOnAux := brecOnCons 0
   -- Infer the type of the packed motive arguments
@@ -273,7 +266,7 @@ def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (positions : Positions)
     -- And return the types of the next arguments
     arrowDomainsN numTypeFormers brecOnType
 
-  let mut FTypes := Array.mkArray positions.numIndices (Expr.sort 0)
+  let mut FTypes := Array.replicate positions.numIndices (Expr.sort 0)
   for packedFType in packedFTypes, poss in positions do
     for pos in poss do
       FTypes := FTypes.set! pos packedFType
@@ -292,9 +285,9 @@ def mkBrecOnApp (positions : Positions) (fnIdx : Nat) (brecOnConst : Nat → Exp
     let packedFTypes ← inferArgumentTypesN positions.size brecOn
     let packedFArgs ← positions.mapMwith PProdN.mkLambdas packedFTypes FArgs
     let brecOn := mkAppN brecOn packedFArgs
-    let some (size, idx) := positions.findSome? fun pos => (pos.size, ·) <$> pos.indexOf? fnIdx
+    let some (size, idx) := positions.findSome? fun pos => (pos.size, ·) <$> pos.finIdxOf? fnIdx
       | throwError "mkBrecOnApp: Could not find {fnIdx} in {positions}"
-    let brecOn ← PProdN.proj size idx brecOn
+    let brecOn ← PProdN.projM size idx brecOn
     mkLambdaFVars ys (mkAppN brecOn otherArgs)
 
 end Lean.Elab.Structural

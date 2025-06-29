@@ -135,7 +135,9 @@ structure TagAttribute where
   deriving Inhabited
 
 def registerTagAttribute (name : Name) (descr : String)
-    (validate : Name → AttrM Unit := fun _ => pure ()) (ref : Name := by exact decl_name%) (applicationTime := AttributeApplicationTime.afterTypeChecking) : IO TagAttribute := do
+    (validate : Name → AttrM Unit := fun _ => pure ()) (ref : Name := by exact decl_name%)
+    (applicationTime := AttributeApplicationTime.afterTypeChecking)
+    (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO TagAttribute := do
   let ext : PersistentEnvExtension Name Name NameSet ← registerPersistentEnvExtension {
     name            := ref
     mkInitial       := pure {}
@@ -145,6 +147,12 @@ def registerTagAttribute (name : Name) (descr : String)
       let r : Array Name := es.fold (fun a e => a.push e) #[]
       r.qsort Name.quickLt
     statsFn         := fun s => "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
+    asyncMode       := asyncMode
+    replay?         := some fun _ newState newConsts s =>
+      newConsts.foldl (init := s) fun s c =>
+        if newState.contains c then
+          s.insert c
+        else s
   }
   let attrImpl : AttributeImpl := {
     ref, name, descr, applicationTime
@@ -153,7 +161,9 @@ def registerTagAttribute (name : Name) (descr : String)
       unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
       let env ← getEnv
       unless (env.getModuleIdxFor? decl).isNone do
-        throwError "invalid attribute '{name}', declaration is in an imported module"
+        throwError "invalid attribute '{name}', declaration {.ofConstName decl} is in an imported module"
+      unless env.asyncMayContain decl do
+        throwError "invalid attribute '{name}', declaration {.ofConstName decl} is not from the present async context {env.asyncPrefix?}"
       validate decl
       modifyEnv fun env => ext.addEntry env decl
   }
@@ -162,10 +172,27 @@ def registerTagAttribute (name : Name) (descr : String)
 
 namespace TagAttribute
 
+/-- Sets the attribute (without running `validate`) -/
+def setTag  [Monad m] [MonadError m] [MonadEnv m] (attr : TagAttribute) (decl : Name) : m Unit := do
+  let env ← getEnv
+  unless (env.getModuleIdxFor? decl).isNone do
+    throwError "invalid attribute '{attr.attr.name}', declaration {.ofConstName decl} is in an imported module"
+  unless env.asyncMayContain decl do
+    throwError "invalid attribute '{attr.attr.name}', declaration {.ofConstName decl} is not from the present async context {env.asyncPrefix?}"
+  modifyEnv fun env => attr.ext.addEntry env decl
+
 def hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
   match env.getModuleIdxFor? decl with
   | some modIdx => (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
-  | none        => (attr.ext.getState env).contains decl
+  | none        =>
+    if attr.ext.toEnvExtension.asyncMode matches .async then
+      -- It seems that the env extension API doesn't quite allow querying attributes in a way
+      -- that works for realizable constants, but without waiting on proofs to finish.
+      -- Until then, we use the following overapproximation, to be refined later:
+      (attr.ext.findStateAsync env decl).contains decl ||
+      (attr.ext.getState env (asyncMode := .local)).contains decl
+    else
+      (attr.ext.getState env).contains decl
 
 end TagAttribute
 
@@ -252,6 +279,13 @@ def registerEnumAttributes (attrDescrs : List (Name × String × α))
       let r : Array (Name × α) := m.fold (fun a n p => a.push (n, p)) #[]
       r.qsort (fun a b => Name.quickLt a.1 b.1)
     statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
+    -- We assume (and check below) that, if used asynchronously, enum attributes are set only in the
+    -- same context in which the tagged declaration was created
+    asyncMode       := .async
+    replay?         := some fun _ newState consts st => consts.foldl (init := st) fun st c =>
+      match newState.find? c with
+      | some v => st.insert c v
+      | _      => st
   }
   let attrs := attrDescrs.map fun (name, descr, val) => {
     ref             := ref
@@ -279,15 +313,16 @@ def getValue [Inhabited α] (attr : EnumAttributes α) (env : Environment) (decl
     match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1) with
     | some (_, val) => some val
     | none          => none
-  | none        => (attr.ext.getState env).find? decl
+  | none        => (attr.ext.findStateAsync env decl).find? decl
 
-def setValue (attrs : EnumAttributes α) (env : Environment) (decl : Name) (val : α) : Except String Environment :=
+def setValue (attrs : EnumAttributes α) (env : Environment) (decl : Name) (val : α) : Except String Environment := do
   if (env.getModuleIdxFor? decl).isSome then
-    Except.error ("invalid '" ++ toString attrs.ext.name ++ "'.setValue, declaration is in an imported module")
-  else if ((attrs.ext.getState env).find? decl).isSome then
-    Except.error ("invalid '" ++ toString attrs.ext.name ++ "'.setValue, attribute has already been set")
-  else
-    Except.ok (attrs.ext.addEntry env (decl, val))
+    throw s!"invalid '{attrs.ext.name}'.setValue, declaration is in an imported module"
+  if !env.asyncMayContain decl then
+    throw s!"invalid '{attrs.ext.name}'.setValue, declaration is not from this async context"
+  if ((attrs.ext.findStateAsync env decl).find? decl).isSome then
+    throw s!"invalid '{attrs.ext.name}'.setValue, attribute has already been set"
+  return attrs.ext.addEntry env (decl, val)
 
 end EnumAttributes
 

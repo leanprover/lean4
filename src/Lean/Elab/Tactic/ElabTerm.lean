@@ -293,7 +293,7 @@ def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syn
 
 @[builtin_tactic Lean.Parser.Tactic.apply] def evalApply : Tactic := fun stx =>
   match stx with
-  | `(tactic| apply $e) => evalApplyLikeTactic (·.apply) e
+  | `(tactic| apply $e) => evalApplyLikeTactic (·.apply (term? := some m!"`{e}`")) e
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.constructor] def evalConstructor : Tactic := fun _ =>
@@ -342,7 +342,7 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
       let fvarId ← withoutModifyingState <| withNewMCtxDepth <| withoutRecover do
         let type ← elabTerm typeStx none (mayPostpone := true)
         let fvarId? ← (← getLCtx).findDeclRevM? fun localDecl => do
-          if (← isDefEq type localDecl.type) then return localDecl.fvarId else return none
+          if !localDecl.isImplementationDetail && (← isDefEq type localDecl.type) then return localDecl.fvarId else return none
         match fvarId? with
         | none => throwError "failed to find a hypothesis with type{indentExpr type}"
         | some fvarId => return fvarId
@@ -407,8 +407,10 @@ private unsafe def elabNativeDecideCoreUnsafe (tacticName : Name) (expectedType 
   let pf := mkApp3 (mkConst ``of_decide_eq_true) expectedType s <|
     mkApp3 (mkConst ``Lean.ofReduceBool) (mkConst auxDeclName levelParams) (toExpr true) rflPrf
   try
-    let lemmaName ← mkAuxLemma levels expectedType pf
-    return .const lemmaName levelParams
+    -- disable async TC so we can catch its exceptions
+    withOptions (Elab.async.set · false) do
+      let lemmaName ← mkAuxLemma levels expectedType pf
+      return .const lemmaName levelParams
   catch ex =>
     -- Diagnose error
     throwError MessageData.ofLazyM (es := #[expectedType]) do
@@ -473,7 +475,8 @@ where
     -- Level variables occurring in `expectedType`, in ambient order
     let lemmaLevels := (← Term.getLevelNames).reverse.filter levelsInType.contains
     try
-      let lemmaName ← mkAuxLemma lemmaLevels expectedType pf
+      let lemmaName ← withOptions (Elab.async.set · false) do
+        mkAuxLemma lemmaLevels expectedType pf
       return mkConst lemmaName (lemmaLevels.map .param)
     catch _ =>
       diagnose expectedType s none
@@ -511,21 +514,19 @@ where
           reduction got stuck at the '{.ofConstName ``Decidable}' instance{indentExpr reason}"
       let hint :=
         if reason.isAppOf ``Eq.rec then
-          m!"\n\n\
-          Hint: Reduction got stuck on '▸' ({.ofConstName ``Eq.rec}), \
-          which suggests that one of the '{.ofConstName ``Decidable}' instances is defined using tactics such as 'rw' or 'simp'. \
-          To avoid tactics, make use of functions such as \
-          '{.ofConstName ``inferInstanceAs}' or '{.ofConstName ``decidable_of_decidable_of_iff}' \
-          to alter a proposition."
+          .hint' m!"Reduction got stuck on '▸' ({.ofConstName ``Eq.rec}), \
+            which suggests that one of the '{.ofConstName ``Decidable}' instances is defined using tactics such as 'rw' or 'simp'. \
+            To avoid tactics, make use of functions such as \
+            '{.ofConstName ``inferInstanceAs}' or '{.ofConstName ``decidable_of_decidable_of_iff}' \
+            to alter a proposition."
         else if reason.isAppOf ``Classical.choice then
-          m!"\n\n\
-          Hint: Reduction got stuck on '{.ofConstName ``Classical.choice}', \
-          which indicates that a '{.ofConstName ``Decidable}' instance \
-          is defined using classical reasoning, proving an instance exists rather than giving a concrete construction. \
-          The '{tacticName}' tactic works by evaluating a decision procedure via reduction, \
-          and it cannot make progress with such instances. \
-          This can occur due to the 'opened scoped Classical' command, which enables the instance \
-          '{.ofConstName ``Classical.propDecidable}'."
+          .hint' m!"Reduction got stuck on '{.ofConstName ``Classical.choice}', \
+            which indicates that a '{.ofConstName ``Decidable}' instance \
+            is defined using classical reasoning, proving an instance exists rather than giving a concrete construction. \
+            The '{tacticName}' tactic works by evaluating a decision procedure via reduction, \
+            and it cannot make progress with such instances. \
+            This can occur due to the 'opened scoped Classical' command, which enables the instance \
+            '{.ofConstName ``Classical.propDecidable}'."
         else
           MessageData.nil
       return m!"\

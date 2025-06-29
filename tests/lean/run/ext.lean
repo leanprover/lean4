@@ -22,7 +22,7 @@ example (a b : C n) : a = b := by
   ext
   guard_target = a.a = b.a; exact mySorry
   guard_target = a.b = b.b; exact mySorry
-  guard_target = HEq a.i b.i; exact mySorry
+  guard_target = a.i ≍ b.i; exact mySorry
   guard_target = a.c = b.c; exact mySorry
 
 @[ext (flat := false)] structure C' (n) extends B n where
@@ -40,7 +40,8 @@ example (f g : Nat × Nat → Nat) : f = g := by
 -- Check that we generate a warning if there are too many patterns.
 /--
 warning: `ext` did not consume the patterns: [j]
-note: this linter can be disabled with `set_option linter.unusedRCasesPattern false`
+
+Note: This linter can be disabled with `set_option linter.unusedRCasesPattern false`
 -/
 #guard_msgs in
 example (f g : Nat → Nat) (h : f = g) : f = g := by
@@ -150,11 +151,11 @@ More informative error (issue #4758)
 -/
 
 /--
-warning: declaration uses 'sorry'
----
 error: Failed to generate an 'ext_iff' theorem from 'weird_prod_ext': argument f is not a proof, which is not supported for arguments after p and q
 
 Try '@[ext (iff := false)]' to prevent generating an 'ext_iff' theorem.
+---
+warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 @[ext]

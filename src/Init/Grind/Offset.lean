@@ -3,9 +3,13 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Core
-import Init.Omega
+public import Init.Core
+public import Init.Omega
+
+public section
 
 namespace Lean.Grind
 abbrev isLt (x y : Nat) : Bool := x < y
@@ -53,7 +57,7 @@ theorem Nat.unsat_lo_ro (u v k₁ k₂ : Nat) : isLt k₂ k₁ = true → u + k�
 
 /-! Theorems for propagating constraints to `True` -/
 theorem Nat.lo_eq_true_of_lo (u v k₁ k₂ : Nat) : isLE k₂ k₁ = true → u + k₁ ≤ v → (u + k₂ ≤ v) = True :=
-  by simp [isLt]; omega
+  by simp; omega
 theorem Nat.le_eq_true_of_lo (u v k : Nat) : u + k ≤ v → (u ≤ v) = True :=
   by simp; omega
 theorem Nat.le_eq_true_of_le (u v : Nat) : u ≤ v → (u ≤ v) = True :=
@@ -79,5 +83,14 @@ theorem Nat.ro_eq_false_of_lo (u v k₁ k₂ : Nat) : isLt k₂ k₁ = true → 
   simp [isLt]; omega
 theorem Nat.lo_eq_false_of_ro (u v k₁ k₂ : Nat) : isLt k₁ k₂ = true → u ≤ v + k₁ → (v + k₂ ≤ u) = False := by
   simp [isLt]; omega
+
+/-!
+Helper theorems for equality propagation
+-/
+
+theorem Nat.le_of_eq_1 (u v : Nat) : u = v → u ≤ v := by omega
+theorem Nat.le_of_eq_2 (u v : Nat) : u = v → v ≤ u := by omega
+theorem Nat.eq_of_le_of_le (u v : Nat) : u ≤ v → v ≤ u → u = v := by omega
+theorem Nat.le_offset (a k : Nat) : k ≤ a + k := by omega
 
 end Lean.Grind

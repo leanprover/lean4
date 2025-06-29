@@ -77,11 +77,8 @@ def lt (a b : JsonNumber) : Bool :=
     else if ae > be then false
     else am < bm
 
-def ltProp : LT JsonNumber :=
+instance ltProp : LT JsonNumber :=
   ⟨fun a b => lt a b = true⟩
-
-instance : LT JsonNumber :=
-  ltProp
 
 instance (a b : JsonNumber) : Decidable (a < b) :=
   inferInstanceAs (Decidable (lt a b = true))
@@ -275,7 +272,7 @@ def getObjVal? : Json → String → Except String Json
 
 def getArrVal? : Json → Nat → Except String Json
   | arr a, i =>
-    match a.get? i with
+    match a[i]? with
     | some v => return v
     | none => throw s!"index out of bounds: {i}"
   | _    , _ => throw "array expected"

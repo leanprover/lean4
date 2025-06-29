@@ -38,7 +38,7 @@ inductive Weekday
 
     /-- Sunday. -/
   | sunday
-  deriving Repr, Inhabited, BEq
+deriving Repr, Inhabited, DecidableEq
 
 namespace Weekday
 
@@ -46,9 +46,25 @@ namespace Weekday
 `Ordinal` represents a bounded value for weekdays, which ranges between 1 and 7.
 -/
 def Ordinal := Bounded.LE 1 7
+deriving Repr, DecidableEq, LT, LE
+
+instance {x y : Ordinal} : Decidable (x ≤ y) :=
+  inferInstanceAs (Decidable (x.val ≤ y.val))
+
+instance {x y : Ordinal} : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.val < y.val))
 
 instance : OfNat Ordinal n :=
   inferInstanceAs (OfNat (Bounded.LE 1 (1 + (6 : Nat))) n)
+
+instance : Inhabited Ordinal where
+  default := 1
+
+instance : Ord Ordinal := inferInstanceAs <| Ord (Bounded.LE 1 _)
+
+instance : TransOrd Ordinal := inferInstanceAs <| TransOrd (Bounded.LE 1 _)
+
+instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 1 _)
 
 /--
 Converts a `Ordinal` representing a day index into a corresponding `Weekday`. This function is useful
@@ -74,6 +90,17 @@ def toOrdinal : Weekday → Ordinal
   | .friday => 5
   | .saturday => 6
   | .sunday => 7
+
+instance : Ord Weekday where
+  compare := compareOn toOrdinal
+
+instance : TransOrd Weekday := inferInstanceAs <| TransCmp (compareOn toOrdinal)
+
+theorem toOrdinal.inj {a b : Weekday} (h : toOrdinal a = toOrdinal b) : a = b := by
+  cases a <;> cases b <;> rw [toOrdinal] at * <;> contradiction
+
+instance : LawfulEqOrd Weekday where
+  eq_of_compare := toOrdinal.inj ∘ LawfulEqOrd.eq_of_compare (α := Ordinal)
 
 /--
 Converts a `Weekday` to a `Nat`.

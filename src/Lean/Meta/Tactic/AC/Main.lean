@@ -66,9 +66,9 @@ inductive PreExpr
 def toACExpr (op l r : Expr) : MetaM (Array Expr × ACExpr) := do
   let (preExpr, vars) ←
     toPreExpr (mkApp2 op l r)
-    |>.run Std.HashSet.empty
+    |>.run ∅
   let vars := vars.toArray.insertionSort Expr.lt
-  let varMap := vars.foldl (fun xs x => xs.insert x xs.size) Std.HashMap.empty |>.get!
+  let varMap := vars.foldl (fun xs x => xs.insert x xs.size) (∅ : Std.HashMap Expr Nat) |>.get!
 
   return (vars, toACExpr varMap preExpr)
   where
@@ -124,7 +124,7 @@ def buildNormProof (preContext : PreContext) (l r : Expr) : MetaM (Lean.Expr × 
     let rhs := convert acExprNormed
     let proof := mkAppN (mkConst ``Context.eq_of_norm [u]) #[α, context, lhs, rhs, ←mkEqRefl (mkConst ``Bool.true)]
     let proofType ← mkEq (convertTarget vars acExpr) (convertTarget vars acExprNormed)
-    let proof ← mkExpectedTypeHint proof proofType
+    let proof := mkExpectedPropHint proof proofType
     return proof
   let some (_, _, tgt) := (← inferType proof).eq? | panic! "unexpected proof type"
   return (proof, tgt)

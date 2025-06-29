@@ -1,4 +1,4 @@
-import Lean
+def f.gg := 0
 
-#print Lean.Environment.f
-                       --^ textDocument/completion
+#print f.g
+        --^ textDocument/completion

@@ -13,6 +13,10 @@ inductive SpecializeAttributeKind where
   | specialize | nospecialize
   deriving Inhabited, BEq
 
+/--
+Marks a definition to never be specialized during code generation.
+-/
+@[builtin_doc]
 builtin_initialize nospecializeAttr : TagAttribute ←
   registerTagAttribute `nospecialize "mark definition to never be specialized"
 
@@ -33,13 +37,27 @@ private def elabSpecArgs (declName : Name) (args : Array Syntax) : MetaM (Array 
           result := result.push idx
       else
         let argName := arg.getId
-        if let some idx := argNames.indexOf? argName then
+        if let some idx := argNames.idxOf? argName then
           if result.contains idx then throwErrorAt arg "invalid specialization argument name `{argName}`, it has already been specified as a specialization candidate"
           result := result.push idx
         else
           throwErrorAt arg "invalid specialization argument name `{argName}`, `{declName}` does have an argument with this name"
     return result.qsort (·<·)
 
+/--
+Marks a definition to always be specialized during code generation.
+
+Specialization is an optimization in the code generator for generating variants of a function that
+are specialized to specific parameter values. This is in particular useful for functions that take
+other functions as parameters: Usually when passing functions as parameters, a closure needs to be
+allocated that will then be called. Using `@[specialize]` prevents both of these operations by
+using the provided function directly in the specialization of the inner function.
+
+`@[specialize]` can take additional arguments for the parameter names or indices (starting at 1) of
+the parameters that should be specialized. By default, instance and function parameters are
+specialized.
+-/
+@[builtin_doc]
 builtin_initialize specializeAttr : ParametricAttribute (Array Nat) ←
   registerParametricAttribute {
     name := `specialize
@@ -110,6 +128,10 @@ builtin_initialize specExtension : SimplePersistentEnvExtension SpecEntry SpecSt
   registerSimplePersistentEnvExtension {
     addEntryFn    := SpecState.addEntry,
     addImportedFn := fun es => (mkStateFromImportedEntries SpecState.addEntry {} es).switch
+    asyncMode     := .sync  -- compilation is non-parallel anyway
+    replay?       := some <| SimplePersistentEnvExtension.replayOfFilter (fun
+      | s, .info n _ => !s.specInfo.contains n
+      | s, .cache key _ => !s.cache.contains key) SpecState.addEntry
   }
 
 @[export lean_add_specialization_info]

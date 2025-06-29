@@ -110,7 +110,7 @@ def checkFullApp (c : FunId) (ys : Array Arg) : M Unit := do
 def checkPartialApp (c : FunId) (ys : Array Arg) : M Unit := do
   let decl ← getDecl c
   unless ys.size < decl.params.size do
-    throw s!"too many arguments too partial application '{c}', num. args: {ys.size}, arity: {decl.params.size}"
+    throw s!"too many arguments to partial application '{c}', num. args: {ys.size}, arity: {decl.params.size}"
   checkArgs ys
 
 def checkExpr (ty : IRType) : Expr → M Unit

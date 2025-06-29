@@ -1,6 +1,9 @@
 3989_2.lean:6:0: error: expected else-alternative for `match_expr`, i.e., `| _ => ...`
-3989_2.lean:1:22-1:32: error: function expected at
+3989_2.lean:1:22-1:32: error: Function expected at
   MetaM
-term has type
+but this term has type
   ?m
+
+Note: Expected a function because this term is being applied to the argument
+  Expr
 Nat : Type

@@ -31,13 +31,12 @@ theorem denote_getD_eq_getLsbD (aig : AIG α) (assign : α → Bool) (x : BitVec
   · rw [hx]
   · rw [hfalse]
     symm
-    apply BitVec.getLsbD_ge
+    apply BitVec.getLsbD_of_ge
     omega
 
 @[simp]
-theorem denote_blastGetLsbD (aig : AIG α) (target : GetLsbDTarget aig)
-    (assign : α → Bool) :
-    ⟦blastGetLsbD aig target, assign⟧
+theorem denote_blastGetLsbD (aig : AIG α) (target : GetLsbDTarget aig) (assign : α → Bool) :
+    ⟦aig, blastGetLsbD aig target, assign⟧
       =
     if h : target.idx < target.w then
       ⟦aig, target.vec.get target.idx h, assign⟧

@@ -10,42 +10,38 @@ namespace Lake
 open Lean System
 
 /-- A Lean executable -- its package plus its configuration. -/
-structure LeanExe where
-  /-- The package the executable belongs to. -/
-  pkg : Package
-   /-- The executable's user-defined configuration. -/
-  config : LeanExeConfig
+abbrev LeanExe := ConfigTarget LeanExe.configKind
 
 /-- The Lean executables of the package (as an Array). -/
 @[inline] def Package.leanExes (self : Package) : Array LeanExe :=
-  self.leanExeConfigs.foldl (fun a v => a.push ⟨self, v⟩) #[]
+  self.configTargets LeanExe.configKind
 
 /-- Try to find a Lean executable in the package with the given name. -/
 @[inline] def Package.findLeanExe? (name : Name) (self : Package) : Option LeanExe :=
-  self.leanExeConfigs.find? name |>.map (⟨self, ·⟩)
+  self.findConfigTarget? LeanExe.configKind name
 
 /--
 Converts the executable configuration into a library
 with a single module (the root).
 -/
-def LeanExeConfig.toLeanLibConfig (self : LeanExeConfig) : LeanLibConfig where
-  name := self.name
+def LeanExeConfig.toLeanLibConfig (self : LeanExeConfig n) : LeanLibConfig n where
   srcDir := self.srcDir
   roots := #[]
   libName := self.exeName
+  needs := self.needs
   extraDepTargets := self.extraDepTargets
   nativeFacets := self.nativeFacets
   toLeanConfig := self.toLeanConfig
 
 namespace LeanExe
 
-/-- The executable's well-formed name. -/
-@[inline] def name (self : LeanExe) : Name :=
-  self.config.name
+/-- The executable's user-defined configuration. -/
+@[inline] nonrec def config (self : LeanExe) : LeanExeConfig self.name :=
+  self.config
 
 /-- Converts the executable into a library with a single module (the root). -/
 @[inline] def toLeanLib (self : LeanExe) : LeanLib :=
-  ⟨self.pkg, self.config.toLeanLibConfig⟩
+  ⟨self.pkg, self.name, self.config.toLeanLibConfig⟩
 
 /-- The executable's root module. -/
 @[inline] def root (self : LeanExe) : Module where
@@ -53,9 +49,16 @@ namespace LeanExe
   name := self.config.root
   keyName := self.pkg.name ++ self.config.root
 
-/-- Return the root module if the name matches, otherwise return none. -/
+/-- Return the root module if the name matches; otherwise, return `none`. -/
 def isRoot? (name : Name) (self : LeanExe) : Option Module :=
   if name == self.config.root then some self.root else none
+
+/--
+Return the root module if the file stem of the path
+matches the source file. Otherwise, returns `none`.
+-/
+def isRootSrc? (path : FilePath) (self : LeanExe) : Option Module :=
+  if path.withExtension "" == self.root.srcPath "" then some self.root else none
 
 /--
 The file name of binary executable
@@ -108,3 +111,8 @@ end LeanExe
 /-- Locate the named, buildable, but not necessarily importable, module in the package. -/
 def Package.findTargetModule? (mod : Name) (self : Package) : Option Module :=
   self.leanExes.findSomeRev? (·.isRoot? mod) <|> self.findModule? mod
+
+/-- Returns the buildable module in the package whose source file is `path`.  -/
+def Package.findModuleBySrc? (path : FilePath) (self : Package) : Option Module :=
+  self.leanLibs.findSomeRev? (·.findModuleBySrc? path) <|>
+  self.leanExes.findSomeRev? (·.isRootSrc? path)

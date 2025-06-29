@@ -46,9 +46,9 @@ We use this function to inline/specialize a partial application of a local funct
 def specializePartialApp (info : InlineCandidateInfo) : SimpM FunDecl := do
   let mut subst := {}
   for param in info.params, arg in info.args do
-    subst := subst.insert param.fvarId arg.toExpr
+    subst := subst.insert param.fvarId arg
   let mut paramsNew := #[]
-  for param in info.params[info.args.size:] do
+  for param in info.params[info.args.size...*] do
     let type ← replaceExprFVars param.type subst (translator := true)
     let paramNew ← mkAuxParam type
     paramsNew := paramsNew.push paramNew
@@ -130,7 +130,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
     markSimplified
     simp (.fun funDecl k)
   else
-    let code ← betaReduce info.params info.value info.args[:info.arity]
+    let code ← betaReduce info.params info.value info.args[*...info.arity]
     if k.isReturnOf fvarId && numArgs == info.arity then
       /- Easy case, the continuation `k` is just returning the result of the application. -/
       markSimplified
@@ -140,7 +140,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
       let simpK (result : FVarId) : SimpM Code := do
         /- `result` contains the result of the inlined code -/
         if numArgs > info.arity then
-          let decl ← mkAuxLetDecl (.fvar result info.args[info.arity:])
+          let decl ← mkAuxLetDecl (.fvar result info.args[info.arity...*])
           addFVarSubst fvarId decl.fvarId
           simp (.let decl k)
         else
@@ -157,7 +157,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
       --  return none
       else
         markSimplified
-        let expectedType ← inferAppType info.fType info.args[:info.arity]
+        let expectedType ← inferAppType info.fType info.args[*...info.arity]
         if expectedType.headBeta.isForall then
           /-
           If `code` returns a function, we create an auxiliary local function declaration (and eta-expand it)
@@ -199,15 +199,15 @@ partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
     | .alt _ params k =>
       match ctorInfo with
       | .ctor ctorVal ctorArgs =>
-        let fields := ctorArgs[ctorVal.numParams:]
+        let fields := ctorArgs[ctorVal.numParams...*]
         for param in params, field in fields do
-          addSubst param.fvarId field.toExpr
+          addSubst param.fvarId field
         let k ← simp k
         eraseParams params
         return k
       | .natVal 0 => simp k
       | .natVal (n+1) =>
-        let auxDecl ← mkAuxLetDecl (.value (.natVal n))
+        let auxDecl ← mkAuxLetDecl (.lit (.nat n))
         addFVarSubst params[0]!.fvarId auxDecl.fvarId
         let k ← simp k
         eraseParams params
@@ -227,7 +227,14 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
     if let some value ← simpValue? decl.value then
       markSimplified
       decl ← decl.updateValue value
-    if let some decls ← ConstantFold.foldConstants decl then
+    -- This `decl.value != .erased` check is required because `.return` takes
+    -- and `FVarId` rather than `Arg`, and the substitution will end up
+    -- creating a new erased let decl in that case.
+    if decl.type.isErased && decl.value != .erased then
+      addSubst decl.fvarId .erased
+      eraseLetDecl decl
+      simp k
+    else if let some decls ← ConstantFold.foldConstants decl then
       markSimplified
       let k ← simp k
       attachCodeDecls decls k
@@ -314,7 +321,6 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
     else
       withNormFVarResult (← normFVar c.discr) fun discr => do
         let resultType ← normExpr c.resultType
-        markUsedFVar discr
         let alts ← c.alts.mapMonoM fun alt => do
           match alt with
           | .alt ctorName ps k =>
@@ -328,8 +334,14 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
                 return alt.updateCode (← simp k)
           | .default k => return alt.updateCode (← simp k)
         let alts ← addDefaultAlt alts
-        if alts.size == 1 && alts[0]! matches .default .. then
-          return alts[0]!.getCode
-        else
-          return code.updateCases! resultType discr alts
+        if let #[alt] := alts then
+          match alt with
+          | .default k => return k
+          | .alt _ params k =>
+            if !(← params.anyM (isUsed ·.fvarId)) then
+              params.forM (eraseParam ·)
+              markSimplified
+              return k
+        markUsedFVar discr
+        return code.updateCases! resultType discr alts
 end

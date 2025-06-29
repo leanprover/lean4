@@ -198,7 +198,7 @@ def mkLocalInstanceLetDecls (ctx : Context) (argNames : Array Name) : TermElabM 
     let auxFunName   := ctx.auxFunNames[i]
     let currArgNames ← mkInductArgNames indVal
     let numParams    := indVal.nparams
-    let currIndices  := currArgNames[numParams:]
+    let currIndices  := currArgNames[numParams...*]
     let binders      ← mkImplicitBinders currIndices
     let argNamesNew  := argNames[:numParams] ++ currIndices
     let indType      ← mkInductiveApp indVal argNamesNew

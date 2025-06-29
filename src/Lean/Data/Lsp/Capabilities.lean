@@ -9,6 +9,7 @@ import Lean.Data.JsonRpc
 import Lean.Data.Lsp.TextSync
 import Lean.Data.Lsp.LanguageFeatures
 import Lean.Data.Lsp.CodeActions
+import Lean.Data.Lsp.Extra
 
 /-! Minimal LSP servers/clients do not have to implement a lot
 of functionality. Most useful additional behavior is instead
@@ -30,6 +31,7 @@ structure CompletionClientCapabilities where
 structure TextDocumentClientCapabilities where
   completion? : Option CompletionClientCapabilities := none
   codeAction? : Option CodeActionClientCapabilities := none
+  inlayHint?  : Option InlayHintClientCapabilities  := none
   deriving ToJson, FromJson
 
 structure ShowDocumentClientCapabilities where
@@ -58,11 +60,32 @@ structure WorkspaceClientCapabilities where
   workspaceEdit? : Option WorkspaceEditClientCapabilities := none
   deriving ToJson, FromJson
 
+structure LeanClientCapabilities where
+  /--
+  Whether the client supports `DiagnosticWith.isSilent = true`.
+  If `none` or `false`, silent diagnostics will not be served to the client.
+  -/
+  silentDiagnosticSupport? : Option Bool := none
+  deriving ToJson, FromJson
+
 structure ClientCapabilities where
   textDocument? : Option TextDocumentClientCapabilities := none
   window?       : Option WindowClientCapabilities       := none
   workspace?    : Option WorkspaceClientCapabilities    := none
+  /-- Capabilities for Lean language server extensions. -/
+  lean?         : Option LeanClientCapabilities         := none
   deriving ToJson, FromJson
+
+def ClientCapabilities.silentDiagnosticSupport (c : ClientCapabilities) : Bool := Id.run do
+  let some lean := c.lean?
+    | return false
+  let some silentDiagnosticSupport := lean.silentDiagnosticSupport?
+    | return false
+  return silentDiagnosticSupport
+
+structure LeanServerCapabilities where
+  moduleHierarchyProvider? : Option ModuleHierarchyOptions
+  deriving FromJson, ToJson
 
 -- TODO largely unimplemented
 structure ServerCapabilities where
@@ -81,6 +104,9 @@ structure ServerCapabilities where
   foldingRangeProvider      : Bool                           := false
   semanticTokensProvider?   : Option SemanticTokensOptions   := none
   codeActionProvider?       : Option CodeActionOptions       := none
+  inlayHintProvider?        : Option InlayHintOptions        := none
+  signatureHelpProvider?    : Option SignatureHelpOptions    := none
+  experimental?             : Option LeanServerCapabilities  := none
   deriving ToJson, FromJson
 
 end Lsp

@@ -27,6 +27,11 @@ structure NamedArg where
   suppressDeps : Bool := false
   deriving Inhabited
 
+instance : ToMessageData Arg where
+  toMessageData
+  | .stx stx => toMessageData stx
+  | .expr e  => toMessageData e
+
 /--
   Add a new named argument to `namedArgs`, and throw an error if it already contains a named argument
   with the same name. -/

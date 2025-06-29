@@ -34,6 +34,8 @@ where
       stx₁.eqWithInfo stx₂
     | .option stx₁, .option stx₂ =>
       stx₁.eqWithInfo stx₂
+    | .errorName stx₁ .., .errorName stx₂ .. =>
+      stx₁.eqWithInfo stx₂
     | .endSection stx₁ scopeNames₁, .endSection stx₂ scopeNames₂ =>
       stx₁.eqWithInfo stx₂ && scopeNames₁ == scopeNames₂
     | .tactic stx₁, .tactic stx₂ =>
@@ -46,12 +48,14 @@ def findCompletionInfosAt
     (hoverPos : String.Pos)
     (cmdStx   : Syntax)
     (infoTree : InfoTree)
-    : Array ContextualizedCompletionInfo := Id.run do
+    : Array ContextualizedCompletionInfo × Bool := Id.run do
   let ⟨hoverLine, _⟩ := fileMap.toPosition hoverPos
+  let mut isComplete := true
   let mut completionInfoCandidates := infoTree.foldInfo (init := #[]) (go hoverLine)
   if completionInfoCandidates.isEmpty then
     completionInfoCandidates := findSyntheticCompletions fileMap hoverPos cmdStx infoTree
-  return filterDuplicateCompletionInfos completionInfoCandidates
+    isComplete := false
+  return (filterDuplicateCompletionInfos completionInfoCandidates, isComplete)
 where
   go
       (hoverLine : Nat)
@@ -123,9 +127,9 @@ def findPrioritizedCompletionPartitionsAt
     (hoverPos : String.Pos)
     (cmdStx   : Syntax)
     (infoTree : InfoTree)
-    : Array (Array (ContextualizedCompletionInfo × Nat)) :=
-  findCompletionInfosAt fileMap hoverPos cmdStx infoTree
-    |>.zipWithIndex
-    |> computePrioritizedCompletionPartitions
+    : Array (Array (ContextualizedCompletionInfo × Nat)) × Bool :=
+  let (infos, isComplete) := findCompletionInfosAt fileMap hoverPos cmdStx infoTree
+  let partitions := infos.zipIdx |> computePrioritizedCompletionPartitions
+  (partitions, isComplete)
 
 end Lean.Server.Completion

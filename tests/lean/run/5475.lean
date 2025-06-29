@@ -16,7 +16,7 @@ error: don't know how to synthesize implicit argument 'α'
 context:
 ⊢ Type
 ---
-error: failed to infer definition type
+error: failed to infer type of example
 -/
 #guard_msgs in
 example :=

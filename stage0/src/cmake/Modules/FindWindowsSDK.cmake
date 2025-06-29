@@ -235,7 +235,7 @@ function(_winsdk_check_win10_kits _winkit_build)
 	endif()
 endfunction()
 
-# Given a name for indentification purposes, the build number, and the associated package GUID,
+# Given a name for identification purposes, the build number, and the associated package GUID,
 # look in the registry under both HKLM and HKCU in \\SOFTWARE\\Microsoft\\MicrosoftSDK\\InstalledSDKs\\
 # for that guid and the SDK it points to.
 function(_winsdk_check_platformsdk_registry _platformsdkname _build _platformsdkguid)

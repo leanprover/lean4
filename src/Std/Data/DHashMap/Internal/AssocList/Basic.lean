@@ -49,7 +49,7 @@ namespace AssocList
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def foldl (f : δ → (α : α) → β α → δ) (init : δ) (as : AssocList α β) : δ :=
-  Id.run (foldlM f init as)
+  Id.run (foldlM (pure <| f · · ·) init as)
 
 /-- Internal implementation detail of the hash map -/
 @[specialize] def foldrM (f : (a : α) → β a → δ → m δ) : (init : δ) → AssocList α β → m δ
@@ -60,7 +60,7 @@ namespace AssocList
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def foldr (f : (a : α) → β a → δ → δ) (init : δ) (as : AssocList α β) : δ :=
-  Id.run (foldrM f init as)
+  Id.run (foldrM (pure <| f · · ·) init as)
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def forM (f : (a : α) → β a → m PUnit) (as : AssocList α β) : m PUnit :=
@@ -168,6 +168,67 @@ def replace [BEq α] (a : α) (b : β a) : AssocList α β → AssocList α β
 def erase [BEq α] (a : α) : AssocList α β → AssocList α β
   | nil => nil
   | cons k v l => bif k == a then l else cons k v (l.erase a)
+
+/-- Internal implementation detail of the hash map -/
+@[specialize]
+def modify [BEq α] [LawfulBEq α] (a : α) (f : β a → β a) :
+    AssocList α β → AssocList α β
+  | nil => nil
+  | cons k v l =>
+    if h : k == a then
+      have h' : k = a := eq_of_beq h
+      let b := f (cast (congrArg β h') v)
+      cons a b l
+    else
+      cons k v (modify a f l)
+
+/-- Internal implementation detail of the hash map -/
+@[specialize]
+def alter [BEq α] [LawfulBEq α] (a : α) (f : Option (β a) → Option (β a)) :
+    AssocList α β → AssocList α β
+  | nil => match f none with
+    | none => nil
+    | some b => cons a b nil
+  | cons k v l =>
+    if h : k == a then
+      have h' : k = a := eq_of_beq h
+      match f (some (cast (congrArg β h') v)) with
+      | none => l
+      | some b => cons a b l
+    else
+      let tail := alter a f l
+      cons k v tail
+
+namespace Const
+
+/-- Internal implementation detail of the hash map -/
+@[specialize]
+def modify [BEq α] {β : Type v} (a : α) (f : β → β) :
+    AssocList α (fun _ => β) → AssocList α (fun _ => β)
+  | nil => nil
+  | cons k v l =>
+    if k == a then
+      cons a (f v) l
+    else
+      cons k v (modify a f l)
+
+/-- Internal implementation detail of the hash map -/
+@[specialize]
+def alter [BEq α] {β : Type v} (a : α) (f : Option β → Option β) :
+    AssocList α (fun _ => β) → AssocList α (fun _ => β)
+  | nil => match f none with
+    | none => nil
+    | some b => AssocList.cons a b nil
+  | cons k v l =>
+    if k == a then
+      match f (some v) with
+      | none => l
+      | some b => cons a b l
+    else
+      let tail := alter a f l
+      cons k v tail
+
+end Const
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def filterMap (f : (a : α) → β a → Option (γ a)) :

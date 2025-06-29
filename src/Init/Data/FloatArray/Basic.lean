@@ -3,10 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Array.Basic
-import Init.Data.Float
-import Init.Data.Option.Basic
+public import Init.Data.Array.Basic
+public import Init.Data.Float
+public import Init.Data.Option.Basic
+
+public section
 universe u
 
 structure FloatArray where
@@ -17,11 +21,14 @@ attribute [extern "lean_float_array_data"] FloatArray.data
 
 namespace FloatArray
 @[extern "lean_mk_empty_float_array"]
-def mkEmpty (c : @& Nat) : FloatArray :=
+def emptyWithCapacity (c : @& Nat) : FloatArray :=
   { data := #[] }
 
+@[deprecated emptyWithCapacity (since := "2025-03-12")]
+abbrev mkEmpty := emptyWithCapacity
+
 def empty : FloatArray :=
-  mkEmpty 0
+  emptyWithCapacity 0
 
 instance : Inhabited FloatArray where
   default := empty
@@ -47,11 +54,11 @@ def uget : (a : @& FloatArray) → (i : USize) → i.toNat < a.size → Float
 
 @[extern "lean_float_array_fget"]
 def get : (ds : @& FloatArray) → (i : @& Nat) → (h : i < ds.size := by get_elem_tactic) → Float
-  | ⟨ds⟩, i, h => ds.get i h
+  | ⟨ds⟩, i, h => ds[i]
 
 @[extern "lean_float_array_get"]
 def get! : (@& FloatArray) → (@& Nat) → Float
-  | ⟨ds⟩, i => ds.get! i
+  | ⟨ds⟩, i => ds[i]!
 
 def get? (ds : FloatArray) (i : Nat) : Option Float :=
   if h : i < ds.size then
@@ -62,7 +69,7 @@ def get? (ds : FloatArray) (i : Nat) : Option Float :=
 instance : GetElem FloatArray Nat Float fun xs i => i < xs.size where
   getElem xs i h := xs.get i h
 
-instance : GetElem FloatArray USize Float fun xs i => i.val < xs.size where
+instance : GetElem FloatArray USize Float fun xs i => i.toNat < xs.size where
   getElem xs i h := xs.uget i h
 
 @[extern "lean_float_array_uset"]
@@ -160,10 +167,13 @@ def foldlM {β : Type v} {m : Type v → Type w} [Monad m] (f : β → Float →
 
 @[inline]
 def foldl {β : Type v} (f : β → Float → β) (init : β) (as : FloatArray) (start := 0) (stop := as.size) : β :=
-  Id.run <| as.foldlM f init start stop
+  Id.run <| as.foldlM (pure <| f · ·) init start stop
 
 end FloatArray
 
+/--
+Converts a list of floats into a `FloatArray`.
+-/
 def List.toFloatArray (ds : List Float) : FloatArray :=
   let rec loop
     | [],    r => r

@@ -15,7 +15,7 @@ private def findBest?
     (gt : α → α → Bool)
     (f : ContextInfo → Info → PersistentArray InfoTree → Option α)
     : Option α :=
-  infoTree.visitM (m := Id) (postNode := choose) |>.join
+  (Id.run <| infoTree.visitM (postNode := choose)).join
 where
   choose
       (ctx : ContextInfo)
@@ -311,7 +311,7 @@ private def isSyntheticStructFieldCompletion
     if isCompletionInEmptyBlock then
       return true
 
-    let isCompletionAfterSep := fieldsAndSeps.zipWithIndex.any fun (fieldOrSep, i) => Id.run do
+    let isCompletionAfterSep := fieldsAndSeps.zipIdx.any fun (fieldOrSep, i) => Id.run do
       if i % 2 == 0 || !fieldOrSep.isAtom then
         return false
       let sep := fieldOrSep

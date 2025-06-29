@@ -13,13 +13,13 @@ Basic diamond
 set_option structure.strictResolutionOrder true
 set_option trace.Elab.structure.resolutionOrder true
 
-/-- info: [Elab.structure.resolutionOrder] computed resolution order: [A] -/
+/-- trace: [Elab.structure.resolutionOrder] computed resolution order: [A] -/
 #guard_msgs in structure A
-/-- info: [Elab.structure.resolutionOrder] computed resolution order: [B, A] -/
+/-- trace: [Elab.structure.resolutionOrder] computed resolution order: [B, A] -/
 #guard_msgs in structure B extends A
-/-- info: [Elab.structure.resolutionOrder] computed resolution order: [C, A] -/
+/-- trace: [Elab.structure.resolutionOrder] computed resolution order: [C, A] -/
 #guard_msgs in structure C extends A
-/-- info: [Elab.structure.resolutionOrder] computed resolution order: [D, B, C, A] -/
+/-- trace: [Elab.structure.resolutionOrder] computed resolution order: [D, B, C, A] -/
 #guard_msgs in structure D extends B, C
 
 def A.x (a : A) : Bool := default
@@ -55,7 +55,7 @@ Example resolution order failure
 warning: failed to compute strict resolution order:
 - parent 'B' must come after parent 'D'
 ---
-info: [Elab.structure.resolutionOrder] computed resolution order: [D', B, D, C, A]
+trace: [Elab.structure.resolutionOrder] computed resolution order: [D', B, D, C, A]
 -/
 #guard_msgs in
 structure D' extends B, D
@@ -67,17 +67,17 @@ Example from issue 3467.
 
 namespace Issue3467
 
-/-- info: [Elab.structure.resolutionOrder] computed resolution order: [Issue3467.X] -/
+/-- trace: [Elab.structure.resolutionOrder] computed resolution order: [Issue3467.X] -/
 #guard_msgs in
 structure X where
   base : Nat
 
-/-- info: [Elab.structure.resolutionOrder] computed resolution order: [Issue3467.A, Issue3467.X] -/
+/-- trace: [Elab.structure.resolutionOrder] computed resolution order: [Issue3467.A, Issue3467.X] -/
 #guard_msgs in
 structure A extends X where
   countA : Nat
 
-/-- info: [Elab.structure.resolutionOrder] computed resolution order: [Issue3467.B, Issue3467.X] -/
+/-- trace: [Elab.structure.resolutionOrder] computed resolution order: [Issue3467.B, Issue3467.X] -/
 #guard_msgs in
 structure B extends X where
   countB : Nat
@@ -95,7 +95,7 @@ def getTwiceCountB (b : B) := b.countB * 2
 end B
 
 /--
-info: [Elab.structure.resolutionOrder] computed resolution order: [Issue3467.C, Issue3467.A, Issue3467.B, Issue3467.X]
+trace: [Elab.structure.resolutionOrder] computed resolution order: [Issue3467.C, Issue3467.A, Issue3467.B, Issue3467.X]
 -/
 #guard_msgs in
 structure C extends A, B
@@ -112,20 +112,20 @@ end Issue3467
 
 namespace Issue1881
 
-/-- info: [Elab.structure.resolutionOrder] computed resolution order: [Issue1881.Foo1] -/
+/-- trace: [Elab.structure.resolutionOrder] computed resolution order: [Issue1881.Foo1] -/
 #guard_msgs in
 structure Foo1 where
   a : Nat
   b : Nat
 
-/-- info: [Elab.structure.resolutionOrder] computed resolution order: [Issue1881.Foo2] -/
+/-- trace: [Elab.structure.resolutionOrder] computed resolution order: [Issue1881.Foo2] -/
 #guard_msgs in
 structure Foo2 where
   a : Nat
   c : Nat
 
 /--
-info: [Elab.structure.resolutionOrder] computed resolution order: [Issue1881.Foo3, Issue1881.Foo1, Issue1881.Foo2]
+trace: [Elab.structure.resolutionOrder] computed resolution order: [Issue1881.Foo3, Issue1881.Foo1, Issue1881.Foo2]
 -/
 #guard_msgs in
 structure Foo3 extends Foo1, Foo2 where

@@ -37,7 +37,8 @@ warning: automatically included section variable(s) unused in theorem 't6':
   [ToString α]
 consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
   omit [ToString α] in theorem ...
-note: this linter can be disabled with `set_option linter.unusedSectionVars false`
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
 -/
 #guard_msgs in
 theorem t6 (a : α) : a = a := rfl
@@ -56,7 +57,8 @@ warning: automatically included section variable(s) unused in theorem 'act_rel_o
   [IsTrans N r]
 consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
   omit [IsTrans N r] in theorem ...
-note: this linter can be disabled with `set_option linter.unusedSectionVars false`
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
 -/
 #guard_msgs in
 theorem act_rel_of_rel_of_act_rel (ab : r a b) : r a b := ab
@@ -78,7 +80,8 @@ variable [ToString α] [ToString β]
 /--
 error: failed to synthesize
   ToString α
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
 omit [ToString α] in
@@ -88,7 +91,8 @@ theorem t8 (a : α) (b : β) : True :=
 /--
 error: failed to synthesize
   ToString β
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
 omit [ToString β] in
@@ -98,11 +102,13 @@ theorem t9 (a : α) (b : β) : True :=
 /--
 error: failed to synthesize
   ToString α
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ---
 error: failed to synthesize
   ToString β
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
 omit [ToString _] in
@@ -118,21 +124,13 @@ variable (a : α) in
 omit α in
 theorem t11 (a : α) : True := trivial
 
-/--
-error: cannot omit referenced section variable 'α'
----
-error: cannot omit referenced section variable 'α'
--/
+/-- error: cannot omit referenced section variable 'α' -/
 #guard_msgs in
 variable (α : Type) in
 omit α in
 theorem t12 (a : α) : True := trivial
 
-/--
-error: cannot omit referenced section variable 'inst✝'
----
-error: cannot omit referenced section variable 'inst✝'
--/
+/-- error: cannot omit referenced section variable 'inst✝' -/
 #guard_msgs in
 variable [ToString α] in
 omit [ToString α] in
@@ -140,9 +138,9 @@ theorem t13 (a : α) : toString a = toString a := rfl
 
 set_option pp.mvars false in
 /--
-error: application type mismatch
+error: Application type mismatch: In the application
   ToString True
-argument
+the argument
   True
 has type
   Prop : Type
@@ -161,31 +159,33 @@ omit [ToString Nat]
 variable (α : Type) in
 include α in
 omit α in
-theorem t13 : True := trivial
+theorem t14 : True := trivial
 
 /--
-warning: automatically included section variable(s) unused in theorem 't14':
+warning: automatically included section variable(s) unused in theorem 't15':
   α
 consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
   omit α in theorem ...
-note: this linter can be disabled with `set_option linter.unusedSectionVars false`
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
 -/
 #guard_msgs in
 variable (α : Type) in
 include α in
 omit α in
 include α in
-theorem t14 : True := trivial
+theorem t15 : True := trivial
 
 /-! But you probably shouldn't use it -/
 
 set_option linter.omit true in
 /--
 warning: `omit` should be avoided in favor of restructuring your `variable` declarations
-note: this linter can be disabled with `set_option linter.omit false`
+
+Note: This linter can be disabled with `set_option linter.omit false`
 -/
 #guard_msgs in
 variable (α : Type) in
 include α in
 omit α in
-theorem t15 : True := trivial
+theorem t16 : True := trivial

@@ -23,7 +23,7 @@ def replaceNoCache (f? : Expr → Option Expr) (e : Expr) : Expr :=
     | .forallE _ d b _ => let d := replaceNoCache f? d; let b := replaceNoCache f? b; e.updateForallE! d b
     | .lam _ d b _     => let d := replaceNoCache f? d; let b := replaceNoCache f? b; e.updateLambdaE! d b
     | .mdata _ b       => let b := replaceNoCache f? b; e.updateMData! b
-    | .letE _ t v b _  => let t := replaceNoCache f? t; let v := replaceNoCache f? v; let b := replaceNoCache f? b; e.updateLet! t v b
+    | .letE _ t v b _  => let t := replaceNoCache f? t; let v := replaceNoCache f? v; let b := replaceNoCache f? b; e.updateLetE! t v b
     | .app f a         => let f := replaceNoCache f? f; let a := replaceNoCache f? a; e.updateApp! f a
     | .proj _ _ b      => let b := replaceNoCache f? b; e.updateProj! b
     | e                => e

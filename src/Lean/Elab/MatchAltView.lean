@@ -20,6 +20,7 @@ def «match» := leading_parser:leadPrec "match " >> sepBy1 matchDiscr ", " >> o
 structure MatchAltView where
   ref      : Syntax
   patterns : Array Syntax
+  lhs      : Syntax
   rhs      : Syntax
   deriving Inhabited
 

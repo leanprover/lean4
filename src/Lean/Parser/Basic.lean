@@ -833,7 +833,10 @@ def decimalNumberFn (startPos : String.Pos) (c : ParserContext) : ParserState �
     mkNodeToken numLitKind startPos c s
   else
     let curr := input.get' i h
-    if curr == '.' || curr == 'e' || curr == 'E' then
+    let j := input.next i
+    if ∃ hj : ¬ input.atEnd j, curr = '.' && input.get' j hj = '.' then
+      mkNodeToken numLitKind startPos c s
+    else if curr == '.' || curr == 'e' || curr == 'E' then
       parseScientific s
     else
       mkNodeToken numLitKind startPos c s
@@ -1332,7 +1335,7 @@ namespace ParserState
 
 def keepTop (s : SyntaxStack) (startStackSize : Nat) : SyntaxStack :=
   let node  := s.back
-  s.take startStackSize |>.push node
+  s.shrink startStackSize |>.push node
 
 def keepNewError (s : ParserState) (oldStackSize : Nat) : ParserState :=
   match s with
@@ -1341,13 +1344,13 @@ def keepNewError (s : ParserState) (oldStackSize : Nat) : ParserState :=
 def keepPrevError (s : ParserState) (oldStackSize : Nat) (oldStopPos : String.Pos) (oldError : Option Error) (oldLhsPrec : Nat) : ParserState :=
   match s with
   | ⟨stack, _, _, cache, _, errs⟩ =>
-    ⟨stack.take oldStackSize, oldLhsPrec, oldStopPos, cache, oldError, errs⟩
+    ⟨stack.shrink oldStackSize, oldLhsPrec, oldStopPos, cache, oldError, errs⟩
 
 def mergeErrors (s : ParserState) (oldStackSize : Nat) (oldError : Error) : ParserState :=
   match s with
   | ⟨stack, lhsPrec, pos, cache, some err, errs⟩ =>
     let newError := if oldError == err then err else oldError.merge err
-    ⟨stack.take oldStackSize, lhsPrec, pos, cache, some newError, errs⟩
+    ⟨stack.shrink oldStackSize, lhsPrec, pos, cache, some newError, errs⟩
   | other                         => other
 
 def keepLatest (s : ParserState) (startStackSize : Nat) : ParserState :=
@@ -1390,7 +1393,7 @@ def runLongestMatchParser (left? : Option Syntax) (startLhsPrec : Nat) (p : Pars
     s -- success or error with the expected number of nodes
   else if s.hasError then
     -- error with an unexpected number of nodes.
-    s.takeStack startSize |>.pushSyntax Syntax.missing
+    s.shrinkStack startSize |>.pushSyntax Syntax.missing
   else
     -- parser succeeded with incorrect number of nodes
     invalidLongestMatchParser s
@@ -1477,7 +1480,8 @@ that the `else` is not less indented than the `if` it matches with.
 
 This parser has arity 0 - it does not capture anything. -/
 @[builtin_doc] def checkColGe (errorMsg : String := "checkColGe") : Parser where
-  fn := checkColGeFn errorMsg
+  fn   := checkColGeFn errorMsg
+  info := epsilonInfo
 
 def checkColGtFn (errorMsg : String) : ParserFn := fun c s =>
   match c.savedPos? with
@@ -1605,32 +1609,36 @@ instance : Inhabited PrattParsingTables where
   default := {}
 
 /--
-  The type `LeadingIdentBehavior` specifies how the parsing table
-  lookup function behaves for identifiers.  The function `prattParser`
-  uses two tables `leadingTable` and `trailingTable`. They map tokens
-  to parsers.
+Specifies how the parsing table lookup function behaves for identifiers.
 
-  We use `LeadingIdentBehavior.symbol` and `LeadingIdentBehavior.both`
-  and `nonReservedSymbol` parser to implement the `tactic` parsers.
-  The idea is to avoid creating a reserved symbol for each
-  builtin tactic (e.g., `apply`, `assumption`, etc.).  That is, users
-  may still use these symbols as identifiers (e.g., naming a
-  function).
+The function `Lean.Parser.prattParser` uses two tables: one each for leading and trailing parsers.
+These tables map tokens to parsers. Because keyword tokens are distinct from identifier tokens,
+keywords and identifiers cannot be confused, even when they are syntactically identical.
+Specifying an alternative leading identifier behavior allows greater flexibility and makes it
+possible to avoid reserved keywords in some situations.
+
+When the leading token is syntactically an identifier, the current syntax category's
+`LeadingIdentBehavior` specifies how the parsing table lookup function behaves, and allows
+controlled “punning” between identifiers and keywords. This feature is used to avoid creating a
+reserved symbol for each built-in tactic (e.g., `apply` or `assumption`). As a result, tactic names
+can be used as identifiers.
 -/
 inductive LeadingIdentBehavior where
-  /-- `LeadingIdentBehavior.default`: if the leading token
-  is an identifier, then `prattParser` just executes the parsers
-  associated with the auxiliary token "ident". -/
+  /--
+  If the leading token is an identifier, then the parser just executes the parsers associated
+  with the auxiliary token “ident”, which parses identifiers.
+  -/
   | default
-  /-- `LeadingIdentBehavior.symbol`: if the leading token is
-  an identifier `<foo>`, and there are parsers `P` associated with
-  the token `<foo>`, then it executes `P`. Otherwise, it executes
-  only the parsers associated with the auxiliary token "ident". -/
+  /--
+  If the leading token is an identifier `<foo>`, and there are parsers `P` associated with the token
+  `<foo>`, then the parser executes `P`. Otherwise, it executes only the parsers associated with the
+  auxiliary token “ident”, which parses identifiers.
+  -/
   | symbol
-  /-- `LeadingIdentBehavior.both`: if the leading token
-  an identifier `<foo>`, the it executes the parsers associated
-  with token `<foo>` and parsers associated with the auxiliary
-  token "ident". -/
+  /--
+  If the leading token is an identifier `<foo>`, then it executes the parsers associated with token
+  `<foo>` and parsers associated with the auxiliary token “ident”, which parses identifiers.
+  -/
   | both
   deriving Inhabited, BEq, Repr
 
@@ -1705,7 +1713,8 @@ builtin_initialize categoryParserFnRef : IO.Ref CategoryParserFn ← IO.mkRef fu
 builtin_initialize categoryParserFnExtension : EnvExtension CategoryParserFn ← registerEnvExtension $ categoryParserFnRef.get
 
 def categoryParserFn (catName : Name) : ParserFn := fun ctx s =>
-  categoryParserFnExtension.getState ctx.env catName ctx s
+  let fn := categoryParserFnExtension.getState ctx.env
+  fn catName ctx s
 
 def categoryParser (catName : Name) (prec : Nat) : Parser where
   fn := adaptCacheableContextFn ({ · with prec }) (withCacheFn catName (categoryParserFn catName))
@@ -1970,7 +1979,7 @@ def foldArgsM (s : Syntax) (f : Syntax → β → m β) (b : β) : m β :=
   s.getArgs.foldlM (flip f) b
 
 def foldArgs (s : Syntax) (f : Syntax → β → β) (b : β) : β :=
-  Id.run (s.foldArgsM f b)
+  Id.run (s.foldArgsM (pure <| f · ·) b)
 
 def forArgsM (s : Syntax) (f : Syntax → m Unit) : m Unit :=
   s.foldArgsM (fun s _ => f s) ()

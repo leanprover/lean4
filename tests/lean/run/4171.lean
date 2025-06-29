@@ -13,7 +13,7 @@ universe v u
 
 variable (α : Sort u)
 
-structure Opposite :=
+structure Opposite where
   op ::
   unop : α
 
@@ -55,7 +55,7 @@ universe v u
 
 namespace CategoryTheory
 
-class CategoryStruct (obj : Type u) extends Quiver.{v + 1} obj : Type max u (v + 1) where
+class CategoryStruct (obj : Type u) : Type max u (v + 1) extends Quiver.{v + 1} obj where
   id : ∀ X : obj, Hom X X
   comp : ∀ {X Y Z : obj}, (X ⟶ Y) → (Y ⟶ Z) → (X ⟶ Z)
 
@@ -63,7 +63,7 @@ scoped notation "𝟙" => CategoryStruct.id
 
 scoped infixr:80 " ≫ " => CategoryStruct.comp
 
-class Category (obj : Type u) extends CategoryStruct.{v} obj : Type max u (v + 1) where
+class Category (obj : Type u) : Type max u (v + 1) extends CategoryStruct.{v} obj where
   id_comp : ∀ {X Y : obj} (f : X ⟶ Y), 𝟙 X ≫ f = f
   comp_id : ∀ {X Y : obj} (f : X ⟶ Y), f ≫ 𝟙 Y = f
 
@@ -79,8 +79,8 @@ namespace CategoryTheory
 
 universe v v₁ v₂ v₃ u u₁ u₂ u₃
 
-structure Functor (C : Type u₁) [Category.{v₁} C] (D : Type u₂) [Category.{v₂} D]
-    extends Prefunctor C D : Type max v₁ v₂ u₁ u₂ where
+structure Functor (C : Type u₁) [Category.{v₁} C] (D : Type u₂) [Category.{v₂} D] : Type max v₁ v₂ u₁ u₂
+    extends Prefunctor C D where
 
 infixr:26 " ⥤ " => Functor
 
@@ -714,8 +714,10 @@ example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
 
 
 /--
-info: [simp] theorems with bad keys
-  [simp] foo, key: @Quiver.Hom.unop _ _ _ _ (@Opposite.op (@Quiver.Hom _ _ _.1 _.1) _)use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+trace: [simp] Diagnostics
+  [simp] theorems with bad keys
+    [simp] foo, key: @Quiver.Hom.unop _ _ _ _ (@Opposite.op (@Quiver.Hom _ _ _.1 _.1) _)
+  use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
 example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
@@ -733,8 +735,10 @@ example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
 attribute [simp] foo
 
 /--
-info: [simp] theorems with bad keys
-  [simp] foo, key: @Quiver.Hom.unop _ _ _ _ (@Opposite.op (@Quiver.Hom _ _ _.1 _.1) _)use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+trace: [simp] Diagnostics
+  [simp] theorems with bad keys
+    [simp] foo, key: @Quiver.Hom.unop _ _ _ _ (@Opposite.op (@Quiver.Hom _ _ _.1 _.1) _)
+  use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
 example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 prelude
 import Lean.Parser.Term
 import Lean.Parser.Tactic.Doc
+import Std.Tactic.Do.Syntax
 
 namespace Lean
 namespace Parser

@@ -84,7 +84,7 @@ error: unknown identifier 'a'
 ---
 error: unknown identifier 'b'
 ---
-info: ⊢ sorry = sorry
+trace: ⊢ sorry = sorry
 -/
 #guard_msgs in
 set_option autoImplicit false in
@@ -98,9 +98,26 @@ error: unknown identifier 'a'
 ---
 error: unknown identifier 'b'
 ---
-info: ⊢ sorry `«sorry:106:10» = sorry `«sorry:106:14»
+trace: ⊢ sorry `«sorry:106:10» = sorry `«sorry:106:14»
 -/
 #guard_msgs in
 set_option autoImplicit false in
 set_option pp.sorrySource true in
 example : a = b := by trace_state; rfl
+
+/-!
+The local context should show `sorry` without showing its source position.
+This requires `Lean.Widget.ppExprTagged` to have a pretty printing mode that doesn't override any pretty printing options.
+https://github.com/leanprover/lean4/issues/6715
+-/
+/--
+trace: n : Nat := sorry
+⊢ True
+---
+warning: declaration uses 'sorry'
+-/
+#guard_msgs in
+example : True := by
+  let n : Nat := sorry
+  trace_state
+  trivial

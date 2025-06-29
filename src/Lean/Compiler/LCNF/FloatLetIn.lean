@@ -117,14 +117,13 @@ up to this point, with respect to `cs`. The initial decisions are:
 - `unknown` otherwise
 -/
 def initialDecisions (cs : Cases) : BaseFloatM (Std.HashMap FVarId Decision) := do
-  let mut map := Std.HashMap.empty (← read).decls.length
-  let folder val acc := do
+  let mut map := Std.HashMap.emptyWithCapacity (← read).decls.length
+  map ← (← read).decls.foldrM (init := map) fun val acc => do
     if let .let decl := val then
       if (← ignore? decl) then
         return acc.insert decl.fvarId .dont
     return acc.insert val.fvarId .unknown
 
-  map ← (← read).decls.foldrM (init := map) folder
   if map.contains cs.discr then
     map := map.insert cs.discr .dont
   (_, map) ← goCases cs |>.run map
@@ -135,7 +134,7 @@ where
       if decision == .unknown then
         modify fun s => s.insert var plannedDecision
       else if decision != plannedDecision then
-          modify fun s => s.insert var .dont
+        modify fun s => s.insert var .dont
       -- otherwise we already have the proper decision
 
   goAlt (alt : Alt) : StateRefT (Std.HashMap FVarId Decision) BaseFloatM Unit :=
@@ -148,7 +147,7 @@ Compute the initial new arms. This will just set up a map from all arms of
 `cs` to empty `Array`s, plus one additional entry for `dont`.
 -/
 def initialNewArms (cs : Cases) : Std.HashMap Decision (List CodeDecl) := Id.run do
-  let mut map := Std.HashMap.empty (cs.alts.size + 1)
+  let mut map := Std.HashMap.emptyWithCapacity (cs.alts.size + 1)
   map := map.insert .dont []
   cs.alts.foldr (init := map) fun val acc => acc.insert (.ofAlt val) []
 
@@ -229,10 +228,10 @@ def float (decl : CodeDecl) : FloatM Unit := do
 where
   goFVar (fvar : FVarId) (arm : Decision) : FloatM Unit := do
     let some decision := (← get).decision[fvar]? | return ()
-    if decision != arm then
-      modify fun s => { s with decision := s.decision.insert fvar .dont }
-    else if decision == .unknown then
+    if decision == .unknown then
       modify fun s => { s with decision := s.decision.insert fvar arm }
+    else if decision != arm then
+      modify fun s => { s with decision := s.decision.insert fvar .dont }
 
 /--
 Iterate through `decl`, pushing local declarations that are only used in one
@@ -285,18 +284,17 @@ where
       }
       let (_, res) ← goCases |>.run base
       let remainders := res.newArms[Decision.dont]!
-      let altMapper alt := do
+      let newAlts ← cs.alts.mapM fun alt => do
         let decision := Decision.ofAlt alt
         let newCode := res.newArms[decision]!
         trace[Compiler.floatLetIn] "Size of code that was pushed into arm: {repr decision} {newCode.length}"
         let fused ← withNewScope do
           go (attachCodeDecls newCode.toArray alt.getCode)
         return alt.updateCode fused
-      let newAlts ← cs.alts.mapM altMapper
       let mut newCases := Code.updateCases! code cs.resultType cs.discr newAlts
       return attachCodeDecls remainders.toArray newCases
     | .jmp .. | .return .. | .unreach .. =>
-    return attachCodeDecls (← read).decls.toArray.reverse code
+      return attachCodeDecls (← read).decls.toArray.reverse code
 
 end FloatLetIn
 

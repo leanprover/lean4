@@ -25,7 +25,7 @@ private def argDepOn (a : Arg) : M Bool := do
 
 private def letValueDepOn (e : LetValue) : M Bool :=
   match e with
-  | .erased | .value .. => return false
+  | .erased | .lit .. => return false
   | .proj _ _ fvarId => fvarDepOn fvarId
   | .fvar fvarId args => fvarDepOn fvarId <||> args.anyM argDepOn
   | .const _ _ args => args.anyM argDepOn

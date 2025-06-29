@@ -1,2 +1,1 @@
-1719.lean:2:8-2:12: error: invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant
-  ?m
+1719.lean:2:8-2:12: error(lean.invalidDottedIdent): Invalid dotted identifier notation: The expected type of `.inl` could not be determined

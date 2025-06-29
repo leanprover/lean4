@@ -1,16 +1,16 @@
 set_option pp.analyze false
 
 /--
-warning: declaration uses 'sorry'
----
-info: p : (n : Nat) → Fin n → Prop
+trace: p : (n : Nat) → Fin n → Prop
 n : Nat
 v : Fin n
 n' : Nat
 v' : Fin n'
 h₁ : n + 1 = n'
-h₂ : HEq v.succ v'
+h₂ : v.succ ≍ v'
 ⊢ p n' v'
+---
+warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 example (p : (n : Nat) → Fin n → Prop)

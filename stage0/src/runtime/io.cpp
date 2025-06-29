@@ -48,6 +48,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "runtime/object.h"
 #include "runtime/thread.h"
 #include "runtime/allocprof.h"
+#include "runtime/option_ref.h"
 
 #ifdef _MSC_VER
 #define S_ISDIR(mode) ((mode & _S_IFDIR) != 0)
@@ -687,7 +688,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
 
         if (U_FAILURE(status)) {
             ucal_close(cal);
-            return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get next transation")));
+            return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get next transition")));
         }
 
         tm = (int64_t)(nextTransition / 1000.0);
@@ -912,9 +913,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_num_heartbeats(obj_arg /* w */) {
     return io_result_mk_ok(lean_uint64_to_nat(get_num_heartbeats()));
 }
 
-/* addHeartbeats (count : Int64) : BaseIO Unit */
-extern "C" LEAN_EXPORT obj_res lean_io_add_heartbeats(int64_t count, obj_arg /* w */) {
-    add_heartbeats(count);
+/* setHeartbeats (count : Nat) : BaseIO Unit */
+extern "C" LEAN_EXPORT obj_res lean_io_set_heartbeats(obj_arg count, obj_arg /* w */) {
+    set_heartbeats(lean_uint64_of_nat(count));
+    lean_dec(count);
     return io_result_mk_ok(box(0));
 }
 
@@ -956,17 +958,35 @@ extern "C" LEAN_EXPORT obj_res lean_io_realpath(obj_arg fname, obj_arg) {
 #if defined(LEAN_WINDOWS)
     constexpr unsigned BufferSize = 8192;
     char buffer[BufferSize];
-    DWORD retval = GetFullPathName(string_cstr(fname), BufferSize, buffer, nullptr);
+    HANDLE handle = CreateFile(string_cstr(fname), 0, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+    if (handle == INVALID_HANDLE_VALUE) {
+        obj_res res = mk_file_not_found_error(fname);
+        dec_ref(fname);
+        return res;
+    }
+    DWORD retval = GetFinalPathNameByHandle(handle, buffer, BufferSize, 0);
+    CloseHandle(handle);
     if (retval == 0 || retval > BufferSize) {
         return io_result_mk_ok(fname);
     } else {
         dec_ref(fname);
+        char * res = buffer;
+        if (memcmp(res, "\\\\?\\", 4) == 0) {
+            if (memcmp(res + 4, "UNC\\", 4) == 0) {
+                // network path: convert "\\\\?\\UNC\\..." to "\\\\..."
+                res[6] = '\\';
+                res += 6;
+            } else {
+                // simple path: convert "\\\\?\\C:\\.." to "C:\\..."
+                res += 4;
+            }
+        }
         // Hack for making sure disk is lower case
         // TODO(Leo): more robust solution
-        if (strlen(buffer) >= 2 && buffer[1] == ':') {
-            buffer[0] = tolower(buffer[0]);
+        if (strlen(res) >= 2 && res[1] == ':') {
+            res[0] = tolower(res[0]);
         }
-        return io_result_mk_ok(mk_string(buffer));
+        return io_result_mk_ok(mk_string(res));
     }
 #else
     char buffer[PATH_MAX];
@@ -1037,11 +1057,7 @@ static obj_res timespec_to_obj(timespec const & ts) {
     return o;
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_metadata(b_obj_arg fname, obj_arg) {
-    struct stat st;
-    if (stat(string_cstr(fname), &st) != 0) {
-        return io_result_mk_error(decode_io_error(errno, fname));
-    }
+static obj_res metadata_core(struct stat const & st) {
     object * mdata = alloc_cnstr(0, 2, sizeof(uint64) + sizeof(uint8));
 #ifdef __APPLE__
     cnstr_set(mdata, 0, timespec_to_obj(st.st_atimespec));
@@ -1063,6 +1079,26 @@ extern "C" LEAN_EXPORT obj_res lean_io_metadata(b_obj_arg fname, obj_arg) {
 #endif
                     3);
     return io_result_mk_ok(mdata);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_metadata(b_obj_arg fname, obj_arg) {
+    struct stat st;
+    if (stat(string_cstr(fname), &st) != 0) {
+        return io_result_mk_error(decode_io_error(errno, fname));
+    }
+    return metadata_core(st);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_symlink_metadata(b_obj_arg fname, obj_arg) {
+#ifdef LEAN_WINDOWS
+    return lean_io_metadata(fname, io_mk_world());
+#else
+    struct stat st;
+    if (lstat(string_cstr(fname), &st) != 0) {
+        return io_result_mk_error(decode_io_error(errno, fname));
+    }
+    return metadata_core(st);
+#endif
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_create_dir(b_obj_arg p, obj_arg) {
@@ -1148,6 +1184,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
     } else {
         FILE* handle = fdopen(req.result, "r+");
         object_ref pair = mk_cnstr(0, io_wrap_handle(handle), mk_string(req.path));
+        uv_fs_req_cleanup(&req);
         return lean_io_result_mk_ok(pair.steal());
     }
 }
@@ -1190,7 +1227,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempdir(lean_object * /* w */) {
         // If mkdtemp throws an error we cannot rely on path to contain a proper file name.
         return io_result_mk_error(decode_uv_error(ret, nullptr));
     } else {
-        return lean_io_result_mk_ok(mk_string(req.path));
+        obj_res res = lean_io_result_mk_ok(mk_string(req.path));
+        uv_fs_req_cleanup(&req);
+        return res;
     }
 }
 
@@ -1460,8 +1499,33 @@ extern "C" LEAN_EXPORT obj_res lean_runtime_mark_persistent(obj_arg a, obj_arg /
     return io_result_mk_ok(a);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_runtime_forget(obj_arg /* a */, obj_arg /* w */) {
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+#include <sanitizer/lsan_interface.h>
+#endif
+#endif
+
+extern "C" LEAN_EXPORT obj_res lean_runtime_forget(obj_arg o, obj_arg /* w */) {
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+    __lsan_ignore_object(o);
+#endif
+#endif
     return io_result_mk_ok(box(0));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_option_get_or_block(obj_arg o_opt) {
+    option_ref<object_ref> opt = option_ref<object_ref>(o_opt);
+    if (opt) {
+        return opt.get_val().steal();
+    } else {
+        lean_panic("PANIC: Promise.result!: promise has been dropped without ever being resolved",
+          /* force_stderr */ true);
+        // this is only reachable when using non-fatal panics
+        while (true) {
+            this_thread::sleep_for(std::chrono::seconds::max());
+        }
+    }
 }
 
 void initialize_io() {

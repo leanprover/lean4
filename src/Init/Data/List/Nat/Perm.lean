@@ -3,9 +3,16 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Data.List.Nat.TakeDrop
-import Init.Data.List.Perm
+public import Init.Data.List.Nat.TakeDrop
+public import Init.Data.List.Perm
+
+public section
+
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace List
 
@@ -44,11 +51,30 @@ theorem set_set_perm {as : List α} {i j : Nat} (h₁ : i < as.length) (h₂ : j
       subst t
       exact set_set_perm' _ _ (by omega)
     else
-      rw [set_comm _ _ _ (by omega)]
+      rw [set_comm _ _ (by omega)]
       let i' := i - j
       have t : i = j + i' := by omega
       generalize i' = i' at t
       subst t
       apply set_set_perm' _ _ (by omega)
+
+namespace Perm
+
+/-- Variant of `List.Perm.take` specifying the the permutation is constant after `i` elementwise. -/
+theorem take_of_getElem? {l₁ l₂ : List α} (h : l₁ ~ l₂) {i : Nat} (w : ∀ j, i ≤ j → l₁[j]? = l₂[j]?) :
+    l₁.take i ~ l₂.take i := by
+  refine h.take (Perm.of_eq ?_)
+  ext1 j
+  simpa using w (i + j) (by omega)
+
+/-- Variant of `List.Perm.drop` specifying the the permutation is constant before `i` elementwise. -/
+theorem drop_of_getElem? {l₁ l₂ : List α} (h : l₁ ~ l₂) {i : Nat} (w : ∀ j, j < i → l₁[j]? = l₂[j]?) :
+    l₁.drop i ~ l₂.drop i := by
+  refine h.drop (Perm.of_eq ?_)
+  ext1
+  simp only [getElem?_take]
+  split <;> simp_all
+
+end Perm
 
 end List

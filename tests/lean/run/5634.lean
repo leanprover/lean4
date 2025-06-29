@@ -102,7 +102,8 @@ def foo (n : α) := [n]
 
 /--
 warning: try 'simp at h' instead of 'simpa using h'
-note: this linter can be disabled with `set_option linter.unnecessarySimpa false`
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
 -/
 #guard_msgs in
 example (h : foo n ≠ [n]) : False := by

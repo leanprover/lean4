@@ -1,6 +1,7 @@
 autoImplicitForbidden.lean:1:8-1:9: error: unknown identifier 'f'
 autoImplicitForbidden.lean:6:10-6:11: error: unknown identifier 'h'
 autoImplicitForbidden.lean:13:24-13:27: error: unknown identifier 'Bla'
+autoImplicitForbidden.lean:14:2-14:5: warning: declaration uses 'sorry'
 autoImplicitForbidden.lean:16:21-16:24: error: unknown identifier 'Foo'
 autoImplicitForbidden.lean:20:18-20:21: error: unknown identifier 'Ex2'
 autoImplicitForbidden.lean:28:14-28:20: error: unknown identifier 'foobar'

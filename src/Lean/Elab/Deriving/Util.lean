@@ -91,9 +91,9 @@ def mkLocalInstanceLetDecls (ctx : Context) (className : Name) (argNames : Array
     let auxFunName   := ctx.auxFunNames[i]!
     let currArgNames ← mkInductArgNames indVal
     let numParams    := indVal.numParams
-    let currIndices  := currArgNames[numParams:]
+    let currIndices  := currArgNames[numParams...*]
     let binders      ← mkImplicitBinders currIndices
-    let argNamesNew  := argNames[:numParams] ++ currIndices
+    let argNamesNew  := argNames[*...numParams] ++ currIndices
     let indType      ← mkInductiveApp indVal argNamesNew
     let type         ← `($(mkCIdent className) $indType)
     let val          ← `(⟨$(mkIdent auxFunName)⟩)
@@ -154,7 +154,7 @@ def mkHeader (className : Name) (arity : Nat) (indVal : InductiveVal) : TermElab
 def mkDiscrs (header : Header) (indVal : InductiveVal) : TermElabM (Array (TSyntax ``Parser.Term.matchDiscr)) := do
   let mut discrs := #[]
   -- add indices
-  for argName in header.argNames[indVal.numParams:] do
+  for argName in header.argNames[indVal.numParams...*] do
     discrs := discrs.push (← mkDiscr argName)
   return discrs ++ (← header.targetNames.mapM mkDiscr)
 

@@ -3,9 +3,13 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
+module
+
 prelude
-import Init.Tactics
-import Init.NotationExtra
+public import Init.Tactics
+public import Init.NotationExtra
+
+public section
 
 /-!
 Extra tactics and implementation for some tactics defined at `Init/Tactic.lean`

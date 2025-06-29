@@ -3,10 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Chris Lovett
 -/
+module
+
 prelude
-import Init.Data.String.Extra
-import Init.Data.Nat.Linear
-import Init.System.FilePath
+public import Init.Data.String.Extra
+public import Init.Data.Nat.Linear
+public import Init.System.FilePath
+
+public section
 
 namespace System
 namespace Uri

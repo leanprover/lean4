@@ -20,7 +20,7 @@ private def mkAnd? (args : Array Expr) : Option Expr := Id.run do
     return none
   else
     let mut result := args.back!
-    for arg in args.reverse[1:] do
+    for arg in args.reverse[1...*] do
       result := mkApp2 (mkConst ``And) arg result
     return result
 
@@ -47,7 +47,7 @@ def elimOptParam (type : Expr) : CoreM Expr := do
   ```lean
   theorem Tmₛ.app.inj {T : Type u} {A : T → Tyₛ} {a : Tmₛ (Tyₛ.SPi T A)} {arg : T} {T_1 : Type u} {a_1 : Tmₛ (Tyₛ.SPi T_1 A)} :
   Tmₛ.app a arg = Tmₛ.app a_1 arg →
-    T = T_1 ∧ HEq a a_1 := fun x => Tmₛ.noConfusion x fun T_eq A_eq a_eq arg_eq => eq_of_heq a_eq
+    T = T_1 ∧ a ≍ a_1 := fun x => Tmₛ.noConfusion x fun T_eq A_eq a_eq arg_eq => eq_of_heq a_eq
   ```
   Instead of checking the type of every subterm, we only need to check the type of free variables, since free variables introduced in
   the constructor may only appear in the type of other free variables introduced after them.
@@ -188,6 +188,7 @@ def mkInjectiveTheorems (declName : Name) : MetaM Unit := do
       -- See https://github.com/leanprover/lean4/issues/2188
       withLCtx {} {} do
       for ctor in info.ctors do
+        withExporting (isExporting := !isPrivateName ctor) do
         withTraceNode `Meta.injective (fun _ => return m!"{ctor}") do
           let ctorVal ← getConstInfoCtor ctor
           if ctorVal.numFields > 0 then

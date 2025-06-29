@@ -140,7 +140,7 @@ def getSimpContext : MetaM Simp.Context := do
   Simp.mkContext
     (simpTheorems  := #[s])
     (congrTheorems := (← getSimpCongrTheorems))
-    (config        := { Simp.neutralConfig with dsimp := false })
+    (config        := { Simp.neutralConfig with dsimp := false, letToHave := true })
 
 /--
   Default `discharge?` function for `simpIf` methods.
@@ -189,6 +189,7 @@ def splitIfAt? (mvarId : MVarId) (e : Expr) (hName? : Option Name) : MetaM (Opti
     trace[Meta.Tactic.splitIf] "splitting on {decInst}"
     return some (← mvarId.byCasesDec cond decInst hName)
   else
+    trace[Meta.Tactic.splitIf] "could not find if to split:{indentExpr e}"
     return none
 
 end SplitIf

@@ -14,10 +14,16 @@ example {X Y : Type} [Vec X] [Vec Y] (f : X → Y) (x dx : X)
 instance : Vec Nat := ⟨⟩
 instance : Vec' Nat := ⟨⟩
 
-set_option trace.Meta.Tactic.simp true
+set_option trace.Meta.Tactic.simp.rewrite true
 /--
-info: [Meta.Tactic.simp.rewrite] differential_of_linear:1000, differential f x dx ==> f dx
-[Meta.Tactic.simp.rewrite] eq_self:1000, f dx = f dx ==> True
+trace: [Meta.Tactic.simp.rewrite] differential_of_linear:1000:
+      differential f x dx
+    ==>
+      f dx
+[Meta.Tactic.simp.rewrite] eq_self:1000:
+      f dx = f dx
+    ==>
+      True
 -/
 #guard_msgs in
 example {Y : Type} [Vec Y] (f : Nat → Y) (x dx : Nat)

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Control.Except
+import Init.Data.Option.Coe
 
 namespace Lean
 

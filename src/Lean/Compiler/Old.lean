@@ -31,12 +31,11 @@ def getDeclNamesForCodeGen : Declaration → List Name
   | Declaration.axiomDecl { name := n, .. }  => [n] -- axiom may be tagged with `@[extern ...]`
   | _                                        => []
 
-def checkIsDefinition (env : Environment) (n : Name) : Except String Unit :=
-match env.find? n with
-  | (some (ConstantInfo.defnInfo _))   => Except.ok ()
-  | (some (ConstantInfo.opaqueInfo _)) => Except.ok ()
-  | none => Except.error s!"unknown declaration '{n}'"
-  | _    => Except.error s!"declaration is not a definition '{n}'"
+def checkIsDefinition (env : Environment) (n : Name) : Except String Unit := do
+  let some info := env.findAsync? n
+    | throw s!"unknown declaration '{n}'"
+  unless info.kind matches .defn | .opaque do
+    throw s!"declaration is not a definition '{n}'"
 
 /--
   We generate auxiliary unsafe definitions for regular recursive definitions.

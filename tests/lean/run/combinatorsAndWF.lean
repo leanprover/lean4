@@ -5,12 +5,12 @@ where
     match cs with
     | [] => a
     | c :: cs =>
-      have : sizeOf c < sizeOf (c :: cs) := by simp_arith
+      have : sizeOf c < sizeOf (c :: cs) := by simp +arith
       -- TODO: simplify using linarith
       have h₁ : sizeOf c < sizeOf bs := Nat.lt_of_lt_of_le this h
-      have : sizeOf cs + (sizeOf c + 1) = sizeOf c + sizeOf cs + 1 := by simp_arith
+      have : sizeOf cs + (sizeOf c + 1) = sizeOf c + sizeOf cs + 1 := by simp +arith
       have : sizeOf cs ≤ sizeOf c + sizeOf cs + 1 := by rw [← this]; apply Nat.le_add_right
-      have h₂ : sizeOf cs ≤ sizeOf bs := by simp_arith at h; apply Nat.le_trans this h
+      have h₂ : sizeOf cs ≤ sizeOf bs := by simp +arith at h; apply Nat.le_trans this h
       go (f a c h₁) cs h₂
 
 theorem List.foldl_wf_eq [SizeOf β] (bs : List β) (init : α) (f : α → β → α) : bs.foldl_wf init (fun a b _ => f a b) = bs.foldl f init := by
@@ -56,12 +56,12 @@ where
     match cs with
     | [] => []
     | c :: cs =>
-      have : sizeOf c < sizeOf (c :: cs) := by simp_arith
+      have : sizeOf c < sizeOf (c :: cs) := by simp +arith
       -- TODO: simplify using linarith
       have h₁ : sizeOf c < sizeOf as := Nat.lt_of_lt_of_le this h
-      have : sizeOf cs + (sizeOf c + 1) = sizeOf c + sizeOf cs + 1 := by simp_arith
+      have : sizeOf cs + (sizeOf c + 1) = sizeOf c + sizeOf cs + 1 := by simp +arith
       have : sizeOf cs ≤ sizeOf c + sizeOf cs + 1 := by rw [← this]; apply Nat.le_add_right
-      have h₂ : sizeOf cs ≤ sizeOf as := by simp_arith at h; apply Nat.le_trans this h
+      have h₂ : sizeOf cs ≤ sizeOf as := by simp +arith at h; apply Nat.le_trans this h
       f c h₁ :: go cs h₂
 
 theorem List.map_wf_eq [SizeOf α] (as : List α) (f : α → β) : as.map_wf (fun a _ => f a) = as.map f := by

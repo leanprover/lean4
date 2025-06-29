@@ -56,6 +56,14 @@ class Formula (α : outParam (Type u)) (β : outParam (Type v)) [Clause α β] (
     ∀ f : σ, ∀ c : β, ∀ p : Literal α, ∀ rupHints : Array Nat, ∀ ratHints : Array (Nat × Array Nat), ∀ f' : σ,
     ReadyForRatAdd f → p ∈ Clause.toList c → performRatAdd f c p rupHints ratHints = (f', true) → Equisat α f f'
 
+open Formula
+
+attribute [grind] insert_iff readyForRupAdd_insert readyForRatAdd_insert
+  delete_subset readyForRupAdd_delete readyForRatAdd_delete
+
+attribute [grind →]
+  rupAdd_result rupAdd_sound ratAdd_result ratAdd_sound
+
 end Internal
 end LRAT
 end Std.Tactic.BVDecide

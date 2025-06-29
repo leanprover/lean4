@@ -7,6 +7,7 @@ prelude
 import Lean.Meta.Transform
 import Lean.Meta.Match.MatcherInfo
 import Lean.Compiler.ExternAttr
+import Lean.Compiler.InitAttr
 import Lean.Compiler.ImplementedByAttr
 import Lean.Compiler.LCNF.ToLCNF
 
@@ -26,9 +27,9 @@ private def normalizeAlt (e : Expr) (numParams : Nat) : MetaM Expr :=
     if xs.size == numParams then
       return e
     else if xs.size > numParams then
-      let body ← Meta.mkLambdaFVars xs[numParams:] body
+      let body ← Meta.mkLambdaFVars xs[numParams...*] body
       let body ← Meta.withLetDecl (← mkFreshUserName `_k) (← Meta.inferType body) body fun x => Meta.mkLetFVars #[x] x
-      Meta.mkLambdaFVars xs[:numParams] body
+      Meta.mkLambdaFVars xs[*...numParams] body
     else
       Meta.forallBoundedTelescope (← Meta.inferType e) (numParams - xs.size) fun ys _ =>
         Meta.mkLambdaFVars (xs ++ ys) (mkAppN e ys)
@@ -98,23 +99,27 @@ def toDecl (declName : Name) : CompilerM Decl := do
   let declName := if let some name := isUnsafeRecName? declName then name else declName
   let some info ← getDeclInfo? declName | throwError "declaration `{declName}` not found"
   let safe := !info.isPartial && !info.isUnsafe
-  let inlineAttr? := getInlineAttribute? (← getEnv) declName
-  if let some externAttrData := getExternAttrData? (← getEnv) declName then
-    let paramsFromTypeBinders (expr : Expr) : CompilerM (Array Param) := do
-      let mut params := #[]
-      let mut currentExpr := expr
-      repeat
-        match currentExpr with
-        | .forallE binderName type body _ =>
-          let borrow := isMarkedBorrowed type
-          params := params.push (← mkParam binderName type borrow)
-          currentExpr := body
-        | _ => break
-      return params
-
+  let env ← getEnv
+  let inlineAttr? := getInlineAttribute? env declName
+  let paramsFromTypeBinders (expr : Expr) : CompilerM (Array Param) := do
+    let mut params := #[]
+    let mut currentExpr := expr
+    repeat
+      match currentExpr with
+      | .forallE binderName type body _ =>
+        let borrow := isMarkedBorrowed type
+        params := params.push (← mkParam binderName type borrow)
+        currentExpr := body
+      | _ => break
+    return params
+  if let some externAttrData := getExternAttrData? env declName then
     let type ← Meta.MetaM.run' (toLCNFType info.type)
     let params ← paramsFromTypeBinders type
     return { name := declName, params, type, value := .extern externAttrData, levelParams := info.levelParams, safe, inlineAttr? }
+  else if hasInitAttr env declName then
+    let type ← Meta.MetaM.run' (toLCNFType info.type)
+    let params ← paramsFromTypeBinders type
+    return { name := declName, params, type, value := .extern { entries := [] }, levelParams := info.levelParams, safe, inlineAttr? }
   else
     let some value := info.value? (allowOpaque := true) | throwError "declaration `{declName}` does not have a value"
     let (type, value) ← Meta.MetaM.run' do
@@ -126,11 +131,6 @@ def toDecl (declName : Name) : CompilerM Decl := do
       let value ← inlineMatchers value
       /- Recall that `inlineMatchers` may have exposed `ite`s and `dite`s which are tagged as `[macro_inline]`. -/
       let value ← macroInline value
-      /-
-      Remark: we have disabled the following transformatbion, we will perform it at phase 2, after code specialization.
-      It prevents many optimizations (e.g., "cases-of-ctor").
-      -/
-      -- let value ← applyCasesOnImplementedBy value
       return (type, value)
     let code ← toLCNF value
     let decl ← if let .fun decl (.return _) := code then

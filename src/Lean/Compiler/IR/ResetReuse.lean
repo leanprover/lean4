@@ -190,7 +190,7 @@ partial def R (e : FnBody) : M FnBody := do
             return alt
           else
             .ctor c <$> D x c b
-        | _ => return alt
+        | .default _ => return alt
       return .case tid x xType alts
   | .jdecl j ys v b =>
     let v ← R v

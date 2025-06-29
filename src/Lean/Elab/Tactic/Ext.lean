@@ -5,6 +5,7 @@ Authors: Gabriel Ebner, Mario Carneiro
 -/
 prelude
 import Init.Ext
+import Lean.Meta.Tactic.Ext
 import Lean.Elab.DeclarationRange
 import Lean.Elab.Tactic.RCases
 import Lean.Elab.Tactic.Repeat
@@ -29,7 +30,7 @@ states that two structures are equal if their fields are equal.
 
 Calls the continuation `k` with the list of parameters to the structure,
 two structure variables `x` and `y`, and a list of pairs `(field, ty)`
-where each `ty` is of the form `x.field = y.field` or `HEq x.field y.field`.
+where each `ty` is of the form `x.field = y.field` or `x.field ≍ y.field`.
 
 If `flat` parses to `true`, any fields inherited from parent structures
 are treated as fields of the given structure type.
@@ -77,7 +78,7 @@ def mkExtIffType (extThmName : Name) : MetaM Expr := withLCtx {} {} do
     unless xIdx + 1 == yIdx do
       throwError "expecting {x} and {y} to be consecutive arguments"
     let startIdx := yIdx + 1
-    let toRevert := args[startIdx:].toArray
+    let toRevert := args[startIdx...*].toArray
     let fvars ← toRevert.foldlM (init := {}) (fun st e => return collectFVars st (← inferType e))
     for fvar in toRevert do
       unless ← Meta.isProof fvar do
@@ -87,11 +88,11 @@ def mkExtIffType (extThmName : Name) : MetaM Expr := withLCtx {} {} do
     let conj := mkAndN (← toRevert.mapM (inferType ·)).toList
     -- Make everything implicit except for inst implicits
     let mut newBis := #[]
-    for fvar in args[0:startIdx] do
+    for fvar in args[*...startIdx] do
       if (← fvar.fvarId!.getBinderInfo) matches .default | .strictImplicit then
         newBis := newBis.push (fvar.fvarId!, .implicit)
     withNewBinderInfos newBis do
-      mkForallFVars args[:startIdx] <| mkIff ty conj
+      mkForallFVars args[*...startIdx] <| mkIff ty conj
 
 /--
 Ensures that the given structure has an ext theorem, without validating any pre-existing theorems.
@@ -109,7 +110,7 @@ def realizeExtTheorem (structName : Name) (flat : Bool) : Elab.Command.CommandEl
         let type ← mkExtType structName flat
         let pf ← withSynthesize do
           let indVal ← getConstInfoInduct structName
-          let params := Array.mkArray indVal.numParams (← `(_))
+          let params := Array.replicate indVal.numParams (← `(_))
           Elab.Term.elabTermEnsuringType (expectedType? := type) (implicitLambda := false)
             -- introduce the params, do cases on 'x' and 'y', and then substitute each equation
             (← `(by intro $params* {..} {..}; intros; subst_eqs; rfl))
@@ -161,7 +162,7 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
         -- Only declarations in a namespace can be protected:
         unless extIffName.isAtomic do
           modifyEnv fun env => addProtected env extIffName
-        addDeclarationRangesFromSyntax extName (← getRef)
+        addDeclarationRangesFromSyntax extIffName (← getRef)
     catch e =>
       throwError m!"\
         Failed to generate an 'ext_iff' theorem from '{.ofConstName extName}': {e.toMessageData}\n\
@@ -174,65 +175,8 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
 ### Attribute
 -/
 
-/-- Information about an extensionality theorem, stored in the environment extension. -/
-structure ExtTheorem where
-  /-- Declaration name of the extensionality theorem. -/
-  declName : Name
-  /-- Priority of the extensionality theorem. -/
-  priority : Nat
-  /--
-  Key in the discrimination tree,
-  for the type in which the extensionality theorem holds.
-  -/
-  keys : Array DiscrTree.Key
-  deriving Inhabited, Repr, BEq, Hashable
-
-/-- The state of the `ext` extension environment -/
-structure ExtTheorems where
-  /-- The tree of `ext` extensions. -/
-  tree   : DiscrTree ExtTheorem := {}
-  /-- Erased `ext`s via `attribute [-ext]`. -/
-  erased  : PHashSet Name := {}
-  deriving Inhabited
-
-/-- The environment extension to track `@[ext]` theorems. -/
-builtin_initialize extExtension :
-    SimpleScopedEnvExtension ExtTheorem ExtTheorems ←
-  registerSimpleScopedEnvExtension {
-    addEntry := fun { tree, erased } thm =>
-      { tree := tree.insertCore thm.keys thm, erased := erased.erase thm.declName }
-    initial := {}
-  }
-
-/-- Gets the list of `@[ext]` theorems corresponding to the key `ty`,
-ordered from high priority to low. -/
-@[inline] def getExtTheorems (ty : Expr) : MetaM (Array ExtTheorem) := do
-  let extTheorems := extExtension.getState (← getEnv)
-  let arr ← extTheorems.tree.getMatch ty
-  let erasedArr := arr.filter fun thm => !extTheorems.erased.contains thm.declName
-  -- Using insertion sort because it is stable and the list of matches should be mostly sorted.
-  -- Most ext theorems have default priority.
-  return erasedArr.insertionSort (·.priority < ·.priority) |>.reverse
-
-/--
-Erases a name marked `ext` by adding it to the state's `erased` field and
-removing it from the state's list of `Entry`s.
-
-This is triggered by `attribute [-ext] name`.
--/
-def ExtTheorems.eraseCore (d : ExtTheorems) (declName : Name) : ExtTheorems :=
- { d with erased := d.erased.insert declName }
-
-/--
-Erases a name marked as a `ext` attribute.
-Check that it does in fact have the `ext` attribute by making sure it names a `ExtTheorem`
-found somewhere in the state's tree, and is not erased.
--/
-def ExtTheorems.erase [Monad m] [MonadError m] (d : ExtTheorems) (declName : Name) :
-    m ExtTheorems := do
-  unless d.tree.containsValueP (·.declName == declName) && !d.erased.contains declName do
-    throwError "'{declName}' does not have [ext] attribute"
-  return d.eraseCore declName
+abbrev extExtension := Meta.Ext.extExtension
+abbrev getExtTheorems := Meta.Ext.getExtTheorems
 
 builtin_initialize registerBuiltinAttribute {
   name := `ext
@@ -364,8 +308,8 @@ def extCore (g : MVarId) (pats : List (TSyntax `rcasesPat))
     let (used, gs) ← extCore (← getMainGoal) pats.toList depth
     if RCases.linter.unusedRCasesPattern.get (← getOptions) then
       if used < pats.size then
-        Linter.logLint RCases.linter.unusedRCasesPattern (mkNullNode pats[used:].toArray)
-          m!"`ext` did not consume the patterns: {pats[used:]}"
+        Linter.logLint RCases.linter.unusedRCasesPattern (mkNullNode pats[used...*].toArray)
+          m!"`ext` did not consume the patterns: {pats[used...*]}"
     replaceMainGoal <| gs.map (·.1) |>.toList
   | _ => throwUnsupportedSyntax
 

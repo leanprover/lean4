@@ -10,7 +10,7 @@ import Std.Data.HashMap.Raw
 namespace Lean
 
 structure HasConstCache (declNames : Array Name) where
-  cache : Std.HashMap.Raw Expr Bool := Std.HashMap.Raw.empty
+  cache : Std.HashMap.Raw Expr Bool := ∅
 
 unsafe def HasConstCache.containsUnsafe (e : Expr) : StateM (HasConstCache declNames) Bool := do
   if let some r := (← get).cache.get? (beq := ⟨ptrEq⟩) e then

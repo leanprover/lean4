@@ -5,6 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Std.Tactic.BVDecide
+import Std.Tactic.Do
 
 /-!
 This directory is mainly used for bootstrapping reasons. Suppose a tactic generates a proof term

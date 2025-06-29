@@ -8,6 +8,7 @@ import Lean.Data.Name
 import Lean.Data.Options
 import Lake.Config.Env
 import Lake.Load.Manifest
+import Lake.Util.FilePath
 
 namespace Lake
 open System Lean
@@ -22,12 +23,16 @@ structure LoadConfig where
   A value of `none` means that Lake is not restartable via the CLI.
   -/
   lakeArgs? : Option (Array String) := none
-  /-- The root directory of the Lake workspace. -/
+  /-- The absolute path to the root directory of the Lake workspace. -/
   wsDir : FilePath
-  /-- The directory of the loaded package (relative to the root). -/
+  /-- The loaded package's directory (relative to the workspace directory). -/
   relPkgDir : FilePath := "."
-  /-- The package's Lake configuration file (relative to the package directory). -/
+  /-- The absolute path to the loaded package's directory. -/
+  pkgDir : FilePath := wsDir / relPkgDir
+  /-- The package's Lake configuration file (relative to its directory). -/
   relConfigFile : FilePath := defaultConfigFile
+    /-- The full path to the loaded package's Lake configuration file. -/
+  configFile : FilePath := pkgDir / relConfigFile
   /-- Additional package overrides for this workspace load. -/
   packageOverrides : Array PackageEntry := #[]
   /-- A set of key-value Lake configuration options (i.e., `-K` settings). -/
@@ -47,14 +52,6 @@ structure LoadConfig where
   scope : String := ""
   /-- The URL to this package's Git remote (if any). -/
   remoteUrl : String := ""
-
-/-- The full path to loaded package's directory. -/
-@[inline] def LoadConfig.pkgDir (cfg : LoadConfig) : FilePath :=
-  cfg.wsDir / cfg.relPkgDir
-
-/-- The full path to loaded package's configuration file. -/
-@[inline] def LoadConfig.configFile (cfg : LoadConfig) : FilePath :=
-  cfg.pkgDir / cfg.relConfigFile
 
 /-- The package's Lake directory (for Lake temporary files). -/
 @[inline] def LoadConfig.lakeDir (cfg : LoadConfig) : FilePath :=

@@ -39,12 +39,12 @@ structure FindState where
   /--
   All current join point candidates accessible by their `FVarId`.
   -/
-  candidates : Std.HashMap FVarId CandidateInfo := .empty
+  candidates : Std.HashMap FVarId CandidateInfo := ∅
   /--
   The `FVarId`s of all `fun` declarations that were declared within the
   current `fun`.
   -/
-  scope : Std.HashSet FVarId := .empty
+  scope : Std.HashSet FVarId := ∅
 
 abbrev ReplaceCtx := Std.HashMap FVarId Name
 
@@ -88,7 +88,7 @@ private partial def removeCandidatesInLetValue (e : LetValue) : FindM Unit := do
 Add a new join point candidate to the state.
 -/
 private def addCandidate (fvarId : FVarId) (arity : Nat) : FindM Unit := do
-  let cinfo := { arity, associated := .empty }
+  let cinfo := { arity, associated := ∅ }
   modifyCandidates (fun cs => cs.insert fvarId cinfo )
 
 /--
@@ -177,7 +177,7 @@ and all calls to them with `jmp`s.
 -/
 partial def replace (decl : Decl) (state : FindState) : CompilerM Decl := do
   let mapper := fun acc cname _ => do return acc.insert cname (← mkFreshJpName)
-  let replaceCtx : ReplaceCtx ← state.candidates.foldM (init := .empty) mapper
+  let replaceCtx : ReplaceCtx ← state.candidates.foldM (init := ∅) mapper
   let newValue ← decl.value.mapCodeM go |>.run replaceCtx
   return { decl with value := newValue }
 where
@@ -546,13 +546,13 @@ where
         let mut newArgs := knownArgs
         for (param, arg) in decl.params.zip args do
           if let some knownVal := newArgs[param.fvarId]? then
-            if arg.toExpr != knownVal then
+            if arg != knownVal then
               newArgs := newArgs.erase param.fvarId
         modify fun s => { s with jpJmpArgs := s.jpJmpArgs.insert fn newArgs }
       else
         let folder := fun acc (param, arg) => do
           if (← allFVarM (isInJpScope fn) arg) then
-            return acc.insert param.fvarId arg.toExpr
+            return acc.insert param.fvarId arg
           else
             return acc
         let interestingArgs ← decl.params.zip args |>.foldlM (init := {}) folder

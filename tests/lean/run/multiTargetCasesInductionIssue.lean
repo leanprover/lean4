@@ -24,7 +24,7 @@ def Vec.casesOn
   | ⟨as, h⟩ => go n as h
 
 /--
-info: α : Type u_1
+trace: α : Type u_1
 n✝ : Nat
 a✝ : α
 as✝ : Vec α n✝
@@ -43,14 +43,14 @@ example (n : Nat) (a : α) (as : Vec α n) : Vec.cons a (Vec.cons a as) = Vec.co
     constructor
 
 /--
-info: α : Type u_1
+trace: α : Type u_1
 n✝ : Nat
 a✝ : α
 as✝ : Vec α n✝
 n : Nat
 a : α
 as : Vec α n
-ih : n + 1 = n → HEq (Vec.cons a as) as → Vec.cons a as = Vec.cons a as
+ih : n + 1 = n → Vec.cons a as ≍ as → Vec.cons a as = Vec.cons a as
 ⊢ Vec.cons a as = Vec.cons a as
 -/
 #guard_msgs in
@@ -62,7 +62,7 @@ example (n : Nat) (a : α) (as : Vec α n) : Vec.cons a (Vec.cons a as) = Vec.co
     constructor
 
 /--
-info: α : Type u_1
+trace: α : Type u_1
 n : Nat
 a : α
 as : Vec α n
@@ -70,8 +70,8 @@ n' : Nat
 a' : α
 as' : Vec α n'
 h₁ : n + 2 = n' + 1
-h₂ : HEq (Vec.cons a (Vec.cons a as)) (Vec.cons a' as')
-ih : n' + 1 = n' → HEq (Vec.cons a' as') as' → Vec.cons a' as' = Vec.cons a' as'
+h₂ : Vec.cons a (Vec.cons a as) ≍ Vec.cons a' as'
+ih : n' + 1 = n' → Vec.cons a' as' ≍ as' → Vec.cons a' as' = Vec.cons a' as'
 ⊢ Vec.cons a' as' = Vec.cons a' as'
 -/
 #guard_msgs in

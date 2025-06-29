@@ -15,6 +15,14 @@ def declareBuiltinDocStringAndRanges (declName : Name) : AttrM Unit := do
   if let some declRanges ← findDeclarationRanges? declName then
     declareBuiltin (declName ++ `declRange) (mkAppN (mkConst ``addBuiltinDeclarationRanges) #[toExpr declName, toExpr declRanges])
 
+/--
+Makes the documentation and location of a declaration available as a builtin.
+
+This allows the documentation of core Lean features to be visible without importing the file they
+are defined in. This is only useful during bootstrapping and should not be used outside of
+the Lean source code.
+-/
+@[builtin_doc]
 builtin_initialize
   registerBuiltinAttribute {
     name  := `builtin_doc

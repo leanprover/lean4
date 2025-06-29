@@ -61,7 +61,7 @@ builtin_dsimproc [simp, seval] reducePow ((_ ^ _ : Nat)) := fun e => do
   unless (← checkExponent m) do return .continue
   return .done <| toExpr (n ^ m)
 
-builtin_dsimproc [simp, seval] reduceAnd ((_ &&& _ : Nat)) := reduceBin ``HOr.hOr 6 (· &&& ·)
+builtin_dsimproc [simp, seval] reduceAnd ((_ &&& _ : Nat)) := reduceBin ``HAnd.hAnd 6 (· &&& ·)
 builtin_dsimproc [simp, seval] reduceXor ((_ ^^^ _ : Nat)) := reduceBin ``HXor.hXor 6 (· ^^^ ·)
 builtin_dsimproc [simp, seval] reduceOr ((_ ||| _ : Nat)) := reduceBin ``HOr.hOr 6 (· ||| ·)
 
@@ -344,5 +344,15 @@ builtin_simproc [simp, seval] reduceSubDiff ((_ - _ : Nat)) := fun e => do
       let finExpr := mkSubNat (mkAddNat pb (toExpr (pn - nn))) nb
       let geProof ← mkOfDecideEqTrue (mkGENat po no)
       applySimprocConst finExpr ``Nat.Simproc.add_sub_add_ge #[pb, nb, po, no, geProof]
+
+builtin_simproc [simp, seval] reduceDvd ((_ : Nat) ∣ _) := fun e => do
+  let_expr Dvd.dvd _ i a b ← e | return .continue
+  unless ← matchesInstance i (mkConst ``instDvd) do return .continue
+  let some va ← fromExpr? a | return .continue
+  let some vb ← fromExpr? b | return .continue
+  if vb % va == 0 then
+    return .done { expr := mkConst ``True, proof? := mkApp3 (mkConst ``Nat.dvd_eq_true_of_mod_eq_zero) a b reflBoolTrue}
+  else
+    return .done { expr := mkConst ``False, proof? := mkApp3 (mkConst ``Nat.dvd_eq_false_of_mod_ne_zero) a b reflBoolTrue}
 
 end Nat

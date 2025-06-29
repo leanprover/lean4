@@ -4,23 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Environment
+import Lean.EnvExtension
 
 namespace Lean
 
 def casesOnSuffix       := "casesOn"
 def recOnSuffix         := "recOn"
 def brecOnSuffix        := "brecOn"
-def binductionOnSuffix  := "binductionOn"
 def belowSuffix         := "below"
-def ibelowSuffix        := "ibelow"
 
 def mkCasesOnName (indDeclName : Name) : Name := Name.mkStr indDeclName casesOnSuffix
 def mkRecOnName (indDeclName : Name) : Name   := Name.mkStr indDeclName recOnSuffix
 def mkBRecOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName brecOnSuffix
-def mkBInductionOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName binductionOnSuffix
 def mkBelowName (indDeclName : Name) : Name := Name.mkStr indDeclName belowSuffix
-def mkIBelowName (indDeclName : Name) : Name := Name.mkStr indDeclName ibelowSuffix
 
 builtin_initialize auxRecExt : TagDeclarationExtension ← mkTagDeclarationExtension
 

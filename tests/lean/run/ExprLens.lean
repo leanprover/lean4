@@ -8,7 +8,7 @@ def Lean.LocalContext.subtract (Γ Δ : LocalContext) : Array Expr :=
   -- have Δ = Γ ++ E
   let Δ := Δ.getFVars
   let Γ := Γ.getFVars
-  let E := Δ[:(Δ.size - Γ.size)]
+  let E := Δ[*...(Δ.size - Γ.size)]
   E.toArray
 
 def ExprTraversal := ∀{M : _} [Monad M] [MonadLiftT MetaM M] [MonadControlT MetaM M] [MonadOptions M], (Pos → Expr → M Expr) → Pos → Expr → M Expr

@@ -96,12 +96,12 @@ private abbrev isGenDiseq (e : Expr) : Bool :=
 
   See `processGenDiseq`
 -/
-private def mkGenDiseqMask (e : Expr) : Array Bool :=
+def mkGenDiseqMask (e : Expr) : Array Bool :=
   go e #[]
 where
   go (e : Expr) (acc : Array Bool) : Array Bool :=
     match e with
-    | Expr.forallE _ d b _ => go b (acc.push (!b.hasLooseBVar 0 && (d.isEq || d.isHEq)))
+    | .forallE _ d b _ => go b (acc.push (!b.hasLooseBVar 0 && (d.isEq || d.isHEq)))
     | _ => acc
 
 /--
@@ -178,7 +178,7 @@ def _root_.Lean.MVarId.contradictionCore (mvarId : MVarId) (config : Contradicti
             mvarId.assign (← mkNoConfusion (← mvarId.getType) localDecl.toExpr)
             return true
         let mut isHEq := false
-        -- (h : HEq (ctor₁ ...) (ctor₂ ...))
+        -- (h : ctor₁ ... ≍ ctor₂ ...)
         if let some (α, lhs, β, rhs) ← matchHEq? localDecl.type then
           isHEq := true
           if let some lhsCtor ← matchConstructorApp? lhs then

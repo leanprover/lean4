@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Array.Basic
+public import Init.Data.Array.DecidableEq
 public import Init.Data.UInt.Basic
 public import all Init.Data.UInt.BasicAux
 public import Init.Data.Option.Basic
@@ -21,6 +22,14 @@ attribute [extern "lean_byte_array_mk"] ByteArray.mk
 attribute [extern "lean_byte_array_data"] ByteArray.data
 
 namespace ByteArray
+
+deriving instance BEq for ByteArray
+
+attribute [ext] ByteArray
+
+instance : DecidableEq ByteArray :=
+  fun _ _ => decidable_of_decidable_of_iff ByteArray.ext_iff.symm
+
 @[extern "lean_mk_empty_byte_array"]
 def emptyWithCapacity (c : @& Nat) : ByteArray :=
   { data := #[] }

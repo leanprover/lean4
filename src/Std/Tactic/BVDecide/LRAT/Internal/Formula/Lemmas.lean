@@ -3,9 +3,13 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.LRAT.Internal.Formula.Implementation
-import Std.Tactic.BVDecide.LRAT.Internal.CNF
+public import Std.Tactic.BVDecide.LRAT.Internal.Formula.Implementation
+public import Std.Tactic.BVDecide.LRAT.Internal.CNF
+
+public @[expose] section
 
 /-!
 This module contains basic statements about the invariants that are satisfied by the LRAT checker

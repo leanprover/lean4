@@ -7,11 +7,13 @@ prelude
 import Lean.Environment
 import Lean.Compiler.IR.Format
 import Lean.Compiler.LCNF.CompilerM
+import Lean.Compiler.LCNF.MonoTypes
+import Lean.Compiler.LCNF.Types
 
 namespace Lean
 namespace IR
 
-open Lean.Compiler (LCNF.CacheExtension)
+open Lean.Compiler (LCNF.CacheExtension LCNF.isTypeFormerType LCNF.toLCNFType LCNF.toMonoType)
 
 builtin_initialize scalarTypeExt : LCNF.CacheExtension Name (Option IRType) ←
   LCNF.CacheExtension.register
@@ -91,36 +93,98 @@ instance : ToFormat CtorFieldInfo := ⟨format⟩
 end CtorFieldInfo
 
 structure CtorLayout where
-  cidx       : Nat
-  fieldInfo  : List CtorFieldInfo
-  numObjs    : Nat
-  numUSize   : Nat
-  scalarSize : Nat
+  ctorInfo : CtorInfo
+  fieldInfo : Array CtorFieldInfo
+  deriving Inhabited
 
-@[extern "lean_ir_get_ctor_layout"]
-opaque getCtorLayout (env : @& Environment) (ctorName : @& Name) : Except String CtorLayout
-
-builtin_initialize ctorInfoExt : LCNF.CacheExtension Name (CtorInfo × (Array CtorFieldInfo)) ←
+builtin_initialize ctorLayoutExt : LCNF.CacheExtension Name CtorLayout ←
   LCNF.CacheExtension.register
 
-def getCtorInfo (name : Name) : CoreM (CtorInfo × (Array CtorFieldInfo)) := do
-  match (← ctorInfoExt.find? name) with
+def getCtorLayout (ctorName : Name) : CoreM CtorLayout := do
+  match (← ctorLayoutExt.find? ctorName) with
   | some info => return info
   | none =>
     let info ← fillCache
-    ctorInfoExt.insert name info
+    ctorLayoutExt.insert ctorName info
     return info
 where fillCache := do
-  match getCtorLayout (← Lean.getEnv) name with
-  | .ok ctorLayout =>
-    return ⟨{
-      name,
-      cidx := ctorLayout.cidx,
-      size := ctorLayout.numObjs,
-      usize := ctorLayout.numUSize,
-      ssize := ctorLayout.scalarSize
-    }, ctorLayout.fieldInfo.toArray⟩
-  | .error .. => panic! "unrecognized constructor"
+  let .some (.ctorInfo ctorInfo) := (← getEnv).find? ctorName | unreachable!
+  Meta.MetaM.run' <| Meta.forallTelescopeReducing ctorInfo.type fun params _ => do
+    let mut fields : Array CtorFieldInfo := .emptyWithCapacity ctorInfo.numFields
+    let mut nextIdx := 0
+    let mut has1BScalar := false
+    let mut has2BScalar := false
+    let mut has4BScalar := false
+    let mut has8BScalar := false
+    for field in params[ctorInfo.numParams...(ctorInfo.numParams + ctorInfo.numFields)] do
+      let fieldType ← field.fvarId!.getType
+      let lcnfFieldType ← LCNF.toLCNFType fieldType
+      let monoFieldType ← LCNF.toMonoType lcnfFieldType
+      let ctorField ← match (← toIRType monoFieldType) with
+      | .object | .tobject => do
+        let i := nextIdx
+        nextIdx := nextIdx + 1
+        pure <| .object i
+      | .usize => pure <| .usize 0
+      | .irrelevant => .pure <| .irrelevant
+      | .uint8 =>
+        has1BScalar := true
+        .pure <| .scalar 1 0 .uint8
+      | .uint16 =>
+        has2BScalar := true
+        .pure <| .scalar 2 0 .uint16
+      | .uint32 =>
+        has4BScalar := true
+        .pure <| .scalar 4 0 .uint32
+      | .uint64 =>
+        has8BScalar := true
+        .pure <| .scalar 8 0 .uint64
+      | .float32 =>
+        has4BScalar := true
+        .pure <| .scalar 4 0 .float32
+      | .float =>
+        has8BScalar := true
+        .pure <| .scalar 8 0 .float
+      | .struct .. | .union .. => unreachable!
+      fields := fields.push ctorField
+    let numObjs := nextIdx
+    ⟨fields, nextIdx⟩ := Id.run <| StateT.run (s := nextIdx) <| fields.mapM fun field => do
+      match field with
+      | .usize _ => do
+        let i ← modifyGet fun nextIdx => (nextIdx, nextIdx + 1)
+        return .usize i
+      | .object _ | .scalar .. | .irrelevant => return field
+    let numUSize := nextIdx - numObjs
+    let adjustScalarsForSize (fields : Array CtorFieldInfo) (size : Nat) (nextOffset : Nat)
+        : Array CtorFieldInfo × Nat :=
+      Id.run <| StateT.run (s := nextOffset) <| fields.mapM fun field => do
+        match field with
+        | .scalar sz _ type => do
+          if sz == size then
+            let offset ← modifyGet fun nextOffset => (nextOffset, nextOffset + sz)
+            return .scalar sz offset type
+          else
+            return field
+        | .object _ | .usize _ | .irrelevant => return field
+    let mut nextOffset := 0
+    if has8BScalar then
+      ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 8 nextOffset
+    if has4BScalar then
+      ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 4 nextOffset
+    if has2BScalar then
+      ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 2 nextOffset
+    if has1BScalar then
+      ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 1 nextOffset
+    return {
+      ctorInfo := {
+        name := ctorName
+        cidx := ctorInfo.cidx
+        size := numObjs
+        usize := numUSize
+        ssize := nextOffset
+      }
+      fieldInfo := fields
+    }
 
 end IR
 end Lean

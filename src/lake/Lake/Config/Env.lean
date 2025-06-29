@@ -39,7 +39,9 @@ structure Env where
   Can be overridden on a per-command basis with`--try-cache`.
   -/
   noCache : Bool
-  /-- The directory of the Lake cache. If `none`, the cache is disabled. -/
+  /-- Whether the Lake artifact cache should be enabled by default (i.e., `LAKE_ARTIFACT_CACHE`). -/
+  enableArtifactCache : Bool
+  /-- The directory of the Lake cache. Set by `LAKE_CACHE_DIR`. If `none`, the cache is disabled. -/
   lakeCache : Cache
   /-- The initial Elan toolchain of the environment (i.e., `ELAN_TOOLCHAIN`). -/
   initToolchain : String
@@ -115,6 +117,7 @@ def compute
     pkgUrlMap := ← computePkgUrlMap
     reservoirApiUrl := ← getUrlD "RESERVOIR_API_URL" s!"{reservoirBaseUrl}/v1"
     noCache := (noCache <|> (← IO.getEnv "LAKE_NO_CACHE").bind envToBool?).getD false
+    enableArtifactCache := (← IO.getEnv "LAKE_ARTIFACT_CACHE").bind envToBool? |>.getD false
     lakeCache := ← computeCache elan? toolchain
     githashOverride := (← IO.getEnv "LEAN_GITHASH").getD ""
     toolchain
@@ -208,6 +211,8 @@ def baseVars (env : Env) : Array (String × Option String)  :=
     ("LAKE", env.lake.lake.toString),
     ("LAKE_HOME", env.lake.home.toString),
     ("LAKE_PKG_URL_MAP", toJson env.pkgUrlMap |>.compress),
+    ("LAKE_NO_CACHE", toString env.noCache),
+    ("LAKE_ARTIFACT_CACHE", toString env.enableArtifactCache),
     ("LAKE_CACHE_DIR", if env.lakeCache.isDisabled then none else env.lakeCache.dir.toString),
     ("LEAN", env.lean.lean.toString),
     ("LEAN_GITHASH", env.leanGithash),

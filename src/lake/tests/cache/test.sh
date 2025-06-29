@@ -8,9 +8,23 @@ source ../common.sh
 TEST_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 CACHE_DIR="$TEST_DIR/.lake/cache"
 
-# Ensure packages without `enableArtifactCache` do not use the cache
-LAKE_CACHE_DIR="$CACHE_DIR" test_run build -f disabled.toml Test:static
+# Verify packages without `enableArtifactCache` do not use the cache by default
+LAKE_CACHE_DIR="$CACHE_DIR" test_run build -f unset.toml Test:static
 test_exp ! -d "$CACHE_DIR"
+# Verify they also do not if `LAKE_ARTIFACT_CACHE` is set to `false`
+LAKE_CACHE_DIR="$CACHE_DIR" LAKE_ARTIFACT_CACHE=false \
+  test_run build -f unset.toml Test:static
+test_exp ! -d "$CACHE_DIR"
+# Verify packages with `enableArtifactCache` set to `false``
+# also do not if `LAKE_ARTIFACT_CACHE` is set to `true`
+LAKE_CACHE_DIR="$CACHE_DIR" LAKE_ARTIFACT_CACHE=true \
+  test_run build -f disabled.toml Test:static
+test_exp ! -d "$CACHE_DIR"
+# Verify that packages without `enableArtifactCache` and
+# `LAKE_ARTIFACT_CACHE` is set to `true` do use the cache
+LAKE_CACHE_DIR="$CACHE_DIR" LAKE_ARTIFACT_CACHE=true \
+  test_run build -f unset.toml Test:static
+test_exp -d "$CACHE_DIR"
 ./clean.sh
 
 # Ensure a build runs properly with some artifacts cached

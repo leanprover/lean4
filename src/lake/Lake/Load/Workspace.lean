@@ -23,7 +23,7 @@ Does not resolve dependencies.
 def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
   Lean.searchPathRef.set config.lakeEnv.leanSearchPath
   let (root, env?) ← loadPackageCore "[root]" config
-  let root ← root.loadInputsFrom config.lakeEnv.lakeCache
+  let root ← root.loadInputsFrom config.lakeEnv
   let ws : Workspace := {
     root
     lakeEnv := config.lakeEnv

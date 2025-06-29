@@ -3,9 +3,13 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune, Henrik Böving
 -/
+module
+
 prelude
-import Init.NotationExtra
-import Init.PropLemmas
+public import Init.NotationExtra
+public import Init.PropLemmas
+
+@[expose] public section
 
 namespace Std.Tactic.BVDecide
 namespace LRAT

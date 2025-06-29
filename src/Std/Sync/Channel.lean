@@ -3,11 +3,15 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.System.Promise
-import Init.Data.Queue
-import Std.Sync.Mutex
-import Std.Internal.Async.Select
+public import Init.System.Promise
+public import Init.Data.Queue
+public import Std.Sync.Mutex
+public import Std.Internal.Async.Select
+
+@[expose] public section
 
 /-!
 This module contains the implementation of `Std.Channel`. `Std.Channel` is a multi-producer

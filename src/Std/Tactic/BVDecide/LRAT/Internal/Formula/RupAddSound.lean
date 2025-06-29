@@ -3,8 +3,12 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.LRAT.Internal.Formula.RupAddResult
+public import Std.Tactic.BVDecide.LRAT.Internal.Formula.RupAddResult
+
+@[expose] public section
 
 /-!
 This module contains the verification of RUP-based clause adding for the default LRAT checker
@@ -342,7 +346,7 @@ theorem assignmentsInvariant_insertRupUnits_of_assignmentsInvariant {n : Nat} (f
     simp only [Fin.getElem_fin] at h2
     simp only [Clause.toList, h1, unit_eq, List.mem_cons, Prod.mk.injEq, Bool.false_eq_true,
       and_false, List.not_mem_nil, or_self, Bool.decide_eq_false, Bool.not_eq_eq_eq_not,
-      Bool.not_true, false_and, and_true, or_false, false_or, h2, Bool.true_eq_false, 
+      Bool.not_true, false_and, and_true, or_false, false_or, h2, Bool.true_eq_false,
       ] at hp1 hp2
     simp only [hp2.1, ← hp1.1, true_and] at hp2
     simp [hp1.2] at hp2

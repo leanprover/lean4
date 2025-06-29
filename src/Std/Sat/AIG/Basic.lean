@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Data.HashSet
-import Init.Data.Vector.Basic
+public import Std.Data.HashSet
+public import Init.Data.Vector.Basic
+
+@[expose] public section
 
 namespace Std
 namespace Sat

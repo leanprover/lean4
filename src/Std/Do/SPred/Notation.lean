@@ -3,8 +3,12 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license.
 Authors: Lars König, Sebastian Graf
 -/
+module
+
 prelude
-import Std.Do.SPred.SPred
+public import Std.Do.SPred.SPred
+
+@[expose] public section
 
 namespace Std.Do
 

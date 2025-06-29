@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Iterators.Consumers.Monadic
-import Init.Data.Iterators.Internal.Termination
+public import Init.Data.Iterators.Consumers.Monadic
+public import Init.Data.Iterators.Internal.Termination
+
+@[expose] public section
 
 /-!
 # Function-unfolding iterator

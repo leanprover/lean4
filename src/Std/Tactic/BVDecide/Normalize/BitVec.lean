@@ -3,12 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.BitVec.Bitblast
-import Init.Data.AC
-import Std.Tactic.BVDecide.Normalize.Bool
-import Std.Tactic.BVDecide.Normalize.Canonicalize
-import Init.Data.SInt.Basic
+public import Init.Data.BitVec.Bitblast
+public import Init.Data.AC
+public import Std.Tactic.BVDecide.Normalize.Bool
+public import Std.Tactic.BVDecide.Normalize.Canonicalize
+public import Init.Data.SInt.Basic
+
+@[expose] public section
 
 /-!
 This module contains the `BitVec` simplifying part of the `bv_normalize` simp set.

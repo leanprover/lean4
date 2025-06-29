@@ -255,7 +255,7 @@ def Poly.denote' [Ring α] (ctx : Context α) (p : Poly) : α :=
 where
   denoteTerm (k : Int) (m : Mon) : α :=
     bif k == 1 then
-      m.denote ctx
+      m.denote' ctx
     else
       Int.cast k * m.denote' ctx
 

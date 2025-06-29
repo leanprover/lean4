@@ -176,7 +176,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
       let some (.inductInfo { ctors, .. }) := (← Lean.getEnv).find? typeName
         | panic! "projection of non-inductive type"
       let ctorName := ctors[0]!
-      let ⟨ctorInfo, fields⟩ ← getCtorInfo ctorName
+      let ⟨ctorInfo, fields⟩ ← getCtorLayout ctorName
       let ⟨result, type⟩ := lowerProj varId ctorInfo fields[i]!
       match result with
       | .expr e =>
@@ -213,7 +213,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
           let var ← bindVar decl.fvarId
           return .vdecl var scalarType (.lit (.num ctorVal.cidx)) (← lowerCode k)
         else
-          let ⟨ctorInfo, fields⟩ ← getCtorInfo name
+          let ⟨ctorInfo, fields⟩ ← getCtorLayout name
           let args := args.extract (start := ctorVal.numParams)
           let objArgs : Array Arg ← do
             let mut result : Array Arg := #[]
@@ -296,7 +296,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
 partial def lowerAlt (discr : VarId) (a : LCNF.Alt) : M Alt := do
   match a with
   | .alt ctorName params code =>
-    let ⟨ctorInfo, fields⟩ ← getCtorInfo ctorName
+    let ⟨ctorInfo, fields⟩ ← getCtorLayout ctorName
     let lowerParams (params : Array LCNF.Param) (fields : Array CtorFieldInfo) : M FnBody := do
       let rec loop (i : Nat) : M FnBody := do
         match params[i]?, fields[i]? with

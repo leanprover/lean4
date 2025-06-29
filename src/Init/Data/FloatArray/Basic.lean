@@ -9,6 +9,8 @@ prelude
 public import Init.Data.Array.Basic
 public import Init.Data.Float
 public import Init.Data.Option.Basic
+import Init.Ext
+public import Init.Data.Array.DecidableEq
 
 public section
 universe u
@@ -20,6 +22,11 @@ attribute [extern "lean_float_array_mk"] FloatArray.mk
 attribute [extern "lean_float_array_data"] FloatArray.data
 
 namespace FloatArray
+
+deriving instance BEq for FloatArray
+
+attribute [ext] FloatArray
+
 @[extern "lean_mk_empty_float_array"]
 def emptyWithCapacity (c : @& Nat) : FloatArray :=
   { data := #[] }

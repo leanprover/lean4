@@ -9,7 +9,7 @@ import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.IR.Basic
 import Lean.Compiler.IR.CompilerM
-import Lean.Compiler.IR.CtorLayout
+import Lean.Compiler.IR.ToIRType
 import Lean.CoreM
 import Lean.Environment
 

@@ -2296,8 +2296,12 @@ of them are equal and cannot be distinguished.
 `Squash α` is a `Subsingleton`: it is empty if `α` is empty, otherwise it has just one element. It
 is the “universal `Subsingleton`” mapped from `α`.
 
-`Squash.lift` will extract a value in any subsingleton `β` from a function on `α`,
-while `Nonempty.rec` can only do the same when `β` is a proposition.
+`Nonempty α` also has these properties. It is a proposition, which means that its elements (i.e.
+proofs) are erased from compiled code and represented by a dummy value. `Squash α` is a `Type u`,
+and its representation in compiled code is identical to that of `α`.
+
+Consequently, `Squash.lift` may extract an `α` value into any subsingleton type `β`, while
+`Nonempty.rec` can only do the same when `β` is a proposition.
 
 We define `Squash` in terms of `Quotient` rather than just `Quot`. This means that
 `Squash` can be used when a `Quotient` argument is expected, and the setoid will be

@@ -4,11 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Grind.Ring.Poly
 import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.ProofUtil
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -20,12 +24,15 @@ structure ProofM.State where
   polyMap     : Std.HashMap Poly Expr := {}
   exprMap     : Std.HashMap Int.Linear.Expr Expr := {}
   natExprMap  : Std.HashMap Int.OfNat.Expr Expr := {}
+  ringPolyMap : Std.HashMap CommRing.Poly Expr := {}
+  ringExprMap : Std.HashMap CommRing.RingExpr Expr := {}
 
 structure ProofM.Context where
   ctx       : Expr
   /-- Variables before reordering -/
   ctx'      : Expr
   natCtx    : Expr
+  ringCtx   : Expr
   /--
   `unordered` is `true` if we entered a `.reorder c` justification. The variables in `c` and
   its dependencies are unordered.
@@ -64,25 +71,39 @@ private abbrev caching (c : α) (k : ProofM Expr) : ProofM Expr := do
     modify fun s => { s with cache := s.cache.insert addr h }
     return h
 
-def mkPolyDecl (p : Poly) : ProofM Expr := do
+private def mkPolyDecl (p : Poly) : ProofM Expr := do
   if let some x := (← get).polyMap[p]? then
     return x
   let x := mkFVar (← mkFreshFVarId)
   modify fun s => { s with polyMap := s.polyMap.insert p x }
   return x
 
-def mkExprDecl (e : Int.Linear.Expr) : ProofM Expr := do
+private def mkExprDecl (e : Int.Linear.Expr) : ProofM Expr := do
   if let some x := (← get).exprMap[e]? then
     return x
   let x := mkFVar (← mkFreshFVarId)
   modify fun s => { s with exprMap := s.exprMap.insert e x }
   return x
 
-def mkNatExprDecl (e : Int.OfNat.Expr) : ProofM Expr := do
+private def mkNatExprDecl (e : Int.OfNat.Expr) : ProofM Expr := do
   if let some x := (← get).natExprMap[e]? then
     return x
   let x := mkFVar (← mkFreshFVarId)
   modify fun s => { s with natExprMap := s.natExprMap.insert e x }
+  return x
+
+private def mkRingPolyDecl (p : CommRing.Poly) : ProofM Expr := do
+  if let some x := (← get).ringPolyMap[p]? then
+    return x
+  let x := mkFVar (← mkFreshFVarId)
+  modify fun s => { s with ringPolyMap := s.ringPolyMap.insert p x }
+  return x
+
+private def mkRingExprDecl (e : CommRing.RingExpr) : ProofM Expr := do
+  if let some x := (← get).ringExprMap[e]? then
+    return x
+  let x := mkFVar (← mkFreshFVarId)
+  modify fun s => { s with ringExprMap := s.ringExprMap.insert e x }
   return x
 
 private def toContextExprCore (vars : PArray Expr) (type : Expr) : MetaM Expr :=
@@ -100,18 +121,34 @@ private def toContextExpr' : GoalM Expr := do
 private def toNatContextExpr : GoalM Expr := do
   toContextExprCore (← getNatVars) Nat.mkType
 
+private def toRingContextExpr : GoalM Expr := do
+  if (← get').usedCommRing then
+    if let some ringId ← getIntRingId? then
+      return (← CommRing.RingM.run ringId do CommRing.toContextExpr)
+  RArray.toExpr Int.mkType id (RArray.leaf (mkIntLit 0))
+
 private abbrev withProofContext (x : ProofM Expr) : GoalM Expr := do
   withLetDecl `ctx (mkApp (mkConst ``RArray [levelZero]) Int.mkType) (← toContextExpr) fun ctx => do
   withLetDecl `ctx' (mkApp (mkConst ``RArray [levelZero]) Int.mkType) (← toContextExpr') fun ctx' => do
+  withLetDecl `rctx (mkApp (mkConst ``RArray [levelZero]) Int.mkType) (← toRingContextExpr) fun ringCtx => do
   withLetDecl `nctx (mkApp (mkConst ``RArray [levelZero]) Nat.mkType) (← toNatContextExpr) fun natCtx => do
-    go { ctx, ctx', natCtx } |>.run' {}
+    go { ctx, ctx', ringCtx, natCtx } |>.run' {}
 where
   go : ProofM Expr := do
     let h ← x
     let h ← mkLetOfMap (← get).polyMap h `p (mkConst ``Int.Linear.Poly) toExpr
     let h ← mkLetOfMap (← get).exprMap h `e (mkConst ``Int.Linear.Expr) toExpr
     let h ← mkLetOfMap (← get).natExprMap h `a (mkConst ``Int.OfNat.Expr) toExpr
-    mkLetFVars #[(← getContext), (← read).ctx', (← getNatContext)] h
+    let h ← mkLetOfMap (← get).ringPolyMap h `rp (mkConst ``Grind.CommRing.Poly) toExpr
+    let h ← mkLetOfMap (← get).ringExprMap h `re (mkConst ``Grind.CommRing.Expr) toExpr
+    mkLetFVars #[(← getContext), (← read).ctx', (← read).ringCtx, (← getNatContext)] h
+
+/--
+Returns a Lean expression representing the auxiliary `CommRing` variable context needed for normalizing
+nonlinear polynomials.
+-/
+private abbrev getRingContext : ProofM Expr := do
+  return (← read).ringCtx
 
 private def DvdCnstr.get_d_a (c : DvdCnstr) : GoalM (Int × Int) := do
   let d := c.d
@@ -302,6 +339,9 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
       return mkApp10 (mkConst thmName)
         (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr coeff) (← mkPolyDecl c'.p) (← s.toExprProof) reflBoolTrue
   | .reorder c => withUnordered <| c.toExprProof
+  | .commRingNorm c e p =>
+    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) reflBoolTrue
+    return mkApp5 (mkConst ``Int.Linear.le_norm_poly) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do
   match c'.h with
@@ -436,7 +476,8 @@ partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do u
   match c'.h with
   | .core .. | .coreNeg .. | .coreNat .. | .coreNatNeg .. | .coreToInt .. | .denoteAsIntNonneg .. | .bound .. => return ()
   | .dec h => markAsFound h
-  | .reorder c | .cooper c | .norm c | .divCoeffs c => c.collectDecVars
+  | .commRingNorm c .. | .reorder c | .cooper c
+  | .norm c | .divCoeffs c => c.collectDecVars
   | .dvdTight c₁ c₂ | .negDvdTight c₁ c₂
   | .combine c₁ c₂ | .combineDivCoeffs c₁ c₂ _
   | .subst _ c₁ c₂ | .ofLeDiseq c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars

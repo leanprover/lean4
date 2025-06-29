@@ -18,6 +18,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.SearchM
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.MBTC
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 
 namespace Lean
 
@@ -27,6 +28,7 @@ builtin_initialize registerTraceClass `grind.cutsat.assert
 builtin_initialize registerTraceClass `grind.cutsat.assert.trivial
 builtin_initialize registerTraceClass `grind.cutsat.assert.unsat
 builtin_initialize registerTraceClass `grind.cutsat.assert.store
+builtin_initialize registerTraceClass `grind.cutsat.assert.nonlinear
 
 builtin_initialize registerTraceClass `grind.debug.cutsat.subst
 builtin_initialize registerTraceClass `grind.debug.cutsat.search

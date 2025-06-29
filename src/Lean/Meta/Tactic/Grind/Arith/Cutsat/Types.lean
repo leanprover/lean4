@@ -10,6 +10,7 @@ import Lean.Data.PersistentArray
 import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -182,6 +183,7 @@ inductive LeCnstrProof where
   | dvdTight (c₁ : DvdCnstr) (c₂ : LeCnstr)
   | negDvdTight (c₁ : DvdCnstr) (c₂ : LeCnstr)
   | reorder (c : LeCnstr)
+  | commRingNorm (c : LeCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
 
 /-- A disequality constraint and its justification/proof. -/
 structure DiseqCnstr where
@@ -330,6 +332,10 @@ structure State where
   from a α-term `e` to the pair `(toInt e, α)`.
   -/
   toIntTermMap : PHashMap ExprPtr ToIntTermInfo := {}
+  /--
+  `usedCommRing` is `true` if the `CommRing` has been used to normalize expressions.
+  -/
+  usedCommRing : Bool := false
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.Cutsat

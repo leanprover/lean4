@@ -12,6 +12,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -135,6 +136,14 @@ private def toPolyLe? (e : Expr) : GoalM (Option Poly) := do
     reportNonNormalized e; return none
   return some (← toPoly a)
 
+/-- Asserts a constraint coming from the core. -/
+private def LeCnstr.assertCore (c : LeCnstr) : GoalM Unit := do
+  if let some (re, rp, p) ← c.p.normCommRing? then
+    let c := { p, h := .commRingNorm c re rp : LeCnstr}
+    c.assert
+  else
+    c.assert
+
 /--
 Given an expression `e` that is in `True` (or `False` equivalence class), if `e` is an
 integer inequality, asserts it to the cutsat state.
@@ -145,7 +154,7 @@ def propagateIntLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
     pure { p, h := .core e : LeCnstr }
   else
     pure { p := p.mul (-1) |>.addConst 1, h := .coreNeg e p : LeCnstr }
-  c.assert
+  c.assertCore
 
 def propagateNatLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   let some (lhs, rhs) ← Int.OfNat.toIntLe? e | return ()
@@ -158,7 +167,7 @@ def propagateNatLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
     pure { p, h := .coreNat e lhs rhs lhs' rhs' : LeCnstr }
   else
     pure { p := p.mul (-1) |>.addConst 1, h := .coreNatNeg e lhs rhs lhs' rhs' : LeCnstr }
-  c.assert
+  c.assertCore
 
 def propagateToIntLe (e : Expr) (eqTrue : Bool) : ToIntM Unit := do
   let some thm ← if eqTrue then pure (← getInfo).ofLE? else pure (← getInfo).ofNotLE? | return ()
@@ -172,7 +181,7 @@ def propagateToIntLe (e : Expr) (eqTrue : Bool) : ToIntM Unit := do
   let rhs ← toLinearExpr b' gen
   let p := lhs.sub rhs |>.norm
   let c := { p, h := .coreToInt e eqTrue thm lhs rhs : LeCnstr }
-  c.assert
+  c.assertCore
 
 def propagateLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   unless (← getConfig).cutsat do return ()

@@ -2286,7 +2286,7 @@ theorem equivalence_true (α : Sort u) : Equivalence fun _ _ : α ↦ True :=
   ⟨fun _ ↦ trivial, fun _ ↦ trivial, fun _ _ ↦ trivial⟩
 
 /-- Always-true relation as a `Setoid`. -/
-def Setoid.trivial (α : Sort u) : Setoid α :=
+protected def Setoid.trivial (α : Sort u) : Setoid α :=
   ⟨_, equivalence_true α⟩
 
 /--

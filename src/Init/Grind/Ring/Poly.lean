@@ -98,6 +98,17 @@ def Mon.denote {α} [Semiring α] (ctx : Context α) : Mon → α
   | .mult p m => p.denote ctx * denote ctx m
 
 @[expose]
+def Mon.denote' {α} [Semiring α] (ctx : Context α) (m : Mon) : α :=
+  match m with
+  | .unit => 1
+  | .mult pw m => go m (pw.denote ctx)
+where
+  go (m : Mon) (acc : α) : α :=
+    match m with
+    | .unit => acc
+    | .mult pw m => go m (acc * (pw.denote ctx))
+
+@[expose]
 def Mon.ofVar (x : Var) : Mon :=
   .mult { x, k := 1 } .unit
 
@@ -235,6 +246,24 @@ def Poly.denote [Ring α] (ctx : Context α) (p : Poly) : α :=
   match p with
   | .num k => Int.cast k
   | .add k m p => Int.cast k * m.denote ctx + denote ctx p
+
+@[expose]
+def Poly.denote' [Ring α] (ctx : Context α) (p : Poly) : α :=
+  match p with
+  | .num k => Int.cast k
+  | .add k m p => go p (denoteTerm k m)
+where
+  denoteTerm (k : Int) (m : Mon) : α :=
+    if k == 1 then
+      m.denote ctx
+    else
+      Int.cast k * m.denote' ctx
+
+  go (p : Poly) (acc : α) : α :=
+    match p with
+    | .num 0 => acc
+    | .num k => acc + Int.cast k
+    | .add k m p => go p (acc + denoteTerm k m)
 
 @[expose]
 def Poly.ofMon (m : Mon) : Poly :=
@@ -576,6 +605,14 @@ theorem Power.denote_eq {α} [Semiring α] (ctx : Context α) (p : Power)
     : p.denote ctx = p.x.denote ctx ^ p.k := by
   cases p <;> simp [Power.denote] <;> split <;> simp [pow_zero, pow_succ, one_mul]
 
+theorem Mon.denote'_eq_denote {α} [Semiring α] (ctx : Context α) (m : Mon) : m.denote' ctx = m.denote ctx := by
+  cases m <;> simp [denote', denote]
+  next pw m =>
+  generalize pw.denote ctx = acc
+  fun_induction denote'.go
+  next => simp [denote, Semiring.mul_one]
+  next acc pw m ih => simp [ih, denote, Semiring.mul_assoc]
+
 theorem Mon.denote_ofVar {α} [Semiring α] (ctx : Context α) (x : Var)
     : denote ctx (ofVar x) = x.denote ctx := by
   simp [denote, ofVar, Power.denote_eq, pow_succ, pow_zero, one_mul, mul_one]
@@ -657,6 +694,16 @@ theorem Mon.eq_of_revlex {m₁ m₂ : Mon} : revlex m₁ m₂ = .eq → m₁ = m
 
 theorem Mon.eq_of_grevlex {m₁ m₂ : Mon} : grevlex m₁ m₂ = .eq → m₁ = m₂ := by
   simp [grevlex]; intro; apply eq_of_revlex
+
+theorem Poly.denoteTerm_eq  {α} [Ring α] (ctx : Context α) (k : Int) (m : Mon) : denote'.denoteTerm ctx k m = k * m.denote ctx := by
+  simp [denote'.denoteTerm, Mon.denote'_eq_denote]; intro; subst k; rw [Ring.intCast_one, Semiring.one_mul]
+
+theorem Poly.denote'_eq_denote {α} [Ring α] (ctx : Context α) (p : Poly) : p.denote' ctx = p.denote ctx := by
+  cases p <;> simp [denote', denote, denoteTerm_eq]
+  next k m p =>
+    generalize k * m.denote ctx = acc
+    fun_induction denote'.go <;> simp [denote, *, Ring.intCast_zero, Semiring.add_zero, denoteTerm_eq]
+    next ih => simp [denoteTerm_eq] at ih; simp [ih, Semiring.add_assoc]
 
 theorem Poly.denote_ofMon {α} [CommRing α] (ctx : Context α) (m : Mon)
     : denote ctx (ofMon m) = m.denote ctx := by
@@ -1429,8 +1476,8 @@ theorem d_normEq0 {α} [CommRing α] (ctx : Context α) (k : Int) (c : Nat) (ini
 @[expose] def norm_int_cert (e : Expr) (p : Poly) : Bool :=
   e.toPoly == p
 
-theorem norm_int (ctx : Context Int) (e : Expr) (p : Poly) : norm_int_cert e p → e.denote ctx = p.denote ctx := by
-  simp [norm_int_cert]; intro; subst p; simp [Expr.denote_toPoly]
+theorem norm_int (ctx : Context Int) (e : Expr) (p : Poly) : norm_int_cert e p → e.denote ctx = p.denote' ctx := by
+  simp [norm_int_cert, Poly.denote'_eq_denote]; intro; subst p; simp [Expr.denote_toPoly]
 
 end CommRing
 end Lean.Grind

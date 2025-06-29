@@ -206,23 +206,23 @@ decreasing_by
 info: equations:
 theorem MTree.size.eq_1.{u_1} : ∀ {α : Type u_1} (t : MTree α),
   t.size =
-    (let s := 1;
+    (have s := 1;
       do
       let r ←
         forIn t.cs s fun css r =>
-            let s := r;
+            have s := r;
             do
             let r ←
               forIn css s fun c r =>
-                  let s := r;
-                  let s := s + c.size;
+                  have s := r;
+                  have s := s + c.size;
                   do
                   pure PUnit.unit
                   pure (ForInStep.yield s)
-            let s : Nat := r
+            have s : Nat := r
             pure PUnit.unit
             pure (ForInStep.yield s)
-      let s : Nat := r
+      have s : Nat := r
       pure s).run
 -/
 #guard_msgs in

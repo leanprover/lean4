@@ -91,6 +91,7 @@ def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (wfPreprocessPr
 
       let value ← instantiateMVars main
       let type ← mkForallFVars xs type
+      let type ← letToHave type
       let value ← mkLambdaFVars xs value
       addDecl <| Declaration.thmDecl {
         name, type, value
@@ -123,6 +124,7 @@ def mkBinaryUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) : MetaM U
 
       let value ← instantiateMVars main
       let type ← mkForallFVars xs type
+      let type ← letToHave type
       let value ← mkLambdaFVars xs value
       addDecl <| Declaration.thmDecl {
         name, type, value

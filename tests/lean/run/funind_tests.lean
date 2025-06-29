@@ -733,11 +733,11 @@ def foo (n : Nat) : Nat :=
 info: Dite.foo.induct (motive : Nat → Prop)
   (case1 :
     ∀ (x : Nat),
-      let j := x - 1;
+      have j := x - 1;
       j < x → motive j → motive x)
   (case2 :
     ∀ (x : Nat),
-      let j := x - 1;
+      have j := x - 1;
       ¬j < x → motive x)
   (n : Nat) : motive n
 -/

@@ -434,7 +434,7 @@ The `Meta.letToHave` trace class logs errors and messages.
 def letToHave (e : Expr) : MetaM Expr := do
   profileitM Exception "let-to-have transformation" (← getOptions) do
     let e ← instantiateMVars e
-    LetToHave.main e
+    withoutExporting <| LetToHave.main e
 
 builtin_initialize
   registerTraceClass `Meta.letToHave

@@ -13,7 +13,7 @@ public import Init.Data.RArray
 public import Init.Grind.Ring.Basic
 public import Init.Grind.Ring.Field
 public import Init.Grind.Ordered.Ring
-
+public import Init.GrindInstances.Ring.Int
 public section
 
 namespace Lean.Grind
@@ -1425,6 +1425,12 @@ theorem d_normEq0 {α} [CommRing α] (ctx : Context α) (k : Int) (c : Nat) (ini
     : d_normEq0_cert c p₁ p₂ p → k * init.denote ctx = p₁.denote ctx → p₂.denote ctx = 0 → k * init.denote ctx = p.denote ctx := by
   simp [d_normEq0_cert]; intro _ h₁ h₂; subst p p₂; simp [Poly.denote]
   intro h; rw [p₁.normEq0_eq] <;> assumption
+
+@[expose] def norm_int_cert (e : Expr) (p : Poly) : Bool :=
+  e.toPoly == p
+
+theorem norm_int (ctx : Context Int) (e : Expr) (p : Poly) : norm_int_cert e p → e.denote ctx = p.denote ctx := by
+  simp [norm_int_cert]; intro; subst p; simp [Expr.denote_toPoly]
 
 end CommRing
 end Lean.Grind

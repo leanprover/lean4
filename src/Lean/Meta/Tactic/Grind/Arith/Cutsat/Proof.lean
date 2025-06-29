@@ -253,6 +253,9 @@ partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
       (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr c'.d) (← mkPolyDecl c'.p)
       (← s.toExprProof) reflBoolTrue
   | .reorder c => withUnordered <| c.toExprProof
+  | .commRingNorm c e p =>
+    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) reflBoolTrue
+    return mkApp6 (mkConst ``Int.Linear.dvd_norm_poly) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
 
 partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.cutsat.proof] "{← c'.pp}"
@@ -469,7 +472,7 @@ partial def DvdCnstr.collectDecVars (c' : DvdCnstr) : CollectDecVarsM Unit := do
   match c'.h with
   | .core _ | .coreNat .. => return ()
   | .cooper₁ c | .cooper₂ c
-  | .reorder c | .norm c | .elim c | .divCoeffs c | .ofEq _ c => c.collectDecVars
+  | .commRingNorm c .. | .reorder c | .norm c | .elim c | .divCoeffs c | .ofEq _ c => c.collectDecVars
   | .solveCombine c₁ c₂ | .solveElim c₁ c₂ | .subst _ c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
 
 partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do

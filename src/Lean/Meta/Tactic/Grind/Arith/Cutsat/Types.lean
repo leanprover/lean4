@@ -157,6 +157,7 @@ inductive DvdCnstrProof where
   /-- `c.c₃?` must be `some` -/
   | cooper₂ (c : CooperSplit)
   | reorder (c : DvdCnstr)
+  | commRingNorm (c : DvdCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
 
 /-- An inequality constraint and its justification/proof. -/
 structure LeCnstr where

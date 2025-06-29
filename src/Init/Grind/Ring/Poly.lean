@@ -254,7 +254,7 @@ def Poly.denote' [Ring α] (ctx : Context α) (p : Poly) : α :=
   | .add k m p => go p (denoteTerm k m)
 where
   denoteTerm (k : Int) (m : Mon) : α :=
-    if k == 1 then
+    bif k == 1 then
       m.denote ctx
     else
       Int.cast k * m.denote' ctx
@@ -696,7 +696,7 @@ theorem Mon.eq_of_grevlex {m₁ m₂ : Mon} : grevlex m₁ m₂ = .eq → m₁ =
   simp [grevlex]; intro; apply eq_of_revlex
 
 theorem Poly.denoteTerm_eq  {α} [Ring α] (ctx : Context α) (k : Int) (m : Mon) : denote'.denoteTerm ctx k m = k * m.denote ctx := by
-  simp [denote'.denoteTerm, Mon.denote'_eq_denote]; intro; subst k; rw [Ring.intCast_one, Semiring.one_mul]
+  simp [denote'.denoteTerm, Mon.denote'_eq_denote, cond_eq_if]; intro; subst k; rw [Ring.intCast_one, Semiring.one_mul]
 
 theorem Poly.denote'_eq_denote {α} [Ring α] (ctx : Context α) (p : Poly) : p.denote' ctx = p.denote ctx := by
   cases p <;> simp [denote', denote, denoteTerm_eq]

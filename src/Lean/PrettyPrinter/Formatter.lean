@@ -570,6 +570,52 @@ register_builtin_option pp.oneline : Bool := {
   descr    := "(pretty printer) elide all but first line of pretty printer output"
 }
 
+namespace OneLine
+/-!
+The `OneLine.pretty` function takes the first line of a `Format` while preserving tags.
+-/
+
+structure State where
+  line : Format := .nil
+  column : Nat := 0
+  tags : List (Nat × Format) := []
+
+/-- We use `EStateM` to be able to abort pretty printing once we get to the end of a line. -/
+abbrev M := EStateM Unit State
+
+def continuation : String := " [...]"
+
+instance : Std.Format.MonadPrettyFormat M where
+  pushOutput s := do
+    let lineEnd := s.find (· == '\n')
+    if lineEnd < s.endPos then
+      let s := (s.extract 0 lineEnd).trimRight ++ continuation
+      modify fun st => { st with line := st.line.append s }
+      throw ()
+    else
+      modify fun st => { st with line := st.line.append s, column := st.column + s.length }
+  pushNewline _ := do
+    modify fun st => { st with line := st.line.append continuation }
+    throw ()
+  currColumn := return (← get).column
+  startTag tag := modify fun st => { st with line := .nil, tags := (tag, st.line) :: st.tags }
+  endTags num := do
+    let tags := (← get).tags
+    let ended := tags.take num
+    let acc := ended.foldl (init := (← get).line) fun acc (t, line') => line'.append (acc.tag t)
+    modify fun st => { st with line := acc, tags := tags.drop num }
+
+/--
+Pretty prints `f` and creates a new `Format` of its first line. Preserves tags.
+-/
+def pretty (f : Format) (width : Nat) : Format :=
+  let m : M Unit := Std.Format.prettyM f width
+  match m.run {} with
+  | .ok _ s | .error _ s =>
+    s.tags.foldl (init := s.line) fun acc (t, line') => line'.append (acc.tag t)
+
+end OneLine
+
 def format (formatter : Formatter) (stx : Syntax) : CoreM Format := do
   trace[PrettyPrinter.format.input] "{Std.format stx}"
   let options ← getOptions
@@ -579,12 +625,7 @@ def format (formatter : Formatter) (stx : Syntax) : CoreM Format := do
       let (_, st) ← (concat formatter { table, options }).run { stxTrav := .fromSyntax stx }
       let mut f := st.stack[0]!
       if pp.oneline.get options then
-        let mut s := f.pretty' options |>.trim
-        let lineEnd := s.find (· == '\n')
-        if lineEnd < s.endPos then
-          s := s.extract 0 lineEnd ++ " [...]"
-        -- TODO: preserve `Format.tag`s?
-        f := s
+        f := OneLine.pretty f (Std.Format.format.width.get options)
       return .fill f)
     (fun _ => throwError "format: uncaught backtrack exception")
 

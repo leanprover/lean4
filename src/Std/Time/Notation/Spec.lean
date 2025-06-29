@@ -11,6 +11,7 @@ public import Std.Time.Time
 public import Std.Time.Zoned
 public import Std.Time.DateTime
 public import Std.Time.Format.Basic
+public meta import Std.Time.Format.Basic
 
 public section
 

@@ -49,7 +49,7 @@ namespace Weekday
 /--
 `Ordinal` represents a bounded value for weekdays, which ranges between 1 and 7.
 -/
-def Ordinal := Bounded.LE 1 7
+@[expose] def Ordinal := Bounded.LE 1 7
 deriving Repr, DecidableEq, LT, LE
 
 instance {x y : Ordinal} : Decidable (x ≤ y) :=

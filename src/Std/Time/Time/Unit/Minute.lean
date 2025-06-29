@@ -23,7 +23,7 @@ set_option linter.all true
 /--
 `Ordinal` represents a bounded value for minutes, ranging from 0 to 59. This is useful for representing the minute component of a time.
 -/
-def Ordinal := Bounded.LE 0 59
+@[expose] def Ordinal := Bounded.LE 0 59
 deriving Repr, DecidableEq, LE, LT
 
 instance : OfNat Ordinal n :=
@@ -47,7 +47,7 @@ instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 0 _
 /--
 `Offset` represents a duration offset in minutes.
 -/
-def Offset : Type := UnitVal 60
+@[expose] def Offset : Type := UnitVal 60
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, ToString, LT, LE
 
 instance {x y : Offset} : Decidable (x ≤ y) :=

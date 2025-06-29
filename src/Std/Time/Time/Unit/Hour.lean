@@ -24,7 +24,7 @@ set_option linter.all true
 /--
 `Ordinal` represents a bounded value for hours, ranging from 0 to 23.
 -/
-def Ordinal := Bounded.LE 0 23
+@[expose] def Ordinal := Bounded.LE 0 23
 deriving Repr, DecidableEq, LE, LT
 
 instance : OfNat Ordinal n :=
@@ -49,7 +49,7 @@ instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 0 _
 `Offset` represents an offset in hours, defined as an `Int`. This can be used to express durations
 or differences in hours.
 -/
-def Offset : Type := UnitVal 3600
+@[expose] def Offset : Type := UnitVal 3600
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, ToString, LT, LE
 
 instance {x y : Offset} : Decidable (x ≤ y) :=

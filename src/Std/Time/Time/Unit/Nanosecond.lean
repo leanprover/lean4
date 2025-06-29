@@ -22,7 +22,7 @@ set_option linter.all true
 /--
 `Ordinal` represents a nanosecond value that is bounded between 0 and 999,999,999 nanoseconds.
 -/
-def Ordinal := Bounded.LE 0 999999999
+@[expose] def Ordinal := Bounded.LE 0 999999999
 deriving Repr, DecidableEq, LE, LT
 
 instance : OfNat Ordinal n where
@@ -46,7 +46,7 @@ instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 0 _
 /--
 `Offset` represents a time offset in nanoseconds.
 -/
-def Offset : Type := UnitVal (1 / 1000000000)
+@[expose] def Offset : Type := UnitVal (1 / 1000000000)
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
 instance {x y : Offset} : Decidable (x ≤ y) :=
@@ -86,7 +86,7 @@ end Offset
 `Span` represents a bounded value for nanoseconds, ranging between -999999999 and 999999999.
 This can be used for operations that involve differences or adjustments within this range.
 -/
-def Span := Bounded.LE (-999999999) 999999999
+@[expose] def Span := Bounded.LE (-999999999) 999999999
 deriving Repr, DecidableEq, LE, LT
 
 instance : Inhabited Span where default := Bounded.LE.mk 0 (by decide)
@@ -118,7 +118,7 @@ namespace Ordinal
 /--
 `Ordinal` represents a bounded value for nanoseconds in a day, which ranges between 0 and 86400000000000.
 -/
-def OfDay := Bounded.LE 0 86400000000000
+@[expose] def OfDay := Bounded.LE 0 86400000000000
 deriving Repr, DecidableEq, LE, LT
 
 instance : Inhabited OfDay where default := Bounded.LE.mk 0 (by decide)

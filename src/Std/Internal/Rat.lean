@@ -12,7 +12,7 @@ public import Init.Data.Int.DivMod.Basic
 public import Init.Data.Int.Linear
 public import Init.Data.Nat.Gcd
 
-public section
+public @[expose] section
 namespace Std
 namespace Internal
 
@@ -22,7 +22,7 @@ namespace Internal
 -/
 
 structure Rat where
-  private mk ::
+  mk ::
     num : Int
     den : Nat := 1
   deriving Inhabited, BEq, DecidableEq

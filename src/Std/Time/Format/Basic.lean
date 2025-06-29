@@ -557,13 +557,14 @@ namespace Awareness
 instance : Coe TimeZone Awareness where
   coe := .only
 
+set_option linter.missingDocs false in  -- TODO
 @[simp]
-private def type (x : Awareness) : Type :=
+def type (x : Awareness) : Type :=
   match x with
   | .any => ZonedDateTime
   | .only tz => DateTime tz
 
-instance : Inhabited (type aw) where
+private instance : Inhabited (type aw) where
   default := by
     simp [type]
     split <;> exact Inhabited.default
@@ -769,7 +770,8 @@ private def toIsoString (offset : Offset) (withMinutes : Bool) (withSeconds : Bo
 
   data
 
-private def TypeFormat : Modifier → Type
+set_option linter.missingDocs false in  -- TODO
+def TypeFormat : Modifier → Type
   | .G _ => Year.Era
   | .y _ => Year.Offset
   | .u _ => Year.Offset
@@ -1270,8 +1272,9 @@ private def formatPartWithDate (date : DateTime tz) (part : FormatPart) : String
   | .modifier mod => formatWith mod (dateFromModifier date)
   | .string s => s
 
+set_option linter.missingDocs false in  -- TODO
 @[simp]
-private def FormatType (result : Type) : FormatString → Type
+def FormatType (result : Type) : FormatString → Type
   | .modifier entry :: xs => (TypeFormat entry) → (FormatType result xs)
   | .string _ :: xs => (FormatType result xs)
   | [] => result

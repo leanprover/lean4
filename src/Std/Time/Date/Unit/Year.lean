@@ -40,7 +40,7 @@ instance : ToString Era where
 /--
 `Offset` represents a year offset, defined as an `Int`.
 -/
-def Offset : Type := Int
+@[expose] def Offset : Type := Int
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
 instance {x y : Offset} : Decidable (x ≤ y) :=

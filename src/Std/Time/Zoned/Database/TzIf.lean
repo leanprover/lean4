@@ -22,9 +22,9 @@ open Std.Internal.Parsec Std.Internal.Parsec.ByteArray
 
 set_option linter.all true
 
-private abbrev Int32 := Int
+local notation "Int32" => Int
 
-private abbrev Int64 := Int
+local notation "Int64" => Int
 
 /--
 Represents the header of a TZif file, containing metadata about the file's structure.

@@ -3,8 +3,12 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.LRAT.Internal.Formula.RatAddResult
+public import Std.Tactic.BVDecide.LRAT.Internal.Formula.RatAddResult
+
+public @[expose] section
 
 /-!
 This module contains the verification of RAT-based clause adding for the default LRAT checker

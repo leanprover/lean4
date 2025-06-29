@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luisa Cicolini, Siddharth Bhat, Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Clz
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Clz
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
+
+public @[expose] section
 
 /-!
 This module contains the verification of the bitblaster for `BitVec.clz` from

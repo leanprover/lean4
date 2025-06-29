@@ -3,8 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sync.Basic
+public import Std.Sync.Basic
+
+public section
 
 namespace Std
 
@@ -17,7 +21,7 @@ If you want to guard shared state, use `SharedMutex α` instead.
 -/
 def BaseSharedMutex : Type := SharedMutexImpl.type
 
-instance : Nonempty BaseSharedMutex := SharedMutexImpl.property
+instance : Nonempty BaseSharedMutex := by exact SharedMutexImpl.property
 
 /-- Creates a new `BaseSharedMutex`. -/
 @[extern "lean_io_basesharedmutex_new"]

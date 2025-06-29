@@ -58,11 +58,12 @@ theorem compare_ne_iff_beq_eq_false {a b : α} :
     compare a b ≠ Ordering.eq ↔ (a == b) = false := by
   simp only [ne_eq, compare_eq_iff_beq, Bool.not_eq_true]
 
--- TODO: should be allowed to be private again
+/-- TODO: should be allowed to be private again -/
 def helperLemmaNames : Array Name :=
   #[``compare_eq_iff_beq, ``compare_beq_eq_beq, ``compare_ne_iff_beq_eq_false,
     ``Bool.not_eq_true, ``mem_iff_contains]
 
+/-- TODO: should be allowed to be private again -/
 def modifyMap : Std.HashMap Name Name :=
   .ofList
     [⟨`insert, ``toListModel_insert⟩,
@@ -79,6 +80,7 @@ def modifyMap : Std.HashMap Name Name :=
      (`map, ``toListModel_map),
      (`filterMap, ``toListModel_filterMap)]
 
+/-- TODO: should be allowed to be private again -/
 def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSyntax `term))) :=
   .ofList
     [⟨`isEmpty, (``isEmpty_eq_isEmpty, #[``(_root_.List.Perm.isEmpty_eq)])⟩,

@@ -3,11 +3,15 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.System.Promise
-import Init.Data.Queue
-import Std.Sync.Mutex
-import Std.Internal.Async.Select
+public import Init.System.Promise
+public import Init.Data.Queue
+public import Std.Sync.Mutex
+public import Std.Internal.Async.Select
+
+public section
 
 /-!
 This module contains the implementation of `Std.Channel`. `Std.Channel` is a multi-producer
@@ -625,7 +629,7 @@ Additionally `Std.CloseableChannel` can be closed if necessary, unlike `Std.Chan
 This introduces a need for error handling in some cases, thus it is usually easier to use
 `Std.Channel` if applicable.
 -/
-def CloseableChannel (α : Type) : Type := CloseableChannel.Flavors α
+@[expose] def CloseableChannel (α : Type) : Type := CloseableChannel.Flavors α
 
 /--
 A multi-producer multi-consumer FIFO channel that offers both bounded and unbounded buffering
@@ -636,7 +640,7 @@ Additionally `Std.CloseableChannel.Sync` can be closed if necessary, unlike `Std
 This introduces the need to handle errors in some cases, thus it is usually easier to use
 `Std.Channel` if applicable.
 -/
-def CloseableChannel.Sync (α : Type) : Type := CloseableChannel α
+@[expose] def CloseableChannel.Sync (α : Type) : Type := CloseableChannel α
 
 instance : Nonempty (CloseableChannel α) :=
   inferInstanceAs (Nonempty (CloseableChannel.Flavors α))
@@ -824,7 +828,7 @@ If a channel needs to be closed to indicate some sort of completion event use
 `Std.CloseableChannel.Sync` instead. Note that `Std.CloseableChannel.Sync` introduces a need for error
 handling in some cases, thus `Std.Channel.Sync` is usually easier to use if applicable.
 -/
-def Channel.Sync (α : Type) : Type := Channel α
+@[expose] def Channel.Sync (α : Type) : Type := Channel α
 
 instance : Nonempty (Channel.Sync α) :=
   inferInstanceAs (Nonempty (Channel α))

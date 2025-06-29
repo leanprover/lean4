@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time
-import Std.Internal.UV.System
-import Std.Data.HashMap
+public import Std.Time
+public import Std.Internal.UV.System
+public import Std.Data.HashMap
+
+public section
 
 open Std Time
 open System

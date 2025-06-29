@@ -462,6 +462,8 @@ class HasEquiv (α : Sort u) where
 
 @[inherit_doc] infix:50 " ≈ "  => HasEquiv.Equiv
 
+macro_rules | `($x ≈ $y) => `(binrel% HasEquiv.Equiv $x $y)
+
 recommended_spelling "equiv" for "≈" in [HasEquiv.Equiv, «term_≈_»]
 
 /-! # set notation  -/
@@ -486,12 +488,12 @@ abbrev SSuperset [HasSSubset α] (a b : α) := SSubset b a
 
 /-- Notation type class for the union operation `∪`. -/
 class Union (α : Type u) where
-  /-- `a ∪ b` is the union of`a` and `b`. -/
+  /-- `a ∪ b` is the union of `a` and `b`. -/
   union : α → α → α
 
 /-- Notation type class for the intersection operation `∩`. -/
 class Inter (α : Type u) where
-  /-- `a ∩ b` is the intersection of`a` and `b`. -/
+  /-- `a ∩ b` is the intersection of `a` and `b`. -/
   inter : α → α → α
 
 /-- Notation type class for the set difference `\`. -/
@@ -502,29 +504,21 @@ class SDiff (α : Type u) where
   -/
   sdiff : α → α → α
 
-/-- Subset relation: `a ⊆ b`  -/
-infix:50 " ⊆ " => Subset
+@[inherit_doc] infix:50 " ⊆ " => Subset
+@[inherit_doc] infix:50 " ⊂ " => SSubset
+@[inherit_doc] infix:50 " ⊇ " => Superset
+@[inherit_doc] infix:50 " ⊃ " => SSuperset
+@[inherit_doc] infixl:65 " ∪ " => Union.union
+@[inherit_doc] infixl:70 " ∩ " => Inter.inter
+@[inherit_doc] infix:70 " \\ " => SDiff.sdiff
 
-/-- Strict subset relation: `a ⊂ b`  -/
-infix:50 " ⊂ " => SSubset
-
-/-- Superset relation: `a ⊇ b`  -/
-infix:50 " ⊇ " => Superset
-
-/-- Strict superset relation: `a ⊃ b`  -/
-infix:50 " ⊃ " => SSuperset
-
-/-- `a ∪ b` is the union of`a` and `b`. -/
-infixl:65 " ∪ " => Union.union
-
-/-- `a ∩ b` is the intersection of`a` and `b`. -/
-infixl:70 " ∩ " => Inter.inter
-
-/--
-`a \ b` is the set difference of `a` and `b`,
-consisting of all elements in `a` that are not in `b`.
--/
-infix:70 " \\ " => SDiff.sdiff
+macro_rules | `($x ⊆ $y) => `(binrel% Subset $x $y)
+macro_rules | `($x ⊂ $y)  => `(binrel% SSubset $x $y)
+macro_rules | `($x ⊇ $y)  => `(binrel% Superset $x $y)
+macro_rules | `($x ⊃ $y)  => `(binrel% SSuperset $x $y)
+macro_rules | `($x ∪ $y) => `(binrel% Union.union $x $y)
+macro_rules | `($x ∩ $y)  => `(binrel% Inter.inter $x $y)
+macro_rules | `($x \ $y)  => `(binrel% SDiff.sdiff $x $y)
 
 recommended_spelling "subset" for "⊆" in [Subset, «term_⊆_»]
 recommended_spelling "ssubset" for "⊂" in [SSubset, «term_⊂_»]
@@ -752,6 +746,8 @@ Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead
 
 @[inherit_doc] infix:50 " != " => bne
 
+macro_rules | `($x != $y) => `(binrel_no_prop% bne $x $y)
+
 recommended_spelling "bne" for "!=" in [bne, «term_!=_»]
 
 /-- `ReflBEq α` says that the `BEq` implementation is reflexive. -/
@@ -852,6 +848,8 @@ and asserts that `a` and `b` are not equal.
   ¬(a = b)
 
 @[inherit_doc] infix:50 " ≠ "  => Ne
+
+macro_rules | `($x ≠ $y) => `(binrel% Ne $x $y)
 
 recommended_spelling "ne" for "≠" in [Ne, «term_≠_»]
 

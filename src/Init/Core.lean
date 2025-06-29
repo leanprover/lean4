@@ -486,12 +486,12 @@ abbrev SSuperset [HasSSubset α] (a b : α) := SSubset b a
 
 /-- Notation type class for the union operation `∪`. -/
 class Union (α : Type u) where
-  /-- `a ∪ b` is the union of `a` and `b`. -/
+  /-- `a ∪ b` is the union of`a` and `b`. -/
   union : α → α → α
 
 /-- Notation type class for the intersection operation `∩`. -/
 class Inter (α : Type u) where
-  /-- `a ∩ b` is the intersection of `a` and `b`. -/
+  /-- `a ∩ b` is the intersection of`a` and `b`. -/
   inter : α → α → α
 
 /-- Notation type class for the set difference `\`. -/
@@ -502,13 +502,29 @@ class SDiff (α : Type u) where
   -/
   sdiff : α → α → α
 
-@[inherit_doc] infix:50 " ⊆ " => Subset
-@[inherit_doc] infix:50 " ⊂ " => SSubset
-@[inherit_doc] infix:50 " ⊇ " => Superset
-@[inherit_doc] infix:50 " ⊃ " => SSuperset
-@[inherit_doc] infixl:65 " ∪ " => Union.union
-@[inherit_doc] infixl:70 " ∩ " => Inter.inter
-@[inherit_doc] infix:70 " \\ " => SDiff.sdiff
+/-- Subset relation: `a ⊆ b`  -/
+infix:50 " ⊆ " => Subset
+
+/-- Strict subset relation: `a ⊂ b`  -/
+infix:50 " ⊂ " => SSubset
+
+/-- Superset relation: `a ⊇ b`  -/
+infix:50 " ⊇ " => Superset
+
+/-- Strict superset relation: `a ⊃ b`  -/
+infix:50 " ⊃ " => SSuperset
+
+/-- `a ∪ b` is the union of`a` and `b`. -/
+infixl:65 " ∪ " => Union.union
+
+/-- `a ∩ b` is the intersection of`a` and `b`. -/
+infixl:70 " ∩ " => Inter.inter
+
+/--
+`a \ b` is the set difference of `a` and `b`,
+consisting of all elements in `a` that are not in `b`.
+-/
+infix:70 " \\ " => SDiff.sdiff
 
 recommended_spelling "subset" for "⊆" in [Subset, «term_⊆_»]
 recommended_spelling "ssubset" for "⊂" in [SSubset, «term_⊂_»]

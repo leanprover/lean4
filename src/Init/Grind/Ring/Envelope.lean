@@ -503,6 +503,16 @@ def ofCommSemiring : CommRing (OfSemiring.Q α) :=
 
 attribute [instance] ofCommSemiring
 
-end OfCommSemiring
+/-
+Remark: `↑a` is notation for `OfSemring.toQ a`.
+We want to hide `OfSemring.toQ` applications in the diagnostic information produced by
+the `ring` procedure in `grind`.
+-/
+@[app_unexpander OfSemiring.toQ]
+meta def toQUnexpander : PrettyPrinter.Unexpander := fun stx => do
+  match stx with
+  | `($_ $a:term) => `(↑$a)
+  | _ => throw ()
 
+end OfCommSemiring
 end Lean.Grind.CommRing

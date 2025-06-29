@@ -3,11 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Nat.Compare
-import Std.Data.DTreeMap.Internal.Balancing
-import Std.Data.DTreeMap.Internal.Queries
-import Std.Classes.Ord.Basic
+public import Init.Data.Nat.Compare
+public import Std.Data.DTreeMap.Internal.Balancing
+public import Std.Data.DTreeMap.Internal.Queries
+public import Std.Classes.Ord.Basic
+
+@[expose] public section
 
 /-!
 # Low-level implementation of the size-bounded tree

@@ -3,13 +3,17 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Option.List
-import Init.Data.Array.Bootstrap
-import Std.Classes.Ord.Basic
-import Std.Data.DTreeMap.Internal.Model
-import Std.Data.Internal.Cut
-import Std.Data.Internal.List.Associative
+public import Init.Data.Option.List
+public import Init.Data.Array.Bootstrap
+public import Std.Classes.Ord.Basic
+public import Std.Data.DTreeMap.Internal.Model
+public import Std.Data.Internal.Cut
+public import Std.Data.Internal.List.Associative
+
+@[expose] public section
 
 /-!
 # Lemmas relating operations on well-formed size-bounded trees to operations on lists

@@ -3,8 +3,12 @@ Copyright (c) 2025 Robin Arnez. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Robin Arnez, Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.DTreeMap.Lemmas
+public import Std.Data.DTreeMap.Lemmas
+
+@[expose] public section
 
 /-!
 # Extensional dependent tree maps

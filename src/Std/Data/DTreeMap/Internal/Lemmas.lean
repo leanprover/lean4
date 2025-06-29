@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.HashMap.Basic
-import Std.Data.DTreeMap.Internal.WF.Lemmas
+public import Std.Data.HashMap.Basic
+public import Std.Data.DTreeMap.Internal.WF.Lemmas
+
+@[expose] public section
 
 /-!
 # Internal lemmas about the tree map

@@ -10,7 +10,7 @@ public import Std.Sat.CNF
 public import Std.Sat.AIG.Basic
 public import Std.Sat.AIG.Lemmas
 
-@[expose] public section
+public section
 
 
 /-!

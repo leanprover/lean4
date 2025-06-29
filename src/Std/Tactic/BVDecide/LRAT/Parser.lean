@@ -10,7 +10,7 @@ public import Init.System.IO
 public import Std.Tactic.BVDecide.LRAT.Actions
 public import Std.Internal.Parsec
 
-@[expose] public section
+public section
 
 /-!
 This module implements parsers and serializers for both the binary and non-binary LRAT format.

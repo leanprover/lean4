@@ -65,8 +65,8 @@ private def RepeatIterator.instProductivenessRelation :
   subrelation {it it'} h := by cases h
 
 instance RepeatIterator.instProductive :
-    Productive (RepeatIterator α f) Id :=
-  Productive.of_productivenessRelation instProductivenessRelation
+    Productive (RepeatIterator α f) Id := by
+  exact Productive.of_productivenessRelation instProductivenessRelation
 
 instance RepeatIterator.instIteratorLoop {α : Type w} {f : α → α} {n : Type w → Type w'} [Monad n] :
     IteratorLoop (RepeatIterator α f) Id n :=

@@ -19,7 +19,7 @@ def nestedProof (p : Prop) {h : p} : p := h
 /-- A helper gadget for annotating nested decidable instances in goals. -/
 -- Remark: we currently have special gadgets for the two most common subsingletons in Lean, and are the only
 -- currently supported in `grind`. We may add a generic `nestedSubsingleton` inn the future.
-def nestedDecidable {p : Prop} (h : Decidable p) : Decidable p := h
+@[expose] def nestedDecidable {p : Prop} (h : Decidable p) : Decidable p := h
 
 /--
 Gadget for marking `match`-expressions that should not be reduced by the `grind` simplifier, but the discriminants should be normalized.
@@ -58,7 +58,7 @@ abbrev MatchCond (p : Prop) : Prop := p
 Similar to `MatchCond`, but not reducible. We use it to ensure `simp`
 will not eliminate it. After we apply `simp`, we replace it with `MatchCond`.
 -/
-def PreMatchCond (p : Prop) : Prop := p
+@[expose] def PreMatchCond (p : Prop) : Prop := p
 
 theorem nestedProof_congr (p q : Prop) (h : p = q) (hp : p) (hq : q) : @nestedProof p hp ≍ @nestedProof q hq := by
   subst h; apply HEq.refl

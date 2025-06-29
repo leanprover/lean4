@@ -8,7 +8,7 @@ module
 prelude
 public import Std.Sync.Mutex
 
-@[expose] public section
+public section
 
 namespace Std
 

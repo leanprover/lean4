@@ -110,8 +110,8 @@ private def ArrayIterator.finitenessRelation [Pure m] :
     · cases h'
     · cases h
 
-instance [Pure m] : Finite (ArrayIterator α) m :=
-  Finite.of_finitenessRelation ArrayIterator.finitenessRelation
+instance [Pure m] : Finite (ArrayIterator α) m := by
+  exact Finite.of_finitenessRelation ArrayIterator.finitenessRelation
 
 @[always_inline, inline]
 instance {α : Type w} [Monad m] {n : Type w → Type w''} [Monad n] :

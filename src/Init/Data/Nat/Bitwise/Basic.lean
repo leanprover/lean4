@@ -137,7 +137,7 @@ of a number.
 /--
 Returns `true` if the `(n+1)`th least significant bit is `1`, or `false` if it is `0`.
 -/
-def testBit (m n : Nat) : Bool :=
+@[expose] def testBit (m n : Nat) : Bool :=
   -- `1 &&& n` is faster than `n &&& 1` for big `n`.
   1 &&& (m >>> n) != 0
 

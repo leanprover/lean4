@@ -271,7 +271,7 @@ private def DropWhile.instFinitenessRelation [Monad m] [Iterator α m β]
 
 instance DropWhile.instFinite [Monad m] [Iterator α m β] [Finite α m] {P} :
     Finite (DropWhile α m β P) m :=
-  Finite.of_finitenessRelation instFinitenessRelation
+  by exact Finite.of_finitenessRelation instFinitenessRelation
 
 instance DropWhile.instIteratorCollect [Monad m] [Monad n] [Iterator α m β] [Productive α m] {P} :
     IteratorCollect (DropWhile α m β P) m n :=

@@ -8,7 +8,7 @@ module
 prelude
 public import Std.Sync.Basic
 
-@[expose] public section
+public section
 
 namespace Std
 
@@ -21,7 +21,7 @@ If you want to guard shared state, use `SharedMutex α` instead.
 -/
 def BaseSharedMutex : Type := SharedMutexImpl.type
 
-instance : Nonempty BaseSharedMutex := SharedMutexImpl.property
+instance : Nonempty BaseSharedMutex := by exact SharedMutexImpl.property
 
 /-- Creates a new `BaseSharedMutex`. -/
 @[extern "lean_io_basesharedmutex_new"]

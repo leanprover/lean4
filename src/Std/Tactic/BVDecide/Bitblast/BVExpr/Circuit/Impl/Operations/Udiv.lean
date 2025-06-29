@@ -13,7 +13,7 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Ult
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ZeroExtend
 public import Std.Sat.AIG.If
 
-@[expose] public section
+public section
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec.udiv`. The implemented

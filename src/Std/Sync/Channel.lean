@@ -11,7 +11,7 @@ public import Init.Data.Queue
 public import Std.Sync.Mutex
 public import Std.Internal.Async.Select
 
-@[expose] public section
+public section
 
 /-!
 This module contains the implementation of `Std.Channel`. `Std.Channel` is a multi-producer
@@ -643,10 +643,10 @@ This introduces the need to handle errors in some cases, thus it is usually easi
 def CloseableChannel.Sync (α : Type) : Type := CloseableChannel α
 
 instance : Nonempty (CloseableChannel α) :=
-  inferInstanceAs (Nonempty (CloseableChannel.Flavors α))
+  by exact inferInstanceAs (Nonempty (CloseableChannel.Flavors α))
 
 instance : Nonempty (CloseableChannel.Sync α) :=
-  inferInstanceAs (Nonempty (CloseableChannel α))
+  by exact inferInstanceAs (Nonempty (CloseableChannel α))
 
 namespace CloseableChannel
 
@@ -828,7 +828,7 @@ If a channel needs to be closed to indicate some sort of completion event use
 `Std.CloseableChannel.Sync` instead. Note that `Std.CloseableChannel.Sync` introduces a need for error
 handling in some cases, thus `Std.Channel.Sync` is usually easier to use if applicable.
 -/
-def Channel.Sync (α : Type) : Type := Channel α
+@[expose] def Channel.Sync (α : Type) : Type := Channel α
 
 instance : Nonempty (Channel.Sync α) :=
   inferInstanceAs (Nonempty (Channel α))

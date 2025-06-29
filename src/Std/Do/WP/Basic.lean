@@ -59,7 +59,7 @@ macro_rules
   | `(wp⟦$x:term : $ty⟧) => `((WP.wp ($x : $ty)).apply)
 
 @[app_unexpander PredTrans.apply]
-protected def unexpandWP : Lean.PrettyPrinter.Unexpander
+protected meta def unexpandWP : Lean.PrettyPrinter.Unexpander
   | `($_ $e) => match e with
     | `(wp ($x : $ty)) => `(wp⟦$x : $ty⟧)
     | `(wp $e) => `(wp⟦$e⟧)

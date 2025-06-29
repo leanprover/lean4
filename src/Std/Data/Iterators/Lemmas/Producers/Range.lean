@@ -17,6 +17,6 @@ theorem toList_iter_eq_toList [UpwardEnumerable α] [BoundedUpwardEnumerable sl 
     [SupportsUpperBound su α] [HasFiniteRanges su α] [LawfulUpwardEnumerable α]
     (r : PRange ⟨sl, su⟩ α) :
     r.iter.toList = r.toList := by
-  rfl
+ rfl
 
 end Std.PRange

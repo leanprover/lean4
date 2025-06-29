@@ -34,7 +34,7 @@ universe u
 variable {σs : List (Type u)}
 
 /-- A pure proposition `P : Prop` embedded into `SPred`. For internal use in this module only; prefer to use idiom bracket notation `⌜P⌝. -/
-private abbrev pure (P : Prop) : SPred σs := SVal.curry (fun _ => ⟨P⟩)
+abbrev pure (P : Prop) : SPred σs := SVal.curry (fun _ => ⟨P⟩)
 
 @[ext]
 theorem ext_nil {P Q : SPred []} (h : P.down ↔ Q.down) : P = Q := by

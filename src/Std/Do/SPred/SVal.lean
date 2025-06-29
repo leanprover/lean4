@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.List.Notation
+import Init.SimpLemmas
 
 @[expose] public section
 

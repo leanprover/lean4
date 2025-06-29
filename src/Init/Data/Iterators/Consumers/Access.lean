@@ -10,7 +10,7 @@ public import Init.Data.Iterators.Consumers.Partial
 public import Init.Data.Iterators.Consumers.Loop
 public import Init.Data.Iterators.Consumers.Monadic.Access
 
-public section
+@[expose] public section
 
 namespace Std.Iterators
 

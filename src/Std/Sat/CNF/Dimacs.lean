@@ -9,7 +9,7 @@ prelude
 public import Std.Sat.CNF.Basic
 public import Std.Sat.CNF.RelabelFin
 
-@[expose] public section
+public section
 
 namespace Std
 namespace Sat

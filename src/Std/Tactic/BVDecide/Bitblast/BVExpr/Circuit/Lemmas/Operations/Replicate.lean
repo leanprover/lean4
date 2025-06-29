@@ -32,7 +32,7 @@ private theorem aux1 {a b c : Nat} (h : b < a * c) : 0 < a := by
   · simp_all
   · omega
 
-private theorem aux2 {a b c : Nat} (hidx1 : b < c * a) : b % c < c := by
+theorem aux2 {a b c : Nat} (hidx1 : b < c * a) : b % c < c := by
   apply Nat.mod_lt
   apply aux1
   assumption
@@ -44,7 +44,7 @@ private theorem aux3 {a b c : Nat} (hidx : a < b * c) (h : c < n) : a < b * n :=
     apply aux1
     assumption
 
-private theorem aux4 {a b c : Nat} (hidx : a < b * c) (h : c ≤ n) : a < b * n := by
+theorem aux4 {a b c : Nat} (hidx : a < b * c) (h : c ≤ n) : a < b * n := by
   cases Nat.lt_or_eq_of_le h with
   | inl h => apply aux3 <;> assumption
   | inr h => simp_all

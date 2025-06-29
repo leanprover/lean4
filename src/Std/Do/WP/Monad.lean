@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Do.WP.Basic
+import all Std.Do.WP.Basic
 
 @[expose] public section
 

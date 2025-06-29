@@ -111,7 +111,7 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
     return [goal]
 
   match_expr type with
-  | monotone α inst_α β inst_β f =>
+  | monotone α inst_α _ _ f =>
     -- Ensure f is not headed by a redex and headed by at least one lambda, and clean some
     -- redexes left by some of the lemmas we tend to apply
     let f ← instantiateMVars f

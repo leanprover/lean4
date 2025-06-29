@@ -75,11 +75,12 @@ def GrindM.run (x : GrindM α) (params : Params) (fallback : Fallback) : MetaM �
   let (btrueExpr, scState)  := shareCommonAlpha (mkConst ``Bool.true) scState
   let (natZExpr, scState)   := shareCommonAlpha (mkNatLit 0) scState
   let (ordEqExpr, scState)  := shareCommonAlpha (mkConst ``Ordering.eq) scState
+  let (intExpr, scState)    := shareCommonAlpha Int.mkType scState
   let simprocs := params.normProcs
   let simpMethods := Simp.mkMethods simprocs discharge? (wellBehavedDischarge := true)
   let simp := params.norm
   let config := params.config
-  x (← mkMethods fallback).toMethodsRef { config, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr }
+  x (← mkMethods fallback).toMethodsRef { config, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr }
     |>.run' { scState }
 
 private def mkCleanState (mvarId : MVarId) (params : Params) : MetaM Clean.State := mvarId.withContext do

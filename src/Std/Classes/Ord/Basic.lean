@@ -3,8 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert, Robin Arnez
 -/
+module
+
 prelude
-import Init.Data.Ord
+public import Init.Data.Ord
+
+public section
 
 /-!
 # Type classes related to `Ord`

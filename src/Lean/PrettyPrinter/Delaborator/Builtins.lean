@@ -1068,8 +1068,7 @@ Core function that delaborates a natural number (an `OfNat.ofNat` literal).
 -/
 def delabOfNatCore (showType : Bool := false) : Delab := do
   let .app (.app (.app (.const ``OfNat.ofNat ..) _) (.lit (.natVal n))) _ ← getExpr | failure
-  let stx ← annotateCurPos <| quote n
-  addDelabTermInfo (← getPos) stx (← getExpr) (explicit := false)
+  let stx ← annotateTermInfo <| quote n
   if showType then
     let ty ← withNaryArg 0 delab
     `(($stx : $ty))

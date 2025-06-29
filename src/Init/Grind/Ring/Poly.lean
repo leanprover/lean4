@@ -1379,6 +1379,7 @@ theorem Poly.normEq0_eq {α} [CommRing α] (ctx : Context α) (p : Poly) (c : Na
     simp [denote, normEq0]; split <;> simp [denote, *]
     next h' => rw [of_mod_eq_0 h h', Semiring.zero_mul, Semiring.zero_add]
 
+@[expose]
 def eq_normEq0_cert (c : Nat) (p₁ p₂ p : Poly) : Bool :=
   p₁ == .num c && p == p₂.normEq0 c
 
@@ -1398,6 +1399,7 @@ theorem gcd_eq_0 [CommRing α] (g n m a b : Int) (h : g = a * n + b * m)
   rw [← Ring.intCast_add, h₂, Semiring.zero_add, ← h] at h₁
   rw [Ring.intCast_zero, h₁]
 
+@[expose]
 def eq_gcd_cert (a b : Int) (p₁ p₂ p : Poly) : Bool :=
   match p₁ with
   | .add .. => false
@@ -1415,6 +1417,7 @@ theorem eq_gcd {α} [CommRing α] (ctx : Context α) (a b : Int) (p₁ p₂ p : 
   next n m g =>
   apply gcd_eq_0 g n m a b
 
+@[expose]
 def d_normEq0_cert (c : Nat) (p₁ p₂ p : Poly) : Bool :=
   p₂ == .num c && p == p₁.normEq0 c
 

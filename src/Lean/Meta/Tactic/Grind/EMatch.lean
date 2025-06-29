@@ -198,14 +198,30 @@ private partial def matchArgsPrefix? (c : Choice) (p : Expr) (e : Expr) : Option
   else
     matchArgs? c p (e.getAppPrefix pn)
 
+/-- Returns `true` if the equivalence class containing `n` uses heterogeneous equality. -/
+private def eqcHasHEqs (n : ENode) : GoalM Bool := do
+  if n.heqProofs then return true
+  if isSameExpr n.self n.root then return false
+  let root ← getENode n.root
+  return root.heqProofs
+
+/--
+Returns `true` if `n` is the root of its congruence class or its equivalence class contains heterogeneous
+equalities.
+-/
+private def isCongrRootOrEqcHasHEqs (n : ENode) : GoalM Bool := do
+  if n.isCongrRoot then return true
+  eqcHasHEqs n
+
 -- Helper function for `processMatch` and `processGenMatch`
-@[inline] private def isCandidate (n : ENode) (pFn : Expr) (pNumArgs : Nat) (maxGeneration : Nat) : Bool :=
-    -- Remark: we use `<` because the instance generation is the maximum term generation + 1
-    n.generation < maxGeneration
-    -- uses heterogeneous equality or is the root of its congruence class
-    && (n.heqProofs || n.isCongrRoot)
-    && eqvFunctions pFn n.self.getAppFn
-    && n.self.getAppNumArgs == pNumArgs
+@[inline] private def isCandidate (n : ENode) (pFn : Expr) (pNumArgs : Nat) (maxGeneration : Nat) : GoalM Bool := do
+  -- Remark: we use `<` because the instance generation is the maximum term generation + 1
+  unless n.generation < maxGeneration
+         && eqvFunctions pFn n.self.getAppFn
+         && n.self.getAppNumArgs == pNumArgs do return false
+  -- Return true if `n` is the root of its congruence class or
+  -- the equivalence class contains heterogeneous equalities
+  isCongrRootOrEqcHasHEqs n
 
 private def assignGenInfo? (genInfo? : Option GenPatternInfo) (c : Choice) (x : Expr) : OptionT GoalM Choice := do
   let some genInfo := genInfo? | return c
@@ -225,7 +241,7 @@ private partial def processMatch (c : Choice) (genInfo? : Option GenPatternInfo)
   repeat
     let n ← getENode curr
     -- Remark: we use `<` because the instance generation is the maximum term generation + 1
-    if isCandidate n pFn numArgs maxGeneration then
+    if (← isCandidate n pFn numArgs maxGeneration) then
       if let some c ← assignGenInfo? genInfo? c e |>.run then
       if let some c ← matchArgs? c p curr |>.run then
         pushChoice (c.updateGen n.generation)
@@ -286,12 +302,12 @@ private def processContinue (c : Choice) (p : Expr) : M Unit := do
   let maxGeneration ← getMaxGeneration
   for app in apps do
     let n ← getENode app
-    if n.generation < maxGeneration
-       && (n.heqProofs || n.isCongrRoot) then
-      if let some c ← matchArgsPrefix? c p app |>.run then
-        let gen := n.generation
-        let c := { c with gen := Nat.max gen c.gen }
-        modify fun s => { s with choiceStack := c :: s.choiceStack }
+    if n.generation < maxGeneration then
+    if (← isCongrRootOrEqcHasHEqs n) then
+    if let some c ← matchArgsPrefix? c p app |>.run then
+      let gen := n.generation
+      let c := { c with gen := Nat.max gen c.gen }
+      modify fun s => { s with choiceStack := c :: s.choiceStack }
 
 /--
 Given a proposition `prop` corresponding to an equational theorem.
@@ -482,8 +498,8 @@ private def main (p : Expr) (cnstrs : List Cnstr) : M Unit := do
   for app in apps do
     if (← checkMaxInstancesExceeded) then return ()
     let n ← getENode app
-    if (n.heqProofs || n.isCongrRoot) &&
-       (!useMT || n.mt == gmt) then
+    if !useMT || n.mt == gmt then
+    if (← isCongrRootOrEqcHasHEqs n) then
       withInitApp app do
         if let some c ← matchArgsPrefix? { cnstrs, assignment, gen := n.generation } p app |>.run then
           modify fun s => { s with choiceStack := [c] }
@@ -506,18 +522,18 @@ private def matchEqBwdPat (p : Expr) : M Unit := do
   repeat
     if (← checkMaxInstancesExceeded) then return ()
     let n ← getENode curr
-    if (n.heqProofs || n.isCongrRoot) &&
-       (!useMT || n.mt == gmt) then
-      let_expr Eq α lhs rhs := n.self | pure ()
-      if (← isDefEq α pα) then
-         let c₀ : Choice := { cnstrs := [], assignment, gen := n.generation }
-         let go (lhs rhs : Expr) : M Unit := do
-           let some c₁ ← matchArg? c₀ plhs lhs |>.run | return ()
-           let some c₂ ← matchArg? c₁ prhs rhs |>.run | return ()
-           modify fun s => { s with choiceStack := [c₂] }
-           processChoices
-         go lhs rhs
-         go rhs lhs
+    if !useMT || n.mt == gmt then
+      if (← isCongrRootOrEqcHasHEqs n) then
+        let_expr Eq α lhs rhs := n.self | pure ()
+        if (← isDefEq α pα) then
+          let c₀ : Choice := { cnstrs := [], assignment, gen := n.generation }
+          let go (lhs rhs : Expr) : M Unit := do
+            let some c₁ ← matchArg? c₀ plhs lhs |>.run | return ()
+            let some c₂ ← matchArg? c₁ prhs rhs |>.run | return ()
+            modify fun s => { s with choiceStack := [c₂] }
+            processChoices
+          go lhs rhs
+          go rhs lhs
     if isSameExpr n.next false then return ()
     curr := n.next
 

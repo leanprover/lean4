@@ -107,4 +107,4 @@ test_cmd rm "$CACHE_DIR/inputs/test.jsonl" .lake/build/ir/Test.c
 LAKE_CACHE_DIR="$CACHE_DIR" test_run -v build +Test:c --no-build
 
 # Cleanup
-rm -f produced.out
+rm -f produced.out Ignored.lean

@@ -96,6 +96,9 @@ inductive EqCnstrProof where
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | ofLeGe (c₁ : LeCnstr) (c₂ : LeCnstr)
   | reorder (c : EqCnstr)
+  | commRingNorm (c : EqCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
+  | defnCommRing (e : Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
+  | defnNatCommRing (e : Int.OfNat.Expr) (x : Var) (e' : Int.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
 
 /-- A divisibility constraint and its justification/proof. -/
 structure DvdCnstr where

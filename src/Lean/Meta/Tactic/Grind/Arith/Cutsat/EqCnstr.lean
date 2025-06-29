@@ -9,6 +9,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -223,8 +224,17 @@ private def exprAsPoly (a : Expr) : GoalM Poly := do
 private def processNewIntEq (a b : Expr) : GoalM Unit := do
   let p₁ ← exprAsPoly a
   let p₂ ← exprAsPoly b
+  -- Remark: we don't need to use the comm ring normalizer here because `p` is always linear.
   let p := p₁.combine (p₂.mul (-1))
   { p, h := .core a b p₁ p₂ : EqCnstr }.assert
+
+/-- Asserts a constraint coming from the core. -/
+private def EqCnstr.assertCore (c : EqCnstr) : GoalM Unit := do
+  if let some (re, rp, p) ← c.p.normCommRing? then
+    let c := { p, h := .commRingNorm c re rp : EqCnstr}
+    c.assert
+  else
+    c.assert
 
 private def processNewNatEq (a b : Expr) : GoalM Unit := do
   let (lhs, rhs) ← Int.OfNat.toIntEq a b
@@ -235,7 +245,7 @@ private def processNewNatEq (a b : Expr) : GoalM Unit := do
   let p := lhs'.sub rhs' |>.norm
   let c := { p, h := .coreNat a b lhs rhs lhs' rhs' : EqCnstr }
   trace[grind.debug.cutsat.nat] "{← c.pp}"
-  c.assert
+  c.assertCore
 
 private def processNewToIntEq (a b : Expr) : ToIntM Unit := do
   let gen := max (← getGeneration a) (← getGeneration b)
@@ -246,7 +256,7 @@ private def processNewToIntEq (a b : Expr) : ToIntM Unit := do
   let rhs ← toLinearExpr b' gen
   let p := lhs.sub rhs |>.norm
   let c := { p, h := .coreToInt a b thm lhs rhs : EqCnstr }
-  c.assert
+  c.assertCore
 
 @[export lean_process_cutsat_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
@@ -352,8 +362,12 @@ private def internalizeInt (e : Expr) : GoalM Unit := do
     -- It is pointless to assert `x = x`
     -- This can happen if `e` is a nonlinear term (e.g., `e` is `a*b`)
     return
-  let c := { p := .add (-1) x p, h := .defn e p : EqCnstr }
-  c.assert
+  if let some (re, rp, p') ← p.normCommRing? then
+    let c := { p := .add (-1) x p', h := .defnCommRing e p re rp p' : EqCnstr }
+    c.assert
+  else
+    let c := { p := .add (-1) x p, h := .defn e p : EqCnstr }
+    c.assert
 
 private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
   if b == 0 || b == 1 || b == -1 then
@@ -411,8 +425,12 @@ private def internalizeNat (e : Expr) : GoalM Unit := do
   trace[grind.debug.cutsat.internalize] "{aquote natCast_e}:= {← p.pp}"
   let x ← mkVar natCast_e
   modify' fun s => { s with natDef := s.natDef.insert { expr := e } x }
-  let c := { p := .add (-1) x p, h := .defnNat e' x e'' : EqCnstr }
-  c.assert
+  if let some (re, rp, p') ← p.normCommRing? then
+    let c := { p := .add (-1) x p', h := .defnNatCommRing e' x e'' p re rp p' : EqCnstr }
+    c.assert
+  else
+    let c := { p := .add (-1) x p, h := .defnNat e' x e'' : EqCnstr }
+    c.assert
 
 private def isToIntForbiddenParent (parent? : Option Expr) : Bool :=
   if let some parent := parent? then

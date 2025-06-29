@@ -17,3 +17,15 @@ example (a b : Int) (h₁ : 3 ∣ a*b + b + c) (h₂ : 3 ∣ b*a + b + c + 1) : 
 
 example (a b : Nat) (h₁ : 2 ∣ a*b) (h₂ : 2 ∣ b*a + 1) : False := by grind
 example (a b : Nat) (h₁ : 2 ∣ 2*a*b + b) (h₂ : 2 ∣ b + 2*b*a + 1) : False := by grind
+
+example (a b : Int) (h : a + 1 = a * b) : 2 * b * a - 2 * a ≤ 2 := by grind
+example (a b : Int) (h : a + 1 = b * a) : 2 * a * b - 2 * a ≤ 2 := by grind
+example (a b : Int) (h : a + 1 = 3 * b * a) : 6 * a * b - 2 * a ≤ 2 := by grind
+example (a b c : Int) (h₁ : a + 1 + c = b * a) (h₂ : c + 2*b*a = 0) : 6 * a * b - 2 * a ≤ 2 := by grind
+
+example (a b : Nat) (h : a + a * b = 1) : 2 * b * a + 2 * a ≤ 2 := by grind
+example (a b : Nat) (h : a + b * a = 1) : 2 * a * b + 2 * a ≤ 2 := by grind
+example (a b : Nat) (h : a + 2 * b * a = 10) : 2 * a * b + a ≤ 10 := by grind
+example (a b : Nat) (h : a + 2 * b * a = a^2 + b) : 2 * a * b ≤ b + a*a:= by grind
+
+example (a b : Int) (h : a + 1 = b * a) : 2 * a * b - 2 * a ≤ 2 := by grind

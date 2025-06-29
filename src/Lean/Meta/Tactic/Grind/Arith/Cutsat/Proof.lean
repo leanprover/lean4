@@ -191,6 +191,20 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
       (← getContext) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p)
       reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
   | .reorder c => withUnordered <| c.toExprProof
+  | .commRingNorm c e p =>
+    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) reflBoolTrue
+    return mkApp5 (mkConst ``Int.Linear.eq_norm_poly) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
+  | .defnCommRing e p re rp p' =>
+    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl re) (← mkRingPolyDecl rp) reflBoolTrue
+    let some x := (← getVarMap).find? { expr := e } | throwError "`grind` internal error, missing cutsat variable{indentExpr e}"
+    return mkApp8 (mkConst ``Int.Linear.eq_def_norm) (← getContext)
+      (toExpr x) (← mkPolyDecl p) (← mkPolyDecl p') (← mkPolyDecl c'.p)
+      reflBoolTrue (← mkEqRefl e) h
+  | .defnNatCommRing e x e' p re rp p' =>
+    let h₁ := mkApp2 (mkConst ``Int.OfNat.Expr.eq_denoteAsInt) (← getNatContext) (← mkNatExprDecl e)
+    let h₂ := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl re) (← mkRingPolyDecl rp) reflBoolTrue
+    return mkApp9 (mkConst ``Int.Linear.eq_def') (← getContext) (toExpr x) (← mkExprDecl e')
+      (← mkPolyDecl p) (← mkPolyDecl p') (← mkPolyDecl c'.p) reflBoolTrue h₁ h₂
 
 partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.cutsat.proof] "{← c'.pp}"
@@ -455,8 +469,9 @@ open CollectDecVars
 mutual
 partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .core0 .. | .core .. | .coreNat .. | .defn .. | .defnNat .. | .coreToInt .. => return () -- Equalities coming from the core never contain cutsat decision variables
-  | .reorder c | .norm c | .divCoeffs c => c.collectDecVars
+  | .core0 .. | .core .. | .coreNat .. | .defn .. | .defnNat ..
+  | .defnCommRing .. | .defnNatCommRing .. | .coreToInt .. => return () -- Equalities coming from the core never contain cutsat decision variables
+  | .commRingNorm c .. | .reorder c | .norm c | .divCoeffs c => c.collectDecVars
   | .subst _ c₁ c₂ | .ofLeGe c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
 
 partial def CooperSplit.collectDecVars (s : CooperSplit) : CollectDecVarsM Unit := do unless (← alreadyVisited s) do

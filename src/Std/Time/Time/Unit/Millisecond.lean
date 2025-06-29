@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Internal.Rat
-import Std.Time.Internal
-import Std.Time.Time.Unit.Nanosecond
+public import Std.Internal.Rat
+public import Std.Time.Internal
+public import Std.Time.Time.Unit.Nanosecond
+
+public section
 
 namespace Std
 namespace Time

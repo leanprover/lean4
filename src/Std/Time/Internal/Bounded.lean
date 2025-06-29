@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Init.Omega
-import Init.Data.Int.DivMod.Lemmas
-import Std.Classes.Ord.Basic
+public import Init.Omega
+public import Init.Data.Int.DivMod.Lemmas
+public import Std.Classes.Ord.Basic
+
+public section
 
 namespace Std
 namespace Time

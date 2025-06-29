@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Init.Data.Range
-import Std.Internal.Parsec
-import Std.Internal.Parsec.ByteArray
+public import Init.Data.Range
+public import Std.Internal.Parsec
+public import Std.Internal.Parsec.ByteArray
+
+public section
 
 -- Based on: https://www.rfc-editor.org/rfc/rfc8536.html
 

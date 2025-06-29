@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Internal.Rat
-import Std.Time.Date.Unit.Day
-import Std.Time.Date.Unit.Month
+public import Std.Internal.Rat
+public import Std.Time.Date.Unit.Day
+public import Std.Time.Date.Unit.Month
+
+public section
 
 namespace Std
 namespace Time

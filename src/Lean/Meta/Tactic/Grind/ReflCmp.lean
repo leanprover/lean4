@@ -16,9 +16,6 @@ a mechanism for letting users to install their own handlers.
 
 namespace Lean.Meta.Grind
 
-theorem Std.ReflCmp.cmp_eq_of_eq {α : Type u} {cmp : α → α → Ordering} [Std.ReflCmp cmp] {a b : α} : a = b → cmp a b = .eq := by
-  intro h; subst a; apply Std.ReflCmp.compare_self
-
 /--
 If `op` implements `ReflCmp`, then returns the proof term for
 `∀ a b, a = b → op a b = .eq`

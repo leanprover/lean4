@@ -323,7 +323,7 @@ macro_rules
   | `(conv| repeat $seq) => `(conv| first | ($seq); repeat $seq | skip)
 
 /--
-Extracts `let` and `let_fun` expressions from within the target expression.
+Extracts `let` and `have` expressions from within the target expression.
 This is the conv mode version of the `extract_lets` tactic.
 
 - `extract_lets` extracts all the lets from the target.
@@ -336,7 +336,7 @@ See also `lift_lets`, which does not extract lets as local declarations.
 syntax (name := extractLets) "extract_lets " optConfig (ppSpace colGt (ident <|> hole))* : conv
 
 /--
-Lifts `let` and `let_fun` expressions within the target expression as far out as possible.
+Lifts `let` and `have` expressions within the target expression as far out as possible.
 This is the conv mode version of the `lift_lets` tactic.
 -/
 syntax (name := liftLets) "lift_lets " optConfig : conv

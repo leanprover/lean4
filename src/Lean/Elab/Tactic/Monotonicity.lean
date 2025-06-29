@@ -150,26 +150,6 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
           pure goal'
         return [goal'.mvarId!]
 
-    -- Float `letFun` to the environment.
-    -- (cannot use `applyConst`, it tends to reduce the let redex)
-    match_expr e with
-    | letFun γ _ v b =>
-      if γ.hasLooseBVars || v.hasLooseBVars then
-        failK f #[]
-      let b' := f.updateLambdaE! f.bindingDomain! b
-      let p  ← mkAppOptM ``monotone_letFun #[α, β, γ, inst_α, inst_β, v, b']
-      let new_goals ← prependError m!"Could not apply {p}:" do
-        goal.apply p
-      let [new_goal] := new_goals
-          | throwError "Unexpected number of goals after {.ofConstName ``monotone_letFun}."
-      let (_, new_goal) ←
-        if b.isLambda then
-          new_goal.intro b.bindingName!
-        else
-          new_goal.intro1
-      return [new_goal]
-    | _ => pure ()
-
     -- Handle lambdas, preserving the name of the binder
     if e.isLambda then
       let [new_goal] ← applyConst goal ``monotone_of_monotone_apply

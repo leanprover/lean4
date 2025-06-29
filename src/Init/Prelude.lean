@@ -63,20 +63,14 @@ Examples:
   fun _ => a
 
 /--
-The encoding of `let_fun x := v; b` is `letFun v (fun x => b)`.
+`letFun v (fun x => b)` is a function version of `have x := v; b`.
 This is equal to `(fun x => b) v`, so the value of `x` is not accessible to `b`.
 This is in contrast to `let x := v; b`, where the value of `x` is accessible to `b`.
 
-There is special support for `letFun`.
-Both WHNF and `simp` are aware of `letFun` and can reduce it when zeta reduction is enabled,
-despite the fact it is marked `irreducible`.
-For metaprogramming, the function `Lean.Expr.letFun?` can be used to recognize a `let_fun` expression
-to extract its parts as if it were a `let` expression.
+This used to be the way `have`/`let_fun` syntax was encoded,
+and there used to be special support for `letFun` in WHNF and `simp`.
 -/
 def letFun {α : Sort u} {β : α → Sort v} (v : α) (f : (x : α) → β x) : β v := f v
--- We need to export the body of `letFun`, which is suppressed if `[irreducible]` is set directly.
--- We can work around this rare case by applying the attribute after the fact.
-attribute [irreducible] letFun
 
 set_option checkBinderAnnotations false in
 /--

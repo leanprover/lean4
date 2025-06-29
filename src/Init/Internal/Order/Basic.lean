@@ -544,12 +544,6 @@ end fun_order
 
 section monotone_lemmas
 
-theorem monotone_letFun
-    {α : Sort u} {β : Sort v} {γ : Sort w} [PartialOrder α] [PartialOrder β]
-    (v : γ) (k : α → γ → β)
-    (hmono : ∀ y, monotone (fun x => k x y)) :
-  monotone fun (x : α) => letFun v (k x) := hmono v
-
 @[partial_fixpoint_monotone]
 theorem monotone_ite
     {α : Sort u} {β : Sort v} [PartialOrder α] [PartialOrder β]

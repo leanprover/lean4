@@ -836,23 +836,6 @@ where
     else
       x
 
-/--
-Delaborates applications of the form `letFun v (fun x => b)` as `have x := v; b`.
--/
-@[builtin_delab app.letFun]
-def delabLetFun : Delab := whenPPOption getPPNotation <| withOverApp 4 do
-  let e ← getExpr
-  guard <| e.getAppNumArgs == 4
-  let Expr.lam n _ b _ := e.appArg! | failure
-  let n ← getUnusedName n b
-  let stxV ← withAppFn <| withAppArg delab
-  let (stxN, stxB) ← withAppArg <| withBindingBody' n (mkAnnotatedIdent n) fun stxN => return (stxN, ← delab)
-  if ← getPPOption getPPLetVarTypes <||> getPPOption getPPAnalysisLetVarType then
-    let stxT ← SubExpr.withNaryArg 0 delab
-    `(have $stxN : $stxT := $stxV; $stxB)
-  else
-    `(have $stxN := $stxV; $stxB)
-
 @[builtin_delab mdata]
 def delabMData : Delab := do
   if let some _ := inaccessible? (← getExpr) then
@@ -1312,16 +1295,6 @@ partial def delabDoElems : DelabM (List Syntax) := do
           prependAndRec `(doElem|have $(mkIdent n) : $stxT := $stxV)
         else
           prependAndRec `(doElem|let $(mkIdent n) : $stxT := $stxV)
-  else if e.isLetFun then
-    -- letFun.{u, v} : {α : Sort u} → {β : α → Sort v} → (v : α) → ((x : α) → β x) → β v
-    let stxT ← withNaryArg 0 delab
-    let stxV ← withNaryArg 2 delab
-    withAppArg do
-      match (← getExpr) with
-      | Expr.lam .. =>
-        withBindingBodyUnusedName fun n => do
-          prependAndRec `(doElem|have $n:term : $stxT := $stxV)
-      | _ => failure
   else
     let stx ← delab
     return [← `(doElem|$stx:term)]

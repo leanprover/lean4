@@ -23,6 +23,7 @@ Preprocesses the expressions to improve the effectiveness of `wfRecursion`.
 
 Unlike `Lean.Elab.Structural.preprocess`, do _not_ beta-reduce, as it could
 remove `let_fun`-lambdas that contain explicit termination proofs.
+(Note(kmill): this last statement no longer affects `let_fun`/`have`.)
 -/
 def floatRecApp (e : Expr) : CoreM Expr :=
   Core.transform e

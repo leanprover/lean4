@@ -89,10 +89,7 @@ private def intro1 : GoalM FVarId := do
   let (name, type) ← match target with
     | .forallE n d .. => pure (n, d)
     | .letE n d .. => pure (n, d)
-    | _ =>
-      let some (n, d, _) := target.letFun? |
-        throwError "`grind` internal error, binder expected"
-      pure (n, d)
+    | _ => throwError "`grind` internal error, binder expected"
   let name ← mkCleanName name type
   let (fvarId, mvarId) ← (← get).mvarId.intro name
   modify fun s => { s with mvarId }
@@ -149,7 +146,7 @@ private partial def introNext (goal : Goal) (generation : Nat) : GrindM IntroRes
             let h ← mkLambdaFVars #[mkFVar fvarId] mvarNew
             mvarId.assign h
             return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
-    else if target.isLet || target.isLetFun then
+    else if target.isLet then
       if (← getConfig).zetaDelta then
         let targetNew := expandLet target #[]
         let mvarId := (← get).mvarId

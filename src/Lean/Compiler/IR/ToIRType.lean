@@ -42,6 +42,35 @@ where fillCache : CoreM (Option IRType) := do
   else
     none
 
+def toIRType (e : Lean.Expr) : CoreM IRType := do
+  match e with
+  | .const name .. =>
+    match name with
+    | ``UInt8 | ``Bool => return .uint8
+    | ``UInt16 => return .uint16
+    | ``UInt32 => return .uint32
+    | ``UInt64 => return .uint64
+    | ``USize => return .usize
+    | ``Float => return .float
+    | ``Float32 => return .float32
+    | ``lcErased => return .irrelevant
+    | _ =>
+      if let some scalarType ← lowerEnumToScalarType? name then
+        return scalarType
+      else
+        return .object
+  | .app f _ =>
+    -- All mono types are in headBeta form.
+    if let .const name _ := f then
+      if let some scalarType ← lowerEnumToScalarType? name then
+        return scalarType
+      else
+        return .object
+    else
+      return .object
+  | .forallE .. => return .object
+  | _ => panic! "invalid type"
+
 inductive CtorFieldInfo where
   | irrelevant
   | object (i : Nat)

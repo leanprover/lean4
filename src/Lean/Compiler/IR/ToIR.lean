@@ -72,35 +72,6 @@ def lowerLitValue (v : LCNF.LitValue) : LitVal :=
   | .uint32 v => .num (UInt32.toNat v)
   | .uint64 v | .usize v => .num (UInt64.toNat v)
 
-def lowerType (e : Lean.Expr) : CoreM IRType := do
-  match e with
-  | .const name .. =>
-    match name with
-    | ``UInt8 | ``Bool => return .uint8
-    | ``UInt16 => return .uint16
-    | ``UInt32 => return .uint32
-    | ``UInt64 => return .uint64
-    | ``USize => return .usize
-    | ``Float => return .float
-    | ``Float32 => return .float32
-    | ``lcErased => return .irrelevant
-    | _ =>
-      if let some scalarType ← lowerEnumToScalarType? name then
-        return scalarType
-      else
-        return .object
-  | .app f _ =>
-    -- All mono types are in headBeta form.
-    if let .const name _ := f then
-      if let some scalarType ← lowerEnumToScalarType? name then
-        return scalarType
-      else
-        return .object
-    else
-      return .object
-  | .forallE .. => return .object
-  | _ => panic! "invalid type"
-
 def lowerArg (a : LCNF.Arg) : M Arg := do
   match a with
   | .fvar fvarId =>
@@ -125,7 +96,7 @@ def lowerProj (base : VarId) (ctorInfo : CtorInfo) (field : CtorFieldInfo)
 
 def lowerParam (p : LCNF.Param) : M Param := do
   let x ← bindVar p.fvarId
-  let ty ← lowerType p.type
+  let ty ← toIRType p.type
   return { x, borrow := p.borrow, ty }
 
 mutual
@@ -147,7 +118,7 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
     | some (.var varId) =>
       return .case cases.typeName
                    varId
-                   (← lowerType cases.resultType)
+                   (← toIRType cases.resultType)
                    (← cases.alts.mapM (lowerAlt varId))
     | some (.joinPoint ..) | some .erased | none => panic! "unexpected value"
   | .return fvarId =>
@@ -168,7 +139,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
     let var ← bindVar decl.fvarId
     let type ← match e with
     | .ctor .. | .pap .. | .proj .. => pure <| .object
-    | _ => lowerType decl.type
+    | _ => toIRType decl.type
     return .vdecl var type e (← lowerCode k)
   let rec mkErased (_ : Unit) : M FnBody := do
     bindErased decl.fvarId
@@ -178,7 +149,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
     let tmpVar ← newVar
     let type ← match e with
     | .ctor .. | .pap .. | .proj .. => pure <| .object
-    | _ => lowerType decl.type
+    | _ => toIRType decl.type
     return .vdecl tmpVar .object e (.vdecl var type (.ap tmpVar restArgs) (← lowerCode k))
   let rec tryIrDecl? (name : Name) (args : Array Arg) : M (Option FnBody) := do
     if let some decl ← LCNF.getMonoDecl? name then
@@ -350,7 +321,7 @@ partial def lowerAlt (discr : VarId) (a : LCNF.Alt) : M Alt := do
 end
 
 def lowerResultType (type : Lean.Expr) (arity : Nat) : M IRType :=
-  lowerType (resultTypeForArity type arity)
+  toIRType (resultTypeForArity type arity)
 where resultTypeForArity (type : Lean.Expr) (arity : Nat) : Lean.Expr :=
   if arity == 0 then
     type

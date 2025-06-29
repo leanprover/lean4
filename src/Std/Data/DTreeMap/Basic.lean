@@ -28,7 +28,6 @@ set_option linter.missingDocs true
 universe u v w w₂
 
 variable {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 namespace Std
 
@@ -75,6 +74,8 @@ structure DTreeMap (α : Type u) (β : α → Type v) (cmp : α → α → Order
 
 namespace DTreeMap
 open Internal (Impl)
+
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 /--
 Creates a new empty tree map. It is also possible and recommended to

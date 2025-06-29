@@ -30,9 +30,9 @@ namespace Raw
 
 -- TODO: the next two lemmas need to be renamed, but there is a bootstrapping obstacle.
 
-theorem empty_eq [BEq α] [Hashable α] {c : Nat} : (Raw.emptyWithCapacity c : Raw α β) = (Raw₀.emptyWithCapacity c).1 := (rfl)
+theorem empty_eq {c : Nat} : (Raw.emptyWithCapacity c : Raw α β) = (Raw₀.emptyWithCapacity c).1 := (rfl)
 
-theorem emptyc_eq [BEq α] [Hashable α] : (∅ : Raw α β) = Raw₀.emptyWithCapacity.1 := (rfl)
+theorem emptyc_eq : (∅ : Raw α β) = Raw₀.emptyWithCapacity.1 := (rfl)
 
 theorem insert_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a : α} {b : β a} :
     m.insert a b = (Raw₀.insert ⟨m, h.size_buckets_pos⟩ a b).1 := by

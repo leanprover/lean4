@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Data.DHashMap.Internal.Raw
 public import Std.Data.DHashMap.Internal.RawLemmas
+public import all Std.Data.DHashMap.Raw
 
 public section
 
@@ -1414,7 +1415,7 @@ theorem fold_eq_foldl_toList (h : m.WF) {f : δ → (a : α) → β → δ} {ini
 omit [BEq α] [Hashable α] in
 theorem forM_eq_forMUncurried [Monad m'] [LawfulMonad m']
     {f : α → β → m' PUnit} :
-    Raw.forM f m = Const.forMUncurried (fun a => f a.1 a.2) m := rfl
+    Raw.forM f m = Const.forMUncurried (fun a => f a.1 a.2) m := (rfl)
 
 theorem forMUncurried_eq_forM_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
     {f : α × β → m' PUnit} :
@@ -1433,7 +1434,7 @@ omit [BEq α] [Hashable α] in
 @[simp]
 theorem forIn_eq_forInUncurried [Monad m'] [LawfulMonad m']
     {f : α → β → δ → m' (ForInStep δ)} {init : δ} :
-    forIn f init m = forInUncurried (fun a b => f a.1 a.2 b) init m := rfl
+    forIn f init m = forInUncurried (fun a b => f a.1 a.2 b) init m := (rfl)
 
 theorem forInUncurried_eq_forIn_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
     {f : α × β → δ → m' (ForInStep δ)} {init : δ} :
@@ -2130,7 +2131,7 @@ theorem ofList_singleton {k : α} {v : β k} :
   rw [Raw₀.insertMany_emptyWithCapacity_list_cons]
 
 theorem ofList_eq_insertMany_empty {l : List ((a : α) × (β a))} :
-    ofList l = insertMany (∅ : Raw α β) l := rfl
+    ofList l = insertMany (∅ : Raw α β) l := (rfl)
 
 @[simp, grind =]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]
@@ -2282,7 +2283,7 @@ theorem ofList_singleton {k : α} {v : β} :
   rw [Raw₀.Const.insertMany_emptyWithCapacity_list_cons]
 
 theorem ofList_eq_insertMany_empty {l : List (α × β)} :
-    ofList l = insertMany (∅ : Raw α (fun _ => β)) l := rfl
+    ofList l = insertMany (∅ : Raw α (fun _ => β)) l := (rfl)
 
 @[simp, grind =]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]

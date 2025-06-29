@@ -6,8 +6,12 @@ Authors: Markus Himmel
 module
 
 prelude
+import all Std.Data.Internal.List.Associative
+import all Std.Data.DHashMap.Raw
 public import Std.Data.DHashMap.Basic
+import all Std.Data.DHashMap.Internal.Defs
 public import Std.Data.DHashMap.Internal.Model
+import all Std.Data.DHashMap.Internal.AssocList.Basic
 public import Std.Data.DHashMap.Internal.AssocList.Lemmas
 
 public section
@@ -73,7 +77,7 @@ theorem isEmpty_eq_isEmpty [BEq α] [Hashable α] {m : Raw α β} (h : Raw.WFImp
     Nat.beq_eq_true_eq]
 
 theorem fold_eq {l : Raw α β} {f : γ → (a : α) → β a → γ} {init : γ} :
-    l.fold f init = l.buckets.foldl (fun acc l => l.foldl f acc) init := rfl
+    l.fold f init = l.buckets.foldl (fun acc l => l.foldl f acc) init := (rfl)
 
 theorem fold_cons_apply {l : Raw α β} {acc : List γ} (f : (a : α) → β a → γ) :
     l.fold (fun acc k v => f k v :: acc) acc =
@@ -415,7 +419,7 @@ theorem getKey?_eq_getKey? [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable 
 
 theorem getKeyₘ_eq_getKey [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
     (hm : Raw.WFImp m.1) {a : α} {h : m.contains a} :
-    m.getKeyₘ a h = List.getKey a (toListModel m.1.buckets) (contains_eq_containsKey hm ▸ h) :=
+    m.getKeyₘ a (by exact h) = List.getKey a (toListModel m.1.buckets) (contains_eq_containsKey hm ▸ h) :=
   apply_bucket_with_proof hm a AssocList.getKey List.getKey AssocList.getKey_eq
     List.getKey_of_perm List.getKey_append_of_containsKey_eq_false
 

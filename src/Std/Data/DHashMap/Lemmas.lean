@@ -8,7 +8,8 @@ module
 prelude
 public import Std.Data.DHashMap.Internal.Raw
 public import Std.Data.DHashMap.Internal.RawLemmas
-public import Std.Data.DHashMap.AdditionalOperations
+import all Std.Data.DHashMap.Basic
+public import all Std.Data.DHashMap.AdditionalOperations
 
 public section
 
@@ -156,7 +157,7 @@ set_option linter.missingDocs false in
 @[deprecated size_empty (since := "2025-03-12")]
 abbrev size_emptyc := @size_empty
 
-theorem isEmpty_eq_size_eq_zero : m.isEmpty = (m.size == 0) := rfl
+theorem isEmpty_eq_size_eq_zero : m.isEmpty = (m.size == 0) := (rfl)
 
 @[grind =] theorem size_insert [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
     (m.insert k v).size = if k ∈ m then m.size else m.size + 1 :=
@@ -1340,7 +1341,7 @@ theorem fold_eq_foldl_toList {f : δ → (a : α) → β → δ} {init : δ} :
   Raw₀.Const.fold_eq_foldl_toList ⟨m.1, m.2.size_buckets_pos⟩
 
 theorem forM_eq_forMUncurried [Monad m'] [LawfulMonad m'] {f : α → β → m' PUnit} :
-    DHashMap.forM f m = forMUncurried (fun a => f a.1 a.2) m := rfl
+    DHashMap.forM f m = forMUncurried (fun a => f a.1 a.2) m := (rfl)
 
 theorem forMUncurried_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : α × β → m' PUnit} :
     Const.forMUncurried f m = (Const.toList m).forM f :=
@@ -1356,7 +1357,7 @@ theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : α → β → m' PU
 
 theorem forIn_eq_forInUncurried [Monad m'] [LawfulMonad m']
     {f : α → β → δ → m' (ForInStep δ)} {init : δ} :
-    DHashMap.forIn f init m = forInUncurried (fun a b => f a.1 a.2 b) init m := rfl
+    DHashMap.forIn f init m = forInUncurried (fun a b => f a.1 a.2 b) init m := (rfl)
 
 theorem forInUncurried_eq_forIn_toList [Monad m'] [LawfulMonad m']
     {f : α × β → δ → m' (ForInStep δ)} {init : δ} :
@@ -2020,7 +2021,7 @@ theorem ofList_singleton {k : α} {v : β k} :
   ext <| congrArg Subtype.val (Raw₀.insertMany_emptyWithCapacity_list_cons (α := α))
 
 theorem ofList_eq_insertMany_empty {l : List ((a : α) × β a)} :
-    ofList l = insertMany (∅ : DHashMap α β) l := rfl
+    ofList l = insertMany (∅ : DHashMap α β) l := (rfl)
 
 @[simp, grind =]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]
@@ -2169,7 +2170,7 @@ theorem ofList_singleton {k : α} {v : β} :
   ext <| congrArg Subtype.val (Raw₀.Const.insertMany_emptyWithCapacity_list_cons (α:= α))
 
 theorem ofList_eq_insertMany_empty {l : List (α × β)} :
-    ofList l = insertMany (∅ : DHashMap α (fun _ => β)) l := rfl
+    ofList l = insertMany (∅ : DHashMap α (fun _ => β)) l := (rfl)
 
 @[simp, grind =]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]

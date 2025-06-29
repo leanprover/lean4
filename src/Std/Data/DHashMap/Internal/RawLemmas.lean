@@ -6,7 +6,11 @@ Authors: Markus Himmel
 module
 
 prelude
+import all Std.Data.Internal.List.Associative
+import all Std.Data.DHashMap.Internal.Defs
 public import Std.Data.DHashMap.Internal.WF
+import all Std.Data.DHashMap.Raw
+meta import all Std.Data.DHashMap.Basic
 
 public section
 
@@ -77,7 +81,7 @@ namespace Raw₀
 variable (m : Raw₀ α β)
 
 @[simp]
-theorem size_emptyWithCapacity {c} : (emptyWithCapacity c : Raw₀ α β).1.size = 0 := rfl
+theorem size_emptyWithCapacity {c} : (emptyWithCapacity c : Raw₀ α β).1.size = 0 := (rfl)
 
 set_option linter.missingDocs false in
 @[deprecated size_emptyWithCapacity (since := "2025-03-12")]

@@ -47,7 +47,7 @@ def scrambleHash (hash : UInt64) : UInt64 :=
 `sz` is an explicit parameter because having it inferred from `h` can lead to suboptimal IR,
 cf. https://github.com/leanprover/lean4/issues/4157
 -/
-@[irreducible, inline] def mkIdx (sz : Nat) (h : 0 < sz) (hash : UInt64) :
+@[irreducible, inline, expose] def mkIdx (sz : Nat) (h : 0 < sz) (hash : UInt64) :
     { u : USize // u.toNat < sz } :=
   ⟨(scrambleHash hash).toUSize &&& (USize.ofNat sz - 1), by
     -- This proof is a good test for our USize API

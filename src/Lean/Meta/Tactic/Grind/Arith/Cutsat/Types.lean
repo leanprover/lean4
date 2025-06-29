@@ -209,6 +209,7 @@ inductive DiseqCnstrProof where
   | neg (c : DiseqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
   | reorder (c : DiseqCnstr)
+  | commRingNorm (c : DiseqCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
 
 /--
 A proof of `False`.

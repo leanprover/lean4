@@ -203,7 +203,7 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
   | .defnNatCommRing e x e' p re rp p' =>
     let h₁ := mkApp2 (mkConst ``Int.OfNat.Expr.eq_denoteAsInt) (← getNatContext) (← mkNatExprDecl e)
     let h₂ := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl re) (← mkRingPolyDecl rp) reflBoolTrue
-    return mkApp9 (mkConst ``Int.Linear.eq_def') (← getContext) (toExpr x) (← mkExprDecl e')
+    return mkApp9 (mkConst ``Int.Linear.eq_def'_norm) (← getContext) (toExpr x) (← mkExprDecl e')
       (← mkPolyDecl p) (← mkPolyDecl p') (← mkPolyDecl c'.p) reflBoolTrue h₁ h₂
 
 partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
@@ -386,6 +386,9 @@ partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c'
       (← getContext) (toExpr x) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
       reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
   | .reorder c => withUnordered <| c.toExprProof
+  | .commRingNorm c e p =>
+    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) reflBoolTrue
+    return mkApp5 (mkConst ``Int.Linear.diseq_norm_poly) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
 
 partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s do
   match s.h with
@@ -504,7 +507,7 @@ partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do u
 partial def DiseqCnstr.collectDecVars (c' : DiseqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
   | .core0 .. | .core .. | .coreNat .. | .coreToInt .. => return () -- Disequalities coming from the core never contain cutsat decision variables
-  | .reorder c | .norm c | .divCoeffs c | .neg c => c.collectDecVars
+  | .commRingNorm c .. | .reorder c | .norm c | .divCoeffs c | .neg c => c.collectDecVars
   | .subst _ c₁ c₂  => c₁.collectDecVars; c₂.collectDecVars
 
 end

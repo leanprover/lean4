@@ -33,3 +33,7 @@ example (a b : Int) (h : a + 1 = b * a) : 2 * a * b - 2 * a ≤ 2 := by grind
 example (a b : Int) (h₁ : a + 1 ≠ a * b) (h₂ : a * b ≤ a + 1) : b * a < a + 1 := by grind
 example (a b : Int) (h₁ : a + 1 ≠ b * a) (h₂ : a * b ≤ a + 1) : b * a < a + 1 := by grind
 example (a b : Int) (h₁ : a + 1 ≠ a * b * a) (h₂ : a * a * b ≤ a + 1) : b * a^2 < a + 1 := by grind
+
+example (a b : Nat) (h₁ : a + 1 ≠ a * b) (h₂ : a * b ≤ a + 1) : b * a < a + 1 := by grind
+example (a b : Nat) (h₁ : a + 1 ≠ b * a) (h₂ : a * b ≤ a + 1) : b * a < a + 1 := by grind
+example (a b : Nat) (h₁ : a + 1 ≠ a * b * a) (h₂ : a * a * b ≤ a + 1) : b * a^2 < a + 1 := by grind

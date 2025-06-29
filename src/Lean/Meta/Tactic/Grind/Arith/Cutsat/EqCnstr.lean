@@ -272,6 +272,8 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
     ToIntM.run α do processNewToIntEq a b
 
 private def processNewIntDiseq (a b : Expr) : GoalM Unit := do
+  -- Remark: we don't need to use comm ring to normalize these polynomials because they are
+  -- always linear.
   let p₁ ← exprAsPoly a
   let c ← if let some 0 ← getIntValue? b then
     pure { p := p₁, h := .core0 a b : DiseqCnstr }
@@ -281,6 +283,14 @@ private def processNewIntDiseq (a b : Expr) : GoalM Unit := do
     pure {p, h := .core a b p₁ p₂ : DiseqCnstr }
   c.assert
 
+/-- Asserts a constraint coming from the core. -/
+private def DiseqCnstr.assertCore (c : DiseqCnstr) : GoalM Unit := do
+  if let some (re, rp, p) ← c.p.normCommRing? then
+    let c := { p, h := .commRingNorm c re rp : DiseqCnstr }
+    c.assert
+  else
+    c.assert
+
 private def processNewNatDiseq (a b : Expr) : GoalM Unit := do
   let (lhs, rhs) ← Int.OfNat.toIntEq a b
   let gen ← getGeneration a
@@ -289,7 +299,7 @@ private def processNewNatDiseq (a b : Expr) : GoalM Unit := do
   let rhs' ← toLinearExpr (← rhs.denoteAsIntExpr ctx) gen
   let p := lhs'.sub rhs' |>.norm
   let c := { p, h := .coreNat a b lhs rhs lhs' rhs' : DiseqCnstr }
-  c.assert
+  c.assertCore
 
 private def processNewToIntDiseq (a b : Expr) : ToIntM Unit := do
   let gen := max (← getGeneration a) (← getGeneration b)
@@ -300,7 +310,7 @@ private def processNewToIntDiseq (a b : Expr) : ToIntM Unit := do
   let rhs ← toLinearExpr b' gen
   let p := lhs.sub rhs |>.norm
   let c := { p, h := .coreToInt a b thm lhs rhs : DiseqCnstr }
-  c.assert
+  c.assertCore
 
 @[export lean_process_cutsat_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do

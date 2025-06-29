@@ -16,9 +16,12 @@ a mechanism for letting users to install their own handlers.
 
 namespace Lean.Meta.Grind
 
+theorem Std.ReflCmp.cmp_eq_of_eq {α : Type u} {cmp : α → α → Ordering} [Std.ReflCmp cmp] {a b : α} : a = b → cmp a b = .eq := by
+  intro h; subst a; apply Std.ReflCmp.compare_self
+
 /--
 If `op` implements `ReflCmp`, then returns the proof term for
-`∀ a, op a a = .eq`
+`∀ a b, a = b → op a b = .eq`
 -/
 def getReflCmpThm? (op : Expr) : GrindM (Option Expr) := do
   if let some thm? := (← get).reflCmpMap.find? { expr := op } then
@@ -39,15 +42,15 @@ where
     let some u ← decLevel? u | return none
     let reflCmp := mkApp2 (mkConst ``Std.ReflCmp [u]) α op
     let .some reflCmpInst ← trySynthInstance reflCmp | return none
-    return some <| mkApp3 (mkConst ``Std.ReflCmp.compare_self [u]) α op reflCmpInst
+    return some <| mkApp3 (mkConst ``Std.ReflCmp.cmp_eq_of_eq [u]) α op reflCmpInst
 
 def propagateReflCmp (e : Expr) : GoalM Unit := do
   let some op := getBinOp e | return ()
   let some thm ← getReflCmpThm? op | return ()
   let a := e.appFn!.appArg!
   let b := e.appArg!
-  unless (a == b) do return ()
+  unless (← isEqv a b) do return ()
   let oeq ← getOrderingEqExpr
-  pushEq e oeq <| mkApp thm a
+  pushEq e oeq <| mkApp3 thm a b (← mkEqProof e oeq)
 
 end Lean.Meta.Grind

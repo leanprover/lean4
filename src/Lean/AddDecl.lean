@@ -144,13 +144,7 @@ where
       withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
         if warn.sorry.get (← getOptions) then
           if !(← MonadLog.hasErrors) && decl.hasSorry then
-            if decl.hasSyntheticSorry then
-              logWarning <| .tagged `hasSorry m!"declaration uses 'sorry' due to elaboration errors.\n\n\
-                This can be caused by (1) referring to declarations with elaboration errors or \
-                (2) bugs in elaborators. In the second case, \
-                please report a minimized error-free example that produces this warning."
-            else
-              logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
+            logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
         try
           let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
             |> ofExceptKernelException

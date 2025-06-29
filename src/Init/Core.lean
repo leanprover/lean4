@@ -2302,9 +2302,6 @@ is the “universal `Subsingleton`” mapped from `α`.
 proofs) are erased from compiled code and represented by a dummy value. `Squash α` is a `Type u`,
 and its representation in compiled code is identical to that of `α`.
 
-`Squash.lift` will extract a value in any subsingleton `β` from a function on `α`,
-while `Nonempty.rec` can only do the same when `β` is a proposition.
-
 Consequently, `Squash.lift` may extract an `α` value into any subsingleton type `β`, while
 `Nonempty.rec` can only do the same when `β` is a proposition.
 

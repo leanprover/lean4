@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Init.Data.UInt.Lemmas
-import Init.Data.UInt.Bitwise
+public import Init.Data.UInt.Lemmas
+public import Init.Data.UInt.Bitwise
+
+public section
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on

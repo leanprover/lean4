@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.DHashMap.Internal.Raw
-import Std.Data.DHashMap.Internal.RawLemmas
-import Std.Data.DHashMap.AdditionalOperations
+public import Std.Data.DHashMap.Internal.Raw
+public import Std.Data.DHashMap.Internal.RawLemmas
+public import Std.Data.DHashMap.AdditionalOperations
+
+public section
 
 /-!
 # Dependent hash map lemmas

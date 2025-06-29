@@ -130,7 +130,7 @@ Safer alternatives include:
   * `List.head?`, which returns an `Option`, and
   * `List.headD`, which returns an explicitly-provided fallback value on empty lists.
 -/
-def head! [Inhabited α] : List α → α
+@[expose] def head! [Inhabited α] : List α → α
   | []   => panic! "empty list"
   | a::_ => a
 

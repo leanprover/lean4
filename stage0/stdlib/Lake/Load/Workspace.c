@@ -58,6 +58,7 @@ extern lean_object* l_Lean_searchPathRef;
 LEAN_EXPORT lean_object* l_Lake_Workspace_materializeDeps___at___Lake_loadWorkspace_spec__1___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_loadPackageCore(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_loadWorkspace___elam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lake_Workspace_materializeDeps_spec__10(lean_object*, lean_object*);
 lean_object* l_Lake_mkRelPathString(lean_object*);
 static lean_object* l_Lake_loadWorkspace___closed__0;
 static lean_object* l_Lake_loadWorkspaceRoot___closed__1;
@@ -74,7 +75,6 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
 static lean_object* l_Lake_Workspace_materializeDeps___at___Lake_loadWorkspace_spec__1___closed__3;
 lean_object* l_Lake_Workspace_addFacetsFromEnv(lean_object*, lean_object*, lean_object*);
-uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lake_Workspace_materializeDeps_spec__10(lean_object*, lean_object*);
 static lean_object* l_Lake_Workspace_materializeDeps___at___Lake_loadWorkspace_spec__1___closed__4;
 lean_object* l_IO_ofExcept___at___IO_FS_Stream_readJson_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l___private_Lake_Load_Resolve_0__Lake_Workspace_resolveDepsCore_go___at___Lake_Workspace_materializeDeps___elam__0___at___Lake_Workspace_materializeDeps_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1058,7 +1058,7 @@ x_127 = l_System_FilePath_normalize(x_126);
 x_128 = l_Lake_mkRelPathString(x_127);
 x_129 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_129, 0, x_128);
-x_130 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lake_Workspace_materializeDeps_spec__10(x_8, x_129);
+x_130 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lake_Workspace_materializeDeps_spec__10(x_8, x_129);
 lean_dec(x_129);
 if (x_130 == 0)
 {

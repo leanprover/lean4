@@ -72,7 +72,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC___redArg(l
 uint8_t l_Std_DHashMap_Internal_AssocList_contains___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Option_beqOption___redArg____x40_Init_Data_Option_Basic___hyg_160_(lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__20;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -85,6 +84,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux(lean_objec
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__0;
+uint8_t l_Option_beqOption___redArg____x40_Init_Data_Option_Basic___hyg_161_(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__11;
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__4;
@@ -1553,7 +1553,7 @@ x_19 = lean_ctor_get(x_16, 1);
 lean_inc(x_19);
 lean_dec(x_16);
 x_20 = l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__20;
-x_21 = l_Option_beqOption___redArg____x40_Init_Data_Option_Basic___hyg_160_(x_20, x_19, x_18);
+x_21 = l_Option_beqOption___redArg____x40_Init_Data_Option_Basic___hyg_161_(x_20, x_19, x_18);
 if (x_21 == 0)
 {
 lean_object* x_22; 
@@ -1586,7 +1586,7 @@ x_27 = lean_ctor_get(x_24, 1);
 lean_inc(x_27);
 lean_dec(x_24);
 x_28 = l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__20;
-x_29 = l_Option_beqOption___redArg____x40_Init_Data_Option_Basic___hyg_160_(x_28, x_27, x_26);
+x_29 = l_Option_beqOption___redArg____x40_Init_Data_Option_Basic___hyg_161_(x_28, x_27, x_26);
 if (x_29 == 0)
 {
 lean_object* x_30; lean_object* x_31; 

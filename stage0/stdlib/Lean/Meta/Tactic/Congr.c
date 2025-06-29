@@ -40,7 +40,6 @@ lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Congr_0__Lean_applyCongrThm_x3f___closed__0;
 static lean_object* l_Lean_MVarId_congrImplies_x3f___lam__0___closed__1;
 static lean_object* l_Lean_MVarId_congr_x3f___closed__1;
-uint8_t l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_73_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_MVarId_congrN___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Congr_0__Lean_applyCongrThm_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkHCongr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -100,6 +99,7 @@ uint64_t l_Lean_Meta_TransparencyMode_toUInt64(uint8_t);
 static lean_object* l_Lean_MVarId_congrCore___closed__0;
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
 static lean_object* l_Lean_MVarId_congrImplies_x3f___lam__0___closed__2;
+uint8_t l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_74_(uint8_t, uint8_t);
 lean_object* l_Lean_Meta_mkConstWithFreshMVarLevels(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_congrCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_____private_Lean_Meta_Tactic_Congr_0__Lean_applyCongrThm_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2661,7 +2661,7 @@ x_24 = lean_box(2);
 x_25 = lean_unbox(x_10);
 lean_dec(x_10);
 x_26 = lean_unbox(x_24);
-x_27 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_73_(x_25, x_26);
+x_27 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_74_(x_25, x_26);
 if (x_27 == 0)
 {
 lean_object* x_28; 

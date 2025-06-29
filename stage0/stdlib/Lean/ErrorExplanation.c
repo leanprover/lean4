@@ -153,12 +153,12 @@ LEAN_EXPORT lean_object* l_Lean_getErrorExplanationsSorted___redArg___lam__0(lea
 LEAN_EXPORT lean_object* l_Lean_getErrorExplanation_x3f___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_fromJsonMetadata___closed__9____x40_Lean_ErrorExplanation___hyg_53_;
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_____private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_ErrorExplanation_CodeInfo_parse_namedAttr___closed__0;
 lean_object* l_String_splitOnAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ErrorExplanation_reprCodeInfo___redArg___closed__2____x40_Lean_ErrorExplanation___hyg_593_;
 static lean_object* l_Lean_ErrorExplanation_instFromJsonMetadata___closed__0;
 LEAN_EXPORT lean_object* l_Lean_hasErrorExplanation___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at_____private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock_spec__0___boxed(lean_object*, lean_object*);
 lean_object* l_List_flatMapTR_go___at_____private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_187__spec__0(lean_object*, lean_object*);
 static lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_fence___closed__5;
 static lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_fromJsonMetadata___closed__2____x40_Lean_ErrorExplanation___hyg_53_;
@@ -267,6 +267,7 @@ lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_ErrorExplanation_CodeInfo_beqKind____x40_Lean_ErrorExplanation___hyg_472_(uint8_t, uint8_t);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getErrorExplanation_x3f___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at_____private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_ErrorExplanation_CodeInfo_instReprKind___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_manyNotD(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCore___at___Lean_ErrorExplanation_CodeInfo_parse_stringContents_spec__0(uint32_t, uint32_t, lean_object*, lean_object*);
@@ -346,7 +347,6 @@ static lean_object* l_Lean_ErrorExplanation_reprValidationState___redArg___close
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_fence___closed__2;
 static lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock___closed__3;
-LEAN_EXPORT lean_object* l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_____private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_ValidationState_ofSource(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ErrorExplanation_CodeInfo_Kind_ofString(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -7474,7 +7474,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_____private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock_spec__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at_____private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock_spec__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -8102,7 +8102,7 @@ else
 uint8_t x_80; 
 lean_inc(x_78);
 lean_inc(x_2);
-x_80 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_____private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock_spec__0(x_2, x_78);
+x_80 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at_____private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock_spec__0(x_2, x_78);
 x_49 = x_78;
 x_50 = x_77;
 x_51 = x_61;
@@ -8195,7 +8195,7 @@ else
 uint8_t x_103; 
 lean_inc(x_101);
 lean_inc(x_2);
-x_103 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_____private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock_spec__0(x_2, x_101);
+x_103 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at_____private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock_spec__0(x_2, x_101);
 x_49 = x_101;
 x_50 = x_100;
 x_51 = x_82;
@@ -8392,11 +8392,11 @@ return x_142;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_____private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at_____private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at_____private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock_spec__0(x_1, x_2);
+x_3 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at_____private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock_spec__0(x_1, x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }

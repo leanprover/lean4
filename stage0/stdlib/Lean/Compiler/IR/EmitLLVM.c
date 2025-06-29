@@ -100,7 +100,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitMainFn___lam__0___boxed(lean_obj
 lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Lean_IR_CollectMaps_collectFnBody_spec__4___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_llvm_build_sext_or_trunc(size_t, size_t, size_t, size_t, lean_object*, lean_object*);
 lean_object* lean_llvm_build_switch(size_t, size_t, size_t, size_t, uint64_t, lean_object*);
-uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Name_isMetaprogramming_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_RefcountKind_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_buildLeanBoolTrue_x3f___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
@@ -756,6 +755,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_buildLeanBoolTrue_x3f(size_t, size_t
 lean_object* lean_llvm_pointer_type(size_t, size_t, lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_callLeanMkStringUncheckedFn___redArg___closed__1;
 lean_object* lean_llvm_create_string_attribute(size_t, lean_object*, lean_object*, lean_object*);
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Name_isMetaprogramming_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_callLeanRefcountFn___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_callLeanCtorSetTag(size_t, size_t, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitMainFn___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -35235,7 +35235,7 @@ _start:
 lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 x_12 = l_Lean_Expr_constName_x3f(x_1);
 x_13 = l_Lean_IR_EmitLLVM_emitMainFn___lam__5___closed__2;
-x_14 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Name_isMetaprogramming_spec__0(x_12, x_13);
+x_14 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Name_isMetaprogramming_spec__0(x_12, x_13);
 lean_dec(x_12);
 if (x_14 == 0)
 {
@@ -35433,7 +35433,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_IR_EmitLLVM_emitMainFn___closed__7;
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(21u);
+x_3 = lean_unsigned_to_nat(23u);
 x_4 = l_Lean_IR_EmitLLVM_emitMainFn___closed__6;
 x_5 = l_Lean_IR_EmitLLVM_emitMainFn___closed__5;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

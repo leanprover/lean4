@@ -115,6 +115,7 @@ static lean_object* l_Lake_reprCliError___closed__64____x40_Lake_CLI_Error___hyg
 static lean_object* l_Lake_reprCliError___closed__88____x40_Lake_CLI_Error___hyg_422_;
 LEAN_EXPORT lean_object* l_Lake_reprCliError____x40_Lake_CLI_Error___hyg_422____boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_reprCliError___closed__14____x40_Lake_CLI_Error___hyg_422_;
+lean_object* l_List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1970__spec__0___redArg(lean_object*);
 static lean_object* l_Lake_CliError_toString___closed__3;
 static lean_object* l_Lake_reprCliError___closed__33____x40_Lake_CLI_Error___hyg_422_;
 static lean_object* l_Lake_CliError_toString___closed__20;
@@ -157,7 +158,6 @@ static lean_object* l_Lake_CliError_toString___closed__26;
 static lean_object* l_Lake_reprCliError___closed__4____x40_Lake_CLI_Error___hyg_422_;
 static lean_object* l_Lake_reprCliError___closed__80____x40_Lake_CLI_Error___hyg_422_;
 static lean_object* l_Lake_CliError_toString___closed__42;
-lean_object* l_List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1969__spec__0___redArg(lean_object*);
 static lean_object* l_Lake_reprCliError___closed__2____x40_Lake_CLI_Error___hyg_422_;
 static lean_object* l_Lake_reprCliError___closed__42____x40_Lake_CLI_Error___hyg_422_;
 static lean_object* l_Lake_reprCliError___closed__31____x40_Lake_CLI_Error___hyg_422_;
@@ -1515,7 +1515,7 @@ block_164:
 {
 lean_object* x_156; lean_object* x_157; lean_object* x_158; lean_object* x_159; lean_object* x_160; lean_object* x_161; uint8_t x_162; lean_object* x_163; 
 x_156 = l_Lake_reprCliError___closed__30____x40_Lake_CLI_Error___hyg_422_;
-x_157 = l_List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1969__spec__0___redArg(x_154);
+x_157 = l_List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1970__spec__0___redArg(x_154);
 x_158 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_158, 0, x_156);
 lean_ctor_set(x_158, 1, x_157);

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
-// Imports: Init.Data.Int.Linear Std.Internal.Rat Lean.Data.PersistentArray Lean.Meta.Tactic.Grind.ExprPtr Lean.Meta.Tactic.Grind.Arith.Util Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
+// Imports: Init.Data.Int.Linear Std.Internal.Rat Lean.Data.PersistentArray Lean.Meta.Tactic.Grind.ExprPtr Lean.Meta.Tactic.Grind.Arith.Util Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo Lean.Meta.Tactic.Grind.Arith.CommRing.Types
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -690,7 +690,7 @@ return x_2;
 static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState___closed__28() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; uint8_t x_19; 
 x_1 = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState___closed__27;
 x_2 = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState___closed__26;
 x_3 = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState___closed__25;
@@ -707,7 +707,7 @@ x_13 = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState___closed__13;
 x_14 = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState___closed__11;
 x_15 = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState___closed__9;
 x_16 = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState___closed__7;
-x_17 = lean_alloc_ctor(0, 21, 1);
+x_17 = lean_alloc_ctor(0, 21, 2);
 lean_ctor_set(x_17, 0, x_16);
 lean_ctor_set(x_17, 1, x_15);
 lean_ctor_set(x_17, 2, x_16);
@@ -731,6 +731,8 @@ lean_ctor_set(x_17, 19, x_2);
 lean_ctor_set(x_17, 20, x_1);
 x_18 = lean_unbox(x_6);
 lean_ctor_set_uint8(x_17, sizeof(void*)*21, x_18);
+x_19 = lean_unbox(x_6);
+lean_ctor_set_uint8(x_17, sizeof(void*)*21 + 1, x_19);
 return x_17;
 }
 }
@@ -748,6 +750,7 @@ lean_object* initialize_Lean_Data_PersistentArray(uint8_t builtin, lean_object*)
 lean_object* initialize_Lean_Meta_Tactic_Grind_ExprPtr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Util(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_ToIntInfo(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Types(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -769,6 +772,9 @@ res = initialize_Lean_Meta_Tactic_Grind_Arith_Util(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_ToIntInfo(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Types(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Grind_Arith_Cutsat_hashPoly___closed__0____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_6_ = _init_l_Lean_Meta_Grind_Arith_Cutsat_hashPoly___closed__0____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types___hyg_6_();

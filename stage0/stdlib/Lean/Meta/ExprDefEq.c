@@ -287,7 +287,6 @@ LEAN_EXPORT lean_object* l_Lean_getDelayedMVarAssignment_x3f___at___Lean_occursC
 LEAN_EXPORT lean_object* l_Lean_Meta_CheckAssignment_outOfScopeExceptionId;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_getCachedResult(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_____private_Lean_Meta_ExprDefEq_0__Lean_Meta_mkLambdaFVarsWithLetDeps_addLetDeps_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_73_(uint8_t, uint8_t);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_mkLambdaFVarsWithLetDeps_collectLetDeclsFrom___closed__2;
 static lean_object* l_Lean_Meta_initFn___closed__3____x40_Lean_Meta_ExprDefEq___hyg_45_;
@@ -844,6 +843,7 @@ static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___c
 LEAN_EXPORT lean_object* l_Lean_Meta_isExprDefEqAuxImpl___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_processAssignment___closed__0;
 uint8_t l_Lean_Expr_isFVar(lean_object*);
+uint8_t l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_74_(uint8_t, uint8_t);
 lean_object* l_Lean_Meta_instantiateForall(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkPtrSet___redArg(lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_sameHeadSymbol(lean_object*, lean_object*);
@@ -48654,7 +48654,7 @@ x_12 = lean_box(3);
 x_13 = lean_unbox(x_10);
 lean_dec(x_10);
 x_14 = lean_unbox(x_12);
-x_15 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_73_(x_13, x_14);
+x_15 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_74_(x_13, x_14);
 if (x_15 == 0)
 {
 lean_object* x_16; 
@@ -48922,7 +48922,7 @@ x_61 = lean_box(3);
 x_62 = lean_unbox(x_59);
 lean_dec(x_59);
 x_63 = lean_unbox(x_61);
-x_64 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_73_(x_62, x_63);
+x_64 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_74_(x_62, x_63);
 if (x_64 == 0)
 {
 lean_object* x_65; lean_object* x_66; 

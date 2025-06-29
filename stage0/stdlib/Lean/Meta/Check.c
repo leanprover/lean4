@@ -40,7 +40,6 @@ lean_object* l_Lean_Meta_isProp(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Lean_indentD(lean_object*);
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 static lean_object* l_Lean_Meta_throwLetTypeMismatchMessage___redArg___closed__14;
-uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Name_isMetaprogramming_spec__0(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 uint64_t lean_uint64_lor(uint64_t, uint64_t);
@@ -135,6 +134,7 @@ static lean_object* l_Lean_Meta_addPPExplicitToExposeDiff_visit___closed__6;
 static uint64_t l_Std_Range_forIn_x27_loop___at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__0___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_addPPExplicitToExposeDiff_visit___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1405__spec__0(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_setOption___at___Lean_Expr_setPPExplicit_spec__0(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Meta_throwAppTypeMismatch___redArg___closed__9;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAuxAux___redArg(uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -144,6 +144,7 @@ lean_object* l_Lean_Meta_whnfD(lean_object*, lean_object*, lean_object*, lean_ob
 uint64_t l_Lean_Expr_hash(lean_object*);
 lean_object* l_Lean_Meta_isLabeledSorry_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_addPPExplicitToExposeDiff_visit___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -173,7 +174,6 @@ static lean_object* l_Lean_Meta_addPPExplicitToExposeDiff_visit___closed__4;
 static lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkAux___closed__0;
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescope___at_____private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkForall_spec__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkLambdaLet___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_throwAppTypeMismatch___redArg___closed__11;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -182,7 +182,6 @@ lean_object* l_Lean_getConstVal___at_____private_Lean_Meta_InferType_0__Lean_Met
 static lean_object* l_Lean_Meta_addPPExplicitToExposeDiff_visit___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_addPPExplicitToExposeDiff_visit___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_check___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1405__spec__0(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_addPPExplicitToExposeDiff_visit___closed__0;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -191,6 +190,7 @@ static lean_object* l_Lean_Meta_addPPExplicitToExposeDiff_visit___lam__3___close
 static lean_object* l_Lean_Meta_throwAppTypeMismatch___redArg___closed__2;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withoutModifyingState___at___Lean_Meta_addPPExplicitToExposeDiff_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_addPPExplicitToExposeDiff___closed__0;
 lean_object* l_Lean_indentExpr(lean_object*);
@@ -216,10 +216,10 @@ lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_addPPExplicitToExposeDiff_visit___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_shift_left(uint64_t, uint64_t);
-LEAN_EXPORT lean_object* l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_check___lam__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_lambdaTelescopeImp___redArg(lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Name_isMetaprogramming_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn___closed__0____x40_Lean_Meta_Check___hyg_4974_;
 lean_object* l_Lean_withTraceNode___at___Lean_Meta_processPostponed_spec__0___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_____private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_visit_spec__1___redArg(lean_object*, lean_object*);
@@ -1450,7 +1450,7 @@ x_16 = l_Std_Range_forIn_x27_loop___at___Lean_Meta_addPPExplicitToExposeDiff_vis
 return x_16;
 }
 }
-LEAN_EXPORT uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -2681,7 +2681,7 @@ block_169:
 {
 lean_object* x_151; uint8_t x_152; 
 x_151 = l_Lean_Meta_addPPExplicitToExposeDiff_visit___closed__4;
-x_152 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Name_isMetaprogramming_spec__0(x_150, x_151);
+x_152 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Name_isMetaprogramming_spec__0(x_150, x_151);
 lean_dec(x_150);
 if (x_152 == 0)
 {
@@ -2737,7 +2737,7 @@ lean_object* x_162; uint8_t x_163;
 x_162 = lean_ctor_get(x_159, 0);
 lean_inc(x_162);
 lean_dec(x_159);
-x_163 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__1(x_158, x_162);
+x_163 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__1(x_158, x_162);
 lean_dec(x_162);
 lean_dec(x_158);
 if (x_163 == 0)
@@ -2804,7 +2804,7 @@ else
 {
 lean_object* x_172; uint8_t x_173; 
 x_172 = l_Lean_Meta_addPPExplicitToExposeDiff_visit___closed__8;
-x_173 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1405__spec__0(x_145, x_172);
+x_173 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1405__spec__0(x_145, x_172);
 if (x_173 == 0)
 {
 lean_dec(x_140);
@@ -2852,7 +2852,7 @@ block_184:
 {
 lean_object* x_180; uint8_t x_181; 
 x_180 = l_Lean_Meta_addPPExplicitToExposeDiff_visit___closed__12;
-x_181 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Name_isMetaprogramming_spec__0(x_179, x_180);
+x_181 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Name_isMetaprogramming_spec__0(x_179, x_180);
 if (x_181 == 0)
 {
 lean_dec(x_130);
@@ -3138,7 +3138,7 @@ block_257:
 {
 lean_object* x_239; uint8_t x_240; 
 x_239 = l_Lean_Meta_addPPExplicitToExposeDiff_visit___closed__4;
-x_240 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Name_isMetaprogramming_spec__0(x_238, x_239);
+x_240 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Name_isMetaprogramming_spec__0(x_238, x_239);
 lean_dec(x_238);
 if (x_240 == 0)
 {
@@ -3194,7 +3194,7 @@ lean_object* x_250; uint8_t x_251;
 x_250 = lean_ctor_get(x_247, 0);
 lean_inc(x_250);
 lean_dec(x_247);
-x_251 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__1(x_246, x_250);
+x_251 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__1(x_246, x_250);
 lean_dec(x_250);
 lean_dec(x_246);
 if (x_251 == 0)
@@ -3261,7 +3261,7 @@ else
 {
 lean_object* x_260; uint8_t x_261; 
 x_260 = l_Lean_Meta_addPPExplicitToExposeDiff_visit___closed__8;
-x_261 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1405__spec__0(x_233, x_260);
+x_261 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1405__spec__0(x_233, x_260);
 if (x_261 == 0)
 {
 lean_dec(x_228);
@@ -3309,7 +3309,7 @@ block_272:
 {
 lean_object* x_268; uint8_t x_269; 
 x_268 = l_Lean_Meta_addPPExplicitToExposeDiff_visit___closed__12;
-x_269 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Name_isMetaprogramming_spec__0(x_267, x_268);
+x_269 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Name_isMetaprogramming_spec__0(x_267, x_268);
 if (x_269 == 0)
 {
 lean_dec(x_217);
@@ -3636,7 +3636,7 @@ block_349:
 {
 lean_object* x_331; uint8_t x_332; 
 x_331 = l_Lean_Meta_addPPExplicitToExposeDiff_visit___closed__4;
-x_332 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Name_isMetaprogramming_spec__0(x_330, x_331);
+x_332 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Name_isMetaprogramming_spec__0(x_330, x_331);
 lean_dec(x_330);
 if (x_332 == 0)
 {
@@ -3692,7 +3692,7 @@ lean_object* x_342; uint8_t x_343;
 x_342 = lean_ctor_get(x_339, 0);
 lean_inc(x_342);
 lean_dec(x_339);
-x_343 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__1(x_338, x_342);
+x_343 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__1(x_338, x_342);
 lean_dec(x_342);
 lean_dec(x_338);
 if (x_343 == 0)
@@ -3759,7 +3759,7 @@ else
 {
 lean_object* x_352; uint8_t x_353; 
 x_352 = l_Lean_Meta_addPPExplicitToExposeDiff_visit___closed__8;
-x_353 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1405__spec__0(x_325, x_352);
+x_353 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1405__spec__0(x_325, x_352);
 if (x_353 == 0)
 {
 lean_dec(x_320);
@@ -3807,7 +3807,7 @@ block_364:
 {
 lean_object* x_360; uint8_t x_361; 
 x_360 = l_Lean_Meta_addPPExplicitToExposeDiff_visit___closed__12;
-x_361 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Name_isMetaprogramming_spec__0(x_359, x_360);
+x_361 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Name_isMetaprogramming_spec__0(x_359, x_360);
 if (x_361 == 0)
 {
 lean_dec(x_308);
@@ -4923,11 +4923,11 @@ lean_dec(x_1);
 return x_16;
 }
 }
-LEAN_EXPORT lean_object* l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__1(x_1, x_2);
+x_3 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);

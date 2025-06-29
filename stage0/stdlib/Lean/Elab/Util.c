@@ -217,6 +217,7 @@ lean_object* l_EStateM_map(lean_object*, lean_object*, lean_object*, lean_object
 extern lean_object* l_Lean_KVMap_instValueBool;
 static lean_object* l_Lean_Elab_initFn___closed__4____x40_Lean_Elab_Util___hyg_2615_;
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___System_FilePath_parent_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_expandOptNamedPrio___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn___closed__3____x40_Lean_Elab_Util___hyg_396_;
 static lean_object* l_Lean_Elab_macroAttribute___regBuiltin_Lean_Elab_macroAttribute_declRange__3___closed__6;
@@ -252,7 +253,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___redArg(lean_object*, lean_obje
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_macroAttribute___regBuiltin_Lean_Elab_macroAttribute_docString__1(lean_object*);
 static lean_object* l___auto___closed__26____x40_Lean_Elab_Util___hyg_842_;
-uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___System_FilePath_parent_spec__0(lean_object*, lean_object*);
 static lean_object* l___auto___closed__7____x40_Lean_Elab_Util___hyg_842_;
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___redArg___lam__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -598,7 +598,7 @@ _start:
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_3, 0);
 x_5 = l_Lean_Syntax_getPos_x3f(x_4, x_1);
-x_6 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___System_FilePath_parent_spec__0(x_5, x_2);
+x_6 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___System_FilePath_parent_spec__0(x_5, x_2);
 lean_dec(x_5);
 if (x_6 == 0)
 {

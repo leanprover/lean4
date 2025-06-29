@@ -186,7 +186,6 @@ LEAN_EXPORT lean_object* l_Lean_getDelayedMVarAssignment_x3f___at_____private_Le
 LEAN_EXPORT lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_deltaBetaDefinition(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at___Lean_Meta_smartUnfoldingReduce_x3f_go_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnfAtMostI(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_73_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_reduceRecMatcher_x3f___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at___Lean_Meta_smartUnfoldingReduce_x3f_go_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -571,6 +570,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_smartUnfoldingReduce_x3f(lean_object*, lean
 lean_object* lean_get_projection_info(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_isWFRec___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_deltaBetaDefinition___at___Lean_Meta_unfoldDefinition_x3f_spec__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_74_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_expandLet___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_reduceProj_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
@@ -4703,7 +4703,7 @@ x_165 = lean_box(1);
 x_166 = lean_unbox(x_18);
 lean_dec(x_18);
 x_167 = lean_unbox(x_165);
-x_168 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_73_(x_166, x_167);
+x_168 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_74_(x_166, x_167);
 x_92 = x_168;
 goto block_163;
 }
@@ -21315,7 +21315,7 @@ x_11 = lean_box(3);
 x_12 = lean_unbox(x_9);
 lean_dec(x_9);
 x_13 = lean_unbox(x_11);
-x_14 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_73_(x_12, x_13);
+x_14 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_74_(x_12, x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; 
@@ -21348,7 +21348,7 @@ x_19 = lean_box(3);
 x_20 = lean_unbox(x_17);
 lean_dec(x_17);
 x_21 = lean_unbox(x_19);
-x_22 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_73_(x_20, x_21);
+x_22 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_74_(x_20, x_21);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; 

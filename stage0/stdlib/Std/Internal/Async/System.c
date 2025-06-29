@@ -63,7 +63,6 @@ uint64_t lean_string_hash(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_decEqCPUInfo____x40_Std_Internal_Async_System___hyg_1573____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instInhabitedEnvironment;
 LEAN_EXPORT uint8_t l_Std_Internal_IO_Async_System_ordUserId____x40_Std_Internal_Async_System___hyg_314_(lean_object*, lean_object*);
-uint8_t l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_5_(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instInhabitedSystemUser;
 static lean_object* l_Std_Internal_IO_Async_System_Environment_get_x3f___closed__0;
 static lean_object* l_Std_Internal_IO_Async_System_reprCPUInfo___redArg___closed__5____x40_Std_Internal_Async_System___hyg_1775_;
@@ -101,6 +100,7 @@ LEAN_EXPORT uint8_t l_Std_Internal_IO_Async_System_instDecidableEqCPUInfo(lean_o
 size_t lean_usize_of_nat(lean_object*);
 lean_object* lean_uv_os_get_passwd(lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_getEnv___closed__10;
+uint8_t l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_6_(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_reprEnvironment____x40_Std_Internal_Async_System___hyg_2035____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_reprCPUTimes___redArg____x40_Std_Internal_Async_System___hyg_1409_(lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_instInhabitedOSInfo___closed__0;
@@ -706,7 +706,7 @@ else
 {
 lean_object* x_14; uint8_t x_15; 
 x_14 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_System_instDecidableEqUserId___boxed), 2, 0);
-x_15 = l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_5_(x_14, x_4, x_9);
+x_15 = l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_6_(x_14, x_4, x_9);
 if (x_15 == 0)
 {
 lean_dec(x_12);
@@ -721,7 +721,7 @@ else
 {
 lean_object* x_16; uint8_t x_17; 
 x_16 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_System_instDecidableEqGroupId___boxed), 2, 0);
-x_17 = l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_5_(x_16, x_5, x_10);
+x_17 = l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_6_(x_16, x_5, x_10);
 if (x_17 == 0)
 {
 lean_dec(x_12);
@@ -734,7 +734,7 @@ else
 {
 lean_object* x_18; uint8_t x_19; 
 x_18 = lean_alloc_closure((void*)(l_instDecidableEqString___boxed), 2, 0);
-x_19 = l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_5_(x_18, x_6, x_11);
+x_19 = l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_6_(x_18, x_6, x_11);
 if (x_19 == 0)
 {
 lean_dec(x_12);
@@ -745,7 +745,7 @@ else
 {
 lean_object* x_20; uint8_t x_21; 
 x_20 = lean_alloc_closure((void*)(l_System_instDecidableEqFilePath___boxed), 2, 0);
-x_21 = l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_5_(x_20, x_7, x_12);
+x_21 = l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_6_(x_20, x_7, x_12);
 return x_21;
 }
 }

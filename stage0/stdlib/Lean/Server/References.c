@@ -323,7 +323,6 @@ static lean_object* l_Lean_Server_combineIdents_useConstRepresentatives___lam__0
 LEAN_EXPORT lean_object* l_Lean_Server_Ilean_load(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_References_allRefsFor___closed__1;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Server_References_importedBy_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_PrettyPrinter_delabCore_spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_Server_dedupReferences_spec__1___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_combineIdents_useConstRepresentatives___lam__0___closed__4;
 static lean_object* l___private_Lean_Server_References_0__Lean_Server_fromJsonIlean___closed__14____x40_Lean_Server_References___hyg_1401_;
@@ -570,6 +569,7 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_findRef
 static lean_object* l_Lean_Server_instInhabitedModuleImport___closed__0;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Lean_Server_combineIdents_useConstRepresentatives_spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_References_0__Lean_Server_fromJsonIlean___closed__24____x40_Lean_Server_References___hyg_1401_;
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_PrettyPrinter_delabCore_spec__2(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Server_ImportInfo_ofImport___lam__0(lean_object* x_1) {
 _start:
 {
@@ -8341,7 +8341,7 @@ x_16 = lean_ctor_get(x_12, 0);
 x_17 = lean_ctor_get(x_12, 1);
 x_18 = lean_ctor_get(x_14, 0);
 x_19 = lean_ctor_get(x_14, 1);
-x_20 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_PrettyPrinter_delabCore_spec__2(x_16, x_18);
+x_20 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_PrettyPrinter_delabCore_spec__2(x_16, x_18);
 if (x_20 == 0)
 {
 x_7 = x_20;
@@ -8414,7 +8414,7 @@ x_15 = lean_ctor_get(x_11, 0);
 x_16 = lean_ctor_get(x_11, 1);
 x_17 = lean_ctor_get(x_13, 0);
 x_18 = lean_ctor_get(x_13, 1);
-x_19 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_PrettyPrinter_delabCore_spec__2(x_15, x_17);
+x_19 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_PrettyPrinter_delabCore_spec__2(x_15, x_17);
 if (x_19 == 0)
 {
 x_7 = x_19;
@@ -8689,7 +8689,7 @@ lean_inc(x_20);
 x_21 = lean_ctor_get(x_16, 1);
 lean_inc(x_21);
 lean_dec(x_16);
-x_22 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_PrettyPrinter_delabCore_spec__2(x_18, x_20);
+x_22 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_PrettyPrinter_delabCore_spec__2(x_18, x_20);
 lean_dec(x_20);
 lean_dec(x_18);
 if (x_22 == 0)
@@ -19373,7 +19373,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Server_References_importedBy_spec__1_spec__1___closed__2;
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(21u);
+x_3 = lean_unsigned_to_nat(23u);
 x_4 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Server_References_importedBy_spec__1_spec__1___closed__1;
 x_5 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Server_References_importedBy_spec__1_spec__1___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

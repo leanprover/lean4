@@ -39,6 +39,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___Lean_Server_FileWorker_Signatu
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_toCtorIdx___boxed(lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_prio(uint8_t);
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Syntax_structRangeEq_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__11;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -100,7 +101,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHel
 static lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__18;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___closed__1;
-uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Syntax_structRangeEq_spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__4;
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
@@ -147,7 +147,7 @@ x_7 = lean_unbox(x_6);
 x_8 = l_Lean_Syntax_getRangeWithTrailing_x3f(x_5, x_7);
 x_9 = lean_unbox(x_6);
 x_10 = l_Lean_Syntax_getRangeWithTrailing_x3f(x_1, x_9);
-x_11 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Syntax_structRangeEq_spec__1(x_8, x_10);
+x_11 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Syntax_structRangeEq_spec__1(x_8, x_10);
 lean_dec(x_10);
 lean_dec(x_8);
 return x_11;

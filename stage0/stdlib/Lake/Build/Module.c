@@ -127,6 +127,7 @@ lean_object* l_Lake_fetchLocalArtifact___redArg(lean_object*, uint8_t, lean_obje
 lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lake_Build_Module_0__Lake_Module_fetchImportLibs_spec__0(uint8_t, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_headerFacetConfig;
+uint8_t l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3238_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Functor_mapRev___at___Lake_Module_recParseImports_spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_recFetchSetup___lam__1___boxed(lean_object**);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
@@ -239,7 +240,6 @@ extern lean_object* l_Lake_platformTrace;
 static lean_object* l_Lake_Module_recBuildDynlib___lam__0___closed__0;
 static lean_object* l_Lean_RBNode_fold___at_____private_Lake_Build_Module_0__Lake_traceOptions_spec__0___closed__0;
 size_t lean_usize_of_nat(lean_object*);
-uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lake_SavedTrace_replayIfUpToDate___at___Lake_buildFileUnlessUpToDate_x27_spec__0_spec__2(lean_object*, lean_object*);
 lean_object* l_Lake_ModuleOutputHashes_fromJson_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildImportsAndDeps___lam__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_dynlibFacetConfig___lam__0___boxed(lean_object*, lean_object*);
@@ -433,6 +433,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_TargetArray_fetchIn_
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
 lean_object* lean_task_get_own(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Module_0__Lake_Module_fetchOLeanCore___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lake_SavedTrace_replayIfUpToDate___at___Lake_buildFileUnlessUpToDate_x27_spec__0_spec__2(lean_object*, lean_object*);
 lean_object* lean_string_from_utf8_unchecked(lean_object*);
 static lean_object* l_Lake_Module_initFacetConfigs___closed__16;
 static lean_object* l_Lake_Module_setupFacetConfig___closed__1;
@@ -731,7 +732,6 @@ LEAN_EXPORT lean_object* l_Lake_stdFormat___at___Lake_Module_importsFacetConfig_
 lean_object* l_Lake_clearFileHash(lean_object*, lean_object*);
 static lean_object* l_Lake_Module_initFacetConfigs___closed__22;
 static lean_object* l_Lake_Module_oleanFacetConfig___closed__0;
-uint8_t l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3236_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStdout___at___IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_Module_recComputeTransImports_spec__5_spec__5_spec__5___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildImportsAndDeps___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_collectImportsAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7457,7 +7457,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_Module_recComputeTransImports_spec__5_spec__5___redArg___closed__3;
 x_2 = lean_unsigned_to_nat(47u);
-x_3 = lean_unsigned_to_nat(129u);
+x_3 = lean_unsigned_to_nat(131u);
 x_4 = l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_Module_recComputeTransImports_spec__5_spec__5___redArg___closed__2;
 x_5 = l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_Module_recComputeTransImports_spec__5_spec__5___redArg___closed__1;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -22125,7 +22125,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; lean_object* x_8; 
 x_6 = lean_ctor_get(x_4, 0);
-x_7 = l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3236_(x_2, x_6);
+x_7 = l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3238_(x_2, x_6);
 lean_dec(x_6);
 x_8 = lean_box(x_7);
 if (lean_obj_tag(x_8) == 0)
@@ -22152,7 +22152,7 @@ x_12 = lean_ctor_get(x_4, 1);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_dec(x_4);
-x_13 = l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3236_(x_2, x_11);
+x_13 = l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3238_(x_2, x_11);
 lean_dec(x_11);
 x_14 = lean_box(x_13);
 if (lean_obj_tag(x_14) == 0)
@@ -22311,7 +22311,7 @@ lean_ctor_set(x_3, 0, x_45);
 lean_inc(x_85);
 x_86 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_86, 0, x_85);
-x_87 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lake_SavedTrace_replayIfUpToDate___at___Lake_buildFileUnlessUpToDate_x27_spec__0_spec__2(x_86, x_3);
+x_87 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lake_SavedTrace_replayIfUpToDate___at___Lake_buildFileUnlessUpToDate_x27_spec__0_spec__2(x_86, x_3);
 if (x_87 == 0)
 {
 lean_object* x_88; uint8_t x_89; 
@@ -22515,7 +22515,7 @@ lean_ctor_set(x_125, 0, x_99);
 lean_inc(x_124);
 x_126 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_126, 0, x_124);
-x_127 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lake_SavedTrace_replayIfUpToDate___at___Lake_buildFileUnlessUpToDate_x27_spec__0_spec__2(x_126, x_125);
+x_127 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lake_SavedTrace_replayIfUpToDate___at___Lake_buildFileUnlessUpToDate_x27_spec__0_spec__2(x_126, x_125);
 if (x_127 == 0)
 {
 lean_object* x_128; uint8_t x_129; 

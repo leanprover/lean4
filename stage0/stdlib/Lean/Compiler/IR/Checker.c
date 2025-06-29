@@ -2221,7 +2221,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkPartialApp___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("too many arguments too partial application '", 44, 44);
+x_1 = lean_mk_string_unchecked("too many arguments to partial application '", 43, 43);
 return x_1;
 }
 }

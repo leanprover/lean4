@@ -1749,8 +1749,8 @@ return x_134;
 block_163:
 {
 lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; uint8_t x_151; lean_object* x_152; lean_object* x_153; lean_object* x_154; lean_object* x_155; lean_object* x_156; lean_object* x_157; lean_object* x_158; lean_object* x_159; 
-lean_inc(x_136);
-x_139 = l_Lean_Linter_insertLinterSet___at___Lean_Linter___aux__Lean__Linter__Sets______elabRules__Lean__Linter__command__Register__linter__set___x3a_x3d____1_spec__0___redArg(x_136, x_138, x_3, x_4);
+lean_inc(x_137);
+x_139 = l_Lean_Linter_insertLinterSet___at___Lean_Linter___aux__Lean__Linter__Sets______elabRules__Lean__Linter__command__Register__linter__set___x3a_x3d____1_spec__0___redArg(x_137, x_138, x_3, x_4);
 x_140 = lean_ctor_get(x_139, 1);
 lean_inc(x_140);
 lean_dec(x_139);
@@ -1783,13 +1783,13 @@ x_156 = l_Lean_Linter___aux__Lean__Linter__Sets______elabRules__Lean__Linter__co
 x_157 = l_Lean_Linter___aux__Lean__Linter__Sets______elabRules__Lean__Linter__command__Register__linter__set___x3a_x3d____1___closed__33;
 x_158 = l___auto___closed__9____x40_Lean_Linter_Sets___hyg_32_;
 x_159 = l_Lean_Linter___aux__Lean__Linter__Sets______elabRules__Lean__Linter__command__Register__linter__set___x3a_x3d____1___closed__34;
-if (lean_obj_tag(x_137) == 0)
+if (lean_obj_tag(x_136) == 0)
 {
 lean_object* x_160; 
 x_160 = l___auto___closed__5____x40_Lean_Linter_Sets___hyg_32_;
 x_13 = x_154;
 x_14 = x_159;
-x_15 = x_136;
+x_15 = x_137;
 x_16 = x_155;
 x_17 = x_149;
 x_18 = x_156;
@@ -1805,13 +1805,13 @@ goto block_135;
 else
 {
 lean_object* x_161; lean_object* x_162; 
-x_161 = lean_ctor_get(x_137, 0);
+x_161 = lean_ctor_get(x_136, 0);
 lean_inc(x_161);
-lean_dec(x_137);
+lean_dec(x_136);
 x_162 = l_Array_mkArray1___redArg(x_161);
 x_13 = x_154;
 x_14 = x_159;
-x_15 = x_136;
+x_15 = x_137;
 x_16 = x_155;
 x_17 = x_149;
 x_18 = x_156;
@@ -1836,8 +1836,8 @@ if (x_171 == 0)
 {
 lean_dec(x_170);
 lean_dec(x_166);
-x_136 = x_168;
-x_137 = x_167;
+x_136 = x_167;
+x_137 = x_168;
 x_138 = x_169;
 goto block_163;
 }
@@ -1849,8 +1849,8 @@ if (x_172 == 0)
 {
 lean_dec(x_170);
 lean_dec(x_166);
-x_136 = x_168;
-x_137 = x_167;
+x_136 = x_167;
+x_137 = x_168;
 x_138 = x_169;
 goto block_163;
 }
@@ -1862,8 +1862,8 @@ x_174 = lean_usize_of_nat(x_170);
 lean_dec(x_170);
 x_175 = l_Array_foldlMUnsafe_fold___at___Lean_Linter___aux__Lean__Linter__Sets______elabRules__Lean__Linter__command__Register__linter__set___x3a_x3d____1_spec__1(x_166, x_173, x_174, x_169);
 lean_dec(x_166);
-x_136 = x_168;
-x_137 = x_167;
+x_136 = x_167;
+x_137 = x_168;
 x_138 = x_175;
 goto block_163;
 }

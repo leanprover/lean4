@@ -380,7 +380,6 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withBindingBod
 LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobal___at___Lean_unresolveNameGlobalAvoidingLocals___at___Lean_PrettyPrinter_Delaborator_delabConst_spec__0_spec__12___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabSeqLeft___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppImplicitCore_tryAppUnexpanders___closed__0;
-uint8_t l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_5_(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_skippingBinders_loop_visitLambda(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeRevMAux___at___Lean_PersistentArray_findSomeRevM_x3f___at___Lean_resolveLocalName___at___Lean_unresolveNameGlobalAvoidingLocals___at___Lean_PrettyPrinter_Delaborator_delabConst_spec__0_spec__0_spec__1_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppImplicitCore_tryAppUnexpanders_go___closed__1;
@@ -535,6 +534,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabNeg___lam__0(lean
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabForallParamsWithSignature_processSpine___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabHOrElse___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Lean_PrettyPrinter_Delaborator_needsExplicit_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_6_(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppMatch_usingNames___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_declSig;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_PrettyPrinter_Delaborator_delabAppMatch_spec__10___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -13868,7 +13868,7 @@ goto block_23;
 block_70:
 {
 uint8_t x_34; 
-x_34 = l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_5_(x_29, x_32, x_33);
+x_34 = l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_6_(x_29, x_32, x_33);
 if (x_34 == 0)
 {
 if (x_31 == 0)
@@ -17806,7 +17806,7 @@ goto block_35;
 block_35:
 {
 uint8_t x_19; lean_object* x_20; lean_object* x_21; 
-x_19 = l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_5_(x_15, x_17, x_18);
+x_19 = l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_6_(x_15, x_17, x_18);
 x_20 = lean_array_get(x_1, x_2, x_16);
 lean_dec(x_16);
 x_21 = l_Lean_PrettyPrinter_Delaborator_delabAppImplicitCore_mkArg(x_19, x_20, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
@@ -31089,7 +31089,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_delabAppMatch___lam__6___closed__9;
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(21u);
+x_3 = lean_unsigned_to_nat(23u);
 x_4 = l_Lean_PrettyPrinter_Delaborator_delabAppMatch___lam__6___closed__8;
 x_5 = l_Lean_PrettyPrinter_Delaborator_delabAppMatch___lam__6___closed__7;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

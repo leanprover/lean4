@@ -102,6 +102,7 @@ lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Lean_instHashableExternEntry___closed__0;
 lean_object* l_Lean_Syntax_isStrLit_x3f(lean_object*);
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1405__spec__0(lean_object*, lean_object*);
 lean_object* l_Lean_setEnv___at___Lean_compileDecls_doCompile_spec__7___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Environment_isProjectionFn(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__24;
@@ -138,7 +139,6 @@ static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstA
 static lean_object* l_Lean_getExternConstArityExport___closed__6;
 uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__11;
-uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1405__spec__0(lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_____private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData_spec__0___closed__0;
 lean_object* lean_string_length(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -504,7 +504,7 @@ x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_1, 1);
 x_5 = lean_ctor_get(x_2, 0);
 x_6 = lean_ctor_get(x_2, 1);
-x_7 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1405__spec__0(x_3, x_5);
+x_7 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1405__spec__0(x_3, x_5);
 if (x_7 == 0)
 {
 return x_7;
@@ -995,7 +995,7 @@ else
 {
 lean_object* x_37; uint8_t x_38; 
 x_37 = lean_box(0);
-x_38 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1405__spec__0(x_30, x_37);
+x_38 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_1405__spec__0(x_30, x_37);
 x_6 = x_33;
 x_7 = x_30;
 x_8 = x_31;

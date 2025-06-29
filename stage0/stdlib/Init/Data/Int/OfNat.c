@@ -23,7 +23,6 @@ lean_object* lean_nat_to_int(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Int_pow(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_OfNat_Var_denote___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_158_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_OfNat_0__Int_OfNat_Expr_denote_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_OfNat_Var_denote(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_OfNat_instBEqExpr;
@@ -31,9 +30,10 @@ lean_object* lean_int_mul(lean_object*, lean_object*);
 lean_object* lean_nat_pow(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_159____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_OfNat_0__Int_OfNat_Expr_denote_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_158____boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_159_(lean_object*, lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
 lean_object* lean_int_ediv(lean_object*, lean_object*);
 static lean_object* l_Int_OfNat_instBEqExpr___closed__0;
@@ -56,7 +56,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT uint8_t l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_158_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_159_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -198,7 +198,7 @@ x_44 = lean_ctor_get(x_1, 0);
 x_45 = lean_ctor_get(x_1, 1);
 x_46 = lean_ctor_get(x_2, 0);
 x_47 = lean_ctor_get(x_2, 1);
-x_48 = l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_158_(x_44, x_46);
+x_48 = l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_159_(x_44, x_46);
 if (x_48 == 0)
 {
 return x_48;
@@ -222,7 +222,7 @@ return x_51;
 block_9:
 {
 uint8_t x_7; 
-x_7 = l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_158_(x_3, x_5);
+x_7 = l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_159_(x_3, x_5);
 if (x_7 == 0)
 {
 return x_7;
@@ -236,11 +236,11 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_158____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_159____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_158_(x_1, x_2);
+x_3 = l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_159_(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -251,7 +251,7 @@ static lean_object* _init_l_Int_OfNat_instBEqExpr___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_158____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_159____boxed), 2, 0);
 return x_1;
 }
 }

@@ -265,6 +265,7 @@ static lean_object* l_Array_Array_repr___at___Lake_reprLeanConfig____x40_Lake_Co
 LEAN_EXPORT lean_object* l_Lake_LeanConfig_plugins_instConfigField;
 static lean_object* l_Array_Array_repr___at___Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1177__spec__0___closed__5;
 static lean_object* l_Lake_reprBackend___closed__4____x40_Lake_Config_LeanConfig___hyg_411_;
+lean_object* l_Std_Format_joinSep___at___List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1970__spec__0_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lake_reprLeanConfig___redArg___closed__14____x40_Lake_Config_LeanConfig___hyg_1177_;
 LEAN_EXPORT uint8_t l_Lake_instInhabitedBackend;
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -355,7 +356,6 @@ static lean_object* l_Lake_BuildType_leancArgs___closed__2;
 static lean_object* l_Lake_LeanConfig___fields___closed__37;
 LEAN_EXPORT lean_object* l_Array_Array_repr___at___Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1177__spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___Std_Format_joinSep___at___Array_Array_repr___at___Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1177__spec__7_spec__7_spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_Format_joinSep___at___List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1969__spec__0_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanConfig___fields___closed__11;
 LEAN_EXPORT lean_object* l_Lake_BuildType_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 static lean_object* l_Lake_instReprLeanConfig___closed__0;
@@ -2300,7 +2300,7 @@ if (x_4 == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_5 = lean_array_to_list(x_1);
 x_6 = l_Array_Array_repr___at___Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1177__spec__0___closed__3;
-x_7 = l_Std_Format_joinSep___at___List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1969__spec__0_spec__0(x_5, x_6);
+x_7 = l_Std_Format_joinSep___at___List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1970__spec__0_spec__0(x_5, x_6);
 x_8 = l_Lake_reprBuildType___closed__8____x40_Lake_Config_LeanConfig___hyg_20_;
 x_9 = l_Array_Array_repr___at___Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1177__spec__0___closed__5;
 x_10 = lean_alloc_ctor(5, 2, 0);

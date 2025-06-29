@@ -88,6 +88,7 @@ LEAN_EXPORT lean_object* l_Lean_Core_transform___at___Lean_Meta_Grind_unfoldRedu
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forIn___at___Lean_MVarId_clearAuxDecls_spec__0_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_foldProjs___lam__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_Grind_unfoldReducible_spec__0_spec__0_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_getBinOp___boxed(lean_object*);
 lean_object* l_Lean_Meta_instantiateMVarsIfMVarApp___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_isIte___closed__1;
 lean_object* l_Nat_reprFast(lean_object*);
@@ -158,6 +159,7 @@ static lean_object* l_List_forIn_x27_loop___at___Lean_MVarId_clearAuxDecls_spec_
 static lean_object* l_Lean_Meta_Grind_isGrindGadget___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_Grind_unfoldReducible_spec__0_spec__0___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_isMatchCond___boxed(lean_object*);
+lean_object* l_Lean_Expr_appFn_x21(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Util_0____regBuiltin_Lean_Meta_Grind_reducePreMatchCond_declare__54____x40_Lean_Meta_Tactic_Grind_Util___hyg_1879_(lean_object*);
 uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object*);
 static lean_object* l_Lean_MVarId_byContra_x3f___lam__0___closed__1;
@@ -222,6 +224,7 @@ uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_____private_Lean_Metavar
 lean_object* l_Lean_Meta_transform___at___Lean_Meta_zetaReduce_spec__0(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 static lean_object* l_Lean_Core_transform___at___Lean_Meta_Grind_unfoldReducible_spec__0___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_getBinOp(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l_List_forIn_x27_loop___at___Lean_MVarId_clearAuxDecls_spec__5___redArg___closed__4;
 static lean_object* l_Lean_Meta_Grind_isIte___closed__0;
@@ -9136,6 +9139,50 @@ x_2 = l_Lean_Meta_Grind_isDIte(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_getBinOp(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; 
+x_2 = l_Lean_Expr_isApp(x_1);
+if (x_2 == 0)
+{
+lean_object* x_3; 
+x_3 = lean_box(0);
+return x_3;
+}
+else
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = l_Lean_Expr_appFn_x21(x_1);
+x_5 = l_Lean_Expr_isApp(x_4);
+if (x_5 == 0)
+{
+lean_object* x_6; 
+lean_dec(x_4);
+x_6 = lean_box(0);
+return x_6;
+}
+else
+{
+lean_object* x_7; lean_object* x_8; 
+x_7 = l_Lean_Expr_appFn_x21(x_4);
+lean_dec(x_4);
+x_8 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_8, 0, x_7);
+return x_8;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_getBinOp___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_Grind_getBinOp(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 lean_object* initialize_Init_Simproc(uint8_t builtin, lean_object*);

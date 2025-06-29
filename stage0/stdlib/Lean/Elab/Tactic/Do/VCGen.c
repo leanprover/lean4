@@ -89,6 +89,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_mSpec___at___Lean_Elab_Tactic_Do_
 lean_object* l_Array_reverse___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_mSpec___at___Lean_Elab_Tactic_Do_step_onWPApp_spec__2___lam__18___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_elabMVCGen___lam__1___closed__10;
+lean_object* l_Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084_(lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_Tactic_Do_VCGen_0__Lean_Elab_Tactic_Do_mkSpecContext_spec__2_spec__2___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_addSubGoalAsVC(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mIntro___at___Lean_Elab_Tactic_Do_step_onImp_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -542,7 +543,6 @@ lean_object* l_Lean_Elab_Tactic_saveState___redArg(lean_object*, lean_object*, l
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_Tactic_Do_VCGen_0__Lean_Elab_Tactic_Do_mkSpecContext_spec__2_spec__2___closed__4;
 static lean_object* l___private_Lean_Elab_Tactic_Do_VCGen_0__Lean_Elab_Tactic_Do_mkSpecContext___closed__1;
-lean_object* l_Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2083_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_mSpec___at___Lean_Elab_Tactic_Do_step_onWPApp_spec__2___lam__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Do_VCGen_0__Lean_Elab_Tactic_Do_mkSpecContext(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
@@ -3892,7 +3892,7 @@ lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; 
 x_103 = lean_ctor_get(x_99, 5);
 x_104 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_Tactic_Do_VCGen_0__Lean_Elab_Tactic_Do_mkSpecContext_spec__2_spec__2___closed__8;
 lean_inc(x_96);
-x_105 = l_Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2083_(x_96, x_86);
+x_105 = l_Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084_(x_96, x_86);
 x_106 = l_Lean_MessageData_ofFormat(x_105);
 if (lean_is_scalar(x_94)) {
  x_107 = lean_alloc_ctor(7, 2, 0);
@@ -3968,7 +3968,7 @@ lean_inc(x_116);
 lean_dec(x_99);
 x_131 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_Tactic_Do_VCGen_0__Lean_Elab_Tactic_Do_mkSpecContext_spec__2_spec__2___closed__8;
 lean_inc(x_96);
-x_132 = l_Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2083_(x_96, x_86);
+x_132 = l_Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084_(x_96, x_86);
 x_133 = l_Lean_MessageData_ofFormat(x_132);
 if (lean_is_scalar(x_94)) {
  x_134 = lean_alloc_ctor(7, 2, 0);
@@ -5054,7 +5054,7 @@ lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; 
 x_103 = lean_ctor_get(x_99, 5);
 x_104 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_Tactic_Do_VCGen_0__Lean_Elab_Tactic_Do_mkSpecContext_spec__2_spec__2___closed__8;
 lean_inc(x_96);
-x_105 = l_Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2083_(x_96, x_86);
+x_105 = l_Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084_(x_96, x_86);
 x_106 = l_Lean_MessageData_ofFormat(x_105);
 if (lean_is_scalar(x_94)) {
  x_107 = lean_alloc_ctor(7, 2, 0);
@@ -5130,7 +5130,7 @@ lean_inc(x_116);
 lean_dec(x_99);
 x_131 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_Tactic_Do_VCGen_0__Lean_Elab_Tactic_Do_mkSpecContext_spec__2_spec__2___closed__8;
 lean_inc(x_96);
-x_132 = l_Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2083_(x_96, x_86);
+x_132 = l_Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084_(x_96, x_86);
 x_133 = l_Lean_MessageData_ofFormat(x_132);
 if (lean_is_scalar(x_94)) {
  x_134 = lean_alloc_ctor(7, 2, 0);

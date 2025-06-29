@@ -68,7 +68,6 @@ static lean_object* l_Lean_IR_EmitC_emitSSet___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitUProj(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_IR_EmitC_getJPParams_spec__0___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__4;
-uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Name_isMetaprogramming_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitLn___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_isIf(lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
@@ -546,6 +545,7 @@ static lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__10;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitUProj___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forM___at___Lean_IR_EmitC_emitFns_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitIf___closed__2;
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Name_isMetaprogramming_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitBoxFn___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__13;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_throwUnknownVar___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3025,7 +3025,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_IR_EmitC_emitMainFn___closed__15;
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(21u);
+x_3 = lean_unsigned_to_nat(23u);
 x_4 = l_Lean_IR_EmitC_emitMainFn___closed__14;
 x_5 = l_Lean_IR_EmitC_emitMainFn___closed__13;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3751,7 +3751,7 @@ x_52 = l_Lean_IR_EmitC_emitMainFn___closed__6;
 x_53 = l_Lean_Expr_constName_x3f(x_50);
 lean_dec(x_50);
 x_54 = l_Lean_IR_EmitC_emitMainFn___closed__9;
-x_55 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Name_isMetaprogramming_spec__0(x_53, x_54);
+x_55 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Name_isMetaprogramming_spec__0(x_53, x_54);
 lean_dec(x_53);
 if (x_55 == 0)
 {

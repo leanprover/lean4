@@ -129,6 +129,7 @@ static lean_object* l_Lean_Parser_Tactic_mspecialize___closed__7;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_mrefinePat_quot;
 static lean_object* l_Lean_Parser_Tactic_MCasesPat_parse___lam__0___closed__0;
+lean_object* l_Lean_Syntax_reprTSyntax___redArg____x40_Init_Meta___hyg_2324_(lean_object*);
 static lean_object* l_Lean_Parser_Attr_spec___closed__35;
 static lean_object* l_Lean_Parser_Tactic_mspecNoSimp___closed__3;
 static lean_object* l_Lean_Parser_Tactic_mspecializePure___closed__5;
@@ -190,7 +191,6 @@ static lean_object* l_Lean_Parser_Attr_spec___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_reprMRefinePat____x40_Std_Tactic_Do_Syntax___hyg_2212_(lean_object*, lean_object*);
 lean_object* l_Array_mkArray0(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_mrefinePats___closed__3;
-lean_object* l_Lean_Syntax_reprTSyntax___redArg____x40_Init_Meta___hyg_2323_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mrefinePat_x25____1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_mcasesPat_x23_____closed__2;
 static lean_object* l_Lean_Parser_Tactic_MCasesPat_parse___lam__0___closed__1;
@@ -4407,7 +4407,7 @@ block_21:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; 
 x_13 = l_Lean_Parser_Tactic_reprMCasesPat___closed__4____x40_Std_Tactic_Do_Syntax___hyg_960_;
-x_14 = l_Lean_Syntax_reprTSyntax___redArg____x40_Init_Meta___hyg_2323_(x_11);
+x_14 = l_Lean_Syntax_reprTSyntax___redArg____x40_Init_Meta___hyg_2324_(x_11);
 x_15 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
 lean_ctor_set(x_15, 1, x_14);
@@ -4553,7 +4553,7 @@ block_70:
 {
 lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; uint8_t x_68; lean_object* x_69; 
 x_62 = l_Lean_Parser_Tactic_reprMCasesPat___closed__14____x40_Std_Tactic_Do_Syntax___hyg_960_;
-x_63 = l_Lean_Syntax_reprTSyntax___redArg____x40_Init_Meta___hyg_2323_(x_60);
+x_63 = l_Lean_Syntax_reprTSyntax___redArg____x40_Init_Meta___hyg_2324_(x_60);
 x_64 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_64, 0, x_62);
 lean_ctor_set(x_64, 1, x_63);
@@ -4595,7 +4595,7 @@ block_85:
 {
 lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; uint8_t x_83; lean_object* x_84; 
 x_77 = l_Lean_Parser_Tactic_reprMCasesPat___closed__17____x40_Std_Tactic_Do_Syntax___hyg_960_;
-x_78 = l_Lean_Syntax_reprTSyntax___redArg____x40_Init_Meta___hyg_2323_(x_75);
+x_78 = l_Lean_Syntax_reprTSyntax___redArg____x40_Init_Meta___hyg_2324_(x_75);
 x_79 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_79, 0, x_77);
 lean_ctor_set(x_79, 1, x_78);
@@ -6697,7 +6697,7 @@ block_13:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; 
 x_5 = l_Lean_Parser_Tactic_reprMRefinePat___closed__2____x40_Std_Tactic_Do_Syntax___hyg_2212_;
-x_6 = l_Lean_Syntax_reprTSyntax___redArg____x40_Init_Meta___hyg_2323_(x_3);
+x_6 = l_Lean_Syntax_reprTSyntax___redArg____x40_Init_Meta___hyg_2324_(x_3);
 x_7 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_7, 0, x_5);
 lean_ctor_set(x_7, 1, x_6);
@@ -6781,7 +6781,7 @@ block_43:
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; uint8_t x_41; lean_object* x_42; 
 x_35 = l_Lean_Parser_Tactic_reprMRefinePat___closed__8____x40_Std_Tactic_Do_Syntax___hyg_2212_;
-x_36 = l_Lean_Syntax_reprTSyntax___redArg____x40_Init_Meta___hyg_2323_(x_33);
+x_36 = l_Lean_Syntax_reprTSyntax___redArg____x40_Init_Meta___hyg_2324_(x_33);
 x_37 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_37, 0, x_35);
 lean_ctor_set(x_37, 1, x_36);
@@ -6823,7 +6823,7 @@ block_58:
 {
 lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; lean_object* x_57; 
 x_50 = l_Lean_Parser_Tactic_reprMRefinePat___closed__11____x40_Std_Tactic_Do_Syntax___hyg_2212_;
-x_51 = l_Lean_Syntax_reprTSyntax___redArg____x40_Init_Meta___hyg_2323_(x_48);
+x_51 = l_Lean_Syntax_reprTSyntax___redArg____x40_Init_Meta___hyg_2324_(x_48);
 x_52 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_52, 0, x_50);
 lean_ctor_set(x_52, 1, x_51);
@@ -6865,7 +6865,7 @@ block_73:
 {
 lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; uint8_t x_71; lean_object* x_72; 
 x_65 = l_Lean_Parser_Tactic_reprMRefinePat___closed__14____x40_Std_Tactic_Do_Syntax___hyg_2212_;
-x_66 = l_Lean_Syntax_reprTSyntax___redArg____x40_Init_Meta___hyg_2323_(x_63);
+x_66 = l_Lean_Syntax_reprTSyntax___redArg____x40_Init_Meta___hyg_2324_(x_63);
 x_67 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_67, 0, x_65);
 lean_ctor_set(x_67, 1, x_66);

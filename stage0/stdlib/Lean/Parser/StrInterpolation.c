@@ -42,8 +42,8 @@ lean_object* l_Lean_Parser_withAntiquot(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_interpolatedStrFn_parse___closed__1;
 lean_object* l_Lean_Parser_ParserState_mkError(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_interpolatedStrFn_parse___closed__4;
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Parser_ParserState_mkNode_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_interpolatedStr___regBuiltin_Lean_Parser_interpolatedStr_docString__1___closed__2;
-uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Parser_ParserState_mkNode_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_interpolatedStrFn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserState_setPos(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
@@ -187,7 +187,7 @@ x_21 = lean_apply_2(x_1, x_5, x_20);
 x_35 = lean_ctor_get(x_21, 4);
 lean_inc(x_35);
 x_36 = lean_box(0);
-x_37 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Parser_ParserState_mkNode_spec__0(x_35, x_36);
+x_37 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Parser_ParserState_mkNode_spec__0(x_35, x_36);
 if (x_37 == 0)
 {
 x_22 = x_17;

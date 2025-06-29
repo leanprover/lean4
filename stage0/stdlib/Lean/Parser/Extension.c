@@ -373,6 +373,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg
 LEAN_EXPORT lean_object* l_Lean_Parser_mkParserAttributeImpl(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_registerAliasCore___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forM___at_____private_Lean_Parser_Extension_0__Lean_Parser_ParserAttribute_add_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Parser_ParserState_mkNode_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_initFn___closed__1____x40_Lean_Parser_Extension___hyg_5799_;
 LEAN_EXPORT lean_object* l_Lean_Parser_commandParser(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttribute_add(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -389,7 +390,6 @@ static lean_object* l_Lean_ScopedEnvExtension_add___at___Lean_Parser_addToken_sp
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttribute_add___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_initFn___lam__0___closed__1____x40_Lean_Parser_Extension___hyg_5799_;
 static lean_object* l_Lean_Parser_registerBuiltinParserAttribute___closed__1;
-uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Parser_ParserState_mkNode_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_evalParserConstUnsafe___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_compileParserDescr(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_initFn___closed__1____x40_Lean_Parser_Extension___hyg_40_;
@@ -13685,7 +13685,7 @@ lean_object* x_40; lean_object* x_41; uint8_t x_42;
 x_40 = lean_ctor_get(x_39, 4);
 lean_inc(x_40);
 x_41 = lean_box(0);
-x_42 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Parser_ParserState_mkNode_spec__0(x_40, x_41);
+x_42 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Parser_ParserState_mkNode_spec__0(x_40, x_41);
 if (x_42 == 0)
 {
 lean_dec(x_38);

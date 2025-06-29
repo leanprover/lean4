@@ -42,7 +42,6 @@ uint64_t lean_uint64_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_instToFormatVarId;
 static lean_object* l_Lean_IR_reprVarId___redArg___closed__1____x40_Lean_Compiler_IR_Basic___hyg_38_;
 static lean_object* l_Lean_IR_Decl_updateBody_x21___closed__3;
-uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Name_isMetaprogramming_spec__0(lean_object*, lean_object*);
 lean_object* l_Std_Format_fill(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___Lean_IR_LocalContext_isJP_spec__0___redArg(lean_object*, lean_object*);
@@ -337,6 +336,7 @@ static lean_object* l_Lean_IR_reprIRType___closed__21____x40_Lean_Compiler_IR_Ba
 LEAN_EXPORT lean_object* l_Lean_IR_MData_empty;
 lean_object* l_Option_repr___at___Lean_Environment_dbgFormatAsyncState_spec__6(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Index_lt___boxed(lean_object*, lean_object*);
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Name_isMetaprogramming_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_ir_mk_decl(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___Lean_IR_addParamsRename_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_modifyJPs___closed__4;
@@ -2127,7 +2127,7 @@ x_43 = lean_ctor_get(x_1, 0);
 x_44 = lean_ctor_get(x_1, 1);
 x_45 = lean_ctor_get(x_2, 0);
 x_46 = lean_ctor_get(x_2, 1);
-x_47 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Name_isMetaprogramming_spec__0(x_43, x_45);
+x_47 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Name_isMetaprogramming_spec__0(x_43, x_45);
 if (x_47 == 0)
 {
 return x_47;
@@ -4674,7 +4674,7 @@ lean_ctor_set(x_16, 0, x_13);
 lean_ctor_set(x_16, 1, x_1);
 x_17 = l_Lean_IR_reshapeAux___closed__0;
 x_18 = l_Lean_IR_reshapeAux___closed__1;
-x_19 = lean_unsigned_to_nat(442u);
+x_19 = lean_unsigned_to_nat(444u);
 x_20 = lean_unsigned_to_nat(4u);
 x_21 = l_Lean_IR_reshapeAux___closed__2;
 lean_inc(x_7);

@@ -149,6 +149,7 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at__
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_internalizeImpl_go___closed__6;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_forbiddenSplitTypes___closed__8;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_pushCastHEqs___closed__5;
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Meta_isPropFormerType_spec__0(lean_object*, lean_object*);
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 lean_object* l_Lean_Meta_Grind_setENode___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_____private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_propagateEtaStruct_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -363,7 +364,6 @@ lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_obje
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_isMorallyIff(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
-uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_isPropFormerType_spec__0(lean_object*, lean_object*);
 uint8_t l_Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_92_(lean_object*, lean_object*);
 uint64_t l_Lean_Meta_TransparencyMode_toUInt64(uint8_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -14607,10 +14607,10 @@ lean_inc(x_36);
 lean_inc(x_5);
 lean_inc(x_4);
 x_37 = lean_alloc_ctor(2, 5, 0);
-lean_ctor_set(x_37, 0, x_25);
+lean_ctor_set(x_37, 0, x_26);
 lean_ctor_set(x_37, 1, x_4);
 lean_ctor_set(x_37, 2, x_5);
-lean_ctor_set(x_37, 3, x_26);
+lean_ctor_set(x_37, 3, x_25);
 lean_ctor_set(x_37, 4, x_36);
 x_38 = l_Lean_Meta_Grind_addSplitCandidate(x_37, x_27, x_28, x_29, x_30, x_31, x_32, x_33, x_34, x_35);
 lean_dec(x_34);
@@ -14744,8 +14744,8 @@ lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_13);
 lean_inc(x_12);
-x_25 = x_44;
-x_26 = x_57;
+x_25 = x_57;
+x_26 = x_44;
 x_27 = x_12;
 x_28 = x_13;
 x_29 = x_14;
@@ -14799,8 +14799,8 @@ lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_13);
 lean_inc(x_12);
-x_25 = x_44;
-x_26 = x_57;
+x_25 = x_57;
+x_26 = x_44;
 x_27 = x_12;
 x_28 = x_13;
 x_29 = x_14;
@@ -14839,8 +14839,8 @@ lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_13);
 lean_inc(x_12);
-x_25 = x_44;
-x_26 = x_57;
+x_25 = x_57;
+x_26 = x_44;
 x_27 = x_12;
 x_28 = x_13;
 x_29 = x_14;
@@ -14925,8 +14925,8 @@ lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_13);
 lean_inc(x_12);
-x_25 = x_44;
-x_26 = x_57;
+x_25 = x_57;
+x_26 = x_44;
 x_27 = x_12;
 x_28 = x_13;
 x_29 = x_14;
@@ -16453,7 +16453,7 @@ lean_object* x_68; lean_object* x_69; lean_object* x_70; uint8_t x_71;
 x_68 = lean_ctor_get(x_66, 0);
 x_69 = lean_ctor_get(x_66, 1);
 x_70 = lean_box(0);
-x_71 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_isPropFormerType_spec__0(x_68, x_70);
+x_71 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Meta_isPropFormerType_spec__0(x_68, x_70);
 if (x_71 == 0)
 {
 if (x_16 == 0)
@@ -16476,7 +16476,7 @@ else
 {
 lean_object* x_72; uint8_t x_73; 
 x_72 = l___private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_addSplitCandidatesForExt___closed__0;
-x_73 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_isPropFormerType_spec__0(x_68, x_72);
+x_73 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Meta_isPropFormerType_spec__0(x_68, x_72);
 lean_dec(x_68);
 if (x_73 == 0)
 {
@@ -16541,7 +16541,7 @@ lean_inc(x_76);
 lean_inc(x_75);
 lean_dec(x_66);
 x_77 = lean_box(0);
-x_78 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_isPropFormerType_spec__0(x_75, x_77);
+x_78 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Meta_isPropFormerType_spec__0(x_75, x_77);
 if (x_78 == 0)
 {
 if (x_16 == 0)
@@ -16563,7 +16563,7 @@ else
 {
 lean_object* x_79; uint8_t x_80; 
 x_79 = l___private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_addSplitCandidatesForExt___closed__0;
-x_80 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_Meta_isPropFormerType_spec__0(x_75, x_79);
+x_80 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Meta_isPropFormerType_spec__0(x_75, x_79);
 lean_dec(x_75);
 if (x_80 == 0)
 {

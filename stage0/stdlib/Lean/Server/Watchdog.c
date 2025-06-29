@@ -764,6 +764,7 @@ static lean_object* l_panic___at___Lean_Server_Watchdog_RequestQueueMap_enqueue_
 static lean_object* l_IO_FS_Stream_readNotificationAs___at___IO_FS_Stream_readLspNotificationAs___at___Lean_Server_Watchdog_initAndRunWatchdogAux_spec__1_spec__1___closed__62;
 static lean_object* l_Lean_Server_Watchdog_initAndRunWatchdogAux___closed__12;
 LEAN_EXPORT lean_object* l_Option_toJson___at___IO_FS_Stream_writeLspResponse___at___Lean_Server_Watchdog_handleReferenceRequest___at___Lean_Server_Watchdog_handleRequest_spec__20_spec__21_spec__21___boxed(lean_object*);
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_SearchPath_findAllWithExt_spec__0(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_fromJsonRpcReleaseParams____x40_Lean_Data_Lsp_Extra___hyg_3922_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at___Lean_Server_Watchdog_handleRename_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeLspResponse___at___Lean_Server_Watchdog_handleReferenceRequest___at___Lean_Server_Watchdog_handleRequest_spec__39_spec__40(lean_object*, lean_object*, lean_object*);
@@ -982,7 +983,6 @@ static lean_object* l_Lean_Server_Watchdog_handleRequest___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_handleCallHierarchyIncomingCalls_collapseSameIncomingCalls___lam__0(lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_Structured_fromJson_x3f(lean_object*);
-uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_SearchPath_findAllWithExt_spec__0(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_fromJsonCallHierarchyPrepareParams____x40_Lean_Data_Lsp_LanguageFeatures___hyg_6437_(lean_object*);
 static lean_object* l_Lean_Server_Watchdog_terminateFileWorker___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_RequestDataMutex_getRequestQueue(lean_object*, lean_object*, lean_object*);
@@ -30778,7 +30778,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_mapMUnsafe_map___at___Lean_Server_Watchdog_handleModuleHierarchyImports_spec__1___closed__2;
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(21u);
+x_3 = lean_unsigned_to_nat(23u);
 x_4 = l_Array_mapMUnsafe_map___at___Lean_Server_Watchdog_handleModuleHierarchyImports_spec__1___closed__1;
 x_5 = l_Array_mapMUnsafe_map___at___Lean_Server_Watchdog_handleModuleHierarchyImports_spec__1___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -35089,7 +35089,7 @@ x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);
 x_13 = l_System_FilePath_extension(x_12);
 x_14 = l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_Server_Watchdog_handleDidChangeWatchedFiles_spec__6_spec__6___closed__1;
-x_15 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_SearchPath_findAllWithExt_spec__0(x_13, x_14);
+x_15 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_SearchPath_findAllWithExt_spec__0(x_13, x_14);
 lean_dec(x_13);
 if (x_15 == 0)
 {
@@ -35133,7 +35133,7 @@ x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);
 x_13 = l_System_FilePath_extension(x_12);
 x_14 = l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_Server_Watchdog_handleDidChangeWatchedFiles_spec__6_spec__6___closed__1;
-x_15 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_SearchPath_findAllWithExt_spec__0(x_13, x_14);
+x_15 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_SearchPath_findAllWithExt_spec__0(x_13, x_14);
 lean_dec(x_13);
 if (x_15 == 0)
 {
@@ -35186,7 +35186,7 @@ x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);
 x_13 = l_System_FilePath_extension(x_12);
 x_14 = l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_Server_Watchdog_handleDidChangeWatchedFiles_spec__8_spec__8___closed__0;
-x_15 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_SearchPath_findAllWithExt_spec__0(x_13, x_14);
+x_15 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_SearchPath_findAllWithExt_spec__0(x_13, x_14);
 lean_dec(x_13);
 if (x_15 == 0)
 {
@@ -35230,7 +35230,7 @@ x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);
 x_13 = l_System_FilePath_extension(x_12);
 x_14 = l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_Server_Watchdog_handleDidChangeWatchedFiles_spec__8_spec__8___closed__0;
-x_15 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_160____at___Lean_SearchPath_findAllWithExt_spec__0(x_13, x_14);
+x_15 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_SearchPath_findAllWithExt_spec__0(x_13, x_14);
 lean_dec(x_13);
 if (x_15 == 0)
 {

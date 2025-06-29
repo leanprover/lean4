@@ -16,114 +16,113 @@ extern "C" {
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_eq__le__subst__cert(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_instReprPoly;
 uint8_t l_Nat_blt(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967_(lean_object*, lean_object*);
-static lean_object* l_Lean_Grind_Linarith_reprPoly___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_1069_;
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__13____x40_Init_Grind_Ordered_Linarith___hyg_413_;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_denote(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_zero__ne__one__cert___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_denote___redArg(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Grind_Linarith_reprPoly___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_1070_;
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__10____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Poly_combine_x27_match__3_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__11____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__14____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Expr_denote_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Poly_denote_x27_go_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Poly_combine_x27_match__3_splitter___redArg(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__11____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_instInhabitedExpr;
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__5____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_denote___redArg___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Grind_Linarith_reprPoly___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_1069_;
-LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_denote___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_combine(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_coeff___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_eq__lt__subst__cert(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter____x40_Init_Grind_Ordered_Linarith___hyg_1070_(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_norm(lean_object*);
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__9____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_denote_x27(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_denote_x27_go___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_;
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__16____x40_Init_Grind_Ordered_Linarith___hyg_413_;
-static lean_object* l_Lean_Grind_Linarith_reprPoly___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_1069_;
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Poly_denote_x27_go_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_413____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Expr_denote_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_le__le__combine__cert(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_denote_x27___redArg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__17____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 lean_object* l_Lean_RArray_getImpl___redArg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_lt__lt__combine__cert(lean_object*, lean_object*, lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Var_denote___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_beqExpr____x40_Init_Grind_Ordered_Linarith___hyg_133____boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_reprPoly____x40_Init_Grind_Ordered_Linarith___hyg_1069____boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_le__lt__combine__cert(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__6____x40_Init_Grind_Ordered_Linarith___hyg_413_;
 static lean_object* l_Lean_Grind_Linarith_zero__lt__one__cert___closed__0;
 lean_object* l_Nat_reprFast(lean_object*);
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__19____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_leadCoeff___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_eq__of__le__ge__cert(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_zero__lt__one__cert___boxed(lean_object*);
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__12____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_eq__lt__subst__cert___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Poly_combine_x27_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_mul_x27___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__17____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_append(lean_object*, lean_object*);
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__21____x40_Init_Grind_Ordered_Linarith___hyg_413_;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_denote___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_eq__diseq__subst__cert___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__18____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 static lean_object* l_Lean_Grind_Linarith_diseq__split__cert___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_eq__neg__cert___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__13____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_eq__coeff__cert(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_413_;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_coeff__cert___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
-static lean_object* l_Lean_Grind_Linarith_reprPoly___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_1069_;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_instBEqExpr;
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__7____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_414____boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__20____x40_Init_Grind_Ordered_Linarith___hyg_414_;
+static lean_object* l_Lean_Grind_Linarith_reprPoly___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_1070_;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_mul___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Grind_Linarith_reprPoly___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_1070_;
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__16____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_eq__eq__subst__cert(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Poly_combine_x27_match__3_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Poly_combine_x27_match__3_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Int_repr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_eq__of__le__ge__cert___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_zero__ne__one__of__charC__cert(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_Linarith_instReprPoly___closed__0;
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__19____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_le__le__combine__cert___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_instReprExpr;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Var_denote(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter____x40_Init_Grind_Ordered_Linarith___hyg_1069____boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__5____x40_Init_Grind_Ordered_Linarith___hyg_413_;
-LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter___redArg____x40_Init_Grind_Ordered_Linarith___hyg_1069_(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_Linarith_instBEqPoly___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_mul(lean_object*, lean_object*);
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__12____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+static lean_object* l_Lean_Grind_Linarith_reprPoly___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_1070_;
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_coeff__cert(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_mul_x27(lean_object*, lean_object*);
-static lean_object* l_Lean_Grind_Linarith_reprPoly___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_1069_;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_denote_x27_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__20____x40_Init_Grind_Ordered_Linarith___hyg_413_;
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__18____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_beqExpr____x40_Init_Grind_Ordered_Linarith___hyg_134_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_denote_x27_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_Linarith_zero__ne__one__cert___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_denote_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter___redArg____x40_Init_Grind_Ordered_Linarith___hyg_1070____boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Expr_denote_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__10____x40_Init_Grind_Ordered_Linarith___hyg_413_;
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_413_;
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Poly_denote_x27_go_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_eq__diseq__subst1__cert(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Var_denote___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter___redArg____x40_Init_Grind_Ordered_Linarith___hyg_1070_(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_denote___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter____x40_Init_Grind_Ordered_Linarith___hyg_1070____boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_le__lt__combine__cert___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_diseq__split__cert(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Expr_denote_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__6____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_zero__lt__one__cert(lean_object*);
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__9____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__7____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_coeff(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_zero__ne__one__of__charC__cert___boxed(lean_object*, lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_reprPoly____x40_Init_Grind_Ordered_Linarith___hyg_1069_(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_beqExpr____x40_Init_Grind_Ordered_Linarith___hyg_134____boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__21____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_denote_x27_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Var_denote___boxed(lean_object*, lean_object*, lean_object*);
@@ -140,30 +139,31 @@ LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_L
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_norm__cert___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter____x40_Init_Grind_Ordered_Linarith___hyg_1069_(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_instDecidableNot___redArg(uint8_t);
+static lean_object* l_Lean_Grind_Linarith_reprPoly___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_1070_;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_norm(lean_object*);
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__8____x40_Init_Grind_Ordered_Linarith___hyg_413_;
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__14____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_insert(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_eq__le__subst__cert___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_instBEqPoly;
-LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_413_(lean_object*, lean_object*);
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_413_;
 lean_object* lean_int_add(lean_object*, lean_object*);
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__15____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_eq__diseq__subst__cert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_lt__lt__combine__cert___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter___redArg____x40_Init_Grind_Ordered_Linarith___hyg_1069____boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_beqExpr____x40_Init_Grind_Ordered_Linarith___hyg_133_(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_414_(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_Linarith_instBEqExpr___closed__0;
 lean_object* lean_int_neg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_eq__coeff__cert___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__15____x40_Init_Grind_Ordered_Linarith___hyg_413_;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__8____x40_Init_Grind_Ordered_Linarith___hyg_414_;
+LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_reprPoly____x40_Init_Grind_Ordered_Linarith___hyg_1070_(lean_object*, lean_object*);
+static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_combine_x27(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_diseq__split__cert___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_eq__neg__cert(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_reprPoly____x40_Init_Grind_Ordered_Linarith___hyg_1070____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_denote_x27___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Poly_combine_x27_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_toPoly_x27_go(lean_object*, lean_object*, lean_object*);
@@ -177,7 +177,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_beqExpr____x40_Init_Grind_Ordered_Linarith___hyg_133_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_beqExpr____x40_Init_Grind_Ordered_Linarith___hyg_134_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -344,7 +344,7 @@ return x_51;
 block_9:
 {
 uint8_t x_7; 
-x_7 = l_Lean_Grind_Linarith_beqExpr____x40_Init_Grind_Ordered_Linarith___hyg_133_(x_3, x_5);
+x_7 = l_Lean_Grind_Linarith_beqExpr____x40_Init_Grind_Ordered_Linarith___hyg_134_(x_3, x_5);
 if (x_7 == 0)
 {
 return x_7;
@@ -358,11 +358,11 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_beqExpr____x40_Init_Grind_Ordered_Linarith___hyg_133____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_beqExpr____x40_Init_Grind_Ordered_Linarith___hyg_134____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_Grind_Linarith_beqExpr____x40_Init_Grind_Ordered_Linarith___hyg_133_(x_1, x_2);
+x_3 = l_Lean_Grind_Linarith_beqExpr____x40_Init_Grind_Ordered_Linarith___hyg_134_(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -373,7 +373,7 @@ static lean_object* _init_l_Lean_Grind_Linarith_instBEqExpr___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Grind_Linarith_beqExpr____x40_Init_Grind_Ordered_Linarith___hyg_133____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Grind_Linarith_beqExpr____x40_Init_Grind_Ordered_Linarith___hyg_134____boxed), 2, 0);
 return x_1;
 }
 }
@@ -385,7 +385,7 @@ x_1 = l_Lean_Grind_Linarith_instBEqExpr___closed__0;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; 
@@ -393,17 +393,17 @@ x_1 = lean_mk_string_unchecked("Lean.Grind.Linarith.Expr.zero", 29, 29);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Grind_Linarith_reprExpr___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_1 = l_Lean_Grind_Linarith_reprExpr___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -412,7 +412,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -421,7 +421,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; 
@@ -429,29 +429,29 @@ x_1 = lean_mk_string_unchecked("Lean.Grind.Linarith.Expr.var", 28, 28);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__5____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__5____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Grind_Linarith_reprExpr___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_1 = l_Lean_Grind_Linarith_reprExpr___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__6____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__6____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(1);
-x_2 = l_Lean_Grind_Linarith_reprExpr___closed__5____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_2 = l_Lean_Grind_Linarith_reprExpr___closed__5____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__7____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__7____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; 
@@ -459,29 +459,29 @@ x_1 = lean_mk_string_unchecked("Lean.Grind.Linarith.Expr.add", 28, 28);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__8____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__8____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Grind_Linarith_reprExpr___closed__7____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_1 = l_Lean_Grind_Linarith_reprExpr___closed__7____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__9____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__9____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(1);
-x_2 = l_Lean_Grind_Linarith_reprExpr___closed__8____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_2 = l_Lean_Grind_Linarith_reprExpr___closed__8____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__10____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__10____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; 
@@ -489,29 +489,29 @@ x_1 = lean_mk_string_unchecked("Lean.Grind.Linarith.Expr.sub", 28, 28);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__11____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__11____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Grind_Linarith_reprExpr___closed__10____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_1 = l_Lean_Grind_Linarith_reprExpr___closed__10____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__12____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__12____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(1);
-x_2 = l_Lean_Grind_Linarith_reprExpr___closed__11____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_2 = l_Lean_Grind_Linarith_reprExpr___closed__11____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__13____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__13____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; 
@@ -519,29 +519,29 @@ x_1 = lean_mk_string_unchecked("Lean.Grind.Linarith.Expr.neg", 28, 28);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__14____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__14____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Grind_Linarith_reprExpr___closed__13____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_1 = l_Lean_Grind_Linarith_reprExpr___closed__13____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__15____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__15____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(1);
-x_2 = l_Lean_Grind_Linarith_reprExpr___closed__14____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_2 = l_Lean_Grind_Linarith_reprExpr___closed__14____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__16____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__16____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; 
@@ -549,29 +549,29 @@ x_1 = lean_mk_string_unchecked("Lean.Grind.Linarith.Expr.natMul", 31, 31);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__17____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__17____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Grind_Linarith_reprExpr___closed__16____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_1 = l_Lean_Grind_Linarith_reprExpr___closed__16____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__18____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__18____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(1);
-x_2 = l_Lean_Grind_Linarith_reprExpr___closed__17____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_2 = l_Lean_Grind_Linarith_reprExpr___closed__17____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__19____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__19____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; 
@@ -579,29 +579,29 @@ x_1 = lean_mk_string_unchecked("Lean.Grind.Linarith.Expr.intMul", 31, 31);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__20____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__20____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Grind_Linarith_reprExpr___closed__19____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_1 = l_Lean_Grind_Linarith_reprExpr___closed__19____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__21____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__21____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(1);
-x_2 = l_Lean_Grind_Linarith_reprExpr___closed__20____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_2 = l_Lean_Grind_Linarith_reprExpr___closed__20____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_413_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_414_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -610,7 +610,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_413_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_414_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -623,14 +623,14 @@ x_12 = lean_nat_dec_le(x_11, x_2);
 if (x_12 == 0)
 {
 lean_object* x_13; 
-x_13 = l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_13 = l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_3 = x_13;
 goto block_10;
 }
 else
 {
 lean_object* x_14; 
-x_14 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_14 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_3 = x_14;
 goto block_10;
 }
@@ -652,21 +652,21 @@ x_29 = lean_nat_dec_le(x_28, x_2);
 if (x_29 == 0)
 {
 lean_object* x_30; 
-x_30 = l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_30 = l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_17 = x_30;
 goto block_27;
 }
 else
 {
 lean_object* x_31; 
-x_31 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_31 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_17 = x_31;
 goto block_27;
 }
 block_27:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; lean_object* x_26; 
-x_18 = l_Lean_Grind_Linarith_reprExpr___closed__6____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_18 = l_Lean_Grind_Linarith_reprExpr___closed__6____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_19 = l_Nat_reprFast(x_15);
 if (lean_is_scalar(x_16)) {
  x_20 = lean_alloc_ctor(3, 1, 0);
@@ -710,14 +710,14 @@ x_50 = lean_nat_dec_le(x_35, x_2);
 if (x_50 == 0)
 {
 lean_object* x_51; 
-x_51 = l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_51 = l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_36 = x_51;
 goto block_49;
 }
 else
 {
 lean_object* x_52; 
-x_52 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_52 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_36 = x_52;
 goto block_49;
 }
@@ -725,8 +725,8 @@ block_49:
 {
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; uint8_t x_47; lean_object* x_48; 
 x_37 = lean_box(1);
-x_38 = l_Lean_Grind_Linarith_reprExpr___closed__9____x40_Init_Grind_Ordered_Linarith___hyg_413_;
-x_39 = l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_413_(x_32, x_35);
+x_38 = l_Lean_Grind_Linarith_reprExpr___closed__9____x40_Init_Grind_Ordered_Linarith___hyg_414_;
+x_39 = l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_414_(x_32, x_35);
 if (lean_is_scalar(x_34)) {
  x_40 = lean_alloc_ctor(5, 2, 0);
 } else {
@@ -738,7 +738,7 @@ lean_ctor_set(x_40, 1, x_39);
 x_41 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_41, 0, x_40);
 lean_ctor_set(x_41, 1, x_37);
-x_42 = l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_413_(x_33, x_35);
+x_42 = l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_414_(x_33, x_35);
 x_43 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_43, 0, x_41);
 lean_ctor_set(x_43, 1, x_42);
@@ -774,14 +774,14 @@ x_71 = lean_nat_dec_le(x_56, x_2);
 if (x_71 == 0)
 {
 lean_object* x_72; 
-x_72 = l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_72 = l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_57 = x_72;
 goto block_70;
 }
 else
 {
 lean_object* x_73; 
-x_73 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_73 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_57 = x_73;
 goto block_70;
 }
@@ -789,8 +789,8 @@ block_70:
 {
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; uint8_t x_68; lean_object* x_69; 
 x_58 = lean_box(1);
-x_59 = l_Lean_Grind_Linarith_reprExpr___closed__12____x40_Init_Grind_Ordered_Linarith___hyg_413_;
-x_60 = l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_413_(x_53, x_56);
+x_59 = l_Lean_Grind_Linarith_reprExpr___closed__12____x40_Init_Grind_Ordered_Linarith___hyg_414_;
+x_60 = l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_414_(x_53, x_56);
 if (lean_is_scalar(x_55)) {
  x_61 = lean_alloc_ctor(5, 2, 0);
 } else {
@@ -802,7 +802,7 @@ lean_ctor_set(x_61, 1, x_60);
 x_62 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_62, 0, x_61);
 lean_ctor_set(x_62, 1, x_58);
-x_63 = l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_413_(x_54, x_56);
+x_63 = l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_414_(x_54, x_56);
 x_64 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_64, 0, x_62);
 lean_ctor_set(x_64, 1, x_63);
@@ -829,22 +829,22 @@ x_86 = lean_nat_dec_le(x_75, x_2);
 if (x_86 == 0)
 {
 lean_object* x_87; 
-x_87 = l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_87 = l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_76 = x_87;
 goto block_85;
 }
 else
 {
 lean_object* x_88; 
-x_88 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_88 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_76 = x_88;
 goto block_85;
 }
 block_85:
 {
 lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; uint8_t x_83; lean_object* x_84; 
-x_77 = l_Lean_Grind_Linarith_reprExpr___closed__15____x40_Init_Grind_Ordered_Linarith___hyg_413_;
-x_78 = l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_413_(x_74, x_75);
+x_77 = l_Lean_Grind_Linarith_reprExpr___closed__15____x40_Init_Grind_Ordered_Linarith___hyg_414_;
+x_78 = l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_414_(x_74, x_75);
 x_79 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_79, 0, x_77);
 lean_ctor_set(x_79, 1, x_78);
@@ -880,14 +880,14 @@ x_108 = lean_nat_dec_le(x_92, x_2);
 if (x_108 == 0)
 {
 lean_object* x_109; 
-x_109 = l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_109 = l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_93 = x_109;
 goto block_107;
 }
 else
 {
 lean_object* x_110; 
-x_110 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_110 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_93 = x_110;
 goto block_107;
 }
@@ -895,7 +895,7 @@ block_107:
 {
 lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; uint8_t x_105; lean_object* x_106; 
 x_94 = lean_box(1);
-x_95 = l_Lean_Grind_Linarith_reprExpr___closed__18____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_95 = l_Lean_Grind_Linarith_reprExpr___closed__18____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_96 = l_Nat_reprFast(x_89);
 x_97 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_97, 0, x_96);
@@ -909,7 +909,7 @@ lean_ctor_set(x_98, 1, x_97);
 x_99 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_99, 0, x_98);
 lean_ctor_set(x_99, 1, x_94);
-x_100 = l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_413_(x_90, x_92);
+x_100 = l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_414_(x_90, x_92);
 x_101 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_101, 0, x_99);
 lean_ctor_set(x_101, 1, x_100);
@@ -945,14 +945,14 @@ x_140 = lean_nat_dec_le(x_114, x_2);
 if (x_140 == 0)
 {
 lean_object* x_141; 
-x_141 = l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_141 = l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_129 = x_141;
 goto block_139;
 }
 else
 {
 lean_object* x_142; 
-x_142 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_142 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_129 = x_142;
 goto block_139;
 }
@@ -970,7 +970,7 @@ lean_ctor_set(x_119, 1, x_118);
 x_120 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_120, 0, x_119);
 lean_ctor_set(x_120, 1, x_117);
-x_121 = l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_413_(x_112, x_114);
+x_121 = l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_414_(x_112, x_114);
 x_122 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_122, 0, x_120);
 lean_ctor_set(x_122, 1, x_121);
@@ -989,8 +989,8 @@ block_139:
 {
 lean_object* x_130; lean_object* x_131; lean_object* x_132; uint8_t x_133; 
 x_130 = lean_box(1);
-x_131 = l_Lean_Grind_Linarith_reprExpr___closed__21____x40_Init_Grind_Ordered_Linarith___hyg_413_;
-x_132 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_131 = l_Lean_Grind_Linarith_reprExpr___closed__21____x40_Init_Grind_Ordered_Linarith___hyg_414_;
+x_132 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_133 = lean_int_dec_lt(x_111, x_132);
 if (x_133 == 0)
 {
@@ -1025,7 +1025,7 @@ goto block_128;
 block_10:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; 
-x_4 = l_Lean_Grind_Linarith_reprExpr___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_4 = l_Lean_Grind_Linarith_reprExpr___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_5 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_5, 0, x_3);
 lean_ctor_set(x_5, 1, x_4);
@@ -1039,11 +1039,11 @@ return x_9;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_413____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_414____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_413_(x_1, x_2);
+x_3 = l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_414_(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -1052,7 +1052,7 @@ static lean_object* _init_l_Lean_Grind_Linarith_instReprExpr___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_413____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Grind_Linarith_reprExpr____x40_Init_Grind_Ordered_Linarith___hyg_414____boxed), 2, 0);
 return x_1;
 }
 }
@@ -1224,7 +1224,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1286,11 +1286,11 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967_(x_1, x_2);
+x_3 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -1301,7 +1301,7 @@ static lean_object* _init_l_Lean_Grind_Linarith_instBEqPoly___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968____boxed), 2, 0);
 return x_1;
 }
 }
@@ -1313,7 +1313,7 @@ x_1 = l_Lean_Grind_Linarith_instBEqPoly___closed__0;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprPoly___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_1069_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprPoly___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_1070_() {
 _start:
 {
 lean_object* x_1; 
@@ -1321,17 +1321,17 @@ x_1 = lean_mk_string_unchecked("Lean.Grind.Linarith.Poly.nil", 28, 28);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprPoly___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_1069_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprPoly___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_1070_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Grind_Linarith_reprPoly___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_1069_;
+x_1 = l_Lean_Grind_Linarith_reprPoly___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_1070_;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprPoly___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_1069_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprPoly___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_1070_() {
 _start:
 {
 lean_object* x_1; 
@@ -1339,29 +1339,29 @@ x_1 = lean_mk_string_unchecked("Lean.Grind.Linarith.Poly.add", 28, 28);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprPoly___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_1069_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprPoly___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_1070_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Grind_Linarith_reprPoly___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_1069_;
+x_1 = l_Lean_Grind_Linarith_reprPoly___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_1070_;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Grind_Linarith_reprPoly___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_1069_() {
+static lean_object* _init_l_Lean_Grind_Linarith_reprPoly___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_1070_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(1);
-x_2 = l_Lean_Grind_Linarith_reprPoly___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_1069_;
+x_2 = l_Lean_Grind_Linarith_reprPoly___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_1070_;
 x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_reprPoly____x40_Init_Grind_Ordered_Linarith___hyg_1069_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_reprPoly____x40_Init_Grind_Ordered_Linarith___hyg_1070_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -1373,14 +1373,14 @@ x_12 = lean_nat_dec_le(x_11, x_2);
 if (x_12 == 0)
 {
 lean_object* x_13; 
-x_13 = l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_13 = l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_3 = x_13;
 goto block_10;
 }
 else
 {
 lean_object* x_14; 
-x_14 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_14 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_3 = x_14;
 goto block_10;
 }
@@ -1400,14 +1400,14 @@ x_48 = lean_nat_dec_le(x_18, x_2);
 if (x_48 == 0)
 {
 lean_object* x_49; 
-x_49 = l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_49 = l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_37 = x_49;
 goto block_47;
 }
 else
 {
 lean_object* x_50; 
-x_50 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_50 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_37 = x_50;
 goto block_47;
 }
@@ -1430,7 +1430,7 @@ lean_ctor_set(x_27, 1, x_26);
 x_28 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_28, 0, x_27);
 lean_ctor_set(x_28, 1, x_20);
-x_29 = l_Lean_Grind_Linarith_reprPoly____x40_Init_Grind_Ordered_Linarith___hyg_1069_(x_17, x_18);
+x_29 = l_Lean_Grind_Linarith_reprPoly____x40_Init_Grind_Ordered_Linarith___hyg_1070_(x_17, x_18);
 x_30 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_30, 0, x_28);
 lean_ctor_set(x_30, 1, x_29);
@@ -1449,8 +1449,8 @@ block_47:
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; uint8_t x_41; 
 x_38 = lean_box(1);
-x_39 = l_Lean_Grind_Linarith_reprPoly___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_1069_;
-x_40 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_39 = l_Lean_Grind_Linarith_reprPoly___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_1070_;
+x_40 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_41 = lean_int_dec_lt(x_15, x_40);
 if (x_41 == 0)
 {
@@ -1484,7 +1484,7 @@ goto block_36;
 block_10:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; 
-x_4 = l_Lean_Grind_Linarith_reprPoly___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_1069_;
+x_4 = l_Lean_Grind_Linarith_reprPoly___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_1070_;
 x_5 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_5, 0, x_3);
 lean_ctor_set(x_5, 1, x_4);
@@ -1498,11 +1498,11 @@ return x_9;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_reprPoly____x40_Init_Grind_Ordered_Linarith___hyg_1069____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_reprPoly____x40_Init_Grind_Ordered_Linarith___hyg_1070____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_Grind_Linarith_reprPoly____x40_Init_Grind_Ordered_Linarith___hyg_1069_(x_1, x_2);
+x_3 = l_Lean_Grind_Linarith_reprPoly____x40_Init_Grind_Ordered_Linarith___hyg_1070_(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -1511,7 +1511,7 @@ static lean_object* _init_l_Lean_Grind_Linarith_instReprPoly___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Grind_Linarith_reprPoly____x40_Init_Grind_Ordered_Linarith___hyg_1069____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Grind_Linarith_reprPoly____x40_Init_Grind_Ordered_Linarith___hyg_1070____boxed), 2, 0);
 return x_1;
 }
 }
@@ -1605,7 +1605,7 @@ lean_inc(x_8);
 x_9 = lean_ctor_get(x_4, 2);
 lean_inc(x_9);
 lean_dec(x_4);
-x_10 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_10 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_11 = lean_int_dec_eq(x_7, x_10);
 if (x_11 == 0)
 {
@@ -1682,7 +1682,7 @@ lean_inc(x_7);
 x_8 = lean_ctor_get(x_3, 2);
 lean_inc(x_8);
 lean_dec(x_3);
-x_9 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_9 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_10 = lean_int_dec_eq(x_6, x_9);
 if (x_10 == 0)
 {
@@ -1752,7 +1752,7 @@ lean_inc(x_6);
 x_7 = lean_ctor_get(x_1, 2);
 lean_inc(x_7);
 lean_dec(x_1);
-x_8 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_8 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_9 = lean_int_dec_eq(x_5, x_8);
 if (x_9 == 0)
 {
@@ -1798,7 +1798,7 @@ lean_dec(x_3);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter___redArg____x40_Init_Grind_Ordered_Linarith___hyg_1069_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter___redArg____x40_Init_Grind_Ordered_Linarith___hyg_1070_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1822,28 +1822,28 @@ return x_7;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter____x40_Init_Grind_Ordered_Linarith___hyg_1069_(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter____x40_Init_Grind_Ordered_Linarith___hyg_1070_(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter___redArg____x40_Init_Grind_Ordered_Linarith___hyg_1069_(x_2, x_3, x_4);
+x_5 = l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter___redArg____x40_Init_Grind_Ordered_Linarith___hyg_1070_(x_2, x_3, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter___redArg____x40_Init_Grind_Ordered_Linarith___hyg_1069____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter___redArg____x40_Init_Grind_Ordered_Linarith___hyg_1070____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter___redArg____x40_Init_Grind_Ordered_Linarith___hyg_1069_(x_1, x_2, x_3);
+x_4 = l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter___redArg____x40_Init_Grind_Ordered_Linarith___hyg_1070_(x_1, x_2, x_3);
 lean_dec(x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter____x40_Init_Grind_Ordered_Linarith___hyg_1069____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter____x40_Init_Grind_Ordered_Linarith___hyg_1070____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter____x40_Init_Grind_Ordered_Linarith___hyg_1069_(x_1, x_2, x_3, x_4);
+x_5 = l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_reprPoly_match__1_splitter____x40_Init_Grind_Ordered_Linarith___hyg_1070_(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 return x_5;
 }
@@ -1854,7 +1854,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_3; 
-x_3 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_3 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 return x_3;
 }
 else
@@ -1937,7 +1937,7 @@ lean_dec(x_2);
 x_15 = lean_int_add(x_1, x_5);
 lean_dec(x_5);
 lean_dec(x_1);
-x_16 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_16 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_17 = lean_int_dec_eq(x_15, x_16);
 if (x_17 == 0)
 {
@@ -1975,7 +1975,7 @@ lean_dec(x_2);
 x_21 = lean_int_add(x_1, x_5);
 lean_dec(x_5);
 lean_dec(x_1);
-x_22 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_22 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_23 = lean_int_dec_eq(x_21, x_22);
 if (x_23 == 0)
 {
@@ -2219,7 +2219,7 @@ lean_dec(x_33);
 x_34 = lean_int_add(x_7, x_10);
 lean_dec(x_10);
 lean_dec(x_7);
-x_35 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_35 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_36 = lean_int_dec_eq(x_34, x_35);
 if (x_36 == 0)
 {
@@ -2248,7 +2248,7 @@ lean_dec(x_3);
 x_39 = lean_int_add(x_7, x_10);
 lean_dec(x_10);
 lean_dec(x_7);
-x_40 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_40 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_41 = lean_int_dec_eq(x_39, x_40);
 if (x_41 == 0)
 {
@@ -2383,7 +2383,7 @@ lean_inc(x_25);
 x_26 = lean_ctor_get(x_2, 1);
 lean_inc(x_26);
 lean_dec(x_2);
-x_27 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_27 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_28 = lean_int_dec_eq(x_25, x_27);
 if (x_28 == 0)
 {
@@ -2410,7 +2410,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_toPoly_x27(lean_object* x_1)
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_2 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_3 = lean_box(0);
 x_4 = l_Lean_Grind_Linarith_Expr_toPoly_x27_go(x_2, x_1, x_3);
 return x_4;
@@ -2483,7 +2483,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_mul(lean_object* x_1, lean_o
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_3 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_4 = lean_int_dec_eq(x_2, x_3);
 if (x_4 == 0)
 {
@@ -2754,7 +2754,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_2; 
-x_2 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_2 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 return x_2;
 }
 else
@@ -2792,7 +2792,7 @@ x_10 = lean_nat_to_int(x_5);
 x_11 = l_Lean_Grind_Linarith_Poly_mul(x_2, x_10);
 lean_dec(x_10);
 x_12 = l_Lean_Grind_Linarith_Poly_combine(x_9, x_11);
-x_13 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967_(x_3, x_12);
+x_13 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(x_3, x_12);
 lean_dec(x_12);
 return x_13;
 }
@@ -2814,7 +2814,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t 
 x_4 = l_Lean_Grind_Linarith_Poly_leadCoeff(x_1);
 x_5 = lean_nat_abs(x_4);
 lean_dec(x_4);
-x_6 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_6 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_7 = lean_nat_to_int(x_5);
 x_8 = lean_int_dec_lt(x_6, x_7);
 if (x_8 == 0)
@@ -2836,7 +2836,7 @@ lean_dec(x_11);
 x_13 = l_Lean_Grind_Linarith_Poly_mul(x_2, x_7);
 lean_dec(x_7);
 x_14 = l_Lean_Grind_Linarith_Poly_combine(x_12, x_13);
-x_15 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967_(x_3, x_14);
+x_15 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(x_3, x_14);
 lean_dec(x_14);
 return x_15;
 }
@@ -2862,7 +2862,7 @@ lean_dec(x_4);
 x_6 = l_Lean_Grind_Linarith_Poly_leadCoeff(x_2);
 x_7 = lean_nat_abs(x_6);
 lean_dec(x_6);
-x_16 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_16 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 lean_inc(x_7);
 x_17 = lean_nat_to_int(x_7);
 x_18 = lean_int_dec_lt(x_16, x_17);
@@ -2902,7 +2902,7 @@ x_11 = lean_nat_to_int(x_5);
 x_12 = l_Lean_Grind_Linarith_Poly_mul(x_2, x_11);
 lean_dec(x_11);
 x_13 = l_Lean_Grind_Linarith_Poly_combine(x_10, x_12);
-x_14 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967_(x_3, x_13);
+x_14 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(x_3, x_13);
 lean_dec(x_13);
 return x_14;
 }
@@ -2923,7 +2923,7 @@ static lean_object* _init_l_Lean_Grind_Linarith_diseq__split__cert___closed__0()
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_1 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_2 = lean_int_neg(x_1);
 return x_2;
 }
@@ -2934,7 +2934,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = l_Lean_Grind_Linarith_diseq__split__cert___closed__0;
 x_4 = l_Lean_Grind_Linarith_Poly_mul(x_1, x_3);
-x_5 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967_(x_2, x_4);
+x_5 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(x_2, x_4);
 lean_dec(x_4);
 return x_5;
 }
@@ -2957,7 +2957,7 @@ x_4 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
 x_5 = l_Lean_Grind_Linarith_Expr_norm(x_4);
-x_6 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967_(x_3, x_5);
+x_6 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(x_3, x_5);
 lean_dec(x_5);
 return x_6;
 }
@@ -2978,7 +2978,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = l_Lean_Grind_Linarith_diseq__split__cert___closed__0;
 x_4 = l_Lean_Grind_Linarith_Poly_mul(x_1, x_3);
-x_5 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967_(x_2, x_4);
+x_5 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(x_2, x_4);
 lean_dec(x_4);
 return x_5;
 }
@@ -3012,7 +3012,7 @@ _start:
 {
 lean_object* x_2; uint8_t x_3; 
 x_2 = l_Lean_Grind_Linarith_zero__lt__one__cert___closed__0;
-x_3 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967_(x_1, x_2);
+x_3 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(x_1, x_2);
 return x_3;
 }
 }
@@ -3032,7 +3032,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(0);
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_3 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_4 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
@@ -3045,7 +3045,7 @@ _start:
 {
 lean_object* x_2; uint8_t x_3; 
 x_2 = l_Lean_Grind_Linarith_zero__ne__one__cert___closed__0;
-x_3 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967_(x_1, x_2);
+x_3 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(x_1, x_2);
 return x_3;
 }
 }
@@ -3063,7 +3063,7 @@ LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_zero__ne__one__of__charC__cert(lean_ob
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_3 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_4 = lean_nat_to_int(x_1);
 x_5 = lean_int_dec_lt(x_3, x_4);
 lean_dec(x_4);
@@ -3075,7 +3075,7 @@ else
 {
 lean_object* x_6; uint8_t x_7; 
 x_6 = l_Lean_Grind_Linarith_zero__ne__one__cert___closed__0;
-x_7 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967_(x_2, x_6);
+x_7 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(x_2, x_6);
 return x_7;
 }
 }
@@ -3096,7 +3096,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = l_Lean_Grind_Linarith_diseq__split__cert___closed__0;
 x_4 = l_Lean_Grind_Linarith_Poly_mul(x_1, x_3);
-x_5 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967_(x_2, x_4);
+x_5 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(x_2, x_4);
 lean_dec(x_4);
 return x_5;
 }
@@ -3123,7 +3123,7 @@ lean_object* x_6; lean_object* x_7; uint8_t x_8;
 x_6 = lean_nat_to_int(x_3);
 x_7 = l_Lean_Grind_Linarith_Poly_mul(x_2, x_6);
 lean_dec(x_6);
-x_8 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967_(x_1, x_7);
+x_8 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(x_1, x_7);
 lean_dec(x_7);
 return x_8;
 }
@@ -3166,7 +3166,7 @@ lean_object* x_6; lean_object* x_7; uint8_t x_8;
 x_6 = lean_nat_to_int(x_3);
 x_7 = l_Lean_Grind_Linarith_Poly_mul(x_2, x_6);
 lean_dec(x_6);
-x_8 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967_(x_1, x_7);
+x_8 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(x_1, x_7);
 lean_dec(x_7);
 return x_8;
 }
@@ -3203,7 +3203,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13;
 x_10 = l_Lean_Grind_Linarith_Poly_mul(x_3, x_2);
 x_11 = l_Lean_Grind_Linarith_Poly_mul(x_4, x_1);
 x_12 = l_Lean_Grind_Linarith_Poly_combine(x_10, x_11);
-x_13 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967_(x_5, x_12);
+x_13 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(x_5, x_12);
 lean_dec(x_12);
 return x_13;
 }
@@ -3227,7 +3227,7 @@ _start:
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = l_Lean_Grind_Linarith_Poly_mul(x_2, x_1);
 x_6 = l_Lean_Grind_Linarith_Poly_combine(x_5, x_3);
-x_7 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967_(x_4, x_6);
+x_7 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(x_4, x_6);
 lean_dec(x_6);
 return x_7;
 }
@@ -3248,7 +3248,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = l_Lean_Grind_Linarith_Poly_coeff(x_2, x_1);
-x_6 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_6 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_7 = lean_int_dec_le(x_6, x_5);
 if (x_7 == 0)
 {
@@ -3268,7 +3268,7 @@ lean_dec(x_8);
 x_11 = l_Lean_Grind_Linarith_Poly_mul(x_2, x_10);
 lean_dec(x_10);
 x_12 = l_Lean_Grind_Linarith_Poly_combine(x_9, x_11);
-x_13 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967_(x_4, x_12);
+x_13 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(x_4, x_12);
 lean_dec(x_12);
 return x_13;
 }
@@ -3290,7 +3290,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = l_Lean_Grind_Linarith_Poly_coeff(x_2, x_1);
-x_6 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_413_;
+x_6 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 x_7 = lean_int_dec_lt(x_6, x_5);
 if (x_7 == 0)
 {
@@ -3310,7 +3310,7 @@ lean_dec(x_8);
 x_11 = l_Lean_Grind_Linarith_Poly_mul(x_2, x_10);
 lean_dec(x_10);
 x_12 = l_Lean_Grind_Linarith_Poly_combine(x_9, x_11);
-x_13 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967_(x_4, x_12);
+x_13 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(x_4, x_12);
 lean_dec(x_12);
 return x_13;
 }
@@ -3340,7 +3340,7 @@ lean_dec(x_6);
 x_9 = l_Lean_Grind_Linarith_Poly_mul(x_2, x_8);
 lean_dec(x_8);
 x_10 = l_Lean_Grind_Linarith_Poly_combine(x_7, x_9);
-x_11 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_967_(x_4, x_10);
+x_11 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(x_4, x_10);
 lean_dec(x_10);
 return x_11;
 }
@@ -3391,52 +3391,52 @@ l_Lean_Grind_Linarith_instBEqExpr___closed__0 = _init_l_Lean_Grind_Linarith_inst
 lean_mark_persistent(l_Lean_Grind_Linarith_instBEqExpr___closed__0);
 l_Lean_Grind_Linarith_instBEqExpr = _init_l_Lean_Grind_Linarith_instBEqExpr();
 lean_mark_persistent(l_Lean_Grind_Linarith_instBEqExpr);
-l_Lean_Grind_Linarith_reprExpr___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__5____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__5____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__5____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__6____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__6____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__6____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__7____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__7____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__7____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__8____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__8____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__8____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__9____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__9____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__9____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__10____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__10____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__10____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__11____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__11____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__11____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__12____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__12____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__12____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__13____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__13____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__13____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__14____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__14____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__14____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__15____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__15____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__15____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__16____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__16____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__16____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__17____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__17____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__17____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__18____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__18____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__18____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__19____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__19____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__19____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__20____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__20____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__20____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__21____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__21____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__21____x40_Init_Grind_Ordered_Linarith___hyg_413_);
-l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_413_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_413_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_413_);
+l_Lean_Grind_Linarith_reprExpr___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__5____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__5____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__5____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__6____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__6____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__6____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__7____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__7____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__7____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__8____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__8____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__8____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__9____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__9____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__9____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__10____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__10____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__10____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__11____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__11____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__11____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__12____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__12____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__12____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__13____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__13____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__13____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__14____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__14____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__14____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__15____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__15____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__15____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__16____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__16____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__16____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__17____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__17____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__17____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__18____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__18____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__18____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__19____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__19____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__19____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__20____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__20____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__20____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__21____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__21____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__21____x40_Init_Grind_Ordered_Linarith___hyg_414_);
+l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_414_ = _init_l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_414_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_414_);
 l_Lean_Grind_Linarith_instReprExpr___closed__0 = _init_l_Lean_Grind_Linarith_instReprExpr___closed__0();
 lean_mark_persistent(l_Lean_Grind_Linarith_instReprExpr___closed__0);
 l_Lean_Grind_Linarith_instReprExpr = _init_l_Lean_Grind_Linarith_instReprExpr();
@@ -3445,16 +3445,16 @@ l_Lean_Grind_Linarith_instBEqPoly___closed__0 = _init_l_Lean_Grind_Linarith_inst
 lean_mark_persistent(l_Lean_Grind_Linarith_instBEqPoly___closed__0);
 l_Lean_Grind_Linarith_instBEqPoly = _init_l_Lean_Grind_Linarith_instBEqPoly();
 lean_mark_persistent(l_Lean_Grind_Linarith_instBEqPoly);
-l_Lean_Grind_Linarith_reprPoly___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_1069_ = _init_l_Lean_Grind_Linarith_reprPoly___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_1069_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprPoly___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_1069_);
-l_Lean_Grind_Linarith_reprPoly___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_1069_ = _init_l_Lean_Grind_Linarith_reprPoly___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_1069_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprPoly___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_1069_);
-l_Lean_Grind_Linarith_reprPoly___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_1069_ = _init_l_Lean_Grind_Linarith_reprPoly___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_1069_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprPoly___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_1069_);
-l_Lean_Grind_Linarith_reprPoly___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_1069_ = _init_l_Lean_Grind_Linarith_reprPoly___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_1069_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprPoly___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_1069_);
-l_Lean_Grind_Linarith_reprPoly___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_1069_ = _init_l_Lean_Grind_Linarith_reprPoly___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_1069_();
-lean_mark_persistent(l_Lean_Grind_Linarith_reprPoly___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_1069_);
+l_Lean_Grind_Linarith_reprPoly___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_1070_ = _init_l_Lean_Grind_Linarith_reprPoly___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_1070_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprPoly___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_1070_);
+l_Lean_Grind_Linarith_reprPoly___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_1070_ = _init_l_Lean_Grind_Linarith_reprPoly___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_1070_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprPoly___closed__1____x40_Init_Grind_Ordered_Linarith___hyg_1070_);
+l_Lean_Grind_Linarith_reprPoly___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_1070_ = _init_l_Lean_Grind_Linarith_reprPoly___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_1070_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprPoly___closed__2____x40_Init_Grind_Ordered_Linarith___hyg_1070_);
+l_Lean_Grind_Linarith_reprPoly___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_1070_ = _init_l_Lean_Grind_Linarith_reprPoly___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_1070_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprPoly___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_1070_);
+l_Lean_Grind_Linarith_reprPoly___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_1070_ = _init_l_Lean_Grind_Linarith_reprPoly___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_1070_();
+lean_mark_persistent(l_Lean_Grind_Linarith_reprPoly___closed__4____x40_Init_Grind_Ordered_Linarith___hyg_1070_);
 l_Lean_Grind_Linarith_instReprPoly___closed__0 = _init_l_Lean_Grind_Linarith_instReprPoly___closed__0();
 lean_mark_persistent(l_Lean_Grind_Linarith_instReprPoly___closed__0);
 l_Lean_Grind_Linarith_instReprPoly = _init_l_Lean_Grind_Linarith_instReprPoly();

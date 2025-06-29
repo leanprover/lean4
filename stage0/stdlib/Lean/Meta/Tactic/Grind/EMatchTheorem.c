@@ -87,6 +87,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheorem_getProofWithFreshMVarLe
 lean_object* l_Array_reverse___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_preprocessMatchCongrEqType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_mkOffsetPattern___closed__0;
+lean_object* l_Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084_(lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 static lean_object* l_Lean_Meta_Grind_reprEMatchTheoremKind___closed__14____x40_Lean_Meta_Tactic_Grind_EMatchTheorem___hyg_4068_;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkGenHEqPattern(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -580,7 +581,6 @@ uint8_t l_Lean_AssocList_contains___at___Lean_Meta_FVarSubst_contains_spec__0___
 static lean_object* l_panic___at_____private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_NormalizePattern_go_spec__2___closed__3;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_____private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_preprocessMatchCongrEqType_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_forbiddenDeclNames___closed__14;
-lean_object* l_Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2083_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_____private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_preprocessMatchCongrEqType_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_checkTypeFVars___closed__1;
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
@@ -4587,7 +4587,7 @@ lean_ctor_set(x_43, 1, x_42);
 x_44 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_44, 0, x_43);
 lean_ctor_set(x_44, 1, x_39);
-x_45 = l_Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2083_(x_36, x_41);
+x_45 = l_Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084_(x_36, x_41);
 x_46 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_46, 0, x_44);
 lean_ctor_set(x_46, 1, x_45);

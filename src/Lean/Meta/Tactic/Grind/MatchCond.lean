@@ -168,17 +168,16 @@ heterogenenous equality is used for `as` and `bs`.
 -/
 def collectMatchCondLhssAndAbstract (matchCond : Expr) : GoalM (Array Expr × Expr) := do
   let_expr Grind.MatchCond e := matchCond | return (#[], matchCond)
-  let lhssαs := collectMatchCondLhss e
-  let rec go (i : Nat) (xs : Array Expr) (tys : Array (Option Expr)) (tysxs : Array Expr) (args : Array Expr) : GoalM (Array Expr × Expr) := do
+  let rec go (lhssαs : Array (Expr × Option Expr)) (i : Nat) (xs : Array Expr) (tys : Array (Option Expr)) (tysxs : Array Expr) (args : Array Expr) : GoalM (Array Expr × Expr) := do
     if h : i < lhssαs.size then
       let (lhs, α?) := lhssαs[i]
       if let some α := α? then
         withLocalDeclD ((`ty).appendIndexAfter i) (← inferType α) fun ty =>
         withLocalDeclD ((`x).appendIndexAfter i) ty fun x =>
-          go (i+1) (xs.push x) (tys.push ty) (tysxs.push ty |>.push x) (args.push α |>.push lhs)
+          go lhssαs (i+1) (xs.push x) (tys.push ty) (tysxs.push ty |>.push x) (args.push α |>.push lhs)
       else
         withLocalDeclD ((`x).appendIndexAfter i) (← inferType lhs) fun x =>
-          go (i+1) (xs.push x) (tys.push none) (tysxs.push x) (args.push lhs)
+          go lhssαs (i+1) (xs.push x) (tys.push none) (tysxs.push x) (args.push lhs)
     else
       let rec replaceLhss (e : Expr) (i : Nat) : Expr := Id.run do
         let .forallE _ d b _ := e | return e
@@ -193,7 +192,8 @@ def collectMatchCondLhssAndAbstract (matchCond : Expr) : GoalM (Array Expr × Ex
       let eLam  ← mkLambdaFVars tysxs eAbst
       let e' := mkAppN eLam args
       return (args, ← shareCommon e')
-  go 0 #[] #[] #[] #[]
+  let lhssαs := collectMatchCondLhss e
+  go lhssαs 0 #[] #[] #[] #[]
 
 /--
 Helper function for `isSatisfied`.

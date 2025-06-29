@@ -149,15 +149,15 @@ private def visitFVar (e : Expr) : MetaM Result := do
   return { expr := e, type? := decl.type }
 
 /--
-Give an expression `e` whose definition may be used in an unknown manner (for example, through a metavariable),
+Given expressions `e` whose definitions may be used in an unknown manner (for example, through a metavariable),
 marks all fvars in `e` (or accessible through `e`) that can potentially be unfolded.
 
 Assumption: while there may be metavariables in `e` (or in types of fvars present in `e`),
 they have already been processed by `checkMVar` or will be processed by it.
 -/
-private def visitDepExpr (e : Expr) : M Unit := do
+private def visitDepExprs (exprs : Array Expr) : M Unit := do
   let mut visited : FVarIdSet := {}
-  let mut worklist := #[e]
+  let mut worklist := exprs
   while !worklist.isEmpty do
     let e ← instantiateMVars worklist.back!
     worklist := worklist.pop
@@ -175,6 +175,17 @@ The only consideration is delayed assignments and which variables they depend on
 if the fvar is not passed among the `args`, the mvar cannot depend on it.
 -/
 private def checkMVar (mvarId : MVarId) (args : Array Expr) : M Unit := do
+  let mut exprs := #[]
+  /-
+  Normally in `letToHave` the local context cannot depend on `letFVars`,
+  since it was created outside the `let`s of the expression we are processing.
+  However, for `letToHaveWithTrackingLCtx` we should visit any `let`s in the metavariable's context.
+  -/
+  exprs := (← mvarId.getDecl).lctx.foldl (init := exprs) fun exprs decl =>
+    if decl.isLet then
+      exprs.push decl.toExpr
+    else
+      exprs
   if let some { fvars, mvarIdPending } ← getDelayedMVarAssignment? mvarId then
     let letFVars := (← read).letFVars
     unless fvars.size ≤ args.size do
@@ -185,7 +196,8 @@ private def checkMVar (mvarId : MVarId) (args : Array Expr) : M Unit := do
     for fvar in fvars, arg in args do
       let fvarDecl := pendingDecl.lctx.getFVar! fvar
       if fvarDecl.isLet then
-        visitDepExpr arg
+        exprs := exprs.push arg
+  visitDepExprs exprs
 
 private def visitMVar (e : Expr) : M Result := do
   let some decl ← e.mvarId!.findDecl? | throwUnknownMVar e.mvarId!
@@ -407,15 +419,18 @@ private partial def visit (e : Expr) : M Result := do
 
 end
 
-private def main (e : Expr) : MetaM Expr := do
+private def main (e : Expr) (context : Context := {}) : MetaM Expr := do
   Prod.fst <$> withTraceNode `Meta.letToHave (fun
       | .ok (_, msg) => pure m!"{checkEmoji} {msg}"
       | .error ex => pure m!"{crossEmoji} {ex.toMessageData}") do
-    if hasDepLet e then
-      withTrackingZetaDelta <|
+    /-
+    When there are initial `letFVars`, then even if there are no dependent lets
+    we must process the expression, but we can skip it if there are no fvars or mvars.
+    -/
+    if (!context.letFVars.isEmpty && (e.hasFVar || e.hasExprMVar)) || hasDepLet e then
       withTransparency TransparencyMode.all <|
       withInferTypeConfig do
-        let (r, s) ← visit e |>.run {} |>.run {}
+        let (r, s) ← visit e |>.run context |>.run {}
         if s.count == 0 then
           trace[Meta.letToHave] "result: (no change)"
         else
@@ -428,13 +443,36 @@ end LetToHave
 
 /--
 Transforms nondependent `let` expressions into `have` expressions.
-If `e` is not type correct, returns `e`.
 The `Meta.letToHave` trace class logs errors and messages.
+Instantiates mvars in `e`.
 -/
 def letToHave (e : Expr) : MetaM Expr := do
   profileitM Exception "let-to-have transformation" (← getOptions) do
-    let e ← instantiateMVars e
-    LetToHave.main e
+    withTrackingZetaDelta do
+      let e ← instantiateMVars e
+      LetToHave.main e
+
+/--
+Applies `letToHave` while updating `zetaDeltaFVarIds` for unfolded let decls in the local context.
+Requires that `Meta.Context.trackZetaDelta` be enabled.
+
+Note: unlike `letToHave`, this function does *not* instantiate mvars.
+-/
+def letToHaveWithTrackingLCtx (e : Expr) : MetaM Expr := do
+  assert! (← read).trackZetaDelta
+  profileitM Exception "let-to-have transformation" (← getOptions) do
+    let letFVars := (← getLCtx).foldl (init := []) fun ids decl =>
+      if decl.isLet then
+        decl.fvarId :: ids
+      else
+        ids
+    let (e', fvarIds) ← withTrackingZetaDelta do
+      let e' ← LetToHave.main e (context := { letFVars })
+      return (e', ← getZetaDeltaFVarIds)
+    for fvarId in letFVars do
+      if fvarIds.contains fvarId then
+        addZetaDeltaFVarId fvarId
+    return e'
 
 builtin_initialize
   registerTraceClass `Meta.letToHave

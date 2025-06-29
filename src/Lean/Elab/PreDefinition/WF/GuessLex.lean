@@ -242,6 +242,8 @@ where
       withLocalDecl n c d fun x => do
         loop param (b.instantiate1 x)
     | Expr.letE n type val body nondep =>
+      -- Turn `have`s into `let`s if they are not propositions.
+      let nondep ← pure nondep <&&> not <$> Meta.isProp type
       loop param type
       loop param val
       withLetDecl n type val (nondep := nondep) fun x => do

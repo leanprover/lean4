@@ -9,7 +9,7 @@ import Lean.Environment
 import Lean.AddDecl
 import Lean.Util.FoldConsts
 import Lean.Meta.Basic
-import Lean.Meta.Check
+import Lean.Meta.LetToHave
 import Lean.Meta.Tactic.AuxLemma
 
 /-!
@@ -171,8 +171,9 @@ def preprocess (e : Expr) : ClosureM Expr := do
   -- If we are not zetaDelta-expanding let-decls, then we use `check` to find
   -- which let-decls are dependent. We say a let-decl is dependent if its lambda abstraction is type incorrect.
   if !ctx.zetaDelta then
-    check e
-  pure e
+    letToHaveWithTrackingLCtx e
+  else
+    pure e
 
 /--
   Remark: This method does not guarantee unique user names.

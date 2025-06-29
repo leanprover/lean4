@@ -86,7 +86,7 @@ instance [OrientedCmp cmp] : ReflCmp cmp where
 instance OrientedCmp.opposite [OrientedCmp cmp] : OrientedCmp fun a b => cmp b a where
   eq_swap := OrientedCmp.eq_swap (cmp := cmp)
 
-instance OrientedOrd.opposite [Ord α] [OrientedOrd α] : letI := Ord.opposite ‹_›; OrientedOrd α :=
+instance OrientedOrd.opposite [Ord α] [OrientedOrd α] : letI := Ord.opposite (α := α) ‹_›; OrientedOrd α :=
   OrientedCmp.opposite (cmp := compare)
 
 theorem OrientedCmp.gt_iff_lt [OrientedCmp cmp] {a b : α} : cmp a b = .gt ↔ cmp b a = .lt := by
@@ -201,7 +201,7 @@ theorem TransOrd.isGE_trans [Ord α] [TransOrd α] {a b c : α} :
 instance TransCmp.opposite [TransCmp cmp] : TransCmp fun a b => cmp b a where
   isLE_trans := flip TransCmp.isLE_trans
 
-instance TransOrd.opposite [Ord α] [TransOrd α] : letI := Ord.opposite ‹_›; TransOrd α :=
+instance TransOrd.opposite [Ord α] [TransOrd α] : letI := Ord.opposite (α := α) ‹_›; TransOrd α :=
   TransCmp.opposite (cmp := compare)
 
 theorem TransCmp.lt_of_lt_of_eq [TransCmp cmp] {a b c : α} (hab : cmp a b = .lt)
@@ -334,7 +334,7 @@ instance LawfulEqCmp.opposite [OrientedCmp cmp] [LawfulEqCmp cmp] :
     exact LawfulEqCmp.eq_of_compare
 
 instance LawfulEqOrd.opposite [Ord α] [OrientedOrd α] [LawfulEqOrd α] :
-    letI := Ord.opposite ‹_›; LawfulEqOrd α :=
+    letI := Ord.opposite (α := α) ‹_›; LawfulEqOrd α :=
   LawfulEqCmp.opposite (cmp := compare)
 
 theorem LawfulEqCmp.compare_eq_iff_eq {a b : α} : cmp a b = .eq ↔ a = b :=
@@ -453,7 +453,7 @@ instance LawfulBEqCmp.opposite [OrientedCmp cmp] [LawfulBEqCmp cmp] :
     simp [OrientedCmp.eq_comm (cmp := cmp), LawfulBEqCmp.compare_eq_iff_beq]
 
 instance LawfulBEqOrd.opposite [Ord α] [OrientedOrd α] [LawfulBEqOrd α] :
-    letI := Ord.opposite ‹_›; LawfulBEqOrd α :=
+    letI := Ord.opposite (α := α) ‹_›; LawfulBEqOrd α :=
   LawfulBEqCmp.opposite (cmp := compare)
 
 end LawfulBEq

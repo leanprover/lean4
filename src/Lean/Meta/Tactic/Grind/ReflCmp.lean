@@ -48,6 +48,6 @@ def propagateReflCmp (e : Expr) : GoalM Unit := do
   let b := e.appArg!
   unless (← isEqv a b) do return ()
   let oeq ← getOrderingEqExpr
-  pushEq e oeq <| mkApp3 thm a b (← mkEqProof e oeq)
+  pushEq e oeq <| mkApp3 thm a b (← mkEqProof a b)
 
 end Lean.Meta.Grind

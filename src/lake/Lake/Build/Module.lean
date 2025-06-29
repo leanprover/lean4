@@ -375,11 +375,11 @@ Fetch its dependencies and then elaborate the Lean source file, producing
 all possible artifacts (e.g., `.olean`, `.ilean`, `.c`, `.bc`).
 -/
 def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifacts) := do
-  withRegisterJob mod.name.toString do
   let setupJob ← mod.setup.fetch
   let leanJob ← mod.lean.fetch
-  leanJob.bindM fun srcFile => do
+  leanJob.bindM (sync := true) fun srcFile => do
   let srcTrace ← getTrace
+  withRegisterJob mod.name.toString do
   setupJob.mapM fun setup => do
     addLeanTrace
     addTrace <| traceOptions setup.options "options"

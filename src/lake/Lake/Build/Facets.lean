@@ -83,6 +83,27 @@ Its trace just includes its dependencies.
 -/
 builtin_facet leanArts : Module => ModuleOutputArtifacts
 
+/-- OLeans directly needed for an `import` of this module. -/
+builtin_facet importArts : Module => ImportArtifacts
+
+/-- OLeans directly needed for an `import all` of this module with the module system enabled. -/
+builtin_facet importAllArts : Module => ImportArtifacts
+
+/-- OLeans of the direct imports of this module. -/
+builtin_facet directImportArts : Module => NameMap ImportArtifacts
+
+structure TransImportTrace where
+  /-- Trace for modules with the module system enabled. -/
+  module : BuildTrace
+  /-- Trace for modules with the module system disabled.. -/
+  legacy : BuildTrace
+
+/--
+**For internal use only.**
+Transitive import trace for an `import` of this module with the module system enabled.
+-/
+builtin_facet transImportTrace : Module => TransImportTrace
+
 /-- The `olean` file produced by `lean`. -/
 builtin_facet olean : Module => FilePath
 

@@ -21,6 +21,7 @@ import Lean.Meta.Tactic.Grind.Solve
 import Lean.Meta.Tactic.Grind.SimpUtil
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.LawfulEqCmp
+import Lean.Meta.Tactic.Grind.ReflCmp
 
 namespace Lean.Meta.Grind
 
@@ -44,6 +45,7 @@ def mkMethods (fallback : Fallback) : CoreM Methods := do
     fallback
     propagateUp := fun e => do
      propagateForallPropUp e
+     propagateReflCmp e
      let .const declName _ := e.getAppFn | return ()
      propagateProjEq e
      if let some prop := builtinPropagators.up[declName]? then

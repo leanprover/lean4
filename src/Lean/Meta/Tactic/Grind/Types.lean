@@ -194,6 +194,11 @@ structure State where
   if it implements the `LawfulEqCmp` type class.
   -/
   lawfulEqCmpMap : PHashMap ExprPtr (Option Expr) := {}
+  /--
+  Mapping from binary functions `f` to a theorem `thm : ∀ a, f a a = .eq`
+  if it implements the `ReflCmp` type class.
+  -/
+  reflCmpMap : PHashMap ExprPtr (Option Expr) := {}
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 private def MethodsRef : Type := MethodsRefPointed.type

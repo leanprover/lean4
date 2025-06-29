@@ -462,8 +462,6 @@ class HasEquiv (α : Sort u) where
 
 @[inherit_doc] infix:50 " ≈ "  => HasEquiv.Equiv
 
-macro_rules | `($x ≈ $y) => `(binrel% HasEquiv.Equiv $x $y)
-
 recommended_spelling "equiv" for "≈" in [HasEquiv.Equiv, «term_≈_»]
 
 /-! # set notation  -/
@@ -511,14 +509,6 @@ class SDiff (α : Type u) where
 @[inherit_doc] infixl:65 " ∪ " => Union.union
 @[inherit_doc] infixl:70 " ∩ " => Inter.inter
 @[inherit_doc] infix:70 " \\ " => SDiff.sdiff
-
-macro_rules | `($x ⊆ $y) => `(binrel% Subset $x $y)
-macro_rules | `($x ⊂ $y)  => `(binrel% SSubset $x $y)
-macro_rules | `($x ⊇ $y)  => `(binrel% Superset $x $y)
-macro_rules | `($x ⊃ $y)  => `(binrel% SSuperset $x $y)
-macro_rules | `($x ∪ $y) => `(binop% Union.union $x $y)
-macro_rules | `($x ∩ $y)  => `(binop% Inter.inter $x $y)
-macro_rules | `($x \ $y)  => `(binop% SDiff.sdiff $x $y)
 
 recommended_spelling "subset" for "⊆" in [Subset, «term_⊆_»]
 recommended_spelling "ssubset" for "⊂" in [SSubset, «term_⊂_»]

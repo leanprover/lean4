@@ -381,7 +381,7 @@ end MaybeTask
 /--
 An asynchronous computation that never fails.
 -/
-def BaseAsync (α : Type) := BaseIO (MaybeTask α)
+@[expose] def BaseAsync (α : Type) := BaseIO (MaybeTask α)
 
 namespace BaseAsync
 
@@ -499,7 +499,7 @@ end BaseAsync
 /--
 An asynchronous computation that may produce an error of type `ε`.
 -/
-def EAsync (ε : Type) (α : Type) := BaseAsync (Except ε α)
+@[expose] def EAsync (ε : Type) (α : Type) := BaseAsync (Except ε α)
 
 namespace EAsync
 

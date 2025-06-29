@@ -516,9 +516,9 @@ macro_rules | `($x ⊆ $y) => `(binrel% Subset $x $y)
 macro_rules | `($x ⊂ $y)  => `(binrel% SSubset $x $y)
 macro_rules | `($x ⊇ $y)  => `(binrel% Superset $x $y)
 macro_rules | `($x ⊃ $y)  => `(binrel% SSuperset $x $y)
-macro_rules | `($x ∪ $y) => `(binrel% Union.union $x $y)
-macro_rules | `($x ∩ $y)  => `(binrel% Inter.inter $x $y)
-macro_rules | `($x \ $y)  => `(binrel% SDiff.sdiff $x $y)
+macro_rules | `($x ∪ $y) => `(binop% Union.union $x $y)
+macro_rules | `($x ∩ $y)  => `(binop% Inter.inter $x $y)
+macro_rules | `($x \ $y)  => `(binop% SDiff.sdiff $x $y)
 
 recommended_spelling "subset" for "⊆" in [Subset, «term_⊆_»]
 recommended_spelling "ssubset" for "⊂" in [SSubset, «term_⊂_»]

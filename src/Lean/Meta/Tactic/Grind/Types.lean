@@ -112,6 +112,7 @@ structure Context where
   btrueExpr    : Expr
   bfalseExpr   : Expr
   ordEqExpr    : Expr -- `Ordering.eq`
+  intExpr      : Expr -- `Int`
 
 /-- Key for the congruence theorem cache. -/
 structure CongrTheoremCacheKey where
@@ -245,6 +246,10 @@ def getNatZeroExpr : GrindM Expr := do
 /-- Returns the internalized `Ordering.eq`.  -/
 def getOrderingEqExpr : GrindM Expr := do
   return (← readThe Context).ordEqExpr
+
+/-- Returns the internalized `Int`.  -/
+def getIntExpr : GrindM Expr := do
+  return (← readThe Context).intExpr
 
 def cheapCasesOnly : GrindM Bool :=
   return (← readThe Context).cheapCases

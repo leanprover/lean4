@@ -10,6 +10,7 @@ import Lean.Data.PersistentArray
 import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -95,6 +96,9 @@ inductive EqCnstrProof where
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | ofLeGe (c₁ : LeCnstr) (c₂ : LeCnstr)
   | reorder (c : EqCnstr)
+  | commRingNorm (c : EqCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
+  | defnCommRing (e : Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
+  | defnNatCommRing (e : Int.OfNat.Expr) (x : Var) (e' : Int.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
 
 /-- A divisibility constraint and its justification/proof. -/
 structure DvdCnstr where
@@ -156,6 +160,7 @@ inductive DvdCnstrProof where
   /-- `c.c₃?` must be `some` -/
   | cooper₂ (c : CooperSplit)
   | reorder (c : DvdCnstr)
+  | commRingNorm (c : DvdCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
 
 /-- An inequality constraint and its justification/proof. -/
 structure LeCnstr where
@@ -182,6 +187,7 @@ inductive LeCnstrProof where
   | dvdTight (c₁ : DvdCnstr) (c₂ : LeCnstr)
   | negDvdTight (c₁ : DvdCnstr) (c₂ : LeCnstr)
   | reorder (c : LeCnstr)
+  | commRingNorm (c : LeCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
 
 /-- A disequality constraint and its justification/proof. -/
 structure DiseqCnstr where
@@ -203,6 +209,7 @@ inductive DiseqCnstrProof where
   | neg (c : DiseqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
   | reorder (c : DiseqCnstr)
+  | commRingNorm (c : DiseqCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
 
 /--
 A proof of `False`.
@@ -330,6 +337,10 @@ structure State where
   from a α-term `e` to the pair `(toInt e, α)`.
   -/
   toIntTermMap : PHashMap ExprPtr ToIntTermInfo := {}
+  /--
+  `usedCommRing` is `true` if the `CommRing` has been used to normalize expressions.
+  -/
+  usedCommRing : Bool := false
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.Cutsat

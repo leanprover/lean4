@@ -7446,7 +7446,7 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Parser_decimalNumberFn_parseOptExp(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; uint8_t x_9; uint8_t x_19; lean_object* x_20; lean_object* x_27; uint8_t x_28; uint8_t x_29; uint8_t x_32; uint32_t x_40; uint32_t x_41; uint8_t x_42; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; uint8_t x_9; uint8_t x_19; lean_object* x_20; uint8_t x_27; lean_object* x_28; uint8_t x_29; uint8_t x_32; uint32_t x_40; uint32_t x_41; uint8_t x_42; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_3, 0);
 x_5 = lean_ctor_get(x_2, 2);
@@ -7473,11 +7473,11 @@ block_18:
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-lean_dec(x_8);
+lean_dec(x_7);
 lean_dec(x_6);
 x_10 = l_Lean_Parser_decimalNumberFn_parseOptExp___closed__0;
 x_11 = lean_box(0);
-x_12 = l_Lean_Parser_ParserState_mkUnexpectedError(x_2, x_10, x_11, x_7);
+x_12 = l_Lean_Parser_ParserState_mkUnexpectedError(x_2, x_10, x_11, x_8);
 return x_12;
 }
 else
@@ -7485,7 +7485,7 @@ else
 lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; 
 x_13 = l_Lean_Parser_decimalNumberFn_parseOptExp___closed__1;
 x_14 = lean_box(0);
-x_15 = l_Lean_Parser_ParserState_setPos(x_2, x_8);
+x_15 = l_Lean_Parser_ParserState_setPos(x_2, x_7);
 x_16 = lean_unbox(x_14);
 x_17 = l_Lean_Parser_takeDigitsFn(x_6, x_13, x_16, x_1, x_15);
 return x_17;
@@ -7499,8 +7499,8 @@ x_22 = 48;
 x_23 = lean_uint32_dec_le(x_22, x_21);
 if (x_23 == 0)
 {
-x_7 = x_19;
-x_8 = x_20;
+x_7 = x_20;
+x_8 = x_19;
 x_9 = x_23;
 goto block_18;
 }
@@ -7509,8 +7509,8 @@ else
 uint32_t x_24; uint8_t x_25; 
 x_24 = 57;
 x_25 = lean_uint32_dec_le(x_21, x_24);
-x_7 = x_19;
-x_8 = x_20;
+x_7 = x_20;
+x_8 = x_19;
 x_9 = x_25;
 goto block_18;
 }
@@ -7519,16 +7519,16 @@ block_31:
 {
 if (x_29 == 0)
 {
-x_19 = x_28;
-x_20 = x_27;
+x_19 = x_27;
+x_20 = x_28;
 goto block_26;
 }
 else
 {
 lean_object* x_30; 
-x_30 = lean_string_utf8_next(x_4, x_27);
-lean_dec(x_27);
-x_19 = x_28;
+x_30 = lean_string_utf8_next(x_4, x_28);
+lean_dec(x_28);
+x_19 = x_27;
 x_20 = x_30;
 goto block_26;
 }
@@ -7554,15 +7554,15 @@ if (x_36 == 0)
 uint32_t x_37; uint8_t x_38; 
 x_37 = 43;
 x_38 = lean_uint32_dec_eq(x_34, x_37);
-x_27 = x_33;
-x_28 = x_32;
+x_27 = x_32;
+x_28 = x_33;
 x_29 = x_38;
 goto block_31;
 }
 else
 {
-x_27 = x_33;
-x_28 = x_32;
+x_27 = x_32;
+x_28 = x_33;
 x_29 = x_36;
 goto block_31;
 }

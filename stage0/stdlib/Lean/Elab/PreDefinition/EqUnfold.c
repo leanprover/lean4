@@ -811,10 +811,10 @@ lean_dec(x_57);
 lean_dec(x_40);
 lean_dec(x_39);
 lean_dec(x_5);
-x_12 = x_11;
-x_13 = x_10;
-x_14 = x_8;
-x_15 = x_7;
+x_12 = x_10;
+x_13 = x_8;
+x_14 = x_7;
+x_15 = x_11;
 x_16 = x_9;
 goto block_27;
 }
@@ -828,10 +828,10 @@ if (x_61 == 0)
 lean_dec(x_40);
 lean_dec(x_39);
 lean_dec(x_5);
-x_12 = x_11;
-x_13 = x_10;
-x_14 = x_8;
-x_15 = x_7;
+x_12 = x_10;
+x_13 = x_8;
+x_14 = x_7;
+x_15 = x_11;
 x_16 = x_9;
 goto block_27;
 }
@@ -878,11 +878,11 @@ x_20 = l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__0___closed__3;
 x_21 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_21, 0, x_19);
 lean_ctor_set(x_21, 1, x_20);
-x_22 = l_Lean_throwError___at___Lean_getConstInfo___at___Lean_Meta_mkConstWithFreshMVarLevels_spec__0_spec__0___redArg(x_21, x_15, x_14, x_16, x_13, x_12);
-lean_dec(x_13);
+x_22 = l_Lean_throwError___at___Lean_getConstInfo___at___Lean_Meta_mkConstWithFreshMVarLevels_spec__0_spec__0___redArg(x_21, x_14, x_13, x_16, x_12, x_15);
+lean_dec(x_12);
 lean_dec(x_16);
+lean_dec(x_13);
 lean_dec(x_14);
-lean_dec(x_15);
 x_23 = !lean_is_exclusive(x_22);
 if (x_23 == 0)
 {

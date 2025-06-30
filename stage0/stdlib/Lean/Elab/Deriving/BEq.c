@@ -3169,7 +3169,7 @@ return x_283;
 block_299:
 {
 uint8_t x_288; 
-x_288 = lean_nat_dec_lt(x_285, x_287);
+x_288 = lean_nat_dec_lt(x_286, x_287);
 if (x_288 == 0)
 {
 lean_dec(x_287);
@@ -3183,16 +3183,16 @@ goto block_284;
 else
 {
 size_t x_289; size_t x_290; lean_object* x_291; 
-x_289 = lean_usize_of_nat(x_285);
-lean_dec(x_285);
+x_289 = lean_usize_of_nat(x_286);
+lean_dec(x_286);
 x_290 = lean_usize_of_nat(x_287);
 lean_dec(x_287);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
 lean_inc(x_14);
-x_291 = l_Array_anyMUnsafe_any___at___Lean_Elab_Deriving_BEq_mkMatch_mkAlts_spec__1___redArg(x_43, x_286, x_289, x_290, x_14, x_15, x_16, x_17, x_60);
-lean_dec(x_286);
+x_291 = l_Array_anyMUnsafe_any___at___Lean_Elab_Deriving_BEq_mkMatch_mkAlts_spec__1___redArg(x_43, x_285, x_289, x_290, x_14, x_15, x_16, x_17, x_60);
+lean_dec(x_285);
 lean_dec(x_43);
 if (lean_obj_tag(x_291) == 0)
 {
@@ -3287,16 +3287,16 @@ x_308 = lean_nat_dec_le(x_305, x_307);
 if (x_308 == 0)
 {
 lean_dec(x_305);
-x_285 = x_304;
-x_286 = x_303;
+x_285 = x_303;
+x_286 = x_304;
 x_287 = x_307;
 goto block_299;
 }
 else
 {
 lean_dec(x_307);
-x_285 = x_304;
-x_286 = x_303;
+x_285 = x_303;
+x_286 = x_304;
 x_287 = x_305;
 goto block_299;
 }
@@ -5018,7 +5018,7 @@ return x_283;
 block_299:
 {
 uint8_t x_288; 
-x_288 = lean_nat_dec_lt(x_286, x_287);
+x_288 = lean_nat_dec_lt(x_285, x_287);
 if (x_288 == 0)
 {
 lean_dec(x_287);
@@ -5032,16 +5032,16 @@ goto block_284;
 else
 {
 size_t x_289; size_t x_290; lean_object* x_291; 
-x_289 = lean_usize_of_nat(x_286);
-lean_dec(x_286);
+x_289 = lean_usize_of_nat(x_285);
+lean_dec(x_285);
 x_290 = lean_usize_of_nat(x_287);
 lean_dec(x_287);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
 lean_inc(x_14);
-x_291 = l_Array_anyMUnsafe_any___at___Lean_Elab_Deriving_BEq_mkMatch_mkAlts_spec__1___redArg(x_43, x_285, x_289, x_290, x_14, x_15, x_16, x_17, x_60);
-lean_dec(x_285);
+x_291 = l_Array_anyMUnsafe_any___at___Lean_Elab_Deriving_BEq_mkMatch_mkAlts_spec__1___redArg(x_43, x_286, x_289, x_290, x_14, x_15, x_16, x_17, x_60);
+lean_dec(x_286);
 lean_dec(x_43);
 if (lean_obj_tag(x_291) == 0)
 {
@@ -5135,16 +5135,16 @@ x_308 = lean_nat_dec_le(x_305, x_307);
 if (x_308 == 0)
 {
 lean_dec(x_305);
-x_285 = x_303;
-x_286 = x_304;
+x_285 = x_304;
+x_286 = x_303;
 x_287 = x_307;
 goto block_299;
 }
 else
 {
 lean_dec(x_307);
-x_285 = x_303;
-x_286 = x_304;
+x_285 = x_304;
+x_286 = x_303;
 x_287 = x_305;
 goto block_299;
 }

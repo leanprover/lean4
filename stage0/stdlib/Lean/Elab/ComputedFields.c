@@ -4475,7 +4475,7 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_24);
-x_26 = l_Lean_Meta_withLocalDeclD___at___Lean_Elab_ComputedFields_overrideCasesOn_spec__3___redArg(x_25, x_24, x_18, x_11, x_12, x_13, x_14, x_15, x_16);
+x_26 = l_Lean_Meta_withLocalDeclD___at___Lean_Elab_ComputedFields_overrideCasesOn_spec__3___redArg(x_25, x_24, x_19, x_11, x_12, x_13, x_14, x_15, x_16);
 if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; 
@@ -4488,7 +4488,7 @@ lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_13);
 lean_inc(x_12);
-x_29 = l_Lean_Elab_ComputedFields_mkUnsafeCastTo(x_24, x_19, x_12, x_13, x_14, x_15, x_28);
+x_29 = l_Lean_Elab_ComputedFields_mkUnsafeCastTo(x_24, x_18, x_12, x_13, x_14, x_15, x_28);
 if (lean_obj_tag(x_29) == 0)
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; size_t x_38; size_t x_39; lean_object* x_40; 
@@ -4619,7 +4619,7 @@ else
 lean_dec(x_24);
 lean_dec(x_21);
 lean_dec(x_20);
-lean_dec(x_19);
+lean_dec(x_18);
 lean_dec(x_15);
 lean_dec(x_14);
 lean_dec(x_13);
@@ -4662,8 +4662,8 @@ lean_object* x_82;
 x_82 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_82, 0, x_78);
 lean_ctor_set(x_82, 1, x_80);
-x_18 = x_74;
-x_19 = x_76;
+x_18 = x_76;
+x_19 = x_74;
 x_20 = x_73;
 x_21 = x_82;
 goto block_69;
@@ -4675,8 +4675,8 @@ lean_dec(x_78);
 x_83 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_83, 0, x_79);
 lean_ctor_set(x_83, 1, x_80);
-x_18 = x_74;
-x_19 = x_76;
+x_18 = x_76;
+x_19 = x_74;
 x_20 = x_73;
 x_21 = x_83;
 goto block_69;

@@ -1842,10 +1842,10 @@ lean_ctor_set(x_25, 1, x_8);
 lean_ctor_set(x_25, 2, x_24);
 x_26 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
-lean_ctor_set(x_26, 1, x_16);
+lean_ctor_set(x_26, 1, x_17);
 x_27 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_27, 0, x_26);
-lean_ctor_set(x_27, 1, x_17);
+lean_ctor_set(x_27, 1, x_16);
 return x_27;
 }
 block_69:
@@ -1882,8 +1882,8 @@ lean_inc(x_38);
 x_39 = lean_ctor_get(x_36, 1);
 lean_inc(x_39);
 lean_dec(x_36);
-x_16 = x_39;
-x_17 = x_37;
+x_16 = x_37;
+x_17 = x_39;
 x_18 = x_38;
 x_19 = x_30;
 x_20 = x_6;
@@ -1904,8 +1904,8 @@ x_43 = lean_ctor_get(x_10, 0);
 lean_inc(x_43);
 x_44 = l_Lake_joinRelative(x_6, x_43);
 lean_dec(x_43);
-x_16 = x_42;
-x_17 = x_40;
+x_16 = x_40;
+x_17 = x_42;
 x_18 = x_41;
 x_19 = x_30;
 x_20 = x_44;
@@ -2493,13 +2493,13 @@ if (lean_obj_tag(x_87) == 0)
 lean_object* x_93; 
 x_93 = l_Lake_instInhabitedMaterializedDep___closed__0;
 x_9 = x_92;
-x_10 = x_89;
-x_11 = x_88;
-x_12 = x_44;
-x_13 = x_86;
+x_10 = x_88;
+x_11 = x_89;
+x_12 = x_82;
+x_13 = x_91;
 x_14 = x_81;
-x_15 = x_82;
-x_16 = x_91;
+x_15 = x_44;
+x_16 = x_86;
 x_17 = x_93;
 goto block_20;
 }
@@ -2510,13 +2510,13 @@ x_94 = lean_ctor_get(x_87, 0);
 lean_inc(x_94);
 lean_dec(x_87);
 x_9 = x_92;
-x_10 = x_89;
-x_11 = x_88;
-x_12 = x_44;
-x_13 = x_86;
+x_10 = x_88;
+x_11 = x_89;
+x_12 = x_82;
+x_13 = x_91;
 x_14 = x_81;
-x_15 = x_82;
-x_16 = x_91;
+x_15 = x_44;
+x_16 = x_86;
 x_17 = x_94;
 goto block_20;
 }
@@ -2803,10 +2803,10 @@ return x_230;
 }
 block_20:
 {
-if (lean_obj_tag(x_12) == 0)
+if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_18; 
-x_18 = l_Lake_Dependency_materialize_materializeGit(x_1, x_2, x_3, x_4, x_16, x_9, x_13, x_17, x_11, x_10, x_15, x_14);
+x_18 = l_Lake_Dependency_materialize_materializeGit(x_1, x_2, x_3, x_4, x_13, x_9, x_16, x_17, x_10, x_11, x_12, x_14);
 lean_dec(x_3);
 lean_dec(x_1);
 return x_18;
@@ -2814,8 +2814,8 @@ return x_18;
 else
 {
 lean_object* x_19; 
-lean_dec(x_11);
-x_19 = l_Lake_Dependency_materialize_materializeGit(x_1, x_2, x_3, x_4, x_16, x_9, x_13, x_17, x_12, x_10, x_15, x_14);
+lean_dec(x_10);
+x_19 = l_Lake_Dependency_materialize_materializeGit(x_1, x_2, x_3, x_4, x_13, x_9, x_16, x_17, x_15, x_11, x_12, x_14);
 lean_dec(x_3);
 lean_dec(x_1);
 return x_19;

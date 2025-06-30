@@ -142,7 +142,8 @@ static void print_backtrace(bool force_stderr) {
 #endif
 }
 
-extern "C" LEAN_EXPORT void lean_panic(char const * msg, size_t size, bool force_stderr = false) {
+// Morally, `{msg, size}` is an `std::string_view`.
+static void lean_panic_impl(char const * msg, size_t size, bool force_stderr = false) {
     if (g_panic_messages) {
         panic_eprintln(msg, size, force_stderr);
 #if LEAN_SUPPORTS_BACKTRACE
@@ -160,8 +161,12 @@ extern "C" LEAN_EXPORT void lean_panic(char const * msg, size_t size, bool force
     }
 }
 
+extern "C" LEAN_EXPORT void lean_panic(char const * msg, bool force_stderr = false) {
+    lean_panic_impl(msg, strlen(msg), force_stderr);
+}
+
 extern "C" LEAN_EXPORT object * lean_panic_fn(object * default_val, object * msg) {
-    lean_panic(lean_string_cstr(msg), lean_string_size(msg) - 1);
+    lean_panic_impl(lean_string_cstr(msg), lean_string_size(msg) - 1);  // remove the null terminator
     lean_dec(msg);
     return default_val;
 }

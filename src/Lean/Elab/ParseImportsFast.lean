@@ -188,7 +188,7 @@ partial def moduleIdent : Parser := fun input s =>
   let s := p input s
   match s.error? with
   | none => many p input s
-  | some _ => { pos, error? := none, imports := s.imports.shrink size }
+  | some _ => { s with pos, error? := none, imports := s.imports.shrink size }
 
 def setIsExported (isExported : Bool) : Parser := fun _ s =>
   { s with isExported := isExported }
@@ -197,7 +197,7 @@ def setImportAll (importAll : Bool) : Parser := fun _ s =>
   { s with importAll }
 
 def main : Parser :=
-  keywordCore "module" (fun _ s => { s with isModule := true }) (fun _ s => s) >>
+  keywordCore "module" (fun _ s => s) (fun _ s => { s with isModule := true }) >>
   keywordCore "prelude" (fun _ s => s.pushImport `Init) (fun _ s => s) >>
   many (keywordCore "private" (setIsExported true) (setIsExported false) >>
     keyword "import" >>

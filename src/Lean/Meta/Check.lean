@@ -194,22 +194,23 @@ def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
 Return error message "has type{givenType}\nbut is expected to have type{expectedType}"
 Adds the type’s types unless they are defeq.
 -/
-def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr) : MetaM MessageData := do
-  try
-    let givenTypeType ← inferType givenType
-    let expectedTypeType ← inferType expectedType
-    if (← isDefEqGuarded givenTypeType expectedTypeType) then
+def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr) : MetaM MessageData :=
+  return MessageData.ofLazyM (es := #[givenType, expectedType]) do
+    try
+      let givenTypeType ← inferType givenType
+      let expectedTypeType ← inferType expectedType
+      if (← isDefEqGuarded givenTypeType expectedTypeType) then
+        let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
+        return m!"has type{indentExpr givenType}\n\
+          but is expected to have type{indentExpr expectedType}"
+      else
+        let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
+        let (givenTypeType, expectedTypeType) ← addPPExplicitToExposeDiff givenTypeType expectedTypeType
+        return m!"has type{indentExpr givenType}\nof sort{inlineExpr givenTypeType}\
+          but is expected to have type{indentExpr expectedType}\nof sort{inlineExprTrailing expectedTypeType}"
+    catch _ =>
       let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
-      return m!"has type{indentExpr givenType}\n\
-        but is expected to have type{indentExpr expectedType}"
-    else
-      let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
-      let (givenTypeType, expectedTypeType) ← addPPExplicitToExposeDiff givenTypeType expectedTypeType
-      return m!"has type{indentExpr givenType}\nof sort{inlineExpr givenTypeType}\
-        but is expected to have type{indentExpr expectedType}\nof sort{inlineExprTrailing expectedTypeType}"
-  catch _ =>
-    let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
-    return m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}"
+      return m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}"
 
 def throwAppTypeMismatch (f a : Expr) : MetaM α := do
   let (expectedType, binfo) ← getFunctionDomain f

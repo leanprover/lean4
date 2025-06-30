@@ -199,13 +199,6 @@ has type
   ?_ → Prop
 but is expected to have type
   Prop
----
-error: stuck at solving universe constraint
-  max 1 _ =?= 1
-while trying to unify
-  Sort (max 1 _) : Type (max 1 _)
-with
-  Type : Type 1
 -/
 #guard_msgs in
 def matchTooFewFn : Foo → Foo → Prop := fun a b =>

@@ -2100,10 +2100,10 @@ block_19:
 lean_object* x_16; lean_object* x_17; 
 x_16 = l_Array_append___redArg(x_12, x_15);
 lean_dec(x_15);
-x_17 = l_Array_append___redArg(x_16, x_13);
-lean_dec(x_13);
+x_17 = l_Array_append___redArg(x_16, x_14);
+lean_dec(x_14);
 x_1 = x_17;
-x_3 = x_14;
+x_3 = x_13;
 goto _start;
 }
 block_55:
@@ -2180,8 +2180,8 @@ if (x_49 == 0)
 {
 lean_dec(x_47);
 lean_dec(x_46);
-x_13 = x_45;
-x_14 = x_20;
+x_13 = x_20;
+x_14 = x_45;
 x_15 = x_48;
 goto block_19;
 }
@@ -2193,8 +2193,8 @@ if (x_50 == 0)
 {
 lean_dec(x_47);
 lean_dec(x_46);
-x_13 = x_45;
-x_14 = x_20;
+x_13 = x_20;
+x_14 = x_45;
 x_15 = x_48;
 goto block_19;
 }
@@ -2206,8 +2206,8 @@ x_52 = lean_usize_of_nat(x_47);
 lean_dec(x_47);
 x_53 = l_Array_foldlMUnsafe_fold___at___Lean_Elab_Tactic_BVDecide_LRAT_trim_useAnalysis_go_spec__1(x_46, x_51, x_52, x_48);
 lean_dec(x_46);
-x_13 = x_45;
-x_14 = x_20;
+x_13 = x_20;
+x_14 = x_45;
 x_15 = x_53;
 goto block_19;
 }

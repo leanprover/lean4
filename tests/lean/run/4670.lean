@@ -16,9 +16,9 @@ error: Application type mismatch: In the application
 the argument
   true
 has type
-  Bool : Type
+  Bool
 but is expected to have type
-  Foo : Type
+  Foo
 ---
 info: sorry.out : Nat
 -/
@@ -34,9 +34,9 @@ error: Application type mismatch: In the application
 the argument
   true
 has type
-  Bool : Type
+  Bool
 but is expected to have type
-  Foo : Type
+  Foo
 ---
 info: sorry.out' : Nat
 -/

@@ -52,9 +52,9 @@ error: could not synthesize default value for parameter 'le' using tactics
 error: type mismatch
   a ≤ b
 has type
-  Prop : Type
+  Prop
 but is expected to have type
-  Bool : Type
+  Bool
 -/
 #guard_msgs in
 example : mergeSort [UndecidableLE.mk] = [UndecidableLE.mk] := sorry

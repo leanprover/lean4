@@ -190,16 +190,24 @@ def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
     throwError "invalid {declKind} declaration, term{indentExpr v}\nhas type{indentExpr vType}\nbut is expected to have type{indentExpr t}"
   | _ => unreachable!
 
+
 /--
-  Return error message "has type{givenType}\nbut is expected to have type{expectedType}"
+Return error message "has type{givenType}\nbut is expected to have type{expectedType}"
+Adds the type’s types unless they are defeq.
 -/
 def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr) : MetaM MessageData := do
   try
     let givenTypeType ← inferType givenType
     let expectedTypeType ← inferType expectedType
-    let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
-    let (givenTypeType, expectedTypeType) ← addPPExplicitToExposeDiff givenTypeType expectedTypeType
-    return m!"has type{indentD m!"{givenType} : {givenTypeType}"}\nbut is expected to have type{indentD m!"{expectedType} : {expectedTypeType}"}"
+    if (← isDefEqGuarded givenTypeType expectedTypeType) then
+      let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
+      return m!"has type{indentExpr givenType}\n\
+        but is expected to have type{indentExpr expectedType}"
+    else
+      let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
+      let (givenTypeType, expectedTypeType) ← addPPExplicitToExposeDiff givenTypeType expectedTypeType
+      return m!"has type{indentExpr givenType}\nof sort{inlineExpr givenTypeType}\
+        but is expected to have type{indentExpr expectedType}\nof sort{inlineExprTrailing expectedTypeType}"
   catch _ =>
     let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
     return m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}"

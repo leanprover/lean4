@@ -3,14 +3,14 @@
 the argument
   true
 has type
-  _root_.Bool : Type
+  _root_.Bool
 but is expected to have type
-  Bool : Type
+  Bool
 243.lean:13:7-13:8: error: Application type mismatch: In the application
   ⟨A, a⟩
 the argument
   a
 has type
-  Foo.A : Type
+  Foo.A
 but is expected to have type
-  A : Type
+  A

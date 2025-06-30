@@ -6843,8 +6843,8 @@ lean_object* x_17;
 x_17 = l_Lean_LocalContext_setUserName(x_2, x_16, x_14);
 x_1 = x_12;
 x_2 = x_17;
-x_3 = x_13;
-x_4 = x_15;
+x_3 = x_15;
+x_4 = x_13;
 goto _start;
 }
 block_27:
@@ -6861,9 +6861,9 @@ x_25 = l_Lean_NameSet_insert(x_3, x_21);
 x_26 = lean_ctor_get(x_20, 1);
 lean_inc(x_26);
 lean_dec(x_20);
-x_13 = x_25;
+x_13 = x_24;
 x_14 = x_23;
-x_15 = x_24;
+x_15 = x_25;
 x_16 = x_26;
 goto block_19;
 }
@@ -7047,8 +7047,8 @@ lean_dec(x_19);
 x_22 = lean_ctor_get(x_17, 1);
 lean_inc(x_22);
 lean_dec(x_17);
-x_10 = x_21;
-x_11 = x_18;
+x_10 = x_18;
+x_11 = x_21;
 x_12 = x_22;
 goto block_14;
 }
@@ -7057,13 +7057,13 @@ goto block_14;
 block_9:
 {
 uint8_t x_6; 
-x_6 = lean_name_eq(x_3, x_5);
+x_6 = lean_name_eq(x_4, x_5);
 lean_dec(x_5);
-lean_dec(x_3);
+lean_dec(x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; 
-lean_dec(x_4);
+lean_dec(x_3);
 x_7 = lean_box(0);
 return x_7;
 }
@@ -7071,18 +7071,18 @@ else
 {
 lean_object* x_8; 
 x_8 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_8, 0, x_4);
+lean_ctor_set(x_8, 0, x_3);
 return x_8;
 }
 }
 block_14:
 {
 lean_object* x_13; 
-x_13 = lean_ctor_get(x_10, 1);
+x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
-lean_dec(x_10);
-x_3 = x_12;
-x_4 = x_11;
+lean_dec(x_11);
+x_3 = x_10;
+x_4 = x_12;
 x_5 = x_13;
 goto block_9;
 }

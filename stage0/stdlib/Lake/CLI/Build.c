@@ -78,7 +78,6 @@ LEAN_EXPORT lean_object* l_Lake_mkConfigBuildSpec___boxed(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_resolveExeTarget___lam__0(uint8_t, lean_object*);
 static lean_object* l_Lake_resolveExternLibTarget___closed__2;
-LEAN_EXPORT lean_object* l_Lake_parseTargetSpec___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lake_mkBuildSpec(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_resolveLibTarget_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*);
 extern lean_object* l_Lake_Module_leanArtsFacet;
@@ -94,12 +93,10 @@ static lean_object* l_Lake_resolveDefaultPackageTarget___closed__0;
 static lean_object* l_Lake_resolveExternLibTarget___closed__0;
 LEAN_EXPORT lean_object* l_Lake_resolveConfigDeclTarget___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkConfigBuildSpec___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lake_mkConfigBuildSpec___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lake_parseTargetSpecs_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Lake_BuildKey_toSimpleString(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_parseExeTargetSpec___boxed__const__1;
 lean_object* l_Lake_Workspace_findPackageFacetConfig_x3f(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_resolvePackageTarget(lean_object*, lean_object*, lean_object*);
@@ -3876,15 +3873,6 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec___boxed__const__1() {
-_start:
-{
-uint32_t x_1; lean_object* x_2; 
-x_1 = 47;
-x_2 = lean_box_uint32(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, uint8_t x_5) {
 _start:
 {
@@ -4298,11 +4286,11 @@ block_26:
 {
 if (x_4 == 0)
 {
-lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-x_21 = l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec___boxed__const__1;
-x_22 = lean_alloc_ctor(19, 2, 0);
+uint32_t x_21; lean_object* x_22; lean_object* x_23; 
+x_21 = 47;
+x_22 = lean_alloc_ctor(19, 1, 4);
 lean_ctor_set(x_22, 0, x_2);
-lean_ctor_set(x_22, 1, x_21);
+lean_ctor_set_uint32(x_22, sizeof(void*)*1, x_21);
 x_23 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_23, 0, x_22);
 return x_23;
@@ -4942,15 +4930,6 @@ return x_130;
 }
 }
 }
-static lean_object* _init_l_Lake_parseExeTargetSpec___boxed__const__1() {
-_start:
-{
-uint32_t x_1; lean_object* x_2; 
-x_1 = 47;
-x_2 = lean_box_uint32(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_parseExeTargetSpec(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -5190,11 +5169,11 @@ return x_4;
 }
 block_9:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = l_Lake_parseExeTargetSpec___boxed__const__1;
-x_7 = lean_alloc_ctor(19, 2, 0);
+uint32_t x_6; lean_object* x_7; lean_object* x_8; 
+x_6 = 47;
+x_7 = lean_alloc_ctor(19, 1, 4);
 lean_ctor_set(x_7, 0, x_2);
-lean_ctor_set(x_7, 1, x_6);
+lean_ctor_set_uint32(x_7, sizeof(void*)*1, x_6);
 x_8 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
 return x_8;
@@ -5262,15 +5241,6 @@ x_1 = l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec___closed__1;
 x_2 = l_Lake_parseTargetSpec___closed__0;
 x_3 = lean_string_dec_eq(x_2, x_1);
 return x_3;
-}
-}
-static lean_object* _init_l_Lake_parseTargetSpec___boxed__const__1() {
-_start:
-{
-uint32_t x_1; lean_object* x_2; 
-x_1 = 58;
-x_2 = lean_box_uint32(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_parseTargetSpec(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -5351,11 +5321,11 @@ return x_6;
 }
 block_12:
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_9 = l_Lake_parseTargetSpec___boxed__const__1;
-x_10 = lean_alloc_ctor(19, 2, 0);
+uint32_t x_9; lean_object* x_10; lean_object* x_11; 
+x_9 = 58;
+x_10 = lean_alloc_ctor(19, 1, 4);
 lean_ctor_set(x_10, 0, x_2);
-lean_ctor_set(x_10, 1, x_9);
+lean_ctor_set_uint32(x_10, sizeof(void*)*1, x_9);
 x_11 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_8);
@@ -5605,21 +5575,15 @@ l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec___closed__4 = _init_l__
 lean_mark_persistent(l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec___closed__4);
 l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec___closed__5 = _init_l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec___closed__5();
 lean_mark_persistent(l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec___closed__5);
-l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec___boxed__const__1 = _init_l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec___boxed__const__1();
-lean_mark_persistent(l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec___boxed__const__1);
 l_Lake_resolveTargetBaseSpec___closed__0 = _init_l_Lake_resolveTargetBaseSpec___closed__0();
 lean_mark_persistent(l_Lake_resolveTargetBaseSpec___closed__0);
 l_Lake_resolveTargetBaseSpec___closed__1 = _init_l_Lake_resolveTargetBaseSpec___closed__1();
 lean_mark_persistent(l_Lake_resolveTargetBaseSpec___closed__1);
 l_Lake_resolveTargetBaseSpec___closed__2 = _init_l_Lake_resolveTargetBaseSpec___closed__2();
 lean_mark_persistent(l_Lake_resolveTargetBaseSpec___closed__2);
-l_Lake_parseExeTargetSpec___boxed__const__1 = _init_l_Lake_parseExeTargetSpec___boxed__const__1();
-lean_mark_persistent(l_Lake_parseExeTargetSpec___boxed__const__1);
 l_Lake_parseTargetSpec___closed__0 = _init_l_Lake_parseTargetSpec___closed__0();
 lean_mark_persistent(l_Lake_parseTargetSpec___closed__0);
 l_Lake_parseTargetSpec___closed__1 = _init_l_Lake_parseTargetSpec___closed__1();
-l_Lake_parseTargetSpec___boxed__const__1 = _init_l_Lake_parseTargetSpec___boxed__const__1();
-lean_mark_persistent(l_Lake_parseTargetSpec___boxed__const__1);
 l_Lake_parseTargetSpecs___closed__0 = _init_l_Lake_parseTargetSpecs___closed__0();
 lean_mark_persistent(l_Lake_parseTargetSpecs___closed__0);
 return lean_io_result_mk_ok(lean_box(0));

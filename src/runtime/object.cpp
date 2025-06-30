@@ -110,13 +110,17 @@ extern "C" LEAN_EXPORT void lean_set_panic_messages(bool flag) {
     g_panic_messages = flag;
 }
 
-static void panic_eprintln(char const * line, bool force_stderr) {
+static void panic_eprintln(char const * line, size_t size, bool force_stderr) {
     if (force_stderr || g_exit_on_panic || should_abort_on_panic()) {
         // If we are about to kill the process, we should skip the Lean stderr buffer
-        std::cerr << line << "\n";
+        std::cerr.write(line, size) << "\n";
     } else {
-        io_eprintln(lean_mk_string(line));
+        io_eprintln(lean_mk_string_from_bytes(line, size));
     }
+}
+
+static void panic_eprintln(char const * line, bool force_stderr) {
+    panic_eprintln(line, strlen(line), force_stderr);
 }
 
 static void print_backtrace(bool force_stderr) {
@@ -138,9 +142,9 @@ static void print_backtrace(bool force_stderr) {
 #endif
 }
 
-extern "C" LEAN_EXPORT void lean_panic(char const * msg, bool force_stderr = false) {
+extern "C" LEAN_EXPORT void lean_panic(char const * msg, size_t size, bool force_stderr = false) {
     if (g_panic_messages) {
-        panic_eprintln(msg, force_stderr);
+        panic_eprintln(msg, size, force_stderr);
 #if LEAN_SUPPORTS_BACKTRACE
         char * bt_env = getenv("LEAN_BACKTRACE");
         if (!bt_env || strcmp(bt_env, "0") != 0) {
@@ -157,7 +161,7 @@ extern "C" LEAN_EXPORT void lean_panic(char const * msg, bool force_stderr = fal
 }
 
 extern "C" LEAN_EXPORT object * lean_panic_fn(object * default_val, object * msg) {
-    lean_panic(lean_string_cstr(msg));
+    lean_panic(lean_string_cstr(msg), lean_string_size(msg) - 1);
     lean_dec(msg);
     return default_val;
 }

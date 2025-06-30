@@ -275,7 +275,7 @@ Examples:
  * `Option.le (fun n k : Nat => n < k) (some 5) (some 4) = False`
  * `Option.lt (fun n k : Nat => n < k) (some 4) (some 4) = False`
 -/
-def lt {α} (r : α → α → Prop) : Option α → Option α → Prop
+def lt {α} (r : α → β → Prop) : Option α → Option β → Prop
   | none, _ => False
   | some _, none => True
   | some x, some y => r x y
@@ -297,7 +297,7 @@ Examples:
  * `Option.le (fun n k : Nat => n < k) (some 5) (some 4) = False`
  * `Option.le (fun n k : Nat => n < k) (some 4) (some 4) = True`
 -/
-def le {α} (r : α → α → Prop) : Option α → Option α → Prop
+def le {α} (r : α → β → Prop) : Option α → Option β → Prop
   | none, none => True
   | none, some _ => False
   | some _, none => True

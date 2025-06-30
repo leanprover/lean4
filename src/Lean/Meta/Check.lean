@@ -190,7 +190,6 @@ def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
     throwError "invalid {declKind} declaration, term{indentExpr v}\nhas type{indentExpr vType}\nbut is expected to have type{indentExpr t}"
   | _ => unreachable!
 
-
 /--
 Return error message "has type{givenType}\nbut is expected to have type{expectedType}"
 Adds the type’s types unless they are defeq.

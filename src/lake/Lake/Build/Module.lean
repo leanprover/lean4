@@ -401,7 +401,7 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifacts) := d
       oleanServer? := if setup.isModule then some mod.oleanServerFile else none
       oleanPrivate? := if setup.isModule then some mod.oleanPrivateFile else none
       ilean? := mod.ileanFile
-      ir? := mod.irFile
+      ir? := if setup.isModule then some mod.irFile else none
       c? := mod.cFile
       bc? := if Lean.Internal.hasLLVMBackend () then some mod.bcFile else none
     }

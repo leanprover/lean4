@@ -262,6 +262,61 @@ def pr_exists_with_title(repo_url, title, github_token):
             return pr['number'], pr['html_url']
     return None
 
+def check_proofwidgets4_release(repo_url, target_toolchain, github_token):
+    """Check if ProofWidgets4 has a release tag that uses the target toolchain."""
+    api_base = repo_url.replace("https://github.com/", "https://api.github.com/repos/")
+    headers = {'Authorization': f'token {github_token}'} if github_token else {}
+    
+    # Get all tags matching v0.0.* pattern
+    response = requests.get(f"{api_base}/git/matching-refs/tags/v0.0.", headers=headers)
+    if response.status_code != 200:
+        print(f"  ❌ Could not fetch ProofWidgets4 tags")
+        return False
+    
+    tags = response.json()
+    if not tags:
+        print(f"  ❌ No v0.0.* tags found for ProofWidgets4")
+        return False
+    
+    # Extract tag names and sort by version number (descending)
+    tag_names = []
+    for tag in tags:
+        ref = tag['ref']
+        if ref.startswith('refs/tags/v0.0.'):
+            tag_name = ref.replace('refs/tags/', '')
+            try:
+                # Extract the number after v0.0.
+                version_num = int(tag_name.split('.')[-1])
+                tag_names.append((version_num, tag_name))
+            except (ValueError, IndexError):
+                continue
+    
+    if not tag_names:
+        print(f"  ❌ No valid v0.0.* tags found for ProofWidgets4")
+        return False
+    
+    # Sort by version number (descending) and take the most recent 10
+    tag_names.sort(reverse=True)
+    recent_tags = tag_names[:10]
+    
+    # Check each recent tag to see if it uses the target toolchain
+    for version_num, tag_name in recent_tags:
+        toolchain_content = get_branch_content(repo_url, tag_name, "lean-toolchain", github_token)
+        if toolchain_content is None:
+            continue
+        
+        if is_version_gte(toolchain_content.strip(), target_toolchain):
+            print(f"  ✅ Found release {tag_name} using compatible toolchain (>= {target_toolchain})")
+            return True
+    
+    # If we get here, no recent release uses the target toolchain
+    # Find the highest version number to suggest the next one
+    highest_version = max(version_num for version_num, _ in recent_tags)
+    next_version = highest_version + 1
+    print(f"  ❌ No recent ProofWidgets4 release uses toolchain >= {target_toolchain}")
+    print(f"     You will need to create and push a tag v0.0.{next_version}")
+    return False
+
 def main():
     parser = argparse.ArgumentParser(description="Check release status of Lean4 repositories")
     parser.add_argument("toolchain", help="The toolchain version to check (e.g., v4.6.0)")
@@ -385,6 +440,12 @@ def main():
             repo_status[name] = False
             continue
         print(f"  ✅ On compatible toolchain (>= {toolchain})")
+
+        # Special handling for ProofWidgets4
+        if name == "ProofWidgets4":
+            if not check_proofwidgets4_release(url, toolchain, github_token):
+                repo_status[name] = False
+                continue
 
         if check_tag:
             tag_exists_initially = tag_exists(url, toolchain, github_token)

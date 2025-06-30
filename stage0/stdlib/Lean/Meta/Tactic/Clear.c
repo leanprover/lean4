@@ -1349,14 +1349,14 @@ x_66 = lean_unsigned_to_nat(0u);
 x_67 = l_Array_findFinIdx_x3f_loop___redArg(x_4, x_63, x_66);
 if (lean_obj_tag(x_67) == 0)
 {
-x_10 = x_65;
-x_11 = x_57;
-x_12 = x_8;
-x_13 = x_5;
-x_14 = x_7;
-x_15 = x_6;
+x_10 = x_7;
+x_11 = x_6;
+x_12 = x_65;
+x_13 = x_64;
+x_14 = x_5;
+x_15 = x_57;
 x_16 = x_50;
-x_17 = x_64;
+x_17 = x_8;
 x_18 = x_63;
 goto block_32;
 }
@@ -1367,14 +1367,14 @@ x_68 = lean_ctor_get(x_67, 0);
 lean_inc(x_68);
 lean_dec(x_67);
 x_69 = l_Array_eraseIdx___redArg(x_63, x_68);
-x_10 = x_65;
-x_11 = x_57;
-x_12 = x_8;
-x_13 = x_5;
-x_14 = x_7;
-x_15 = x_6;
+x_10 = x_7;
+x_11 = x_6;
+x_12 = x_65;
+x_13 = x_64;
+x_14 = x_5;
+x_15 = x_57;
 x_16 = x_50;
-x_17 = x_64;
+x_17 = x_8;
 x_18 = x_69;
 goto block_32;
 }
@@ -1610,18 +1610,18 @@ lean_object* x_19; lean_object* x_20; uint8_t x_21; lean_object* x_22; lean_obje
 x_19 = lean_box(2);
 x_20 = lean_unsigned_to_nat(0u);
 x_21 = lean_unbox(x_19);
-x_22 = l_Lean_Meta_mkFreshExprMVarAt(x_10, x_18, x_11, x_21, x_16, x_20, x_13, x_15, x_14, x_12, x_17);
-lean_dec(x_12);
+x_22 = l_Lean_Meta_mkFreshExprMVarAt(x_12, x_18, x_15, x_21, x_16, x_20, x_14, x_11, x_10, x_17, x_13);
+lean_dec(x_17);
+lean_dec(x_10);
 lean_dec(x_14);
-lean_dec(x_13);
 x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);
 x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 lean_dec(x_22);
 lean_inc(x_23);
-x_25 = l_Lean_MVarId_assign___at___Lean_Meta_getLevel_spec__0___redArg(x_1, x_23, x_15, x_24);
-lean_dec(x_15);
+x_25 = l_Lean_MVarId_assign___at___Lean_Meta_getLevel_spec__0___redArg(x_1, x_23, x_11, x_24);
+lean_dec(x_11);
 x_26 = !lean_is_exclusive(x_25);
 if (x_26 == 0)
 {

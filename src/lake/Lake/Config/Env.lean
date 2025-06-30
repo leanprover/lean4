@@ -39,7 +39,9 @@ structure Env where
   Can be overridden on a per-command basis with`--try-cache`.
   -/
   noCache : Bool
-  /-- The directory of the Lake cache. If `none`, the cache is disabled. -/
+  /-- Whether the Lake artifact cache should be enabled by default (i.e., `LAKE_ARTIFACT_CACHE`). -/
+  enableArtifactCache : Bool
+  /-- The directory of the Lake cache. Set by `LAKE_CACHE_DIR`. If `none`, the cache is disabled. -/
   lakeCache : Cache
   /-- The initial Elan toolchain of the environment (i.e., `ELAN_TOOLCHAIN`). -/
   initToolchain : String
@@ -72,16 +74,31 @@ def getUserHome? : BaseIO (Option FilePath) := do
   else
     return none
 
-/-- Returns the system directory that can be used to store the Lake artifact cache. -/
+/-- Returns the system directory that can be used to store caches (if one exists). -/
 def getSystemCacheHome? : BaseIO (Option FilePath) := do
   if let some cacheHome ← IO.getEnv "XDG_CACHE_HOME" then
-    return FilePath.mk cacheHome / "lake"
+    return FilePath.mk cacheHome
   else if let some userHome ← getUserHome? then
-    return userHome / ".cache" / "lake"
+    return userHome / ".cache"
   else
     return none
 
 namespace Env
+
+/-- Compute the Lean toolchain string used by Lake from the process environment. -/
+def computeToolchain : BaseIO String := do
+  return (← IO.getEnv "ELAN_TOOLCHAIN").getD Lean.toolchain
+
+/-- Compute the cache location used by Lake from the process environment. May be disabled. -/
+def computeCache (elan? : Option ElanInstall) (toolchain : String) : BaseIO Cache := do
+  if let some cacheDir ← IO.getEnv "LAKE_CACHE_DIR" then
+    return ⟨cacheDir⟩
+  else if let some elan := elan? then
+    return ⟨elan.toolchainDir toolchain / "lake" / "cache"⟩
+  else if let some cacheHome ← getSystemCacheHome? then
+    return ⟨cacheHome / "lake"⟩
+  else
+    return ⟨""⟩
 
 /--
 Compute a `Lake.Env` object from the given installs
@@ -92,14 +109,16 @@ def compute
   (noCache : Option Bool := none)
 : EIO String Env := do
   let reservoirBaseUrl ← getUrlD "RESERVOIR_API_BASE_URL" "https://reservoir.lean-lang.org/api"
-  let initToolchain := (← IO.getEnv "ELAN_TOOLCHAIN").getD ""
-  let toolchain := if initToolchain.isEmpty then Lean.toolchain else initToolchain
+  let elanToolchain? ← IO.getEnv "ELAN_TOOLCHAIN"
+  let initToolchain := elanToolchain?.getD ""
+  let toolchain := elanToolchain?.getD Lean.toolchain
   return {
     lake, lean, elan?,
     pkgUrlMap := ← computePkgUrlMap
     reservoirApiUrl := ← getUrlD "RESERVOIR_API_URL" s!"{reservoirBaseUrl}/v1"
     noCache := (noCache <|> (← IO.getEnv "LAKE_NO_CACHE").bind envToBool?).getD false
-    lakeCache := ← getCache? toolchain
+    enableArtifactCache := (← IO.getEnv "LAKE_ARTIFACT_CACHE").bind envToBool? |>.getD false
+    lakeCache := ← computeCache elan? toolchain
     githashOverride := (← IO.getEnv "LEAN_GITHASH").getD ""
     toolchain
     initToolchain
@@ -109,15 +128,6 @@ def compute
     initPath := ← getSearchPath "PATH"
   }
 where
-  getCache? toolchain := do
-    if let some cacheDir ← IO.getEnv "LAKE_CACHE_DIR" then
-      return ⟨cacheDir⟩
-    else if let some elan := elan? then
-      return ⟨elan.toolchainDir toolchain / "lake" / "cache"⟩
-    else if let some cacheHome ← getSystemCacheHome? then
-      return ⟨cacheHome⟩
-    else
-      return ⟨""⟩
   computePkgUrlMap := do
     let some urlMapStr ← IO.getEnv "LAKE_PKG_URL_MAP" | return {}
     match Json.parse urlMapStr |>.bind fromJson? with
@@ -186,7 +196,6 @@ def noToolchainVars : Array (String × Option String) :=
     ("LAKE", none),
     ("LAKE_OVERRIDE_LEAN", none),
     ("LAKE_HOME", none),
-    ("LAKE_CACHE_DIR", none),
     ("LEAN", none),
     ("LEAN_GITHASH", none),
     ("LEAN_SYSROOT", none),
@@ -202,6 +211,8 @@ def baseVars (env : Env) : Array (String × Option String)  :=
     ("LAKE", env.lake.lake.toString),
     ("LAKE_HOME", env.lake.home.toString),
     ("LAKE_PKG_URL_MAP", toJson env.pkgUrlMap |>.compress),
+    ("LAKE_NO_CACHE", toString env.noCache),
+    ("LAKE_ARTIFACT_CACHE", toString env.enableArtifactCache),
     ("LAKE_CACHE_DIR", if env.lakeCache.isDisabled then none else env.lakeCache.dir.toString),
     ("LEAN", env.lean.lean.toString),
     ("LEAN_GITHASH", env.leanGithash),

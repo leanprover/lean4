@@ -8,9 +8,23 @@ source ../common.sh
 TEST_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 CACHE_DIR="$TEST_DIR/.lake/cache"
 
-# Ensure packages without `enableArtifactCache` do not use the cache
-LAKE_CACHE_DIR="$CACHE_DIR" test_run build -f disabled.toml Test:static
+# Verify packages without `enableArtifactCache` do not use the cache by default
+LAKE_CACHE_DIR="$CACHE_DIR" test_run build -f unset.toml Test:static
 test_exp ! -d "$CACHE_DIR"
+# Verify they also do not if `LAKE_ARTIFACT_CACHE` is set to `false`
+LAKE_CACHE_DIR="$CACHE_DIR" LAKE_ARTIFACT_CACHE=false \
+  test_run build -f unset.toml Test:static
+test_exp ! -d "$CACHE_DIR"
+# Verify packages with `enableArtifactCache` set to `false``
+# also do not if `LAKE_ARTIFACT_CACHE` is set to `true`
+LAKE_CACHE_DIR="$CACHE_DIR" LAKE_ARTIFACT_CACHE=true \
+  test_run build -f disabled.toml Test:static
+test_exp ! -d "$CACHE_DIR"
+# Verify that packages without `enableArtifactCache` and
+# `LAKE_ARTIFACT_CACHE` is set to `true` do use the cache
+LAKE_CACHE_DIR="$CACHE_DIR" LAKE_ARTIFACT_CACHE=true \
+  test_run build -f unset.toml Test:static
+test_exp -d "$CACHE_DIR"
 ./clean.sh
 
 # Ensure a build runs properly with some artifacts cached
@@ -63,6 +77,19 @@ test_cached +Test:c
 # Verify no `.hash` files end up in the cache directory
 check_diff /dev/null <(ls -1 "$CACHE_DIR/*.hash" 2>/dev/null)
 
+# Verify that the executable has the right permissions to be run
+LAKE_CACHE_DIR="$CACHE_DIR" test_run exe test
+
+# Verify that fetching from the cache creates a trace file that does not replay
+touch Ignored.lean
+LAKE_CACHE_DIR="$CACHE_DIR" test_out "Fetched Ignored" -v build +Ignored
+test_exp -f .lake/build/lib/lean/Ignored.trace
+LAKE_CACHE_DIR="$CACHE_DIR" test_out "Fetched Ignored" -v build +Ignored
+
+# Verify that modifications invalidate the cache
+echo "def foo := ()" > Ignored.lean
+LAKE_CACHE_DIR="$CACHE_DIR" test_out "Built Ignored" -v build +Ignored
+
 # Verify module oleans and ileans are restored from the cache
 LAKE_CACHE_DIR="$CACHE_DIR" test_run build +Test --no-build
 test_cmd rm .lake/build/lib/lean/Test.olean .lake/build/lib/lean/Test.ilean
@@ -94,4 +121,4 @@ test_cmd rm "$CACHE_DIR/inputs/test.jsonl" .lake/build/ir/Test.c
 LAKE_CACHE_DIR="$CACHE_DIR" test_run -v build +Test:c --no-build
 
 # Cleanup
-rm -f produced.out
+rm -f produced.out Ignored.lean

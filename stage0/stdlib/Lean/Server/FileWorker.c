@@ -7234,14 +7234,14 @@ block_62:
 {
 lean_object* x_59; lean_object* x_60; lean_object* x_61; 
 x_59 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_59, 0, x_56);
+lean_ctor_set(x_59, 0, x_55);
 lean_ctor_set(x_59, 1, x_58);
 lean_inc(x_3);
 x_60 = l_Std_Channel_send___redArg(x_3, x_59, x_57);
 x_61 = lean_ctor_get(x_60, 1);
 lean_inc(x_61);
 lean_dec(x_60);
-x_39 = x_55;
+x_39 = x_56;
 x_40 = x_61;
 goto block_46;
 }
@@ -7359,8 +7359,8 @@ if (lean_obj_tag(x_104) == 0)
 lean_object* x_105; 
 lean_dec(x_104);
 x_105 = lean_box(0);
-x_55 = x_84;
-x_56 = x_102;
+x_55 = x_102;
+x_56 = x_84;
 x_57 = x_98;
 x_58 = x_105;
 goto block_62;
@@ -7371,8 +7371,8 @@ uint8_t x_106;
 x_106 = !lean_is_exclusive(x_104);
 if (x_106 == 0)
 {
-x_55 = x_84;
-x_56 = x_102;
+x_55 = x_102;
+x_56 = x_84;
 x_57 = x_98;
 x_58 = x_104;
 goto block_62;
@@ -7385,8 +7385,8 @@ lean_inc(x_107);
 lean_dec(x_104);
 x_108 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_108, 0, x_107);
-x_55 = x_84;
-x_56 = x_102;
+x_55 = x_102;
+x_56 = x_84;
 x_57 = x_98;
 x_58 = x_108;
 goto block_62;

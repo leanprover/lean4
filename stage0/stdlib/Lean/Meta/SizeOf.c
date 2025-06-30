@@ -12452,11 +12452,11 @@ x_28 = lean_ctor_get(x_17, 4);
 lean_inc(x_28);
 lean_dec(x_17);
 x_29 = lean_alloc_closure((void*)(l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof___lam__3___boxed), 13, 5);
-lean_closure_set(x_29, 0, x_13);
+lean_closure_set(x_29, 0, x_14);
 lean_closure_set(x_29, 1, x_24);
-lean_closure_set(x_29, 2, x_15);
+lean_closure_set(x_29, 2, x_13);
 lean_closure_set(x_29, 3, x_12);
-lean_closure_set(x_29, 4, x_14);
+lean_closure_set(x_29, 4, x_15);
 x_30 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_30, 0, x_28);
 x_31 = lean_box(0);
@@ -12565,9 +12565,9 @@ if (x_74 == 0)
 {
 lean_dec(x_10);
 lean_inc(x_58);
-x_13 = x_66;
-x_14 = x_63;
-x_15 = x_58;
+x_13 = x_58;
+x_14 = x_66;
+x_15 = x_63;
 x_16 = x_70;
 x_17 = x_58;
 x_18 = x_59;
@@ -12580,9 +12580,9 @@ else
 {
 lean_dec(x_73);
 lean_inc(x_58);
-x_13 = x_66;
-x_14 = x_63;
-x_15 = x_58;
+x_13 = x_58;
+x_14 = x_66;
+x_15 = x_63;
 x_16 = x_70;
 x_17 = x_58;
 x_18 = x_59;
@@ -12627,9 +12627,9 @@ if (x_89 == 0)
 {
 lean_dec(x_10);
 lean_inc(x_58);
-x_13 = x_80;
-x_14 = x_77;
-x_15 = x_58;
+x_13 = x_58;
+x_14 = x_80;
+x_15 = x_77;
 x_16 = x_84;
 x_17 = x_58;
 x_18 = x_59;
@@ -12642,9 +12642,9 @@ else
 {
 lean_dec(x_88);
 lean_inc(x_58);
-x_13 = x_80;
-x_14 = x_77;
-x_15 = x_58;
+x_13 = x_58;
+x_14 = x_80;
+x_15 = x_77;
 x_16 = x_84;
 x_17 = x_58;
 x_18 = x_59;

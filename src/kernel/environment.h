@@ -74,13 +74,13 @@ class LEAN_EXPORT environment : public object_ref {
     environment add_inductive(declaration const & d) const;
 public:
     environment(environment const & other):object_ref(other) {}
-    environment(environment && other):object_ref(other) {}
+    environment(environment && other):object_ref(std::move(other)) {}
     explicit environment(b_obj_arg o, bool b):object_ref(o, b) {}
     explicit environment(obj_arg o):object_ref(o) {}
     ~environment() {}
 
     environment & operator=(environment const & other) { object_ref::operator=(other); return *this; }
-    environment & operator=(environment && other) { object_ref::operator=(other); return *this; }
+    environment & operator=(environment && other) { object_ref::operator=(std::move(other)); return *this; }
 
     diagnostics get_diag() const;
     environment set_diag(diagnostics const & diag) const;

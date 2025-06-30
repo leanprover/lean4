@@ -375,13 +375,19 @@ Fetch its dependencies and then elaborate the Lean source file, producing
 all possible artifacts (e.g., `.olean`, `.ilean`, `.c`, `.bc`).
 -/
 def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifacts) := do
+  /-
+  Remark: `withRegisterJob` must register `setupJob` to display module builds
+  in the job monitor. However, it must also include the fetching of both jobs to
+  ensure all logs end up under its caption in the job monitor.
+  -/
+  withRegisterJob mod.name.toString do
   let setupJob ← mod.setup.fetch
   let leanJob ← mod.lean.fetch
-  leanJob.bindM (sync := true) fun srcFile => do
-  let srcTrace ← getTrace
-  withRegisterJob mod.name.toString do
   setupJob.mapM fun setup => do
     addLeanTrace
+    let srcFile ← leanJob.await
+    let srcTrace := leanJob.getTrace
+    addTrace srcTrace
     addTrace <| traceOptions setup.options "options"
     addPureTrace mod.leanArgs "Module.leanArgs"
     setTraceCaption s!"{mod.name.toString}:leanArts"

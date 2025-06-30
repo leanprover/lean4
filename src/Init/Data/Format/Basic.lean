@@ -425,6 +425,10 @@ expectation that the resulting string is valid code.
 The `Repr` class is similar, but the expectation is that instances produce valid Lean code.
 -/
 class ToFormat (α : Type u) where
+  /--
+  Converts a value to a `Format` object, with no expectation that the resulting string is valid
+  code.
+  -/
   format : α → Format
 
 export ToFormat (format)

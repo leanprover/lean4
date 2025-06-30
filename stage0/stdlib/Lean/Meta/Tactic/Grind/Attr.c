@@ -3474,8 +3474,8 @@ if (x_1 == 0)
 lean_object* x_21; lean_object* x_22; 
 x_21 = l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_Grind_registerGrindAttr___closed__18;
 x_22 = l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_Grind_registerGrindAttr___closed__19;
-x_8 = x_21;
-x_9 = x_20;
+x_8 = x_20;
+x_9 = x_21;
 x_10 = x_22;
 goto block_18;
 }
@@ -3484,8 +3484,8 @@ else
 lean_object* x_23; lean_object* x_24; 
 x_23 = l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_Grind_registerGrindAttr___closed__21;
 x_24 = l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_Grind_registerGrindAttr___closed__22;
-x_8 = x_23;
-x_9 = x_20;
+x_8 = x_20;
+x_9 = x_23;
 x_10 = x_24;
 goto block_18;
 }
@@ -3497,14 +3497,14 @@ x_12 = lean_string_append(x_10, x_11);
 x_13 = lean_box(1);
 x_14 = lean_alloc_ctor(0, 3, 1);
 lean_ctor_set(x_14, 0, x_4);
-lean_ctor_set(x_14, 1, x_8);
+lean_ctor_set(x_14, 1, x_9);
 lean_ctor_set(x_14, 2, x_12);
 x_15 = lean_unbox(x_13);
 lean_ctor_set_uint8(x_14, sizeof(void*)*3, x_15);
 x_16 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_7);
-lean_ctor_set(x_16, 2, x_9);
+lean_ctor_set(x_16, 2, x_8);
 x_17 = l_Lean_registerBuiltinAttribute(x_16, x_2);
 return x_17;
 }

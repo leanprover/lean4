@@ -2400,15 +2400,15 @@ x_26 = lean_nat_dec_le(x_20, x_25);
 if (x_26 == 0)
 {
 lean_inc(x_25);
-x_6 = x_22;
-x_7 = x_25;
+x_6 = x_25;
+x_7 = x_22;
 x_8 = x_25;
 goto block_12;
 }
 else
 {
-x_6 = x_22;
-x_7 = x_25;
+x_6 = x_25;
+x_7 = x_22;
 x_8 = x_20;
 goto block_12;
 }
@@ -2614,21 +2614,21 @@ return x_4;
 block_12:
 {
 uint8_t x_9; 
-x_9 = lean_nat_dec_le(x_8, x_7);
+x_9 = lean_nat_dec_le(x_8, x_6);
 if (x_9 == 0)
 {
 lean_object* x_10; 
-lean_dec(x_7);
+lean_dec(x_6);
 lean_inc(x_8);
-x_10 = l_Array_qsort_sort___at___Lean_mkTagDeclarationExtension_spec__0___redArg(x_6, x_8, x_8);
+x_10 = l_Array_qsort_sort___at___Lean_mkTagDeclarationExtension_spec__0___redArg(x_7, x_8, x_8);
 lean_dec(x_8);
 return x_10;
 }
 else
 {
 lean_object* x_11; 
-x_11 = l_Array_qsort_sort___at___Lean_mkTagDeclarationExtension_spec__0___redArg(x_6, x_8, x_7);
-lean_dec(x_7);
+x_11 = l_Array_qsort_sort___at___Lean_mkTagDeclarationExtension_spec__0___redArg(x_7, x_8, x_6);
+lean_dec(x_6);
 return x_11;
 }
 }

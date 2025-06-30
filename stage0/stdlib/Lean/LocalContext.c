@@ -6840,11 +6840,11 @@ goto block_44;
 block_19:
 {
 lean_object* x_17; 
-x_17 = l_Lean_LocalContext_setUserName(x_2, x_16, x_15);
+x_17 = l_Lean_LocalContext_setUserName(x_2, x_16, x_14);
 x_1 = x_12;
 x_2 = x_17;
-x_3 = x_14;
-x_4 = x_13;
+x_3 = x_13;
+x_4 = x_15;
 goto _start;
 }
 block_27:
@@ -6861,9 +6861,9 @@ x_25 = l_Lean_NameSet_insert(x_3, x_21);
 x_26 = lean_ctor_get(x_20, 1);
 lean_inc(x_26);
 lean_dec(x_20);
-x_13 = x_24;
-x_14 = x_25;
-x_15 = x_23;
+x_13 = x_25;
+x_14 = x_23;
+x_15 = x_24;
 x_16 = x_26;
 goto block_19;
 }

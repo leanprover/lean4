@@ -62,7 +62,6 @@ size_t lean_array_size(lean_object*);
 static lean_object* l_Lake_ModuleOutputHashes_fromJson_x3f___closed__9;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-static lean_object* l_Lake_ModuleOutputHashes_fromJson_x3f___closed__12;
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ModuleOutputHashes_toJson(lean_object*);
@@ -190,7 +189,7 @@ static lean_object* _init_l_Lake_ModuleOutputHashes_toJson___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("bc", 2, 2);
+x_1 = lean_mk_string_unchecked("b", 1, 1);
 return x_1;
 }
 }
@@ -565,14 +564,6 @@ static lean_object* _init_l_Lake_ModuleOutputHashes_fromJson_x3f___closed__11() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("b", 1, 1);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_ModuleOutputHashes_fromJson_x3f___closed__12() {
-_start:
-{
-lean_object* x_1; 
 x_1 = lean_mk_string_unchecked("b: ", 3, 3);
 return x_1;
 }
@@ -833,7 +824,7 @@ if (lean_is_exclusive(x_48)) {
 x_59 = lean_array_fget(x_23, x_24);
 x_60 = lean_unbox_uint64(x_59);
 lean_dec(x_59);
-x_87 = l_Lake_ModuleOutputHashes_fromJson_x3f___closed__11;
+x_87 = l_Lake_ModuleOutputHashes_toJson___closed__3;
 x_88 = l_Lean_RBNode_find___at_____private_Lean_Data_Json_Basic_0__Lean_Json_beq_x27_spec__1___redArg(x_6, x_87);
 lean_dec(x_6);
 if (lean_obj_tag(x_88) == 0)
@@ -865,7 +856,7 @@ if (x_92 == 0)
 {
 lean_object* x_93; lean_object* x_94; lean_object* x_95; 
 x_93 = lean_ctor_get(x_91, 0);
-x_94 = l_Lake_ModuleOutputHashes_fromJson_x3f___closed__12;
+x_94 = l_Lake_ModuleOutputHashes_fromJson_x3f___closed__11;
 x_95 = lean_string_append(x_94, x_93);
 lean_dec(x_93);
 lean_ctor_set(x_91, 0, x_95);
@@ -877,7 +868,7 @@ lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99;
 x_96 = lean_ctor_get(x_91, 0);
 lean_inc(x_96);
 lean_dec(x_91);
-x_97 = l_Lake_ModuleOutputHashes_fromJson_x3f___closed__12;
+x_97 = l_Lake_ModuleOutputHashes_fromJson_x3f___closed__11;
 x_98 = lean_string_append(x_97, x_96);
 lean_dec(x_96);
 x_99 = lean_alloc_ctor(0, 1, 0);
@@ -1314,8 +1305,6 @@ l_Lake_ModuleOutputHashes_fromJson_x3f___closed__10 = _init_l_Lake_ModuleOutputH
 lean_mark_persistent(l_Lake_ModuleOutputHashes_fromJson_x3f___closed__10);
 l_Lake_ModuleOutputHashes_fromJson_x3f___closed__11 = _init_l_Lake_ModuleOutputHashes_fromJson_x3f___closed__11();
 lean_mark_persistent(l_Lake_ModuleOutputHashes_fromJson_x3f___closed__11);
-l_Lake_ModuleOutputHashes_fromJson_x3f___closed__12 = _init_l_Lake_ModuleOutputHashes_fromJson_x3f___closed__12();
-lean_mark_persistent(l_Lake_ModuleOutputHashes_fromJson_x3f___closed__12);
 l_Lake_instFromJsonModuleOutputHashes___closed__0 = _init_l_Lake_instFromJsonModuleOutputHashes___closed__0();
 lean_mark_persistent(l_Lake_instFromJsonModuleOutputHashes___closed__0);
 l_Lake_instFromJsonModuleOutputHashes = _init_l_Lake_instFromJsonModuleOutputHashes();

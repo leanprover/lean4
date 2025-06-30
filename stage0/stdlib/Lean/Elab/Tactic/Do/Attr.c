@@ -6415,17 +6415,17 @@ if (x_83 == 0)
 {
 uint8_t x_84; 
 x_84 = l_Lean_Exception_isRuntime(x_81);
-x_36 = x_81;
-x_37 = x_82;
-x_38 = x_80;
+x_36 = x_82;
+x_37 = x_80;
+x_38 = x_81;
 x_39 = x_84;
 goto block_66;
 }
 else
 {
-x_36 = x_81;
-x_37 = x_82;
-x_38 = x_80;
+x_36 = x_82;
+x_37 = x_80;
+x_38 = x_81;
 x_39 = x_83;
 goto block_66;
 }
@@ -6531,17 +6531,17 @@ if (x_107 == 0)
 {
 uint8_t x_108; 
 x_108 = l_Lean_Exception_isRuntime(x_105);
-x_36 = x_105;
-x_37 = x_106;
-x_38 = x_104;
+x_36 = x_106;
+x_37 = x_104;
+x_38 = x_105;
 x_39 = x_108;
 goto block_66;
 }
 else
 {
-x_36 = x_105;
-x_37 = x_106;
-x_38 = x_104;
+x_36 = x_106;
+x_37 = x_104;
+x_38 = x_105;
 x_39 = x_107;
 goto block_66;
 }
@@ -6651,11 +6651,11 @@ block_66:
 if (x_39 == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; 
-lean_dec(x_38);
+lean_dec(x_37);
 x_40 = l_Lean_Elab_Tactic_Do_SpecAttr_initFn___closed__3____x40_Lean_Elab_Tactic_Do_Attr___hyg_4_;
 x_41 = l_Lean_Name_mkStr4(x_2, x_3, x_4, x_40);
 lean_inc(x_41);
-x_42 = l_Lean_isTracingEnabledFor___at___Lean_Meta_processPostponed_loop_spec__0___redArg(x_41, x_9, x_37);
+x_42 = l_Lean_isTracingEnabledFor___at___Lean_Meta_processPostponed_loop_spec__0___redArg(x_41, x_9, x_36);
 x_43 = lean_ctor_get(x_42, 0);
 lean_inc(x_43);
 x_44 = lean_unbox(x_43);
@@ -6664,7 +6664,7 @@ if (x_44 == 0)
 {
 lean_object* x_45; lean_object* x_46; 
 lean_dec(x_41);
-lean_dec(x_36);
+lean_dec(x_38);
 lean_dec(x_16);
 x_45 = lean_ctor_get(x_42, 1);
 lean_inc(x_45);
@@ -6685,7 +6685,7 @@ x_48 = lean_ctor_get(x_42, 1);
 x_49 = lean_ctor_get(x_42, 0);
 lean_dec(x_49);
 x_50 = l_Lean_Elab_Tactic_Do_SpecAttr_mkSpecAttr___lam__2___closed__28;
-x_51 = l_Lean_Exception_toMessageData(x_36);
+x_51 = l_Lean_Exception_toMessageData(x_38);
 lean_ctor_set_tag(x_42, 7);
 lean_ctor_set(x_42, 1, x_51);
 lean_ctor_set(x_42, 0, x_50);
@@ -6714,7 +6714,7 @@ x_57 = lean_ctor_get(x_42, 1);
 lean_inc(x_57);
 lean_dec(x_42);
 x_58 = l_Lean_Elab_Tactic_Do_SpecAttr_mkSpecAttr___lam__2___closed__28;
-x_59 = l_Lean_Exception_toMessageData(x_36);
+x_59 = l_Lean_Exception_toMessageData(x_38);
 x_60 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_60, 0, x_58);
 lean_ctor_set(x_60, 1, x_59);
@@ -6740,7 +6740,7 @@ goto block_35;
 }
 else
 {
-lean_dec(x_37);
+lean_dec(x_38);
 lean_dec(x_36);
 lean_dec(x_16);
 lean_dec(x_10);
@@ -6749,7 +6749,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_28 = x_38;
+x_28 = x_37;
 goto block_35;
 }
 }

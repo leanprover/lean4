@@ -5133,7 +5133,7 @@ return x_27;
 block_39:
 {
 uint8_t x_34; 
-x_34 = lean_nat_dec_lt(x_30, x_33);
+x_34 = lean_nat_dec_lt(x_32, x_33);
 if (x_34 == 0)
 {
 lean_dec(x_33);
@@ -5148,11 +5148,11 @@ goto block_28;
 else
 {
 size_t x_35; size_t x_36; lean_object* x_37; uint8_t x_38; 
-x_35 = lean_usize_of_nat(x_30);
-lean_dec(x_30);
+x_35 = lean_usize_of_nat(x_32);
+lean_dec(x_32);
 x_36 = lean_usize_of_nat(x_33);
 lean_dec(x_33);
-x_37 = l_Array_anyMUnsafe_any___redArg(x_32, x_29, x_31, x_35, x_36);
+x_37 = l_Array_anyMUnsafe_any___redArg(x_30, x_29, x_31, x_35, x_36);
 x_38 = lean_unbox(x_37);
 lean_dec(x_37);
 if (x_38 == 0)
@@ -5201,9 +5201,9 @@ if (x_50 == 0)
 {
 lean_dec(x_47);
 x_29 = x_40;
-x_30 = x_46;
+x_30 = x_44;
 x_31 = x_45;
-x_32 = x_44;
+x_32 = x_46;
 x_33 = x_49;
 goto block_39;
 }
@@ -5211,9 +5211,9 @@ else
 {
 lean_dec(x_49);
 x_29 = x_40;
-x_30 = x_46;
+x_30 = x_44;
 x_31 = x_45;
-x_32 = x_44;
+x_32 = x_46;
 x_33 = x_47;
 goto block_39;
 }
@@ -5307,7 +5307,7 @@ x_73 = lean_usize_of_nat(x_68);
 lean_dec(x_68);
 x_74 = lean_usize_of_nat(x_71);
 lean_dec(x_71);
-x_75 = l_Array_anyMUnsafe_any___redArg(x_67, x_66, x_69, x_73, x_74);
+x_75 = l_Array_anyMUnsafe_any___redArg(x_69, x_66, x_67, x_73, x_74);
 x_76 = lean_unbox(x_75);
 lean_dec(x_75);
 if (x_76 == 0)
@@ -5363,9 +5363,9 @@ x_89 = lean_nat_dec_le(x_84, x_88);
 if (x_89 == 0)
 {
 lean_dec(x_84);
-x_67 = x_81;
+x_67 = x_82;
 x_68 = x_83;
-x_69 = x_82;
+x_69 = x_81;
 x_70 = x_85;
 x_71 = x_88;
 goto block_77;
@@ -5373,9 +5373,9 @@ goto block_77;
 else
 {
 lean_dec(x_88);
-x_67 = x_81;
+x_67 = x_82;
 x_68 = x_83;
-x_69 = x_82;
+x_69 = x_81;
 x_70 = x_85;
 x_71 = x_84;
 goto block_77;
@@ -6263,7 +6263,7 @@ return x_37;
 block_44:
 {
 lean_object* x_43; 
-x_43 = l_Array_qsort_sort___redArg(x_40, x_41, x_39, x_42);
+x_43 = l_Array_qsort_sort___redArg(x_41, x_40, x_39, x_42);
 lean_dec(x_42);
 x_25 = x_43;
 goto block_38;
@@ -6313,16 +6313,16 @@ if (x_61 == 0)
 lean_dec(x_1);
 lean_inc(x_60);
 x_45 = x_60;
-x_46 = x_58;
-x_47 = x_55;
+x_46 = x_55;
+x_47 = x_58;
 x_48 = x_60;
 goto block_50;
 }
 else
 {
 x_45 = x_60;
-x_46 = x_58;
-x_47 = x_55;
+x_46 = x_55;
+x_47 = x_58;
 x_48 = x_1;
 goto block_50;
 }

@@ -2130,7 +2130,7 @@ lean_inc(x_3);
 x_42 = l_Lean_withTraceNode___at___Lean_Core_wrapAsyncAsSnapshot_spec__18___redArg(x_12, x_9, x_11, x_41, x_40, x_3, x_4, x_8);
 if (lean_obj_tag(x_42) == 0)
 {
-lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; uint8_t x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_60; lean_object* x_61; uint8_t x_62; 
+lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; uint8_t x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_60; lean_object* x_61; uint8_t x_62; 
 x_43 = lean_ctor_get(x_42, 0);
 lean_inc(x_43);
 x_44 = lean_ctor_get(x_42, 1);
@@ -2152,9 +2152,9 @@ x_62 = lean_unbox(x_46);
 lean_dec(x_46);
 if (x_62 == 0)
 {
-x_49 = x_61;
-x_50 = x_43;
-x_51 = x_2;
+x_49 = x_43;
+x_50 = x_2;
+x_51 = x_61;
 x_52 = x_3;
 x_53 = x_4;
 x_54 = x_47;
@@ -2177,9 +2177,9 @@ x_71 = l_Lean_addTrace___at___Lean_PrettyPrinter_format_spec__0(x_12, x_70, x_3,
 x_72 = lean_ctor_get(x_71, 1);
 lean_inc(x_72);
 lean_dec(x_71);
-x_49 = x_61;
-x_50 = x_43;
-x_51 = x_2;
+x_49 = x_43;
+x_50 = x_2;
+x_51 = x_61;
 x_52 = x_3;
 x_53 = x_4;
 x_54 = x_72;
@@ -2187,11 +2187,11 @@ goto block_59;
 }
 block_59:
 {
-if (x_51 == 0)
+if (x_50 == 0)
 {
-lean_dec(x_49);
+lean_dec(x_51);
 lean_dec(x_48);
-x_13 = x_50;
+x_13 = x_49;
 x_14 = x_52;
 x_15 = x_53;
 x_16 = x_54;
@@ -2200,11 +2200,11 @@ goto block_38;
 else
 {
 uint8_t x_55; lean_object* x_56; 
-lean_dec(x_50);
+lean_dec(x_49);
 x_55 = lean_unbox(x_39);
 lean_inc(x_53);
 lean_inc(x_52);
-x_56 = l_Lean_withTraceNode___at___Lean_Core_wrapAsyncAsSnapshot_spec__18___redArg(x_12, x_48, x_49, x_55, x_40, x_52, x_53, x_54);
+x_56 = l_Lean_withTraceNode___at___Lean_Core_wrapAsyncAsSnapshot_spec__18___redArg(x_12, x_48, x_51, x_55, x_40, x_52, x_53, x_54);
 if (lean_obj_tag(x_56) == 0)
 {
 lean_object* x_57; lean_object* x_58; 

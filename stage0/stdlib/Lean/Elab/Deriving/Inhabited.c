@@ -5599,15 +5599,15 @@ x_49 = l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstance
 x_50 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_50, 0, x_48);
 lean_ctor_set(x_50, 1, x_49);
-x_51 = l_Lean_addTrace___at___Lean_Elab_Term_traceAtCmdPos_spec__1___redArg(x_33, x_50, x_40, x_35, x_38, x_34, x_39);
+x_51 = l_Lean_addTrace___at___Lean_Elab_Term_traceAtCmdPos_spec__1___redArg(x_33, x_50, x_35, x_34, x_39, x_37, x_38);
+lean_dec(x_37);
+lean_dec(x_39);
 lean_dec(x_34);
-lean_dec(x_38);
 lean_dec(x_35);
-lean_dec(x_40);
 x_52 = lean_ctor_get(x_51, 1);
 lean_inc(x_52);
 lean_dec(x_51);
-x_13 = x_37;
+x_13 = x_40;
 x_14 = x_52;
 goto block_18;
 }
@@ -5734,13 +5734,13 @@ if (x_4 == 0)
 {
 lean_object* x_90; 
 x_90 = l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_addLocalInstancesForParamsAux___redArg___lam__0___closed__6;
-x_34 = x_64;
-x_35 = x_62;
+x_34 = x_62;
+x_35 = x_61;
 x_36 = x_89;
-x_37 = x_59;
-x_38 = x_63;
-x_39 = x_85;
-x_40 = x_61;
+x_37 = x_64;
+x_38 = x_85;
+x_39 = x_63;
+x_40 = x_59;
 x_41 = x_84;
 x_42 = x_90;
 goto block_53;
@@ -5749,13 +5749,13 @@ else
 {
 lean_object* x_91; 
 x_91 = l_Std_Range_forIn_x27_loop___at___Std_Range_forIn_x27_loop___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f_spec__0_spec__0___redArg___closed__6;
-x_34 = x_64;
-x_35 = x_62;
+x_34 = x_62;
+x_35 = x_61;
 x_36 = x_89;
-x_37 = x_59;
-x_38 = x_63;
-x_39 = x_85;
-x_40 = x_61;
+x_37 = x_64;
+x_38 = x_85;
+x_39 = x_63;
+x_40 = x_59;
 x_41 = x_84;
 x_42 = x_91;
 goto block_53;
@@ -5829,13 +5829,13 @@ if (x_4 == 0)
 {
 lean_object* x_105; 
 x_105 = l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_addLocalInstancesForParamsAux___redArg___lam__0___closed__6;
-x_34 = x_64;
-x_35 = x_62;
+x_34 = x_62;
+x_35 = x_61;
 x_36 = x_104;
-x_37 = x_59;
-x_38 = x_63;
-x_39 = x_99;
-x_40 = x_61;
+x_37 = x_64;
+x_38 = x_99;
+x_39 = x_63;
+x_40 = x_59;
 x_41 = x_98;
 x_42 = x_105;
 goto block_53;
@@ -5844,13 +5844,13 @@ else
 {
 lean_object* x_106; 
 x_106 = l_Std_Range_forIn_x27_loop___at___Std_Range_forIn_x27_loop___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f_spec__0_spec__0___redArg___closed__6;
-x_34 = x_64;
-x_35 = x_62;
+x_34 = x_62;
+x_35 = x_61;
 x_36 = x_104;
-x_37 = x_59;
-x_38 = x_63;
-x_39 = x_99;
-x_40 = x_61;
+x_37 = x_64;
+x_38 = x_99;
+x_39 = x_63;
+x_40 = x_59;
 x_41 = x_98;
 x_42 = x_106;
 goto block_53;
@@ -6156,13 +6156,13 @@ lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean
 x_45 = l_Lean_stringToMessageData(x_44);
 lean_dec(x_44);
 x_46 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_46, 0, x_43);
+lean_ctor_set(x_46, 0, x_39);
 lean_ctor_set(x_46, 1, x_45);
 x_47 = l_Std_Range_forIn_x27_loop___at___Std_Range_forIn_x27_loop___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f_spec__0_spec__0___redArg___closed__1;
 x_48 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_48, 0, x_46);
 lean_ctor_set(x_48, 1, x_47);
-x_49 = l_Lean_indentExpr(x_40);
+x_49 = l_Lean_indentExpr(x_41);
 x_50 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_50, 0, x_48);
 lean_ctor_set(x_50, 1, x_49);
@@ -6170,15 +6170,15 @@ x_51 = l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstance
 x_52 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_52, 0, x_50);
 lean_ctor_set(x_52, 1, x_51);
-x_53 = l_Lean_addTrace___at___Lean_Elab_Term_traceAtCmdPos_spec__1___redArg(x_35, x_52, x_39, x_42, x_38, x_37, x_41);
+x_53 = l_Lean_addTrace___at___Lean_Elab_Term_traceAtCmdPos_spec__1___redArg(x_35, x_52, x_37, x_36, x_40, x_43, x_38);
+lean_dec(x_43);
+lean_dec(x_40);
+lean_dec(x_36);
 lean_dec(x_37);
-lean_dec(x_38);
-lean_dec(x_42);
-lean_dec(x_39);
 x_54 = lean_ctor_get(x_53, 1);
 lean_inc(x_54);
 lean_dec(x_53);
-x_15 = x_36;
+x_15 = x_42;
 x_16 = x_54;
 goto block_20;
 }
@@ -6301,14 +6301,14 @@ if (x_4 == 0)
 {
 lean_object* x_92; 
 x_92 = l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_addLocalInstancesForParamsAux___redArg___lam__0___closed__6;
-x_36 = x_61;
-x_37 = x_66;
-x_38 = x_65;
-x_39 = x_63;
-x_40 = x_86;
-x_41 = x_87;
-x_42 = x_64;
-x_43 = x_91;
+x_36 = x_64;
+x_37 = x_63;
+x_38 = x_87;
+x_39 = x_91;
+x_40 = x_65;
+x_41 = x_86;
+x_42 = x_61;
+x_43 = x_66;
 x_44 = x_92;
 goto block_55;
 }
@@ -6316,14 +6316,14 @@ else
 {
 lean_object* x_93; 
 x_93 = l_Std_Range_forIn_x27_loop___at___Std_Range_forIn_x27_loop___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f_spec__0_spec__0___redArg___closed__6;
-x_36 = x_61;
-x_37 = x_66;
-x_38 = x_65;
-x_39 = x_63;
-x_40 = x_86;
-x_41 = x_87;
-x_42 = x_64;
-x_43 = x_91;
+x_36 = x_64;
+x_37 = x_63;
+x_38 = x_87;
+x_39 = x_91;
+x_40 = x_65;
+x_41 = x_86;
+x_42 = x_61;
+x_43 = x_66;
 x_44 = x_93;
 goto block_55;
 }
@@ -6396,14 +6396,14 @@ if (x_4 == 0)
 {
 lean_object* x_107; 
 x_107 = l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_addLocalInstancesForParamsAux___redArg___lam__0___closed__6;
-x_36 = x_61;
-x_37 = x_66;
-x_38 = x_65;
-x_39 = x_63;
-x_40 = x_100;
-x_41 = x_101;
-x_42 = x_64;
-x_43 = x_106;
+x_36 = x_64;
+x_37 = x_63;
+x_38 = x_101;
+x_39 = x_106;
+x_40 = x_65;
+x_41 = x_100;
+x_42 = x_61;
+x_43 = x_66;
 x_44 = x_107;
 goto block_55;
 }
@@ -6411,14 +6411,14 @@ else
 {
 lean_object* x_108; 
 x_108 = l_Std_Range_forIn_x27_loop___at___Std_Range_forIn_x27_loop___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f_spec__0_spec__0___redArg___closed__6;
-x_36 = x_61;
-x_37 = x_66;
-x_38 = x_65;
-x_39 = x_63;
-x_40 = x_100;
-x_41 = x_101;
-x_42 = x_64;
-x_43 = x_106;
+x_36 = x_64;
+x_37 = x_63;
+x_38 = x_101;
+x_39 = x_106;
+x_40 = x_65;
+x_41 = x_100;
+x_42 = x_61;
+x_43 = x_66;
 x_44 = x_108;
 goto block_55;
 }

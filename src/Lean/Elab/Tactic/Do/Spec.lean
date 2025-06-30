@@ -114,8 +114,11 @@ partial def dischargeFailEntails (ps : Expr) (Q : Expr) (Q' : Expr) (goalTag : N
 end
 
 def dischargeMGoal (goal : MGoal) (goalTag : Name) : n Expr := do
-  -- controlAt MetaM (fun map => do trace[Elab.Tactic.Do.spec] "dischargeMGoal: {(← reduceProj? goal.target).getD goal.target}"; map (pure ()))
+  liftMetaM <| do trace[Elab.Tactic.Do.spec] "dischargeMGoal: {(← reduceProj? goal.target).getD goal.target}"
   -- simply try one of the assumptions for now. Later on we might want to decompose conjunctions etc; full xsimpl
+  -- The `withDefault` ensures that a hyp `⌜s = 4⌝` can be used to discharge `⌜s = 4⌝ s`.
+  -- (Recall that `⌜s = 4⌝ s` is `SVal.curry (σs:=[Nat]) (fun _ => s = 4) s` and `SVal.curry` is
+  -- semi-reducible.)
   let some prf ← liftMetaM goal.assumption | mkFreshExprSyntheticOpaqueMVar goal.toExpr goalTag
   return prf
 
@@ -176,7 +179,7 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name
     -- Often P or Q are schematic (i.e. an MVar app). Try to solve by rfl.
     -- We do `fullApproxDefEq` here so that `constApprox` is active; this is useful in
     -- `need_const_approx` of `doLogicTests.lean`.
-    let (HPRfl, QQ'Rfl) ← withDefault <| withAssignableSyntheticOpaque <| fullApproxDefEq <| do
+    let (HPRfl, QQ'Rfl) ← withAssignableSyntheticOpaque <| fullApproxDefEq <| do
       return (← isDefEqGuarded P goal.hyps, ← isDefEqGuarded Q Q')
 
     -- Discharge the validity proof for the spec if not rfl

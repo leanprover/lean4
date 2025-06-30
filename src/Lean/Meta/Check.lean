@@ -192,13 +192,13 @@ def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
 
 /--
 Return error message "has type{givenType}\nbut is expected to have type{expectedType}"
-Adds the type’s types unless they are defeq.
+Adds the type’s sorts if they are not equal.
 -/
 def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr) : MetaM MessageData := do
   try
     let givenTypeType ← inferType givenType
     let expectedTypeType ← inferType expectedType
-    if (← isDefEqGuarded givenTypeType expectedTypeType) then
+    if (← withoutModifyingEnv (isDefEqGuarded givenTypeType expectedTypeType)) then
       let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
       return m!"has type{indentExpr givenType}\n\
         but is expected to have type{indentExpr expectedType}"
@@ -208,7 +208,6 @@ def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr) : MetaM MessageDat
       return m!"has type{indentExpr givenType}\nof sort{inlineExpr givenTypeType}\
         but is expected to have type{indentExpr expectedType}\nof sort{inlineExprTrailing expectedTypeType}"
   catch _ =>
-    let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
     return m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}"
 
 def throwAppTypeMismatch (f a : Expr) : MetaM α := do

@@ -56,22 +56,21 @@ def toIRType (e : Lean.Expr) : CoreM IRType := do
     | ``Float => return .float
     | ``Float32 => return .float32
     | ``lcErased => return .irrelevant
-    | _ =>
-      if let some scalarType ← lowerEnumToScalarType? name then
-        return scalarType
-      else
-        return .object
+    | _ => nameToIRType name
   | .app f _ =>
     -- All mono types are in headBeta form.
     if let .const name _ := f then
-      if let some scalarType ← lowerEnumToScalarType? name then
-        return scalarType
-      else
-        return .object
+      nameToIRType name
     else
       return .object
   | .forallE .. => return .object
   | _ => panic! "invalid type"
+where
+  nameToIRType name := do
+    if let some scalarType ← lowerEnumToScalarType? name then
+      return scalarType
+    else
+      return .object
 
 inductive CtorFieldInfo where
   | irrelevant

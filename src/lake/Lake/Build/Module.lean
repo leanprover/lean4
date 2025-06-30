@@ -376,9 +376,9 @@ all possible artifacts (e.g., `.olean`, `.ilean`, `.c`, `.bc`).
 -/
 def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifacts) := do
   /-
-  Remark: `withRegisterJob` must register the `setupJob` to display module builds
-  in the job monitor. However, it also must include the fetching of both jobs to
-  ensure all logs end up under tis caption in the job monitor.
+  Remark: `withRegisterJob` must register `setupJob` to display module builds
+  in the job monitor. However, it must also include the fetching of both jobs to
+  ensure all logs end up under its caption in the job monitor.
   -/
   withRegisterJob mod.name.toString do
   let setupJob ← mod.setup.fetch

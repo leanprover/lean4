@@ -39,3 +39,6 @@ trace: [grind.ring.assert.basis] ↑x + ↑y + -2 = 0
 set_option trace.grind.ring.assert.basis true in
 example [CommSemiring α] [AddRightCancel α] [IsCharP α 0] (x y : α) : x^2*y = 1 → x*y^2 = y → x + y = 2 → False := by
   grind
+
+example [CommSemiring α] [AddRightCancel α] (x y : α) : x^2*y = 1 → x*y^2 = y → y*x = 1 := by
+  grind

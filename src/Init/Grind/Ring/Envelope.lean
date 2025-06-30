@@ -504,8 +504,8 @@ def ofCommSemiring : CommRing (OfSemiring.Q α) :=
 attribute [instance] ofCommSemiring
 
 /-
-Remark: `↑a` is notation for `OfSemring.toQ a`.
-We want to hide `OfSemring.toQ` applications in the diagnostic information produced by
+Remark: `↑a` is notation for `OfSemiring.toQ a`.
+We want to hide `OfSemiring.toQ` applications in the diagnostic information produced by
 the `ring` procedure in `grind`.
 -/
 @[app_unexpander OfSemiring.toQ]

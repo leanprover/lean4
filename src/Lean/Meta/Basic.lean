@@ -1052,7 +1052,7 @@ Lift a `MkBindingM` monadic action `x` to `MetaM`.
     throwError "failed to create binder due to failure when reverting variable dependencies"
 
 /--
-Similar to `abstracM` but consider only the first `min n xs.size` entries in `xs`
+Similar to `abstractM` but consider only the first `min n xs.size` entries in `xs`
 
 It is also similar to `Expr.abstractRange`, but handles metavariables correctly.
 It uses `elimMVarDeps` to ensure `e` and the type of the free variables `xs` do not

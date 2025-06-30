@@ -272,87 +272,6 @@ private def reduceQuotRec (recVal  : QuotVal) (recArgs : Array Expr) (failK : Un
   | _             => failK ()
 
 -- ===========================
-/-! # Helper function for extracting "stuck term" -/
--- ===========================
-
-mutual
-  private partial def isRecStuck? (recVal : RecursorVal) (recArgs : Array Expr) : MetaM (Option MVarId) :=
-    if recVal.k then
-      -- TODO: improve this case
-      return none
-    else do
-      let majorIdx := recVal.getMajorIdx
-      if h : majorIdx < recArgs.size then do
-        let major := recArgs[majorIdx]
-        let major ← whnf major
-        getStuckMVar? major
-      else
-        return none
-
-  private partial def isQuotRecStuck? (recVal : QuotVal) (recArgs : Array Expr) : MetaM (Option MVarId) :=
-    let process? (majorPos : Nat) : MetaM (Option MVarId) :=
-      if h : majorPos < recArgs.size then do
-        let major := recArgs[majorPos]
-        let major ← whnf major
-        getStuckMVar? major
-      else
-        return none
-    match recVal.kind with
-    | QuotKind.lift => process? 5
-    | QuotKind.ind  => process? 4
-    | _             => return none
-
-  /-- Return `some (Expr.mvar mvarId)` if metavariable `mvarId` is blocking reduction. -/
-  partial def getStuckMVar? (e : Expr) : MetaM (Option MVarId) := do
-    match e with
-    | .mdata _ e  => getStuckMVar? e
-    | .proj _ _ e => getStuckMVar? (← whnf e)
-    | .mvar .. =>
-      let e ← instantiateMVars e
-      match e with
-      | .mvar mvarId => return some mvarId
-      | _ => getStuckMVar? e
-    | .app f .. =>
-      let f := f.getAppFn
-      match f with
-      | .mvar .. =>
-        let e ← instantiateMVars e
-        match e.getAppFn with
-        | .mvar mvarId => return some mvarId
-        | _ => getStuckMVar? e
-      | .const fName _ =>
-        match (← getEnv).find? fName with
-        | some <| .recInfo recVal  => isRecStuck? recVal e.getAppArgs
-        | some <| .quotInfo recVal => isQuotRecStuck? recVal e.getAppArgs
-        | _  =>
-          unless e.hasExprMVar do return none
-          -- Projection function support
-          let some projInfo ← getProjectionFnInfo? fName | return none
-          -- This branch is relevant if `e` is a type class projection that is stuck because the instance has not been synthesized yet.
-          unless projInfo.fromClass do return none
-          let args := e.getAppArgs
-          -- First check whether `e`s instance is stuck.
-          if let some major := args[projInfo.numParams]? then
-            if let some mvarId ← getStuckMVar? major then
-              return mvarId
-          /-
-          Then, recurse on the explicit arguments
-          We want to detect the stuck instance in terms such as
-          `HAdd.hAdd Nat Nat Nat (instHAdd Nat instAddNat) n (OfNat.ofNat Nat 2 ?m)`
-          See issue https://github.com/leanprover/lean4/issues/1408 for an example where this is needed.
-          -/
-          let info ← getFunInfo f
-          for pinfo in info.paramInfo, arg in args do
-            if pinfo.isExplicit then
-              if let some mvarId ← getStuckMVar? arg then
-                return some mvarId
-          return none
-      | .proj _ _ e => getStuckMVar? (← whnf e)
-      | _ => return none
-    | _ => return none
-end
-
--- ===========================
 /-! # Weak Head Normal Form auxiliary combinators -/
 -- ===========================
 
@@ -707,6 +626,140 @@ where
         | .yesWithDeltaI => k (← whnfAtMostI c)
       | _ => unreachable!
 
+-- ===========================
+/-! # Helper function for extracting "stuck term" -/
+-- ===========================
+
+inductive SmartUnfoldingError where
+  | stuckOnMVar (mv : MVarId)
+  | stuckDifferently
+
+/-- See `smartUnfoldingReduce?` for the documentation. -/
+partial def smartUnfoldingReduceImpl (e : Expr) (kStuck : (retry : MetaM (Except SmartUnfoldingError Expr)) → Expr → MetaM (Except SmartUnfoldingError Expr)) :
+    MetaM (Except SmartUnfoldingError Expr) :=
+  go e |>.run
+where
+  go (e : Expr) : ExceptT SmartUnfoldingError MetaM Expr := do
+    match e with
+    | .letE n t v b nondep => mapLetDecl n t (← go v) (nondep := nondep) fun x => go (b.instantiate1 x)
+    | .lam .. => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← go b)
+    | .app f a .. => return mkApp (← go f) (← go a)
+    | .proj _ _ s => return e.updateProj! (← go s)
+    | .mdata _ b  =>
+      if let some m := smartUnfoldingMatch? e then
+        goMatch m
+      else
+        return e.updateMData! (← go b)
+    | _ => return e
+
+  goMatch (e : Expr) : ExceptT SmartUnfoldingError MetaM Expr := do
+    match (← reduceMatcher? e) with
+    | ReduceMatcherResult.reduced e =>
+      if let some alt := smartUnfoldingMatchAlt? e then
+        return alt
+      else
+        go e
+    | ReduceMatcherResult.stuck e' =>
+      kStuck (goMatch e) e'
+    | _ =>
+      throwThe SmartUnfoldingError .stuckDifferently
+
+mutual
+  private partial def isRecStuck? (recVal : RecursorVal) (recArgs : Array Expr) : MetaM (Option MVarId) :=
+    if recVal.k then
+      -- TODO: improve this case
+      return none
+    else do
+      let majorIdx := recVal.getMajorIdx
+      if h : majorIdx < recArgs.size then do
+        let major := recArgs[majorIdx]
+        let major ← whnf major
+        getStuckMVar? major
+      else
+        return none
+
+  private partial def isQuotRecStuck? (recVal : QuotVal) (recArgs : Array Expr) : MetaM (Option MVarId) :=
+    let process? (majorPos : Nat) : MetaM (Option MVarId) :=
+      if h : majorPos < recArgs.size then do
+        let major := recArgs[majorPos]
+        let major ← whnf major
+        getStuckMVar? major
+      else
+        return none
+    match recVal.kind with
+    | QuotKind.lift => process? 5
+    | QuotKind.ind  => process? 4
+    | _             => return none
+
+  private partial def isProjStuck? (projInfo : ProjectionFunctionInfo) (f : Expr) (args : Array Expr) : MetaM (Option MVarId) := do
+    -- This branch is relevant if `e` is a type class projection that is stuck because the instance has not been synthesized yet.
+    unless projInfo.fromClass do return none
+    -- First check whether `e`s instance is stuck.
+    if let some major := args[projInfo.numParams]? then
+      if let some mvarId ← getStuckMVar? major then
+        return mvarId
+    /-
+    Then, recurse on the explicit arguments
+    We want to detect the stuck instance in terms such as
+    `HAdd.hAdd Nat Nat Nat (instHAdd Nat instAddNat) n (OfNat.ofNat Nat 2 ?m)`
+    See issue https://github.com/leanprover/lean4/issues/1408 for an example where this is needed.
+    -/
+    let info ← getFunInfo f
+    for pinfo in info.paramInfo, arg in args do
+      if pinfo.isExplicit then
+        if let some mvarId ← getStuckMVar? arg then
+          return some mvarId
+    return none
+
+  private partial def isDefnStuck? (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr) : MetaM (Option MVarId) :=
+    deltaBetaDefinition c lvls revArgs (fun _ => return none) fun e => do
+    let res ← smartUnfoldingReduceImpl e fun _retry e => do
+      match (← getStuckMVar? e) with
+      | some mv => return .error (SmartUnfoldingError.stuckOnMVar mv)
+      | none => return .error SmartUnfoldingError.stuckDifferently
+    match res with
+    | .ok e => getStuckMVar? e
+    | .error (SmartUnfoldingError.stuckOnMVar mv) => return some mv
+    | .error SmartUnfoldingError.stuckDifferently => return none
+
+  /-- Return `some (Expr.mvar mvarId)` if metavariable `mvarId` is blocking reduction. -/
+  partial def getStuckMVar? (e : Expr) : MetaM (Option MVarId) := do
+    unless e.hasExprMVar do return none
+    match e with
+    | .mdata _ e  => getStuckMVar? e
+    | .proj _ _ e => getStuckMVar? (← whnf e)
+    | .mvar .. =>
+      let e ← instantiateMVars e
+      match e with
+      | .mvar mvarId => return some mvarId
+      | _ => getStuckMVar? e
+    | .app f .. =>
+      let f := f.getAppFn
+      match f with
+      | .mvar .. =>
+        let e ← instantiateMVars e
+        match e.getAppFn with
+        | .mvar mvarId => return some mvarId
+        | _ => getStuckMVar? e
+      | .const fName lvls =>
+        match (← getEnv).find? fName with
+        | some <| .recInfo recVal  => isRecStuck? recVal e.getAppArgs
+        | some <| .quotInfo recVal => isQuotRecStuck? recVal e.getAppArgs
+        | some <| c =>
+          if let some projInfo ← getProjectionFnInfo? fName then
+            isProjStuck? projInfo f e.getAppArgs
+          else
+            isDefnStuck? c lvls e.getAppRevArgs
+        | _  => return none
+      | .proj _ _ e => getStuckMVar? (← whnf e)
+      | _ => return none
+    | _ => return none
+end
+
+-- ===========================
+/-! # Helper function for unfolding definitions -/
+-- ===========================
+
 /--
   Recall that `_sunfold` auxiliary definitions contains the markers: `markSmartUnfoldingMatch` (*) and `markSmartUnfoldingMatchAlt` (**).
   For example, consider the following definition
@@ -738,36 +791,13 @@ where
   For example, the term `r i j.succ.succ` reduces to the definitionally equal term `i + i * r i j`
 -/
 partial def smartUnfoldingReduce? (e : Expr) : MetaM (Option Expr) :=
-  go e |>.run
-where
-  go (e : Expr) : OptionT MetaM Expr := do
-    match e with
-    | .letE n t v b nondep => mapLetDecl n t (← go v) (nondep := nondep) fun x => go (b.instantiate1 x)
-    | .lam .. => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← go b)
-    | .app f a .. => return mkApp (← go f) (← go a)
-    | .proj _ _ s => return e.updateProj! (← go s)
-    | .mdata _ b  =>
-      if let some m := smartUnfoldingMatch? e then
-        goMatch m
-      else
-        return e.updateMData! (← go b)
-    | _ => return e
-
-  goMatch (e : Expr) : OptionT MetaM Expr := do
-    match (← reduceMatcher? e) with
-    | ReduceMatcherResult.reduced e =>
-      if let some alt := smartUnfoldingMatchAlt? e then
-        return alt
-      else
-        go e
-    | ReduceMatcherResult.stuck e' =>
-      let mvarId ← getStuckMVar? e'
-      /- Try to "unstuck" by resolving pending TC problems -/
-      if (← Meta.synthPending mvarId) then
-        goMatch e
-      else
-        failure
-    | _ => failure
+  Except.toOption <$> smartUnfoldingReduceImpl e fun retry e => do
+    /- Try to "unstuck" by resolving pending TC problems -/
+    let some mvarId ← getStuckMVar? e | return .error SmartUnfoldingError.stuckDifferently
+    if (← Meta.synthPending mvarId) then
+      retry
+    else
+      pure (.error SmartUnfoldingError.stuckDifferently)
 
 mutual
 
@@ -894,6 +924,10 @@ end
 def unfoldDefinition (e : Expr) : MetaM Expr := do
   let some e ← unfoldDefinition? e | throwError "failed to unfold definition{indentExpr e}"
   return e
+
+-- ===========================
+/-! # More Weak Head Normal Form auxiliary combinators -/
+-- ===========================
 
 @[specialize] partial def whnfHeadPred (e : Expr) (pred : Expr → MetaM Bool) : MetaM Expr :=
   whnfEasyCases e fun e => do

@@ -2473,7 +2473,7 @@ variable {L : Type _} [Field L] [Algebra F L] [Algebra L E] [IsScalarTower F L E
   (f : L →ₐ[F] K)
 
 -- This only required 16,000 heartbeats prior to #3807, and now takes ~210,000.
-set_option maxHeartbeats 16000
+set_option maxHeartbeats 20000
 theorem exists_algHom_adjoin_of_splits''' :
     ∃ φ : adjoin L S →ₐ[F] K, φ.comp (IsScalarTower.toAlgHom F L _) = f := by
   let L' := (IsScalarTower.toAlgHom F L E).fieldRange

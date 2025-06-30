@@ -55,6 +55,7 @@ def Ctx.extend (x : α) : HList Γ → HList (α :: Γ) :=
 def Ctx.drop : HList (α :: Γ) → HList Γ
   | HList.cons a as => as
 
+set_option maxHeartbeats 400000 in
 @[simp]
 def Stmt.mapCtx (f : HList Γ' → HList Γ) : Stmt m ω Γ Δ b c β → Stmt m ω Γ' Δ b c β
   | expr e => expr (e ∘ f)

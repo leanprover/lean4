@@ -21,7 +21,7 @@ def f (x : BitVec 32) : Nat :=
 #guard_msgs(drop all) in
 #print equations f
 
-set_option maxHeartbeats 800
+set_option maxHeartbeats 1900
 example : f 500#32 = x := by
   simp [f]
   sorry

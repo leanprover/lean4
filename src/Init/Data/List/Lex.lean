@@ -22,9 +22,9 @@ namespace List
 @[simp] theorem not_lex_lt [LT α] {l₁ l₂ : List α} : ¬ Lex (· < ·) l₁ l₂ ↔ l₂ ≤ l₁ := Iff.rfl
 
 protected theorem not_lt_iff_ge [LT α] {l₁ l₂ : List α} : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
-protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {l₁ l₂ : List α} :
+protected theorem not_le_iff_gt [LT α] {l₁ l₂ : List α} :
     ¬ l₁ ≤ l₂ ↔ l₂ < l₁ :=
-  Decidable.not_not
+  Classical.not_not
 
 theorem lex_irrefl {r : α → α → Prop} (irrefl : ∀ x, ¬r x x) (l : List α) : ¬Lex r l l := by
   induction l with

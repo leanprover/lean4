@@ -317,6 +317,7 @@ static lean_object* l_Lean_Meta_Simp_simpArrow___lam__0___closed__2;
 uint8_t l_Lean_Expr_hasBinderNameHint(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_dsimpGoal___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at___Lean_Meta_Simp_getHaveTelescopeInfo_collect_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_profileitM___at___Lean_Meta_letToHave_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_simpHaveTelescope_simpHaveTelescopeAux___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_withNewLemmas___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkImpDepCongrCtx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -445,7 +446,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_simpHaveTelescope___lam__0(lean_object
 uint8_t l_Lean_Environment_isProjectionFn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_simpHaveTelescope_simpHaveTelescopeAux___lam__1___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_HaveTelescopeInfo_computeFixedUsed___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_profileitM___at___Lean_Meta_letToHave_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_simpHaveTelescope_simpHaveTelescopeAux___lam__0___closed__3;
 lean_object* l_Lean_throwError___at___Lean_getConstInfo___at___Lean_Meta_Simp_sevalGround_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_insert___at___Lean_Meta_Simp_cacheResult_spec__0___redArg(lean_object*, lean_object*, lean_object*);
@@ -36330,7 +36330,7 @@ lean_closure_set(x_12, 3, x_2);
 lean_closure_set(x_12, 4, x_5);
 x_13 = l_Lean_Meta_Simp_initFn___closed__1____x40_Lean_Meta_Tactic_Simp_Main___hyg_45_;
 x_14 = lean_box(0);
-x_15 = l_Lean_profileitM___at___Lean_Meta_letToHave_spec__0___redArg(x_13, x_11, x_12, x_14, x_6, x_7, x_8, x_9, x_10);
+x_15 = l_Lean_profileitM___at___Lean_Meta_letToHave_spec__1___redArg(x_13, x_11, x_12, x_14, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_11);
 return x_15;
 }
@@ -36480,7 +36480,7 @@ lean_closure_set(x_19, 2, x_3);
 lean_closure_set(x_19, 3, x_4);
 lean_closure_set(x_19, 4, x_18);
 x_20 = lean_box(0);
-x_21 = l_Lean_profileitM___at___Lean_Meta_letToHave_spec__0___redArg(x_14, x_11, x_19, x_20, x_6, x_7, x_8, x_9, x_10);
+x_21 = l_Lean_profileitM___at___Lean_Meta_letToHave_spec__1___redArg(x_14, x_11, x_19, x_20, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_11);
 return x_21;
 }
@@ -36508,7 +36508,7 @@ lean_closure_set(x_13, 1, x_2);
 lean_closure_set(x_13, 2, x_4);
 lean_closure_set(x_13, 3, x_12);
 x_14 = lean_box(0);
-x_15 = l_Lean_profileitM___at___Lean_Meta_letToHave_spec__0___redArg(x_11, x_10, x_13, x_14, x_5, x_6, x_7, x_8, x_9);
+x_15 = l_Lean_profileitM___at___Lean_Meta_letToHave_spec__1___redArg(x_11, x_10, x_13, x_14, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_10);
 return x_15;
 }

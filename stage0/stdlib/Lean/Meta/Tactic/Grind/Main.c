@@ -169,6 +169,7 @@ lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logInfo___at___Lean_Meta_Grind_main_spec__0_spec__0_spec__0___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at_____private_Lean_Meta_Tactic_Grind_Main_0__Lean_Meta_Grind_mkGoal_spec__4___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Main_0__Lean_Meta_Grind_mkGoal___closed__20;
+lean_object* l_Lean_profileitM___at___Lean_Meta_letToHave_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Result_hasFailed___boxed(lean_object*);
 lean_object* l_Lean_Meta_Grind_shareCommonAlpha_go(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_main___lam__1___closed__1;
@@ -218,7 +219,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_____private_Lean_Meta_Tacti
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Main_0__Lean_Meta_Grind_mkGlobalDiag___closed__5;
 lean_object* l_Lean_MVarId_betaReduce(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_mkParams___redArg___closed__5;
-lean_object* l_Lean_profileitM___at___Lean_Meta_letToHave_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Main_0__Lean_Meta_Grind_mkGoal___closed__38;
 lean_object* l_Lean_PersistentHashMap_empty___at___Lean_Meta_Match_initFn____x40_Lean_Meta_Match_MatchEqsExt___hyg_192__spec__0(lean_object*);
 static lean_object* l_Lean_Meta_Grind_GrindM_run___redArg___closed__19;
@@ -11907,7 +11907,7 @@ lean_closure_set(x_10, 1, x_2);
 lean_closure_set(x_10, 2, x_3);
 x_11 = l___private_Lean_Meta_Tactic_Grind_Main_0__Lean_Meta_Grind_mkGlobalDiag___closed__0;
 x_12 = lean_box(0);
-x_13 = l_Lean_profileitM___at___Lean_Meta_letToHave_spec__0___redArg(x_11, x_9, x_10, x_12, x_4, x_5, x_6, x_7, x_8);
+x_13 = l_Lean_profileitM___at___Lean_Meta_letToHave_spec__1___redArg(x_11, x_9, x_10, x_12, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_9);
 return x_13;
 }

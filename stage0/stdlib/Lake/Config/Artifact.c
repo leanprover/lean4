@@ -22,7 +22,6 @@ static lean_object* l_Lake_reprArtifact___redArg___closed__11____x40_Lake_Config
 static lean_object* l_Lake_reprArtifact___redArg___closed__1____x40_Lake_Config_Artifact___hyg_60_;
 static lean_object* l_Lake_reprArtifact___redArg___closed__20____x40_Lake_Config_Artifact___hyg_60_;
 static lean_object* l_Lake_reprArtifact___redArg___closed__21____x40_Lake_Config_Artifact___hyg_60_;
-lean_object* l_IO_FS_reprSystemTime___redArg____x40_Init_System_IO___hyg_3106_(lean_object*);
 lean_object* l_String_quote(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Artifact_useLocalFile(lean_object*, lean_object*);
 static lean_object* l_Lake_reprArtifact___redArg___closed__6____x40_Lake_Config_Artifact___hyg_60_;
@@ -37,6 +36,7 @@ static lean_object* l_Lake_reprArtifact___redArg___closed__0____x40_Lake_Config_
 static lean_object* l_Lake_reprArtifact___redArg___closed__4____x40_Lake_Config_Artifact___hyg_60_;
 LEAN_EXPORT lean_object* l_Lake_reprArtifact___redArg____x40_Lake_Config_Artifact___hyg_60_(lean_object*);
 static lean_object* l_Lake_reprArtifact___redArg___closed__10____x40_Lake_Config_Artifact___hyg_60_;
+lean_object* l_IO_FS_reprSystemTime___redArg____x40_Init_System_IO___hyg_3105_(lean_object*);
 static lean_object* l_Lake_reprArtifact___redArg___closed__2____x40_Lake_Config_Artifact___hyg_60_;
 static lean_object* l_Lake_reprArtifact___redArg___closed__15____x40_Lake_Config_Artifact___hyg_60_;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedArtifact___closed__3___boxed__const__1;
@@ -411,7 +411,7 @@ x_37 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_37, 0, x_36);
 lean_ctor_set(x_37, 1, x_6);
 x_38 = l_Lake_reprArtifact___redArg___closed__16____x40_Lake_Config_Artifact___hyg_60_;
-x_39 = l_IO_FS_reprSystemTime___redArg____x40_Init_System_IO___hyg_3106_(x_4);
+x_39 = l_IO_FS_reprSystemTime___redArg____x40_Init_System_IO___hyg_3105_(x_4);
 lean_dec(x_4);
 x_40 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_40, 0, x_38);

@@ -378,10 +378,11 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifacts) := d
   let setupJob ← mod.setup.fetch
   let leanJob ← mod.lean.fetch
   leanJob.bindM (sync := true) fun srcFile => do
-  let srcTrace ← getTrace
   withRegisterJob mod.name.toString do
   setupJob.mapM fun setup => do
     addLeanTrace
+    let srcTrace := leanJob.getTrace
+    addTrace srcTrace
     addTrace <| traceOptions setup.options "options"
     addPureTrace mod.leanArgs "Module.leanArgs"
     setTraceCaption s!"{mod.name.toString}:leanArts"

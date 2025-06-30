@@ -2164,53 +2164,6 @@ def uppcRec {w} (x : BitVec w) (s : Nat) (hs : s < w) : Bool :=
   | 0 => x.msb -- 1 * 1 never overflows anyways :)
   | i + 1 =>  x[w - 1 - i] || uppcRec x i (by omega) -- there is one redundant case here
 
-/-- A bitvector interpreted as a natural number is greater than or equal to `2 ^ i` if and only if
-  there exists at least one bit with `true` value at position `i` or higher. -/
-theorem le_toNat_iff (x : BitVec w) (hi : i < w) :
-    (2 ^ i ≤ x.toNat) ↔ (∃ h : i + k < w, x[i + k] = true) := by
-  rcases w with _|w
-  · simp [of_length_zero]
-  · constructor
-    · -- (2 ^ i ≤ x.toNat) → (∃ k, x.getLsbD (i + k) = true)
-      intro hle
-      apply Classical.byContradiction
-      intros hcontra
-      let x' := setWidth (i + 1) x
-      have hx' : setWidth (i + 1) x = x' := by rfl
-      have hcast : w - i + (i + 1) = w + 1 := by omega
-      simp only [not_exists, not_eq_true] at hcontra
-      have hx'' : x = BitVec.cast hcast (0#(w - i) ++ x') := by
-        ext j
-        by_cases hj : j < i + 1
-        · simp only [← hx', getElem_cast, getElem_append, hj, ↓reduceDIte, getElem_setWidth]
-          rw [getLsbD_eq_getElem]
-        · simp only [getElem_cast, getElem_append, hj, ↓reduceDIte, getElem_zero]
-          let j' := j - i
-          simp only [show j = i + j' by omega]
-          apply hcontra
-      -- we show that since x'.msb = false, then it can't be 2 ^ i ≤ x.toNat
-      have h2 := BitVec.getLsbD_setWidth (x := x) (m := i + 1) (i := i)
-      simp only [hx', show i < i + 1 by omega, decide_true, Bool.true_and] at h2
-      have h3 := msb_eq_false_iff_two_mul_lt (x := x')
-      simp only [BitVec.msb, getMsbD_eq_getLsbD, zero_lt_succ, decide_true, Nat.add_one_sub_one,
-        Nat.sub_zero, Nat.lt_add_one, Bool.true_and] at h3
-      rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm] at h3
-      have h6 : x'.toNat < 2 ^ i := by
-        specialize hcontra 0
-        simp_all
-      have h1 : x'.toNat = x.toNat := by
-        have h5 := BitVec.setWidth_eq_append (w := (w + 1)) (v := i + 1) (x := x')
-        specialize h5 (by omega)
-        rw [toNat_eq, toNat_setWidth, Nat.mod_eq_of_lt (by omega)] at h5
-        simp [hx'']
-      omega
-    · intro h
-      obtain ⟨k, hk⟩ := h
-      by_cases hk' : i + k < w + 1
-      · have := ge_two_pow_of_testBit hk
-        have := Nat.pow_le_pow_of_le (a := 2) (n := i) (m := i + k) (by omega) (by omega)
-        omega
-      · simp [show w + 1 ≤ i + k by omega] at hk
 
 /-- The unsigned parallel prefix of `x` at `s` is `true` if and only if x interpreted
   as a natural number is greater or equal than `2 ^ (w - 1 - (s - 1))` -/
@@ -2239,7 +2192,7 @@ theorem uppcRec_true_iff (x : BitVec w) (s : Nat) (h : s < w) :
         intro h'
         by_cases hbit: x[w - s]
         · simp [hbit]
-        · have := le_toNat_iff (x := x) (i := w - s) (by omega)
+        · have := BitVec.le_toNat_iff (x := x) (i := w - s) (by omega)
           simp only [h', hbit, _root_.and_self, forall_const] at this
           simp only [true_iff] at this
           obtain ⟨k, hk⟩ := this
@@ -2529,7 +2482,7 @@ theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
   · intro h
     apply Classical.byContradiction
     intro hcontra
-    simp [le_toNat_iff (x := x) (i := i) hi, h] at hcontra
+    simp [BitVec.le_toNat_iff (x := x) (i := i) hi, h] at hcontra
 
 -- counterexample why we need hx:
 -- #eval 2 ^ (5 - clz (0#5) - 1) ≤ (0#5).toNat
@@ -2636,7 +2589,7 @@ theorem resRec_true_iff (x y : BitVec w) (s : Nat) (hs : s < w) (hs' : 0 < s) (h
 
 theorem getElem_of_lt_of_le {x : BitVec w} (hk' : k < w) (hlt: x.toNat < 2 ^ (k + 1)) (hle : 2 ^ k ≤ x.toNat):
     x[k] = true := by
-  have := le_toNat_iff (x := x) (i := k) hk'
+  have := BitVec.le_toNat_iff (x := x) (i := k) hk'
   simp only [hle, true_iff] at this
   obtain ⟨k',hk'⟩ := this
   by_cases hkk' : k + k' < w

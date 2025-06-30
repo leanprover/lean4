@@ -746,6 +746,54 @@ theorem le_toNat_of_msb_true {w : Nat} {x : BitVec w} (h : x.msb = true) : 2 ^ (
   simp only [h, true_eq_decide_iff] at rt
   omega
 
+  /-- A bitvector interpreted as a natural number is greater than or equal to `2 ^ i` if and only if
+  there exists at least one bit with `true` value at position `i` or higher. -/
+theorem le_toNat_iff (x : BitVec w) (hi : i < w) :
+    (2 ^ i ≤ x.toNat) ↔ (∃ h : i + k < w, x[i + k] = true) := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · constructor
+    · -- (2 ^ i ≤ x.toNat) → (∃ k, x.getLsbD (i + k) = true)
+      intro hle
+      apply Classical.byContradiction
+      intros hcontra
+      let x' := setWidth (i + 1) x
+      have hx' : setWidth (i + 1) x = x' := by rfl
+      have hcast : w - i + (i + 1) = w + 1 := by omega
+      simp only [not_exists, not_eq_true] at hcontra
+      have hx'' : x = BitVec.cast hcast (0#(w - i) ++ x') := by
+        ext j
+        by_cases hj : j < i + 1
+        · simp only [← hx', getElem_cast, getElem_append, hj, ↓reduceDIte, getElem_setWidth]
+          rw [getLsbD_eq_getElem]
+        · simp only [getElem_cast, getElem_append, hj, ↓reduceDIte, getElem_zero]
+          let j' := j - i
+          simp only [show j = i + j' by omega]
+          apply hcontra
+      -- we show that since x'.msb = false, then it can't be 2 ^ i ≤ x.toNat
+      have h2 := BitVec.getLsbD_setWidth (x := x) (m := i + 1) (i := i)
+      simp only [hx', show i < i + 1 by omega, decide_true, Bool.true_and] at h2
+      have h3 := msb_eq_false_iff_two_mul_lt (x := x')
+      simp only [BitVec.msb, getMsbD_eq_getLsbD, zero_lt_succ, decide_true, Nat.add_one_sub_one,
+        Nat.sub_zero, Nat.lt_add_one, Bool.true_and] at h3
+      rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm] at h3
+      have h6 : x'.toNat < 2 ^ i := by
+        specialize hcontra 0
+        simp_all
+      have h1 : x'.toNat = x.toNat := by
+        have h5 := BitVec.setWidth_eq_append (w := (w + 1)) (v := i + 1) (x := x')
+        specialize h5 (by omega)
+        rw [toNat_eq, toNat_setWidth, Nat.mod_eq_of_lt (by omega)] at h5
+        simp [hx'']
+      omega
+    · intro h
+      obtain ⟨k, hk⟩ := h
+      by_cases hk' : i + k < w + 1
+      · have := ge_two_pow_of_testBit hk
+        have := Nat.pow_le_pow_of_le (a := 2) (n := i) (m := i + k) (by omega) (by omega)
+        omega
+      · simp [show w + 1 ≤ i + k by omega] at hk
+
 /--
 `x.toInt` is less than `2^(w-1)`.
 We phrase the fact in terms of `2^w` to prevent a case split on `w=0` when the lemma is used.

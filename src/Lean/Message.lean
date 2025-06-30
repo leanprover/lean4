@@ -618,7 +618,9 @@ actually rendered. Consider using this function in lazy message data to avoid un
 computation for messages that are not displayed.
 -/
 private def MessageData.formatLength (ctx : PPContext) (msg : MessageData) : BaseIO Nat := do
-  let { env, mctx, lctx, opts, ..} := ctx
+  let { env, mctx, lctx, opts, currNamespace, openDecls } := ctx
+  -- Simulate the naming context that will be added to the actual message
+  let msg := MessageData.withNamingContext { currNamespace, openDecls } msg
   let fmt ← msg.format (some { env, mctx, lctx, opts })
   return fmt.pretty.length
 

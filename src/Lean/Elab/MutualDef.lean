@@ -126,15 +126,16 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
 
 private def registerFailedToInferDefTypeInfo (type : Expr) (view : DefView) :
     TermElabM Unit :=
-  let ref := match view.kind with
+  let ref := view.type?.getD <| match view.kind with
+    -- Use def name (or keyword if anonymous) as fallback location
     | .example  => view.ref[0]
     | .instance => view.ref[1]
     | _         => view.declId
   let msg := match view.kind with
     | .example  => m!"example"
     | .instance => m!"instance"
-    | .theorem  => m!"theorem '{view.declId}'"
-    | _         => m!"definition '{view.declId}'"
+    | .theorem  => m!"theorem `{view.declId}`"
+    | _         => m!"definition `{view.declId}`"
   registerCustomErrorIfMVar type ref m!"Failed to infer type of {msg}"
 
 /--

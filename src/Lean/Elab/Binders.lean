@@ -182,7 +182,7 @@ private def registerFailedToInferBinderTypeInfo (type : Expr) (view : BinderView
   let msg := if view.id.getId.hasMacroScopes then
     m!"binder type"
   else
-    m!"type of binder '{view.id.getId}'"
+    m!"type of binder `{view.id.getId}`"
   registerCustomErrorIfMVar type view.ref m!"Failed to infer {msg}"
   registerLevelMVarErrorExprInfo type view.ref m!"Failed to infer universe levels in {msg}"
 

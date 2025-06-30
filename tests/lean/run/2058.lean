@@ -64,7 +64,7 @@ Test: Works for `fun` binders.
 -/
 
 /--
-error: Failed to infer universe levels in type of binder 'x'
+error: Failed to infer universe levels in type of binder `x`
   PUnit.{_}
 -/
 #guard_msgs in

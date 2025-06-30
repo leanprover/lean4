@@ -1,5 +1,5 @@
 /--
-error: failed to infer type of `foo`
+error: Failed to infer type of theorem `foo`
 
 Note: All holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
 ---
@@ -11,7 +11,7 @@ theorem foo : _ :=
   sorry
 
 /--
-error: failed to infer type of example
+error: Failed to infer type of example
 
 Note: When the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed
 -/
@@ -20,7 +20,7 @@ example : _ :=
   sorry
 
 /--
-error: failed to infer type of `boo`
+error: Failed to infer type of definition `boo`
 
 Note: When the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed
 -/
@@ -29,7 +29,7 @@ def boo : _ :=
   sorry
 
 /--
-error: failed to infer type of instance
+error: Failed to infer type of instance
 
 Note: When the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed
 -/

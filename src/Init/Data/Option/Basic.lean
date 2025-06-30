@@ -258,6 +258,55 @@ instance (r : α → β → Prop) [s : DecidableRel r] : DecidableRel (Option.lt
   | some _, none   => isFalse not_false
   | none,   none   => isFalse not_false
 
+namespace SomeLtNone
+
+/--
+Lifts an ordering relation to `Option` such that `none` is the *greatest* element.
+
+It can be understood as adding a distinguished greatest element, represented by `none`, to both `α`
+and `β`.
+
+Caution: Given `LT α`, `Option.SomeLtNone.lt LT.lt` differs from the `LT (Option α)` instance,
+which is implemented by `Option.lt Lt.lt`.
+
+Examples:
+ * `Option.lt (fun n k : Nat => n < k) none none = False`
+ * `Option.lt (fun n k : Nat => n < k) none (some 3) = False`
+ * `Option.lt (fun n k : Nat => n < k) (some 3) none = True`
+ * `Option.lt (fun n k : Nat => n < k) (some 4) (some 5) = True`
+ * `Option.le (fun n k : Nat => n < k) (some 5) (some 4) = False`
+ * `Option.lt (fun n k : Nat => n < k) (some 4) (some 4) = False`
+-/
+def lt {α} (r : α → α → Prop) : Option α → Option α → Prop
+  | none, _ => False
+  | some _, none => True
+  | some x, some y => r x y
+
+/--
+Lifts an ordering relation to `Option` such that `none` is the *greatest* element.
+
+It can be understood as adding a distinguished greatest element, represented by `none`, to both `α`
+and `β`.
+
+Caution: Given `LE α`, `Option.SomeLtNone.lt LE.le` differs from the `LE (Option α)` instance,
+which is implemented by `Option.le LE.le`.
+
+Examples:
+ * `Option.le (fun n k : Nat => n < k) none none = True`
+ * `Option.le (fun n k : Nat => n < k) none (some 3) = False`
+ * `Option.le (fun n k : Nat => n < k) (some 3) none = True`
+ * `Option.le (fun n k : Nat => n < k) (some 4) (some 5) = True`
+ * `Option.le (fun n k : Nat => n < k) (some 5) (some 4) = False`
+ * `Option.le (fun n k : Nat => n < k) (some 4) (some 4) = True`
+-/
+def le {α} (r : α → α → Prop) : Option α → Option α → Prop
+  | none, none => True
+  | none, some _ => False
+  | some _, none => True
+  | some x, some y => r x y
+
+end SomeLtNone
+
 /--
 Applies a function to a two optional values if both are present. Otherwise, if one value is present,
 it is returned and the function is not used.

@@ -574,13 +574,7 @@ theorem unfold_to_expose_match_spec :
   ⦃⇓ r => ⌜r = 4⌝⦄ := by
   -- should unfold `Option.getD`, reduce the `match (some get) with | some e => e`
   -- and then apply the spec for `get`.
-  set_option pp.rawOnError true in
   mvcgen [unfold_to_expose_match, Option.getD]
-  -- TODO: This is weird, we should not need .rfl below.
-  -- `mspec` should be able to solve this,
-  -- but isDefEq seems to fail for `⌜s = 4⌝ = ⌜s = 4⌝ s`, whereas
-  -- it succeeds below. It must be some Config setting, but I don't know which.
-  exact .rfl
 
 theorem test_match_splitting {m : Option Nat} (h : m = some 4) :
   ⦃⌜True⌝⦄

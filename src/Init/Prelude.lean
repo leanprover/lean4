@@ -74,9 +74,6 @@ For metaprogramming, the function `Lean.Expr.letFun?` can be used to recognize a
 to extract its parts as if it were a `let` expression.
 -/
 def letFun {α : Sort u} {β : α → Sort v} (v : α) (f : (x : α) → β x) : β v := f v
--- We need to export the body of `letFun`, which is suppressed if `[irreducible]` is set directly.
--- We can work around this rare case by applying the attribute after the fact.
-attribute [irreducible] letFun
 
 set_option checkBinderAnnotations false in
 /--

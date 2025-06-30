@@ -122,6 +122,33 @@ def get_remotes_for_repo(repo_name):
     else:
         return "origin", "origin"
 
+def check_and_abort_merge(repo_path):
+    """Check if repository is in the middle of a merge and abort it if so."""
+    merge_head_file = repo_path / ".git" / "MERGE_HEAD"
+    
+    if merge_head_file.exists():
+        print(yellow(f"Repository {repo_path.name} is in the middle of a merge. Aborting merge..."))
+        run_command("git merge --abort", cwd=repo_path)
+        print(green("Merge aborted successfully"))
+        return True
+    
+    # Also check git status for other merge-related states
+    try:
+        result = run_command("git status --porcelain=v1", cwd=repo_path, check=False)
+        if result.returncode == 0:
+            # Check for unmerged paths (indicated by 'UU', 'AA', etc. in git status)
+            for line in result.stdout.splitlines():
+                if len(line) >= 2 and line[:2] in ['UU', 'AA', 'DD', 'AU', 'UA', 'DU', 'UD']:
+                    print(yellow(f"Repository {repo_path.name} has unmerged paths. Aborting merge..."))
+                    run_command("git merge --abort", cwd=repo_path)
+                    print(green("Merge aborted successfully"))
+                    return True
+    except subprocess.CalledProcessError:
+        # If git status fails, we'll let the main process handle it
+        pass
+    
+    return False
+
 def execute_release_steps(repo, version, config):
     repo_config = find_repo(repo, config)
     repo_name = repo_config['name']
@@ -161,6 +188,9 @@ def execute_release_steps(repo, version, config):
     
     print(blue(f"\n=== Executing release steps for {repo_name} ==="))
     
+    # Check if repository is in the middle of a merge and abort it if necessary
+    check_and_abort_merge(repo_path)
+    
     # Execute the release steps
     run_command(f"git checkout {default_branch} && git pull", cwd=repo_path)
     
@@ -189,6 +219,16 @@ def execute_release_steps(repo, version, config):
             
             # Create a temporary branch for testing the merge
             temp_branch = f"temp-merge-test-{base_version}"
+            
+            # Clean up any existing temp branch from previous runs
+            result = run_command(f"git show-ref --verify --quiet refs/heads/{temp_branch}", cwd=repo_path, check=False)
+            if result.returncode == 0:
+                print(blue(f"Cleaning up existing temp branch {temp_branch}..."))
+                # Make sure we're not on the temp branch before deleting it
+                run_command(f"git checkout {default_branch}", cwd=repo_path)
+                run_command(f"git branch -D {temp_branch}", cwd=repo_path)
+                print(green(f"Deleted existing temp branch {temp_branch}"))
+            
             run_command(f"git checkout -b {temp_branch} {bump_remote}/{bump_branch}", cwd=repo_path)
             
             # Try to merge nightly-testing
@@ -218,20 +258,64 @@ def execute_release_steps(repo, version, config):
                     for file in problematic_files:
                         print(red(f"  - {file}"))
                     print(yellow("\nYou need to make a PR merging the changes from nightly-testing into the bump branch first."))
-                    print(yellow(f"Create a PR from nightly-testing targeting {bump_branch} to resolve these conflicts."))
+                    print(yellow(f"Create a PR from nightly-testing targeting {bump_branch} to resolve these changes."))
                     return
                 else:
                     print(green("✅ Safety check passed - only lean-toolchain and/or lake-manifest.json would change"))
                     
             except subprocess.CalledProcessError:
-                # Clean up temporary branch on merge failure
+                # Merge failed due to conflicts - check which files are conflicted
+                print(blue("Merge failed, checking which files are affected..."))
+                
+                # Get all changed files using git status
+                status_result = run_command("git status --porcelain", cwd=repo_path)
+                changed_files = []
+                
+                for line in status_result.stdout.splitlines():
+                    if line.strip():  # Skip empty lines
+                        # Extract filename (skip the first 3 characters which are status codes)
+                        changed_files.append(line[3:])
+                
+                # Filter out allowed files
+                allowed_patterns = ['lean-toolchain', 'lake-manifest.json']
+                problematic_files = []
+                
+                for file in changed_files:
+                    is_allowed = any(pattern in file for pattern in allowed_patterns)
+                    if not is_allowed:
+                        problematic_files.append(file)
+                
+                if problematic_files:
+                    # There are changes in non-allowed files - fail the safety check
+                    # First abort the merge to clean up the conflicted state
+                    run_command("git merge --abort", cwd=repo_path)
+                    run_command(f"git checkout {default_branch}", cwd=repo_path)
+                    run_command(f"git branch -D {temp_branch}", cwd=repo_path)
+                    print(red("❌ Safety check failed!"))
+                    print(red(f"Merging nightly-testing into {bump_branch} would result in changes to:"))
+                    for file in problematic_files:
+                        print(red(f"  - {file}"))
+                    print(yellow("\nYou need to make a PR merging the changes from nightly-testing into the bump branch first."))
+                    print(yellow(f"Create a PR from nightly-testing targeting {bump_branch} to resolve these changes."))
+                    return
+                else:
+                    # Only allowed files are changed - resolve them and continue
+                    print(green(f"✅ Only allowed files changed: {', '.join(changed_files)}"))
+                    print(blue("Resolving conflicts by taking nightly-testing version..."))
+                    
+                    # For each changed allowed file, take the nightly-testing version
+                    for file in changed_files:
+                        run_command(f"git checkout --theirs {file}", cwd=repo_path)
+                    
+                    # Complete the merge
+                    run_command("git add .", cwd=repo_path)
+                    run_command("git commit --no-edit", cwd=repo_path)
+                    
+                    print(green("✅ Safety check passed - changes only in allowed files"))
+                
+                # Clean up temporary branch and return to default branch
                 run_command(f"git checkout {default_branch}", cwd=repo_path)
                 run_command(f"git branch -D {temp_branch}", cwd=repo_path)
-                print(red("❌ Safety check failed!"))
-                print(red(f"Merging nightly-testing into {bump_branch} would result in merge conflicts."))
-                print(yellow("\nYou need to make a PR merging the changes from nightly-testing into the bump branch first."))
-                print(yellow(f"Create a PR from nightly-testing targeting {bump_branch} to resolve these conflicts."))
-                return
                 
         except subprocess.CalledProcessError as e:
             # Ensure we're back on the default branch even if setup failed
@@ -320,32 +404,143 @@ def execute_release_steps(repo, version, config):
 
     # Handle special merging cases
     if re.search(r'rc\d+$', version) and repo_name in ["batteries", "mathlib4"]:
-        print(blue("This repo has nightly-testing infrastructure"))
+        print(blue("This repo uses `bump/v4.X.0` branches for reviewed content from nightly-testing."))
         
         # Determine which remote to use for bump branches
         bump_remote, nightly_remote = get_remotes_for_repo(repo_name)
+        
+        # Fetch latest changes to ensure we have the most up-to-date bump branch
+        print(blue(f"Fetching latest changes from {bump_remote}..."))
+        run_command(f"git fetch {bump_remote}", cwd=repo_path)
         
         try:
             print(blue(f"Merging {bump_remote}/bump/{version.split('-rc')[0]}..."))
             run_command(f"git merge {bump_remote}/bump/{version.split('-rc')[0]}", cwd=repo_path)
             print(green("Merge completed successfully"))
         except subprocess.CalledProcessError:
-            print(red("Merge conflicts detected. Please resolve them manually."))
-            return
+            # Merge failed due to conflicts - check which files are conflicted
+            print(blue("Merge conflicts detected, checking which files are affected..."))
+            
+            # Get conflicted files using git status
+            status_result = run_command("git status --porcelain", cwd=repo_path)
+            conflicted_files = []
+            
+            for line in status_result.stdout.splitlines():
+                if len(line) >= 2 and line[:2] in ['UU', 'AA', 'DD', 'AU', 'UA', 'DU', 'UD']:
+                    # Extract filename (skip the first 3 characters which are status codes)
+                    conflicted_files.append(line[3:])
+            
+            # Filter out allowed files
+            allowed_patterns = ['lean-toolchain', 'lake-manifest.json']
+            problematic_files = []
+            
+            for file in conflicted_files:
+                is_allowed = any(pattern in file for pattern in allowed_patterns)
+                if not is_allowed:
+                    problematic_files.append(file)
+            
+            if problematic_files:
+                # There are conflicts in non-allowed files - fail
+                print(red("❌ Merge failed!"))
+                print(red(f"Merging {bump_remote}/bump/{version.split('-rc')[0]} resulted in conflicts in:"))
+                for file in problematic_files:
+                    print(red(f"  - {file}"))
+                print(red("Please resolve these conflicts manually."))
+                return
+            else:
+                # Only allowed files are conflicted - resolve them automatically
+                print(green(f"✅ Only allowed files conflicted: {', '.join(conflicted_files)}"))
+                print(blue("Resolving conflicts automatically..."))
+                
+                # Overwrite lean-toolchain with our target version
+                if 'lean-toolchain' in conflicted_files:
+                    print(blue(f"Overwriting lean-toolchain with target version {version}"))
+                    toolchain_file = repo_path / "lean-toolchain"
+                    with open(toolchain_file, "w") as f:
+                        f.write(f"leanprover/lean4:{version}\n")
+                
+                # For other allowed files, take our version (since we want our changes)
+                for file in conflicted_files:
+                    if file != 'lean-toolchain':
+                        run_command(f"git checkout --ours {file}", cwd=repo_path)
+                
+                # Run lake update to rebuild lake-manifest.json
+                print(blue("Running lake update to rebuild lake-manifest.json..."))
+                run_command("lake update", cwd=repo_path, stream_output=True)
+                
+                # Complete the merge
+                run_command("git add .", cwd=repo_path)
+                run_command("git commit --no-edit", cwd=repo_path)
+                
+                print(green("✅ Merge completed successfully with automatic conflict resolution"))
     
-    if re.search(r'rc\d+$', version) and repo_name in ["verso", "reference-manual"]:
-        print(yellow("This repo does development on nightly-testing: remember to rebase merge the PR."))
+    elif re.search(r'rc\d+$', version):
+        # For all other repos with rc versions, merge nightly-testing
+        if repo_name in ["verso", "reference-manual"]:
+            print(yellow("This repo does development on nightly-testing: remember to rebase merge the PR."))
+        
+        # Fetch latest changes to ensure we have the most up-to-date nightly-testing branch
+        print(blue("Fetching latest changes from origin..."))
+        run_command("git fetch origin", cwd=repo_path)
+        
         try:
             print(blue("Merging origin/nightly-testing..."))
             run_command("git merge origin/nightly-testing", cwd=repo_path)
             print(green("Merge completed successfully"))
         except subprocess.CalledProcessError:
-            print(red("Merge conflicts detected. Please resolve them manually."))
-            return
+            # Merge failed due to conflicts - check which files are conflicted
+            print(blue("Merge conflicts detected, checking which files are affected..."))
+            
+            # Get conflicted files using git status
+            status_result = run_command("git status --porcelain", cwd=repo_path)
+            conflicted_files = []
+            
+            for line in status_result.stdout.splitlines():
+                if len(line) >= 2 and line[:2] in ['UU', 'AA', 'DD', 'AU', 'UA', 'DU', 'UD']:
+                    # Extract filename (skip the first 3 characters which are status codes)
+                    conflicted_files.append(line[3:])
+            
+            # Filter out allowed files
+            allowed_patterns = ['lean-toolchain', 'lake-manifest.json']
+            problematic_files = []
+            
+            for file in conflicted_files:
+                is_allowed = any(pattern in file for pattern in allowed_patterns)
+                if not is_allowed:
+                    problematic_files.append(file)
+            
+            if problematic_files:
+                # There are conflicts in non-allowed files - fail
+                print(red("❌ Merge failed!"))
+                print(red(f"Merging nightly-testing resulted in conflicts in:"))
+                for file in problematic_files:
+                    print(red(f"  - {file}"))
+                print(red("Please resolve these conflicts manually."))
+                return
+            else:
+                # Only allowed files are conflicted - resolve them automatically
+                print(green(f"✅ Only allowed files conflicted: {', '.join(conflicted_files)}"))
+                print(blue("Resolving conflicts automatically..."))
+                
+                # For lean-toolchain and lake-manifest.json, keep our versions
+                for file in conflicted_files:
+                    print(blue(f"Keeping our version of {file}"))
+                    run_command(f"git checkout --ours {file}", cwd=repo_path)
+                
+                # Complete the merge
+                run_command("git add .", cwd=repo_path)
+                run_command("git commit --no-edit", cwd=repo_path)
+                
+                print(green("✅ Merge completed successfully with automatic conflict resolution"))
 
     # Build and test (skip for Mathlib)
-    if repo_name not in ["Mathlib", "mathlib4"]:
+    if repo_name not in ["mathlib4"]:
         print(blue("Building project..."))
+        
+        # Clean lake cache for a fresh build
+        print(blue("Cleaning lake cache..."))
+        run_command("rm -rf .lake", cwd=repo_path)
+        
         try:
             run_command("lake build", cwd=repo_path, stream_output=True)
             print(green("Build completed successfully"))

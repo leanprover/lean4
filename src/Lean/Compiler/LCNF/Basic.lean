@@ -648,15 +648,19 @@ def hasLocalInst (type : Expr) : Bool :=
 /--
 Return `true` if `decl` is supposed to be inlined/specialized.
 -/
-def Decl.isTemplateLike (decl : Decl) : CoreM Bool := do
+def Decl.isTemplateLikeCore (env : Environment) (decl : Decl) : Bool := Id.run do
   if hasLocalInst decl.type then
     return true -- `decl` applications will be specialized
-  else if (← Meta.isInstance decl.name) then
+  else if Meta.isInstanceCore env decl.name then
     return true -- `decl` is "fuel" for code specialization
-  else if decl.inlineable || hasSpecializeAttribute (← getEnv) decl.name then
+  else if decl.inlineable || hasSpecializeAttribute env decl.name then
     return true -- `decl` is going to be inlined or specialized
   else
     return false
+
+@[inherit_doc Decl.isTemplateLikeCore]
+def Decl.isTemplateLike (decl : Decl) : CoreM Bool :=
+  return decl.isTemplateLikeCore (← getEnv)
 
 private partial def collectType (e : Expr) : FVarIdHashSet → FVarIdHashSet :=
   match e with

@@ -652,7 +652,7 @@ example : ∀ n : Nat, n = (let x := n; x) := by
   rfl
 
 /-!
-Same example, but testing `letFun`.
+Same example, but testing `have`.
 -/
 /--
 trace: ⊢ ∀ (n : Nat),

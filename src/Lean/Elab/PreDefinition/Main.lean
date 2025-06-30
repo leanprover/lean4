@@ -98,11 +98,7 @@ private partial def ensureNoUnassignedLevelMVarsAtPreDef (preDef : PreDefinition
             | .proj _ _ b    => withExpr e do visit b
             | .sort u        => visitLevel u (← read)
             | .const _ us    => (if head then id else withExpr e) <| us.forM (visitLevel · (← read))
-            | .app ..        => withExpr e do
-                                  if let some (args, n, t, v, b) := e.letFunAppArgs? then
-                                    visit t; visit v; withLocalDeclD n t fun x => visit (b.instantiate1 x); args.forM visit
-                                  else
-                                    e.withApp fun f args => do visit f true; args.forM visit
+            | .app ..        => withExpr e do e.withApp fun f args => do visit f true; args.forM visit
             | _              => pure ()
       try
         visit preDef.value |>.run preDef.value |>.run {}

@@ -108,7 +108,7 @@ open Meta
     Recall that we do not use the same approach used to elaborate type ascriptions.
     For the `($val : $type)` notation, we just elaborate `val` using `type` and
     ensure it has type `type`. This approach only ensure the type resulting expression
-    is definitionally equal to `type`. For the `show` notation we use `let_fun` to ensure the type
+    is definitionally equal to `type`. For the `show` notation we use `have` to ensure the type
     of the resulting expression is *structurally equal* `type`. Structural equality is important,
     for example, if the resulting expression is a `simp`/`rw` parameter. Here is an example:
     ```

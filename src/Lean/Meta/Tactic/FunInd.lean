@@ -290,14 +290,6 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
   withTraceNode `Meta.FunInd (pure m!"{exceptEmoji ·} foldAndCollect ({mkFVar oldIH} → {mkFVar newIH})::{indentExpr e}") do
 
   let e' ← id do
-    if let some (n, t, v, b) := e.letFun? then
-      let t' ← foldAndCollect oldIH newIH isRecCall t
-      let v' ← foldAndCollect oldIH newIH isRecCall v
-      return ← withLocalDeclD n t' fun x => do
-        M.localMapM (mkLetFun x v' ·) do
-          let b' ← foldAndCollect oldIH newIH isRecCall (b.instantiate1 x)
-          mkLetFun x v' b'
-
     if let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) then
       if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
         -- We do different things to the matcher when folding recursive calls and when
@@ -673,12 +665,6 @@ def rwLetWith (h : Expr) (e : Expr) : MetaM Simp.Result := do
 def rwMData (e : Expr) : MetaM Simp.Result := do
   return { expr := e.consumeMData }
 
-def rwHaveWith (h : Expr) (e : Expr) : MetaM Simp.Result := do
-  if let some (_n, t, _v, b) := e.letFun? then
-    if (← isDefEq t (← inferType h)) then
-      return { expr := b.instantiate1 h }
-  return { expr := e }
-
 def rwFun (names : Array Name) (e : Expr) : MetaM Simp.Result := do
   e.withApp fun f xs => do
     if let some name := names.find? f.isConstOf then
@@ -909,14 +895,6 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
       let b' ← withRewrittenMotiveArg goal (rwLetWith x) fun goal' =>
         buildInductionBody toErase toClear goal' oldIH newIH isRecCall (b.instantiate1 x)
       mkLetFVars #[x] b'
-
-  if let some (n, t, v, b) := e.letFun? then
-    let t' ← foldAndCollect oldIH newIH isRecCall t
-    let v' ← foldAndCollect oldIH newIH isRecCall v
-    return ← withLetDecl n t' v' fun x => M2.branch do
-      let b' ← withRewrittenMotiveArg goal (rwHaveWith x) fun goal' =>
-        buildInductionBody toErase toClear goal' oldIH newIH isRecCall (b.instantiate1 x)
-      mkLetFVars #[x] b' (usedLetOnly := false)
 
   -- Special case for traversing the PProd’ed bodies in our encoding of structural mutual recursion
   if let .lam n t b bi := e then
@@ -1550,9 +1528,6 @@ where
                 modify (·.set! i true)
             for alt in args[matchInfo.getFirstAltPos...matchInfo.arity] do
               go xs alt
-        if f.isConstOf ``letFun then
-          for arg in args[3...4] do
-            go xs arg
         if f.isConstOf ``ite || f.isConstOf ``dite then
           for arg in args[3...5] do
             go xs arg

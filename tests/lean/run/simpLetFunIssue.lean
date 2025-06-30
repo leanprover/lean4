@@ -92,7 +92,7 @@ example (a b : Nat) (h : a = b) : g 2 true (0 + a) = b := by
   simp -zeta only [Bool.not_true, Nat.one_mul]
   guard_target =ₛ
     (have b' := false; have x := 0 + a; have b' := !b';
-     let_fun x := x; if b' = true then x else 0) = b
+     have x := x; if b' = true then x else 0) = b
   simp [h]
 
 example (a : Nat) : g 33 true (0 + a) = 0 := by

@@ -692,9 +692,7 @@ creating a *nondependent* let expression.
 @[builtin_term_parser] def «have» := leading_parser:leadPrec
   withPosition ("have" >> letConfig >> letDecl) >> optSemicolon termParser
 /--
-`let_fun x := v; b` is syntax sugar for `letFun v (fun x => b)`.
-It is very similar to `let x := v; b`, but they are not equivalent.
-In `let_fun`, the value `v` has been abstracted away and cannot be accessed in `b`.
+`let_fun x := v; b` is deprecated syntax sugar for `have x := v; b`.
 -/
 @[builtin_term_parser] def «let_fun»     := leading_parser:leadPrec
   withPosition ((symbol "let_fun " <|> "let_λ ") >> letDecl) >> optSemicolon termParser

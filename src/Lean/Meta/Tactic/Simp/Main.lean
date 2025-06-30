@@ -210,12 +210,6 @@ private def reduceStep (e : Expr) : SimpM Expr := do
       return expandLet b #[v] (zetaHave := cfg.zetaHave)
     else if cfg.zetaUnused && !b.hasLooseBVars then
       return consumeUnusedLet b
-  -- TODO(kmill): we are going to remove `letFun` support.
-  if let some (args, _, _, v, b) := e.letFunAppArgs? then
-    if cfg.zeta && cfg.zetaHave then
-      return mkAppN (expandLet b #[v] (zetaHave := cfg.zetaHave)) args
-    else if cfg.zetaUnused && !b.hasLooseBVars then
-      return mkAppN (consumeUnusedLet b) args
   match (← unfold? e) with
   | some e' =>
     trace[Meta.Tactic.simp.rewrite] "unfold {.ofConst e.getAppFn}, {e} ==> {e'}"
@@ -986,12 +980,6 @@ def simpApp (e : Expr) : SimpM Result := do
   if isOfNatNatLit e || isOfScientificLit e || isCharLit e then
     -- Recall that we fold "orphan" kernel Nat literals `n` into `OfNat.ofNat n`
     return { expr := e }
-  else if let some (args, n, t, v, b) := e.letFunAppArgs? then
-    /-
-    Note: we will be removing `letFun`, and we want everything to be in terms of `nondep := true` lets.
-    This will then use `simpLet`.
-    -/
-    return { expr := mkAppN (Expr.letE n t v b true) args }
   else
     congr e
 

@@ -40,7 +40,7 @@ structure Foo where
 #guard_msgs in #check ∀ (x : Foo), x.f 1 = 0
 
 /-!
-Overapplied `letFun`
+`have` in function position
 -/
 /--
 info: (have f := id;

@@ -601,12 +601,6 @@ partial def expandLet (e : Expr) (vs : Array Expr) (zetaHave : Bool := true) : E
       expandLet b (vs.push <| v.instantiateRev vs) zetaHave
     else
       e.instantiateRev vs
-  -- TODO(kmill): we are going to remove `letFun` support.
-  else if let some (_, _, v, b) := e.letFun? then
-    if zetaHave then
-      expandLet b (vs.push <| v.instantiateRev vs) zetaHave
-    else
-      e.instantiateRev vs
   else
     e.instantiateRev vs
 
@@ -620,13 +614,8 @@ In the case of `isDefEqQuick`, it is also used when `zeta` is set.
 -/
 partial def consumeUnusedLet (e : Expr) (consumeNondep : Bool := false) : Expr :=
   match e with
-  | e@(.letE _ _ _ b nondep) => if b.hasLooseBVars || (nondep && !consumeNondep) then e else consumeUnusedLet b consumeNondep
-  | e =>
-    -- TODO(kmill): we are going to remove `letFun` support.
-    if let some (_, _, _, b) := e.letFun? then
-      if b.hasLooseBVars || !consumeNondep then e else consumeUnusedLet b consumeNondep
-    else
-      e
+  | .letE _ _ _ b nondep => if b.hasLooseBVars || (nondep && !consumeNondep) then e else consumeUnusedLet b consumeNondep
+  | _ => e
 
 /--
 Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
@@ -650,13 +639,6 @@ where
           return e
       | .app f ..       =>
         let cfg ← getConfig
-        -- TODO(kmill): we are going to remove `letFun` support.
-        if let some (args, _, _, v, b) := e.letFunAppArgs? then
-          -- When zeta reducing enabled, always reduce `letFun` no matter the current reducibility level
-          if cfg.zeta && cfg.zetaHave then
-            return (← go <| mkAppN (expandLet b #[v] (zetaHave := cfg.zetaHave)) args)
-          else if cfg.zetaUnused && !b.hasLooseBVars then
-            return (← go <| mkAppN (consumeUnusedLet b) args)
         let f := f.getAppFn
         let f' ← go f
         /-

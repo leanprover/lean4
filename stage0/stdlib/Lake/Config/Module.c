@@ -17,6 +17,7 @@ LEAN_EXPORT lean_object* l_Lake_Module_oleanPrivateFile(lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_bcFile_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_ileanFile(lean_object*);
+static lean_object* l_Lake_Module_irFile___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Module_pkg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_findModule_x3f(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -119,6 +120,7 @@ LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findM
 LEAN_EXPORT lean_object* l_Lake_Module_traceFile(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ModuleMap_empty(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Module_shouldPrecompile(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Module_irFile(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_relLeanFile(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_findModuleBySrc_x3f(lean_object*, lean_object*);
 static lean_object* l_Lake_ModuleSet_empty___closed__4;
@@ -2161,6 +2163,49 @@ lean_dec(x_13);
 return x_14;
 }
 }
+static lean_object* _init_l_Lake_Module_irFile___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("ir", 2, 2);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Module_irFile(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
+lean_dec(x_2);
+x_4 = lean_ctor_get(x_3, 3);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_1, 1);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = lean_ctor_get(x_3, 1);
+lean_inc(x_6);
+lean_dec(x_3);
+x_7 = lean_ctor_get(x_4, 6);
+lean_inc(x_7);
+x_8 = lean_ctor_get(x_4, 7);
+lean_inc(x_8);
+lean_dec(x_4);
+x_9 = l_Lake_Module_irFile___closed__0;
+x_10 = l_System_FilePath_normalize(x_7);
+x_11 = l_Lake_joinRelative(x_6, x_10);
+lean_dec(x_10);
+x_12 = l_System_FilePath_normalize(x_8);
+x_13 = l_Lake_joinRelative(x_11, x_12);
+lean_dec(x_12);
+x_14 = l_Lean_modToFilePath(x_13, x_5, x_9);
+lean_dec(x_5);
+lean_dec(x_13);
+return x_14;
+}
+}
 static lean_object* _init_l_Lake_Module_cFile___closed__0() {
 _start:
 {
@@ -3712,6 +3757,8 @@ l_Lake_Module_traceFile___closed__0 = _init_l_Lake_Module_traceFile___closed__0(
 lean_mark_persistent(l_Lake_Module_traceFile___closed__0);
 l_Lake_Module_setupFile___closed__0 = _init_l_Lake_Module_setupFile___closed__0();
 lean_mark_persistent(l_Lake_Module_setupFile___closed__0);
+l_Lake_Module_irFile___closed__0 = _init_l_Lake_Module_irFile___closed__0();
+lean_mark_persistent(l_Lake_Module_irFile___closed__0);
 l_Lake_Module_cFile___closed__0 = _init_l_Lake_Module_cFile___closed__0();
 lean_mark_persistent(l_Lake_Module_cFile___closed__0);
 l_Lake_Module_coExportFile___closed__0 = _init_l_Lake_Module_coExportFile___closed__0();

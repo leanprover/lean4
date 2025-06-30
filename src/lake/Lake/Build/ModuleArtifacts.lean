@@ -18,6 +18,7 @@ structure ModuleOutputHashes where
   oleanServer? : Option Hash := none
   oleanPrivate? : Option Hash := none
   ilean : Hash := .nil
+  ir? : Option Hash := none
   c : Hash := .nil
   bc? : Option Hash := none
 
@@ -33,6 +34,8 @@ protected def ModuleOutputHashes.toJson (hashes : ModuleOutputHashes) : Json := 
   let mut obj : JsonObject := {}
   obj := obj.insert "o" hashes.oleanHashes
   obj := obj.insert "i" hashes.ilean
+  if let some ir := hashes.ir? then
+    obj := obj.insert "ir" ir
   obj := obj.insert "c" hashes.c
   if let some bc := hashes.bc? then
     obj := obj.insert "b" bc
@@ -50,6 +53,7 @@ protected def ModuleOutputHashes.fromJson? (val : Json) : Except String ModuleOu
     oleanServer? := oleanHashes[1]?
     oleanPrivate? := oleanHashes[2]?
     ilean := ← obj.get "i"
+    ir? := ← obj.get? "ir"
     c := ← obj.get "c"
     bc? := ← obj.get? "b"
   }
@@ -62,6 +66,7 @@ structure ModuleOutputArtifacts where
   oleanServer? : Option Artifact := none
   oleanPrivate? : Option Artifact := none
   ilean : Artifact
+  ir? : Option Artifact := none
   c : Artifact
   bc? : Option Artifact := none
 
@@ -71,5 +76,6 @@ def ModuleOutputArtifacts.hashes (arts : ModuleOutputArtifacts) : ModuleOutputHa
   oleanServer? := arts.oleanServer?.map (·.hash)
   oleanPrivate? := arts.oleanPrivate?.map (·.hash)
   ilean := arts.ilean.hash
+  ir? := arts.ir?.map (·.hash)
   c := arts.c.hash
   bc? := arts.bc?.map (·.hash)

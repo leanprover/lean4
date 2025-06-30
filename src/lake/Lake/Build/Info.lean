@@ -217,6 +217,9 @@ namespace Module
 @[inherit_doc ileanFacet] abbrev ilean (self : Module)  :=
   self.facetCore ileanFacet
 
+@[inherit_doc irFacet] abbrev ir (self : Module) :=
+  self.facetCore irFacet
+
 @[inherit_doc cFacet] abbrev c (self : Module) :=
   self.facetCore cFacet
 

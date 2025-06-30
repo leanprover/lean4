@@ -133,7 +133,9 @@ private def registerFailedToInferDefTypeInfo (type : Expr) (view : DefView) :
     | _         => view.declId
   let msg := match view.kind with
     | .example  => m!"example"
-    | .instance => m!"instance"
+    | .instance => if view.declId.getHeadInfo matches .original .. then
+        m!"instance `{view.declId}`"
+      else m!"instance"
     | .theorem  => m!"theorem `{view.declId}`"
     | _         => m!"definition `{view.declId}`"
   registerCustomErrorIfMVar type ref m!"Failed to infer type of {msg}"

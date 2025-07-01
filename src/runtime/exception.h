@@ -65,5 +65,4 @@ public:
     heartbeat_exception() {}
     virtual char const * what() const noexcept;
 };
-
 }

@@ -40,6 +40,21 @@ def isOffsetPattern? (pat : Expr) : Option (Expr × Nat) := Id.run do
   let .lit (.natVal k) := k | none
   return some (pat, k)
 
+/--
+`detectOffsets` inverse.
+This function is used to expand `mkOffsetPattern` occurring in a constant pattern.
+-/
+private def expandOffsetPatterns (pat : Expr) : CoreM Expr := do
+  let pre (e : Expr) := do
+    match e with
+    | .letE .. | .lam .. | .forallE .. => return .done e
+    | _ =>
+      let some (e, k) := isOffsetPattern? e
+        | return .continue e
+      if k == 0 then return .continue e
+      return .continue <| mkNatAdd e (mkNatLit k)
+  Core.transform pat (pre := pre)
+
 def mkEqBwdPattern (u : List Level) (α : Expr) (lhs rhs : Expr) : Expr :=
   mkApp3 (mkConst ``Grind.eqBwdPattern u) α lhs rhs
 
@@ -627,7 +642,7 @@ where
       if arg.hasMVar then
         pure dontCare
       else
-        pure <| mkGroundPattern arg
+        return mkGroundPattern (← expandOffsetPatterns arg)
     else match arg with
       | .bvar idx =>
         if inSupport && (← foundBVar idx) then

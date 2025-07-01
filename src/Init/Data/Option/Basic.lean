@@ -286,7 +286,7 @@ Lifts an ordering relation to `Option` such that `none` is the *greatest* elemen
 It can be understood as adding a distinguished greatest element, represented by `none`, to both `α`
 and `β`.
 
-Caution: Given `LE α`, `Option.SomeLtNone.lt LE.le` differs from the `LE (Option α)` instance,
+Caution: Given `LE α`, `Option.SomeLtNone.le LE.le` differs from the `LE (Option α)` instance,
 which is implemented by `Option.le LE.le`.
 
 Examples:

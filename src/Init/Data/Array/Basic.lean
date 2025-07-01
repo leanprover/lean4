@@ -263,7 +263,7 @@ Examples:
 * `#["red", "green", "blue", "brown"].swapIfInBounds 0 4 = #["red", "green", "blue", "brown"]`
 * `#["red", "green", "blue", "brown"].swapIfInBounds 9 2 = #["red", "green", "blue", "brown"]`
 -/
-@[extern "lean_array_swap"]
+@[extern "lean_array_swap", grind]
 def swapIfInBounds (xs : Array α) (i j : @& Nat) : Array α :=
   if h₁ : i < xs.size then
   if h₂ : j < xs.size then swap xs i j
@@ -1808,6 +1808,7 @@ Examples:
 * `#["apple", "pear", "orange"].eraseIdxIfInBounds 3 = #["apple", "pear", "orange"]`
 * `#["apple", "pear", "orange"].eraseIdxIfInBounds 5 = #["apple", "pear", "orange"]`
 -/
+@[grind]
 def eraseIdxIfInBounds (xs : Array α) (i : Nat) : Array α :=
   if h : i < xs.size then xs.eraseIdx i h else xs
 
@@ -1918,6 +1919,7 @@ Examples:
  * `#["tues", "thur", "sat"].insertIdxIfInBounds 3 "wed" = #["tues", "thur", "sat", "wed"]`
  * `#["tues", "thur", "sat"].insertIdxIfInBounds 4 "wed" = #["tues", "thur", "sat"]`
 -/
+@[grind]
 def insertIdxIfInBounds (as : Array α) (i : Nat) (a : α) : Array α :=
   if h : i ≤ as.size then
     insertIdx as i a

@@ -909,7 +909,7 @@ Returns the binder list without these updates along with the new binder infos fo
 -/
 private def elabParamInfoUpdates (structParams : Array Expr) (binders : Array Syntax) : StructElabM (Array Syntax × ExprMap (Syntax × BinderInfo)) := do
   let mut overrides : ExprMap (Syntax × BinderInfo) := {}
-  for i in *...binders.size do
+  for i in [0:binders.size] do
     match typelessBinder? binders[i]! with
     | none => return (binders.extract i, overrides)
     | some (ids, bi) =>
@@ -1225,7 +1225,7 @@ private def resolveFieldDefaults (structName : Name) : StructElabM Unit := do
   -- We will do that in `checkResolutionOrder`, which is after the structure is registered.
   let { resolutionOrder, .. } ← mergeStructureResolutionOrders structName ((← get).parents.map (·.structName)) (relaxed := true)
   let mut resOrderMap : NameMap Nat := {}
-  for h : i in *...resolutionOrder.size do
+  for h : i in [0:resolutionOrder.size] do
     resOrderMap := resOrderMap.insert resolutionOrder[i] i
   for fieldInfo in (← get).fields do
     if fieldInfo.default?.isSome then

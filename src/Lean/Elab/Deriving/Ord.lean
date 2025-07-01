@@ -28,17 +28,17 @@ where
         let type ← Core.betaReduce type -- we 'beta-reduce' to eliminate "artificial" dependencies
         let mut indPatterns := #[]
         -- add `_` pattern for indices
-        for _ in *...indVal.numIndices do
+        for _ in [:indVal.numIndices] do
           indPatterns := indPatterns.push (← `(_))
         let mut ctorArgs1 := #[]
         let mut ctorArgs2 := #[]
         -- construct RHS top-down as continuation over the remaining comparison
         let mut rhsCont : Term → TermElabM Term := fun rhs => pure rhs
         -- add `_` for inductive parameters, they are inaccessible
-        for _ in *...indVal.numParams do
+        for _ in [:indVal.numParams] do
           ctorArgs1 := ctorArgs1.push (← `(_))
           ctorArgs2 := ctorArgs2.push (← `(_))
-        for i in *...ctorInfo.numFields do
+        for i in [:ctorInfo.numFields] do
           let x := xs[indVal.numParams + i]!
           if type.containsFVar x.fvarId! || (←isProp (←inferType x)) then
             -- If resulting type depends on this field or is a proof, we don't need to compare
@@ -78,7 +78,7 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
 
 def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]
-  for i in *...ctx.typeInfos.size do
+  for i in [:ctx.typeInfos.size] do
     auxDefs := auxDefs.push (← mkAuxFunction ctx i)
   `(mutual
      set_option match.ignoreUnusedAlts true

@@ -295,12 +295,12 @@ where
     matchConstInduct t.getAppFn (fun _ => failure) fun info _ => do
       let tArgs := t.getAppArgs
       let dArgs := d.getAppArgs
-      for i in *...info.numParams do
+      for i in [:info.numParams] do
         let tArg := tArgs[i]!
         let dArg := dArgs[i]!
         unless (← isDefEq tArg dArg) do
           return i :: (← goType tArg dArg)
-      for h : i in info.numParams...tArgs.size do
+      for h : i in [info.numParams : tArgs.size] do
         let tArg := tArgs[i]
         let dArg := dArgs[i]!
         unless (← isDefEq tArg dArg) do
@@ -318,12 +318,12 @@ where
       matchConstCtor t.getAppFn (fun _ => failure) fun info _ => do
         let tArgs := t.getAppArgs
         let dArgs := d.getAppArgs
-        for i in *...info.numParams do
+        for i in [:info.numParams] do
           let tArg := tArgs[i]!
           let dArg := dArgs[i]!
           unless (← isDefEq tArg dArg) do
             failure
-        for i in info.numParams...tArgs.size do
+        for i in [info.numParams : tArgs.size] do
           let tArg := tArgs[i]!
           let dArg := dArgs[i]!
           unless (← isDefEq tArg dArg) do
@@ -356,13 +356,13 @@ private def elabPatterns (patternStxs : Array Syntax) (numDiscrs : Nat) (matchTy
       logIncorrectNumberOfPatternsAt (← getRef) "Not enough" numDiscrs patternStxs.size patternStxs.toList
       let numHoles := numDiscrs - patternStxs.size
       let mut extraStxs := Array.emptyWithCapacity numHoles
-      for _ in *...numHoles do
+      for _ in [:numHoles] do
         extraStxs := extraStxs.push (← `(_))
       patternStxs := patternStxs ++ extraStxs
     else if patternStxs.size > numDiscrs then
       throwIncorrectNumberOfPatternsAt (← getRef) "Too many" numDiscrs patternStxs.size patternStxs.toList
 
-    for h : idx in *...patternStxs.size do
+    for h : idx in [:patternStxs.size] do
       let patternStx := patternStxs[idx]
       matchType ← whnf matchType
       match matchType with

@@ -93,7 +93,7 @@ def setMVarUserNamesAt (e : Expr) (isTarget : Array Expr) : MetaM (Array MVarId)
   forEachExpr (← instantiateMVars e) fun e => do
     if e.isApp then
       let args := e.getAppArgs
-      for h : i in *...args.size do
+      for h : i in [:args.size] do
         let arg := args[i]
         if arg.isMVar && isTarget.contains arg then
           let mvarId := arg.mvarId!

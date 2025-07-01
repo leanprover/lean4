@@ -171,7 +171,7 @@ partial def exprDiffCore (before after : SubExpr) : MetaM ExprDiff := do
             ⟨body₀.instantiateRev fvars.toArray, before.pos.pushNthBindingBody s.length⟩
             after
         ) <|> (pure ∅)
-        for i in *...s.length do
+        for i in [0:s.length] do
           δ := δ.insertBeforeChange (before.pos.pushNthBindingDomain i) .delete
         -- [todo] maybe here insert a tag on the after case indicating an expression was deleted above the expression?
         return δ

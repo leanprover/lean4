@@ -325,7 +325,7 @@ private partial def collideThreads (thread : ThreadWithCollideMaps) (add : Threa
   StateT.run collideSamples thread |>.2
 where
   collideSamples : StateM ThreadWithCollideMaps Unit := do
-    for oldSampleIdx in *...add.samples.length do
+    for oldSampleIdx in [0:add.samples.length] do
       let oldStackIdx := add.samples.stack[oldSampleIdx]!
       let stackIdx ← collideStacks oldStackIdx
       modify fun thread =>

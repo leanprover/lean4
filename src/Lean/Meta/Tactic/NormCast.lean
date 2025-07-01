@@ -51,7 +51,7 @@ partial def countCoes (e : Expr) : MetaM Nat :=
       if let some info ← getCoeFnInfo? fn then
         if e.getAppNumArgs >= info.numArgs then
           let mut coes := (← countHeadCoes (e.getArg! info.coercee)) + 1
-          for i in info.numArgs...e.getAppNumArgs do
+          for i in [info.numArgs:e.getAppNumArgs] do
             coes := coes + (← countCoes (e.getArg! i))
           return coes
     return (← (← getSimpArgs e).mapM countCoes).foldl (·+·) 0

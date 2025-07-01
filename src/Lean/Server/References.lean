@@ -413,7 +413,7 @@ has a name or uri that is not identical to the others.
 -/
 def ModuleImport.collapseIdenticalImports? (identicalImports : Array ModuleImport) : Option ModuleImport := do
   let mut acc ← identicalImports[0]?
-  for h:i in 1...identicalImports.size do
+  for h:i in [1:identicalImports.size] do
     let «import» := identicalImports[i]
     guard <| acc.module == «import».module
     guard <| acc.uri == «import».uri

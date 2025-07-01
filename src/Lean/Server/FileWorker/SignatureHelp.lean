@@ -119,7 +119,7 @@ def findSignatureHelp? (text : FileMap) (ctx? : Option Lsp.SignatureHelpContext)
     | return none
   let stack := stack.toArray.map (·.1)
   let mut candidates : Array Candidate := #[]
-  for h:i in *...stack.size do
+  for h:i in [0:stack.size] do
     let stx := stack[i]
     let parent := stack[i+1]?.getD .missing
     let (kind?, control) := determineCandidateKind stx parent

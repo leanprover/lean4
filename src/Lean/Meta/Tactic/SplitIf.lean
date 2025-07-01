@@ -45,7 +45,7 @@ private def isCandidate? (env : Environment) (ctx : Context) (e : Expr) : Option
   if ctx.kind.considerMatch then
     if let some info := isMatcherAppCore? env e then
       let args := e.getAppArgs
-      for i in info.getFirstDiscrPos...(info.getFirstDiscrPos + info.numDiscrs) do
+      for i in [info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
         if args[i]!.hasLooseBVars then
           return none
       return ret (e.getBoundedAppFn (args.size - info.arity))
@@ -81,7 +81,7 @@ where
       pure {}
     else
       getFunInfo f
-    for u : i in *...args.size do
+    for u : i in [0:args.size] do
       let arg := args[i]
       if h : i < info.paramInfo.size then
         let info := info.paramInfo[i]

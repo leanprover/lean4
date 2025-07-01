@@ -190,7 +190,7 @@ where
     let mut withWs := #[]
     let mut (wssIdx, wss'Idx) := (0, 0)
     let mut inSubst := false
-    for h : diffIdx in *...diff.size do
+    for h : diffIdx in [:diff.size] do
       let (a₁, s₁) := diff[diffIdx]
       withWs := withWs.push (a₁, s₁)
       if let some (a₂, s₂) := diff[diffIdx + 1]? then

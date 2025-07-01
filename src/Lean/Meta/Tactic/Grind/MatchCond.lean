@@ -212,7 +212,7 @@ where
       if ctorLhs.name ≠ ctorRhs.name then return true
       let lhsArgs := root.self.getAppArgs
       let rhsArgs := rhs.getAppArgs
-      for i in ctorLhs.numParams...(ctorLhs.numParams + ctorLhs.numFields) do
+      for i in [ctorLhs.numParams : ctorLhs.numParams + ctorLhs.numFields] do
         if (← isFalse lhsArgs[i]! rhsArgs[i]!) then
           return true
       return false
@@ -392,7 +392,7 @@ where
       let some ctorInfo ← isConstructorApp? ctor | return ctor
       let mut ctorArgs := ctor.getAppArgs
       let mut modified := false
-      for i in ctorInfo.numParams...(ctorInfo.numParams + ctorInfo.numFields) do
+      for i in [ctorInfo.numParams : ctorInfo.numParams + ctorInfo.numFields] do
         let arg  := ctorArgs[i]!
         let arg' ← go arg
         unless isSameExpr arg arg' do

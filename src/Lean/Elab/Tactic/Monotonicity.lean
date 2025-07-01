@@ -188,7 +188,7 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
     if let some info := isMatcherAppCore? (← getEnv) e then
       let candidate ← id do
         let args := e.getAppArgs
-        for i in info.getFirstDiscrPos...(info.getFirstDiscrPos + info.numDiscrs) do
+        for i in [info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
           if args[i]!.hasLooseBVars then
             return false
         return true

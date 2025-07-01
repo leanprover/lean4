@@ -9,8 +9,7 @@ code's client side filtering algorithm. For the LLVM implementation see
 https://clang.llvm.org/extra//doxygen/FuzzyMatch_8cpp_source.html
 -/
 prelude
-import Init.Data.Range.Polymorphic.Iterators
-import Init.Data.Range.Polymorphic.Nat
+import Init.Data.Range
 import Init.Data.OfScientific
 import Init.Data.Option.Coe
 
@@ -28,7 +27,7 @@ section Utils
     let mut result := Array.mkEmpty string.length
     result := result.push <| f (none, string.get 0, string.get ⟨1⟩)
     -- TODO: the following code is assuming all characters are ASCII
-    for i in 2...string.length do
+    for i in [2:string.length] do
       result := result.push <| f (string.get ⟨i - 2⟩, string.get ⟨i - 1⟩, string.get ⟨i⟩)
     result.push <| f (string.get ⟨string.length - 2⟩, string.get ⟨string.length - 1⟩, none)
 
@@ -37,7 +36,7 @@ private def containsInOrderLower (a b : String) : Bool := Id.run do
     return true
   let mut aIt := a.mkIterator
     -- TODO: the following code is assuming all characters are ASCII
-  for i in *...b.endPos.byteIdx do
+  for i in [:b.endPos.byteIdx] do
     if aIt.curr.toLower == (b.get ⟨i⟩).toLower then
       aIt := aIt.next
       if !aIt.hasNext then
@@ -110,7 +109,7 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
   let mut lastSepIdx := 0
   let mut penaltyNs : Int := 0
   let mut penaltySkip : Int := 0
-  for wordIdx in *...word.length do
+  for wordIdx in [:word.length] do
     if (wordIdx != 0) && wordRoles[wordIdx]! matches .separator then
       -- reset skip penalty at namespace separator
       penaltySkip := 0
@@ -121,11 +120,11 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
     startPenalties := startPenalties.set! wordIdx $ penaltySkip + penaltyNs
 
   -- TODO: the following code is assuming all characters are ASCII
-  for patternIdx in *...pattern.length do
+  for patternIdx in [:pattern.length] do
     /- For this dynamic program to be correct, it's only necessary to populate a range of length
    `word.length - pattern.length` at each index (because at the very end, we can only consider fuzzy matches
     of `pattern` with a longer substring of `word`). -/
-    for wordIdx in patternIdx...(word.length-(pattern.length - patternIdx - 1)) do
+    for wordIdx in [patternIdx:word.length-(pattern.length - patternIdx - 1)] do
       let missScore? :=
         if wordIdx >= 1 then
           selectBest

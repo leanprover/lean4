@@ -22,13 +22,13 @@ def findStructCtorInfo? (typeName : Name) : CoreM (Option ConstructorVal) := do
 def mkFieldParamsForCtorType (ctorType : Expr) (numParams : Nat) (numFields : Nat)
     : CompilerM (Array Param) := do
   let mut type := ctorType
-  for _ in *...numParams do
+  for _ in [0:numParams] do
     match type with
     | .forallE _ _ body _ =>
       type := body
     | _ => unreachable!
   let mut fields := Array.emptyWithCapacity numFields
-  for _ in *...numFields do
+  for _ in [0:numFields] do
     match type with
     | .forallE name fieldType body _ =>
       let param ← mkParam name (← toMonoType fieldType) false

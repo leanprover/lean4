@@ -77,7 +77,7 @@ def isSupportedMatch (declName : Name) : MetaM (Option MatchKind) := do
       -- Check that all parameters except the last are `h_n EnumInductive.ctor`
       let numConcreteCases := xs.size - 3 -- minus motive, discr and default case
       let mut handledCtors := Array.mkEmpty (xs.size - 3)
-      for i in *...numConcreteCases do
+      for i in [0:numConcreteCases] do
         let argType ← inferType xs[i + 2]!
         let some (.const ``Unit [], (.app m (.const c ..))) := argType.arrow? | return none
         if m != motive then return none
@@ -103,7 +103,7 @@ where
       (numCtors : Nat) (motive : Expr) : MetaM (Option MatchKind) := do
     -- Check that all parameters are `h_n EnumInductive.ctor`
     let mut handledCtors := Array.mkEmpty numCtors
-    for i in *...numCtors do
+    for i in [0:numCtors] do
       let argType ← inferType xs[i + 2]!
       let some (.const ``Unit [], (.app m (.const c ..))) := argType.arrow? | return none
       if m != motive then return none
@@ -138,7 +138,7 @@ where
         if !(← verifySimpleCasesOnApp inductiveInfo fn args params) then return false
 
         -- remaining arguments are of the form `(h_n Unit.unit)`
-        for i in *...inductiveInfo.numCtors do
+        for i in [0:inductiveInfo.numCtors] do
           let .app fn (.const ``Unit.unit []) := args[i + 2]! | return false
           let some (_, .app _ (.const relevantCtor ..)) := (← inferType fn).arrow? | unreachable!
           let some ctorIdx := ctors.findIdx? (·.name == relevantCtor) | unreachable!
@@ -157,7 +157,7 @@ where
         - `(h_n Unit.unit)` if the constructor is handled explicitly
         - `(h_n InductiveEnum.ctor)` if the constructor is handled as part of the default case
         -/
-        for i in *...inductiveInfo.numCtors do
+        for i in [0:inductiveInfo.numCtors] do
           let .app fn (.const argName ..) := args[i + 2]! | return false
           if argName == ``Unit.unit then
             let some (_, .app _ (.const relevantCtor ..)) := (← inferType fn).arrow? | unreachable!

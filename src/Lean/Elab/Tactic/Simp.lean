@@ -574,7 +574,7 @@ and different simp arguments may be used in each step.)
 def warnUnusedSimpArgs (simpArgs : Array (Syntax × ElabSimpArgResult)) (usedSimps : Simp.UsedSimps) : MetaM Unit := do
   if simpArgs.isEmpty then return
   let mut mask : Array Bool := #[]
-  for h : i in *...simpArgs.size do
+  for h : i in [:simpArgs.size] do
     let (ref, arg) := simpArgs[i]
     let used ←
       match arg with

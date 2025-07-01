@@ -135,7 +135,7 @@ def betaPreservingHypNames (σs' e : Expr) (args : Array Expr) : Expr :=
 
 def dropStateList (σs : Expr) (n : Nat) : MetaM Expr := do
   let mut σs := σs
-  for _ in *...n do
+  for _ in [:n] do
     let some (_type, _σ, σs') := (← whnfR σs).app3? ``List.cons | throwError "Ambient state list not a cons {σs}"
     σs := σs'
   return σs

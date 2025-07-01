@@ -299,7 +299,7 @@ def transform
     let altTypes ← inferArgumentTypesN matcherApp.alts.size aux2
 
     let mut alts' := #[]
-    for altIdx in *...matcherApp.alts.size,
+    for altIdx in [:matcherApp.alts.size],
         alt in matcherApp.alts,
         numParams in matcherApp.altNumParams,
         splitterNumParams in matchEqns.splitterAltNumParams,
@@ -340,7 +340,7 @@ def transform
     let altTypes ← inferArgumentTypesN matcherApp.alts.size aux
 
     let mut alts' := #[]
-    for altIdx in *...matcherApp.alts.size,
+    for altIdx in [:matcherApp.alts.size],
         alt in matcherApp.alts,
         numParams in matcherApp.altNumParams,
         altType in altTypes do

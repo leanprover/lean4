@@ -498,7 +498,7 @@ def HaveTelescopeInfo.computeFixedUsed (info : HaveTelescopeInfo) (keepUnused : 
   -- There is no need to consider `info.bodyTypeDeps` in this computation.
   used := updateArrayFromBackDeps used info.bodyDeps
   -- For each used `have`, in reverse order, update `used`.
-  for i in *...numHaves do
+  for i in [0:numHaves] do
     let idx := numHaves - i - 1
     if used[idx]! then
       let hinfo := info.haveInfo[idx]!

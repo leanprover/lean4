@@ -493,7 +493,7 @@ where
       -- `belowIndices` is a mapping from non-`below` to the `below` version of each field.
       let mut belowFieldOpts := .replicate belowCtor.numFields none
       let fields := fields.toArray
-      for fieldIdx in *...fields.size do
+      for fieldIdx in [:fields.size] do
         belowFieldOpts := belowFieldOpts.set! belowIndices[fieldIdx]! (some fields[fieldIdx]!)
 
       let belowParams := params.toArray.push belowMotive
@@ -591,7 +591,6 @@ def mkBelow (declName : Name) : MetaM Unit := do
       addDecl decl
       trace[Meta.IndPredBelow] "added {ctx.belowNames}"
       ctx.belowNames.forM Lean.mkCasesOn
-      -- TODO: use new ranges as soon as it does not break compilerTest1.lean anymore
       for i in [:ctx.typeInfos.size] do
         try
           let decl ← IndPredBelow.mkBrecOnDecl ctx i

@@ -49,7 +49,7 @@ private def checkRingInvs : RingM Unit := do
 
 def checkInvariants : GoalM Unit := do
   unless grind.debug.get (← getOptions) do return ()
-  for ringId in *...(← get').rings.size do
+  for ringId in [: (← get').rings.size] do
     RingM.run ringId do
       assert! (← getRingId) == ringId
       checkRingInvs

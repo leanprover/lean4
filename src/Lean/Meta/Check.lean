@@ -116,7 +116,7 @@ where
           let mut bFnType ← inferType b.getAppFn
           let mut firstExplicitDiff? := none
           let mut firstImplicitDiff? := none
-          for i in *...as.size do
+          for i in [0:as.size] do
             unless aFnType.isForall do aFnType ← withTransparency .all <| whnf aFnType
             unless bFnType.isForall do bFnType ← withTransparency .all <| whnf bFnType
             -- These pattern matches are expected to succeed:

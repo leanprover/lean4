@@ -74,7 +74,7 @@ def mkProjections (n : Name) (projDecls : Array StructProjDecl) (instImplicit : 
             lctx := lctx.setBinderInfo fvarId .implicit
         -- Construct the projection functions:
         let mut ctorType := ctorType
-        for h : i in *...projDecls.size do
+        for h : i in [0:projDecls.size] do
           let {ref, projName, paramInfoOverrides} := projDecls[i]
           unless ctorType.isForall do
             throwErrorAt ref "\
@@ -130,7 +130,7 @@ def etaStruct? (e : Expr) (p : Name → Bool) : MetaM (Option Expr) := do
   let args := e.getAppArgs
   let params := args.extract 0 fVal.numParams
   let some x ← getProjectedExpr ctor fVal.induct params 0 args[fVal.numParams]! none | return none
-  for i in 1...fVal.numFields do
+  for i in [1 : fVal.numFields] do
     let arg := args[fVal.numParams + i]!
     let some x' ← getProjectedExpr ctor fVal.induct params i arg x | return none
     unless x' == x do return none

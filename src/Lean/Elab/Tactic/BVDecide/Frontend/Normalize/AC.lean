@@ -220,7 +220,7 @@ def CoefficientsMap.toExpr (coeff : CoefficientsMap) (op : Op) : VarStateM (Opti
   let mut acc : Option Expr := none
   for (var, coeff) in coeffArr do
     let expr := (← get).varToExpr[var]!
-    for _ in *...coeff do
+    for _ in [0:coeff] do
       acc := match acc with
       | none => expr
       | some acc => some <| mkApp2 op.toExpr acc expr

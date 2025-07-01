@@ -60,7 +60,7 @@ where fillCache : CoreM (Option TrivialStructureInfo) := do
   if ctorType.isErased then return none
   let mask ← getRelevantCtorFields ctorName
   let mut result := none
-  for h : i in *...mask.size do
+  for h : i in [:mask.size] do
     if mask[i] then
       if result.isSome then return none
       result := some { ctorName, fieldIdx := i, numParams := info.numParams }

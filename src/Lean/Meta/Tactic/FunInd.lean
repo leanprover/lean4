@@ -426,7 +426,7 @@ def deduplicateIHs (vals : Array Expr) : MetaM (Array Expr) := do
 
 def assertIHs (vals : Array Expr) (mvarid : MVarId) : MetaM MVarId := do
   let mut mvarid := mvarid
-  for v in vals.reverse, i in *...vals.size do
+  for v in vals.reverse, i in [0:vals.size] do
     mvarid ← mvarid.assert (.mkSimple s!"ih{i+1}") (← inferType v) v
   return mvarid
 
@@ -1058,7 +1058,7 @@ Given a realizer for `foo.mutual_induct`, defines `foo.induct`, `bar.induct` etc
 Used for well-founded and structural recursion.
 -/
 def projectMutualInduct (unfolding : Bool) (names : Array Name) (mutualInduct : MetaM Name) (finalizeFirstInd : MetaM Unit) : MetaM Unit := do
-  for name in names, idx in *...names.size do
+  for name in names, idx in [:names.size] do
     let inductName := getFunInductName (unfolding := unfolding) name
     realizeConst names[0]! inductName do
       let ci ← getConstInfo (← mutualInduct)
@@ -1087,7 +1087,7 @@ def setNaryFunIndInfo (unfolding : Bool) (fixedParamPerms : FixedParamPerms) (fu
     let fixedParamPerm := fixedParamPerms.perms[0]!
     let mut params := #[]
     let mut j := 0
-    for h : i in *...fixedParamPerm.size do
+    for h : i in [:fixedParamPerm.size] do
       if fixedParamPerm[i].isSome then
         assert! j + 1 < unaryFunIndInfo.params.size
         params := params.push unaryFunIndInfo.params[j]!
@@ -1370,7 +1370,7 @@ where doRealize inductName := do
           -- Motives with parameters reordered, to put indices and major first,
           -- and (when unfolding) the result field instantiated
           let mut brecMotives := #[]
-          for motive in motives, recArgInfo in recArgInfos, info in infos, funIdx in *...motives.size do
+          for motive in motives, recArgInfo in recArgInfos, info in infos, funIdx in [:motives.size] do
             let brecMotive ← forallTelescope (← inferType motive) fun ys _ => do
               let ys := if unfolding then ys.pop else ys
               let (indicesMajor, rest) := recArgInfo.pickIndicesMajor ys
@@ -1422,7 +1422,7 @@ where doRealize inductName := do
           -- terms when we have mutual induction.
           let e' ← withLetDecls `minor minorTypes minors' fun minors' => do
             let mut brecOnApps := #[]
-            for info in infos, recArgInfo in recArgInfos, idx in *...infos.size do
+            for info in infos, recArgInfo in recArgInfos, idx in [:infos.size] do
               -- Take care to pick the `ys` from the type, to get the variable names expected
               -- by the user, but use the value arity
               let arity ← lambdaTelescope (← fixedParamPerms.perms[idx]!.instantiateLambda info.value xs) fun ys _ => pure ys.size
@@ -1474,7 +1474,7 @@ where doRealize inductName := do
 
   if names.size = 1 then
     let mut params := #[]
-    for h : i in *...fixedParamPerms.perms[0]!.size do
+    for h : i in [:fixedParamPerms.perms[0]!.size] do
       if let some idx := fixedParamPerms.perms[0]![i] then
         if paramMask[idx]! then
           params := params.push .param
@@ -1503,7 +1503,7 @@ partial def refinedArguments (e : Expr) : MetaM (Array Bool) := do
   let mut mask := mask
   let revDeps ← getParamRevDeps e
   assert! revDeps.size = mask.size
-  for i in *...mask.size do
+  for i in [:mask.size] do
     if mask[i]! then
       for j in revDeps[i]! do
           mask := mask.set! j true

@@ -480,7 +480,7 @@ def fourierMotzkinData (p : Problem) : Array FourierMotzkinData := Id.run do
   let mut data : Array FourierMotzkinData :=
     (List.range p.numVars).foldl (fun a i => a.push { var := i}) #[]
   for (_, f@⟨xs, s, _⟩) in p.constraints do
-    for i in *...n do
+    for i in [0:n] do
       let x := Coeffs.get xs i
       data := data.modify i fun d =>
         if x = 0 then
@@ -515,7 +515,7 @@ def fourierMotzkinSelect (data : Array FourierMotzkinData) : MetaM FourierMotzki
   if bestSize = 0 then
     trace[omega] "Selected variable {data[0]!.var}."
     return data[0]!
-  for h : i in 1...data.size do
+  for h : i in [1:data.size] do
     let exact := data[i].exact
     let size := data[i].size
     if size = 0 || !bestExact && exact || (bestExact == exact) && size < bestSize then

@@ -376,7 +376,7 @@ private partial def visitProj (e : Expr) (structName : Name) (idx : Nat) (struct
     let mut args := #[]
     let mut j := 0
     let mut lastFieldTy : Expr := default
-    for i in *...=idx do
+    for i in [:idx+1] do
       unless ctorType.isForall do
         ctorType ← whnf <| ctorType.instantiateRevRange j i args
         j := i

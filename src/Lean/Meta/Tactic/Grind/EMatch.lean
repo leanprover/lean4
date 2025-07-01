@@ -372,7 +372,7 @@ private def assignGeneralizedPatternProof (mvarId : MVarId) (eqProof : Expr) (or
 private def applyAssignment (mvars : Array Expr) : OptionT (StateT Choice M) Unit := do
   let thm := (← read).thm
   let numParams := thm.numParams
-  for h : i in *...mvars.size do
+  for h : i in [:mvars.size] do
     let bidx := numParams - i - 1
     let mut v := (← get).assignment[bidx]!
     if isSameExpr v delayedEqProof then

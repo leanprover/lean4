@@ -235,7 +235,7 @@ def Cnstr.toExpr (c : Cnstr NodeId) : GoalM Expr := do
 def checkInvariants : GoalM Unit := do
   unless (← isInconsistent) do
   let s ← get'
-  for u in *...s.targets.size, es in s.targets.toArray do
+  for u in [:s.targets.size], es in s.targets.toArray do
     for (v, k) in es do
       let c : Cnstr NodeId := { u, v, k }
       trace[grind.debug.offset] "{c}"
@@ -353,7 +353,7 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
 
 def traceDists : GoalM Unit := do
   let s ← get'
-  for u in *...s.targets.size, es in s.targets.toArray do
+  for u in [:s.targets.size], es in s.targets.toArray do
     for (v, k) in es do
       trace[grind.offset.dist] "#{u} -({k})-> #{v}"
 

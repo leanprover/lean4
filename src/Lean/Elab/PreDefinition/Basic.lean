@@ -290,7 +290,7 @@ def checkCodomainsLevel (preDefs : Array PreDefinition) : MetaM Unit := do
     lambdaTelescope preDef.value fun xs _ => return xs.size
   forallBoundedTelescope preDefs[0]!.type arities[0]!  fun _ type₀ => do
     let u₀ ← getLevel type₀
-    for h : i in 1...preDefs.size do
+    for h : i in [1:preDefs.size] do
       forallBoundedTelescope preDefs[i].type arities[i]! fun _ typeᵢ =>
       unless ← isLevelDefEq u₀ (← getLevel typeᵢ) do
         withOptions (fun o => pp.sanitizeNames.set o false) do
@@ -307,7 +307,7 @@ def shareCommonPreDefs (preDefs : Array PreDefinition) : CoreM (Array PreDefinit
         es := es.push preDef.type |>.push preDef.value
       es := ShareCommon.shareCommon' es
       let mut result := #[]
-      for h : i in *...preDefs.size do
+      for h : i in [:preDefs.size] do
         let preDef := preDefs[i]
         result := result.push { preDef with type := es[2*i]!, value := es[2*i+1]! }
       return result

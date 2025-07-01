@@ -386,7 +386,7 @@ private def computeFixedIndexBitMask (numParams : Nat) (indType : InductiveType)
       | ctor :: ctors =>
         forallTelescopeReducing ctor.type fun xs type => do
           let typeArgs := type.getAppArgs
-          for i in numParams...arity do
+          for i in [numParams:arity] do
             unless i < xs.size && xs[i]! == typeArgs[i]! do -- Remark: if we want to allow arguments to be rearranged, this test should be xs.contains typeArgs[i]
               maskRef.modify fun mask => mask.set! i false
           for x in xs[numParams...*] do
@@ -394,7 +394,7 @@ private def computeFixedIndexBitMask (numParams : Nat) (indType : InductiveType)
             let cond (e : Expr) := indFVars.any (fun indFVar => e.getAppFn == indFVar)
             xType.forEachWhere (stopWhenVisited := true) cond fun e => do
               let eArgs := e.getAppArgs
-              for i in numParams...eArgs.size do
+              for i in [numParams:eArgs.size] do
                 if i >= typeArgs.size then
                   maskRef.modify (resetMaskAt · i)
                 else
@@ -411,7 +411,7 @@ private def computeFixedIndexBitMask (numParams : Nat) (indType : InductiveType)
                 ```
                 because `i` doesn't appear in `All Iμ []`, the index shouldn't be fixed.
               -/
-              for i in eArgs.size...arity do
+              for i in [eArgs.size:arity] do
                 maskRef.modify (resetMaskAt · i)
         go ctors
     go indType.ctors
@@ -762,7 +762,7 @@ private def checkResultingUniverses (views : Array InductiveView) (elabs' : Arra
   let u := (← instantiateLevelMVars (← getResultingUniverse indTypes)).normalize
   checkResultingUniversePolymorphism views u numParams indTypes
   unless u.isZero do
-    for h : i in *...indTypes.length do
+    for h : i in [0:indTypes.length] do
       let indType := indTypes[i]
       -- See if there is a custom error. If so, this should throw an error first:
       elabs'[i]!.checkUniverses numParams u
@@ -813,7 +813,7 @@ private def collectLevelParamsInInductive (indTypes : List InductiveType) : Arra
 private def mkIndFVar2Const (views : Array InductiveView) (indFVars : Array Expr) (levelNames : List Name) : ExprMap Expr := Id.run do
   let levelParams := levelNames.map mkLevelParam;
   let mut m : ExprMap Expr := {}
-  for h : i in *...views.size do
+  for h : i in [:views.size] do
     let view    := views[i]
     let indFVar := indFVars[i]!
     m := m.insert indFVar (mkConst view.declName levelParams)
@@ -865,7 +865,7 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
       let rs := Array.zipWith (fun r indFVar => { r with indFVar : ElabHeaderResult }) rs indFVars
       let mut indTypesArray : Array InductiveType := #[]
       let mut elabs' := #[]
-      for h : i in *...views.size do
+      for h : i in [:views.size] do
         Term.addLocalVarInfo views[i].declId indFVars[i]!
         let r     := rs[i]!
         let elab' ← elabs[i]!.elabCtors rs r params

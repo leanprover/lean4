@@ -179,7 +179,7 @@ where
           let pinfos := (← getFunInfo f).paramInfo
           let mut modified := false
           let mut args := args.toVector
-          for h : i in *...args.size do
+          for h : i in [:args.size] do
             let arg := args[i]
             trace_goal[grind.debug.canon] "[{repr (← shouldCanon pinfos i arg)}]: {arg} : {← inferType arg}"
             let arg' ← match (← shouldCanon pinfos i arg) with

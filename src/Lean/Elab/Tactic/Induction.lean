@@ -266,7 +266,7 @@ private def isWildcard (altStx : Syntax) : Bool :=
 
 private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : TacticM Unit := do
   let mut seenNames : Array Name := #[]
-  for h : i in *...altsSyntax.size do
+  for h : i in [:altsSyntax.size] do
     let altStx := altsSyntax[i]
     if getAltName altStx == `_ && i != altsSyntax.size - 1 then
       withRef altStx <| throwError "Invalid occurrence of the wildcard alternative `| _ => ...`: It must be the last alternative"
@@ -399,7 +399,7 @@ where
     2- The errors are produced in the same order the appear in the code above. This is not super
     important when using IDEs.
     -/
-    for h : altStxIdx in *...altStxs.size do
+    for h : altStxIdx in [0:altStxs.size] do
       let altStx := altStxs[altStxIdx]
       let altName := getAltName altStx
       if let some i := alts.findFinIdx? (·.1 == altName) then

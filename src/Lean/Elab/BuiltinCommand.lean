@@ -63,7 +63,7 @@ def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α 
   pure a
 
 private def popScopes (numScopes : Nat) : CommandElabM Unit :=
-  for _ in *...numScopes do
+  for _ in [0:numScopes] do
     popScope
 
 private def innermostScopeName? : List Scope → Option Name

@@ -469,7 +469,7 @@ def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIdent) : Ta
         | `(binderIdent| $h:ident) => some <| extractMacroScopes h.getId
         | _ => none)
       | return mvarId
-    for i in *...n do
+    for i in [:n] do
       let j := n - i - 1
       match lctx.getAt? j with
       | none => pure ()

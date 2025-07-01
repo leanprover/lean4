@@ -111,13 +111,13 @@ def LetDecl.toMono (decl : LetDecl) : ToMonoM LetDecl := do
 def mkFieldParamsForComputedFields (ctorType : Expr) (numParams : Nat) (numNewFields : Nat)
     (oldFields : Array Param) : ToMonoM (Array Param) := do
   let mut type := ctorType
-  for _ in *...numParams do
+  for _ in [0:numParams] do
     match type with
     | .forallE _ _ body _ =>
       type := body
     | _ => unreachable!
   let mut newFields := Array.emptyWithCapacity (oldFields.size + numNewFields)
-  for _ in *...numNewFields do
+  for _ in [0:numNewFields] do
     match type with
     | .forallE name fieldType body _ =>
       let param ← mkParam name (← toMonoType fieldType) false

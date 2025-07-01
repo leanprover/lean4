@@ -189,7 +189,7 @@ def runGlobally (probe : Probe Decl β) (phase : Phase := Phase.base) : CoreM (A
   let ext := getExt phase
   let env ← getEnv
   let mut decls := #[]
-  for modIdx in *...env.allImportedModuleNames.size do
+  for modIdx in [:env.allImportedModuleNames.size] do
     decls := decls.append <| ext.getModuleEntries env modIdx
   probe decls |>.run (phase := phase)
 

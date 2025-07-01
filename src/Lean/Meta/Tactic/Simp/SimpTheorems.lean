@@ -464,7 +464,7 @@ def mkSimpEntryOfDeclToUnfold (declName : Name) : MetaM (Array SimpEntry) := do
   if (← Simp.ignoreEquations declName) then
     entries := entries.push (.toUnfold declName)
   else if let some eqns ← getEqnsFor? declName then
-    for h : i in *...eqns.size do
+    for h : i in [:eqns.size] do
       let eqn := eqns[i]
       /-
       We assign priorities to the equational lemmas so that more specific ones

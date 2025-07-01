@@ -227,7 +227,7 @@ def getInstances (type : Expr) : MetaM (Array Instance) := do
           let synthOrder ← forallTelescopeReducing (← inferType linst.fvar) fun xs _ => do
             if xs.isEmpty then return #[]
             let mut order := #[]
-            for i in *...xs.size, x in xs do
+            for i in [:xs.size], x in xs do
               if (← getFVarLocalDecl x).binderInfo == .instImplicit then
                 order := order.push i
             return order

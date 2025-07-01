@@ -55,7 +55,7 @@ def RecArgInfo.pickIndicesMajor (info : RecArgInfo) (xs : Array Expr) : (Array E
     indexMajorArgs := indexMajorArgs.push xs[j]!
   -- Then the other arguments, in the order they appear in `xs`
   let mut otherVaryingArgs := #[]
-  for h : i in *...xs.size do
+  for h : i in [:xs.size] do
     unless indexMajorPos.contains i do
       unless info.fixedParamPerm.isFixed i do
         otherVaryingArgs := otherVaryingArgs.push xs[i]

@@ -582,7 +582,7 @@ def mkImpCongr (src : Expr) (r₁ r₂ : Result) : MetaM Result := do
 partial def removeUnnecessaryCasts (e : Expr) : MetaM Expr := do
   let mut args := e.getAppArgs
   let mut modified := false
-  for i in *...args.size do
+  for i in [:args.size] do
     let arg := args[i]!
     if isDummyEqRec arg then
       args := args.set! i (elimDummyEqRec arg)

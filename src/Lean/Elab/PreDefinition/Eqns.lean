@@ -57,7 +57,7 @@ private def findMatchToSplit? (deepRecursiveSplit : Bool) (env : Environment) (e
       let args := e.getAppArgs
       -- If none of the discriminants is a free variable, then it is not worth splitting the match
       let mut hasFVarDiscr := false
-      for i in info.getFirstDiscrPos...(info.getFirstDiscrPos + info.numDiscrs) do
+      for i in [info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
         let discr := args[i]!
         if discr.isFVar then
           hasFVarDiscr := true
@@ -72,7 +72,7 @@ private def findMatchToSplit? (deepRecursiveSplit : Bool) (env : Environment) (e
           return Expr.FindStep.found
       -- Else, the “old” behavior is split only when at least one alternative contains a `declNames`
       -- application with loose bound variables.
-      for i in info.getFirstAltPos...(info.getFirstAltPos + info.numAlts) do
+      for i in [info.getFirstAltPos : info.getFirstAltPos + info.numAlts] do
         let alt := args[i]!
         if Option.isSome <| alt.find? fun e => declNames.any e.isAppOf && e.hasLooseBVars then
           return Expr.FindStep.found
@@ -409,7 +409,7 @@ def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true): MetaM (
       withReducible do
         mkEqnTypes declNames goal.mvarId!
   let mut thmNames := #[]
-  for h : i in *...eqnTypes.size do
+  for h : i in [: eqnTypes.size] do
     let type := eqnTypes[i]
     trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]}"
     let name := mkEqLikeNameFor (← getEnv) declName s!"{eqnThmSuffixBasePrefix}{i+1}"

@@ -23,7 +23,7 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Nat)) := do
   -/
   let mut needAdjust : Array Bool := .replicate nodes.size true
   -- Initialize `needAdjust`
-  for u in *...nodes.size do
+  for u in [: nodes.size] do
     if isInterpreted u then
       -- Interpreted values have a fixed value.
       needAdjust := needAdjust.set! u false
@@ -32,12 +32,12 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Nat)) := do
     else if s.targets[u]!.any fun v _ => isInterpreted v then
       needAdjust := needAdjust.set! u false
   -- Set interpreted values
-  for h : u in *...nodes.size do
+  for h : u in [:nodes.size] do
     let e := nodes[u]
     if let some v ← getNatValue? e then
       pre := pre.set! u (Int.ofNat v)
   -- Set remaining values
-  for u in *...nodes.size do
+  for u in [:nodes.size] do
     let lower? := s.sources[u]!.foldl (init := none) fun val? v k => Id.run do
       let some va := pre[v]! | return val?
       let val' := va - k
@@ -62,7 +62,7 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Nat)) := do
     let some val := val? | return min
     if val < min then val else min
   let mut r := {}
-  for u in *...nodes.size do
+  for u in [:nodes.size] do
     let some val := pre[u]! | unreachable!
     let val := if needAdjust[u]! then (val - min).toNat else val.toNat
     let e := nodes[u]!

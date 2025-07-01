@@ -21,7 +21,7 @@ private def warnUnused (stx : Syntax) (i : Nat) : CoreM Unit := do
   let argStx := simpArgs[i]!
   let msg := m!"This simp argument is unused:{indentD argStx}"
   let mut otherArgs : Array Syntax := #[]
-  for h : j in *...simpArgs.size do if j != i then
+  for h : j in [:simpArgs.size] do if j != i then
     otherArgs := otherArgs.push simpArgs[j]
   let stx' := Tactic.setSimpParams stx otherArgs
   let suggestion : Meta.Hint.Suggestion := stx'
@@ -63,7 +63,7 @@ def unusedSimpArgs : Linter where
 
     -- Sort the outputs by position
     for (_range, tacticStx, mask) in (← masksMap.get).toArray.qsort (·.1.start < ·.1.start) do
-      for i in *...mask.size do
+      for i in [:mask.size] do
         unless mask[i]! do
           liftCoreM <| warnUnused tacticStx i
 

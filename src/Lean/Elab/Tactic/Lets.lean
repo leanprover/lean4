@@ -26,7 +26,7 @@ register_builtin_option linter.tactic.unusedName : Bool := {
 
 def extractLetsAddVarInfo (ids : Array Syntax) (fvars : Array FVarId) : TacticM Unit :=
   withMainContext do
-    for h : i in *...ids.size do
+    for h : i in [0:ids.size] do
       if h' : i < fvars.size then
         Term.addLocalVarInfo ids[i] (mkFVar fvars[i])
       else

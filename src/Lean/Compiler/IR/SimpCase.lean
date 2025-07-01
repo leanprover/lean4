@@ -28,7 +28,7 @@ private def getOccsOf (alts : Array Alt) (i : Nat) : Nat := Id.run do
 private def maxOccs (alts : Array Alt) : Alt × Nat := Id.run do
   let mut maxAlt := alts[0]!
   let mut max    := getOccsOf alts 0
-  for h : i in (1)...alts.size do
+  for h : i in 1...alts.size do
     let curr := getOccsOf alts i
     if curr > max then
        maxAlt := alts[i]

@@ -910,7 +910,9 @@ auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reductio
                 "s: " << s_n << std::endl;
             */
             if (!failed_before(t_n, s_n)) {
-                if (is_def_eq_args(t_n, s_n) && is_def_eq(proj_expr(t_fn), proj_expr(s_fn))) {
+                auto t_fne = proj_expr(t_fn);
+                auto s_fne = proj_expr(t_fn);
+                if (is_def_eq_args(t_n, s_n) && lazy_delta_proj_reduction(t_fne, s_fne, proj_idx(t_fn))) {
                     /*
                     std::cerr << "success!" << std::endl;
                     */

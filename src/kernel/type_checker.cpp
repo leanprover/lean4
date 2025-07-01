@@ -504,7 +504,7 @@ expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
 }
 
 /** \brief Return some definition \c d iff \c e is a target for delta-reduction, and the given definition is the one
-    to be expanded. */
+    to be expanded. Guarantees that \c e is an application headed by a constant */
 optional<constant_info> type_checker::is_delta(expr const & e) const {
     expr const & f = get_app_fn(e);
     if (is_constant(f)) {
@@ -897,6 +897,30 @@ auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reductio
     auto d_t = is_delta(t_n);
     auto d_s = is_delta(s_n);
     if (!d_t && !d_s) {
+        /*
+        This could be `t.1 a =? s.1 b`.
+        Lets do the same lazy argument comparison test as below for functions.
+        */
+       auto t_fn = get_app_fn(t_n);
+       auto s_fn = get_app_fn(s_n);
+       if (is_proj(t_fn) && is_proj(s_fn) && proj_idx(t_fn) == proj_idx(s_fn)) {
+            /*
+            std::cerr << "type checker: lazy delta reduction step failed, trying to unfold projections" << std::endl <<
+                "t: " << t_n << std::endl <<
+                "s: " << s_n << std::endl;
+            */
+            if (!failed_before(t_n, s_n)) {
+                if (is_def_eq_args(t_n, s_n) && is_def_eq(proj_expr(t_fn), proj_expr(s_fn))) {
+                    /*
+                    std::cerr << "success!" << std::endl;
+                    */
+                    return reduction_status::DefEqual;
+                } else {
+                    cache_failure(t_n, s_n);
+                }
+            }
+        }
+
         return reduction_status::DefUnknown;
     } else if (d_t && !d_s) {
         /* If `s_n` is a projection application, we try to unfold it instead.

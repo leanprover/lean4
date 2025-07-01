@@ -68,7 +68,7 @@ Reset all `grind` attributes. This command is intended for testing purposes only
 syntax (name := resetGrindAttrs) "reset_grind_attrs%" : command
 
 namespace Attr
-syntax grindGen    := ppSpace &"gen"
+syntax grindGen    := &" gen"
 syntax grindEq     := "=" (grindGen)?
 syntax grindEqBoth := atomic("_" "=" "_") (grindGen)?
 syntax grindEqRhs  := atomic("=" "_") (grindGen)?
@@ -86,8 +86,8 @@ syntax grindMod :=
     grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd
     <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager
     <|> grindCases <|> grindIntro <|> grindExt <|> grindGen
-syntax (name := grind) "grind" ppSpace (grindMod)? : attr
-syntax (name := grind?) "grind?" ppSpace (grindMod)? : attr
+syntax (name := grind) "grind" (ppSpace grindMod)? : attr
+syntax (name := grind?) "grind?" (ppSpace grindMod)? : attr
 end Attr
 end Lean.Parser
 
@@ -479,7 +479,7 @@ example (as : Array α) (lo hi i j : Nat) :
 syntax (name := grind)
   "grind" optConfig (&" only")?
   (" [" withoutPosition(grindParam,*) "]")?
-  ("on_failure " term)? : tactic
+  (&" on_failure " term)? : tactic
 
 /--
 `grind?` takes the same arguments as `grind`, but reports an equivalent call to `grind only`
@@ -489,6 +489,6 @@ theorems in a local invocation.
 syntax (name := grindTrace)
   "grind?" optConfig (&" only")?
   (" [" withoutPosition(grindParam,*) "]")?
-  ("on_failure " term)? : tactic
+  (&" on_failure " term)? : tactic
 
 end Lean.Parser.Tactic

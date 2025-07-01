@@ -6,12 +6,11 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Array.Basic
 public import Init.Data.Slice.Basic
 import Init.Data.Slice.Operations
 public import Init.Data.Iterators.ToIterator
-public import Init.Data.Range.Polymorphic.Iterators
-public import Init.Data.Range.Polymorphic.Nat
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Nat
 
 public section
 

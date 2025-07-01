@@ -160,7 +160,7 @@ mpz & mpz::operator*=(unsigned u) { mpz_mul_ui(m_val, m_val, u); return *this; }
 
 mpz & mpz::operator*=(int u) { mpz_mul_si(m_val, m_val, u); return *this; }
 
-mpz mpz::divexact(mpz const & n, mpz const & d) {
+mpz divexact(mpz const & n, mpz const & d) {
     mpz q;
     mpz_divexact(q.m_val, n.m_val, d.m_val);
     return q;

@@ -63,6 +63,50 @@ def size {sl su α} [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
 
 section Iterator
 
+theorem RangeIterator.isPlausibleIndirectOutput_iff {su α}
+    [UpwardEnumerable α] [SupportsUpperBound su α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableUpperBound su α]
+    {it : Iter (α := RangeIterator su α) α} {out : α} :
+    it.IsPlausibleIndirectOutput out ↔
+      ∃ n, it.internalState.next.bind (UpwardEnumerable.succMany? n ·) = some out ∧
+        SupportsUpperBound.IsSatisfied it.internalState.upperBound out := by
+  constructor
+  · intro h
+    induction h
+    case direct h =>
+      rw [RangeIterator.isPlausibleOutput_iff] at h
+      refine ⟨0, by simp [h, LawfulUpwardEnumerable.succMany?_zero]⟩
+    case indirect h _ ih =>
+      rw [RangeIterator.isPlausibleSuccessorOf_iff] at h
+      obtain ⟨n, hn⟩ := ih
+      obtain ⟨a, ha, h₁, h₂, h₃⟩ := h
+      refine ⟨n + 1, ?_⟩
+      simp [ha, ← h₃, hn.2, LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?, h₂, hn]
+  · rintro ⟨n, hn, hu⟩
+    induction n generalizing it
+    case zero =>
+      apply Iter.IsPlausibleIndirectOutput.direct
+      rw [RangeIterator.isPlausibleOutput_iff]
+      exact ⟨by simpa [LawfulUpwardEnumerable.succMany?_zero] using hn, hu⟩
+    case succ ih =>
+      cases hn' : it.internalState.next
+      · simp [hn'] at hn
+      rename_i a
+      simp only [hn', Option.bind_some] at hn
+      have hle : UpwardEnumerable.LE a out := ⟨_, hn⟩
+      rw [LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?] at hn
+      cases hn' : UpwardEnumerable.succ? a
+      · simp only [hn', Option.bind_none, reduceCtorEq] at hn
+      rename_i a'
+      simp only [hn', Option.bind_some] at hn
+      specialize ih (it := ⟨some a', it.internalState.upperBound⟩) hn hu
+      refine Iter.IsPlausibleIndirectOutput.indirect ?_ ih
+      rw [RangeIterator.isPlausibleSuccessorOf_iff]
+      refine ⟨a, ‹_›, ?_, hn', rfl⟩
+      apply LawfulUpwardEnumerableUpperBound.isSatisfied_of_le _ a out
+      · exact hu
+      · exact hle
+
 theorem Internal.isPlausibleIndirectOutput_iter_iff {sl su α}
     [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [SupportsLowerBound sl α] [SupportsUpperBound su α]

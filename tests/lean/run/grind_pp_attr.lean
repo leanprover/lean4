@@ -1,14 +1,11 @@
 import Lean.Elab.Command
 
-open Lean Elab Command
+/-!
+# Pretty-printing of the `grind` attribute
+-/
 
-def test (stx : Syntax) : CommandElabM Unit := do
-  let fmt : Option Format := ←
-        liftCoreM <| PrettyPrinter.ppCategory `command stx
-  if let some fmt := fmt then
-  let st := fmt.pretty
-  dbg_trace st
-
+elab "#pp " c:command : command => do
+  Lean.logInfo c
 
 /--
 info: @[grind =]
@@ -16,7 +13,7 @@ example :=
   0
 -/
 #guard_msgs in
-run_cmd test (← `(@[grind =] example := 0))
+#pp @[grind =] example := 0
 
 /--
 info: @[grind _=_]
@@ -24,7 +21,7 @@ example :=
   0
 -/
 #guard_msgs in
-run_cmd test (← `(@[grind _=_] example := 0))
+#pp  @[grind _=_] example := 0
 
 /--
 info: @[grind =_]
@@ -32,7 +29,7 @@ example :=
   0
 -/
 #guard_msgs in
-run_cmd test (← `(@[grind =_] example := 0))
+#pp @[grind =_] example := 0
 
 /--
 info: @[grind →]
@@ -40,7 +37,7 @@ example :=
   0
 -/
 #guard_msgs in
-run_cmd test (← `(@[grind →] example := 0))
+#pp @[grind →] example := 0
 
 /--
 info: @[grind ←]
@@ -48,7 +45,7 @@ example :=
   0
 -/
 #guard_msgs in
-run_cmd test (← `(@[grind ←] example := 0))
+#pp @[grind ←] example := 0
 
 /--
 info: @[grind ←=]
@@ -56,4 +53,28 @@ example :=
   0
 -/
 #guard_msgs in
-run_cmd test (← `(@[grind ←=] example := 0))
+#pp @[grind ←=] example := 0
+
+/--
+info: @[grind]
+example :=
+  0
+-/
+#guard_msgs in
+#pp @[grind] example := 0
+
+/--
+info: @[grind ← gen]
+example :=
+  0
+-/
+#guard_msgs in
+#pp @[grind ← gen] example := 0
+
+/-- info: example := by grind [a] on_failure 3 -/
+#guard_msgs in
+#pp example := by grind [a] on_failure 3
+
+/-- info: example := by grind [← a] on_failure 3 -/
+#guard_msgs in
+#pp example := by grind [← a] on_failure 3

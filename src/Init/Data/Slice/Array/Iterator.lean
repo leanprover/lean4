@@ -46,22 +46,26 @@ where finally
 
 universe v w
 
-set_option trace.Meta.synthInstance true in
-private example : (m : Type v → Type w) → [Monad m] → (s : Subarray α) → IteratorLoop (type_of% (Internal.iter s).internalState) Id m :=
-  fun _ _ _ => inferInstance
-
 @[no_expose] instance {s : Subarray α} : Iterator (ToIterator.State s Id) Id α := inferInstance
 @[no_expose] instance {s : Subarray α} : Finite (ToIterator.State s Id) Id := inferInstance
 @[no_expose] instance {s : Subarray α} : IteratorCollect (ToIterator.State s Id) Id Id := inferInstance
 @[no_expose] instance {s : Subarray α} : IteratorCollectPartial (ToIterator.State s Id) Id Id := inferInstance
-@[no_expose] instance {s : Subarray α} {m : Type v → Type w} :
+@[no_expose] instance {s : Subarray α} {m : Type v → Type w} [Monad m] :
     IteratorLoop (ToIterator.State s Id) Id m := inferInstance
-@[no_expose] instance {s : Subarray α} {m : Type v → Type w} :
+@[no_expose] instance {s : Subarray α} {m : Type v → Type w} [Monad m] :
     IteratorLoopPartial (ToIterator.State s Id) Id m := inferInstance
 @[no_expose] instance {s : Subarray α} :
     IteratorSize (ToIterator.State s Id) Id := inferInstance
 @[no_expose] instance {s : Subarray α} :
     IteratorSizePartial (ToIterator.State s Id) Id := inferInstance
+
+/-!
+Without defining the following function `Subarray.foldlM`, users would still be able to call
+`subarray.foldlM`, which would be elaborated to `Slice.foldlM (s := subarray)`. However, in order to
+maximize backward compatibility and avoid confusion in the manual entry for `Subarray`, we
+explicitly provide the wrapper function `Subarray.foldlM` for `Slice.foldlM`, providing a more
+specific docstring.
+-/
 
 /--
 Folds a monadic operation from left to right over the elements in a subarray.
@@ -87,7 +91,7 @@ none
 ```
 -/
 @[inline]
-def Subarray.foldlM' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Subarray α) : m β :=
+def Subarray.foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Subarray α) : m β :=
   Slice.foldlM f (init := init) as
   --as.array.foldlM f (init := init) (start := as.start) (stop := as.stop)
 

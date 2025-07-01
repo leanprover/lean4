@@ -170,32 +170,9 @@ instance {α : Type u} {m : Type v → Type w} [∀ xs : Subarray α, ToIterator
     ForIn m (Subarray α) α where
   forIn xs init f := forIn (Std.Slice.Internal.iter xs) init f
 
-/--
-Folds a monadic operation from left to right over the elements in a subarray.
-An accumulator of type `β` is constructed by starting with `init` and monadically combining each
-element of the subarray with the current accumulator value in turn. The monad in question may permit
-early termination or repetition.
-Examples:
-```lean example
-#eval #["red", "green", "blue"].toSubarray.foldlM (init := "") fun acc x => do
-  let l ← Option.guard (· ≠ 0) x.length
-  return s!"{acc}({l}){x} "
-```
-```output
-some "(3)red (5)green (4)blue "
-```
-```lean example
-#eval #["red", "green", "blue"].toSubarray.foldlM (init := 0) fun acc x => do
-  let l ← Option.guard (· ≠ 5) x.length
-  return s!"{acc}({l}){x} "
-```
-```output
-none
-```
+/-!
+`foldlM` is implemented in `Init.Data.Slice.Array.Iterator` using the slice iterator.
 -/
-@[inline]
-def foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Subarray α) : m β :=
-  as.array.foldlM f (init := init) (start := as.start) (stop := as.stop)
 
 /--
 Folds a monadic operation from right to left over the elements in a subarray.

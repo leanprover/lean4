@@ -47,16 +47,19 @@ private def insertLookupEntry [BEq α] [Inhabited α] (arr : Array Origin)
       (refs : Array (Nat × Nat)) (entries : Array α)
       (idx : Nat) (entry : α) (prio : α → Nat) :
     Array Origin × Array (Nat × Nat) :=
-  go arr (refs.push (idx, entries.idxOf entry)) (entries.idxOf entry) refs.size
+  let sz := refs.size
+  let eidx := entries.idxOf entry
+  let refs := refs.push (idx, eidx)
+  go arr refs eidx sz
 where
   -- insertion sort
   go (arr : Array Origin) (refs : Array (Nat × Nat)) (eidx : Nat) : Nat → Array Origin × Array (Nat × Nat)
   | 0 => (arr, refs)
   | k + 1 =>
     let (idx', eidx') := refs[k]!
-    let entry' := entries[eidx']!
+    let entry' := entries.getD eidx' default
     -- need to swap?
-    if prio entry' < prio entry ∨ (prio entry = prio entry' ∧ eidx < eidx') then
+    if (prio entry' < prio entry || (prio entry = prio entry' && eidx < eidx')) ^^ idx < idx' then
       go (arr.swapIfInBounds idx idx') (refs.swapIfInBounds k (k + 1)) eidx k
     else
       (arr, refs)

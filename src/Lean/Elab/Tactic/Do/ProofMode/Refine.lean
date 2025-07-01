@@ -71,8 +71,10 @@ def elabMRefine : Tactic
     replaceMainGoal (← goals.get).toList
   | _ => throwUnsupportedSyntax
 
-macro_rules
+@[builtin_tactic Lean.Parser.Tactic.mexists]
+def elabMExists : Tactic
   | `(tactic| mexists $args,*) => do
     let pats ← args.getElems.mapM fun t => `(mrefinePat| ⌜$t⌝)
     let pat ← pats.foldrM (fun pat acc => `(mrefinePat| ⟨$pat, $acc⟩)) (← `(mrefinePat| ?_))
-    `(tactic| (mrefine $pat; try massumption))
+    evalTactic (← `(tactic| (mrefine $pat; try massumption)))
+  | _ => throwUnsupportedSyntax

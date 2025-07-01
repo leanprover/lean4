@@ -35,6 +35,12 @@ def Triple [WP m ps] {α} (x : m α) (P : Assertion ps) (Q : PostCond α ps) : P
 @[inherit_doc Std.Do.Triple]
 scoped syntax:lead (name := triple) "⦃" term "⦄ " term:lead " ⦃" term "⦄" : term
 
+@[app_unexpander Triple]
+private meta def unexpandTriple : Lean.PrettyPrinter.Unexpander
+  | `($_ $x $P $Q) => do
+    `(⦃$(← SPred.Notation.unpack P)⦄ $x ⦃$Q⦄)
+  | _ => throw ()
+
 namespace Triple
 
 instance [WP m ps] (x : m α) : SPred.Tactic.PropAsSPredTautology (Triple x P Q) spred(P → wp⟦x⟧ Q) where

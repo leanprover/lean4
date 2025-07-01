@@ -69,7 +69,7 @@ structure Context where
   /--
   Stores the "parent" term for the term being simplified.
   If a simplification procedure result depends on this value,
-  then it is its reponsability to set `Result.cache := false`.
+  then it is its responsibility to set `Result.cache := false`.
 
   Motivation for this field:
   Suppose we have a simplification procedure for normalizing arithmetic terms.
@@ -107,7 +107,7 @@ structure Context where
   lctxInitIndices   : Nat := 0
   /--
   If `inDSimp := true`, then `simp` is in `dsimp` mode, and only applying
-  transformations that presereve definitional equality.
+  transformations that preserve definitional equality.
   -/
   inDSimp : Bool := false
   deriving Inhabited

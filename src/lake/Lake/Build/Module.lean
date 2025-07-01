@@ -287,6 +287,7 @@ def Module.clearOutputHashes (mod : Module) : IO PUnit := do
   clearFileHash mod.oleanServerFile
   clearFileHash mod.oleanPrivateFile
   clearFileHash mod.ileanFile
+  clearFileHash mod.irFile
   clearFileHash mod.cFile
   clearFileHash mod.bcFile
 
@@ -298,6 +299,8 @@ def Module.cacheOutputHashes (mod : Module) : IO PUnit := do
   if (← mod.oleanPrivateFile.pathExists)  then
     cacheFileHash mod.oleanPrivateFile
   cacheFileHash mod.ileanFile
+  if (← mod.irFile.pathExists)  then
+    cacheFileHash mod.irFile
   cacheFileHash mod.cFile
   if Lean.Internal.hasLLVMBackend () then
     cacheFileHash mod.bcFile
@@ -314,6 +317,8 @@ private def ModuleOutputHashes.getArtifactsFrom?
     arts := {arts with oleanServer? := some (← cache.getArtifact? hash "olean.server")}
   if let some hash := hashes.oleanPrivate? then
     arts := {arts with oleanPrivate? := some (← cache.getArtifact? hash "olean.private")}
+  if let some hash := hashes.ir? then
+    arts := {arts with ir? := some (← cache.getArtifact? hash "ir")}
   if Lean.Internal.hasLLVMBackend () then
     arts := {arts with bc? := some (← cache.getArtifact? (← hashes.bc?) "bc")}
   return arts
@@ -339,6 +344,9 @@ private def Module.cacheOutputArtifacts (mod : Module) : JobM ModuleOutputArtifa
   if (← mod.oleanPrivateFile.pathExists) then
     let art ← cacheArtifact mod.oleanPrivateFile "olean.private"
     arts := {arts with oleanPrivate? := art}
+  if (← mod.irFile.pathExists) then
+    let art ← cacheArtifact mod.irFile "ir"
+    arts := {arts with ir? := art}
   if Lean.Internal.hasLLVMBackend () then
     let art ← cacheArtifact mod.bcFile "bc"
     arts := {arts with bc? := art}
@@ -354,6 +362,7 @@ private def Module.restoreArtifacts (mod : Module) (cached : ModuleOutputArtifac
     olean := ← restore mod.oleanFile cached.olean
     oleanServer? := ← cached.oleanServer?.mapM (restore mod.oleanServerFile)
     oleanPrivate? := ← cached.oleanPrivate?.mapM (restore mod.oleanPrivateFile)
+    ir? := ← cached.ir?.mapM (restore mod.irFile)
     ilean := ← restore mod.ileanFile cached.ilean
   }
 where
@@ -375,13 +384,19 @@ Fetch its dependencies and then elaborate the Lean source file, producing
 all possible artifacts (e.g., `.olean`, `.ilean`, `.c`, `.bc`).
 -/
 def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifacts) := do
+  /-
+  Remark: `withRegisterJob` must register `setupJob` to display module builds
+  in the job monitor. However, it must also include the fetching of both jobs to
+  ensure all logs end up under its caption in the job monitor.
+  -/
   withRegisterJob mod.name.toString do
   let setupJob ← mod.setup.fetch
   let leanJob ← mod.lean.fetch
-  leanJob.bindM fun srcFile => do
-  let srcTrace ← getTrace
   setupJob.mapM fun setup => do
     addLeanTrace
+    let srcFile ← leanJob.await
+    let srcTrace := leanJob.getTrace
+    addTrace srcTrace
     addTrace <| traceOptions setup.options "options"
     addPureTrace mod.leanArgs "Module.leanArgs"
     setTraceCaption s!"{mod.name.toString}:leanArts"
@@ -392,16 +407,15 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifacts) := d
       oleanServer? := if setup.isModule then some mod.oleanServerFile else none
       oleanPrivate? := if setup.isModule then some mod.oleanPrivateFile else none
       ilean? := mod.ileanFile
+      ir? := if setup.isModule then some mod.irFile else none
       c? := mod.cFile
       bc? := if Lean.Internal.hasLLVMBackend () then some mod.bcFile else none
     }
     let inputHash := depTrace.hash
     let savedTrace ← readTraceFile mod.traceFile
     if let some ref := mod.pkg.cacheRef? then
-      if let some arts ← resolveArtifactsUsing? ModuleOutputHashes inputHash savedTrace ref then
-        let arts ← mod.restoreArtifacts arts
-        savedTrace.replayIfExists
-        return arts
+      if let some arts ← resolveArtifactsUsing? ModuleOutputHashes inputHash mod.traceFile savedTrace ref then
+        return ← mod.restoreArtifacts arts
     let upToDate ← savedTrace.replayIfUpToDate (oldTrace := srcTrace.mtime) mod depTrace
     unless upToDate do
       discard <| buildAction depTrace mod.traceFile do
@@ -415,6 +429,7 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifacts) := d
           oleanServer? := ← if setup.isModule then some <$> computeFileHash mod.oleanServerFile else pure none
           oleanPrivate? := ← if setup.isModule then some <$> computeFileHash mod.oleanPrivateFile else pure none
           ilean := ← computeFileHash mod.ileanFile
+          ir? := ← if setup.isModule then some <$> computeFileHash mod.irFile else pure none
           c := ← computeFileHash mod.cFile
           bc? := ← if Lean.Internal.hasLLVMBackend () then some <$> computeFileHash mod.bcFile else pure none
           : ModuleOutputHashes
@@ -429,6 +444,7 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifacts) := d
         oleanServer? := ← if setup.isModule then some <$> fetchLocalArtifact mod.oleanServerFile else pure none
         oleanPrivate? := ← if setup.isModule then some <$> fetchLocalArtifact mod.oleanPrivateFile else pure none
         ilean := ← fetchLocalArtifact mod.ileanFile
+        ir? := ← if setup.isModule then some <$> fetchLocalArtifact mod.irFile else pure none
         c := ← fetchLocalArtifact mod.cFile
         bc? := ← if Lean.Internal.hasLLVMBackend () then some <$> fetchLocalArtifact mod.bcFile else pure none
       }
@@ -482,6 +498,11 @@ def Module.ileanFacetConfig : ModuleFacetConfig ileanFacet :=
       newTrace s!"{mod.name.toString}:ilean"
       addTrace art.trace
       return art.path
+
+/-- The `ModuleFacetConfig` for the builtin `irFacet`. -/
+def Module.irFacetConfig : ModuleFacetConfig irFacet :=
+  mkFacetJobConfig <| fetchOLeanCore "ir" (·.ir?)
+    "No `.ir` generated. Ensure the module system is enabled."
 
 /-- The `ModuleFacetConfig` for the builtin `cFacet`. -/
 def Module.cFacetConfig : ModuleFacetConfig cFacet :=
@@ -630,6 +651,7 @@ def Module.initFacetConfigs : DNameMap ModuleFacetConfig :=
   |>.insert oleanServerFacet oleanServerFacetConfig
   |>.insert oleanPrivateFacet oleanPrivateFacetConfig
   |>.insert ileanFacet ileanFacetConfig
+  |>.insert irFacet irFacetConfig
   |>.insert cFacet cFacetConfig
   |>.insert bcFacet bcFacetConfig
   |>.insert coFacet coFacetConfig

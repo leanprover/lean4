@@ -6,9 +6,11 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.ByCases
-import Init.Data.Prod
-import Init.Data.RArray
+public import Init.ByCases
+public import Init.Data.Prod
+public import Init.Data.RArray
+
+public section
 
 @[expose] section
 

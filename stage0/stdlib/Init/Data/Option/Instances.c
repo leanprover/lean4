@@ -18,10 +18,10 @@ LEAN_EXPORT uint8_t l_Option_decidableEqNone___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Option_forM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instMembership(lean_object*);
 LEAN_EXPORT lean_object* l_Option_instForIn_x27InferInstanceMembership___lam__0(lean_object*, lean_object*);
-uint8_t l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_5_(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_pfilter___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_decidableExistsMem___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Option_instDecidableMemOfDecidableEq___redArg(lean_object*, lean_object*, lean_object*);
+uint8_t l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_6_(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_forM___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_decidableEqNone___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_pelim___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -66,7 +66,7 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_4, 0, x_2);
-x_5 = l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_5_(x_1, x_3, x_4);
+x_5 = l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_6_(x_1, x_3, x_4);
 return x_5;
 }
 }

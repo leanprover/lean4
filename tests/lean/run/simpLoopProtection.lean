@@ -57,7 +57,8 @@ warning: Possibly looping simp theorem: `aa`
 Note: Possibly caused by: `id`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
-note: this linter can be disabled with `set_option linter.loopingSimpArgs false`
+
+Note: This linter can be disabled with `set_option linter.loopingSimpArgs false`
 ---
 error: unsolved goals
 ⊢ b = 23

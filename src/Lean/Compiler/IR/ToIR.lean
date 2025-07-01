@@ -9,14 +9,14 @@ import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.IR.Basic
 import Lean.Compiler.IR.CompilerM
-import Lean.Compiler.IR.CtorLayout
+import Lean.Compiler.IR.ToIRType
 import Lean.CoreM
 import Lean.Environment
 
 namespace Lean.IR
 
-open Lean.Compiler (LCNF.Alt LCNF.Arg LCNF.CacheExtension LCNF.Code LCNF.Decl LCNF.DeclValue
-                    LCNF.LCtx LCNF.LetDecl LCNF.LetValue LCNF.LitValue LCNF.Param LCNF.getMonoDecl?)
+open Lean.Compiler (LCNF.Alt LCNF.Arg LCNF.Code LCNF.Decl LCNF.DeclValue LCNF.LCtx LCNF.LetDecl
+                    LCNF.LetValue LCNF.LitValue LCNF.Param LCNF.getMonoDecl?)
 
 namespace ToIR
 
@@ -72,86 +72,6 @@ def lowerLitValue (v : LCNF.LitValue) : LitVal :=
   | .uint32 v => .num (UInt32.toNat v)
   | .uint64 v | .usize v => .num (UInt64.toNat v)
 
-builtin_initialize scalarTypeExt : LCNF.CacheExtension Name (Option IRType) ←
-  LCNF.CacheExtension.register
-
-def lowerEnumToScalarType (name : Name) : M (Option IRType) := do
-  match (← scalarTypeExt.find? name) with
-  | some info? => return info?
-  | none =>
-    let info? ← fillCache
-    scalarTypeExt.insert name info?
-    return info?
-where fillCache : M (Option IRType) := do
-  let env ← Lean.getEnv
-  let some (.inductInfo inductiveVal) := env.find? name | return none
-  let ctorNames := inductiveVal.ctors
-  let numCtors := ctorNames.length
-  for ctorName in ctorNames do
-    let some (.ctorInfo ctorVal) := env.find? ctorName | panic! "expected valid constructor name"
-    if ctorVal.type.isForall then return none
-  return if numCtors == 1 then
-    none
-  else if numCtors < Nat.pow 2 8 then
-    some .uint8
-  else if numCtors < Nat.pow 2 16 then
-    some .uint16
-  else if numCtors < Nat.pow 2 32 then
-    some .uint32
-  else
-    none
-
-def lowerType (e : Lean.Expr) : M IRType := do
-  match e with
-  | .const name .. =>
-    match name with
-    | ``UInt8 | ``Bool => return .uint8
-    | ``UInt16 => return .uint16
-    | ``UInt32 => return .uint32
-    | ``UInt64 => return .uint64
-    | ``USize => return .usize
-    | ``Float => return .float
-    | ``Float32 => return .float32
-    | ``lcErased => return .irrelevant
-    | _ =>
-      if let some scalarType ← lowerEnumToScalarType name then
-        return scalarType
-      else
-        return .object
-  | .app f _ =>
-    -- All mono types are in headBeta form.
-    if let .const name _ := f then
-      if let some scalarType ← lowerEnumToScalarType name then
-        return scalarType
-      else
-        return .object
-    else
-      return .object
-  | .forallE .. => return .object
-  | _ => panic! "invalid type"
-
-builtin_initialize ctorInfoExt : LCNF.CacheExtension Name (CtorInfo × (Array CtorFieldInfo)) ←
-  LCNF.CacheExtension.register
-
-def getCtorInfo (name : Name) : M (CtorInfo × (Array CtorFieldInfo)) := do
-  match (← ctorInfoExt.find? name) with
-  | some info => return info
-  | none =>
-    let info ← fillCache
-    ctorInfoExt.insert name info
-    return info
-where fillCache := do
-  match getCtorLayout (← Lean.getEnv) name with
-  | .ok ctorLayout =>
-    return ⟨{
-      name,
-      cidx := ctorLayout.cidx,
-      size := ctorLayout.numObjs,
-      usize := ctorLayout.numUSize,
-      ssize := ctorLayout.scalarSize
-    }, ctorLayout.fieldInfo.toArray⟩
-  | .error .. => panic! "unrecognized constructor"
-
 def lowerArg (a : LCNF.Arg) : M Arg := do
   match a with
   | .fvar fvarId =>
@@ -176,7 +96,7 @@ def lowerProj (base : VarId) (ctorInfo : CtorInfo) (field : CtorFieldInfo)
 
 def lowerParam (p : LCNF.Param) : M Param := do
   let x ← bindVar p.fvarId
-  let ty ← lowerType p.type
+  let ty ← toIRType p.type
   return { x, borrow := p.borrow, ty }
 
 mutual
@@ -198,7 +118,7 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
     | some (.var varId) =>
       return .case cases.typeName
                    varId
-                   (← lowerType cases.resultType)
+                   (← toIRType cases.resultType)
                    (← cases.alts.mapM (lowerAlt varId))
     | some (.joinPoint ..) | some .erased | none => panic! "unexpected value"
   | .return fvarId =>
@@ -219,7 +139,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
     let var ← bindVar decl.fvarId
     let type ← match e with
     | .ctor .. | .pap .. | .proj .. => pure <| .object
-    | _ => lowerType decl.type
+    | _ => toIRType decl.type
     return .vdecl var type e (← lowerCode k)
   let rec mkErased (_ : Unit) : M FnBody := do
     bindErased decl.fvarId
@@ -229,7 +149,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
     let tmpVar ← newVar
     let type ← match e with
     | .ctor .. | .pap .. | .proj .. => pure <| .object
-    | _ => lowerType decl.type
+    | _ => toIRType decl.type
     return .vdecl tmpVar .object e (.vdecl var type (.ap tmpVar restArgs) (← lowerCode k))
   let rec tryIrDecl? (name : Name) (args : Array Arg) : M (Option FnBody) := do
     if let some decl ← LCNF.getMonoDecl? name then
@@ -256,7 +176,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
       let some (.inductInfo { ctors, .. }) := (← Lean.getEnv).find? typeName
         | panic! "projection of non-inductive type"
       let ctorName := ctors[0]!
-      let ⟨ctorInfo, fields⟩ ← getCtorInfo ctorName
+      let ⟨ctorInfo, fields⟩ ← getCtorLayout ctorName
       let ⟨result, type⟩ := lowerProj varId ctorInfo fields[i]!
       match result with
       | .expr e =>
@@ -288,12 +208,12 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
             return code
           else
             mkExpr (.fap name irArgs)
-        else if let some scalarType ← lowerEnumToScalarType ctorVal.name then
+        else if let some scalarType ← lowerEnumToScalarType? ctorVal.name then
           assert! args.isEmpty
           let var ← bindVar decl.fvarId
           return .vdecl var scalarType (.lit (.num ctorVal.cidx)) (← lowerCode k)
         else
-          let ⟨ctorInfo, fields⟩ ← getCtorInfo name
+          let ⟨ctorInfo, fields⟩ ← getCtorLayout name
           let args := args.extract (start := ctorVal.numParams)
           let objArgs : Array Arg ← do
             let mut result : Array Arg := #[]
@@ -376,7 +296,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
 partial def lowerAlt (discr : VarId) (a : LCNF.Alt) : M Alt := do
   match a with
   | .alt ctorName params code =>
-    let ⟨ctorInfo, fields⟩ ← getCtorInfo ctorName
+    let ⟨ctorInfo, fields⟩ ← getCtorLayout ctorName
     let lowerParams (params : Array LCNF.Param) (fields : Array CtorFieldInfo) : M FnBody := do
       let rec loop (i : Nat) : M FnBody := do
         match params[i]?, fields[i]? with
@@ -401,7 +321,7 @@ partial def lowerAlt (discr : VarId) (a : LCNF.Alt) : M Alt := do
 end
 
 def lowerResultType (type : Lean.Expr) (arity : Nat) : M IRType :=
-  lowerType (resultTypeForArity type arity)
+  toIRType (resultTypeForArity type arity)
 where resultTypeForArity (type : Lean.Expr) (arity : Nat) : Lean.Expr :=
   if arity == 0 then
     type

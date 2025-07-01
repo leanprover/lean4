@@ -9,8 +9,10 @@ needed for Core and SimpLemmas.
 module
 
 prelude
-import Init.Core
-import Init.NotationExtra
+public import Init.Core
+public import Init.NotationExtra
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 /-! ## cast and equality -/

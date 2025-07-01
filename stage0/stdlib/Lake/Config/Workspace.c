@@ -32,6 +32,7 @@ static lean_object* l_Lake_OpaqueWorkspace_instCoeWorkspace___closed__0;
 lean_object* l_Lean_LeanOptions_ofArray(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lake_Workspace_findTargetDecl_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_relLakeDir___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Workspace_lakeCache(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_augmentedLeanPath___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_binPath(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Lake_Workspace_isLocalModule_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -57,6 +58,7 @@ lean_object* l_Lake_Env_leanSrcPath(lean_object*);
 lean_object* l_Lake_Env_baseVars(lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___Lake_Workspace_isLocalModule_spec__0(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_Workspace_findTargetModule_x3f(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Workspace_lakeCache___boxed(lean_object*);
 lean_object* l_Lake_Package_findTargetDecl_x3f(lean_object*, lean_object*);
 static lean_object* l_Lake_Workspace_findScript_x3f___closed__0;
 uint8_t l_Lake_Package_isLocalModule(lean_object*, lean_object*);
@@ -267,6 +269,25 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_OpaqueWorkspace_instInhabitedOfWorkspace(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Workspace_lakeCache(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_ctor_get(x_1, 1);
+x_3 = lean_ctor_get(x_2, 6);
+lean_inc(x_3);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Workspace_lakeCache___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lake_Workspace_lakeCache(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -2761,7 +2782,7 @@ x_2 = lean_ctor_get(x_1, 1);
 lean_inc(x_2);
 x_3 = lean_ctor_get(x_2, 1);
 lean_inc(x_3);
-x_4 = lean_ctor_get(x_2, 9);
+x_4 = lean_ctor_get(x_2, 10);
 lean_inc(x_4);
 lean_dec(x_2);
 x_5 = l_Lake_LeanInstall_sharedLibPath(x_3);

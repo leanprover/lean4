@@ -6,8 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Int.DivMod.Bootstrap
-import Init.Data.Int.Order
+public import Init.Data.Int.DivMod.Bootstrap
+public import Init.Data.Int.Order
+
+public section
 
 /-!
 # Lemmas about `Nat`, `Int`, and `Fin` needed internally by `omega`.

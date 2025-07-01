@@ -48,7 +48,7 @@ def specializePartialApp (info : InlineCandidateInfo) : SimpM FunDecl := do
   for param in info.params, arg in info.args do
     subst := subst.insert param.fvarId arg
   let mut paramsNew := #[]
-  for param in info.params[info.args.size:] do
+  for param in info.params[info.args.size...*] do
     let type ← replaceExprFVars param.type subst (translator := true)
     let paramNew ← mkAuxParam type
     paramsNew := paramsNew.push paramNew
@@ -130,7 +130,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
     markSimplified
     simp (.fun funDecl k)
   else
-    let code ← betaReduce info.params info.value info.args[:info.arity]
+    let code ← betaReduce info.params info.value info.args[*...info.arity]
     if k.isReturnOf fvarId && numArgs == info.arity then
       /- Easy case, the continuation `k` is just returning the result of the application. -/
       markSimplified
@@ -140,7 +140,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
       let simpK (result : FVarId) : SimpM Code := do
         /- `result` contains the result of the inlined code -/
         if numArgs > info.arity then
-          let decl ← mkAuxLetDecl (.fvar result info.args[info.arity:])
+          let decl ← mkAuxLetDecl (.fvar result info.args[info.arity...*])
           addFVarSubst fvarId decl.fvarId
           simp (.let decl k)
         else
@@ -157,7 +157,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
       --  return none
       else
         markSimplified
-        let expectedType ← inferAppType info.fType info.args[:info.arity]
+        let expectedType ← inferAppType info.fType info.args[*...info.arity]
         if expectedType.headBeta.isForall then
           /-
           If `code` returns a function, we create an auxiliary local function declaration (and eta-expand it)
@@ -199,7 +199,7 @@ partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
     | .alt _ params k =>
       match ctorInfo with
       | .ctor ctorVal ctorArgs =>
-        let fields := ctorArgs[ctorVal.numParams:]
+        let fields := ctorArgs[ctorVal.numParams...*]
         for param in params, field in fields do
           addSubst param.fvarId field
         let k ← simp k

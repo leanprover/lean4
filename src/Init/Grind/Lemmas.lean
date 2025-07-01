@@ -6,11 +6,13 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Core
-import Init.SimpLemmas
-import Init.Classical
-import Init.ByCases
-import Init.Grind.Util
+public import Init.Core
+public import Init.SimpLemmas
+public import Init.Classical
+public import Init.ByCases
+public import Init.Grind.Util
+
+public section
 
 namespace Lean.Grind
 

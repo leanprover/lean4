@@ -6,7 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Array.Bootstrap
+public import Init.Data.Array.Bootstrap
+
+public section
 
 /-!
 ## Tail recursive implementations for `List` definitions.

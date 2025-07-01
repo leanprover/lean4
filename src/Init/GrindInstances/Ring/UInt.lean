@@ -6,10 +6,12 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Grind.Ring.Basic
-import all Init.GrindInstances.ToInt
-import all Init.Data.UInt.Basic
-import Init.Data.UInt.Lemmas
+public import Init.Grind.Ring.Basic
+public import all Init.GrindInstances.ToInt
+public import all Init.Data.UInt.Basic
+public import Init.Data.UInt.Lemmas
+
+public section
 
 namespace UInt8
 

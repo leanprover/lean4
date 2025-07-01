@@ -42,7 +42,6 @@ lean_object* l_Lean_Expr_sort___override(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_871__spec__0___redArg___closed__5;
-uint8_t l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1735__spec__1___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_refl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_inferDefEqAttr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -149,6 +148,7 @@ lean_object* l_Lean_MessageData_ofName(lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_871__spec__0___redArg___closed__13;
 lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNewMCtxDepth___at___Lean_Meta_matchesInstance_spec__0___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1771__spec__1___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addDecl(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__0___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -811,27 +811,27 @@ lean_dec(x_57);
 lean_dec(x_40);
 lean_dec(x_39);
 lean_dec(x_5);
-x_12 = x_11;
-x_13 = x_10;
-x_14 = x_8;
-x_15 = x_7;
+x_12 = x_10;
+x_13 = x_8;
+x_14 = x_7;
+x_15 = x_11;
 x_16 = x_9;
 goto block_27;
 }
 else
 {
 uint8_t x_61; 
-x_61 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1735__spec__1___redArg(x_57, x_5, x_58);
+x_61 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1771__spec__1___redArg(x_57, x_5, x_58);
 lean_dec(x_57);
 if (x_61 == 0)
 {
 lean_dec(x_40);
 lean_dec(x_39);
 lean_dec(x_5);
-x_12 = x_11;
-x_13 = x_10;
-x_14 = x_8;
-x_15 = x_7;
+x_12 = x_10;
+x_13 = x_8;
+x_14 = x_7;
+x_15 = x_11;
 x_16 = x_9;
 goto block_27;
 }
@@ -878,11 +878,11 @@ x_20 = l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__0___closed__3;
 x_21 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_21, 0, x_19);
 lean_ctor_set(x_21, 1, x_20);
-x_22 = l_Lean_throwError___at___Lean_getConstInfo___at___Lean_Meta_mkConstWithFreshMVarLevels_spec__0_spec__0___redArg(x_21, x_15, x_14, x_16, x_13, x_12);
-lean_dec(x_13);
+x_22 = l_Lean_throwError___at___Lean_getConstInfo___at___Lean_Meta_mkConstWithFreshMVarLevels_spec__0_spec__0___redArg(x_21, x_14, x_13, x_16, x_12, x_15);
+lean_dec(x_12);
 lean_dec(x_16);
+lean_dec(x_13);
 lean_dec(x_14);
-lean_dec(x_15);
 x_23 = !lean_is_exclusive(x_22);
 if (x_23 == 0)
 {
@@ -2354,7 +2354,7 @@ lean_dec(x_31);
 x_34 = lean_box(1);
 x_35 = lean_box(0);
 x_36 = lean_box(2);
-x_37 = lean_alloc_ctor(0, 0, 18);
+x_37 = lean_alloc_ctor(0, 0, 19);
 lean_ctor_set_uint8(x_37, 0, x_4);
 lean_ctor_set_uint8(x_37, 1, x_4);
 lean_ctor_set_uint8(x_37, 2, x_4);
@@ -2376,6 +2376,7 @@ lean_ctor_set_uint8(x_37, 14, x_40);
 lean_ctor_set_uint8(x_37, 15, x_5);
 lean_ctor_set_uint8(x_37, 16, x_5);
 lean_ctor_set_uint8(x_37, 17, x_5);
+lean_ctor_set_uint8(x_37, 18, x_5);
 x_41 = l___private_Lean_Meta_Basic_0__Lean_Meta_Config_toKey(x_37);
 x_42 = l_List_forIn_x27_loop___at___Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_871__spec__0___redArg___closed__22;
 x_43 = l_List_forIn_x27_loop___at___Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_871__spec__0___redArg___closed__23;

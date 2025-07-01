@@ -61,7 +61,7 @@ example (b : Bool) : if b then have unused := (); True else False := by
   simp (config := Lean.Meta.Simp.neutralConfig) +zetaUnused only; trace_state; sorry
 
 
--- Before the introduction of zetaUnused, split would do collateral damage to unused letFuns.
+-- Before the introduction of zetaUnused, split would do collateral damage to unused `have`s.
 -- Now they are preserved:
 
 /--

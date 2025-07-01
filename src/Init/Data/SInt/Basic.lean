@@ -6,7 +6,9 @@ Authors: Henrik Böving
 module
 
 prelude
-import Init.Data.UInt.Basic
+public import Init.Data.UInt.Basic
+
+public section
 
 set_option linter.missingDocs true
 

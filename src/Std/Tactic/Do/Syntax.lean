@@ -4,8 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 prelude
+import Std.Do
 import Init.NotationExtra
-
+import Std.Tactic.Do.ProofMode -- For (meta) importing `mgoalStx`; otherwise users might experience
+                               -- a broken goal view due to the builtin delaborator for `MGoalEntails`
 
 namespace Lean.Parser
 
@@ -20,7 +22,7 @@ Theorems tagged with the `spec` attribute are used by the `mspec` and `mvcgen` t
   simp set of `mvcgen` that is used within `wp⟦·⟧` contexts to simplify match discriminants and
   applications of constants.
 -/
-syntax (name := specAttr) "spec" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+syntax (name := spec) "spec" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
 
 end Attr
 
@@ -66,7 +68,8 @@ syntax (name := mleft) "mleft" : tactic
 syntax (name := mpure) "mpure" colGt ident : tactic
 
 @[inherit_doc Lean.Parser.Tactic.mpureIntroMacro]
-syntax (name := mpureIntro) "mpure_intro" : tactic
+macro (name := mpureIntro) "mpure_intro" : tactic =>
+  `(tactic| apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro))
 
 @[inherit_doc Lean.Parser.Tactic.mrevertMacro]
 syntax (name := mrevert) "mrevert" colGt ident : tactic
@@ -171,8 +174,24 @@ syntax "∀" binderIdent : mintroPat
 @[inherit_doc Lean.Parser.Tactic.mintroMacro]
 syntax (name := mintro) "mintro" (ppSpace colGt mintroPat)+ : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mspecMacro]
-syntax (name := mspec) "mspec" (ppSpace colGt term)? : tactic
+macro_rules
+  | `(tactic| mintro $pat₁ $pat₂ $pats:mintroPat*) => `(tactic| mintro $pat₁; mintro $pat₂ $pats*)
+  | `(tactic| mintro $pat:mintroPat) => do
+    match pat with
+    | `(mintroPat| $_:binderIdent) => Macro.throwUnsupported -- handled by a builtin elaborator
+    | `(mintroPat| ∀$_:binderIdent) => Macro.throwUnsupported -- handled by a builtin elaborator
+    | `(mintroPat| $pat:mcasesPat) => `(tactic| mintro h; mcases h with $pat)
+    | _ => Macro.throwUnsupported -- presently unreachable
+
+/--
+`mspec_no_simp $spec` first tries to decompose `Bind.bind`s before applying `$spec`.
+This variant of `mspec_no_simp` does not; `mspec_no_bind $spec` is defined as
+```
+try with_reducible mspec_no_bind Std.Do.Spec.bind
+mspec_no_bind $spec
+```
+-/
+syntax (name := mspecNoBind) "mspec_no_bind" (ppSpace colGt term)? : tactic
 
 /--
 Like `mspec`, but does not attempt slight simplification and closing of trivial sub-goals.
@@ -185,17 +204,20 @@ all_goals
    (try mpure_intro; trivial))
 ```
 -/
-syntax (name := mspecNoSimp) "mspec_no_simp" (ppSpace colGt term)? : tactic
+macro (name := mspecNoSimp) "mspec_no_simp" spec:(ppSpace colGt term)? : tactic =>
+  `(tactic| ((try with_reducible mspec_no_bind $(mkIdent ``Std.Do.Spec.bind)); mspec_no_bind $[$spec]?))
 
-/--
-`mspec_no_simp $spec` first tries to decompose `Bind.bind`s before applying `$spec`.
-This variant of `mspec_no_simp` does not; `mspec_no_bind $spec` is defined as
-```
-try with_reducible mspec_no_bind Std.Do.Spec.bind
-mspec_no_bind $spec
-```
--/
-syntax (name := mspecNoBind) "mspec_no_bind" (ppSpace colGt term)? : tactic
+@[inherit_doc Lean.Parser.Tactic.mspecMacro]
+macro (name := mspec) "mspec" spec:(ppSpace colGt term)? : tactic =>
+  `(tactic| (mspec_no_simp $[$spec]?
+             all_goals ((try simp only [
+                          $(mkIdent ``Std.Do.SPred.true_intro_simp):term,
+                          $(mkIdent ``Std.Do.SPred.true_intro_simp_nil):term,
+                          $(mkIdent ``Std.Do.SVal.curry_cons):term,
+                          $(mkIdent ``Std.Do.SVal.uncurry_cons):term,
+                          $(mkIdent ``Std.Do.SVal.getThe_here):term,
+                          $(mkIdent ``Std.Do.SVal.getThe_there):term])
+                        (try mpure_intro; trivial))))
 
 @[inherit_doc Lean.Parser.Tactic.mvcgenMacro]
 syntax (name := mvcgen) "mvcgen" optConfig

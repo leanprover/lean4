@@ -6,12 +6,14 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Array.Lemmas
-import all Init.Data.Array.Basic
-import all Init.Data.Array.OfFn
-import Init.Data.Array.MapIdx
-import Init.Data.Array.Zip
-import Init.Data.List.Nat.Range
+public import Init.Data.Array.Lemmas
+public import all Init.Data.Array.Basic
+public import all Init.Data.Array.OfFn
+public import Init.Data.Array.MapIdx
+public import Init.Data.Array.Zip
+public import Init.Data.List.Nat.Range
+
+public section
 
 /-!
 # Lemmas about `Array.range'`, `Array.range`, and `Array.zipIdx`

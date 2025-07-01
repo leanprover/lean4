@@ -128,10 +128,10 @@ partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
   let recInfo : RecursorVal ← getConstInfoRec recName
   forallTelescopeReducing recInfo.type fun xs _ =>
     let levelParams := recInfo.levelParams.tail! -- universe parameters for declaration being defined
-    let params := xs[:recInfo.numParams]
-    let motiveFVars := xs[recInfo.numParams : recInfo.numParams + recInfo.numMotives]
-    let minorFVars := xs[recInfo.getFirstMinorIdx : recInfo.getFirstMinorIdx + recInfo.numMinors]
-    let indices := xs[recInfo.getFirstIndexIdx : recInfo.getFirstIndexIdx + recInfo.numIndices]
+    let params := xs[*...recInfo.numParams]
+    let motiveFVars := xs[recInfo.numParams...(recInfo.numParams + recInfo.numMotives)]
+    let minorFVars := xs[recInfo.getFirstMinorIdx...(recInfo.getFirstMinorIdx + recInfo.numMinors)]
+    let indices := xs[recInfo.getFirstIndexIdx...(recInfo.getFirstIndexIdx + recInfo.numIndices)]
     let major := xs[recInfo.getMajorIdx]!
     let nat := mkConst ``Nat
     mkLocalInstances params fun localInsts =>
@@ -193,8 +193,8 @@ def mkSizeOfSpecLemmaName (ctorName : Name) : Name :=
 def mkSizeOfSpecLemmaInstance (ctorApp : Expr) : MetaM Expr :=
   matchConstCtor ctorApp.getAppFn (fun _ => throwError "failed to apply 'sizeOf' spec, constructor expected{indentExpr ctorApp}") fun ctorInfo _ => do
     let ctorArgs     := ctorApp.getAppArgs
-    let ctorParams   := ctorArgs[:ctorInfo.numParams]
-    let ctorFields   := ctorArgs[ctorInfo.numParams:]
+    let ctorParams   := ctorArgs[*...ctorInfo.numParams]
+    let ctorFields   := ctorArgs[ctorInfo.numParams...*]
     let lemmaName  := mkSizeOfSpecLemmaName ctorInfo.name
     let lemmaInfo  ← getConstInfo lemmaName
     let lemmaArity ← forallTelescopeReducing lemmaInfo.type fun xs _ => return xs.size
@@ -229,7 +229,7 @@ private def recToSizeOf (e : Expr) : M Expr := do
     | none => throwUnexpected m!"expected recursor application {indentExpr e}"
     | some sizeOfName =>
       let args    := e.getAppArgs
-      let indices := args[info.getFirstIndexIdx : info.getFirstIndexIdx + info.numIndices]
+      let indices := args[info.getFirstIndexIdx...(info.getFirstIndexIdx + info.numIndices)]
       let major   := args[info.getMajorIdx]!
       return mkAppN (mkConst sizeOfName us.tail!) ((← read).params ++ (← read).localInsts ++ indices ++ #[major])
 
@@ -269,8 +269,8 @@ mutual
   /-- Construct proof of auxiliary lemma. See `mkSizeOfAuxLemma` -/
   private partial def mkSizeOfAuxLemmaProof (info : InductiveVal) (lhs : Expr) : M Expr := do
     let lhsArgs := lhs.getAppArgs
-    let sizeOfBaseArgs := lhsArgs[:lhsArgs.size - info.numIndices - 1]
-    let indicesMajor := lhsArgs[lhsArgs.size - info.numIndices - 1:]
+    let sizeOfBaseArgs := lhsArgs[*...(lhsArgs.size - info.numIndices - 1)]
+    let indicesMajor := lhsArgs[(lhsArgs.size - info.numIndices - 1)...*]
     let sizeOfLevels := lhs.getAppFn.constLevels!
     let rec
       /-- Auxiliary function for constructing an `_sizeOf_<idx>` for `ys`,
@@ -294,7 +294,7 @@ mutual
       let recName := mkRecName info.name
       let recInfo ← getConstInfoRec recName
       let r := mkConst recName (levelZero :: us)
-      let r := mkAppN r majorTypeArgs[:info.numParams]
+      let r := mkAppN r majorTypeArgs[*...info.numParams]
       forallBoundedTelescope (← inferType r) recInfo.numMotives fun motiveFVars _ => do
         let mut r := r
         -- Add motives
@@ -366,12 +366,12 @@ mutual
         let x := lhs.appArg!
         let xType ← whnf (← inferType x)
         matchConstInduct xType.getAppFn (fun _ => throwFailed) fun info _ => do
-          let params := xType.getAppArgs[:info.numParams]
+          let params := xType.getAppArgs[*...info.numParams]
           forallTelescopeReducing (← inferType (mkAppN xType.getAppFn params)) fun indices _ => do
             let majorType := mkAppN (mkAppN xType.getAppFn params) indices
             withLocalDeclD `x majorType fun major => do
               let lhsArgs := lhs.getAppArgs
-              let lhsArgsNew := lhsArgs[:lhsArgs.size - 1 - indices.size] ++ indices ++ #[major]
+              let lhsArgsNew := lhsArgs[*...(lhsArgs.size - 1 - indices.size)] ++ indices ++ #[major]
               let lhsNew := mkAppN lhs.getAppFn lhsArgsNew
               let rhsNew ← mkAppM ``SizeOf.sizeOf #[major]
               let eq ← mkEq lhsNew rhsNew
@@ -428,8 +428,8 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
   let us := ctorInfo.levelParams.map mkLevelParam
   let simpAttr ← ofExcept <| getAttributeImpl (← getEnv) `simp
   forallTelescopeReducing ctorInfo.type fun xs _ => do
-    let params := xs[:ctorInfo.numParams]
-    let fields := xs[ctorInfo.numParams:]
+    let params := xs[*...ctorInfo.numParams]
+    let fields := xs[ctorInfo.numParams...*]
     let ctorApp := mkAppN (mkConst ctorName us) xs
     mkLocalInstances params fun localInsts => do
       let lhs ← mkAppM ``SizeOf.sizeOf #[ctorApp]
@@ -490,9 +490,9 @@ def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
         for indTypeName in indInfo.all, fn in fns do
           let indInfo ← getConstInfoInduct indTypeName
           forallTelescopeReducing indInfo.type fun xs _ =>
-            let params := xs[:indInfo.numParams]
+            let params := xs[*...indInfo.numParams]
             withInstImplicitAsImplict params do
-              let indices := xs[indInfo.numParams:]
+              let indices := xs[indInfo.numParams...*]
               mkLocalInstances params fun localInsts => do
                 let us := indInfo.levelParams.map mkLevelParam
                 let indType := mkAppN (mkConst indTypeName us) xs

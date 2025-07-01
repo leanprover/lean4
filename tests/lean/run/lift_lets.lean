@@ -135,7 +135,7 @@ example : ∀ n : Nat, n = (let x := 0; n + x) := by
   rfl
 
 /-!
-Lifting `letFun` under a binder, dependency.
+Lifting `have` under a binder, dependency.
 -/
 /--
 trace: ⊢ ∀ (n : Nat),
@@ -150,7 +150,7 @@ example : ∀ n : Nat, n = (have x := n; x) := by
   rfl
 
 /-!
-Lifting `letFun` under a binder, no dependency.
+Lifting `have` under a binder, no dependency.
 -/
 /--
 trace: ⊢ have x := 0;

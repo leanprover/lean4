@@ -6,10 +6,12 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Control.Basic
-import Init.Control.Lawful.Basic
-import Init.NotationExtra
-import Init.Control.Lawful.MonadLift
+public import Init.Control.Basic
+public import Init.Control.Lawful.Basic
+public import Init.NotationExtra
+public import Init.Control.Lawful.MonadLift
+
+public section
 
 /-!
 # Typeclass for lawful monad lifting functions

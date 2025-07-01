@@ -222,4 +222,10 @@ def isIte (e : Expr) :=
 def isDIte (e : Expr) :=
   e.isAppOf ``dite && e.getAppNumArgs >= 5
 
+def getBinOp (e : Expr) : Option Expr :=
+  if !e.isApp then none else
+  let f := e.appFn!
+  if !f.isApp then none else
+  some f.appFn!
+
 end Lean.Meta.Grind

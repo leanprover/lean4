@@ -83,10 +83,10 @@ def visitLetValue (e : LetValue) : FindUsedM Unit := do
             visitFVar fvarId
         | .erased | .type .. => pure ()
       -- over-application
-      for arg in args[decl.params.size:] do
+      for arg in args[decl.params.size...*] do
         visitArg arg
       -- partial-application
-      for param in decl.params[args.size:] do
+      for param in decl.params[args.size...*] do
         -- If recursive function is partially applied, we assume missing parameters are used because we don't want to eta-expand.
         visitFVar param.fvarId
     else

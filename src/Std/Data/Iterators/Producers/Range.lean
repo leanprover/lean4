@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
-import Init.Data.Range.Polymorphic.Basic
+import Init.Data.Range.Polymorphic.Iterators
 
 /-!
 # Range iterator

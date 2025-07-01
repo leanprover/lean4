@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic.Lemmas
-// Imports: Init.Data.Iterators Init.Data.Iterators.Lemmas.Consumers.Collect Init.Data.Range.Polymorphic.PRange Init.Data.Range.Polymorphic.RangeIterator Init.Data.Range.Polymorphic.Basic Init.Data.Iterators.Consumers.Loop
+// Imports: Init.Data.Iterators Init.Data.Iterators.Lemmas.Consumers.Collect Init.Data.Range.Polymorphic.Basic Init.Data.Range.Polymorphic.RangeIterator Init.Data.Range.Polymorphic.Iterators Init.Data.Iterators.Consumers.Loop
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -393,9 +393,9 @@ return x_6;
 }
 lean_object* initialize_Init_Data_Iterators(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Range_Polymorphic_PRange(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Range_Polymorphic_RangeIterator(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range_Polymorphic_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Range_Polymorphic_RangeIterator(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Consumers_Loop(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Range_Polymorphic_Lemmas(uint8_t builtin, lean_object* w) {
@@ -408,13 +408,13 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_PRange(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Range_Polymorphic_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Range_Polymorphic_RangeIterator(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers_Loop(builtin, lean_io_mk_world());

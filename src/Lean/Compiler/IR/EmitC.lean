@@ -143,6 +143,7 @@ def emitMainFn : M Unit := do
     unless xs.size == 2 || xs.size == 1 do throw "invalid main function, incorrect arity when generating code"
     let env ← getEnv
     let usesLeanAPI := usesModuleFrom env `Lean
+    emitLn "char ** lean_setup_args(int argc, char ** argv);";
     if usesLeanAPI then
        emitLn "void lean_initialize();"
     else
@@ -158,6 +159,7 @@ def emitMainFn : M Unit := do
   SetConsoleOutputCP(CP_UTF8);
   #endif
   lean_object* in; lean_object* res;";
+    emitLn "argv = lean_setup_args(argc, argv);";
     if usesLeanAPI then
       emitLn "lean_initialize();"
     else
@@ -420,18 +422,17 @@ def emitExternCall (f : FunId) (ps : Array Param) (extData : ExternAttrData) (ys
   match getExternEntryFor extData `c with
   | some (ExternEntry.standard _ extFn) => emitSimpleExternalCall extFn ps ys
   | some (ExternEntry.inline _ pat)     => do emit (expandExternPattern pat (toStringArgs ys)); emitLn ";"
-  | some (ExternEntry.foreign _ extFn)  => emitSimpleExternalCall extFn ps ys
   | _ => throw s!"failed to emit extern application '{f}'"
 
 def emitFullApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do
   emitLhs z
   let decl ← getDecl f
   match decl with
-  | Decl.extern _ ps _ extData => emitExternCall f ps extData ys
-  | _ =>
+  | .fdecl .. | .extern _ _ _ { entries := [.opaque _], .. } =>
     emitCName f
     if ys.size > 0 then emit "("; emitArgs ys; emit ")"
     emitLn ";"
+  | Decl.extern _ ps _ extData => emitExternCall f ps extData ys
 
 def emitPartialApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do
   let decl ← getDecl f

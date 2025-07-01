@@ -6,9 +6,11 @@ Author: Leonardo de Moura
 module
 
 prelude
-import all Init.Data.ByteArray.Basic
-import all Init.Data.String.Basic
-import Init.Data.UInt.Lemmas
+public import all Init.Data.ByteArray.Basic
+public import all Init.Data.String.Basic
+public import Init.Data.UInt.Lemmas
+
+public section
 
 namespace String
 

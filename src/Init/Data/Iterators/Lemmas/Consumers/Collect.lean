@@ -6,10 +6,12 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Lemmas.Basic
-import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
-import all Init.Data.Iterators.Consumers.Access
-import all Init.Data.Iterators.Consumers.Collect
+public import Init.Data.Iterators.Lemmas.Basic
+public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+public import all Init.Data.Iterators.Consumers.Access
+public import all Init.Data.Iterators.Consumers.Collect
+
+public section
 
 namespace Std.Iterators
 
@@ -133,5 +135,13 @@ theorem Iter.isPlausibleIndirectOutput_of_mem_toList
     exact IsPlausibleIndirectOutput.indirect ⟨_, rfl, h⟩ ihs
   case done h =>
     simp
+
+theorem Iter.isPlausibleIndirectOutput_of_mem_toListRev
+    [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {it : Iter (α := α) β} {b : β} :
+    b ∈ it.toListRev → it.IsPlausibleIndirectOutput b := by
+  intro h
+  apply isPlausibleIndirectOutput_of_mem_toList
+  simpa [toListRev_eq] using h
 
 end Std.Iterators

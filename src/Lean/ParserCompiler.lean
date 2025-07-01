@@ -37,8 +37,8 @@ partial def parserNodeKind? (e : Expr) : MetaM (Option Name) := do
   let reduceEval? e : MetaM (Option Name) := do
     try pure <| some (← reduceEval e) catch _ => pure none
   let e ← whnfCore e
-  if e matches Expr.lam .. then
-    lambdaLetTelescope e fun _ e => parserNodeKind? e
+  if e matches Expr.lam .. | Expr.letE .. then
+    lambdaLetTelescope (preserveNondepLet := false) e fun _ e => parserNodeKind? e
   else if e.isAppOfArity ``leadingNode 3 || e.isAppOfArity ``trailingNode 4 || e.isAppOfArity ``node 2 then
     reduceEval? (e.getArg! 0)
   else if e.isAppOfArity ``withAntiquot 2 then
@@ -61,7 +61,7 @@ variable {α} (ctx : Context α) (builtin : Bool) (force : Bool) in
 partial def compileParserExpr (e : Expr) : MetaM Expr := do
   let e ← whnfCore e
   match e with
-  | .lam ..  => mapLambdaLetTelescope e fun _ b => compileParserExpr b
+  | .lam .. | .letE .. => mapLambdaLetTelescope (preserveNondepLet := false) e fun _ b => compileParserExpr b
   | .fvar .. => return e
   | _ => do
     let fn := e.getAppFn

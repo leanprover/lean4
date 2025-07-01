@@ -6,9 +6,11 @@ Authors: Leonardo de Moura, Kim Morrison
 module
 
 prelude
-import Init.Grind.Ring.Basic
-import Init.Grind.Ordered.Ring
-import all Init.Data.AC
+public import Init.Grind.Ring.Basic
+public import Init.Grind.Ordered.Ring
+public import all Init.Data.AC
+
+public section
 
 namespace Lean.Grind.Ring
 
@@ -501,6 +503,16 @@ def ofCommSemiring : CommRing (OfSemiring.Q α) :=
 
 attribute [instance] ofCommSemiring
 
-end OfCommSemiring
+/-
+Remark: `↑a` is notation for `OfSemiring.toQ a`.
+We want to hide `OfSemiring.toQ` applications in the diagnostic information produced by
+the `ring` procedure in `grind`.
+-/
+@[app_unexpander OfSemiring.toQ]
+meta def toQUnexpander : PrettyPrinter.Unexpander := fun stx => do
+  match stx with
+  | `($_ $a:term) => `(↑$a)
+  | _ => throw ()
 
+end OfCommSemiring
 end Lean.Grind.CommRing

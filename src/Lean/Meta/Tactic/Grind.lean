@@ -31,6 +31,8 @@ import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.MBTC
 import Lean.Meta.Tactic.Grind.Lookahead
+import Lean.Meta.Tactic.Grind.LawfulEqCmp
+import Lean.Meta.Tactic.Grind.ReflCmp
 
 namespace Lean
 

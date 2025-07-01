@@ -30,11 +30,11 @@ LEAN_EXPORT lean_object* l_Lean_KVMap_subset___boxed(lean_object*, lean_object*)
 static lean_object* l_Lean_KVMap_instToString___closed__0;
 LEAN_EXPORT uint8_t l_Lean_KVMap_subsetAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterTR_loop___at___Lean_KVMap_erase_spec__0(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084_(lean_object*, lean_object*);
 static lean_object* l_Lean_DataValue_str___closed__2;
 static lean_object* l_Lean_reprDataValue___closed__5____x40_Lean_Data_KVMap___hyg_272_;
 LEAN_EXPORT lean_object* l_Lean_KVMap_size___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_filterTR_loop___at___Lean_KVMap_erase_spec__0___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2031_(lean_object*, lean_object*);
 lean_object* l_String_quote(lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_reprDataValue___closed__8____x40_Lean_Data_KVMap___hyg_272_;
@@ -924,8 +924,8 @@ if (lean_is_scalar(x_79)) {
  lean_ctor_set_tag(x_85, 3);
 }
 lean_ctor_set(x_85, 0, x_84);
-x_3 = x_80;
-x_4 = x_81;
+x_3 = x_81;
+x_4 = x_80;
 x_5 = x_85;
 goto block_12;
 }
@@ -943,8 +943,8 @@ if (lean_is_scalar(x_79)) {
 }
 lean_ctor_set(x_88, 0, x_87);
 x_89 = l_Repr_addAppParen(x_88, x_86);
-x_3 = x_80;
-x_4 = x_81;
+x_3 = x_81;
+x_4 = x_80;
 x_5 = x_89;
 goto block_12;
 }
@@ -977,7 +977,7 @@ block_106:
 lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; uint8_t x_104; lean_object* x_105; 
 x_97 = l_Lean_reprDataValue___closed__20____x40_Lean_Data_KVMap___hyg_272_;
 x_98 = lean_unsigned_to_nat(1024u);
-x_99 = l_Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2031_(x_95, x_98);
+x_99 = l_Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084_(x_95, x_98);
 x_100 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_100, 0, x_97);
 lean_ctor_set(x_100, 1, x_99);
@@ -998,10 +998,10 @@ block_12:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; 
 x_6 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_6, 0, x_4);
+lean_ctor_set(x_6, 0, x_3);
 lean_ctor_set(x_6, 1, x_5);
 x_7 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_7, 0, x_3);
+lean_ctor_set(x_7, 0, x_4);
 lean_ctor_set(x_7, 1, x_6);
 x_8 = lean_box(0);
 x_9 = lean_alloc_ctor(6, 1, 1);

@@ -6,9 +6,11 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 module
 
 prelude
-import Init.Conv
-import Init.NotationExtra
-import Init.PropLemmas
+public import Init.Conv
+public import Init.NotationExtra
+public import Init.PropLemmas
+
+public section
 
 namespace Int
 

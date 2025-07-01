@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.SearchM
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.ReorderVars
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -533,10 +534,27 @@ private def searchQLiaAssignment : GoalM Bool := do
     return precise
   go .rat |>.run' {}
 
+private def traceActiveCnstrs : GoalM Unit := do
+  unless (← isTracingEnabledFor `grind.debug.cutsat.search.cnstrs) do return ()
+  let s ← get'
+  for x in [: s.vars.size] do
+    unless (← eliminated x) do
+      if let some dvd := s.dvds[x]! then
+        trace[grind.debug.cutsat.search.cnstrs] "{← dvd.pp}"
+      for c in s.lowers[x]! do
+        trace[grind.debug.cutsat.search.cnstrs] "{← c.pp}"
+      for c in s.uppers[x]! do
+        trace[grind.debug.cutsat.search.cnstrs] "{← c.pp}"
+      for c in s.diseqs[x]! do
+        trace[grind.debug.cutsat.search.cnstrs] "{← c.pp}"
+
 private def searchLiaAssignment : GoalM Unit := do
   let go : SearchM Unit := do
     searchAssignmentMain
     resetDecisionStack
+  traceActiveCnstrs
+  reorderVars
+  traceActiveCnstrs
   go .int |>.run' {}
 
 def searchAssignment : GoalM Unit := do

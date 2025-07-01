@@ -6,12 +6,14 @@ Authors: Mario Carneiro, Leonardo de Moura
 module
 
 prelude
-import Init.Data.Nat.Lemmas
-import Init.Data.Int.DivMod.Lemmas
-import Init.Ext
-import Init.ByCases
-import Init.Conv
-import Init.Omega
+public import Init.Data.Nat.Lemmas
+public import Init.Data.Int.DivMod.Lemmas
+public import Init.Ext
+public import Init.ByCases
+public import Init.Conv
+public import Init.Omega
+
+public section
 
 namespace Fin
 

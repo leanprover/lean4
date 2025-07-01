@@ -73,7 +73,6 @@ lean_object* l_Lean_Meta_Simp_Arith_Nat_toLinearExpr(lean_object*, lean_object*,
 lean_object* l_Lean_Meta_mkExpectedPropHint(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Nat_simpCnstr_x3f___closed__16;
 lean_object* l_Nat_Linear_Poly_norm(lean_object*);
-uint8_t l_Nat_Linear_beqExpr____x40_Init_Data_Nat_Linear___hyg_140_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Nat_simpCnstr_x3f___closed__19;
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Nat_simpExpr_x3f___closed__0;
@@ -109,6 +108,7 @@ lean_object* l_Lean_mkNatEq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_Nat_simpCnstr_x3f___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_Arith_Nat_LinearExpr_toExpr(lean_object*);
 lean_object* l_Lean_Meta_Simp_Arith_Nat_LinearExpr_toArith___redArg(lean_object*, lean_object*, lean_object*);
+uint8_t l_Nat_Linear_beqExpr____x40_Init_Data_Nat_Linear___hyg_141_(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Meta_Simp_Arith_Nat_simpCnstrPos_x3f___lam__0___closed__0() {
 _start:
 {
@@ -1784,7 +1784,7 @@ x_13 = lean_ctor_get(x_9, 1);
 x_14 = l_Nat_Linear_Expr_toPoly(x_12);
 x_15 = l_Nat_Linear_Poly_norm(x_14);
 x_16 = l_Nat_Linear_Poly_toExpr(x_15);
-x_17 = l_Nat_Linear_beqExpr____x40_Init_Data_Nat_Linear___hyg_140_(x_16, x_12);
+x_17 = l_Nat_Linear_beqExpr____x40_Init_Data_Nat_Linear___hyg_141_(x_16, x_12);
 if (x_17 == 0)
 {
 lean_object* x_18; 
@@ -1905,7 +1905,7 @@ lean_dec(x_9);
 x_51 = l_Nat_Linear_Expr_toPoly(x_49);
 x_52 = l_Nat_Linear_Poly_norm(x_51);
 x_53 = l_Nat_Linear_Poly_toExpr(x_52);
-x_54 = l_Nat_Linear_beqExpr____x40_Init_Data_Nat_Linear___hyg_140_(x_53, x_49);
+x_54 = l_Nat_Linear_beqExpr____x40_Init_Data_Nat_Linear___hyg_141_(x_53, x_49);
 if (x_54 == 0)
 {
 lean_object* x_55; 
@@ -2026,7 +2026,7 @@ if (lean_is_exclusive(x_77)) {
 x_82 = l_Nat_Linear_Expr_toPoly(x_79);
 x_83 = l_Nat_Linear_Poly_norm(x_82);
 x_84 = l_Nat_Linear_Poly_toExpr(x_83);
-x_85 = l_Nat_Linear_beqExpr____x40_Init_Data_Nat_Linear___hyg_140_(x_84, x_79);
+x_85 = l_Nat_Linear_beqExpr____x40_Init_Data_Nat_Linear___hyg_141_(x_84, x_79);
 if (x_85 == 0)
 {
 lean_object* x_86; 

@@ -6,10 +6,12 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Int.Lemmas
-import Init.Data.Int.DivMod
-import Init.Data.Int.Linear
-import Init.Data.RArray
+public import Init.Data.Int.Lemmas
+public import Init.Data.Int.DivMod
+public import Init.Data.Int.Linear
+public import Init.Data.RArray
+
+public section
 
 namespace Int.OfNat
 /-!

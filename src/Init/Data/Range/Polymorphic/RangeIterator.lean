@@ -6,12 +6,14 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Internal.Termination
-import Init.Data.Iterators.Consumers.Access
-import Init.Data.Iterators.Consumers.Loop
-import Init.Data.Iterators.Consumers.Collect
-import Init.Data.Range.Polymorphic.PRange
-import Init.Data.List.Sublist
+public import Init.Data.Iterators.Internal.Termination
+public import Init.Data.Iterators.Consumers.Access
+public import Init.Data.Iterators.Consumers.Loop
+public import Init.Data.Iterators.Consumers.Collect
+public import Init.Data.Range.Polymorphic.PRange
+public import Init.Data.List.Sublist
+
+public section
 
 /-!
 # Range iterator
@@ -276,6 +278,27 @@ instance RangeIterator.instFinite {su} [UpwardEnumerable α] [SupportsUpperBound
     [LawfulUpwardEnumerable α] [HasFiniteRanges su α] :
     Finite (RangeIterator su α) Id :=
   .of_finitenessRelation instFinitenessRelation
+
+private def RangeIterator.instProductivenessRelation [UpwardEnumerable α] [SupportsUpperBound su α]
+    [LawfulUpwardEnumerable α] :
+    ProductivenessRelation (RangeIterator su α) Id where
+  rel := emptyWf.rel
+  wf := emptyWf.wf
+  subrelation {it it'} h := by
+    exfalso
+    simp only [IterM.IsPlausibleSkipSuccessorOf, IterM.IsPlausibleStep,
+      Iterator.IsPlausibleStep, Monadic.step] at h
+    split at h
+    · cases h
+    · split at h
+      · cases h
+      · cases h
+
+@[no_expose]
+instance RangeIterator.instProductive {su} [UpwardEnumerable α] [SupportsUpperBound su α]
+    [LawfulUpwardEnumerable α] :
+    Productive (RangeIterator su α) Id :=
+  .of_productivenessRelation instProductivenessRelation
 
 instance RangeIterator.instIteratorAccess {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableUpperBound su α] :

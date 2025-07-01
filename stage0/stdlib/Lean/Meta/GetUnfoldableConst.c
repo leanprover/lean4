@@ -24,7 +24,6 @@ lean_object* l_Lean_Meta_shouldReduceAll___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_canUnfold___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isIrreducible___at_____private_Lean_Meta_GetUnfoldableConst_0__Lean_Meta_canUnfoldDefault_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_73_(uint8_t, uint8_t);
 uint8_t lean_get_reducibility_status(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isIrreducible___at_____private_Lean_Meta_GetUnfoldableConst_0__Lean_Meta_canUnfoldDefault_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getReducibilityStatus___at___Lean_isIrreducible___at_____private_Lean_Meta_GetUnfoldableConst_0__Lean_Meta_canUnfoldDefault_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -42,6 +41,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_getUnfoldableConst_x3f___boxed(lean_object*
 lean_object* l_Lean_Meta_getTheoremInfo___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwUnknownConstantAt___at_____private_Lean_Meta_Basic_0__Lean_Meta_getConstTemp_x3f_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_findAsync_x3f(lean_object*, lean_object*, uint8_t);
+uint8_t l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_74_(uint8_t, uint8_t);
 lean_object* l_Lean_Meta_getConfig___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getReducibilityStatus___at___Lean_isIrreducible___at_____private_Lean_Meta_GetUnfoldableConst_0__Lean_Meta_canUnfoldDefault_spec__0_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
@@ -326,7 +326,7 @@ if (lean_is_exclusive(x_33)) {
 }
 x_42 = lean_box(3);
 x_43 = lean_unbox(x_42);
-x_44 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_73_(x_6, x_43);
+x_44 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_74_(x_6, x_43);
 if (x_44 == 0)
 {
 lean_dec(x_34);
@@ -409,7 +409,7 @@ if (lean_is_exclusive(x_51)) {
 }
 x_60 = lean_box(3);
 x_61 = lean_unbox(x_60);
-x_62 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_73_(x_6, x_61);
+x_62 = l_Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_74_(x_6, x_61);
 if (x_62 == 0)
 {
 lean_dec(x_52);

@@ -8,12 +8,13 @@ Extra notation that depends on Init/Meta
 module
 
 prelude
-import Init.Data.ToString.Basic
-import Init.Conv
-import Init.Meta
-import Init.While
-meta import Init.Data.Option.Basic
-meta import Init.Data.Array.Subarray
+public import Init.Data.ToString.Basic
+public import Init.Conv
+public import Init.Meta
+public import Init.While
+public meta import Init.Data.Option.Basic
+
+public section
 
 namespace Lean
 
@@ -287,8 +288,8 @@ macro_rules
         `(List.cons $x $k)
     else
       let m := x.size / 2
-      let y := x[m:]
-      let z := x[:m]
+      let y := x.drop m
+      let z := x.take m
       `(let y := %[ $[$y],* | $k ]
         %[ $[$z],* | y ])
 

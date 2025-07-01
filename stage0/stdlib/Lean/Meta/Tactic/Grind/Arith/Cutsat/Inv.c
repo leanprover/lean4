@@ -5777,7 +5777,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = l_Lean_Meta_Grind_Arith_Cutsat_get_x27___redArg(x_1, x_9);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
-x_12 = lean_ctor_get(x_11, 6);
+x_12 = lean_ctor_get(x_11, 8);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
@@ -5845,7 +5845,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = l_Lean_Meta_Grind_Arith_Cutsat_get_x27___redArg(x_1, x_9);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
-x_12 = lean_ctor_get(x_11, 7);
+x_12 = lean_ctor_get(x_11, 9);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
@@ -8092,7 +8092,7 @@ x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
-x_13 = lean_ctor_get(x_11, 5);
+x_13 = lean_ctor_get(x_11, 7);
 lean_inc(x_13);
 lean_dec(x_11);
 x_14 = lean_ctor_get(x_10, 1);
@@ -9949,7 +9949,7 @@ return x_29;
 else
 {
 lean_object* x_30; uint8_t x_31; 
-x_30 = lean_ctor_get(x_1, 10);
+x_30 = lean_ctor_get(x_1, 12);
 x_31 = l_List_elem___at___Lean_Meta_Occurrences_contains_spec__0(x_4, x_30);
 if (x_31 == 0)
 {
@@ -10808,7 +10808,7 @@ return x_29;
 else
 {
 lean_object* x_30; uint8_t x_31; 
-x_30 = lean_ctor_get(x_1, 10);
+x_30 = lean_ctor_get(x_1, 12);
 x_31 = l_List_elem___at___Lean_Meta_Occurrences_contains_spec__0(x_4, x_30);
 if (x_31 == 0)
 {
@@ -11118,7 +11118,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = l_Lean_Meta_Grind_Arith_Cutsat_get_x27___redArg(x_1, x_9);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
-x_12 = lean_ctor_get(x_11, 9);
+x_12 = lean_ctor_get(x_11, 11);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
@@ -11298,7 +11298,7 @@ static lean_object* _init_l_List_forIn_x27_loop___at___List_forIn_x27_loop___at_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Meta.Tactic.Grind.Arith.Cutsat.Inv._hyg.1724.0 )\n\n", 91, 91);
+x_1 = lean_mk_string_unchecked("assertion violation: ( __do_lift._@.Lean.Meta.Tactic.Grind.Arith.Cutsat.Inv._hyg.1725.0 )\n\n", 91, 91);
 return x_1;
 }
 }
@@ -11648,7 +11648,7 @@ lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec(x_10);
-x_13 = lean_ctor_get(x_11, 10);
+x_13 = lean_ctor_get(x_11, 12);
 lean_inc(x_13);
 lean_dec(x_11);
 x_14 = lean_box(0);
@@ -14991,7 +14991,7 @@ x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
-x_13 = lean_ctor_get(x_11, 8);
+x_13 = lean_ctor_get(x_11, 10);
 lean_inc(x_13);
 lean_dec(x_11);
 x_14 = lean_ctor_get(x_10, 1);

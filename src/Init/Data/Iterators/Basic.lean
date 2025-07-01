@@ -6,11 +6,13 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Core
-import Init.Classical
-import Init.Ext
-import Init.NotationExtra
-import Init.TacticsExtra
+public import Init.Core
+public import Init.Classical
+public import Init.Ext
+public import Init.NotationExtra
+public import Init.TacticsExtra
+
+public section
 
 /-!
 ### Definition of iterators
@@ -426,7 +428,7 @@ def Iter.Step {α : Type w} {β : Type w} [Iterator α Id β] (it : Iter (α := 
 /--
 Converts an `Iter.Step` into an `IterM.Step`.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def Iter.Step.toMonadic {α : Type w} {β : Type w} [Iterator α Id β] {it : Iter (α := α) β}
     (step : it.Step) : it.toIterM.Step :=
   ⟨step.val.mapIterator Iter.toIterM, step.property⟩

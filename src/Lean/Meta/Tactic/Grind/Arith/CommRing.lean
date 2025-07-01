@@ -28,7 +28,6 @@ builtin_initialize registerTraceClass `grind.ring.assert.trivial (inherited := t
 builtin_initialize registerTraceClass `grind.ring.assert.queue (inherited := true)
 builtin_initialize registerTraceClass `grind.ring.assert.basis (inherited := true)
 builtin_initialize registerTraceClass `grind.ring.assert.store (inherited := true)
-builtin_initialize registerTraceClass `grind.ring.assert.discard (inherited := true)
 builtin_initialize registerTraceClass `grind.ring.simp
 builtin_initialize registerTraceClass `grind.ring.superpose
 builtin_initialize registerTraceClass `grind.ring.impEq

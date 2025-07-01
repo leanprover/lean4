@@ -19,7 +19,7 @@ abbrev M := ReaderT LocalContext CompilerM
 private def join (as : Array α) (f : α → M Format) : M Format := do
   if h : 0 < as.size then
     let mut result ← f as[0]
-    for a in as[1:] do
+    for a in as[1...*] do
       result := f!"{result} {← f a}"
     return result
   else

@@ -461,7 +461,7 @@ depend on them (i.e. they should not be inspected beforehand).
 def withNarrowedArgTacticReuse [Monad m] [MonadReaderOf Context m] [MonadLiftT BaseIO m]
     [MonadWithReaderOf Core.Context m] [MonadWithReaderOf Context m] [MonadOptions m]
     (argIdx : Nat) (act : Syntax → m α) (stx : Syntax) : m α :=
-  withNarrowedTacticReuse (fun stx => (mkNullNode stx.getArgs[:argIdx], stx[argIdx])) act stx
+  withNarrowedTacticReuse (fun stx => (mkNullNode stx.getArgs[*...argIdx], stx[argIdx])) act stx
 
 /--
 Disables incremental tactic reuse *and* reporting for `act` if `cond` is true by setting `tacSnap?`

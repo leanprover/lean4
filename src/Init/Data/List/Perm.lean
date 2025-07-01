@@ -6,10 +6,12 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 module
 
 prelude
-import Init.Data.List.Pairwise
-import Init.Data.List.Erase
-import Init.Data.List.Find
-import all Init.Data.List.Attach
+public import Init.Data.List.Pairwise
+public import Init.Data.List.Erase
+public import Init.Data.List.Find
+public import all Init.Data.List.Attach
+
+public section
 
 /-!
 # List Permutations

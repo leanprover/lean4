@@ -518,7 +518,7 @@ where
     -- If we find one we must extend `convertCastEqRec`.
     unless e.isAppOf ``Eq.ndrec do return false
     unless e.getAppNumArgs > 6 do return false
-    for arg in e.getAppArgs[6:] do
+    for arg in e.getAppArgs[6...*] do
       if arg.isFVar && (← read).contains arg.fvarId! then
         return true
     return true
@@ -606,7 +606,7 @@ where
                 trace[Meta.Match.matchEqs] "altNew: {altNew} : {altTypeNew}"
                 -- Replace `rhs` with `x` (the lambda binder in the motive)
                 let mut altTypeNewAbst := (← kabstract altTypeNew rhs).instantiate1 x
-                -- Replace args[6:6+i] with `motiveTypeArgsNew`
+                -- Replace args[6...(6+i)] with `motiveTypeArgsNew`
                 for j in [:i] do
                   altTypeNewAbst := (← kabstract altTypeNewAbst argsNew[6+j]!).instantiate1 motiveTypeArgsNew[j]!
                 let localDecl ← motiveTypeArg.fvarId!.getDecl
@@ -623,7 +623,7 @@ where
       argsNew := argsNew.set! 2 motiveNew
       -- Construct the new minor premise for the `Eq.ndrec` application.
       -- First, we use `eqRecNewPrefix` to infer the new minor premise binders for `Eq.ndrec`
-      let eqRecNewPrefix := mkAppN f argsNew[:3] -- `Eq.ndrec` minor premise is the fourth argument.
+      let eqRecNewPrefix := mkAppN f argsNew[*...3] -- `Eq.ndrec` minor premise is the fourth argument.
       let .forallE _ minorTypeNew .. ← whnf (← inferType eqRecNewPrefix) | unreachable!
       trace[Meta.Match.matchEqs] "new minor type: {minorTypeNew}"
       let minor := args[3]!
@@ -750,11 +750,11 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
   let numDiscrEqs := getNumEqsFromDiscrInfos matchInfo.discrInfos
   forallTelescopeReducing constInfo.type fun xs matchResultType => do
     let mut eqnNames := #[]
-    let params := xs[:matchInfo.numParams]
+    let params := xs[*...matchInfo.numParams]
     let motive := xs[matchInfo.getMotivePos]!
-    let alts   := xs[xs.size - matchInfo.numAlts:]
+    let alts   := xs[(xs.size - matchInfo.numAlts)...*]
     let firstDiscrIdx := matchInfo.numParams + 1
-    let discrs := xs[firstDiscrIdx : firstDiscrIdx + matchInfo.numDiscrs]
+    let discrs := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
     let mut notAlts := #[]
     let mut idx := 1
     let mut splitterAltTypes := #[]
@@ -871,11 +871,11 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
   let numDiscrEqs := matchInfo.getNumDiscrEqs
   forallTelescopeReducing constInfo.type fun xs _matchResultType => do
     let mut eqnNames := #[]
-    let params := xs[:matchInfo.numParams]
+    let params := xs[*...matchInfo.numParams]
     let motive := xs[matchInfo.getMotivePos]!
-    let alts   := xs[xs.size - matchInfo.numAlts:]
+    let alts   := xs[(xs.size - matchInfo.numAlts)...*]
     let firstDiscrIdx := matchInfo.numParams + 1
-    let discrs := xs[firstDiscrIdx : firstDiscrIdx + matchInfo.numDiscrs]
+    let discrs := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
     let mut notAlts := #[]
     let mut idx := 1
     for i in [:alts.size] do

@@ -71,8 +71,8 @@ private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
     unless numIndParams + numTypeFormers < args.size do
       trace[Elab.definition.structural] "unexpected 'below' type{indentExpr belowType}"
       throwToBelowFailed
-    let params := args[:numIndParams]
-    let finalArgs := args[numIndParams+numTypeFormers:]
+    let params := args[*...numIndParams]
+    let finalArgs := args[(numIndParams+numTypeFormers)...*]
     let pre := mkAppN f params
     let motiveTypes ← inferArgumentTypesN numTypeFormers pre
     let numMotives : Nat := positions.numIndices

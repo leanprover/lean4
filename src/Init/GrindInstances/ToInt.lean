@@ -6,15 +6,17 @@ Authors: Kim Morrison
 module
 
 prelude
-import all Init.Grind.ToInt
-import Init.Grind.Module.Basic
-import Init.Grind.Ring.ToInt
-import Init.Data.Int.DivMod.Basic
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
-import Init.Data.Fin.Lemmas
-import Init.Data.UInt.Lemmas
-import Init.Data.SInt.Lemmas
+public import all Init.Grind.ToInt
+public import Init.Grind.Module.Basic
+public import Init.Grind.Ring.ToInt
+public import Init.Data.Int.DivMod.Basic
+public import Init.Data.Int.Lemmas
+public import Init.Data.Int.Order
+public import Init.Data.Fin.Lemmas
+public import Init.Data.UInt.Lemmas
+public import Init.Data.SInt.Lemmas
+
+public section
 
 namespace Lean.Grind
 

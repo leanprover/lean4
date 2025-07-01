@@ -6,7 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Basic
+public import Init.Data.Iterators.Basic
+
+public section
 
 namespace Std.Iterators
 
@@ -40,6 +42,17 @@ inductive IterM.IsPlausibleNthOutputStep {α β : Type w} {m : Type w → Type w
   -/
   | skip {it it' : IterM (α := α) m β} {step} : it.IsPlausibleStep (.skip it') →
       it'.IsPlausibleNthOutputStep n step → it.IsPlausibleNthOutputStep n step
+
+theorem IterM.not_isPlausibleNthOutputStep_yield {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    {n : Nat} {it it' : IterM (α := α) m β} :
+    ¬ it.IsPlausibleNthOutputStep n (.skip it') := by
+  intro h
+  generalize h' : IterStep.skip it' = step at h
+  induction h
+  · cases h'
+  · cases h'
+  · simp_all
+  · simp_all
 
 /--
 `IteratorAccess α m` provides efficient implementations for random access or iterators that support

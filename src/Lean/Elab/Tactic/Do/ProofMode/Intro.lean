@@ -6,7 +6,6 @@ Authors: Lars König, Mario Carneiro, Sebastian Graf
 prelude
 import Std.Tactic.Do.Syntax
 import Lean.Elab.Tactic.Do.ProofMode.Basic
-import Lean.Elab.Tactic.Do.ProofMode.Display
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do SPred.Tactic

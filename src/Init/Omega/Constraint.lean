@@ -6,8 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Omega.LinearCombo
-import Init.Omega.Int
+public import Init.Omega.LinearCombo
+public import Init.Omega.Int
+
+public section
 
 /-!
 A `Constraint` consists of an optional lower and upper bound (inclusive),

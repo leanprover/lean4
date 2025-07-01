@@ -6,7 +6,9 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.Control.Basic
+public import Init.Control.Basic
+
+public section
 
 @[expose] section
 

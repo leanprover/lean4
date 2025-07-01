@@ -31,7 +31,7 @@ rfl
 
 /--
 info: ex1 :
-  (let __src := c1;
+  (have __src := c1;
       { toB := __src.toB, z := 2 : C Nat }).z =
     2
 -/
@@ -42,7 +42,7 @@ rfl
 
 /--
 info: ex2 :
-  (let __src := c1;
+  (have __src := c1;
       { toB := __src.toB, z := 2 : C Nat }).x =
     c1.x
 -/

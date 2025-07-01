@@ -10,6 +10,7 @@ import Lean.Data.PersistentArray
 import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -86,6 +87,7 @@ inductive EqCnstrProof where
     -/
     core (a b : Expr) (p₁ p₂ : Poly)
   | coreNat (a b : Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
+  | coreToInt (a b : Expr) (toIntThm : Expr) (lhs rhs : Int.Linear.Expr)
   | /-- `e` is `p` -/
     defn (e : Expr) (p : Poly)
   | defnNat (e : Int.OfNat.Expr) (x : Var) (e' : Int.Linear.Expr)
@@ -93,6 +95,10 @@ inductive EqCnstrProof where
   | divCoeffs (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | ofLeGe (c₁ : LeCnstr) (c₂ : LeCnstr)
+  | reorder (c : EqCnstr)
+  | commRingNorm (c : EqCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
+  | defnCommRing (e : Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
+  | defnNatCommRing (e : Int.OfNat.Expr) (x : Var) (e' : Int.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
 
 /-- A divisibility constraint and its justification/proof. -/
 structure DvdCnstr where
@@ -153,6 +159,8 @@ inductive DvdCnstrProof where
   | cooper₁ (c : CooperSplit)
   /-- `c.c₃?` must be `some` -/
   | cooper₂ (c : CooperSplit)
+  | reorder (c : DvdCnstr)
+  | commRingNorm (c : DvdCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
 
 /-- An inequality constraint and its justification/proof. -/
 structure LeCnstr where
@@ -166,6 +174,7 @@ inductive LeCnstrProof where
   | coreNatNeg (e : Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
   | coreToInt (e : Expr) (pos : Bool) (toIntThm : Expr) (lhs rhs : Int.Linear.Expr)
   | denoteAsIntNonneg (rhs : Int.OfNat.Expr) (rhs' : Int.Linear.Expr)
+  | bound (h : Expr)
   | dec (h : FVarId)
   | norm (c : LeCnstr)
   | divCoeffs (c : LeCnstr)
@@ -177,6 +186,8 @@ inductive LeCnstrProof where
   | cooper (c : CooperSplit)
   | dvdTight (c₁ : DvdCnstr) (c₂ : LeCnstr)
   | negDvdTight (c₁ : DvdCnstr) (c₂ : LeCnstr)
+  | reorder (c : LeCnstr)
+  | commRingNorm (c : LeCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
 
 /-- A disequality constraint and its justification/proof. -/
 structure DiseqCnstr where
@@ -192,10 +203,13 @@ inductive DiseqCnstrProof where
     -/
     core (a b : Expr) (p₁ p₂ : Poly)
   | coreNat (a b : Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
+  | coreToInt (a b : Expr) (toIntThm : Expr) (lhs rhs : Int.Linear.Expr)
   | norm (c : DiseqCnstr)
   | divCoeffs (c : DiseqCnstr)
   | neg (c : DiseqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
+  | reorder (c : DiseqCnstr)
+  | commRingNorm (c : DiseqCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
 
 /--
 A proof of `False`.
@@ -230,6 +244,15 @@ structure State where
   vars : PArray Expr := {}
   /-- Mapping from `Expr` to a variable representing it. -/
   varMap  : PHashMap ExprPtr Var := {}
+  /--
+  `vars` before they were reordered.
+  This array is empty if the variables were not reordered.
+  We need them to generate the proof term because some
+  justification objects contain terms using variables before the reordering.
+  -/
+  vars' : PArray Expr := {}
+  /-- `varVap` before variables were reordered. -/
+  varMap' : PHashMap ExprPtr Var := {}
   /--
   Mapping from `Nat` terms to their variable. They are also marked using `markAsCutsatTerm`.
   -/
@@ -314,6 +337,10 @@ structure State where
   from a α-term `e` to the pair `(toInt e, α)`.
   -/
   toIntTermMap : PHashMap ExprPtr ToIntTermInfo := {}
+  /--
+  `usedCommRing` is `true` if the `CommRing` has been used to normalize expressions.
+  -/
+  usedCommRing : Bool := false
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.Cutsat

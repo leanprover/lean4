@@ -168,7 +168,7 @@ def handleInlayHints (p : InlayHintParams) (s : InlayHintState) :
     s.oldInlayHints.filter fun (ihi : Elab.InlayHintInfo) =>
       ! invalidOldInlayHintsRange.contains ihi.position
   let newInlayHints : Array Elab.InlayHintInfo ← (·.2) <$> StateT.run (s := #[]) do
-    for s in snaps[oldFinishedSnaps:] do
+    for s in snaps[oldFinishedSnaps...*] do
       s.infoTree.visitM' (postNode := fun ci i _ => do
         let .ofCustomInfo i := i
           | return

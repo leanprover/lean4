@@ -6,8 +6,10 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
-import all Init.Data.Iterators.Consumers.Monadic.Loop
+public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+public import all Init.Data.Iterators.Consumers.Monadic.Loop
+
+public section
 
 namespace Std.Iterators
 

@@ -215,7 +215,7 @@ theorem contains_eq_isSome_get? [TransCmp cmp] {a : α} :
     t.contains a = (t.get? a).isSome :=
   TreeMap.contains_eq_isSome_getKey?
 
-@[simp]
+@[simp, grind =]
 theorem isSome_get?_eq_contains [TransCmp cmp] {a : α} :
     (t.get? a).isSome = t.contains a :=
   contains_eq_isSome_get?.symm

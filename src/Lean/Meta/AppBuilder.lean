@@ -34,9 +34,10 @@ def mkExpectedTypeHint (e : Expr) (expectedType : Expr) : MetaM Expr := do
   return mkExpectedTypeHintCore e expectedType u
 
 /--
-`mkLetFun x v e` creates the encoding for the `let_fun x := v; e` expression.
+`mkLetFun x v e` creates `letFun v (fun x => e)`.
 The expression `x` can either be a free variable or a metavariable, and the function suitably abstracts `x` in `e`.
 -/
+@[deprecated mkLetFVars (since := "2026-06-29")]
 def mkLetFun (x : Expr) (v : Expr) (e : Expr) : MetaM Expr := do
   -- If `x` is an `ldecl`, then the result of `mkLambdaFVars` is a let expression.
   let ensureLambda : Expr → Expr

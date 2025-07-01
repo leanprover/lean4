@@ -25,18 +25,14 @@ structure EqnInfoCore where
   deriving Inhabited
 
 /--
-Zeta reduces `let` and `let_fun` while consuming metadata.
+Zeta reduces `let` and `have` while consuming metadata.
 Returns true if progress is made.
 -/
 partial def expand (progress : Bool) (e : Expr) : Bool × Expr :=
   match e with
   | Expr.letE _ _ v b _ => expand true (b.instantiate1 v)
   | Expr.mdata _ b      => expand true b
-  | e =>
-    if let some (_, _, v, b) := e.letFun? then
-      expand true (b.instantiate1 v)
-    else
-      (progress, e)
+  | e                   => (progress, e)
 
 def expandRHS? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let target ← mvarId.getType'
@@ -221,7 +217,7 @@ private def shouldUseSimpMatch (e : Expr) : MetaM Bool := do
     root.forEach fun e => do
       if let some info := isMatcherAppCore? env e then
         let args := e.getAppArgs
-        for discr in args[info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
+        for discr in args[info.getFirstDiscrPos...(info.getFirstDiscrPos + info.numDiscrs)] do
           if (← Meta.isConstructorApp discr) then
             throwThe Unit ()
   return (← (find e).run) matches .error _

@@ -6,11 +6,13 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Array.MapIdx
-import all Init.Data.Array.Basic
-import all Init.Data.Vector.Basic
-import Init.Data.Vector.Attach
-import Init.Data.Vector.Lemmas
+public import Init.Data.Array.MapIdx
+public import all Init.Data.Array.Basic
+public import all Init.Data.Vector.Basic
+public import Init.Data.Vector.Attach
+public import Init.Data.Vector.Lemmas
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.

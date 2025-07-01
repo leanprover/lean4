@@ -243,7 +243,7 @@ def tell (x : Expr) : M Unit := fun xs => pure ((), xs.push x)
 def localM (f : Array Expr → MetaM (Array Expr)) (act : M α) : M α := fun xs => do
   let n := xs.size
   let (b, xs') ← act xs
-  pure (b, xs'[:n] ++ (← f xs'[n:]))
+  pure (b, xs'[*...n] ++ (← f xs'[n...*]))
 
 def localMapM (f : Expr → MetaM Expr) (act : M α) : M α :=
   localM (·.mapM f) act
@@ -290,14 +290,6 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
   withTraceNode `Meta.FunInd (pure m!"{exceptEmoji ·} foldAndCollect ({mkFVar oldIH} → {mkFVar newIH})::{indentExpr e}") do
 
   let e' ← id do
-    if let some (n, t, v, b) := e.letFun? then
-      let t' ← foldAndCollect oldIH newIH isRecCall t
-      let v' ← foldAndCollect oldIH newIH isRecCall v
-      return ← withLocalDeclD n t' fun x => do
-        M.localMapM (mkLetFun x v' ·) do
-          let b' ← foldAndCollect oldIH newIH isRecCall (b.instantiate1 x)
-          mkLetFun x v' b'
-
     if let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) then
       if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
         -- We do different things to the matcher when folding recursive calls and when
@@ -673,12 +665,6 @@ def rwLetWith (h : Expr) (e : Expr) : MetaM Simp.Result := do
 def rwMData (e : Expr) : MetaM Simp.Result := do
   return { expr := e.consumeMData }
 
-def rwHaveWith (h : Expr) (e : Expr) : MetaM Simp.Result := do
-  if let some (_n, t, _v, b) := e.letFun? then
-    if (← isDefEq t (← inferType h)) then
-      return { expr := b.instantiate1 h }
-  return { expr := e }
-
 def rwFun (names : Array Name) (e : Expr) : MetaM Simp.Result := do
   e.withApp fun f xs => do
     if let some name := names.find? f.isConstOf then
@@ -910,14 +896,6 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
         buildInductionBody toErase toClear goal' oldIH newIH isRecCall (b.instantiate1 x)
       mkLetFVars #[x] b'
 
-  if let some (n, t, v, b) := e.letFun? then
-    let t' ← foldAndCollect oldIH newIH isRecCall t
-    let v' ← foldAndCollect oldIH newIH isRecCall v
-    return ← withLetDecl n t' v' fun x => M2.branch do
-      let b' ← withRewrittenMotiveArg goal (rwHaveWith x) fun goal' =>
-        buildInductionBody toErase toClear goal' oldIH newIH isRecCall (b.instantiate1 x)
-      mkLetFVars #[x] b' (usedLetOnly := false)
-
   -- Special case for traversing the PProd’ed bodies in our encoding of structural mutual recursion
   if let .lam n t b bi := e then
     if goal.isForall then
@@ -1021,9 +999,9 @@ where doRealize (inductName : Name) := do
           forallTelescope (← inferType e').bindingDomain! fun xs goal => do
             if xs.size ≠ 2 then
               throwError "expected recursor argument to take 2 parameters, got {xs}" else
-            let targets : Array Expr := xs[:1]
+            let targets : Array Expr := xs[*...1]
             let genIH := xs[1]!
-            let extraParams := xs[2:]
+            let extraParams := xs[2...*]
             -- open body with the same arg
             let body ← instantiateLambda body targets
             lambdaTelescope1 body fun oldIH body => do
@@ -1057,6 +1035,7 @@ where doRealize (inductName : Name) := do
 
   let eTyp ← inferType e'
   let eTyp ← elimTypeAnnotations eTyp
+  let eTyp ← letToHave eTyp
   -- logInfo m!"eTyp: {eTyp}"
   let levelParams := (collectLevelParams {} eTyp).params
   -- Prune unused level parameters, preserving the original order
@@ -1090,6 +1069,7 @@ def projectMutualInduct (unfolding : Bool) (names : Array Name) (mutualInduct : 
         let value ← PProdN.projM names.size idx value
         mkLambdaFVars xs value
       let type ← inferType value
+      let type ← letToHave type
       addDecl <| Declaration.thmDecl { name := inductName, levelParams, type, value }
 
       if idx == 0 then finalizeFirstInd
@@ -1142,7 +1122,7 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
       if 5 ≤ args.size then
         let scrut := args[3]!
         let k := args[4]!
-        let extra := args[5:]
+        let extra := args[5...*]
         if scrut.isAppOfArity ``PSigma.mk 4 then
           let #[_, _, x, y] := scrut.getAppArgs | unreachable!
           let e' := (k.beta #[x, y]).beta extra
@@ -1151,7 +1131,7 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
     if f.isConstOf ``PSigma.fst then
       if h : 3 ≤ args.size then
         let scrut := args[2]
-        let extra := args[3:]
+        let extra := args[3...*]
         if scrut.isAppOfArity ``PSigma.mk 4 then
           let #[_, _, x, _y] := scrut.getAppArgs | unreachable!
           let e' := x.beta extra
@@ -1159,7 +1139,7 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
     if f.isConstOf ``PSigma.snd then
       if h : 3 ≤ args.size then
         let scrut := args[2]
-        let extra := args[3:]
+        let extra := args[3...*]
         if scrut.isAppOfArity ``PSigma.mk 4 then
           let #[_, _, _x, y] := scrut.getAppArgs | unreachable!
           let e' := y.beta extra
@@ -1177,7 +1157,7 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
         let scrut := args[3]!
         let k₁ := args[4]!
         let k₂ := args[5]!
-        let extra := args[6:]
+        let extra := args[6...*]
         if scrut.isAppOfArity ``PSum.inl 3 then
           let e' := (k₁.beta #[scrut.appArg!]).beta extra
           return .visit e'
@@ -1187,9 +1167,9 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
     -- Look for _unary redexes
     if f.isConstOf eqnInfo.declNameNonRec then
       if h : args.size ≥ eqnInfo.fixedParamPerms.numFixed + 1 then
-        let xs := args[:eqnInfo.fixedParamPerms.numFixed]
+        let xs := args[*...eqnInfo.fixedParamPerms.numFixed]
         let packedArg := args[eqnInfo.fixedParamPerms.numFixed]
-        let extraArgs := args[eqnInfo.fixedParamPerms.numFixed+1:]
+        let extraArgs := args[eqnInfo.fixedParamPerms.numFixed<...*]
         let some (funIdx, ys) := eqnInfo.argsPacker.unpack packedArg
           | throwError "Unexpected packedArg:{indentExpr packedArg}"
         let args' := eqnInfo.fixedParamPerms.perms[funIdx]!.buildArgs xs ys
@@ -1248,6 +1228,7 @@ where doRealize inductName := do
     check value
   let type ← inferType value
   let type ← elimOptParam type
+  let type ← letToHave type
 
   addDecl <| Declaration.thmDecl
     { name := inductName, levelParams := ci.levelParams, type, value }
@@ -1311,14 +1292,14 @@ where doRealize inductName := do
       let recInfo ← getConstInfoRec (mkRecName indName)
       if args.size < recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 + recInfo.numMotives then
         throwError "insufficient arguments to .brecOn:{indentExpr body}"
-      let brecOnArgs    : Array Expr := args[:recInfo.numParams]
-      let _brecOnMotives : Array Expr := args[recInfo.numParams:recInfo.numParams + recInfo.numMotives]
-      let brecOnTargets : Array Expr := args[recInfo.numParams + recInfo.numMotives :
-        recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1]
-      let brecOnMinors  : Array Expr := args[recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 :
-        recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 + recInfo.numMotives]
-      let brecOnExtras  : Array Expr := args[ recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 +
-        recInfo.numMotives:]
+      let brecOnArgs    : Array Expr := args[*...recInfo.numParams]
+      let _brecOnMotives : Array Expr := args[recInfo.numParams...(recInfo.numParams + recInfo.numMotives)]
+      let brecOnTargets : Array Expr := args[(recInfo.numParams + recInfo.numMotives)...
+        (recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1)]
+      let brecOnMinors  : Array Expr := args[(recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1)...
+        (recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 + recInfo.numMotives)]
+      let brecOnExtras  : Array Expr := args[(recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 +
+        recInfo.numMotives)...*]
       unless brecOnTargets.all (·.isFVar) do
         throwError "the indices and major argument of the brecOn application are not variables:{indentExpr body}"
       unless brecOnExtras.all (·.isFVar) do
@@ -1418,9 +1399,9 @@ where doRealize inductName := do
               let minor' ← forallTelescope goal fun xs goal => do
                 unless xs.size ≥ numTargets do
                   throwError ".brecOn argument has too few parameters, expected at least {numTargets}: {xs}"
-                let targets : Array Expr := xs[:numTargets]
+                let targets : Array Expr := xs[*...numTargets]
                 let genIH := xs[numTargets]!
-                let extraParams := xs[numTargets+1:]
+                let extraParams := xs[numTargets<...*]
                 -- open body with the same arg
                 let body ← instantiateLambda brecOnMinor targets
                 lambdaTelescope1 body fun oldIH body => do
@@ -1480,6 +1461,7 @@ where doRealize inductName := do
 
   let eTyp ← inferType e'
   let eTyp ← elimTypeAnnotations eTyp
+  let eTyp ← letToHave eTyp
   -- logInfo m!"eTyp: {eTyp}"
   let levelParams := (collectLevelParams {} eTyp).params
   -- Prune unused level parameters, preserving the original order
@@ -1541,19 +1523,16 @@ where
       e.withApp fun f args => do
         if f.isConst then
           if let some matchInfo ← getMatcherInfo? f.constName! then
-            for scrut in args[matchInfo.getFirstDiscrPos:matchInfo.getFirstAltPos] do
+            for scrut in args[matchInfo.getFirstDiscrPos...matchInfo.getFirstAltPos] do
               if let some i := xs.idxOf? scrut then
                 modify (·.set! i true)
-            for alt in args[matchInfo.getFirstAltPos:matchInfo.arity] do
+            for alt in args[matchInfo.getFirstAltPos...matchInfo.arity] do
               go xs alt
-        if f.isConstOf ``letFun then
-          for arg in args[3:4] do
-            go xs arg
         if f.isConstOf ``ite || f.isConstOf ``dite then
-          for arg in args[3:5] do
+          for arg in args[3...5] do
             go xs arg
         if f.isConstOf ``cond then
-          for arg in args[2:4] do
+          for arg in args[2...4] do
             go xs arg
 
 /--
@@ -1623,6 +1602,7 @@ def deriveCases (unfolding : Bool) (name : Name) : MetaM Unit := do
 
     let eTyp ← inferType e'
     let eTyp ← elimTypeAnnotations eTyp
+    let eTyp ← letToHave eTyp
     -- logInfo m!"eTyp: {eTyp}"
     let levelParams := (collectLevelParams {} eTyp).params
     -- Prune unused level parameters, preserving the original order

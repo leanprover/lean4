@@ -74,6 +74,7 @@ structure Scope where
   so all sections and namespaces nested within a `noncomputable` section also have this flag set.
   -/
   isNoncomputable : Bool := false
+  isPublic : Bool := false
   /--
   Attributes that should be applied to all matching declaration in the section. Inherited from
   parent scopes.
@@ -157,7 +158,7 @@ instance : MonadExceptOf Exception CommandElabM where
 def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State := {
   env         := env
   messages    := messages
-  scopes      := [{ header := "", opts := opts }]
+  scopes      := [{ header := "", opts }]
   maxRecDepth := maxRecDepth.get opts
   -- Outside of declarations, fall back to a module-specific prefix
   auxDeclNGen := { namePrefix := mkPrivateName env .anonymous }

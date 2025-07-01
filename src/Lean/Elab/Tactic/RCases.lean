@@ -436,7 +436,7 @@ def generalizeExceptFVar (goal : MVarId) (args : Array GeneralizeArg) :
     else
       result := result.push (mkFVar fvarIdsNew[j]!)
       j := j+1
-  pure (result, fvarIdsNew[j:], goal)
+  pure (result, fvarIdsNew[j...*], goal)
 
 /--
 Given a list of targets of the form `e` or `h : e`, and a pattern, match all the targets
@@ -524,7 +524,7 @@ partial def rintroContinue (g : MVarId) (fs : FVarSubst) (clears : Array FVarId)
     (cont : MVarId → FVarSubst → Array FVarId → α → TermElabM α) : TermElabM α := do
   g.withContext (loop 0 g fs clears a)
 where
-  /-- Runs `rintroContinue` on `pats[i:]` -/
+  /-- Runs `rintroContinue` on `pats[i...*]` -/
   loop i g fs clears a := do
     if h : i < pats.size then
       rintroCore g fs clears a ref pats[i] ty? (loop (i+1))

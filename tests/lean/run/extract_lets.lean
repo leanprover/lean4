@@ -91,7 +91,8 @@ Too many names, linter warning.
 -/
 /--
 warning: unused name
-note: this linter can be disabled with `set_option linter.tactic.unusedName false`
+
+Note: This linter can be disabled with `set_option linter.tactic.unusedName false`
 ---
 trace: z : Nat := 2
 z' : Nat := 1 + 1
@@ -651,7 +652,7 @@ example : ∀ n : Nat, n = (let x := n; x) := by
   rfl
 
 /-!
-Same example, but testing `letFun`.
+Same example, but testing `have`.
 -/
 /--
 trace: ⊢ ∀ (n : Nat),

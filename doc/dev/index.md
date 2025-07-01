@@ -88,3 +88,10 @@ CI will generate a branch of Mathlib and Batteries called `lean-pr-testing-NNNN`
 on the `leanprover-community/mathlib4-nightly-testing` fork of Mathlib.
 This branch uses the toolchain for your PR, and will report back to the Lean PR with results from Mathlib CI.
 See https://leanprover-community.github.io/contribute/tags_and_branches.html for more details.
+
+### Testing against the Lean Language Reference
+You can test a Lean PR against the reference manual by rebasing your PR
+on to `nightly-with-manual` branch. (It is fine to force push after rebasing.)
+CI will generate a branch of the reference manual called `lean-pr-testing-NNNN`
+in `leanprover/reference-manual`. This branch uses the toolchain for your PR,
+and will report back to the Lean PR with results from Mathlib CI.

@@ -6,8 +6,10 @@ Authors: Mario Carneiro, Jacob von Raumer
 module
 
 prelude
-import Init.Tactics
-import Init.Meta
+public import Init.Tactics
+public import Init.Meta
+
+public section
 
 
 /-!

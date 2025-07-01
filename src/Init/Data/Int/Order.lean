@@ -6,8 +6,10 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 module
 
 prelude
-import Init.Data.Int.Lemmas
-import Init.ByCases
+public import Init.Data.Int.Lemmas
+public import Init.ByCases
+
+public section
 
 /-!
 # Results about the order properties of the integers, and the integers as an ordered ring.

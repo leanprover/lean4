@@ -7,13 +7,16 @@ Authors: Shreyas Srinivas, François G. Dorais, Kim Morrison
 module
 
 prelude
-meta import Init.Coe
-import Init.Data.Array.Lemmas
-import Init.Data.Array.MapIdx
-import Init.Data.Array.InsertIdx
-import Init.Data.Array.Range
-import Init.Data.Range
-import Init.Data.Stream
+public meta import Init.Coe
+public import Init.Data.Array.Lemmas
+public import Init.Data.Array.MapIdx
+public import Init.Data.Array.InsertIdx
+public import Init.Data.Array.Range
+public import Init.Data.Range
+import Init.Data.Slice.Array.Basic
+public import Init.Data.Stream
+
+public section
 
 /-!
 # Vectors
@@ -542,8 +545,9 @@ instance : ForM m (Vector α n) α where
 
 /-! ### ToStream instance -/
 
+@[no_expose]
 instance : ToStream (Vector α n) (Subarray α) where
-  toStream xs := xs.toArray[:n]
+  toStream xs := xs.toArray[*...*]
 
 /-! ### Lexicographic ordering -/
 

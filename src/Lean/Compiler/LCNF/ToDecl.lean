@@ -27,9 +27,9 @@ private def normalizeAlt (e : Expr) (numParams : Nat) : MetaM Expr :=
     if xs.size == numParams then
       return e
     else if xs.size > numParams then
-      let body ← Meta.mkLambdaFVars xs[numParams:] body
+      let body ← Meta.mkLambdaFVars xs[numParams...*] body
       let body ← Meta.withLetDecl (← mkFreshUserName `_k) (← Meta.inferType body) body fun x => Meta.mkLetFVars #[x] x
-      Meta.mkLambdaFVars xs[:numParams] body
+      Meta.mkLambdaFVars xs[*...numParams] body
     else
       Meta.forallBoundedTelescope (← Meta.inferType e) (numParams - xs.size) fun ys _ =>
         Meta.mkLambdaFVars (xs ++ ys) (mkAppN e ys)

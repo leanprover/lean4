@@ -85,6 +85,14 @@ partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
     c.p.updateOccs
     modify' fun s => { s with dvds := s.dvds.set x (some c) }
 
+/-- Asserts a constraint coming from the core. -/
+private def DvdCnstr.assertCore (c : DvdCnstr) : GoalM Unit := do
+  if let some (re, rp, p) ← c.p.normCommRing? then
+    let c := { c with p, h := .commRingNorm c re rp : DvdCnstr}
+    c.assert
+  else
+    c.assert
+
 def propagateIntDvd (e : Expr) : GoalM Unit := do
   let_expr Dvd.dvd _ inst a b ← e | return ()
   unless (← isInstDvdInt inst) do return ()
@@ -94,7 +102,7 @@ def propagateIntDvd (e : Expr) : GoalM Unit := do
   if (← isEqTrue e) then
     let p ← toPoly b
     let c := { d, p, h := .core e : DvdCnstr }
-    c.assert
+    c.assertCore
   else if (← isEqFalse e) then
     pushNewFact <| mkApp4 (mkConst ``Int.Linear.of_not_dvd) a b reflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
 
@@ -106,7 +114,7 @@ def propagateNatDvd (e : Expr) : GoalM Unit := do
   let p := b'.norm
   if (← isEqTrue e) then
     let c := { d, p, h := .coreNat e d b b' : DvdCnstr }
-    c.assert
+    c.assertCore
   else if (← isEqFalse e) then
     let_expr Dvd.dvd _ _ a b ← e | return ()
     pushNewFact <| mkApp3 (mkConst ``Nat.emod_pos_of_not_dvd) a b (mkOfEqFalseCore e (← mkEqFalseProof e))

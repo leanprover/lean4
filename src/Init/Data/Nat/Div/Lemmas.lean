@@ -6,9 +6,11 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Omega
-import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Simproc
+public import Init.Omega
+public import Init.Data.Nat.Lemmas
+public import Init.Data.Nat.Simproc
+
+public section
 
 /-!
 # Further lemmas about `Nat.div` and `Nat.mod`, with the convenience of having `omega` available.

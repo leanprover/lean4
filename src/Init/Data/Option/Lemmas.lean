@@ -6,11 +6,13 @@ Authors: Mario Carneiro
 module
 
 prelude
-import all Init.Data.Option.BasicAux
-import all Init.Data.Option.Instances
-import Init.Data.BEq
-import Init.Classical
-import Init.Ext
+public import all Init.Data.Option.BasicAux
+public import all Init.Data.Option.Instances
+public import Init.Data.BEq
+public import Init.Classical
+public import Init.Ext
+
+public section
 
 namespace Option
 
@@ -642,6 +644,10 @@ theorem get_none_eq_iff_true {h} : (none : Option α).get h = a ↔ True := by
   simp at h
 
 @[simp, grind =] theorem get_guard : (guard p a).get h = a := by
+  simp only [guard]
+  split <;> simp
+
+@[grind =] theorem getD_guard : (guard p a).getD b = if p a then a else b := by
   simp only [guard]
   split <;> simp
 

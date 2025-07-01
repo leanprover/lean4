@@ -56,7 +56,7 @@ def loadDepPackage
     scope := dep.scope
     remoteUrl := dep.remoteUrl
   }
-  let pkg ← pkg.loadInputsFrom ws.lakeCache
+  let pkg ← pkg.loadInputsFrom ws.lakeEnv
   if let some env := env? then
     let ws ← IO.ofExcept <| ws.addFacetsFromEnv env leanOpts
     return (pkg, ws)

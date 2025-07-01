@@ -254,6 +254,11 @@ structure Environment where
   -/
   private extensions      : Array EnvExtensionState
   /--
+  Additional imported environment extension state for the interpreter. Access via
+  `getModuleIREntries`.
+  -/
+  private irBaseExts      : Array EnvExtensionState
+  /--
   Constant names to be saved in the field `extraConstNames` at `ModuleData`.
   It contains auxiliary declaration names created by the code generator which are not in `constants`.
   When importing modules, we want to insert them at `const2ModIdx`.
@@ -1470,6 +1475,7 @@ def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
       header          := { trustLevel }
       extraConstNames := {}
       extensions      := exts
+      irBaseExts      := exts
     }
     realizedImportedConsts? := none
   }
@@ -1583,9 +1589,17 @@ language server. Higher levels will return the data of the maximum imported leve
 -/
 def getModuleEntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ)
     (env : Environment) (m : ModuleIdx) (level := OLeanLevel.exported) : Array α :=
-  let exts := if level = .exported then env.base.private.extensions else env.serverBaseExts
+  let exts := match level with
+    | .exported => env.base.private.extensions
+    | _         => env.serverBaseExts
   -- safety: as in `getStateUnsafe`
   unsafe (ext.toEnvExtension.getStateImpl exts).importedEntries[m]!
+
+/-- Retrieves additional IR extension state for the interpreter. -/
+def getModuleIREntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ)
+    (env : Environment) (m : ModuleIdx) : Array α :=
+  -- safety: as in `getStateUnsafe`
+  unsafe (ext.toEnvExtension.getStateImpl env.base.private.irBaseExts).importedEntries[m]!
 
 def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
   ext.toEnvExtension.modifyState env fun s =>
@@ -1755,6 +1769,18 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
     constNames, constants, entries
   }
 
+@[extern "lean_ir_export_entries"]
+private opaque exportIREntries (env : Environment) : Array (Name × Array EnvExtensionEntry)
+
+private def mkIRData (env : Environment) : IO ModuleData := do
+  -- TODO: should we use a more specific/efficient data format for IR?
+  return { env.header with
+    entries := exportIREntries env
+    constants := default
+    constNames := default
+    extraConstNames := default
+  }
+
 def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
   if env.header.isModule then
     let mkPart (level : OLeanLevel) :=
@@ -1763,6 +1789,7 @@ def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
       (← mkPart .exported),
       (← mkPart .server),
       (← mkPart .private)]
+    saveModuleData (fname.withExtension "ir") env.mainModule (← mkIRData env)
   else
     saveModuleData fname env.mainModule (← mkModuleData env)
 
@@ -1783,7 +1810,7 @@ private def setImportedEntries (states : Array EnvExtensionState) (mods : Array 
   let mut states := states
   let extDescrs ← persistentEnvExtensionsRef.get
   /- For extensions starting at `startingAt`, ensure their `importedEntries` array have size `mods.size`. -/
-  for extDescr in extDescrs[startingAt:] do
+  for extDescr in extDescrs[startingAt...*] do
     -- safety: as in `modifyState`
     states := unsafe extDescr.toEnvExtension.modifyStateImpl states fun s =>
       { s with importedEntries := .replicate mods.size #[] }
@@ -1846,21 +1873,37 @@ private structure ImportedModule extends EffectiveImport where
   /-- All loaded incremental compacted regions. -/
   parts     : Array (ModuleData × CompactedRegion)
 
-/-- The main module data that will eventually be used to construct the kernel environment. -/
-private def ImportedModule.mainModule? (self : ImportedModule) : Option ModuleData := do
-  let (baseMod, _) ← self.parts[0]?
-  self.parts[if baseMod.isModule && self.importAll then 2 else 0]?.map (·.1)
-
 /-- The main module data that will eventually be used to construct the publicly accessible constants. -/
 private def ImportedModule.publicModule? (self : ImportedModule) : Option ModuleData := do
   let (baseMod, _) ← self.parts[0]?
   return baseMod
 
+private def ImportedModule.getData? (self : ImportedModule) (level : OLeanLevel) : Option ModuleData := do
+  -- Without the module system, we only have the exported level.
+  let level := if (← self.publicModule?).isModule then level else .exported
+  self.parts[level.toCtorIdx]?.map (·.1)
+
+/-- The main module data that will eventually be used to construct the kernel environment. -/
+private def ImportedModule.mainModule? (self : ImportedModule) : Option ModuleData :=
+  self.getData? (if self.importAll then .private else .exported)
+
 /-- The module data that should be used for server purposes. -/
 private def ImportedModule.serverData? (self : ImportedModule) (level : OLeanLevel) :
-    Option ModuleData := do
-  let (baseMod, _) ← self.parts[0]?
-  self.parts[if baseMod.isModule && level != .exported then 1 else 0]?.map (·.1)
+    Option ModuleData :=
+  -- fall back to `exported` outside the server
+  self.getData? (if level ≥ .server then level else .exported)
+
+/-- The module data that should be used for codegen purposes. -/
+private def ImportedModule.loadIRData? (self : ImportedModule) (arts : NameMap ModuleArtifacts)
+    (level : OLeanLevel):
+    IO (Option (ModuleData × CompactedRegion)) := do
+  if (level < .server && self.irPhases == .runtime) || !self.mainModule?.any (·.isModule) then
+    return none
+  let fname ←
+    arts.find? self.module |>.bind (·.ir?) |>.getDM do
+      let mFile ← findOLean self.module
+      return mFile.withExtension "ir"
+  readModuleData fname
 
 structure ImportState where
   private moduleNameMap : Std.HashMap Name ImportedModule := {}
@@ -1948,7 +1991,10 @@ where go (imports : Array Import) (importAll isExported isMeta : Bool) := do
     let importAll := !isModule || (importAll && i.importAll)
     -- `B ≥ public`?
     let isExported := isExported && i.isExported
-    let irPhases := if isMeta || i.isMeta then .comptime else .runtime
+    let irPhases :=
+      if !isModule then .all
+      else if isMeta || i.isMeta then .comptime
+      else .runtime
     let goRec imports := do
       go (importAll := importAll) (isExported := isExported) (isMeta := isMeta || i.isMeta) imports
     if let some mod := (← get).moduleNameMap[i.module]? then
@@ -2015,7 +2061,8 @@ Constructs environment from `importModulesCore` results.
 See also `importModules` for parameter documentation.
 -/
 def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
-    (leakEnv loadExts : Bool) (level := OLeanLevel.private) : IO Environment := do
+    (leakEnv loadExts : Bool) (level := OLeanLevel.private) (arts : NameMap ModuleArtifacts := {}) :
+    IO Environment := do
   let isModule := level != .private
   let modules := s.moduleNames.filterMap (s.moduleNameMap[·]?)
   let moduleData ← modules.mapM fun mod => do
@@ -2066,6 +2113,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     quotInit        := !imports.isEmpty -- We assume `Init.Prelude` initializes quotient module
     extraConstNames := {}
     extensions      := exts
+    irBaseExts      := exts
     header     := {
       trustLevel, imports, moduleData, isModule
       modules      := modules.map (·.toEffectiveImport)
@@ -2074,14 +2122,23 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   }
   let publicConstants : ConstMap := SMap.fromHashMap publicConstantMap false
   let publicBase := { privateBase with constants := publicConstants, header.regions := #[] }
+  let extensions ← setImportedEntries privateBase.extensions moduleData
+  let irData? ← modules.mapM (·.loadIRData? arts level)
+  -- fall back to basic data when not in server
+  let serverData := modules.mapIdx (fun idx mod => mod.serverData? level |>.getD moduleData[idx]!)
+  let irData := irData?.mapIdx (fun idx ir => ir.map (·.1) |>.getD moduleData[idx]!)
+  let irRegions := irData?.filterMap (·.map (·.2))
+  let privateBase := { privateBase with
+    extensions
+    irBaseExts := (← setImportedEntries privateBase.extensions irData)
+    header.regions := privateBase.header.regions ++ irRegions
+  }
   let mut env : Environment := {
     base.private := privateBase
     base.public  := publicBase
     realizedImportedConsts? := none
+    serverBaseExts := (← setImportedEntries privateBase.extensions serverData)
   }
-  env := env.setCheckedSync { env.base.private with extensions := (← setImportedEntries env.base.private.extensions moduleData) }
-  let serverData := modules.filterMap (·.serverData? level)
-  env := { env with serverBaseExts := (← setImportedEntries env.base.private.extensions serverData) }
   if leakEnv then
     /- Mark persistent a first time before `finalizePersistenExtensions`, which
        avoids costly MT markings when e.g. an interpreter closure (which

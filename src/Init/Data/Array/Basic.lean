@@ -6,15 +6,17 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.WFTactics
-import Init.Data.Nat.Basic
-import Init.Data.Fin.Basic
-import Init.Data.UInt.BasicAux
-import Init.Data.Repr
-import Init.Data.ToString.Basic
-import Init.GetElem
-import all Init.Data.List.ToArrayImpl
-import all Init.Data.Array.Set
+public import Init.WFTactics
+public import Init.Data.Nat.Basic
+public import Init.Data.Fin.Basic
+public import Init.Data.UInt.BasicAux
+public import Init.Data.Repr
+public import Init.Data.ToString.Basic
+public import Init.GetElem
+public import all Init.Data.List.ToArrayImpl
+public import all Init.Data.Array.Set
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -261,7 +263,7 @@ Examples:
 * `#["red", "green", "blue", "brown"].swapIfInBounds 0 4 = #["red", "green", "blue", "brown"]`
 * `#["red", "green", "blue", "brown"].swapIfInBounds 9 2 = #["red", "green", "blue", "brown"]`
 -/
-@[extern "lean_array_swap"]
+@[extern "lean_array_swap", grind]
 def swapIfInBounds (xs : Array α) (i j : @& Nat) : Array α :=
   if h₁ : i < xs.size then
   if h₂ : j < xs.size then swap xs i j
@@ -1806,6 +1808,7 @@ Examples:
 * `#["apple", "pear", "orange"].eraseIdxIfInBounds 3 = #["apple", "pear", "orange"]`
 * `#["apple", "pear", "orange"].eraseIdxIfInBounds 5 = #["apple", "pear", "orange"]`
 -/
+@[grind]
 def eraseIdxIfInBounds (xs : Array α) (i : Nat) : Array α :=
   if h : i < xs.size then xs.eraseIdx i h else xs
 
@@ -1916,6 +1919,7 @@ Examples:
  * `#["tues", "thur", "sat"].insertIdxIfInBounds 3 "wed" = #["tues", "thur", "sat", "wed"]`
  * `#["tues", "thur", "sat"].insertIdxIfInBounds 4 "wed" = #["tues", "thur", "sat"]`
 -/
+@[grind]
 def insertIdxIfInBounds (as : Array α) (i : Nat) (a : α) : Array α :=
   if h : i ≤ as.size then
     insertIdx as i a

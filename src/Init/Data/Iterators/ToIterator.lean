@@ -6,7 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Consumers
+public import Init.Data.Iterators.Consumers
+
+public section
 
 /-!
 This module provides the typeclass `ToIterator`, which is implemented by types that can be
@@ -50,6 +52,16 @@ def ToIterator.of {x : γ} (State : Type w)
     ToIterator x Id β where
   State := State
   iterMInternal := iter.toIterM
+
+theorem ToIterator.iterM_eq {γ : Type u} {x : γ} {State : Type v} {β : Type v} {it} :
+    letI : ToIterator x Id β := .ofM State it
+    ToIterator.iterM x = it :=
+  rfl
+
+theorem ToIterator.iter_eq {γ : Type u} {x : γ} {State : Type v} {β : Type v} {it} :
+    letI : ToIterator x Id β := .ofM State it
+    ToIterator.iter x = it.toIter :=
+  rfl
 
 /-!
 ## Instance forwarding

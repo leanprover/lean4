@@ -8,6 +8,8 @@ This file tests the `rfl` tactic:
  * Effect of `with_reducible`
 -/
 
+set_option pp.mvars.levels false
+
 -- First, let's see what `rfl` does:
 
 /--

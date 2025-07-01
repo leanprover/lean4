@@ -110,7 +110,7 @@ where
 
   go? : GoalM (Option ToIntInfo) := withNewMCtxDepth do
     let u' ← getLevel type
-    let u ← decLevel u'
+    let some u ← decLevel? u' | return none
     let rangeExpr ← mkFreshExprMVar (mkConst ``Grind.IntInterval)
     let toIntType := mkApp2 (mkConst ``Grind.ToInt [u]) type rangeExpr
     let .some toIntInst ← trySynthInstance toIntType |
@@ -157,10 +157,19 @@ where
     let powThm? ← mkPowThm? type u toIntInst rangeExpr
     let zeroThm? ← mkSimpleOpThm? ``Zero ``Grind.ToInt.zero_eq
     let ofNatThm? ← mkOfNatThm? type u toIntInst rangeExpr
+    let lowerThm? := if let some lo := range.lo? then
+      if lo == 0 then
+        some <| mkApp4 (mkConst ``Grind.ToInt.ge_lower0 [u]) type rangeExpr toIntInst reflBoolTrue
+      else
+        some <| mkApp5 (mkConst ``Grind.ToInt.ge_lower [u]) type rangeExpr toIntInst (toExpr lo) reflBoolTrue
+    else none
+    let upperThm? := if let some hi := range.hi? then
+      some <| mkApp5 (mkConst ``Grind.ToInt.le_upper [u]) type rangeExpr toIntInst (toExpr (-hi + 1)) reflBoolTrue
+    else none
     trace[grind.debug.cutsat.toInt] "registered toInt: {type}"
     return some {
       type, u, toIntInst, rangeExpr, range, toInt, wrap, ofWrap0?, ofEq, ofDiseq, ofLE?, ofNotLE?, ofLT?, ofNotLT?, addThms, mulThms,
-      subThm?, negThm?, divThm?, modThm?, powThm?, zeroThm?, ofNatThm?
+      subThm?, negThm?, divThm?, modThm?, powThm?, zeroThm?, ofNatThm?, lowerThm?, upperThm?
     }
 
 structure ToIntM.Context where
@@ -345,5 +354,25 @@ def isSupportedType (type : Expr) : GoalM Bool := do
     return true
   else
     return (← getToIntInfo? type).isSome
+
+/--
+Given `x` whose denotation is `e`, if `e` is of the form `ToInt a`,
+asserts its lower and upper bounds if available
+-/
+def assertToIntBounds (e : Expr) (x : Var) : GoalM Unit := do
+  let_expr Grind.ToInt.toInt α _ _ a := e | return ()
+  ToIntM.run α do
+  let info ← getInfo
+  let i := info.range
+  if let some lo := i.lo? then
+    let some thm := info.lowerThm? | unreachable!
+    let p := .add (-1) x (.num lo)
+    let c := { p, h := .bound (mkApp thm a) : LeCnstr }
+    c.assert
+  if let some hi := i.hi? then
+    let some thm := info.upperThm? | unreachable!
+    let p := .add 1 x (.num (-hi + 1))
+    let c := { p, h := .bound (mkApp thm a) : LeCnstr }
+    c.assert
 
 end Lean.Meta.Grind.Arith.Cutsat

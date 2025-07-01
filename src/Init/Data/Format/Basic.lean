@@ -6,9 +6,11 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Control.State
-import Init.Data.Int.Basic
-import Init.Data.String.Basic
+public import Init.Control.State
+public import Init.Data.Int.Basic
+public import Init.Data.String.Basic
+
+public section
 
 namespace Std
 
@@ -423,6 +425,10 @@ expectation that the resulting string is valid code.
 The `Repr` class is similar, but the expectation is that instances produce valid Lean code.
 -/
 class ToFormat (α : Type u) where
+  /--
+  Converts a value to a `Format` object, with no expectation that the resulting string is valid
+  code.
+  -/
   format : α → Format
 
 export ToFormat (format)

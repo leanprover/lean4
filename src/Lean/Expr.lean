@@ -1963,10 +1963,11 @@ def setAppPPExplicitForExposingMVars (e : Expr) : Expr :=
   | _      => e
 
 /--
-Returns true if `e` is a `let_fun` expression, which is an expression of the form `letFun v f`.
+Returns true if `e` is an expression of the form `letFun v f`.
 Ideally `f` is a lambda, but we do not require that here.
 Warning: if the `let_fun` is applied to additional arguments (such as in `(let_fun f := id; id) 1`), this function returns `false`.
 -/
+@[deprecated Expr.isHave (since := "2025-06-29")]
 def isLetFun (e : Expr) : Bool := e.isAppOfArity ``letFun 4
 
 /--
@@ -1979,6 +1980,7 @@ They can be created using `Lean.Meta.mkLetFun`.
 
 If in the encoding of `let_fun` the last argument to `letFun` is eta reduced, this returns `Name.anonymous` for the binder name.
 -/
+@[deprecated Expr.isHave (since := "2025-06-29")]
 def letFun? (e : Expr) : Option (Name × Expr × Expr × Expr) :=
   match e with
   | .app (.app (.app (.app (.const ``letFun _) t) _β) v) f =>
@@ -1991,6 +1993,7 @@ def letFun? (e : Expr) : Option (Name × Expr × Expr × Expr) :=
 Like `Lean.Expr.letFun?`, but handles the case when the `let_fun` expression is possibly applied to additional arguments.
 Returns those arguments in addition to the values returned by `letFun?`.
 -/
+@[deprecated Expr.isHave (since := "2025-06-29")]
 def letFunAppArgs? (e : Expr) : Option (Array Expr × Name × Expr × Expr × Expr) := do
   guard <| 4 ≤ e.getAppNumArgs
   guard <| e.isAppOf ``letFun

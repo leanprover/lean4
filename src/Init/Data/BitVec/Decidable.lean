@@ -7,7 +7,9 @@ Authors: Joe Hendrix, Harun Khan, Alex Keizer, Abdalrhman M Mohamed, Siddharth B
 module
 
 prelude
-import Init.Data.BitVec.Bootstrap
+public import Init.Data.BitVec.Bootstrap
+
+public section
 
 set_option linter.missingDocs true
 

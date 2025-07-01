@@ -8,7 +8,9 @@ notation, basic datatypes and type classes
 module
 
 prelude
-import Init.Core
+public import Init.Core
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 theorem of_eq_true (h : p = True) : p := h ▸ trivial
@@ -134,21 +136,6 @@ theorem have_body_congr_dep' {α : Sort u} {β : α → Sort v} (a : α) {f f' :
 theorem have_body_congr' {α : Sort u} {β : Sort v} (a : α) {f f' : α → β}
     (h : ∀ x, f x = f' x) : f a = f' a :=
   h a
-
-theorem letFun_unused {α : Sort u} {β : Sort v} (a : α) {b b' : β} (h : b = b') : @letFun α (fun _ => β) a (fun _ => b) = b' :=
-  h
-
-theorem letFun_congr {α : Sort u} {β : Sort v}  {a a' : α} {f f' : α → β} (h₁ : a = a') (h₂ : ∀ x, f x = f' x)
-    : @letFun α (fun _ => β) a f = @letFun α (fun _ => β) a' f' := by
-  rw [h₁, funext h₂]
-
-theorem letFun_body_congr {α : Sort u} {β : Sort v}  (a : α) {f f' : α → β} (h : ∀ x, f x = f' x)
-    : @letFun α (fun _ => β) a f = @letFun α (fun _ => β) a f' := by
-  rw [funext h]
-
-theorem letFun_val_congr {α : Sort u} {β : Sort v} {a a' : α} {f : α → β} (h : a = a')
-    : @letFun α (fun _ => β) a f = @letFun α (fun _ => β) a' f := by
-  rw [h]
 
 @[congr]
 theorem ite_congr {x y u v : α} {s : Decidable b} [Decidable c]

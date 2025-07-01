@@ -9,33 +9,31 @@ import Lean.Elab.BuiltinNotation
 import Std.Do.PostCond
 import Std.Do.Triple.Basic
 
-namespace Std.Do
+namespace Std.Do.Syntax
 
-open Lean Parser Meta Elab Term
+open Lean Parser Meta Elab Term PrettyPrinter Delaborator
 
-def post_syntax := leading_parser
-  "post⟨" >> withoutPosition (withoutForbidden (sepBy termParser ", " (allowTrailingSep := true))) >> "⟩"
-scoped syntax:max "post⟨" term,+ "⟩" : term
-macro_rules | `(post⟨$handlers,*⟩) => `(by exact ⟨$handlers,*, ()⟩)
-  -- NB: Postponement through by exact is the entire point of this macro
-  -- until https://github.com/leanprover/lean4/pull/8074 lands
-example : PostCond Nat .pure := post⟨fun s => True⟩
-example : PostCond (Nat × Nat) (PostShape.except Nat (PostShape.arg Nat PostShape.pure)) :=
-  post⟨fun (r, xs) s => r ≤ 4 ∧ s = 4 ∧ r + xs > 4, fun e s => e = 42 ∧ s = 4⟩
+@[builtin_term_parser] meta def «totalPostCond» := leading_parser:maxPrec
+  ppAllowUngrouped >> "⇓" >> basicFun
 
-open Lean Parser Term in
-def funArrow : Parser := unicodeSymbol " ↦ " " => "
-@[inherit_doc PostCond.total]
-scoped macro "⇓" xs:Lean.Parser.Term.funBinder+ funArrow e:term : term =>
-  `(PostCond.total (by exact (fun $xs* => spred($e)))) -- NB: Postponement through by exact
+@[inherit_doc PostCond.total, builtin_doc, builtin_term_elab totalPostCond]
+private meta def elabTotalPostCond : TermElab
+  | `(totalPostCond| ⇓ $xs* => $e), ty? => do
+    elabTerm (← `(PostCond.total (by exact (fun $xs* => spred($e))))) ty?
+     -- NB: Postponement through by exact
+  | _, _ => throwUnsupportedSyntax
 
-@[app_unexpander PostCond.total]
-private def unexpandPostCondTotal : PrettyPrinter.Unexpander
-  | `($_ fun $xs* => $e) => do `(⇓ $xs* => $(← SPred.Notation.unpack e))
-  | _ => throw ()
+@[builtin_delab app.Std.Do.PostCond.total]
+private meta def unexpandPostCondTotal : Delab := do
+  match ← SubExpr.withAppArg <| delab with
+  | `(fun $xs* => $e) =>
+    let t ← `(totalPostCond| ⇓ $xs* => $(← SPred.Notation.unpack e))
+    return ⟨t.raw⟩
+  | t => `($(mkIdent ``PostCond.total):term $t)
 
-elab_rules : term
-  | `(⦃$P⦄ $x ⦃$Q⦄) => do
+@[inherit_doc Triple, builtin_doc, builtin_term_elab triple]
+private meta def elabTriple : TermElab
+  | `(⦃$P⦄ $x ⦃$Q⦄), _ => do
     -- In a simple world, this would just be a macro expanding to
     -- `Triple $x spred($P) spred($Q)`.
     -- However, currently we need to help type inference for P and Q.
@@ -43,20 +41,17 @@ elab_rules : term
     -- then `Triple x P _` will not elaborate because `σ → Assertion ps =?= Assertion ?ps` fails.
     -- We must first instantiate `?ps` to `.arg σ ps` through the `outParam` of `WP`, hence this elaborator.
     -- This is tracked in #8766, and #8074 might be a fix.
-    let x ← elabTerm x none
-    let ty ← inferType x
-    tryPostponeIfMVar ty
-    let ty ← instantiateMVars ty
-    let .app m α := ty.consumeMData | throwError "Not a type application {ty}"
-    let some u ← Level.dec <$> getLevel ty | throwError "Wrong level 0 {ty}"
-    let ps ← mkFreshExprMVar (mkConst ``PostShape)
-    let inst ← synthInstance (mkApp2 (mkConst ``WP [u]) m ps)
+    let (u, m, α, ps, inst, x) ← withRef x do
+      let x ← elabTerm x none
+      let ty ← inferType x
+      tryPostponeIfMVar ty
+      let ty ← instantiateMVars ty
+      let .app m α := ty.consumeMData | throwError "Type of {x} is not a type application: {ty}"
+      let some u ← Level.dec <$> getLevel ty | throwError "Wrong level 0 {ty}"
+      let ps ← mkFreshExprMVar (mkConst ``PostShape)
+      let inst ← synthInstance (mkApp2 (mkConst ``WP [u]) m ps)
+      return (u, m, α, ps, inst, x)
     let P ← elabTerm (← `(spred($P))) (mkApp (mkConst ``Assertion) ps)
     let Q ← elabTerm (← `(spred($Q))) (mkApp2 (mkConst ``PostCond) α ps)
     return mkApp7 (mkConst ``Triple [u]) m ps inst α x P Q
-
-@[app_unexpander Triple]
-private def unexpandTriple : PrettyPrinter.Unexpander
-  | `($_ $x $P $Q) => do
-    `(⦃$(← SPred.Notation.unpack P)⦄ $x ⦃$Q⦄)
-  | _ => throw ()
+  | _, _ => throwUnsupportedSyntax

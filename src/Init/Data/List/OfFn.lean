@@ -6,8 +6,10 @@ Authors: Mario Carneiro, Kim Morrison
 module
 
 prelude
-import Init.Data.List.Basic
-import Init.Data.Fin.Fold
+public import Init.Data.List.Basic
+public import Init.Data.Fin.Fold
+
+public section
 
 /-!
 # Theorems about `List.ofFn`

@@ -285,7 +285,7 @@ configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig wh
   -/
   reservoir : Bool := true
   /-
-  Enables Lake's local, offline artifact cache for the package.
+  Whether to enables Lake's local, offline artifact cache for the package.
 
   Artifacts (i.e., build products) of packages will be shared across
   local copies by storing them in a cache associated with the Lean toolchain.
@@ -295,8 +295,11 @@ configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig wh
   As a caveat, build targets which support the artifact cache will not be stored
   in their usual location within the build directory. Thus, projects with custom build
   scripts that rely on specific location of artifacts may wish to disable this feature.
+
+  If `none`, the cache will be disabled by default unless the `LAKE_ARTIFACT_CACHE`
+  environment variable is set to true.
   -/
-  enableArtifactCache : Bool := false
+  enableArtifactCache?, enableArtifactCache : Option Bool := none
 
 instance : EmptyCollection (PackageConfig n) := ⟨{}⟩
 
@@ -622,9 +625,9 @@ def nativeLibDir (self : Package) : FilePath :=
 @[inline] def irDir (self : Package) : FilePath :=
   self.buildDir / self.config.irDir.normalize
 
-  /-- The package's `enableArtifactCache` configuration. -/
-@[inline] def enableArtifactCache (self : Package) : Bool :=
-  self.config.enableArtifactCache
+  /-- The package's `enableArtifactCache?` configuration. -/
+@[inline] def enableArtifactCache? (self : Package) : Option Bool :=
+  self.config.enableArtifactCache?
 
 /-- The file where the package's input-to-content mapping is stored in the Lake cache. -/
 def inputsFileIn (cache : Cache) (self : Package) : FilePath :=

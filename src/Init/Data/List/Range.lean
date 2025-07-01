@@ -6,8 +6,10 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.Pairwise
-import Init.Data.List.Zip
+public import Init.Data.List.Pairwise
+public import Init.Data.List.Zip
+
+public section
 
 /-!
 # Lemmas about `List.range` and `List.zipIdx`

@@ -25,7 +25,7 @@ LEAN_EXPORT lean_object* l_Lake_NConfigDecl_targetConfig(lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Lake_mkTargetJobConfig(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_NConfigDecl_targetConfig_x3f(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig___lam__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_findTargetConfig_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instCoeTargetConfigName(lean_object*, lean_object*);
@@ -45,7 +45,7 @@ lean_object* l_Lake_BuildTrace_nil(lean_object*);
 static lean_object* l_Lake_instInhabitedTargetConfig___lam__0___closed__6;
 LEAN_EXPORT lean_object* l_Lake_NConfigDecl_targetConfig_x3f___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkTargetJobConfig___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_NConfigDecl_targetConfig___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_unsafeMk___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_unsafeGet___redArg___boxed(lean_object*);
@@ -145,18 +145,18 @@ lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_6);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_8 = l_Lake_instInhabitedTargetConfig___lam__0___closed__7;
-x_9 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_9, 0, x_8);
-lean_ctor_set(x_9, 1, x_6);
+lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_9 = l_Lake_instInhabitedTargetConfig___lam__0___closed__7;
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_7);
-return x_10;
+x_11 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_11, 0, x_10);
+lean_ctor_set(x_11, 1, x_8);
+return x_11;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig___lam__1(uint8_t x_1, lean_object* x_2) {
@@ -171,7 +171,7 @@ LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig(lean_object* x_1, lean
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_alloc_closure((void*)(l_Lake_instInhabitedTargetConfig___lam__0___boxed), 7, 0);
+x_3 = lean_alloc_closure((void*)(l_Lake_instInhabitedTargetConfig___lam__0___boxed), 8, 0);
 x_4 = lean_alloc_closure((void*)(l_Lake_instInhabitedTargetConfig___lam__1___boxed), 2, 0);
 x_5 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_5, 0, x_3);
@@ -179,17 +179,18 @@ lean_ctor_set(x_5, 1, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-lean_object* x_8; 
-x_8 = l_Lake_instInhabitedTargetConfig___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_object* x_9; 
+x_9 = l_Lake_instInhabitedTargetConfig___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-return x_8;
+return x_9;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig___lam__1___boxed(lean_object* x_1, lean_object* x_2) {

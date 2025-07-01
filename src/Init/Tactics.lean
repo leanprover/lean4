@@ -6,7 +6,9 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.Notation
+public import Init.Notation
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 namespace Lean.Parser.Tactic
@@ -542,7 +544,7 @@ performs the unification, and replaces the target with the unified version of `t
 syntax (name := «show») "show " term : tactic
 
 /--
-Extracts `let` and `let_fun` expressions from within the target or a local hypothesis,
+Extracts `let` and `have` expressions from within the target or a local hypothesis,
 introducing new local definitions.
 
 - `extract_lets` extracts all the lets from the target.
@@ -556,7 +558,7 @@ introduces a new local definition `z := v` and changes `h` to be `h : b z`.
 syntax (name := extractLets) "extract_lets " optConfig (ppSpace colGt (ident <|> hole))* (location)? : tactic
 
 /--
-Lifts `let` and `let_fun` expressions within a term as far out as possible.
+Lifts `let` and `have` expressions within a term as far out as possible.
 It is like `extract_lets +lift`, but the top-level lets at the end of the procedure
 are not extracted as local hypotheses.
 
@@ -1279,10 +1281,10 @@ syntax (name := substEqs) "subst_eqs" : tactic
 /-- The `run_tac doSeq` tactic executes code in `TacticM Unit`. -/
 syntax (name := runTac) "run_tac " doSeq : tactic
 
-/-- `haveI` behaves like `have`, but inlines the value instead of producing a `let_fun` term. -/
+/-- `haveI` behaves like `have`, but inlines the value instead of producing a `have` term. -/
 macro "haveI" c:letConfig d:letDecl : tactic => `(tactic| refine_lift haveI $c:letConfig $d:letDecl; ?_)
 
-/-- `letI` behaves like `let`, but inlines the value instead of producing a `let_fun` term. -/
+/-- `letI` behaves like `let`, but inlines the value instead of producing a `let` term. -/
 macro "letI" c:letConfig d:letDecl : tactic => `(tactic| refine_lift letI $c:letConfig $d:letDecl; ?_)
 
 /--

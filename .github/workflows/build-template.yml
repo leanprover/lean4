@@ -107,6 +107,7 @@ jobs:
             ${{ matrix.name == 'Linux Lake' && false && 'build/stage1/**/*.trace
             build/stage1/**/*.olean*
             build/stage1/**/*.ilean
+            build/stage1/**/*.ir
             build/stage1/**/*.c
             build/stage1/**/*.c.o*' || '' }}
           key: ${{ matrix.name }}-build-v3-${{ github.sha }}
@@ -248,6 +249,7 @@ jobs:
             ${{ matrix.name == 'Linux Lake' && false && 'build/stage1/**/*.trace
             build/stage1/**/*.olean*
             build/stage1/**/*.ilean
+            build/stage1/**/*.ir
             build/stage1/**/*.c
             build/stage1/**/*.c.o*' || '' }}
           key: ${{ steps.restore-cache.outputs.cache-primary-key }}

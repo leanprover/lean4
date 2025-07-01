@@ -182,9 +182,20 @@ theorem FailConds.and_eq_left {ps : PostShape} {p q : FailConds ps} (h : p ⊢�
 abbrev PostCond (α : Type) (s : PostShape) : Type :=
   (α → Assertion s) × FailConds s
 
+scoped macro:max "post⟨" handlers:term,+,? "⟩" : term =>
+  `(by exact ⟨$handlers,*, ()⟩)
+  -- NB: Postponement through by exact is the entire point of this macro
+  -- until https://github.com/leanprover/lean4/pull/8074 lands
+example : PostCond Nat .pure := post⟨fun s => True⟩
+example : PostCond (Nat × Nat) (PostShape.except Nat (PostShape.arg Nat PostShape.pure)) :=
+  post⟨fun (r, xs) s => r ≤ 4 ∧ s = 4 ∧ r + xs > 4, fun e s => e = 42 ∧ s = 4⟩
+
 /-- A postcondition expressing total correctness. -/
 abbrev PostCond.total (p : α → Assertion ps) : PostCond α ps :=
   (p, FailConds.false)
+
+-- The syntax `⇓ a b c => p` is defined as a builtin term parser in `Lean.Elab.Tactic.Do.Syntax`
+-- because the `basicFun` parser is not available in `Init`.
 
 /-- A postcondition expressing partial correctness. -/
 abbrev PostCond.partial (p : α → Assertion ps) : PostCond α ps :=

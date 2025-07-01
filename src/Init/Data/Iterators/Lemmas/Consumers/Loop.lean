@@ -6,10 +6,12 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Lemmas.Consumers.Collect
-import all Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
-import all Init.Data.Iterators.Consumers.Loop
-import all Init.Data.Iterators.Consumers.Monadic.Collect
+public import Init.Data.Iterators.Lemmas.Consumers.Collect
+public import all Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
+public import all Init.Data.Iterators.Consumers.Loop
+public import all Init.Data.Iterators.Consumers.Monadic.Collect
+
+public section
 
 namespace Std.Iterators
 
@@ -342,6 +344,7 @@ theorem Iter.fold_eq_match_step {α β γ : Type w} [Iterator α Id β] [Finite 
   generalize it.step = step
   cases step using PlausibleIterStep.casesOn <;> simp
 
+@[simp]
 theorem Iter.foldl_toList {α β γ : Type w} [Iterator α Id β] [Finite α Id]
     [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
@@ -349,6 +352,7 @@ theorem Iter.foldl_toList {α β γ : Type w} [Iterator α Id β] [Finite α Id]
     it.toList.foldl (init := init) f = it.fold (init := init) f := by
   rw [fold_eq_foldM, List.foldl_eq_foldlM, ← Iter.foldlM_toList]
 
+@[simp]
 theorem Iter.size_toArray_eq_size {α β : Type w} [Iterator α Id β] [Finite α Id]
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     [IteratorSize α Id] [LawfulIteratorSize α]
@@ -357,6 +361,7 @@ theorem Iter.size_toArray_eq_size {α β : Type w} [Iterator α Id β] [Finite �
   simp only [toArray_eq_toArray_toIterM, LawfulIteratorCollect.toArray_eq]
   simp [← toArray_eq_toArray_toIterM, LawfulIteratorSize.size_eq_size_toArray]
 
+@[simp]
 theorem Iter.length_toList_eq_size {α β : Type w} [Iterator α Id β] [Finite α Id]
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     [IteratorSize α Id] [LawfulIteratorSize α]
@@ -364,6 +369,7 @@ theorem Iter.length_toList_eq_size {α β : Type w} [Iterator α Id β] [Finite 
     it.toList.length = it.size := by
   rw [← toList_toArray, Array.length_toList, size_toArray_eq_size]
 
+@[simp]
 theorem Iter.length_toListRev_eq_size {α β : Type w} [Iterator α Id β] [Finite α Id]
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     [IteratorSize α Id] [LawfulIteratorSize α]

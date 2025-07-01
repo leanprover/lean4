@@ -6,9 +6,11 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.List.Zip
-import Init.Data.Int.DivMod.Bootstrap
-import Init.Data.Nat.Gcd
+public import Init.Data.List.Zip
+public import Init.Data.Int.DivMod.Bootstrap
+public import Init.Data.Nat.Gcd
+
+public section
 
 @[expose] section
 

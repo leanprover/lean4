@@ -109,6 +109,9 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def setupFile (self : Module) : FilePath :=
   self.irPath "setup.json"
 
+@[inline] def irFile (self : Module) : FilePath :=
+  self.leanLibPath "ir"
+
 @[inline] def cFile (self : Module) : FilePath :=
   self.irPath "c"
 

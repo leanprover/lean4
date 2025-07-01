@@ -8,13 +8,15 @@ Additional goodies for writing macros
 module
 
 prelude
-import all Init.Prelude  -- for unfolding `Name.beq`
-import Init.MetaTypes
-import Init.Syntax
-import Init.Data.Array.GetLit
-import Init.Data.Option.BasicAux
-meta import Init.Data.Array.Basic
-meta import Init.Syntax
+public import all Init.Prelude  -- for unfolding `Name.beq`
+public import Init.MetaTypes
+public import Init.Syntax
+public import Init.Data.Array.GetLit
+public import Init.Data.Option.BasicAux
+public meta import Init.Data.Array.Basic
+public meta import Init.Syntax
+
+public section
 
 namespace Lean
 
@@ -85,12 +87,14 @@ opaque Internal.hasLLVMBackend (u : Unit) : Bool
   0x391 ≤ c.val && c.val ≤ 0x3dd
 
 def isLetterLike (c : Char) : Bool :=
-  (0x3b1  ≤ c.val && c.val ≤ 0x3c9 && c.val ≠ 0x3bb) ||                  -- Lower greek, but lambda
-  (0x391  ≤ c.val && c.val ≤ 0x3A9 && c.val ≠ 0x3A0 && c.val ≠ 0x3A3) || -- Upper greek, but Pi and Sigma
-  (0x3ca  ≤ c.val && c.val ≤ 0x3fb) ||                                   -- Coptic letters
-  (0x1f00 ≤ c.val && c.val ≤ 0x1ffe) ||                                  -- Polytonic Greek Extended Character Set
-  (0x2100 ≤ c.val && c.val ≤ 0x214f) ||                                  -- Letter like block
-  (0x1d49c ≤ c.val && c.val ≤ 0x1d59f)                                   -- Latin letters, Script, Double-struck, Fractur
+  (0x3b1  ≤ c.val && c.val ≤ 0x3c9 && c.val ≠ 0x3bb) ||                     -- Lower greek, but lambda
+  (0x391  ≤ c.val && c.val ≤ 0x3A9 && c.val ≠ 0x3A0 && c.val ≠ 0x3A3) ||    -- Upper greek, but Pi and Sigma
+  (0x3ca  ≤ c.val && c.val ≤ 0x3fb) ||                                      -- Coptic letters
+  (0x1f00 ≤ c.val && c.val ≤ 0x1ffe) ||                                     -- Polytonic Greek Extended Character Set
+  (0x2100 ≤ c.val && c.val ≤ 0x214f) ||                                     -- Letter like block
+  (0x1d49c ≤ c.val && c.val ≤ 0x1d59f) ||                                   -- Latin letters, Script, Double-struck, Fractur
+  (0x00c0 ≤ c.val && c.val ≤ 0x00ff && c.val ≠ 0x00d7 && c.val ≠ 0x00f7) || -- Latin-1 supplement letters but × and ÷
+  (0x0100 ≤ c.val && c.val ≤ 0x017f)                                        -- Latin Extended-A
 
 @[inline] def isNumericSubscript (c : Char) : Bool :=
   0x2080 ≤ c.val && c.val ≤ 0x2089

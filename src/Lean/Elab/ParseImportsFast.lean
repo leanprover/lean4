@@ -195,7 +195,7 @@ def setIsMeta (isMeta : Bool) : Parser := fun _ s =>
   { s with isMeta }
 
 def setIsExported (isExported : Bool) : Parser := fun _ s =>
-  { s with isExported }
+  { s with isExported := isExported || !s.isModule }
 
 def setImportAll (importAll : Bool) : Parser := fun _ s =>
   { s with importAll }
@@ -203,7 +203,7 @@ def setImportAll (importAll : Bool) : Parser := fun _ s =>
 def main : Parser :=
   keywordCore "module" (fun _ s => s) (fun _ s => { s with isModule := true }) >>
   keywordCore "prelude" (fun _ s => s.pushImport `Init) (fun _ s => s) >>
-  many (keywordCore "private" (setIsExported true) (setIsExported false) >>
+  many (keywordCore "public" (setIsExported true) (setIsExported true) >>
     keywordCore "meta" (setIsMeta false) (setIsMeta true) >>
     keyword "import" >>
     keywordCore "all" (setImportAll false) (setImportAll true) >>

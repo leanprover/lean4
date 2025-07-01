@@ -193,7 +193,7 @@ def expand [Hashable α] (data : { d : Array (AssocList α β) // 0 < d.size }) 
   let nbuckets := data.size * 2
   go 0 data ⟨Array.replicate nbuckets AssocList.nil, by simpa [nbuckets] using Nat.mul_pos hd Nat.two_pos⟩
 where
-  /-- Inner loop of `expand`. Copies elements `source[i:]` into `target`,
+  /-- Inner loop of `expand`. Copies elements `source[i...*]` into `target`,
   destroying `source` in the process. -/
   go (i : Nat) (source : Array (AssocList α β))
       (target : { d : Array (AssocList α β) // 0 < d.size }) :

@@ -6,8 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Vector.Lemmas
-import Init.Data.Array.Extract
+public import Init.Data.Vector.Lemmas
+public import Init.Data.Array.Extract
+
+public section
 
 /-!
 # Lemmas about `Vector.extract`
@@ -28,8 +30,22 @@ set_option linter.indexVariables false
   rcases xs with ⟨as, rfl⟩
   simp [h]
 
-@[simp, grind =]
-theorem extract_push {xs : Vector α n} {b : α} {start stop : Nat} (h : stop ≤ n) :
+@[grind =]
+theorem extract_push {α} {xs : Vector α n} {b : α} {start stop : Nat} :
+    (xs.push b).extract start stop =
+      if h₁ : stop ≤ n then
+        (xs.extract start stop).cast (by omega)
+      else if h₂ : start ≤ n then
+        ((xs.extract start n).push b).cast (by omega)
+      else #v[].cast (by omega) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.extract_push]
+  split
+  · simp
+  · split <;> simp
+
+@[simp]
+theorem extract_push_of_le {xs : Vector α n} {b : α} {start stop : Nat} (h : stop ≤ n) :
     (xs.push b).extract start stop = (xs.extract start stop).cast (by omega) := by
   rcases xs with ⟨xs, rfl⟩
   simp [h]

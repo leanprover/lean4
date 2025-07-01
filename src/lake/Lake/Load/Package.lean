@@ -84,9 +84,9 @@ def loadPackage (config : LoadConfig) : LogIO Package := do
   (·.1) <$> loadPackageCore "[root]" config
 
 /-- Load the package's input-to-content mapping from the Lake cache (if enabled). -/
-protected def Package.loadInputsFrom (cache : Cache) (pkg : Package) : LogIO Package := do
-  if !pkg.enableArtifactCache || cache.isDisabled then
+protected def Package.loadInputsFrom (env : Env) (pkg : Package) : LogIO Package := do
+  if env.lakeCache.isDisabled || !(pkg.enableArtifactCache?.getD env.enableArtifactCache) then
     return pkg
   else
-    let inputs ← CacheMap.load (pkg.inputsFileIn cache)
+    let inputs ← CacheMap.load (pkg.inputsFileIn env.lakeCache)
     return {pkg with cacheRef? := ← IO.mkRef inputs}

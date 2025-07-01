@@ -25,7 +25,7 @@ def reverseDuplicate (xs : List α) :=
   .reverse (xs ++ xs)
 ```
 ```output
-Invalid dotted identifier notation: The type of `.reverse` could not be determined
+Invalid dotted identifier notation: The expected type of `.reverse` could not be determined
 ```
 ```lean fixed
 def reverseDuplicate (xs : List α) : List α :=

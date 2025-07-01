@@ -372,7 +372,7 @@ private partial def visitProj (e : Expr) (structName : Name) (idx : Nat) (struct
     let structTypeArgs := structType.getAppArgs
     if structVal.numParams + structVal.numIndices != structTypeArgs.size then
       failed ()
-    let mut ctorType ← inferType <| mkAppN (mkConst ctorVal.name structLvls) structTypeArgs[:structVal.numParams]
+    let mut ctorType ← inferType <| mkAppN (mkConst ctorVal.name structLvls) structTypeArgs[*...structVal.numParams]
     let mut args := #[]
     let mut j := 0
     let mut lastFieldTy : Expr := default
@@ -434,7 +434,7 @@ The `Meta.letToHave` trace class logs errors and messages.
 def letToHave (e : Expr) : MetaM Expr := do
   profileitM Exception "let-to-have transformation" (← getOptions) do
     let e ← instantiateMVars e
-    LetToHave.main e
+    withoutExporting <| LetToHave.main e
 
 builtin_initialize
   registerTraceClass `Meta.letToHave

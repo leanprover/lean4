@@ -167,14 +167,6 @@ extern "C" LEAN_EXPORT object * lean_sorry(uint8) {
     lean_unreachable();
 }
 
-extern "C" LEAN_EXPORT void lean_inc_ref_cold(lean_object * o) {
-    std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_relaxed);
-}
-
-extern "C" LEAN_EXPORT void lean_inc_ref_n_cold(lean_object * o, unsigned n) {
-    std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), (int)n, std::memory_order_relaxed);
-}
-
 extern "C" LEAN_EXPORT size_t lean_object_byte_size(lean_object * o) {
     if (o->m_cs_sz == 0) {
         /* Recall that multi-threaded, single-threaded and persistent objects are stored in the heap.

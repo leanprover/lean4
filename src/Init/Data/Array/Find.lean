@@ -6,11 +6,13 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.List.Nat.Find
-import all Init.Data.Array.Basic
-import Init.Data.Array.Lemmas
-import Init.Data.Array.Attach
-import Init.Data.Array.Range
+public import Init.Data.List.Nat.Find
+public import all Init.Data.Array.Basic
+public import Init.Data.Array.Lemmas
+public import Init.Data.Array.Attach
+public import Init.Data.Array.Range
+
+public section
 
 /-!
 # Lemmas about `Array.findSome?`, `Array.find?, `Array.findIdx`, `Array.findIdx?`, `Array.idxOf`.

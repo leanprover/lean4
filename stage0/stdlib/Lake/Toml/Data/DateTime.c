@@ -33,7 +33,6 @@ LEAN_EXPORT lean_object* l_String_split___at___Lake_Toml_DateTime_ofString_x3f_s
 static lean_object* l_Lake_Toml_Time_toString___closed__1;
 LEAN_EXPORT lean_object* l_String_split___at___Lake_Toml_DateTime_ofString_x3f_spec__0___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Toml_instDecidableEqDateTime(lean_object*, lean_object*);
-uint8_t l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_5_(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_decEqTime____x40_Lake_Toml_Data_DateTime___hyg_72____boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Toml_decEqDateTime____x40_Lake_Toml_Data_DateTime___hyg_1047_(lean_object*, lean_object*);
@@ -44,6 +43,7 @@ static lean_object* l_Lake_Toml_instInhabitedDateTime___closed__0;
 LEAN_EXPORT lean_object* l_String_split___at___Lake_Toml_Time_ofString_x3f_spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instCoeDateDateTime;
 static lean_object* l_Lake_Toml_Time_toString___closed__0;
+uint8_t l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_6_(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_splitAux___at___String_split___at___Lake_Toml_Time_ofString_x3f_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_split___at___Lake_Toml_Time_ofString_x3f_spec__0___boxed(lean_object*);
@@ -1056,7 +1056,7 @@ x_15 = lean_alloc_closure((void*)(l_Lake_Toml_decEqDateTime___lam__0____x40_Lake
 lean_closure_set(x_15, 0, x_14);
 x_16 = lean_alloc_closure((void*)(l_Lake_Toml_decEqDateTime___lam__1____x40_Lake_Toml_Data_DateTime___hyg_1047____boxed), 3, 1);
 lean_closure_set(x_16, 0, x_15);
-x_17 = l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_5_(x_16, x_6, x_9);
+x_17 = l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_6_(x_16, x_6, x_9);
 if (x_17 == 0)
 {
 uint8_t x_18; 

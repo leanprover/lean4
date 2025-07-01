@@ -1173,7 +1173,7 @@ where
          If the motive is explicit (like for `False.rec`), then a positional `_` counts as "not provided". -/
       let mut args := args.toList
       let mut namedArgs := namedArgs.toList
-      for x in xs[0:elimInfo.motivePos] do
+      for x in xs[*...elimInfo.motivePos] do
         let localDecl ← x.fvarId!.getDecl
         match findBinderName? namedArgs localDecl.userName with
         | some _ => namedArgs := eraseNamedArg namedArgs localDecl.userName
@@ -1242,7 +1242,7 @@ private partial def findMethod? (structName fieldName : Name) : MetaM (Option (N
   -- of the name resolving in the `structName` namespace.
   find? structName <||> do
     let resolutionOrder ← if isStructure env structName then getStructureResolutionOrder structName else pure #[structName]
-    for ns in resolutionOrder[1:resolutionOrder.size] do
+    for ns in resolutionOrder[1...resolutionOrder.size] do
       if let some res ← find? ns then
         return res
     return none

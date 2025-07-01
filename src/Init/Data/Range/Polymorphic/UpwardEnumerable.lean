@@ -6,10 +6,12 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Classical
-import Init.Core
-import Init.Data.Nat.Basic
-import Init.Data.Option.Lemmas
+public import Init.Classical
+public import Init.Core
+public import Init.Data.Nat.Basic
+public import Init.Data.Option.Lemmas
+
+public section
 
 namespace Std.PRange
 

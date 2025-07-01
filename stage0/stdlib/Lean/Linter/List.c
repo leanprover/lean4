@@ -101,6 +101,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Data_Pe
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Linter_List_listVariablesLinter_spec__9_spec__9_spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_Elab_InfoTree_foldInfoM_go___at___Lean_Elab_InfoTree_foldInfoM___at___Lean_Elab_InfoTree_collectTermInfoM___at___Lean_Linter_List_binders_spec__0_spec__0_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MessageData_note(lean_object*);
 lean_object* l_Lean_withSetOptionIn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedPersistentArrayNode(lean_object*);
 static lean_object* l_Lean_Linter_List_numericalIndices___lam__2___closed__30;
@@ -206,7 +207,6 @@ static lean_object* l_Lean_Linter_List_numericalIndices___lam__2___closed__47;
 static lean_object* l_Lean_Linter_List_numericalIndices___lam__2___closed__40;
 LEAN_EXPORT lean_object* l_Lean_Linter_List_allowedIndices;
 static lean_object* l_Lean_Linter_List_allowedWidths___closed__8;
-static lean_object* l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__5;
 static lean_object* l_Lean_Linter_List_numericalIndices___lam__2___closed__39;
 static lean_object* l_Lean_Linter_List_allowedIndices___closed__2;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Linter_List_listVariablesLinter_spec__4_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -300,7 +300,6 @@ lean_object* l_Lean_Meta_SavedState_restore___redArg(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Linter_List_indexLinter_spec__8_spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Linter_List_listVariablesLinter_spec__4___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_saveState___redArg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Linter_List_listVariablesLinter;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___Lean_Linter_List_listVariablesLinter_spec__9___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_logAt___at___Lean_logErrorAt___at___Lean_Elab_logException___at___Lean_Elab_Command_runLinters_spec__0_spec__0_spec__0(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -3068,7 +3067,7 @@ static lean_object* _init_l_Lean_Linter_logLint___at___Lean_Linter_List_indexLin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("note: this linter can be disabled with `set_option ", 51, 51);
+x_1 = lean_mk_string_unchecked("This linter can be disabled with `set_option ", 45, 45);
 return x_1;
 }
 }
@@ -3107,23 +3106,6 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\n", 1, 1);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__5;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -3145,20 +3127,20 @@ x_12 = l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___close
 x_13 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_13, 0, x_1);
 lean_ctor_set(x_13, 1, x_12);
-x_14 = l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__4;
-x_15 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_15, 0, x_14);
-lean_ctor_set(x_15, 1, x_3);
-x_16 = l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__6;
+x_14 = l_Lean_MessageData_note(x_13);
+x_15 = l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__4;
+x_16 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_16, 0, x_15);
+lean_ctor_set(x_16, 1, x_3);
 x_17 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_17, 0, x_15);
-lean_ctor_set(x_17, 1, x_16);
+lean_ctor_set(x_17, 0, x_16);
+lean_ctor_set(x_17, 1, x_15);
 x_18 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
-lean_ctor_set(x_18, 1, x_13);
+lean_ctor_set(x_18, 1, x_14);
 x_19 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_19, 0, x_18);
-lean_ctor_set(x_19, 1, x_14);
+lean_ctor_set(x_19, 1, x_15);
 x_20 = lean_alloc_ctor(8, 2, 0);
 lean_ctor_set(x_20, 0, x_8);
 lean_ctor_set(x_20, 1, x_19);
@@ -3181,20 +3163,20 @@ x_26 = l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___close
 x_27 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_27, 0, x_25);
 lean_ctor_set(x_27, 1, x_26);
-x_28 = l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__4;
-x_29 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_29, 0, x_28);
-lean_ctor_set(x_29, 1, x_3);
-x_30 = l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__6;
+x_28 = l_Lean_MessageData_note(x_27);
+x_29 = l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__4;
+x_30 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_30, 0, x_29);
+lean_ctor_set(x_30, 1, x_3);
 x_31 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_31, 0, x_29);
-lean_ctor_set(x_31, 1, x_30);
+lean_ctor_set(x_31, 0, x_30);
+lean_ctor_set(x_31, 1, x_29);
 x_32 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_32, 0, x_31);
-lean_ctor_set(x_32, 1, x_27);
+lean_ctor_set(x_32, 1, x_28);
 x_33 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_33, 0, x_32);
-lean_ctor_set(x_33, 1, x_28);
+lean_ctor_set(x_33, 1, x_29);
 x_34 = lean_alloc_ctor(8, 2, 0);
 lean_ctor_set(x_34, 0, x_22);
 lean_ctor_set(x_34, 1, x_33);
@@ -11943,10 +11925,6 @@ l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__3 = 
 lean_mark_persistent(l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__3);
 l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__4 = _init_l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__4();
 lean_mark_persistent(l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__4);
-l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__5 = _init_l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__5();
-lean_mark_persistent(l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__5);
-l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__6 = _init_l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__6();
-lean_mark_persistent(l_Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2___closed__6);
 l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Linter_List_indexLinter_spec__4_spec__4___redArg___closed__0 = _init_l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Linter_List_indexLinter_spec__4_spec__4___redArg___closed__0();
 lean_mark_persistent(l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Linter_List_indexLinter_spec__4_spec__4___redArg___closed__0);
 l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Linter_List_indexLinter_spec__4_spec__4___redArg___closed__1 = _init_l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Linter_List_indexLinter_spec__4_spec__4___redArg___closed__1();

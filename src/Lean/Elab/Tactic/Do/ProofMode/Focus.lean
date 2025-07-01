@@ -29,7 +29,7 @@ partial def focusHyp (σs : Expr) (e : Expr) (name : Name) : Option FocusResult 
       none
   else if let some (σs, lhs, rhs) := parseAnd? e then
     try
-      -- NB: Need to prefer rhs over lhs, like the goal view (Lean.Elab.Tactic.Do.ProofMode.Display).
+      -- NB: Need to prefer rhs over lhs, like the goal view (Lean.Elab.Tactic.Do.ProofMode.Delab).
       let ⟨focus, rhs', h₁⟩ ← focusHyp σs rhs name
       let ⟨C, h₂⟩ := mkAnd σs lhs rhs'
       return ⟨focus, C, mkApp8 (mkConst ``Focus.right) σs lhs rhs rhs' C focus h₁ h₂⟩

@@ -219,7 +219,7 @@ private partial def elabBinderViews (binderViews : Array BinderView) (fvars : Ar
       registerFailedToInferBinderTypeInfo type binderView
       if binderView.bi.isInstImplicit && checkBinderAnnotations.get (← getOptions) then
         unless (← isClass? type).isSome do
-          throwErrorAt binderView.type "invalid binder annotation, type is not a class instance{indentExpr type}\nuse the command `set_option checkBinderAnnotations false` to disable the check"
+          throwErrorAt binderView.type (m!"invalid binder annotation, type is not a class instance{indentExpr type}" ++ .note "Use the command `set_option checkBinderAnnotations false` to disable the check")
         withRef binderView.type <| checkLocalInstanceParameters type
       let id := binderView.id.getId
       let kind := kindOfBinderName id
@@ -936,7 +936,10 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (initConfig : L
   fun stx expectedType? => elabLetDeclCore stx expectedType? { nondep := true }
 
 @[builtin_term_elab «let_fun»] def elabLetFunDecl : TermElab :=
-  fun stx expectedType? => elabLetDeclCore stx expectedType? { nondep := true }
+  fun stx expectedType? => do
+    withRef stx <| Linter.logLintIf Linter.linter.deprecated stx[0]
+      "`let_fun` has been deprecated in favor of `have`"
+    elabLetDeclCore stx expectedType? { nondep := true }
 
 @[builtin_term_elab «let_delayed»] def elabLetDelayedDecl : TermElab :=
   fun stx expectedType? => elabLetDeclCore stx expectedType? { postponeValue := true }

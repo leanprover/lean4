@@ -52,3 +52,17 @@ def g (xs : Array Nat) : Nat := Id.run do
 /-- info: 6 -/
 #guard_msgs in
 #eval g #[1, 2, 3]
+
+def h (n : Nat) : IO Unit := do
+  for i in *...n, j in 2...* do
+    IO.println s!"i={i}, j={j}"
+
+/--
+info: i=0, j=2
+i=1, j=3
+i=2, j=4
+i=3, j=5
+i=4, j=6
+-/
+#guard_msgs in
+#eval h 5

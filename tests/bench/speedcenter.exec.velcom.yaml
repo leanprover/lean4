@@ -503,4 +503,3 @@
   run_config:
     <<: *time
     cmd: lean iterators.lean
-    parse_output: true

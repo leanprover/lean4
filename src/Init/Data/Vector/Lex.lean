@@ -10,6 +10,7 @@ public import all Init.Data.Vector.Basic
 public import Init.Data.Vector.Lemmas
 public import all Init.Data.Array.Lex.Basic
 public import Init.Data.Array.Lex.Lemmas
+import Init.Data.Range.Polymorphic.Lemmas
 
 public section
 

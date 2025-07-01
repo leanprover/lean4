@@ -111,20 +111,20 @@ theorem RangeIterator.step_eq_step {su} [UpwardEnumerable α] [SupportsUpperBoun
   simp [Iter.step, step_eq_monadicStep, Monadic.step_eq_step, IterM.Step.toPure]
 
 @[always_inline, inline]
-instance RepeatIterator.instIteratorLoop {su} [UpwardEnumerable α] [SupportsUpperBound su α]
+instance RangeIterator.instIteratorLoop {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     {n : Type v → Type w} [Monad n] :
     IteratorLoop (RangeIterator su α) Id n :=
   .defaultImplementation
 
-instance RepeatIterator.instIteratorLoopPartial {su} [UpwardEnumerable α] [SupportsUpperBound su α]
+instance RangeIterator.instIteratorLoopPartial {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     {n : Type v → Type w} [Monad n] : IteratorLoopPartial (RangeIterator su α) Id n :=
   .defaultImplementation
 
-instance RepeatIterator.instIteratorCollect {su} [UpwardEnumerable α] [SupportsUpperBound su α]
+instance RangeIterator.instIteratorCollect {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     {n : Type u → Type w} [Monad n] : IteratorCollect (RangeIterator su α) Id n :=
   .defaultImplementation
 
-instance RepeatIterator.instIteratorCollectPartial {su} [UpwardEnumerable α] [SupportsUpperBound su α]
+instance RangeIterator.instIteratorCollectPartial {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     {n : Type u → Type w} [Monad n] : IteratorCollectPartial (RangeIterator su α) Id n :=
   .defaultImplementation
 

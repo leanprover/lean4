@@ -74,6 +74,7 @@ example :=
 #guard_msgs in
 run_cmd test (← `(@[grind ← gen] example := 0))
 
+set_option hygiene false in
 /-- info: example := by grind [a] on_failure 3 -/
 #guard_msgs in
 run_cmd test (← `(example := by grind [a] on_failure 3))

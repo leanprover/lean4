@@ -68,7 +68,7 @@ Reset all `grind` attributes. This command is intended for testing purposes only
 syntax (name := resetGrindAttrs) "reset_grind_attrs%" : command
 
 namespace Attr
-syntax grindGen    := &" gen"
+syntax grindGen    := ppHardSpace &"gen"
 syntax grindEq     := "=" (grindGen)?
 syntax grindEqBoth := atomic("_" "=" "_") (grindGen)?
 syntax grindEqRhs  := atomic("=" "_") (grindGen)?
@@ -86,8 +86,8 @@ syntax grindMod :=
     grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd
     <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager
     <|> grindCases <|> grindIntro <|> grindExt <|> grindGen
-syntax (name := grind) "grind" (ppSpace grindMod)? : attr
-syntax (name := grind?) "grind?" (ppSpace grindMod)? : attr
+syntax (name := grind) "grind" (ppHardSpace grindMod)? : attr
+syntax (name := grind?) "grind?" (ppHardSpace grindMod)? : attr
 end Attr
 end Lean.Parser
 
@@ -206,7 +206,7 @@ namespace Lean.Parser.Tactic
 -/
 
 syntax grindErase := "-" ident
-syntax grindLemma := (Attr.grindMod ppSpace)? ident
+syntax grindLemma := (Attr.grindMod ppHardSpace)? ident
 syntax grindParam := grindErase <|> grindLemma
 
 /--

@@ -44,6 +44,12 @@ where finally
     have := s.internalRepresentation.stop_le_array_size
     omega
 
+universe v w
+
+set_option trace.Meta.synthInstance true in
+private example : (m : Type v → Type w) → [Monad m] → (s : Subarray α) → IteratorLoop (type_of% (Internal.iter s).internalState) Id m :=
+  fun _ _ _ => inferInstance
+
 @[no_expose] instance {s : Subarray α} : Iterator (ToIterator.State s Id) Id α := inferInstance
 @[no_expose] instance {s : Subarray α} : Finite (ToIterator.State s Id) Id := inferInstance
 @[no_expose] instance {s : Subarray α} : IteratorCollect (ToIterator.State s Id) Id Id := inferInstance

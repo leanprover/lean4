@@ -16,7 +16,7 @@ def mkFoo (n : Nat) (x : Nat) : Foo :=
 axiom my_sorry1 {α : Prop} : α
 axiom my_sorry2 {α : Prop} : α
 
-def c := 100000 -- previously, the type checker would unfold mkFoo in the lhs and rhs `c`-times
+def c := 10000000 -- previously, the type checker would unfold mkFoo in the lhs and rhs `c`-times
 
 -- We use `run_tac` to only exercise the kernel, not the elaborator
 theorem ex : (mkFoo c a).f b my_sorry1 = (mkFoo c a).f b my_sorry2 := by run_tac do

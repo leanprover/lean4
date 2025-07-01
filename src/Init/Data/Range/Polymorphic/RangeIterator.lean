@@ -112,12 +112,12 @@ theorem RangeIterator.step_eq_step {su} [UpwardEnumerable α] [SupportsUpperBoun
 
 @[always_inline, inline]
 instance RepeatIterator.instIteratorLoop {su} [UpwardEnumerable α] [SupportsUpperBound su α]
-    {n : Type u → Type w} [Monad n] :
+    {n : Type v → Type w} [Monad n] :
     IteratorLoop (RangeIterator su α) Id n :=
   .defaultImplementation
 
 instance RepeatIterator.instIteratorLoopPartial {su} [UpwardEnumerable α] [SupportsUpperBound su α]
-    {n : Type u → Type w} [Monad n] : IteratorLoopPartial (RangeIterator su α) Id n :=
+    {n : Type v → Type w} [Monad n] : IteratorLoopPartial (RangeIterator su α) Id n :=
   .defaultImplementation
 
 instance RepeatIterator.instIteratorCollect {su} [UpwardEnumerable α] [SupportsUpperBound su α]

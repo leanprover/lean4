@@ -39,7 +39,7 @@ theorem Iter.toArray_empty {β} :
 theorem Iter.forIn_empty {m β γ} [Monad m] [LawfulMonad m]
     {init : γ} {f} :
     ForIn.forIn (m := m) (Iter.empty β) init f = pure init := by
-  simp [Iter.forIn_eq_forIn_toIterM]
+  simp [Iter.forIn_eq_match_step]
 
 @[simp]
 theorem Iter.foldM_empty {m β γ} [Monad m] [LawfulMonad m]

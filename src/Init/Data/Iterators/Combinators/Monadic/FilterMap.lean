@@ -231,14 +231,14 @@ instance {α β γ : Type w} {m : Type w → Type w'}
   .defaultImplementation
 
 instance FilterMap.instIteratorLoop {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} {o : Type w → Type w'''}
+    {n : Type w → Type w''} {o : Type x → Type x'}
     [Monad n] [Monad o] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} [Finite α m] :
     IteratorLoop (FilterMap α m n lift f) n o :=
   .defaultImplementation
 
 instance FilterMap.instIteratorLoopPartial {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} {o : Type w → Type w'''}
+    {n : Type w → Type w''} {o : Type x → Type x'}
     [Monad n] [Monad o] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} :
     IteratorLoopPartial (FilterMap α m n lift f) n o :=

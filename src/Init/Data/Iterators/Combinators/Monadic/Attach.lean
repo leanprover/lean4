@@ -98,12 +98,12 @@ instance Attach.instIteratorCollectPartial {α β : Type w} {m : Type w → Type
   .defaultImplementation
 
 instance Attach.instIteratorLoop {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Monad n] {P : β → Prop} [Iterator α m β] [MonadLiftT m n] :
+    {n : Type x → Type x'} [Monad n] {P : β → Prop} [Iterator α m β] :
     IteratorLoop (Attach α m P) m n :=
   .defaultImplementation
 
 instance Attach.instIteratorLoopPartial {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Monad n] {P : β → Prop} [Iterator α m β] [MonadLiftT m n] :
+    {n : Type x → Type x'} [Monad n] {P : β → Prop} [Iterator α m β] :
     IteratorLoopPartial (Attach α m P) m n :=
   .defaultImplementation
 

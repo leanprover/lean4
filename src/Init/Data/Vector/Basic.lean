@@ -15,7 +15,7 @@ public import Init.Data.Array.Range
 public import Init.Data.Range
 import Init.Data.Slice.Array.Basic
 public import Init.Data.Stream
-import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.RangeIteratorTest
 
 public section
 

@@ -41,8 +41,16 @@ where fillCache : CoreM IRType := do
       let ctorNames := inductiveVal.ctors
       let numCtors := ctorNames.length
       for ctorName in ctorNames do
-        let some (.ctorInfo ctorVal) := env.find? ctorName | unreachable!
-        if ctorVal.type.isForall then return .object
+        let some (.ctorInfo ctorInfo) := env.find? ctorName | unreachable!
+        let isRelevant ← Meta.MetaM.run' <|
+                         Meta.forallTelescopeReducing ctorInfo.type fun params _ => do
+          for field in params[ctorInfo.numParams...*] do
+            let fieldType ← field.fvarId!.getType
+            let lcnfFieldType ← LCNF.toLCNFType fieldType
+            let monoFieldType ← LCNF.toMonoType lcnfFieldType
+            if !monoFieldType.isErased then return true
+          return false
+        if isRelevant then return .object
       return if numCtors == 1 then
         .object
       else if numCtors < Nat.pow 2 8 then
@@ -56,8 +64,12 @@ where fillCache : CoreM IRType := do
 
 def toIRType (type : Lean.Expr) : CoreM IRType := do
   match type with
-  | .const name _ | .app (.const name _) _ => nameToIRType name
-  | .app .. | .forallE .. => return .object
+  | .const name _ => nameToIRType name
+  | .app .. =>
+    -- All mono types are in headBeta form.
+    let .const name _ := type.getAppFn | unreachable!
+    nameToIRType name
+  | .forallE .. => return .object
   | _ => unreachable!
 
 inductive CtorFieldInfo where

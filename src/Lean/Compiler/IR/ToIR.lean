@@ -211,7 +211,6 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
         else
           let type ← nameToIRType ctorVal.induct
           if type.isScalar then
-            assert! args.isEmpty
             let var ← bindVar decl.fvarId
             return .vdecl var type (.lit (.num ctorVal.cidx)) (← lowerCode k)
           else

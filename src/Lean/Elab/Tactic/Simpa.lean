@@ -96,7 +96,7 @@ deriving instance Repr for UseImplicitLambdaResult
         g.assumption; pure stats
       if tactic.simp.trace.get (← getOptions) || squeeze.isSome then
         let usingArg : Option Term := usingArg.map (⟨·.raw.unsetTrailing⟩)
-        let stx ← match ← mkSimpOnly stx.raw.unsetTrailing stats.usedTheorems with
+        let stx ← match ← mkSimpOnly stx.raw.unsetTrailing ctx simprocs stats.usedTheorems with
           | `(tactic| simp $cfg:optConfig $(disch)? $[only%$only]? $[[$args,*]]?) =>
             if unfold.isSome then
               `(tactic| simpa! $cfg:optConfig $(disch)? $[only%$only]? $[[$args,*]]? $[using $usingArg]?)

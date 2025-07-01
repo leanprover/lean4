@@ -164,36 +164,36 @@ instance : EmptyCollection (Subarray α) :=
 instance : Inhabited (Subarray α) :=
   ⟨{}⟩
 
-/--
-The run-time implementation of `ForIn.forIn` for `Subarray`, which allows it to be used with `for`
-loops in `do`-notation.
-
-This definition replaces `Subarray.forIn`.
--/
-@[inline] unsafe def forInUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
-  let sz := USize.ofNat s.stop
-  let rec @[specialize] loop (i : USize) (b : β) : m β := do
-    if i < sz then
-      let a := s.array.uget i lcProof
-      match (← f a b) with
-      | ForInStep.done  b => pure b
-      | ForInStep.yield b => loop (i+1) b
-    else
-      pure b
-  loop (USize.ofNat s.start) b
-
-/--
-The implementation of `ForIn.forIn` for `Subarray`, which allows it to be used with `for` loops in
-`do`-notation.
--/
--- TODO: provide reference implementation
-@[implemented_by Subarray.forInUnsafe]
-protected opaque forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
-  pure b
-
 @[no_expose]
 instance [∀ xs : Subarray α, ToIterator xs Id α] [∀ xs : Subarray α, ForIn m (Iter (α := (ToIterator.State xs Id)) α) α] : ForIn m (Subarray α) α where
   forIn xs init f := forIn (Std.Slice.Internal.iter xs) init f
+
+/--
+Folds a monadic operation from left to right over the elements in a subarray.
+An accumulator of type `β` is constructed by starting with `init` and monadically combining each
+element of the subarray with the current accumulator value in turn. The monad in question may permit
+early termination or repetition.
+Examples:
+```lean example
+#eval #["red", "green", "blue"].toSubarray.foldlM (init := "") fun acc x => do
+  let l ← Option.guard (· ≠ 0) x.length
+  return s!"{acc}({l}){x} "
+```
+```output
+some "(3)red (5)green (4)blue "
+```
+```lean example
+#eval #["red", "green", "blue"].toSubarray.foldlM (init := 0) fun acc x => do
+  let l ← Option.guard (· ≠ 5) x.length
+  return s!"{acc}({l}){x} "
+```
+```output
+none
+```
+-/
+@[inline]
+def foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Subarray α) : m β :=
+  as.array.foldlM f (init := init) (start := as.start) (stop := as.stop)
 
 /--
 Folds a monadic operation from right to left over the elements in a subarray.

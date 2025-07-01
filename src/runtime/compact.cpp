@@ -358,7 +358,7 @@ void object_compactor::operator()(object * o) {
             g_tag_counters[lean_ptr_tag(curr)]++;
 #endif
             switch (lean_ptr_tag(curr)) {
-            case LeanClosure:         throw compaction_exception("closures cannot be compacted. One possible cause of this error is trying to store a function in a persistent environment extension.");
+            case LeanClosure:         throw exception("closures cannot be compacted. One possible cause of this error is trying to store a function in a persistent environment extension.");
             case LeanArray:           r = insert_array(curr); break;
             case LeanScalarArray:     insert_sarray(curr); break;
             case LeanString:          insert_string(curr); break;
@@ -367,7 +367,7 @@ void object_compactor::operator()(object * o) {
             case LeanTask:            r = insert_task(curr); break;
             case LeanPromise:         r = insert_promise(curr); break;
             case LeanRef:             r = insert_ref(curr); break;
-            case LeanExternal:        throw compaction_exception("external objects cannot be compacted");
+            case LeanExternal:        throw exception("external objects cannot be compacted");
             case LeanReserved:        lean_unreachable();
             default:                  r = insert_constructor(curr); break;
             }

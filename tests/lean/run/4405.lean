@@ -8,9 +8,9 @@ error: Application type mismatch: In the application
 the argument
   Fin.is_lt ?_
 has type
-  ↑?_ < ?_ : Prop
+  ↑?_ < ?_
 but is expected to have type
-  ?_ n < ?_ n : Prop
+  ?_ n < ?_ n
 -/
 #guard_msgs in
 def foo := fun n => (not_and_self_iff _).mp ⟨Nat.lt_irrefl _, Fin.is_lt _⟩
@@ -19,9 +19,9 @@ def foo := fun n => (not_and_self_iff _).mp ⟨Nat.lt_irrefl _, Fin.is_lt _⟩
 error: type mismatch
   Fin.is_lt ?_
 has type
-  ↑?_ < ?_ : Prop
+  ↑?_ < ?_
 but is expected to have type
-  ?_ < ?_ : Prop
+  ?_ < ?_
 ---
 error: unsolved goals
 case a

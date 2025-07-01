@@ -39,16 +39,16 @@ There is no "unsolved goals" error.
 error: type mismatch
   Eq.refl 3
 has type
-  3 = 3 : Prop
+  3 = 3
 but is expected to have type
-  false = false : Prop
+  false = false
 ---
 error: type mismatch
   Eq.refl 3
 has type
-  3 = 3 : Prop
+  3 = 3
 but is expected to have type
-  true = true : Prop
+  true = true
 -/
 #guard_msgs in
 example (b : Bool) : b = b := by
@@ -64,9 +64,9 @@ Even if at least one succeeds, the entire tactic fails if any fails, stopping th
 error: type mismatch
   Eq.refl true
 has type
-  true = true : Prop
+  true = true
 but is expected to have type
-  false = false : Prop
+  false = false
 -/
 #guard_msgs in
 example (b : Bool) : b = b := by
@@ -120,9 +120,9 @@ On error, failing goals are admitted. There is one `sorry` in the proof term cor
 error: type mismatch
   Eq.refl true
 has type
-  true = true : Prop
+  true = true
 but is expected to have type
-  false = false : Prop
+  false = false
 ---
 info: Try this: Bool.casesOn (motive := fun t => b = t → b = b) b (fun h => Eq.symm h ▸ sorry)
   (fun h => Eq.symm h ▸ Eq.refl true) (Eq.refl b)
@@ -184,9 +184,9 @@ elab "without_recover " tac:tactic : tactic => do
 error: type mismatch
   Eq.refl 3
 has type
-  3 = 3 : Prop
+  3 = 3
 but is expected to have type
-  false = false : Prop
+  false = false
 -/
 #guard_msgs in
 example (b : Bool) : b = b := by

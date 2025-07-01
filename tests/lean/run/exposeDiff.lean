@@ -14,9 +14,10 @@ example (x : PUnit.{1}) : PUnit.{0} := by
 error: type mismatch
   x
 has type
-  PUnit.{1} : Type
-but is expected to have type
-  PUnit.{0} : Prop
+  PUnit.{1}
+of sort `Type` but is expected to have type
+  PUnit.{0}
+of sort `Prop`
 -/
 #guard_msgs in
 example (x : PUnit.{1}) : PUnit.{0} :=

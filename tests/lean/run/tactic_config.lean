@@ -197,9 +197,9 @@ Elaboration errors cause the tactic to use the default configuration.
 error: type mismatch
   false
 has type
-  Bool : Type
+  Bool
 but is expected to have type
-  B : Type
+  B
 ---
 info: config is { b := { toA := { x := true } } }
 ---
@@ -239,9 +239,9 @@ elab "my_command" cfg:Parser.Tactic.optConfig : command => do
 error: type mismatch
   true
 has type
-  Bool : Type
+  Bool
 but is expected to have type
-  Nat : Type
+  Nat
 ---
 info: config is { x := 0, y := false }
 -/

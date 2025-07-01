@@ -38,9 +38,10 @@ error: Application type mismatch: In the application
 the argument
   Nat
 has type
-  Type : Type 1
-but is expected to have type
-  Prop : Type
+  Type
+of sort `Type 1` but is expected to have type
+  Prop
+of sort `Type`
 -/
 #guard_msgs in #check elab_1eq1
 
@@ -50,9 +51,10 @@ error: Application type mismatch: In the application
 the argument
   Nat
 has type
-  Type : Type 1
-but is expected to have type
-  Prop : Type
+  Type
+of sort `Type 1` but is expected to have type
+  Prop
+of sort `Type`
 -/
 #guard_msgs in #reduce elab_1eq1
 end

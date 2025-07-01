@@ -120,9 +120,9 @@ example (p : Nat × Nat) : True :=
 error: type mismatch
   jp ()
 has type
-  IO (IO.Ref Bool) : Type
+  IO (IO.Ref Bool)
 but is expected to have type
-  IO Unit : Type
+  IO Unit
 -/
 #guard_msgs in
 def f (x : Nat) : IO Unit :=
@@ -138,9 +138,9 @@ def f (x : Nat) : IO Unit :=
 error: type mismatch
   IO.mkRef true
 has type
-  BaseIO (IO.Ref Bool) : Type
+  BaseIO (IO.Ref Bool)
 but is expected to have type
-  IO Unit : Type
+  IO Unit
 -/
 #guard_msgs in
 def f' (x : Nat) : IO Unit :=

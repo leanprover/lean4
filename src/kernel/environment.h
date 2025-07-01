@@ -29,7 +29,7 @@ namespace lean {
 class diagnostics : public object_ref {
 public:
     diagnostics(diagnostics const & other):object_ref(other) {}
-    diagnostics(diagnostics && other):object_ref(other) {}
+    diagnostics(diagnostics && other):object_ref(std::move(other)) {}
     explicit diagnostics(b_obj_arg o, bool b):object_ref(o, b) {}
     explicit diagnostics(obj_arg o):object_ref(o) {}
     ~diagnostics() {}

@@ -497,3 +497,10 @@
     <<: *time
     cmd: lean riscv-ast.lean
     max_runs: 2
+- attributes:
+    description: iterators
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean -Dlinter.all=false --run iterators.lean
+    parse_output: true

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Util.FindMVar
 import Lean.Util.CollectFVars
+import Lean.Util.EditDistance
 import Lean.Parser.Term
 import Lean.Meta.KAbstract
 import Lean.Meta.Tactic.ElimInfo
@@ -14,6 +15,7 @@ import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.Arg
 import Lean.Elab.RecAppSyntax
+import Lean.Meta.Hint
 
 namespace Lean.Elab.Term
 open Meta
@@ -38,14 +40,32 @@ instance : ToString NamedArg where
   toString s := "(" ++ toString s.name ++ " := " ++ toString s.val ++ ")"
 
 def throwInvalidNamedArg (namedArg : NamedArg) (fn? : Option Name) (validNames : Array Name) : TermElabM α :=
-  let hint := if validNames.size > 0 then
-    let namesMsg := MessageData.andList <| validNames.map (m!"`{·}`") |>.toList
-    MessageData.note m!"This function has the following named parameters: {namesMsg}"
-  else
-    .nil
-  withRef namedArg.ref <| match fn? with
-    | some fn => throwError m!"Invalid argument name `{namedArg.name}` for function `{.ofConstName fn}`" ++ hint
-    | none    => throwError m!"Invalid argument name `{namedArg.name}` for function" ++ hint
+  withRef namedArg.ref do
+  -- TODO: make this lazy
+  let hint ← do
+    if validNames.size > 0 then
+      let validNamesEditDist := validNames
+        |>.map (fun name =>
+          let nameStr := name.toString
+          (nameStr, EditDistance.levenshtein nameStr namedArg.name.toString none))
+        |>.qsort (fun (name1, d1?) (name2, d2?) =>
+          compare d1?.get! d2?.get! |>.then (compare name1 name2) |>.isLT)
+        |>.map (·.1)
+      let namesMsg := MessageData.andList <| validNames.map (m!"`{·}`") |>.toList
+      let suggestionNames :=
+        if validNames.size > 5 then validNamesEditDist[:5].toArray else validNamesEditDist
+      -- `getRef` is of the form: atomic ("(" >> ident >> " := ") >> withoutPosition termParser >> ")"
+      let span? := (← getRef)[1]
+      MessageData.hint (forceList := true) "Perhaps you meant one of the following named parameters:" <|
+        suggestionNames.map fun name =>
+          { suggestion := .string name
+            preInfo? := some s!"`{name}`: "
+            span?
+            toCodeActionTitle? := some fun s => s!"Change argument name: {s}" }
+    else
+      pure .nil
+  let fnName := fn?.map (m!" `{.ofConstName ·}`") |>.getD .nil
+  throwError m!"Invalid argument name `{namedArg.name}` for function{fnName}" ++ hint
 
 private def ensureArgType (f : Expr) (arg : Expr) (expectedType : Expr) : TermElabM Expr := do
   try
@@ -226,12 +246,11 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
     else
       for namedArg in s.namedArgs do
         let f := s.f.getAppFn
-        withRef namedArg.ref do
-          let validNames ← getFoundNamedArgs
-          if f.isConst then
-            throwInvalidNamedArg namedArg f.constName! validNames
-          else
-            throwInvalidNamedArg namedArg none validNames
+        let validNames ← getFoundNamedArgs
+        if f.isConst then
+          throwInvalidNamedArg namedArg f.constName! validNames
+        else
+          throwInvalidNamedArg namedArg none validNames
       -- Help users see if this is actually due to an indentation mismatch/other parsing mishaps:
       let extra := if let some (arg : Arg) := s.args[0]? then
         .note m!"Expected a function because this term is being applied to the argument\

@@ -6,12 +6,9 @@ Author: Kim Morrison
 module
 
 prelude
-import all Init.Data.Array.Lex.Basic
-public import Init.Data.Array.Lex.Basic
+public import all Init.Data.Array.Lex.Basic
 public import Init.Data.Array.Lemmas
 public import Init.Data.List.Lex
-import Init.Data.Range.Polymorphic.Lemmas
-import Init.Data.Range.Polymorphic.NatLemmas
 
 public section
 
@@ -34,38 +31,16 @@ protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {xs ys
   Decidable.not_not
 
 @[simp] theorem lex_empty [BEq α] {lt : α → α → Bool} {xs : Array α} : xs.lex #[] lt = false := by
-  rw [lex, Std.PRange.forIn'_eq_match]
-  simp [Std.PRange.SupportsUpperBound.IsSatisfied]
-
-private theorem cons_lex_cons.forIn'_congr_aux [Monad m] {as bs : ρ} {_ : Membership α ρ}
-    [ForIn' m ρ α inferInstance] (w : as = bs)
-    {b b' : β} (hb : b = b')
-    {f : (a' : α) → a' ∈ as → β → m (ForInStep β)}
-    {g : (a' : α) → a' ∈ bs → β → m (ForInStep β)}
-    (h : ∀ a m b, f a (by simpa [w] using m) b = g a m b) :
-    forIn' as b f = forIn' bs b' g := by
-  cases hb
-  cases w
-  have : f = g := by
-    ext a ha acc
-    apply h
-  cases this
-  rfl
+  simp [lex]
 
 private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs ys : Array α} :
      (#[a] ++ xs).lex (#[b] ++ ys) lt =
        (lt a b || a == b && xs.lex ys lt) := by
-  simp only [lex, size_append, List.size_toArray, List.length_cons, List.length_nil, Nat.zero_add,
-    Nat.add_min_add_left, Nat.add_lt_add_iff_left, Std.PRange.forIn'_eq_forIn'_toList]
-  conv =>
-    lhs; congr; congr
-    rw [cons_lex_cons.forIn'_congr_aux Std.PRange.toList_eq_match rfl (fun _ _ _ => rfl)]
-    simp only [Std.PRange.SupportsUpperBound.IsSatisfied, bind_pure_comp, map_pure]
-    rw [cons_lex_cons.forIn'_congr_aux (if_pos (by omega)) rfl (fun _ _ _ => rfl)]
-  simp only [Std.PRange.toList_open_eq_toList_closed_of_isSome_succ? (lo := 0) (h := rfl),
-    Std.PRange.UpwardEnumerable.succ?, Nat.add_comm 1, Std.PRange.Nat.ClosedOpen.toList_succ_succ,
-    Option.get_some, List.forIn'_cons, List.size_toArray, List.length_cons, List.length_nil,
-    Nat.lt_add_one, getElem_append_left, List.getElem_toArray, List.getElem_cons_zero]
+  simp only [lex]
+  simp only [Std.Range.forIn'_eq_forIn'_range', size_append, List.size_toArray, List.length_singleton,
+    Nat.add_comm 1]
+  simp [Nat.add_min_add_right, List.range'_succ, getElem_append_left, List.range'_succ_left,
+    getElem_append_right]
   cases lt a b
   · rw [bne]
     cases a == b <;> simp
@@ -74,17 +49,10 @@ private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs 
 @[simp, grind =] theorem _root_.List.lex_toArray [BEq α] {lt : α → α → Bool} {l₁ l₂ : List α} :
     l₁.toArray.lex l₂.toArray lt = l₁.lex l₂ lt := by
   induction l₁ generalizing l₂ with
-  | nil =>
-    cases l₂
-    · rw [lex, Std.PRange.forIn'_eq_match]
-      simp [Std.PRange.SupportsUpperBound.IsSatisfied]
-    · rw [lex, Std.PRange.forIn'_eq_match]
-      simp [Std.PRange.SupportsUpperBound.IsSatisfied]
+  | nil => cases l₂ <;> simp [lex]
   | cons x l₁ ih =>
     cases l₂ with
-    | nil =>
-      rw [lex, Std.PRange.forIn'_eq_match]
-      simp [Std.PRange.SupportsUpperBound.IsSatisfied]
+    | nil => simp [lex]
     | cons y l₂ =>
       rw [List.toArray_cons, List.toArray_cons y, cons_lex_cons, List.lex, ih]
 

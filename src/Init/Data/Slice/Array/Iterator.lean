@@ -48,10 +48,42 @@ where finally
 @[no_expose] instance {s : Subarray α} : Finite (ToIterator.State s Id) Id := inferInstance
 @[no_expose] instance {s : Subarray α} : IteratorCollect (ToIterator.State s Id) Id Id := inferInstance
 @[no_expose] instance {s : Subarray α} : IteratorCollectPartial (ToIterator.State s Id) Id Id := inferInstance
-@[no_expose] instance {s : Subarray α} : IteratorLoop (ToIterator.State s Id) Id Id := inferInstance
-@[no_expose] instance {s : Subarray α} : IteratorLoopPartial (ToIterator.State s Id) Id Id := inferInstance
-@[no_expose] instance {s : Subarray α} : IteratorSize (ToIterator.State s Id) Id := inferInstance
-@[no_expose] instance {s : Subarray α} : IteratorSizePartial (ToIterator.State s Id) Id := inferInstance
+@[no_expose] instance {s : Subarray α} {m : Type v → Type w} :
+    IteratorLoop (ToIterator.State s Id) Id m := inferInstance
+@[no_expose] instance {s : Subarray α} {m : Type v → Type w} :
+    IteratorLoopPartial (ToIterator.State s Id) Id m := inferInstance
+@[no_expose] instance {s : Subarray α} :
+    IteratorSize (ToIterator.State s Id) Id := inferInstance
+@[no_expose] instance {s : Subarray α} :
+    IteratorSizePartial (ToIterator.State s Id) Id := inferInstance
+
+/--
+Folds a monadic operation from left to right over the elements in a subarray.
+An accumulator of type `β` is constructed by starting with `init` and monadically combining each
+element of the subarray with the current accumulator value in turn. The monad in question may permit
+early termination or repetition.
+Examples:
+```lean example
+#eval #["red", "green", "blue"].toSubarray.foldlM (init := "") fun acc x => do
+  let l ← Option.guard (· ≠ 0) x.length
+  return s!"{acc}({l}){x} "
+```
+```output
+some "(3)red (5)green (4)blue "
+```
+```lean example
+#eval #["red", "green", "blue"].toSubarray.foldlM (init := 0) fun acc x => do
+  let l ← Option.guard (· ≠ 5) x.length
+  return s!"{acc}({l}){x} "
+```
+```output
+none
+```
+-/
+@[inline]
+def Subarray.foldlM' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Subarray α) : m β :=
+  Slice.foldlM f (init := init) as
+  --as.array.foldlM f (init := init) (start := as.start) (stop := as.stop)
 
 namespace Array
 

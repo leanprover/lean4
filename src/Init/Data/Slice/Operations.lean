@@ -81,7 +81,7 @@ none
 ```
 -/
 @[always_inline, inline]
-def foldlM {γ : Type u} {β : Type w}
+def foldlM {γ : Type u} {β : Type v}
     {δ : Type w} {m : Type w → Type w'} [Monad m] (f : δ → β → m δ) (init : δ)
     (s : Slice γ) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
     [IteratorLoop (ToIterator.State s Id) Id m] [Finite (ToIterator.State s Id) Id] : m δ :=
@@ -96,7 +96,7 @@ Examples for the special case of subarrays:
  * `#["red", "green", "blue"].toSubarray.popFront.foldl (· + ·.length) 0 = 9`
 -/
 @[always_inline, inline]
-def foldl {γ : Type u} {β : Type w}
+def foldl {γ : Type u} {β : Type v}
     {δ : Type w} (f : δ → β → δ) (init : δ)
     (s : Slice γ) [ToIterator s Id β] [Iterator (ToIterator.State s Id) Id β]
     [IteratorLoop (ToIterator.State s Id) Id Id] [Finite (ToIterator.State s Id) Id] : δ :=

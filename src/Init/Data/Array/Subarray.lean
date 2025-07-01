@@ -165,7 +165,9 @@ instance : Inhabited (Subarray α) :=
   ⟨{}⟩
 
 @[no_expose]
-instance [∀ xs : Subarray α, ToIterator xs Id α] [∀ xs : Subarray α, ForIn m (Iter (α := (ToIterator.State xs Id)) α) α] : ForIn m (Subarray α) α where
+instance {α : Type u} {m : Type v → Type w} [∀ xs : Subarray α, ToIterator xs Id α]
+    [∀ xs : Subarray α, ForIn m (Iter (α := (ToIterator.State xs Id)) α) α] :
+    ForIn m (Subarray α) α where
   forIn xs init f := forIn (Std.Slice.Internal.iter xs) init f
 
 /--

@@ -11,5 +11,5 @@ public import Init.Grind.Tactics
 
 public section
 
-attribute [grind cases eager] And Prod False Empty True PUnit Exists Subtype
+attribute [grind cases eager] And False Empty True PUnit Exists Subtype Prod PProd MProd
 attribute [grind cases] Or

@@ -56,19 +56,16 @@ I.e. `ImplicationOrder.instPartialOrder.rel P Q` becomes
 In the premise of the Park induction principle (`lfp_le_of_le_monotone`) we use a monotone map defining the predicate in the eta expanded form. In such a case, besides desugaring the predicate, we need to perform a weak head reduction.
 The optional parameter `reduceConclusion` (false by default) indicates whether we need to perform this reduction.
 -/
-def unfoldPredRel (predType : Expr) (body : Expr) (fixpointType : PartialFixpointType) (reduceConclusion : Bool := false) : MetaM Expr := do
+def unfoldPredRel (predType : Expr) (lhs rhs : Expr) (fixpointType : PartialFixpointType) (reduceConclusion : Bool := false) : MetaM Expr := do
   match fixpointType with
   | .partialFixpoint => throwError "Trying to apply lattice induction to a non-lattice fixpoint. Please report this issue."
   | .inductiveFixpoint | .coinductiveFixpoint =>
-    unless body.isAppOfArity ``PartialOrder.rel 4 do
-      throwError "{body} is not an application of partial order"
     let lhsTypes ← forallTelescope predType fun ts _ =>  ts.mapM inferType
     let names ← lhsTypes.mapM fun _ => mkFreshUserName `x
-    let bodyArgs := body.getAppArgs
     withLocalDeclsDND (names.zip lhsTypes) fun exprs => do
       let mut applied  := match fixpointType with
-        | .inductiveFixpoint => (bodyArgs[2]!, bodyArgs[3]!)
-        | .coinductiveFixpoint => (bodyArgs[3]!, bodyArgs[2]!)
+        | .inductiveFixpoint => (lhs, rhs)
+        | .coinductiveFixpoint => (rhs, lhs)
         | .partialFixpoint => panic! "Cannot apply lattice induction to a non-lattice fixpoint"
       for e in exprs do
         applied := (mkApp applied.1 e, mkApp applied.2 e)
@@ -78,6 +75,15 @@ def unfoldPredRel (predType : Expr) (body : Expr) (fixpointType : PartialFixpoin
         | .coinductiveFixpoint => applied := (applied.1, (←whnf applied.2))
         | .partialFixpoint => throwError "Cannot apply lattice induction to a non-lattice fixpoint"
       mkForallFVars exprs (←mkArrow applied.1 applied.2)
+
+def unfoldPredRelMutual (eqnInfo : EqnInfo) (body : Expr) (reduceConclusion : Bool := false) : MetaM Expr := do
+  let_expr Lean.Order.PartialOrder.rel _ _ lhs rhs := body
+    | throwError "{body} is not an application of partial order"
+  let infos ← eqnInfo.declNames.mapM getConstInfoDefn
+  PProdN.pack 0 <| ←infos.mapIdxM fun i defVal => do
+    let lhs ← PProdN.reduceProjs (←PProdN.projM infos.size i lhs)
+    let fixpointType := eqnInfo.fixpointType[i]!
+    unfoldPredRel defVal.type lhs (← PProdN.projM infos.size i rhs) fixpointType reduceConclusion
 
 /-- `maskArray mask xs` keeps those `x` where the corresponding entry in `mask` is `true` -/
 -- Worth having in the standard library?
@@ -119,9 +125,6 @@ def deriveInduction (name : Name) : MetaM Unit := do
       -- We strip the projections (if present)
       let body' := PProdN.stripProjs body.eta -- TODO: Eta more carefully?
       if eqnInfo.fixpointType.all isLatticeTheoretic then
-        unless eqnInfo.declNames.size == 1 do
-          throwError "Mutual lattice (co)induction is not supported yet"
-
         -- We strip it until we reach an application of `lfp_montotone`
         let some fixApp ← whnfUntil body' ``lfp_monotone
           | throwError "Unexpected function body {body}, could not whnfUntil lfp_monotone"
@@ -131,33 +134,30 @@ def deriveInduction (name : Name) : MetaM Unit := do
 
         -- We get the type of the induction principle
         let eTyp ← inferType e'
-        let f ← mkConstWithLevelParams infos[0]!.name
-        let fEtaExpanded ← lambdaTelescope infos[0]!.value fun ys _ =>
-            mkLambdaFVars ys (mkAppN f ys)
-        let fInst ← eqnInfo.fixedParamPerms.perms[0]!.instantiateLambda fEtaExpanded xs
-        let fInst := fInst.eta
+        let packedConclusion ← PProdN.mk 1 <| ← infos.mapIdxM fun i defVal => do
+            let f ← mkConstWithLevelParams defVal.name
+            let fEtaExpanded ← lambdaTelescope defVal.value fun ys _ =>
+              mkLambdaFVars ys (mkAppN f ys)
+            let fInst ← eqnInfo.fixedParamPerms.perms[i]!.instantiateLambda fEtaExpanded xs
+            return fInst.eta
 
-        -- Then, we change the conclusion so it doesn't mention the `lfp_monotone`, but rather the actual predicate.
-        let newTyp ← forallTelescope eTyp fun args econc =>
+        -- Then, we change the conclusion so it doesn't mention the `lfp_monotone`, but rather the actual predicates.
+        let newTyp ← forallTelescope eTyp fun args econc => do
           if econc.isAppOfArity ``PartialOrder.rel 4 then
             let oldArgs := econc.getAppArgs
-            let newArgs := oldArgs.set! 2 fInst
+            let newArgs := oldArgs.set! 2 packedConclusion
             let newBody := mkAppN econc.getAppFn newArgs
             mkForallFVars args newBody
           else
             throwError "Unexpected conclusion of the fixpoint induction principle: {econc}"
 
-        -- Desugar partial order on predicates in premises and conclusion
+        -- We unfold the partial order on predicates in premises and conclusion
         let newTyp ← forallTelescope newTyp fun args conclusion => do
-          let predicate := args[0]!
-          let predicateType ← inferType predicate
-          let premise := args[1]!
-          let premiseType ← inferType premise
           -- Besides unfolding the predicate, we need to perform a weak head reduction in the premise,
           -- where the monotone map defining the fixpoint is in the eta expanded form.
           -- We do this by setting the optional parameter `reduceConclusion` to true.
-          let premiseType ← unfoldPredRel predicateType premiseType eqnInfo.fixpointType[0]! (reduceConclusion := true)
-          let newConclusion ← unfoldPredRel predicateType conclusion eqnInfo.fixpointType[0]!
+          let premiseType ← unfoldPredRelMutual eqnInfo (←inferType args[1]!) (reduceConclusion := true)
+          let newConclusion ← unfoldPredRelMutual eqnInfo conclusion
           let abstracedNewConclusion ← mkForallFVars args newConclusion
           withLocalDecl `y BinderInfo.default premiseType fun newPremise => do
             let typeHint ← mkExpectedTypeHint newPremise premiseType
@@ -241,7 +241,7 @@ def deriveInduction (name : Name) : MetaM Unit := do
               let e' ← mkLambdaFVars motives e'
               let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
               let e' ← instantiateMVars e'
-              trace[Elab.definition.partialFixpoint.induction] "complete body of fixpoint induction principle:{indentExpr e'}"
+              trace[Elab.definition.partialFixpoint.induction] "Complete body of fixpoint induction principle:{indentExpr e'}"
               pure e'
 
     let eTyp ← inferType e'

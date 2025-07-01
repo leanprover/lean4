@@ -8,13 +8,13 @@ module
 
 prelude
 public meta import Init.Coe
+public import Init.Data.Stream
 public import Init.Data.Array.Lemmas
 public import Init.Data.Array.MapIdx
 public import Init.Data.Array.InsertIdx
 public import Init.Data.Array.Range
 public import Init.Data.Range
-import Init.Data.Slice.Array.Basic
-public import Init.Data.Stream
+import Init.Data.Slice.Array.Iterator
 
 public section
 

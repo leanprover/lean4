@@ -9,7 +9,7 @@ prelude
 public import Init.RCases
 public import Init.Data.Iterators.Basic
 public import Init.Data.Iterators.Consumers.Monadic.Partial
-import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
+public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 
 public section
 

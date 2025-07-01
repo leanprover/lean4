@@ -42,7 +42,7 @@ theorem if_eq_cond {b : Bool} {x y : α} : (if b = true then x else y) = (bif b 
   rw [cond_eq_if]
 
 @[bv_normalize]
-theorem Bool.not_xor : ∀ (a b : Bool), !(a ^^ b) = (a == b) := by decide
+theorem Bool.not_xor : ∀ (a b : Bool), (!(a ^^ b)) = (a == b) := by decide
 
 @[bv_normalize]
 theorem Bool.not_beq_one : ∀ (a : BitVec 1), (!(a == 1#1)) = (a == 0#1) := by

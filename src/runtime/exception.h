@@ -65,4 +65,13 @@ public:
     heartbeat_exception() {}
     virtual char const * what() const noexcept;
 };
+
+class LEAN_EXPORT compaction_exception : public throwable {
+    std::string m_msg;
+    compaction_exception(std::string const & msg):m_msg(msg) {}
+public:
+    compaction_exception(char const * msg);
+    virtual char const * what() const noexcept { return m_msg.c_str(); }
+};
+
 }

@@ -138,6 +138,8 @@ extern "C" LEAN_EXPORT object * lean_save_module_data_parts(b_obj_arg mod, b_obj
             out.close();
         } catch (exception & ex) {
             return io_result_mk_error((sstream() << "failed to write '" << olean_fn << "': " << ex.what()).str());
+        } catch (compaction_exception & ex) {
+            return io_result_mk_error((sstream() << "failed to compact object: " << ex.what()).str());
         }
     }
 

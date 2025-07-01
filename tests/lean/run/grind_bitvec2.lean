@@ -457,7 +457,7 @@ theorem toInt_eq_toNat_of_lt {x : BitVec n} (h : 2 * x.toNat < 2^n) :
   grind [toInt_eq_toNat_cond]
 
 theorem msb_eq_false_iff_two_mul_lt {x : BitVec w} : x.msb = false ↔ 2 * x.toNat < 2^w := by
-  cases w <;> grind [Nat.pow_succ, msb_eq_decide]
+  cases w <;> grind [msb_eq_decide]
 
 grind_pattern msb_eq_false_iff_two_mul_lt => x.msb, x.toNat
 

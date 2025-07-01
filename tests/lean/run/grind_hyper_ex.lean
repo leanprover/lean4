@@ -28,8 +28,7 @@ theorem hyperoperation_two (m k : ℕ) : hyperoperation 2 m k = m * k := by
 
 @[grind =]
 theorem hyperoperation_three (m k : ℕ) : hyperoperation 3 m k = m ^ k := by
-  -- TODO: add support for Nat.pow_succ
-  induction k with grind [Nat.pow_succ] -- Ouch, this is a bad `grind` lemma.
+  induction k with grind
 
 @[grind =] theorem hyperoperation_ge_three_one (n k : ℕ) : hyperoperation (n + 3) 1 k = 1 := by
   induction n generalizing k with

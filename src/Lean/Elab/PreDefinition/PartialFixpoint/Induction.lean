@@ -60,30 +60,40 @@ def unfoldPredRel (predType : Expr) (lhs rhs : Expr) (fixpointType : PartialFixp
   match fixpointType with
   | .partialFixpoint => throwError "Trying to apply lattice induction to a non-lattice fixpoint. Please report this issue."
   | .inductiveFixpoint | .coinductiveFixpoint =>
-    let lhsTypes ← forallTelescope predType fun ts _ =>  ts.mapM inferType
-    let names ← lhsTypes.mapM fun _ => mkFreshUserName `x
-    withLocalDeclsDND (names.zip lhsTypes) fun exprs => do
-      let mut applied  := match fixpointType with
-        | .inductiveFixpoint => (lhs, rhs)
-        | .coinductiveFixpoint => (rhs, lhs)
-        | .partialFixpoint => panic! "Cannot apply lattice induction to a non-lattice fixpoint"
-      for e in exprs do
-        applied := (mkApp applied.1 e, mkApp applied.2 e)
-      if reduceConclusion then
-        match fixpointType with
-        | .inductiveFixpoint => applied := ((←whnf applied.1), applied.2)
-        | .coinductiveFixpoint => applied := (applied.1, (←whnf applied.2))
-        | .partialFixpoint => throwError "Cannot apply lattice induction to a non-lattice fixpoint"
-      mkForallFVars exprs (←mkArrow applied.1 applied.2)
+    let predType ← lambdaTelescope predType fun _ res => pure res
+    forallTelescope predType fun ts _ => do
+      let lhsTypes ← ts.mapM inferType
+      let names ← lhsTypes.mapM fun _ => mkFreshUserName `x
+      withLocalDeclsDND (names.zip lhsTypes) fun exprs => do
+        let mut applied  := match fixpointType with
+          | .inductiveFixpoint => (lhs, rhs)
+          | .coinductiveFixpoint => (rhs, lhs)
+          | .partialFixpoint => panic! "Cannot apply lattice induction to a non-lattice fixpoint"
+        for e in exprs do
+          applied := (mkApp applied.1 e, mkApp applied.2 e)
+        if reduceConclusion then
+          match fixpointType with
+          | .inductiveFixpoint => applied := ((←whnf applied.1), applied.2)
+          | .coinductiveFixpoint => applied := (applied.1, (←whnf applied.2))
+          | .partialFixpoint => throwError "Cannot apply lattice induction to a non-lattice fixpoint"
+        let impl ← mkArrow applied.1 applied.2
+        mkForallFVars exprs impl
 
-def unfoldPredRelMutual (eqnInfo : EqnInfo) (body : Expr) (reduceConclusion : Bool := false) : MetaM Expr := do
+def unfoldPredRelMutual (eqnInfo : EqnInfo) (predicate : Expr) (body : Expr) (reduceConclusion : Bool := false) : MetaM Expr := do
   let_expr Lean.Order.PartialOrder.rel _ _ lhs rhs := body
     | throwError "{body} is not an application of partial order"
   let infos ← eqnInfo.declNames.mapM getConstInfoDefn
-  PProdN.pack 0 <| ←infos.mapIdxM fun i defVal => do
+  -- We get types of each of the predicates in the tuple
+  let mut predTypes : Array Expr := #[]
+  for i in [:infos.size] do
+    let exprAtI ← PProdN.projM infos.size i predicate
+    predTypes := predTypes.push (←inferType exprAtI)
+
+  -- We unfold the order for each of the elements of the tuple independently
+  PProdN.pack 0 <| ←infos.mapIdxM fun i _ => do
     let lhs ← PProdN.reduceProjs (←PProdN.projM infos.size i lhs)
-    let fixpointType := eqnInfo.fixpointType[i]!
-    unfoldPredRel defVal.type lhs (← PProdN.projM infos.size i rhs) fixpointType reduceConclusion
+    unfoldPredRel predTypes[i]! lhs (← PProdN.projM infos.size i rhs) eqnInfo.fixpointType[i]! reduceConclusion
+
 
 /-- `maskArray mask xs` keeps those `x` where the corresponding entry in `mask` is `true` -/
 -- Worth having in the standard library?
@@ -151,13 +161,15 @@ def deriveInduction (name : Name) : MetaM Unit := do
           else
             throwError "Unexpected conclusion of the fixpoint induction principle: {econc}"
 
-        -- We unfold the partial order on predicates in premises and conclusion
+        --We unfold the partial order on predicates in premises and conclusion
         let newTyp ← forallTelescope newTyp fun args conclusion => do
+          let predicate := args[0]!
+          let predicateType ← inferType predicate
           -- Besides unfolding the predicate, we need to perform a weak head reduction in the premise,
           -- where the monotone map defining the fixpoint is in the eta expanded form.
           -- We do this by setting the optional parameter `reduceConclusion` to true.
-          let premiseType ← unfoldPredRelMutual eqnInfo (←inferType args[1]!) (reduceConclusion := true)
-          let newConclusion ← unfoldPredRelMutual eqnInfo conclusion
+          let premiseType ← unfoldPredRelMutual eqnInfo predicate (←inferType args[1]!) (reduceConclusion := true)
+          let newConclusion ← unfoldPredRelMutual eqnInfo predicate conclusion
           let abstracedNewConclusion ← mkForallFVars args newConclusion
           withLocalDecl `y BinderInfo.default premiseType fun newPremise => do
             let typeHint ← mkExpectedTypeHint newPremise premiseType

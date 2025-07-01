@@ -1,3 +1,5 @@
+axiom testSorry : α
+
 /-! # Preliminary -/
 
 /--
@@ -51,7 +53,7 @@ theorem mwe (x' : BitVec 32) :
     (do
       let _z ←
         (do
-          let y' ← PoisonOr.value 0#32
+          let _y ← PoisonOr.value 0#32
           -- ----- ^^^^^^^^^^^^^^
           -- Replacing the `PoisonOr` wrapper with `Option` (in the whole MWE)
           -- makes the error disappear
@@ -74,4 +76,4 @@ theorem mwe (x' : BitVec 32) :
   rw [PoisonOr.bind_assoc]
   -- ^^ This rewrite is what seems to trigger the recursion, removing it
   --    makes the error disappear.
-  sorry
+  exact testSorry

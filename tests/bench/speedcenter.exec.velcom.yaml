@@ -502,5 +502,5 @@
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean -Dlinter.all=false --run iterators.lean
+    cmd: lean iterators.lean
     parse_output: true

@@ -6,11 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
+public import Init.GetElem
+import Init.Data.Array.GetLit
 public import Init.Data.Slice.Basic
-import Init.Data.Slice.Operations
-public import Init.Data.Iterators.ToIterator
-import Init.Data.Range.Polymorphic.Iterators
-import Init.Data.Range.Polymorphic.Nat
 
 public section
 
@@ -18,8 +16,6 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 set_option linter.missingDocs true
 
 universe u v w
-
-open Std.Iterators
 
 /--
 Internal representation of `Subarray`, which is an abbreviation for `Slice SubarrayData`.
@@ -164,14 +160,8 @@ instance : EmptyCollection (Subarray α) :=
 instance : Inhabited (Subarray α) :=
   ⟨{}⟩
 
-@[no_expose]
-instance {α : Type u} {m : Type v → Type w} [∀ xs : Subarray α, ToIterator xs Id α]
-    [∀ xs : Subarray α, ForIn m (Iter (α := (ToIterator.State xs Id)) α) α] :
-    ForIn m (Subarray α) α where
-  forIn xs init f := forIn (Std.Slice.Internal.iter xs) init f
-
 /-!
-`foldlM` is implemented in `Init.Data.Slice.Array.Iterator` using the slice iterator.
+`ForIn` and `foldlM` are implemented in `Init.Data.Slice.Array.Iterator` using the slice iterator.
 -/
 
 /--

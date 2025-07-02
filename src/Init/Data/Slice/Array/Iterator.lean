@@ -59,8 +59,13 @@ universe v w
 @[no_expose] instance {s : Subarray α} :
     IteratorSizePartial (ToIterator.State s Id) Id := inferInstance
 
+@[no_expose]
+instance {α : Type u} {m : Type v → Type w} :
+    ForIn m (Subarray α) α where
+  forIn xs init f := forIn (Std.Slice.Internal.iter xs) init f
+
 /-!
-Without defining the following function `Subarray.foldlM`, users would still be able to call
+Without defining the following function `Subarray.foldlM`, it is still possible to call
 `subarray.foldlM`, which would be elaborated to `Slice.foldlM (s := subarray)`. However, in order to
 maximize backward compatibility and avoid confusion in the manual entry for `Subarray`, we
 explicitly provide the wrapper function `Subarray.foldlM` for `Slice.foldlM`, providing a more
@@ -93,7 +98,6 @@ none
 @[inline]
 def Subarray.foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Subarray α) : m β :=
   Slice.foldlM f (init := init) as
-  --as.array.foldlM f (init := init) (start := as.start) (stop := as.stop)
 
 namespace Array
 

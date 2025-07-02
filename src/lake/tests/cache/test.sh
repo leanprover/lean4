@@ -106,7 +106,8 @@ test_exp -f "$cache_art" # artifact should be re-cached
 
 # Verify that the upstream input graph is restored
 LAKE_CACHE_DIR="$CACHE_DIR" test_out "Replayed Test:c.o" build Test:static -v --no-build
-check_diff .lake/backup-inputs.json "$CACHE_DIR/inputs/test.jsonl"
+# Input order is not deterministic due to parallelism, so sorting is necessary
+check_diff <(sort .lake/backup-inputs.json) <(sort "$CACHE_DIR/inputs/test.jsonl")
 
 # Verify that things work properly if the local artifact is removed
 test_cmd rm "$local_art"

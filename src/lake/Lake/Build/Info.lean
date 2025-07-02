@@ -196,6 +196,9 @@ namespace Module
 @[inherit_doc precompileImportsFacet] abbrev precompileImports (self : Module) :=
   self.facetCore precompileImportsFacet
 
+@[inherit_doc importInfoFacet] abbrev importInfo (self : Module) :=
+  self.facetCore importInfoFacet
+
 @[inherit_doc setupFacet] abbrev setup  (self : Module) :=
   self.facetCore setupFacet
 
@@ -205,17 +208,14 @@ namespace Module
 @[inherit_doc leanArtsFacet] abbrev leanArts (self : Module) :=
   self.facetCore leanArtsFacet
 
+@[inherit_doc exportInfoFacet] abbrev exportInfo (self : Module) :=
+  self.facetCore exportInfoFacet
+
 @[inherit_doc importArtsFacet] abbrev importArts (self : Module) :=
   self.facetCore importArtsFacet
 
 @[inherit_doc importAllArtsFacet] abbrev importAllArts (self : Module) :=
   self.facetCore importAllArtsFacet
-
-@[inherit_doc importInfoFacet] abbrev importInfo (self : Module) :=
-  self.facetCore importInfoFacet
-
-@[inherit_doc directImportArtsFacet] abbrev directImportArts (self : Module) :=
-  self.facetCore directImportArtsFacet
 
 @[inherit_doc oleanFacet] abbrev olean (self : Module) :=
   self.facetCore oleanFacet

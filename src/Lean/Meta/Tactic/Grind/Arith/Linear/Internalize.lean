@@ -45,9 +45,47 @@ private def isForbiddenParent (parent? : Option Expr) : Bool :=
   else
     true
 
-def markVars (e : Expr) : LinearM Unit := do
-  -- TODO: avoid creation of auxiliary reified expression
-  discard <| reify? e (skipVar := true)
+partial def markVars (e : Expr) : LinearM Unit := do
+  match_expr e with
+  | HAdd.hAdd _ _ _ i a b =>
+    if isAddInst (← getStruct) i then markVars a; markVars b else markVar e
+  | HSub.hSub _ _ _ i a b => if isSubInst (← getStruct) i then markVars a; markVars b else markVar e
+  | HMul.hMul _ _ _ i a b =>
+    if isHMulInst (← getStruct) i then
+      if (← getIntValue? a).isSome then
+        return (← markVar b)
+    if isHMulNatInst (← getStruct) i then
+      if (← getNatValue? a).isSome then
+        return (← markVar b)
+    if isHomoMulInst (← getStruct) i then
+      if isNumeral a then
+        return (← markVar b)
+      else if isNumeral b then
+        return (← markVar a)
+      else
+        markVar a; markVar b; markVar e
+        return
+    markVar e
+  | HSMul.hSMul _ _ _ i a b =>
+    if isHSMulInst (← getStruct) i then
+      if (← getIntValue? a).isSome then
+        return (← markVar b)
+    if isHSMulNatInst (← getStruct) i then
+      if (← getNatValue? a).isSome then
+        return (← markVar b)
+    markVar e
+  | Neg.neg _ _ a => markVars a
+  | Zero.zero _ _ => return ()
+  | OfNat.ofNat _ _ _ => return ()
+  | _ => markVar e
+where
+  markVar (e : Expr) : LinearM Unit :=
+    discard <| mkVar e
+  isNumeral (e : Expr) : Bool :=
+    match_expr e with
+    | Neg.neg _ _ a => isNumeral a
+    | OfNat.ofNat _ n _ => isNatNum n
+    | _ => false
 
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).linarith do return ()

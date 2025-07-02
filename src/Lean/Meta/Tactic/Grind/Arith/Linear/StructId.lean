@@ -177,6 +177,11 @@ where
       return some one
     let one? ← getOne?
     let commRingInst? ← getInst? ``Grind.CommRing
+    let homomulFn? ← if commRingInst?.isSome then
+      let mulInst ← getBinHomoInst ``HMul
+      pure <| some (← internalizeFn <| mkApp4 (mkConst ``HMul.hMul [u, u, u]) type type type mulInst)
+    else
+      pure none
     let getOrderedRingInst? : GoalM (Option Expr) := do
       let some semiringInst := semiringInst? | return none
       let some preorderInst := preorderInst? | return none
@@ -197,7 +202,7 @@ where
     let struct : Struct := {
       id, type, u, intModuleInst, preorderInst?, orderedAddInst?, partialInst?, linearInst?, noNatDivInst?
       leFn?, ltFn?, addFn, subFn, negFn, hmulFn, hmulNatFn, hsmulFn?, hsmulNatFn?, zero, one?
-      ringInst?, commRingInst?, orderedRingInst?, charInst?, ringId?, fieldInst?, ofNatZero
+      ringInst?, commRingInst?, orderedRingInst?, charInst?, ringId?, fieldInst?, ofNatZero, homomulFn?
     }
     modify' fun s => { s with structs := s.structs.push struct }
     if let some one := one? then

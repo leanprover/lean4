@@ -7,6 +7,7 @@ prelude
 import Init.ShareCommon
 import Lean.Util.MonadCache
 import Lean.LocalContext
+import Lean.Util.FoldLooseBVars
 
 namespace Lean
 
@@ -1278,40 +1279,65 @@ This function trusts that `xs` has all forward dependencies that appear in `e` a
 -/
 def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) (usedOnly : Bool) (usedLetOnly : Bool) (etaReduce : Bool) (generalizeNondepLet : Bool) : M Expr := do
   let e ← abstractRange xs xs.size e
-  xs.size.foldRevM (init := e) fun i _ e => do
-      let x := xs[i]
-      if x.isFVar then
-        let handleCDecl (n : Name) (type : Expr) (bi : BinderInfo) : M Expr := do
-          if !usedOnly || e.hasLooseBVar 0 then
-            let type := type.headBeta;
-            let type ← abstractRange xs i type
-            if isLambda then
-              return mkLambda' n bi type e etaReduce
-            else
-              return Lean.mkForall n bi type e
-          else
-            return e.lowerLooseBVars 1 1
-        match lctx.getFVar! x with
-        | LocalDecl.cdecl _ _ n type bi _ =>
-          handleCDecl n type bi
-        | LocalDecl.ldecl _ _ n type value nondep _ =>
-          if generalizeNondepLet && nondep then
-            handleCDecl n type .default
-          else if !usedLetOnly || e.hasLooseBVar 0 then
-            let type  ← abstractRange xs i type
-            let value ← abstractRange xs i value
-            return mkLet n type value e nondep
-          else
-            return e.lowerLooseBVars 1 1
+  -- If `usedOnly` or `usedLetOnly` is true, then to avoid using `e.hasLooseBVar 0` repeatedly,
+  -- which causes `mkBinding` to have quadratic complexity, we collect used `xs` as we go.
+  -- Optimization: we find the first index into `xs` where `e.hasLooseBVar 0` might be needed, if any.
+  -- That way, when we iterate through `xs` we know when we can stop collecting.
+  let possiblyUnused (x : Expr) : M Bool := do
+    if x.isFVar then
+      if (lctx.getFVar! x).isLet (allowNondep := !generalizeNondepLet) then
+        return usedLetOnly
       else
-        let mvarDecl := (← get).mctx.getDecl x.mvarId!
-        let type := mvarDecl.type.headBeta
-        let type ← abstractRange xs i type
-        let id ← if mvarDecl.userName.isAnonymous then mkFreshBinderName else pure mvarDecl.userName
-        if isLambda then
-          return mkLambda' id (← read).binderInfoForMVars type e etaReduce
+        return usedOnly
+    else
+      return usedOnly
+  -- Index into `used` with `used.getD i true` for whether `xs[i]` is used.
+  let (fromIndex, used) ← do
+    if !usedOnly && !usedLetOnly then
+      pure (xs.size, #[])
+    else if let some j ← xs.findIdxM? possiblyUnused then
+      pure (j, e.foldLooseBVars (init := Array.replicate xs.size false) fun used vidx => used.set! (xs.size - vidx - 1) true)
+    else
+      pure (xs.size, #[])
+  Prod.fst <$> xs.size.foldRevM (init := (e, used)) fun i _ (e, used) => do
+    let x := xs[i]
+    -- If `i` is an index where we should collect used `xs` from the abstracted `expr`, update the state.
+    let updateUsed (used : Array Bool) (expr : Expr) : Array Bool :=
+      if fromIndex < i then expr.foldLooseBVars (init := used) fun used vidx => used.set! (i - vidx - 1) true
+      else used
+    -- Creates a lambda or forall. If `etaReduce` is true, handles
+    let mkBindingAux (mn : M Name) (bi : BinderInfo) (type : Expr) : M (Expr × Array Bool) := do
+      if usedOnly && !(used.getD i true) then
+        return (e.lowerLooseBVars 1 1, used)
+      else if isLambda then
+        if etaReduce then
+          if let .app f (.bvar 0) := e then
+            -- Note: `used` is for all of `e`, so we need to calculate `hasLooseBVar 0` in this case.
+            if !f.hasLooseBVar 0 then
+              return (f.lowerLooseBVars 1 1, used)
+        let t ← abstractRange xs i type.headBeta
+        return (mkLambda (← mn) bi t e, updateUsed used t)
+      else
+        let t ← abstractRange xs i type.headBeta
+        return (Lean.mkForall (← mn) bi t e, updateUsed used t)
+    if x.isFVar then
+      match lctx.getFVar! x with
+      | LocalDecl.cdecl _ _ n type bi _ =>
+        mkBindingAux (pure n) bi type
+      | LocalDecl.ldecl _ _ n type value nondep _ =>
+        if generalizeNondepLet && nondep then
+          mkBindingAux (pure n) .default type
+        else if usedLetOnly && !(used.getD i true) then
+          return (e.lowerLooseBVars 1 1, used)
         else
-          return Lean.mkForall id (← read).binderInfoForMVars type e
+          let t ← abstractRange xs i type
+          let v ← abstractRange xs i value
+          let used := updateUsed (updateUsed used t) v
+          return (mkLet n t v e nondep, used)
+    else
+      let mvarDecl := (← get).mctx.getDecl x.mvarId!
+      let mid := do if mvarDecl.userName.isAnonymous then mkFreshBinderName else pure mvarDecl.userName
+      mkBindingAux mid (← read).binderInfoForMVars mvarDecl.type
 
 end MkBinding
 

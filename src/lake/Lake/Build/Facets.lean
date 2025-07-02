@@ -83,26 +83,40 @@ Its trace just includes its dependencies.
 -/
 builtin_facet leanArts : Module => ModuleOutputArtifacts
 
-/-- OLeans directly needed for an `import` of this module. -/
+/-- Artifacts directly needed for an `import` of this module with the module system enabled. -/
 builtin_facet importArts : Module => ImportArtifacts
 
-/-- OLeans directly needed for an `import all` of this module with the module system enabled. -/
+/--
+Artifacts directly needed for an `import` of this module from a module without the module
+system enabled or `import all` of this module from a module with it enabled.
+-/
 builtin_facet importAllArts : Module => ImportArtifacts
+
+structure ModuleImportInfo where
+  /-- Artifacts directly needed for an `import` of this module with the module system enabled. -/
+  arts : ImportArtifacts
+  /-- The trace produced by mixing the traces of `arts`. -/
+  artsTrace : BuildTrace
+  /--
+  Artifacts directly needed for an `import` of this module from a module without the module
+  system enabled or `import all` of this module from a module with it enabled.
+  -/
+  allArts : ImportArtifacts
+  /-- The trace produced by mixing the traces of `allArts`. -/
+  allArtsTrace : BuildTrace
+  /-- Transitive import trace for an `import` of this module with the module system enabled. -/
+  transTrace : BuildTrace
+  /--
+  Transitive import trace for an `import all` of this module from a module
+  with the module system enabled or an `import` of this module from a module without it disabled.
+  -/
+  allTransTrace : BuildTrace
+
+/-- **For internal use only.** Information useful to importers of this module. -/
+builtin_facet importInfo : Module => ModuleImportInfo
 
 /-- OLeans of the direct imports of this module. -/
 builtin_facet directImportArts : Module => NameMap ImportArtifacts
-
-structure TransImportTrace where
-  /-- Trace for modules with the module system enabled. -/
-  module : BuildTrace
-  /-- Trace for modules with the module system disabled.. -/
-  legacy : BuildTrace
-
-/--
-**For internal use only.**
-Transitive import trace for an `import` of this module with the module system enabled.
--/
-builtin_facet transImportTrace : Module => TransImportTrace
 
 /-- The `olean` file produced by `lean`. -/
 builtin_facet olean : Module => FilePath

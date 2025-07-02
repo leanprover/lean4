@@ -211,11 +211,11 @@ namespace Module
 @[inherit_doc importAllArtsFacet] abbrev importAllArts (self : Module) :=
   self.facetCore importAllArtsFacet
 
+@[inherit_doc importInfoFacet] abbrev importInfo (self : Module) :=
+  self.facetCore importInfoFacet
+
 @[inherit_doc directImportArtsFacet] abbrev directImportArts (self : Module) :=
   self.facetCore directImportArtsFacet
-
-@[inherit_doc transImportTraceFacet] abbrev transImportTrace (self : Module) :=
-  self.facetCore transImportTraceFacet
 
 @[inherit_doc oleanFacet] abbrev olean (self : Module) :=
   self.facetCore oleanFacet

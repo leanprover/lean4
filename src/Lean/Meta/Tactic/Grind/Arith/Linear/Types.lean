@@ -123,6 +123,7 @@ structure Struct where
   hmulNatFn        : Expr
   hsmulFn?         : Option Expr
   hsmulNatFn?      : Option Expr
+  homomulFn?       : Option Expr -- homogeneous multiplication if structure is a ring
   subFn            : Expr
   negFn            : Expr
   /--

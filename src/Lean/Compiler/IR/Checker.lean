@@ -114,8 +114,10 @@ def checkPartialApp (c : FunId) (ys : Array Arg) : M Unit := do
   checkArgs ys
 
 def checkExpr (ty : IRType) : Expr → M Unit
-  | Expr.pap f ys           => checkPartialApp f ys *> checkObjType ty -- partial applications should always produce a closure object
-  | Expr.ap x ys            => checkObjVar x *> checkArgs ys
+  -- Partial applications should always produce a closure object.
+  | Expr.pap f ys           => checkPartialApp f ys *> checkObjType ty
+  -- Applications of closures should always produce a boxed value.
+  | Expr.ap x ys            => checkObjVar x *> checkArgs ys *> checkObjType ty
   | Expr.fap f ys           => checkFullApp f ys
   | Expr.ctor c ys          => do
     if c.cidx > maxCtorTag && (c.size > 0 || c.usize > 0 || c.ssize > 0) then

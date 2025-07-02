@@ -138,7 +138,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
   let rec mkExpr (e : Expr) : M FnBody := do
     let var ← bindVar decl.fvarId
     let type ← match e with
-    | .ctor .. | .pap .. | .proj .. => pure <| .object
+    | .ctor .. | .pap .. | .ap .. | .proj .. => pure <| .object
     | _ => toIRType decl.type
     return .vdecl var type e (← lowerCode k)
   let rec mkErased (_ : Unit) : M FnBody := do
@@ -147,10 +147,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
   let rec mkPartialApp (e : Expr) (restArgs : Array Arg) : M FnBody := do
     let var ← bindVar decl.fvarId
     let tmpVar ← newVar
-    let type ← match e with
-    | .ctor .. | .pap .. | .proj .. => pure <| .object
-    | _ => toIRType decl.type
-    return .vdecl tmpVar .object e (.vdecl var type (.ap tmpVar restArgs) (← lowerCode k))
+    return .vdecl tmpVar .object e (.vdecl var .object (.ap tmpVar restArgs) (← lowerCode k))
   let rec tryIrDecl? (name : Name) (args : Array Arg) : M (Option FnBody) := do
     if let some decl ← LCNF.getMonoDecl? name then
       let numArgs := args.size

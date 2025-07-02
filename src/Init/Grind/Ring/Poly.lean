@@ -395,7 +395,9 @@ def Expr.toPoly : Expr → Poly
   | .neg a   => a.toPoly.mulConst (-1)
   | .sub a b => a.toPoly.combine (b.toPoly.mulConst (-1))
   | .pow a k =>
-    match a with
+    bif k == 0 then
+      .num 1
+    else  match a with
     | .num n => .num (n^k)
     | .var x => Poly.ofMon (.mult {x, k} .unit)
     | _ => a.toPoly.pow k
@@ -536,7 +538,9 @@ where
     | .neg a   => (go a).mulConstC (-1) c
     | .sub a b => (go a).combineC ((go b).mulConstC (-1) c) c
     | .pow a k =>
-      match a with
+      bif k == 0 then
+        .num 1
+      else match a with
       | .num n => .num ((n^k) % c)
       | .var x => Poly.ofMon (.mult {x, k} .unit)
       | _ => (go a).powC k c
@@ -802,6 +806,7 @@ theorem Expr.denote_toPoly {α} [CommRing α] (ctx : Context α) (e : Expr)
     <;> simp [denote, Poly.denote, Poly.denote_ofVar, Poly.denote_combine,
           Poly.denote_mul, Poly.denote_mulConst, Poly.denote_pow, intCast_pow, intCast_neg, intCast_one,
           neg_mul, one_mul, sub_eq_add_neg, denoteInt_eq, *]
+  next a k h => simp at h; simp [h, Semiring.pow_zero]
   next => simp [Poly.denote_ofMon, Mon.denote, Power.denote_eq, mul_one]
 
 theorem Expr.eq_of_toPoly_eq {α} [CommRing α] (ctx : Context α) (a b : Expr) (h : a.toPoly == b.toPoly) : a.denote ctx = b.denote ctx := by
@@ -996,6 +1001,7 @@ theorem Expr.denote_toPolyC {α c} [CommRing α] [IsCharP α c] (ctx : Context �
   next => rw [IsCharP.intCast_emod]
   next => rw [intCast_neg, neg_mul, intCast_one, one_mul]
   next => rw [intCast_neg, neg_mul, intCast_one, one_mul, sub_eq_add_neg]
+  next a k h => simp at h; simp [h, Semiring.pow_zero, Ring.intCast_one]
   next => rw [IsCharP.intCast_emod, intCast_pow]
   next => simp [Poly.denote_ofMon, Mon.denote, Power.denote_eq, mul_one]
 

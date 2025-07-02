@@ -33,9 +33,9 @@ error: Application type mismatch: In the application
 the argument
   x
 has type
-  Nat : Type
+  Nat
 but is expected to have type
-  Magma.α ?_ : Type _
+  Magma.α ?_
 -/
 #guard_msgs in
 #check mul x x           -- Error: unification hint is not active
@@ -46,9 +46,9 @@ error: Application type mismatch: In the application
 the argument
   (x, x)
 has type
-  Nat × Nat : Type
+  Nat × Nat
 but is expected to have type
-  Magma.α ?_ : Type _
+  Magma.α ?_
 -/
 #guard_msgs in
 #check mul (x, x) (x, x) -- Error: no unification hint
@@ -61,9 +61,9 @@ error: Application type mismatch: In the application
 the argument
   x
 has type
-  Nat : Type
+  Nat
 but is expected to have type
-  Magma.α ?_ : Type _
+  Magma.α ?_
 -/
 #guard_msgs in
 #check x*x -- Error: unification hint is not active
@@ -79,9 +79,9 @@ error: Application type mismatch: In the application
 the argument
   (x, x)
 has type
-  Nat × Nat : Type
+  Nat × Nat
 but is expected to have type
-  Magma.α ?_ : Type _
+  Magma.α ?_
 -/
 #guard_msgs in
 #check mul (x, x) (x, x) -- still error
@@ -107,9 +107,9 @@ error: Application type mismatch: In the application
 the argument
   (x, x)
 has type
-  Nat × Nat : Type
+  Nat × Nat
 but is expected to have type
-  Magma.α ?_ : Type _
+  Magma.α ?_
 -/
 #guard_msgs in
 #check (x, x) * (x, x) -- error, local hint is not active after end of section anymore

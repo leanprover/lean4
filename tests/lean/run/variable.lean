@@ -143,9 +143,10 @@ error: Application type mismatch: In the application
 the argument
   True
 has type
-  Prop : Type
-but is expected to have type
-  Type _ : Type (_ + 1)
+  Prop
+of sort `Type` but is expected to have type
+  Type _
+of sort `Type (_ + 1)`
 -/
 #guard_msgs in
 omit [ToString True]

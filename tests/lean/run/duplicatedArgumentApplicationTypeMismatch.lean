@@ -5,9 +5,9 @@ error: Application type mismatch: In the application
 the last
   true
 argument has type
-  Bool : Type
+  Bool
 but is expected to have type
-  Nat : Type
+  Nat
 -/
 #guard_msgs in
 #eval foo 1 true true 1

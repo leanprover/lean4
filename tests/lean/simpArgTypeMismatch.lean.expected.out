@@ -3,6 +3,7 @@ simpArgTypeMismatch.lean:3:29-3:33: error: Application type mismatch: In the app
 the argument
   Unit
 has type
-  Type : Type 1
-but is expected to have type
-  ¬?m : Prop
+  Type
+of sort `Type 1` but is expected to have type
+  ¬?m
+of sort `Prop`

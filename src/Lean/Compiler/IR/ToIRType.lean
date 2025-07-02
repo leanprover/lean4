@@ -48,7 +48,7 @@ def toIRType (e : Lean.Expr) : CoreM IRType := do
   match e with
   | .const name .. =>
     match name with
-    | ``UInt8 | ``Bool => return .uint8
+    | ``UInt8 => return .uint8
     | ``UInt16 => return .uint16
     | ``UInt32 => return .uint32
     | ``UInt64 => return .uint64

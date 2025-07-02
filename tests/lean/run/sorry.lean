@@ -50,9 +50,9 @@ If `sorry` is used for a function type, then one gets a family of unique `sorry`
 error: type mismatch
   rfl
 has type
-  ?_ = ?_ : Prop
+  ?_ = ?_
 but is expected to have type
-  f 0 1 = f 0 0 : Prop
+  f 0 1 = f 0 0
 -/
 #guard_msgs in example : f 0 1 = f 0 0 := rfl
 
@@ -70,9 +70,9 @@ Showing source position when surfacing differences.
 error: type mismatch
   sorry
 has type
-  sorry `«sorry:77:43» : Sort _
+  sorry `«sorry:77:43»
 but is expected to have type
-  sorry `«sorry:77:25» : Sort _
+  sorry `«sorry:77:25»
 -/
 #guard_msgs in example : sorry := (sorry : sorry)
 

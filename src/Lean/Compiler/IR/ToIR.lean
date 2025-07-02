@@ -208,7 +208,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
             return code
           else
             mkExpr (.fap name irArgs)
-        else if let some scalarType ← lowerEnumToScalarType? ctorVal.name then
+        else if let some scalarType ← lowerEnumToScalarType? ctorVal.induct then
           assert! args.isEmpty
           let var ← bindVar decl.fvarId
           return .vdecl var scalarType (.lit (.num ctorVal.cidx)) (← lowerCode k)

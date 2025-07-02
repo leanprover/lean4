@@ -3,6 +3,6 @@ modBug.lean:1:48-1:64: error: Application type mismatch: In the application
 the argument
   Nat.mod_zero 1
 has type
-  1 % 0 = 1 : Prop
+  1 % 0 = 1
 but is expected to have type
-  0 = 1 : Prop
+  0 = 1

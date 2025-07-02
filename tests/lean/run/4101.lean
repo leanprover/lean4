@@ -8,9 +8,9 @@ Updated error message to show the elaborated term rather than `h✝`
 error: type mismatch, term
   hp
 after simplification has type
-  p : Prop
+  p
 but is expected to have type
-  p ∧ q : Prop
+  p ∧ q
 -/
 #guard_msgs in
 example (p q : Prop) (hp : p ∧ True) : p ∧ q ∧ True := by
@@ -20,9 +20,9 @@ example (p q : Prop) (hp : p ∧ True) : p ∧ q ∧ True := by
 error: type mismatch, term
   fun x => x
 after simplification has type
-  True : Prop
+  True
 but is expected to have type
-  False : Prop
+  False
 -/
 #guard_msgs in
 example : False := by

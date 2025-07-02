@@ -7,7 +7,7 @@ macroSwizzle.lean:6:7-6:10: error: Application type mismatch: In the application
 the argument
   "x"
 has type
-  String : Type
+  String
 but is expected to have type
-  Nat : Type
+  Nat
 sorry.succ : Nat

@@ -2198,6 +2198,9 @@ private def natSubFn : Expr :=
 private def natMulFn : Expr :=
   mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHMul
 
+private def natPowFn : Expr :=
+  mkApp4 (mkConst ``HPow.hPow [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHPow
+
 /-- Given `a : Nat`, returns `Nat.succ a` -/
 def mkNatSucc (a : Expr) : Expr :=
   mkApp (mkConst ``Nat.succ) a
@@ -2213,6 +2216,10 @@ def mkNatSub (a b : Expr) : Expr :=
 /-- Given `a b : Nat`, returns `a * b` -/
 def mkNatMul (a b : Expr) : Expr :=
   mkApp2 natMulFn a b
+
+/-- Given `a b : Nat`, returns `a ^ b` -/
+def mkNatPow (a b : Expr) : Expr :=
+  mkApp2 natPowFn a b
 
 private def natLEPred : Expr :=
   mkApp2 (mkConst ``LE.le [0]) Nat.mkType Nat.mkInstLE

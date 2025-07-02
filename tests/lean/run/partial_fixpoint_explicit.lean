@@ -31,9 +31,10 @@ partial_fixpoint monotonicity fun _ _ a _ => a _
 error: type mismatch
   ()
 has type
-  Unit : Type
-but is expected to have type
-  Lean.Order.monotone fun f x => f (x + 1) : Prop
+  Unit
+of sort `Type` but is expected to have type
+  Lean.Order.monotone fun f x => f (x + 1)
+of sort `Prop`
 -/
 #guard_msgs in
 def nullary2 (x : Nat) : Option Unit := nullary2 (x + 1)

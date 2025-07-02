@@ -2419,6 +2419,17 @@ extern "C" LEAN_EXPORT obj_res lean_byte_array_mk(obj_arg a) {
     return r;
 }
 
+extern "C" LEAN_EXPORT bool lean_byte_array_beq(obj_arg a, obj_arg b) {
+  size_t size_a = lean_sarray_size(a);
+  size_t size_b = lean_sarray_size(b);
+
+  if (size_a != size_b) {
+    return 0;
+  }
+
+  return memcmp(lean_sarray_cptr(a), lean_sarray_cptr(b), size_a) == 0;
+}
+
 extern "C" LEAN_EXPORT obj_res lean_byte_array_data(obj_arg a) {
     usize sz       = lean_sarray_size(a);
     obj_res r      = lean_alloc_array(sz, sz);

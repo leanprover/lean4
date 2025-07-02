@@ -220,7 +220,6 @@ inline uint8 * sarray_cptr(object * o) { return lean_sarray_cptr(o); }
 // ByteArray
 
 inline obj_res byte_array_mk(obj_arg a) { return lean_byte_array_mk(a); }
-inline obj_res byte_array_data(obj_arg a) { return lean_byte_array_data(a); }
 inline obj_res copy_byte_array(obj_arg a) { return lean_copy_byte_array(a); }
 inline obj_res mk_empty_byte_array(b_obj_arg capacity) { return lean_mk_empty_byte_array(capacity); }
 inline obj_res byte_array_size(b_obj_arg a) { return lean_byte_array_size(a); }

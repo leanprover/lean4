@@ -1,4 +1,4 @@
-
+import Lean
 def ex1 (xs : List Nat) : Nat :=
 xs.foldl (b := 0) fun sum x => sum + x
 

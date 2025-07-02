@@ -329,6 +329,7 @@ def mkSuggestionsMessage (suggestions : Array Suggestion) (ref : Syntax)
     if let some range := (suggestion.span?.getD ref).getRange? then
       let { info, suggestions := suggestionArr, range := lspRange } ←
         processSuggestions ref range #[suggestion.toTryThisSuggestion] codeActionPrefix?
+      logInfo m!"Pushing info leaf: {← info.format { env := (← getEnv), fileMap := (← getFileMap), ngen := (← getNGen) }}"
       pushInfoLeaf info
       -- The following access is safe because
       -- `suggestionsArr = #[suggestion.toTryThisSuggestion].map ...` (see `processSuggestions`)
@@ -387,3 +388,52 @@ def _root_.Lean.MessageData.hint (hint : MessageData)
   let ref := ref?.getD (← getRef)
   let suggs ← mkSuggestionsMessage suggestions ref codeActionPrefix? forceList
   return .tagged `hint (m!"\n\nHint: " ++ hint ++ suggs)
+
+structure LazyHintConfig where
+  msg : MessageData
+  suggestions : Array Suggestion
+  codeActionPrefix? : Option String := none
+
+/--
+Creates a hint message with associated code action suggestions.
+
+To provide a hint without an associated code action, use `MessageData.hint'`.
+
+The arguments are as follows:
+* `hint`: the main message of the hint, which precedes its code action suggestions.
+* `suggestions`: the suggestions to display.
+* `ref?`: if specified, the syntax location for the code action suggestions; otherwise, default to
+  the syntax reference in the monadic state. Will be overridden by the `span?` field on any
+  suggestions that specify it.
+* `codeActionPrefix?`: if specified, text to display in place of "Try this: " in the code action
+  label
+-/
+def _root_.Lean.MessageData.lazyHint (mkHint : MetaM LazyHintConfig) (ref? : Option Syntax) (es : Array Expr := #[]) : MetaM MessageData := do
+  let codeAction : LazyTryThisInfo := {
+    codeActionPlaceholder := "This won't work"
+    info := do
+      let { suggestions, codeActionPrefix?, .. } ← mkHint
+      let ref := ref?.getD (← getRef)
+      suggestions.filterMapM fun suggestion => do
+        if let some range := (suggestion.span?.getD ref).getRange? then
+          -- TODO: clean this up by refactoring `processSuggestions`
+          let { info, .. } ← processSuggestions ref range #[suggestion.toTryThisSuggestion] codeActionPrefix?
+          let .ofCustomInfo info := info | unreachable!
+          let some ttInfo := info.value.get? TryThisInfo | unreachable!
+          pure <| some ttInfo
+        else pure none
+    ppCtx := { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions),
+               currNamespace := (← getCurrNamespace), openDecls := (← getOpenDecls) }
+  }
+  let curRef ← getRef
+  let ref := ref?.getD curRef
+  pushInfoLeaf <| .ofCustomInfo {
+    stx := ref
+    value := .mk codeAction
+  }
+  let fileMap ← getFileMap
+  -- let ref := ref?.getD (← getRef)
+  -- let suggs ← mkSuggestionsMessage suggestions ref codeActionPrefix?
+  return .tagged `hint <| .ofLazyM (es := es) <| withRef curRef <| withTheReader Core.Context (fun ctx => { ctx with fileMap }) do
+    let { msg, suggestions, codeActionPrefix? } ← mkHint
+    MessageData.hint msg suggestions ref codeActionPrefix?

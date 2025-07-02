@@ -124,6 +124,57 @@ apply the replacement.
       }
     result
 
+
+
+/-
+
+@[builtin_code_action_provider] def tryThisProvider : CodeActionProvider := fun params snap => do
+  let doc ← readDoc
+  snap.infoTree.foldInfoM (init := #[]) fun _ctx info result => do
+    let .ofCustomInfo { stx, value } := info | return result
+    let mut result := result
+    if let some { info, ppCtx } := value.get? LazyTryThisInfo then
+      -- let infos ← ppCtx.runMetaM info
+      -- for info in infos do
+      let lca : LazyCodeAction := {
+        eager.title := "Try this"  -- TODO: have `LazyTryThisInfo` provide this
+        lazy? := some do
+          let infos ← ppCtx.runMetaM info
+          let mut lcas := #[]
+          for info in infos do
+            let lca := processInfo info stx doc params
+            lcas := lcas.push lca.eager
+          return lcas
+      }
+        -- result := result ++ processInfo info stx doc params
+    else if let some info := value.get? TryThisInfo then
+      result := result ++ processInfo info stx doc params
+    else
+      return result
+    return result
+where
+  processInfo (info : TryThisInfo) (stx : Syntax) (doc : FileWorker.EditableDocument)
+      (params : Lsp.CodeActionParams) : Array LazyCodeAction := Id.run do
+    let { range, suggestionTexts, codeActionPrefix? } := info
+    let some stxRange := stx.getRange? | return #[]
+    let stxRange := doc.meta.text.utf8RangeToLspRange stxRange
+    unless stxRange.start.line ≤ params.range.end.line do return #[]
+    unless params.range.start.line ≤ stxRange.end.line do return #[]
+    let mut result := #[]
+    for h : i in [:suggestionTexts.size] do
+      let (newText, title?) := suggestionTexts[i]
+      let title := title?.getD <| (codeActionPrefix?.getD "Try this: ") ++ newText
+      result := result.push {
+        eager.title := title
+        eager.kind? := "quickfix"
+        -- Only make the first option preferred
+        eager.isPreferred? := if i = 0 then true else none
+        eager.edit? := some <| .ofTextEdit doc.versionedIdentifier { range, newText }
+      }
+    return result
+
+-/
+
 /-! # Formatting -/
 
 /-- Delaborate `e` into syntax suitable for use by `refine`. -/

@@ -43,6 +43,12 @@ structure TryThisInfo : Type where
   codeActionPrefix? : Option String
   deriving TypeName
 
+structure LazyTryThisInfo : Type where
+  codeActionPlaceholder : String
+  info : MetaM (Array TryThisInfo)
+  ppCtx : PPContext
+  deriving TypeName
+
 /-! # `Suggestion` data -/
 
 -- TODO: we could also support `Syntax` and `Format`

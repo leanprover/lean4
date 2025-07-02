@@ -26,7 +26,14 @@ If you want to use the lazy feature, make sure that the `edit?` field on the `ea
 structure LazyCodeAction where
   /-- This is the initial code action that is sent to the server, to implement -/
   eager : CodeAction
+  -- TODO: this is a terrible hack; find something better
+  semiLazy? : Option (IO (Array CodeAction)) := none
   lazy? : Option (IO CodeAction) := none
+
+-- inductive LaziableCodeAction where
+--   | eager : CodeAction → LaziableCodeAction
+--   | semiLazy : SemiLazyCodeAction → LaziableCodeAction
+--   | lazy : LazyCodeAction → LaziableCodeAction
 
 /-- Passed as the `data?` field of `Lsp.CodeAction` to recover the context of the code action. -/
 structure CodeActionResolveData where
@@ -132,14 +139,19 @@ def handleCodeAction (params : CodeActionParams) : RequestM (RequestTask (Array 
       caps.flatMapM fun (providerName, cap) => do
         RequestM.checkCancelled
         let cas ← cap params snap
-        cas.mapIdxM fun i lca => do
-          if lca.lazy?.isNone then return lca.eager
-          let data : CodeActionResolveData := {
-            params, providerName, providerResultIndex := i
-          }
-          let j : Json := toJson data
-          let ca := { lca.eager with data? := some j }
-          return ca
+        cas.zipIdx.flatMapM fun (lca, i) => do
+          if lca.lazy?.isNone then
+            if let some semiLazy := lca.semiLazy? then
+              return (← semiLazy)
+            else
+              return #[lca.eager]
+          else
+            let data : CodeActionResolveData := {
+              params, providerName, providerResultIndex := i
+            }
+            let j : Json := toJson data
+            let ca := { lca.eager with data? := some j }
+            return #[ca]
 
 builtin_initialize
   registerLspRequestHandler "textDocument/codeAction" CodeActionParams (Array CodeAction) handleCodeAction

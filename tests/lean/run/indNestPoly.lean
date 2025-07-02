@@ -2,11 +2,12 @@
 opaque T : Type u → Type u
 
 /--
-error: (kernel) arg #1 of 'S'.mk' contains a non valid occurrence of the datatypes being declared
+error: (kernel) arg #1 of 'S'.node' contains a non valid occurrence of the datatypes being declared
 -/
 #guard_msgs in
-structure S' where
-  node : T S'
+inductive S' where
+  | empty : S'
+  | node (cs : T S') : S'
 
 structure PFunctor.{u} : Type (u+1) where
   A : Type u
@@ -27,37 +28,40 @@ axiom T.repr_abs : T.repr (T.abs x) = x
 -- axiom T.abs_map (f : α → β) (x : T α) : T.abs (TP.map f (T.repr x)) = T.map f (T.abs x)
 
 
-structure S.Raw where mk ::
-  -- raw_node : TP.apply S.Raw
-  raw_node : Σ x : TP.A, (TP.B x → S.Raw)
+inductive S.Raw where
+  | empty : S.Raw
+  -- | node (cs : TP.apply S.Raw) : S.Raw
+  | node (cs : Σ x : TP.A, (TP.B x → S.Raw)) : S.Raw
 
-structure S where ofRaw ::
-  toRaw : S.Raw
+def S := S.Raw
 
--- Fake constructor
-noncomputable def S.mk (node : T S) : S where
-  toRaw := S.Raw.mk (TP.map S.toRaw node.repr)
+-- Fake constructors
+noncomputable def S.empty : S := S.Raw.empty
+noncomputable def S.node (cs : T S) : S := S.Raw.node cs.repr
 
 -- Fake casesOn (nondep)
 noncomputable def S.casesOn' (motive : S → Sort u)
-  (mk : (node : T S) → motive (S.mk node)) (s : S) : motive s :=
+  (empty : motive S.empty)
+  (node : (cs : T S) → motive (S.node cs)) (s : S) : motive s :=
   match s with
-  | ⟨⟨raw_node⟩⟩ => by
-    specialize mk (T.abs (TP.map S.ofRaw raw_node))
-    unfold S.mk at mk
-    rw [T.repr_abs] at mk
-    assumption
+  | S.Raw.empty => empty
+  | S.Raw.node cs => by
+    rw [← @T.repr_abs _ cs]
+    apply node
 
-theorem S.casesOn'_eq1_nondep motive mk node :
-    S.casesOn' (fun _ => motive) mk (S.mk node) = mk node := by
-  unfold S.casesOn' S.mk
+theorem S.casesOn'_eq2_nondep motive empty node cs :
+    S.casesOn' (fun _ => motive) empty node (S.node cs) = node cs := by
+  unfold S.casesOn' S.node
   dsimp
-  change mk (T.abs node.repr) = mk node
   rw [T.abs_repr]
 
-theorem S.casesOn'_eq1_dep motive mk node :
-    S.casesOn' motive mk (S.mk node) = mk node := by
-  unfold S.casesOn' S.mk
+theorem S.casesOn'_eq2 motive empty node cs :
+    S.casesOn' motive empty node (S.node cs) = node cs := by
+  unfold S.casesOn' S.node
   dsimp only
-  conv => lhs; arg 2; change mk (T.abs node.repr)
+
+  -- Got an Eq.mp around the `node` minor premise!
   sorry
+
+-- Ok, let's say we restrict outselves to non-dependent motives in pattern matching.
+-- How to define functions?

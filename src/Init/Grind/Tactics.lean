@@ -206,7 +206,7 @@ namespace Lean.Parser.Tactic
 -/
 
 syntax grindErase := "-" ident
-syntax grindLemma := (Attr.grindMod ppSpace)? ident
+syntax grindLemma := ppGroup((Attr.grindMod ppSpace)? ident)
 syntax grindParam := grindErase <|> grindLemma
 
 /--

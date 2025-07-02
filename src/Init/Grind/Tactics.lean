@@ -72,11 +72,11 @@ syntax grindGen    := ppSpace &"gen"
 syntax grindEq     := "=" (grindGen)?
 syntax grindEqBoth := atomic("_" "=" "_") (grindGen)?
 syntax grindEqRhs  := atomic("=" "_") (grindGen)?
-syntax grindEqBwd  := atomic("←" "=") <|> atomic("<-" "=")
-syntax grindBwd    := ("←" <|> "<-") (grindGen)?
-syntax grindFwd    := "→" <|> "->"
-syntax grindRL     := "⇐" <|> "<="
-syntax grindLR     := "⇒" <|> "=>"
+syntax grindEqBwd  := patternIgnore(atomic("←" "=") <|> atomic("<-" "="))
+syntax grindBwd    := patternIgnore("←" <|> "<-") (grindGen)?
+syntax grindFwd    := patternIgnore("→" <|> "->")
+syntax grindRL     := patternIgnore("⇐" <|> "<=")
+syntax grindLR     := patternIgnore("⇒" <|> "=>")
 syntax grindUsr    := &"usr"
 syntax grindCases  := &"cases"
 syntax grindCasesEager := atomic(&"cases" &"eager")

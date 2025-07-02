@@ -62,11 +62,11 @@ instance Empty.instIteratorCollectPartial {n : Type w → Type w''} [Monad m] [M
     IteratorCollectPartial (Empty m β) m n :=
   .defaultImplementation
 
-instance Empty.instIteratorLoop {n : Type w → Type w''} [Monad m] [Monad n] :
+instance Empty.instIteratorLoop {n : Type x → Type x'} [Monad m] [Monad n] :
     IteratorLoop (Empty m β) m n :=
   .defaultImplementation
 
-instance Empty.instIteratorLoopPartial {n : Type w → Type w''} [Monad m] [Monad n] :
+instance Empty.instIteratorLoopPartial {n : Type x → Type x'} [Monad m] [Monad n] :
     IteratorLoopPartial (Empty m β) m n :=
   .defaultImplementation
 

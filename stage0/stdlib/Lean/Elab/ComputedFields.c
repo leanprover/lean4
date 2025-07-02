@@ -4465,7 +4465,7 @@ lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean
 lean_inc(x_1);
 x_22 = l_Lean_Expr_const___override(x_1, x_2);
 lean_inc(x_3);
-x_23 = l_Array_append___redArg(x_3, x_20);
+x_23 = l_Array_append___redArg(x_3, x_19);
 x_24 = l_Lean_mkAppN(x_22, x_23);
 lean_dec(x_23);
 x_25 = l_Lean_Elab_ComputedFields_overrideCasesOn___lam__2___closed__1;
@@ -4475,7 +4475,7 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_24);
-x_26 = l_Lean_Meta_withLocalDeclD___at___Lean_Elab_ComputedFields_overrideCasesOn_spec__3___redArg(x_25, x_24, x_19, x_11, x_12, x_13, x_14, x_15, x_16);
+x_26 = l_Lean_Meta_withLocalDeclD___at___Lean_Elab_ComputedFields_overrideCasesOn_spec__3___redArg(x_25, x_24, x_20, x_11, x_12, x_13, x_14, x_15, x_16);
 if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; 
@@ -4536,8 +4536,8 @@ x_48 = l_Lean_Elab_ComputedFields_overrideCasesOn___lam__2___closed__2;
 x_49 = lean_array_push(x_48, x_27);
 x_50 = l_Array_append___redArg(x_3, x_49);
 lean_dec(x_49);
-x_51 = l_Array_append___redArg(x_50, x_20);
-lean_dec(x_20);
+x_51 = l_Array_append___redArg(x_50, x_19);
+lean_dec(x_19);
 x_52 = lean_array_push(x_48, x_30);
 x_53 = l_Array_append___redArg(x_51, x_52);
 lean_dec(x_52);
@@ -4565,7 +4565,7 @@ else
 uint8_t x_65; 
 lean_dec(x_30);
 lean_dec(x_27);
-lean_dec(x_20);
+lean_dec(x_19);
 lean_dec(x_15);
 lean_dec(x_14);
 lean_dec(x_13);
@@ -4598,7 +4598,7 @@ else
 {
 lean_dec(x_27);
 lean_dec(x_21);
-lean_dec(x_20);
+lean_dec(x_19);
 lean_dec(x_15);
 lean_dec(x_14);
 lean_dec(x_13);
@@ -4618,7 +4618,7 @@ else
 {
 lean_dec(x_24);
 lean_dec(x_21);
-lean_dec(x_20);
+lean_dec(x_19);
 lean_dec(x_18);
 lean_dec(x_15);
 lean_dec(x_14);
@@ -4663,8 +4663,8 @@ x_82 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_82, 0, x_78);
 lean_ctor_set(x_82, 1, x_80);
 x_18 = x_76;
-x_19 = x_74;
-x_20 = x_73;
+x_19 = x_73;
+x_20 = x_74;
 x_21 = x_82;
 goto block_69;
 }
@@ -4676,8 +4676,8 @@ x_83 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_83, 0, x_79);
 lean_ctor_set(x_83, 1, x_80);
 x_18 = x_76;
-x_19 = x_74;
-x_20 = x_73;
+x_19 = x_73;
+x_20 = x_74;
 x_21 = x_83;
 goto block_69;
 }

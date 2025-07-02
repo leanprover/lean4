@@ -6332,7 +6332,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DHashMap_Internal_AssocList_get_x21___at___Lean_Compiler_LCNF_JoinPointContextExtender_replaceFVar_spec__0___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(11u);
-x_3 = lean_unsigned_to_nat(138u);
+x_3 = lean_unsigned_to_nat(142u);
 x_4 = l_Std_DHashMap_Internal_AssocList_get_x21___at___Lean_Compiler_LCNF_JoinPointContextExtender_replaceFVar_spec__0___redArg___closed__1;
 x_5 = l_Std_DHashMap_Internal_AssocList_get_x21___at___Lean_Compiler_LCNF_JoinPointContextExtender_replaceFVar_spec__0___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -11317,10 +11317,10 @@ x_73 = lean_ctor_get(x_1, 1);
 lean_dec(x_73);
 x_74 = lean_ctor_get(x_1, 0);
 lean_dec(x_74);
-lean_ctor_set(x_1, 1, x_69);
+lean_ctor_set(x_1, 1, x_70);
 x_75 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_75, 0, x_1);
-lean_ctor_set(x_75, 1, x_70);
+lean_ctor_set(x_75, 1, x_69);
 return x_75;
 }
 else
@@ -11329,21 +11329,21 @@ lean_object* x_76; lean_object* x_77;
 lean_dec(x_1);
 x_76 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_76, 0, x_67);
-lean_ctor_set(x_76, 1, x_69);
+lean_ctor_set(x_76, 1, x_70);
 x_77 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_77, 0, x_76);
-lean_ctor_set(x_77, 1, x_70);
+lean_ctor_set(x_77, 1, x_69);
 return x_77;
 }
 }
 else
 {
 lean_object* x_78; 
-lean_dec(x_69);
+lean_dec(x_70);
 lean_dec(x_67);
 x_78 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_78, 0, x_1);
-lean_ctor_set(x_78, 1, x_70);
+lean_ctor_set(x_78, 1, x_69);
 return x_78;
 }
 }
@@ -11354,8 +11354,8 @@ x_82 = lean_name_eq(x_67, x_67);
 if (x_82 == 0)
 {
 lean_dec(x_68);
-x_69 = x_80;
-x_70 = x_81;
+x_69 = x_81;
+x_70 = x_80;
 x_71 = x_82;
 goto block_79;
 }
@@ -11366,8 +11366,8 @@ x_83 = lean_ptr_addr(x_68);
 lean_dec(x_68);
 x_84 = lean_ptr_addr(x_80);
 x_85 = lean_usize_dec_eq(x_83, x_84);
-x_69 = x_80;
-x_70 = x_81;
+x_69 = x_81;
+x_70 = x_80;
 x_71 = x_85;
 goto block_79;
 }

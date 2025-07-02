@@ -15,9 +15,9 @@ extern "C" {
 #endif
 static lean_object* l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__1;
 static lean_object* l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__11;
+lean_object* l_Lean_TSyntax_getId(lean_object*);
 static lean_object* l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__16;
 static lean_object* l_Lean_termMacro_x2etrace_x5b___x5d_____closed__12;
-lean_object* l_Lean_Syntax_getId(lean_object*);
 static lean_object* l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__6;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 static lean_object* l_Lean_termMacro_x2etrace_x5b___x5d_____closed__5;
@@ -541,7 +541,7 @@ lean_ctor_set(x_23, 1, x_19);
 lean_ctor_set(x_23, 2, x_21);
 lean_ctor_set(x_23, 3, x_22);
 x_24 = l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__13;
-x_25 = l_Lean_Syntax_getId(x_12);
+x_25 = l_Lean_TSyntax_getId(x_12);
 lean_dec(x_12);
 x_26 = lean_erase_macro_scopes(x_25);
 x_27 = l_Lean_instQuoteNameMkStr1___private__1(x_26);

@@ -13241,7 +13241,7 @@ return x_59;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___Lean_Elab_WF_GuessLex_complexMeasures_spec__4___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
-lean_object* x_11; uint8_t x_12; uint8_t x_13; lean_object* x_14; lean_object* x_24; uint8_t x_25; lean_object* x_26; lean_object* x_53; lean_object* x_54; lean_object* x_58; 
+lean_object* x_11; uint8_t x_12; uint8_t x_13; lean_object* x_14; uint8_t x_24; lean_object* x_25; lean_object* x_26; lean_object* x_53; lean_object* x_54; lean_object* x_58; 
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_106; lean_object* x_107; 
@@ -13312,7 +13312,7 @@ if (x_27 == 0)
 lean_object* x_28; uint8_t x_29; lean_object* x_30; 
 x_28 = lean_box(1);
 x_29 = lean_unbox(x_28);
-x_30 = l_Lean_Meta_mkLambdaFVars(x_1, x_26, x_27, x_25, x_27, x_25, x_29, x_6, x_7, x_8, x_9, x_24);
+x_30 = l_Lean_Meta_mkLambdaFVars(x_1, x_26, x_27, x_24, x_27, x_24, x_29, x_6, x_7, x_8, x_9, x_25);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; 
@@ -13444,7 +13444,7 @@ x_50 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_50, 0, x_5);
 x_51 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_51, 0, x_50);
-lean_ctor_set(x_51, 1, x_24);
+lean_ctor_set(x_51, 1, x_25);
 return x_51;
 }
 }
@@ -13453,9 +13453,9 @@ block_57:
 lean_object* x_55; uint8_t x_56; 
 x_55 = lean_box(1);
 x_56 = lean_unbox(x_55);
-x_24 = x_53;
-x_25 = x_56;
-x_26 = x_54;
+x_24 = x_56;
+x_25 = x_54;
+x_26 = x_53;
 goto block_52;
 }
 block_105:
@@ -13538,8 +13538,8 @@ x_76 = l_Lean_Expr_hasAnyFVar_visit___at___Lean_Elab_WF_GuessLex_complexMeasures
 if (x_76 == 0)
 {
 lean_dec(x_72);
-x_53 = x_70;
-x_54 = x_73;
+x_53 = x_73;
+x_54 = x_70;
 goto block_57;
 }
 else
@@ -13548,16 +13548,16 @@ if (x_75 == 0)
 {
 lean_object* x_77; 
 x_77 = l_Lean_mkNatSub(x_73, x_72);
-x_24 = x_70;
-x_25 = x_76;
+x_24 = x_76;
+x_25 = x_70;
 x_26 = x_77;
 goto block_52;
 }
 else
 {
 lean_dec(x_72);
-x_53 = x_70;
-x_54 = x_73;
+x_53 = x_73;
+x_54 = x_70;
 goto block_57;
 }
 }
@@ -13613,8 +13613,8 @@ x_84 = l_Lean_Expr_hasAnyFVar_visit___at___Lean_Elab_WF_GuessLex_complexMeasures
 if (x_84 == 0)
 {
 lean_dec(x_80);
-x_53 = x_79;
-x_54 = x_81;
+x_53 = x_81;
+x_54 = x_79;
 goto block_57;
 }
 else
@@ -13623,16 +13623,16 @@ if (x_83 == 0)
 {
 lean_object* x_85; 
 x_85 = l_Lean_mkNatSub(x_81, x_80);
-x_24 = x_79;
-x_25 = x_84;
+x_24 = x_84;
+x_25 = x_79;
 x_26 = x_85;
 goto block_52;
 }
 else
 {
 lean_dec(x_80);
-x_53 = x_79;
-x_54 = x_81;
+x_53 = x_81;
+x_54 = x_79;
 goto block_57;
 }
 }
@@ -13706,8 +13706,8 @@ x_95 = l_Lean_Expr_hasAnyFVar_visit___at___Lean_Elab_WF_GuessLex_complexMeasures
 if (x_95 == 0)
 {
 lean_dec(x_91);
-x_53 = x_89;
-x_54 = x_92;
+x_53 = x_92;
+x_54 = x_89;
 goto block_57;
 }
 else
@@ -13716,16 +13716,16 @@ if (x_94 == 0)
 {
 lean_object* x_96; 
 x_96 = l_Lean_mkNatSub(x_92, x_91);
-x_24 = x_89;
-x_25 = x_95;
+x_24 = x_95;
+x_25 = x_89;
 x_26 = x_96;
 goto block_52;
 }
 else
 {
 lean_dec(x_91);
-x_53 = x_89;
-x_54 = x_92;
+x_53 = x_92;
+x_54 = x_89;
 goto block_57;
 }
 }

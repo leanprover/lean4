@@ -1028,6 +1028,7 @@ lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_
 static lean_object* l_Lean_Parser_Tactic_tacticAc__nf_____closed__0;
 static lean_object* l_Lean_Parser_Tactic_tacticTry_____closed__0;
 static lean_object* l_Lean_Parser_Tactic_rewrites__forbidden___closed__4;
+static lean_object* l_Lean_Parser_Tactic_simpLemma___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__mframeMacro__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_acRfl___closed__3;
 static lean_object* l_Lean_Parser_Tactic_letToHave___closed__1;
@@ -11809,8 +11810,20 @@ return x_4;
 static lean_object* _init_l_Lean_Parser_Tactic_simpLemma___closed__6() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Tactic_simpLemma___closed__5;
+x_2 = l_Lean_Parser_Tactic_location___closed__3;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_simpLemma___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Tactic_simpLemma___closed__6;
 x_2 = l_Lean_Parser_Tactic_simpLemma___closed__1;
 x_3 = l_Lean_Parser_Tactic_simpLemma___closed__0;
 x_4 = lean_alloc_ctor(9, 3, 0);
@@ -11824,7 +11837,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_simpLemma() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Parser_Tactic_simpLemma___closed__6;
+x_1 = l_Lean_Parser_Tactic_simpLemma___closed__7;
 return x_1;
 }
 }
@@ -33011,6 +33024,8 @@ l_Lean_Parser_Tactic_simpLemma___closed__5 = _init_l_Lean_Parser_Tactic_simpLemm
 lean_mark_persistent(l_Lean_Parser_Tactic_simpLemma___closed__5);
 l_Lean_Parser_Tactic_simpLemma___closed__6 = _init_l_Lean_Parser_Tactic_simpLemma___closed__6();
 lean_mark_persistent(l_Lean_Parser_Tactic_simpLemma___closed__6);
+l_Lean_Parser_Tactic_simpLemma___closed__7 = _init_l_Lean_Parser_Tactic_simpLemma___closed__7();
+lean_mark_persistent(l_Lean_Parser_Tactic_simpLemma___closed__7);
 l_Lean_Parser_Tactic_simpLemma = _init_l_Lean_Parser_Tactic_simpLemma();
 lean_mark_persistent(l_Lean_Parser_Tactic_simpLemma);
 l_Lean_Parser_Tactic_simpErase___closed__0 = _init_l_Lean_Parser_Tactic_simpErase___closed__0();

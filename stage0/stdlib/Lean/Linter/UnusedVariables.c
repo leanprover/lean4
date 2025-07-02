@@ -14181,14 +14181,14 @@ block_134:
 if (x_74 == 0)
 {
 uint8_t x_75; 
-lean_dec(x_73);
+lean_dec(x_72);
 lean_dec(x_71);
 lean_dec(x_37);
 lean_dec(x_33);
 x_75 = lean_unbox(x_38);
 lean_dec(x_38);
 x_41 = x_75;
-x_42 = x_72;
+x_42 = x_73;
 goto block_47;
 }
 else
@@ -14196,11 +14196,11 @@ else
 lean_object* x_76; lean_object* x_77; lean_object* x_78; uint8_t x_79; 
 lean_dec(x_38);
 x_76 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Linter_UnusedVariables_unusedVariables_spec__17_spec__17___redArg___closed__0;
-lean_inc(x_73);
+lean_inc(x_72);
 x_77 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_77, 0, x_73);
+lean_ctor_set(x_77, 0, x_72);
 lean_ctor_set(x_77, 1, x_76);
-x_78 = lean_st_mk_ref(x_77, x_72);
+x_78 = lean_st_mk_ref(x_77, x_73);
 x_79 = !lean_is_exclusive(x_78);
 if (x_79 == 0)
 {
@@ -14232,13 +14232,13 @@ lean_dec(x_85);
 x_89 = lean_mk_empty_array_with_capacity(x_87);
 lean_dec(x_87);
 x_90 = lean_array_get_size(x_88);
-x_91 = lean_nat_dec_lt(x_73, x_90);
+x_91 = lean_nat_dec_lt(x_72, x_90);
 if (x_91 == 0)
 {
 lean_dec(x_90);
 lean_dec(x_88);
 x_53 = x_86;
-x_54 = x_73;
+x_54 = x_72;
 x_55 = x_89;
 goto block_70;
 }
@@ -14251,7 +14251,7 @@ if (x_92 == 0)
 lean_dec(x_90);
 lean_dec(x_88);
 x_53 = x_86;
-x_54 = x_73;
+x_54 = x_72;
 x_55 = x_89;
 goto block_70;
 }
@@ -14264,7 +14264,7 @@ lean_dec(x_90);
 x_95 = l_Array_foldlMUnsafe_fold___at___Lean_Linter_UnusedVariables_unusedVariables_spec__15(x_88, x_93, x_94, x_89);
 lean_dec(x_88);
 x_53 = x_86;
-x_54 = x_73;
+x_54 = x_72;
 x_55 = x_95;
 goto block_70;
 }
@@ -14273,7 +14273,7 @@ goto block_70;
 else
 {
 uint8_t x_96; 
-lean_dec(x_73);
+lean_dec(x_72);
 lean_dec(x_40);
 lean_dec(x_39);
 lean_dec(x_37);
@@ -14362,13 +14362,13 @@ lean_dec(x_114);
 x_118 = lean_mk_empty_array_with_capacity(x_116);
 lean_dec(x_116);
 x_119 = lean_array_get_size(x_117);
-x_120 = lean_nat_dec_lt(x_73, x_119);
+x_120 = lean_nat_dec_lt(x_72, x_119);
 if (x_120 == 0)
 {
 lean_dec(x_119);
 lean_dec(x_117);
 x_53 = x_115;
-x_54 = x_73;
+x_54 = x_72;
 x_55 = x_118;
 goto block_70;
 }
@@ -14381,7 +14381,7 @@ if (x_121 == 0)
 lean_dec(x_119);
 lean_dec(x_117);
 x_53 = x_115;
-x_54 = x_73;
+x_54 = x_72;
 x_55 = x_118;
 goto block_70;
 }
@@ -14394,7 +14394,7 @@ lean_dec(x_119);
 x_124 = l_Array_foldlMUnsafe_fold___at___Lean_Linter_UnusedVariables_unusedVariables_spec__15(x_117, x_122, x_123, x_118);
 lean_dec(x_117);
 x_53 = x_115;
-x_54 = x_73;
+x_54 = x_72;
 x_55 = x_124;
 goto block_70;
 }
@@ -14403,7 +14403,7 @@ goto block_70;
 else
 {
 lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; lean_object* x_133; 
-lean_dec(x_73);
+lean_dec(x_72);
 lean_dec(x_40);
 lean_dec(x_39);
 lean_dec(x_37);
@@ -14460,16 +14460,16 @@ x_138 = lean_unbox(x_38);
 if (x_138 == 0)
 {
 x_71 = x_135;
-x_72 = x_137;
-x_73 = x_136;
+x_72 = x_136;
+x_73 = x_137;
 x_74 = x_10;
 goto block_134;
 }
 else
 {
 x_71 = x_135;
-x_72 = x_137;
-x_73 = x_136;
+x_72 = x_136;
+x_73 = x_137;
 x_74 = x_1;
 goto block_134;
 }
@@ -14485,9 +14485,9 @@ x_146 = lean_nat_dec_lt(x_144, x_145);
 if (x_146 == 0)
 {
 lean_dec(x_145);
-lean_dec(x_141);
+lean_dec(x_140);
 lean_dec(x_28);
-x_135 = x_140;
+x_135 = x_141;
 x_136 = x_144;
 x_137 = x_142;
 goto block_139;
@@ -14497,9 +14497,9 @@ else
 if (x_146 == 0)
 {
 lean_dec(x_145);
-lean_dec(x_141);
+lean_dec(x_140);
 lean_dec(x_28);
-x_135 = x_140;
+x_135 = x_141;
 x_136 = x_144;
 x_137 = x_142;
 goto block_139;
@@ -14512,7 +14512,7 @@ x_148 = lean_usize_of_nat(x_145);
 lean_dec(x_145);
 lean_inc(x_16);
 lean_inc(x_15);
-x_149 = l_Array_anyMUnsafe_any___at___Lean_Linter_UnusedVariables_unusedVariables_spec__16(x_28, x_1, x_141, x_7, x_147, x_148, x_15, x_16, x_142);
+x_149 = l_Array_anyMUnsafe_any___at___Lean_Linter_UnusedVariables_unusedVariables_spec__16(x_28, x_1, x_140, x_7, x_147, x_148, x_15, x_16, x_142);
 if (lean_obj_tag(x_149) == 0)
 {
 lean_object* x_150; uint8_t x_151; 
@@ -14526,7 +14526,7 @@ lean_object* x_152;
 x_152 = lean_ctor_get(x_149, 1);
 lean_inc(x_152);
 lean_dec(x_149);
-x_135 = x_140;
+x_135 = x_141;
 x_136 = x_144;
 x_137 = x_152;
 goto block_139;
@@ -14534,7 +14534,7 @@ goto block_139;
 else
 {
 lean_object* x_153; lean_object* x_154; 
-lean_dec(x_140);
+lean_dec(x_141);
 lean_dec(x_40);
 lean_dec(x_37);
 lean_dec(x_33);
@@ -14555,7 +14555,7 @@ goto block_23;
 else
 {
 uint8_t x_155; 
-lean_dec(x_140);
+lean_dec(x_141);
 lean_dec(x_40);
 lean_dec(x_39);
 lean_dec(x_38);
@@ -14739,8 +14739,8 @@ if (x_199 == 0)
 {
 lean_dec(x_195);
 lean_dec(x_192);
-x_140 = x_170;
-x_141 = x_198;
+x_140 = x_198;
+x_141 = x_170;
 x_142 = x_196;
 x_143 = x_1;
 goto block_160;
@@ -14756,8 +14756,8 @@ if (x_202 == 0)
 lean_dec(x_201);
 lean_dec(x_195);
 lean_dec(x_192);
-x_140 = x_170;
-x_141 = x_198;
+x_140 = x_198;
+x_141 = x_170;
 x_142 = x_196;
 x_143 = x_1;
 goto block_160;
@@ -14769,8 +14769,8 @@ if (x_202 == 0)
 lean_dec(x_201);
 lean_dec(x_195);
 lean_dec(x_192);
-x_140 = x_170;
-x_141 = x_198;
+x_140 = x_198;
+x_141 = x_170;
 x_142 = x_196;
 x_143 = x_1;
 goto block_160;
@@ -14783,8 +14783,8 @@ x_204 = lean_usize_of_nat(x_201);
 lean_dec(x_201);
 lean_inc(x_31);
 x_205 = l_Array_anyMUnsafe_any___at___Lean_Linter_UnusedVariables_unusedVariables_spec__3(x_31, x_192, x_195, x_6, x_203, x_204);
-x_140 = x_170;
-x_141 = x_198;
+x_140 = x_198;
+x_141 = x_170;
 x_142 = x_196;
 x_143 = x_205;
 goto block_160;
@@ -14917,8 +14917,8 @@ if (x_232 == 0)
 {
 lean_dec(x_228);
 lean_dec(x_225);
-x_140 = x_170;
-x_141 = x_231;
+x_140 = x_231;
+x_141 = x_170;
 x_142 = x_229;
 x_143 = x_1;
 goto block_160;
@@ -14934,8 +14934,8 @@ if (x_235 == 0)
 lean_dec(x_234);
 lean_dec(x_228);
 lean_dec(x_225);
-x_140 = x_170;
-x_141 = x_231;
+x_140 = x_231;
+x_141 = x_170;
 x_142 = x_229;
 x_143 = x_1;
 goto block_160;
@@ -14947,8 +14947,8 @@ if (x_235 == 0)
 lean_dec(x_234);
 lean_dec(x_228);
 lean_dec(x_225);
-x_140 = x_170;
-x_141 = x_231;
+x_140 = x_231;
+x_141 = x_170;
 x_142 = x_229;
 x_143 = x_1;
 goto block_160;
@@ -14961,8 +14961,8 @@ x_237 = lean_usize_of_nat(x_234);
 lean_dec(x_234);
 lean_inc(x_31);
 x_238 = l_Array_anyMUnsafe_any___at___Lean_Linter_UnusedVariables_unusedVariables_spec__3(x_31, x_225, x_228, x_6, x_236, x_237);
-x_140 = x_170;
-x_141 = x_231;
+x_140 = x_231;
+x_141 = x_170;
 x_142 = x_229;
 x_143 = x_238;
 goto block_160;
@@ -15267,14 +15267,14 @@ block_136:
 if (x_76 == 0)
 {
 uint8_t x_77; 
-lean_dec(x_75);
 lean_dec(x_74);
+lean_dec(x_73);
 lean_dec(x_39);
 lean_dec(x_35);
 x_77 = lean_unbox(x_40);
 lean_dec(x_40);
 x_43 = x_77;
-x_44 = x_73;
+x_44 = x_75;
 goto block_49;
 }
 else
@@ -15282,11 +15282,11 @@ else
 lean_object* x_78; lean_object* x_79; lean_object* x_80; uint8_t x_81; 
 lean_dec(x_40);
 x_78 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Linter_UnusedVariables_unusedVariables_spec__17_spec__17___redArg___closed__0;
-lean_inc(x_75);
+lean_inc(x_73);
 x_79 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_79, 0, x_75);
+lean_ctor_set(x_79, 0, x_73);
 lean_ctor_set(x_79, 1, x_78);
-x_80 = lean_st_mk_ref(x_79, x_73);
+x_80 = lean_st_mk_ref(x_79, x_75);
 x_81 = !lean_is_exclusive(x_80);
 if (x_81 == 0)
 {
@@ -15318,13 +15318,13 @@ lean_dec(x_87);
 x_91 = lean_mk_empty_array_with_capacity(x_89);
 lean_dec(x_89);
 x_92 = lean_array_get_size(x_90);
-x_93 = lean_nat_dec_lt(x_75, x_92);
+x_93 = lean_nat_dec_lt(x_73, x_92);
 if (x_93 == 0)
 {
 lean_dec(x_92);
 lean_dec(x_90);
 x_55 = x_88;
-x_56 = x_75;
+x_56 = x_73;
 x_57 = x_91;
 goto block_72;
 }
@@ -15337,7 +15337,7 @@ if (x_94 == 0)
 lean_dec(x_92);
 lean_dec(x_90);
 x_55 = x_88;
-x_56 = x_75;
+x_56 = x_73;
 x_57 = x_91;
 goto block_72;
 }
@@ -15350,7 +15350,7 @@ lean_dec(x_92);
 x_97 = l_Array_foldlMUnsafe_fold___at___Lean_Linter_UnusedVariables_unusedVariables_spec__15(x_90, x_95, x_96, x_91);
 lean_dec(x_90);
 x_55 = x_88;
-x_56 = x_75;
+x_56 = x_73;
 x_57 = x_97;
 goto block_72;
 }
@@ -15359,7 +15359,7 @@ goto block_72;
 else
 {
 uint8_t x_98; 
-lean_dec(x_75);
+lean_dec(x_73);
 lean_dec(x_42);
 lean_dec(x_41);
 lean_dec(x_39);
@@ -15448,13 +15448,13 @@ lean_dec(x_116);
 x_120 = lean_mk_empty_array_with_capacity(x_118);
 lean_dec(x_118);
 x_121 = lean_array_get_size(x_119);
-x_122 = lean_nat_dec_lt(x_75, x_121);
+x_122 = lean_nat_dec_lt(x_73, x_121);
 if (x_122 == 0)
 {
 lean_dec(x_121);
 lean_dec(x_119);
 x_55 = x_117;
-x_56 = x_75;
+x_56 = x_73;
 x_57 = x_120;
 goto block_72;
 }
@@ -15467,7 +15467,7 @@ if (x_123 == 0)
 lean_dec(x_121);
 lean_dec(x_119);
 x_55 = x_117;
-x_56 = x_75;
+x_56 = x_73;
 x_57 = x_120;
 goto block_72;
 }
@@ -15480,7 +15480,7 @@ lean_dec(x_121);
 x_126 = l_Array_foldlMUnsafe_fold___at___Lean_Linter_UnusedVariables_unusedVariables_spec__15(x_119, x_124, x_125, x_120);
 lean_dec(x_119);
 x_55 = x_117;
-x_56 = x_75;
+x_56 = x_73;
 x_57 = x_126;
 goto block_72;
 }
@@ -15489,7 +15489,7 @@ goto block_72;
 else
 {
 lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; lean_object* x_133; lean_object* x_134; lean_object* x_135; 
-lean_dec(x_75);
+lean_dec(x_73);
 lean_dec(x_42);
 lean_dec(x_41);
 lean_dec(x_39);
@@ -15545,17 +15545,17 @@ uint8_t x_140;
 x_140 = lean_unbox(x_40);
 if (x_140 == 0)
 {
-x_73 = x_139;
-x_74 = x_137;
-x_75 = x_138;
+x_73 = x_137;
+x_74 = x_138;
+x_75 = x_139;
 x_76 = x_12;
 goto block_136;
 }
 else
 {
-x_73 = x_139;
-x_74 = x_137;
-x_75 = x_138;
+x_73 = x_137;
+x_74 = x_138;
+x_75 = x_139;
 x_76 = x_1;
 goto block_136;
 }
@@ -15573,8 +15573,8 @@ if (x_148 == 0)
 lean_dec(x_147);
 lean_dec(x_142);
 lean_dec(x_30);
-x_137 = x_143;
-x_138 = x_146;
+x_137 = x_146;
+x_138 = x_143;
 x_139 = x_144;
 goto block_141;
 }
@@ -15585,8 +15585,8 @@ if (x_148 == 0)
 lean_dec(x_147);
 lean_dec(x_142);
 lean_dec(x_30);
-x_137 = x_143;
-x_138 = x_146;
+x_137 = x_146;
+x_138 = x_143;
 x_139 = x_144;
 goto block_141;
 }
@@ -15612,8 +15612,8 @@ lean_object* x_154;
 x_154 = lean_ctor_get(x_151, 1);
 lean_inc(x_154);
 lean_dec(x_151);
-x_137 = x_143;
-x_138 = x_146;
+x_137 = x_146;
+x_138 = x_143;
 x_139 = x_154;
 goto block_141;
 }
@@ -17367,7 +17367,7 @@ uint8_t x_33;
 x_33 = !lean_is_exclusive(x_31);
 if (x_33 == 0)
 {
-lean_object* x_34; uint8_t x_35; size_t x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_43; size_t x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
+lean_object* x_34; uint8_t x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; size_t x_39; lean_object* x_40; lean_object* x_43; lean_object* x_44; lean_object* x_45; size_t x_46; lean_object* x_47; 
 x_34 = lean_ctor_get(x_31, 0);
 lean_inc(x_4);
 x_35 = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_UnusedVariables_hasSorry(x_4);
@@ -17513,12 +17513,12 @@ if (lean_is_scalar(x_87)) {
  x_98 = x_87;
 }
 lean_ctor_set(x_98, 0, x_97);
-lean_ctor_set(x_98, 1, x_91);
+lean_ctor_set(x_98, 1, x_93);
 x_99 = lean_array_size(x_96);
 x_100 = 0;
 lean_inc(x_6);
 lean_inc(x_5);
-x_101 = l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_UnusedVariables_unusedVariables_spec__17(x_35, x_94, x_92, x_76, x_4, x_90, x_95, x_71, x_58, x_2, x_3, x_23, x_96, x_99, x_100, x_98, x_5, x_6, x_93);
+x_101 = l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_UnusedVariables_unusedVariables_spec__17(x_35, x_92, x_94, x_76, x_4, x_90, x_95, x_71, x_58, x_2, x_3, x_23, x_96, x_99, x_100, x_98, x_5, x_6, x_91);
 lean_dec(x_96);
 lean_dec(x_71);
 if (lean_obj_tag(x_101) == 0)
@@ -17544,19 +17544,19 @@ x_109 = lean_nat_dec_le(x_56, x_108);
 if (x_109 == 0)
 {
 lean_inc(x_108);
-x_43 = x_103;
-x_44 = x_100;
-x_45 = x_104;
-x_46 = x_108;
+x_43 = x_104;
+x_44 = x_108;
+x_45 = x_103;
+x_46 = x_100;
 x_47 = x_108;
 goto block_49;
 }
 else
 {
-x_43 = x_103;
-x_44 = x_100;
-x_45 = x_104;
-x_46 = x_108;
+x_43 = x_104;
+x_44 = x_108;
+x_45 = x_103;
+x_46 = x_100;
 x_47 = x_56;
 goto block_49;
 }
@@ -17618,10 +17618,10 @@ if (x_125 == 0)
 {
 lean_dec(x_124);
 lean_dec(x_84);
-x_91 = x_59;
-x_92 = x_115;
-x_93 = x_122;
-x_94 = x_118;
+x_91 = x_122;
+x_92 = x_118;
+x_93 = x_59;
+x_94 = x_115;
 x_95 = x_121;
 x_96 = x_123;
 goto block_114;
@@ -17634,10 +17634,10 @@ if (x_126 == 0)
 {
 lean_dec(x_124);
 lean_dec(x_84);
-x_91 = x_59;
-x_92 = x_115;
-x_93 = x_122;
-x_94 = x_118;
+x_91 = x_122;
+x_92 = x_118;
+x_93 = x_59;
+x_94 = x_115;
 x_95 = x_121;
 x_96 = x_123;
 goto block_114;
@@ -17650,10 +17650,10 @@ x_128 = lean_usize_of_nat(x_124);
 lean_dec(x_124);
 x_129 = l_Array_foldlMUnsafe_fold___at___Lean_Linter_UnusedVariables_unusedVariables_spec__24(x_84, x_127, x_128, x_123);
 lean_dec(x_84);
-x_91 = x_59;
-x_92 = x_115;
-x_93 = x_122;
-x_94 = x_118;
+x_91 = x_122;
+x_92 = x_118;
+x_93 = x_59;
+x_94 = x_115;
 x_95 = x_121;
 x_96 = x_129;
 goto block_114;
@@ -17799,12 +17799,12 @@ if (lean_is_scalar(x_155)) {
  x_166 = x_155;
 }
 lean_ctor_set(x_166, 0, x_165);
-lean_ctor_set(x_166, 1, x_159);
+lean_ctor_set(x_166, 1, x_161);
 x_167 = lean_array_size(x_164);
 x_168 = 0;
 lean_inc(x_6);
 lean_inc(x_5);
-x_169 = l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_UnusedVariables_unusedVariables_spec__17(x_35, x_162, x_160, x_76, x_4, x_158, x_163, x_71, x_58, x_2, x_3, x_23, x_164, x_167, x_168, x_166, x_5, x_6, x_161);
+x_169 = l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_UnusedVariables_unusedVariables_spec__17(x_35, x_160, x_162, x_76, x_4, x_158, x_163, x_71, x_58, x_2, x_3, x_23, x_164, x_167, x_168, x_166, x_5, x_6, x_159);
 lean_dec(x_164);
 lean_dec(x_71);
 if (lean_obj_tag(x_169) == 0)
@@ -17830,19 +17830,19 @@ x_177 = lean_nat_dec_le(x_56, x_176);
 if (x_177 == 0)
 {
 lean_inc(x_176);
-x_43 = x_171;
-x_44 = x_168;
-x_45 = x_172;
-x_46 = x_176;
+x_43 = x_172;
+x_44 = x_176;
+x_45 = x_171;
+x_46 = x_168;
 x_47 = x_176;
 goto block_49;
 }
 else
 {
-x_43 = x_171;
-x_44 = x_168;
-x_45 = x_172;
-x_46 = x_176;
+x_43 = x_172;
+x_44 = x_176;
+x_45 = x_171;
+x_46 = x_168;
 x_47 = x_56;
 goto block_49;
 }
@@ -17906,10 +17906,10 @@ if (x_193 == 0)
 {
 lean_dec(x_192);
 lean_dec(x_152);
-x_159 = x_59;
-x_160 = x_183;
-x_161 = x_190;
-x_162 = x_186;
+x_159 = x_190;
+x_160 = x_186;
+x_161 = x_59;
+x_162 = x_183;
 x_163 = x_189;
 x_164 = x_191;
 goto block_182;
@@ -17922,10 +17922,10 @@ if (x_194 == 0)
 {
 lean_dec(x_192);
 lean_dec(x_152);
-x_159 = x_59;
-x_160 = x_183;
-x_161 = x_190;
-x_162 = x_186;
+x_159 = x_190;
+x_160 = x_186;
+x_161 = x_59;
+x_162 = x_183;
 x_163 = x_189;
 x_164 = x_191;
 goto block_182;
@@ -17938,10 +17938,10 @@ x_196 = lean_usize_of_nat(x_192);
 lean_dec(x_192);
 x_197 = l_Array_foldlMUnsafe_fold___at___Lean_Linter_UnusedVariables_unusedVariables_spec__24(x_152, x_195, x_196, x_191);
 lean_dec(x_152);
-x_159 = x_59;
-x_160 = x_183;
-x_161 = x_190;
-x_162 = x_186;
+x_159 = x_190;
+x_160 = x_186;
+x_161 = x_59;
+x_162 = x_183;
 x_163 = x_189;
 x_164 = x_197;
 goto block_182;
@@ -18180,12 +18180,12 @@ if (lean_is_scalar(x_250)) {
  x_261 = x_250;
 }
 lean_ctor_set(x_261, 0, x_260);
-lean_ctor_set(x_261, 1, x_254);
+lean_ctor_set(x_261, 1, x_256);
 x_262 = lean_array_size(x_259);
 x_263 = 0;
 lean_inc(x_6);
 lean_inc(x_5);
-x_264 = l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_UnusedVariables_unusedVariables_spec__17(x_35, x_257, x_255, x_240, x_4, x_253, x_258, x_235, x_58, x_2, x_3, x_23, x_259, x_262, x_263, x_261, x_5, x_6, x_256);
+x_264 = l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_UnusedVariables_unusedVariables_spec__17(x_35, x_255, x_257, x_240, x_4, x_253, x_258, x_235, x_58, x_2, x_3, x_23, x_259, x_262, x_263, x_261, x_5, x_6, x_254);
 lean_dec(x_259);
 lean_dec(x_235);
 if (lean_obj_tag(x_264) == 0)
@@ -18211,19 +18211,19 @@ x_272 = lean_nat_dec_le(x_56, x_271);
 if (x_272 == 0)
 {
 lean_inc(x_271);
-x_43 = x_266;
-x_44 = x_263;
-x_45 = x_267;
-x_46 = x_271;
+x_43 = x_267;
+x_44 = x_271;
+x_45 = x_266;
+x_46 = x_263;
 x_47 = x_271;
 goto block_49;
 }
 else
 {
-x_43 = x_266;
-x_44 = x_263;
-x_45 = x_267;
-x_46 = x_271;
+x_43 = x_267;
+x_44 = x_271;
+x_45 = x_266;
+x_46 = x_263;
 x_47 = x_56;
 goto block_49;
 }
@@ -18287,10 +18287,10 @@ if (x_288 == 0)
 {
 lean_dec(x_287);
 lean_dec(x_247);
-x_254 = x_59;
-x_255 = x_278;
-x_256 = x_285;
-x_257 = x_281;
+x_254 = x_285;
+x_255 = x_281;
+x_256 = x_59;
+x_257 = x_278;
 x_258 = x_284;
 x_259 = x_286;
 goto block_277;
@@ -18303,10 +18303,10 @@ if (x_289 == 0)
 {
 lean_dec(x_287);
 lean_dec(x_247);
-x_254 = x_59;
-x_255 = x_278;
-x_256 = x_285;
-x_257 = x_281;
+x_254 = x_285;
+x_255 = x_281;
+x_256 = x_59;
+x_257 = x_278;
 x_258 = x_284;
 x_259 = x_286;
 goto block_277;
@@ -18319,10 +18319,10 @@ x_291 = lean_usize_of_nat(x_287);
 lean_dec(x_287);
 x_292 = l_Array_foldlMUnsafe_fold___at___Lean_Linter_UnusedVariables_unusedVariables_spec__24(x_247, x_290, x_291, x_286);
 lean_dec(x_247);
-x_254 = x_59;
-x_255 = x_278;
-x_256 = x_285;
-x_257 = x_281;
+x_254 = x_285;
+x_255 = x_281;
+x_256 = x_59;
+x_257 = x_278;
 x_258 = x_284;
 x_259 = x_292;
 goto block_277;
@@ -18451,42 +18451,42 @@ return x_25;
 block_42:
 {
 lean_object* x_41; 
-x_41 = l_Array_qsort_sort___at___Lean_Linter_UnusedVariables_unusedVariables_spec__22___redArg(x_35, x_39, x_38, x_40);
+x_41 = l_Array_qsort_sort___at___Lean_Linter_UnusedVariables_unusedVariables_spec__22___redArg(x_35, x_36, x_38, x_40);
 lean_dec(x_40);
 x_8 = x_37;
-x_9 = x_36;
+x_9 = x_39;
 x_10 = x_41;
 goto block_18;
 }
 block_49:
 {
 uint8_t x_48; 
-x_48 = lean_nat_dec_le(x_47, x_46);
+x_48 = lean_nat_dec_le(x_47, x_44);
 if (x_48 == 0)
 {
-lean_dec(x_46);
+lean_dec(x_44);
 lean_inc(x_47);
-x_36 = x_44;
-x_37 = x_43;
+x_36 = x_43;
+x_37 = x_45;
 x_38 = x_47;
-x_39 = x_45;
+x_39 = x_46;
 x_40 = x_47;
 goto block_42;
 }
 else
 {
-x_36 = x_44;
-x_37 = x_43;
+x_36 = x_43;
+x_37 = x_45;
 x_38 = x_47;
-x_39 = x_45;
-x_40 = x_46;
+x_39 = x_46;
+x_40 = x_44;
 goto block_42;
 }
 }
 }
 else
 {
-lean_object* x_321; uint8_t x_322; size_t x_323; lean_object* x_324; lean_object* x_325; lean_object* x_326; lean_object* x_327; lean_object* x_330; size_t x_331; lean_object* x_332; lean_object* x_333; lean_object* x_334; 
+lean_object* x_321; uint8_t x_322; lean_object* x_323; lean_object* x_324; lean_object* x_325; size_t x_326; lean_object* x_327; lean_object* x_330; lean_object* x_331; lean_object* x_332; size_t x_333; lean_object* x_334; 
 x_321 = lean_ctor_get(x_31, 0);
 lean_inc(x_321);
 lean_dec(x_31);
@@ -18642,12 +18642,12 @@ if (lean_is_scalar(x_373)) {
  x_384 = x_373;
 }
 lean_ctor_set(x_384, 0, x_383);
-lean_ctor_set(x_384, 1, x_377);
+lean_ctor_set(x_384, 1, x_379);
 x_385 = lean_array_size(x_382);
 x_386 = 0;
 lean_inc(x_6);
 lean_inc(x_5);
-x_387 = l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_UnusedVariables_unusedVariables_spec__17(x_322, x_380, x_378, x_363, x_4, x_376, x_381, x_358, x_345, x_2, x_3, x_23, x_382, x_385, x_386, x_384, x_5, x_6, x_379);
+x_387 = l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_UnusedVariables_unusedVariables_spec__17(x_322, x_378, x_380, x_363, x_4, x_376, x_381, x_358, x_345, x_2, x_3, x_23, x_382, x_385, x_386, x_384, x_5, x_6, x_377);
 lean_dec(x_382);
 lean_dec(x_358);
 if (lean_obj_tag(x_387) == 0)
@@ -18673,19 +18673,19 @@ x_395 = lean_nat_dec_le(x_343, x_394);
 if (x_395 == 0)
 {
 lean_inc(x_394);
-x_330 = x_389;
-x_331 = x_386;
-x_332 = x_390;
-x_333 = x_394;
+x_330 = x_390;
+x_331 = x_394;
+x_332 = x_389;
+x_333 = x_386;
 x_334 = x_394;
 goto block_336;
 }
 else
 {
-x_330 = x_389;
-x_331 = x_386;
-x_332 = x_390;
-x_333 = x_394;
+x_330 = x_390;
+x_331 = x_394;
+x_332 = x_389;
+x_333 = x_386;
 x_334 = x_343;
 goto block_336;
 }
@@ -18749,10 +18749,10 @@ if (x_411 == 0)
 {
 lean_dec(x_410);
 lean_dec(x_370);
-x_377 = x_346;
-x_378 = x_401;
-x_379 = x_408;
-x_380 = x_404;
+x_377 = x_408;
+x_378 = x_404;
+x_379 = x_346;
+x_380 = x_401;
 x_381 = x_407;
 x_382 = x_409;
 goto block_400;
@@ -18765,10 +18765,10 @@ if (x_412 == 0)
 {
 lean_dec(x_410);
 lean_dec(x_370);
-x_377 = x_346;
-x_378 = x_401;
-x_379 = x_408;
-x_380 = x_404;
+x_377 = x_408;
+x_378 = x_404;
+x_379 = x_346;
+x_380 = x_401;
 x_381 = x_407;
 x_382 = x_409;
 goto block_400;
@@ -18781,10 +18781,10 @@ x_414 = lean_usize_of_nat(x_410);
 lean_dec(x_410);
 x_415 = l_Array_foldlMUnsafe_fold___at___Lean_Linter_UnusedVariables_unusedVariables_spec__24(x_370, x_413, x_414, x_409);
 lean_dec(x_370);
-x_377 = x_346;
-x_378 = x_401;
-x_379 = x_408;
-x_380 = x_404;
+x_377 = x_408;
+x_378 = x_404;
+x_379 = x_346;
+x_380 = x_401;
 x_381 = x_407;
 x_382 = x_415;
 goto block_400;
@@ -18915,35 +18915,35 @@ return x_25;
 block_329:
 {
 lean_object* x_328; 
-x_328 = l_Array_qsort_sort___at___Lean_Linter_UnusedVariables_unusedVariables_spec__22___redArg(x_322, x_326, x_325, x_327);
+x_328 = l_Array_qsort_sort___at___Lean_Linter_UnusedVariables_unusedVariables_spec__22___redArg(x_322, x_323, x_325, x_327);
 lean_dec(x_327);
 x_8 = x_324;
-x_9 = x_323;
+x_9 = x_326;
 x_10 = x_328;
 goto block_18;
 }
 block_336:
 {
 uint8_t x_335; 
-x_335 = lean_nat_dec_le(x_334, x_333);
+x_335 = lean_nat_dec_le(x_334, x_331);
 if (x_335 == 0)
 {
-lean_dec(x_333);
+lean_dec(x_331);
 lean_inc(x_334);
-x_323 = x_331;
-x_324 = x_330;
+x_323 = x_330;
+x_324 = x_332;
 x_325 = x_334;
-x_326 = x_332;
+x_326 = x_333;
 x_327 = x_334;
 goto block_329;
 }
 else
 {
-x_323 = x_331;
-x_324 = x_330;
+x_323 = x_330;
+x_324 = x_332;
 x_325 = x_334;
-x_326 = x_332;
-x_327 = x_333;
+x_326 = x_333;
+x_327 = x_331;
 goto block_329;
 }
 }
@@ -18994,7 +18994,7 @@ return x_452;
 }
 else
 {
-lean_object* x_453; lean_object* x_454; uint8_t x_455; size_t x_456; lean_object* x_457; lean_object* x_458; lean_object* x_459; lean_object* x_460; lean_object* x_463; size_t x_464; lean_object* x_465; lean_object* x_466; lean_object* x_467; 
+lean_object* x_453; lean_object* x_454; uint8_t x_455; lean_object* x_456; lean_object* x_457; lean_object* x_458; size_t x_459; lean_object* x_460; lean_object* x_463; lean_object* x_464; lean_object* x_465; size_t x_466; lean_object* x_467; 
 x_453 = lean_ctor_get(x_450, 0);
 lean_inc(x_453);
 if (lean_is_exclusive(x_450)) {
@@ -19156,12 +19156,12 @@ if (lean_is_scalar(x_506)) {
  x_517 = x_506;
 }
 lean_ctor_set(x_517, 0, x_516);
-lean_ctor_set(x_517, 1, x_510);
+lean_ctor_set(x_517, 1, x_512);
 x_518 = lean_array_size(x_515);
 x_519 = 0;
 lean_inc(x_6);
 lean_inc(x_5);
-x_520 = l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_UnusedVariables_unusedVariables_spec__17(x_455, x_513, x_511, x_496, x_4, x_509, x_514, x_491, x_478, x_2, x_3, x_23, x_515, x_518, x_519, x_517, x_5, x_6, x_512);
+x_520 = l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_UnusedVariables_unusedVariables_spec__17(x_455, x_511, x_513, x_496, x_4, x_509, x_514, x_491, x_478, x_2, x_3, x_23, x_515, x_518, x_519, x_517, x_5, x_6, x_510);
 lean_dec(x_515);
 lean_dec(x_491);
 if (lean_obj_tag(x_520) == 0)
@@ -19187,19 +19187,19 @@ x_528 = lean_nat_dec_le(x_476, x_527);
 if (x_528 == 0)
 {
 lean_inc(x_527);
-x_463 = x_522;
-x_464 = x_519;
-x_465 = x_523;
-x_466 = x_527;
+x_463 = x_523;
+x_464 = x_527;
+x_465 = x_522;
+x_466 = x_519;
 x_467 = x_527;
 goto block_469;
 }
 else
 {
-x_463 = x_522;
-x_464 = x_519;
-x_465 = x_523;
-x_466 = x_527;
+x_463 = x_523;
+x_464 = x_527;
+x_465 = x_522;
+x_466 = x_519;
 x_467 = x_476;
 goto block_469;
 }
@@ -19263,10 +19263,10 @@ if (x_544 == 0)
 {
 lean_dec(x_543);
 lean_dec(x_503);
-x_510 = x_479;
-x_511 = x_534;
-x_512 = x_541;
-x_513 = x_537;
+x_510 = x_541;
+x_511 = x_537;
+x_512 = x_479;
+x_513 = x_534;
 x_514 = x_540;
 x_515 = x_542;
 goto block_533;
@@ -19279,10 +19279,10 @@ if (x_545 == 0)
 {
 lean_dec(x_543);
 lean_dec(x_503);
-x_510 = x_479;
-x_511 = x_534;
-x_512 = x_541;
-x_513 = x_537;
+x_510 = x_541;
+x_511 = x_537;
+x_512 = x_479;
+x_513 = x_534;
 x_514 = x_540;
 x_515 = x_542;
 goto block_533;
@@ -19295,10 +19295,10 @@ x_547 = lean_usize_of_nat(x_543);
 lean_dec(x_543);
 x_548 = l_Array_foldlMUnsafe_fold___at___Lean_Linter_UnusedVariables_unusedVariables_spec__24(x_503, x_546, x_547, x_542);
 lean_dec(x_503);
-x_510 = x_479;
-x_511 = x_534;
-x_512 = x_541;
-x_513 = x_537;
+x_510 = x_541;
+x_511 = x_537;
+x_512 = x_479;
+x_513 = x_534;
 x_514 = x_540;
 x_515 = x_548;
 goto block_533;
@@ -19437,35 +19437,35 @@ return x_578;
 block_462:
 {
 lean_object* x_461; 
-x_461 = l_Array_qsort_sort___at___Lean_Linter_UnusedVariables_unusedVariables_spec__22___redArg(x_455, x_459, x_458, x_460);
+x_461 = l_Array_qsort_sort___at___Lean_Linter_UnusedVariables_unusedVariables_spec__22___redArg(x_455, x_456, x_458, x_460);
 lean_dec(x_460);
 x_8 = x_457;
-x_9 = x_456;
+x_9 = x_459;
 x_10 = x_461;
 goto block_18;
 }
 block_469:
 {
 uint8_t x_468; 
-x_468 = lean_nat_dec_le(x_467, x_466);
+x_468 = lean_nat_dec_le(x_467, x_464);
 if (x_468 == 0)
 {
-lean_dec(x_466);
+lean_dec(x_464);
 lean_inc(x_467);
-x_456 = x_464;
-x_457 = x_463;
+x_456 = x_463;
+x_457 = x_465;
 x_458 = x_467;
-x_459 = x_465;
+x_459 = x_466;
 x_460 = x_467;
 goto block_462;
 }
 else
 {
-x_456 = x_464;
-x_457 = x_463;
+x_456 = x_463;
+x_457 = x_465;
 x_458 = x_467;
-x_459 = x_465;
-x_460 = x_466;
+x_459 = x_466;
+x_460 = x_464;
 goto block_462;
 }
 }
@@ -19554,7 +19554,7 @@ return x_594;
 }
 else
 {
-lean_object* x_595; lean_object* x_596; uint8_t x_597; size_t x_598; lean_object* x_599; lean_object* x_600; lean_object* x_601; lean_object* x_602; lean_object* x_605; size_t x_606; lean_object* x_607; lean_object* x_608; lean_object* x_609; 
+lean_object* x_595; lean_object* x_596; uint8_t x_597; lean_object* x_598; lean_object* x_599; lean_object* x_600; size_t x_601; lean_object* x_602; lean_object* x_605; lean_object* x_606; lean_object* x_607; size_t x_608; lean_object* x_609; 
 x_595 = lean_ctor_get(x_592, 0);
 lean_inc(x_595);
 if (lean_is_exclusive(x_592)) {
@@ -19717,12 +19717,12 @@ if (lean_is_scalar(x_648)) {
  x_659 = x_648;
 }
 lean_ctor_set(x_659, 0, x_658);
-lean_ctor_set(x_659, 1, x_652);
+lean_ctor_set(x_659, 1, x_654);
 x_660 = lean_array_size(x_657);
 x_661 = 0;
 lean_inc(x_6);
 lean_inc(x_5);
-x_662 = l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_UnusedVariables_unusedVariables_spec__17(x_597, x_655, x_653, x_638, x_4, x_651, x_656, x_633, x_620, x_2, x_3, x_583, x_657, x_660, x_661, x_659, x_5, x_6, x_654);
+x_662 = l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_UnusedVariables_unusedVariables_spec__17(x_597, x_653, x_655, x_638, x_4, x_651, x_656, x_633, x_620, x_2, x_3, x_583, x_657, x_660, x_661, x_659, x_5, x_6, x_652);
 lean_dec(x_657);
 lean_dec(x_633);
 if (lean_obj_tag(x_662) == 0)
@@ -19748,19 +19748,19 @@ x_670 = lean_nat_dec_le(x_618, x_669);
 if (x_670 == 0)
 {
 lean_inc(x_669);
-x_605 = x_664;
-x_606 = x_661;
-x_607 = x_665;
-x_608 = x_669;
+x_605 = x_665;
+x_606 = x_669;
+x_607 = x_664;
+x_608 = x_661;
 x_609 = x_669;
 goto block_611;
 }
 else
 {
-x_605 = x_664;
-x_606 = x_661;
-x_607 = x_665;
-x_608 = x_669;
+x_605 = x_665;
+x_606 = x_669;
+x_607 = x_664;
+x_608 = x_661;
 x_609 = x_618;
 goto block_611;
 }
@@ -19824,10 +19824,10 @@ if (x_686 == 0)
 {
 lean_dec(x_685);
 lean_dec(x_645);
-x_652 = x_621;
-x_653 = x_676;
-x_654 = x_683;
-x_655 = x_679;
+x_652 = x_683;
+x_653 = x_679;
+x_654 = x_621;
+x_655 = x_676;
 x_656 = x_682;
 x_657 = x_684;
 goto block_675;
@@ -19840,10 +19840,10 @@ if (x_687 == 0)
 {
 lean_dec(x_685);
 lean_dec(x_645);
-x_652 = x_621;
-x_653 = x_676;
-x_654 = x_683;
-x_655 = x_679;
+x_652 = x_683;
+x_653 = x_679;
+x_654 = x_621;
+x_655 = x_676;
 x_656 = x_682;
 x_657 = x_684;
 goto block_675;
@@ -19856,10 +19856,10 @@ x_689 = lean_usize_of_nat(x_685);
 lean_dec(x_685);
 x_690 = l_Array_foldlMUnsafe_fold___at___Lean_Linter_UnusedVariables_unusedVariables_spec__24(x_645, x_688, x_689, x_684);
 lean_dec(x_645);
-x_652 = x_621;
-x_653 = x_676;
-x_654 = x_683;
-x_655 = x_679;
+x_652 = x_683;
+x_653 = x_679;
+x_654 = x_621;
+x_655 = x_676;
 x_656 = x_682;
 x_657 = x_690;
 goto block_675;
@@ -20002,35 +20002,35 @@ return x_720;
 block_604:
 {
 lean_object* x_603; 
-x_603 = l_Array_qsort_sort___at___Lean_Linter_UnusedVariables_unusedVariables_spec__22___redArg(x_597, x_601, x_600, x_602);
+x_603 = l_Array_qsort_sort___at___Lean_Linter_UnusedVariables_unusedVariables_spec__22___redArg(x_597, x_598, x_600, x_602);
 lean_dec(x_602);
 x_8 = x_599;
-x_9 = x_598;
+x_9 = x_601;
 x_10 = x_603;
 goto block_18;
 }
 block_611:
 {
 uint8_t x_610; 
-x_610 = lean_nat_dec_le(x_609, x_608);
+x_610 = lean_nat_dec_le(x_609, x_606);
 if (x_610 == 0)
 {
-lean_dec(x_608);
+lean_dec(x_606);
 lean_inc(x_609);
-x_598 = x_606;
-x_599 = x_605;
+x_598 = x_605;
+x_599 = x_607;
 x_600 = x_609;
-x_601 = x_607;
+x_601 = x_608;
 x_602 = x_609;
 goto block_604;
 }
 else
 {
-x_598 = x_606;
-x_599 = x_605;
+x_598 = x_605;
+x_599 = x_607;
 x_600 = x_609;
-x_601 = x_607;
-x_602 = x_608;
+x_601 = x_608;
+x_602 = x_606;
 goto block_604;
 }
 }

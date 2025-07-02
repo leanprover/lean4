@@ -70,7 +70,9 @@ private def toPoly (e : RingExpr) : RingM Poly := do
   | .neg a   => mulConst (-1) (← toPoly a)
   | .sub a b => combine (← toPoly a) (← mulConst (-1) (← toPoly b))
   | .pow a k =>
-    match a with
+    if k == 0 then
+      return .num 1
+    else match a with
     | .num n => return .num (← applyChar (n^k))
     | .var x => return .ofMon (.mult {x, k} .unit)
     | _ => pow (← toPoly a) k

@@ -35,7 +35,7 @@ protected def ModuleOutputHashes.toJson (hashes : ModuleOutputHashes) : Json := 
   obj := obj.insert "o" hashes.oleanHashes
   obj := obj.insert "i" hashes.ilean
   if let some ir := hashes.ir? then
-    obj := obj.insert "ir" ir
+    obj := obj.insert "r" ir
   obj := obj.insert "c" hashes.c
   if let some bc := hashes.bc? then
     obj := obj.insert "b" bc
@@ -53,7 +53,7 @@ protected def ModuleOutputHashes.fromJson? (val : Json) : Except String ModuleOu
     oleanServer? := oleanHashes[1]?
     oleanPrivate? := oleanHashes[2]?
     ilean := ← obj.get "i"
-    ir? := ← obj.get? "ir"
+    ir? := ← obj.get? "r"
     c := ← obj.get "c"
     bc? := ← obj.get? "b"
   }

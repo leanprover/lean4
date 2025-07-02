@@ -186,7 +186,7 @@ structure SharedCoefficients where
 mapping), extract the shared coefficients, such that `x` (resp. `y`) is the sum of
 coefficients in `common` and `x` (resp `y`) of the result.
 
-That is, if `{ common, x', y' } ← SharedCoeffients.compute x y`, then
+That is, if `{ common, x', y' } ← SharedCoefficients.compute x y`, then
   `x[idx] = common[idx] + x'[idx]` and
   `y[idx] = common[idx] + y'[idx]`
 for all valid variable indices `idx`.

@@ -77,7 +77,7 @@ private def synthesizePendingInstMVar (instMVar : MVarId) (extraErrorMsg? : Opti
   a default instance may create subproblems that cannot be solved.
 
   Remark: The new approach also has limitations because other pending metavariables are not taken into account
-  while backtraking. That is, we fail to synthesize `mvarId` because we reach subproblems that are stuck,
+  while backtracking. That is, we fail to synthesize `mvarId` because we reach subproblems that are stuck,
   but we could "unstuck" them if we tried to solve other pending metavariables. Considering all pending metavariables
   into a single backtracking search seems to be too expensive, and potentially generate incomprehensible error messages.
   This is particularly true if we consider pending metavariables for "postponed" elaboration steps.

@@ -1878,7 +1878,7 @@ private def withExistingLocalDeclsImp (decls : List LocalDecl) (k : MetaM α) : 
   After executing `k`, the local context is restored.
 
   Remark: this method is used, for example, to implement the `match`-compiler.
-  Each `match`-alternative commes with a local declarations (corresponding to pattern variables),
+  Each `match`-alternative comes with a local declarations (corresponding to pattern variables),
   and we use `withExistingLocalDecls` to add them to the local context before we process
   them.
 -/

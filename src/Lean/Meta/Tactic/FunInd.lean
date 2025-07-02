@@ -265,7 +265,7 @@ The `foldAndCollect` function performs two operations together:
 
 For well-founded recursion (unary, non-mutual by construction) the terms are rather simple: they
 are `oldIH arg proof`, and can be rewritten to `f arg` resp. `newIH arg proof`. But for
-structural recursion this can be a more complicted mix of function applications (due to reflexive
+structural recursion this can be a more complicated mix of function applications (due to reflexive
 data types or extra function arguments) and `PProd` projections (due to the below construction and
 mutual function packing), and the main function argument isn't even present.
 

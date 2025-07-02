@@ -11,7 +11,7 @@ namespace MatchExpr
 /--
 `match_expr` alternative. Recall that it has the following structure.
 ```
-| (ident "@")? ident bindeIdent* => rhs
+| (ident "@")? ident binderIdent* => rhs
 ```
 
 Example:

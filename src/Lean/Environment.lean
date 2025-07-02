@@ -1647,7 +1647,7 @@ attribute [inherit_doc PersistentEnvExtension.exportEntriesFn]
 /--
 Auxiliary function to signal to the structure instance elaborator that `default` should be used as
 the default value for a field but only if `_otherField` has been given, which is added as an
-artifical dependency.
+artificial dependency.
 -/
 def useDefaultIfOtherFieldGiven (default : α) (_otherField : β) : α :=
   default

@@ -52,7 +52,7 @@ def hasTrivialStructure? (declName : Name) : CoreM (Option TrivialStructureInfo)
     trivialStructureInfoExt.insert declName info?
     return info?
 where fillCache : CoreM (Option TrivialStructureInfo) := do
-  if isRuntimeBultinType declName then return none
+  if isRuntimeBuiltinType declName then return none
   let .inductInfo info ← getConstInfo declName | return none
   if info.isUnsafe || info.isRec then return none
   let [ctorName] := info.ctors | return none

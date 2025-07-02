@@ -424,7 +424,7 @@ This is intended to be used in the construction of `partial_fixpoint`, and not m
 def fix (f : α → α) (hmono : monotone f) := csup (iterates f)
 
 /--
-The main fixpoint theorem for fixedpoints of monotone functions in chain-complete partial orders.
+The main fixpoint theorem for fixed points of monotone functions in chain-complete partial orders.
 
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/

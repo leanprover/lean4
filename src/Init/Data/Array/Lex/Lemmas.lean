@@ -26,9 +26,9 @@ namespace Array
 @[simp, grind =] theorem le_toList [LT α] {xs ys : Array α} : xs.toList ≤ ys.toList ↔ xs ≤ ys := Iff.rfl
 
 protected theorem not_lt_iff_ge [LT α] {xs ys : Array α} : ¬ xs < ys ↔ ys ≤ xs := Iff.rfl
-protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {xs ys : Array α} :
+protected theorem not_le_iff_gt [LT α] {xs ys : Array α} :
     ¬ xs ≤ ys ↔ ys < xs :=
-  Decidable.not_not
+  Classical.not_not
 
 @[simp] theorem lex_empty [BEq α] {lt : α → α → Bool} {xs : Array α} : xs.lex #[] lt = false := by
   simp [lex]
@@ -94,7 +94,7 @@ instance [LT α] [Trans (· < · : α → α → Prop) (· < ·) (· < ·)] :
     Trans (· < · : Array α → Array α → Prop) (· < ·) (· < ·) where
   trans h₁ h₂ := Array.lt_trans h₁ h₂
 
-protected theorem lt_of_le_of_lt [DecidableEq α] [LT α] [DecidableLT α]
+protected theorem lt_of_le_of_lt [LT α]
     [i₀ : Std.Irrefl (· < · : α → α → Prop)]
     [i₁ : Std.Asymm (· < · : α → α → Prop)]
     [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
@@ -102,7 +102,7 @@ protected theorem lt_of_le_of_lt [DecidableEq α] [LT α] [DecidableLT α]
     {xs ys zs : Array α} (h₁ : xs ≤ ys) (h₂ : ys < zs) : xs < zs :=
   List.lt_of_le_of_lt h₁ h₂
 
-protected theorem le_trans [DecidableEq α] [LT α] [DecidableLT α]
+protected theorem le_trans [LT α]
     [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
@@ -110,7 +110,7 @@ protected theorem le_trans [DecidableEq α] [LT α] [DecidableLT α]
     {xs ys zs : Array α} (h₁ : xs ≤ ys) (h₂ : ys ≤ zs) : xs ≤ zs :=
   fun h₃ => h₁ (Array.lt_of_le_of_lt h₂ h₃)
 
-instance [DecidableEq α] [LT α] [DecidableLT α]
+instance [LT α]
     [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
@@ -122,34 +122,34 @@ protected theorem lt_asymm [LT α]
     [i : Std.Asymm (· < · : α → α → Prop)]
     {xs ys : Array α} (h : xs < ys) : ¬ ys < xs := List.lt_asymm h
 
-instance [DecidableEq α] [LT α] [DecidableLT α]
+instance [LT α]
     [Std.Asymm (· < · : α → α → Prop)] :
     Std.Asymm (· < · : Array α → Array α → Prop) where
   asymm _ _ := Array.lt_asymm
 
-protected theorem le_total [DecidableEq α] [LT α] [DecidableLT α]
+protected theorem le_total [LT α]
     [i : Std.Total (¬ · < · : α → α → Prop)] (xs ys : Array α) : xs ≤ ys ∨ ys ≤ xs :=
   List.le_total xs.toList ys.toList
 
 @[simp] protected theorem not_lt [LT α]
     {xs ys : Array α} : ¬ xs < ys ↔ ys ≤ xs := Iff.rfl
 
-@[simp] protected theorem not_le [DecidableEq α] [LT α] [DecidableLT α]
-    {xs ys : Array α} : ¬ ys ≤ xs ↔ xs < ys := Decidable.not_not
+@[simp] protected theorem not_le [LT α]
+    {xs ys : Array α} : ¬ ys ≤ xs ↔ xs < ys := Classical.not_not
 
-protected theorem le_of_lt [DecidableEq α] [LT α] [DecidableLT α]
+protected theorem le_of_lt [LT α]
     [i : Std.Total (¬ · < · : α → α → Prop)]
     {xs ys : Array α} (h : xs < ys) : xs ≤ ys :=
   List.le_of_lt h
 
-protected theorem le_iff_lt_or_eq [DecidableEq α] [LT α] [DecidableLT α]
+protected theorem le_iff_lt_or_eq [LT α]
     [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
     [Std.Total (¬ · < · : α → α → Prop)]
     {xs ys : Array α} : xs ≤ ys ↔ xs < ys ∨ xs = ys := by
   simpa using List.le_iff_lt_or_eq (l₁ := xs.toList) (l₂ := ys.toList)
 
-instance [DecidableEq α] [LT α] [DecidableLT α]
+instance [LT α]
     [Std.Total (¬ · < · : α → α → Prop)] :
     Std.Total (· ≤ · : Array α → Array α → Prop) where
   total := Array.le_total
@@ -218,7 +218,7 @@ theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] (lt : α → α �
   cases l₂
   simp_all [List.lex_eq_false_iff_exists]
 
-protected theorem lt_iff_exists [DecidableEq α] [LT α] [DecidableLT α] {xs ys : Array α} :
+protected theorem lt_iff_exists [LT α] {xs ys : Array α} :
     xs < ys ↔
       (xs = ys.take xs.size ∧ xs.size < ys.size) ∨
         (∃ (i : Nat) (h₁ : i < xs.size) (h₂ : i < ys.size),
@@ -228,7 +228,7 @@ protected theorem lt_iff_exists [DecidableEq α] [LT α] [DecidableLT α] {xs ys
   cases ys
   simp [List.lt_iff_exists]
 
-protected theorem le_iff_exists [DecidableEq α] [LT α] [DecidableLT α]
+protected theorem le_iff_exists [LT α]
     [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)] {xs ys : Array α} :
@@ -248,7 +248,7 @@ theorem append_left_lt [LT α] {xs ys zs : Array α} (h : ys < zs) :
   cases zs
   simpa using List.append_left_lt h
 
-theorem append_left_le [DecidableEq α] [LT α] [DecidableLT α]
+theorem append_left_le [LT α]
     [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
@@ -272,7 +272,7 @@ protected theorem map_lt [LT α] [LT β]
   cases ys
   simpa using List.map_lt w h
 
-protected theorem map_le [DecidableEq α] [LT α] [DecidableLT α] [DecidableEq β] [LT β] [DecidableLT β]
+protected theorem map_le [LT α] [LT β]
     [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]

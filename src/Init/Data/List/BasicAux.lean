@@ -362,12 +362,13 @@ theorem not_lex_antisymm [DecidableEq α] {r : α → α → Prop} [DecidableRel
         · exact h₁ (Lex.rel hba)
         · exact eq (antisymm _ _ hab hba)
 
-protected theorem le_antisymm [DecidableEq α] [LT α] [DecidableLT α]
+protected theorem le_antisymm [LT α]
     [i : Std.Antisymm (¬ · < · : α → α → Prop)]
     {as bs : List α} (h₁ : as ≤ bs) (h₂ : bs ≤ as) : as = bs :=
+  open Classical in
   not_lex_antisymm i.antisymm h₁ h₂
 
-instance [DecidableEq α] [LT α] [DecidableLT α]
+instance [LT α]
     [s : Std.Antisymm (¬ · < · : α → α → Prop)] :
     Std.Antisymm (· ≤ · : List α → List α → Prop) where
   antisymm _ _ h₁ h₂ := List.le_antisymm h₁ h₂

@@ -17,6 +17,8 @@ def isHMulInst (struct : Struct) (inst : Expr) : Bool :=
   isSameExpr struct.hmulFn.appArg! inst
 def isHMulNatInst (struct : Struct) (inst : Expr) : Bool :=
   isSameExpr struct.hmulNatFn.appArg! inst
+def isHomoMulInst (struct : Struct) (inst : Expr) : Bool :=
+  if let some homomulFn := struct.homomulFn? then isSameExpr homomulFn inst else false
 def isHSMulInst (struct : Struct) (inst : Expr) : Bool :=
   if let some smulFn := struct.hsmulFn? then isSameExpr smulFn.appArg! inst else false
 def isHSMulNatInst (struct : Struct) (inst : Expr) : Bool :=
@@ -107,6 +109,5 @@ where
     | OfNat.ofNat _ _ _ =>
       if (← isOfNatZero e) then return .zero else toVar e
     | _ => toVar e
-
 
 end  Lean.Meta.Grind.Arith.Linear

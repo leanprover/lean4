@@ -26,14 +26,19 @@ If you want to use the lazy feature, make sure that the `edit?` field on the `ea
 structure LazyCodeAction where
   /-- This is the initial code action that is sent to the server, to implement -/
   eager : CodeAction
-  -- TODO: this is a terrible hack; find something better
-  semiLazy? : Option (IO (Array CodeAction)) := none
   lazy? : Option (IO CodeAction) := none
 
--- inductive LaziableCodeAction where
---   | eager : CodeAction → LaziableCodeAction
---   | semiLazy : SemiLazyCodeAction → LaziableCodeAction
---   | lazy : LazyCodeAction → LaziableCodeAction
+inductive CodeActions where
+  | eager : Array LazyCodeAction → CodeActions
+  | lazy  : IO (Array LazyCodeAction) → CodeActions
+
+-- Improve backwards compatibility:
+instance : Coe (Array LazyCodeAction) CodeActions where
+  coe lcas := .eager lcas
+
+def CodeActions.toArray : CodeActions → IO (Array LazyCodeAction)
+  | .eager lcas => return lcas
+  | .lazy slcas => slcas
 
 /-- Passed as the `data?` field of `Lsp.CodeAction` to recover the context of the code action. -/
 structure CodeActionResolveData where
@@ -76,7 +81,7 @@ When implementing your own `CodeActionProvider`, we assume that no long-running 
 If you need to create a code-action with a long-running computation, you can use the `lazy?` field on `LazyCodeAction`
 to perform the computation after the user has clicked on the code action in their editor.
 -/
-@[expose] def CodeActionProvider := CodeActionParams → Snapshot → RequestM (Array LazyCodeAction)
+@[expose] def CodeActionProvider := CodeActionParams → Snapshot → RequestM CodeActions
 deriving instance Inhabited for CodeActionProvider
 
 private builtin_initialize builtinCodeActionProviders : IO.Ref (NameMap CodeActionProvider) ←
@@ -138,20 +143,15 @@ def handleCodeAction (params : CodeActionParams) : RequestM (RequestTask (Array 
         return (← builtinCodeActionProviders.get).toList.toArray ++ Array.zip names caps
       caps.flatMapM fun (providerName, cap) => do
         RequestM.checkCancelled
-        let cas ← cap params snap
-        cas.zipIdx.flatMapM fun (lca, i) => do
-          if lca.lazy?.isNone then
-            if let some semiLazy := lca.semiLazy? then
-              return (← semiLazy)
-            else
-              return #[lca.eager]
-          else
-            let data : CodeActionResolveData := {
-              params, providerName, providerResultIndex := i
-            }
-            let j : Json := toJson data
-            let ca := { lca.eager with data? := some j }
-            return #[ca]
+        let cas ← (← cap params snap).toArray
+        cas.mapIdxM fun i lca => do
+          if lca.lazy?.isNone then return lca.eager
+          let data : CodeActionResolveData := {
+            params, providerName, providerResultIndex := i
+          }
+          let j : Json := toJson data
+          let ca := { lca.eager with data? := some j }
+          return ca
 
 builtin_initialize
   registerLspRequestHandler "textDocument/codeAction" CodeActionParams (Array CodeAction) handleCodeAction
@@ -172,7 +172,7 @@ def handleCodeActionResolve (param : CodeAction) : RequestM (RequestTask CodeAct
       let cap ← match (← builtinCodeActionProviders.get).find? data.providerName with
         | some cap => pure cap
         | none     => RequestM.runCoreM snap <| evalCodeActionProvider data.providerName
-      let cas ← cap data.params snap
+      let cas ← (← cap data.params snap).toArray
       let some ca := cas[data.providerResultIndex]?
         | throw <| RequestError.internalError s!"Failed to resolve code action index {data.providerResultIndex}."
       let some lazy := ca.lazy?

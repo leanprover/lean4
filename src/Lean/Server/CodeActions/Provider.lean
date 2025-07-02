@@ -43,7 +43,7 @@ A code action which calls all `@[hole_code_action]` code actions on each hole
     let (some head, some tail) := (info.stx.getPos? true, info.stx.getTailPos? true) | result
     unless head ≤ endPos && startPos ≤ tail do return result
     result.push (ctx, info)
-  let #[(ctx, info)] := holes | return #[]
+  let #[(ctx, info)] := holes | return .eager #[]
   (holeCodeActionExt.getState snap.env).2.flatMapM (· params snap ctx info)
 
 /--

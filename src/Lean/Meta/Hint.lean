@@ -329,7 +329,7 @@ def mkSuggestionsMessage (suggestions : Array Suggestion) (ref : Syntax)
     if let some range := (suggestion.span?.getD ref).getRange? then
       let { info, suggestions := suggestionArr, range := lspRange } ←
         processSuggestions ref range #[suggestion.toTryThisSuggestion] codeActionPrefix?
-      logInfo m!"Pushing info leaf: {← info.format { env := (← getEnv), fileMap := (← getFileMap), ngen := (← getNGen) }}"
+
       pushInfoLeaf info
       -- The following access is safe because
       -- `suggestionsArr = #[suggestion.toTryThisSuggestion].map ...` (see `processSuggestions`)
@@ -410,7 +410,6 @@ The arguments are as follows:
 -/
 def _root_.Lean.MessageData.lazyHint (mkHint : MetaM LazyHintConfig) (ref? : Option Syntax) (es : Array Expr := #[]) : MetaM MessageData := do
   let codeAction : LazyTryThisInfo := {
-    codeActionPlaceholder := "This won't work"
     info := do
       let { suggestions, codeActionPrefix?, .. } ← mkHint
       let ref := ref?.getD (← getRef)
@@ -420,6 +419,7 @@ def _root_.Lean.MessageData.lazyHint (mkHint : MetaM LazyHintConfig) (ref? : Opt
           let { info, .. } ← processSuggestions ref range #[suggestion.toTryThisSuggestion] codeActionPrefix?
           let .ofCustomInfo info := info | unreachable!
           let some ttInfo := info.value.get? TryThisInfo | unreachable!
+          dbg_trace "producing the TryThisInfo from the LazyTryThisInfo: at {ref}, produced range={repr ttInfo.range}, suggestions={ttInfo.suggestionTexts}"
           pure <| some ttInfo
         else pure none
     ppCtx := { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions),
@@ -432,7 +432,6 @@ def _root_.Lean.MessageData.lazyHint (mkHint : MetaM LazyHintConfig) (ref? : Opt
     value := .mk codeAction
   }
   let fileMap ← getFileMap
-  -- let ref := ref?.getD (← getRef)
   -- let suggs ← mkSuggestionsMessage suggestions ref codeActionPrefix?
   return .tagged `hint <| .ofLazyM (es := es) <| withRef curRef <| withTheReader Core.Context (fun ctx => { ctx with fileMap }) do
     let { msg, suggestions, codeActionPrefix? } ← mkHint

@@ -18,8 +18,6 @@ inductive AttrKind where
   | ext
   | symbol (prio : Nat)
 
-set_option interpreter.prefer_native false -- TODO: remove
-
 /-- Return theorem kind for `stx` of the form `Attr.grindThmMod` -/
 def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   match stx with

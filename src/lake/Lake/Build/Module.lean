@@ -60,12 +60,12 @@ def Module.recParseImports (mod : Module) : FetchM (Job (Array Module)) := do
 def Module.importsFacetConfig : ModuleFacetConfig importsFacet :=
   mkFacetJobConfig recParseImports (buildable := false)
 
-structure ModuleImportData where
+private structure ModuleImportData where
   module : Module
   transImports : Job (Array Module)
   includeSelf : Bool
 
-@[inline] def collectImportsAux
+@[inline] private def collectImportsAux
   (fileName : String) (imports : Array Module)
   (f : Module → FetchM (Bool × Job (Array Module)))
 : FetchM (Job (Array Module)) := do
@@ -139,12 +139,10 @@ private def Module.fetchImportLibs
   return jobs
 
 /--
-**For internal use.**
-
 Fetches the library dynlibs of a list of non-local imports.
 Modules are loaded as part of their whole library.
 -/
-def fetchImportLibs
+private def fetchImportLibs
   (mods : Array Module) : FetchM (Job (Array Dynlib))
 := do
   let (_, jobs) ← mods.foldlM (init := (({} : NameSet), #[])) fun (libs, jobs) imp => do
@@ -179,6 +177,11 @@ where
       go lib ps v o
     let o := o.push lib
     return (v, o)
+
+private structure ModuleDeps where
+  dynlibs : Array Dynlib := #[]
+  plugins : Array Dynlib := #[]
+  deriving Inhabited, Repr
 
 private def computeModuleDeps
   (impLibs : Array Dynlib) (externLibs : Array Dynlib)
@@ -284,6 +287,54 @@ def Module.importInfoFacetConfig : ModuleFacetConfig importInfoFacet :=
   mkFacetJobConfig fun mod => do
     let header ← (← mod.header.fetch).await
     fetchImportInfo mod.relLeanFile.toString mod.name header
+
+  /-- Computes the import artifacts and transitive import trace of a module's imports. -/
+def Module.computeExportInfo (mod : Module) : FetchM (Job ModuleExportInfo) := do
+  (← mod.leanArts.fetch).mapM (sync := true) fun arts => do
+    let header ← (← mod.header.fetch).await
+    let importInfo ← (← mod.importInfo.fetch).await
+    let artsTrace := BuildTrace.nil s!"{mod.name}:importArts"
+    let allArtsTrace := BuildTrace.nil s!"{mod.name}:importAllArts"
+    let olean := arts.olean
+    if header.isModule then
+      let some oleanServer := arts.oleanServer?
+        | error noServerOLeanError
+      let some oleanPrivate := arts.oleanPrivate?
+        | error noPrivateOLeanError
+      return {
+        arts := ⟨#[olean.path, oleanServer.path]⟩
+        artsTrace := artsTrace.mix olean.trace
+        allArts := ⟨#[olean.path, oleanServer.path, oleanPrivate.path]⟩
+        allArtsTrace:= allArtsTrace.mix
+          olean.trace |>.mix oleanServer.trace |>.mix oleanPrivate.trace
+        transTrace := importInfo.transTrace
+        allTransTrace := importInfo.allTransTrace
+      }
+    else
+      return {
+        arts := ⟨#[olean.path]⟩
+        artsTrace := artsTrace.mix olean.trace
+        allArts := ⟨#[olean.path]⟩
+        allArtsTrace:= allArtsTrace.mix olean.trace
+        transTrace := importInfo.transTrace
+        allTransTrace := importInfo.allTransTrace
+      }
+
+/-- The `ModuleFacetConfig` for the builtin `exportInfoFacet`. -/
+def Module.exportInfoFacetConfig : ModuleFacetConfig exportInfoFacet :=
+  mkFacetJobConfig computeExportInfo (buildable := false)
+
+/-- The `ModuleFacetConfig` for the builtin `importArtsFacet`. -/
+def Module.importArtsFacetConfig : ModuleFacetConfig importArtsFacet :=
+  mkFacetJobConfig fun mod =>
+    return (← mod.exportInfo.fetch).mapOk (sync := true) fun i s =>
+      .ok i.arts {s with trace := i.artsTrace}
+
+/-- The `ModuleFacetConfig` for the builtin `importAllArtsFacet`. -/
+def Module.importAllArtsFacetConfig : ModuleFacetConfig importAllArtsFacet :=
+  mkFacetJobConfig fun mod =>
+    return (← mod.exportInfo.fetch).mapOk (sync := true) fun i s =>
+      .ok i.arts {s with trace := i.allArtsTrace}
 
 /--
 Recursively build a module's dependencies, including:
@@ -525,54 +576,6 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifacts) := d
 def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=
   mkFacetJobConfig recBuildLean
 
-  /-- Computes the import artifacts and transitive import trace of a module's imports. -/
-def Module.computeExportInfo (mod : Module) : FetchM (Job ModuleExportInfo) := do
-  (← mod.leanArts.fetch).mapM (sync := true) fun arts => do
-    let header ← (← mod.header.fetch).await
-    let importInfo ← (← mod.importInfo.fetch).await
-    let artsTrace := BuildTrace.nil s!"{mod.name}:importArts"
-    let allArtsTrace := BuildTrace.nil s!"{mod.name}:importAllArts"
-    let olean := arts.olean
-    if header.isModule then
-      let some oleanServer := arts.oleanServer?
-        | error noServerOLeanError
-      let some oleanPrivate := arts.oleanPrivate?
-        | error noPrivateOLeanError
-      return {
-        arts := ⟨#[olean.path, oleanServer.path]⟩
-        artsTrace := artsTrace.mix olean.trace
-        allArts := ⟨#[olean.path, oleanServer.path, oleanPrivate.path]⟩
-        allArtsTrace:= allArtsTrace.mix
-          olean.trace |>.mix oleanServer.trace |>.mix oleanPrivate.trace
-        transTrace := importInfo.transTrace
-        allTransTrace := importInfo.allTransTrace
-      }
-    else
-      return {
-        arts := ⟨#[olean.path]⟩
-        artsTrace := artsTrace.mix olean.trace
-        allArts := ⟨#[olean.path]⟩
-        allArtsTrace:= allArtsTrace.mix olean.trace
-        transTrace := importInfo.transTrace
-        allTransTrace := importInfo.allTransTrace
-      }
-
-/-- The `ModuleFacetConfig` for the builtin `exportInfoFacet`. -/
-def Module.exportInfoFacetConfig : ModuleFacetConfig exportInfoFacet :=
-  mkFacetJobConfig computeExportInfo (buildable := false)
-
-/-- The `ModuleFacetConfig` for the builtin `importArtsFacet`. -/
-def Module.importArtsFacetConfig : ModuleFacetConfig importArtsFacet :=
-  mkFacetJobConfig fun mod =>
-    return (← mod.exportInfo.fetch).mapOk (sync := true) fun i s =>
-      .ok i.arts {s with trace := i.artsTrace}
-
-/-- The `ModuleFacetConfig` for the builtin `importAllArtsFacet`. -/
-def Module.importAllArtsFacetConfig : ModuleFacetConfig importAllArtsFacet :=
-  mkFacetJobConfig fun mod =>
-    return (← mod.exportInfo.fetch).mapOk (sync := true) fun i s =>
-      .ok i.arts {s with trace := i.allArtsTrace}
-
 @[inline] private def Module.fetchOLeanCore
   (facet : String) (f : ModuleOutputArtifacts → Option Artifact) (errMsg : String) (mod : Module)
 : FetchM (Job FilePath) := do
@@ -797,6 +800,8 @@ building its imports and other dependencies.
 
 This is used by `lake setup-file` to configure modules for the Lean server and by `lake lean`
 to build the dependencies of the file and generate the data for `lean --setup`.
+
+Due to its exclusive use as a top-level build, it does not construct a proper trace state.
 -/
 def setupExternalModule
   (fileName : String) (header : ModuleHeader) (leanOpts : LeanOptions)

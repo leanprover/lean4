@@ -17,24 +17,22 @@ inductive AttrKind where
   | infer
   | ext
 
+set_option interpreter.prefer_native false -- TODO: remove
+
 /-- Return theorem kind for `stx` of the form `Attr.grindThmMod` -/
 def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   match stx with
   | `(Parser.Attr.grindMod|=) => return .ematch (.eqLhs false)
   | `(Parser.Attr.grindMod|= gen) => return .ematch (.eqLhs true)
-  | `(Parser.Attr.grindMod|→)
-  | `(Parser.Attr.grindMod|->) => return .ematch .fwd
-  | `(Parser.Attr.grindMod|←)
-  | `(Parser.Attr.grindMod|<-) => return .ematch (.bwd false)
-  | `(Parser.Attr.grindMod|<- gen) => return .ematch (.bwd true)
+  | `(Parser.Attr.grindMod|→) => return .ematch .fwd
+  | `(Parser.Attr.grindMod|←) => return .ematch (.bwd false)
+  | `(Parser.Attr.grindMod|← gen) => return .ematch (.bwd true)
   | `(Parser.Attr.grindMod|=_) => return .ematch (.eqRhs false)
   | `(Parser.Attr.grindMod|=_ gen) => return .ematch (.eqRhs true)
   | `(Parser.Attr.grindMod|_=_) => return .ematch (.eqBoth false)
   | `(Parser.Attr.grindMod|_=_ gen) => return .ematch (.eqBoth true)
   | `(Parser.Attr.grindMod|←=) => return .ematch .eqBwd
-  | `(Parser.Attr.grindMod|⇒)
   | `(Parser.Attr.grindMod|=>) => return .ematch .leftRight
-  | `(Parser.Attr.grindMod|⇐)
   | `(Parser.Attr.grindMod|<=) => return .ematch .rightLeft
   | `(Parser.Attr.grindMod|usr) => return .ematch .user
   | `(Parser.Attr.grindMod|gen) => return .ematch (.default true)

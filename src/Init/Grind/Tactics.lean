@@ -10,8 +10,6 @@ public import Init.Tactics
 
 public section
 
-set_option interpreter.prefer_native false -- TODO: remove
-
 namespace Lean.Grind
 /--
 Gadget for representing generalization steps `h : x = val` in patterns

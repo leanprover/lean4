@@ -12,6 +12,8 @@ import Lean.Elab.MutualDef
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.Config
 
+set_option interpreter.prefer_native false -- TODO: remove
+
 namespace Lean.Elab.Tactic
 open Meta
 

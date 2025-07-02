@@ -735,7 +735,7 @@ def throwErrorIfErrors : TermElabM Unit := do
     throwError "Error(s)"
 
 def throwErrorIfUnsafe : TermElabM Unit := do
-  if (← getThe Context).prohibitUnsafe then
+  if (← readThe Context).prohibitUnsafe then
     throwError "Cannot elaborate unsafe"
 
 def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TermElabM Unit :=

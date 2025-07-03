@@ -11,6 +11,7 @@ public import all Init.Data.Option.Instances
 public import Init.Data.BEq
 public import Init.Classical
 public import Init.Ext
+public import Init.Grind.Tactics
 
 public section
 
@@ -1537,15 +1538,25 @@ theorem pfilter_guard {a : α} {p : α → Bool} {q : (a' : α) → guard p a = 
 
 /-! ### LT and LE -/
 
-@[simp, grind] theorem not_lt_none [LT α] {a : Option α} : ¬ a < none := by cases a <;> simp [LT.lt, Option.lt]
-@[grind] theorem none_lt_some [LT α] {a : α} : none < some a := by simp [LT.lt, Option.lt]
+@[simp] theorem not_lt_none [LT α] {a : Option α} : ¬ a < none := by cases a <;> simp [LT.lt, Option.lt]
+theorem none_lt_some [LT α] {a : α} : none < some a := by simp [LT.lt, Option.lt]
 @[simp] theorem none_lt [LT α] {a : Option α} : none < a ↔ a.isSome := by cases a <;> simp [none_lt_some]
-@[simp, grind] theorem some_lt_some [LT α] {a b : α} : some a < some b ↔ a < b := by simp [LT.lt, Option.lt]
+@[simp] theorem some_lt_some [LT α] {a b : α} : some a < some b ↔ a < b := by simp [LT.lt, Option.lt]
 
-@[simp, grind] theorem none_le [LE α] {a : Option α} : none ≤ a := by cases a <;> simp [LE.le, Option.le]
-@[grind] theorem not_some_le_none [LE α] {a : α} : ¬ some a ≤ none := by simp [LE.le, Option.le]
+@[simp] theorem none_le [LE α] {a : Option α} : none ≤ a := by cases a <;> simp [LE.le, Option.le]
+theorem not_some_le_none [LE α] {a : α} : ¬ some a ≤ none := by simp [LE.le, Option.le]
 @[simp] theorem le_none [LE α] {a : Option α} : a ≤ none ↔ a = none := by cases a <;> simp [not_some_le_none]
-@[simp, grind] theorem some_le_some [LE α] {a b : α} : some a ≤ some b ↔ a ≤ b := by simp [LE.le, Option.le]
+@[simp] theorem some_le_some [LE α] {a b : α} : some a ≤ some b ↔ a ≤ b := by simp [LE.le, Option.le]
+
+section
+set_option grind.permissivePatterns true
+grind_pattern not_lt_none => a < none
+grind_pattern none_lt_some => none < some a
+grind_pattern some_lt_some => some a < some b
+grind_pattern none_le => none ≤ a
+grind_pattern not_some_le_none => some a ≤ none
+grind_pattern some_le_some => some a ≤ some b
+end
 
 @[simp]
 theorem filter_le [LE α] (le_refl : ∀ x : α, x ≤ x) {o : Option α} {p : α → Bool} : o.filter p ≤ o := by

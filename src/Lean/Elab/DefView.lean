@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Command
 public import Lean.Elab.DeclNameGen
 public import Lean.Elab.DeclUtil
+meta import Lean.Parser.Command
 
 public section
 

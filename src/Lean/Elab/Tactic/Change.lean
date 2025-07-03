@@ -17,7 +17,7 @@ open Meta
 # Implementation of the `change` tactic
 -/
 
-private def elabChangeDefaultError (p tgt : Expr) : MetaM MessageData := do
+def elabChangeDefaultError (p tgt : Expr) : MetaM MessageData := do
   return m!"\
     'change' tactic failed, pattern{indentExpr p}\n\
     is not definitionally equal to target{indentExpr tgt}"
@@ -68,7 +68,7 @@ but using named placeholders or `?_` results in `change` to creating new goals.
 
 The tactic `show e` is interchangeable with `change e`, where the pattern `e` is applied to
 the main goal. -/
-@[builtin_tactic change] elab_rules : tactic
+@[builtin_tactic change] def evalChange : Tactic
   | `(tactic| change $newType:term $[$loc:location]?) => do
     withLocation (expandOptLocation (Lean.mkOptionalNode loc))
       (atLocal := fun h => do
@@ -80,5 +80,6 @@ the main goal. -/
         liftMetaTactic fun mvarId => do
           return (← mvarId.replaceTargetDefEq tgt') :: mvars)
       (failed := fun _ => throwError "'change' tactic failed")
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic

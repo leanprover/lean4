@@ -16,6 +16,7 @@ public import Lean.Elab.Open
 public import Lean.Elab.SetOption
 public import Init.System.Platform
 public import Lean.Meta.Hint
+meta import Lean.Parser.Command
 
 public section
 

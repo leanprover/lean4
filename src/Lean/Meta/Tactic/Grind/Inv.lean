@@ -10,6 +10,7 @@ public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Proof
 public import Lean.Meta.Tactic.Grind.MatchCond
 public import Lean.Meta.Tactic.Grind.Arith.Inv
+import all Lean.Meta.Tactic.Grind.Types  -- for `Goal` constructor
 
 public section
 

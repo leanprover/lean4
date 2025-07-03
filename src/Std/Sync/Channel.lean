@@ -629,7 +629,7 @@ Additionally `Std.CloseableChannel` can be closed if necessary, unlike `Std.Chan
 This introduces a need for error handling in some cases, thus it is usually easier to use
 `Std.Channel` if applicable.
 -/
-@[expose] def CloseableChannel (α : Type) : Type := CloseableChannel.Flavors α
+def CloseableChannel (α : Type) : Type := CloseableChannel.Flavors α
 
 /--
 A multi-producer multi-consumer FIFO channel that offers both bounded and unbounded buffering
@@ -643,7 +643,7 @@ This introduces the need to handle errors in some cases, thus it is usually easi
 @[expose] def CloseableChannel.Sync (α : Type) : Type := CloseableChannel α
 
 instance : Nonempty (CloseableChannel α) :=
-  inferInstanceAs (Nonempty (CloseableChannel.Flavors α))
+  by exact inferInstanceAs (Nonempty (CloseableChannel.Flavors α))
 
 instance : Nonempty (CloseableChannel.Sync α) :=
   inferInstanceAs (Nonempty (CloseableChannel α))

@@ -2522,8 +2522,9 @@ theorem Char.val_eq_of_eq : ∀ {c d : Char}, Eq c d → Eq c.val d.val
 theorem Char.ne_of_val_ne {c d : Char} (h : Not (Eq c.val d.val)) : Not (Eq c d) :=
   fun h' => absurd (val_eq_of_eq h') h
 
+-- hello!
 theorem Char.val_ne_of_ne {c d : Char} (h : Not (Eq c d)) : Not (Eq c.val d.val) :=
-  fun h' => absurd (eq_of_val_eq h') h
+  fun h'' => id (absurd (eq_of_val_eq h'') h)
 
 instance : DecidableEq Char :=
   fun c d =>
@@ -5360,3 +5361,5 @@ instance : MonadQuotation UnexpandM where
 end PrettyPrinter
 
 end Lean
+
+private theorem f : Eq Nat.zero Nat.zero := rfl

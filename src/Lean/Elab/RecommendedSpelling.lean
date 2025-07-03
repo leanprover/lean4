@@ -9,6 +9,7 @@ prelude
 public import Lean.Parser.Term.Doc
 public import Lean.Parser.Command
 public import Lean.Elab.Command
+meta import Lean.Parser.Command
 
 public section
 

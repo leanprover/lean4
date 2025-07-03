@@ -14,6 +14,7 @@ public import Lean.Compiler.ImplementedByAttr
 public import Lean.Elab.SyntheticMVars
 public import Lean.Elab.Eval
 public import Lean.Elab.Binders
+meta import Lean.Parser.Do
 
 public section
 

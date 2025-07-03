@@ -10,6 +10,8 @@ prelude
 public import Lean.Elab.Command
 public import Lean.Elab.Term
 public import Lean.Elab.Deriving.Basic
+meta import Lean.Parser.Command
+meta import Lean.Parser.Term
 
 public import Lean.Server.Rpc.Basic
 
@@ -61,7 +63,7 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
   )
 
 private def matchAltTerm := Lean.Parser.Term.matchAlt (rhsParser := Lean.Parser.termParser)
-instance : Coe (TSyntax ``matchAltTerm) (TSyntax ``Parser.Term.matchAlt) where coe s := ⟨s⟩
+private instance : Coe (TSyntax ``matchAltTerm) (TSyntax ``Parser.Term.matchAlt) where coe s := ⟨s⟩
 
 private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr)
     (encInstBinders : Array (TSyntax ``bracketedBinder)) : TermElabM Command := do

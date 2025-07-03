@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Util.FindExpr
-public import Lean.Parser.Term
+meta import Lean.Parser.Term
 public import Lean.Meta.Structure
 public import Lean.Elab.App
 public import Lean.Elab.Binders
@@ -305,10 +305,10 @@ structure StructInstView where
   sources : SourcesView
   deriving Inhabited
 
-private def formatField (field : FieldView) : Format :=
+def formatField (field : FieldView) : Format :=
   Format.joinSep field.lhs " . " ++ " := " ++ format field.val
 
-private def formatStruct : StructInstView → Format
+def formatStruct : StructInstView → Format
   | ⟨_, fields, source⟩ =>
     let fieldsFmt := Format.joinSep (fields.toList.map formatField) ", "
     let implicitFmt := if source.implicit.isSome then " .. " else ""
@@ -491,14 +491,14 @@ private structure ExpandedField where
 
 private def ExpandedField.isNested (f : ExpandedField) : Bool := f.val matches .nested ..
 
-instance : ToMessageData ExpandedFieldVal where
+private instance : ToMessageData ExpandedFieldVal where
   toMessageData
     | .term stx => m!"term {stx}"
     | .proj fvarId stx parentStructName _ => m!"proj {Expr.fvar fvarId} {.ofConstName parentStructName}{indentD stx}"
     | .source fvar => m!"source {fvar}"
     | .nested fieldViews sources => m!"nested {MessageData.joinSep (sources.map (·.stx)).toList ", "} {MessageData.joinSep (fieldViews.map (indentD <| toMessageData ·)).toList "\n"}"
 
-instance : ToMessageData ExpandedField where
+private instance : ToMessageData ExpandedField where
   toMessageData field := m!"field '{field.name}' is {field.val}"
 
 abbrev ExpandedFields := NameMap ExpandedField

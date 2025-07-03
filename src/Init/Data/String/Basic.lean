@@ -300,7 +300,7 @@ Examples:
 * `"L∃∀N".atEnd ⟨7⟩ = false`
 * `"L∃∀N".atEnd ⟨8⟩ = true`
 -/
-@[extern "lean_string_utf8_at_end"]
+@[extern "lean_string_utf8_at_end", expose]
 def atEnd : (@& String) → (@& Pos) → Bool
   | s, p => p.byteIdx ≥ utf8ByteSize s
 

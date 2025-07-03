@@ -14,6 +14,8 @@ public import Lean.DocString.Links
 -- all declared explanations:
 public import Lean.ErrorExplanations
 
+public section
+
 namespace Lean
 
 /--

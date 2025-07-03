@@ -8,6 +8,8 @@ module
 prelude
 public import Lean.Parser.Module
 
+public section
+
 namespace Lean
 namespace ParseImports
 
@@ -22,7 +24,7 @@ structure State where
   importAll     : Bool := false
   deriving Inhabited
 
-def Parser := String → State → State
+@[expose] def Parser := String → State → State
 
 instance : Inhabited Parser where
   default := fun _ s => s
@@ -205,8 +207,6 @@ def setImportAll (importAll : Bool) : Parser := fun _ s =>
 def main : Parser :=
   keywordCore "module" (fun _ s => s) (fun _ s => { s with isModule := true }) >>
   keywordCore "prelude" (fun _ s => s.pushImport `Init) (fun _ s => s) >>
-
-public section
   many (keywordCore "public" (setIsExported true) (setIsExported true) >>
     keywordCore "meta" (setIsMeta false) (setIsMeta true) >>
     keyword "import" >>

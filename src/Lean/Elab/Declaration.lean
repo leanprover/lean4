@@ -12,6 +12,7 @@ public import Lean.Elab.DefView
 public import Lean.Elab.MutualDef
 public import Lean.Elab.MutualInductive
 public import Lean.Elab.DeclarationRange
+meta import Lean.Parser.Command
 
 public section
 namespace Lean.Elab.Command

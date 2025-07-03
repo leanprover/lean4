@@ -83,7 +83,7 @@ abbrev insert (s : NameSSet) (n : Name) : NameSSet := SSet.insert s n
 abbrev contains (s : NameSSet) (n : Name) : Bool := SSet.contains s n
 end NameSSet
 
-def NameHashSet := Std.HashSet Name
+@[expose] def NameHashSet := Std.HashSet Name
 
 namespace NameHashSet
 @[inline] def empty : NameHashSet := (∅ : Std.HashSet Name)

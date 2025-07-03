@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.Command
 public import Lean.Linter.Basic
+meta import Lean.Elab.Command
 
 public section
 

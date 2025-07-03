@@ -21,6 +21,7 @@ public import Lean.Elab.DefView
 public import Lean.Elab.DeclUtil
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.DeclarationRange
+meta import Lean.Parser.Command
 
 public section
 

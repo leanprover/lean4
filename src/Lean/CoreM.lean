@@ -75,7 +75,7 @@ def useDiagnosticMsg : MessageData :=
       pure <| .hint' s!"Additional diagnostic information may be available using the `set_option {diagnostics.name} true` command."
 
 /-- Name generator that creates user-accessible names. -/
-structure DeclNameGenerator where
+structure DeclNameGenerator where private mk ::
   namePrefix : Name := .anonymous
   -- We use a non-nil list instead of changing `namePrefix` as we want to distinguish between
   -- numeric components in the original name (e.g. from macro scopes) and ones added by `mkChild`.
@@ -84,6 +84,9 @@ structure DeclNameGenerator where
   deriving Inhabited
 
 namespace DeclNameGenerator
+
+def ofPrefix (namePrefix : Name) : DeclNameGenerator :=
+  { namePrefix }
 
 private def idxs (g : DeclNameGenerator) : List Nat :=
   g.idx :: g.parentIdxs
@@ -195,7 +198,7 @@ structure State where
   Name generator for creating persistent auxiliary declarations. Separate from `ngen` to keep
   numbers smaller and create user-accessible names.
   -/
-  auxDeclNGen     : DeclNameGenerator := {}
+  auxDeclNGen     : DeclNameGenerator := default
   /-- Trace messages -/
   traceState      : TraceState     := {}
   /-- Cache for instantiating universe polymorphic declarations. -/

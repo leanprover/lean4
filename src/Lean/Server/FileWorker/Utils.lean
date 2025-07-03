@@ -51,7 +51,7 @@ structure EditableDocumentCore where
   /-- Initial processing snapshot. -/
   initSnap : Language.Lean.InitialSnapshot
   /-- Old representation for backward compatibility. -/
-  cmdSnaps : AsyncList IO.Error Snapshot := mkCmdSnaps initSnap
+  cmdSnaps : AsyncList IO.Error Snapshot := private_decl% mkCmdSnaps initSnap
   /--
   Interactive versions of diagnostics reported so far. Filled by `reportSnapshots` and read by
   `handleGetInteractiveDiagnosticsRequest`.

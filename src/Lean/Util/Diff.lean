@@ -61,7 +61,7 @@ structure Histogram.Entry (α : Type u) (lsize rsize : Nat) where
   rightWF : rightCount = 0 ↔ rightIndex = none
 
 /-- A histogram for arrays maps each element to a count and, if applicable, an index.-/
-def Histogram (α : Type u) (lsize rsize : Nat) [BEq α] [Hashable α] :=
+@[expose] def Histogram (α : Type u) (lsize rsize : Nat) [BEq α] [Hashable α] :=
   Std.HashMap α (Histogram.Entry α lsize rsize)
 
 

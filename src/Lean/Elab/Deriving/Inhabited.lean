@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Util.ForEachExprWhere
 public import Lean.Elab.Deriving.Basic
+meta import Lean.Parser.Term
 
 public section
 

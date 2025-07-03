@@ -9,6 +9,7 @@ prelude
 public import Lean.Util.CollectAxioms
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.MutualDef
+meta import Lean.Parser.Command
 
 public section
 

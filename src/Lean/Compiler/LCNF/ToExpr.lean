@@ -8,8 +8,6 @@ module
 prelude
 public import Lean.Compiler.LCNF.Basic
 
-public section
-
 namespace Lean.Compiler.LCNF
 
 namespace ToExpr
@@ -108,10 +106,10 @@ partial def Code.toExprM (code : Code) : ToExprM Expr := do
     return mkAppN (mkConst `cases) (#[← c.discr.toExprM] ++ alts)
 end
 
-def Code.toExpr (code : Code) (xs : Array FVarId := #[]) : Expr :=
+public def Code.toExpr (code : Code) (xs : Array FVarId := #[]) : Expr :=
   run' code.toExprM xs
 
-def FunDecl.toExpr (decl : FunDecl) (xs : Array FVarId := #[]) : Expr :=
+public def FunDecl.toExpr (decl : FunDecl) (xs : Array FVarId := #[]) : Expr :=
   run' decl.toExprM xs
 
 end Lean.Compiler.LCNF

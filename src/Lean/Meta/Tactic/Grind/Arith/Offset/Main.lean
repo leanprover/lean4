@@ -10,6 +10,7 @@ public import Init.Grind.Offset
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Arith.Offset.Proof
 public import Lean.Meta.Tactic.Grind.Arith.Offset.Util
+import all Lean.Meta.Tactic.Grind.Types  -- for `Goal` constructor
 
 public section
 

@@ -13,6 +13,7 @@ public import Lean.Server.FileWorker.SemanticHighlighting
 public import Lean.Server.FileWorker.SignatureHelp
 public import Lean.Server.Completion
 public import Lean.Server.References
+meta import Lean.Parser.Module
 
 public import Lean.Widget.Diff
 

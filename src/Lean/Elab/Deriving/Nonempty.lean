@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Elab.Deriving.Basic
+meta import Lean.Parser.Term
 
 public section
 

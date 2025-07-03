@@ -18,7 +18,7 @@ structure AtMostOnceData where
   found : Bool
   result : Bool
 
-def Visitor := AtMostOnceData → AtMostOnceData
+@[expose] def Visitor := AtMostOnceData → AtMostOnceData
 
 @[inline] def seq (f g : Visitor) : Visitor := fun d =>
   match f d with

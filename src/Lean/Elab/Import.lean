@@ -8,6 +8,9 @@ module
 prelude
 public import Lean.Parser.Module
 public import Lean.CoreM
+meta import Lean.Parser.Module
+
+public section
 
 namespace Lean.Elab
 
@@ -23,8 +26,6 @@ def HeaderSyntax.imports (stx : HeaderSyntax) (includeInit : Bool := true) : Arr
   match stx with
   | `(Parser.Module.header| $[module%$moduleTk]? $[prelude%$preludeTk]? $importsStx*) =>
     let imports := if preludeTk.isNone && includeInit then #[{ module := `Init : Import }] else #[]
-
-public section
     imports ++ importsStx.map fun
       | `(Parser.Module.import| $[public%$publicTk]? $[meta%$metaTk]? import $[all%$allTk]? $n) =>
         { module := n.getId, importAll := allTk.isSome

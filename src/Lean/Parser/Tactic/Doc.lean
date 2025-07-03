@@ -9,7 +9,7 @@ prelude
 public import Lean.Attributes
 public import Lean.DocString.Extension
 public import Lean.Elab.InfoTree.Main
-public import Lean.Parser.Attr
+meta import Lean.Parser.Attr
 public import Lean.Parser.Extension
 
 public section

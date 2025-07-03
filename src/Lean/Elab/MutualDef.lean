@@ -19,6 +19,7 @@ public import Lean.Elab.PreDefinition.Main
 public import Lean.Elab.PreDefinition.TerminationHint
 public import Lean.Elab.DeclarationRange
 public import Lean.Elab.WhereFinally
+meta import Lean.Parser.Command
 
 public section
 

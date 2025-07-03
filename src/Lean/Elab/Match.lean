@@ -15,6 +15,7 @@ public import Lean.Elab.BindersUtil
 public import Lean.Elab.PatternVar
 public import Lean.Elab.Quotation.Precheck
 public import Lean.Elab.SyntheticMVars
+meta import Lean.Parser.Term
 
 public section
 

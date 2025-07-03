@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Match.MatchPatternAttr
 public import Lean.Elab.Arg
 public import Lean.Elab.MatchAltView
+meta import Lean.Parser.Term
 
 public section
 

@@ -48,11 +48,11 @@ private abbrev M := StateRefT SizeState MetaM
 namespace M
 
 @[inline]
-def addSizeTerm (e : Expr) : M Unit := do
+private def addSizeTerm (e : Expr) : M Unit := do
   modify fun s => { s with relevantTerms := s.relevantTerms.insert e }
 
 @[inline]
-def addSizeHyp (f : FVarId) : M Unit := do
+private def addSizeHyp (f : FVarId) : M Unit := do
   modify fun s => { s with relevantHyps := s.relevantHyps.insert f }
 
 end M

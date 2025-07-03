@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Transform
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.Deriving.Util
+meta import Lean.Parser.Term
 
 public section
 

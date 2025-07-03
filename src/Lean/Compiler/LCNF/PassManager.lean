@@ -15,7 +15,7 @@ public section
 
 namespace Lean.Compiler.LCNF
 
-def Phase.toNat : Phase → Nat
+@[expose] def Phase.toNat : Phase → Nat
   | .base => 0
   | .mono => 1
 

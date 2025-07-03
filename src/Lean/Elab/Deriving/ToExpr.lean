@@ -11,6 +11,7 @@ public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.Deriving.Util
 public import Lean.ToLevel
 public import Lean.ToExpr
+meta import Lean.Elab.Deriving.Util
 
 public section
 

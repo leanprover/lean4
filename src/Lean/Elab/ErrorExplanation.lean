@@ -11,6 +11,7 @@ public import Lean.Meta.Eval
 public import Lean.Elab.Term
 public import Lean.Elab.Command
 public import Lean.Widget.UserWidget
+meta import Lean.Parser.Command
 
 public section
 

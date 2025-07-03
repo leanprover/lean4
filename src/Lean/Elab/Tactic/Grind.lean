@@ -134,8 +134,8 @@ where
 
 def mkGrindParams (config : Grind.Config) (only : Bool) (ps :  TSyntaxArray ``Parser.Tactic.grindParam) : MetaM Grind.Params := do
   let params ← Grind.mkParams config
-  let ematch ← if only then pure {} else Grind.getEMatchTheorems
-  let casesTypes ← if only then pure {} else Grind.getCasesTypes
+  let ematch ← if only then pure default else Grind.getEMatchTheorems
+  let casesTypes ← if only then pure default else Grind.getCasesTypes
   let params := { params with ematch, casesTypes }
   elabGrindParams params ps only
 

@@ -9,6 +9,8 @@ prelude
 public import Lean.Elab.Syntax
 public import Lean.Elab.AuxDef
 public import Lean.Elab.BuiltinNotation
+public import Lean.Parser.Syntax
+meta import Lean.Parser.Syntax
 
 public section
 

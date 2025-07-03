@@ -14,6 +14,7 @@ public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 public import Lean.Meta.Tactic.Grind.MarkNestedProofs
 public import Lean.Meta.Tactic.Grind.Canon
+import all Lean.Meta.Tactic.Grind.Types  -- for `Goal` constructor
 
 public section
 

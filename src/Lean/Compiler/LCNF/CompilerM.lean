@@ -320,7 +320,7 @@ Add the entry `fvarId ↦ fvarId'` to the free variable substitution.
   return normLetValueImp (← getSubst) e t
 
 @[inherit_doc normExprImp]
-abbrev normExprCore (s : FVarSubst) (e : Expr) (translator : Bool) : Expr :=
+def normExprCore (s : FVarSubst) (e : Expr) (translator : Bool) : Expr :=
   normExprImp s e translator
 
 /--

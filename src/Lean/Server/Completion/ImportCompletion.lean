@@ -10,6 +10,9 @@ public import Lean.Data.NameTrie
 public import Lean.Util.LakePath
 public import Lean.Server.Completion.CompletionItemData
 public import Lean.Parser.Module
+meta import Lean.Parser.Module
+
+public section
 
 namespace ImportCompletion
 
@@ -52,8 +55,6 @@ def computePartialImportCompletions
     (availableImports : ImportTrie)
     : Array Name := Id.run do
   let `(Parser.Module.header| $[module]? $[prelude]? $importsStx*) := headerStx
-
-public section
     | return #[]
   let some (completePrefix, incompleteSuffix) := importsStx.findSome? fun importStx => do
       let `(Parser.Module.«import»| $[public]? $[meta]? import $[all]? $importId $[.%$trailingDotTk?$_]?) := importStx

@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Util.ForEachExpr
 public import Lean.Meta.Tactic.Grind.Types
+import all Lean.Meta.Tactic.Grind.Types  -- for `Goal` constructor
 
 public section
 

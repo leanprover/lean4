@@ -206,8 +206,8 @@ structure State where
   reflCmpMap : PHashMap ExprPtr (Option Expr) := {}
 
 private opaque MethodsRefPointed : NonemptyType.{0}
-private def MethodsRef : Type := MethodsRefPointed.type
-instance : Nonempty MethodsRef := MethodsRefPointed.property
+def MethodsRef : Type := MethodsRefPointed.type
+instance : Nonempty MethodsRef := by exact MethodsRefPointed.property
 
 abbrev GrindM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
 
@@ -523,10 +523,10 @@ where
       hasSameRoot enodes a b
 
 instance : Hashable (CongrKey enodeMap) where
-  hash k := congrHash enodeMap k.e
+  hash k := private congrHash enodeMap k.e
 
 instance : BEq (CongrKey enodeMap) where
-  beq k1 k2 := isCongruent enodeMap k1.e k2.e
+  beq k1 k2 := private isCongruent enodeMap k1.e k2.e
 
 abbrev CongrTable (enodeMap : ENodeMap) := PHashSet (CongrKey enodeMap)
 
@@ -715,7 +715,7 @@ structure Clean.State where
 structure Goal where
   mvarId       : MVarId
   canon        : Canon.State := {}
-  private enodeMap : ENodeMap := {}
+  enodeMap : ENodeMap := {}
   exprs        : PArray Expr := {}
   parents      : ParentMap := {}
   congrTable   : CongrTable enodeMap := {}

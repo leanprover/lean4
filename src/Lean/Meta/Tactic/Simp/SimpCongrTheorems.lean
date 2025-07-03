@@ -147,7 +147,7 @@ builtin_initialize
     descr := "congruence theorem"
     add   := fun declName stx attrKind => do
       let prio ← getAttrParamOptPrio stx[1]
-      discard <| addSimpCongrTheorem declName attrKind prio |>.run {} {}
+      discard <| addSimpCongrTheorem declName attrKind prio |>.run default {}
   }
 
 def getSimpCongrTheorems : CoreM SimpCongrTheorems :=

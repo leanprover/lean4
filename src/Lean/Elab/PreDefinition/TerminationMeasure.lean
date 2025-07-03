@@ -7,7 +7,7 @@ module
 
 prelude
 
-public import Lean.Parser.Term
+meta import Lean.Parser.Term
 public import Lean.Elab.Term
 public import Lean.Elab.Binders
 public import Lean.Elab.SyntheticMVars

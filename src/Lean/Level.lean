@@ -131,7 +131,7 @@ def hasParam (u : Level) : Bool :=
 
 end Level
 
-def levelZero :=
+@[expose] def levelZero :=
   Level.zero
 
 def mkLevelMVar (mvarId : LMVarId) :=
@@ -140,7 +140,7 @@ def mkLevelMVar (mvarId : LMVarId) :=
 def mkLevelParam (name : Name) :=
   Level.param name
 
-def mkLevelSucc (u : Level) :=
+@[expose] def mkLevelSucc (u : Level) :=
   Level.succ u
 
 def mkLevelMax (u v : Level) :=
@@ -203,7 +203,7 @@ def isNeverZero : Level → Bool
   | max l₁ l₂    => isNeverZero l₁ || isNeverZero l₂
   | imax _  l₂   => isNeverZero l₂
 
-def ofNat : Nat → Level
+@[expose] def ofNat : Nat → Level
   | 0   => levelZero
   | n+1 => mkLevelSucc (ofNat n)
 

@@ -191,7 +191,7 @@ This can be used to decide whether to further transform the generated name;
 in particular, this enables checking whether the generated name mentions declarations
 from the current module or project.
 -/
-def mkBaseName (e : Expr) : MkNameM String := do
+private def mkBaseName (e : Expr) : MkNameM String := do
   let e ← instantiateMVars e
   visitNamespace (← getCurrNamespace)
   mkBaseNameAux (← winnowExpr e)

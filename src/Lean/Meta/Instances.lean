@@ -253,7 +253,7 @@ builtin_initialize
     descr := "type class instance"
     add   := fun declName stx attrKind => do
       let prio ← getAttrParamOptPrio stx[1]
-      discard <| addInstance declName attrKind prio |>.run {} {}
+      discard <| addInstance declName attrKind prio |>.run default {}
     erase := fun declName => do
       let s := instanceExtension.getState (← getEnv)
       let s ← s.erase declName
@@ -325,7 +325,7 @@ builtin_initialize
     add   := fun declName stx kind => do
       let prio ← getAttrParamOptPrio stx[1]
       unless kind == AttributeKind.global do throwError "invalid attribute 'default_instance', must be global"
-      discard <| addDefaultInstance declName prio |>.run {} {}
+      discard <| addDefaultInstance declName prio |>.run default {}
   }
   registerTraceClass `Meta.synthOrder
 

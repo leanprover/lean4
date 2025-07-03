@@ -219,7 +219,7 @@ builtin_initialize
     name  := `induction_eliminator
     descr := "custom `rec`-like eliminator for the `induction` tactic"
     add   := fun declName _ attrKind => do
-      discard <| addCustomEliminator declName attrKind (induction := true) |>.run {} {}
+      discard <| addCustomEliminator declName attrKind (induction := true) |>.run default {}
   }
 
 /--
@@ -259,7 +259,7 @@ builtin_initialize
     name  := `cases_eliminator
     descr := "custom `casesOn`-like eliminator for the `cases` tactic"
     add   := fun declName _ attrKind => do
-      discard <| addCustomEliminator declName attrKind (induction := false) |>.run {} {}
+      discard <| addCustomEliminator declName attrKind (induction := false) |>.run default {}
   }
 
 /-- Gets all the eliminators defined using the `@[induction_eliminator]` and `@[cases_eliminator]` attributes. -/

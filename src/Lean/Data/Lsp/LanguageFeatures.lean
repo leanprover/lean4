@@ -7,8 +7,8 @@ Authors: Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Data.Json
 public import Lean.Data.Lsp.Basic
+meta import Lean.Data.Json
 
 public section
 

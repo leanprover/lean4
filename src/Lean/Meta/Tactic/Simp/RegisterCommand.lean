@@ -8,7 +8,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Simp.SimpTheorems
 public import Lean.Meta.Tactic.Simp.Simproc
-public import Lean.Meta.Tactic.Simp.Attr
+meta import Lean.Meta.Tactic.Simp.Attr
 
 public section
 

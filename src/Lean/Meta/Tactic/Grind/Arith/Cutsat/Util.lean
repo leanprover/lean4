@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Arith.Util
+import all Lean.Meta.Tactic.Grind.Types  -- for `Goal` constructor
 
 public section
 

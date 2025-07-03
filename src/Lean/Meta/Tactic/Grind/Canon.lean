@@ -13,6 +13,7 @@ public import Lean.Util.FVarSubset
 public import Lean.Util.PtrSet
 public import Lean.Util.FVarSubset
 public import Lean.Meta.Tactic.Grind.Types
+import all Lean.Meta.Tactic.Grind.Types  -- for `Goal` constructor
 
 public section
 
@@ -132,7 +133,7 @@ private inductive ShouldCanonResult where
   deriving Inhabited
 
 instance : Repr ShouldCanonResult where
-  reprPrec r _ := match r with
+  reprPrec r _ := private match r with
     | .canonType => "canonType"
     | .canonInst => "canonInst"
     | .canonImplicit => "canonImplicit"

@@ -31,6 +31,9 @@ leanOptions = { experimental.module = true }
 # For example, CI will set `-DwarningAsError=true` through this
 moreLeanArgs = [${LEAN_EXTRA_OPTS_TOML}]
 
+weakLeanArgs = ["-Dinterpreter.prefer_native=false"]
+moreGlobalServerArgs = ["-Dinterpreter.prefer_native=false"]
+
 [[lean_lib]]
 name = "Init"
 libName = "${LAKE_LIB_PREFIX}Init"

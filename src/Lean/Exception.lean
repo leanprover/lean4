@@ -14,6 +14,8 @@ public import Lean.Util.MonadCache
 -- all declared explanations:
 public import Lean.ErrorExplanations
 
+public section
+
 namespace Lean
 
 /-- Exception type used in most Lean monads -/

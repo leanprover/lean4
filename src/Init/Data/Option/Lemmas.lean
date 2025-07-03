@@ -1548,15 +1548,12 @@ theorem not_some_le_none [LE α] {a : α} : ¬ some a ≤ none := by simp [LE.le
 @[simp] theorem le_none [LE α] {a : Option α} : a ≤ none ↔ a = none := by cases a <;> simp [not_some_le_none]
 @[simp] theorem some_le_some [LE α] {a b : α} : some a ≤ some b ↔ a ≤ b := by simp [LE.le, Option.le]
 
-section
-set_option grind.permissivePatterns true
 grind_pattern not_lt_none => a < none
 grind_pattern none_lt_some => none < some a
 grind_pattern some_lt_some => some a < some b
 grind_pattern none_le => none ≤ a
 grind_pattern not_some_le_none => some a ≤ none
 grind_pattern some_le_some => some a ≤ some b
-end
 
 @[simp]
 theorem filter_le [LE α] (le_refl : ∀ x : α, x ≤ x) {o : Option α} {p : α → Bool} : o.filter p ≤ o := by

@@ -24,6 +24,12 @@ the requirement that the `MonadLift(T)` instance induced by `f` admits a
 
 namespace Std.Internal
 
+class LawfulMonadLiftBindFunction {m : Type u → Type v} {n : Type w → Type x} [Monad m]
+    [Monad n] (liftBind : ∀ γ δ, (γ → n δ) → m γ → n δ) where
+  liftBind_pure {γ δ} (f : γ → n δ) (a : γ) : liftBind γ δ f (pure a) = f a
+  liftBind_bind {β γ δ} (f : γ → n δ) (x : m β) (g : β → m γ) :
+    liftBind γ δ f (x >>= g) = liftBind β δ (fun b => liftBind γ δ f (g b)) x
+
 class LawfulMonadLiftFunction {m : Type u → Type v} {n : Type u → Type w}
     [Monad m] [Monad n] (lift : ⦃α : Type u⦄ → m α → n α) where
   lift_pure {α : Type u} (a : α) : lift (pure a) = pure a
@@ -71,6 +77,30 @@ def LawfulMonadLiftFunction.idToMonad [Monad m] [LawfulMonad m] :
     LawfulMonadLiftFunction (m := Id) (n := m) idToMonad where
   lift_pure := by simp [Internal.idToMonad]
   lift_bind := by simp [Internal.idToMonad]
+
+section LiftBind
+
+variable {liftBind : ∀ γ δ, (γ → m δ) → m γ → m δ}
+
+-- instance [LawfulMonadLiftFunction lift] :
+--     LawfulMonadLiftBindFunction (m := m) (n := n) (fun γ δ f x => lift x >>= f) where
+--   liftBind_pure
+
+instance [LawfulMonadLiftBindFunction (n := n) (fun _ _ f x => lift x >>= f)] [LawfulMonad n] :
+    LawfulMonadLiftFunction lift where
+  lift_pure {γ} a := by
+    simpa using LawfulMonadLiftBindFunction.liftBind_pure (n := n)
+      (liftBind := fun _ _ f x => lift x >>= f) (γ := γ) (δ := γ) pure a
+  lift_bind {β γ} x g := by
+    simpa using LawfulMonadLiftBindFunction.liftBind_bind (n := n)
+      (liftBind := fun _ _ f x => lift x >>= f) (β := β) (γ := γ) (δ := γ) pure x g
+
+def LawfulMonadLiftBindFunction.id [Monad m] [LawfulMonad m] :
+    LawfulMonadLiftBindFunction (m := Id) (n := m) (fun _ _ f x => f x.run) where
+  liftBind_pure := by simp
+  liftBind_bind := by simp
+
+end LiftBind
 
 instance [LawfulMonadLiftFunction lift] :
     letI : MonadLift m n := ⟨lift (α := _)⟩

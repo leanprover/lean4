@@ -161,7 +161,7 @@ decreasing_by
 theorem IterM.DefaultConsumers.forIn'_eq_forIn' {m : Type w → Type w'} {α : Type w} {β : Type w}
     [Iterator α m β]
     {n : Type w → Type w''} [Monad n]
-    {lift : ∀ γ, m γ → n γ} {γ : Type w}
+    {lift : ∀ γ δ, (γ → n δ) → m γ → n δ} {γ : Type w}
     {Pl : β → γ → ForInStep γ → Prop}
     {wf : IteratorLoop.WellFounded α m Pl}
     {it : IterM (α := α) m β} {init : γ}
@@ -173,8 +173,7 @@ theorem IterM.DefaultConsumers.forIn'_eq_forIn' {m : Type w → Type w'} {α : T
     IterM.DefaultConsumers.forIn' lift γ Pl wf it init P hP f =
       IterM.DefaultConsumers.forIn' lift γ Pl wf it init Q hQ g := by
   rw [forIn', forIn']
-  apply bind_congr
-  intro step
+  congr; ext step
   split
   · congr
     · apply hfg
@@ -208,7 +207,8 @@ Asserts that a given `IteratorLoop` instance is equal to `IteratorLoop.defaultIm
 -/
 class LawfulIteratorLoop (α : Type w) (m : Type w → Type w') (n : Type x → Type x')
     [Monad m] [Monad n] [Iterator α m β] [i : IteratorLoop α m n] where
-  lawful : ∀ lift [LawfulMonadLiftFunction lift], i.forIn lift = IteratorLoop.defaultImplementation.forIn lift
+  lawful : ∀ lift [LawfulMonadLiftBindFunction lift], i.forIn lift =
+      IteratorLoop.defaultImplementation.forIn lift
 
 /--
 This is the loop implementation of the default instance `IteratorLoopPartial.defaultImplementation`.

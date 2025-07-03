@@ -110,16 +110,6 @@ theorem RangeIterator.step_eq_step {su} [UpwardEnumerable α] [SupportsUpperBoun
     it.step = ⟨RangeIterator.step it, isPlausibleStep_iff.mpr rfl⟩ := by
   simp [Iter.step, step_eq_monadicStep, Monadic.step_eq_step, IterM.Step.toPure]
 
-@[always_inline, inline]
-instance RangeIterator.instIteratorLoop {su} [UpwardEnumerable α] [SupportsUpperBound su α]
-    {n : Type v → Type w} [Monad n] :
-    IteratorLoop (RangeIterator su α) Id n :=
-  .defaultImplementation
-
-instance RangeIterator.instIteratorLoopPartial {su} [UpwardEnumerable α] [SupportsUpperBound su α]
-    {n : Type v → Type w} [Monad n] : IteratorLoopPartial (RangeIterator su α) Id n :=
-  .defaultImplementation
-
 instance RangeIterator.instIteratorCollect {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     {n : Type u → Type w} [Monad n] : IteratorCollect (RangeIterator su α) Id n :=
   .defaultImplementation
@@ -515,7 +505,7 @@ partial instance RepeatIterator.instIteratorLoopPartial {su} [UpwardEnumerable �
 theorem RangeIterator.instIteratorLoop.loop_eq {su} [UpwardEnumerable α] [SupportsUpperBound su α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableUpperBound su α]
     {n : Type u → Type w} [Monad n] [LawfulMonad n] {γ : Type u}
-    {lift} [Internal.LawfulMonadLiftFunction lift]
+    {lift} [Internal.LawfulMonadLiftBindFunction lift]
     {PlausibleForInStep} {upperBound} {next} {hl} {hu} {f} {acc} {wf} :
     loop (α := α) (su := su) (n := n) γ PlausibleForInStep wf upperBound least acc f next hl hu =
       (do

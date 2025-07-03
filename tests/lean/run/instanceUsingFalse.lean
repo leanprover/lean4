@@ -10,5 +10,9 @@ def f (x : FalseContainer) : WrappedNat FalseContainer :=
   | .nat n => { n }
   | .oops f => (f (0 == 0)).rec
 
+/--
+info: 1
+-/
+#guard_msgs in
 #eval f (.nat 1) |>.n
 

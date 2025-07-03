@@ -407,13 +407,12 @@ lazy and the generated suggestion *set* (but not the code actions themselves) is
 is the same as the eponymous parameter of `MessageData.ofLazyM`.
 -/
 def _root_.Lean.MessageData.lazyHint (mkHint : MetaM LazyHintConfig) (ref? : Option Syntax := none) (es : Array Expr := #[]) : MetaM MessageData := do
-  let curRef ← getRef
-  let ref := ref?.getD curRef
+  let ref := ref?.getD (← getRef)
   let fileMap ← getFileMap
-  let withRefAndFileMap {α} : MetaM α → MetaM α :=
-    withRef curRef ∘ withTheReader Core.Context (fun ctx => { ctx with fileMap })
+  let withFileMap {α} : MetaM α → MetaM α :=
+    withTheReader Core.Context (fun ctx => { ctx with fileMap })
   let codeAction : LazyTryThisInfo := {
-    info := withRefAndFileMap do
+    info := withFileMap do
       let { suggestions, codeActionPrefix?, .. } ← mkHint
       suggestions.filterMapM fun suggestion => do
         if let some range := (suggestion.span?.getD ref).getRange? then
@@ -427,6 +426,6 @@ def _root_.Lean.MessageData.lazyHint (mkHint : MetaM LazyHintConfig) (ref? : Opt
     stx := ref
     value := .mk codeAction
   }
-  return .tagged `hint <| .ofLazyM (es := es) <| withRefAndFileMap do
+  return .tagged `hint <| .ofLazyM (es := es) <| withFileMap do
     let { msg, suggestions, codeActionPrefix? } ← mkHint
     MessageData.hint msg suggestions ref codeActionPrefix?

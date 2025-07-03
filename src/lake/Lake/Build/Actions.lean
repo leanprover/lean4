@@ -107,6 +107,11 @@ def compileStaticLib
   createParentDirs libFile
   -- `ar rcs` does not remove old files from the archive, so it must be deleted first
   removeFileIfExists libFile
+  /-
+  Remark: `--thin` is recommended over `T` for producing static archives.
+  Unfortunately, older versions of LLVM `ar` do not support it. Thus, either choice produces
+  tradeoffs. `T` is chosen to make Lake consistent with the Lean core's own (Make) build scripts.
+  -/
   let flags := "rcs"
   let flags := if thin then flags.push 'T' else flags
   let args := #[flags, libFile.toString] ++ (← mkArgs libFile <| oFiles.map toString)

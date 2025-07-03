@@ -9,7 +9,6 @@ prelude
 public import Init.Data.Range.Polymorphic.RangeIterator
 public import Init.Data.Range.Polymorphic.Basic
 public import Init.Data.Iterators.Combinators.Attach
-public import Init.Data.Stream
 
 public section
 
@@ -25,10 +24,6 @@ Use `PRange.iter` instead, which requires importing `Std.Data.Iterators`.
 def Internal.iter {sl su α} [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     (r : PRange ⟨sl, su⟩ α) : Iter (α := RangeIterator su α) α :=
   ⟨⟨BoundedUpwardEnumerable.init? r.lower, r.upper⟩⟩
-
-instance {sl su α} [UpwardEnumerable α] [BoundedUpwardEnumerable sl α] :
-    ToStream (PRange ⟨sl, su⟩ α) (Iter (α := RangeIterator su α) α) where
-  toStream r := Internal.iter r
 
 /--
 Returns the elements of the given range as a list in ascending order, given that ranges of the given

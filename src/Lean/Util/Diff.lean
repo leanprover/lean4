@@ -5,6 +5,7 @@ Authors: David Thrane Christiansen
 -/
 prelude
 import Init.Data.Array.Subarray.Split
+import Init.Data.Slice.Array.Iterator
 import Init.Data.Range
 import Std.Data.HashMap.Basic
 import Init.Omega

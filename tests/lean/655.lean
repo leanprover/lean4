@@ -1,12 +1,14 @@
 module
 
 public section
-set_option trace.Meta.isDefEq true
 structure A := a : Nat
 
 #print A.rec
 #print A.mk
+#with_exporting
+#reduce (types := true) fun a => sizeOf (A.mk a) = 1 + sizeOf a
 theorem t : sizeOf (A.mk a) = 1 + sizeOf a := (rfl)
+set_option trace.Meta.isDefEq true in
 theorem t2 : sizeOf (A.mk a) = 1 + sizeOf a := rfl
 
 structure B extends A := b : Nat

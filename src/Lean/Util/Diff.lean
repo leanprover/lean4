@@ -112,6 +112,7 @@ def matchPrefix (left right : Subarray α) : Array α × Subarray α × Subarray
   termination_by left.size - pref.size
   go #[]
 
+
 /-- Given two `Subarray`s, find their common suffix and return their differing prefixes -/
 def matchSuffix (left right : Subarray α) : Subarray α × Subarray α × Array α :=
   let rec go (i : Nat) : Subarray α × Subarray α × Array α :=

@@ -232,6 +232,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
     major ← toCtorWhenStructure recVal.getMajorInduct major
     match getRecRuleFor recVal major with
     | some rule =>
+      dbg_trace "{rule.ctor} {recVal.name} {recLvls} {recArgs} {recVal.levelParams}"
       let majorArgs := major.getAppArgs
       if recLvls.length != recVal.levelParams.length then
         failK ()
@@ -628,7 +629,8 @@ expand let-expressions, expand assigned meta-variables.
 partial def whnfCore (e : Expr) : MetaM Expr :=
   go e
 where
-  go (e : Expr) : MetaM Expr :=
+  go (e : Expr) : MetaM Expr := do
+    trace[Meta.whnf] "whnfCore {e}"
     whnfEasyCases e fun e => do
       trace[Meta.whnf] e
       match e with
@@ -671,7 +673,7 @@ where
             let .const cname lvls := f'.getAppFn | return e
             let some cinfo := (← getEnv).find? cname | return e
             match cinfo with
-            | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
+            | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; trace[Meta.whnf] "arer {e}"; go e)
             | .quotInfo rec   => reduceQuotRec rec e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
             | c@(.defnInfo _) => do
               if (← isAuxDef c.name) then

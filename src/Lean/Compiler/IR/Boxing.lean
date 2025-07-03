@@ -11,6 +11,7 @@ import Lean.Compiler.IR.Basic
 import Lean.Compiler.IR.CompilerM
 import Lean.Compiler.IR.FreeVars
 import Lean.Compiler.IR.ElimDeadVars
+import Lean.Compiler.IR.ToIRType
 import Lean.Data.AssocList
 
 namespace Lean.IR.ExplicitBoxing
@@ -78,18 +79,12 @@ def addBoxedVersions (env : Environment) (decls : Array Decl) : Array Decl :=
    This can be done whenever `alts` does not contain an `Alt.default _` value. -/
 def getScrutineeType (alts : Array Alt) : IRType :=
   let isScalar :=
-     alts.size > 1 && -- Recall that we encode Unit and PUnit using `object`.
      alts.all fun
       | Alt.ctor c _  => c.isScalar
       | Alt.default _ => false
   match isScalar with
   | false => IRType.object
-  | true  =>
-    let n := alts.size
-    if n < 256 then IRType.uint8
-    else if n < 65536 then IRType.uint16
-    else if n < 4294967296 then IRType.uint32
-    else IRType.object -- in practice this should be unreachable
+  | true  => irTypeForEnum alts.size
 
 def eqvTypes (t₁ t₂ : IRType) : Bool :=
   (t₁.isScalar == t₂.isScalar) && (!t₁.isScalar || t₁ == t₂)

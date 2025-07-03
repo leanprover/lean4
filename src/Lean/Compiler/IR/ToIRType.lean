@@ -15,6 +15,18 @@ namespace IR
 
 open Lean.Compiler (LCNF.CacheExtension LCNF.isTypeFormerType LCNF.toLCNFType LCNF.toMonoType)
 
+def irTypeForEnum (numCtors : Nat) : IRType :=
+  if numCtors == 1 then
+    .object
+  else if numCtors < Nat.pow 2 8 then
+    .uint8
+  else if numCtors < Nat.pow 2 16 then
+    .uint16
+  else if numCtors < Nat.pow 2 32 then
+    .uint32
+  else
+    .object
+
 builtin_initialize irTypeExt : LCNF.CacheExtension Name IRType ←
   LCNF.CacheExtension.register
 
@@ -51,16 +63,7 @@ where fillCache : CoreM IRType := do
             if !monoFieldType.isErased then return true
           return false
         if isRelevant then return .object
-      return if numCtors == 1 then
-        .object
-      else if numCtors < Nat.pow 2 8 then
-        .uint8
-      else if numCtors < Nat.pow 2 16 then
-        .uint16
-      else if numCtors < Nat.pow 2 32 then
-        .uint32
-      else
-        .object
+      return irTypeForEnum numCtors
 
 def toIRType (type : Lean.Expr) : CoreM IRType := do
   match type with

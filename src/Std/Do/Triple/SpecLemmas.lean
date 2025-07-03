@@ -49,20 +49,6 @@ namespace Std.Do
 @[inherit_doc Std.Do.triple]
 local notation:lead (priority := high) "⦃" P "⦄ " x:lead " ⦃" Q "⦄" => Triple x (spred(P)) spred(Q)
 
-/-! # If/Then/Else -/
-
-@[spec]
-theorem Spec.ite {α m ps} {P : Assertion ps} {Q : PostCond α ps} (c : Prop) [Decidable c] [WP m ps] (t : m α) (e : m α)
-    (ifTrue : c → ⦃P⦄ t ⦃Q⦄) (ifFalse : ¬c → ⦃P⦄ e ⦃Q⦄) :
-    ⦃P⦄ if c then t else e ⦃Q⦄ := by
-  split <;> apply_rules
-
-@[spec]
-theorem Spec.dite {α m ps} {P : Assertion ps} {Q : PostCond α ps} (c : Prop) [Decidable c] [WP m ps] (t : c → m α) (e : ¬ c → m α)
-    (ifTrue : (h : c) → ⦃P⦄ t h ⦃Q⦄) (ifFalse : (h : ¬ c) → ⦃P⦄ e h ⦃Q⦄) :
-    ⦃P⦄ if h : c then t h else e h ⦃Q⦄ := by
-  split <;> apply_rules
-
 /-! # `Monad` -/
 
 universe u

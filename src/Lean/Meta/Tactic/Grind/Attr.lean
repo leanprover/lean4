@@ -16,6 +16,7 @@ inductive AttrKind where
   | intro
   | infer
   | ext
+  | symbol (prio : Nat)
 
 /-- Return theorem kind for `stx` of the form `Attr.grindThmMod` -/
 def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
@@ -38,6 +39,9 @@ def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   | `(Parser.Attr.grindMod|cases eager) => return .cases true
   | `(Parser.Attr.grindMod|intro) => return .intro
   | `(Parser.Attr.grindMod|ext) => return .ext
+  | `(Parser.Attr.grindMod|symbol $prio:prio) =>
+    let some prio := prio.raw.isNatLit? | throwErrorAt prio "priority expected"
+    return .symbol prio
   | _ => throwError "unexpected `grind` theorem kind: `{stx}`"
 
 /-- Return theorem kind for `stx` of the form `(Attr.grindMod)?` -/
@@ -83,12 +87,12 @@ private def registerGrindAttr (showInfo : Bool) : IO Unit :=
     add := fun declName stx attrKind => MetaM.run' do
       match (← getAttrKindFromOpt stx) with
       | .ematch .user => throwInvalidUsrModifier
-      | .ematch k => addEMatchAttr declName attrKind k (showInfo := showInfo)
+      | .ematch k => addEMatchAttr declName attrKind k (← getGlobalSymbolPriorities) (showInfo := showInfo)
       | .cases eager => addCasesAttr declName eager attrKind
       | .intro =>
         if let some info ← isCasesAttrPredicateCandidate? declName false then
           for ctor in info.ctors do
-            addEMatchAttr ctor attrKind (.default false) (showInfo := showInfo)
+            addEMatchAttr ctor attrKind (.default false) (← getGlobalSymbolPriorities) (showInfo := showInfo)
         else
           throwError "invalid `[grind intro]`, `{declName}` is not an inductive predicate"
       | .ext => addExtAttr declName attrKind
@@ -99,9 +103,10 @@ private def registerGrindAttr (showInfo : Bool) : IO Unit :=
             -- If it is an inductive predicate,
             -- we also add the constructors (intro rules) as E-matching rules
             for ctor in info.ctors do
-              addEMatchAttr ctor attrKind (.default false) (showInfo := showInfo)
+              addEMatchAttr ctor attrKind (.default false) (← getGlobalSymbolPriorities) (showInfo := showInfo)
         else
-          addEMatchAttr declName attrKind (.default false) (showInfo := showInfo)
+          addEMatchAttr declName attrKind (.default false) (← getGlobalSymbolPriorities) (showInfo := showInfo)
+      | .symbol prio => addSymbolPriorityAttr declName attrKind prio
     erase := fun declName => MetaM.run' do
       if showInfo then
         throwError "`[grind?]` is a helper attribute for displaying inferred patterns, if you want to remove the attribute, consider using `[grind]` instead"

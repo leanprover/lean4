@@ -106,6 +106,8 @@ structure Context where
   reportMVarIssue : Bool := true
   /-- Current source of case-splits. -/
   splitSource  : SplitSource := .input
+  /-- Symbol priorities for inferring E-matching patterns -/
+  symPrios     : SymbolPriorities
   trueExpr     : Expr
   falseExpr    : Expr
   natZExpr     : Expr
@@ -261,6 +263,10 @@ def cheapCasesOnly : GrindM Bool :=
 
 def reportMVarInternalization : GrindM Bool :=
   return (← readThe Context).reportMVarIssue
+
+/-- Returns symbol priorities for inferring E-matching patterns. -/
+def getSymbolPriorities : GrindM SymbolPriorities := do
+  return (← readThe Context).symPrios
 
 /--
 Returns `true` if `declName` is the name of a `match` equation or a `match` congruence equation.

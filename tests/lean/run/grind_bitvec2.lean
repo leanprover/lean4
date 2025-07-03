@@ -159,7 +159,6 @@ abbrev lt_of_getMsb?_isSome := @lt_of_isSome_getMsb?
 theorem getMsbD_eq_getMsb?_getD (x : BitVec w) (i : Nat) :
     x.getMsbD i = (x.getMsb? i).getD false := by grind
 
-attribute [local grind symbol default] LE.le in
 theorem eq_of_getLsbD_eq_iff {w : Nat} {x y : BitVec w} :
     x = y ↔ ∀ (i : Nat), i < w → x.getLsbD i = y.getLsbD i := by
   have iff := @BitVec.eq_of_getElem_eq_iff w x y

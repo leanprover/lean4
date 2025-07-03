@@ -161,9 +161,6 @@ private theorem getElem_qsort_sort_mem
   rw [← (extract_qsort_sort_perm lo hi as lt).mem_iff, Vector.mem_extract_iff_getElem]
   exact ⟨i - lo, by grind⟩
 
--- TODO: try to avoid this annotation
-attribute [grind symbol default] LE.le
-
 private theorem qpartition_loop_spec₁
     (hhi : hi < n) (ilo : lo ≤ i) (ik : i ≤ k) (w : k < n) (khi : k ≤ hi)
     (as : Vector α n) (hpivot : pivot = as[hi])

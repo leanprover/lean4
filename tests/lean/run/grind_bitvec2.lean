@@ -325,7 +325,7 @@ theorem sub_toNat_mod_cancel {x : BitVec w} (h : ¬ x = 0#w) :
 theorem sub_toNat_mod_cancel_of_toNat {x : BitVec w} (h : x.toNat ≠ 0) :
     (2 ^ w - x.toNat) % 2 ^ w = 2 ^ w - x.toNat := by
   have := x.isLt
-  grind [Nat.mod_eq_of_lt]
+  grind [= Nat.mod_eq_of_lt]
 
 theorem toNat_mod_cancel_of_lt {x : BitVec n} (h : n < m) : x.toNat % (2 ^ m) = x.toNat := by
   have : 2 ^ n < 2 ^ m := Nat.pow_lt_pow_of_lt (by omega) h

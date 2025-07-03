@@ -12,6 +12,7 @@ where
     else
       true
 
+attribute [grind symbol default] LE.le
 -- This works nicely, but there is some human assistance here:
 -- on the right hand side of the `suffices` we've asserted it's enough to check up to `j < xs.size / 2`
 -- while the "natural" statement would be all the way to `j < xs.size - i`.

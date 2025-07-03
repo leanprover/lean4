@@ -62,11 +62,8 @@ private builtin_initialize symbolPrioExt : SimpleScopedEnvExtension SymbolPriori
 def resetSymbolPrioExt : CoreM Unit := do
   modifyEnv fun env => symbolPrioExt.modifyState env fun _ => {}
 
-def getSymbolPriorities : CoreM SymbolPriorities :=
+def getGlobalSymbolPriorities : CoreM SymbolPriorities :=
   return symbolPrioExt.getState (← getEnv)
-
-def getSymbolPriority (declName : Name) : CoreM Nat :=
-  return (← getSymbolPriorities).getPrio declName
 
 /-- Sets `declName` priority to be used during E-matching pattern inference -/
 def addSymbolPriorityAttr (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do

@@ -38,7 +38,7 @@ variable [Preorder R] [OrderedRing R]
 theorem neg_one_lt_zero : (-1 : R) < 0 := by
   have h := zero_lt_one (R := R)
   have := OrderedAdd.add_lt_left h (-1)
-  rw [Semiring.zero_add, Ring.add_neg_cancel] at this
+  rw [AddCommMonoid.zero_add, AddCommGroup.add_neg_cancel] at this
   assumption
 
 theorem ofNat_nonneg (x : Nat) : (OfNat.ofNat x : R) ≥ 0 := by
@@ -48,7 +48,7 @@ theorem ofNat_nonneg (x : Nat) : (OfNat.ofNat x : R) ≥ 0 := by
     have := OrderedRing.zero_lt_one (R := R)
     rw [Semiring.ofNat_succ]
     replace ih := OrderedAdd.add_le_left ih 1
-    rw [Semiring.zero_add] at ih
+    rw [AddCommMonoid.zero_add] at ih
     have := Preorder.lt_of_lt_of_le this ih
     exact Preorder.le_of_lt this
 
@@ -62,8 +62,8 @@ instance [Ring α] [Preorder α] [OrderedRing α] : IsCharP α 0 := IsCharP.mk' 
     next x =>
       rw [Semiring.ofNat_succ] at h
       replace h := congrArg (· - 1) h; simp at h
-      rw [Ring.sub_eq_add_neg, Semiring.add_assoc, Ring.add_neg_cancel,
-          Ring.sub_eq_add_neg, Semiring.zero_add, Semiring.add_zero] at h
+      rw [Ring.sub_eq_add_neg, Semiring.add_assoc, AddCommGroup.add_neg_cancel,
+          Ring.sub_eq_add_neg, AddCommMonoid.zero_add, Semiring.add_zero] at h
       have h₁ : (OfNat.ofNat x : α) < 0 := by
         have := OrderedRing.neg_one_lt_zero (R := α)
         rw [h]; assumption
@@ -110,26 +110,26 @@ open OrderedAdd
 
 theorem mul_le_mul_of_nonpos_left {a b c : R} (h : a ≤ b) (h' : c ≤ 0) : c * b ≤ c * a := by
   have := mul_le_mul_of_nonneg_left h (neg_nonneg_iff.mpr h')
-  rwa [Ring.neg_mul, Ring.neg_mul, neg_le_iff, IntModule.neg_neg] at this
+  rwa [Ring.neg_mul, Ring.neg_mul, neg_le_iff, AddCommGroup.neg_neg] at this
 
 theorem mul_le_mul_of_nonpos_right {a b c : R} (h : a ≤ b) (h' : c ≤ 0) : b * c ≤ a * c := by
   have := mul_le_mul_of_nonneg_right h (neg_nonneg_iff.mpr h')
-  rwa [Ring.mul_neg, Ring.mul_neg, neg_le_iff, IntModule.neg_neg] at this
+  rwa [Ring.mul_neg, Ring.mul_neg, neg_le_iff, AddCommGroup.neg_neg] at this
 
 theorem mul_lt_mul_of_neg_left {a b c : R} (h : a < b) (h' : c < 0) : c * b < c * a := by
   have := mul_lt_mul_of_pos_left h (neg_pos_iff.mpr h')
-  rwa [Ring.neg_mul, Ring.neg_mul, neg_lt_iff, IntModule.neg_neg] at this
+  rwa [Ring.neg_mul, Ring.neg_mul, neg_lt_iff, AddCommGroup.neg_neg] at this
 
 theorem mul_lt_mul_of_neg_right {a b c : R} (h : a < b) (h' : c < 0) : b * c < a * c := by
   have := mul_lt_mul_of_pos_right h (neg_pos_iff.mpr h')
-  rwa [Ring.mul_neg, Ring.mul_neg, neg_lt_iff, IntModule.neg_neg] at this
+  rwa [Ring.mul_neg, Ring.mul_neg, neg_lt_iff, AddCommGroup.neg_neg] at this
 
 theorem mul_nonneg {a b : R} (h₁ : 0 ≤ a) (h₂ : 0 ≤ b) : 0 ≤ a * b := by
   simpa [Semiring.zero_mul] using mul_le_mul_of_nonneg_right h₁ h₂
 
 theorem mul_nonneg_of_nonpos_of_nonpos {a b : R} (h₁ : a ≤ 0) (h₂ : b ≤ 0) : 0 ≤ a * b := by
   have := mul_nonneg (neg_nonneg_iff.mpr h₁) (neg_nonneg_iff.mpr h₂)
-  simpa [Ring.neg_mul, Ring.mul_neg, Ring.neg_neg] using this
+  simpa [Ring.neg_mul, Ring.mul_neg, AddCommGroup.neg_neg] using this
 
 theorem mul_nonpos_of_nonneg_of_nonpos {a b : R} (h₁ : 0 ≤ a) (h₂ : b ≤ 0) : a * b ≤ 0 := by
   rw [← neg_nonneg_iff, ← Ring.mul_neg]
@@ -144,7 +144,7 @@ theorem mul_pos {a b : R} (h₁ : 0 < a) (h₂ : 0 < b) : 0 < a * b := by
 
 theorem mul_pos_of_neg_of_neg {a b : R} (h₁ : a < 0) (h₂ : b < 0) : 0 < a * b := by
   have := mul_pos (neg_pos_iff.mpr h₁) (neg_pos_iff.mpr h₂)
-  simpa [Ring.neg_mul, Ring.mul_neg, Ring.neg_neg] using this
+  simpa [Ring.neg_mul, Ring.mul_neg, AddCommGroup.neg_neg] using this
 
 theorem mul_neg_of_pos_of_neg {a b : R} (h₁ : 0 < a) (h₂ : b < 0) : a * b < 0 := by
   rw [← neg_pos_iff, ← Ring.mul_neg]

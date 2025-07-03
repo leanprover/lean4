@@ -80,7 +80,9 @@ end Ring.OfSemiring
 
 namespace CommRing
 attribute [local instance] Semiring.natCast Ring.intCast
-open Semiring Ring CommSemiring
+open AddCommMonoid AddCommGroup
+open Semiring hiding add_zero add_comm add_assoc
+open Ring CommSemiring
 
 inductive Poly.NonnegCoeffs : Poly → Prop
   | num (c : Int) : c ≥ 0 → NonnegCoeffs (.num c)

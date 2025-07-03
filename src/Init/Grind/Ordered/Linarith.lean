@@ -20,9 +20,9 @@ Support for the linear arithmetic module for `IntModule` in `grind`
 
 namespace Lean.Grind.Linarith
 abbrev Var := Nat
-open IntModule
+open AddCommMonoid AddCommGroup NatModule IntModule
 
-attribute [local simp] add_zero zero_add zero_hmul nat_zero_hmul hmul_zero one_hmul
+attribute [local simp] add_zero zero_add zero_zsmul zero_nsmul zsmul_zero one_zsmul
 
 inductive Expr where
   | zero
@@ -75,10 +75,10 @@ where
 
 -- Helper instance for `ac_rfl`
 local instance {α} [IntModule α] : Std.Associative (· + · : α → α → α) where
-  assoc := IntModule.add_assoc
+  assoc := AddCommMonoid.add_assoc
 -- Helper instance for `ac_rfl`
 local instance {α} [IntModule α] : Std.Commutative (· + · : α → α → α) where
-  comm := IntModule.add_comm
+  comm := AddCommMonoid.add_comm
 
 theorem Poly.denote'_go_eq_denote {α} [IntModule α] (ctx : Context α) (p : Poly) (r : α) : denote'.go ctx r p = p.denote ctx + r := by
   induction r, p using denote'.go.induct ctx <;> simp [denote'.go, denote]
@@ -176,7 +176,7 @@ def Poly.mul (p : Poly) (k : Int) : Poly :=
   next => simp [*, denote]
   next =>
     induction p <;> simp [mul', denote, *]
-    rw [mul_hmul, hmul_add]
+    rw [mul_zsmul, zsmul_add]
 
 theorem Poly.denote_insert {α} [IntModule α] (ctx : Context α) (k : Int) (v : Var) (p : Poly) :
     (p.insert k v).denote ctx = p.denote ctx + k * v.denote ctx := by
@@ -184,8 +184,8 @@ theorem Poly.denote_insert {α} [IntModule α] (ctx : Context α) (k : Int) (v :
   next => ac_rfl
   next h₁ h₂ h₃ =>
     simp at h₃; simp at h₂; subst h₂
-    rw [add_comm, ← add_assoc, ← add_hmul, h₃, zero_hmul, zero_add]
-  next h _ => simp at h; subst h; rw [add_hmul]; ac_rfl
+    rw [add_comm, ← add_assoc, ← add_zsmul, h₃, zero_zsmul, zero_add]
+  next h _ => simp at h; subst h; rw [add_zsmul]; ac_rfl
   next ih => rw [ih]; ac_rfl
 
 attribute [local simp] Poly.denote_insert
@@ -205,8 +205,8 @@ theorem Poly.denote_combine' {α} [IntModule α] (ctx : Context α) (fuel : Nat)
     simp_all +zetaDelta [denote]
   next h _ =>
     rw [Int.add_comm] at h
-    rw [add_left_comm, add_assoc, ← add_assoc, ← add_hmul, h, zero_hmul, zero_add]
-  next => rw [add_hmul]; ac_rfl
+    rw [add_left_comm, add_assoc, ← add_assoc, ← add_zsmul, h, zero_zsmul, zero_add]
+  next => rw [add_zsmul]; ac_rfl
   all_goals ac_rfl
 
 theorem Poly.denote_combine {α} [IntModule α] (ctx : Context α) (p₁ p₂ : Poly) : (p₁.combine p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
@@ -216,14 +216,14 @@ attribute [local simp] Poly.denote_combine
 
 theorem Expr.denote_toPoly'_go {α} [IntModule α] {k p} (ctx : Context α) (e : Expr)
     : (toPoly'.go k e p).denote ctx = k * e.denote ctx + p.denote ctx := by
-  induction k, e using Expr.toPoly'.go.induct generalizing p <;> simp [toPoly'.go, denote, Poly.denote, *, hmul_add]
+  induction k, e using Expr.toPoly'.go.induct generalizing p <;> simp [toPoly'.go, denote, Poly.denote, *, zsmul_add]
   next => ac_rfl
-  next => rw [sub_eq_add_neg, neg_hmul, hmul_add, hmul_neg]; ac_rfl
+  next => rw [sub_eq_add_neg, neg_zsmul, zsmul_add, zsmul_neg]; ac_rfl
   next h => simp at h; subst h; simp
-  next ih => simp at ih; rw [ih, mul_hmul, IntModule.hmul_nat]
+  next ih => simp at ih; rw [ih, mul_zsmul, zsmul_natCast_eq_nsmul]
   next ih => simp at ih; simp [ih]
-  next ih => simp at ih; rw [ih, mul_hmul]
-  next => rw [hmul_neg, neg_hmul]
+  next ih => simp at ih; rw [ih, mul_zsmul]
+  next => rw [zsmul_neg, neg_zsmul]
 
 theorem Expr.denote_norm {α} [IntModule α] (ctx : Context α) (e : Expr) : e.norm.denote ctx = e.denote ctx := by
   simp [norm, toPoly', Expr.denote_toPoly'_go, Poly.denote]
@@ -280,8 +280,8 @@ def le_le_combine_cert (p₁ p₂ p₃ : Poly) : Bool :=
 theorem le_le_combine {α} [IntModule α] [Preorder α] [OrderedAdd α] (ctx : Context α) (p₁ p₂ p₃ : Poly)
     : le_le_combine_cert p₁ p₂ p₃ → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
   simp [le_le_combine_cert]; intro _ h₁ h₂; subst p₃; simp
-  replace h₁ := hmul_int_nonpos (coe_natAbs_nonneg p₂.leadCoeff) h₁
-  replace h₂ := hmul_int_nonpos (coe_natAbs_nonneg p₁.leadCoeff) h₂
+  replace h₁ := zsmul_nonpos (coe_natAbs_nonneg p₂.leadCoeff) h₁
+  replace h₂ := zsmul_nonpos (coe_natAbs_nonneg p₁.leadCoeff) h₂
   exact le_add_le h₁ h₂
 
 def le_lt_combine_cert (p₁ p₂ p₃ : Poly) : Bool :=
@@ -292,8 +292,8 @@ def le_lt_combine_cert (p₁ p₂ p₃ : Poly) : Bool :=
 theorem le_lt_combine {α} [IntModule α] [Preorder α] [OrderedAdd α] (ctx : Context α) (p₁ p₂ p₃ : Poly)
     : le_lt_combine_cert p₁ p₂ p₃ → p₁.denote' ctx ≤ 0 → p₂.denote' ctx < 0 → p₃.denote' ctx < 0 := by
   simp [-Int.natAbs_pos, -Int.ofNat_pos, le_lt_combine_cert]; intro hp _ h₁ h₂; subst p₃; simp
-  replace h₁ := hmul_int_nonpos (coe_natAbs_nonneg p₂.leadCoeff) h₁
-  replace h₂ := hmul_int_neg_iff (↑p₁.leadCoeff.natAbs) h₂ |>.mpr hp
+  replace h₁ := zsmul_nonpos (coe_natAbs_nonneg p₂.leadCoeff) h₁
+  replace h₂ := zsmul_neg_iff (↑p₁.leadCoeff.natAbs) h₂ |>.mpr hp
   exact le_add_lt h₁ h₂
 
 def lt_lt_combine_cert (p₁ p₂ p₃ : Poly) : Bool :=
@@ -304,8 +304,8 @@ def lt_lt_combine_cert (p₁ p₂ p₃ : Poly) : Bool :=
 theorem lt_lt_combine {α} [IntModule α] [Preorder α] [OrderedAdd α] (ctx : Context α) (p₁ p₂ p₃ : Poly)
     : lt_lt_combine_cert p₁ p₂ p₃ → p₁.denote' ctx < 0 → p₂.denote' ctx < 0 → p₃.denote' ctx < 0 := by
   simp [-Int.natAbs_pos, -Int.ofNat_pos, lt_lt_combine_cert]; intro hp₁ hp₂ _ h₁ h₂; subst p₃; simp
-  replace h₁ := hmul_int_neg_iff (↑p₂.leadCoeff.natAbs) h₁ |>.mpr hp₁
-  replace h₂ := hmul_int_neg_iff (↑p₁.leadCoeff.natAbs) h₂ |>.mpr hp₂
+  replace h₁ := zsmul_neg_iff (↑p₂.leadCoeff.natAbs) h₁ |>.mpr hp₁
+  replace h₂ := zsmul_neg_iff (↑p₁.leadCoeff.natAbs) h₂ |>.mpr hp₂
   exact lt_add_lt h₁ h₂
 
 def diseq_split_cert (p₁ p₂ : Poly) : Bool :=
@@ -320,7 +320,7 @@ theorem diseq_split {α} [IntModule α] [LinearOrder α] [OrderedAdd α] (ctx : 
   next h =>
     apply Or.inr
     simp [h₁] at h
-    rw [← neg_pos_iff, neg_hmul, neg_neg, one_hmul]; assumption
+    rw [← neg_pos_iff, neg_zsmul, neg_neg, one_zsmul]; assumption
 
 theorem diseq_split_resolve {α} [IntModule α] [LinearOrder α] [OrderedAdd α] (ctx : Context α) (p₁ p₂ : Poly)
     : diseq_split_cert p₁ p₂ → p₁.denote' ctx ≠ 0 → ¬p₁.denote' ctx < 0 → p₂.denote' ctx < 0 := by
@@ -409,7 +409,7 @@ theorem eq_of_le_ge {α} [IntModule α] [PartialOrder α] [OrderedAdd α] (ctx :
   intro; subst p₂; simp
   intro h₁ h₂
   replace h₂ := add_le_left h₂ (p₁.denote ctx)
-  rw [add_comm, neg_hmul, one_hmul, ← sub_eq_add_neg, sub_self, zero_add] at h₂
+  rw [add_comm, neg_zsmul, one_zsmul, ← sub_eq_add_neg, sub_self, zero_add] at h₂
   exact PartialOrder.le_antisymm h₁ h₂
 
 /-!
@@ -429,7 +429,7 @@ def zero_lt_one_cert (p : Poly) : Bool :=
 
 theorem zero_lt_one {α} [Ring α] [Preorder α] [OrderedRing α] (ctx : Context α) (p : Poly)
     : zero_lt_one_cert p → (0 : Var).denote ctx = One.one → p.denote' ctx < 0 := by
-  simp [zero_lt_one_cert]; intro _ h; subst p; simp [Poly.denote, h, One.one, neg_hmul]
+  simp [zero_lt_one_cert]; intro _ h; subst p; simp [Poly.denote, h, One.one, neg_zsmul]
   rw [neg_lt_iff, neg_zero]; apply OrderedRing.zero_lt_one
 
 def zero_ne_one_cert (p : Poly) : Bool :=
@@ -478,7 +478,7 @@ def eq_coeff_cert (p₁ p₂ : Poly) (k : Nat) :=
 
 theorem eq_coeff {α} [IntModule α] [NoNatZeroDivisors α] (ctx : Context α) (p₁ p₂ : Poly) (k : Nat)
     : eq_coeff_cert p₁ p₂ k → p₁.denote' ctx = 0 → p₂.denote' ctx = 0 := by
-  simp [eq_coeff_cert]; intro h _; subst p₁; simp [*, hmul_nat]
+  simp [eq_coeff_cert]; intro h _; subst p₁; simp [*, zsmul_natCast_eq_nsmul]
   exact NoNatZeroDivisors.eq_zero_of_mul_eq_zero h
 
 def coeff_cert (p₁ p₂ : Poly) (k : Nat) :=
@@ -490,7 +490,7 @@ theorem le_coeff {α} [IntModule α] [LinearOrder α] [OrderedAdd α] (ctx : Con
   have : ↑k > (0 : Int) := Int.natCast_pos.mpr h
   intro h₁; apply Classical.byContradiction
   intro h₂; replace h₂ := LinearOrder.lt_of_not_le h₂
-  replace h₂ := hmul_int_pos_iff (↑k) h₂ |>.mpr this
+  replace h₂ := zsmul_pos_iff (↑k) h₂ |>.mpr this
   exact Preorder.lt_irrefl 0 (Preorder.lt_of_lt_of_le h₂ h₁)
 
 theorem lt_coeff {α} [IntModule α] [LinearOrder α] [OrderedAdd α] (ctx : Context α) (p₁ p₂ : Poly) (k : Nat)
@@ -499,11 +499,11 @@ theorem lt_coeff {α} [IntModule α] [LinearOrder α] [OrderedAdd α] (ctx : Con
   have : ↑k > (0 : Int) := Int.natCast_pos.mpr h
   intro h₁; apply Classical.byContradiction
   intro h₂; replace h₂ := LinearOrder.le_of_not_lt h₂
-  replace h₂ := hmul_int_nonneg (Int.le_of_lt this) h₂
+  replace h₂ := zsmul_nonneg (Int.le_of_lt this) h₂
   exact Preorder.lt_irrefl 0 (Preorder.lt_of_le_of_lt h₂ h₁)
 
 theorem diseq_neg {α} [IntModule α] (ctx : Context α) (p p' : Poly) : p' == p.mul (-1) → p.denote' ctx ≠ 0 → p'.denote' ctx ≠ 0 := by
-  simp; intro _ _; subst p'; simp [neg_hmul]
+  simp; intro _ _; subst p'; simp [neg_zsmul]
   intro h; replace h := congrArg (- ·) h; simp [neg_neg, neg_zero] at h
   contradiction
 
@@ -522,8 +522,8 @@ theorem eq_diseq_subst {α} [IntModule α] [NoNatZeroDivisors α] (ctx : Context
     have : (k₁.natAbs : Int) * Poly.denote ctx p₂ = 0 := by
       cases Int.natAbs_eq_iff.mp (Eq.refl k₁.natAbs)
       next h => rw [← h]; assumption
-      next h => replace h := congrArg (- ·) h; simp at h; rw [← h, IntModule.neg_hmul, h₃, IntModule.neg_zero]
-    simpa [hmul_nat] using this
+      next h => replace h := congrArg (- ·) h; simp at h; rw [← h, neg_zsmul, h₃, neg_zero]
+    simpa [zsmul_natCast_eq_nsmul] using this
   have := NoNatZeroDivisors.eq_zero_of_mul_eq_zero hne this
   contradiction
 
@@ -547,7 +547,7 @@ def eq_le_subst_cert (x : Var) (p₁ p₂ p₃ : Poly) :=
 theorem eq_le_subst {α} [IntModule α] [Preorder α] [OrderedAdd α] (ctx : Context α) (x : Var) (p₁ p₂ p₃ : Poly)
     : eq_le_subst_cert x p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
   simp [eq_le_subst_cert]; intro h _ h₁ h₂; subst p₃; simp [h₁]
-  exact hmul_int_nonpos h h₂
+  exact zsmul_nonpos h h₂
 
 def eq_lt_subst_cert (x : Var) (p₁ p₂ p₃ : Poly) :=
   let a := p₁.coeff x
@@ -557,7 +557,7 @@ def eq_lt_subst_cert (x : Var) (p₁ p₂ p₃ : Poly) :=
 theorem eq_lt_subst {α} [IntModule α] [Preorder α] [OrderedAdd α] (ctx : Context α) (x : Var) (p₁ p₂ p₃ : Poly)
     : eq_lt_subst_cert x p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx < 0 → p₃.denote' ctx < 0 := by
   simp [eq_lt_subst_cert]; intro h _ h₁ h₂; subst p₃; simp [h₁]
-  exact hmul_int_neg_iff (p₁.coeff x) h₂ |>.mpr h
+  exact zsmul_neg_iff (p₁.coeff x) h₂ |>.mpr h
 
 def eq_eq_subst_cert (x : Var) (p₁ p₂ p₃ : Poly) :=
   let a := p₁.coeff x

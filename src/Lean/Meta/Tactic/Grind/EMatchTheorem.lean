@@ -570,11 +570,6 @@ abbrev M := ReaderT Context StateRefT State MetaM
 /-- Helper declaration for finding bootstrapping issues. See `isCandidateSymbol`. -/
 private abbrev badForPatterns := [``Eq, ``HEq, ``Iff, ``And, ``Or, ``Not]
 
-register_builtin_option grind.permissivePatterns : Bool := {
-  defValue := false
-  descr    := "skip pattern sanity checks"
-}
-
 def isCandidateSymbol (declName : Name) (root : Bool) : M Bool := do
   let ctx ← read
   let prio := ctx.symPrios.getPrio declName

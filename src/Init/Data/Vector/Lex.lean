@@ -24,11 +24,8 @@ namespace Vector
 @[simp] theorem lt_toArray [LT α] {xs ys : Vector α n} : xs.toArray < ys.toArray ↔ xs < ys := Iff.rfl
 @[simp] theorem le_toArray [LT α] {xs ys : Vector α n} : xs.toArray ≤ ys.toArray ↔ xs ≤ ys := Iff.rfl
 
-section
-set_option grind.permissivePatterns true
 grind_pattern lt_toArray => xs.toArray < ys.toArray
 grind_pattern le_toArray => xs.toArray ≤ ys.toArray
-end
 
 @[simp] theorem lt_toList [LT α] {xs ys : Vector α n} : xs.toList < ys.toList ↔ xs < ys := Iff.rfl
 @[simp] theorem le_toList [LT α] {xs ys : Vector α n} : xs.toList ≤ ys.toList ↔ xs ≤ ys := Iff.rfl

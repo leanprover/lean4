@@ -2129,7 +2129,7 @@ lean_inc(x_3);
 x_41 = l_Lean_withTraceNode___at___Lean_Core_wrapAsyncAsSnapshot_spec__18___redArg(x_12, x_9, x_11, x_39, x_40, x_3, x_4, x_8);
 if (lean_obj_tag(x_41) == 0)
 {
-lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; uint8_t x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_58; lean_object* x_59; uint8_t x_60; 
+lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; uint8_t x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_58; lean_object* x_59; uint8_t x_60; 
 x_42 = lean_ctor_get(x_41, 0);
 lean_inc(x_42);
 x_43 = lean_ctor_get(x_41, 1);
@@ -2151,8 +2151,8 @@ x_60 = lean_unbox(x_45);
 lean_dec(x_45);
 if (x_60 == 0)
 {
-x_48 = x_42;
-x_49 = x_2;
+x_48 = x_2;
+x_49 = x_42;
 x_50 = x_59;
 x_51 = x_3;
 x_52 = x_4;
@@ -2176,8 +2176,8 @@ x_69 = l_Lean_addTrace___at___Lean_PrettyPrinter_format_spec__0(x_12, x_68, x_3,
 x_70 = lean_ctor_get(x_69, 1);
 lean_inc(x_70);
 lean_dec(x_69);
-x_48 = x_42;
-x_49 = x_2;
+x_48 = x_2;
+x_49 = x_42;
 x_50 = x_59;
 x_51 = x_3;
 x_52 = x_4;
@@ -2186,11 +2186,11 @@ goto block_57;
 }
 block_57:
 {
-if (x_49 == 0)
+if (x_48 == 0)
 {
 lean_dec(x_50);
 lean_dec(x_47);
-x_13 = x_48;
+x_13 = x_49;
 x_14 = x_51;
 x_15 = x_52;
 x_16 = x_53;
@@ -2199,7 +2199,7 @@ goto block_38;
 else
 {
 lean_object* x_54; 
-lean_dec(x_48);
+lean_dec(x_49);
 lean_inc(x_52);
 lean_inc(x_51);
 x_54 = l_Lean_withTraceNode___at___Lean_Core_wrapAsyncAsSnapshot_spec__18___redArg(x_12, x_47, x_50, x_39, x_40, x_51, x_52, x_53);

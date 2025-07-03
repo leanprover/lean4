@@ -1072,8 +1072,8 @@ if (x_39 == 0)
 uint8_t x_40; 
 x_40 = l_Lean_Exception_isRuntime(x_37);
 lean_dec(x_37);
-x_16 = x_34;
-x_17 = x_38;
+x_16 = x_38;
+x_17 = x_34;
 x_18 = x_36;
 x_19 = x_40;
 goto block_23;
@@ -1081,8 +1081,8 @@ goto block_23;
 else
 {
 lean_dec(x_37);
-x_16 = x_34;
-x_17 = x_38;
+x_16 = x_38;
+x_17 = x_34;
 x_18 = x_36;
 x_19 = x_39;
 goto block_23;
@@ -1135,8 +1135,8 @@ if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; 
 lean_dec(x_18);
-x_20 = l_Lean_Meta_SavedState_restore___redArg(x_16, x_5, x_7, x_17);
-lean_dec(x_16);
+x_20 = l_Lean_Meta_SavedState_restore___redArg(x_17, x_5, x_7, x_16);
+lean_dec(x_17);
 x_21 = lean_ctor_get(x_20, 1);
 lean_inc(x_21);
 lean_dec(x_20);

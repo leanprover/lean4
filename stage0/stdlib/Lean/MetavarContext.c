@@ -22866,8 +22866,8 @@ block_11:
 lean_object* x_9; lean_object* x_10; 
 x_9 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_9, 0, x_6);
-lean_ctor_set(x_9, 1, x_7);
-lean_ctor_set(x_9, 2, x_4);
+lean_ctor_set(x_9, 1, x_4);
+lean_ctor_set(x_9, 2, x_7);
 lean_ctor_set(x_9, 3, x_8);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_5);
@@ -22921,10 +22921,10 @@ x_43 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_____private_Lean_MetavarCon
 x_44 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_44, 0, x_34);
 lean_ctor_set(x_44, 1, x_43);
-x_4 = x_15;
+x_4 = x_14;
 x_5 = x_12;
 x_6 = x_13;
-x_7 = x_14;
+x_7 = x_15;
 x_8 = x_44;
 goto block_11;
 }
@@ -22934,10 +22934,10 @@ lean_object* x_45;
 x_45 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_45, 0, x_34);
 lean_ctor_set(x_45, 1, x_36);
-x_4 = x_15;
+x_4 = x_14;
 x_5 = x_12;
 x_6 = x_13;
-x_7 = x_14;
+x_7 = x_15;
 x_8 = x_45;
 goto block_11;
 }
@@ -22953,10 +22953,10 @@ x_49 = lean_array_uset(x_47, x_30, x_48);
 x_50 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_50, 0, x_16);
 lean_ctor_set(x_50, 1, x_49);
-x_4 = x_15;
+x_4 = x_14;
 x_5 = x_12;
 x_6 = x_13;
-x_7 = x_14;
+x_7 = x_15;
 x_8 = x_50;
 goto block_11;
 }

@@ -9174,8 +9174,8 @@ lean_inc(x_2);
 x_56 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_56, 0, x_2);
 lean_ctor_set(x_56, 1, x_2);
-x_22 = x_54;
-x_23 = x_53;
+x_22 = x_53;
+x_23 = x_54;
 x_24 = x_56;
 goto block_37;
 }
@@ -9187,8 +9187,8 @@ x_57 = lean_ctor_get(x_55, 0);
 lean_inc(x_57);
 lean_dec(x_55);
 x_58 = l_String_Range_toLspRange(x_3, x_57);
-x_22 = x_54;
-x_23 = x_53;
+x_22 = x_53;
+x_23 = x_54;
 x_24 = x_58;
 goto block_37;
 }
@@ -9267,15 +9267,15 @@ return x_74;
 block_37:
 {
 lean_object* x_25; uint8_t x_26; 
-x_25 = l_Lean_Server_WithRpcRef_mk___redArg(x_21, x_22);
+x_25 = l_Lean_Server_WithRpcRef_mk___redArg(x_21, x_23);
 x_26 = !lean_is_exclusive(x_25);
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 x_27 = lean_ctor_get(x_25, 0);
-x_28 = lean_ctor_get(x_23, 0);
+x_28 = lean_ctor_get(x_22, 0);
 lean_inc(x_28);
-lean_dec(x_23);
+lean_dec(x_22);
 if (lean_is_scalar(x_20)) {
  x_29 = lean_alloc_ctor(0, 3, 0);
 } else {
@@ -9301,9 +9301,9 @@ x_32 = lean_ctor_get(x_25, 1);
 lean_inc(x_32);
 lean_inc(x_31);
 lean_dec(x_25);
-x_33 = lean_ctor_get(x_23, 0);
+x_33 = lean_ctor_get(x_22, 0);
 lean_inc(x_33);
-lean_dec(x_23);
+lean_dec(x_22);
 if (lean_is_scalar(x_20)) {
  x_34 = lean_alloc_ctor(0, 3, 0);
 } else {

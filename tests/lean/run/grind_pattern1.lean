@@ -113,6 +113,9 @@ grind_pattern hThm1 => plus a c
 #guard_msgs in
 grind_pattern hThm1 => plus a c, plus a b
 
-/-- error: INSERT `import Init.Grind.Tactics`, otherwise a pattern containing `And` will be used -/
-#guard_msgs in
+/--
+error: invalid pattern, (non-forbidden) application expected
+  #4 ∧ #3
+-/
+#guard_msgs (error) in
 grind_pattern And.imp_left => a ∧ b

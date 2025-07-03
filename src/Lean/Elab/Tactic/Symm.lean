@@ -3,9 +3,13 @@ Copyright (c) 2022 Siddhartha Gadgil. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Siddhartha Gadgil, Mario Carneiro, Kim Morrison
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Symm
-import Lean.Elab.Tactic.Location
+public import Lean.Meta.Tactic.Symm
+public import Lean.Elab.Tactic.Location
+
+public section
 
 namespace Lean.Elab.Tactic
 

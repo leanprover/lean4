@@ -3,12 +3,16 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.IntInstTesters
-import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
+public import Lean.Meta.IntInstTesters
+public import Lean.Meta.Tactic.Grind.Simp
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 

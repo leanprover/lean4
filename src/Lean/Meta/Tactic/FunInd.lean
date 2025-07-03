@@ -4,21 +4,25 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Meta.Match.MatcherApp.Transform
-import Lean.Meta.Check
-import Lean.Meta.Tactic.Subst
-import Lean.Meta.Injective -- for elimOptParam
-import Lean.Meta.ArgsPacker
-import Lean.Meta.PProdN
-import Lean.Elab.PreDefinition.WF.Eqns
-import Lean.Elab.PreDefinition.Structural.Eqns
-import Lean.Elab.PreDefinition.Structural.IndGroupInfo
-import Lean.Elab.PreDefinition.Structural.FindRecArg
-import Lean.Elab.Command
-import Lean.Meta.Tactic.ElimInfo
-import Lean.Meta.Tactic.FunIndInfo
+public import Lean.Meta.Basic
+public import Lean.Meta.Match.MatcherApp.Transform
+public import Lean.Meta.Check
+public import Lean.Meta.Tactic.Subst
+public import Lean.Meta.Injective -- for elimOptParam
+public import Lean.Meta.ArgsPacker
+public import Lean.Meta.PProdN
+public import Lean.Elab.PreDefinition.WF.Eqns
+public import Lean.Elab.PreDefinition.Structural.Eqns
+public import Lean.Elab.PreDefinition.Structural.IndGroupInfo
+public import Lean.Elab.PreDefinition.Structural.FindRecArg
+public import Lean.Elab.Command
+public import Lean.Meta.Tactic.ElimInfo
+public import Lean.Meta.Tactic.FunIndInfo
+
+public section
 
 /-!
 This module contains code to derive, from the definition of a recursive function (structural or

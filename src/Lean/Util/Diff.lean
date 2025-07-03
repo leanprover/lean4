@@ -3,11 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Thrane Christiansen
 -/
+module
+
 prelude
-import Init.Data.Array.Subarray.Split
-import Init.Data.Range
-import Std.Data.HashMap.Basic
-import Init.Omega
+public import Init.Data.Array.Subarray.Split
+public import Init.Data.Range
+public import Std.Data.HashMap.Basic
+public import Init.Omega
+
+public section
 
 namespace Lean.Diff
 /--

@@ -3,13 +3,17 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.CoreM
-import Lean.Parser.Extension
-import Lean.Parser.StrInterpolation
-import Lean.KeyedDeclsAttribute
-import Lean.ParserCompiler.Attribute
-import Lean.PrettyPrinter.Basic
+public import Lean.CoreM
+public import Lean.Parser.Extension
+public import Lean.Parser.StrInterpolation
+public import Lean.KeyedDeclsAttribute
+public import Lean.ParserCompiler.Attribute
+public import Lean.PrettyPrinter.Basic
+
+public section
 
 /-!
 The formatter turns a `Syntax` tree into a `Format` object, inserting both mandatory whitespace (to separate adjacent

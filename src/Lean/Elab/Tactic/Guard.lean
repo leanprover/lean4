@@ -3,12 +3,16 @@ Copyright (c) 2021 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Guard
-import Lean.Elab.Command
-import Lean.Elab.Tactic.Conv.Basic
-import Lean.Meta.Basic
-import Lean.Meta.Eval
+public import Init.Guard
+public import Lean.Elab.Command
+public import Lean.Elab.Tactic.Conv.Basic
+public import Lean.Meta.Basic
+public import Lean.Meta.Eval
+
+public section
 
 namespace Lean.Elab.Tactic.GuardExpr
 open Meta

@@ -3,13 +3,17 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Environment
-import Lean.Exception
-import Lean.Declaration
-import Lean.Log
-import Lean.AuxRecursor
-import Lean.Compiler.Old
+public import Lean.Environment
+public import Lean.Exception
+public import Lean.Declaration
+public import Lean.Log
+public import Lean.AuxRecursor
+public import Lean.Compiler.Old
+
+public section
 
 namespace Lean
 

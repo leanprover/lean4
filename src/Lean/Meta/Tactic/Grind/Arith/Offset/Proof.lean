@@ -3,10 +3,14 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Offset
-import Init.Grind.Lemmas
-import Lean.Meta.Tactic.Grind.Types
+public import Init.Grind.Offset
+public import Init.Grind.Lemmas
+public import Lean.Meta.Tactic.Grind.Types
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Offset
 /-!

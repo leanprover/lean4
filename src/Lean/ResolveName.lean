@@ -3,12 +3,16 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Data.OpenDecl
-import Lean.Hygiene
-import Lean.Modifiers
-import Lean.Exception
-import Lean.Namespace
+public import Lean.Data.OpenDecl
+public import Lean.Hygiene
+public import Lean.Modifiers
+public import Lean.Exception
+public import Lean.Namespace
+
+public section
 
 namespace Lean
 /-!

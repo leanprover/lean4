@@ -3,14 +3,18 @@ Copyright (c) 2023 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Simproc
-import Init.Data.Nat.Simproc
-import Lean.Util.SafeExponentiation
-import Lean.Meta.LitValues
-import Lean.Meta.Offset
-import Lean.Meta.Tactic.Simp.Simproc
-import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Util
+public import Init.Simproc
+public import Init.Data.Nat.Simproc
+public import Lean.Util.SafeExponentiation
+public import Lean.Meta.LitValues
+public import Lean.Meta.Offset
+public import Lean.Meta.Tactic.Simp.Simproc
+public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Util
+
+public section
 
 namespace Nat
 open Lean Meta Simp

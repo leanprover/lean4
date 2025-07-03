@@ -3,8 +3,12 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Ring.Poly
+public import Init.Grind.Ring.Poly
+
+public section
 namespace Lean.Grind.CommRing
 
 /-- `sharesVar m₁ m₂` returns `true` if `m₁` and `m₂` shares at least one variable. -/

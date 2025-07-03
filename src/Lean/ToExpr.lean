@@ -3,11 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Expr
-import Lean.ToLevel
-import Init.Data.BitVec.Basic
-import Init.Data.SInt.Basic
+public import Lean.Expr
+public import Lean.ToLevel
+public import Init.Data.BitVec.Basic
+public import Init.Data.SInt.Basic
+
+public section
 universe u
 
 namespace Lean

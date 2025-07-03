@@ -4,22 +4,26 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
-prelude
-import Init.System.IO
-import Std.Sync.Mutex
-import Std.Data.TreeMap
-import Init.Data.ByteArray
-import Lean.Data.RBMap
+module
 
-import Lean.Data.FuzzyMatching
-import Lean.Data.Json
-import Lean.Data.Lsp
-import Lean.Server.Utils
-import Lean.Server.Requests
-import Lean.Server.References
-import Lean.Server.ServerTask
-import Lean.Server.Completion.CompletionUtils
-import Init.Data.List.Sort
+prelude
+public import Init.System.IO
+public import Std.Sync.Mutex
+public import Std.Data.TreeMap
+public import Init.Data.ByteArray
+public import Lean.Data.RBMap
+
+public import Lean.Data.FuzzyMatching
+public import Lean.Data.Json
+public import Lean.Data.Lsp
+public import Lean.Server.Utils
+public import Lean.Server.Requests
+public import Lean.Server.References
+public import Lean.Server.ServerTask
+public import Lean.Server.Completion.CompletionUtils
+public import Init.Data.List.Sort
+
+public section
 
 /-!
 For general server architecture, see `README.md`. This module implements the watchdog process.
@@ -29,7 +33,7 @@ For general server architecture, see `README.md`. This module implements the wat
 Most LSP clients only send us file diffs, so to facilitate sending entire file contents to freshly
 restarted workers, the watchdog needs to maintain the current state of each file. It can also use
 this state to detect changes to the header and thus restart the corresponding worker, freeing its
-imports.
+public imports.
 
 TODO(WN):
 We may eventually want to keep track of approximately (since this isn't knowable exactly) where in

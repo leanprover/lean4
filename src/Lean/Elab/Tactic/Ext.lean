@@ -3,15 +3,19 @@ Copyright (c) 2021 Gabriel Ebner. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Mario Carneiro
 -/
+module
+
 prelude
-import Init.Ext
-import Lean.Meta.Tactic.Ext
-import Lean.Elab.DeclarationRange
-import Lean.Elab.Tactic.RCases
-import Lean.Elab.Tactic.Repeat
-import Lean.Elab.Tactic.BuiltinTactic
-import Lean.Elab.Command
-import Lean.Linter.Basic
+public import Init.Ext
+public import Lean.Meta.Tactic.Ext
+public import Lean.Elab.DeclarationRange
+public import Lean.Elab.Tactic.RCases
+public import Lean.Elab.Tactic.Repeat
+public import Lean.Elab.Tactic.BuiltinTactic
+public import Lean.Elab.Command
+public import Lean.Linter.Basic
+
+public section
 
 /-!
 # Implementation of the `@[ext]` attribute

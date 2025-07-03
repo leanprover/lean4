@@ -3,11 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.ScopedEnvExtension
-import Lean.Meta.GlobalInstances
-import Lean.Meta.DiscrTree
-import Lean.Meta.CollectMVars
+public import Lean.ScopedEnvExtension
+public import Lean.Meta.GlobalInstances
+public import Lean.Meta.DiscrTree
+public import Lean.Meta.CollectMVars
+
+public section
 
 namespace Lean.Meta
 

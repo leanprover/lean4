@@ -3,14 +3,18 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Tactics
-import Lean.Meta.Tactic.Grind
-import Lean.Meta.Tactic.TryThis
-import Lean.Elab.Command
-import Lean.Elab.MutualDef
-import Lean.Elab.Tactic.Basic
-import Lean.Elab.Tactic.Config
+public import Init.Grind.Tactics
+public import Lean.Meta.Tactic.Grind
+public import Lean.Meta.Tactic.TryThis
+public import Lean.Elab.Command
+public import Lean.Elab.MutualDef
+public import Lean.Elab.Tactic.Basic
+public import Lean.Elab.Tactic.Config
+
+public section
 
 namespace Lean.Elab.Tactic
 open Meta

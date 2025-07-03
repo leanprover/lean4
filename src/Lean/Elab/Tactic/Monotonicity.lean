@@ -3,11 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Split
-import Lean.Elab.RecAppSyntax
-import Lean.Elab.Tactic.Basic
-import Init.Internal.Order
+public import Lean.Meta.Tactic.Split
+public import Lean.Elab.RecAppSyntax
+public import Lean.Elab.Tactic.Basic
+public import Init.Internal.Order
+
+public section
 
 namespace Lean.Meta.Monotonicity
 

@@ -3,9 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Expr
+public import Lean.Meta.Basic
+public import Lean.Expr
+
+public section
 
 namespace Lean.Meta.Simp.Arith
 /-

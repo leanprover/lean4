@@ -3,10 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Match.MatchPatternAttr
-import Lean.Elab.Arg
-import Lean.Elab.MatchAltView
+public import Lean.Meta.Match.MatchPatternAttr
+public import Lean.Elab.Arg
+public import Lean.Elab.MatchAltView
+
+public section
 
 namespace Lean.Elab.Term
 

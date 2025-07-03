@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.Nat.Fold
-import Std.Tactic.BVDecide.LRAT.Actions
-import Std.Data.HashMap
+public import Init.Data.Nat.Fold
+public import Std.Tactic.BVDecide.LRAT.Actions
+public import Std.Data.HashMap
+
+public section
 
 /-!
 This module implements the LRAT trimming algorithm described in section 4 of

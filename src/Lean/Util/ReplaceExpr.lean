@@ -3,9 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Expr
-import Lean.Util.PtrSet
+public import Lean.Expr
+public import Lean.Util.PtrSet
+
+public section
 
 namespace Lean.Expr
 

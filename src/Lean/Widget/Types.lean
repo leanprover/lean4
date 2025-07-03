@@ -4,8 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Server.Rpc.Basic
+public import Lean.Server.Rpc.Basic
+
+public section
 
 namespace Lean.Widget
 

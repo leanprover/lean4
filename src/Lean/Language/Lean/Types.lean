@@ -8,9 +8,13 @@ recompilation
 Authors: Sebastian Ullrich
 -/
 
+module
+
 prelude
-import Lean.Language.Basic
-import Lean.Elab.Command
+public import Lean.Language.Basic
+public import Lean.Elab.Command
+
+public section
 
 set_option linter.missingDocs true
 

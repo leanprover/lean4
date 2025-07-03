@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.ReifiedBVLogical
-import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.ReifiedLemmas
+public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.ReifiedBVLogical
+public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.ReifiedLemmas
+
+public section
 
 /-!
 Reifies `BitVec` problems with boolean substructure.

@@ -3,15 +3,19 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.ScopedEnvExtension
-import Lean.Util.Recognizers
-import Lean.Meta.DiscrTree
-import Lean.Meta.AppBuilder
-import Lean.Meta.Eqns
-import Lean.Meta.Tactic.AuxLemma
-import Lean.DefEqAttrib
-import Lean.DocString
+public import Lean.ScopedEnvExtension
+public import Lean.Util.Recognizers
+public import Lean.Meta.DiscrTree
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.Eqns
+public import Lean.Meta.Tactic.AuxLemma
+public import Lean.DefEqAttrib
+public import Lean.DocString
+
+public section
 
 /-!
 This module contains types to manages simp theorems and sets theirof.

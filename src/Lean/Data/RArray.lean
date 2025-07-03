@@ -4,11 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Init.Data.RArray
-import Lean.Meta.InferType
-import Lean.Meta.DecLevel
-import Lean.ToExpr
+public import Init.Data.RArray
+public import Lean.Meta.InferType
+public import Lean.Meta.DecLevel
+public import Lean.ToExpr
+
+public section
 
 /-!
 Auxiliary definitions related to `Lean.RArray` that are typically only used in meta-code, in

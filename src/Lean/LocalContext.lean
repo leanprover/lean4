@@ -3,11 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Nat.Control
-import Lean.Data.PersistentArray
-import Lean.Expr
-import Lean.Hygiene
+public import Init.Data.Nat.Control
+public import Lean.Data.PersistentArray
+public import Lean.Expr
+public import Lean.Hygiene
+
+public section
 
 namespace Lean
 

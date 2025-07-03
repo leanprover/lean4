@@ -3,12 +3,16 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich, Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Range
-import Init.Data.Hashable
-import Lean.Data.Name
-import Lean.Data.Format
-import Init.Data.Option.Coe
+public import Init.Data.Range
+public import Init.Data.Hashable
+public import Lean.Data.Name
+public import Lean.Data.Format
+public import Init.Data.Option.Coe
+
+public section
 
 /--
 A position range inside a string. This type is mostly in combination with syntax trees,

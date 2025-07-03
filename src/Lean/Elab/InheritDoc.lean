@@ -3,9 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
+module
+
 prelude
-import Lean.Elab.InfoTree.Main
-import Lean.DocString.Extension
+public import Lean.Elab.InfoTree.Main
+public import Lean.DocString.Extension
+
+public section
 
 namespace Lean
 

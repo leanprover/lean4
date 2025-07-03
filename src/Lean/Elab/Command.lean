@@ -3,13 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Gabriel Ebner
 -/
+module
+
 prelude
-import Lean.Meta.Diagnostics
-import Lean.Elab.Binders
-import Lean.Elab.SyntheticMVars
-import Lean.Elab.SetOption
-import Lean.Language.Basic
-import Lean.Meta.ForEachExpr
+public import Lean.Meta.Diagnostics
+public import Lean.Elab.Binders
+public import Lean.Elab.SyntheticMVars
+public import Lean.Elab.SetOption
+public import Lean.Language.Basic
+public import Lean.Meta.ForEachExpr
 
 namespace Lean.Elab.Command
 
@@ -690,7 +692,7 @@ consider using `runTermElabM`.
 Recall that `TermElabM` actions can automatically lift `MetaM` and `CoreM` actions.
 Example:
 ```
-import Lean
+public import Lean
 
 open Lean Elab Command Meta
 
@@ -730,7 +732,9 @@ command.
 
 Example:
 ```
-import Lean
+public import Lean
+
+public section
 
 open Lean Elab Command Meta
 

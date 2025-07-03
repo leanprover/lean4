@@ -3,17 +3,21 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.Specialize
-import Lean.Compiler.LCNF.Simp
-import Lean.Compiler.LCNF.SpecInfo
-import Lean.Compiler.LCNF.PrettyPrinter
-import Lean.Compiler.LCNF.ToExpr
-import Lean.Compiler.LCNF.Level
-import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.LCNF.MonadScope
-import Lean.Compiler.LCNF.Closure
-import Lean.Compiler.LCNF.FVarUtil
+public import Lean.Compiler.Specialize
+public import Lean.Compiler.LCNF.Simp
+public import Lean.Compiler.LCNF.SpecInfo
+public import Lean.Compiler.LCNF.PrettyPrinter
+public import Lean.Compiler.LCNF.ToExpr
+public import Lean.Compiler.LCNF.Level
+public import Lean.Compiler.LCNF.PhaseExt
+public import Lean.Compiler.LCNF.MonadScope
+public import Lean.Compiler.LCNF.Closure
+public import Lean.Compiler.LCNF.FVarUtil
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Specialize

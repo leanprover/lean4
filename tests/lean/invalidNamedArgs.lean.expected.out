@@ -1,15 +1,26 @@
 invalidNamedArgs.lean:3:9-3:17: error: Invalid argument name `b` for function `List.foldl`
 
-Note: This function has the following named parameters: `α`, `β`, `f`, and `init`
+Hint: Perhaps you meant one of the following named parameters:
+  • `f`: b̵f̲
+  • `α`: b̵α̲
+  • `β`: b̵β̲
+  • `init`: b̵i̲n̲i̲t̲
 invalidNamedArgs.lean:9:4-9:18: error: Invalid argument name `flg` for function `f`
 
-Note: This function has the following named parameters: `a` and `flag`
+Hint: Perhaps you meant one of the following named parameters:
+  • `flag`: fla̲g
+  • `a`: f̵l̵g̵a̲
 invalidNamedArgs.lean:20:22-20:30: error: Invalid argument name `k` for function `h`
 
-Note: This function has the following named parameters: `n` and `x`
+Hint: Perhaps you meant one of the following named parameters:
+  • `n`: k̵n̲
+  • `x`: k̵x̲
 invalidNamedArgs.lean:21:23-21:31: error: Invalid argument name `k` for function `h`
 
-Note: This function has the following named parameters: `n` and `y`
+Hint: Perhaps you meant one of the following named parameters:
+  • `n`: k̵n̲
+  • `y`: k̵y̲
 invalidNamedArgs.lean:22:13-22:21: error: Invalid argument name `k` for function `h`
 
-Note: This function has the following named parameters: `n`
+Hint: Perhaps you meant one of the following named parameters:
+  • `n`: k̵n̲

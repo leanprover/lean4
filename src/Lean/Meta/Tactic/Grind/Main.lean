@@ -38,7 +38,8 @@ structure Params where
 def mkParams (config : Grind.Config) : MetaM Params := do
   let norm ← Grind.getSimpContext config
   let normProcs ← Grind.getSimprocs
-  return { config, norm, normProcs }
+  let symPrios ← getGlobalSymbolPriorities
+  return { config, norm, normProcs, symPrios }
 
 def mkMethods (fallback : Fallback) : CoreM Methods := do
   let builtinPropagators ← builtinPropagatorsRef.get

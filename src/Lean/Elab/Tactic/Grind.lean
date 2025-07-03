@@ -41,7 +41,9 @@ open Command in
 def elabResetGrindAttrs : CommandElab := fun _ => liftTermElabM do
   Grind.resetCasesExt
   Grind.resetEMatchTheoremsExt
-  Grind.resetSymbolPrioExt
+  -- Remark: we do not reset symbol priorities because we would have to then set
+  -- `[grind symbol 0] Eq` after a `reset_grind_attr%` command.
+  -- Grind.resetSymbolPrioExt
 
 open Command Term in
 @[builtin_command_elab Lean.Parser.Command.initGrindNorm]

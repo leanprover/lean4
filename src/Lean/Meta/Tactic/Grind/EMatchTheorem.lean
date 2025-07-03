@@ -572,6 +572,9 @@ def isCandidateSymbol (declName : Name) (root : Bool) : M Bool := do
   let prio := ctx.symPrios.getPrio declName
   -- Priority 0 are never considered, they are treated as forbidden
   if prio == 0 then return false
+  -- TODO: delete after update-stage0
+  if declName ∈ [``Eq, ``HEq, ``Iff, ``And, ``Or, ``Not] then
+    throwError "PLEASE INSERT `import Init.Grind.Tactics`"
   -- If it is the root symbol, then we check whether `prio ≥ minPrio`
   if root then
     return prio ≥ ctx.minPrio

@@ -18,7 +18,6 @@ namespace Lean.Grind
 instance : CommRing (BitVec w) where
   nsmul := ⟨(· * ·)⟩
   zsmul := ⟨(· * ·)⟩
-  zsmul_natCast_eq_nsmul := by sorry
   add_assoc := BitVec.add_assoc
   add_comm := BitVec.add_comm
   add_zero := BitVec.add_zero
@@ -36,6 +35,12 @@ instance : CommRing (BitVec w) where
   pow_succ _ _ := BitVec.pow_succ
   ofNat_succ x := BitVec.ofNat_add x 1
   intCast_neg _ := BitVec.ofInt_neg
+  neg_zsmul i x := by
+    change (BitVec.ofInt _ (-i) * x = _)
+    rw [BitVec.ofInt_neg]
+    rw [BitVec.neg_mul]
+    rfl
+  zsmul_natCast_eq_nsmul _ _ := rfl
 
 instance : IsCharP (BitVec w) (2 ^ w) := IsCharP.mk' _ _
   (ofNat_eq_zero_iff := fun x => by simp [BitVec.toNat_eq])

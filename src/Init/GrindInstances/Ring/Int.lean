@@ -31,6 +31,7 @@ instance : CommRing Int where
   pow_succ _ _ := by rfl
   ofNat_succ _ := by rfl
   sub_eq_add_neg _ _ := Int.sub_eq_add_neg
+  neg_zsmul := Int.neg_mul
 
 instance : IsCharP Int 0 := IsCharP.mk' _ _
   (ofNat_eq_zero_iff := fun x => by erw [Int.ofNat_eq_zero]; simp)

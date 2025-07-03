@@ -236,9 +236,28 @@ private theorem pow_zero (a : Q α) : hPow a 0 = natCast 1 := rfl
 
 private theorem pow_succ (a : Q α) (n : Nat) : hPow a (n+1) = mul (hPow a n) a := rfl
 
+def nsmul (n : Nat) (a : Q α) : Q α :=
+  mul (natCast n) a
+
+def zsmul (i : Int) (a : Q α) : Q α :=
+  mul (intCast i) a
+
+theorem neg_zsmul (i : Int) (a : Q α) : zsmul (-i) a = neg (zsmul i a) := by
+  induction a using Quot.ind
+  next a =>
+  cases a; simp [zsmul]
+  split <;> rename_i h₁
+  · split <;> rename_i h₂
+    · omega
+    · simp
+  · split <;> rename_i h₂
+    · simp
+    · have : i = 0 := by omega
+      simp [this]
+
 def ofSemiring : Ring (Q α) := {
-  nsmul := ⟨fun n x => (mul (natCast n) x)⟩
-  zsmul := ⟨fun n x => (mul (intCast n) x)⟩
+  nsmul := ⟨nsmul⟩
+  zsmul := ⟨zsmul⟩
   ofNat   := fun n => ⟨natCast n⟩
   natCast := ⟨natCast⟩
   intCast := ⟨intCast⟩
@@ -247,7 +266,7 @@ def ofSemiring : Ring (Q α) := {
   neg_add_cancel, sub_eq_add_neg
   mul_one, one_mul, zero_mul, mul_zero, mul_assoc,
   left_distrib, right_distrib, pow_zero, pow_succ,
-  intCast_neg, ofNat_succ
+  intCast_neg, ofNat_succ, neg_zsmul
 }
 
 attribute [instance] ofSemiring

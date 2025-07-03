@@ -90,11 +90,11 @@ attribute [instance 100] IntModule.toAddCommGroup IntModule.zsmul
 
 instance (priority := 100) IntModule.toNatModule [I : IntModule M] : NatModule M :=
   { I with
-    zero_nsmul := sorry
-    one_nsmul := sorry
-    add_nsmul := sorry
-    nsmul_zero := sorry
-    nsmul_add := sorry }
+    zero_nsmul a := by rw [← zsmul_natCast_eq_nsmul, Int.natCast_zero, zero_zsmul]
+    one_nsmul a := by rw [← zsmul_natCast_eq_nsmul, Int.natCast_one, one_zsmul]
+    add_nsmul n m a := by rw [← zsmul_natCast_eq_nsmul, Int.natCast_add, add_zsmul, zsmul_natCast_eq_nsmul, zsmul_natCast_eq_nsmul]
+    nsmul_zero n := by rw [← zsmul_natCast_eq_nsmul, zsmul_zero]
+    nsmul_add n a b := by rw [← zsmul_natCast_eq_nsmul, zsmul_add, zsmul_natCast_eq_nsmul, zsmul_natCast_eq_nsmul] }
 
 namespace AddCommMonoid
 

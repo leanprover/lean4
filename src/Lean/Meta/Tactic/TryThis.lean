@@ -97,6 +97,7 @@ attribute [builtin_widget_module] Hint.tryThisDiffWidget
 
 /-! # Code action -/
 
+/-- Converts "try this" info into an array of (eager) code actions. -/
 private def codeActionsOfInfo (info : TryThisInfo) (stx : Syntax) (doc : FileWorker.EditableDocument)
       (params : Lsp.CodeActionParams) : Array LazyCodeAction := Id.run do
   let { range, suggestionTexts, codeActionPrefix? } := info
@@ -129,6 +130,10 @@ apply the replacement.
     let mut result := result
     result ++ codeActionsOfInfo info stx doc params
 
+/--
+A code action provider analogous to `tryThisProvider`, except that it looks for `LazyTryThisInfo`
+nodes and uses them to generate lazy code action sets.
+-/
 @[builtin_code_action_provider] def lazyTryThisProvider : CodeActionProvider := fun params snap => do
   let doc ← readDoc
   return .lazy <| snap.infoTree.foldInfo (α := IO (Array LazyCodeAction)) (init := pure #[]) fun _ctx info result => Id.run do
@@ -136,10 +141,10 @@ apply the replacement.
     let some { info, ppCtx } := value.get? LazyTryThisInfo | pure result
     let mkActions : IO _ := do
       let infos ← ppCtx.runMetaM info
-      let mut computedCAs := #[]
+      let mut codeActions := #[]
       for info in infos do
-        computedCAs := computedCAs ++ codeActionsOfInfo info stx doc params
-      pure <| (← result) ++ computedCAs
+        codeActions := codeActions ++ codeActionsOfInfo info stx doc params
+      pure <| (← result) ++ codeActions
     return mkActions
 
 /-! # Formatting -/
@@ -159,7 +164,7 @@ private def addSuggestionCore (ref : Syntax) (suggestions : Array Suggestion)
     (style? : Option SuggestionStyle := none)
     (codeActionPrefix? : Option String := none) : CoreM Unit := do
   if let some range := (origSpan?.getD ref).getRange? then
-    let { suggestions, info, range } ← processSuggestions ref range suggestions codeActionPrefix?
+    let { suggestions, info, range, infoRef } ← processSuggestions ref range suggestions codeActionPrefix?
     let suggestions := suggestions.map (·.1)
     let json := json% {
       suggestions: $suggestions,
@@ -168,7 +173,10 @@ private def addSuggestionCore (ref : Syntax) (suggestions : Array Suggestion)
       isInline: $isInline,
       style: $style?
     }
-    pushInfoLeaf info
+    pushInfoLeaf <| .ofCustomInfo {
+      stx := infoRef
+      value := Dynamic.mk info
+    }
     Widget.savePanelWidgetInfo tryThisWidget.javascriptHash ref (props := return json)
 
 /-- Add a "try this" suggestion. This has three effects:

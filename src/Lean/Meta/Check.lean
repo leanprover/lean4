@@ -193,24 +193,33 @@ def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
 /--
 Return error message "has type{givenType}\nbut is expected to have type{expectedType}"
 Adds the type’s types unless they are defeq.
+If `trailing?` is non-`none`, it is appended to the end of the message. This requires modifying the
+produced message, so prefer specifying `trailing?` over appending a message to the result of this
+function.
 -/
-def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr) : MetaM MessageData :=
+def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr) (trailing? : Option MessageData := none)
+    : MetaM MessageData :=
   return MessageData.ofLazyM (es := #[givenType, expectedType]) do
     try
       let givenTypeType ← inferType givenType
       let expectedTypeType ← inferType expectedType
       if (← isDefEqGuarded givenTypeType expectedTypeType) then
         let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
+        let trailing := trailing?.map (m!"\n" ++ ·) |>.getD .nil
         return m!"has type{indentExpr givenType}\n\
-          but is expected to have type{indentExpr expectedType}"
+          but is expected to have type{indentExpr expectedType}{trailing}"
       else
         let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
         let (givenTypeType, expectedTypeType) ← addPPExplicitToExposeDiff givenTypeType expectedTypeType
+        let trailing := match trailing? with
+          | none => inlineExprTrailing expectedTypeType
+          | some trailing => inlineExpr expectedTypeType ++ trailing
         return m!"has type{indentExpr givenType}\nof sort{inlineExpr givenTypeType}\
-          but is expected to have type{indentExpr expectedType}\nof sort{inlineExprTrailing expectedTypeType}"
+          but is expected to have type{indentExpr expectedType}\nof sort{trailing}"
     catch _ =>
       let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
-      return m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}"
+      let trailing := trailing?.map (m!"\n" ++ ·) |>.getD .nil
+      return m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}{trailing}"
 
 def throwAppTypeMismatch (f a : Expr) : MetaM α := do
   let (expectedType, binfo) ← getFunctionDomain f
@@ -225,7 +234,8 @@ def throwAppTypeMismatch (f a : Expr) : MetaM α := do
     m!"last{indentExpr a}\nargument "
   else
     m!"argument{indentExpr a}\n"
-  throwError "Application type mismatch: In the application{indentExpr e}\nthe {argDescStr}{← mkHasTypeButIsExpectedMsg aType expectedType}"
+  throwError "Application type mismatch: The {argDescStr}\
+    {← mkHasTypeButIsExpectedMsg aType expectedType m!"in the application{indentExpr e}"}"
 
 def checkApp (f a : Expr) : MetaM Unit := do
   let fType ← inferType f

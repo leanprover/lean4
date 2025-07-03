@@ -1120,7 +1120,9 @@ def EMatchTheoremKind.gen : EMatchTheoremKind → Bool
 private def collectUsedPriorities (prios : SymbolPriorities) (searchPlaces : Array Expr) : Array Nat := Id.run do
   let mut s : Std.HashSet Nat := {}
   for place in searchPlaces do
-    s := place.foldConsts (init := s) fun declName s => s.insert <| prios.getPrio declName
+    s := place.foldConsts (init := s) fun declName s =>
+      let prio := prios.getPrio declName
+      if prio > 0 then s.insert prio else s
   let r := s.toArray
   if r.isEmpty then
     return #[eval_prio default]

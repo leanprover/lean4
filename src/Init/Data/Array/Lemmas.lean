@@ -129,7 +129,7 @@ theorem none_eq_getElem?_iff {xs : Array α} {i : Nat} : none = xs[i]? ↔ xs.si
 theorem getElem?_eq_none {xs : Array α} (h : xs.size ≤ i) : xs[i]? = none := by
   simp [h]
 
-grind_pattern Array.getElem?_eq_none => xs.size ≤ i, xs[i]?
+grind_pattern Array.getElem?_eq_none => xs.size, xs[i]?
 
 @[simp] theorem getElem?_eq_getElem {xs : Array α} {i : Nat} (h : i < xs.size) : xs[i]? = some xs[i] :=
   getElem?_pos ..
@@ -985,11 +985,12 @@ theorem mem_set {xs : Array α} {i : Nat} (h : i < xs.size) {a : α} :
   simp [mem_iff_getElem]
   exact ⟨i, (by simpa using h), by simp⟩
 
-@[grind →]
 theorem mem_or_eq_of_mem_set
     {xs : Array α} {i : Nat} {a b : α} {w : i < xs.size} (h : a ∈ xs.set i b) : a ∈ xs ∨ a = b := by
   cases xs
   simpa using List.mem_or_eq_of_mem_set (by simpa using h)
+
+grind_pattern mem_or_eq_of_mem_set => a ∈ xs.set i b
 
 /-! ### setIfInBounds -/
 

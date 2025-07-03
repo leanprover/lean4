@@ -248,7 +248,6 @@ lean_object* l_Lean_Elab_realizeGlobalConstNoOverloadWithInfo(lean_object*, lean
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_elabGrindParams(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalUnsafe___redArg___closed__2____x40_Lean_Elab_Tactic_Grind___hyg_5_;
 lean_object* l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_mkConfigItemViews(lean_object*);
-lean_object* l_Lean_Meta_Grind_resetSymbolPrioExt___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_elabGrindParams_addEMatchTheorem___closed__4;
 lean_object* l_Lean_Meta_isEqnThm_x3f___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_elabGrindPattern___regBuiltin_Lean_Elab_Tactic_elabGrindPattern__1___closed__2;
@@ -3753,17 +3752,13 @@ return x_6;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_elabResetGrindAttrs___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = l_Lean_Meta_Grind_resetCasesExt___redArg(x_6, x_7);
 x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
 lean_dec(x_8);
 x_10 = l_Lean_Meta_Grind_resetEMatchTheoremsExt___redArg(x_6, x_9);
-x_11 = lean_ctor_get(x_10, 1);
-lean_inc(x_11);
-lean_dec(x_10);
-x_12 = l_Lean_Meta_Grind_resetSymbolPrioExt___redArg(x_6, x_11);
-return x_12;
+return x_10;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_elabResetGrindAttrs___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

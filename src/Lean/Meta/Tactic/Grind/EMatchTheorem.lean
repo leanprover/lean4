@@ -863,7 +863,7 @@ Pattern variables are represented using de Bruijn indices.
 def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams : Nat) (proof : Expr)
     (patterns : List Expr) (kind : EMatchTheoremKind) (showInfo := false) : MetaM EMatchTheorem := do
   -- the patterns have already been selected, there is no point in using priorities here
-  let (patterns, symbols, bvarFound) ← NormalizePattern.main patterns {} (minPrio := 1)
+  let (patterns, symbols, bvarFound) ← NormalizePattern.main patterns (← getGlobalSymbolPriorities) (minPrio := 1)
   if symbols.isEmpty then
     throwError "invalid pattern for `{← origin.pp}`{indentD (patterns.map ppPattern)}\nthe pattern does not contain constant symbols for indexing"
   trace[grind.ematch.pattern] "{← origin.pp}: {patterns.map ppPattern}"

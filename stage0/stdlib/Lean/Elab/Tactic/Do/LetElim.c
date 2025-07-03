@@ -3828,10 +3828,10 @@ if (lean_is_scalar(x_18)) {
  x_23 = x_18;
 }
 lean_ctor_set(x_23, 0, x_22);
-lean_ctor_set(x_23, 1, x_19);
+lean_ctor_set(x_23, 1, x_20);
 x_2 = x_12;
 x_4 = x_23;
-x_9 = x_20;
+x_9 = x_19;
 goto _start;
 }
 block_48:
@@ -3863,8 +3863,8 @@ x_36 = lean_ctor_get(x_32, 1);
 lean_inc(x_36);
 lean_dec(x_32);
 x_37 = l_Lean_LocalDecl_setType(x_15, x_35);
-x_19 = x_36;
-x_20 = x_34;
+x_19 = x_34;
+x_20 = x_36;
 x_21 = x_37;
 goto block_25;
 }
@@ -3885,8 +3885,8 @@ lean_inc(x_41);
 lean_dec(x_33);
 x_42 = l_Lean_LocalDecl_setType(x_15, x_39);
 x_43 = l_Lean_LocalDecl_setValue(x_42, x_41);
-x_19 = x_40;
-x_20 = x_38;
+x_19 = x_38;
+x_20 = x_40;
 x_21 = x_43;
 goto block_25;
 }

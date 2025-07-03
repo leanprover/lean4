@@ -70,7 +70,7 @@ private def synthesizePendingInstMVar (instMVar : MVarId) (extraErrorMsg? : Opti
       | _              => unreachable!
 
 /--
-  Try to synthesize `mvarId` by starting using a default instance with the give privority.
+  Try to synthesize `mvarId` by starting using a default instance with the given priority.
   This method succeeds only if the metavariable of fully synthesized.
 
   Remark: In the past, we would return a list of pending TC problems, but this was problematic since
@@ -314,9 +314,9 @@ inductive PostponeBehavior where
   -/
   | no
   /--
-  Synthectic metavariables associated with type class resolution can be postponed.
+  Synthetic metavariables associated with type class resolution can be postponed.
   Motivation: this kind of metavariable are not synthetic opaque, and can be assigned by `isDefEq`.
-  Unviverse constraints can also be postponed.
+  Universe constraints can also be postponed.
   -/
   | «partial»
   deriving Inhabited, Repr, BEq

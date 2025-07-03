@@ -164,7 +164,7 @@ def normalizeLevels (e : Expr) : CoreM Expr := do
 
 /--
 Normalizes the given expression using the `grind` simplification theorems and simprocs.
-This function is used for normalzing E-matching patterns. Note that it does not return a proof.
+This function is used for normalizing E-matching patterns. Note that it does not return a proof.
 -/
 @[extern "lean_grind_normalize"] -- forward definition
 opaque normalize (e : Expr) (config : Grind.Config) : MetaM Expr

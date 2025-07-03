@@ -11,7 +11,7 @@ namespace Lean.Meta
 
 /--
 Abstract occurrences of `p` in `e`. We detect subterms equivalent to `p` using key-matching.
-That is, only perform `isDefEq` tests when the head symbol of substerm is equivalent to head symbol of `p`.
+That is, only perform `isDefEq` tests when the head symbol of subterm is equivalent to head symbol of `p`.
 
 By default, all occurrences are abstracted,
 but this behavior can be controlled using the `occs` parameter.

@@ -135,7 +135,7 @@ private def matchArg? (c : Choice) (pArg : Expr) (eArg : Expr) : OptionT GoalM C
     assign? c pArg.bvarIdx! eArg
   else if let some pArg := groundPattern? pArg then
     /-
-    We need to use `withReducibleAndIntances` because ground patterns are often instances.
+    We need to use `withReducibleAndInstances` because ground patterns are often instances.
     Here is an example
     ```
     instance : Max Nat where

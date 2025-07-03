@@ -84,7 +84,7 @@ def mkChoice (proof : Expr) (subgoals : List Goal) (generation : Nat) : SearchM 
 /--
 Create an auxiliary metavariable with the same type and tag of the metavariable
 associated with the current goal.
-We use this function to perform `cases` on the current goal without eagerly assignining it.
+We use this function to perform `cases` on the current goal without eagerly assigning it.
 -/
 def mkAuxMVarForCurrGoal : SearchM MVarId := withCurrGoalContext do
   let mvarId := (← getGoal).mvarId

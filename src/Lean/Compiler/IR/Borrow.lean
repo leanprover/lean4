@@ -290,17 +290,17 @@ partial def collectDecl : Decl → M Unit
   | _ => pure ()
 
 /-- Keep executing `x` until it reaches a fixpoint -/
-partial def whileModifing (x : M Unit) : M Unit := do
+partial def whileModifying (x : M Unit) : M Unit := do
   modify fun s => { s with modified := false }
   x
   let s ← get
   if s.modified then
-    whileModifing x
+    whileModifying x
   else
     pure ()
 
 def collectDecls : M ParamMap := do
-  whileModifing ((← read).decls.forM collectDecl)
+  whileModifying ((← read).decls.forM collectDecl)
   let s ← get
   pure s.paramMap
 

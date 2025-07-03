@@ -19,7 +19,7 @@ def preprocessLight (e : Expr) : GoalM Expr := do
 If `e` has not been internalized yet, instantiate metavariables, unfold reducible, canonicalize,
 and internalize the result.
 
-This is an auxliary function used at `proveEq?` and `proveHEq?`.
+This is an auxiliary function used at `proveEq?` and `proveHEq?`.
 -/
 private def ensureInternalized (e : Expr) : GoalM Expr := do
   if (← alreadyInternalized e) then

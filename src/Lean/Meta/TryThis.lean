@@ -236,7 +236,7 @@ in an info leaf.
 
 It contains the following data:
 * `suggestions`: tuples of the form `(j, t, p)` where `j` is JSON containing a suggestion and its
-  pre- and post-info, `t` is the text to be inserteed by the suggestion, and `p` is the code action
+  pre- and post-info, `t` is the text to be inserted by the suggestion, and `p` is the code action
   prefix thereof.
 * `info`: the `TryThisInfo` data corresponding to a collection of suggestions
 * `range`: the range at which the suggestion is to be applied.

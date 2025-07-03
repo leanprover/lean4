@@ -75,10 +75,10 @@ abbrev M (llvmctx : LLVM.Context) :=
 instance : Inhabited (M llvmctx α) where
   default := throw "Error: inhabitant"
 
-def addVartoState (x : VarId) (v : LLVM.Value llvmctx) (ty : LLVM.LLVMType llvmctx) : M llvmctx Unit := do
+def addVarToState (x : VarId) (v : LLVM.Value llvmctx) (ty : LLVM.LLVMType llvmctx) : M llvmctx Unit := do
   modify (fun s => { s with var2val := s.var2val.insert x (ty, v) }) -- add new variable
 
-def addJpTostate (jp : JoinPointId) (bb : LLVM.BasicBlock llvmctx) : M llvmctx Unit :=
+def addJpToState (jp : JoinPointId) (bb : LLVM.BasicBlock llvmctx) : M llvmctx Unit :=
   modify (fun s => { s with jp2bb := s.jp2bb.insert jp bb })
 
 def emitJp (jp : JoinPointId) : M llvmctx (LLVM.BasicBlock llvmctx) := do
@@ -761,7 +761,7 @@ def emitLit (builder : LLVM.Builder llvmctx)
     (z : VarId) (t : IRType) (v : LitVal) : M llvmctx (LLVM.Value llvmctx) := do
   let llvmty ← toLLVMType t
   let zslot ← buildPrologueAlloca builder llvmty
-  addVartoState z zslot llvmty
+  addVarToState z zslot llvmty
   let zv ← match v with
             | LitVal.num v => emitNumLit builder t v
             | LitVal.str v =>
@@ -978,7 +978,7 @@ def emitVDecl (builder : LLVM.Builder llvmctx) (z : VarId) (t : IRType) (v : Exp
 def declareVar (builder : LLVM.Builder llvmctx) (x : VarId) (t : IRType) : M llvmctx Unit := do
   let llvmty ← toLLVMType t
   let alloca ← buildPrologueAlloca builder llvmty "varx"
-  addVartoState x alloca llvmty
+  addVarToState x alloca llvmty
 
 partial def declareVars (builder : LLVM.Builder llvmctx) (f : FnBody) : M llvmctx Unit := do
   match f with
@@ -1114,7 +1114,7 @@ partial def emitJDecl (builder : LLVM.Builder llvmctx)
     (jp : JoinPointId) (_ps : Array Param) (b : FnBody) : M llvmctx Unit := do
   let oldBB ← LLVM.getInsertBlock builder
   let jpbb ← builderAppendBasicBlock builder s!"jp_{jp.idx}"
-  addJpTostate jp jpbb
+  addJpToState jp jpbb
   LLVM.positionBuilderAtEnd builder jpbb
   -- NOTE(bollu) : Note that we declare the slots for the variables that are inside
   --              the join point body before emitting the join point body.
@@ -1186,7 +1186,7 @@ def emitFnArgs (builder : LLVM.Builder llvmctx)
           -- slot for arg[i] which is always void* ?
           let alloca ← buildPrologueAlloca builder llvmty s!"arg_{i}"
           LLVM.buildStore builder pv alloca
-          addVartoState param.x alloca llvmty
+          addVarToState param.x alloca llvmty
   else
       let n ← LLVM.countParams llvmfn
       for i in [:n.toNat] do
@@ -1195,7 +1195,7 @@ def emitFnArgs (builder : LLVM.Builder llvmctx)
         let alloca ← buildPrologueAlloca builder  llvmty s!"arg_{i}"
         let arg ← LLVM.getParam llvmfn (UInt64.ofNat i)
         let _ ← LLVM.buildStore builder arg alloca
-        addVartoState param.x alloca llvmty
+        addVarToState param.x alloca llvmty
 
 def emitDeclAux (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) (d : Decl) : M llvmctx Unit := do
   let env ← getEnv

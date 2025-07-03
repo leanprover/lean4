@@ -53,7 +53,7 @@ def shouldCheckLoops (force : Bool) (ctxt : Simp.Context) : CoreM Bool := do
   return linter.loopingSimpArgs.get (← getOptions)
 
 /--
-Main entry point to the loop protection mechanis: Checks if the given theorem is looping in the
+Main entry point to the loop protection mechanism: Checks if the given theorem is looping in the
 current simp set, and logs a warning if it does.
 
 Assumes that `withRef` is set appropriately for the warning.

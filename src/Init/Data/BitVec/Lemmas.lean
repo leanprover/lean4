@@ -3004,7 +3004,7 @@ which performs a case analysis on the start index, length, and the lengths of `x
 · If the start index is entirely contained in the `xlo` bitvector, then grab the bits from `xlo`.
 · If the start index is split between the two bitvectors,
   then append `(w - start)` bits from `xlo` with `(len - (w - start))` bits from xhi.
-  Diagramatically:
+  Diagrammatically:
   ```
                  xhi                      xlo
           (<---------------------](<-------w--------]

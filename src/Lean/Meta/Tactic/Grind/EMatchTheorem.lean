@@ -1205,7 +1205,7 @@ def EMatchTheorems.eraseDecl (s : EMatchTheorems) (declName : Name) : MetaM EMat
       throwErr
     return s.erase <| .decl declName
 
-def addEMatchAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatchTheoremKind) (showInfo := false) : MetaM Unit := do
+def addEMatchAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatchTheoremKind) (_prios : SymbolPriorities) (showInfo := false) : MetaM Unit := do
   match thmKind with
   | .eqLhs _ =>
     addGrindEqAttr declName attrKind thmKind (useLhs := true) (showInfo := showInfo)

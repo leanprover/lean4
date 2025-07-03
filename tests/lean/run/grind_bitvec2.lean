@@ -1,5 +1,3 @@
-
-
 set_option linter.unusedSimpArgs false
 
 open BitVec
@@ -161,6 +159,7 @@ abbrev lt_of_getMsb?_isSome := @lt_of_isSome_getMsb?
 theorem getMsbD_eq_getMsb?_getD (x : BitVec w) (i : Nat) :
     x.getMsbD i = (x.getMsb? i).getD false := by grind
 
+attribute [local grind symbol default] LE.le in
 theorem eq_of_getLsbD_eq_iff {w : Nat} {x y : BitVec w} :
     x = y ↔ ∀ (i : Nat), i < w → x.getLsbD i = y.getLsbD i := by
   have iff := @BitVec.eq_of_getElem_eq_iff w x y
@@ -760,10 +759,12 @@ theorem toNat_eq_nat {x : BitVec w} {y : Nat} :
   · intro eq
     simp [Nat.mod_eq_of_lt, eq]
 
+grind_pattern toNat_eq_nat => BitVec.ofNat w y, x.toNat
+
 /-- Moves one-sided right toNat equality to BitVec equality. -/
 theorem nat_eq_toNat {x : BitVec w} {y : Nat} :
     (y = x.toNat) ↔ (y < 2^w ∧ (x = BitVec.ofNat w y)) := by
-  grind [toNat_eq_nat]
+  grind
 
 theorem getElem?_setWidth' (x : BitVec w) (i : Nat) (h : w ≤ v) :
     (setWidth' h x)[i]? = if i < v then some (x.getLsbD i) else none := by grind

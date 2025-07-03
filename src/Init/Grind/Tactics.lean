@@ -419,5 +419,7 @@ Sets symbol priorities for the E-matching pattern inference procedure used in `g
 attribute [grind symbol 0] Eq HEq Iff And Or Not
 -- The following symbols are only used as the root pattern symbol if there isn't another option
 attribute [grind symbol low] HAdd.hAdd HSub.hSub HMul.hMul Dvd.dvd HDiv.hDiv HMod.hMod
-attribute [grind symbol low] LT.lt LE.le
+
+-- TODO: improve pattern inference heuristics and reduce priority for LT.lt and LE.le
+-- attribute [grind symbol low] LT.lt LE.le
 end Lean.Parser.Tactic

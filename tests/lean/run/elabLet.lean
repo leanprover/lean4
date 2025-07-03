@@ -123,18 +123,6 @@ has type
   IO (IO.Ref Bool)
 but is expected to have type
   IO Unit
----
-error: Application type mismatch: The argument
-  jp ()
-has type
-  IO (IO.Ref Bool)
-but is expected to have type
-  IO Unit
-in the application
-  if x > 0 then do
-    IO.println "not zero"
-    sorry
-  else jp ()
 -/
 #guard_msgs in
 def f (x : Nat) : IO Unit :=

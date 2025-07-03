@@ -234,8 +234,8 @@ def throwAppTypeMismatch (f a : Expr) : MetaM α := do
     m!"last{indentExpr a}\nargument "
   else
     m!"argument{indentExpr a}\n"
-  throwError "Application type mismatch: The {argDescStr}\
-    {← mkHasTypeButIsExpectedMsg aType expectedType m!"in the application{indentExpr e}"}"
+  let hasTypeButIsExpected ← mkHasTypeButIsExpectedMsg aType expectedType m!"in the application{indentExpr e}"
+  throwError "Application type mismatch: The {argDescStr}{hasTypeButIsExpected}"
 
 def checkApp (f a : Expr) : MetaM Unit := do
   let fType ← inferType f

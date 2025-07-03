@@ -182,9 +182,9 @@ theorem throwing_loop_spec :
     simp_all
     intros
     mintro _
-    mspec
-    case ifTrue => intro _; mintro _; mspec; mspec; intro _; simp_all
-    case ifFalse => intro _; mintro _; mspec; intro _; simp_all +arith
+    split
+    case isTrue => intro _; mintro _; mspec; mspec; intro _; simp_all
+    case isFalse => intro _; mintro _; mspec; intro _; simp_all +arith
 
 theorem beaking_loop_spec :
   ⦃⌜‹Nat›ₛ = 42⌝⦄
@@ -204,9 +204,9 @@ theorem beaking_loop_spec :
   case step =>
     intros
     mintro _
-    mspec
-    case ifTrue => intro _; mintro _; mspec; intro _ _; simp_all
-    case ifFalse => intro _; mintro _; mspec; intro _ _; simp_all; omega
+    split
+    case isTrue => intro _; mintro _; mspec; simp_all
+    case isFalse => intro _; mintro _; mspec; simp_all; omega
 
 theorem returning_loop_spec :
   ⦃fun s => s = 4⦄
@@ -234,9 +234,9 @@ theorem returning_loop_spec :
   case step =>
     intros
     mintro _
-    mspec
-    case ifTrue => intro _; mintro _; mspec; intro _ _; simp_all
-    case ifFalse => intro _; mintro _; mspec; intro _ _; simp_all; omega
+    split
+    case isTrue => intro _; mintro _; mspec; simp_all
+    case isFalse => intro _; mintro _; mspec; simp_all; omega
 
 section fib
 
@@ -472,8 +472,8 @@ theorem fib_impl_vcs
   unfold fib_impl
   mvcgen
   case inv h => exact I n h
-  case ifTrue h => subst h; mpure_intro; exact ret
-  case ifFalse h => mpure_intro; apply_rules [loop_pre]
+  case isTrue h => subst h; mpure_intro; exact ret
+  case isFalse h => mpure_intro; apply_rules [loop_pre]
   case step => mpure_intro; apply_rules [loop_step]
   case post.success => mpure_intro; apply_rules [loop_post]
 
@@ -534,8 +534,8 @@ theorem throwing_loop_spec :
   all_goals (try simp_all; done)
   case pre1 => simp_all only [SVal.curry_nil, SPred.entails_nil]; decide
   case post.success => grind
-  case ifTrue => intro _; simp_all
-  case ifFalse => intro _; simp_all only [SPred.entails_nil]; grind
+  case isTrue => intro _; simp_all
+  case isFalse => intro _; simp_all only [SPred.entails_nil]; grind
 
 theorem test_loop_break :
   ⦃⌜‹Nat›ₛ = 42⌝⦄
@@ -543,8 +543,8 @@ theorem test_loop_break :
   ⦃⇓ r => ⌜r > 4 ∧ ‹Nat›ₛ = 1⌝⦄ := by
   mvcgen [breaking_loop]
   case inv => exact (⇓ (r, xs) s => (r ≤ 4 ∧ r = xs.rpref.sum ∨ r > 4) ∧ s = 42)
-  case ifTrue => intro _; simp_all
-  case ifFalse => intro _; simp_all; omega
+  case isTrue => intro _; simp_all
+  case isFalse => intro _; simp_all; omega
   case post.success =>
     simp_all
     conv at h in (List.sum _) => whnf
@@ -558,8 +558,8 @@ theorem test_loop_early_return :
   ⦃⇓ r s => r = 42 ∧ s = 4⦄ := by
   mvcgen [returning_loop]
   case inv => exact (⇓ (r, xs) s => (r.1 = none ∧ r.2 = xs.rpref.sum ∧ r.2 ≤ 4 ∨ r.1 = some 42 ∧ r.2 > 4) ∧ s = 4)
-  case ifTrue => intro _; simp_all
-  case ifFalse => intro _; simp_all; omega
+  case isTrue => intro _; simp_all
+  case isFalse => intro _; simp_all; omega
   case pre1 => simp_all
   case h_1 =>
     simp_all
@@ -823,13 +823,6 @@ theorem Spec.get_StateT' [Monad m] [WPMonad m psm] :
   if True then
     pure ()
 
-/--
-error: unsolved goals
-⊢ ∀ (s : Unit), True → ⦃fun s => True⦄ pure () ⦃⇓ x => ⌜True⌝⦄
-
-⊢ ∀ (s : Unit), ¬True → ⦃fun s => True⦄ pure PUnit.unit ⦃⇓ x => ⌜True⌝⦄
--/
-#guard_msgs in
 theorem need_const_approx :
    ⦃fun x => x = ()⦄
    test
@@ -837,7 +830,7 @@ theorem need_const_approx :
   unfold test
   mintro _
   mspec
-  mspec
+  split <;> mspec
 
 theorem need_const_approx' :
    ⦃fun x => x = ()⦄
@@ -846,3 +839,53 @@ theorem need_const_approx' :
   mvcgen [test]
 
 end RishsConstApproxBug
+
+namespace RishsTailContextBug
+
+@[spec]
+theorem Specs.get_StateT' [Monad m] [WPMonad m psm] :
+  ⦃fun s => Q.1 s s⦄ (MonadState.get : StateT σ m σ) ⦃Q⦄ := by sorry
+
+axiom I : StateM Nat Unit
+axiom F : StateM Nat Unit
+axiom G : StateM Nat Unit
+axiom P : Assertion (PostShape.arg Nat PostShape.pure)
+axiom Q: PostCond Unit (PostShape.arg Nat PostShape.pure)
+@[spec]
+axiom hI : ⦃⌜True⌝⦄ I ⦃⇓ _ => P⦄
+@[spec]
+axiom hF : ⦃P⦄ F ⦃Q⦄
+@[spec]
+axiom hG : ⦃P⦄ G ⦃Q⦄
+
+
+@[inline] noncomputable def test_ite : StateM Nat Unit := do
+  I
+  let n ← get
+  if n < 1 then
+    F
+  else
+    G
+
+theorem ex : ⦃⌜True⌝⦄ test_ite ⦃Q⦄ := by
+  mvcgen [test_ite]
+  -- We used to get
+  --   s✝ : Nat
+  --   h : P s✝
+  --   a✝ : s✝ < 1
+  --   ⊢
+  --   h✝ : fun s => ⌜True⌝
+  --   ⊢ₛ P
+  -- and this is unsatisfiable. We need to remember the tail context `· s✝`.
+  -- The simplest way to do so is to use `split` in `mvcgen`, which we do now.
+
+-- Same with explicit `split` and `mspec`
+theorem ex': ⦃⌜True⌝⦄ test_ite ⦃Q⦄ := by
+  unfold test_ite
+  mintro _
+  mspec
+  mspec
+  mintro ∀ s
+  split <;> mspec
+
+end RishsTailContextBug

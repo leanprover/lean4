@@ -347,6 +347,15 @@ where
       -- apply specifications
       if f.isConst then
         burnOne
+        -- First try to split Ifs. Just like for match splitting
+        if f.isConstOf ``ite || f.isConstOf ``dite then
+          -- Just like for match splitting above
+          let mvar ← mkFreshExprSyntheticOpaqueMVar goal.toExpr (tag := name)
+          let some (pos, neg) ← splitIfTarget? mvar.mvarId!
+            | liftMetaM <| throwError "Failed to split if {e}"
+          assignMVars [pos.mvarId, neg.mvarId]
+          return mvar
+        -- Now try looking up and applying a spec
         try
           let specThm ← findSpec ctx.specThms wp
           trace[Elab.Tactic.Do.vcgen] "Candidate spec for {f.constName!}: {specThm.proof}"
@@ -355,6 +364,7 @@ where
           return prf
         catch ex =>
           trace[Elab.Tactic.Do.vcgen] "Failed to find spec. Trying simp. Reason: {ex.toMessageData}"
+        -- Last resort: Simp and try again
         let res ← Simp.simp e
         unless res.expr != e do return ← onFail goal name
         burnOne

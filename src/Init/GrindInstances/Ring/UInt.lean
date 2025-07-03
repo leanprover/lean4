@@ -128,6 +128,9 @@ end USize
 namespace Lean.Grind
 
 instance : CommRing UInt8 where
+  nsmul := ⟨(· * ·)⟩
+  zsmul := ⟨(· * ·)⟩
+  zsmul_natCast_eq_nsmul := by sorry
   add_assoc := UInt8.add_assoc
   add_comm := UInt8.add_comm
   add_zero := UInt8.add_zero
@@ -160,6 +163,9 @@ example : ToInt.Sub UInt8 (.uint 8) := inferInstance
 instance : ToInt.Pow UInt8 (.uint 8) := ToInt.pow_of_semiring (by simp)
 
 instance : CommRing UInt16 where
+  nsmul := ⟨(· * ·)⟩
+  zsmul := ⟨(· * ·)⟩
+  zsmul_natCast_eq_nsmul := by sorry
   add_assoc := UInt16.add_assoc
   add_comm := UInt16.add_comm
   add_zero := UInt16.add_zero
@@ -192,6 +198,9 @@ example : ToInt.Sub UInt16 (.uint 16) := inferInstance
 instance : ToInt.Pow UInt16 (.uint 16) := ToInt.pow_of_semiring (by simp)
 
 instance : CommRing UInt32 where
+  nsmul := ⟨(· * ·)⟩
+  zsmul := ⟨(· * ·)⟩
+  zsmul_natCast_eq_nsmul := by sorry
   add_assoc := UInt32.add_assoc
   add_comm := UInt32.add_comm
   add_zero := UInt32.add_zero
@@ -224,6 +233,9 @@ example : ToInt.Sub UInt32 (.uint 32) := inferInstance
 instance : ToInt.Pow UInt32 (.uint 32) := ToInt.pow_of_semiring (by simp)
 
 instance : CommRing UInt64 where
+  nsmul := ⟨(· * ·)⟩
+  zsmul := ⟨(· * ·)⟩
+  zsmul_natCast_eq_nsmul := by sorry
   add_assoc := UInt64.add_assoc
   add_comm := UInt64.add_comm
   add_zero := UInt64.add_zero
@@ -256,6 +268,9 @@ example : ToInt.Sub UInt64 (.uint 64) := inferInstance
 instance : ToInt.Pow UInt64 (.uint 64) := ToInt.pow_of_semiring (by simp)
 
 instance : CommRing USize where
+  nsmul := ⟨(· * ·)⟩
+  zsmul := ⟨(· * ·)⟩
+  zsmul_natCast_eq_nsmul := by sorry
   add_assoc := USize.add_assoc
   add_comm := USize.add_comm
   add_zero := USize.add_zero

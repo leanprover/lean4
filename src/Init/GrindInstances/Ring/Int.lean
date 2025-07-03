@@ -14,6 +14,7 @@ public section
 namespace Lean.Grind
 
 instance : CommRing Int where
+  nsmul := ⟨(· * ·)⟩
   add_assoc := Int.add_assoc
   add_comm := Int.add_comm
   add_zero := Int.add_zero

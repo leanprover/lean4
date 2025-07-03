@@ -24,6 +24,9 @@ instance : IntCast Int8 where
   intCast x := Int8.ofInt x
 
 instance : CommRing Int8 where
+  nsmul := ⟨(· * ·)⟩
+  zsmul := ⟨(· * ·)⟩
+  zsmul_natCast_eq_nsmul := by sorry
   add_assoc := Int8.add_assoc
   add_comm := Int8.add_comm
   add_zero := Int8.add_zero
@@ -63,6 +66,9 @@ instance : IntCast Int16 where
   intCast x := Int16.ofInt x
 
 instance : CommRing Int16 where
+  nsmul := ⟨(· * ·)⟩
+  zsmul := ⟨(· * ·)⟩
+  zsmul_natCast_eq_nsmul := by sorry
   add_assoc := Int16.add_assoc
   add_comm := Int16.add_comm
   add_zero := Int16.add_zero
@@ -102,6 +108,9 @@ instance : IntCast Int32 where
   intCast x := Int32.ofInt x
 
 instance : CommRing Int32 where
+  nsmul := ⟨(· * ·)⟩
+  zsmul := ⟨(· * ·)⟩
+  zsmul_natCast_eq_nsmul := by sorry
   add_assoc := Int32.add_assoc
   add_comm := Int32.add_comm
   add_zero := Int32.add_zero
@@ -141,6 +150,9 @@ instance : IntCast Int64 where
   intCast x := Int64.ofInt x
 
 instance : CommRing Int64 where
+  nsmul := ⟨(· * ·)⟩
+  zsmul := ⟨(· * ·)⟩
+  zsmul_natCast_eq_nsmul := by sorry
   add_assoc := Int64.add_assoc
   add_comm := Int64.add_comm
   add_zero := Int64.add_zero
@@ -180,6 +192,9 @@ instance : IntCast ISize where
   intCast x := ISize.ofInt x
 
 instance : CommRing ISize where
+  nsmul := ⟨(· * ·)⟩
+  zsmul := ⟨(· * ·)⟩
+  zsmul_natCast_eq_nsmul := by sorry
   add_assoc := ISize.add_assoc
   add_comm := ISize.add_comm
   add_zero := ISize.add_zero

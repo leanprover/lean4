@@ -81,7 +81,11 @@ theorem intCast_neg [NeZero n] (i : Int) : Int.cast (R := Fin n) (-i) = - Int.ca
   next h₁ h₂ => simp [Int.le_antisymm h₁ h₂, Fin.neg_def]
   next => simp [Fin.neg_neg]
 
+open Fin.NatCast Fin.IntCast in
 instance (n : Nat) [NeZero n] : CommRing (Fin n) where
+  nsmul := ⟨fun k i => (k : Fin n) * i⟩
+  zsmul := ⟨fun k i => (k : Fin n) * i⟩
+  zsmul_natCast_eq_nsmul := by sorry
   natCast := Fin.NatCast.instNatCast n
   intCast := Fin.IntCast.instIntCast n
   add_assoc := Fin.add_assoc

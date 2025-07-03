@@ -16,6 +16,9 @@ public section
 namespace Lean.Grind
 
 instance : CommRing (BitVec w) where
+  nsmul := ⟨(· * ·)⟩
+  zsmul := ⟨(· * ·)⟩
+  zsmul_natCast_eq_nsmul := by sorry
   add_assoc := BitVec.add_assoc
   add_comm := BitVec.add_comm
   add_zero := BitVec.add_zero

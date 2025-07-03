@@ -87,7 +87,7 @@ where
       let .some inst ← trySynthInstance instType
         | throwError "`grind linarith` failed to find instance{indentExpr instType}"
       return inst
-    let rec getHMulInst : GoalM Expr := do
+    let rec getHMulIntInst : GoalM Expr := do
       let instType := mkApp3 (mkConst ``HMul [0, u, u]) Int.mkType type type
       let .some inst ← trySynthInstance instType
         | throwError "`grind linarith` failed to find instance{indentExpr instType}"
@@ -113,6 +113,8 @@ where
       let heteroToField := mkApp2 (mkConst toHeteroName [u]) type toField
       ensureDefEq parentInst heteroToField
     let some intModuleInst ← getInst? ``Grind.IntModule | return none
+    let addCommGroupInst ← getInst ``Grind.AddCommGroup
+    let addCommMonoidInst ← getInst ``Grind.AddCommMonoid
     let zeroInst ← getInst ``Zero
     let zero ← internalizeConst <| mkApp2 (mkConst ``Zero.zero [u]) type zeroInst
     let ofNatZeroType := mkApp2 (mkConst ``OfNat [u]) type (mkRawNatLit 0)
@@ -126,16 +128,18 @@ where
     let subFn ← internalizeFn <| mkApp4 (mkConst ``HSub.hSub [u, u, u]) type type type subInst
     let negInst ← getInst ``Neg
     let negFn ← internalizeFn <| mkApp2 (mkConst ``Neg.neg [u]) type negInst
-    let hmulInst ← getHMulInst
-    let hmulFn ← internalizeFn <| mkApp4 (mkConst ``HMul.hMul [0, u, u]) Int.mkType type type hmulInst
-    let hmulNatInst ← getHMulNatInst
-    let hmulNatFn ← internalizeFn <| mkApp4 (mkConst ``HMul.hMul [0, u, u]) Nat.mkType type type hmulNatInst
-    ensureToFieldDefEq zeroInst intModuleInst ``Grind.IntModule.toZero
-    ensureToHomoFieldDefEq addInst intModuleInst ``Grind.IntModule.toAdd ``instHAdd
-    ensureToHomoFieldDefEq subInst intModuleInst ``Grind.IntModule.toSub ``instHSub
-    ensureToFieldDefEq negInst intModuleInst ``Grind.IntModule.toNeg
-    ensureToFieldDefEq hmulInst intModuleInst ``Grind.IntModule.hmulInt
-    ensureToFieldDefEq hmulNatInst intModuleInst ``Grind.IntModule.hmulNat
+    let zsmulInst ← getHMulIntInst
+    let zsmulFn ← internalizeFn <| mkApp4 (mkConst ``HMul.hMul [0, u, u]) Int.mkType type type zsmulInst
+    let nsmulInst ← getHMulNatInst
+    let nsmulFn ← internalizeFn <| mkApp4 (mkConst ``HMul.hMul [0, u, u]) Nat.mkType type type nsmulInst
+    ensureToFieldDefEq addCommGroupInst intModuleInst ``Grind.IntModule.toAddCommGroup
+    ensureToFieldDefEq addCommMonoidInst addCommGroupInst ``Grind.AddCommGroup.toAddCommMonoid
+    ensureToFieldDefEq zeroInst addCommMonoidInst ``Grind.AddCommMonoid.toZero
+    ensureToHomoFieldDefEq addInst addCommMonoidInst ``Grind.AddCommMonoid.toAdd ``instHAdd
+    ensureToHomoFieldDefEq subInst addCommGroupInst ``Grind.AddCommGroup.toSub ``instHSub
+    ensureToFieldDefEq negInst addCommGroupInst ``Grind.AddCommGroup.toNeg
+    ensureToFieldDefEq zsmulInst intModuleInst ``Grind.IntModule.zsmul
+    ensureToFieldDefEq nsmulInst intModuleInst ``Grind.IntModule.nsmul
     let preorderInst? ← getInst? ``Grind.Preorder
     let orderedAddInst? ← if let some preorderInst := preorderInst? then
       let isOrderedType := mkApp3 (mkConst ``Grind.OrderedAdd [u]) type addInst preorderInst
@@ -163,8 +167,8 @@ where
       let smulType := mkApp3 (mkConst ``HSMul [0, u, u]) Nat.mkType type type
       let .some smulInst ← trySynthInstance smulType | return none
       internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Nat.mkType type smulInst smulInst
-    let hsmulFn? ← getHSMulFn?
-    let hsmulNatFn? ← getHSMulNatFn?
+    let zsmulFn? ← getHSMulFn?
+    let nsmulFn? ← getHSMulNatFn?
     let ringId? ← CommRing.getRingId? type
     let semiringInst? ← getInst? ``Grind.Semiring
     let ringInst? ← getInst? ``Grind.Ring
@@ -201,7 +205,7 @@ where
     let id := (← get').structs.size
     let struct : Struct := {
       id, type, u, intModuleInst, preorderInst?, orderedAddInst?, partialInst?, linearInst?, noNatDivInst?
-      leFn?, ltFn?, addFn, subFn, negFn, hmulFn, hmulNatFn, hsmulFn?, hsmulNatFn?, zero, one?
+      leFn?, ltFn?, addFn, subFn, negFn, zsmulFn, nsmulFn, zsmulFn?, nsmulFn?, zero, one?
       ringInst?, commRingInst?, orderedRingInst?, charInst?, ringId?, fieldInst?, ofNatZero, homomulFn?
     }
     modify' fun s => { s with structs := s.structs.push struct }

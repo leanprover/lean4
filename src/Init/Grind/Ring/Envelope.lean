@@ -141,7 +141,7 @@ def Q.ind {β : Q α → Prop} (mk : ∀ (a : α × α), β (Q.mk a)) (q : Q α)
         exact ⟨k, h.symm⟩)
 
 attribute [local simp]
-  Quot.liftOn Semiring.add_zero Semiring.zero_add Semiring.mul_one Semiring.one_mul
+  Quot.liftOn Semiring.add_zero AddCommMonoid.zero_add Semiring.mul_one Semiring.one_mul
   Semiring.natCast_zero Semiring.natCast_one Semiring.mul_zero Semiring.zero_mul
 
 theorem neg_add_cancel (a : Q α) : add (neg a) a = natCast 0 := by
@@ -237,6 +237,8 @@ private theorem pow_zero (a : Q α) : hPow a 0 = natCast 1 := rfl
 private theorem pow_succ (a : Q α) (n : Nat) : hPow a (n+1) = mul (hPow a n) a := rfl
 
 def ofSemiring : Ring (Q α) := {
+  nsmul := ⟨fun n x => (mul (natCast n) x)⟩
+  zsmul := ⟨fun n x => (mul (intCast n) x)⟩
   ofNat   := fun n => ⟨natCast n⟩
   natCast := ⟨natCast⟩
   intCast := ⟨intCast⟩
@@ -328,7 +330,8 @@ instance [Semiring α] [AddRightCancel α] [NoNatZeroDivisors α] : NoNatZeroDiv
     simp [r] at h₂
     rcases h₂ with ⟨k', h₂⟩
     replace h₂ := AddRightCancel.add_right_cancel _ _ _ h₂
-    simp [← Semiring.left_distrib] at h₂
+    simp only [← Semiring.left_distrib] at h₂
+    simp only [← Semiring.nsmul_eq_natCast_mul] at h₂
     replace h₂ := NoNatZeroDivisors.no_nat_zero_divisors k (a₁ + b₂) (a₂ + b₁) h₁ h₂
     apply Quot.sound; simp [r]; exists 0; simp [h₂]
 
@@ -400,7 +403,7 @@ instance [Preorder α] [OrderedAdd α] : Preorder (OfSemiring.Q α) where
 
 @[local simp] private theorem mk_pos [Preorder α] [OrderedAdd α] {a₁ a₂ : α} :
     0 < Q.mk (a₁, a₂) ↔ a₂ < a₁ := by
-  simp [← toQ_ofNat, toQ, mk_lt_mk, Semiring.zero_add]
+  simp [← toQ_ofNat, toQ, mk_lt_mk, AddCommMonoid.zero_add]
 
 @[local simp]
 theorem toQ_le [Preorder α] [OrderedAdd α] {a b : α} : toQ a ≤ toQ b ↔ a ≤ b := by

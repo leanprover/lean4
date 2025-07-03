@@ -105,7 +105,7 @@ private def codeActionsOfInfo (info : TryThisInfo) (stx : Syntax) (doc : FileWor
   unless stxRange.start.line ≤ params.range.end.line do return #[]
   unless params.range.start.line ≤ stxRange.end.line do return #[]
   let mut result := #[]
-  for h : i in [:suggestionTexts.size] do
+  for h : i in  *...suggestionTexts.size do
     let (newText, title?) := suggestionTexts[i]
     let title := title?.getD <| (codeActionPrefix?.getD "Try this: ") ++ newText
     result := result.push {
@@ -125,34 +125,17 @@ apply the replacement.
   let doc ← readDoc
   pure <| .eager <| snap.infoTree.foldInfo (init := #[]) fun _ctx info result => Id.run do
     let .ofCustomInfo { stx, value } := info | result
-    let some { range, suggestionTexts, codeActionPrefix? } :=
-      value.get? TryThisInfo | result
-    let some stxRange := stx.getRange? | result
-    let stxRange := doc.meta.text.utf8RangeToLspRange stxRange
-    unless stxRange.start.line ≤ params.range.end.line do return result
-    unless params.range.start.line ≤ stxRange.end.line do return result
+    let some info := value.get? TryThisInfo | result
     let mut result := result
-    for h : i in *...suggestionTexts.size do
-      let (newText, title?) := suggestionTexts[i]
-      let title := title?.getD <| (codeActionPrefix?.getD "Try this: ") ++ newText
-      result := result.push {
-        eager.title := title
-        eager.kind? := "quickfix"
-        -- Only make the first option preferred
-        eager.isPreferred? := if i = 0 then true else none
-        eager.edit? := some <| .ofTextEdit doc.versionedIdentifier { range, newText }
-      }
-    result
+    result ++ codeActionsOfInfo info stx doc params
 
 @[builtin_code_action_provider] def lazyTryThisProvider : CodeActionProvider := fun params snap => do
   let doc ← readDoc
   return .lazy <| snap.infoTree.foldInfo (α := IO (Array LazyCodeAction)) (init := pure #[]) fun _ctx info result => Id.run do
     let .ofCustomInfo { stx, value } := info | pure result
     let some { info, ppCtx } := value.get? LazyTryThisInfo | pure result
-    dbg_trace s!"found lazy at {stx}"
     let mkActions : IO _ := do
       let infos ← ppCtx.runMetaM info
-      dbg_trace "running lazy computation for one of {infos.size}: {infos[0]?.map (·.suggestionTexts)}"
       let mut computedCAs := #[]
       for info in infos do
         computedCAs := computedCAs ++ codeActionsOfInfo info stx doc params

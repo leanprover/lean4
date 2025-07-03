@@ -409,10 +409,13 @@ The arguments are as follows:
   label
 -/
 def _root_.Lean.MessageData.lazyHint (mkHint : MetaM LazyHintConfig) (ref? : Option Syntax) (es : Array Expr := #[]) : MetaM MessageData := do
+  let curRef ← getRef
+  let ref := ref?.getD curRef
+  let fileMap ← getFileMap
+  let withRefAndFileMap {α} : MetaM α → MetaM α := withRef curRef ∘ withTheReader Core.Context (fun ctx => { ctx with fileMap })
   let codeAction : LazyTryThisInfo := {
-    info := do
+    info := withRefAndFileMap do
       let { suggestions, codeActionPrefix?, .. } ← mkHint
-      let ref := ref?.getD (← getRef)
       suggestions.filterMapM fun suggestion => do
         if let some range := (suggestion.span?.getD ref).getRange? then
           -- TODO: clean this up by refactoring `processSuggestions`
@@ -425,14 +428,11 @@ def _root_.Lean.MessageData.lazyHint (mkHint : MetaM LazyHintConfig) (ref? : Opt
     ppCtx := { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions),
                currNamespace := (← getCurrNamespace), openDecls := (← getOpenDecls) }
   }
-  let curRef ← getRef
-  let ref := ref?.getD curRef
   pushInfoLeaf <| .ofCustomInfo {
     stx := ref
     value := .mk codeAction
   }
-  let fileMap ← getFileMap
   -- let suggs ← mkSuggestionsMessage suggestions ref codeActionPrefix?
-  return .tagged `hint <| .ofLazyM (es := es) <| withRef curRef <| withTheReader Core.Context (fun ctx => { ctx with fileMap }) do
+  return .tagged `hint <| .ofLazyM (es := es) <| withRefAndFileMap do
     let { msg, suggestions, codeActionPrefix? } ← mkHint
     MessageData.hint msg suggestions ref codeActionPrefix?

@@ -1297,7 +1297,7 @@ where
 @[expose]
 def Poly.denoteAsIntModule [CommRing α] (ctx : Context α) (p : Poly) : α :=
   match p with
-  | .num k => HMul.hMul (α := Int) k One.one
+  | .num k => HMul.hMul (α := Int) k (One.one : α)
   | .add k m p => HMul.hMul (α := Int) k (m.denoteAsIntModule ctx) + denoteAsIntModule ctx p
 
 theorem Mon.denoteAsIntModule_go_eq_denote {α} [CommRing α] (ctx : Context α) (m : Mon) (acc : α)

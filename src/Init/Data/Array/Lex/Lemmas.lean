@@ -25,13 +25,10 @@ namespace Array
 @[simp] theorem lt_toList [LT α] {xs ys : Array α} : xs.toList < ys.toList ↔ xs < ys := Iff.rfl
 @[simp] theorem le_toList [LT α] {xs ys : Array α} : xs.toList ≤ ys.toList ↔ xs ≤ ys := Iff.rfl
 
-section
-set_option grind.permissivePatterns true
 grind_pattern _root_.List.lt_toArray =>  l₁.toArray < l₂.toArray
 grind_pattern _root_.List.le_toArray =>  l₁.toArray ≤ l₂.toArray
 grind_pattern lt_toList => xs.toList < ys.toList
 grind_pattern le_toList => xs.toList ≤ ys.toList
-end
 
 protected theorem not_lt_iff_ge [LT α] {xs ys : Array α} : ¬ xs < ys ↔ ys ≤ xs := Iff.rfl
 protected theorem not_le_iff_gt [LT α] {xs ys : Array α} :

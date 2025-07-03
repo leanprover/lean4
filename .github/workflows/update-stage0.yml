@@ -52,6 +52,18 @@ jobs:
       run: |
         echo "NPROC=$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)" >> $GITHUB_ENV
       shell: 'nix develop -c bash -euxo pipefail {0}'
+    - name: Restore Cache
+      if: env.should_update_stage0 == 'yes'
+      uses: actions/cache/restore@v4
+      with:
+        # NOTE: must be in sync with `restore-cache` in `build-template.yml`
+        # TODO: actually switch to USE_LAKE once it caches more; for now it just caches more often than any other build type so let's use its cache
+        path: |
+          .ccache
+        key: Linux Lake-build-v3-${{ github.sha }}
+        # fall back to (latest) previous cache
+        restore-keys: |
+          Linux Lake-build-v3
     - if: env.should_update_stage0 == 'yes'
       run: cmake --preset release
       shell: 'nix develop -c bash -euxo pipefail {0}'

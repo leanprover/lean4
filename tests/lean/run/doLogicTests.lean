@@ -116,9 +116,15 @@ theorem mkFreshNat_spec [Monad m] [WPMonad m sh] :
   dsimp only [mkFreshNat, get, getThe, instMonadStateOfOfMonadLift, liftM, monadLift, modify, modifyGet]
   mspec
   mspec
+  mintro ∀s
   mspec
   mspec
-  simp
+  simp [h]
+  mframe
+  have := h.2
+  subst this
+  simp [*]
+  simp [SPred.entails]
 
 def mkFreshPair : StateM (Nat × Nat) (Nat × Nat) := do
   let a ← mkFreshNat
@@ -846,3 +852,87 @@ theorem need_const_approx' :
   mvcgen [test]
 
 end RishsConstApproxBug
+
+namespace RishsTailContextBug
+
+@[spec]
+theorem Specs.get_StateT' [Monad m] [WPMonad m psm] :
+  ⦃fun s => Q.1 s s⦄ (MonadState.get : StateT σ m σ) ⦃Q⦄ := by sorry
+
+axiom I : StateM Nat Unit
+axiom F : StateM Nat Unit
+axiom G : StateM Nat Unit
+axiom P : Assertion (PostShape.arg Nat PostShape.pure)
+axiom Q: PostCond Unit (PostShape.arg Nat PostShape.pure)
+@[spec]
+axiom hI : ⦃⌜True⌝⦄ I ⦃⇓ _ => P⦄
+@[spec]
+axiom hF : ⦃P⦄ F ⦃Q⦄
+@[spec]
+axiom hG : ⦃P⦄ G ⦃Q⦄
+
+
+@[inline] noncomputable def test_ite : StateM Nat Unit := do
+  I
+  let n ← get
+  if n < 1 then
+    F
+  else
+    G
+
+theorem ex : ⦃⌜True⌝⦄ test_ite ⦃Q⦄ := by
+  mvcgen [test_ite]
+  -- We used to get
+  --   s✝ : Nat
+  --   h : P s✝
+  --   a✝ : s✝ < 1
+  --   ⊢
+  --   h✝ : fun s => ⌜True⌝
+  --   ⊢ₛ P
+  -- and this is unsatisfiable. We need to remember the tail context `· s✝` to get
+  --   s✝ : Nat
+  --   h : P s✝
+  --   a✝ : s✝ < 1
+  --   ⊢
+  --   h✝ : ⌜True⌝
+  --   ⊢ₛ P s✝
+  sorry -- left with two unsolvable goals
+  sorry
+
+theorem ex': ⦃⌜True⌝⦄ test_ite ⦃Q⦄ := by
+  unfold test_ite
+  mintro _
+  mspec
+  mspec
+  mintro ∀ s
+  set_option trace.Elab.Tactic.Do.spec true in
+  mspec Spec.ite -- (P:=spred(P s ∧ ⌜‹Nat›ₛ = s⌝))
+  · intro hP hs
+    mintro h
+    mspec
+    mintro ∀s
+    mpure h
+    subst h
+    mpure_intro
+    trivial
+  · intro h
+    mspec
+
+  -- We used to get
+  --   s✝ : Nat
+  --   h : P s✝
+  --   a✝ : s✝ < 1
+  --   ⊢
+  --   h✝ : fun s => ⌜True⌝
+  --   ⊢ₛ P
+  -- and this is unsatisfiable. We need to remember the tail context `· s✝` to get
+  --   s✝ : Nat
+  --   h : P s✝
+  --   a✝ : s✝ < 1
+  --   ⊢
+  --   h✝ : ⌜True⌝
+  --   ⊢ₛ P s✝
+  sorry -- left with two unsolvable goals
+  sorry
+
+end RishsTailContextBug

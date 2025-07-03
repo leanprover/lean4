@@ -59,11 +59,12 @@ def mkAnd (σs lhs rhs : Expr) : Expr × Expr :=
     let result := mkAnd! σs lhs rhs
     (result, mkApp2 (mkConst ``SPred.bientails.refl) σs result)
 
-def σs.mkType : Expr := mkApp (mkConst ``List [.succ .zero]) (mkSort (.succ .zero))
-def σs.mkNil : Expr := mkApp (mkConst ``List.nil [.succ .zero]) (mkSort (.succ .zero))
+def TypeList.mkType : Expr := mkApp (mkConst ``List [1]) (mkSort 1)
+def TypeList.mkNil : Expr := mkApp (mkConst ``List.nil [1]) (mkSort 1)
+def TypeList.mkCons (hd tl : Expr) : Expr := mkApp3 (mkConst ``List.cons [1]) (mkSort 1) hd tl
 
 def parseAnd? (e : Expr) : Option (Expr × Expr × Expr) :=
-  e.app3? ``SPred.and <|> (σs.mkNil, ·) <$> e.app2? ``And
+  e.app3? ``SPred.and <|> (TypeList.mkNil, ·) <$> e.app2? ``And
 
 structure MGoal where
   σs : Expr -- Q(List Type)
@@ -107,6 +108,28 @@ partial def MGoal.findHyp? (goal : MGoal) (name : Name) : Option (SubExpr.Pos ×
       else
         panic! "MGoal.findHyp?: hypothesis without proper metadata: {e}"
 
+partial def pushForallContextIntoHyps (σs hyps : Expr) : Expr := go #[] #[] hyps
+  where
+    wrap (revLams : Array (Name × Expr × BinderInfo)) (revAppArgs : Array Expr) (body : Expr) : Expr :=
+      revLams.foldr (fun (x, ty, info) e => .lam x ty e info) (body.betaRev revAppArgs)
+
+    go (revLams : Array (Name × Expr × BinderInfo)) (revAppArgs : Array Expr) (e : Expr) : Expr :=
+      if let some _σs := parseEmptyHyp? e then
+        emptyHyp σs
+      else if let some hyp := parseHyp? e then
+        { hyp with p := wrap revLams revAppArgs hyp.p }.toExpr
+      else if let some (_σs, lhs, rhs) := parseAnd? e then
+        mkAnd! σs (go revLams revAppArgs lhs) (go revLams revAppArgs rhs)
+      else if let .lam x ty body info := e then
+        if let some a := revAppArgs.back? then
+          go revLams revAppArgs.pop (body.instantiate1 a)
+        else
+          go (revLams.push (x, ty, info)) revAppArgs body
+      else if let .app f a := e then
+        go revLams (revAppArgs.push a) f
+      else
+        wrap revLams revAppArgs e
+
 def MGoal.checkProof (goal : MGoal) (prf : Expr) (suppressWarning : Bool := false) : MetaM Unit := do
   check prf
   let prf_type ← inferType prf
@@ -119,19 +142,8 @@ def getFreshHypName : TSyntax ``binderIdent → CoreM (Name × Syntax)
   | `(binderIdent| $name:ident) => pure (name.getId, name)
   | stx => return (← mkFreshUserName `h, stx)
 
-partial def betaRevPreservingHypNames (σs' e : Expr) (args : Array Expr) : Expr :=
-  if let some _σs := parseEmptyHyp? e then
-    emptyHyp σs'
-  else if let some hyp := parseHyp? e then
-    { hyp with p := hyp.p.betaRev args }.toExpr
-  else if let some (_σs, lhs, rhs) := parseAnd? e then
-    -- _σs = σ :: σs'
-    mkAnd! σs' (betaRevPreservingHypNames σs' lhs args) (betaRevPreservingHypNames σs' rhs args)
-  else
-    e.betaRev args
-
 def betaPreservingHypNames (σs' e : Expr) (args : Array Expr) : Expr :=
-  betaRevPreservingHypNames σs' e args.reverse
+  pushForallContextIntoHyps σs' (mkAppN e args)
 
 def dropStateList (σs : Expr) (n : Nat) : MetaM Expr := do
   let mut σs := σs

@@ -28,6 +28,8 @@ theorem bientails.mpr {σs : List Type} {P Q : SPred σs} : (P ⊣⊢ₛ Q) → 
 
 /-! # Connectives -/
 
+theorem and_intro_l (h : P ⊢ₛ Q) : P ⊢ₛ Q ∧ P := and_intro h .rfl
+theorem and_intro_r (h : P ⊢ₛ Q) : P ⊢ₛ P ∧ Q := and_intro .rfl h
 theorem and_elim_l' (h : P ⊢ₛ R) : P ∧ Q ⊢ₛ R := and_elim_l.trans h
 theorem and_elim_r' (h : Q ⊢ₛ R) : P ∧ Q ⊢ₛ R := and_elim_r.trans h
 theorem or_intro_l' (h : P ⊢ₛ Q) : P ⊢ₛ Q ∨ R := h.trans or_intro_l
@@ -213,6 +215,7 @@ theorem Have.dup {σs : List Type} {P Q H T : SPred σs} (hfoc : P ⊣⊢ₛ Q �
 theorem Have.have {σs : List Type} {P H PH T : SPred σs} (hand : P ∧ H ⊣⊢ₛ PH) (hhave : P ⊢ₛ H) (hgoal : PH ⊢ₛ T) : P ⊢ₛ T := (and_intro .rfl hhave).trans (hand.mp.trans hgoal)
 theorem Have.replace {σs : List Type} {P H H' PH PH' T : SPred σs} (hfoc : PH ⊣⊢ₛ P ∧ H ) (hand : P ∧ H' ⊣⊢ₛ PH') (hhave : PH ⊢ₛ H') (hgoal : PH' ⊢ₛ T) : PH ⊢ₛ T := (and_intro (hfoc.mp.trans and_elim_l) hhave).trans (hand.mp.trans hgoal)
 theorem Intro.intro {σs : List Type} {P Q H T : SPred σs} (hand : Q ∧ H ⊣⊢ₛ P) (h : P ⊢ₛ T) : Q ⊢ₛ H → T := imp_intro (hand.mp.trans h)
+theorem Revert.and_pure_intro_r {φ : Prop} {P P' Q : SPred σs} (h₁ : φ) (hand : P ∧ ⌜φ⌝ ⊣⊢ₛ P') (h₂ : P' ⊢ₛ Q) : P ⊢ₛ Q := (SPred.and_intro_r (SPred.pure_intro h₁)).trans (hand.mp.trans h₂)
 theorem Pure.thm {σs : List Type} {P Q T : SPred σs} {φ : Prop} [IsPure Q φ] (h : φ → P ⊢ₛ T) : P ∧ Q ⊢ₛ T := by
   apply pure_elim
   · exact and_elim_r.trans IsPure.to_pure.mp
@@ -249,7 +252,6 @@ instance (σs) (P : SPred σs) : SimpAnd ⌜True⌝ P P where simp_and := true_a
 
 class HasFrame {σs : List Type} (P : SPred σs) (P' : outParam (SPred σs)) (φ : outParam Prop) : Prop where
   reassoc : P ⊣⊢ₛ P' ∧ ⌜φ⌝
-instance (σs) : HasFrame (σs:=σs) ⌜φ⌝ ⌜True⌝ φ where reassoc := true_and.symm
 instance (σs) (P P' Q QP : SPred σs) [HasFrame P Q φ] [SimpAnd Q P' QP]: HasFrame (σs:=σs) spred(P ∧ P') QP φ where reassoc := ((and_congr_l HasFrame.reassoc).trans and_right_comm).trans (and_congr_l SimpAnd.simp_and)
 instance (σs) (P P' Q' PQ : SPred σs) [HasFrame P' Q' φ] [SimpAnd P Q' PQ]: HasFrame (σs:=σs) spred(P ∧ P') PQ φ where reassoc := ((and_congr_r HasFrame.reassoc).trans and_assoc.symm).trans (and_congr_l SimpAnd.simp_and)
 instance (σs) (P : SPred σs) : HasFrame (σs:=σs) spred(⌜φ⌝ ∧ P) P φ where reassoc := and_comm
@@ -275,6 +277,7 @@ instance (σs) (P Q : SPred σs) [HasFrame P Q ψ] : HasFrame (σs:=σs) spred(P
              <| and_right_comm.trans
              <| and_assoc.trans
              <| and_congr_r (and_comm.trans pure_and)
+instance (σs) : HasFrame (σs:=σs) ⌜φ⌝ ⌜True⌝ φ where reassoc := true_and.symm
 -- The following instance comes last so that it gets the highest priority.
 -- It's the most efficient and best solution if valid
 instance {P : Prop} : HasFrame (σs:=[]) P ⌜True⌝ P where reassoc := true_and.symm

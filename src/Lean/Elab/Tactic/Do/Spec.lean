@@ -6,6 +6,7 @@ Authors: Lars König, Mario Carneiro, Sebastian Graf
 prelude
 import Lean.Elab.Tactic.Do.ProofMode.Basic
 import Lean.Elab.Tactic.Do.ProofMode.Intro
+import Lean.Elab.Tactic.Do.ProofMode.Revert
 import Lean.Elab.Tactic.Do.ProofMode.Pure
 import Lean.Elab.Tactic.Do.ProofMode.Frame
 import Lean.Elab.Tactic.Do.ProofMode.Assumption
@@ -59,13 +60,13 @@ def elabSpec (stx? : Option (TSyntax `term)) (wp : Expr) : TacticM SpecTheorem :
   | none => findSpec (← getSpecTheorems) wp
   | some stx => elabTermIntoSpecTheorem stx expectedTy
 
-variable {n} [Monad n] [MonadControlT MetaM n] [MonadLiftT MetaM n]
+variable {m : Type → Type u} [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
 
 private def mkProj' (n : Name) (i : Nat) (Q : Expr) : MetaM Expr := do
   return (← projectCore? Q i).getD (mkProj n i Q)
 
 mutual
-partial def dischargePostEntails (α : Expr) (ps : Expr) (Q : Expr) (Q' : Expr) (goalTag : Name) : n Expr := do
+partial def dischargePostEntails (α : Expr) (ps : Expr) (Q : Expr) (Q' : Expr) (goalTag : Name) : m Expr := do
   -- Often, Q' is fully instantiated while Q contains metavariables. Try refl
   if (← isDefEq Q Q') then
     return mkApp3 (mkConst ``PostCond.entails.refl) α ps Q'
@@ -85,7 +86,7 @@ partial def dischargePostEntails (α : Expr) (ps : Expr) (Q : Expr) (Q' : Expr) 
   let prf₂ ← dischargeFailEntails ps (← mkProj' ``Prod 1 Q) (← mkProj' ``Prod 1 Q') (goalTag ++ `except)
   mkAppM ``And.intro #[prf₁, prf₂] -- This is just a bit too painful to construct by hand
 
-partial def dischargeFailEntails (ps : Expr) (Q : Expr) (Q' : Expr) (goalTag : Name) : n Expr := do
+partial def dischargeFailEntails (ps : Expr) (Q : Expr) (Q' : Expr) (goalTag : Name) : m Expr := do
   if ps.isAppOf ``PostShape.pure then
     return mkConst ``True.intro
   if ← isDefEq Q Q' then
@@ -113,7 +114,34 @@ partial def dischargeFailEntails (ps : Expr) (Q : Expr) (Q' : Expr) (goalTag : N
   mkFreshExprSyntheticOpaqueMVar (mkApp3 (mkConst ``FailConds.entails) ps Q Q') goalTag
 end
 
-def dischargeMGoal (goal : MGoal) (goalTag : Name) : n Expr := do
+def substituteBackExcessArgs (excessArgs : Option (Nat × Name)) (goal : MGoal) (k : MGoal → m Expr) : m Expr := do
+  match excessArgs with
+  | none => k goal
+  | some (excessArgs, name) => do
+    -- We have
+    --   hᵢ : fun s₁ ... sₙ => Hᵢ
+    --   h : fun s₁ ... sₙ => ⌜s₁ = e₁ ∧ ... ∧ sₙ = eₙ⌝
+    --   ⊢ₛ T
+    -- Do `mintro ∀s₁ ... sₙ; mpure h; subst h` so that we have
+    --   hᵢ : Hᵢ
+    --   ⊢ₛ T e₁ ... eₙ
+    (·.snd) <$> mIntroForallN goal excessArgs fun goal => do
+    let some focusRes := goal.focusHyp name
+      | liftMetaM <| throwError "substituteBackExcessArgs: {name} not found in {goal.hyps}"
+    let (_, _, prf) ← mPureCore (m:=m) goal.σs focusRes.focusHyp (← liftMetaM `(binderIdent| $(mkIdent name):ident)) fun _ h => do
+      let goal' := focusRes.restGoal goal
+      let mvar ← mkFreshExprSyntheticOpaqueMVar goal'.toExpr
+      liftMetaM <| logInfo m!"substituteBackExcessArgs: {mvar}, {h}, {← inferType h}"
+      let mv ← subst mvar.mvarId! h.fvarId!
+      let mvarType ← mv.getType
+      let some goal'' := parseMGoal? mvarType
+        | liftMetaM <| throwError "substituteBackExcessArgs: {mvarType} not an `MGoal`"
+      let prf ← mv.withContext (k goal'')
+      liftMetaM <| mv.assign prf
+      pure ((), goal', mvar)
+    return ((), focusRes.rewriteHyps goal prf)
+
+def dischargeMGoal (goalTag : Name) (goal : MGoal) : m Expr := do
   liftMetaM <| do trace[Elab.Tactic.Do.spec] "dischargeMGoal: {(← reduceProj? goal.target).getD goal.target}"
   -- simply try one of the assumptions for now. Later on we might want to decompose conjunctions etc; full xsimpl
   -- The `withDefault` ensures that a hyp `⌜s = 4⌝` can be used to discharge `⌜s = 4⌝ s`.
@@ -132,7 +160,7 @@ def mkPreTag (goalTag : Name) : Name := Id.run do
 /--
   Returns the proof and the list of new unassigned MVars.
 -/
-def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name) (mkPreTag := mkPreTag) : n (Expr × List MVarId) := do
+def mSpec (goal : MGoal) (elabSpecAtWP : Expr → m SpecTheorem) (goalTag : Name) (mkPreTag := mkPreTag) : m (Expr × List MVarId) := do
   let mvarCounterSaved := (← liftMetaM getMCtx).mvarCounter
   -- First instantiate `fun s => ...` in the target via repeated `mintro ∀s`.
   let (_, prf) ← mIntroForallN goal goal.target.consumeMData.getNumHeadLambdas fun goal => do
@@ -158,23 +186,36 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name
     -- Fully instantiate the specThm without instantiating its MVars to `wp` yet
     let (_, _, spec, specTy) ← specThm.proof.instantiate
 
-    -- Apply the spec to the excess arguments of the `wp⟦e⟧ Q` application
+    -- Apply the spec to the excess arguments of the `wp⟦e⟧ Q` application (Q is arg index 3)
+    let excessArgs := goal.target.consumeMData.getAppArgs.size - 4
+
+    -- `excessArgs` models a tail context `· e₁ e₂ ... eₙ`. This context
+    -- will not transport to the sub-goals of a spec such as `Spec.ite`
+    --   `Spec.ite ... : (c → ⦃P⦄ t ⦃Q⦄) → (¬c → ⦃P⦄ e ⦃Q⦄) → ⦃P⦄ ite c t e ⦃Q⦄`
+    -- because applying the spec turns `⦃P⦄ ite c t e ⦃Q⦄ e₁ ... eₙ`
+    -- into `⦃P⦄ t ⦃Q⦄`, thus discarding the tail context.
+    -- We can enshrine the tail context by applying the `mrevert ∀` tactic,
+    -- which adds the following hypothesis
+    --   `h : fun s₁ s₂ ... sₙ => ⌜s₁ = e₁ ∧ s₂ = e₂ ∧ ... ∧ sₙ = eₙ⌝`
+    -- This discipline ensures that all pure facts about `eᵢ` can be connected to the pre-state `sᵢ`.
+    -- Then we'll get `⦃P ∧ h : ...⦄ t ⦃Q⦄` which is equivalent to `⦃P⦄ t ⦃Q⦄ e₁ ... eₙ`.
+    let hypName ← liftMetaM <| mkFreshUserName `h
+    mRevertForallN goal excessArgs hypName fun goal => do
+    let excessArgs := if excessArgs = 0 then none else some (excessArgs, hypName)
+
     let T := goal.target.consumeMData
     let args := T.getAppArgs
     let Q' := args[3]!
-    let excessArgs := (args.extract 4 args.size).reverse
 
     -- Actually instantiate the specThm using the expected type computed from `wp`.
-    let_expr f@Triple m ps instWP α prog P Q := specTy | do liftMetaM (throwError "target not a Triple application {specTy}")
+    let_expr f@Triple m ps instWP α prog P Q := specTy
+      | liftMetaM <| throwError "target not a Triple application {specTy}"
     let wp' := mkApp5 (mkConst ``WP.wp f.constLevels!) m ps instWP α prog
     unless (← withAssignableSyntheticOpaque <| isDefEq wp wp') do
       Term.throwTypeMismatchError none wp wp' spec
 
     let P ← instantiateMVarsIfMVarApp P
     let Q ← instantiateMVarsIfMVarApp Q
-
-    let P := P.betaRev excessArgs
-    let spec := spec.betaRev excessArgs
 
     -- Often P or Q are schematic (i.e. an MVar app). Try to solve by rfl.
     -- We do `fullApproxDefEq` here so that `constApprox` is active; this is useful in
@@ -188,7 +229,7 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name
       -- let P := (← reduceProjBeta? P).getD P
       -- Try to avoid creating a longer name if the postcondition does not need to create a goal
       let tag := if !QQ'Rfl then mkPreTag goalTag else goalTag
-      let HPPrf ← dischargeMGoal { goal with target := P } tag
+      let HPPrf ← substituteBackExcessArgs excessArgs { goal with target := P } <| dischargeMGoal tag
       prePrf := mkApp6 (mkConst ``SPred.entails.trans) goal.σs goal.hyps P goal.target HPPrf
 
     -- Discharge the entailment on postconditions if not rfl
@@ -201,8 +242,7 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name
       let QQ' ← dischargePostEntails α ps Q Q' tag
       let QQ'mono := mkApp6 (mkConst ``PredTrans.mono) ps α wp Q Q' QQ'
       postPrf := fun h =>
-        mkApp6 (mkConst ``SPred.entails.trans) goal.σs P (wpApplyQ.betaRev excessArgs) (wpApplyQ'.betaRev excessArgs)
-          h (QQ'mono.betaRev excessArgs)
+        mkApp6 (mkConst ``SPred.entails.trans) goal.σs P wpApplyQ wpApplyQ' h QQ'mono
 
     -- finally build the proof; HPPrf.trans (spec.trans QQ'mono)
     let prf := prePrf (postPrf spec)

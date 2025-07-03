@@ -474,10 +474,9 @@ return x_144;
 }
 else
 {
-lean_object* x_145; uint8_t x_146; 
-x_145 = lean_box(0);
-x_146 = lean_unbox(x_145);
-x_129 = x_146;
+uint8_t x_145; 
+x_145 = 0;
+x_129 = x_145;
 goto block_140;
 }
 block_140:
@@ -544,103 +543,102 @@ goto block_120;
 }
 else
 {
-uint32_t x_147; lean_object* x_148; lean_object* x_149; uint8_t x_150; uint32_t x_162; uint8_t x_163; 
+uint32_t x_146; lean_object* x_147; lean_object* x_148; uint8_t x_149; uint32_t x_161; uint8_t x_162; 
 lean_dec(x_2);
-x_147 = lean_string_utf8_get_fast(x_106, x_107);
-x_148 = lean_string_utf8_next_fast(x_106, x_107);
+x_146 = lean_string_utf8_get_fast(x_106, x_107);
+x_147 = lean_string_utf8_next_fast(x_106, x_107);
 lean_dec(x_107);
-lean_inc(x_148);
+lean_inc(x_147);
 lean_inc(x_106);
-x_149 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_149, 0, x_106);
-lean_ctor_set(x_149, 1, x_148);
-x_162 = 92;
-x_163 = lean_uint32_dec_eq(x_147, x_162);
-if (x_163 == 0)
+x_148 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_148, 0, x_106);
+lean_ctor_set(x_148, 1, x_147);
+x_161 = 92;
+x_162 = lean_uint32_dec_eq(x_146, x_161);
+if (x_162 == 0)
 {
 if (x_121 == 0)
 {
-x_150 = x_121;
-goto block_161;
+x_149 = x_121;
+goto block_160;
 }
 else
 {
-lean_object* x_164; lean_object* x_165; 
-lean_dec(x_148);
+lean_object* x_163; lean_object* x_164; 
+lean_dec(x_147);
 lean_dec(x_108);
 lean_dec(x_106);
-x_164 = l_Lean_Json_Parser_finishSurrogatePair___closed__0;
-x_165 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_165, 0, x_149);
-lean_ctor_set(x_165, 1, x_164);
-return x_165;
+x_163 = l_Lean_Json_Parser_finishSurrogatePair___closed__0;
+x_164 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_164, 0, x_148);
+lean_ctor_set(x_164, 1, x_163);
+return x_164;
 }
 }
 else
 {
-lean_object* x_166; uint8_t x_167; 
-x_166 = lean_box(0);
-x_167 = lean_unbox(x_166);
-x_150 = x_167;
-goto block_161;
+uint8_t x_165; 
+x_165 = 0;
+x_149 = x_165;
+goto block_160;
 }
-block_161:
+block_160:
 {
-uint8_t x_151; 
-x_151 = lean_nat_dec_lt(x_148, x_108);
-if (x_151 == 0)
+uint8_t x_150; 
+x_150 = lean_nat_dec_lt(x_147, x_108);
+if (x_150 == 0)
 {
-lean_object* x_152; lean_object* x_153; 
-lean_dec(x_148);
+lean_object* x_151; lean_object* x_152; 
+lean_dec(x_147);
 lean_dec(x_108);
 lean_dec(x_106);
-x_152 = l_Lean_Json_Parser_hexChar___closed__0;
-x_153 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_153, 0, x_149);
-lean_ctor_set(x_153, 1, x_152);
-return x_153;
+x_151 = l_Lean_Json_Parser_hexChar___closed__0;
+x_152 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_152, 0, x_148);
+lean_ctor_set(x_152, 1, x_151);
+return x_152;
 }
 else
 {
-uint32_t x_154; lean_object* x_155; lean_object* x_156; uint32_t x_157; uint8_t x_158; 
-lean_dec(x_149);
-x_154 = lean_string_utf8_get_fast(x_106, x_148);
-x_155 = lean_string_utf8_next_fast(x_106, x_148);
+uint32_t x_153; lean_object* x_154; lean_object* x_155; uint32_t x_156; uint8_t x_157; 
 lean_dec(x_148);
-lean_inc(x_155);
+x_153 = lean_string_utf8_get_fast(x_106, x_147);
+x_154 = lean_string_utf8_next_fast(x_106, x_147);
+lean_dec(x_147);
+lean_inc(x_154);
 lean_inc(x_106);
-x_156 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_156, 0, x_106);
-lean_ctor_set(x_156, 1, x_155);
-x_157 = 117;
-x_158 = lean_uint32_dec_eq(x_154, x_157);
-if (x_158 == 0)
+x_155 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_155, 0, x_106);
+lean_ctor_set(x_155, 1, x_154);
+x_156 = 117;
+x_157 = lean_uint32_dec_eq(x_153, x_156);
+if (x_157 == 0)
 {
-if (x_151 == 0)
+if (x_150 == 0)
 {
-x_109 = x_155;
-x_110 = x_156;
-x_111 = x_151;
+x_109 = x_154;
+x_110 = x_155;
+x_111 = x_150;
 goto block_120;
 }
 else
 {
-lean_object* x_159; lean_object* x_160; 
-lean_dec(x_155);
+lean_object* x_158; lean_object* x_159; 
+lean_dec(x_154);
 lean_dec(x_108);
 lean_dec(x_106);
-x_159 = l_Lean_Json_Parser_finishSurrogatePair___closed__0;
-x_160 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_160, 0, x_156);
-lean_ctor_set(x_160, 1, x_159);
-return x_160;
+x_158 = l_Lean_Json_Parser_finishSurrogatePair___closed__0;
+x_159 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_159, 0, x_155);
+lean_ctor_set(x_159, 1, x_158);
+return x_159;
 }
 }
 else
 {
-x_109 = x_155;
-x_110 = x_156;
-x_111 = x_150;
+x_109 = x_154;
+x_110 = x_155;
+x_111 = x_149;
 goto block_120;
 }
 }

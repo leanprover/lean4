@@ -228,17 +228,15 @@ x_7 = l_instBEqOfDecidableEq___redArg(x_2);
 x_8 = l_Vector_lex___redArg(x_1, x_7, x_5, x_4, x_6);
 if (x_8 == 0)
 {
-lean_object* x_9; uint8_t x_10; 
-x_9 = lean_box(1);
-x_10 = lean_unbox(x_9);
-return x_10;
+uint8_t x_9; 
+x_9 = 1;
+return x_9;
 }
 else
 {
-lean_object* x_11; uint8_t x_12; 
-x_11 = lean_box(0);
-x_12 = lean_unbox(x_11);
-return x_12;
+uint8_t x_10; 
+x_10 = 0;
+return x_10;
 }
 }
 }

@@ -792,18 +792,16 @@ lean_dec(x_3);
 x_5 = l_Lean_RBNode_find___at___Lake_Toml_RBDict_contains_spec__0___redArg(x_1, x_4, x_2);
 if (lean_obj_tag(x_5) == 0)
 {
-lean_object* x_6; uint8_t x_7; 
-x_6 = lean_box(0);
-x_7 = lean_unbox(x_6);
-return x_7;
+uint8_t x_6; 
+x_6 = 0;
+return x_6;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; 
+uint8_t x_7; 
 lean_dec(x_5);
-x_8 = lean_box(1);
-x_9 = lean_unbox(x_8);
-return x_9;
+x_7 = 1;
+return x_7;
 }
 }
 }

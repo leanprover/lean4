@@ -691,57 +691,56 @@ _start:
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_3; uint8_t x_4; 
-x_3 = lean_box(0);
-x_4 = lean_unbox(x_3);
-return x_4;
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
 }
 else
 {
-lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
-x_5 = lean_ctor_get(x_2, 0);
-x_6 = lean_ctor_get(x_2, 2);
-x_10 = lean_ctor_get(x_5, 0);
-x_11 = lean_ctor_get(x_5, 1);
-x_12 = lean_ctor_get(x_1, 0);
-x_13 = lean_ctor_get(x_1, 1);
-x_14 = lean_name_eq(x_10, x_12);
-if (x_14 == 0)
+lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+x_4 = lean_ctor_get(x_2, 0);
+x_5 = lean_ctor_get(x_2, 2);
+x_9 = lean_ctor_get(x_4, 0);
+x_10 = lean_ctor_get(x_4, 1);
+x_11 = lean_ctor_get(x_1, 0);
+x_12 = lean_ctor_get(x_1, 1);
+x_13 = lean_name_eq(x_9, x_11);
+if (x_13 == 0)
 {
-x_7 = x_14;
-goto block_9;
+x_6 = x_13;
+goto block_8;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; uint8_t x_17; 
-x_15 = lean_array_get_size(x_11);
-x_16 = lean_array_get_size(x_13);
-x_17 = lean_nat_dec_eq(x_15, x_16);
-lean_dec(x_16);
-if (x_17 == 0)
-{
+lean_object* x_14; lean_object* x_15; uint8_t x_16; 
+x_14 = lean_array_get_size(x_10);
+x_15 = lean_array_get_size(x_12);
+x_16 = lean_nat_dec_eq(x_14, x_15);
 lean_dec(x_15);
-x_2 = x_6;
+if (x_16 == 0)
+{
+lean_dec(x_14);
+x_2 = x_5;
 goto _start;
 }
 else
 {
-uint8_t x_19; 
-x_19 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1771__spec__1___redArg(x_11, x_13, x_15);
-x_7 = x_19;
-goto block_9;
+uint8_t x_18; 
+x_18 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1771__spec__1___redArg(x_10, x_12, x_14);
+x_6 = x_18;
+goto block_8;
 }
 }
-block_9:
+block_8:
 {
-if (x_7 == 0)
+if (x_6 == 0)
 {
-x_2 = x_6;
+x_2 = x_5;
 goto _start;
 }
 else
 {
-return x_7;
+return x_6;
 }
 }
 }
@@ -1894,17 +1893,15 @@ uint8_t x_3;
 x_3 = l_Lean_NameSet_contains(x_1, x_2);
 if (x_3 == 0)
 {
-lean_object* x_4; uint8_t x_5; 
-x_4 = lean_box(1);
-x_5 = lean_unbox(x_4);
-return x_5;
+uint8_t x_4; 
+x_4 = 1;
+return x_4;
 }
 else
 {
-lean_object* x_6; uint8_t x_7; 
-x_6 = lean_box(0);
-x_7 = lean_unbox(x_6);
-return x_7;
+uint8_t x_5; 
+x_5 = 0;
+return x_5;
 }
 }
 }

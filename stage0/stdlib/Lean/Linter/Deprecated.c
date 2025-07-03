@@ -144,15 +144,16 @@ return x_1;
 static lean_object* _init_l_Lean_Linter_initFn___closed__5____x40_Lean_Linter_Deprecated___hyg_5_() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Linter_initFn___closed__4____x40_Lean_Linter_Deprecated___hyg_5_;
 x_2 = l_Lean_Linter_initFn___closed__3____x40_Lean_Linter_Deprecated___hyg_5_;
-x_3 = lean_box(1);
-x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_1);
-return x_4;
+x_3 = 1;
+x_4 = lean_box(x_3);
+x_5 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_5, 0, x_4);
+lean_ctor_set(x_5, 1, x_2);
+lean_ctor_set(x_5, 2, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Linter_initFn___closed__6____x40_Lean_Linter_Deprecated___hyg_5_() {
@@ -218,13 +219,11 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_logWarning___at___Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_94__spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; lean_object* x_9; 
-x_5 = lean_box(1);
-x_6 = lean_box(0);
-x_7 = lean_unbox(x_5);
-x_8 = lean_unbox(x_6);
-x_9 = l_Lean_log___at___Lean_logError___at___Lean_Core_wrapAsyncAsSnapshot_spec__23_spec__23(x_1, x_7, x_8, x_2, x_3, x_4);
-return x_9;
+uint8_t x_5; uint8_t x_6; lean_object* x_7; 
+x_5 = 1;
+x_6 = 0;
+x_7 = l_Lean_log___at___Lean_logError___at___Lean_Core_wrapAsyncAsSnapshot_spec__23_spec__23(x_1, x_5, x_6, x_2, x_3, x_4);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn___lam__0____x40_Lean_Linter_Deprecated___hyg_94_(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -828,8 +827,8 @@ return x_1;
 static lean_object* _init_l_Lean_Linter_initFn___closed__4____x40_Lean_Linter_Deprecated___hyg_94_() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_1 = lean_box(0);
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = 0;
 x_2 = l_Lean_Linter_initFn___closed__3____x40_Lean_Linter_Deprecated___hyg_94_;
 x_3 = l_Lean_Linter_initFn___closed__2____x40_Lean_Linter_Deprecated___hyg_94_;
 x_4 = l_Lean_Linter_initFn___closed__1____x40_Lean_Linter_Deprecated___hyg_94_;
@@ -837,8 +836,7 @@ x_5 = lean_alloc_ctor(0, 3, 1);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);
 lean_ctor_set(x_5, 2, x_2);
-x_6 = lean_unbox(x_1);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_6);
+lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_1);
 return x_5;
 }
 }
@@ -920,18 +918,16 @@ x_4 = l_Lean_Linter_isDeprecated___closed__0;
 x_5 = l_Lean_ParametricAttribute_getParam_x3f___redArg(x_3, x_4, x_1, x_2);
 if (lean_obj_tag(x_5) == 0)
 {
-lean_object* x_6; uint8_t x_7; 
-x_6 = lean_box(0);
-x_7 = lean_unbox(x_6);
-return x_7;
+uint8_t x_6; 
+x_6 = 0;
+return x_6;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; 
+uint8_t x_7; 
 lean_dec(x_5);
-x_8 = lean_box(1);
-x_9 = lean_unbox(x_8);
-return x_9;
+x_7 = 1;
+return x_7;
 }
 }
 }

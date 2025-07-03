@@ -76,11 +76,10 @@ goto block_17;
 }
 else
 {
-lean_object* x_28; uint8_t x_29; 
-x_28 = lean_box(0);
-x_29 = lean_unbox(x_28);
+uint8_t x_28; 
+x_28 = 0;
 x_7 = x_24;
-x_8 = x_29;
+x_8 = x_28;
 goto block_17;
 }
 }

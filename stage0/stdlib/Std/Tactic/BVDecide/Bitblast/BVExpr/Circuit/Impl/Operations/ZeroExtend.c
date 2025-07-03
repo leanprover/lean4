@@ -95,11 +95,10 @@ goto block_17;
 }
 else
 {
-lean_object* x_34; uint8_t x_35; 
-x_34 = lean_box(0);
-x_35 = lean_unbox(x_34);
+uint8_t x_34; 
+x_34 = 0;
 x_7 = x_30;
-x_8 = x_35;
+x_8 = x_34;
 goto block_17;
 }
 }

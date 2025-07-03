@@ -80,27 +80,26 @@ _start:
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_3; uint8_t x_4; 
-x_3 = lean_box(0);
-x_4 = lean_unbox(x_3);
-return x_4;
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
 }
 else
 {
-lean_object* x_5; lean_object* x_6; size_t x_7; size_t x_8; uint8_t x_9; 
-x_5 = lean_ctor_get(x_2, 0);
-x_6 = lean_ctor_get(x_2, 2);
-x_7 = lean_ptr_addr(x_5);
-x_8 = lean_ptr_addr(x_1);
-x_9 = lean_usize_dec_eq(x_7, x_8);
-if (x_9 == 0)
+lean_object* x_4; lean_object* x_5; size_t x_6; size_t x_7; uint8_t x_8; 
+x_4 = lean_ctor_get(x_2, 0);
+x_5 = lean_ctor_get(x_2, 2);
+x_6 = lean_ptr_addr(x_4);
+x_7 = lean_ptr_addr(x_1);
+x_8 = lean_usize_dec_eq(x_6, x_7);
+if (x_8 == 0)
 {
-x_2 = x_6;
+x_2 = x_5;
 goto _start;
 }
 else
 {
-return x_9;
+return x_8;
 }
 }
 }
@@ -815,92 +814,91 @@ return x_7;
 LEAN_EXPORT lean_object* l_Lean_ConstantInfo_getUsedConstantsAsSet(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
 x_2 = l_Lean_ConstantInfo_type(x_1);
 x_3 = l_Lean_Expr_getUsedConstantsAsSet(x_2);
-x_4 = lean_box(0);
-x_5 = lean_unbox(x_4);
+x_4 = 0;
 lean_inc(x_1);
-x_6 = l_Lean_ConstantInfo_value_x3f(x_1, x_5);
-if (lean_obj_tag(x_6) == 0)
+x_5 = l_Lean_ConstantInfo_value_x3f(x_1, x_4);
+if (lean_obj_tag(x_5) == 0)
 {
 switch (lean_obj_tag(x_1)) {
 case 3:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_7 = lean_ctor_get(x_1, 0);
-lean_inc(x_7);
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
 lean_dec(x_1);
-x_8 = lean_ctor_get(x_7, 1);
-lean_inc(x_8);
-lean_dec(x_7);
-x_9 = l_Lean_Expr_getUsedConstantsAsSet(x_8);
-x_10 = l_Lean_NameSet_append(x_3, x_9);
-return x_10;
+x_7 = lean_ctor_get(x_6, 1);
+lean_inc(x_7);
+lean_dec(x_6);
+x_8 = l_Lean_Expr_getUsedConstantsAsSet(x_7);
+x_9 = l_Lean_NameSet_append(x_3, x_8);
+return x_9;
 }
 case 5:
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_11 = lean_ctor_get(x_1, 0);
-lean_inc(x_11);
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_10 = lean_ctor_get(x_1, 0);
+lean_inc(x_10);
 lean_dec(x_1);
-x_12 = lean_ctor_get(x_11, 4);
-lean_inc(x_12);
-lean_dec(x_11);
-x_13 = l_Lean_RBTree_ofList___at___Lean_ConstantInfo_getUsedConstantsAsSet_spec__0(x_12);
-x_14 = l_Lean_NameSet_append(x_3, x_13);
-return x_14;
+x_11 = lean_ctor_get(x_10, 4);
+lean_inc(x_11);
+lean_dec(x_10);
+x_12 = l_Lean_RBTree_ofList___at___Lean_ConstantInfo_getUsedConstantsAsSet_spec__0(x_11);
+x_13 = l_Lean_NameSet_append(x_3, x_12);
+return x_13;
 }
 case 6:
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_15 = lean_ctor_get(x_1, 0);
-lean_inc(x_15);
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+x_14 = lean_ctor_get(x_1, 0);
+lean_inc(x_14);
 lean_dec(x_1);
+x_15 = lean_ctor_get(x_14, 0);
+lean_inc(x_15);
+lean_dec(x_14);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 lean_dec(x_15);
-x_17 = lean_ctor_get(x_16, 0);
-lean_inc(x_17);
-lean_dec(x_16);
-x_18 = lean_box(0);
-x_19 = l_Lean_NameSet_insert(x_18, x_17);
-x_20 = l_Lean_NameSet_append(x_3, x_19);
-return x_20;
+x_17 = lean_box(0);
+x_18 = l_Lean_NameSet_insert(x_17, x_16);
+x_19 = l_Lean_NameSet_append(x_3, x_18);
+return x_19;
 }
 case 7:
 {
-lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_21 = lean_ctor_get(x_1, 0);
-lean_inc(x_21);
+lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
+x_20 = lean_ctor_get(x_1, 0);
+lean_inc(x_20);
 lean_dec(x_1);
-x_22 = lean_ctor_get(x_21, 1);
-lean_inc(x_22);
-lean_dec(x_21);
-x_23 = l_Lean_RBTree_ofList___at___Lean_ConstantInfo_getUsedConstantsAsSet_spec__0(x_22);
-x_24 = l_Lean_NameSet_append(x_3, x_23);
-return x_24;
+x_21 = lean_ctor_get(x_20, 1);
+lean_inc(x_21);
+lean_dec(x_20);
+x_22 = l_Lean_RBTree_ofList___at___Lean_ConstantInfo_getUsedConstantsAsSet_spec__0(x_21);
+x_23 = l_Lean_NameSet_append(x_3, x_22);
+return x_23;
 }
 default: 
 {
-lean_object* x_25; lean_object* x_26; 
+lean_object* x_24; lean_object* x_25; 
 lean_dec(x_1);
-x_25 = lean_box(0);
-x_26 = l_Lean_NameSet_append(x_3, x_25);
-return x_26;
+x_24 = lean_box(0);
+x_25 = l_Lean_NameSet_append(x_3, x_24);
+return x_25;
 }
 }
 }
 else
 {
-lean_object* x_27; lean_object* x_28; lean_object* x_29; 
+lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 lean_dec(x_1);
-x_27 = lean_ctor_get(x_6, 0);
-lean_inc(x_27);
-lean_dec(x_6);
-x_28 = l_Lean_Expr_getUsedConstantsAsSet(x_27);
-x_29 = l_Lean_NameSet_append(x_3, x_28);
-return x_29;
+x_26 = lean_ctor_get(x_5, 0);
+lean_inc(x_26);
+lean_dec(x_5);
+x_27 = l_Lean_Expr_getUsedConstantsAsSet(x_26);
+x_28 = l_Lean_NameSet_append(x_3, x_27);
+return x_28;
 }
 }
 }

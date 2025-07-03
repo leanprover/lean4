@@ -196,19 +196,18 @@ _start:
 {
 if (x_1 == 0)
 {
-lean_object* x_3; uint8_t x_4; 
+uint8_t x_3; 
 lean_dec(x_2);
-x_3 = lean_box(1);
-x_4 = lean_unbox(x_3);
-return x_4;
+x_3 = 1;
+return x_3;
 }
 else
 {
-lean_object* x_5; uint8_t x_6; 
-x_5 = lean_apply_1(x_2, lean_box(0));
-x_6 = lean_unbox(x_5);
-lean_dec(x_5);
-return x_6;
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_apply_1(x_2, lean_box(0));
+x_5 = lean_unbox(x_4);
+lean_dec(x_4);
+return x_5;
 }
 }
 }

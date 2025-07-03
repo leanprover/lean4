@@ -1492,10 +1492,9 @@ lean_dec(x_6);
 lean_dec(x_1);
 if (x_8 == 0)
 {
-lean_object* x_9; uint8_t x_10; 
-x_9 = lean_box(1);
-x_10 = lean_unbox(x_9);
-return x_10;
+uint8_t x_9; 
+x_9 = 1;
+return x_9;
 }
 else
 {
@@ -1511,44 +1510,43 @@ return x_5;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_11 = lean_string_utf8_byte_size(x_1);
-lean_inc(x_11);
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+x_10 = lean_string_utf8_byte_size(x_1);
+lean_inc(x_10);
 lean_inc(x_1);
-x_12 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_12, 0, x_1);
-lean_ctor_set(x_12, 1, x_2);
-lean_ctor_set(x_12, 2, x_11);
-x_13 = lean_unsigned_to_nat(1u);
-x_14 = l_Substring_nextn(x_12, x_13, x_2);
-lean_dec(x_12);
-x_15 = lean_nat_sub(x_11, x_14);
-x_16 = lean_nat_dec_eq(x_15, x_2);
-lean_dec(x_15);
-if (x_16 == 0)
-{
-uint8_t x_17; 
-x_17 = l_String_anyAux___at___String_toNat_x3f_spec__1(x_16, x_1, x_11, x_14);
+x_11 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_11, 0, x_1);
+lean_ctor_set(x_11, 1, x_2);
+lean_ctor_set(x_11, 2, x_10);
+x_12 = lean_unsigned_to_nat(1u);
+x_13 = l_Substring_nextn(x_11, x_12, x_2);
 lean_dec(x_11);
+x_14 = lean_nat_sub(x_10, x_13);
+x_15 = lean_nat_dec_eq(x_14, x_2);
+lean_dec(x_14);
+if (x_15 == 0)
+{
+uint8_t x_16; 
+x_16 = l_String_anyAux___at___String_toNat_x3f_spec__1(x_15, x_1, x_10, x_13);
+lean_dec(x_10);
 lean_dec(x_1);
-if (x_17 == 0)
+if (x_16 == 0)
 {
 return x_5;
 }
 else
 {
-return x_16;
+return x_15;
 }
 }
 else
 {
-lean_object* x_18; uint8_t x_19; 
-lean_dec(x_14);
-lean_dec(x_11);
+uint8_t x_17; 
+lean_dec(x_13);
+lean_dec(x_10);
 lean_dec(x_1);
-x_18 = lean_box(0);
-x_19 = lean_unbox(x_18);
-return x_19;
+x_17 = 0;
+return x_17;
 }
 }
 }

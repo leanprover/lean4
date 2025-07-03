@@ -4846,19 +4846,18 @@ return x_22;
 }
 else
 {
-lean_object* x_23; lean_object* x_24; uint8_t x_25; uint8_t x_26; 
+uint8_t x_23; lean_object* x_24; uint8_t x_25; 
 lean_dec(x_3);
-x_23 = lean_box(0);
+x_23 = 0;
 lean_inc(x_4);
 x_24 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_24, 0, x_4);
-x_25 = lean_unbox(x_23);
-lean_ctor_set_uint8(x_24, sizeof(void*)*1, x_25);
-x_26 = lean_nat_dec_eq(x_4, x_4);
-if (x_26 == 0)
+lean_ctor_set_uint8(x_24, sizeof(void*)*1, x_23);
+x_25 = lean_nat_dec_eq(x_4, x_4);
+if (x_25 == 0)
 {
-lean_object* x_27; lean_object* x_28; 
-x_27 = l_Std_Range_forIn_x27_loop___at___Std_Range_forIn_x27_loop___at___Lean_Meta_Grind_Arith_CommRing_checkInvariants_spec__0_spec__0___redArg___closed__2;
+lean_object* x_26; lean_object* x_27; 
+x_26 = l_Std_Range_forIn_x27_loop___at___Std_Range_forIn_x27_loop___at___Lean_Meta_Grind_Arith_CommRing_checkInvariants_spec__0_spec__0___redArg___closed__2;
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -4867,13 +4866,13 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_28 = l_panic___at_____private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkVars_spec__0(x_27, x_24, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
-x_16 = x_28;
+x_27 = l_panic___at_____private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkVars_spec__0(x_26, x_24, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
+x_16 = x_27;
 goto block_20;
 }
 else
 {
-lean_object* x_29; 
+lean_object* x_28; 
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -4882,8 +4881,8 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_29 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkRingInvs(x_24, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
-x_16 = x_29;
+x_28 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkRingInvs(x_24, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
+x_16 = x_28;
 goto block_20;
 }
 }
@@ -4960,19 +4959,18 @@ return x_22;
 }
 else
 {
-lean_object* x_23; lean_object* x_24; uint8_t x_25; uint8_t x_26; 
+uint8_t x_23; lean_object* x_24; uint8_t x_25; 
 lean_dec(x_3);
-x_23 = lean_box(0);
+x_23 = 0;
 lean_inc(x_4);
 x_24 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_24, 0, x_4);
-x_25 = lean_unbox(x_23);
-lean_ctor_set_uint8(x_24, sizeof(void*)*1, x_25);
-x_26 = lean_nat_dec_eq(x_4, x_4);
-if (x_26 == 0)
+lean_ctor_set_uint8(x_24, sizeof(void*)*1, x_23);
+x_25 = lean_nat_dec_eq(x_4, x_4);
+if (x_25 == 0)
 {
-lean_object* x_27; lean_object* x_28; 
-x_27 = l_Std_Range_forIn_x27_loop___at___Std_Range_forIn_x27_loop___at___Lean_Meta_Grind_Arith_CommRing_checkInvariants_spec__0_spec__0___redArg___closed__2;
+lean_object* x_26; lean_object* x_27; 
+x_26 = l_Std_Range_forIn_x27_loop___at___Std_Range_forIn_x27_loop___at___Lean_Meta_Grind_Arith_CommRing_checkInvariants_spec__0_spec__0___redArg___closed__2;
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -4981,13 +4979,13 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_28 = l_panic___at_____private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkVars_spec__0(x_27, x_24, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
-x_16 = x_28;
+x_27 = l_panic___at_____private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkVars_spec__0(x_26, x_24, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
+x_16 = x_27;
 goto block_20;
 }
 else
 {
-lean_object* x_29; 
+lean_object* x_28; 
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -4996,8 +4994,8 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_29 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkRingInvs(x_24, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
-x_16 = x_29;
+x_28 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Inv_0__Lean_Meta_Grind_Arith_CommRing_checkRingInvs(x_24, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
+x_16 = x_28;
 goto block_20;
 }
 }

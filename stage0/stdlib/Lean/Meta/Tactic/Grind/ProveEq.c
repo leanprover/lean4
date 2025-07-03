@@ -531,18 +531,17 @@ return x_5;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; size_t x_13; size_t x_14; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; size_t x_12; size_t x_13; 
 x_7 = lean_array_uget(x_2, x_4);
 x_8 = l_Array_forIn_x27Unsafe_loop___at_____private_Lean_Meta_Tactic_Grind_ProveEq_0__Lean_Meta_Grind_mkLambdaWithBodyAndVarType_spec__0___closed__1;
 lean_inc(x_1);
 x_9 = lean_name_append_index_after(x_8, x_1);
-x_10 = lean_box(0);
-x_11 = lean_unbox(x_10);
-x_12 = l_Lean_Expr_lam___override(x_9, x_7, x_5, x_11);
-x_13 = 1;
-x_14 = lean_usize_add(x_4, x_13);
-x_4 = x_14;
-x_5 = x_12;
+x_10 = 0;
+x_11 = l_Lean_Expr_lam___override(x_9, x_7, x_5, x_10);
+x_12 = 1;
+x_13 = lean_usize_add(x_4, x_12);
+x_4 = x_13;
+x_5 = x_11;
 goto _start;
 }
 }

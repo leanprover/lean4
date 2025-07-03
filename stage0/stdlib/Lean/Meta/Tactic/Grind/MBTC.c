@@ -418,43 +418,42 @@ _start:
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_3; uint8_t x_4; 
-x_3 = lean_box(0);
-x_4 = lean_unbox(x_3);
-return x_4;
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
 }
 else
 {
-lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
-x_5 = lean_ctor_get(x_2, 0);
-x_6 = lean_ctor_get(x_2, 2);
-x_10 = lean_ctor_get(x_5, 0);
-x_11 = lean_ctor_get(x_5, 1);
-x_12 = lean_ctor_get(x_1, 0);
-x_13 = lean_ctor_get(x_1, 1);
-x_14 = lean_expr_eqv(x_10, x_12);
-if (x_14 == 0)
+lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+x_4 = lean_ctor_get(x_2, 0);
+x_5 = lean_ctor_get(x_2, 2);
+x_9 = lean_ctor_get(x_4, 0);
+x_10 = lean_ctor_get(x_4, 1);
+x_11 = lean_ctor_get(x_1, 0);
+x_12 = lean_ctor_get(x_1, 1);
+x_13 = lean_expr_eqv(x_9, x_11);
+if (x_13 == 0)
 {
-x_7 = x_14;
-goto block_9;
+x_6 = x_13;
+goto block_8;
 }
 else
 {
-uint8_t x_15; 
-x_15 = lean_nat_dec_eq(x_11, x_13);
-x_7 = x_15;
-goto block_9;
+uint8_t x_14; 
+x_14 = lean_nat_dec_eq(x_10, x_12);
+x_6 = x_14;
+goto block_8;
 }
-block_9:
+block_8:
 {
-if (x_7 == 0)
+if (x_6 == 0)
 {
-x_2 = x_6;
+x_2 = x_5;
 goto _start;
 }
 else
 {
-return x_7;
+return x_6;
 }
 }
 }
@@ -11401,24 +11400,26 @@ lean_dec(x_1);
 x_349 = !lean_is_exclusive(x_21);
 if (x_349 == 0)
 {
-lean_object* x_350; lean_object* x_351; 
+lean_object* x_350; uint8_t x_351; lean_object* x_352; 
 x_350 = lean_ctor_get(x_21, 0);
 lean_dec(x_350);
-x_351 = lean_box(0);
-lean_ctor_set(x_21, 0, x_351);
+x_351 = 0;
+x_352 = lean_box(x_351);
+lean_ctor_set(x_21, 0, x_352);
 return x_21;
 }
 else
 {
-lean_object* x_352; lean_object* x_353; lean_object* x_354; 
-x_352 = lean_ctor_get(x_21, 1);
-lean_inc(x_352);
+lean_object* x_353; uint8_t x_354; lean_object* x_355; lean_object* x_356; 
+x_353 = lean_ctor_get(x_21, 1);
+lean_inc(x_353);
 lean_dec(x_21);
-x_353 = lean_box(0);
-x_354 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_354, 0, x_353);
-lean_ctor_set(x_354, 1, x_352);
-return x_354;
+x_354 = 0;
+x_355 = lean_box(x_354);
+x_356 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_356, 0, x_355);
+lean_ctor_set(x_356, 1, x_353);
+return x_356;
 }
 }
 }

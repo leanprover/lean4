@@ -487,13 +487,13 @@ return x_2;
 static lean_object* _init_l_Lean_Meta_Grind_Arith_instInhabitedState___closed__35() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; uint8_t x_19; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_1 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__34;
 x_2 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__33;
 x_3 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__32;
 x_4 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__29;
 x_5 = lean_box(0);
-x_6 = lean_box(0);
+x_6 = 0;
 x_7 = lean_box(0);
 x_8 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__28;
 x_9 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__26;
@@ -526,10 +526,8 @@ lean_ctor_set(x_17, 17, x_4);
 lean_ctor_set(x_17, 18, x_3);
 lean_ctor_set(x_17, 19, x_2);
 lean_ctor_set(x_17, 20, x_1);
-x_18 = lean_unbox(x_6);
-lean_ctor_set_uint8(x_17, sizeof(void*)*21, x_18);
-x_19 = lean_unbox(x_6);
-lean_ctor_set_uint8(x_17, sizeof(void*)*21 + 1, x_19);
+lean_ctor_set_uint8(x_17, sizeof(void*)*21, x_6);
+lean_ctor_set_uint8(x_17, sizeof(void*)*21 + 1, x_6);
 return x_17;
 }
 }

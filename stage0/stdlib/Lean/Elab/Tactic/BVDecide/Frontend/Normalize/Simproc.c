@@ -1983,13 +1983,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_658_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and_declare__9___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_656_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_658_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -6078,13 +6077,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_4927_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add_declare__14___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_4925_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__add_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_4927_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shiftRight__self___redArg___closed__0() {
@@ -6670,13 +6668,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shiftRight__self___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shiftRight__self_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_5396_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shiftRight__self_declare__19___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_5394_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shiftRight__self___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shiftRight__self_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_5396_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__full___redArg___closed__0() {
@@ -7644,13 +7641,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__full___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__full_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_5845_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__full_declare__24___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_5843_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__full___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__full_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_5845_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_eqSelfProc___redArg___closed__0() {
@@ -8058,13 +8054,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__eq__self___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__eq__self_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_6109_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__eq__self_declare__32___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_6107_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__eq__self___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__eq__self_declare__1___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_6109_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__eq__self___redArg(lean_object* x_1, lean_object* x_2) {
@@ -8213,13 +8208,12 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__eq__self___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__eq__self_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_6136_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__eq__self_declare__37___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_6134_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__eq__self___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__eq__self_declare__1___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_6109_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__and___redArg___closed__0() {
@@ -9143,13 +9137,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__and___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__and_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_7197_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__and_declare__42___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_7195_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__and___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__and_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_7197_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__beq__self___redArg___closed__0() {
@@ -9577,13 +9570,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__beq__self___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__beq__self_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_7491_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__beq__self_declare__47___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_7489_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__beq__self___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__beq__self_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_7491_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__beq___redArg___closed__0() {
@@ -10604,13 +10596,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__beq___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__beq_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_8733_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__beq_declare__52___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_8731_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__beq___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bool__beq_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_8733_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_reduceCond___closed__0() {
@@ -11535,13 +11526,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_reduceCond___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_reduceCond_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_9079_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_reduceCond_declare__58___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_9077_;
-x_3 = lean_box(0);
+x_3 = 0;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_reduceCond___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_reduceCond_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_9079_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_eqToBEq___redArg___closed__0() {
@@ -11969,13 +11959,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_eqToBEq___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_eqToBEq_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_9385_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_eqToBEq_declare__63___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_9383_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_eqToBEq___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_eqToBEq_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_9385_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andOnes___redArg___closed__0() {
@@ -12582,13 +12571,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andOnes___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andOnes_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_9748_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andOnes_declare__68___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_9746_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andOnes___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andOnes_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_9748_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_onesAnd___redArg___closed__0() {
@@ -13104,13 +13092,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_onesAnd___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_onesAnd_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_10111_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_onesAnd_declare__73___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_10109_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_onesAnd___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_onesAnd_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_10111_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_maxUlt___redArg___closed__0() {
@@ -13622,13 +13609,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_maxUlt___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_maxUlt_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_10384_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_maxUlt_declare__78___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_10382_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_maxUlt___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_maxUlt_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_10384_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_neg__eq__not__add___redArg___closed__0() {
@@ -14438,13 +14424,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_neg__eq__not__add___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_neg__eq__not__add_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_10807_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_neg__eq__not__add_declare__83___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_10805_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_neg__eq__not__add___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_neg__eq__not__add_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_10807_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Nat_log2Exact(lean_object* x_1) {
@@ -16617,13 +16602,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__udiv__of__two__pow___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__udiv__of__two__pow_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_11494_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__udiv__of__two__pow_declare__94___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_11492_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__udiv__of__two__pow___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__udiv__of__two__pow_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_11494_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not___redArg___closed__0() {
@@ -17400,13 +17384,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_11951_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not_declare__99___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_11949_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_11951_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not_x27___redArg___closed__0() {
@@ -18131,13 +18114,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not_x27___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not_x27_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_12408_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not_x27_declare__104___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_12406_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not_x27___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__equal__const__not_x27_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_12408_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and__eq__allOnes___redArg___closed__0() {
@@ -19286,13 +19268,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and__eq__allOnes___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and__eq__allOnes_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_13048_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and__eq__allOnes_declare__109___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_13046_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and__eq__allOnes___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__and__eq__allOnes_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_13048_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__allOnes__eq__and___redArg___closed__0() {
@@ -20392,13 +20373,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__allOnes__eq__and___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__allOnes__eq__and_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_13688_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__allOnes__eq__and_declare__114___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_13686_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__allOnes__eq__and___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__allOnes__eq__and_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_13688_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extractLsb_x27__not___redArg___closed__0() {
@@ -21790,13 +21770,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extractLsb_x27__not___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extractLsb_x27__not_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_14360_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extractLsb_x27__not_declare__119___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_14358_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extractLsb_x27__not___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extractLsb_x27__not_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_14360_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_isTwoPow_go(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -22764,13 +22743,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__twoPow__mul___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__twoPow__mul_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_16115_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__twoPow__mul_declare__136___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_16113_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__twoPow__mul___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__twoPow__mul_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_16115_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__mul__twoPow___redArg___closed__0() {
@@ -23575,13 +23553,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__mul__twoPow___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__mul__twoPow_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_16517_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__mul__twoPow_declare__141___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_16515_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__mul__twoPow___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__mul__twoPow_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_16517_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__ones__mul___redArg___closed__0() {
@@ -24164,13 +24141,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__ones__mul___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__ones__mul_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_16932_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__ones__mul_declare__146___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_16930_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__ones__mul___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__ones__mul_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_16932_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__mul__ones___redArg___closed__0() {
@@ -24753,13 +24729,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__mul__ones___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__mul__ones_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_17347_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__mul__ones_declare__151___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_17345_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__mul__ones___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__mul__ones_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_17347_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__ushiftRight__const___redArg___closed__0() {
@@ -26690,13 +26665,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__ushiftRight__const___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__ushiftRight__const_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_18016_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__ushiftRight__const_declare__156___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_18014_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__ushiftRight__const___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__ushiftRight__const_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_18016_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__shiftLeft__const___redArg___closed__0() {
@@ -28565,13 +28539,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__shiftLeft__const___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__shiftLeft__const_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_18696_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__shiftLeft__const_declare__161___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_18694_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__shiftLeft__const___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__shiftLeft__const_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_18696_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__extract___redArg___closed__0() {
@@ -30277,13 +30250,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__extract___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__extract_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_19738_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__extract_declare__166___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_19736_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__extract___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__extract_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_19738_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract___redArg___closed__0() {
@@ -32324,13 +32296,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_21113_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract_declare__171___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_21111_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__concat__not__extract_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_21113_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__setWidth___redArg___closed__0() {
@@ -33982,13 +33953,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__setWidth___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__setWidth_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_21602_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__setWidth_declare__176___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_21600_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__setWidth___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__setWidth_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_21602_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__signExtend___redArg___closed__0() {
@@ -35750,13 +35720,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__signExtend___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__signExtend_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_22155_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__signExtend_declare__181___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_22153_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__signExtend___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__elim__signExtend_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_22155_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__lt__allOnes__iff___redArg___closed__0() {
@@ -36363,13 +36332,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__lt__allOnes__iff___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__lt__allOnes__iff_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_22505_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__lt__allOnes__iff_declare__186___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_22503_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__lt__allOnes__iff___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__lt__allOnes__iff_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_22505_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extract__concat___redArg___closed__0() {
@@ -38667,13 +38635,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extract__concat___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extract__concat_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_23489_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extract__concat_declare__191___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_23487_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extract__concat___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bv__extract__concat_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_23489_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__add___redArg___closed__0() {
@@ -40033,13 +40000,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__add___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__add_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_24245_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__add_declare__196___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_24243_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__add___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__add_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_24245_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__mul___redArg___closed__0() {
@@ -41399,13 +41365,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__mul___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__mul_declare__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_25001_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc_0____regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__mul_declare__201___closed__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_24999_;
-x_3 = lean_box(1);
+x_3 = 1;
 x_4 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__mul___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_extract__mul_declare__1___closed__0____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc___hyg_25001_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 lean_object* initialize_Std_Tactic_BVDecide_Normalize(uint8_t builtin, lean_object*);

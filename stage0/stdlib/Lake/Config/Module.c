@@ -205,23 +205,21 @@ LEAN_EXPORT lean_object* l_Lake_Module_shouldPrecompile___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_instToTextModule___lam__0(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint8_t x_3; 
-x_2 = lean_box(0);
-x_3 = lean_unbox(x_2);
-return x_3;
+uint8_t x_2; 
+x_2 = 0;
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instToTextModule___lam__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 1);
 lean_inc(x_3);
 lean_dec(x_2);
-x_4 = lean_box(1);
-x_5 = lean_unbox(x_4);
-x_6 = l_Lean_Name_toString(x_3, x_5, x_1);
-return x_6;
+x_4 = 1;
+x_5 = l_Lean_Name_toString(x_3, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lake_instToTextModule() {
@@ -247,16 +245,15 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lake_instToJsonModule___lam__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = lean_ctor_get(x_2, 1);
 lean_inc(x_3);
 lean_dec(x_2);
-x_4 = lean_box(1);
-x_5 = lean_unbox(x_4);
-x_6 = l_Lean_Name_toString(x_3, x_5, x_1);
-x_7 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_7, 0, x_6);
-return x_7;
+x_4 = 1;
+x_5 = l_Lean_Name_toString(x_3, x_4, x_1);
+x_6 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_6, 0, x_5);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_instToJsonModule___closed__0() {
@@ -3458,54 +3455,53 @@ uint8_t x_3; lean_object* x_4; uint8_t x_51;
 x_51 = l_Lake_Module_bcFile_x3f___closed__0;
 if (x_51 == 0)
 {
-lean_object* x_52; uint8_t x_53; 
-x_52 = lean_box(1);
-x_53 = lean_unbox(x_52);
-x_3 = x_53;
+uint8_t x_52; 
+x_52 = 1;
+x_3 = x_52;
 x_4 = x_2;
 goto block_50;
 }
 else
 {
-lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; uint8_t x_70; 
-x_54 = lean_ctor_get(x_1, 0);
+lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; uint8_t x_69; 
+x_53 = lean_ctor_get(x_1, 0);
+lean_inc(x_53);
+x_54 = lean_ctor_get(x_53, 0);
 lean_inc(x_54);
-x_55 = lean_ctor_get(x_54, 0);
+lean_dec(x_53);
+x_55 = lean_ctor_get(x_54, 3);
 lean_inc(x_55);
-lean_dec(x_54);
-x_56 = lean_ctor_get(x_55, 3);
+x_56 = lean_ctor_get(x_1, 1);
 lean_inc(x_56);
-x_57 = lean_ctor_get(x_1, 1);
+x_57 = lean_ctor_get(x_54, 1);
 lean_inc(x_57);
-x_58 = lean_ctor_get(x_55, 1);
+lean_dec(x_54);
+x_58 = lean_ctor_get(x_55, 6);
 lean_inc(x_58);
-lean_dec(x_55);
-x_59 = lean_ctor_get(x_56, 6);
+x_59 = lean_ctor_get(x_55, 10);
 lean_inc(x_59);
-x_60 = lean_ctor_get(x_56, 10);
-lean_inc(x_60);
+lean_dec(x_55);
+x_60 = l_Lake_Module_bcFile___closed__0;
+x_61 = l_System_FilePath_normalize(x_58);
+x_62 = l_Lake_joinRelative(x_57, x_61);
+lean_dec(x_61);
+x_63 = l_System_FilePath_normalize(x_59);
+x_64 = l_Lake_joinRelative(x_62, x_63);
+lean_dec(x_63);
+x_65 = l_Lean_modToFilePath(x_64, x_56, x_60);
 lean_dec(x_56);
-x_61 = l_Lake_Module_bcFile___closed__0;
-x_62 = l_System_FilePath_normalize(x_59);
-x_63 = l_Lake_joinRelative(x_58, x_62);
-lean_dec(x_62);
-x_64 = l_System_FilePath_normalize(x_60);
-x_65 = l_Lake_joinRelative(x_63, x_64);
 lean_dec(x_64);
-x_66 = l_Lean_modToFilePath(x_65, x_57, x_61);
-lean_dec(x_57);
+x_66 = l_System_FilePath_pathExists(x_65, x_2);
 lean_dec(x_65);
-x_67 = l_System_FilePath_pathExists(x_66, x_2);
-lean_dec(x_66);
-x_68 = lean_ctor_get(x_67, 0);
+x_67 = lean_ctor_get(x_66, 0);
+lean_inc(x_67);
+x_68 = lean_ctor_get(x_66, 1);
 lean_inc(x_68);
-x_69 = lean_ctor_get(x_67, 1);
-lean_inc(x_69);
+lean_dec(x_66);
+x_69 = lean_unbox(x_67);
 lean_dec(x_67);
-x_70 = lean_unbox(x_68);
-lean_dec(x_68);
-x_3 = x_70;
-x_4 = x_69;
+x_3 = x_69;
+x_4 = x_68;
 goto block_50;
 }
 block_50:

@@ -459,11 +459,12 @@ return x_2;
 static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonDiffTag___lam__1___closed__0____x40_Lean_Widget_InteractiveCode___hyg_68_() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(4);
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+uint8_t x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = 4;
+x_2 = lean_box(x_1);
+x_3 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_3, 0, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonDiffTag___lam__1____x40_Lean_Widget_InteractiveCode___hyg_68_(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -509,11 +510,12 @@ return x_14;
 static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonDiffTag___lam__2___closed__0____x40_Lean_Widget_InteractiveCode___hyg_68_() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(3);
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+uint8_t x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = 3;
+x_2 = lean_box(x_1);
+x_3 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_3, 0, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonDiffTag___lam__2____x40_Lean_Widget_InteractiveCode___hyg_68_(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -559,11 +561,12 @@ return x_14;
 static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonDiffTag___lam__3___closed__0____x40_Lean_Widget_InteractiveCode___hyg_68_() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(2);
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+uint8_t x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = 2;
+x_2 = lean_box(x_1);
+x_3 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_3, 0, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonDiffTag___lam__3____x40_Lean_Widget_InteractiveCode___hyg_68_(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -609,11 +612,12 @@ return x_14;
 static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonDiffTag___lam__4___closed__0____x40_Lean_Widget_InteractiveCode___hyg_68_() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(1);
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+uint8_t x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = 1;
+x_2 = lean_box(x_1);
+x_3 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_3, 0, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonDiffTag___lam__4____x40_Lean_Widget_InteractiveCode___hyg_68_(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -659,11 +663,12 @@ return x_14;
 static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonDiffTag___lam__5___closed__0____x40_Lean_Widget_InteractiveCode___hyg_68_() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+uint8_t x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = 0;
+x_2 = lean_box(x_1);
+x_3 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_3, 0, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonDiffTag___lam__5____x40_Lean_Widget_InteractiveCode___hyg_68_(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -728,11 +733,12 @@ return x_2;
 static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonDiffTag___closed__2____x40_Lean_Widget_InteractiveCode___hyg_68_() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(5);
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+uint8_t x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = 5;
+x_2 = lean_box(x_1);
+x_3 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_3, 0, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonDiffTag____x40_Lean_Widget_InteractiveCode___hyg_68_(lean_object* x_1) {
@@ -1510,25 +1516,22 @@ uint8_t x_4;
 x_4 = lean_nat_dec_eq(x_1, x_2);
 if (x_4 == 0)
 {
-lean_object* x_5; uint8_t x_6; 
-x_5 = lean_box(2);
-x_6 = lean_unbox(x_5);
+uint8_t x_5; 
+x_5 = 2;
+return x_5;
+}
+else
+{
+uint8_t x_6; 
+x_6 = 1;
 return x_6;
 }
-else
-{
-lean_object* x_7; uint8_t x_8; 
-x_7 = lean_box(1);
-x_8 = lean_unbox(x_7);
-return x_8;
-}
 }
 else
 {
-lean_object* x_9; uint8_t x_10; 
-x_9 = lean_box(0);
-x_10 = lean_unbox(x_9);
-return x_10;
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
 }
 }
 }

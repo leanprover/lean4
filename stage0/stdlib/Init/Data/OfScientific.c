@@ -196,13 +196,12 @@ return x_1;
 LEAN_EXPORT double lean_float_of_nat(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; uint8_t x_4; double x_5; 
-x_2 = lean_box(0);
+uint8_t x_2; lean_object* x_3; double x_4; 
+x_2 = 0;
 x_3 = lean_unsigned_to_nat(0u);
-x_4 = lean_unbox(x_2);
-x_5 = l_Float_ofScientific(x_1, x_4, x_3);
+x_4 = l_Float_ofScientific(x_1, x_2, x_3);
 lean_dec(x_1);
-return x_5;
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Float_ofNat___boxed(lean_object* x_1) {
@@ -407,13 +406,12 @@ return x_1;
 LEAN_EXPORT float lean_float32_of_nat(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; uint8_t x_4; float x_5; 
-x_2 = lean_box(0);
+uint8_t x_2; lean_object* x_3; float x_4; 
+x_2 = 0;
 x_3 = lean_unsigned_to_nat(0u);
-x_4 = lean_unbox(x_2);
-x_5 = l_Float32_ofScientific(x_1, x_4, x_3);
+x_4 = l_Float32_ofScientific(x_1, x_2, x_3);
 lean_dec(x_1);
-return x_5;
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Float32_ofNat___boxed(lean_object* x_1) {

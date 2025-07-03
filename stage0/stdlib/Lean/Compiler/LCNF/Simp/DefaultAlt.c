@@ -1359,8 +1359,8 @@ uint8_t x_5;
 x_5 = lean_usize_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
-lean_object* x_6; lean_object* x_7; 
-x_6 = lean_box(1);
+uint8_t x_6; lean_object* x_7; 
+x_6 = 1;
 x_7 = lean_array_uget(x_2, x_3);
 if (lean_obj_tag(x_7) == 0)
 {
@@ -1375,25 +1375,20 @@ goto _start;
 }
 else
 {
-uint8_t x_11; 
-x_11 = lean_unbox(x_6);
-return x_11;
+return x_6;
 }
 }
 else
 {
-uint8_t x_12; 
 lean_dec(x_7);
-x_12 = lean_unbox(x_6);
-return x_12;
+return x_6;
 }
 }
 else
 {
-lean_object* x_13; uint8_t x_14; 
-x_13 = lean_box(0);
-x_14 = lean_unbox(x_13);
-return x_14;
+uint8_t x_11; 
+x_11 = 0;
+return x_11;
 }
 }
 }
@@ -1409,13 +1404,14 @@ return x_2;
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(1);
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
 x_2 = l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__0;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set(x_4, 1, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_addDefaultAlt(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {

@@ -3996,12 +3996,11 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_addSimproc(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
+lean_object* x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_expandPowAdd_declare__7___closed__3____x40_Lean_Meta_Tactic_Grind_Arith_Simproc___hyg_1167_;
-x_6 = lean_box(1);
-x_7 = lean_unbox(x_6);
-x_8 = l_Lean_Meta_Simp_Simprocs_add(x_1, x_5, x_7, x_2, x_3, x_4);
-return x_8;
+x_6 = 1;
+x_7 = l_Lean_Meta_Simp_Simprocs_add(x_1, x_5, x_6, x_2, x_3, x_4);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_addSimproc___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

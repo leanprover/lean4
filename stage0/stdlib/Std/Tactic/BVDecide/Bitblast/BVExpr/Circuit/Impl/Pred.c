@@ -64,12 +64,11 @@ return x_14;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; uint8_t x_17; 
-x_15 = lean_box(0);
+uint8_t x_15; lean_object* x_16; 
+x_15 = 0;
 x_16 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_16, 0, x_10);
-x_17 = lean_unbox(x_15);
-lean_ctor_set_uint8(x_16, sizeof(void*)*1, x_17);
+lean_ctor_set_uint8(x_16, sizeof(void*)*1, x_15);
 return x_16;
 }
 }

@@ -80,12 +80,11 @@ goto block_24;
 }
 else
 {
-lean_object* x_31; lean_object* x_32; uint8_t x_33; 
-x_31 = lean_box(0);
+uint8_t x_31; lean_object* x_32; 
+x_31 = 0;
 x_32 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_32, 0, x_26);
-x_33 = lean_unbox(x_31);
-lean_ctor_set_uint8(x_32, sizeof(void*)*1, x_33);
+lean_ctor_set_uint8(x_32, sizeof(void*)*1, x_31);
 x_17 = x_32;
 goto block_24;
 }

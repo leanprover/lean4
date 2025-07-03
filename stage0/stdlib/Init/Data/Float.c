@@ -159,17 +159,18 @@ return x_1;
 static lean_object* _init_l_floatSpec() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_box(1);
-x_2 = lean_alloc_closure((void*)(l_floatSpec___lam__0___boxed), 3, 1);
-lean_closure_set(x_2, 0, x_1);
-x_3 = lean_box(0);
-lean_inc(x_2);
-x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_2);
-return x_4;
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = 1;
+x_2 = lean_box(x_1);
+x_3 = lean_alloc_closure((void*)(l_floatSpec___lam__0___boxed), 3, 1);
+lean_closure_set(x_3, 0, x_2);
+x_4 = lean_box(0);
+lean_inc(x_3);
+x_5 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_5, 0, x_4);
+lean_ctor_set(x_5, 1, x_3);
+lean_ctor_set(x_5, 2, x_3);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_floatSpec___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

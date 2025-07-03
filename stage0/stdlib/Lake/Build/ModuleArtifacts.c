@@ -199,7 +199,7 @@ static lean_object* _init_l_Lake_ModuleOutputHashes_toJson___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("ir", 2, 2);
+x_1 = lean_mk_string_unchecked("r", 1, 1);
 return x_1;
 }
 }
@@ -602,7 +602,7 @@ static lean_object* _init_l_Lake_ModuleOutputHashes_fromJson_x3f___closed__12() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("ir: ", 4, 4);
+x_1 = lean_mk_string_unchecked("r: ", 3, 3);
 return x_1;
 }
 }

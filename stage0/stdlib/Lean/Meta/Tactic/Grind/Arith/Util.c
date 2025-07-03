@@ -1758,31 +1758,30 @@ _start:
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_3; uint8_t x_4; 
-x_3 = lean_box(0);
-x_4 = lean_unbox(x_3);
-return x_4;
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
 }
 else
 {
-lean_object* x_5; lean_object* x_6; uint64_t x_7; uint8_t x_8; 
-x_5 = lean_ctor_get(x_2, 0);
+lean_object* x_4; lean_object* x_5; uint64_t x_6; uint8_t x_7; 
+x_4 = lean_ctor_get(x_2, 0);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_2, 2);
 lean_inc(x_5);
-x_6 = lean_ctor_get(x_2, 2);
-lean_inc(x_6);
 lean_dec(x_2);
-x_7 = lean_unbox_uint64(x_5);
-lean_dec(x_5);
-x_8 = lean_uint64_dec_eq(x_7, x_1);
-if (x_8 == 0)
+x_6 = lean_unbox_uint64(x_4);
+lean_dec(x_4);
+x_7 = lean_uint64_dec_eq(x_6, x_1);
+if (x_7 == 0)
 {
-x_2 = x_6;
+x_2 = x_5;
 goto _start;
 }
 else
 {
-lean_dec(x_6);
-return x_8;
+lean_dec(x_5);
+return x_7;
 }
 }
 }
@@ -2284,10 +2283,9 @@ return x_6;
 static uint8_t _init_l___private_Lean_Meta_Tactic_Grind_Arith_Util_0__Lean_Meta_Grind_Arith_________intModuleMarker________() {
 _start:
 {
-lean_object* x_1; uint8_t x_2; 
-x_1 = lean_box(1);
-x_2 = lean_unbox(x_1);
-return x_2;
+uint8_t x_1; 
+x_1 = 1;
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_Grind_Arith_getIntModuleVirtualParent___closed__0() {
@@ -2507,18 +2505,17 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_object* x_2; uint8_t x_3; 
-x_2 = lean_box(0);
-x_3 = lean_unbox(x_2);
-return x_3;
+uint8_t x_2; 
+x_2 = 0;
+return x_2;
 }
 else
 {
-lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = l_Lean_Meta_Grind_Arith_getIntModuleVirtualParent;
-x_6 = lean_expr_eqv(x_4, x_5);
-return x_6;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = l_Lean_Meta_Grind_Arith_getIntModuleVirtualParent;
+x_5 = lean_expr_eqv(x_3, x_4);
+return x_5;
 }
 }
 }
@@ -3044,22 +3041,22 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_getIsCharInst_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; 
+lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; 
 x_9 = lean_box(0);
 x_10 = l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__1;
-x_11 = lean_box(0);
+x_11 = 0;
 x_12 = lean_box(0);
-x_13 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___boxed), 12, 7);
-lean_closure_set(x_13, 0, x_10);
-lean_closure_set(x_13, 1, x_11);
-lean_closure_set(x_13, 2, x_12);
-lean_closure_set(x_13, 3, x_1);
-lean_closure_set(x_13, 4, x_9);
-lean_closure_set(x_13, 5, x_2);
-lean_closure_set(x_13, 6, x_3);
-x_14 = lean_box(0);
-x_15 = lean_unbox(x_14);
-x_16 = l_Lean_Meta_withNewMCtxDepth___at___Lean_Meta_matchesInstance_spec__0___redArg(x_13, x_15, x_4, x_5, x_6, x_7, x_8);
+x_13 = lean_box(x_11);
+x_14 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___boxed), 12, 7);
+lean_closure_set(x_14, 0, x_10);
+lean_closure_set(x_14, 1, x_13);
+lean_closure_set(x_14, 2, x_12);
+lean_closure_set(x_14, 3, x_1);
+lean_closure_set(x_14, 4, x_9);
+lean_closure_set(x_14, 5, x_2);
+lean_closure_set(x_14, 6, x_3);
+x_15 = 0;
+x_16 = l_Lean_Meta_withNewMCtxDepth___at___Lean_Meta_matchesInstance_spec__0___redArg(x_14, x_15, x_4, x_5, x_6, x_7, x_8);
 return x_16;
 }
 }

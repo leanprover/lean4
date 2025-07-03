@@ -451,7 +451,7 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_toLeanLibConfig___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_ctor_get(x_1, 3);
@@ -460,7 +460,7 @@ x_6 = lean_ctor_get(x_1, 5);
 x_7 = lean_ctor_get(x_1, 6);
 x_8 = l_Lake_LeanExeConfig_toLeanLibConfig___redArg___closed__0;
 x_9 = l_Lake_LeanExeConfig_toLeanLibConfig___redArg___closed__2;
-x_10 = lean_box(0);
+x_10 = 0;
 x_11 = l_Lake_LeanExeConfig_toLeanLibConfig___redArg___closed__4;
 lean_inc(x_7);
 lean_inc(x_6);
@@ -478,8 +478,7 @@ lean_ctor_set(x_12, 5, x_5);
 lean_ctor_set(x_12, 6, x_6);
 lean_ctor_set(x_12, 7, x_11);
 lean_ctor_set(x_12, 8, x_7);
-x_13 = lean_unbox(x_10);
-lean_ctor_set_uint8(x_12, sizeof(void*)*9, x_13);
+lean_ctor_set_uint8(x_12, sizeof(void*)*9, x_10);
 return x_12;
 }
 }

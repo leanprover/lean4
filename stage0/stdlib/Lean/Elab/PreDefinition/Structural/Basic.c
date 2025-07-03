@@ -1110,18 +1110,16 @@ x_5 = lean_find_expr(x_4, x_3);
 lean_dec(x_4);
 if (lean_obj_tag(x_5) == 0)
 {
-lean_object* x_6; uint8_t x_7; 
-x_6 = lean_box(0);
-x_7 = lean_unbox(x_6);
-return x_7;
+uint8_t x_6; 
+x_6 = 0;
+return x_6;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; 
+uint8_t x_7; 
 lean_dec(x_5);
-x_8 = lean_box(1);
-x_9 = lean_unbox(x_8);
-return x_9;
+x_7 = 1;
+return x_7;
 }
 }
 }
@@ -2223,13 +2221,12 @@ return x_3;
 LEAN_EXPORT lean_object* l_initFn____x40_Lean_Elab_PreDefinition_Structural_Basic___hyg_589_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_initFn___closed__3____x40_Lean_Elab_PreDefinition_Structural_Basic___hyg_589_;
-x_3 = lean_box(0);
+x_3 = 0;
 x_4 = l_initFn___closed__19____x40_Lean_Elab_PreDefinition_Structural_Basic___hyg_589_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_registerTraceClass(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_registerTraceClass(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);

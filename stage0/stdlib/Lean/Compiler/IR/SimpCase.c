@@ -95,10 +95,9 @@ return x_6;
 }
 else
 {
-lean_object* x_10; uint8_t x_11; 
-x_10 = lean_box(0);
-x_11 = lean_unbox(x_10);
-return x_11;
+uint8_t x_10; 
+x_10 = 0;
+return x_10;
 }
 }
 }

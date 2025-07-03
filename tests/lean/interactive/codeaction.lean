@@ -25,7 +25,7 @@ def helloProvider : CodeActionProvider := fun params _snap => do
     return { longRunner with
       edit? := WorkspaceEdit.ofTextEdit vi { range := params.range, newText := v}
     }
-  return #[ca, {eager := longRunner, lazy? := lazyResult}]
+  return .eager #[ca, {eager := longRunner, lazy? := lazyResult}]
 
 theorem asdf : (x : Nat) → x = x := by
   intro x

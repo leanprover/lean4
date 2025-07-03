@@ -274,11 +274,3 @@ select granularity .all
 
 
 end DiffGranularity
-
-run_meta do
-  let hint ← MessageData.lazyHint (es := #[]) do
-    return {
-      msg := m!"Message"
-      suggestions := #["run_elab"]
-    }
-  logInfo <| m!"Test" ++ hint

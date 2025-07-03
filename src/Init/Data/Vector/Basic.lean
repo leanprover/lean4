@@ -14,7 +14,8 @@ public import Init.Data.Array.MapIdx
 public import Init.Data.Array.InsertIdx
 public import Init.Data.Array.Range
 public import Init.Data.Range
-import Init.Data.Slice.Array.Iterator
+-- TODO: Making this private leads to a panic in Init.Grind.Ring.Poly.
+public import Init.Data.Slice.Array.Iterator
 
 public section
 

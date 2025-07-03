@@ -160,8 +160,8 @@ decreasing_by
 
 theorem IterM.DefaultConsumers.forIn'_eq_forIn' {m : Type w → Type w'} {α : Type w} {β : Type w}
     [Iterator α m β]
-    {n : Type w → Type w''} [Monad n]
-    {lift : ∀ γ δ, (γ → n δ) → m γ → n δ} {γ : Type w}
+    {n : Type x → Type x'} [Monad n]
+    {lift : ∀ γ δ, (γ → n δ) → m γ → n δ} {γ : Type x}
     {Pl : β → γ → ForInStep γ → Prop}
     {wf : IteratorLoop.WellFounded α m Pl}
     {it : IterM (α := α) m β} {init : γ}

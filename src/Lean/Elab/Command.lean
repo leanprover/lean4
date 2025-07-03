@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Gabriel Ebner
 -/
 prelude
+import Init.Data.Range.Polymorphic.Stream
 import Lean.Meta.Diagnostics
 import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
@@ -564,8 +565,7 @@ where go := do
                 let opts ← getOptions
                 -- For each command, associate it with new promise and old snapshot, if any, and
                 -- elaborate recursively
-                -- TODO: ToStream instance
-                for cmd in cmds, cmdPromise in cmdPromises, i in Std.Range.mk 0 cmds.size 1 (by omega) do
+                for cmd in cmds, cmdPromise in cmdPromises, i in *...cmds.size do
                   let oldCmd? := oldCmds?.bind (·[i]?)
                   withReader ({ · with snap? := some {
                     new := cmdPromise

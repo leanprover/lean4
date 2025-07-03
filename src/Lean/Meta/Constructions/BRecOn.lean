@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
 prelude
+import Init.Data.Range.Polymorphic.Stream
 import Lean.Meta.InferType
 import Lean.AuxRecursor
 import Lean.AddDecl

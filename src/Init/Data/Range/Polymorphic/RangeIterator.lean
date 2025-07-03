@@ -530,7 +530,8 @@ theorem RangeIterator.instIteratorLoop.loop_eq {su} [UpwardEnumerable α] [Suppo
     · split
       · simp only [*]
         rw [IterM.DefaultConsumers.forIn']
-        simp only [Monadic.step_eq_step, Monadic.step, ↓reduceIte, liftM_pure, pure_bind, *]
+        simp only [Monadic.step_eq_step, Monadic.step, ↓reduceIte, *,
+          Internal.LawfulMonadLiftBindFunction.liftBind_pure]
         rw [loop_eq (lift := lift)]
         apply bind_congr
         intro step
@@ -540,10 +541,11 @@ theorem RangeIterator.instIteratorLoop.loop_eq {su} [UpwardEnumerable α] [Suppo
         · simp
       · simp only [*]
         rw [IterM.DefaultConsumers.forIn']
-        simp [Monadic.step_eq_step, Monadic.step, *]
+        simp [Monadic.step_eq_step, Monadic.step, *,
+          Internal.LawfulMonadLiftBindFunction.liftBind_pure]
     · simp only [*]
       rw [IterM.DefaultConsumers.forIn']
-      simp [Monadic.step_eq_step, Monadic.step]
+      simp [Monadic.step_eq_step, Monadic.step, Internal.LawfulMonadLiftBindFunction.liftBind_pure]
   · simp
 termination_by IteratorLoop.WithWF.mk ⟨⟨some next, upperBound⟩⟩ acc (hwf := wf)
 decreasing_by
@@ -560,7 +562,7 @@ instance RangeIterator.instLawfulIteratorLoop {su} [UpwardEnumerable α] [Suppor
     simp only [IteratorLoop.forIn, IteratorLoop.defaultImplementation]
     rw [IterM.DefaultConsumers.forIn']
     simp only [RangeIterator.Monadic.step_eq_step, RangeIterator.Monadic.step]
-    simp only [liftM_pure, pure_bind]
+    simp only [Internal.LawfulMonadLiftBindFunction.liftBind_pure]
     split
     · rename_i it f next upperBound f'
       simp

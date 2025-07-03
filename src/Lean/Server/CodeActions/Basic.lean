@@ -50,8 +50,8 @@ instance : Coe (Array LazyCodeAction) CodeActionSet where
   coe lcas := .eager lcas
 
 def CodeActionSet.toArray : CodeActionSet → IO (Array LazyCodeAction)
-  | .eager lcas => return lcas
-  | .lazy slcas => slcas
+  | .eager lcas  => return lcas
+  | .lazy mkLcas => mkLcas
 
 /-- Passed as the `data?` field of `Lsp.CodeAction` to recover the context of the code action. -/
 structure CodeActionResolveData where

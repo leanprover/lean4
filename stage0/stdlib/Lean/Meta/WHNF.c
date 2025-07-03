@@ -1891,7 +1891,7 @@ goto block_192;
 block_175:
 {
 uint8_t x_170; 
-x_170 = lean_nat_dec_lt(x_168, x_169);
+x_170 = lean_nat_dec_lt(x_167, x_169);
 if (x_170 == 0)
 {
 uint8_t x_171; 
@@ -1906,12 +1906,12 @@ goto block_157;
 else
 {
 size_t x_172; size_t x_173; uint8_t x_174; 
-x_172 = lean_usize_of_nat(x_168);
-lean_dec(x_168);
+x_172 = lean_usize_of_nat(x_167);
+lean_dec(x_167);
 x_173 = lean_usize_of_nat(x_169);
 lean_dec(x_169);
-x_174 = l_Array_anyMUnsafe_any___at_____private_Lean_Meta_WHNF_0__Lean_Meta_toCtorWhenK_spec__0(x_167, x_172, x_173);
-lean_dec(x_167);
+x_174 = l_Array_anyMUnsafe_any___at_____private_Lean_Meta_WHNF_0__Lean_Meta_toCtorWhenK_spec__0(x_168, x_172, x_173);
+lean_dec(x_168);
 x_158 = x_174;
 goto block_160;
 }
@@ -1947,16 +1947,16 @@ x_191 = lean_nat_dec_le(x_187, x_190);
 if (x_191 == 0)
 {
 lean_dec(x_187);
-x_167 = x_185;
-x_168 = x_186;
+x_167 = x_186;
+x_168 = x_185;
 x_169 = x_190;
 goto block_175;
 }
 else
 {
 lean_dec(x_190);
-x_167 = x_185;
-x_168 = x_186;
+x_167 = x_186;
+x_168 = x_185;
 x_169 = x_187;
 goto block_175;
 }
@@ -2184,7 +2184,7 @@ goto block_257;
 block_240:
 {
 uint8_t x_235; 
-x_235 = lean_nat_dec_lt(x_233, x_234);
+x_235 = lean_nat_dec_lt(x_232, x_234);
 if (x_235 == 0)
 {
 uint8_t x_236; 
@@ -2199,12 +2199,12 @@ goto block_221;
 else
 {
 size_t x_237; size_t x_238; uint8_t x_239; 
-x_237 = lean_usize_of_nat(x_233);
-lean_dec(x_233);
+x_237 = lean_usize_of_nat(x_232);
+lean_dec(x_232);
 x_238 = lean_usize_of_nat(x_234);
 lean_dec(x_234);
-x_239 = l_Array_anyMUnsafe_any___at_____private_Lean_Meta_WHNF_0__Lean_Meta_toCtorWhenK_spec__0(x_232, x_237, x_238);
-lean_dec(x_232);
+x_239 = l_Array_anyMUnsafe_any___at_____private_Lean_Meta_WHNF_0__Lean_Meta_toCtorWhenK_spec__0(x_233, x_237, x_238);
+lean_dec(x_233);
 x_222 = x_239;
 goto block_224;
 }
@@ -2240,16 +2240,16 @@ x_256 = lean_nat_dec_le(x_252, x_255);
 if (x_256 == 0)
 {
 lean_dec(x_252);
-x_232 = x_250;
-x_233 = x_251;
+x_232 = x_251;
+x_233 = x_250;
 x_234 = x_255;
 goto block_240;
 }
 else
 {
 lean_dec(x_255);
-x_232 = x_250;
-x_233 = x_251;
+x_232 = x_251;
+x_233 = x_250;
 x_234 = x_252;
 goto block_240;
 }

@@ -82,10 +82,11 @@ syntax grindCases  := &"cases"
 syntax grindCasesEager := atomic(&"cases" &"eager")
 syntax grindIntro  := &"intro"
 syntax grindExt    := &"ext"
+syntax grindSym    := &"symbol" ppSpace prio
 syntax grindMod :=
     grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd
     <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager
-    <|> grindCases <|> grindIntro <|> grindExt <|> grindGen
+    <|> grindCases <|> grindIntro <|> grindExt <|> grindGen <|> grindSym
 syntax (name := grind) "grind" (ppSpace grindMod)? : attr
 syntax (name := grind?) "grind?" (ppSpace grindMod)? : attr
 end Attr

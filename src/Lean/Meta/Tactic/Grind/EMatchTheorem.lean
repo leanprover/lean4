@@ -583,10 +583,6 @@ def isCandidateSymbol (declName : Name) (root : Bool) : M Bool := do
   -- TODO: this is bootstrapping help code.
   if declName ∈ badForPatterns then
     throwError "INSERT `import Init.Grind.Tactics`, otherwise a pattern containing `{declName}` will be used"
-  unless grind.permissivePatterns.get (← getOptions) do
-    if declName ∈ [``LT.lt, ``LE.le] then
-      throwError "FOUND LE.le theorem"
-
   -- If it is the root symbol, then we check whether `prio ≥ minPrio`
   if root then
     return prio ≥ ctx.minPrio

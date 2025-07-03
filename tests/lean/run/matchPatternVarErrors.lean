@@ -45,13 +45,28 @@ def matchExplicitValid (n : Nat) :=
 /--
 error: Invalid argument names `invalidName1` and `invalidName2` for function `List.cons`
 
-Note: This function has the following named parameters: `α`, `head`, and `tail`
+Hint: This function has the following named parameters: `α`, `head`, and `tail`
 -/
 #guard_msgs in
 def invalidArgNames (xs : List Nat) :=
   match xs with
   | List.cons (invalidName1 := x) (invalidName2 := y) .. => true
   | _ => false
+
+inductive T' where
+  | mk (argNum1 : Nat) (otherArg : List String)
+
+/--
+error: Invalid argument names `argNo1` and `otherArgs` for function `T'.mk`
+
+Hint: This function has the following named parameters: `argNum1` and `otherArg`. These are similar:
+  • a̵r̵g̵N̵o̵1̵a̲r̲g̲N̲u̲m̲1̲
+  • otherArgs̵
+-/
+#guard_msgs in
+def argNameHints (t : T') :=
+  match t with
+  | T'.mk (argNo1 := k) (otherArgs := ss) => (k, ss)
 
 /-- error: Invalid pattern variable: Variable name 'xs' was already used -/
 #guard_msgs in

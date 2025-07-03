@@ -5,8 +5,10 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Match.MatchPatternAttr
+import Lean.Meta.Hint
 import Lean.Elab.Arg
 import Lean.Elab.MatchAltView
+import Lean.Util.EditDistance
 
 namespace Lean.Elab.Term
 
@@ -118,14 +120,25 @@ structure Context where
   newArgs       : Array Term := #[]
   deriving Inhabited
 
-private def throwInvalidNamedArgs [Monad m] [MonadError m] (ctx : Context) : m α :=
+private def throwInvalidNamedArgs (ctx : Context) : MetaM α := do
   let names := (ctx.namedArgs.map fun narg => m!"`{narg.name}`").toList
   let nameStr := if names.length == 1 then "name" else "names"
   let validNames := ctx.paramDecls.filterMap fun (name, _) =>
-    if name.hasMacroScopes then none else some m!"`{name}`"
-  let validNamesMsg := MessageData.andList validNames.toList
-  let note := .note m!"This function has the following named parameters: {validNamesMsg}"
-  throwError m!"Invalid argument {nameStr} {.andList names} for function `{ctx.funId}`" ++ note
+    if name.hasMacroScopes then none else some name
+  let validNamesMsg := MessageData.andList <| validNames.map (m!"`{·}`") |>.toList
+  -- TODO: make this lazy
+  let suggestions := ctx.namedArgs.flatMap fun narg =>
+    let name := narg.name.toString
+    let maxDist := if name.length ≤ 3 then 1 else if name.length ≤ 5 then 2 else 3
+    let nearMatches := validNames.filterMap fun validName =>
+      let validName := validName.toString
+      EditDistance.levenshtein name validName (some maxDist) |>.map
+        ({ suggestion := validName, span? := some narg.ref[1] : Hint.Suggestion }, ·)
+    nearMatches.qsort (fun (_, d₁) (_, d₂) => d₁ < d₂) |>.map Prod.fst
+  let hintMsg := m!"This function has the following named parameters: {validNamesMsg}" ++
+    if suggestions.size > 0 then m!". These are similar:" else .nil
+  let hint ← MessageData.hint (forceList := true) hintMsg suggestions
+  throwError m!"Invalid argument {nameStr} {.andList names} for function `{ctx.funId}`" ++ hint
 
 private def throwWrongArgCount (ctx : Context) (tooMany : Bool) : M α := do
   if !ctx.namedArgs.isEmpty then

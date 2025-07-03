@@ -575,9 +575,9 @@ def isCandidateSymbol (declName : Name) (root : Bool) : M Bool := do
   let prio := ctx.symPrios.getPrio declName
   -- Priority 0 are never considered, they are treated as forbidden
   if prio == 0 then return false
-  -- TODO: this is bootstrapping help code.
-  if declName ∈ badForPatterns then
-    throwError "INSERT `import Init.Grind.Tactics`, otherwise a pattern containing `{declName}` will be used"
+  -- Remark: uncomment the following code to fix bootstrapping issues
+  -- if declName ∈ badForPatterns then
+  --  throwError "INSERT `import Init.Grind.Tactics`, otherwise a pattern containing `{declName}` will be used, prio: {prio}"
   -- If it is the root symbol, then we check whether `prio ≥ minPrio`
   if root then
     return prio ≥ ctx.minPrio

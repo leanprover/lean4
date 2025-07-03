@@ -198,8 +198,9 @@ instance : HAppend (Vector α n) (Vector α m) (Vector α (n + m)) where
 Extracts the slice of a vector from indices `start` to `stop` (exclusive). If `start ≥ stop`, the
 result is empty. If `stop` is greater than the size of the vector, the size is used instead.
 -/
-@[inline, expose] def extract (xs : Vector α n) (start : Nat := 0) (stop : Nat := n) : Vector α (min stop n - start) :=
-  ⟨xs.toArray.extract start stop, by simp⟩
+@[inline, expose] def extract (xs : Vector α n) (start : Nat := 0) (stop : Nat := n) (h : stop ≤ n := by get_elem_tactic) :
+    Vector α (stop - start) :=
+  ⟨xs.toArray.extract start stop, by simp; omega⟩
 
 /--
 Extract the first `i` elements of a vector. If `i` is greater than or equal to the size of the
@@ -207,10 +208,10 @@ vector then the vector is returned unchanged.
 
 We immediately simplify this to the `extract` operation, so there is no verification API for this function.
 -/
-@[inline, expose] def take (xs : Vector α n) (i : Nat) : Vector α (min i n) :=
-  ⟨xs.toArray.take i, by simp⟩
+@[inline, expose] def take (xs : Vector α n) (k : Nat) (h : k ≤ n := by get_elem_tactic) : Vector α k :=
+  ⟨xs.toArray.take k, by simp; omega⟩
 
-@[simp] theorem take_eq_extract (xs : Vector α n) (i : Nat) : xs.take i = xs.extract 0 i := rfl
+@[simp] theorem take_eq_extract (xs : Vector α n) (k : Nat) (h : k ≤ n) : xs.take k = xs.extract 0 k := rfl
 
 /--
 Deletes the first `i` elements of a vector. If `i` is greater than or equal to the size of the
@@ -231,10 +232,10 @@ Shrinks a vector to the first `m` elements, by repeatedly popping the last eleme
 
 We immediately simplify this to the `extract` operation, so there is no verification API for this function.
 -/
-@[inline, expose] def shrink (xs : Vector α n) (i : Nat) : Vector α (min i n) :=
-  ⟨xs.toArray.shrink i, by simp⟩
+@[inline, expose] def shrink (xs : Vector α n) (k : Nat) (h : k ≤ n := by get_elem_tactic) : Vector α k :=
+  ⟨xs.toArray.shrink k, by simp; omega⟩
 
-@[simp] theorem shrink_eq_take (xs : Vector α n) (i : Nat) : xs.shrink i = xs.take i := by
+@[simp] theorem shrink_eq_take (xs : Vector α n) (k : Nat) (h : k ≤ n) : xs.shrink k = xs.take k := by
   simp [shrink, take]
 
 /-- Maps elements of a vector using the function `f`. -/
@@ -414,7 +415,7 @@ Delete the first element of a vector. Returns the empty vector if the input vect
 We immediately simplify this to the `extract` operation, so there is no verification API for this function.
 -/
 @[inline, expose]
-def tail (xs : Vector α n) : Vector α (n-1) :=
+def tail (xs : Vector α n) : Vector α (n - 1) :=
   (xs.extract 1).cast (by omega)
 
 @[simp] theorem tail_eq_cast_extract (xs : Vector α n) :

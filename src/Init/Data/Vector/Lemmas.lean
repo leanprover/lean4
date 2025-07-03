@@ -111,8 +111,8 @@ theorem toArray_mk {xs : Array α} (h : xs.size = n) : (Vector.mk xs h).toArray 
 @[simp] theorem cast_mk {xs : Array α} {h : xs.size = n} {h' : n = m} :
     (Vector.mk xs h).cast h' = Vector.mk xs (by simp [h, h']) := rfl
 
-@[simp] theorem extract_mk {xs : Array α} {h : xs.size = n} {start stop} :
-    (Vector.mk xs h).extract start stop = Vector.mk (xs.extract start stop) (by simp [h]) := rfl
+@[simp] theorem extract_mk {xs : Array α} {h : xs.size = n} {start stop} {h' : stop ≤ n} :
+    (Vector.mk xs h).extract start stop = Vector.mk (xs.extract start stop) (by simp [h]; omega) := rfl
 
 @[simp] theorem finIdxOf?_mk [BEq α] {xs : Array α} (h : xs.size = n) (x : α) :
     (Vector.mk xs h).finIdxOf? x = (xs.finIdxOf? x).map (Fin.cast h) := rfl
@@ -211,8 +211,8 @@ abbrev indexOf?_mk := @finIdxOf?_mk
     (Vector.mk xs h).swapAt! i x =
       ((xs.swapAt! i x).fst, Vector.mk (xs.swapAt! i x).snd (by simp [h])) := rfl
 
-@[simp] theorem take_mk {xs : Array α} (h : xs.size = n) {i} :
-    (Vector.mk xs h).take i = Vector.mk (xs.take i) (by simp [h]) := rfl
+@[simp] theorem take_mk {xs : Array α} (h : xs.size = n) {i} {h' : i ≤ n} :
+    (Vector.mk xs h).take i h' = Vector.mk (xs.take i) (by simp [h]; omega) := rfl
 
 @[simp] theorem zipIdx_mk {xs : Array α} (h : xs.size = n) (k : Nat := 0) :
     (Vector.mk xs h).zipIdx k = Vector.mk (xs.zipIdx k) (by simp [h]) := rfl
@@ -309,7 +309,7 @@ abbrev toArray_mkEmpty := @toArray_emptyWithCapacity
 @[simp, grind] theorem toArray_cast {xs : Vector α n} (h : n = m) :
     (xs.cast h).toArray = xs.toArray := rfl
 
-@[simp, grind] theorem toArray_extract {xs : Vector α n} {start stop} :
+@[simp, grind] theorem toArray_extract {xs : Vector α n} {start stop} {h} :
     (xs.extract start stop).toArray = xs.toArray.extract start stop := rfl
 
 @[simp, grind] theorem toArray_map {f : α → β} {xs : Vector α n} :
@@ -383,7 +383,7 @@ theorem toArray_swapAt! {xs : Vector α n} {i x} :
     ((xs.swapAt! i x).fst, (xs.swapAt! i x).snd.toArray) =
       ((xs.toArray.swapAt! i x).fst, (xs.toArray.swapAt! i x).snd) := rfl
 
-@[simp, grind] theorem toArray_take {xs : Vector α n} {i} : (xs.take i).toArray = xs.toArray.take i := rfl
+@[simp, grind] theorem toArray_take {xs : Vector α n} {i} {h} : (xs.take i h).toArray = xs.toArray.take i := rfl
 
 @[simp, grind] theorem toArray_zipIdx {xs : Vector α n} (k : Nat := 0) :
     (xs.zipIdx k).toArray = xs.toArray.zipIdx k := rfl
@@ -553,8 +553,8 @@ theorem toList_insertIdx! {xs : Vector α n} {i x} (hi : i ≤ n) :
 theorem toList_cast {xs : Vector α n} (h : n = m) :
     (xs.cast h).toList = xs.toList := rfl
 
-theorem toList_extract {xs : Vector α n} {start stop} :
-    (xs.extract start stop).toList = (xs.toList.drop start).take (stop - start) := by
+theorem toList_extract {xs : Vector α n} {start stop} {h} :
+    (xs.extract start stop h).toList = (xs.toList.drop start).take (stop - start) := by
   simp [toList]
 
 theorem toList_map {f : α → β} {xs : Vector α n} :
@@ -594,7 +594,7 @@ theorem toList_singleton {x : α} : (Vector.singleton x).toList = [x] := rfl
 theorem toList_swap {xs : Vector α n} {i j} (hi hj) :
     (xs.swap i j).toList = (xs.toList.set i xs[j]).set j xs[i] := rfl
 
-@[simp] theorem toList_take {xs : Vector α n} {i} : (xs.take i).toList = xs.toList.take i := by
+@[simp] theorem toList_take {xs : Vector α n} {i} {h} : (xs.take i h).toList = xs.toList.take i := by
   simp [toList]
 
 @[simp] theorem toList_zipWith {f : α → β → γ} {as : Vector α n} {bs : Vector β n} :
@@ -2330,13 +2330,13 @@ abbrev reverse_mkVector := @reverse_replicate
 
 /-! ### extract -/
 
-@[simp] theorem getElem_extract {as : Vector α n} {start stop : Nat}
-    (h : i < min stop n - start) :
-    (as.extract start stop)[i] = as[start + i] := by
+@[simp] theorem getElem_extract {as : Vector α n} {start stop : Nat} {h : stop ≤ n}
+    (h' : i < stop - start) :
+    (as.extract start stop h)[i] = as[start + i] := by
   rcases as with ⟨as, rfl⟩
   simp
 
-theorem getElem?_extract {as : Vector α n} {start stop : Nat} :
+theorem getElem?_extract {as : Vector α n} {start stop : Nat} {h : stop ≤ n} :
     (as.extract start stop)[i]? = if i < min stop n - start then as[start + i]? else none := by
   rcases as with ⟨as, rfl⟩
   simp [Array.getElem?_extract]
@@ -2346,8 +2346,8 @@ set_option linter.indexVariables false in
   rcases as with ⟨as, rfl⟩
   simp
 
-@[grind] theorem extract_empty {start stop : Nat} :
-    (#v[] : Vector α 0).extract start stop = #v[].cast (by simp) := by
+@[grind] theorem extract_empty {start stop : Nat} {h : stop ≤ 0} :
+    (#v[] : Vector α 0).extract start stop = #v[].cast (by omega) := by
   simp
 
 /-! ### foldlM and foldrM -/
@@ -2989,7 +2989,14 @@ variable [LawfulBEq α]
   simp_all
 
 @[grind] theorem getElem?_replace {xs : Vector α n} {i : Nat} :
-    (xs.replace a b)[i]? = if xs[i]? == some a then if a ∈ xs.take i then some a else some b else xs[i]? := by
+    (xs.replace a b)[i]? =
+      if h : xs[i]? == some a then
+        if a ∈ xs.take i (by simp at h; rw [getElem?_eq_some_iff] at h; obtain ⟨h, rfl⟩ := h; omega) then
+          some a
+        else
+          some b
+      else
+        xs[i]? := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.getElem?_replace, -beq_iff_eq]
 
@@ -3001,7 +3008,9 @@ theorem getElem?_replace_of_ne {xs : Vector α n} {i : Nat} (h : xs[i]? ≠ some
     (xs.replace a b)[i] = if xs[i] == a then if a ∈ xs.take i then a else b else xs[i] := by
   apply Option.some.inj
   rw [← getElem?_eq_getElem, getElem?_replace]
-  split <;> split <;> simp_all
+  split <;> rename_i h₁ <;> split <;> rename_i h₂ <;>
+  · simp at h₁
+    simp_all
 
 theorem getElem_replace_of_ne {xs : Vector α n} {i : Nat} {h : i < n} (h' : xs[i] ≠ a) :
     (xs.replace a b)[i]'(by simpa) = xs[i]'(h) := by
@@ -3029,8 +3038,8 @@ theorem replace_append_right {xs : Vector α n} {ys : Vector α m} (h : ¬ a ∈
   simp only [push_mk, replace_mk, Array.replace_push, mem_mk]
   split <;> simp
 
-theorem replace_extract {xs : Vector α n} {i : Nat} :
-    (xs.extract 0 i).replace a b = (xs.replace a b).extract 0 i := by
+theorem replace_extract {xs : Vector α n} {i : Nat} {h : i ≤ n} :
+    (xs.extract 0 i h).replace a b = (xs.replace a b).extract 0 i h := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.replace_extract]
 
@@ -3129,8 +3138,8 @@ theorem swap_comm {xs : Vector α n} {i j : Nat} (hi hj) :
 
 /-! ### take -/
 
-@[simp, grind =] theorem getElem_take {xs : Vector α n} {j : Nat} (hi : i < min j n) :
-    (xs.take j)[i] = xs[i] := by
+@[simp, grind =] theorem getElem_take {xs : Vector α n} {j : Nat} {h : j ≤ n} (hi : i < min j n) :
+    (xs.take j h)[i] = xs[i] := by
   cases xs
   simp
 

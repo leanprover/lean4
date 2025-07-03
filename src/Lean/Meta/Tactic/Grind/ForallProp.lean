@@ -56,9 +56,9 @@ private def isEqTrueHyp? (proof : Expr) : Option FVarId := Id.run do
   return some fvarId
 
 /-- Similar to `mkEMatchTheoremWithKind?`, but swallow any exceptions. -/
-private def mkEMatchTheoremWithKind'? (origin : Origin) (proof : Expr) (kind : EMatchTheoremKind) : MetaM (Option EMatchTheorem) := do
+private def mkEMatchTheoremWithKind'? (origin : Origin) (proof : Expr) (kind : EMatchTheoremKind) (prios : SymbolPriorities) : MetaM (Option EMatchTheorem) := do
   try
-    mkEMatchTheoremWithKind? origin #[] proof kind (groundPatterns := false)
+    mkEMatchTheoremWithKind? origin #[] proof kind prios (groundPatterns := false)
   catch _ =>
     return none
 
@@ -73,12 +73,12 @@ private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   let size := (← get).ematch.newThms.size
   let gen ← getGeneration e
   -- TODO: we should have a flag for collecting all unary patterns in a local theorem
-  if let some thm ← mkEMatchTheoremWithKind'? origin proof .leftRight then
+  if let some thm ← mkEMatchTheoremWithKind'? origin proof .leftRight (← getSymbolPriorities) then
     activateTheorem thm gen
-  if let some thm ← mkEMatchTheoremWithKind'? origin proof .rightLeft then
+  if let some thm ← mkEMatchTheoremWithKind'? origin proof .rightLeft (← getSymbolPriorities) then
     activateTheorem thm gen
   if (← get).ematch.newThms.size == size then
-    if let some thm ← mkEMatchTheoremWithKind'? origin proof (.default false) then
+    if let some thm ← mkEMatchTheoremWithKind'? origin proof (.default false) (← getSymbolPriorities) then
       activateTheorem thm gen
   if (← get).ematch.newThms.size == size then
     reportIssue! "failed to create E-match local theorem for{indentExpr e}"

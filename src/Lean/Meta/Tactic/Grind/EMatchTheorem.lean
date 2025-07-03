@@ -1109,7 +1109,7 @@ theorems such as `theorem evenZ : Even 0`. For local theorems, we use `groundPat
 since the theorem is already in the `grind` state and there is nothing to be instantiated.
 -/
 def mkEMatchTheoremWithKind?
-      (origin : Origin) (levelParams : Array Name) (proof : Expr) (kind : EMatchTheoremKind)
+      (origin : Origin) (levelParams : Array Name) (proof : Expr) (kind : EMatchTheoremKind) (_symPrios : SymbolPriorities)
       (groundPatterns := true) (showInfo := false) : MetaM (Option EMatchTheorem) := do
   match kind with
   | .eqLhs gen =>
@@ -1169,8 +1169,8 @@ where
       levelParams, origin, kind
     }
 
-def mkEMatchTheoremForDecl (declName : Name) (thmKind : EMatchTheoremKind) (showInfo := false) : MetaM EMatchTheorem := do
-  let some thm ← mkEMatchTheoremWithKind? (.decl declName) #[] (← getProofFor declName) thmKind (showInfo := showInfo)
+def mkEMatchTheoremForDecl (declName : Name) (thmKind : EMatchTheoremKind) (prios : SymbolPriorities) (showInfo := false) : MetaM EMatchTheorem := do
+  let some thm ← mkEMatchTheoremWithKind? (.decl declName) #[] (← getProofFor declName) thmKind prios (showInfo := showInfo)
     | throwError "`@{thmKind.toAttribute} theorem {declName}` {thmKind.explainFailure}, consider using different options or the `grind_pattern` command"
   return thm
 
@@ -1205,7 +1205,7 @@ def EMatchTheorems.eraseDecl (s : EMatchTheorems) (declName : Name) : MetaM EMat
       throwErr
     return s.erase <| .decl declName
 
-def addEMatchAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatchTheoremKind) (_prios : SymbolPriorities) (showInfo := false) : MetaM Unit := do
+def addEMatchAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatchTheoremKind) (prios : SymbolPriorities) (showInfo := false) : MetaM Unit := do
   match thmKind with
   | .eqLhs _ =>
     addGrindEqAttr declName attrKind thmKind (useLhs := true) (showInfo := showInfo)
@@ -1219,7 +1219,7 @@ def addEMatchAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatch
     if !wasOriginallyTheorem (← getEnv) declName && !info.isCtor && !info.isAxiom then
       addGrindEqAttr declName attrKind thmKind (showInfo := showInfo)
     else
-      let thm ← mkEMatchTheoremForDecl declName thmKind (showInfo := showInfo)
+      let thm ← mkEMatchTheoremForDecl declName thmKind prios (showInfo := showInfo)
       ematchTheoremsExt.add thm attrKind
 
 def eraseEMatchAttr (declName : Name) : MetaM Unit := do

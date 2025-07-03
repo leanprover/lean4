@@ -116,10 +116,10 @@ where
     | .thmInfo _ | .axiomInfo _ | .ctorInfo _ =>
       match kind with
       | .eqBoth gen =>
-        let params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName (.eqLhs gen)) }
-        return { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName (.eqRhs gen)) }
+        let params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName (.eqLhs gen) params.symPrios) }
+        return { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName (.eqRhs gen) params.symPrios) }
       | _ =>
-        return { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName kind) }
+        return { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName kind params.symPrios) }
     | .defnInfo _ =>
       if (← isReducible declName) then
         throwError "`{declName}` is a reducible definition, `grind` automatically unfolds them"

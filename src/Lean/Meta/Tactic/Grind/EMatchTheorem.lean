@@ -18,6 +18,60 @@ import Lean.Meta.Tactic.Grind.Util
 
 namespace Lean.Meta.Grind
 
+/--
+`grind` uses symbol priorities when inferring patterns for E-matching.
+Symbols not in `map` are assumed to have default priority (i.e., `eval_prio default`).
+-/
+structure SymbolPriorities where
+  map : PHashMap Name Nat := {}
+  deriving Inhabited
+
+structure SymbolPriorityEntry where
+  declName : Name
+  prio : Nat
+  deriving Inhabited
+
+/-- Removes the given declaration from `s`. -/
+def SymbolPriorities.erase (s : SymbolPriorities) (declName : Name) : SymbolPriorities :=
+  { s with map := s.map.erase declName }
+
+/-- Inserts `declName ↦ prio` into `s`. -/
+def SymbolPriorities.insert (s : SymbolPriorities) (declName : Name) (prio : Nat) : SymbolPriorities :=
+  { s with map := s.map.insert declName prio }
+
+/-- Returns `declName` priority for E-matching pattern inference in `s`. -/
+def SymbolPriorities.getPrio (s : SymbolPriorities) (declName : Name) : Nat :=
+  if let some prio := s.map.find? declName then
+    prio
+  else
+    eval_prio default
+
+/--
+Returns `true`, if there is an entry `declName ↦ prio` in `s`.
+Recall that symbols not in `s` are assumed to have default priority.
+-/
+def SymbolPriorities.contains (s : SymbolPriorities) (declName : Name) : Bool :=
+  s.map.contains declName
+
+private builtin_initialize symbolPrioExt : SimpleScopedEnvExtension SymbolPriorityEntry SymbolPriorities ←
+  registerSimpleScopedEnvExtension {
+    initial        := {}
+    addEntry       := fun s {declName, prio} => s.insert declName prio
+  }
+
+def resetSymbolPrioExt : CoreM Unit := do
+  modifyEnv fun env => symbolPrioExt.modifyState env fun _ => {}
+
+def getSymbolPriorities : CoreM SymbolPriorities :=
+  return symbolPrioExt.getState (← getEnv)
+
+def getSymbolPriority (declName : Name) : CoreM Nat :=
+  return (← getSymbolPriorities).getPrio declName
+
+/-- Sets `declName` priority to be used during E-matching pattern inference -/
+def addSymbolPriorityAttr (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
+  symbolPrioExt.add { declName, prio } attrKind
+
 def mkOffsetPattern (pat : Expr) (k : Nat) : Expr :=
   mkApp2 (mkConst ``Grind.offset) pat (mkRawNatLit k)
 
@@ -345,6 +399,8 @@ structure EMatchTheorems where
   private erased  : PHashSet Origin := {}
   /-- Mapping from origin to E-matching theorems associated with this origin. -/
   private omap : PHashMap Origin (List EMatchTheorem) := {}
+  /-- Priorities for pattern inference -/
+  private prios : SymbolPriorities := {}
   deriving Inhabited
 
 /--
@@ -359,7 +415,7 @@ def EMatchTheorems.insert (s : EMatchTheorems) (thm : EMatchTheorem) : EMatchThe
   let .const declName :: syms := thm.symbols
     | unreachable!
   let thm := { thm with symbols := syms }
-  let { smap, origins, erased, omap } := s
+  let { smap, origins, erased, omap, prios } := s
   let origin := thm.origin
   let origins := origins.insert origin
   let erased := erased.erase origin
@@ -371,7 +427,7 @@ def EMatchTheorems.insert (s : EMatchTheorems) (thm : EMatchTheorem) : EMatchThe
     omap.insert origin (thm::thms)
   else
     omap.insert origin [thm]
-  return { smap, origins, erased, omap }
+  return { smap, origins, erased, omap, prios }
 
 /-- Returns `true` if `s` contains a theorem with the given origin. -/
 def EMatchTheorems.contains (s : EMatchTheorems) (origin : Origin) : Bool :=

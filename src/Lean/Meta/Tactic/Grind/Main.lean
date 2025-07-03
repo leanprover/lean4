@@ -28,6 +28,7 @@ namespace Lean.Meta.Grind
 structure Params where
   config     : Grind.Config
   ematch     : EMatchTheorems := {}
+  symPrios   : SymbolPriorities := {}
   casesTypes : CasesTypes := {}
   extra      : PArray EMatchTheorem := {}
   norm       : Simp.Context

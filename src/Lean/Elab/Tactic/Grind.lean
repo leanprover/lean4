@@ -41,6 +41,7 @@ open Command in
 def elabResetGrindAttrs : CommandElab := fun _ => liftTermElabM do
   Grind.resetCasesExt
   Grind.resetEMatchTheoremsExt
+  Grind.resetSymbolPrioExt
 
 open Command Term in
 @[builtin_command_elab Lean.Parser.Command.initGrindNorm]
@@ -104,6 +105,8 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
               params ← withRef p <| addEMatchTheorem params ctor (.default false)
         else
           params ← withRef p <| addEMatchTheorem params declName (.default false)
+      | .symbol prio =>
+        params := { params with symPrios := params.symPrios.insert declName prio }
     | _ => throwError "unexpected `grind` parameter{indentD p}"
   return params
 where

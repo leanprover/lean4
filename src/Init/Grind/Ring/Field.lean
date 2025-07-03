@@ -57,10 +57,10 @@ theorem inv_inv (a : α) : a⁻¹⁻¹ = a := by
 theorem inv_neg (a : α) : (-a)⁻¹ = -a⁻¹ := by
   by_cases h : a = 0
   · subst h
-    simp [Field.inv_zero, Ring.neg_zero]
+    simp [Field.inv_zero, AddCommGroup.neg_zero]
   · symm
     apply eq_inv_of_mul_eq_one
-    simp [Ring.neg_mul, Ring.mul_neg, Ring.neg_neg, Field.inv_mul_cancel h]
+    simp [Ring.neg_mul, Ring.mul_neg, AddCommGroup.neg_neg, Field.inv_mul_cancel h]
 
 theorem inv_eq_zero_iff {a : α} : a⁻¹ = 0 ↔ a = 0 := by
   constructor
@@ -129,7 +129,7 @@ instance [IsCharP α 0] : NoNatZeroDivisors α := NoNatZeroDivisors.mk' <| by
     rw [Semiring.ofNat_eq_natCast] at w
     replace w := congrArg (fun x => x * b⁻¹) w
     dsimp only [] at w
-    rw [Semiring.hmul_eq_ofNat_mul, Semiring.mul_assoc, Field.mul_inv_cancel h, Semiring.mul_one,
+    rw [Semiring.nsmul_eq_ofNat_mul, Semiring.mul_assoc, Field.mul_inv_cancel h, Semiring.mul_one,
       Semiring.natCast_zero, Semiring.zero_mul, Semiring.ofNat_eq_natCast] at w
     contradiction
 

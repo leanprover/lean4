@@ -119,10 +119,10 @@ structure Struct where
   leFn?            : Option Expr
   ltFn?            : Option Expr
   addFn            : Expr
-  hmulFn           : Expr
-  hmulNatFn        : Expr
-  hsmulFn?         : Option Expr
-  hsmulNatFn?      : Option Expr
+  zsmulFn          : Expr
+  nsmulFn          : Expr
+  zsmulFn?         : Option Expr
+  nsmulFn?         : Option Expr
   homomulFn?       : Option Expr -- homogeneous multiplication if structure is a ring
   subFn            : Expr
   negFn            : Expr

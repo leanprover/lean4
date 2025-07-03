@@ -35,7 +35,12 @@ protected def ofNatLt {n : Nat} (i : Nat) (p : i < 2 ^ n) : BitVec n :=
 
 section Nat
 
-instance natCastInst : NatCast (BitVec w) := ⟨BitVec.ofNat w⟩
+/--
+`NatCast` instance for `BitVec`.
+-/
+-- As this is a lossy conversion, it should be removed as a global instance.
+instance instNatCast : NatCast (BitVec w) where
+  natCast x := BitVec.ofNat w x
 
 /-- Theorem for normalizing the bitvector literal representation. -/
 -- TODO: This needs more usage data to assess which direction the simp should go.

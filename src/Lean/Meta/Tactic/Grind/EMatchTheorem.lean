@@ -1124,7 +1124,10 @@ private def collectUsedPriorities (prios : SymbolPriorities) (searchPlaces : Arr
   for place in searchPlaces do
     s := place.foldConsts (init := s) fun declName s => s.insert <| prios.getPrio declName
   let r := s.toArray
-  return r.qsort fun p₁ p₂ => p₁ > p₂
+  if r.isEmpty then
+    return #[eval_prio default]
+  else
+    return r.qsort fun p₁ p₂ => p₁ > p₂
 
 /--
 Creates an E-match theorem using the given proof and kind.

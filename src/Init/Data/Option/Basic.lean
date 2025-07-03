@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Control.Basic
+public import Init.Grind.Tactics
 
 public section
 

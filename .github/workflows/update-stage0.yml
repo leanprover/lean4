@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   update-stage0:
-    runs-on: ubuntu-latest
+    runs-on: nscloud-ubuntu-22.04-amd64-8x16
     steps:
     # This action should push to an otherwise protected branch, so it
     # uses a deploy key with write permissions, as suggested at

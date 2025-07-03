@@ -509,15 +509,14 @@ private def matchEqBwdPat (p : Expr) : M Unit := do
     if (n.heqProofs || n.isCongrRoot) &&
        (!useMT || n.mt == gmt) then
       let_expr Eq α lhs rhs := n.self | pure ()
-      if (← isDefEq α pα) then
-         let c₀ : Choice := { cnstrs := [], assignment, gen := n.generation }
-         let go (lhs rhs : Expr) : M Unit := do
-           let some c₁ ← matchArg? c₀ plhs lhs |>.run | return ()
-           let some c₂ ← matchArg? c₁ prhs rhs |>.run | return ()
-           modify fun s => { s with choiceStack := [c₂] }
-           processChoices
-         go lhs rhs
-         go rhs lhs
+      if let some c₀ ← matchArg? { cnstrs := [], assignment, gen := n.generation } pα α |>.run then
+        let go (lhs rhs : Expr) : M Unit := do
+          let some c₁ ← matchArg? c₀ plhs lhs |>.run | return ()
+          let some c₂ ← matchArg? c₁ prhs rhs |>.run | return ()
+          modify fun s => { s with choiceStack := [c₂] }
+          processChoices
+        go lhs rhs
+        go rhs lhs
     if isSameExpr n.next false then return ()
     curr := n.next
 

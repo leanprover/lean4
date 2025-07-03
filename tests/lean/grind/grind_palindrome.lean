@@ -12,8 +12,6 @@ where
     else
       true
 
-attribute [grind symbol default] LE.le
-
 -- This give the more natural proof that we'd like to give in `tests/run/grind_palindrome2.lean`,
 -- but in which `grind` currently fails.
 

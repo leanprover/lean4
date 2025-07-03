@@ -140,7 +140,7 @@ def defaultMaxSteps := 100000
 
 /--
 The configuration for `simp`.
-Passed to `simp` using, for example, the `simp (config := {contextual := true})` syntax.
+Passed to `simp` using, for example, the `simp +contextual` or `simp (maxSteps := 100000)` syntax.
 
 See also `Lean.Meta.Simp.neutralConfig` and `Lean.Meta.DSimp.Config`.
 -/

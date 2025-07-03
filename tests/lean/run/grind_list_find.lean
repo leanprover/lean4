@@ -44,12 +44,10 @@ example (xs : List Nat) (h : ∀ x, x ∈ xs → x > 7) : xs.findIdx (· ≤ 5) 
 -- The following two theorems are abusing `grind`.
 -- They instantiate the local hypothesis using `j < i` and `j ≤ i` as the patterns.
 
-attribute [local grind symbol default] LE.le in
 theorem le_findIdx_of_not {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs.length)
     (h2 : ∀ j (hji : j < i), p (xs[j]'(Nat.lt_trans hji h)) = false) : i ≤ xs.findIdx p := by
   grind
 
-attribute [local grind symbol default] LE.le in
 theorem lt_findIdx_of_not {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs.length)
     (h2 : ∀ j (hji : j ≤ i), ¬p (xs[j]'(Nat.lt_of_le_of_lt hji h))) : i < xs.findIdx p := by
   grind

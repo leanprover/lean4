@@ -139,15 +139,12 @@ init_grind_norm
   /- Post theorems -/
   Classical.not_not
   ne_eq iff_eq eq_self heq_eq_eq
-  forall_or_forall forall_forall_or
   -- Prop equality
   eq_true_eq eq_false_eq not_eq_prop
   -- True
   not_true
   -- False
   not_false_eq_true
-  -- Implication
-  true_imp_eq false_imp_eq imp_true_eq imp_false_eq imp_self_eq
   -- And
   and_true true_and and_false false_and and_assoc
   -- Or
@@ -155,9 +152,6 @@ init_grind_norm
   -- ite
   ite_true ite_false ite_true_false ite_false_true
   dite_eq_ite
-  -- Forall
-  forall_and forall_false forall_true
-  forall_imp_eq_or
   -- Exists
   exists_const exists_or exists_prop exists_and_left exists_and_right
   -- Bool cond

@@ -151,7 +151,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
 
     -- Adjust the body of each function to take the other functions as a
     -- (packed) parameter
-    let Fs ← preDefs.mapIdxM fun funIdx preDef => do
+    let Fs ← withoutExporting do preDefs.mapIdxM fun funIdx preDef => do
       let body ← fixedParamPerms.perms[funIdx]!.instantiateLambda preDef.value fixedArgs
       withLocalDeclD (← mkFreshUserName `f) packedType fun f => do
         let body' ← withoutModifyingEnv do
@@ -163,7 +163,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
     -- Construct and solve monotonicity goals for each function separately
     -- This way we preserve the user's parameter names as much as possible
     -- and can (later) use the user-specified per-function tactic
-    let hmonos ← preDefs.mapIdxM fun i preDef => do
+    let hmonos ← withoutExporting do preDefs.mapIdxM fun i preDef => do
       let type := types[i]!
       let F := Fs[i]!
       let inst ← toPartialOrder insts'[i]! type

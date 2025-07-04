@@ -374,7 +374,7 @@ private opaque evalFilePath (stx : Syntax) : TermElabM System.FilePath
     if (← getEnv).isExporting then
       let name ← mkAuxDeclName `_private
       withoutExporting do
-        let e ← elabTerm e expectedType?
+        let e ← elabTermAndSynthesize e expectedType?
         -- Inline as changing visibility should not affect run time.
         -- Eventually we would like to be more conscious about inlining of instance fields,
         -- irrespective of `private` use.

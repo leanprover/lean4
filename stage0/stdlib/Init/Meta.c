@@ -736,6 +736,7 @@ static lean_object* l_List_foldr___at___List_foldr___at___Substring_toName_spec_
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__declareSimpLikeTactic__1___lam__2___closed__17;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__declareSimpLikeTactic__1___lam__2___closed__53;
 LEAN_EXPORT lean_object* l_Lean_isIdBeginEscape___boxed(lean_object*);
+static lean_object* l_Lean_Syntax_reprPreresolved___closed__7____x40_Init_Meta___hyg_1970_;
 static lean_object* l_Lean_Parser_Tactic_declareSimpLikeTactic___closed__19;
 LEAN_EXPORT lean_object* l_Lean_TSyntax_instCoeConsSyntaxNodeKindNil___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_dsimpKind___closed__3;
@@ -764,6 +765,7 @@ static lean_object* l_Lean_versionString___closed__5;
 LEAN_EXPORT uint8_t l_List_beq___at___Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_2792__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_TSyntax_getDocString(lean_object*);
 static lean_object* l_Lean___aux__Init__Meta______macroRules__Lean__Parser__Syntax__subPrec__1___closed__0;
+lean_object* l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(lean_object*);
 static lean_object* l_Lean_Syntax_isInterpolatedStrLit_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Lean_TSyntax_instCoeConsSyntaxNodeKind(lean_object*, lean_object*);
 static lean_object* l_Lean_toolchain___closed__3;
@@ -791,6 +793,7 @@ static lean_object* l_Lean_Option_hasQuote___redArg___lam__0___closed__5;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__declareSimpLikeTactic__1___closed__62;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instCoeTSyntaxArrayOfTSyntax___redArg___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isInaccessibleUserName___boxed(lean_object*);
+static lean_object* l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__4;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__tacticErw________1___closed__15;
 static lean_object* l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instCoeOutTSyntaxArrayArray___lam__0___boxed(lean_object*);
@@ -4878,7 +4881,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_nat_to_int(x_1);
+x_2 = l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(x_1);
 return x_2;
 }
 }
@@ -5012,27 +5015,36 @@ return x_2;
 static lean_object* _init_l_Lean_Syntax_reprPreresolved___closed__4____x40_Init_Meta___hyg_1970_() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Syntax.Preresolved.decl", 28, 28);
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(1u);
+x_2 = lean_nat_to_int(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Syntax_reprPreresolved___closed__5____x40_Init_Meta___hyg_1970_() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Syntax_reprPreresolved___closed__4____x40_Init_Meta___hyg_1970_;
-x_2 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Lean.Syntax.Preresolved.decl", 28, 28);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Syntax_reprPreresolved___closed__6____x40_Init_Meta___hyg_1970_() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Syntax_reprPreresolved___closed__5____x40_Init_Meta___hyg_1970_;
+x_2 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Syntax_reprPreresolved___closed__7____x40_Init_Meta___hyg_1970_() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(1);
-x_2 = l_Lean_Syntax_reprPreresolved___closed__5____x40_Init_Meta___hyg_1970_;
+x_2 = l_Lean_Syntax_reprPreresolved___closed__6____x40_Init_Meta___hyg_1970_;
 x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -5060,7 +5072,7 @@ goto block_14;
 else
 {
 lean_object* x_18; 
-x_18 = l_List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1970__spec__0___redArg___closed__7;
+x_18 = l_Lean_Syntax_reprPreresolved___closed__4____x40_Init_Meta___hyg_1970_;
 x_4 = x_18;
 goto block_14;
 }
@@ -5112,7 +5124,7 @@ goto block_36;
 else
 {
 lean_object* x_40; 
-x_40 = l_List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1970__spec__0___redArg___closed__7;
+x_40 = l_Lean_Syntax_reprPreresolved___closed__4____x40_Init_Meta___hyg_1970_;
 x_22 = x_40;
 goto block_36;
 }
@@ -5120,7 +5132,7 @@ block_36:
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; uint8_t x_34; lean_object* x_35; 
 x_23 = lean_box(1);
-x_24 = l_Lean_Syntax_reprPreresolved___closed__6____x40_Init_Meta___hyg_1970_;
+x_24 = l_Lean_Syntax_reprPreresolved___closed__7____x40_Init_Meta___hyg_1970_;
 x_25 = lean_unsigned_to_nat(1024u);
 x_26 = l_Lean_Name_reprPrec(x_19, x_25);
 if (lean_is_scalar(x_21)) {
@@ -5308,13 +5320,22 @@ static lean_object* _init_l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x4
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(2u);
+x_2 = l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
 x_1 = l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__0;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__2() {
+static lean_object* _init_l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -5322,11 +5343,11 @@ x_1 = lean_mk_string_unchecked("#[]", 3, 3);
 return x_1;
 }
 }
-static lean_object* _init_l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__3() {
+static lean_object* _init_l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__2;
+x_1 = l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__3;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -5346,8 +5367,8 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_array_to_list(x_1);
 x_6 = l_List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1970__spec__0___redArg___closed__5;
 x_7 = l_Std_Format_joinSep___at___Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0_spec__0(x_5, x_6);
-x_8 = l_Lean_Syntax_reprPreresolved___closed__3____x40_Init_Meta___hyg_1970_;
-x_9 = l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__1;
+x_8 = l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__1;
+x_9 = l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__2;
 x_10 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_7);
@@ -5365,7 +5386,7 @@ else
 {
 lean_object* x_15; 
 lean_dec(x_1);
-x_15 = l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__3;
+x_15 = l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__4;
 return x_15;
 }
 }
@@ -5683,7 +5704,7 @@ goto block_10;
 else
 {
 lean_object* x_14; 
-x_14 = l_List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1970__spec__0___redArg___closed__7;
+x_14 = l_Lean_Syntax_reprPreresolved___closed__4____x40_Init_Meta___hyg_1970_;
 x_3 = x_14;
 goto block_10;
 }
@@ -5710,7 +5731,7 @@ goto block_35;
 else
 {
 lean_object* x_39; 
-x_39 = l_List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1970__spec__0___redArg___closed__7;
+x_39 = l_Lean_Syntax_reprPreresolved___closed__4____x40_Init_Meta___hyg_1970_;
 x_18 = x_39;
 goto block_35;
 }
@@ -5777,7 +5798,7 @@ goto block_58;
 else
 {
 lean_object* x_62; 
-x_62 = l_List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1970__spec__0___redArg___closed__7;
+x_62 = l_Lean_Syntax_reprPreresolved___closed__4____x40_Init_Meta___hyg_1970_;
 x_43 = x_62;
 goto block_58;
 }
@@ -5842,7 +5863,7 @@ goto block_94;
 else
 {
 lean_object* x_98; 
-x_98 = l_List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1970__spec__0___redArg___closed__7;
+x_98 = l_Lean_Syntax_reprPreresolved___closed__4____x40_Init_Meta___hyg_1970_;
 x_67 = x_98;
 goto block_94;
 }
@@ -6081,7 +6102,7 @@ lean_ctor_set_uint8(x_8, sizeof(void*)*1, x_9);
 x_10 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_10, 0, x_2);
 lean_ctor_set(x_10, 1, x_8);
-x_11 = l_Lean_Syntax_reprPreresolved___closed__3____x40_Init_Meta___hyg_1970_;
+x_11 = l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__1;
 x_12 = l_Lean_Syntax_reprTSyntax___redArg___closed__9____x40_Init_Meta___hyg_2324_;
 x_13 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
@@ -19723,7 +19744,7 @@ goto block_10;
 else
 {
 lean_object* x_38; 
-x_38 = l_List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1970__spec__0___redArg___closed__7;
+x_38 = l_Lean_Syntax_reprPreresolved___closed__4____x40_Init_Meta___hyg_1970_;
 x_3 = x_38;
 goto block_10;
 }
@@ -19743,7 +19764,7 @@ goto block_18;
 else
 {
 lean_object* x_42; 
-x_42 = l_List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1970__spec__0___redArg___closed__7;
+x_42 = l_Lean_Syntax_reprPreresolved___closed__4____x40_Init_Meta___hyg_1970_;
 x_11 = x_42;
 goto block_18;
 }
@@ -19763,7 +19784,7 @@ goto block_26;
 else
 {
 lean_object* x_46; 
-x_46 = l_List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1970__spec__0___redArg___closed__7;
+x_46 = l_Lean_Syntax_reprPreresolved___closed__4____x40_Init_Meta___hyg_1970_;
 x_19 = x_46;
 goto block_26;
 }
@@ -19783,7 +19804,7 @@ goto block_34;
 else
 {
 lean_object* x_50; 
-x_50 = l_List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1970__spec__0___redArg___closed__7;
+x_50 = l_Lean_Syntax_reprPreresolved___closed__4____x40_Init_Meta___hyg_1970_;
 x_27 = x_50;
 goto block_34;
 }
@@ -19952,7 +19973,7 @@ goto block_10;
 else
 {
 lean_object* x_30; 
-x_30 = l_List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1970__spec__0___redArg___closed__7;
+x_30 = l_Lean_Syntax_reprPreresolved___closed__4____x40_Init_Meta___hyg_1970_;
 x_3 = x_30;
 goto block_10;
 }
@@ -19972,7 +19993,7 @@ goto block_18;
 else
 {
 lean_object* x_34; 
-x_34 = l_List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1970__spec__0___redArg___closed__7;
+x_34 = l_Lean_Syntax_reprPreresolved___closed__4____x40_Init_Meta___hyg_1970_;
 x_11 = x_34;
 goto block_18;
 }
@@ -19992,7 +20013,7 @@ goto block_26;
 else
 {
 lean_object* x_38; 
-x_38 = l_List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1970__spec__0___redArg___closed__7;
+x_38 = l_Lean_Syntax_reprPreresolved___closed__4____x40_Init_Meta___hyg_1970_;
 x_19 = x_38;
 goto block_26;
 }
@@ -20776,7 +20797,7 @@ lean_ctor_set_uint8(x_163, sizeof(void*)*1, x_164);
 x_165 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_165, 0, x_159);
 lean_ctor_set(x_165, 1, x_163);
-x_166 = l_Lean_Syntax_reprPreresolved___closed__3____x40_Init_Meta___hyg_1970_;
+x_166 = l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__1;
 x_167 = l_Lean_Syntax_reprTSyntax___redArg___closed__9____x40_Init_Meta___hyg_2324_;
 x_168 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_168, 0, x_167);
@@ -21738,7 +21759,7 @@ lean_ctor_set_uint8(x_290, sizeof(void*)*1, x_291);
 x_292 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_292, 0, x_287);
 lean_ctor_set(x_292, 1, x_290);
-x_293 = l_Lean_Syntax_reprPreresolved___closed__3____x40_Init_Meta___hyg_1970_;
+x_293 = l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__1;
 x_294 = l_Lean_Syntax_reprTSyntax___redArg___closed__9____x40_Init_Meta___hyg_2324_;
 x_295 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_295, 0, x_294);
@@ -22660,14 +22681,14 @@ goto block_73;
 block_23:
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_19 = l_Array_append___redArg(x_17, x_18);
+x_19 = l_Array_append___redArg(x_16, x_18);
 lean_dec(x_18);
-lean_inc(x_13);
+lean_inc(x_15);
 x_20 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_20, 0, x_13);
+lean_ctor_set(x_20, 0, x_15);
 lean_ctor_set(x_20, 1, x_12);
 lean_ctor_set(x_20, 2, x_19);
-x_21 = l_Lean_Syntax_node4(x_13, x_15, x_14, x_16, x_11, x_20);
+x_21 = l_Lean_Syntax_node4(x_15, x_14, x_13, x_17, x_11, x_20);
 x_22 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_22, 0, x_21);
 lean_ctor_set(x_22, 1, x_3);
@@ -22766,11 +22787,11 @@ if (lean_obj_tag(x_24) == 0)
 lean_object* x_69; 
 x_69 = l_Lean_Syntax_SepArray_ofElems___closed__0;
 x_12 = x_35;
-x_13 = x_31;
-x_14 = x_34;
-x_15 = x_32;
-x_16 = x_68;
-x_17 = x_36;
+x_13 = x_34;
+x_14 = x_32;
+x_15 = x_31;
+x_16 = x_36;
+x_17 = x_68;
 x_18 = x_69;
 goto block_23;
 }
@@ -22783,11 +22804,11 @@ lean_dec(x_24);
 x_71 = l_Lean_Syntax_SepArray_ofElems___closed__0;
 x_72 = lean_array_push(x_71, x_70);
 x_12 = x_35;
-x_13 = x_31;
-x_14 = x_34;
-x_15 = x_32;
-x_16 = x_68;
-x_17 = x_36;
+x_13 = x_34;
+x_14 = x_32;
+x_15 = x_31;
+x_16 = x_36;
+x_17 = x_68;
 x_18 = x_72;
 goto block_23;
 }
@@ -30327,6 +30348,8 @@ l_Lean_Syntax_reprPreresolved___closed__5____x40_Init_Meta___hyg_1970_ = _init_l
 lean_mark_persistent(l_Lean_Syntax_reprPreresolved___closed__5____x40_Init_Meta___hyg_1970_);
 l_Lean_Syntax_reprPreresolved___closed__6____x40_Init_Meta___hyg_1970_ = _init_l_Lean_Syntax_reprPreresolved___closed__6____x40_Init_Meta___hyg_1970_();
 lean_mark_persistent(l_Lean_Syntax_reprPreresolved___closed__6____x40_Init_Meta___hyg_1970_);
+l_Lean_Syntax_reprPreresolved___closed__7____x40_Init_Meta___hyg_1970_ = _init_l_Lean_Syntax_reprPreresolved___closed__7____x40_Init_Meta___hyg_1970_();
+lean_mark_persistent(l_Lean_Syntax_reprPreresolved___closed__7____x40_Init_Meta___hyg_1970_);
 l_Lean_Syntax_instReprPreresolved___closed__0 = _init_l_Lean_Syntax_instReprPreresolved___closed__0();
 lean_mark_persistent(l_Lean_Syntax_instReprPreresolved___closed__0);
 l_Lean_Syntax_instReprPreresolved = _init_l_Lean_Syntax_instReprPreresolved();
@@ -30339,6 +30362,8 @@ l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__sp
 lean_mark_persistent(l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__2);
 l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__3 = _init_l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__3();
 lean_mark_persistent(l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__3);
+l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__4 = _init_l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__4();
+lean_mark_persistent(l_Array_Array_repr___at___Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2084__spec__0___closed__4);
 l_Lean_Syntax_reprSyntax___closed__0____x40_Init_Meta___hyg_2084_ = _init_l_Lean_Syntax_reprSyntax___closed__0____x40_Init_Meta___hyg_2084_();
 lean_mark_persistent(l_Lean_Syntax_reprSyntax___closed__0____x40_Init_Meta___hyg_2084_);
 l_Lean_Syntax_reprSyntax___closed__1____x40_Init_Meta___hyg_2084_ = _init_l_Lean_Syntax_reprSyntax___closed__1____x40_Init_Meta___hyg_2084_();

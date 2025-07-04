@@ -116,7 +116,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_denoteExpr_denoteTerm___redA
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_15; uint8_t x_16; 
-x_6 = lean_ctor_get(x_5, 27);
+x_6 = lean_ctor_get(x_5, 28);
 lean_inc(x_6);
 lean_dec(x_5);
 x_7 = lean_ctor_get(x_1, 1);
@@ -172,7 +172,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_denoteExpr_denoteTerm___redA
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_4 = lean_ctor_get(x_3, 27);
+x_4 = lean_ctor_get(x_3, 28);
 lean_inc(x_4);
 lean_dec(x_3);
 x_5 = lean_ctor_get(x_1, 1);
@@ -447,7 +447,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_denoteExpr_go___redArg___lam
 _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_5 = lean_ctor_get(x_4, 27);
+x_5 = lean_ctor_get(x_4, 28);
 lean_inc(x_5);
 lean_dec(x_4);
 x_6 = lean_ctor_get(x_5, 2);
@@ -519,7 +519,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_denoteExpr_go___redArg___lam
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_1, 25);
+x_5 = lean_ctor_get(x_1, 26);
 lean_inc(x_5);
 lean_dec(x_1);
 x_6 = l_Lean_mkAppB(x_5, x_2, x_4);
@@ -563,7 +563,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_denoteExpr_go___redArg___lam
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_ctor_get(x_1, 26);
+x_4 = lean_ctor_get(x_1, 27);
 lean_inc(x_4);
 lean_dec(x_1);
 x_5 = l_Lean_Expr_app___override(x_4, x_3);

@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_instPowNat___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_instIntCastInt___lam__0___boxed(lean_object*);
 lean_object* l_Int_add___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_instCommRingInt___closed__7;
@@ -23,10 +22,11 @@ static lean_object* l_Lean_Grind_instCommRingInt___closed__3;
 lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_Lean_Grind_instCommRingInt___closed__8;
 static lean_object* l_Lean_Grind_instCommRingInt___closed__6;
-lean_object* l_instHAdd___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_instOfNat(lean_object*);
 static lean_object* l_Lean_Grind_instCommRingInt___closed__5;
 static lean_object* l_Lean_Grind_instCommRingInt___closed__10;
+lean_object* l_instHPow___redArg(lean_object*);
+lean_object* l_instPowNat___redArg(lean_object*);
 static lean_object* l_Lean_Grind_instCommRingInt___closed__9;
 lean_object* l_Int_neg___boxed(lean_object*);
 lean_object* l_Int_mul___boxed(lean_object*, lean_object*);
@@ -65,8 +65,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Grind_instCommRingInt___closed__2;
-x_2 = lean_alloc_closure((void*)(l_instPowNat___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instPowNat___redArg(x_1);
 return x_2;
 }
 }
@@ -75,8 +74,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Grind_instCommRingInt___closed__3;
-x_2 = lean_alloc_closure((void*)(l_instHAdd___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instHPow___redArg(x_1);
 return x_2;
 }
 }

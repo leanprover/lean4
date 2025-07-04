@@ -485,10 +485,10 @@ block_25:
 lean_object* x_22; uint8_t x_23; lean_object* x_24; 
 x_22 = lean_box(1);
 x_23 = lean_unbox(x_22);
-x_24 = l_Lean_Meta_mkLambdaFVars(x_9, x_21, x_1, x_2, x_1, x_2, x_23, x_18, x_20, x_16, x_19, x_17);
+x_24 = l_Lean_Meta_mkLambdaFVars(x_9, x_21, x_1, x_2, x_1, x_2, x_23, x_18, x_17, x_20, x_19, x_16);
 lean_dec(x_19);
-lean_dec(x_16);
 lean_dec(x_20);
+lean_dec(x_17);
 lean_dec(x_18);
 return x_24;
 }
@@ -513,11 +513,11 @@ if (lean_obj_tag(x_30) == 0)
 {
 if (x_2 == 0)
 {
-x_16 = x_13;
-x_17 = x_29;
+x_16 = x_29;
+x_17 = x_12;
 x_18 = x_11;
 x_19 = x_14;
-x_20 = x_12;
+x_20 = x_13;
 x_21 = x_28;
 goto block_25;
 }
@@ -525,11 +525,11 @@ else
 {
 lean_object* x_31; 
 x_31 = l_Lean_Meta_markSmartUnfoldingMatchAlt(x_28);
-x_16 = x_13;
-x_17 = x_29;
+x_16 = x_29;
+x_17 = x_12;
 x_18 = x_11;
 x_19 = x_14;
-x_20 = x_12;
+x_20 = x_13;
 x_21 = x_31;
 goto block_25;
 }
@@ -537,11 +537,11 @@ goto block_25;
 else
 {
 lean_dec(x_30);
-x_16 = x_13;
-x_17 = x_29;
+x_16 = x_29;
+x_17 = x_12;
 x_18 = x_11;
 x_19 = x_14;
-x_20 = x_12;
+x_20 = x_13;
 x_21 = x_28;
 goto block_25;
 }
@@ -1012,11 +1012,11 @@ block_25:
 lean_object* x_22; uint8_t x_23; lean_object* x_24; 
 x_22 = lean_box(1);
 x_23 = lean_unbox(x_22);
-x_24 = l_Lean_Meta_mkLambdaFVars(x_9, x_21, x_1, x_2, x_1, x_2, x_23, x_20, x_19, x_16, x_17, x_18);
-lean_dec(x_17);
+x_24 = l_Lean_Meta_mkLambdaFVars(x_9, x_21, x_1, x_2, x_1, x_2, x_23, x_17, x_19, x_20, x_16, x_18);
 lean_dec(x_16);
-lean_dec(x_19);
 lean_dec(x_20);
+lean_dec(x_19);
+lean_dec(x_17);
 return x_24;
 }
 block_32:
@@ -1040,11 +1040,11 @@ if (lean_obj_tag(x_30) == 0)
 {
 if (x_2 == 0)
 {
-x_16 = x_13;
-x_17 = x_14;
+x_16 = x_14;
+x_17 = x_11;
 x_18 = x_29;
 x_19 = x_12;
-x_20 = x_11;
+x_20 = x_13;
 x_21 = x_28;
 goto block_25;
 }
@@ -1052,11 +1052,11 @@ else
 {
 lean_object* x_31; 
 x_31 = l_Lean_Meta_markSmartUnfoldingMatchAlt(x_28);
-x_16 = x_13;
-x_17 = x_14;
+x_16 = x_14;
+x_17 = x_11;
 x_18 = x_29;
 x_19 = x_12;
-x_20 = x_11;
+x_20 = x_13;
 x_21 = x_31;
 goto block_25;
 }
@@ -1064,11 +1064,11 @@ goto block_25;
 else
 {
 lean_dec(x_30);
-x_16 = x_13;
-x_17 = x_14;
+x_16 = x_14;
+x_17 = x_11;
 x_18 = x_29;
 x_19 = x_12;
-x_20 = x_11;
+x_20 = x_13;
 x_21 = x_28;
 goto block_25;
 }

@@ -4781,9 +4781,9 @@ goto block_18;
 block_34:
 {
 lean_object* x_30; lean_object* x_31; 
-x_30 = lean_nat_sub(x_26, x_25);
-lean_dec(x_25);
+x_30 = lean_nat_sub(x_25, x_26);
 lean_dec(x_26);
+lean_dec(x_25);
 x_31 = l_Int_negOfNat(x_30);
 lean_dec(x_30);
 if (lean_obj_tag(x_6) == 1)
@@ -4832,8 +4832,8 @@ if (x_40 == 0)
 {
 lean_object* x_41; 
 x_41 = lean_unsigned_to_nat(1u);
-x_25 = x_38;
-x_26 = x_39;
+x_25 = x_39;
+x_26 = x_38;
 x_27 = x_35;
 x_28 = x_36;
 x_29 = x_41;
@@ -4843,8 +4843,8 @@ else
 {
 lean_object* x_42; 
 x_42 = lean_unsigned_to_nat(0u);
-x_25 = x_38;
-x_26 = x_39;
+x_25 = x_39;
+x_26 = x_38;
 x_27 = x_35;
 x_28 = x_36;
 x_29 = x_42;

@@ -252,6 +252,7 @@ LEAN_EXPORT lean_object* l_Array_foldr___boxed(lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_Array_instBEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_findSomeM_x3f___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Array_get_x3f___redArg(lean_object*, lean_object*);
+lean_object* l_instNatCastInt___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Array_findIdx_x3f___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_rightpad___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___auto____x40_Init_Data_Array_Basic___hyg_1436_;
@@ -289,7 +290,6 @@ LEAN_EXPORT lean_object* l_Array_allM___redArg___lam__2(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Array_idxOfAux___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Array_zipWith___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlM_loop___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyM_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_empty(lean_object*);
@@ -10246,7 +10246,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_eraseIdx_x21___redArg___closed__1;
 x_2 = lean_unsigned_to_nat(47u);
-x_3 = lean_unsigned_to_nat(1821u);
+x_3 = lean_unsigned_to_nat(1822u);
 x_4 = l_Array_eraseIdx_x21___redArg___closed__0;
 x_5 = l_Array_swapAt_x21___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -10451,7 +10451,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_eraseIdx_x21___redArg___closed__1;
 x_2 = lean_unsigned_to_nat(7u);
-x_3 = lean_unsigned_to_nat(1904u);
+x_3 = lean_unsigned_to_nat(1905u);
 x_4 = l_Array_insertIdx_x21___redArg___closed__0;
 x_5 = l_Array_swapAt_x21___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -11913,7 +11913,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(2u);
-x_2 = lean_nat_to_int(x_1);
+x_2 = l_instNatCastInt___lam__0(x_1);
 return x_2;
 }
 }

@@ -2532,9 +2532,13 @@ def withExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : 
   finally
     modifyEnv (·.setExporting old)
 
-/-- Sets `Environment.isExporting` to false while executing `x`. -/
-def withoutExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : m α) : m α :=
-  withExporting (isExporting := false) x
+/-- If `when` is true, sets `Environment.isExporting` to false while executing `x`. -/
+def withoutExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : m α)
+    (when : Bool := true) : m α :=
+  if when then
+    withExporting (isExporting := false) x
+  else
+    x
 
 /-- Constructs a DefinitionVal, inferring the `unsafe` field -/
 def mkDefinitionValInferrringUnsafe [Monad m] [MonadEnv m] (name : Name) (levelParams : List Name)

@@ -481,10 +481,10 @@ register_builtin_option genSizeOfSpec : Bool := {
 }
 
 def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
-  withExporting (isExporting := !isPrivateName typeName) do
+  let indInfo ← withoutExporting <| getConstInfoInduct typeName
+  withExporting (isExporting := !isPrivateName typeName && !indInfo.ctors.any isPrivateName) do
   if (← getEnv).contains ``SizeOf && genSizeOf.get (← getOptions) && !(← isInductivePredicate typeName) then
     withTraceNode `Meta.sizeOf (fun _ => return m!"{typeName}") do
-      let indInfo ← getConstInfoInduct typeName
       unless indInfo.isUnsafe do
         let (fns, recMap) ← mkSizeOfFns typeName
         for indTypeName in indInfo.all, fn in fns do

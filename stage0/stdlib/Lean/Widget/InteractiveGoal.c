@@ -6755,7 +6755,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Widget_addInteractiveHypothesisBundle(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_23; lean_object* x_24; uint8_t x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_64; lean_object* x_65; uint8_t x_66; 
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_64; lean_object* x_65; uint8_t x_66; 
 x_64 = lean_array_get_size(x_2);
 x_65 = lean_unsigned_to_nat(0u);
 x_66 = lean_nat_dec_eq(x_64, x_65);
@@ -6791,8 +6791,8 @@ x_36 = x_8;
 x_37 = x_9;
 x_38 = x_74;
 x_39 = x_7;
-x_40 = x_6;
-x_41 = x_73;
+x_40 = x_73;
+x_41 = x_6;
 x_42 = x_69;
 x_43 = x_75;
 x_44 = x_70;
@@ -6824,8 +6824,8 @@ x_36 = x_8;
 x_37 = x_9;
 x_38 = x_74;
 x_39 = x_7;
-x_40 = x_6;
-x_41 = x_73;
+x_40 = x_73;
+x_41 = x_6;
 x_42 = x_69;
 x_43 = x_4;
 x_44 = x_80;
@@ -6889,8 +6889,8 @@ x_36 = x_8;
 x_37 = x_9;
 x_38 = x_74;
 x_39 = x_7;
-x_40 = x_6;
-x_41 = x_73;
+x_40 = x_73;
+x_41 = x_6;
 x_42 = x_69;
 x_43 = x_89;
 x_44 = x_88;
@@ -7000,10 +7000,10 @@ block_22:
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_18 = lean_box(0);
 x_19 = lean_alloc_ctor(0, 8, 0);
-lean_ctor_set(x_19, 0, x_11);
-lean_ctor_set(x_19, 1, x_16);
-lean_ctor_set(x_19, 2, x_15);
-lean_ctor_set(x_19, 3, x_14);
+lean_ctor_set(x_19, 0, x_12);
+lean_ctor_set(x_19, 1, x_15);
+lean_ctor_set(x_19, 2, x_16);
+lean_ctor_set(x_19, 3, x_11);
 lean_ctor_set(x_19, 4, x_13);
 lean_ctor_set(x_19, 5, x_17);
 lean_ctor_set(x_19, 6, x_18);
@@ -7011,7 +7011,7 @@ lean_ctor_set(x_19, 7, x_18);
 x_20 = lean_array_push(x_1, x_19);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
-lean_ctor_set(x_21, 1, x_12);
+lean_ctor_set(x_21, 1, x_14);
 return x_21;
 }
 block_35:
@@ -7024,26 +7024,26 @@ if (x_31 == 0)
 lean_object* x_32; 
 x_32 = lean_box(0);
 x_11 = x_24;
-x_12 = x_26;
+x_12 = x_25;
 x_13 = x_30;
 x_14 = x_27;
-x_15 = x_29;
-x_16 = x_28;
+x_15 = x_28;
+x_16 = x_29;
 x_17 = x_32;
 goto block_22;
 }
 else
 {
 lean_object* x_33; lean_object* x_34; 
-x_33 = lean_box(x_25);
+x_33 = lean_box(x_26);
 x_34 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_34, 0, x_33);
 x_11 = x_24;
-x_12 = x_26;
+x_12 = x_25;
 x_13 = x_30;
 x_14 = x_27;
-x_15 = x_29;
-x_16 = x_28;
+x_15 = x_28;
+x_16 = x_29;
 x_17 = x_34;
 goto block_22;
 }
@@ -7053,7 +7053,7 @@ block_63:
 lean_object* x_45; 
 lean_inc(x_39);
 lean_inc(x_3);
-x_45 = l_Lean_Meta_isClass_x3f(x_3, x_40, x_39, x_36, x_37, x_44);
+x_45 = l_Lean_Meta_isClass_x3f(x_3, x_41, x_39, x_36, x_37, x_44);
 if (lean_obj_tag(x_45) == 0)
 {
 lean_object* x_46; lean_object* x_47; lean_object* x_48; 
@@ -7076,11 +7076,11 @@ x_51 = lean_box(1);
 x_52 = lean_box(0);
 x_53 = lean_unbox(x_51);
 x_23 = x_49;
-x_24 = x_38;
-x_25 = x_53;
-x_26 = x_50;
-x_27 = x_43;
-x_28 = x_41;
+x_24 = x_43;
+x_25 = x_38;
+x_26 = x_53;
+x_27 = x_50;
+x_28 = x_40;
 x_29 = x_42;
 x_30 = x_52;
 goto block_35;
@@ -7098,11 +7098,11 @@ x_56 = lean_box(1);
 x_57 = l_Lean_Widget_addInteractiveHypothesisBundle___closed__0;
 x_58 = lean_unbox(x_56);
 x_23 = x_54;
-x_24 = x_38;
-x_25 = x_58;
-x_26 = x_55;
-x_27 = x_43;
-x_28 = x_41;
+x_24 = x_43;
+x_25 = x_38;
+x_26 = x_58;
+x_27 = x_55;
+x_28 = x_40;
 x_29 = x_42;
 x_30 = x_57;
 goto block_35;
@@ -7113,7 +7113,7 @@ else
 uint8_t x_59; 
 lean_dec(x_43);
 lean_dec(x_42);
-lean_dec(x_41);
+lean_dec(x_40);
 lean_dec(x_39);
 lean_dec(x_38);
 lean_dec(x_3);

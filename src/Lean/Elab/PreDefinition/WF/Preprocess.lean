@@ -173,12 +173,25 @@ private def nonPropHaveToLet (e : Expr) : MetaM Expr := do
       return .continue
   )
 
+def unfoldAuxTheorems (recFnNames : Array Name) (e : Expr) : MetaM Expr := do
+  -- Unfold abstracted proofs
+  Meta.transform e
+    (pre := fun e => do
+      let f := e.getAppFn
+      if f.isConst then
+        if e.getAppArgs.any (fun a => a.isConst && a.constName! ∈ recFnNames)
+        then
+          if let some e' ← withoutExporting <| withTransparency .all <| unfoldDefinition? e then
+            return .visit e'
+      return .continue)
+
 def preprocess (e : Expr) : MetaM Simp.Result := do
   unless wf.preprocess.get (← getOptions) do
     return { expr := e }
   -- Transform `let`s to `have`s to enable `simp` entering let bodies.
   let e ← letToHave e
   lambdaTelescope e fun xs _ => do
+
     -- Annotate all xs with `wfParam`
     let xs' ← xs.mapM mkWfParam
     let e' := e.beta xs'

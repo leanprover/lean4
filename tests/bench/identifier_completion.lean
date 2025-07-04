@@ -6,7 +6,7 @@ open Lean
 set_option debug.skipKernelTC true
 
 def buildSyntheticEnv : Lean.CoreM Unit := do
-  for i in *...(100000 : Nat) do
+  for i in [0:100000] do
     let name := s!"Long.And.Hopefully.Unique.Name.foo{i}".toName
     addDecl <| Declaration.opaqueDecl {
       name := name

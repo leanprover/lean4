@@ -275,7 +275,7 @@ fun {α} x y => do
       have arr : Array α := #[];
       do
       let r ←
-        forIn { stop := 10, step_pos := Nat.zero_lt_one } arr fun i r =>
+        forIn { lower := PUnit.unit, upper := 10 } arr fun i r =>
             have arr : Array α := r;
             do
             let __do_lift ← y i

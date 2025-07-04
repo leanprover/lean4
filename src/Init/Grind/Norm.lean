@@ -127,6 +127,9 @@ theorem forall_forall_or {α : Sort u} {β : α → Sort v} (p : α → Prop) (q
     intro h'; simp at h'; have ⟨⟨b, h₁⟩, h₂⟩ := h'
     replace h := h a b; simp [h₁, h₂] at h
 
+theorem forall_and {α} {p q : α → Prop} : (∀ x, p x ∧ q x) = ((∀ x, p x) ∧ (∀ x, q x)) := by
+  apply propext; apply _root_.forall_and
+
 init_grind_norm
   /- Pre theorems -/
   not_and not_or not_ite not_forall not_exists

@@ -260,7 +260,7 @@ def fnDo (x : MetaM Bool) (y : Nat → MetaM α) : MetaM (Array α) := do
   let a := (← x)
   if a then
     let mut arr := #[]
-    for i in [0:10] do
+    for i in *...(10 : Nat) do
       let b := (← y i)
       arr := arr.push b
     return arr

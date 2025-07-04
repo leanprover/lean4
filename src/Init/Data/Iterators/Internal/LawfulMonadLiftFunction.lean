@@ -89,10 +89,6 @@ section LiftBind
 
 variable {liftBind : ∀ γ δ, (γ → m δ) → m γ → m δ}
 
--- instance [LawfulMonadLiftFunction lift] :
---     LawfulMonadLiftBindFunction (m := m) (n := n) (fun γ δ f x => lift x >>= f) where
---   liftBind_pure
-
 instance [LawfulMonadLiftBindFunction (n := n) (fun _ _ f x => lift x >>= f)] [LawfulMonad n] :
     LawfulMonadLiftFunction lift where
   lift_pure {γ} a := by

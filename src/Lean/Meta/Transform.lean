@@ -203,9 +203,9 @@ def unfoldDeclsFrom (biggerEnv : Environment) (e : Expr) : CoreM Expr := do
     Core.transform e (pre := pre)
 
 /--
-Unfold function calls where one of the argument is `.const n` with `n` in the given array.
-This is used to undo proof abstraction for termination checking, as otherwise the bare occurence
-of the recursive functions prevents termination checking.
+Unfolds theorem applied to `.const n` where `n` in the given array.
+This is used to undo proof abstraction for termination checking, as otherwise the bare occurence of
+the recursive functions prevents termination checking.
 Unfolds from the private environment.
 -/
 def unfoldIfArgIsConstOf (fnNames : Array Name) (e : Expr) : CoreM Expr := withoutExporting do
@@ -224,11 +224,12 @@ def unfoldIfArgIsConstOf (fnNames : Array Name) (e : Expr) : CoreM Expr := witho
         Alternatives if this breaks:
          * Keep a local env extension to reliably recognize abstracted proofs
          * Avoid abstracting over implementation detail applications
+        (The code below is restricted to theorems, as otherwise it would unfold
+        matchers, who can also abstract over recursive calls, #2102.
         -/
         if revArgs.any (fun a => a.isConst && a.constName! ∈ fnNames) then
-          if let some info := env.find? f.constName! then
-            if info.hasValue then
-              return .visit <| (← instantiateValueLevelParams info f.constLevels!).betaRev revArgs
+          if let some info@(.thmInfo _) := env.find? f.constName! then
+            return .visit <| (← instantiateValueLevelParams info f.constLevels!).betaRev revArgs
       return .continue)
 
 

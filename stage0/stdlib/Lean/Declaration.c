@@ -1658,8 +1658,6 @@ return x_15;
 }
 else
 {
-lean_object* x_16; 
-x_16 = lean_box(0);
 if (x_5 == 0)
 {
 if (x_9 == 0)
@@ -1669,24 +1667,13 @@ goto block_13;
 }
 else
 {
-uint8_t x_17; 
-x_17 = lean_unbox(x_16);
-return x_17;
+return x_5;
 }
 }
 else
 {
-if (x_9 == 0)
-{
-uint8_t x_18; 
-x_18 = lean_unbox(x_16);
-return x_18;
-}
-else
-{
-x_11 = x_15;
+x_11 = x_9;
 goto block_13;
-}
 }
 }
 }
@@ -3764,8 +3751,6 @@ return x_29;
 }
 else
 {
-lean_object* x_30; 
-x_30 = lean_box(0);
 if (x_10 == 0)
 {
 if (x_19 == 0)
@@ -3775,24 +3760,13 @@ goto block_22;
 }
 else
 {
-uint8_t x_31; 
-x_31 = lean_unbox(x_30);
-return x_31;
+return x_10;
 }
 }
 else
 {
-if (x_19 == 0)
-{
-uint8_t x_32; 
-x_32 = lean_unbox(x_30);
-return x_32;
-}
-else
-{
-x_21 = x_29;
+x_21 = x_19;
 goto block_22;
-}
 }
 }
 }

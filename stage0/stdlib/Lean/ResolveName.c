@@ -4695,21 +4695,21 @@ return x_47;
 block_20:
 {
 uint8_t x_13; 
-x_13 = l_Lean_Name_isPrefixOf(x_4, x_10);
+x_13 = l_Lean_Name_isPrefixOf(x_4, x_11);
 if (x_13 == 0)
 {
 lean_object* x_14; 
 lean_dec(x_12);
-lean_dec(x_11);
-lean_dec(x_8);
-x_14 = l_Lean_resolveLocalName_go(x_9, x_5, x_10, x_4);
 lean_dec(x_10);
+lean_dec(x_8);
+x_14 = l_Lean_resolveLocalName_go(x_9, x_5, x_11, x_4);
+lean_dec(x_11);
 return x_14;
 }
 else
 {
 lean_object* x_15; uint8_t x_16; 
-lean_dec(x_10);
+lean_dec(x_11);
 lean_dec(x_9);
 lean_dec(x_4);
 x_15 = l_Lean_extractMacroScopes(x_12);
@@ -4718,7 +4718,7 @@ lean_dec(x_15);
 if (x_16 == 0)
 {
 lean_object* x_17; 
-lean_dec(x_11);
+lean_dec(x_10);
 lean_dec(x_8);
 lean_dec(x_5);
 x_17 = lean_box(0);
@@ -4727,8 +4727,8 @@ return x_17;
 else
 {
 uint8_t x_18; 
-x_18 = l_Lean_MacroScopesView_isSuffixOf(x_5, x_11);
-lean_dec(x_11);
+x_18 = l_Lean_MacroScopesView_isSuffixOf(x_5, x_10);
+lean_dec(x_10);
 lean_dec(x_5);
 if (x_18 == 0)
 {
@@ -4758,8 +4758,8 @@ lean_inc(x_21);
 x_25 = l_Lean_MacroScopesView_review(x_21);
 x_26 = lean_ctor_get(x_9, 2);
 lean_inc(x_26);
-x_10 = x_25;
-x_11 = x_21;
+x_10 = x_21;
+x_11 = x_25;
 x_12 = x_26;
 goto block_20;
 }
@@ -4782,8 +4782,8 @@ lean_inc(x_30);
 x_31 = l_Lean_MacroScopesView_review(x_30);
 x_32 = lean_ctor_get(x_9, 2);
 lean_inc(x_32);
-x_10 = x_31;
-x_11 = x_30;
+x_10 = x_30;
+x_11 = x_31;
 x_12 = x_32;
 goto block_20;
 }

@@ -424,85 +424,59 @@ return x_1;
 LEAN_EXPORT uint8_t l_Lake_decEqGlob____x40_Lake_Config_Glob___hyg_207_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_box(0);
 switch (lean_obj_tag(x_1)) {
 case 0:
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_ctor_get(x_2, 0);
-x_6 = lean_name_eq(x_4, x_5);
-if (x_6 == 0)
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_ctor_get(x_2, 0);
+x_5 = lean_name_eq(x_3, x_4);
+return x_5;
+}
+else
 {
-uint8_t x_7; 
-x_7 = lean_unbox(x_3);
+lean_object* x_6; uint8_t x_7; 
+x_6 = lean_box(0);
+x_7 = lean_unbox(x_6);
 return x_7;
-}
-else
-{
-return x_6;
-}
-}
-else
-{
-uint8_t x_8; 
-x_8 = lean_unbox(x_3);
-return x_8;
 }
 }
 case 1:
 {
 if (lean_obj_tag(x_2) == 1)
 {
-lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_9 = lean_ctor_get(x_1, 0);
-x_10 = lean_ctor_get(x_2, 0);
-x_11 = lean_name_eq(x_9, x_10);
-if (x_11 == 0)
+lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_8 = lean_ctor_get(x_1, 0);
+x_9 = lean_ctor_get(x_2, 0);
+x_10 = lean_name_eq(x_8, x_9);
+return x_10;
+}
+else
 {
-uint8_t x_12; 
-x_12 = lean_unbox(x_3);
+lean_object* x_11; uint8_t x_12; 
+x_11 = lean_box(0);
+x_12 = lean_unbox(x_11);
 return x_12;
-}
-else
-{
-return x_11;
-}
-}
-else
-{
-uint8_t x_13; 
-x_13 = lean_unbox(x_3);
-return x_13;
 }
 }
 default: 
 {
 if (lean_obj_tag(x_2) == 2)
 {
-lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_14 = lean_ctor_get(x_1, 0);
-x_15 = lean_ctor_get(x_2, 0);
-x_16 = lean_name_eq(x_14, x_15);
-if (x_16 == 0)
+lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+x_13 = lean_ctor_get(x_1, 0);
+x_14 = lean_ctor_get(x_2, 0);
+x_15 = lean_name_eq(x_13, x_14);
+return x_15;
+}
+else
 {
-uint8_t x_17; 
-x_17 = lean_unbox(x_3);
+lean_object* x_16; uint8_t x_17; 
+x_16 = lean_box(0);
+x_17 = lean_unbox(x_16);
 return x_17;
-}
-else
-{
-return x_16;
-}
-}
-else
-{
-uint8_t x_18; 
-x_18 = lean_unbox(x_3);
-return x_18;
 }
 }
 }

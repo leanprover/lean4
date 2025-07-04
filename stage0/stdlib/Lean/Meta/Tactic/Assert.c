@@ -1776,12 +1776,12 @@ goto block_51;
 block_41:
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; lean_object* x_29; 
-x_23 = l_Lean_MVarId_assign___at___Lean_Meta_getLevel_spec__0___redArg(x_1, x_22, x_6, x_21);
+x_23 = l_Lean_MVarId_assign___at___Lean_Meta_getLevel_spec__0___redArg(x_1, x_22, x_6, x_20);
 x_24 = lean_ctor_get(x_23, 1);
 lean_inc(x_24);
 lean_dec(x_23);
-x_25 = l_Lean_Expr_mvarId_x21(x_20);
-lean_dec(x_20);
+x_25 = l_Lean_Expr_mvarId_x21(x_21);
+lean_dec(x_21);
 x_26 = lean_box(0);
 x_27 = lean_box(1);
 x_28 = lean_unbox(x_27);
@@ -1852,8 +1852,8 @@ x_46 = lean_nat_dec_lt(x_19, x_18);
 if (x_46 == 0)
 {
 lean_inc(x_44);
-x_20 = x_44;
-x_21 = x_45;
+x_20 = x_45;
+x_21 = x_44;
 x_22 = x_44;
 goto block_41;
 }
@@ -1864,8 +1864,8 @@ x_47 = lean_nat_dec_le(x_18, x_18);
 if (x_47 == 0)
 {
 lean_inc(x_44);
-x_20 = x_44;
-x_21 = x_45;
+x_20 = x_45;
+x_21 = x_44;
 x_22 = x_44;
 goto block_41;
 }
@@ -1876,8 +1876,8 @@ x_48 = 0;
 x_49 = lean_usize_of_nat(x_18);
 lean_inc(x_44);
 x_50 = l_Array_foldlMUnsafe_fold___at___Lean_MVarId_assertHypotheses_spec__2(x_3, x_48, x_49, x_44);
-x_20 = x_44;
-x_21 = x_45;
+x_20 = x_45;
+x_21 = x_44;
 x_22 = x_50;
 goto block_41;
 }

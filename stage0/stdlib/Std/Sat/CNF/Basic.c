@@ -199,48 +199,37 @@ return x_2;
 LEAN_EXPORT uint8_t l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-x_4 = lean_box(1);
-x_5 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(x_5, 0, x_3);
-x_6 = l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___redArg___closed__0;
-x_7 = lean_alloc_closure((void*)(l_instBEqProd___redArg___lam__0___boxed), 4, 2);
-lean_closure_set(x_7, 0, x_5);
-lean_closure_set(x_7, 1, x_6);
-x_8 = lean_box(0);
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_4 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(x_4, 0, x_3);
+x_5 = l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___redArg___closed__0;
+x_6 = lean_alloc_closure((void*)(l_instBEqProd___redArg___lam__0___boxed), 4, 2);
+lean_closure_set(x_6, 0, x_4);
+lean_closure_set(x_6, 1, x_5);
+x_7 = lean_box(0);
 lean_inc(x_1);
-x_9 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_9, 0, x_1);
-lean_ctor_set(x_9, 1, x_8);
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_1);
+lean_ctor_set(x_8, 1, x_7);
 lean_inc(x_2);
-lean_inc(x_7);
-x_10 = l_List_elem___redArg(x_7, x_9, x_2);
-if (x_10 == 0)
+lean_inc(x_6);
+x_9 = l_List_elem___redArg(x_6, x_8, x_2);
+if (x_9 == 0)
 {
-lean_object* x_11; uint8_t x_12; 
+lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+x_10 = lean_box(1);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_1);
-lean_ctor_set(x_11, 1, x_4);
-x_12 = l_List_elem___redArg(x_7, x_11, x_2);
-if (x_12 == 0)
-{
+lean_ctor_set(x_11, 1, x_10);
+x_12 = l_List_elem___redArg(x_6, x_11, x_2);
 return x_12;
 }
 else
 {
-uint8_t x_13; 
-x_13 = lean_unbox(x_4);
-return x_13;
-}
-}
-else
-{
-uint8_t x_14; 
-lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_2);
 lean_dec(x_1);
-x_14 = lean_unbox(x_4);
-return x_14;
+return x_9;
 }
 }
 }

@@ -1405,14 +1405,13 @@ goto _start;
 LEAN_EXPORT uint8_t l_Nat_Linear_beqPolyCnstr____x40_Init_Data_Nat_Linear___hyg_1352_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_12; 
+uint8_t x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
 x_3 = lean_ctor_get_uint8(x_1, sizeof(void*)*2);
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_1, 1);
 x_6 = lean_ctor_get_uint8(x_2, sizeof(void*)*2);
 x_7 = lean_ctor_get(x_2, 0);
 x_8 = lean_ctor_get(x_2, 1);
-x_12 = lean_box(0);
 if (x_3 == 0)
 {
 if (x_6 == 0)
@@ -1421,18 +1420,14 @@ goto block_11;
 }
 else
 {
-uint8_t x_13; 
-x_13 = lean_unbox(x_12);
-return x_13;
+return x_3;
 }
 }
 else
 {
 if (x_6 == 0)
 {
-uint8_t x_14; 
-x_14 = lean_unbox(x_12);
-return x_14;
+return x_6;
 }
 else
 {

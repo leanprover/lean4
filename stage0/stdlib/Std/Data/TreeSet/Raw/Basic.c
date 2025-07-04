@@ -1404,7 +1404,7 @@ LEAN_EXPORT uint8_t l_Std_TreeSet_Raw_instDecidableMem(lean_object* x_1, lean_ob
 _start:
 {
 uint8_t x_5; 
-x_5 = l_Std_TreeSet_Raw_instDecidableMem___redArg(x_2, x_3, x_4);
+x_5 = l_Std_DTreeMap_Internal_Impl_contains___redArg(x_2, x_4, x_3);
 return x_5;
 }
 }

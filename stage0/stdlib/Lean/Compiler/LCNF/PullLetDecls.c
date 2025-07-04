@@ -1584,8 +1584,8 @@ if (x_17 == 0)
 lean_object* x_18; lean_object* x_19; 
 lean_dec(x_1);
 x_18 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_18, 0, x_16);
-lean_ctor_set(x_18, 1, x_15);
+lean_ctor_set(x_18, 0, x_15);
+lean_ctor_set(x_18, 1, x_16);
 x_19 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_19, 0, x_18);
 lean_ctor_set(x_19, 1, x_14);
@@ -1609,8 +1609,8 @@ if (x_25 == 0)
 lean_object* x_26; lean_object* x_27; 
 lean_dec(x_1);
 x_26 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_26, 0, x_24);
-lean_ctor_set(x_26, 1, x_23);
+lean_ctor_set(x_26, 0, x_23);
+lean_ctor_set(x_26, 1, x_24);
 x_27 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_27, 0, x_26);
 lean_ctor_set(x_27, 1, x_22);
@@ -1673,8 +1673,8 @@ if (x_48 == 0)
 {
 lean_dec(x_44);
 x_14 = x_43;
-x_15 = x_42;
-x_16 = x_37;
+x_15 = x_37;
+x_16 = x_42;
 x_17 = x_48;
 goto block_21;
 }
@@ -1686,8 +1686,8 @@ lean_dec(x_44);
 x_50 = lean_ptr_addr(x_37);
 x_51 = lean_usize_dec_eq(x_49, x_50);
 x_14 = x_43;
-x_15 = x_42;
-x_16 = x_37;
+x_15 = x_37;
+x_16 = x_42;
 x_17 = x_51;
 goto block_21;
 }
@@ -1712,8 +1712,8 @@ if (x_58 == 0)
 {
 lean_dec(x_54);
 x_22 = x_53;
-x_23 = x_52;
-x_24 = x_37;
+x_23 = x_37;
+x_24 = x_52;
 x_25 = x_58;
 goto block_29;
 }
@@ -1725,8 +1725,8 @@ lean_dec(x_54);
 x_60 = lean_ptr_addr(x_37);
 x_61 = lean_usize_dec_eq(x_59, x_60);
 x_22 = x_53;
-x_23 = x_52;
-x_24 = x_37;
+x_23 = x_37;
+x_24 = x_52;
 x_25 = x_61;
 goto block_29;
 }
@@ -1808,8 +1808,8 @@ if (x_82 == 0)
 {
 lean_dec(x_78);
 x_14 = x_77;
-x_15 = x_76;
-x_16 = x_70;
+x_15 = x_70;
+x_16 = x_76;
 x_17 = x_82;
 goto block_21;
 }
@@ -1821,8 +1821,8 @@ lean_dec(x_78);
 x_84 = lean_ptr_addr(x_70);
 x_85 = lean_usize_dec_eq(x_83, x_84);
 x_14 = x_77;
-x_15 = x_76;
-x_16 = x_70;
+x_15 = x_70;
+x_16 = x_76;
 x_17 = x_85;
 goto block_21;
 }
@@ -1847,8 +1847,8 @@ if (x_92 == 0)
 {
 lean_dec(x_88);
 x_22 = x_87;
-x_23 = x_86;
-x_24 = x_70;
+x_23 = x_70;
+x_24 = x_86;
 x_25 = x_92;
 goto block_29;
 }
@@ -1860,8 +1860,8 @@ lean_dec(x_88);
 x_94 = lean_ptr_addr(x_70);
 x_95 = lean_usize_dec_eq(x_93, x_94);
 x_22 = x_87;
-x_23 = x_86;
-x_24 = x_70;
+x_23 = x_70;
+x_24 = x_86;
 x_25 = x_95;
 goto block_29;
 }

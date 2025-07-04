@@ -2175,8 +2175,8 @@ return x_76;
 block_127:
 {
 lean_object* x_86; lean_object* x_87; uint8_t x_88; 
-lean_inc(x_81);
-x_86 = l_Lean_isTracingEnabledFor___at___Lean_Meta_processPostponed_loop_spec__0___redArg(x_81, x_79, x_85);
+lean_inc(x_79);
+x_86 = l_Lean_isTracingEnabledFor___at___Lean_Meta_processPostponed_loop_spec__0___redArg(x_79, x_78, x_85);
 x_87 = lean_ctor_get(x_86, 0);
 lean_inc(x_87);
 x_88 = lean_unbox(x_87);
@@ -2184,15 +2184,15 @@ lean_dec(x_87);
 if (x_88 == 0)
 {
 lean_object* x_89; 
-lean_dec(x_81);
+lean_dec(x_79);
 x_89 = lean_ctor_get(x_86, 1);
 lean_inc(x_89);
 lean_dec(x_86);
 x_47 = x_84;
-x_48 = x_80;
+x_48 = x_81;
 x_49 = x_83;
-x_50 = x_78;
-x_51 = x_79;
+x_50 = x_80;
+x_51 = x_78;
 x_52 = x_82;
 x_53 = x_89;
 goto block_77;
@@ -2232,15 +2232,15 @@ x_105 = l_List_mapTR_loop___at___Lean_Elab_Tactic_Do_findSpec_spec__3___closed__
 x_106 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_106, 0, x_104);
 lean_ctor_set(x_106, 1, x_105);
-x_107 = l_Lean_addTrace___at___Lean_Meta_processPostponed_loop_spec__1(x_81, x_106, x_83, x_78, x_79, x_82, x_91);
+x_107 = l_Lean_addTrace___at___Lean_Meta_processPostponed_loop_spec__1(x_79, x_106, x_83, x_80, x_78, x_82, x_91);
 x_108 = lean_ctor_get(x_107, 1);
 lean_inc(x_108);
 lean_dec(x_107);
 x_47 = x_84;
-x_48 = x_80;
+x_48 = x_81;
 x_49 = x_83;
-x_50 = x_78;
-x_51 = x_79;
+x_50 = x_80;
+x_51 = x_78;
 x_52 = x_82;
 x_53 = x_108;
 goto block_77;
@@ -2276,15 +2276,15 @@ x_123 = l_List_mapTR_loop___at___Lean_Elab_Tactic_Do_findSpec_spec__3___closed__
 x_124 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_124, 0, x_122);
 lean_ctor_set(x_124, 1, x_123);
-x_125 = l_Lean_addTrace___at___Lean_Meta_processPostponed_loop_spec__1(x_81, x_124, x_83, x_78, x_79, x_82, x_109);
+x_125 = l_Lean_addTrace___at___Lean_Meta_processPostponed_loop_spec__1(x_79, x_124, x_83, x_80, x_78, x_82, x_109);
 x_126 = lean_ctor_get(x_125, 1);
 lean_inc(x_126);
 lean_dec(x_125);
 x_47 = x_84;
-x_48 = x_80;
+x_48 = x_81;
 x_49 = x_83;
-x_50 = x_78;
-x_51 = x_79;
+x_50 = x_80;
+x_51 = x_78;
 x_52 = x_82;
 x_53 = x_126;
 goto block_77;
@@ -2294,16 +2294,16 @@ goto block_77;
 block_148:
 {
 lean_object* x_135; lean_object* x_136; uint8_t x_137; 
-x_135 = lean_array_get_size(x_128);
+x_135 = lean_array_get_size(x_129);
 x_136 = l_Lean_Elab_Tactic_Do_findSpec___closed__11;
 x_137 = lean_nat_dec_lt(x_46, x_135);
 if (x_137 == 0)
 {
 lean_dec(x_135);
 lean_dec(x_2);
-x_78 = x_131;
-x_79 = x_132;
-x_80 = x_128;
+x_78 = x_132;
+x_79 = x_128;
+x_80 = x_131;
 x_81 = x_129;
 x_82 = x_133;
 x_83 = x_130;
@@ -2319,9 +2319,9 @@ if (x_138 == 0)
 {
 lean_dec(x_135);
 lean_dec(x_2);
-x_78 = x_131;
-x_79 = x_132;
-x_80 = x_128;
+x_78 = x_132;
+x_79 = x_128;
+x_80 = x_131;
 x_81 = x_129;
 x_82 = x_133;
 x_83 = x_130;
@@ -2339,8 +2339,8 @@ lean_inc(x_133);
 lean_inc(x_132);
 lean_inc(x_131);
 lean_inc(x_130);
-lean_inc(x_129);
-x_141 = l_Array_foldlMUnsafe_fold___at___Lean_Elab_Tactic_Do_findSpec_spec__4(x_32, x_2, x_129, x_128, x_139, x_140, x_136, x_130, x_131, x_132, x_133, x_134);
+lean_inc(x_128);
+x_141 = l_Array_foldlMUnsafe_fold___at___Lean_Elab_Tactic_Do_findSpec_spec__4(x_32, x_2, x_128, x_129, x_139, x_140, x_136, x_130, x_131, x_132, x_133, x_134);
 if (lean_obj_tag(x_141) == 0)
 {
 lean_object* x_142; lean_object* x_143; 
@@ -2349,9 +2349,9 @@ lean_inc(x_142);
 x_143 = lean_ctor_get(x_141, 1);
 lean_inc(x_143);
 lean_dec(x_141);
-x_78 = x_131;
-x_79 = x_132;
-x_80 = x_128;
+x_78 = x_132;
+x_79 = x_128;
+x_80 = x_131;
 x_81 = x_129;
 x_82 = x_133;
 x_83 = x_130;
@@ -2411,8 +2411,8 @@ lean_dec(x_153);
 if (x_157 == 0)
 {
 lean_free_object(x_151);
-x_128 = x_156;
-x_129 = x_150;
+x_128 = x_150;
+x_129 = x_156;
 x_130 = x_3;
 x_131 = x_4;
 x_132 = x_5;
@@ -2452,8 +2452,8 @@ x_172 = l_Lean_addTrace___at___Lean_Meta_processPostponed_loop_spec__1(x_150, x_
 x_173 = lean_ctor_get(x_172, 1);
 lean_inc(x_173);
 lean_dec(x_172);
-x_128 = x_156;
-x_129 = x_150;
+x_128 = x_150;
+x_129 = x_156;
 x_130 = x_3;
 x_131 = x_4;
 x_132 = x_5;
@@ -2476,8 +2476,8 @@ x_178 = lean_unbox(x_174);
 lean_dec(x_174);
 if (x_178 == 0)
 {
-x_128 = x_177;
-x_129 = x_150;
+x_128 = x_150;
+x_129 = x_177;
 x_130 = x_3;
 x_131 = x_4;
 x_132 = x_5;
@@ -2517,8 +2517,8 @@ x_194 = l_Lean_addTrace___at___Lean_Meta_processPostponed_loop_spec__1(x_150, x_
 x_195 = lean_ctor_get(x_194, 1);
 lean_inc(x_195);
 lean_dec(x_194);
-x_128 = x_177;
-x_129 = x_150;
+x_128 = x_150;
+x_129 = x_177;
 x_130 = x_3;
 x_131 = x_4;
 x_132 = x_5;

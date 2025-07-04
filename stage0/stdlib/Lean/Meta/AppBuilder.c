@@ -11164,7 +11164,7 @@ block_44:
 if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-lean_dec(x_14);
+lean_dec(x_15);
 x_18 = l___private_Lean_Meta_AppBuilder_0__Lean_Meta_withAppBuilderTrace___redArg___lam__1___closed__0;
 x_19 = l_Lean_Name_mkStr3(x_1, x_2, x_18);
 lean_inc(x_19);
@@ -11175,7 +11175,7 @@ lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
-x_21 = lean_apply_5(x_20, x_9, x_10, x_11, x_12, x_15);
+x_21 = lean_apply_5(x_20, x_9, x_10, x_11, x_12, x_14);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; uint8_t x_23; 
@@ -11313,7 +11313,7 @@ return x_43;
 else
 {
 lean_dec(x_16);
-lean_dec(x_15);
+lean_dec(x_14);
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
@@ -11325,7 +11325,7 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-return x_14;
+return x_15;
 }
 }
 block_50:
@@ -11336,16 +11336,16 @@ if (x_48 == 0)
 {
 uint8_t x_49; 
 x_49 = l_Lean_Exception_isRuntime(x_46);
-x_14 = x_45;
-x_15 = x_47;
+x_14 = x_47;
+x_15 = x_45;
 x_16 = x_46;
 x_17 = x_49;
 goto block_44;
 }
 else
 {
-x_14 = x_45;
-x_15 = x_47;
+x_14 = x_47;
+x_15 = x_45;
 x_16 = x_46;
 x_17 = x_48;
 goto block_44;
@@ -16950,11 +16950,11 @@ x_40 = l___private_Lean_Meta_AppBuilder_0__Lean_Meta_hasTypeMsg(x_1, x_13);
 x_41 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_41, 0, x_39);
 lean_ctor_set(x_41, 1, x_40);
-x_42 = l___private_Lean_Meta_AppBuilder_0__Lean_Meta_throwAppBuilderException___redArg(x_30, x_41, x_25, x_28, x_27, x_26, x_29);
+x_42 = l___private_Lean_Meta_AppBuilder_0__Lean_Meta_throwAppBuilderException___redArg(x_30, x_41, x_28, x_25, x_27, x_26, x_29);
 lean_dec(x_26);
 lean_dec(x_27);
-lean_dec(x_28);
 lean_dec(x_25);
+lean_dec(x_28);
 return x_42;
 }
 block_83:
@@ -16998,10 +16998,10 @@ lean_object* x_59;
 x_59 = lean_ctor_get(x_56, 1);
 lean_inc(x_59);
 lean_dec(x_56);
-x_25 = x_45;
+x_25 = x_46;
 x_26 = x_48;
 x_27 = x_47;
-x_28 = x_46;
+x_28 = x_45;
 x_29 = x_59;
 goto block_43;
 }
@@ -17017,10 +17017,10 @@ lean_object* x_61;
 x_61 = lean_ctor_get(x_56, 1);
 lean_inc(x_61);
 lean_dec(x_56);
-x_25 = x_45;
+x_25 = x_46;
 x_26 = x_48;
 x_27 = x_47;
-x_28 = x_46;
+x_28 = x_45;
 x_29 = x_61;
 goto block_43;
 }

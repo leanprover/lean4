@@ -316,9 +316,7 @@ return x_1;
 LEAN_EXPORT uint8_t l_Vector_instDecidableForallVectorZero(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
 _start:
 {
-uint8_t x_4; 
-x_4 = l_Vector_instDecidableForallVectorZero___redArg(x_3);
-return x_4;
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Vector_instDecidableForallVectorZero___redArg___boxed(lean_object* x_1) {

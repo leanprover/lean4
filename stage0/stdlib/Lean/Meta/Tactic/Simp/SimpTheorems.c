@@ -2783,7 +2783,7 @@ return x_16;
 LEAN_EXPORT lean_object* l_Lean_Meta_ppSimpTheorem___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 3);
@@ -2799,30 +2799,28 @@ lean_inc(x_8);
 lean_dec(x_3);
 if (x_5 == 0)
 {
-lean_object* x_15; 
-x_15 = l_Lean_Meta_initFn___closed__4____x40_Lean_Meta_Tactic_Simp_SimpTheorems___hyg_6_;
-x_9 = x_7;
-x_10 = x_15;
-goto block_14;
+lean_object* x_14; 
+x_14 = l_Lean_Meta_initFn___closed__4____x40_Lean_Meta_Tactic_Simp_SimpTheorems___hyg_6_;
+x_9 = x_14;
+goto block_13;
 }
 else
 {
-lean_object* x_16; 
-x_16 = l_Lean_Meta_instToFormatSimpTheorem___lam__1___closed__3;
-x_9 = x_7;
-x_10 = x_16;
-goto block_14;
+lean_object* x_15; 
+x_15 = l_Lean_Meta_instToFormatSimpTheorem___lam__1___closed__3;
+x_9 = x_15;
+goto block_13;
 }
-block_14:
+block_13:
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_11 = lean_alloc_closure((void*)(l_Lean_Meta_ppSimpTheorem___redArg___lam__0), 4, 3);
-lean_closure_set(x_11, 0, x_4);
-lean_closure_set(x_11, 1, x_10);
-lean_closure_set(x_11, 2, x_8);
-x_12 = l_Lean_Meta_ppOrigin___redArg(x_1, x_6);
-x_13 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_12, x_11);
-return x_13;
+lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_10 = lean_alloc_closure((void*)(l_Lean_Meta_ppSimpTheorem___redArg___lam__0), 4, 3);
+lean_closure_set(x_10, 0, x_4);
+lean_closure_set(x_10, 1, x_9);
+lean_closure_set(x_10, 2, x_8);
+x_11 = l_Lean_Meta_ppOrigin___redArg(x_1, x_6);
+x_12 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_11, x_10);
+return x_12;
 }
 }
 }

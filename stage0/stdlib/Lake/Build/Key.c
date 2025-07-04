@@ -542,137 +542,99 @@ return x_1;
 LEAN_EXPORT uint8_t l_Lake_decEqBuildKey____x40_Lake_Build_Key___hyg_295_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_box(0);
 switch (lean_obj_tag(x_1)) {
 case 0:
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_ctor_get(x_2, 0);
-x_6 = lean_name_eq(x_4, x_5);
-if (x_6 == 0)
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_ctor_get(x_2, 0);
+x_5 = lean_name_eq(x_3, x_4);
+return x_5;
+}
+else
 {
-uint8_t x_7; 
-x_7 = lean_unbox(x_3);
+lean_object* x_6; uint8_t x_7; 
+x_6 = lean_box(0);
+x_7 = lean_unbox(x_6);
 return x_7;
-}
-else
-{
-return x_6;
-}
-}
-else
-{
-uint8_t x_8; 
-x_8 = lean_unbox(x_3);
-return x_8;
 }
 }
 case 1:
 {
 if (lean_obj_tag(x_2) == 1)
 {
-lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_9 = lean_ctor_get(x_1, 0);
-x_10 = lean_ctor_get(x_2, 0);
-x_11 = lean_name_eq(x_9, x_10);
-if (x_11 == 0)
+lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_8 = lean_ctor_get(x_1, 0);
+x_9 = lean_ctor_get(x_2, 0);
+x_10 = lean_name_eq(x_8, x_9);
+return x_10;
+}
+else
 {
-uint8_t x_12; 
-x_12 = lean_unbox(x_3);
+lean_object* x_11; uint8_t x_12; 
+x_11 = lean_box(0);
+x_12 = lean_unbox(x_11);
 return x_12;
-}
-else
-{
-return x_11;
-}
-}
-else
-{
-uint8_t x_13; 
-x_13 = lean_unbox(x_3);
-return x_13;
 }
 }
 case 2:
 {
 if (lean_obj_tag(x_2) == 2)
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
-x_14 = lean_ctor_get(x_1, 0);
-x_15 = lean_ctor_get(x_1, 1);
-x_16 = lean_ctor_get(x_2, 0);
-x_17 = lean_ctor_get(x_2, 1);
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
+x_13 = lean_ctor_get(x_1, 0);
+x_14 = lean_ctor_get(x_1, 1);
+x_15 = lean_ctor_get(x_2, 0);
+x_16 = lean_ctor_get(x_2, 1);
+x_17 = lean_name_eq(x_13, x_15);
+if (x_17 == 0)
+{
+return x_17;
+}
+else
+{
+uint8_t x_18; 
 x_18 = lean_name_eq(x_14, x_16);
-if (x_18 == 0)
-{
-uint8_t x_19; 
-x_19 = lean_unbox(x_3);
-return x_19;
+return x_18;
+}
 }
 else
 {
-uint8_t x_20; 
-x_20 = lean_name_eq(x_15, x_17);
-if (x_20 == 0)
-{
-uint8_t x_21; 
-x_21 = lean_unbox(x_3);
-return x_21;
-}
-else
-{
+lean_object* x_19; uint8_t x_20; 
+x_19 = lean_box(0);
+x_20 = lean_unbox(x_19);
 return x_20;
-}
-}
-}
-else
-{
-uint8_t x_22; 
-x_22 = lean_unbox(x_3);
-return x_22;
 }
 }
 default: 
 {
 if (lean_obj_tag(x_2) == 3)
 {
-lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; 
-x_23 = lean_ctor_get(x_1, 0);
-x_24 = lean_ctor_get(x_1, 1);
-x_25 = lean_ctor_get(x_2, 0);
-x_26 = lean_ctor_get(x_2, 1);
-x_27 = l_Lake_decEqBuildKey____x40_Lake_Build_Key___hyg_295_(x_23, x_25);
-if (x_27 == 0)
+lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
+x_21 = lean_ctor_get(x_1, 0);
+x_22 = lean_ctor_get(x_1, 1);
+x_23 = lean_ctor_get(x_2, 0);
+x_24 = lean_ctor_get(x_2, 1);
+x_25 = l_Lake_decEqBuildKey____x40_Lake_Build_Key___hyg_295_(x_21, x_23);
+if (x_25 == 0)
 {
-uint8_t x_28; 
-x_28 = lean_unbox(x_3);
+return x_25;
+}
+else
+{
+uint8_t x_26; 
+x_26 = lean_name_eq(x_22, x_24);
+return x_26;
+}
+}
+else
+{
+lean_object* x_27; uint8_t x_28; 
+x_27 = lean_box(0);
+x_28 = lean_unbox(x_27);
 return x_28;
-}
-else
-{
-uint8_t x_29; 
-x_29 = lean_name_eq(x_24, x_26);
-if (x_29 == 0)
-{
-uint8_t x_30; 
-x_30 = lean_unbox(x_3);
-return x_30;
-}
-else
-{
-return x_29;
-}
-}
-}
-else
-{
-uint8_t x_31; 
-x_31 = lean_unbox(x_3);
-return x_31;
 }
 }
 }

@@ -766,13 +766,13 @@ return x_198;
 block_19:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_14 = lean_array_push(x_10, x_2);
+x_14 = lean_array_push(x_9, x_2);
 x_15 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_15, 0, x_12);
 lean_ctor_set(x_15, 1, x_13);
 lean_ctor_set(x_15, 2, x_14);
 x_16 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_16, 0, x_9);
+lean_ctor_set(x_16, 0, x_10);
 x_17 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_17, 0, x_16);
 lean_ctor_set(x_17, 1, x_15);
@@ -879,8 +879,8 @@ lean_object* x_65;
 x_65 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectMVars_visit_spec__1___redArg(x_58);
 lean_ctor_set(x_29, 1, x_65);
 lean_ctor_set(x_29, 0, x_57);
-x_9 = x_37;
-x_10 = x_33;
+x_9 = x_33;
+x_10 = x_37;
 x_11 = x_30;
 x_12 = x_32;
 x_13 = x_29;
@@ -890,8 +890,8 @@ else
 {
 lean_ctor_set(x_29, 1, x_58);
 lean_ctor_set(x_29, 0, x_57);
-x_9 = x_37;
-x_10 = x_33;
+x_9 = x_33;
+x_10 = x_37;
 x_11 = x_30;
 x_12 = x_32;
 x_13 = x_29;
@@ -927,8 +927,8 @@ x_75 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectMVars_visit_s
 x_76 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_76, 0, x_67);
 lean_ctor_set(x_76, 1, x_75);
-x_9 = x_37;
-x_10 = x_33;
+x_9 = x_33;
+x_10 = x_37;
 x_11 = x_30;
 x_12 = x_32;
 x_13 = x_76;
@@ -940,8 +940,8 @@ lean_object* x_77;
 x_77 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_77, 0, x_67);
 lean_ctor_set(x_77, 1, x_68);
-x_9 = x_37;
-x_10 = x_33;
+x_9 = x_33;
+x_10 = x_37;
 x_11 = x_30;
 x_12 = x_32;
 x_13 = x_77;
@@ -955,8 +955,8 @@ lean_dec(x_51);
 lean_dec(x_36);
 lean_dec(x_35);
 lean_free_object(x_28);
-x_9 = x_37;
-x_10 = x_33;
+x_9 = x_33;
+x_10 = x_37;
 x_11 = x_30;
 x_12 = x_32;
 x_13 = x_29;
@@ -1032,8 +1032,8 @@ if (lean_is_scalar(x_98)) {
 }
 lean_ctor_set(x_110, 0, x_100);
 lean_ctor_set(x_110, 1, x_109);
-x_9 = x_82;
-x_10 = x_79;
+x_9 = x_79;
+x_10 = x_82;
 x_11 = x_30;
 x_12 = x_78;
 x_13 = x_110;
@@ -1049,8 +1049,8 @@ if (lean_is_scalar(x_98)) {
 }
 lean_ctor_set(x_111, 0, x_100);
 lean_ctor_set(x_111, 1, x_102);
-x_9 = x_82;
-x_10 = x_79;
+x_9 = x_79;
+x_10 = x_82;
 x_11 = x_30;
 x_12 = x_78;
 x_13 = x_111;
@@ -1062,8 +1062,8 @@ else
 lean_dec(x_96);
 lean_dec(x_81);
 lean_dec(x_80);
-x_9 = x_82;
-x_10 = x_79;
+x_9 = x_79;
+x_10 = x_82;
 x_11 = x_30;
 x_12 = x_78;
 x_13 = x_29;

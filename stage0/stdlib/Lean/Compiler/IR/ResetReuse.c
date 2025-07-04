@@ -1152,7 +1152,7 @@ return x_9;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; 
+lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; 
 switch (lean_obj_tag(x_3)) {
 case 1:
 {
@@ -1612,9 +1612,9 @@ lean_dec(x_1);
 x_121 = lean_unbox(x_114);
 lean_dec(x_114);
 x_6 = x_118;
-x_7 = x_110;
-x_8 = x_121;
-x_9 = x_116;
+x_7 = x_121;
+x_8 = x_116;
+x_9 = x_110;
 goto block_14;
 }
 else
@@ -1671,9 +1671,9 @@ lean_dec(x_1);
 x_133 = lean_unbox(x_114);
 lean_dec(x_114);
 x_6 = x_131;
-x_7 = x_110;
-x_8 = x_133;
-x_9 = x_116;
+x_7 = x_133;
+x_8 = x_116;
+x_9 = x_110;
 goto block_14;
 }
 else
@@ -1725,9 +1725,9 @@ lean_dec(x_113);
 x_143 = lean_unbox(x_114);
 lean_dec(x_114);
 x_6 = x_142;
-x_7 = x_110;
-x_8 = x_143;
-x_9 = x_141;
+x_7 = x_143;
+x_8 = x_141;
+x_9 = x_110;
 goto block_14;
 }
 }
@@ -1773,14 +1773,14 @@ return x_161;
 block_14:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_10 = l_Lean_IR_FnBody_setBody(x_7, x_6);
-x_11 = lean_box(x_8);
+x_10 = l_Lean_IR_FnBody_setBody(x_9, x_6);
+x_11 = lean_box(x_7);
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
-lean_ctor_set(x_13, 1, x_9);
+lean_ctor_set(x_13, 1, x_8);
 return x_13;
 }
 }

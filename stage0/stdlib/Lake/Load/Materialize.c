@@ -2492,13 +2492,13 @@ if (lean_obj_tag(x_87) == 0)
 {
 lean_object* x_93; 
 x_93 = l_Lake_instInhabitedMaterializedDep___closed__0;
-x_9 = x_92;
-x_10 = x_88;
-x_11 = x_89;
+x_9 = x_88;
+x_10 = x_91;
+x_11 = x_44;
 x_12 = x_82;
-x_13 = x_91;
-x_14 = x_81;
-x_15 = x_44;
+x_13 = x_81;
+x_14 = x_89;
+x_15 = x_92;
 x_16 = x_86;
 x_17 = x_93;
 goto block_20;
@@ -2509,13 +2509,13 @@ lean_object* x_94;
 x_94 = lean_ctor_get(x_87, 0);
 lean_inc(x_94);
 lean_dec(x_87);
-x_9 = x_92;
-x_10 = x_88;
-x_11 = x_89;
+x_9 = x_88;
+x_10 = x_91;
+x_11 = x_44;
 x_12 = x_82;
-x_13 = x_91;
-x_14 = x_81;
-x_15 = x_44;
+x_13 = x_81;
+x_14 = x_89;
+x_15 = x_92;
 x_16 = x_86;
 x_17 = x_94;
 goto block_20;
@@ -2803,10 +2803,10 @@ return x_230;
 }
 block_20:
 {
-if (lean_obj_tag(x_15) == 0)
+if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_18; 
-x_18 = l_Lake_Dependency_materialize_materializeGit(x_1, x_2, x_3, x_4, x_13, x_9, x_16, x_17, x_10, x_11, x_12, x_14);
+x_18 = l_Lake_Dependency_materialize_materializeGit(x_1, x_2, x_3, x_4, x_10, x_15, x_16, x_17, x_9, x_14, x_12, x_13);
 lean_dec(x_3);
 lean_dec(x_1);
 return x_18;
@@ -2814,8 +2814,8 @@ return x_18;
 else
 {
 lean_object* x_19; 
-lean_dec(x_10);
-x_19 = l_Lake_Dependency_materialize_materializeGit(x_1, x_2, x_3, x_4, x_13, x_9, x_16, x_17, x_15, x_11, x_12, x_14);
+lean_dec(x_9);
+x_19 = l_Lake_Dependency_materialize_materializeGit(x_1, x_2, x_3, x_4, x_10, x_15, x_16, x_17, x_11, x_14, x_12, x_13);
 lean_dec(x_3);
 lean_dec(x_1);
 return x_19;
@@ -3276,8 +3276,8 @@ block_41:
 {
 if (lean_obj_tag(x_24) == 0)
 {
-x_25 = x_38;
-x_26 = x_37;
+x_25 = x_37;
+x_26 = x_38;
 x_27 = x_36;
 goto block_31;
 }
@@ -3289,8 +3289,8 @@ lean_inc(x_39);
 lean_dec(x_24);
 x_40 = l_Lake_joinRelative(x_36, x_39);
 lean_dec(x_39);
-x_25 = x_38;
-x_26 = x_37;
+x_25 = x_37;
+x_26 = x_38;
 x_27 = x_40;
 goto block_31;
 }
@@ -3391,10 +3391,10 @@ lean_ctor_set(x_11, 1, x_10);
 lean_ctor_set(x_11, 2, x_1);
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
-lean_ctor_set(x_12, 1, x_9);
+lean_ctor_set(x_12, 1, x_8);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
-lean_ctor_set(x_13, 1, x_8);
+lean_ctor_set(x_13, 1, x_9);
 return x_13;
 }
 }

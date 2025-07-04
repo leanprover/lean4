@@ -1607,7 +1607,7 @@ return x_27;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_mkDefViewOfDef(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_25; lean_object* x_35; lean_object* x_36; uint8_t x_37; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_25; lean_object* x_35; lean_object* x_36; uint8_t x_37; 
 x_3 = lean_unsigned_to_nat(2u);
 x_4 = l_Lean_Syntax_getArg(x_2, x_3);
 x_5 = l_Lean_Elab_expandOptDeclSig(x_4);
@@ -1644,7 +1644,7 @@ goto block_34;
 block_24:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-x_14 = l_Array_toSubarray___redArg(x_8, x_12, x_13);
+x_14 = l_Array_toSubarray___redArg(x_9, x_12, x_13);
 x_15 = l_Array_ofSubarray___redArg(x_14);
 lean_dec(x_14);
 x_16 = l_Lean_Elab_Command_mkDefViewOfAbbrev___closed__7;
@@ -1655,8 +1655,8 @@ lean_ctor_set(x_18, 1, x_16);
 lean_ctor_set(x_18, 2, x_15);
 x_19 = lean_unsigned_to_nat(1u);
 x_20 = l_Lean_Syntax_getArg(x_2, x_19);
-x_21 = l_Lean_Syntax_getArg(x_2, x_9);
-lean_dec(x_9);
+x_21 = l_Lean_Syntax_getArg(x_2, x_11);
+lean_dec(x_11);
 x_22 = lean_box(0);
 x_23 = lean_alloc_ctor(0, 9, 1);
 lean_ctor_set(x_23, 0, x_2);
@@ -1667,8 +1667,8 @@ lean_ctor_set(x_23, 4, x_6);
 lean_ctor_set(x_23, 5, x_7);
 lean_ctor_set(x_23, 6, x_21);
 lean_ctor_set(x_23, 7, x_22);
-lean_ctor_set(x_23, 8, x_10);
-lean_ctor_set_uint8(x_23, sizeof(void*)*9, x_11);
+lean_ctor_set(x_23, 8, x_8);
+lean_ctor_set_uint8(x_23, sizeof(void*)*9, x_10);
 return x_23;
 }
 block_34:
@@ -1684,10 +1684,10 @@ if (x_31 == 0)
 {
 uint8_t x_32; 
 x_32 = lean_unbox(x_26);
-x_8 = x_27;
-x_9 = x_28;
-x_10 = x_25;
-x_11 = x_32;
+x_8 = x_25;
+x_9 = x_27;
+x_10 = x_32;
+x_11 = x_28;
 x_12 = x_29;
 x_13 = x_30;
 goto block_24;
@@ -1697,10 +1697,10 @@ else
 uint8_t x_33; 
 lean_dec(x_30);
 x_33 = lean_unbox(x_26);
-x_8 = x_27;
-x_9 = x_28;
-x_10 = x_25;
-x_11 = x_33;
+x_8 = x_25;
+x_9 = x_27;
+x_10 = x_33;
+x_11 = x_28;
 x_12 = x_29;
 x_13 = x_28;
 goto block_24;

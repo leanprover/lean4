@@ -94,7 +94,7 @@ static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_ofArray__
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_ofArray_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_toList___closed__0;
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_toList_spec__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at___Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices_spec__0___lam__0(uint8_t, uint8_t, uint8_t);
+LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at___Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices_spec__0___lam__0(uint8_t, uint8_t);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_removeAssignment(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Array_forIn_x27Unsafe_loop___at___Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_numClausesInFormula_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -110,7 +110,7 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_toLi
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_ofArray(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices_spec__0___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices_spec__0___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_restoreAssignments(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_numClausesInFormula_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRupAdd(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2710,18 +2710,17 @@ lean_dec(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at___Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices_spec__0___lam__0(uint8_t x_1, uint8_t x_2, uint8_t x_3) {
+LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at___Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices_spec__0___lam__0(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_4; 
-x_4 = lean_box(1);
+if (x_1 == 0)
+{
 if (x_2 == 0)
 {
-if (x_3 == 0)
-{
-uint8_t x_5; 
-x_5 = lean_unbox(x_4);
-return x_5;
+lean_object* x_3; uint8_t x_4; 
+x_3 = lean_box(1);
+x_4 = lean_unbox(x_3);
+return x_4;
 }
 else
 {
@@ -2730,16 +2729,7 @@ return x_1;
 }
 else
 {
-if (x_3 == 0)
-{
-return x_1;
-}
-else
-{
-uint8_t x_6; 
-x_6 = lean_unbox(x_4);
-return x_6;
-}
+return x_2;
 }
 }
 }
@@ -2762,26 +2752,24 @@ goto block_13;
 }
 else
 {
-lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
+lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
 x_17 = lean_ctor_get(x_16, 0);
 lean_inc(x_17);
 lean_dec(x_16);
-x_18 = lean_box(x_14);
-x_19 = lean_alloc_closure((void*)(l_Array_foldlMUnsafe_fold___at___Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices_spec__0___lam__0___boxed), 3, 1);
-lean_closure_set(x_19, 0, x_18);
+x_18 = lean_alloc_closure((void*)(l_Array_foldlMUnsafe_fold___at___Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices_spec__0___lam__0___boxed), 2, 0);
 lean_inc(x_3);
-x_20 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___boxed), 3, 1);
-lean_closure_set(x_20, 0, x_3);
+x_19 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___boxed), 3, 1);
+lean_closure_set(x_19, 0, x_3);
+x_20 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(x_20, 0, x_19);
 x_21 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(x_21, 0, x_20);
-x_22 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(x_22, 0, x_19);
-x_23 = lean_alloc_closure((void*)(l_instBEqProd___redArg___lam__0___boxed), 4, 2);
-lean_closure_set(x_23, 0, x_21);
-lean_closure_set(x_23, 1, x_22);
+lean_closure_set(x_21, 0, x_18);
+x_22 = lean_alloc_closure((void*)(l_instBEqProd___redArg___lam__0___boxed), 4, 2);
+lean_closure_set(x_22, 0, x_20);
+lean_closure_set(x_22, 1, x_21);
 lean_inc(x_4);
-x_24 = l_List_elem___redArg(x_23, x_4, x_17);
-if (x_24 == 0)
+x_23 = l_List_elem___redArg(x_22, x_4, x_17);
+if (x_23 == 0)
 {
 lean_dec(x_15);
 x_9 = x_8;
@@ -2789,9 +2777,9 @@ goto block_13;
 }
 else
 {
-lean_object* x_25; 
-x_25 = lean_array_push(x_8, x_15);
-x_9 = x_25;
+lean_object* x_24; 
+x_24 = lean_array_push(x_8, x_15);
+x_9 = x_24;
 goto block_13;
 }
 }
@@ -2968,19 +2956,17 @@ return x_35;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices_spec__0___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices_spec__0___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_4; uint8_t x_5; uint8_t x_6; uint8_t x_7; lean_object* x_8; 
-x_4 = lean_unbox(x_1);
+uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = lean_unbox(x_1);
 lean_dec(x_1);
-x_5 = lean_unbox(x_2);
+x_4 = lean_unbox(x_2);
 lean_dec(x_2);
-x_6 = lean_unbox(x_3);
-lean_dec(x_3);
-x_7 = l_Array_foldlMUnsafe_fold___at___Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices_spec__0___lam__0(x_4, x_5, x_6);
-x_8 = lean_box(x_7);
-return x_8;
+x_5 = l_Array_foldlMUnsafe_fold___at___Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices_spec__0___lam__0(x_3, x_4);
+x_6 = lean_box(x_5);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -3074,38 +3060,23 @@ return x_6;
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRatCheck___lam__0(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_box(1);
-x_4 = lean_box(0);
 if (x_1 == 0)
 {
 if (x_2 == 0)
 {
-uint8_t x_5; 
-x_5 = lean_unbox(x_3);
-return x_5;
+lean_object* x_3; uint8_t x_4; 
+x_3 = lean_box(1);
+x_4 = lean_unbox(x_3);
+return x_4;
 }
 else
 {
-uint8_t x_6; 
-x_6 = lean_unbox(x_4);
-return x_6;
+return x_1;
 }
 }
 else
 {
-if (x_2 == 0)
-{
-uint8_t x_7; 
-x_7 = lean_unbox(x_4);
-return x_7;
-}
-else
-{
-uint8_t x_8; 
-x_8 = lean_unbox(x_3);
-return x_8;
-}
+return x_2;
 }
 }
 }

@@ -96,7 +96,7 @@ def FailConds.entails {ps : PostShape} (x y : FailConds ps) : Prop :=
   | .arg _ ps => @entails ps x y
   | .except _ ps => (∀ e, x.1 e ⊢ₛ y.1 e) ∧ @entails ps x.2 y.2
 
-infixr:25 " ⊢ₑ " => FailConds.entails
+scoped infix:25 " ⊢ₑ " => FailConds.entails
 
 @[simp, refl]
 theorem FailConds.entails.refl {ps : PostShape} (x : FailConds ps) : x ⊢ₑ x := by
@@ -182,20 +182,19 @@ theorem FailConds.and_eq_left {ps : PostShape} {p q : FailConds ps} (h : p ⊢�
 abbrev PostCond (α : Type) (s : PostShape) : Type :=
   (α → Assertion s) × FailConds s
 
+@[inherit_doc PostCond]
 scoped macro:max "post⟨" handlers:term,+,? "⟩" : term =>
   `(by exact ⟨$handlers,*, ()⟩)
   -- NB: Postponement through by exact is the entire point of this macro
   -- until https://github.com/leanprover/lean4/pull/8074 lands
-example : PostCond Nat .pure := post⟨fun s => True⟩
-example : PostCond (Nat × Nat) (PostShape.except Nat (PostShape.arg Nat PostShape.pure)) :=
-  post⟨fun (r, xs) s => r ≤ 4 ∧ s = 4 ∧ r + xs > 4, fun e s => e = 42 ∧ s = 4⟩
 
 /-- A postcondition expressing total correctness. -/
 abbrev PostCond.total (p : α → Assertion ps) : PostCond α ps :=
   (p, FailConds.false)
 
--- The syntax `⇓ a b c => p` is defined as a builtin term parser in `Lean.Elab.Tactic.Do.Syntax`
--- because the `basicFun` parser is not available in `Init`.
+@[inherit_doc PostCond.total]
+scoped macro:max ppAllowUngrouped "⇓" xs:term:max+ " => " e:term : term =>
+  `(PostCond.total (by exact fun $xs* => spred($e)))
 
 /-- A postcondition expressing partial correctness. -/
 abbrev PostCond.partial (p : α → Assertion ps) : PostCond α ps :=
@@ -208,7 +207,7 @@ instance : Inhabited (PostCond α ps) where
 def PostCond.entails (p q : PostCond α ps) : Prop :=
   (∀ a, SPred.entails (p.1 a) (q.1 a)) ∧ FailConds.entails p.2 q.2
 
-infixr:25 " ⊢ₚ " => PostCond.entails
+scoped infix:25 " ⊢ₚ " => PostCond.entails
 
 @[refl,simp]
 theorem PostCond.entails.refl (Q : PostCond α ps) : Q ⊢ₚ Q := ⟨fun a => SPred.entails.refl (Q.1 a), FailConds.entails.refl Q.2⟩
@@ -228,7 +227,7 @@ theorem PostCond.entails_partial (p : PostCond α ps) (q : α → Assertion ps) 
 abbrev PostCond.and (p : PostCond α ps) (q : PostCond α ps) : PostCond α ps :=
   (fun a => SPred.and (p.1 a) (q.1 a), FailConds.and p.2 q.2)
 
-infixr:35 " ∧ₚ " => PostCond.and
+scoped infixr:35 " ∧ₚ " => PostCond.and
 
 theorem PostCond.and_eq_left {p q : PostCond α ps} (h : p ⊢ₚ q) :
     p = (p ∧ₚ q) := by

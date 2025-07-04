@@ -212,6 +212,7 @@ static lean_object* l_Vector_insertIdx_x21___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Vector_mkEmpty___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Vector_firstM___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_findSomeRevM_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l___auto___closed__0____x40_Init_Data_Vector_Basic___hyg_8707_;
 static lean_object* l_reprVector___redArg___closed__0____x40_Init_Data_Vector_Basic___hyg_39_;
 LEAN_EXPORT lean_object* l_Vector_head___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -798,7 +799,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(2u);
-x_2 = lean_nat_to_int(x_1);
+x_2 = l_instNatCastInt___lam__0(x_1);
 return x_2;
 }
 }

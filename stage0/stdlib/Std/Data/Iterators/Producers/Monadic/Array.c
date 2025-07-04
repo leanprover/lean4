@@ -267,9 +267,9 @@ LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorCollectArrayIteratorOfMonad
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_6 = lean_ctor_get(x_4, 0);
+x_6 = lean_ctor_get(x_3, 0);
 lean_inc(x_6);
-lean_dec(x_4);
+lean_dec(x_3);
 x_7 = lean_ctor_get(x_6, 1);
 lean_inc(x_7);
 lean_dec(x_6);
@@ -307,9 +307,9 @@ LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorCollectPartialArrayIterator
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_6 = lean_ctor_get(x_4, 0);
+x_6 = lean_ctor_get(x_3, 0);
 lean_inc(x_6);
-lean_dec(x_4);
+lean_dec(x_3);
 x_7 = lean_ctor_get(x_6, 1);
 lean_inc(x_7);
 lean_dec(x_6);
@@ -355,9 +355,9 @@ LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorLoopArrayIteratorOfMonad(le
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_6 = lean_ctor_get(x_4, 0);
+x_6 = lean_ctor_get(x_3, 0);
 lean_inc(x_6);
-lean_dec(x_4);
+lean_dec(x_3);
 x_7 = lean_ctor_get(x_6, 1);
 lean_inc(x_7);
 lean_dec(x_6);
@@ -399,9 +399,9 @@ LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorLoopPartialArrayIteratorOfM
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_6 = lean_ctor_get(x_4, 0);
+x_6 = lean_ctor_get(x_3, 0);
 lean_inc(x_6);
-lean_dec(x_4);
+lean_dec(x_3);
 x_7 = lean_ctor_get(x_6, 1);
 lean_inc(x_7);
 lean_dec(x_6);

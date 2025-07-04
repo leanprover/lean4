@@ -68,9 +68,9 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_getAssignment_x3f(lean_o
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 28);
+x_3 = lean_ctor_get(x_1, 29);
 lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 32);
+x_4 = lean_ctor_get(x_1, 33);
 lean_inc(x_4);
 lean_dec(x_1);
 x_5 = l_Lean_PersistentHashMap_find_x3f___at___Lean_Meta_Grind_shareCommonAlpha_go_spec__0___redArg(x_3, x_2);

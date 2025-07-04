@@ -74,7 +74,6 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_Main_0__Lean_Meta_Grind_m
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Main_0__Lean_Meta_Grind_mkGoal___closed__17;
 lean_object* l_Lean_PersistentHashMap_toList___at___Lean_Environment_dbgFormatAsyncState_spec__20___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Main_0__Lean_Meta_Grind_mkCleanState(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PersistentHashMap_empty___at___Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind_EMatchTheorem___hyg_5528__spec__0(lean_object*);
 static lean_object* l_Lean_Meta_Grind_main___lam__1___closed__3;
 LEAN_EXPORT uint8_t l_Array_qsort_sort___at_____private_Lean_Meta_Tactic_Grind_Main_0__Lean_Meta_Grind_countersToMessageData_spec__1___redArg___lam__0(lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_withContext___at___Lean_Meta_Grind_Goal_checkInvariants_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -194,6 +193,7 @@ lean_object* l_Lean_MVarId_withContext___at_____private_Lean_Meta_SynthInstance_
 lean_object* l_Lean_Meta_Grind_getBoolTrueExpr___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Main_0__Lean_Meta_Grind_mkGlobalDiag___closed__17;
+lean_object* l_Lean_PersistentHashMap_empty___at___Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind_EMatchTheorem___hyg_5718__spec__0(lean_object*);
 static lean_object* l_Lean_Meta_Grind_GrindM_run___redArg___closed__37;
 static lean_object* l_Lean_Meta_Grind_GrindM_run___redArg___closed__44;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Main_0__Lean_Meta_Grind_discharge_x3f___closed__1;
@@ -443,7 +443,7 @@ static lean_object* _init_l_Lean_Meta_Grind_mkParams___redArg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_PersistentHashMap_empty___at___Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind_EMatchTheorem___hyg_5528__spec__0(lean_box(0));
+x_1 = l_Lean_PersistentHashMap_empty___at___Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind_EMatchTheorem___hyg_5718__spec__0(lean_box(0));
 return x_1;
 }
 }

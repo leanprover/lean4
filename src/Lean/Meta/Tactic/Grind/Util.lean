@@ -144,8 +144,10 @@ def foldProjs (e : Expr) : MetaM Expr := do
         F ⟶ G
       ```
       We should make `mkProjection` more robust.
+
+      The `mkProjection` function may create new kernel projections. So, we must use `.visit`.
       -/
-      return .done (← withDefault <| mkProjection s fieldName)
+      return .visit (← withDefault <| mkProjection s fieldName)
     else
       trace[grind.issues] "found `Expr.proj` with invalid field index `{idx}`{indentExpr e}"
       return .done e

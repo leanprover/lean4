@@ -7,9 +7,9 @@ Ensure that we have not created lossy cast instances.
 error: type mismatch
   x
 has type
-  Nat
+  Nat : Type
 but is expected to have type
-  Fin 8
+  Fin 8 : Type
 -/
 #guard_msgs in
 example (x : Nat) : Fin 8 := x
@@ -18,9 +18,9 @@ example (x : Nat) : Fin 8 := x
 error: type mismatch
   x
 has type
-  Nat
+  Nat : Type
 but is expected to have type
-  UInt8
+  UInt8 : Type
 -/
 #guard_msgs in
 example (x : Nat) : UInt8 := x
@@ -29,9 +29,9 @@ example (x : Nat) : UInt8 := x
 error: type mismatch
   x
 has type
-  Nat
+  Nat : Type
 but is expected to have type
-  USize
+  USize : Type
 -/
 #guard_msgs in
 example (x : Nat) : USize := x
@@ -40,9 +40,9 @@ example (x : Nat) : USize := x
 error: type mismatch
   x
 has type
-  Nat
+  Nat : Type
 but is expected to have type
-  Int8
+  Int8 : Type
 -/
 #guard_msgs in
 example (x : Nat) : Int8 := x
@@ -51,9 +51,9 @@ example (x : Nat) : Int8 := x
 error: type mismatch
   x
 has type
-  Nat
+  Nat : Type
 but is expected to have type
-  ISize
+  ISize : Type
 -/
 #guard_msgs in
 example (x : Nat) : ISize := x

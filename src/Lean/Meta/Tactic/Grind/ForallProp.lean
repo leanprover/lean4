@@ -123,6 +123,14 @@ builtin_grind_propagator propagateExistsDown ↓Exists := fun e => do
     let proof := mkApp3 (mkConst ``forall_not_of_not_exists u) α p (mkOfEqFalseCore e (← mkEqFalseProof e))
     addNewRawFact proof prop (← getGeneration e) (.existsProp e)
 
+private def isForallOrNot? (e : Expr) : Option (Name × Expr × Expr) :=
+  if let .forallE n d b _ := e then
+    some (n, d, b)
+  else if e.isAppOfArity ``Not 1 then
+    some (`a, e.appArg!, mkConst ``False)
+  else
+    none
+
 /--
 Applies the following rewriting rules:
 - `Grind.imp_true_eq`
@@ -176,23 +184,23 @@ builtin_simproc_decl simpForall ((a : _) → _) := fun e => do
       let left  := b.appFn!.appArg!
       let right := b.appArg!
       let α := d
-      if let .forallE bName βRaw qRaw info' := left then
+      if let some (bName, βRaw, qRaw) := isForallOrNot? left then
         let pRaw := right
         let p := mkLambda varName info α pRaw
-        let q := mkLambda varName info α (mkLambda bName info' βRaw qRaw)
+        let q := mkLambda varName info α (mkLambda bName .default βRaw qRaw)
         let β := mkLambda varName info α βRaw
         let u ← getLevel α
         let v ← withLocalDeclD varName α fun a => getLevel (βRaw.instantiate1 a)
-        let expr := mkForall varName info α (mkForall bName info' βRaw (mkOr qRaw (pRaw.liftLooseBVars 0 1)))
+        let expr := mkForall varName info α (mkForall bName .default βRaw (mkOr qRaw (pRaw.liftLooseBVars 0 1)))
         return .visit { expr, proof? := mkApp4 (mkConst ``Grind.forall_forall_or [u, v]) α β p q }
-      else if let .forallE bName βRaw qRaw info' := right then
+      else if let some (bName, βRaw, qRaw) := isForallOrNot? right then
         let pRaw := left
         let p := mkLambda varName info α pRaw
-        let q := mkLambda varName info α (mkLambda bName info' βRaw qRaw)
+        let q := mkLambda varName info α (mkLambda bName .default βRaw qRaw)
         let β := mkLambda varName info α βRaw
         let u ← getLevel α
         let v ← withLocalDeclD varName α fun a => getLevel (βRaw.instantiate1 a)
-        let expr := mkForall varName info α (mkForall bName info' βRaw (mkOr (pRaw.liftLooseBVars 0 1) qRaw))
+        let expr := mkForall varName info α (mkForall bName .default βRaw (mkOr (pRaw.liftLooseBVars 0 1) qRaw))
         return .visit { expr, proof? := mkApp4 (mkConst ``Grind.forall_or_forall [u, v]) α β p q }
     else if bDeclName == ``And then
       let pRaw := b.appFn!.appArg!

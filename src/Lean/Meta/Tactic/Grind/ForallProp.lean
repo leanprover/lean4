@@ -123,4 +123,97 @@ builtin_grind_propagator propagateExistsDown ↓Exists := fun e => do
     let proof := mkApp3 (mkConst ``forall_not_of_not_exists u) α p (mkOfEqFalseCore e (← mkEqFalseProof e))
     addNewRawFact proof prop (← getGeneration e) (.existsProp e)
 
+private def isForallOrNot? (e : Expr) : Option (Name × Expr × Expr) :=
+  if let .forallE n d b _ := e then
+    some (n, d, b)
+  else if e.isAppOfArity ``Not 1 then
+    some (`a, e.appArg!, mkConst ``False)
+  else
+    none
+
+/--
+Applies the following rewriting rules:
+- `Grind.imp_true_eq`
+- `Grind.imp_false_eq`
+- `Grind.forall_imp_eq_or`
+- `Grind.true_imp_eq`
+- `Grind.false_imp_eq`
+- `Grind.imp_self_eq`
+- `forall_true`
+- `forall_false`
+- `Grind.forall_or_forall`
+- `Grind.forall_forall_or`
+- `Grind.forall_and`
+-/
+builtin_simproc_decl simpForall ((a : _) → _) := fun e => do
+  let .forallE varName d b info := e | return .continue
+  if !b.hasLooseBVars then
+    match_expr d with
+    | True => if (← isProp b) then return .done { expr := b, proof? := mkApp (mkConst ``Grind.true_imp_eq) b }
+    | False => if (← isProp b) then return .done { expr := mkConst ``True, proof? := mkApp (mkConst ``Grind.false_imp_eq) b }
+    | _ =>
+    if let .forallE aName α pRaw info' := d then
+      if (← pure pRaw.hasLooseBVars <&&> isProp d) then
+        let p := mkLambda aName info' α pRaw
+        let q := b
+        let u ← getLevel α
+        let expr := mkOr (mkApp2 (mkConst ``Exists [u]) α (mkLambda aName info' α (mkNot pRaw))) q
+        return .visit { expr, proof? := mkApp3 (mkConst ``Grind.forall_imp_eq_or [u]) α p q }
+    else match_expr b with
+    | True => if (← isProp d) then return .done { expr := mkConst ``True, proof? := mkApp (mkConst ``Grind.imp_true_eq) d }
+    | False => if (← isProp d) then return .visit { expr := mkNot d, proof? := mkApp (mkConst ``Grind.imp_false_eq) d }
+    | _ => if (← isProp d <&&> isDefEq d b) then
+      return .done { expr := mkConst ``True, proof? := mkApp (mkConst ``Grind.imp_self_eq) d }
+  else
+    -- `b` has loose bound variables
+    match_expr d with
+    | True =>
+      let pTrue := b.instantiate1 (mkConst ``True.intro)
+      if (← isProp pTrue) then
+        let p := mkLambda varName info d b
+        return .done { expr := pTrue, proof? := mkApp (mkConst ``Grind.forall_true) p }
+    | False =>
+      let p := mkLambda varName info d b
+      if (← isDefEq (← inferType p) (mkForall varName info d (mkSort 0))) then
+        return .done { expr := mkConst ``True, proof? := mkApp (mkConst ``forall_false) p }
+    | _ => pure ()
+  -- We try to apply `forall_and`, `forall_or_forall`, and `forall_forall_or` whether `b` has loose bound variables or not.
+  if b.isApp && b.getAppNumArgs == 2 then
+    let .const bDeclName _ := b.appFn!.appFn! | return .continue
+    if bDeclName == ``Or then
+      let left  := b.appFn!.appArg!
+      let right := b.appArg!
+      let α := d
+      if let some (bName, βRaw, qRaw) := isForallOrNot? left then
+        let pRaw := right
+        let p := mkLambda varName info α pRaw
+        let q := mkLambda varName info α (mkLambda bName .default βRaw qRaw)
+        let β := mkLambda varName info α βRaw
+        let u ← getLevel α
+        let v ← withLocalDeclD varName α fun a => getLevel (βRaw.instantiate1 a)
+        let expr := mkForall varName info α (mkForall bName .default βRaw (mkOr qRaw (pRaw.liftLooseBVars 0 1)))
+        return .visit { expr, proof? := mkApp4 (mkConst ``Grind.forall_forall_or [u, v]) α β p q }
+      else if let some (bName, βRaw, qRaw) := isForallOrNot? right then
+        let pRaw := left
+        let p := mkLambda varName info α pRaw
+        let q := mkLambda varName info α (mkLambda bName .default βRaw qRaw)
+        let β := mkLambda varName info α βRaw
+        let u ← getLevel α
+        let v ← withLocalDeclD varName α fun a => getLevel (βRaw.instantiate1 a)
+        let expr := mkForall varName info α (mkForall bName .default βRaw (mkOr (pRaw.liftLooseBVars 0 1) qRaw))
+        return .visit { expr, proof? := mkApp4 (mkConst ``Grind.forall_or_forall [u, v]) α β p q }
+    else if bDeclName == ``And then
+      let pRaw := b.appFn!.appArg!
+      let qRaw := b.appArg!
+      let p := mkLambda varName info d pRaw
+      let q := mkLambda varName info d qRaw
+      let expr := mkAnd (mkForall varName info d pRaw) (mkForall varName info d qRaw)
+      let u ← getLevel d
+      return .visit { expr, proof? := mkApp3 (mkConst ``Grind.forall_and [u]) d p q }
+  -- None of the rules were applicable
+  return .continue
+
+def addForallSimproc (s : Simprocs) : CoreM Simprocs := do
+  s.add ``simpForall (post := true)
+
 end Lean.Meta.Grind

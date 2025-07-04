@@ -8,6 +8,7 @@ import Lean.Meta.Tactic.Simp.Simproc
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.MatchCond
+import Lean.Meta.Tactic.Grind.ForallProp
 import Lean.Meta.Tactic.Grind.Arith.Simproc
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.List
 
@@ -68,6 +69,7 @@ protected def getSimprocs : MetaM (Array Simprocs) := do
   let s ← addSimpMatchDiscrsOnly s
   let s ← addPreMatchCondSimproc s
   let s ← Arith.addSimproc s
+  let s ← addForallSimproc s
   let s ← s.add ``simpBoolEq (post := false)
   return #[s]
 

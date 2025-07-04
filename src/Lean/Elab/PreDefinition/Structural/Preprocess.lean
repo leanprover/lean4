@@ -40,18 +40,14 @@ Preprocesses the expressions to improve the effectiveness of `elimRecursion`.
   (typically abstracted) proofs.
 
 -/
-def preprocess (e : Expr) (recFnNames : Array Name) : MetaM Expr :=
-  Meta.transform e
-    (pre := fun e => do
+def preprocess (e : Expr) (recFnNames : Array Name) : CoreM Expr := do
+  let e ← unfoldIfArgIsConstOf recFnNames e
+  Core.transform e
+    (pre := fun e =>
       if shouldBetaReduce e recFnNames then
         return .visit e.headBeta
-      let f := e.getAppFn
-      if f.isConst then
-        if e.getAppArgs.any (fun a => a.isConst && a.constName! ∈ recFnNames)
-         then
-          if let some e' ← withoutExporting <| withTransparency .all <| unfoldDefinition? e then
-            return .visit e'
-      return .continue)
+      else
+        return .continue)
     (post := fun e => do
       if e.isApp && e.getAppFn.isMData then
         let .mdata m f := e.getAppFn | unreachable!

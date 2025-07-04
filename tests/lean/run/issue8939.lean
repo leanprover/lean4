@@ -40,3 +40,27 @@ namespace Test3
   ackermann_fuel n (ackermann_fuel (n + 1) m f2) (f1 _ (by exact P.intro))
 termination_by?
 end Test3
+
+namespace Test4
+
+-- This checks that when unfolding abstraced proofs, we do not unfold function calls
+-- that were actuallly there, like the one to `Function.cons` below
+
+/--
+error: failed to infer structural recursion:
+Cannot use parameter #3:
+  unexpected occurrence of recursive application
+    ackermann_fuel
+-/
+#guard_msgs in
+public def ackermann_fuel : (n m : Nat) → (fuel : AckFuel n m) → Nat
+| 0, m, .step1 => m+1
+| n + 1, 0, .step2 f => ackermann_fuel n 1 f
+| n + 1, m + 1, .step3 f1 f2 =>
+  Function.const _
+    ( ackermann_fuel n (ackermann_fuel (n + 1) m f2) (f1 _ (by exact P.intro))
+    )
+    ackermann_fuel
+termination_by structural _ _ fuel => fuel
+
+end Test4

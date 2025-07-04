@@ -34,9 +34,9 @@ example : 0 < (x :: t).length := by
 
 attribute [grind ext] List.ext_getElem?
 /--
-info: Try this: grind only [= List.length_replicate, = List.getElem?_eq_none, = List.getElem?_eq_getElem,
-  = List.getElem?_eq_some_iff, = Option.map_some, = Option.map_none, = List.getElem?_replicate,
-  = List.getElem_replicate, = List.getElem?_map]
+info: Try this: grind only [= List.length_replicate, = List.getElem?_eq_none, = List.getElem?_eq_getElem, =
+  List.getElem?_eq_some_iff, = Option.map_some, = Option.map_none, = List.getElem?_replicate, = List.getElem_replicate,
+  = List.getElem?_map]
 -/
 #guard_msgs (info) in
 theorem map_replicate' : (List.replicate n a).map f = List.replicate n (f a) := by

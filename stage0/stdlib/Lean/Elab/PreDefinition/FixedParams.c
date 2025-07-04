@@ -15581,7 +15581,6 @@ block_12:
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_9 = l_Array_toSubarray___redArg(x_3, x_7, x_8);
 x_10 = l_Array_ofSubarray___redArg(x_9);
-lean_dec(x_9);
 x_11 = l_Array_append___redArg(x_6, x_10);
 lean_dec(x_10);
 return x_11;

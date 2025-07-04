@@ -3214,17 +3214,17 @@ block_15:
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
-lean_dec(x_10);
+lean_dec(x_11);
 x_13 = lean_box(x_12);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_11);
+lean_ctor_set(x_14, 1, x_10);
 return x_14;
 }
 else
 {
-lean_dec(x_11);
-return x_10;
+lean_dec(x_10);
+return x_11;
 }
 }
 block_21:
@@ -3236,16 +3236,16 @@ if (x_19 == 0)
 uint8_t x_20; 
 x_20 = l_Lean_Exception_isRuntime(x_17);
 lean_dec(x_17);
-x_10 = x_16;
-x_11 = x_18;
+x_10 = x_18;
+x_11 = x_16;
 x_12 = x_20;
 goto block_15;
 }
 else
 {
 lean_dec(x_17);
-x_10 = x_16;
-x_11 = x_18;
+x_10 = x_18;
+x_11 = x_16;
 x_12 = x_19;
 goto block_15;
 }

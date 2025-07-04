@@ -1554,7 +1554,6 @@ block_28:
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 x_17 = l_Array_toSubarray___redArg(x_13, x_15, x_16);
 x_18 = l_Array_ofSubarray___redArg(x_17);
-lean_dec(x_17);
 x_19 = l_Lean_Elab_Command_mkDefViewOfAbbrev___closed__7;
 x_20 = lean_box(2);
 x_21 = lean_alloc_ctor(1, 3, 0);
@@ -1623,7 +1622,6 @@ block_24:
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_14 = l_Array_toSubarray___redArg(x_8, x_12, x_13);
 x_15 = l_Array_ofSubarray___redArg(x_14);
-lean_dec(x_14);
 x_16 = l_Lean_Elab_Command_mkDefViewOfAbbrev___closed__7;
 x_17 = lean_box(2);
 x_18 = lean_alloc_ctor(1, 3, 0);
@@ -1718,7 +1716,6 @@ block_25:
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_13 = l_Array_toSubarray___redArg(x_9, x_11, x_12);
 x_14 = l_Array_ofSubarray___redArg(x_13);
-lean_dec(x_13);
 x_15 = l_Lean_Elab_Command_mkDefViewOfAbbrev___closed__7;
 x_16 = lean_box(2);
 x_17 = lean_alloc_ctor(1, 3, 0);
@@ -1774,7 +1771,6 @@ block_26:
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 x_17 = l_Array_toSubarray___redArg(x_13, x_15, x_16);
 x_18 = l_Array_ofSubarray___redArg(x_17);
-lean_dec(x_17);
 x_19 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_19, 0, x_2);
 lean_ctor_set(x_19, 1, x_3);
@@ -3424,7 +3420,6 @@ block_25:
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_13 = l_Array_toSubarray___redArg(x_10, x_11, x_12);
 x_14 = l_Array_ofSubarray___redArg(x_13);
-lean_dec(x_13);
 x_15 = l_Lean_Elab_Command_mkDefViewOfAbbrev___closed__7;
 x_16 = lean_box(2);
 x_17 = lean_alloc_ctor(1, 3, 0);
@@ -3961,7 +3956,6 @@ block_33:
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
 x_26 = l_Array_toSubarray___redArg(x_23, x_24, x_25);
 x_27 = l_Array_ofSubarray___redArg(x_26);
-lean_dec(x_26);
 x_28 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_28, 0, x_15);
 lean_ctor_set(x_28, 1, x_14);

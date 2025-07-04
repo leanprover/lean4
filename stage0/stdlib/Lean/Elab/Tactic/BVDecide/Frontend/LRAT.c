@@ -2152,8 +2152,8 @@ lean_dec(x_45);
 if (x_60 == 0)
 {
 x_48 = x_2;
-x_49 = x_42;
-x_50 = x_59;
+x_49 = x_59;
+x_50 = x_42;
 x_51 = x_3;
 x_52 = x_4;
 x_53 = x_46;
@@ -2177,8 +2177,8 @@ x_70 = lean_ctor_get(x_69, 1);
 lean_inc(x_70);
 lean_dec(x_69);
 x_48 = x_2;
-x_49 = x_42;
-x_50 = x_59;
+x_49 = x_59;
+x_50 = x_42;
 x_51 = x_3;
 x_52 = x_4;
 x_53 = x_70;
@@ -2188,9 +2188,9 @@ block_57:
 {
 if (x_48 == 0)
 {
-lean_dec(x_50);
+lean_dec(x_49);
 lean_dec(x_47);
-x_13 = x_49;
+x_13 = x_50;
 x_14 = x_51;
 x_15 = x_52;
 x_16 = x_53;
@@ -2199,10 +2199,10 @@ goto block_38;
 else
 {
 lean_object* x_54; 
-lean_dec(x_49);
+lean_dec(x_50);
 lean_inc(x_52);
 lean_inc(x_51);
-x_54 = l_Lean_withTraceNode___at___Lean_Core_wrapAsyncAsSnapshot_spec__18___redArg(x_12, x_47, x_50, x_39, x_40, x_51, x_52, x_53);
+x_54 = l_Lean_withTraceNode___at___Lean_Core_wrapAsyncAsSnapshot_spec__18___redArg(x_12, x_47, x_49, x_39, x_40, x_51, x_52, x_53);
 if (lean_obj_tag(x_54) == 0)
 {
 lean_object* x_55; lean_object* x_56; 

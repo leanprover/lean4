@@ -1773,8 +1773,8 @@ if (x_151 == 0)
 lean_dec(x_149);
 x_23 = x_2;
 x_24 = x_146;
-x_25 = x_145;
-x_26 = x_142;
+x_25 = x_142;
+x_26 = x_145;
 x_27 = x_147;
 x_28 = x_150;
 x_29 = x_148;
@@ -1785,8 +1785,8 @@ else
 lean_dec(x_148);
 x_23 = x_2;
 x_24 = x_146;
-x_25 = x_145;
-x_26 = x_142;
+x_25 = x_142;
+x_26 = x_145;
 x_27 = x_147;
 x_28 = x_150;
 x_29 = x_149;
@@ -1829,11 +1829,11 @@ x_163 = lean_nat_dec_le(x_161, x_160);
 if (x_163 == 0)
 {
 lean_dec(x_161);
-x_45 = x_2;
-x_46 = x_159;
-x_47 = x_157;
-x_48 = x_158;
-x_49 = x_154;
+x_45 = x_158;
+x_46 = x_2;
+x_47 = x_154;
+x_48 = x_159;
+x_49 = x_157;
 x_50 = x_162;
 x_51 = x_160;
 goto block_66;
@@ -1841,11 +1841,11 @@ goto block_66;
 else
 {
 lean_dec(x_160);
-x_45 = x_2;
-x_46 = x_159;
-x_47 = x_157;
-x_48 = x_158;
-x_49 = x_154;
+x_45 = x_158;
+x_46 = x_2;
+x_47 = x_154;
+x_48 = x_159;
+x_49 = x_157;
 x_50 = x_162;
 x_51 = x_161;
 goto block_66;
@@ -2228,8 +2228,8 @@ if (x_243 == 0)
 lean_dec(x_241);
 x_23 = x_174;
 x_24 = x_238;
-x_25 = x_237;
-x_26 = x_234;
+x_25 = x_234;
+x_26 = x_237;
 x_27 = x_239;
 x_28 = x_242;
 x_29 = x_240;
@@ -2240,8 +2240,8 @@ else
 lean_dec(x_240);
 x_23 = x_174;
 x_24 = x_238;
-x_25 = x_237;
-x_26 = x_234;
+x_25 = x_234;
+x_26 = x_237;
 x_27 = x_239;
 x_28 = x_242;
 x_29 = x_241;
@@ -2284,11 +2284,11 @@ x_255 = lean_nat_dec_le(x_253, x_252);
 if (x_255 == 0)
 {
 lean_dec(x_253);
-x_45 = x_174;
-x_46 = x_251;
-x_47 = x_249;
-x_48 = x_250;
-x_49 = x_246;
+x_45 = x_250;
+x_46 = x_174;
+x_47 = x_246;
+x_48 = x_251;
+x_49 = x_249;
 x_50 = x_254;
 x_51 = x_252;
 goto block_66;
@@ -2296,11 +2296,11 @@ goto block_66;
 else
 {
 lean_dec(x_252);
-x_45 = x_174;
-x_46 = x_251;
-x_47 = x_249;
-x_48 = x_250;
-x_49 = x_246;
+x_45 = x_250;
+x_46 = x_174;
+x_47 = x_246;
+x_48 = x_251;
+x_49 = x_249;
 x_50 = x_254;
 x_51 = x_253;
 goto block_66;
@@ -2373,7 +2373,7 @@ return x_21;
 block_44:
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; 
-x_30 = l_Array_toSubarray___redArg(x_26, x_28, x_29);
+x_30 = l_Array_toSubarray___redArg(x_25, x_28, x_29);
 x_31 = lean_ctor_get(x_30, 0);
 lean_inc(x_31);
 x_32 = lean_ctor_get(x_30, 1);
@@ -2396,12 +2396,12 @@ lean_dec(x_31);
 lean_dec(x_27);
 lean_dec(x_24);
 lean_dec(x_23);
-return x_25;
+return x_26;
 }
 else
 {
 size_t x_37; size_t x_38; lean_object* x_39; 
-lean_dec(x_25);
+lean_dec(x_26);
 x_37 = lean_usize_of_nat(x_34);
 lean_dec(x_34);
 x_38 = lean_usize_of_nat(x_32);
@@ -2424,12 +2424,12 @@ lean_dec(x_31);
 lean_dec(x_27);
 lean_dec(x_24);
 lean_dec(x_23);
-return x_25;
+return x_26;
 }
 else
 {
 size_t x_41; size_t x_42; lean_object* x_43; 
-lean_dec(x_25);
+lean_dec(x_26);
 x_41 = lean_usize_of_nat(x_33);
 lean_dec(x_33);
 x_42 = lean_usize_of_nat(x_32);
@@ -2443,7 +2443,7 @@ return x_43;
 block_66:
 {
 lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; uint8_t x_57; 
-x_52 = l_Array_toSubarray___redArg(x_49, x_50, x_51);
+x_52 = l_Array_toSubarray___redArg(x_47, x_50, x_51);
 x_53 = lean_ctor_get(x_52, 0);
 lean_inc(x_53);
 x_54 = lean_ctor_get(x_52, 1);
@@ -2466,17 +2466,17 @@ lean_dec(x_53);
 lean_dec(x_48);
 lean_dec(x_46);
 lean_dec(x_45);
-return x_47;
+return x_49;
 }
 else
 {
 size_t x_59; size_t x_60; lean_object* x_61; 
-lean_dec(x_47);
+lean_dec(x_49);
 x_59 = lean_usize_of_nat(x_56);
 lean_dec(x_56);
 x_60 = lean_usize_of_nat(x_54);
 lean_dec(x_54);
-x_61 = l_Array_foldrMUnsafe_fold___at___Lean_Elab_Level_elabLevel_spec__4(x_53, x_59, x_60, x_48, x_45, x_46);
+x_61 = l_Array_foldrMUnsafe_fold___at___Lean_Elab_Level_elabLevel_spec__4(x_53, x_59, x_60, x_45, x_46, x_48);
 lean_dec(x_53);
 return x_61;
 }
@@ -2494,17 +2494,17 @@ lean_dec(x_53);
 lean_dec(x_48);
 lean_dec(x_46);
 lean_dec(x_45);
-return x_47;
+return x_49;
 }
 else
 {
 size_t x_63; size_t x_64; lean_object* x_65; 
-lean_dec(x_47);
+lean_dec(x_49);
 x_63 = lean_usize_of_nat(x_55);
 lean_dec(x_55);
 x_64 = lean_usize_of_nat(x_54);
 lean_dec(x_54);
-x_65 = l_Array_foldrMUnsafe_fold___at___Lean_Elab_Level_elabLevel_spec__4(x_53, x_63, x_64, x_48, x_45, x_46);
+x_65 = l_Array_foldrMUnsafe_fold___at___Lean_Elab_Level_elabLevel_spec__4(x_53, x_63, x_64, x_45, x_46, x_48);
 lean_dec(x_53);
 return x_65;
 }

@@ -1538,7 +1538,7 @@ return x_5;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Array_groupByKey___at_____private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_Completion_computePrioritizedCompletionPartitions_spec__2_spec__7_spec__7___redArg(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_11; lean_object* x_12; size_t x_13; lean_object* x_14; uint8_t x_18; 
+lean_object* x_6; lean_object* x_11; size_t x_12; lean_object* x_13; lean_object* x_14; uint8_t x_18; 
 x_18 = lean_usize_dec_lt(x_4, x_3);
 if (x_18 == 0)
 {
@@ -1670,16 +1670,16 @@ x_62 = lean_unsigned_to_nat(1u);
 x_63 = lean_nat_sub(x_19, x_62);
 lean_dec(x_19);
 x_11 = x_60;
-x_12 = x_59;
-x_13 = x_40;
+x_12 = x_40;
+x_13 = x_59;
 x_14 = x_63;
 goto block_17;
 }
 else
 {
 x_11 = x_60;
-x_12 = x_59;
-x_13 = x_40;
+x_12 = x_40;
+x_13 = x_59;
 x_14 = x_19;
 goto block_17;
 }
@@ -1723,7 +1723,7 @@ goto _start;
 block_17:
 {
 lean_object* x_15; lean_object* x_16; 
-x_15 = lean_array_uset(x_12, x_13, x_11);
+x_15 = lean_array_uset(x_13, x_12, x_11);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_15);
@@ -1874,16 +1874,16 @@ lean_object* x_64; lean_object* x_65;
 x_64 = lean_unsigned_to_nat(1u);
 x_65 = lean_nat_sub(x_21, x_64);
 lean_dec(x_21);
-x_13 = x_61;
-x_14 = x_62;
+x_13 = x_62;
+x_14 = x_61;
 x_15 = x_42;
 x_16 = x_65;
 goto block_19;
 }
 else
 {
-x_13 = x_61;
-x_14 = x_62;
+x_13 = x_62;
+x_14 = x_61;
 x_15 = x_42;
 x_16 = x_21;
 goto block_19;
@@ -1927,7 +1927,7 @@ return x_11;
 block_19:
 {
 lean_object* x_17; lean_object* x_18; 
-x_17 = lean_array_uset(x_13, x_15, x_14);
+x_17 = lean_array_uset(x_14, x_15, x_13);
 x_18 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set(x_18, 1, x_17);
@@ -2268,7 +2268,7 @@ block_12:
 {
 lean_object* x_11; 
 lean_dec(x_9);
-x_11 = l_Array_qsort_sort___at_____private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_Completion_computePrioritizedCompletionPartitions_spec__1___redArg(x_8, x_7, x_10);
+x_11 = l_Array_qsort_sort___at_____private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_Completion_computePrioritizedCompletionPartitions_spec__1___redArg(x_7, x_8, x_10);
 lean_dec(x_10);
 x_2 = x_11;
 goto block_6;
@@ -2276,23 +2276,23 @@ goto block_6;
 block_18:
 {
 uint8_t x_17; 
-x_17 = lean_nat_dec_le(x_16, x_14);
+x_17 = lean_nat_dec_le(x_16, x_15);
 if (x_17 == 0)
 {
-lean_dec(x_14);
+lean_dec(x_15);
 lean_inc(x_16);
-x_7 = x_16;
-x_8 = x_13;
-x_9 = x_15;
+x_7 = x_13;
+x_8 = x_16;
+x_9 = x_14;
 x_10 = x_16;
 goto block_12;
 }
 else
 {
-x_7 = x_16;
-x_8 = x_13;
-x_9 = x_15;
-x_10 = x_14;
+x_7 = x_13;
+x_8 = x_16;
+x_9 = x_14;
+x_10 = x_15;
 goto block_12;
 }
 }
@@ -2312,16 +2312,16 @@ if (x_25 == 0)
 {
 lean_inc(x_24);
 x_13 = x_19;
-x_14 = x_24;
-x_15 = x_20;
+x_14 = x_20;
+x_15 = x_24;
 x_16 = x_24;
 goto block_18;
 }
 else
 {
 x_13 = x_19;
-x_14 = x_24;
-x_15 = x_20;
+x_14 = x_20;
+x_15 = x_24;
 x_16 = x_21;
 goto block_18;
 }

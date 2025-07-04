@@ -1501,7 +1501,7 @@ size_t x_30; size_t x_31; lean_object* x_32;
 x_30 = lean_array_size(x_29);
 x_31 = 0;
 lean_inc(x_25);
-x_32 = l_Array_mapMUnsafe_map___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__2(x_16, x_17, x_25, x_22, x_28, x_30, x_31, x_29);
+x_32 = l_Array_mapMUnsafe_map___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__2(x_16, x_17, x_25, x_22, x_24, x_30, x_31, x_29);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_object* x_33; lean_object* x_34; 
@@ -1597,7 +1597,7 @@ return x_50;
 else
 {
 lean_object* x_51; lean_object* x_52; uint8_t x_53; 
-x_51 = l_Lean_Syntax_getArg(x_1, x_28);
+x_51 = l_Lean_Syntax_getArg(x_1, x_24);
 lean_dec(x_1);
 x_52 = l_Lean_Linter_suspiciousUnexpanderPatterns___lam__0___closed__5;
 lean_inc(x_51);
@@ -1671,10 +1671,10 @@ return x_65;
 else
 {
 lean_object* x_66; uint8_t x_67; 
-x_66 = l_Lean_Syntax_getArg(x_57, x_28);
+x_66 = l_Lean_Syntax_getArg(x_57, x_24);
 lean_dec(x_57);
 lean_inc(x_66);
-x_67 = l_Lean_Syntax_matchesNull(x_66, x_28);
+x_67 = l_Lean_Syntax_matchesNull(x_66, x_24);
 if (x_67 == 0)
 {
 lean_object* x_68; lean_object* x_69; 
@@ -1812,7 +1812,7 @@ x_94 = l_Lean_Syntax_getArgs(x_93);
 lean_dec(x_93);
 x_95 = lean_array_size(x_94);
 lean_inc(x_25);
-x_96 = l_Array_mapMUnsafe_map___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__3(x_16, x_17, x_25, x_28, x_22, x_95, x_31, x_94);
+x_96 = l_Array_mapMUnsafe_map___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__3(x_16, x_17, x_25, x_24, x_22, x_95, x_31, x_94);
 if (lean_obj_tag(x_96) == 0)
 {
 lean_object* x_97; lean_object* x_98; 
@@ -1837,7 +1837,7 @@ lean_object* x_99; lean_object* x_100; lean_object* x_101; uint8_t x_102;
 x_99 = lean_ctor_get(x_96, 0);
 lean_inc(x_99);
 lean_dec(x_96);
-x_100 = l_Lean_Syntax_getArg(x_81, x_28);
+x_100 = l_Lean_Syntax_getArg(x_81, x_24);
 x_101 = l_Lean_Linter_suspiciousUnexpanderPatterns___lam__0___closed__15;
 lean_inc(x_100);
 x_102 = l_Lean_Syntax_isOfKind(x_100, x_101);
@@ -1889,7 +1889,7 @@ return x_108;
 else
 {
 lean_object* x_109; uint8_t x_110; 
-x_109 = l_Lean_Syntax_getArg(x_100, x_28);
+x_109 = l_Lean_Syntax_getArg(x_100, x_24);
 lean_dec(x_100);
 x_110 = l_Lean_Syntax_matchesNull(x_109, x_22);
 if (x_110 == 0)
@@ -1991,7 +1991,7 @@ else
 size_t x_123; uint8_t x_124; 
 x_123 = lean_usize_of_nat(x_121);
 lean_dec(x_121);
-x_124 = l_Array_anyMUnsafe_any___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__4(x_16, x_17, x_22, x_28, x_13, x_35, x_31, x_123);
+x_124 = l_Array_anyMUnsafe_any___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__4(x_16, x_17, x_22, x_24, x_13, x_35, x_31, x_123);
 lean_dec(x_35);
 if (x_124 == 0)
 {
@@ -2006,7 +2006,7 @@ else
 lean_object* x_125; size_t x_126; lean_object* x_127; uint8_t x_128; 
 x_125 = lean_box(0);
 x_126 = lean_array_size(x_99);
-x_127 = l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__7(x_125, x_16, x_17, x_25, x_28, x_22, x_99, x_126, x_31, x_125, x_26, x_24, x_27);
+x_127 = l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__7(x_125, x_16, x_17, x_25, x_24, x_22, x_99, x_126, x_31, x_125, x_26, x_28, x_27);
 lean_dec(x_99);
 x_128 = !lean_is_exclusive(x_127);
 if (x_128 == 0)
@@ -2108,11 +2108,11 @@ if (x_151 == 0)
 {
 lean_dec(x_150);
 lean_dec(x_148);
-x_24 = x_134;
+x_24 = x_136;
 x_25 = x_142;
 x_26 = x_133;
 x_27 = x_135;
-x_28 = x_136;
+x_28 = x_134;
 x_29 = x_149;
 goto block_132;
 }
@@ -2124,11 +2124,11 @@ if (x_152 == 0)
 {
 lean_dec(x_150);
 lean_dec(x_148);
-x_24 = x_134;
+x_24 = x_136;
 x_25 = x_142;
 x_26 = x_133;
 x_27 = x_135;
-x_28 = x_136;
+x_28 = x_134;
 x_29 = x_149;
 goto block_132;
 }
@@ -2147,11 +2147,11 @@ lean_dec(x_148);
 x_158 = lean_ctor_get(x_157, 1);
 lean_inc(x_158);
 lean_dec(x_157);
-x_24 = x_134;
+x_24 = x_136;
 x_25 = x_142;
 x_26 = x_133;
 x_27 = x_135;
-x_28 = x_136;
+x_28 = x_134;
 x_29 = x_158;
 goto block_132;
 }

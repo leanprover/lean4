@@ -7139,7 +7139,7 @@ goto block_73;
 block_59:
 {
 lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; 
-x_52 = l_Lean_IR_UnreachableBranches_interpFnBody(x_48, x_50, x_51);
+x_52 = l_Lean_IR_UnreachableBranches_interpFnBody(x_48, x_49, x_51);
 x_53 = lean_ctor_get(x_52, 1);
 lean_inc(x_53);
 lean_dec(x_52);
@@ -7158,7 +7158,7 @@ lean_dec(x_54);
 lean_dec(x_35);
 lean_inc(x_2);
 x_57 = l_outOfBounds___redArg(x_2);
-x_16 = x_49;
+x_16 = x_50;
 x_17 = x_53;
 x_18 = x_57;
 goto block_24;
@@ -7169,7 +7169,7 @@ lean_object* x_58;
 lean_inc(x_2);
 x_58 = l_Lean_PersistentArray_get_x21___redArg(x_2, x_54, x_35);
 lean_dec(x_35);
-x_16 = x_49;
+x_16 = x_50;
 x_17 = x_53;
 x_18 = x_58;
 goto block_24;
@@ -7196,8 +7196,8 @@ if (x_66 == 0)
 {
 lean_dec(x_64);
 lean_dec(x_47);
-x_49 = x_60;
-x_50 = x_65;
+x_49 = x_65;
+x_50 = x_60;
 x_51 = x_9;
 goto block_59;
 }
@@ -7209,8 +7209,8 @@ if (x_67 == 0)
 {
 lean_dec(x_64);
 lean_dec(x_47);
-x_49 = x_60;
-x_50 = x_65;
+x_49 = x_65;
+x_50 = x_60;
 x_51 = x_9;
 goto block_59;
 }
@@ -7226,8 +7226,8 @@ lean_dec(x_47);
 x_72 = lean_ctor_get(x_71, 1);
 lean_inc(x_72);
 lean_dec(x_71);
-x_49 = x_60;
-x_50 = x_65;
+x_49 = x_65;
+x_50 = x_60;
 x_51 = x_72;
 goto block_59;
 }

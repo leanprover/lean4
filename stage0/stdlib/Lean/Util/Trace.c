@@ -7366,7 +7366,7 @@ return x_19;
 block_26:
 {
 lean_object* x_25; 
-x_25 = l_Array_qsort_sort___redArg(x_7, x_23, x_22, x_24);
+x_25 = l_Array_qsort_sort___redArg(x_7, x_22, x_23, x_24);
 lean_dec(x_24);
 x_10 = x_21;
 x_11 = x_25;
@@ -7381,16 +7381,16 @@ if (x_31 == 0)
 lean_dec(x_29);
 lean_inc(x_30);
 x_21 = x_27;
-x_22 = x_30;
-x_23 = x_28;
+x_22 = x_28;
+x_23 = x_30;
 x_24 = x_30;
 goto block_26;
 }
 else
 {
 x_21 = x_27;
-x_22 = x_30;
-x_23 = x_28;
+x_22 = x_28;
+x_23 = x_30;
 x_24 = x_29;
 goto block_26;
 }

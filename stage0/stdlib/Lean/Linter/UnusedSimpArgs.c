@@ -3873,10 +3873,10 @@ return x_49;
 block_61:
 {
 lean_object* x_60; 
-lean_dec(x_57);
-x_60 = l_Array_qsort_sort___at___Lean_Linter_unusedSimpArgs_spec__15___redArg(x_55, x_58, x_59);
+lean_dec(x_58);
+x_60 = l_Array_qsort_sort___at___Lean_Linter_unusedSimpArgs_spec__15___redArg(x_55, x_56, x_59);
 lean_dec(x_59);
-x_46 = x_56;
+x_46 = x_57;
 x_47 = x_60;
 goto block_54;
 }
@@ -3889,18 +3889,18 @@ if (x_67 == 0)
 lean_dec(x_65);
 lean_inc(x_66);
 x_55 = x_62;
-x_56 = x_64;
-x_57 = x_63;
-x_58 = x_66;
+x_56 = x_66;
+x_57 = x_64;
+x_58 = x_63;
 x_59 = x_66;
 goto block_61;
 }
 else
 {
 x_55 = x_62;
-x_56 = x_64;
-x_57 = x_63;
-x_58 = x_66;
+x_56 = x_66;
+x_57 = x_64;
+x_58 = x_63;
 x_59 = x_65;
 goto block_61;
 }
@@ -4141,10 +4141,10 @@ return x_126;
 block_137:
 {
 lean_object* x_136; 
-lean_dec(x_133);
-x_136 = l_Array_qsort_sort___at___Lean_Linter_unusedSimpArgs_spec__15___redArg(x_131, x_134, x_135);
+lean_dec(x_134);
+x_136 = l_Array_qsort_sort___at___Lean_Linter_unusedSimpArgs_spec__15___redArg(x_131, x_132, x_135);
 lean_dec(x_135);
-x_123 = x_132;
+x_123 = x_133;
 x_124 = x_136;
 goto block_130;
 }
@@ -4157,18 +4157,18 @@ if (x_143 == 0)
 lean_dec(x_141);
 lean_inc(x_142);
 x_131 = x_138;
-x_132 = x_140;
-x_133 = x_139;
-x_134 = x_142;
+x_132 = x_142;
+x_133 = x_140;
+x_134 = x_139;
 x_135 = x_142;
 goto block_137;
 }
 else
 {
 x_131 = x_138;
-x_132 = x_140;
-x_133 = x_139;
-x_134 = x_142;
+x_132 = x_142;
+x_133 = x_140;
+x_134 = x_139;
 x_135 = x_141;
 goto block_137;
 }

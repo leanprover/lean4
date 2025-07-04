@@ -527,12 +527,12 @@ block_12:
 {
 if (x_11 == 0)
 {
-x_5 = x_10;
+x_5 = x_9;
 goto block_8;
 }
 else
 {
-return x_9;
+return x_10;
 }
 }
 block_19:
@@ -541,8 +541,8 @@ uint8_t x_16;
 x_16 = 1;
 if (x_14 == 0)
 {
-x_9 = x_15;
-x_10 = x_16;
+x_9 = x_16;
+x_10 = x_15;
 x_11 = x_14;
 goto block_12;
 }
@@ -553,8 +553,8 @@ x_17 = l_Lean_Elab_Info_lctx(x_4);
 x_18 = lean_local_ctx_is_empty(x_17);
 if (x_18 == 0)
 {
-x_9 = x_15;
-x_10 = x_16;
+x_9 = x_16;
+x_10 = x_15;
 x_11 = x_14;
 goto block_12;
 }

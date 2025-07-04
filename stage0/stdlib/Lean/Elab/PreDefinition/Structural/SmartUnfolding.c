@@ -480,11 +480,11 @@ block_24:
 {
 uint8_t x_22; lean_object* x_23; 
 x_22 = 1;
-x_23 = l_Lean_Meta_mkLambdaFVars(x_9, x_21, x_1, x_2, x_1, x_2, x_22, x_18, x_17, x_20, x_19, x_16);
-lean_dec(x_19);
-lean_dec(x_20);
+x_23 = l_Lean_Meta_mkLambdaFVars(x_9, x_21, x_1, x_2, x_1, x_2, x_22, x_16, x_19, x_18, x_17, x_20);
 lean_dec(x_17);
 lean_dec(x_18);
+lean_dec(x_19);
+lean_dec(x_16);
 return x_23;
 }
 block_31:
@@ -508,11 +508,11 @@ if (lean_obj_tag(x_29) == 0)
 {
 if (x_2 == 0)
 {
-x_16 = x_28;
-x_17 = x_12;
-x_18 = x_11;
-x_19 = x_14;
-x_20 = x_13;
+x_16 = x_11;
+x_17 = x_14;
+x_18 = x_13;
+x_19 = x_12;
+x_20 = x_28;
 x_21 = x_27;
 goto block_24;
 }
@@ -520,11 +520,11 @@ else
 {
 lean_object* x_30; 
 x_30 = l_Lean_Meta_markSmartUnfoldingMatchAlt(x_27);
-x_16 = x_28;
-x_17 = x_12;
-x_18 = x_11;
-x_19 = x_14;
-x_20 = x_13;
+x_16 = x_11;
+x_17 = x_14;
+x_18 = x_13;
+x_19 = x_12;
+x_20 = x_28;
 x_21 = x_30;
 goto block_24;
 }
@@ -532,11 +532,11 @@ goto block_24;
 else
 {
 lean_dec(x_29);
-x_16 = x_28;
-x_17 = x_12;
-x_18 = x_11;
-x_19 = x_14;
-x_20 = x_13;
+x_16 = x_11;
+x_17 = x_14;
+x_18 = x_13;
+x_19 = x_12;
+x_20 = x_28;
 x_21 = x_27;
 goto block_24;
 }
@@ -1006,10 +1006,10 @@ block_24:
 {
 uint8_t x_22; lean_object* x_23; 
 x_22 = 1;
-x_23 = l_Lean_Meta_mkLambdaFVars(x_9, x_21, x_1, x_2, x_1, x_2, x_22, x_17, x_19, x_20, x_16, x_18);
-lean_dec(x_16);
-lean_dec(x_20);
+x_23 = l_Lean_Meta_mkLambdaFVars(x_9, x_21, x_1, x_2, x_1, x_2, x_22, x_17, x_20, x_18, x_19, x_16);
 lean_dec(x_19);
+lean_dec(x_18);
+lean_dec(x_20);
 lean_dec(x_17);
 return x_23;
 }
@@ -1034,11 +1034,11 @@ if (lean_obj_tag(x_29) == 0)
 {
 if (x_2 == 0)
 {
-x_16 = x_14;
+x_16 = x_28;
 x_17 = x_11;
-x_18 = x_28;
-x_19 = x_12;
-x_20 = x_13;
+x_18 = x_13;
+x_19 = x_14;
+x_20 = x_12;
 x_21 = x_27;
 goto block_24;
 }
@@ -1046,11 +1046,11 @@ else
 {
 lean_object* x_30; 
 x_30 = l_Lean_Meta_markSmartUnfoldingMatchAlt(x_27);
-x_16 = x_14;
+x_16 = x_28;
 x_17 = x_11;
-x_18 = x_28;
-x_19 = x_12;
-x_20 = x_13;
+x_18 = x_13;
+x_19 = x_14;
+x_20 = x_12;
 x_21 = x_30;
 goto block_24;
 }
@@ -1058,11 +1058,11 @@ goto block_24;
 else
 {
 lean_dec(x_29);
-x_16 = x_14;
+x_16 = x_28;
 x_17 = x_11;
-x_18 = x_28;
-x_19 = x_12;
-x_20 = x_13;
+x_18 = x_13;
+x_19 = x_14;
+x_20 = x_12;
 x_21 = x_27;
 goto block_24;
 }

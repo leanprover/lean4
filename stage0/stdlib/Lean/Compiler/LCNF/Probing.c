@@ -11470,7 +11470,6 @@ block_9:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = l_Array_toSubarray___redArg(x_2, x_4, x_5);
 x_7 = l_Array_ofSubarray___redArg(x_6);
-lean_dec(x_6);
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
 lean_ctor_set(x_8, 1, x_3);
@@ -11504,7 +11503,6 @@ block_14:
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_11 = l_Array_toSubarray___redArg(x_3, x_9, x_10);
 x_12 = l_Array_ofSubarray___redArg(x_11);
-lean_dec(x_11);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_8);
@@ -11560,7 +11558,6 @@ block_9:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = l_Array_toSubarray___redArg(x_2, x_4, x_5);
 x_7 = l_Array_ofSubarray___redArg(x_6);
-lean_dec(x_6);
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
 lean_ctor_set(x_8, 1, x_3);
@@ -11594,7 +11591,6 @@ block_14:
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_11 = l_Array_toSubarray___redArg(x_3, x_9, x_10);
 x_12 = l_Array_ofSubarray___redArg(x_11);
-lean_dec(x_11);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_8);

@@ -1788,8 +1788,8 @@ block_28:
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 x_21 = lean_alloc_ctor(1, 4, 0);
-lean_ctor_set(x_21, 0, x_19);
-lean_ctor_set(x_21, 1, x_18);
+lean_ctor_set(x_21, 0, x_17);
+lean_ctor_set(x_21, 1, x_19);
 lean_ctor_set(x_21, 2, x_9);
 lean_ctor_set(x_21, 3, x_10);
 x_22 = l_Lake_Dependency_materialize_mkDep___closed__0;
@@ -1809,10 +1809,10 @@ lean_ctor_set(x_25, 1, x_8);
 lean_ctor_set(x_25, 2, x_24);
 x_26 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
-lean_ctor_set(x_26, 1, x_17);
+lean_ctor_set(x_26, 1, x_16);
 x_27 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_27, 0, x_26);
-lean_ctor_set(x_27, 1, x_16);
+lean_ctor_set(x_27, 1, x_18);
 return x_27;
 }
 block_69:
@@ -1849,10 +1849,10 @@ lean_inc(x_38);
 x_39 = lean_ctor_get(x_36, 1);
 lean_inc(x_39);
 lean_dec(x_36);
-x_16 = x_37;
-x_17 = x_39;
-x_18 = x_38;
-x_19 = x_30;
+x_16 = x_39;
+x_17 = x_30;
+x_18 = x_37;
+x_19 = x_38;
 x_20 = x_6;
 goto block_28;
 }
@@ -1871,10 +1871,10 @@ x_43 = lean_ctor_get(x_10, 0);
 lean_inc(x_43);
 x_44 = l_Lake_joinRelative(x_6, x_43);
 lean_dec(x_43);
-x_16 = x_40;
-x_17 = x_42;
-x_18 = x_41;
-x_19 = x_30;
+x_16 = x_42;
+x_17 = x_30;
+x_18 = x_40;
+x_19 = x_41;
 x_20 = x_44;
 goto block_28;
 }
@@ -2452,12 +2452,12 @@ if (lean_obj_tag(x_83) == 0)
 lean_object* x_89; 
 x_89 = l_Lake_instInhabitedMaterializedDep___closed__0;
 x_9 = x_88;
-x_10 = x_84;
-x_11 = x_85;
-x_12 = x_78;
-x_13 = x_87;
-x_14 = x_77;
-x_15 = x_43;
+x_10 = x_78;
+x_11 = x_77;
+x_12 = x_84;
+x_13 = x_85;
+x_14 = x_43;
+x_15 = x_87;
 x_16 = x_82;
 x_17 = x_89;
 goto block_20;
@@ -2469,12 +2469,12 @@ x_90 = lean_ctor_get(x_83, 0);
 lean_inc(x_90);
 lean_dec(x_83);
 x_9 = x_88;
-x_10 = x_84;
-x_11 = x_85;
-x_12 = x_78;
-x_13 = x_87;
-x_14 = x_77;
-x_15 = x_43;
+x_10 = x_78;
+x_11 = x_77;
+x_12 = x_84;
+x_13 = x_85;
+x_14 = x_43;
+x_15 = x_87;
 x_16 = x_82;
 x_17 = x_90;
 goto block_20;
@@ -2758,10 +2758,10 @@ return x_218;
 }
 block_20:
 {
-if (lean_obj_tag(x_15) == 0)
+if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_18; 
-x_18 = l_Lake_Dependency_materialize_materializeGit(x_1, x_2, x_3, x_4, x_13, x_9, x_16, x_17, x_10, x_11, x_12, x_14);
+x_18 = l_Lake_Dependency_materialize_materializeGit(x_1, x_2, x_3, x_4, x_15, x_9, x_16, x_17, x_12, x_13, x_10, x_11);
 lean_dec(x_3);
 lean_dec(x_1);
 return x_18;
@@ -2769,8 +2769,8 @@ return x_18;
 else
 {
 lean_object* x_19; 
-lean_dec(x_10);
-x_19 = l_Lake_Dependency_materialize_materializeGit(x_1, x_2, x_3, x_4, x_13, x_9, x_16, x_17, x_15, x_11, x_12, x_14);
+lean_dec(x_12);
+x_19 = l_Lake_Dependency_materialize_materializeGit(x_1, x_2, x_3, x_4, x_15, x_9, x_16, x_17, x_14, x_13, x_10, x_11);
 lean_dec(x_3);
 lean_dec(x_1);
 return x_19;
@@ -3204,9 +3204,9 @@ if (lean_obj_tag(x_28) == 0)
 {
 lean_object* x_29; 
 x_29 = l_Lake_instInhabitedMaterializedDep___closed__0;
-x_7 = x_27;
-x_8 = x_25;
-x_9 = x_26;
+x_7 = x_25;
+x_8 = x_26;
+x_9 = x_27;
 x_10 = x_29;
 goto block_14;
 }
@@ -3216,9 +3216,9 @@ lean_object* x_30;
 x_30 = lean_ctor_get(x_28, 0);
 lean_inc(x_30);
 lean_dec(x_28);
-x_7 = x_27;
-x_8 = x_25;
-x_9 = x_26;
+x_7 = x_25;
+x_8 = x_26;
+x_9 = x_27;
 x_10 = x_30;
 goto block_14;
 }
@@ -3227,8 +3227,8 @@ block_40:
 {
 if (lean_obj_tag(x_24) == 0)
 {
-x_25 = x_37;
-x_26 = x_36;
+x_25 = x_36;
+x_26 = x_37;
 x_27 = x_35;
 goto block_31;
 }
@@ -3240,8 +3240,8 @@ lean_inc(x_38);
 lean_dec(x_24);
 x_39 = l_Lake_joinRelative(x_35, x_38);
 lean_dec(x_38);
-x_25 = x_37;
-x_26 = x_36;
+x_25 = x_36;
+x_26 = x_37;
 x_27 = x_39;
 goto block_31;
 }
@@ -3337,12 +3337,12 @@ block_14:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_11 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_11, 0, x_7);
+lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);
 lean_ctor_set(x_11, 2, x_1);
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
-lean_ctor_set(x_12, 1, x_9);
+lean_ctor_set(x_12, 1, x_7);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_8);

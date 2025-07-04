@@ -1759,7 +1759,7 @@ return x_15;
 block_29:
 {
 lean_object* x_28; 
-x_28 = l_Array_qsort_sort___redArg(x_26, x_24, x_25, x_27);
+x_28 = l_Array_qsort_sort___redArg(x_25, x_24, x_26, x_27);
 lean_dec(x_27);
 x_18 = x_28;
 goto block_23;
@@ -1767,23 +1767,23 @@ goto block_23;
 block_35:
 {
 uint8_t x_34; 
-x_34 = lean_nat_dec_le(x_33, x_31);
+x_34 = lean_nat_dec_le(x_33, x_32);
 if (x_34 == 0)
 {
-lean_dec(x_31);
+lean_dec(x_32);
 lean_inc(x_33);
 x_24 = x_30;
-x_25 = x_33;
-x_26 = x_32;
+x_25 = x_31;
+x_26 = x_33;
 x_27 = x_33;
 goto block_29;
 }
 else
 {
 x_24 = x_30;
-x_25 = x_33;
-x_26 = x_32;
-x_27 = x_31;
+x_25 = x_31;
+x_26 = x_33;
+x_27 = x_32;
 goto block_29;
 }
 }
@@ -1805,16 +1805,16 @@ if (x_43 == 0)
 {
 lean_inc(x_42);
 x_30 = x_36;
-x_31 = x_42;
-x_32 = x_40;
+x_31 = x_40;
+x_32 = x_42;
 x_33 = x_42;
 goto block_35;
 }
 else
 {
 x_30 = x_36;
-x_31 = x_42;
-x_32 = x_40;
+x_31 = x_40;
+x_32 = x_42;
 x_33 = x_38;
 goto block_35;
 }

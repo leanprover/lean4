@@ -367,7 +367,6 @@ block_23:
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_19 = l_Array_toSubarray___redArg(x_14, x_17, x_18);
 x_20 = l_Array_ofSubarray___redArg(x_19);
-lean_dec(x_19);
 x_21 = l_Lean_mkAppN(x_15, x_20);
 lean_dec(x_20);
 x_22 = lean_alloc_ctor(0, 2, 0);
@@ -381,7 +380,6 @@ lean_object* x_26; lean_object* x_27; lean_object* x_28;
 lean_inc(x_14);
 x_26 = l_Array_toSubarray___redArg(x_14, x_24, x_25);
 x_27 = l_Array_ofSubarray___redArg(x_26);
-lean_dec(x_26);
 x_28 = lean_apply_6(x_3, x_27, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_28) == 0)
 {

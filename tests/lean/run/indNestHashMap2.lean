@@ -24,7 +24,8 @@ noncomputable def HashMapModel.toHashMap (m : HashMapModel α β) : HashMap α �
 theorem HashMapModel.ofHashMap_toHashMap (m : HashMap α β) : toHashMap (ofHashMap m) = m := by
   sorry
 
-theorem HashMapModel.toHashMap_ofHashMap (m : HashMap α β) : toHashMap (ofHashMap m) = m := by
+theorem HashMapModel.toHashMap_ofHashMap (m : HashMapModel α β) : ofHashMap (toHashMap m) = m := by
+
   sorry
 
 end HashMapModel
@@ -193,6 +194,5 @@ section Tree
 
 def Tree.map (f : α → β) : (t : Tree α) → Tree β
   | ⟨val, cs⟩ => ⟨f val, cs.map (fun _ t => t.map f)⟩
-termination_by t => t
 
 end Tree

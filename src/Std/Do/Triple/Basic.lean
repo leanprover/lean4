@@ -19,8 +19,8 @@ It is thus defined in terms of an instance `WP m ps`.
 
 namespace Std.Do
 
-universe u
-variable {m : Type → Type u} {ps : PostShape}
+universe u v
+variable {m : Type u → Type v} {ps : PostShape.{u}}
 
 /--
   A Hoare triple for reasoning about monadic programs.
@@ -29,7 +29,7 @@ variable {m : Type → Type u} {ps : PostShape}
 
   `⦃P⦄ x ⦃Q⦄` is convenient syntax for `Triple x P Q`.
 -/
-def Triple [WP m ps] {α} (x : m α) (P : Assertion ps) (Q : PostCond α ps) : Prop :=
+def Triple [WP m ps] {α : Type u} (x : m α) (P : Assertion ps) (Q : PostCond α ps) : Prop :=
   P ⊢ₛ wp⟦x⟧ Q
 
 @[inherit_doc Std.Do.Triple]
@@ -46,10 +46,10 @@ namespace Triple
 instance [WP m ps] (x : m α) : SPred.Tactic.PropAsSPredTautology (Triple x P Q) spred(P → wp⟦x⟧ Q) where
   iff := (SPred.entails_true_intro P (wp⟦x⟧ Q)).symm
 
-theorem pure [Monad m] [WPMonad m ps] {α} {Q : PostCond α ps} (a : α) (himp : P ⊢ₛ Q.1 a) :
+theorem pure [Monad m] [WPMonad m ps] {α : Type u} {Q : PostCond α ps} (a : α) (himp : P ⊢ₛ Q.1 a) :
   Triple (pure (f:=m) a) P Q := himp.trans (by simp)
 
-theorem bind [Monad m] [WPMonad m ps] {α β} {P : Assertion ps} {Q : α → Assertion ps} {R : PostCond β ps} (x : m α) (f : α → m β)
+theorem bind [Monad m] [WPMonad m ps] {α β : Type u} {P : Assertion ps} {Q : α → Assertion ps} {R : PostCond β ps} (x : m α) (f : α → m β)
     (hx : Triple x P (Q, R.2))
     (hf : ∀ b, Triple (f b) (Q b) R) :
     Triple (x >>= f) P R := by

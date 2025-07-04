@@ -36,15 +36,15 @@ by the subclass `WPMonad`.
 
 namespace Std.Do
 
-universe u
-variable {m : Type → Type u}
+universe u v
+variable {m : Type u → Type v}
 
 /--
   A weakest precondition interpretation of a monadic program `x : m α` in terms of a
   predicate transformer `PredTrans ps α`.
   The monad `m` determines `ps : PostShape`. See the module comment for more details.
 -/
-class WP (m : Type → Type u) (ps : outParam PostShape) where
+class WP (m : Type u → Type v) (ps : outParam PostShape.{u}) where
   wp {α} (x : m α) : PredTrans ps α
 
 export WP (wp)
@@ -93,19 +93,16 @@ instance Reader.instWP : WP (ReaderM ρ) (.arg ρ .pure) :=
 instance Except.instWP : WP (Except ε) (.except ε .pure) :=
   inferInstanceAs (WP (ExceptT ε Id) (.except ε .pure))
 
-theorem Id.by_wp {α} {x : α} {prog : Id α} (h : Id.run prog = x) (P : α → Prop) :
-  wp⟦prog⟧ (PostCond.total P) → P x := h ▸ id
+theorem Id.by_wp {α : Type u} {x : α} {prog : Id α} (h : Id.run prog = x) (P : α → Prop) :
+  (⊢ₛ wp⟦prog⟧ (PostCond.total (fun a => ⟨P a⟩))) → P x := h ▸ (· True.intro)
 
 theorem StateM.by_wp {α} {x : α × σ} {prog : StateM σ α} (h : StateT.run prog s = x) (P : α × σ → Prop) :
-  wp⟦prog⟧ (PostCond.total (fun a s' => P (a, s'))) s → P x := by
-    intro hspec
-    simp only [wp, PredTrans.pure, PredTrans.pushArg_apply] at hspec
-    exact h ▸ hspec
+  (⊢ₛ wp⟦prog⟧ (PostCond.total (fun a s' => ⟨P (a, s')⟩)) s) → P x := h ▸ (· True.intro)
 
 theorem EStateM.by_wp {α} {x : EStateM.Result ε σ α} {prog : EStateM ε σ α} (h : EStateM.run prog s = x) (P : EStateM.Result ε σ α → Prop) :
-  wp⟦prog⟧ (PostCond.total (fun a s' => P (EStateM.Result.ok a s'))) s → P x := by
+  (⊢ₛ wp⟦prog⟧ (PostCond.total (fun a s' => ⟨P (EStateM.Result.ok a s')⟩)) s) → P x := by
     intro hspec
-    simp only [wp, FailConds.false, FailConds.const, SVal.curry_cons, SVal.curry_nil] at hspec
+    simp only [wp, FailConds.false, FailConds.const, SVal.curry_cons] at hspec
     split at hspec
-    case h_1 a s' heq => rw[← heq] at hspec; exact h ▸ hspec
-    case h_2 => contradiction
+    case h_1 a s' heq => rw[← heq] at hspec; exact h ▸ hspec True.intro
+    case h_2 => exfalso; exact hspec True.intro

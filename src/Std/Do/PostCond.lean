@@ -38,12 +38,16 @@ via `PostShape.args`.
 
 namespace Std.Do
 
-inductive PostShape : Type 1 where
-  | pure : PostShape
-  | arg : (σ : Type) → PostShape → PostShape
-  | except : (ε : Type) → PostShape → PostShape
+universe u
 
-abbrev PostShape.args : PostShape → List Type
+inductive PostShape : Type (u+1) where
+  | pure : PostShape
+  | arg : (σ : Type u) → PostShape → PostShape
+  | except : (ε : Type u) → PostShape → PostShape
+
+variable {ps : PostShape.{u}} {α σ ε : Type u}
+
+abbrev PostShape.args : PostShape.{u} → List (Type u)
   | .pure => []
   | .arg σ s => σ :: PostShape.args s
   | .except _ s => PostShape.args s
@@ -51,33 +55,33 @@ abbrev PostShape.args : PostShape → List Type
 /--
   An assertion on the `.arg`s in the given predicate shape.
   ```
-  example : Assertion (.arg ρ .pure) = (ρ → Prop) := rfl
-  example : Assertion (.except ε .pure) = Prop := rfl
-  example : Assertion (.arg σ (.except ε .pure)) = (σ → Prop) := rfl
-  example : Assertion (.except ε (.arg σ .pure)) = (σ → Prop) := rfl
+  example : Assertion (.arg ρ .pure) = (ρ → ULift Prop) := rfl
+  example : Assertion (.except ε .pure) = ULift Prop := rfl
+  example : Assertion (.arg σ (.except ε .pure)) = (σ → ULift Prop) := rfl
+  example : Assertion (.except ε (.arg σ .pure)) = (σ → ULift Prop) := rfl
   ```
   This is an abbreviation for `SPred` under the hood, so all theorems about `SPred` apply.
 -/
-abbrev Assertion (ps : PostShape) : Type :=
+abbrev Assertion (ps : PostShape.{u}) : Type u :=
   SPred (PostShape.args ps)
 
 /--
   Encodes one continuation barrel for each `PostShape.except` in the given predicate shape.
   ```
   example : FailConds (.pure) = Unit := rfl
-  example : FailConds (.except ε .pure) = ((ε → Prop) × Unit) := rfl
-  example : FailConds (.arg σ (.except ε .pure)) = ((ε → Prop) × Unit) := rfl
-  example : FailConds (.except ε (.arg σ .pure)) = ((ε → σ → Prop) × Unit) := rfl
+  example : FailConds (.except ε .pure) = ((ε → ULift Prop) × Unit) := rfl
+  example : FailConds (.arg σ (.except ε .pure)) = ((ε → ULift Prop) × Unit) := rfl
+  example : FailConds (.except ε (.arg σ .pure)) = ((ε → σ → ULift Prop) × Unit) := rfl
   ```
 -/
-def FailConds : PostShape → Type
-  | .pure => Unit
+def FailConds : PostShape.{u} → Type u
+  | .pure => PUnit
   | .arg _ ps => FailConds ps
   | .except ε ps => (ε → Assertion ps) × FailConds ps
 
 @[simp]
-def FailConds.const {ps : PostShape} (p : Prop) : FailConds ps := match ps with
-  | .pure => ()
+def FailConds.const {ps : PostShape.{u}} (p : Prop) : FailConds ps := match ps with
+  | .pure => ⟨⟩
   | .arg _ ps => @FailConds.const ps p
   | .except _ ps => (fun _ε => spred(⌜p⌝), @FailConds.const ps p)
 
@@ -90,7 +94,7 @@ def FailConds.false : FailConds ps := FailConds.const False
 instance : Inhabited (FailConds ps) where
   default := FailConds.true
 
-def FailConds.entails {ps : PostShape} (x y : FailConds ps) : Prop :=
+def FailConds.entails {ps : PostShape.{u}} (x y : FailConds ps) : Prop :=
   match ps with
   | .pure => True
   | .arg _ ps => @entails ps x y
@@ -119,9 +123,9 @@ theorem FailConds.entails_true {x : FailConds ps} : x ⊢ₑ FailConds.true := b
   induction ps <;> simp_all [true, const, entails]
 
 @[simp]
-def FailConds.and {ps : PostShape} (x : FailConds ps) (y : FailConds ps) : FailConds ps :=
+def FailConds.and {ps : PostShape.{u}} (x : FailConds ps) (y : FailConds ps) : FailConds ps :=
   match ps with
-  | .pure => ()
+  | .pure => ⟨⟩
   | .arg _ ps => @FailConds.and ps x y
   | .except _ _ => (fun e => SPred.and (x.1 e) (y.1 e), FailConds.and x.2 y.2)
 
@@ -179,8 +183,8 @@ theorem FailConds.and_eq_left {ps : PostShape} {p q : FailConds ps} (h : p ⊢�
   example : PostCond α (.except ε (.arg σ .pure)) = ((α → σ → Prop) × (ε → σ → Prop) × Unit) := rfl
   ```
 -/
-abbrev PostCond (α : Type) (s : PostShape) : Type :=
-  (α → Assertion s) × FailConds s
+abbrev PostCond (α : Type u) (ps : PostShape.{u}) : Type u :=
+  (α → Assertion ps) × FailConds ps
 
 @[inherit_doc PostCond]
 scoped macro:max "post⟨" handlers:term,+,? "⟩" : term =>

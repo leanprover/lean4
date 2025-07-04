@@ -2906,16 +2906,16 @@ if (x_52 == 0)
 uint8_t x_53; 
 x_53 = l_Lean_Exception_isRuntime(x_50);
 lean_dec(x_50);
-x_23 = x_51;
-x_24 = x_49;
+x_23 = x_49;
+x_24 = x_51;
 x_25 = x_53;
 goto block_27;
 }
 else
 {
 lean_dec(x_50);
-x_23 = x_51;
-x_24 = x_49;
+x_23 = x_49;
+x_24 = x_51;
 x_25 = x_52;
 goto block_27;
 }
@@ -3083,15 +3083,15 @@ block_27:
 {
 if (x_25 == 0)
 {
-lean_dec(x_24);
+lean_dec(x_23);
 x_1 = x_22;
 x_2 = x_19;
-x_10 = x_23;
+x_10 = x_24;
 goto _start;
 }
 else
 {
-lean_dec(x_23);
+lean_dec(x_24);
 lean_dec(x_22);
 lean_dec(x_19);
 lean_dec(x_9);
@@ -3101,7 +3101,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-return x_24;
+return x_23;
 }
 }
 }

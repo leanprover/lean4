@@ -483,50 +483,38 @@ return x_1;
 LEAN_EXPORT uint8_t l_Std_Net_decEqIPAddr____x40_Std_Net_Addr___hyg_759_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; 
-x_3 = 0;
 if (lean_obj_tag(x_1) == 0)
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_ctor_get(x_2, 0);
-x_6 = l_Std_Net_decEqIPv4Addr____x40_Std_Net_Addr___hyg_151_(x_4, x_5);
-if (x_6 == 0)
-{
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_ctor_get(x_2, 0);
+x_5 = l_Std_Net_decEqIPv4Addr____x40_Std_Net_Addr___hyg_151_(x_3, x_4);
+return x_5;
 }
 else
 {
+uint8_t x_6; 
+x_6 = 0;
 return x_6;
 }
 }
 else
 {
-return x_3;
-}
-}
-else
-{
 if (lean_obj_tag(x_2) == 0)
 {
-return x_3;
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_7 = lean_ctor_get(x_1, 0);
-x_8 = lean_ctor_get(x_2, 0);
-x_9 = l_Std_Net_decEqIPv6Addr____x40_Std_Net_Addr___hyg_450_(x_7, x_8);
-if (x_9 == 0)
-{
-return x_3;
-}
-else
-{
-return x_9;
-}
+lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_8 = lean_ctor_get(x_1, 0);
+x_9 = lean_ctor_get(x_2, 0);
+x_10 = l_Std_Net_decEqIPv6Addr____x40_Std_Net_Addr___hyg_450_(x_8, x_9);
+return x_10;
 }
 }
 }
@@ -582,50 +570,38 @@ return x_1;
 LEAN_EXPORT uint8_t l_Std_Net_decEqSocketAddress____x40_Std_Net_Addr___hyg_992_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; 
-x_3 = 0;
 if (lean_obj_tag(x_1) == 0)
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_ctor_get(x_2, 0);
-x_6 = l_Std_Net_decEqSocketAddressV4____x40_Std_Net_Addr___hyg_277_(x_4, x_5);
-if (x_6 == 0)
-{
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_ctor_get(x_2, 0);
+x_5 = l_Std_Net_decEqSocketAddressV4____x40_Std_Net_Addr___hyg_277_(x_3, x_4);
+return x_5;
 }
 else
 {
+uint8_t x_6; 
+x_6 = 0;
 return x_6;
 }
 }
 else
 {
-return x_3;
-}
-}
-else
-{
 if (lean_obj_tag(x_2) == 0)
 {
-return x_3;
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_7 = lean_ctor_get(x_1, 0);
-x_8 = lean_ctor_get(x_2, 0);
-x_9 = l_Std_Net_decEqSocketAddressV6____x40_Std_Net_Addr___hyg_576_(x_7, x_8);
-if (x_9 == 0)
-{
-return x_3;
-}
-else
-{
-return x_9;
-}
+lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_8 = lean_ctor_get(x_1, 0);
+x_9 = lean_ctor_get(x_2, 0);
+x_10 = l_Std_Net_decEqSocketAddressV6____x40_Std_Net_Addr___hyg_576_(x_8, x_9);
+return x_10;
 }
 }
 }

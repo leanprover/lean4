@@ -6296,7 +6296,7 @@ return x_22;
 LEAN_EXPORT lean_object* l_Lean_Meta_mkCongrSimpCore_x3f_mk_x3f_go___lam__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, uint8_t x_6, uint8_t x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
-uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_20; 
+lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_20; 
 lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
@@ -6344,9 +6344,9 @@ lean_dec(x_25);
 x_28 = lean_ctor_get(x_26, 2);
 lean_inc(x_28);
 lean_dec(x_26);
-x_13 = x_24;
+x_13 = x_23;
 x_14 = x_27;
-x_15 = x_23;
+x_15 = x_24;
 x_16 = x_28;
 goto block_19;
 }
@@ -6436,7 +6436,7 @@ block_19:
 {
 uint8_t x_17; lean_object* x_18; 
 x_17 = 0;
-x_18 = l_Lean_Meta_withLocalDecl___at___Lean_Meta_withLocalDeclD___at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__2_spec__2___redArg(x_16, x_13, x_15, x_2, x_17, x_8, x_9, x_10, x_11, x_14);
+x_18 = l_Lean_Meta_withLocalDecl___at___Lean_Meta_withLocalDeclD___at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__2_spec__2___redArg(x_16, x_15, x_13, x_2, x_17, x_8, x_9, x_10, x_11, x_14);
 return x_18;
 }
 }
@@ -6529,7 +6529,7 @@ block_41:
 {
 uint8_t x_39; lean_object* x_40; 
 x_39 = 0;
-x_40 = l_Lean_Meta_withLocalDecl___at___Lean_Meta_withLocalDeclD___at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__2_spec__2___redArg(x_36, x_35, x_38, x_37, x_39, x_10, x_11, x_12, x_13, x_34);
+x_40 = l_Lean_Meta_withLocalDecl___at___Lean_Meta_withLocalDeclD___at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__2_spec__2___redArg(x_37, x_35, x_38, x_36, x_39, x_10, x_11, x_12, x_13, x_34);
 return x_40;
 }
 block_47:
@@ -6554,8 +6554,8 @@ x_46 = lean_ctor_get(x_33, 3);
 lean_inc(x_46);
 lean_dec(x_33);
 x_35 = x_45;
-x_36 = x_42;
-x_37 = x_44;
+x_36 = x_44;
+x_37 = x_42;
 x_38 = x_46;
 goto block_41;
 }

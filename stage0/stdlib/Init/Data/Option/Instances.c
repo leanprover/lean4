@@ -207,11 +207,11 @@ return x_4;
 LEAN_EXPORT uint8_t l_Option_decidableForallMem___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; 
-x_3 = 1;
 if (lean_obj_tag(x_2) == 0)
 {
+uint8_t x_3; 
 lean_dec(x_1);
+x_3 = 1;
 return x_3;
 }
 else
@@ -222,18 +222,8 @@ lean_inc(x_4);
 lean_dec(x_2);
 x_5 = lean_apply_1(x_1, x_4);
 x_6 = lean_unbox(x_5);
-if (x_6 == 0)
-{
-uint8_t x_7; 
-x_7 = lean_unbox(x_5);
 lean_dec(x_5);
-return x_7;
-}
-else
-{
-lean_dec(x_5);
-return x_3;
-}
+return x_6;
 }
 }
 }
@@ -266,11 +256,11 @@ return x_6;
 LEAN_EXPORT uint8_t l_Option_decidableExistsMem___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; 
-x_3 = 0;
 if (lean_obj_tag(x_2) == 0)
 {
+uint8_t x_3; 
 lean_dec(x_1);
+x_3 = 0;
 return x_3;
 }
 else
@@ -281,18 +271,8 @@ lean_inc(x_4);
 lean_dec(x_2);
 x_5 = lean_apply_1(x_1, x_4);
 x_6 = lean_unbox(x_5);
-if (x_6 == 0)
-{
 lean_dec(x_5);
-return x_3;
-}
-else
-{
-uint8_t x_7; 
-x_7 = lean_unbox(x_5);
-lean_dec(x_5);
-return x_7;
-}
+return x_6;
 }
 }
 }

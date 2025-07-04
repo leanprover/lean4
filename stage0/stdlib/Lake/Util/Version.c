@@ -2522,29 +2522,22 @@ return x_1;
 LEAN_EXPORT uint8_t l_Lake_decEqToolchainVer____x40_Lake_Util_Version___hyg_1773_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; 
-x_3 = 0;
 switch (lean_obj_tag(x_1)) {
 case 0:
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_ctor_get(x_2, 0);
-x_6 = l_Lake_decEqStdVer____x40_Lake_Util_Version___hyg_1022_(x_4, x_5);
-if (x_6 == 0)
-{
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_ctor_get(x_2, 0);
+x_5 = l_Lake_decEqStdVer____x40_Lake_Util_Version___hyg_1022_(x_3, x_4);
+return x_5;
 }
 else
 {
+uint8_t x_6; 
+x_6 = 0;
 return x_6;
-}
-}
-else
-{
-return x_3;
 }
 }
 case 1:
@@ -2555,62 +2548,47 @@ lean_object* x_7; lean_object* x_8; uint8_t x_9;
 x_7 = lean_ctor_get(x_1, 0);
 x_8 = lean_ctor_get(x_2, 0);
 x_9 = l_Lake_decEqDate____x40_Lake_Util_Date___hyg_97_(x_7, x_8);
-if (x_9 == 0)
-{
-return x_3;
-}
-else
-{
 return x_9;
 }
-}
 else
 {
-return x_3;
+uint8_t x_10; 
+x_10 = 0;
+return x_10;
 }
 }
 case 2:
 {
 if (lean_obj_tag(x_2) == 2)
 {
-lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-x_10 = lean_ctor_get(x_1, 0);
-x_11 = lean_ctor_get(x_2, 0);
-x_12 = lean_nat_dec_eq(x_10, x_11);
-if (x_12 == 0)
-{
-return x_3;
+lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+x_11 = lean_ctor_get(x_1, 0);
+x_12 = lean_ctor_get(x_2, 0);
+x_13 = lean_nat_dec_eq(x_11, x_12);
+return x_13;
 }
 else
 {
-return x_12;
-}
-}
-else
-{
-return x_3;
+uint8_t x_14; 
+x_14 = 0;
+return x_14;
 }
 }
 default: 
 {
 if (lean_obj_tag(x_2) == 3)
 {
-lean_object* x_13; lean_object* x_14; uint8_t x_15; 
-x_13 = lean_ctor_get(x_1, 0);
-x_14 = lean_ctor_get(x_2, 0);
-x_15 = lean_string_dec_eq(x_13, x_14);
-if (x_15 == 0)
-{
-return x_3;
+lean_object* x_15; lean_object* x_16; uint8_t x_17; 
+x_15 = lean_ctor_get(x_1, 0);
+x_16 = lean_ctor_get(x_2, 0);
+x_17 = lean_string_dec_eq(x_15, x_16);
+return x_17;
 }
 else
 {
-return x_15;
-}
-}
-else
-{
-return x_3;
+uint8_t x_18; 
+x_18 = 0;
+return x_18;
 }
 }
 }
@@ -3716,64 +3694,72 @@ return x_7;
 LEAN_EXPORT uint8_t l_Lake_ToolchainVer_decLt(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; 
-x_3 = 0;
 switch (lean_obj_tag(x_1)) {
 case 0:
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_ctor_get(x_2, 0);
-x_6 = l_Lake_StdVer_compare(x_4, x_5);
-x_7 = lean_box(x_6);
-if (lean_obj_tag(x_7) == 0)
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_ctor_get(x_2, 0);
+x_5 = l_Lake_StdVer_compare(x_3, x_4);
+x_6 = lean_box(x_5);
+if (lean_obj_tag(x_6) == 0)
+{
+uint8_t x_7; 
+x_7 = 1;
+return x_7;
+}
+else
 {
 uint8_t x_8; 
-x_8 = 1;
+lean_dec(x_6);
+x_8 = 0;
 return x_8;
 }
-else
-{
-lean_dec(x_7);
-return x_3;
-}
 }
 else
 {
-return x_3;
+uint8_t x_9; 
+x_9 = 0;
+return x_9;
 }
 }
 case 1:
 {
 if (lean_obj_tag(x_2) == 1)
 {
-lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; 
-x_9 = lean_ctor_get(x_1, 0);
-x_10 = lean_ctor_get(x_2, 0);
-x_11 = l_Lake_ordDate____x40_Lake_Util_Date___hyg_299_(x_9, x_10);
-x_12 = lean_box(x_11);
-if (lean_obj_tag(x_12) == 0)
+lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; 
+x_10 = lean_ctor_get(x_1, 0);
+x_11 = lean_ctor_get(x_2, 0);
+x_12 = l_Lake_ordDate____x40_Lake_Util_Date___hyg_299_(x_10, x_11);
+x_13 = lean_box(x_12);
+if (lean_obj_tag(x_13) == 0)
 {
-uint8_t x_13; 
-x_13 = 1;
-return x_13;
+uint8_t x_14; 
+x_14 = 1;
+return x_14;
 }
 else
 {
-lean_dec(x_12);
-return x_3;
+uint8_t x_15; 
+lean_dec(x_13);
+x_15 = 0;
+return x_15;
 }
 }
 else
 {
-return x_3;
+uint8_t x_16; 
+x_16 = 0;
+return x_16;
 }
 }
 default: 
 {
-return x_3;
+uint8_t x_17; 
+x_17 = 0;
+return x_17;
 }
 }
 }
@@ -3919,89 +3905,99 @@ return x_9;
 LEAN_EXPORT uint8_t l_Lake_ToolchainVer_decLe(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; 
-x_3 = 0;
 switch (lean_obj_tag(x_1)) {
 case 0:
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_ctor_get(x_2, 0);
-x_6 = l_Lake_StdVer_compare(x_4, x_5);
-x_7 = lean_box(x_6);
-if (lean_obj_tag(x_7) == 2)
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_ctor_get(x_2, 0);
+x_5 = l_Lake_StdVer_compare(x_3, x_4);
+x_6 = lean_box(x_5);
+if (lean_obj_tag(x_6) == 2)
 {
-return x_3;
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
 }
 else
 {
 uint8_t x_8; 
-lean_dec(x_7);
+lean_dec(x_6);
 x_8 = 1;
 return x_8;
 }
 }
 else
 {
-return x_3;
+uint8_t x_9; 
+x_9 = 0;
+return x_9;
 }
 }
 case 1:
 {
 if (lean_obj_tag(x_2) == 1)
 {
-lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; 
-x_9 = lean_ctor_get(x_1, 0);
-x_10 = lean_ctor_get(x_2, 0);
-x_11 = l_Lake_ordDate____x40_Lake_Util_Date___hyg_299_(x_9, x_10);
-x_12 = lean_box(x_11);
-if (lean_obj_tag(x_12) == 2)
+lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; 
+x_10 = lean_ctor_get(x_1, 0);
+x_11 = lean_ctor_get(x_2, 0);
+x_12 = l_Lake_ordDate____x40_Lake_Util_Date___hyg_299_(x_10, x_11);
+x_13 = lean_box(x_12);
+if (lean_obj_tag(x_13) == 2)
 {
-return x_3;
+uint8_t x_14; 
+x_14 = 0;
+return x_14;
 }
 else
 {
-uint8_t x_13; 
-lean_dec(x_12);
-x_13 = 1;
-return x_13;
+uint8_t x_15; 
+lean_dec(x_13);
+x_15 = 1;
+return x_15;
 }
 }
 else
 {
-return x_3;
+uint8_t x_16; 
+x_16 = 0;
+return x_16;
 }
 }
 case 2:
 {
 if (lean_obj_tag(x_2) == 2)
 {
-lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_14 = lean_ctor_get(x_1, 0);
-x_15 = lean_ctor_get(x_2, 0);
-x_16 = lean_nat_dec_eq(x_14, x_15);
-return x_16;
+lean_object* x_17; lean_object* x_18; uint8_t x_19; 
+x_17 = lean_ctor_get(x_1, 0);
+x_18 = lean_ctor_get(x_2, 0);
+x_19 = lean_nat_dec_eq(x_17, x_18);
+return x_19;
 }
 else
 {
-return x_3;
+uint8_t x_20; 
+x_20 = 0;
+return x_20;
 }
 }
 default: 
 {
 if (lean_obj_tag(x_2) == 3)
 {
-lean_object* x_17; lean_object* x_18; uint8_t x_19; 
-x_17 = lean_ctor_get(x_1, 0);
-x_18 = lean_ctor_get(x_2, 0);
-x_19 = lean_string_dec_eq(x_17, x_18);
-return x_19;
+lean_object* x_21; lean_object* x_22; uint8_t x_23; 
+x_21 = lean_ctor_get(x_1, 0);
+x_22 = lean_ctor_get(x_2, 0);
+x_23 = lean_string_dec_eq(x_21, x_22);
+return x_23;
 }
 else
 {
-return x_3;
+uint8_t x_24; 
+x_24 = 0;
+return x_24;
 }
 }
 }

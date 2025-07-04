@@ -7886,8 +7886,8 @@ block_16:
 {
 lean_object* x_14; lean_object* x_15; 
 x_14 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_14, 0, x_12);
-lean_ctor_set(x_14, 1, x_11);
+lean_ctor_set(x_14, 0, x_11);
+lean_ctor_set(x_14, 1, x_12);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
 lean_ctor_set(x_15, 1, x_13);
@@ -7902,10 +7902,10 @@ if (x_24 == 0)
 {
 if (x_1 == 0)
 {
-lean_dec(x_20);
-x_11 = x_18;
-x_12 = x_23;
-x_13 = x_19;
+lean_dec(x_19);
+x_11 = x_23;
+x_12 = x_21;
+x_13 = x_18;
 goto block_16;
 }
 else
@@ -7914,10 +7914,10 @@ if (x_2 == 0)
 {
 lean_object* x_25; lean_object* x_26; uint8_t x_27; 
 lean_dec(x_23);
-lean_dec(x_18);
+lean_dec(x_21);
 x_25 = l_Lean_Meta_SolveByElim_mkAssumptionSet___closed__1;
-x_26 = l_Lean_throwError___at___Lean_getConstInfo___at___Lean_Meta_mkConstWithFreshMVarLevels_spec__0_spec__0___redArg(x_25, x_22, x_21, x_20, x_17, x_19);
-lean_dec(x_20);
+x_26 = l_Lean_throwError___at___Lean_getConstInfo___at___Lean_Meta_mkConstWithFreshMVarLevels_spec__0_spec__0___redArg(x_25, x_22, x_20, x_19, x_17, x_18);
+lean_dec(x_19);
 x_27 = !lean_is_exclusive(x_26);
 if (x_27 == 0)
 {
@@ -7939,20 +7939,20 @@ return x_30;
 }
 else
 {
-lean_dec(x_20);
-x_11 = x_18;
-x_12 = x_23;
-x_13 = x_19;
+lean_dec(x_19);
+x_11 = x_23;
+x_12 = x_21;
+x_13 = x_18;
 goto block_16;
 }
 }
 }
 else
 {
-lean_dec(x_20);
-x_11 = x_18;
-x_12 = x_23;
-x_13 = x_19;
+lean_dec(x_19);
+x_11 = x_23;
+x_12 = x_21;
+x_13 = x_18;
 goto block_16;
 }
 }
@@ -7969,10 +7969,10 @@ x_45 = l_List_mapTR_loop___at___Lean_Meta_SolveByElim_mkAssumptionSet_spec__4(x_
 x_46 = l_List_appendTR___redArg(x_45, x_44);
 x_47 = l_List_appendTR___redArg(x_46, x_38);
 x_17 = x_35;
-x_18 = x_34;
-x_19 = x_37;
-x_20 = x_40;
-x_21 = x_39;
+x_18 = x_37;
+x_19 = x_40;
+x_20 = x_39;
+x_21 = x_34;
 x_22 = x_41;
 x_23 = x_47;
 goto block_31;
@@ -7984,10 +7984,10 @@ lean_dec(x_38);
 x_48 = l_List_mapTR_loop___at___Lean_Meta_SolveByElim_mkAssumptionSet_spec__4(x_3, x_36);
 x_49 = l_List_appendTR___redArg(x_48, x_44);
 x_17 = x_35;
-x_18 = x_34;
-x_19 = x_37;
-x_20 = x_40;
-x_21 = x_39;
+x_18 = x_37;
+x_19 = x_40;
+x_20 = x_39;
+x_21 = x_34;
 x_22 = x_41;
 x_23 = x_49;
 goto block_31;

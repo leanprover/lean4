@@ -957,8 +957,6 @@ return x_1;
 LEAN_EXPORT uint8_t l_Lake_Toml_decEqDateTime___lam__0____x40_Lake_Toml_Data_DateTime___hyg_1047_(uint8_t x_1, uint8_t x_2, uint8_t x_3) {
 _start:
 {
-uint8_t x_4; 
-x_4 = 0;
 if (x_2 == 0)
 {
 if (x_3 == 0)
@@ -967,19 +965,12 @@ return x_1;
 }
 else
 {
-return x_4;
+return x_2;
 }
 }
 else
 {
-if (x_3 == 0)
-{
-return x_4;
-}
-else
-{
-return x_1;
-}
+return x_3;
 }
 }
 }
@@ -995,76 +986,69 @@ return x_5;
 LEAN_EXPORT uint8_t l_Lake_Toml_decEqDateTime____x40_Lake_Toml_Data_DateTime___hyg_1047_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; 
-x_3 = 0;
 switch (lean_obj_tag(x_1)) {
 case 0:
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-x_4 = lean_ctor_get(x_1, 0);
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_1, 1);
 lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 1);
+x_5 = lean_ctor_get(x_1, 2);
 lean_inc(x_5);
-x_6 = lean_ctor_get(x_1, 2);
-lean_inc(x_6);
 lean_dec(x_1);
-x_7 = lean_ctor_get(x_2, 0);
+x_6 = lean_ctor_get(x_2, 0);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_2, 1);
 lean_inc(x_7);
-x_8 = lean_ctor_get(x_2, 1);
+x_8 = lean_ctor_get(x_2, 2);
 lean_inc(x_8);
-x_9 = lean_ctor_get(x_2, 2);
-lean_inc(x_9);
 lean_dec(x_2);
-x_10 = l_Lake_decEqDate____x40_Lake_Util_Date___hyg_97_(x_4, x_7);
+x_9 = l_Lake_decEqDate____x40_Lake_Util_Date___hyg_97_(x_3, x_6);
+lean_dec(x_6);
+lean_dec(x_3);
+if (x_9 == 0)
+{
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_5);
+lean_dec(x_4);
+return x_9;
+}
+else
+{
+uint8_t x_10; 
+x_10 = l_Lake_Toml_decEqTime____x40_Lake_Toml_Data_DateTime___hyg_72_(x_4, x_7);
 lean_dec(x_7);
 lean_dec(x_4);
 if (x_10 == 0)
 {
-lean_dec(x_9);
 lean_dec(x_8);
-lean_dec(x_6);
 lean_dec(x_5);
-return x_3;
+return x_10;
 }
 else
 {
-uint8_t x_11; 
-x_11 = l_Lake_Toml_decEqTime____x40_Lake_Toml_Data_DateTime___hyg_72_(x_5, x_8);
-lean_dec(x_8);
-lean_dec(x_5);
-if (x_11 == 0)
-{
-lean_dec(x_9);
-lean_dec(x_6);
-return x_3;
-}
-else
-{
-lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
-x_12 = lean_box(x_11);
-x_13 = lean_alloc_closure((void*)(l_Lake_Toml_decEqDateTime___lam__0____x40_Lake_Toml_Data_DateTime___hyg_1047____boxed), 3, 1);
+lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+x_11 = lean_box(x_10);
+x_12 = lean_alloc_closure((void*)(l_Lake_Toml_decEqDateTime___lam__0____x40_Lake_Toml_Data_DateTime___hyg_1047____boxed), 3, 1);
+lean_closure_set(x_12, 0, x_11);
+x_13 = lean_alloc_closure((void*)(l_Lake_Toml_decEqDateTime___lam__1____x40_Lake_Toml_Data_DateTime___hyg_1047____boxed), 3, 1);
 lean_closure_set(x_13, 0, x_12);
-x_14 = lean_alloc_closure((void*)(l_Lake_Toml_decEqDateTime___lam__1____x40_Lake_Toml_Data_DateTime___hyg_1047____boxed), 3, 1);
-lean_closure_set(x_14, 0, x_13);
-x_15 = l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_6_(x_14, x_6, x_9);
-if (x_15 == 0)
-{
-return x_3;
-}
-else
-{
-return x_15;
-}
+x_14 = l_Option_decEqOption___redArg____x40_Init_Data_Option_Basic___hyg_6_(x_13, x_5, x_8);
+return x_14;
 }
 }
 }
 else
 {
+uint8_t x_15; 
 lean_dec(x_2);
 lean_dec(x_1);
-return x_3;
+x_15 = 0;
+return x_15;
 }
 }
 case 1:
@@ -1089,7 +1073,7 @@ if (x_20 == 0)
 {
 lean_dec(x_19);
 lean_dec(x_17);
-return x_3;
+return x_20;
 }
 else
 {
@@ -1097,81 +1081,66 @@ uint8_t x_21;
 x_21 = l_Lake_Toml_decEqTime____x40_Lake_Toml_Data_DateTime___hyg_72_(x_17, x_19);
 lean_dec(x_19);
 lean_dec(x_17);
-if (x_21 == 0)
-{
-return x_3;
-}
-else
-{
 return x_21;
 }
 }
-}
 else
 {
+uint8_t x_22; 
 lean_dec(x_2);
 lean_dec(x_1);
-return x_3;
+x_22 = 0;
+return x_22;
 }
 }
 case 2:
 {
 if (lean_obj_tag(x_2) == 2)
 {
-lean_object* x_22; lean_object* x_23; uint8_t x_24; 
-x_22 = lean_ctor_get(x_1, 0);
-lean_inc(x_22);
-lean_dec(x_1);
-x_23 = lean_ctor_get(x_2, 0);
+lean_object* x_23; lean_object* x_24; uint8_t x_25; 
+x_23 = lean_ctor_get(x_1, 0);
 lean_inc(x_23);
+lean_dec(x_1);
+x_24 = lean_ctor_get(x_2, 0);
+lean_inc(x_24);
 lean_dec(x_2);
-x_24 = l_Lake_decEqDate____x40_Lake_Util_Date___hyg_97_(x_22, x_23);
+x_25 = l_Lake_decEqDate____x40_Lake_Util_Date___hyg_97_(x_23, x_24);
+lean_dec(x_24);
 lean_dec(x_23);
-lean_dec(x_22);
-if (x_24 == 0)
-{
-return x_3;
+return x_25;
 }
 else
 {
-return x_24;
-}
-}
-else
-{
+uint8_t x_26; 
 lean_dec(x_2);
 lean_dec(x_1);
-return x_3;
+x_26 = 0;
+return x_26;
 }
 }
 default: 
 {
 if (lean_obj_tag(x_2) == 3)
 {
-lean_object* x_25; lean_object* x_26; uint8_t x_27; 
-x_25 = lean_ctor_get(x_1, 0);
-lean_inc(x_25);
+lean_object* x_27; lean_object* x_28; uint8_t x_29; 
+x_27 = lean_ctor_get(x_1, 0);
+lean_inc(x_27);
 lean_dec(x_1);
-x_26 = lean_ctor_get(x_2, 0);
-lean_inc(x_26);
+x_28 = lean_ctor_get(x_2, 0);
+lean_inc(x_28);
 lean_dec(x_2);
-x_27 = l_Lake_Toml_decEqTime____x40_Lake_Toml_Data_DateTime___hyg_72_(x_25, x_26);
-lean_dec(x_26);
-lean_dec(x_25);
-if (x_27 == 0)
-{
-return x_3;
+x_29 = l_Lake_Toml_decEqTime____x40_Lake_Toml_Data_DateTime___hyg_72_(x_27, x_28);
+lean_dec(x_28);
+lean_dec(x_27);
+return x_29;
 }
 else
 {
-return x_27;
-}
-}
-else
-{
+uint8_t x_30; 
 lean_dec(x_2);
 lean_dec(x_1);
-return x_3;
+x_30 = 0;
+return x_30;
 }
 }
 }

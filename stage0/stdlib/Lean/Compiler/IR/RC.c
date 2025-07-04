@@ -1315,27 +1315,30 @@ goto _start;
 }
 else
 {
-lean_object* x_28; uint8_t x_29; 
+lean_object* x_28; 
 lean_inc(x_3);
 x_28 = l___private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_getNumConsumptions(x_14, x_1, x_3);
 if (x_19 == 0)
 {
 if (x_20 == 0)
 {
-goto block_35;
+goto block_33;
 }
 else
 {
-x_29 = x_20;
-goto block_31;
+x_21 = x_28;
+goto block_26;
 }
 }
 else
 {
-goto block_35;
+goto block_33;
 }
 block_31:
 {
+uint8_t x_29; 
+lean_inc(x_3);
+x_29 = l___private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_isBorrowParamAux(x_14, x_1, x_3);
 if (x_29 == 0)
 {
 lean_object* x_30; 
@@ -1352,31 +1355,23 @@ goto block_26;
 }
 block_33:
 {
-uint8_t x_32; 
-lean_inc(x_3);
-x_32 = l___private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_isBorrowParamAux(x_14, x_1, x_3);
-x_29 = x_32;
+lean_object* x_32; 
+x_32 = l_Lean_RBNode_findCore___at_____private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_addDecForAlt_spec__0___redArg(x_4, x_14);
+if (lean_obj_tag(x_32) == 0)
+{
 goto block_31;
-}
-block_35:
-{
-lean_object* x_34; 
-x_34 = l_Lean_RBNode_findCore___at_____private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_addDecForAlt_spec__0___redArg(x_4, x_14);
-if (lean_obj_tag(x_34) == 0)
-{
-goto block_33;
 }
 else
 {
-lean_dec(x_34);
+lean_dec(x_32);
 if (x_20 == 0)
 {
-goto block_33;
+goto block_31;
 }
 else
 {
-x_29 = x_20;
-goto block_31;
+x_21 = x_28;
+goto block_26;
 }
 }
 }

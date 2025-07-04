@@ -3265,7 +3265,7 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_MessageData_formatAux(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_44; double x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; double x_52; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_132; lean_object* x_133; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; lean_object* x_169; lean_object* x_170; lean_object* x_171; lean_object* x_172; lean_object* x_184; lean_object* x_185; lean_object* x_186; lean_object* x_187; lean_object* x_188; lean_object* x_189; lean_object* x_190; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; double x_44; lean_object* x_45; double x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_132; lean_object* x_133; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; lean_object* x_169; lean_object* x_170; lean_object* x_171; lean_object* x_172; lean_object* x_184; lean_object* x_185; lean_object* x_186; lean_object* x_187; lean_object* x_188; lean_object* x_189; lean_object* x_190; 
 x_184 = lean_alloc_closure((void*)(l_Lean_MessageData_formatAux___lam__0___boxed), 1, 0);
 x_185 = l_Lean_instImpl____x40_Lean_Message___hyg_789_;
 if (lean_obj_tag(x_2) == 0)
@@ -3664,7 +3664,7 @@ x_55 = l_Lean_MessageData_formatAux___closed__6;
 x_56 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_56, 0, x_54);
 lean_ctor_set(x_56, 1, x_55);
-x_57 = lean_float_sub(x_52, x_45);
+x_57 = lean_float_sub(x_46, x_44);
 x_58 = lean_float_to_string(x_57);
 x_59 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_59, 0, x_58);
@@ -3673,13 +3673,13 @@ lean_ctor_set(x_60, 0, x_56);
 lean_ctor_set(x_60, 1, x_59);
 x_61 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_61, 0, x_60);
-lean_ctor_set(x_61, 1, x_51);
-x_5 = x_44;
-x_6 = x_46;
-x_7 = x_48;
-x_8 = x_49;
+lean_ctor_set(x_61, 1, x_52);
+x_5 = x_45;
+x_6 = x_48;
+x_7 = x_49;
+x_8 = x_50;
 x_9 = x_61;
-x_10 = x_50;
+x_10 = x_51;
 goto block_43;
 }
 block_115:
@@ -3728,15 +3728,15 @@ x_89 = l_Lean_MessageData_formatAux___closed__11;
 x_90 = lean_float_beq(x_77, x_89);
 if (x_90 == 0)
 {
-x_44 = x_63;
-x_45 = x_77;
-x_46 = x_74;
+x_44 = x_77;
+x_45 = x_63;
+x_46 = x_78;
 x_47 = x_88;
-x_48 = x_64;
-x_49 = x_66;
-x_50 = x_75;
-x_51 = x_87;
-x_52 = x_78;
+x_48 = x_74;
+x_49 = x_64;
+x_50 = x_66;
+x_51 = x_75;
+x_52 = x_87;
 goto block_62;
 }
 else
@@ -3753,15 +3753,15 @@ goto block_43;
 }
 else
 {
-x_44 = x_63;
-x_45 = x_77;
-x_46 = x_74;
+x_44 = x_77;
+x_45 = x_63;
+x_46 = x_78;
 x_47 = x_88;
-x_48 = x_64;
-x_49 = x_66;
-x_50 = x_75;
-x_51 = x_87;
-x_52 = x_78;
+x_48 = x_74;
+x_49 = x_64;
+x_50 = x_66;
+x_51 = x_75;
+x_52 = x_87;
 goto block_62;
 }
 }
@@ -3816,15 +3816,15 @@ x_109 = l_Lean_MessageData_formatAux___closed__11;
 x_110 = lean_float_beq(x_97, x_109);
 if (x_110 == 0)
 {
-x_44 = x_63;
-x_45 = x_97;
-x_46 = x_94;
+x_44 = x_97;
+x_45 = x_63;
+x_46 = x_98;
 x_47 = x_108;
-x_48 = x_64;
-x_49 = x_66;
-x_50 = x_95;
-x_51 = x_107;
-x_52 = x_98;
+x_48 = x_94;
+x_49 = x_64;
+x_50 = x_66;
+x_51 = x_95;
+x_52 = x_107;
 goto block_62;
 }
 else
@@ -3841,15 +3841,15 @@ goto block_43;
 }
 else
 {
-x_44 = x_63;
-x_45 = x_97;
-x_46 = x_94;
+x_44 = x_97;
+x_45 = x_63;
+x_46 = x_98;
 x_47 = x_108;
-x_48 = x_64;
-x_49 = x_66;
-x_50 = x_95;
-x_51 = x_107;
-x_52 = x_98;
+x_48 = x_94;
+x_49 = x_64;
+x_50 = x_66;
+x_51 = x_95;
+x_52 = x_107;
 goto block_62;
 }
 }

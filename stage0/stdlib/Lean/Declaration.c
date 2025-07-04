@@ -1625,8 +1625,6 @@ return x_15;
 }
 else
 {
-uint8_t x_16; 
-x_16 = 0;
 if (x_5 == 0)
 {
 if (x_9 == 0)
@@ -1636,20 +1634,13 @@ goto block_13;
 }
 else
 {
-return x_16;
+return x_5;
 }
 }
 else
 {
-if (x_9 == 0)
-{
-return x_16;
-}
-else
-{
-x_11 = x_15;
+x_11 = x_9;
 goto block_13;
-}
 }
 }
 }
@@ -3700,8 +3691,6 @@ return x_29;
 }
 else
 {
-uint8_t x_30; 
-x_30 = 0;
 if (x_10 == 0)
 {
 if (x_19 == 0)
@@ -3711,20 +3700,13 @@ goto block_22;
 }
 else
 {
-return x_30;
+return x_10;
 }
 }
 else
 {
-if (x_19 == 0)
-{
-return x_30;
-}
-else
-{
-x_21 = x_29;
+x_21 = x_19;
 goto block_22;
-}
 }
 }
 }

@@ -421,29 +421,22 @@ return x_1;
 LEAN_EXPORT uint8_t l_Lake_decEqGlob____x40_Lake_Config_Glob___hyg_207_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; 
-x_3 = 0;
 switch (lean_obj_tag(x_1)) {
 case 0:
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_ctor_get(x_2, 0);
-x_6 = lean_name_eq(x_4, x_5);
-if (x_6 == 0)
-{
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_ctor_get(x_2, 0);
+x_5 = lean_name_eq(x_3, x_4);
+return x_5;
 }
 else
 {
+uint8_t x_6; 
+x_6 = 0;
 return x_6;
-}
-}
-else
-{
-return x_3;
 }
 }
 case 1:
@@ -454,40 +447,30 @@ lean_object* x_7; lean_object* x_8; uint8_t x_9;
 x_7 = lean_ctor_get(x_1, 0);
 x_8 = lean_ctor_get(x_2, 0);
 x_9 = lean_name_eq(x_7, x_8);
-if (x_9 == 0)
-{
-return x_3;
-}
-else
-{
 return x_9;
 }
-}
 else
 {
-return x_3;
+uint8_t x_10; 
+x_10 = 0;
+return x_10;
 }
 }
 default: 
 {
 if (lean_obj_tag(x_2) == 2)
 {
-lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-x_10 = lean_ctor_get(x_1, 0);
-x_11 = lean_ctor_get(x_2, 0);
-x_12 = lean_name_eq(x_10, x_11);
-if (x_12 == 0)
-{
-return x_3;
+lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+x_11 = lean_ctor_get(x_1, 0);
+x_12 = lean_ctor_get(x_2, 0);
+x_13 = lean_name_eq(x_11, x_12);
+return x_13;
 }
 else
 {
-return x_12;
-}
-}
-else
-{
-return x_3;
+uint8_t x_14; 
+x_14 = 0;
+return x_14;
 }
 }
 }

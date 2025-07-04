@@ -1350,30 +1350,22 @@ return x_6;
 LEAN_EXPORT uint8_t l_Bool_decEq(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-uint8_t x_3; uint8_t x_4; 
-x_3 = 1;
-x_4 = 0;
 if (x_1 == 0)
 {
 if (x_2 == 0)
 {
+uint8_t x_3; 
+x_3 = 1;
 return x_3;
 }
 else
 {
-return x_4;
+return x_1;
 }
 }
 else
 {
-if (x_2 == 0)
-{
-return x_4;
-}
-else
-{
-return x_3;
-}
+return x_2;
 }
 }
 }
@@ -1393,30 +1385,22 @@ return x_6;
 LEAN_EXPORT uint8_t l_instDecidableEqBool(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-uint8_t x_3; uint8_t x_4; 
-x_3 = 1;
-x_4 = 0;
 if (x_1 == 0)
 {
 if (x_2 == 0)
 {
+uint8_t x_3; 
+x_3 = 1;
 return x_3;
 }
 else
 {
-return x_4;
+return x_1;
 }
 }
 else
 {
-if (x_2 == 0)
-{
-return x_4;
-}
-else
-{
-return x_3;
-}
+return x_2;
 }
 }
 }
@@ -2346,7 +2330,7 @@ LEAN_EXPORT uint8_t l_instDecidableEqFin(lean_object* x_1, lean_object* x_2, lea
 _start:
 {
 uint8_t x_4; 
-x_4 = l_instDecidableEqFin___redArg(x_2, x_3);
+x_4 = lean_nat_dec_eq(x_2, x_3);
 return x_4;
 }
 }
@@ -3587,65 +3571,69 @@ return x_2;
 LEAN_EXPORT uint8_t l_List_hasDecEq___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint8_t x_4; uint8_t x_5; 
-x_4 = 1;
-x_5 = 0;
 if (lean_obj_tag(x_2) == 0)
 {
 lean_dec(x_1);
 if (lean_obj_tag(x_3) == 0)
 {
+uint8_t x_4; 
+x_4 = 1;
 return x_4;
 }
 else
 {
+uint8_t x_5; 
 lean_dec(x_3);
+x_5 = 0;
 return x_5;
 }
 }
 else
 {
-if (lean_obj_tag(x_3) == 0)
-{
-lean_dec(x_2);
-lean_dec(x_1);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_ctor_get(x_2, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_2, 1);
 lean_inc(x_7);
 lean_dec(x_2);
-x_8 = lean_ctor_get(x_3, 0);
-lean_inc(x_8);
-x_9 = lean_ctor_get(x_3, 1);
+x_8 = 0;
+if (lean_obj_tag(x_3) == 0)
+{
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_1);
+return x_8;
+}
+else
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+x_9 = lean_ctor_get(x_3, 0);
 lean_inc(x_9);
+x_10 = lean_ctor_get(x_3, 1);
+lean_inc(x_10);
 lean_dec(x_3);
 lean_inc(x_1);
-x_10 = lean_apply_2(x_1, x_6, x_8);
-x_11 = lean_unbox(x_10);
-lean_dec(x_10);
-if (x_11 == 0)
-{
-lean_dec(x_9);
-lean_dec(x_7);
-lean_dec(x_1);
-return x_5;
-}
-else
-{
-uint8_t x_12; 
-x_12 = l_List_hasDecEq___redArg(x_1, x_7, x_9);
+x_11 = lean_apply_2(x_1, x_6, x_9);
+x_12 = lean_unbox(x_11);
+lean_dec(x_11);
 if (x_12 == 0)
 {
-return x_5;
+lean_dec(x_10);
+lean_dec(x_7);
+lean_dec(x_1);
+return x_8;
 }
 else
 {
-return x_4;
+uint8_t x_13; 
+x_13 = l_List_hasDecEq___redArg(x_1, x_7, x_10);
+if (x_13 == 0)
+{
+return x_8;
+}
+else
+{
+return x_13;
 }
 }
 }

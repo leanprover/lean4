@@ -1214,7 +1214,14 @@ else
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_ctor_get(x_4, 0);
 x_7 = lean_int_dec_le(x_2, x_6);
+if (x_7 == 0)
+{
 return x_7;
+}
+else
+{
+return x_5;
+}
 }
 }
 }

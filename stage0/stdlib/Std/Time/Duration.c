@@ -815,7 +815,7 @@ goto block_7;
 block_37:
 {
 lean_object* x_20; lean_object* x_21; uint8_t x_22; 
-x_20 = lean_string_append(x_17, x_19);
+x_20 = lean_string_append(x_18, x_19);
 lean_dec(x_19);
 x_21 = l_Std_Time_reprDuration___redArg___closed__21____x40_Std_Time_Duration___hyg_300_;
 x_22 = lean_int_dec_eq(x_16, x_21);
@@ -825,12 +825,12 @@ if (x_22 == 0)
 lean_object* x_23; lean_object* x_24; uint8_t x_25; 
 x_23 = l_Std_Time_instToStringDuration___lam__0___closed__1;
 x_24 = lean_unsigned_to_nat(9u);
-x_25 = lean_int_dec_lt(x_18, x_21);
+x_25 = lean_int_dec_lt(x_17, x_21);
 if (x_25 == 0)
 {
 lean_object* x_26; lean_object* x_27; 
-x_26 = lean_nat_abs(x_18);
-lean_dec(x_18);
+x_26 = lean_nat_abs(x_17);
+lean_dec(x_17);
 x_27 = l_Nat_reprFast(x_26);
 x_8 = x_23;
 x_9 = x_20;
@@ -841,8 +841,8 @@ goto block_14;
 else
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
-x_28 = lean_nat_abs(x_18);
-lean_dec(x_18);
+x_28 = lean_nat_abs(x_17);
+lean_dec(x_17);
 x_29 = lean_unsigned_to_nat(1u);
 x_30 = lean_nat_sub(x_28, x_29);
 lean_dec(x_28);
@@ -863,7 +863,7 @@ goto block_14;
 else
 {
 lean_object* x_36; 
-lean_dec(x_18);
+lean_dec(x_17);
 x_36 = l_Std_Time_instToStringDuration_leftPad___closed__0;
 x_2 = x_20;
 x_3 = x_36;
@@ -881,8 +881,8 @@ lean_object* x_43; lean_object* x_44;
 x_43 = lean_nat_abs(x_39);
 lean_dec(x_39);
 x_44 = l_Nat_reprFast(x_43);
-x_17 = x_38;
-x_18 = x_40;
+x_17 = x_40;
+x_18 = x_38;
 x_19 = x_44;
 goto block_37;
 }
@@ -901,8 +901,8 @@ lean_dec(x_47);
 x_51 = l_Nat_reprFast(x_50);
 x_52 = lean_string_append(x_48, x_51);
 lean_dec(x_51);
-x_17 = x_38;
-x_18 = x_40;
+x_17 = x_40;
+x_18 = x_38;
 x_19 = x_52;
 goto block_37;
 }

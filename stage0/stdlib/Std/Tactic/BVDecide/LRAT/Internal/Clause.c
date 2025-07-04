@@ -177,44 +177,41 @@ return x_2;
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEvalLiteral___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; uint8_t x_8; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
 lean_inc(x_4);
 lean_dec(x_2);
 x_5 = lean_apply_1(x_1, x_3);
-x_6 = 1;
-x_7 = 0;
-x_8 = lean_unbox(x_5);
-lean_dec(x_5);
-if (x_8 == 0)
+x_6 = lean_unbox(x_5);
+if (x_6 == 0)
 {
-uint8_t x_9; 
-x_9 = lean_unbox(x_4);
+uint8_t x_7; 
+x_7 = lean_unbox(x_4);
 lean_dec(x_4);
-if (x_9 == 0)
+if (x_7 == 0)
 {
-return x_6;
+uint8_t x_8; 
+lean_dec(x_5);
+x_8 = 1;
+return x_8;
 }
 else
 {
-return x_7;
+uint8_t x_9; 
+x_9 = lean_unbox(x_5);
+lean_dec(x_5);
+return x_9;
 }
 }
 else
 {
 uint8_t x_10; 
+lean_dec(x_5);
 x_10 = lean_unbox(x_4);
 lean_dec(x_4);
-if (x_10 == 0)
-{
-return x_7;
-}
-else
-{
-return x_6;
-}
+return x_10;
 }
 }
 }
@@ -330,7 +327,7 @@ LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEval
 _start:
 {
 uint8_t x_6; 
-x_6 = l_Std_Tactic_BVDecide_LRAT_Internal_Clause_instDecidableEval___redArg(x_3, x_4, x_5);
+x_6 = l_Std_Tactic_BVDecide_LRAT_Internal_Clause_eval___redArg(x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -683,30 +680,22 @@ return x_1;
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_beqDefaultClause___lam__0____x40_Std_Tactic_BVDecide_LRAT_Internal_Clause___hyg_682_(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-uint8_t x_3; uint8_t x_4; 
-x_3 = 1;
-x_4 = 0;
 if (x_1 == 0)
 {
 if (x_2 == 0)
 {
+uint8_t x_3; 
+x_3 = 1;
 return x_3;
 }
 else
 {
-return x_4;
+return x_1;
 }
 }
 else
 {
-if (x_2 == 0)
-{
-return x_4;
-}
-else
-{
-return x_3;
-}
+return x_2;
 }
 }
 }

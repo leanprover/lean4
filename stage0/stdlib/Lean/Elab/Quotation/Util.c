@@ -517,13 +517,13 @@ lean_object* x_15; lean_object* x_16; size_t x_17; size_t x_18; lean_object* x_1
 x_15 = lean_box(0);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_12);
-x_17 = lean_array_size(x_13);
+lean_ctor_set(x_16, 1, x_14);
+x_17 = lean_array_size(x_12);
 x_18 = 0;
 lean_inc(x_9);
 lean_inc(x_5);
-x_19 = l_Array_forIn_x27Unsafe_loop___at___Lean_Syntax_instForInTopDown_loop___at___Lean_Syntax_instForInTopDown_loop___at___Lean_Elab_Term_Quotation_getAntiquotationIds_spec__0_spec__0_spec__0(x_1, x_4, x_15, x_13, x_17, x_18, x_16, x_5, x_6, x_7, x_8, x_9, x_10, x_14);
-lean_dec(x_13);
+x_19 = l_Array_forIn_x27Unsafe_loop___at___Lean_Syntax_instForInTopDown_loop___at___Lean_Syntax_instForInTopDown_loop___at___Lean_Elab_Term_Quotation_getAntiquotationIds_spec__0_spec__0_spec__0(x_1, x_4, x_15, x_12, x_17, x_18, x_16, x_5, x_6, x_7, x_8, x_9, x_10, x_13);
+lean_dec(x_12);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; lean_object* x_21; 
@@ -615,9 +615,9 @@ lean_object* x_39;
 x_39 = lean_ctor_get(x_2, 2);
 lean_inc(x_39);
 lean_dec(x_2);
-x_12 = x_37;
-x_13 = x_39;
-x_14 = x_38;
+x_12 = x_39;
+x_13 = x_38;
+x_14 = x_37;
 goto block_36;
 }
 else
@@ -633,9 +633,9 @@ x_43 = lean_name_eq(x_40, x_42);
 lean_dec(x_40);
 if (x_43 == 0)
 {
-x_12 = x_37;
-x_13 = x_41;
-x_14 = x_38;
+x_12 = x_41;
+x_13 = x_38;
+x_14 = x_37;
 goto block_36;
 }
 else
@@ -759,13 +759,13 @@ lean_object* x_15; lean_object* x_16; size_t x_17; size_t x_18; lean_object* x_1
 x_15 = lean_box(0);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_14);
-x_17 = lean_array_size(x_13);
+lean_ctor_set(x_16, 1, x_13);
+x_17 = lean_array_size(x_14);
 x_18 = 0;
 lean_inc(x_9);
 lean_inc(x_5);
-x_19 = l_Array_forIn_x27Unsafe_loop___at___Lean_Syntax_instForInTopDown_loop___at___Lean_Syntax_instForInTopDown_loop___at___Lean_Elab_Term_Quotation_getAntiquotationIds_spec__0_spec__0_spec__0(x_1, x_4, x_15, x_13, x_17, x_18, x_16, x_5, x_6, x_7, x_8, x_9, x_10, x_12);
-lean_dec(x_13);
+x_19 = l_Array_forIn_x27Unsafe_loop___at___Lean_Syntax_instForInTopDown_loop___at___Lean_Syntax_instForInTopDown_loop___at___Lean_Elab_Term_Quotation_getAntiquotationIds_spec__0_spec__0_spec__0(x_1, x_4, x_15, x_14, x_17, x_18, x_16, x_5, x_6, x_7, x_8, x_9, x_10, x_12);
+lean_dec(x_14);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; lean_object* x_21; 
@@ -858,8 +858,8 @@ x_39 = lean_ctor_get(x_2, 2);
 lean_inc(x_39);
 lean_dec(x_2);
 x_12 = x_38;
-x_13 = x_39;
-x_14 = x_37;
+x_13 = x_37;
+x_14 = x_39;
 goto block_36;
 }
 else
@@ -876,8 +876,8 @@ lean_dec(x_40);
 if (x_43 == 0)
 {
 x_12 = x_38;
-x_13 = x_41;
-x_14 = x_37;
+x_13 = x_37;
+x_14 = x_41;
 goto block_36;
 }
 else

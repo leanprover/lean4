@@ -94,30 +94,22 @@ goto _start;
 LEAN_EXPORT uint8_t l_List_filterMapTR_go___at___Std_Tactic_BVDecide_LRAT_check_spec__1___lam__0(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-uint8_t x_3; uint8_t x_4; 
-x_3 = 1;
-x_4 = 0;
 if (x_1 == 0)
 {
 if (x_2 == 0)
 {
+uint8_t x_3; 
+x_3 = 1;
 return x_3;
 }
 else
 {
-return x_4;
+return x_1;
 }
 }
 else
 {
-if (x_2 == 0)
-{
-return x_4;
-}
-else
-{
-return x_3;
-}
+return x_2;
 }
 }
 }

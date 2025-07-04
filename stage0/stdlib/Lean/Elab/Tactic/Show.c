@@ -676,8 +676,8 @@ block_34:
 if (x_29 == 0)
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; 
-lean_dec(x_27);
-x_30 = l_Lean_Elab_Tactic_SavedState_restore___redArg(x_28, x_26, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_25);
+lean_dec(x_25);
+x_30 = l_Lean_Elab_Tactic_SavedState_restore___redArg(x_28, x_26, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_27);
 x_31 = lean_ctor_get(x_30, 1);
 lean_inc(x_31);
 lean_dec(x_30);
@@ -696,7 +696,7 @@ goto _start;
 else
 {
 lean_dec(x_28);
-lean_dec(x_25);
+lean_dec(x_27);
 lean_dec(x_24);
 lean_dec(x_23);
 lean_dec(x_22);
@@ -711,7 +711,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
-return x_27;
+return x_25;
 }
 }
 block_49:
@@ -778,9 +778,9 @@ if (x_45 == 0)
 uint8_t x_46; 
 x_46 = l_Lean_Exception_isRuntime(x_42);
 lean_dec(x_42);
-x_25 = x_43;
+x_25 = x_41;
 x_26 = x_44;
-x_27 = x_41;
+x_27 = x_43;
 x_28 = x_37;
 x_29 = x_46;
 goto block_34;
@@ -788,9 +788,9 @@ goto block_34;
 else
 {
 lean_dec(x_42);
-x_25 = x_43;
+x_25 = x_41;
 x_26 = x_44;
-x_27 = x_41;
+x_27 = x_43;
 x_28 = x_37;
 x_29 = x_45;
 goto block_34;

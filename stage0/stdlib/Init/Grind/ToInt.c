@@ -182,96 +182,121 @@ return x_1;
 LEAN_EXPORT uint8_t l_Lean_Grind_decEqIntInterval____x40_Init_Grind_ToInt___hyg_189_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; uint8_t x_4; 
-x_3 = 0;
-x_4 = 1;
 switch (lean_obj_tag(x_1)) {
 case 0:
 {
-if (lean_obj_tag(x_2) == 0)
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_ctor_get(x_1, 1);
+x_5 = 0;
+switch (lean_obj_tag(x_2)) {
+case 0:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_5 = lean_ctor_get(x_1, 0);
-x_6 = lean_ctor_get(x_1, 1);
-x_7 = lean_ctor_get(x_2, 0);
-x_8 = lean_ctor_get(x_2, 1);
-x_9 = lean_int_dec_eq(x_5, x_7);
+lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+x_6 = lean_ctor_get(x_2, 0);
+x_7 = lean_ctor_get(x_2, 1);
+x_8 = lean_int_dec_eq(x_3, x_6);
+if (x_8 == 0)
+{
+return x_5;
+}
+else
+{
+uint8_t x_9; 
+x_9 = lean_int_dec_eq(x_4, x_7);
 if (x_9 == 0)
 {
-return x_3;
+return x_5;
 }
 else
 {
-uint8_t x_10; 
-x_10 = lean_int_dec_eq(x_6, x_8);
-if (x_10 == 0)
+return x_9;
+}
+}
+}
+case 3:
 {
-return x_3;
+return x_5;
 }
-else
+default: 
 {
-return x_4;
+return x_5;
 }
-}
-}
-else
-{
-return x_3;
 }
 }
 case 1:
 {
-if (lean_obj_tag(x_2) == 1)
+lean_object* x_10; uint8_t x_11; 
+x_10 = lean_ctor_get(x_1, 0);
+x_11 = 0;
+switch (lean_obj_tag(x_2)) {
+case 1:
 {
-lean_object* x_11; lean_object* x_12; uint8_t x_13; 
-x_11 = lean_ctor_get(x_1, 0);
+lean_object* x_12; uint8_t x_13; 
 x_12 = lean_ctor_get(x_2, 0);
-x_13 = lean_int_dec_eq(x_11, x_12);
+x_13 = lean_int_dec_eq(x_10, x_12);
 if (x_13 == 0)
 {
-return x_3;
+return x_11;
 }
 else
 {
-return x_4;
+return x_13;
 }
 }
-else
+case 3:
 {
-return x_3;
+return x_11;
+}
+default: 
+{
+return x_11;
+}
 }
 }
 case 2:
 {
-if (lean_obj_tag(x_2) == 2)
-{
-lean_object* x_14; lean_object* x_15; uint8_t x_16; 
+lean_object* x_14; uint8_t x_15; 
 x_14 = lean_ctor_get(x_1, 0);
-x_15 = lean_ctor_get(x_2, 0);
-x_16 = lean_int_dec_eq(x_14, x_15);
-if (x_16 == 0)
+x_15 = 0;
+switch (lean_obj_tag(x_2)) {
+case 2:
 {
-return x_3;
+lean_object* x_16; uint8_t x_17; 
+x_16 = lean_ctor_get(x_2, 0);
+x_17 = lean_int_dec_eq(x_14, x_16);
+if (x_17 == 0)
+{
+return x_15;
 }
 else
 {
-return x_4;
+return x_17;
 }
 }
-else
+case 3:
 {
-return x_3;
+return x_15;
+}
+default: 
+{
+return x_15;
+}
 }
 }
 default: 
 {
 if (lean_obj_tag(x_2) == 3)
 {
-return x_4;
+uint8_t x_18; 
+x_18 = 1;
+return x_18;
 }
 else
 {
-return x_3;
+uint8_t x_19; 
+x_19 = 0;
+return x_19;
 }
 }
 }

@@ -1246,9 +1246,9 @@ block_37:
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
-lean_dec(x_10);
+lean_dec(x_11);
 x_14 = l_Lean_MVarId_acyclic_go___closed__3;
-x_15 = l_Lean_isTracingEnabledFor___at___Lean_Meta_processPostponed_loop_spec__0___redArg(x_14, x_7, x_11);
+x_15 = l_Lean_isTracingEnabledFor___at___Lean_Meta_processPostponed_loop_spec__0___redArg(x_14, x_7, x_10);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 x_17 = lean_unbox(x_16);
@@ -1331,12 +1331,12 @@ return x_36;
 else
 {
 lean_dec(x_12);
-lean_dec(x_11);
+lean_dec(x_10);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-return x_10;
+return x_11;
 }
 }
 block_43:
@@ -1347,16 +1347,16 @@ if (x_41 == 0)
 {
 uint8_t x_42; 
 x_42 = l_Lean_Exception_isRuntime(x_39);
-x_10 = x_38;
-x_11 = x_40;
+x_10 = x_40;
+x_11 = x_38;
 x_12 = x_39;
 x_13 = x_42;
 goto block_37;
 }
 else
 {
-x_10 = x_38;
-x_11 = x_40;
+x_10 = x_40;
+x_11 = x_38;
 x_12 = x_39;
 x_13 = x_41;
 goto block_37;

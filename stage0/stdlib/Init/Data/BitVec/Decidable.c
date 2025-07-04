@@ -61,9 +61,7 @@ return x_1;
 LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVecZero(lean_object* x_1, uint8_t x_2) {
 _start:
 {
-uint8_t x_3; 
-x_3 = l_BitVec_instDecidableForallBitVecZero___redArg(x_2);
-return x_3;
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVecZero___redArg___boxed(lean_object* x_1) {

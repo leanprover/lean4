@@ -391,9 +391,7 @@ return x_1;
 LEAN_EXPORT uint8_t l_decidable__of__bool(lean_object* x_1, uint8_t x_2, lean_object* x_3) {
 _start:
 {
-uint8_t x_4; 
-x_4 = l_decidable__of__bool___redArg(x_2);
-return x_4;
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_decidable__of__bool___redArg___boxed(lean_object* x_1) {

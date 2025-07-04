@@ -5458,11 +5458,11 @@ block_75:
 if (x_59 == 0)
 {
 lean_object* x_60; 
-lean_inc(x_52);
+lean_inc(x_58);
+lean_inc(x_53);
+lean_inc(x_55);
 lean_inc(x_56);
-lean_inc(x_54);
-lean_inc(x_50);
-x_60 = l_Lean_Meta_Grind_getExtTheorems(x_49, x_58, x_55, x_53, x_57, x_50, x_54, x_56, x_52, x_51);
+x_60 = l_Lean_Meta_Grind_getExtTheorems(x_49, x_51, x_52, x_50, x_57, x_56, x_55, x_53, x_58, x_54);
 if (lean_obj_tag(x_60) == 0)
 {
 lean_object* x_61; lean_object* x_62; lean_object* x_63; size_t x_64; size_t x_65; lean_object* x_66; 
@@ -5474,7 +5474,7 @@ lean_dec(x_60);
 x_63 = lean_box(0);
 x_64 = lean_array_size(x_61);
 x_65 = 0;
-x_66 = l_Array_forIn_x27Unsafe_loop___at___Lean_Meta_Grind_propagateEqDown_spec__0(x_1, x_63, x_61, x_64, x_65, x_63, x_58, x_55, x_53, x_57, x_50, x_54, x_56, x_52, x_62);
+x_66 = l_Array_forIn_x27Unsafe_loop___at___Lean_Meta_Grind_propagateEqDown_spec__0(x_1, x_63, x_61, x_64, x_65, x_63, x_51, x_52, x_50, x_57, x_56, x_55, x_53, x_58, x_62);
 lean_dec(x_61);
 if (lean_obj_tag(x_66) == 0)
 {
@@ -5512,9 +5512,9 @@ lean_dec(x_58);
 lean_dec(x_57);
 lean_dec(x_56);
 lean_dec(x_55);
-lean_dec(x_54);
 lean_dec(x_53);
 lean_dec(x_52);
+lean_dec(x_51);
 lean_dec(x_50);
 lean_dec(x_1);
 x_71 = !lean_is_exclusive(x_60);
@@ -5543,13 +5543,13 @@ lean_dec(x_58);
 lean_dec(x_57);
 lean_dec(x_56);
 lean_dec(x_55);
-lean_dec(x_54);
 lean_dec(x_53);
 lean_dec(x_52);
+lean_dec(x_51);
 lean_dec(x_50);
 lean_dec(x_49);
 lean_dec(x_1);
-x_19 = x_51;
+x_19 = x_54;
 goto block_22;
 }
 }
@@ -5669,15 +5669,15 @@ if (x_105 == 0)
 {
 lean_dec(x_102);
 lean_dec(x_99);
-x_50 = x_83;
-x_51 = x_103;
-x_52 = x_86;
-x_53 = x_81;
-x_54 = x_84;
-x_55 = x_80;
-x_56 = x_85;
+x_50 = x_81;
+x_51 = x_79;
+x_52 = x_80;
+x_53 = x_85;
+x_54 = x_103;
+x_55 = x_84;
+x_56 = x_83;
 x_57 = x_82;
-x_58 = x_79;
+x_58 = x_86;
 x_59 = x_105;
 goto block_75;
 }
@@ -5691,15 +5691,15 @@ if (x_106 == 0)
 uint8_t x_107; 
 x_107 = lean_ctor_get_uint8(x_102, sizeof(void*)*14 + 2);
 lean_dec(x_102);
-x_50 = x_83;
-x_51 = x_103;
-x_52 = x_86;
-x_53 = x_81;
-x_54 = x_84;
-x_55 = x_80;
-x_56 = x_85;
+x_50 = x_81;
+x_51 = x_79;
+x_52 = x_80;
+x_53 = x_85;
+x_54 = x_103;
+x_55 = x_84;
+x_56 = x_83;
 x_57 = x_82;
-x_58 = x_79;
+x_58 = x_86;
 x_59 = x_107;
 goto block_75;
 }

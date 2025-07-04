@@ -2378,51 +2378,38 @@ uint8_t x_5;
 x_5 = lean_string_utf8_at_end(x_1, x_4);
 if (x_5 == 0)
 {
-uint32_t x_6; lean_object* x_7; uint8_t x_8; uint8_t x_23; 
-x_6 = lean_string_utf8_get_fast(x_1, x_4);
-x_7 = lean_string_utf8_next_fast(x_1, x_4);
-x_23 = lean_string_utf8_at_end(x_1, x_7);
-if (x_23 == 0)
-{
-x_8 = x_5;
-goto block_22;
-}
-else
-{
-x_8 = x_23;
-goto block_22;
-}
-block_22:
-{
-uint8_t x_9; 
-x_9 = l_instDecidableNot___redArg(x_8);
-if (x_9 == 0)
+lean_object* x_6; uint8_t x_7; uint8_t x_8; 
+x_6 = lean_string_utf8_next_fast(x_1, x_4);
+x_7 = lean_string_utf8_at_end(x_1, x_6);
+x_8 = l_instDecidableNot___redArg(x_7);
+if (x_8 == 0)
 {
 lean_dec(x_4);
-x_4 = x_7;
+x_4 = x_6;
 goto _start;
 }
 else
 {
-uint32_t x_11; uint8_t x_12; 
+uint32_t x_10; uint32_t x_11; uint8_t x_12; 
+x_10 = lean_string_utf8_get_fast(x_1, x_4);
 x_11 = 13;
-x_12 = lean_uint32_dec_eq(x_6, x_11);
+x_12 = lean_uint32_dec_eq(x_10, x_11);
 if (x_12 == 0)
 {
 lean_dec(x_4);
-x_4 = x_7;
+x_4 = x_6;
 goto _start;
 }
 else
 {
 uint32_t x_14; uint32_t x_15; uint8_t x_16; 
-x_14 = lean_string_utf8_get(x_1, x_7);
+x_14 = lean_string_utf8_get(x_1, x_6);
 x_15 = 10;
 x_16 = lean_uint32_dec_eq(x_14, x_15);
 if (x_16 == 0)
 {
 lean_dec(x_4);
-x_4 = x_7;
+x_4 = x_6;
 goto _start;
 }
 else
@@ -2433,30 +2420,29 @@ lean_dec(x_4);
 lean_dec(x_3);
 x_19 = lean_string_append(x_2, x_18);
 lean_dec(x_18);
-x_20 = lean_string_utf8_next_fast(x_1, x_7);
+x_20 = lean_string_utf8_next_fast(x_1, x_6);
 x_2 = x_19;
-x_3 = x_7;
+x_3 = x_6;
 x_4 = x_20;
 goto _start;
 }
 }
 }
 }
-}
 else
 {
-lean_object* x_24; uint8_t x_25; 
-x_24 = lean_unsigned_to_nat(0u);
-x_25 = lean_nat_dec_eq(x_3, x_24);
-if (x_25 == 0)
+lean_object* x_22; uint8_t x_23; 
+x_22 = lean_unsigned_to_nat(0u);
+x_23 = lean_nat_dec_eq(x_3, x_22);
+if (x_23 == 0)
 {
-lean_object* x_26; lean_object* x_27; 
-x_26 = lean_string_utf8_extract(x_1, x_3, x_4);
+lean_object* x_24; lean_object* x_25; 
+x_24 = lean_string_utf8_extract(x_1, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);
-x_27 = lean_string_append(x_2, x_26);
-lean_dec(x_26);
-return x_27;
+x_25 = lean_string_append(x_2, x_24);
+lean_dec(x_24);
+return x_25;
 }
 else
 {

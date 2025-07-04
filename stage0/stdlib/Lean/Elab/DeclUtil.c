@@ -564,11 +564,11 @@ x_108 = l_Lean_Meta_forallTelescopeCompatibleAux___redArg___closed__13;
 x_109 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_109, 0, x_107);
 lean_ctor_set(x_109, 1, x_108);
-x_110 = l_Lean_throwError___at___Lean_getConstInfo___at___Lean_Meta_mkConstWithFreshMVarLevels_spec__0_spec__0___redArg(x_109, x_98, x_97, x_94, x_95, x_96);
-lean_dec(x_95);
-lean_dec(x_94);
-lean_dec(x_97);
+x_110 = l_Lean_throwError___at___Lean_getConstInfo___at___Lean_Meta_mkConstWithFreshMVarLevels_spec__0_spec__0___redArg(x_109, x_97, x_95, x_94, x_98, x_96);
 lean_dec(x_98);
+lean_dec(x_94);
+lean_dec(x_95);
+lean_dec(x_97);
 x_111 = !lean_is_exclusive(x_110);
 if (x_111 == 0)
 {
@@ -605,10 +605,10 @@ goto block_115;
 else
 {
 lean_dec(x_31);
-x_46 = x_120;
-x_47 = x_119;
+x_46 = x_119;
+x_47 = x_117;
 x_48 = x_116;
-x_49 = x_117;
+x_49 = x_120;
 x_50 = x_118;
 goto block_93;
 }
@@ -651,10 +651,10 @@ x_137 = l_Lean_BinderInfo_isInstImplicit(x_30);
 if (x_137 == 0)
 {
 x_123 = x_133;
-x_124 = x_134;
+x_124 = x_132;
 x_125 = x_135;
-x_126 = x_132;
-x_127 = x_131;
+x_126 = x_131;
+x_127 = x_134;
 x_128 = x_137;
 goto block_130;
 }
@@ -663,10 +663,10 @@ else
 uint8_t x_138; 
 x_138 = l_Lean_Name_hasMacroScopes(x_27);
 x_123 = x_133;
-x_124 = x_134;
+x_124 = x_132;
 x_125 = x_135;
-x_126 = x_132;
-x_127 = x_131;
+x_126 = x_131;
+x_127 = x_134;
 x_128 = x_138;
 goto block_130;
 }
@@ -674,10 +674,10 @@ goto block_130;
 else
 {
 x_116 = x_133;
-x_117 = x_134;
+x_117 = x_132;
 x_118 = x_135;
-x_119 = x_132;
-x_120 = x_131;
+x_119 = x_131;
+x_120 = x_134;
 x_121 = x_136;
 goto block_122;
 }
@@ -1234,8 +1234,8 @@ return x_11;
 block_18:
 {
 lean_object* x_17; 
-lean_dec(x_15);
-x_17 = l_Array_qsort_sort___at___Lean_Elab_sortDeclLevelParams_spec__1___redArg(x_14, x_13, x_16);
+lean_dec(x_14);
+x_17 = l_Array_qsort_sort___at___Lean_Elab_sortDeclLevelParams_spec__1___redArg(x_13, x_15, x_16);
 lean_dec(x_16);
 x_8 = x_17;
 goto block_12;
@@ -1243,23 +1243,23 @@ goto block_12;
 block_24:
 {
 uint8_t x_23; 
-x_23 = lean_nat_dec_le(x_22, x_19);
+x_23 = lean_nat_dec_le(x_22, x_21);
 if (x_23 == 0)
 {
-lean_dec(x_19);
+lean_dec(x_21);
 lean_inc(x_22);
-x_13 = x_22;
+x_13 = x_19;
 x_14 = x_20;
-x_15 = x_21;
+x_15 = x_22;
 x_16 = x_22;
 goto block_18;
 }
 else
 {
-x_13 = x_22;
+x_13 = x_19;
 x_14 = x_20;
-x_15 = x_21;
-x_16 = x_19;
+x_15 = x_22;
+x_16 = x_21;
 goto block_18;
 }
 }
@@ -1277,17 +1277,17 @@ x_31 = lean_nat_dec_le(x_25, x_30);
 if (x_31 == 0)
 {
 lean_inc(x_30);
-x_19 = x_30;
-x_20 = x_26;
-x_21 = x_27;
+x_19 = x_26;
+x_20 = x_27;
+x_21 = x_30;
 x_22 = x_30;
 goto block_24;
 }
 else
 {
-x_19 = x_30;
-x_20 = x_26;
-x_21 = x_27;
+x_19 = x_26;
+x_20 = x_27;
+x_21 = x_30;
 x_22 = x_25;
 goto block_24;
 }

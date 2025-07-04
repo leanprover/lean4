@@ -140,7 +140,7 @@ if (x_8 == 0)
 {
 lean_object* x_9; 
 lean_dec(x_1);
-x_9 = l_Lean_Expr_forallE___override(x_2, x_6, x_7, x_5);
+x_9 = l_Lean_Expr_forallE___override(x_2, x_7, x_6, x_5);
 return x_9;
 }
 else
@@ -151,7 +151,7 @@ if (x_10 == 0)
 {
 lean_object* x_11; 
 lean_dec(x_1);
-x_11 = l_Lean_Expr_forallE___override(x_2, x_6, x_7, x_5);
+x_11 = l_Lean_Expr_forallE___override(x_2, x_7, x_6, x_5);
 return x_11;
 }
 else
@@ -175,8 +175,8 @@ x_17 = lean_usize_dec_eq(x_15, x_16);
 if (x_17 == 0)
 {
 lean_dec(x_4);
-x_6 = x_13;
-x_7 = x_14;
+x_6 = x_14;
+x_7 = x_13;
 x_8 = x_17;
 goto block_12;
 }
@@ -187,8 +187,8 @@ x_18 = lean_ptr_addr(x_4);
 lean_dec(x_4);
 x_19 = lean_ptr_addr(x_14);
 x_20 = lean_usize_dec_eq(x_18, x_19);
-x_6 = x_13;
-x_7 = x_14;
+x_6 = x_14;
+x_7 = x_13;
 x_8 = x_20;
 goto block_12;
 }

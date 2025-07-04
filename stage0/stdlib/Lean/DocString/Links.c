@@ -2219,7 +2219,7 @@ block_62:
 if (x_59 == 0)
 {
 lean_object* x_60; 
-x_60 = lean_string_utf8_extract(x_56, x_58, x_57);
+x_60 = lean_string_utf8_extract(x_58, x_56, x_57);
 lean_dec(x_57);
 x_27 = x_60;
 goto block_55;
@@ -2245,17 +2245,17 @@ if (x_67 == 0)
 {
 uint8_t x_68; 
 x_68 = lean_nat_dec_lt(x_65, x_64);
-x_56 = x_63;
+x_56 = x_64;
 x_57 = x_65;
-x_58 = x_64;
+x_58 = x_63;
 x_59 = x_68;
 goto block_62;
 }
 else
 {
-x_56 = x_63;
+x_56 = x_64;
 x_57 = x_65;
-x_58 = x_64;
+x_58 = x_63;
 x_59 = x_67;
 goto block_62;
 }
@@ -2436,7 +2436,7 @@ block_113:
 if (x_110 == 0)
 {
 lean_object* x_111; 
-x_111 = lean_string_utf8_extract(x_107, x_109, x_108);
+x_111 = lean_string_utf8_extract(x_109, x_107, x_108);
 lean_dec(x_108);
 x_81 = x_111;
 goto block_106;
@@ -2462,17 +2462,17 @@ if (x_118 == 0)
 {
 uint8_t x_119; 
 x_119 = lean_nat_dec_lt(x_116, x_115);
-x_107 = x_114;
+x_107 = x_115;
 x_108 = x_116;
-x_109 = x_115;
+x_109 = x_114;
 x_110 = x_119;
 goto block_113;
 }
 else
 {
-x_107 = x_114;
+x_107 = x_115;
 x_108 = x_116;
-x_109 = x_115;
+x_109 = x_114;
 x_110 = x_118;
 goto block_113;
 }

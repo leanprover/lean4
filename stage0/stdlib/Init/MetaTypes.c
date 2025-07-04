@@ -398,7 +398,7 @@ return x_1;
 LEAN_EXPORT uint8_t l_Lean_Meta_DSimp_beqConfig____x40_Init_MetaTypes___hyg_279_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; uint8_t x_4; uint8_t x_5; uint8_t x_6; uint8_t x_7; uint8_t x_8; uint8_t x_9; uint8_t x_10; uint8_t x_11; uint8_t x_12; uint8_t x_13; uint8_t x_14; uint8_t x_15; uint8_t x_16; uint8_t x_17; uint8_t x_18; uint8_t x_19; uint8_t x_20; uint8_t x_21; uint8_t x_22; uint8_t x_23; uint8_t x_24; uint8_t x_25; uint8_t x_26; uint8_t x_27; uint8_t x_28; uint8_t x_29; uint8_t x_30; uint8_t x_31; uint8_t x_33; uint8_t x_36; uint8_t x_39; uint8_t x_42; uint8_t x_45; uint8_t x_48; uint8_t x_51; uint8_t x_54; uint8_t x_64; 
+uint8_t x_3; uint8_t x_4; uint8_t x_5; uint8_t x_6; uint8_t x_7; uint8_t x_8; uint8_t x_9; uint8_t x_10; uint8_t x_11; uint8_t x_12; uint8_t x_13; uint8_t x_14; uint8_t x_15; uint8_t x_16; uint8_t x_17; uint8_t x_18; uint8_t x_19; uint8_t x_20; uint8_t x_21; uint8_t x_22; uint8_t x_23; uint8_t x_24; uint8_t x_25; uint8_t x_26; uint8_t x_27; uint8_t x_28; uint8_t x_29; uint8_t x_30; uint8_t x_31; uint8_t x_33; uint8_t x_35; uint8_t x_37; uint8_t x_39; uint8_t x_41; uint8_t x_43; uint8_t x_45; uint8_t x_47; 
 x_3 = lean_ctor_get_uint8(x_1, 0);
 x_4 = lean_ctor_get_uint8(x_1, 1);
 x_5 = lean_ctor_get_uint8(x_1, 2);
@@ -427,27 +427,26 @@ x_27 = lean_ctor_get_uint8(x_2, 10);
 x_28 = lean_ctor_get_uint8(x_2, 11);
 x_29 = lean_ctor_get_uint8(x_2, 12);
 x_30 = lean_ctor_get_uint8(x_2, 13);
-x_64 = 0;
 if (x_3 == 0)
 {
 if (x_17 == 0)
 {
-goto block_63;
+goto block_52;
 }
 else
 {
-return x_64;
+return x_3;
 }
 }
 else
 {
 if (x_17 == 0)
 {
-return x_64;
+return x_17;
 }
 else
 {
-goto block_63;
+goto block_52;
 }
 }
 block_32:
@@ -468,10 +467,8 @@ else
 return x_30;
 }
 }
-block_35:
+block_34:
 {
-uint8_t x_34; 
-x_34 = 0;
 if (x_15 == 0)
 {
 if (x_29 == 0)
@@ -481,321 +478,294 @@ goto block_32;
 }
 else
 {
-return x_34;
+return x_15;
 }
 }
 else
 {
 if (x_29 == 0)
 {
-return x_34;
+return x_29;
 }
 else
 {
-x_31 = x_33;
+x_31 = x_29;
 goto block_32;
+}
+}
+}
+block_36:
+{
+if (x_14 == 0)
+{
+if (x_28 == 0)
+{
+x_33 = x_35;
+goto block_34;
+}
+else
+{
+return x_14;
+}
+}
+else
+{
+if (x_28 == 0)
+{
+return x_28;
+}
+else
+{
+x_33 = x_28;
+goto block_34;
 }
 }
 }
 block_38:
 {
-uint8_t x_37; 
-x_37 = 0;
-if (x_14 == 0)
-{
-if (x_28 == 0)
-{
-x_33 = x_36;
-goto block_35;
-}
-else
-{
-return x_37;
-}
-}
-else
-{
-if (x_28 == 0)
-{
-return x_37;
-}
-else
-{
-x_33 = x_36;
-goto block_35;
-}
-}
-}
-block_41:
-{
-uint8_t x_40; 
-x_40 = 0;
 if (x_13 == 0)
 {
 if (x_27 == 0)
 {
-x_36 = x_39;
-goto block_38;
+x_35 = x_37;
+goto block_36;
 }
 else
 {
-return x_40;
+return x_13;
 }
 }
 else
 {
 if (x_27 == 0)
 {
-return x_40;
+return x_27;
 }
 else
 {
-x_36 = x_39;
+x_35 = x_27;
+goto block_36;
+}
+}
+}
+block_40:
+{
+if (x_12 == 0)
+{
+if (x_26 == 0)
+{
+x_37 = x_39;
 goto block_38;
+}
+else
+{
+return x_12;
+}
+}
+else
+{
+if (x_26 == 0)
+{
+return x_26;
+}
+else
+{
+x_37 = x_26;
+goto block_38;
+}
+}
+}
+block_42:
+{
+if (x_11 == 0)
+{
+if (x_25 == 0)
+{
+x_39 = x_41;
+goto block_40;
+}
+else
+{
+return x_11;
+}
+}
+else
+{
+if (x_25 == 0)
+{
+return x_25;
+}
+else
+{
+x_39 = x_25;
+goto block_40;
 }
 }
 }
 block_44:
 {
-uint8_t x_43; 
-x_43 = 0;
-if (x_12 == 0)
+if (x_10 == 0)
 {
-if (x_26 == 0)
+if (x_24 == 0)
 {
-x_39 = x_42;
-goto block_41;
+x_41 = x_43;
+goto block_42;
 }
 else
 {
-return x_43;
+return x_10;
 }
 }
 else
 {
-if (x_26 == 0)
+if (x_24 == 0)
 {
-return x_43;
+return x_24;
 }
 else
 {
-x_39 = x_42;
-goto block_41;
+x_41 = x_24;
+goto block_42;
 }
 }
 }
-block_47:
+block_46:
 {
-uint8_t x_46; 
-x_46 = 0;
-if (x_11 == 0)
+if (x_9 == 0)
 {
-if (x_25 == 0)
+if (x_23 == 0)
 {
-x_42 = x_45;
+x_43 = x_45;
 goto block_44;
 }
 else
 {
-return x_46;
+return x_9;
 }
 }
 else
 {
-if (x_25 == 0)
+if (x_23 == 0)
 {
-return x_46;
+return x_23;
 }
 else
 {
-x_42 = x_45;
+x_43 = x_23;
 goto block_44;
+}
+}
+}
+block_48:
+{
+if (x_47 == 0)
+{
+return x_47;
+}
+else
+{
+if (x_8 == 0)
+{
+if (x_22 == 0)
+{
+x_45 = x_47;
+goto block_46;
+}
+else
+{
+return x_8;
+}
+}
+else
+{
+if (x_22 == 0)
+{
+return x_22;
+}
+else
+{
+x_45 = x_22;
+goto block_46;
+}
 }
 }
 }
 block_50:
 {
 uint8_t x_49; 
-x_49 = 0;
-if (x_10 == 0)
-{
-if (x_24 == 0)
-{
-x_45 = x_48;
-goto block_47;
-}
-else
-{
-return x_49;
-}
-}
-else
-{
-if (x_24 == 0)
+x_49 = l_Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes___hyg_107_(x_6, x_20);
+if (x_49 == 0)
 {
 return x_49;
 }
 else
 {
-x_45 = x_48;
-goto block_47;
-}
-}
-}
-block_53:
-{
-uint8_t x_52; 
-x_52 = 0;
-if (x_9 == 0)
-{
-if (x_23 == 0)
-{
-x_48 = x_51;
-goto block_50;
-}
-else
-{
-return x_52;
-}
-}
-else
-{
-if (x_23 == 0)
-{
-return x_52;
-}
-else
-{
-x_48 = x_51;
-goto block_50;
-}
-}
-}
-block_56:
-{
-if (x_54 == 0)
-{
-return x_54;
-}
-else
-{
-uint8_t x_55; 
-x_55 = 0;
-if (x_8 == 0)
-{
-if (x_22 == 0)
-{
-x_51 = x_54;
-goto block_53;
-}
-else
-{
-return x_55;
-}
-}
-else
-{
-if (x_22 == 0)
-{
-return x_55;
-}
-else
-{
-x_51 = x_54;
-goto block_53;
-}
-}
-}
-}
-block_59:
-{
-uint8_t x_57; 
-x_57 = l_Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes___hyg_107_(x_6, x_20);
-if (x_57 == 0)
-{
-return x_57;
-}
-else
-{
-uint8_t x_58; 
-x_58 = 0;
 if (x_7 == 0)
 {
 if (x_21 == 0)
 {
-x_54 = x_57;
-goto block_56;
+x_47 = x_49;
+goto block_48;
 }
 else
 {
-return x_58;
+return x_7;
 }
 }
 else
 {
-if (x_21 == 0)
+x_47 = x_21;
+goto block_48;
+}
+}
+}
+block_51:
 {
-return x_58;
-}
-else
-{
-x_54 = x_57;
-goto block_56;
-}
-}
-}
-}
-block_61:
-{
-uint8_t x_60; 
-x_60 = 0;
 if (x_5 == 0)
 {
 if (x_19 == 0)
 {
-goto block_59;
+goto block_50;
 }
 else
 {
-return x_60;
+return x_5;
 }
 }
 else
 {
 if (x_19 == 0)
 {
-return x_60;
+return x_19;
 }
 else
 {
-goto block_59;
+goto block_50;
 }
 }
 }
-block_63:
+block_52:
 {
-uint8_t x_62; 
-x_62 = 0;
 if (x_4 == 0)
 {
 if (x_18 == 0)
 {
-goto block_61;
+goto block_51;
 }
 else
 {
-return x_62;
+return x_4;
 }
 }
 else
 {
 if (x_18 == 0)
 {
-return x_62;
+return x_18;
 }
 else
 {
-goto block_61;
+goto block_51;
 }
 }
 }
@@ -883,7 +853,7 @@ return x_1;
 LEAN_EXPORT uint8_t l_Lean_Meta_Simp_beqConfig____x40_Init_MetaTypes___hyg_814_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; uint8_t x_5; uint8_t x_6; uint8_t x_7; uint8_t x_8; uint8_t x_9; uint8_t x_10; uint8_t x_11; uint8_t x_12; uint8_t x_13; uint8_t x_14; uint8_t x_15; uint8_t x_16; uint8_t x_17; uint8_t x_18; uint8_t x_19; uint8_t x_20; uint8_t x_21; uint8_t x_22; uint8_t x_23; uint8_t x_24; uint8_t x_25; uint8_t x_26; uint8_t x_27; lean_object* x_28; lean_object* x_29; uint8_t x_30; uint8_t x_31; uint8_t x_32; uint8_t x_33; uint8_t x_34; uint8_t x_35; uint8_t x_36; uint8_t x_37; uint8_t x_38; uint8_t x_39; uint8_t x_40; uint8_t x_41; uint8_t x_42; uint8_t x_43; uint8_t x_44; uint8_t x_45; uint8_t x_46; uint8_t x_47; uint8_t x_48; uint8_t x_49; uint8_t x_50; uint8_t x_51; uint8_t x_52; uint8_t x_53; uint8_t x_55; uint8_t x_58; uint8_t x_61; uint8_t x_64; uint8_t x_67; uint8_t x_70; uint8_t x_73; uint8_t x_76; uint8_t x_79; uint8_t x_82; uint8_t x_85; uint8_t x_88; uint8_t x_91; uint8_t x_94; uint8_t x_108; uint8_t x_111; 
+lean_object* x_3; lean_object* x_4; uint8_t x_5; uint8_t x_6; uint8_t x_7; uint8_t x_8; uint8_t x_9; uint8_t x_10; uint8_t x_11; uint8_t x_12; uint8_t x_13; uint8_t x_14; uint8_t x_15; uint8_t x_16; uint8_t x_17; uint8_t x_18; uint8_t x_19; uint8_t x_20; uint8_t x_21; uint8_t x_22; uint8_t x_23; uint8_t x_24; uint8_t x_25; uint8_t x_26; uint8_t x_27; lean_object* x_28; lean_object* x_29; uint8_t x_30; uint8_t x_31; uint8_t x_32; uint8_t x_33; uint8_t x_34; uint8_t x_35; uint8_t x_36; uint8_t x_37; uint8_t x_38; uint8_t x_39; uint8_t x_40; uint8_t x_41; uint8_t x_42; uint8_t x_43; uint8_t x_44; uint8_t x_45; uint8_t x_46; uint8_t x_47; uint8_t x_48; uint8_t x_49; uint8_t x_50; uint8_t x_51; uint8_t x_52; uint8_t x_53; uint8_t x_55; uint8_t x_57; uint8_t x_59; uint8_t x_61; uint8_t x_63; uint8_t x_65; uint8_t x_67; uint8_t x_69; uint8_t x_71; uint8_t x_73; uint8_t x_75; uint8_t x_77; uint8_t x_79; uint8_t x_81; uint8_t x_89; uint8_t x_91; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_1, 1);
 x_5 = lean_ctor_get_uint8(x_1, sizeof(void*)*2);
@@ -934,46 +904,37 @@ x_49 = lean_ctor_get_uint8(x_2, sizeof(void*)*2 + 19);
 x_50 = lean_ctor_get_uint8(x_2, sizeof(void*)*2 + 20);
 x_51 = lean_ctor_get_uint8(x_2, sizeof(void*)*2 + 21);
 x_52 = lean_ctor_get_uint8(x_2, sizeof(void*)*2 + 22);
-x_111 = lean_nat_dec_eq(x_3, x_28);
-if (x_111 == 0)
+x_91 = lean_nat_dec_eq(x_3, x_28);
+if (x_91 == 0)
 {
-return x_111;
+return x_91;
 }
 else
 {
-uint8_t x_112; 
-x_112 = lean_nat_dec_eq(x_4, x_29);
-if (x_112 == 0)
+uint8_t x_92; 
+x_92 = lean_nat_dec_eq(x_4, x_29);
+if (x_92 == 0)
 {
-return x_112;
+return x_92;
 }
 else
 {
-uint8_t x_113; 
-x_113 = 0;
 if (x_5 == 0)
 {
 if (x_30 == 0)
 {
-x_108 = x_112;
-goto block_110;
+x_89 = x_92;
+goto block_90;
 }
 else
 {
-return x_113;
+return x_5;
 }
 }
 else
 {
-if (x_30 == 0)
-{
-return x_113;
-}
-else
-{
-x_108 = x_112;
-goto block_110;
-}
+x_89 = x_30;
+goto block_90;
 }
 }
 }
@@ -995,10 +956,8 @@ else
 return x_52;
 }
 }
-block_57:
+block_56:
 {
-uint8_t x_56; 
-x_56 = 0;
 if (x_26 == 0)
 {
 if (x_51 == 0)
@@ -1008,582 +967,537 @@ goto block_54;
 }
 else
 {
-return x_56;
+return x_26;
 }
 }
 else
 {
 if (x_51 == 0)
 {
-return x_56;
+return x_51;
 }
 else
 {
-x_53 = x_55;
+x_53 = x_51;
 goto block_54;
+}
+}
+}
+block_58:
+{
+if (x_25 == 0)
+{
+if (x_50 == 0)
+{
+x_55 = x_57;
+goto block_56;
+}
+else
+{
+return x_25;
+}
+}
+else
+{
+if (x_50 == 0)
+{
+return x_50;
+}
+else
+{
+x_55 = x_50;
+goto block_56;
 }
 }
 }
 block_60:
 {
-uint8_t x_59; 
-x_59 = 0;
-if (x_25 == 0)
-{
-if (x_50 == 0)
-{
-x_55 = x_58;
-goto block_57;
-}
-else
-{
-return x_59;
-}
-}
-else
-{
-if (x_50 == 0)
-{
-return x_59;
-}
-else
-{
-x_55 = x_58;
-goto block_57;
-}
-}
-}
-block_63:
-{
-uint8_t x_62; 
-x_62 = 0;
 if (x_24 == 0)
 {
 if (x_49 == 0)
 {
-x_58 = x_61;
-goto block_60;
+x_57 = x_59;
+goto block_58;
 }
 else
 {
-return x_62;
+return x_24;
 }
 }
 else
 {
 if (x_49 == 0)
 {
-return x_62;
+return x_49;
 }
 else
 {
-x_58 = x_61;
+x_57 = x_49;
+goto block_58;
+}
+}
+}
+block_62:
+{
+if (x_23 == 0)
+{
+if (x_48 == 0)
+{
+x_59 = x_61;
 goto block_60;
+}
+else
+{
+return x_23;
+}
+}
+else
+{
+if (x_48 == 0)
+{
+return x_48;
+}
+else
+{
+x_59 = x_48;
+goto block_60;
+}
+}
+}
+block_64:
+{
+if (x_22 == 0)
+{
+if (x_47 == 0)
+{
+x_61 = x_63;
+goto block_62;
+}
+else
+{
+return x_22;
+}
+}
+else
+{
+if (x_47 == 0)
+{
+return x_47;
+}
+else
+{
+x_61 = x_47;
+goto block_62;
 }
 }
 }
 block_66:
 {
-uint8_t x_65; 
-x_65 = 0;
-if (x_23 == 0)
+if (x_21 == 0)
 {
-if (x_48 == 0)
+if (x_46 == 0)
 {
-x_61 = x_64;
-goto block_63;
+x_63 = x_65;
+goto block_64;
 }
 else
 {
-return x_65;
+return x_21;
 }
 }
 else
 {
-if (x_48 == 0)
+if (x_46 == 0)
 {
-return x_65;
+return x_46;
 }
 else
 {
-x_61 = x_64;
-goto block_63;
+x_63 = x_46;
+goto block_64;
 }
 }
 }
-block_69:
+block_68:
 {
-uint8_t x_68; 
-x_68 = 0;
-if (x_22 == 0)
+if (x_20 == 0)
 {
-if (x_47 == 0)
+if (x_45 == 0)
 {
-x_64 = x_67;
+x_65 = x_67;
 goto block_66;
 }
 else
 {
-return x_68;
+return x_20;
 }
 }
 else
 {
-if (x_47 == 0)
+if (x_45 == 0)
 {
-return x_68;
+return x_45;
 }
 else
 {
-x_64 = x_67;
+x_65 = x_45;
 goto block_66;
+}
+}
+}
+block_70:
+{
+if (x_19 == 0)
+{
+if (x_44 == 0)
+{
+x_67 = x_69;
+goto block_68;
+}
+else
+{
+return x_19;
+}
+}
+else
+{
+if (x_44 == 0)
+{
+return x_44;
+}
+else
+{
+x_67 = x_44;
+goto block_68;
 }
 }
 }
 block_72:
 {
-uint8_t x_71; 
-x_71 = 0;
-if (x_21 == 0)
+if (x_18 == 0)
 {
-if (x_46 == 0)
+if (x_43 == 0)
 {
-x_67 = x_70;
-goto block_69;
+x_69 = x_71;
+goto block_70;
 }
 else
 {
-return x_71;
+return x_18;
 }
 }
 else
 {
-if (x_46 == 0)
+if (x_43 == 0)
 {
-return x_71;
+return x_43;
 }
 else
 {
-x_67 = x_70;
-goto block_69;
+x_69 = x_43;
+goto block_70;
 }
 }
 }
-block_75:
+block_74:
 {
-uint8_t x_74; 
-x_74 = 0;
-if (x_20 == 0)
+if (x_17 == 0)
 {
-if (x_45 == 0)
+if (x_42 == 0)
 {
-x_70 = x_73;
+x_71 = x_73;
 goto block_72;
 }
 else
 {
-return x_74;
+return x_17;
 }
 }
 else
 {
-if (x_45 == 0)
+if (x_42 == 0)
 {
-return x_74;
+return x_42;
 }
 else
 {
-x_70 = x_73;
+x_71 = x_42;
 goto block_72;
+}
+}
+}
+block_76:
+{
+if (x_16 == 0)
+{
+if (x_41 == 0)
+{
+x_73 = x_75;
+goto block_74;
+}
+else
+{
+return x_16;
+}
+}
+else
+{
+if (x_41 == 0)
+{
+return x_41;
+}
+else
+{
+x_73 = x_41;
+goto block_74;
 }
 }
 }
 block_78:
 {
-uint8_t x_77; 
-x_77 = 0;
-if (x_19 == 0)
+if (x_15 == 0)
 {
-if (x_44 == 0)
+if (x_40 == 0)
 {
-x_73 = x_76;
-goto block_75;
+x_75 = x_77;
+goto block_76;
 }
 else
 {
-return x_77;
+return x_15;
 }
 }
 else
 {
-if (x_44 == 0)
+if (x_40 == 0)
 {
-return x_77;
+return x_40;
 }
 else
 {
-x_73 = x_76;
-goto block_75;
+x_75 = x_40;
+goto block_76;
 }
 }
 }
-block_81:
+block_80:
 {
-uint8_t x_80; 
-x_80 = 0;
-if (x_18 == 0)
+if (x_14 == 0)
 {
-if (x_43 == 0)
+if (x_39 == 0)
 {
-x_76 = x_79;
+x_77 = x_79;
 goto block_78;
 }
 else
 {
-return x_80;
+return x_14;
 }
 }
 else
 {
-if (x_43 == 0)
+if (x_39 == 0)
 {
-return x_80;
+return x_39;
 }
 else
 {
-x_76 = x_79;
+x_77 = x_39;
 goto block_78;
+}
+}
+}
+block_82:
+{
+if (x_81 == 0)
+{
+return x_81;
+}
+else
+{
+if (x_13 == 0)
+{
+if (x_38 == 0)
+{
+x_79 = x_81;
+goto block_80;
+}
+else
+{
+return x_13;
+}
+}
+else
+{
+if (x_38 == 0)
+{
+return x_38;
+}
+else
+{
+x_79 = x_38;
+goto block_80;
+}
 }
 }
 }
 block_84:
 {
 uint8_t x_83; 
-x_83 = 0;
-if (x_17 == 0)
-{
-if (x_42 == 0)
-{
-x_79 = x_82;
-goto block_81;
-}
-else
-{
-return x_83;
-}
-}
-else
-{
-if (x_42 == 0)
+x_83 = l_Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes___hyg_107_(x_11, x_36);
+if (x_83 == 0)
 {
 return x_83;
 }
 else
 {
-x_79 = x_82;
-goto block_81;
+if (x_12 == 0)
+{
+if (x_37 == 0)
+{
+x_81 = x_83;
+goto block_82;
+}
+else
+{
+return x_12;
+}
+}
+else
+{
+x_81 = x_37;
+goto block_82;
+}
+}
+}
+block_85:
+{
+if (x_10 == 0)
+{
+if (x_35 == 0)
+{
+goto block_84;
+}
+else
+{
+return x_10;
+}
+}
+else
+{
+if (x_35 == 0)
+{
+return x_35;
+}
+else
+{
+goto block_84;
+}
+}
+}
+block_86:
+{
+if (x_9 == 0)
+{
+if (x_34 == 0)
+{
+goto block_85;
+}
+else
+{
+return x_9;
+}
+}
+else
+{
+if (x_34 == 0)
+{
+return x_34;
+}
+else
+{
+goto block_85;
 }
 }
 }
 block_87:
 {
-uint8_t x_86; 
-x_86 = 0;
-if (x_16 == 0)
+if (x_8 == 0)
 {
-if (x_41 == 0)
+if (x_33 == 0)
 {
-x_82 = x_85;
-goto block_84;
+goto block_86;
 }
 else
 {
-return x_86;
+return x_8;
 }
 }
 else
 {
-if (x_41 == 0)
+if (x_33 == 0)
 {
-return x_86;
+return x_33;
 }
 else
 {
-x_82 = x_85;
-goto block_84;
+goto block_86;
+}
+}
+}
+block_88:
+{
+if (x_7 == 0)
+{
+if (x_32 == 0)
+{
+goto block_87;
+}
+else
+{
+return x_7;
+}
+}
+else
+{
+if (x_32 == 0)
+{
+return x_32;
+}
+else
+{
+goto block_87;
 }
 }
 }
 block_90:
 {
-uint8_t x_89; 
-x_89 = 0;
-if (x_15 == 0)
-{
-if (x_40 == 0)
-{
-x_85 = x_88;
-goto block_87;
-}
-else
-{
-return x_89;
-}
-}
-else
-{
-if (x_40 == 0)
+if (x_89 == 0)
 {
 return x_89;
 }
 else
 {
-x_85 = x_88;
-goto block_87;
-}
-}
-}
-block_93:
-{
-uint8_t x_92; 
-x_92 = 0;
-if (x_14 == 0)
-{
-if (x_39 == 0)
-{
-x_88 = x_91;
-goto block_90;
-}
-else
-{
-return x_92;
-}
-}
-else
-{
-if (x_39 == 0)
-{
-return x_92;
-}
-else
-{
-x_88 = x_91;
-goto block_90;
-}
-}
-}
-block_96:
-{
-if (x_94 == 0)
-{
-return x_94;
-}
-else
-{
-uint8_t x_95; 
-x_95 = 0;
-if (x_13 == 0)
-{
-if (x_38 == 0)
-{
-x_91 = x_94;
-goto block_93;
-}
-else
-{
-return x_95;
-}
-}
-else
-{
-if (x_38 == 0)
-{
-return x_95;
-}
-else
-{
-x_91 = x_94;
-goto block_93;
-}
-}
-}
-}
-block_99:
-{
-uint8_t x_97; 
-x_97 = l_Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes___hyg_107_(x_11, x_36);
-if (x_97 == 0)
-{
-return x_97;
-}
-else
-{
-uint8_t x_98; 
-x_98 = 0;
-if (x_12 == 0)
-{
-if (x_37 == 0)
-{
-x_94 = x_97;
-goto block_96;
-}
-else
-{
-return x_98;
-}
-}
-else
-{
-if (x_37 == 0)
-{
-return x_98;
-}
-else
-{
-x_94 = x_97;
-goto block_96;
-}
-}
-}
-}
-block_101:
-{
-uint8_t x_100; 
-x_100 = 0;
-if (x_10 == 0)
-{
-if (x_35 == 0)
-{
-goto block_99;
-}
-else
-{
-return x_100;
-}
-}
-else
-{
-if (x_35 == 0)
-{
-return x_100;
-}
-else
-{
-goto block_99;
-}
-}
-}
-block_103:
-{
-uint8_t x_102; 
-x_102 = 0;
-if (x_9 == 0)
-{
-if (x_34 == 0)
-{
-goto block_101;
-}
-else
-{
-return x_102;
-}
-}
-else
-{
-if (x_34 == 0)
-{
-return x_102;
-}
-else
-{
-goto block_101;
-}
-}
-}
-block_105:
-{
-uint8_t x_104; 
-x_104 = 0;
-if (x_8 == 0)
-{
-if (x_33 == 0)
-{
-goto block_103;
-}
-else
-{
-return x_104;
-}
-}
-else
-{
-if (x_33 == 0)
-{
-return x_104;
-}
-else
-{
-goto block_103;
-}
-}
-}
-block_107:
-{
-uint8_t x_106; 
-x_106 = 0;
-if (x_7 == 0)
-{
-if (x_32 == 0)
-{
-goto block_105;
-}
-else
-{
-return x_106;
-}
-}
-else
-{
-if (x_32 == 0)
-{
-return x_106;
-}
-else
-{
-goto block_105;
-}
-}
-}
-block_110:
-{
-if (x_108 == 0)
-{
-return x_108;
-}
-else
-{
-uint8_t x_109; 
-x_109 = 0;
 if (x_6 == 0)
 {
 if (x_31 == 0)
 {
-goto block_107;
+goto block_88;
 }
 else
 {
-return x_109;
+return x_6;
 }
 }
 else
 {
 if (x_31 == 0)
 {
-return x_109;
+return x_31;
 }
 else
 {
-goto block_107;
+goto block_88;
 }
 }
 }

@@ -199,7 +199,7 @@ builtin_simproc_decl simpForall ((a : _) → _) := fun e => do
       let qRaw := b.appArg!
       let p := mkLambda varName info d pRaw
       let q := mkLambda varName info d qRaw
-      let expr := mkAnd (mkForall varName info d pRaw) (mkForall varName info d pRaw)
+      let expr := mkAnd (mkForall varName info d pRaw) (mkForall varName info d qRaw)
       let u ← getLevel d
       return .visit { expr, proof? := mkApp3 (mkConst ``Grind.forall_and [u]) d p q }
   -- None of the rules were applicable

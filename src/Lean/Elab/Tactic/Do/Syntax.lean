@@ -9,25 +9,16 @@ import Lean.Elab.BuiltinNotation
 import Std.Do.PostCond
 import Std.Do.Triple.Basic
 
-namespace Std.Do.Syntax
+namespace Std.Do
 
 open Lean Parser Meta Elab Term PrettyPrinter Delaborator
 
-@[builtin_term_parser] meta def «totalPostCond» := leading_parser:maxPrec
-  ppAllowUngrouped >> "⇓" >> basicFun
-
-@[inherit_doc PostCond.total, builtin_doc, builtin_term_elab totalPostCond]
-private meta def elabTotalPostCond : TermElab
-  | `(totalPostCond| ⇓ $xs* => $e), ty? => do
-    elabTerm (← `(PostCond.total (by exact (fun $xs* => spred($e))))) ty?
-     -- NB: Postponement through by exact
-  | _, _ => throwUnsupportedSyntax
-
+open Std.Do in
 @[builtin_delab app.Std.Do.PostCond.total]
 private meta def unexpandPostCondTotal : Delab := do
   match ← SubExpr.withAppArg <| delab with
-  | `(fun $xs* => $e) =>
-    let t ← `(totalPostCond| ⇓ $xs* => $(← SPred.Notation.unpack e))
+  | `(fun $xs:term* => $e) =>
+    let t ← `(⇓ $xs* => $(← SPred.Notation.unpack e))
     return ⟨t.raw⟩
   | t => `($(mkIdent ``PostCond.total):term $t)
 

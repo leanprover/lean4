@@ -480,14 +480,15 @@ def getParserPriority (args : Syntax) : Except String Nat :=
 private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
     (declName : Name) (stx : Syntax) (kind : AttributeKind) : AttrM Unit := do
   let prio ← Attribute.Builtin.getPrio stx
-  unless kind == AttributeKind.global do throwError "invalid attribute '{attrName}', must be global"
+  unless kind == AttributeKind.global do throwAttrMustBeGlobal attrName kind
   let decl ← getConstInfo declName
   match decl.type with
   | Expr.const `Lean.Parser.TrailingParser _ =>
     declareTrailingBuiltinParser catName declName prio
   | Expr.const `Lean.Parser.Parser _ =>
     declareLeadingBuiltinParser catName declName prio
-  | _ => throwError "unexpected parser type at '{declName}' (`Parser` or `TrailingParser` expected)"
+  | _ => throwError "Unexpected type for parser declaration: Parsers must have type `Parser` or \
+    `TrailingParser`, but `{declName}` has type{indentExpr decl.type}"
   declareBuiltinDocStringAndRanges declName
   runParserAttributeHooks catName declName (builtin := true)
 

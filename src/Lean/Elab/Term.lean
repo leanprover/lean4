@@ -2110,8 +2110,7 @@ builtin_initialize
     applicationTime := .afterCompilation
     add             := fun decl stx kind => do
       Attribute.Builtin.ensureNoArgs stx
-      unless kind == AttributeKind.global do
-        throwError "invalid attribute 'builtin_incremental', must be global"
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal `builtin_incremental kind
       declareBuiltin decl <| mkApp (mkConst ``addBuiltinIncrementalElab) (toExpr decl)
   }
 

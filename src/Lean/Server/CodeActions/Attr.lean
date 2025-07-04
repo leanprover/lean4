@@ -51,7 +51,7 @@ builtin_initialize
     add := fun decl stx kind => do
       Attribute.Builtin.ensureNoArgs stx
       unless kind == AttributeKind.global do
-        throwError "invalid attribute 'hole_code_action', must be global"
+        throwAttrMustBeGlobal `hole_code_action kind
       if (IR.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
       modifyEnv (holeCodeActionExt.addEntry · (decl, ← mkHoleCodeAction decl))
   }
@@ -119,7 +119,7 @@ builtin_initialize
     applicationTime := .afterCompilation
     add := fun decl stx kind => do
       unless kind == AttributeKind.global do
-        throwError "invalid attribute 'command_code_action', must be global"
+        throwAttrMustBeGlobal `command_code_action kind
       let `(attr| command_code_action $args*) := stx | return
       let args ← args.mapM realizeGlobalConstNoOverloadWithInfo
       if (IR.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
@@ -141,9 +141,9 @@ builtin_initialize
     applicationTime := .afterCompilation
     add             := fun decl stx kind => do
       unless kind == AttributeKind.global do
-        throwError "invalid attribute 'command_code_action', must be global"
+        throwAttrMustBeGlobal `command_code_action kind
       let `(attr| builtin_command_code_action $args*) := stx |
-        throwError "unexpected 'command_code_action' attribute syntax"
+        throwError "Unexpected `command_code_action` attribute syntax"
       let args ← args.mapM realizeGlobalConstNoOverloadWithInfo
       if (IR.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
       addBuiltin decl args

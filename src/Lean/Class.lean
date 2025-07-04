@@ -171,7 +171,7 @@ private def init :=
     add   := fun decl stx kind => do
       let env ← getEnv
       Attribute.Builtin.ensureNoArgs stx
-      unless kind == AttributeKind.global do throwError "invalid attribute 'class', must be global"
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal `class kind
       let env ← ofExcept (addClass env decl)
       setEnv env
   }

@@ -70,11 +70,11 @@ builtin_initialize
     name := name,
     ref := by exact decl_name%,
     add := fun decl stx kind => do
-      unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
       unless ((← getEnv).getModuleIdxFor? decl).isNone do
-        throwError "invalid attribute '{name}', declaration is in an imported module"
+        throwAttrDeclInImportedModule name decl
       let `(«tactic_alt»|tactic_alt $tgt) := stx
-        | throwError "invalid syntax for '{name}' attribute"
+        | throwError "Invalid syntax for `{name}` attribute"
 
       let tgtName ← Lean.Elab.realizeGlobalConstNoOverloadWithInfo tgt
 
@@ -182,15 +182,15 @@ builtin_initialize
     name := name,
     ref := by exact decl_name%,
     add := fun decl stx kind => do
-      unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
       let `(«tactic_tag»|tactic_tag $tags*) := stx
-        | throwError "invalid '{name}' attribute"
+        | throwError "Invalid `{name}` attribute syntax"
       if (← getEnv).find? decl |>.isSome then
         if !(isTactic (← getEnv) decl) then
-          throwErrorAt stx "'{decl}' is not a tactic"
+          throwErrorAt stx "`{decl}` is not a tactic"
 
       if let some tgt' := alternativeOfTactic (← getEnv) decl then
-        throwErrorAt stx "'{decl}' is an alternative form of '{tgt'}'"
+        throwErrorAt stx "`{decl}` is an alternative form of `{tgt'}`"
 
       for t in tags do
         let tagName := t.getId
@@ -200,7 +200,7 @@ builtin_initialize
           let all ← allTags
           let extra : MessageData :=
               let count := all.length
-              let name := (m!"'{·}'")
+              let name := (m!"`{·}`")
               let suggestions :=
                 if count == 0 then m!"(no tags defined)"
                 else if count == 1 then
@@ -212,7 +212,7 @@ builtin_initialize
                   MessageData.joinSep (all.take 10 |>.map name) ", " ++ ", ..."
               m!"(expected {suggestions})"
 
-          throwErrorAt t (m!"unknown tag '{tagName}' " ++ extra)
+          throwErrorAt t (m!"Unknown tag `{tagName}` " ++ extra)
     descr := "Register a tactic parser as an alternative of an existing tactic, so they can be " ++
       "grouped together in documentation.",
     -- This runs prior to elaboration because it allows a check for whether the decl is present
@@ -279,12 +279,12 @@ def tacticDocsOnTactics : ParserAttributeHook where
     if catName == `tactic then
       return
     if alternativeOfTactic (← getEnv) declName |>.isSome then
-      throwError m!"'{declName}' is not a tactic"
+      throwError m!"`{declName}` is not a tactic"
     -- It's sufficient to look in the state (and not the imported entries) because this validation
     -- only needs to check tags added in the current module
     if let some tags := tacticTagExt.getState (← getEnv) |>.find? declName then
       if !tags.isEmpty then
-        throwError m!"'{declName}' is not a tactic"
+        throwError m!"`{declName}` is not a tactic"
 
 builtin_initialize
   registerParserAttributeHook tacticDocsOnTactics

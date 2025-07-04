@@ -40,7 +40,7 @@ builtin_initialize
     descr := "(module system) Make bodies of definitions available to importing modules."
     add := fun _ _ _ => do
       -- Attribute will be filtered out by `MutualDef`
-      throwError "Invalid attribute 'expose', must be used when declaring `def`"
+      throwError "Cannot add attribute `expose`: This attribute can only be added when declaring a `def`"
   }
 
 /--
@@ -57,7 +57,7 @@ builtin_initialize
     descr := "(module system) Negate previous `[expose]` attribute."
     add := fun _ _ _ => do
       -- Attribute will be filtered out by `MutualDef`
-      throwError "Invalid attribute 'no_expose', must be used when declaring `def`"
+      throwError "Cannot add attribute `no_expose`: This attribute can only be added when declaring a `def`"
   }
 
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do

@@ -82,15 +82,16 @@ builtin_initialize
       "adds a syntax traversal for the missing docs linter"
     applicationTime := .afterCompilation
     add             := fun declName stx kind => do
-      unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
       let env ← getEnv
       unless builtin || (env.getModuleIdxFor? declName).isNone do
-        throwError "invalid attribute '{name}', declaration is in an imported module"
+        throwAttrDeclInImportedModule name declName
       let decl ← getConstInfo declName
       let fnNameStx ← Attribute.Builtin.getIdent stx
       let key ← Elab.realizeGlobalConstNoOverloadWithInfo fnNameStx
       unless decl.levelParams.isEmpty && (decl.type == .const ``Handler [] || decl.type == .const ``SimpleHandler []) do
-        throwError "unexpected missing docs handler at '{declName}', `MissingDocs.Handler` or `MissingDocs.SimpleHandler` expected"
+        throwError "Unexpected type for missing docs handler: Expected `MissingDocs.Handler` or \
+          `MissingDocs.SimpleHandler`, but `{declName}` has type{indentExpr decl.type}"
       if builtin then
         let h := if decl.type == .const ``SimpleHandler [] then
           mkApp (mkConst ``SimpleHandler.toHandler) (mkConst declName)

@@ -101,7 +101,7 @@ def mkStateOfTable (table : Table γ) : ExtensionState γ := {
 
 def ExtensionState.erase (s : ExtensionState γ) (attrName : Name) (declName : Name) : CoreM (ExtensionState γ) := do
   unless s.declNames.contains declName do
-    throwError "'{declName}' does not have [{attrName}] attribute"
+    throwError "Cannot erase attribute `{attrName}`: `{declName}` does not have this attribute"
   return { s with erased := s.erased.insert declName, declNames := s.declNames.erase declName }
 
 protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact decl_name%) : IO (KeyedDeclsAttribute γ) := do
@@ -123,18 +123,22 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact de
       name  := df.builtinName
       descr := "(builtin) " ++ df.descr
       add   := fun declName stx kind => do
-        unless kind == AttributeKind.global do throwError "invalid attribute '{df.builtinName}', must be global"
+        unless kind == AttributeKind.global do throwAttrMustBeGlobal df.builtinName kind
         let key ← df.evalKey true stx
         let decl ← getConstInfo declName
+        let throwUnexpectedType :=
+          throwError m!"Cannot register attribute `{df.builtinName}`: `{declName}` has type\
+            {indentExpr decl.type}\nbut this attribute can only be added to declarations of type\
+            {indentD <| .ofConstName df.valueTypeName}"
         match decl.type with
         | Expr.const c _ =>
-          if c != df.valueTypeName then throwError "unexpected type at '{declName}', '{df.valueTypeName}' expected"
+          if c != df.valueTypeName then throwUnexpectedType
           else
             /- builtin_initialize @addBuiltin $(mkConst valueTypeName) $(mkConst attrDeclName) $(key) $(declName) $(mkConst declName) -/
             let val := mkAppN (mkConst ``addBuiltin) #[mkConst df.valueTypeName, mkConst attrDeclName, toExpr key, toExpr declName, mkConst declName]
             declareBuiltin declName val
             df.onAdded true declName
-        | _ => throwError "unexpected type at '{declName}', '{df.valueTypeName}' expected"
+        | _ => throwUnexpectedType
       applicationTime := AttributeApplicationTime.afterCompilation
     }
   registerBuiltinAttribute {

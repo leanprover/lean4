@@ -9,9 +9,10 @@ import Lean.Meta.Tactic.Grind.Types
 
 namespace Lean.Meta.Grind
 
-def synthInstanceMeta? (type : Expr) : MetaM (Option Expr) := do
-  let .some inst ← trySynthInstance type | return none
-  return some inst
+def synthInstanceMeta? (type : Expr) : MetaM (Option Expr) := do profileitM Exception "grind typeclass inference" (← getOptions) (decl := type.getAppFn.constName?.getD .anonymous) do
+  catchInternalId isDefEqStuckExceptionId
+    (synthInstanceCore? type none)
+    (fun _ => pure none)
 
 abbrev synthInstance? (type : Expr) : GoalM (Option Expr) :=
   synthInstanceMeta? type
@@ -20,6 +21,7 @@ def synthInstance (type : Expr) : GoalM Expr := do
   let some inst ← synthInstance? type
     | throwError "`grind` failed to find instance{indentExpr type}"
   return inst
+
 /--
 Helper function for instantiating a type class `type`, and
 then using the result to perform `isDefEq x val`.

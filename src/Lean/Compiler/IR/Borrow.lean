@@ -15,14 +15,6 @@ namespace Borrow
 namespace OwnedSet
 abbrev Key := FunId × Index
 
-def beq : Key → Key → Bool
-  | (f₁, x₁), (f₂, x₂) => f₁ == f₂ && x₁ == x₂
-
-instance : BEq Key := ⟨beq⟩
-
-def getHash : Key → UInt64
-  | (f, x) => mixHash (hash f) (hash x)
-instance : Hashable Key := ⟨getHash⟩
 end OwnedSet
 
 open OwnedSet (Key) in
@@ -36,16 +28,12 @@ def OwnedSet.contains (s : OwnedSet) (k : OwnedSet.Key) : Bool   := Std.HashMap.
    We keep a mapping from function and joint points to parameters (`Array Param`).
    Recall that `Param` contains the field `borrow`. -/
 namespace ParamMap
+
 inductive Key where
   | decl (name : FunId)
   | jp   (name : FunId) (jpid : JoinPointId)
-  deriving BEq
+  deriving BEq, Hashable
 
-def getHash : Key → UInt64
-  | Key.decl n  => hash n
-  | Key.jp n id => mixHash (hash n) (hash id)
-
-instance : Hashable Key := ⟨getHash⟩
 end ParamMap
 
 open ParamMap (Key)

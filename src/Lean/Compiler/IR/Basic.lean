@@ -24,24 +24,17 @@ abbrev Index := Nat
 /-- Variable identifier -/
 structure VarId where
   idx : Index
-  deriving Inhabited, Repr
+  deriving Inhabited, BEq, Hashable, Repr
 
 /-- Join point identifier -/
 structure JoinPointId where
   idx : Index
-  deriving Inhabited, Repr
+  deriving Inhabited, BEq, Hashable, Repr
 
 abbrev Index.lt (a b : Index) : Bool := a < b
 
-instance : BEq VarId := ⟨fun a b => a.idx == b.idx⟩
 instance : ToString VarId := ⟨fun a => "x_" ++ toString a.idx⟩
-instance : ToFormat VarId := ⟨fun a => toString a⟩
-instance : Hashable VarId := ⟨fun a => hash a.idx⟩
-
-instance : BEq JoinPointId := ⟨fun a b => a.idx == b.idx⟩
 instance : ToString JoinPointId := ⟨fun a => "block_" ++ toString a.idx⟩
-instance : ToFormat JoinPointId := ⟨fun a => toString a⟩
-instance : Hashable JoinPointId := ⟨fun a => hash a.idx⟩
 
 abbrev MData := KVMap
 abbrev MData.empty : MData := {}
@@ -84,26 +77,9 @@ inductive IRType where
   | float32
   | struct (leanTypeName : Option Name) (types : Array IRType) : IRType
   | union (leanTypeName : Name) (types : Array IRType) : IRType
-  deriving Inhabited, Repr
+  deriving Inhabited, BEq, Repr
 
 namespace IRType
-
-partial def beq : IRType → IRType → Bool
-  | float,          float          => true
-  | float32,        float32        => true
-  | uint8,          uint8          => true
-  | uint16,         uint16         => true
-  | uint32,         uint32         => true
-  | uint64,         uint64         => true
-  | usize,          usize          => true
-  | irrelevant,     irrelevant     => true
-  | object,         object         => true
-  | tobject,        tobject        => true
-  | struct n₁ tys₁, struct n₂ tys₂ => n₁ == n₂ && Array.isEqv tys₁ tys₂ beq
-  | union n₁ tys₁,  union n₂ tys₂  => n₁ == n₂ && Array.isEqv tys₁ tys₂ beq
-  | _,              _              => false
-
-instance : BEq IRType := ⟨beq⟩
 
 def isScalar : IRType → Bool
   | float    => true
@@ -141,27 +117,19 @@ end IRType
 inductive Arg where
   | var (id : VarId)
   | irrelevant
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 protected def Arg.beq : Arg → Arg → Bool
   | var x,      var y      => x == y
   | irrelevant, irrelevant => true
   | _,          _          => false
 
-instance : BEq Arg := ⟨Arg.beq⟩
-
 @[export lean_ir_mk_var_arg] def mkVarArg (id : VarId) : Arg := Arg.var id
 
 inductive LitVal where
   | num (v : Nat)
   | str (v : String)
-
-def LitVal.beq : LitVal → LitVal → Bool
-  | num v₁, num v₂ => v₁ == v₂
-  | str v₁, str v₂ => v₁ == v₂
-  | _,      _      => false
-
-instance : BEq LitVal := ⟨LitVal.beq⟩
+  deriving Inhabited, BEq
 
 /-- Constructor information.
 
@@ -180,13 +148,7 @@ structure CtorInfo where
   size : Nat
   usize : Nat
   ssize : Nat
-  deriving Inhabited, Repr
-
-def CtorInfo.beq : CtorInfo → CtorInfo → Bool
-  | ⟨n₁, cidx₁, size₁, usize₁, ssize₁⟩, ⟨n₂, cidx₂, size₂, usize₂, ssize₂⟩ =>
-    n₁ == n₂ && cidx₁ == cidx₂ && size₁ == size₂ && usize₁ == usize₂ && ssize₁ == ssize₂
-
-instance : BEq CtorInfo := ⟨CtorInfo.beq⟩
+  deriving Inhabited, BEq, Repr
 
 def CtorInfo.isRef (info : CtorInfo) : Bool :=
   info.size > 0 || info.usize > 0 || info.ssize > 0
@@ -278,10 +240,11 @@ inductive FnBody where
   /-- Jump to join point `j` -/
   | jmp (j : JoinPointId) (ys : Array Arg)
   | unreachable
+  deriving Inhabited
 
 end
 
-instance : Inhabited FnBody := ⟨FnBody.unreachable⟩
+deriving instance Inhabited for Alt
 
 abbrev FnBody.nil := FnBody.unreachable
 
@@ -295,8 +258,6 @@ abbrev FnBody.nil := FnBody.unreachable
 @[export lean_ir_mk_ret] def mkRet (x : Arg) : FnBody := FnBody.ret x
 @[export lean_ir_mk_jmp] def mkJmp (j : JoinPointId) (ys : Array Arg) : FnBody := FnBody.jmp j ys
 @[export lean_ir_mk_unreachable] def mkUnreachable : Unit → FnBody := fun _ => FnBody.unreachable
-
-instance : Inhabited Alt := ⟨Alt.default default⟩
 
 def FnBody.isTerminal : FnBody → Bool
   | FnBody.case _ _ _ _  => true
@@ -447,7 +408,6 @@ end Decl
 
 /-- Set of variable and join point names -/
 abbrev IndexSet := RBTree Index compare
-instance : Inhabited IndexSet := ⟨{}⟩
 
 def mkIndexSet (idx : Index) : IndexSet :=
   RBTree.empty.insert idx
@@ -605,7 +565,6 @@ def FnBody.beq (b₁ b₂ : FnBody) : Bool :=
 instance : BEq FnBody := ⟨FnBody.beq⟩
 
 abbrev VarIdSet := RBTree VarId (fun x y => compare x.idx y.idx)
-instance : Inhabited VarIdSet := ⟨{}⟩
 
 def mkIf (x : VarId) (t e : FnBody) : FnBody :=
   FnBody.case `Bool x IRType.uint8 #[

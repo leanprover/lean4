@@ -16,7 +16,7 @@ inductive Value where
   | top -- any value
   | ctor (i : CtorInfo) (vs : Array Value)
   | choice (vs : List Value)
-  deriving Inhabited, Repr
+  deriving Inhabited, BEq, Repr
 
 protected partial def Value.toFormat : Value → Format
   | Value.bot => "⊥"
@@ -36,18 +36,6 @@ instance : ToString Value where
   toString v := toString (format v)
 
 namespace Value
-
-protected partial def beq : Value → Value → Bool
-  | bot, bot => true
-  | top, top => true
-  | ctor i₁ vs₁, ctor i₂ vs₂ => i₁ == i₂ && Array.isEqv vs₁ vs₂ Value.beq
-  | choice vs₁, choice vs₂ =>
-    vs₁.all (fun v₁ => vs₂.any fun v₂ => Value.beq v₁ v₂)
-    &&
-    vs₂.all (fun v₂ => vs₁.any fun v₁ => Value.beq v₁ v₂)
-  | _, _ => false
-
-instance : BEq Value := ⟨Value.beq⟩
 
 partial def addChoice (merge : Value → Value → Value) : List Value → Value → List Value
   | [], v => [v]

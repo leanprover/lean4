@@ -23,13 +23,13 @@ def denoteNumCore (u : Level) (type : Expr) (semiringInst : Expr) (negFn : Expr)
 private def internalizeFn (fn : Expr) : GoalM Expr := do
   shareCommon (← canon fn)
 
-private def getUnaryFn (type : Expr)(u : Level) (instDeclName : Name) (declName : Name) : GoalM Expr := do
+private def getUnaryFn (type : Expr) (u : Level) (instDeclName : Name) (declName : Name) : GoalM Expr := do
   let instType := mkApp (mkConst instDeclName [u]) type
   let .some inst ← trySynthInstance instType
     | throwError "`grind ring` failed to find instance{indentExpr instType}"
   internalizeFn <| mkApp2 (mkConst declName [u]) type inst
 
-private def getBinHomoFn (type : Expr)(u : Level) (instDeclName : Name) (declName : Name) : GoalM Expr := do
+private def getBinHomoFn (type : Expr) (u : Level) (instDeclName : Name) (declName : Name) : GoalM Expr := do
   let instType := mkApp3 (mkConst instDeclName [u, u, u]) type type type
   let .some inst ← trySynthInstance instType
     | throwError "`grind ring` failed to find instance{indentExpr instType}"
@@ -121,14 +121,11 @@ def getRingId? (type : Expr) : GoalM (Option Nat) := do
 where
   go? : GoalM (Option Nat) := do
     let u ← getDecLevel type
-    let semiring := mkApp (mkConst ``Grind.Semiring [u]) type
-    let .some semiringInst ← trySynthInstance semiring | return none
-    let ring := mkApp (mkConst ``Grind.Ring [u]) type
-    let .some ringInst ← trySynthInstance ring | return none
-    let commSemiring := mkApp (mkConst ``Grind.CommSemiring [u]) type
-    let .some commSemiringInst ← trySynthInstance commSemiring | return none
     let commRing := mkApp (mkConst ``Grind.CommRing [u]) type
     let .some commRingInst ← trySynthInstance commRing | return none
+    let ringInst := mkApp2 (mkConst ``Grind.CommRing.toRing [u]) type commRingInst
+    let semiringInst := mkApp2 (mkConst ``Grind.Ring.toSemiring [u]) type ringInst
+    let commSemiringInst := mkApp2 (mkConst ``Grind.CommRing.toCommSemiring [u]) type semiringInst
     trace_goal[grind.ring] "new ring: {type}"
     let charInst? ← getIsCharInst? u type semiringInst
     let noZeroDivInst? ← getNoZeroDivInst? u type
@@ -169,10 +166,9 @@ def getSemiringId? (type : Expr) : GoalM (Option Nat) := do
 where
   go? : GoalM (Option Nat) := do
     let u ← getDecLevel type
-    let semiring := mkApp (mkConst ``Grind.Semiring [u]) type
-    let .some semiringInst ← trySynthInstance semiring | return none
     let commSemiring := mkApp (mkConst ``Grind.CommSemiring [u]) type
     let .some commSemiringInst ← trySynthInstance commSemiring | return none
+    let semiringInst := mkApp2 (mkConst ``Grind.CommSemiring.toSemiring [u]) type commSemiringInst
     let toQFn ← internalizeFn <| mkApp2 (mkConst ``Grind.Ring.OfSemiring.toQ [u]) type semiringInst
     let addFn ← getAddFn type u
     let mulFn ← getMulFn type u

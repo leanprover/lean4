@@ -113,8 +113,8 @@ where
       let heteroToField := mkApp2 (mkConst toHeteroName [u]) type toField
       ensureDefEq parentInst heteroToField
     let some intModuleInst ← getInst? ``Grind.IntModule | return none
-    let addCommGroupInst ← getInst ``Grind.AddCommGroup
-    let addCommMonoidInst ← getInst ``Grind.AddCommMonoid
+    let addCommGroupInst := mkApp2 (mkConst ``Grind.IntModule.toAddCommGroup [u]) type intModuleInst
+    let addCommMonoidInst := mkApp2 (mkConst ``Grind.AddCommGroup.toAddCommMonoid [u]) type addCommGroupInst
     let zeroInst ← getInst ``Zero
     let zero ← internalizeConst <| mkApp2 (mkConst ``Zero.zero [u]) type zeroInst
     let ofNatZeroType := mkApp2 (mkConst ``OfNat [u]) type (mkRawNatLit 0)
@@ -132,8 +132,6 @@ where
     let zsmulFn ← internalizeFn <| mkApp4 (mkConst ``HMul.hMul [0, u, u]) Int.mkType type type zsmulInst
     let nsmulInst ← getHMulNatInst
     let nsmulFn ← internalizeFn <| mkApp4 (mkConst ``HMul.hMul [0, u, u]) Nat.mkType type type nsmulInst
-    ensureToFieldDefEq addCommGroupInst intModuleInst ``Grind.IntModule.toAddCommGroup
-    ensureToFieldDefEq addCommMonoidInst addCommGroupInst ``Grind.AddCommGroup.toAddCommMonoid
     ensureToFieldDefEq zeroInst addCommMonoidInst ``Grind.AddCommMonoid.toZero
     ensureToHomoFieldDefEq addInst addCommMonoidInst ``Grind.AddCommMonoid.toAdd ``instHAdd
     ensureToHomoFieldDefEq subInst addCommGroupInst ``Grind.AddCommGroup.toSub ``instHSub

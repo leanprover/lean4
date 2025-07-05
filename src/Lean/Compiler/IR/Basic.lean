@@ -117,7 +117,7 @@ end IRType
 inductive Arg where
   | var (id : VarId)
   | irrelevant
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, Repr
 
 protected def Arg.beq : Arg → Arg → Bool
   | var x,      var y      => x == y

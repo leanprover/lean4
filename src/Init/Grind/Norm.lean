@@ -70,9 +70,6 @@ theorem Nat.lt_eq (a b : Nat) : (a < b) = (a + 1 ≤ b) := by
 theorem Int.lt_eq (a b : Int) : (a < b) = (a + 1 ≤ b) := by
   simp [Int.lt, LT.lt]
 
-theorem ge_eq [LE α] (a b : α) : (a ≥ b) = (b ≤ a) := rfl
-theorem gt_eq [LT α] (a b : α) : (a > b) = (b < a) := rfl
-
 theorem beq_eq_decide_eq {_ : BEq α} [LawfulBEq α] [DecidableEq α] (a b : α) : (a == b) = (decide (a = b)) := by
   by_cases a = b
   next h => simp [h]
@@ -81,10 +78,6 @@ theorem beq_eq_decide_eq {_ : BEq α} [LawfulBEq α] [DecidableEq α] (a b : α)
 theorem bne_eq_decide_not_eq {_ : BEq α} [LawfulBEq α] [DecidableEq α] (a b : α) : (a != b) = (decide (¬ a = b)) := by
   by_cases a = b <;> simp [*]
 
-theorem xor_eq (a b : Bool) : (a ^^ b) = (a != b) := by
-  rfl
-
-theorem natCast_eq [NatCast α] (a : Nat) : (Nat.cast a : α) = (NatCast.natCast a : α) := rfl
 theorem natCast_div (a b : Nat) : (NatCast.natCast (a / b) : Int) = (NatCast.natCast a) / (NatCast.natCast b) := rfl
 theorem natCast_mod (a b : Nat) : (NatCast.natCast (a % b) : Int) = (NatCast.natCast a) % (NatCast.natCast b) := rfl
 theorem natCast_add (a b : Nat) : (NatCast.natCast (a + b : Nat) : Int) = (NatCast.natCast a : Int) + (NatCast.natCast b : Int) := rfl
@@ -153,9 +146,9 @@ init_grind_norm
   |
   /- Post theorems -/
   Classical.not_not
-  ne_eq iff_eq eq_self heq_eq_eq
+  iff_eq heq_eq_eq
   -- Prop equality
-  eq_true_eq eq_false_eq not_eq_prop
+  not_eq_prop
   -- True
   not_true
   -- False
@@ -175,8 +168,6 @@ init_grind_norm
   Bool.and_false Bool.and_true Bool.false_and Bool.true_and Bool.and_eq_true Bool.and_assoc
   -- Bool not
   Bool.not_not
-  -- Bool xor
-  xor_eq
   -- beq
   beq_iff_eq beq_eq_decide_eq beq_self_eq_true
   -- bne
@@ -197,7 +188,7 @@ init_grind_norm
   Int.ediv_zero Int.emod_zero
   Int.ediv_one Int.emod_one
   Int.negSucc_eq
-  natCast_eq natCast_div natCast_mod
+  natCast_div natCast_mod
   natCast_add natCast_mul
   Int.one_pow
   Int.pow_zero Int.pow_one

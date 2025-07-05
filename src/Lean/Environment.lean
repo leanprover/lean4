@@ -22,6 +22,7 @@ import Lean.Util.FoldConsts
 import Lean.PrivateName
 import Lean.LoadDynlib
 import Init.Dynamic
+import Init.Data.Array.InsertionSort
 
 /-!
 # Note [Environment Branches]
@@ -1760,9 +1761,13 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
     -- (this branch makes very sure all kernel constants are exported eventually)
     kenv.constants.foldStage2 (fun cs _ c => cs.push c) #[]
   else
-    constNames.filterMap fun n =>
-      env.find? n <|>
-      guard (looksLikeOldCodegenName n) *> kenv.find? n
+    constNames.filterMap (fun n =>
+        env.find? n <|>
+        guard (looksLikeOldCodegenName n) *> kenv.find? n)
+      -- While `constants.foldStage2` itself results in a deterministic ordering, then filtering out
+      -- some elements leaves the order of remaining dependent on those filtered elements, which
+      -- would make `.olean` output dependent on `.olean.private`, so we re-sort them here.
+      |>.insertionSort (lt := fun c₁ c₂ => c₁.name.quickCmp c₂.name == .lt)
   let constNames := constants.map (·.name)
   return { env.header with
     extraConstNames := env.checked.get.extraConstNames.toArray

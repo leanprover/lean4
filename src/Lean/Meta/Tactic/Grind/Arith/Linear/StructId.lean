@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Ordered.Module
 import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.SynthInstance
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Arith.Linear.Util
@@ -75,28 +76,15 @@ where
   go? : GoalM (Option Nat) := do
     let u ← getDecLevel type
     let rec getInst? (declName : Name) : GoalM (Option Expr) := do
-      let instType := mkApp (mkConst declName [u]) type
-      return LOption.toOption (← trySynthInstance instType)
+      synthInstance? <| mkApp (mkConst declName [u]) type
     let rec getInst (declName : Name) : GoalM Expr := do
-      let instType := mkApp (mkConst declName [u]) type
-      let .some inst ← trySynthInstance instType
-        | throwError "`grind linarith` failed to find instance{indentExpr instType}"
-      return inst
+      synthInstance <| mkApp (mkConst declName [u]) type
     let rec getBinHomoInst (declName : Name) : GoalM Expr := do
-      let instType := mkApp3 (mkConst declName [u, u, u]) type type type
-      let .some inst ← trySynthInstance instType
-        | throwError "`grind linarith` failed to find instance{indentExpr instType}"
-      return inst
+      synthInstance <| mkApp3 (mkConst declName [u, u, u]) type type type
     let rec getHMulIntInst : GoalM Expr := do
-      let instType := mkApp3 (mkConst ``HMul [0, u, u]) Int.mkType type type
-      let .some inst ← trySynthInstance instType
-        | throwError "`grind linarith` failed to find instance{indentExpr instType}"
-      return inst
+      synthInstance <| mkApp3 (mkConst ``HMul [0, u, u]) Int.mkType type type
     let rec getHMulNatInst : GoalM Expr := do
-      let instType := mkApp3 (mkConst ``HMul [0, u, u]) Nat.mkType type type
-      let .some inst ← trySynthInstance instType
-        | throwError "`grind linarith` failed to find instance{indentExpr instType}"
-      return inst
+      synthInstance <| mkApp3 (mkConst ``HMul [0, u, u]) Nat.mkType type type
     let rec checkToFieldDefEq? (parentInst? : Option Expr) (inst? : Option Expr) (toFieldName : Name) : GoalM (Option Expr) := do
       let some parentInst := parentInst? | return none
       let some inst := inst? | return none
@@ -113,12 +101,12 @@ where
       let heteroToField := mkApp2 (mkConst toHeteroName [u]) type toField
       ensureDefEq parentInst heteroToField
     let some intModuleInst ← getInst? ``Grind.IntModule | return none
-    let addCommGroupInst ← getInst ``Grind.AddCommGroup
-    let addCommMonoidInst ← getInst ``Grind.AddCommMonoid
+    let addCommGroupInst := mkApp2 (mkConst ``Grind.IntModule.toAddCommGroup [u]) type intModuleInst
+    let addCommMonoidInst := mkApp2 (mkConst ``Grind.AddCommGroup.toAddCommMonoid [u]) type addCommGroupInst
     let zeroInst ← getInst ``Zero
     let zero ← internalizeConst <| mkApp2 (mkConst ``Zero.zero [u]) type zeroInst
     let ofNatZeroType := mkApp2 (mkConst ``OfNat [u]) type (mkRawNatLit 0)
-    let some ofNatZeroInst := LOption.toOption (← trySynthInstance ofNatZeroType) | return none
+    let some ofNatZeroInst ← synthInstance? ofNatZeroType | return none
     -- `ofNatZero` is used internally, we don't need to internalize
     let ofNatZero ← preprocess <| mkApp3 (mkConst ``OfNat.ofNat [u]) type (mkRawNatLit 0) ofNatZeroInst
     ensureDefEq zero ofNatZero
@@ -132,8 +120,6 @@ where
     let zsmulFn ← internalizeFn <| mkApp4 (mkConst ``HMul.hMul [0, u, u]) Int.mkType type type zsmulInst
     let nsmulInst ← getHMulNatInst
     let nsmulFn ← internalizeFn <| mkApp4 (mkConst ``HMul.hMul [0, u, u]) Nat.mkType type type nsmulInst
-    ensureToFieldDefEq addCommGroupInst intModuleInst ``Grind.IntModule.toAddCommGroup
-    ensureToFieldDefEq addCommMonoidInst addCommGroupInst ``Grind.AddCommGroup.toAddCommMonoid
     ensureToFieldDefEq zeroInst addCommMonoidInst ``Grind.AddCommMonoid.toZero
     ensureToHomoFieldDefEq addInst addCommMonoidInst ``Grind.AddCommMonoid.toAdd ``instHAdd
     ensureToHomoFieldDefEq subInst addCommGroupInst ``Grind.AddCommGroup.toSub ``instHSub
@@ -142,8 +128,7 @@ where
     ensureToFieldDefEq nsmulInst intModuleInst ``Grind.IntModule.nsmul
     let preorderInst? ← getInst? ``Grind.Preorder
     let orderedAddInst? ← if let some preorderInst := preorderInst? then
-      let isOrderedType := mkApp3 (mkConst ``Grind.OrderedAdd [u]) type addInst preorderInst
-      pure <| LOption.toOption (← trySynthInstance isOrderedType)
+      synthInstance? <| mkApp3 (mkConst ``Grind.OrderedAdd [u]) type addInst preorderInst
     else
       pure none
     let preorderInst? := if orderedAddInst?.isNone then none else preorderInst?
@@ -161,11 +146,11 @@ where
       pure (none, none)
     let rec getHSMulFn? : GoalM (Option Expr) := do
       let smulType := mkApp3 (mkConst ``HSMul [0, u, u]) Int.mkType type type
-      let .some smulInst ← trySynthInstance smulType | return none
+      let some smulInst ← synthInstance? smulType | return none
       internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Int.mkType type smulInst smulInst
     let rec getHSMulNatFn? : GoalM (Option Expr) := do
       let smulType := mkApp3 (mkConst ``HSMul [0, u, u]) Nat.mkType type type
-      let .some smulInst ← trySynthInstance smulType | return none
+      let some smulInst ← synthInstance? smulType | return none
       internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Nat.mkType type smulInst smulInst
     let zsmulFn? ← getHSMulFn?
     let nsmulFn? ← getHSMulNatFn?
@@ -190,7 +175,7 @@ where
       let some semiringInst := semiringInst? | return none
       let some preorderInst := preorderInst? | return none
       let isOrdType := mkApp3 (mkConst ``Grind.OrderedRing [u]) type semiringInst preorderInst
-      let .some inst ← trySynthInstance isOrdType
+      let some inst ← synthInstance? isOrdType
         | reportIssue! "type has a `Preorder` and is a `Semiring`, but is not an ordered ring, failed to synthesize{indentExpr isOrdType}"
           return none
       return some inst
@@ -198,9 +183,8 @@ where
     let charInst? ← if let some semiringInst := semiringInst? then getIsCharInst? u type semiringInst else pure none
     let rec getNoNatZeroDivInst? : GoalM (Option Expr) := do
       let hmulNat := mkApp3 (mkConst ``HMul [0, u, u]) Nat.mkType type type
-      let .some hmulInst ← trySynthInstance hmulNat | return none
-      let noNatZeroDivType := mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type hmulInst
-      return LOption.toOption (← trySynthInstance noNatZeroDivType)
+      let some hmulInst ← synthInstance? hmulNat | return none
+      synthInstance? <| mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type hmulInst
     let noNatDivInst? ← getNoNatZeroDivInst?
     let id := (← get').structs.size
     let struct : Struct := {

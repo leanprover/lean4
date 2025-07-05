@@ -33,6 +33,7 @@ import Lean.Meta.Tactic.Grind.MBTC
 import Lean.Meta.Tactic.Grind.Lookahead
 import Lean.Meta.Tactic.Grind.LawfulEqCmp
 import Lean.Meta.Tactic.Grind.ReflCmp
+import Lean.Meta.Tactic.Grind.SynthInstance
 
 namespace Lean
 

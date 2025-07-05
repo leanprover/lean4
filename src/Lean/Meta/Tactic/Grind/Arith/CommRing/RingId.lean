@@ -7,6 +7,8 @@ prelude
 import Init.Grind.Ring.Field
 import Init.Grind.Ring.Envelope
 import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.SynthInstance
+import Lean.Meta.Tactic.Grind.Arith.Insts
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
 
 namespace Lean.Meta.Grind.Arith.CommRing
@@ -23,16 +25,12 @@ def denoteNumCore (u : Level) (type : Expr) (semiringInst : Expr) (negFn : Expr)
 private def internalizeFn (fn : Expr) : GoalM Expr := do
   shareCommon (← canon fn)
 
-private def getUnaryFn (type : Expr)(u : Level) (instDeclName : Name) (declName : Name) : GoalM Expr := do
-  let instType := mkApp (mkConst instDeclName [u]) type
-  let .some inst ← trySynthInstance instType
-    | throwError "`grind ring` failed to find instance{indentExpr instType}"
+private def getUnaryFn (type : Expr) (u : Level) (instDeclName : Name) (declName : Name) : GoalM Expr := do
+  let inst ← synthInstance <| mkApp (mkConst instDeclName [u]) type
   internalizeFn <| mkApp2 (mkConst declName [u]) type inst
 
-private def getBinHomoFn (type : Expr)(u : Level) (instDeclName : Name) (declName : Name) : GoalM Expr := do
-  let instType := mkApp3 (mkConst instDeclName [u, u, u]) type type type
-  let .some inst ← trySynthInstance instType
-    | throwError "`grind ring` failed to find instance{indentExpr instType}"
+private def getBinHomoFn (type : Expr) (u : Level) (instDeclName : Name) (declName : Name) : GoalM Expr := do
+  let inst ← synthInstance <| mkApp3 (mkConst instDeclName [u, u, u]) type type type
   internalizeFn <| mkApp4 (mkConst declName [u, u, u]) type type type inst
 
 -- Remark: we removed consistency checks such as the one that ensures `HAdd` instance matches `Semiring.toAdd`
@@ -57,9 +55,7 @@ private def getInvFn (type : Expr) (u : Level) : GoalM Expr := do
   getUnaryFn type u ``Inv ``Inv.inv
 
 private def getPowFn (type : Expr) (u : Level) (semiringInst : Expr) : GoalM Expr := do
-  let instType := mkApp3 (mkConst ``HPow [u, 0, u]) type Nat.mkType type
-  let .some inst ← trySynthInstance instType |
-    throwError "failed to find instance for ring power operator{indentExpr instType}"
+  let inst ← synthInstance <| mkApp3 (mkConst ``HPow [u, 0, u]) type Nat.mkType type
   let inst' := mkApp2 (mkConst ``Grind.Semiring.toHPow [u]) type semiringInst
   unless (← withDefault <| isDefEq inst inst') do
     throwError "instance for power operator{indentExpr inst}\nis not definitionally equal to the `Grind.Semiring` one{indentExpr inst'}"
@@ -74,7 +70,7 @@ private def getIntCastFn (type : Expr) (u : Level) (ringInst : Expr) : GoalM Exp
   -- does not guarantee that an `IntCast α` will be available.
   -- When both are present we verify that they are defeq,
   -- and otherwise fall back to the field of the `Ring α` instance that we already have.
-  let inst ← match (← trySynthInstance instType).toOption with
+  let inst ← match (← synthInstance? instType) with
   | none => pure inst'
   | some inst =>
     unless (← withDefault <| isDefEq inst inst') do
@@ -91,7 +87,7 @@ private def getNatCastFn (type : Expr) (u : Level) (semiringInst : Expr) : GoalM
   -- does not guarantee that an `NatCast α` will be available.
   -- When both are present we verify that they are defeq,
   -- and otherwise fall back to the field of the `Semiring α` instance that we already have.
-  let inst ← match (← trySynthInstance instType).toOption with
+  let inst ← match (← synthInstance? instType) with
   | none => pure inst'
   | some inst =>
     unless (← withDefault <| isDefEq inst inst') do
@@ -121,20 +117,16 @@ def getRingId? (type : Expr) : GoalM (Option Nat) := do
 where
   go? : GoalM (Option Nat) := do
     let u ← getDecLevel type
-    let semiring := mkApp (mkConst ``Grind.Semiring [u]) type
-    let .some semiringInst ← trySynthInstance semiring | return none
-    let ring := mkApp (mkConst ``Grind.Ring [u]) type
-    let .some ringInst ← trySynthInstance ring | return none
-    let commSemiring := mkApp (mkConst ``Grind.CommSemiring [u]) type
-    let .some commSemiringInst ← trySynthInstance commSemiring | return none
     let commRing := mkApp (mkConst ``Grind.CommRing [u]) type
-    let .some commRingInst ← trySynthInstance commRing | return none
+    let some commRingInst ← synthInstance? commRing | return none
+    let ringInst := mkApp2 (mkConst ``Grind.CommRing.toRing [u]) type commRingInst
+    let semiringInst := mkApp2 (mkConst ``Grind.Ring.toSemiring [u]) type ringInst
+    let commSemiringInst := mkApp2 (mkConst ``Grind.CommRing.toCommSemiring [u]) type semiringInst
     trace_goal[grind.ring] "new ring: {type}"
     let charInst? ← getIsCharInst? u type semiringInst
     let noZeroDivInst? ← getNoZeroDivInst? u type
     trace_goal[grind.ring] "NoNatZeroDivisors available: {noZeroDivInst?.isSome}"
-    let field := mkApp (mkConst ``Grind.Field [u]) type
-    let fieldInst? : Option Expr ← LOption.toOption <$> trySynthInstance field
+    let fieldInst? ← synthInstance? <| mkApp (mkConst ``Grind.Field [u]) type
     let addFn ← getAddFn type u
     let mulFn ← getMulFn type u
     let subFn ← getSubFn type u
@@ -169,19 +161,18 @@ def getSemiringId? (type : Expr) : GoalM (Option Nat) := do
 where
   go? : GoalM (Option Nat) := do
     let u ← getDecLevel type
-    let semiring := mkApp (mkConst ``Grind.Semiring [u]) type
-    let .some semiringInst ← trySynthInstance semiring | return none
     let commSemiring := mkApp (mkConst ``Grind.CommSemiring [u]) type
-    let .some commSemiringInst ← trySynthInstance commSemiring | return none
+    let some commSemiringInst ← synthInstance? commSemiring | return none
+    let semiringInst := mkApp2 (mkConst ``Grind.CommSemiring.toSemiring [u]) type commSemiringInst
     let toQFn ← internalizeFn <| mkApp2 (mkConst ``Grind.Ring.OfSemiring.toQ [u]) type semiringInst
     let addFn ← getAddFn type u
     let mulFn ← getMulFn type u
     let powFn ← getPowFn type u semiringInst
     let natCastFn ← getNatCastFn type u semiringInst
     let add := mkApp (mkConst ``Add [u]) type
-    let .some addInst ← trySynthInstance add | return none
+    let some addInst ← synthInstance? add | return none
     let addRightCancel := mkApp2 (mkConst ``Grind.AddRightCancel [u]) type addInst
-    let addRightCancelInst? ← LOption.toOption <$> trySynthInstance addRightCancel
+    let addRightCancelInst? ← synthInstance? addRightCancel
     let q ← shareCommon (← canon (mkApp2 (mkConst ``Grind.Ring.OfSemiring.Q [u]) type semiringInst))
     let some ringId ← getRingId? q
       | throwError "`grind` unexpected failure, failure to initialize ring{indentExpr q}"

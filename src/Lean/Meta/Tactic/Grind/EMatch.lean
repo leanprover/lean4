@@ -135,7 +135,7 @@ private def matchArg? (c : Choice) (pArg : Expr) (eArg : Expr) : OptionT GoalM C
     assign? c pArg.bvarIdx! eArg
   else if let some pArg := groundPattern? pArg then
     /-
-    We need to use `withReducibleAndIntances` because ground patterns are often instances.
+    We need to use `withReducibleAndInstances` because ground patterns are often instances.
     Here is an example
     ```
     instance : Max Nat where
@@ -348,7 +348,7 @@ private def synthesizeInsts (mvars : Array Expr) (bis : Array BinderInfo) : Opti
   for mvar in mvars, bi in bis do
     if bi.isInstImplicit && !(← mvar.mvarId!.isAssigned) then
       let type ← inferType mvar
-      unless (← synthesizeInstanceAndAssign mvar type) do
+      unless (← synthInstanceAndAssign mvar type) do
         reportIssue! "failed to synthesize instance when instantiating {← thm.origin.pp}{indentExpr type}"
         failure
 

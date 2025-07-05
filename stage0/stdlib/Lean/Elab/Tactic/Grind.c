@@ -30,7 +30,6 @@ LEAN_EXPORT lean_object* l_Lean_resolveGlobalConst___at___Lean_resolveGlobalCons
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Elab_Tactic_elabGrindParams_spec__3_spec__3___closed__14;
 lean_object* l_Lean_Syntax_formatStx(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Core_instMonadCoreM___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_mkParams___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Environment_evalConst___redArg(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Elab_Tactic_elabGrindConfig___redArg___closed__10;
@@ -230,6 +229,7 @@ static lean_object* l_Lean_Elab_Tactic_elabGrindParams_addEMatchTheorem___closed
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalGrindTrace___regBuiltin_Lean_Elab_Tactic_evalGrindTrace__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalGrindCore___lam__0(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ensureNonAmbiguous___at___Lean_resolveGlobalConstNoOverload___at___Lean_Elab_Tactic_elabGrindPattern_spec__0_spec__4___closed__5;
+lean_object* l_Lean_Meta_Grind_mkParams(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___Lean_Elab_Tactic_mkGrindOnly_spec__3___redArg___closed__0;
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -11559,7 +11559,11 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_mkGrindParams(lean_object* x_1, uint
 _start:
 {
 lean_object* x_9; 
-x_9 = l_Lean_Meta_Grind_mkParams___redArg(x_1, x_4, x_6, x_7, x_8);
+lean_inc(x_7);
+lean_inc(x_6);
+lean_inc(x_5);
+lean_inc(x_4);
+x_9 = l_Lean_Meta_Grind_mkParams(x_1, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 

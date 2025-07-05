@@ -84,14 +84,20 @@ protected def getSimprocs : MetaM (Array Simprocs) := do
   let s ← s.add ``simpEq (post := false)
   return #[s]
 
+private def addDeclToUnfold (s : SimpTheorems) (declName : Name) : MetaM SimpTheorems := do
+  if (← getEnv).contains declName then
+    s.addDeclToUnfold declName
+  else
+    return s
+
 /-- Returns the simplification context used by `grind`. -/
 protected def getSimpContext (config : Grind.Config) : MetaM Simp.Context := do
-  let thms ← normExt.getTheorems
-  let thms ← thms.addDeclToUnfold ``GE.ge
-  let thms ← thms.addDeclToUnfold ``GT.gt
-  let thms ← thms.addDeclToUnfold ``Nat.cast
-  let thms ← thms.addDeclToUnfold ``Bool.xor
-  let thms ← thms.addDeclToUnfold ``Ne
+  let mut thms ← normExt.getTheorems
+  thms ← addDeclToUnfold thms ``GE.ge
+  thms ← addDeclToUnfold thms ``GT.gt
+  thms ← addDeclToUnfold thms ``Nat.cast
+  thms ← addDeclToUnfold thms ``Bool.xor
+  thms ← addDeclToUnfold thms ``Ne
   Simp.mkContext
     (config := { arith := true, zeta := config.zeta, zetaDelta := config.zetaDelta, catchRuntime := false })
     (simpTheorems := #[thms])

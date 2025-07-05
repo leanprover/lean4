@@ -216,11 +216,13 @@ where
     let val := getNatConstant val + 1
     let decl ← mkAuxLetDecl <| .lit <| .nat <| val
     return (#[.let decl], decl.fvarId)
-  | .ctor i vs => do
-    let args ← vs.mapM go
+  | .ctor ctorName vs => do
+    let some (.ctorInfo ctorInfo) := (← getEnv).find? ctorName | unreachable!
+    let fields ← vs.mapM go
     let flatten acc := fun (decls, var) => (acc.fst ++ decls, acc.snd.push <| .fvar var)
-    let (decls, params) := args.foldl (init := (#[], Array.mkEmpty args.size)) flatten
-    let letVal : LetValue := .const i [] params
+    let (decls, args) :=
+      fields.foldl (init := (#[], Array.replicate ctorInfo.numParams .erased)) flatten
+    let letVal : LetValue := .const ctorName [] args
     let letDecl ← mkAuxLetDecl letVal
     return (decls.push <| .let letDecl, letDecl.fvarId)
   | _ => unreachable!

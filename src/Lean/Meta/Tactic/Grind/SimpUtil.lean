@@ -33,20 +33,31 @@ private def isBoolEqTarget (declName : Name) : Bool :=
   declName == ``BEq.beq  ||
   declName == ``decide
 
-builtin_simproc_decl simpBoolEq (@Eq Bool _ _) := fun e => do
-  let_expr f@Eq bool lhs rhs ← e | return .continue
-  let .const rhsName _ := rhs.getAppFn | return .continue
-  if rhsName == ``true || rhsName == ``false then return .continue
-  let .const lhsName _ := lhs.getAppFn | return .continue
-  if lhsName == ``true || lhsName == ``false then
-    -- Just apply comm
-    let e' := mkApp3 f bool rhs lhs
-    return .visit { expr := e', proof? := mkApp2 (mkConst ``Grind.flip_bool_eq) lhs rhs }
-  if isBoolEqTarget lhsName || isBoolEqTarget rhsName then
-    -- Convert into `(lhs = true) = (rhs = true)`
-    let tr := mkConst ``true
-    let e' ← mkEq (mkApp3 f bool lhs tr) (mkApp3 f bool rhs tr)
-    return .visit { expr := e', proof? := mkApp2 (mkConst ``Grind.bool_eq_to_prop) lhs rhs }
+builtin_simproc_decl simpEq (@Eq _ _ _) := fun e => do
+  let_expr f@Eq α lhs rhs ← e | return .continue
+  match_expr α with
+  | Bool =>
+    let .const rhsName _ := rhs.getAppFn | return .continue
+    if rhsName == ``true || rhsName == ``false then return .continue
+    let .const lhsName _ := lhs.getAppFn | return .continue
+    if lhsName == ``true || lhsName == ``false then
+      -- Just apply comm
+      let e' := mkApp3 f α rhs lhs
+      return .visit { expr := e', proof? := mkApp2 (mkConst ``Grind.flip_bool_eq) lhs rhs }
+    if isBoolEqTarget lhsName || isBoolEqTarget rhsName then
+      -- Convert into `(lhs = true) = (rhs = true)`
+      let tr := mkConst ``true
+      let e' ← mkEq (mkApp3 f α lhs tr) (mkApp3 f α rhs tr)
+      return .visit { expr := e', proof? := mkApp2 (mkConst ``Grind.bool_eq_to_prop) lhs rhs }
+    return .continue
+  | _ =>
+    if (← isDefEq lhs rhs) then
+      let u := f.constLevels!
+      return .done { expr := mkConst ``True, proof? := mkApp2 (mkConst ``eq_self u) α lhs }
+    else if rhs == mkConst ``True then
+      return .done { expr := lhs, proof? := mkApp (mkConst ``Grind.eq_true_eq) lhs }
+    else if rhs == mkConst ``False then
+      return .visit { expr := mkNot lhs, proof? := mkApp (mkConst ``Grind.eq_false_eq) lhs }
   return .continue
 
 /-- Returns the array of simprocs used by `grind`. -/
@@ -70,7 +81,7 @@ protected def getSimprocs : MetaM (Array Simprocs) := do
   let s ← addPreMatchCondSimproc s
   let s ← Arith.addSimproc s
   let s ← addForallSimproc s
-  let s ← s.add ``simpBoolEq (post := false)
+  let s ← s.add ``simpEq (post := false)
   return #[s]
 
 /-- Returns the simplification context used by `grind`. -/
@@ -78,6 +89,9 @@ protected def getSimpContext (config : Grind.Config) : MetaM Simp.Context := do
   let thms ← normExt.getTheorems
   let thms ← thms.addDeclToUnfold ``GE.ge
   let thms ← thms.addDeclToUnfold ``GT.gt
+  let thms ← thms.addDeclToUnfold ``Nat.cast
+  let thms ← thms.addDeclToUnfold ``Bool.xor
+  let thms ← thms.addDeclToUnfold ``Ne
   Simp.mkContext
     (config := { arith := true, zeta := config.zeta, zetaDelta := config.zetaDelta, catchRuntime := false })
     (simpTheorems := #[thms])

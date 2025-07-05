@@ -167,8 +167,6 @@ init_grind_norm
   -- ite
   ite_true ite_false ite_true_false ite_false_true
   dite_eq_ite
-  -- Exists
-  exists_const exists_or exists_prop exists_and_left exists_and_right
   -- Bool cond
   cond_eq_ite
   -- Bool or
@@ -203,8 +201,6 @@ init_grind_norm
   natCast_add natCast_mul
   Int.one_pow
   Int.pow_zero Int.pow_one
-  -- GT GE
-  ge_eq gt_eq
   -- Int op folding
   Int.add_def Int.mul_def Int.ofNat_eq_coe
   Int.Linear.sub_fold Int.Linear.neg_fold

@@ -174,11 +174,8 @@ builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
       for thm in (← getExtTheorems α) do
         instantiateExtTheorem thm e
 
-private def getLawfulBEqInst? (u : List Level) (α : Expr) (binst : Expr) : MetaM (Option Expr) := do
-  let lawfulBEq := mkApp2 (mkConst ``LawfulBEq u) α binst
-  let .some linst ← trySynthInstance lawfulBEq | return none
-  return some linst
-
+private def getLawfulBEqInst? (u : List Level) (α : Expr) (binst : Expr) : GoalM (Option Expr) := do
+  synthInstance? <| mkApp2 (mkConst ``LawfulBEq u) α binst
 /-
 Note about `BEq.beq`
 Given `a b : α` in a context where we have `[BEq α] [LawfulBEq α]`

@@ -256,7 +256,7 @@ builtin_simproc_decl simpExists (Exists _) := fun e => do
     else
       let u := ex.constLevels!
       let nonempty := mkApp (mkConst ``Nonempty u) α
-      if let .some nonemptyInst ← trySynthInstance nonempty then
+      if let some nonemptyInst ← synthInstanceMeta? nonempty then
         return .visit { expr := b, proof? := mkApp3 (mkConst ``Grind.exists_const u) α nonemptyInst b }
   return .continue
 

@@ -7,13 +7,14 @@ prelude
 import Init.Grind.Ring.Basic
 import Init.Simproc
 import Lean.Meta.Tactic.Simp.Simproc
+import Lean.Meta.Tactic.Grind.SynthInstance
 
 namespace Lean.Meta.Grind.Arith
 
 private def mkSemiringThm (declName : Name) (α : Expr) : MetaM (Option Expr) := do
   let some u ← getDecLevel? α | return none
   let semiring := mkApp (mkConst ``Grind.Semiring [u]) α
-  let .some semiringInst ← trySynthInstance semiring | return none
+  let some semiringInst ← synthInstanceMeta? semiring | return none
   return mkApp2 (mkConst declName [u]) α semiringInst
 
 /--

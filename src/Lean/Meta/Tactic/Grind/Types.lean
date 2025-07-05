@@ -1539,14 +1539,6 @@ def getExtTheorems (type : Expr) : GoalM (Array Ext.ExtTheorem) := do
     modify fun s => { s with extThms := s.extThms.insert { expr := type } thms }
     return thms
 
-/--
-Helper function for instantiating a type class `type`, and
-then using the result to perform `isDefEq x val`.
--/
-def synthesizeInstanceAndAssign (x type : Expr) : MetaM Bool := do
-  let .some val ← trySynthInstance type | return false
-  isDefEq x val
-
 /-- Add a new lookahead candidate. -/
 def addLookaheadCandidate (sinfo : SplitInfo) : GoalM Unit := do
   trace_goal[grind.lookahead.add] "{sinfo.getExpr}"

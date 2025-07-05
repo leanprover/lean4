@@ -422,7 +422,7 @@ class IntCast (R : Type u) where
 
 instance : IntCast Int where intCast n := n
 
-@[coe, reducible, match_pattern, inherit_doc IntCast]
+@[coe, reducible, match_pattern, inherit_doc IntCast, pp_nodot]
 protected def Int.cast {R : Type u} [IntCast R] : Int → R :=
   IntCast.intCast
 

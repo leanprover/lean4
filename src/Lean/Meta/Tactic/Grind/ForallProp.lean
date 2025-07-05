@@ -240,13 +240,13 @@ builtin_simproc_decl simpExists (Exists _) := fun e => do
       if !pRaw.hasLooseBVars then
         let b := pRaw
         let p := mkLambda x .default α qRaw
-        let expr := mkOr b (mkApp2 ex α p)
+        let expr := mkAnd b (mkApp2 ex α p)
         let u := ex.constLevels!
         return .visit { expr, proof? := mkApp3 (mkConst ``Grind.exists_and_left u) α p b }
       else if !qRaw.hasLooseBVars then
         let p := mkLambda x .default α pRaw
         let b := qRaw
-        let expr := mkOr (mkApp2 ex α p) b
+        let expr := mkAnd (mkApp2 ex α p) b
         let u := ex.constLevels!
         return .visit { expr, proof? := mkApp3 (mkConst ``Grind.exists_and_right u) α p b }
   if !b.hasLooseBVars then

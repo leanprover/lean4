@@ -213,7 +213,55 @@ builtin_simproc_decl simpForall ((a : _) → _) := fun e => do
   -- None of the rules were applicable
   return .continue
 
+/--
+Applies the following rewriting rules:
+- `Grind.exists_or`
+- `Grind.exists_and_left`
+- `Grind.exists_and_right`
+- `Grind.exists_prop`
+- `Grind.exists_const`
+-/
+builtin_simproc_decl simpExists (Exists _) := fun e => do
+  let_expr ex@Exists α fn := e | return .continue
+  let .lam x _ b _ := fn | return .continue
+  if b.isApp && b.getAppNumArgs == 2 then
+    let .const bDeclName _ := b.appFn!.appFn! | return .continue
+    if bDeclName == ``Or then
+      let pRaw := b.appFn!.appArg!
+      let qRaw := b.appArg!
+      let p := mkLambda x .default α pRaw
+      let q := mkLambda x .default α qRaw
+      let u := ex.constLevels!
+      let expr := mkOr (mkApp2 ex α p) (mkApp2 ex α q)
+      return .visit { expr, proof? := mkApp3 (mkConst ``Grind.exists_or u) α p q }
+    else if bDeclName == ``And then
+      let pRaw := b.appFn!.appArg!
+      let qRaw := b.appArg!
+      if !pRaw.hasLooseBVars then
+        let b := pRaw
+        let p := mkLambda x .default α qRaw
+        let expr := mkOr b (mkApp2 ex α p)
+        let u := ex.constLevels!
+        return .visit { expr, proof? := mkApp3 (mkConst ``Grind.exists_and_left u) α p b }
+      else if !qRaw.hasLooseBVars then
+        let p := mkLambda x .default α pRaw
+        let b := qRaw
+        let expr := mkOr (mkApp2 ex α p) b
+        let u := ex.constLevels!
+        return .visit { expr, proof? := mkApp3 (mkConst ``Grind.exists_and_right u) α p b }
+  if !b.hasLooseBVars then
+    if (← isProp α) then
+      let expr := mkAnd α b
+      return .visit { expr, proof? := mkApp2 (mkConst ``Grind.exists_prop) α b }
+    else
+      let u := ex.constLevels!
+      let nonempty := mkApp (mkConst ``Nonempty u) α
+      if let .some nonemptyInst ← trySynthInstance nonempty then
+        return .visit { expr := b, proof? := mkApp3 (mkConst ``Grind.exists_const u) α nonemptyInst b }
+  return .continue
+
 def addForallSimproc (s : Simprocs) : CoreM Simprocs := do
-  s.add ``simpForall (post := true)
+  let s ← s.add ``simpForall (post := true)
+  s.add ``simpExists (post := true)
 
 end Lean.Meta.Grind

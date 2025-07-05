@@ -130,6 +130,21 @@ theorem forall_forall_or {α : Sort u} {β : α → Sort v} (p : α → Prop) (q
 theorem forall_and {α} {p q : α → Prop} : (∀ x, p x ∧ q x) = ((∀ x, p x) ∧ (∀ x, q x)) := by
   apply propext; apply _root_.forall_and
 
+theorem exists_const (α : Sort u) [i : Nonempty α] {b : Prop} : (∃ _ : α, b) = b := by
+  apply propext; apply _root_.exists_const
+
+theorem exists_or {α : Sort u} {p q : α → Prop} : (∃ x, p x ∨ q x) = ((∃ x, p x) ∨ ∃ x, q x) := by
+  apply propext; apply _root_.exists_or
+
+theorem exists_prop {a b : Prop} : (∃ _h : a, b) = (a ∧ b) := by
+  apply propext; apply _root_.exists_prop
+
+theorem exists_and_left {α : Sort u} {p : α → Prop} {b : Prop} : (∃ x, b ∧ p x) = (b ∧ (∃ x, p x)) := by
+  apply propext; apply _root_.exists_and_left
+
+theorem exists_and_right {α : Sort u} {p : α → Prop} {b : Prop} : (∃ x, p x ∧ b) = ((∃ x, p x) ∧ b) := by
+  apply propext; apply _root_.exists_and_right
+
 init_grind_norm
   /- Pre theorems -/
   not_and not_or not_ite not_forall not_exists

@@ -284,7 +284,7 @@ set_option linter.indexVariables false in
     (xs.drop i).toArray = xs.toArray.extract i n := by
   simp [drop]
 
-@[simp, grind] theorem toArray_empty : (#v[] : Vector α 0).toArray = #[] := rfl
+@[simp, grind =] theorem toArray_empty : (#v[] : Vector α 0).toArray = #[] := rfl
 
 @[simp, grind] theorem toArray_emptyWithCapacity {cap} :
     (Vector.emptyWithCapacity (α := α) cap).toArray = Array.emptyWithCapacity cap := rfl

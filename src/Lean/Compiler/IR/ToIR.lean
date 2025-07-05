@@ -131,38 +131,6 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
   | .fun .. => panic! "all local functions should be λ-lifted"
 
 partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
-  -- temporary fix: the old compiler inlines these too much as regular `let`s
-  let rec mkVar (v : VarId) : M FnBody := do
-    bindVarToVarId decl.fvarId v
-    lowerCode k
-  let rec mkExpr (e : Expr) : M FnBody := do
-    let var ← bindVar decl.fvarId
-    let type ← match e with
-    | .ctor .. | .pap .. | .ap .. | .proj .. => pure <| .object
-    | _ => toIRType decl.type
-    return .vdecl var type e (← lowerCode k)
-  let rec mkErased (_ : Unit) : M FnBody := do
-    bindErased decl.fvarId
-    lowerCode k
-  let rec mkPartialApp (e : Expr) (restArgs : Array Arg) : M FnBody := do
-    let var ← bindVar decl.fvarId
-    let tmpVar ← newVar
-    return .vdecl tmpVar .object e (.vdecl var .object (.ap tmpVar restArgs) (← lowerCode k))
-  let rec tryIrDecl? (name : Name) (args : Array Arg) : M (Option FnBody) := do
-    if let some decl ← LCNF.getMonoDecl? name then
-      let numArgs := args.size
-      let numParams := decl.params.size
-      if numArgs < numParams then
-        return some (← mkExpr (.pap name args))
-      else if numArgs == numParams then
-        return some (← mkExpr (.fap name args))
-      else
-        let firstArgs := args.extract 0 numParams
-        let restArgs := args.extract numParams numArgs
-        return some (← mkPartialApp (.fap name firstArgs) restArgs)
-    else
-      return none
-
   match decl.value with
   | .lit litValue =>
     mkExpr (.lit (lowerLitValue litValue))
@@ -291,6 +259,41 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
     | some .erased => mkErased ()
     | some (.joinPoint ..) | none => panic! "unexpected value"
   | .erased => mkErased ()
+where
+  mkVar (v : VarId) : M FnBody := do
+    bindVarToVarId decl.fvarId v
+    lowerCode k
+
+  mkExpr (e : Expr) : M FnBody := do
+    let var ← bindVar decl.fvarId
+    let type ← match e with
+    | .ctor .. | .pap .. | .ap .. | .proj .. => pure <| .object
+    | _ => toIRType decl.type
+    return .vdecl var type e (← lowerCode k)
+
+  mkErased (_ : Unit) : M FnBody := do
+    bindErased decl.fvarId
+    lowerCode k
+
+  mkPartialApp (e : Expr) (restArgs : Array Arg) : M FnBody := do
+    let var ← bindVar decl.fvarId
+    let tmpVar ← newVar
+    return .vdecl tmpVar .object e (.vdecl var .object (.ap tmpVar restArgs) (← lowerCode k))
+
+  tryIrDecl? (name : Name) (args : Array Arg) : M (Option FnBody) := do
+    if let some decl ← LCNF.getMonoDecl? name then
+      let numArgs := args.size
+      let numParams := decl.params.size
+      if numArgs < numParams then
+        return some (← mkExpr (.pap name args))
+      else if numArgs == numParams then
+        return some (← mkExpr (.fap name args))
+      else
+        let firstArgs := args.extract 0 numParams
+        let restArgs := args.extract numParams numArgs
+        return some (← mkPartialApp (.fap name firstArgs) restArgs)
+    else
+      return none
 
 partial def lowerAlt (discr : VarId) (a : LCNF.Alt) : M Alt := do
   match a with

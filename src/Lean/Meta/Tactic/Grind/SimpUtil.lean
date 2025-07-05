@@ -76,6 +76,8 @@ protected def getSimprocs : MetaM (Array Simprocs) := do
 /-- Returns the simplification context used by `grind`. -/
 protected def getSimpContext (config : Grind.Config) : MetaM Simp.Context := do
   let thms ← normExt.getTheorems
+  let thms ← thms.addDeclToUnfold ``GE.ge
+  let thms ← thms.addDeclToUnfold ``GT.gt
   Simp.mkContext
     (config := { arith := true, zeta := config.zeta, zetaDelta := config.zetaDelta, catchRuntime := false })
     (simpTheorems := #[thms])

@@ -154,8 +154,8 @@ expr mk_propext(expr const & lhs, expr const & rhs, expr const & iff_pr);
 bool is_eq_rec_core(expr const & e);
 /** \brief Return true iff \c e is a term of the form (eq.rec ....) */
 bool is_eq_rec(expr const & e);
-/** \brief Return true iff \c e is a term of the form (eq.ndrec ....) */
-bool is_eq_ndrec(expr const & e);
+/** \brief Return true iff \c e is a term of the form (eq.drec ....) */
+bool is_eq_drec(expr const & e);
 
 bool is_eq(expr const & e);
 bool is_eq(expr const & e, expr & lhs, expr & rhs);

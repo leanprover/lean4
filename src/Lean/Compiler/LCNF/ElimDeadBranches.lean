@@ -209,10 +209,10 @@ partial def getLiteral (v : Value) : CompilerM (Option ((Array CodeDecl) × FVar
     return none
 where
   go : Value → CompilerM ((Array CodeDecl) × FVarId)
-  | .ctor `Nat.zero #[] .. => do
+  | .ctor ``Nat.zero #[] .. => do
     let decl ← mkAuxLetDecl <| .lit <| .nat <| 0
     return (#[.let decl], decl.fvarId)
-  | .ctor `Nat.succ #[val] .. => do
+  | .ctor ``Nat.succ #[val] .. => do
     let val := getNatConstant val + 1
     let decl ← mkAuxLetDecl <| .lit <| .nat <| val
     return (#[.let decl], decl.fvarId)
@@ -228,8 +228,8 @@ where
   | _ => unreachable!
 
   getNatConstant : Value → Nat
-  | .ctor `Nat.zero #[] .. => 0
-  | .ctor `Nat.succ #[val] .. => getNatConstant val + 1
+  | .ctor ``Nat.zero #[] .. => 0
+  | .ctor ``Nat.succ #[val] .. => getNatConstant val + 1
   | _ => panic! "Not a well formed Nat constant Value"
 
 end Value

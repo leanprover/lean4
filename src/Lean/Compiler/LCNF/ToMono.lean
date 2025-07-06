@@ -52,6 +52,23 @@ def argToMono (arg : Arg) : ToMonoM Arg := argToMonoBase checkFVarUse arg
 def argToMonoDeferredCheck (resultFVar : FVarId) (arg : Arg) : ToMonoM Arg :=
   argToMonoBase (checkFVarUseDeferred resultFVar) arg
 
+def argsToMonoWithFnType (resultFVar : FVarId) (args : Array Arg) (type : Expr)
+    : ToMonoM (Array Arg) := do
+  let mut remainingType : Option Expr := some type
+  let mut result := Array.emptyWithCapacity args.size
+  for arg in args do
+    let monoArg ← if let some (.forallE _ d b _ ) := remainingType then
+      remainingType := some b
+      if d.isErased then
+        pure .erased
+      else
+        argToMonoDeferredCheck resultFVar arg
+    else
+      remainingType := none
+      argToMonoDeferredCheck resultFVar arg
+    result := result.push monoArg
+  return result
+
 def ctorAppToMono (resultFVar : FVarId) (ctorInfo : ConstructorVal) (args : Array Arg)
     : ToMonoM LetValue := do
   let argsNewParams : Array Arg ← args[*...ctorInfo.numParams].toArray.mapM fun arg => do
@@ -83,7 +100,11 @@ partial def LetValue.toMono (e : LetValue) (resultFVar : FVarId) : ToMonoM LetVa
       let env ← getEnv
       if isNoncomputable env declName && !(isExtern env declName) then
         modify fun s => { s with noncomputableVars := s.noncomputableVars.insert resultFVar declName }
-      return .const declName [] (← args.mapM (argToMonoDeferredCheck resultFVar))
+      let args ← if let some monoDecl ← getMonoDecl? declName then
+        argsToMonoWithFnType resultFVar args monoDecl.type
+      else
+        args.mapM (argToMonoDeferredCheck resultFVar)
+      return .const declName [] args
   | .fvar fvarId args =>
     if (← get).typeParams.contains fvarId then
       return .erased

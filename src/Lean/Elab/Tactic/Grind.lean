@@ -20,15 +20,11 @@ declare_config_elab elabGrindConfig Grind.Config
 open Command Term in
 @[builtin_command_elab Lean.Parser.Command.grindPattern]
 def elabGrindPattern : CommandElab := fun stx => do
-  trace[Meta.debug] "stx: {stx}"
-  let thmName : TSyntax `ident := ⟨stx[2]⟩
-  let terms : Syntax.TSepArray `term "," := ⟨stx[4].getArgs⟩
-  go thmName terms .global
---  match stx with
---  | `(grind_pattern $thmName:ident => $terms,*) => go thmName terms .global
---  | `(scoped grind_pattern $thmName:ident => $terms,*) => go thmName terms .scoped
---  | `(local grind_pattern $thmName:ident => $terms,*) => go thmName terms .local
---  | _ => throwUnsupportedSyntax
+  match stx with
+  | `(grind_pattern $thmName:ident => $terms,*) => go thmName terms .global
+  | `(scoped grind_pattern $thmName:ident => $terms,*) => go thmName terms .scoped
+  | `(local grind_pattern $thmName:ident => $terms,*) => go thmName terms .local
+  | _ => throwUnsupportedSyntax
 where
   go (thmName : TSyntax `ident) (terms : Syntax.TSepArray `term ",") (kind : AttributeKind) : CommandElabM Unit := liftTermElabM do
     let declName ← resolveGlobalConstNoOverload thmName

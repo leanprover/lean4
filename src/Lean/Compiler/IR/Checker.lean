@@ -133,7 +133,7 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
       throw s!"constructor '{c.name}' has too many fields"
     if c.ssize + c.usize * usizeSize > maxCtorScalarsSize then
       throw s!"constructor '{c.name}' has too many scalar fields"
-    if !ty.isStruct && !ty.isUnion && c.isRef then
+    if c.isRef then
       checkObjType ty
       checkArgs ys
   | .reset _ x =>

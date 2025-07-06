@@ -100,14 +100,6 @@ def isIrrelevant : IRType → Bool
   | irrelevant => true
   | _ => false
 
-def isStruct : IRType → Bool
-  | struct _ _ => true
-  | _ => false
-
-def isUnion : IRType → Bool
-  | union _ _ => true
-  | _ => false
-
 end IRType
 
 /-- Arguments to applications, constructors, etc.

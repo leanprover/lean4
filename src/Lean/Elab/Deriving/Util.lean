@@ -121,7 +121,8 @@ def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (
       let mut val      := mkIdent auxFunName
       if useAnonCtor then
         val ← `(⟨$val⟩)
-      let instCmd ← `(instance $binders:implicitBinder* : $type := $val)
+      let privTk? := if ctx.typeInfos.any (isPrivateName ·.name) then some .missing else none
+      let instCmd ← `($[private%$privTk?]? instance $binders:implicitBinder* : $type := $val)
       instances := instances.push instCmd
   return instances
 

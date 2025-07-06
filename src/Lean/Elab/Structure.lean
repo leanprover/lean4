@@ -937,6 +937,7 @@ private def elabParamInfoUpdates (structParams : Array Expr) (binders : Array Sy
 
 private def elabFieldTypeValue (structParams : Array Expr) (view : StructFieldView) :
     StructElabM (Option Expr × ExprMap (Syntax × BinderInfo) × Option StructFieldDefault) := do
+  withoutExporting (when := view.modifiers.isPrivate) do
   let state ← get
   let binders := view.binders.getArgs
   let (binders, paramInfoOverrides) ← elabParamInfoUpdates structParams binders

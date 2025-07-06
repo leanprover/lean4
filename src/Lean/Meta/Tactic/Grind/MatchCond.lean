@@ -148,9 +148,9 @@ Moreover, `C₁` is definitionally equal to `l t s`, and `C₂` is definitionall
 Then, if `grind` infers that `t = a` and `s = b`, it will detect that `l t s` and `l a b` are
 equal by congruence, and consequently `C₁` is equal to `C₂`.
 
-Gruesome details for heterogenous equalities.
+Gruesome details for heterogeneous equalities.
 
-When pattern matching on indexing families, the generated conditions often use heterogenous equalities. Here is an example:
+When pattern matching on indexing families, the generated conditions often use heterogeneous equalities. Here is an example:
 ```
 (∀ (x : Vec α 0), n = 0 → as ≍ Vec.nil → bs ≍ x → False)
 ```
@@ -164,7 +164,7 @@ to abstract its type. The following is produced in this case.
 ```
 The example makes it clear why this is needed, `as` and `bs` depend on `n`.
 Note that we can abstract the type without introducing type errors because
-heterogenous equality is used for `as` and `bs`.
+heterogeneous equality is used for `as` and `bs`.
 -/
 def collectMatchCondLhssAndAbstract (matchCond : Expr) : GoalM (Array Expr × Expr) := do
   let_expr Grind.MatchCond e := matchCond | return (#[], matchCond)

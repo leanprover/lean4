@@ -1926,7 +1926,7 @@ def withLCtx (lctx : LocalContext) (localInsts : LocalInstances) : n α → n α
   mapMetaM <| withLocalContextImp lctx localInsts
 
 /--
-Simpler version of `withLCtx` which just updates the local context. It is the responsability of the
+Simpler version of `withLCtx` which just updates the local context. It is the responsibility of the
 caller ensure the local instances are also properly updated.
 -/
 def withLCtx' (lctx : LocalContext) : n α → n α :=

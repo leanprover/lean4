@@ -1972,11 +1972,11 @@ def withMCtx (mctx : MetavarContext) : n α → n α :=
 def withoutModifyingMCtx : n α → n α :=
   mapMetaM fun x => do
     let mctx ← getMCtx
+    let cache := (← get).cache
     try
       x
     finally
-      resetCache
-      setMCtx mctx
+      modify fun s => { s with cache, mctx }
 
 @[inline] private def approxDefEqImp (x : MetaM α) : MetaM α :=
   withConfig (fun config => { config with foApprox := true, ctxApprox := true, quasiPatternApprox := true}) x

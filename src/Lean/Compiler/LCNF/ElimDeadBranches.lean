@@ -302,7 +302,7 @@ structure InterpState where
   `Value`s of functions in the `InterpContext` use during computation of
   the fixpoint. Afterwards they are stored into the `Environment`.
   -/
-  funVals     : PArray Value
+  funVals     : Array Value
 
 /--
 The monad which powers the abstract interpreter.

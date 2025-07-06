@@ -15,6 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_IR_Decl_elimDead(lean_object*);
 uint8_t l_Array_isEmpty___redArg(lean_object*);
+extern lean_object* l_Lean_IR_instInhabitedFnBody;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_FnBody_elimDead_spec__1(size_t, size_t, lean_object*);
 lean_object* l_Array_back_x21___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_flatten(lean_object*);
@@ -56,7 +57,7 @@ x_4 = l_Array_isEmpty___redArg(x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_11; 
-x_5 = lean_box(13);
+x_5 = l_Lean_IR_instInhabitedFnBody;
 x_6 = l_Array_back_x21___redArg(x_5, x_1);
 x_7 = lean_array_pop(x_1);
 switch (lean_obj_tag(x_6)) {

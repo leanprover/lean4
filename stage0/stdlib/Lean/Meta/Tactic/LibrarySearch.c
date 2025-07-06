@@ -36,6 +36,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_solveByElim(lean_object*, uin
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_librarySearch(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_librarySearchLemma___lam__0___closed__12;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_addImport___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_profileitM___at___Lean_Meta_synthInstance_x3f_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 static lean_object* l_Lean_Meta_LibrarySearch_initFn___closed__11____x40_Lean_Meta_Tactic_LibrarySearch___hyg_4_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_addImport___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -209,7 +210,6 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Meta_LibrarySearch_
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_abortSpeculation(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_interleaveWith___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
-lean_object* l_Lean_profileitM___at___Lean_Meta_synthInstance_x3f_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
@@ -5000,7 +5000,7 @@ lean_closure_set(x_13, 2, x_2);
 lean_closure_set(x_13, 3, x_3);
 lean_closure_set(x_13, 4, x_4);
 x_14 = lean_box(0);
-x_15 = l_Lean_profileitM___at___Lean_Meta_synthInstance_x3f_spec__1___redArg(x_5, x_11, x_13, x_14, x_6, x_7, x_8, x_9, x_10);
+x_15 = l_Lean_profileitM___at___Lean_Meta_synthInstance_x3f_spec__0___redArg(x_5, x_11, x_13, x_14, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_11);
 return x_15;
 }

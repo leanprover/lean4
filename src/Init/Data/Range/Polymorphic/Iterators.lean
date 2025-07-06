@@ -11,7 +11,7 @@ public import Init.Data.Range.Polymorphic.Basic
 public import Init.Data.Iterators.Combinators.Attach
 public import Init.Data.Stream
 
-public section
+public @[expose] section
 
 open Std.Iterators
 
@@ -34,7 +34,7 @@ instance {sl su α} [UpwardEnumerable α] [BoundedUpwardEnumerable sl α] :
 Returns the elements of the given range as a list in ascending order, given that ranges of the given
 type and shape support this function and the range is finite.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def toList {sl su α} [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [SupportsUpperBound su α]
     (r : PRange ⟨sl, su⟩ α)

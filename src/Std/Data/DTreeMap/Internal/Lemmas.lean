@@ -3,9 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.HashMap.Basic
-import Std.Data.DTreeMap.Internal.WF.Lemmas
+public import Std.Data.HashMap.Basic
+meta import Std.Data.HashMap.Basic
+public import Std.Data.DTreeMap.Internal.WF.Lemmas
+
+public @[expose] section
 
 /-!
 # Internal lemmas about the tree map
@@ -25,7 +30,7 @@ universe u v w w'
 namespace Std.DTreeMap.Internal.Impl
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {instOrd : Ord α} {t : Impl α β}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 attribute [local instance low] beqOfOrd
 
@@ -53,11 +58,13 @@ theorem compare_ne_iff_beq_eq_false {a b : α} :
     compare a b ≠ Ordering.eq ↔ (a == b) = false := by
   simp only [ne_eq, compare_eq_iff_beq, Bool.not_eq_true]
 
-private def helperLemmaNames : Array Name :=
+/-- TODO: should be allowed to be private again -/
+def helperLemmaNames : Array Name :=
   #[``compare_eq_iff_beq, ``compare_beq_eq_beq, ``compare_ne_iff_beq_eq_false,
     ``Bool.not_eq_true, ``mem_iff_contains]
 
-private def modifyMap : Std.HashMap Name Name :=
+/-- TODO: should be allowed to be private again -/
+def modifyMap : Std.HashMap Name Name :=
   .ofList
     [⟨`insert, ``toListModel_insert⟩,
      ⟨`insertIfNew, ``toListModel_insertIfNew⟩,
@@ -73,7 +80,8 @@ private def modifyMap : Std.HashMap Name Name :=
      (`map, ``toListModel_map),
      (`filterMap, ``toListModel_filterMap)]
 
-private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSyntax `term))) :=
+/-- TODO: should be allowed to be private again -/
+def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSyntax `term))) :=
   .ofList
     [⟨`isEmpty, (``isEmpty_eq_isEmpty, #[``(_root_.List.Perm.isEmpty_eq)])⟩,
      ⟨`contains, (``contains_eq_containsKey, #[``(containsKey_of_perm)])⟩,
@@ -124,7 +132,7 @@ private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSynta
       #[``(_root_.List.Perm.congr_left), ``(_root_.List.Perm.congr_right)])⟩]
 
 /-- Internal implementation detail of the tree map -/
-scoped syntax "simp_to_model" (" [" (ident,*) "]")? ("using" term)? : tactic
+syntax "simp_to_model" (" [" (ident,*) "]")? ("using" term)? : tactic
 
 macro_rules
 | `(tactic| simp_to_model $[[$names,*]]? $[using $using?]?) => do

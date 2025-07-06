@@ -53,7 +53,7 @@ abbrev MatchCond (p : Prop) : Prop := p
 Similar to `MatchCond`, but not reducible. We use it to ensure `simp`
 will not eliminate it. After we apply `simp`, we replace it with `MatchCond`.
 -/
-def PreMatchCond (p : Prop) : Prop := p
+@[expose] def PreMatchCond (p : Prop) : Prop := p
 
 theorem nestedProof_congr (p q : Prop) (h : p = q) (hp : p) (hq : q) : @nestedProof p hp ≍ @nestedProof q hq := by
   subst h; apply HEq.refl

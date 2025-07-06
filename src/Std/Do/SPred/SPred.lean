@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
+module
+
 prelude
-import Init.Ext
-import Std.Do.SPred.SVal
+public import Init.Ext
+public import Std.Do.SPred.SVal
+
+public @[expose] section
 
 /-!
 # State-indexed predicates
@@ -27,7 +31,7 @@ abbrev SPred (σs : List Type) : Type := SVal σs Prop
 namespace SPred
 
 /-- A pure proposition `P : Prop` embedded into `SPred`. For internal use in this module only; prefer to use idiom bracket notation `⌜P⌝. -/
-private abbrev pure {σs : List Type} (P : Prop) : SPred σs := SVal.curry (fun _ => P)
+abbrev pure {σs : List Type} (P : Prop) : SPred σs := SVal.curry (fun _ => P)
 
 @[ext]
 theorem ext {σs : List Type} {P Q : SPred (σ::σs)} : (∀ s, P s = Q s) → P = Q := funext

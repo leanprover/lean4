@@ -482,9 +482,19 @@ where
   visitAppDefaultConst (f : Expr) (args : Array Expr) : M Arg := do
     let env ← getEnv
     let .const declName us := CSimp.replaceConstants env f | unreachable!
-    let args ← args.mapM visitAppArg
     if hasNeverExtractAttribute env declName then
       modify fun s => {s with shouldCache := false }
+    let args ← if let some (.ctorInfo ctorInfo) := env.find? declName then
+      let mut newArgs := Array.emptyWithCapacity args.size
+      for h : i in [:args.size] do
+        let newArg ← if i < ctorInfo.numParams then
+          pure .erased
+        else
+          visitAppArg args[i]
+        newArgs := newArgs.push newArg
+      pure newArgs
+    else
+      args.mapM visitAppArg
     letValueToArg <| .const declName us args
 
   /-- Eta expand if under applied, otherwise apply k -/

@@ -166,14 +166,21 @@ def Decl.reduceArity (decl : Decl) : CompilerM (Array Decl) := do
         auxDecl.saveMono
         return auxDecl
       let updateDecl : InternalizeM Decl := do
-        let params ← decl.params.mapM internalizeParam
+        let mut params := Array.emptyWithCapacity decl.params.size
         let mut args := #[]
-        for used in mask, param in params do
-          if used then
+        for used in mask, param in decl.params do
+          let param ← if used then
+            let param ← internalizeParam param
             args := args.push param.toArg
+            pure param
+          else
+            mkParam param.binderName erasedExpr param.borrow
+          params := params.push param
         let letDecl ← mkAuxLetDecl (.const auxName [] args)
-        let value := .code (.let letDecl (.return letDecl.fvarId))
-        let decl := { decl with params, value, inlineAttr? := some .inline, recursive := false }
+        let code := .let letDecl (.return letDecl.fvarId)
+        let type ← mkForallParams params (← code.inferType)
+        let value := .code code
+        let decl := { decl with type, params, value, inlineAttr? := some .inline, recursive := false }
         decl.saveMono
         return decl
       let unusedParams := decl.params.filter fun param => !used.contains param.fvarId

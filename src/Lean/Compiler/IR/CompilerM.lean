@@ -10,8 +10,10 @@ import Lean.Compiler.IR.Basic
 import Lean.Compiler.IR.Format
 import Lean.Compiler.MetaAttr
 import Lean.Compiler.ExportAttr
+import Lean.Compiler.LCNF.PhaseExt
 
 namespace Lean.IR
+open Compiler.LCNF (getDeclVisibility)
 
 inductive LogEntry where
   | step (cls : Name) (decls : Array Decl)
@@ -75,47 +77,6 @@ private abbrev findAtSorted? (decls : Array Decl) (declName : Name) : Option Dec
   let tmpDecl := Decl.extern declName #[] default default
   decls.binSearch tmpDecl declLt
 
-namespace CollectUsedFDecls
-
-abbrev M := StateM NameSet
-
-@[inline] def collect (f : FunId) : M Unit :=
-  modify fun s => s.insert f
-
-partial def collectFnBody : FnBody → M Unit
-  | .vdecl _ _ v b   =>
-    match v with
-    | .fap f _ => collect f *> collectFnBody b
-    | .pap f _ => collect f *> collectFnBody b
-    | _        => collectFnBody b
-  | .jdecl _ _ v b   => collectFnBody v *> collectFnBody b
-  | .case _ _ _ alts => alts.forM fun alt => collectFnBody alt.body
-  | e => unless e.isTerminal do collectFnBody e.body
-
-def collectDecl : Decl → M NameSet
-  | .fdecl (body := b) .. => collectFnBody b *> get
-  | .extern .. => get
-
-end CollectUsedFDecls
-
-/-- Adds to `used` all `Decl.fdecl`s referenced directly by `decl`. -/
-def collectUsedFDecls (decl : Decl) (used : NameSet := {}) : NameSet :=
-  (CollectUsedFDecls.collectDecl decl).run' used
-
-/-- Computes the closure of `Decl.fdecl`s referenced by `decl`. -/
-def getFDeclClosure (m : DeclMap) (decls : Array Decl) : NameSet := Id.run do
-  let mut toVisit := decls.map (·.name) |>.toList
-  let mut res : NameSet := .ofList toVisit
-  while !toVisit.isEmpty do
-    let n :: toVisit' := toVisit | continue
-    toVisit := toVisit'
-    let some d := m.find? n | continue
-    for d' in collectUsedFDecls d do
-      if !res.contains d' then
-        res := res.insert d'
-        toVisit := d' :: toVisit
-  return res
-
 builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
   registerSimplePersistentEnvExtension {
     addImportedFn := fun _ => {}
@@ -125,22 +86,20 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
     exportEntriesFnEx? := some fun env s entries level =>
       let decls := entries.foldl (init := #[]) fun decls decl => decls.push decl
       let entries := sortDecls decls
-      let metaClosure := getFDeclClosure s (decls.filter (isMeta env ·.name))
       if env.header.isModule then
-        entries.map fun
-          | d@(.fdecl f xs ty b info) =>
-            -- The interpreter may call the boxed variant even if the IR does not directly reference
-            -- it.
-            let n := match f with
-              | .str n "_boxed" => n
-              | n => n
-            if metaClosure.contains n then
-              d
-            else if let some (.str _ s) := getExportNameFor? env n then
-              .extern f xs ty { arity? := xs.size, entries := [.standard `all s] }
+        entries.filterMap fun d =>
+          -- dbg_trace "{d.name}: {repr <| getDeclVisibility env d.name}"
+          match getDeclVisibility env d.name with
+          | .transparent => some d
+          | .opaque =>
+            match d with
+            | d@(.fdecl f xs ty b info) =>
+            if let some (.str _ s) := getExportNameFor? env f then
+              some <| .extern f xs ty { arity? := xs.size, entries := [.standard `all s] }
             else
-              .extern f xs ty { arity? := xs.size, entries := [.opaque f] }
-          | d => d
+              some <| .extern f xs ty { arity? := xs.size, entries := [.opaque f] }
+            | d => some d
+          | .private => none
       else entries
     -- Written to on codegen environment branch but accessed from other elaboration branches when
     -- calling into the interpreter. We cannot use `async` as the IR declarations added may not
@@ -157,12 +116,6 @@ private def exportIREntries (env : Environment) : Array (Name × Array EnvExtens
   let entries : Array EnvExtensionEntry := unsafe unsafeCast <| sortDecls decls
   #[(``declMapExt, entries)]
 
-/-- Retrieves IR for codegen purposes, i.e. independent of `meta import`. -/
-def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
-  match env.getModuleIdxFor? declName with
-  | some modIdx => findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
-  | none        => declMapExt.getState env |>.find? declName
-
 @[export lean_ir_find_env_decl]
 private def findInterpreterDecl (env : Environment) (declName : Name) : Option Decl :=
   match env.getModuleIdxFor? declName with
@@ -176,6 +129,12 @@ private def findInterpreterDecl (env : Environment) (declName : Name) : Option D
     return decl
   | none => declMapExt.getState env |>.find? declName
 
+/-- Retrieves IR for codegen purposes, i.e. independent of `meta import`. -/
+def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
+    match env.getModuleIdxFor? declName with
+    | some modIdx => findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
+    | none        => declMapExt.getState env |>.find? declName
+
 def findDecl (n : Name) : CompilerM (Option Decl) :=
   return findEnvDecl (← getEnv) n
 
@@ -186,14 +145,12 @@ def getDecl (n : Name) : CompilerM Decl := do
   let (some decl) ← findDecl n | throwError s!"unknown declaration '{n}'"
   return decl
 
-def addDeclAux (env : Environment) (decl : Decl) : Environment :=
-  declMapExt.addEntry (env.addExtraName decl.name) decl
-
+/-- Returns the list of IR declarations in declaration order. -/
 def getDecls (env : Environment) : List Decl :=
   declMapExt.getEntries env
 
-def addDecl (decl : Decl) : CompilerM Unit :=
-  modifyEnv fun env => declMapExt.addEntry (env.addExtraName decl.name) decl
+def addDecl (decl : Decl) : CompilerM Unit := do
+  modifyEnv (declMapExt.addEntry · decl)
 
 def addDecls (decls : Array Decl) : CompilerM Unit :=
   decls.forM addDecl
@@ -221,6 +178,11 @@ def getSorryDep (env : Environment) (declName : Name) : Option Name :=
   match findEnvDecl env declName with
   | some (.fdecl (info := { sorryDep? := dep?, .. }) ..) => dep?
   | _ => none
+
+@[export lean_get_ir_extra_const_names]
+private def getIRExtraConstNames (env : Environment) (level : OLeanLevel) : Array Name :=
+  declMapExt.getEntries env |>.toArray.map (·.name)
+    |>.filter (level == .private || getDeclVisibility env · != .private)
 
 end IR
 end Lean

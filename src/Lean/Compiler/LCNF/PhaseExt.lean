@@ -8,6 +8,49 @@ import Lean.Compiler.LCNF.PassManager
 
 namespace Lean.Compiler.LCNF
 
+/--
+Modifiers adjusting export behavior of IR declarations for `import`. Note that `meta import`
+includes all information.
+-/
+inductive DeclVisibility where
+  /-- Do not export. -/
+  | «private»
+  /-- Export signature only, as `opaque` extern. -/
+  | «opaque»
+  /-- Export everything. -/
+  | transparent
+deriving Inhabited, BEq, Repr, Ord
+
+instance : LE DeclVisibility := leOfOrd
+
+/-- Visibility of local declarations, not persisted. -/
+private builtin_initialize declVisibilityExt : EnvExtension (List Name × NameMap DeclVisibility) ←
+  registerEnvExtension
+    (mkInitial := pure ([], {}))
+    (asyncMode := .sync)
+    (replay? := some <| fun oldState newState _ s =>
+      let newEntries := newState.1.take (newState.1.length - oldState.1.length)
+      newEntries.foldl (init := s) fun s n =>
+        if s.1.contains n then
+          s
+        else
+          (n :: s.1, s.2.insert n (newState.2.find? n).get!))
+
+def getDeclVisibility (env : Environment) (declName : Name) : DeclVisibility :=
+  -- The interpreter may call the boxed variant even if the IR does not directly reference it, so
+  -- use same visibility as base decl.
+  let inferFor := match declName with
+    | .str n "_boxed" => n
+    | n               => n
+  declVisibilityExt.getState env |>.2.find? inferFor |>.getD .private
+
+def bumpDeclVisibility (env : Environment) (declName : Name) (visibility : DeclVisibility) : Environment :=
+  if getDeclVisibility env declName ≥ visibility then
+    env
+  else
+    declVisibilityExt.modifyState env fun s =>
+      (declName :: s.1, s.2.insert declName visibility)
+
 abbrev DeclExtState := PHashMap Name Decl
 
 private abbrev declLt (a b : Decl) :=
@@ -33,16 +76,14 @@ def mkDeclExt (name : Name := by exact decl_name%) : IO DeclExt :=
     mkInitial := pure {},
     addImportedFn := fun _ => pure {},
     addEntryFn := fun s decl => s.insert decl.name decl
-    exportEntriesFnEx env s level := Id.run do
+    exportEntriesFnEx env s _ := Id.run do
       let mut entries := sortedDecls s
-      if level != .private then
-        entries := entries.map fun decl =>
-          if decl.isTemplateLikeCore env then
-            -- ensure templates are available to downstream modules
-            decl
-          else
-            -- hide body but not signature
-            { decl with value := .extern { arity? := decl.getArity, entries := [.opaque decl.name] } }
+      if env.header.isModule then
+        entries := entries.filterMap fun decl =>
+          match getDeclVisibility env decl.name with
+          | .transparent => some decl
+          | .opaque => some { decl with value := .extern { arity? := decl.getArity, entries := [.opaque decl.name] } }
+          | .private => none
       return entries
     statsFn := fun s =>
       let numEntries := s.foldl (init := 0) (fun count _ _ => count + 1)

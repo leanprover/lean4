@@ -520,7 +520,7 @@
     tags: [fast]
   run_config:
     <<: *time
-    cmd: ./hashmap.lean.out
+    cmd: ./hashmap.lean.out 11 1000
     parse_output: true
   build_config:
     cmd: ./compile.sh hashmap.lean

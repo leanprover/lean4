@@ -1010,7 +1010,7 @@ partial def simpLoop (e : Expr) : SimpM Result := withIncRecDepth do
     if let some result := cache.find? e then
       return result
   if (← get).numSteps > cfg.maxSteps then
-    throwError "simp failed, maximum number of steps exceeded"
+    throwError "simp failed, maximum number of steps exceeded. To increase steps, configure the maxSteps setting."
   else
     checkSystem "simp"
     modify fun s => { s with numSteps := s.numSteps + 1 }

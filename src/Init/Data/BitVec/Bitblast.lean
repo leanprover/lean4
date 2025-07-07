@@ -2192,18 +2192,17 @@ theorem uppcRec_true_iff (x : BitVec w) (s : Nat) (h : s < w) :
         intro h'
         by_cases hbit: x[w - s]
         · simp [hbit]
-        · sorry
-          -- have := BitVec.le_toNat_iff (x := x) (i := w - s) (by omega)
-          -- simp only [h', hbit, _root_.and_self, forall_const] at this
-          -- simp only [true_iff] at this
-          -- obtain ⟨k, hk⟩ := this
-          -- by_cases hwk : w - s + k < w + 1
-          -- · by_cases hk' : 0 < k
-          --   · have hle := ge_two_pow_of_testBit hk
-          --     have hpowle := Nat.pow_le_pow_of_le (a := 2) ( n := (w - (s - 1))) (m := (w - s + k)) (by omega) (by omega)
-          --     omega
-          --   · simp_all [show k = 0 by omega]
-          -- · simp_all
+        · have := BitVec.le_toNat_iff (x := x) (i := w - s) (by omega)
+          simp only [h', hbit, _root_.and_self, forall_const] at this
+          simp only [true_iff] at this
+          obtain ⟨k, hk⟩ := this
+          by_cases hwk : w - s + k < w + 1
+          · by_cases hk' : 0 < k
+            · have hle := ge_two_pow_of_testBit hk
+              have hpowle := Nat.pow_le_pow_of_le (a := 2) ( n := (w - (s - 1))) (m := (w - s + k)) (by omega) (by omega)
+              omega
+            · simp_all [show k = 0 by omega]
+          · simp_all
 
 /--
   conjunction for fast umulOverflow circuit

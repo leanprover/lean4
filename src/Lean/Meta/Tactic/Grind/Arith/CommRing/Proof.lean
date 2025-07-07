@@ -23,14 +23,14 @@ def toContextExpr : RingM Expr := do
   if h : 0 < ring.vars.size then
     RArray.toExpr ring.type id (RArray.ofFn (ring.vars[·]) h)
   else
-    RArray.toExpr ring.type id (RArray.leaf (mkApp ring.natCastFn (toExpr 0)))
+    RArray.toExpr ring.type id (RArray.leaf (mkApp (← getNatCastFn) (toExpr 0)))
 
 private def toSContextExpr' : SemiringM Expr := do
   let semiring ← getSemiring
   if h : 0 < semiring.vars.size then
     RArray.toExpr semiring.type id (RArray.ofFn (semiring.vars[·]) h)
   else
-    RArray.toExpr semiring.type id (RArray.leaf (mkApp semiring.natCastFn (toExpr 0)))
+    RArray.toExpr semiring.type id (RArray.leaf (mkApp (← getNatCastFn') (toExpr 0)))
 
 /-- Similar to `toContextExpr`, but for semirings. -/
 private def toSContextExpr (semiringId : Nat) : RingM Expr := do
@@ -391,9 +391,12 @@ private def mkStepPrefix (declName declNameC : Name) : ProofM Expr := do
   else
     mkStepBasicPrefix declName
 
-private def getSemiringOf : RingM Semiring := do
+private def getSemiringIdOf : RingM Nat := do
   let some semiringId := (← getRing).semiringId? | throwError "`grind` internal error, semiring is not available"
-  SemiringM.run semiringId do getSemiring
+  return semiringId
+
+private def getSemiringOf : RingM Semiring := do
+  SemiringM.run (← getSemiringIdOf) do getSemiring
 
 private def mkSemiringPrefix (declName : Name) : ProofM Expr := do
   let sctx ← getSContext
@@ -403,7 +406,7 @@ private def mkSemiringPrefix (declName : Name) : ProofM Expr := do
 private def mkSemiringAddRightCancelPrefix (declName : Name) : ProofM Expr := do
   let sctx ← getSContext
   let semiring ← getSemiringOf
-  let some addRightCancelInst := semiring.addRightCancelInst?
+  let some addRightCancelInst ← SemiringM.run (← getSemiringIdOf) do getAddRightCancelInst?
     | throwError "`grind` internal error, `AddRightCancel` instance is not available"
   return mkApp4 (mkConst declName [semiring.u]) semiring.type semiring.semiringInst addRightCancelInst sctx
 

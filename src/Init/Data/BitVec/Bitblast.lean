@@ -2467,25 +2467,6 @@ theorem getLsbD_true_of_clz_of_ne_zero {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0
   intro i hi
   simp [show w ≤ i by omega]
 
-
-theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
-    x.toNat < 2 ^ i ↔ (∀ k, x.getLsbD (i + k) = false) := by sorry
-  -- constructor
-  -- · intro h
-  --   apply Classical.byContradiction
-  --   intro hcontra
-  --   simp only [Classical.not_forall, not_eq_false] at hcontra
-  --   obtain ⟨k, hk⟩ := hcontra
-  --   have hle := ge_two_pow_of_testBit hk
-  --   by_cases hlt : i + k < w
-  --   · have := Nat.pow_le_pow_of_le (a := 2) (n := i) (m := i + k) (by omega) (by omega)
-  --     omega
-  --   · simp [show w ≤ i + k by omega] at hk
-  -- · intro h
-  --   apply Classical.byContradiction
-  --   intro hcontra
-  --   simp [BitVec.le_toNat_iff (x := x) (i := i) hi, h] at hcontra
-
 -- counterexample why we need hx:
 -- #eval 2 ^ (5 - clz (0#5) - 1) ≤ (0#5).toNat
 theorem toNat_le_of_clz {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
@@ -2507,7 +2488,7 @@ theorem lt_toNat_of_clz {x : BitVec w} (hx : x ≠ 0#w) :
   rcases w with _|w
   · simp [of_length_zero]
   · unfold clz
-    have hlt := toNat_lt_iff (x := x)
+    have hlt := BitVec.toNat_lt_iff (x := x)
     have hfalse := getLsbD_false_of_clzAuxRec (x := x) (n := w)
     have hzero := clzAuxRec_eq_zero_iff (x := x) (n := w) (by intro i hi; simp [show w + 1 ≤ i by omega]) (by omega)
     simp at hzero
@@ -2590,18 +2571,18 @@ theorem resRec_true_iff (x y : BitVec w) (s : Nat) (hs : s < w) (hs' : 0 < s) (h
               simp_all
 
 theorem getElem_of_lt_of_le {x : BitVec w} (hk' : k < w) (hlt: x.toNat < 2 ^ (k + 1)) (hle : 2 ^ k ≤ x.toNat):
-    x[k] = true := by sorry
-  -- have := BitVec.le_toNat_iff (x := x) (i := k) hk'
-  -- simp only [hle, true_iff] at this
-  -- obtain ⟨k',hk'⟩ := this
-  -- by_cases hkk' : k + k' < w
-  -- · have := ge_two_pow_of_testBit hk'
-  --   by_cases hzk' : k' = 0
-  --   · simp [hzk'] at hk'; exact hk'
-  --   · have := Nat.pow_lt_pow_of_lt (a := 2) (n := k) (m := k + k') (by omega) (by omega)
-  --     have := Nat.pow_le_pow_of_le (a := 2) (n := k + 1) (m := k + k') (by omega) (by omega)
-  --     omega
-  -- · simp [show w ≤ k + k' by omega] at hk'
+    x[k] = true := by
+  have := BitVec.le_toNat_iff (x := x) (i := k) hk'
+  simp only [hle, true_iff] at this
+  obtain ⟨k',hk'⟩ := this
+  by_cases hkk' : k + k' < w
+  · have := ge_two_pow_of_testBit hk'
+    by_cases hzk' : k' = 0
+    · simp [hzk'] at hk'; exact hk'
+    · have := Nat.pow_lt_pow_of_lt (a := 2) (n := k) (m := k + k') (by omega) (by omega)
+      have := Nat.pow_le_pow_of_le (a := 2) (n := k + 1) (m := k + k') (by omega) (by omega)
+      omega
+  · simp [show w ≤ k + k' by omega] at hk'
 
 theorem resRec_of_clz_le {x y : BitVec w} (hw : 1 < w) (hx : x ≠ 0#w) (hy : y ≠ 0#w):
     (clz x).toNat + (clz y).toNat ≤ w - 2 → resRec x y (w - 1) (by omega) (by omega) (by omega) := by

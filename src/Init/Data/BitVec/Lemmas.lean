@@ -5895,6 +5895,24 @@ theorem le_toNat_iff (x : BitVec w) (hi : i < w ) :
         omega
       · simp [show w + 1 ≤ i + k by omega] at hk
 
+theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
+    x.toNat < 2 ^ i ↔ (∀ k, x.getLsbD (i + k) = false) := by
+  constructor
+  · intro h
+    apply Classical.byContradiction
+    intro hcontra
+    simp only [Classical.not_forall, Bool.not_eq_false] at hcontra
+    obtain ⟨k, hk⟩ := hcontra
+    have hle := Nat.ge_two_pow_of_testBit hk
+    by_cases hlt : i + k < w
+    · have := Nat.pow_le_pow_of_le (a := 2) (n := i) (m := i + k) (by omega) (by omega)
+      omega
+    · simp [show w ≤ i + k by omega] at hk
+  · intro h
+    apply Classical.byContradiction
+    intro hcontra
+    simp [BitVec.le_toNat_iff (x := x) (i := i) hi, h] at hcontra
+
 /-! ### Deprecations -/
 
 set_option linter.missingDocs false

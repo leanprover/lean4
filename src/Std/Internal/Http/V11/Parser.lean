@@ -13,9 +13,16 @@ open Std Internal Parsec ByteArray
 namespace Std
 namespace Internal
 namespace Http
-namespace Data
+namespace V11
+namespace Parser
 
 syntax "b!" char : term
+
+def failNone (x : Option α) : Parser α :=
+  if let some res := x then
+    pure res
+  else
+    fail "expected value but got none"
 
 def toLowerFast (c : UInt8) : UInt8 :=
   if c >= 'A'.toUInt8 && c <= 'Z'.toUInt8 then
@@ -49,8 +56,8 @@ structure StatusLine where
 deriving Repr
 
 structure Header where
-  name : ByteArray
-  value : ByteArray
+  name : String
+  value : String
 deriving Repr
 
 inductive HttpType
@@ -74,7 +81,7 @@ def isTokenCharacter (c : UInt8) : Bool :=
     c != '?'.toUInt8 && c != '='.toUInt8 && c != '{'.toUInt8 && c != '}'.toUInt8 && c != ' '.toUInt8
 
 def parseRequestLine : Parser RequestLine := do
-  let method ← takeUntil (· == ' '.toUInt8)
+  let method ← takeWhile isTokenCharacter
   skipByte ' '.toUInt8
   let uri ← takeUntil (· == ' '.toUInt8)
   skipBytes " HTTP/".toUTF8
@@ -108,7 +115,7 @@ def parseHeader : Parser (Option Header) := do
     skipWhile (· == ' '.toUInt8)
     let value ← takeUntil (· == '\r'.toUInt8)
     skipBytes "\r\n".toUTF8
-    return some ⟨name, value⟩
+    return some ⟨← failNone (String.fromUTF8? name), ← failNone (String.fromUTF8? value)⟩
 
 def parseHexDigit : Parser UInt8 := do
   let b ← any
@@ -141,19 +148,19 @@ def parseChunkData (size : Nat) : Parser ByteArray := do
 def parseFixedBody (size : Nat)  : Parser ByteArray :=
   take size
 
-def findHeader (headers : Array Header) (name : String) : Option ByteArray :=
-  let nameBytes := name.toLower.toUTF8
-  headers.find? (fun h => h.name.toLowerCase == nameBytes) |>.map (·.value)
+def findHeader (headers : Array Header) (name : String) : Option String :=
+  let nameBytes := name.toLower
+  headers.find? (fun h => h.name.toLower == nameBytes) |>.map (·.value)
 
 def isChunkedEncoding (headers : Array Header) : Bool :=
   match findHeader headers "Transfer-Encoding" with
   | some value =>
-    value.toLowerCase == "chunked".toUTF8
+    value.toLower == "chunked"
   | none => false
 
 def getContentLength (headers : Array Header) : Option Nat :=
   match findHeader headers "Content-Length" with
-  | some value => (value |> String.fromUTF8?) >>= String.toNat?
+  | some value => String.toNat? value
   | none => none
 
 def shouldHaveBody (firstLine : StartLine) (headers : Array Header) : Bool :=
@@ -171,18 +178,18 @@ def parseFirstLine : Parser StartLine := do
     then return .response (← parseStatusLine)
     else return .request (← parseRequestLine)
 
-inductive HttpState : Type
-  | needFirstLine : HttpState
-  | needHeader : StartLine → HttpState
-  | needChunkedSize : HttpState
-  | needChunkedBody : Nat → Option ByteArray → HttpState
-  | needFixedBody : Nat → HttpState
-  | needData : HttpState → HttpState
-  | complete : HttpState
-  | receiveRequest : RequestLine → HttpState → HttpState
-  | receiveResponse : StatusLine → HttpState → HttpState
-  | receivedData (data : ByteArray) (next : HttpState) : HttpState
-  | failed (s : String) : HttpState
+inductive HttpState (t : Type) : Type
+  | needFirstLine : HttpState t
+  | needHeader : t → HttpState t
+  | needChunkedSize : HttpState t
+  | needChunkedBody : Nat → Option ByteArray → HttpState t
+  | needFixedBody : Nat → HttpState t
+  | needData : HttpState t → HttpState t
+  | complete : HttpState t
+  | receiveRequest : RequestLine → HttpState t → HttpState t
+  | receiveResponse : StatusLine → HttpState t → HttpState t
+  | receivedData (data : ByteArray) (next : HttpState t) : HttpState t
+  | failed (s : String) : HttpState t
 deriving Inhabited
 
 inductive State
@@ -190,9 +197,8 @@ inductive State
   | idle
   | sendingData
 
-structure HttpConnection where
-  type : HttpType := .response
-  state : HttpState := .needFirstLine
+structure HttpConnection (t : Type) where
+  state : HttpState t := .needFirstLine
   headers : Array Header := #[]
   buffer : ByteArray.Iterator := .mk .empty 0
   sendBuffer : Array ByteArray := #[]
@@ -200,7 +206,8 @@ deriving Inhabited
 
 namespace HttpConnection
 
-def step (parser : HttpConnection) (input : ByteArray) : HttpConnection :=
+/-
+def stepRequest (parser : HttpConnection RequestLine) (input : ByteArray) : HttpConnection RequestLine :=
   let buffer := parser.buffer.array.extract parser.buffer.idx parser.buffer.array.size
   let buffer := buffer ++ input
   let buffer := buffer.iter
@@ -211,7 +218,7 @@ def step (parser : HttpConnection) (input : ByteArray) : HttpConnection :=
     | .success buffer (.request res) => { parser with buffer, state := .receiveRequest res (.needHeader (.request res)) }
     | .success buffer (.response res) => { parser with buffer, state := .receiveResponse res (.needHeader (.response res)) }
     | .error _ .eof => { parser with buffer, state := .needData parser.state }
-    | .error _ (.other err) => { parser with buffer, state := .failed err }
+    | .error _ other => { parser with buffer, state := .failed (toString other) }
   | .needHeader startLine =>
     match parseHeader buffer with
     | .success buffer none =>
@@ -226,7 +233,7 @@ def step (parser : HttpConnection) (input : ByteArray) : HttpConnection :=
         { parser with state := .complete, buffer, headers := #[] }
     | .success buffer (some res) => { parser with buffer, headers := parser.headers.push res }
     | .error _ .eof => { parser with buffer, state := .needData parser.state }
-    | .error _ (.other err) => { parser with buffer, state := .failed err }
+    | .error _ err => { parser with buffer, state := .failed (toString err) }
   | .needChunkedSize =>
     match parseChunkSize buffer with
     | .success buffer (size, ext) =>
@@ -234,21 +241,16 @@ def step (parser : HttpConnection) (input : ByteArray) : HttpConnection :=
         then { parser with buffer, state := .complete }
         else { parser with buffer, state := .needChunkedBody size ext }
     | .error _ .eof => { parser with buffer, state := .needData parser.state }
-    | .error _ (.other err) => { parser with buffer, state := .failed err }
+    | .error _ err => { parser with buffer, state := .failed (toString err) }
   | .needChunkedBody size _ =>
     match parseChunkData size buffer with
     | .success buffer body => { parser with buffer, state := .receivedData body .needChunkedSize }
     | .error _ .eof => { parser with buffer, state := .needData parser.state }
-    | .error _ (.other err) => { parser with buffer, state := .failed err }
+    | .error _ err => { parser with buffer, state := .failed (toString err) }
   | .needFixedBody length =>
     match parseFixedBody length buffer with
     | .success buffer body => { parser with state := .receivedData body .complete, buffer }
     | .error _ .eof => { parser with buffer, state := .needData parser.state }
-    | .error _ (.other err) => { parser with buffer, state := .failed err }
+    | .error _ err => { parser with buffer, state := .failed (toString err) }
   | _ => { parser with buffer }
-
-end HttpConnection
-end Data
-end Http
-end Internal
-end Std
+-/

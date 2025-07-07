@@ -22,7 +22,7 @@ inductive Version
   | v11
   | v20
   | v30
-deriving Repr, Inhabited, BEq
+deriving Repr, Inhabited, BEq, DecidableEq
 
 namespace Version
 

@@ -32,30 +32,15 @@ namespace Method
 
 instance : ToString Method where
   toString
-    | .get     => "GET"
-    | .head    => "HEAD"
-    | .post    => "POST"
-    | .put     => "PUT"
-    | .delete  => "DELETE"
+    | .get => "GET"
+    | .head => "HEAD"
+    | .post => "POST"
+    | .put => "PUT"
+    | .delete => "DELETE"
     | .connect => "CONNECT"
     | .options => "OPTIONS"
-    | .trace   => "TRACE"
-    | .patch   => "PATCH"
-
-/--
-Converts `Nat` into a `Method`.
--/
-def ofNat : Nat → Option Method
-    | 0 => some .head
-    | 1 => some .get
-    | 2 => some .post
-    | 3 => some .put
-    | 4 => some .delete
-    | 5 => some .options
-    | 6 => some .connect
-    | 7 => some .trace
-    | 8 => some .patch
-    | _ => none
+    | .trace => "TRACE"
+    | .patch => "PATCH"
 
 /--
 Request methods are considered safe if their defined semantics are essentially read-only.

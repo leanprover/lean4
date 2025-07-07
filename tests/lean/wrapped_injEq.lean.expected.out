@@ -1,0 +1,6 @@
+Irreducible.WithWrapped.mk.injEq (n : Nat) (m : WrappedNat n) (n : Nat) (m : WrappedNat n) :
+  ({ n := n, m := m } = { n := n, m := m }) = (n = n ∧ HEq m m)
+Semireducible.WithWrapped.mk.injEq (n : Nat) (m : WrappedNat n) (n : Nat) (m : WrappedNat n) :
+  ({ n := n, m := m } = { n := n, m := m }) = (n = n ∧ HEq m m)
+Reducible.WithWrapped.mk.injEq (n : Nat) (m : WrappedNat n) (n : Nat) (m : WrappedNat n) :
+  ({ n := n, m := m } = { n := n, m := m }) = (n = n ∧ m = m)

@@ -199,3 +199,94 @@ def Tree.map (f : α → β) : (t : Tree α) → Tree β
 termination_by t => t
 
 end Tree
+
+
+-- Can we lift this to HashMap?
+
+section
+
+
+structure HashMap' (α : Type u) (β : Type v) [BEq α] [Hashable α] where
+  inner : DHashMap' α (fun _ => β)
+
+variable {α : Type u} {β : Type v} [BEq α] [Hashable α]
+
+noncomputable def HashMap'.sizeOf [SizeOf β] (m : HashMap' α β) : Nat :=
+  SizeOf.sizeOf m.inner
+
+noncomputable instance [SizeOf β] : SizeOf (HashMap' α β) where
+  sizeOf := HashMap'.sizeOf
+
+def HashMap'.emptyWithCapacity (capacity : Nat := 8) : HashMap' α β :=
+  .mk <| .emptyWithCapacity capacity
+
+def HashMap'.map (f : α → β → γ) (m : HashMap' α β) : HashMap' α γ :=
+  .mk <| m.inner.map f
+
+def HashMap'.insert (k : α) (v : β) (m : HashMap' α β) : HashMap' α β :=
+  .mk <| m.inner.insert k v
+
+def HashMap'.mapWithSize [SizeOf β] (m : HashMap' α β)
+  (f : (x : α) → (y : β) → SizeOf.sizeOf y < SizeOf.sizeOf m → γ) : HashMap' α γ :=
+  .mk <| m.inner.mapWithSize f
+
+@[wf_preprocess]
+theorem HashMap'.map_eq_mapWithSize [SizeOf β] (m : HashMap' α β) (f : (x : α) → β → γ) :
+  m.map f = m.mapWithSize (fun a x h => f a x) := by
+  sorry
+
+variable {α : Type u} {β : Type v} [BEq α] [Hashable α]
+
+
+end
+
+set_option genSizeOf false -- buggy
+
+structure Tree' (α : Type u) : Type u where
+  val : α
+  cs : HashMap' String (Tree' α)
+
+section SizeOf -- this can hopefully be automated
+
+mutual
+def Tree'.sizeOf [SizeOf α] : (t : Tree' α) → Nat
+  | ⟨val, cs⟩ => 1 + SizeOf.sizeOf val + sizeOf_aux3 cs
+termination_by structural t => t
+
+def Tree'.sizeOf_aux1 [SizeOf α] : (m : DHashMap' String (fun _ => Tree' α)) → Nat
+  | ⟨m⟩ => Tree'.sizeOf_aux2 m
+
+def Tree'.sizeOf_aux2 [SizeOf α] : (m : DHashMapModel String (fun _ => Tree' α)) → Nat
+  | ⟨_shape, _keys, data⟩ => (List.ofFn (fun i => Tree'.sizeOf (data i))).sum
+
+def Tree'.sizeOf_aux3 [SizeOf α] : (m : HashMap' String (Tree' α)) → Nat
+  | ⟨m⟩ => Tree'.sizeOf_aux1 m
+
+end
+
+instance [SizeOf α] : SizeOf (Tree' α) where
+  sizeOf := Tree'.sizeOf
+
+theorem Tree'.sizeOf_eq [SizeOf α] : (t : Tree' α) →
+  SizeOf.sizeOf t = 1 + SizeOf.sizeOf t.val + SizeOf.sizeOf t.cs := by
+  refine Tree'.rec
+    (motive_1 := fun t => _)
+    (motive_2 := fun cs => sizeOf_aux3 cs = SizeOf.sizeOf cs)
+    (motive_3 := fun cs => sizeOf_aux1 cs = SizeOf.sizeOf cs)
+    (motive_4 := fun m => sizeOf_aux2 m = SizeOf.sizeOf m)
+    (fun val cs ih => by simp [*, SizeOf.sizeOf, Tree'.sizeOf])
+    (fun m ih => by simp [*, sizeOf_aux3, SizeOf.sizeOf, HashMap'.sizeOf])
+    (fun m ih => ih)
+    (fun shape data ih => by simp [*, SizeOf.sizeOf, DHashMapModel.sizeOf, sizeOf_aux2])
+
+@[simp]
+theorem Tree'.sizeOf_eq' [SizeOf α] :
+    SizeOf.sizeOf (⟨v , c⟩ : Tree' α) = 1 + SizeOf.sizeOf v + SizeOf.sizeOf c :=
+  Tree'.sizeOf_eq _
+
+
+end SizeOf
+
+def Tree'.map (f : α → β) : (t : Tree' α) → Tree' β
+  | ⟨val, cs⟩ => ⟨f val, cs.map (fun _ t => t.map f)⟩
+termination_by t => t

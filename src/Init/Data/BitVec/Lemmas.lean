@@ -6064,9 +6064,9 @@ theorem clzAuxRec_eq_zero_iff {x : BitVec w} (h : ∀ i, n < i → x.getLsbD i =
         specialize h (w - 1)
         by_cases hw1 : w - 1 = 0
         · simp [hw1]
-        · simp [show 0 < w - 1 by omega] at h
+        · simp only [show 0 < w - 1 by omega, forall_const] at h
           rw [getLsbD_eq_getElem (by omega)] at h
-          simp [h] at h'
+          simp only [h, Bool.false_eq_true] at h'
     · simp only [clzAuxRec_zero, hx0, Bool.false_eq_true, reduceIte, toNat_ofNat,
       Nat.mod_two_pow_self, show ¬w = 0 by omega, false_iff, Bool.not_eq_true]
       by_cases hw1 : w = 1
@@ -6087,8 +6087,8 @@ theorem clzAuxRec_eq_zero_iff {x : BitVec w} (h : ∀ i, n < i → x.getLsbD i =
       · intro h'
         by_cases hlt : n + 1 < w - 1
         · specialize h (w - 1)
-          simp [hlt] at h
-          simp [h', show w - 1 < w by omega] at h
+          simp only [hlt, forall_const] at h
+          simp only [show w - 1 < w by omega, getLsbD_eq_getElem, h', Bool.true_eq_false] at h
         · omega
     · simp only [clzAuxRec_succ, hxn, Bool.false_eq_true, reduceIte]
       apply ihn
@@ -6205,8 +6205,6 @@ theorem getLsbD_true_of_clz_of_ne_zero {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0
   intro i hi
   simp [show w ≤ i by omega]
 
--- counterexample why we need hx:
--- #eval 2 ^ (5 - clz (0#5) - 1) ≤ (0#5).toNat
 theorem toNat_le_of_clz {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
     2 ^ (w - 1 - (clz x).toNat) ≤ x.toNat := by
   have : clz x < w := by exact clz_lt_iff_ne_zero.mpr hx
@@ -6215,11 +6213,11 @@ theorem toNat_le_of_clz {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
     rw [clz_eq_zero_iff (x := x) hw] at hc0
     exact hc0
   · have : 0 < x.clz.toNat := by omega
-    have h2 := getLsbD_true_of_clz_of_ne_zero (x := x) hw hx
-    rw [getLsbD_eq_getElem (by omega)] at h2
-    have h3 := Nat.ge_two_pow_of_testBit h2
-    push_cast at h3
-    exact h3
+    have hclz := getLsbD_true_of_clz_of_ne_zero (x := x) hw hx
+    rw [getLsbD_eq_getElem (by omega)] at hclz
+    have hge := Nat.ge_two_pow_of_testBit hclz
+    push_cast at hge
+    exact hge
 
 theorem lt_toNat_of_clz {x : BitVec w} (hx : x ≠ 0#w) :
     x.toNat < 2 ^ (w - (clz x).toNat) := by
@@ -6229,7 +6227,7 @@ theorem lt_toNat_of_clz {x : BitVec w} (hx : x ≠ 0#w) :
     have hlt := toNat_lt_iff (x := x)
     have hfalse := getLsbD_false_of_clzAuxRec (x := x) (n := w)
     have hzero := clzAuxRec_eq_zero_iff (x := x) (n := w) (by intro i hi; simp [show w + 1 ≤ i by omega]) (by omega)
-    simp at hzero
+    simp only [Nat.add_one_sub_one] at hzero
     by_cases hxw : x[w]
     · simp only [hxw, iff_true] at hzero
       simp only [Nat.add_one_sub_one, hzero, Nat.sub_zero, gt_iff_lt]

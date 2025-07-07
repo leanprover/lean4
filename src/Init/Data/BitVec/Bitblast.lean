@@ -2193,8 +2193,7 @@ theorem uppcRec_true_iff (x : BitVec w) (s : Nat) (h : s < w) :
         by_cases hbit: x[w - s]
         · simp [hbit]
         · have := BitVec.le_toNat_iff (x := x) (i := w - s) (by omega)
-          simp only [h', hbit, _root_.and_self, forall_const] at this
-          simp only [true_iff] at this
+          simp only [h', true_iff] at this
           obtain ⟨k, hk⟩ := this
           by_cases hwk : w - s + k < w + 1
           · by_cases hk' : 0 < k
@@ -2316,8 +2315,8 @@ theorem resRec_of_clz_le {x y : BitVec w} (hw : 1 < w) (hx : x ≠ 0#w) (hy : y 
 theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
     umulOverflow x y ↔ (((zeroExtend (w + 1) x) * (zeroExtend (w + 1) y)).getLsbD w || resRec x y (w - 1) (by omega) (by omega) (by omega)) := by
   rcases w with _|_|w
-  · simp [hw]; omega
-  · simp [hw]; omega
+  · simp; omega
+  · simp; omega
   · constructor
     · intro h
       simp [umulOverflow] at h

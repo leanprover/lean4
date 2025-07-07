@@ -219,8 +219,6 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
           match irArgs[2]! with
           | .var varId => mkVar varId
           | .irrelevant => mkErased ()
-        else if name == ``lcUnreachable then
-          return .unreachable
         else if let some irDecl ← findDecl name then
           let numArgs := irArgs.size
           let numParams := irDecl.params.size

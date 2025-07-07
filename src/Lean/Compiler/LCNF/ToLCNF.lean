@@ -618,6 +618,12 @@ where
       let type ← toLCNFType (← liftMetaM do Meta.inferType e)
       mkUnreachable type
 
+  visitLcUnreachable (e : Expr) : M Arg :=
+    let arity := 1
+    etaIfUnderApplied e arity do
+      let type ← toLCNFType (← liftMetaM do Meta.inferType e)
+      mkUnreachable type
+
   visitAndIffRecCore (e : Expr) (minorPos : Nat) : M Arg :=
     let arity := 5
     etaIfUnderApplied e arity do
@@ -694,6 +700,8 @@ where
         visitAndIffRecCore e (minorPos := 4)
       else if declName == ``False.rec || declName == ``Empty.rec || declName == ``False.casesOn || declName == ``Empty.casesOn then
         visitFalseRec e
+      else if declName == ``lcUnreachable then
+        visitLcUnreachable e
       else if let some casesInfo ← getCasesInfo? declName then
         visitCases casesInfo e
       else if let some arity ← getCtorArity? declName then

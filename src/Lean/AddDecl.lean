@@ -7,8 +7,20 @@ prelude
 import Lean.CoreM
 import Lean.Namespace
 import Lean.Util.CollectAxioms
+import Lean.Meta.Check
 
 namespace Lean
+
+register_builtin_option debug.elabCheck : Bool := {
+  defValue := false
+  group    := "debug"
+  descr    := "run declarations through the elaborator's typechecker before sending to the kernel"
+}
+register_builtin_option debug.elabCheck.theoremValues : Bool := {
+  defValue := true
+  group    := "debug"
+  descr    := "if false, then don't run theorem bodies through the elaborator's typechecker"
+}
 
 /-- Adds given declaration to the environment, respecting `debug.skipKernelTC`. -/
 def Kernel.Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration)
@@ -131,6 +143,13 @@ def addDecl (decl : Declaration) : CoreM Unit := do
       setEnv async.mainEnv
 where
   doAdd := do
+    if debug.elabCheck.get (← getOptions) then
+      profileitM Exception "elaborator type checking" (← getOptions) do
+        try
+          decl.check (checkTheoremValues := debug.elabCheck.theoremValues.get (← getOptions))
+        catch ex =>
+          addAsAxiom
+          throw ex
     profileitM Exception "type checking" (← getOptions) do
       withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
         if warn.sorry.get (← getOptions) then

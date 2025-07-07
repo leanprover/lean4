@@ -5,7 +5,9 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.InferType
+import Lean.Meta.WHNF
 import Lean.Meta.Sorry
+import Lean.Util.CollectLevelParams
 
 /-!
 This is not the Kernel type checker, but an auxiliary method for checking
@@ -308,4 +310,35 @@ def isTypeCorrect (e : Expr) : MetaM Bool := do
 builtin_initialize
   registerTraceClass `Meta.check
 
-end Lean.Meta
+end Meta
+
+open Meta
+
+/--
+Checks the declaration using the elaborator type checker.
+
+This is not currently a full check, and instead it just typechecks types and values
+of definition-like declarations.
+-/
+def Declaration.check (decl : Declaration) (checkTheoremValues : Bool := true) (safeOnly : Bool := true) : CoreM Unit := do
+  MetaM.run' <|
+  withOptions (fun opts => opts |>.set smartUnfolding.name false) <|
+  withTransparency TransparencyMode.all do
+    match decl with
+    | axiomDecl val => if !safeOnly || !val.isUnsafe then checkConstant val.toConstantVal none
+    | defnDecl val => if !safeOnly || val.safety == .safe then checkConstant val.toConstantVal val.value
+    | thmDecl val => checkConstant val.toConstantVal (if checkTheoremValues then val.value else none)
+    | opaqueDecl val => if !safeOnly || !val.isUnsafe then checkConstant val.toConstantVal val.value
+    | quotDecl => return
+    | mutualDefnDecl (_defns : List DefinitionVal) => return
+    | inductDecl _lparams _nparams _types _isUnsafe => return
+where
+  checkConstant (val : ConstantVal) (value? : Option Expr) : MetaM Unit := do
+    Meta.check val.type
+    if let some value := value? then
+      Meta.check value
+      let valueType ← inferType value
+      unless ← isDefEq val.type valueType do
+        throwError m!"declaration `{val.name}` {← mkHasTypeButIsExpectedMsg valueType val.type}"
+
+end Lean

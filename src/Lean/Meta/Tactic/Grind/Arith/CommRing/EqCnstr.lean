@@ -359,13 +359,13 @@ private def diseqToEq (a b : Expr) : RingM Unit := do
   let gen := max (← getGeneration a) (← getGeneration b)
   let ring ← getRing
   let some fieldInst := ring.fieldInst? | unreachable!
-  let e ← pre <| mkApp2 ring.subFn a b
+  let e ← pre <| mkApp2 (← getSubFn) a b
   modifyRing fun s => { s with invSet := s.invSet.insert e }
-  let eInv ← pre <| mkApp (← getRing).invFn?.get! e
-  let lhs ← pre <| mkApp2 ring.mulFn e eInv
+  let eInv ← pre <| mkApp (← getInvFn) e
+  let lhs ← pre <| mkApp2 (← getMulFn) e eInv
   internalize lhs gen none
   trace[grind.debug.ring.rabinowitsch] "{lhs}"
-  pushEq lhs ring.one <| mkApp5 (mkConst ``Grind.CommRing.diseq_to_eq [ring.u]) ring.type fieldInst a b (← mkDiseqProof a b)
+  pushEq lhs (← getOne) <| mkApp5 (mkConst ``Grind.CommRing.diseq_to_eq [ring.u]) ring.type fieldInst a b (← mkDiseqProof a b)
 
 private def diseqZeroToEq (a b : Expr) : RingM Unit := do
   -- Rabinowitsch transformation for `b = 0` case
@@ -373,11 +373,11 @@ private def diseqZeroToEq (a b : Expr) : RingM Unit := do
   let ring ← getRing
   let some fieldInst := ring.fieldInst? | unreachable!
   modifyRing fun s => { s with invSet := s.invSet.insert a }
-  let aInv ← pre <| mkApp (← getRing).invFn?.get! a
-  let lhs ← pre <| mkApp2 ring.mulFn a aInv
+  let aInv ← pre <| mkApp (← getInvFn) a
+  let lhs ← pre <| mkApp2 (← getMulFn) a aInv
   internalize lhs gen none
   trace[grind.debug.ring.rabinowitsch] "{lhs}"
-  pushEq lhs ring.one <| mkApp4 (mkConst ``Grind.CommRing.diseq0_to_eq [ring.u]) ring.type fieldInst a (← mkDiseqProof a b)
+  pushEq lhs (← getOne) <| mkApp4 (mkConst ``Grind.CommRing.diseq0_to_eq [ring.u]) ring.type fieldInst a (← mkDiseqProof a b)
 
 @[export lean_process_ring_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do

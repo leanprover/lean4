@@ -5879,11 +5879,8 @@ theorem le_toNat_iff (x : BitVec w) (hi : i < w ) :
         specialize hcontra j'
         have : x'.getLsbD (i + j') = x.getLsbD (i + j') := by
           subst x'
-          simp only [getLsbD_setWidth, Nat.add_lt_add_iff_left, Nat.lt_one_iff,
-            Bool.and_eq_right_iff_imp, decide_eq_true_eq]
-          intro h
-          simp only [h, Bool.true_eq_false] at hcontra
-        simp only [show j = i + j' by omega, testBit_toNat, this, hcontra]
+          simp [hcontra]
+        simp [show j = i + j' by omega, testBit_toNat, this, hcontra]
       have : x'.toNat = x.toNat := by
         have := BitVec.setWidth_eq_append (w := (w + 1)) (v := i + 1) (x := x')
         specialize this (by omega)

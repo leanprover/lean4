@@ -2182,14 +2182,11 @@ theorem uppcRec_true_iff (x : BitVec w) (s : Nat) (h : s < w) :
       simp only [or_eq_true, ihs, Nat.add_one_sub_one]
       have := Nat.pow_le_pow_of_le (a := 2) ( n := (w - s)) (m := (w - (s - 1))) (by omega) (by omega)
       constructor
-      · -- x.getMsbD s = true ∨ 2 ^ (w - (s - 1)) ≤ x.toNat → 2 ^ (w - s) ≤ x.toNat
-        -- note that x.getMsbD s = true = x.getLsbD (w - s)
-        intro h'
+      · intro h'
         by_cases hbit: x[w - s]
         · apply ge_two_pow_of_testBit hbit
         · simp [hbit] at h'; omega
-      · -- 2 ^ (w - s) ≤ x.toNat → x.getMsbD s = true ∨ 2 ^ (w - (s - 1)) ≤ x.toNat
-        intro h'
+      · intro h'
         by_cases hbit: x[w - s]
         · simp [hbit]
         · have := BitVec.le_toNat_iff (x := x) (i := w - s) (by omega)
@@ -2209,6 +2206,7 @@ theorem uppcRec_true_iff (x : BitVec w) (s : Nat) (h : s < w) :
 def aandRec (x y : BitVec w) (s : Nat) (hs : s < w) (hslt : 0 < s) : Bool :=
   if hs0 : s = 0 then (show False by omega).elim
     else y[s] && uppcRec x s (by omega)
+
 /--
   preliminary overflow flag for fast umulOverflow circuit
 -/
@@ -2276,19 +2274,15 @@ theorem resRec_true_iff (x y : BitVec w) (s : Nat) (hs : s < w) (hs' : 0 < s) (h
 theorem resRec_of_clz_le {x y : BitVec w} (hw : 1 < w) (hx : x ≠ 0#w) (hy : y ≠ 0#w):
     (clz x).toNat + (clz y).toNat ≤ w - 2 → resRec x y (w - 1) (by omega) (by omega) (by omega) := by
   intro h
-  have h1 := resRec_true_iff (x := x) (y := y) (s := w - 1) (by omega) (by omega) (by omega)
-  have h2 := BitVec.toNat_le_of_clz (x := x) (by omega) (by omega)
-  have h3 := BitVec.toNat_le_of_clz (x := y) (by omega) (by omega)
-  have h4 := BitVec.lt_toNat_of_clz (x := x) (by omega)
-  have h5 := BitVec.lt_toNat_of_clz (x := y) (by omega)
+  have hle := BitVec.toNat_le_of_clz (x := x) (by omega) (by omega)
   rw [resRec_true_iff]
   exists (w - 1 - y.clz.toNat)
   exists (by omega), (by omega)
   unfold aandRec
   by_cases hw0 : w - 1 - y.clz.toNat = 0
-  · have : y.clz.toNat < w := by have := clz_lt_iff_ne_zero.mpr (by omega); omega
+  · have := clz_lt_iff_ne_zero.mpr (by omega)
     omega
-  · simp only [hw0, reduceDIte, and_eq_true,
+  · simp only [hw0, ↓reduceDIte, and_eq_true,
       getLsbD_true_of_clz_of_ne_zero (x := y) (by omega) (by omega), getElem_of_getLsbD_eq_true,
       uppcRec_true_iff, show w - 1 - (w - 1 - y.clz.toNat - 1) = y.clz.toNat + 1 by omega,
       _root_.true_and]
@@ -2307,8 +2301,7 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
     · intro h
       simp [umulOverflow] at h
       by_cases h' : x.toNat * y.toNat < 2 ^ (w + 1 + 1 + 1)
-      · -- we use aux1 to show that ((zeroExtend (w + 1 + 1 + 1) x * zeroExtend (w + 1 + 1 + 1) y).getLsbD (w + 1 + 1) = true necessarily
-        have hh := BitVec.getElem_of_lt_of_le
+      · have hh := BitVec.getElem_of_lt_of_le
           (x := (zeroExtend (w + 1 + 1 + 1) x * zeroExtend (w + 1 + 1 + 1) y))
           (k := w + 1 + 1)
           (by omega)
@@ -2318,13 +2311,10 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
         simp only [h', h, forall_const] at hh
         rw [getLsbD_eq_getElem (by omega)]
         simp [hh]
-      · -- otherwise, we need to show that resRec is true
-        by_cases hsw : (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)[w + 1 + 1] = true
+      · by_cases hsw : (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)[w + 1 + 1] = true
         · simp [hsw]
         · simp only [truncate_eq_setWidth, Nat.lt_add_one, getLsbD_eq_getElem, hsw,
-            Nat.add_one_sub_one, Bool.false_or] -- just to get rid of the branch in the proof
-          -- need to show contradiction : massage the hypothesis on resRec
-          -- and move reasoning to leading zeros
+            Nat.add_one_sub_one, Bool.false_or]
           have : x ≠ 0#(w + 1 + 1) := by
             apply Classical.byContradiction
             intro hcontra
@@ -2339,49 +2329,36 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
             simp only [hcontra, toNat_ofNat, zero_mod, Nat.mul_zero, Nat.not_lt, le_zero_eq,
               Nat.pow_eq_zero, reduceCtorEq, ne_eq, Nat.add_eq_zero, succ_ne_self, _root_.and_false,
               _root_.and_self, not_false_eq_true, _root_.and_true] at h'
-          -- reasoning about the bounds of the product given the leading zeroes
-          have h1 := BitVec.toNat_le_of_clz (x := x) (by omega) (by omega)
-          have h2 := BitVec.toNat_le_of_clz (x := y) (by omega) (by omega)
-          have h3 := BitVec.lt_toNat_of_clz (x := x) (by omega)
-          have h4 := BitVec.lt_toNat_of_clz (x := y) (by omega)
-          have h5 := Nat.mul_le_mul (n₁ := x.toNat) (m₁ := y.toNat) (n₂ := 2 ^ (w + 1 + 1 - (x.clz).toNat) - 1) (m₂ := 2 ^ (w + 1 + 1 - (y.clz).toNat) - 1)
+          have hlex := BitVec.toNat_le_of_clz (x := x) (by omega) (by omega)
+          have hley := BitVec.toNat_le_of_clz (x := y) (by omega) (by omega)
+          have hltx := BitVec.lt_toNat_of_clz (x := x) (by omega)
+          have hlty := BitVec.lt_toNat_of_clz (x := y) (by omega)
+          have hmul := Nat.mul_le_mul (n₁ := x.toNat) (m₁ := y.toNat) (n₂ := 2 ^ (w + 1 + 1 - (x.clz).toNat) - 1) (m₂ := 2 ^ (w + 1 + 1 - (y.clz).toNat) - 1)
             (by
               simp only [le_iff_lt_add_one, ne_eq, Nat.pow_eq_zero, reduceCtorEq, _root_.false_and,
                 not_false_eq_true, sub_one_add_one]
-              exact h3
+              exact hltx
               )
             (by
               simp only [le_iff_lt_add_one, ne_eq, Nat.pow_eq_zero, reduceCtorEq, _root_.false_and,
                 not_false_eq_true, sub_one_add_one]
-              exact h4)
-          have h6 := Nat.mul_le_mul (n₁ := 2 ^ (w + 1 + 1 - 1 - x.clz.toNat)) (m₁ := 2 ^ (w + 1 + 1 - 1 - y.clz.toNat)) (n₂ := x.toNat) (m₂ := y.toNat) h1 h2
+              exact hlty)
           have h7 := resRec_of_clz_le (x := x) (y := y) (by omega) (by omega) (by omega)
           apply h7
           by_cases hzxy : x.clz.toNat + y.clz.toNat ≤ w
           · omega
-          · simp only [Nat.add_one_sub_one, ← Nat.pow_add] at h6
-            by_cases h10 : w + 1 - y.clz.toNat = 0
-            · -- show contra
-              by_cases h11 : w + 1 + 1 - y.clz.toNat = 0
-              · simp [h11] at h5
+          · by_cases w + 1 - y.clz.toNat = 0
+            · by_cases heq' : w + 1 + 1 - y.clz.toNat = 0
+              · simp [heq'] at hmul
                 omega
-              · simp_all only [Nat.not_lt, not_eq_true, ne_eq, Nat.add_one_sub_one, Nat.pow_zero,
-                  Nat.reduceSubDiff, Nat.reduceLeDiff, Nat.sub_eq_zero_of_le, forall_false,
-                  Nat.not_le, Nat.add_zero]
-                have h12 : w + 1 + 1 - y.clz.toNat = 1 := by omega
-                simp only [h12, Nat.pow_one, Nat.add_one_sub_one, Nat.mul_one] at h5
+              · simp only [show w + 1 + 1 - y.clz.toNat = 1 by omega, Nat.pow_one, Nat.add_one_sub_one, Nat.mul_one] at hmul
                 have := Nat.pow_lt_pow_of_lt (a := 2) (n := w + 1 + 1 - x.clz.toNat) (m := w + 1 + 1 + 1) (by omega) (by omega)
                 omega
-            · have h9 : w + 1 - x.clz.toNat + (w + 1 - y.clz.toNat) = w + 1 - x.clz.toNat + w + 1 - y.clz.toNat := by
-                omega
-              by_cases hzyw : w + 1 < y.clz.toNat
-              · have h11 : w + 1 - x.clz.toNat + w + 1 - y.clz.toNat = w + 1 - (x.clz.toNat + y.clz.toNat) + w + 1 := by omega
-                simp only [h9, h11] at h6
-                omega
-              · -- show contra
-                simp only [Nat.not_lt] at h'
-                have h12 := Nat.mul_lt_mul'' (a := x.toNat) (b := y.toNat) (c := 2 ^ (w + 1 + 1 - x.clz.toNat)) (d := 2 ^ (w + 1 + 1 - y.clz.toNat)) (by omega) (by omega)
-                simp only [← Nat.pow_add] at h12
+            · by_cases w + 1 < y.clz.toNat
+              · omega
+              · simp only [Nat.not_lt] at h'
+                have := Nat.mul_lt_mul'' (a := x.toNat) (b := y.toNat) (c := 2 ^ (w + 1 + 1 - x.clz.toNat)) (d := 2 ^ (w + 1 + 1 - y.clz.toNat)) (by omega) (by omega)
+                simp only [← Nat.pow_add] at this
                 have := Nat.pow_le_pow_of_le (a := 2) (n := w + 1 + 1 - x.clz.toNat + (w + 1 + 1 - y.clz.toNat)) (m := w + 1 + 1 + 1)
                  (by omega) (by omega)
                 omega

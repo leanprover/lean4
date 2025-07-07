@@ -17,7 +17,7 @@ def rewriteTarget (stx : Syntax) (symm : Bool) (config : Rewrite.Config := {}) :
     let e ← elabTerm stx none true
     if e.hasSyntheticSorry then
       throwAbortTactic
-    let r ← (← getMainGoal).rewrite (← getMainTarget) e symm (config := config)
+    let r ← (← getMainGoal).rewrite (← getMainTarget) e symm (config := config) (interactive := true)
     let mvarId' ← (← getMainGoal).replaceTargetEq r.eNew r.eqProof
     replaceMainGoal (mvarId' :: r.mvarIds)
 
@@ -30,7 +30,7 @@ def rewriteLocalDecl (stx : Syntax) (symm : Bool) (fvarId : FVarId) (config : Re
     if e.hasSyntheticSorry then
       throwAbortTactic
     let localDecl ← fvarId.getDecl
-    (← getMainGoal).rewrite localDecl.type e symm (config := config)
+    (← getMainGoal).rewrite localDecl.type e symm (config := config) (interactive := true)
   let replaceResult ← (← getMainGoal).replaceLocalDecl fvarId rwResult.eNew rwResult.eqProof
   replaceMainGoal (replaceResult.mvarId :: rwResult.mvarIds)
 

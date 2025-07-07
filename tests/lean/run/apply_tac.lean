@@ -5,7 +5,8 @@ open Lean.Meta
 open Lean.Elab.Tactic
 
 /--
-trace: a b c : Nat
+trace: case apply_2
+a b c : Nat
 h₁ : a = b
 h₂ : b = c
 ⊢ a = b

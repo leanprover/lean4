@@ -505,6 +505,18 @@ theorem getElem_ofBool {b : Bool} {h : i < 1}: (ofBool b)[i] = b := by
 @[simp] theorem zero_eq_one_iff (w : Nat) : (0#w = 1#w) ↔ (w = 0) := by
   rw [← one_eq_zero_iff, eq_comm]
 
+/-- A bitvector is equal to 0#w if and only if all bits are `false` -/
+theorem zero_iff_forall {x: BitVec w} :
+    x = 0#w ↔ ∀ i, x.getLsbD i = false := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · constructor
+    · intro hzero
+      simp [hzero]
+    · intro hfalse
+      ext j hj
+      simp [← getLsbD_eq_getElem, hfalse]
+
 /-! ### msb -/
 
 @[simp] theorem msb_zero : (0#w).msb = false := by simp [BitVec.msb, getMsbD]
@@ -5819,7 +5831,7 @@ theorem sle_eq_ule_of_msb_eq {x y : BitVec w} (h : x.msb = y.msb) : x.sle y = x.
 
 /-- A bitvector interpreted as a natural number is greater than or equal to `2 ^ i` if and only if
   there exists at least one bit with `true` value at position `i` or higher. -/
-theorem le_toNat_iff (x : BitVec w) (hi : i < w ) :
+theorem le_toNat_iff {x : BitVec w} (hi : i < w ) :
     (2 ^ i ≤ x.toNat) ↔ (∃ k, x.getLsbD (i + k) = true) := by
   rcases w with _|w
   · simp [of_length_zero]
@@ -5863,7 +5875,9 @@ theorem le_toNat_iff (x : BitVec w) (hi : i < w ) :
         omega
       · simp [show w + 1 ≤ i + k by omega] at hk
 
-theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
+/-- A bitvector interpreted as a natural number is strictly smaller than `2 ^ i` if and only if
+  all bits at position `i` or higher are false. -/
+theorem toNat_lt_iff {x : BitVec w} (i : Nat) (hi : i < w) :
     x.toNat < 2 ^ i ↔ (∀ k, x.getLsbD (i + k) = false) := by
   constructor
   · intro h
@@ -5881,9 +5895,11 @@ theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
     intro hcontra
     simp [BitVec.le_toNat_iff (x := x) (i := i) hi, h] at hcontra
 
-theorem getElem_of_lt_of_le {x : BitVec w} (hk' : k < w) (hlt: x.toNat < 2 ^ (k + 1)) (hle : 2 ^ k ≤ x.toNat):
+/-- If a bitvector interpreted as a natural number is strictly smaller than `2 ^ (k + 1)` and greater than or
+  equal to 2 ^ k, then the bit at position `k` must be `true` -/
+theorem getElem_of_lt_of_le {x : BitVec w} (hk' : k < w) (hlt: x.toNat < 2 ^ (k + 1)) (hle : 2 ^ k ≤ x.toNat) :
     x[k] = true := by
-  have := BitVec.le_toNat_iff (x := x) (i := k) hk'
+  have := le_toNat_iff (x := x) (i := k) hk'
   simp only [hle, true_iff] at this
   obtain ⟨k',hk'⟩ := this
   by_cases hkk' : k + k' < w
@@ -5903,7 +5919,7 @@ theorem clzAuxRec_zero (x : BitVec w) :
 theorem clzAuxRec_succ (x : BitVec w) :
     x.clzAuxRec (n + 1) = if x.getLsbD (n + 1) then BitVec.ofNat w (w - 1 - (n + 1)) else BitVec.clzAuxRec x n := by rfl
 
-theorem clzAuxRec_eq_clzAuxRec_of_le (x : BitVec w) (h : w - 1 ≤ n) :
+theorem clzAuxRec_eq_clzAuxRec_of_le {x : BitVec w} (h : w - 1 ≤ n) :
     x.clzAuxRec n = x.clzAuxRec (w - 1) := by
   let k := n - (w - 1)
   rw [show n = (w - 1) + k by omega]
@@ -5934,13 +5950,6 @@ theorem clzAuxRec_le {x : BitVec w} (n : Nat) :
         omega
       · simp only [hxn, Bool.false_eq_true, reduceIte, natCast_eq_ofNat, ge_iff_le]
         exact ihn
-
-theorem clz_le {x : BitVec w} :
-    clz x ≤ w := by
-  unfold clz
-  rcases w with _|w
-  · simp [of_length_zero]
-  · exact clzAuxRec_le (n := w)
 
 theorem clzAuxRec_eq_iff {x : BitVec w} (h : ∀ i, n < i → x.getLsbD i = false) :
     x.clzAuxRec n = w ↔ ∀ j, j ≤ n → x.getLsbD j = false := by
@@ -5983,19 +5992,12 @@ theorem clzAuxRec_eq_iff {x : BitVec w} (h : ∀ i, n < i → x.getLsbD i = fals
           · simp [hj', hxn]
           · apply h; omega
 
-theorem zero_iff_forall {x: BitVec w} :
-    x = 0#w ↔ ∀ i, i ≤ (w - 1) → x.getLsbD i = false := by
+theorem clz_le {x : BitVec w} :
+    clz x ≤ w := by
+  unfold clz
   rcases w with _|w
   · simp [of_length_zero]
-  · constructor
-    · intros hx i hi
-      simp [hx]
-    · intro h
-      ext j hj
-      specialize h j
-      simp only [Nat.add_one_sub_one, show j ≤ w by omega, forall_const] at h
-      simp only [getElem_zero]
-      exact h
+  · exact clzAuxRec_le (n := w)
 
 @[simp]
 theorem clz_eq_iff {x : BitVec w} :

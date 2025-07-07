@@ -21,12 +21,13 @@ def mStart (goal : Expr) : MetaM MStartResult := do
   if let some mgoal := parseMGoal? goal then
     return { goal := mgoal }
 
-  let listType := mkApp (mkConst ``List [.succ .zero]) (mkSort (.succ .zero))
-  let σs ← mkFreshExprMVar listType
-  let P ← mkFreshExprMVar (mkApp (mkConst ``SPred) σs)
-  let inst ← synthInstance (mkApp3 (mkConst ``PropAsSPredTautology) goal σs P)
-  let prf := mkApp4 (mkConst ``ProofMode.start_entails) σs P goal inst
-  let goal : MGoal := { σs,  hyps := emptyHyp σs, target := ← instantiateMVars P }
+  let u ← mkFreshLevelMVar
+  let σs ← mkFreshExprMVar (σs.mkType u)
+  let P ← mkFreshExprMVar (mkApp (mkConst ``SPred [u]) σs)
+  let inst ← synthInstance (mkApp3 (mkConst ``PropAsSPredTautology [u]) goal σs P)
+  let u ← instantiateLevelMVars u
+  let prf := mkApp4 (mkConst ``ProofMode.start_entails [u]) σs P goal inst
+  let goal : MGoal := { u, σs, hyps := emptyHyp u σs, target := ← instantiateMVars P }
   return { goal, proof? := some prf }
 
 def mStartMVar (mvar : MVarId) : MetaM (MVarId × MGoal) := mvar.withContext do

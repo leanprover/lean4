@@ -2117,7 +2117,7 @@ the verification conditions `?pre : H ⊢ₛ P` and `?post : Q ⊢ₚ Q'`.
   success and failure continuations.
 * `?pre` and `?post.*` goals introduce their stateful hypothesis as `h`.
 * Any uninstantiated MVar arising from instantiation of `foo_spec` becomes a new subgoal.
-* If the goal looks like `fun s => _ ⊢ₛ _` then `mspec` will first `mintro ∀s`.
+* If the target of the stateful goal looks like `fun s => _` then `mspec` will first `mintro ∀s`.
 * If `P` has schematic variables that can be instantiated by doing `mintro ∀s`, for example
   `foo_spec : ∀(n:Nat), ⦃⌜n = ‹Nat›ₛ⌝⦄ foo ⦃Q⦄`, then `mspec` will do `mintro ∀s` first to
   instantiate `n = s`.

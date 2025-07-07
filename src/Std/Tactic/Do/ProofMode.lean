@@ -21,6 +21,6 @@ abbrev MGoalEntails := @SPred.entails
 
 /-- This is only used for delaboration purposes, so that we can render context variables that appear
 to have type `A : PROP` even though `PROP` is not a type. -/
-def MGoalHypMarker {σs : List Type} (_A : SPred σs) : Prop := True
+def MGoalHypMarker {σs : List (Type u)} (_A : SPred σs) : Prop := True
 
 end Std.Tactic.Do

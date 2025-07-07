@@ -400,7 +400,7 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
       ofSemiring? := none
     }
   else if let some semiringId ← inSameSemiring? a b then SemiringM.run semiringId do
-    if (← getSemiring).addRightCancelInst?.isSome then
+    if (← getAddRightCancelInst?).isSome then
       if (← getConfig).ringNull then return () -- TODO: remove after we add Nullstellensatz certificates for semiring adapter
       trace_goal[grind.ring.assert] "{mkNot (← mkEq a b)}"
       let some sa ← toSemiringExpr? a | return ()

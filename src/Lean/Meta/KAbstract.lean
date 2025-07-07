@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 prelude
 import Lean.HeadIndex
 import Lean.Meta.Basic
+import Lean.Meta.InferType
 
 namespace Lean.Meta
 
@@ -28,6 +29,7 @@ def kabstract (e : Expr) (p : Expr) (occs : Occurrences := .all) : MetaM Expr :=
   if p.isFVar && occs == Occurrences.all then
     return e.abstract #[p] -- Easy case
   else
+    let pTy ← inferType p
     let pHeadIdx := p.toHeadIndex
     let pNumArgs := p.headNumArgs
     let rec visit (e : Expr) (offset : Nat) : StateRefT Nat MetaM Expr := do
@@ -48,7 +50,8 @@ def kabstract (e : Expr) (p : Expr) (occs : Occurrences := .all) : MetaM Expr :=
         -- We save the metavariable context here,
         -- so that it can be rolled back unless `occs.contains i`.
         let mctx ← getMCtx
-        if (← isDefEq e p) then
+        let eTy ← inferType e
+        if (← (withInferTypeConfig <| isDefEq eTy pTy) <&&> isDefEq e p) then
           let i ← get
           set (i+1)
           if occs.contains i then
@@ -59,6 +62,7 @@ def kabstract (e : Expr) (p : Expr) (occs : Occurrences := .all) : MetaM Expr :=
             setMCtx mctx
             visitChildren ()
         else
+          setMCtx mctx
           visitChildren ()
     visit e 0 |>.run' 1
 

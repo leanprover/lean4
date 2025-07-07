@@ -5913,6 +5913,20 @@ theorem toNat_lt_iff (x : BitVec w) (i : Nat) (hi : i < w) :
     intro hcontra
     simp [BitVec.le_toNat_iff (x := x) (i := i) hi, h] at hcontra
 
+theorem getElem_of_lt_of_le {x : BitVec w} (hk' : k < w) (hlt: x.toNat < 2 ^ (k + 1)) (hle : 2 ^ k ≤ x.toNat):
+    x[k] = true := by
+  have := BitVec.le_toNat_iff (x := x) (i := k) hk'
+  simp only [hle, true_iff] at this
+  obtain ⟨k',hk'⟩ := this
+  by_cases hkk' : k + k' < w
+  · have := Nat.ge_two_pow_of_testBit hk'
+    by_cases hzk' : k' = 0
+    · simp [hzk'] at hk'; exact hk'
+    · have := Nat.pow_lt_pow_of_lt (a := 2) (n := k) (m := k + k') (by omega) (by omega)
+      have := Nat.pow_le_pow_of_le (a := 2) (n := k + 1) (m := k + k') (by omega) (by omega)
+      omega
+  · simp [show w ≤ k + k' by omega] at hk'
+
 /-! ### Count leading zeros -/
 
 theorem clzAuxRec_zero (x : BitVec w) :

@@ -1,3 +1,7 @@
+/-!
+# Tests of the `congr` tactic
+-/
+
 example (h : a = b) : Nat.succ (a + 1) = Nat.succ (b + 1) := by
   congr
 
@@ -37,3 +41,33 @@ example (p q r : Prop) (h : q = r) : (p → q) = (p → r) := by
 example (p q r s : Prop) (h₁ : q = r) (h₂ : r = s) : (p → q) = (p → s) := by
   congr
   rw [h₁, h₂]
+
+namespace Tao1
+/-!
+Reported on Zulip: https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/congr.20unexpectedly.20fails.20with.20Set.2Eimage/near/527382064
+
+The `congr` tactic used to make no progress here because `congr` was computing the arity from the head function
+(`Set.image`) rather than from the actual number of supplied arguments.
+-/
+
+def Set (α : Type _) := α → Prop
+def Set.image {α β : Type _} (f : α → β) (s : Set α) : Set β :=
+  fun y => ∃ x, s x ∧ f x = y
+infixl:80 " '' " => Set.image
+
+example {X Y : Type} (f : X → Y) (E F : Set X) (h : E = F) : f '' E = f '' F := by
+  congr
+
+/-!
+This also didn't work, for the same reason.
+-/
+example {X Y : Type} (f g : X → Y) (h : f = g) : Set.image f = Set.image g := by
+  congr
+
+/-!
+The `HEq` version also did not work.
+-/
+example {X Y Y' : Type} (h : Y = Y') (f : X → Y) (f' : X → Y') (hf : f ≍ f') (E : Set X) : f '' E ≍ f' '' E := by
+  congr
+
+end Tao1

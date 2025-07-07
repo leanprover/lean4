@@ -350,9 +350,9 @@ is marked as instance implicit. It forces the simplifier to compute the new inst
 the congruence theorem.
 For the `congr` tactic we set it to `false`.
 -/
-def mkCongrSimp? (f : Expr) (subsingletonInstImplicitRhs : Bool := true) : MetaM (Option CongrTheorem) := do
+def mkCongrSimp? (f : Expr) (subsingletonInstImplicitRhs : Bool := true) (maxArgs? : Option Nat := none) : MetaM (Option CongrTheorem) := do
   let f := (← instantiateMVars f).cleanupAnnotations
-  let info ← getFunInfo f
+  let info ← getFunInfo f (maxArgs? := maxArgs?)
   mkCongrSimpCore? f info (← getCongrSimpKinds f info) (subsingletonInstImplicitRhs := subsingletonInstImplicitRhs)
 
 def hcongrThmSuffixBase := "hcongr"

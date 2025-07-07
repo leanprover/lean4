@@ -46,13 +46,15 @@ def mkLabelExt (name : Name := by exact decl_name%) : IO LabelExtension :=
 
 /-- Helper function for `registerLabelAttr`. -/
 def mkLabelAttr (attrName : Name) (attrDescr : String) (ext : LabelExtension)
-  (ref : Name := by exact decl_name%) : IO Unit :=
+  (validate : Name → AttrM Unit := fun _ => pure ()) (ref : Name := by exact decl_name%)
+  (applicationTime := AttributeApplicationTime.afterTypeChecking) : IO Unit :=
 registerBuiltinAttribute {
   ref   := ref
   name  := attrName
   descr := attrDescr
-  applicationTime := AttributeApplicationTime.afterCompilation
-  add   := fun declName _ kind =>
+  applicationTime := applicationTime
+  add   := fun declName _ kind => do
+    validate declName
     ext.add declName kind
   erase := fun declName => do
     let s := ext.getState (← getEnv)
@@ -63,18 +65,21 @@ registerBuiltinAttribute {
 Construct a new "label attribute",
 which does nothing except keep track of the names of the declarations with that attribute.
 
-Users will generally use the `register_label_attr` macro defined below.
+Users will generally use the `register_label_attr` macro.
 -/
 def registerLabelAttr (attrName : Name) (attrDescr : String)
-    (ref : Name := by exact decl_name%) : IO LabelExtension := do
+    (validate : Name → AttrM Unit := fun _ => pure ()) (ref : Name := by exact decl_name%)
+    (applicationTime := AttributeApplicationTime.afterTypeChecking) : IO LabelExtension := do
   let ext ← mkLabelExt ref
-  mkLabelAttr attrName attrDescr ext ref
+  mkLabelAttr attrName attrDescr ext validate ref applicationTime
   labelExtensionMapRef.modify fun map => map.insert attrName ext
   return ext
 
 /--
 Initialize a new "label" attribute.
 Declarations tagged with the attribute can be retrieved using `Lean.labelled`.
+
+To validate declarations before adding them, use `registerLabelAttr` directly.
 -/
 macro (name := _root_.Lean.Parser.Command.registerLabelAttr)
   doc:(docComment)? "register_label_attr " id:ident : command => do
@@ -82,7 +87,7 @@ macro (name := _root_.Lean.Parser.Command.registerLabelAttr)
   let idParser := mkIdentFrom id (`Parser.Attr ++ id.getId)
   let descr := quote ((doc.map (·.getDocString) |>.getD ("labelled declarations for " ++ id.getId.toString)).removeLeadingSpaces)
   `($[$doc:docComment]? initialize ext : Lean.LabelExtension ←
-      registerLabelAttr $(quote id.getId) $descr $(quote id.getId)
+      registerLabelAttr $(quote id.getId) $descr (ref := $(quote id.getId))
     $[$doc:docComment]? syntax (name := $idParser:ident) $(quote str):str : attr)
 
 /-- When `attrName` is an attribute created using `register_labelled_attr`,

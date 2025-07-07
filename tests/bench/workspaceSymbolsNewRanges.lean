@@ -3,22 +3,9 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Lars König
 
-The string fuzzy matching algorithm in this file is based on the algorithm
-used in LLVM with some modifications. The LLVM algorithm itself is based on VS
-code's client side filtering algorithm. For the LLVM implementation see
-https://clang.llvm.org/extra//doxygen/FuzzyMatch_8cpp_source.html
+This benchmark evaluates the performance of fuzzy matching when using the new ranges.
 -/
-prelude
-import Init.Data.Range.Polymorphic.Iterators
-import Init.Data.Range.Polymorphic.Nat
-import Init.Data.OfScientific
-import Init.Data.Option.Coe
-import Init.Data.Range
-
-namespace Lean
-namespace FuzzyMatching
-
-section Utils
+import Lean
 
 @[specialize] private def iterateLookaround (f : (Option Char × Char × Option Char) → α) (string : String) : Array α :=
   if string.isEmpty then
@@ -29,7 +16,7 @@ section Utils
     let mut result := Array.mkEmpty string.length
     result := result.push <| f (none, string.get 0, string.get ⟨1⟩)
     -- TODO: the following code is assuming all characters are ASCII
-    for i in [2:string.length] do
+    for i in 2...string.length do
       result := result.push <| f (string.get ⟨i - 2⟩, string.get ⟨i - 1⟩, string.get ⟨i⟩)
     result.push <| f (string.get ⟨string.length - 2⟩, string.get ⟨string.length - 1⟩, none)
 
@@ -44,9 +31,6 @@ private def containsInOrderLower (a b : String) : Bool := Id.run do
       if !aIt.hasNext then
         return true
   return false
-
-end Utils
-
 
 /-- Represents the type of a single character. -/
 inductive CharType where
@@ -91,12 +75,6 @@ private def selectBest (missScore? matchScore? : Option Int) : Option Int :=
   | (some missScore, some matchScore) =>
     some <| max missScore matchScore
 
-/-- Match the given pattern with the given word. The algorithm uses dynamic
-programming to find the best scores.
-
-In addition to the current characters in the pattern and the word, the
-algorithm uses different scores for the last operation (miss/match). This is
-necessary to give consecutive character matches a bonus. -/
 private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Array CharRole) : Option Int := Id.run do
   /- Flattened array where the value at index (i, j, k) represents the best possible score of a fuzzy match
   between the substrings pattern[*...=i] and word[*...j] assuming that pattern[i] misses at word[j] (k = 0, i.e.
@@ -111,7 +89,7 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
   let mut lastSepIdx := 0
   let mut penaltyNs : Int := 0
   let mut penaltySkip : Int := 0
-  for wordIdx in [:word.length] do
+  for wordIdx in *...word.length do
     if (wordIdx != 0) && wordRoles[wordIdx]! matches .separator then
       -- reset skip penalty at namespace separator
       penaltySkip := 0
@@ -122,11 +100,11 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
     startPenalties := startPenalties.set! wordIdx $ penaltySkip + penaltyNs
 
   -- TODO: the following code is assuming all characters are ASCII
-  for patternIdx in [:pattern.length] do
+  for patternIdx in *...pattern.length do
     /- For this dynamic program to be correct, it's only necessary to populate a range of length
    `word.length - pattern.length` at each index (because at the very end, we can only consider fuzzy matches
     of `pattern` with a longer substring of `word`). -/
-    for wordIdx in [patternIdx:(word.length-(pattern.length - patternIdx - 1))] do
+    for wordIdx in patternIdx...(word.length-(pattern.length - patternIdx - 1)) do
       let missScore? :=
         if wordIdx >= 1 then
           selectBest
@@ -257,5 +235,10 @@ score below the given threshold. -/
 def fuzzyMatch (pattern word : String) (threshold := 0.2) : Bool :=
   fuzzyMatchScoreWithThreshold? pattern word threshold |>.isSome
 
-end FuzzyMatching
-end Lean
+open Lean Elab
+
+def orderFuzzyMatches (names : Array Name) (pattern : String) : Array Name :=
+  names.filterMap (fun n => (n, ·) <$> fuzzyMatchScoreWithThreshold? pattern n.toString) |>.qsort (·.2 ≥ ·.2) |>.map (·.1)
+
+-- patterns matching at the end of a name should get a bonus
+#eval orderFuzzyMatches #[`Array.extract, `Lean.extractMainModule] "extract"

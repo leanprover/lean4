@@ -6,6 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
+public import Init.Control.Lawful.MonadLift.Instances
 public import Init.Data.Iterators.Lemmas.Consumers.Collect
 public import all Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 public import all Init.Data.Iterators.Consumers.Loop
@@ -16,7 +17,7 @@ public section
 namespace Std.Iterators
 
 theorem Iter.forIn'_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
-    {m : Type x → Type x'} [Monad m] [IteratorLoop α Id m] [hl : LawfulIteratorLoop α Id m]
+    {m : Type x → Type x'} [Monad m] [LawfulMonad m] [IteratorLoop α Id m] [hl : LawfulIteratorLoop α Id m]
     {γ : Type x} {it : Iter (α := α) β} {init : γ}
     {f : (b : β) → it.IsPlausibleIndirectOutput b → γ → m (ForInStep γ)} :
     letI : ForIn' m (Iter (α := α) β) β _ := Iter.instForIn'
@@ -25,21 +26,22 @@ theorem Iter.forIn'_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
         IteratorLoop.wellFounded_of_finite it.toIterM init _ (fun _ => id)
           (fun out h acc => (⟨·, .intro⟩) <$>
             f out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc) := by
-  cases hl.lawful; rfl
+  simp [instForIn', ForIn'.forIn', IteratorLoop.finiteForIn', hl.lawful (fun γ δ f x => f x.run),
+    IteratorLoop.defaultImplementation]
 
 theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
-    {m : Type x → Type x'} [Monad m] [IteratorLoop α Id m] [hl : LawfulIteratorLoop α Id m]
-    {γ : Type x} {it : Iter (α := α) β} {init : γ}
+    {m : Type x → Type x'} [Monad m] [LawfulMonad m] [IteratorLoop α Id m]
+    [hl : LawfulIteratorLoop α Id m] {γ : Type x} {it : Iter (α := α) β} {init : γ}
     {f : (b : β) → γ → m (ForInStep γ)} :
     ForIn.forIn it init f =
       IterM.DefaultConsumers.forIn' (fun _ _ f c => f c.run) γ (fun _ _ _ => True)
         IteratorLoop.wellFounded_of_finite it.toIterM init _ (fun _ => id)
           (fun out _ acc => (⟨·, .intro⟩) <$>
             f out acc) := by
-  cases hl.lawful; rfl
+  simp [ForIn.forIn, forIn'_eq, -forIn'_eq_forIn]
 
 theorem Iter.forIn'_eq_forIn'_toIterM {α β : Type w} [Iterator α Id β]
-    [Finite α Id] {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
     [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
     {γ : Type w} {it : Iter (α := α) β} {init : γ}
     {f : (out : β) → _ → γ → m (ForInStep γ)} :

@@ -238,7 +238,7 @@ private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
       if (← isExtTheorem inductVal.name) || ctorVal.numFields == 0 then
         let params := aType.getAppArgs[*...inductVal.numParams]
         let mut ctorApp := mkAppN (mkConst ctorVal.name us) params
-        for j in [: ctorVal.numFields] do
+        for j in *...ctorVal.numFields do
           let mut proj ← mkProjFn ctorVal us params j a
           if (← isProof proj) then
             proj ← markProof proj
@@ -410,7 +410,7 @@ where
           else
             internalizeImpl f generation e
           registerParent e f
-          for h : i in [: args.size] do
+          for h : i in *...args.size do
             let arg := args[i]
             internalize arg generation e
             registerParent e arg

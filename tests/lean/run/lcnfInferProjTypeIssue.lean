@@ -14,14 +14,14 @@ def NFloatArray (n : Nat) := {a : FloatArray // a.size = n}
 instance {n} : Add (NFloatArray n) :=
  ⟨λ x y => Id.run do
    let mut x := x.1
-   for i in [0:n] do
+   for i in *...n do
      x := x.set i (x[i]'sorry+y.1[i]'sorry) sorry
    ⟨x,sorry⟩⟩
 
 instance {n} : HMul Float (NFloatArray n) (NFloatArray n) :=
  ⟨λ s x => Id.run do
    let mut x := x.1
-   for i in [0:n] do
+   for i in *...n do
      x := x.set i (s*x[i]'sorry) sorry
    ⟨x,sorry⟩⟩
 

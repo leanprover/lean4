@@ -100,7 +100,7 @@ private partial def mkKey (e : Expr) : CanonM UInt64 := do
         else
           getFunInfo f
         let mut k ← mkKey f
-        for i in [:e.getAppNumArgs] do
+        for i in *...e.getAppNumArgs do
           if h : i < info.paramInfo.size then
             let info := info.paramInfo[i]
             if info.isExplicit && !info.isProp then

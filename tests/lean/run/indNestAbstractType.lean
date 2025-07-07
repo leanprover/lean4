@@ -52,15 +52,35 @@ theorem S.casesOn'_eq1_nondep motive mk node :
   rw [T.map_map_id]
   case h => intros; rfl
 
-theorem cast_congrArg_mk (motive : S → Sort u)
-  (mk : (node : T S) → motive (S.mk node)) (m n : T S) (h : m = n) :
-    cast (congrArg (fun x => motive (S.mk x)) h) (mk m) = mk n := by
+theorem heq_of_cast_eq : ∀ (e : α = β) (_ : cast e a = a'), a ≍ a'
+  | rfl, rfl => .rfl
+
+theorem cast_eq_iff_heq : cast e a = a' ↔ a ≍ a' :=
+  ⟨heq_of_cast_eq _, fun h => by cases h; rfl⟩
+
+theorem cast_congrArg_mk
+  {T : Type w}
+  {S : Type v}
+  (f : T → S)
+  (motive : S → Sort u)
+  (g : (node : T) → motive (f node))
+  (m n : T) (h : m = n) : cast (congrArg (fun x => motive (f x)) h) (g m) = g n := by
+  cases h
+  rfl
+
+theorem heq_motive_f_congr
+  {T : Type w}
+  {S : Type v}
+  (f : T → S)
+  (motive : S → Sort u)
+  (g : (node : T) → motive (f node))
+  (m n : T) (h : m = n) : g m ≍ g n := by
   cases h
   rfl
 
 theorem S.casesOn'_eq1_dep motive mk node :
     S.casesOn' motive mk (S.mk node) = mk node := by
   unfold S.casesOn' S.mk
-  simp only [eq_mp_eq_cast, cast_cast]
-  apply cast_congrArg_mk
+  simp only [eq_mp_eq_cast, cast_cast, cast_eq_iff_heq]
+  apply heq_motive_f_congr
   simp [T.abs_repr, T.map_map_id]

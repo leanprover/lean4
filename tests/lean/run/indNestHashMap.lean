@@ -136,17 +136,25 @@ theorem DHashMapTree.casesOn'_eq1_nondep
   congr
   simp [DHashMap.Raw.map_map, DHashMap.Raw.map_id]
 
--- For dependent motives we are in trouble
+theorem cast_congrArg_mk
+  {T : Type w}
+  {S : Type v}
+  (f : T → S)
+  (motive : S → Sort u)
+  (g : (node : T) → motive (f node))
+  (m n : T) (h : m = n) : cast (congrArg (fun x => motive (f x)) h) (g m) = g n := by
+  cases h
+  rfl
+
+
+-- For dependent motives we need the tricky cast_congr_thing above
 theorem DHashMapTree.casesOn'_eq1
   (motive : DHashMapTree → Sort u) mk (node : DHashMap String (fun _ => DHashMapTree)) :
   DHashMapTree.casesOn' motive mk (.mk node) = mk node := by
   unfold DHashMapTree.casesOn' DHashMapTree.mk
   simp
-  -- simp [DHashMap.Raw.map_map, DHashMap.Raw.map_id]
-  -- DTT hell!
-  -- The motive depends on `(.mk node)`, but it seems we need rewriting there
-  -- to handle the `.map` inside `casesOn'`. Can we avoid the `map` there?
-  sorry
+  apply cast_congrArg_mk
+  simp [DHashMap.Raw.map_map, DHashMap.Raw.map_id]
 
 -- What should the recursor be? Something like this?
 -- Or some Type-valued `node.Forall motive`?

@@ -52,8 +52,15 @@ theorem S.casesOn'_eq1_nondep motive mk node :
   rw [T.map_map_id]
   case h => intros; rfl
 
+theorem cast_congrArg_mk (motive : S → Sort u)
+  (mk : (node : T S) → motive (S.mk node)) (m n : T S) (h : m = n) :
+    cast (congrArg (fun x => motive (S.mk x)) h) (mk m) = mk n := by
+  cases h
+  rfl
+
 theorem S.casesOn'_eq1_dep motive mk node :
     S.casesOn' motive mk (S.mk node) = mk node := by
   unfold S.casesOn' S.mk
-  simp
-  sorry
+  simp only [eq_mp_eq_cast, cast_cast]
+  apply cast_congrArg_mk
+  simp [T.abs_repr, T.map_map_id]

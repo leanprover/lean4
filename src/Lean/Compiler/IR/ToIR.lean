@@ -215,19 +215,9 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
               loop 0 0
             return .vdecl objVar type (.ctor ctorInfo objArgs) (← lowerNonObjectFields ())
       | some (.axiomInfo ..) =>
-        if name == ``Quot.lcInv then
-          match irArgs[2]! with
-          | .var varId => mkVar varId
-          | .irrelevant => mkErased ()
-        else
-          throwNamedError lean.dependsOnNoncomputable f!"axiom '{name}' not supported by code generator; consider marking definition as 'noncomputable'"
+        throwNamedError lean.dependsOnNoncomputable f!"axiom '{name}' not supported by code generator; consider marking definition as 'noncomputable'"
       | some (.quotInfo ..) =>
-        if name == ``Quot.mk then
-          match irArgs[2]! with
-          | .var varId => mkVar varId
-          | .irrelevant => mkErased ()
-        else
-          throwError f!"quot {name} unsupported by code generator"
+        throwError f!"quot {name} unsupported by code generator"
       | some (.defnInfo ..) | some (.opaqueInfo ..) =>
         if let some code ← tryIrDecl? name irArgs then
           return code

@@ -458,6 +458,12 @@
     <<: *time
     cmd: lean bv_decide_large_aig.lean
 - attributes:
+    description: bv_decide_rewriter.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean bv_decide_rewriter.lean
+- attributes:
     description: big_do
     tags: [fast]
   run_config:

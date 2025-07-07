@@ -219,17 +219,6 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
           match irArgs[2]! with
           | .var varId => mkVar varId
           | .irrelevant => mkErased ()
-        else if let some irDecl ← findDecl name then
-          let numArgs := irArgs.size
-          let numParams := irDecl.params.size
-          if numArgs < numParams then
-            mkExpr (.pap name irArgs)
-          else if numArgs == numParams then
-            mkExpr (.fap name irArgs)
-          else
-            let firstArgs := irArgs.extract 0 numParams
-            let restArgs := irArgs.extract numParams irArgs.size
-            mkPartialApp (.fap name firstArgs) restArgs
         else
           throwNamedError lean.dependsOnNoncomputable f!"axiom '{name}' not supported by code generator; consider marking definition as 'noncomputable'"
       | some (.quotInfo ..) =>

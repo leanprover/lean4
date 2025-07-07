@@ -2292,10 +2292,10 @@ theorem resRec_of_clz_le {x y : BitVec w} (hw : 1 < w) (hx : x ≠ 0#w) (hy : y 
     (clz x).toNat + (clz y).toNat ≤ w - 2 → resRec x y (w - 1) (by omega) (by omega) (by omega) := by
   intro h
   have h1 := resRec_true_iff (x := x) (y := y) (s := w - 1) (by omega) (by omega) (by omega)
-  have h2 := toNat_le_of_clz (x := x) (by omega) (by omega)
-  have h3 := toNat_le_of_clz (x := y) (by omega) (by omega)
-  have h4 := lt_toNat_of_clz (x := x) (by omega)
-  have h5 := lt_toNat_of_clz (x := y) (by omega)
+  have h2 := BitVec.toNat_le_of_clz (x := x) (by omega) (by omega)
+  have h3 := BitVec.toNat_le_of_clz (x := y) (by omega) (by omega)
+  have h4 := BitVec.lt_toNat_of_clz (x := x) (by omega)
+  have h5 := BitVec.lt_toNat_of_clz (x := y) (by omega)
   rw [resRec_true_iff]
   exists (w - 1 - y.clz.toNat)
   exists (by omega), (by omega)
@@ -2355,10 +2355,10 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
               Nat.pow_eq_zero, reduceCtorEq, ne_eq, Nat.add_eq_zero, succ_ne_self, _root_.and_false,
               _root_.and_self, not_false_eq_true, _root_.and_true] at h'
           -- reasoning about the bounds of the product given the leading zeroes
-          have h1 := toNat_le_of_clz (x := x) (by omega) (by omega)
-          have h2 := toNat_le_of_clz (x := y) (by omega) (by omega)
-          have h3 := lt_toNat_of_clz (x := x) (by omega)
-          have h4 := lt_toNat_of_clz (x := y) (by omega)
+          have h1 := BitVec.toNat_le_of_clz (x := x) (by omega) (by omega)
+          have h2 := BitVec.toNat_le_of_clz (x := y) (by omega) (by omega)
+          have h3 := BitVec.lt_toNat_of_clz (x := x) (by omega)
+          have h4 := BitVec.lt_toNat_of_clz (x := y) (by omega)
           have h5 := Nat.mul_le_mul (n₁ := x.toNat) (m₁ := y.toNat) (n₂ := 2 ^ (w + 1 + 1 - (x.clz).toNat) - 1) (m₂ := 2 ^ (w + 1 + 1 - (y.clz).toNat) - 1)
             (by
               simp only [le_iff_lt_add_one, ne_eq, Nat.pow_eq_zero, reduceCtorEq, _root_.false_and,

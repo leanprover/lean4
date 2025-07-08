@@ -122,7 +122,7 @@ private inductive ShouldCanonResult where
     canonImplicit
   | /-
     Term is not a proof, type (former), nor an instance.
-    Thus, it must be recursively visited by the canonizer.
+    Thus, it must be recursively visited by the canonicalizer.
     -/
     visit
   deriving Inhabited
@@ -156,23 +156,25 @@ def shouldCanon (pinfos : Array ParamInfo) (i : Nat) (arg : Expr) : MetaM Should
   else
     return .visit
 
-unsafe def canonImpl (e : Expr) : GoalM Expr := do
-  visit e |>.run' mkPtrMap
+/-- Canonicalizes nested types, type formers, and instances in `e`. -/
+partial def canon (e : Expr) : GoalM Expr := do profileitM Exception "grind canon" (← getOptions) do
+  trace_goal[grind.debug.canon] "{e}"
+  visit e |>.run' {}
 where
-  visit (e : Expr) : StateRefT (PtrMap Expr Expr) GoalM Expr := do
+  visit (e : Expr) : StateRefT (Std.HashMap ExprPtr Expr) GoalM Expr := do
     unless e.isApp || e.isForall do return e
     -- Check whether it is cached
-    if let some r := (← get).find? e then
+    if let some r := (← get).get? { expr := e } then
       return r
     let e' ← match e with
       | .app .. => e.withApp fun f args => do
-        if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
+        if f.isConstOf ``Grind.nestedProof && args.size == 2 then
           let prop := args[0]!
           let prop' ← visit prop
           if let some r := (← get').proofCanon.find? prop' then
             pure r
           else
-            let e' := if ptrEq prop prop' then e else mkAppN f (args.set! 0 prop')
+            let e' := if isSameExpr prop prop' then e else mkAppN f (args.set! 0 prop')
             modify' fun s => { s with proofCanon := s.proofCanon.insert prop' e' }
             pure e'
         else
@@ -187,7 +189,7 @@ where
             | .canonInst  => canonInst e f i arg
             | .canonImplicit => canonImplicit e f i (← visit arg)
             | .visit      => visit arg
-            unless ptrEq arg arg' do
+            unless isSameExpr arg arg' do
               args := args.set i arg'
               modified := true
           pure <| if modified then mkAppN f args.toArray else e
@@ -198,14 +200,11 @@ where
         let b' ← if b.hasLooseBVars then pure b else visit b
         pure <| e.updateForallE! d' b'
       | _ => unreachable!
-    modify fun s => s.insert e e'
+    modify fun s => s.insert { expr := e } e'
     return e'
 
 end Canon
 
-/-- Canonicalizes nested types, type formers, and instances in `e`. -/
-def canon (e : Expr) : GoalM Expr := do profileitM Exception "grind canon" (← getOptions) do
-  trace_goal[grind.debug.canon] "{e}"
-  unsafe Canon.canonImpl e
+export Canon (canon)
 
 end Lean.Meta.Grind

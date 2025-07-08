@@ -10,7 +10,7 @@ import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.MatchDiscrOnly
-import Lean.Meta.Tactic.Grind.MarkNestedProofs
+import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 import Lean.Meta.Tactic.Grind.Canon
 
 namespace Lean.Meta.Grind

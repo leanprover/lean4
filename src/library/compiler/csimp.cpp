@@ -26,7 +26,7 @@ Author: Leonardo de Moura
 #include "library/compiler/csimp.h"
 #include "library/compiler/extract_closed.h"
 #include "library/compiler/reduce_arity.h"
-#include "library/compiler/init_attribute.h"
+#include "library/init_attribute.h"
 
 namespace lean {
 csimp_cfg::csimp_cfg(options const &):

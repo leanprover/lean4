@@ -82,7 +82,7 @@ private def showParserName (n : Name) : MetaM MessageData := do
   pure <| .ofFormatWithInfos {
     fmt := "'" ++ .tag 0 tok ++ "'",
     infos :=
-      .fromList [(0, .ofTermInfo {
+      .ofList [(0, .ofTermInfo {
         lctx := .empty,
         expr := .const n params,
         stx := .ident .none (toString n).toSubstring n [.decl n []],
@@ -102,7 +102,7 @@ Displays all available tactic tags, with documentation.
   let mut mapping : NameMap NameSet := {}
   for arr in all do
     for (tac, tag) in arr do
-      mapping := mapping.insert tag (mapping.findD tag {} |>.insert tac)
+      mapping := mapping.insert tag (mapping.getD tag {} |>.insert tac)
 
   let showDocs : Option String → MessageData
     | none => .nil
@@ -152,7 +152,7 @@ def allTacticDocs : MetaM (Array TacticDoc) := do
   let mut tacTags : NameMap NameSet := {}
   for arr in all do
     for (tac, tag) in arr do
-      tacTags := tacTags.insert tac (tacTags.findD tac {} |>.insert tag)
+      tacTags := tacTags.insert tac (tacTags.getD tac {} |>.insert tag)
 
   let mut docs := #[]
 
@@ -171,7 +171,7 @@ def allTacticDocs : MetaM (Array TacticDoc) := do
     docs := docs.push {
       internalName := tac,
       userName := userName,
-      tags := tacTags.findD tac {},
+      tags := tacTags.getD tac {},
       docString := ← findDocString? env tac,
       extensionDocs := getTacticExtensions env tac
     }

@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: E.W.Ayers
 -/
 prelude
-import Lean.Data.Json
 import Lean.Data.Lsp.Basic
 import Lean.Data.Lsp.Diagnostics
 

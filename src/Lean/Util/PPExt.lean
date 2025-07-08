@@ -39,7 +39,7 @@ structure PPContext where
   currNamespace : Name := Name.anonymous
   openDecls     : List OpenDecl := []
 
-abbrev PrettyPrinter.InfoPerPos := RBMap Nat Elab.Info compare
+abbrev PrettyPrinter.InfoPerPos := Std.TreeMap Nat Elab.Info
 /-- A format tree with `Elab.Info` annotations.
 Each `.tag n _` node is annotated with `infos[n]`.
 This is used to attach semantic data such as expressions

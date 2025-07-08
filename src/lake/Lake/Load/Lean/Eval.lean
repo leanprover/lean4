@@ -46,10 +46,19 @@ opaque evalConstCheck
 : Except String α
 
 /-- Construct a `DNameMap` from the declarations tagged with `attr`. -/
-def mkTagMap
+def mkDTagMap
   (env : Environment) (attr : OrderedTagAttribute)
   [Monad m] (f : (n : Name) → m (β n))
 : m (DNameMap β) :=
+  let entries := attr.getAllEntries env
+  entries.foldlM (init := {}) fun map declName =>
+    return map.insert declName <| ← f declName
+
+/-- Construct a `NameMap` from the declarations tagged with `attr`. -/
+def mkTagMap
+  (env : Environment) (attr : OrderedTagAttribute)
+  [Monad m] (f : (n : Name) → m β)
+: m (NameMap β) :=
   let entries := attr.getAllEntries env
   entries.foldlM (init := {}) fun map declName =>
     return map.insert declName <| ← f declName
@@ -95,7 +104,7 @@ def Package.loadFromEnv
         target '{decl.name}' was defined in package '{decl.pkg}', \
         but registered under '{self.name}'"
   let targetDeclMap ← targetDecls.foldlM (init := {}) fun m decl => do
-    if let some orig := m.find? decl.name then
+    if let some orig := m.get? decl.name then
       error s!"\
         {self.name}: target '{decl.name}' was already defined as a '{orig.kind}', \
         but then redefined as a '{decl.kind}'"
@@ -109,7 +118,7 @@ def Package.loadFromEnv
     let fn ← IO.ofExcept <| evalConstCheck env opts ScriptFn scriptName
     return {name, fn, doc? := ← findDocString? env scriptName : Script}
   let defaultScripts ← defaultScriptAttr.getAllEntries env |>.mapM fun name =>
-    if let some script := scripts.find? name then pure script else
+    if let some script := scripts.get? name then pure script else
       error s!"{self.name}: package is missing script '{name}' marked as a default"
   let postUpdateHooks ← postUpdateAttr.getAllEntries env |>.mapM fun name =>
     match evalConstCheck env opts PostUpdateHookDecl name with

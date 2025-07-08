@@ -784,21 +784,21 @@ private def checkCoverage (thmProof : Expr) (numParams : Nat) (bvarsFound : Std.
     assert! numParams == xs.size
     let patternVars := bvarsFound.toList.map fun bidx => xs[numParams - bidx - 1]!.fvarId!
     -- `xs` as a `FVarIdSet`.
-    let thmVars : FVarIdSet := RBTree.ofList <| xs.toList.map (·.fvarId!)
+    let thmVars := FVarIdSet.ofList <| xs.toList.map (·.fvarId!)
     -- Collect free variables occurring in `e`, and insert the ones that are in `thmVars` into `fvarsFound`
     let update (fvarsFound : FVarIdSet) (e : Expr) : FVarIdSet :=
       (collectFVars {} e).fvarIds.foldl (init := fvarsFound) fun s fvarId =>
         if thmVars.contains fvarId then s.insert fvarId else s
     -- Theorem variables found so far. We initialize with the variables occurring in patterns
     -- Remark: fvarsFound is a subset of thmVars
-    let mut fvarsFound : FVarIdSet := RBTree.ofList patternVars
+    let mut fvarsFound := FVarIdSet.ofList patternVars
     for patternVar in patternVars do
       let type ← patternVar.getType
       fvarsFound := update fvarsFound type
     if fvarsFound.size == numParams then return .ok
     -- Now, we keep traversing remaining variables and collecting
     -- `processed` contains the variables we have already processed.
-    let mut processed : FVarIdSet := RBTree.ofList patternVars
+    let mut processed := FVarIdSet.ofList patternVars
     let mut modified := false
     repeat
       modified := false

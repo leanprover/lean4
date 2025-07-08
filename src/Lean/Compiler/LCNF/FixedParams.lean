@@ -78,7 +78,7 @@ abbrev abort : FixParamM α := do
   throw ()
 
 def evalFVar (fvarId : FVarId) : FixParamM AbsValue := do
-  let some val := (← read).assignment.find? fvarId | return .top
+  let some val := (← read).assignment.get? fvarId | return .top
   return val
 
 def evalArg (arg : Arg) : FixParamM AbsValue := do
@@ -109,7 +109,7 @@ partial def isEquivalentFunDecl? (decl : FunDecl) : FixParamM (Option Nat) := do
   if args.size != decl.params.size then return none
   let .return retFVarId := k | return none
   if retFVarId != fvarId then return none
-  let some (.val funIdx) := (← read).assignment.find? funFvarId | return none
+  let some (.val funIdx) := (← read).assignment.get? funFvarId | return none
   for h : i in [:decl.params.size] do
     let param := decl.params[i]
     -- TODO: Eliminate this dynamic bounds check.

@@ -4,19 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
-import Lean.Data.RBMap
+import Std.Data.TreeMap.Basic
 
 namespace Lake
-open Lean (RBMap)
 
 /--
 There are two ways to think of this type:
-* As an `Array` of values with an `RBMap` key-value index for the key `α`.
-* As an `RBMap` that preserves insertion order, but is optimized for
+* As an `Array` of values with a `Std.TreeMap` key-value index for the key `α`.
+* As a `Std.TreeMap` that preserves insertion order, but is optimized for
 iteration-by-values. Thus, it does not store the order of keys.
 -/
 structure RBArray (α : Type u) (β : Type v) (cmp : α → α → Ordering) where
-  toRBMap : RBMap α β cmp
+  toTreeMap : Std.TreeMap α β cmp
   toArray : Array β
 
 namespace RBArray
@@ -30,17 +29,17 @@ def mkEmpty (size : Nat) : RBArray α β cmp :=
   ⟨.empty, .mkEmpty size⟩
 
 @[inline] def find? (self : RBArray α β cmp) (a : α) : Option β :=
-  self.toRBMap.find? a
+  self.toTreeMap.get? a
 
 @[inline] def contains (self : RBArray α β cmp) (a : α) : Bool :=
-  self.toRBMap.contains a
+  self.toTreeMap.contains a
 
 /-- Insert `b` with the key `a`. Does nothing if the key is already present. -/
 def insert (self : RBArray α β cmp) (a : α) (b : β) : RBArray α β cmp :=
-  if self.toRBMap.contains a then
+  if self.toTreeMap.contains a then
     self
   else
-    ⟨self.toRBMap.insert a b, self.toArray.push b⟩
+    ⟨self.toTreeMap.insert a b, self.toArray.push b⟩
 
 @[inline] def all (f : β → Bool) (self : RBArray α β cmp) : Bool  :=
   self.toArray.all f

@@ -73,7 +73,7 @@ def wrapRpcProcedure (method : Name) paramType respType
   wrapper seshId j := do
     let rc ← read
 
-    let some seshRef := rc.rpcSessions.find? seshId
+    let some seshRef := rc.rpcSessions.get? seshId
       | throwThe RequestError { code := JsonRpc.ErrorCode.rpcNeedsReconnect
                                 message := s!"Outdated RPC session" }
 

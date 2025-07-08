@@ -66,7 +66,7 @@ partial def bindCases (jpDecl : FunDecl) (cases : Cases) : CompilerM Code := do
   let (alts, s) ← visitAlts cases.alts |>.run {}
   let resultType ← mkCasesResultType alts
   let result := .cases { cases with alts, resultType }
-  let result := s.fold (init := result) fun result _ altJp => .jp altJp result
+  let result := s.foldl (init := result) fun result _ altJp => .jp altJp result
   return .jp jpDecl result
 where
   visitAlts (alts : Array Alt) : BindCasesM (Array Alt) :=
@@ -99,7 +99,7 @@ where
             if binderName.getPrefix == `_alt then
               if let some funDecl ← findFun? f then
                 eraseLetDecl decl
-                if let some altJp := (← get).find? f then
+                if let some altJp := (← get).get? f then
                   /- We already have an auxiliary join point for `f`, then, we just use it. -/
                   return .jmp altJp.fvarId args
                 else
@@ -130,7 +130,7 @@ where
                   return .jmp altJp.fvarId args
           | _ => pure ()
       let k ← go k
-      if let some altJp := (← get).find? decl.fvarId then
+      if let some altJp := (← get).get? decl.fvarId then
         -- The new join point depends on this variable. Thus, we must insert it here
         modify fun s => s.erase decl.fvarId
         return .let decl (.jp altJp k)

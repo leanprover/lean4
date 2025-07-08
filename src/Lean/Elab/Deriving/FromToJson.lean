@@ -7,7 +7,7 @@ prelude
 import Lean.Meta.Transform
 import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
-import Lean.Data.Json.FromToJson
+import Lean.Data.Json.FromToJson.Basic
 
 namespace Lean.Elab.Deriving.FromToJson
 open Lean.Elab.Command

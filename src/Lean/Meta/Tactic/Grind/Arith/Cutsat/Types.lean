@@ -232,7 +232,7 @@ instance : Inhabited CooperSplitPred where
 instance : Inhabited CooperSplit where
   default := { pred := default, k := 0, h := .dec default }
 
-abbrev VarSet := RBTree Var compare
+abbrev VarSet := Std.TreeSet Var
 
 /-- State of the cutsat procedure. -/
 structure State where

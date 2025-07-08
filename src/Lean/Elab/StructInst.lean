@@ -839,7 +839,7 @@ private def synthOptParamFields : StructInstM Unit := do
       let mut requiredErrors : Array MessageData := #[]
       for pendingField in pendingFields do
         if (← isFieldNotSolved? pendingField.fieldName).isNone then
-          let e := (← get).fieldMap.find! pendingField.fieldName
+          let e := (← get).fieldMap.get! pendingField.fieldName
           requiredErrors := requiredErrors.push m!"\
             field '{pendingField.fieldName}' must be explicitly provided, its synthesized value is{indentExpr e}"
       let requiredErrorsMsg := MessageData.joinSep (requiredErrors.map (m!"\n\n" ++ ·)).toList ""
@@ -917,7 +917,7 @@ where
     let flatCtorName := mkFlatCtorOfStructCtorName ctor.name
     let cinfo ← getConstInfo flatCtorName
     let ctorVal ← instantiateValueLevelParams cinfo us
-    let fieldArgs := parentFields.map fieldMap.find!
+    let fieldArgs := parentFields.map (fieldMap.get! ·)
     -- Normalize the expressions since there might be some projections.
     let params ← params.mapM normalizeExpr
     let e' := (ctorVal.beta params).beta fieldArgs
@@ -1007,7 +1007,7 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
         else
           throw ex
       loop
-    if let some fvarId' := (← get).liftedFVarRemap.find? fvarId then
+    if let some fvarId' := (← get).liftedFVarRemap.get? fvarId then
       processProjAux fvarId'
     else if (← getLCtx).contains fvarId then
       processProjAux fvarId

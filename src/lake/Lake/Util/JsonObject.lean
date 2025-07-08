@@ -17,11 +17,11 @@ namespace Lake
 
 /-- A JSON object (`Json.obj` data). -/
 abbrev JsonObject :=
-  RBNode String (fun _ => Json)
+  Std.TreeMap.Raw String Json
 
 namespace JsonObject
 
-@[inline] def mk (val : RBNode String (fun _ => Json)) : JsonObject :=
+@[inline] def mk (val : Std.TreeMap.Raw String Json) : JsonObject :=
   val
 
 @[inline] protected def toJson (obj : JsonObject) : Json :=
@@ -36,16 +36,16 @@ instance : ToJson JsonObject := ⟨JsonObject.toJson⟩
 instance : FromJson JsonObject := ⟨JsonObject.fromJson?⟩
 
 @[inline] nonrec def insert [ToJson α] (obj : JsonObject) (prop : String) (val : α) : JsonObject :=
-  obj.insert compare prop (toJson val)
+  obj.insert prop (toJson val)
 
 @[inline] def insertSome [ToJson α] (obj : JsonObject) (prop : String) (val? : Option α) : JsonObject :=
   if let some val := val? then obj.insert prop val else obj
 
 nonrec def erase (obj : JsonObject) (prop : String) : JsonObject :=
-  inline <| obj.erase compare prop
+  inline <| obj.erase prop
 
 @[inline] def getJson? (obj : JsonObject) (prop : String) : Option Json :=
-  obj.find compare prop
+  obj.get? prop
 
 @[inline] def get [FromJson α] (obj : JsonObject) (prop : String) : Except String α :=
   match obj.getJson? prop with

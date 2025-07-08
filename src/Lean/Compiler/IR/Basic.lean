@@ -383,17 +383,17 @@ def mkDummyExternDecl (f : FunId) (xs : Array Param) (ty : IRType) : Decl :=
   Decl.fdecl f xs ty FnBody.unreachable {}
 
 /-- Set of variable and join point names -/
-abbrev IndexSet := RBTree Index compare
+abbrev IndexSet := Std.TreeSet Index
 
 def mkIndexSet (idx : Index) : IndexSet :=
-  RBTree.empty.insert idx
+  Std.TreeSet.empty.insert idx
 
 inductive LocalContextEntry where
   | param     : IRType → LocalContextEntry
   | localVar  : IRType → Expr → LocalContextEntry
   | joinPoint : Array Param → FnBody → LocalContextEntry
 
-abbrev LocalContext := RBMap Index LocalContextEntry compare
+abbrev LocalContext := Std.TreeMap Index LocalContextEntry
 
 def LocalContext.addLocal (ctx : LocalContext) (x : VarId) (t : IRType) (v : Expr) : LocalContext :=
   ctx.insert x.idx (LocalContextEntry.localVar t v)
@@ -408,48 +408,48 @@ def LocalContext.addParams (ctx : LocalContext) (ps : Array Param) : LocalContex
   ps.foldl LocalContext.addParam ctx
 
 def LocalContext.isJP (ctx : LocalContext) (idx : Index) : Bool :=
-  match ctx.find? idx with
+  match ctx.get? idx with
   | some (LocalContextEntry.joinPoint _ _) => true
   | _     => false
 
 def LocalContext.getJPBody (ctx : LocalContext) (j : JoinPointId) : Option FnBody :=
-  match ctx.find? j.idx with
+  match ctx.get? j.idx with
   | some (LocalContextEntry.joinPoint _ b) => some b
   | _     => none
 
 def LocalContext.getJPParams (ctx : LocalContext) (j : JoinPointId) : Option (Array Param) :=
-  match ctx.find? j.idx with
+  match ctx.get? j.idx with
   | some (LocalContextEntry.joinPoint ys _) => some ys
   | _     => none
 
 def LocalContext.isParam (ctx : LocalContext) (idx : Index) : Bool :=
-  match ctx.find? idx with
+  match ctx.get? idx with
   | some (LocalContextEntry.param _) => true
   | _     => false
 
 def LocalContext.isLocalVar (ctx : LocalContext) (idx : Index) : Bool :=
-  match ctx.find? idx with
+  match ctx.get? idx with
   | some (LocalContextEntry.localVar _ _) => true
   | _     => false
 
 def LocalContext.contains (ctx : LocalContext) (idx : Index) : Bool :=
-  RBMap.contains ctx idx
+  Std.TreeMap.contains ctx idx
 
 def LocalContext.eraseJoinPointDecl (ctx : LocalContext) (j : JoinPointId) : LocalContext :=
   ctx.erase j.idx
 
 def LocalContext.getType (ctx : LocalContext) (x : VarId) : Option IRType :=
-  match ctx.find? x.idx with
+  match ctx.get? x.idx with
   | some (LocalContextEntry.param t) => some t
   | some (LocalContextEntry.localVar t _) => some t
   | _     => none
 
 def LocalContext.getValue (ctx : LocalContext) (x : VarId) : Option Expr :=
-  match ctx.find? x.idx with
+  match ctx.get? x.idx with
   | some (LocalContextEntry.localVar _ v) => some v
   | _     => none
 
-abbrev IndexRenaming := RBMap Index Index compare
+abbrev IndexRenaming := Std.TreeMap Index Index
 
 class AlphaEqv (α : Type) where
   aeqv : IndexRenaming → α → α → Bool
@@ -457,7 +457,7 @@ class AlphaEqv (α : Type) where
 export AlphaEqv (aeqv)
 
 def VarId.alphaEqv (ρ : IndexRenaming) (v₁ v₂ : VarId) : Bool :=
-  match ρ.find? v₁.idx with
+  match ρ.get? v₁.idx with
   | some v => v == v₂.idx
   | none   => v₁ == v₂
 
@@ -540,7 +540,7 @@ def FnBody.beq (b₁ b₂ : FnBody) : Bool :=
 
 instance : BEq FnBody := ⟨FnBody.beq⟩
 
-abbrev VarIdSet := RBTree VarId (fun x y => compare x.idx y.idx)
+abbrev VarIdSet := Std.TreeSet VarId (fun x y => compare x.idx y.idx)
 
 def mkIf (x : VarId) (t e : FnBody) : FnBody :=
   FnBody.case `Bool x IRType.uint8 #[

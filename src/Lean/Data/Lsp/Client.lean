@@ -6,7 +6,6 @@ Authors: Joscha Mennicken
 -/
 prelude
 import Lean.Data.Lsp.Basic
-import Lean.Data.Json
 
 namespace Lean
 namespace Lsp

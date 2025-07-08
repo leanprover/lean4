@@ -15857,8 +15857,8 @@ x_85 = lean_usize_dec_eq(x_83, x_84);
 if (x_85 == 0)
 {
 lean_dec(x_66);
-x_8 = x_78;
-x_9 = x_81;
+x_8 = x_81;
+x_9 = x_78;
 x_10 = x_82;
 x_11 = x_85;
 goto block_15;
@@ -15870,8 +15870,8 @@ x_86 = lean_ptr_addr(x_66);
 lean_dec(x_66);
 x_87 = lean_ptr_addr(x_81);
 x_88 = lean_usize_dec_eq(x_86, x_87);
-x_8 = x_78;
-x_9 = x_81;
+x_8 = x_81;
+x_9 = x_78;
 x_10 = x_82;
 x_11 = x_88;
 goto block_15;
@@ -16243,8 +16243,8 @@ if (x_11 == 0)
 lean_object* x_12; lean_object* x_13; 
 lean_dec(x_1);
 x_12 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_12, 0, x_9);
-lean_ctor_set(x_12, 1, x_8);
+lean_ctor_set(x_12, 0, x_8);
+lean_ctor_set(x_12, 1, x_9);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_10);

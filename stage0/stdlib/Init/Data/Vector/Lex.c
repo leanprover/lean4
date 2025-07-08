@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector.Lex
-// Imports: Init.Data.Vector.Basic Init.Data.Vector.Lemmas Init.Data.Array.Lex.Basic Init.Data.Array.Lex.Lemmas
+// Imports: Init.Data.Vector.Basic Init.Data.Vector.Lemmas Init.Data.Array.Lex.Basic Init.Data.Array.Lex.Lemmas Init.Data.Range.Polymorphic.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -271,6 +271,7 @@ lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Vector_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Lex_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Lex_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Range_Polymorphic_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Vector_Lex(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -286,6 +287,9 @@ res = initialize_Init_Data_Array_Lex_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_Lex_Lemmas(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

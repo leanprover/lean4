@@ -1620,7 +1620,7 @@ goto block_32;
 block_24:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-x_14 = l_Array_toSubarray___redArg(x_9, x_12, x_13);
+x_14 = l_Array_toSubarray___redArg(x_8, x_12, x_13);
 x_15 = l_Array_ofSubarray___redArg(x_14);
 x_16 = l_Lean_Elab_Command_mkDefViewOfAbbrev___closed__7;
 x_17 = lean_box(2);
@@ -1642,7 +1642,7 @@ lean_ctor_set(x_23, 4, x_6);
 lean_ctor_set(x_23, 5, x_7);
 lean_ctor_set(x_23, 6, x_21);
 lean_ctor_set(x_23, 7, x_22);
-lean_ctor_set(x_23, 8, x_8);
+lean_ctor_set(x_23, 8, x_9);
 lean_ctor_set_uint8(x_23, sizeof(void*)*9, x_10);
 return x_23;
 }
@@ -1657,8 +1657,8 @@ x_30 = lean_array_get_size(x_27);
 x_31 = lean_nat_dec_le(x_28, x_30);
 if (x_31 == 0)
 {
-x_8 = x_25;
-x_9 = x_27;
+x_8 = x_27;
+x_9 = x_25;
 x_10 = x_26;
 x_11 = x_28;
 x_12 = x_29;
@@ -1668,8 +1668,8 @@ goto block_24;
 else
 {
 lean_dec(x_30);
-x_8 = x_25;
-x_9 = x_27;
+x_8 = x_27;
+x_9 = x_25;
 x_10 = x_26;
 x_11 = x_28;
 x_12 = x_29;

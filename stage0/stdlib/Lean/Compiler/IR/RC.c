@@ -36,6 +36,7 @@ static lean_object* l_panic___at___Lean_IR_ExplicitRC_getJPParams_spec__0___clos
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___Lean_IR_ExplicitRC_getVarInfo_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at_____private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_addDecForAlt_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_____private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_addDecForAlt_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_IR_beqArg____x40_Lean_Compiler_IR_Basic___hyg_1324_(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_ExplicitRC_getJPParams___closed__0;
 LEAN_EXPORT lean_object* l_Lean_IR_ExplicitRC_getJPParams(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Nat_anyTR_loop___at_____private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_isBorrowParamAux_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -156,7 +157,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_a
 LEAN_EXPORT lean_object* l_panic___at___Lean_IR_ExplicitRC_getVarInfo_spec__1(lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_isPersistent(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at_____private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_addDecForAlt_spec__0(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_IR_beqArg____x40_Lean_Compiler_IR_Basic___hyg_1402_(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExplicitRC_getVarInfo(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at_____private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_addIncBeforeAux_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -879,7 +879,7 @@ x_8 = lean_nat_sub(x_4, x_5);
 lean_inc(x_1);
 x_9 = lean_array_get(x_1, x_2, x_8);
 lean_dec(x_8);
-x_10 = l_Lean_IR_beqArg____x40_Lean_Compiler_IR_Basic___hyg_1402_(x_9, x_3);
+x_10 = l_Lean_IR_beqArg____x40_Lean_Compiler_IR_Basic___hyg_1324_(x_9, x_3);
 lean_dec(x_9);
 if (x_10 == 0)
 {

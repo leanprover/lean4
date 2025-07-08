@@ -3313,7 +3313,7 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_Elab_elabModifiers___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; lean_object* x_23; uint8_t x_24; lean_object* x_25; uint8_t x_62; lean_object* x_63; uint8_t x_64; uint8_t x_71; lean_object* x_85; lean_object* x_86; uint8_t x_87; 
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; uint8_t x_23; lean_object* x_24; lean_object* x_25; uint8_t x_62; lean_object* x_63; uint8_t x_64; uint8_t x_71; lean_object* x_85; lean_object* x_86; uint8_t x_87; 
 x_13 = lean_ctor_get(x_1, 0);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_1, 1);
@@ -3366,7 +3366,7 @@ block_61:
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 x_26 = lean_box(x_22);
-x_27 = lean_box(x_24);
+x_27 = lean_box(x_23);
 lean_inc(x_4);
 lean_inc(x_1);
 lean_inc(x_14);
@@ -3377,7 +3377,7 @@ lean_closure_set(x_28, 1, x_25);
 lean_closure_set(x_28, 2, x_26);
 lean_closure_set(x_28, 3, x_27);
 lean_closure_set(x_28, 4, x_15);
-lean_closure_set(x_28, 5, x_23);
+lean_closure_set(x_28, 5, x_24);
 lean_closure_set(x_28, 6, x_19);
 lean_closure_set(x_28, 7, x_16);
 lean_closure_set(x_28, 8, x_14);
@@ -3495,8 +3495,8 @@ if (lean_obj_tag(x_65) == 0)
 lean_object* x_66; 
 x_66 = lean_box(0);
 x_22 = x_62;
-x_23 = x_63;
-x_24 = x_64;
+x_23 = x_64;
+x_24 = x_63;
 x_25 = x_66;
 goto block_61;
 }
@@ -3507,8 +3507,8 @@ x_67 = !lean_is_exclusive(x_65);
 if (x_67 == 0)
 {
 x_22 = x_62;
-x_23 = x_63;
-x_24 = x_64;
+x_23 = x_64;
+x_24 = x_63;
 x_25 = x_65;
 goto block_61;
 }
@@ -3521,8 +3521,8 @@ lean_dec(x_65);
 x_69 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_69, 0, x_68);
 x_22 = x_62;
-x_23 = x_63;
-x_24 = x_64;
+x_23 = x_64;
+x_24 = x_63;
 x_25 = x_69;
 goto block_61;
 }

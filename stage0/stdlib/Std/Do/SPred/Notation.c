@@ -27,11 +27,13 @@ LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___redArg___lam__2___boxe
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_____private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandForall_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandExists___closed__1;
 LEAN_EXPORT lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___lam__3(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__18;
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandIff___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_term_u231c___u231d;
 static lean_object* l_Std_Do_term_x23_____closed__4;
 uint8_t l_Lean_Syntax_matchesIdent(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___redArg___lam__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__15;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term___u22a3_u22a2_u209b____1___closed__5;
 static lean_object* l_Std_Do_termTerm_x28___x29___closed__6;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__2;
@@ -94,6 +96,7 @@ static lean_object* l_Std_Do_term_u231c___u231d___closed__4;
 static lean_object* l_Std_Do_term_x23_____closed__0;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_x23____1___closed__7;
 static lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandImp___closed__0;
+static lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__12;
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandNot___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandExists___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do_term_u2039___u203a_u209b___closed__1;
@@ -106,10 +109,13 @@ static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__St
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___closed__63;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term___u22a2_u209b____1___closed__7;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_x23____1___closed__10;
+static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__21;
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mkArray0(lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u2039___u203a_u209b__1___closed__5;
+static lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__10;
 lean_object* l_Lean_Syntax_getNumArgs(lean_object*);
+static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__19;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term___u22a3_u22a2_u209b____1___closed__2;
 static lean_object* l_Std_Do_term_u2039___u203a_u209b___closed__7;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__16;
@@ -134,7 +140,9 @@ static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__St
 LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___redArg___lam__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___closed__0;
 LEAN_EXPORT lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___lam__0(lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__0;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___closed__16;
+static lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__13;
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandImp___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___redArg___lam__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -156,6 +164,7 @@ static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__St
 LEAN_EXPORT lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_x23____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___closed__9;
 static lean_object* l_Std_Do_term_u2039___u203a_u209b___closed__0;
+static lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__9;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___closed__22;
 static lean_object* l_Std_Do_termTerm_x28___x29___closed__3;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___closed__60;
@@ -168,6 +177,7 @@ LEAN_EXPORT lean_object* l_Std_Do_term___u22a2_u209b__;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__5;
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandForall___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandIff(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__16;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___closed__54;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___closed__33;
 LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___redArg___lam__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -194,13 +204,16 @@ static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__St
 static lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandExists___closed__0;
 LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u2039___u203a_u209b__1___closed__1;
+static lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__1;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do_term___u22a3_u22a2_u209b_____closed__3;
+static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__23;
 static lean_object* l_Std_Do_term___u22a3_u22a2_u209b_____closed__1;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___lam__1___closed__2;
 LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___redArg___lam__17(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__2;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_x23____1___closed__5;
+static lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__3;
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__18;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___closed__62;
@@ -242,6 +255,7 @@ lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term___u22a3_u22a2_u209b____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___closed__12;
 static lean_object* l_Std_Do_term_u22a2_u209b_____closed__3;
+static lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__5;
 LEAN_EXPORT lean_object* l_Std_Do_termTerm_x28___x29;
 LEAN_EXPORT lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__0;
@@ -272,6 +286,7 @@ static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__St
 LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___redArg___lam__18___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_term_u22a2_u209b__;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___closed__43;
+static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__22;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___lam__1___closed__3;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___lam__1___closed__5;
 static lean_object* l_Std_Do_term___u22a2_u209b_____closed__1;
@@ -302,6 +317,7 @@ LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___redArg___lam__15(lean_
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__4;
 LEAN_EXPORT lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandBientails___closed__0;
+static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__20;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___closed__13;
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandAnd(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___closed__6;
@@ -312,6 +328,7 @@ static lean_object* l_Std_Do_term_u22a2_u209b_____closed__2;
 LEAN_EXPORT lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_Do_term_x23__;
+static lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__2;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___closed__14;
 static lean_object* l_Std_Do_term_u231c___u231d___closed__3;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u2039___u203a_u209b__1___closed__3;
@@ -321,6 +338,7 @@ lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__12;
 size_t lean_array_size(lean_object*);
 static lean_object* l_Std_Do_term_x23_____closed__6;
+static lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__6;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_x23____1___closed__14;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term___u22a3_u22a2_u209b____1___closed__4;
 LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___redArg___lam__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -342,7 +360,9 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_____private_Std_Do_SPred_No
 static lean_object* l_Std_Do_termTerm_x28___x29___closed__4;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__20;
 static lean_object* l_Std_Do_term_u231c___u231d___closed__8;
+static lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__11;
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandNot(lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__4;
 LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___redArg___lam__15___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do_term_x23_____closed__3;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -350,6 +370,7 @@ LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___redArg___lam__11___box
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandEntails(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___closed__31;
+static lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__8;
 static lean_object* l_Std_Do_term_u22a2_u209b_____closed__0;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u22a2_u209b____1___closed__1;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___closed__2;
@@ -367,9 +388,11 @@ LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___redArg(lean_object*, l
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_x23____1___closed__12;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___closed__35;
+static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__17;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u2039___u203a_u209b__1___closed__6;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__6;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___closed__28;
+static lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__7;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__9;
 static lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___closed__1;
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandEntails___boxed(lean_object*, lean_object*, lean_object*);
@@ -2808,6 +2831,95 @@ x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__15() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("ULift.up", 8, 8);
+return x_1;
+}
+}
+static lean_object* _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__16() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__15;
+x_2 = l_String_toSubstring_x27(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__17() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("ULift", 5, 5);
+return x_1;
+}
+}
+static lean_object* _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__18() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("up", 2, 2);
+return x_1;
+}
+}
+static lean_object* _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__19() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__18;
+x_2 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__17;
+x_3 = l_Lean_Name_mkStr2(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__20() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__19;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__21() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__19;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__22() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__21;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__23() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__22;
+x_2 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__20;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2828,7 +2940,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; 
 x_8 = lean_ctor_get(x_2, 1);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_2, 2);
@@ -2872,6 +2984,8 @@ lean_ctor_set(x_28, 1, x_26);
 x_29 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__19;
 x_30 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__13;
 x_31 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__14;
+lean_inc(x_9);
+lean_inc(x_8);
 x_32 = l_Lean_addMacroScope(x_8, x_31, x_9);
 lean_inc(x_14);
 x_33 = lean_alloc_ctor(3, 4, 0);
@@ -2892,24 +3006,38 @@ lean_inc(x_14);
 x_38 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_38, 0, x_14);
 lean_ctor_set(x_38, 1, x_37);
+x_39 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__16;
+x_40 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__19;
+x_41 = l_Lean_addMacroScope(x_8, x_40, x_9);
+x_42 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__23;
 lean_inc(x_14);
-x_39 = l_Lean_Syntax_node4(x_14, x_29, x_34, x_36, x_38, x_12);
+x_43 = lean_alloc_ctor(3, 4, 0);
+lean_ctor_set(x_43, 0, x_14);
+lean_ctor_set(x_43, 1, x_39);
+lean_ctor_set(x_43, 2, x_41);
+lean_ctor_set(x_43, 3, x_42);
 lean_inc(x_14);
-x_40 = l_Lean_Syntax_node2(x_14, x_27, x_28, x_39);
-x_41 = l_Std_Do_termSpred_x28___x29___closed__12;
+x_44 = l_Lean_Syntax_node1(x_14, x_22, x_12);
 lean_inc(x_14);
-x_42 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_42, 0, x_14);
-lean_ctor_set(x_42, 1, x_41);
+x_45 = l_Lean_Syntax_node2(x_14, x_15, x_43, x_44);
 lean_inc(x_14);
-x_43 = l_Lean_Syntax_node3(x_14, x_23, x_25, x_40, x_42);
+x_46 = l_Lean_Syntax_node4(x_14, x_29, x_34, x_36, x_38, x_45);
 lean_inc(x_14);
-x_44 = l_Lean_Syntax_node1(x_14, x_22, x_43);
-x_45 = l_Lean_Syntax_node2(x_14, x_15, x_21, x_44);
-x_46 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_46, 0, x_45);
-lean_ctor_set(x_46, 1, x_3);
-return x_46;
+x_47 = l_Lean_Syntax_node2(x_14, x_27, x_28, x_46);
+x_48 = l_Std_Do_termSpred_x28___x29___closed__12;
+lean_inc(x_14);
+x_49 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_49, 0, x_14);
+lean_ctor_set(x_49, 1, x_48);
+lean_inc(x_14);
+x_50 = l_Lean_Syntax_node3(x_14, x_23, x_25, x_47, x_49);
+lean_inc(x_14);
+x_51 = l_Lean_Syntax_node1(x_14, x_22, x_50);
+x_52 = l_Lean_Syntax_node2(x_14, x_15, x_21, x_51);
+x_53 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_53, 0, x_52);
+lean_ctor_set(x_53, 1, x_3);
+return x_53;
 }
 }
 }
@@ -13614,6 +13742,143 @@ return x_33;
 }
 }
 }
+static lean_object* _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("structInst", 10, 10);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__0;
+x_2 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__2;
+x_3 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__1;
+x_4 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__0;
+x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
+return x_5;
+}
+}
+static lean_object* _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("structInstFields", 16, 16);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__2;
+x_2 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__2;
+x_3 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__1;
+x_4 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__0;
+x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
+return x_5;
+}
+}
+static lean_object* _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("structInstField", 15, 15);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__4;
+x_2 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__2;
+x_3 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__1;
+x_4 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__0;
+x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
+return x_5;
+}
+}
+static lean_object* _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__6() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("structInstLVal", 14, 14);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__6;
+x_2 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__2;
+x_3 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__1;
+x_4 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__0;
+x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
+return x_5;
+}
+}
+static lean_object* _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__8() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("down", 4, 4);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__9() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__8;
+x_2 = l_Lean_Name_mkStr1(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__10() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("structInstFieldDef", 18, 18);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__11() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__10;
+x_2 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__2;
+x_3 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__1;
+x_4 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__0;
+x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
+return x_5;
+}
+}
+static lean_object* _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__12() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("optEllipsis", 11, 11);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__13() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__12;
+x_2 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__2;
+x_3 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__1;
+x_4 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__0;
+x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -13726,76 +13991,406 @@ return x_32;
 }
 else
 {
-lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; uint8_t x_41; 
-x_33 = l_Lean_Syntax_getArgs(x_9);
-lean_dec(x_9);
-x_34 = l_Array_extract___redArg(x_33, x_8, x_10);
-lean_dec(x_33);
-x_35 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__14;
-x_36 = lean_box(2);
-x_37 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_37, 0, x_36);
-lean_ctor_set(x_37, 1, x_35);
-lean_ctor_set(x_37, 2, x_34);
-x_38 = l_Lean_Syntax_getArgs(x_37);
-lean_dec(x_37);
-x_39 = lean_unsigned_to_nat(3u);
-x_40 = l_Lean_Syntax_getArg(x_20, x_39);
+lean_object* x_33; lean_object* x_34; lean_object* x_35; uint8_t x_36; 
+x_33 = lean_unsigned_to_nat(3u);
+x_34 = l_Lean_Syntax_getArg(x_20, x_33);
 lean_dec(x_20);
-x_41 = l_Array_isEmpty___redArg(x_38);
-if (x_41 == 0)
+x_35 = l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__1;
+lean_inc(x_34);
+x_36 = l_Lean_Syntax_isOfKind(x_34, x_35);
+if (x_36 == 0)
 {
-lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; 
-x_42 = l_Lean_SourceInfo_fromRef(x_2, x_41);
-x_43 = l_Std_Do_term_u231c___u231d___closed__1;
-x_44 = l_Std_Do_term_u231c___u231d___closed__2;
-lean_inc(x_42);
-x_45 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_45, 0, x_42);
-lean_ctor_set(x_45, 1, x_44);
-x_46 = l_Std_Do_term_u231c___u231d___closed__5;
-lean_inc(x_42);
-x_47 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_47, 0, x_42);
-lean_ctor_set(x_47, 1, x_46);
-lean_inc(x_42);
-x_48 = l_Lean_Syntax_node3(x_42, x_43, x_45, x_40, x_47);
-x_49 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__20;
-x_50 = l_Array_append___redArg(x_49, x_38);
-lean_dec(x_38);
-lean_inc(x_42);
-x_51 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_51, 0, x_42);
-lean_ctor_set(x_51, 1, x_35);
-lean_ctor_set(x_51, 2, x_50);
-x_52 = l_Lean_Syntax_node2(x_42, x_4, x_48, x_51);
-x_53 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_53, 0, x_52);
-lean_ctor_set(x_53, 1, x_3);
-return x_53;
+lean_object* x_37; lean_object* x_38; 
+lean_dec(x_34);
+lean_dec(x_10);
+lean_dec(x_9);
+x_37 = lean_box(0);
+x_38 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_38, 0, x_37);
+lean_ctor_set(x_38, 1, x_3);
+return x_38;
 }
 else
 {
-uint8_t x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; 
-lean_dec(x_38);
-x_54 = 0;
-x_55 = l_Lean_SourceInfo_fromRef(x_2, x_54);
-x_56 = l_Std_Do_term_u231c___u231d___closed__1;
-x_57 = l_Std_Do_term_u231c___u231d___closed__2;
-lean_inc(x_55);
-x_58 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_58, 0, x_55);
-lean_ctor_set(x_58, 1, x_57);
-x_59 = l_Std_Do_term_u231c___u231d___closed__5;
-lean_inc(x_55);
-x_60 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_60, 0, x_55);
-lean_ctor_set(x_60, 1, x_59);
-x_61 = l_Lean_Syntax_node3(x_55, x_56, x_58, x_40, x_60);
-x_62 = lean_alloc_ctor(0, 2, 0);
+lean_object* x_39; uint8_t x_40; 
+x_39 = l_Lean_Syntax_getArg(x_34, x_8);
+x_40 = l_Lean_Syntax_matchesNull(x_39, x_14);
+if (x_40 == 0)
+{
+lean_object* x_41; lean_object* x_42; 
+lean_dec(x_34);
+lean_dec(x_10);
+lean_dec(x_9);
+x_41 = lean_box(0);
+x_42 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_42, 0, x_41);
+lean_ctor_set(x_42, 1, x_3);
+return x_42;
+}
+else
+{
+lean_object* x_43; lean_object* x_44; lean_object* x_45; uint8_t x_46; 
+x_43 = lean_unsigned_to_nat(2u);
+x_44 = l_Lean_Syntax_getArg(x_34, x_43);
+x_45 = l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__3;
+lean_inc(x_44);
+x_46 = l_Lean_Syntax_isOfKind(x_44, x_45);
+if (x_46 == 0)
+{
+lean_object* x_47; lean_object* x_48; 
+lean_dec(x_44);
+lean_dec(x_34);
+lean_dec(x_10);
+lean_dec(x_9);
+x_47 = lean_box(0);
+x_48 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_48, 0, x_47);
+lean_ctor_set(x_48, 1, x_3);
+return x_48;
+}
+else
+{
+lean_object* x_49; uint8_t x_50; 
+x_49 = l_Lean_Syntax_getArg(x_44, x_14);
+lean_dec(x_44);
+lean_inc(x_49);
+x_50 = l_Lean_Syntax_matchesNull(x_49, x_8);
+if (x_50 == 0)
+{
+lean_object* x_51; lean_object* x_52; 
+lean_dec(x_49);
+lean_dec(x_34);
+lean_dec(x_10);
+lean_dec(x_9);
+x_51 = lean_box(0);
+x_52 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_52, 0, x_51);
+lean_ctor_set(x_52, 1, x_3);
+return x_52;
+}
+else
+{
+lean_object* x_53; lean_object* x_54; uint8_t x_55; 
+x_53 = l_Lean_Syntax_getArg(x_49, x_14);
+lean_dec(x_49);
+x_54 = l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__5;
+lean_inc(x_53);
+x_55 = l_Lean_Syntax_isOfKind(x_53, x_54);
+if (x_55 == 0)
+{
+lean_object* x_56; lean_object* x_57; 
+lean_dec(x_53);
+lean_dec(x_34);
+lean_dec(x_10);
+lean_dec(x_9);
+x_56 = lean_box(0);
+x_57 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_57, 0, x_56);
+lean_ctor_set(x_57, 1, x_3);
+return x_57;
+}
+else
+{
+lean_object* x_58; lean_object* x_59; uint8_t x_60; 
+x_58 = l_Lean_Syntax_getArg(x_53, x_14);
+x_59 = l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__7;
+lean_inc(x_58);
+x_60 = l_Lean_Syntax_isOfKind(x_58, x_59);
+if (x_60 == 0)
+{
+lean_object* x_61; lean_object* x_62; 
+lean_dec(x_58);
+lean_dec(x_53);
+lean_dec(x_34);
+lean_dec(x_10);
+lean_dec(x_9);
+x_61 = lean_box(0);
+x_62 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_62, 0, x_61);
 lean_ctor_set(x_62, 1, x_3);
 return x_62;
+}
+else
+{
+lean_object* x_63; lean_object* x_64; uint8_t x_65; 
+x_63 = l_Lean_Syntax_getArg(x_58, x_14);
+x_64 = l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__9;
+x_65 = l_Lean_Syntax_matchesIdent(x_63, x_64);
+lean_dec(x_63);
+if (x_65 == 0)
+{
+lean_object* x_66; lean_object* x_67; 
+lean_dec(x_58);
+lean_dec(x_53);
+lean_dec(x_34);
+lean_dec(x_10);
+lean_dec(x_9);
+x_66 = lean_box(0);
+x_67 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_67, 0, x_66);
+lean_ctor_set(x_67, 1, x_3);
+return x_67;
+}
+else
+{
+lean_object* x_68; uint8_t x_69; 
+x_68 = l_Lean_Syntax_getArg(x_58, x_8);
+lean_dec(x_58);
+x_69 = l_Lean_Syntax_matchesNull(x_68, x_14);
+if (x_69 == 0)
+{
+lean_object* x_70; lean_object* x_71; 
+lean_dec(x_53);
+lean_dec(x_34);
+lean_dec(x_10);
+lean_dec(x_9);
+x_70 = lean_box(0);
+x_71 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_71, 0, x_70);
+lean_ctor_set(x_71, 1, x_3);
+return x_71;
+}
+else
+{
+lean_object* x_72; uint8_t x_73; 
+x_72 = l_Lean_Syntax_getArg(x_53, x_8);
+lean_dec(x_53);
+lean_inc(x_72);
+x_73 = l_Lean_Syntax_matchesNull(x_72, x_33);
+if (x_73 == 0)
+{
+lean_object* x_74; lean_object* x_75; 
+lean_dec(x_72);
+lean_dec(x_34);
+lean_dec(x_10);
+lean_dec(x_9);
+x_74 = lean_box(0);
+x_75 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_75, 0, x_74);
+lean_ctor_set(x_75, 1, x_3);
+return x_75;
+}
+else
+{
+lean_object* x_76; uint8_t x_77; 
+x_76 = l_Lean_Syntax_getArg(x_72, x_14);
+x_77 = l_Lean_Syntax_matchesNull(x_76, x_14);
+if (x_77 == 0)
+{
+lean_object* x_78; lean_object* x_79; 
+lean_dec(x_72);
+lean_dec(x_34);
+lean_dec(x_10);
+lean_dec(x_9);
+x_78 = lean_box(0);
+x_79 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_79, 0, x_78);
+lean_ctor_set(x_79, 1, x_3);
+return x_79;
+}
+else
+{
+lean_object* x_80; uint8_t x_81; 
+x_80 = l_Lean_Syntax_getArg(x_72, x_8);
+x_81 = l_Lean_Syntax_matchesNull(x_80, x_14);
+if (x_81 == 0)
+{
+lean_object* x_82; lean_object* x_83; 
+lean_dec(x_72);
+lean_dec(x_34);
+lean_dec(x_10);
+lean_dec(x_9);
+x_82 = lean_box(0);
+x_83 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_83, 0, x_82);
+lean_ctor_set(x_83, 1, x_3);
+return x_83;
+}
+else
+{
+lean_object* x_84; lean_object* x_85; uint8_t x_86; 
+x_84 = l_Lean_Syntax_getArg(x_72, x_43);
+lean_dec(x_72);
+x_85 = l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__11;
+lean_inc(x_84);
+x_86 = l_Lean_Syntax_isOfKind(x_84, x_85);
+if (x_86 == 0)
+{
+lean_object* x_87; lean_object* x_88; 
+lean_dec(x_84);
+lean_dec(x_34);
+lean_dec(x_10);
+lean_dec(x_9);
+x_87 = lean_box(0);
+x_88 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_88, 0, x_87);
+lean_ctor_set(x_88, 1, x_3);
+return x_88;
+}
+else
+{
+lean_object* x_89; uint8_t x_90; 
+x_89 = l_Lean_Syntax_getArg(x_84, x_8);
+x_90 = l_Lean_Syntax_matchesNull(x_89, x_14);
+if (x_90 == 0)
+{
+lean_object* x_91; lean_object* x_92; 
+lean_dec(x_84);
+lean_dec(x_34);
+lean_dec(x_10);
+lean_dec(x_9);
+x_91 = lean_box(0);
+x_92 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_92, 0, x_91);
+lean_ctor_set(x_92, 1, x_3);
+return x_92;
+}
+else
+{
+lean_object* x_93; lean_object* x_94; uint8_t x_95; 
+x_93 = l_Lean_Syntax_getArg(x_34, x_33);
+x_94 = l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__13;
+lean_inc(x_93);
+x_95 = l_Lean_Syntax_isOfKind(x_93, x_94);
+if (x_95 == 0)
+{
+lean_object* x_96; lean_object* x_97; 
+lean_dec(x_93);
+lean_dec(x_84);
+lean_dec(x_34);
+lean_dec(x_10);
+lean_dec(x_9);
+x_96 = lean_box(0);
+x_97 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_97, 0, x_96);
+lean_ctor_set(x_97, 1, x_3);
+return x_97;
+}
+else
+{
+lean_object* x_98; uint8_t x_99; 
+x_98 = l_Lean_Syntax_getArg(x_93, x_14);
+lean_dec(x_93);
+x_99 = l_Lean_Syntax_matchesNull(x_98, x_14);
+if (x_99 == 0)
+{
+lean_object* x_100; lean_object* x_101; 
+lean_dec(x_84);
+lean_dec(x_34);
+lean_dec(x_10);
+lean_dec(x_9);
+x_100 = lean_box(0);
+x_101 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_101, 0, x_100);
+lean_ctor_set(x_101, 1, x_3);
+return x_101;
+}
+else
+{
+lean_object* x_102; lean_object* x_103; uint8_t x_104; 
+x_102 = lean_unsigned_to_nat(4u);
+x_103 = l_Lean_Syntax_getArg(x_34, x_102);
+lean_dec(x_34);
+x_104 = l_Lean_Syntax_matchesNull(x_103, x_14);
+if (x_104 == 0)
+{
+lean_object* x_105; lean_object* x_106; 
+lean_dec(x_84);
+lean_dec(x_10);
+lean_dec(x_9);
+x_105 = lean_box(0);
+x_106 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_106, 0, x_105);
+lean_ctor_set(x_106, 1, x_3);
+return x_106;
+}
+else
+{
+lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; uint8_t x_114; 
+x_107 = l_Lean_Syntax_getArgs(x_9);
+lean_dec(x_9);
+x_108 = l_Array_extract___redArg(x_107, x_8, x_10);
+lean_dec(x_107);
+x_109 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__14;
+x_110 = lean_box(2);
+x_111 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_111, 0, x_110);
+lean_ctor_set(x_111, 1, x_109);
+lean_ctor_set(x_111, 2, x_108);
+x_112 = l_Lean_Syntax_getArgs(x_111);
+lean_dec(x_111);
+x_113 = l_Lean_Syntax_getArg(x_84, x_43);
+lean_dec(x_84);
+x_114 = l_Array_isEmpty___redArg(x_112);
+if (x_114 == 0)
+{
+lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; 
+x_115 = l_Lean_SourceInfo_fromRef(x_2, x_114);
+x_116 = l_Std_Do_term_u231c___u231d___closed__1;
+x_117 = l_Std_Do_term_u231c___u231d___closed__2;
+lean_inc(x_115);
+x_118 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_118, 0, x_115);
+lean_ctor_set(x_118, 1, x_117);
+x_119 = l_Std_Do_term_u231c___u231d___closed__5;
+lean_inc(x_115);
+x_120 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_120, 0, x_115);
+lean_ctor_set(x_120, 1, x_119);
+lean_inc(x_115);
+x_121 = l_Lean_Syntax_node3(x_115, x_116, x_118, x_113, x_120);
+x_122 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__2___closed__20;
+x_123 = l_Array_append___redArg(x_122, x_112);
+lean_dec(x_112);
+lean_inc(x_115);
+x_124 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_124, 0, x_115);
+lean_ctor_set(x_124, 1, x_109);
+lean_ctor_set(x_124, 2, x_123);
+x_125 = l_Lean_Syntax_node2(x_115, x_4, x_121, x_124);
+x_126 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_126, 0, x_125);
+lean_ctor_set(x_126, 1, x_3);
+return x_126;
+}
+else
+{
+uint8_t x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; lean_object* x_133; lean_object* x_134; lean_object* x_135; 
+lean_dec(x_112);
+x_127 = 0;
+x_128 = l_Lean_SourceInfo_fromRef(x_2, x_127);
+x_129 = l_Std_Do_term_u231c___u231d___closed__1;
+x_130 = l_Std_Do_term_u231c___u231d___closed__2;
+lean_inc(x_128);
+x_131 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_131, 0, x_128);
+lean_ctor_set(x_131, 1, x_130);
+x_132 = l_Std_Do_term_u231c___u231d___closed__5;
+lean_inc(x_128);
+x_133 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_133, 0, x_128);
+lean_ctor_set(x_133, 1, x_132);
+x_134 = l_Lean_Syntax_node3(x_128, x_129, x_131, x_113, x_133);
+x_135 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_135, 0, x_134);
+lean_ctor_set(x_135, 1, x_3);
+return x_135;
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
+}
 }
 }
 }
@@ -18333,6 +18928,24 @@ l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___
 lean_mark_persistent(l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__13);
 l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__14 = _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__14();
 lean_mark_persistent(l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__14);
+l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__15 = _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__15();
+lean_mark_persistent(l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__15);
+l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__16 = _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__16();
+lean_mark_persistent(l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__16);
+l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__17 = _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__17();
+lean_mark_persistent(l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__17);
+l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__18 = _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__18();
+lean_mark_persistent(l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__18);
+l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__19 = _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__19();
+lean_mark_persistent(l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__19);
+l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__20 = _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__20();
+lean_mark_persistent(l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__20);
+l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__21 = _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__21();
+lean_mark_persistent(l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__21);
+l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__22 = _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__22();
+lean_mark_persistent(l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__22);
+l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__23 = _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__23();
+lean_mark_persistent(l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_u231c___u231d__1___closed__23);
 l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_x23____1___closed__0 = _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_x23____1___closed__0();
 lean_mark_persistent(l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_x23____1___closed__0);
 l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_x23____1___closed__1 = _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term_x23____1___closed__1();
@@ -18577,6 +19190,34 @@ l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term___u22a3_
 lean_mark_persistent(l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term___u22a3_u22a2_u209b____1___closed__5);
 l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term___u22a3_u22a2_u209b____1___closed__6 = _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term___u22a3_u22a2_u209b____1___closed__6();
 lean_mark_persistent(l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__term___u22a3_u22a2_u209b____1___closed__6);
+l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__0 = _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__0();
+lean_mark_persistent(l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__0);
+l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__1 = _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__1();
+lean_mark_persistent(l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__1);
+l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__2 = _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__2();
+lean_mark_persistent(l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__2);
+l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__3 = _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__3();
+lean_mark_persistent(l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__3);
+l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__4 = _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__4();
+lean_mark_persistent(l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__4);
+l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__5 = _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__5();
+lean_mark_persistent(l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__5);
+l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__6 = _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__6();
+lean_mark_persistent(l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__6);
+l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__7 = _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__7();
+lean_mark_persistent(l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__7);
+l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__8 = _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__8();
+lean_mark_persistent(l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__8);
+l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__9 = _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__9();
+lean_mark_persistent(l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__9);
+l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__10 = _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__10();
+lean_mark_persistent(l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__10);
+l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__11 = _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__11();
+lean_mark_persistent(l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__11);
+l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__12 = _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__12();
+lean_mark_persistent(l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__12);
+l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__13 = _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__13();
+lean_mark_persistent(l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandCurry___closed__13);
 l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandEntails___closed__0 = _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandEntails___closed__0();
 lean_mark_persistent(l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandEntails___closed__0);
 l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandBientails___closed__0 = _init_l___private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandBientails___closed__0();

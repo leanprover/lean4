@@ -1106,12 +1106,12 @@ return x_37;
 block_11:
 {
 lean_object* x_9; lean_object* x_10; 
-lean_dec(x_7);
-x_9 = l_Array_qsort_sort___at___Lean_Expr_numApps_spec__0___redArg(x_6, x_5, x_8);
+lean_dec(x_6);
+x_9 = l_Array_qsort_sort___at___Lean_Expr_numApps_spec__0___redArg(x_7, x_4, x_8);
 lean_dec(x_8);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
-lean_ctor_set(x_10, 1, x_4);
+lean_ctor_set(x_10, 1, x_5);
 return x_10;
 }
 block_18:
@@ -1122,19 +1122,19 @@ if (x_17 == 0)
 {
 lean_dec(x_12);
 lean_inc(x_16);
-x_4 = x_13;
-x_5 = x_16;
-x_6 = x_15;
-x_7 = x_14;
+x_4 = x_16;
+x_5 = x_13;
+x_6 = x_14;
+x_7 = x_15;
 x_8 = x_16;
 goto block_11;
 }
 else
 {
-x_4 = x_13;
-x_5 = x_16;
-x_6 = x_15;
-x_7 = x_14;
+x_4 = x_16;
+x_5 = x_13;
+x_6 = x_14;
+x_7 = x_15;
 x_8 = x_12;
 goto block_11;
 }

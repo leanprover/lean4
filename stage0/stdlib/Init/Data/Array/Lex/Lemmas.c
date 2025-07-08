@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Lex.Lemmas
-// Imports: Init.Data.Array.Lex.Basic Init.Data.Array.Lemmas Init.Data.List.Lex
+// Imports: Init.Data.Array.Lex.Basic Init.Data.Array.Lex.Basic Init.Data.Array.Lemmas Init.Data.List.Lex Init.Data.Range.Polymorphic.Lemmas Init.Data.Range.Polymorphic.NatLemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -251,8 +251,11 @@ return x_8;
 }
 }
 lean_object* initialize_Init_Data_Array_Lex_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Lex_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Lex(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Range_Polymorphic_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Range_Polymorphic_NatLemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Array_Lex_Lemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -261,10 +264,19 @@ _G_initialized = true;
 res = initialize_Init_Data_Array_Lex_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_Array_Lex_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Array_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Lex(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_Lemmas(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_NatLemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

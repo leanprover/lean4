@@ -119,7 +119,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_IterM_QuotStep_bundledQuotient(lean_obj
 _start:
 {
 lean_object* x_9; 
-x_9 = l_Std_Iterators_IterM_QuotStep_bundledQuotient___redArg(x_4, x_8);
+x_9 = l_Std_Iterators_IterStep_bundledQuotient___redArg(x_4, x_8);
 return x_9;
 }
 }

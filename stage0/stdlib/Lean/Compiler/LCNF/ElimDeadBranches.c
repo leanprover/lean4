@@ -8864,9 +8864,9 @@ x_45 = lean_ctor_get(x_44, 1);
 lean_inc(x_45);
 x_46 = lean_ctor_get(x_44, 2);
 lean_inc(x_46);
-x_47 = lean_ctor_get(x_41, 4);
+x_47 = lean_ctor_get(x_40, 4);
 lean_inc(x_47);
-lean_dec(x_41);
+lean_dec(x_40);
 x_48 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_48, 0, x_45);
 x_49 = lean_alloc_ctor(0, 2, 0);
@@ -8892,7 +8892,7 @@ if (lean_is_scalar(x_37)) {
  x_55 = x_37;
 }
 lean_ctor_set(x_55, 0, x_54);
-lean_ctor_set(x_55, 1, x_40);
+lean_ctor_set(x_55, 1, x_41);
 return x_55;
 }
 else
@@ -8901,7 +8901,7 @@ size_t x_56; size_t x_57; lean_object* x_58; uint8_t x_59;
 lean_dec(x_37);
 x_56 = lean_array_size(x_51);
 x_57 = 0;
-x_58 = l_Array_mapMUnsafe_map___at___Lean_Compiler_LCNF_UnreachableBranches_interpCode_interpLetValue_spec__1___redArg(x_56, x_57, x_51, x_2, x_3, x_40);
+x_58 = l_Array_mapMUnsafe_map___at___Lean_Compiler_LCNF_UnreachableBranches_interpCode_interpLetValue_spec__1___redArg(x_56, x_57, x_51, x_2, x_3, x_41);
 lean_dec(x_2);
 x_59 = !lean_is_exclusive(x_58);
 if (x_59 == 0)
@@ -8975,8 +8975,8 @@ lean_inc(x_76);
 x_77 = lean_nat_dec_le(x_76, x_39);
 if (x_77 == 0)
 {
-x_40 = x_71;
-x_41 = x_75;
+x_40 = x_75;
+x_41 = x_71;
 x_42 = x_76;
 x_43 = x_67;
 goto block_66;
@@ -8984,8 +8984,8 @@ goto block_66;
 else
 {
 lean_dec(x_76);
-x_40 = x_71;
-x_41 = x_75;
+x_40 = x_75;
+x_41 = x_71;
 x_42 = x_39;
 x_43 = x_67;
 goto block_66;

@@ -3333,7 +3333,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ctorAppToMono(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; size_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_52; lean_object* x_53; lean_object* x_75; lean_object* x_76; uint8_t x_77; 
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; size_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_52; lean_object* x_53; lean_object* x_75; lean_object* x_76; uint8_t x_77; 
 x_10 = lean_ctor_get(x_2, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_2, 3);
@@ -3369,10 +3369,10 @@ lean_ctor_set(x_22, 0, x_20);
 x_23 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
 lean_ctor_set(x_23, 1, x_21);
-x_24 = l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___Lean_Compiler_LCNF_ctorAppToMono_spec__0___redArg(x_19, x_23, x_16);
+x_24 = l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___Lean_Compiler_LCNF_ctorAppToMono_spec__0___redArg(x_19, x_23, x_14);
 lean_dec(x_19);
 x_25 = lean_array_size(x_24);
-x_26 = l_Array_mapMUnsafe_map___at___Lean_Compiler_LCNF_ctorAppToMono_spec__2(x_15, x_25, x_14, x_24, x_4, x_5, x_6, x_7, x_8, x_13);
+x_26 = l_Array_mapMUnsafe_map___at___Lean_Compiler_LCNF_ctorAppToMono_spec__2(x_13, x_25, x_16, x_24, x_4, x_5, x_6, x_7, x_8, x_15);
 if (lean_obj_tag(x_26) == 0)
 {
 uint8_t x_27; 
@@ -3516,10 +3516,10 @@ x_69 = lean_nat_dec_le(x_11, x_59);
 if (x_69 == 0)
 {
 x_12 = x_65;
-x_13 = x_66;
-x_14 = x_63;
-x_15 = x_67;
-x_16 = x_60;
+x_13 = x_67;
+x_14 = x_60;
+x_15 = x_66;
+x_16 = x_63;
 x_17 = x_11;
 x_18 = x_68;
 goto block_51;
@@ -3528,10 +3528,10 @@ else
 {
 lean_dec(x_11);
 x_12 = x_65;
-x_13 = x_66;
-x_14 = x_63;
-x_15 = x_67;
-x_16 = x_60;
+x_13 = x_67;
+x_14 = x_60;
+x_15 = x_66;
+x_16 = x_63;
 x_17 = x_59;
 x_18 = x_68;
 goto block_51;

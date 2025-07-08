@@ -272,6 +272,58 @@ private def reduceQuotRec (recVal  : QuotVal) (recArgs : Array Expr) (failK : Un
   | _             => failK ()
 
 -- ===========================
+/-! # Weak Head Normal Form auxiliary combinators -/
+-- ===========================
+
+/-- Auxiliary combinator for handling easy WHNF cases. It takes a function for handling the "hard" cases as an argument -/
+@[specialize] partial def whnfEasyCases (e : Expr) (k : Expr → MetaM Expr) : MetaM Expr := do
+  match e with
+  | .forallE ..    => return e
+  | .lam ..        => return e
+  | .sort ..       => return e
+  | .lit ..        => return e
+  | .bvar ..       => panic! "loose bvar in expression"
+  | .letE ..       => k e
+  | .const ..      => k e
+  | .app ..        => k e
+  | .proj ..       => k e
+  | .mdata _ e     => whnfEasyCases e k
+  | .fvar fvarId   =>
+    let decl ← fvarId.getDecl
+    match decl with
+    | .ldecl (value := v) (nondep := false) .. =>
+      -- Let-declarations marked as implementation detail should always be unfolded
+      -- We initially added this feature for `simp`, and added it here for consistency.
+      let cfg ← getConfig
+      if !decl.isImplementationDetail && !cfg.zetaDelta then
+        if !(← read).zetaDeltaSet.contains fvarId then
+          return e
+      if (← read).trackZetaDelta then
+        addZetaDeltaFVarId fvarId
+      whnfEasyCases v k
+    | _ => return e
+  | .mvar mvarId   =>
+    match (← getExprMVarAssignment? mvarId) with
+    | some v => whnfEasyCases v k
+    | none   => return e
+
+@[specialize] private def deltaDefinition (c : ConstantInfo) (lvls : List Level)
+    (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α := do
+  if c.levelParams.length != lvls.length then
+    failK ()
+  else
+    successK (← instantiateValueLevelParams c lvls)
+
+@[specialize] private def deltaBetaDefinition (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr)
+    (failK : Unit → MetaM α) (successK : Expr → MetaM α) (preserveMData := false) : MetaM α := do
+  if c.levelParams.length != lvls.length then
+    failK ()
+  else
+    let val ← instantiateValueLevelParams c lvls
+    let val := val.betaRev revArgs (preserveMData := preserveMData)
+    successK val
+
+-- ===========================
 /-! # Helper function for extracting "stuck term" -/
 -- ===========================
 
@@ -353,56 +405,8 @@ mutual
 end
 
 -- ===========================
-/-! # Weak Head Normal Form auxiliary combinators -/
+/-! # More Weak Head Normal Form auxiliary combinators -/
 -- ===========================
-
-/-- Auxiliary combinator for handling easy WHNF cases. It takes a function for handling the "hard" cases as an argument -/
-@[specialize] partial def whnfEasyCases (e : Expr) (k : Expr → MetaM Expr) : MetaM Expr := do
-  match e with
-  | .forallE ..    => return e
-  | .lam ..        => return e
-  | .sort ..       => return e
-  | .lit ..        => return e
-  | .bvar ..       => panic! "loose bvar in expression"
-  | .letE ..       => k e
-  | .const ..      => k e
-  | .app ..        => k e
-  | .proj ..       => k e
-  | .mdata _ e     => whnfEasyCases e k
-  | .fvar fvarId   =>
-    let decl ← fvarId.getDecl
-    match decl with
-    | .ldecl (value := v) (nondep := false) .. =>
-      -- Let-declarations marked as implementation detail should always be unfolded
-      -- We initially added this feature for `simp`, and added it here for consistency.
-      let cfg ← getConfig
-      if !decl.isImplementationDetail && !cfg.zetaDelta then
-        if !(← read).zetaDeltaSet.contains fvarId then
-          return e
-      if (← read).trackZetaDelta then
-        addZetaDeltaFVarId fvarId
-      whnfEasyCases v k
-    | _ => return e
-  | .mvar mvarId   =>
-    match (← getExprMVarAssignment? mvarId) with
-    | some v => whnfEasyCases v k
-    | none   => return e
-
-@[specialize] private def deltaDefinition (c : ConstantInfo) (lvls : List Level)
-    (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α := do
-  if c.levelParams.length != lvls.length then
-    failK ()
-  else
-    successK (← instantiateValueLevelParams c lvls)
-
-@[specialize] private def deltaBetaDefinition (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr)
-    (failK : Unit → MetaM α) (successK : Expr → MetaM α) (preserveMData := false) : MetaM α := do
-  if c.levelParams.length != lvls.length then
-    failK ()
-  else
-    let val ← instantiateValueLevelParams c lvls
-    let val := val.betaRev revArgs (preserveMData := preserveMData)
-    successK val
 
 inductive ReduceMatcherResult where
   | reduced (val : Expr)

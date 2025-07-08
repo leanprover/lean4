@@ -100,7 +100,7 @@ def run (declNames : Array Name) : CompilerM (Array IR.Decl) := withAtLeastMaxRe
   let manager ← getPassManager
   let isCheckEnabled := compiler.check.get (← getOptions)
   for pass in manager.passes do
-    decls ← withTraceNode `Compiler (fun _ => return m!"new compiler phase: {pass.phase}, pass: {pass.name}") do
+    decls ← withTraceNode `Compiler (fun _ => return m!"compiler phase: {pass.phase}, pass: {pass.name}") do
       withPhase pass.phase <| pass.run decls
     withPhase pass.phaseOut <| checkpoint pass.name decls (isCheckEnabled || pass.shouldAlwaysRunCheck)
   if (← Lean.isTracingEnabledFor `Compiler.result) then
@@ -135,8 +135,8 @@ def showDecl (phase : Phase) (declName : Name) : CoreM Format := do
 
 @[export lean_lcnf_compile_decls]
 def main (declNames : List Name) : CoreM Unit := do
-  profileitM Exception "compilation new" (← getOptions) do
-    withTraceNode `Compiler (fun _ => return m!"compiling new: {declNames}") do
+  profileitM Exception "compilation" (← getOptions) do
+    withTraceNode `Compiler (fun _ => return m!"compiling: {declNames}") do
       CompilerM.run <| discard <| PassManager.run declNames.toArray
 
 builtin_initialize

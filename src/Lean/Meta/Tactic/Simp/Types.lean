@@ -848,7 +848,7 @@ ones that allow zeta-delta reducing fvars not in `zetaDeltaSet` (e.g. `withInfer
 This also means that `usedZetaDelta` set might be reporting fvars in `zetaDeltaSet` that weren't "used".
 -/
 private def updateUsedSimpsWithZetaDeltaCore (s : UsedSimps) (zetaDeltaSet : FVarIdSet) (usedZetaDelta : FVarIdSet) : UsedSimps :=
-  zetaDeltaSet.fold (init := s) fun s fvarId =>
+  zetaDeltaSet.foldl (init := s) fun s fvarId =>
     if usedZetaDelta.contains fvarId then
       s.insert <| .fvar fvarId
     else

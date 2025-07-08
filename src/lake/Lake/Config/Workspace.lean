@@ -91,7 +91,7 @@ def addPackage (pkg : Package) (self : Workspace) : Workspace :=
 
 /-- Try to find a package within the workspace with the given name. -/
 @[inline] protected def findPackage? (name : Name) (self : Workspace) : Option (NPackage name) :=
-  self.packageMap.find? name
+  self.packageMap.get? name
 
 /-- Try to find a script in the workspace with the given name. -/
 protected def findScript? (script : Name) (self : Workspace) : Option Script :=
@@ -143,7 +143,7 @@ def addFacetConfig {name} (cfg : FacetConfig name) (self : Workspace) : Workspac
 
 /-- Try to find a facet configuration in the workspace with the given name. -/
 def findFacetConfig? (name : Name) (self : Workspace) : Option (FacetConfig name) :=
-  self.facetConfigs.find? name
+  self.facetConfigs.get? name
 
 /-- Add a module facet to the workspace. -/
 def addModuleFacetConfig (cfg : ModuleFacetConfig name) (self : Workspace) : Workspace :=

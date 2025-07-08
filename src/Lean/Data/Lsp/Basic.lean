@@ -249,7 +249,7 @@ instance : FromJson DocumentChange where
 [reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspaceEdit) -/
 structure WorkspaceEdit where
   /-- Changes to existing resources. -/
-  changes? : Option (RBMap DocumentUri TextEditBatch compare) := none
+  changes? : Option (Std.TreeMap DocumentUri TextEditBatch) := none
   /-- Depending on the client capability
     `workspace.workspaceEdit.resourceOperations` document changes are either
     an array of `TextDocumentEdit`s to express changes to n different text
@@ -270,7 +270,7 @@ structure WorkspaceEdit where
 
       Whether clients honor this property depends on the client capability
       `workspace.changeAnnotationSupport`. -/
-  changeAnnotations? : Option (RBMap String ChangeAnnotation compare) := none
+  changeAnnotations? : Option (Std.TreeMap String ChangeAnnotation) := none
   deriving ToJson, FromJson
 
 namespace WorkspaceEdit
@@ -282,7 +282,7 @@ instance : Append WorkspaceEdit where
     changes?           :=
       match x.changes?, y.changes? with
       | v, none | none, v => v
-      | some x, some y => x.mergeBy (fun _ v₁ v₂ => v₁ ++ v₂) y
+      | some x, some y => x.mergeWith (fun _ v₁ v₂ => v₁ ++ v₂) y
     documentChanges?   :=
       match x.documentChanges?, y.documentChanges? with
       | v, none | none, v => v
@@ -290,7 +290,7 @@ instance : Append WorkspaceEdit where
     changeAnnotations? :=
       match x.changeAnnotations?, y.changeAnnotations? with
       | v, none | none, v => v
-      | some x, some y => x.mergeBy (fun _ _v₁ v₂ => v₂) y
+      | some x, some y => x.mergeWith (fun _ _v₁ v₂ => v₂) y
   }
 
 def ofTextDocumentEdit (e : TextDocumentEdit) : WorkspaceEdit :=

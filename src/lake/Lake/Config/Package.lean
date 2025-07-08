@@ -634,9 +634,13 @@ def inputsFileIn (cache : Cache) (self : Package) : FilePath :=
   let pkgName := self.name.toString (escape := false)
   cache.inputsFile pkgName
 
+instance : Std.LawfulEqCmp Name.quickCmp where
+  compare_self := sorry
+  eq_of_compare := sorry
+
 /-- Try to find a target configuration in the package with the given name. -/
 def findTargetDecl? (name : Name) (self : Package) : Option (NConfigDecl self.name name) :=
-  self.targetDeclMap.find? name
+  self.targetDeclMap.get? name
 
 /-- Whether the given module is considered local to the package. -/
 def isLocalModule (mod : Name) (self : Package) : Bool :=

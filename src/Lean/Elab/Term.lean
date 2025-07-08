@@ -815,7 +815,7 @@ where
   /-- Append the argument name (if available) to the message.
       Remark: if the argument name contains macro scopes we do not append it. -/
   addArgName (msg : MessageData) (extra : String := "") : TermElabM MessageData := do
-    match (← get).mvarArgNames.find? mvarErrorInfo.mvarId with
+    match (← get).mvarArgNames.get? mvarErrorInfo.mvarId with
     | none => return msg
     | some argName => return if argName.hasMacroScopes then msg else msg ++ extra ++ m!" '{argName}'"
 
@@ -1269,7 +1269,7 @@ private def postponeElabTermCore (stx : Syntax) (expectedType? : Option Expr) : 
   return mvar
 
 def getSyntheticMVarDecl? (mvarId : MVarId) : TermElabM (Option SyntheticMVarDecl) :=
-  return (← get).syntheticMVars.find? mvarId
+  return (← get).syntheticMVars.get? mvarId
 
 register_builtin_option debug.byAsSorry : Bool := {
   defValue := false

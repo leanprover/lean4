@@ -6,6 +6,7 @@ Authors: Mac Malone
 prelude
 import Lean.Data.NameMap
 import Init.Data.Nat.Fold
+import Lean.Data.RBMap
 
 /-! # Red-Black Dictionary
 

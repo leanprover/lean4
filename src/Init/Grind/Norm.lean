@@ -138,6 +138,9 @@ theorem exists_and_left {α : Sort u} {p : α → Prop} {b : Prop} : (∃ x, b �
 theorem exists_and_right {α : Sort u} {p : α → Prop} {b : Prop} : (∃ x, p x ∧ b) = ((∃ x, p x) ∧ b) := by
   apply propext; apply _root_.exists_and_right
 
+theorem zero_sub (a : Nat) : 0 - a = 0 := by
+  simp
+
 init_grind_norm
   /- Pre theorems -/
   not_and not_or not_ite not_forall not_exists
@@ -181,7 +184,7 @@ init_grind_norm
   Nat.add_eq Nat.sub_eq Nat.mul_eq Nat.zero_eq Nat.le_eq
   Nat.div_zero Nat.mod_zero Nat.div_one Nat.mod_one
   Nat.sub_sub Nat.pow_zero Nat.pow_one Nat.sub_self
-  Nat.one_pow
+  Nat.one_pow Nat.zero_sub
   -- Int
   Int.lt_eq
   Int.emod_neg Int.ediv_neg

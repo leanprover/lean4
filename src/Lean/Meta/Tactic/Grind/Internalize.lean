@@ -393,13 +393,19 @@ where
         checkAndAddSplitCandidate e
         pushCastHEqs e
         addMatchEqns f generation
-        if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
+        if args.size == 2 && f.isConstOf ``Grind.nestedProof then
           -- We only internalize the proposition. We can skip the proof because of
           -- proof irrelevance
           let c := args[0]!
           internalizeImpl c generation e
           registerParent e c
           pushEqTrue c <| mkApp2 (mkConst ``eq_true) c args[1]!
+        else if args.size == 2 && f.isConstOf ``Grind.nestedDecidable then
+          -- We only internalize the proposition. We can skip the instance because it is
+          -- a subsingleton
+          let c := args[0]!
+          internalizeImpl c generation e
+          registerParent e c
         else if f.isConstOf ``ite && args.size == 5 then
           let c := args[1]!
           internalizeImpl c generation e

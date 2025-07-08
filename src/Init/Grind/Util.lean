@@ -63,6 +63,9 @@ def PreMatchCond (p : Prop) : Prop := p
 theorem nestedProof_congr (p q : Prop) (h : p = q) (hp : p) (hq : q) : @nestedProof p hp ≍ @nestedProof q hq := by
   subst h; apply HEq.refl
 
+theorem nestedDecidable_congr (p q : Prop) (h : p = q) (hp : Decidable p) (hq : Decidable q) : @nestedDecidable p hp ≍ @nestedDecidable q hq := by
+  subst h; cases hp <;> cases hq <;> simp <;> contradiction
+
 @[app_unexpander nestedProof]
 meta def nestedProofUnexpander : PrettyPrinter.Unexpander := fun stx => do
   match stx with

@@ -145,7 +145,6 @@ init_grind_norm
   /- Pre theorems -/
   not_and not_or not_ite not_forall not_exists
   /- Nat relational ops neg -/
-  Nat.not_ge_eq Nat.not_le_eq
   |
   /- Post theorems -/
   Classical.not_not
@@ -180,7 +179,7 @@ init_grind_norm
   -- decide
   decide_eq_true_eq decide_not not_decide_eq_true
   -- Nat
-  Nat.le_zero_eq Nat.lt_eq Nat.succ_eq_add_one
+  Nat.le_zero_eq Nat.lt_eq Nat.not_le_eq Nat.succ_eq_add_one
   Nat.add_eq Nat.sub_eq Nat.mul_eq Nat.zero_eq Nat.le_eq
   Nat.div_zero Nat.mod_zero Nat.div_one Nat.mod_one
   Nat.sub_sub Nat.pow_zero Nat.pow_one Nat.sub_self

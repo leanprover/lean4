@@ -264,7 +264,7 @@ There are two kinds of progress:
 
 The result is `false` if module for every structure already has an assignment.
 -/
-def check : GoalM Bool := do
+def check : GoalM Bool := do profileitM Exception "grind linarith" (← getOptions) do
   let mut progress := false
   for structId in *...(← get').structs.size do
     let r ← LinearM.run structId do

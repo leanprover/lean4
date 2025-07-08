@@ -500,7 +500,7 @@ def checkRing : RingM Bool := do
   modifyRing fun s => { s with recheck := false }
   return true
 
-def check : GoalM Bool := do
+def check : GoalM Bool := do profileitM Exception "grind ring" (← getOptions) do
   if (← checkMaxSteps) then return false
   let mut progress := false
   checkInvariants

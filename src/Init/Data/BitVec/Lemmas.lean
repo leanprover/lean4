@@ -5761,50 +5761,6 @@ theorem clzAuxRec_zero (x : BitVec w) :
 theorem clzAuxRec_succ (x : BitVec w) :
     x.clzAuxRec (n + 1) = if x.getLsbD (n + 1) then BitVec.ofNat w (w - 1 - (n + 1)) else BitVec.clzAuxRec x n := by rfl
 
-theorem clzAuxRec_eq_iff {x : BitVec w} (h : ∀ i, n < i → x.getLsbD i = false) :
-    x.clzAuxRec n = BitVec.ofNat w w ↔ ∀ j, j ≤ n → x.getLsbD j = false := by
-  rcases w with _|w
-  · simp [of_length_zero]
-  · have := Nat.lt_pow_self (a := 2) (n := w + 1)
-    induction n
-    · case zero =>
-      simp only [clzAuxRec_zero, Nat.add_one_sub_one, natCast_eq_ofNat, ite_eq_right_iff,
-        Nat.le_zero_eq, forall_eq]
-      by_cases hx0 : x.getLsbD 0
-      · simp only [hx0, forall_const, Bool.true_eq_false, iff_false, ne_eq, toNat_eq, toNat_ofNat,
-          Nat.mod_two_pow_self, Nat.mod_eq_of_lt (a := w) (b := 2 ^ (w + 1)) (by omega)]
-        omega
-      · simp only [Nat.zero_lt_succ, getLsbD_eq_getElem, Bool.not_eq_true] at hx0
-        simp [hx0]
-    · case succ n ihn =>
-      simp only [clzAuxRec_succ, Nat.add_one_sub_one, natCast_eq_ofNat]
-      by_cases hxn : x.getLsbD (n + 1)
-      · have : ¬ ∀ (j : Nat), j ≤ n + 1 → x.getLsbD j = false := by
-          simp only [Classical.not_forall, Bool.not_eq_false]
-          exists n + 1, by omega
-        simp only [hxn, reduceIte, toNat_eq, toNat_ofNat, Nat.mod_two_pow_self, this, iff_false,
-          ne_eq, Nat.mod_eq_of_lt (a := w - (n + 1)) (b := 2 ^ (w + 1)) (by omega)]
-        omega
-      · have : ∀ (i : Nat), n < i → x.getLsbD i = false := by
-          intro i hi
-          by_cases hi' : i = n + 1
-          · simp [hi', hxn]
-          · apply h; omega
-        specialize ihn this
-        simp only [natCast_eq_ofNat, Bool.not_eq_true] at ihn hxn
-        simp only [hxn, Bool.false_eq_true, ↓reduceIte, ihn]
-        constructor
-        · intro h' j hj
-          by_cases hj' : j = n + 1
-          · simp [hj', hxn]
-          · apply h'
-            omega
-        · intro h' j hj
-          by_cases hj' : j = n + 1
-          · simp [hj', hxn]
-          · apply h'
-            omega
-
 theorem clzAuxRec_eq_clzAuxRec_of_getLsbD_false (x : BitVec w) (h : ∀ i, n < i → x.getLsbD i = false) :
     x.clzAuxRec n = x.clzAuxRec (n + k) := by
   induction k

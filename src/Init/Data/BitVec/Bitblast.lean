@@ -2157,13 +2157,12 @@ theorem shiftLeft_add_eq_shiftLeft_or {x y : BitVec w} :
 
 /- ### fast circuit for unsigned overflow detection -/
 /--
-  unsigned parallel prefix
+  unsigned parallel prefix `x.uppcRec s = true` iff `x.toNat` is greater or equal than `2 ^ (w - 1 - (s - 1))`
 -/
 def uppcRec {w} (x : BitVec w) (s : Nat) (hs : s < w) : Bool :=
   match s with
-  | 0 => x.msb -- 1 * 1 never overflows anyways :)
+  | 0 => x.msb
   | i + 1 =>  x[w - 1 - i] || uppcRec x i (by omega) -- there is one redundant case here
-
 
 /-- The unsigned parallel prefix of `x` at `s` is `true` if and only if x interpreted
   as a natural number is greater or equal than `2 ^ (w - 1 - (s - 1))` -/
@@ -2290,7 +2289,7 @@ theorem resRec_of_clz_le {x y : BitVec w} (hw : 1 < w) (hx : x ≠ 0#w) (hy : y 
     omega
 
 /--
-  complete fast overflow detecnion circuit for unsigned multiplication
+  complete fast overflow detection circuit for unsigned multiplication
 -/
 theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
     umulOverflow x y ↔ (((zeroExtend (w + 1) x) * (zeroExtend (w + 1) y)).getLsbD w || resRec x y (w - 1) (by omega) (by omega) (by omega)) := by

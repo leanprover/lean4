@@ -1862,7 +1862,7 @@ private def isDefEqOnFailure (t s : Expr) : MetaM Bool := do
     tryUnificationHints t s <||> tryUnificationHints s t
 
 /--
-Result type for `isDefEqDeltaStep`
+Result type for `isDefEqDelta`
 -/
 inductive DeltaStepResult where
   | eq | unknown

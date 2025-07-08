@@ -14,8 +14,7 @@ namespace Std.Do
 open Lean Parser Meta Elab Term PrettyPrinter Delaborator
 
 open Std.Do in
--- TODO: Remove after stage0 update
--- @[builtin_delab app.Std.Do.PostCond.total]
+@[builtin_delab app.Std.Do.PostCond.total]
 private meta def unexpandPostCondTotal : Delab := do
   match ← SubExpr.withAppArg <| delab with
   | `(fun $xs:term* => $e) =>
@@ -23,8 +22,7 @@ private meta def unexpandPostCondTotal : Delab := do
     return ⟨t.raw⟩
   | t => `($(mkIdent ``PostCond.total):term $t)
 
--- TODO: Remove after stage0 update
--- @[inherit_doc Triple, builtin_doc, builtin_term_elab triple]
+@[inherit_doc Triple, builtin_doc, builtin_term_elab triple]
 private meta def elabTriple : TermElab
   | `(⦃$P⦄ $x ⦃$Q⦄), _ => do
     -- In a simple world, this would just be a macro expanding to

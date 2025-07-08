@@ -190,6 +190,7 @@ abbrev PostCond (α : Type u) (ps : PostShape.{u}) : Type u :=
 scoped macro:max "post⟨" handlers:term,+,? "⟩" : term =>
   `(by exact ⟨$handlers,*, ()⟩)
   -- NB: Postponement through by exact is the entire point of this macro
+  -- until https://github.com/leanprover/lean4/pull/8074 lands
 
 /-- A postcondition expressing total correctness. -/
 abbrev PostCond.total (p : α → Assertion ps) : PostCond α ps :=
@@ -198,12 +199,6 @@ abbrev PostCond.total (p : α → Assertion ps) : PostCond α ps :=
 @[inherit_doc PostCond.total]
 scoped macro:max ppAllowUngrouped "⇓" xs:term:max+ " => " e:term : term =>
   `(PostCond.total (by exact fun $xs* => spred($e)))
-
-@[app_unexpander PostCond.total]
-private meta def unexpandPostCondTotal : Lean.PrettyPrinter.Unexpander
-  | `($_ fun $xs:term* => $e) => do
-    `(⇓ $xs* => $(← SPred.Notation.unpack e))
-  | _ => throw ()
 
 /-- A postcondition expressing partial correctness. -/
 abbrev PostCond.partial (p : α → Assertion ps) : PostCond α ps :=

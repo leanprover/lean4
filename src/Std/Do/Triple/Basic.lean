@@ -33,8 +33,7 @@ def Triple [WP m ps] {α : Type u} (x : m α) (P : Assertion ps) (Q : PostCond �
   P ⊢ₛ wp⟦x⟧ Q
 
 @[inherit_doc Std.Do.Triple]
-scoped macro:lead (name := triple) "⦃" P:term "⦄ " x:term:lead " ⦃" Q:term "⦄" : term =>
-  `(Triple $x spred($P) $Q)
+scoped syntax:lead (name := triple) "⦃" term "⦄ " term:lead " ⦃" term "⦄" : term
 
 @[app_unexpander Triple]
 private meta def unexpandTriple : Lean.PrettyPrinter.Unexpander

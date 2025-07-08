@@ -520,7 +520,16 @@
     tags: [fast]
   run_config:
     <<: *time
-    cmd: ./hashmap.lean.out 11 1000
+    cmd: ./hashmap.lean.out 11 10000
     parse_output: true
   build_config:
     cmd: ./compile.sh hashmap.lean
+- attributes:
+    description: treemap.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: ./treemap.lean.out 11 10000
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh treemap.lean

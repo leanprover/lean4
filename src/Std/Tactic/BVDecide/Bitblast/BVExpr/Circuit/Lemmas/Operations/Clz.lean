@@ -57,7 +57,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
           · simp [hx]
           · simp [Ref.hgate]
         · intro idx hidx
-          simp only [Nat.add_eq_zero, Nat.succ_ne_self, and_false, reduceIte, 
+          simp only [Nat.add_eq_zero, Nat.succ_ne_self, and_false, reduceIte,
             Nat.add_one_sub_one]
           rw [RefVec.denote_ite]
           split
@@ -83,7 +83,9 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
     · case isFalse h =>
       rw [← hgo]
       simp only [show ¬curr = 0 by omega, reduceIte] at hacc
-      simp only [hacc, BitVec.clzAuxRec_eq_clzAuxRec_of_le (x := x) (n := curr - 1) (by omega)]
+      rw [hacc, show curr - 1 = (w - 1) + (curr - 1 - (w - 1)) by omega,
+        BitVec.clzAuxRec_eq_clzAuxRec_of_getLsbD_false (x := x) (n := w - 1) (k := curr - 1 - (w - 1))
+        (by intro i hi; simp [show w ≤ i by omega])]
 
 end blastClz
 

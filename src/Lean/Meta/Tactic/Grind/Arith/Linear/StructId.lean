@@ -146,7 +146,7 @@ where
       ensureDefEq parentInst heteroToField
     let ringId? ← CommRing.getRingId? type
     let preorderInst? ← getInst? ``Grind.Preorder
-    if ringId?.isSome && preorderInst?.isNone then
+    if (← getConfig).ring && ringId?.isSome && preorderInst?.isNone then
       -- If `type` is a `CommRing`, but it is not even a preorder, there is no point in use this module.
       -- `ring` module should handle it.
       return none
@@ -161,7 +161,7 @@ where
       pure none
     let preorderInst? := if orderedAddInst?.isNone then none else preorderInst?
     -- preorderInst? may have been reset, check again whether this module is needed.
-    if ringId?.isSome && preorderInst?.isNone then
+    if (← getConfig).ring && ringId?.isSome && preorderInst?.isNone then
       return none
     let partialInst? ← checkToFieldDefEq? preorderInst? ``Grind.PartialOrder ``Grind.PartialOrder.toPreorder
     let linearInst? ← checkToFieldDefEq? partialInst? ``Grind.LinearOrder ``Grind.LinearOrder.toPartialOrder

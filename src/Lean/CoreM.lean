@@ -678,7 +678,7 @@ def traceBlock (tag : String) (t : Task α) : CoreM α := do
 
 -- Forward declaration
 @[extern "lean_lcnf_compile_decls"]
-opaque compileDeclsNew (declNames : Array Name) : CoreM Unit
+opaque compileDeclsImpl (declNames : Array Name) : CoreM Unit
 
 -- `ref?` is used for error reporting if available
 partial def compileDecls (decls : Array Name) (logErrors := true) : CoreM Unit := do
@@ -709,7 +709,7 @@ where doCompile := do
   withoutExporting do
     let state ← Core.saveState
     try
-      compileDeclsNew decls
+      compileDeclsImpl decls
     catch e =>
       state.restore
       if logErrors then

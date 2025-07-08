@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Compiler.IR.AddExtern
 import Lean.Compiler.IR.Basic
 import Lean.Compiler.IR.Format
 import Lean.Compiler.IR.CompilerM

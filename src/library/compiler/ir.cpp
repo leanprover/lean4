@@ -580,16 +580,6 @@ elab_environment add_extern(elab_environment const & env, name const & fn) {
     return add_boxed_version(new_env, d);
 }
 
-extern "C" LEAN_EXPORT object* lean_add_extern(object * env, object * fn) {
-    try {
-        elab_environment new_env = add_extern(elab_environment(env), name(fn));
-        return mk_except_ok(new_env);
-    } catch (exception & ex) {
-        // throw; // We use to uncomment this line when debugging weird bugs in the Lean/C++ interface.
-        return mk_except_error_string(ex.what());
-    }
-}
-
 extern "C" object * lean_ir_emit_c(object * env, object * mod_name);
 
 string_ref emit_c(elab_environment const & env, name const & mod_name) {

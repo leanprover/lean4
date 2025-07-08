@@ -83,9 +83,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
     · case isFalse h =>
       rw [← hgo]
       simp only [show ¬curr = 0 by omega, reduceIte] at hacc
-      rw [hacc, show curr - 1 = (w - 1) + (curr - 1 - (w - 1)) by omega,
-        BitVec.clzAuxRec_eq_clzAuxRec_of_getLsbD_false (x := x) (n := w - 1) (k := curr - 1 - (w - 1))
-        (by intro i hi; simp [show w ≤ i by omega])]
+      simp only [hacc, BitVec.clzAuxRec_eq_clzAuxRec_of_le (x := x) (n := curr - 1) (by omega)]
 
 end blastClz
 

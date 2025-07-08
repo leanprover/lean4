@@ -90,8 +90,8 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
         paramInfo := updateHasFwdDeps paramInfo resultDeps
         return { resultDeps, paramInfo }
 
-def getFunInfo (fn : Expr) : MetaM FunInfo :=
-  getFunInfoAux fn none
+def getFunInfo (fn : Expr) (maxArgs? : Option Nat := none) : MetaM FunInfo :=
+  getFunInfoAux fn maxArgs?
 
 def getFunInfoNArgs (fn : Expr) (nargs : Nat) : MetaM FunInfo :=
   getFunInfoAux fn (some nargs)

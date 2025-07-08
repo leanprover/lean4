@@ -691,7 +691,7 @@ private partial def mkLinkOrder (libs : Array Dynlib) : JobM (Array Dynlib) := d
   | .ok (_, order) => pure order
   | .error cycle => error s!"library dependency cycle:\n{formatCycle cycle}"
 where
-  go lib (ps : List String) (v : Std.TreeSet String compare) (o : Array Dynlib) : Except (Cycle String) _ := do
+  go lib (ps : List String) (v : Std.TreeSet String compare) (o : Array Dynlib) := do
     let o := o.push lib
     if v.contains lib.name then
       return (v, o)

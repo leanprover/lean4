@@ -7,7 +7,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 prelude
 import Init.System.IO
 import Std.Sync.Mutex
-import Std.Data.TreeMap
+import Std.Data.TreeMap.Basic
 import Init.Data.ByteArray
 
 import Lean.Data.FuzzyMatching

@@ -7,7 +7,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 prelude
 import Init.System.IO
 import Std.Sync.Channel
-import Std.Data.TreeMap
+import Std.Data.TreeMap.Basic
 
 import Lean.Environment
 

@@ -8,7 +8,7 @@ prelude
 import Lean.Expr
 import Lean.Data.Lsp.Basic
 import Lean.Data.JsonRpc
-import Std.Data.TreeMap
+import Std.Data.TreeMap.Basic
 
 set_option linter.missingDocs true -- keep it documented
 

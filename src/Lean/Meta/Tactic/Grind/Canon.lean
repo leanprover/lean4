@@ -94,13 +94,13 @@ def canonElemCore (parent : Expr) (f : Expr) (i : Nat) (e : Expr) (useIsDefEqBou
         -- Moreover, we store the canonicalizer state in the `Goal` because we case-split
         -- and different locals are added in different branches.
         modify' fun s => { s with canon := s.canon.insert e c }
-        trace_goal[grind.debugn.canon] "found {e} ===> {c}"
+        trace_goal[grind.debug.canon] "found {e} ===> {c}"
         return c
       if useIsDefEqBounded then
         -- If `e` and `c` are not types, we use `isDefEqBounded`
         if (← isDefEqBounded e c parent) then
           modify' fun s => { s with canon := s.canon.insert e c }
-          trace_goal[grind.debugn.canon] "found using `isDefEqBounded`: {e} ===> {c}"
+          trace_goal[grind.debug.canon] "found using `isDefEqBounded`: {e} ===> {c}"
           return c
   trace_goal[grind.debug.canon] "({f}, {i}) ↦ {e}"
   modify' fun s => { s with canon := s.canon.insert e e, argMap := s.argMap.insert key ((e, eType)::cs) }

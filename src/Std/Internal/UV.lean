@@ -13,3 +13,4 @@ import Std.Internal.UV.TCP
 import Std.Internal.UV.UDP
 import Std.Internal.UV.System
 import Std.Internal.UV.DNS
+import Std.Internal.UV.Signal

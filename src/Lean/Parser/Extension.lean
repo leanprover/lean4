@@ -218,7 +218,7 @@ builtin_initialize parserAlias2kindRef : IO.Ref (NameMap SyntaxNodeKind) ← IO.
 builtin_initialize parserAliases2infoRef : IO.Ref (NameMap ParserAliasInfo) ← IO.mkRef {}
 
 def getParserAliasInfo (aliasName : Name) : IO ParserAliasInfo := do
-  return (← parserAliases2infoRef.get).findD aliasName {}
+  return (← parserAliases2infoRef.get).getD aliasName {}
 
 -- Later, we define macro `register_parser_alias` which registers a parser, formatter and parenthesizer
 def registerAlias (aliasName declName : Name) (p : ParserAliasValue) (kind? : Option SyntaxNodeKind := none) (info : ParserAliasInfo := {}) : IO Unit := do

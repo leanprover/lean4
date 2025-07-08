@@ -77,7 +77,7 @@ instance : Inhabited DiseqCnstr where
 instance : Inhabited EqCnstr where
   default := { p := .nil, h := .core default default .zero .zero }
 
-abbrev VarSet := RBTree Var compare
+abbrev VarSet := Std.TreeSet Var
 
 /--
 State for each algebraic structure by this module.

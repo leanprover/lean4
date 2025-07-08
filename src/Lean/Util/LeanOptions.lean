@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
 prelude
-import Lean.Data.Json
+import Lean.Data.KVMap
+import Lean.Data.Json.FromToJson.Basic
 
 namespace Lean
 
@@ -82,7 +83,7 @@ def LeanOptions.ofArray (opts : Array LeanOption) : LeanOptions :=
 
 /-- Add the options from `new`, overriding those in `self`. -/
 protected def LeanOptions.append (self new : LeanOptions) : LeanOptions :=
-  ⟨self.values.mergeBy (fun _ _ b => b) new.values⟩
+  ⟨self.values.mergeWith (fun _ _ b => b) new.values⟩
 
 instance : Append LeanOptions := ⟨LeanOptions.append⟩
 
@@ -99,7 +100,7 @@ def LeanOptions.toOptions (leanOptions : LeanOptions) : Options := Id.run do
   return options
 
 def LeanOptions.fromOptions? (options : Options) : Option LeanOptions := do
-  let mut values := RBMap.empty
+  let mut values := Std.TreeMap.empty
   for ⟨name, dataValue⟩ in options do
     let optionValue ← LeanOptionValue.ofDataValue? dataValue
     values := values.insert name optionValue

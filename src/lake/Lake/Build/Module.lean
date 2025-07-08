@@ -170,13 +170,13 @@ private partial def mkLoadOrder (libs : Array Dynlib) : FetchM (Array Dynlib) :=
   | .ok (_, order) => pure order
   | .error cycle => error s!"library dependency cycle:\n{formatCycle cycle}"
 where
-  go lib (ps : List String) (v : RBMap String Unit compare) (o : Array Dynlib) := do
+  go lib (ps : List String) (v : Std.TreeSet String compare) (o : Array Dynlib) := do
     if v.contains lib.name then
       return (v, o)
     if ps.contains lib.name then
       throw (lib.name :: ps)
     let ps := lib.name :: ps
-    let v := v.insert lib.name ()
+    let v := v.insert lib.name
     let (v, o) ← lib.deps.foldlM (init := (v, o)) fun (v, o) lib =>
       go lib ps v o
     let o := o.push lib
@@ -558,7 +558,7 @@ private def Module.buildLean
   mod.computeOutputHashes setup.isModule
 
 private def traceOptions (opts : LeanOptions) (caption := "opts") : BuildTrace :=
-  opts.values.fold (init := .nil caption) fun t n v =>
+  opts.values.foldl (init := .nil caption) fun t n v =>
     let opt := s!"-D{n}={v.asCliFlagValue}"
     t.mix <| .ofHash (pureHash opt) opt
 

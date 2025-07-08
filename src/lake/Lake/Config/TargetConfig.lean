@@ -40,4 +40,4 @@ abbrev TargetDecl := KConfigDecl .anonymous
 
 /-- Try to find a target configuration in the package with the given name . -/
 def Package.findTargetConfig? (name : Name) (self : Package) : Option (TargetConfig self.name name) :=
-  self.targetDeclMap.find? name |>.bind (·.targetConfig?)
+  self.targetDeclMap.get? name |>.bind (·.targetConfig?)

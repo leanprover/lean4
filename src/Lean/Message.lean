@@ -570,7 +570,7 @@ def add (msg : Message) (log : MessageLog) : MessageLog :=
 protected def append (l₁ l₂ : MessageLog) : MessageLog where
   reported := l₁.reported ++ l₂.reported
   unreported := l₁.unreported ++ l₂.unreported
-  loggedKinds := l₁.loggedKinds.union l₂.loggedKinds
+  loggedKinds := l₁.loggedKinds.merge l₂.loggedKinds
 
 instance : Append MessageLog :=
   ⟨MessageLog.append⟩

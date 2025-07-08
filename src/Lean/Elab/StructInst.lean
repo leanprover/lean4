@@ -843,7 +843,7 @@ private def synthOptParamFields : StructInstM Unit := do
       for pendingField in pendingFields do
         if (← isFieldNotSolved? pendingField.fieldName).isNone then
           unsolvedFields := unsolvedFields.insert pendingField.fieldName
-          let e := (← get).fieldMap.find! pendingField.fieldName
+          let e := (← get).fieldMap.get! pendingField.fieldName
           requiredErrors := requiredErrors.push m!"\
             Field `{pendingField.fieldName}` must be explicitly provided; its synthesized value is{indentExpr e}"
       let requiredErrorsMsg := MessageData.joinSep (requiredErrors.map (m!"\n\n" ++ ·)).toList ""
@@ -854,7 +854,7 @@ private def synthOptParamFields : StructInstM Unit := do
       let missing := missingFields |>.map (s!"`{·.fieldName}`") |>.toList
       let missingFieldsValues ← missingFields.mapM fun field => do
         if unsolvedFields.contains field.fieldName then
-          pure <| (field.fieldName, some <| (← get).fieldMap.find! field.fieldName)
+          pure <| (field.fieldName, some <| (← get).fieldMap.get! field.fieldName)
         else pure (field.fieldName, none)
       let missingFieldsHint ← mkMissingFieldsHint missingFieldsValues (← read).view.ref
       let msg := m!"Fields missing: {", ".intercalate missing}{assignErrorsMsg}{requiredErrorsMsg}{missingFieldsHint}"
@@ -926,7 +926,7 @@ where
     let flatCtorName := mkFlatCtorOfStructCtorName ctor.name
     let cinfo ← getConstInfo flatCtorName
     let ctorVal ← instantiateValueLevelParams cinfo us
-    let fieldArgs := parentFields.map fieldMap.find!
+    let fieldArgs := parentFields.map (fieldMap.get! ·)
     -- Normalize the expressions since there might be some projections.
     let params ← params.mapM normalizeExpr
     let e' := (ctorVal.beta params).beta fieldArgs
@@ -1016,7 +1016,7 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
         else
           throw ex
       loop
-    if let some fvarId' := (← get).liftedFVarRemap.find? fvarId then
+    if let some fvarId' := (← get).liftedFVarRemap.get? fvarId then
       processProjAux fvarId'
     else if (← getLCtx).contains fvarId then
       processProjAux fvarId

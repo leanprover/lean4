@@ -12,3 +12,4 @@ import Std.Internal.Async.DNS
 import Std.Internal.Async.Select
 import Std.Internal.Async.Process
 import Std.Internal.Async.System
+import Std.Internal.Async.Signal

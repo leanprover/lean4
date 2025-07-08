@@ -678,10 +678,10 @@ def traceBlock (tag : String) (t : Task α) : CoreM α := do
 
 -- Forward declaration
 @[extern "lean_lcnf_compile_decls"]
-opaque compileDeclsNew (declNames : List Name) : CoreM Unit
+opaque compileDeclsNew (declNames : Array Name) : CoreM Unit
 
 -- `ref?` is used for error reporting if available
-partial def compileDecls (decls : List Name) (logErrors := true) : CoreM Unit := do
+partial def compileDecls (decls : Array Name) (logErrors := true) : CoreM Unit := do
   -- When inside `realizeConst`, do compilation synchronously so that `_cstage*` constants are found
   -- by the replay code
   if !Elab.async.get (← getOptions) || (← getEnv).isRealizing then

@@ -24,12 +24,12 @@ def isEagerLambdaLiftingName : Name → Bool
 /-- Return the name of new definitions in the a given declaration.
     Here we consider only declarations we generate code for.
     We use this definition to implement `add_and_compile`. -/
-def getDeclNamesForCodeGen : Declaration → List Name
-  | Declaration.defnDecl { name := n, .. }   => [n]
-  | Declaration.mutualDefnDecl defs          => defs.map fun d => d.name
-  | Declaration.opaqueDecl { name := n, .. } => [n]
-  | Declaration.axiomDecl { name := n, .. }  => [n] -- axiom may be tagged with `@[extern ...]`
-  | _                                        => []
+def getDeclNamesForCodeGen : Declaration → Array Name
+  | Declaration.defnDecl { name := n, .. }   => #[n]
+  | Declaration.mutualDefnDecl defs          => defs.toArray.map (·.name)
+  | Declaration.opaqueDecl { name := n, .. } => #[n]
+  | Declaration.axiomDecl { name := n, .. }  => #[n] -- axiom may be tagged with `@[extern ...]`
+  | _                                        => #[]
 
 def checkIsDefinition (env : Environment) (n : Name) : Except String Unit := do
   let some info := env.findAsync? n

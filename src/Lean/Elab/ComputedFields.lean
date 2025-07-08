@@ -169,7 +169,7 @@ def overrideComputedFields : M Unit := do
   withLocalDeclD `x (mkAppN (mkConst (name ++ `_impl) lparams) (params ++ indices)) fun xImpl => do
   for cfn in compFields, cf in compFieldVars do
     if isExtern (← getEnv) cfn then
-      compileDecls [cfn]
+      compileDecls #[cfn]
       continue
     let cases ←
       -- elaborating a non-exposed def body
@@ -232,7 +232,7 @@ def setComputedFields (computedFields : Array (Name × Array Name)) : MetaM Unit
     mkComputedFieldOverrides indName computedFieldNames
 
   -- Once all the implemented_by infrastructure is set up, compile everything.
-  compileDecls <| computedFields.toList.map fun (indName, _) =>
+  compileDecls <| computedFields.map fun (indName, _) =>
     mkCasesOnName indName ++ `_override
 
   let mut toCompile := #[]
@@ -243,4 +243,4 @@ def setComputedFields (computedFields : Array (Name × Array Name)) : MetaM Unit
     for fieldName in computedFields do
       unless isExtern (← getEnv) fieldName do
         toCompile := toCompile.push <| fieldName ++ `_override
-  compileDecls toCompile.toList
+  compileDecls toCompile

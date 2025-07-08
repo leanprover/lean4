@@ -157,18 +157,18 @@ init_grind_norm
   -- False
   not_false_eq_true
   -- And
-  and_true true_and and_false false_and and_assoc
+  and_true true_and and_false false_and
   -- Or
-  or_true true_or or_false false_or or_assoc
+  or_true true_or or_false false_or
   -- ite
   ite_true ite_false ite_true_false ite_false_true
   dite_eq_ite
   -- Bool cond
   cond_eq_ite
   -- Bool or
-  Bool.or_false Bool.or_true Bool.false_or Bool.true_or Bool.or_eq_true Bool.or_assoc
+  Bool.or_false Bool.or_true Bool.false_or Bool.true_or Bool.or_eq_true
   -- Bool and
-  Bool.and_false Bool.and_true Bool.false_and Bool.true_and Bool.and_eq_true Bool.and_assoc
+  Bool.and_false Bool.and_true Bool.false_and Bool.true_and Bool.and_eq_true
   -- Bool not
   Bool.not_not
   -- beq

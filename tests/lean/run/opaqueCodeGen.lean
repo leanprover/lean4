@@ -1,7 +1,5 @@
 import Lean
 
-set_option compiler.enableNew true
-
 /--
 trace: [Compiler.result] size: 1
     def f x : Nat :=
@@ -15,7 +13,7 @@ opaque f : Nat → Nat :=
 
 /--
 trace: [Compiler.result] size: 0
-    def g a._@.opaqueNewCodeGen._hyg.1 a._@.opaqueNewCodeGen._hyg.2 : Nat :=
+    def g a._@.opaqueCodeGen._hyg.1 a._@.opaqueCodeGen._hyg.2 : Nat :=
       extern
 -/
 #guard_msgs in

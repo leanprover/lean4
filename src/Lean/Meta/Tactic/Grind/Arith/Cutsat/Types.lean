@@ -328,10 +328,11 @@ structure State where
   -/
   divMod : PHashSet (Expr × Int) := {}
   /--
-  Mapping from a type `α` to its corresponding `ToIntInfo` object, which contains
+  Mapping from a type `α` to its corresponding `ToIntInfo` object idx in `toInfos`, which contains
   the information needed to embed `α` terms into `Int` terms.
   -/
-  toIntInfos : PHashMap ExprPtr (Option ToIntInfo) := {}
+  toIntIds : PHashMap ExprPtr (Option Nat) := {}
+  toIntInfos : PArray ToIntInfo := {}
   /--
   For each type `α` in `toIntInfos`, the mapping `toIntVarMap` contains a mapping
   from a α-term `e` to the pair `(toInt e, α)`.

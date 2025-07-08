@@ -578,7 +578,7 @@ There are two kinds of progress:
 
 The result is `false` if module already has a satisfying assignment.
 -/
-def check : GoalM Bool := do
+def check : GoalM Bool := do profileitM Exception "grind cutsat" (← getOptions) do
   if (← hasAssignment) then
     return false
   else

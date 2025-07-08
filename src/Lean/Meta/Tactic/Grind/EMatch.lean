@@ -553,7 +553,7 @@ end EMatch
 open EMatch
 
 /-- Performs one round of E-matching, and returns new instances. -/
-private def ematchCore : GoalM Unit := do
+private def ematchCore : GoalM Unit := do profileitM Exception "grind ematch" (← getOptions) do
   let go (thms newThms : PArray EMatchTheorem) : EMatch.M Unit := do
     withReader (fun ctx => { ctx with useMT := true }) <| ematchTheorems thms
     withReader (fun ctx => { ctx with useMT := false }) <| ematchTheorems newThms

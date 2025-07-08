@@ -9,6 +9,7 @@ import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.SynthInstance
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 
@@ -63,6 +64,49 @@ private def isCutsatType (type : Expr) : GoalM Bool := do
       return true
   return false
 
+private def getCommRingInst? (ringId? : Option Nat) : GoalM (Option Expr) := do
+  let some ringId := ringId? | return none
+  return some (← CommRing.RingM.run ringId do return (← CommRing.getRing).commRingInst)
+
+private def mkRingInst? (u : Level) (type : Expr) (commRingInst? : Option Expr) : GoalM (Option Expr) := do
+  if let some commRingInst := commRingInst? then
+    return mkApp2 (mkConst ``Grind.CommRing.toRing [u]) type commRingInst
+  else
+    synthInstance? <| mkApp (mkConst ``Grind.Ring [u]) type
+
+private def mkIntModuleInst? (u : Level) (type : Expr) (ringInst? : Option Expr) : GoalM (Option Expr) := do
+  if let some ringInst := ringInst? then
+    return some <| mkApp2 (mkConst ``Grind.Ring.toIntModule [u]) type ringInst
+  else
+    synthInstance? <| mkApp (mkConst ``Grind.IntModule [u]) type
+
+private def mkSemiringInst? (u : Level) (type : Expr) (ringInst? : Option Expr) : GoalM (Option Expr) := do
+  if let some ringInst := ringInst? then
+    return some <| mkApp2 (mkConst ``Grind.Ring.toSemiring [u]) type ringInst
+  else
+    synthInstance? <| mkApp (mkConst ``Grind.Semiring [u]) type
+
+private def mkOne? (u : Level) (type : Expr) : GoalM (Option Expr) := do
+  let some oneInst ← synthInstance? (mkApp (mkConst ``One [u]) type) | return none
+  let one ← internalizeConst <| mkApp2 (mkConst ``One.one [u]) type oneInst
+  let one' ← mkNumeral type 1
+  unless (← withDefault <| isDefEq one one') do reportIssue! (← mkExpectedDefEqMsg one one')
+  return some one
+
+private def mkOrderedRingInst? (u : Level) (type : Expr) (semiringInst? preorderInst? : Option Expr) : GoalM (Option Expr) := do
+  let some semiringInst := semiringInst? | return none
+  let some preorderInst := preorderInst? | return none
+  let isOrdType := mkApp3 (mkConst ``Grind.OrderedRing [u]) type semiringInst preorderInst
+  let some inst ← synthInstance? isOrdType
+    | reportIssue! "type has a `Preorder` and is a `Semiring`, but is not an ordered ring, failed to synthesize{indentExpr isOrdType}"
+      return none
+  return some inst
+
+private def mkNoNatZeroDivInst? (u : Level) (type : Expr) : GoalM (Option Expr) := do
+  let hmulNat := mkApp3 (mkConst ``HMul [0, u, u]) Nat.mkType type type
+  let some hmulInst ← synthInstance? hmulNat | return none
+  synthInstance? <| mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type hmulInst
+
 def getStructId? (type : Expr) : GoalM (Option Nat) := do
   unless (← getConfig).linarith do return none
   if (← isCutsatType type) then return none
@@ -85,9 +129,9 @@ where
       synthInstance <| mkApp3 (mkConst ``HMul [0, u, u]) Int.mkType type type
     let rec getHMulNatInst : GoalM Expr := do
       synthInstance <| mkApp3 (mkConst ``HMul [0, u, u]) Nat.mkType type type
-    let rec checkToFieldDefEq? (parentInst? : Option Expr) (inst? : Option Expr) (toFieldName : Name) : GoalM (Option Expr) := do
+    let rec checkToFieldDefEq? (parentInst? : Option Expr) (instDeclName : Name) (toFieldName : Name) : GoalM (Option Expr) := do
       let some parentInst := parentInst? | return none
-      let some inst := inst? | return none
+      let some inst ← getInst? instDeclName | return none
       let toField := mkApp2 (mkConst toFieldName [u]) type inst
       unless (← withDefault <| isDefEq parentInst toField) do
         reportIssue! (← mkExpectedDefEqMsg parentInst toField)
@@ -100,9 +144,36 @@ where
       let toField := mkApp2 (mkConst toFieldName [u]) type inst
       let heteroToField := mkApp2 (mkConst toHeteroName [u]) type toField
       ensureDefEq parentInst heteroToField
-    let some intModuleInst ← getInst? ``Grind.IntModule | return none
+    let ringId? ← CommRing.getRingId? type
+    let preorderInst? ← getInst? ``Grind.Preorder
+    if ringId?.isSome && preorderInst?.isNone then
+      -- If `type` is a `CommRing`, but it is not even a preorder, there is no point in use this module.
+      -- `ring` module should handle it.
+      return none
+    let commRingInst? ← getCommRingInst? ringId?
+    let ringInst? ← mkRingInst? u type commRingInst?
+    let some intModuleInst ← mkIntModuleInst? u type ringInst? | return none
+    let addInst ← getBinHomoInst ``HAdd
+    let addFn ← internalizeFn <| mkApp4 (mkConst ``HAdd.hAdd [u, u, u]) type type type addInst
+    let orderedAddInst? ← if let some preorderInst := preorderInst? then
+      synthInstance? <| mkApp3 (mkConst ``Grind.OrderedAdd [u]) type addInst preorderInst
+    else
+      pure none
+    let preorderInst? := if orderedAddInst?.isNone then none else preorderInst?
+    -- preorderInst? may have been reset, check again whether this module is needed.
+    if ringId?.isSome && preorderInst?.isNone then
+      return none
+    let partialInst? ← checkToFieldDefEq? preorderInst? ``Grind.PartialOrder ``Grind.PartialOrder.toPreorder
+    let linearInst? ← checkToFieldDefEq? partialInst? ``Grind.LinearOrder ``Grind.LinearOrder.toPartialOrder
     let addCommGroupInst := mkApp2 (mkConst ``Grind.IntModule.toAddCommGroup [u]) type intModuleInst
     let addCommMonoidInst := mkApp2 (mkConst ``Grind.AddCommGroup.toAddCommMonoid [u]) type addCommGroupInst
+    let semiringInst? ← mkSemiringInst? u type ringInst?
+    let fieldInst? ← getInst? ``Grind.Field
+    let one? ← mkOne? u type -- One must be created eagerly
+    let orderedRingInst? ← mkOrderedRingInst? u type semiringInst? preorderInst?
+    let charInst? ← if let some semiringInst := semiringInst? then getIsCharInst? u type semiringInst else pure none
+    let noNatDivInst? ← mkNoNatZeroDivInst? u type
+    -- TODO: generate the remaining fields on demand
     let zeroInst ← getInst ``Zero
     let zero ← internalizeConst <| mkApp2 (mkConst ``Zero.zero [u]) type zeroInst
     let ofNatZeroType := mkApp2 (mkConst ``OfNat [u]) type (mkRawNatLit 0)
@@ -110,8 +181,6 @@ where
     -- `ofNatZero` is used internally, we don't need to internalize
     let ofNatZero ← preprocess <| mkApp3 (mkConst ``OfNat.ofNat [u]) type (mkRawNatLit 0) ofNatZeroInst
     ensureDefEq zero ofNatZero
-    let addInst ← getBinHomoInst ``HAdd
-    let addFn ← internalizeFn <| mkApp4 (mkConst ``HAdd.hAdd [u, u, u]) type type type addInst
     let subInst ← getBinHomoInst ``HSub
     let subFn ← internalizeFn <| mkApp4 (mkConst ``HSub.hSub [u, u, u]) type type type subInst
     let negInst ← getInst ``Neg
@@ -126,14 +195,6 @@ where
     ensureToFieldDefEq negInst addCommGroupInst ``Grind.AddCommGroup.toNeg
     ensureToFieldDefEq zsmulInst intModuleInst ``Grind.IntModule.zsmul
     ensureToFieldDefEq nsmulInst intModuleInst ``Grind.IntModule.nsmul
-    let preorderInst? ← getInst? ``Grind.Preorder
-    let orderedAddInst? ← if let some preorderInst := preorderInst? then
-      synthInstance? <| mkApp3 (mkConst ``Grind.OrderedAdd [u]) type addInst preorderInst
-    else
-      pure none
-    let preorderInst? := if orderedAddInst?.isNone then none else preorderInst?
-    let partialInst? ← checkToFieldDefEq? preorderInst? (← getInst? ``Grind.PartialOrder) ``Grind.PartialOrder.toPreorder
-    let linearInst? ← checkToFieldDefEq? partialInst? (← getInst? ``Grind.LinearOrder) ``Grind.LinearOrder.toPartialOrder
     let (leFn?, ltFn?) ← if let some preorderInst := preorderInst? then
       let leInst ← getInst ``LE
       let ltInst ← getInst ``LT
@@ -154,38 +215,11 @@ where
       internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Nat.mkType type smulInst smulInst
     let zsmulFn? ← getHSMulFn?
     let nsmulFn? ← getHSMulNatFn?
-    let ringId? ← CommRing.getRingId? type
-    let semiringInst? ← getInst? ``Grind.Semiring
-    let ringInst? ← getInst? ``Grind.Ring
-    let fieldInst? ← getInst? ``Grind.Field
-    let rec getOne? : GoalM (Option Expr) := do
-      let some oneInst ← getInst? ``One | return none
-      let one ← internalizeConst <| mkApp2 (mkConst ``One.one [u]) type oneInst
-      let one' ← mkNumeral type 1
-      unless (← withDefault <| isDefEq one one') do reportIssue! (← mkExpectedDefEqMsg one one')
-      return some one
-    let one? ← getOne?
-    let commRingInst? ← getInst? ``Grind.CommRing
     let homomulFn? ← if commRingInst?.isSome then
       let mulInst ← getBinHomoInst ``HMul
       pure <| some (← internalizeFn <| mkApp4 (mkConst ``HMul.hMul [u, u, u]) type type type mulInst)
     else
       pure none
-    let getOrderedRingInst? : GoalM (Option Expr) := do
-      let some semiringInst := semiringInst? | return none
-      let some preorderInst := preorderInst? | return none
-      let isOrdType := mkApp3 (mkConst ``Grind.OrderedRing [u]) type semiringInst preorderInst
-      let some inst ← synthInstance? isOrdType
-        | reportIssue! "type has a `Preorder` and is a `Semiring`, but is not an ordered ring, failed to synthesize{indentExpr isOrdType}"
-          return none
-      return some inst
-    let orderedRingInst? ← getOrderedRingInst?
-    let charInst? ← if let some semiringInst := semiringInst? then getIsCharInst? u type semiringInst else pure none
-    let rec getNoNatZeroDivInst? : GoalM (Option Expr) := do
-      let hmulNat := mkApp3 (mkConst ``HMul [0, u, u]) Nat.mkType type type
-      let some hmulInst ← synthInstance? hmulNat | return none
-      synthInstance? <| mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type hmulInst
-    let noNatDivInst? ← getNoNatZeroDivInst?
     let id := (← get').structs.size
     let struct : Struct := {
       id, type, u, intModuleInst, preorderInst?, orderedAddInst?, partialInst?, linearInst?, noNatDivInst?

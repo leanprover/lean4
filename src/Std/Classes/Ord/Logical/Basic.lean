@@ -4,6 +4,8 @@ prelude
 import Init.Core
 import Init.Data.Ord
 
+#exit
+
 namespace Std.Classes.Test
 
 section General

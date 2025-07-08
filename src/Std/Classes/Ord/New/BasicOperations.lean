@@ -1,27 +1,11 @@
-section Prerequisites
+module
 
-inductive Noncomputable (α : Type u) where
-  | comp : α → Noncomputable α
-  | noncomp : (P : α → Prop) → (h : Nonempty (Subtype P)) → Noncomputable α
+prelude
+import Init.Core
+public import Init.Data.Ord
+public import Std.Classes.Ord.New.Util
 
-class Noncomputable' (α : Type u) where
-  get : (choose : (P : α → Prop) → Nonempty (Subtype P) → α) → α
-  get_const : ∀ c c', get c = get c'
-
-attribute [class] Noncomputable
-
-noncomputable def Noncomputable.inst [i : Noncomputable α] : α :=
-  match i with
-  | .comp a => a
-  | .noncomp P _ => (Classical.ofNonempty : Subtype P)
-
-noncomputable def Noncomputable'.inst [i : Noncomputable' α] : α :=
-  i.get (fun P _ => (Classical.ofNonempty : Subtype P).val)
-
-def Noncomputable'.comp {α : Type u} (a : α) : Noncomputable' α :=
-  ⟨fun _ => a, fun _ _ => rfl⟩
-
-end Prerequisites
+public section
 
 section LT
 
@@ -58,13 +42,16 @@ end LE
 section Ord
 
 class NoncomputableOrd (α : Type u) where
-  noncomputableOrd : Noncomputable' (Ord α)
+  noncomputableOrd : Noncomputable (Ord α)
 
 def NoncomputableOrd.ofComputable {α : Type u} [Ord α] : NoncomputableOrd α where
   noncomputableOrd := .comp inferInstance
 
 class LawfulOrd (α : Type u) [ni : NoncomputableOrd α] [ci : Ord α] where
   eq : ni.noncomputableOrd.inst = ci
+
+noncomputable def NoncomputableOrd.compare {α : Type u} [NoncomputableOrd α] (a b : α) : Ordering :=
+  noncomputableOrd.inst.compare a b
 
 instance {α : Type u} [NoncomputableOrd α] :
     haveI : Ord α := NoncomputableOrd.noncomputableOrd.inst
@@ -87,6 +74,10 @@ end Ord
 
 section BEq
 
+/-!
+One might consider using `HasEquiv.{u, 0}` instead of `NoncomputableBEq`.
+-/
+
 class NoncomputableBEq (α : Type u) where
   noncomputableBEq : Noncomputable (BEq α)
 
@@ -108,42 +99,3 @@ instance {α : Type u} [NoncomputableBEq α] :
   ⟨rfl⟩
 
 end BEq
-
-section PartiallyComparable
-
-class PartiallyComparableMixin (α : Type u) [LT α] [LE α] [NoncomputableBEq α] : Prop
-
-class PartiallyComparable (α : Type u) extends LT α, LE α, NoncomputableBEq α,
-    PartiallyComparableMixin α
-
-class LawfulPartiallyComparable (α : Type u) [LT α] [LE α] [NoncomputableBEq α] where
-    lt_iff_le_not_ge : ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a := by exact fun _ _ => Iff.rfl
-
-structure PartiallyComparable.OfLEArgs (α : Type u) where
-  instLE : LE α := by
-    try (infer_instance; done)
-    try (exact LE.ofBLE; done)
-  instLT : LT α := by
-    try (infer_instance; done)
-    try (exact LT.ofBLT; done)
-    try (exact ⟨fun a b => a ≤ b ∧ ¬ b ≤ a⟩; done)
-  instNoncomputableBEq : NoncomputableBEq α := by
-    try (infer_instance; done)
-    try (exact NoncomputableBEq.ofComputable; done)
-    try (exact NoncomputableBEq.ofRel fun a b => a ≤ b ∧ b ≤ a; done)
-
-def PartiallyComparable.ofLE (args : OfLEArgs α) : PartiallyComparable α where
-  toLE := args.instLE
-  toLT := args.instLT
-  toNoncomputableBEq := args.instNoncomputableBEq
-
--- TODO: Do we want a variant that automatically spawns computable instances?
-
-instance PartiallyComparable.lawful [LE α] :
-    haveI : PartiallyComparable α := .ofLE {}
-    LawfulPartiallyComparable α :=
-  letI : PartiallyComparable α := .ofLE {}; {}
-
-instance (α : Type u) [LE α] : PartiallyComparable α := .ofLE {}
-
-end PartiallyComparable

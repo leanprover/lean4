@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/time_task.h"
 #include "library/formatter.h"
 #include "library/dynlib.h"
+#include "library/ir_interpreter.h"
 
 namespace lean {
 void initialize_library_core_module() {
@@ -37,9 +38,11 @@ void initialize_library_module() {
     initialize_library_util();
     initialize_time_task();
     initialize_dynlib();
+    initialize_ir_interpreter();
 }
 
 void finalize_library_module() {
+    finalize_ir_interpreter();
     finalize_time_task();
     finalize_library_util();
     finalize_class();

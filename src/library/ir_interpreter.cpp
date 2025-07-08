@@ -35,7 +35,7 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #else
 #include <dlfcn.h>
 #endif
-#include "library/compiler/ir_interpreter.h"
+#include "library/ir_interpreter.h"
 #include "runtime/flet.h"
 #include "runtime/apply.h"
 #include "runtime/interrupt.h"
@@ -46,7 +46,7 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #include "library/constants.h"
 #include "library/time_task.h"
 #include "library/ir_types.h"
-#include "library/compiler/init_attribute.h"
+#include "library/init_attribute.h"
 #include "util/nat.h"
 #include "util/option_declarations.h"
 

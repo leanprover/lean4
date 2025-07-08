@@ -38,7 +38,7 @@ Author: Leonardo de Moura
 #include "library/compiler/ir.h"
 #include "library/print.h"
 #include "initialize/init.h"
-#include "library/compiler/ir_interpreter.h"
+#include "library/ir_interpreter.h"
 #include "util/path.h"
 #include "stdlib_flags.h"
 #ifdef _MSC_VER

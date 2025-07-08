@@ -5761,7 +5761,7 @@ theorem clzAuxRec_zero (x : BitVec w) :
 theorem clzAuxRec_succ (x : BitVec w) :
     x.clzAuxRec (n + 1) = if x.getLsbD (n + 1) then BitVec.ofNat w (w - 1 - (n + 1)) else BitVec.clzAuxRec x n := by rfl
 
-theorem clzAuxRec_eq_clzAuxRec_of_le {x : BitVec w} (h : w - 1 ≤ n) :
+theorem clzAuxRec_eq_clzAuxRec_of_le (x : BitVec w) (h : w - 1 ≤ n) :
     x.clzAuxRec n = x.clzAuxRec (w - 1) := by
   let k := n - (w - 1)
   rw [show n = (w - 1) + k by omega]

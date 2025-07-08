@@ -73,6 +73,7 @@ def toIRType (type : Lean.Expr) : CoreM IRType := do
     let .const name _ := type.getAppFn | unreachable!
     nameToIRType name
   | .forallE .. => return .object
+  | .mdata _ b => toIRType b
   | _ => unreachable!
 
 inductive CtorFieldInfo where

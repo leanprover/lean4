@@ -23,11 +23,6 @@ def Param.toMono (param : Param) : ToMonoM Param := do
     modify fun s => { s with typeParams := s.typeParams.insert param.fvarId }
   param.update (← toMonoType param.type)
 
-def isTrivialConstructorApp? (declName : Name) (args : Array Arg) : ToMonoM (Option LetValue) := do
-  let some (.ctorInfo ctorInfo) := (← getEnv).find? declName | return none
-  let some info ← hasTrivialStructure? ctorInfo.induct | return none
-  return args[ctorInfo.numParams + info.fieldIdx]!.toLetValue
-
 def checkFVarUse (fvarId : FVarId) : ToMonoM Unit := do
   if let some declName := (← get).noncomputableVars.get? fvarId then
     throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{.ofConstName declName}', which is 'noncomputable'"
@@ -94,10 +89,11 @@ partial def LetValue.toMono (e : LetValue) (resultFVar : FVarId) : ToMonoM LetVa
       return args[1]!.toLetValue
     else if declName == ``Quot.mk || declName == ``Quot.lcInv then
       return args[2]!.toLetValue
-    else if let some e' ← isTrivialConstructorApp? declName args then
-      e'.toMono resultFVar
     else if let some (.ctorInfo ctorInfo) := (← getEnv).find? declName then
-      ctorAppToMono resultFVar ctorInfo args
+      if let some info ← hasTrivialStructure? ctorInfo.induct then
+        args[ctorInfo.numParams + info.fieldIdx]!.toLetValue.toMono resultFVar
+      else
+        ctorAppToMono resultFVar ctorInfo args
     else
       let env ← getEnv
       if isNoncomputable env declName && !(isExtern env declName) then

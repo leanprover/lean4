@@ -177,6 +177,11 @@ where
             let e' := if isSameExpr prop prop' then e else mkAppN f (args.set! 0 prop')
             modify' fun s => { s with proofCanon := s.proofCanon.insert prop' e' }
             pure e'
+        else if f.isConstOf ``Grind.nestedDecidable && args.size == 2 then
+          let prop := args[0]!
+          let prop' ← visit prop
+          let e' := if isSameExpr prop prop' then e else mkAppN f (args.set! 0 prop')
+          pure e'
         else
           let pinfos := (← getFunInfo f).paramInfo
           let mut modified := false
@@ -185,10 +190,16 @@ where
             let arg := args[i]
             trace_goal[grind.debug.canon] "[{repr (← shouldCanon pinfos i arg)}]: {arg} : {← inferType arg}"
             let arg' ← match (← shouldCanon pinfos i arg) with
-            | .canonType  => canonType e f i arg
-            | .canonInst  => canonInst e f i arg
-            | .canonImplicit => canonImplicit e f i (← visit arg)
-            | .visit      => visit arg
+              | .canonType => canonType e f i arg
+              | .canonImplicit => canonImplicit e f i (← visit arg)
+              | .visit => visit arg
+              | .canonInst =>
+                if arg.isAppOfArity ``Grind.nestedDecidable 2 then
+                  let prop := arg.appFn!.appArg!
+                  let prop' ← visit prop
+                  if isSameExpr prop prop' then pure arg else pure (mkApp2 arg.appFn!.appFn! prop' arg.appArg!)
+                else
+                  canonInst e f i arg
             unless isSameExpr arg arg' do
               args := args.set i arg'
               modified := true

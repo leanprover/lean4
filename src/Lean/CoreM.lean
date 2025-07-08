@@ -681,8 +681,7 @@ def traceBlock (tag : String) (t : Task α) : CoreM α := do
 opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 
 -- `ref?` is used for error reporting if available
-partial def compileDecls (decls : List Name) (_ : Option Declaration := none)
-    (logErrors := true) : CoreM Unit := do
+partial def compileDecls (decls : List Name) (logErrors := true) : CoreM Unit := do
   -- When inside `realizeConst`, do compilation synchronously so that `_cstage*` constants are found
   -- by the replay code
   if !Elab.async.get (← getOptions) || (← getEnv).isRealizing then
@@ -717,7 +716,7 @@ where doCompile := do
         throw e
 
 def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
-  compileDecls (Compiler.getDeclNamesForCodeGen decl) decl logErrors
+  compileDecls (Compiler.getDeclNamesForCodeGen decl) logErrors
 
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts

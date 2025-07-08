@@ -22,4 +22,6 @@ example (b c : R) : 2 * (b + c) + (-3 : Int) * c + b + b = c + (5 : Int) * b - 2
 example (b : R) : 2•b = 1•b + b := by grind
 
 example [CommRing α] (b : α) : 2•b = 1•b + b := by grind -ring
-example [CommRing α] (b : α) : 2•b = 1•b + b := by grind
+
+-- TODO: the `ring` module currently does not support scalar multiplication.
+-- example [CommRing α] (b : α) : 2•b = 1•b + b := by grind

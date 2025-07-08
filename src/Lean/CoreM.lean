@@ -666,12 +666,6 @@ private def checkUnsupported [Monad m] [MonadEnv m] [MonadError m] (decl : Decla
     | some (Expr.const declName ..) => throwError "code generator does not support recursor '{declName}' yet, consider using 'match ... with' and/or structural recursion"
     | _ => pure ()
 
-register_builtin_option compiler.enableNew : Bool := {
-  defValue := true
-  group    := "compiler"
-  descr    := "(compiler) enable the new code generator, unset to use the old code generator instead"
-}
-
 /--
 If `t` has not finished yet, waits for it under an `Elab.block` trace node. Returns `t`'s result.
 -/
@@ -686,11 +680,8 @@ def traceBlock (tag : String) (t : Task α) : CoreM α := do
 @[extern "lean_lcnf_compile_decls"]
 opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 
-@[extern "lean_compile_decls"]
-opaque compileDeclsOld (env : Environment) (opt : @& Options) (decls : @& List Name) : Except Kernel.Exception Environment
-
 -- `ref?` is used for error reporting if available
-partial def compileDecls (decls : List Name) (ref? : Option Declaration := none)
+partial def compileDecls (decls : List Name) (_ : Option Declaration := none)
     (logErrors := true) : CoreM Unit := do
   -- When inside `realizeConst`, do compilation synchronously so that `_cstage*` constants are found
   -- by the replay code
@@ -716,29 +707,14 @@ where doCompile := do
   -- is made async as well
   if !decls.all (← getEnv).constants.contains then
     return
-  let opts ← getOptions
-  if compiler.enableNew.get opts then
-    withoutExporting do
-      let state ← Core.saveState
-      try
-        compileDeclsNew decls
-      catch e =>
-        state.restore
-        if logErrors then
-          throw e
-  else
-    let res ← withTraceNode `compiler (fun _ => return m!"compiling old: {decls}") do
-      return compileDeclsOld (← getEnv) opts decls
-    match res with
-    | Except.ok env   => setEnv env
-    | Except.error (.other msg) =>
+  withoutExporting do
+    let state ← Core.saveState
+    try
+      compileDeclsNew decls
+    catch e =>
+      state.restore
       if logErrors then
-        if let some decl := ref? then
-          checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
-        throwError msg
-    | Except.error ex =>
-      if logErrors then
-        throwKernelException ex
+        throw e
 
 def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
   compileDecls (Compiler.getDeclNamesForCodeGen decl) decl logErrors

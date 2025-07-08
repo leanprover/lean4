@@ -113,7 +113,6 @@ example := {
   : S
 }
 example := { : S }
--- FIXME: failing:
 example := { : S
 }
 example := {
@@ -149,3 +148,14 @@ structure BadDepStruct where
   bdt : BadDepType n
 example : BadDepStruct where
   bdt := .mk
+
+
+structure DateES where
+  día : Nat
+  mes : Nat
+  año : Nat
+
+
+-- Ensure that indentation calculations correctly handle multi-byte characters
+def números : Nat × Nat := {}
+def números' : Nat × Nat := { fst := 23 }

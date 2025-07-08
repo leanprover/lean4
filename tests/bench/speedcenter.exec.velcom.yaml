@@ -515,3 +515,12 @@
   run_config:
     <<: *time
     cmd: lean workspaceSymbolsNewRanges.lean
+- attributes:
+    description: hashmap.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: ./hashmap.lean.out 11 1000
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh hashmap.lean

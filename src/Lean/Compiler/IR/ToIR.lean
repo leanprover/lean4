@@ -137,10 +137,8 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
   | .proj typeName i fvarId =>
     match (← get).fvars[fvarId]? with
     | some (.var varId) =>
-      -- TODO: have better pattern matching here
-      let some (.inductInfo { ctors, .. }) := (← Lean.getEnv).find? typeName
-        | panic! "projection of non-inductive type"
-      let ctorName := ctors[0]!
+      let some (.inductInfo { ctors := [ctorName], .. }) := (← Lean.getEnv).find? typeName
+        | panic! "projection of non-structure type"
       let ⟨ctorInfo, fields⟩ ← getCtorLayout ctorName
       let ⟨result, type⟩ := lowerProj varId ctorInfo fields[i]!
       match result with

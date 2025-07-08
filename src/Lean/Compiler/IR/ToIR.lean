@@ -169,10 +169,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
       match env.find? name with
       | some (.ctorInfo ctorVal) =>
         if isExtern env name then
-          if let some code ← tryIrDecl? name irArgs then
-            return code
-          else
-            mkExpr (.fap name irArgs)
+          mkExpr (.fap name irArgs)
         else
           let type ← nameToIRType ctorVal.induct
           if type.isScalar then
@@ -215,10 +212,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
               loop 0 0
             return .vdecl objVar type (.ctor ctorInfo objArgs) (← lowerNonObjectFields ())
       | some (.defnInfo ..) | some (.opaqueInfo ..) =>
-        if let some code ← tryIrDecl? name irArgs then
-          return code
-        else
-          mkExpr (.fap name irArgs)
+        mkExpr (.fap name irArgs)
       | some (.axiomInfo ..) | .some (.quotInfo ..) | .some (.inductInfo ..) | .some (.thmInfo ..) =>
         throwNamedError lean.dependsOnNoncomputable f!"'{name}' not supported by code generator; consider marking definition as 'noncomputable'"
       | some (.recInfo ..) =>

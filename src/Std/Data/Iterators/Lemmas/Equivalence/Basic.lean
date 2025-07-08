@@ -259,7 +259,7 @@ theorem IterM.Equiv.of_morphism {α₁ α₂} {m : Type w → Type w'} [Monad m]
         rintro ⟨step', hs', h⟩
         refine ⟨step', hs', ?_⟩
         rw [← h]
-        congr
+        congr 1
         ext it
       · apply Eq.symm
         apply Quot.sound
@@ -269,7 +269,7 @@ theorem IterM.Equiv.of_morphism {α₁ α₂} {m : Type w → Type w'} [Monad m]
     · intro β f
       apply bind_congr
       intro step
-      congr
+      congr 2
       ext it
       apply Quot.sound
       exact ⟨it, rfl, rfl⟩

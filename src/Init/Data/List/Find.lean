@@ -523,7 +523,7 @@ private theorem findIdx?_go_eq {p : α → Bool} {xs : List α} {i : Nat} :
     split
     · simp_all
     · simp_all only [findIdx?_go_succ, Bool.not_eq_true, Option.map_map, Nat.zero_add]
-      congr
+      congr 1
       ext
       simp only [Nat.add_comm i, Function.comp_apply, Nat.add_assoc]
 

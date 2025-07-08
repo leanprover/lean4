@@ -621,7 +621,7 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow (x : BitVec w) (i
         simp [hik', hik'']
         omega
   · ext k
-    simp only [and_twoPow,
+    simp only [and_twoPow, 
       ]
     by_cases hi : x.getLsbD i <;> simp [hi] <;> omega
 

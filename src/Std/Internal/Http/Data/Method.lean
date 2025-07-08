@@ -42,6 +42,18 @@ instance : ToString Method where
     | .trace => "TRACE"
     | .patch => "PATCH"
 
+def fromString? : String → Option Method
+  | "GET" => some .get
+  | "HEAD" => some .head
+  | "POST" => some .post
+  | "PUT" => some .put
+  | "DELETE" => some .delete
+  | "CONNECT" => some .connect
+  | "OPTIONS" => some .options
+  | "TRACE" => some .trace
+  | "PATCH" => some .patch
+  | _ => none
+
 /--
 Request methods are considered safe if their defined semantics are essentially read-only.
 

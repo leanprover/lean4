@@ -24,15 +24,6 @@ def failNone (x : Option α) : Parser α :=
   else
     fail "expected value but got none"
 
-def toLowerFast (c : UInt8) : UInt8 :=
-  if c >= 'A'.toUInt8 && c <= 'Z'.toUInt8 then
-    c ||| 0x20
-  else
-    c
-
-def _root_.ByteArray.toLowerCase (x : ByteArray) : ByteArray :=
-  ByteArray.mk (x.data.map toLowerFast)
-
 deriving instance Repr for ByteArray
 
 macro_rules
@@ -46,7 +37,7 @@ structure RequestLine where
   uri : ByteArray
   major : UInt8
   minor : UInt8
-deriving Repr
+deriving Repr, Inhabited
 
 structure StatusLine where
   major : UInt8

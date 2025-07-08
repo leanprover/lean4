@@ -19,5 +19,27 @@ structure ByteStream where
   want : IO.Ref Bool
 
 inductive Body where
+  | zero
   | bytes (data : ByteArray)
-  | channel (channel : ByteStream)
+  | stream (channel : ByteStream)
+
+namespace Body
+
+def getContentType (body : Body) : String :=
+  match body with
+  | zero => ""
+  | .bytes _ => "application/octet-stream"
+  | .stream _ => "application/octet-stream"
+
+/-- Get content length for a body (if known) -/
+def getContentLength (body : Body) : Option Nat :=
+  match body with
+  | zero => some 0
+  | .bytes data => some data.size
+  | .stream _ => none
+
+def withBodyHeaders (body : Body) (headers : Headers) : Headers :=
+  let headers' := headers.insert "Content-Type" (body.getContentType)
+  match body.getContentLength with
+  | some len => headers'.insert "Content-Length" (toString len)
+  | none => headers'.insert "Transfer-Encoding" "chunked"

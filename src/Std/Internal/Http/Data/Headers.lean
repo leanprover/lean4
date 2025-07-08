@@ -17,6 +17,7 @@ A structure for managing HTTP headers as key-value pairs.
 -/
 structure Headers where
   data : HashMap String (String × String)
+deriving Repr
 
 namespace Headers
 
@@ -26,6 +27,13 @@ Tries to retrieve the mapping for the given key, returning `none` if no such map
 @[inline]
 def get? (headers : Headers) (name : String) : Option String :=
   headers.data.get? name.toLower <&> Prod.snd
+
+/--
+Tries to retrieve the mapping for the given key, returning the default value `default` if no such mapping is present.
+-/
+@[inline]
+def getD (headers : Headers) (name : String) (default : String) : String :=
+  (headers.data.get? name.toLower <&> Prod.snd) |>.getD default
 
 /--
 Retrieves the mapping for the given key, panics if no such mapping is present.

@@ -7,6 +7,7 @@ prelude
 import Std.Internal.Http.Data.Headers
 import Std.Internal.Http.Data.Version
 import Std.Internal.Http.Data.Method
+import Std.Internal.Http.Data.Body
 import Std.Sync
 
 namespace Std
@@ -17,11 +18,21 @@ namespace Data
 /--
 
 -/
-structure Request (α : Type) where
+structure Request where
   method : Method
   version : Version
   uri : String
   headers : Headers
-  body : α
+  body : Body
+
+instance : ToString Request where
+  toString req :=
+    let headerString :=
+      toString req.method ++ " " ++
+      req.uri ++ " " ++
+      toString req.version ++
+      "\r\n" ++
+      toString req.headers
+    headerString ++ "\r\n\r\n"
 
 namespace Request

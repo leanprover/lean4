@@ -43,6 +43,18 @@ def toNumber : Version → (Nat × Nat)
   | .v20 => (2, 0)
   | .v30 => (3, 0)
 
+def fromString? : String → Option Version
+  | "HTTP/1.1" => some .v11
+  | "HTTP/2.0" => some .v20
+  | "HTTP/3.0" => some .v30
+  | _ => none
+
+instance : ToString Version where
+  toString
+    | .v11 => "HTTP/1.1"
+    | .v20 => "HTTP/2.0"
+    | .v30 => "HTTP/3.0"
+
 end Version
 end Data
 end Http

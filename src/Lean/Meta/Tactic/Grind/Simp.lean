@@ -41,7 +41,7 @@ def preprocess (e : Expr) : GoalM Simp.Result := do
   let e' := r.expr
   let e' ← unfoldReducible e'
   let e' ← abstractNestedProofs e'
-  let e' ← markNestedProofs e'
+  let e' ← markNestedSubsingletons e'
   let e' ← eraseIrrelevantMData e'
   let e' ← foldProjs e'
   let e' ← normalizeLevels e'

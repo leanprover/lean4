@@ -17,10 +17,12 @@ namespace Lean.Meta.Grind
 private abbrev M := StateRefT (Std.HashMap ExprPtr Expr) MetaM
 
 /--
-Wrap nested proofs `e` with `Lean.Grind.nestedProof`-applications.
-Recall that the congruence closure module has special support for `Lean.Grind.nestedProof`.
+Wrap nested proofs and decidable instances in `e` with `Lean.Grind.nestedProof` and `Lean.Grind.nestedDecidable`-applications.
+Recall that the congruence closure module has special support for them.
 -/
-partial def markNestedProofs (e : Expr) : MetaM Expr := do
+-- TODO: consider other subsingletons in the future? We decided to not support them to avoid the overhead of
+-- synthesizing `Subsingleton` instances.
+partial def markNestedSubsingletons (e : Expr) : MetaM Expr := do
   visit e |>.run' {}
 where
   visit (e : Expr) : M Expr := do
@@ -95,6 +97,6 @@ def markProof (e : Expr) : MetaM Expr := do
   if e.isAppOf ``Lean.Grind.nestedProof then
     return e -- `e` is already marked
   else
-    unsafe markNestedProofs.markNestedProof e |>.run' {}
+    unsafe markNestedSubsingletons.markNestedProof e |>.run' {}
 
 end Lean.Meta.Grind

@@ -5961,6 +5961,21 @@ theorem clzAuxRec_eq_clzAuxRec_of_le {x : BitVec w} (h : w - 1 ≤ n) :
     simp [show w - 1 + (k + 1) = (w - 1 + k) + 1 by omega, clzAuxRec_succ, ihk,
       show x.getLsbD (w - 1 + k + 1) = false by simp only [show w ≤ w - 1 + k + 1 by omega, getLsbD_of_ge]]
 
+theorem clzAuxRec_eq_clzAuxRec_of_getLsbD_false {x : BitVec w} (h : ∀ i, n < i → x.getLsbD i = false) :
+    x.clzAuxRec n = x.clzAuxRec (n + k) := by
+  induction k
+  · case zero => simp
+  · case succ k ihk =>
+    simp only [show n + (k + 1) = (n + k) + 1 by omega, clzAuxRec_succ]
+    by_cases hxn : x.getLsbD (n + k + 1)
+    · have : ¬ ∀ (i : Nat), n < i → x.getLsbD i = false := by
+        simp only [Classical.not_forall, Bool.not_eq_false]
+        exists n + k + 1
+        simp [show n < n + k + 1 by omega, hxn]
+      contradiction
+    · simp only [hxn, Bool.false_eq_true, ↓reduceIte]
+      exact ihk
+
 theorem clzAuxRec_le {x : BitVec w} (n : Nat) :
     clzAuxRec x n ≤ w := by
   have := Nat.lt_pow_self (a := 2) (n := w) (by omega)

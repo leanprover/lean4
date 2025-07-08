@@ -535,7 +535,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     Perhaps, we should have a `HasToInt` auxiliary class without output parameters.
     -/
     let_expr Eq α a b := e | return ()
-    unless (← getToIntInfo? α).isSome do return ()
+    unless (← getToIntId? α).isSome do return ()
     internalizeToIntTerm a α
     internalizeToIntTerm b α
 

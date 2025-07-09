@@ -72,6 +72,7 @@ def toConfigOptions (opts : Options) : ConfigOptions := {
   maxRecInline   := compiler.maxRecInline.get opts
   maxRecInlineIfReduce := compiler.maxRecInlineIfReduce.get opts
   checkTypes := compiler.checkTypes.get opts
+  extractClosed := compiler.extract_closed.get opts
 }
 
 end Lean.Compiler.LCNF

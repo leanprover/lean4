@@ -53,6 +53,7 @@ theorem not_or (p q : Prop) : (¬(p ∨ q)) = (¬p ∧ ¬q) := by by_cases p <;>
 theorem not_ite {_ : Decidable p} (q r : Prop) : (¬ite p q r) = ite p (¬q) (¬r) := by by_cases p <;> simp [*]
 theorem not_forall (p : α → Prop) : (¬∀ x, p x) = ∃ x, ¬p x := by simp
 theorem not_exists (p : α → Prop) : (¬∃ x, p x) = ∀ x, ¬p x := by simp
+theorem not_implies (p q : Prop) : (¬(p → q)) = (p ∧ ¬q) := by simp
 
 theorem ite_true_false {_ : Decidable p} : (ite p True False) = p := by
   by_cases p <;> simp

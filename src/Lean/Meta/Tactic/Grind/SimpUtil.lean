@@ -97,11 +97,14 @@ builtin_simproc_decl pushNot (Not _) := fun e => do
    | _ => return .continue
  | _ =>
   if let .forallE n α b info := e then
-    let p    := mkLambda n info α b
-    let notP := mkLambda n info α (mkNot b)
-    let u ← getLevel α
-    let expr := mkApp2 (mkConst ``Exists [u]) α notP
-    return .visit { expr, proof? := some <| mkApp2 (mkConst ``Grind.not_forall [u]) α p }
+    if α.isProp && !b.hasLooseBVars then
+      return .visit { expr := mkAnd α (mkNot b), proof? := some <| mkApp2 (mkConst ``Grind.not_implies) α b }
+    else
+      let p    := mkLambda n info α b
+      let notP := mkLambda n info α (mkNot b)
+      let u ← getLevel α
+      let expr := mkApp2 (mkConst ``Exists [u]) α notP
+      return .visit { expr, proof? := some <| mkApp2 (mkConst ``Grind.not_forall [u]) α p }
   else
     return .continue
 

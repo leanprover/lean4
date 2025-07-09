@@ -55,6 +55,7 @@ theorem not_forall (p : α → Prop) : (¬∀ x, p x) = ∃ x, ¬p x := by simp
 theorem not_exists (p : α → Prop) : (¬∃ x, p x) = ∀ x, ¬p x := by simp
 theorem not_implies (p q : Prop) : (¬(p → q)) = (p ∧ ¬q) := by simp
 
+theorem or_assoc (p q r : Prop) : ((p ∨ q) ∨ r) = (p ∨ (q ∨ r)) := by by_cases p <;> simp [*]
 theorem or_swap12 (p q r : Prop) : (p ∨ q ∨ r) = (q ∨ p ∨ r) := by by_cases p <;> simp [*]
 theorem or_swap13 (p q r : Prop) : (p ∨ q ∨ r) = (r ∨ q ∨ p) := by by_cases p <;> by_cases q <;> simp [*]
 
@@ -151,8 +152,6 @@ init_grind_norm
   iff_eq heq_eq_eq
   -- And
   and_true true_and and_false false_and and_assoc
-  -- Or
-  or_true true_or or_false false_or or_assoc
   -- ite
   ite_true ite_false ite_true_false ite_false_true
   -- Bool cond

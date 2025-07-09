@@ -110,12 +110,19 @@ builtin_simproc_decl pushNot (Not _) := fun e => do
 
 builtin_simproc_decl simpOr (Or _ _) := fun e => do
   let_expr Or p q ← e | return .continue
+  match_expr p with
+  | True => return .visit { expr := p, proof? := some <| mkApp (mkConst ``true_or) q }
+  | False => return .visit { expr := q, proof? := some <| mkApp (mkConst ``false_or) q }
+  | Or p₁ p₂ => return .visit { expr := mkOr p₁ (mkOr p₂ q), proof? := some <| mkApp3 (mkConst ``Grind.or_assoc) p₁ p₂ q }
+  | _ =>
   match_expr q with
   | Or q r =>
     if p.isForall then return .continue
     if q.isForall then return .visit { expr := mkOr q (mkOr p r), proof? := some <| mkApp3 (mkConst ``Grind.or_swap12) p q r }
     if r.isForall then return .visit { expr := mkOr r (mkOr q p), proof? := some <| mkApp3 (mkConst ``Grind.or_swap13) p q r }
     return .continue
+  | True => return .visit { expr := q, proof? := some <| mkApp (mkConst ``or_true) p }
+  | False => return .visit { expr := p, proof? := some <| mkApp (mkConst ``or_false) p }
   | _ => return .continue
 
 /-- Returns the array of simprocs used by `grind`. -/

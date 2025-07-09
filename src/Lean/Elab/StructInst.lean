@@ -839,13 +839,14 @@ def StructInstView.toFieldsHintView? (view : StructInstView) : Option FieldsHint
   }
 
 def mkMissingFieldsHint (missingFields : Array PendingField) (unsolvedFields : Std.HashSet Name) : StructInstM MessageData := do
+  -- TODO: Have `individualSuggestions` use actual syntax for the whole assignment, and have
+  -- `replacementStx` construct actual syntax using the appropriate separator; *then* delab the whole thing
   let individualSuggestions ← missingFields.mapM fun field => do
     let value ← if unsolvedFields.contains field.fieldName then
       let e := (← get).fieldMap.find! field.fieldName
       let stx ← withOptions (pp.mvars.set · false) <| PrettyPrinter.delab e
       pure (← PrettyPrinter.ppCategory `term stx).pretty
     else pure "_"
-    -- TODO: do this using syntax, forcing delaboration to a single line
     pure s!"{field.fieldName} := {value}"
   let useSingleLine ← isSingleLineStyle (← read).view
   let fields := (← read).view.fields
@@ -860,6 +861,7 @@ def mkMissingFieldsHint (missingFields : Array PendingField) (unsolvedFields : S
       Std.Format.joinSep individualSuggestions.toList .line
   let width := Tactic.TryThis.format.inputWidth.get (← getOptions)
   let fileMap ← getFileMap
+  -- TODO: move this somewhere more suitable
   let col (p : String.Pos) := (fileMap.utf8PosToLspPos p).character
   let indent :=
     if let some initFieldPos := view.initFieldPos? then
@@ -875,60 +877,60 @@ def mkMissingFieldsHint (missingFields : Array PendingField) (unsolvedFields : S
       let closeLineStart := fileMap.source.findLineStart view.closingPos
       min (col view.openingPos - col openLineStart) (col view.closingPos - col closeLineStart) + 2
   let leaderLine := (fileMap.utf8PosToLspPos view.leaderPos).line
-  let leaderTrailerSeparated := leaderLine < (fileMap.utf8PosToLspPos view.closingPos).line
-  -- We replace the entire intervening line up to min(end of line, end of indent)
-  -- if permissible -- this avoids us inserting a needless line break when the current line is blank but doesn't
-  -- have all the indentation spaces already inserted (this is a concern b/c VS Code will delete trailing whitespace on save)
+  let leaderTrailerSeparated : Bool := leaderLine < (fileMap.utf8PosToLspPos view.closingPos).line
 
-  -- `interveningLineEndPos?` gives the end of the range that we will replace if there is no text
-  -- between the leader and trailer, or `none` if that range is nonempty (e.g., there's a type
-  -- annotation) (if `leaderTrailerSeparated` is `false`, then the value is irrelevant)
+  -- If there is a line between the leader and trailer, `interveningLineEndPos?` gives a position on
+  -- that line at which to insert if there is no text between the leader and trailer, or `none` if
+  -- that range is nonempty (e.g., there's a type annotation).
   let interveningLineEndPos? :=
-    if !leaderTrailerSeparated then none else
+    if leaderLine + 1 ≥ (fileMap.utf8PosToLspPos view.closingPos).line then none else
       let startPos := view.leaderTailPos
-      let endPos := indent.fold (init := startPos) (fun _ _ p => fileMap.source.next p)
+      let endPos := (indent + 1).fold (init := startPos) (fun _ _ p => fileMap.source.next p)
       let nextTwoLines := takeTwoLines { str := fileMap.source, startPos, stopPos := fileMap.source.endPos }
       -- We want to make sure the *full* region is empty, regardless of the replacement interval:
       let lineIsEmpty := nextTwoLines.all (·.isWhitespace)
       -- It's possible that the line is shorter than the number of spaces, in which case the end position
       -- is actually the line end, not `endPos`:
       if lineIsEmpty then some (min endPos nextTwoLines.stopPos) else none
-  let replacementStx :=
-    -- If we're in single-line mode, the syntax already has the leading `, `, so insert it as-is
-    if useSingleLine then replacementStx
-    -- If there are any existing fields, we're appending after the tail of the last field, so break
-    else if fields.size > 0 then .line ++ replacementStx
-    -- If there are no fields but this is from a `where` declaration, we need a line break to reset indentation
-    else if view.isExpandedWhereStructInst then .line ++ replacementStx
-    -- If there is a `with` clause without an intervening line, we need a new line to reset our indentation
-    else if view.hasWith && !leaderTrailerSeparated then .line ++ replacementStx
-    -- If there is no intervening line, we add spaces before and after the braces for the `{ f := v\n ...}` style
-    else if !leaderTrailerSeparated then " " ++ replacementStx ++ " "
-    -- If we can replace a leading portion of the intervening line, our insertion point will already be on the right line
-    -- (just add indentation since the formatter doesn't know about the preceding line break)
-    else if interveningLineEndPos?.isSome then String.mk (List.replicate indent ' ') ++ replacementStx
-    -- Otherwise, we're inserting after the intervening line (which is nonempty), so add a line break
-    else .line ++ replacementStx
 
-  let (insertionStart, insertionEnd) :=
+  let (preWs, postWs) : Format × Format :=
+    -- If we're in single-line mode, the syntax already has the leading `, `, so insert it as-is
+    if useSingleLine then
+      (.nil, .nil)
+    -- If there are existing fields, or no fields after a `where` or `with`, need a line break for
+    -- consistent indentation
+    else if fields.size > 0 ||
+            view.isExpandedWhereStructInst ||
+            (view.hasWith && !leaderTrailerSeparated) then
+      (.line, .nil)
+    -- If there is no intervening line, add spaces before and after: `{ f := v\n ...}` style
+    else if !leaderTrailerSeparated then
+      (" ", " ")
+    -- If there is an intervening line, then either we either insert at the appropriate indentation
+    -- therein (if it's empty), or else insert on a new line before it (if it isn't)
+    else
+      match interveningLineEndPos? with
+      | none => (.line, .nil)
+      | some interveningLineEndPos =>
+        let endCol := col interveningLineEndPos
+        (String.mk (List.replicate (indent - endCol) ' '), .nil)
+  let replacementStx := preWs ++ replacementStx ++ postWs
+
+  let insertionPos :=
     -- If there are any existing fields, we must match their indentation
     if let some lastFieldTailPos := view.lastFieldTailPos? then
-      (lastFieldTailPos, lastFieldTailPos)
+      lastFieldTailPos
     else if leaderTrailerSeparated then
-    -- If the intervening line is clear up to `indent` spaces, then insert there; otherwise, insert
-    -- immediately after the leader (since the intervening text might be a type annotation)
-      let lineStart := fileMap.lspPosToUtf8Pos ⟨leaderLine + 1, 0⟩
-      if let some endPos := interveningLineEndPos? then
-        (lineStart, endPos)
-      else
-        (view.leaderTailPos, view.leaderTailPos)
+      -- If the intervening line is clear up to `indent` spaces (or its end if shorter), insert
+      -- there; else, insert after the leader (since the non-clear portion may be a type annotation)
+      interveningLineEndPos?.getD view.leaderTailPos
     else
-      (view.leaderTailPos, view.leaderTailPos)
-  let insCol := col insertionStart - col (fileMap.source.findLineStart insertionStart)
+      view.leaderTailPos
+  let insCol := col insertionPos - col (fileMap.source.findLineStart insertionPos)
   -- We limit only the span of the suggestion so the code action appears anywhere in the structure
   let suggestion := {
     suggestion := replacementStx.pretty width indent insCol,
-    span? := Syntax.ofRange ⟨insertionStart, insertionEnd⟩,
+    span? := Syntax.ofRange ⟨insertionPos, insertionPos⟩,
     toCodeActionTitle? := some fun _ => "Add missing fields"
   }
   MessageData.hint m!"Add missing fields:" #[suggestion]

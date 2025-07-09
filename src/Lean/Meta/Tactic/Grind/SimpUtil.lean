@@ -70,6 +70,41 @@ builtin_simproc_decl simpDIte (@dite _ _ _ _ _) := fun e => do
  let expr := mkApp5 (mkConst ``ite us) α c inst aBody bBody
  return .visit { expr, proof? := some (mkApp5 (mkConst ``dite_eq_ite us) c α a b inst) }
 
+builtin_simproc_decl pushNot (Not _) := fun e => do
+ let_expr Not p ← e | return .continue
+ match_expr p with
+ | True => return .visit { expr := mkConst ``False, proof? := some <| mkConst ``Grind.not_true  }
+ | False => return .visit { expr := mkConst ``True, proof? := some <| mkConst ``Grind.not_false  }
+ | And q r => return .visit { expr := mkApp2 (mkConst ``Or) (mkNot q) (mkNot r), proof? := some <| mkApp2 (mkConst ``Grind.not_and) q r }
+ | Or q r => return .visit { expr := mkApp2 (mkConst ``And) (mkNot q) (mkNot r), proof? := some <| mkApp2 (mkConst ``Grind.not_or) q r }
+ | Not q => return .visit { expr := q, proof? := some <| mkApp (mkConst ``Grind.not_not) q }
+ | f@Eq α a b =>
+   if α.isProp then
+     return .visit { expr := mkApp3 f α a (mkNot b), proof? := some <| mkApp2 (mkConst ``Grind.not_eq_prop) a b }
+   else match_expr b with
+     | Bool.true => return .visit { expr := mkApp3 f α a (mkConst ``Bool.false), proof? := some <| mkApp (mkConst ``Bool.not_eq_true) a }
+     | Bool.false => return .visit { expr := mkApp3 f α a (mkConst ``Bool.true), proof? := some <| mkApp (mkConst ``Bool.not_eq_false) a }
+     | _ => return .continue
+ | f@ite α c inst a b => return .visit { expr := mkApp5 f α c inst (mkNot a) (mkNot b), proof? := some <| mkApp4 (mkConst ``Grind.not_ite) c inst a b }
+ | Exists α p =>
+   let expr := mkForall `a .default α (mkNot (mkApp p (mkBVar 0)))
+   let u ← getLevel α
+   return .visit { expr, proof? := mkApp2 (mkConst ``Grind.not_exists [u]) α p }
+ | LE.le α _ a b =>
+   match_expr α with
+   | Int => return .visit { expr := mkIntLE (mkIntAdd b (mkIntLit 1)) a, proof? := some <| mkApp2 (mkConst ``Int.not_le_eq) a b }
+   | Nat => return .visit { expr := mkNatLE (mkNatAdd b (mkNatLit 1)) a, proof? := some <| mkApp2 (mkConst ``Nat.not_le_eq) a b }
+   | _ => return .continue
+ | _ =>
+  if let .forallE n α b info := e then
+    let p    := mkLambda n info α b
+    let notP := mkLambda n info α (mkNot b)
+    let u ← getLevel α
+    let expr := mkApp2 (mkConst ``Exists [u]) α notP
+    return .visit { expr, proof? := some <| mkApp2 (mkConst ``Grind.not_forall [u]) α p }
+  else
+    return .continue
+
 /-- Returns the array of simprocs used by `grind`. -/
 protected def getSimprocs : MetaM (Array Simprocs) := do
   let s ← Simp.getSEvalSimprocs
@@ -93,6 +128,7 @@ protected def getSimprocs : MetaM (Array Simprocs) := do
   let s ← addForallSimproc s
   let s ← s.add ``simpEq (post := true)
   let s ← s.add ``simpDIte (post := true)
+  let s ← s.add ``pushNot (post := false)
   return #[s]
 
 private def addDeclToUnfold (s : SimpTheorems) (declName : Name) : MetaM SimpTheorems := do

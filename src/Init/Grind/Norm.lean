@@ -45,21 +45,20 @@ theorem imp_true_eq (p : Prop) : (p → True) = True := by simp
 theorem imp_false_eq (p : Prop) : (p → False) = ¬p := by simp
 theorem imp_self_eq (p : Prop) : (p → p) = True := by simp
 
-theorem not_and (p q : Prop) : (¬(p ∧ q)) = (¬p ∨ ¬q) := by
-  by_cases p <;> by_cases q <;> simp [*]
-
-theorem not_ite {_ : Decidable p} (q r : Prop) : (¬ite p q r) = ite p (¬q) (¬r) := by
-  by_cases p <;> simp [*]
+theorem not_true : (¬True) = False := by simp
+theorem not_false : (¬False) = True := by simp
+theorem not_not (p : Prop) : (¬¬p) = p := by by_cases p <;> simp [*]
+theorem not_and (p q : Prop) : (¬(p ∧ q)) = (¬p ∨ ¬q) := by by_cases p <;> by_cases q <;> simp [*]
+theorem not_or (p q : Prop) : (¬(p ∨ q)) = (¬p ∧ ¬q) := by by_cases p <;> by_cases q <;> simp [*]
+theorem not_ite {_ : Decidable p} (q r : Prop) : (¬ite p q r) = ite p (¬q) (¬r) := by by_cases p <;> simp [*]
+theorem not_forall (p : α → Prop) : (¬∀ x, p x) = ∃ x, ¬p x := by simp
+theorem not_exists (p : α → Prop) : (¬∃ x, p x) = ∀ x, ¬p x := by simp
 
 theorem ite_true_false {_ : Decidable p} : (ite p True False) = p := by
   by_cases p <;> simp
 
 theorem ite_false_true {_ : Decidable p} : (ite p False True) = ¬p := by
   by_cases p <;> simp
-
-theorem not_forall (p : α → Prop) : (¬∀ x, p x) = ∃ x, ¬p x := by simp
-
-theorem not_exists (p : α → Prop) : (¬∃ x, p x) = ∀ x, ¬p x := by simp
 
 theorem cond_eq_ite (c : Bool) (a b : α) : cond c a b = ite c a b := by
   cases c <;> simp [*]

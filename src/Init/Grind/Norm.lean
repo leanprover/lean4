@@ -154,7 +154,7 @@ init_grind_norm
   -- And
   and_true true_and and_false false_and and_assoc
   -- ite
-  ite_true ite_false ite_true_false ite_false_true
+  ite_true_false ite_false_true
   -- Bool cond
   cond_eq_ite
   -- Bool or

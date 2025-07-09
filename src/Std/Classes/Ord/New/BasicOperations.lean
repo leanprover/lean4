@@ -21,6 +21,12 @@ instance [LT α] [BLT α] [LawfulBLT α] : DecidableLT α :=
 def LT.ofBLT (α : Type u) [BLT α] : LT α where
   lt a b := BLT.LT a b
 
+instance [BLT α] :
+    haveI : LT α := LT.ofBLT α
+    LawfulBLT α :=
+  letI : LT α := LT.ofBLT α
+  ⟨by simp [LT.ofBLT]⟩
+
 end LT
 
 section LE
@@ -36,6 +42,12 @@ instance [LE α] [BLE α] [LawfulBLE α] : DecidableLE α :=
 
 def LE.ofBLE (α : Type u) [BLE α] : LE α where
   le a b := BLE.LE a b
+
+instance [BLE α] :
+    haveI : LE α := LE.ofBLE α
+    LawfulBLE α :=
+  letI : LE α := LE.ofBLE α
+  ⟨by simp [LE.ofBLE]⟩
 
 end LE
 
@@ -70,6 +82,12 @@ example {α : Type u} [Ord α] :
     NoncomputableOrd.ofComputable.noncomputableOrd.inst = (inferInstance : Ord α) :=
   rfl
 
+instance [Ord α] :
+    haveI : NoncomputableOrd α := NoncomputableOrd.ofComputable
+    LawfulOrd α :=
+  letI : NoncomputableOrd α := NoncomputableOrd.ofComputable
+  ⟨by simp [NoncomputableOrd.ofComputable, Noncomputable.inst]⟩
+
 end Ord
 
 section BEq
@@ -97,5 +115,11 @@ instance {α : Type u} [NoncomputableBEq α] :
     LawfulComputableBEq α :=
   letI : BEq α := NoncomputableBEq.noncomputableBEq.inst
   ⟨rfl⟩
+
+instance [BEq α] :
+    haveI : NoncomputableBEq α := NoncomputableBEq.ofComputable
+    LawfulComputableBEq α :=
+  letI : NoncomputableBEq α := NoncomputableBEq.ofComputable
+  ⟨by simp [NoncomputableBEq.ofComputable, Noncomputable.inst]⟩
 
 end BEq

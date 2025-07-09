@@ -219,11 +219,6 @@ optional<name> get_regular_init_fn_name_for(elab_environment const & env, name c
     return to_optional<name>(lean_get_regular_init_fn_name_for(env.to_obj_arg(), n.to_obj_arg()));
 }
 
-extern "C" object* lean_get_builtin_init_fn_name_for(object* env, object* fn);
-optional<name> get_builtin_init_fn_name_for(elab_environment const & env, name const & n) {
-    return to_optional<name>(lean_get_builtin_init_fn_name_for(env.to_obj_arg(), n.to_obj_arg()));
-}
-
 /** \brief Value stored in an interpreter variable slot */
 union value {
     // NOTE: the IR type system guarantees that we always access the active union member

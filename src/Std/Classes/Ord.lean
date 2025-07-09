@@ -12,5 +12,6 @@ public import Std.Classes.Ord.UInt
 public import Std.Classes.Ord.String
 public import Std.Classes.Ord.BitVec
 public import Std.Classes.Ord.Vector
+public import Std.Classes.Ord.New.Util
 
 public section

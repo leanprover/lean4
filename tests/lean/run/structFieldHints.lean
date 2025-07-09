@@ -1,5 +1,6 @@
--- TODO: delete import
+-- TODO: delete first import
 import Lean
+import Lean.Parser.Term
 
 set_option pp.rawOnError true
 
@@ -98,6 +99,7 @@ example : S :=
   }
 example : S := { base with
 }
+-- FIXME: failing (along with the non-`with` version too) if you put spaces after `with` on the same line
 example : S := { base with
 
 }
@@ -131,23 +133,18 @@ example := { base with
   : S
 }
 
--- `where` structure instance
-example : S where
-
-example : S where
-  field2 := #v[42]
-
 -- missing constrained field
 example : S :=
   { field2 := #v[] }
 
+-- missing constrained but not fully determined field
 inductive BadDepType : Nat → Type where
   | mk : BadDepType (n + 4)
 structure BadDepStruct where
   n : Nat
   bdt : BadDepType n
-example : BadDepStruct where
-  bdt := .mk
+example : BadDepStruct :=
+  { bdt := .mk }
 
 
 structure DateES where

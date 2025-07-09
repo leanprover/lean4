@@ -872,24 +872,24 @@ theorem elem_eq_mem [BEq α] [LawfulBEq α] {a : α} {xs : Array α} :
 @[grind] theorem all_empty [BEq α] {p : α → Bool} : (#[] : Array α).all p = true := by simp
 
 /-- Variant of `any_push` with a side condition on `stop`. -/
-@[simp, grind] theorem any_push' [BEq α] {xs : Array α} {a : α} {p : α → Bool} (h : stop = xs.size + 1) :
+@[simp, grind] theorem any_push' {xs : Array α} {a : α} {p : α → Bool} (h : stop = xs.size + 1) :
     (xs.push a).any p 0 stop = (xs.any p || p a) := by
   cases xs
   rw [List.push_toArray]
   simp [h]
 
-theorem any_push [BEq α] {xs : Array α} {a : α} {p : α → Bool} :
+theorem any_push {xs : Array α} {a : α} {p : α → Bool} :
     (xs.push a).any p = (xs.any p || p a) :=
   any_push' (by simp)
 
 /-- Variant of `all_push` with a side condition on `stop`. -/
-@[simp, grind] theorem all_push' [BEq α] {xs : Array α} {a : α} {p : α → Bool} (h : stop = xs.size + 1) :
+@[simp, grind] theorem all_push' {xs : Array α} {a : α} {p : α → Bool} (h : stop = xs.size + 1) :
     (xs.push a).all p 0 stop = (xs.all p && p a) := by
   cases xs
   rw [List.push_toArray]
   simp [h]
 
-theorem all_push [BEq α] {xs : Array α} {a : α} {p : α → Bool} :
+theorem all_push {xs : Array α} {a : α} {p : α → Bool} :
     (xs.push a).all p = (xs.all p && p a) :=
   all_push' (by simp)
 

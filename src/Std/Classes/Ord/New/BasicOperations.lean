@@ -65,6 +65,10 @@ class LawfulOrd (α : Type u) [ni : NoncomputableOrd α] [ci : Ord α] where
 noncomputable def NoncomputableOrd.compare {α : Type u} [NoncomputableOrd α] (a b : α) : Ordering :=
   noncomputableOrd.inst.compare a b
 
+theorem LawfulOrd.compare_eq_compare {α : Type u} [NoncomputableOrd α] [Ord α] [LawfulOrd α]
+    {a b : α} : NoncomputableOrd.compare a b = Ord.compare a b := by
+  simp [NoncomputableOrd.compare, LawfulOrd.eq]
+
 instance {α : Type u} [NoncomputableOrd α] :
     haveI : Ord α := NoncomputableOrd.noncomputableOrd.inst
     LawfulOrd α :=
@@ -123,3 +127,14 @@ instance [BEq α] :
   ⟨by simp [NoncomputableBEq.ofComputable, Noncomputable.inst]⟩
 
 end BEq
+
+namespace Classical.Order
+
+noncomputable section
+
+scoped instance (priority := low) ordOfNoncomputableOrd [NoncomputableOrd α] : Ord α :=
+  NoncomputableOrd.noncomputableOrd.inst
+
+end
+
+end Classical.Order

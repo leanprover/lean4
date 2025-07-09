@@ -14,6 +14,7 @@ class LawfulComparable (α : Type u) [Comparable α] extends
     LawfulPartiallyComparable α where
   eq_lt_iff_lt : ∀ (a b : α), NoncomputableOrd.compare a b = .lt ↔ LT.lt a b := by exact Iff.rfl
   eq_gt_iff_gt : ∀ (a b : α), NoncomputableOrd.compare a b = .gt ↔ LT.lt b a := by exact Iff.rfl
+  le_iff_not_gt : ∀ (a b : α), LT.lt a b ↔ ¬ LE.le b a
 
 @[expose]
 def Comparable.leOfNoncomputableOrd (α : Type u) [NoncomputableOrd α] : LE α where
@@ -134,7 +135,7 @@ def Comparable.lawful (alpha : Type u) [NoncomputableOrd alpha]
     LawfulComparable alpha :=
   letI : Comparable alpha := .ofNoncomputableOrd {}
   haveI : LawfulPartiallyComparable alpha := sorry
-  ⟨sorry, sorry⟩
+  ⟨sorry, sorry, sorry⟩
 
 def ComputablyComparable.lawful (α : Type u) [Ord α]
     (oriented : ∀ a b : α, compare a b = .lt → compare b a = .lt) :
@@ -142,7 +143,7 @@ def ComputablyComparable.lawful (α : Type u) [Ord α]
     LawfulComparable α :=
   letI : ComputablyComparable α := .ofOrd {}
   haveI : LawfulPartiallyComparable α := sorry
-  ⟨sorry, sorry⟩
+  ⟨sorry, sorry, sorry⟩
 
 -- Cmp conundrum
 -- Cmp induces Comparable, but only up to propositional equality

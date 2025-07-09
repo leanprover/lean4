@@ -16,6 +16,7 @@ import Lean.Meta.Tactic.Simp.RegisterCommand
 import Lean.Meta.Tactic.Simp.Attr
 import Lean.Meta.Tactic.Simp.Diagnostics
 import Lean.Meta.Tactic.Simp.Arith
+import Lean.Meta.Tactic.Simp.UsedSimps
 
 namespace Lean
 

@@ -229,15 +229,15 @@ def simprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Ex
         match s with
         | .visit r =>
           trace[Debug.Meta.Tactic.simp] "simproc result {e} => {r.expr}"
-          recordSimpTheorem (.decl simprocEntry.declName post)
+          recordSimpTheorem (.decl simprocEntry.declName post) default
           return .visit (← mkEqTransOptProofResult proof? cache r)
         | .done r =>
           trace[Debug.Meta.Tactic.simp] "simproc result {e} => {r.expr}"
-          recordSimpTheorem (.decl simprocEntry.declName post)
+          recordSimpTheorem (.decl simprocEntry.declName post) default
           return .done (← mkEqTransOptProofResult proof? cache r)
         | .continue (some r) =>
           trace[Debug.Meta.Tactic.simp] "simproc result {e} => {r.expr}"
-          recordSimpTheorem (.decl simprocEntry.declName post)
+          recordSimpTheorem (.decl simprocEntry.declName post) default
           e := r.expr
           proof? ← mkEqTrans? proof? r.proof?
           cache := cache && r.cache
@@ -264,15 +264,15 @@ def dsimprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : E
         match s with
         | .visit eNew =>
           trace[Debug.Meta.Tactic.simp] "simproc result {e} => {eNew}"
-          recordSimpTheorem (.decl simprocEntry.declName post)
+          recordSimpTheorem (.decl simprocEntry.declName post) default
           return .visit eNew
         | .done eNew =>
           trace[Debug.Meta.Tactic.simp] "simproc result {e} => {eNew}"
-          recordSimpTheorem (.decl simprocEntry.declName post)
+          recordSimpTheorem (.decl simprocEntry.declName post) default
           return .done eNew
         | .continue (some eNew) =>
           trace[Debug.Meta.Tactic.simp] "simproc result {e} => {eNew}"
-          recordSimpTheorem (.decl simprocEntry.declName post)
+          recordSimpTheorem (.decl simprocEntry.declName post) default
           e := eNew
           found := true
         | .continue none =>

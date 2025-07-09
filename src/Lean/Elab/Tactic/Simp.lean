@@ -484,7 +484,8 @@ If `stx` is the syntax of a `simp`, `simp_all` or `dsimp` tactic invocation, and
 creates the syntax of an equivalent `simp only`, `simp_all only` or `dsimp only`
 invocation.
 -/
-def mkSimpOnly (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Syntax := do
+def mkSimpOnly (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsArray)
+    (usedSimps : Simp.UsedSimps) : MetaM Syntax := do
   let isSimpAll := stx.isOfKind ``Parser.Tactic.simpAll
   let mut stx := stx
   if stx[3].isNone then
@@ -493,7 +494,8 @@ def mkSimpOnly (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Syntax := do
   let mut localsOrStar := some #[]
   let lctx ← getLCtx
   let env ← getEnv
-  for thm in usedSimps.toArray do
+  let used ← usedSimps.getEntries ctx.simpTheorems simprocs
+  for thm in used do
     match thm with
     | .decl declName post inv => -- global definitions in the environment
       if env.contains declName
@@ -537,8 +539,9 @@ def mkSimpOnly (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Syntax := do
     args := args.push (← `(Parser.Tactic.simpStar| *))
   return setSimpParams stx args
 
-def traceSimpCall (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Unit := do
-  logInfoAt stx[0] m!"Try this: {← mkSimpOnly stx usedSimps}"
+def traceSimpCall (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsArray)
+    (usedSimps : Simp.UsedSimps) : MetaM Unit := do
+  logInfoAt stx[0] m!"Try this: {← mkSimpOnly stx ctx simprocs usedSimps}"
 
 
 register_builtin_option linter.unusedSimpArgs : Bool := {
@@ -659,7 +662,7 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
     withLoopChecking r do
       simpLocation ctx simprocs discharge? (expandOptLocation stx[5])
   if tactic.simp.trace.get (← getOptions) then
-    traceSimpCall stx stats.usedTheorems
+    traceSimpCall stx ctx simprocs stats.usedTheorems
   else if linter.unusedSimpArgs.get (← getOptions) then
     withRef stx do
       warnUnusedSimpArgs simpArgs stats.usedTheorems
@@ -674,7 +677,7 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
   | none => replaceMainGoal []
   | some mvarId => replaceMainGoal [mvarId]
   if tactic.simp.trace.get (← getOptions) then
-    traceSimpCall stx stats.usedTheorems
+    traceSimpCall stx ctx simprocs stats.usedTheorems
   else if linter.unusedSimpArgs.get (← getOptions) then
     withRef stx do
       warnUnusedSimpArgs simpArgs stats.usedTheorems
@@ -697,7 +700,7 @@ where
     | none => replaceMainGoal []
     | some mvarId => replaceMainGoal [mvarId]
     if tactic.simp.trace.get (← getOptions) then
-      mvarId.withContext <| traceSimpCall (← getRef) stats.usedTheorems
+      mvarId.withContext <| traceSimpCall (← getRef) ctx simprocs stats.usedTheorems
     return stats.diag
 
 @[builtin_tactic Lean.Parser.Tactic.dsimp] def evalDSimp : Tactic := fun stx => do

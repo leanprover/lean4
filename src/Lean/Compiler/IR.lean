@@ -73,23 +73,6 @@ def compile (env : Environment) (opts : Options) (decls : Array Decl) : Log × (
   | EStateM.Result.ok     _  s => (s.log, Except.ok s.env)
   | EStateM.Result.error msg s => (s.log, Except.error msg)
 
-def addBoxedVersionAux (decl : Decl) : CompilerM Unit := do
-  let env ← getEnv
-  if !ExplicitBoxing.requiresBoxedVersion env decl then
-    pure ()
-  else
-    let decl := ExplicitBoxing.mkBoxedVersion decl
-    let decls : Array Decl := #[decl]
-    let decls ← explicitRC decls
-    decls.forM fun decl => modifyEnv fun env => addDeclAux env decl
-    pure ()
-
--- Remark: we are ignoring the `Log` here. This should be fine.
-def addBoxedVersion (env : Environment) (decl : Decl) : Except String Environment :=
-  match (addBoxedVersionAux decl Options.empty).run { env := env } with
-  | EStateM.Result.ok     _  s => Except.ok s.env
-  | EStateM.Result.error msg _ => Except.error msg
-
 builtin_initialize
   registerTraceClass `compiler.ir
   registerTraceClass `compiler.ir.init (inherited := true)

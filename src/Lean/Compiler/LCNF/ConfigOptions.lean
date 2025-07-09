@@ -31,6 +31,10 @@ structure ConfigOptions where
   Perform type compatibility checking after each compiler pass.
   -/
   checkTypes : Bool := false
+  /--
+  Cache closed terms and evaluate them at initialization time.
+  -/
+  extractClosed : Bool := true
   deriving Inhabited
 
 register_builtin_option compiler.small : Nat := {
@@ -55,6 +59,12 @@ register_builtin_option compiler.checkTypes : Bool := {
   defValue := false
   group    := "compiler"
   descr    := "(compiler) perform type compatibility checking after each compiler pass. Note this is not a complete check, and it is used only for debugging purposes. It fails in code that makes heavy use of dependent types."
+}
+
+register_builtin_option compiler.extract_closed : Bool := {
+  defValue := true
+  group    := "compiler"
+  descr    := "(compiler) enable/disable closed term caching"
 }
 
 def toConfigOptions (opts : Options) : ConfigOptions := {

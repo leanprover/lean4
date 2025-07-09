@@ -145,6 +145,7 @@ theorem exists_and_right {α : Sort u} {p : α → Prop} {b : Prop} : (∃ x, p 
 theorem zero_sub (a : Nat) : 0 - a = 0 := by
   simp
 
+-- Remark: for additional `grind` simprocs, check `Lean/Meta/Tactic/Grind`
 init_grind_norm
   /- Pre theorems -/
   |

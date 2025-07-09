@@ -88,9 +88,10 @@ We use this information to simplify nested cases on the same discriminant.
   withReader (fun _ => ctx) x
 where
   updateCtx : DiscrM DiscrM.Context := do
+    let ctx ← read
+    if ctorFields.isEmpty then return ctx
     let ctorVal ← getConstInfoCtor ctorName
     let fieldArgs := ctorFields.map (Arg.fvar ·.fvarId)
-    let ctx ← read
     if let some (us, params) ← getIndInfo? (← getType discr) then
       let ctorArgs := params ++ fieldArgs
       let ctorInfo := .ctor ctorVal ctorArgs

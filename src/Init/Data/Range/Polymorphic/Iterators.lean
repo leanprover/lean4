@@ -98,7 +98,6 @@ instance {sl su α m} [UpwardEnumerable α] [BoundedUpwardEnumerable sl α]
     [Monad m] [Finite (RangeIterator su α) Id] :
     ForIn' m (PRange ⟨sl, su⟩ α) α inferInstance where
   forIn' r init f := by
-    haveI : MonadLift Id m := ⟨Std.Internal.idToMonad (α := _)⟩
     haveI := Iter.instForIn' (α := RangeIterator su α) (β := α) (n := m)
     refine ForIn'.forIn' (α := α) (PRange.Internal.iter r) init (fun a ha acc => f a ?_ acc)
     simp only [Membership.mem] at ha

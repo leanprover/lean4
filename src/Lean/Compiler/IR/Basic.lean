@@ -116,8 +116,6 @@ protected def Arg.beq : Arg → Arg → Bool
   | irrelevant, irrelevant => true
   | _,          _          => false
 
-@[export lean_ir_mk_var_arg] def mkVarArg (id : VarId) : Arg := Arg.var id
-
 inductive LitVal where
   | num (v : Nat)
   | str (v : String)
@@ -179,25 +177,11 @@ inductive Expr where
   | isShared (x : VarId)
   deriving Inhabited
 
-@[export lean_ir_mk_ctor_expr]  def mkCtorExpr (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (ys : Array Arg) : Expr :=
-  Expr.ctor ⟨n, cidx, size, usize, ssize⟩ ys
-@[export lean_ir_mk_proj_expr]  def mkProjExpr (i : Nat) (x : VarId) : Expr := Expr.proj i x
-@[export lean_ir_mk_uproj_expr] def mkUProjExpr (i : Nat) (x : VarId) : Expr := Expr.uproj i x
-@[export lean_ir_mk_sproj_expr] def mkSProjExpr (n : Nat) (offset : Nat) (x : VarId) : Expr := Expr.sproj n offset x
-@[export lean_ir_mk_fapp_expr]  def mkFAppExpr (c : FunId) (ys : Array Arg) : Expr := Expr.fap c ys
-@[export lean_ir_mk_papp_expr]  def mkPAppExpr (c : FunId) (ys : Array Arg) : Expr := Expr.pap c ys
-@[export lean_ir_mk_app_expr]   def mkAppExpr (x : VarId) (ys : Array Arg) : Expr := Expr.ap x ys
-@[export lean_ir_mk_num_expr]   def mkNumExpr (v : Nat) : Expr := Expr.lit (LitVal.num v)
-@[export lean_ir_mk_str_expr]   def mkStrExpr (v : String) : Expr := Expr.lit (LitVal.str v)
-
 structure Param where
   x : VarId
   borrow : Bool
   ty : IRType
   deriving Inhabited, Repr
-
-@[export lean_ir_mk_param]
-def mkParam (x : VarId) (borrow : Bool) (ty : IRType) : Param := ⟨x, borrow, ty⟩
 
 mutual
 
@@ -239,17 +223,6 @@ end
 deriving instance Inhabited for Alt
 
 abbrev FnBody.nil := FnBody.unreachable
-
-@[export lean_ir_mk_vdecl] def mkVDecl (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : FnBody := FnBody.vdecl x ty e b
-@[export lean_ir_mk_jdecl] def mkJDecl (j : JoinPointId) (xs : Array Param) (v : FnBody) (b : FnBody) : FnBody := FnBody.jdecl j xs v b
-@[export lean_ir_mk_uset] def mkUSet (x : VarId) (i : Nat) (y : VarId) (b : FnBody) : FnBody := FnBody.uset x i y b
-@[export lean_ir_mk_sset] def mkSSet (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody) : FnBody := FnBody.sset x i offset y ty b
-@[export lean_ir_mk_case] def mkCase (tid : Name) (x : VarId) (cs : Array Alt) : FnBody :=
-  -- Type field `xType` is set by `explicitBoxing` compiler pass.
-  FnBody.case tid x IRType.object cs
-@[export lean_ir_mk_ret] def mkRet (x : Arg) : FnBody := FnBody.ret x
-@[export lean_ir_mk_jmp] def mkJmp (j : JoinPointId) (ys : Array Arg) : FnBody := FnBody.jmp j ys
-@[export lean_ir_mk_unreachable] def mkUnreachable : Unit → FnBody := fun _ => FnBody.unreachable
 
 def FnBody.isTerminal : FnBody → Bool
   | FnBody.case _ _ _ _  => true
@@ -346,9 +319,6 @@ def reshape (bs : Array FnBody) (term : FnBody) : FnBody :=
     | FnBody.jdecl j xs v k => return FnBody.jdecl j xs (← f v) k
     | other                 => return other
 
-@[export lean_ir_mk_alt] def mkAlt (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (b : FnBody) : Alt :=
-  Alt.ctor ⟨n, cidx, size, usize, ssize⟩ b
-
 /-- Extra information associated with a declaration. -/
 structure DeclInfo where
   /-- If `some <blame>`, then declaration depends on `<blame>` which uses a `sorry` axiom. -/
@@ -388,14 +358,8 @@ def updateBody! (d : Decl) (bNew : FnBody) : Decl :=
 
 end Decl
 
-@[export lean_ir_mk_decl] def mkDecl (f : FunId) (xs : Array Param) (ty : IRType) (b : FnBody) : Decl :=
-  Decl.fdecl f xs ty b {}
-
-@[export lean_ir_mk_extern_decl] def mkExternDecl (f : FunId) (xs : Array Param) (ty : IRType) (e : ExternAttrData) : Decl :=
-  Decl.extern f xs ty e
-
 -- Hack: we use this declaration as a stub for declarations annotated with `implemented_by` or `init`
-@[export lean_ir_mk_dummy_extern_decl] def mkDummyExternDecl (f : FunId) (xs : Array Param) (ty : IRType) : Decl :=
+def mkDummyExternDecl (f : FunId) (xs : Array Param) (ty : IRType) : Decl :=
   Decl.fdecl f xs ty FnBody.unreachable {}
 
 /-- Set of variable and join point names -/

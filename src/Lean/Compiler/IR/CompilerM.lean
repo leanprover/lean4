@@ -30,7 +30,6 @@ def Log.format (log : Log) : Format :=
   log.foldl (init := Format.nil) fun fmt entry =>
     f!"{fmt}{Format.line}{entry}"
 
-@[export lean_ir_log_to_string]
 def Log.toString (log : Log) : String :=
   log.format.pretty
 
@@ -195,7 +194,6 @@ def getDecl (n : Name) : CompilerM Decl := do
   let (some decl) ← findDecl n | throw s!"unknown declaration '{n}'"
   return decl
 
-@[export lean_ir_add_decl]
 def addDeclAux (env : Environment) (decl : Decl) : Environment :=
   declMapExt.addEntry (env.addExtraName decl.name) decl
 

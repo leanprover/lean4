@@ -771,6 +771,9 @@ private def isSingleLineStyle (view : StructInstView) : MetaM Bool := do
   let ⟨lastFieldLine, lastFieldCol⟩ := fileMap.utf8PosToLspPos lastFieldPos
   return lastFieldLine == penultimateFieldLine || lastFieldCol < penultimateFieldCol
 
+private def findLineEnd (s : String) (p : String.Pos) : String.Pos :=
+  Substring.mk s p s.endPos |>.takeWhile (· != '\n') |>.stopPos
+
 private structure FieldsHintView where
   /-- The position of the first existing field in the structure instance, if one exists. -/
   initFieldPos? : Option String.Pos
@@ -824,6 +827,11 @@ private def StructInstView.toFieldsHintView? (view : StructInstView) : Option Fi
   let hasFields := view.fields.size > 0
   some { leaderPos, leaderTailPos, openingPos, closingPos, hasWith, hasFields, initFieldPos?, lastFieldTailPos? }
 
+/--
+Creates a hint message for the "fields missing" error that fills in the missing fields, adapting to
+the structure instance notation style of the current syntax. Note that if the syntax is malformed or
+synthetic, this function returns an empty message instead.
+-/
 private def mkMissingFieldsHint (missingFields : Array PendingField) (unsolvedFields : Std.HashSet Name)
     : StructInstM MessageData := do
   let some view := (← read).view.toFieldsHintView? | return .nil
@@ -860,12 +868,9 @@ private def mkMissingFieldsHint (missingFields : Array PendingField) (unsolvedFi
   -- gives the position on that line (the min of column `indent` and the line end) at which to insert
   let interveningLineEndPos? :=
     if leaderLine + 1 ≥ (fileMap.utf8PosToLspPos view.closingPos).line then none else
-      -- TODO: organize this
-      let leaderLineEnd := Substring.mk fileMap.source view.leaderTailPos fileMap.source.endPos
-                            |>.takeWhile (· != '\n') |>.stopPos
+      let leaderLineEnd := findLineEnd fileMap.source view.leaderTailPos
       let indentPos := (indent + 1).fold (init := leaderLineEnd) (fun _ _ p => fileMap.source.next p)
-      let interveningLineEnd := Substring.mk fileMap.source (fileMap.source.next leaderLineEnd) fileMap.source.endPos
-        |>.takeWhile (· != '\n') |>.stopPos
+      let interveningLineEnd := findLineEnd fileMap.source (fileMap.source.next leaderLineEnd)
       let nextTwoLines := Substring.mk fileMap.source view.leaderTailPos interveningLineEnd
       if nextTwoLines.all (·.isWhitespace) then some (min indentPos nextTwoLines.stopPos) else none
 
@@ -962,7 +967,7 @@ private def synthOptParamFields : StructInstM Unit := do
             toRemove := toRemove.push selected.fieldName
           else
             assignErrors := assignErrors.push m!"\
-              occurs check failed, field '{selected.fieldName}' of type{indentExpr fieldType}\n\
+              Occurs check failed: Field `{selected.fieldName}` of type{indentExpr fieldType}\n\
               cannot be assigned the default value{indentExpr selectedVal}"
         else
           assignErrors := assignErrors.push m!"\
@@ -983,7 +988,7 @@ private def synthOptParamFields : StructInstM Unit := do
         for pendingField in pendingFields do
           if let some mvarId ← isFieldNotSolved? pendingField.fieldName then
             registerCustomErrorIfMVar (.mvar mvarId) (← read).view.ref m!"\
-              cannot synthesize placeholder for field '{pendingField.fieldName}'"
+              Cannot synthesize placeholder for field `{pendingField.fieldName}`"
         return
       let assignErrorsMsg := MessageData.joinSep (assignErrors.map (m!"\n\n" ++ ·)).toList ""
       let mut requiredErrors : Array MessageData := #[]
@@ -993,15 +998,15 @@ private def synthOptParamFields : StructInstM Unit := do
           unsolvedFields := unsolvedFields.insert pendingField.fieldName
           let e := (← get).fieldMap.find! pendingField.fieldName
           requiredErrors := requiredErrors.push m!"\
-            field '{pendingField.fieldName}' must be explicitly provided, its synthesized value is{indentExpr e}"
+            Field `{pendingField.fieldName}` must be explicitly provided; its synthesized value is{indentExpr e}"
       let requiredErrorsMsg := MessageData.joinSep (requiredErrors.map (m!"\n\n" ++ ·)).toList ""
       let missingFields := pendingFields |>.filter (fun pending => pending.val?.isNone)
       -- TODO(kmill): when fields are all stuck, report better.
       -- For now, just report all pending fields in case there are no obviously missing ones.
       let missingFields := if missingFields.isEmpty then pendingFields else missingFields
-      let missing := missingFields |>.map (s!"'{·.fieldName}'") |>.toList
+      let missing := missingFields |>.map (s!"`{·.fieldName}`") |>.toList
       let missingFieldsHint ← mkMissingFieldsHint missingFields unsolvedFields
-      let msg := m!"fields missing: {", ".intercalate missing}{assignErrorsMsg}{requiredErrorsMsg}{missingFieldsHint}"
+      let msg := m!"Fields missing: {", ".intercalate missing}{assignErrorsMsg}{requiredErrorsMsg}{missingFieldsHint}"
       if (← readThe Term.Context).errToSorry then
         -- Assign all pending problems using synthetic sorries and log an error.
         for pendingField in pendingFields do

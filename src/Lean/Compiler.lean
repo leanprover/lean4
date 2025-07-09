@@ -16,5 +16,4 @@ import Lean.Compiler.FFI
 import Lean.Compiler.MetaAttr
 import Lean.Compiler.NoncomputableAttr
 import Lean.Compiler.Main
-import Lean.Compiler.AtMostOnce -- TODO: delete after we port code generator to Lean
 import Lean.Compiler.Old -- TODO: delete after we port code generator to Lean

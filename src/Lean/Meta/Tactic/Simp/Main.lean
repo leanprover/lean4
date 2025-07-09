@@ -11,7 +11,7 @@ import Lean.Meta.Tactic.Simp.Rewrite
 import Lean.Meta.Tactic.Simp.Diagnostics
 import Lean.Meta.Match.Value
 import Lean.Meta.LetToHave
-import Lean.Util.CollectLooseBVars
+import Lean.Util.FoldLooseBVars
 
 namespace Lean.Meta
 namespace Simp
@@ -451,7 +451,7 @@ where
     since the expression likely contains many fvars for the pre-existing local context.
     -/
     let getBackDeps (a : Expr) : Std.HashSet Nat :=
-      a.collectLooseBVars.fold (init := {}) fun deps vidx =>
+      a.foldLooseBVars (init := {}) fun deps vidx =>
         -- Since the original expression has no bvars, `vidx < numHaves` must be true.
         deps.insert (numHaves - vidx - 1)
     match e with

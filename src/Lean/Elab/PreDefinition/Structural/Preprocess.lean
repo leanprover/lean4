@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Transform
 import Lean.Elab.RecAppSyntax
+import Lean.Meta.WHNF
 
 namespace Lean.Elab.Structural
 open Meta
@@ -34,8 +35,13 @@ Preprocesses the expressions to improve the effectiveness of `elimRecursion`.
     | 0 => 1
     | i+1 => (f x) i
   ```
+
+* Unfold auxillary definitions abstracting over the function call
+  (typically abstracted) proofs.
+
 -/
-def preprocess (e : Expr) (recFnNames : Array Name) : CoreM Expr :=
+def preprocess (e : Expr) (recFnNames : Array Name) : CoreM Expr := do
+  let e ← unfoldIfArgIsConstOf recFnNames e
   Core.transform e
     (pre := fun e =>
       if shouldBetaReduce e recFnNames then

@@ -202,6 +202,37 @@ def unfoldDeclsFrom (biggerEnv : Environment) (e : Expr) : CoreM Expr := do
         return .done e
     Core.transform e (pre := pre)
 
+/--
+Unfolds theorem applied to `.const n` where `n` in the given array.
+This is used to undo proof abstraction for termination checking, as otherwise the bare occurence of
+the recursive functions prevents termination checking.
+Unfolds from the private environment.
+-/
+def unfoldIfArgIsConstOf (fnNames : Array Name) (e : Expr) : CoreM Expr := withoutExporting do
+  let env ← getEnv
+  -- Unfold abstracted proofs
+  Core.transform e
+    (pre := fun e => e.withAppRev fun f revArgs => do
+      if f.isConst then
+        /-
+        How do we avoid unfolding declarations where the user happened to
+        have called with the recursive function as an unsaturated argument?
+        Such cases are not caught by the following check,
+        because such explicit recursive calls would always have a
+        isRecApp mdata wrapper around.
+        This is arguably somewhat fragile, but it works for now.
+        Alternatives if this breaks:
+         * Keep a local env extension to reliably recognize abstracted proofs
+         * Avoid abstracting over implementation detail applications
+        (The code below is restricted to theorems, as otherwise it would unfold
+        matchers, who can also abstract over recursive calls, #2102.
+        -/
+        if revArgs.any (fun a => a.isConst && a.constName! ∈ fnNames) then
+          if let some info@(.thmInfo _) := env.find? f.constName! then
+            return .visit <| (← instantiateValueLevelParams info f.constLevels!).betaRev revArgs
+      return .continue)
+
+
 def eraseInaccessibleAnnotations (e : Expr) : CoreM Expr :=
   Core.transform e (post := fun e => return .done <| if let some e := inaccessible? e then e else e)
 

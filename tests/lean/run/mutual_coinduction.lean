@@ -1,3 +1,5 @@
+set_option trace.Elab.definition.partialFixpoint.induction true
+
 namespace MutualCoinduction
   mutual
     def f : Prop :=
@@ -70,6 +72,11 @@ namespace DifferentPredicateTypes
     coinductive_fixpoint
   end
 
+  def pred1 := fun m : Nat => True
+  def pred2 := fun m n : Nat => True
+
+  #check f.coinduct
+
   /--
     info: DifferentPredicateTypes.f.coinduct (x : (Nat → Prop) ×' (Nat → Nat → Prop))
   (y :
@@ -79,4 +86,6 @@ namespace DifferentPredicateTypes
   -/
   #guard_msgs in
   #check f.coinduct
+
+
 end DifferentPredicateTypes

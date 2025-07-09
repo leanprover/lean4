@@ -308,18 +308,6 @@ void initialize_compiler() {
     register_trace_class({"compiler", "optimize_bytecode"});
     register_trace_class({"compiler", "code_gen"});
     register_trace_class({"compiler", "ll_infer_type"});
-    register_trace_class({"compiler", "ir"});
-    register_trace_class({"compiler", "ir", "init"});
-    register_trace_class({"compiler", "ir", "push_proj"});
-    register_trace_class({"compiler", "ir", "reset_reuse"});
-    register_trace_class({"compiler", "ir", "elim_dead_branches"});
-    register_trace_class({"compiler", "ir", "elim_dead"});
-    register_trace_class({"compiler", "ir", "simp_case"});
-    register_trace_class({"compiler", "ir", "borrow"});
-    register_trace_class({"compiler", "ir", "boxing"});
-    register_trace_class({"compiler", "ir", "rc"});
-    register_trace_class({"compiler", "ir", "expand_reset_reuse"});
-    register_trace_class({"compiler", "ir", "result"});
 }
 
 void finalize_compiler() {

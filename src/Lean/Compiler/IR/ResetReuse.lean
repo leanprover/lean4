@@ -243,4 +243,6 @@ def Decl.insertResetReuse (d : Decl) : Decl :=
   d.insertResetReuseCore (relaxedReuse := false)
   |>.insertResetReuseCore (relaxedReuse := true)
 
+builtin_initialize registerTraceClass `compiler.ir.reset_reuse (inherited := true)
+
 end Lean.IR

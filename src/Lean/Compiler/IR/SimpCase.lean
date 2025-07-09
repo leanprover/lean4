@@ -75,4 +75,6 @@ def Decl.simpCase (d : Decl) : Decl :=
   | .fdecl (body := b) .. => d.updateBody! b.simpCase
   | other => other
 
+builtin_initialize registerTraceClass `compiler.ir.simp_case (inherited := true)
+
 end Lean.IR

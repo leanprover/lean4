@@ -45,4 +45,6 @@ def Decl.elimDead (d : Decl) : Decl :=
   | .fdecl (body := b) .. => d.updateBody! b.elimDead
   | other => other
 
+builtin_initialize registerTraceClass `compiler.ir.elim_dead (inherited := true)
+
 end Lean.IR

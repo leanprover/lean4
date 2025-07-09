@@ -302,5 +302,7 @@ def inferBorrow (decls : Array Decl) : CompilerM (Array Decl) := do
   let paramMap := Borrow.infer env decls
   pure (Borrow.applyParamMap decls paramMap)
 
+builtin_initialize registerTraceClass `compiler.ir.borrow (inherited := true)
+
 end IR
 end Lean

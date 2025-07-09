@@ -336,4 +336,6 @@ def elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
     { s with env := env }
   return decls.mapIdx fun i decl => elimDead assignments[i]! decl
 
+builtin_initialize registerTraceClass `compiler.ir.elim_dead_branches (inherited := true)
+
 end Lean.IR

@@ -338,4 +338,6 @@ def explicitBoxing (decls : Array Decl) : CompilerM (Array Decl) := do
   let env ← getEnv
   return ExplicitBoxing.run env decls
 
+builtin_initialize registerTraceClass `compiler.ir.boxing (inherited := true)
+
 end Lean.IR

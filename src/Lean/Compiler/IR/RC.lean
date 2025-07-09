@@ -282,4 +282,6 @@ def explicitRC (decls : Array Decl) : CompilerM (Array Decl) := do
   let env ← getEnv
   return decls.map (ExplicitRC.visitDecl env decls)
 
+builtin_initialize registerTraceClass `compiler.ir.rc (inherited := true)
+
 end Lean.IR

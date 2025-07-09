@@ -92,4 +92,9 @@ def addBoxedVersion (env : Environment) (decl : Decl) : Except String Environmen
   | EStateM.Result.ok     _  s => Except.ok s.env
   | EStateM.Result.error msg _ => Except.error msg
 
+builtin_initialize
+  registerTraceClass `compiler.ir
+  registerTraceClass `compiler.ir.init (inherited := true)
+  registerTraceClass `compiler.ir.result (inherited := true)
+
 end Lean.IR

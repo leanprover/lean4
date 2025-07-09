@@ -59,22 +59,22 @@ private def syntaxToExternAttrData (stx : Syntax) : AttrM ExternAttrData := do
       entries := entries.push <| ExternEntry.inline backend str
   return { arity? := arity?, entries := entries.toList }
 
+-- Forward declaration
 @[extern "lean_add_extern"]
-opaque addExtern (env : Environment) (n : Name) : ExceptT String Id Environment
+opaque addExtern (declName : Name) (externAttrData : ExternAttrData) : CoreM Unit
 
 builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
   registerParametricAttribute {
     name := `extern
     descr := "builtin and foreign functions"
     getParam := fun _ stx => syntaxToExternAttrData stx
-    afterSet := fun declName _ => do
+    afterSet := fun declName externAttrData => do
       let env ← getEnv
       if env.isProjectionFn declName || env.isConstructor declName then
         if let some (.thmInfo ..) := env.find? declName then
           -- We should not mark theorems as extern
           return ()
-        let env ← ofExcept <| addExtern env declName
-        setEnv env
+        addExtern declName externAttrData
   }
 
 @[export lean_get_extern_attr_data]

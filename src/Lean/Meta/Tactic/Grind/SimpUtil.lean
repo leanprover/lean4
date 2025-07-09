@@ -108,6 +108,16 @@ builtin_simproc_decl pushNot (Not _) := fun e => do
   else
     return .continue
 
+builtin_simproc_decl simpOr (Or _ _) := fun e => do
+  let_expr Or p q ← e | return .continue
+  match_expr q with
+  | Or q r =>
+    if p.isForall then return .continue
+    if q.isForall then return .visit { expr := mkOr q (mkOr p r), proof? := some <| mkApp3 (mkConst ``Grind.or_swap12) p q r }
+    if r.isForall then return .visit { expr := mkOr r (mkOr q p), proof? := some <| mkApp3 (mkConst ``Grind.or_swap13) p q r }
+    return .continue
+  | _ => return .continue
+
 /-- Returns the array of simprocs used by `grind`. -/
 protected def getSimprocs : MetaM (Array Simprocs) := do
   let s ← Simp.getSEvalSimprocs
@@ -130,6 +140,7 @@ protected def getSimprocs : MetaM (Array Simprocs) := do
   let s ← Arith.addSimproc s
   let s ← addForallSimproc s
   let s ← s.add ``simpEq (post := true)
+  let s ← s.add ``simpOr (post := true)
   let s ← s.add ``simpDIte (post := true)
   let s ← s.add ``pushNot (post := false)
   return #[s]

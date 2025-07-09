@@ -320,8 +320,7 @@ end UnreachableBranches
 open UnreachableBranches
 
 def elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
-  let s ← get
-  let env := s.env
+  let env ← getEnv
   let assignments : Array Assignment := decls.map fun _ => {}
   let funVals := mkPArray decls.size Value.bot
   let visitedJps := decls.map fun _ => {}
@@ -330,10 +329,9 @@ def elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
   let (_, s) := (inferMain ctx).run s
   let funVals := s.funVals
   let assignments := s.assignments
-  modify fun s =>
-    let env := decls.size.fold (init := s.env) fun i _ env =>
+  modifyEnv fun env =>
+    decls.size.fold (init := env) fun i _ env =>
       addFunctionSummary env decls[i].name funVals[i]!
-    { s with env := env }
   return decls.mapIdx fun i decl => elimDead assignments[i]! decl
 
 builtin_initialize registerTraceClass `compiler.ir.elim_dead_branches (inherited := true)

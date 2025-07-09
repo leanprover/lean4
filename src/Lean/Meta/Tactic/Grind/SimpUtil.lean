@@ -68,7 +68,7 @@ builtin_simproc_decl simpDIte (@dite _ _ _ _ _) := fun e => do
  if bBody.hasLooseBVars then return .continue
  let us := f.constLevels!
  let expr := mkApp5 (mkConst ``ite us) α c inst aBody bBody
- return .visit { expr, proof? := some (mkApp5 (mkConst ``dite_eq_ite us) c α a b inst) }
+ return .visit { expr, proof? := some (mkApp5 (mkConst ``dite_eq_ite us) c α aBody bBody inst) }
 
 builtin_simproc_decl pushNot (Not _) := fun e => do
  let_expr Not p ← e | return .continue

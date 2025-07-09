@@ -60,13 +60,13 @@ builtin_simproc_decl expandDiv (_ / _) := fun e => do
   if isNotFieldQuick α then return .continue
   unless (← isDefEq α β <&&> isDefEq α γ) do return .continue
   let us := f.constLevels!
-  let [u] := us | return .continue
-  let field := mkApp (mkConst ``Grind.Field us) α
+  let [u, _, _] := us | return .continue
+  let field := mkApp (mkConst ``Grind.Field [u]) α
   let some fieldInst ← synthInstanceMeta? field | return .continue
-  let some mulInst ← synthInstanceMeta? (mkApp3 (mkConst ``HMul [u, u, u]) α α α) | return .continue
-  let some invInst ← synthInstanceMeta? (mkApp (mkConst ``Inv us) α) | return .continue
-  let expr := mkApp6 (mkConst ``HMul.hMul [u, u, u]) α α α mulInst a (mkApp3 (mkConst ``Inv.inv us) α invInst b)
-  return .visit { expr, proof? := some <| mkApp4 (mkConst ``Grind.Field.div_eq_mul_inv us) α fieldInst a b }
+  let some mulInst ← synthInstanceMeta? (mkApp3 (mkConst ``HMul us) α α α) | return .continue
+  let some invInst ← synthInstanceMeta? (mkApp (mkConst ``Inv [u]) α) | return .continue
+  let expr := mkApp6 (mkConst ``HMul.hMul us) α α α mulInst a (mkApp3 (mkConst ``Inv.inv [u]) α invInst b)
+  return .visit { expr, proof? := some <| mkApp4 (mkConst ``Grind.Field.div_eq_mul_inv [u]) α fieldInst a b }
 
 def addSimproc (s : Simprocs) : CoreM Simprocs := do
   let s ← s.add ``expandPowAdd (post := true)

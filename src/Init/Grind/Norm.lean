@@ -142,24 +142,15 @@ theorem zero_sub (a : Nat) : 0 - a = 0 := by
 
 init_grind_norm
   /- Pre theorems -/
-  not_and not_or not_ite not_forall not_exists
   |
   /- Post theorems -/
-  Classical.not_not
   iff_eq heq_eq_eq
-  -- Prop equality
-  not_eq_prop
-  -- True
-  not_true
-  -- False
-  not_false_eq_true
   -- And
   and_true true_and and_false false_and
   -- Or
   or_true true_or or_false false_or
   -- ite
   ite_true ite_false ite_true_false ite_false_true
-  dite_eq_ite
   -- Bool cond
   cond_eq_ite
   -- Bool or
@@ -172,12 +163,10 @@ init_grind_norm
   beq_iff_eq beq_eq_decide_eq beq_self_eq_true
   -- bne
   bne_iff_ne bne_eq_decide_not_eq
-  -- Bool not eq true/false
-  Bool.not_eq_true Bool.not_eq_false
   -- decide
   decide_eq_true_eq decide_not not_decide_eq_true
   -- Nat
-  Nat.le_zero_eq Nat.lt_eq Nat.not_le_eq Nat.succ_eq_add_one
+  Nat.le_zero_eq Nat.lt_eq Nat.succ_eq_add_one
   Nat.add_eq Nat.sub_eq Nat.mul_eq Nat.zero_eq Nat.le_eq
   Nat.div_zero Nat.mod_zero Nat.div_one Nat.mod_one
   Nat.sub_sub Nat.pow_zero Nat.pow_one Nat.sub_self

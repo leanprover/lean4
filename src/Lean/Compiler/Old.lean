@@ -11,11 +11,9 @@ namespace Compiler
 
 /-! Helper functions for creating auxiliary names used in (old) compiler passes. -/
 
-@[export lean_mk_eager_lambda_lifting_name]
 def mkEagerLambdaLiftingName (n : Name) (idx : Nat) : Name :=
   Name.mkStr n ("_elambda_" ++ toString idx)
 
-@[export lean_is_eager_lambda_lifting_name]
 def isEagerLambdaLiftingName : Name → Bool
   | .str p s => "_elambda".isPrefixOf s || isEagerLambdaLiftingName p
   | .num p _ => isEagerLambdaLiftingName p
@@ -41,12 +39,10 @@ def checkIsDefinition (env : Environment) (n : Name) : Except String Unit := do
   We generate auxiliary unsafe definitions for regular recursive definitions.
   The auxiliary unsafe definition has a clear runtime cost execution model.
   This function returns the auxiliary unsafe definition name for the given name. -/
-@[export lean_mk_unsafe_rec_name]
 def mkUnsafeRecName (declName : Name) : Name :=
   Name.mkStr declName "_unsafe_rec"
 
 /-- Return `some _` if the given name was created using `mkUnsafeRecName` -/
-@[export lean_is_unsafe_rec_name]
 def isUnsafeRecName? : Name → Option Name
   | .str n "_unsafe_rec" => some n
   | _ => none

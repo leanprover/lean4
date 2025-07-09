@@ -77,7 +77,6 @@ builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
         addExtern declName externAttrData
   }
 
-@[export lean_get_extern_attr_data]
 def getExternAttrData? (env : Environment) (n : Name) : Option ExternAttrData :=
   externAttr.getParam? env n
 
@@ -154,7 +153,6 @@ private def getExternConstArity (declName : Name) : CoreM Nat := do
     | some arity => return arity
     | none       => fromSignature ()
 
-@[export lean_get_extern_const_arity]
 def getExternConstArityExport (env : Environment) (declName : Name) : IO (Option Nat) := do
   try
     let (arity, _) ← (getExternConstArity declName).toIO { fileName := "<compiler>", fileMap := default } { env := env }

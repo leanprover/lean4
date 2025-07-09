@@ -68,7 +68,6 @@ private def compileAux (decls : Array Decl) : CompilerM Unit := do
   checkDecls decls
   addDecls decls
 
-@[export lean_ir_compile]
 def compile (env : Environment) (opts : Options) (decls : Array Decl) : Log × (Except String Environment) :=
   match (compileAux decls opts).run { env := env } with
   | EStateM.Result.ok     _  s => (s.log, Except.ok s.env)
@@ -86,7 +85,6 @@ def addBoxedVersionAux (decl : Decl) : CompilerM Unit := do
     pure ()
 
 -- Remark: we are ignoring the `Log` here. This should be fine.
-@[export lean_ir_add_boxed_version]
 def addBoxedVersion (env : Environment) (decl : Decl) : Except String Environment :=
   match (addBoxedVersionAux decl Options.empty).run { env := env } with
   | EStateM.Result.ok     _  s => Except.ok s.env

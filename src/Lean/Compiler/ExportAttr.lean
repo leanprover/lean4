@@ -58,7 +58,6 @@ builtin_initialize exportAttr : ParametricAttribute Name ←
       return exportName
   }
 
-@[export lean_get_export_name_for]
 def getExportNameFor? (env : Environment) (n : Name) : Option Name :=
   exportAttr.getParam? env n
 

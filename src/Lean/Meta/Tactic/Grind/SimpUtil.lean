@@ -60,6 +60,16 @@ builtin_simproc_decl simpEq (@Eq _ _ _) := fun e => do
       return .visit { expr := mkNot lhs, proof? := mkApp (mkConst ``Grind.eq_false_eq) lhs }
   return .continue
 
+builtin_simproc_decl simpDIte (@dite _ _ _ _ _) := fun e => do
+ let_expr f@dite α c inst a b ← e | return .continue
+ let .lam _ _ aBody _ := a | return .continue
+ if aBody.hasLooseBVars then return .continue
+ let .lam _ _ bBody _ := b | return .continue
+ if bBody.hasLooseBVars then return .continue
+ let us := f.constLevels!
+ let expr := mkApp5 (mkConst ``ite us) α c inst aBody bBody
+ return .visit { expr, proof? := some (mkApp5 (mkConst ``dite_eq_ite us) c α a b inst) }
+
 /-- Returns the array of simprocs used by `grind`. -/
 protected def getSimprocs : MetaM (Array Simprocs) := do
   let s ← Simp.getSEvalSimprocs
@@ -81,7 +91,8 @@ protected def getSimprocs : MetaM (Array Simprocs) := do
   let s ← addPreMatchCondSimproc s
   let s ← Arith.addSimproc s
   let s ← addForallSimproc s
-  let s ← s.add ``simpEq (post := false)
+  let s ← s.add ``simpEq (post := true)
+  let s ← s.add ``simpDIte (post := true)
   return #[s]
 
 private def addDeclToUnfold (s : SimpTheorems) (declName : Name) : MetaM SimpTheorems := do

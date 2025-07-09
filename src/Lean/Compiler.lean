@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Compiler.InlineAttrs
 import Lean.Compiler.Specialize
-import Lean.Compiler.ConstFolding
 import Lean.Compiler.ClosedTermCache
 import Lean.Compiler.ExternAttr
 import Lean.Compiler.ImplementedByAttr

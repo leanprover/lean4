@@ -48,7 +48,28 @@ builtin_simproc_decl expandPowAdd (_ ^ _) := fun e => do
     let r ← mkMul (mkApp2 pwFn a m) (mkApp2 pwFn a n)
     return .visit { expr := r, proof? := some (mkApp3 h a m n) }
 
+private def notField : Std.HashSet Name :=
+  [``Nat, ``Int, ``BitVec, ``UInt8, ``UInt16, ``UInt32, ``Int64, ``Int8, ``Int16, ``Int32, ``Int64].foldl (init := {}) (·.insert ·)
+
+private def isNotFieldQuick (type : Expr) : Bool := Id.run do
+  let .const declName _ := type.getAppFn | return false
+  return notField.contains declName
+
+builtin_simproc_decl expandDiv (_ / _) := fun e => do
+  let_expr f@HDiv.hDiv α β γ _ a b ← e | return .continue
+  if isNotFieldQuick α then return .continue
+  unless (← isDefEq α β <&&> isDefEq α γ) do return .continue
+  let us := f.constLevels!
+  let [u] := us | return .continue
+  let field := mkApp (mkConst ``Grind.Field us) α
+  let some fieldInst ← synthInstanceMeta? field | return .continue
+  let some mulInst ← synthInstanceMeta? (mkApp3 (mkConst ``HMul [u, u, u]) α α α) | return .continue
+  let some invInst ← synthInstanceMeta? (mkApp (mkConst ``Inv us) α) | return .continue
+  let expr := mkApp6 (mkConst ``HMul.hMul [u, u, u]) α α α mulInst a (mkApp3 (mkConst ``Inv.inv us) α invInst b)
+  return .visit { expr, proof? := some <| mkApp4 (mkConst ``Grind.Field.div_eq_mul_inv us) α fieldInst a b }
+
 def addSimproc (s : Simprocs) : CoreM Simprocs := do
-  s.add ``expandPowAdd (post := true)
+  let s ← s.add ``expandPowAdd (post := true)
+  s.add ``expandDiv (post := true)
 
 end Lean.Meta.Grind.Arith

@@ -1,0 +1,19 @@
+issue4246.lean:22:4-22:17: warning: declaration uses 'sorry'
+issue4246.lean:31:11-31:14: error: tactic 'rfl' failed, the left-hand side
+  @Foo.x Nat noninst
+is not definitionally equal to the right-hand side
+  @Foo.x Nat instFooNat
+case nat
+α : Type
+noninst : Foo Nat
+⊢ @Eq Nat (@Foo.x Nat noninst) (@Foo.x Nat instFooNat)
+Try this: @Foo.induction (fun α [inst : Foo α] => ∀ {noninst : Foo α}, @Eq Nat (@Foo.x α noninst) (@Foo.x α inst))
+  (fun {noninst} =>
+    sorryAx (∀ (tag : Lean.Name), @Eq Nat (@Foo.x Nat noninst) (@Foo.x Nat instFooNat)) true
+      `issue4246.31.8.31.14.8.14._sorry._@.issue4246._hyg.104)
+  α inst noninst
+issue4246.lean:39:2-40:14: error: failed to synthesize
+  Foo α
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+issue4246.lean:47:4-47:17: warning: declaration uses 'sorry'

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues
 */
 
-#include "runtime/uv/udp.h"
+#include "runtime/uv/signal.h"
 
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN

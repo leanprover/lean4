@@ -186,7 +186,7 @@ def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
     let body : FnBody :=
       FnBody.vdecl { idx := 1 } xType v $
       FnBody.vdecl { idx := 2 } expectedType (Expr.box xType { idx := 1 }) $
-      FnBody.ret (mkVarArg { idx := 2 })
+      FnBody.ret (.var { idx := 2 })
     match s.auxDeclCache.find? body with
     | some v => pure v
     | none   => do

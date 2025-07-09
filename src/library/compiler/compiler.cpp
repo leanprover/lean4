@@ -282,7 +282,6 @@ extern "C" LEAN_EXPORT object * lean_compile_decls(object * env, object * opts, 
 void initialize_compiler() {
     g_extract_closed = new name{"compiler", "extract_closed"};
     mark_persistent(g_extract_closed->raw());
-    register_bool_option(*g_extract_closed, true, "(compiler) enable/disable closed term caching");
     register_trace_class("compiler");
     register_trace_class({"compiler", "input"});
     register_trace_class({"compiler", "inline"});

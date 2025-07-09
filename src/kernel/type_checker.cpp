@@ -1117,15 +1117,14 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
             return true;
     }
 
+    if (is_def_eq_app(t_n, s_n))
+        return true;
+
     // Invoke `whnf_core` again, but now using `whnf` to reduce projections.
     expr t_n_n = whnf_core(t_n);
     expr s_n_n = whnf_core(s_n);
     if (!is_eqp(t_n_n, t_n) || !is_eqp(s_n_n, s_n))
         return is_def_eq_core(t_n_n, s_n_n);
-
-    // At this point, t_n and s_n are in weak head normal form (modulo metavariables and proof irrelevance)
-    if (is_def_eq_app(t_n, s_n))
-        return true;
 
     if (try_eta_expansion(t_n, s_n))
         return true;

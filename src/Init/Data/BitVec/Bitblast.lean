@@ -2156,6 +2156,7 @@ theorem shiftLeft_add_eq_shiftLeft_or {x y : BitVec w} :
   rw [BitVec.add_comm, add_shiftLeft_eq_or_shiftLeft, or_comm]
 
 /- ### fast circuit for unsigned overflow detection -/
+
 /--
   unsigned parallel prefix `x.uppcRec s = true` iff `x.toNat` is greater or equal than `2 ^ (w - 1 - (s - 1))`
 -/

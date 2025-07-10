@@ -10,3 +10,15 @@
     "id": {"const": {"declName": "f.gg"}},
     "cPos": 0}}],
  "isIncomplete": false}
+{"textDocument": {"uri": "file:///completionAtPrint.lean"},
+ "position": {"line": 5, "character": 9}}
+{"items":
+ [{"label": "gg",
+   "kind": 21,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionAtPrint.lean"},
+     "position": {"line": 5, "character": 9}},
+    "id": {"const": {"declName": "f.gg"}},
+    "cPos": 0}}],
+ "isIncomplete": false}

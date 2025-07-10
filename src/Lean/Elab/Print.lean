@@ -193,7 +193,7 @@ private def printIdCore (sigOnly : Bool) (id : Name) : CommandElabM Unit := do
   | none => throwUnknownId id
 
 private def printId (id : Syntax) : CommandElabM Unit := do
-  addCompletionInfo <| CompletionInfo.id id id.getId (danglingDot := false) {} none
+  addCompletionInfo <| CompletionInfo.id id id.getId id.hasDanglingDot {} none
   let cs ← liftCoreM <| realizeGlobalConstWithInfos id
   cs.forM (printIdCore (sigOnly := false) ·)
 

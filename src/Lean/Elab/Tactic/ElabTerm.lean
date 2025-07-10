@@ -371,11 +371,12 @@ in whnf that can be regarded as the reason for the failure of `expr` to fully re
 -/
 private partial def blameDecideReductionFailure (expr : Expr) : MetaM Expr := withIncRecDepth do
   let expr ← whnf expr
+  let numArgs := expr.getAppNumArgs
   -- If it's the Bool recursor or the Decidable recursor, then blame the major premise.
-  if expr.isAppOfArity ``Bool.rec 4 || expr.isAppOfArity ``Decidable.rec 4 then
-    return ← blameDecideReductionFailure expr.appArg!
+  if numArgs ≥ 4 ∧ (expr.isAppOf ``Bool.rec || expr.isAppOf ``Decidable.rec) then
+    return ← blameDecideReductionFailure (expr.getArg! 3 numArgs)
   -- If it's the Decidable constructor, then blame the first parameter.
-  if expr.isAppOfArity `Decidable.intro 3 then
+  if expr.isAppOfArity ``Decidable.intro 3 then
     return ← blameDecideReductionFailure expr.appFn!.appArg!
   -- If it's decide (the first projection of Decidable), then blame the parameter
   if let .proj ``Decidable 0 e := expr then
@@ -383,7 +384,7 @@ private partial def blameDecideReductionFailure (expr : Expr) : MetaM Expr := wi
   -- If it is a matcher, look for a discriminant that's a Bool or a Decidable instance to blame.
   if let .const c _ := expr.getAppFn then
     if let some info ← getMatcherInfo? c then
-      if expr.getAppNumArgs == info.arity then
+      if info.arity ≤ numArgs then
         let args := expr.getAppArgs
         for i in *...info.numDiscrs do
           let expr' := args[info.numParams + 1 + i]!

@@ -23,11 +23,11 @@ where
   getSorryDepFor? (f : Name) : ExceptT Name M Unit := do
     let found (g : Name) :=
       if g == ``sorryAx then
-        throw f
+        throwThe Name f
       else
-        throw g
+        throwThe Name g
     if f == ``sorryAx then
-      throw f
+      throwThe Name f
     else if let some g := (← get).localSorryMap.find? f then
       found g
     else match (← findDecl f) with

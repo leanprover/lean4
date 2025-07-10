@@ -236,7 +236,7 @@ end Checker
 def checkDecl (decls : Array Decl) (decl : Decl) : CompilerM Unit := do
   let env ← getEnv
   match (Checker.checkDecl decl { env := env, decls := decls }).run' {} with
-  | .error msg => throw s!"failed to compile definition, compiler IR check failed at '{decl.name}'. Error: {msg}"
+  | .error msg => throwError s!"failed to compile definition, compiler IR check failed at '{decl.name}'. Error: {msg}"
   | _ => pure ()
 
 def checkDecls (decls : Array Decl) : CompilerM Unit :=

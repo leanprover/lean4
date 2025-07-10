@@ -37,14 +37,14 @@ register_builtin_option compiler.reuse : Bool := {
   descr    := "heuristically insert reset/reuse instruction pairs"
 }
 
-private def compileAux (decls : Array Decl) : CompilerM Unit := do
+def compile (decls : Array Decl) : CompilerM (Array Decl) := do
   logDecls `init decls
   checkDecls decls
   let mut decls ← elimDeadBranches decls
   logDecls `elim_dead_branches decls
   decls := decls.map Decl.pushProj
   logDecls `push_proj decls
-  if compiler.reuse.get (← read) then
+  if compiler.reuse.get (← getOptions) then
     decls := decls.map Decl.insertResetReuse
     logDecls `reset_reuse decls
   decls := decls.map Decl.elimDead
@@ -58,7 +58,7 @@ private def compileAux (decls : Array Decl) : CompilerM Unit := do
   logDecls `boxing decls
   decls ← explicitRC decls
   logDecls `rc decls
-  if compiler.reuse.get (← read) then
+  if compiler.reuse.get (← getOptions) then
     decls := decls.map Decl.expandResetReuse
     logDecls `expand_reset_reuse decls
   decls := decls.map Decl.pushProj
@@ -67,11 +67,7 @@ private def compileAux (decls : Array Decl) : CompilerM Unit := do
   logDecls `result decls
   checkDecls decls
   addDecls decls
-
-def compile (env : Environment) (opts : Options) (decls : Array Decl) : Log × (Except String Environment) :=
-  match (compileAux decls opts).run { env := env } with
-  | EStateM.Result.ok     _  s => (s.log, Except.ok s.env)
-  | EStateM.Result.error msg s => (s.log, Except.error msg)
+  return decls
 
 builtin_initialize
   registerTraceClass `compiler.ir

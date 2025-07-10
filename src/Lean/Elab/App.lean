@@ -38,23 +38,25 @@ instance : ToString Arg where
 instance : ToString NamedArg where
   toString s := "(" ++ toString s.name ++ " := " ++ toString s.val ++ ")"
 
-def throwInvalidNamedArg (namedArg : NamedArg) (fn? : Option Name) (validNames : Array Name) : TermElabM α :=
-  withRef namedArg.ref do
+def throwInvalidNamedArg (namedArg : NamedArg) (fn? : Option Name) (validNames : Array Name) : TermElabM α := do
   let hint ← do
     if validNames.size > 0 then
-      let namesMsg := MessageData.andList <| validNames.map (m!"`{·}`") |>.toList
-      -- `getRef` is of the form: atomic ("(" >> ident >> " := ") >> withoutPosition termParser >> ")"
-      let span? := (← getRef)[1]
-      MessageData.hint (forceList := true) "Perhaps you meant one of the following named parameters:" <|
-        validNames.map fun name =>
-          { suggestion := .string name.toString
-            preInfo? := some s!"`{name.toString}`: "
-            span?
-            toCodeActionTitle? := some fun s => s!"Change argument name: {s}" }
+      -- `namedArg.ref` is of the form: atomic ("(" >> ident >> " := ") >> withoutPosition termParser >> ")"
+      let span? := namedArg.ref[1]
+      if span?.getInfo? matches some (.original ..) then
+        MessageData.hint (forceList := true) "Perhaps you meant one of the following named parameters:" <|
+          validNames.map fun name =>
+            { suggestion := .string name.toString
+              preInfo? := some s!"`{name.toString}`: "
+              span?
+              toCodeActionTitle? := some fun s => s!"Change argument name `{namedArg.name}` to `{s}`" }
+      else
+        let validNamesMsg := MessageData.andList <| validNames.map (m!"`{·}`") |>.toList
+        pure <| MessageData.hint' m!"This function has the following named parameters: {validNamesMsg}"
     else
       pure .nil
   let fnName := fn?.map (m!" `{.ofConstName ·}`") |>.getD .nil
-  throwError m!"Invalid argument name `{namedArg.name}` for function{fnName}" ++ hint
+  throwErrorAt namedArg.ref m!"Invalid argument name `{namedArg.name}` for function{fnName}" ++ hint
 
 private def ensureArgType (f : Expr) (arg : Expr) (expectedType : Expr) : TermElabM Expr := do
   try

@@ -2682,7 +2682,7 @@ where
     match d a b, List.beq as bs, go as bs with
     | isFalse h, _,     _  => fun h' => List.noConfusion h' fun h1 _ => absurd h1 h
     | isTrue  _, false, h  => fun h' => List.noConfusion h' fun _ h2 => absurd h2 h
-    | isTrue  h, true,  h' => h ▸ h' ▸ rfl
+    | isTrue  h, true,  h' => h' ▸ h ▸ rfl
 
 instance {α : Type u} [DecidableEq α] : DecidableEq (List α) := List.hasDecEq
 

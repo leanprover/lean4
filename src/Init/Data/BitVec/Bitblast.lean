@@ -2175,7 +2175,9 @@ theorem uppcRec_true_iff (x : BitVec w) (s : Nat) (h : s < w) :
   · omega
   · induction s
     · case succ.zero =>
-      simp [uppcRec, msb_eq_true_iff_two_mul_ge, Nat.pow_add, Nat.mul_comm (2^ w) 2]
+      simp only [uppcRec, msb_eq_true_iff_two_mul_ge, Nat.pow_add, Nat.pow_one,
+        Nat.mul_comm (2 ^ w) 2, ge_iff_le, Nat.add_one_sub_one, zero_le, Nat.sub_eq_zero_of_le,
+        Nat.sub_zero]
       apply Nat.mul_le_mul_left_iff (by omega)
     · case succ.succ s ihs =>
       simp only [uppcRec, or_eq_true, ihs, Nat.add_one_sub_one]

@@ -874,4 +874,7 @@ def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
 /-- Count the number of leading zeros. -/
 def clz (x : BitVec w) : BitVec w := clzAuxRec x (w - 1)
 
+/-- Count the number of trailing zeros. -/
+def ctz (x : BitVec w) : BitVec w := (x.reverse).clz
+
 end BitVec

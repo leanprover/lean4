@@ -358,6 +358,7 @@ attribute [bv_normalize] BitVec.smulOverflow_eq
 attribute [bv_normalize] BitVec.usubOverflow_eq
 attribute [bv_normalize] BitVec.ssubOverflow_eq
 attribute [bv_normalize] BitVec.sdivOverflow_eq
+attribute [bv_normalize] BitVec.ctz
 
 
 attribute [bv_normalize] BitVec.append_zero_add_zero_append
@@ -491,6 +492,9 @@ theorem BitVec.mul_beq_mul_short_circuit_right {x y₁ y₂ : BitVec w} :
   simp only [Bool.not_and, Bool.not_not, Bool.eq_or_self, beq_iff_eq]
   intros
   congr
+
+theorem BitVec.ctz_eq_clz {x : BitVec w} :
+    BitVec.ctz x = (x.reverse).clz := by rfl
 
 @[int_toBitVec]
 theorem UInt8.toBitVec_cond :

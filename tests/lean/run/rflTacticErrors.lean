@@ -8,8 +8,6 @@ This file tests the `rfl` tactic:
  * Effect of `with_reducible`
 -/
 
-set_option pp.mvars.levels false
-
 -- First, let's see what `rfl` does:
 
 /--
@@ -86,6 +84,7 @@ and all using `apply_rfl` and `with_reducible apply_rfl`
 example : true = true   := by apply_rfl
 example : true ≍ true := by apply_rfl
 example : True ↔ True   := by apply_rfl
+example : True → True   := by apply_rfl
 example : P true true   := by apply_rfl
 example : Q true true   := by apply_rfl
 /--
@@ -104,6 +103,7 @@ error: tactic 'rfl' failed, no @[refl] lemma registered for relation
 example : true = true   := by with_reducible apply_rfl
 example : true ≍ true := by with_reducible apply_rfl
 example : True ↔ True   := by with_reducible apply_rfl
+example : True → True   := by with_reducible apply_rfl
 example : P true true   := by with_reducible apply_rfl
 example : Q true true   := by with_reducible apply_rfl
 /--
@@ -129,6 +129,7 @@ abbrev True' := True
 example : true' = true   := by apply_rfl
 example : true' ≍ true := by apply_rfl
 example : True' ↔ True   := by apply_rfl
+example : True' → True   := by apply_rfl
 example : P true' true   := by apply_rfl
 example : Q true' true   := by apply_rfl
 /--
@@ -149,6 +150,7 @@ example : R true' true   := by apply_rfl -- Error
 example : true' = true   := by with_reducible apply_rfl
 example : true' ≍ true := by with_reducible apply_rfl
 example : True' ↔ True   := by with_reducible apply_rfl
+example : True' → True   := by with_reducible apply_rfl
 example : P true' true   := by with_reducible apply_rfl
 example : Q true' true   := by with_reducible apply_rfl -- NB: No error, Q and true' reducible
 /--
@@ -174,6 +176,7 @@ def True'' := True
 example : true'' = true   := by apply_rfl
 example : true'' ≍ true := by apply_rfl
 example : True'' ↔ True   := by apply_rfl
+example : True'' → True   := by apply_rfl
 example : P true'' true   := by apply_rfl
 example : Q true'' true   := by apply_rfl
 /--
@@ -223,6 +226,15 @@ is not definitionally equal to the right-hand side
 -/
 #guard_msgs in
 example : True'' ↔ True   := by with_reducible apply_rfl -- Error
+/--
+error: tactic 'rfl' failed, the left-hand side
+  True''
+is not definitionally equal to the right-hand side
+  True
+⊢ True'' → True
+-/
+#guard_msgs in
+example : True'' → True   := by with_reducible apply_rfl -- Error
 /--
 error: tactic 'rfl' failed, the left-hand side
   true''
@@ -293,6 +305,15 @@ is not definitionally equal to the right-hand side
 example : False ↔ True   := by apply_rfl -- Error
 /--
 error: tactic 'rfl' failed, the left-hand side
+  False
+is not definitionally equal to the right-hand side
+  True
+⊢ False → True
+-/
+#guard_msgs in
+example : False → True   := by apply_rfl -- Error
+/--
+error: tactic 'rfl' failed, the left-hand side
   false
 is not definitionally equal to the right-hand side
   true
@@ -358,6 +379,15 @@ is not definitionally equal to the right-hand side
 -/
 #guard_msgs in
 example : False ↔ True   := by with_reducible apply_rfl -- Error
+/--
+error: tactic 'rfl' failed, the left-hand side
+  False
+is not definitionally equal to the right-hand side
+  True
+⊢ False → True
+-/
+#guard_msgs in
+example : False → True   := by with_reducible apply_rfl -- Error
 /--
 error: tactic 'rfl' failed, the left-hand side
   false

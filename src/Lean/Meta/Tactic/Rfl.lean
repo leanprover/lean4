@@ -63,6 +63,24 @@ attribute [refl].
 def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext do
   -- NB: uses whnfR, we do not want to unfold the relation itself
   let t ← whnfR <|← instantiateMVars <|← goal.getType
+
+  let assertDefEq (lhs rhs) : MetaM Unit :=
+    unless ← approxDefEq <| isDefEqGuarded lhs rhs do
+      let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) do
+        let (lhs, rhs) ← addPPExplicitToExposeDiff lhs rhs
+        return m!"the left-hand side{indentExpr lhs}\nis not definitionally equal to the right-hand side{indentExpr rhs}"
+      throwTacticEx `rfl goal explanation
+
+  if t.isForall then
+    let lhs := t.bindingDomain!
+    let rhs := t.bindingBody!
+    if rhs.hasLooseBVars then
+      throwTacticEx `rfl goal "expected goal to be a binary relation"
+
+    assertDefEq lhs rhs
+    goal.assign (.lam t.bindingName! lhs (.bvar 0) t.bindingInfo!)
+    return
+
   if t.getAppNumArgs < 2 then
     throwTacticEx `rfl goal "expected goal to be a binary relation"
 
@@ -78,12 +96,7 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
   let lhs := t.appFn!.appArg!
   let rhs := t.appArg!
 
-  let success ← approxDefEq <| isDefEqGuarded lhs rhs
-  unless success do
-    let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) do
-      let (lhs, rhs) ← addPPExplicitToExposeDiff lhs rhs
-      return m!"the left-hand side{indentExpr lhs}\nis not definitionally equal to the right-hand side{indentExpr rhs}"
-    throwTacticEx `rfl goal explanation
+  assertDefEq lhs rhs
 
   if rel.isAppOfArity `Eq 1 then
     -- The common case is equality: just use `Eq.refl`

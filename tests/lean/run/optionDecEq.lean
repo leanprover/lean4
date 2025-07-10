@@ -4,8 +4,8 @@ variable {α : Type u} [DecidableEq α]
 
 example (x : Option α) :
     Option.instDecidableEq x none = Option.decidableEqNone x := by
-  with_reducible rfl
+  with_reducible_and_instances rfl
 
 example (x : Option α) :
     Option.instDecidableEq none x = Option.decidableNoneEq x := by
-  with_reducible rfl
+  with_reducible_and_instances rfl

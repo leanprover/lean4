@@ -124,23 +124,44 @@ private def throwInvalidNamedArgs (ctx : Context) (h : ¬ctx.namedArgs.isEmpty) 
   let nameStr := if names.length == 1 then "name" else "names"
   let validNames := ctx.paramDecls.filterMap fun (name, _) =>
     if name.hasMacroScopes then none else some name
-  -- We offer hints only for the first argument
   have h' := Nat.zero_lt_of_ne_zero (mt Array.isEmpty_iff_size_eq_zero.mpr h)
+  -- We offer hints only for the first argument
   let firstNamedArg := ctx.namedArgs[0]'h'
+  let replacementSpan := firstNamedArg.ref[1]
   let suggestions := validNames.map fun validName =>
     { suggestion := validName.toString
-      span? := some firstNamedArg.ref[1]
+      span? := replacementSpan
       preInfo? := some s!"`{validName}`: "
-      toCodeActionTitle? := some fun s => s!"Change argument name: {s}" }
+      toCodeActionTitle? := some fun s => s!"Change argument name `{firstNamedArg.name}` to `{s}`" }
   let hintMsg := m!"Replace `{firstNamedArg.name}` with a valid argument name for this function:"
   let hint ← MessageData.hint (forceList := true) hintMsg suggestions
   throwError m!"Invalid argument {nameStr} {.andList names} for function `{ctx.funId}`" ++ hint
 
+private def isDone (ctx : Context) : Bool :=
+  ctx.paramDeclIdx ≥ ctx.paramDecls.size
+
+private def getNextParam (ctx : Context) : (Name × BinderInfo) × Context :=
+  let i := ctx.paramDeclIdx
+  let d := ctx.paramDecls[i]!
+  (d, { ctx with paramDeclIdx := ctx.paramDeclIdx + 1 })
+
 private def throwWrongArgCount (ctx : Context) (tooMany : Bool) : M α := do
-  if h : ¬ctx.namedArgs.isEmpty then
-    throwInvalidNamedArgs ctx h
   let numExpectedArgs :=
     (if ctx.explicit then ctx.paramDecls else ctx.paramDecls.filter (·.2.isExplicit)).size
+  -- If we have too few arguments because we skipped invalid named args, show that error instead
+  if !tooMany && !ctx.namedArgs.isEmpty then
+    let mut ctx := ctx
+    let mut remainingNames : Std.HashSet Name := {}
+    -- If there were too few (unnamed) arguments, we may not have gotten around to processing the
+    -- parameters that match the outstanding named arguments
+    while !isDone ctx do
+      let ((name, _), ctx') := getNextParam ctx
+      remainingNames := remainingNames.insert name
+      ctx := ctx'
+    ctx := { ctx with namedArgs := ctx.namedArgs.filter (!remainingNames.contains ·.name) }
+    -- Check that there are still outstanding named arguments after the above filtering
+    if h : ¬ctx.namedArgs.isEmpty then
+      throwInvalidNamedArgs ctx h
   let argKind := if ctx.explicit then "" else "explicit "
   let argWord := if numExpectedArgs == 1 then "argument" else "arguments"
   let discrepancyKind := if tooMany then "Too many" else "Not enough"
@@ -149,9 +170,6 @@ private def throwWrongArgCount (ctx : Context) (tooMany : Bool) : M α := do
   if !tooMany then
     msg := msg ++ .hint' "To ignore all remaining arguments, use the ellipsis notation `..`"
   throwError msg
-
-private def isDone (ctx : Context) : Bool :=
-  ctx.paramDeclIdx ≥ ctx.paramDecls.size
 
 private def finalize (ctx : Context) : M Syntax := do
   if h : ctx.namedArgs.isEmpty ∧ ctx.args.isEmpty then
@@ -173,11 +191,6 @@ private def isNextArgAccessible (ctx : Context) : Bool :=
       d.2.isExplicit
     else
       false
-
-private def getNextParam (ctx : Context) : (Name × BinderInfo) × Context :=
-  let i := ctx.paramDeclIdx
-  let d := ctx.paramDecls[i]!
-  (d, { ctx with paramDeclIdx := ctx.paramDeclIdx + 1 })
 
 private def processVar (idStx : Syntax) : M Syntax := do
   unless idStx.isIdent do
@@ -313,7 +326,8 @@ where
     let (f, namedArgs, args, ellipsis) ← expandApp stx
     if f.getKind == ``Parser.Term.dotIdent then
       let namedArgsNew ← namedArgs.mapM fun
-        | { ref, name, val := Arg.stx arg } => withRef ref do `(Lean.Parser.Term.namedArgument| ($(mkIdentFrom ref name) := $(← collect arg)))
+        -- We must ensure that `ref[1]` remains original to allow named-argument hints
+        | { ref, name, val := Arg.stx arg } => withRef ref do `(Lean.Parser.Term.namedArgument| ($(ref[1]) := $(← collect arg)))
         | _ => unreachable!
       let mut argsNew ← args.mapM fun | Arg.stx arg => collect arg | _ => unreachable!
       if ellipsis then

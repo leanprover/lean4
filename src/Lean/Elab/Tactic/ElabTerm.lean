@@ -366,8 +366,8 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
   return expectedType
 
 /--
-Given the boolean expression `bool`, reduces it and returns a boolean expression in whnf that can
-be regarded as the reason for the failure of `bool` to fully reduce.
+Given the Bool / Decidable expression `expr`, reduces it and returns a Bool / Decidable expression
+in whnf that can be regarded as the reason for the failure of `expr` to fully reduce.
 -/
 private partial def blameDecideReductionFailure (expr : Expr) : MetaM Expr := withIncRecDepth do
   let expr ← whnf expr
@@ -472,7 +472,7 @@ where
     if r.isConstOf ``Bool.true then
       -- Success!
       let eq := mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) dec (mkConst ``Bool.true)
-      let refl := mkApp2 (.const ``id [0]) eq reflBoolTrue
+      let refl := mkExpectedPropHint reflBoolTrue eq
       return mkApp3 (mkConst ``of_decide_eq_true) expectedType inst refl
     else
       diagnose expectedType dec r
@@ -520,11 +520,11 @@ where
         return (reason, unfoldedInsts)
       let stuckMsg :=
         if unfoldedInsts.isEmpty then
-          m!"Reduction got stuck at the boolean{indentExpr reason}"
+          m!"Reduction got stuck at{indentExpr reason}"
         else
           let instances := if unfoldedInsts.size == 1 then "instance" else "instances"
           m!"After unfolding the {instances} {.andList unfoldedInsts.toList}, \
-          reduction got stuck at the boolean{indentExpr reason}"
+          reduction got stuck at{indentExpr reason}"
       let hint :=
         if reason.isAppOf ``Eq.rec then
           .hint' m!"Reduction got stuck on '▸' ({.ofConstName ``Eq.rec}), \

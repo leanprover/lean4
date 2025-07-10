@@ -15,7 +15,17 @@ public section
 
 namespace Option
 
-deriving instance DecidableEq for Option
+/- We write the instance manually instead of deriving it so that
+  it is coherent with `decidableEqNone` and `decidableNoneEq`. -/
+instance instDecidableEq {α} [DecidableEq α] : DecidableEq (Option α) := fun a b =>
+  match a with
+  | none => match b with
+    | none => .isTrue rfl
+    | some _ => .isFalse Option.noConfusion
+  | some a => match b with
+    | none => .isFalse Option.noConfusion
+    | some b => decidable_of_decidable_of_eq (Option.some.injEq a b).symm
+
 deriving instance BEq for Option
 
 @[simp, grind =] theorem getD_none : getD none a = a := rfl

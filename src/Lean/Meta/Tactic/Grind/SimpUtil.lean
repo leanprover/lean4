@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Grind.ForallProp
 import Lean.Meta.Tactic.Grind.Arith.Simproc
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.List
+import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Core
 
 namespace Lean.Meta.Grind
 
@@ -125,6 +126,14 @@ builtin_simproc_decl simpOr (Or _ _) := fun e => do
   | False => return .visit { expr := p, proof? := some <| mkApp (mkConst ``or_false) p }
   | _ => return .continue
 
+builtin_simproc_decl reduceCtorEqCheap (_ = _) := fun e => do
+  let_expr Eq _ lhs rhs ← e | return .continue
+  let some (c₁, _) ← constructorApp? lhs | return .continue
+  let some (c₂, _) ← constructorApp? rhs | return .continue
+  unless c₁.name != c₂.name do return .continue
+  withLocalDeclD `h e fun h =>
+    return .done { expr := mkConst ``False, proof? := (← withDefault <| mkEqFalse' (← mkLambdaFVars #[h] (← mkNoConfusion (mkConst ``False) h))) }
+
 /-- Returns the array of simprocs used by `grind`. -/
 protected def getSimprocs : MetaM (Array Simprocs) := do
   let s ← Simp.getSEvalSimprocs
@@ -142,6 +151,8 @@ protected def getSimprocs : MetaM (Array Simprocs) := do
   We don't want it to be simplified to `[] = []`.
   -/
   let s := s.erase ``List.reduceReplicate
+  let s := s.erase ``reduceCtorEq
+  let s ← s.add ``reduceCtorEqCheap (post := true)
   let s ← addSimpMatchDiscrsOnly s
   let s ← addPreMatchCondSimproc s
   let s ← Arith.addSimproc s

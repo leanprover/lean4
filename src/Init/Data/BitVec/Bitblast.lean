@@ -2155,8 +2155,7 @@ theorem shiftLeft_add_eq_shiftLeft_or {x y : BitVec w} :
     (y <<< x) + x =  (y <<< x) ||| x := by
   rw [BitVec.add_comm, add_shiftLeft_eq_or_shiftLeft, or_comm]
 
-/- ### f
-Fast Circuit For Unsigned Overflow Detection -/
+/- ### Fast Circuit For Unsigned Overflow Detection -/
 
 /-!
 # Note [Fast Unsigned Multiplication Overflow Detection]

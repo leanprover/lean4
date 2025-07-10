@@ -32,7 +32,7 @@ noncomputable def choose {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : α :
 theorem choose_spec {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : p (choose h) :=
   (indefiniteDescription p h).property
 
-/-- **Diaconescu's theorem**: excluded middle from choice, Function extensionality and propositional extensionality. -/
+/-- **Diaconescu's theorem**: Excluded Middle from Choice, Function extensionality and propositional extensionality. -/
 theorem em (p : Prop) : p ∨ ¬p :=
   let U (x : Prop) : Prop := x = True ∨ p
   let V (x : Prop) : Prop := x = False ∨ p
@@ -115,7 +115,7 @@ theorem epsilon_spec {α : Sort u} {p : α → Prop} (hex : ∃ y, p y) : p (@ep
 theorem epsilon_singleton {α : Sort u} (x : α) : @epsilon α ⟨x⟩ (fun y => y = x) = x :=
   @epsilon_spec α (fun y => y = x) ⟨x, rfl⟩
 
-/-- the axiom of choice -/
+/-- the Axiom of Choice -/
 theorem axiomOfChoice {α : Sort u} {β : α → Sort v} {r : ∀ x, β x → Prop} (h : ∀ x, ∃ y, r x y) : ∃ (f : ∀ x, β x), ∀ x, r x (f x) :=
   ⟨_, fun x => choose_spec (h x)⟩
 

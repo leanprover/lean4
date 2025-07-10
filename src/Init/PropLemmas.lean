@@ -431,10 +431,10 @@ end Mem
 
 @[simp] theorem Decidable.not_not [Decidable p] : ¬¬p ↔ p := ⟨of_not_not, not_not_intro⟩
 
-/-- Excluded middle.  Added as alias for Decidable.em -/
+/-- Excluded Middle.  Added as alias for Decidable.em -/
 abbrev Decidable.or_not_self := em
 
-/-- Excluded middle commuted.  Added as alias for Decidable.em -/
+/-- Excluded Middle commuted.  Added as alias for Decidable.em -/
 theorem Decidable.not_or_self (p : Prop) [h : Decidable p] : ¬p ∨ p := by
   cases h <;> simp [*]
 

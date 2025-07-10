@@ -2315,8 +2315,8 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
           simp only [ne_eq, show ¬x.toNat * y.toNat = 0 by omega, not_false_eq_true, true_iff] at this
           simp only [← ne_eq] at this
           obtain ⟨hxz, hyz⟩ := this
-          have hltx := BitVec.lt_toNat_of_clz (x := x) (by simp [toNat_eq]; omega)
-          have hlty := BitVec.lt_toNat_of_clz (x := y) (by simp [toNat_eq]; omega)
+          have hltx := BitVec.toNat_lt_of_clz (x := x)
+          have hlty := BitVec.toNat_lt_of_clz (x := y)
           apply resRec_of_clz_le (x := x) (y := y) (by omega) (by simp [toNat_eq]; omega) (by simp [toNat_eq]; omega)
           by_cases hzxy : x.clz.toNat + y.clz.toNat ≤ w
           · omega

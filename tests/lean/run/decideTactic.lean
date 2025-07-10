@@ -30,11 +30,11 @@ opaque unknownProp : Prop
 /--
 error: tactic 'decide' failed for proposition
   unknownProp
-since its 'Decidable' instance
-  Classical.propDecidable unknownProp
-did not reduce to 'isTrue' or 'isFalse'.
+since
+  decide unknownProp
+did not reduce to 'true' or 'false'.
 
-After unfolding the instance 'Classical.propDecidable', reduction got stuck at the 'Decidable' instance
+After unfolding the instance 'Classical.propDecidable', reduction got stuck at
   Classical.choice ⋯
 
 Hint: Reduction got stuck on 'Classical.choice', which indicates that a 'Decidable' instance is
@@ -66,11 +66,11 @@ instance : Decidable (Nice n) := baz n
 /--
 error: tactic 'decide' failed for proposition
   Nice 102
-since its 'Decidable' instance
-  instDecidableNice
-did not reduce to 'isTrue' or 'isFalse'.
+since
+  decide (Nice 102)
+did not reduce to 'true' or 'false'.
 
-After unfolding the instances 'baz' and 'instDecidableNice', reduction got stuck at the 'Decidable' instance
+After unfolding the instances 'baz' and 'instDecidableNice', reduction got stuck at
   ⋯ ▸ inferInstance
 
 Hint: Reduction got stuck on '▸' (Eq.rec), which suggests that one of the 'Decidable' instances is
@@ -88,12 +88,12 @@ Following `Decidable.rec` to give better messages
 /--
 error: tactic 'decide' failed for proposition
   ¬Nice 102
-since its 'Decidable' instance
-  instDecidableNot
-did not reduce to 'isTrue' or 'isFalse'.
+since
+  decide ¬Nice 102
+did not reduce to 'true' or 'false'.
 
 After unfolding the instances 'baz', 'instDecidableNice', and 'instDecidableNot', reduction got
-stuck at the 'Decidable' instance
+stuck at
   ⋯ ▸ inferInstance
 
 Hint: Reduction got stuck on '▸' (Eq.rec), which suggests that one of the 'Decidable' instances is

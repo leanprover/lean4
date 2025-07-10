@@ -749,8 +749,6 @@ mutual
     let fType ← normalizeFunType
     if fType.isForall then
       let binderName := fType.bindingName!
-      unless binderName.hasMacroScopes do
-        pushFoundNamedArg binderName
       let binfo := fType.bindingInfo!
       let s ← get
       match findBinderName? s.namedArgs binderName with
@@ -760,6 +758,8 @@ mutual
         elabAndAddNewArg binderName namedArg.val
         main
       | none          =>
+        unless binderName.hasMacroScopes do
+          pushFoundNamedArg binderName
         match binfo with
         | .implicit       => processImplicitArg binderName
         | .instImplicit   => processInstImplicitArg binderName

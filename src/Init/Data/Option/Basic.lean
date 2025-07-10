@@ -15,8 +15,10 @@ public section
 
 namespace Option
 
-/- We write the instance manually instead of deriving it so that
-  it is coherent with `decidableEqNone` and `decidableNoneEq`. -/
+/- We write the instance manually so that it is coherent with `decidableEqNone` and
+`decidableNoneEq`.
+
+TODO: adjust the `deriving instance DecidableEq` handler to generate something coherent. -/
 instance instDecidableEq {α} [DecidableEq α] : DecidableEq (Option α) := fun a b =>
   match a with
   | none => match b with

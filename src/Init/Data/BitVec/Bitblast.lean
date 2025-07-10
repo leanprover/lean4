@@ -2297,7 +2297,7 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
   · simp; omega
   · constructor
     · intro h
-      simp [umulOverflow] at h
+      simp only [umulOverflow, ge_iff_le, decide_eq_true_eq] at h
       by_cases h' : x.toNat * y.toNat < 2 ^ (w + 1 + 1 + 1)
       · have hlt := BitVec.getElem_of_lt_of_le
           (x := (zeroExtend (w + 1 + 1 + 1) x * zeroExtend (w + 1 + 1 + 1) y))
@@ -2313,7 +2313,7 @@ theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
             Nat.add_one_sub_one, Bool.false_or]
           have := Nat.mul_ne_zero_iff (n := x.toNat) (m := y.toNat)
           simp only [ne_eq, show ¬x.toNat * y.toNat = 0 by omega, not_false_eq_true, true_iff] at this
-          simp [← ne_eq] at this
+          simp only [← ne_eq] at this
           obtain ⟨hxz, hyz⟩ := this
           have hltx := BitVec.lt_toNat_of_clz (x := x) (by simp [toNat_eq]; omega)
           have hlty := BitVec.lt_toNat_of_clz (x := y) (by simp [toNat_eq]; omega)

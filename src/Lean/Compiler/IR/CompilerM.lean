@@ -71,6 +71,9 @@ private def logMessageIfAux {α : Type} [ToFormat α] (optName : Name) (a : α) 
 @[inline] def modifyEnv (f : Environment → Environment) : CompilerM Unit :=
   modify fun s => { s with env := f s.env }
 
+def getEnv : CompilerM Environment := do
+  let s ← get; pure s.env
+
 abbrev DeclMap := PHashMap Name Decl
 
 private abbrev declLt (a b : Decl) :=
@@ -185,7 +188,7 @@ private def findInterpreterDecl (env : Environment) (declName : Name) : Option D
   | none => declMapExt.getState env |>.find? declName
 
 def findDecl (n : Name) : CompilerM (Option Decl) :=
-  return findEnvDecl (← get).env n
+  return findEnvDecl (← getEnv) n
 
 def containsDecl (n : Name) : CompilerM Bool :=
   return (← findDecl n).isSome
@@ -200,9 +203,6 @@ def addDeclAux (env : Environment) (decl : Decl) : Environment :=
 def getDecls (env : Environment) : List Decl :=
   declMapExt.getEntries env
 
-def getEnv : CompilerM Environment := do
-  let s ← get; pure s.env
-
 def addDecl (decl : Decl) : CompilerM Unit :=
   modifyEnv fun env => declMapExt.addEntry (env.addExtraName decl.name) decl
 
@@ -215,7 +215,7 @@ def findEnvDecl' (env : Environment) (n : Name) (decls : Array Decl) : Option De
   | none      => findEnvDecl env n
 
 def findDecl' (n : Name) (decls : Array Decl) : CompilerM (Option Decl) :=
-  return findEnvDecl' (← get).env n decls
+  return findEnvDecl' (← getEnv) n decls
 
 def containsDecl' (n : Name) (decls : Array Decl) : CompilerM Bool := do
   if decls.any fun decl => decl.name == n then

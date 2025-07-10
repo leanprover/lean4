@@ -2203,14 +2203,14 @@ theorem uppcRec_true_iff (x : BitVec w) (s : Nat) (h : s < w) :
           · simp_all
 
 /--
-  conjunction for fast umulOverflow circuit
+  Conjunction for fast umulOverflow circuit
 -/
 def aandRec (x y : BitVec w) (s : Nat) (hs : s < w) (hslt : 0 < s) : Bool :=
   if hs0 : s = 0 then (show False by omega).elim
     else y[s] && uppcRec x s (by omega)
 
 /--
-  preliminary overflow flag for fast umulOverflow circuit
+  Preliminary overflow flag for fast umulOverflow circuit
 -/
 def resRec (x y : BitVec w) (s : Nat) (hs : s < w) (hslt : 0 < s) (hw : 1 < w) : Bool :=
   match hs0 : s with

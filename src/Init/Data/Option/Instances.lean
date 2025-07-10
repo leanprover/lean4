@@ -38,7 +38,7 @@ theorem some_inj {a b : α} : some a = some b ↔ a = b := by simp; rfl
 /--
 Equality with `none` is decidable even if the wrapped type does not have decidable equality.
 -/
-instance decidableEqNone {o : Option α} : Decidable (o = none) :=
+instance decidableEqNone (o : Option α) : Decidable (o = none) :=
   /- We use a `match` instead of transferring from `isNone_iff_eq_none` for
     compatibility with the `DecidableEq` instance. -/
   match o with
@@ -48,7 +48,7 @@ instance decidableEqNone {o : Option α} : Decidable (o = none) :=
 /--
 Equality with `none` is decidable even if the wrapped type does not have decidable equality.
 -/
-instance decidableNoneEq {o : Option α} : Decidable (none = o) :=
+instance decidableNoneEq (o : Option α) : Decidable (none = o) :=
   /- We use a `match` instead of transferring from `isNone_iff_eq_none` for
     compatibility with the `DecidableEq` instance. -/
   match o with

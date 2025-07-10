@@ -128,8 +128,8 @@ builtin_simproc_decl simpOr (Or _ _) := fun e => do
 
 builtin_simproc_decl reduceCtorEqCheap (_ = _) := fun e => do
   let_expr Eq _ lhs rhs ← e | return .continue
-  let some (c₁, _) ← constructorApp? lhs | return .continue
-  let some (c₂, _) ← constructorApp? rhs | return .continue
+  let some c₁ ← isConstructorApp? lhs | return .continue
+  let some c₂ ← isConstructorApp? rhs | return .continue
   unless c₁.name != c₂.name do return .continue
   withLocalDeclD `h e fun h =>
     return .done { expr := mkConst ``False, proof? := (← withDefault <| mkEqFalse' (← mkLambdaFVars #[h] (← mkNoConfusion (mkConst ``False) h))) }

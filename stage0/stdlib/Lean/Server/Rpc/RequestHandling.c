@@ -132,7 +132,6 @@ lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_MetavarContext_findUs
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_registerBuiltinRpcProcedure___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_handleRpcCall___lam__2___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_setEnv___at___Lean_compileDecls_doCompile_spec__7___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_RequestM_asTask___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_evalRpcProcedureUnsafe___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Server_initFn___lam__1____x40_Lean_Server_Rpc_RequestHandling___hyg_1454_(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -171,6 +170,7 @@ static lean_object* l_Lean_Server_wrapRpcProcedure___redArg___lam__3___closed__1
 static lean_object* l_Lean_Server_registerBuiltinRpcProcedure___redArg___closed__3;
 LEAN_EXPORT uint8_t l_Lean_Server_wrapRpcProcedure___redArg___lam__1(uint64_t, uint64_t);
 static lean_object* l_Lean_Server_registerRpcProcedure___closed__4;
+lean_object* l_Lean_setEnv___at___Lean_compileDecls_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_registerRpcProcedure___closed__13;
 static lean_object* l_Lean_Server_registerRpcProcedure___closed__20;
 static lean_object* l_Lean_Server_registerRpcProcedure___lam__0___closed__3;
@@ -3286,7 +3286,7 @@ x_73 = lean_ctor_get(x_71, 0);
 lean_inc(x_73);
 lean_dec(x_71);
 x_74 = l_Lean_MapDeclarationExtension_insert___redArg(x_20, x_73, x_1, x_62);
-x_75 = l_Lean_setEnv___at___Lean_compileDecls_doCompile_spec__7___redArg(x_74, x_3, x_72);
+x_75 = l_Lean_setEnv___at___Lean_compileDecls_spec__0___redArg(x_74, x_3, x_72);
 lean_dec(x_3);
 return x_75;
 }
@@ -3344,7 +3344,7 @@ x_90 = lean_ctor_get(x_88, 0);
 lean_inc(x_90);
 lean_dec(x_88);
 x_91 = l_Lean_MapDeclarationExtension_insert___redArg(x_20, x_90, x_1, x_78);
-x_92 = l_Lean_setEnv___at___Lean_compileDecls_doCompile_spec__7___redArg(x_91, x_3, x_89);
+x_92 = l_Lean_setEnv___at___Lean_compileDecls_spec__0___redArg(x_91, x_3, x_89);
 lean_dec(x_3);
 return x_92;
 }
@@ -3616,7 +3616,7 @@ x_169 = lean_ctor_get(x_167, 0);
 lean_inc(x_169);
 lean_dec(x_167);
 x_170 = l_Lean_MapDeclarationExtension_insert___redArg(x_116, x_169, x_1, x_157);
-x_171 = l_Lean_setEnv___at___Lean_compileDecls_doCompile_spec__7___redArg(x_170, x_3, x_168);
+x_171 = l_Lean_setEnv___at___Lean_compileDecls_spec__0___redArg(x_170, x_3, x_168);
 lean_dec(x_3);
 return x_171;
 }
@@ -3909,7 +3909,7 @@ x_254 = lean_ctor_get(x_252, 0);
 lean_inc(x_254);
 lean_dec(x_252);
 x_255 = l_Lean_MapDeclarationExtension_insert___redArg(x_201, x_254, x_1, x_242);
-x_256 = l_Lean_setEnv___at___Lean_compileDecls_doCompile_spec__7___redArg(x_255, x_3, x_253);
+x_256 = l_Lean_setEnv___at___Lean_compileDecls_spec__0___redArg(x_255, x_3, x_253);
 lean_dec(x_3);
 return x_256;
 }

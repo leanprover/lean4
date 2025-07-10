@@ -19,7 +19,7 @@ uint8_t l_Array_isEmpty___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpAppApp_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Arg_toLetValue(lean_object*);
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
-lean_object* lean_get_implemented_by(lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_getImplementedBy_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpAppApp_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpProj_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_applyImplementedBy_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1309,7 +1309,7 @@ x_15 = lean_ctor_get(x_13, 0);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 lean_dec(x_15);
-x_17 = lean_get_implemented_by(x_16, x_10);
+x_17 = l_Lean_Compiler_getImplementedBy_x3f(x_16, x_10);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; 
@@ -1358,7 +1358,7 @@ lean_dec(x_13);
 x_25 = lean_ctor_get(x_23, 0);
 lean_inc(x_25);
 lean_dec(x_23);
-x_26 = lean_get_implemented_by(x_25, x_10);
+x_26 = l_Lean_Compiler_getImplementedBy_x3f(x_25, x_10);
 if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; lean_object* x_28; 
@@ -1423,7 +1423,7 @@ if (lean_is_exclusive(x_36)) {
 x_40 = lean_ctor_get(x_37, 0);
 lean_inc(x_40);
 lean_dec(x_37);
-x_41 = lean_get_implemented_by(x_40, x_33);
+x_41 = l_Lean_Compiler_getImplementedBy_x3f(x_40, x_33);
 if (lean_obj_tag(x_41) == 0)
 {
 lean_object* x_42; lean_object* x_43; 

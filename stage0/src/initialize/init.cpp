@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include "library/init_module.h"
 #include "library/constructions/init_module.h"
 #include "library/print.h"
-#include "library/compiler/init_module.h"
 #include "initialize/init.h"
 
 namespace lean {
@@ -40,14 +39,12 @@ extern "C" LEAN_EXPORT void lean_initialize() {
     init_default_print_fn();
     initialize_library_core_module();
     initialize_library_module();
-    initialize_compiler_module();
     initialize_constructions_module();
 }
 
 void finalize() {
     run_thread_finalizers();
     finalize_constructions_module();
-    finalize_compiler_module();
     finalize_library_module();
     finalize_library_core_module();
     finalize_kernel_module();

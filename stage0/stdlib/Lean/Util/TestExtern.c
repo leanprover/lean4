@@ -28,7 +28,7 @@ uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 static lean_object* l_elabTestExtern___lam__0___closed__15;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_elabTestExtern___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_get_implemented_by(lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_getImplementedBy_x3f(lean_object*, lean_object*);
 static lean_object* l_elabTestExtern___lam__0___closed__21;
 static lean_object* l_elabTestExtern___lam__0___closed__20;
 static lean_object* l_elabTestExtern___lam__0___closed__9;
@@ -431,7 +431,7 @@ if (x_82 == 0)
 {
 lean_object* x_83; 
 lean_inc(x_15);
-x_83 = lean_get_implemented_by(x_81, x_15);
+x_83 = l_Lean_Compiler_getImplementedBy_x3f(x_81, x_15);
 if (lean_obj_tag(x_83) == 0)
 {
 x_73 = x_82;

@@ -131,7 +131,7 @@ static lean_object* l_Lean_IR_EmitC_emitApp___closed__0;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_getJPParams(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitDec___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitFnDeclAux(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-lean_object* lean_get_export_name_for(lean_object*, lean_object*);
+lean_object* l_Lean_getExportNameFor_x3f(lean_object*, lean_object*);
 uint8_t l_Lean_isClosedTermName(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitMainFn___closed__12;
 static lean_object* l_Lean_IR_EmitC_toCType___closed__12;
@@ -251,7 +251,7 @@ static lean_object* l_Lean_IR_EmitC_emitBoxFn___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_toCType(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitBoxFn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___Lean_IR_EmitC_emitFnDecls_spec__1(lean_object*, lean_object*, lean_object*);
-uint8_t lean_is_io_unit_builtin_init_fn(lean_object*, lean_object*);
+uint8_t l_Lean_isIOUnitBuiltinInitFn(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitLns___redArg___closed__9;
 static lean_object* l_Lean_IR_EmitC_emitDeclAux___lam__0___closed__0;
@@ -389,7 +389,7 @@ static lean_object* l_Lean_IR_EmitC_emitMainFn___closed__41;
 LEAN_EXPORT lean_object* l_Nat_forM_loop___at___Lean_IR_EmitC_emitTailCall_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_overwriteParam___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_forM_loop___at___Lean_IR_EmitC_emitJmp_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_get_builtin_init_fn_name_for(lean_object*, lean_object*);
+lean_object* l_Lean_getBuiltinInitFnNameFor_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_getExternNameFor(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitSimpleExternalCall(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_IR_EmitC_emitInitFn_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -561,7 +561,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitInitFn___boxed(lean_object*, lean_o
 lean_object* l_EStateM_seqRight(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitMainFn___closed__52;
 static lean_object* l_Lean_IR_EmitC_emitMainFn___closed__1;
-lean_object* lean_ir_decl_to_string(lean_object*);
+lean_object* l_Lean_IR_declToString(lean_object*);
 static lean_object* l_Nat_forM_loop___at___Lean_IR_EmitC_emitReset_spec__0___redArg___closed__0;
 static lean_object* l_Lean_IR_EmitC_emitApp___closed__3;
 static lean_object* l_String_foldlAux___at___Lean_IR_EmitC_quoteString_spec__0___closed__1;
@@ -1455,7 +1455,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_6 = lean_ctor_get(x_4, 0);
 x_7 = lean_ctor_get(x_4, 1);
 lean_inc(x_1);
-x_8 = lean_get_export_name_for(x_6, x_1);
+x_8 = l_Lean_getExportNameFor_x3f(x_6, x_1);
 if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; uint8_t x_10; 
@@ -1528,7 +1528,7 @@ lean_inc(x_20);
 lean_inc(x_19);
 lean_dec(x_4);
 lean_inc(x_1);
-x_21 = lean_get_export_name_for(x_19, x_1);
+x_21 = l_Lean_getExportNameFor_x3f(x_19, x_1);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; uint8_t x_23; 
@@ -1698,7 +1698,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_6 = lean_ctor_get(x_4, 0);
 x_7 = lean_ctor_get(x_4, 1);
 lean_inc(x_1);
-x_8 = lean_get_export_name_for(x_6, x_1);
+x_8 = l_Lean_getExportNameFor_x3f(x_6, x_1);
 if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
@@ -1763,7 +1763,7 @@ lean_inc(x_21);
 lean_inc(x_20);
 lean_dec(x_4);
 lean_inc(x_1);
-x_22 = lean_get_export_name_for(x_20, x_1);
+x_22 = l_Lean_getExportNameFor_x3f(x_20, x_1);
 if (lean_obj_tag(x_22) == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
@@ -12436,7 +12436,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_ctor_get(x_5, 0);
 x_8 = l_Lean_IR_EmitC_emitDecl___closed__0;
 x_9 = lean_string_append(x_7, x_8);
-x_10 = lean_ir_decl_to_string(x_4);
+x_10 = l_Lean_IR_declToString(x_4);
 x_11 = lean_string_append(x_9, x_10);
 lean_dec(x_10);
 lean_ctor_set(x_5, 0, x_11);
@@ -12452,7 +12452,7 @@ lean_inc(x_12);
 lean_dec(x_5);
 x_14 = l_Lean_IR_EmitC_emitDecl___closed__0;
 x_15 = lean_string_append(x_12, x_14);
-x_16 = lean_ir_decl_to_string(x_4);
+x_16 = l_Lean_IR_declToString(x_4);
 x_17 = lean_string_append(x_15, x_16);
 lean_dec(x_16);
 x_18 = lean_alloc_ctor(1, 2, 0);
@@ -12729,7 +12729,7 @@ x_32 = lean_string_append(x_31, x_28);
 x_33 = l_Lean_IR_EmitC_emitMainFn___closed__23;
 x_34 = lean_string_append(x_32, x_33);
 x_35 = lean_string_append(x_34, x_28);
-x_36 = lean_is_io_unit_builtin_init_fn(x_14, x_17);
+x_36 = l_Lean_isIOUnitBuiltinInitFn(x_14, x_17);
 if (x_36 == 0)
 {
 lean_object* x_37; 
@@ -12765,7 +12765,7 @@ x_48 = lean_string_append(x_47, x_44);
 x_49 = l_Lean_IR_EmitC_emitMainFn___closed__23;
 x_50 = lean_string_append(x_48, x_49);
 x_51 = lean_string_append(x_50, x_44);
-x_52 = lean_is_io_unit_builtin_init_fn(x_14, x_17);
+x_52 = l_Lean_isIOUnitBuiltinInitFn(x_14, x_17);
 if (x_52 == 0)
 {
 lean_object* x_53; lean_object* x_54; 
@@ -12802,7 +12802,7 @@ x_64 = l_Lean_IR_EmitC_emitMainFn___closed__23;
 x_65 = lean_string_append(x_63, x_64);
 x_66 = l_Lean_IR_EmitC_emitLn___redArg___closed__0;
 x_67 = lean_string_append(x_65, x_66);
-x_68 = lean_get_builtin_init_fn_name_for(x_14, x_61);
+x_68 = l_Lean_getBuiltinInitFnNameFor_x3f(x_14, x_61);
 if (lean_obj_tag(x_68) == 0)
 {
 x_4 = x_67;
@@ -13036,7 +13036,7 @@ lean_inc(x_140);
 lean_dec(x_128);
 lean_inc(x_121);
 lean_inc(x_14);
-x_141 = lean_get_builtin_init_fn_name_for(x_14, x_121);
+x_141 = l_Lean_getBuiltinInitFnNameFor_x3f(x_14, x_121);
 if (lean_obj_tag(x_141) == 0)
 {
 x_112 = x_120;
@@ -13082,7 +13082,7 @@ lean_dec(x_16);
 lean_dec(x_1);
 lean_inc(x_143);
 lean_inc(x_14);
-x_146 = lean_is_io_unit_builtin_init_fn(x_14, x_143);
+x_146 = l_Lean_isIOUnitBuiltinInitFn(x_14, x_143);
 if (x_146 == 0)
 {
 x_17 = x_143;

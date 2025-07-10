@@ -17,7 +17,10 @@ static lean_object* l_Lean_Compiler_LCNF_Simp_getIndInfo_x3f___closed__0;
 static lean_object* l_Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx_spec__0_spec__0___closed__3;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx_spec__0_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_eqv___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_throwError___at___Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx_spec__0_spec__0_spec__0___redArg___closed__7;
+static lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_Compiler_LCNF_Simp_simpCtorDiscrCore_x3f_spec__0___redArg___closed__0;
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx_spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_sort___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_CtorInfo_getNumFields___boxed(lean_object*);
@@ -51,7 +54,9 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_CtorInfo_getName___boxed(lean
 LEAN_EXPORT lean_object* l_Lean_getConstInfoCtor___at___Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwError___at___Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx_spec__0_spec__0_spec__0___redArg___closed__4;
 static lean_object* l_Lean_Compiler_LCNF_Simp_getIndInfo_x3f___closed__1;
+uint64_t l_Lean_Expr_hash(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_withDiscrCtorImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_Compiler_LCNF_Simp_simpCtorDiscrCore_x3f_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx_spec__0_spec__0___closed__2;
 lean_object* l_Lean_Compiler_LCNF_findLetDecl_x3f___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_LetValue_toExpr(lean_object*);
@@ -59,6 +64,7 @@ uint8_t l_Lean_Expr_isErased(lean_object*);
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___Lean_Compiler_LCNF_Simp_findCtor_x3f_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx_spec__0_spec__0___closed__0;
+LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_Compiler_LCNF_Simp_simpCtorDiscrCore_x3f_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_findCtor_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___Lean_Compiler_LCNF_Simp_getIndInfo_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
@@ -74,6 +80,7 @@ static lean_object* l_Lean_Compiler_LCNF_Simp_CtorInfo_getName___closed__3;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfoCtor___at___Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx_spec__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_withDiscrCtor___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f_spec__0___redArg(lean_object*, lean_object*, size_t, lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwError___at___Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx_spec__0_spec__0_spec__0___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Compiler_LCNF_Simp_getIndInfo_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -100,7 +107,6 @@ lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean
 lean_object* l_Lean_RBNode_insert___at___Lean_FVarIdSet_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfoCtor___at___Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx_spec__0___closed__1;
 static lean_object* l_Lean_throwError___at___Lean_getConstInfo___at___Lean_getConstInfoCtor___at___Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx_spec__0_spec__0_spec__0___redArg___closed__2;
-lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_SMap_find_x3f___at___Lean_Compiler_getCachedSpecialization_spec__0_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_headBeta(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -2676,6 +2682,33 @@ x_9 = lean_apply_3(x_3, lean_box(0), x_8, x_7);
 return x_9;
 }
 }
+static lean_object* _init_l_Lean_PersistentHashMap_find_x3f___at___Lean_Compiler_LCNF_Simp_simpCtorDiscrCore_x3f_spec__0___redArg___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Expr_eqv___boxed), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_Compiler_LCNF_Simp_simpCtorDiscrCore_x3f_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; uint64_t x_4; size_t x_5; lean_object* x_6; 
+x_3 = l_Lean_PersistentHashMap_find_x3f___at___Lean_Compiler_LCNF_Simp_simpCtorDiscrCore_x3f_spec__0___redArg___closed__0;
+x_4 = l_Lean_Expr_hash(x_2);
+x_5 = lean_uint64_to_usize(x_4);
+x_6 = l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f_spec__0___redArg(x_3, x_1, x_5, x_2);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_Compiler_LCNF_Simp_simpCtorDiscrCore_x3f_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_PersistentHashMap_find_x3f___at___Lean_Compiler_LCNF_Simp_simpCtorDiscrCore_x3f_spec__0___redArg(x_2, x_3);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpCtorDiscrCore_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -2688,7 +2721,7 @@ x_9 = lean_ctor_get(x_2, 1);
 x_10 = lean_ctor_get(x_2, 0);
 lean_dec(x_10);
 lean_inc(x_1);
-x_11 = l_Lean_PersistentHashMap_find_x3f___at___Lean_SMap_find_x3f___at___Lean_Compiler_getCachedSpecialization_spec__0_spec__0___redArg(x_9, x_1);
+x_11 = l_Lean_PersistentHashMap_find_x3f___at___Lean_Compiler_LCNF_Simp_simpCtorDiscrCore_x3f_spec__0___redArg(x_9, x_1);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_dec(x_6);
@@ -2830,7 +2863,7 @@ x_35 = lean_ctor_get(x_2, 1);
 lean_inc(x_35);
 lean_dec(x_2);
 lean_inc(x_1);
-x_36 = l_Lean_PersistentHashMap_find_x3f___at___Lean_SMap_find_x3f___at___Lean_Compiler_getCachedSpecialization_spec__0_spec__0___redArg(x_35, x_1);
+x_36 = l_Lean_PersistentHashMap_find_x3f___at___Lean_Compiler_LCNF_Simp_simpCtorDiscrCore_x3f_spec__0___redArg(x_35, x_1);
 if (lean_obj_tag(x_36) == 0)
 {
 lean_object* x_37; 
@@ -3026,6 +3059,8 @@ l_Lean_getConstInfoCtor___at___Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCt
 lean_mark_persistent(l_Lean_getConstInfoCtor___at___Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx_spec__0___closed__0);
 l_Lean_getConstInfoCtor___at___Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx_spec__0___closed__1 = _init_l_Lean_getConstInfoCtor___at___Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx_spec__0___closed__1();
 lean_mark_persistent(l_Lean_getConstInfoCtor___at___Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx_spec__0___closed__1);
+l_Lean_PersistentHashMap_find_x3f___at___Lean_Compiler_LCNF_Simp_simpCtorDiscrCore_x3f_spec__0___redArg___closed__0 = _init_l_Lean_PersistentHashMap_find_x3f___at___Lean_Compiler_LCNF_Simp_simpCtorDiscrCore_x3f_spec__0___redArg___closed__0();
+lean_mark_persistent(l_Lean_PersistentHashMap_find_x3f___at___Lean_Compiler_LCNF_Simp_simpCtorDiscrCore_x3f_spec__0___redArg___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

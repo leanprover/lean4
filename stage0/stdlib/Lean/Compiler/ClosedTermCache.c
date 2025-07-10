@@ -29,7 +29,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___Lean_initFn____x
 static lean_object* l_Lean_PersistentHashMap_insert___at___Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_69__spec__0___redArg___closed__0;
 lean_object* l_Lean_EnvExtension_modifyState___redArg(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_cacheClosedTermName___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* lean_get_closed_term_name(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_getClosedTermName_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedClosedTermCache___closed__0;
 LEAN_EXPORT lean_object* l_Lean_closedTermCacheExt;
 static lean_object* l_Lean_PersistentHashMap_insert___at___Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_69__spec__0___redArg___closed__1;
@@ -42,7 +42,7 @@ lean_object* l_List_takeTR_go___redArg(lean_object*, lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_69_(lean_object*);
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_69__spec__2(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* lean_cache_closed_term_name(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_cacheClosedTermName(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_foldl___at___Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_69__spec__2___closed__2;
 static lean_object* l_Lean_instInhabitedClosedTermCache___closed__1;
 static lean_object* l_List_foldl___at___Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_69__spec__2___closed__1;
@@ -405,7 +405,7 @@ x_1 = l_Lean_closedTermCacheExt;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* lean_cache_closed_term_name(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_cacheClosedTermName(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; 
@@ -418,7 +418,7 @@ x_7 = l_Lean_EnvExtension_modifyState___redArg(x_4, x_1, x_6, x_5);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* lean_get_closed_term_name(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_getClosedTermName_x3f(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 

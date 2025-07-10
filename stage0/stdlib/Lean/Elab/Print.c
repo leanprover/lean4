@@ -153,6 +153,7 @@ static lean_object* l_Lean_Elab_Command_elabPrintEqns___regBuiltin_Lean_Elab_Com
 static lean_object* l_Lean_Elab_Command_elabPrintAxioms___closed__1;
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at_____private_Lean_Elab_Print_0__Lean_Elab_Command_printStructure_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_insertCore(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_mapTR_loop___at___Lean_Meta_substCore_spec__3(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_getFieldOrigin___closed__4;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_Print_0__Lean_Elab_Command_printStructure_spec__38_spec__38___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_qsort_sort___at___Lean_mergeStructureResolutionOrders___at___Lean_computeStructureResolutionOrder___at___Lean_getStructureResolutionOrder___at_____private_Lean_Elab_Print_0__Lean_Elab_Command_printStructure_spec__3_spec__3_spec__4_spec__21___redArg___closed__0;
@@ -558,7 +559,6 @@ lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_Elab_Command_elabPrintAxioms___closed__3;
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_____private_Lean_Elab_Print_0__Lean_Elab_Command_printInduct_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_mapTR_loop___at___Lean_compileDecls_doCompile_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_mergeStructureResolutionOrders_selectParent___at___Lean_mergeStructureResolutionOrders___at___Lean_computeStructureResolutionOrder___at___Lean_getStructureResolutionOrder___at_____private_Lean_Elab_Print_0__Lean_Elab_Command_printStructure_spec__3_spec__3_spec__4_spec__5_spec__8___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_printIdCore___closed__5;
 static lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_getFieldOrigin___closed__1;
@@ -16978,7 +16978,7 @@ block_23:
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_15 = lean_array_to_list(x_14);
 x_16 = lean_box(0);
-x_17 = l_List_mapTR_loop___at___Lean_compileDecls_doCompile_spec__0(x_15, x_16);
+x_17 = l_List_mapTR_loop___at___Lean_Meta_substCore_spec__3(x_15, x_16);
 x_18 = l_Lean_MessageData_ofList(x_17);
 x_19 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_19, 0, x_13);
@@ -17089,7 +17089,7 @@ block_59:
 lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; 
 x_51 = lean_array_to_list(x_50);
 x_52 = lean_box(0);
-x_53 = l_List_mapTR_loop___at___Lean_compileDecls_doCompile_spec__0(x_51, x_52);
+x_53 = l_List_mapTR_loop___at___Lean_Meta_substCore_spec__3(x_51, x_52);
 x_54 = l_Lean_MessageData_ofList(x_53);
 x_55 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_55, 0, x_49);

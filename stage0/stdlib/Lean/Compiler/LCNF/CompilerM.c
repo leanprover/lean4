@@ -665,11 +665,12 @@ _start:
 uint8_t x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = 0;
 x_2 = lean_box(0);
-x_3 = lean_alloc_ctor(0, 3, 1);
+x_3 = lean_alloc_ctor(0, 3, 2);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_2);
 lean_ctor_set(x_3, 2, x_2);
 lean_ctor_set_uint8(x_3, sizeof(void*)*3, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*3 + 1, x_1);
 return x_3;
 }
 }

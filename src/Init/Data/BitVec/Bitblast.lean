@@ -339,7 +339,7 @@ theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
     (h : x &&& y = 0#w) : x + y = x ||| y := by
   rw [add_eq_adc, adc, iunfoldr_replace (fun _ => false) (x ||| y)]
   · rfl
-  · simp only [adcb, atLeastTwo, Bool.and_false, Bool.or_false, bne_false,
+  · simp only [adcb, atLeastTwo, Bool.and_false, Bool.or_false, bne_false, 
     Prod.mk.injEq, and_eq_false_imp]
     intro i
     replace h : (x &&& y).getLsbD i = (0#w).getLsbD i := by rw [h]

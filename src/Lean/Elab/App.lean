@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Util.FindMVar
 import Lean.Util.CollectFVars
-import Lean.Util.EditDistance
 import Lean.Parser.Term
 import Lean.Meta.KAbstract
 import Lean.Meta.Tactic.ElimInfo
@@ -41,25 +40,15 @@ instance : ToString NamedArg where
 
 def throwInvalidNamedArg (namedArg : NamedArg) (fn? : Option Name) (validNames : Array Name) : TermElabM α :=
   withRef namedArg.ref do
-  -- TODO: make this lazy
   let hint ← do
     if validNames.size > 0 then
-      let validNamesEditDist := validNames
-        |>.map (fun name =>
-          let nameStr := name.toString
-          (nameStr, EditDistance.levenshtein nameStr namedArg.name.toString none))
-        |>.qsort (fun (name1, d1?) (name2, d2?) =>
-          compare d1?.get! d2?.get! |>.then (compare name1 name2) |>.isLT)
-        |>.map (·.1)
       let namesMsg := MessageData.andList <| validNames.map (m!"`{·}`") |>.toList
-      let suggestionNames :=
-        if validNames.size > 5 then validNamesEditDist[:5].toArray else validNamesEditDist
       -- `getRef` is of the form: atomic ("(" >> ident >> " := ") >> withoutPosition termParser >> ")"
       let span? := (← getRef)[1]
       MessageData.hint (forceList := true) "Perhaps you meant one of the following named parameters:" <|
-        suggestionNames.map fun name =>
-          { suggestion := .string name
-            preInfo? := some s!"`{name}`: "
+        validNames.map fun name =>
+          { suggestion := .string name.toString
+            preInfo? := some s!"`{name.toString}`: "
             span?
             toCodeActionTitle? := some fun s => s!"Change argument name: {s}" }
     else

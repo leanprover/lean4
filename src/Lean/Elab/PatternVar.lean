@@ -8,7 +8,6 @@ import Lean.Meta.Match.MatchPatternAttr
 import Lean.Meta.Hint
 import Lean.Elab.Arg
 import Lean.Elab.MatchAltView
-import Lean.Util.EditDistance
 
 namespace Lean.Elab.Term
 
@@ -120,29 +119,26 @@ structure Context where
   newArgs       : Array Term := #[]
   deriving Inhabited
 
-private def throwInvalidNamedArgs (ctx : Context) : MetaM α := do
+private def throwInvalidNamedArgs (ctx : Context) (h : ¬ctx.namedArgs.isEmpty) : MetaM α := do
   let names := (ctx.namedArgs.map fun narg => m!"`{narg.name}`").toList
   let nameStr := if names.length == 1 then "name" else "names"
   let validNames := ctx.paramDecls.filterMap fun (name, _) =>
     if name.hasMacroScopes then none else some name
-  let validNamesMsg := MessageData.andList <| validNames.map (m!"`{·}`") |>.toList
-  -- TODO: make this lazy
-  let suggestions := ctx.namedArgs.flatMap fun narg =>
-    let name := narg.name.toString
-    let maxDist := if name.length ≤ 3 then 1 else if name.length ≤ 5 then 2 else 3
-    let nearMatches := validNames.filterMap fun validName =>
-      let validName := validName.toString
-      EditDistance.levenshtein name validName (some maxDist) |>.map
-        ({ suggestion := validName, span? := some narg.ref[1] : Hint.Suggestion }, ·)
-    nearMatches.qsort (fun (_, d₁) (_, d₂) => d₁ < d₂) |>.map Prod.fst
-  let hintMsg := m!"This function has the following named parameters: {validNamesMsg}" ++
-    if suggestions.size > 0 then m!". These are similar:" else .nil
+  -- We offer hints only for the first argument
+  have h' := Nat.zero_lt_of_ne_zero (mt Array.isEmpty_iff_size_eq_zero.mpr h)
+  let firstNamedArg := ctx.namedArgs[0]'h'
+  let suggestions := validNames.map fun validName =>
+    { suggestion := validName.toString
+      span? := some firstNamedArg.ref[1]
+      preInfo? := some s!"`{validName}`: "
+      toCodeActionTitle? := some fun s => s!"Change argument name: {s}" }
+  let hintMsg := m!"Replace `{firstNamedArg.name}` with a valid argument name for this function:"
   let hint ← MessageData.hint (forceList := true) hintMsg suggestions
   throwError m!"Invalid argument {nameStr} {.andList names} for function `{ctx.funId}`" ++ hint
 
 private def throwWrongArgCount (ctx : Context) (tooMany : Bool) : M α := do
-  if !ctx.namedArgs.isEmpty then
-    throwInvalidNamedArgs ctx
+  if h : ¬ctx.namedArgs.isEmpty then
+    throwInvalidNamedArgs ctx h
   let numExpectedArgs :=
     (if ctx.explicit then ctx.paramDecls else ctx.paramDecls.filter (·.2.isExplicit)).size
   let argKind := if ctx.explicit then "" else "explicit "
@@ -158,11 +154,11 @@ private def isDone (ctx : Context) : Bool :=
   ctx.paramDeclIdx ≥ ctx.paramDecls.size
 
 private def finalize (ctx : Context) : M Syntax := do
-  if ctx.namedArgs.isEmpty && ctx.args.isEmpty then
+  if h : ctx.namedArgs.isEmpty ∧ ctx.args.isEmpty then
     let fStx ← `(@$(ctx.funId):ident)
     return Syntax.mkApp fStx ctx.newArgs
-  else if ctx.args.isEmpty then
-    throwInvalidNamedArgs ctx
+  else if h' : ctx.args.isEmpty then
+    throwInvalidNamedArgs ctx (not_and'.mp h h')
   else
     throwWrongArgCount ctx true
 

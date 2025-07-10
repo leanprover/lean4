@@ -193,13 +193,15 @@ def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
 /--
 Return error message "has type{givenType}\nbut is expected to have type{expectedType}"
 Adds the type’s types unless they are defeq.
+
 If `trailing?` is non-`none`, it is appended to the end of the message. This requires modifying the
 produced message, so prefer specifying `trailing?` over appending a message to the result of this
-function.
+function. Any expressions appearing in the trailing message should be included in `trailingExprs`.
 -/
-def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr) (trailing? : Option MessageData := none)
-    : MetaM MessageData :=
-  return MessageData.ofLazyM (es := #[givenType, expectedType]) do
+def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr)
+    (trailing? : Option MessageData := none) (trailingExprs : Array Expr := #[])
+    : MetaM MessageData := do
+  return MessageData.ofLazyM (es := #[givenType, expectedType] ++ trailingExprs) do
     try
       let givenTypeType ← inferType givenType
       let expectedTypeType ← inferType expectedType
@@ -222,11 +224,6 @@ def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr) (trailing? : Optio
       return m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}{trailing}"
 
 def throwAppTypeMismatch (f a : Expr) : MetaM α := do
-  let (expectedType, binfo) ← getFunctionDomain f
-  let mut e := mkApp f a
-  unless binfo.isExplicit do
-    e := e.setAppPPExplicit
-  let aType ← inferType a
   -- Clarify that `a` is "last" only if it may be confused with some preceding argument; otherwise,
   -- avoid this wording because it may be misleading if more arguments follow `a`, e.g., if `f a` is
   -- a subexpression of `f a b`
@@ -234,8 +231,19 @@ def throwAppTypeMismatch (f a : Expr) : MetaM α := do
     m!"last{indentExpr a}\nargument "
   else
     m!"argument{indentExpr a}\n"
-  let hasTypeButIsExpected ← mkHasTypeButIsExpectedMsg aType expectedType m!"in the application{indentExpr e}"
-  throwError "Application type mismatch: The {argDescStr}{hasTypeButIsExpected}"
+  let mut e := mkApp f a
+  let msg ← try
+    let (expectedType, binfo) ← getFunctionDomain f
+    unless binfo.isExplicit do
+      e := e.setAppPPExplicit
+    let aType ← inferType a
+    let hasTypeButIsExpected ← mkHasTypeButIsExpectedMsg aType expectedType
+      (trailing? := m!"in the application{indentExpr e}") (trailingExprs := #[e])
+    pure m!"Application type mismatch: The {argDescStr}{hasTypeButIsExpected}"
+  catch _ =>
+    e := e.setAppPPExplicit
+    pure m!"Application type mismatch: The {argDescStr}is not of the expected type in the application{indentExpr e}"
+  throwError msg
 
 def checkApp (f a : Expr) : MetaM Unit := do
   let fType ← inferType f

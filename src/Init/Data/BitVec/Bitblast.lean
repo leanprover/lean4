@@ -2165,8 +2165,8 @@ The fast unsigned multiplication overflow detection circuit is described in
 With this circuit, the computation of the overflow flag for the unsigned multiplication of
 two bitvectors `x` and `y` with bitwidth `w` requires:
 · extending the operands by `1` bit and performing the multiplication with the extended operands,
-· computing the preliminary overflow flag, which describes whether `x` and `y` together have less than
-  `w - 1` leading zeros.
+· computing the preliminary overflow flag, which describes whether `x` and `y` together have at most
+  `w - 2` leading zeros.
 If the most significant bit of the extended operands' multiplication is `true` or if the
 preliminary overflow flag is `true`, overflow happens.
 In particular, the conditions check two different cases:
@@ -2299,7 +2299,7 @@ theorem resRec_true_iff (x y : BitVec w) (s : Nat) (hs : s < w) (hs' : 0 < s) (h
 
 /-- If the sum of the leading zeroes of two bitvecs with bitwidth `w` is less than or equal to
   (`w - 2`), then the preliminary overflow flag is true and their unsigned multiplication overflows.
-  The proof is explained in `Efficient integer multiplication overflow detection circuits`
+  The explanation is in `Efficient integer multiplication overflow detection circuits`
   https://ieeexplore.ieee.org/abstract/document/987767
   -/
 theorem resRec_of_clz_le {x y : BitVec w} (hw : 1 < w) (hx : x ≠ 0#w) (hy : y ≠ 0#w):
@@ -2319,7 +2319,7 @@ theorem resRec_of_clz_le {x y : BitVec w} (hw : 1 < w) (hx : x ≠ 0#w) (hy : y 
           (BitVec.toNat_le_of_clz (x := x) (by omega) (by omega))
 
 /--
-  complete fast overflow detection circuit for unsigned multiplication
+  Complete fast overflow detection circuit for unsigned multiplication
 -/
 theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
     umulOverflow x y ↔ (((zeroExtend (w + 1) x) * (zeroExtend (w + 1) y)).getLsbD w || resRec x y (w - 1) (by omega) (by omega) (by omega)) := by

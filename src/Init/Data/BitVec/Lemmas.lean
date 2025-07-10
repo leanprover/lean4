@@ -6038,7 +6038,7 @@ theorem clz_le {x : BitVec w} :
   · exact clzAuxRec_le (n := w)
 
 @[simp]
-theorem clz_eq_iff {x : BitVec w} :
+theorem clz_eq_iff_eq_zero {x : BitVec w} :
     clz x = w ↔ x = 0#w := by
   rcases w with _|w
   · simp [clz, of_length_zero]
@@ -6098,10 +6098,11 @@ theorem clz_eq_zero_iff {x : BitVec w} (hw : 0 < w) :
     simp only [← getLsbD_eq_getElem, ← msb_eq_getLsbD_last, Bool.not_eq_true] at hxw
     exact toNat_lt_of_msb_false hxw
 
+/-- The number of leading zeroes is strictly less than the bitwidth iff the bitvector is nonzero. -/
 theorem clz_lt_iff_ne_zero {x : BitVec w} :
     clz x < w ↔ x ≠ 0#w := by
   have hle := clz_le (x := x)
-  have heq := clz_eq_iff (x := x)
+  have heq := clz_eq_iff_eq_zero (x := x)
   constructor
   · intro h
     simp only [natCast_eq_ofNat, BitVec.ne_of_lt (x := x.clz) (y := BitVec.ofNat w w) h,
@@ -6181,6 +6182,7 @@ theorem getLsbD_true_of_clz_of_ne_zero {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0
   intro i hi
   simp [show w ≤ i by omega]
 
+/-- A nonzero bitvector is lower-bounded by its leading zeroes. -/
 theorem toNat_le_of_clz {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
     2 ^ (w - 1 - (clz x).toNat) ≤ x.toNat := by
   by_cases hc0 : x.clz.toNat  = 0
@@ -6191,6 +6193,7 @@ theorem toNat_le_of_clz {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
     push_cast at hge
     exact hge
 
+/-- A bitvector is upper bounded by the number of leading zeroes. -/
 theorem toNat_lt_of_clz {x : BitVec w} :
     x.toNat < 2 ^ (w - (clz x).toNat) := by
   rcases w with _|w

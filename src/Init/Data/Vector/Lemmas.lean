@@ -1219,12 +1219,12 @@ instance [BEq α] [LawfulBEq α] (a : α) (as : Vector α n) : Decidable (a ∈ 
     as.contains a = decide (a ∈ as) := by
   rw [Bool.eq_iff_iff, contains_iff, decide_eq_true_iff]
 
-@[simp] theorem any_push [BEq α] {as : Vector α n} {a : α} {p : α → Bool} :
+@[simp] theorem any_push {as : Vector α n} {a : α} {p : α → Bool} :
     (as.push a).any p = (as.any p || p a) := by
   rcases as with ⟨as, rfl⟩
   simp
 
-@[simp] theorem all_push [BEq α] {as : Vector α n} {a : α} {p : α → Bool} :
+@[simp] theorem all_push {as : Vector α n} {a : α} {p : α → Bool} :
     (as.push a).all p = (as.all p && p a) := by
   rcases as with ⟨as, rfl⟩
   simp

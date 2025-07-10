@@ -339,7 +339,7 @@ theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
     (h : x &&& y = 0#w) : x + y = x ||| y := by
   rw [add_eq_adc, adc, iunfoldr_replace (fun _ => false) (x ||| y)]
   · rfl
-  · simp only [adcb, atLeastTwo, Bool.and_false, Bool.or_false, bne_false, 
+  · simp only [adcb, atLeastTwo, Bool.and_false, Bool.or_false, bne_false,
     Prod.mk.injEq, and_eq_false_imp]
     intro i
     replace h : (x &&& y).getLsbD i = (0#w).getLsbD i := by rw [h]
@@ -624,7 +624,7 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow (x : BitVec w) (i
         simp [hik', hik'']
         omega
   · ext k
-    simp only [and_twoPow, 
+    simp only [and_twoPow,
       ]
     by_cases hi : x.getLsbD i <;> simp [hi] <;> omega
 
@@ -1945,7 +1945,7 @@ The remainder for `srem`, i.e. division with rounding to zero is negative
 iff `x` is negative and `y` does not divide `x`.
 
 We can eventually build fast circuits for the divisibility test `x.srem y = 0`.
--/ 
+-/
 theorem msb_srem {x y : BitVec w} : (x.srem y).msb =
     (x.msb && decide (x.srem y ≠ 0)) := by
   rw [msb_eq_toInt]
@@ -2157,6 +2157,29 @@ theorem shiftLeft_add_eq_shiftLeft_or {x y : BitVec w} :
 
 /- ### fast circuit for unsigned overflow detection -/
 
+/-!
+# Note [Fast Unsigned Multiplication Overflow Detection]
+
+The fast unsigned multiplication overflow detection circuit is described in
+`Efficient integer multiplication overflow detection circuits` (https://ieeexplore.ieee.org/abstract/document/987767).
+With this circuit, the computation of the overflow flag for the unsigned multiplication of
+two bitvectors `x` and `y` with bitwidth `w` requires:
+· extending the operands by `1` bit and performing the multiplication with the extended operands,
+· computing the preliminary overflow flag, which describes whether `x` and `y` together have less than
+  `w - 1` leading zeros.
+If the most significant bit of the extended operands' multiplication is `true` or if the
+preliminary overflow flag is `true`, overflow happens.
+In particular, the conditions check two different cases:
+· if the most significant bit of the extended operands' multiplication is `true`, the result of the
+  multiplication 2 ^ w ≤ x.toNat * y.toNat < 2 ^ (w + 1),
+· if the preliminary flag is true, then 2 ^ (w + 1) ≤ x.toNat * y.toNat.
+
+The computation of the preliminary overflow flag `resRec` relies on two quantities:
+· `uppcRec`: the unsigned parallel prefix circuit for the bits until a certain `i`,
+· `aandRec`: the conjunction between the parallel prefix circuit at of the first operand until a certain `i`
+  and the `i`-th bit in the second operand.
+-/
+
 /--
   `uppcRec` is the unsigned parallel prefix, `x.uppcRec s = true` iff `x.toNat` is greater or equal
   than `2 ^ (w - 1 - (s - 1))`.
@@ -2210,7 +2233,8 @@ def aandRec (x y : BitVec w) (s : Nat) (hs : s < w) (hslt : 0 < s) : Bool :=
     else y[s] && uppcRec x s (by omega)
 
 /--
-  Preliminary overflow flag for fast umulOverflow circuit
+  Preliminary overflow flag for fast umulOverflow circuit as introduced in
+  `Efficient integer multiplication overflow detection circuits` (https://ieeexplore.ieee.org/abstract/document/987767).
 -/
 def resRec (x y : BitVec w) (s : Nat) (hs : s < w) (hslt : 0 < s) (hw : 1 < w) : Bool :=
   match hs0 : s with
@@ -2221,6 +2245,8 @@ def resRec (x y : BitVec w) (s : Nat) (hs : s < w) (hslt : 0 < s) (hw : 1 < w) :
     | s'' + 1 =>
       (resRec x y s' (by omega) (by omega) (by omega)) || (aandRec x y s (by omega) (by omega))
 
+/-- The preliminary overflow flag is true for a certain `s` if and only if the conjunction returns true at
+  any `k` smaller than or equal to `s`. -/
 theorem resRec_true_iff (x y : BitVec w) (s : Nat) (hs : s < w) (hs' : 0 < s) (hw : 1 < w) :
     resRec x y s hs hs' hw = true ↔ ∃ (k : Nat), ∃ (h : k ≤ s), ∃ (hk' : 0 < k), aandRec x y k (by omega) (by omega) := by
   unfold resRec
@@ -2271,12 +2297,17 @@ theorem resRec_true_iff (x y : BitVec w) (s : Nat) (hs : s < w) (hs' : 0 < s) (h
             · have : k = s + 1 + 1 + 1 := by omega
               simp_all
 
+/-- If the sum of the leading zeroes of two bitvecs with bitwidth `w` is less than or equal to
+  (`w - 2`), then the preliminary overflow flag is true and their unsigned multiplication overflows.
+  The proof is explained in `Efficient integer multiplication overflow detection circuits`
+  https://ieeexplore.ieee.org/abstract/document/987767
+  -/
 theorem resRec_of_clz_le {x y : BitVec w} (hw : 1 < w) (hx : x ≠ 0#w) (hy : y ≠ 0#w):
     (clz x).toNat + (clz y).toNat ≤ w - 2 → resRec x y (w - 1) (by omega) (by omega) (by omega) := by
   intro h
   rw [resRec_true_iff]
   exists (w - 1 - y.clz.toNat), by omega, by omega
-  unfold aandRec
+  simp only [aandRec]
   by_cases hw0 : w - 1 - y.clz.toNat = 0
   · have := clz_lt_iff_ne_zero.mpr (by omega)
     omega

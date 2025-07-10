@@ -1945,7 +1945,7 @@ The remainder for `srem`, i.e. division with rounding to zero is negative
 iff `x` is negative and `y` does not divide `x`.
 
 We can eventually build fast circuits for the divisibility test `x.srem y = 0`.
--/
+-/ 
 theorem msb_srem {x y : BitVec w} : (x.srem y).msb =
     (x.msb && decide (x.srem y ≠ 0)) := by
   rw [msb_eq_toInt]

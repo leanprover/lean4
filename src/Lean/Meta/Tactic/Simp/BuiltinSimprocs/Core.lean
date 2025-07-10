@@ -56,7 +56,7 @@ builtin_dsimproc ↓ [simp, seval] dreduceIte (ite _ _ _) := fun e => do
   -/
   let r ← simp c
   if r.expr.isTrue || r.expr.isFalse then
-    let dec := mkApp2 (mkConst ``Decidable.decide) c i
+    let dec := .proj ``Decidable 0 i -- decide is the first projection
     match_expr (← whnfD dec) with
     | Bool.true => return .visit tb
     | Bool.false => return .visit eb
@@ -71,10 +71,10 @@ builtin_dsimproc ↓ [simp, seval] dreduceDIte (dite _ _ _) := fun e => do
   -- See comment at `dreduceIte`
   let r ← simp c
   if r.expr.isTrue || r.expr.isFalse then
-    let dec := mkApp2 (mkConst ``Decidable.decide) c i
+    let dec := .proj ``Decidable 0 i -- decide is the first projection
     match_expr (← whnfD dec) with
-    | Bool.true => return .visit (mkApp tb (mkApp2 (mkConst `Decidable.of_decide) c i)).headBeta
-    | Bool.false => return .visit (mkApp eb (mkApp2 (mkConst `Decidable.of_decide) c i)).headBeta
+    | Bool.true => return .visit (mkApp tb (mkExpectedPropHint (.proj ``Decidable 1 i) c)).headBeta
+    | Bool.false => return .visit (mkApp eb (mkExpectedPropHint (.proj ``Decidable 1 i) (mkNot c))).headBeta
     | _ => return .continue
   return .continue
 

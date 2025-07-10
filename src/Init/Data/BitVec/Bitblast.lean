@@ -339,7 +339,7 @@ theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
     (h : x &&& y = 0#w) : x + y = x ||| y := by
   rw [add_eq_adc, adc, iunfoldr_replace (fun _ => false) (x ||| y)]
   · rfl
-  · simp only [adcb, atLeastTwo, Bool.and_false, Bool.or_false, bne_false, 
+  · simp only [adcb, atLeastTwo, Bool.and_false, Bool.or_false, bne_false,
     Prod.mk.injEq, and_eq_false_imp]
     intro i
     replace h : (x &&& y).getLsbD i = (0#w).getLsbD i := by rw [h]
@@ -624,7 +624,7 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow (x : BitVec w) (i
         simp [hik', hik'']
         omega
   · ext k
-    simp only [and_twoPow, 
+    simp only [and_twoPow,
       ]
     by_cases hi : x.getLsbD i <;> simp [hi] <;> omega
 
@@ -1945,7 +1945,7 @@ The remainder for `srem`, i.e. division with rounding to zero is negative
 iff `x` is negative and `y` does not divide `x`.
 
 We can eventually build fast circuits for the divisibility test `x.srem y = 0`.
--/ 
+-/
 theorem msb_srem {x y : BitVec w} : (x.srem y).msb =
     (x.msb && decide (x.srem y ≠ 0)) := by
   rw [msb_eq_toInt]
@@ -2345,16 +2345,17 @@ theorem fastUmulOverflow (x y : BitVec w) :
       · by_cases hsw : (setWidth (w + 1 + 1 + 1) x * setWidth (w + 1 + 1 + 1) y)[w + 1 + 1] = true
         · simp [hsw]
         · simp only [hsw, false_eq_true, _root_.false_or]
-          have := Nat.mul_ne_zero_iff (n := x.toNat) (m := y.toNat)
-          simp only [ne_eq, show ¬x.toNat * y.toNat = 0 by omega, not_false_eq_true, true_iff] at this
-          simp only [← ne_eq] at this
-          obtain ⟨hxz, hyz⟩ := this
+          have := Nat.two_pow_pos (w := w + 1 + 1)
           have hltx := BitVec.toNat_lt_of_clz (x := x)
           have hlty := BitVec.toNat_lt_of_clz (x := y)
-          apply resRec_of_clz_le (x := x) (y := y) (by omega) (by simp [toNat_eq]; omega) (by simp [toNat_eq]; omega)
+          have := Nat.mul_ne_zero_iff (m := y.toNat) (n := x.toNat)
+          simp only [ne_eq, show ¬x.toNat * y.toNat = 0 by omega, not_false_eq_true,
+            true_iff] at this
+          obtain ⟨hxz,hyz⟩ := this
+          apply resRec_of_clz_le (x := x) (y := y) (by omega) (by simp [toNat_eq]; exact hxz) (by simp [toNat_eq]; exact hyz)
           by_cases hzxy : x.clz.toNat + y.clz.toNat ≤ w
           · omega
-          · by_cases w + 1 - y.clz.toNat = 0
+          · by_cases heq : w + 1 - y.clz.toNat = 0
             · by_cases heq' : w + 1 + 1 - y.clz.toNat = 0
               · simp [heq', hyz] at hlty
               · simp only [show y.clz.toNat = w + 1 by omega, Nat.add_sub_cancel_left,
@@ -2364,7 +2365,7 @@ theorem fastUmulOverflow (x y : BitVec w) :
             · by_cases w + 1 < y.clz.toNat
               · omega
               · simp only [Nat.not_lt] at h'
-                have := Nat.mul_lt_mul'' (a := x.toNat) (b := y.toNat) (c := 2 ^ (w + 1 + 1 - x.clz.toNat)) (d := 2 ^ (w + 1 + 1 - y.clz.toNat)) (by omega) (by omega)
+                have := Nat.mul_lt_mul'' (a := x.toNat) (b := y.toNat) (c := 2 ^ (w + 1 + 1 - x.clz.toNat)) (d := 2 ^ (w + 1 + 1 - y.clz.toNat)) hltx hlty
                 simp only [← Nat.pow_add] at this
                 have := Nat.pow_le_pow_of_le (a := 2) (n := w + 1 + 1 - x.clz.toNat + (w + 1 + 1 - y.clz.toNat)) (m := w + 1 + 1 + 1)
                  (by omega) (by omega)
@@ -2379,9 +2380,10 @@ theorem fastUmulOverflow (x y : BitVec w) :
         simp [Nat.mul_comm 2 (x.toNat * y.toNat), h]
       · apply Classical.byContradiction
         intro hcontra
-        simp [resRec_true_iff] at hcontra
+        simp only [not_eq_false, resRec_true_iff] at hcontra
         obtain ⟨k,hk,hk',hk''⟩ := hcontra
-        simp [aandRec, show ¬ k = 0 by omega] at hk''
+        simp only [aandRec, show ¬k = 0 by omega, ↓reduceDIte, and_eq_true, uppcRec_true_iff,
+          Nat.add_one_sub_one] at hk''
         obtain ⟨hky, hkx⟩ := hk''
         have hyle := two_pow_le_toNat_of_getElem_eq_true (x := y) (i := k) (by omega) hky
         have := Nat.mul_le_mul (n₁ := 2 ^ (w + 1 - (k - 1))) (m₁ := 2 ^ k) (n₂ := x.toNat) (m₂ := y.toNat) hkx hyle

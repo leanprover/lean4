@@ -21,7 +21,7 @@ error: don't know how to synthesize implicit argument 'ρ'
 context:
 ⊢ Type _
 ---
-error: failed to infer binder type
+error: Failed to infer type of binder `x`
 ---
 error: don't know how to synthesize implicit argument 'α'
   @List.nil ?_
@@ -63,9 +63,9 @@ error: don't know how to synthesize implicit argument 'ρ'
 context:
 ⊢ Type _
 ---
-error: failed to infer binder type
+error: Failed to infer type of binder `h`
 ---
-error: failed to infer binder type
+error: Failed to infer type of binder `x`
 ---
 error: don't know how to synthesize implicit argument 'α'
   @List.nil ?_

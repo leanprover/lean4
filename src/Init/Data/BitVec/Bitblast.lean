@@ -2164,7 +2164,7 @@ theorem shiftLeft_add_eq_shiftLeft_or {x y : BitVec w} :
 def uppcRec {w} (x : BitVec w) (s : Nat) (hs : s < w) : Bool :=
   match s with
   | 0 => x.msb
-  | i + 1 =>  x[w - 1 - i] || uppcRec x i (by omega) -- there is one redundant case here
+  | i + 1 =>  x[w - 1 - i] || uppcRec x i (by omega)
 
 /-- The unsigned parallel prefix of `x` at `s` is `true` if and only if x interpreted
   as a natural number is greater or equal than `2 ^ (w - 1 - (s - 1))` -/

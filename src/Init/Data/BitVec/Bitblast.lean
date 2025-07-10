@@ -2158,7 +2158,8 @@ theorem shiftLeft_add_eq_shiftLeft_or {x y : BitVec w} :
 /- ### fast circuit for unsigned overflow detection -/
 
 /--
-  unsigned parallel prefix `x.uppcRec s = true` iff `x.toNat` is greater or equal than `2 ^ (w - 1 - (s - 1))`
+  `uppcRec` is the unsigned parallel prefix, `x.uppcRec s = true` iff `x.toNat` is greater or equal
+  than `2 ^ (w - 1 - (s - 1))`.
 -/
 def uppcRec {w} (x : BitVec w) (s : Nat) (hs : s < w) : Bool :=
   match s with

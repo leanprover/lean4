@@ -120,14 +120,14 @@ structure Context where
   newArgs       : Array Term := #[]
   deriving Inhabited
 
-private def throwInvalidNamedArgs (ctx : Context) (h : ¬ctx.namedArgs.isEmpty) : MetaM α := do
+private def throwInvalidNamedArgs (ctx : Context) (h : !ctx.namedArgs.isEmpty) : MetaM α := do
   let names := (ctx.namedArgs.map fun narg => m!"`{narg.name}`").toList
   let nameStr := if names.length == 1 then "name" else "names"
   let validNames := ctx.paramDecls.filterMap fun (name, _) =>
     if name.hasMacroScopes then none else some name
-  have h' := Nat.zero_lt_of_ne_zero (mt Array.isEmpty_iff_size_eq_zero.mpr h)
+  have h := Nat.zero_lt_of_ne_zero (mt Array.isEmpty_iff_size_eq_zero.mpr (Bool.not_eq.mp h))
   -- We offer hints only for the first argument
-  let firstNamedArg := ctx.namedArgs[0]'h'
+  let firstNamedArg := ctx.namedArgs[0]'h
   let replacementSpan := firstNamedArg.ref[1]
   let suggestions := validNames.filterMap fun validName =>
     if ctx.usedNames.contains validName then none else
@@ -167,22 +167,23 @@ where
     let mut ctx := ctx
     let mut remainingNames : Std.HashSet Name := {}
     -- If there were too few (unnamed) arguments, we may not have processed the parameters that
-    -- that match the outstanding named arguments, so some names in `namedArgs` may be valid
+    -- match the outstanding named arguments, so some names in `namedArgs` may be valid
     while !isDone ctx do
       let ((name, _), ctx') := getNextParam ctx
       ctx := ctx'
       if let some idx := ctx'.namedArgs.findFinIdx? fun namedArg => namedArg.name == name then
         ctx := { ctx with namedArgs := ctx.namedArgs.eraseIdx idx
                           usedNames := ctx.usedNames.insert name }
-    if h : ¬ctx.namedArgs.isEmpty then
+    if h : !ctx.namedArgs.isEmpty then
       throwInvalidNamedArgs ctx h
 
 private def finalize (ctx : Context) : M Syntax := do
-  if h : ctx.namedArgs.isEmpty ∧ ctx.args.isEmpty then
-    let fStx ← `(@$(ctx.funId):ident)
-    return Syntax.mkApp fStx ctx.newArgs
-  else if h' : ctx.args.isEmpty then
-    throwInvalidNamedArgs ctx (not_and'.mp h h')
+  if ctx.args.isEmpty then
+    if h : !ctx.namedArgs.isEmpty then
+      throwInvalidNamedArgs ctx h
+    else
+      let fStx ← `(@$(ctx.funId):ident)
+      return Syntax.mkApp fStx ctx.newArgs
   else
     throwWrongArgCount ctx true
 

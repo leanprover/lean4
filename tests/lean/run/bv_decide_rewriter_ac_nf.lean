@@ -129,4 +129,14 @@ theorem add_mul_mixed (x y z : BitVec 64) :
     z * (y + x) = (y + x) * z := by
   bv_normalize
 
+/-
+(declare-fun s () (_ BitVec 32))
+(declare-fun t () (_ BitVec 32))
+-- SAT (exists s t, not P s t ) => USAT (forall s t, P s t)
+(assert (not (= (bvmul s (bvadd (bvnot #b00000000000000000000000000000000) t)) (bvmul s (bvnot (bvneg t))))))
+-/
+theorem noetzli672 (s t : BitVec 32) : (s * ((~~~(0#32) + t)) = (s * (~~~(-t)))) := by
+  bv_decide (config := { acNf := true })
+
+
 end Normalize

@@ -152,12 +152,6 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
       bindErased decl.fvarId
       lowerCode k
     | some (.joinPoint ..) | none => panic! "unexpected value"
-  | .const ``Nat.succ _ args =>
-    let irArgs ← args.mapM lowerArg
-    let var ← bindVar decl.fvarId
-    let tmpVar ← newVar
-    let k := (.vdecl var .object (.fap ``Nat.add #[irArgs[0]!, (.var tmpVar)]) (← lowerCode k))
-    return .vdecl tmpVar .object (.lit (.num 1)) k
   | .const name _ args =>
     let irArgs ← args.mapM lowerArg
     if let some code ← tryIrDecl? name irArgs then

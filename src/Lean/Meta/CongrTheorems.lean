@@ -364,6 +364,8 @@ def isHCongrReservedNameSuffix (s : String) : Bool :=
 
 def congrSimpSuffix := "congr_simp"
 
+builtin_initialize registerTraceClass `congr.thm
+
 builtin_initialize congrKindsExt : MapDeclarationExtension (Array CongrArgKind) ← mkMapDeclarationExtension
 
 builtin_initialize registerReservedNamePredicate fun env n =>
@@ -386,6 +388,7 @@ builtin_initialize
             name, type := congrThm.type, value := congrThm.proof
             levelParams := info.levelParams
           }
+          trace[congr.thm] "declared `{name}`"
           modifyEnv fun env => congrKindsExt.insert env name congrThm.argKinds
         return true
       catch _ => return false
@@ -401,6 +404,7 @@ builtin_initialize
             name, type := congrThm.type, value := congrThm.proof
             levelParams := cinfo.levelParams
           }
+          trace[congr.thm] "declared `{name}`"
           modifyEnv fun env => congrKindsExt.insert env name congrThm.argKinds
         return true
       catch _ => return false
@@ -430,8 +434,8 @@ Similar to `mkCongrSimp?`, but uses reserved names to ensure we don't keep creat
 same congruence theorem over and over again.
 -/
 def mkCongrSimpForConst? (declName : Name) (levels : List Level) : MetaM (Option CongrTheorem) := do
+  let thmName := Name.str declName congrSimpSuffix
   try
-    let thmName := Name.str declName congrSimpSuffix
     unless (← getEnv).contains thmName do
       let _ ← executeReservedNameAction thmName
     let proof := mkConst thmName levels
@@ -439,7 +443,8 @@ def mkCongrSimpForConst? (declName : Name) (levels : List Level) : MetaM (Option
     let some argKinds := congrKindsExt.find? (← getEnv) thmName
       | unreachable!
     return some { proof, type, argKinds }
-  catch _ =>
+  catch ex =>
+    trace[congr.thm] "failed to generate `{thmName}` {ex.toMessageData}"
     return none
 
 end Lean.Meta

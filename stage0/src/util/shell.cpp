@@ -35,10 +35,10 @@ Author: Leonardo de Moura
 #include "library/formatter.h"
 #include "library/module.h"
 #include "library/time_task.h"
-#include "library/compiler/ir.h"
+#include "library/util.h"
 #include "library/print.h"
 #include "initialize/init.h"
-#include "library/compiler/ir_interpreter.h"
+#include "library/ir_interpreter.h"
 #include "util/path.h"
 #include "stdlib_flags.h"
 #ifdef _MSC_VER

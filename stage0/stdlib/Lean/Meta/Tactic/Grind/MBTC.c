@@ -116,6 +116,7 @@ lean_object* l_Lean_Meta_Grind_hasSameType(lean_object*, lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Array_filterMapM___at___Lean_Meta_Grind_mbtc_spec__14(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_mbtc___closed__20;
 lean_object* l_StateRefT_x27_lift___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_Canon_canon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 static lean_object* l_Lean_Meta_Grind_mbtc___closed__3;
 LEAN_EXPORT uint8_t l_Array_qsort_sort___at___Lean_Meta_Grind_mbtc_spec__17___redArg___lam__0(lean_object*, lean_object*);
@@ -165,7 +166,6 @@ lean_object* l_Lean_Meta_Grind_shareCommon___redArg(lean_object*, lean_object*, 
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Meta_Grind_mbtc_spec__2(lean_object*, lean_object*);
 lean_object* l_instDecidableEqNat___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_canon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Meta_Grind_mbtc_spec__7_spec__7___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Meta_Grind_mbtc_spec__2_spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -232,7 +232,7 @@ x_21 = lean_ctor_get(x_19, 1);
 lean_inc(x_21);
 lean_dec(x_19);
 lean_inc(x_7);
-x_22 = l_Lean_Meta_Grind_canon(x_20, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_21);
+x_22 = l_Lean_Meta_Grind_Canon_canon(x_20, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_21);
 if (lean_obj_tag(x_22) == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; 

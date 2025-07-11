@@ -68,7 +68,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_isInductiveWithNoCtors(lean_object
 LEAN_EXPORT lean_object* l_Lean_Compiler___aux__Lean__Compiler__LCNF__Types______macroRules__Lean__Compiler__term_u25fe__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_isPredicateType(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instantiateForall(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_is_marked_borrowed(lean_object*);
+uint8_t l_Lean_isMarkedBorrowed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_isPredicateType___boxed(lean_object*);
 lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Compiler_term_u25fe___closed__2;
@@ -989,7 +989,8 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
-x_30 = lean_is_marked_borrowed(x_1);
+x_30 = l_Lean_isMarkedBorrowed(x_1);
+lean_dec(x_1);
 x_31 = lean_expr_abstract(x_13, x_2);
 lean_dec(x_13);
 if (x_30 == 0)

@@ -302,6 +302,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go
 static lean_object* l_Lean_Elab_Command_initFn___closed__3____x40_Lean_Elab_MutualInductive___hyg_5_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_isMutualInductive___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withAuxDecl___at_____private_Lean_Elab_MutualInductive_0__Lean_Elab_Command_withInductiveLocalDecls_loop_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_mapTR_loop___at___Lean_Meta_substCore_spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateLevelMVars___at___Lean_Elab_Command_shouldInferResultUniverse_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_instInhabitedInductiveElabStep2___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_checkValidCtorModifier___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1169,7 +1170,6 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_____private_Lean_Elab_Mutual
 LEAN_EXPORT lean_object* l_List_forM___at_____private_Lean_Elab_MutualInductive_0__Lean_Elab_Command_collectUniverses_go_spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_withCtorRef___redArg___lam__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_mapTR_loop___at___Lean_compileDecls_doCompile_spec__0(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_MutualInductive_0__Lean_Elab_Command_fixedIndicesToParams_go___closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_MutualInductive_0__Lean_Elab_Command_collectUniverses_go___lam__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Elab_MutualInductive_0__Lean_Elab_Command_mkInductiveDecl_spec__8(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -32997,7 +32997,7 @@ else
 lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; 
 x_65 = l___private_Lean_Elab_MutualInductive_0__Lean_Elab_Command_mkInductiveDecl___lam__5___closed__1;
 x_66 = lean_box(0);
-x_67 = l_List_mapTR_loop___at___Lean_compileDecls_doCompile_spec__0(x_34, x_66);
+x_67 = l_List_mapTR_loop___at___Lean_Meta_substCore_spec__3(x_34, x_66);
 x_68 = l_Lean_MessageData_ofList(x_67);
 lean_ctor_set_tag(x_29, 7);
 lean_ctor_set(x_29, 1, x_68);
@@ -33161,7 +33161,7 @@ else
 lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; 
 x_106 = l___private_Lean_Elab_MutualInductive_0__Lean_Elab_Command_mkInductiveDecl___lam__5___closed__1;
 x_107 = lean_box(0);
-x_108 = l_List_mapTR_loop___at___Lean_compileDecls_doCompile_spec__0(x_76, x_107);
+x_108 = l_List_mapTR_loop___at___Lean_Meta_substCore_spec__3(x_76, x_107);
 x_109 = l_Lean_MessageData_ofList(x_108);
 x_110 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_110, 0, x_106);

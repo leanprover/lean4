@@ -8,6 +8,8 @@ module
 prelude
 public import Lean.Meta.Tactic.AC.Main
 public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
+public import Lean.Meta.Tactic.Grind.Solve
+public import Lean.Elab.Tactic.Grind
 
 public section
 
@@ -232,17 +234,21 @@ def CoefficientsMap.toExpr (coeff : CoefficientsMap) (op : Op) : VarStateM (Opti
 
 open VarStateM Lean.Meta Lean.Elab Term
 
-
 /--
 Given two expressions `x, y` which are equal up to associativity and commutativity,
 construct and return a proof of `x = y`.
 
-Uses `ac_rfl` internally to construct said proof. -/
-def proveEqualityByAC (x y : Expr) : MetaM Expr := do
+Uses `grind`'s CommRing theory solver internally to construct said proof. -/
+def proveEqualityByGrindCommRing (x y : Expr) : MetaM Expr := do
+  trace[Meta.Tactic.bv] m!"Proving equality by AC: {indentD x} = {indentD y}"
   let expectedType ← mkEq x y
-  let proof ← mkFreshExprMVar expectedType
-  AC.rewriteUnnormalizedRefl proof.mvarId! -- invoke `ac_rfl`
-  instantiateMVars proof
+  let mvar ← mkFreshExprMVar expectedType
+  let config := {}
+  let result ← Grind.main mvar.mvarId! (← Grind.mkParams config) (pure ())
+  if let .some g := result.failure? then
+    throwError "grind failed with leftover goal: {indentD (← g.ppState)}"
+  else
+    instantiateMVars mvar
 
 
 /--
@@ -299,7 +305,7 @@ def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
 
     let oldExpr := mkApp2 P lhs rhs
     let expr := mkApp2 P lNew rNew
-    let proof ← proveEqualityByAC oldExpr expr
+    let proof ← proveEqualityByGrindCommRing oldExpr expr
 
     return .continue <| some { expr := expr, proof? := some proof }
 

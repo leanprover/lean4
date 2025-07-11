@@ -115,6 +115,7 @@ structure Context where
   paramDecls    : Array (Name × BinderInfo) -- parameters' names and binder information
   paramDeclIdx  : Nat := 0
   namedArgs     : Array NamedArg
+  usedNames     : Std.HashSet Name := {}
   args          : List Arg
   newArgs       : Array Term := #[]
   deriving Inhabited
@@ -128,11 +129,14 @@ private def throwInvalidNamedArgs (ctx : Context) (h : ¬ctx.namedArgs.isEmpty) 
   -- We offer hints only for the first argument
   let firstNamedArg := ctx.namedArgs[0]'h'
   let replacementSpan := firstNamedArg.ref[1]
-  let suggestions := validNames.map fun validName =>
-    { suggestion := validName.toString
+  let suggestions := validNames.filterMap fun validName =>
+    if ctx.usedNames.contains validName then none else
+    some {
+      suggestion := validName.toString
       span? := replacementSpan
       preInfo? := some s!"`{validName}`: "
-      toCodeActionTitle? := some fun s => s!"Change argument name `{firstNamedArg.name}` to `{s}`" }
+      toCodeActionTitle? := some fun s => s!"Change argument name `{firstNamedArg.name}` to `{s}`"
+    }
   let hintMsg := m!"Replace `{firstNamedArg.name}` with a valid argument name for this function:"
   let hint ← MessageData.hint (forceList := true) hintMsg suggestions
   throwError m!"Invalid argument {nameStr} {.andList names} for function `{ctx.funId}`" ++ hint
@@ -149,19 +153,7 @@ private def throwWrongArgCount (ctx : Context) (tooMany : Bool) : M α := do
   let numExpectedArgs :=
     (if ctx.explicit then ctx.paramDecls else ctx.paramDecls.filter (·.2.isExplicit)).size
   -- If we have too few arguments because we skipped invalid named args, show that error instead
-  if !tooMany && !ctx.namedArgs.isEmpty then
-    let mut ctx := ctx
-    let mut remainingNames : Std.HashSet Name := {}
-    -- If there were too few (unnamed) arguments, we may not have gotten around to processing the
-    -- parameters that match the outstanding named arguments
-    while !isDone ctx do
-      let ((name, _), ctx') := getNextParam ctx
-      remainingNames := remainingNames.insert name
-      ctx := ctx'
-    ctx := { ctx with namedArgs := ctx.namedArgs.filter (!remainingNames.contains ·.name) }
-    -- Check that there are still outstanding named arguments after the above filtering
-    if h : ¬ctx.namedArgs.isEmpty then
-      throwInvalidNamedArgs ctx h
+  if !tooMany && !ctx.namedArgs.isEmpty then checkNamedArgs
   let argKind := if ctx.explicit then "" else "explicit "
   let argWord := if numExpectedArgs == 1 then "argument" else "arguments"
   let discrepancyKind := if tooMany then "Too many" else "Not enough"
@@ -170,6 +162,20 @@ private def throwWrongArgCount (ctx : Context) (tooMany : Bool) : M α := do
   if !tooMany then
     msg := msg ++ .hint' "To ignore all remaining arguments, use the ellipsis notation `..`"
   throwError msg
+where
+  checkNamedArgs := do
+    let mut ctx := ctx
+    let mut remainingNames : Std.HashSet Name := {}
+    -- If there were too few (unnamed) arguments, we may not have processed the parameters that
+    -- that match the outstanding named arguments, so some names in `namedArgs` may be valid
+    while !isDone ctx do
+      let ((name, _), ctx') := getNextParam ctx
+      ctx := ctx'
+      if let some idx := ctx'.namedArgs.findFinIdx? fun namedArg => namedArg.name == name then
+        ctx := { ctx with namedArgs := ctx.namedArgs.eraseIdx idx
+                          usedNames := ctx.usedNames.insert name }
+    if h : ¬ctx.namedArgs.isEmpty then
+      throwInvalidNamedArgs ctx h
 
 private def finalize (ctx : Context) : M Syntax := do
   if h : ctx.namedArgs.isEmpty ∧ ctx.args.isEmpty then
@@ -387,7 +393,8 @@ where
       match ctx.namedArgs.findFinIdx? fun namedArg => namedArg.name == d.1 with
       | some idx =>
         let arg := ctx.namedArgs[idx]
-        let ctx := { ctx with namedArgs := ctx.namedArgs.eraseIdx idx }
+        let ctx := { ctx with namedArgs := ctx.namedArgs.eraseIdx idx
+                              usedNames := ctx.usedNames.insert arg.name }
         let ctx ← pushNewArg accessible ctx arg.val
         processCtorAppContext ctx
       | none =>

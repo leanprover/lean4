@@ -30,7 +30,7 @@ def _root_.Lean.MVarId.clear (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId 
     let localInsts := match localInsts.findFinIdx? fun localInst => localInst.fvar.fvarId! == fvarId with
       | none => localInsts
       | some idx => localInsts.eraseIdx idx
-    let newMVar ← mkFreshExprMVarAt lctx localInsts mvarDecl.type MetavarKind.syntheticOpaque tag
+    let newMVar ← mkFreshExprMVarAt lctx localInsts mvarDecl.type mvarDecl.kind tag
     mvarId.assign newMVar
     pure newMVar.mvarId!
 

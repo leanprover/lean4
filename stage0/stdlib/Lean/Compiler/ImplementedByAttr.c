@@ -35,7 +35,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_initFn___lam__2____x40_Lean_Compiler_Im
 lean_object* l_Lean_ConstantInfo_name(lean_object*);
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
-LEAN_EXPORT lean_object* lean_get_implemented_by(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_getImplementedBy_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn___lam__2___closed__14____x40_Lean_Compiler_ImplementedByAttr___hyg_3_;
 lean_object* l_Lean_registerParametricAttribute___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn___lam__2___closed__1____x40_Lean_Compiler_ImplementedByAttr___hyg_3_;
@@ -57,7 +57,6 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemented
 lean_object* l_Lean_Attribute_Builtin_getIdent(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn___lam__2____x40_Lean_Compiler_ImplementedByAttr___hyg_3____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_realizeGlobalConstNoOverloadWithInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_withoutExporting___at___Lean_compileDecls_doCompile_spec__8___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_setImplementedBy(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn___closed__6____x40_Lean_Compiler_ImplementedByAttr___hyg_3_;
@@ -81,6 +80,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_implementedByAttr___regBuiltin_Lean_Com
 static lean_object* l_Lean_Compiler_implementedByAttr___regBuiltin_Lean_Compiler_implementedByAttr_declRange__3___closed__2;
 static lean_object* l_Lean_Compiler_initFn___closed__2____x40_Lean_Compiler_ImplementedByAttr___hyg_3_;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
+lean_object* l_Lean_withoutExporting___at___Lean_compileDecls_doCompile_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_implementedByAttr___regBuiltin_Lean_Compiler_implementedByAttr_declRange__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_implementedByAttr;
 lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -990,7 +990,7 @@ lean_closure_set(x_13, 0, x_10);
 lean_closure_set(x_13, 1, x_12);
 lean_closure_set(x_13, 2, x_7);
 lean_closure_set(x_13, 3, x_1);
-x_14 = l_Lean_withoutExporting___at___Lean_compileDecls_doCompile_spec__8___redArg(x_13, x_3, x_4, x_11);
+x_14 = l_Lean_withoutExporting___at___Lean_compileDecls_doCompile_spec__0___redArg(x_13, x_3, x_4, x_11);
 return x_14;
 }
 else
@@ -1300,7 +1300,7 @@ x_1 = l_Lean_Compiler_implementedByAttr;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* lean_get_implemented_by(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Compiler_getImplementedBy_x3f(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 

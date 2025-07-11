@@ -7782,7 +7782,7 @@ return x_20;
 block_45:
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
-x_28 = l_Array_toSubarray___redArg(x_25, x_26, x_27);
+x_28 = l_Array_toSubarray___redArg(x_24, x_26, x_27);
 x_29 = lean_ctor_get(x_28, 1);
 lean_inc(x_29);
 x_30 = lean_ctor_get(x_28, 2);
@@ -7800,7 +7800,7 @@ x_36 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___close
 lean_inc(x_22);
 x_37 = l_Std_Iterators_Types_ULiftIterator_instIterator___redArg(x_22, x_36, x_35);
 x_38 = l_Std_Iterators_instIteratorMap___redArg(x_35, x_37, x_22, x_31);
-x_39 = l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at_____private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs_spec__1___redArg(x_38, x_32, x_34, x_32, x_24);
+x_39 = l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at_____private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs_spec__1___redArg(x_38, x_32, x_34, x_32, x_25);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; 
@@ -7840,25 +7840,25 @@ return x_44;
 block_53:
 {
 uint8_t x_52; 
-x_52 = lean_nat_dec_le(x_48, x_50);
+x_52 = lean_nat_dec_le(x_50, x_47);
 if (x_52 == 0)
 {
-lean_dec(x_48);
+lean_dec(x_50);
 x_23 = x_46;
-x_24 = x_47;
+x_24 = x_48;
 x_25 = x_49;
 x_26 = x_51;
-x_27 = x_50;
+x_27 = x_47;
 goto block_45;
 }
 else
 {
-lean_dec(x_50);
+lean_dec(x_47);
 x_23 = x_46;
-x_24 = x_47;
+x_24 = x_48;
 x_25 = x_49;
 x_26 = x_51;
-x_27 = x_48;
+x_27 = x_50;
 goto block_45;
 }
 }
@@ -8203,10 +8203,10 @@ x_136 = lean_nat_dec_le(x_132, x_134);
 if (x_136 == 0)
 {
 x_46 = x_98;
-x_47 = x_111;
-x_48 = x_133;
-x_49 = x_131;
-x_50 = x_135;
+x_47 = x_135;
+x_48 = x_131;
+x_49 = x_111;
+x_50 = x_133;
 x_51 = x_132;
 goto block_53;
 }
@@ -8214,10 +8214,10 @@ else
 {
 lean_dec(x_132);
 x_46 = x_98;
-x_47 = x_111;
-x_48 = x_133;
-x_49 = x_131;
-x_50 = x_135;
+x_47 = x_135;
+x_48 = x_131;
+x_49 = x_111;
+x_50 = x_133;
 x_51 = x_134;
 goto block_53;
 }

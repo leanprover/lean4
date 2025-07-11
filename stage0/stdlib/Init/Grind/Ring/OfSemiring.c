@@ -23,7 +23,6 @@ uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 static lean_object* l_Lean_Grind_CommRing_denoteSInt___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_Expr_denote___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_Expr_toPoly(lean_object*);
-uint8_t l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_5086_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_denoteSInt___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_Ring_OfSemiring_instInhabitedExpr___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_eq__normS__cert___boxed(lean_object*, lean_object*);
@@ -41,6 +40,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_Var_denote___boxed(lean_ob
 lean_object* l_Lean_Grind_Ring_OfSemiring_toQ___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_beqExpr____x40_Init_Grind_Ring_OfSemiring___hyg_110____boxed(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
+uint8_t l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_5109_(lean_object*, lean_object*);
 lean_object* l_Int_pow(lean_object*, lean_object*);
 lean_object* l_Lean_Grind_Ring_OfSemiring_mul___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Poly_denoteS___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -1031,7 +1031,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = l_Lean_Grind_Ring_OfSemiring_Expr_toPoly(x_1);
 x_4 = l_Lean_Grind_Ring_OfSemiring_Expr_toPoly(x_2);
-x_5 = l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_5086_(x_3, x_4);
+x_5 = l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_5109_(x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);
 return x_5;

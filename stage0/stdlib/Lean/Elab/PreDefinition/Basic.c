@@ -295,7 +295,7 @@ LEAN_EXPORT lean_object* l_List_mapM_loop___at___Lean_Elab_addAndCompileUnsafe_s
 static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_checkCodomainsLevel_spec__1_spec__1___redArg___lam__0___closed__8;
 lean_object* l_List_mapTR_loop___at___Lean_mkConstWithLevelParams___at___Lean_Meta_mkSimpCongrTheorem_spec__1_spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_levelMVarToParam___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_unsafe_rec_name(lean_object*);
+lean_object* l_Lean_Compiler_mkUnsafeRecName(lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_shareCommonPreDefs___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -9541,7 +9541,7 @@ lean_dec(x_10);
 x_11 = lean_box(0);
 x_12 = lean_array_uset(x_4, x_3, x_11);
 x_13 = l_Lean_Elab_instInhabitedPreDefinition___closed__1;
-x_14 = lean_mk_unsafe_rec_name(x_8);
+x_14 = l_Lean_Compiler_mkUnsafeRecName(x_8);
 x_15 = lean_replace_expr(x_1, x_9);
 lean_dec(x_9);
 lean_ctor_set(x_6, 5, x_15);
@@ -9574,7 +9574,7 @@ lean_dec(x_6);
 x_27 = lean_box(0);
 x_28 = lean_array_uset(x_4, x_3, x_27);
 x_29 = l_Lean_Elab_instInhabitedPreDefinition___closed__1;
-x_30 = lean_mk_unsafe_rec_name(x_23);
+x_30 = l_Lean_Compiler_mkUnsafeRecName(x_23);
 x_31 = lean_replace_expr(x_1, x_25);
 lean_dec(x_25);
 x_32 = lean_alloc_ctor(0, 7, 1);
@@ -9947,7 +9947,7 @@ return x_13;
 else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_14 = lean_mk_unsafe_rec_name(x_5);
+x_14 = l_Lean_Compiler_mkUnsafeRecName(x_5);
 x_15 = l_Lean_Expr_const___override(x_14, x_6);
 x_16 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_16, 0, x_15);

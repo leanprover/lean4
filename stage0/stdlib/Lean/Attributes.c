@@ -230,7 +230,6 @@ LEAN_EXPORT lean_object* l_Lean_registerTagAttribute___lam__1(lean_object*, lean
 static lean_object* l_Lean_registerTagAttribute___lam__8___closed__19;
 LEAN_EXPORT lean_object* l_Lean_AttributeKind_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_AttributeImplCore_ref___autoParam___closed__16;
-lean_object* l_Lean_setEnv___at___Lean_compileDecls_doCompile_spec__7___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerBuiltinAttribute___closed__4;
 lean_object* l_Lean_PersistentEnvExtension_setState___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_registerEnumAttributes_spec__0___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -308,6 +307,7 @@ static lean_object* l_Lean_registerAttributeImplBuilder___closed__2;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_updateEnvAttributesImpl_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParametricAttribute_getParam_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AttributeApplicationTime_toCtorIdx___boxed(lean_object*);
+lean_object* l_Lean_setEnv___at___Lean_compileDecls_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at___Lean_registerParametricAttribute_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_TagAttribute_setTag___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkAttributeImplOfConstantUnsafe___lam__0___boxed(lean_object*);
@@ -6073,7 +6073,7 @@ if (x_15 == 0)
 {
 lean_object* x_16; 
 lean_dec(x_14);
-x_16 = l_Lean_setEnv___at___Lean_compileDecls_doCompile_spec__7___redArg(x_13, x_11, x_12);
+x_16 = l_Lean_setEnv___at___Lean_compileDecls_spec__0___redArg(x_13, x_11, x_12);
 lean_dec(x_11);
 return x_16;
 }

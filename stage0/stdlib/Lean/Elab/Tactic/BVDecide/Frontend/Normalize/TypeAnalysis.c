@@ -93,6 +93,7 @@ lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_isSupportedMatch_trySimpleEnum_spec__0___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_isSupportedMatch_verifyEnumWithDefault_spec__0_spec__0___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_isSupportedMatch_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_mapTR_loop___at___Lean_Meta_substCore_spec__3(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_InductiveVal_numTypeFormers(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_typeAnalysisPass_checkContext_spec__1___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -342,7 +343,6 @@ LEAN_EXPORT lean_object* l_Lean_getConstInfo___at___Lean_isEnumType___at___Lean_
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_typeAnalysisPass_checkContext_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectLevelMVars_visitExpr_spec__0___redArg(lean_object*, lean_object*);
-lean_object* l_List_mapTR_loop___at___Lean_compileDecls_doCompile_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_builtinTypes___closed__5;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_addDefaultTypeAnalysisLemmas_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_addDefaultTypeAnalysisLemmas___closed__7;
@@ -19587,7 +19587,7 @@ block_113:
 {
 lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; 
 x_105 = lean_box(0);
-x_106 = l_List_mapTR_loop___at___Lean_compileDecls_doCompile_spec__0(x_104, x_105);
+x_106 = l_List_mapTR_loop___at___Lean_Meta_substCore_spec__3(x_104, x_105);
 x_107 = l_Lean_MessageData_ofList(x_106);
 if (lean_is_scalar(x_102)) {
  x_108 = lean_alloc_ctor(7, 2, 0);
@@ -19617,7 +19617,7 @@ block_35:
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
 x_27 = lean_box(0);
-x_28 = l_List_mapTR_loop___at___Lean_compileDecls_doCompile_spec__0(x_26, x_27);
+x_28 = l_List_mapTR_loop___at___Lean_Meta_substCore_spec__3(x_26, x_27);
 x_29 = l_Lean_MessageData_ofList(x_28);
 if (lean_is_scalar(x_18)) {
  x_30 = lean_alloc_ctor(7, 2, 0);
@@ -19718,7 +19718,7 @@ block_77:
 {
 lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 x_69 = lean_box(0);
-x_70 = l_List_mapTR_loop___at___Lean_compileDecls_doCompile_spec__0(x_68, x_69);
+x_70 = l_List_mapTR_loop___at___Lean_Meta_substCore_spec__3(x_68, x_69);
 x_71 = l_Lean_MessageData_ofList(x_70);
 if (lean_is_scalar(x_39)) {
  x_72 = lean_alloc_ctor(7, 2, 0);

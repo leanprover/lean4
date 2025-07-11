@@ -63,6 +63,7 @@ lean_object* l_Lean_Meta_Grind_updateLastTag(lean_object*, lean_object*, lean_ob
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_getRingId_x3f_go_x3f___closed__29;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_getSemiringId_x3f_go_x3f___closed__5;
 static lean_object* l_Lean_PersistentHashMap_empty___at___Lean_Meta_Grind_Arith_CommRing_getRingId_x3f_go_x3f_spec__0___closed__0;
+lean_object* l_Lean_Meta_Grind_Canon_canon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 lean_object* l_Lean_throwError___at___Lean_Meta_Grind_addNewRawFact_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_getRingId_x3f_go_x3f___closed__13;
@@ -91,7 +92,6 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_getRingId_x3f_go_x3f___closed__22;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_getSemiringId_x3f_go_x3f___closed__4;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_getRingId_x3f_go_x3f___closed__30;
-lean_object* l_Lean_Meta_Grind_canon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_getSemiringId_x3f_go_x3f___closed__0;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_getRingId_x3f_go_x3f___closed__14;
@@ -2748,7 +2748,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-x_35 = l_Lean_Meta_Grind_canon(x_34, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_27);
+x_35 = l_Lean_Meta_Grind_Canon_canon(x_34, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_27);
 if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; lean_object* x_37; lean_object* x_38; uint8_t x_39; 

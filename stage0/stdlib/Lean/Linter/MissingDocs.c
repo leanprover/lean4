@@ -212,7 +212,6 @@ LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_lintNamed___boxed(lean_object
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_lintNamed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_checkSyntaxAbbrev___regBuiltin_Lean_Linter_MissingDocs_checkSyntaxAbbrev__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_checkMacro___regBuiltin_Lean_Linter_MissingDocs_checkMacro__1(lean_object*);
-lean_object* l_Lean_setEnv___at___Lean_compileDecls_doCompile_spec__7___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_initFn___lam__1___closed__5____x40_Lean_Linter_MissingDocs___hyg_802_;
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_initFn___lam__5____x40_Lean_Linter_MissingDocs___hyg_370____boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_logLint___at___Lean_Linter_MissingDocs_lint_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -291,6 +290,7 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_checkDecl___regBuiltin_Lean_Linter_MissingDocs_checkDecl__1___closed__0;
 static lean_object* l_Array_anyMUnsafe_any___at___Lean_Linter_MissingDocs_hasInheritDoc_spec__0___closed__0;
 static lean_object* l_Array_anyMUnsafe_any___at___Lean_Linter_MissingDocs_hasInheritDoc_spec__0___closed__1;
+lean_object* l_Lean_setEnv___at___Lean_compileDecls_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_MissingDocs_checkDecl_spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn___closed__5____x40_Lean_Linter_MissingDocs___hyg_7_;
 uint8_t l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_169_(uint8_t, uint8_t);
@@ -2299,7 +2299,7 @@ x_43 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_43, 0, x_6);
 lean_ctor_set(x_43, 1, x_42);
 x_44 = l_Lean_PersistentEnvExtension_addEntry___redArg(x_41, x_27, x_43);
-x_45 = l_Lean_setEnv___at___Lean_compileDecls_doCompile_spec__7___redArg(x_44, x_29, x_40);
+x_45 = l_Lean_setEnv___at___Lean_compileDecls_spec__0___redArg(x_44, x_29, x_40);
 lean_dec(x_29);
 return x_45;
 }
@@ -2385,7 +2385,7 @@ x_70 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_70, 0, x_6);
 lean_ctor_set(x_70, 1, x_69);
 x_71 = l_Lean_PersistentEnvExtension_addEntry___redArg(x_68, x_27, x_70);
-x_72 = l_Lean_setEnv___at___Lean_compileDecls_doCompile_spec__7___redArg(x_71, x_29, x_67);
+x_72 = l_Lean_setEnv___at___Lean_compileDecls_spec__0___redArg(x_71, x_29, x_67);
 lean_dec(x_29);
 return x_72;
 }

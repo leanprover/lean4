@@ -200,7 +200,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_IR_formatArray___
 static lean_object* l_Lean_IR_formatFnBodyHead___closed__27;
 static lean_object* l_Lean_IR_formatArray___redArg___lam__0___closed__0;
 static lean_object* l_Lean_IR_instToStringDecl___closed__0;
-LEAN_EXPORT lean_object* lean_ir_decl_to_string(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_IR_declToString(lean_object*);
 static lean_object* l_Lean_IR_formatFnBodyHead___closed__0;
 static lean_object* l_Lean_IR_formatFnBodyHead___closed__30;
 size_t lean_usize_add(size_t, size_t);
@@ -4715,7 +4715,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_IR_instToFormatDecl___lam__0), 1, 0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* lean_ir_decl_to_string(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_IR_declToString(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -4731,7 +4731,7 @@ static lean_object* _init_l_Lean_IR_instToStringDecl___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(lean_ir_decl_to_string), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_IR_declToString), 1, 0);
 return x_1;
 }
 }

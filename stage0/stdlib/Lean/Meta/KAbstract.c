@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 static lean_object* l_Lean_Meta_kabstract___closed__0;
+uint8_t l_Lean_Meta_beqOccurrences____x40_Init_MetaTypes___hyg_1363_(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -21,7 +22,6 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bvar___override(lean_object*);
-uint8_t l_Lean_Meta_beqOccurrences____x40_Init_MetaTypes___hyg_1337_(lean_object*, lean_object*);
 size_t lean_ptr_addr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_kabstract_visit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_abstract(lean_object*, lean_object*);
@@ -1147,7 +1147,7 @@ else
 lean_object* x_35; uint8_t x_36; 
 x_35 = lean_box(0);
 lean_inc(x_3);
-x_36 = l_Lean_Meta_beqOccurrences____x40_Init_MetaTypes___hyg_1337_(x_3, x_35);
+x_36 = l_Lean_Meta_beqOccurrences____x40_Init_MetaTypes___hyg_1363_(x_3, x_35);
 x_13 = x_36;
 goto block_33;
 }

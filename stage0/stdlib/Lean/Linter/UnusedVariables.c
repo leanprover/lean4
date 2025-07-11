@@ -336,7 +336,6 @@ static lean_object* l_Array_qsort_sort___at___Lean_Linter_UnusedVariables_unused
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at___Lean_Linter_UnusedVariables_unusedVariables_spec__22___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_mkIgnoreFnImpl___closed__5;
 static lean_object* l_Lean_Linter_UnusedVariables_visitAssignments___closed__0;
-lean_object* l_Lean_setEnv___at___Lean_compileDecls_doCompile_spec__7___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___at___Lean_Linter_collectMacroExpansions_x3f___at___Lean_Linter_UnusedVariables_unusedVariables_spec__4_spec__4___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_UnusedVariables_unusedVariables___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn___lam__2____x40_Lean_Linter_UnusedVariables___hyg_640____boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -437,6 +436,7 @@ static lean_object* l_Lean_Linter_initFn___closed__3____x40_Lean_Linter_UnusedVa
 lean_object* l_Array_foldlMUnsafe_fold___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__2(uint8_t, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at___Lean_Linter_UnusedVariables_unusedVariables_spec__22___redArg(uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Lean_Linter_UnusedVariables_unusedVariables_spec__25___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_setEnv___at___Lean_compileDecls_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM_x27___at___Lean_Linter_UnusedVariables_collectReferences_go_spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Lean_Linter_UnusedVariables_unusedVariables_spec__27___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_UnusedVariables_unusedVariables_spec__21___closed__1;
@@ -2179,7 +2179,7 @@ x_49 = l_Lean_Linter_initFn___lam__1___closed__5____x40_Lean_Linter_UnusedVariab
 lean_ctor_set(x_34, 1, x_46);
 lean_ctor_set(x_34, 0, x_5);
 x_50 = l_Lean_PersistentEnvExtension_addEntry___redArg(x_49, x_48, x_34);
-x_51 = l_Lean_setEnv___at___Lean_compileDecls_doCompile_spec__7___redArg(x_50, x_9, x_47);
+x_51 = l_Lean_setEnv___at___Lean_compileDecls_spec__0___redArg(x_50, x_9, x_47);
 lean_dec(x_9);
 return x_51;
 }
@@ -2261,7 +2261,7 @@ x_73 = l_Lean_Linter_initFn___lam__1___closed__5____x40_Lean_Linter_UnusedVariab
 lean_ctor_set(x_34, 1, x_70);
 lean_ctor_set(x_34, 0, x_5);
 x_74 = l_Lean_PersistentEnvExtension_addEntry___redArg(x_73, x_72, x_34);
-x_75 = l_Lean_setEnv___at___Lean_compileDecls_doCompile_spec__7___redArg(x_74, x_9, x_71);
+x_75 = l_Lean_setEnv___at___Lean_compileDecls_spec__0___redArg(x_74, x_9, x_71);
 lean_dec(x_9);
 return x_75;
 }
@@ -2355,7 +2355,7 @@ x_98 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_98, 0, x_5);
 lean_ctor_set(x_98, 1, x_94);
 x_99 = l_Lean_PersistentEnvExtension_addEntry___redArg(x_97, x_96, x_98);
-x_100 = l_Lean_setEnv___at___Lean_compileDecls_doCompile_spec__7___redArg(x_99, x_9, x_95);
+x_100 = l_Lean_setEnv___at___Lean_compileDecls_spec__0___redArg(x_99, x_9, x_95);
 lean_dec(x_9);
 return x_100;
 }
@@ -2587,7 +2587,7 @@ if (lean_is_scalar(x_146)) {
 lean_ctor_set(x_160, 0, x_5);
 lean_ctor_set(x_160, 1, x_156);
 x_161 = l_Lean_PersistentEnvExtension_addEntry___redArg(x_159, x_158, x_160);
-x_162 = l_Lean_setEnv___at___Lean_compileDecls_doCompile_spec__7___redArg(x_161, x_9, x_157);
+x_162 = l_Lean_setEnv___at___Lean_compileDecls_spec__0___redArg(x_161, x_9, x_157);
 lean_dec(x_9);
 return x_162;
 }

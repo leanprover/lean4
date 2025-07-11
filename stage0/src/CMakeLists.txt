@@ -634,8 +634,6 @@ else()
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:library>)
   add_subdirectory(library/constructions)
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:constructions>)
-  add_subdirectory(library/compiler)
-  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:compiler>)
 
   # leancpp without `initialize` (see `leaninitialize` above)
   add_library(leancpp_1 STATIC ${LEAN_OBJS})

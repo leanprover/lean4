@@ -218,7 +218,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_ToIR_bindVar(lean_object*, lean_object*, lean
 static lean_object* l_Lean_IR_ToIR_lowerLet___closed__20;
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_ToIR_lowerCode_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_ir_mk_dummy_extern_decl(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_IR_mkDummyExternDecl(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_ToIR_lowerResultType_resultTypeForArity___closed__1;
 static lean_object* l_Lean_IR_ToIR_lowerLet___closed__1;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -10103,7 +10103,7 @@ lean_object* x_56; lean_object* x_57; uint8_t x_58;
 lean_free_object(x_16);
 lean_free_object(x_9);
 lean_dec(x_50);
-x_56 = lean_ir_mk_dummy_extern_decl(x_6, x_13, x_51);
+x_56 = l_Lean_IR_mkDummyExternDecl(x_6, x_13, x_51);
 x_57 = l_Lean_IR_ToIR_addDecl___redArg(x_56, x_4, x_52);
 lean_dec(x_4);
 x_58 = !lean_is_exclusive(x_57);
@@ -10163,7 +10163,7 @@ else
 lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 lean_free_object(x_9);
 lean_dec(x_64);
-x_71 = lean_ir_mk_dummy_extern_decl(x_6, x_13, x_65);
+x_71 = l_Lean_IR_mkDummyExternDecl(x_6, x_13, x_65);
 x_72 = l_Lean_IR_ToIR_addDecl___redArg(x_71, x_4, x_66);
 lean_dec(x_4);
 x_73 = lean_ctor_get(x_72, 1);
@@ -10235,7 +10235,7 @@ else
 lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; 
 lean_dec(x_80);
 lean_dec(x_77);
-x_86 = lean_ir_mk_dummy_extern_decl(x_6, x_13, x_78);
+x_86 = l_Lean_IR_mkDummyExternDecl(x_6, x_13, x_78);
 x_87 = l_Lean_IR_ToIR_addDecl___redArg(x_86, x_4, x_79);
 lean_dec(x_4);
 x_88 = lean_ctor_get(x_87, 1);

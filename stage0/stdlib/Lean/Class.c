@@ -97,7 +97,6 @@ static lean_object* l___private_Lean_Class_0__Lean_init___regBuiltin___private_L
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 uint8_t lean_is_out_param(lean_object*);
 static lean_object* l___private_Lean_Class_0__Lean_init___regBuiltin___private_Lean_Class_0__Lean_init_docString__1___closed__1;
-lean_object* l_Lean_setEnv___at___Lean_compileDecls_doCompile_spec__7___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_BinderInfo_isInstImplicit(uint8_t);
 static lean_object* l_Lean_initFn___closed__3____x40_Lean_Class___hyg_92_;
 static lean_object* l_Lean_addClass___closed__4;
@@ -120,6 +119,7 @@ static lean_object* l_Lean_addClass___closed__6;
 lean_object* l_Lean_Expr_bindingDomain_x21(lean_object*);
 static lean_object* l___private_Lean_Class_0__Lean_checkOutParam___closed__5;
 lean_object* l_Lean_SMap_switch___at___Lean_initFn____x40_Lean_Namespace___hyg_3__spec__4___redArg(lean_object*);
+lean_object* l_Lean_setEnv___at___Lean_compileDecls_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Class_0__Lean_init___regBuiltin___private_Lean_Class_0__Lean_init_docString__1___closed__8;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_mkStateFromImportedEntries___at___Lean_initFn____x40_Lean_Class___hyg_92__spec__1_spec__1(lean_object*, size_t, size_t, lean_object*);
 uint8_t l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_169_(uint8_t, uint8_t);
@@ -2126,7 +2126,7 @@ lean_inc(x_19);
 x_20 = lean_ctor_get(x_18, 1);
 lean_inc(x_20);
 lean_dec(x_18);
-x_21 = l_Lean_setEnv___at___Lean_compileDecls_doCompile_spec__7___redArg(x_19, x_5, x_20);
+x_21 = l_Lean_setEnv___at___Lean_compileDecls_spec__0___redArg(x_19, x_5, x_20);
 return x_21;
 }
 else

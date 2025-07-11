@@ -161,7 +161,7 @@ structure Config where
   -/
   contextual        : Bool := false
   /--
-  When true (default: `true`) then the simplifier caches the result of simplifying each subexpression, if possible.
+  When true (default: `true`) then the simplifier caches the result of simplifying each sub-expression, if possible.
   -/
   memoize           : Bool := true
   /--
@@ -252,14 +252,14 @@ structure Config where
   -/
   implicitDefEqProofs : Bool := true
   /--
-  When `true` (default : `true`), then `simp` will remove unused `let` and `have` expressions:
+  When `true` (default : `true`), then `simp` removes unused `let` and `have` expressions:
   `let x := v; e` simplifies to `e` when `x` does not occur in `e`.
   This option takes precedence over `zeta` and `zetaHave`.
   -/
   zetaUnused : Bool := true
   /--
-  When `true` (default : `true`), then simps will catch runtime exceptions and
-  convert them into `simp` exceptions.
+  When `true` (default : `true`), then `simp` catches runtime exceptions and
+  converts them into `simp` exceptions.
   -/
   catchRuntime : Bool := true
   /--
@@ -273,6 +273,14 @@ structure Config where
   if they are non-dependent. This only applies when `zeta := false`.
   -/
   letToHave : Bool := true
+  /--
+  When `true` (default : `true`), `simp` tries to realize constant `f.congr_simp`
+  when constructing an auxiliary congruence proof for `f`.
+  This option exists because the termination prover uses `simp` and `withoutModifyingEnv`
+  while constructing the termination proof. Thus, any constant realized by `simp`
+  is deleted.
+  -/
+  congrConsts : Bool := true
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`

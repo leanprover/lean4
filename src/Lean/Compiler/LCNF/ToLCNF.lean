@@ -671,7 +671,7 @@ where
 
   visitProjFn (projInfo : ProjectionFunctionInfo) (e : Expr) : M Arg := do
     let typeName := projInfo.ctorName.getPrefix
-    if isRuntimeBultinType typeName then
+    if isRuntimeBuiltinType typeName then
       let numArgs := e.getAppNumArgs
       let arity := projInfo.numParams + 1
       if numArgs < arity then

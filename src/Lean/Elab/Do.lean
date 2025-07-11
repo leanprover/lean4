@@ -252,7 +252,7 @@ private def varSetToArray (s : VarSet) : Array Var :=
 private def varsToMessageData (vars : Array Var) : MessageData :=
   MessageData.joinSep (vars.toList.map fun n => MessageData.ofName (n.getId.simpMacroScopes)) " "
 
-partial def CodeBlocl.toMessageData (codeBlock : CodeBlock) : MessageData :=
+partial def CodeBlock.toMessageData (codeBlock : CodeBlock) : MessageData :=
   let us := MessageData.ofList <| (varSetToArray codeBlock.uvars).toList.map MessageData.ofSyntax
   let rec loop : Code → MessageData
     | .decl xs _ k           => m!"let {varsToMessageData xs} := ...\n{loop k}"
@@ -365,7 +365,7 @@ def mkFreshJP (ps : Array (Var × Bool)) (body : Code) : TermElabM JPDecl := do
     pure #[(y.raw, false)]
   else
     pure ps
-  -- Remark: the compiler frontend implemented in C++ currently detects jointpoints created by
+  -- Remark: the compiler frontend implemented in C++ currently detects joinpoints created by
   -- the "do" notation by testing the name. See hack at method `visit_let` at `lcnf.cpp`
   -- We will remove this hack when we re-implement the compiler frontend in Lean.
   let name ← mkFreshUserName `__do_jp
@@ -387,7 +387,7 @@ def eraseOptVar (rs : VarSet) (x? : Option Var) : VarSet :=
   | none   => rs
   | some x => rs.insert x.getId x
 
-/-- Create a new jointpoint for `c`, and jump to it with the variables `rs` -/
+/-- Create a new joinpoint for `c`, and jump to it with the variables `rs` -/
 def mkSimpleJmp (ref : Syntax) (rs : VarSet) (c : Code) : StateRefT (Array JPDecl) TermElabM Code := do
   let xs := varSetToArray rs
   let jp ← addFreshJP (xs.map fun x => (x, true)) c

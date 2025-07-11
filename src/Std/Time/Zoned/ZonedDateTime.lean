@@ -106,7 +106,7 @@ def toTimestamp (date : ZonedDateTime) : Timestamp :=
   date.timestamp
 
 /--
-Changes the `ZoleRules` to a new one.
+Changes the `ZoneRules` to a new one.
 -/
 @[inline]
 def convertZoneRules (date : ZonedDateTime) (tz₁ : TimeZone.ZoneRules) : ZonedDateTime :=

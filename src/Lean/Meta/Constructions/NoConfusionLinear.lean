@@ -90,7 +90,7 @@ def mkWithCtorType (indName : Name) : MetaM Unit := do
       mkLambdaFVars ((xs.push P).push ctorIdx) e
 
   let declName := mkWithCtorTypeName indName
-  addAndCompile (.defnDecl (← mkDefinitionValInferrringUnsafe
+  addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
     (name        := declName)
     (levelParams := casesOnInfo.levelParams)
     (type        := (← inferType e))
@@ -149,7 +149,7 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
 
   let declName := mkWithCtorName indName
   -- not compiled to avoid old code generator bug #1774
-  addDecl (.defnDecl (← mkDefinitionValInferrringUnsafe
+  addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
     (name        := declName)
     (levelParams := casesOnInfo.levelParams)
     (type        := (← inferType e))
@@ -212,7 +212,7 @@ def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
             let e ← mkLambdaFVars xs e
             pure e
 
-  addDecl (.defnDecl (← mkDefinitionValInferrringUnsafe
+  addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
     (name        := declName)
     (levelParams := casesOnInfo.levelParams)
     (type        := (← inferType e))

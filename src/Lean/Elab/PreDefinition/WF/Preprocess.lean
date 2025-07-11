@@ -150,7 +150,7 @@ builtin_dsimproc paramLet (_) := fun e => do
 
 /--
 Transforms non-Prop `have`s to `let`s, so that the values can be used in GuessLex and decreasing-by proofs.
-These `have`s may have been introdued by `simp`, which converts `let`s to `have`s.
+These `have`s may have been introduced by `simp`, which converts `let`s to `have`s.
 -/
 private def nonPropHaveToLet (e : Expr) : MetaM Expr := do
   Meta.transform e (pre := fun e => do

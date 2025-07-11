@@ -1690,17 +1690,17 @@ theorem div_lt_div_of_lt_of_dvd {a b d : Nat} (hdb : d ∣ b) (h : a < b) : a / 
 
 @[simp, grind =] theorem shiftLeft_zero : n <<< 0 = n := rfl
 
-/-- Shiftleft on successor with multiple moved inside. -/
+/-- Shift left on successor with multiple moved inside. -/
 theorem shiftLeft_succ_inside (m n : Nat) : m <<< (n+1) = (2*m) <<< n := rfl
 
-/-- Shiftleft on successor with multiple moved to outside. -/
+/-- Shift left on successor with multiple moved to outside. -/
 theorem shiftLeft_succ : ∀(m n), m <<< (n + 1) = 2 * (m <<< n)
 | _, 0 => rfl
 | _, k + 1 => by
   rw [shiftLeft_succ_inside _ (k+1)]
   rw [shiftLeft_succ _ k, shiftLeft_succ_inside]
 
-/-- Shiftright on successor with division moved inside. -/
+/-- Shift right on successor with division moved inside. -/
 theorem shiftRight_succ_inside : ∀m n, m >>> (n+1) = (m/2) >>> n
 | _, 0 => rfl
 | _, k + 1 => by

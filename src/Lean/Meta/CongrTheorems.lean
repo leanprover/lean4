@@ -275,7 +275,7 @@ where
     Create a congruence theorem that is useful for the simplifier.
     In this kind of theorem, if the i-th argument is a `cast` argument, then the theorem
     contains an input `a_i` representing the i-th argument in the left-hand-side, and
-    it appears with a cast (e.g., `Eq.drec ... a_i ...`) in the right-hand-side.
+    it appears with a cast (e.g. `Eq.ndrec ... a_i ...`) in the right-hand-side.
     The idea is that the right-hand-side of this theorem "tells" the simplifier
     how the resulting term looks like. -/
   mk? (f : Expr) (info : FunInfo) (kinds : Array CongrArgKind) : MetaM (Option CongrTheorem) := do

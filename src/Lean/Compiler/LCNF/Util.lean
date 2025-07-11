@@ -89,7 +89,7 @@ def builtinRuntimeTypes : Array Name := #[
 /--
 Return `true` iff `declName` is the name of a type with builtin support in the runtime.
 -/
-def isRuntimeBultinType (declName : Name) : Bool :=
+def isRuntimeBuiltinType (declName : Name) : Bool :=
   builtinRuntimeTypes.contains declName
 
 end Lean.Compiler.LCNF

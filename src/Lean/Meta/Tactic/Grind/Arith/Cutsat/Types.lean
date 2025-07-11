@@ -251,7 +251,7 @@ structure State where
   justification objects contain terms using variables before the reordering.
   -/
   vars' : PArray Expr := {}
-  /-- `varVap` before variables were reordered. -/
+  /-- `varMap` before variables were reordered. -/
   varMap' : PHashMap ExprPtr Var := {}
   /--
   Mapping from `Nat` terms to their variable. They are also marked using `markAsCutsatTerm`.

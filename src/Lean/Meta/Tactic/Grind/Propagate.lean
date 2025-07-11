@@ -75,7 +75,7 @@ builtin_grind_propagator propagateOrUp ↑Or := fun e => do
     pushEqTrue e <| mkApp3 (mkConst ``Grind.or_eq_of_eq_true_right) a b (← mkEqTrueProof b)
 
 /--
-Propagates truth values downwards for a disjuction `a ∨ b` when the
+Propagates truth values downwards for a disjunction `a ∨ b` when the
 expression itself is known to be `False`.
 -/
 builtin_grind_propagator propagateOrDown ↓Or := fun e => do

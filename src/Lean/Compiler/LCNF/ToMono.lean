@@ -92,6 +92,8 @@ partial def LetValue.toMono (e : LetValue) (resultFVar : FVarId) : ToMonoM LetVa
       return args[1]!.toLetValue
     else if declName == ``Quot.mk || declName == ``Quot.lcInv then
       return args[2]!.toLetValue
+    else if declName == ``Nat.zero then
+      return .lit (.nat 0)
     else if declName == ``Nat.succ then
       -- This should have been handled in Code.toMono.
       unreachable!

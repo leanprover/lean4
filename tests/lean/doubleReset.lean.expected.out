@@ -15,7 +15,7 @@
             let x_8 : obj := proj[0] x_7;
             let x_9 : obj := proj[1] x_7;
             let x_18 : obj := reset[2] x_7;
-            let x_10 : obj := ctor_0[Nat.zero];
+            let x_10 : obj := 0;
             let x_11 : obj := Array.uset ◾ x_4 x_3 x_10 ◾;
             let x_12 : obj := reuse x_18 in ctor_0[Prod.mk] x_8 x_9;
             let x_13 : obj := reuse x_19 in ctor_0[Prod.mk] x_12 x_1;
